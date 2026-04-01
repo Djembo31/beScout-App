@@ -186,7 +186,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); handleCopy(); }}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all active:scale-[0.95]"
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors active:scale-[0.95]"
               aria-label={t('copyCode')}
             >
               <Copy className="size-3.5 text-white/40" aria-hidden="true" />
@@ -195,7 +195,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
               <button
                 onClick={(e) => { e.stopPropagation(); handleLeave(); }}
                 disabled={leavingId === league.id}
-                className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-all active:scale-[0.95] text-red-400 disabled:opacity-50"
+                className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors active:scale-[0.95] text-red-400 disabled:opacity-50"
                 aria-label={t('leave')}
               >
                 {leavingId === league.id ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <LogOut className="size-3.5" aria-hidden="true" />}
@@ -265,11 +265,11 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
             )}
           </div>
           <div className="flex gap-1.5">
-            <button onClick={() => setShowJoin(true)} className="px-3 py-2 min-h-[44px] text-xs font-semibold rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all active:scale-[0.95]">
+            <button onClick={() => setShowJoin(true)} className="px-3 py-2 min-h-[44px] text-xs font-semibold rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors active:scale-[0.95]">
               <LogIn className="size-3.5 inline mr-1" aria-hidden="true" />
               {t('join')}
             </button>
-            <button onClick={() => setShowCreate(true)} className="px-3 py-2 min-h-[44px] text-xs font-semibold rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all active:scale-[0.95]">
+            <button onClick={() => setShowCreate(true)} className="px-3 py-2 min-h-[44px] text-xs font-semibold rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-colors active:scale-[0.95]">
               <Plus className="size-3.5 inline mr-1" aria-hidden="true" />
               {t('create')}
             </button>

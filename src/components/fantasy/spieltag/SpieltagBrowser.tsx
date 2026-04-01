@@ -52,7 +52,7 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
             onClick={() => setShowFinished(!showFinished)}
             aria-expanded={showFinished}
             aria-label={`${ts('browserFinished')} (${finished.length})`}
-            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-all"
+            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-colors"
           >
             <div className="size-1.5 rounded-full bg-green-500" />
             <span className="text-xs font-bold text-green-500 uppercase tracking-wider">{ts('browserFinished')}</span>
@@ -80,7 +80,7 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
             onClick={() => setShowPending(!showPending)}
             aria-expanded={showPending}
             aria-label={`${ts('browserPending')} (${pendingResult.length})`}
-            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-all"
+            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-colors"
           >
             <Clock className="size-3 text-amber-400" aria-hidden="true" />
             <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{ts('browserPending')}</span>
@@ -108,7 +108,7 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
             onClick={() => setShowUpcoming(!showUpcoming)}
             aria-expanded={showUpcoming}
             aria-label={`${ts('browserUpcoming')} (${upcoming.length})`}
-            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-all"
+            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-colors"
           >
             <span className="text-xs font-bold text-sky-400 uppercase tracking-wider">{ts('browserUpcoming')}</span>
             <span className="text-xs text-white/20 font-mono tabular-nums">{upcoming.length}</span>

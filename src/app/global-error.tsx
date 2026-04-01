@@ -16,7 +16,7 @@ export default function GlobalError({
 
   return (
     <html>
-      <body style={{ background: "#0a0a0a", color: "white", fontFamily: "system-ui", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+      <body style={{ background: "#0a0a0a", color: "white", fontFamily: "system-ui", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh" }}>
         <div style={{ textAlign: "center" }}>
           <h2 style={{ fontSize: "1.5rem", fontWeight: 900, marginBottom: "1rem" }}>Something went wrong</h2>
           <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "1.5rem" }}>An unexpected error occurred.</p>

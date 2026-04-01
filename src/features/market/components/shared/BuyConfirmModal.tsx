@@ -187,7 +187,7 @@ export default function BuyConfirmModal({
           {!isMarket && ipoProgress !== undefined && ipoRemaining !== undefined && (
             <div className="space-y-1">
               <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-gold to-[#E6B800] rounded-full transition-all" style={{ width: `${ipoProgress}%` }} />
+                <div className="h-full bg-gradient-to-r from-gold to-[#E6B800] rounded-full transition-colors" style={{ width: `${ipoProgress}%` }} />
               </div>
               <div className="text-[10px] text-white/30 font-mono tabular-nums text-right">{t('remaining', { count: fmtScout(ipoRemaining) })}</div>
             </div>

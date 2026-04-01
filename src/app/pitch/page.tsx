@@ -410,7 +410,7 @@ function FoundingPassSection() {
               <div className="text-xs text-white/50 mb-3">{tier.credits} Credits</div>
               <Link
                 href="/founding"
-                className="w-full py-2 rounded-xl text-xs font-bold text-center bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-black hover:brightness-110 transition-all"
+                className="w-full py-2 rounded-xl text-xs font-bold text-center bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-black hover:brightness-110 transition-colors"
               >
                 {t('foundingPassCta')}
               </Link>

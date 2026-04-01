@@ -50,7 +50,7 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
               </div>
               <div className="flex-1 h-5 bg-surface-minimal rounded relative overflow-hidden">
                 <div
-                  className="absolute inset-y-0 left-0 bg-red-500/15 border-r border-red-500/30 rounded transition-all"
+                  className="absolute inset-y-0 left-0 bg-red-500/15 border-r border-red-500/30 rounded transition-colors"
                   style={{ width: `${barWidth}%` }}
                 />
                 <div className="absolute inset-y-0 flex items-center px-2 text-[10px] font-mono text-white/50">

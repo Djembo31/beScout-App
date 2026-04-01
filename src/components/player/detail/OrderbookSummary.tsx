@@ -81,11 +81,11 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
         {/* Balance bar */}
         <div className="h-2 rounded-full overflow-hidden flex bg-white/[0.06]">
           <div
-            className="h-full bg-green-500/40 transition-all"
+            className="h-full bg-green-500/40 transition-colors"
             style={{ width: `${bidPct}%` }}
           />
           <div
-            className="h-full bg-red-400/40 transition-all"
+            className="h-full bg-red-400/40 transition-colors"
             style={{ width: `${100 - bidPct}%` }}
           />
         </div>

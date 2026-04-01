@@ -267,7 +267,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               <button
                 type="button"
                 onClick={() => setBountyType('general')}
-                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-colors ${
                   bountyType === 'general'
                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/25'
                     : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
@@ -279,7 +279,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               <button
                 type="button"
                 onClick={() => setBountyType('scouting')}
-                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-colors ${
                   bountyType === 'scouting'
                     ? 'bg-rose-500/15 text-rose-300 border-rose-500/25'
                     : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'

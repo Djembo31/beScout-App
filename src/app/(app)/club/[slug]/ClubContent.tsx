@@ -55,7 +55,7 @@ function RevealSection({ children, delay = 0, className }: { children: React.Rea
     <div
       ref={ref}
       className={cn(
-        'transition-all duration-500 ease-out',
+        'transition-colors duration-500 ease-out',
         revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
         className
       )}

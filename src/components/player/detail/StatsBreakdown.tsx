@@ -80,7 +80,7 @@ export default function StatsBreakdown({ player, percentiles, className = '' }: 
             <span className="text-xs text-white/50 w-20 shrink-0">{s.label}</span>
             <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full transition-all duration-500"
+                className="h-full rounded-full transition-colors duration-500"
                 style={{ width: `${Math.max(3, s.percentile)}%`, backgroundColor: posColor }}
               />
             </div>

@@ -173,7 +173,7 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
             <Card
               key={def.type}
               className={cn(
-                'p-3 flex flex-col gap-2 transition-all relative',
+                'p-3 flex flex-col gap-2 transition-colors relative',
                 isActive && 'border-gold/40 shadow-[0_0_12px_rgba(255,215,0,0.15)]',
                 isDisabled && 'opacity-50',
                 !isDisabled && !isActive && 'hover:border-white/20',

@@ -425,7 +425,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               onClick={() => s.setIpoStartNow(!s.ipoStartNow)}
               className={cn('w-12 h-6 rounded-full transition-colors relative', s.ipoStartNow ? 'bg-green-500' : 'bg-white/10')}
             >
-              <div className={cn('absolute top-0.5 size-5 rounded-full bg-white shadow transition-all', s.ipoStartNow ? 'left-6' : 'left-0.5')} />
+              <div className={cn('absolute top-0.5 size-5 rounded-full bg-white shadow transition-colors', s.ipoStartNow ? 'left-6' : 'left-0.5')} />
             </button>
           </div>
           {s.ipoPlayerId && s.ipoPrice && (

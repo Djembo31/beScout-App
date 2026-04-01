@@ -267,7 +267,7 @@ export default function MatchTimeline({
                       </span>
                       <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-300"
+                          className="h-full rounded-full transition-colors duration-300"
                           style={{ width: `${barPct}%`, backgroundColor: getScoreHex(entry.score) }}
                         />
                       </div>

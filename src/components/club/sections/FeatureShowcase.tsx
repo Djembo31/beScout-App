@@ -31,7 +31,7 @@ export function FeatureShowcase({ clubColor }: Props) {
               key={feature.titleKey}
               href={feature.href}
               className={cn(
-                'group rounded-2xl p-4 border border-white/10 transition-all',
+                'group rounded-2xl p-4 border border-white/10 transition-colors',
                 'hover:border-[var(--club-primary,#FFD700)]/30 hover:-translate-y-0.5',
                 'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
               )}

@@ -129,7 +129,7 @@ export default function HomePage() {
               href={href}
               className={cn(
                 'flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-xl border shrink-0',
-                'hover:scale-[1.03] active:scale-[0.97] transition-all',
+                'hover:scale-[1.03] active:scale-[0.97] transition-colors',
                 bg,
               )}
             >

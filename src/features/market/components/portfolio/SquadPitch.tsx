@@ -100,7 +100,7 @@ export default function SquadPitch({ formation, assignments, onSlotClick }: Squa
                   <>
                     {/* Empty slot */}
                     <div
-                      className="w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 border-dashed bg-black/20 group-hover:bg-black/40 group-hover:scale-110 transition-all"
+                      className="w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 border-dashed bg-black/20 group-hover:bg-black/40 group-hover:scale-110 transition-colors"
                       style={{ borderColor: posColor + '60' }}
                     >
                       <Plus className="w-4 h-4 md:w-5 md:h-5" style={{ color: posColor + '80' }} />

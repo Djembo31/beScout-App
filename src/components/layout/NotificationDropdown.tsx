@@ -279,7 +279,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
         aria-modal="true"
         aria-label={tn('title')}
         className={cn(
-          'hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-surface-modal/95 backdrop-blur-md border border-white/[0.12] rounded-2xl shadow-card-lg z-[100] overflow-hidden transition-all',
+          'hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-surface-modal/95 backdrop-blur-md border border-white/[0.12] rounded-2xl shadow-card-lg z-[100] overflow-hidden transition-colors',
           closing ? 'notif-exit-desktop' : 'notif-enter-desktop',
         )}
       >

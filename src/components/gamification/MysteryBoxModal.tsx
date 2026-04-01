@@ -145,7 +145,7 @@ export default function MysteryBoxModal({
           boxState === 'opening' && 'animate-mystery-shake',
         )}>
           <div className={cn(
-            'size-24 rounded-2xl flex items-center justify-center transition-all duration-300',
+            'size-24 rounded-2xl flex items-center justify-center transition-colors duration-300',
             boxState === 'idle' && 'bg-gold/10 border-2 border-gold/20',
             boxState === 'opening' && 'bg-gold/20 border-2 border-gold/40',
             boxState === 'revealed' && result && cn(

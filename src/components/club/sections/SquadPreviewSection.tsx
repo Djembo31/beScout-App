@@ -56,7 +56,7 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
               key={player.id}
               href={`/player/${player.id}`}
               className={cn(
-                'flex-shrink-0 w-[140px] rounded-2xl p-3 border transition-all',
+                'flex-shrink-0 w-[140px] rounded-2xl p-3 border transition-colors',
                 'bg-surface-minimal border-white/10 hover:border-[var(--club-primary,#FFD700)]/40',
                 'hover:-translate-y-0.5 active:scale-[0.97]',
                 'shadow-card-sm hover:shadow-card-md',

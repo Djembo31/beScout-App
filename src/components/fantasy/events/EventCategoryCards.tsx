@@ -120,7 +120,7 @@ export function EventCategoryCards({ events, selected, onSelect }: Props) {
               onClick={() => onSelect(isActive ? null : cat.type)}
               className={cn(
                 'group flex-shrink-0 relative w-[220px] sm:w-[260px] aspect-[16/10] snap-start rounded-2xl',
-                'border overflow-hidden transition-all duration-300',
+                'border overflow-hidden transition-colors duration-300',
                 'flex flex-col justify-end p-4 text-left',
                 'active:scale-[0.97]',
                 isActive

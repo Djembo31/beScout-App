@@ -34,7 +34,7 @@ export function FillBar({ current, max, variant = 'card' }: FillBarProps) {
   if (variant === 'mini') {
     return (
       <div className="w-10 h-[3px] rounded-full bg-white/10 overflow-hidden" aria-hidden="true">
-        <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${pct}%` }} />
+        <div className={cn('h-full rounded-full transition-colors', barColor)} style={{ width: `${pct}%` }} />
       </div>
     );
   }
@@ -42,7 +42,7 @@ export function FillBar({ current, max, variant = 'card' }: FillBarProps) {
   return (
     <div className="space-y-1">
       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden" aria-hidden="true">
-        <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${pct}%` }} />
+        <div className={cn('h-full rounded-full transition-colors', barColor)} style={{ width: `${pct}%` }} />
       </div>
       <div className="flex items-center justify-between text-xs">
         <span className="text-white/40 font-mono tabular-nums">{current} / {max}</span>

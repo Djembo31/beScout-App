@@ -25,7 +25,7 @@ export function CollectionProgress({ owned, total, clubColor }: Props) {
       </div>
       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all"
+          className="h-full rounded-full transition-colors"
           style={{ width: `${pct}%`, background: clubColor }}
         />
       </div>

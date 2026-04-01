@@ -96,7 +96,7 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
                 {/* Vertical bar */}
                 <div
                   className={cn(
-                    'w-10 md:w-12 rounded-t-lg transition-all',
+                    'w-10 md:w-12 rounded-t-lg transition-colors',
                     bar.data && 'group-hover:opacity-80'
                   )}
                   style={{

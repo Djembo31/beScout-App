@@ -76,7 +76,7 @@ export default function ClubCard({
         defaultMessage: '{club} — {count} DPCs verfügbar',
       })}
       className={cn(
-        'relative w-full text-left rounded-xl border p-2.5 transition-all min-h-[44px]',
+        'relative w-full text-left rounded-xl border p-2.5 transition-colors min-h-[44px]',
         'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
         'active:scale-[0.97]',
         isExpanded
@@ -138,7 +138,7 @@ export default function ClubCard({
       <div className="mb-2">
         <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-vivid-green transition-all"
+            className="h-full rounded-full bg-vivid-green transition-colors"
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>

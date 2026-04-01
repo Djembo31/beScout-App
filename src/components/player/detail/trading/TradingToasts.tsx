@@ -23,7 +23,7 @@ export default function TradingToasts({ buySuccess, buyError, shared, onShareTra
           {!shared && (
             <button
               onClick={onShareTrade}
-              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-xs font-bold text-green-500 transition-all"
+              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-xs font-bold text-green-500 transition-colors"
             >
               {t('shareInCommunity', { defaultMessage: 'In Community teilen' })}
             </button>

@@ -23,7 +23,7 @@ const TEMPLATE_I18N: Record<string, string> = {
 };
 
 // -- Shared button classes ---------------------------------------------------
-const BTN_BASE = 'transition-all hover:bg-white/[0.05] active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none';
+const BTN_BASE = 'transition-colors hover:bg-white/[0.05] active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none';
 
 // -- Component ---------------------------------------------------------------
 type Props = {

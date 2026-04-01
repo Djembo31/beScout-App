@@ -152,7 +152,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
                 </div>
                 <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="h-full rounded-full transition-colors duration-500"
                     style={{ width: `${Math.min((val / 100) * 100, 100)}%`, backgroundColor: bar.color }}
                   />
                 </div>

@@ -43,7 +43,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
         aria-haspopup="listbox"
         aria-label={collapsed ? t('clubSwitcherLabel') : undefined}
         className={cn(
-          'w-full flex items-center gap-2.5 rounded-xl transition-all min-h-[44px]',
+          'w-full flex items-center gap-2.5 rounded-xl transition-colors min-h-[44px]',
           'bg-white/5 hover:bg-white/[0.08] active:scale-[0.97]',
           collapsed ? 'p-2 justify-center' : 'px-3 py-2.5'
         )}
@@ -89,7 +89,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
                     setOpen(false);
                   }}
                   className={cn(
-                    'w-full flex items-center gap-2.5 px-3 py-2.5 min-h-[44px] transition-all',
+                    'w-full flex items-center gap-2.5 px-3 py-2.5 min-h-[44px] transition-colors',
                     isActive ? 'bg-white/[0.08]' : 'hover:bg-white/5'
                   )}
                 >

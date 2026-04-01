@@ -117,7 +117,7 @@ export function EventDetailFooter({
               </div>
               <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                  className={cn('h-full rounded-full transition-all',
+                  className={cn('h-full rounded-full transition-colors',
                     overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-green-500'
                   )}
                   style={{ width: `${Math.min(100, (totalSalary / salaryCap) * 100)}%` }}

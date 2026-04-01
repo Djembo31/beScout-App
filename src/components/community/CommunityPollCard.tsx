@@ -63,7 +63,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
                 onClick={() => !hasVoted && !isOwn && isActive && onVote(poll.id, idx)}
                 disabled={hasVoted || isOwn || !isActive || voting === poll.id}
                 className={cn(
-                  'w-full p-3 rounded-xl border transition-all text-left relative overflow-hidden',
+                  'w-full p-3 rounded-xl border transition-colors text-left relative overflow-hidden',
                   hasVoted || isOwn || !isActive
                     ? 'bg-surface-minimal border-white/10'
                     : 'bg-surface-minimal border-white/10 hover:bg-white/[0.04] hover:border-white/20'

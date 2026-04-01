@@ -167,7 +167,7 @@ export function SpieltagHeader({
         </div>
         <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+            className={`h-full rounded-full transition-colors duration-500 ${progressColor}`}
             style={{ width: `${progressPct}%` }}
           />
         </div>

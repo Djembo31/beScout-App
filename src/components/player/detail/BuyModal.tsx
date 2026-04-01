@@ -163,7 +163,7 @@ export default function BuyModal({
       <div className="space-y-3">
           {/* Liquidated Guard */}
           {isLiquidated && (
-            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300">
+            <div role="alert" className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300">
               <Lock className="size-4 shrink-0" aria-hidden="true" />
               <span className="text-sm font-bold">{t('tradingLocked')}</span>
             </div>

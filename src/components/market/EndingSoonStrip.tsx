@@ -54,7 +54,7 @@ export default function EndingSoonStrip({ activeIpos, playerMap, max = 5 }: Endi
               href={`/player/${p.id}`}
               className={cn(
                 'flex-shrink-0 w-[200px] bg-white/[0.04] border border-white/[0.08] rounded-xl p-3',
-                'hover:border-white/[0.15] active:scale-[0.98] transition-all shadow-card-sm hover:shadow-card-md',
+                'hover:border-white/[0.15] active:scale-[0.98] transition-colors shadow-card-sm hover:shadow-card-md',
                 'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
               )}
             >
@@ -70,7 +70,7 @@ export default function EndingSoonStrip({ activeIpos, playerMap, max = 5 }: Endi
               <div className="mb-1.5">
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-vivid-green transition-all"
+                    className="h-full rounded-full bg-vivid-green transition-colors"
                     style={{ width: `${Math.min(progress, 100)}%` }}
                   />
                 </div>

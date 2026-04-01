@@ -80,7 +80,7 @@ export default function BestandToolbar({
         <button
           onClick={() => onGroupByClubChange(!groupByClub)}
           className={cn(
-            'p-2 rounded-xl border transition-all shrink-0',
+            'p-2 rounded-xl border transition-colors shrink-0',
             groupByClub
               ? 'bg-gold/15 border-gold/30 text-gold'
               : 'bg-white/5 border-white/10 text-white/40 hover:text-white/60'
@@ -96,7 +96,7 @@ export default function BestandToolbar({
           aria-label={t('bestandFilterLabel')}
           aria-expanded={showFilters}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shrink-0',
+            'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors shrink-0',
             showFilters || hasActiveFilters
               ? 'bg-gold/15 border-gold/30 text-gold'
               : 'bg-white/5 border-white/10 text-white/50'

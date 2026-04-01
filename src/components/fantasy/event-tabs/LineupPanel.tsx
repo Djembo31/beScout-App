@@ -613,7 +613,7 @@ export default function LineupPanel({
                 <div className="flex items-center gap-2">
                   <div className="w-24 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all"
+                      className="h-full rounded-full transition-colors"
                       style={{
                         width: `${Math.min(100, (score / 150) * 100)}%`,
                         backgroundColor: getScoreColor(score),

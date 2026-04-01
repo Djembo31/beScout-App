@@ -82,7 +82,7 @@ export default function DailyChallengeCard({
             <button
               onClick={onOpenMysteryBox}
               disabled={isSubmitting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-all disabled:opacity-50 disabled:pointer-events-none"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors disabled:opacity-50 disabled:pointer-events-none"
             >
               <Gift className="size-3.5" />
               {t('mysteryBox')}
@@ -163,7 +163,7 @@ export default function DailyChallengeCard({
             disabled={hasAnswered || isSubmitting}
             aria-label={`${t('selectOption', { option: String.fromCharCode(65 + idx) })}: ${option}`}
             className={cn(
-              'relative px-3 py-2.5 rounded-xl border text-sm font-medium transition-all min-h-[44px]',
+              'relative px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors min-h-[44px]',
               'focus-visible:ring-2 focus-visible:ring-gold/50 outline-none',
               getOptionClass(idx),
               !hasAnswered && !isSubmitting && 'active:scale-[0.97] cursor-pointer',
@@ -248,7 +248,7 @@ export default function DailyChallengeCard({
           <button
             onClick={onOpenMysteryBox}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors disabled:opacity-50 disabled:pointer-events-none"
           >
             <Gift className="size-3.5" />
             {t('mysteryBox')}

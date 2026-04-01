@@ -80,7 +80,7 @@ export default function ScoutConsensus({ research, className = '' }: ScoutConsen
             <span className="text-xs text-white/60 w-16">Bullish</span>
             <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="h-full bg-green-500/70 rounded-full transition-all"
+                className="h-full bg-green-500/70 rounded-full transition-colors"
                 style={{ width: `${bullishPct}%` }}
               />
             </div>
@@ -93,7 +93,7 @@ export default function ScoutConsensus({ research, className = '' }: ScoutConsen
             <span className="text-xs text-white/60 w-16">Neutral</span>
             <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gold/70 rounded-full transition-all"
+                className="h-full bg-gold/70 rounded-full transition-colors"
                 style={{ width: `${total > 0 ? Math.round((neutral / total) * 100) : 0}%` }}
               />
             </div>
@@ -106,7 +106,7 @@ export default function ScoutConsensus({ research, className = '' }: ScoutConsen
             <span className="text-xs text-white/60 w-16">Bearish</span>
             <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="h-full bg-red-500/70 rounded-full transition-all"
+                className="h-full bg-red-500/70 rounded-full transition-colors"
                 style={{ width: `${bearishPct}%` }}
               />
             </div>

@@ -100,7 +100,7 @@ export default function SellModal({
             </div>
           )}
           {sellError && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
+            <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
               <XCircle className="size-4" aria-hidden="true" />
               {sellError}
             </div>
@@ -108,7 +108,7 @@ export default function SellModal({
 
           {/* Liquidation Warning */}
           {player.isLiquidated && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
+            <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
               <Lock className="size-4" aria-hidden="true" />
               {t('tradingLockedLiquidated')}
             </div>

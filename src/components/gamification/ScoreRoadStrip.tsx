@@ -106,7 +106,7 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
         <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
           <div
             className={cn(
-              'h-full rounded-full transition-all duration-500',
+              'h-full rounded-full transition-colors duration-500',
               allComplete ? 'bg-gold' : 'bg-gradient-to-r from-white/20 to-white/40',
             )}
             style={{ width: `${progress}%` }}

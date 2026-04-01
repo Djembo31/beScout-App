@@ -105,7 +105,7 @@ export default function TradeSuccessCard({
       onBlur={() => setPaused(false)}
       className={cn(
         'fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 w-[min(320px,calc(100vw-2rem))]',
-        'transition-all duration-300 ease-out motion-reduce:transition-none',
+        'transition-colors duration-300 ease-out motion-reduce:transition-none',
         phase === 'enter' && 'translate-x-[120%] opacity-0',
         phase === 'visible' && 'translate-x-0 opacity-100',
         phase === 'exit' && 'translate-x-[120%] opacity-0',

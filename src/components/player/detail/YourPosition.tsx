@@ -93,7 +93,7 @@ export default function YourPosition({
             <span className="text-[10px] font-mono text-white/30">{mastery.xp} / {MASTERY_XP_THRESHOLDS[mastery.level] || 'MAX'} XP</span>
           </div>
           <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-gold/40 to-gold/20 transition-all" style={{ width: `${masteryProgress}%` }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-gold/40 to-gold/20 transition-colors" style={{ width: `${masteryProgress}%` }} />
           </div>
         </div>
       )}

@@ -198,7 +198,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                         const pct = Math.min(100, Math.max(0, ((medianScore - prevMs) / (ms.score - prevMs)) * 100));
                         return (
                           <div
-                            className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-colors duration-500"
                             style={{ width: `${pct}%` }}
                           />
                         );

@@ -362,7 +362,7 @@ export function ErrorState({
 }) {
   const tc = useTranslations('common');
   return (
-    <Card className="p-8 md:p-12 text-center">
+    <Card role="alert" className="p-8 md:p-12 text-center">
       <AlertTriangle className="size-10 mx-auto mb-3 text-red-400/70" aria-hidden="true" />
       <div className="text-sm text-red-300 text-pretty mb-4">{message ?? tc('errorLoadFailed')}</div>
       {onRetry && (

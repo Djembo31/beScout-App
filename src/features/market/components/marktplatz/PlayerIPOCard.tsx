@@ -124,7 +124,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
     <Link
       href={`/player/${player.id}`}
       className={cn(
-        'block relative rounded-2xl border overflow-hidden transition-all group',
+        'block relative rounded-2xl border overflow-hidden transition-colors group',
         'bg-gradient-to-br', tint.bg,
         tint.border,
         'hover:border-white/20 active:scale-[0.98] shadow-card-sm hover:shadow-card-md',
@@ -246,7 +246,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               disabled={buying}
               aria-label={`${player.first} ${player.last} ${tp('recruitBtn')}`}
               className={cn(
-                'py-2 px-4 min-h-[44px] min-w-[44px] rounded-xl text-xs font-black transition-all',
+                'py-2 px-4 min-h-[44px] min-w-[44px] rounded-xl text-xs font-black transition-colors',
                 'bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-black',
                 'hover:brightness-110 active:scale-[0.95]',
                 'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
@@ -279,7 +279,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
           >
             <div
               className={cn(
-                'h-full rounded-full transition-all',
+                'h-full rounded-full transition-colors',
                 progress >= 80 ? 'bg-gradient-to-r from-vivid-green to-emerald-300' : 'bg-vivid-green',
               )}
               style={{ width: `${Math.min(progress, 100)}%` }}

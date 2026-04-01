@@ -245,7 +245,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={cn(
-                'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
+                'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 filter === f.key
                   ? 'bg-gold/15 text-gold border border-gold/30'
                   : 'bg-white/5 text-white/50 border border-white/[0.06] hover:bg-white/10',

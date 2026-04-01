@@ -153,7 +153,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   setTimeout(() => setCopied(false), 2000);
                 }).catch(err => console.error('[Admin] Copy failed:', err));
               }}
-              className="p-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-all"
+              className="p-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-colors"
             >
               {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-green-500" />}
             </button>
@@ -276,7 +276,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             <div className="space-y-2">
               {topTraded.map((p, i) => (
                 <Link key={p.id} href={`/player/${p.id}`}>
-                  <div className="flex items-center justify-between p-3 bg-surface-minimal rounded-xl border border-white/10 hover:border-gold/30 transition-all shadow-card-sm">
+                  <div className="flex items-center justify-between p-3 bg-surface-minimal rounded-xl border border-white/10 hover:border-gold/30 transition-colors shadow-card-sm">
                     <div className="flex items-center gap-3">
                       <div className={cn('size-7 rounded-lg flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
                       <PositionBadge pos={p.position as Pos} size="sm" />

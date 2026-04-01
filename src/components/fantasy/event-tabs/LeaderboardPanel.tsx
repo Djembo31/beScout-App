@@ -238,7 +238,7 @@ export default function LeaderboardPanel({
                         setViewingUserLoading(false);
                       }
                     }}
-                    className={`w-full flex items-center justify-between p-4 min-h-[44px] rounded-lg border transition-all hover:brightness-110 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 ${isCurrentUser ? 'bg-gold/10 border-gold/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
+                    className={`w-full flex items-center justify-between p-4 min-h-[44px] rounded-lg border transition-colors hover:brightness-110 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 ${isCurrentUser ? 'bg-gold/10 border-gold/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`size-8 rounded-lg flex items-center justify-center font-mono font-bold tabular-nums text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :

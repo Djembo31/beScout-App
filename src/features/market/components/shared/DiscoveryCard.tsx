@@ -87,7 +87,7 @@ export default function DiscoveryCard({
         {onWatch && (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
-            className={cn('p-2 -m-1.5 rounded transition-all active:scale-[0.97] shrink-0', isWatchlisted ? 'text-gold' : 'text-white/20 hover:text-white/40')}
+            className={cn('p-2 -m-1.5 rounded transition-colors active:scale-[0.97] shrink-0', isWatchlisted ? 'text-gold' : 'text-white/20 hover:text-white/40')}
           >
             <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
           </button>
@@ -196,7 +196,7 @@ export default function DiscoveryCard({
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
           disabled={buying}
-          className="mt-2 w-full py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 hover:btn-gold-glow transition-all active:scale-[0.97] disabled:opacity-50 flex items-center justify-center gap-1"
+          className="mt-2 w-full py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 hover:btn-gold-glow transition-colors active:scale-[0.97] disabled:opacity-50 flex items-center justify-center gap-1"
         >
           {buying ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
         </button>

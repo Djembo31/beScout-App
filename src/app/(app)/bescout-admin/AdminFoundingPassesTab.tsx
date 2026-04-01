@@ -225,7 +225,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={`${t('fpKillSwitchLabel')}: ${t('fpKillSwitchPercent', { pct: pct.toFixed(1) })}`}>
                   <div
-                    className={cn('h-full rounded-full transition-all', isActive ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500')}
+                    className={cn('h-full rounded-full transition-colors', isActive ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500')}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
