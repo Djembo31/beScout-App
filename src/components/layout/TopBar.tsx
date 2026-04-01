@@ -217,8 +217,12 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               aria-label={t('notifications')}
             >
               <Bell className="size-4 md:size-5 text-white/70" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 size-4 bg-gold text-black text-[10px] font-black rounded-full flex items-center justify-center">
+              {unreadCount > 0 && !notifOpen && (
+                <span
+                  key={unreadCount}
+                  className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center anim-fade"
+                  aria-hidden="true"
+                >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
