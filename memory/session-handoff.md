@@ -1,43 +1,52 @@
 # Session Handoff
-## Letzte Session: 2026-04-01 (Session 276)
+## Letzte Session: 2026-04-01 (Session 277)
 ## Was wurde gemacht
 
-### Agent Team v3 (Hauptthema)
-Paperclip-Team von linearer Task-Queue zu kollaborativem Workflow umgebaut:
-- **Org-Chart**: CEO → CTO → SE+FE | QA+BA+CodexReviewer → CEO. CTO reactivated.
-- **Kommunikation**: Comments auf Issues + @Mentions fuer Gates/Blocker
-- **Quality Gates**: Tier-abhaengig (T1-2: QA only, T3: CTO+CodexReviewer+QA, T4: alle)
-- **CEO proaktiv**: alle 30 min Survey/Triage/Dispatch/Report
-- **CTO**: Approach-Reviews (Tier 3+), Tech Support, Architecture Guard
-- **Learning System**: 3 Stufen (Agent Memory → Shared Wiki → Auto-Promotion)
-- Design: `docs/plans/2026-04-01-agent-team-v3-design.md`
-- Alle 7 HEARTBEAT.md + KNOWLEDGE.md rewritten
+### Pipeline-Test (5 Features)
+Alle 5 durch Paperclip Agent Team v3 Pipeline geschickt:
+- **BES-49:** Most Watched Players Strip (Home) — RPC + Component + i18n
+- **BES-58:** Price Change 24h Badge (DiscoveryCard) — 13 LOC
+- **BES-59:** Notification Preferences Panel (Dropdown)
+- **BES-60:** Form Dots L5 Score (Player Detail) — 64 LOC
+- **BES-61:** Notification Badge (TopBar Bell) — 6 LOC
 
-### Pipeline Tests
-- **BES-25**: auto_close_expired_bounties → Vercel Cron (4 min, clean)
-- **BES-26/27/28**: Player Detail Performance (3 parallel, 29 min, all clean)
-  - memo() auf 5 Components, staleTime fixes, profile debounce
-  - RPC rpc_get_player_percentiles (Migration applied, client usePlayers removed)
-- **Team Onboarding**: 6 Agents evaluierten Codebase parallel
-  - CTO: A-, SE: B+, FE: A-, QA: B+, BA: B+
-  - FE erstellte autonom 4 Fix-Issues
-  - SE fixte 3 Compliance-Risiken
+6 Commits: 31551e6, a184f4f, 94350c6, 73d47e9, 0ddf3bd, b2aec4b
+Pipeline-Bewertung: Code A-, Workflow B (CodexReviewer nie getriggert, Auto-Wake kaputt)
 
-### Commits
-- `df2677b` perf: move auto_close_expired_bounties to Vercel Cron
-- `1b793bf` a11y: motion-reduce:animate-none (17 Files, BES-42)
-- `8ee1841` fix: Phase-4 tournament guard (BES-45)
-- `35fd04e` docs: Agent Team v3 design + implementation plan
+### Constitutional Learning System (CLS) — Designed + Deployed
+Komplett neues Learning-System für Agent Team:
+- **8 Komponenten:** Reflection, Constitution, Pre-Flight, Insight Pool, Retro, Cross-Agent Sharing, Proactive Scan, Fast Communication
+- **Design Doc:** docs/plans/2026-04-01-constitutional-learning-system-design.md
+- **Implementation:** 12 Tasks, alle deployed
+
+### CLS Infrastructure
+- wiki/CONSTITUTION.md — 28 immutable principles
+- wiki/INSIGHT_POOL.json — 15 global insights (migrated from SHARED_LEARNINGS)
+- wiki/boards/TEMPLATE.json — Context Board template
+- 7x insights.json (alle Agents) — 25 migrated + new insights
+- Alle 7 HEARTBEAT.md rewritten mit CLS Protocol
+
+### CLS Verification Test (BES-68)
+- Context Board: CEO erstellt automatisch
+- Direct Chaining: FE triggert QA+CodexReviewer selbst
+- Insight Pool: FE aktualisiert Scores nach Task
+- Board: Live-Dashboard pro Feature
+- Verbesserung: Communication C→A-, Learning D+→B+
+
+### Fixes nach Verification
+- HARD RULE für Pre-Flight + Completion Signal Comments
+- CodexReviewer CHECK WORK section (Issue-Fetching)
+- Board-Updates für QA/CTO/CodexReviewer
+- Cross-Agent Insight Reading (step 3b)
 
 ## Naechster Schritt
-1. Agent Team v3 weiter testen — echtes Feature durch die volle Pipeline
-2. Learning System verifizieren — nach 3-5 Tasks pruefen ob Agents lernen
-3. @Mention Wake debuggen — QA/CodexReviewer wurden nicht auto-getriggert
-4. BES-28 Migration verifizieren — rpc_get_player_percentiles im Repo?
-5. Cleanup: docs/plans/bes26.json, bes27.json, bes28.json loeschen
+1. CLS mit 5-10 echten Tasks validieren — Score-Konvergenz prüfen
+2. Proactive Scan testen (Agent idle → scannt Code)
+3. CodexReviewer E2E testen (Codex CLI + CHECK WORK)
+4. Cross-Agent Insight Sharing verifizieren (score >= 3 → global)
+5. CLS Metriken nach 20 Tasks: same-mistake-rate, insight scores, pipeline time
 
 ## Bekannte Issues
-- @Mention Wake unzuverlaessig fuer nicht-assigned Agents (CEO muss manuell triggern)
-- CodexReviewer hatte Heartbeat-Conflict (executionRunId Collision)
-- vitest Full Suite braucht ~7.5 min auf Windows
-- BES-28 Migration File nicht im Git (Agent hat direkt via Supabase deployed)
+- CodexReviewer Codex CLI startet nicht immer (Infrastructure)
+- CEO braucht manchmal manuellen Trigger (Auto-Wake)
+- Board-Updates durch QA/CTO erst nach Fix deployed, noch nicht getestet

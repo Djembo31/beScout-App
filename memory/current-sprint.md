@@ -1,37 +1,55 @@
-# Current Sprint — Agent Team v3 + Performance
+# Current Sprint — CLS Live
 
-## Stand (2026-04-01, Session 276)
-- **Tests:** tsc 0 Errors, 2369 Tests green (172 Files), 1 skipped
+## Stand (2026-04-01, Session 277)
+- **Tests:** tsc 0 Errors
 - **Branch:** main
-- **Migrations:** 298+ (rpc_get_player_percentiles added)
-- **Agent Team:** v3 deployed — collaborative workflow, 7 agents, 3-tier learning
+- **Migrations:** 299 (rpc_get_most_watched_players added)
+- **Agent Team:** v3 + CLS v1.1 deployed (Constitution + Insight Pool + Direct Chaining + Boards)
 
-## Erledigt (Session 276)
-- **BES-25:** auto_close_expired_bounties → Vercel Cron (committed df2677b)
-- **BES-26/27/28:** Player Detail Performance (memo, staleTime, percentile RPC)
-- **BES-33:** Team Onboarding — 6 Agents reviewed codebase (A- bis B+)
-- **BES-42:** motion-reduce:animate-none auf 17 Files (committed 1b793bf)
-- **BES-45:** Phase-4 tournament guard (committed 8ee1841)
-- **Agent Team v3:** Org-Chart, HEARTBEAT.md, KNOWLEDGE.md, Learning System
-- **Design Docs:** Agent Team v3 design + implementation plan (committed 35fd04e)
+## Erledigt (Session 277)
+
+### Features (5 Pipeline Tests)
+- **BES-49:** Most Watched Players Strip (Home) — RPC + Component + i18n — 31551e6, a184f4f
+- **BES-58:** 24h Price Change Badge (DiscoveryCard) — 73d47e9
+- **BES-59:** Notification Preferences Panel (Dropdown) — 6e1a90b
+- **BES-60:** L5 Score Form Dots (Player Detail) — b2aec4b
+- **BES-61:** Notification Badge (TopBar Bell) — 0ddf3bd
+
+### CLS Deployment (12 Tasks + 5 Fixes)
+- Constitution: 28 immutable principles (wiki/CONSTITUTION.md)
+- Insight Pool: 15 global + 25 agent-local insights (JSON format)
+- Context Boards: wiki/boards/ with live dashboard per feature
+- All 7 HEARTBEATs: Pre-Flight + Retro + Scoring + Direct Chaining
+- CTO Constitutional Validator
+- Proactive Scan (SE + FE when idle)
+- Cross-Agent Insight Reading (step 3b)
+- Fixes: HARD RULES, Board-Updates for QA/CTO/CR, CodexReviewer CHECK WORK
+
+### CLS Verification (BES-68)
+- Context Board: CEO erstellt automatisch
+- Direct Chaining: FE triggert QA + CodexReviewer selbst
+- Insight Pool: FE aktualisiert Scores nach Task
+- 7/8 CLS checkpoints passed
+- CodexReviewer: adapter error (Codex CLI issue)
 
 ## Board Status
-- 46 issues done, 0 open
-- Agent Team v3 operational
-- Learning System initialized (13 shared learnings)
+- 75 issues total, 69 done
+- CLS operational: Learning D+ → B+, Communication C → A-
+- 40 total insights across all agents
+- 2 global insights at score 5 (rule-promotion candidates)
 
 ## Naechste Prioritaet
-1. Agent Team v3 mit echtem Feature testen (volle Pipeline)
-2. Learning System verifizieren (nach 3-5 Tasks)
-3. @Mention Wake debuggen (QA/CodexReviewer nicht auto-getriggert)
-4. BES-28 Migration File ins Repo bringen
-5. Connection Pool Tuning (Infra)
+1. CLS mit 5-10 echten Tasks validieren (Score-Tracking)
+2. CodexReviewer adapter fix (5x error in CLS test)
+3. Proactive Scan testen (idle Heartbeat)
+4. Rule promotion: insights #4 and #5 → permanent rules
+5. Cleanup: docs/plans/bes26.json, bes27.json, bes28.json
 
 ## Bekannte Issues
-- @Mention Wake unzuverlaessig fuer nicht-assigned Agents
-- CodexReviewer Heartbeat-Conflict (executionRunId Collision)
-- BES-28 Migration File nicht im Git
-- vitest Full Suite ~7.5 min auf Windows
+- CodexReviewer Codex CLI broken (5 consecutive errors)
+- CEO Auto-Wake braucht manchmal manuellen Trigger
+- Board-Updates durch QA/CTO erst deployed, noch nicht live getestet
+- Don't pre-create QA/CodexReview backlog issues — let engineers Direct Chain
 
 ## Blocker
 - Keine
