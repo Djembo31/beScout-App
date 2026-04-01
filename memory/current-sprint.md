@@ -14,8 +14,8 @@
 - **BES-28:** rpc_get_player_percentiles — eliminates 632-row usePlayers() fetch, deployed to Supabase (done, committed ef914ae)
 
 ## Board Status
-- QA issue fde8ed0e: Player Detail Performance BES-26/27/28 → QA pending
-- BES-26: in_review (FrontendEngineer)
+- BES-26: done (CEO closed — handoff clean, committed ef914ae)
+- QA issue BES-32 (fde8ed0e): in_progress — QA agent woken 2026-04-01
 - All other issues: done
 
 ## Naechste Prioritaet
