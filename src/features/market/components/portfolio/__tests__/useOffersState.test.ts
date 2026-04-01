@@ -7,6 +7,8 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 const mockAddToast = vi.fn();
 const mockShowError = vi.fn();
+const mockRefreshBalance = vi.fn().mockResolvedValue(undefined);
+const mockInvalidateTradeQueries = vi.fn();
 
 vi.mock('@/components/providers/AuthProvider', () => ({
   useUser: () => ({ user: { id: 'u1' } }),
@@ -18,6 +20,14 @@ vi.mock('@/components/providers/ToastProvider', () => ({
 
 vi.mock('@/lib/hooks/useErrorToast', () => ({
   useErrorToast: () => ({ showError: mockShowError }),
+}));
+
+vi.mock('@/components/providers/WalletProvider', () => ({
+  useWallet: () => ({ refreshBalance: mockRefreshBalance }),
+}));
+
+vi.mock('@/lib/queries', () => ({
+  invalidateTradeQueries: (...a: unknown[]) => mockInvalidateTradeQueries(...a),
 }));
 
 const mockGetIncoming = vi.fn().mockResolvedValue([]);
@@ -81,6 +91,7 @@ describe('useOffersState', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetIncoming.mockResolvedValue([]);
+    mockRefreshBalance.mockResolvedValue(undefined);
   });
 
   // ── Initial State ──
@@ -133,6 +144,8 @@ describe('useOffersState', () => {
     await act(async () => { await result.current.handleAccept('offer-1'); });
     expect(mockAcceptOffer).toHaveBeenCalledWith('u1', 'offer-1');
     expect(mockAddToast).toHaveBeenCalledWith('offerAccepted', 'success');
+    expect(mockRefreshBalance).toHaveBeenCalled();
+    expect(mockInvalidateTradeQueries).toHaveBeenCalledWith('p-1', 'u1');
   });
 
   it('handleAccept shows error on failure', async () => {

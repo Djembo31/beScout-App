@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useErrorToast } from '@/lib/hooks/useErrorToast';
+import { useWallet } from '@/components/providers/WalletProvider';
 import {
   getIncomingOffers, getOutgoingOffers, getOpenBids, getOfferHistory,
   acceptOffer, rejectOffer, counterOffer, cancelOffer,
 } from '@/lib/services/offers';
 import { centsToBsd } from '@/lib/services/players';
+import { invalidateTradeQueries } from '@/lib/queries';
 import type { OfferWithDetails } from '@/types';
 
 export type SubTab = 'incoming' | 'outgoing' | 'open' | 'history';
@@ -15,6 +17,7 @@ export function useOffersState() {
   const { user } = useUser();
   const { addToast } = useToast();
   const { showError } = useErrorToast();
+  const { refreshBalance } = useWallet();
   const [subTab, setSubTab] = useState<SubTab>('incoming');
   const [offers, setOffers] = useState<OfferWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +56,11 @@ export function useOffersState() {
       const result = await acceptOffer(uid, offerId);
       if (result.success) {
         addToast('offerAccepted', 'success');
+        const offer = offers.find(o => o.id === offerId);
+        if (offer) {
+          refreshBalance();
+          invalidateTradeQueries(offer.player_id, uid);
+        }
         loadOffers();
       } else {
         showError(result.error ?? 'generic');
@@ -62,7 +70,7 @@ export function useOffersState() {
     } finally {
       setActionId(null);
     }
-  }, [uid, actionId, addToast, showError, loadOffers]);
+  }, [uid, actionId, offers, addToast, showError, refreshBalance, loadOffers]);
 
   const handleReject = useCallback(async (offerId: string) => {
     if (!uid || actionId) return;
