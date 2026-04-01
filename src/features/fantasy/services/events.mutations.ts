@@ -13,6 +13,7 @@ export async function createEvent(params: {
   format: string;
   gameweek: number;
   entryFeeCents: number;
+  // Phase-4 guard: tournament + paid entry requires MGA license (not yet implemented)
   ticketCost?: number;
   prizePoolCents: number;
   maxEntries: number;
@@ -32,6 +33,10 @@ export async function createEvent(params: {
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
+  // Phase-4 gate: Tournament events with paid entry require MGA license (ADR-028)
+  if (params.type === 'tournament' && params.entryFeeCents > 0) {
+    return { success: false, error: 'Paid tournament entry requires Phase-4 license. Use league mode or set entry fee to 0.' };
+  }
   const ticketCost = params.ticketCost ?? params.entryFeeCents;
   const { data, error } = await supabase
     .from('events')
