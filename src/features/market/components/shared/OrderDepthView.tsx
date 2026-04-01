@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { getSellOrders, getAllOpenBuyOrders } from '@/lib/services/trading';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { qk } from '@/lib/queries/keys';
 
 interface OrderDepthViewProps {
   playerId: string;
@@ -303,13 +304,13 @@ export default function OrderDepthView({ playerId }: OrderDepthViewProps) {
   const t = useTranslations('market');
 
   const { data: sellOrders, isLoading: sellLoading } = useQuery({
-    queryKey: ['orderbook', playerId],
+    queryKey: qk.orders.orderbook(playerId),
     queryFn: () => getSellOrders(playerId),
     staleTime: 30_000,
   });
 
   const { data: buyOrders, isLoading: buyLoading } = useQuery({
-    queryKey: ['orderbook-buy', playerId],
+    queryKey: qk.orders.orderbookBuy(playerId),
     queryFn: () => getAllOpenBuyOrders(playerId),
     staleTime: 30_000,
   });

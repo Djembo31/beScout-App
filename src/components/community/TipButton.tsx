@@ -92,7 +92,7 @@ export default function TipButton({
     // Invalidate tips + wallet + posts (tip counts) + transactions
     qc.invalidateQueries({ queryKey: qk.tips.byContent(contentType, contentId) });
     qc.invalidateQueries({ queryKey: qk.posts.all });
-    qc.invalidateQueries({ queryKey: ['transactions'] });
+    qc.invalidateQueries({ queryKey: qk.transactions.all });
     refreshBalance();
 
     logActivity(userId, 'tip_send', 'community', {

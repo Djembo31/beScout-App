@@ -10,6 +10,7 @@ export const qk = {
     names: ['players', 'names'] as const,
     byId: (id: string) => ['players', id] as const,
     byClub: (cid: string) => ['players', 'club', cid] as const,
+    raw: ['players', 'raw'] as const,
   },
 
   // ── Holdings / Wallet ──
@@ -19,11 +20,18 @@ export const qk = {
     holderCount: (pid: string) => ['holdings', 'holderCount', pid] as const,
   },
 
+  // ── Wallet Balance ──
+  wallet: {
+    all: ['wallet'] as const,
+  },
+
   // ── Orders ──
   orders: {
     all: ['orders'] as const,
     buy: ['orders', 'buy'] as const,
     byPlayer: (pid: string) => ['orders', pid] as const,
+    orderbook: (pid: string) => ['orders', 'orderbook', pid] as const,
+    orderbookBuy: (pid: string) => ['orders', 'orderbook-buy', pid] as const,
   },
 
   // ── Events ──
@@ -135,6 +143,7 @@ export const qk = {
   // ── Transactions ──
   transactions: {
     byUser: (uid: string, n: number) => ['transactions', uid, n] as const,
+    all: ['transactions'] as const,
   },
 
   // ── Price Histories ──
@@ -268,6 +277,7 @@ export const qk = {
     stats: (uid: string) => ['predictions', 'stats', uid] as const,
     countGw: (uid: string, gw: number) => ['predictions', 'count', uid, gw] as const,
     fixtures: (gw: number) => ['predictions', 'fixtures', gw] as const,
+    hasAny: (uid: string) => ['predictions', 'stats', uid, 'any'] as const,
   },
 
   // ── Founding Passes ──
@@ -299,6 +309,7 @@ export const qk = {
     user: (userId: string) => ['cosmetics', userId] as const,
     equipped: (userId: string) => ['cosmetics', 'equipped', userId] as const,
     all: () => ['cosmetics', 'all'] as const,
+    batchEquipped: (key: string) => ['cosmetics', 'batch-equipped', key] as const,
   },
 
   // ── Mystery Box ──

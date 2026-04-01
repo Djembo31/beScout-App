@@ -38,7 +38,7 @@ export function usePredictionCount(userId: string | undefined, gameweek: number)
 /** Whether user has created any prediction (onboarding check) */
 export function useHasAnyPrediction(userId: string | undefined) {
   return useQuery({
-    queryKey: [...qk.predictions.stats(userId!), 'any'],
+    queryKey: qk.predictions.hasAny(userId!),
     queryFn: () => hasAnyPrediction(userId!),
     enabled: !!userId,
     staleTime: FIVE_MIN,

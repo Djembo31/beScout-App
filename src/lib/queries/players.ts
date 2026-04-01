@@ -11,7 +11,7 @@ const FIVE_MIN = 5 * 60 * 1000;
 /** Raw DB players — for Compare, Club pages that need DbPlayer[] */
 export function useRawPlayers() {
   return useQuery<DbPlayer[]>({
-    queryKey: [...qk.players.all, 'raw'],
+    queryKey: qk.players.raw,
     queryFn: getPlayers,
     staleTime: FIVE_MIN,
   });

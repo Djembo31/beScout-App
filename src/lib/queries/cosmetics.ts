@@ -31,7 +31,7 @@ export function useEquippedCosmetics(userId: string | undefined) {
 export function useBatchEquippedCosmetics(userIds: string[]) {
   const key = userIds.length > 0 ? userIds.slice().sort().join(',') : '';
   return useQuery<Map<string, EquippedCosmeticsLookup>>({
-    queryKey: ['cosmetics', 'batch-equipped', key],
+    queryKey: qk.cosmetics.batchEquipped(key),
     queryFn: () => getBatchEquippedCosmetics(userIds),
     enabled: userIds.length > 0,
     staleTime: TWO_MIN,

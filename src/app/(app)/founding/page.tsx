@@ -9,6 +9,7 @@ import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import {
   FOUNDING_PASS_TIERS,
   FOUNDING_PASS_LIMITS,
@@ -114,8 +115,8 @@ export default function FoundingPassPage() {
       const result = await grantFoundingPass(uid, tier, priceEurCents, 'pilot-grant');
       if (result.ok) {
         addToast(t('successToast'), 'celebration');
-        queryClient.invalidateQueries({ queryKey: ['founding-pass'] });
-        queryClient.invalidateQueries({ queryKey: ['wallet'] });
+        queryClient.invalidateQueries({ queryKey: qk.foundingPasses.list(uid) });
+        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
         setConfirmTier(null);
         // Reload data to show updated state
         await loadData();

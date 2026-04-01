@@ -74,7 +74,7 @@ export function usePlayerTrading({
   const invalidateAfterTrade = useCallback((pid: string, uid?: string) => {
     invalidateTradeQueries(pid, uid);
     invalidatePlayerDetailQueries(pid, uid);
-    queryClient.invalidateQueries({ queryKey: ['offers', 'bids', pid] });
+    queryClient.invalidateQueries({ queryKey: qk.offers.bids(pid) });
   }, [queryClient]);
 
   // ─── Handlers ──────────────────────────────
@@ -185,7 +185,7 @@ export function usePlayerTrading({
       if (result.success) {
         addToast(t('buyOfferCreated'), 'success');
         setShowOfferModal(false); setOfferPrice(''); setOfferMessage('');
-        queryClient.invalidateQueries({ queryKey: ['offers', 'bids', playerId] });
+        queryClient.invalidateQueries({ queryKey: qk.offers.bids(playerId) });
       } else { addToast(result.error ?? tc('unknownError'), 'error'); }
     } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
     finally { setOfferLoading(false); }

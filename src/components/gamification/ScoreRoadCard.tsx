@@ -82,7 +82,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
         addToast(tsr('claimed'), 'success');
       }
       queryClient.invalidateQueries({ queryKey: qk.gamification.scoreRoad(userId) });
-      queryClient.invalidateQueries({ queryKey: ['wallet'] });
+      queryClient.invalidateQueries({ queryKey: qk.wallet.all });
     } else {
       addToast(result.error ?? tg('unknownError'), 'error');
     }
