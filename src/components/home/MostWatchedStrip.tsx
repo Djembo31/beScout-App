@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useMostWatchedPlayers } from '@/lib/queries/watchlist';
 import type { Pos } from '@/types';
 import { useTranslations } from 'next-intl';
+import { SectionHeader } from '@/components/home/helpers';
 
 interface MostWatchedStripProps {
   userId: string;
@@ -20,11 +21,13 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
   if (players.length === 0) return null;
 
   return (
-    <div
-      className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1"
-      style={{ WebkitOverflowScrolling: 'touch' }}
-      aria-label={t('mostWatched')}
-    >
+    <div>
+      <SectionHeader title={t('mostWatched')} href="/market" />
+      <div
+        className="mt-2 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+        aria-label={t('mostWatched')}
+      >
       {players.map(p => (
         <Link
           key={p.playerId}
@@ -47,7 +50,7 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
           />
           <div className="min-w-0 flex-1">
             <div className="text-sm font-bold truncate">{p.lastName}</div>
-            <div className="text-[11px] text-white/40 truncate">{p.club}</div>
+            <div className="text-[11px] text-white/50 truncate">{p.club}</div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <Eye className="size-3 text-white/40" aria-hidden="true" />
@@ -57,6 +60,7 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
           </div>
         </Link>
       ))}
+      </div>
     </div>
   );
 }

@@ -332,14 +332,7 @@ export default function HomePage() {
       )}
 
       {/* ── 2a3. MOST WATCHED PLAYERS ── */}
-      {uid && (
-        <div>
-          <SectionHeader title={t('mostWatched')} href="/market" />
-          <div className="mt-2">
-            <MostWatchedStrip userId={uid} />
-          </div>
-        </div>
-      )}
+      {uid && <MostWatchedStrip userId={uid} />}
 
       {/* ── 2b. SCORE ROAD STRIP ── */}
       {uid && <ScoreRoadStrip userId={uid} />}
