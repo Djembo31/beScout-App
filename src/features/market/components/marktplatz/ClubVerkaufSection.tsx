@@ -169,7 +169,7 @@ export default function ClubVerkaufSection({
         tipKey="club-verkauf-dpc-intro"
         icon={<HelpCircle className="size-4" />}
         title={t('dpcIntroTitle', { defaultMessage: 'Was sind DPCs?' })}
-        description={t('dpcIntroDesc', { defaultMessage: 'Kaufe digitale Spieler-Vertr\u00e4ge (DPCs) deines Lieblingsvereins. Steigt der Marktwert des Spielers, profitierst du durch die Community Success Fee.' })}
+        description={t('dpcIntroDesc', { defaultMessage: 'Kaufe Scout Cards deines Lieblingsvereins. Steigt der Marktwert des Spielers, erhältst du durch die Community Success Fee.' })}
         show={!hasHoldings}
       />
 
