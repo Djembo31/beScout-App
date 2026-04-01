@@ -36,7 +36,8 @@ export function useOffersState() {
       else if (subTab === 'open') data = await getOpenBids();
       else data = await getOfferHistory(uid);
       setOffers(data);
-    } catch {
+    } catch (e) {
+      console.error('[loadOffers]', e);
       setOffers([]);
     } finally {
       setLoading(false);
