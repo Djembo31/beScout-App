@@ -1,42 +1,43 @@
 # Session Handoff
-## Letzte Session: 2026-04-01 (Session 275)
+## Letzte Session: 2026-04-01 (Session 276)
 ## Was wurde gemacht
 
-### Quality-First Workflow (Hauptthema)
-Design + Implementation eines neuen Workflow-Standards:
-- 3 Phasen: BEFORE (Define/Scope/Criteria/Verify Hypothesis) → DURING → AFTER (Self-Review/9-Punkt Checkliste/Verify/Evidence)
-- Kein Tier-System fuer Quality — ein Standard fuer alles
-- Speed-Override nur wenn Anil explizit "schnell" sagt
-- Agent-Output = Entwurf, Fakten-Check Pflicht
-- STOP-Regel: 10s Pause vor Commit
-- Design-Doc: docs/plans/2026-04-01-quality-first-workflow-design.md
-- 3 Agent-Definitionen aktualisiert (frontend, backend, reviewer)
-- 6 Feedback-Memories konsolidiert → 1 authoritative File
+### Agent Team v3 (Hauptthema)
+Paperclip-Team von linearer Task-Queue zu kollaborativem Workflow umgebaut:
+- **Org-Chart**: CEO → CTO → SE+FE | QA+BA+CodexReviewer → CEO. CTO reactivated.
+- **Kommunikation**: Comments auf Issues + @Mentions fuer Gates/Blocker
+- **Quality Gates**: Tier-abhaengig (T1-2: QA only, T3: CTO+CodexReviewer+QA, T4: alle)
+- **CEO proaktiv**: alle 30 min Survey/Triage/Dispatch/Report
+- **CTO**: Approach-Reviews (Tier 3+), Tech Support, Architecture Guard
+- **Learning System**: 3 Stufen (Agent Memory → Shared Wiki → Auto-Promotion)
+- Design: `docs/plans/2026-04-01-agent-team-v3-design.md`
+- Alle 7 HEARTBEAT.md + KNOWLEDGE.md rewritten
 
-### Performance Audit + Fixes
-Playwright + Performance API + Build-Analyse auf bescout.net:
-1. **PostHog entfernt** — broken 401/404, 3+ Errors/Page → 0
-2. **record_login_streak Duplicate** — AuthProvider-Call entfernt
-3. **resolveExpiredResearch debounce** — 60s Cooldown, 4 Stellen → 1 Call
-4. **Player Detail Modals lazy** — Buy/Sell/Offer erst bei Klick
-5. **user_follows 3→1 RPC** — neue Migration `rpc_get_user_social_stats`
-6. **Community deferred loading** — below-fold 500ms delayed (FCP -29%)
-7. **assign_user_missions debounce** — per-User 60s Cache (Agent-implemented)
-8. **getClubBySlug vereinfacht** — Ternary consolidated (Agent-implemented)
-9. **Lockfile fix** — pnpm install nach PostHog-Removal vergessen
-10. **DB Indexes verifiziert** — VERIFY HYPOTHESIS: alle existierten bereits
+### Pipeline Tests
+- **BES-25**: auto_close_expired_bounties → Vercel Cron (4 min, clean)
+- **BES-26/27/28**: Player Detail Performance (3 parallel, 29 min, all clean)
+  - memo() auf 5 Components, staleTime fixes, profile debounce
+  - RPC rpc_get_player_percentiles (Migration applied, client usePlayers removed)
+- **Team Onboarding**: 6 Agents evaluierten Codebase parallel
+  - CTO: A-, SE: B+, FE: A-, QA: B+, BA: B+
+  - FE erstellte autonom 4 Fix-Issues
+  - SE fixte 3 Compliance-Risiken
 
-### Workflow-Learnings (in workflow.md eingebaut)
-- VERIFY HYPOTHESIS als 4. BEFORE-Schritt
-- Fakten-Check bei Agent-Output
-- Lockfile als 9. Checklisten-Punkt
-- "Messen VOR Optimieren" Leitplanke
+### Commits
+- `df2677b` perf: move auto_close_expired_bounties to Vercel Cron
+- `1b793bf` a11y: motion-reduce:animate-none (17 Files, BES-42)
+- `8ee1841` fix: Phase-4 tournament guard (BES-45)
+- `35fd04e` docs: Agent Team v3 design + implementation plan
 
 ## Naechster Schritt
-1. Session-Handoff + Sprint updaten (jetzt)
-2. Naechste Session: echtes Feature oder weitere Performance-Arbeit
-3. Community verbleibend: auto_close_expired_bounties → Cron statt Client
+1. Agent Team v3 weiter testen — echtes Feature durch die volle Pipeline
+2. Learning System verifizieren — nach 3-5 Tasks pruefen ob Agents lernen
+3. @Mention Wake debuggen — QA/CodexReviewer wurden nicht auto-getriggert
+4. BES-28 Migration verifizieren — rpc_get_player_percentiles im Repo?
+5. Cleanup: docs/plans/bes26.json, bes27.json, bes28.json loeschen
 
 ## Bekannte Issues
-- Vercel Connection Pool Contention bei vielen parallelen Queries
-- auto_close_expired_bounties laeuft client-seitig (2.8s) → sollte Cron sein
+- @Mention Wake unzuverlaessig fuer nicht-assigned Agents (CEO muss manuell triggern)
+- CodexReviewer hatte Heartbeat-Conflict (executionRunId Collision)
+- vitest Full Suite braucht ~7.5 min auf Windows
+- BES-28 Migration File nicht im Git (Agent hat direkt via Supabase deployed)
