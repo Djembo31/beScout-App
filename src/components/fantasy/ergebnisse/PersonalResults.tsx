@@ -25,7 +25,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
   const tf = useTranslations('fantasy');
 
   const TABS = [
-    { id: 'dpcs', label: tf('ergebnisse.tab_my_dpcs'), shortLabel: 'DPCs', icon: <Briefcase className="size-3.5" aria-hidden="true" /> },
+    { id: 'dpcs', label: tf('ergebnisse.tab_my_dpcs'), shortLabel: 'SCs', icon: <Briefcase className="size-3.5" aria-hidden="true" /> },
     { id: 'events', label: tf('ergebnisse.tab_events'), icon: <Trophy className="size-3.5" aria-hidden="true" /> },
     { id: 'tipps', label: tf('ergebnisse.tab_tipps'), icon: <Target className="size-3.5" aria-hidden="true" /> },
   ];

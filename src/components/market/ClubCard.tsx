@@ -73,7 +73,7 @@ export default function ClubCard({
       aria-label={t('clubCardLabel', {
         club: club.name,
         count: players.length,
-        defaultMessage: '{club} — {count} DPCs verfügbar',
+        defaultMessage: '{club} — {count} Scout Cards verfügbar',
       })}
       className={cn(
         'relative w-full text-left rounded-xl border p-2.5 transition-colors min-h-[44px]',
@@ -120,7 +120,7 @@ export default function ClubCard({
       {/* Stats: DPC count + position dots */}
       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
         <span className="font-mono font-black text-[11px] text-gold tabular-nums">{players.length}</span>
-        <span className="text-[9px] text-white/40">DPCs</span>
+        <span className="text-[9px] text-white/40">Scout Cards</span>
         <span className="text-white/10 mx-0.5">|</span>
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
           const count = posCounts[pos];

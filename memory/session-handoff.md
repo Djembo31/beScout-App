@@ -1,52 +1,33 @@
 # Session Handoff
-## Letzte Session: 2026-04-01 (Session 277)
+## Letzte Session: 2026-04-02 (Session 279)
 ## Was wurde gemacht
 
-### Pipeline-Test (5 Features)
-Alle 5 durch Paperclip Agent Team v3 Pipeline geschickt:
-- **BES-49:** Most Watched Players Strip (Home) — RPC + Component + i18n
-- **BES-58:** Price Change 24h Badge (DiscoveryCard) — 13 LOC
-- **BES-59:** Notification Preferences Panel (Dropdown)
-- **BES-60:** Form Dots L5 Score (Player Detail) — 64 LOC
-- **BES-61:** Notification Badge (TopBar Bell) — 6 LOC
+### CLS Workflow Fixes (Session 278 carry-over)
+- Rule Promotion: Insights #4+#5 → Constitution #29+#30
+- CodexReviewer: Rewired to signal-only (Jarvis runs /codex:rescue)
+- CLS Validation BES-76: 24 raw qk→0, 4 empty catches→0, Code A, CLS B+
 
-6 Commits: 31551e6, a184f4f, 94350c6, 73d47e9, 0ddf3bd, b2aec4b
-Pipeline-Bewertung: Code A-, Workflow B (CodexReviewer nie getriggert, Auto-Wake kaputt)
+### E2E Audit: Market Flows (BES-87) — Tier 3
+- Full pipeline: CTO→FE→SE→QA→BA, 6 sub-issues, all done
+- QA: 13/13 flows PASS, 82/82 tests green
+- BA: 11 PASS, 2 compliance bugs found+fixed (BES-97, BES-98)
+- Pipeline Bugs: BES-91 (empty catch), BES-92 (offer cache), BES-94 (nested qk)
 
-### Constitutional Learning System (CLS) — Designed + Deployed
-Komplett neues Learning-System für Agent Team:
-- **8 Komponenten:** Reflection, Constitution, Pre-Flight, Insight Pool, Retro, Cross-Agent Sharing, Proactive Scan, Fast Communication
-- **Design Doc:** docs/plans/2026-04-01-constitutional-learning-system-design.md
-- **Implementation:** 12 Tasks, alle deployed
+### Compliance Hardening (Jarvis review found agent gaps)
+- 5 remaining "DPCs" in user-visible strings → fixed to "Scout Cards"
+- 1 "profitierst du" in legacy copy → fixed
+- Constitution: +4 principles (#33-36)
+- BA HEARTBEAT: Mandatory grep scan (4 patterns) before audits
+- Pre-commit hook: Banned words scanner (tested, active)
 
-### CLS Infrastructure
-- wiki/CONSTITUTION.md — 28 immutable principles
-- wiki/INSIGHT_POOL.json — 15 global insights (migrated from SHARED_LEARNINGS)
-- wiki/boards/TEMPLATE.json — Context Board template
-- 7x insights.json (alle Agents) — 25 migrated + new insights
-- Alle 7 HEARTBEAT.md rewritten mit CLS Protocol
-
-### CLS Verification Test (BES-68)
-- Context Board: CEO erstellt automatisch
-- Direct Chaining: FE triggert QA+CodexReviewer selbst
-- Insight Pool: FE aktualisiert Scores nach Task
-- Board: Live-Dashboard pro Feature
-- Verbesserung: Communication C→A-, Learning D+→B+
-
-### Fixes nach Verification
-- HARD RULE für Pre-Flight + Completion Signal Comments
-- CodexReviewer CHECK WORK section (Issue-Fetching)
-- Board-Updates für QA/CTO/CodexReviewer
-- Cross-Agent Insight Reading (step 3b)
+### Insight Pool Cleanup
+- #16 + #19 promoted → Constitution #35 + #36
+- 6 insights archived (obsolete/duplicates)
+- Pool: 14 active (6 promoted, 5 score 3, 3 score 2)
+- Constitution: 36 principles
 
 ## Naechster Schritt
-1. CLS mit 5-10 echten Tasks validieren — Score-Konvergenz prüfen
-2. Proactive Scan testen (Agent idle → scannt Code)
-3. CodexReviewer E2E testen (Codex CLI + CHECK WORK)
-4. Cross-Agent Insight Sharing verifizieren (score >= 3 → global)
-5. CLS Metriken nach 20 Tasks: same-mistake-rate, insight scores, pipeline time
-
-## Bekannte Issues
-- CodexReviewer Codex CLI startet nicht immer (Infrastructure)
-- CEO braucht manchmal manuellen Trigger (Auto-Wake)
-- Board-Updates durch QA/CTO erst nach Fix deployed, noch nicht getestet
+1. CodexReviewer neuer Flow E2E testen
+2. Legacy Cleanup (src/components/market/ + manager/)
+3. CEO Auto-Close verifizieren
+4. Proactive Scan testen

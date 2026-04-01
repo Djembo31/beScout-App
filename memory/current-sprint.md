@@ -1,55 +1,46 @@
-# Current Sprint — CLS Live
+# Current Sprint — Compliance Hardened
 
-## Stand (2026-04-01, Session 277)
-- **Tests:** tsc 0 Errors
+## Stand (2026-04-02, Session 279)
+- **Tests:** tsc 0 Errors, 82/82 vitest green
 - **Branch:** main
-- **Migrations:** 299 (rpc_get_most_watched_players added)
-- **Agent Team:** v3 + CLS v1.1 deployed (Constitution + Insight Pool + Direct Chaining + Boards)
+- **Migrations:** 299
+- **Agent Team:** v3 + CLS v1.3 (Constitution 36, Insight Pool cleaned)
 
-## Erledigt (Session 277)
+## Erledigt (Session 279)
 
-### Features (5 Pipeline Tests)
-- **BES-49:** Most Watched Players Strip (Home) — RPC + Component + i18n — 31551e6, a184f4f
-- **BES-58:** 24h Price Change Badge (DiscoveryCard) — 73d47e9
-- **BES-59:** Notification Preferences Panel (Dropdown) — 6e1a90b
-- **BES-60:** L5 Score Form Dots (Player Detail) — b2aec4b
-- **BES-61:** Notification Badge (TopBar Bell) — 0ddf3bd
+### E2E Audit: Market Flows (BES-87)
+- 6 Sub-Issues, 4 Agents, full Direct Chaining
+- QA: 13/13 flows PASS, BA: 11/13 initial → 2 bugs fixed
+- Pipeline found+fixed 3 additional bugs (BES-91, BES-92, BES-94)
+- Commits: 8a08239, 44b631a, b7d3a57, 6ad3a3f, 01194b2
 
-### CLS Deployment (12 Tasks + 5 Fixes)
-- Constitution: 28 immutable principles (wiki/CONSTITUTION.md)
-- Insight Pool: 15 global + 25 agent-local insights (JSON format)
-- Context Boards: wiki/boards/ with live dashboard per feature
-- All 7 HEARTBEATs: Pre-Flight + Retro + Scoring + Direct Chaining
-- CTO Constitutional Validator
-- Proactive Scan (SE + FE when idle)
-- Cross-Agent Insight Reading (step 3b)
-- Fixes: HARD RULES, Board-Updates for QA/CTO/CR, CodexReviewer CHECK WORK
+### Compliance Hardening (Jarvis self-review)
+- 5 user-visible "DPCs" → "Scout Cards" (features/ + legacy/)
+- 1 "profitierst du" → "erhaeltst du" (legacy/)
+- Constitution: #33 (exhaustive search), #34 (automated scans), #35 (qk silent bugs), #36 (git show hash)
+- BA HEARTBEAT: 4 mandatory grep patterns
+- Pre-commit hook: Banned words scanner (active)
 
-### CLS Verification (BES-68)
-- Context Board: CEO erstellt automatisch
-- Direct Chaining: FE triggert QA + CodexReviewer selbst
-- Insight Pool: FE aktualisiert Scores nach Task
-- 7/8 CLS checkpoints passed
-- CodexReviewer: adapter error (Codex CLI issue)
+### CLS Cleanup
+- Insights #16+#19 promoted (Score 5)
+- 6 insights archived (obsolete/duplicates: #1,#2,#3,#12,#14,#15)
+- Pool: 20→14 active, 6 archived
 
 ## Board Status
-- 75 issues total, 69 done
-- CLS operational: Learning D+ → B+, Communication C → A-
-- 40 total insights across all agents
-- 2 global insights at score 5 (rule-promotion candidates)
+- 94 issues total, 93 done
+- CLS v1.3: 36 Constitution principles, 14 active insights
+- Pre-commit hook active (compliance scanner)
 
 ## Naechste Prioritaet
-1. CLS mit 5-10 echten Tasks validieren (Score-Tracking)
-2. CodexReviewer adapter fix (5x error in CLS test)
-3. Proactive Scan testen (idle Heartbeat)
-4. Rule promotion: insights #4 and #5 → permanent rules
-5. Cleanup: docs/plans/bes26.json, bes27.json, bes28.json
+1. CodexReviewer neuer Flow E2E testen (Jarvis /codex:rescue)
+2. Legacy Cleanup (src/components/market/ + manager/ — 2 active imports)
+3. CEO Auto-Close verifizieren
+4. Proactive Scan testen (idle Heartbeat)
 
 ## Bekannte Issues
-- CodexReviewer Codex CLI broken (5 consecutive errors)
+- CodexReviewer Signal→Jarvis Flow nie E2E getestet
+- Legacy dirs haben 2 aktive Imports (DiscoveryCard, BestandLens type)
 - CEO Auto-Wake braucht manchmal manuellen Trigger
-- Board-Updates durch QA/CTO erst deployed, noch nicht live getestet
-- Don't pre-create QA/CodexReview backlog issues — let engineers Direct Chain
 
 ## Blocker
 - Keine

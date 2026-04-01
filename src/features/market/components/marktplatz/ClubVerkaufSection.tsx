@@ -168,7 +168,7 @@ export default function ClubVerkaufSection({
       <NewUserTip
         tipKey="club-verkauf-dpc-intro"
         icon={<HelpCircle className="size-4" />}
-        title={t('dpcIntroTitle', { defaultMessage: 'Was sind DPCs?' })}
+        title={t('dpcIntroTitle', { defaultMessage: 'Was sind Scout Cards?' })}
         description={t('dpcIntroDesc', { defaultMessage: 'Kaufe Scout Cards deines Lieblingsvereins. Steigt der Marktwert des Spielers, erhältst du durch die Community Success Fee.' })}
         show={!hasHoldings}
       />
@@ -315,7 +315,7 @@ export default function ClubVerkaufSection({
           <Modal
             open={true}
             title={expandedAgg.club.name}
-            subtitle={`${expandedAgg.players.length} DPCs ${isBuyable ? t('available', { defaultMessage: 'verfügbar' }) : ''}`}
+            subtitle={`${expandedAgg.players.length} Scout Cards ${isBuyable ? t('available', { defaultMessage: 'verfügbar' }) : ''}`}
             onClose={() => setClubVerkaufExpandedClub(null)}
             size="lg"
           >
