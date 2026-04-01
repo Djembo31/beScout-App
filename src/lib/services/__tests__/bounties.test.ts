@@ -186,7 +186,6 @@ describe('invalidateBountyData', () => {
 describe('getBountiesByClub', () => {
   it('returns enriched bounties for a club (happy path)', async () => {
     const bounty = makeBounty({ created_by: 'creator-1', player_id: 'player-1' });
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', [makeProfile('creator-1', 'scout_master')]);
     setTableResponse('players', [{ id: 'player-1', first_name: 'Ali', last_name: 'Yilmaz', position: 'ATT' }]);
@@ -202,7 +201,6 @@ describe('getBountiesByClub', () => {
   });
 
   it('returns empty array when no bounties exist', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', []);
 
     const result = await getBountiesByClub(CLUB_ID);
@@ -210,7 +208,6 @@ describe('getBountiesByClub', () => {
   });
 
   it('returns empty array when data is null', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', null);
 
     const result = await getBountiesByClub(CLUB_ID);
@@ -218,7 +215,6 @@ describe('getBountiesByClub', () => {
   });
 
   it('throws on supabase error', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', null, { message: 'DB connection failed' });
 
     await expect(getBountiesByClub(CLUB_ID)).rejects.toThrow('DB connection failed');
@@ -226,7 +222,6 @@ describe('getBountiesByClub', () => {
 
   it('marks has_user_submitted=true when user submitted', async () => {
     const bounty = makeBounty();
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', [makeProfile(USER_ID, 'test_user')]);
     setTableResponse('bounty_submissions', [{ bounty_id: BOUNTY_ID }]);
@@ -237,7 +232,6 @@ describe('getBountiesByClub', () => {
 
   it('does not fetch submissions when no currentUserId', async () => {
     const bounty = makeBounty();
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', [makeProfile(USER_ID, 'test_user')]);
 
@@ -247,7 +241,6 @@ describe('getBountiesByClub', () => {
 
   it('handles bounty without player_id (no player lookup)', async () => {
     const bounty = makeBounty({ player_id: null });
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', [makeProfile(USER_ID, 'test_user')]);
 
@@ -258,7 +251,6 @@ describe('getBountiesByClub', () => {
 
   it('uses notifText fallback when player not found in DB', async () => {
     const bounty = makeBounty({ player_id: 'missing-player' });
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', [makeProfile(USER_ID, 'test_user')]);
     setTableResponse('players', []);
@@ -269,7 +261,6 @@ describe('getBountiesByClub', () => {
 
   it('handles profile not found (falls back to unknown)', async () => {
     const bounty = makeBounty({ created_by: 'deleted-user' });
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', []);
 
@@ -278,13 +269,6 @@ describe('getBountiesByClub', () => {
     expect(result[0].creator_display_name).toBeNull();
   });
 
-  it('continues even if auto_close_expired_bounties RPC fails', async () => {
-    setRpcResponse('auto_close_expired_bounties', null, { message: 'RPC timeout' });
-    setTableResponse('bounties', []);
-
-    const result = await getBountiesByClub(CLUB_ID);
-    expect(result).toEqual([]);
-  });
 });
 
 // ============================================
@@ -294,7 +278,6 @@ describe('getBountiesByClub', () => {
 describe('getAllActiveBounties', () => {
   it('returns enriched active bounties (happy path)', async () => {
     const bounty = makeBounty({ status: 'open' });
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', [bounty]);
     setTableResponse('profiles', [makeProfile(USER_ID, 'test_user')]);
 
@@ -304,7 +287,6 @@ describe('getAllActiveBounties', () => {
   });
 
   it('returns empty array when no active bounties', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', []);
 
     const result = await getAllActiveBounties();
@@ -312,7 +294,6 @@ describe('getAllActiveBounties', () => {
   });
 
   it('returns empty array when data is null', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', null);
 
     const result = await getAllActiveBounties();
@@ -320,27 +301,18 @@ describe('getAllActiveBounties', () => {
   });
 
   it('throws on supabase error', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', null, { message: 'connection refused' });
 
     await expect(getAllActiveBounties()).rejects.toThrow('connection refused');
   });
 
   it('filters by clubId when provided', async () => {
-    setRpcResponse('auto_close_expired_bounties', null);
     setTableResponse('bounties', []);
 
     await getAllActiveBounties(undefined, CLUB_ID);
     expect(supabase.from).toHaveBeenCalledWith('bounties');
   });
 
-  it('continues even if auto_close RPC fails', async () => {
-    setRpcResponse('auto_close_expired_bounties', null, { message: 'timeout' });
-    setTableResponse('bounties', []);
-
-    const result = await getAllActiveBounties();
-    expect(result).toEqual([]);
-  });
 });
 
 // ============================================

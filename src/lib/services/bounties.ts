@@ -25,9 +25,6 @@ export async function getBountiesByClub(
   clubId: string,
   currentUserId?: string
 ): Promise<BountyWithCreator[]> {
-  // Auto-close expired bounties (fire-and-forget style, but we await for fresh data)
-  await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
-
   const { data, error } = await supabase
     .from('bounties')
     .select('id, club_id, club_name, created_by, title, description, reward_cents, deadline_at, max_submissions, player_id, position, status, submission_count, min_tier, type, fixture_id, is_user_bounty, created_at, updated_at')
@@ -45,8 +42,6 @@ export async function getAllActiveBounties(
   currentUserId?: string,
   clubId?: string
 ): Promise<BountyWithCreator[]> {
-  await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
-
   let query = supabase
     .from('bounties')
     .select('id, club_id, club_name, created_by, title, description, reward_cents, deadline_at, max_submissions, player_id, position, status, submission_count, min_tier, type, fixture_id, is_user_bounty, created_at, updated_at')
