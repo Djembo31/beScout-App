@@ -326,4 +326,22 @@ export const qk = {
     streak: ['economy', 'streak'] as const,
     missions: ['economy', 'missions'] as const,
   },
+
+  // ── Fantasy ──
+  fantasy: {
+    gwFixtureInfo: (gw: number) => ['fantasy', 'gwFixtureInfo', gw] as const,
+    fixtureDeadlines: (gw: number) => ['fantasy', 'fixtureDeadlines', gw] as const,
+    leaderboard: (eventId: string | undefined) => ['fantasy', 'leaderboard', eventId] as const,
+    progressiveScores: (gw: number | undefined, playerIds: string[]) =>
+      ['fantasy', 'progressiveScores', gw, ...playerIds],
+    lineupScores: (uid: string | undefined, eventIds: string[]) =>
+      ['fantasy', 'lineupScores', uid, ...eventIds],
+  },
+
+  // ── Fantasy Leagues ──
+  fantasyLeagues: {
+    all: ['fantasy-leagues'] as const,
+    byUser: (uid: string | undefined) => ['fantasy-leagues', uid] as const,
+    leaderboard: (leagueId: string | undefined) => ['fantasy-league-leaderboard', leagueId] as const,
+  },
 } as const;

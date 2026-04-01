@@ -8,6 +8,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useMyLeagues, useLeagueLeaderboard } from '@/lib/queries/fantasyLeagues';
 import { createLeague, joinLeague, leaveLeague } from '@/lib/services/fantasyLeagues';
 import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import { useTranslations } from 'next-intl';
 import type { DbFantasyLeague } from '@/types';
 
@@ -31,7 +32,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
       const result = await createLeague(name.trim(), parseInt(maxMembers) || 20);
       if (result.success) {
         addToast(t('created'), 'success');
-        queryClient.invalidateQueries({ queryKey: ['fantasy-leagues'] });
+        queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
         onClose();
         setName('');
       } else {
@@ -97,7 +98,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
       const result = await joinLeague(code.trim());
       if (result.success) {
         addToast(`${t('joined')}: ${result.leagueName}`, 'success');
-        queryClient.invalidateQueries({ queryKey: ['fantasy-leagues'] });
+        queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
         onClose();
         setCode('');
       } else {
@@ -157,7 +158,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
       const result = await leaveLeague(league.id);
       if (result.success) {
         addToast(t('left'), 'success');
-        queryClient.invalidateQueries({ queryKey: ['fantasy-leagues'] });
+        queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
       } else {
         addToast(result.error ?? t('unknownError'), 'error');
       }

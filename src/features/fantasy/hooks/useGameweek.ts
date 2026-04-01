@@ -46,7 +46,7 @@ export function useGameweek(gwEvents: FantasyEvent[] = []) {
 
   // GW fixture completion — lightweight check (independent of events)
   const { data: gwFixtureInfo = { complete: false, count: 0 } } = useQuery({
-    queryKey: ['fantasy', 'gwFixtureInfo', currentGw],
+    queryKey: qk.fantasy.gwFixtureInfo(currentGw),
     queryFn: async () => {
       const statuses = await getGameweekStatuses(currentGw, currentGw);
       const s = statuses.find(st => st.gameweek === currentGw);

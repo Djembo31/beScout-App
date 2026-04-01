@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { getFixtureDeadlinesByGameweek } from '../services/fixtures';
 import type { FixtureDeadline } from '../services/fixtures';
 import type { UserDpcHolding } from '../types';
+import { qk } from '@/lib/queries/keys';
 
 /**
  * Per-fixture deadline locking — replaces manual useEffect + setState
@@ -14,7 +15,7 @@ import type { UserDpcHolding } from '../types';
  */
 export function useFixtureDeadlines(currentGw: number, hasRunningEvents: boolean) {
   const { data: fixtureDeadlines = new Map<string, FixtureDeadline>() } = useQuery({
-    queryKey: ['fantasy', 'fixtureDeadlines', currentGw],
+    queryKey: qk.fantasy.fixtureDeadlines(currentGw),
     queryFn: () => getFixtureDeadlinesByGameweek(currentGw),
     staleTime: 30_000,
     refetchInterval: hasRunningEvents ? 60_000 : false,

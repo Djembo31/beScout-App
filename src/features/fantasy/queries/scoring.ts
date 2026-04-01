@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { getEventLeaderboard, getProgressiveScores } from '../services/scoring.queries';
+import { qk } from '@/lib/queries/keys';
 
 /**
  * Replaces EventDetailModal lines 108-127:
@@ -12,7 +13,7 @@ export function useLeaderboard(
   options?: { enabled?: boolean; isRunning?: boolean },
 ) {
   return useQuery({
-    queryKey: ['fantasy', 'leaderboard', eventId],
+    queryKey: qk.fantasy.leaderboard(eventId),
     queryFn: () => getEventLeaderboard(eventId!),
     enabled: options?.enabled !== false && !!eventId,
     staleTime: 15_000,
@@ -30,7 +31,7 @@ export function useProgressiveScores(
   options?: { enabled?: boolean },
 ) {
   return useQuery({
-    queryKey: ['fantasy', 'progressiveScores', gameweek, ...playerIds],
+    queryKey: qk.fantasy.progressiveScores(gameweek, playerIds),
     queryFn: () => getProgressiveScores(gameweek!, playerIds),
     enabled: options?.enabled !== false && !!gameweek && playerIds.length > 0,
     staleTime: 30_000,

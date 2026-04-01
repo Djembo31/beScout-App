@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getLineup } from '../services/lineups.queries';
 import type { DbEvent } from '@/types';
+import { qk } from '@/lib/queries/keys';
 
 /**
  * Replaces FantasyContent lines 149-164:
@@ -20,7 +21,7 @@ export function useLineupScores(
   );
 
   return useQuery({
-    queryKey: ['fantasy', 'lineupScores', userId, ...scoredJoinedIds],
+    queryKey: qk.fantasy.lineupScores(userId, scoredJoinedIds),
     queryFn: async () => {
       const lineups = await Promise.all(scoredJoinedIds.map(eid => getLineup(eid, userId!)));
       const map = new Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>();
