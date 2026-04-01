@@ -48,6 +48,7 @@ vi.mock('@/lib/queries/keys', () => ({
 // ============================================
 
 import { useClubActions } from '../useClubActions';
+import { qk } from '@/lib/queries/keys';
 
 // ============================================
 // Fixtures
@@ -187,10 +188,10 @@ describe('useClubActions', () => {
     });
 
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['clubs', 'isFollowing', 'u-1', 'club-1'],
+      queryKey: qk.clubs.isFollowing('u-1', 'club-1'),
     });
     expect(mockInvalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['clubs', 'followers', 'club-1'],
+      queryKey: qk.clubs.followers('club-1'),
     });
   });
 

@@ -123,6 +123,7 @@ vi.mock('@/lib/services/streaks', () => ({
 import { useHomeData } from '../useHomeData';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStoryMessage } from '@/components/home/helpers';
+import { qk } from '@/lib/queries';
 
 // ============================================
 // Fixtures
@@ -417,10 +418,10 @@ describe('useHomeData', () => {
     });
     expect(mockSubmitDailyChallenge).toHaveBeenCalledWith('ch-1', 2);
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['dailyChallenge', 'history', 'u1'],
+      queryKey: qk.dailyChallenge.history('u1'),
     });
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['tickets', 'balance', 'u1'],
+      queryKey: qk.tickets.balance('u1'),
     });
   });
 
