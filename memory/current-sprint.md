@@ -1,34 +1,31 @@
-# Current Sprint — Quality-First + Performance
+# Current Sprint — Performance + QA
 
-## Stand (2026-04-01, Session 275)
-- **Tests:** tsc 0 Errors, 195+ Unit Tests
-- **Branch:** main
-- **Deploys:** Vercel green, pushed
+## Stand (2026-04-01, Session 276)
+- **Tests:** tsc 0 Errors, 195+ Unit Tests (2 pre-existing BuyModal/SellModal failures)
+- **Branch:** main (ahead of origin by 2 commits)
+- **Migrations:** 298 total (rpc_get_player_percentiles added)
 
-## Erledigt (Session 275)
-- **Quality-First Workflow:** 3-Phase System (BEFORE/DURING/AFTER), 9-Punkt Checkliste, Beweis-Pflicht
-- **Performance Audit:** FCP Community 652ms → 460ms (-29%), Load 833ms → 680ms (-18%)
-- **PostHog entfernt:** 0 Console-Errors (war 7), 3+ fehlgeschlagene Requests eliminiert
-- **3 Debounce-Fixes:** resolveExpiredResearch, record_login_streak, assign_user_missions
-- **user_follows RPC:** 3 Queries → 1 (neue Migration rpc_get_user_social_stats)
-- **Community deferred loading:** below-fold Queries 500ms delayed
-- **Player Detail:** Buy/Sell/Offer Modals lazy-loaded
-- **Agent Team Test:** BES-23 + BES-24, Quality-First in Issue-Description funktioniert
-- **Lockfile-Fix:** pnpm-lock.yaml nach PostHog-Removal aktualisiert
+## Erledigt (Sessions 275–276)
+- **BES-23:** get_club_by_slug vereinfacht (done)
+- **BES-24:** assign_user_missions debounce (done)
+- **BES-25:** auto_close_expired_bounties → Vercel Cron 05:00 UTC (done, committed df2677b)
+- **BES-26:** React.memo on 5 Player Detail components (in_review, committed ef914ae)
+- **BES-27:** staleTime relaxed — usePlayerTrades 1→5min, useHoldingLocks 1→2min, profileMap 2s debounce (done, committed ef914ae)
+- **BES-28:** rpc_get_player_percentiles — eliminates 632-row usePlayers() fetch, deployed to Supabase (done, committed ef914ae)
 
 ## Board Status
-- BES-23: get_club_by_slug vereinfacht (done)
-- BES-24: assign_user_missions debounce (done)
-- Pipeline operational, Quality-First Workflow in Agent-Definitionen
+- QA issue fde8ed0e: Player Detail Performance BES-26/27/28 → QA pending
+- BES-26: in_review (FrontendEngineer)
+- All other issues: done
 
 ## Naechste Prioritaet
-1. auto_close_expired_bounties → Cron statt Client-Call
-2. Echtes Feature (Roadmap)
-3. Connection Pool Tuning (Infra)
+1. Echtes Feature (Roadmap — awaiting CEO/CTO direction)
+2. Connection Pool Tuning (Infra — Vercel contention bei 40+ Queries)
+3. 2 pre-existing test failures: BuyModal/SellModal lazy-load (cleanup)
 
 ## Bekannte Issues
 - Vercel Connection Pool Contention bei 40+ parallelen Queries
-- auto_close_expired_bounties client-seitig (2.8s)
+- BuyModal/SellModal test stubs broken (pre-existing, lazy-load regression)
 
 ## Blocker
 - Keine
