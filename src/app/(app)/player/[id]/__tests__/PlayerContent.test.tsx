@@ -122,7 +122,7 @@ vi.mock('@/lib/queries/players', () => ({
     isError: false,
     refetch: mockRefetch,
   })),
-  usePlayers: vi.fn(() => ({ data: [] })),
+  usePlayerPercentiles: vi.fn(() => ({ data: {} })),
 }));
 
 vi.mock('@/lib/queries/misc', () => ({
@@ -182,7 +182,7 @@ vi.mock('@/components/player/detail/hooks', () => ({
     matchTimelineLoading: false,
     liquidationEvent: null,
     gwScores: [],
-    allPlayersForPercentile: [],
+    percentiles: {},
     playerResearch: [],
     playerPosts: [],
     profileMap: {},
@@ -382,7 +382,7 @@ const baseDetailData: any = {
   matchTimelineLoading: false,
   liquidationEvent: null,
   gwScores: [],
-  allPlayersForPercentile: [],
+  percentiles: {},
   playerResearch: [],
   playerPosts: [],
   profileMap: {},

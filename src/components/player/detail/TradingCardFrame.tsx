@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
@@ -147,7 +147,7 @@ const formatMV = (v: number) => {
   return `${v}\u20AC`;
 };
 
-export default function TradingCardFrame({
+function TradingCardFrameInner({
   first, last, pos, club, shirtNumber, imageUrl, l5, l5Apps = 0, l15Apps = 0, edition, className = '', backData,
   age, country, masteryLevel,
 }: TradingCardFrameProps) {
@@ -516,3 +516,5 @@ export default function TradingCardFrame({
     </div>
   );
 }
+
+export default memo(TradingCardFrameInner);

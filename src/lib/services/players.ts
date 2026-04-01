@@ -60,6 +60,13 @@ export async function getPlayerById(id: string): Promise<DbPlayer | null> {
   return data as unknown as DbPlayer;
 }
 
+/** Server-side percentile ranks for a player — avoids fetching all 632 players client-side */
+export async function getPlayerPercentiles(playerId: string): Promise<Record<string, number>> {
+  const { data, error } = await supabase.rpc('rpc_get_player_percentiles', { p_player_id: playerId });
+  if (error) throw new Error(error.message);
+  return (data as Record<string, number>) ?? {};
+}
+
 /** Alle Spieler eines Clubs laden (by club_id) */
 export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
   const { data, error } = await supabase

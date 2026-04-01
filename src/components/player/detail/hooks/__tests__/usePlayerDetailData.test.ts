@@ -11,7 +11,7 @@ const mockRefetch = vi.fn();
 
 vi.mock('@/lib/queries/players', () => ({
   useDbPlayerById: vi.fn(() => ({ data: undefined, isLoading: true, isError: false, refetch: mockRefetch })),
-  usePlayers: vi.fn(() => ({ data: undefined })),
+  usePlayerPercentiles: vi.fn(() => ({ data: undefined })),
 }));
 
 vi.mock('@/lib/queries/misc', () => ({
@@ -100,7 +100,7 @@ vi.mock('@/components/providers/ToastProvider', () => ({
 // ============================================
 
 import { usePlayerDetailData } from '../usePlayerDetailData';
-import { useDbPlayerById, usePlayers } from '@/lib/queries/players';
+import { useDbPlayerById, usePlayerPercentiles } from '@/lib/queries/players';
 import {
   usePlayerGwScores,
   useOpenBids,

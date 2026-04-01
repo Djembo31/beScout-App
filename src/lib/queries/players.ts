@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getPlayers, getPlayerById, getPlayersByClubId, getPlayerNames, dbToPlayers, dbToPlayer } from '@/lib/services/players';
+import { getPlayers, getPlayerById, getPlayersByClubId, getPlayerNames, getPlayerPercentiles, dbToPlayers, dbToPlayer } from '@/lib/services/players';
 import type { PlayerName } from '@/lib/services/players';
 import type { DbPlayer } from '@/types';
 
@@ -55,6 +55,16 @@ export function usePlayerNames() {
   return useQuery<PlayerName[]>({
     queryKey: qk.players.names,
     queryFn: getPlayerNames,
+    staleTime: FIVE_MIN,
+  });
+}
+
+/** Pre-computed server-side percentile ranks — replaces client-side usePlayers() overfetch */
+export function usePlayerPercentiles(playerId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: [...qk.players.byId(playerId!), 'percentiles'],
+    queryFn: () => getPlayerPercentiles(playerId!),
+    enabled: !!playerId && enabled,
     staleTime: FIVE_MIN,
   });
 }

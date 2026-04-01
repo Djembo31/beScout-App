@@ -7,7 +7,6 @@ import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { getL5Hex } from '@/components/player';
 import { useNumTick } from '@/lib/hooks/useNumTick';
-import { usePositionPercentile } from '@/lib/hooks/usePositionPercentile';
 import { posTintColors } from '@/components/player/PlayerRow';
 import type { MatchTimelineEntry } from '@/lib/services/scoring';
 import type { Player } from '@/types';
@@ -15,7 +14,7 @@ import type { Player } from '@/types';
 interface MatchTimelineProps {
   player: Player;
   entries: MatchTimelineEntry[];
-  allPlayers?: Player[];
+  posPercentile?: { percentile: number; rank: number; total: number } | null;
   loading?: boolean;
   className?: string;
 }
@@ -25,7 +24,7 @@ type ViewMode = 'L5' | 'L15';
 import { getScoreHex, getScoreTextClass } from '@/components/player/scoreColor';
 
 export default function MatchTimeline({
-  player, entries, allPlayers = [], loading, className = '',
+  player, entries, posPercentile, loading, className = '',
 }: MatchTimelineProps) {
   const t = useTranslations('playerDetail');
   const tp = useTranslations('player');
@@ -65,7 +64,7 @@ export default function MatchTimeline({
   const perfValue = mode === 'L5' ? player.perf.l5 : player.perf.l15;
   const l5Hex = getL5Hex(perfValue);
   const posTint = posTintColors[player.pos];
-  const percentile = usePositionPercentile(player.pos, player.perf.l5, allPlayers);
+  const percentile = posPercentile ?? null;
   const scoreTick = useNumTick(perfValue);
 
   return (

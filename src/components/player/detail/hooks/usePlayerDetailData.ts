@@ -12,7 +12,7 @@ import type { DbDpcMastery } from '@/lib/services/mastery';
 import type { MatchTimelineEntry, PlayerGameweekScore } from '@/features/fantasy/services/scoring.queries';
 
 // React Query hooks
-import { useDbPlayerById, usePlayers } from '@/lib/queries/players';
+import { useDbPlayerById, usePlayerPercentiles } from '@/lib/queries/players';
 import {
   usePlayerGwScores,
   usePlayerMatchTimeline,
@@ -58,7 +58,7 @@ export interface PlayerDetailData {
   matchTimelineLoading: boolean;
   liquidationEvent: DbLiquidationEvent | null | undefined;
   gwScores: PlayerGameweekScore[];
-  allPlayersForPercentile: Player[];
+  percentiles: Record<string, number> | undefined;
 
   // Community
   playerResearch: ResearchPostWithAuthor[];
@@ -109,8 +109,7 @@ export function usePlayerDetailData(
   const { data: playerPostsData } = usePosts({ playerId, limit: 30, active: tab === 'community' });
 
   // ─── Derived from queries ─────────────────
-  const { data: allPlayersData } = usePlayers(tab === 'performance');
-  const allPlayersForPercentile = allPlayersData ?? [];
+  const { data: percentiles } = usePlayerPercentiles(playerId, tab === 'performance');
 
   const player = useMemo(() => (dbPlayer ? dbToPlayer(dbPlayer) : null), [dbPlayer]);
   const dpcAvailable = dbPlayer?.dpc_available ?? 0;
@@ -128,21 +127,24 @@ export function usePlayerDetailData(
   const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
 
   useEffect(() => {
-    const userIds = new Set<string>();
-    trades.forEach((tr) => {
-      if (tr.buyer_id) userIds.add(tr.buyer_id);
-      if (tr.seller_id) userIds.add(tr.seller_id);
-    });
-    allSellOrders.forEach((o) => {
-      if (o.user_id) userIds.add(o.user_id);
-    });
-    const ids = Array.from(userIds);
-    if (ids.length > 0) {
-      getProfilesByIds(ids).then(setProfileMap).catch((err) => {
-        console.error('[Player] Profile map failed:', err);
-        addToast(t('couldNotLoadProfiles'), 'error');
+    const timer = setTimeout(() => {
+      const userIds = new Set<string>();
+      trades.forEach((tr) => {
+        if (tr.buyer_id) userIds.add(tr.buyer_id);
+        if (tr.seller_id) userIds.add(tr.seller_id);
       });
-    }
+      allSellOrders.forEach((o) => {
+        if (o.user_id) userIds.add(o.user_id);
+      });
+      const ids = Array.from(userIds);
+      if (ids.length > 0) {
+        getProfilesByIds(ids).then(setProfileMap).catch((err) => {
+          console.error('[Player] Profile map failed:', err);
+          addToast(t('couldNotLoadProfiles'), 'error');
+        });
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [trades, allSellOrders]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Player With Ownership ────────────────
@@ -189,7 +191,7 @@ export function usePlayerDetailData(
     matchTimelineLoading,
     liquidationEvent,
     gwScores,
-    allPlayersForPercentile,
+    percentiles,
     playerResearch,
     playerPosts,
     profileMap,

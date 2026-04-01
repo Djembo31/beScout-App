@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { memo, useState, useRef, useCallback, useMemo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui';
@@ -46,7 +46,7 @@ function catmullRomPath(pts: { x: number; y: number }[]): string {
   return d.join(' ');
 }
 
-export default function PriceChart({ trades, ipoPrice, referencePrice, className = '' }: PriceChartProps) {
+function PriceChartInner({ trades, ipoPrice, referencePrice, className = '' }: PriceChartProps) {
   const t = useTranslations('player');
   const tpd = useTranslations('playerDetail');
   const locale = useLocale();
@@ -236,3 +236,5 @@ export default function PriceChart({ trades, ipoPrice, referencePrice, className
     </Card>
   );
 }
+
+export default memo(PriceChartInner);

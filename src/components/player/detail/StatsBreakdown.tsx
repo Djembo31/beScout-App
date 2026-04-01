@@ -8,72 +8,62 @@ import type { Player } from '@/types';
 
 interface StatsBreakdownProps {
   player: Player;
-  allPlayers: Player[];
+  percentiles: Record<string, number>;
   className?: string;
 }
 
 interface StatRow {
   label: string;
   value: number;
-  percentile: number;
+  percentile: number; // 0-100
 }
 
-export function calcPercentile(value: number, values: number[]): number {
-  if (values.length === 0) return 0;
-  const below = values.filter(v => v < value).length;
-  return Math.round((below / values.length) * 100);
-}
-
-export default function StatsBreakdown({ player, allPlayers, className = '' }: StatsBreakdownProps) {
+export default function StatsBreakdown({ player, percentiles, className = '' }: StatsBreakdownProps) {
   const t = useTranslations('playerDetail');
 
   const stats = useMemo(() => {
-    const samePos = allPlayers.filter(p => p.pos === player.pos);
+    const pct = (key: string) => Math.round((percentiles[key] ?? 0) * 100);
 
-    const getRow = (label: string, value: number, extractor: (p: Player) => number): StatRow => ({
-      label,
-      value,
-      percentile: calcPercentile(value, samePos.map(extractor)),
+    const makeRow = (label: string, value: number, pctKey: string): StatRow => ({
+      label, value, percentile: pct(pctKey),
     });
 
     const common = [
-      getRow(t('matches'), player.stats.matches, p => p.stats.matches),
-      getRow(t('goals'), player.stats.goals, p => p.stats.goals),
-      getRow(t('assists'), player.stats.assists, p => p.stats.assists),
+      makeRow(t('matches'), player.stats.matches, 'pos_matches_pct'),
+      makeRow(t('goals'), player.stats.goals, 'pos_goals_pct'),
+      makeRow(t('assists'), player.stats.assists, 'pos_assists_pct'),
     ];
 
     switch (player.pos) {
       case 'GK':
         return [
-          getRow(t('statSaves'), player.stats.saves, p => p.stats.saves),
-          getRow(t('statCS'), player.stats.cleanSheets, p => p.stats.cleanSheets),
+          makeRow(t('statSaves'), player.stats.saves, 'pos_saves_pct'),
+          makeRow(t('statCS'), player.stats.cleanSheets, 'pos_clean_sheets_pct'),
           ...common,
-          getRow(t('statMinutes'), player.stats.minutes, p => p.stats.minutes),
+          makeRow(t('statMinutes'), player.stats.minutes, 'pos_minutes_pct'),
         ];
       case 'DEF':
         return [
           ...common,
-          getRow(t('statMinutes'), player.stats.minutes, p => p.stats.minutes),
+          makeRow(t('statMinutes'), player.stats.minutes, 'pos_minutes_pct'),
         ];
       case 'MID':
         return [
           ...common,
-          getRow(t('statMinutes'), player.stats.minutes, p => p.stats.minutes),
+          makeRow(t('statMinutes'), player.stats.minutes, 'pos_minutes_pct'),
         ];
       case 'ATT':
       default:
         return [
-          getRow(t('goals'), player.stats.goals, p => p.stats.goals),
-          getRow(t('assists'), player.stats.assists, p => p.stats.assists),
-          getRow(t('matches'), player.stats.matches, p => p.stats.matches),
-          getRow(t('statMinutes'), player.stats.minutes, p => p.stats.minutes),
+          makeRow(t('goals'), player.stats.goals, 'pos_goals_pct'),
+          makeRow(t('assists'), player.stats.assists, 'pos_assists_pct'),
+          makeRow(t('matches'), player.stats.matches, 'pos_matches_pct'),
+          makeRow(t('statMinutes'), player.stats.minutes, 'pos_minutes_pct'),
         ];
     }
-  }, [player, allPlayers, t]);
+  }, [player, percentiles, t]);
 
   const posColor = player.pos === 'GK' ? '#34d399' : player.pos === 'DEF' ? '#fbbf24' : player.pos === 'MID' ? '#38bdf8' : '#fb7185';
-
-  if (allPlayers.length < 5) return null;
 
   return (
     <Card className={`p-4 md:p-6 ${className}`}>

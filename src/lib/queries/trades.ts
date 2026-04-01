@@ -7,6 +7,7 @@ import { getClubRecentTrades } from '@/lib/services/club';
 
 const ONE_MIN = 60 * 1000;
 const TWO_MIN = 2 * 60 * 1000;
+const FIVE_MIN = 5 * 60 * 1000;
 
 export function useRecentGlobalTrades(limit = 10) {
   return useQuery({
@@ -38,6 +39,6 @@ export function usePlayerTrades(playerId: string | undefined, limit = 50) {
     queryKey: qk.trades.byPlayer(playerId!),
     queryFn: () => getPlayerTrades(playerId!, limit),
     enabled: !!playerId,
-    staleTime: ONE_MIN,
+    staleTime: FIVE_MIN,
   });
 }

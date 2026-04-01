@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import {
@@ -41,7 +41,7 @@ interface TradingTabProps {
   onBuyClick?: () => void;
 }
 
-export default function TradingTab({
+function TradingTabInner({
   player, trades, allSellOrders, tradesLoading,
   profileMap, userId, dpcAvailable,
   openBids, holdingQty, holderCount, mastery,
@@ -480,3 +480,5 @@ export default function TradingTab({
     </div>
   );
 }
+
+export default memo(TradingTabInner);

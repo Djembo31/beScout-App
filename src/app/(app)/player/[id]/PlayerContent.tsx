@@ -221,7 +221,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             holderCount={data.holderCount}
             matchTimeline={data.matchTimelineData}
             matchTimelineLoading={data.matchTimelineLoading}
-            allPlayers={data.allPlayersForPercentile}
+            percentiles={data.percentiles}
           />
         )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import {
@@ -43,7 +43,7 @@ type FeedFilter = 'all' | 'takes' | 'rumors';
 
 const MIN_SENTIMENT_TRADES = 10;
 
-export default function CommunityTab({
+function CommunityTabInner({
   playerResearch, playerPosts, myPostVotes, trades, userId, playerId, playerName,
   unlockingId, ratingId, postLoading,
   onUnlock, onRate, onCreatePost, onVotePost, onDeletePost,
@@ -389,3 +389,5 @@ export default function CommunityTab({
     </div>
   );
 }
+
+export default memo(CommunityTabInner);

@@ -10,6 +10,7 @@ import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/s
 import type { DbEventEntry } from '@/types';
 
 const ONE_MIN = 60 * 1000;
+const TWO_MIN = 2 * 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
 const THIRTY_SEC = 30 * 1000;
 
@@ -52,7 +53,7 @@ export function useHoldingLocks(userId: string | undefined) {
       return map;
     },
     enabled: !!userId,
-    staleTime: ONE_MIN,
+    staleTime: TWO_MIN,
   });
 }
 

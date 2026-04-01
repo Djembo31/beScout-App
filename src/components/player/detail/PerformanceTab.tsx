@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Info, Calendar, AlertTriangle, Flame, CheckCircle2,
@@ -26,7 +26,7 @@ interface PerformanceTabProps {
   holderCount: number;
   matchTimeline: MatchTimelineEntry[];
   matchTimelineLoading?: boolean;
-  allPlayers?: Player[];
+  percentiles?: Record<string, number>;
 }
 
 const formatMarketValue = (value: number) => {
@@ -71,14 +71,23 @@ function CollapsibleHeader({
   );
 }
 
-export default function PerformanceTab({
+function PerformanceTabInner({
   player, dpcAvailable, holdingQty, holderCount,
-  matchTimeline, matchTimelineLoading, allPlayers = [],
+  matchTimeline, matchTimelineLoading, percentiles = {},
 }: PerformanceTabProps) {
   const t = useTranslations('playerDetail');
   const tp = useTranslations('player');
   const contract = getContractInfo(player.contractMonthsLeft);
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
+
+  // Derive position percentile for MatchTimeline hero from server-computed percentiles
+  const posPercentile = Object.keys(percentiles).length > 0
+    ? {
+        percentile: Math.round((percentiles['pos_l5_pct'] ?? 0) * 100),
+        rank: Number(percentiles['pos_l5_rank'] ?? 0),
+        total: Number(percentiles['pos_l5_total'] ?? 0),
+      }
+    : null;
 
   // Collapsible states (collapsed by default for secondary sections)
   const [dpcOpen, setDpcOpen] = useState(false);
@@ -109,7 +118,7 @@ export default function PerformanceTab({
       <MatchTimeline
         player={player}
         entries={matchTimeline}
-        allPlayers={allPlayers}
+        posPercentile={posPercentile}
         loading={matchTimelineLoading}
       />
 
@@ -141,8 +150,8 @@ export default function PerformanceTab({
       )}
 
       {/* ── 4. Stats Breakdown (Opta-style percentile bars) ── */}
-      {allPlayers.length >= 5 && (
-        <StatsBreakdown player={player} allPlayers={allPlayers} />
+      {Object.keys(percentiles).length >= 5 && (
+        <StatsBreakdown player={player} percentiles={percentiles} />
       )}
 
       {/* ── 5. Player Info Grid ── */}
@@ -357,3 +366,5 @@ export default function PerformanceTab({
     </div>
   );
 }
+
+export default memo(PerformanceTabInner);
