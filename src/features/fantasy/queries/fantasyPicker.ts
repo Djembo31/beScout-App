@@ -9,7 +9,7 @@ const FIVE_MIN = 5 * 60 * 1000;
 
 export function useBatchFormScores(playerIds: string[], enabled = true) {
   return useQuery({
-    queryKey: [qk.scoring.batchForm, playerIds.length],
+    queryKey: [...qk.scoring.batchForm, playerIds.length],
     queryFn: () => getBatchFormScores(playerIds, 5),
     enabled: enabled && playerIds.length > 0,
     staleTime: FIVE_MIN,
