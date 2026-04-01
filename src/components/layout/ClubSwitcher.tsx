@@ -28,7 +28,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
   if (loading || !activeClub) {
     return (
       <div className={cn('p-3 border-b border-white/10', collapsed ? 'px-2' : '')}>
-        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
+        <div className="h-10 rounded-xl bg-white/5 animate-pulse motion-reduce:animate-none" />
       </div>
     );
   }

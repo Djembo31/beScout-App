@@ -19,15 +19,15 @@ import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits'
 
 const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
   ssr: false,
-  loading: () => <div className="h-40 rounded-2xl bg-white/[0.02] animate-pulse" />,
+  loading: () => <div className="h-40 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
 });
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), {
   ssr: false,
-  loading: () => <div className="h-32 rounded-2xl bg-white/[0.02] animate-pulse" />,
+  loading: () => <div className="h-32 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
 });
 const ScoreRoadCard = dynamic(() => import('@/components/gamification/ScoreRoadCard'), {
   ssr: false,
-  loading: () => <div className="h-48 rounded-2xl bg-white/[0.02] animate-pulse" />,
+  loading: () => <div className="h-48 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
 });
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
   ssr: false,

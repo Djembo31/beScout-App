@@ -377,7 +377,7 @@ export default function LineupPanel({
                         )}
                         {/* LIVE badge for locked players (only if no score yet) */}
                         {player && slotLocked && !hasScore && (
-                          <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-xs font-black text-white shadow-lg animate-pulse">LIVE</div>
+                          <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-xs font-black text-white shadow-lg animate-pulse motion-reduce:animate-none">LIVE</div>
                         )}
                         {/* Captain Crown (top-left) */}
                         {player && isCaptain && (

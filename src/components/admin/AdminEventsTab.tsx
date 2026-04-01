@@ -80,7 +80,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }, (_, i) => (
-          <Card key={i} className="h-20 animate-pulse" />
+          <Card key={i} className="h-20 animate-pulse motion-reduce:animate-none" />
         ))}
       </div>
     );

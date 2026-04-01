@@ -65,7 +65,7 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
   // Loading skeleton
   if (scoresLoading || claimsLoading) {
     return (
-      <div className="h-10 rounded-xl bg-white/[0.02] border border-white/[0.06] animate-pulse" />
+      <div className="h-10 rounded-xl bg-white/[0.02] border border-white/[0.06] animate-pulse motion-reduce:animate-none" />
     );
   }
 

@@ -22,12 +22,12 @@ import { cn } from '@/lib/utils';
 
 const RankingTab = dynamic(() => import('./fixture-tabs/RankingTab'), {
   ssr: false,
-  loading: () => <div className="h-64 animate-pulse bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
 });
 
 const FormationTab = dynamic(() => import('./fixture-tabs/FormationTab'), {
   ssr: false,
-  loading: () => <div className="h-96 animate-pulse bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-96 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
 });
 
 // ============================================

@@ -130,12 +130,12 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="h-4 w-24 bg-white/[0.04] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-24 bg-white/[0.04] rounded animate-pulse motion-reduce:animate-none" />
+          <div className="h-4 w-16 bg-white/[0.04] rounded animate-pulse motion-reduce:animate-none" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-36 bg-white/[0.04] rounded-2xl animate-pulse" />
+            <div key={i} className="h-36 bg-white/[0.04] rounded-2xl animate-pulse motion-reduce:animate-none" />
           ))}
         </div>
       </div>

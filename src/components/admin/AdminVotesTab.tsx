@@ -79,7 +79,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse" />)}</div>
+        <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse motion-reduce:animate-none" />)}</div>
       ) : votes.length === 0 ? (
         <Card className="p-12 text-center">
           <div className="text-white/30 font-bold">{t('noVotes')}</div>

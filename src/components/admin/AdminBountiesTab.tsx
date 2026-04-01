@@ -193,7 +193,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse" />)}</div>
+        <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse motion-reduce:animate-none" />)}</div>
       ) : bounties.length === 0 ? (
         <Card className="p-12 text-center">
           <Target className="w-12 h-12 mx-auto mb-4 text-white/20" />

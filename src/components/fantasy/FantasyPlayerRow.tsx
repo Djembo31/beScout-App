@@ -178,7 +178,7 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
               </>
             )}
             {rowState === 'locked' && (
-              <span className="ml-auto text-emerald-400 font-black text-[10px] animate-pulse">
+              <span className="ml-auto text-emerald-400 font-black text-[10px] animate-pulse motion-reduce:animate-none">
                 {t('liveLabel')}
               </span>
             )}

@@ -110,10 +110,10 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse border border-white/[0.06]" />
+            <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />
           ))}
         </div>
-        <div className="h-64 rounded-2xl bg-white/[0.02] animate-pulse border border-white/[0.06]" />
+        <div className="h-64 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />
       </div>
     );
   }

@@ -111,7 +111,7 @@ export default function TipButton({
         onClick={() => { setOpen(!open); setError(null); }}
         className={cn(
           'flex items-center gap-1 transition-colors text-xs active:scale-[0.97]',
-          success ? 'text-gold animate-pulse' : 'text-white/50 hover:text-pink-400'
+          success ? 'text-gold animate-pulse motion-reduce:animate-none' : 'text-white/50 hover:text-pink-400'
         )}
         aria-label={tt('sendTipAria')}
       >

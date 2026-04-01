@@ -72,7 +72,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
         </div>
 
         {loadingSummaries ? (
-          <div className="space-y-2">{[...Array(3)].map((_, i) => <Card key={i} className="h-12 animate-pulse" />)}</div>
+          <div className="space-y-2">{[...Array(3)].map((_, i) => <Card key={i} className="h-12 animate-pulse motion-reduce:animate-none" />)}</div>
         ) : sortedSummaries.length === 0 ? (
           <Card className="p-8 text-center">
             <Telescope className="w-10 h-10 mx-auto mb-3 text-white/20" />
@@ -130,7 +130,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
         </div>
 
         {loadingScouts ? (
-          <div className="space-y-2">{[...Array(3)].map((_, i) => <Card key={i} className="h-12 animate-pulse" />)}</div>
+          <div className="space-y-2">{[...Array(3)].map((_, i) => <Card key={i} className="h-12 animate-pulse motion-reduce:animate-none" />)}</div>
         ) : !topScouts || topScouts.length === 0 ? (
           <Card className="p-6 text-center text-sm text-white/30">{ts('noScoutActivity')}</Card>
         ) : (

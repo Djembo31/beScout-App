@@ -432,7 +432,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
       {state.loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse border border-white/[0.06]" />
+            <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />
           ))}
         </div>
       ) : state.offers.length === 0 ? (

@@ -26,7 +26,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: t('ipoStatusCancelled') },
   };
 
-  if (s.loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-20 animate-pulse" />)}</div>;
+  if (s.loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-20 animate-pulse motion-reduce:animate-none" />)}</div>;
 
   return (
     <div className="space-y-6">

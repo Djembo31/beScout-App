@@ -37,7 +37,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
             <div className="relative">
               <PlayerPhoto imageUrl={ipo.imageUrl} first={ipo.first} last={ipo.last} pos={ipo.pos} size={48} />
               <span className="absolute -bottom-1 -right-1 flex size-3 live-ring">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+                <span className="animate-ping motion-reduce:animate-none absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
                 <span className="relative inline-flex rounded-full size-3 bg-green-500" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
               </span>
             </div>

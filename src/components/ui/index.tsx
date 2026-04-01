@@ -288,11 +288,11 @@ export function StatCard({
 // ============================================
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse bg-white/[0.04] rounded-xl', className)} />;
+  return <div className={cn('animate-pulse motion-reduce:animate-none bg-white/[0.04] rounded-xl', className)} />;
 }
 
 export function SkeletonCard({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse bg-surface-elevated border border-white/10 rounded-2xl', className)} />;
+  return <div className={cn('animate-pulse motion-reduce:animate-none bg-surface-elevated border border-white/10 rounded-2xl', className)} />;
 }
 
 // ============================================

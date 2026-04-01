@@ -154,7 +154,7 @@ export function ErgebnisseTab({
           alt="BeScout"
           width={48}
           height={48}
-          className="size-12 animate-pulse"
+          className="size-12 animate-pulse motion-reduce:animate-none"
         />
       </div>
     );

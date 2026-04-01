@@ -26,16 +26,16 @@ import { SectionHeader, formatPrize, getTimeUntil } from '@/components/home/help
 const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), { ssr: false });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
+  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
 });
 const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
   ssr: false,
-  loading: () => <div className="h-40 rounded-2xl bg-white/[0.02] animate-pulse" />,
+  loading: () => <div className="h-40 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
 });
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), { ssr: false });
 const ScoreRoadStrip = dynamic(() => import('@/components/gamification/ScoreRoadStrip'), {
   ssr: false,
-  loading: () => <div className="h-10 rounded-xl bg-white/[0.02] animate-pulse" />,
+  loading: () => <div className="h-10 rounded-xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
 });
 const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
@@ -142,7 +142,7 @@ export default function HomePage() {
 
       {/* ── 1b. SPOTLIGHT ── */}
       {playersLoading ? (
-        <div className="h-40 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
+        <div className="h-40 bg-surface-base border border-white/10 rounded-2xl animate-pulse motion-reduce:animate-none" />
       ) : (
         <HomeSpotlight
           activeIPOs={activeIPOs}
