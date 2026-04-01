@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -341,12 +342,17 @@ vi.mock('next/link', () => ({
 
 vi.mock('next/dynamic', () => ({
   default: (loader: () => Promise<{ default: React.ComponentType }>) => {
-    // For LimitOrderModal stub — the vi.mock above handles the actual component
-    const MockedComponent = (props: Record<string, unknown>) => (
-      <div data-testid="limit-order-modal" data-open={String(props.open)}>LimitOrderModal</div>
-    );
-    MockedComponent.displayName = 'DynamicMock';
-    return MockedComponent;
+    // Use React.lazy so vi.mock'd modules (BuyModal, SellModal, etc.) are resolved correctly
+    const LazyComp = React.lazy(loader);
+    function DynamicMock(props: Record<string, unknown>) {
+      return (
+        <React.Suspense fallback={null}>
+          <LazyComp {...(props as object)} />
+        </React.Suspense>
+      );
+    }
+    DynamicMock.displayName = 'DynamicMock';
+    return DynamicMock;
   },
 }));
 
@@ -508,19 +514,19 @@ describe('PlayerContent', () => {
   });
 
   // ─── 8. BuyModal (closed by default) ───
-  it('renders BuyModal stub closed by default', () => {
+  it('renders BuyModal stub closed by default', async () => {
     renderWithProviders(<PlayerContent playerId="p1" />);
 
-    const buyModal = screen.getByTestId('buy-modal');
+    const buyModal = await screen.findByTestId('buy-modal');
     expect(buyModal).toBeInTheDocument();
     expect(buyModal.getAttribute('data-open')).toBe('false');
   });
 
   // ─── 9. SellModal (closed by default) ──
-  it('renders SellModal stub closed by default', () => {
+  it('renders SellModal stub closed by default', async () => {
     renderWithProviders(<PlayerContent playerId="p1" />);
 
-    const sellModal = screen.getByTestId('sell-modal');
+    const sellModal = await screen.findByTestId('sell-modal');
     expect(sellModal).toBeInTheDocument();
     expect(sellModal.getAttribute('data-open')).toBe('false');
   });
