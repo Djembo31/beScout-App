@@ -344,6 +344,8 @@
     "storyEventSoon": "Fantasy-Event startet in {time}",
     "topMovers": "Meine Top-Mover",
     "globalMovers": "Größte Beweger heute",
+    "mostWatched": "Meistbeobachtet",
+    "watcherCount": "{count} Beobachter",
     "marketPulse": "Markt-Puls",
     "trendingNow": "Gerade beliebt",
     "liveTrades": "Live auf BeScout",

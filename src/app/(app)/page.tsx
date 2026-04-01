@@ -41,6 +41,7 @@ const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingCh
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
 const StreakMilestoneBanner = dynamic(() => import('@/components/home/StreakMilestoneBanner'), { ssr: false });
 const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
+const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), { ssr: false });
 
 import { useHomeData } from './hooks/useHomeData';
 
@@ -326,6 +327,16 @@ export default function HomePage() {
           <SectionHeader title={t('globalMovers')} href="/market" />
           <div className="mt-2">
             <TopMoversStrip players={players} />
+          </div>
+        </div>
+      )}
+
+      {/* ── 2a3. MOST WATCHED PLAYERS ── */}
+      {uid && (
+        <div>
+          <SectionHeader title={t('mostWatched')} href="/market" />
+          <div className="mt-2">
+            <MostWatchedStrip userId={uid} />
           </div>
         </div>
       )}

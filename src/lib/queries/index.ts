@@ -16,7 +16,7 @@ export { useTransactions, useLeaderboard, usePosts, useDpcOfWeek, useScoutMissio
 export { useActiveIpos } from './ipos';
 export { useTrendingPlayers } from './trending';
 export { useAllPriceHistories } from './priceHist';
-export { useWatchlist } from './watchlist';
+export { useWatchlist, useMostWatchedPlayers } from './watchlist';
 export { useIncomingOffers } from './offers';
 export { useClubVotes } from './votes';
 export { useResearchPosts } from './research';

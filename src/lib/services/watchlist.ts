@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import type { Pos } from '@/types';
 
 // ============================================
 // Types
@@ -9,7 +10,7 @@ export type MostWatchedPlayer = {
   watcherCount: number;
   firstName: string;
   lastName: string;
-  position: string;
+  position: Pos;
   club: string;
   imageUrl: string | null;
   floorPrice: number;
@@ -119,7 +120,7 @@ export async function getMostWatchedPlayers(limit = 5): Promise<MostWatchedPlaye
     watcherCount: r.watcher_count,
     firstName: r.first_name,
     lastName: r.last_name,
-    position: r.player_pos,
+    position: r.player_pos as Pos,
     club: r.club,
     imageUrl: r.image_url,
     floorPrice: r.floor_price,
