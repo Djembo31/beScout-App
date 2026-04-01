@@ -10,6 +10,7 @@ import { useNumTick } from '@/lib/hooks/useNumTick';
 import { posTintColors } from '@/components/player/PlayerRow';
 import type { MatchTimelineEntry } from '@/lib/services/scoring';
 import type { Player } from '@/types';
+import FormDots from './FormDots';
 
 interface MatchTimelineProps {
   player: Player;
@@ -128,6 +129,9 @@ export default function MatchTimeline({
           </div>
         </div>
       </div>
+
+      {/* ── L5 Score Form Dots ── */}
+      <FormDots entries={entries} className="px-4 md:px-6 py-2 border-b border-white/[0.04]" />
 
       {/* ── Form Dots ── */}
       {formDots.length > 0 && (
