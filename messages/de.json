@@ -210,7 +210,8 @@
     "profileLink": "Mein Profil",
     "wishButton": "Wunsch einreichen",
     "home": "Home",
-    "market": "Markt",
+    "manager": "Manager",
+    "market": "Transfermarkt",
     "fantasy": "Spieltag",
     "missions": "Missionen",
     "scouting": "Community",
@@ -946,8 +947,12 @@
     "emptyDesc": "Erstelle eine Liga oder tritt einer bei, um mit Freunden zu spielen.",
     "unknownError": "Unbekannter Fehler"
   },
+  "manager": {
+    "title": "Manager",
+    "comingSoon": "Command Center — in Arbeit"
+  },
   "market": {
-    "title": "Manager Office",
+    "title": "Transfermarkt",
     "roster": "Kader",
     "holdings": "Bestand",
     "compare": "Vergleich",

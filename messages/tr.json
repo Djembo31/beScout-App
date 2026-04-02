@@ -210,7 +210,8 @@
     "profileLink": "Profilim",
     "wishButton": "Dilek gönder",
     "home": "Ana Sayfa",
-    "market": "Pazar",
+    "manager": "Menajer",
+    "market": "Transfer",
     "fantasy": "Maç Günü",
     "missions": "Görevler",
     "scouting": "Scouting",
@@ -946,8 +947,12 @@
     "emptyDesc": "Bir lig oluştur veya katıl, arkadaşlarınla oyna.",
     "unknownError": "Bilinmeyen hata"
   },
+  "manager": {
+    "title": "Menajer",
+    "comingSoon": "Komuta Merkezi — yapım aşamasında"
+  },
   "market": {
-    "title": "Menajer Ofisi",
+    "title": "Transfer Pazarı",
     "roster": "Kadro",
     "holdings": "Varlıklar",
     "compare": "Karşılaştır",
