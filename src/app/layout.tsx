@@ -6,6 +6,7 @@ import { Outfit, Space_Mono } from 'next/font/google';
 import { Providers } from '@/components/providers/Providers';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { CookieConsent } from '@/components/legal/CookieConsent';
+import { cn } from '@/lib/utils';
 import './globals.css';
 
 const outfit = Outfit({
@@ -54,7 +55,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`${outfit.variable} ${spaceMono.variable}`}>
+    <html lang={locale} className={cn(outfit.variable, spaceMono.variable)}>
       <body className="min-h-dvh bg-bg-main text-white font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>

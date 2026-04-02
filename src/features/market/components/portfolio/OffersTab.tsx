@@ -44,7 +44,7 @@ function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${styles[status] ?? 'bg-white/10 text-white/40'}`}>
+    <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-medium', styles[status] ?? 'bg-white/10 text-white/40')}>
       {labels[status] ?? status}
     </span>
   );

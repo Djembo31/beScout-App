@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 import type { StreakMilestone } from '@/lib/retentionEngine';
 
 interface StreakMilestoneBannerProps {
@@ -17,7 +18,7 @@ export default function StreakMilestoneBanner({ milestone, className = '' }: Str
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-r from-gold/10 via-orange-500/10 to-gold/10 p-4 ${className}`}
+      className={cn('relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-r from-gold/10 via-orange-500/10 to-gold/10 p-4', className)}
     >
       {/* Glow effect */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,215,0,0.08),transparent_70%)]" />
