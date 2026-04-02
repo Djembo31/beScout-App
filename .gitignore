@@ -104,3 +104,5 @@ lighthouse-report.json
 # Keep templates and .gitkeep
 !.claude/research/.gitkeep
 !.claude/research/agent-prompts.md
+__pycache__/
+*.pyc
