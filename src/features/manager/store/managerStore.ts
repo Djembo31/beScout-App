@@ -1,20 +1,19 @@
 import { create } from 'zustand';
 import type { Pos } from '@/types';
+import { DEFAULT_FORMATION } from '../lib/formations';
 
-export type Formation = '4-3-3' | '4-4-2' | '3-5-2' | '3-4-3' | '4-2-3-1';
 export type IntelTab = 'stats' | 'form' | 'markt';
 export type StripSort = 'l5' | 'value' | 'fitness' | 'alpha';
 
 interface ManagerState {
   // Formation
-  formation: Formation;
-  setFormation: (f: Formation) => void;
-
-  // Slot assignments: slot key -> playerId
-  assignments: Map<string, string>;
-  assignPlayer: (slot: string, playerId: string) => void;
-  removePlayer: (slot: string) => void;
+  formation: string;
+  assignments: Record<string, string>;
+  setFormation: (formation: string) => void;
+  assignPlayer: (slotKey: string, playerId: string) => void;
+  removePlayer: (slotKey: string) => void;
   clearAssignments: () => void;
+  loadPreset: (formation: string, assignments: Record<string, string>) => void;
 
   // Intel Panel
   selectedPlayerId: string | null;
@@ -40,21 +39,22 @@ interface ManagerState {
 }
 
 export const useManagerStore = create<ManagerState>((set) => ({
-  formation: '4-3-3',
-  setFormation: (formation) => set({ formation }),
+  formation: DEFAULT_FORMATION,
+  assignments: {},
 
-  assignments: new Map(),
-  assignPlayer: (slot, playerId) => set((s) => {
-    const next = new Map(s.assignments);
-    next.set(slot, playerId);
-    return { assignments: next };
-  }),
-  removePlayer: (slot) => set((s) => {
-    const next = new Map(s.assignments);
-    next.delete(slot);
-    return { assignments: next };
-  }),
-  clearAssignments: () => set({ assignments: new Map() }),
+  setFormation: (formation) => set({ formation, assignments: {} }),
+  assignPlayer: (slotKey, playerId) =>
+    set((state) => ({
+      assignments: { ...state.assignments, [slotKey]: playerId },
+    })),
+  removePlayer: (slotKey) =>
+    set((state) => {
+      const next = { ...state.assignments };
+      delete next[slotKey];
+      return { assignments: next };
+    }),
+  clearAssignments: () => set({ assignments: {} }),
+  loadPreset: (formation, assignments) => set({ formation, assignments }),
 
   selectedPlayerId: null,
   selectPlayer: (selectedPlayerId) => set({ selectedPlayerId }),
