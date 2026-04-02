@@ -12,9 +12,9 @@ globs: "memory/session-handoff.md"
 | FrontendEngineer | Sonnet 4.6 | UI, Components, i18n |
 | QA | Sonnet 4.6 | Testing, Visual QA |
 | BusinessAnalyst | Sonnet 4.6 | Compliance, Wording |
-| CodexReviewer | gpt-5.4-mini | Adversarial Review |
+| ~~CodexReviewer~~ | ~~gpt-5.4-mini~~ | PAUSED — Jarvis runs /codex:rescue directly |
 
-Server: `npx paperclipai start` (localhost:3100).
+Server: `npx paperclipai run` (localhost:3100).
 Company ID: `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`.
 
 ### Agent IDs
