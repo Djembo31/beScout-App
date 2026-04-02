@@ -55,7 +55,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className={`${outfit.variable} ${spaceMono.variable}`}>
-      <body className="min-h-screen bg-bg-main text-white font-sans antialiased">
+      <body className="min-h-dvh bg-bg-main text-white font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             {children}

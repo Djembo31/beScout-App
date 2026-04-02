@@ -76,7 +76,7 @@ export default function AppLayout({
       </a>
 
       {/* App Shell */}
-      <div className="relative flex min-h-screen">
+      <div className="relative flex min-h-dvh">
         <SideNav mobileOpen={mobileOpen} onMobileClose={handleMobileClose} />
         <div className="flex-1 ml-0 lg:ml-[260px] min-w-0">
           <TopBar onMobileMenuToggle={handleMobileToggle} />
