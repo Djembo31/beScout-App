@@ -35,7 +35,7 @@ UI (if .tsx changed):
 - Existing components reused, not rebuilt
 
 STEP 4: Check for PATTERN REPETITION
-- Read the last retro file in memory/sessions/ (if exists)
+- Read the last retro file in memory/episodisch/sessions/ (if exists)
 - Are any of the "What Could Improve" items being violated in THIS turn?
 - If a feedback memory pattern is violated for the 2nd time, flag for RULE PROMOTION
 

@@ -65,11 +65,29 @@ mkdir -p memory/senses
   echo ""
 
   # Learnings pending
-  DRAFT_COUNT=$(ls memory/learnings/drafts/*.md 2>/dev/null | wc -l)
+  DRAFT_COUNT=$(ls memory/learnings/drafts/*.md 2>/dev/null | grep -cv "PROMOTED" 2>/dev/null || echo 0)
   if [ "$DRAFT_COUNT" -gt 0 ]; then
     echo "## Pending Learnings: $DRAFT_COUNT Drafts"
     ls memory/learnings/drafts/*.md 2>/dev/null | xargs -I{} basename {} | sed 's/^/- /'
     echo ""
+  fi
+
+  # AutoDream status — count unarchived retro files
+  RETRO_COUNT=$(ls memory/episodisch/sessions/retro-*.md 2>/dev/null | wc -l)
+  if [ "$RETRO_COUNT" -gt 5 ]; then
+    echo "## AutoDream: Memory Consolidation faellig ($RETRO_COUNT Retros)"
+    echo "→ Starte AutoDream Subagent um Memory zu konsolidieren"
+    echo ""
+  fi
+
+  # Recent error patterns from common-errors.md
+  if [ -f ".claude/rules/common-errors.md" ]; then
+    RECENT_ERRORS=$(git log --since="7 days ago" --all -p -- ".claude/rules/common-errors.md" 2>/dev/null | grep "^+" | grep -v "^+++" | head -10)
+    if [ -n "$RECENT_ERRORS" ]; then
+      echo "## Recent Error Patterns"
+      echo "$RECENT_ERRORS" | sed 's/^+/- /'
+      echo ""
+    fi
   fi
 
 } > "$BRIEFING"

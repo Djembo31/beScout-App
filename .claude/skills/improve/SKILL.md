@@ -14,8 +14,8 @@ Analysiert Session-History und schlaegt System-Verbesserungen vor.
 ## Prozess
 
 1. **Sammle Daten:**
-   - Lies `memory/metrics/sessions.jsonl` (letzte 10 Eintraege)
-   - Lies `memory/sessions/retro-*.md` (letzte 5 Retros)
+   - Lies `memory/episodisch/metriken/sessions.jsonl` (letzte 10 Eintraege)
+   - Lies `memory/episodisch/sessions/retro-*.md` (letzte 5 Retros)
    - Lies `.claude/learnings-queue.jsonl` (offene Korrekturen)
    - Lies `memory/learnings/drafts/` (unreviewed Drafts)
 

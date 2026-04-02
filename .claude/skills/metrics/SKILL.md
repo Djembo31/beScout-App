@@ -5,7 +5,7 @@ description: Aggregiert Session-Metriken aus sessions.jsonl — zeigt Trends, Er
 
 # /metrics — Session-Metriken Dashboard
 
-Liest `memory/metrics/sessions.jsonl` und zeigt aggregierte Metriken.
+Liest `memory/episodisch/metriken/sessions.jsonl` und zeigt aggregierte Metriken.
 
 ## Trigger
 - Manuell: `/metrics`
@@ -13,7 +13,7 @@ Liest `memory/metrics/sessions.jsonl` und zeigt aggregierte Metriken.
 
 ## Prozess
 
-1. **Lies** `memory/metrics/sessions.jsonl`
+1. **Lies** `memory/episodisch/metriken/sessions.jsonl`
 2. **Aggregiere:**
    - Total Sessions
    - Avg Files Changed pro Session
