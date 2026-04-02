@@ -276,7 +276,7 @@ export function SpieltagTab({
       {fixturesLoading && (
         <Card className="p-12 flex items-center justify-center">
           <Image
-            src="/logo.svg"
+            src="/icons/bescout_icon_premium.svg"
             alt=""
             width={48}
             height={48}

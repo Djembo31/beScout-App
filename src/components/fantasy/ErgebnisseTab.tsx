@@ -151,7 +151,7 @@ export function ErgebnisseTab({
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Image
-          src="/logo.svg"
+          src="/icons/bescout_icon_premium.svg"
           alt="BeScout"
           width={48}
           height={48}

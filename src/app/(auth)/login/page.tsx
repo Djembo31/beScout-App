@@ -166,7 +166,7 @@ function LoginContent() {
       {/* Logo Section */}
       <div className="flex flex-col items-center mb-8">
         <Image
-          src="/logo.svg"
+          src="/icons/bescout_icon_premium.svg"
           alt="BeScout Logo"
           width={72}
           height={72}
@@ -174,7 +174,7 @@ function LoginContent() {
           priority
         />
         <Image
-          src="/schrift.svg"
+          src="/icons/bescout_wordmark_premium.svg"
           alt="BeScout"
           width={160}
           height={40}
@@ -463,9 +463,8 @@ function LoginContent() {
         )}
       </Card>
 
-      {/* Demo Login Shortcuts */}
-      {/* Demo always visible during Beta */}
-      {(
+      {/* Demo Login Shortcuts — only visible with ?demo=true */}
+      {searchParams.get('demo') === 'true' && (
         <div className="mt-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-white/10" />

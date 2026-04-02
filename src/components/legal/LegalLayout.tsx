@@ -23,7 +23,7 @@ export function LegalLayout({ children, title }: LegalLayoutProps) {
             <span className="text-sm">{t('backToHome')}</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <Image src="/logo.svg" alt="BeScout" width={24} height={24} className="size-6" />
+            <Image src="/icons/bescout_icon_premium.svg" alt="BeScout" width={24} height={24} className="size-6" />
           </div>
         </div>
       </header>

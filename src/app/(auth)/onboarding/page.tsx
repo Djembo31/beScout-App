@@ -283,8 +283,8 @@ function OnboardingContent() {
     <div className="w-full max-w-lg">
       {/* Logo */}
       <div className="flex flex-col items-center mb-8">
-        <Image src="/logo.svg" alt="BeScout" width={56} height={56} className="mb-3" priority />
-        <Image src="/schrift.svg" alt="BeScout" width={140} height={36} className="mb-2" priority />
+        <Image src="/icons/bescout_icon_premium.svg" alt="BeScout" width={56} height={56} className="mb-3" priority />
+        <Image src="/icons/bescout_wordmark_premium.svg" alt="BeScout" width={140} height={36} className="mb-2" priority />
         <p className="text-sm text-white/50 text-pretty">{t('createProfile')}</p>
       </div>
 
@@ -662,7 +662,6 @@ function OnboardingContent() {
                 size="lg"
                 fullWidth
                 loading={submitting}
-                disabled={selectedClubIds.size === 0}
                 onClick={handleSubmit}
               >
                 {t('letsGo')}

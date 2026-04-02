@@ -194,14 +194,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let initialDone = false;
     // Capture current user ref for logout activity log (closure would be stale)
     let currentUserId: string | null = cachedUser?.id ?? null;
+    // Grace period: when cached data exists but INITIAL_SESSION fires with null
+    // (expired token), wait for Supabase to attempt token refresh before clearing.
+    let graceTimer: ReturnType<typeof setTimeout> | null = null;
+    const hadCachedUser = !!cachedUser;
+
+    const clearUserState = (event: string) => {
+      // Activity log — logout (before clearing state)
+      if (event === 'SIGNED_OUT' && currentUserId) {
+        const uid = currentUserId;
+        import('@/lib/services/activityLog').then(({ logActivity, flushActivityLogs }) => {
+          logActivity(uid, 'logout', 'auth');
+          flushActivityLogs();
+        }).catch(err => console.error('[AuthProvider] logActivity logout:', err));
+      }
+      currentUserId = null;
+      setUser(null);
+      setProfile(null);
+      setPlatformRole(null);
+      setClubAdmin(null);
+      ssClear();
+
+      // Only clear React Query cache on explicit sign-out action.
+      if (event === 'SIGNED_OUT') {
+        setTimeout(() => queryClient.clear(), 0);
+      }
+      setLoading(false);
+    };
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       const u = session?.user ?? null;
-      setUser(u);
+
+      // Cancel any pending grace timer — a real event arrived.
+      if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
 
       if (u) {
+        setUser(u);
         ssSet(SS_USER, u);
         currentUserId = u.id;
         await loadProfile(u.id);
@@ -209,34 +239,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           import('@/lib/services/activityLog').then(({ logActivity }) => {
             logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
           }).catch(err => console.error('[AuthProvider] logActivity login:', err));
-          // Login streak is recorded in useHomeData (with UI updates).
-          // Home is the landing page for all sessions.
         }
+      } else if (event === 'SIGNED_OUT') {
+        // Explicit sign-out — clear immediately, no grace period.
+        clearUserState(event);
+      } else if (hadCachedUser && !initialDone) {
+        // INITIAL_SESSION with null but we had cached data — token may be
+        // refreshing. Wait 3s grace period before clearing to avoid flash.
+        graceTimer = setTimeout(() => {
+          console.warn('[AuthProvider] Grace period expired — session not restored, clearing user');
+          clearUserState(event);
+        }, 3000);
+        // Don't set loading=false yet — keep showing cached UI.
+        initialDone = true;
+        return;
       } else {
-        // Activity log — logout (before clearing state)
-        if (event === 'SIGNED_OUT' && currentUserId) {
-          const uid = currentUserId;
-          import('@/lib/services/activityLog').then(({ logActivity, flushActivityLogs }) => {
-            logActivity(uid, 'logout', 'auth');
-            flushActivityLogs();
-          }).catch(err => console.error('[AuthProvider] logActivity logout:', err));
-        }
-        currentUserId = null;
-        setProfile(null);
-        setPlatformRole(null);
-        setClubAdmin(null);
-        ssClear();
-
-        // Only clear React Query cache on explicit sign-out action.
-        // On INITIAL_SESSION with null (expired token at page load), let
-        // AuthGatedProviders unmount naturally when user becomes null —
-        // clearing the cache while components are still mounted causes
-        // data=undefined mid-render → .map() on undefined crashes.
-        if (event === 'SIGNED_OUT') {
-          // Use setTimeout(0) so React commits user=null first, AuthGatedProviders
-          // unmounts, THEN we wipe query data safely with no active observers.
-          setTimeout(() => queryClient.clear(), 0);
-        }
+        clearUserState(event);
       }
       initialDone = true;
       setLoading(false);
@@ -254,6 +272,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
       clearTimeout(safetyTimer);
+      if (graceTimer) clearTimeout(graceTimer);
     };
   }, [loadProfile]);
 

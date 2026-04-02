@@ -33,7 +33,7 @@ function HeroSection() {
   return (
     <section className="relative text-center py-16 md:py-24 px-4">
       <div className="max-w-3xl mx-auto">
-        <Image src="/logo.svg" alt="BeScout" width={80} height={80} className="mx-auto mb-4" priority />
+        <Image src="/icons/bescout_icon_premium.svg" alt="BeScout" width={80} height={80} className="mx-auto mb-4" priority />
         <h1 className="text-3xl md:text-5xl font-black mb-3 text-balance text-gold">
           {t('heroTitle')}
         </h1>

@@ -162,7 +162,7 @@ describe('SpieltagTab', () => {
 
     // Loading state shows the logo pulse image (alt="" gives role="presentation")
     const img = screen.getByAltText('');
-    expect(img).toHaveAttribute('src', '/logo.svg');
+    expect(img).toHaveAttribute('src', '/icons/bescout_icon_premium.svg');
   });
 
   // ------------------------------------------

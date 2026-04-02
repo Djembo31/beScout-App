@@ -133,7 +133,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Mobile: Logo */}
           <Link href="/" className="lg:hidden flex items-center">
             <div className="relative size-8 shrink-0">
-              <Image src="/logo.svg" alt="BeScout" fill className="object-contain" priority />
+              <Image src="/icons/bescout_icon_premium.svg" alt="BeScout" fill className="object-contain" priority />
             </div>
           </Link>
 
