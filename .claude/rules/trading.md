@@ -4,7 +4,7 @@ paths:
   - "src/lib/services/wallet*"
   - "src/lib/services/ipo*"
   - "src/lib/services/offers*"
-  - "src/components/market/**"
+  - "src/features/market/**"
   - "src/app/**/market/**"
 ---
 

@@ -20,7 +20,7 @@ vi.mock('@/components/player', () => ({
 vi.mock('@/components/player/PlayerRow', () => ({
   getContractInfo: () => ({ dateStr: 'Jun 2027', monthsLeft: 18, color: '', urgent: false }),
 }));
-vi.mock('./CountdownBadge', () => ({ default: () => null }));
+vi.mock('../CountdownBadge', () => ({ default: () => null }));
 vi.mock('next/link', () => ({
   default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
 }));

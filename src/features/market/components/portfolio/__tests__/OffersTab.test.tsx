@@ -40,6 +40,9 @@ vi.mock('@/components/providers/ToastProvider', () => ({
 vi.mock('@/lib/hooks/useErrorToast', () => ({
   useErrorToast: () => vi.fn(),
 }));
+vi.mock('@/lib/supabaseClient', () => ({
+  supabase: { from: () => ({ select: () => ({ data: [], error: null }) }) },
+}));
 
 const mockGetIncoming = vi.fn();
 const mockGetOutgoing = vi.fn();
@@ -57,7 +60,7 @@ vi.mock('@/lib/services/offers', () => ({
   createOffer: vi.fn(),
 }));
 
-import ManagerOffersTab from '../ManagerOffersTab';
+import ManagerOffersTab from '../OffersTab';
 
 describe('ManagerOffersTab', () => {
   beforeEach(() => {

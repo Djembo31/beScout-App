@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/renderWithProviders';
-import ManagerKaderTab from '../ManagerKaderTab';
+import ManagerKaderTab from '../KaderTab';
 import type { Player, Pos } from '@/types';
 
 // ============================================

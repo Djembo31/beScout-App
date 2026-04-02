@@ -1,46 +1,43 @@
-# Current Sprint — Compliance Hardened
+# Current Sprint — CLS E2E Validated
 
-## Stand (2026-04-02, Session 279)
-- **Tests:** tsc 0 Errors, 82/82 vitest green
+## Stand (2026-04-02, Session 280)
+- **Tests:** tsc 0 Errors, 145+ vitest green (7 Tests migriert)
 - **Branch:** main
 - **Migrations:** 299
-- **Agent Team:** v3 + CLS v1.3 (Constitution 36, Insight Pool cleaned)
+- **Agent Team:** v3 + CLS v1.3 (Constitution 36, Insight Pool 14 active)
 
-## Erledigt (Session 279)
+## Erledigt (Session 280)
 
-### E2E Audit: Market Flows (BES-87)
-- 6 Sub-Issues, 4 Agents, full Direct Chaining
-- QA: 13/13 flows PASS, BA: 11/13 initial → 2 bugs fixed
-- Pipeline found+fixed 3 additional bugs (BES-91, BES-92, BES-94)
-- Commits: 8a08239, 44b631a, b7d3a57, 6ad3a3f, 01194b2
+### Legacy Cleanup (Task 2)
+- src/components/market/ + manager/ geloescht (alle Imports auf features/ umgeleitet)
+- 7 Tests migriert, OffersTab supabase mock fix
+- Rule-Path trading.md aktualisiert
+- tsc 0, 145/145 tests green
 
-### Compliance Hardening (Jarvis self-review)
-- 5 user-visible "DPCs" → "Scout Cards" (features/ + legacy/)
-- 1 "profitierst du" → "erhaeltst du" (legacy/)
-- Constitution: #33 (exhaustive search), #34 (automated scans), #35 (qk silent bugs), #36 (git show hash)
-- BA HEARTBEAT: 4 mandatory grep patterns
-- Pre-commit hook: Banned words scanner (active)
+### CLS E2E Validation (Tasks 1, 3, 4)
+- CEO Auto-Close: PASS (BES-100 korrekt geschlossen)
+- Proactive Scan: PASS (BES-105 autonom gefunden, delegiert, gefixt)
+- CodexReviewer: FAIL (OPENAI_API_KEY fehlt, Adapter crashed)
 
-### CLS Cleanup
-- Insights #16+#19 promoted (Score 5)
-- 6 insights archived (obsolete/duplicates: #1,#2,#3,#12,#14,#15)
-- Pool: 20→14 active, 6 archived
+### Proactive Fix (BES-105) — SE autonom
+- 6 leere .catch() in Admin-Components → console.error ergaenzt
+- Commit: e8e5def (5 Files, 6 LOC)
 
 ## Board Status
-- 94 issues total, 93 done
-- CLS v1.3: 36 Constitution principles, 14 active insights
+- 100 issues total, 97 done, 2 cancelled, 1 in_progress (BES-105 done by SE)
+- CLS v1.3: 36 Constitution, 14 active insights
 - Pre-commit hook active (compliance scanner)
 
 ## Naechste Prioritaet
-1. CodexReviewer neuer Flow E2E testen (Jarvis /codex:rescue)
-2. Legacy Cleanup (src/components/market/ + manager/ — 2 active imports)
-3. CEO Auto-Close verifizieren
-4. Proactive Scan testen (idle Heartbeat)
+1. OPENAI_API_KEY setzen → CodexReviewer retesten
+2. Insight Pool Domain-Tags fixen (FE hat keine matchenden Insights)
+3. Proactive Scan Rate-Limit verifizieren (max 3/Tag)
+4. Naechstes Feature / Sprint-Planung
 
 ## Bekannte Issues
-- CodexReviewer Signal→Jarvis Flow nie E2E getestet
-- Legacy dirs haben 2 aktive Imports (DiscoveryCard, BestandLens type)
-- CEO Auto-Wake braucht manchmal manuellen Trigger
+- CodexReviewer: codex_local braucht OPENAI_API_KEY
+- FE Proactive Scan: domain filter "ui|frontend" matcht keine Insights (alle sind "architecture"/"patterns")
+- Proactive Issue createdByAgentId zeigt "user" statt Agent-ID (auth token fehlt im curl)
 
 ## Blocker
-- Keine
+- OPENAI_API_KEY fuer CodexReviewer

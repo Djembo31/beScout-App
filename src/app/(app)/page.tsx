@@ -20,7 +20,7 @@ import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import PortfolioStrip from '@/components/home/PortfolioStrip';
 import TopMoversStrip from '@/components/home/TopMoversStrip';
-import DiscoveryCard from '@/components/market/DiscoveryCard';
+import DiscoveryCard from '@/features/market/components/shared/DiscoveryCard';
 import { SectionHeader, formatPrize, getTimeUntil } from '@/components/home/helpers';
 
 const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), { ssr: false });

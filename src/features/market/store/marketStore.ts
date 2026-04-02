@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Pos } from '@/types';
-import type { BestandLens } from '@/components/manager/bestand/bestandHelpers';
+import type { BestandLens } from '@/features/market/components/portfolio/bestand/bestandHelpers';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
