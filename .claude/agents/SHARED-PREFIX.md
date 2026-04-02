@@ -24,6 +24,11 @@ Pilot: Sakaryaspor (TFF 1. Lig). 632 Spieler, 20 Clubs.
 2. **Nie leere Tool-Arrays:** Jeder Agent hat explizite Tools, NIEMALS tools: []
 3. **Human-Curated Context Only:** Drafts in memory/learnings/drafts/, NICHT direkt in LEARNINGS.md
 
+## Tool-Verwendung
+- **Library-API unklar?** → `context7` MCP nutzen (aktuelle Docs, nicht raten)
+- **Architektur-Entscheidung?** → `sequential-thinking` MCP (strukturiert denken)
+- **VOR DB/RPC/Service-Aenderung** → `/impact` Skill (alle betroffenen Pfade finden)
+
 ## Fehler-Drafts
 Nach jeder Arbeit: Schreibe Learnings als Draft in `memory/learnings/drafts/`.
 Format: `YYYY-MM-DD-[agent]-[topic].md`

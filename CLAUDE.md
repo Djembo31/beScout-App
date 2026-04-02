@@ -124,6 +124,27 @@ When compacting, ALWAYS preserve:
 - LEARNINGS.md: NUR human-approved Eintraege. Drafts in memory/learnings/drafts/
 - Machine-generated Context SCHADET. Weniger human-curated > mehr auto-generated
 
+## Tool-Verwendung (WANN was nutzen)
+| Situation | Tool | Warum |
+|-----------|------|-------|
+| Neues Feature / Architektur-Entscheidung | `sequential-thinking` MCP | Strukturiertes Denken, nicht raten |
+| Library-API unklar (React, Next.js, Tailwind, Supabase) | `context7` MCP | Aktuelle Docs statt Training-Daten |
+| Neuen Skill erstellen oder bestehenden verbessern | `/skill-creator` | Eval-Loop, Prompt-Optimierung |
+| Feature-Brainstorming | `/superpowers:brainstorming` | Design VOR Code |
+| Multi-Step Implementation Plan | `/superpowers:writing-plans` | Bite-sized Tasks, TDD |
+| Plan ausfuehren (diese Session) | `/superpowers:subagent-driven-development` | Fresh Agent pro Task |
+| Plan ausfuehren (neue Session) | `/superpowers:executing-plans` | Batch mit Checkpoints |
+| Bug nach 3 Versuchen nicht gefixt | `/competing-hypotheses` | 3 Agents, 3 Hypothesen |
+| Nach Bug-Fix | `/post-mortem` | Root Cause → Regel |
+| Alle 5 Sessions / Queue >10 | `/reflect` | Korrekturen → Drafts |
+| Alle 10 Sessions | `/improve` | Workflow-Verbesserungen |
+| Pending Rules >3 | `/promote-rule` | Regeln freigeben |
+| Skill testen | `/eval-skill [name]` | Pass-Rate messen |
+| Code Review nach Implementation | `/cto-review` | 100+ Fehler-Patterns |
+| VOR DB/RPC/Service-Aenderung | `/impact` | Alle betroffenen Pfade |
+| Feature implementieren | `/deliver` | 4 Quality Gates |
+| Session-Metriken anzeigen | `/metrics` | Trends, Corrections |
+
 ## Referenzen
 - docs/VISION.md — Produktvision
 - docs/STATUS.md — Detaillierter Fortschritt

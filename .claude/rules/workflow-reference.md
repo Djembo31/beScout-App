@@ -1,99 +1,134 @@
 ---
-description: Workflow Reference — Agent Tables, API Endpoints, Skills, Dispatch Details (on-demand)
+description: Workflow Reference — Agents, Skills, Tools, MCP (Skynet v1)
 globs: "memory/session-handoff.md"
 ---
 
-## Paperclip Agent-Team
+## Agent-Team (Skynet)
 
-| Agent | Model | Rolle |
-|-------|-------|-------|
-| CEO | Opus 4.6 | Strategie, Delegation |
-| SeniorEngineer | Sonnet 4.6 | Backend, DB, RPCs |
-| FrontendEngineer | Sonnet 4.6 | UI, Components, i18n |
-| QA | Sonnet 4.6 | Testing, Visual QA |
-| BusinessAnalyst | Sonnet 4.6 | Compliance, Wording |
-| ~~CodexReviewer~~ | ~~gpt-5.4-mini~~ | PAUSED — Jarvis runs /codex:rescue directly |
+| Agent | Model | Skill | Isolation | Zweck |
+|-------|-------|-------|-----------|-------|
+| backend | Sonnet 4.6 | beScout-backend | worktree | DB, RPCs, Services |
+| frontend | Sonnet 4.6 | beScout-frontend | worktree | UI, Components, i18n |
+| reviewer | Opus 4.6 | cto-review | read-only | Code Review |
+| business | Sonnet 4.6 | beScout-business | read-only | Compliance |
+| healer | Sonnet 4.6 | — | main | Fix Build/Test Errors |
+| test-writer | Sonnet 4.6 | — | worktree | Tests from Spec |
+| impact-analyst | Opus 4.6 | — | read-only | Cross-cutting Analysis |
+| qa-visual | Sonnet 4.6 | — | read-only | Visual QA (Playwright) |
+| autodream | Sonnet 4.6 | — | main | Memory Consolidation |
 
-Server: `npx paperclipai run` (localhost:3100).
-Company ID: `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`.
+Alle Agents laden: SHARED-PREFIX.md → Domain-SKILL.md → LEARNINGS.md → Phase 4 LERNEN
 
-### Agent IDs
-- CEO: `35f1ae98-0117-41aa-8bfe-6ecb8afd6270`
-- FrontendEngineer: `56e93bfc-3f91-43a4-a99f-ad7578029a4a`
-- SeniorEngineer: `696e7864-5234-4466-982b-6c52c7d8cb3c`
-- QA: `6792bfc9-855f-416f-b9f1-b5a0f8ef378a`
-- BusinessAnalyst: `35626122-c3bb-49b1-a7fd-aa04d3641a80`
-- CTO: `b9833192-2f62-420a-9cdd-a71bf5a10378` (paused)
-- CodexReviewer: `fbfc77b0-6224-4f44-95e5-e9e482383091`
+## MCP Stack
 
-## Claude Code Sub-Agents (direkte Sessions)
+| Server | Zweck | Wann nutzen |
+|--------|-------|-------------|
+| playwright | Browser Automation, Screenshots | Visual QA, E2E Testing |
+| supabase | DB Operations, SQL, Migrations | Backend-Arbeit, RLS Check |
+| context7 | Library Docs on-demand | Bei JEDER Library-Frage (React, Next, Tailwind, Supabase) |
+| sequential-thinking | Strukturiertes Denken | Architektur-Entscheidungen, komplexe Design-Fragen |
 
-| Agent | Skill | Isolation |
-|-------|-------|-----------|
-| frontend | beScout-frontend | worktree |
-| backend | beScout-backend | worktree |
-| business | beScout-business | read-only |
-| reviewer | keiner | read-only |
-| test-writer | keiner | worktree |
-| qa-visual | keiner | read-only |
-| healer | keiner | main |
-| impact-analyst | keiner | read-only |
+## Skill-Arsenal (17 Skills)
 
-## Paperclip API
-
-| Endpoint | Zweck |
-|----------|-------|
-| `GET /api/companies/{id}/dashboard` | Status-Check |
-| `POST /api/companies/{id}/issues` | Issue erstellen |
-| `POST /api/agents/{id}/heartbeat/invoke` | Agent triggern |
-| `POST /api/approvals/{id}/approve` | Approval erteilen |
-| `PATCH /api/issues/{id}` | Issue updaten |
-| `PATCH /api/agents/{id}` | Agent Status aendern |
-
-Issue-Fields: `title`, `body`/`description`, `status` (todo/in_progress/in_review/done), `priority` (low/medium/high/critical), `assigneeAgentId`.
-
-## Skills
-
+### Domain (3)
 | Skill | Trigger |
 |-------|---------|
-| brainstorming | Neues Feature (Tier 4) |
-| writing-plans | Nach Brainstorming |
-| executing-plans | Nach Plan |
-| finishing-branch | Nach allen Tasks |
-| /impact | VOR DB/RPC/Service-Aenderungen |
-| /fixing-accessibility | Nach UI-Aenderungen |
-| /codex:rescue | 3x gescheiterter Fix |
+| `/beScout-backend` | DB, RPCs, Services, Supabase |
+| `/beScout-frontend` | UI, Components, Hooks, i18n |
+| `/beScout-business` | Compliance, Wording, Legal |
 
-## Task-Package Assembly (CTO Pflicht — VOR Agent-Dispatch Tier 3+)
+### Workflow (3)
+| Skill | Trigger |
+|-------|---------|
+| `/deliver` | Feature implementieren (4 Quality Gates) |
+| `/cto-review` | Code Review nach Implementation |
+| `/impact` | VOR DB/RPC/Service-Aenderungen |
 
-1. Types LESEN + relevante Interfaces in Prompt KOPIEREN
-2. Service-Signaturen LESEN + in Prompt KOPIEREN
-3. Pattern-Beispiel aus aehnlichen Components
-4. DB Column-Names aus common-errors.md
-5. i18n Keys pruefen — fehlende VORHER anlegen
-6. Acceptance Criteria (binaer ja/nein)
+### Feedback (4)
+| Skill | Trigger |
+|-------|---------|
+| `/reflect` | Alle 5 Sessions oder Queue >10 |
+| `/post-mortem` | Nach P1/P2 Bug-Fix |
+| `/metrics` | Session-Metriken anzeigen |
+| `/promote-rule` | Pending Rules >3 oder >7 Tage |
 
-Agent bekommt ALLES — muss NICHTS selbst suchen.
+### Meta (3)
+| Skill | Trigger |
+|-------|---------|
+| `/improve` | Alle 10 Sessions |
+| `/competing-hypotheses` | 3x gescheiterter Fix |
+| `/eval-skill [name]` | Skill testen |
 
-## Wann Agent, wann selbst, wann Paperclip?
+### Superpowers (extern, 4)
+| Skill | Trigger |
+|-------|---------|
+| `/superpowers:brainstorming` | Neues Feature, Architektur |
+| `/superpowers:writing-plans` | Nach Brainstorming |
+| `/superpowers:subagent-driven-development` | Plan ausfuehren (diese Session) |
+| `/superpowers:executing-plans` | Plan ausfuehren (neue Session) |
 
-| Claude Code Sub-Agent | Selbst | Paperclip |
-|---|---|---|
-| Neue Datei (isoliert) | Quick Fix <2 Min | Routine Bug-Fixes |
-| 10+ Files durchsuchen | Kontext-schwere Logik | Test-Suite Runs |
-| Tests schreiben | Geld/Wallet/Security | Compliance Audits |
-| Code Review | Brainstorming | Scheduled Reviews |
+### Tools (extern, 3)
+| Tool | Trigger |
+|------|---------|
+| `/skill-creator` | Neuen Skill erstellen/verbessern |
+| `/codex:rescue` | Circuit-Breaker Eskalation |
+| `context7` MCP | Library-Docs (React, Next, Tailwind) |
 
-## Visual QA Regel (bei UI)
+## Hooks (14)
 
-VOR jedem "sieht gut aus":
-1. DB-Query: Spieler mit ALLEN Feldern
-2. JEDEN sichtbaren Wert einzeln pruefen
-3. Fehlende Daten EXPLIZIT benennen
+| Event | Hook | Typ |
+|-------|------|-----|
+| PostToolUse (Edit/Write) | auto-lint.sh | command |
+| PostToolUse (Edit/Write) | file-size-warning.sh | command |
+| PostToolUse (Edit/Write) | track-file-changes.sh | command |
+| PreToolUse (Bash) | safety-guard.sh | command |
+| PreCompact | pre-compact-backup.sh | command |
+| PreCompact | inject-context-on-compact.sh | command |
+| Stop | session-handoff-auto.sh | command |
+| Stop | quality-gate-v2.sh | command (Lock-Guard) |
+| SessionEnd | session-retro.sh + JSONL Metriken | command |
+| SessionStart | inject-learnings.sh + AutoDream Check | command |
+| StopFailure | crash-recovery.sh | command |
+| Notification | PowerShell Alert (global) | command |
 
-## DB Feature Smoke Test (bei neuen Tabellen/RPCs)
+## 3 Gesetze
 
-1. Feature EINMAL ausfuehren (echte Aktion)
-2. `SELECT COUNT(*) FROM neue_tabelle` → MUSS Rows haben
-3. RLS Policies pruefen: `SELECT policyname, cmd FROM pg_policies`
-4. "Was passiert mit bestehenden Daten?" IMMER fragen
+1. **Cache-Prefix Sharing:** SHARED-PREFIX.md = gemeinsamer Prefix aller Agents
+2. **Nie leere Tool-Arrays:** Jeder Agent hat explizite Tools
+3. **Human-Curated Context Only:** Agents schreiben Drafts, Menschen promoten
+
+## Self-Improvement Loop
+
+```
+SessionStart → inject-learnings + AutoDream Check
+  ↓
+Waehrend Session → Trigger-Rules + Correction-Capture + File-Tracking
+  ↓
+SessionEnd → Quality-Gate + Retro + JSONL Metriken + Handoff
+  ↓
+Periodisch → /reflect (5 Sessions) → /improve (10 Sessions) → AutoDream (24h/5 Sessions)
+```
+
+## Wann Agent, wann selbst?
+
+| Sub-Agent | Selbst |
+|---|---|
+| Neue Datei (isoliert) | Quick Fix <2 Min |
+| 10+ Files durchsuchen | Kontext-schwere Logik |
+| Tests schreiben | Geld/Wallet/Security |
+| Code Review | Brainstorming |
+| Compliance Audit | Architektur-Entscheidungen |
+
+## Paperclip (Dashboard-Only)
+
+Server: localhost:3100. Company: `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`.
+Nur noch fuer Status-Dashboard bei Bedarf. Execution laeuft ueber Agent SDK.
+
+## Agent SDK (Python)
+
+```bash
+python scripts/agent-sdk/run_agent.py --agent engineer --task "Fix X"
+python scripts/agent-sdk/paperclip_bridge.py --agent qa --issue-id UUID --task "Run tests"
+```
+
+Config: `scripts/agent-sdk/config.py` | Hooks: `scripts/agent-sdk/hooks.py`
