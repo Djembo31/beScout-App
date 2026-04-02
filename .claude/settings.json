@@ -81,6 +81,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/morning-briefing.sh",
+            "timeout": 60000
+          },
+          {
+            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/inject-learnings.sh"
           }
         ]

@@ -4,6 +4,12 @@
 
 cd C:/bescout-app
 
+# 0. Morning briefing (system status from senses)
+if [ -f "memory/senses/morning-briefing.md" ]; then
+  cat "memory/senses/morning-briefing.md"
+  echo ""
+fi
+
 # 1. Last retrospective
 LATEST_RETRO=$(ls -t memory/episodisch/sessions/retro-*.md 2>/dev/null | head -1)
 
