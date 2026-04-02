@@ -1,25 +1,22 @@
 # Session Handoff
-## Letzte Session: 2026-04-02 (Skynet Setup)
+## Letzte Session: 2026-04-02 (Skynet Smoke Test)
 
 ## Was wurde gemacht
-- Skynet Agent-Oekosystem aufgebaut (Ansatz C: voll-autonom)
-- Agent SDK v0.1.54 installiert, 3 MCPs, 13 Skills, 9 Agents, 14 Hooks
-- Jarvis Protocol in SHARED-PREFIX (Agents denken VOR/WAEHREND/NACH)
-- Memory repariert: errors.md, patterns.md, MEMORY.md
-- Redundanz eliminiert: Skills verweisen auf Rules statt zu kopieren
-- Hooks gefixt: quality-gate lean, track-files, AutoDream Counter-only
-- Stop-Hook Loop gefixt (Lock-Guard + lean Counter)
+- Skynet v2 Smoke Test: Frontend Agent + Reviewer Agent + Hooks + Learning Cycle
+- **BUG GEFUNDEN:** Alle 4 Hooks waren kaputt — `grep -oP` auf Windows → `sed` Fix
+- Top3Cards.tsx: `href="#"` durch `PlayerLink` Pattern ersetzt (Frontend Agent)
+- Reviewer Agent: PASS, 3 NITPICKs (Duplikation, hover auf div, WCAG pre-existing)
+- 55 alte Agent-Worktrees aufgeraeumt (0 verbleibend)
+- 2 Learning-Drafts erstellt (hooks-grep, worktree-skills)
 
 ## Commits
-- 48f6ea5 — Skynet v2 Cleanup + Jarvis Protocol
-- dc95c34 — Agent Workflow v2 cleanup + rules
-- 8ba8043 — Agent Workflow v2 Grundsetup
-- 6a73208 — Skynet design doc
+- 1c6e63c — Smoke Test fixes (hooks + Top3Cards + worktree cleanup)
 
 ## Naechste Prioritaet
-1. Smoke-Test: echten Task durch das System laufen lassen
-2. Ersten Learning-Draft erstellen + Review-Cycle testen
-3. Worktree-Cleanup (alte Agent-Worktrees)
+1. Learning Drafts reviewen + promoten
+2. PredictionCard.tsx: Spielername ohne Link (Explore-Agent Finding)
+3. Skill-Files in Worktrees verfuegbar machen
+4. Ersten echten Feature-Task durch /deliver Pipeline
 
 ## Blocker
 Keine.
