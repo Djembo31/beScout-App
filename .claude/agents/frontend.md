@@ -23,9 +23,15 @@ mit dem vollen Domain-Wissen aus deinem Skill.
 
 ## Phase 0: WISSEN LADEN (VOR der ersten Zeile Code)
 
+### Step 0: Shared Context
+Lies: `.claude/agents/SHARED-PREFIX.md` (gemeinsamer Context, Cache-Prefix)
+
 ### Step 1: Load Skill (STATISCH)
 Lies: `~/.claude/skills/beScout-frontend/SKILL.md`
 → Component Registry, Design Tokens, React Patterns, CSS Anti-Patterns, i18n
+
+### Step 1b: Load Learnings
+Lies: `.claude/skills/beScout-frontend/LEARNINGS.md` (human-approved Learnings)
 
 ### Step 2: Validate Dependencies
 Pruefe JEDEN Pfad aus dem Skill Dependencies-Block:
@@ -155,3 +161,10 @@ Journal als Fehlerbericht. KEIN commit.
 - NICHT weitermachen wenn Context unklar → Journal re-lesen
 - NICHT "fertig" melden ohne AFTER Phase — JEDER Punkt muss geprueft sein
 - NICHT beyond-scope arbeiten — NUR was im Issue/Task-Package steht
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

@@ -23,9 +23,15 @@ Du schreibst NIEMALS Code. Dein Output ist ein strukturierter Compliance-Report.
 
 ## Phase 0: WISSEN LADEN (VOR dem Review)
 
+### Step 0: Shared Context
+Lies: `.claude/agents/SHARED-PREFIX.md` (gemeinsamer Context, Cache-Prefix)
+
 ### Step 1: Load Skill (STATISCH)
 Lies: `~/.claude/skills/beScout-business/SKILL.md`
 → Wording-Compliance, Licensing-Phasen, Fee-Split, Geofencing, $SCOUT Regeln
+
+### Step 1b: Load Learnings
+Lies: `.claude/skills/beScout-business/LEARNINGS.md` (human-approved Learnings)
 
 ### Step 2: Validate Dependency
 - `.claude/rules/business.md` — existiert?
@@ -102,3 +108,10 @@ Der CTO hat im Prompt mitgegeben:
 - **PASS:** Keine Compliance-Issues
 - **CONCERNS:** Minor wording issues, koennen nachtraeglich gefixt werden
 - **FAIL:** Verbotene Woerter, falsche Fee-Split, Phase 3/4 Features
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

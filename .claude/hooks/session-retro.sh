@@ -44,4 +44,32 @@ UNCOMMITTED=$(git status --porcelain 2>/dev/null | head -10)
 # Keep only last 5 retros
 ls -t "$RETRO_DIR"/retro-*.md 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null
 
+# === Session Metrics (Skynet) ===
+METRICS_FILE="C:/bescout-app/memory/metrics/sessions.jsonl"
+SESSION_FILES="C:/bescout-app/.claude/session-files.txt"
+COUNTER_FILE="C:/bescout-app/.claude/session-counter"
+QUEUE_FILE="C:/bescout-app/.claude/learnings-queue.jsonl"
+
+FILES_CHANGED=0
+if [ -f "$SESSION_FILES" ]; then
+  FILES_CHANGED=$(sort -u "$SESSION_FILES" | wc -l)
+  rm -f "$SESSION_FILES"
+fi
+
+CORRECTIONS=0
+if [ -f "$QUEUE_FILE" ]; then
+  CORRECTIONS=$(wc -l < "$QUEUE_FILE" 2>/dev/null || echo 0)
+fi
+
+COUNT=0
+if [ -f "$COUNTER_FILE" ]; then
+  COUNT=$(cat "$COUNTER_FILE")
+fi
+
+COMMIT_COUNT=$(echo "$RECENT_COMMITS" | grep -c "." 2>/dev/null || echo 0)
+
+mkdir -p "$(dirname "$METRICS_FILE")"
+NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "{\"ts\":\"$NOW\",\"session\":$COUNT,\"files_changed\":$FILES_CHANGED,\"commits\":$COMMIT_COUNT,\"corrections\":$CORRECTIONS}" >> "$METRICS_FILE"
+
 exit 0

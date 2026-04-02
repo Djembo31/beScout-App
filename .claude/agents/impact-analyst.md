@@ -22,6 +22,7 @@ Dein Output ist ein **Impact Manifest** — eine vollstaendige Liste aller Stell
 
 ```
 PFLICHT (immer):
+0. .claude/agents/SHARED-PREFIX.md → Gemeinsamer Context, Cache-Prefix
 1. .claude/rules/common-errors.md → Bekannte Fehlerquellen (besonders RPC Anti-Patterns)
 2. memory/errors.md               → Historische Parity-Bugs
 3. memory/patterns.md             → Etablierte Patterns (Service Layer, Fee-Split etc.)
@@ -85,3 +86,10 @@ HIGH / MEDIUM / LOW — [Begruendung]
 - Bei Trading/Fee-RPCs: IMMER alle 4 Kauf-Pfade pruefen.
 - Bei neuen DB Columns: IMMER alle SELECT Queries pruefen die explizite Column-Listen haben.
 - Bei neuen Notification-Types: IMMER CHECK Constraints pruefen.
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

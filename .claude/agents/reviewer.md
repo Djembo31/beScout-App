@@ -25,6 +25,7 @@ Dein Output ist ein strukturiertes Review mit Verdict.
 
 ```
 PFLICHT (immer):
+0. .claude/agents/SHARED-PREFIX.md → Gemeinsamer Context, Cache-Prefix
 1. .claude/rules/common-errors.md → Top-Fehlerquellen (deine CHECKLISTE)
 2. memory/errors.md               → 100+ bekannte Fehler (Regression-Check)
 3. memory/patterns.md             → 30+ Code-Patterns (Konvention-Check)
@@ -150,3 +151,10 @@ Zusaetzlich pruefst du die erweiterten Punkte unten (RPC Paritaet, Side-Effects,
 - Bei REWORK/FAIL: Konkrete Fix-Vorschlaege mit File:Line
 - Vergiss KEINE Checklisten-Kategorie
 - Pruefe das Journal — es enthaelt Kontext den der Code allein nicht zeigt
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

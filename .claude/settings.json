@@ -18,6 +18,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/file-size-warning.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/track-file-changes.sh"
           }
         ]
       }
@@ -39,6 +43,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/pre-compact-backup.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/inject-context-on-compact.sh"
           }
         ]
       }
@@ -52,7 +60,7 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/quality-gate.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/quality-gate-v2.sh"
           }
         ]
       }

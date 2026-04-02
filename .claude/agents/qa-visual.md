@@ -17,6 +17,13 @@ maxTurns: 20
 
 Du machst visuelle Qualitaetskontrolle mit Playwright Screenshots.
 
+## Phase 0: WISSEN LADEN (VOR der QA)
+
+```
+PFLICHT (immer):
+0. .claude/agents/SHARED-PREFIX.md → Gemeinsamer Context, Cache-Prefix
+```
+
 ## Setup
 
 Dev-Server muss laufen. Wenn nicht:
@@ -76,3 +83,10 @@ Nutze den Playwright MCP Server fuer Browser-Automation:
 
 ### Verdict: PASS | ISSUES
 ```
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

@@ -26,6 +26,7 @@ die der Implementierer nicht sieht weil er seine eigenen Blind Spots hat.
 
 ```
 PFLICHT (immer):
+0. .claude/agents/SHARED-PREFIX.md → Gemeinsamer Context, Cache-Prefix
 1. Die Spec/Feature-File (wird dir im Briefing mitgegeben)
 2. .claude/rules/common-errors.md → Bekannte Fehlerquellen = Test-Ideen!
 3. memory/errors.md               → Historische Fehler = Regressionstest-Kandidaten
@@ -139,3 +140,10 @@ Aus der Spec ableiten:
 
 4. Spec updaten: Test-Status dokumentieren
 5. Git commit im Worktree
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

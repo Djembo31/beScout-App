@@ -10,14 +10,14 @@ next-intl (Cookie bescout-locale) | lucide-react
 
 ## Workflow → `.claude/rules/workflow.md`
 - **4-Tier Tasks:** Hotfix / Targeted / Scoped / Full Feature
-- **2 Execution-Ebenen:** Direkte Session (Anil+Jarvis) + Paperclip Agents (autonom)
-- **7 Paperclip Agents:** CEO, CTO, Engineer, QA, BA (Claude) + CodexReviewer, CodexRescue (GPT)
-- **Verification parallel:** tsc + vitest + Reviewer + CodexReviewer + a11y
-- **Sub-Agents** in `.claude/agents/` — laden sich SELBST ein (Phase 0)
+- **Execution:** Direkte Session (Anil+Jarvis) + Agent SDK (autonom)
+- **8 Agents:** frontend, backend, reviewer, healer, test-writer, business, impact-analyst, qa-visual
+- **Verification:** tsc + vitest + Reviewer Agent + a11y
+- **Sub-Agents** in `.claude/agents/` — laden SKILL.md + LEARNINGS.md (Phase 0)
 - **Codex Plugin:** `/codex:rescue` fuer Circuit-Breaker Eskalation
-- **Context7:** Bei Library-Arbeit aktuelle Docs holen, in Agent-Prompts einbetten
+- **Context7:** Bei Library-Arbeit aktuelle Docs holen
 - **Sequential Thinking:** Bei Design-Entscheidungen — NICHT raten
-- **Paperclip:** localhost:3100, Details in `memory/decision_paperclip_cofounder.md`
+- **3 Gesetze:** Cache-Prefix Sharing | Nie leere Tool-Arrays | Human-Curated Context Only
 
 ## Design Tokens (exakte Werte)
 | Token | Wert | Usage |
@@ -106,6 +106,23 @@ When compacting, ALWAYS preserve:
 - All build/test results
 - Unresolved errors or blockers
 - Active decisions not yet implemented
+
+## Proaktive Regeln (IMMER aktiv waehrend Arbeit)
+- Datei >500 Zeilen bearbeiten → Hinweis: "Datei hat X Zeilen, Aufteilung pruefen?"
+- >5 useState in Component → Hinweis: "useReducer in Betracht ziehen"
+- Supabase Query ohne .limit() → WARNUNG: "Unbounded Query"
+- staleTime: 0 → WARNUNG: "invalidateQueries statt staleTime: 0"
+- .env in git add → BLOCKIEREN
+- "Investment"/"ROI" in UI-Text → BLOCKIEREN (Compliance)
+- RLS-lose neue Tabelle → WARNUNG: "RLS Policies fehlen"
+- Import aus geloeschter Datei → SOFORT fixen
+
+## Meta-Regeln (Regeln ueber Regeln)
+- Neue Regel → ERST pruefen: existiert bereits in common-errors.md?
+- Doppelte Eintraege → Konsolidieren, nicht beide behalten
+- Veraltete Regel → Loeschen statt auskommentieren
+- LEARNINGS.md: NUR human-approved Eintraege. Drafts in memory/learnings/drafts/
+- Machine-generated Context SCHADET. Weniger human-curated > mehr auto-generated
 
 ## Referenzen
 - docs/VISION.md — Produktvision

@@ -40,4 +40,35 @@ if [ -f "memory/errors.md" ]; then
   fi
 fi
 
+# === AutoDream Trigger Check (Skynet) ===
+COUNTER_FILE="C:/bescout-app/.claude/session-counter"
+AUTODREAM_FILE="C:/bescout-app/.claude/autodream-last-run"
+
+if [ -f "$COUNTER_FILE" ] && [ -f "$AUTODREAM_FILE" ]; then
+  COUNT=$(cat "$COUNTER_FILE")
+  LAST_RUN=$(cat "$AUTODREAM_FILE")
+  LAST_EPOCH=$(date -d "$LAST_RUN" +%s 2>/dev/null || echo 0)
+  NOW_EPOCH=$(date +%s)
+  HOURS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 3600 ))
+
+  if [ "$COUNT" -ge 5 ] || [ "$HOURS_SINCE" -ge 24 ]; then
+    echo ""
+    echo "## AutoDream: Memory Consolidation faellig"
+    echo "Sessions seit letztem Run: $COUNT | Stunden: $HOURS_SINCE"
+    echo "→ Starte AutoDream Subagent um Memory zu konsolidieren"
+    echo ""
+  fi
+fi
+
+# === Improvement Proposal Check (alle 10 Sessions) ===
+if [ -f "$COUNTER_FILE" ]; then
+  COUNT=$(cat "$COUNTER_FILE")
+  if [ "$COUNT" -gt 0 ] && [ $((COUNT % 10)) -eq 0 ]; then
+    echo ""
+    echo "## Improvement Review faellig (Session #$COUNT)"
+    echo "→ Nutze /improve um letzte 10 Sessions zu analysieren"
+    echo ""
+  fi
+fi
+
 exit 0

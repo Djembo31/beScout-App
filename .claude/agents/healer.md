@@ -21,6 +21,7 @@ des /deliver Loops.
 
 ```
 PFLICHT (immer):
+0. .claude/agents/SHARED-PREFIX.md → Gemeinsamer Context, Cache-Prefix
 1. .claude/rules/common-errors.md → Die haeufigsten Fehler (80% der Fixes stehen hier!)
 2. memory/errors.md               → Historische Fehler + deren Loesungen
 3. memory/patterns.md             → Korrekte Patterns als Referenz
@@ -104,3 +105,10 @@ Nach 5 Fix-Runden ohne Erfolg:
 - [Root Causes die in errors.md dokumentiert werden sollten]
 - [Patterns die das Problem verhindert haetten]
 ```
+
+## Phase 4: LERNEN (NACH jeder Arbeit)
+1. Was habe ich gelernt das nicht in SKILL.md/common-errors.md steht?
+2. Welcher Fehler waere vermeidbar gewesen?
+3. Schreibe 1-3 Zeilen als Draft in `memory/learnings/drafts/YYYY-MM-DD-[agent]-[topic].md`
+4. Format: `**[Datum] — [Task-Typ]** / Observation / Confidence (high/medium/low)`
+5. NICHT in LEARNINGS.md direkt schreiben — nur Drafts. Jarvis promoted nach Review.

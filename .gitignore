@@ -106,3 +106,9 @@ lighthouse-report.json
 !.claude/research/agent-prompts.md
 __pycache__/
 *.pyc
+
+# Claude Code runtime state
+.claude/.quality-gate-running
+.claude/autodream-last-run
+.claude/session-counter
+.claude/learnings-queue.jsonl
