@@ -5,7 +5,7 @@
 cd C:/bescout-app
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-RETRO_DIR="memory/sessions"
+RETRO_DIR="memory/episodisch/sessions"
 RETRO_FILE="$RETRO_DIR/retro-$TIMESTAMP.md"
 
 mkdir -p "$RETRO_DIR"
@@ -45,7 +45,7 @@ UNCOMMITTED=$(git status --porcelain 2>/dev/null | head -10)
 ls -t "$RETRO_DIR"/retro-*.md 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null
 
 # === Session Metrics (Skynet) ===
-METRICS_FILE="C:/bescout-app/memory/metrics/sessions.jsonl"
+METRICS_FILE="C:/bescout-app/memory/episodisch/metriken/sessions.jsonl"
 SESSION_FILES="C:/bescout-app/.claude/session-files.txt"
 COUNTER_FILE="C:/bescout-app/.claude/session-counter"
 QUEUE_FILE="C:/bescout-app/.claude/learnings-queue.jsonl"

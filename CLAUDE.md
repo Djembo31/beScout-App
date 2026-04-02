@@ -94,10 +94,14 @@ next-intl (Cookie bescout-locale) | lucide-react
 **Immer geladen:** workflow.md, business.md, common-errors.md
 **Path-spezifisch:** ui-components.md, database.md, trading.md, fantasy.md, gamification.md, community.md, club-admin.md, profile.md
 
-## Memory → memory/
-- MEMORY.md: Auto-loaded — Architecture + Backend + Patterns
-- current-sprint.md: Stand + naechste Prioritaet
-- Deep-Dive (on-demand): architecture.md, patterns.md, backend-systems.md, decisions.md, errors.md
+## Cortex (Jarvis Brain) → memory/
+- **cortex-index.md**: Routing-Tabelle — sagt WO Wissen liegt, Jarvis laedt on-demand
+- **working-memory.md**: Session-Blackboard (ephemeral, nicht committet)
+- **Episodisch** (memory/episodisch/): Sessions, Fehler, Entscheidungen, Metriken
+- **Semantisch** (memory/semantisch/): Projekt, Personen, Systeme, Sprint
+- **Prozedural**: .claude/skills/ + .claude/rules/ (auto-loaded)
+- **Sinne** (memory/senses/): Morning Briefing, Health, Code Smells
+- **Learnings** (memory/learnings/drafts/): Pending human review
 
 ## Compaction (KRITISCH)
 When compacting, ALWAYS preserve:

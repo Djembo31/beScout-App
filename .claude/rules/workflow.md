@@ -145,10 +145,11 @@ Paperclip: localhost:3100, Company `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`.
 
 ## Session-Start
 
-1. `session-handoff.md` lesen
-2. `current-sprint.md` lesen
-3. Paperclip Status: `GET /api/companies/{id}/dashboard`
-4. Anil sagt was ansteht → los
+1. `memory/cortex-index.md` lesen (Routing-Tabelle)
+2. `memory/session-handoff.md` lesen
+3. `memory/semantisch/sprint/current.md` lesen
+4. `memory/senses/morning-briefing.md` lesen (wenn vorhanden)
+5. Anil sagt was ansteht → los
 
 ## Autonomous Execution (NACH Brainstorming)
 
@@ -172,9 +173,9 @@ Eskaliere NUR bei: Architektur ausserhalb Spec, Business-Rule Ambiguitaet, DB Sc
 
 ## Session-Ende
 
-1. `session-handoff.md` updaten (MAX 50 Zeilen)
-2. `current-sprint.md` updaten
-3. Paperclip Tasks queuen (wenn sinnvoll)
+1. `memory/session-handoff.md` updaten (MAX 50 Zeilen)
+2. `memory/semantisch/sprint/current.md` updaten
+3. Working-Memory loeschen (ephemeral)
 
 ## Code-Konventionen
 

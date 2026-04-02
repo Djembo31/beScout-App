@@ -7,10 +7,10 @@ cd "C:/bescout-app" || exit 0
 echo "=== CONTEXT RE-INJECTION (post-compaction) ==="
 
 # 1. Current sprint status
-if [ -f "memory/current-sprint.md" ]; then
+if [ -f "memory/semantisch/sprint/current.md" ]; then
   echo ""
   echo "## Current Sprint"
-  head -30 "memory/current-sprint.md"
+  head -30 "memory/semantisch/sprint/current.md"
 fi
 
 # 2. Session handoff
