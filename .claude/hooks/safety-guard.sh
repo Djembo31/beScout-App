@@ -6,7 +6,7 @@
 INPUT=$(cat)
 
 # Extract command without jq (Windows-compatible)
-COMMAND=$(echo "$INPUT" | grep -oP '"command"\s*:\s*"\K[^"]+')
+COMMAND=$(echo "$INPUT" | sed -n 's/.*"command"\s*:\s*"\([^"]*\)".*/\1/p')
 
 # Skip if no command
 if [ -z "$COMMAND" ]; then

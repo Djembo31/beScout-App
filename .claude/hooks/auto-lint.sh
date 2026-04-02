@@ -6,7 +6,7 @@
 INPUT=$(cat)
 
 # Extract file_path without jq (Windows-compatible)
-FILE_PATH=$(echo "$INPUT" | grep -oP '"file_path"\s*:\s*"\K[^"]+')
+FILE_PATH=$(echo "$INPUT" | sed -n 's/.*"file_path"\s*:\s*"\([^"]*\)".*/\1/p')
 
 # Skip if no file path or not a TS/TSX file
 if [ -z "$FILE_PATH" ]; then

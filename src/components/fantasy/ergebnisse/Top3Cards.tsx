@@ -10,6 +10,11 @@ import type { Pos } from '@/types';
 
 const MEDALS = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
 
+function PlayerLink({ playerId, className, children, style }: { playerId: string | null; className: string; children: React.ReactNode; style?: React.CSSProperties }) {
+  if (playerId) return <Link href={`/player/${playerId}`} className={className} style={style}>{children}</Link>;
+  return <div className={className} style={style}>{children}</div>;
+}
+
 type Props = {
   scorers: FixturePlayerStat[];
 };
@@ -26,9 +31,9 @@ export function Top3Cards({ scorers }: Props) {
         const isFirst = i === 0;
 
         return (
-          <Link
+          <PlayerLink
             key={stat.id}
-            href={stat.player_id ? `/player/${stat.player_id}` : '#'}
+            playerId={stat.player_id}
             className={`flex-shrink-0 w-[130px] snap-start rounded-xl p-2.5 card-carbon-mini border border-white/[0.06] hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] relative ${isFirst ? 'card-gold-frame mvp-crown-glow' : ''}`}
             style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
           >
@@ -67,7 +72,7 @@ export function Top3Cards({ scorers }: Props) {
                 {stat.clean_sheet && stat.player_position === 'GK' && <span className="text-emerald-400 font-bold">CS</span>}
               </div>
             </div>
-          </Link>
+          </PlayerLink>
         );
       })}
     </div>
