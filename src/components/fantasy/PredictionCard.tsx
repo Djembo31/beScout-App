@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle, XCircle, Clock, MinusCircle } from 'lucide-react';
 import { Card } from '@/components/ui';
@@ -43,9 +44,15 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
           </div>
         ) : (
           <div className="flex items-center gap-1.5 text-sm">
-            <span className="font-semibold">
-              {prediction.player?.first_name?.charAt(0)}. {prediction.player?.last_name}
-            </span>
+            {prediction.player_id ? (
+              <Link href={`/player/${prediction.player_id}`} className="font-semibold hover:text-gold transition-colors">
+                {prediction.player?.first_name?.charAt(0)}. {prediction.player?.last_name}
+              </Link>
+            ) : (
+              <span className="font-semibold">
+                {prediction.player?.first_name?.charAt(0)}. {prediction.player?.last_name}
+              </span>
+            )}
             <span className="text-white/40 text-xs">
               ({homeClub?.short ?? '?'} vs {awayClub?.short ?? '?'})
             </span>
