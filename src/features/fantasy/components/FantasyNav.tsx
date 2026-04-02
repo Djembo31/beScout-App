@@ -55,14 +55,14 @@ export function FantasyNav({
       />
 
       {/* SEGMENT TABS -- 4 Tabs, always fit */}
-      <div className="flex items-center gap-1 p-1 bg-surface-subtle border border-white/[0.06] rounded-xl">
+      <div className="flex items-center overflow-x-auto scrollbar-hide gap-1 p-1 bg-surface-subtle border border-white/[0.06] rounded-xl">
         {tabs.map(tab => {
           const Icon = TAB_ICONS[tab.id];
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={cn('flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap min-h-[44px]',
+              className={cn('flex-shrink-0 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap min-h-[44px]',
                 mainTab === tab.id
                   ? 'bg-gold/15 text-gold shadow-sm'
                   : 'text-white/50 hover:text-white/70'

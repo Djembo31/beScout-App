@@ -174,7 +174,7 @@ export default function ClubVerkaufSection({
       />
 
       {/* 2. IPO View State Tabs */}
-      <div className="flex gap-1 bg-surface-subtle rounded-xl p-1" role="tablist" aria-label={t('ipoViewLabel', { defaultMessage: 'IPO-Ansicht' })}>
+      <div className="flex overflow-x-auto scrollbar-hide gap-1 bg-surface-subtle rounded-xl p-1" role="tablist" aria-label={t('ipoViewLabel', { defaultMessage: 'IPO-Ansicht' })}>
         {VIEW_TABS.map(tab => (
           <button
             key={tab.value}
@@ -183,7 +183,7 @@ export default function ClubVerkaufSection({
             aria-label={t(tab.ariaKey, { defaultMessage: tab.ariaDefault })}
             onClick={() => setIpoViewState(tab.value)}
             className={cn(
-              'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-colors min-h-[44px]',
+              'flex-shrink-0 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-colors min-h-[44px]',
               'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
               'active:scale-[0.97]',
               ipoViewState === tab.value

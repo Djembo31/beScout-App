@@ -406,7 +406,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         </Button>
       </div>
 
-      <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06]">
+      <div className="flex overflow-x-auto scrollbar-hide gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06]">
         {SUB_TABS.map(tab => {
           const Icon = tab.icon;
           return (
@@ -414,7 +414,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
               key={tab.id}
               onClick={() => state.setSubTab(tab.id)}
               className={cn(
-                'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                'flex-shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
                 state.subTab === tab.id
                   ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60'

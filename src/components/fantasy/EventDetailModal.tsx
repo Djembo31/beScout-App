@@ -438,12 +438,12 @@ export const EventDetailModal = ({
         />
 
         {/* Tabs */}
-        <div className="flex -mx-4 md:-mx-5 border-b border-white/10 mb-4">
+        <div className="flex overflow-x-auto scrollbar-hide -mx-4 md:-mx-5 border-b border-white/10 mb-4">
           {(['overview', 'lineup', 'leaderboard', 'community'] as EventDetailTab[]).map(tabId => (
             <button
               key={tabId}
               onClick={() => { setTab(tabId); }}
-              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-colors relative ${tab === tabId ? 'text-gold' : 'text-white/50 hover:text-white'
+              className={`flex-shrink-0 px-4 py-3 min-h-[44px] font-medium text-sm transition-colors relative ${tab === tabId ? 'text-gold' : 'text-white/50 hover:text-white'
                 }`}
             >
               {tabId === 'overview' ? t('tabOverview') : tabId === 'lineup' ? t('tabLineup') : tabId === 'leaderboard' ? t('tabRanking') : t('tabCommunity')}
