@@ -105,6 +105,7 @@ export default function RewardStructureEditor({ value, onChange, disabled, prize
               <div className="flex items-center gap-1 flex-1">
                 <input
                   type="number"
+                  inputMode="numeric"
                   min={0}
                   max={100}
                   step={1}

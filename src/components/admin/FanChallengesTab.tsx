@@ -184,6 +184,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
             <label className="block text-xs text-white/50 mb-1">{t('challengeReward', { points: fanRankPoints })}</label>
             <input
               type="number"
+              inputMode="numeric"
               value={fanRankPoints}
               onChange={e => setFanRankPoints(e.target.value)}
               min={1}
