@@ -40,6 +40,12 @@ Session 275: Player Detail `dynamic()` umgebaut → Build gemessen → Bundle GR
 10 Minuten verschwendet weil die Hypothese ("lazy = kleiner") nicht VOR dem Code geprueft wurde.
 Bei Performance: MESSEN. Bei Refactoring: GREP fuer Consumers. Bei "unused": VERIFY in UI.
 
+**NO-CRUMBS REGEL (Session 282):**
+"required → optional" / "disabled entfernen" / "Validierung lockern" = Data Contract Change.
+Aendert was in die DB fliesst oder was Downstream-Code empfaengt.
+→ GREP ALLE Consumer des betroffenen Felds VOR dem Code. Nicht danach.
+→ Bei Batch-Fixes (3+ Items): JEDER Fix durchlaeuft BEFORE einzeln. Kein Abarbeiten-Modus.
+
 ### Phase 2: DURING (Waehrend der Implementation)
 
 - NUR was im DEFINE steht umsetzen. Nichts extra.

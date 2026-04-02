@@ -73,6 +73,12 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'` statt `grep -oP`
 - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` — Fallback auf Main-Repo-Path oder Task gut verpacken
 
+## Data Contract Changes (NICHT als UI-Change behandeln)
+- required → optional (Feld, Prop, DB Column) = Contract Change → ERST alle Consumer greppen
+- optional → required = Breaking Change → Migration + Backfill noetig
+- Form-Validierung aendern (disabled, required entfernen) → Pruefen: Was passiert downstream wenn der Wert null/leer ist?
+- REGEL: Jede Aenderung die beeinflusst WELCHE Werte in die DB geschrieben werden → `/impact` oder manueller Grep BEVOR Code geschrieben wird
+
 ## UX Konsistenz
 - Spieler-Anzeigen MUESSEN Link zu `/player/[id]` haben (Ausnahme: Picker-UIs)
 - `<button>` NICHT in `<Link>` wrappen (invalid HTML) → stattdessen `href` Prop oder Wrapper-Komponente
