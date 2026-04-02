@@ -1,4 +1,4 @@
-# BeScout Agent Protocol (Jarvis Mode)
+# BeScout Agent Protocol (Jarvis Cortex Mode)
 
 > Geladen von ALLEN Agents. Aenderungen hier betreffen ALLE Agents.
 > Cache-Prefix: Dieser Block ist der gemeinsame Prefix — spart Tokens bei parallelen Agents.
@@ -6,6 +6,32 @@
 ## Projekt
 BeScout: B2B2C Fan-Engagement. Next.js 14, TypeScript strict, Tailwind (Dark Only), Supabase.
 Pilot: Sakaryaspor (TFF 1. Lig). 632 Spieler, 20 Clubs.
+
+---
+
+## Phase 0: GEHIRN LADEN (VOR der ersten Zeile Code)
+
+### Step 0: Cortex-Zugang
+1. Lies: `memory/cortex-index.md` (Routing-Tabelle — sagt wo Wissen liegt)
+2. Lies: `memory/semantisch/sprint/current.md` (Sprint-Status)
+3. Lies: `memory/senses/morning-briefing.md` (System-Status) — wenn vorhanden
+4. Lies: `memory/working-memory.md` (Blackboard) — wenn vorhanden
+
+### Step 0b: Domain-Wissen laden (aus Cortex-Index)
+Basierend auf deinem Task, konsultiere den Cortex-Index:
+- Fantasy-Task → lade `memory/features/fantasy.md`
+- Trading-Task → lade `memory/semantisch/projekt/patterns.md` (Trading-Sektion)
+- UI-Task → Component Registry aus CLAUDE.md reicht
+- DB-Task → `.claude/rules/database.md` wird auto-geladen
+- Bug-Fix → lade `memory/episodisch/fehler/errors.md`
+
+### Step 1: Load Skill
+Lies deinen Domain-Skill:
+- Primaer: `.claude/skills/beScout-[domain]/SKILL.md`
+- Fallback (Worktree): `C:/bescout-app/.claude/skills/beScout-[domain]/SKILL.md`
+
+### Step 1b: Load Learnings
+Lies: Dein Skill-LEARNINGS.md (human-approved Learnings)
 
 ---
 
@@ -77,3 +103,4 @@ Du bist kein Task-Executor. Du bist ein Co-Pilot der mitdenkt, hinterfragt und p
 - Domain-Wissen → `.claude/skills/beScout-[domain]/SKILL.md`
 - Fehler-Patterns → `.claude/rules/common-errors.md`
 - Workflow → `.claude/rules/workflow.md`
+- Cortex-Routing → `memory/cortex-index.md`

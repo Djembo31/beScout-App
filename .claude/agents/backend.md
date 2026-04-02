@@ -23,15 +23,16 @@ und Query-Hooks mit dem vollen Domain-Wissen aus deinem Skill.
 
 ## Phase 0: WISSEN LADEN (VOR der ersten Zeile Code)
 
-### Step 0: Shared Context
-Lies: `.claude/agents/SHARED-PREFIX.md` (gemeinsamer Context, Cache-Prefix)
+### Step 0: Shared Context (Cortex-Aware)
+Lies: `.claude/agents/SHARED-PREFIX.md` (laedt Cortex automatisch — Sprint, Briefing, Routing)
 
-### Step 1: Load Skill (STATISCH)
-Lies: `~/.claude/skills/beScout-backend/SKILL.md`
-→ DB Column Names, CHECK Constraints, RPC Patterns, Service Layer, Fee-Split
+### Step 1: Load Skill
+Lies: `.claude/skills/beScout-backend/SKILL.md`
+Fallback (Worktree): `C:/bescout-app/.claude/skills/beScout-backend/SKILL.md`
 
 ### Step 1b: Load Learnings
-Lies: `.claude/skills/beScout-backend/LEARNINGS.md` (human-approved Learnings)
+Lies: `.claude/skills/beScout-backend/LEARNINGS.md`
+Fallback: `C:/bescout-app/memory/learnings/beScout-backend.md`
 
 ### Step 2: Validate Dependencies
 Pruefe JEDEN Pfad aus dem Skill Dependencies-Block:

@@ -23,15 +23,16 @@ mit dem vollen Domain-Wissen aus deinem Skill.
 
 ## Phase 0: WISSEN LADEN (VOR der ersten Zeile Code)
 
-### Step 0: Shared Context
-Lies: `.claude/agents/SHARED-PREFIX.md` (gemeinsamer Context, Cache-Prefix)
+### Step 0: Shared Context (Cortex-Aware)
+Lies: `.claude/agents/SHARED-PREFIX.md` (laedt Cortex automatisch — Sprint, Briefing, Routing)
 
-### Step 1: Load Skill (STATISCH)
-Lies: `~/.claude/skills/beScout-frontend/SKILL.md`
-→ Component Registry, Design Tokens, React Patterns, CSS Anti-Patterns, i18n
+### Step 1: Load Skill
+Lies: `.claude/skills/beScout-frontend/SKILL.md`
+Fallback (Worktree): `C:/bescout-app/.claude/skills/beScout-frontend/SKILL.md`
 
 ### Step 1b: Load Learnings
-Lies: `.claude/skills/beScout-frontend/LEARNINGS.md` (human-approved Learnings)
+Lies: `.claude/skills/beScout-frontend/LEARNINGS.md`
+Fallback: `C:/bescout-app/memory/learnings/beScout-frontend.md`
 
 ### Step 2: Validate Dependencies
 Pruefe JEDEN Pfad aus dem Skill Dependencies-Block:

@@ -23,15 +23,16 @@ Du schreibst NIEMALS Code. Dein Output ist ein strukturierter Compliance-Report.
 
 ## Phase 0: WISSEN LADEN (VOR dem Review)
 
-### Step 0: Shared Context
-Lies: `.claude/agents/SHARED-PREFIX.md` (gemeinsamer Context, Cache-Prefix)
+### Step 0: Shared Context (Cortex-Aware)
+Lies: `.claude/agents/SHARED-PREFIX.md` (laedt Cortex automatisch — Sprint, Briefing, Routing)
 
-### Step 1: Load Skill (STATISCH)
-Lies: `~/.claude/skills/beScout-business/SKILL.md`
-→ Wording-Compliance, Licensing-Phasen, Fee-Split, Geofencing, $SCOUT Regeln
+### Step 1: Load Skill
+Lies: `.claude/skills/beScout-business/SKILL.md`
+Fallback (Worktree): `C:/bescout-app/.claude/skills/beScout-business/SKILL.md`
 
 ### Step 1b: Load Learnings
-Lies: `.claude/skills/beScout-business/LEARNINGS.md` (human-approved Learnings)
+Lies: `.claude/skills/beScout-business/LEARNINGS.md`
+Fallback: `C:/bescout-app/memory/learnings/beScout-business.md`
 
 ### Step 2: Validate Dependency
 - `.claude/rules/business.md` — existiert?
