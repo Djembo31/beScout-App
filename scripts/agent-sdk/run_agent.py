@@ -74,6 +74,7 @@ async def run_agent(agent_name: str, task: str, verbose: bool = False) -> str:
         max_turns=config.max_turns,
         permission_mode=config.permission_mode,
         hooks=hooks,
+        setting_sources=["project"],  # Loads CLAUDE.md + .claude/rules/ + Skills
     )
 
     session_id = None

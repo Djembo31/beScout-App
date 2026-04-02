@@ -8,10 +8,6 @@
       "command": "cmd",
       "args": ["/c", "npx", "-y", "supabase-mcp-server@latest"]
     },
-    "context7": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@latest"]
-    },
     "sequential-thinking": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@anthropic-ai/sequential-thinking-mcp@latest"]
