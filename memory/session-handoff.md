@@ -1,40 +1,25 @@
 # Session Handoff
-## Letzte Session: 2026-04-02 (Session 280)
+## Letzte Session: 2026-04-02 (Skynet Setup)
+
 ## Was wurde gemacht
+- Skynet Agent-Oekosystem aufgebaut (Ansatz C: voll-autonom)
+- Agent SDK v0.1.54 installiert, 3 MCPs, 13 Skills, 9 Agents, 14 Hooks
+- Jarvis Protocol in SHARED-PREFIX (Agents denken VOR/WAEHREND/NACH)
+- Memory repariert: errors.md, patterns.md, MEMORY.md
+- Redundanz eliminiert: Skills verweisen auf Rules statt zu kopieren
+- Hooks gefixt: quality-gate lean, track-files, AutoDream Counter-only
+- Stop-Hook Loop gefixt (Lock-Guard + lean Counter)
 
-### Legacy Cleanup (Tier 2)
-- src/components/market/ + manager/ geloescht, 7 Tests migriert
-- tsc 0, 145/145 Tests green
+## Commits
+- 48f6ea5 — Skynet v2 Cleanup + Jarvis Protocol
+- dc95c34 — Agent Workflow v2 cleanup + rules
+- 8ba8043 — Agent Workflow v2 Grundsetup
+- 6a73208 — Skynet design doc
 
-### CLS E2E Validation
-- CEO Auto-Close: PASS
-- Proactive Scan: PASS (BES-105 autonom gefixt, e8e5def)
-- CodexReviewer: FAIL (OPENAI_API_KEY + Adapter-Problem)
+## Naechste Prioritaet
+1. Smoke-Test: echten Task durch das System laufen lassen
+2. Ersten Learning-Draft erstellen + Review-Cycle testen
+3. Worktree-Cleanup (alte Agent-Worktrees)
 
-### CodexReviewer aus Pipeline entfernt
-- Engineers signalisieren direkt @Jarvis auf Parent Issue
-- CodexReviewer Agent: paused
-- SE + FE + CEO HEARTBEATs aktualisiert
-
-### Insight Pool + Proactive Scan gefixt
-- Domain-Filter: von Whitelist auf "alles ausser workflow"
-- Scan-Quellen: INSIGHT_POOL + CONSTITUTION
-- Insight #10 domain: patterns → i18n
-
-### Agent Workflow v2 Research (Gamechanger Deep Dive)
-- 3 Research-Agents parallel, 10+ Web-Quellen
-- 9 Gamechangers identifiziert und gerankt
-- Anil plant Gesamtsetup — Details in decision_agent_workflow_v2.md
-
-## Naechster Schritt
-**Anil kommt mit seinem Plan fuer das Agent Workflow v2 Grundsetup.**
-Alle 9 Gamechangers werden durchgezogen:
-1. Agent SDK als Execution Engine
-2. /schedule naechtliche Scans
-3. PreToolUse defer Review-Gates
-4. Probe MCP (10 Min Quick Win)
-5. FastMCP BeScout-Server
-6. Agent Teams mit Cache-Sharing
-7. KAIROS/AutoDream monitoren
-8. Codex GitHub Action
-9. Skill Description Engineering
+## Blocker
+Keine.
