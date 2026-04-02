@@ -22,6 +22,7 @@ vi.mock('@/lib/queries/misc', () => ({
   useIpoForPlayer: vi.fn(() => ({ data: undefined })),
   useHoldingQty: vi.fn(() => ({ data: undefined })),
   usePlayerHolderCount: vi.fn(() => ({ data: undefined })),
+  useWatcherCount: vi.fn(() => ({ data: undefined })),
   useSellOrders: vi.fn(() => ({ data: undefined })),
   useOpenBids: vi.fn(() => ({ data: undefined })),
   usePosts: vi.fn(() => ({ data: undefined })),
