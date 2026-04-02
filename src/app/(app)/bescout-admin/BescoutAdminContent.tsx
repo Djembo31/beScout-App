@@ -142,7 +142,7 @@ function IposTab() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAllIposAcrossClubs().then(data => { setIpos(data); setLoading(false); }).catch(() => setLoading(false));
+    getAllIposAcrossClubs().then(data => { setIpos(data); setLoading(false); }).catch((e) => { console.error('[IposTab] Load failed:', e); setLoading(false); });
   }, []);
 
   const t = useTranslations('bescoutAdmin');
@@ -274,7 +274,7 @@ export default function BescoutAdminContent() {
         // Not an admin â€” redirect (middleware should catch this, but fallback)
         router.replace('/');
       }
-    }).catch(() => setLoading(false));
+    }).catch((e) => { console.error('[BescoutAdminContent] Role load failed:', e); setLoading(false); });
   }, [user, router]);
 
   if (loading || !adminRole) {

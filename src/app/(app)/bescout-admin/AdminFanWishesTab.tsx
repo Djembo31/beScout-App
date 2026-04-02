@@ -21,7 +21,7 @@ export function AdminFanWishesTab() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAllWishes().then(data => { setWishes(data); setLoading(false); }).catch(() => setLoading(false));
+    getAllWishes().then(data => { setWishes(data); setLoading(false); }).catch((e) => { console.error('[AdminFanWishesTab] Load failed:', e); setLoading(false); });
   }, []);
 
   const handleStatus = async (id: string, status: string) => {

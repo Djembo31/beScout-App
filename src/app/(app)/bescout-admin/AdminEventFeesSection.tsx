@@ -28,7 +28,7 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
   useEffect(() => {
     getEventFeeConfigs()
       .then(data => { setConfigs(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch((e) => { console.error('[AdminEventFeesSection] Load failed:', e); setLoading(false); });
   }, []);
 
   const handleSave = async (eventType: string) => {

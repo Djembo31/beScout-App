@@ -19,7 +19,7 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
   const [editValues, setEditValues] = useState<Partial<DbFeeConfig>>({});
 
   useEffect(() => {
-    getAllFeeConfigs().then(data => { setConfigs(data); setLoading(false); }).catch(() => setLoading(false));
+    getAllFeeConfigs().then(data => { setConfigs(data); setLoading(false); }).catch((e) => { console.error('[AdminFeesTab] Load failed:', e); setLoading(false); });
   }, []);
 
   const handleSave = async (configId: string) => {

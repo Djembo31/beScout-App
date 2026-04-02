@@ -27,7 +27,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       setStats(cf);
       setAdStats(ad);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch((e) => { console.error('[AdminCreatorFundTab] Load failed:', e); setLoading(false); });
   }, []);
 
   const handlePayout = async (type: 'fund' | 'ad') => {
