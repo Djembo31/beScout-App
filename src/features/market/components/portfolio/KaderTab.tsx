@@ -1,81 +1,163 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge, PlayerIdentity, getL5Color, getL5Bg } from '@/components/player';
-import { cn } from '@/lib/utils';
+import { PositionBadge } from '@/components/player';
+import { posTintColors } from '@/components/player/PlayerRow';
+import { cn, fmtScout } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
 import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { getPosColor } from './helpers';
-import { StatusPill, MinutesPill, NextMatchBadge } from './bestand/bestandHelpers';
 import { useKaderState } from './useKaderState';
 import type { Player, Pos } from '@/types';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 
 // ============================================
-// EVENT USAGE BADGE
+// STATUS DOT (injury / suspension indicator on photo)
 // ============================================
 
-function EventUsageBadge({ count, title }: { count: number; title: string }) {
-  if (count === 0) return null;
+function StatusDot({ status }: { status: string }) {
+  if (status === 'fit') return null;
+  const bg = status === 'injured' ? 'bg-red-500' : status === 'suspended' ? 'bg-amber-500' : status === 'doubtful' ? 'bg-yellow-400' : null;
+  if (!bg) return null;
+  return <span className={cn('absolute bottom-0 right-0 size-2.5 rounded-full ring-2 ring-[#0a0a0a]', bg)} />;
+}
+
+// ============================================
+// PLAYER ROW — Fantasy-style (Photo + 4 info lines)
+// Matches FantasyPlayerRow visual language
+// ============================================
+
+function ManagerPlayerRow({ player, nextFixture, isAssigned, inLineupTitle }: {
+  player: Player;
+  nextFixture: NextFixtureInfo | undefined;
+  isAssigned: boolean;
+  inLineupTitle: string;
+}) {
+  const t = useTranslations('market');
+  const p = player;
+  const tint = posTintColors[p.pos];
+  const clubData = getClub(p.club);
+  const opponentClub = nextFixture ? getClub(nextFixture.opponentShort) : null;
+
   return (
-    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-[9px] font-bold text-green-500"
-          title={title}>
-      <Shield className="size-2.5" aria-hidden="true" />{count}
-    </span>
+    <Link
+      href={`/player/${p.id}`}
+      className={cn(
+        'w-full text-left px-3 py-2.5 transition-colors block',
+        'border-l-2 border-l-transparent',
+        isAssigned && 'bg-green-500/[0.06] border-l-green-500',
+      )}
+    >
+      <div className="flex gap-3">
+        {/* Photo */}
+        <div className="shrink-0 relative">
+          <div
+            className="size-12 rounded-full overflow-hidden border-2"
+            style={{ borderColor: `${tint}99` }}
+          >
+            {p.imageUrl ? (
+              <img
+                src={p.imageUrl}
+                alt=""
+                className="size-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="size-full flex items-center justify-center text-sm font-black text-white/60"
+                style={{ backgroundColor: `${tint}22` }}
+              >
+                {p.first.charAt(0)}{p.last.charAt(0)}
+              </div>
+            )}
+          </div>
+          <StatusDot status={p.status} />
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          {/* Line 1: Name + Shirt + Lineup badge + L5 */}
+          <div className="flex items-center gap-1.5">
+            <span className="font-black text-sm text-white truncate">
+              {p.last.toUpperCase()}
+            </span>
+            <span className="font-mono text-xs text-white/30 tabular-nums shrink-0">
+              #{p.ticket}
+            </span>
+            {isAssigned && (
+              <span className="shrink-0" title={inLineupTitle}>
+                <Shield className="size-3 text-green-500" aria-hidden="true" />
+              </span>
+            )}
+            <div className="ml-auto shrink-0">
+              <div
+                className="size-8 rounded-full flex items-center justify-center border-[1.5px]"
+                style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
+              >
+                <span className="font-mono font-black text-sm tabular-nums text-white/90">
+                  {Math.round(p.perf.l5)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Line 2: Position + Club */}
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <PositionBadge pos={p.pos} size="sm" />
+            {clubData?.logo && (
+              <Image src={clubData.logo} alt="" width={16} height={16}
+                className="size-4 shrink-0" aria-hidden="true" />
+            )}
+            <span className="text-xs text-white/50">{p.club}</span>
+          </div>
+
+          {/* Line 3: Next fixture + stats */}
+          <div className="flex items-center gap-1.5 mt-0.5 text-xs text-white/40">
+            {nextFixture ? (
+              <>
+                <span className={nextFixture.isHome ? 'text-green-500' : 'text-sky-300'}>
+                  {nextFixture.isHome ? 'H' : 'A'}
+                </span>
+                {opponentClub?.logo && (
+                  <Image src={opponentClub.logo} alt="" width={14} height={14}
+                    className="size-3.5 shrink-0" aria-hidden="true" />
+                )}
+                <span className="text-white/50">{nextFixture.opponentShort}</span>
+              </>
+            ) : (
+              <span className="text-white/30">--</span>
+            )}
+            <span className="ml-auto font-mono tabular-nums text-white/50 shrink-0">
+              {p.stats.matches}{t('statMatchesAbbr')}{' '}
+              {p.stats.goals}{t('statGoalsAbbr')}{' '}
+              {p.stats.assists}{t('statAssistsAbbr')}
+            </span>
+          </div>
+
+          {/* Line 4: Price + SC */}
+          <div className="flex items-center gap-2 mt-1 pt-1 border-t border-white/[0.06] text-[11px] text-white/40">
+            <span className="font-mono tabular-nums">
+              {fmtScout(p.prices.floor ?? 0)} CR
+            </span>
+            <span className="text-white/20">|</span>
+            <span className="font-mono tabular-nums">
+              {p.dpc.owned} SC
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }
 
 // ============================================
-// SCORE CIRCLE (prominent last score)
-// ============================================
-
-function ScoreCircle({ score }: { score: number | null }) {
-  if (score == null) {
-    return (
-      <div className="size-7 md:size-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
-        <span className="text-[9px] md:text-[10px] font-mono text-white/20">&mdash;</span>
-      </div>
-    );
-  }
-  const bg = score >= 100 ? 'bg-gold/15 border-gold/30' : score >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20';
-  const text = score >= 100 ? 'text-gold' : score >= 70 ? 'text-white' : 'text-red-300';
-  return (
-    <div className={cn('size-7 md:size-10 rounded-full border flex items-center justify-center', bg)}>
-      <span className={cn('text-xs md:text-sm font-black font-mono tabular-nums', text)}>{score}</span>
-    </div>
-  );
-}
-
-// ============================================
-// L5 PILL (consistent with PlayerRow + rest of app)
-// ============================================
-
-function L5Pill({ value }: { value: number }) {
-  if (value <= 0) {
-    return (
-      <div className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/[0.06]">
-        <span className="text-[10px] font-mono text-white/20">&mdash;</span>
-      </div>
-    );
-  }
-  return (
-    <div className={cn('px-1.5 py-0.5 rounded-md border', getL5Bg(value),
-      value >= 65 ? 'border-emerald-400/20' : value >= 45 ? 'border-amber-400/20' : 'border-red-400/20'
-    )}>
-      <div className="flex items-baseline gap-1">
-        <span className="text-[9px] font-bold text-white/40">L5</span>
-        <span className={cn('text-xs font-black font-mono tabular-nums', getL5Color(value))}>{Math.round(value)}</span>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// COMPACT PICKER ROW (for picker modals — single row, ~40px height)
+// COMPACT PICKER ROW (side panel — same visual but condensed)
 // ============================================
 
 function CompactPickerRow({ player, onClick, href }: {
@@ -84,78 +166,65 @@ function CompactPickerRow({ player, onClick, href }: {
   href?: string;
 }) {
   const p = player;
-  const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
-  const sharedClass = "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left min-h-[44px]";
+  const tint = posTintColors[p.pos];
+  const clubData = getClub(p.club);
 
   const content = (
-    <>
-      <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
-      <L5Pill value={player.perf.l5} />
-    </>
-  );
-
-  if (href) {
-    return <Link href={href} className={sharedClass} style={{ borderLeftColor: borderColor }}>{content}</Link>;
-  }
-  return <button onClick={onClick} className={sharedClass} style={{ borderLeftColor: borderColor }}>{content}</button>;
-}
-
-// ============================================
-// FULL PLAYER ROW (for below-pitch list + desktop "Alle" view)
-// ============================================
-
-function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned, eventUsageTitle, inLineupTitle }: {
-  player: Player;
-  minutes: number[] | undefined;
-  scores: (number | null)[] | undefined;
-  nextFixture: NextFixtureInfo | undefined;
-  eventCount: number;
-  isAssigned: boolean;
-  eventUsageTitle: string;
-  inLineupTitle: string;
-}) {
-  const t = useTranslations('market');
-  const p = player;
-  const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
-  const lastScore = scores ? scores.find(s => s != null) ?? null : null;
-
-  return (
-    <Link
-      href={`/player/${p.id}`}
-      className={cn(
-        'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-colors text-left',
-        'bg-surface-minimal border border-white/[0.06] hover:bg-white/[0.04]',
-        isAssigned && 'bg-green-500/[0.06] border-green-500/20',
-      )}
-      style={{ borderLeftColor: borderColor }}
-    >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <PlayerIdentity player={p} size="md" showStatus={false} />
-          {isAssigned && (
-            <span className="shrink-0" title={inLineupTitle}>
-              <Shield className="size-3 text-green-500" aria-hidden="true" />
-            </span>
+    <div className="flex gap-2.5">
+      {/* Photo */}
+      <div className="shrink-0 relative">
+        <div
+          className="size-9 rounded-full overflow-hidden border-[1.5px]"
+          style={{ borderColor: `${tint}99` }}
+        >
+          {p.imageUrl ? (
+            <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
+          ) : (
+            <div
+              className="size-full flex items-center justify-center text-[10px] font-black text-white/60"
+              style={{ backgroundColor: `${tint}22` }}
+            >
+              {p.first.charAt(0)}{p.last.charAt(0)}
+            </div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          <StatusPill status={p.status} />
-          <EventUsageBadge count={eventCount} title={eventUsageTitle} />
-          <span className="text-[10px] font-mono text-white/40 tabular-nums">
-            {p.stats.matches}<span className="text-white/25">{t('statMatchesAbbr')}</span>{' '}
-            {p.stats.goals}<span className="text-white/25">{t('statGoalsAbbr')}</span>{' '}
-            {p.stats.assists}<span className="text-white/25">{t('statAssistsAbbr')}</span>
+        <StatusDot status={p.status} />
+      </div>
+      {/* Info */}
+      <div className="flex-1 min-w-0 flex items-center gap-1.5">
+        <div className="min-w-0">
+          <span className="font-black text-xs text-white truncate block">
+            {p.last.toUpperCase()}
           </span>
-          <MinutesPill minutes={minutes} />
-          <NextMatchBadge fixture={nextFixture} />
+          <div className="flex items-center gap-1 mt-0.5">
+            <PositionBadge pos={p.pos} size="sm" />
+            {clubData?.logo && (
+              <Image src={clubData.logo} alt="" width={12} height={12}
+                className="size-3 shrink-0" aria-hidden="true" />
+            )}
+            <span className="text-[10px] text-white/40 truncate">{p.club}</span>
+          </div>
+        </div>
+        <div className="ml-auto shrink-0">
+          <div
+            className="size-7 rounded-full flex items-center justify-center border-[1.5px]"
+            style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
+          >
+            <span className="font-mono font-black text-xs tabular-nums text-white/90">
+              {Math.round(p.perf.l5)}
+            </span>
+          </div>
         </div>
       </div>
-      <div className="shrink-0 flex items-center gap-2">
-        <L5Pill value={player.perf.l5} />
-        <ScoreCircle score={lastScore} />
-      </div>
-    </Link>
+    </div>
   );
+
+  const sharedClass = "w-full px-2.5 py-2 rounded-lg hover:bg-white/[0.05] transition-colors text-left min-h-[44px]";
+
+  if (href) {
+    return <Link href={href} className={sharedClass}>{content}</Link>;
+  }
+  return <button onClick={onClick} className={sharedClass}>{content}</button>;
 }
 
 // ============================================
@@ -463,24 +532,62 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             ) : (
               <div className="divide-y divide-white/[0.04]">
                 {state.pickerPlayers.map(p => {
-                  const lastScore = state.scoresMap?.get(p.id)?.find(s => s != null) ?? null;
-                  const scoreColor = lastScore != null
-                    ? (lastScore >= 100 ? 'text-gold' : lastScore >= 70 ? 'text-white' : 'text-red-300')
-                    : 'text-white/15';
+                  const tint = posTintColors[p.pos];
+                  const clubData = getClub(p.club);
                   return (
                     <button
                       key={p.id}
                       onClick={() => state.handlePickPlayer(p.id)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-white/[0.06] transition-colors text-left"
+                      className="w-full text-left px-4 py-2.5 active:bg-white/[0.06] transition-colors"
                     >
-                      <PlayerIdentity player={p} size="md" className="flex-1 min-w-0" />
-                      <div className="shrink-0 flex items-center gap-2.5">
-                        <L5Pill value={p.perf.l5} />
-                        <div className="w-10 text-right">
-                          <div className={cn('text-lg font-black font-mono tabular-nums leading-none', scoreColor)}>
-                            {lastScore ?? '–'}
+                      <div className="flex gap-3">
+                        {/* Photo */}
+                        <div className="shrink-0 relative">
+                          <div
+                            className="size-12 rounded-full overflow-hidden border-2"
+                            style={{ borderColor: `${tint}99` }}
+                          >
+                            {p.imageUrl ? (
+                              <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
+                            ) : (
+                              <div
+                                className="size-full flex items-center justify-center text-sm font-black text-white/60"
+                                style={{ backgroundColor: `${tint}22` }}
+                              >
+                                {p.first.charAt(0)}{p.last.charAt(0)}
+                              </div>
+                            )}
                           </div>
-                          <div className="text-[9px] text-white/25 font-mono">Score</div>
+                          <StatusDot status={p.status} />
+                        </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-black text-sm text-white truncate">
+                              {p.last.toUpperCase()}
+                            </span>
+                            <span className="font-mono text-xs text-white/30 tabular-nums shrink-0">
+                              #{p.ticket}
+                            </span>
+                            <div className="ml-auto shrink-0">
+                              <div
+                                className="size-8 rounded-full flex items-center justify-center border-[1.5px]"
+                                style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
+                              >
+                                <span className="font-mono font-black text-sm tabular-nums text-white/90">
+                                  {Math.round(p.perf.l5)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <PositionBadge pos={p.pos} size="sm" />
+                            {clubData?.logo && (
+                              <Image src={clubData.logo} alt="" width={16} height={16}
+                                className="size-4 shrink-0" aria-hidden="true" />
+                            )}
+                            <span className="text-xs text-white/50">{p.club}</span>
+                          </div>
                         </div>
                       </div>
                     </button>
@@ -511,17 +618,13 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             ))}
           </div>
         </div>
-        <div className="space-y-1.5">
+        <div className="divide-y divide-white/[0.04]">
           {state.sortedOwned.map(p => (
-            <FullPlayerRow
+            <ManagerPlayerRow
               key={p.id}
               player={p}
-              minutes={state.minutesMap?.get(p.id)}
-              scores={state.scoresMap?.get(p.id)}
               nextFixture={state.getNextFixture(p)}
-              eventCount={state.getEventCount(p.id)}
               isAssigned={state.assignedIds.has(p.id)}
-              eventUsageTitle={t('kaderEventUsage', { count: state.getEventCount(p.id) })}
               inLineupTitle={t('bestandInLineup')}
             />
           ))}
