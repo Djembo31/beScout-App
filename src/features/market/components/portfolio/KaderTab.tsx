@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge, GoalIcon, AssistIcon, MatchIcon } from '@/components/player';
+import { PositionBadge, MatchIcon } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
@@ -149,11 +149,11 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
                 {p.stats.matches}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <GoalIcon size={11} />
+                <span className="text-[10px] leading-none">⚽</span>
                 {p.stats.goals}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <AssistIcon size={11} />
+                <span className="text-[10px] leading-none">🅰️</span>
                 {p.stats.assists}
               </span>
             </span>
