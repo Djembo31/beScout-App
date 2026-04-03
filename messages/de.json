@@ -1362,7 +1362,14 @@
     "hoechstesGesuch": "Hoechstes Gesuch",
     "maxPreis": "Max. Preis",
     "preisUeberschritten": "Preis ueberschreitet Maximum",
-    "wertentwicklung": "Wertentwicklung"
+    "wertentwicklung": "Wertentwicklung",
+    "portfolioValue": "Portfolio-Wert",
+    "pnl": "G/V",
+    "playersCount": "{count} Spieler",
+    "topWinner": "Top",
+    "topLoser": "Flop",
+    "openOrders": "{count} offene Orders",
+    "incomingOffersSummary": "{count} Angebote"
   },
   "community": {
     "title": "Community",

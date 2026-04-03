@@ -1362,7 +1362,14 @@
     "hoechstesGesuch": "En yüksek talep",
     "maxPreis": "Maks. fiyat",
     "preisUeberschritten": "Fiyat maksimumu aşıyor",
-    "wertentwicklung": "Değer gelişimi"
+    "wertentwicklung": "Değer gelişimi",
+    "portfolioValue": "Portföy Değeri",
+    "pnl": "K/Z",
+    "playersCount": "{count} Oyuncu",
+    "topWinner": "En İyi",
+    "topLoser": "En Kötü",
+    "openOrders": "{count} açık emir",
+    "incomingOffersSummary": "{count} Teklif"
   },
   "community": {
     "title": "Topluluk",
