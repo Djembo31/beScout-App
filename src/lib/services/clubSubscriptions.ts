@@ -89,7 +89,7 @@ export async function getMySubscription(userId: string, clubId: string): Promise
     .eq('user_id', userId)
     .eq('club_id', clubId)
     .eq('status', 'active')
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return data as ClubSubscription;
