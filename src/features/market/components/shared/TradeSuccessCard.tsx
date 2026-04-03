@@ -163,21 +163,13 @@ export default function TradeSuccessCard({
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <Link
-                href={`/manager?assign=${player.id}`}
-                className="px-2.5 py-1.5 rounded-lg bg-gold/10 hover:bg-gold/20 text-gold text-[11px] font-bold transition-colors min-h-[44px] flex items-center"
-              >
-                Aufstellen
-              </Link>
-              <Link
-                href={`/player/${player.id}`}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label={t('goToPlayer')}
-              >
-                <ArrowRight className="size-4 text-white/50" />
-              </Link>
-            </div>
+            <Link
+              href={`/player/${player.id}`}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label={t('goToPlayer')}
+            >
+              <ArrowRight className="size-4 text-white/50" />
+            </Link>
           </div>
 
           {/* Balance counter */}
