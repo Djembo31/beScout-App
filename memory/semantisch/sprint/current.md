@@ -20,15 +20,19 @@
 ## Erledigt (Session 282 — 2026-04-03)
 - Housekeeping: /reflect, AutoDream, Legacy-Pfade, 2 Drafts promoted
 - Login: Session-Refresh Race Fix, Club optional, Demo hidden, Premium SVGs
-- No-Crumbs Rule in workflow.md verankert
-- Manager + Market Redesign: Design + Plan + Phase 0-1 + Phase 3 teilweise
-- 8 neue Komponenten gebaut (4x Agent-parallel, 4x manuell/merged)
-- 18 Commits, tsc 0 Errors
+- No-Crumbs Rule + Quality-First verschaerft
+- Manager Redesign: Versuch 1 gescheitert (8 Komponenten, Schrott, reverted)
+- Manager Redesign: Versuch 2 sauber (Migration-First, 1 Feature bewegen)
+- /spec Skill erstellt (Migration-First Engineering Specification)
+- Workflow: 6 Gaps gefuellt (Gesamtbild-Check, Orphan-Check, Self-Test etc.)
+- Adlerauge-Review: 12 verwaiste Dateien geloescht (-2332 Zeilen)
+- 25 Commits
 
 ## Naechste Prioritaet
-1. Task 12: Neue MarketContent (Portfolio + Marktplatz Layout)
-2. Task 13-15: Deep-Links, Cleanup, Visual QA
-3. Task 9: EventPrepOverlay (optional, braucht RPC)
+1. Vercel Deploy verifizieren (bescout.net)
+2. Visual QA: Nav Mobile (7 Items)
+3. Manager Command Center mit /spec Skill (richtig diesmal)
+4. i18n Cleanup
 
 ## Board Status
 - 100+ issues, 97+ done

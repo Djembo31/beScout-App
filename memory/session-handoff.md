@@ -1,30 +1,32 @@
 # Session Handoff
-## Letzte Session: 2026-04-03 (Session 282 — Manager + Market Redesign)
+## Letzte Session: 2026-04-03 (Session 282)
 
 ## Was wurde gemacht
-- Housekeeping: /reflect (2 Drafts promoted), AutoDream (8 Retros archiviert), Legacy-Pfade aufgeraeumt
-- Login Fixes: Session-Refresh Race (Grace Period), Club optional, Demo hidden, Premium SVGs (9 Files)
-- No-Crumbs Rule: workflow.md + common-errors.md + Memory
-- Manager + Market Redesign: Design Doc + Implementation Plan (15 Tasks, 5 Phasen)
-- Phase 0: Barrel exports, managerStore, /manager Route, Nav Split, Formations, i18n
-- Phase 1: 4 Frontend-Agents parallel (StatusBar, TacticalBoard, IntelPanel, SquadStrip) -> reviewed + merged
-- Task 8: ManagerContent verdrahtet (alle 4 Zonen, useMarketData, deep-link support)
-- Phase 3 teilweise: PortfolioCard + PortfolioSummary -> reviewed + merged + i18n
+- Housekeeping: /reflect (2 Drafts promoted), AutoDream (8 Retros archiviert), Legacy-Pfade
+- Login Fixes: Session-Refresh Race, Club optional, Demo hidden, Premium SVGs (9 Files)
+- No-Crumbs Rule + Quality-First Standard verschaerft
+- Manager Redesign VERSUCH 1: 8 Komponenten gebaut → Schrott → reverted
+- Manager Redesign VERSUCH 2: Migration-First (1 Feature bewegen, 1 Tab entfernen) → sauber
+- /spec Skill erstellt (3-Phasen Prozess: SPEC → PLAN → EXECUTE)
+- Workflow Gaps gefuellt (6 neue Regeln aus Failure-Analyse)
+- Adlerauge-Review: 12 verwaiste Dateien geloescht, kaputter Deep-Link gefixt
 
-## Commits
-- 18 Commits (Housekeeping + Login + Rules + Manager + Market)
+## Commits: 25 (davon 3 Reverts/Cleanups)
 
 ## Naechste Prioritaet
-1. Task 12: Neue MarketContent bauen (Portfolio-Spalte + Marktplatz-Spalte, Desktop/Mobile)
-2. Task 13: Deep-Link Bridges (Manager <-> Market)
-3. Task 14: Cleanup (alte MarketContent entfernen)
-4. Task 15: Visual QA (Playwright Screenshots)
-5. Task 9: EventPrepOverlay (braucht moeglicherweise neue RPC)
+1. Vercel Deploy verifizieren (bescout.net — Manager + Market)
+2. Visual QA: Nav auf Mobile (7 Items statt 6 — passt das?)
+3. Manager Redesign mit /spec Skill (Command Center Erweiterung)
+4. i18n Cleanup: ungenutzte Keys entfernen
 
-## Stand der neuen Komponenten
-- /manager: StatusBar + TacticalBoard + IntelPanel + SquadStrip + ManagerContent (FERTIG, navigierbar)
-- /market: PortfolioCard + PortfolioSummary (FERTIG), MarketContent V2 (TODO)
-- Shared: Barrel exports, Trade Modals, MarketFilters (unveraendert)
+## Deployed Stand
+- /manager: KaderTab (bestehend, eigene Seite)
+- /market: Bestand + Angebote + Watchlist + Marktplatz (Team-Tab entfernt)
+- Nav: Manager + Transfermarkt als separate Eintraege
+
+## Neue Skills/Regeln
+- /spec: Migration-First Engineering Specification (PFLICHT bei 3+ Files)
+- Workflow: Gesamtbild-Check, Orphan-Check, Anti-Batch-Mode, Self-Test, Agent-Integration-Plan
 
 ## Blocker
 Keine.
