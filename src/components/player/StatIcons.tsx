@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 /**
  * Premium football stat icons for compact player rows.
  * White fill on dark background — matches GoalBadge visual language.
@@ -10,22 +12,27 @@ interface IconProps {
 }
 
 /**
- * Football — simplified for 10-12px inline use.
- * White circle with pentagon outline only (no fill, no surrounding triangles).
- * Scales down cleanly unlike the full GoalBadge pattern.
+ * Football — identical to GoalBadge from player detail.
+ * White ball with filled dark pentagons + seam lines.
  */
 export function GoalIcon({ className = '', size = 12 }: IconProps) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 16 16"
-      className={className}
+      viewBox="0 0 24 24"
+      className={cn('drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]', className)}
       aria-hidden="true"
     >
-      <circle cx="8" cy="8" r="7" fill="white" stroke="#d4d4d4" strokeWidth="0.6" />
-      <polygon points="8,4 10.4,5.8 9.5,8.5 6.5,8.5 5.6,5.8" fill="none" stroke="#1a1a1a" strokeWidth="1" strokeLinejoin="round" />
-      <path d="M8,4 L8,1.5 M10.4,5.8 L13.5,5 M9.5,8.5 L11.5,12 M6.5,8.5 L4.5,12 M5.6,5.8 L2.5,5" stroke="#1a1a1a" strokeWidth="0.7" />
+      <circle cx="12" cy="12" r="11" fill="white" stroke="#d4d4d4" strokeWidth="0.8" />
+      <polygon points="12,6.5 15.3,9 14.2,12.8 9.8,12.8 8.7,9" fill="#1a1a1a" />
+      <polygon points="12,1.2 13.8,5.2 10.2,5.2" fill="#1a1a1a" />
+      <polygon points="21,8 16.5,8.2 15.8,5.5" fill="#1a1a1a" />
+      <polygon points="19.5,17.5 15.5,14.5 17,11" fill="#1a1a1a" />
+      <polygon points="4.5,17.5 7,11 8.5,14.5" fill="#1a1a1a" />
+      <polygon points="3,8 8.2,5.5 7.5,8.2" fill="#1a1a1a" />
+      <path d="M12,6.5 L12,1.2 M15.3,9 L21,8 M14.2,12.8 L19.5,17.5 M9.8,12.8 L4.5,17.5 M8.7,9 L3,8" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
+      <path d="M9.8,12.8 L8.5,17 M14.2,12.8 L15.5,17" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
     </svg>
   );
 }
