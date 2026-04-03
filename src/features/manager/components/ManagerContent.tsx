@@ -87,8 +87,8 @@ export default function ManagerContent() {
     assignments,
   } = useManagerStore();
 
-  // Deep-link: ?player=ID
-  const urlPlayerId = searchParams.get('player');
+  // Deep-link: ?player=ID or ?assign=ID
+  const urlPlayerId = searchParams.get('player') ?? searchParams.get('assign');
   useMemo(() => {
     if (urlPlayerId && playerMap.has(urlPlayerId) && !selectedPlayerId) {
       selectPlayer(urlPlayerId);
