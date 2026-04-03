@@ -1,5 +1,3 @@
-import { cn } from '@/lib/utils';
-
 /**
  * Premium football stat icons for compact player rows.
  * White fill on dark background — matches GoalBadge visual language.
@@ -21,7 +19,7 @@ export function GoalIcon({ className = '', size = 12 }: IconProps) {
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      className={cn('drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]', className)}
+      className={className}
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="11" fill="white" stroke="#d4d4d4" strokeWidth="0.8" />
