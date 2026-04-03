@@ -29,11 +29,13 @@ Jarvis nimmt Speed-Mode NIE selbst an.
 | Schritt | Was | Ergebnis |
 |---------|-----|----------|
 | **DEFINE** | Was genau aendern? | 1 Satz (Hotfix) bis 1 Seite (Feature) |
+| **REFERENCE** | "Wie X" → X SOFORT lesen, JEDES Element auflisten | Checkliste aller Elemente |
+| **REUSE** | `grep` im Codebase: "Wie loest die App das bereits?" | Bestehende Patterns/Komponenten |
 | **SCOPE** | Alle betroffenen Files + Consumers auflisten | Explizite File-Liste |
 | **CRITERIA** | Woran messe ich "fertig"? | Binaere Ja/Nein Kriterien |
 | **VERIFY HYPOTHESIS** | Wird die Aenderung den gewuenschten Effekt haben? | Messung/Grep/Read VOR Code |
 
-Kein Code ohne alle 4.
+Kein Code ohne alle 6. REFERENCE + REUSE duerfen NIE uebersprungen werden.
 
 **VERIFY HYPOTHESIS — Warum?**
 Session 275: Player Detail `dynamic()` umgebaut → Build gemessen → Bundle GROESSER.
@@ -66,8 +68,9 @@ BEFORE allein reicht NICHT fuer groessere Aenderungen. `/spec` erzwingt den voll
 | Schritt | Was | Beweis |
 |---------|-----|--------|
 | **SELF-REVIEW** | JEDE geaenderte Datei nochmal komplett lesen | — |
-| **CHECKLIST** | 8-Punkt Checkliste (siehe unten) | Jeder Punkt explizit geprueft |
+| **CHECKLIST** | 9-Punkt Checkliste (siehe unten) | Jeder Punkt explizit geprueft |
 | **VERIFY** | tsc + betroffene Tests ausfuehren | Output zeigen |
+| **VISUAL GATE** | Bei UI: Playwright Screenshot 390px VOR Push. Gegen REFERENCE pruefen. | Screenshot |
 | **EVIDENCE** | Beweis-Artefakt je Aenderungstyp | Ablegen/zeigen |
 
 **Kein "done" ohne AFTER komplett durchlaufen.**
@@ -102,7 +105,7 @@ Wenn ja → nochmal hinschauen. Wenn nein → committen.
 |---------------|---------------|
 | Jede Aenderung | `tsc --noEmit` (0 Errors) |
 | Logik/Service | Test Output (betroffene Tests gruen) |
-| UI-Aenderung | INTERAGIEREN auf bescout.net (klicken, navigieren, testen) — Screenshot allein reicht NICHT |
+| UI-Aenderung | 1) Playwright 390px Screenshot VOR Push 2) NACH Deploy: auf bescout.net interagieren (klicken, navigieren) |
 | DB/RPC | `SELECT` Query mit echten Daten |
 | i18n | Beide Sprachen verifiziert |
 | Trading/Wallet | DB-Query VOR und NACH der Aktion |
@@ -118,53 +121,8 @@ Wenn ja → nochmal hinschauen. Wenn nein → committen.
 
 ## Agent-Output-Regeln
 
-Agent-Output ist ein ENTWURF, kein fertiges Ergebnis.
-
-1. **Diff lesen** — JEDE Zeile die der Agent geaendert hat
-2. **Scope-Check** — NUR was im Issue stand? Beyond-Scope → revert
-3. **Fakten-Check** — Agent sagt "unused"? GREP. Agent sagt "nicht importiert"? GREP. Agents luegen nicht absichtlich, aber sie uebersehen Dinge.
-4. **9-Punkt Checkliste** — genau wie bei eigener Arbeit. Kein Vertrauensbonus.
-5. **Kontext-Check** — passt Agent-Code zum bestehenden File? Doppelte Imports?
-6. **Git Diff** vor Commit (Paperclip Agents)
-7. **Zusammenspiel** pruefen bei parallelen Agents
-8. **Integration-Plan VOR Dispatch** — WIE werden die Agent-Outputs zusammengefuegt? Wer importiert was? Agents die isolierte Komponenten bauen ohne Integration-Plan = Verschwendung.
-9. **Orphan-Check NACH Merge** — `grep -r "ComponentName"` → wird es importiert? Wenn nicht → nicht committen.
-
-Review laenger als selber machen → selber machen.
-
-**Agent-Dispatch nur wenn:**
-- Die Spec (oder zumindest BEFORE) komplett durchlaufen ist
-- Das Props-Interface exakt definiert ist
-- Klar ist WER das Ergebnis importiert (nicht "wird spaeter eingebaut")
-- Der Task EINE Datei betrifft, nicht Integration
-
-**Research-Agents vs. direkter Grep:**
-Fuer "wo wird X benutzt?" ist `Grep` schneller und genauer als ein Research-Agent.
-Agents nur fuer komplexe Cross-File-Analyse (Architektur, Datenfluss, Zusammenspiel).
-
----
-
-## Execution Discipline (Session 283 — 8-Commit Desaster, nie wieder)
-
-### LOOK before BUILD (haerteste Regel)
-1. **REFERENCE-FIRST:** "Wie X" / "genauso wie Y" → SOFORT Komponente X lesen. JEDES Element auflisten. Checkliste.
-2. **REUSE-SEARCH:** Vor JEDER neuen Komponente → `grep` im Codebase. "Wie loest die App das bereits?" 30 Sek Grep spart 30 Min falschen Code.
-3. **ORIGINAL FESTHALTEN:** Anils Worte woertlich merken. Vor jedem Push dagegen pruefen.
-
-### VISUAL GATE (vor jedem Push bei UI-Aenderungen)
-Playwright Screenshot bei 390px BEVOR committed wird. Gegen Referenz vergleichen. Nicht identisch → fixen, nicht pushen.
-
-### 2-STRIKE RULE
-Nach 2 gescheiterten Versuchen → STOP. Nochmal lesen oder fragen. NIEMALS Versuch 3, 4, 5.
-
-### SINGLE PUSH
-Alle zusammengehoerenden Aenderungen in EINEM Commit. Jeder kaputte Push = Vertrauensverlust.
-
-### MINIMUM VIABLE CHANGE
-Kein drop-shadow das niemand wollte. Kein Refactoring das niemand brauchte. Kein Research wenn die Antwort im Codebase liegt. Exakt was gefragt wurde.
-
-### CTO, nicht Junior
-Lesen, entscheiden, ausfuehren, Ergebnis zeigen. Wenig Worte, maximaler Output. Keine Erklaerungen vor der Tat. Keine Rueckfragen bei offensichtlichen naechsten Schritten.
+Agent-Output ist ein ENTWURF. Diff lesen, Scope pruefen, Fakten-Check (grep!), 9-Punkt Checkliste.
+Review laenger als selber machen → selber machen. Grep > Research-Agent fuer einfache Suchen.
 
 ---
 
@@ -180,17 +138,15 @@ Lesen, entscheiden, ausfuehren, Ergebnis zeigen. Wenig Worte, maximaler Output. 
 8. **Einfachste Loesung zuerst.** 1 Feature bewegen < 8 Komponenten bauen. Refactoring < Neubau. Bestehenden Code nutzen < neu schreiben.
 9. **Link gesetzt = Empfaenger geprueft.** Jeder `href` / `Link` → Grep ob die Zielseite den Parameter auswertet. Sonst: nicht setzen.
 10. **Push = Self-Test.** Vor JEDEM Push auf Production: Seite oeffnen, durchklicken, jeden geaenderten Flow testen. "Wenn Anil das jetzt oeffnet — sieht er was Kaputtes?"
+11. **Single Push.** Ein Feature = ein Commit. Jeder kaputte Push = Vertrauensverlust. Batch, nicht stueckeln.
+12. **Minimum Viable Change.** Exakt was gefragt wurde. Kein Bonus-Refactoring, kein Research wenn Codebase die Antwort hat.
+13. **CTO, nicht Junior.** Lesen, entscheiden, ausfuehren, Ergebnis zeigen. Wenig Worte, maximaler Output.
 
 ---
 
 ## Execution-Ebenen
 
-| Direkte Session (Anil + Jarvis) | Paperclip Agents (autonom) |
-|---|---|
-| Komplex, interaktiv, Architektur, Security | Routine, klar definiert, Background |
-
-Paperclip: localhost:3100, Company `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`.
-**REGEL:** Paperclip-Agents und direkte Session arbeiten NIE gleichzeitig an denselben Files.
+Direkte Session (Anil + Jarvis) fuer alles Interaktive. Sub-Agents fuer isolierte Tasks.
 
 ## Session-Start
 
