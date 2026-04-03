@@ -1369,7 +1369,11 @@
     "topWinner": "En İyi",
     "topLoser": "En Kötü",
     "openOrders": "{count} açık emir",
-    "incomingOffersSummary": "{count} Teklif"
+    "incomingOffersSummary": "{count} Teklif",
+    "portfolioCardFloor": "Taban",
+    "portfolioCardAvgBuy": "Ort.",
+    "portfolioCardToManager": "Menajer",
+    "portfolioCardQty": "{count}x"
   },
   "community": {
     "title": "Topluluk",

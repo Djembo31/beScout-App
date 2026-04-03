@@ -1369,7 +1369,11 @@
     "topWinner": "Top",
     "topLoser": "Flop",
     "openOrders": "{count} offene Orders",
-    "incomingOffersSummary": "{count} Angebote"
+    "incomingOffersSummary": "{count} Angebote",
+    "portfolioCardFloor": "Floor",
+    "portfolioCardAvgBuy": "EK",
+    "portfolioCardToManager": "Manager",
+    "portfolioCardQty": "{count}x"
   },
   "community": {
     "title": "Community",
