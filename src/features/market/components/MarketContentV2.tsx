@@ -158,7 +158,7 @@ export default function MarketContentV2() {
           </h2>
           <PortfolioTab
             players={data.players}
-            mySquadPlayers={data.mySquadPlayers}
+
             holdings={data.holdings}
             ipoList={data.ipoList}
             userId={user?.id}
@@ -221,7 +221,7 @@ export default function MarketContentV2() {
         <TabPanel id="portfolio" activeTab={tab}>
           <PortfolioTab
             players={data.players}
-            mySquadPlayers={data.mySquadPlayers}
+
             holdings={data.holdings}
             ipoList={data.ipoList}
             userId={user?.id}

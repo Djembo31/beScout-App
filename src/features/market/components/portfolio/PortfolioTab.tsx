@@ -12,10 +12,6 @@ import type { WatchlistEntry } from '@/lib/services/watchlist';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
-const KaderTab = dynamic(() => import('./KaderTab'), {
-  ssr: false,
-  loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
-});
 const BestandTab = dynamic(() => import('./BestandTab'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
@@ -35,7 +31,6 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 
 type Props = {
   players: Player[];
-  mySquadPlayers: Player[];
   holdings: HoldingWithPlayer[];
   ipoList: DbIpo[];
   userId: string | undefined;
@@ -46,14 +41,13 @@ type Props = {
 };
 
 export default function PortfolioTab({
-  players, mySquadPlayers, holdings, ipoList, userId,
+  players, holdings, ipoList, userId,
   incomingOffers, watchlistEntries, onSell, onCancelOrder,
 }: Props) {
   const t = useTranslations('market');
   const { portfolioSubTab, setPortfolioSubTab } = useMarketStore();
 
   const subTabs: Array<{ id: PortfolioSubTab; label: string; icon: React.ReactNode | null }> = [
-    { id: 'team', label: t('team'), icon: null },
     { id: 'bestand', label: t('inventory'), icon: null },
     { id: 'angebote', label: t('offers'), icon: null },
     { id: 'watchlist', label: t('watchlist'), icon: <Heart className="size-3" /> },
@@ -78,9 +72,6 @@ export default function PortfolioTab({
           </button>
         ))}
       </div>
-      {portfolioSubTab === 'team' && (
-        <KaderTab players={players} ownedPlayers={mySquadPlayers} />
-      )}
       {portfolioSubTab === 'bestand' && (
         <BestandTab players={players} holdings={holdings} ipoList={ipoList} userId={userId} incomingOffers={incomingOffers} onSell={onSell} onCancelOrder={onCancelOrder} />
       )}

@@ -5,7 +5,7 @@ import type { BestandLens } from '@/features/market/components/portfolio/bestand
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
 export type MarketTab = 'portfolio' | 'marktplatz';
-export type PortfolioSubTab = 'team' | 'bestand' | 'angebote' | 'watchlist';
+export type PortfolioSubTab = 'bestand' | 'angebote' | 'watchlist';
 export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending';
 export type IpoViewState = 'laufend' | 'geplant' | 'beendet';
 
@@ -73,7 +73,7 @@ interface MarketState {
 export const useMarketStore = create<MarketState>()((set) => ({
   // ── Navigation ──
   tab: 'portfolio',
-  portfolioSubTab: 'team',
+  portfolioSubTab: 'bestand',
   kaufenSubTab: 'clubverkauf',
 
   // ── Bestand-Tab state ──

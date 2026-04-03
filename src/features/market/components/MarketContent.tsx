@@ -29,7 +29,7 @@ const BuyOrderModal = dynamic(() => import('./shared/BuyOrderModal'), { ssr: fal
 // ── Tab config ──
 const TAB_IDS: MarketTab[] = ['portfolio', 'marktplatz'];
 const TAB_ALIAS: Record<string, MarketTab> = {
-  kader: 'portfolio', bestand: 'portfolio', offers: 'portfolio', watchlist: 'portfolio',
+  bestand: 'portfolio', offers: 'portfolio', watchlist: 'portfolio',
   compare: 'marktplatz', spieler: 'marktplatz', transferlist: 'marktplatz',
   scouting: 'marktplatz', kaufen: 'marktplatz',
 };
@@ -161,7 +161,6 @@ export default function MarketContent() {
       <TabPanel id="portfolio" activeTab={tab}>
         <PortfolioTab
           players={data.players}
-          mySquadPlayers={data.mySquadPlayers}
           holdings={data.holdings}
           ipoList={data.ipoList}
           userId={user?.id}
