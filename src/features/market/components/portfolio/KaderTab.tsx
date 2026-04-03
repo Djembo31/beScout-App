@@ -10,6 +10,7 @@ import { PositionBadge } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
+import FormBars from '@/components/fantasy/FormBars';
 import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { getPosColor } from './helpers';
@@ -33,8 +34,9 @@ function StatusDot({ status }: { status: string }) {
 // Matches FantasyPlayerRow visual language
 // ============================================
 
-function ManagerPlayerRow({ player, nextFixture, isAssigned, inLineupTitle }: {
+function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTitle }: {
   player: Player;
+  scores: (number | null)[] | undefined;
   nextFixture: NextFixtureInfo | undefined;
   isAssigned: boolean;
   inLineupTitle: string;
@@ -44,6 +46,10 @@ function ManagerPlayerRow({ player, nextFixture, isAssigned, inLineupTitle }: {
   const tint = posTintColors[p.pos];
   const clubData = getClub(p.club);
   const opponentClub = nextFixture ? getClub(nextFixture.opponentShort) : null;
+  const formEntries = (scores ?? []).map(s => ({
+    score: s ?? 0,
+    status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+  }));
 
   return (
     <Link
@@ -95,7 +101,8 @@ function ManagerPlayerRow({ player, nextFixture, isAssigned, inLineupTitle }: {
                 <Shield className="size-3 text-green-500" aria-hidden="true" />
               </span>
             )}
-            <div className="ml-auto shrink-0">
+            <div className="ml-auto flex items-center gap-2 shrink-0">
+              <FormBars entries={formEntries} />
               <div
                 className="size-8 rounded-full flex items-center justify-center border-[1.5px]"
                 style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
@@ -534,6 +541,10 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 {state.pickerPlayers.map(p => {
                   const tint = posTintColors[p.pos];
                   const clubData = getClub(p.club);
+                  const pickerFormEntries = (state.scoresMap?.get(p.id) ?? []).map(s => ({
+                    score: s ?? 0,
+                    status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+                  }));
                   return (
                     <button
                       key={p.id}
@@ -569,7 +580,8 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                             <span className="font-mono text-xs text-white/30 tabular-nums shrink-0">
                               #{p.ticket}
                             </span>
-                            <div className="ml-auto shrink-0">
+                            <div className="ml-auto flex items-center gap-2 shrink-0">
+                              <FormBars entries={pickerFormEntries} />
                               <div
                                 className="size-8 rounded-full flex items-center justify-center border-[1.5px]"
                                 style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
@@ -623,6 +635,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             <ManagerPlayerRow
               key={p.id}
               player={p}
+              scores={state.scoresMap?.get(p.id)}
               nextFixture={state.getNextFixture(p)}
               isAssigned={state.assignedIds.has(p.id)}
               inLineupTitle={t('bestandInLineup')}
