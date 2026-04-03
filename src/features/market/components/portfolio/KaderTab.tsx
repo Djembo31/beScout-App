@@ -149,11 +149,11 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
                 {p.stats.matches}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <span className="text-[10px] leading-none">⚽</span>
+                <span className="text-[13px] leading-none">⚽</span>
                 {p.stats.goals}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <span className="text-[10px] leading-none">🅰️</span>
+                <span className="text-[13px] leading-none">🅰️</span>
                 {p.stats.assists}
               </span>
             </span>

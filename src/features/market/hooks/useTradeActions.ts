@@ -7,6 +7,7 @@ import { placeSellOrder, cancelOrder } from '@/lib/services/trading';
 import { useBuyFromMarket, useBuyFromIpo } from '@/features/market/mutations/trading';
 import { invalidateTradeQueries } from '@/lib/queries';
 import { useWallet } from '@/components/providers/WalletProvider';
+import { useToast } from '@/components/providers/ToastProvider';
 
 type BuySource = 'market' | 'ipo';
 type PendingBuy = { playerId: string; source: BuySource } | null;
@@ -14,6 +15,7 @@ type ActionResult = { success: boolean; error?: string };
 
 export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
   const { balanceCents } = useWallet();
+  const { addToast } = useToast();
   const t = useTranslations('market');
   const tc = useTranslations('common');
 
@@ -34,6 +36,14 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
   const buySuccess = buyIsSuccess ? t('dpcBought', { count: buyVars?.quantity ?? 1 }) : ipoBuyIsSuccess ? t('dpcBought', { count: ipoBuyVars?.quantity ?? 1 }) : null;
   const lastBoughtId = buyIsSuccess ? (buyVars?.playerId ?? null) : ipoBuyIsSuccess ? (ipoBuyVars?.playerId ?? null) : null;
   const buyError = buyIsError ? (buyMutError?.message ?? tc('unknownError')) : ipoBuyIsError ? (ipoBuyMutError?.message ?? tc('unknownError')) : null;
+
+  // ── Success toast ──
+  useEffect(() => {
+    if (!buyIsSuccess && !ipoBuyIsSuccess) return;
+    const qty = buyIsSuccess ? (buyVars?.quantity ?? 1) : (ipoBuyVars?.quantity ?? 1);
+    addToast(t('dpcBought', { count: qty }), 'success');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buyIsSuccess, ipoBuyIsSuccess]);
 
   // ── Error auto-dismiss ──
   useEffect(() => {

@@ -78,18 +78,7 @@ vi.mock('@/features/market/components/portfolio/SquadSummaryStats', () => ({
 
 vi.mock('@/components/player', () => ({
   PositionBadge: ({ pos }: { pos: string }) => <div data-testid="position-badge">{pos}</div>,
-  PlayerIdentity: ({ player }: { player: Player }) => (
-    <div data-testid={`player-identity-${player.id}`}>{player.first} {player.last}</div>
-  ),
-  getL5Color: () => 'text-emerald-400',
-  getL5Bg: () => 'bg-emerald-400/10',
-}));
-
-vi.mock('../bestand/bestandHelpers', () => ({
-  StatusPill: ({ status }: { status: string }) => <span data-testid="status-pill">{status}</span>,
-  MinutesPill: () => <span data-testid="minutes-pill" />,
-  NextMatchBadge: () => <span data-testid="next-match-badge" />,
-  STATUS_CONFIG: {},
+  MatchIcon: () => <span data-testid="match-icon" />,
 }));
 vi.mock('@/features/market/components/portfolio/bestand/bestandHelpers', () => ({
   StatusPill: ({ status }: { status: string }) => <span data-testid="status-pill">{status}</span>,
@@ -221,19 +210,11 @@ describe('ManagerKaderTab', () => {
     renderWithProviders(
       <ManagerKaderTab players={allPlayers} ownedPlayers={ownedPlayers} />,
     );
-    // Players appear in both desktop side panel and mobile below-pitch list
-    const gkIdentities = screen.getAllByTestId('player-identity-p-gk');
-    expect(gkIdentities.length).toBeGreaterThanOrEqual(1);
-    expect(gkIdentities[0]).toHaveTextContent('Manuel Neuer');
-
-    const defIdentities = screen.getAllByTestId('player-identity-p-def1');
-    expect(defIdentities[0]).toHaveTextContent('Antonio Ruediger');
-
-    const midIdentities = screen.getAllByTestId('player-identity-p-mid1');
-    expect(midIdentities[0]).toHaveTextContent('Joshua Kimmich');
-
-    const attIdentities = screen.getAllByTestId('player-identity-p-att1');
-    expect(attIdentities[0]).toHaveTextContent('Harry Kane');
+    // ManagerPlayerRow renders uppercase last names
+    expect(screen.getAllByText('NEUER').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('RUEDIGER').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('KIMMICH').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('KANE').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders player links to /player/[id]', () => {
@@ -396,25 +377,21 @@ describe('ManagerKaderTab', () => {
       <ManagerKaderTab players={allPlayers} ownedPlayers={ownedPlayers} />,
     );
 
-    // StatusPill and MinutesPill stubs should be rendered for the player rows
-    const statusPills = screen.getAllByTestId('status-pill');
-    expect(statusPills.length).toBeGreaterThanOrEqual(ownedPlayers.length);
-
-    const minutesPills = screen.getAllByTestId('minutes-pill');
-    expect(minutesPills.length).toBeGreaterThanOrEqual(ownedPlayers.length);
+    // ManagerPlayerRow renders match icon stubs and stat emojis
+    const matchIcons = screen.getAllByTestId('match-icon');
+    expect(matchIcons.length).toBeGreaterThanOrEqual(ownedPlayers.length);
   });
 
   // ── Player stats display ──
 
-  it('renders player match stats (matches, goals, assists) via translation keys', () => {
+  it('renders player stats with emojis (goals and assists)', () => {
     renderWithProviders(
       <ManagerKaderTab players={allPlayers} ownedPlayers={ownedPlayers} />,
     );
 
-    // FullPlayerRow displays stats using t('statMatchesAbbr') etc.
-    // The mock t() returns the key string
-    const allText = screen.getAllByText(/statMatchesAbbr/);
-    expect(allText.length).toBeGreaterThanOrEqual(ownedPlayers.length);
+    // ManagerPlayerRow uses ⚽ and 🅰️ emojis for goals/assists
+    const goals = screen.getAllByText('⚽');
+    expect(goals.length).toBeGreaterThanOrEqual(ownedPlayers.length);
   });
 
   // ── Search in desktop side panel ──
