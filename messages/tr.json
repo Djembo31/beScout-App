@@ -359,7 +359,17 @@
     "entryLabel": "Giriş: ",
     "entryFree": "Ücretsiz",
     "prizeMoney": "Ödül havuzu",
-    "onboardingTitle": "İlk adımların"
+    "onboardingTitle": "İlk adımların",
+    "introTitle": "BeScout Nedir?",
+    "introSubtitle": "Futbol bilgisinin ödüllendirildiği taraftar platformu.",
+    "introTrading": "Scout Kartları",
+    "introTradingDesc": "Dijital oyuncu kartları satın al ve piyasada işlem yap.",
+    "introFantasy": "Fantezi",
+    "introFantasyDesc": "Takımını kur ve diğer taraftarlarla yarış.",
+    "introCommunity": "Topluluk",
+    "introCommunityDesc": "Analizler yaz, oyla ve kredi kazan.",
+    "introScouting": "Keşif",
+    "introScoutingDesc": "Oyuncuları değerlendir ve en iyi keşifçi olarak ödüllen."
   },
   "fantasy": {
     "title": "Maç Günü",

@@ -18,6 +18,7 @@ import { queryClient } from '@/lib/queryClient';
 
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
+import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
 import PortfolioStrip from '@/components/home/PortfolioStrip';
 import TopMoversStrip from '@/components/home/TopMoversStrip';
 import DiscoveryCard from '@/features/market/components/shared/DiscoveryCard';
@@ -68,6 +69,8 @@ export default function HomePage() {
     followedClubs, highestPass,
   } = useHomeData();
 
+  const isNewUser = holdings.length === 0;
+
   // ── Guards ──
   if (playersError && players.length === 0) {
     return (
@@ -81,25 +84,8 @@ export default function HomePage() {
     <div className="max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
       {/* ── 0. WELCOME BONUS MODAL ── */}
-      {holdings.length === 0 && balanceCents != null && balanceCents > 0 && (
+      {isNewUser && balanceCents != null && balanceCents > 0 && (
         <WelcomeBonusModal balanceCents={balanceCents} />
-      )}
-
-      {/* ── 0b. FOUNDING PASS UPSELL ── */}
-      {uid && !highestPass && (
-        <Link
-          href="/founding"
-          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-gold/[0.06] to-gold/[0.02] border border-gold/20 hover:border-gold/30 transition-colors group"
-        >
-          <div className="size-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
-            <Crown className="size-4 text-gold" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold text-gold">{t('foundingUpsellTitle')}</div>
-            <div className="text-xs text-white/50 truncate">{t('foundingUpsellDesc')}</div>
-          </div>
-          <div className="text-xs font-bold text-gold/70 group-hover:text-gold transition-colors shrink-0">{t('foundingUpsellCta')}</div>
-        </Link>
       )}
 
       {/* ── 1. HERO HEADER ── */}
@@ -116,7 +102,28 @@ export default function HomePage() {
         storyMessage={storyMessage}
       />
 
-      {/* ── 1a. QUICK ACTIONS BAR ── */}
+      {/* ── 1a. NEW USER: Intro + Checklist + Founding Pass ── */}
+      {isNewUser && <BeScoutIntroCard />}
+      {isNewUser && retention?.onboarding && (
+        <OnboardingChecklist items={retention.onboarding} />
+      )}
+      {uid && !highestPass && (
+        <Link
+          href="/founding"
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-gold/[0.06] to-gold/[0.02] border border-gold/20 hover:border-gold/30 transition-colors group"
+        >
+          <div className="size-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+            <Crown className="size-4 text-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-bold text-gold">{t('foundingUpsellTitle')}</div>
+            <div className="text-xs text-white/50 truncate">{t('foundingUpsellDesc')}</div>
+          </div>
+          <div className="text-xs font-bold text-gold/70 group-hover:text-gold transition-colors shrink-0">{t('foundingUpsellCta')}</div>
+        </Link>
+      )}
+
+      {/* ── 1b. QUICK ACTIONS BAR ── */}
       {showQuickActions && (
         <nav aria-label={t('quickActions')} className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mt-2" style={{ WebkitOverflowScrolling: 'touch' }}>
           {[
@@ -154,13 +161,13 @@ export default function HomePage() {
         />
       )}
 
-      {/* ── 1c. ONBOARDING CHECKLIST ── */}
-      {retention?.onboarding && (
+      {/* ── 1c. ONBOARDING CHECKLIST (for active users — new users see it above) ── */}
+      {!isNewUser && retention?.onboarding && (
         <OnboardingChecklist items={retention.onboarding} />
       )}
 
       {/* ── 1d. WELCOME BONUS ── */}
-      {holdings.length === 0 && balanceCents != null && balanceCents > 0 && (
+      {isNewUser && balanceCents != null && balanceCents > 0 && (
         <NewUserTip
           tipKey="welcome-bonus"
           icon={<Coins className="size-5" />}

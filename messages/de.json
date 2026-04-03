@@ -359,7 +359,17 @@
     "entryLabel": "Eintritt: ",
     "entryFree": "Gratis",
     "prizeMoney": "Preisgeld",
-    "onboardingTitle": "Deine ersten Schritte"
+    "onboardingTitle": "Deine ersten Schritte",
+    "introTitle": "Was ist BeScout?",
+    "introSubtitle": "Die Fan-Plattform wo Fußball-Wissen belohnt wird.",
+    "introTrading": "Scout Cards",
+    "introTradingDesc": "Kaufe digitale Spielerkarten und handle am Markt.",
+    "introFantasy": "Fantasy",
+    "introFantasyDesc": "Stelle dein Team auf und messe dich mit anderen Fans.",
+    "introCommunity": "Community",
+    "introCommunityDesc": "Schreibe Analysen, stimme ab und verdiene Credits.",
+    "introScouting": "Scouting",
+    "introScoutingDesc": "Bewerte Spieler und werde als Top-Scout belohnt."
   },
   "fantasy": {
     "title": "Spieltag",
