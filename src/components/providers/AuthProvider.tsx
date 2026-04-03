@@ -235,6 +235,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ssSet(SS_USER, u);
         currentUserId = u.id;
         await loadProfile(u.id);
+        if (event === 'TOKEN_REFRESHED') {
+          // Queries may have fired with expired token during cache-hydrated UI.
+          // Invalidate so they refetch with the fresh token.
+          queryClient.invalidateQueries();
+        }
         if (event === 'SIGNED_IN') {
           import('@/lib/services/activityLog').then(({ logActivity }) => {
             logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
