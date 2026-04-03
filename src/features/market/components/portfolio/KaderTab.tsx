@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, GoalIcon, AssistIcon, MatchIcon } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
@@ -61,11 +61,14 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
       )}
     >
       <div className="flex gap-3">
-        {/* Photo */}
+        {/* Photo with position glow */}
         <div className="shrink-0 relative">
           <div
             className="size-12 rounded-full overflow-hidden border-2"
-            style={{ borderColor: `${tint}99` }}
+            style={{
+              borderColor: `${tint}99`,
+              boxShadow: `0 0 10px ${tint}30, inset 0 0 6px ${tint}15`,
+            }}
           >
             {p.imageUrl ? (
               <img
@@ -88,7 +91,7 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          {/* Line 1: Name + Shirt + Lineup badge + L5 */}
+          {/* Line 1: Name + Shirt + Lineup badge + FormBars + L5 */}
           <div className="flex items-center gap-1.5">
             <span className="font-black text-sm text-white truncate">
               {p.last.toUpperCase()}
@@ -124,7 +127,7 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
             <span className="text-xs text-white/50">{p.club}</span>
           </div>
 
-          {/* Line 3: Next fixture + stats */}
+          {/* Line 3: Next fixture + icon stats */}
           <div className="flex items-center gap-1.5 mt-0.5 text-xs text-white/40">
             {nextFixture ? (
               <>
@@ -140,10 +143,19 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
             ) : (
               <span className="text-white/30">--</span>
             )}
-            <span className="ml-auto font-mono tabular-nums text-white/50 shrink-0">
-              {p.stats.matches}{t('statMatchesAbbr')}{' '}
-              {p.stats.goals}{t('statGoalsAbbr')}{' '}
-              {p.stats.assists}{t('statAssistsAbbr')}
+            <span className="ml-auto flex items-center gap-1.5 font-mono tabular-nums text-white/50 shrink-0">
+              <span className="inline-flex items-center gap-0.5">
+                <MatchIcon size={10} className="text-white/35" />
+                {p.stats.matches}
+              </span>
+              <span className="inline-flex items-center gap-0.5">
+                <GoalIcon size={10} className="text-white/35" />
+                {p.stats.goals}
+              </span>
+              <span className="inline-flex items-center gap-0.5">
+                <AssistIcon size={10} className="text-white/35" />
+                {p.stats.assists}
+              </span>
             </span>
           </div>
 
@@ -182,7 +194,10 @@ function CompactPickerRow({ player, onClick, href }: {
       <div className="shrink-0 relative">
         <div
           className="size-9 rounded-full overflow-hidden border-[1.5px]"
-          style={{ borderColor: `${tint}99` }}
+          style={{
+            borderColor: `${tint}99`,
+            boxShadow: `0 0 8px ${tint}25`,
+          }}
         >
           {p.imageUrl ? (
             <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
@@ -556,7 +571,10 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                         <div className="shrink-0 relative">
                           <div
                             className="size-12 rounded-full overflow-hidden border-2"
-                            style={{ borderColor: `${tint}99` }}
+                            style={{
+                              borderColor: `${tint}99`,
+                              boxShadow: `0 0 10px ${tint}30, inset 0 0 6px ${tint}15`,
+                            }}
                           >
                             {p.imageUrl ? (
                               <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
