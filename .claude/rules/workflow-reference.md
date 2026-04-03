@@ -79,7 +79,7 @@ Alle Agents laden: SHARED-PREFIX.md → Domain-SKILL.md → LEARNINGS.md → Pha
 | `/codex:rescue` | Circuit-Breaker Eskalation |
 | `context7` MCP | Library-Docs (React, Next, Tailwind) |
 
-## Hooks (14)
+## Hooks (8)
 
 | Event | Hook | Typ |
 |-------|------|-----|
@@ -90,11 +90,7 @@ Alle Agents laden: SHARED-PREFIX.md → Domain-SKILL.md → LEARNINGS.md → Pha
 | PreCompact | pre-compact-backup.sh | command |
 | PreCompact | inject-context-on-compact.sh | command |
 | Stop | session-handoff-auto.sh | command |
-| Stop | quality-gate-v2.sh | command (Lock-Guard) |
-| SessionEnd | session-retro.sh + JSONL Metriken | command |
-| SessionStart | inject-learnings.sh + AutoDream Check | command |
-| StopFailure | crash-recovery.sh | command |
-| Notification | PowerShell Alert (global) | command |
+| SessionStart | morning-briefing.sh | command |
 
 ## 3 Gesetze
 
@@ -102,16 +98,14 @@ Alle Agents laden: SHARED-PREFIX.md → Domain-SKILL.md → LEARNINGS.md → Pha
 2. **Nie leere Tool-Arrays:** Jeder Agent hat explizite Tools
 3. **Human-Curated Context Only:** Agents schreiben Drafts, Menschen promoten
 
-## Self-Improvement Loop
+## Session Lifecycle
 
 ```
-SessionStart → inject-learnings + AutoDream Check
+SessionStart → Morning Briefing (Git + tsc + Sprint + Errors)
   ↓
-Waehrend Session → Trigger-Rules + Correction-Capture + File-Tracking
+Waehrend Session → auto-lint + file-size-warning + safety-guard
   ↓
-SessionEnd → Quality-Gate + Retro + JSONL Metriken + Handoff
-  ↓
-Periodisch → /reflect (5 Sessions) → /improve (10 Sessions) → AutoDream (24h/5 Sessions)
+Stop → session-handoff-auto (Uebergabe fuer naechste Session)
 ```
 
 ## Wann Agent, wann selbst?

@@ -1,30 +1,23 @@
-# System-Status (auto-generated 2026-04-03 00:02)
+# System-Status (auto-generated 2026-04-03 17:58)
 
 ## Git (seit letzter Session)
 - 10 Commits:
-  f2e4f37 chore(session-281): update sprint + handoff — Cortex v1 operational
-  1d8b2ac feat(cortex): P4 AutoDream v2 + P5 agent telepathy (SHARED-PREFIX v2)
-  5b9fdc0 feat(cortex): P2 senses + P3 context steering
-  f9445f7 fix(ui): replace template literal classNames with cn() (BES-109)
-  aab8dbe chore(cortex): update all hook + rule path references to new cortex structure
-  a5945fb feat(cortex): add cortex-index routing table, slim MEMORY.md from 190→108 lines
-  474d3e3 chore(cortex): migrate memory files into layered structure + create anil.md
-  cc58bf3 chore(cortex): create layered memory directory structure
-  f9207ca docs: Jarvis Cortex v1 implementation plan — 5 phases, 15 tasks
-  7c3156a docs: Jarvis Cortex v1 design — digital co-founder brain architecture
+  8a44a32 chore(session-282): final handoff — 25 commits, /spec skill, 6 workflow gaps filled
+  18a1ad6 fix(workflow): fill 6 gaps exposed by Session 282 failure
+  087d418 chore: remove 12 orphaned components from failed redesign attempt
+  cae8e90 feat(skill): add /spec — migration-first engineering specification process
+  393e351 feat: split Manager from Market — KaderTab moves to /manager, no duplicates
+  99f5ab9 revert: restore original Market page + nav (redesign not ready for production)
+  3aa4017 feat: wire Manager <-> Market deep-link bridges
+  7855a1e feat(market): new MarketContentV2 — side-by-side Portfolio + Marktplatz
+  aa7d508 chore(session-282): update handoff + sprint — Manager redesign Phase 0-1 done
+  ea8d825 feat(market): add PortfolioCard with sparkline, P&L, quick actions
 
-## Uncommitted: 10 Files
+## Uncommitted: 3 Files
 ```
- M memory/episodisch/metriken/sessions.jsonl
- D memory/episodisch/sessions/retro-20260402-212136.md
- D memory/episodisch/sessions/retro-20260402-212738.md
- M memory/metrics/sessions.jsonl
  M memory/senses/morning-briefing.md
- D memory/sessions/retro-20260402-212136.md
- M src/components/player/detail/hooks/__tests__/usePlayerDetailData.test.ts
 ?? .claude/session-files.txt
-?? memory/episodisch/sessions/retro-20260402-221950.md
-?? memory/episodisch/sessions/retro-20260402-221954.md
+?? memory/working-memory.md
 ```
 
 ## Build
@@ -35,11 +28,23 @@
 
 ## Sprint
 ## Naechste Prioritaet
-1. Learning Drafts reviewen (/reflect) — 2 Drafts pending
-2. AutoDream manuell ausfuehren (43 Sessions aufgestaut)
-3. Ersten echten Feature-Task durch Cortex + /deliver Pipeline
+1. Vercel Deploy verifizieren (bescout.net)
+2. Visual QA: Nav Mobile (7 Items)
+3. Manager Command Center mit /spec Skill (richtig diesmal)
 
 ## Pending Learnings: 2 Drafts
 - 2026-04-02-smoke-test-hooks-grep.md
 - 2026-04-02-smoke-test-worktree-skills.md
+
+## Recent Error Patterns
+- ## Data Contract Changes (NICHT als UI-Change behandeln)
+- - required → optional (Feld, Prop, DB Column) = Contract Change → ERST alle Consumer greppen
+- - optional → required = Breaking Change → Migration + Backfill noetig
+- - Form-Validierung aendern (disabled, required entfernen) → Pruefen: Was passiert downstream wenn der Wert null/leer ist?
+- - REGEL: Jede Aenderung die beeinflusst WELCHE Werte in die DB geschrieben werden → `/impact` oder manueller Grep BEVOR Code geschrieben wird
+- 
+- ## Shell / Hooks (Windows Git Bash)
+- - `grep -oP` mit `\K` scheitert SILENT auf Windows (Locale-Bug: "supports only unibyte and UTF-8 locales")
+- - Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'` statt `grep -oP`
+- - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` — Fallback auf Main-Repo-Path oder Task gut verpacken
 

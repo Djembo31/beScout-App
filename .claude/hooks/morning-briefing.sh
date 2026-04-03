@@ -72,14 +72,6 @@ mkdir -p memory/senses
     echo ""
   fi
 
-  # AutoDream status — count unarchived retro files
-  RETRO_COUNT=$(ls memory/episodisch/sessions/retro-*.md 2>/dev/null | wc -l)
-  if [ "$RETRO_COUNT" -gt 5 ]; then
-    echo "## AutoDream: Memory Consolidation faellig ($RETRO_COUNT Retros)"
-    echo "→ Starte AutoDream Subagent um Memory zu konsolidieren"
-    echo ""
-  fi
-
   # Recent error patterns from common-errors.md
   if [ -f ".claude/rules/common-errors.md" ]; then
     RECENT_ERRORS=$(git log --since="7 days ago" --all -p -- ".claude/rules/common-errors.md" 2>/dev/null | grep "^+" | grep -v "^+++" | head -10)
@@ -91,5 +83,8 @@ mkdir -p memory/senses
   fi
 
 } > "$BRIEFING"
+
+# Output to context (replaces inject-learnings.sh)
+cat "$BRIEFING"
 
 exit 0

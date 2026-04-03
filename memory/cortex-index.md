@@ -17,16 +17,14 @@
 | UI / Components | CLAUDE.md Component Registry (bereits geladen) |
 | DB / Migration / RPC | `.claude/rules/database.md` (auto-loaded by path) |
 | Neues Feature | `memory/semantisch/projekt/patterns.md` + Business-Regeln |
-| Bug-Fix | `memory/episodisch/fehler/errors.md` + `memory/senses/health.md` |
+| Bug-Fix | `memory/episodisch/fehler/errors.md` + `memory/senses/morning-briefing.md` |
 | Agent / Workflow | `memory/semantisch/projekt/agent-research.md` |
+| Feature / Redesign / Refactoring (3+ Files) | `.claude/skills/spec/SKILL.md` (PFLICHT: Migration-First) |
 | Performance | `memory/semantisch/projekt/patterns.md` (Performance-Sektion) |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |
 |-----------|------|
-| Session-Journale | `memory/episodisch/sessions/` |
 | Entscheidungen (ADRs) | `memory/episodisch/entscheidungen/` |
 | Feature-Specs | `memory/features/` |
-| Learning-Drafts | `memory/learnings/drafts/` |
 | System-Status | `memory/senses/morning-briefing.md` |
-| Metriken | `memory/episodisch/metriken/sessions.jsonl` |
