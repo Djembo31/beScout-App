@@ -144,6 +144,30 @@ Agents nur fuer komplexe Cross-File-Analyse (Architektur, Datenfluss, Zusammensp
 
 ---
 
+## Execution Discipline (Session 283 — 8-Commit Desaster, nie wieder)
+
+### LOOK before BUILD (haerteste Regel)
+1. **REFERENCE-FIRST:** "Wie X" / "genauso wie Y" → SOFORT Komponente X lesen. JEDES Element auflisten. Checkliste.
+2. **REUSE-SEARCH:** Vor JEDER neuen Komponente → `grep` im Codebase. "Wie loest die App das bereits?" 30 Sek Grep spart 30 Min falschen Code.
+3. **ORIGINAL FESTHALTEN:** Anils Worte woertlich merken. Vor jedem Push dagegen pruefen.
+
+### VISUAL GATE (vor jedem Push bei UI-Aenderungen)
+Playwright Screenshot bei 390px BEVOR committed wird. Gegen Referenz vergleichen. Nicht identisch → fixen, nicht pushen.
+
+### 2-STRIKE RULE
+Nach 2 gescheiterten Versuchen → STOP. Nochmal lesen oder fragen. NIEMALS Versuch 3, 4, 5.
+
+### SINGLE PUSH
+Alle zusammengehoerenden Aenderungen in EINEM Commit. Jeder kaputte Push = Vertrauensverlust.
+
+### MINIMUM VIABLE CHANGE
+Kein drop-shadow das niemand wollte. Kein Refactoring das niemand brauchte. Kein Research wenn die Antwort im Codebase liegt. Exakt was gefragt wurde.
+
+### CTO, nicht Junior
+Lesen, entscheiden, ausfuehren, Ergebnis zeigen. Wenig Worte, maximaler Output. Keine Erklaerungen vor der Tat. Keine Rueckfragen bei offensichtlichen naechsten Schritten.
+
+---
+
 ## Leitplanken
 
 1. **Neues Problem → separater Task.** Scope nicht aufblaehen.

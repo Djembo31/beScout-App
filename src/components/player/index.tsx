@@ -10,8 +10,7 @@ import { getClub } from '@/lib/clubs';
 import { cn, fmtScout } from '@/lib/utils';
 
 export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
-export { GoalIcon, AssistIcon, MatchIcon } from './StatIcons';
-// FootballSvg is exported directly above (used by GoalBadge + GoalIcon)
+export { MatchIcon } from './StatIcons';
 import { getScoreStyle } from './scoreColor';
 
 // ============================================
