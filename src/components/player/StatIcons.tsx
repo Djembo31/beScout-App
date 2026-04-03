@@ -22,7 +22,7 @@ export function GoalIcon({ className = '', size = 12 }: IconProps) {
       className={className}
       aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="11" fill="white" stroke="#999" strokeWidth="0.5" />
+      <circle cx="12" cy="12" r="11" fill="white" stroke="#d4d4d4" strokeWidth="0.8" />
       <polygon points="12,6.5 15.3,9 14.2,12.8 9.8,12.8 8.7,9" fill="#1a1a1a" />
       <polygon points="12,1.2 13.8,5.2 10.2,5.2" fill="#1a1a1a" />
       <polygon points="21,8 16.5,8.2 15.8,5.5" fill="#1a1a1a" />
