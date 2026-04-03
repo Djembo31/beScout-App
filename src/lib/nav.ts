@@ -1,7 +1,6 @@
 import {
   Home,
-  ClipboardList,
-  TrendingUp,
+  Briefcase,
   Trophy,
   Compass,
   Building2,
@@ -21,8 +20,7 @@ export type NavItem = {
 
 export const NAV_MAIN: NavItem[] = [
   { label: 'home', href: '/', icon: Home },
-  { label: 'manager', href: '/manager', icon: ClipboardList },
-  { label: 'market', href: '/market', icon: TrendingUp },
+  { label: 'market', href: '/market', icon: Briefcase },
   { label: 'fantasy', href: '/fantasy', icon: Trophy },
   { label: 'missions', href: '/missions', icon: Target },
   { label: 'club', href: '/club', icon: Building2 },
