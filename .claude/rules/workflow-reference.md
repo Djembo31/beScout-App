@@ -44,6 +44,11 @@ Alle Agents laden: SHARED-PREFIX.md → Domain-SKILL.md → LEARNINGS.md → Pha
 | `/cto-review` | Code Review nach Implementation |
 | `/impact` | VOR DB/RPC/Service-Aenderungen |
 
+### Spec + Planung (1 — PFLICHT)
+| Skill | Trigger |
+|-------|---------|
+| `/spec` | **PFLICHT bei Feature/Redesign/Refactoring (3+ Files).** Migration-First Spec → Plan → Execute. Ersetzt brainstorming + writing-plans. |
+
 ### Feedback (4)
 | Skill | Trigger |
 |-------|---------|

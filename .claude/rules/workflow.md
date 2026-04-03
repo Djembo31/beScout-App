@@ -46,6 +46,11 @@ Aendert was in die DB fliesst oder was Downstream-Code empfaengt.
 → GREP ALLE Consumer des betroffenen Felds VOR dem Code. Nicht danach.
 → Bei Batch-Fixes (3+ Items): JEDER Fix durchlaeuft BEFORE einzeln. Kein Abarbeiten-Modus.
 
+**SPEC-PFLICHT (Session 282 — nach gescheitertem Redesign):**
+Bei Features, Redesigns, Refactorings (3+ Files): `/spec` Skill ausfuehren.
+Migration-First: Verstehe was existiert → Plane wohin jedes Feature geht → Dann erst Code.
+BEFORE allein reicht NICHT fuer groessere Aenderungen. `/spec` erzwingt den vollen Prozess.
+
 ### Phase 2: DURING (Waehrend der Implementation)
 
 - NUR was im DEFINE steht umsetzen. Nichts extra.

@@ -131,6 +131,7 @@ When compacting, ALWAYS preserve:
 ## Tool-Verwendung (WANN was nutzen)
 | Situation | Tool | Warum |
 |-----------|------|-------|
+| **Feature / Redesign / Refactoring (3+ Files)** | **`/spec`** | **PFLICHT. Migration-First Spec → Plan → Execute. Ersetzt brainstorming + writing-plans.** |
 | Neues Feature / Architektur-Entscheidung | `sequential-thinking` MCP | Strukturiertes Denken, nicht raten |
 | Library-API unklar (React, Next.js, Tailwind, Supabase) | `context7` MCP | Aktuelle Docs statt Training-Daten |
 | Neuen Skill erstellen oder bestehenden verbessern | `/skill-creator` | Eval-Loop, Prompt-Optimierung |
