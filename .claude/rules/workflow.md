@@ -57,6 +57,9 @@ BEFORE allein reicht NICHT fuer groessere Aenderungen. `/spec` erzwingt den voll
 - Neues Problem entdeckt → notieren, separater Task. NICHT sofort fixen.
 - Bei Unsicherheit: Code lesen, nicht raten.
 - "Unused" heisst NICHTS bis Grep es bestaetigt. Jede Loeschung → Grep nach ALLEN Consumers.
+- **GESAMTBILD-CHECK nach jedem Commit:** "Passt das was ich gerade gebaut habe ins Gesamtprodukt?" Nicht nur "kompiliert es?" sondern "ergibt es Sinn fuer den User?"
+- **ORPHAN-CHECK:** Jede neue Datei muss von mindestens einer anderen importiert werden. `grep -r "NewFileName"` → 0 Treffer = nicht committen.
+- **KEIN ABARBEITEN-MODUS:** Bei 3+ Tasks: nach jedem Task PAUSE. Qualitaet sinkt mit jedem Item — bewusst gegensteuern.
 
 ### Phase 3: AFTER (NACH dem letzten Buchstaben Code)
 
@@ -99,7 +102,7 @@ Wenn ja → nochmal hinschauen. Wenn nein → committen.
 |---------------|---------------|
 | Jede Aenderung | `tsc --noEmit` (0 Errors) |
 | Logik/Service | Test Output (betroffene Tests gruen) |
-| UI-Aenderung | Screenshot (Vercel Preview oder Playwright) |
+| UI-Aenderung | INTERAGIEREN auf bescout.net (klicken, navigieren, testen) — Screenshot allein reicht NICHT |
 | DB/RPC | `SELECT` Query mit echten Daten |
 | i18n | Beide Sprachen verifiziert |
 | Trading/Wallet | DB-Query VOR und NACH der Aktion |
@@ -120,12 +123,20 @@ Agent-Output ist ein ENTWURF, kein fertiges Ergebnis.
 1. **Diff lesen** — JEDE Zeile die der Agent geaendert hat
 2. **Scope-Check** — NUR was im Issue stand? Beyond-Scope → revert
 3. **Fakten-Check** — Agent sagt "unused"? GREP. Agent sagt "nicht importiert"? GREP. Agents luegen nicht absichtlich, aber sie uebersehen Dinge.
-4. **8-Punkt Checkliste** — genau wie bei eigener Arbeit. Kein Vertrauensbonus.
+4. **9-Punkt Checkliste** — genau wie bei eigener Arbeit. Kein Vertrauensbonus.
 5. **Kontext-Check** — passt Agent-Code zum bestehenden File? Doppelte Imports?
 6. **Git Diff** vor Commit (Paperclip Agents)
 7. **Zusammenspiel** pruefen bei parallelen Agents
+8. **Integration-Plan VOR Dispatch** — WIE werden die Agent-Outputs zusammengefuegt? Wer importiert was? Agents die isolierte Komponenten bauen ohne Integration-Plan = Verschwendung.
+9. **Orphan-Check NACH Merge** — `grep -r "ComponentName"` → wird es importiert? Wenn nicht → nicht committen.
 
 Review laenger als selber machen → selber machen.
+
+**Agent-Dispatch nur wenn:**
+- Die Spec (oder zumindest BEFORE) komplett durchlaufen ist
+- Das Props-Interface exakt definiert ist
+- Klar ist WER das Ergebnis importiert (nicht "wird spaeter eingebaut")
+- Der Task EINE Datei betrifft, nicht Integration
 
 **Research-Agents vs. direkter Grep:**
 Fuer "wo wird X benutzt?" ist `Grep` schneller und genauer als ein Research-Agent.
@@ -142,6 +153,9 @@ Agents nur fuer komplexe Cross-File-Analyse (Architektur, Datenfluss, Zusammensp
 5. **"tsc clean" ≠ fertig.** "Agent sagt fertig" ≠ fertig.
 6. **BEFORE ueberspringen = Zeit verschwenden.** 30 Sekunden BEFORE spart 10 Minuten falschen Code.
 7. **Messen VOR Optimieren.** Keine Performance-Aenderung ohne Baseline-Messung.
+8. **Einfachste Loesung zuerst.** 1 Feature bewegen < 8 Komponenten bauen. Refactoring < Neubau. Bestehenden Code nutzen < neu schreiben.
+9. **Link gesetzt = Empfaenger geprueft.** Jeder `href` / `Link` → Grep ob die Zielseite den Parameter auswertet. Sonst: nicht setzen.
+10. **Push = Self-Test.** Vor JEDEM Push auf Production: Seite oeffnen, durchklicken, jeden geaenderten Flow testen. "Wenn Anil das jetzt oeffnet — sieht er was Kaputtes?"
 
 ---
 
@@ -162,11 +176,14 @@ Paperclip: localhost:3100, Company `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`.
 4. `memory/senses/morning-briefing.md` lesen (wenn vorhanden)
 5. Anil sagt was ansteht → los
 
-## Autonomous Execution (NACH Brainstorming)
+## Autonomous Execution (NACH Spec/Plan)
 
 - Gesamten Loop AUTONOM durchlaufen — KEINE Zwischenfragen
 - Bei Blockern: Alternative waehlen, nicht fragen
 - Am Ende: Fertig-Report mit Beweis-Artefakten
+- **ABER:** Autonom heisst NICHT blind. Nach jeder Wave/Commit: Gesamtbild-Check.
+- **ABER:** Autonom heisst NICHT schnell. Qualitaet > Geschwindigkeit. Immer.
+- **WARNUNG:** Execution-Modus ist die gefaehrlichste Phase. Hier verliere ich den Ueberblick. Bewusst langsamer arbeiten, bewusst nach jedem Schritt pausieren.
 
 ## Eskalation
 
