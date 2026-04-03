@@ -1,7 +1,7 @@
 'use client';
 
-import MarketContent from '@/features/market/components/MarketContent';
+import MarketContentV2 from '@/features/market/components/MarketContentV2';
 
 export default function MarketPage() {
-  return <MarketContent />;
+  return <MarketContentV2 />;
 }
