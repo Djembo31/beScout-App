@@ -1,6 +1,6 @@
 # Current Sprint — Jarvis Cortex v1
 
-## Stand (2026-04-03, Session 282 — AutoDream)
+## Stand (2026-04-03, Session 282 — Manager Redesign)
 - **Tests:** tsc 0 Errors, 936 vitest green (39 Suites)
 - **Branch:** main
 - **Migrations:** 299
@@ -17,15 +17,18 @@
 - MEMORY.md 190→108 Zeilen, cortex-index.md als Router
 - BES-109: template literal classNames → cn() Fix
 
-## Erledigt (Session 282 — AutoDream 2026-04-03)
-- 8 duplizierte Retro-Files archiviert (memory/episodisch/sessions/archive/ + memory/sessions/archive/)
-- Session-Counter reset: 0
-- 2 Learning Drafts bereits promoted (grep-oP fix + worktree skills)
+## Erledigt (Session 282 — 2026-04-03)
+- Housekeeping: /reflect, AutoDream, Legacy-Pfade, 2 Drafts promoted
+- Login: Session-Refresh Race Fix, Club optional, Demo hidden, Premium SVGs
+- No-Crumbs Rule in workflow.md verankert
+- Manager + Market Redesign: Design + Plan + Phase 0-1 + Phase 3 teilweise
+- 8 neue Komponenten gebaut (4x Agent-parallel, 4x manuell/merged)
+- 18 Commits, tsc 0 Errors
 
 ## Naechste Prioritaet
-1. Ersten echten Feature-Task durch Cortex + /deliver Pipeline
-2. /reflect ausfuehren (2 promoted Drafts pruefen ob in common-errors.md gelandet)
-3. Sprint-File aktuell halten nach jeder Session
+1. Task 12: Neue MarketContent (Portfolio + Marktplatz Layout)
+2. Task 13-15: Deep-Links, Cleanup, Visual QA
+3. Task 9: EventPrepOverlay (optional, braucht RPC)
 
 ## Board Status
 - 100+ issues, 97+ done
