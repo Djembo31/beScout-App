@@ -1,6 +1,7 @@
 /**
- * Tiny football stat icons (10-12px) for compact player rows.
- * Designed to be readable at small sizes on dark backgrounds.
+ * Premium football stat icons for compact player rows.
+ * White fill on dark background — matches GoalBadge visual language.
+ * Designed to be crisp and recognizable at 10-14px.
  */
 
 interface IconProps {
@@ -8,54 +9,79 @@ interface IconProps {
   size?: number;
 }
 
-/** Classic football / soccer ball — pentagon pattern on circle */
+/**
+ * Classic football — same pentagon pattern as GoalBadge.
+ * White ball with dark pentagons, readable down to 10px.
+ */
 export function GoalIcon({ className = '', size = 12 }: IconProps) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 16 16"
-      fill="none"
+      viewBox="0 0 24 24"
       className={className}
       aria-hidden="true"
     >
-      <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="12" cy="12" r="11" fill="white" stroke="#999" strokeWidth="0.5" />
+      <polygon points="12,6.5 15.3,9 14.2,12.8 9.8,12.8 8.7,9" fill="#1a1a1a" />
+      <polygon points="12,1.2 13.8,5.2 10.2,5.2" fill="#1a1a1a" />
+      <polygon points="21,8 16.5,8.2 15.8,5.5" fill="#1a1a1a" />
+      <polygon points="19.5,17.5 15.5,14.5 17,11" fill="#1a1a1a" />
+      <polygon points="4.5,17.5 7,11 8.5,14.5" fill="#1a1a1a" />
+      <polygon points="3,8 8.2,5.5 7.5,8.2" fill="#1a1a1a" />
       <path
-        d="M8 3L10.5 5L9.5 8L6.5 8L5.5 5Z"
-        fill="currentColor"
-        opacity="0.9"
+        d="M12,6.5 L12,1.2 M15.3,9 L21,8 M14.2,12.8 L19.5,17.5 M9.8,12.8 L4.5,17.5 M8.7,9 L3,8"
+        stroke="#1a1a1a" strokeWidth="0.6" fill="none"
       />
-      <path d="M8 1.5V3M13 5.5L10.5 5M12.5 11L9.5 8M3.5 11L6.5 8M3 5.5L5.5 5" stroke="currentColor" strokeWidth="0.8" />
+      <path
+        d="M9.8,12.8 L8.5,17 M14.2,12.8 L15.5,17"
+        stroke="#1a1a1a" strokeWidth="0.6" fill="none"
+      />
     </svg>
   );
 }
 
-/** Football boot / cleat — side profile */
+/**
+ * Football boot — premium side profile with studs and lacing detail.
+ * White silhouette on dark background, same visual weight as GoalIcon.
+ */
 export function AssistIcon({ className = '', size = 12 }: IconProps) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 16 16"
-      fill="none"
+      viewBox="0 0 24 24"
       className={className}
       aria-hidden="true"
     >
+      {/* Boot body — ankle to toe */}
       <path
-        d="M2 11.5L3.5 6L7 5L10 5.5L13 7L14 9L14 11L12 12H3L2 11.5Z"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
+        d="M6 4C6 4 5 7 5 9L4 12L3 14.5L3.5 15.5L7 16L22 16L22 14C22 14 20 12 17 11L12 10L9 9L8 7L7 4.5Z"
+        fill="white"
+        stroke="#999"
+        strokeWidth="0.4"
       />
-      <path d="M3 12V13.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-      <path d="M5.5 12V13.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-      <path d="M8 12V13.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-      <path d="M10.5 11.5V13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      {/* Sole plate */}
+      <path
+        d="M3.5 15.5L3 17L4 18.5L7.5 19L20 19L22 18L22 16L7 16Z"
+        fill="#e5e5e5"
+        stroke="#999"
+        strokeWidth="0.4"
+      />
+      {/* Studs */}
+      <rect x="5" y="19" width="1.5" height="2" rx="0.4" fill="#1a1a1a" />
+      <rect x="9" y="19" width="1.5" height="2" rx="0.4" fill="#1a1a1a" />
+      <rect x="13" y="19" width="1.5" height="2" rx="0.4" fill="#1a1a1a" />
+      <rect x="17" y="19" width="1.5" height="2" rx="0.4" fill="#1a1a1a" />
+      {/* Lacing detail */}
+      <path d="M8 6L10 7.5M7.5 7.5L9.5 9" stroke="#bbb" strokeWidth="0.6" strokeLinecap="round" />
+      {/* Toe cap line */}
+      <path d="M17 11.5C19 12.5 20.5 13.5 21 14.5" stroke="#ccc" strokeWidth="0.5" fill="none" />
     </svg>
   );
 }
 
-/** Football pitch — rectangle with center circle and line */
+/** Football pitch — rectangle with center circle, halfway line, penalty areas */
 export function MatchIcon({ className = '', size = 12 }: IconProps) {
   return (
     <svg

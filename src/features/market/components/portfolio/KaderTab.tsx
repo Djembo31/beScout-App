@@ -145,15 +145,15 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
             )}
             <span className="ml-auto flex items-center gap-1.5 font-mono tabular-nums text-white/50 shrink-0">
               <span className="inline-flex items-center gap-0.5">
-                <MatchIcon size={10} className="text-white/35" />
+                <MatchIcon size={10} className="text-white/40" />
                 {p.stats.matches}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <GoalIcon size={10} className="text-white/35" />
+                <GoalIcon size={11} />
                 {p.stats.goals}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <AssistIcon size={10} className="text-white/35" />
+                <AssistIcon size={11} />
                 {p.stats.assists}
               </span>
             </span>
