@@ -11,6 +11,7 @@ import { cn, fmtScout } from '@/lib/utils';
 
 export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
 export { GoalIcon, AssistIcon, MatchIcon } from './StatIcons';
+// FootballSvg is exported directly above (used by GoalBadge + GoalIcon)
 import { getScoreStyle } from './scoreColor';
 
 // ============================================
@@ -212,6 +213,31 @@ export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className =
  *
  *  Usage: place in a `relative` container (e.g. wrapping PlayerPhoto)
  *  and position via className (default: bottom-right). */
+
+/** Pure football SVG — single source of truth for the ball icon.
+ *  Used by GoalBadge (overlay) and GoalIcon (inline stats). */
+export function FootballSvg({ size = 18, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="11" fill="white" stroke="#d4d4d4" strokeWidth="0.8" />
+      <polygon points="12,6.5 15.3,9 14.2,12.8 9.8,12.8 8.7,9" fill="#1a1a1a" />
+      <polygon points="12,1.2 13.8,5.2 10.2,5.2" fill="#1a1a1a" />
+      <polygon points="21,8 16.5,8.2 15.8,5.5" fill="#1a1a1a" />
+      <polygon points="19.5,17.5 15.5,14.5 17,11" fill="#1a1a1a" />
+      <polygon points="4.5,17.5 7,11 8.5,14.5" fill="#1a1a1a" />
+      <polygon points="3,8 8.2,5.5 7.5,8.2" fill="#1a1a1a" />
+      <path d="M12,6.5 L12,1.2 M15.3,9 L21,8 M14.2,12.8 L19.5,17.5 M9.8,12.8 L4.5,17.5 M8.7,9 L3,8" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
+      <path d="M9.8,12.8 L8.5,17 M14.2,12.8 L15.5,17" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
+    </svg>
+  );
+}
+
 export function GoalBadge({ goals, size = 18, className = '' }: {
   goals: number;
   size?: number;
@@ -230,23 +256,7 @@ export function GoalBadge({ goals, size = 18, className = '' }: {
       style={{ width: s, height: s }}
       aria-hidden="true"
     >
-      <svg
-        aria-hidden="true"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
-      >
-        <circle cx="12" cy="12" r="11" fill="white" stroke="#d4d4d4" strokeWidth="0.8" />
-        <polygon points="12,6.5 15.3,9 14.2,12.8 9.8,12.8 8.7,9" fill="#1a1a1a" />
-        <polygon points="12,1.2 13.8,5.2 10.2,5.2" fill="#1a1a1a" />
-        <polygon points="21,8 16.5,8.2 15.8,5.5" fill="#1a1a1a" />
-        <polygon points="19.5,17.5 15.5,14.5 17,11" fill="#1a1a1a" />
-        <polygon points="4.5,17.5 7,11 8.5,14.5" fill="#1a1a1a" />
-        <polygon points="3,8 8.2,5.5 7.5,8.2" fill="#1a1a1a" />
-        <path d="M12,6.5 L12,1.2 M15.3,9 L21,8 M14.2,12.8 L19.5,17.5 M9.8,12.8 L4.5,17.5 M8.7,9 L3,8" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
-        <path d="M9.8,12.8 L8.5,17 M14.2,12.8 L15.5,17" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
-      </svg>
+      <FootballSvg size={size} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]" />
       {goals >= 2 && (
         <span
           className="absolute inset-0 flex items-center justify-center font-black text-white tabular-nums drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"

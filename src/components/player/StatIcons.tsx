@@ -1,32 +1,16 @@
 /**
- * Football stat icons for compact player rows.
- * All use currentColor outline style — consistent with each other,
- * readable at 10-12px on dark backgrounds.
+ * Stat icons for compact player rows.
+ * GoalIcon reuses FootballSvg from player/index.tsx (single source of truth).
  */
+
+export { FootballSvg as GoalIcon } from './index';
 
 interface IconProps {
   className?: string;
   size?: number;
 }
 
-/** Football — identical SVG to GoalBadge in player/index.tsx */
-export function GoalIcon({ className = '', size = 12 }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <circle cx="12" cy="12" r="11" fill="white" stroke="#d4d4d4" strokeWidth="0.8" />
-      <polygon points="12,6.5 15.3,9 14.2,12.8 9.8,12.8 8.7,9" fill="#1a1a1a" />
-      <polygon points="12,1.2 13.8,5.2 10.2,5.2" fill="#1a1a1a" />
-      <polygon points="21,8 16.5,8.2 15.8,5.5" fill="#1a1a1a" />
-      <polygon points="19.5,17.5 15.5,14.5 17,11" fill="#1a1a1a" />
-      <polygon points="4.5,17.5 7,11 8.5,14.5" fill="#1a1a1a" />
-      <polygon points="3,8 8.2,5.5 7.5,8.2" fill="#1a1a1a" />
-      <path d="M12,6.5 L12,1.2 M15.3,9 L21,8 M14.2,12.8 L19.5,17.5 M9.8,12.8 L4.5,17.5 M8.7,9 L3,8" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
-      <path d="M9.8,12.8 L8.5,17 M14.2,12.8 L15.5,17" stroke="#1a1a1a" strokeWidth="0.6" fill="none" />
-    </svg>
-  );
-}
-
-/** Football boot — clean outline, recognizable side profile */
+/** Football boot — outline, side profile with sole + studs */
 export function AssistIcon({ className = '', size = 12 }: IconProps) {
   return (
     <svg
