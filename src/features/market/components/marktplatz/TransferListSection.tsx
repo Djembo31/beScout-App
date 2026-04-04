@@ -5,10 +5,12 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Loader2, TrendingUp, TrendingDown, Minus, ChevronDown, ShoppingCart } from 'lucide-react';
-import { PlayerIdentity, getL5Color } from '@/components/player';
+import { PlayerIdentity, FormBars } from '@/components/player';
+import { posTintColors } from '@/components/player/PlayerRow';
 import { InfoTooltip, EmptyState } from '@/components/ui';
 import MarketFilters, { applyFilters, applySorting } from '../shared/MarketFilters';
 import { useMarketStore } from '@/lib/stores/marketStore';
+import { useRecentScores } from '@/lib/queries/managerData';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbOrder } from '@/types';
@@ -42,6 +44,7 @@ export default function TransferListSection({
   useEffect(() => { hasRendered.current = true; }, []);
   const t = useTranslations('market');
   const store = useMarketStore();
+  const { data: scoresMap } = useRecentScores();
 
   // Aggregate sell orders by player
   const listings = useMemo(() => {
@@ -180,9 +183,31 @@ export default function TransferListSection({
                   {/* Player identity */}
                   <PlayerIdentity player={p} size="sm" showStatus className="flex-1 min-w-0" />
 
+                  {/* Form bars + L5 circle */}
+                  {(() => {
+                    const scores = scoresMap?.get(p.id);
+                    const formEntries = (scores ?? []).map(s => ({
+                      score: s ?? 0,
+                      status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+                    }));
+                    const tint = posTintColors[p.pos];
+                    return (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <FormBars entries={formEntries} />
+                        <div
+                          className="size-7 rounded-full flex items-center justify-center border-[1.5px]"
+                          style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
+                        >
+                          <span className="font-mono font-black text-xs tabular-nums text-white/90">
+                            {Math.round(p.perf.l5)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Stats micro-display */}
                   <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-white/40 flex-shrink-0">
-                    <span className={cn('font-bold', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
                     <span className="text-vivid-green">{p.stats.goals}G</span>
                     <span className="text-sky-300">{p.stats.assists}A</span>
                     <span>{p.stats.matches}M</span>

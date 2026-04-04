@@ -11,6 +11,7 @@ import { cn, fmtScout } from '@/lib/utils';
 
 export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
 export { MatchIcon } from './StatIcons';
+export { default as FormBars } from './FormBars';
 import { getScoreStyle } from './scoreColor';
 
 // ============================================

@@ -7,7 +7,7 @@ import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { PositionBadge } from '@/components/player/index';
-import FormBars from './FormBars';
+import { FormBars } from '@/components/player';
 import FDRBadge from './FDRBadge';
 import type { Pos } from '@/types';
 

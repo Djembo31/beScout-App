@@ -8,9 +8,9 @@ import {
   FileText, Activity, Lock,
 } from 'lucide-react';
 import {
-  PlayerPhoto, PositionBadge,
+  PlayerPhoto, PositionBadge, FormBars,
 } from '@/components/player';
-import { getContractInfo } from '@/components/player/PlayerRow';
+import { getContractInfo, posTintColors } from '@/components/player/PlayerRow';
 import CountdownBadge from './CountdownBadge';
 import { fmtScout, cn, countryToFlag } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -45,61 +45,6 @@ const trendIcon: Record<string, React.ReactNode> = {
   FLAT: <Minus className="size-3 text-white/30" aria-hidden="true" />,
 };
 
-/** Mini bar color per score (Sorare-style) */
-function miniBarColor(score: number): string {
-  if (score >= 80) return '#4ade80';  // green
-  if (score >= 60) return '#a3e635';  // lime
-  if (score >= 45) return '#facc15';  // yellow
-  return '#fb923c';                   // orange
-}
-
-/** Compact L5 strip: 5 tiny bars + L5 score badge (Sorare-style).
- *  Always renders exactly 5 bars — grey placeholders for missing GWs. */
-function L5Strip({ scores, l5, trend }: { scores?: (number | null)[]; l5: number; trend: string }) {
-  const MAX_H = 18;
-  // scores is newest→oldest from service; reverse for display (oldest→newest, left→right)
-  // Always pad to exactly 5 entries
-  const raw = scores ? [...scores].reverse() : [];
-  const bars: (number | null)[] = raw.length >= 5
-    ? raw.slice(raw.length - 5)
-    : [...Array.from<null>({ length: 5 - raw.length }).fill(null), ...raw];
-
-  return (
-    <div className="flex items-center gap-1.5">
-      {/* 5 Mini bars — always rendered */}
-      <div className="flex items-end gap-[3px] h-[22px]" aria-hidden="true">
-        {bars.map((s, i) => (
-          <div
-            key={i}
-            className="w-[4px] rounded-sm"
-            style={{
-              height: s != null && s > 0
-                ? `${Math.max(4, (s / 100) * MAX_H)}px`
-                : '4px',
-              backgroundColor: s != null && s > 0
-                ? miniBarColor(s)
-                : 'rgba(255,255,255,0.12)',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* L5 score badge */}
-      <span className={cn(
-        'font-mono font-black text-[11px] tabular-nums leading-none px-1.5 py-0.5 rounded',
-        l5 >= 70 ? 'bg-emerald-500/20 text-emerald-400'
-          : l5 >= 45 ? 'bg-amber-500/20 text-amber-400'
-          : l5 > 0 ? 'bg-red-500/20 text-red-400'
-          : 'bg-white/[0.06] text-white/30',
-      )}>
-        {l5}
-      </span>
-
-      {/* Trend icon */}
-      {trendIcon[trend]}
-    </div>
-  );
-}
 
 interface PlayerIPOCardProps {
   player: Player;
@@ -159,9 +104,23 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               )}
             </div>
           </div>
-          {/* L5 Strip — right-aligned in header for visual balance */}
-          <div className="shrink-0">
-            <L5Strip scores={recentScores} l5={player.perf.l5} trend={player.perf.trend} />
+          {/* Form bars + L5 circle — matches Fantasy/Manager visual language */}
+          <div className="shrink-0 flex items-center gap-2">
+            <FormBars
+              entries={(recentScores ?? []).map(s => ({
+                score: s ?? 0,
+                status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+              }))}
+            />
+            <div
+              className="size-8 rounded-full flex items-center justify-center border-[1.5px]"
+              style={{ backgroundColor: `${posTintColors[player.pos]}33`, borderColor: `${posTintColors[player.pos]}99` }}
+            >
+              <span className="font-mono font-black text-sm tabular-nums text-white/90">
+                {Math.round(player.perf.l5)}
+              </span>
+            </div>
+            {trendIcon[player.perf.trend]}
           </div>
         </div>
       </div>

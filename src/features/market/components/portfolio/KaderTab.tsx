@@ -10,7 +10,7 @@ import { PositionBadge, MatchIcon } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
-import FormBars from '@/components/fantasy/FormBars';
+import { FormBars } from '@/components/player';
 import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { getPosColor } from './helpers';
