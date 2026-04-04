@@ -689,6 +689,7 @@
     "captainLabel": "Kaptan",
     "captainChosen": "Seçildi (2x Puan)",
     "entryFeeNote": "Katılım ücreti cüzdanından hemen düşülür. Etkinlik başlamadan ayrılırsan iade edilir.",
+    "insufficientSCWarning": "{have} Scout Kartın var ama tüm pozisyonları doldurmak için {need} gerekli. Katılabilirsin ama kadroyu tamamlamak için daha fazla kart almalısın.",
     "confirming": "Kaydediliyor...",
     "confirmBtn": "Onayla",
     "rankResult": "{rank}. sıra",

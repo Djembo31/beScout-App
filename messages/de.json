@@ -689,6 +689,7 @@
     "captainLabel": "Kapitän",
     "captainChosen": "Gewählt (2x Punkte)",
     "entryFeeNote": "Die Teilnahmegebühr wird sofort von deinem Wallet abgezogen. Bei Abmeldung vor Event-Start wird sie erstattet.",
+    "insufficientSCWarning": "Du hast {have} Scout Cards, brauchst aber {need} um alle Plätze zu besetzen. Du kannst beitreten, aber erst mit genug Scout Cards dein Lineup vervollständigen.",
     "confirming": "Wird angemeldet...",
     "confirmBtn": "Bestätigen",
     "rankResult": "Platz {rank}",

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trophy, CheckCircle2, Loader2 } from 'lucide-react';
+import { Trophy, CheckCircle2, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -12,9 +12,11 @@ export interface JoinConfirmDialogProps {
   joining: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  holdingsCount?: number;
+  slotsRequired?: number;
 }
 
-export function JoinConfirmDialog({ event, joining, onConfirm, onCancel }: JoinConfirmDialogProps) {
+export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holdingsCount = 0, slotsRequired = 0 }: JoinConfirmDialogProps) {
   const t = useTranslations('fantasy');
   const ticketCost = event.ticketCost ?? 0;
   const hasCost = ticketCost > 0;
@@ -52,6 +54,14 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel }: JoinC
           <p className="text-xs text-white/40 mb-4">
             {t('entryFeeNote')}
           </p>
+        )}
+        {slotsRequired > 0 && holdingsCount < slotsRequired && (
+          <div className="flex items-start gap-2 p-3 mb-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <AlertTriangle aria-hidden="true" className="size-4 text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-300">
+              {t('insufficientSCWarning', { have: holdingsCount, need: slotsRequired })}
+            </p>
+          </div>
         )}
         <div className="flex gap-3">
           <Button variant="outline" size="lg" fullWidth onClick={onCancel}>

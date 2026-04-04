@@ -5,7 +5,7 @@ import { formatEventCost } from '../helpers';
 import Image from 'next/image';
 import {
   Trophy, Users, Clock, Star, Shield,
-  CheckCircle2, Medal,
+  CheckCircle2, XCircle, Medal,
   Briefcase, Coins, Layers, Swords,
   Building2,
 } from 'lucide-react';
@@ -19,9 +19,11 @@ export interface OverviewPanelProps {
   userId?: string;
   participants: { id: string; handle: string; display_name?: string; avatar_url?: string }[];
   participantCount: number;
+  holdingsCount?: number;
+  slotsRequired?: number;
 }
 
-export default function OverviewPanel({ event, userId, participants, participantCount }: OverviewPanelProps) {
+export default function OverviewPanel({ event, userId, participants, participantCount, holdingsCount = 0, slotsRequired = 0 }: OverviewPanelProps) {
   const t = useTranslations('fantasy');
   const locale = useLocale();
 
@@ -97,14 +99,27 @@ export default function OverviewPanel({ event, userId, participants, participant
       <div>
         <h3 className="font-bold mb-2">{t('requirementsTitle')}</h3>
         <div className="space-y-2">
-          {/* Always show DPC per slot requirement */}
-          <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
-            <div className="flex items-center gap-2">
-              <Layers aria-hidden="true" className="size-4 text-gold" />
-              <span>{t('dpcPerSlotReq', { n: event.requirements.dpcPerSlot ?? 1 })}</span>
-            </div>
-            <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
-          </div>
+          {/* DPC per slot requirement — check against actual holdings */}
+          {(() => {
+            const dpcPerSlot = event.requirements.dpcPerSlot ?? 1;
+            const needTotal = slotsRequired * dpcPerSlot;
+            const hasSufficient = holdingsCount >= slotsRequired;
+            return (
+              <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Layers aria-hidden="true" className="size-4 text-gold" />
+                  <span>{t('dpcPerSlotReq', { n: dpcPerSlot })}</span>
+                  {!hasSufficient && slotsRequired > 0 && (
+                    <span className="text-[10px] text-red-400 font-mono">({holdingsCount}/{slotsRequired})</span>
+                  )}
+                </div>
+                {hasSufficient
+                  ? <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
+                  : <XCircle aria-hidden="true" className="size-5 text-red-400" />
+                }
+              </div>
+            );
+          })()}
           {event.requirements.minDpc && (
             <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">

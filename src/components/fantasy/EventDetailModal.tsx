@@ -460,6 +460,8 @@ export const EventDetailModal = ({
               userId={user?.id}
               participants={participants}
               participantCount={participantCount}
+              holdingsCount={effectiveHoldings.length}
+              slotsRequired={formationSlots.length}
             />
           )}
 
@@ -544,6 +546,8 @@ export const EventDetailModal = ({
             joining={joining}
             onConfirm={handleFinalJoin}
             onCancel={() => setShowJoinConfirm(false)}
+            holdingsCount={effectiveHoldings.length}
+            slotsRequired={formationSlots.length}
           />
         )}
 
