@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   if (!bust && eventsCache && Date.now() < eventsCache.expiresAt) {
     return NextResponse.json(eventsCache.data, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'private, no-cache' },
     });
   }
 
@@ -28,6 +28,6 @@ export async function GET(request: Request) {
 
   eventsCache = { data: data ?? [], expiresAt: Date.now() + ONE_MIN };
   return NextResponse.json(data, {
-    headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+    headers: { 'Cache-Control': 'private, no-cache' },
   });
 }

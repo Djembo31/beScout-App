@@ -103,10 +103,12 @@ export function useEventActions(clubId: string) {
         );
       });
 
-      // Bust server-side event cache FIRST, then invalidate client caches
-      await fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+      // Bust server-side event cache (fire-and-forget — optimistic update already shows correct data)
+      fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+
+      // Invalidate related caches — but NOT events.all (optimistic update is already correct,
+      // and refetching would overwrite it with stale CDN/server-cached data on Vercel)
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-      queryClient.invalidateQueries({ queryKey: qk.events.all });
       queryClient.invalidateQueries({ queryKey: qk.events.usage(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
@@ -242,10 +244,11 @@ export function useEventActions(clubId: string) {
 
       closeEvent(); // close modal
 
-      // Bust server-side event cache FIRST, then invalidate client caches
-      await fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+      // Bust server-side event cache (fire-and-forget — optimistic update already shows correct data)
+      fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+
+      // Invalidate related caches — but NOT events.all (optimistic update is already correct)
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-      queryClient.invalidateQueries({ queryKey: qk.events.all });
       queryClient.invalidateQueries({ queryKey: qk.events.usage(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
