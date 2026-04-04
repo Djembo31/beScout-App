@@ -5,12 +5,7 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { Pos } from '@/types';
 
-const POS_COLORS: Record<Pos, { bg: string; border: string; text: string }> = {
-  GK: { bg: 'bg-emerald-500/20', border: 'border-emerald-400', text: 'text-emerald-300' },
-  DEF: { bg: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-300' },
-  MID: { bg: 'bg-sky-500/20', border: 'border-sky-400', text: 'text-sky-300' },
-  ATT: { bg: 'bg-rose-500/20', border: 'border-rose-400', text: 'text-rose-300' },
-};
+import { posFilter as POS_COLORS } from '@/components/player/positionColors';
 
 const POSITIONS: Pos[] = ['GK', 'DEF', 'MID', 'ATT'];
 

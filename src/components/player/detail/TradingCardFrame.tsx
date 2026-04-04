@@ -4,21 +4,13 @@ import React, { memo, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
-import { posTintColors } from '@/components/player/PlayerRow';
+import { posTintColors, posRingGlow } from '@/components/player/positionColors';
 import { getScoreHex } from '@/components/player/scoreColor';
 import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, cn } from '@/lib/utils';
 import CountryFlag from '@/components/ui/CountryFlag';
 import type { Pos } from '@/types';
 import type { MatchTimelineEntry } from '@/lib/services/scoring';
-
-// Position glow ring — matches Tailwind shadow-glow-* tokens from tailwind.config
-const posRingGlow: Record<Pos, string> = {
-  GK: '0 0 24px rgba(16,185,129,0.25), 0 0 48px rgba(16,185,129,0.12)',
-  DEF: '0 0 24px rgba(245,158,11,0.25), 0 0 48px rgba(245,158,11,0.12)',
-  MID: '0 0 24px rgba(14,165,233,0.25), 0 0 48px rgba(14,165,233,0.12)',
-  ATT: '0 0 24px rgba(244,63,94,0.25), 0 0 48px rgba(244,63,94,0.12)',
-};
 
 export interface CardBackData {
   marketValueEur?: number;

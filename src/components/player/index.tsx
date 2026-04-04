@@ -12,6 +12,7 @@ import { cn, fmtScout } from '@/lib/utils';
 export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
 export { MatchIcon } from './StatIcons';
 export { default as FormBars } from './FormBars';
+export { posTintColors, posColors, posBadgeClasses, posCardBg, posDot, posFilter, posGlowShadows, posRingGlow, posCardFrame } from './positionColors';
 import { getScoreStyle } from './scoreColor';
 
 // ============================================
@@ -36,12 +37,7 @@ export function getL5Bg(l5: number): string {
 // POSITION BADGE
 // ============================================
 
-const posBadgeClasses: Record<Pos, string> = {
-  GK: 'bg-emerald-500/15 border-emerald-400/25 text-emerald-200',
-  DEF: 'bg-amber-500/15 border-amber-400/25 text-amber-200',
-  MID: 'bg-sky-500/15 border-sky-400/25 text-sky-200',
-  ATT: 'bg-rose-500/15 border-rose-400/25 text-rose-200',
-};
+import { posBadgeClasses } from './positionColors';
 
 export function PositionBadge({ pos, size = 'md' }: { pos: Pos; size?: 'sm' | 'md' | 'lg' }) {
   const sizes = { sm: 'px-1.5 py-0.5 text-[10px]', md: 'px-2 py-1 text-[11px]', lg: 'px-3 py-1.5 text-xs' };

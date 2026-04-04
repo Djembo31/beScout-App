@@ -45,7 +45,7 @@ interface FantasyPlayerRowProps {
 
 const rowStateStyles: Record<FantasyPlayerRowProps['rowState'], string> = {
   default: 'bg-transparent',
-  selected: 'bg-green-500/[0.08] border-l-2 border-l-green-500',
+  selected: '',
   locked: 'bg-emerald-500/[0.05]',
   deployed: 'opacity-40',
   injured: 'bg-red-500/[0.05] opacity-70',
@@ -73,10 +73,10 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full text-left px-3 py-2.5 transition-colors',
-        'border-l-2 border-l-transparent',
+        'w-full text-left px-3 py-2.5 transition-colors border-l-2',
         rowStateStyles[rowState],
       )}
+      style={{ borderLeftColor: rowState === 'selected' ? tint : `${tint}40` }}
       aria-label={`${player.first} ${player.last}`}
     >
       <div className="flex gap-3">

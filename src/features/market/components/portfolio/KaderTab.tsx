@@ -7,7 +7,7 @@ import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'l
 import Link from 'next/link';
 import { Card } from '@/components/ui';
 import { PositionBadge, MatchIcon } from '@/components/player';
-import { posTintColors } from '@/components/player/PlayerRow';
+import { posTintColors } from '@/components/player/positionColors';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { FormBars } from '@/components/player';
@@ -54,11 +54,8 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
   return (
     <Link
       href={`/player/${p.id}`}
-      className={cn(
-        'w-full text-left px-3 py-2.5 transition-colors block',
-        'border-l-2 border-l-transparent',
-        isAssigned && 'bg-green-500/[0.06] border-l-green-500',
-      )}
+      className="w-full text-left px-3 py-2.5 transition-colors block border-l-2"
+      style={{ borderLeftColor: isAssigned ? posTintColors[p.pos] : `${posTintColors[p.pos]}40` }}
     >
       <div className="flex gap-3">
         {/* Photo with position glow */}

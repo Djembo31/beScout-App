@@ -11,12 +11,7 @@ import { cn } from '@/lib/utils';
 import type { ClubLookup } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
 
-const POS_DOT: Record<Pos, string> = {
-  GK: 'bg-emerald-400',
-  DEF: 'bg-amber-400',
-  MID: 'bg-sky-400',
-  ATT: 'bg-rose-400',
-};
+import { posDot as POS_DOT } from '@/components/player/positionColors';
 
 const POS_LABEL: Record<Pos, string> = {
   GK: 'TW',

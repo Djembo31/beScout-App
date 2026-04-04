@@ -16,28 +16,7 @@ import { fmtScout, cn, countryToFlag } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbIpo, Pos } from '@/types';
 
-const posTint: Record<Pos, { border: string; glow: string; bg: string }> = {
-  GK: {
-    border: 'border-emerald-400/30',
-    glow: '0 4px 20px rgba(16,185,129,0.15), inset 0 1px 0 rgba(16,185,129,0.08)',
-    bg: 'from-emerald-500/[0.08] to-transparent',
-  },
-  DEF: {
-    border: 'border-amber-400/30',
-    glow: '0 4px 20px rgba(245,158,11,0.15), inset 0 1px 0 rgba(245,158,11,0.08)',
-    bg: 'from-amber-500/[0.08] to-transparent',
-  },
-  MID: {
-    border: 'border-sky-400/30',
-    glow: '0 4px 20px rgba(14,165,233,0.15), inset 0 1px 0 rgba(14,165,233,0.08)',
-    bg: 'from-sky-500/[0.08] to-transparent',
-  },
-  ATT: {
-    border: 'border-rose-400/30',
-    glow: '0 4px 20px rgba(244,63,94,0.15), inset 0 1px 0 rgba(244,63,94,0.08)',
-    bg: 'from-rose-500/[0.08] to-transparent',
-  },
-};
+import { posCardFrame as posTint } from '@/components/player/positionColors';
 
 const trendIcon: Record<string, React.ReactNode> = {
   UP: <TrendingUp className="size-3 text-emerald-400" aria-hidden="true" />,

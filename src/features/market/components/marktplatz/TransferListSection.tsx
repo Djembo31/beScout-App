@@ -178,7 +178,8 @@ export default function TransferListSection({
               >
                 <Link
                   href={`/player/${p.id}`}
-                  className="flex items-center gap-3 px-3 py-3 group"
+                  className="flex items-center gap-3 px-3 py-3 group border-l-2"
+                  style={{ borderLeftColor: `${posTintColors[p.pos]}40` }}
                 >
                   {/* Player identity */}
                   <PlayerIdentity player={p} size="sm" showStatus className="flex-1 min-w-0" />

@@ -19,36 +19,11 @@ import {
 } from './index';
 
 // ============================================
-// SHARED DESIGN TOKENS
+// SHARED DESIGN TOKENS — Single Source: positionColors.ts
 // ============================================
 
-export const posColors: Record<Pos, { bg: string; border: string; text: string }> = {
-  GK: { bg: 'bg-emerald-500/20', border: 'border-emerald-400/30', text: 'text-emerald-200' },
-  DEF: { bg: 'bg-amber-500/20', border: 'border-amber-400/30', text: 'text-amber-200' },
-  MID: { bg: 'bg-sky-500/20', border: 'border-sky-400/30', text: 'text-sky-200' },
-  ATT: { bg: 'bg-rose-500/20', border: 'border-rose-400/30', text: 'text-rose-200' },
-};
-
-export const posTintColors: Record<Pos, string> = {
-  GK: '#34d399',   // emerald-400
-  DEF: '#fbbf24',  // amber-400
-  MID: '#38bdf8',  // sky-400
-  ATT: '#fb7185',  // rose-400
-};
-
-const posCardBg: Record<Pos, string> = {
-  GK: 'bg-emerald-500/[0.06]',
-  DEF: 'bg-amber-500/[0.06]',
-  MID: 'bg-sky-500/[0.06]',
-  ATT: 'bg-rose-500/[0.06]',
-};
-
-const posGlowShadows: Record<Pos, string> = {
-  GK: '0 4px 24px rgba(16,185,129,0.20), inset 0 1px 0 rgba(16,185,129,0.10)',
-  DEF: '0 4px 24px rgba(245,158,11,0.20), inset 0 1px 0 rgba(245,158,11,0.10)',
-  MID: '0 4px 24px rgba(14,165,233,0.20), inset 0 1px 0 rgba(14,165,233,0.10)',
-  ATT: '0 4px 24px rgba(244,63,94,0.20), inset 0 1px 0 rgba(244,63,94,0.10)',
-};
+export { posColors, posTintColors, posCardBg, posGlowShadows } from './positionColors';
+import { posColors, posTintColors, posCardBg, posGlowShadows } from './positionColors';
 
 /** Returns true if a hex color is too dark to read on a dark background */
 const isColorDark = (hex: string): boolean => {

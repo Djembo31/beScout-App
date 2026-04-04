@@ -16,7 +16,7 @@ export function SquadOverviewWidget({ players }: { players: Player[] }) {
   }, [players]);
 
   const total = players.length;
-  const posColors: Record<Pos, string> = { GK: 'bg-emerald-500', DEF: 'bg-amber-500', MID: 'bg-sky-500', ATT: 'bg-rose-500' };
+  const posColors: Record<Pos, string> = { GK: 'bg-emerald-400', DEF: 'bg-amber-400', MID: 'bg-sky-400', ATT: 'bg-rose-400' };
   const posLabels: Record<Pos, string> = { GK: t('posGK'), DEF: t('posDEF'), MID: t('posMID'), ATT: t('posATT') };
 
   return (
