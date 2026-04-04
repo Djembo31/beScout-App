@@ -200,7 +200,7 @@ export function PlayerPicker({
             </div>
           </div>
           {/* Sort + Filter */}
-          <div className="px-4 pb-2.5">
+          <div className="px-4 pb-2">
             <PickerSortFilter
               sort={pickerSort}
               onSortChange={setPickerSort}

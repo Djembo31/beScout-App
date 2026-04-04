@@ -63,10 +63,10 @@ export function PickerSortFilter({
   const showSynergy = synergyClubs.length > 0;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       {/* Sort pills */}
       <div
-        className="flex gap-2 overflow-x-auto scrollbar-hide px-1"
+        className="flex gap-1.5 overflow-x-auto scrollbar-hide px-1"
         role="group"
         aria-label="Sort options"
       >
@@ -78,7 +78,7 @@ export function PickerSortFilter({
               type="button"
               onClick={() => onSortChange(opt.key)}
               className={cn(
-                'shrink-0 min-h-[44px] rounded-full px-4 py-2 text-sm transition-colors',
+                'shrink-0 min-h-[36px] rounded-full px-3.5 py-1.5 text-xs transition-colors',
                 isActive
                   ? 'bg-white/10 text-white font-bold'
                   : 'text-white/40 hover:text-white/60'
@@ -92,7 +92,7 @@ export function PickerSortFilter({
 
       {/* Filter chips */}
       <div
-        className="flex gap-2 overflow-x-auto scrollbar-hide px-1"
+        className="flex gap-1.5 overflow-x-auto scrollbar-hide px-1"
         role="group"
         aria-label="Filter options"
       >
@@ -101,7 +101,7 @@ export function PickerSortFilter({
           type="button"
           onClick={() => onOnlyAvailableChange(!onlyAvailable)}
           className={cn(
-            'shrink-0 min-h-[44px] rounded-full border px-3 py-2 text-xs transition-colors',
+            'shrink-0 min-h-[36px] rounded-full border px-3 py-1.5 text-xs transition-colors',
             onlyAvailable
               ? 'bg-gold/10 border-gold/20 text-gold'
               : 'border-white/10 text-white/40 hover:text-white/60'
@@ -116,7 +116,7 @@ export function PickerSortFilter({
             type="button"
             onClick={() => onSynergyOnlyChange(!synergyOnly)}
             className={cn(
-              'shrink-0 min-h-[44px] rounded-full border px-3 py-2 text-xs transition-colors',
+              'shrink-0 min-h-[36px] rounded-full border px-3 py-1.5 text-xs transition-colors',
               synergyOnly
                 ? 'bg-gold/10 border-gold/20 text-gold'
                 : 'border-white/10 text-white/40 hover:text-white/60'
@@ -135,7 +135,7 @@ export function PickerSortFilter({
               type="button"
               onClick={() => toggleClub(club.short)}
               className={cn(
-                'shrink-0 min-h-[44px] flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs transition-colors',
+                'shrink-0 min-h-[36px] flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors',
                 isActive
                   ? 'bg-gold/10 border-gold/20 text-gold'
                   : 'border-white/10 text-white/40 hover:text-white/60'
