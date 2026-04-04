@@ -79,7 +79,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
         <button
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
           className={cn(
-            'flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-[11px] font-bold transition-colors min-h-[44px] border',
+            'flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-[10px] font-bold transition-colors min-h-[44px] border',
             'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
             showAdvancedFilters || activeFilterCount > 0
               ? 'bg-white/10 text-white border-white/15'

@@ -40,7 +40,7 @@ export function getL5Bg(l5: number): string {
 import { posBadgeClasses } from './positionColors';
 
 export function PositionBadge({ pos, size = 'md' }: { pos: Pos; size?: 'sm' | 'md' | 'lg' }) {
-  const sizes = { sm: 'px-1.5 py-0.5 text-[10px]', md: 'px-2 py-1 text-[11px]', lg: 'px-3 py-1.5 text-xs' };
+  const sizes = { sm: 'px-1.5 py-0.5 text-[10px]', md: 'px-2 py-1 text-[10px]', lg: 'px-3 py-1.5 text-xs' };
   return (
     <span className={cn('inline-flex items-center justify-center rounded-xl border font-black', posBadgeClasses[pos], sizes[size])}>
       {pos}
@@ -69,7 +69,7 @@ export function StatusBadge({ status, lastGw }: { status: PlayerStatus; lastGw?:
     : status.toUpperCase();
 
   return (
-    <span className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[11px] font-black', statusClasses[status])}>
+    <span className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[10px] font-black', statusClasses[status])}>
       <AlertTriangle className="size-3.5" />
       {label}
     </span>
@@ -276,7 +276,7 @@ export function IPOBadge({ status, progress }: { status: string; progress?: numb
   if (!isLive && !isAnnounced) return null;
   return (
     <span
-      className={cn('inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black', isLive ? 'bg-green-500/15 border-green-500/25 text-green-500' : 'bg-gold/15 border-gold/25 text-gold')}
+      className={cn('inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[10px] font-black', isLive ? 'bg-green-500/15 border-green-500/25 text-green-500' : 'bg-gold/15 border-gold/25 text-gold')}
     >
       {isLive ? tp('ipoFirstSale') : tp('ipoSoon')}
       {isLive && progress !== undefined && <span className="font-mono tabular-nums">{progress}%</span>}
@@ -356,7 +356,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
           {showStatus && <StatusBadge status={player.status} lastGw={player.lastAppearanceGw} />}
         </div>
         {showMeta && (
-          <div className="flex items-center gap-1 text-[10px] md:text-[11px] text-white/40">
+          <div className="flex items-center gap-1 text-[10px] md:text-[10px] text-white/40">
             <span className="truncate">
               {player.club}
               {useTrikot && <> · <span className="font-mono text-white/30">#{player.ticket}</span></>}
@@ -491,7 +491,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
   const l5Color = getL5Color(l5);
   const up = player.prices.change24h >= 0;
 
-  const kpiCls = 'text-[10px] md:text-[11px] font-mono tabular-nums';
+  const kpiCls = 'text-[10px] md:text-[10px] font-mono tabular-nums';
   const labelCls = 'text-white/30 mr-0.5';
 
   const kpis: React.ReactNode[] = [];

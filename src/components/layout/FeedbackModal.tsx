@@ -104,7 +104,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
 
       {/* Char count + page info */}
       <div className="flex items-center justify-between mt-2 mb-4">
-        <span className="text-[11px] text-white/40 truncate max-w-[60%]">
+        <span className="text-[10px] text-white/40 truncate max-w-[60%]">
           {pageUrl}
         </span>
         <span className={cn('text-xs font-mono tabular-nums', charCount > 0 && charCount < 10 ? 'text-red-400' : 'text-white/40')}>

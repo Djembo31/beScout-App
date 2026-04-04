@@ -264,7 +264,7 @@ export default function TimelineTab({ transactions: initial, ticketTransactions:
               <div key={dayKey}>
                 {/* Day Header */}
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[11px] text-white/30 font-bold uppercase tracking-wider whitespace-nowrap">
+                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-wider whitespace-nowrap">
                     {getDayLabel(dayKey, todayKey, yesterdayKey, t('todayLabel'), t('yesterdayLabel'), dateLocale)}
                   </span>
                   <div className="flex-1 h-px bg-white/[0.06]" />
@@ -296,7 +296,7 @@ export default function TimelineTab({ transactions: initial, ticketTransactions:
                           <div className="text-sm font-medium leading-snug">
                             {tx.description || (isTicket ? t(`ticketSource_${tx.type}`) : ta(getActivityLabelKey(tx.type)))}
                           </div>
-                          <div className="text-[11px] text-white/25 mt-0.5">
+                          <div className="text-[10px] text-white/25 mt-0.5">
                             {getRelativeTime(tx.created_at, ta('justNow'), dateLocale)}
                           </div>
                         </div>

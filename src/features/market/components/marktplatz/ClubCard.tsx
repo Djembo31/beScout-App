@@ -107,14 +107,14 @@ export default function ClubCard({
           <div className="size-7 rounded-full flex-shrink-0 border border-white/10" style={{ backgroundColor: pc }} />
         )}
         <div className="min-w-0 flex-1">
-          <div className="font-black text-[11px] text-white truncate leading-tight">{club.name}</div>
-          <div className="text-[9px] text-white/35 truncate leading-tight">{club.league}</div>
+          <div className="font-black text-[10px] text-white truncate leading-tight">{club.name}</div>
+          <div className="text-[9px] text-white/40 truncate leading-tight">{club.league}</div>
         </div>
       </div>
 
       {/* Stats: DPC count + position dots */}
       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-        <span className="font-mono font-black text-[11px] text-gold tabular-nums">{players.length}</span>
+        <span className="font-mono font-black text-[10px] text-gold tabular-nums">{players.length}</span>
         <span className="text-[9px] text-white/40">Scout Cards</span>
         <span className="text-white/10 mx-0.5">|</span>
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
@@ -138,10 +138,10 @@ export default function ClubCard({
           />
         </div>
         <div className="flex items-center justify-between mt-0.5">
-          <span className="text-[9px] text-white/35 tabular-nums font-mono">
+          <span className="text-[9px] text-white/40 tabular-nums font-mono">
             {totalSold}/{totalOffered}
           </span>
-          <span className="text-[9px] text-white/45 tabular-nums font-mono font-bold">
+          <span className="text-[9px] text-white/40 tabular-nums font-mono font-bold">
             {totalOffered - totalSold} {t('available', { defaultMessage: 'verfügbar' })}
           </span>
         </div>

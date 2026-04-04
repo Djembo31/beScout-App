@@ -55,7 +55,7 @@ export function InstallPrompt() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold">{t('installTitle')}</div>
-          <div className="text-[11px] text-white/50">{t('installSubtitle')}</div>
+          <div className="text-[10px] text-white/50">{t('installSubtitle')}</div>
         </div>
         <button
           onClick={handleInstall}

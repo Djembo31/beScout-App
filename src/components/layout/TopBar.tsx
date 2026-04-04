@@ -155,7 +155,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <Search className="size-4 shrink-0" />
             <span className="flex-1 text-left truncate">{t('searchPlaceholder')}</span>
             <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono text-white/25 bg-white/5 border border-white/10 rounded-md">
-              <span className="text-[11px]">&#8984;</span>K
+              <span className="text-[10px]">&#8984;</span>K
             </kbd>
           </button>
         </div>

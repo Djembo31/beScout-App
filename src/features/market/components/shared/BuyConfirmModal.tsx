@@ -111,7 +111,7 @@ export default function BuyConfirmModal({
 
         {/* Community Sentiment (Scout Reports) */}
         {sentiment && sentiment.total > 0 && (
-          <div className="flex items-center gap-2 text-[11px]">
+          <div className="flex items-center gap-2 text-[10px]">
             <span className="text-white/40 font-semibold">{t('communityLabel', { defaultMessage: 'Community' })}:</span>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1 text-emerald-400">

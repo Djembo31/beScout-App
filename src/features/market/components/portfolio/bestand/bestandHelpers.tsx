@@ -124,7 +124,7 @@ export function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: 
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className={cn('text-[11px] font-mono font-black', getL5Color(l5))}>L5 {l5}</span>
+      <span className={cn('text-[10px] font-mono font-black', getL5Color(l5))}>L5 {l5}</span>
       <span className="text-[10px] font-mono text-white/40">L15 {l15}</span>
       <TrendIcon className={cn('w-3 h-3', trendColor)} />
     </div>

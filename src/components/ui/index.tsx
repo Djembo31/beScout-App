@@ -329,7 +329,7 @@ export function InfoTooltip({ text }: { text: string }) {
       </button>
       {open && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[min(13rem,calc(100vw-2rem))] p-2.5 rounded-xl bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] shadow-card-md z-50 anim-dropdown">
-          <div className="text-[11px] text-white/70 leading-relaxed">{text}</div>
+          <div className="text-[10px] text-white/70 leading-relaxed">{text}</div>
           <div className="absolute top-full left-1/2 -translate-x-1/2 size-2 rotate-45 bg-surface-popover/90 border-r border-b border-white/[0.12] -mt-1" />
         </div>
       )}

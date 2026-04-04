@@ -99,8 +99,8 @@ export default function DiscoveryCard({
 
       {/* Metrics: L5 + Price */}
       <div className="flex items-center justify-between">
-        <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))} style={{ textShadow: p.perf.l5 >= 65 ? '0 0 8px currentColor' : undefined }}>{p.perf.l5}</span>
-        {price > 0 && <span className="font-mono font-black text-[11px] gold-glow">{fmtScout(price)}</span>}
+        <span className={cn('font-mono font-bold text-[10px]', getL5Color(p.perf.l5))} style={{ textShadow: p.perf.l5 >= 65 ? '0 0 8px currentColor' : undefined }}>{p.perf.l5}</span>
+        {price > 0 && <span className="font-mono font-black text-[10px] gold-glow">{fmtScout(price)}</span>}
       </div>
 
       {/* 24h Change badge — all non-trending variants */}

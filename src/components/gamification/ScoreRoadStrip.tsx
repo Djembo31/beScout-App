@@ -116,11 +116,11 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
 
       {/* Next milestone label OR all-complete */}
       {allComplete ? (
-        <span className="text-[11px] font-bold text-gold shrink-0">
+        <span className="text-[10px] font-bold text-gold shrink-0">
           {tsr('allClaimed')}
         </span>
       ) : nextMilestone ? (
-        <span className="text-[11px] text-white/40 font-mono tabular-nums shrink-0">
+        <span className="text-[10px] text-white/40 font-mono tabular-nums shrink-0">
           {tsr('progress', { current: medianScore, target: nextMilestone.score })}
         </span>
       ) : null}
@@ -129,7 +129,7 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
       {claimableCount > 0 && (
         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold/15 border border-gold/25 shrink-0 animate-pulse motion-reduce:animate-none">
           <Gift className="size-3 text-gold" />
-          <span className="text-[11px] font-bold text-gold">
+          <span className="text-[10px] font-bold text-gold">
             {claimableCount}
           </span>
         </span>

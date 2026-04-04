@@ -105,7 +105,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
         {/* Podium medals line */}
         {stats && (stats.gold > 0 || stats.silver > 0 || stats.bronze > 0) && (
           <div className="flex items-center gap-3 pt-2 border-t border-divider">
-            <span className="text-[11px] text-white/40 font-medium">{t('podiums')}</span>
+            <span className="text-[10px] text-white/40 font-medium">{t('podiums')}</span>
             <div className="flex items-center gap-3 text-[13px] font-mono tabular-nums">
               <span>{MEDAL[1]}{stats.gold}</span>
               <span>{MEDAL[2]}{stats.silver}</span>
@@ -127,7 +127,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
                   {r.gameweek != null ? `GW ${r.gameweek}` : ''}{r.gameweek != null && r.eventName ? ' \u00B7 ' : ''}{r.eventName}
                 </span>
               </div>
-              <div className="text-[11px] text-white/40 mt-0.5 font-mono tabular-nums">
+              <div className="text-[10px] text-white/40 mt-0.5 font-mono tabular-nums">
                 Score: {r.totalScore} &middot; Rank: #{r.rank} &middot; +{formatScout(r.rewardAmount)} bC
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
                 {FAN_RANK_LABELS[fanRanking.rank_tier] ?? fanRanking.rank_tier}
               </div>
               {favoriteClubName && (
-                <div className="text-[11px] text-white/40 mt-0.5">{favoriteClubName}</div>
+                <div className="text-[10px] text-white/40 mt-0.5">{favoriteClubName}</div>
               )}
             </div>
             <div className="flex-1" />
@@ -162,7 +162,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
               <div className="text-sm font-mono font-bold tabular-nums text-white/70">
                 {fanRanking.total_score.toLocaleString(numLocale)}
               </div>
-              <div className="text-[11px] text-white/30">Score</div>
+              <div className="text-[10px] text-white/30">Score</div>
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@ function StatCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
       <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{value}</div>
-      <div className="text-[11px] text-white/40 mt-0.5">{label}</div>
+      <div className="text-[10px] text-white/40 mt-0.5">{label}</div>
     </div>
   );
 }

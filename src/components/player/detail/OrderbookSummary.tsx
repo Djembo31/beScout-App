@@ -59,19 +59,19 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
         {/* Best Bid / Spread / Best Ask */}
         <div className="flex items-center justify-between mb-4">
           <div className="text-center">
-            <p className="text-[10px] text-white/35 uppercase tracking-wider font-semibold">{t('bestBid')}</p>
+            <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">{t('bestBid')}</p>
             <p className="font-mono font-bold text-green-500 tabular-nums">
               {bestBid ? fmtScout(bestBid) : '\u2013'}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-white/35 uppercase tracking-wider font-semibold">{t('quickStatsSpread')}</p>
+            <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">{t('quickStatsSpread')}</p>
             <p className={cn('font-mono font-bold tabular-nums', spreadColor)}>
               {spreadPct ? `${spreadPct}%` : '\u2013'}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-white/35 uppercase tracking-wider font-semibold">{t('bestAsk')}</p>
+            <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">{t('bestAsk')}</p>
             <p className="font-mono font-bold text-red-400 tabular-nums">
               {bestAsk ? fmtScout(bestAsk) : '\u2013'}
             </p>

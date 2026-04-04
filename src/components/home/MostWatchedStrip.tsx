@@ -50,11 +50,11 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
           />
           <div className="min-w-0 flex-1">
             <div className="text-sm font-bold truncate">{p.lastName}</div>
-            <div className="text-[11px] text-white/50 truncate">{p.club}</div>
+            <div className="text-[10px] text-white/50 truncate">{p.club}</div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <Eye className="size-3 text-white/40" aria-hidden="true" />
-            <span className="text-[11px] font-mono tabular-nums text-white/50">
+            <span className="text-[10px] font-mono tabular-nums text-white/50">
               {p.watcherCount}
             </span>
           </div>

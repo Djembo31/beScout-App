@@ -154,7 +154,7 @@ export default function TradeSuccessCard({
                 <PositionBadge pos={player.pos} size="sm" />
               </div>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[11px] font-bold text-gold/80">
+                <span className="text-[10px] font-bold text-gold/80">
                   +{quantity} SC
                 </span>
                 <span className="text-[10px] text-white/30">

@@ -111,7 +111,7 @@ export default function FanRankOverview({
           return (
             <div key={dim.key}>
               <div className="flex items-center justify-between mb-1">
-                <span className={cn('text-[11px] font-semibold', dim.color)}>
+                <span className={cn('text-[10px] font-semibold', dim.color)}>
                   {t(dim.i18nKey)}
                 </span>
                 <div className="flex items-center gap-1.5">

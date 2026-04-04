@@ -37,10 +37,10 @@ function TopMoversStripInner({ players }: TopMoversStripProps) {
             <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={36} />
             <div className="min-w-0 flex-1">
               <div className="text-sm font-bold truncate">{p.last}</div>
-              <div className="text-[11px] text-white/40 truncate">{p.club}</div>
+              <div className="text-[10px] text-white/40 truncate">{p.club}</div>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-[11px] text-white/40 font-mono tabular-nums">{fmtScout(p.prices.floor ?? p.prices.lastTrade ?? p.prices.referencePrice ?? 0)}</div>
+              <div className="text-[10px] text-white/40 font-mono tabular-nums">{fmtScout(p.prices.floor ?? p.prices.lastTrade ?? p.prices.referencePrice ?? 0)}</div>
               <div className={cn('flex items-center gap-0.5 font-mono font-bold text-sm tabular-nums', up ? 'text-green-500' : 'text-red-400')}>
                 <Icon className="size-3" aria-hidden="true" />
                 {changeText}

@@ -152,7 +152,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                         <ArrowUp className="w-3 h-3" />
                       </button>
                       <span className={cn(
-                        'font-mono text-[11px]',
+                        'font-mono text-[10px]',
                         netScore > 0 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/30'
                       )}>
                         {netScore}

@@ -62,7 +62,7 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
       <h3 className="font-black text-sm text-white/80 mb-3">Event Fee Config</h3>
 
       {/* Header */}
-      <div className="grid grid-cols-[1fr_80px_80px_80px_80px] gap-2 text-[11px] text-white/30 font-bold uppercase tracking-wider mb-2 px-1">
+      <div className="grid grid-cols-[1fr_80px_80px_80px_80px] gap-2 text-[10px] text-white/30 font-bold uppercase tracking-wider mb-2 px-1">
         <div>Type</div>
         <div className="text-right">Platform</div>
         <div className="text-right">Beneficiary</div>
@@ -151,7 +151,7 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
                       setEditType(config.event_type);
                       setEditValues({ platform_pct: config.platform_pct, beneficiary_pct: config.beneficiary_pct });
                     }}
-                    className="text-[11px] px-2 py-0.5 rounded bg-white/10 text-white/50 hover:bg-white/20 transition-colors"
+                    className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/50 hover:bg-white/20 transition-colors"
                   >
                     Edit
                   </button>
@@ -159,14 +159,14 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
                   <div className="flex gap-1 justify-end">
                     <button
                       onClick={() => setEditType(null)}
-                      className="text-[11px] px-2 py-0.5 rounded bg-white/10 text-white/40 hover:bg-white/20 transition-colors"
+                      className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/40 hover:bg-white/20 transition-colors"
                     >
                       \u2715
                     </button>
                     <button
                       onClick={() => handleSave(config.event_type)}
                       disabled={saving}
-                      className="text-[11px] px-2 py-0.5 rounded bg-gold/20 text-gold hover:bg-gold/30 transition-colors disabled:opacity-40"
+                      className="text-[10px] px-2 py-0.5 rounded bg-gold/20 text-gold hover:bg-gold/30 transition-colors disabled:opacity-40"
                     >
                       {saving ? '\u2026' : '\u2713'}
                     </button>

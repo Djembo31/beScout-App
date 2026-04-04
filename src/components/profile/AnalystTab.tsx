@@ -60,7 +60,7 @@ function CallIcon({ call }: { call: string }) {
 function RatingStars({ rating }: { rating: number }) {
   const full = Math.round(rating);
   return (
-    <span className="inline-flex items-center gap-px text-[11px]" aria-label={`${rating.toFixed(1)} von 5`}>
+    <span className="inline-flex items-center gap-px text-[10px]" aria-label={`${rating.toFixed(1)} von 5`}>
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
@@ -159,7 +159,7 @@ export default function AnalystTab({
           </p>
           {isSelf && (
             <>
-              <p className="text-[11px] text-white/40 mb-4">{tp('analystEmptyDesc')}</p>
+              <p className="text-[10px] text-white/40 mb-4">{tp('analystEmptyDesc')}</p>
               <Link href="/community">
                 <Button size="sm">{tp('writeResearch')}</Button>
               </Link>
@@ -196,11 +196,11 @@ export default function AnalystTab({
               )}>
                 {trackRecord.hitRate}%
               </div>
-              <div className="text-[11px] text-white/40 mt-1">{tp('hitRateLabel')}</div>
+              <div className="text-[10px] text-white/40 mt-1">{tp('hitRateLabel')}</div>
             </div>
 
             {/* Breakdown */}
-            <div className="flex items-center justify-center gap-4 text-[11px] text-white/50">
+            <div className="flex items-center justify-center gap-4 text-[10px] text-white/50">
               <span className="flex items-center gap-1">
                 <CheckCircle className="size-3 text-green-500" aria-hidden="true" />
                 {trackRecord.correctCalls} {tg('correct', { defaultMessage: 'Correct' })}
@@ -218,7 +218,7 @@ export default function AnalystTab({
             {/* Verified badge */}
             {trackRecord.hitRate >= 60 && (
               <div className="flex justify-center mt-3">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-green-500/15 text-green-500 border border-green-500/25">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-green-500/15 text-green-500 border border-green-500/25">
                   <CheckCircle className="size-3" aria-hidden="true" />
                   {tp('verifiedAnalyst')}
                 </span>
@@ -235,11 +235,11 @@ export default function AnalystTab({
                   style={{ width: `${((trackRecord?.totalCalls ?? 0) / 5) * 100}%` }}
                 />
               </div>
-              <span className="text-[11px] text-white/40 font-mono tabular-nums flex-shrink-0">
+              <span className="text-[10px] text-white/40 font-mono tabular-nums flex-shrink-0">
                 {trackRecord?.totalCalls ?? 0}/5
               </span>
             </div>
-            <p className="text-[11px] text-white/40 mt-2">
+            <p className="text-[10px] text-white/40 mt-2">
               {tp('trackRecordRemaining', { remaining: 5 - (trackRecord?.totalCalls ?? 0) })}
             </p>
           </>
@@ -252,7 +252,7 @@ export default function AnalystTab({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black">{tp('researchPosts')}</h3>
             {myResearch.length > 5 && (
-              <Link href="/community" className="text-[11px] text-white/40 hover:text-white/60 transition-colors">
+              <Link href="/community" className="text-[10px] text-white/40 hover:text-white/60 transition-colors">
                 {tp('allResearch')}
               </Link>
             )}
@@ -270,13 +270,13 @@ export default function AnalystTab({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       {post.player_name && post.player_id ? (
-                        <Link href={`/player/${post.player_id}`} className="text-[11px] font-bold text-white/70 hover:text-gold transition-colors">
+                        <Link href={`/player/${post.player_id}`} className="text-[10px] font-bold text-white/70 hover:text-gold transition-colors">
                           {post.player_name}
                         </Link>
                       ) : post.player_name ? (
-                        <span className="text-[11px] font-bold text-white/70">{post.player_name}</span>
+                        <span className="text-[10px] font-bold text-white/70">{post.player_name}</span>
                       ) : null}
-                      <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/5 text-white/40 border border-divider">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/5 text-white/40 border border-divider">
                         {post.horizon}
                       </span>
                     </div>
@@ -286,11 +286,11 @@ export default function AnalystTab({
                   {/* Rating + unlocks + earnings */}
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {post.ratings_count > 0 && <RatingStars rating={post.avg_rating} />}
-                    <span className="text-[11px] text-white/30 font-mono tabular-nums">
+                    <span className="text-[10px] text-white/30 font-mono tabular-nums">
                       {post.unlock_count}x
                     </span>
                     {isSelf && post.total_earned > 0 && (
-                      <span className="text-[11px] text-green-500 font-mono font-bold tabular-nums">
+                      <span className="text-[10px] text-green-500 font-mono font-bold tabular-nums">
                         +{formatScout(post.total_earned)}
                       </span>
                     )}
@@ -321,14 +321,14 @@ export default function AnalystTab({
               const ratio = contentEarnings.maxAmount > 0 ? (amount / contentEarnings.maxAmount) * 100 : 0;
               return (
                 <div key={et.type} className="flex items-center gap-3">
-                  <span className="text-[11px] text-white/50 w-20 flex-shrink-0">{tp(et.labelKey)}</span>
+                  <span className="text-[10px] text-white/50 w-20 flex-shrink-0">{tp(et.labelKey)}</span>
                   <div className="flex-1 h-4 rounded bg-surface-subtle overflow-hidden">
                     <div
                       className="h-full rounded bg-gold/30 transition-[width] duration-500"
                       style={{ width: `${ratio}%` }}
                     />
                   </div>
-                  <span className="text-[11px] text-white/60 font-mono font-bold tabular-nums w-20 text-right flex-shrink-0">
+                  <span className="text-[10px] text-white/60 font-mono font-bold tabular-nums w-20 text-right flex-shrink-0">
                     +{formatScout(amount)}
                   </span>
                 </div>
@@ -336,7 +336,7 @@ export default function AnalystTab({
             })}
           </div>
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-divider">
-            <span className="text-[11px] text-white/40 font-bold">Total</span>
+            <span className="text-[10px] text-white/40 font-bold">Total</span>
             <span className="text-sm font-mono font-bold text-green-500">
               +{formatScout(contentEarnings.total)} CR
             </span>
@@ -353,13 +353,13 @@ export default function AnalystTab({
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">
                 {bountyStats.count}
               </div>
-              <div className="text-[11px] text-white/40 mt-0.5">{tp('approvedLabel')}</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tp('approvedLabel')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
                 +{formatScout(bountyStats.total)}
               </div>
-              <div className="text-[11px] text-white/40 mt-0.5">Credits</div>
+              <div className="text-[10px] text-white/40 mt-0.5">Credits</div>
             </div>
           </div>
         </Card>
@@ -370,30 +370,30 @@ export default function AnalystTab({
         <Card className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black">{tp('creatorStats')}</h3>
-            <Link href="/community" className="text-[11px] text-gold hover:text-gold/80 transition-colors font-bold">
+            <Link href="/community" className="text-[10px] text-gold hover:text-gold/80 transition-colors font-bold">
               {tp('writeResearch')}
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{creatorStats.postCount}</div>
-              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorPosts')}</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tp('creatorPosts')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{creatorStats.totalUnlocks}</div>
-              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorUnlocks')}</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tp('creatorUnlocks')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">
                 {creatorStats.ratedCount > 0 ? creatorStats.avgRating.toFixed(1) : '—'}
               </div>
-              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorAvgRating')}</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tp('creatorAvgRating')}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
                 +{formatScout(creatorStats.totalEarned)}
               </div>
-              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorTotalEarned')}</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tp('creatorTotalEarned')}</div>
             </div>
           </div>
         </Card>
@@ -412,7 +412,7 @@ export default function AnalystTab({
             {payoutSummary.recent.map(payout => (
               <div key={payout.id} className="flex items-center justify-between p-2.5 rounded-xl bg-surface-minimal">
                 <div className="min-w-0">
-                  <div className="text-[11px] text-white/50">
+                  <div className="text-[10px] text-white/50">
                     {new Date(payout.period_start).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
                     {' – '}
                     {new Date(payout.period_end).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
@@ -423,7 +423,7 @@ export default function AnalystTab({
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className={cn(
-                    'text-[11px] font-mono font-bold tabular-nums',
+                    'text-[10px] font-mono font-bold tabular-nums',
                     payout.status === 'paid' ? 'text-green-500' : payout.status === 'pending' ? 'text-amber-400' : 'text-white/30',
                   )}>
                     {payout.status === 'paid' ? '+' : ''}{formatScout(payout.payout_cents)}
@@ -467,7 +467,7 @@ function ExpertBadgesCard({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-black">{tp('expertBadges')}</h3>
-        <span className="text-[11px] text-white/40">
+        <span className="text-[10px] text-white/40">
           {tp('badgesUnlocked', { count: earnedCount, total: badges.length })}
         </span>
       </div>
@@ -493,7 +493,7 @@ function ExpertBadgesCard({
                   : <Lock className="size-3.5 text-white/20" aria-hidden="true" />}
               </div>
               <div className="min-w-0 flex-1">
-                <div className={cn('text-[11px] font-bold', badge.earned ? badge.color : 'text-white/30')}>
+                <div className={cn('text-[10px] font-bold', badge.earned ? badge.color : 'text-white/30')}>
                   {tg(`badge.${badge.key}`)}
                 </div>
                 {!badge.earned && (
@@ -504,7 +504,7 @@ function ExpertBadgesCard({
                         style={{ width: `${badge.progress}%` }}
                       />
                     </div>
-                    <div className="text-[11px] text-white/20 mt-0.5">{badge.progress}%</div>
+                    <div className="text-[10px] text-white/20 mt-0.5">{badge.progress}%</div>
                   </div>
                 )}
               </div>

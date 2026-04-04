@@ -73,7 +73,7 @@ export default function DailyChallengeCard({
         <p className="text-sm text-white/30">{t('noChallengeToday')}</p>
         {onOpenMysteryBox && (
           <div className="mt-3 pt-3 border-t border-divider flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+            <span className="flex items-center gap-1.5 text-[10px] text-white/50">
               <Ticket className="size-3.5 text-gold/60" />
               <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
               {' '}{t('tickets')}
@@ -82,7 +82,7 @@ export default function DailyChallengeCard({
             <button
               onClick={onOpenMysteryBox}
               disabled={isSubmitting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[10px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors disabled:opacity-50 disabled:pointer-events-none"
             >
               <Gift className="size-3.5" />
               {t('mysteryBox')}
@@ -142,7 +142,7 @@ export default function DailyChallengeCard({
           <span className="font-black text-sm">{t('dailyChallenge')}</span>
         </div>
         {!hasAnswered && (
-          <span className="text-[11px] font-mono tabular-nums text-gold/60 flex items-center gap-1">
+          <span className="text-[10px] font-mono tabular-nums text-gold/60 flex items-center gap-1">
             <Ticket className="size-3" />
             +{challenge.reward_correct}
           </span>
@@ -214,7 +214,7 @@ export default function DailyChallengeCard({
       {/* Streak Counter + Active Benefits */}
       {streakDays > 0 && (
         <div className="mt-3">
-          <div className="flex items-center justify-between text-[11px] text-white/40">
+          <div className="flex items-center justify-between text-[10px] text-white/40">
             <span className="flex items-center gap-1">
               <Flame className="size-3 text-orange-400" />
               {t('streakDays', { days: streakDays })}
@@ -239,7 +239,7 @@ export default function DailyChallengeCard({
       {/* Footer — Ticket Balance + Mystery Box */}
       {onOpenMysteryBox && (
         <div className="mt-3 pt-3 border-t border-divider flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+          <span className="flex items-center gap-1.5 text-[10px] text-white/50">
             <Ticket className="size-3.5 text-gold/60" />
             <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
             {' '}{t('tickets')}
@@ -248,7 +248,7 @@ export default function DailyChallengeCard({
           <button
             onClick={onOpenMysteryBox}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors disabled:opacity-50 disabled:pointer-events-none"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[10px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors disabled:opacity-50 disabled:pointer-events-none"
           >
             <Gift className="size-3.5" />
             {t('mysteryBox')}

@@ -30,7 +30,7 @@ export default function BeScoutIntroCard() {
             <Icon className={`size-5 ${color}`} aria-hidden="true" />
             <div>
               <div className="text-sm font-bold">{t(key)}</div>
-              <div className="text-[11px] text-white/40 leading-relaxed">{t(`${key}Desc`)}</div>
+              <div className="text-[10px] text-white/40 leading-relaxed">{t(`${key}Desc`)}</div>
             </div>
           </Link>
         ))}

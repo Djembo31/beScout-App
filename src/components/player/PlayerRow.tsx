@@ -260,7 +260,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
             </span>
             <span className="text-white/30 text-[10px]">Credits</span>
             {!ipoData && (
-              <span className={cn('text-[11px] font-mono font-bold ml-1 tabular-nums', up ? 'text-green-500' : 'text-red-400')}>
+              <span className={cn('text-[10px] font-mono font-bold ml-1 tabular-nums', up ? 'text-green-500' : 'text-red-400')}>
                 {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
               </span>
             )}

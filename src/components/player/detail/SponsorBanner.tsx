@@ -97,7 +97,7 @@ export default function SponsorBanner({ placement, clubId, sponsor: directSponso
     <div ref={bannerRef} className={`bg-surface-minimal border border-divider rounded-xl px-4 py-2.5 flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2">
         <Zap className="w-3.5 h-3.5 text-gold/50" />
-        <span className="text-[11px] font-bold text-white/30 uppercase">
+        <span className="text-[10px] font-bold text-white/30 uppercase">
           {label}
         </span>
       </div>

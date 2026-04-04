@@ -39,7 +39,7 @@ function MasteryStars({ level }: { level: number }) {
   const filled = Math.min(Math.max(level, 0), 5);
   const empty = 5 - filled;
   return (
-    <span className="text-[11px] text-gold/80 tracking-tight" aria-label={`Mastery Level ${filled}`}>
+    <span className="text-[10px] text-gold/80 tracking-tight" aria-label={`Mastery Level ${filled}`}>
       {'★'.repeat(filled)}{'☆'.repeat(empty)}
     </span>
   );
@@ -217,7 +217,7 @@ export default function TraderTab({
         <Card className="p-4 md:p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-black text-sm">{tp('topHoldings')}</h3>
-            <Link href="/market" className="text-[11px] text-gold hover:text-gold/80 transition-colors">
+            <Link href="/market" className="text-[10px] text-gold hover:text-gold/80 transition-colors">
               {tp('fullSquad')}
             </Link>
           </div>
@@ -254,7 +254,7 @@ export default function TraderTab({
                       <div className="text-[13px] font-mono font-bold tabular-nums text-white/80">
                         {h.quantity}x
                       </div>
-                      <div className="text-[11px] text-white/40 font-mono tabular-nums">
+                      <div className="text-[10px] text-white/40 font-mono tabular-nums">
                         {fmtScout(centsToBsd(valueCents))}
                       </div>
                     </div>
@@ -271,7 +271,7 @@ export default function TraderTab({
         <Card className="p-4 md:p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-black text-sm">{tp('recentTradesLabel')}</h3>
-            <Link href={`/profile/${userId}?tab=activity`} className="text-[11px] text-gold hover:text-gold/80 transition-colors">
+            <Link href={`/profile/${userId}?tab=activity`} className="text-[10px] text-gold hover:text-gold/80 transition-colors">
               {tp('allTrades')} <ArrowRight className="inline size-3" />
             </Link>
           </div>
@@ -287,7 +287,7 @@ export default function TraderTab({
                   {/* BUY/SELL pill */}
                   <span
                     className={cn(
-                      'text-[11px] font-bold px-2 py-0.5 rounded flex-shrink-0',
+                      'text-[10px] font-bold px-2 py-0.5 rounded flex-shrink-0',
                       isBuy
                         ? 'bg-gold/15 text-gold'
                         : 'bg-green-500/15 text-green-500',
@@ -308,7 +308,7 @@ export default function TraderTab({
                     <div className="text-[13px] font-mono font-bold tabular-nums">
                       {trade.quantity}x · {fmtScout(centsToBsd(trade.price * trade.quantity))}
                     </div>
-                    <div className="text-[11px] text-white/30">
+                    <div className="text-[10px] text-white/30">
                       {getRelativeTime(trade.executed_at, ta('justNow'), locale)}
                     </div>
                   </div>
@@ -388,7 +388,7 @@ function StatCell({
 }) {
   return (
     <div className="p-2 rounded-lg bg-surface-subtle">
-      <div className="text-[11px] text-white/40 mb-0.5">{label}</div>
+      <div className="text-[10px] text-white/40 mb-0.5">{label}</div>
       <div className={cn('text-[13px] font-mono font-bold tabular-nums flex items-center gap-0.5', valueClassName ?? 'text-white/80')}>
         {icon}
         {value}

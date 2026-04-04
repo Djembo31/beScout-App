@@ -69,7 +69,7 @@ export default function BestandToolbar({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
             aria-label={t('bestandSortLabel')}
-            className="px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/60 focus:outline-none"
+            className="px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] text-white/60 focus:outline-none"
           >
             {sortOptions.map(opt => (
               <option key={opt.id} value={opt.id}>{opt.label}</option>
@@ -119,7 +119,7 @@ export default function BestandToolbar({
             value={clubFilter}
             onChange={(e) => onClubFilterChange(e.target.value)}
             aria-label={t('clubFilterAria')}
-            className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none"
+            className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 focus:outline-none"
           >
             <option value="">{t('allClubs')}</option>
             {availableClubs.map(c => <option key={c} value={c}>{c}</option>)}

@@ -193,7 +193,7 @@ export function TourOverlay() {
           <div className="flex items-center justify-between">
             <button
               onClick={skipTour}
-              className="text-[11px] text-white/40 hover:text-white/70 transition-colors"
+              className="text-[10px] text-white/40 hover:text-white/70 transition-colors"
             >
               {tc('skipLabel')}
             </button>
@@ -237,7 +237,7 @@ export function TourOverlay() {
             <div className="flex items-center justify-between">
               <button
                 onClick={skipTour}
-                className="text-[11px] text-white/40 hover:text-white/70 transition-colors"
+                className="text-[10px] text-white/40 hover:text-white/70 transition-colors"
               >
                 {tc('skipLabel')}
               </button>

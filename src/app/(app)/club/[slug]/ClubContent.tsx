@@ -398,7 +398,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                     <FileText className="size-5" style={{ color: clubColor }} />
                     <h2 className="font-black text-balance">{t('clubResearch')}</h2>
                   </div>
-                  <Link href="/community?tab=research" className="text-[11px] text-white/40 hover:text-white/60 transition-colors">
+                  <Link href="/community?tab=research" className="text-[10px] text-white/40 hover:text-white/60 transition-colors">
                     {t('allResearch')}
                   </Link>
                 </div>
@@ -413,14 +413,14 @@ export default function ClubContent({ slug }: { slug: string }) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            {post.player_name && <span className="text-[11px] font-bold text-white/70">{post.player_name}</span>}
+                            {post.player_name && <span className="text-[10px] font-bold text-white/70">{post.player_name}</span>}
                             <span className="text-[10px] text-white/30">{post.author_display_name || post.author_handle}</span>
                           </div>
                           <div className="text-sm text-white/60 truncate">{post.title}</div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {post.ratings_count > 0 && (
-                            <span className="inline-flex items-center gap-0.5 text-[11px]">
+                            <span className="inline-flex items-center gap-0.5 text-[10px]">
                               <Star className="size-2.5 text-gold fill-gold" />
                               <span className="text-white/40 font-mono tabular-nums">{post.avg_rating.toFixed(1)}</span>
                             </span>

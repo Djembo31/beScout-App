@@ -62,7 +62,7 @@ function HomeStoryHeaderInner({
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade shadow-[0_0_12px_rgba(249,115,22,0.15)]">
               <Flame className="size-5 text-orange-400 motion-safe:animate-pulse" />
               <span className="text-base font-black text-orange-300 font-mono tabular-nums">{streak}</span>
-              <span className="text-[11px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
+              <span className="text-[10px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
             </div>
           )}
           {shieldsRemaining != null && shieldsRemaining > 0 && (
@@ -84,7 +84,7 @@ function HomeStoryHeaderInner({
           className="flex flex-col items-center justify-center py-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors shadow-card-sm"
         >
           <span className={cn('font-mono font-black text-base gold-glow', portfolioTick)}>{fmtScout(portfolioValue)}</span>
-          <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
+          <span className="text-[10px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
         </Link>
 
         <div className={cn(
@@ -99,12 +99,12 @@ function HomeStoryHeaderInner({
               {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
             </span>
           </div>
-          <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
+          <span className="text-[10px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
         </div>
 
         <div className="flex flex-col items-center justify-center py-3 bg-surface-base border border-white/[0.08] rounded-xl shadow-card-sm">
           <span className="font-mono font-bold text-sm text-white">{holdingsCount}</span>
-          <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5">{t('players')}</span>
+          <span className="text-[10px] text-white/40 uppercase font-semibold mt-0.5">{t('players')}</span>
         </div>
       </div>
     </div>

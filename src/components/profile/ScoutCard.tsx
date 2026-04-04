@@ -148,7 +148,7 @@ export function ScoutCard({
             <button
               type="button"
               onClick={() => setBioExpanded((v) => !v)}
-              className="mt-1 inline-flex items-center gap-0.5 text-[11px] font-bold text-gold hover:text-gold/80 transition-colors"
+              className="mt-1 inline-flex items-center gap-0.5 text-[10px] font-bold text-gold hover:text-gold/80 transition-colors"
             >
               {bioExpanded ? (
                 <>
@@ -194,7 +194,7 @@ export function ScoutCard({
           {badges.map((badge) => (
             <span
               key={badge.type}
-              className="px-2.5 py-1.5 rounded-lg bg-gold/[0.08] border border-gold/20 text-[11px] font-bold text-gold"
+              className="px-2.5 py-1.5 rounded-lg bg-gold/[0.08] border border-gold/20 text-[10px] font-bold text-gold"
             >
               {t(badge.labelKey, badge.params)}
             </span>
@@ -203,7 +203,7 @@ export function ScoutCard({
       )}
 
       {/* ── Stats Ribbon ── */}
-      <div className="mt-4 flex items-center justify-center gap-4 text-[11px] text-white/40">
+      <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-white/40">
         {onFollowersClick ? (
           <button
             type="button"

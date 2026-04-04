@@ -21,7 +21,7 @@ export function CosmeticTitle({ title, rarity = 'common', className }: CosmeticT
   if (!title) return null;
 
   return (
-    <span className={cn('text-[11px] font-bold', rarityColors[rarity], className)}>
+    <span className={cn('text-[10px] font-bold', rarityColors[rarity], className)}>
       {title}
     </span>
   );

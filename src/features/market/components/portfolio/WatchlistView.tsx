@@ -310,7 +310,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
                   {fmtScout(floor)}
                 </div>
                 <div className={cn(
-                  'text-[11px] font-mono font-bold tabular-nums',
+                  'text-[10px] font-mono font-bold tabular-nums',
                   change > 0 ? 'text-green-500' : change < 0 ? 'text-red-400' : 'text-white/40'
                 )}>
                   {change > 0 ? '+' : ''}{change.toFixed(1)}%

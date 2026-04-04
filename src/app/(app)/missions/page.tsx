@@ -134,7 +134,7 @@ export default function MissionsPage() {
           {benefitLabels.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {benefitLabels.map((label) => (
-                <span key={label} className="text-[11px] px-2 py-0.5 rounded-full bg-orange-400/10 text-orange-300/80 border border-orange-400/15">
+                <span key={label} className="text-[10px] px-2 py-0.5 rounded-full bg-orange-400/10 text-orange-300/80 border border-orange-400/15">
                   {label}
                 </span>
               ))}

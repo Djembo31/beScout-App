@@ -63,15 +63,15 @@ export default function YourPosition({
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <span className="text-[10px] text-white/35 uppercase tracking-wider block mb-0.5">{t('positionTotalValue')}</span>
+          <span className="text-[10px] text-white/40 uppercase tracking-wider block mb-0.5">{t('positionTotalValue')}</span>
           <span className="font-mono font-bold tabular-nums text-gold text-lg">{fmtScout(totalValue)}</span>
         </div>
         <div>
-          <span className="text-[10px] text-white/35 uppercase tracking-wider block mb-0.5">{t('positionAvgCost')}</span>
+          <span className="text-[10px] text-white/40 uppercase tracking-wider block mb-0.5">{t('positionAvgCost')}</span>
           <span className="font-mono font-bold tabular-nums text-sm text-white">{avgCost != null ? fmtScout(avgCost) : '\u2014'}</span>
         </div>
         <div>
-          <span className="text-[10px] text-white/35 uppercase tracking-wider block mb-0.5">{t('positionPnL')}</span>
+          <span className="text-[10px] text-white/40 uppercase tracking-wider block mb-0.5">{t('positionPnL')}</span>
           {pnl != null ? (
             <div className="flex flex-col">
               <span className={`font-mono font-bold tabular-nums text-sm ${pnlColor}`}>

@@ -458,7 +458,7 @@ function FallbackRankingRow({ stat, isMvp, floorPrice }: {
         <span className="md:hidden">{stat.player_last_name || '?'}</span>
         <span className="hidden md:inline">{(stat.player_first_name || '?').charAt(0)}. {stat.player_last_name || '?'}</span>
       </span>
-      <span className="hidden md:inline text-[11px] font-mono text-white/25 tabular-nums flex-shrink-0">{stat.minutes_played}&apos;</span>
+      <span className="hidden md:inline text-[10px] font-mono text-white/25 tabular-nums flex-shrink-0">{stat.minutes_played}&apos;</span>
       {stat.goals > 0 && (
         <span className="flex items-center gap-0.5 flex-shrink-0">
           <GoalIcon size={14} />
@@ -480,7 +480,7 @@ function FallbackRankingRow({ stat, isMvp, floorPrice }: {
         {score ?? '\u2013'}
       </span>
       {floorPrice != null && floorPrice > 0 && (
-        <span className="hidden md:inline text-[11px] font-mono text-white/50 tabular-nums flex-shrink-0">
+        <span className="hidden md:inline text-[10px] font-mono text-white/50 tabular-nums flex-shrink-0">
           {fmtScout(floorPrice / 100)}
         </span>
       )}

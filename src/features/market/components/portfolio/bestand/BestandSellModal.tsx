@@ -165,22 +165,22 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
                   placeholder={t('sellPricePlaceholder')}
                   aria-label={t('sellPricePlaceholder')}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base font-mono focus:outline-none focus:border-gold/40 placeholder:text-white/25 pr-12" />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 font-bold">Credits</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-bold">Credits</span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-white/25 mr-1">{t('sellQuickSelect')}</span>
+              <span className="text-[10px] text-white/25 mr-1">{t('sellQuickSelect')}</span>
               {item.floorBsd != null && item.floorBsd > 0 && (
-                <button onClick={() => setQuickPrice(1)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-gold hover:border-gold/20 transition-colors">
+                <button onClick={() => setQuickPrice(1)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-gold hover:border-gold/20 transition-colors">
                   Floor {fmtScout(item.floorBsd)}
                 </button>
               )}
-              <button onClick={() => setQuickPrice(1.05)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+5%</button>
-              <button onClick={() => setQuickPrice(1.10)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+10%</button>
-              <button onClick={() => setQuickPrice(1.20)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+20%</button>
+              <button onClick={() => setQuickPrice(1.05)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+5%</button>
+              <button onClick={() => setQuickPrice(1.10)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+10%</button>
+              <button onClick={() => setQuickPrice(1.20)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+20%</button>
             </div>
             {priceNum > 0 && (
-              <div className="flex items-center gap-4 text-[11px] font-mono bg-surface-minimal border border-divider rounded-lg px-3 py-2 tabular-nums">
+              <div className="flex items-center gap-4 text-[10px] font-mono bg-surface-minimal border border-divider rounded-lg px-3 py-2 tabular-nums">
                 <span className="text-white/40">{t('sellGross')} <span className="text-white/70">{fmtScout(gross)}</span></span>
                 <span className="text-white/40">{t('sellFee')} <span className="text-red-300/70">&minus;{fmtScout(fee)}</span> <span className="text-white/20">(6%)</span></span>
                 <span className="text-white/40">{t('sellNetLabel')} <span className="text-gold font-bold">{fmtScout(net)}</span></span>

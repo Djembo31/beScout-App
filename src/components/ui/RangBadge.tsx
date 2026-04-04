@@ -23,7 +23,7 @@ type RangBadgeSize = 'sm' | 'md' | 'lg';
 
 const sizeClasses: Record<RangBadgeSize, { badge: string; icon: string; text: string }> = {
   sm: { badge: 'px-2 py-0.5 gap-1', icon: 'size-3', text: 'text-[10px]' },
-  md: { badge: 'px-2.5 py-1 gap-1.5', icon: 'size-3.5', text: 'text-[11px]' },
+  md: { badge: 'px-2.5 py-1 gap-1.5', icon: 'size-3.5', text: 'text-[10px]' },
   lg: { badge: 'px-3 py-1.5 gap-2', icon: 'size-4', text: 'text-xs' },
 };
 
@@ -79,7 +79,7 @@ export function RangScorePill({ score, className = '' }: { score: number; classN
       title={t(`rang.${rang.i18nKey}`)}
     >
       <Icon className="size-3" aria-hidden="true" />
-      <span className="text-[11px] font-mono font-bold tabular-nums">{score.toLocaleString(numLocale)}</span>
+      <span className="text-[10px] font-mono font-bold tabular-nums">{score.toLocaleString(numLocale)}</span>
     </span>
   );
 }
@@ -146,7 +146,7 @@ export function DimensionRangRow({ dimension, score, className = '' }: {
           <span className="text-[10px] font-bold">{t(`rang.${rang.i18nKey}`)}</span>
         </span>
       </div>
-      <span className="text-[11px] font-mono tabular-nums text-white/50">{score.toLocaleString('de-DE')}</span>
+      <span className="text-[10px] font-mono tabular-nums text-white/50">{score.toLocaleString('de-DE')}</span>
     </div>
   );
 }

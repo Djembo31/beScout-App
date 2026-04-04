@@ -142,7 +142,7 @@ export default function HomePage() {
               )}
             >
               <Icon className={cn('size-5', color)} />
-              <span className="text-[11px] font-bold text-white/70">{label}</span>
+              <span className="text-[10px] font-bold text-white/70">{label}</span>
             </Link>
           ))}
         </nav>
@@ -200,7 +200,7 @@ export default function HomePage() {
                     >
                       <div className="min-w-0">
                         <div className="text-sm font-bold truncate">{h.player}</div>
-                        <div className="text-[11px] text-white/40">{h.club}</div>
+                        <div className="text-[10px] text-white/40">{h.club}</div>
                       </div>
                       <div className={cn('flex items-center gap-0.5 ml-auto font-mono font-bold text-sm tabular-nums shrink-0', up ? 'text-green-500' : 'text-red-400')}>
                         {up ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
@@ -228,7 +228,7 @@ export default function HomePage() {
                       : 'bg-purple-500/15 border-purple-400/25'
                   )}>
                     <Clock className={cn('size-3', isEventLive ? 'text-gold' : 'text-purple-400')} />
-                    <span className={cn('text-[11px] font-bold', isEventLive ? 'text-gold' : 'text-purple-300')}>
+                    <span className={cn('text-[10px] font-bold', isEventLive ? 'text-gold' : 'text-purple-300')}>
                       {isEventLive ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
                     </span>
                   </span>
@@ -249,7 +249,7 @@ export default function HomePage() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <Trophy className={cn('size-4', isEventLive ? 'text-gold' : 'text-purple-400')} />
-                          <span className={cn('text-[11px] font-black uppercase', isEventLive ? 'text-gold' : 'text-purple-400')}>
+                          <span className={cn('text-[10px] font-black uppercase', isEventLive ? 'text-gold' : 'text-purple-400')}>
                             {isEventLive ? 'LIVE' : nextEvent.format}
                           </span>
                           {isEventLive && (
@@ -275,14 +275,14 @@ export default function HomePage() {
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-[11px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
+                        <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
                         <div className={cn(
                           'text-xl md:text-2xl font-black font-mono tabular-nums text-gold',
                           isEventLive && 'gold-glow'
                         )}>
                           {formatPrize(centsToBsd(nextEvent.prize_pool))}
                         </div>
-                        <div className="text-[11px] text-white/40">Credits</div>
+                        <div className="text-[10px] text-white/40">Credits</div>
                       </div>
                     </div>
                   </div>
@@ -301,7 +301,7 @@ export default function HomePage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[11px] font-black uppercase text-green-500">{t('liveIPO')}</span>
+                        <span className="text-[10px] font-black uppercase text-green-500">{t('liveIPO')}</span>
                         <span className="relative flex size-2.5">
                           <span className="animate-ping motion-reduce:animate-none absolute inline-flex size-full rounded-full bg-green-500 opacity-75" />
                           <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
@@ -317,7 +317,7 @@ export default function HomePage() {
                   </div>
                   <div className="shrink-0 text-right">
                     <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
-                    <div className="text-[11px] text-white/40">CR/SC</div>
+                    <div className="text-[10px] text-white/40">CR/SC</div>
                   </div>
                 </div>
               </div>
@@ -432,7 +432,7 @@ export default function HomePage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-bold truncate max-w-[100px]">{club.name}</div>
-                    <div className="text-[11px] text-white/30">{club.league}</div>
+                    <div className="text-[10px] text-white/30">{club.league}</div>
                   </div>
                 </Link>
               );

@@ -276,7 +276,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
         <div className="text-xs font-bold text-white/50 uppercase">{t('fpGrantTitle')}</div>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[200px] relative">
-            <label className="text-[11px] text-white/40 mb-1 block">{t('fpSearchUser')}</label>
+            <label className="text-[10px] text-white/40 mb-1 block">{t('fpSearchUser')}</label>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/30" aria-hidden="true" />
               <input
@@ -320,7 +320,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             )}
           </div>
           <div className="w-32">
-            <label className="text-[11px] text-white/40 mb-1 block">{t('fpTierLabel')}</label>
+            <label className="text-[10px] text-white/40 mb-1 block">{t('fpTierLabel')}</label>
             <select
               value={grantTier}
               onChange={e => setGrantTier(e.target.value as FoundingPassTier)}
@@ -335,7 +335,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             </select>
           </div>
           <div className="flex-1 min-w-[150px]">
-            <label className="text-[11px] text-white/40 mb-1 block">{t('fpReferenceLabel')}</label>
+            <label className="text-[10px] text-white/40 mb-1 block">{t('fpReferenceLabel')}</label>
             <input
               type="text"
               value={grantRef}

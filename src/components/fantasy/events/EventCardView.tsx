@@ -82,7 +82,7 @@ export function EventCardView({ event, onClick }: Props) {
       <div className="flex items-center gap-2 mb-3">
         <RequirementChips event={event} variant="chips" max={3} />
         {(event.ticketCost ?? 0) > 0 && (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-[11px] font-bold text-amber-400/80">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-[10px] font-bold text-amber-400/80">
             <span aria-hidden="true">🎟</span> {t('ticketCost', { cost: event.ticketCost })}
           </span>
         )}

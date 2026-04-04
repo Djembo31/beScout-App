@@ -65,7 +65,7 @@ function RankingRow({ stat, isMvp, floorPrice }: {
       </span>
 
       {/* Minutes — hidden on mobile to save space */}
-      <span className="hidden md:inline text-[11px] font-mono text-white/25 tabular-nums flex-shrink-0">{stat.minutes_played}&apos;</span>
+      <span className="hidden md:inline text-[10px] font-mono text-white/25 tabular-nums flex-shrink-0">{stat.minutes_played}&apos;</span>
 
       {/* Goals */}
       {stat.goals > 0 && (
@@ -97,7 +97,7 @@ function RankingRow({ stat, isMvp, floorPrice }: {
 
       {/* Floor price — hidden on mobile */}
       {floorPrice != null && floorPrice > 0 && (
-        <span className="hidden md:inline text-[11px] font-mono text-white/50 tabular-nums flex-shrink-0">
+        <span className="hidden md:inline text-[10px] font-mono text-white/50 tabular-nums flex-shrink-0">
           {fmtScout(floorPrice / 100)}
         </span>
       )}

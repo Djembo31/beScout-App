@@ -54,7 +54,7 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
       <span className="text-[22px] md:text-[26px] font-black text-white/90 leading-none tabular-nums font-mono">
         {value}
       </span>
-      <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-white/35 leading-none">
+      <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-white/40 leading-none">
         {label}
       </span>
     </div>
@@ -123,7 +123,7 @@ function MetricCell({ label, value, tint }: { label: string; value: string; tint
         border: `1px solid ${tint}15`,
       }}
     >
-      <div className="text-[7px] font-bold uppercase tracking-wider text-white/35 leading-none">
+      <div className="text-[7px] font-bold uppercase tracking-wider text-white/40 leading-none">
         {label}
       </div>
       <div className="text-[14px] md:text-[16px] font-mono font-black tabular-nums text-white/90 leading-tight mt-0.5">
@@ -422,7 +422,7 @@ function TradingCardFrameInner({
                   {/* Contract Duration (only if known) */}
                   {backData.contractMonths > 0 && (
                     <div className="mt-1.5 flex items-center justify-center gap-1.5">
-                      <span className="text-[9px] text-white/35">{tp('cardBack.contract')}</span>
+                      <span className="text-[9px] text-white/40">{tp('cardBack.contract')}</span>
                       <span className="text-[9px] font-mono font-bold text-white/60 tabular-nums">{backData.contractMonths}M</span>
                     </div>
                   )}

@@ -158,7 +158,7 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
                     const pct = v.total_votes > 0 ? Math.round(((opt.votes ?? 0) / v.total_votes) * 100) : 0;
                     return (
                       <div key={i}>
-                        <div className="flex items-center justify-between text-[11px] mb-0.5">
+                        <div className="flex items-center justify-between text-[10px] mb-0.5">
                           <span className="text-white/60 truncate mr-2">{opt.label}</span>
                           <span className="font-mono tabular-nums text-white/40">{pct}%</span>
                         </div>

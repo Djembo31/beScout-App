@@ -65,9 +65,9 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
       <div className="hidden md:flex items-center gap-3 shrink-0">
         <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
         <span className="text-[10px] font-mono text-white/50 tabular-nums">
-          {p.stats.matches}<span className="text-white/35">{t('statMatchesAbbr')}</span>{' '}
-          {p.stats.goals}<span className="text-white/35">{t('statGoalsAbbr')}</span>{' '}
-          {p.stats.assists}<span className="text-white/35">{t('statAssistsAbbr')}</span>
+          {p.stats.matches}<span className="text-white/40">{t('statMatchesAbbr')}</span>{' '}
+          {p.stats.goals}<span className="text-white/40">{t('statGoalsAbbr')}</span>{' '}
+          {p.stats.assists}<span className="text-white/40">{t('statAssistsAbbr')}</span>
         </span>
         <MinutesPill minutes={minutes} />
         <StatusPill status={p.status} />
@@ -77,9 +77,9 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5">
         <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
         <span className="text-[10px] font-mono text-white/50 tabular-nums">
-          {p.stats.matches}<span className="text-white/35">{t('statMatchesAbbr')}</span>{' '}
-          {p.stats.goals}<span className="text-white/35">{t('statGoalsAbbr')}</span>{' '}
-          {p.stats.assists}<span className="text-white/35">{t('statAssistsAbbr')}</span>
+          {p.stats.matches}<span className="text-white/40">{t('statMatchesAbbr')}</span>{' '}
+          {p.stats.goals}<span className="text-white/40">{t('statGoalsAbbr')}</span>{' '}
+          {p.stats.assists}<span className="text-white/40">{t('statAssistsAbbr')}</span>
         </span>
         <MinutesPill minutes={minutes} />
         <StatusPill status={p.status} />
@@ -95,7 +95,7 @@ function MarktCols({ item }: { item: BestandPlayer }) {
   return (
     <>
       {/* Desktop */}
-      <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
+      <div className="hidden md:flex items-center gap-3 shrink-0 text-[10px] font-mono">
         <span className="text-white/50 tabular-nums">{item.quantity}<span className="text-white/25">×</span></span>
         <span className="text-white/40 tabular-nums">{t('bestandBuyPrice')} {fmtScout(item.avgBuyPriceBsd)}</span>
         <span className="text-white/50 tabular-nums">{t('bestandFloor')} {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
@@ -125,7 +125,7 @@ function HandelCols({ item }: { item: BestandPlayer }) {
   return (
     <>
       {/* Desktop */}
-      <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
+      <div className="hidden md:flex items-center gap-3 shrink-0 text-[10px] font-mono">
         {item.listedQty > 0 ? (
           <span className="text-gold tabular-nums">{t('bestandListedCount', { count: item.listedQty })}</span>
         ) : (
@@ -164,7 +164,7 @@ function VertragCols({ item }: { item: BestandPlayer }) {
   return (
     <>
       {/* Desktop */}
-      <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
+      <div className="hidden md:flex items-center gap-3 shrink-0 text-[10px] font-mono">
         <span className="text-white/50 tabular-nums">{p.age} {t('bestandAgeYears')}</span>
         <span className="text-white/40">{p.country || '—'}</span>
         <span className={cn('font-bold tabular-nums', contractColor)}>{months}M</span>

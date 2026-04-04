@@ -238,14 +238,14 @@ export default function SellModal({
                 {floorBsd > 0 && (
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <button onClick={() => setSellPriceBsd(floorBsd.toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">Floor</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">Floor</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+5%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+5%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+10%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+10%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+20%</button>
-                    <span className="text-[11px] text-white/30 ml-1">Floor: {fmtScout(floorBsd)}</span>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+20%</button>
+                    <span className="text-[10px] text-white/30 ml-1">Floor: {fmtScout(floorBsd)}</span>
                   </div>
                 )}
               </div>

@@ -209,14 +209,14 @@ export default function MysteryBoxModal({
             )}
 
             {/* Ticket balance */}
-            <div className="flex items-center gap-1 mt-3 text-[11px] text-white/30">
+            <div className="flex items-center gap-1 mt-3 text-[10px] text-white/30">
               <Ticket className="size-3" />
               <span className="font-mono tabular-nums">{ticketBalance}</span>
             </div>
 
             {/* Reward Preview */}
             <div className="w-full mt-5 pt-4 border-t border-divider">
-              <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider mb-2.5">
+              <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider mb-2.5">
                 {t('possibleRewardsTitle')}
               </p>
               <div className="space-y-1.5">
@@ -224,7 +224,7 @@ export default function MysteryBoxModal({
                   <div
                     key={rp.rarity}
                     className={cn(
-                      'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px]',
+                      'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px]',
                       RARITY_CONFIG[rp.rarity].bgClass,
                     )}
                   >

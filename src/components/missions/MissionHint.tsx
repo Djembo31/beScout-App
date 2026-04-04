@@ -22,7 +22,7 @@ export default function MissionHint({ title, reward, progress, target, compact }
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2 p-2 rounded-lg bg-gold/[0.04] border border-gold/10 text-[11px]">
+      <div className="flex items-center gap-2 p-2 rounded-lg bg-gold/[0.04] border border-gold/10 text-[10px]">
         <Target className="size-3.5 text-gold shrink-0" />
         <span className="text-white/70 truncate">{title}</span>
         <span className="font-mono text-white/40 shrink-0">{t('hintProgress', { current: progress, target })}</span>

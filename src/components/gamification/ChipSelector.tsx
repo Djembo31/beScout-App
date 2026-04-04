@@ -207,7 +207,7 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
               </div>
 
               {/* Season usage */}
-              <div className="text-[11px] text-white/40">
+              <div className="text-[10px] text-white/40">
                 <span className="font-mono tabular-nums">{used}/{def.season_limit}</span>
                 {' '}diese Saison
               </div>

@@ -160,7 +160,7 @@ export default function MatchTimeline({
       {/* ── Data Freshness Info ── */}
       {player.lastAppearanceGw > 0 && (
         <div className="px-4 md:px-6 py-1.5 border-b border-white/[0.04]">
-          <span className="text-[11px] text-white/40">
+          <span className="text-[10px] text-white/40">
             {tp('dataUntilGw', { gw: player.lastAppearanceGw, matches: player.stats.matches })}
           </span>
         </div>
@@ -245,10 +245,10 @@ export default function MatchTimeline({
                     {/* Events */}
                     <div className="flex items-center gap-0.5 w-16 shrink-0">
                       {entry.goals > 0 && Array.from({ length: entry.goals }).map((_, i) => (
-                        <span key={`g${i}`} className="text-[11px]" title={t('goals')}>&#9917;</span>
+                        <span key={`g${i}`} className="text-[10px]" title={t('goals')}>&#9917;</span>
                       ))}
                       {entry.assists > 0 && Array.from({ length: entry.assists }).map((_, i) => (
-                        <span key={`a${i}`} className="text-[11px] text-sky-400" title={t('assists')}>&#127380;</span>
+                        <span key={`a${i}`} className="text-[10px] text-sky-400" title={t('assists')}>&#127380;</span>
                       ))}
                       {entry.cleanSheet && player.pos === 'GK' && (
                         <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-1 rounded" title={t('statCS')}>CS</span>

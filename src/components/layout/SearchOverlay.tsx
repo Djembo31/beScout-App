@@ -262,12 +262,12 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           {showRecent && (
             <div className="px-4 py-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] text-white/30 uppercase font-bold">
+                <span className="text-[10px] text-white/30 uppercase font-bold">
                   {t('recentSearches')}
                 </span>
                 <button
                   onClick={handleClearRecent}
-                  className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/50 min-h-[44px]"
+                  className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/50 min-h-[44px]"
                 >
                   <Trash2 className="size-3" />
                   {t('clearRecent')}
@@ -320,7 +320,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 const labelKey = type === 'player' ? 'players' : type === 'club' ? 'clubs' : 'users';
                 return (
                   <div key={type}>
-                    <div className="px-4 py-1.5 text-[11px] text-white/30 uppercase font-bold">
+                    <div className="px-4 py-1.5 text-[10px] text-white/30 uppercase font-bold">
                       {t(labelKey)}
                     </div>
                     {items.map((r) => {

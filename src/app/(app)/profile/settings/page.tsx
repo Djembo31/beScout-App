@@ -237,13 +237,13 @@ export default function ProfileSettingsPage() {
           </div>
           <div>
             <div className="text-sm font-semibold">{t('avatarLabel')}</div>
-            <div className="text-[11px] text-white/40">{t('avatarHint')}</div>
+            <div className="text-[10px] text-white/40">{t('avatarHint')}</div>
           </div>
         </div>
 
         {/* Handle */}
         <div className="mb-4">
-          <label htmlFor="settings-handle" className="text-[11px] text-white/50 font-semibold mb-1.5 block">{t('handleLabel')}</label>
+          <label htmlFor="settings-handle" className="text-[10px] text-white/50 font-semibold mb-1.5 block">{t('handleLabel')}</label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
             <input
@@ -268,13 +268,13 @@ export default function ProfileSettingsPage() {
               {handleStatus === 'invalid' && <X className="size-4 text-red-400" />}
             </div>
           </div>
-          {handleStatus === 'taken' && <div className="mt-1 text-[11px] text-red-400">{t('handleTaken')}</div>}
-          {handleStatus === 'invalid' && <div className="mt-1 text-[11px] text-red-400">{t('handleInvalid')}</div>}
+          {handleStatus === 'taken' && <div className="mt-1 text-[10px] text-red-400">{t('handleTaken')}</div>}
+          {handleStatus === 'invalid' && <div className="mt-1 text-[10px] text-red-400">{t('handleInvalid')}</div>}
         </div>
 
         {/* Display Name */}
         <div className="mb-4">
-          <label htmlFor="settings-displayname" className="text-[11px] text-white/50 font-semibold mb-1.5 block">{t('displayNameLabel')}</label>
+          <label htmlFor="settings-displayname" className="text-[10px] text-white/50 font-semibold mb-1.5 block">{t('displayNameLabel')}</label>
           <input
             id="settings-displayname"
             type="text"
@@ -287,7 +287,7 @@ export default function ProfileSettingsPage() {
 
         {/* Bio */}
         <div className="mb-4">
-          <label htmlFor="settings-bio" className="text-[11px] text-white/50 font-semibold mb-1.5 flex items-center justify-between">
+          <label htmlFor="settings-bio" className="text-[10px] text-white/50 font-semibold mb-1.5 flex items-center justify-between">
             <span>{t('bioLabel')}</span>
             <span className={cn('font-mono tabular-nums', bio.length > 140 ? 'text-amber-400' : 'text-white/30')}>
               {bio.length}/160
@@ -305,7 +305,7 @@ export default function ProfileSettingsPage() {
 
         {/* Favorite Club */}
         <div className="mb-6">
-          <label htmlFor="settings-club" className="text-[11px] text-white/50 font-semibold mb-1.5 block">{t('favoriteClubLabel')}</label>
+          <label htmlFor="settings-club" className="text-[10px] text-white/50 font-semibold mb-1.5 block">{t('favoriteClubLabel')}</label>
           <select
             id="settings-club"
             value={favoriteClub}
@@ -339,7 +339,7 @@ export default function ProfileSettingsPage() {
         <h3 className="font-black text-lg text-balance mb-5">{t('account')}</h3>
 
         <div className="mb-4">
-          <label htmlFor="settings-email" className="text-[11px] text-white/50 font-semibold mb-1.5 block">{t('emailLabel')}</label>
+          <label htmlFor="settings-email" className="text-[10px] text-white/50 font-semibold mb-1.5 block">{t('emailLabel')}</label>
           <input
             id="settings-email"
             type="email"
@@ -347,11 +347,11 @@ export default function ProfileSettingsPage() {
             readOnly
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-minimal border border-white/5 text-white/40 cursor-not-allowed"
           />
-          <div className="mt-1 text-[11px] text-white/25">{t('emailReadOnly')}</div>
+          <div className="mt-1 text-[10px] text-white/25">{t('emailReadOnly')}</div>
         </div>
 
         <div className="mb-6">
-          <label htmlFor="settings-language" className="text-[11px] text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
+          <label htmlFor="settings-language" className="text-[10px] text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
             <Globe className="size-3.5" aria-hidden="true" />
             {t('languageLabel')}
           </label>
@@ -388,7 +388,7 @@ export default function ProfileSettingsPage() {
           <Bell className="size-4 text-gold" aria-hidden="true" />
           <h3 className="font-black text-lg text-balance">{t('notificationPrefs')}</h3>
         </div>
-        <p className="text-[11px] text-white/40 text-pretty mb-5">{t('notificationPrefsDesc')}</p>
+        <p className="text-[10px] text-white/40 text-pretty mb-5">{t('notificationPrefsDesc')}</p>
 
         {/* Push Notification Toggle */}
         {pushSupported && (
@@ -404,7 +404,7 @@ export default function ProfileSettingsPage() {
             </div>
             <div className="flex-1 text-left min-w-0">
               <div className="text-sm font-medium">{t('pushNotifications')}</div>
-              <div className="text-[11px] text-white/40 line-clamp-1">{t('pushNotificationsDesc')}</div>
+              <div className="text-[10px] text-white/40 line-clamp-1">{t('pushNotificationsDesc')}</div>
             </div>
             <div
               aria-hidden="true"
@@ -451,7 +451,7 @@ export default function ProfileSettingsPage() {
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <div className="text-sm font-medium">{t(`notifCat_${key}` as any)}</div>
-                    <div className="text-[11px] text-white/40 line-clamp-1">{t(`notifCat_${key}_desc` as any)}</div>
+                    <div className="text-[10px] text-white/40 line-clamp-1">{t(`notifCat_${key}_desc` as any)}</div>
                   </div>
                   <div
                     aria-hidden="true"

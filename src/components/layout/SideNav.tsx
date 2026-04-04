@@ -100,7 +100,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             </div>
             {!collapsed && (
               <div>
-                <div className="text-[11px] text-white/50">{tc('balance')}</div>
+                <div className="text-[10px] text-white/50">{tc('balance')}</div>
                 <div className="font-mono font-black text-gold text-sm tabular-nums">
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />

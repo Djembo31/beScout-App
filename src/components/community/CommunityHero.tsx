@@ -72,7 +72,7 @@ function CommunityHeroInner({
               {isLocked && <Lock className="w-3.5 h-3.5 text-white/40 mb-2" />}
             </div>
             <div className="font-bold text-sm">{t(`hero.${a.key}Label`)}</div>
-            <div className="text-[11px] text-white/40 mt-0.5 line-clamp-2">
+            <div className="text-[10px] text-white/40 mt-0.5 line-clamp-2">
               {isLocked ? t('hero.researchLocked') : t(`hero.${a.key}Desc`)}
             </div>
           </button>

@@ -148,7 +148,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
                     const isExpiringSoon = daysLeft < 3;
                     return (
                       <div key={uo.id} className="flex items-center justify-between">
-                        <div className="text-[11px] text-white/50">
+                        <div className="text-[10px] text-white/50">
                           <span className="text-sky-400/60 font-bold mr-1">{t('buyOrderYours')}</span>
                           <span className="font-mono tabular-nums">{uo.qty}× {fmtScout(centsToBsd(uo.price))} CR</span>
                           {uo.expiresAt > 0 && (

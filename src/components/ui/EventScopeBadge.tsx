@@ -19,7 +19,7 @@ interface EventTypeBadgeProps {
 }
 
 const sizeClasses = {
-  sm: { container: 'px-2 py-0.5 gap-1 text-[11px]', icon: 'size-3', logo: 'size-3.5' },
+  sm: { container: 'px-2 py-0.5 gap-1 text-[10px]', icon: 'size-3', logo: 'size-3.5' },
   md: { container: 'px-2.5 py-1 gap-1.5 text-xs', icon: 'size-3.5', logo: 'size-4' },
 };
 

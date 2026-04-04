@@ -74,8 +74,8 @@ type FanRankBadgeSize = 'sm' | 'md' | 'lg';
 
 const sizeClasses: Record<FanRankBadgeSize, { badge: string; icon: string; text: string; mult: string }> = {
   sm: { badge: 'px-2 py-0.5 gap-1', icon: 'size-3', text: 'text-[10px]', mult: 'text-[9px]' },
-  md: { badge: 'px-2.5 py-1 gap-1.5', icon: 'size-3.5', text: 'text-[11px]', mult: 'text-[10px]' },
-  lg: { badge: 'px-3 py-1.5 gap-2', icon: 'size-4', text: 'text-xs', mult: 'text-[11px]' },
+  md: { badge: 'px-2.5 py-1 gap-1.5', icon: 'size-3.5', text: 'text-[10px]', mult: 'text-[10px]' },
+  lg: { badge: 'px-3 py-1.5 gap-2', icon: 'size-4', text: 'text-xs', mult: 'text-[10px]' },
 };
 
 export interface FanRankBadgeProps {

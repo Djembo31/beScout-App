@@ -85,15 +85,15 @@ export default function ScoreProgress({ dimension, score, className }: ScoreProg
 
       {/* Footer: Current Rank + Points to next */}
       <div className="flex items-center justify-between">
-        <span className={cn('text-[11px] font-bold', rang.color)}>
+        <span className={cn('text-[10px] font-bold', rang.color)}>
           {rangLabel}
         </span>
         {rang.maxScore !== null ? (
-          <span className="text-[11px] text-white/40">
+          <span className="text-[10px] text-white/40">
             {t('scoreProgress', { points: pointsToNext.toLocaleString(numLocale), rang: nextRangLabel })}
           </span>
         ) : (
-          <span className={cn('text-[11px] font-mono font-bold tabular-nums', rang.color)}>
+          <span className={cn('text-[10px] font-mono font-bold tabular-nums', rang.color)}>
             MAX
           </span>
         )}

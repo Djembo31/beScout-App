@@ -259,8 +259,8 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
                 <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold', posColor(mvp.player_position))}>
                   {mvp.player_position}
                 </span>
-                {mvp.goals > 0 && <span className="flex items-center gap-0.5 text-[11px] text-white/60"><GoalIcon size={12} /> {mvp.goals}</span>}
-                {mvp.assists > 0 && <span className="flex items-center gap-0.5 text-[11px] text-white/60"><AssistIcon size={12} /> {mvp.assists}</span>}
+                {mvp.goals > 0 && <span className="flex items-center gap-0.5 text-[10px] text-white/60"><GoalIcon size={12} /> {mvp.goals}</span>}
+                {mvp.assists > 0 && <span className="flex items-center gap-0.5 text-[10px] text-white/60"><AssistIcon size={12} /> {mvp.assists}</span>}
                 {mvp.clean_sheet && mvp.player_position === 'GK' && <CleanSheetIcon size={14} />}
               </div>
             </div>
@@ -314,7 +314,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
             <div className="flex items-center gap-2 mb-2">
               <div className="w-[3px] h-4 rounded-full" style={{ backgroundColor: homeColor }} />
               <ClubLogo club={homeClub} size={16} short={fixture.home_club_short} />
-              <span className="text-[11px] font-bold text-white/50 truncate">{fixture.home_club_name}</span>
+              <span className="text-[10px] font-bold text-white/50 truncate">{fixture.home_club_name}</span>
             </div>
             {homeTop3.map((s, i) => (
               <TopPerformerRow key={s.id} stat={s} rank={i + 1} isMvp={s.player_id === mvpId} floorPrice={s.player_id ? floorPrices.get(s.player_id) : undefined} />
@@ -325,7 +325,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
             <div className="flex items-center gap-2 mb-2">
               <div className="w-[3px] h-4 rounded-full" style={{ backgroundColor: awayColor }} />
               <ClubLogo club={awayClub} size={16} short={fixture.away_club_short} />
-              <span className="text-[11px] font-bold text-white/50 truncate">{fixture.away_club_name}</span>
+              <span className="text-[10px] font-bold text-white/50 truncate">{fixture.away_club_name}</span>
             </div>
             {awayTop3.map((s, i) => (
               <TopPerformerRow key={s.id} stat={s} rank={i + 1} isMvp={s.player_id === mvpId} floorPrice={s.player_id ? floorPrices.get(s.player_id) : undefined} />
@@ -398,7 +398,7 @@ function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
 
       {/* Rating */}
       <span
-        className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
+        className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
         style={getScoreBadgeStyle(score)}
       >
         {score ?? '\u2013'}

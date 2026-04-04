@@ -161,7 +161,7 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
           </div>
 
           {/* Line 4: Price + SC + Synergy */}
-          <div className="flex items-center gap-2 mt-1 pt-1 border-t border-divider text-[11px] text-white/40">
+          <div className="flex items-center gap-2 mt-1 pt-1 border-t border-divider text-[10px] text-white/40">
             <span className="font-mono tabular-nums">
               {fmtScout(player.floorPrice)} {t('crLabel')}
             </span>

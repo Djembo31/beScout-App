@@ -85,7 +85,7 @@ export function Glossary({ open, onClose }: GlossaryProps) {
           if (!terms || terms.length === 0) return null;
           return (
             <div key={cat}>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-white/40 mb-2.5">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2.5">
                 {t(`categories.${cat}`)}
               </div>
               <div className="space-y-2.5">

@@ -62,7 +62,7 @@ export default function CountdownBadge({ targetDate, className, compact, onExpir
   return (
     <span className={cn(
       'inline-flex items-center gap-1 tabular-nums font-mono font-bold',
-      compact ? 'text-[11px]' : 'text-xs',
+      compact ? 'text-[10px]' : 'text-xs',
       color,
       pulse && 'animate-pulse motion-reduce:animate-none',
       className,

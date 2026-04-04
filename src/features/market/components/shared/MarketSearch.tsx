@@ -113,7 +113,7 @@ export default function MarketSearch({ players, activeIpos, sellOrders, onClose 
                     className="flex items-center gap-3 bg-surface-base border border-divider rounded-xl px-3 py-2.5 hover:border-white/15 transition-colors"
                   >
                     <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
-                    <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
+                    <span className={cn('font-mono font-bold text-[10px]', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
                     {ipoPrice.has(p.id) && (
                       <span className="font-mono font-bold text-xs text-gold tabular-nums">{fmtScout(centsToBsd(ipoPrice.get(p.id)!))}</span>
                     )}
@@ -138,7 +138,7 @@ export default function MarketSearch({ players, activeIpos, sellOrders, onClose 
                     className="flex items-center gap-3 bg-surface-base border border-divider rounded-xl px-3 py-2.5 hover:border-white/15 transition-colors"
                   >
                     <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
-                    <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
+                    <span className={cn('font-mono font-bold text-[10px]', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
                     {floors.has(p.id) && (
                       <div className="text-right">
                         <div className="text-[8px] text-white/30">{t('listedFrom')}</div>
