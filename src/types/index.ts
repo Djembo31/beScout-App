@@ -1263,6 +1263,7 @@ export type DbMissionDefinition = {
   tracking_type: MissionTrackingType;
   tracking_config: Record<string, unknown>;
   active: boolean;
+  club_id: string | null;
   created_at: string;
 };
 

@@ -168,10 +168,12 @@ export async function createMission(
     target_value: number;
     reward_cents: number;
     tracking_type: string;
+    club_id?: string | null;
   },
 ): Promise<{ ok: boolean; error?: string }> {
   const { error } = await supabase.from('mission_definitions').insert({
     ...mission,
+    club_id: mission.club_id || null,
     tracking_config: {},
     active: true,
   });
@@ -187,6 +189,18 @@ export async function updateMission(
   const { error } = await supabase
     .from('mission_definitions')
     .update(fields)
+    .eq('id', id);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function deleteMission(
+  _adminId: string,
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase
+    .from('mission_definitions')
+    .delete()
     .eq('id', id);
   if (error) return { ok: false, error: error.message };
   return { ok: true };

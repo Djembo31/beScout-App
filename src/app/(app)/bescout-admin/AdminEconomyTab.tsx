@@ -32,9 +32,12 @@ import {
   updateStreakConfig,
   createMission,
   updateMission,
+  deleteMission,
   createAchievementDefinition,
   updateAchievementDefinition,
 } from '@/lib/services/economyConfig';
+import { getAllClubs } from '@/lib/services/club';
+import type { DbClub } from '@/types';
 
 // ============================================
 // HELPERS
@@ -765,40 +768,167 @@ function StreakSection({
 // SECTION 6: MISSIONS
 // ============================================
 
+// Auto-tracked mission keys (progress updated by DB triggers or client services)
+const TRACKED_KEYS: Record<string, string> = {
+  daily_trade: 'Auto: Bei jedem Trade',
+  weekly_5_trades: 'Auto: Bei jedem Trade',
+  first_ipo_buy: 'Auto: Bei IPO-Kauf',
+  daily_fantasy_entry: 'Auto: Bei Fantasy-Beitritt',
+  weekly_3_lineups: 'Auto: Bei Lineup-Abgabe',
+  daily_post: 'Auto: Bei Post erstellen (DB-Trigger)',
+  weekly_3_posts: 'Auto: Bei Post erstellen (DB-Trigger)',
+  weekly_research: 'Auto: Bei Research erstellen (DB-Trigger)',
+  daily_unlock_research: 'Auto: Bei Research freischalten (DB-Trigger)',
+  weekly_follow_3: 'Auto: Bei Follow (DB-Trigger)',
+  daily_vote: 'Auto: Bei Community-Abstimmung',
+  complete_challenge: 'Auto: Bei Tages-Challenge',
+};
+
+type MissionEditState = {
+  key: string;
+  type: 'daily' | 'weekly';
+  title: string;
+  description: string;
+  icon: string;
+  target_value: number;
+  reward_cents: number;
+  tracking_type: 'manual' | 'transaction';
+  club_id: string | null;
+  active: boolean;
+};
+
+const EMPTY_MISSION: MissionEditState = {
+  key: '', type: 'daily', title: '', description: '', icon: 'Zap',
+  target_value: 1, reward_cents: 5000, tracking_type: 'manual', club_id: null, active: true,
+};
+
+function MissionFormFields({
+  state,
+  onChange,
+  clubs,
+  isCreate,
+}: {
+  state: MissionEditState;
+  onChange: (patch: Partial<MissionEditState>) => void;
+  clubs: DbClub[];
+  isCreate: boolean;
+}) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Key</label>
+        <input
+          type="text"
+          value={state.key}
+          onChange={(e) => onChange({ key: e.target.value })}
+          placeholder="z.B. daily_trade"
+          disabled={!isCreate}
+          className={cn(INPUT_WIDE_CLASS, 'w-full', !isCreate && 'opacity-50')}
+        />
+        {state.key && TRACKED_KEYS[state.key] && (
+          <span className="text-[10px] text-emerald-400/70 mt-0.5 block">{TRACKED_KEYS[state.key]}</span>
+        )}
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Typ</label>
+        <select
+          value={state.type}
+          onChange={(e) => onChange({ type: e.target.value as 'daily' | 'weekly' })}
+          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+        >
+          <option value="daily">daily</option>
+          <option value="weekly">weekly</option>
+        </select>
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Titel</label>
+        <input
+          type="text"
+          value={state.title}
+          onChange={(e) => onChange({ title: e.target.value })}
+          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+        />
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Beschreibung</label>
+        <input
+          type="text"
+          value={state.description}
+          onChange={(e) => onChange({ description: e.target.value })}
+          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+        />
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Icon</label>
+        <input
+          type="text"
+          value={state.icon}
+          onChange={(e) => onChange({ icon: e.target.value })}
+          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+        />
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Zielwert</label>
+        <input
+          type="number"
+          inputMode="numeric"
+          value={state.target_value}
+          onChange={(e) => onChange({ target_value: parseInt(e.target.value) || 1 })}
+          className={cn(INPUT_CLASS, 'w-full')}
+        />
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Reward (Cents)</label>
+        <input
+          type="number"
+          inputMode="numeric"
+          value={state.reward_cents}
+          onChange={(e) => onChange({ reward_cents: parseInt(e.target.value) || 0 })}
+          className={cn(INPUT_CLASS, 'w-full')}
+        />
+      </div>
+      <div>
+        <label className="text-white/40 text-xs block mb-1">Club</label>
+        <select
+          value={state.club_id ?? ''}
+          onChange={(e) => onChange({ club_id: e.target.value || null })}
+          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+        >
+          <option value="">Global (alle User)</option>
+          {clubs.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
 function MissionsSection({
   data,
+  clubs,
   canEdit,
   onRefresh,
   adminId,
 }: {
   data: DbMissionDefinition[];
+  clubs: DbClub[];
   canEdit: boolean;
   onRefresh: () => void;
   adminId: string;
 }) {
   const { addToast } = useToast();
   const [editId, setEditId] = useState<string | null>(null);
-  const [editTarget, setEditTarget] = useState(0);
-  const [editRewardCents, setEditRewardCents] = useState(0);
-  const [editActive, setEditActive] = useState(true);
+  const [editState, setEditState] = useState<MissionEditState>(EMPTY_MISSION);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newMission, setNewMission] = useState({
-    key: '',
-    type: 'daily' as 'daily' | 'weekly',
-    title: '',
-    description: '',
-    icon: 'star',
-    target_value: 1,
-    reward_cents: 10000,
-    tracking_type: 'manual' as 'manual' | 'transaction',
-  });
+  const [newMission, setNewMission] = useState<MissionEditState>(EMPTY_MISSION);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const clubMap = new Map(clubs.map((c) => [c.id, c.name]));
 
   const handleSave = useCallback(async (id: string) => {
-    const result = await updateMission(adminId, id, {
-      target_value: editTarget,
-      reward_cents: editRewardCents,
-      active: editActive,
-    });
+    const { key: _key, ...fields } = editState;
+    const result = await updateMission(adminId, id, fields);
     if (result.ok) {
       addToast('Gespeichert', 'success');
       setEditId(null);
@@ -806,7 +936,7 @@ function MissionsSection({
     } else {
       addToast(result.error ?? 'Fehler', 'error');
     }
-  }, [adminId, editTarget, editRewardCents, editActive, addToast, onRefresh]);
+  }, [adminId, editState, addToast, onRefresh]);
 
   const handleCreate = useCallback(async () => {
     if (!newMission.key || !newMission.title) {
@@ -817,18 +947,58 @@ function MissionsSection({
     if (result.ok) {
       addToast('Mission erstellt', 'success');
       setShowCreateForm(false);
-      setNewMission({
-        key: '', type: 'daily', title: '', description: '', icon: 'star',
-        target_value: 1, reward_cents: 10000, tracking_type: 'manual',
-      });
+      setNewMission(EMPTY_MISSION);
       onRefresh();
     } else {
       addToast(result.error ?? 'Fehler', 'error');
     }
   }, [adminId, newMission, addToast, onRefresh]);
 
+  const handleDelete = useCallback(async (id: string) => {
+    setDeleting(id);
+    const result = await deleteMission(adminId, id);
+    if (result.ok) {
+      addToast('Mission geloescht', 'success');
+      onRefresh();
+    } else {
+      addToast(result.error ?? 'Fehler', 'error');
+    }
+    setDeleting(null);
+  }, [adminId, addToast, onRefresh]);
+
+  const startEdit = useCallback((row: DbMissionDefinition) => {
+    setEditId(row.id);
+    setEditState({
+      key: row.key,
+      type: row.type,
+      title: row.title,
+      description: row.description,
+      icon: row.icon,
+      target_value: row.target_value,
+      reward_cents: row.reward_cents,
+      tracking_type: row.tracking_type as 'manual' | 'transaction',
+      club_id: row.club_id,
+      active: row.active,
+    });
+  }, []);
+
   return (
     <div className="space-y-3">
+      {/* Tracking Key Reference */}
+      <details className="text-xs">
+        <summary className="text-white/40 cursor-pointer hover:text-white/60 transition-colors">
+          Auto-Tracking Keys (diese Keys werden automatisch hochgezaehlt)
+        </summary>
+        <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-1">
+          {Object.entries(TRACKED_KEYS).map(([key, desc]) => (
+            <div key={key} className="flex items-center gap-1.5 px-2 py-1 rounded bg-surface-base">
+              <code className="text-emerald-400 font-mono">{key}</code>
+              <span className="text-white/30 truncate">{desc.replace('Auto: ', '')}</span>
+            </div>
+          ))}
+        </div>
+      </details>
+
       {canEdit && (
         <div className="flex justify-end">
           <button
@@ -844,87 +1014,12 @@ function MissionsSection({
       {showCreateForm && (
         <Card className="p-4 space-y-3">
           <div className="text-xs font-bold text-white mb-2">Neue Mission erstellen</div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Key</label>
-              <input
-                type="text"
-                value={newMission.key}
-                onChange={(e) => setNewMission((p) => ({ ...p, key: e.target.value }))}
-                placeholder="z.B. daily_trade"
-                className={cn(INPUT_WIDE_CLASS, 'w-full')}
-              />
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Typ</label>
-              <select
-                value={newMission.type}
-                onChange={(e) => setNewMission((p) => ({ ...p, type: e.target.value as 'daily' | 'weekly' }))}
-                className={cn(INPUT_WIDE_CLASS, 'w-full')}
-              >
-                <option value="daily">daily</option>
-                <option value="weekly">weekly</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Titel</label>
-              <input
-                type="text"
-                value={newMission.title}
-                onChange={(e) => setNewMission((p) => ({ ...p, title: e.target.value }))}
-                className={cn(INPUT_WIDE_CLASS, 'w-full')}
-              />
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Beschreibung</label>
-              <input
-                type="text"
-                value={newMission.description}
-                onChange={(e) => setNewMission((p) => ({ ...p, description: e.target.value }))}
-                className={cn(INPUT_WIDE_CLASS, 'w-full')}
-              />
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Icon</label>
-              <input
-                type="text"
-                value={newMission.icon}
-                onChange={(e) => setNewMission((p) => ({ ...p, icon: e.target.value }))}
-                className={cn(INPUT_WIDE_CLASS, 'w-full')}
-              />
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Zielwert</label>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={newMission.target_value}
-                onChange={(e) => setNewMission((p) => ({ ...p, target_value: parseInt(e.target.value) || 1 }))}
-                className={cn(INPUT_CLASS, 'w-full')}
-              />
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Reward (Cents)</label>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={newMission.reward_cents}
-                onChange={(e) => setNewMission((p) => ({ ...p, reward_cents: parseInt(e.target.value) || 0 }))}
-                className={cn(INPUT_CLASS, 'w-full')}
-              />
-            </div>
-            <div>
-              <label className="text-white/40 text-xs block mb-1">Tracking</label>
-              <select
-                value={newMission.tracking_type}
-                onChange={(e) => setNewMission((p) => ({ ...p, tracking_type: e.target.value as 'manual' | 'transaction' }))}
-                className={cn(INPUT_WIDE_CLASS, 'w-full')}
-              >
-                <option value="manual">manual</option>
-                <option value="transaction">transaction</option>
-              </select>
-            </div>
-          </div>
+          <MissionFormFields
+            state={newMission}
+            onChange={(patch) => setNewMission((p) => ({ ...p, ...patch }))}
+            clubs={clubs}
+            isCreate
+          />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setShowCreateForm(false)}
@@ -942,6 +1037,48 @@ function MissionsSection({
         </Card>
       )}
 
+      {/* Edit Inline Form (shown above table when editing) */}
+      {editId && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs font-bold text-white">Mission bearbeiten: <code className="text-gold">{editState.key}</code></div>
+            <button
+              onClick={() => setEditState((p) => ({ ...p, active: !p.active }))}
+              className={cn(
+                'relative inline-flex h-5 w-9 items-center rounded-full transition-colors',
+                editState.active ? 'bg-green-500' : 'bg-white/20',
+              )}
+              aria-label={editState.active ? 'Aktiv' : 'Inaktiv'}
+            >
+              <span className={cn(
+                'inline-block size-3.5 rounded-full bg-white shadow-sm transition-transform',
+                editState.active ? 'translate-x-4' : 'translate-x-0.5',
+              )} />
+            </button>
+          </div>
+          <MissionFormFields
+            state={editState}
+            onChange={(patch) => setEditState((p) => ({ ...p, ...patch }))}
+            clubs={clubs}
+            isCreate={false}
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setEditId(null)}
+              className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors min-h-[44px]"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={() => handleSave(editId)}
+              className="text-xs px-3 py-1 rounded-lg bg-gold/20 text-gold hover:bg-gold/30 transition-colors min-h-[44px]"
+            >
+              Speichern
+            </button>
+          </div>
+        </Card>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
@@ -949,98 +1086,66 @@ function MissionsSection({
               <th className="text-left py-2 px-2">Key</th>
               <th className="text-left py-2 px-2">Typ</th>
               <th className="text-left py-2 px-2">Titel</th>
+              <th className="text-left py-2 px-2">Club</th>
               <th className="text-left py-2 px-2">Ziel</th>
-              <th className="text-left py-2 px-2">Reward ($SCOUT)</th>
+              <th className="text-left py-2 px-2">Reward</th>
               <th className="text-left py-2 px-2">Status</th>
               {canEdit && <th className="text-right py-2 px-2">Aktion</th>}
             </tr>
           </thead>
           <tbody>
-            {data.map((row) => {
-              const isEditing = editId === row.id;
-              return (
-                <tr key={row.id} className="border-b border-white/[0.04]">
-                  <td className="py-2 px-2 font-mono text-white/60">{row.key}</td>
-                  <td className="py-2 px-2">
-                    <span className={cn(
-                      'px-1.5 py-0.5 rounded-full text-xs',
-                      row.type === 'daily' ? 'bg-sky-500/20 text-sky-400' : 'bg-purple-500/20 text-purple-400',
-                    )}>
-                      {row.type}
-                    </span>
-                  </td>
-                  <td className="py-2 px-2 text-white">{row.title}</td>
-                  <td className="py-2 px-2">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        value={editTarget}
-                        onChange={(e) => setEditTarget(parseInt(e.target.value) || 0)}
-                        className={INPUT_CLASS}
-                      />
-                    ) : (
-                      <span className="font-mono tabular-nums text-white">{row.target_value}</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        value={editRewardCents}
-                        onChange={(e) => setEditRewardCents(parseInt(e.target.value) || 0)}
-                        className={INPUT_CLASS}
-                      />
-                    ) : (
-                      <span className="font-mono tabular-nums text-gold">
-                        {fmtScout(centsToBsd(row.reward_cents))}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2">
-                    {isEditing ? (
-                      <button
-                        onClick={() => setEditActive(!editActive)}
-                        className={cn(
-                          'relative inline-flex h-5 w-9 items-center rounded-full transition-colors',
-                          editActive ? 'bg-green-500' : 'bg-white/20',
-                        )}
-                        aria-label={editActive ? 'Aktiv' : 'Inaktiv'}
-                      >
-                        <span
-                          className={cn(
-                            'inline-block size-3.5 rounded-full bg-white shadow-sm transition-transform',
-                            editActive ? 'translate-x-4' : 'translate-x-0.5',
-                          )}
-                        />
-                      </button>
-                    ) : (
-                      <span className={cn('text-xs', row.active ? 'text-green-400' : 'text-white/30')}>
-                        {row.active ? 'Aktiv' : 'Inaktiv'}
-                      </span>
-                    )}
-                  </td>
-                  {canEdit && (
-                    <td className="py-2 px-2 text-right">
-                      {!isEditing ? (
-                        <EditButton onClick={() => {
-                          setEditId(row.id);
-                          setEditTarget(row.target_value);
-                          setEditRewardCents(row.reward_cents);
-                          setEditActive(row.active);
-                        }} />
-                      ) : (
-                        <SaveCancelButtons
-                          onSave={() => handleSave(row.id)}
-                          onCancel={() => setEditId(null)}
-                        />
-                      )}
-                    </td>
+            {data.map((row) => (
+              <tr key={row.id} className={cn('border-b border-white/[0.04]', editId === row.id && 'bg-gold/[0.04]')}>
+                <td className="py-2 px-2 font-mono text-white/60">
+                  {row.key}
+                  {TRACKED_KEYS[row.key] && (
+                    <span className="block text-[9px] text-emerald-400/50">auto</span>
                   )}
-                </tr>
-              );
-            })}
+                </td>
+                <td className="py-2 px-2">
+                  <span className={cn(
+                    'px-1.5 py-0.5 rounded-full text-xs',
+                    row.type === 'daily' ? 'bg-sky-500/20 text-sky-400' : 'bg-purple-500/20 text-purple-400',
+                  )}>
+                    {row.type}
+                  </span>
+                </td>
+                <td className="py-2 px-2 text-white">{row.title}</td>
+                <td className="py-2 px-2">
+                  {row.club_id ? (
+                    <span className="text-xs text-amber-400">{clubMap.get(row.club_id) ?? 'Club'}</span>
+                  ) : (
+                    <span className="text-xs text-white/30">Global</span>
+                  )}
+                </td>
+                <td className="py-2 px-2 font-mono tabular-nums text-white">{row.target_value}</td>
+                <td className="py-2 px-2 font-mono tabular-nums text-gold">{fmtScout(centsToBsd(row.reward_cents))}</td>
+                <td className="py-2 px-2">
+                  <span className={cn('text-xs', row.active ? 'text-green-400' : 'text-white/30')}>
+                    {row.active ? 'Aktiv' : 'Inaktiv'}
+                  </span>
+                </td>
+                {canEdit && (
+                  <td className="py-2 px-2 text-right">
+                    <div className="flex justify-end gap-1">
+                      <button
+                        onClick={() => startEdit(row)}
+                        className="text-xs px-2 py-1 rounded-lg bg-white/10 text-white/60 hover:bg-white/20 transition-colors min-h-[44px]"
+                      >
+                        Bearbeiten
+                      </button>
+                      <button
+                        onClick={() => handleDelete(row.id)}
+                        disabled={deleting === row.id}
+                        className="text-xs px-2 py-1 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors min-h-[44px] disabled:opacity-50"
+                      >
+                        {deleting === row.id ? '...' : 'Loeschen'}
+                      </button>
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
           </tbody>
         </table>
         {data.length === 0 && (
@@ -1322,6 +1427,7 @@ export function AdminEconomyTab({
   const [streakData, setStreakData] = useState<DbStreakConfig[]>([]);
   const [missionData, setMissionData] = useState<DbMissionDefinition[]>([]);
   const [achievementData, setAchievementData] = useState<DbAchievementDefinition[]>([]);
+  const [clubs, setClubs] = useState<DbClub[]>([]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     elo: true,
@@ -1338,7 +1444,7 @@ export function AdminEconomyTab({
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [elo, rang, sr, mp, st, mi, ach] = await Promise.all([
+      const [elo, rang, sr, mp, st, mi, ach, cl] = await Promise.all([
         getEloConfig(),
         getRangThresholds(),
         getScoreRoadConfig(),
@@ -1346,6 +1452,7 @@ export function AdminEconomyTab({
         getStreakConfig(),
         getMissionDefinitions(),
         getAchievementDefinitions(),
+        getAllClubs(),
       ]);
       setEloData(elo);
       setRangData(rang);
@@ -1354,6 +1461,7 @@ export function AdminEconomyTab({
       setStreakData(st);
       setMissionData(mi);
       setAchievementData(ach);
+      setClubs(cl);
     } catch (err) {
       console.error('[AdminEconomyTab] Failed to load data:', err);
     } finally {
@@ -1453,7 +1561,7 @@ export function AdminEconomyTab({
       />
       {openSections.missions && (
         <Card className="p-4">
-          <MissionsSection data={missionData} canEdit={canEdit} onRefresh={loadAll} adminId={adminId} />
+          <MissionsSection data={missionData} clubs={clubs} canEdit={canEdit} onRefresh={loadAll} adminId={adminId} />
         </Card>
       )}
 
