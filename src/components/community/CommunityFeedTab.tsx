@@ -221,20 +221,23 @@ export default function CommunityFeedTab({
 
     // Research
     if (contentFilter === 'all' || contentFilter === 'research') {
-      researchPosts.forEach(r => items.push({ type: 'research', data: r, date: r.created_at }));
+      const filtered = isFollowingTab ? researchPosts.filter(r => followingIds.has(r.user_id)) : researchPosts;
+      filtered.forEach(r => items.push({ type: 'research', data: r, date: r.created_at }));
     }
 
     // Bounties
     if (contentFilter === 'all' || contentFilter === 'bounties') {
-      bounties.forEach(b => items.push({ type: 'bounty', data: b, date: b.created_at }));
+      const filtered = isFollowingTab ? bounties.filter(b => followingIds.has(b.created_by)) : bounties;
+      filtered.forEach(b => items.push({ type: 'bounty', data: b, date: b.created_at }));
     }
 
-    // Votes + Polls
+    // Votes + Polls (club votes unfiltered — club content, not user content)
     if (contentFilter === 'all' || contentFilter === 'votes') {
       clubVotes.filter(v => v.status === 'active').forEach(v =>
         items.push({ type: 'vote', data: v, date: v.starts_at })
       );
-      communityPolls.filter(p => p.status === 'active').forEach(p =>
+      const filteredPolls = isFollowingTab ? communityPolls.filter(p => followingIds.has(p.created_by)) : communityPolls;
+      filteredPolls.filter(p => p.status === 'active').forEach(p =>
         items.push({ type: 'poll', data: p, date: p.created_at })
       );
     }
