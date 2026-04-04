@@ -104,6 +104,9 @@ export function useHomeData() {
         setStreak(result.streak);
         setShieldsRemaining(result.shields_remaining);
         localStorage.setItem(STREAK_KEY, JSON.stringify({ current: result.streak, lastDate: new Date().toISOString().slice(0, 10) }));
+        if (result.daily_tickets) {
+          addToast(`+${result.daily_tickets} Tickets`, 'info');
+        }
         if (result.milestone_reward > 0 && result.milestone_label) {
           addToast(result.milestone_label, 'success');
         }

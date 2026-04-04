@@ -76,7 +76,7 @@ function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
       {entry.opponentLogoUrl ? (
         <img src={entry.opponentLogoUrl} alt="" className="size-3 shrink-0 rounded-full object-cover" />
       ) : (
-        <span className="text-[5px] font-bold text-white/20 size-3 shrink-0 flex items-center justify-center">
+        <span className="text-[8px] font-bold text-white/20 size-3 shrink-0 flex items-center justify-center">
           {entry.opponent.slice(0, 2)}
         </span>
       )}
@@ -91,10 +91,10 @@ function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
               style={{ width: `${pct}%`, backgroundColor: color }}
             />
             <div className="absolute inset-0 flex items-center justify-end pr-1 gap-0.5">
-              {entry.goals > 0 && <span className="text-[5px]">⚽</span>}
-              {entry.assists > 0 && <span className="text-[5px]">🅰️</span>}
-              {entry.redCard && <span className="text-[5px]">🟥</span>}
-              {entry.yellowCard && !entry.redCard && <span className="text-[5px]">🟨</span>}
+              {entry.goals > 0 && <span className="text-[8px]">⚽</span>}
+              {entry.assists > 0 && <span className="text-[8px]">🅰️</span>}
+              {entry.redCard && <span className="text-[8px]">🟥</span>}
+              {entry.yellowCard && !entry.redCard && <span className="text-[8px]">🟨</span>}
             </div>
           </div>
           <span

@@ -72,7 +72,7 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full text-left px-3 py-2.5 transition-colors border-l-2',
+        'w-full text-left px-3 py-2.5 transition-colors border-l-2 hover:bg-white/[0.04] active:bg-white/[0.06]',
         rowStateStyles[rowState],
       )}
       style={{ borderLeftColor: rowState === 'selected' ? tint : `${tint}40` }}

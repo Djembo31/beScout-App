@@ -751,7 +751,7 @@ export default function LineupPanel({
             <FantasyPlayerRow
               key={player.id}
               {...props}
-              onClick={() => {/* no-op in list view */}}
+              onClick={() => window.open(`/player/${player.id}`, '_blank')}
             />
           );
         })}

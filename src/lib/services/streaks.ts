@@ -10,13 +10,13 @@ export async function recordLoginStreak(userId: string): Promise<StreakResult> {
 
   const result = data as StreakResult;
 
-  // Fire-and-forget: Credit login tickets based on compound streak benefits
+  // Credit login tickets based on compound streak benefits
   if (result.ok && !result.already_today) {
     const { getStreakBenefits } = await import('@/lib/streakBenefits');
     const benefits = getStreakBenefits(result.streak);
-    const ticketAmount = benefits.dailyTickets;
+    result.daily_tickets = benefits.dailyTickets;
     import('@/lib/services/tickets').then(({ creditTickets }) => {
-      creditTickets(userId, ticketAmount, 'daily_login').catch(console.error);
+      creditTickets(userId, benefits.dailyTickets, 'daily_login').catch(console.error);
     }).catch(console.error);
   }
 

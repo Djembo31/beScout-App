@@ -359,7 +359,7 @@ export default function HomePage() {
       {/* ── 3. ENGAGEMENT ZONE ── */}
       {uid && (
         <>
-          <DailyChallengeCard
+          {(todaysChallenge || todaysAnswer) && <DailyChallengeCard
             challenge={todaysChallenge}
             userAnswer={todaysAnswer ? {
               selectedOption: todaysAnswer.selected_option,
@@ -372,7 +372,7 @@ export default function HomePage() {
             isLoading={challengeLoading}
             ticketBalance={ticketData?.balance ?? 0}
             onOpenMysteryBox={() => setShowMysteryBox(true)}
-          />
+          />}
 
           <MysteryBoxModal
             open={showMysteryBox}

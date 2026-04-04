@@ -1521,6 +1521,7 @@ export type StreakResult = {
   milestone_reward: number;
   milestone_label?: string | null;
   already_today?: boolean;
+  daily_tickets?: number;
 };
 
 // ============================================
