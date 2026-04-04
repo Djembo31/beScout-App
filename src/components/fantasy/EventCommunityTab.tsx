@@ -19,19 +19,7 @@ import type { EventStatus } from './types';
 // HELPERS
 // ============================================
 
-function formatTimeAgo(dateStr: string, nowLabel: string, locale: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diffMs = now - then;
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return nowLabel;
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE');
-}
+import { formatTimeAgo } from '@/lib/utils';
 
 // ============================================
 // COMPONENT

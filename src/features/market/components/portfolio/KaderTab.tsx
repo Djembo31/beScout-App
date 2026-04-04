@@ -6,11 +6,10 @@ import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge, MatchIcon } from '@/components/player';
+import { PlayerPhoto, PositionBadge, MatchIcon, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
-import { FormBars } from '@/components/player';
 import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { getPosColor } from './helpers';
@@ -60,29 +59,7 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
       <div className="flex gap-3">
         {/* Photo with position glow */}
         <div className="shrink-0 relative">
-          <div
-            className="size-12 rounded-full overflow-hidden border-2"
-            style={{
-              borderColor: `${tint}99`,
-              boxShadow: `0 0 10px ${tint}30, inset 0 0 6px ${tint}15`,
-            }}
-          >
-            {p.imageUrl ? (
-              <img
-                src={p.imageUrl}
-                alt=""
-                className="size-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div
-                className="size-full flex items-center justify-center text-sm font-black text-white/60"
-                style={{ backgroundColor: `${tint}22` }}
-              >
-                {p.first.charAt(0)}{p.last.charAt(0)}
-              </div>
-            )}
-          </div>
+          <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={48} />
           <StatusDot status={p.status} />
         </div>
 

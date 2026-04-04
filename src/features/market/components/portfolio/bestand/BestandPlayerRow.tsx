@@ -227,18 +227,7 @@ function BestandPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLin
 
         {/* Photo with position ring */}
         <div className="shrink-0 self-start">
-          <div
-            className="size-12 rounded-full overflow-hidden border-2"
-            style={{ borderColor: `${tint}99`, boxShadow: `0 0 10px ${tint}30` }}
-          >
-            {p.imageUrl ? (
-              <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
-            ) : (
-              <div className="size-full flex items-center justify-center text-sm font-black text-white/60" style={{ backgroundColor: `${tint}22` }}>
-                {p.first.charAt(0)}{p.last.charAt(0)}
-              </div>
-            )}
-          </div>
+          <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={48} />
         </div>
 
         {/* Info */}

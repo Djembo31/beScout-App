@@ -13,19 +13,7 @@ import { getRang } from '@/lib/gamification';
 import type { ResearchPostWithAuthor, ScoutingEvaluation } from '@/types';
 import { useTranslations, useLocale } from 'next-intl';
 
-function formatTimeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diffMs = now - then;
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return nowLabel;
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString(dateLocale);
-}
+import { formatTimeAgo } from '@/lib/utils';
 
 const callColor: Record<string, string> = {
   Bullish: 'bg-green-500/20 text-green-500',
