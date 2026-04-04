@@ -95,13 +95,21 @@ export function useEventActions(clubId: string) {
         ...(old ?? []), event.id,
       ]);
 
-      // Invalidate related caches -- but NOT joinedIds (we just set it, refetch would overwrite)
+      // Optimistic update: increment participant count in cached event list
+      queryClient.setQueryData(qk.events.all, (old: unknown[] | undefined) => {
+        if (!old) return old;
+        return (old as Record<string, unknown>[]).map((e) =>
+          e.id === event.id ? { ...e, current_entries: ((e.current_entries as number) ?? 0) + 1 } : e
+        );
+      });
+
+      // Bust server-side event cache FIRST, then invalidate client caches
+      await fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.events.all });
       queryClient.invalidateQueries({ queryKey: qk.events.usage(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
-      fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
 
       // Mission tracking (fire-and-forget)
       import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
@@ -223,15 +231,24 @@ export function useEventActions(clubId: string) {
       queryClient.setQueryData<string[]>(qk.events.joinedIds(user.id), (old) =>
         (old ?? []).filter(id => id !== event.id)
       );
+
+      // Optimistic update: decrement participant count in cached event list
+      queryClient.setQueryData(qk.events.all, (old: unknown[] | undefined) => {
+        if (!old) return old;
+        return (old as Record<string, unknown>[]).map((e) =>
+          e.id === event.id ? { ...e, current_entries: Math.max(0, ((e.current_entries as number) ?? 0) - 1) } : e
+        );
+      });
+
       closeEvent(); // close modal
 
-      // Invalidate related caches -- but NOT joinedIds (we just set it)
+      // Bust server-side event cache FIRST, then invalidate client caches
+      await fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.events.all });
       queryClient.invalidateQueries({ queryKey: qk.events.usage(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
-      fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
 
       // Activity log (fire-and-forget)
       import('@/lib/services/activityLog').then(({ logActivity }) => {
