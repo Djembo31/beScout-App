@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getPlayers, getPlayerById, getPlayersByClubId, getPlayerNames, getPlayerPercentiles, dbToPlayers, dbToPlayer } from '@/lib/services/players';
+import { getPlayers, getPlayerById, getPlayersByClubId, getPlayerNames, getPlayerPercentiles, dbToPlayers } from '@/lib/services/players';
 import type { PlayerName } from '@/lib/services/players';
 import type { DbPlayer } from '@/types';
 
@@ -33,19 +33,6 @@ export function usePlayersByClub(clubId: string | undefined) {
     queryKey: qk.players.byClub(clubId!),
     queryFn: () => getPlayersByClubId(clubId!),
     enabled: !!clubId,
-    staleTime: FIVE_MIN,
-  });
-}
-
-/** Single player by ID */
-export function usePlayerById(id: string | undefined) {
-  return useQuery({
-    queryKey: qk.players.byId(id!),
-    queryFn: async () => {
-      const db = await getPlayerById(id!);
-      return db ? dbToPlayer(db) : null;
-    },
-    enabled: !!id,
     staleTime: FIVE_MIN,
   });
 }

@@ -305,23 +305,6 @@ export async function getAllIposAcrossClubs() {
 }
 
 // ============================================
-// Club Admin Invitation (calls API route)
-// ============================================
-
-export async function inviteClubAdmin(
-  email: string,
-  clubId: string,
-  role: string,
-): Promise<{ success: boolean; message?: string; error?: string }> {
-  const res = await fetch('/api/admin/invite-club-admin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, clubId, role }),
-  });
-  return res.json();
-}
-
-// ============================================
 // Recent Activity (Debug)
 // ============================================
 

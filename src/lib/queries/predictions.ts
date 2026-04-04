@@ -6,7 +6,6 @@ import {
   getPredictions,
   getPredictionCount,
   getPredictionStats,
-  getResolvedPredictions,
   getFixturesForPrediction,
   createPrediction,
   hasAnyPrediction,
@@ -50,16 +49,6 @@ export function usePredictionStats(userId: string | undefined) {
   return useQuery({
     queryKey: qk.predictions.stats(userId!),
     queryFn: () => getPredictionStats(userId!),
-    enabled: !!userId,
-    staleTime: FIVE_MIN,
-  });
-}
-
-/** Resolved predictions for public profile */
-export function useResolvedPredictions(userId: string | undefined) {
-  return useQuery({
-    queryKey: qk.predictions.resolved(userId!),
-    queryFn: () => getResolvedPredictions(userId!),
     enabled: !!userId,
     staleTime: FIVE_MIN,
   });

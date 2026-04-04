@@ -111,38 +111,6 @@ export async function castCommunityPollVote(
   return result;
 }
 
-export async function createCommunityPoll(params: {
-  userId: string;
-  question: string;
-  description: string | null;
-  options: string[];
-  costCents: number;
-  durationDays: number;
-}): Promise<DbCommunityPoll> {
-  const optionsJsonb = params.options.map(label => ({ label, votes: 0 }));
-  const endsAt = new Date(Date.now() + params.durationDays * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data, error } = await supabase
-    .from('community_polls')
-    .insert({
-      created_by: params.userId,
-      question: params.question,
-      description: params.description,
-      options: optionsJsonb,
-      cost_bsd: params.costCents,
-      ends_at: endsAt,
-    })
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  // Activity log
-  import('@/lib/services/activityLog').then(({ logActivity }) => {
-    logActivity(params.userId, 'poll_create', 'community', { pollId: data.id, question: params.question });
-  }).catch(err => console.error('[Polls] Activity log failed:', err));
-  return data as DbCommunityPoll;
-}
-
 export async function cancelCommunityPoll(userId: string, pollId: string): Promise<void> {
   const { error } = await supabase
     .from('community_polls')

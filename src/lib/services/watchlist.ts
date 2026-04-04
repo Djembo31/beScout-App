@@ -48,17 +48,6 @@ export async function getWatchlist(userId: string): Promise<WatchlistEntry[]> {
   }));
 }
 
-/** Check if a player is on the user's watchlist */
-export async function isOnWatchlist(userId: string, playerId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from('watchlist')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('player_id', playerId)
-    .maybeSingle();
-  return !!data;
-}
-
 // ============================================
 // Mutations
 // ============================================

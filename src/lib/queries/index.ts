@@ -4,15 +4,14 @@
  */
 
 export { qk } from './keys';
-export { usePlayers, usePlayerById, usePlayerNames } from './players';
+export { usePlayers, usePlayerNames } from './players';
 export { useHoldings } from './holdings';
-export { useAllOpenOrders, useOrdersCapped, useAllOpenBuyOrders } from './orders';
+export { useAllOpenOrders, useAllOpenBuyOrders } from './orders';
 export { useEnrichedPlayers, enrichPlayersWithData } from './enriched';
 export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds, useUserSocialStats } from './social';
 export { useEvents, useJoinedEventIds } from './events';
 export { useUserStats } from './stats';
-export { useRecentGlobalTrades, useTopTraders } from './trades';
-export { useTransactions, useLeaderboard, usePosts, useDpcOfWeek, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
+export { useTransactions, useLeaderboard, usePosts, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
 export { useActiveIpos } from './ipos';
 export { useTrendingPlayers } from './trending';
 export { useAllPriceHistories } from './priceHist';
@@ -25,12 +24,10 @@ export { useCommunityPolls } from './polls';
 export { useSponsor } from './sponsors';
 export { useSponsorStats } from './sponsorStats';
 export { useClubFixtures } from './fixtures';
-export { useContentTips } from './tips';
-export { useIsSubscribedToScout, useSubscribedScoutIds } from './scoutSubscriptions';
-export { useScoutScores, useScoutLeaderboard, useScoreRoadClaims } from './gamification';
+export { useScoutScores, useScoreRoadClaims } from './gamification';
 export { useDpcMastery, useUserMasteryAll } from './mastery';
-export { useAirdropScore, useAirdropLeaderboard, useAirdropStats } from './airdrop';
-export { usePredictions, usePredictionCount, usePredictionStats, useResolvedPredictions, usePredictionFixtures, useCreatePrediction, useHasAnyPrediction } from './predictions';
+export { useAirdropLeaderboard, useAirdropStats } from './airdrop';
+export { usePredictions, usePredictionCount, usePredictionStats, usePredictionFixtures, useCreatePrediction, useHasAnyPrediction } from './predictions';
 export { usePlayerScoutingSummaries, useTopScouts, useScoutingStats, useClubPrestige, useGlobalTopScouts } from './scouting';
 export { useMissionHints } from './missions';
 export {

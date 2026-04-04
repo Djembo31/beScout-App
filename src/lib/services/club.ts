@@ -189,7 +189,7 @@ export async function toggleFollowClub(
           .eq('user_id', userId)
           .eq('club_id', nextClub.club_id);
 
-        if (promoteErr) console.error(`[Club] toggleFollowClub: promote next primary failed:`, promoteErr.message);
+        if (promoteErr) throw new Error(`promote next primary failed: ${promoteErr.message}`);
 
         const clubs = nextClub.clubs as unknown as { name: string } | null;
         const { error: profileErr } = await supabase
@@ -197,7 +197,7 @@ export async function toggleFollowClub(
           .update({ favorite_club: clubs?.name ?? null, favorite_club_id: nextClub.club_id })
           .eq('id', userId);
 
-        if (profileErr) console.error(`[Club] toggleFollowClub: profile sync failed:`, profileErr.message);
+        if (profileErr) throw new Error(`profile sync failed: ${profileErr.message}`);
       } else {
         // No more followed clubs
         const { error: clearErr } = await supabase
@@ -205,7 +205,7 @@ export async function toggleFollowClub(
           .update({ favorite_club: null, favorite_club_id: null })
           .eq('id', userId);
 
-        if (clearErr) console.error(`[Club] toggleFollowClub: profile clear failed:`, clearErr.message);
+        if (clearErr) throw new Error(`profile clear failed: ${clearErr.message}`);
       }
     }
   }
@@ -231,7 +231,7 @@ export async function followClubsBatch(
     const { error: retryErr } = await supabase
       .from('club_followers')
       .upsert(rows, { onConflict: 'user_id,club_id' });
-    if (retryErr) console.error('[Club] followClubsBatch retry failed:', retryErr.message);
+    if (retryErr) throw new Error(`followClubsBatch retry failed: ${retryErr.message}`);
   }
 }
 

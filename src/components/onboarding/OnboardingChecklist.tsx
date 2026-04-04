@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Rocket, CheckCircle2, Circle, ChevronRight, X, Zap, Trophy, UserPlus, MessageCircle, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Confetti } from '@/components/ui/Confetti';
-import { useHoldings, useJoinedEventIds, useFollowingCount, usePosts, useHasAnyPrediction } from '@/lib/queries';
+import { useHoldings, useJoinedEventIds, usePosts, useHasAnyPrediction } from '@/lib/queries';
+import { useClub } from '@/components/providers/ClubProvider';
 import { useTranslations } from 'next-intl';
 
 // ── Storage Keys ──
@@ -36,7 +37,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   // ── Data queries (deduplicated via React Query) ──
   const { data: holdings = [] } = useHoldings(userId);
   const { data: joinedEventIds = [] } = useJoinedEventIds(userId);
-  const { data: followingCount = 0 } = useFollowingCount(userId);
+  const { followedClubs } = useClub();
   const { data: userPosts = [] } = usePosts({ userId, limit: 1 });
   const { data: hasPrediction = false } = useHasAnyPrediction(userId);
 
@@ -58,7 +59,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
       key: 'followScout',
       icon: <UserPlus className="size-4 text-sky-400" />,
       href: '/community',
-      completed: followingCount > 0,
+      completed: followedClubs.length > 0,
     },
     {
       key: 'createPost',
@@ -72,7 +73,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
       href: '/fantasy',
       completed: hasPrediction,
     },
-  ], [holdings.length, joinedEventIds.length, followingCount, userPosts.length, hasPrediction]);
+  ], [holdings.length, joinedEventIds.length, followedClubs.length, userPosts.length, hasPrediction]);
 
   const completedCount = tasks.filter(t => t.completed).length;
   const allDone = completedCount === tasks.length;

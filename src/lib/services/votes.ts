@@ -5,17 +5,6 @@ import type { DbClubVote } from '@/types';
 // Club Votes
 // ============================================
 
-export async function getActiveVotes(clubId: string): Promise<DbClubVote[]> {
-  const { data, error } = await supabase
-    .from('club_votes')
-    .select('*')
-    .eq('club_id', clubId)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false });
-  if (error) throw new Error(error.message);
-  return (data ?? []) as DbClubVote[];
-}
-
 export async function getAllVotes(clubId: string): Promise<DbClubVote[]> {
   const { data, error } = await supabase
     .from('club_votes')

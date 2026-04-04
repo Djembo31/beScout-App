@@ -2,19 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getAirdropScore, getAirdropLeaderboard, getAirdropStats } from '@/lib/services/airdropScore';
+import { getAirdropLeaderboard, getAirdropStats } from '@/lib/services/airdropScore';
 
 const FIVE_MIN = 5 * 60 * 1000;
-
-/** Fetch user's airdrop score */
-export function useAirdropScore(userId: string | undefined) {
-  return useQuery({
-    queryKey: qk.airdrop.score(userId!),
-    queryFn: () => getAirdropScore(userId!),
-    enabled: !!userId,
-    staleTime: FIVE_MIN,
-  });
-}
 
 /** Fetch airdrop leaderboard (top N) */
 export function useAirdropLeaderboard(limit: number = 100) {

@@ -79,11 +79,3 @@ export function trackClick(sponsorId: string, placement: string): void {
   scheduleFlush();
 }
 
-/** Immediately flush pending events (e.g. on logout) */
-export function flushSponsorEvents(): Promise<void> {
-  if (flushTimer) {
-    clearTimeout(flushTimer);
-    flushTimer = null;
-  }
-  return flush();
-}

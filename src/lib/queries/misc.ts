@@ -6,7 +6,6 @@ import { getTransactions, getHoldingQty, getPlayerHolderCount } from '@/lib/serv
 import { getWatcherCount } from '@/lib/services/watchlist';
 import { getLeaderboard } from '@/lib/services/social';
 import { getPosts } from '@/lib/services/posts';
-import { getDpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
 import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
 import { getClubBySlug } from '@/lib/services/club';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
@@ -56,14 +55,6 @@ export function usePosts(params: {
     queryFn: () => getPosts(queryParams),
     staleTime: TWO_MIN,
     ...(active === false && { enabled: false }),
-  });
-}
-
-export function useDpcOfWeek() {
-  return useQuery({
-    queryKey: qk.dpcOfWeek,
-    queryFn: getDpcOfTheWeek,
-    staleTime: FIVE_MIN,
   });
 }
 

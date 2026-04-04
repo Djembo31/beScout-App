@@ -123,7 +123,6 @@ export function usePlayerTrading({
       if (!result.success) { setBuyError(result.error || t('ipoBuyFailed')); }
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
-        setBuySuccess(t('ipoBuySuccess', { quantity, price: priceBsd }));
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
         if (result.user_total_purchased != null) {
@@ -131,7 +130,8 @@ export function usePlayerTrading({
         }
         invalidateAfterTrade(playerId, userId);
         refreshBalance();
-        setTimeout(() => setBuySuccess(null), 5000);
+        setBuyModalOpen(false);
+        addToast(t('ipoBuySuccess', { quantity, price: priceBsd }), 'success');
       }
     } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { ipoBuyingRef.current = false; setIpoBuying(false); }

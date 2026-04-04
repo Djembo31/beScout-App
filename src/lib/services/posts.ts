@@ -110,38 +110,6 @@ export async function getPosts(options: {
   });
 }
 
-/** Get the user's most upvoted post (for profile hero) */
-export async function getTopPostByUser(userId: string): Promise<PostWithAuthor | null> {
-  const { data, error } = await supabase
-    .from('posts')
-    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
-    .eq('user_id', userId)
-    .is('parent_id', null)
-    .order('upvotes', { ascending: false })
-    .limit(1);
-
-  if (error || !data || data.length === 0) return null;
-  const post = data[0] as DbPost;
-  if (post.upvotes <= 0) return null; // No point showing 0-upvote posts
-
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, handle, display_name, avatar_url, level, verified, top_role')
-    .eq('id', userId)
-    .limit(1);
-  const author = profiles?.[0];
-
-  return {
-    ...post,
-    author_handle: author?.handle ?? 'unknown',
-    author_display_name: author?.display_name ?? null,
-    author_avatar_url: author?.avatar_url ?? null,
-    author_level: author?.level ?? 1,
-    author_verified: author?.verified ?? false,
-    author_top_role: author?.top_role ?? null,
-  };
-}
-
 export async function createPost(
   userId: string,
   playerId: string | null,

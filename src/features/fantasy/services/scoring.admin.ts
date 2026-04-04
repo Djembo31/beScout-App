@@ -286,11 +286,6 @@ export async function finalizeGameweek(
   // 6. Bust API cache
   try { await fetch('/api/events?bust=1'); } catch { /* best-effort */ }
 
-  // 7. DPC of the Week (fire-and-forget)
-  import('@/lib/services/dpcOfTheWeek').then(({ calculateDpcOfWeek }) => {
-    calculateDpcOfWeek(gameweek).catch(err => console.error('[GW Flow] DPC of Week failed:', err));
-  }).catch(err => console.error('[GW Flow] DPC of Week import failed:', err));
-
   return {
     success: errors.length === 0,
     fixturesSimulated: 0,
