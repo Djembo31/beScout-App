@@ -88,7 +88,7 @@ export const EventDetailModal = ({
   // Set default tab based on join status when modal opens -- reset transient state
   useEffect(() => {
     if (isOpen && event) {
-      setTab(event.scoredAt ? (event.isJoined ? 'lineup' : 'leaderboard') : event.isJoined ? 'lineup' : 'overview');
+      setTab(event.scoredAt ? (event.isJoined ? 'lineup' : 'leaderboard') : 'lineup');
       setScoringJustFinished(false);
       setShowJoinConfirm(false);
       setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
@@ -385,32 +385,9 @@ export const EventDetailModal = ({
   const overBudget = salaryCap != null && totalSalary > salaryCap;
   const isScored = !!event.scoredAt;
 
-  // Join (entry only -- no lineup required)
+  // Join: opens lineup tab -- actual join happens on lineup save
   const handleConfirmJoin = () => {
-    setShowJoinConfirm(true);
-  };
-
-  const handleFinalJoin = async () => {
-    if (joining) return;
-    setJoining(true);
-    try {
-      setShowJoinConfirm(false);
-      await onJoin(event);
-      setParticipantCount(prev => prev + 1);
-
-      if (selectedPlayers.length === formationSlots.length && reqCheck.ok) {
-        try {
-          await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
-          return;
-        } catch (err) {
-          console.error('[EventDetail] Auto-save after join failed:', err);
-        }
-      }
-
-      setTab('lineup');
-    } finally {
-      setJoining(false);
-    }
+    setTab('lineup');
   };
 
   const handleSaveLineup = async () => {
@@ -418,6 +395,12 @@ export const EventDetailModal = ({
     if (!reqCheck.ok) { alert(reqCheck.message); return; }
     setJoining(true);
     try {
+      // If not yet joined: join first (payment + entry), then save lineup
+      if (!event.isJoined) {
+        setShowJoinConfirm(false);
+        await onJoin(event);
+        setParticipantCount(prev => prev + 1);
+      }
       await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
     } catch (err) {
       console.error('[EventDetail] handleSaveLineup failed:', err);
@@ -538,18 +521,6 @@ export const EventDetailModal = ({
             />
           )}
         </div>
-
-        {/* Join Confirmation Dialog */}
-        {showJoinConfirm && (
-          <JoinConfirmDialog
-            event={event}
-            joining={joining}
-            onConfirm={handleFinalJoin}
-            onCancel={() => setShowJoinConfirm(false)}
-            holdingsCount={effectiveHoldings.length}
-            slotsRequired={formationSlots.length}
-          />
-        )}
 
         {/* Footer Actions */}
         <EventDetailFooter

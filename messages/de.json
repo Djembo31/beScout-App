@@ -769,6 +769,7 @@
     "leavingBtn": "Abmelden...",
     "leaveBtn": "Abmelden",
     "editLineup": "Aufstellung ändern",
+    "joinAndSaveLineup": "Beitreten & Aufstellung speichern",
     "joinedLocked": "Nimmt teil — Aufstellung gesperrt",
     "eventRunningClosed": "Event läuft — Anmeldung geschlossen",
     "statusEnded": "Beendet",

@@ -51,45 +51,8 @@ export function EventDetailFooter({
 
   return (
     <div className="sticky bottom-0 z-10">
-      {/* Join -- only when not joined AND event not running/ended */}
-      {!event.isJoined && event.status !== 'ended' && event.status !== 'running' && (() => {
-        const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
-        const ticketCost = event.ticketCost ?? 0;
-        const hasCost = ticketCost > 0;
-        const costLabel = event.currency === 'tickets' && ticketCost > 0
-          ? t('ticketCost', { cost: ticketCost })
-          : event.currency === 'scout' && ticketCost > 0
-          ? `${fmtScout(ticketCost / 100)} $SCOUT`
-          : t('freeLabel');
-        return (
-          <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
-            <div className="p-3 md:p-5">
-              <Button
-                variant="gold"
-                fullWidth
-                size="lg"
-                onClick={onConfirmJoin}
-                disabled={isFull || joining}
-                className={cn(isFull ? 'opacity-60' : '')}
-              >
-                {joining
-                  ? <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
-                  : <CheckCircle2 aria-hidden="true" className="size-5" />
-                }
-                {isFull
-                  ? t('eventFull')
-                  : hasCost
-                  ? t('joinAndPay', { amount: costLabel })
-                  : t('confirmRegistration')
-                }
-              </Button>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Update / Leave -- registering/late-reg OR running with unlocked fixtures */}
-      {event.isJoined && event.status !== 'ended' && (event.status !== 'running' || hasUnlockedFixtures) && (
+      {/* Lineup builder footer -- for both joined and non-joined users during registration */}
+      {event.status !== 'ended' && (event.status !== 'running' || (event.isJoined && hasUnlockedFixtures)) && (
         <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
           {/* Lineup progress indicator */}
           {!isLineupComplete && (
@@ -126,29 +89,33 @@ export function EventDetailFooter({
             </div>
           )}
           <div className="p-3 md:p-5 flex gap-3">
-            <Button
-              variant="outline"
-              fullWidth
-              size="lg"
-              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-              onClick={onLeave}
-              disabled={leaving}
-            >
-              {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('leavingBtn')}</> : t('leaveBtn')}
-            </Button>
+            {event.isJoined && (
+              <Button
+                variant="outline"
+                fullWidth
+                size="lg"
+                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                onClick={onLeave}
+                disabled={leaving}
+              >
+                {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('leavingBtn')}</> : t('leaveBtn')}
+              </Button>
+            )}
             <Button
               variant="gold"
               fullWidth
               size="lg"
-              onClick={onSaveLineup}
-              disabled={!isLineupComplete || !reqCheck.ok || overBudget || joining}
+              onClick={event.isJoined ? onSaveLineup : onSaveLineup}
+              disabled={!isLineupComplete || !reqCheck.ok || overBudget || joining || (!event.isJoined && !!(event.maxParticipants && event.participants >= event.maxParticipants))}
               className={cn(!isLineupComplete || !reqCheck.ok || overBudget ? 'opacity-50' : '')}
             >
               {joining
                 ? <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
-                : <Save aria-hidden="true" className="size-5" />
+                : event.isJoined
+                ? <Save aria-hidden="true" className="size-5" />
+                : <CheckCircle2 aria-hidden="true" className="size-5" />
               }
-              {t('editLineup')}
+              {event.isJoined ? t('editLineup') : t('joinAndSaveLineup')}
             </Button>
           </div>
         </div>
