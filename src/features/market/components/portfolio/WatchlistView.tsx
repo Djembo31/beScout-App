@@ -96,7 +96,7 @@ function ThresholdPopover({
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 z-50 w-44 bg-[#141414] border border-white/10 rounded-xl shadow-xl overflow-hidden"
+          className="absolute right-0 top-full mt-1 z-50 w-44 bg-surface-popover border border-white/10 rounded-xl shadow-xl overflow-hidden"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
         >
           <div className="px-3 py-2 border-b border-divider">

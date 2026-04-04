@@ -222,7 +222,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 onClick={() => { setPredType('match'); setSelectedPlayerId(null); setSelectedPlayerName(''); setSelectedCondition(null); setSelectedValue(null); }}
                 className={cn(
                   'flex-1 py-2 rounded-lg text-sm font-bold transition-colors',
-                  predType === 'match' ? 'bg-gold/15 text-gold' : 'bg-white/5 text-white/40'
+                  predType === 'match' ? 'bg-gold/15 text-gold' : 'bg-surface-base text-white/40'
                 )}
               >
                 <Target className="size-3.5 inline mr-1" aria-hidden="true" />
@@ -232,7 +232,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 onClick={() => { handlePlayerTypeSelect(); setSelectedCondition(null); setSelectedValue(null); }}
                 className={cn(
                   'flex-1 py-2 rounded-lg text-sm font-bold transition-colors',
-                  predType === 'player' ? 'bg-gold/15 text-gold' : 'bg-white/5 text-white/40'
+                  predType === 'player' ? 'bg-gold/15 text-gold' : 'bg-surface-base text-white/40'
                 )}
               >
                 <User className="size-3.5 inline mr-1" aria-hidden="true" />
@@ -249,7 +249,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   aria-label={t('searchPlayer')}
                   value={playerSearch}
                   onChange={e => setPlayerSearch(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold/50"
+                  className="w-full px-3 py-2 bg-surface-base border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold/50"
                 />
                 {loadingPlayers ? (
                   <div className="flex justify-center py-4"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>
@@ -259,7 +259,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                       <button
                         key={p.id}
                         onClick={() => { setSelectedPlayerId(p.id); setSelectedPlayerName(`${p.first_name} ${p.last_name}`); }}
-                        className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 text-left text-sm"
+                        className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-surface-base text-left text-sm"
                       >
                         <PlayerIdentity
                           player={{ first: p.first_name, last: p.last_name, pos: p.position as 'GK' | 'DEF' | 'MID' | 'ATT', status: 'fit', club: p.club ?? '', ticket: 0, age: 0, imageUrl: p.image_url }}
@@ -274,7 +274,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
 
             {/* Selected player badge */}
             {predType === 'player' && selectedPlayerId && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg">
+              <div className="flex items-center gap-2 px-3 py-2 bg-surface-base rounded-lg">
                 <User className="size-3.5 text-gold" aria-hidden="true" />
                 <span className="text-sm font-bold">{selectedPlayerName}</span>
                 <button onClick={() => { setSelectedPlayerId(null); setSelectedPlayerName(''); setSelectedCondition(null); setSelectedValue(null); }} className="ml-auto text-xs text-white/40 hover:text-white/60">

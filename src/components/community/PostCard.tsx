@@ -119,7 +119,7 @@ export default function PostCard({
             aria-label={myVote === 1 ? tc('removeUpvote') : tc('upvoteLabel')}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors active:scale-[0.97]',
-              myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500 hover:bg-white/5'
+              myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500 hover:bg-surface-base'
             )}
           >
             <ArrowUp className="w-4 h-4" />
@@ -138,7 +138,7 @@ export default function PostCard({
             aria-label={myVote === -1 ? tc('removeDownvote') : tc('downvoteLabel')}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors active:scale-[0.97]',
-              myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300 hover:bg-white/5'
+              myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300 hover:bg-surface-base'
             )}
           >
             <ArrowDown className="w-4 h-4" />
@@ -171,7 +171,7 @@ export default function PostCard({
                   {tc('officialLabel')}
                 </span>
               )}
-              <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
+              <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-surface-base rounded">Lv{post.author_level}</span>
               {post.is_pinned && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-gold/10 text-gold border border-gold/20">
                   <Pin className="w-2.5 h-2.5" />
@@ -190,7 +190,7 @@ export default function PostCard({
                     {isClubAdmin && onTogglePin && (
                       <button
                         onClick={() => { onTogglePin(post.id, !post.is_pinned); setShowMenu(false); }}
-                        className="w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-white/5 flex items-center gap-2"
+                        className="w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-surface-base flex items-center gap-2"
                       >
                         <Pin className="w-3.5 h-3.5" />
                         {post.is_pinned ? tc('unpinAction') : tc('pinAction')}
@@ -199,7 +199,7 @@ export default function PostCard({
                     {isOwn && (
                       <button
                         onClick={() => { setConfirmDelete('own'); setShowMenu(false); }}
-                        className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-white/5 flex items-center gap-2"
+                        className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-surface-base flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         {tc('deleteAction')}
@@ -208,7 +208,7 @@ export default function PostCard({
                     {isClubAdmin && !isOwn && onAdminDelete && (
                       <button
                         onClick={() => { setConfirmDelete('admin'); setShowMenu(false); }}
-                        className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-white/5 flex items-center gap-2"
+                        className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-surface-base flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         {tc('adminDeleteAction')}
@@ -217,7 +217,7 @@ export default function PostCard({
                     {!isOwn && onReport && (
                       <button
                         onClick={() => { onReport(post.id); setShowMenu(false); }}
-                        className="w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-white/5 flex items-center gap-2"
+                        className="w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-surface-base flex items-center gap-2"
                       >
                         <Flag className="w-3.5 h-3.5" />
                         {tc('reportAction')}
@@ -245,7 +245,7 @@ export default function PostCard({
               </button>
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 text-white/50 hover:bg-white/10 transition-colors"
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface-base text-white/50 hover:bg-white/10 transition-colors"
               >
                 {tc('cancelAction')}
               </button>
@@ -258,7 +258,7 @@ export default function PostCard({
               {post.category && (
                 <span className={cn(
                   'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border',
-                  POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-white/5 text-white/50 border-white/10'
+                  POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-surface-base text-white/50 border-white/10'
                 )}>
                   {post.category}
                 </span>
@@ -288,7 +288,7 @@ export default function PostCard({
                 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs mb-2 hover:opacity-80 transition-opacity',
                 isOwnedPlayer
                   ? 'bg-gold/15 text-gold border border-gold/20'
-                  : 'bg-white/5 text-white/70'
+                  : 'bg-surface-base text-white/70'
               )}>
                 <Target className="w-3 h-3" />
                 {post.player_name}
@@ -332,7 +332,7 @@ export default function PostCard({
           {post.tags.length > 0 && (
             <div className="flex items-center gap-1.5 mb-2 flex-wrap">
               {post.tags.map((tag) => (
-                <span key={tag} className="px-1.5 py-0.5 rounded-full text-[10px] bg-white/5 text-white/40">
+                <span key={tag} className="px-1.5 py-0.5 rounded-full text-[10px] bg-surface-base text-white/40">
                   #{tag}
                 </span>
               ))}

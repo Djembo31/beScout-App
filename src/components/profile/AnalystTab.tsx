@@ -276,7 +276,7 @@ export default function AnalystTab({
                       ) : post.player_name ? (
                         <span className="text-[10px] font-bold text-white/70">{post.player_name}</span>
                       ) : null}
-                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-white/40 border border-divider">
+                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-surface-base text-white/40 border border-divider">
                         {post.horizon}
                       </span>
                     </div>
@@ -430,7 +430,7 @@ export default function AnalystTab({
                   </span>
                   <span className={cn(
                     'text-[9px] px-1.5 py-0.5 rounded-full font-bold',
-                    payout.status === 'paid' ? 'bg-green-500/10 text-green-500' : payout.status === 'pending' ? 'bg-amber-400/10 text-amber-400' : 'bg-white/5 text-white/30',
+                    payout.status === 'paid' ? 'bg-green-500/10 text-green-500' : payout.status === 'pending' ? 'bg-amber-400/10 text-amber-400' : 'bg-surface-base text-white/30',
                   )}>
                     {tp(`payoutStatus_${payout.status}`)}
                   </span>
@@ -486,7 +486,7 @@ function ExpertBadgesCard({
             >
               <div className={cn(
                 'size-8 rounded-lg flex items-center justify-center flex-shrink-0',
-                badge.earned ? badge.bgColor : 'bg-white/5'
+                badge.earned ? badge.bgColor : 'bg-surface-base'
               )}>
                 {badge.earned
                   ? <IconComp className={cn('size-4', badge.color)} aria-hidden="true" />
@@ -498,7 +498,7 @@ function ExpertBadgesCard({
                 </div>
                 {!badge.earned && (
                   <div className="mt-1">
-                    <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-1 rounded-full bg-surface-base overflow-hidden">
                       <div
                         className="h-full rounded-full bg-white/20 transition-colors"
                         style={{ width: `${badge.progress}%` }}

@@ -102,7 +102,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
             const isMe = user?.id === p.userId;
             const isFollowingThem = followingMap.get(p.userId) ?? false;
             return (
-              <div key={p.userId} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
+              <div key={p.userId} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-base transition-colors">
                 {/* Avatar */}
                 <div className="relative size-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-white/60 overflow-hidden flex-shrink-0">
                   {p.avatarUrl ? (

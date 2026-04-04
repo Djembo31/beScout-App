@@ -111,7 +111,7 @@ export default function DailyChallengeCard({
   // Determine option styling after answer
   const getOptionClass = (idx: number): string => {
     if (!hasAnswered) {
-      return 'bg-surface-subtle border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 text-white/80';
+      return 'bg-surface-subtle border-white/[0.08] hover:bg-surface-elevated hover:border-white/15 text-white/80';
     }
 
     const wasSelected = userAnswer.selectedOption === idx;

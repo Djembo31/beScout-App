@@ -131,7 +131,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="font-bold text-xs">{reply.author_display_name || reply.author_handle}</span>
                       {reply.author_verified && <BadgeCheck className="w-3 h-3 text-gold" />}
-                      <span className="text-[10px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{reply.author_level}</span>
+                      <span className="text-[10px] text-white/30 px-1 py-0.5 bg-surface-base rounded">Lv{reply.author_level}</span>
                       <span className="text-[10px] text-white/30">{formatTimeAgo(reply.created_at, tc('timeJust'), dateLocale)}</span>
                     </div>
 
@@ -200,7 +200,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                 onChange={(e) => setReplyText(e.target.value.slice(0, 300))}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
                 placeholder={tc('replyPlaceholder')}
-                className="w-full px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-12"
+                className="w-full px-3 py-1.5 rounded-lg text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-12"
               />
               {replyText.length > 0 && (
                 <span className={cn('absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono', replyText.length > 250 ? 'text-amber-400' : 'text-white/20')}>

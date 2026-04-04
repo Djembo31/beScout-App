@@ -222,7 +222,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                     </div>
                     <div className="text-xs text-white/40 line-clamp-2 mt-1">{bounty.description}</div>
                   </div>
-                  <Chip className={isOpen ? 'bg-green-500/15 text-green-500 border-green-500/25 ml-2' : 'bg-white/5 text-white/50 border-white/10 ml-2'}>
+                  <Chip className={isOpen ? 'bg-green-500/15 text-green-500 border-green-500/25 ml-2' : 'bg-surface-base text-white/50 border-white/10 ml-2'}>
                     {bounty.status === 'cancelled' ? t('cancelled') : isOpen ? t('open') : t('closed')}
                   </Chip>
                 </div>
@@ -270,7 +270,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-colors ${
                   bountyType === 'general'
                     ? 'bg-amber-500/15 text-amber-300 border-amber-500/25'
-                    : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+                    : 'bg-surface-base text-white/50 border-white/10 hover:bg-white/10'
                 }`}
               >
                 <Target className="w-4 h-4" />
@@ -282,7 +282,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-colors ${
                   bountyType === 'scouting'
                     ? 'bg-rose-500/15 text-rose-300 border-rose-500/25'
-                    : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+                    : 'bg-surface-base text-white/50 border-white/10 hover:bg-white/10'
                 }`}
               >
                 <Telescope className="w-4 h-4" />
@@ -300,7 +300,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
               placeholder={t('titlePlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
             />
           </div>
           <div>
@@ -310,7 +310,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
               rows={4}
               placeholder={t('descPlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
             />
             <div className="text-[10px] text-white/30 mt-1">{t('charCount', { count: description.length })}</div>
           </div>
@@ -324,7 +324,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 onChange={(e) => setReward(e.target.value)}
                 min="5"
                 max="1000"
-                className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40"
+                className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40"
               />
             </div>
             <div>
@@ -336,7 +336,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 onChange={(e) => setDays(e.target.value)}
                 min="1"
                 max="30"
-                className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40"
+                className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40"
               />
             </div>
             <div>
@@ -348,7 +348,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 onChange={(e) => setMaxSubs(e.target.value)}
                 min="1"
                 max="50"
-                className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40"
+                className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40"
               />
             </div>
           </div>
@@ -357,7 +357,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             <select
               value={minTier}
               onChange={(e) => setMinTier(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40"
             >
               <option value="">{t('allTiers')}</option>
               <option value="bronze">{t('bronzePlus')}</option>
@@ -445,7 +445,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 onChange={(e) => setFeedback(e.target.value.slice(0, 500))}
                 rows={2}
                 placeholder={t('feedbackPlaceholder')}
-                className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+                className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
               />
             </div>
             {viewBounty && (

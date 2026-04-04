@@ -85,7 +85,7 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
             'px-1.5 py-0.5 rounded-full text-xs font-bold',
             prediction.difficulty === 0.5 ? 'text-emerald-400 bg-emerald-400/10' :
             prediction.difficulty === 1.5 ? 'text-red-400 bg-red-400/10' :
-            'text-white/40 bg-white/5'
+            'text-white/40 bg-surface-base'
           )}>
             {prediction.difficulty === 0.5 ? '★' : prediction.difficulty === 1.5 ? '★★★' : '★★'}
           </span>
@@ -137,13 +137,13 @@ function getStatusConfig(
       return {
         icon: <MinusCircle className="size-3.5" aria-hidden="true" />,
         label: t('void'),
-        className: 'text-white/40 bg-white/5',
+        className: 'text-white/40 bg-surface-base',
       };
     default:
       return {
         icon: <Clock className="size-3.5 animate-pulse motion-reduce:animate-none" aria-hidden="true" />,
         label: t('pending'),
-        className: 'text-white/40 bg-white/5',
+        className: 'text-white/40 bg-surface-base',
       };
   }
 }

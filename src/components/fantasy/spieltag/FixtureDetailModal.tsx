@@ -155,7 +155,7 @@ function MatchTimeline({ substitutions, homeClubId }: {
               {/* Center minute pill */}
               <div className="flex flex-col items-center relative py-1">
                 <div className="absolute top-0 bottom-0 w-px bg-white/[0.06]" aria-hidden="true" />
-                <span className="relative z-10 px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-mono text-white/50 tabular-nums whitespace-nowrap shadow-sm">
+                <span className="relative z-10 px-2 py-0.5 rounded-full bg-surface-elevated text-[10px] font-mono text-white/50 tabular-nums whitespace-nowrap shadow-sm">
                   {fmtMinute(sub)}
                 </span>
               </div>
@@ -531,7 +531,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                   </span>
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-1.5 md:mt-2">
-                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-white/[0.08] text-[10px] font-black text-white/60 uppercase tracking-widest border border-divider">{ts('fullTime')}</span>
+                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-surface-elevated text-[10px] font-black text-white/60 uppercase tracking-widest border border-divider">{ts('fullTime')}</span>
                   <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
                 </div>
               </>

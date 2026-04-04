@@ -48,7 +48,7 @@ export default function AchievementUnlockModal({
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-medium text-white/60 hover:bg-white/10 transition-colors min-h-[44px]"
+              className="flex-1 py-3 rounded-xl bg-surface-base border border-white/10 text-sm font-medium text-white/60 hover:bg-white/10 transition-colors min-h-[44px]"
             >
               {t('continue')}
             </button>

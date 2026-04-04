@@ -280,7 +280,7 @@ function BestandPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLin
           )}
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(p.id); }}
-            className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-colors"
+            className="p-2 rounded-lg bg-surface-base border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-colors"
             aria-label={t('bestandSell')}
           >
             <DollarSign className="size-3.5" aria-hidden="true" />

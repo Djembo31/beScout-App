@@ -34,11 +34,11 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
         <span className="text-white/50">{t('summarySquadValue')}</span>
         <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(totalValue)} CR</span>
       </div>
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg">
         <span className="text-white/50">{t('summaryLineup')}</span>
         <span className="font-mono font-bold tabular-nums">{assignedCount}/{totalSlots}</span>
       </div>
-      <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+      <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg">
         <span className="text-emerald-400 font-bold tabular-nums">{posCounts.GK} GK</span>
         <span className="text-white/20">|</span>
         <span className="text-amber-400 font-bold tabular-nums">{posCounts.DEF} DEF</span>
@@ -48,7 +48,7 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
         <span className="text-rose-400 font-bold tabular-nums">{posCounts.ATT} ATT</span>
       </div>
       {avgPerf > 0 && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg">
           <span className="text-white/50">{t('summaryPerf')}</span>
           <span className={`font-mono font-bold tabular-nums ${avgPerf >= 70 ? 'text-gold' : avgPerf >= 50 ? 'text-white' : 'text-red-400'}`}>
             {avgPerf}
@@ -56,7 +56,7 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
         </div>
       )}
       {portfolioPctChange !== null && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg">
           <span className="text-white/50">{t('wertentwicklung')}</span>
           <span className={`font-mono font-bold tabular-nums ${portfolioPctChange >= 0 ? 'text-green-500' : 'text-red-400'}`}>
             {portfolioPctChange >= 0 ? '+' : ''}{portfolioPctChange.toFixed(1)}%

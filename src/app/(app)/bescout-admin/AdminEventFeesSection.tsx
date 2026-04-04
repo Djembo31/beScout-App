@@ -107,7 +107,7 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
                       ...prev,
                       platform_pct: Math.min(5000, Math.max(0, parseInt(e.target.value) || 0)),
                     }))}
-                    className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs tabular-nums text-right"
+                    className="w-full px-2 py-1 bg-surface-base border border-white/10 rounded text-white font-mono text-xs tabular-nums text-right"
                   />
                 ) : (
                   <span className="font-mono tabular-nums text-xs text-white">{(pPct / 100).toFixed(1)}%</span>
@@ -127,7 +127,7 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
                       ...prev,
                       beneficiary_pct: Math.min(5000, Math.max(0, parseInt(e.target.value) || 0)),
                     }))}
-                    className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs tabular-nums text-right"
+                    className="w-full px-2 py-1 bg-surface-base border border-white/10 rounded text-white font-mono text-xs tabular-nums text-right"
                   />
                 ) : (
                   <span className="font-mono tabular-nums text-xs text-white/50">

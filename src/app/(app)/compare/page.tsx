@@ -198,7 +198,7 @@ export default function ComparePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
+            className="w-full pl-10 pr-4 py-3 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
             autoFocus={activeSlot !== null}
           />
           {filteredPlayers.length > 0 && (
@@ -207,7 +207,7 @@ export default function ComparePage() {
                 <button
                   key={p.id}
                   onClick={() => handleAddPlayer(p.id)}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 hover:bg-surface-base transition-colors text-left"
                 >
                   <PlayerIdentity
                     player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}

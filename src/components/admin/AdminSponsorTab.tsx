@@ -87,7 +87,7 @@ export default function AdminSponsorTab({ club }: { club: ClubWithAdmin }) {
                 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 days === d
                   ? 'bg-gold/15 text-gold border-gold/25'
-                  : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                  : 'text-white/50 bg-surface-base border-white/10 hover:bg-white/10'
               )}
             >
               {d === 0 ? t('allTime') : t('daysRange', { days: d })}
@@ -119,7 +119,7 @@ export default function AdminSponsorTab({ club }: { club: ClubWithAdmin }) {
             return (
               <div key={sponsor.id} className="flex items-center gap-3 p-4 min-h-[56px] hover:bg-surface-minimal transition-colors">
                 {/* Logo */}
-                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-surface-base border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {sponsor.logo_url ? (
                     <Image src={sponsor.logo_url} alt={sponsor.name} width={32} height={32} className="object-contain" />
                   ) : (
@@ -131,7 +131,7 @@ export default function AdminSponsorTab({ club }: { club: ClubWithAdmin }) {
                   <div className="text-sm font-bold truncate">{sponsor.name}</div>
                   <span className={cn(
                     'inline-block px-1.5 py-0.5 rounded-full text-[10px] font-semibold border mt-0.5',
-                    PLACEMENT_COLORS[sponsor.placement] ?? 'bg-white/5 text-white/50 border-white/10'
+                    PLACEMENT_COLORS[sponsor.placement] ?? 'bg-surface-base text-white/50 border-white/10'
                   )}>
                     {sponsor.placement.replace(/_/g, ' ')}
                   </span>

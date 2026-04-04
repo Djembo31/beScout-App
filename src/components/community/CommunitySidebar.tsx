@@ -108,7 +108,7 @@ function CommunitySidebarInner({
               <Link key={scout.userId} href={`/profile/${scout.handle}`} className="flex items-center gap-3 py-1.5 hover:bg-surface-subtle rounded-lg px-1 -mx-1 transition-colors">
                 <span className={cn(
                   'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                  i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/50'
+                  i === 0 ? 'bg-gold/20 text-gold' : 'bg-surface-base text-white/50'
                 )}>
                   {i + 1}
                 </span>

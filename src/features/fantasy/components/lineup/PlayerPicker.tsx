@@ -195,7 +195,7 @@ export function PlayerPicker({
                 placeholder={t('searchPlayerPlaceholder')}
                 value={pickerSearch}
                 onChange={e => setPickerSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
+                className="w-full pl-9 pr-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
               />
             </div>
           </div>

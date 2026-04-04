@@ -89,7 +89,7 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
                       max={10000}
                       value={editValues[key] ?? 0}
                       onChange={e => setEditValues(prev => ({ ...prev, [key]: Math.min(10000, Math.max(0, parseInt(e.target.value) || 0)) }))}
-                      className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs tabular-nums"
+                      className="w-full px-2 py-1 bg-surface-base border border-white/10 rounded text-white font-mono text-xs tabular-nums"
                     />
                   ) : (
                     <div className="font-mono tabular-nums text-white">{config[key]} {t('feeBps')}</div>

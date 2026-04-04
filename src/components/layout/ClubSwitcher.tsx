@@ -28,7 +28,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
   if (loading || !activeClub) {
     return (
       <div className={cn('p-3 border-b border-white/10', collapsed ? 'px-2' : '')}>
-        <div className="h-10 rounded-xl bg-white/5 animate-pulse motion-reduce:animate-none" />
+        <div className="h-10 rounded-xl bg-surface-base animate-pulse motion-reduce:animate-none" />
       </div>
     );
   }
@@ -44,7 +44,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
         aria-label={collapsed ? t('clubSwitcherLabel') : undefined}
         className={cn(
           'w-full flex items-center gap-2.5 rounded-xl transition-colors min-h-[44px]',
-          'bg-white/5 hover:bg-white/[0.08] active:scale-[0.97]',
+          'bg-surface-base hover:bg-surface-elevated active:scale-[0.97]',
           collapsed ? 'p-2 justify-center' : 'px-3 py-2.5'
         )}
         title={collapsed ? activeClub.name : undefined}
@@ -74,7 +74,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
 
       {/* Dropdown */}
       {open && !collapsed && (
-        <div role="listbox" aria-label={t('clubSwitcherLabel')} className="absolute left-3 right-3 top-full mt-1 z-50 bg-[#141414] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+        <div role="listbox" aria-label={t('clubSwitcherLabel')} className="absolute left-3 right-3 top-full mt-1 z-50 bg-surface-popover border border-white/10 rounded-xl shadow-2xl overflow-hidden">
           <div className="max-h-[260px] overflow-y-auto">
             {followedClubs.map((club) => {
               const color = club.primary_color ?? '#FFD700';
@@ -90,7 +90,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
                   }}
                   className={cn(
                     'w-full flex items-center gap-2.5 px-3 py-2.5 min-h-[44px] transition-colors',
-                    isActive ? 'bg-white/[0.08]' : 'hover:bg-white/5'
+                    isActive ? 'bg-surface-elevated' : 'hover:bg-surface-base'
                   )}
                 >
                   <div

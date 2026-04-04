@@ -230,7 +230,7 @@ function TradingTabInner({
             {player.listings.map((listing) => (
               <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-surface-subtle transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center">
+                  <div className="size-8 rounded-lg bg-surface-base flex items-center justify-center">
                     <span className="font-bold text-[10px]">Lv{listing.sellerLevel}</span>
                   </div>
                   <div>
@@ -432,7 +432,7 @@ function TradingTabInner({
                 <div className="flex items-center gap-2.5">
                   <div className={cn(
                     'size-6 rounded-lg flex items-center justify-center text-[10px] font-bold',
-                    i === 0 ? 'bg-gold/20 text-gold' : i === 1 ? 'bg-white/10 text-white/70' : i === 2 ? 'bg-orange-500/20 text-orange-300' : 'bg-white/5 text-white/50'
+                    i === 0 ? 'bg-gold/20 text-gold' : i === 1 ? 'bg-white/10 text-white/70' : i === 2 ? 'bg-orange-500/20 text-orange-300' : 'bg-surface-base text-white/50'
                   )}>
                     #{i + 1}
                   </div>

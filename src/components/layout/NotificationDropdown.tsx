@@ -315,7 +315,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
           aria-modal="true"
           aria-label={tn('title')}
           className={cn(
-            'fixed inset-x-0 bottom-0 bg-[#111] border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden transition-transform',
+            'fixed inset-x-0 bottom-0 bg-surface-modal border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden transition-transform',
             closing ? 'translate-y-full' : 'translate-y-0',
           )}
           style={{ transitionDuration: `${EXIT_MS}ms`, transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}

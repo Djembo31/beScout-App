@@ -39,7 +39,7 @@ interface BuyConfirmModalProps {
 // Qty selector buttons — shared style with BuyModal.tsx BuyForm pattern
 // Not extracted into shared component because contexts diverge
 // (BuyForm has inline buy action, this is a confirmation step)
-const QTY_BTN = 'size-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold transition-colors flex items-center justify-center disabled:opacity-50 hover:bg-white/10 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50';
+const QTY_BTN = 'size-9 min-w-[44px] min-h-[44px] rounded-lg bg-surface-base border border-white/10 font-bold transition-colors flex items-center justify-center disabled:opacity-50 hover:bg-white/10 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50';
 
 export default function BuyConfirmModal({
   open, onClose, player, source, priceCents, maxQty,
@@ -166,7 +166,7 @@ export default function BuyConfirmModal({
                   disabled={isPending}
                   aria-label={tp('qtyLabel', { defaultMessage: 'Anzahl' })}
                   onChange={(e) => setQty(Math.max(1, Math.min(maxQty, parseInt(e.target.value) || 1)))}
-                  className="w-12 min-h-[44px] text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base tabular-nums disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+                  className="w-12 min-h-[44px] text-center bg-surface-base border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base tabular-nums disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
                 />
                 <button
                   onClick={() => setQty(Math.min(maxQty, qty + 1))}

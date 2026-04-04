@@ -317,7 +317,7 @@ export function SpieltagTab({
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowConfirm(false)}
-              className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-surface-base border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               {ts('cancelBtn')}
             </button>
@@ -356,7 +356,7 @@ export function SpieltagTab({
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowFinalizeConfirm(false)}
-              className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-surface-base border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               {ts('cancelBtn')}
             </button>

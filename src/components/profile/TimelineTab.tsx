@@ -238,7 +238,7 @@ export default function TimelineTab({ transactions: initial, ticketTransactions:
               'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]',
               filter === f.id
                 ? 'bg-gold/10 text-gold'
-                : 'bg-white/5 text-white/40 hover:text-white/60 hover:bg-white/[0.07] active:scale-[0.97]',
+                : 'bg-surface-base text-white/40 hover:text-white/60 hover:bg-white/[0.07] active:scale-[0.97]',
             )}
           >
             {t(f.labelKey)}

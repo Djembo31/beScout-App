@@ -129,7 +129,7 @@ export function TourOverlay() {
   if (currentStep.centered) {
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
-        <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 max-w-sm mx-4 text-center shadow-2xl">
+        <div className="bg-surface-popover border border-white/10 rounded-2xl p-6 max-w-sm mx-4 text-center shadow-2xl">
           {currentStep.icon && (
             <div className="text-4xl mb-3">{currentStep.icon}</div>
           )}
@@ -138,7 +138,7 @@ export function TourOverlay() {
           <div className="flex gap-3">
             <button
               onClick={skipTour}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white/40 hover:bg-white/5 transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white/40 hover:bg-surface-base transition-colors"
             >
               {tc('skipLabel')}
             </button>
@@ -184,7 +184,7 @@ export function TourOverlay() {
       {targetRect && (
         <div
           ref={tooltipRef}
-          className="w-[300px] sm:w-[340px] bg-[#111] border border-white/15 rounded-2xl p-4 shadow-2xl"
+          className="w-[300px] sm:w-[340px] bg-surface-modal border border-white/15 rounded-2xl p-4 shadow-2xl"
           style={getTooltipStyle(targetRect, currentStep.position, tooltipRef)}
         >
           <h3 className="text-sm font-black mb-1">{tt(currentStep.titleKey)}</h3>
@@ -230,7 +230,7 @@ export function TourOverlay() {
         <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
           <div
             ref={tooltipRef}
-            className="w-[300px] sm:w-[340px] bg-[#111] border border-white/15 rounded-2xl p-4 shadow-2xl"
+            className="w-[300px] sm:w-[340px] bg-surface-modal border border-white/15 rounded-2xl p-4 shadow-2xl"
           >
             <h3 className="text-sm font-black mb-1">{tt(currentStep.titleKey)}</h3>
             <p className="text-xs text-white/60 leading-relaxed mb-4">{tt(currentStep.descKey)}</p>

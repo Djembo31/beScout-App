@@ -96,7 +96,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
                 onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_.-]/g, ''))}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder={t('handlePlaceholder')}
-                className="w-full pl-7 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
+                className="w-full pl-7 pr-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             <Button variant="outline" onClick={handleSearch} disabled={searching || !handle.trim()}>

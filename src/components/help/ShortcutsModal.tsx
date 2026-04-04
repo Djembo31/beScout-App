@@ -52,7 +52,7 @@ export default function ShortcutsModal({ open, onClose }: ShortcutsModalProps) {
                         {i > 0 && <span className="text-white/20 text-xs">+</span>}
                         <kbd className={cn(
                           'inline-flex items-center justify-center min-w-[28px] h-7 px-2',
-                          'rounded-lg border border-white/15 bg-white/5',
+                          'rounded-lg border border-white/15 bg-surface-base',
                           'text-xs font-mono font-bold text-white/60',
                           'hover:bg-white/10 hover:border-white/20 hover:text-white/80 transition-colors'
                         )}>

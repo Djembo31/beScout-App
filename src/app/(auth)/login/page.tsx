@@ -307,7 +307,7 @@ function LoginContent() {
                     required
                     className={cn(
                       'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
-                      'bg-white/5 border border-white/10',
+                      'bg-surface-base border border-white/10',
                       'placeholder:text-white/30 text-white',
                       'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                       'transition-colors'
@@ -326,7 +326,7 @@ function LoginContent() {
                     minLength={6}
                     className={cn(
                       'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
-                      'bg-white/5 border border-white/10',
+                      'bg-surface-base border border-white/10',
                       'placeholder:text-white/30 text-white',
                       'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                       'transition-colors'
@@ -356,7 +356,7 @@ function LoginContent() {
                         minLength={6}
                         className={cn(
                           'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
-                          'bg-white/5 border border-white/10',
+                          'bg-surface-base border border-white/10',
                           'placeholder:text-white/30 text-white',
                           'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                           'transition-colors'
@@ -369,7 +369,7 @@ function LoginContent() {
                         checked={ageConfirmed}
                         onChange={(e) => setAgeConfirmed(e.target.checked)}
                         required
-                        className="mt-0.5 size-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/30 accent-gold shrink-0"
+                        className="mt-0.5 size-4 rounded border-white/20 bg-surface-base text-gold focus:ring-gold/30 accent-gold shrink-0"
                       />
                       <span className="text-xs text-white/60 leading-relaxed">
                         {t('ageConfirmation')}
@@ -403,7 +403,7 @@ function LoginContent() {
                     required
                     className={cn(
                       'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
-                      'bg-white/5 border border-white/10',
+                      'bg-surface-base border border-white/10',
                       'placeholder:text-white/30 text-white',
                       'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                       'transition-colors'

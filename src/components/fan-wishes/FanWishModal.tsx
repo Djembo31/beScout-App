@@ -89,7 +89,7 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
               onChange={e => setPlayerName(e.target.value)}
               placeholder={t('playerNamePlaceholder')}
               maxLength={100}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm min-h-[44px]"
+              className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-white text-sm min-h-[44px]"
             />
           </div>
         )}
@@ -103,7 +103,7 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
             onChange={e => setClubName(e.target.value)}
             placeholder={t('clubNamePlaceholder')}
             maxLength={100}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm min-h-[44px]"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-white text-sm min-h-[44px]"
           />
         </div>
 
@@ -116,7 +116,7 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
             onChange={e => setLeagueName(e.target.value)}
             placeholder={t('leagueNamePlaceholder')}
             maxLength={100}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm min-h-[44px]"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-white text-sm min-h-[44px]"
           />
         </div>
 
@@ -129,7 +129,7 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
             placeholder={t('notePlaceholder')}
             maxLength={300}
             rows={2}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm resize-none"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-white text-sm resize-none"
           />
         </div>
 

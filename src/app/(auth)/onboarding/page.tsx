@@ -344,7 +344,7 @@ function OnboardingContent() {
                   placeholder={t('handlePlaceholder')}
                   className={cn(
                     'w-full pl-8 pr-10 py-3 rounded-xl text-sm',
-                    'bg-white/5 border',
+                    'bg-surface-base border',
                     'placeholder:text-white/30 text-white',
                     'focus:outline-none transition-colors',
                     handleStatus === 'available' && 'border-green-500/40 focus:border-green-500/60',
@@ -379,7 +379,7 @@ function OnboardingContent() {
                 placeholder={t('displayNamePlaceholder')}
                 className={cn(
                   'w-full px-4 py-3 rounded-xl text-sm',
-                  'bg-white/5 border border-white/10',
+                  'bg-surface-base border border-white/10',
                   'placeholder:text-white/30 text-white',
                   'focus:outline-none focus:border-gold/40 transition-colors'
                 )}
@@ -406,7 +406,7 @@ function OnboardingContent() {
                       placeholder={t('pwPlaceholder')}
                       className={cn(
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
-                        'bg-white/5 border border-white/10',
+                        'bg-surface-base border border-white/10',
                         'placeholder:text-white/30 text-white',
                         'focus:outline-none focus:border-gold/40 transition-colors'
                       )}
@@ -434,7 +434,7 @@ function OnboardingContent() {
                       placeholder={t('pwConfirmPlaceholder')}
                       className={cn(
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
-                        'bg-white/5 border border-white/10',
+                        'bg-surface-base border border-white/10',
                         'placeholder:text-white/30 text-white',
                         'focus:outline-none focus:border-gold/40 transition-colors'
                       )}
@@ -525,7 +525,7 @@ function OnboardingContent() {
                 onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
                 className={cn(
                   'w-full px-4 py-3 rounded-xl text-sm',
-                  'bg-white/5 border border-white/10',
+                  'bg-surface-base border border-white/10',
                   'text-white appearance-none',
                   'focus:outline-none focus:border-gold/40 transition-colors'
                 )}
@@ -576,7 +576,7 @@ function OnboardingContent() {
                 onChange={(e) => setClubSearch(e.target.value)}
                 placeholder={t('clubSearchPlaceholder')}
                 aria-label={t('clubSearchLabel')}
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-colors"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-colors"
               />
             </div>
 
@@ -598,7 +598,7 @@ function OnboardingContent() {
                         'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
                         selected
                           ? 'bg-gold/10 border border-gold/30'
-                          : 'bg-surface-subtle border border-divider hover:bg-white/5'
+                          : 'bg-surface-subtle border border-divider hover:bg-surface-base'
                       )}
                     >
                       <div

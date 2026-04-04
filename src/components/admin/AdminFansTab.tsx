@@ -21,8 +21,8 @@ const SEGMENT_ICONS: Record<string, React.ReactNode> = {
 };
 
 const SEGMENT_COLORS: Record<string, string> = {
-  all: 'text-white/60 bg-white/5 border-white/10',
-  free: 'text-white/60 bg-white/5 border-white/10',
+  all: 'text-white/60 bg-surface-base border-white/10',
+  free: 'text-white/60 bg-surface-base border-white/10',
   bronze: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
   silber: 'text-slate-300 bg-slate-400/10 border-slate-400/20',
   gold: 'text-gold bg-gold/10 border-gold/20',

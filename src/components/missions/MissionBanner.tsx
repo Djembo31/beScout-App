@@ -226,7 +226,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim, tm 
                     {m.progress}/{m.target_value}
                   </span>
                 </div>
-                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-surface-base rounded-full overflow-hidden">
                   <div
                     className={cn(
                       'h-full rounded-full transition-colors',

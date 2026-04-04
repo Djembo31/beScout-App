@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <div className="text-sm text-red-300 text-pretty mb-3">{this.props.errorMessage ?? 'Something went wrong.'}</div>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] text-sm font-semibold bg-surface-base border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
           >
             <RefreshCw className="size-4" aria-hidden="true" />
             {this.props.retryLabel ?? 'Try again'}

@@ -58,7 +58,7 @@ function DimensionRow({
                 ? 'bg-gold/20 text-gold border-gold/30 scale-105'
                 : value > 0 && n <= value
                 ? 'bg-gold/10 text-gold/60 border-gold/15'
-                : 'bg-white/5 text-white/30 border-white/10 hover:bg-white/10'
+                : 'bg-surface-base text-white/30 border-white/10 hover:bg-white/10'
             )}
           >
             {n}
@@ -112,7 +112,7 @@ export default function ScoutingEvaluationForm({
           <select
             value={selectedFixtureId ?? ''}
             onChange={(e) => onFixtureChange(e.target.value || null)}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40"
           >
             <option value="">{ts('noFixture')}</option>
             {fixtures.map(f => {
@@ -140,7 +140,7 @@ export default function ScoutingEvaluationForm({
           onChange={(e) => onEvaluationChange({ ...evaluation, staerken: e.target.value.slice(0, 500) })}
           rows={2}
           placeholder={ts('strengthsPlaceholder')}
-          className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+          className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
         />
         {tried && evaluation.staerken.length < 20 && (
           <div className="text-[10px] text-red-400 mt-0.5">{ts('minChars', { count: 20 })} ({evaluation.staerken.length}/20)</div>
@@ -157,7 +157,7 @@ export default function ScoutingEvaluationForm({
           onChange={(e) => onEvaluationChange({ ...evaluation, schwaechen: e.target.value.slice(0, 500) })}
           rows={2}
           placeholder={ts('weaknessesPlaceholder')}
-          className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+          className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
         />
         {tried && evaluation.schwaechen.length < 20 && (
           <div className="text-[10px] text-red-400 mt-0.5">{ts('minChars', { count: 20 })} ({evaluation.schwaechen.length}/20)</div>
@@ -174,7 +174,7 @@ export default function ScoutingEvaluationForm({
           onChange={(e) => onEvaluationChange({ ...evaluation, gesamteindruck: e.target.value.slice(0, 1000) })}
           rows={3}
           placeholder={ts('overallPlaceholder')}
-          className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+          className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
         />
         {tried && evaluation.gesamteindruck.length < 30 && (
           <div className="text-[10px] text-red-400 mt-0.5">{ts('minChars', { count: 30 })} ({evaluation.gesamteindruck.length}/30)</div>

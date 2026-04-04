@@ -44,7 +44,7 @@ export function FantasyNav({
   ];
 
   return (
-    <div className="sticky top-[57px] z-20 -mx-4 px-4 py-2 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/[0.04] space-y-2 lg:static lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:space-y-4">
+    <div className="sticky top-[57px] z-20 -mx-4 px-4 py-2 bg-bg-main/95 backdrop-blur-xl border-b border-white/[0.04] space-y-2 lg:static lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:space-y-4">
       <SpieltagSelector
         gameweek={currentGw}
         activeGameweek={activeGw}

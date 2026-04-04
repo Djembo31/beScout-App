@@ -192,7 +192,7 @@ export function ClubHero({
                 size="sm"
                 onClick={onFollow}
                 disabled={followLoading}
-                className={cn('hidden md:flex', isFollowing && 'border border-white/20 bg-transparent hover:bg-white/5')}
+                className={cn('hidden md:flex', isFollowing && 'border border-white/20 bg-transparent hover:bg-surface-base')}
                 style={isFollowing ? undefined : { backgroundColor: clubColor, color: 'white' }}
                 variant={isFollowing ? 'outline' : undefined}
               >
@@ -218,7 +218,7 @@ export function ClubHero({
                 size="sm"
                 onClick={onFollow}
                 disabled={followLoading}
-                className={cn(isFollowing && 'border border-white/20 bg-transparent hover:bg-white/5')}
+                className={cn(isFollowing && 'border border-white/20 bg-transparent hover:bg-surface-base')}
                 style={isFollowing ? undefined : { backgroundColor: clubColor, color: 'white' }}
                 variant={isFollowing ? 'outline' : undefined}
               >

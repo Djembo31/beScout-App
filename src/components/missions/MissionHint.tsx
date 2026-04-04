@@ -42,7 +42,7 @@ export default function MissionHint({ title, reward, progress, target, compact }
           <span className="text-[10px] font-mono text-gold/60 shrink-0">+{rewardBsd} bC</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+          <div className="flex-1 h-1 bg-surface-base rounded-full overflow-hidden">
             <div
               className="h-full rounded-full bg-gold/60"
               style={{ width: `${pct}%` }}

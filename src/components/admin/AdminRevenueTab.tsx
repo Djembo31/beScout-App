@@ -117,7 +117,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-surface-base flex items-center justify-center">
               <DollarSign className="w-4 h-4 text-white/40" />
             </div>
             <div>
@@ -128,7 +128,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-surface-base flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white/40" />
             </div>
             <div>

@@ -129,7 +129,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
           {/* Quantity */}
           <div>
             <label className="text-[10px] text-white/40 font-bold uppercase mb-1.5 block">{t('quantity')}</label>
-            <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl px-2 w-fit">
+            <div className="flex items-center gap-1 bg-surface-base border border-white/10 rounded-xl px-2 w-fit">
               <button
                 onClick={() => setQty(Math.max(1, qty - 1))}
                 className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold"
@@ -161,7 +161,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
                 onChange={(e) => setPriceBsd(e.target.value)}
                 placeholder={t('maxPricePlaceholder')}
                 aria-label={t('maxPrice')}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base font-mono focus:outline-none focus:border-gold/40 placeholder:text-white/25 pr-16"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-base font-mono focus:outline-none focus:border-gold/40 placeholder:text-white/25 pr-16"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-bold">Credits</span>
             </div>
@@ -173,25 +173,25 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               <span className="text-[10px] text-white/25 mr-1">{t('sellQuickSelect')}</span>
               <button
                 onClick={() => setQuickPrice(floorBsd)}
-                className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-gold hover:border-gold/20 transition-colors"
+                className="px-2 py-1 bg-surface-base border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-gold hover:border-gold/20 transition-colors"
               >
                 Floor {fmtScout(floorBsd)}
               </button>
               <button
                 onClick={() => setQuickPrice(floorBsd * 0.95)}
-                className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors"
+                className="px-2 py-1 bg-surface-base border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors"
               >
                 -5%
               </button>
               <button
                 onClick={() => setQuickPrice(floorBsd * 0.90)}
-                className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors"
+                className="px-2 py-1 bg-surface-base border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors"
               >
                 -10%
               </button>
               <button
                 onClick={() => setQuickPrice(floorBsd * 0.80)}
-                className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors"
+                className="px-2 py-1 bg-surface-base border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors"
               >
                 -20%
               </button>

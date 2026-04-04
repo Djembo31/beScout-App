@@ -223,7 +223,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 {isActive && <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">{t('fpKillSwitchActive')}</span>}
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={`${t('fpKillSwitchLabel')}: ${t('fpKillSwitchPercent', { pct: pct.toFixed(1) })}`}>
+                <div className="flex-1 h-3 rounded-full overflow-hidden bg-surface-base" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={`${t('fpKillSwitchLabel')}: ${t('fpKillSwitchPercent', { pct: pct.toFixed(1) })}`}>
                   <div
                     className={cn('h-full rounded-full transition-colors', isActive ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500')}
                     style={{ width: `${pct}%` }}
@@ -245,7 +245,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       {stats && stats.total > 0 && (
         <Card className="p-4">
           <div className="text-xs font-bold text-white/50 uppercase mb-3">{t('fpTierDistribution')}</div>
-          <div className="flex h-4 rounded-full overflow-hidden bg-white/5">
+          <div className="flex h-4 rounded-full overflow-hidden bg-surface-base">
             {FOUNDING_PASS_TIERS.map(t => {
               const count = stats.byTier[t.tier] ?? 0;
               const pct = (count / stats.total) * 100;
@@ -310,7 +310,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                     aria-selected={i === activeIdx}
                     aria-label={`${u.handle} (${u.id.slice(0, 8)})`}
                     onMouseDown={() => selectUser(u)}
-                    className={cn('w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/[0.06] transition-colors text-left', i === activeIdx && 'bg-white/[0.08]')}
+                    className={cn('w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/[0.06] transition-colors text-left', i === activeIdx && 'bg-surface-elevated')}
                   >
                     <span className="truncate">{u.handle}</span>
                     <span className="text-[10px] text-white/30 font-mono ml-auto flex-shrink-0">{u.id.slice(0, 8)}</span>
@@ -328,7 +328,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               aria-label={t('fpTierSelectLabel')}
             >
               {FOUNDING_PASS_TIERS.map(t => (
-                <option key={t.tier} value={t.tier} className="bg-[#1a1a1a]">
+                <option key={t.tier} value={t.tier} className="bg-surface-popover">
                   {t.tier.charAt(0).toUpperCase() + t.tier.slice(1)} — {fmtScout(t.bcreditsCents / 100)} bC
                 </option>
               ))}

@@ -23,7 +23,7 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
 
   return (
     <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
+      <div className="bg-surface-popover border border-white/10 rounded-2xl p-6 max-w-sm w-full">
         <div className="flex items-center gap-3 mb-4">
           <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
             <Trophy aria-hidden="true" className="size-5 text-gold" />
@@ -35,7 +35,7 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
         </div>
         <div className="space-y-2 mb-5 text-sm">
           {/* Cost display -- currency-aware */}
-          <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+          <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-base">
             <span className="text-white/60">{t('entryFeeLabel')}</span>
             {event.currency === 'tickets' && ticketCost > 0 ? (
               <span className="font-bold font-mono tabular-nums text-amber-400">{t('ticketCost', { cost: ticketCost })}</span>
@@ -45,7 +45,7 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
               <span className="font-bold text-green-500">{t('freeLabel')}</span>
             )}
           </div>
-          <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+          <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-base">
             <span className="text-white/60">{t('formatLabel')}</span>
             <span className="font-mono text-white">{event.format}</span>
           </div>

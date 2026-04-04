@@ -331,7 +331,7 @@ export default function ManagerBestandTab({
             onClick={() => { setBulkMode(v => !v); setSelectedIds(new Set()); }}
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors',
-              bulkMode ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/40 hover:text-white/60 hover:bg-white/5',
+              bulkMode ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/40 hover:text-white/60 hover:bg-surface-base',
             )}
           >
             <CheckSquare className="size-3.5" />
@@ -384,13 +384,13 @@ export default function ManagerBestandTab({
       {/* Bulk Sell Bar */}
       {bulkMode && selectedIds.size > 0 && (
         <div className="sticky bottom-20 md:bottom-4 z-30 mx-auto max-w-md">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#1a1a1a] border border-gold/20 shadow-2xl">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-surface-popover border border-gold/20 shadow-2xl">
             <span className="text-sm font-bold flex-1">
               {t('bestandBulkSelected', { count: selectedIds.size })}
             </span>
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-surface-base transition-colors"
               aria-label={t('bestandBulkClearSelection')}
             >
               <X className="size-4" />

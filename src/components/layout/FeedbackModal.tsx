@@ -82,7 +82,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
               'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold transition-colors border',
               type === opt.value
                 ? 'bg-gold/15 border-gold/40 text-gold'
-                : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                : 'bg-surface-base border-white/10 text-white/60 hover:bg-white/10'
             )}
           >
             {opt.icon}
@@ -99,7 +99,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
         aria-label={tf('messageLabel')}
         maxLength={2000}
         rows={5}
-        className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+        className="w-full bg-surface-base border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
       />
 
       {/* Char count + page info */}

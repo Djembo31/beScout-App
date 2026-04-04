@@ -214,13 +214,13 @@ export default function SellModal({
                 <label className="text-xs text-white/50 mb-1 block">{t('qtyMax', { max: availableToSell })}</label>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setSellQty(Math.max(1, sellQty - 1))} aria-label={t('decreaseQty')}
-                    className="size-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
+                    className="size-11 min-w-[44px] min-h-[44px] rounded-lg bg-surface-base border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
                   <input type="number" inputMode="numeric" value={sellQty} min={1} max={availableToSell}
                     aria-label={t('sellQtyAria')}
                     onChange={(e) => setSellQty(Math.max(1, Math.min(availableToSell, parseInt(e.target.value) || 1)))}
-                    className="flex-1 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
+                    className="flex-1 text-center bg-surface-base border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
                   <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))} aria-label={t('increaseQty')}
-                    className="size-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
+                    className="size-11 min-w-[44px] min-h-[44px] rounded-lg bg-surface-base border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
                 </div>
               </div>
 
@@ -232,19 +232,19 @@ export default function SellModal({
                   placeholder={floorBsd > 0 ? t('examplePrice', { price: floorBsd }) : t('enterPrice')}
                   aria-label={t('pricePerDpcLabel')}
                   onChange={(e) => setSellPriceBsd(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 font-mono font-bold text-base"
+                  className="w-full bg-surface-base border border-white/10 rounded-lg px-3 py-2.5 font-mono font-bold text-base"
                 />
                 {/* Quick-Price Presets */}
                 {floorBsd > 0 && (
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <button onClick={() => setSellPriceBsd(floorBsd.toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">Floor</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-surface-base border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">Floor</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+5%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-surface-base border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+5%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+10%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-surface-base border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+10%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+20%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-surface-base border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+20%</button>
                     <span className="text-[10px] text-white/30 ml-1">Floor: {fmtScout(floorBsd)}</span>
                   </div>
                 )}

@@ -30,7 +30,7 @@ export function getL5Hex(l5: number): string { return getScoreStyle(l5).hex; }
 /** Tailwind bg class for L5/L15 pill backgrounds */
 export function getL5Bg(l5: number): string {
   const s = getScoreStyle(l5);
-  return l5 > 0 ? `${s.bg}/15` : 'bg-white/5';
+  return l5 > 0 ? `${s.bg}/15` : 'bg-surface-base';
 }
 
 // ============================================
@@ -84,7 +84,7 @@ const toneClasses = {
   good: 'border-emerald-400/25 bg-emerald-500/12 text-emerald-200',
   mid: 'border-amber-400/25 bg-amber-500/12 text-amber-200',
   bad: 'border-rose-400/25 bg-rose-500/12 text-rose-200',
-  neutral: 'border-white/10 bg-white/5 text-white/70',
+  neutral: 'border-white/10 bg-surface-base text-white/70',
 };
 
 export function ScoreCircle({ label, value, size = 48 }: { label: string; value: number; size?: number }) {
@@ -433,7 +433,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
     );
   } else if (totalOffers === 0 && !ipoActive && !player.isLiquidated) {
     badges.push(
-      <span key="offers" className={cn('inline-flex items-center gap-0.5 bg-white/5 border-white/10 text-white/30', chipCls)}>
+      <span key="offers" className={cn('inline-flex items-center gap-0.5 bg-surface-base border-white/10 text-white/30', chipCls)}>
         {tm('nichtGelistet')}
       </span>
     );

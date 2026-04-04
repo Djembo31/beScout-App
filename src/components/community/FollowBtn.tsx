@@ -33,7 +33,7 @@ export default function FollowBtn({ isFollowed, onToggle, size = 'sm' }: FollowB
   return (
     <button
       onClick={onToggle}
-      className={cn(sizeClasses, 'rounded-lg font-medium transition-colors active:scale-[0.97] flex items-center gap-1 bg-white/5 border border-white/10 hover:bg-green-500/15 hover:text-green-500 hover:border-green-500/25')}
+      className={cn(sizeClasses, 'rounded-lg font-medium transition-colors active:scale-[0.97] flex items-center gap-1 bg-surface-base border border-white/10 hover:bg-green-500/15 hover:text-green-500 hover:border-green-500/25')}
     >
       <UserPlus className="w-3 h-3" aria-hidden="true" />
       <span>{t('follow')}</span>

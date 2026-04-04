@@ -113,7 +113,7 @@ export default function TradeSuccessCard({
     >
       {/* Card with gold edge glow */}
       <div
-        className="relative rounded-2xl overflow-hidden bg-[#111] border border-gold/30"
+        className="relative rounded-2xl overflow-hidden bg-surface-modal border border-gold/30"
         style={{
           boxShadow: '0 0 20px rgba(255,215,0,0.15), 0 0 40px rgba(255,215,0,0.05), 0 8px 32px rgba(0,0,0,0.4)',
         }}
@@ -165,7 +165,7 @@ export default function TradeSuccessCard({
 
             <Link
               href={`/player/${player.id}`}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 rounded-lg bg-surface-base hover:bg-white/10 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={t('goToPlayer')}
             >
               <ArrowRight className="size-4 text-white/50" />

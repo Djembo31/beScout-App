@@ -49,9 +49,9 @@ const CATEGORY_I18N_KEYS: Record<ResearchCategory, string> = {
 };
 
 const callStyle: Record<ResearchCall, { active: string; inactive: string }> = {
-  Bullish: { active: 'bg-green-500/20 text-green-500 border-green-500/30', inactive: 'bg-white/5 text-white/50 border-white/10' },
-  Bearish: { active: 'bg-red-500/20 text-red-300 border-red-500/30', inactive: 'bg-white/5 text-white/50 border-white/10' },
-  Neutral: { active: 'bg-white/15 text-white border-white/30', inactive: 'bg-white/5 text-white/50 border-white/10' },
+  Bullish: { active: 'bg-green-500/20 text-green-500 border-green-500/30', inactive: 'bg-surface-base text-white/50 border-white/10' },
+  Bearish: { active: 'bg-red-500/20 text-red-300 border-red-500/30', inactive: 'bg-surface-base text-white/50 border-white/10' },
+  Neutral: { active: 'bg-white/15 text-white border-white/30', inactive: 'bg-surface-base text-white/50 border-white/10' },
 };
 
 const EMPTY_EVALUATION: ScoutingEvaluation = {
@@ -196,7 +196,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 200))}
             placeholder={isScouting ? tr('titleScoutingPlaceholder') : tr('titleResearchPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
         </div>
 
@@ -213,7 +213,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                   'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                   category === catId
                     ? CATEGORY_COLORS[catId]
-                    : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'text-white/50 bg-surface-base border-white/10 hover:bg-white/10'
                 )}
               >
                 {tr(CATEGORY_I18N_KEYS[catId])}
@@ -235,7 +235,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
             placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? tr('searchPlayer') : tr('searchPlayer')}
             className={cn(
-              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40',
+              'w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40',
               playerId && !playerSearch && 'text-white/70',
               tried && isScouting && !playerId ? 'border-red-500/40' : 'border-white/10'
             )}
@@ -256,7 +256,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                 <button
                   type="button"
                   onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
-                  className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-white/5"
+                  className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-surface-base"
                 >
                   {tr('noPlayer')}
                 </button>
@@ -270,7 +270,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                     type="button"
                     onClick={() => { setPlayerId(p.id); setPlayerSearch(p.name); setPlayerDropdownOpen(false); }}
                     className={cn(
-                      'w-full px-4 py-2 text-left text-sm hover:bg-white/5 flex items-center justify-between',
+                      'w-full px-4 py-2 text-left text-sm hover:bg-surface-base flex items-center justify-between',
                       playerId === p.id ? 'text-gold' : 'text-white/80'
                     )}
                   >
@@ -331,7 +331,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                     onClick={() => setHorizon(h)}
                     className={cn(
                       'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-colors',
-                      horizon === h ? 'bg-gold/15 text-gold border-gold/25' : 'bg-white/5 text-white/50 border-white/10'
+                      horizon === h ? 'bg-gold/15 text-gold border-gold/25' : 'bg-surface-base text-white/50 border-white/10'
                     )}
                   >
                     {h}
@@ -356,7 +356,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             }}
             min={1}
             max={100000}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white font-mono focus:outline-none focus:border-gold/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white font-mono focus:outline-none focus:border-gold/40"
           />
           <div className="text-[10px] text-white/30 mt-1">{tr('priceHint')}</div>
         </div>
@@ -372,7 +372,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             onChange={(e) => setPreview(e.target.value.slice(0, 300))}
             rows={2}
             placeholder={tr('previewPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
@@ -398,7 +398,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                   if (btn.insert) setContent(prev => prev + btn.insert);
                   else if (btn.wrap) setContent(prev => prev + `${btn.wrap}text${btn.wrap}`);
                 }}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface-base border border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
               >
                 {btn.label}
               </button>
@@ -409,7 +409,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             onChange={(e) => setContent(e.target.value.slice(0, 10000))}
             rows={6}
             placeholder={isScouting ? tr('contentScoutingPlaceholder') : tr('contentResearchPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none font-mono"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none font-mono"
           />
           <div className="text-[10px] text-white/30 mt-1">{tr('minChars', { count: 50 })} · Markdown ({tr('mdSupported')})</div>
         </div>
@@ -422,7 +422,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             placeholder={tr('tagsPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
         </div>
 

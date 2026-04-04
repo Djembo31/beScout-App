@@ -219,7 +219,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                   <img
                     src={s.logo_url}
                     alt={s.name}
-                    className="size-8 rounded-lg object-contain bg-white/5 p-1 flex-shrink-0"
+                    className="size-8 rounded-lg object-contain bg-surface-base p-1 flex-shrink-0"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                   <div className="flex-1 min-w-0">
@@ -261,7 +261,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               value={form.name}
               onChange={(e) => setForm(f => ({ ...f, name: e.target.value.slice(0, 40) }))}
               placeholder={t('namePlaceholder')}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div>
@@ -272,11 +272,11 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               value={form.logo_url}
               onChange={(e) => setForm(f => ({ ...f, logo_url: e.target.value }))}
               placeholder="https://..."
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
             {form.logo_url && (
               <div className="mt-2 flex items-center gap-2">
-                <img src={form.logo_url} alt={t('preview')} className="size-8 rounded object-contain bg-white/5 p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <img src={form.logo_url} alt={t('preview')} className="size-8 rounded object-contain bg-surface-base p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 <span className="text-xs text-white/30">{t('preview')}</span>
               </div>
             )}
@@ -289,7 +289,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               value={form.link_url}
               onChange={(e) => setForm(f => ({ ...f, link_url: e.target.value }))}
               placeholder="https://..."
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -315,7 +315,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                 min="0"
                 value={form.priority}
                 onChange={(e) => setForm(f => ({ ...f, priority: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
               />
             </div>
           </div>
@@ -327,7 +327,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                 type="datetime-local"
                 value={form.starts_at}
                 onChange={(e) => setForm(f => ({ ...f, starts_at: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
               />
             </div>
             <div>
@@ -337,7 +337,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                 type="datetime-local"
                 value={form.ends_at}
                 onChange={(e) => setForm(f => ({ ...f, ends_at: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
               />
             </div>
           </div>
@@ -397,7 +397,7 @@ function SponsorStatsSection({
               onClick={() => onDaysChange(d)}
               className={cn(
                 'px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[44px]',
-                days === d ? 'bg-gold/15 text-gold border border-gold/25' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/60'
+                days === d ? 'bg-gold/15 text-gold border border-gold/25' : 'bg-surface-base text-white/40 border border-white/10 hover:text-white/60'
               )}
             >
               {d}T

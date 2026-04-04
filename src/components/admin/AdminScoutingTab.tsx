@@ -141,7 +141,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                   idx === 0 ? 'bg-gold/20 text-gold' :
                   idx === 1 ? 'bg-white/10 text-white/60' :
                   idx === 2 ? 'bg-orange-500/15 text-orange-300' :
-                  'bg-white/5 text-white/30'
+                  'bg-surface-base text-white/30'
                 )}>
                   {idx + 1}
                 </div>

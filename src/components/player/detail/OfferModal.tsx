@@ -48,7 +48,7 @@ export default function OfferModal({
             id="offer-price"
             type="number" inputMode="numeric" value={offerPrice} onChange={e => onPriceChange(e.target.value)}
             placeholder={t('offer.pricePlaceholder')} min="1"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-gold/30"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-gold/30"
           />
         </div>
         <div>
@@ -57,7 +57,7 @@ export default function OfferModal({
             id="offer-message"
             type="text" value={offerMessage} onChange={e => onMessageChange(e.target.value)}
             placeholder={t('offer.messagePlaceholder')} maxLength={200}
-            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
+            className="w-full px-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
           />
         </div>
       </div>

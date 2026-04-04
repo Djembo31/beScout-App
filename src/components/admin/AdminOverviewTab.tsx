@@ -142,7 +142,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <code className="text-xs text-white/50 bg-white/5 px-2 py-1 rounded hidden md:block">
+            <code className="text-xs text-white/50 bg-surface-base px-2 py-1 rounded hidden md:block">
               {typeof window !== 'undefined' ? `${window.location.origin}/club/${club.slug}` : `/club/${club.slug}`}
             </code>
             <button
@@ -189,7 +189,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             value={newsContent}
             onChange={e => setNewsContent(e.target.value)}
             placeholder={t('newsPlaceholder')}
-            className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
+            className="w-full h-32 bg-surface-base border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
             maxLength={1000}
           />
           <div className="flex items-center justify-between">
@@ -246,7 +246,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   'flex items-center gap-3 p-3 rounded-xl border',
                   i === 0 ? 'bg-gold/[0.06] border-gold/20' : 'bg-surface-minimal border-white/10'
                 )}>
-                  <div className={cn('size-7 rounded-full flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
+                  <div className={cn('size-7 rounded-full flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-surface-base text-white/40')}>{i + 1}</div>
                   {fan.avatar_url ? (
                     <Image src={fan.avatar_url} alt={fan.handle} width={32} height={32} className="size-8 rounded-full object-cover" />
                   ) : (
@@ -278,7 +278,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                 <Link key={p.id} href={`/player/${p.id}`}>
                   <div className="flex items-center justify-between p-3 bg-surface-minimal rounded-xl border border-white/10 hover:border-gold/30 transition-colors shadow-card-sm">
                     <div className="flex items-center gap-3">
-                      <div className={cn('size-7 rounded-lg flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
+                      <div className={cn('size-7 rounded-lg flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-surface-base text-white/40')}>{i + 1}</div>
                       <PositionBadge pos={p.position as Pos} size="sm" />
                       <div className="font-bold text-sm">{p.first_name} {p.last_name}</div>
                     </div>

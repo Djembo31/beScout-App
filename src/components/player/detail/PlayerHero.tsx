@@ -106,7 +106,7 @@ function PlayerHeroInner({
           <button
             onClick={onToggleWatchlist}
             className={cn('p-2 rounded-xl transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center',
-              isWatchlisted ? 'text-gold bg-gold/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'
+              isWatchlisted ? 'text-gold bg-gold/10' : 'text-white/30 hover:text-white/60 hover:bg-surface-base'
             )}
             aria-label={t('hero.watchlist')}
           >
@@ -114,7 +114,7 @@ function PlayerHeroInner({
           </button>
           <button
             onClick={onShare}
-            className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-surface-base transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={t('hero.share')}
           >
             <Share2 className="size-4" />
@@ -122,7 +122,7 @@ function PlayerHeroInner({
           <div className="relative">
             <button
               onClick={() => setShowOverflow(v => !v)}
-              className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-surface-base transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label={t('hero.moreOptions')}
             >
               <MoreVertical className="size-4" />
@@ -133,27 +133,27 @@ function PlayerHeroInner({
                 <div className="absolute right-0 top-full mt-1 z-40 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-xl shadow-card-md overflow-hidden min-w-[180px]">
                   <button
                     onClick={() => { onToggleWatchlist(); setShowOverflow(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-surface-base transition-colors min-h-[44px]"
                   >
                     <Star className="size-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
                     {isWatchlisted ? t('hero.removeWatchlist') : t('hero.addWatchlist')}
                   </button>
                   <button
                     onClick={() => { onShare(); setShowOverflow(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-surface-base transition-colors min-h-[44px]"
                   >
                     <Share2 className="size-4" /> {t('hero.share')}
                   </button>
                   <button
                     onClick={() => { setShowAlertInput(true); setShowOverflow(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-surface-base transition-colors min-h-[44px]"
                   >
                     <Bell className="size-4" /> {t('hero.priceAlert')}
                   </button>
                   <Link
                     href={`/compare?p1=${player.id}`}
                     onClick={() => setShowOverflow(false)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-surface-base transition-colors min-h-[44px]"
                     role="menuitem"
                     aria-label={`${t('hero.compare')} ${player.first} ${player.last}`}
                   >
@@ -229,7 +229,7 @@ function PlayerHeroInner({
                 </span>
               )}
               {watcherCount > 0 && (
-                <span className="flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-white/50">
+                <span className="flex items-center gap-1 px-2 py-1 bg-surface-base border border-white/10 rounded-lg text-xs text-white/50">
                   <Eye className="size-3" aria-hidden="true" />
                   {t('hero.watcherCount', { count: watcherCount })}
                 </span>
@@ -303,7 +303,7 @@ function PlayerHeroInner({
                   type="number" inputMode="numeric" step="0.01" placeholder={t('hero.targetPrice')}
                   value={alertInput}
                   onChange={(e) => setAlertInput(e.target.value)}
-                  className="w-24 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-base font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-gold/30"
+                  className="w-24 px-2 py-2 bg-surface-base border border-white/10 rounded-lg text-sm text-base font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-gold/30"
                   autoFocus
                 />
                 <button

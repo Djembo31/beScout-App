@@ -216,7 +216,7 @@ export function PitchView({
                             : player.status === 'injured' ? 'bg-red-500/20 border-red-400' :
                               player.status === 'suspended' ? 'bg-orange-500/20 border-orange-400' :
                                 'bg-black/30'
-                          : 'bg-white/5 border-dashed hover:brightness-125'
+                          : 'bg-surface-base border-dashed hover:brightness-125'
                         }`}
                         style={{
                           borderColor: player && isCaptain && !hasScore ? '#FFD700'
@@ -256,7 +256,7 @@ export function PitchView({
                             'mt-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-colors',
                             isWildcard
                               ? 'bg-purple-500/80 text-white'
-                              : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50'
+                              : 'bg-surface-base text-white/30 hover:bg-white/10 hover:text-white/50'
                           )}
                         >
                           {isWildcard ? 'WC \u2713' : 'WC'}

@@ -66,7 +66,7 @@ export default function LeaderboardPanel({
               <div className={`size-10 rounded-lg flex items-center justify-center font-bold ${viewingUserLineup.entry.rank === 1 ? 'bg-gold/20 text-gold' :
                 viewingUserLineup.entry.rank === 2 ? 'bg-white/10 text-white/70' :
                   viewingUserLineup.entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
-                    'bg-white/5 text-white/50'
+                    'bg-surface-base text-white/50'
                 }`}>
                 #{viewingUserLineup.entry.rank}
               </div>
@@ -244,7 +244,7 @@ export default function LeaderboardPanel({
                       <div className={`size-8 rounded-lg flex items-center justify-center font-mono font-bold tabular-nums text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :
                         entry.rank === 2 ? 'bg-white/10 text-white/70' :
                           entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
-                            'bg-white/5 text-white/50'
+                            'bg-surface-base text-white/50'
                         }`}>
                         {entry.rank}
                       </div>

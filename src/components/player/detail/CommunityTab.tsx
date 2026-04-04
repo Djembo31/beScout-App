@@ -139,7 +139,7 @@ function CommunityTabInner({
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               <span className="font-bold text-xs">{post.author_display_name || post.author_handle}</span>
               {post.author_verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
-              <span className="text-[9px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
+              <span className="text-[9px] text-white/30 px-1 py-0.5 bg-surface-base rounded">Lv{post.author_level}</span>
               <span className="text-[10px] text-white/40">{formatTimeAgo(post.created_at, tc('timeJust'), dateLocale)}</span>
             </div>
             {isRumor ? (
@@ -149,7 +149,7 @@ function CommunityTabInner({
             ) : post.category ? (
               <span className={cn(
                 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border mb-1.5',
-                POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-white/5 text-white/50 border-white/10'
+                POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-surface-base text-white/50 border-white/10'
               )}>
                 {post.category}
               </span>
@@ -163,7 +163,7 @@ function CommunityTabInner({
             {post.tags.length > 0 && (
               <div className="flex gap-1 mb-1.5 flex-wrap">
                 {post.tags.map(tag => (
-                  <span key={tag} className="px-1 py-0.5 rounded-full text-[9px] bg-white/5 text-white/40">#{tag}</span>
+                  <span key={tag} className="px-1 py-0.5 rounded-full text-[9px] bg-surface-base text-white/40">#{tag}</span>
                 ))}
               </div>
             )}
@@ -319,7 +319,7 @@ function CommunityTabInner({
                 <button key={cat.id} type="button" onClick={() => setPostCategory(cat.id)}
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
-                    postCategory === cat.id ? cat.color : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                    postCategory === cat.id ? cat.color : 'text-white/50 bg-surface-base border-white/10 hover:bg-white/10'
                   )}>
                   {tc(cat.labelKey)}
                 </button>
@@ -333,13 +333,13 @@ function CommunityTabInner({
             </label>
             <textarea value={postContent} onChange={e => setPostContent(e.target.value.slice(0, 500))} rows={4}
               placeholder={t('thinkAbout', { name: playerName })}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('tagsComma')}</label>
             <input type="text" value={postTags} onChange={e => setPostTags(e.target.value)}
               placeholder={t('tagsPlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitPost}>{t('post')}</Button>
         </div>
@@ -355,7 +355,7 @@ function CommunityTabInner({
                 <button key={cat.id} type="button" onClick={() => setRumorCategory(cat.id)}
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
-                    rumorCategory === cat.id ? cat.color : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                    rumorCategory === cat.id ? cat.color : 'text-white/50 bg-surface-base border-white/10 hover:bg-white/10'
                   )}>
                   {tc(cat.labelKey)}
                 </button>
@@ -366,13 +366,13 @@ function CommunityTabInner({
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('targetClub')}</label>
             <input type="text" value={rumorClubTarget} onChange={e => setRumorClubTarget(e.target.value)}
               placeholder={t('targetClubPlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('sourceLabel')}</label>
             <input type="text" value={rumorSource} onChange={e => setRumorSource(e.target.value)}
               placeholder={t('sourcePlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
@@ -381,7 +381,7 @@ function CommunityTabInner({
             </label>
             <textarea value={rumorContent} onChange={e => setRumorContent(e.target.value.slice(0, 500))} rows={4}
               placeholder={t('heardAbout', { name: playerName })}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
           </div>
           <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitRumor}>{t('postRumor')}</Button>
         </div>

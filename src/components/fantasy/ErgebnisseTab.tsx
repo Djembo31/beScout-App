@@ -196,14 +196,14 @@ export function ErgebnisseTab({
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => setShowLeagues(true)}
-          className="flex items-center justify-center gap-2 p-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors active:bg-white/[0.08] min-h-[44px]"
+          className="flex items-center justify-center gap-2 p-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors active:bg-surface-elevated min-h-[44px]"
         >
           <Landmark className="size-4 text-gold/60" aria-hidden="true" />
           <span className="text-xs font-bold text-white/60">{tf('ergebnisse.leaguesBtn')}</span>
         </button>
         <button
           onClick={() => setShowSeason(true)}
-          className="flex items-center justify-center gap-2 p-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors active:bg-white/[0.08] min-h-[44px]"
+          className="flex items-center justify-center gap-2 p-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors active:bg-surface-elevated min-h-[44px]"
         >
           <ChartNoAxesCombined className="size-4 text-purple-400/60" aria-hidden="true" />
           <span className="text-xs font-bold text-white/60">{tf('ergebnisse.seasonBtn')}</span>

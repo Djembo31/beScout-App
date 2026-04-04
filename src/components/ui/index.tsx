@@ -21,7 +21,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 const btnVariants: Record<ButtonVariant, string> = {
   gold: 'bg-gradient-to-r from-[#FFE44D] to-[#E6B800] hover:brightness-110 text-black btn-gold-glow',
   outline: 'bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-white',
-  ghost: 'hover:bg-white/[0.08] text-white/80',
+  ghost: 'hover:bg-surface-elevated text-white/80',
   danger: 'bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-200',
 };
 
@@ -101,7 +101,7 @@ export function Card({ children, className = '', surface = 'base', hoverable, gl
 
 export function Chip({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/[0.08] border border-white/[0.12] text-white/80', className)}>
+    <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-elevated border border-white/[0.12] text-white/80', className)}>
       {children}
     </span>
   );
@@ -212,7 +212,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
             {subtitle && <div className="text-xs text-white/50">{subtitle}</div>}
             <div id="modal-title" className="text-base md:text-lg font-black truncate">{title}</div>
           </div>
-          <button onClick={onClose} className="p-2 min-w-[44px] min-h-[44px] rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-transform flex-shrink-0 ml-2 flex items-center justify-center" aria-label={tcModal('closeLabel')}>
+          <button onClick={onClose} className="p-2 min-w-[44px] min-h-[44px] rounded-xl hover:bg-surface-base hover:scale-110 active:scale-95 transition-transform flex-shrink-0 ml-2 flex items-center justify-center" aria-label={tcModal('closeLabel')}>
             <X className="size-5 text-white/70" />
           </button>
         </div>
@@ -321,7 +321,7 @@ export function InfoTooltip({ text }: { text: string }) {
     <div ref={ref} className="relative inline-flex">
       <button
         onClick={() => setOpen(!open)}
-        className="size-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors"
+        className="size-4 rounded-full bg-surface-base border border-white/10 flex items-center justify-center text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors"
         aria-label={tc('info')}
         aria-expanded={open}
       >
@@ -368,7 +368,7 @@ export function ErrorState({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-surface-base border border-white/10 rounded-xl hover:bg-white/10 transition-colors active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
         >
           <RefreshCw className="size-3.5" aria-hidden="true" />
           {retryLabel ?? tc('retry')}

@@ -155,7 +155,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                   'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                   isActive
                     ? 'bg-gold/[0.15] text-gold border border-gold/30 shadow-[0_0_16px_rgba(255,215,0,0.15)]'
-                    : 'text-white/60 hover:bg-white/[0.08] hover:text-white border border-transparent',
+                    : 'text-white/60 hover:bg-surface-elevated hover:text-white border border-transparent',
                   collapsed && 'justify-center'
                 )}
                 title={collapsed ? t(item.label) : undefined}
@@ -201,8 +201,8 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px] transition-colors',
                   isActive
-                    ? 'bg-white/5 text-white'
-                    : 'text-white/40 hover:bg-white/5 hover:text-white/60',
+                    ? 'bg-surface-base text-white'
+                    : 'text-white/40 hover:bg-surface-base hover:text-white/60',
                   collapsed && 'justify-center'
                 )}
                 title={collapsed ? t(item.label) : undefined}
@@ -221,8 +221,8 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px] transition-colors',
                 mounted && pathname.startsWith(`/club/${clubAdmin.slug}/admin`)
-                  ? 'bg-white/5 text-white'
-                  : 'text-white/40 hover:bg-white/5 hover:text-white/60',
+                  ? 'bg-surface-base text-white'
+                  : 'text-white/40 hover:bg-surface-base hover:text-white/60',
                 collapsed && 'justify-center'
               )}
               title={collapsed ? t('clubAdmin') : undefined}
@@ -284,7 +284,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
           aria-label={collapsed ? t('settings') : undefined}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]',
-            'text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors',
+            'text-white/40 hover:bg-surface-base hover:text-white/60 transition-colors',
             collapsed && 'justify-center'
           )}
         >
@@ -303,7 +303,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             <button
               onClick={() => setLogoutConfirm(false)}
               aria-label={collapsed ? tc('cancel') : undefined}
-              className="flex-1 px-3 py-2 rounded-xl min-h-[44px] text-xs font-bold bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
+              className="flex-1 px-3 py-2 rounded-xl min-h-[44px] text-xs font-bold bg-surface-base text-white/50 border border-white/10 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
             >
               {collapsed ? <X className="size-4" aria-hidden="true" /> : tc('cancel')}
             </button>

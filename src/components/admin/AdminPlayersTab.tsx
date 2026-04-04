@@ -22,7 +22,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     announced: { bg: 'bg-blue-500/15', border: 'border-blue-400/25', text: 'text-blue-300', label: t('ipoStatusAnnounced') },
     early_access: { bg: 'bg-purple-500/15', border: 'border-purple-400/25', text: 'text-purple-300', label: t('ipoStatusEarlyAccess') },
     open: { bg: 'bg-green-500/15', border: 'border-green-500/25', text: 'text-green-500', label: t('ipoStatusLive') },
-    ended: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: t('ipoStatusEnded') },
+    ended: { bg: 'bg-surface-base', border: 'border-white/10', text: 'text-white/50', label: t('ipoStatusEnded') },
     cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: t('ipoStatusCancelled') },
   };
 
@@ -85,7 +85,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                             <span className="text-white/50">{t('soldProgress', { sold: ipo.sold, total: ipo.total_offered })}</span>
                             <span className="font-mono font-bold text-gold">{progress.toFixed(0)}%</span>
                           </div>
-                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="w-full h-1.5 bg-surface-base rounded-full overflow-hidden">
                             <div className="h-full bg-gold rounded-full" style={{ width: `${progress}%` }} />
                           </div>
                         </div>
@@ -131,7 +131,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 const progress = ipo.total_offered > 0 ? (ipo.sold / ipo.total_offered) * 100 : 0;
                 const sc = ipo.status === 'cancelled'
                   ? { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: t('ipoStatusCancelled') }
-                  : { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: t('ipoStatusEnded') };
+                  : { bg: 'bg-surface-base', border: 'border-white/10', text: 'text-white/50', label: t('ipoStatusEnded') };
                 return (
                   <Card key={ipo.id} className="p-3 md:p-4 opacity-60">
                     <div className="flex items-center gap-3 min-w-0">
@@ -175,7 +175,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                       {s.canSetFee && (
                         <button
                           onClick={() => s.openCapModal(p)}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-gold/10 text-white/50 hover:text-gold transition-colors"
+                          className="p-2 rounded-lg bg-surface-base hover:bg-gold/10 text-white/50 hover:text-gold transition-colors"
                           aria-label={t('setCapLabel')}
                         >
                           <Shield className="w-4 h-4" aria-hidden="true" />
@@ -184,7 +184,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                       {s.canLiquidate && (
                         <button
                           onClick={() => s.openLiquidationModal(p)}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                          className="p-2 rounded-lg bg-surface-base hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
                           aria-label={t('liquidateLabel')}
                         >
                           <Flame className="w-4 h-4" aria-hidden="true" />
@@ -205,7 +205,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <Card key={p.id} className="p-3 md:p-4 opacity-50">
                 <div className="flex items-center gap-3 min-w-0">
                   <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
-                  <Chip className="bg-white/5 text-white/40 border border-white/10">{t('liquidated')}</Chip>
+                  <Chip className="bg-surface-base text-white/40 border border-white/10">{t('liquidated')}</Chip>
                 </div>
               </Card>
             ))}
@@ -231,7 +231,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={s.capValue}
                 onChange={(e) => s.setCapValue(e.target.value)}
                 placeholder={t('examplePrice', { example: '500.00' })}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             {s.capModalPlayer.successFeeCap != null && (
@@ -275,7 +275,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   value={s.liqTransferValue}
                   onChange={(e) => s.setLiqTransferValue(e.target.value)}
                   placeholder={t('examplePrice', { example: '1000000' })}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
+                  className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
                 <div className="text-xs text-white/40 mt-1">{t('transferValueHint')}</div>
               </div>
@@ -387,11 +387,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('pricePerDpc')}</label>
-            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.ipoPrice} onChange={(e) => s.setIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.ipoPrice} onChange={(e) => s.setIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('dpcCount')}</label>
-            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = s.players.find(p => p.id === s.ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 500; })()} value={s.ipoQty} onChange={(e) => s.setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
+            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = s.players.find(p => p.id === s.ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 500; })()} value={s.ipoQty} onChange={(e) => s.setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
             {s.ipoPlayerId && (() => {
               const sp = s.players.find(p => p.id === s.ipoPlayerId);
               if (!sp) return null;
@@ -405,7 +405,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('maxPerUser')}</label>
-            <input type="number" inputMode="numeric" min="1" value={s.ipoMaxPerUser} onChange={(e) => s.setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
+            <input type="number" inputMode="numeric" min="1" value={s.ipoMaxPerUser} onChange={(e) => s.setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('durationLabel')}</label>
@@ -453,11 +453,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('firstName')}</label>
-              <input type="text" value={s.cpFirstName} onChange={(e) => s.setCpFirstName(e.target.value.slice(0, 30))} placeholder={t('firstName')} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+              <input type="text" value={s.cpFirstName} onChange={(e) => s.setCpFirstName(e.target.value.slice(0, 30))} placeholder={t('firstName')} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('lastName')}</label>
-              <input type="text" value={s.cpLastName} onChange={(e) => s.setCpLastName(e.target.value.slice(0, 30))} placeholder={t('lastName')} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+              <input type="text" value={s.cpLastName} onChange={(e) => s.setCpLastName(e.target.value.slice(0, 30))} placeholder={t('lastName')} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -472,22 +472,22 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('shirtNumber')}</label>
-              <input type="number" inputMode="numeric" min="1" max="99" value={s.cpShirtNumber} onChange={(e) => s.setCpShirtNumber(e.target.value)} placeholder={t('examplePrice', { example: '10' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+              <input type="number" inputMode="numeric" min="1" max="99" value={s.cpShirtNumber} onChange={(e) => s.setCpShirtNumber(e.target.value)} placeholder={t('examplePrice', { example: '10' })} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('ageLabel')}</label>
-              <input type="number" inputMode="numeric" min="15" max="45" value={s.cpAge} onChange={(e) => s.setCpAge(e.target.value)} placeholder={t('examplePrice', { example: '24' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+              <input type="number" inputMode="numeric" min="15" max="45" value={s.cpAge} onChange={(e) => s.setCpAge(e.target.value)} placeholder={t('examplePrice', { example: '24' })} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('nationalityLabel')}</label>
-              <input type="text" value={s.cpNationality} onChange={(e) => s.setCpNationality(e.target.value.slice(0, 3).toUpperCase())} placeholder="TR" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+              <input type="text" value={s.cpNationality} onChange={(e) => s.setCpNationality(e.target.value.slice(0, 3).toUpperCase())} placeholder="TR" className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('ipoPriceLabel')}</label>
-            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.cpIpoPrice} onChange={(e) => s.setCpIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.cpIpoPrice} onChange={(e) => s.setCpIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
           </div>
           <div className="bg-surface-minimal rounded-xl p-3 text-xs text-white/40">
             Club: <span className="text-white/70 font-bold">{club.name}</span>

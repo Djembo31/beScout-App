@@ -195,7 +195,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       {/* Container — mobile: bottom sheet, desktop: centered modal */}
       <div
         className={cn(
-          'relative z-10 w-full bg-[#111] border border-white/10 shadow-2xl overflow-hidden flex flex-col',
+          'relative z-10 w-full bg-surface-modal border border-white/10 shadow-2xl overflow-hidden flex flex-col',
           // Mobile: full-width bottom-sheet
           'fixed inset-x-0 bottom-0 top-auto max-h-[85vh] rounded-t-3xl',
           // Desktop: centered modal
@@ -232,7 +232,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           )}
           <button
             onClick={onClose}
-            className="hidden lg:block text-xs text-white/30 border border-white/10 rounded-lg px-2 py-1 hover:bg-white/5"
+            className="hidden lg:block text-xs text-white/30 border border-white/10 rounded-lg px-2 py-1 hover:bg-surface-base"
           >
             ESC
           </button>
@@ -248,7 +248,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 filter === f.key
                   ? 'bg-gold/15 text-gold border border-gold/30'
-                  : 'bg-white/5 text-white/50 border border-divider hover:bg-white/10',
+                  : 'bg-surface-base text-white/50 border border-divider hover:bg-white/10',
               )}
             >
               {t(f.labelKey)}

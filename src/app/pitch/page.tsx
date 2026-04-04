@@ -42,7 +42,7 @@ function HeroSection() {
         </p>
         <div className="flex flex-wrap justify-center gap-3 text-sm">
           {['566 Oyuncu', '20 Kulüp', 'TFF 1. Lig', 'Beta'].map((stat) => (
-            <span key={stat} className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 font-mono">
+            <span key={stat} className="px-4 py-1.5 rounded-full bg-surface-base border border-white/10 text-white/60 font-mono">
               {stat}
             </span>
           ))}
@@ -361,7 +361,7 @@ function CTASection() {
           </Link>
           <Link
             href="/club/sakaryaspor"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-colors min-h-[44px]"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-surface-base border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-colors min-h-[44px]"
           >
             <Globe className="size-4" />
             {t('ctaClubPage')}

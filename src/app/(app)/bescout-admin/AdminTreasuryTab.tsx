@@ -106,7 +106,7 @@ export function AdminTreasuryTab() {
             <span className="text-white/50">{t('treasuryNetSupply')}</span>
             <span className="font-mono tabular-nums font-bold text-gold">{fmt(netSupply)}</span>
           </div>
-          <div className="flex h-3 rounded-full overflow-hidden bg-white/5">
+          <div className="flex h-3 rounded-full overflow-hidden bg-surface-base">
             {netSupply > 0 && (
               <>
                 <div
@@ -164,7 +164,7 @@ export function AdminTreasuryTab() {
       <div className="flex justify-end">
         <button
           onClick={() => { setLoading(true); loadData(); }}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white/50 hover:text-white/80 bg-surface-subtle hover:bg-white/[0.08] rounded-lg transition-colors min-h-[44px]"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white/50 hover:text-white/80 bg-surface-subtle hover:bg-surface-elevated rounded-lg transition-colors min-h-[44px]"
           aria-label={t('treasuryRefreshLabel')}
         >
           <RefreshCw className="size-3.5" aria-hidden="true" />

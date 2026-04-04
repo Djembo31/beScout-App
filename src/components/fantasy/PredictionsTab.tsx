@@ -56,7 +56,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
           <h3 className="font-black">{t('myPredictions')}</h3>
           <span className={cn(
             'text-xs font-bold px-2 py-0.5 rounded-full',
-            limitReached ? 'text-red-400 bg-red-400/10' : 'text-white/40 bg-white/5'
+            limitReached ? 'text-red-400 bg-red-400/10' : 'text-white/40 bg-surface-base'
           )}>
             {count}/5
           </span>

@@ -69,7 +69,7 @@ export default function BestandToolbar({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
             aria-label={t('bestandSortLabel')}
-            className="px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] text-white/60 focus:outline-none"
+            className="px-2 py-2 bg-surface-base border border-white/10 rounded-xl text-[10px] text-white/60 focus:outline-none"
           >
             {sortOptions.map(opt => (
               <option key={opt.id} value={opt.id}>{opt.label}</option>
@@ -83,7 +83,7 @@ export default function BestandToolbar({
             'p-2 rounded-xl border transition-colors shrink-0',
             groupByClub
               ? 'bg-gold/15 border-gold/30 text-gold'
-              : 'bg-white/5 border-white/10 text-white/40 hover:text-white/60'
+              : 'bg-surface-base border-white/10 text-white/40 hover:text-white/60'
           )}
           aria-label={t('bestandGroupByClub')}
           aria-pressed={groupByClub}
@@ -99,7 +99,7 @@ export default function BestandToolbar({
             'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors shrink-0',
             showFilters || hasActiveFilters
               ? 'bg-gold/15 border-gold/30 text-gold'
-              : 'bg-white/5 border-white/10 text-white/50'
+              : 'bg-surface-base border-white/10 text-white/50'
           )}
         >
           <Filter className="w-3.5 h-3.5" aria-hidden="true" />
@@ -119,7 +119,7 @@ export default function BestandToolbar({
             value={clubFilter}
             onChange={(e) => onClubFilterChange(e.target.value)}
             aria-label={t('clubFilterAria')}
-            className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 focus:outline-none"
+            className="px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg text-[10px] text-white/60 focus:outline-none"
           >
             <option value="">{t('allClubs')}</option>
             {availableClubs.map(c => <option key={c} value={c}>{c}</option>)}

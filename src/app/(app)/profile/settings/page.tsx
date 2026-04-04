@@ -253,7 +253,7 @@ export default function ProfileSettingsPage() {
               onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))}
               className={cn(
                 'w-full pl-8 pr-10 py-2.5 rounded-xl text-sm',
-                'bg-white/5 border',
+                'bg-surface-base border',
                 'placeholder:text-white/30 text-white',
                 'focus:outline-none transition-colors',
                 handleStatus === 'available' && 'border-green-500/40',
@@ -281,7 +281,7 @@ export default function ProfileSettingsPage() {
             value={displayNameVal}
             onChange={(e) => setDisplayNameVal(e.target.value.slice(0, 50))}
             placeholder={t('displayNamePlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-colors"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-colors"
           />
         </div>
 
@@ -299,7 +299,7 @@ export default function ProfileSettingsPage() {
             onChange={(e) => setBio(e.target.value.slice(0, 160))}
             rows={3}
             placeholder={t('bioPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-colors resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-colors resize-none"
           />
         </div>
 
@@ -310,7 +310,7 @@ export default function ProfileSettingsPage() {
             id="settings-club"
             value={favoriteClub}
             onChange={(e) => setFavoriteClub(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
           >
             <option value="">{t('favoriteClubNone')}</option>
             {getAllClubsCached().map((club) => (
@@ -359,7 +359,7 @@ export default function ProfileSettingsPage() {
             id="settings-language"
             value={language}
             onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
           >
             <option value="de">{t('languageDe')}</option>
             <option value="tr">{t('languageTr')}</option>
@@ -446,7 +446,7 @@ export default function ProfileSettingsPage() {
                   aria-checked={notifPrefs[key]}
                   className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-subtle transition-colors min-h-[44px]"
                 >
-                  <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0" aria-hidden="true">
+                  <div className="size-8 rounded-lg bg-surface-base flex items-center justify-center text-white/60 shrink-0" aria-hidden="true">
                     {icons[key]}
                   </div>
                   <div className="flex-1 text-left min-w-0">

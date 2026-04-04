@@ -60,8 +60,8 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
   if (loading) {
     return (
       <Card className="p-4 animate-pulse motion-reduce:animate-none">
-        <div className="h-4 bg-white/5 rounded w-1/2 mb-2" />
-        <div className="h-8 bg-white/5 rounded w-1/3" />
+        <div className="h-4 bg-surface-base rounded w-1/2 mb-2" />
+        <div className="h-8 bg-surface-base rounded w-1/3" />
       </Card>
     );
   }
@@ -150,7 +150,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
                   <span className="text-white/50">{barLabel[bar.key]}</span>
                   <span className="font-mono font-bold" style={{ color: bar.color }}>{val}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-surface-base overflow-hidden">
                   <div
                     className="h-full rounded-full transition-colors duration-500"
                     style={{ width: `${Math.min((val / 100) * 100, 100)}%`, backgroundColor: bar.color }}

@@ -30,7 +30,7 @@ export default function OnboardingChecklist({ items, className = '' }: Onboardin
           <span className="text-xs font-mono tabular-nums text-gold">{completed}/{total}</span>
         </div>
         {/* Progress bar */}
-        <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="mt-2 h-1.5 bg-surface-base rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-[#FFE44D] to-[#E6B800] rounded-full transition-colors duration-500"
             style={{ width: `${pct}%` }}

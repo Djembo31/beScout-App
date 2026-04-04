@@ -236,7 +236,7 @@ export const HistoryTab = ({
                     )}>
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
-                          entry.rank <= 3 ? 'bg-gold/15' : 'bg-white/5', rankColor
+                          entry.rank <= 3 ? 'bg-gold/15' : 'bg-surface-base', rankColor
                         )}>
                           #{entry.rank}
                         </div>

@@ -210,7 +210,7 @@ export function ScoreBreakdown({
       {isScored && (
         <button
           onClick={onSwitchToLeaderboard}
-          className="w-full flex items-center justify-center gap-2 p-3 bg-surface-subtle hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
+          className="w-full flex items-center justify-center gap-2 p-3 bg-surface-subtle hover:bg-surface-elevated border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
         >
           <BarChart3 aria-hidden="true" className="size-4" />
           {t('showRanking')}

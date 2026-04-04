@@ -29,7 +29,7 @@ export const GameweekSelector = ({
         onClick={() => canPrev && onSelect(selectedGameweek - 1)}
         disabled={!canPrev}
         aria-label={t('prevGameweek')}
-        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="p-2 rounded-xl bg-surface-base border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <ChevronLeft className="size-5" aria-hidden="true" />
       </button>
@@ -40,7 +40,7 @@ export const GameweekSelector = ({
           'flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold transition-colors min-w-[180px] justify-center',
           isActive
             ? 'bg-green-500/10 border-green-500/30 text-green-500'
-            : 'bg-white/5 border-white/10 text-white hover:border-white/20'
+            : 'bg-surface-base border-white/10 text-white hover:border-white/20'
         )}
       >
         <span className="text-base font-black">{t('gameweekN', { gw: selectedGameweek })}</span>
@@ -56,7 +56,7 @@ export const GameweekSelector = ({
         onClick={() => canNext && onSelect(selectedGameweek + 1)}
         disabled={!canNext}
         aria-label={t('nextGameweek')}
-        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="p-2 rounded-xl bg-surface-base border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <ChevronRight className="size-5" aria-hidden="true" />
       </button>

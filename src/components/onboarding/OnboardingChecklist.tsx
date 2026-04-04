@@ -96,7 +96,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
         {/* Dismiss button */}
         <button
           onClick={() => { localStorage.setItem(DISMISSED_KEY, '1'); setDismissed(true); }}
-          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 active:scale-90 transition-colors z-10"
+          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-surface-base active:scale-90 transition-colors z-10"
           aria-label={tc('close')}
         >
           <X className="size-4" />

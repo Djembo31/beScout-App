@@ -94,7 +94,7 @@ export function AdminAirdropTab() {
       {stats && stats.total_users > 0 && (
         <Card className="p-4">
           <div className="text-xs font-bold text-white/50 uppercase mb-3">{t('tierDistribution')}</div>
-          <div className="flex h-4 rounded-full overflow-hidden bg-white/5">
+          <div className="flex h-4 rounded-full overflow-hidden bg-surface-base">
             {(['bronze', 'silber', 'gold', 'diamond'] as const).map(tier => {
               const pct = (stats.tier_distribution[tier] / stats.total_users) * 100;
               if (pct === 0) return null;

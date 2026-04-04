@@ -82,7 +82,7 @@ export function FormationSelector({
           value={selectedFormation}
           onChange={(e) => onFormationChange(e.target.value)}
           disabled={isReadOnly}
-          className={`px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`px-3 py-2 min-h-[44px] bg-surface-base border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {availableFormations.map(f => (
             <option key={f.id} value={f.id}>{f.name}</option>
@@ -93,7 +93,7 @@ export function FormationSelector({
             <div className="flex-1" />
             <button
               onClick={() => setShowPresets(!showPresets)}
-              className="px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors flex items-center gap-1"
+              className="px-3 py-2 min-h-[44px] bg-surface-base border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors flex items-center gap-1"
             >
               <Briefcase aria-hidden="true" className="size-3.5" /> {t('presetsLabel')}
             </button>
@@ -121,7 +121,7 @@ export function FormationSelector({
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
               placeholder={t('presetNamePlaceholder')}
-              className="flex-1 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs"
+              className="flex-1 px-3 py-1.5 bg-surface-base border border-white/10 rounded-lg text-xs"
             />
             <button
               onClick={savePreset}

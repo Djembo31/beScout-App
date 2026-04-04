@@ -112,7 +112,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           <p className="text-sm text-white/60 line-clamp-3 mb-3">{bounty.description}</p>
 
           {bounty.player_name && (
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 mb-3">
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-base border border-white/10 text-xs text-white/60 mb-3">
               {tb('playerLabel', { name: bounty.player_name })}
             </div>
           )}
@@ -153,7 +153,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             </Chip>
           )}
           {isFull && !hasSubmitted && !isTierLocked && (
-            <Chip className="bg-white/5 text-white/40 border-white/10">{tb('full')}</Chip>
+            <Chip className="bg-surface-base text-white/40 border-white/10">{tb('full')}</Chip>
           )}
           {isCreator && (
             <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">{tb('yourBounty')}</Chip>
@@ -180,7 +180,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
               placeholder={tb('titlePlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
             />
           </div>
 
@@ -204,7 +204,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               onChange={(e) => setContent(e.target.value.slice(0, 10000))}
               rows={6}
               placeholder={isScouting ? tb('contentScoutingPlaceholder') : tb('contentGeneralPlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
             />
             <div className="text-[10px] text-white/30 mt-1">{tb('charCount', { count: content.length })}</div>
           </div>

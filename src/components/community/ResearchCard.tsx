@@ -132,13 +132,13 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           {/* Category Badge */}
           {post.category && (
             <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-semibold border',
-              categoryColor[post.category] ?? 'bg-white/5 text-white/50 border-white/10'
+              categoryColor[post.category] ?? 'bg-surface-base text-white/50 border-white/10'
             )}>{post.category}</span>
           )}
           {/* Player Tag */}
           {post.player_id && post.player_name && (
             <Link href={`/player/${post.player_id}`}>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-white/5 text-white/70 hover:opacity-80 transition-opacity">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-surface-base text-white/70 hover:opacity-80 transition-opacity">
                 <Target className="w-3 h-3" />
                 {post.player_name}
                 {post.player_position && <PositionBadge pos={post.player_position} size="sm" />}
@@ -150,7 +150,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             {post.call}
           </span>
           {/* Horizon Chip */}
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-base text-white/40 border border-white/10">
             {post.horizon}
           </span>
           {/* Outcome Badge */}
@@ -201,7 +201,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                 isVerified
                   ? 'text-gold bg-gold/10 border-gold/20'
                   : hasEnough
-                  ? 'text-white/50 bg-white/5 border-white/10'
+                  ? 'text-white/50 bg-surface-base border-white/10'
                   : 'text-white/30 bg-surface-minimal border-divider'
               )}>
                 <Shield className="w-3 h-3" />
@@ -233,14 +233,14 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                   'px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold border',
                   d.val >= 8 ? 'text-gold bg-gold/10 border-gold/20' :
                   d.val >= 6 ? 'text-green-500 bg-green-500/10 border-green-500/20' :
-                  'text-white/50 bg-white/5 border-white/10'
+                  'text-white/50 bg-surface-base border-white/10'
                 )}>
                   {d.key}{d.val}
                 </span>
               ))}
               <span className={cn(
                 'px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold border',
-                'text-white/70 bg-white/5 border-white/10'
+                'text-white/70 bg-surface-base border-white/10'
               )}>
                 Ø{((ev.technik + ev.taktik + ev.athletik + ev.mentalitaet + ev.potenzial) / 5).toFixed(1)}
               </span>
@@ -299,7 +299,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                   </Button>
                   <button
                     onClick={() => setConfirmUnlock(false)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 text-white/50 hover:bg-white/10 transition-colors"
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface-base text-white/50 hover:bg-white/10 transition-colors"
                   >
                     {tc('cancelBtn')}
                   </button>
@@ -314,7 +314,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
       <div className="px-4 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-1.5 flex-wrap">
           {post.tags.map(tag => (
-            <span key={tag} className="px-1.5 py-0.5 rounded-full text-[10px] bg-white/5 text-white/40">
+            <span key={tag} className="px-1.5 py-0.5 rounded-full text-[10px] bg-surface-base text-white/40">
               #{tag}
             </span>
           ))}
@@ -336,7 +336,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           {!post.is_own && onReport && (
             <button
               onClick={() => onReport(post.id)}
-              className="p-1 rounded-lg text-white/30 hover:text-red-300 hover:bg-white/5 transition-colors"
+              className="p-1 rounded-lg text-white/30 hover:text-red-300 hover:bg-surface-base transition-colors"
               aria-label={tc('reportAction')}
             >
               <Flag className="w-3 h-3" />

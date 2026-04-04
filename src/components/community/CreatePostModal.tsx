@@ -158,7 +158,7 @@ export default function CreatePostModal({
                   'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                   category === cat.id
                     ? cat.color
-                    : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'text-white/50 bg-surface-base border-white/10 hover:bg-white/10'
                 )}
               >
                 {t(cat.labelKey)}
@@ -180,7 +180,7 @@ export default function CreatePostModal({
                   'flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors border text-center',
                   postType === ptId
                     ? ptId === 'transfer_rumor' ? 'bg-red-500/15 text-red-300 border-red-500/20' : 'bg-gold/15 text-gold border-gold/25'
-                    : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'text-white/50 bg-surface-base border-white/10 hover:bg-white/10'
                 )}
               >
                 {ptId === 'general' ? t('typeGeneral') : ptId === 'player_take' ? t('typePlayerTake') : t('typeRumor')}
@@ -199,7 +199,7 @@ export default function CreatePostModal({
             onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
             placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? t('searchPlayer') : t('searchPlayer')}
             className={cn(
-              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40',
+              'w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40',
               playerId && !playerSearch && 'text-white/70'
             )}
           />
@@ -218,7 +218,7 @@ export default function CreatePostModal({
               <button
                 type="button"
                 onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
-                className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-white/5"
+                className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-surface-base"
               >
                 {t('noPlayer')}
               </button>
@@ -231,7 +231,7 @@ export default function CreatePostModal({
                     type="button"
                     onClick={() => { setPlayerId(p.id); setPlayerSearch(p.name); setPlayerDropdownOpen(false); }}
                     className={cn(
-                      'w-full px-4 py-2 text-left text-sm hover:bg-white/5 flex items-center justify-between',
+                      'w-full px-4 py-2 text-left text-sm hover:bg-surface-base flex items-center justify-between',
                       playerId === p.id ? 'text-gold' : 'text-white/80'
                     )}
                   >
@@ -256,7 +256,7 @@ export default function CreatePostModal({
             onChange={(e) => setContent(e.target.value.slice(0, 500))}
             rows={4}
             placeholder={t('messagePlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
@@ -270,7 +270,7 @@ export default function CreatePostModal({
             onChange={handleImageSelect}
           />
           {imageLoading ? (
-            <div className="flex items-center gap-2 px-3 py-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center gap-2 px-3 py-4 rounded-xl bg-surface-base border border-white/10">
               <Loader2 className="size-4 animate-spin text-white/40" />
               <span className="text-xs text-white/40">{t('imageLoading')}</span>
             </div>
@@ -291,7 +291,7 @@ export default function CreatePostModal({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               aria-label={t('addImage')}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-base border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
             >
               <Camera className="size-4" aria-hidden="true" />
               {t('addImage')}
@@ -308,7 +308,7 @@ export default function CreatePostModal({
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             placeholder={t('tagsPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
         </div>
 

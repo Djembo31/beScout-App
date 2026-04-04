@@ -125,7 +125,7 @@ function OfferCard({
           </div>
 
           {offer.message && (
-            <div className="mt-2 text-xs text-white/50 italic bg-white/5 rounded-lg p-2">
+            <div className="mt-2 text-xs text-white/50 italic bg-surface-base rounded-lg p-2">
               &ldquo;{offer.message}&rdquo;
             </div>
           )}
@@ -268,7 +268,7 @@ function CreateOfferModal({
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder={t('searchPlayerPlaceholder')}
-                className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
+                className="w-full pl-10 pr-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
               />
             </div>
             {filteredPlayers.length > 0 && (
@@ -277,7 +277,7 @@ function CreateOfferModal({
                   <button
                     key={p.id}
                     onClick={() => { setSelectedPlayer(p); setSearch(''); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 text-left transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-base text-left transition-colors"
                   >
                     <PlayerIdentity
                       player={{ first: p.first, last: p.last, pos: p.pos, status: 'fit', club: p.club, ticket: p.ticket, age: p.age, imageUrl: p.imageUrl }}
@@ -289,7 +289,7 @@ function CreateOfferModal({
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 bg-white/5 rounded-xl p-3">
+          <div className="flex items-center gap-2 bg-surface-base rounded-xl p-3">
             <PlayerIdentity
               player={{ first: selectedPlayer.first, last: selectedPlayer.last, pos: selectedPlayer.pos, status: 'fit', club: selectedPlayer.club, ticket: selectedPlayer.ticket, age: selectedPlayer.age, imageUrl: selectedPlayer.imageUrl }}
               size="sm" showMeta={false} showStatus={false}
@@ -307,7 +307,7 @@ function CreateOfferModal({
               onClick={() => setSide('buy')}
               className={cn(
                 'flex-1 py-2 rounded-xl text-sm font-medium transition-colors border',
-                side === 'buy' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 text-white/40 border-white/10'
+                side === 'buy' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-surface-base text-white/40 border-white/10'
               )}
             >
               {t('buy')}
@@ -316,7 +316,7 @@ function CreateOfferModal({
               onClick={() => setSide('sell')}
               className={cn(
                 'flex-1 py-2 rounded-xl text-sm font-medium transition-colors border',
-                side === 'sell' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/5 text-white/40 border-white/10'
+                side === 'sell' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-surface-base text-white/40 border-white/10'
               )}
             >
               {t('sell')}
@@ -334,7 +334,7 @@ function CreateOfferModal({
             placeholder={t('pricePlaceholder')}
             min="1"
             step="1"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30 font-mono tabular-nums"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30 font-mono tabular-nums"
           />
         </div>
 
@@ -346,7 +346,7 @@ function CreateOfferModal({
             value={receiverHandle}
             onChange={e => setReceiverHandle(e.target.value)}
             placeholder="@username"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
 
@@ -359,7 +359,7 @@ function CreateOfferModal({
             onChange={e => setMessage(e.target.value)}
             placeholder={t('messagePlaceholder')}
             maxLength={200}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
+            className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
 
@@ -484,7 +484,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
                 type="number" inputMode="numeric"
                 value={state.counterPrice}
                 onChange={e => state.setCounterPrice(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono tabular-nums focus:outline-none focus:border-gold/30"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-base text-white font-mono tabular-nums focus:outline-none focus:border-gold/30"
               />
             </div>
             <Button onClick={state.handleCounter} disabled={state.countering} className="w-full">

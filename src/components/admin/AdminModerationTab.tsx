@@ -239,7 +239,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
           readOnly={!canEditGuidelines}
           placeholder={t('guidelinesPlaceholder')}
           className={cn(
-            'w-full h-32 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none',
+            'w-full h-32 p-3 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none',
             !canEditGuidelines && 'opacity-60 cursor-not-allowed'
           )}
         />
@@ -280,7 +280,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                 {canPin && (
                   <button
                     onClick={() => handleTogglePin(post.id, false)}
-                    className="text-xs text-white/50 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5"
+                    className="text-xs text-white/50 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-surface-base"
                   >
                     {t('unpin')}
                   </button>
@@ -328,7 +328,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                         onClick={() => handleTogglePin(post.id, !post.is_pinned)}
                         className={cn(
                           'p-1.5 rounded-lg transition-colors',
-                          post.is_pinned ? 'text-gold hover:bg-gold/10' : 'text-white/30 hover:text-white hover:bg-white/5'
+                          post.is_pinned ? 'text-gold hover:bg-gold/10' : 'text-white/30 hover:text-white hover:bg-surface-base'
                         )}
                         title={post.is_pinned ? t('unpin') : t('pin')}
                       >

@@ -109,7 +109,7 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
           aria-label={t('sortBy', { defaultMessage: 'Sortieren' })}
         >
           {SORT_KEYS.map(o => (
-            <option key={o.value} value={o.value} className="bg-[#1a1a1a]">
+            <option key={o.value} value={o.value} className="bg-surface-popover">
               {o.labelKey === 'literal' ? o.fallback : t(o.labelKey, { defaultMessage: o.fallback })}
             </option>
           ))}
@@ -187,10 +187,10 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
                 className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-xs text-white/70 outline-none min-h-[32px]"
                 aria-label={t('goalsMinAria', { defaultMessage: 'Tore minimum' })}
               >
-                <option value={0} className="bg-[#1a1a1a]">{t('sortAll', { defaultMessage: 'Alle' })}</option>
-                <option value={3} className="bg-[#1a1a1a]">3+</option>
-                <option value={5} className="bg-[#1a1a1a]">5+</option>
-                <option value={10} className="bg-[#1a1a1a]">10+</option>
+                <option value={0} className="bg-surface-popover">{t('sortAll', { defaultMessage: 'Alle' })}</option>
+                <option value={3} className="bg-surface-popover">3+</option>
+                <option value={5} className="bg-surface-popover">5+</option>
+                <option value={10} className="bg-surface-popover">10+</option>
               </select>
             </div>
             <div>
@@ -201,10 +201,10 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
                 className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-xs text-white/70 outline-none min-h-[32px]"
                 aria-label={t('assistsMinAria', { defaultMessage: 'Assists minimum' })}
               >
-                <option value={0} className="bg-[#1a1a1a]">{t('sortAll', { defaultMessage: 'Alle' })}</option>
-                <option value={2} className="bg-[#1a1a1a]">2+</option>
-                <option value={4} className="bg-[#1a1a1a]">4+</option>
-                <option value={8} className="bg-[#1a1a1a]">8+</option>
+                <option value={0} className="bg-surface-popover">{t('sortAll', { defaultMessage: 'Alle' })}</option>
+                <option value={2} className="bg-surface-popover">2+</option>
+                <option value={4} className="bg-surface-popover">4+</option>
+                <option value={8} className="bg-surface-popover">8+</option>
               </select>
             </div>
             <div>
@@ -215,10 +215,10 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
                 className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-xs text-white/70 outline-none min-h-[32px]"
                 aria-label={t('matchesMinAria', { defaultMessage: 'Spiele minimum' })}
               >
-                <option value={0} className="bg-[#1a1a1a]">{t('sortAll', { defaultMessage: 'Alle' })}</option>
-                <option value={10} className="bg-[#1a1a1a]">10+</option>
-                <option value={20} className="bg-[#1a1a1a]">20+</option>
-                <option value={30} className="bg-[#1a1a1a]">30+</option>
+                <option value={0} className="bg-surface-popover">{t('sortAll', { defaultMessage: 'Alle' })}</option>
+                <option value={10} className="bg-surface-popover">10+</option>
+                <option value={20} className="bg-surface-popover">20+</option>
+                <option value={30} className="bg-surface-popover">30+</option>
               </select>
             </div>
           </div>

@@ -102,7 +102,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   isActive
                     ? 'bg-gold/20'
                     : isFuture
-                    ? 'bg-white/5'
+                    ? 'bg-surface-base'
                     : 'bg-surface-subtle'
                 }`}>
                   {isActive ? (

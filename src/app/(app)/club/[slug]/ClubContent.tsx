@@ -185,7 +185,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide -mx-1 px-1">
         <Link
           href="/clubs"
-          className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white bg-surface-subtle hover:bg-white/[0.08] border border-divider transition-colors"
+          className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white bg-surface-subtle hover:bg-surface-elevated border border-divider transition-colors"
         >
           <ChevronLeft aria-hidden="true" className="size-3" />
           {t('allClubs')}
@@ -194,7 +194,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           <Link
             key={c.id}
             href={`/club/${c.slug}`}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white/60 hover:text-white bg-surface-subtle hover:bg-white/[0.08] border border-divider transition-colors"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white/60 hover:text-white bg-surface-subtle hover:bg-surface-elevated border border-divider transition-colors"
           >
             {c.logo_url ? (
               <Image src={c.logo_url} alt="" width={14} height={14} className="size-3.5 object-contain rounded-sm" />

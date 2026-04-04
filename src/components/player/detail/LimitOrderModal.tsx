@@ -91,7 +91,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
                   value={price}
                   onChange={e => setPrice(e.target.value)}
                   placeholder={fmtScout(floorPrice)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 font-mono text-base placeholder:text-white/20 hover:border-white/20 focus:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 transition-colors"
+                  className="w-full bg-surface-base border border-white/10 rounded-xl px-4 py-3 font-mono text-base placeholder:text-white/20 hover:border-white/20 focus:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 transition-colors"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/30 pointer-events-none">Credits</span>
               </div>
@@ -107,7 +107,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
                 value={qty}
                 min={1}
                 onChange={e => setQty(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 font-mono text-base placeholder:text-white/20 hover:border-white/20 focus:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 transition-colors"
+                className="w-full bg-surface-base border border-white/10 rounded-xl px-4 py-3 font-mono text-base placeholder:text-white/20 hover:border-white/20 focus:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 transition-colors"
               />
             </div>
 

@@ -205,7 +205,7 @@ export default function OverviewPanel({ event, userId, participants, participant
             <div className="text-white/40 text-xs">{t('noParticipantsYet')}</div>
           ) : (
             participants.slice(0, 5).map(p => (
-              <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === userId ? 'bg-gold/10 border border-gold/30' : 'bg-white/5'}`}>
+              <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === userId ? 'bg-gold/10 border border-gold/30' : 'bg-surface-base'}`}>
                 <div className="relative size-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
                   {p.avatar_url ? <Image src={p.avatar_url} alt={p.handle} fill className="object-cover" /> : <div className="text-xs flex items-center justify-center w-full h-full">&#x1F464;</div>}
                 </div>

@@ -138,7 +138,7 @@ export default function CommunityPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           {activeClub && (
-            <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
+            <div className="flex items-center gap-1 p-1 bg-surface-base rounded-xl">
               <button
                 onClick={() => dispatch({ type: 'SET_CLUB_SCOPE', value: 'all' })}
                 className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
@@ -159,7 +159,7 @@ export default function CommunityPage() {
           )}
 
           {/* Alle / Folge ich Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
+          <div className="flex items-center gap-1 p-1 bg-surface-base rounded-xl">
             {(['all', 'following'] as const).map(mode => (
               <button
                 key={mode}

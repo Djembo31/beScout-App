@@ -63,7 +63,7 @@ export function SpieltagHeader({
           onClick={onPrev}
           disabled={gameweek <= 1}
           aria-label={t('prevGameweek')}
-          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-surface-subtle border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
+          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-surface-subtle border border-white/[0.08] hover:bg-surface-elevated disabled:opacity-20 transition-colors active:scale-[0.95]"
         >
           <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
@@ -86,7 +86,7 @@ export function SpieltagHeader({
           onClick={onNext}
           disabled={gameweek >= 38}
           aria-label={t('nextGameweek')}
-          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-surface-subtle border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
+          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-surface-subtle border border-white/[0.08] hover:bg-surface-elevated disabled:opacity-20 transition-colors active:scale-[0.95]"
         >
           <ChevronRight className="size-5" aria-hidden="true" />
         </button>

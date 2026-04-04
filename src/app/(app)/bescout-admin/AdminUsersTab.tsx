@@ -69,7 +69,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
           placeholder={t('searchUsersPlaceholder')} aria-label={t('searchUsersLabel')}
-          className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
+          className="w-full pl-10 pr-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
         />
       </div>
 
@@ -136,7 +136,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                 id="adjust-amount"
                 type="number" inputMode="numeric" value={adjustAmount} onChange={e => setAdjustAmount(e.target.value)}
                 placeholder={t('amountPlaceholder')}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-gold/30"
+                className="w-full px-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-gold/30"
               />
             </div>
             <div>
@@ -145,7 +145,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                 id="adjust-reason"
                 type="text" value={adjustReason} onChange={e => setAdjustReason(e.target.value)}
                 placeholder={t('reasonPlaceholder')}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
+                className="w-full px-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
               />
             </div>
             {GEOFENCING_ENABLED && (
@@ -165,7 +165,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                       addToast(err instanceof Error ? err.message : t('error'), 'error');
                     }
                   }}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
+                  className="w-full px-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
                 >
                   <option value="">{t('regionNotSet')}</option>
                   {GEO_REGIONS.map(r => (

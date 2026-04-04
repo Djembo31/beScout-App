@@ -301,7 +301,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             aria-label={t('kaderSearchLabel')}
             value={state.pickerSearch}
             onChange={e => state.setPickerSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
+            className="w-full pl-8 pr-3 py-1.5 bg-surface-base border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
           />
         </div>
       </div>
@@ -388,7 +388,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
       {/* Squad Size + Formation Selector */}
       <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-0.5">
+        <div className="flex items-center bg-surface-base border border-white/10 rounded-full p-0.5">
           {(['11', '7'] as const).map(size => (
             <button
               key={size}
@@ -413,7 +413,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               'px-3 py-1.5 rounded-full text-xs font-bold border transition-colors',
               state.formationId === f.id
                 ? 'bg-gold/15 border-gold/30 text-gold'
-                : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/20'
+                : 'bg-surface-base border-white/10 text-white/50 hover:text-white hover:border-white/20'
             )}
           >
             {f.name}
@@ -426,7 +426,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               onClick={() => state.setShowPresets(!state.showPresets)}
               aria-label={t('kaderPresetsLabel')}
               aria-expanded={state.showPresets}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-base border border-white/10 text-white/50 hover:text-white transition-colors"
             >
               <Save className="size-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">{t('kaderPresetsLabel')}</span>
@@ -441,7 +441,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                     aria-label={t('kaderPresetNameLabel')}
                     value={state.presetName}
                     onChange={e => state.setPresetName(e.target.value)}
-                    className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
+                    className="flex-1 px-2 py-1.5 bg-surface-base border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                   />
                   <button onClick={state.handleSavePreset} disabled={!state.presetName.trim()} className="px-2 py-1.5 bg-gold/20 text-gold text-xs font-bold rounded-lg disabled:opacity-30">
                     {t('kaderSavePreset')}
@@ -449,7 +449,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 </div>
                 {state.presets.length > 0 && <div className="border-t border-white/10 pt-2 space-y-1">
                   {state.presets.map(p => (
-                    <div key={p.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors">
+                    <div key={p.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-base transition-colors">
                       <button onClick={() => state.handleLoadPreset(p)} className="text-xs text-white/70 hover:text-white text-left flex-1 min-w-0">
                         <div className="font-medium truncate">{p.name}</div>
                         <div className="text-[10px] text-white/30">{p.formationId}</div>
@@ -465,7 +465,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           <button
             onClick={state.handleResetAll}
             aria-label={t('kaderResetLabel')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-base border border-white/10 text-white/50 hover:text-white transition-colors"
           >
             <RotateCcw className="size-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">{t('kaderReset')}</span>
@@ -524,7 +524,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                   value={state.pickerSearch}
                   onChange={e => state.setPickerSearch(e.target.value)}
                   autoFocus
-                  className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
+                  className="w-full pl-9 pr-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                 />
               </div>
             </div>

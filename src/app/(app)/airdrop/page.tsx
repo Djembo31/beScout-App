@@ -47,7 +47,7 @@ export default function AirdropPage() {
     <div className="max-w-[900px] mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/" className="p-2 rounded-xl hover:bg-white/5 transition-colors">
+        <Link href="/" className="p-2 rounded-xl hover:bg-surface-base transition-colors">
           <ChevronLeft className="size-5 text-white/40" />
         </Link>
         <div>

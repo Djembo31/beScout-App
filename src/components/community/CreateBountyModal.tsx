@@ -89,7 +89,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 200))}
             placeholder={t('createBounty.titlePlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 text-base"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 text-base"
           />
         </div>
 
@@ -101,7 +101,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
             onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
             rows={4}
             placeholder={t('createBounty.descPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none text-base"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none text-base"
           />
           <div className="text-[10px] text-white/30 mt-1">{description.length}/2000</div>
         </div>
@@ -120,7 +120,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
                 setRewardScout(v);
               }}
               placeholder="50"
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-20 text-base"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-20 text-base"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold font-bold">Credits</span>
           </div>

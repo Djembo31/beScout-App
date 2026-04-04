@@ -132,7 +132,7 @@ export default function TipButton({
                 key={p.cents}
                 disabled={sending}
                 onClick={() => handleSend(p.cents)}
-                className="px-3 py-2 rounded-lg text-sm font-mono font-bold bg-white/5 hover:bg-pink-500/15 hover:text-pink-300 text-white/70 transition-colors border border-divider hover:border-pink-500/20 disabled:opacity-50 active:scale-[0.97]"
+                className="px-3 py-2 rounded-lg text-sm font-mono font-bold bg-surface-base hover:bg-pink-500/15 hover:text-pink-300 text-white/70 transition-colors border border-divider hover:border-pink-500/20 disabled:opacity-50 active:scale-[0.97]"
               >
                 {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none mx-auto" /> : `${p.label} CR`}
               </button>
@@ -148,7 +148,7 @@ export default function TipButton({
               value={customAmount}
               onChange={e => setCustomAmount(e.target.value)}
               placeholder={tt('amountPlaceholder')}
-              className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-base text-white font-mono text-sm placeholder:text-white/30 focus:outline-none focus:border-pink-500/30 min-w-0"
+              className="flex-1 px-2 py-1.5 bg-surface-base border border-white/10 rounded-lg text-base text-white font-mono text-sm placeholder:text-white/30 focus:outline-none focus:border-pink-500/30 min-w-0"
             />
             <button
               disabled={sending || !customAmount || Number(customAmount) < 10 || Number(customAmount) > 10000}

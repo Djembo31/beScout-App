@@ -28,7 +28,7 @@ export function SearchInput({ value, onChange, placeholder, className = '', aria
         aria-label={ariaLabel ?? resolvedPlaceholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pl-10 pr-9 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main placeholder:text-white/40 transition-colors"
+        className="w-full pl-10 pr-9 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main placeholder:text-white/40 transition-colors"
       />
       {value && (
         <button

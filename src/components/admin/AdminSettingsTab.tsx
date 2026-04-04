@@ -168,7 +168,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
                 aria-label={t('gwFixtureSyncAria')}
                 value={fixtureGw}
                 onChange={(e) => setFixtureGw(Number(e.target.value))}
-                className="w-28 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
+                className="w-28 px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm min-h-[44px]"
               >
                 {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
                   <option key={gw} value={gw}>GW {gw}</option>
@@ -315,7 +315,7 @@ function BrandingSection({ club }: { club: ClubWithAdmin }) {
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
                 maxLength={7}
-                className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-mono min-h-[44px] focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50"
+                className="flex-1 px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm font-mono min-h-[44px] focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50"
               />
             </div>
           </div>
@@ -334,7 +334,7 @@ function BrandingSection({ club }: { club: ClubWithAdmin }) {
                 value={secondaryColor}
                 onChange={(e) => setSecondaryColor(e.target.value)}
                 maxLength={7}
-                className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-mono min-h-[44px] focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50"
+                className="flex-1 px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm font-mono min-h-[44px] focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50"
               />
             </div>
           </div>
@@ -515,7 +515,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               aria-label={t('activeGameweekAria')}
               value={selectedGw}
               onChange={(e) => setSelectedGw(Number(e.target.value))}
-              className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
+              className="flex-1 px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm min-h-[44px]"
             >
               {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
                 <option key={gw} value={gw}>
@@ -576,7 +576,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   const allowFees = preset === 'OTHER';
                   setFantasySettings(prev => prev ? { ...prev, fantasy_jurisdiction_preset: preset, fantasy_allow_entry_fees: allowFees, fantasy_entry_fee_cents: allowFees ? prev.fantasy_entry_fee_cents : 0 } : prev);
                 }}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm min-h-[44px]"
               >
                 {jurisdictions.map(j => (
                   <option key={j.value} value={j.value}>{j.label} — {j.desc}</option>
@@ -606,7 +606,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   onChange={(e) => setFantasySettings(prev => prev ? { ...prev, fantasy_entry_fee_cents: Math.max(0, Math.round(Number(e.target.value) * 100)) } : prev)}
                   min={0}
                   max={1000}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
+                  className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm min-h-[44px]"
                 />
                 <div className="text-[10px] text-white/30 mt-1">{t('defaultEntryFeeHint')}</div>
               </div>
@@ -636,7 +636,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
       {/* Club Info */}
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-surface-base flex items-center justify-center">
             <Shield className="w-5 h-5 text-white/50" />
           </div>
           <div>

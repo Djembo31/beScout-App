@@ -25,7 +25,7 @@ export function SquadOverviewWidget({ players }: { players: Player[] }) {
         <Shield className="size-5 text-white/50" />
         <h2 className="font-black text-balance text-lg">{t('squadOverview')}</h2>
       </div>
-      <div className="h-4 bg-white/5 rounded-full overflow-hidden flex mb-4">
+      <div className="h-4 bg-surface-base rounded-full overflow-hidden flex mb-4">
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map((pos) => (
           breakdown[pos] > 0 ? (
             <div key={pos} className={cn('h-full', posColors[pos])} style={{ width: `${(breakdown[pos] / total) * 100}%` }} />

@@ -88,7 +88,7 @@ export const CreateEventModal = ({
             onChange={(e) => setName(e.target.value)}
             placeholder={t('eventNamePlaceholder')}
             maxLength={100}
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
+            className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
           />
         </div>
 
@@ -101,7 +101,7 @@ export const CreateEventModal = ({
             placeholder={t('descriptionPlaceholder')}
             rows={3}
             maxLength={500}
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 resize-none"
+            className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
@@ -112,7 +112,7 @@ export const CreateEventModal = ({
               id="create-event-mode"
               value={mode}
               onChange={(e) => setMode(e.target.value as EventMode)}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
               <option value="tournament">{t('modeTournament')}</option>
               <option value="league">{t('modeLeague')}</option>
@@ -124,7 +124,7 @@ export const CreateEventModal = ({
               id="create-event-format"
               value={format}
               onChange={(e) => setFormat(e.target.value as LineupFormat)}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
               <option value="7er">{t('formatSeven')}</option>
               <option value="11er">{t('formatEleven')}</option>
@@ -144,7 +144,7 @@ export const CreateEventModal = ({
               min={0}
               max={0}
               disabled
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
             />
             <div className="text-xs text-white/30 mt-1">{t('buyInPilotHint')}</div>
           </div>
@@ -158,7 +158,7 @@ export const CreateEventModal = ({
               onChange={(e) => setMaxParticipants(Number(e.target.value))}
               min={2}
               max={500}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             />
           </div>
         </div>

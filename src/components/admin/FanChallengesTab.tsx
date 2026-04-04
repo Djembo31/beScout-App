@@ -146,7 +146,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder={t('challengeTitle')}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+              className="w-full bg-surface-base border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
               maxLength={120}
             />
           </div>
@@ -158,7 +158,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder={t('challengeDesc')}
-              className="w-full h-20 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
+              className="w-full h-20 bg-surface-base border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
               maxLength={500}
             />
           </div>
@@ -169,10 +169,10 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
             <select
               value={type}
               onChange={e => setType(e.target.value as ClubChallenge['type'])}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
+              className="w-full bg-surface-base border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
             >
               {CHALLENGE_TYPES.map(ct => (
-                <option key={ct} value={ct} className="bg-[#0a0a0a]">
+                <option key={ct} value={ct} className="bg-bg-main">
                   {TYPE_LABELS[ct]}
                 </option>
               ))}
@@ -189,7 +189,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
               onChange={e => setFanRankPoints(e.target.value)}
               min={1}
               max={1000}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
+              className="w-full bg-surface-base border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
             />
           </div>
 
@@ -201,7 +201,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
               value={cosmeticRewardKey}
               onChange={e => setCosmeticRewardKey(e.target.value)}
               placeholder="z.B. badge_gold_fan"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
+              className="w-full bg-surface-base border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
             />
           </div>
 
@@ -213,7 +213,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
                 type="datetime-local"
                 value={startsAt}
                 onChange={e => setStartsAt(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
+                className="w-full bg-surface-base border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
               />
             </div>
             <div>
@@ -222,7 +222,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
                 type="datetime-local"
                 value={endsAt}
                 onChange={e => setEndsAt(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
+                className="w-full bg-surface-base border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/40"
               />
             </div>
           </div>
@@ -273,7 +273,7 @@ function ChallengeRow({ challenge, t }: { challenge: ClubChallenge; t: (key: str
             'px-2 py-0.5 rounded-lg text-[10px] font-bold',
             isActive
               ? 'bg-green-500/15 text-green-400 border border-green-500/20'
-              : 'bg-white/5 text-white/40 border border-white/10',
+              : 'bg-surface-base text-white/40 border border-white/10',
           )}>
             {isActive ? t('challengeActive') : t('challengeEnded')}
           </span>

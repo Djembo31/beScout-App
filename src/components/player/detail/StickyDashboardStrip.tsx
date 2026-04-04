@@ -33,7 +33,7 @@ function StickyDashboardStripInner({
   return (
     <div
       className={cn(
-        'sticky top-0 z-40 h-12 backdrop-blur-xl bg-[#0a0a0a]/80 border-b border-divider shadow-sm',
+        'sticky top-0 z-40 h-12 backdrop-blur-xl bg-bg-main/80 border-b border-divider shadow-sm',
         'transition-colors duration-200 ease-out',
         visible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none',
         className,

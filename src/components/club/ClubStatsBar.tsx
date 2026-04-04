@@ -12,7 +12,7 @@ import type { PrestigeTier } from '@/lib/services/club';
 
 // ── Prestige Config (shared with ClubHero) ──
 export const PRESTIGE_CONFIG: Record<PrestigeTier, { icon: typeof Star; color: string; bg: string; labelKey: string }> = {
-  starter: { icon: Shield, color: 'text-white/30', bg: 'bg-white/5', labelKey: 'prestigeStarter' },
+  starter: { icon: Shield, color: 'text-white/30', bg: 'bg-surface-base', labelKey: 'prestigeStarter' },
   aktiv: { icon: Shield, color: 'text-white/60', bg: 'bg-white/10', labelKey: 'prestigeAktiv' },
   engagiert: { icon: Award, color: 'text-green-500', bg: 'bg-green-500/10', labelKey: 'prestigeEngagiert' },
   vorbildlich: { icon: Star, color: 'text-gold', bg: 'bg-gold/10', labelKey: 'prestigeVorbildlich' },

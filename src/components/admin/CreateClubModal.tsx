@@ -112,7 +112,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
             value={name}
             onChange={(e) => handleNameChange(e.target.value)}
             placeholder={t('clubNamePlaceholder')}
-            className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
+            className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
           />
         </div>
 
@@ -126,7 +126,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="sakaryaspor"
-              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50 font-mono"
+              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50 font-mono"
             />
           </div>
           <div>
@@ -138,7 +138,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
               onChange={(e) => setShort(e.target.value.toUpperCase())}
               maxLength={5}
               placeholder="SAK"
-              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50 font-mono uppercase"
+              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50 font-mono uppercase"
             />
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
               value={league}
               onChange={(e) => setLeague(e.target.value)}
               placeholder="TFF 1. Lig"
-              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
+              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
             />
           </div>
           <div>
@@ -164,7 +164,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               placeholder={t('clubCountryPlaceholder')}
-              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
+              className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
             />
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
             value={city}
             onChange={(e) => setCity(e.target.value)}
             placeholder={t('clubNamePlaceholder').replace('Sakaryaspor', 'Sakarya')}
-            className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
+            className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
           />
         </div>
 
@@ -189,7 +189,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
             id="club-plan"
             value={plan}
             onChange={(e) => setPlan(e.target.value)}
-            className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
+            className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
           >
             {PLANS.map(p => (
               <option key={p.value} value={p.value} className="bg-[#1a1a2e]">{p.label}</option>

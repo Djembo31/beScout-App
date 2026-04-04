@@ -26,7 +26,7 @@ export function CookieConsent() {
 
   return (
     <div className="fixed bottom-16 md:bottom-4 left-4 right-4 z-[60] flex justify-center pointer-events-none">
-      <div className="max-w-lg w-full bg-[#141414] border border-white/10 rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-center gap-3 shadow-xl shadow-black/40 pointer-events-auto">
+      <div className="max-w-lg w-full bg-surface-popover border border-white/10 rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-center gap-3 shadow-xl shadow-black/40 pointer-events-auto">
         <p className="text-xs text-white/50 flex-1 text-center sm:text-left">
           {t.rich('cookieText', {
             privacyLink: (chunks) => (

@@ -94,7 +94,7 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
             value={customReason}
             onChange={(e) => setCustomReason(e.target.value.slice(0, 500))}
             placeholder={t('reportCustomPlaceholder')}
-            className="w-full h-20 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+            className="w-full h-20 p-3 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
         )}
       </div>

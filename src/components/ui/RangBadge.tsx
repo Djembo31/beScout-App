@@ -95,7 +95,7 @@ export function RangProgress({ score, className = '' }: { score: number; classNa
   if (maxScore === null) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+        <div className="flex-1 h-1.5 rounded-full bg-surface-base overflow-hidden">
           <div className={cn('h-full rounded-full w-full', rang.bgColor)} />
         </div>
         <span className={cn('text-[10px] font-mono tabular-nums', rang.color)}>MAX</span>
@@ -108,7 +108,7 @@ export function RangProgress({ score, className = '' }: { score: number; classNa
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-surface-base overflow-hidden">
         <div
           className={cn('h-full rounded-full transition-[width]', rang.bgColor)}
           style={{ width: `${progress}%` }}

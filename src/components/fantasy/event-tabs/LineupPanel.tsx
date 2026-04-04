@@ -227,7 +227,7 @@ export default function LineupPanel({
           value={selectedFormation}
           onChange={(e) => onFormationChange(e.target.value)}
           disabled={isReadOnly}
-          className={`px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`px-3 py-2 min-h-[44px] bg-surface-base border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {availableFormations.map(f => (
             <option key={f.id} value={f.id}>{f.name}</option>
@@ -238,7 +238,7 @@ export default function LineupPanel({
             <div className="flex-1" />
             <button
               onClick={() => setShowPresets(!showPresets)}
-              className="px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors flex items-center gap-1"
+              className="px-3 py-2 min-h-[44px] bg-surface-base border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors flex items-center gap-1"
             >
               <Briefcase aria-hidden="true" className="size-3.5" /> {t('presetsLabel')}
             </button>
@@ -266,7 +266,7 @@ export default function LineupPanel({
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
               placeholder={t('presetNamePlaceholder')}
-              className="flex-1 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs"
+              className="flex-1 px-3 py-1.5 bg-surface-base border border-white/10 rounded-lg text-xs"
             />
             <button
               onClick={savePreset}
@@ -429,7 +429,7 @@ export default function LineupPanel({
                               : player.status === 'injured' ? 'bg-red-500/20 border-red-400' :
                                 player.status === 'suspended' ? 'bg-orange-500/20 border-orange-400' :
                                   'bg-black/30'
-                            : 'bg-white/5 border-dashed hover:brightness-125'
+                            : 'bg-surface-base border-dashed hover:brightness-125'
                           }`}
                           style={{
                             borderColor: player && isCaptain && !hasScore ? '#FFD700'
@@ -469,7 +469,7 @@ export default function LineupPanel({
                               'mt-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-colors',
                               isWildcard
                                 ? 'bg-purple-500/80 text-white'
-                                : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50'
+                                : 'bg-surface-base text-white/30 hover:bg-white/10 hover:text-white/50'
                             )}
                           >
                             {isWildcard ? 'WC ✓' : 'WC'}
@@ -660,7 +660,7 @@ export default function LineupPanel({
       {isScored && (
         <button
           onClick={onSwitchToLeaderboard}
-          className="w-full flex items-center justify-center gap-2 p-3 bg-surface-subtle hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
+          className="w-full flex items-center justify-center gap-2 p-3 bg-surface-subtle hover:bg-surface-elevated border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
         >
           <BarChart3 aria-hidden="true" className="size-4" />
           {t('showRanking')}
@@ -713,7 +713,7 @@ export default function LineupPanel({
             'text-xs font-mono font-bold px-2 py-0.5 rounded',
             ownershipBonusIds.size > 0
               ? 'bg-gold/15 text-gold'
-              : 'bg-white/5 text-white/30'
+              : 'bg-surface-base text-white/30'
           )}>
             {ownershipBonusIds.size > 0
               ? t('ownershipBonusActive', { count: ownershipBonusIds.size })
@@ -824,7 +824,7 @@ export default function LineupPanel({
                       placeholder={t('searchPlayerPlaceholder')}
                       value={pickerSearch}
                       onChange={e => setPickerSearch(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
+                      className="w-full pl-9 pr-3 py-2 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                     />
                   </div>
                 </div>

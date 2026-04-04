@@ -184,7 +184,7 @@ export function SynergyPreview({
             'text-xs font-mono font-bold px-2 py-0.5 rounded',
             ownershipBonusIds.size > 0
               ? 'bg-gold/15 text-gold'
-              : 'bg-white/5 text-white/30'
+              : 'bg-surface-base text-white/30'
           )}>
             {ownershipBonusIds.size > 0
               ? t('ownershipBonusActive', { count: ownershipBonusIds.size })

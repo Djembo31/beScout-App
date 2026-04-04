@@ -52,8 +52,8 @@ const DIMENSION_BG: Record<EloDimension, string> = {
   analyst: 'bg-emerald-500/10',
 };
 
-const INPUT_CLASS = 'bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs w-20 tabular-nums font-mono';
-const INPUT_WIDE_CLASS = 'bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs w-32 tabular-nums';
+const INPUT_CLASS = 'bg-surface-base border border-white/10 rounded-lg px-2 py-1 text-white text-xs w-20 tabular-nums font-mono';
+const INPUT_WIDE_CLASS = 'bg-surface-base border border-white/10 rounded-lg px-2 py-1 text-white text-xs w-32 tabular-nums';
 
 function SectionHeader({
   title,
