@@ -8,7 +8,7 @@ import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
-import { useRecentMinutes, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
+import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
 import { useHoldingLocks } from '@/lib/queries/events';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import dynamic from 'next/dynamic';
@@ -120,6 +120,7 @@ export default function ManagerBestandTab({
 
   // Manager Data Hooks
   const { data: minutesMap } = useRecentMinutes();
+  const { data: scoresMap } = useRecentScores();
   const { data: nextFixturesMap } = useNextFixtures();
   const { data: eventUsageMap } = usePlayerEventUsage(userId);
   const { data: lockedScMap } = useHoldingLocks(userId);
@@ -251,6 +252,7 @@ export default function ManagerBestandTab({
       item={item}
       lens={lens}
       minutes={minutesMap?.get(item.player.id)}
+      scores={scoresMap?.get(item.player.id)}
       nextFixture={nextFixturesMap?.get(item.player.clubId ?? '')}
       inLineup={eventUsageMap?.has(item.player.id) ?? false}
       onSellClick={setSellPlayerId}

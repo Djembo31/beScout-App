@@ -97,9 +97,14 @@ export default function DiscoveryCard({
       {/* Separator — floodlight style */}
       <div className="h-px my-1.5" style={{ background: `linear-gradient(90deg, transparent, ${posBorderColor}40, transparent)` }} />
 
-      {/* Metrics: L5 + Price */}
+      {/* Metrics: L5 Circle + Price */}
       <div className="flex items-center justify-between">
-        <span className={cn('font-mono font-bold text-[10px]', getL5Color(p.perf.l5))} style={{ textShadow: p.perf.l5 >= 65 ? '0 0 8px currentColor' : undefined }}>{p.perf.l5}</span>
+        <div
+          className="size-6 rounded-full flex items-center justify-center border-[1.5px]"
+          style={{ backgroundColor: `${posBorderColor}33`, borderColor: `${posBorderColor}99` }}
+        >
+          <span className="font-mono font-black text-[9px] tabular-nums text-white/90">{Math.round(p.perf.l5)}</span>
+        </div>
         {price > 0 && <span className="font-mono font-black text-[10px] gold-glow">{fmtScout(price)}</span>}
       </div>
 

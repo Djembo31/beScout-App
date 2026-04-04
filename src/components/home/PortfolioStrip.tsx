@@ -70,6 +70,14 @@ function PortfolioStripInner({ holdings }: PortfolioStripProps) {
                   <div className="text-xs font-bold truncate">{last || first}</div>
                   <PositionBadge pos={h.pos} size="sm" />
                 </div>
+                <div
+                  className="size-6 rounded-full flex items-center justify-center border-[1.5px] shrink-0"
+                  style={{ backgroundColor: `${posColor}33`, borderColor: `${posColor}99` }}
+                >
+                  <span className="font-mono font-black text-[9px] tabular-nums text-white/90">
+                    {h.perfL5}
+                  </span>
+                </div>
               </div>
               <div className="h-px my-1.5" style={{ background: `linear-gradient(90deg, transparent, ${posColor}40, transparent)` }} />
               <div className="flex items-center justify-between">

@@ -7,8 +7,8 @@ import { useTranslations } from 'next-intl';
 import {
   TrendingUp, TrendingDown, Minus, DollarSign, Shield, Check as CheckIcon,
 } from 'lucide-react';
-import { PlayerIdentity } from '@/components/player';
-import { posTintColors } from '@/components/player/PlayerRow';
+import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
+import { posTintColors } from '@/components/player/positionColors';
 import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import {
@@ -44,6 +44,7 @@ interface BestandPlayerRowProps {
   item: BestandPlayer;
   lens: BestandLens;
   minutes?: number[];
+  scores?: (number | null)[];
   nextFixture?: NextFixtureInfo;
   inLineup: boolean;
   onSellClick: (playerId: string) => void;
@@ -192,9 +193,14 @@ function VertragCols({ item }: { item: BestandPlayer }) {
 // MAIN ROW
 // ============================================
 
-function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onSellClick, isSelected, onToggleSelect }: BestandPlayerRowProps) {
+function BestandPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineup, onSellClick, isSelected, onToggleSelect }: BestandPlayerRowProps) {
   const t = useTranslations('market');
   const p = item.player;
+  const tint = posTintColors[p.pos];
+  const formEntries = (scores ?? []).map(s => ({
+    score: s ?? 0,
+    status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+  }));
 
   return (
     <div
@@ -202,15 +208,15 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
         'bg-surface-base border border-divider rounded-xl transition-colors hover:bg-surface-elevated hover:border-white/[0.12] border-l-2',
         isSelected && 'border-gold/30 bg-gold/[0.03]',
       )}
-      style={{ borderLeftColor: posTintColors[p.pos] }}
+      style={{ borderLeftColor: tint }}
     >
-      <div className="flex items-center gap-2 sm:gap-3 px-3 py-2.5">
+      <Link href={`/player/${p.id}`} className="flex gap-3 px-3 py-2.5">
         {/* Bulk-select checkbox */}
         {onToggleSelect && (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSelect(p.id); }}
             className={cn(
-              'size-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+              'size-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors self-center',
               isSelected ? 'bg-gold border-gold text-black' : 'border-white/20 hover:border-white/40',
             )}
             aria-label={isSelected ? t('bestandDeselect') : t('bestandSelect')}
@@ -218,13 +224,41 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
             {isSelected && <CheckIcon className="size-3" />}
           </button>
         )}
-        {/* Identity + Lens-specific data */}
+
+        {/* Photo with position ring */}
+        <div className="shrink-0 self-start">
+          <div
+            className="size-12 rounded-full overflow-hidden border-2"
+            style={{ borderColor: `${tint}99`, boxShadow: `0 0 10px ${tint}30` }}
+          >
+            {p.imageUrl ? (
+              <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
+            ) : (
+              <div className="size-full flex items-center justify-center text-sm font-black text-white/60" style={{ backgroundColor: `${tint}22` }}>
+                {p.first.charAt(0)}{p.last.charAt(0)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info */}
         <div className="flex-1 min-w-0">
+          {/* Line 1: Name + FormBars + L5 Circle */}
           <div className="flex items-center gap-1.5">
-            <Link href={`/player/${p.id}`} className="hover:opacity-80 transition-opacity">
-              <PlayerIdentity player={p} size="sm" showMeta={false} showStatus={false} />
-            </Link>
-            {inLineup && <span className="shrink-0" title={t('bestandInLineup')}><Shield className="size-3 text-green-500" aria-hidden="true" /></span>}
+            <span className="font-black text-sm text-white truncate">{p.last.toUpperCase()}</span>
+            <PositionBadge pos={p.pos} size="sm" />
+            {inLineup && <Shield className="size-3 text-green-500 shrink-0" aria-hidden="true" />}
+            <div className="ml-auto flex items-center gap-2 shrink-0">
+              <FormBars entries={formEntries} />
+              <div
+                className="size-7 rounded-full flex items-center justify-center border-[1.5px]"
+                style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
+              >
+                <span className="font-mono font-black text-xs tabular-nums text-white/90">
+                  {Math.round(p.perf.l5)}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Lens columns */}
@@ -234,8 +268,8 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
           {lens === 'vertrag' && <VertragCols item={item} />}
         </div>
 
-        {/* Right: Value (markt lens shows in cols) + Sell Button */}
-        <div className="shrink-0 flex items-center gap-2">
+        {/* Right: Value + Sell Button */}
+        <div className="shrink-0 flex items-center gap-2 self-center">
           {lens === 'performance' && (
             <div className="text-right hidden sm:block">
               <div className="text-xs font-mono font-bold tabular-nums text-gold">{fmtScout(item.valueBsd * item.quantity)}</div>
@@ -252,7 +286,7 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
             <DollarSign className="size-3.5" aria-hidden="true" />
           </button>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
