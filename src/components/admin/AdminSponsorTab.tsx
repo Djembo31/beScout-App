@@ -109,7 +109,7 @@ export default function AdminSponsorTab({ club }: { club: ClubWithAdmin }) {
         <div className="p-4 border-b border-white/10">
           <div className="font-bold text-sm">{t('placementBreakdown')}</div>
         </div>
-        <div className="divide-y divide-white/[0.06]">
+        <div className="divide-y divide-divider">
           {sponsors.map(sponsor => {
             const stat = stats.find(s => s.sponsor_id === sponsor.id);
             const imp = stat?.total_impressions ?? 0;

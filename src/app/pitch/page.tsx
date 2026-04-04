@@ -132,7 +132,7 @@ function PackageSection() {
             </thead>
             <tbody>
               {rows.map(({ key, vals }) => (
-                <tr key={key} className="border-t border-white/[0.06]">
+                <tr key={key} className="border-t border-divider">
                   <td className="p-3 text-white/60">{t(`pkg_row_${key}`)}</td>
                   {vals.map((val, i) => (
                     <td key={i} className={cn('p-3 text-center', i === 1 && 'bg-gold/5')}>
@@ -281,7 +281,7 @@ function RegionSection() {
             </thead>
             <tbody>
               {features.map(({ key, vals }) => (
-                <tr key={key} className="border-t border-white/[0.06]">
+                <tr key={key} className="border-t border-divider">
                   <td className="p-3 text-white/60">{t(`region_feat_${key}`)}</td>
                   {vals.map((val, i) => (
                     <td key={i} className="p-3 text-center">{cellIcon(val)}</td>
@@ -328,7 +328,7 @@ function FoundingPartnerSection() {
             ))}
           </div>
 
-          <div className="p-4 rounded-xl bg-black/30 border border-white/[0.06]">
+          <div className="p-4 rounded-xl bg-black/30 border border-divider">
             <h3 className="font-bold text-sm text-balance mb-3 text-white/80">{t('foundingRequirementsTitle')}</h3>
             <ul className="space-y-1.5 text-xs text-white/50">
               <li className="flex items-start gap-2"><ArrowRight className="size-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq1')}</li>
@@ -397,7 +397,7 @@ function FoundingPassSection() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {tiers.map((tier) => (
             <div key={tier.name} className={cn(
-              'relative p-4 rounded-2xl bg-white/[0.02] border',
+              'relative p-4 rounded-2xl bg-surface-minimal border',
               tier.border,
               'flex flex-col items-center text-center',
             )}>
@@ -449,7 +449,7 @@ export default function PitchPage() {
       <CTASection />
 
       {/* Footer */}
-      <footer className="py-6 text-center text-xs text-white/20 border-t border-white/[0.06]">
+      <footer className="py-6 text-center text-xs text-white/20 border-t border-divider">
         BeScout &copy; 2026 &middot; Malta
       </footer>
     </div>

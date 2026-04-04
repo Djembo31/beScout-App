@@ -69,7 +69,7 @@ function SectionHeader({
   return (
     <button
       onClick={onToggle}
-      className="w-full flex items-center justify-between p-4 bg-white/[0.02] border border-white/10 rounded-2xl hover:bg-white/[0.04] transition-colors min-h-[44px]"
+      className="w-full flex items-center justify-between p-4 bg-surface-minimal border border-white/10 rounded-2xl hover:bg-surface-subtle transition-colors min-h-[44px]"
       aria-expanded={open}
     >
       <div className="flex items-center gap-2">
@@ -1241,7 +1241,7 @@ function AchievementsSection({
                   className={cn(
                     'flex items-center gap-3 p-2 rounded-lg',
                     !item.active && 'opacity-40',
-                    isEditing ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]',
+                    isEditing ? 'bg-surface-subtle' : 'hover:bg-surface-minimal',
                   )}
                 >
                   {isEditing ? (

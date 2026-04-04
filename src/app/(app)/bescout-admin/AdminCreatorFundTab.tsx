@@ -115,7 +115,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
           </Button>
         </div>
         {result && (
-          <div className="mt-3 text-sm text-white/70 bg-surface-subtle rounded-lg px-3 py-2 border border-white/[0.06]">
+          <div className="mt-3 text-sm text-white/70 bg-surface-subtle rounded-lg px-3 py-2 border border-divider">
             {result}
           </div>
         )}

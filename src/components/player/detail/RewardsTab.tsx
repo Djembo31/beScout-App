@@ -94,7 +94,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                     ? 'bg-gold/[0.08] border-gold/30 ring-2 ring-gold/40 shadow-glow-gold scale-[1.02]'
                     : isPast
                     ? 'bg-white/[0.01] border-white/[0.04] opacity-40'
-                    : 'bg-surface-minimal border-white/[0.06]'
+                    : 'bg-surface-minimal border-divider'
                 }`}
               >
                 {/* Tier indicator */}

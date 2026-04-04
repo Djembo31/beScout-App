@@ -72,7 +72,7 @@ export default function DailyChallengeCard({
         </div>
         <p className="text-sm text-white/30">{t('noChallengeToday')}</p>
         {onOpenMysteryBox && (
-          <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between">
+          <div className="mt-3 pt-3 border-t border-divider flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-[11px] text-white/50">
               <Ticket className="size-3.5 text-gold/60" />
               <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
@@ -111,7 +111,7 @@ export default function DailyChallengeCard({
   // Determine option styling after answer
   const getOptionClass = (idx: number): string => {
     if (!hasAnswered) {
-      return 'bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 text-white/80';
+      return 'bg-surface-subtle border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 text-white/80';
     }
 
     const wasSelected = userAnswer.selectedOption === idx;
@@ -238,7 +238,7 @@ export default function DailyChallengeCard({
 
       {/* Footer — Ticket Balance + Mystery Box */}
       {onOpenMysteryBox && (
-        <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between">
+        <div className="mt-3 pt-3 border-t border-divider flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-[11px] text-white/50">
             <Ticket className="size-3.5 text-gold/60" />
             <span className="font-mono font-bold text-white/70">{ticketBalance}</span>

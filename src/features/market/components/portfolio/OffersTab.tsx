@@ -406,7 +406,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         </Button>
       </div>
 
-      <div className="flex overflow-x-auto scrollbar-hide gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06]">
+      <div className="flex overflow-x-auto scrollbar-hide gap-1 bg-surface-minimal rounded-xl p-1 border border-divider">
         {SUB_TABS.map(tab => {
           const Icon = tab.icon;
           return (
@@ -432,7 +432,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
       {state.loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />
+            <div key={i} className="h-24 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-divider" />
           ))}
         </div>
       ) : state.offers.length === 0 ? (

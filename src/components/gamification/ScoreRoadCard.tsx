@@ -126,7 +126,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                 effectiveState === 'claimed' ? 'bg-emerald-500' :
                 effectiveState === 'claimable' ? 'bg-gold shadow-[0_0_12px_rgba(255,215,0,0.4)]' :
                 effectiveState === 'active' ? 'bg-white/20 border-2 border-white/30' :
-                'bg-white/10 border border-white/[0.06]'
+                'bg-white/10 border border-divider'
               )}>
                 {effectiveState === 'claimed' && <Check className="size-2.5 text-white" />}
                 {effectiveState === 'claimable' && <div className="size-1.5 rounded-full bg-white" />}

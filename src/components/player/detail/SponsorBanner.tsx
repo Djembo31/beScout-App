@@ -94,7 +94,7 @@ export default function SponsorBanner({ placement, clubId, sponsor: directSponso
   const label = ts(PLACEMENT_LABEL_KEYS[placement]);
 
   const content = (
-    <div ref={bannerRef} className={`bg-surface-minimal border border-white/[0.06] rounded-xl px-4 py-2.5 flex items-center justify-between ${className}`}>
+    <div ref={bannerRef} className={`bg-surface-minimal border border-divider rounded-xl px-4 py-2.5 flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2">
         <Zap className="w-3.5 h-3.5 text-gold/50" />
         <span className="text-[11px] font-bold text-white/30 uppercase">

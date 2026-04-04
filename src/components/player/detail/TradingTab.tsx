@@ -228,7 +228,7 @@ function TradingTabInner({
           </div>
           <div className="space-y-2">
             {player.listings.map((listing) => (
-              <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-white/[0.04] transition-colors">
+              <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-surface-subtle transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center">
                     <span className="font-bold text-[10px]">Lv{listing.sellerLevel}</span>
@@ -289,7 +289,7 @@ function TradingTabInner({
                 return (
                   <div key={order.id} className={cn(
                     'grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors',
-                    isOwn ? 'bg-gold/5 border border-gold/20' : 'bg-surface-base hover:bg-white/[0.04]'
+                    isOwn ? 'bg-gold/5 border border-gold/20' : 'bg-surface-base hover:bg-surface-subtle'
                   )}>
                     <span className="font-mono font-bold tabular-nums text-gold">{formatScout(order.price)}</span>
                     <span className="font-mono tabular-nums">{remaining} SC</span>
@@ -307,7 +307,7 @@ function TradingTabInner({
               })}
             </div>
             {allSellOrders.length > 5 && (
-              <div className="border-t border-white/[0.06] mt-2">
+              <div className="border-t border-divider mt-2">
                 <button
                   onClick={() => setOrdersExpanded(v => !v)}
                   className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs text-white/40 hover:text-white/60 transition-colors"
@@ -404,7 +404,7 @@ function TradingTabInner({
         </div>
         {/* Show more/less */}
         {trades.length > 3 && (
-          <div className="border-t border-white/[0.06]">
+          <div className="border-t border-divider">
             <button
               onClick={() => setHistoryExpanded(v => !v)}
               className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs text-white/40 hover:text-white/60 transition-colors"
@@ -451,11 +451,11 @@ function TradingTabInner({
       )}
 
       {/* ── 11. Rewards Accordion ── */}
-      <div className="border border-white/[0.06] rounded-xl overflow-hidden">
+      <div className="border border-divider rounded-xl overflow-hidden">
         <button
           onClick={() => setRewardsOpen(v => !v)}
           aria-expanded={rewardsOpen}
-          className="w-full flex justify-between items-center p-4 hover:bg-white/[0.02] transition-colors"
+          className="w-full flex justify-between items-center p-4 hover:bg-surface-minimal transition-colors"
         >
           <div className="flex items-center gap-2">
             <Trophy className="size-4 text-green-500" aria-hidden="true" />
@@ -467,7 +467,7 @@ function TradingTabInner({
           )} />
         </button>
         {rewardsOpen && (
-          <div className="border-t border-white/[0.06]">
+          <div className="border-t border-divider">
             <RewardsTab player={player} holdingQty={holdingQty} />
           </div>
         )}

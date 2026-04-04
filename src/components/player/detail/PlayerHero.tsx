@@ -242,7 +242,7 @@ function PlayerHeroInner({
             </div>
 
             {/* Price Strip */}
-            <div className="mt-4 pt-4 border-t border-white/[0.06] w-full">
+            <div className="mt-4 pt-4 border-t border-divider w-full">
               <div className="flex items-end gap-2 justify-center md:justify-start">
                 <span className="text-xl md:text-3xl font-mono font-black tabular-nums text-gold">
                   {isIPO && activeIpo ? fmtScout(centsToBsd(activeIpo.price)) : fmtScout(floor)}

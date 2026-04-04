@@ -7,7 +7,7 @@ export default function ClubLoading() {
           <div className="size-14 bg-white/[0.06] rounded-xl" />
           <div className="flex-1 space-y-2">
             <div className="h-6 w-40 bg-white/[0.06] rounded-lg" />
-            <div className="h-4 w-28 bg-white/[0.04] rounded-lg" />
+            <div className="h-4 w-28 bg-surface-subtle rounded-lg" />
           </div>
         </div>
 
@@ -20,15 +20,15 @@ export default function ClubLoading() {
 
         {/* Action buttons */}
         <div className="flex gap-3">
-          <div className="h-10 flex-1 bg-white/[0.04] rounded-xl" />
-          <div className="h-10 w-24 bg-white/[0.04] rounded-xl" />
+          <div className="h-10 flex-1 bg-surface-subtle rounded-xl" />
+          <div className="h-10 w-24 bg-surface-subtle rounded-xl" />
         </div>
       </div>
 
       {/* Tab bar skeleton */}
       <div className="flex gap-2">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-9 w-20 bg-white/[0.04] rounded-lg" />
+          <div key={i} className="h-9 w-20 bg-surface-subtle rounded-lg" />
         ))}
       </div>
 

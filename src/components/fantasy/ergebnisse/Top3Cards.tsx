@@ -34,7 +34,7 @@ export function Top3Cards({ scorers }: Props) {
           <PlayerLink
             key={stat.id}
             playerId={stat.player_id}
-            className={`flex-shrink-0 w-[130px] snap-start rounded-xl p-2.5 card-carbon-mini border border-white/[0.06] hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] relative ${isFirst ? 'card-gold-frame mvp-crown-glow' : ''}`}
+            className={`flex-shrink-0 w-[130px] snap-start rounded-xl p-2.5 card-carbon-mini border border-divider hover:bg-surface-subtle transition-colors active:bg-white/[0.06] relative ${isFirst ? 'card-gold-frame mvp-crown-glow' : ''}`}
             style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
           >
             {/* Medal */}

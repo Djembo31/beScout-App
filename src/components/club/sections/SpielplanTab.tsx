@@ -98,7 +98,7 @@ export function SpielplanTab({
                       return next;
                     });
                   }}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-surface-base hover:bg-white/[0.04] transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-surface-base hover:bg-surface-subtle transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-black">{t('fixtureGameweek', { gw })}</span>
@@ -109,7 +109,7 @@ export function SpielplanTab({
                   <ChevronDown className={cn('size-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
                 </button>
                 {isExpanded && (
-                  <div className="p-3 space-y-2 border-t border-white/[0.06]">
+                  <div className="p-3 space-y-2 border-t border-divider">
                     {gwFixtures.map(f => (
                       <FixtureRow key={f.id} fixture={f} clubId={clubId} accent={clubColor} />
                     ))}

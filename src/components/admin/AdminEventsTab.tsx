@@ -145,7 +145,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                     ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                     : gw === data.simGw
                     ? 'bg-gold/15 text-gold border border-gold/30'
-                    : 'bg-surface-subtle text-white/30 border border-white/[0.06]'
+                    : 'bg-surface-subtle text-white/30 border border-divider'
                 )}
                 onClick={() => data.setSimGw(gw)}
                 title={`${t('spieltag')} ${gw}${status?.is_complete ? ` ${t('simulated')}` : ''}`}

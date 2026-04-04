@@ -115,7 +115,7 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-white/[0.06]">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-divider">
           {[
             { min: 100, label: '100+', color: 'bg-gold' },
             { min: 90, label: '90\u201399', color: 'bg-[#374DF5]' },

@@ -154,7 +154,7 @@ export default function SellModal({
           {availableToSell > 0 && !player.isLiquidated && (
             <div className="flex items-center gap-3 text-xs">
               {player.prices.referencePrice != null && player.prices.referencePrice > 0 && (
-                <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2 text-center">
+                <div className="flex-1 bg-white/[0.03] border border-divider rounded-xl px-3 py-2 text-center">
                   <div className="text-[10px] text-white/30">{tm('referenzwert')}</div>
                   <div className="font-mono font-bold text-white/60 tabular-nums">{fmtScout(player.prices.referencePrice)}</div>
                 </div>
@@ -187,7 +187,7 @@ export default function SellModal({
                       key={bid.id}
                       onClick={() => onAcceptBid(bid.id)}
                       disabled={acceptingBidId === bid.id}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-500/30 transition-colors text-left disabled:opacity-50"
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-divider hover:border-green-500/30 transition-colors text-left disabled:opacity-50"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-mono font-bold text-gold tabular-nums">{fmtScout(centsToBsd(bid.price))}</span>

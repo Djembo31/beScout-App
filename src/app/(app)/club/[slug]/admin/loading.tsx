@@ -7,7 +7,7 @@ export default function ClubAdminLoading() {
           <div className="size-14 bg-white/[0.06] rounded-xl" />
           <div className="flex-1 space-y-2">
             <div className="h-6 w-48 bg-white/[0.06] rounded-lg" />
-            <div className="h-4 w-32 bg-white/[0.04] rounded-lg" />
+            <div className="h-4 w-32 bg-surface-subtle rounded-lg" />
           </div>
         </div>
       </div>
@@ -15,7 +15,7 @@ export default function ClubAdminLoading() {
       {/* Admin tab bar */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-9 w-24 bg-white/[0.04] rounded-lg shrink-0" />
+          <div key={i} className="h-9 w-24 bg-surface-subtle rounded-lg shrink-0" />
         ))}
       </div>
 

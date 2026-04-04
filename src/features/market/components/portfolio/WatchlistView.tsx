@@ -99,7 +99,7 @@ function ThresholdPopover({
           className="absolute right-0 top-full mt-1 z-50 w-44 bg-[#141414] border border-white/10 rounded-xl shadow-xl overflow-hidden"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
         >
-          <div className="px-3 py-2 border-b border-white/[0.06]">
+          <div className="px-3 py-2 border-b border-divider">
             <span className="text-xs font-semibold text-white/50">{t('alertThreshold')}</span>
           </div>
           {THRESHOLD_OPTIONS.map(pct => (
@@ -271,7 +271,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
             <Link
               key={player.id}
               href={`/player/${player.id}`}
-              className="flex items-center gap-3 p-3 rounded-xl bg-surface-minimal border border-white/[0.08] hover:bg-white/[0.04] transition-colors group shadow-card-sm"
+              className="flex items-center gap-3 p-3 rounded-xl bg-surface-minimal border border-white/[0.08] hover:bg-surface-subtle transition-colors group shadow-card-sm"
             >
               {/* Photo */}
               <PlayerPhoto

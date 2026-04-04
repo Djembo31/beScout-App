@@ -40,7 +40,7 @@ export default function LeagueBar({ selected, onSelect }: LeagueBarProps) {
     'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap shrink-0 min-h-[44px] border focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none';
   const pillActive = 'bg-white/[0.10] text-white border-white/[0.15]';
   const pillInactive =
-    'text-white/40 border-transparent hover:text-white/60 hover:bg-white/[0.04]';
+    'text-white/40 border-transparent hover:text-white/60 hover:bg-surface-subtle';
 
   return (
     <nav

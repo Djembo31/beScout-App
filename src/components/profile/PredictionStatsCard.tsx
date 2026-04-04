@@ -33,7 +33,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
 
       <div className="grid grid-cols-4 gap-3">
         {/* Accuracy */}
-        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-white/[0.06]">
+        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-divider">
           <p className={cn(
             'text-lg font-mono font-black',
             stats.accuracy >= 70 ? 'text-green-500' : stats.accuracy >= 50 ? 'text-amber-400' : 'text-red-400'
@@ -44,7 +44,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         </div>
 
         {/* Correct */}
-        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-white/[0.06]">
+        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-divider">
           <p className="text-lg font-mono font-black text-green-500 flex items-center justify-center gap-1">
             <CheckCircle className="size-3.5" aria-hidden="true" /> {stats.correct}
           </p>
@@ -52,7 +52,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         </div>
 
         {/* Wrong */}
-        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-white/[0.06]">
+        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-divider">
           <p className="text-lg font-mono font-black text-red-400 flex items-center justify-center gap-1">
             <XCircle className="size-3.5" aria-hidden="true" /> {stats.wrong}
           </p>
@@ -60,7 +60,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         </div>
 
         {/* Streak */}
-        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-white/[0.06]">
+        <div className="text-center p-3 bg-surface-subtle rounded-xl border border-divider">
           <p className="text-lg font-mono font-black text-gold flex items-center justify-center gap-1">
             <Flame className="size-3.5" aria-hidden="true" /> {stats.bestStreak}
           </p>

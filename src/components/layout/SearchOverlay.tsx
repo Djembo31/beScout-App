@@ -208,7 +208,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
         </div>
 
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-divider">
           <Search className="size-5 text-white/30 shrink-0" />
 
           <input
@@ -239,7 +239,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
         </div>
 
         {/* Category pills */}
-        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.06] overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-divider overflow-x-auto no-scrollbar">
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -248,7 +248,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 filter === f.key
                   ? 'bg-gold/15 text-gold border border-gold/30'
-                  : 'bg-white/5 text-white/50 border border-white/[0.06] hover:bg-white/10',
+                  : 'bg-white/5 text-white/50 border border-divider hover:bg-white/10',
               )}
             >
               {t(f.labelKey)}
@@ -277,7 +277,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 <button
                   key={q}
                   onClick={() => handleRecentClick(q)}
-                  className="w-full flex items-center gap-3 px-2 py-2.5 hover:bg-white/[0.04] rounded-xl transition-colors text-left min-h-[44px]"
+                  className="w-full flex items-center gap-3 px-2 py-2.5 hover:bg-surface-subtle rounded-xl transition-colors text-left min-h-[44px]"
                 >
                   <Clock className="size-4 text-white/20 shrink-0" />
                   <span className="text-sm text-white/60">{q}</span>
@@ -336,7 +336,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                             'w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left min-h-[56px]',
                             globalIdx === selectedIndex
                               ? 'bg-white/[0.06]'
-                              : 'hover:bg-white/[0.04]',
+                              : 'hover:bg-surface-subtle',
                           )}
                         >
                           {r.type === 'player' && <PlayerResultRow r={r} />}

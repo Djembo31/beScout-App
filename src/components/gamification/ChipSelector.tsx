@@ -130,12 +130,12 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="h-4 w-24 bg-white/[0.04] rounded animate-pulse motion-reduce:animate-none" />
-          <div className="h-4 w-16 bg-white/[0.04] rounded animate-pulse motion-reduce:animate-none" />
+          <div className="h-4 w-24 bg-surface-subtle rounded animate-pulse motion-reduce:animate-none" />
+          <div className="h-4 w-16 bg-surface-subtle rounded animate-pulse motion-reduce:animate-none" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-36 bg-white/[0.04] rounded-2xl animate-pulse motion-reduce:animate-none" />
+            <div key={i} className="h-36 bg-surface-subtle rounded-2xl animate-pulse motion-reduce:animate-none" />
           ))}
         </div>
       </div>
@@ -233,7 +233,7 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
                     )}
                   </button>
                 ) : state === 'used_up' ? (
-                  <div className="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-white/[0.04] text-white/30 text-center cursor-not-allowed min-h-[32px] flex items-center justify-center">
+                  <div className="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-surface-subtle text-white/30 text-center cursor-not-allowed min-h-[32px] flex items-center justify-center">
                     Aufgebraucht
                   </div>
                 ) : (
@@ -244,7 +244,7 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
                       'w-full px-2 py-1.5 text-xs font-bold rounded-lg transition-colors min-h-[32px]',
                       'focus-visible:ring-2 focus-visible:ring-gold/50 outline-none',
                       isDisabled
-                        ? 'bg-white/[0.04] text-white/30 cursor-not-allowed'
+                        ? 'bg-surface-subtle text-white/30 cursor-not-allowed'
                         : 'bg-gold/10 text-gold hover:bg-gold/20',
                       loading && 'opacity-50 cursor-not-allowed',
                     )}

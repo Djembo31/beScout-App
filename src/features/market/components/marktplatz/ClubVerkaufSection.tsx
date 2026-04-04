@@ -188,7 +188,7 @@ export default function ClubVerkaufSection({
               'active:scale-[0.97]',
               ipoViewState === tab.value
                 ? 'bg-white/10 text-white shadow-sm'
-                : 'text-white/40 hover:text-white/60 hover:bg-white/[0.04]'
+                : 'text-white/40 hover:text-white/60 hover:bg-surface-subtle'
             )}
           >
             {tab.value === 'geplant' && <Calendar className="size-3" aria-hidden="true" />}

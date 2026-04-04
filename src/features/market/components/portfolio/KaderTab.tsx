@@ -157,7 +157,7 @@ function ManagerPlayerRow({ player, scores, nextFixture, isAssigned, inLineupTit
           </div>
 
           {/* Line 4: Price + SC */}
-          <div className="flex items-center gap-2 mt-1 pt-1 border-t border-white/[0.06] text-[11px] text-white/40">
+          <div className="flex items-center gap-2 mt-1 pt-1 border-t border-divider text-[11px] text-white/40">
             <span className="font-mono tabular-nums">
               {fmtScout(p.prices.floor ?? 0)} CR
             </span>
@@ -238,7 +238,7 @@ function CompactPickerRow({ player, onClick, href }: {
     </div>
   );
 
-  const sharedClass = "w-full px-2.5 py-2 rounded-lg hover:bg-white/[0.05] transition-colors text-left min-h-[44px]";
+  const sharedClass = "w-full px-2.5 py-2 rounded-lg hover:bg-surface-base transition-colors text-left min-h-[44px]";
 
   if (href) {
     return <Link href={href} className={sharedClass}>{content}</Link>;
@@ -478,7 +478,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         <div className="w-full lg:w-[55%] shrink-0">
           <SquadPitch formation={state.formation} assignments={state.assignedPlayers} onSlotClick={state.handleSlotClick} />
         </div>
-        <div className="hidden lg:flex flex-col flex-1 min-w-0 bg-surface-minimal border border-white/[0.06] rounded-2xl overflow-hidden"
+        <div className="hidden lg:flex flex-col flex-1 min-w-0 bg-surface-minimal border border-divider rounded-2xl overflow-hidden"
           style={{ maxHeight: 'min(55vh, 500px)' }}>
           {sidePanel}
         </div>

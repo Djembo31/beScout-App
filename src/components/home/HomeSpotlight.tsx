@@ -58,7 +58,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
           </div>
           {ipo.ipo.progress !== undefined && (
             <div className="relative mt-3">
-              <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/[0.06]">
+              <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-divider">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-green-500 to-gold transition-colors duration-500"
                   style={{ width: `${Math.min(ipo.ipo.progress, 100)}%`, boxShadow: '0 0 8px rgba(34,197,94,0.3)' }}

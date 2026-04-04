@@ -236,7 +236,7 @@ function PerformanceTabInner({
                   </div>
                 </div>
                 {(contract.urgent || player.contractMonthsLeft <= 12) && (
-                  <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                  <div className="mt-4 pt-3 border-t border-divider">
                     <div className="flex items-start gap-3">
                       <Flame className={`size-5 mt-0.5 ${contract.urgent ? 'text-red-400' : 'text-orange-400'}`} aria-hidden="true" />
                       <div>

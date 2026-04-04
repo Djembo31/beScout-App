@@ -274,7 +274,7 @@ function CommunityTabInner({
                   'px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors border min-h-[28px]',
                   feedFilter === f.id
                     ? 'bg-white/10 text-white border-white/20'
-                    : 'text-white/40 border-white/[0.06] hover:text-white/60'
+                    : 'text-white/40 border-divider hover:text-white/60'
                 )}
               >
                 {f.label} <span className="font-mono tabular-nums text-[10px] text-white/30 ml-0.5">{f.count}</span>

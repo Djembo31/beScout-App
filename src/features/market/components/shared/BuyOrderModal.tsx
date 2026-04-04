@@ -201,7 +201,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
 
         {/* Cost summary */}
         {priceNum > 0 && (
-          <div className="space-y-1.5 bg-surface-minimal border border-white/[0.06] rounded-lg px-3 py-2.5">
+          <div className="space-y-1.5 bg-surface-minimal border border-divider rounded-lg px-3 py-2.5">
             <div className="flex justify-between text-[11px] font-mono tabular-nums">
               <span className="text-white/40">{t('total')}</span>
               <span className={cn('font-bold', totalCents > availableCents ? 'text-red-400' : 'text-gold')}>
@@ -212,7 +212,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               <span className="text-white/40">{t('buyOrderBalanceAvailable')}</span>
               <span className="text-white/60">{fmtScout(availableBsd)} CR</span>
             </div>
-            <div className="flex justify-between text-[11px] font-mono tabular-nums border-t border-white/[0.06] pt-1.5">
+            <div className="flex justify-between text-[11px] font-mono tabular-nums border-t border-divider pt-1.5">
               <span className="text-white/40">{t('buyOrderBalanceAfter')}</span>
               <span className={cn('font-bold', balanceAfter < 0 ? 'text-red-400' : 'text-white/70')}>
                 {fmtScout(Math.max(0, balanceAfter))} CR

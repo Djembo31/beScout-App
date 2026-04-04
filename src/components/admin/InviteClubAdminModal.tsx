@@ -105,7 +105,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
                 className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors min-h-[44px] ${
                   role === r.value
                     ? 'bg-gold/10 border-gold/30'
-                    : 'bg-surface-minimal border-white/10 hover:bg-white/[0.04]'
+                    : 'bg-surface-minimal border-white/10 hover:bg-surface-subtle'
                 }`}
               >
                 <input

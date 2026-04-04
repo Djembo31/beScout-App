@@ -293,7 +293,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 aria-expanded={showDropdown && userResults.length > 0}
                 aria-controls="user-search-listbox"
                 aria-activedescendant={activeIdx >= 0 ? `user-option-${activeIdx}` : undefined}
-                className="w-full pl-8 pr-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
+                className="w-full pl-8 pr-3 py-2 text-sm bg-surface-subtle border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
               />
               {userSearching && <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 animate-spin motion-reduce:animate-none text-white/30" />}
             </div>
@@ -324,7 +324,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             <select
               value={grantTier}
               onChange={e => setGrantTier(e.target.value as FoundingPassTier)}
-              className="w-full px-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
+              className="w-full px-3 py-2 text-sm bg-surface-subtle border border-white/10 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
               aria-label={t('fpTierSelectLabel')}
             >
               {FOUNDING_PASS_TIERS.map(t => (
@@ -341,7 +341,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               value={grantRef}
               onChange={e => setGrantRef(e.target.value)}
               placeholder={t('fpReferencePlaceholder')}
-              className="w-full px-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
+              className="w-full px-3 py-2 text-sm bg-surface-subtle border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
             />
           </div>
           <Button variant="gold" size="sm" onClick={handleGrant} disabled={granting} aria-label={t('fpGrantTitle')} className={cn('gap-1.5 min-h-[44px] min-w-[44px]', granting && 'opacity-50 cursor-not-allowed')}>
@@ -374,7 +374,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             </thead>
             <tbody>
               {passes.map(p => (
-                <tr key={p.id} className="border-b border-white/[0.06] hover:bg-surface-minimal transition-colors">
+                <tr key={p.id} className="border-b border-divider hover:bg-surface-minimal transition-colors">
                   <td className="py-2 px-3 text-white/80">{p.profiles?.handle ?? p.user_id.slice(0, 8)}</td>
                   <td className="py-2 px-3"><FoundingPassBadge tier={p.tier as FoundingPassTier} /></td>
                   <td className="py-2 px-3 text-right font-mono tabular-nums text-gold">{fmtScout(p.bcredits_granted)}</td>

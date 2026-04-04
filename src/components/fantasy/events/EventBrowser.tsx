@@ -105,7 +105,7 @@ export function EventBrowser({ events, onEventClick, categoryFilter }: Props) {
       );
     }
     return (
-      <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04] overflow-hidden">
+      <div className="rounded-xl border border-divider bg-surface-minimal divide-y divide-white/[0.04] overflow-hidden">
         {items.map(event => (
           <EventCompactRow key={event.id} event={event} onClick={() => onEventClick(event)} />
         ))}
@@ -133,7 +133,7 @@ export function EventBrowser({ events, onEventClick, categoryFilter }: Props) {
                     'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-xs font-semibold transition-colors whitespace-nowrap',
                     isActive
                       ? cat.id === 'eligible' ? 'bg-green-500/15 text-green-500 border border-green-500/20' : 'bg-gold/15 text-gold border border-gold/20'
-                      : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
+                      : 'bg-surface-subtle text-white/50 border border-divider hover:text-white/70'
                   )}
                 >
                   <Icon className="size-3" aria-hidden="true" />
@@ -148,7 +148,7 @@ export function EventBrowser({ events, onEventClick, categoryFilter }: Props) {
         )}
 
         {/* View toggle */}
-        <div className={cn('flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]', categoryFilter && 'ml-auto')}>
+        <div className={cn('flex-shrink-0 flex items-center gap-0.5 bg-surface-subtle rounded-lg p-0.5 border border-divider', categoryFilter && 'ml-auto')}>
           <button
             onClick={() => setViewMode('cards')}
             className={cn('p-1.5 rounded-md transition-colors', isCard ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}

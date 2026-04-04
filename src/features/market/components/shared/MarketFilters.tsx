@@ -261,7 +261,7 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
 
           {/* Transferliste-only filters */}
           {showTransferFilters && (
-            <div className="border-t border-white/[0.06] pt-3 space-y-2">
+            <div className="border-t border-divider pt-3 space-y-2">
               <div className="text-[10px] text-white/40 font-semibold">{t('transferFiltersLabel', { defaultMessage: 'Transferliste Filter' })}</div>
               <div className="grid grid-cols-2 gap-2">
                 <div>

@@ -28,7 +28,7 @@ const MarketSearch = dynamic(() => import('../shared/MarketSearch'), { ssr: fals
 const BuyOrdersSection = dynamic(() => import('./BuyOrdersSection'), { ssr: false });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none" />,
+  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 
 type Props = {

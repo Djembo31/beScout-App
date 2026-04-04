@@ -82,7 +82,7 @@ export default function MarketSearch({ players, activeIpos, sellOrders, onClose 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('searchPlayers', { defaultMessage: 'Spieler suchen...' })}
-          className="w-full bg-white/[0.04] border border-white/[0.10] rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/20 min-h-[44px]"
+          className="w-full bg-surface-subtle border border-white/[0.10] rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/20 min-h-[44px]"
           autoFocus
         />
         {query && (
@@ -110,7 +110,7 @@ export default function MarketSearch({ players, activeIpos, sellOrders, onClose 
                   <Link
                     key={p.id}
                     href={`/player/${p.id}`}
-                    className="flex items-center gap-3 bg-surface-base border border-white/[0.06] rounded-xl px-3 py-2.5 hover:border-white/15 transition-colors"
+                    className="flex items-center gap-3 bg-surface-base border border-divider rounded-xl px-3 py-2.5 hover:border-white/15 transition-colors"
                   >
                     <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
                     <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
@@ -135,7 +135,7 @@ export default function MarketSearch({ players, activeIpos, sellOrders, onClose 
                   <Link
                     key={p.id}
                     href={`/player/${p.id}`}
-                    className="flex items-center gap-3 bg-surface-base border border-white/[0.06] rounded-xl px-3 py-2.5 hover:border-white/15 transition-colors"
+                    className="flex items-center gap-3 bg-surface-base border border-divider rounded-xl px-3 py-2.5 hover:border-white/15 transition-colors"
                   >
                     <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
                     <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>{p.perf.l5}</span>

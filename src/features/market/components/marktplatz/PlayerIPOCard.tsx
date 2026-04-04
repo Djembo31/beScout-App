@@ -130,7 +130,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               ? 'bg-red-500/10 border-red-500/20 text-red-400'
               : contract.monthsLeft <= 12
                 ? 'bg-orange-500/10 border-orange-500/20 text-orange-400'
-                : 'bg-white/[0.04] border-white/[0.08] text-white/50',
+                : 'bg-surface-subtle border-white/[0.08] text-white/50',
           )}>
             <FileText className="size-2.5" aria-hidden="true" />
             {contract.dateStr}

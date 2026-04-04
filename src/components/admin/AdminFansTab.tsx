@@ -110,10 +110,10 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />
+            <div key={i} className="h-24 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-divider" />
           ))}
         </div>
-        <div className="h-64 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />
+        <div className="h-64 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-divider" />
       </div>
     );
   }
@@ -149,7 +149,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
               onClick={() => handleSegmentClick(seg.id)}
               aria-label={`${seg.label} (${seg.count})`}
               aria-pressed={isActive}
-              className={cn('p-4 rounded-2xl border text-left transition-colors', isActive ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20' : 'border-white/[0.06] bg-surface-minimal hover:bg-surface-elevated')}
+              className={cn('p-4 rounded-2xl border text-left transition-colors', isActive ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20' : 'border-divider bg-surface-minimal hover:bg-surface-elevated')}
             >
               <div className={cn('size-10 rounded-xl flex items-center justify-center mb-2 border', colors)}>
                 {SEGMENT_ICONS[seg.icon] ?? <Users className="w-5 h-5" />}
@@ -163,7 +163,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Fan List */}
       <Card className="overflow-hidden">
-        <div className="p-4 border-b border-white/[0.06] flex items-center gap-3">
+        <div className="p-4 border-b border-divider flex items-center gap-3">
           <SearchInput
             value={search}
             onChange={setSearch}

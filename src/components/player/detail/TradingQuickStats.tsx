@@ -44,7 +44,7 @@ export default function TradingQuickStats({
   ];
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
+    <div className="flex items-center justify-between px-4 py-3 bg-surface-minimal rounded-xl border border-divider">
       {metrics.map((m) => (
         <div key={m.label} className="flex flex-col items-center">
           <span className="text-[10px] text-white/35 uppercase tracking-wider leading-none mb-1">{m.label}</span>

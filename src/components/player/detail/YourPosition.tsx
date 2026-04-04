@@ -52,7 +52,7 @@ export default function YourPosition({
   if (holdingQty <= 0) return null;
 
   return (
-    <div className="bg-white/[0.02] rounded-xl border border-white/[0.06] p-4">
+    <div className="bg-surface-minimal rounded-xl border border-divider p-4">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t('positionTitle')}</span>
         {mastery && (

@@ -163,7 +163,7 @@ export default function LeaderboardPanel({
           <div className="space-y-1.5">
             <div className="text-xs text-white/40 font-bold uppercase px-1">{t('individualRatings')}</div>
             {viewingUserLineup.data.players.map(sp => (
-              <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-surface-base border border-white/[0.06]">
+              <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-surface-base border border-divider">
                 <div className="flex items-center gap-3">
                   <PlayerIdentity
                     player={{ first: sp.player.firstName, last: sp.player.lastName, pos: sp.player.position as Pos, status: 'fit', club: sp.player.club, ticket: 0, age: 0, imageUrl: sp.player.imageUrl }}

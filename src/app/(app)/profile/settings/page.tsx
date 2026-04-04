@@ -397,7 +397,7 @@ export default function ProfileSettingsPage() {
             disabled={pushLoading}
             role="switch"
             aria-checked={pushEnabled}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-colors min-h-[44px] mb-3 border border-white/[0.06]"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-subtle transition-colors min-h-[44px] mb-3 border border-divider"
           >
             <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center shrink-0" aria-hidden="true">
               <BellRing className="size-4 text-gold" />
@@ -444,7 +444,7 @@ export default function ProfileSettingsPage() {
                   onClick={() => toggleNotifPref(key)}
                   role="switch"
                   aria-checked={notifPrefs[key]}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-colors min-h-[44px]"
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-subtle transition-colors min-h-[44px]"
                 >
                   <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0" aria-hidden="true">
                     {icons[key]}

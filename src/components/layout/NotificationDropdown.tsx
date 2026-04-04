@@ -258,7 +258,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
               key={notif.id}
               onClick={() => handleClick(notif)}
               className={cn(
-                'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] min-h-[44px]',
+                'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-surface-subtle transition-colors border-b border-white/[0.04] min-h-[44px]',
                 !notif.read && 'bg-surface-minimal'
               )}
             >

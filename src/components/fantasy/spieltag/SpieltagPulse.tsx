@@ -26,35 +26,35 @@ export function SpieltagPulse({ fixtures, gwStatus }: Props) {
     <Card surface="elevated" className="rounded-2xl overflow-hidden">
       <div className="grid grid-cols-3 sm:grid-cols-4">
         {/* Fixtures */}
-        <div className="p-3 text-center border-r border-white/[0.06]">
+        <div className="p-3 text-center border-r border-divider">
           <Swords className="size-4 text-white/40 mx-auto mb-1" aria-hidden="true" />
           <div className="text-xl font-black tabular-nums">{total}</div>
           <div className="text-xs text-white/40">{ts('pulsePaarungen')}</div>
         </div>
 
         {/* Simulated */}
-        <div className="p-3 text-center border-r border-white/[0.06]">
+        <div className="p-3 text-center border-r border-divider">
           <CheckCircle2 className="size-4 text-green-500 mx-auto mb-1" aria-hidden="true" />
           <div className="text-xl font-black tabular-nums text-green-500">{simulated}</div>
           <div className="text-xs text-white/40">{ts('pulseBeendet')}</div>
         </div>
 
         {/* Goals — hero stat on mobile */}
-        <div className="col-span-1 sm:col-span-1 p-3 text-center bg-gold/[0.03] sm:border-r sm:border-white/[0.06]">
+        <div className="col-span-1 sm:col-span-1 p-3 text-center bg-gold/[0.03] sm:border-r sm:border-divider">
           <Goal className="size-4 text-gold mx-auto mb-1" aria-hidden="true" />
           <div className="text-2xl font-black tabular-nums text-gold gold-glow">{totalGoals}</div>
           <div className="text-xs text-white/40">{ts('pulseTore')}</div>
         </div>
 
         {/* Status — pill with dot */}
-        <div className="col-span-3 sm:col-span-1 p-3 flex items-center justify-center gap-2 border-t border-white/[0.06] sm:border-t-0">
+        <div className="col-span-3 sm:col-span-1 p-3 flex items-center justify-center gap-2 border-t border-divider sm:border-t-0">
           <div className={cn(
             'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black',
             gwStatus === 'simulated'
               ? 'bg-gold/10 text-gold status-ended'
               : gwStatus === 'open'
                 ? 'bg-vivid-green/10 text-vivid-green status-live'
-                : 'bg-white/[0.04] text-white/30',
+                : 'bg-surface-subtle text-white/30',
           )}>
             <div className={cn(
               'size-1.5 rounded-full',

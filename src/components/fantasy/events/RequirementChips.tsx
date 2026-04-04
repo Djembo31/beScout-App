@@ -103,7 +103,7 @@ export function RequirementChips({ event, variant = 'chips', max = 4 }: Requirem
         );
       })}
       {overflow > 0 && (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs bg-white/[0.04] text-white/30 font-mono">
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs bg-surface-subtle text-white/30 font-mono">
           +{overflow}
         </span>
       )}

@@ -35,7 +35,7 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
           aria-label={`${p.firstName} ${p.lastName}, ${p.club}, ${t('watcherCount', { count: p.watcherCount })}`}
           className={cn(
             'flex items-center gap-2.5 px-3 py-2.5 rounded-xl border',
-            'bg-surface-minimal hover:bg-white/[0.05]',
+            'bg-surface-minimal hover:bg-surface-base',
             'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
             'transition-colors shrink-0 min-w-[200px] shadow-card-sm',
           )}

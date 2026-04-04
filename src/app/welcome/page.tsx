@@ -119,7 +119,7 @@ export default function WelcomePage() {
       </section>
 
       {/* ── 2. Social Proof Bar ── */}
-      <section id="social-proof" className="relative border-y border-white/[0.06] bg-white/[0.01]">
+      <section id="social-proof" className="relative border-y border-divider bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {stats.map((s) => (
             <div key={s.label}>
@@ -153,7 +153,7 @@ export default function WelcomePage() {
       </section>
 
       {/* ── 4. How It Works ── */}
-      <section className="relative border-y border-white/[0.06] bg-white/[0.01]">
+      <section className="relative border-y border-divider bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-20 md:py-28">
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center text-balance mb-12 md:mb-16">
             {t('howItWorksTitle')}
@@ -185,7 +185,7 @@ export default function WelcomePage() {
       </section>
 
       {/* ── 6. Pilot Partner ── */}
-      <section className="relative border-y border-white/[0.06] bg-white/[0.01]">
+      <section className="relative border-y border-divider bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-20 md:py-28">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="relative rounded-2xl overflow-hidden aspect-video">
@@ -230,7 +230,7 @@ export default function WelcomePage() {
       </section>
 
       {/* ── 8. Footer ── */}
-      <footer className="relative border-t border-white/[0.06] bg-white/[0.01]">
+      <footer className="relative border-t border-divider bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Image src="/icons/bescout_icon_premium.svg" alt="BeScout" width={24} height={24} className="size-6" />

@@ -282,7 +282,7 @@ export default function TraderTab({
                 <Link
                   key={trade.id}
                   href={`/player/${trade.player_id}`}
-                  className="flex items-center gap-3 py-2 px-1 hover:bg-white/[0.04] rounded-lg transition-colors"
+                  className="flex items-center gap-3 py-2 px-1 hover:bg-surface-subtle rounded-lg transition-colors"
                 >
                   {/* BUY/SELL pill */}
                   <span

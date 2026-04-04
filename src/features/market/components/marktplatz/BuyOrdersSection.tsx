@@ -141,7 +141,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
 
               {/* User's own buy orders — show inline for easy cancel */}
               {agg.userOrders.length > 0 && (
-                <div className="border-t border-white/[0.06] px-3 py-2 space-y-1">
+                <div className="border-t border-divider px-3 py-2 space-y-1">
                   {agg.userOrders.map(uo => {
                     const daysLeft = Math.max(0, Math.floor((uo.expiresAt - Date.now()) / 86_400_000));
                     const hoursLeft = Math.max(0, Math.floor((uo.expiresAt - Date.now()) / 3_600_000));

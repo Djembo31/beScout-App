@@ -231,7 +231,7 @@ export const HistoryTab = ({
                 return (
                   <Link key={entry.userId} href={`/profile/${entry.handle}`}>
                     <div className={cn(
-                      'flex items-center justify-between gap-3 p-3 rounded-xl border border-white/[0.06]',
+                      'flex items-center justify-between gap-3 p-3 rounded-xl border border-divider',
                       isMe ? 'bg-gold/[0.06]' : 'bg-surface-minimal'
                     )}>
                       <div className="flex items-center gap-3 min-w-0">
@@ -333,7 +333,7 @@ export const HistoryTab = ({
               {participations.map((p, i) => {
                 const formResult = getFormResult(p.rank, p.totalParticipants);
                 return (
-                  <div key={i} className="flex items-center justify-between gap-3 p-3 bg-surface-minimal border border-white/[0.06] rounded-xl">
+                  <div key={i} className="flex items-center justify-between gap-3 p-3 bg-surface-minimal border border-divider rounded-xl">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 tabular-nums', formResult.color)}>
                         #{p.rank}

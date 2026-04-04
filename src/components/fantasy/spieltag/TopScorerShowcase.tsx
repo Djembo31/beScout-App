@@ -98,7 +98,7 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
 function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: number; medal: string }) {
   const score = getMatchScore(stat);
   return (
-    <PlayerLink playerId={stat.player_id} className="block rounded-xl card-carbon-mini border border-white/[0.06] p-3 hover:bg-white/[0.04] transition-colors">
+    <PlayerLink playerId={stat.player_id} className="block rounded-xl card-carbon-mini border border-divider p-3 hover:bg-surface-subtle transition-colors">
       <div className="flex items-center gap-1.5 mb-2">
         <span className="text-sm">{medal}</span>
         <span className="text-xs text-white/30 font-bold tabular-nums">#{rank}</span>
@@ -127,7 +127,7 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
 function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
   const score = getMatchScore(stat);
   return (
-    <PlayerLink playerId={stat.player_id} className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-white/[0.04] rounded-lg transition-colors">
+    <PlayerLink playerId={stat.player_id} className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-surface-subtle rounded-lg transition-colors">
       <span className="w-5 text-center font-bold text-white/25 tabular-nums">{rank}</span>
       <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
         {stat.player_position}
@@ -190,7 +190,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors min-h-[44px] ${
               posFilter === f.id
                 ? 'bg-gold/15 text-gold border border-gold/30'
-                : 'bg-white/[0.04] text-white/40 border border-white/[0.06] hover:text-white/60'
+                : 'bg-surface-subtle text-white/40 border border-divider hover:text-white/60'
             }`}
           >
             {f.label}
@@ -218,7 +218,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
 
           {/* #4-10 compact */}
           {compact.length > 0 && (
-            <div className="mt-2 rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
+            <div className="mt-2 rounded-xl border border-divider bg-surface-minimal divide-y divide-white/[0.04]">
               {compact.map((s, i) => (
                 <CompactRow key={s.id} stat={s} rank={i + 4} />
               ))}

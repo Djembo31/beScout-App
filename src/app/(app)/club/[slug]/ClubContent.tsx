@@ -185,7 +185,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide -mx-1 px-1">
         <Link
           href="/clubs"
-          className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+          className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white bg-surface-subtle hover:bg-white/[0.08] border border-divider transition-colors"
         >
           <ChevronLeft aria-hidden="true" className="size-3" />
           {t('allClubs')}
@@ -194,7 +194,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           <Link
             key={c.id}
             href={`/club/${c.slug}`}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white/60 hover:text-white bg-surface-subtle hover:bg-white/[0.08] border border-divider transition-colors"
           >
             {c.logo_url ? (
               <Image src={c.logo_url} alt="" width={14} height={14} className="size-3.5 object-contain rounded-sm" />
@@ -495,7 +495,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   active={sortBy}
                   onChange={(id) => setSortBy(id as SpielerSort)}
                 />
-                <div className="flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]">
+                <div className="flex-shrink-0 flex items-center gap-0.5 bg-surface-subtle rounded-lg p-0.5 border border-divider">
                   <button
                     onClick={() => setSquadView('cards')}
                     className={cn('p-1.5 rounded-md transition-colors', squadView === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}

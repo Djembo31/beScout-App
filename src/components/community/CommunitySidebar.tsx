@@ -52,7 +52,7 @@ function CommunitySidebarInner({
           </div>
           <div className="space-y-2">
             {topResearch.map(post => (
-              <div key={post.id} className="p-2.5 rounded-xl bg-surface-minimal border border-white/[0.06]">
+              <div key={post.id} className="p-2.5 rounded-xl bg-surface-minimal border border-divider">
                 <div className="flex items-center gap-2 mb-1">
                   {post.call && (
                     <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold', callColor[post.call] ?? 'bg-white/10 text-white/50')}>

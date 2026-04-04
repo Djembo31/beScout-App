@@ -19,7 +19,7 @@ export default function MarketHeader({ balanceCents }: Props) {
         <Briefcase className="size-7 text-gold" />
         {t('title')}
       </h1>
-      <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-1.5">
+      <div className="flex items-center gap-2 bg-surface-subtle border border-white/[0.08] rounded-xl px-3 py-1.5">
         <span className="text-xs text-white/50">{tc('balance')}:</span>
         <span className="font-mono font-bold text-base tabular-nums text-gold">{fmtScout(centsToBsd(balanceCents))} CR</span>
       </div>

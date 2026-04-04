@@ -97,7 +97,7 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
 
       {/* Expand to full depth */}
       {sellOrders.length > 0 && (
-        <div className="border-t border-white/[0.06]">
+        <div className="border-t border-divider">
           <button
             onClick={() => setExpanded(v => !v)}
             aria-expanded={expanded}

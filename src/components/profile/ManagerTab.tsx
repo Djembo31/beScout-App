@@ -91,7 +91,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
       <ScoreProgress dimension="manager" score={userStats?.manager_score ?? 0} />
 
       {/* 2. Season Summary Card */}
-      <div className="p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal">
+      <div className="p-4 rounded-2xl border border-divider bg-surface-minimal">
         <h3 className="text-[13px] font-bold text-white/60 mb-3">{t('seasonBilanz')}</h3>
 
         {/* 4-stat grid */}
@@ -104,7 +104,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
 
         {/* Podium medals line */}
         {stats && (stats.gold > 0 || stats.silver > 0 || stats.bronze > 0) && (
-          <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
+          <div className="flex items-center gap-3 pt-2 border-t border-divider">
             <span className="text-[11px] text-white/40 font-medium">{t('podiums')}</span>
             <div className="flex items-center gap-3 text-[13px] font-mono tabular-nums">
               <span>{MEDAL[1]}{stats.gold}</span>
@@ -116,7 +116,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
       </div>
 
       {/* 3. Recent Events */}
-      <div className="p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal">
+      <div className="p-4 rounded-2xl border border-divider bg-surface-minimal">
         <h3 className="text-[13px] font-bold text-white/60 mb-3">{t('recentEvents')}</h3>
         <div className="space-y-2">
           {recent.map((r) => (
@@ -143,7 +143,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
 
       {/* 4. Club Fan Ranks */}
       {fanRanking && (
-        <div className="p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal">
+        <div className="p-4 rounded-2xl border border-divider bg-surface-minimal">
           <div className="flex items-center gap-2 mb-3">
             <Shield className="size-4 text-gold" aria-hidden="true" />
             <h3 className="text-[13px] font-bold text-white/60">{t('clubFanRanks')}</h3>

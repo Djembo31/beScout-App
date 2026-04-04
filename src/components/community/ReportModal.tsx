@@ -82,7 +82,7 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
               className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition-colors min-h-[44px] ${
                 selectedReason === key
                   ? 'bg-gold/10 border border-gold/20 text-white'
-                  : 'bg-white/[0.02] border border-white/[0.06] text-white/60 hover:bg-white/[0.04]'
+                  : 'bg-surface-minimal border border-divider text-white/60 hover:bg-surface-subtle'
               }`}
             >
               {t(labelKey)}

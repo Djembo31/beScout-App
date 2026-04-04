@@ -34,7 +34,7 @@ export function GwHeroSummary({ summary }: Props) {
       {/* MVP Hero Row — full width */}
       <Link
         href={`/player/${best.player_id}`}
-        className="relative flex items-center gap-3 p-3 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06]"
+        className="relative flex items-center gap-3 p-3 hover:bg-surface-subtle transition-colors active:bg-white/[0.06]"
         style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.06), transparent, rgba(255,215,0,0.04))' }}
       >
         {/* MVP label */}
@@ -75,20 +75,20 @@ export function GwHeroSummary({ summary }: Props) {
       </Link>
 
       {/* 4-col stat strip */}
-      <div className="grid grid-cols-4 border-t border-white/[0.06]">
+      <div className="grid grid-cols-4 border-t border-divider">
         <div className="p-2.5 flex items-center justify-center gap-1.5">
           <Goal className="size-3.5 text-gold" aria-hidden="true" />
           <span className="font-mono font-bold tabular-nums text-sm">{totalGoals}</span>
         </div>
-        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-white/[0.06]">
+        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-divider">
           <HandHelping className="size-3.5 text-sky-400" aria-hidden="true" />
           <span className="font-mono font-bold tabular-nums text-sm">{totalAssists}</span>
         </div>
-        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-white/[0.06]">
+        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-divider">
           <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
           <span className="font-mono font-bold tabular-nums text-sm">{cleanSheets}</span>
         </div>
-        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-white/[0.06]">
+        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-divider">
           <AlertTriangle className="size-3.5 text-amber-400" aria-hidden="true" />
           <span className="font-mono font-bold tabular-nums text-sm">{yellowCards}</span>
         </div>

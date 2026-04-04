@@ -54,7 +54,7 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <div className="max-w-[1400px] mx-auto space-y-6">
-        <div className="animate-pulse motion-reduce:animate-none bg-white/[0.02] border border-white/10 rounded-2xl h-48 relative">
+        <div className="animate-pulse motion-reduce:animate-none bg-surface-minimal border border-white/10 rounded-2xl h-48 relative">
           <div className="absolute bottom-4 left-4 flex items-end gap-4">
             <Skeleton className="size-20 rounded-2xl" />
             <div className="space-y-2">

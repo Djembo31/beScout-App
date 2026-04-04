@@ -59,7 +59,7 @@ export default function ScoreProgress({ dimension, score, className }: ScoreProg
   const barColor = getDimensionBarColor(dimension);
 
   return (
-    <div className={cn('p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal', className)}>
+    <div className={cn('p-4 rounded-2xl border border-divider bg-surface-minimal', className)}>
       {/* Header: Label + Score Pill */}
       <div className="flex items-center justify-between mb-3">
         <span className={cn('text-[13px] font-bold', dimColor)}>

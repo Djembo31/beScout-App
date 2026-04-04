@@ -164,7 +164,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         ) : (
           <div className="space-y-2 max-h-[500px] overflow-y-auto">
             {reports.map(report => (
-              <div key={report.id} className="p-3 rounded-xl bg-surface-minimal border border-white/[0.06] space-y-2">
+              <div key={report.id} className="p-3 rounded-xl bg-surface-minimal border border-divider space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -311,7 +311,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                 'flex items-start gap-3 p-3 rounded-xl border transition-colors',
                 post.is_pinned
                   ? 'bg-gold/[0.03] border-gold/10'
-                  : 'bg-surface-minimal border-white/[0.06] hover:border-white/10'
+                  : 'bg-surface-minimal border-divider hover:border-white/10'
               )}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

@@ -171,7 +171,7 @@ export function SpieltagTab({
       {/* ADMIN ROW: League selector + action buttons */}
       <div className="flex items-center justify-between gap-2">
         <div className="relative">
-          <button className="flex items-center gap-2 px-3 py-2 min-h-[40px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm font-semibold hover:bg-white/[0.06] transition-colors">
+          <button className="flex items-center gap-2 px-3 py-2 min-h-[40px] bg-surface-subtle border border-white/[0.08] rounded-xl text-sm font-semibold hover:bg-white/[0.06] transition-colors">
             <span>{activeLeague.flag}</span>
             <span>{activeLeague.label}</span>
             {LEAGUES.length > 1 && <ChevronDown aria-hidden="true" className="size-3.5 text-white/30" />}

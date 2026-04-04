@@ -263,7 +263,7 @@ export default function BuyModal({
                             'w-full flex items-center justify-between px-3 py-2 rounded-xl transition-colors text-left',
                             isSelected
                               ? 'bg-sky-500/10 border border-sky-500/30'
-                              : 'bg-white/[0.03] border border-white/[0.06] hover:border-white/20'
+                              : 'bg-white/[0.03] border border-divider hover:border-white/20'
                           )}
                         >
                           <div className="flex items-center gap-2">

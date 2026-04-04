@@ -138,7 +138,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
           </div>
         </div>
         {!loading && tradingFees && (
-          <div className="mt-4 pt-3 border-t border-white/[0.06] text-xs text-white/30">
+          <div className="mt-4 pt-3 border-t border-divider text-xs text-white/30">
             {t('feeExplanation', { count: tradingFees.tradeCount })}
           </div>
         )}

@@ -71,7 +71,7 @@ export function Glossary({ open, onClose }: GlossaryProps) {
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('searchPlaceholder')}
           className={cn(
-            'w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/10 rounded-xl',
+            'w-full pl-10 pr-4 py-2.5 bg-surface-subtle border border-white/10 rounded-xl',
             'text-sm text-white placeholder:text-white/30',
             'focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20 transition-colors'
           )}
@@ -92,7 +92,7 @@ export function Glossary({ open, onClose }: GlossaryProps) {
                 {terms.map((term) => (
                   <div
                     key={term.key}
-                    className="p-3 bg-surface-minimal border border-white/[0.06] rounded-xl"
+                    className="p-3 bg-surface-minimal border border-divider rounded-xl"
                   >
                     <div className="font-bold text-sm text-white/90">
                       {t(`terms.${term.key}.title`)}

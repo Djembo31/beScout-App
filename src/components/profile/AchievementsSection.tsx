@@ -88,7 +88,7 @@ export default function AchievementsSection({ userStats, unlockedKeys }: Achieve
                 'p-3 rounded-xl border transition-colors',
                 unlocked
                   ? `${CATEGORY_COLORS[ach.category]} border`
-                  : 'bg-surface-minimal border-white/[0.06] opacity-50',
+                  : 'bg-surface-minimal border-divider opacity-50',
               )}
             >
               <div className="text-2xl mb-1.5">{ach.icon}</div>

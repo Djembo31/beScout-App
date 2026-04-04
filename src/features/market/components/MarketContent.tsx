@@ -140,7 +140,7 @@ export default function MarketContent() {
       <MarketHeader balanceCents={balanceCents} />
 
       {/* Main Tabs */}
-      <div className="flex overflow-x-auto scrollbar-hide gap-1 rounded-xl bg-white/[0.04] border border-white/[0.08] p-1">
+      <div className="flex overflow-x-auto scrollbar-hide gap-1 rounded-xl bg-surface-subtle border border-white/[0.08] p-1">
         {tabs.map(tb => (
           <button
             key={tb.id}

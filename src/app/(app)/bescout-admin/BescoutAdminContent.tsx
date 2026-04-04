@@ -104,7 +104,7 @@ function ScoutEventsToggle() {
   }, [scoutEventsEnabled, addToast, queryClient, t]);
 
   return (
-    <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/10 rounded-2xl">
+    <div className="flex items-center justify-between p-4 bg-surface-minimal border border-white/10 rounded-2xl">
       <div>
         <p className="font-black text-white">{t('scoutEventsTitle')}</p>
         <p className="text-sm text-white/50">{t('scoutEventsDescription')}</p>
@@ -306,7 +306,7 @@ export default function BescoutAdminContent() {
           sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), wishes: 'Fan Wishes', debug: t('tabDebug'),
         };
         return (
-          <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-divider overflow-x-auto scrollbar-hide">
             {TAB_ORDER.map(tabId => {
               const Icon = TAB_ICONS[tabId];
               const label = TAB_LABELS[tabId];

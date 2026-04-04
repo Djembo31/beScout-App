@@ -65,7 +65,7 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
   // Loading skeleton
   if (scoresLoading || claimsLoading) {
     return (
-      <div className="h-10 rounded-xl bg-white/[0.02] border border-white/[0.06] animate-pulse motion-reduce:animate-none" />
+      <div className="h-10 rounded-xl bg-surface-minimal border border-divider animate-pulse motion-reduce:animate-none" />
     );
   }
 
@@ -79,7 +79,7 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
       href="/profile"
       className={cn(
         'group flex items-center gap-3 px-3 py-2 rounded-xl',
-        'bg-surface-minimal border border-white/[0.06]',
+        'bg-surface-minimal border border-divider',
         'hover:bg-surface-elevated hover:border-white/10 transition-colors',
         compact && 'gap-2 px-2.5 py-1.5',
       )}

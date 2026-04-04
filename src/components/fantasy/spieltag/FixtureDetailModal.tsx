@@ -22,12 +22,12 @@ import { cn } from '@/lib/utils';
 
 const RankingTab = dynamic(() => import('./fixture-tabs/RankingTab'), {
   ssr: false,
-  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 
 const FormationTab = dynamic(() => import('./fixture-tabs/FormationTab'), {
   ssr: false,
-  loading: () => <div className="h-96 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-96 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 
 // ============================================
@@ -75,7 +75,7 @@ function GoalTicker({ stats, homeClubId, homeClubLogo, awayClubLogo, homeShort, 
   if (scorers.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto scrollbar-hide snap-x motion-reduce:snap-none px-4 py-2 border-b border-white/[0.06]" tabIndex={0} role="region" aria-label={ts('goalScorers')}>
+    <div className="overflow-x-auto scrollbar-hide snap-x motion-reduce:snap-none px-4 py-2 border-b border-divider" tabIndex={0} role="region" aria-label={ts('goalScorers')}>
       <div className="flex items-center gap-2">
         {scorers.map(s => {
           const href = s.player_id ? `/player/${s.player_id}` : '#';
@@ -85,7 +85,7 @@ function GoalTicker({ stats, homeClubId, homeClubLogo, awayClubLogo, homeShort, 
               key={s.id}
               href={href}
               aria-label={`${s.player_last_name || '?'} — ${ts('goalCount', { count: s.goals })}`}
-              className="flex items-center gap-1.5 snap-start px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors min-h-[44px] flex-shrink-0 active:scale-[0.97] motion-reduce:active:scale-100"
+              className="flex items-center gap-1.5 snap-start px-2.5 py-1.5 rounded-lg bg-surface-subtle border border-white/[0.08] hover:bg-white/[0.06] transition-colors min-h-[44px] flex-shrink-0 active:scale-[0.97] motion-reduce:active:scale-100"
             >
               <ClubLogo club={isHome ? (homeClubLogo ?? null) : (awayClubLogo ?? null)} size={14} short={isHome ? homeShort : awayShort} />
               <GoalIcon size={10} className="text-white/50" />
@@ -280,7 +280,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
       )}
 
       {/* Quick Stats — Home vs Away comparison bars */}
-      <div className="space-y-3 rounded-xl bg-surface-subtle border border-white/[0.06] px-4 py-3" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }} role="group" aria-label={ts('matchDetails')}>
+      <div className="space-y-3 rounded-xl bg-surface-subtle border border-divider px-4 py-3" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }} role="group" aria-label={ts('matchDetails')}>
         {[
           { label: ts('quickGoals'), home: homeGoals, away: awayGoals, hColor: homeColor, aColor: awayColor },
           { label: ts('quickCards'), home: homeCards, away: awayCards, hColor: '#EAB308', aColor: '#EAB308' },
@@ -296,7 +296,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
                 <span className="text-[10px] font-bold text-white/30 uppercase tracking-wide">{label}</span>
                 <span className="text-[13px] font-bold font-mono tabular-nums text-white/90">{away}</span>
               </div>
-              <div className="flex h-1 rounded-full overflow-hidden gap-0.5 bg-white/[0.04]">
+              <div className="flex h-1 rounded-full overflow-hidden gap-0.5 bg-surface-subtle">
                 <div className="rounded-full transition-colors" style={{ width: `${hPct}%`, backgroundColor: hColor, opacity: home >= away ? 1 : 0.35 }} />
                 <div className="rounded-full transition-colors" style={{ width: `${aPct}%`, backgroundColor: aColor, opacity: away >= home ? 1 : 0.35 }} />
               </div>
@@ -531,7 +531,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                   </span>
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-1.5 md:mt-2">
-                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-white/[0.08] text-[10px] font-black text-white/60 uppercase tracking-widest border border-white/[0.06]">{ts('fullTime')}</span>
+                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-white/[0.08] text-[10px] font-black text-white/60 uppercase tracking-widest border border-divider">{ts('fullTime')}</span>
                   <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
                 </div>
               </>

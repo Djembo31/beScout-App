@@ -46,7 +46,7 @@ export default function OnboardingChecklist({ items, className = '' }: Onboardin
             className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
               item.completed
                 ? 'opacity-50'
-                : 'hover:bg-white/[0.04] active:scale-[0.98]'
+                : 'hover:bg-surface-subtle active:scale-[0.98]'
             }`}
           >
             {item.completed ? (

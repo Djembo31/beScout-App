@@ -78,7 +78,7 @@ export function ClubStatsBar({
       {/* Secondary stats + Form — compact row */}
       <div className="flex items-center gap-3">
         {secondary.map((stat, i) => (
-          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
+          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-surface-base border border-divider rounded-xl">
             <stat.icon className="size-4 text-white/30 flex-shrink-0" />
             <div className="min-w-0">
               <div className="font-mono font-bold tabular-nums text-sm text-white/80">{stat.value}</div>
@@ -88,7 +88,7 @@ export function ClubStatsBar({
         ))}
         {/* Form streak */}
         {formResults.length > 0 && (
-          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
+          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-divider rounded-xl">
             <div className="flex items-center gap-1">
               {formResults.map((r, i) => (
                 <div
@@ -112,7 +112,7 @@ export function ClubStatsBar({
           const cfg = PRESTIGE_CONFIG[prestigeTier];
           const Icon = cfg.icon;
           return (
-            <div className={cn('flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border border-white/[0.06]', cfg.bg)}>
+            <div className={cn('flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border border-divider', cfg.bg)}>
               <Icon className={cn('size-4', cfg.color)} />
               <div className="min-w-0">
                 <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>

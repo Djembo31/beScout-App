@@ -101,7 +101,7 @@ export function AdminTreasuryTab() {
         </div>
 
         {/* Net Supply Bar */}
-        <div className="pt-3 border-t border-white/[0.06]">
+        <div className="pt-3 border-t border-divider">
           <div className="flex items-center justify-between text-xs mb-2">
             <span className="text-white/50">{t('treasuryNetSupply')}</span>
             <span className="font-mono tabular-nums font-bold text-gold">{fmt(netSupply)}</span>
@@ -164,7 +164,7 @@ export function AdminTreasuryTab() {
       <div className="flex justify-end">
         <button
           onClick={() => { setLoading(true); loadData(); }}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white/50 hover:text-white/80 bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors min-h-[44px]"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white/50 hover:text-white/80 bg-surface-subtle hover:bg-white/[0.08] rounded-lg transition-colors min-h-[44px]"
           aria-label={t('treasuryRefreshLabel')}
         >
           <RefreshCw className="size-3.5" aria-hidden="true" />
@@ -204,7 +204,7 @@ function MiniStat({ label, value, color, icon }: {
   label: string; value: string; color?: string; icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-surface-minimal rounded-xl p-3 border border-white/[0.06]">
+    <div className="bg-surface-minimal rounded-xl p-3 border border-divider">
       <div className={cn('mb-1', color ?? 'text-white/40')}>{icon}</div>
       <div className={cn('font-mono tabular-nums font-bold text-sm', color ?? 'text-white/80')}>{value}</div>
       <div className="text-[10px] text-white/40 mt-0.5">{label}</div>

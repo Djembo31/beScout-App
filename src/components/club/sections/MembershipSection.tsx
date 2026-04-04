@@ -68,7 +68,7 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
               className={cn(
                 'flex flex-col gap-3 p-0 overflow-hidden',
                 isActive
-                  ? 'border-2 bg-white/[0.04] ring-2 animate-[pulse_3s_ease-in-out_infinite]'
+                  ? 'border-2 bg-surface-subtle ring-2 animate-[pulse_3s_ease-in-out_infinite]'
                   : 'bg-surface-minimal border border-white/10',
               )}
               style={isActive ? { borderColor: config.color, '--tw-ring-color': `${config.color}40` } as React.CSSProperties : undefined}

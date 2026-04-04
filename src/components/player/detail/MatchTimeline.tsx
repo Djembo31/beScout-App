@@ -72,7 +72,7 @@ export default function MatchTimeline({
     <Card className={`overflow-hidden ${className}`}>
       {/* ── Hero Strip: L5/L15 + Trend + Percentile ── */}
       <div
-        className="relative p-4 md:px-6 border-b border-white/[0.06] overflow-hidden"
+        className="relative p-4 md:px-6 border-b border-divider overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${posTint}12 0%, transparent 60%)`,
         }}
@@ -81,7 +81,7 @@ export default function MatchTimeline({
           <div className="flex items-center gap-3">
             <Activity className="size-5 text-gold" aria-hidden="true" />
             {/* Toggle L5 / L15 */}
-            <div className="flex gap-1 bg-white/[0.04] rounded-lg p-0.5">
+            <div className="flex gap-1 bg-surface-subtle rounded-lg p-0.5">
               {(['L5', 'L15'] as ViewMode[]).map(m => (
                 <button
                   key={m}
@@ -269,7 +269,7 @@ export default function MatchTimeline({
                       )}>
                         {entry.score}
                       </span>
-                      <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-surface-subtle rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-colors duration-300"
                           style={{ width: `${barPct}%`, backgroundColor: getScoreHex(entry.score) }}
@@ -293,7 +293,7 @@ export default function MatchTimeline({
 
       {/* ── Aggregate Footer ── */}
       {agg && (
-        <div className="border-t border-white/[0.06] px-4 md:px-6 py-3 flex items-center gap-4 text-xs text-white/50">
+        <div className="border-t border-divider px-4 md:px-6 py-3 flex items-center gap-4 text-xs text-white/50">
           <span className="flex items-center gap-1">
             <span className="text-white/30">&empty;</span>
             <span className={cn('font-mono font-bold tabular-nums', getScoreTextClass(agg.avgScore))}>{agg.avgScore}</span>

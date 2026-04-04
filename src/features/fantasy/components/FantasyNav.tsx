@@ -55,7 +55,7 @@ export function FantasyNav({
       />
 
       {/* SEGMENT TABS -- 4 Tabs, always fit */}
-      <div className="flex items-center overflow-x-auto scrollbar-hide gap-1 p-1 bg-surface-subtle border border-white/[0.06] rounded-xl">
+      <div className="flex items-center overflow-x-auto scrollbar-hide gap-1 p-1 bg-surface-subtle border border-divider rounded-xl">
         {tabs.map(tab => {
           const Icon = TAB_ICONS[tab.id];
           return (

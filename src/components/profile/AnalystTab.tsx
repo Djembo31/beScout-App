@@ -276,7 +276,7 @@ export default function AnalystTab({
                       ) : post.player_name ? (
                         <span className="text-[11px] font-bold text-white/70">{post.player_name}</span>
                       ) : null}
-                      <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/5 text-white/40 border border-white/[0.06]">
+                      <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/5 text-white/40 border border-divider">
                         {post.horizon}
                       </span>
                     </div>
@@ -335,7 +335,7 @@ export default function AnalystTab({
               );
             })}
           </div>
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.06]">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-divider">
             <span className="text-[11px] text-white/40 font-bold">Total</span>
             <span className="text-sm font-mono font-bold text-green-500">
               +{formatScout(contentEarnings.total)} CR
@@ -481,7 +481,7 @@ function ExpertBadgesCard({
                 'relative flex items-center gap-3 p-3 rounded-xl border transition-colors',
                 badge.earned
                   ? `${badge.bgColor} border`
-                  : 'bg-surface-minimal border-white/[0.06] opacity-50'
+                  : 'bg-surface-minimal border-divider opacity-50'
               )}
             >
               <div className={cn(

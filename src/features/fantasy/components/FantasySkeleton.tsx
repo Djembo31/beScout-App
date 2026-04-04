@@ -10,7 +10,7 @@ export function FantasySkeleton() {
         <Skeleton className="h-9 w-24" />
       </div>
       <Skeleton className="h-16 rounded-2xl" />
-      <div className="flex items-center gap-1 p-1 bg-surface-subtle border border-white/[0.06] rounded-xl">
+      <div className="flex items-center gap-1 p-1 bg-surface-subtle border border-divider rounded-xl">
         {[1, 2, 3].map(i => <Skeleton key={i} className="flex-1 h-10 rounded-lg" />)}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">

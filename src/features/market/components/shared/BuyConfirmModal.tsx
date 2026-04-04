@@ -195,7 +195,7 @@ export default function BuyConfirmModal({
         </div>
 
         {/* Divider */}
-        <div className="border-t border-white/[0.06]" />
+        <div className="border-t border-divider" />
 
         {/* Fee info */}
         <div className="space-y-1.5 text-xs text-white/40">

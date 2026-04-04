@@ -138,7 +138,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
                 <Link
                   key={task.key}
                   href={task.href}
-                  className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors group"
+                  className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-subtle active:bg-white/[0.06] transition-colors group"
                 >
                   <Circle className="size-5 text-white/20 shrink-0" />
                   <span className="flex items-center gap-2 flex-1 min-w-0">

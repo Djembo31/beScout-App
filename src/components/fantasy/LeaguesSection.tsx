@@ -208,7 +208,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
 
       {/* Expanded: Leaderboard */}
       {expanded && (
-        <div className="border-t border-white/[0.06] px-4 pb-4">
+        <div className="border-t border-divider px-4 pb-4">
           <div className="text-xs text-white/30 uppercase tracking-wider font-bold mt-3 mb-2">{t('leaderboard')}</div>
           {isLoading ? (
             <div className="space-y-2">
@@ -279,16 +279,16 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
 
         {isLoading ? (
           <div className="space-y-2">
-            {[1, 2].map(i => <div key={i} className="h-12 rounded-xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-white/[0.06]" />)}
+            {[1, 2].map(i => <div key={i} className="h-12 rounded-xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-divider" />)}
           </div>
         ) : leagues.length === 0 ? (
-          <div className="p-4 text-center bg-surface-minimal border border-white/[0.06] rounded-xl">
+          <div className="p-4 text-center bg-surface-minimal border border-divider rounded-xl">
             <div className="text-xs text-white/30">{t('emptyDesc')}</div>
           </div>
         ) : (
           <div className="space-y-1.5">
             {leagues.map(l => (
-              <div key={l.id} className="flex items-center gap-3 p-2.5 bg-surface-subtle border border-white/[0.06] rounded-xl">
+              <div key={l.id} className="flex items-center gap-3 p-2.5 bg-surface-subtle border border-divider rounded-xl">
                 <div className="size-8 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center shrink-0">
                   <Trophy className="size-4 text-purple-400" aria-hidden="true" />
                 </div>
@@ -330,7 +330,7 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
       {/* Leagues List */}
       {isLoading ? (
         <div className="space-y-3">
-          {[1, 2].map(i => <div key={i} className="h-20 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-white/[0.06]" />)}
+          {[1, 2].map(i => <div key={i} className="h-20 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-divider" />)}
         </div>
       ) : leagues.length === 0 ? (
         <Card className="p-8 text-center">

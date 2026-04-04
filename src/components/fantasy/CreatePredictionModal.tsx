@@ -198,7 +198,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   <button
                     key={f.id}
                     onClick={() => handleFixtureSelect(f)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-surface-minimal border border-white/[0.06] hover:bg-white/[0.05] transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-surface-minimal border border-divider hover:bg-surface-base transition-colors text-left"
                   >
                     <FixtureClubLogo club={home} />
                     <span className="font-semibold text-sm flex-1 text-center">
@@ -300,7 +300,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                               'px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors border',
                               isSelected
                                 ? 'bg-gold/15 text-gold border-gold/30'
-                                : 'bg-surface-subtle text-white/60 border-white/[0.06] hover:bg-white/[0.06]'
+                                : 'bg-surface-subtle text-white/60 border-divider hover:bg-white/[0.06]'
                             )}
                           >
                             {getValueLabel(c.key, opt, t)}

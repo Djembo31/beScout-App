@@ -16,7 +16,7 @@ export function LegalLayout({ children, title }: LegalLayoutProps) {
   return (
     <div className="min-h-dvh bg-bg-main text-white">
       {/* Header */}
-      <header className="border-b border-white/[0.06]">
+      <header className="border-b border-divider">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2 text-white/50 hover:text-white/80 transition-colors">
             <ArrowLeft className="size-4" />
@@ -37,7 +37,7 @@ export function LegalLayout({ children, title }: LegalLayoutProps) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.06]">
+      <footer className="border-t border-divider">
         <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="text-xs text-white/30">{t('copyright')}</span>
           <div className="flex items-center gap-6 text-xs text-white/30">

@@ -66,7 +66,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
                   'w-full p-3 rounded-xl border transition-colors text-left relative overflow-hidden',
                   hasVoted || isOwn || !isActive
                     ? 'bg-surface-minimal border-white/10'
-                    : 'bg-surface-minimal border-white/10 hover:bg-white/[0.04] hover:border-white/20'
+                    : 'bg-surface-minimal border-white/10 hover:bg-surface-subtle hover:border-white/20'
                 )}
               >
                 {(hasVoted || isOwn) && (

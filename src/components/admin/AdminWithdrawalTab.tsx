@@ -137,7 +137,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder={t('wdAmountPlaceholder')}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold/50"
+                className="w-full bg-surface-subtle border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold/50"
                 required
               />
             </div>
@@ -149,7 +149,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                 onChange={e => setNote(e.target.value)}
                 placeholder={t('wdNotePlaceholder')}
                 maxLength={200}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold/50"
+                className="w-full bg-surface-subtle border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold/50"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
               const status = STATUS_MAP[w.status] ?? STATUS_MAP.pending;
               const StatusIcon = status.icon;
               return (
-                <div key={w.id} className="flex items-center justify-between bg-surface-minimal rounded-xl px-4 py-3 border border-white/[0.06]">
+                <div key={w.id} className="flex items-center justify-between bg-surface-minimal rounded-xl px-4 py-3 border border-divider">
                   <div className="flex items-center gap-3">
                     <StatusIcon className={cn('size-4', status.color)} aria-hidden="true" />
                     <div>

@@ -26,7 +26,7 @@ export function EventSortBar({ sortField, sortAsc, onToggle, eventCount }: Event
             INTERACTIVE,
             sortField === field
               ? 'bg-gold/10 text-gold border border-gold/20'
-              : 'text-white/40 bg-surface-minimal border border-white/[0.06]',
+              : 'text-white/40 bg-surface-minimal border border-divider',
           )}
         >
           {label}

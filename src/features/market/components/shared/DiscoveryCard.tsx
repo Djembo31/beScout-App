@@ -136,7 +136,7 @@ export default function DiscoveryCard({
       {/* Variant-specific indicator */}
       {variant === 'ipo' && ipoProgress !== undefined && (
         <div className="relative mt-1.5">
-          <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/[0.06]">
+          <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-divider">
             <div
               className="h-full rounded-full bg-vivid-green transition-colors duration-500"
               style={{

@@ -66,7 +66,7 @@ export default function HoldingsSection({
               </div>
             )}
             {(listedQty > 0 || lockedQty > 0) && (
-              <div className="flex items-center justify-between pt-1 border-t border-white/[0.06]">
+              <div className="flex items-center justify-between pt-1 border-t border-divider">
                 <span className="text-white/50">{t('availableToSell')}</span>
                 <span className="font-mono font-bold tabular-nums">{availableToSell} SC</span>
               </div>

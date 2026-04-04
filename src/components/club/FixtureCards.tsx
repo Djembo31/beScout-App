@@ -40,7 +40,7 @@ export function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; club
   return (
     <div className={cn(
       'flex items-center gap-3 p-3 rounded-xl border transition-colors',
-      isPlayed ? 'bg-surface-base border-white/10' : 'bg-white/[0.01] border-white/[0.06]',
+      isPlayed ? 'bg-surface-base border-white/10' : 'bg-white/[0.01] border-divider',
     )}>
       {/* H/A Badge */}
       <div className={cn(

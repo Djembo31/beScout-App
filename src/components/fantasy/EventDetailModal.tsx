@@ -22,25 +22,25 @@ import { JoinConfirmDialog } from '@/features/fantasy/components/event-detail/Jo
 // Lazy-loaded ChipSelector (only needed when editing lineup)
 const ChipSelector = dynamic(() => import('@/components/gamification/ChipSelector'), {
   ssr: false,
-  loading: () => <div className="h-24 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-24 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 
 // Lazy-loaded tab panels
 const OverviewPanel = dynamic(() => import('./event-tabs/OverviewPanel'), {
   ssr: false,
-  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 const LineupPanel = dynamic(() => import('./event-tabs/LineupPanel'), {
   ssr: false,
-  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 const LeaderboardPanel = dynamic(() => import('./event-tabs/LeaderboardPanel'), {
   ssr: false,
-  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 const EventCommunityTab = dynamic(() => import('./EventCommunityTab'), {
   ssr: false,
-  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-white/[0.02] rounded-2xl" />,
+  loading: () => <div className="h-64 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
 });
 
 export const EventDetailModal = ({
@@ -494,7 +494,7 @@ export const EventDetailModal = ({
                 }}
               />
               {!isScored && event.status !== 'ended' && (
-                <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                <div className="mt-4 pt-4 border-t border-divider">
                   <ChipSelector eventId={event.id} />
                 </div>
               )}

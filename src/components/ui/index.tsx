@@ -19,7 +19,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const btnVariants: Record<ButtonVariant, string> = {
-  gold: 'bg-gold hover:bg-gold/90 text-black btn-gold-glow',
+  gold: 'bg-gradient-to-r from-[#FFE44D] to-[#E6B800] hover:brightness-110 text-black btn-gold-glow',
   outline: 'bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-white',
   ghost: 'hover:bg-white/[0.08] text-white/80',
   danger: 'bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-200',
@@ -220,7 +220,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
         <div className={cn('flex-1 overflow-y-auto min-h-0 px-4 py-4 md:p-5', !footer && 'pb-6 safe-bottom')}>{children}</div>
         {/* Footer — sticky, always visible */}
         {footer && (
-          <div className="flex-shrink-0 border-t border-white/[0.06] bg-[#0b0b0b] px-4 py-3 safe-bottom md:px-5 md:py-4">
+          <div className="flex-shrink-0 border-t border-divider bg-[#0b0b0b] px-4 py-3 safe-bottom md:px-5 md:py-4">
             {footer}
           </div>
         )}
@@ -288,7 +288,7 @@ export function StatCard({
 // ============================================
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse motion-reduce:animate-none bg-white/[0.04] rounded-xl', className)} />;
+  return <div className={cn('animate-pulse motion-reduce:animate-none bg-surface-subtle rounded-xl', className)} />;
 }
 
 export function SkeletonCard({ className }: { className?: string }) {

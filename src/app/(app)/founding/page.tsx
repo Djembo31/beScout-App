@@ -148,7 +148,7 @@ export default function FoundingPassPage() {
       <div className="text-center mb-8 md:mb-12">
         <h1 className="text-2xl md:text-4xl font-black text-white mb-2">{t('title')}</h1>
         <p className="text-sm md:text-base text-white/60 max-w-lg mx-auto mb-4">{t('subtitle')}</p>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-subtle border border-white/10">
           <span className="text-sm font-mono tabular-nums text-white/80">
             {t('totalCounter', { count: fmtScout(totalSold), total: fmtScout(FOUNDING_PASS_TOTAL_LIMIT) })}
           </span>
@@ -268,7 +268,7 @@ function TierCard({
 
   return (
     <div className={cn(
-      'relative rounded-2xl border bg-white/[0.02] p-5 md:p-6 flex flex-col transition-colors',
+      'relative rounded-2xl border bg-surface-minimal p-5 md:p-6 flex flex-col transition-colors',
       visual.borderClass,
       isUserTier && 'ring-2 ring-gold/30',
     )}>

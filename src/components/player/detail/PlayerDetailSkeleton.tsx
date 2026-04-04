@@ -6,7 +6,7 @@ export default function PlayerDetailSkeleton() {
   return (
     <div className="max-w-[900px] mx-auto space-y-6">
       {/* Hero */}
-      <div className="rounded-2xl overflow-hidden border border-white/[0.06]">
+      <div className="rounded-2xl overflow-hidden border border-divider">
         <div className="bg-[#0d0d0d] p-4 md:p-6">
           {/* Top bar */}
           <div className="flex justify-between mb-4">

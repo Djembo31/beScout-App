@@ -199,7 +199,7 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
   return (
     <div
       className={cn(
-        'bg-surface-base border border-white/[0.06] rounded-xl transition-colors hover:bg-surface-elevated hover:border-white/[0.12] border-l-2',
+        'bg-surface-base border border-divider rounded-xl transition-colors hover:bg-surface-elevated hover:border-white/[0.12] border-l-2',
         isSelected && 'border-gold/30 bg-gold/[0.03]',
       )}
       style={{ borderLeftColor: posTintColors[p.pos] }}

@@ -21,11 +21,11 @@ export default function BestandClubGroup({ clubId, clubName, playerCount, isExpa
   const clubData = getClub(clubId);
 
   return (
-    <div className="border border-white/[0.06] rounded-xl overflow-hidden">
+    <div className="border border-divider rounded-xl overflow-hidden">
       <button
         onClick={onToggle}
         aria-expanded={isExpanded}
-        className="w-full flex items-center gap-3 px-4 py-3 bg-surface-minimal hover:bg-white/[0.04] transition-colors text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 bg-surface-minimal hover:bg-surface-subtle transition-colors text-left"
       >
         {clubData?.logo ? (
           <Image src={clubData.logo} alt="" width={24} height={24} className="size-6 rounded-full object-cover shrink-0" />

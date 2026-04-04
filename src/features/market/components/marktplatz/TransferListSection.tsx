@@ -140,7 +140,7 @@ export default function TransferListSection({
               'px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px] border active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
               showAffordable
                 ? 'bg-gold/15 border-gold/30 text-gold'
-                : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-white/60'
+                : 'bg-surface-subtle border-white/[0.08] text-white/40 hover:text-white/60'
             )}
           >
             {t('affordable', { defaultMessage: 'Leistbar' })}
@@ -296,7 +296,7 @@ export default function TransferListSection({
 
                 {/* Order Depth View — expandable */}
                 {isExpanded && (
-                  <div className="border-t border-white/[0.06] px-3">
+                  <div className="border-t border-divider px-3">
                     <OrderDepthView playerId={p.id} />
                   </div>
                 )}

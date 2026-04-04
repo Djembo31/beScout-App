@@ -14,7 +14,7 @@ export function TradingDisclaimer({ variant = 'inline', className }: TradingDisc
 
   if (variant === 'card') {
     return (
-      <div className={cn('flex items-start gap-2 p-3 bg-surface-minimal border border-white/[0.06] rounded-xl', className)}>
+      <div className={cn('flex items-start gap-2 p-3 bg-surface-minimal border border-divider rounded-xl', className)}>
         <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
         <span className="text-[10px] text-white/30 leading-relaxed">{t('tradingDisclaimer')}</span>
       </div>

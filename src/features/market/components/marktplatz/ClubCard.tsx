@@ -149,7 +149,7 @@ export default function ClubCard({
 
       {/* Soonest-ending player preview + countdown */}
       {soonestPlayer && (
-        <div className="flex items-center gap-1.5 pt-1.5 border-t border-white/[0.06]">
+        <div className="flex items-center gap-1.5 pt-1.5 border-t border-divider">
           <PlayerPhoto
             imageUrl={soonestPlayer.player.imageUrl}
             first={soonestPlayer.player.first}

@@ -173,7 +173,7 @@ export default function TradeSuccessCard({
           </div>
 
           {/* Balance counter */}
-          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/[0.06]">
+          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-divider">
             <span className="text-[10px] text-white/30 font-semibold uppercase tracking-wider">
               {t('balanceLabel', { defaultMessage: 'Guthaben' })}
             </span>

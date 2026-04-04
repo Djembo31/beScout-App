@@ -135,7 +135,7 @@ export function ScoreBreakdown({
             const tier = getScoreTier(isScored ? score : displayScore);
             const tierCfg = tier !== 'none' ? SCORE_TIER_CONFIG[tier] : null;
             return (
-              <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-white/[0.06]'}`}>
+              <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-divider'}`}>
                 <div className="flex items-center gap-3">
                   {isCpt ? (
                     <div className="size-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
@@ -210,7 +210,7 @@ export function ScoreBreakdown({
       {isScored && (
         <button
           onClick={onSwitchToLeaderboard}
-          className="w-full flex items-center justify-center gap-2 p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
+          className="w-full flex items-center justify-center gap-2 p-3 bg-surface-subtle hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
         >
           <BarChart3 aria-hidden="true" className="size-4" />
           {t('showRanking')}

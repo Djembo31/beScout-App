@@ -66,7 +66,7 @@ export default function ShortcutsModal({ open, onClose }: ShortcutsModalProps) {
             </div>
           </div>
         ))}
-        <div className="text-[10px] text-white/25 text-center pt-2 border-t border-white/[0.06]">
+        <div className="text-[10px] text-white/25 text-center pt-2 border-t border-divider">
           {t('hint')}
         </div>
       </div>

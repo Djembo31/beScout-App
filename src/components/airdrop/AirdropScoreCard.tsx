@@ -160,7 +160,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
             );
           })}
           {/* Multipliers */}
-          <div className="pt-2 border-t border-white/[0.06] flex gap-3 text-[10px]">
+          <div className="pt-2 border-t border-divider flex gap-3 text-[10px]">
             {score.founding_multiplier > 1 && (
               <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold font-bold border border-gold/25">
                 {ta('foundingMultiplier', { n: score.founding_multiplier })}
@@ -176,7 +176,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
       )}
 
       {/* Improve + Coming Soon */}
-      <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
+      <div className="mt-3 pt-3 border-t border-divider space-y-2">
         <a href="/airdrop" className="flex items-center gap-2 text-[10px] text-purple-400/70 hover:text-purple-300 transition-colors">
           <Trophy className="size-3" />
           <span>{ta('viewLeaderboard')}</span>

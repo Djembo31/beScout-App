@@ -45,7 +45,7 @@ export function FixtureCard({ fixture, onSelect }: Props) {
     <button
       onClick={onSelect}
       aria-label={matchLabel}
-      className={`w-full rounded-2xl bg-surface-base border ${accent.border} min-h-[88px] px-4 py-3 transition-colors hover:bg-white/[0.05] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 group ${accent.glow}`}
+      className={`w-full rounded-2xl bg-surface-base border ${accent.border} min-h-[88px] px-4 py-3 transition-colors hover:bg-surface-base active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 group ${accent.glow}`}
     >
       {/* Top bar: status + kickoff time */}
       <div className="flex items-center gap-2 mb-2">
@@ -85,7 +85,7 @@ export function FixtureCard({ fixture, onSelect }: Props) {
               <span className="font-mono font-bold text-sm tabular-nums text-amber-400/70">? - ?</span>
             </div>
           ) : kickoff ? (
-            <div className="px-2.5 py-1.5 bg-surface-subtle border border-white/[0.06] rounded-lg" aria-hidden="true">
+            <div className="px-2.5 py-1.5 bg-surface-subtle border border-divider rounded-lg" aria-hidden="true">
               <span className="font-mono font-bold text-sm tabular-nums text-white/40">{kickoff.time}</span>
             </div>
           ) : (

@@ -180,7 +180,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
               <button onClick={() => setQuickPrice(1.20)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-green-500 hover:border-green-500/20 transition-colors">+20%</button>
             </div>
             {priceNum > 0 && (
-              <div className="flex items-center gap-4 text-[11px] font-mono bg-surface-minimal border border-white/[0.06] rounded-lg px-3 py-2 tabular-nums">
+              <div className="flex items-center gap-4 text-[11px] font-mono bg-surface-minimal border border-divider rounded-lg px-3 py-2 tabular-nums">
                 <span className="text-white/40">{t('sellGross')} <span className="text-white/70">{fmtScout(gross)}</span></span>
                 <span className="text-white/40">{t('sellFee')} <span className="text-red-300/70">&minus;{fmtScout(fee)}</span> <span className="text-white/20">(6%)</span></span>
                 <span className="text-white/40">{t('sellNetLabel')} <span className="text-gold font-bold">{fmtScout(net)}</span></span>

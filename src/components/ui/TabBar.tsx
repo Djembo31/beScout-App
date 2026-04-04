@@ -25,7 +25,7 @@ export function TabBar({ tabs, activeTab, onChange, className, accentColor }: Ta
     <div
       role="tablist"
       className={cn(
-        'flex gap-1 p-1 bg-white/[0.05] border border-white/[0.10] rounded-2xl',
+        'flex gap-1 p-1 bg-surface-base border border-white/[0.10] rounded-2xl',
         'overflow-x-auto scrollbar-hide',
         className
       )}

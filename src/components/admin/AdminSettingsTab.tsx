@@ -240,7 +240,7 @@ function StatusPill({ label, mapped, total, icon }: { label: string; mapped: num
   const color = pct === 100 ? 'text-green-500' : pct > 0 ? 'text-gold' : 'text-white/30';
 
   return (
-    <div className="p-3 bg-surface-base rounded-xl border border-white/[0.06] text-center">
+    <div className="p-3 bg-surface-base rounded-xl border border-divider text-center">
       <div className="flex items-center justify-center gap-1.5 mb-1">
         <span className={color}>{icon}</span>
         <span className="text-[10px] font-bold text-white/40 uppercase">{label}</span>
@@ -699,7 +699,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               const isSelf = admin.user_id === user?.id;
               const isAdminOwner = admin.role === 'owner';
               return (
-                <div key={admin.id} className="flex items-center gap-3 p-3 bg-surface-base rounded-xl border border-white/[0.06]">
+                <div key={admin.id} className="flex items-center gap-3 p-3 bg-surface-base rounded-xl border border-divider">
                   <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
                     {admin.handle.charAt(0).toUpperCase()}
                   </div>

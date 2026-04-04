@@ -135,7 +135,7 @@ export default function FanRankOverview({
       </div>
 
       {/* Total Score */}
-      <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-divider flex items-center justify-between">
         <span className="text-xs text-white/40 font-semibold">{t('totalScore')}</span>
         <span className="text-sm font-mono font-black tabular-nums text-white">
           {ranking.total_score}

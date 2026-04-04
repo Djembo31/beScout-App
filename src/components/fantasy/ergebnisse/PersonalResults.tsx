@@ -57,7 +57,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
           </div>
         ) : (
           <div>
-            <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
+            <div className="rounded-xl border border-divider bg-surface-minimal divide-y divide-white/[0.04]">
               {heldPlayerStats.map(stat => {
                 const score = getMatchScore(stat);
                 const holding = stat.player_id ? holdingsMap.get(stat.player_id) : undefined;
@@ -67,7 +67,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                   <Link
                     key={stat.id}
                     href={stat.player_id ? `/player/${stat.player_id}` : '#'}
-                    className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06]"
+                    className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-surface-subtle transition-colors active:bg-white/[0.06]"
                     style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
                   >
                     {/* Player photo with ring frame */}
@@ -133,7 +133,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
             {tf('ergebnisse.noEvents')}
           </div>
         ) : (
-          <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
+          <div className="rounded-xl border border-divider bg-surface-minimal divide-y divide-white/[0.04]">
             {joinedScoredEvents.map(event => {
               const rank = event.userRank;
               const score = event.userPoints;

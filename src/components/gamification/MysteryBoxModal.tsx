@@ -215,7 +215,7 @@ export default function MysteryBoxModal({
             </div>
 
             {/* Reward Preview */}
-            <div className="w-full mt-5 pt-4 border-t border-white/[0.06]">
+            <div className="w-full mt-5 pt-4 border-t border-divider">
               <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider mb-2.5">
                 {t('possibleRewardsTitle')}
               </p>

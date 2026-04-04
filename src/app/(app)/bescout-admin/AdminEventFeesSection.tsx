@@ -83,7 +83,7 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
           return (
             <div
               key={config.event_type}
-              className="grid grid-cols-[1fr_80px_80px_80px_80px] gap-2 items-center py-2 px-1 rounded-lg hover:bg-white/[0.02] transition-colors"
+              className="grid grid-cols-[1fr_80px_80px_80px_80px] gap-2 items-center py-2 px-1 rounded-lg hover:bg-surface-minimal transition-colors"
             >
               {/* Type */}
               <div className="flex items-center gap-2">

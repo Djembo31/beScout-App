@@ -417,7 +417,7 @@ function SponsorStatsSection({
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-white/40 text-left border-b border-white/[0.06]">
+              <tr className="text-white/40 text-left border-b border-divider">
                 <th className="pb-2 font-bold">{t('thSponsor')}</th>
                 <th className="pb-2 font-bold">{t('thPlacement')}</th>
                 <th className="pb-2 font-bold text-right">{t('thImpressions')}</th>

@@ -67,7 +67,7 @@ export function ScoringRules() {
         <div className="px-4 pb-4 overflow-x-auto">
           <table className="w-full min-w-[360px] text-xs sm:text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06]">
+              <tr className="border-b border-divider">
                 <th className="text-left py-2 pr-3 text-white/50 font-medium" />
                 {positions.map(pos => (
                   <th key={pos.key} className="py-2 px-1.5 text-center">

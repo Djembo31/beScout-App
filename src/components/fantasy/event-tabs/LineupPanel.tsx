@@ -325,7 +325,7 @@ export default function LineupPanel({
 
           {/* Midfield Sponsor (Center Circle) */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-            <div className="size-20 rounded-full border border-white/[0.06] flex items-center justify-center">
+            <div className="size-20 rounded-full border border-divider flex items-center justify-center">
               {event.sponsorLogo ? (
                 <img src={event.sponsorLogo} alt="" className="size-12 object-contain opacity-30" />
               ) : (
@@ -486,7 +486,7 @@ export default function LineupPanel({
 
         {/* Sponsor Banner Bottom (Bandenwerbung unten) */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-2 flex items-center justify-between border-t border-white/10">
-          <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
+          <div className="flex items-center gap-2 px-3 py-1 bg-surface-subtle rounded-lg border border-divider">
             {event.sponsorLogo ? (
               <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
             ) : (
@@ -497,7 +497,7 @@ export default function LineupPanel({
             <span className="text-xs text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
           </div>
           <span className="text-xs text-white/20 font-bold uppercase">{event.sponsorName ? `${event.sponsorName} \u00d7 BeScout` : 'Powered by BeScout'}</span>
-          <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
+          <div className="flex items-center gap-2 px-3 py-1 bg-surface-subtle rounded-lg border border-divider">
             {event.sponsorLogo ? (
               <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
             ) : (
@@ -585,7 +585,7 @@ export default function LineupPanel({
             const tier = getScoreTier(isScored ? score : displayScore);
             const tierCfg = tier !== 'none' ? SCORE_TIER_CONFIG[tier] : null;
             return (
-              <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-white/[0.06]'}`}>
+              <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-divider'}`}>
                 <div className="flex items-center gap-3">
                   {isCpt ? (
                     <div className="size-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
@@ -660,7 +660,7 @@ export default function LineupPanel({
       {isScored && (
         <button
           onClick={onSwitchToLeaderboard}
-          className="w-full flex items-center justify-center gap-2 p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
+          className="w-full flex items-center justify-center gap-2 p-3 bg-surface-subtle hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
         >
           <BarChart3 aria-hidden="true" className="size-4" />
           {t('showRanking')}

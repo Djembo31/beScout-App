@@ -62,19 +62,19 @@ export default function AirdropPage() {
       {/* Stats Bar */}
       {stats && stats.total_users > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="bg-surface-subtle border border-white/[0.06] rounded-xl p-3 text-center">
+          <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums text-white">{stats.total_users}</div>
             <div className="text-[10px] text-white/40">{t('participants')}</div>
           </div>
-          <div className="bg-surface-subtle border border-white/[0.06] rounded-xl p-3 text-center">
+          <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums text-white">{Math.round(stats.avg_score)}</div>
             <div className="text-[10px] text-white/40">{t('avgScore')}</div>
           </div>
-          <div className="bg-surface-subtle border border-white/[0.06] rounded-xl p-3 text-center">
+          <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums" style={{ color: '#FFD700' }}>{stats.tier_distribution.gold}</div>
             <div className="text-[10px] text-white/40">Gold Tier</div>
           </div>
-          <div className="bg-surface-subtle border border-white/[0.06] rounded-xl p-3 text-center">
+          <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums" style={{ color: '#B9F2FF' }}>{stats.tier_distribution.diamond}</div>
             <div className="text-[10px] text-white/40">Diamond Tier</div>
           </div>
@@ -196,7 +196,7 @@ export default function AirdropPage() {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SCORE_TIPS.map(tip => (
-            <div key={tip.label} className="flex items-start gap-3 p-3 bg-surface-minimal rounded-xl border border-white/[0.06]">
+            <div key={tip.label} className="flex items-start gap-3 p-3 bg-surface-minimal rounded-xl border border-divider">
               <Star className="size-4 text-gold mt-0.5 shrink-0" />
               <div>
                 <div className="text-sm font-bold">{tip.label} <span className="text-white/20 font-normal">({tip.weight})</span></div>

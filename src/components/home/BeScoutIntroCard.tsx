@@ -25,7 +25,7 @@ export default function BeScoutIntroCard() {
           <Link
             key={key}
             href={href}
-            className={`flex flex-col gap-2 p-3 rounded-xl border transition-colors hover:bg-white/[0.04] ${bg}`}
+            className={`flex flex-col gap-2 p-3 rounded-xl border transition-colors hover:bg-surface-subtle ${bg}`}
           >
             <Icon className={`size-5 ${color}`} aria-hidden="true" />
             <div>

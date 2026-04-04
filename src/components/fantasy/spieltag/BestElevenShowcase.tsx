@@ -280,7 +280,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
 
       {/* 7er / 11er Toggle — BELOW the pitch */}
       <div className="flex items-center justify-center gap-1 mt-2">
-        <div className="flex items-center gap-0.5 p-0.5 bg-white/[0.04] border border-white/[0.08] rounded-lg">
+        <div className="flex items-center gap-0.5 p-0.5 bg-surface-subtle border border-white/[0.08] rounded-lg">
           {(['7er', '11er'] as Mode[]).map(m => (
             <button
               key={m}

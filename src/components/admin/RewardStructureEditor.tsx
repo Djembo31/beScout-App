@@ -23,7 +23,7 @@ const TEMPLATE_I18N: Record<string, string> = {
 };
 
 // -- Shared button classes ---------------------------------------------------
-const BTN_BASE = 'transition-colors hover:bg-white/[0.05] active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none';
+const BTN_BASE = 'transition-colors hover:bg-surface-base active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none';
 
 // -- Component ---------------------------------------------------------------
 type Props = {
@@ -114,7 +114,7 @@ export default function RewardStructureEditor({ value, onChange, disabled, prize
                   aria-label={`Prozent fuer Rang ${tier.rank}`}
                   onChange={(e) => updatePct(i, Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
                   className={cn(
-                    'w-20 bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-right',
+                    'w-20 bg-surface-subtle border border-white/10 rounded-lg px-3 py-2 text-right',
                     'font-mono tabular-nums text-sm text-white',
                     'focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/30',
                     'disabled:opacity-40 disabled:cursor-not-allowed',
