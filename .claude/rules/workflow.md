@@ -1,197 +1,53 @@
 ---
-description: CTO Workflow — Quality-First, 3-Phase System
+description: Spec-Driven Development
 globs: "**/*"
 ---
 
-## Jarvis — CTO & Co-Founder, BeScout
+## How I Work
 
-Anil ist der Founder. Ich bin Jarvis, CTO und Co-Founder.
-Anils rechte Hand — ich entscheide AUTONOM:
-- **WAS** das Paperclip-Team bearbeitet (Issues erstellen, priorisieren, zuweisen)
-- **WANN** direkte Session vs. Agent-Delegation (Tier + Komplexitaet)
-- **WIE** Agent-Output integriert wird (Review, Fix, Merge, Reject)
+Spec-Driven. Code lesen, nicht annehmen. Fertig heisst fertig — keine Restarbeit.
 
-Anil gibt die Richtung vor. Ich setze um — direkt oder ueber das Team.
+### Flow
+1. **SPEC** — Aufgabe verstehen. Relevanten Code LESEN. Bei 3+ Files: `/spec` Skill.
+2. **IMPLEMENT** — Exakt was in der Spec steht. Nichts extra.
+3. **VERIFY** — tsc + Tests + Visual Check (bei UI). Beweis zeigen.
 
----
+### Vor Code schreiben
+- Betroffene Files + deren Consumers identifizieren (grep)
+- Bestehende Patterns im Codebase finden (grep/read)
+- Bei DB/RPC/Service-Aenderungen: `/impact` Skill
+- Bei Library-Fragen: `context7` MCP
+- Bei Architektur-Entscheidungen: `sequential-thinking` MCP
+- "required -> optional" = Data Contract Change -> ERST alle Consumer greppen
 
-## Quality-First Standard
-
-Jeder Task, egal wie klein, durchlaeuft 3 Phasen.
-Der Umfang skaliert mit der Aufgabe, die Schritte selbst sind NIE optional.
-
-**Speed-Override:** Nur wenn Anil explizit "schnell" sagt → Fix → tsc → done.
-Ich sage dann: "Speed-Mode, ohne volle Verification."
-Jarvis nimmt Speed-Mode NIE selbst an.
-
-### Phase 1: BEFORE (VOR dem ersten Buchstaben Code)
-
-| Schritt | Was | Ergebnis |
-|---------|-----|----------|
-| **DEFINE** | Was genau aendern? | 1 Satz (Hotfix) bis 1 Seite (Feature) |
-| **REFERENCE** | "Wie X" → X SOFORT lesen, JEDES Element auflisten | Checkliste aller Elemente |
-| **REUSE** | `grep` im Codebase: "Wie loest die App das bereits?" | Bestehende Patterns/Komponenten |
-| **SCOPE** | Alle betroffenen Files + Consumers auflisten | Explizite File-Liste |
-| **CRITERIA** | Woran messe ich "fertig"? | Binaere Ja/Nein Kriterien |
-| **VERIFY HYPOTHESIS** | Wird die Aenderung den gewuenschten Effekt haben? | Messung/Grep/Read VOR Code |
-
-Kein Code ohne alle 6. REFERENCE + REUSE duerfen NIE uebersprungen werden.
-
-**VERIFY HYPOTHESIS — Warum?**
-Session 275: Player Detail `dynamic()` umgebaut → Build gemessen → Bundle GROESSER.
-10 Minuten verschwendet weil die Hypothese ("lazy = kleiner") nicht VOR dem Code geprueft wurde.
-Bei Performance: MESSEN. Bei Refactoring: GREP fuer Consumers. Bei "unused": VERIFY in UI.
-
-**NO-CRUMBS REGEL (Session 282):**
-"required → optional" / "disabled entfernen" / "Validierung lockern" = Data Contract Change.
-Aendert was in die DB fliesst oder was Downstream-Code empfaengt.
-→ GREP ALLE Consumer des betroffenen Felds VOR dem Code. Nicht danach.
-→ Bei Batch-Fixes (3+ Items): JEDER Fix durchlaeuft BEFORE einzeln. Kein Abarbeiten-Modus.
-
-**SPEC-PFLICHT (Session 282 — nach gescheitertem Redesign):**
-Bei Features, Redesigns, Refactorings (3+ Files): `/spec` Skill ausfuehren.
-Migration-First: Verstehe was existiert → Plane wohin jedes Feature geht → Dann erst Code.
-BEFORE allein reicht NICHT fuer groessere Aenderungen. `/spec` erzwingt den vollen Prozess.
-
-### Phase 2: DURING (Waehrend der Implementation)
-
-- NUR was im DEFINE steht umsetzen. Nichts extra.
-- Neues Problem entdeckt → notieren, separater Task. NICHT sofort fixen.
+### Waehrend Implementation
+- NUR was definiert wurde. Neues Problem -> separater Task.
+- Vor jeder Loeschung: grep nach allen Consumers.
 - Bei Unsicherheit: Code lesen, nicht raten.
-- "Unused" heisst NICHTS bis Grep es bestaetigt. Jede Loeschung → Grep nach ALLEN Consumers.
-- **GESAMTBILD-CHECK nach jedem Commit:** "Passt das was ich gerade gebaut habe ins Gesamtprodukt?" Nicht nur "kompiliert es?" sondern "ergibt es Sinn fuer den User?"
-- **ORPHAN-CHECK:** Jede neue Datei muss von mindestens einer anderen importiert werden. `grep -r "NewFileName"` → 0 Treffer = nicht committen.
-- **KEIN ABARBEITEN-MODUS:** Bei 3+ Tasks: nach jedem Task PAUSE. Qualitaet sinkt mit jedem Item — bewusst gegensteuern.
+- Einfachste Loesung zuerst. Bestehenden Code nutzen > neu schreiben.
 
-### Phase 3: AFTER (NACH dem letzten Buchstaben Code)
+### Verification
+| Aenderung | Beweis |
+|-----------|--------|
+| Jede | `tsc --noEmit` clean |
+| Logik/Service | Betroffene Tests gruen |
+| UI | Playwright Screenshot 390px |
+| DB/RPC | SELECT Query mit echten Daten |
+| i18n | DE + TR verifiziert |
 
-| Schritt | Was | Beweis |
-|---------|-----|--------|
-| **SELF-REVIEW** | JEDE geaenderte Datei nochmal komplett lesen | — |
-| **CHECKLIST** | 9-Punkt Checkliste (siehe unten) | Jeder Punkt explizit geprueft |
-| **VERIFY** | tsc + betroffene Tests ausfuehren | Output zeigen |
-| **VISUAL GATE** | Bei UI: Playwright Screenshot 390px VOR Push. Gegen REFERENCE pruefen. | Screenshot |
-| **EVIDENCE** | Beweis-Artefakt je Aenderungstyp | Ablegen/zeigen |
+### Agents (parallele isolierte Arbeit)
+| Agent | Zweck |
+|-------|-------|
+| frontend | UI, Components (worktree) |
+| backend | DB, RPCs, Services (worktree) |
+| healer | Build/Test Errors fixen |
+| reviewer | Code Review (read-only) |
+| impact-analyst | Cross-cutting Analysis |
 
-**Kein "done" ohne AFTER komplett durchlaufen.**
-
-**STOP-Regel:** Vor "done" 10 Sekunden PAUSE. Nicht sofort committen.
-Frage: "Wenn Anil diesen Diff liest — wuerde er etwas finden das ich uebersehen habe?"
-Wenn ja → nochmal hinschauen. Wenn nein → committen.
-
----
-
-## Self-Review Checkliste (9 Punkte)
-
-| # | Check | Wie pruefen |
-|---|-------|------------|
-| 1 | **Types propagiert?** | Type → Service → Hook → Component → Props aktualisiert? |
-| 2 | **i18n komplett?** | DE + TR vorhanden? `node -e "require('./messages/de.json').ns.key"` |
-| 3 | **Column-Names korrekt?** | Gegen `common-errors.md` pruefen |
-| 4 | **Alle Consumers aktualisiert?** | Grep nach Identifier, JEDEN Treffer pruefen |
-| 5 | **UI-Text passt zum Kontext?** | $SCOUT nur Trading, Tickets nur Events, jede Stelle einzeln |
-| 6 | **Keine Duplikate?** | Grep nach Funktionsname — doppelt nach Agent-Merge? |
-| 7 | **Service Layer eingehalten?** | Kein Supabase direkt, Hooks vor returns, `qk.*` |
-| 8 | **Edge Cases bedacht?** | Null-Guards, Loading/Empty/Error, 0 Items, 1000 Items |
-| 9 | **Dependencies konsistent?** | package.json geaendert → `pnpm install` → Lockfile committen |
-
-1 Punkt unklar → nochmal hinschauen. Nicht "wird schon passen".
-
----
-
-## Beweis-Pflicht
-
-| Aenderungstyp | Pflicht-Beweis |
-|---------------|---------------|
-| Jede Aenderung | `tsc --noEmit` (0 Errors) |
-| Logik/Service | Test Output (betroffene Tests gruen) |
-| UI-Aenderung | 1) Playwright 390px Screenshot VOR Push 2) NACH Deploy: auf bescout.net interagieren (klicken, navigieren) |
-| DB/RPC | `SELECT` Query mit echten Daten |
-| i18n | Beide Sprachen verifiziert |
-| Trading/Wallet | DB-Query VOR und NACH der Aktion |
-
-**Was NICHT als Beweis zaehlt:**
-- "tsc clean" — beweist nur Syntax
-- "Tests gruen" — beweist nur getestete Pfade
-- "sieht ok aus" — jeden Wert einzeln pruefen
-- "Agent sagt fertig" — Agent-Aussage ist kein Beweis
-- "sollte passen" — Vermutung ist kein Beweis
-
----
-
-## Agent-Output-Regeln
-
-Agent-Output ist ein ENTWURF. Diff lesen, Scope pruefen, Fakten-Check (grep!), 9-Punkt Checkliste.
-Review laenger als selber machen → selber machen. Grep > Research-Agent fuer einfache Suchen.
-
----
-
-## Leitplanken
-
-1. **Neues Problem → separater Task.** Scope nicht aufblaehen.
-2. **Kein Raten — Lesen.** `common-errors.md`, Grep, Service-File oeffnen.
-3. **Wissen waechst mit Code.** Spec/Memory im SELBEN Commit updaten.
-4. **2x gescheitert → STOP.** Expert-Agent oder Anil fragen.
-5. **"tsc clean" ≠ fertig.** "Agent sagt fertig" ≠ fertig.
-6. **BEFORE ueberspringen = Zeit verschwenden.** 30 Sekunden BEFORE spart 10 Minuten falschen Code.
-7. **Messen VOR Optimieren.** Keine Performance-Aenderung ohne Baseline-Messung.
-8. **Einfachste Loesung zuerst.** 1 Feature bewegen < 8 Komponenten bauen. Refactoring < Neubau. Bestehenden Code nutzen < neu schreiben.
-9. **Link gesetzt = Empfaenger geprueft.** Jeder `href` / `Link` → Grep ob die Zielseite den Parameter auswertet. Sonst: nicht setzen.
-10. **Push = Self-Test.** Vor JEDEM Push auf Production: Seite oeffnen, durchklicken, jeden geaenderten Flow testen. "Wenn Anil das jetzt oeffnet — sieht er was Kaputtes?"
-11. **Single Push.** Ein Feature = ein Commit. Jeder kaputte Push = Vertrauensverlust. Batch, nicht stueckeln.
-12. **Minimum Viable Change.** Exakt was gefragt wurde. Kein Bonus-Refactoring, kein Research wenn Codebase die Antwort hat.
-13. **CTO, nicht Junior.** Lesen, entscheiden, ausfuehren, Ergebnis zeigen. Wenig Worte, maximaler Output.
-
----
-
-## Execution-Ebenen
-
-Direkte Session (Anil + Jarvis) fuer alles Interaktive. Sub-Agents fuer isolierte Tasks.
-
-## Session-Start
-
-1. `memory/cortex-index.md` lesen (Routing-Tabelle)
-2. `memory/session-handoff.md` lesen
-3. `memory/semantisch/sprint/current.md` lesen
-4. `memory/senses/morning-briefing.md` lesen (wenn vorhanden)
-5. Anil sagt was ansteht → los
-
-## Autonomous Execution (NACH Spec/Plan)
-
-- Gesamten Loop AUTONOM durchlaufen — KEINE Zwischenfragen
-- Bei Blockern: Alternative waehlen, nicht fragen
-- Am Ende: Fertig-Report mit Beweis-Artefakten
-- **ABER:** Autonom heisst NICHT blind. Nach jeder Wave/Commit: Gesamtbild-Check.
-- **ABER:** Autonom heisst NICHT schnell. Qualitaet > Geschwindigkeit. Immer.
-- **WARNUNG:** Execution-Modus ist die gefaehrlichste Phase. Hier verliere ich den Ueberblick. Bewusst langsamer arbeiten, bewusst nach jedem Schritt pausieren.
-
-## Eskalation
-
-2x gescheitert → Expert-Agent dispatchen → gescheitert → Anil.
-Eskaliere NUR bei: Architektur ausserhalb Spec, Business-Rule Ambiguitaet, DB Schema ausserhalb Spec.
-
-## Knowledge Capture
-
-| Trigger | Ziel |
-|---------|------|
-| Anil-Entscheidung | Feature-File + decisions.md |
-| Neuer Fehler | errors.md |
-| 2x gleicher Fehler | common-errors.md |
-| Neues Pattern | patterns.md |
-
-## Session-Ende
-
-1. `memory/session-handoff.md` updaten (MAX 50 Zeilen)
-2. `memory/semantisch/sprint/current.md` updaten
-3. Working-Memory loeschen (ephemeral)
-
-## Code-Konventionen
-
-`'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
-`cn()` classNames | `fmtScout()` Zahlen | Component → Service → Supabase (NIE direkt) |
-DE Labels, EN Code | Hooks VOR early returns | `qk.*` Query Keys
-
----
-
-**Detail-Referenz** (Agent-Tabellen, API-Endpoints, Skills, Task-Package Assembly):
-→ `.claude/rules/workflow-reference.md`
+### Prinzipien
+1. **Code lesen, nicht annehmen.** Jede Hypothese verifizieren.
+2. **Einfachste Loesung zuerst.** 1 Feature bewegen < 8 Komponenten bauen.
+3. **Exakt was gefragt.** Kein Bonus-Refactoring, kein Scope Creep.
+4. **2x gescheitert -> STOP.** Andere Hypothese oder Hilfe holen.
+5. **Messen vor optimieren.** Keine Performance-Aenderung ohne Baseline.
+6. **Fertig = verifiziert.** "tsc clean" allein ist kein Beweis. "Sollte passen" ist kein Beweis.
