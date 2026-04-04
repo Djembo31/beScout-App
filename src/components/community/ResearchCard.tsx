@@ -131,14 +131,14 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
         <div className="flex items-center gap-2 flex-wrap mb-2">
           {/* Category Badge */}
           {post.category && (
-            <span className={cn('px-2 py-0.5 rounded text-[10px] font-semibold border',
+            <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-semibold border',
               categoryColor[post.category] ?? 'bg-white/5 text-white/50 border-white/10'
             )}>{post.category}</span>
           )}
           {/* Player Tag */}
           {post.player_id && post.player_name && (
             <Link href={`/player/${post.player_id}`}>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-white/5 text-white/70 hover:opacity-80 transition-opacity">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-white/5 text-white/70 hover:opacity-80 transition-opacity">
                 <Target className="w-3 h-3" />
                 {post.player_name}
                 {post.player_position && <PositionBadge pos={post.player_position} size="sm" />}
@@ -146,22 +146,22 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             </Link>
           )}
           {/* Call Badge */}
-          <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold', callColor[post.call] ?? callColor.Neutral)}>
+          <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-bold', callColor[post.call] ?? callColor.Neutral)}>
             {post.call}
           </span>
           {/* Horizon Chip */}
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
             {post.horizon}
           </span>
           {/* Outcome Badge */}
           {post.outcome === 'correct' && (
-            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-500 border border-green-500/25">
+            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/20 text-green-500 border border-green-500/25">
               <CheckCircle className="w-3 h-3" />
               {post.price_change_pct !== null && `${post.price_change_pct > 0 ? '+' : ''}${post.price_change_pct}%`}
             </span>
           )}
           {post.outcome === 'incorrect' && (
-            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-300 border border-red-500/25">
+            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-300 border border-red-500/25">
               <XCircle className="w-3 h-3" />
               {post.price_change_pct !== null && `${post.price_change_pct > 0 ? '+' : ''}${post.price_change_pct}%`}
             </span>
@@ -178,7 +178,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           </Link>
           {post.author_top_role && (
             <span className={cn(
-              'px-1.5 py-0.5 rounded text-[9px] font-bold border',
+              'px-1.5 py-0.5 rounded-full text-[9px] font-bold border',
               post.author_top_role === 'Trader' ? 'text-sky-300 bg-sky-500/15 border-sky-500/20' :
               post.author_top_role === 'Manager' ? 'text-purple-300 bg-purple-500/15 border-purple-500/20' :
               'text-emerald-300 bg-emerald-500/15 border-emerald-500/20'
@@ -187,7 +187,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             </span>
           )}
           {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-gold" />}
-          <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold border', rang.bgColor, rang.borderColor, rang.color)}>
+          <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-bold border', rang.bgColor, rang.borderColor, rang.color)}>
             {tg(`rang.${rang.i18nKey}`)}
           </span>
           {/* Credibility Pill */}
@@ -197,7 +197,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             const hasEnough = tr.totalCalls >= 5;
             return (
               <span className={cn(
-                'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold border',
+                'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold border',
                 isVerified
                   ? 'text-gold bg-gold/10 border-gold/20'
                   : hasEnough
@@ -230,7 +230,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                 { key: 'P', val: ev.potenzial },
               ].map(d => (
                 <span key={d.key} className={cn(
-                  'px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border',
+                  'px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold border',
                   d.val >= 8 ? 'text-gold bg-gold/10 border-gold/20' :
                   d.val >= 6 ? 'text-green-500 bg-green-500/10 border-green-500/20' :
                   'text-white/50 bg-white/5 border-white/10'
@@ -239,7 +239,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                 </span>
               ))}
               <span className={cn(
-                'px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border',
+                'px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold border',
                 'text-white/70 bg-white/5 border-white/10'
               )}>
                 Ø{((ev.technik + ev.taktik + ev.athletik + ev.mentalitaet + ev.potenzial) / 5).toFixed(1)}
@@ -314,7 +314,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
       <div className="px-4 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-1.5 flex-wrap">
           {post.tags.map(tag => (
-            <span key={tag} className="px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-white/40">
+            <span key={tag} className="px-1.5 py-0.5 rounded-full text-[10px] bg-white/5 text-white/40">
               #{tag}
             </span>
           ))}

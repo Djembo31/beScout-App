@@ -82,7 +82,7 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
 
           {/* Difficulty */}
           <span className={cn(
-            'px-1.5 py-0.5 rounded text-xs font-bold',
+            'px-1.5 py-0.5 rounded-full text-xs font-bold',
             prediction.difficulty === 0.5 ? 'text-emerald-400 bg-emerald-400/10' :
             prediction.difficulty === 1.5 ? 'text-red-400 bg-red-400/10' :
             'text-white/40 bg-white/5'

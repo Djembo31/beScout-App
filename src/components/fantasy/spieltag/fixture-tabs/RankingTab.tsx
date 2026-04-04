@@ -54,7 +54,7 @@ function RankingRow({ stat, isMvp, floorPrice }: {
       </div>
 
       {/* Position badge */}
-      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
+      <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
         {stat.player_position}
       </span>
 

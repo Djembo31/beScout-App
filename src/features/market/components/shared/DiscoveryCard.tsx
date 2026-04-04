@@ -158,7 +158,7 @@ export default function DiscoveryCard({
 
       {variant === 'trending' && tradeCount !== undefined && (
         <div className="mt-1.5 flex items-center justify-between">
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white/60">{t('discoveryTradeCount', { count: tradeCount })}</span>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white/60">{t('discoveryTradeCount', { count: tradeCount })}</span>
           {change24h !== undefined && (
             <span className={cn('text-[10px] font-mono font-bold', change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
               {change24h >= 0 ? '+' : ''}{change24h.toFixed(1)}%

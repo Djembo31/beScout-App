@@ -153,7 +153,7 @@ export function ScoreBreakdown({
                     <div className="text-xs text-white/40 flex items-center gap-1.5">
                       {player.club}
                       {tierCfg && (
-                        <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
                           {tierCfg.labelDe} +{tierCfg.bonusCents / 100} CR
                         </span>
                       )}

@@ -214,7 +214,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                     <div className="font-bold line-clamp-1 flex items-center gap-2">
                       {bounty.title}
                       {bounty.type === 'scouting' && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/20 shrink-0">
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/20 shrink-0">
                           <Telescope className="w-2.5 h-2.5" />
                           {t('scouting')}
                         </span>

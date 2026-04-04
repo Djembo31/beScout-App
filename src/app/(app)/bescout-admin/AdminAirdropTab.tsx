@@ -159,7 +159,7 @@ export function AdminAirdropTab() {
                   </td>
                   <td className="py-2 px-3">
                     <span
-                      className="px-1.5 py-0.5 rounded text-[9px] font-black"
+                      className="px-1.5 py-0.5 rounded-full text-[9px] font-black"
                       style={{ backgroundColor: `${TIER_COLORS[e.tier]}20`, color: TIER_COLORS[e.tier] }}
                     >
                       {e.tier}

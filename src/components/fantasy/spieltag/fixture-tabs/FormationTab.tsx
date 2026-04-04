@@ -451,7 +451,7 @@ function FallbackRankingRow({ stat, isMvp, floorPrice }: {
           size={36}
         />
       </div>
-      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
+      <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
         {stat.player_position}
       </span>
       <span className="flex-1 text-[13px] font-semibold text-white/90 truncate min-w-0">
@@ -679,12 +679,12 @@ export default function FormationTab({
                   <div className="flex gap-1.5 flex-wrap justify-center">
                     {allBench.map(s => (
                       <div key={s.id} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/30 rounded-xl text-xs border border-white/[0.05]">
-                        <span className={cn('px-1 py-0.5 rounded text-[10px] font-bold', posColor(s.player_position))}>
+                        <span className={cn('px-1 py-0.5 rounded-full text-[10px] font-bold', posColor(s.player_position))}>
                           {s.player_position}
                         </span>
                         <span className="text-white/50 font-medium">{s.player_last_name || '?'}</span>
                         <span className="text-white/25 font-mono tabular-nums">{s.minutes_played}&apos;</span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tabular-nums" style={getScoreBadgeStyle(getMatchScore(s))}>
+                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono tabular-nums" style={getScoreBadgeStyle(getMatchScore(s))}>
                           {getMatchScore(s) ?? '\u2013'}
                         </span>
                       </div>

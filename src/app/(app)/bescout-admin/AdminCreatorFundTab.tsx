@@ -153,7 +153,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                     <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold tabular-nums">{fmtScout(centsToBsd(p.payout_cents))} CR</td>
                     <td className="py-1.5 px-2">
                       <span className={cn(
-                        'px-1.5 py-0.5 rounded text-[10px] font-semibold',
+                        'px-1.5 py-0.5 rounded-full text-[10px] font-semibold',
                         p.status === 'paid' ? 'bg-green-500/20 text-green-400' :
                         p.status === 'rolled_over' ? 'bg-amber-500/20 text-amber-400' :
                         'bg-white/10 text-white/40'

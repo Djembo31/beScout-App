@@ -156,7 +156,7 @@ export default function PostCard({
               )}
               {post.author_top_role && (
                 <span className={cn(
-                  'px-1.5 py-0.5 rounded text-[9px] font-bold border',
+                  'px-1.5 py-0.5 rounded-full text-[9px] font-bold border',
                   post.author_top_role === 'Trader' ? 'text-sky-300 bg-sky-500/15 border-sky-500/20' :
                   post.author_top_role === 'Manager' ? 'text-purple-300 bg-purple-500/15 border-purple-500/20' :
                   'text-emerald-300 bg-emerald-500/15 border-emerald-500/20'
@@ -173,7 +173,7 @@ export default function PostCard({
               )}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gold/10 text-gold border border-gold/20">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-gold/10 text-gold border border-gold/20">
                   <Pin className="w-2.5 h-2.5" />
                   {tc('pinnedLabel')}
                 </span>
@@ -257,24 +257,24 @@ export default function PostCard({
             <div className="flex items-center gap-1.5 mb-2 flex-wrap">
               {post.category && (
                 <span className={cn(
-                  'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border',
+                  'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border',
                   POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-white/5 text-white/50 border-white/10'
                 )}>
                   {post.category}
                 </span>
               )}
               {post.post_type === 'player_take' && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
                   {tc('playerTakeLabel')}
                 </span>
               )}
               {post.post_type === 'transfer_rumor' && (
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
                   {tc('transferRumorLabel')}
                 </span>
               )}
               {post.post_type === 'club_news' && (
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
                   {tc('clubNewsLabel')}
                 </span>
               )}
@@ -285,7 +285,7 @@ export default function PostCard({
           {post.player_id && post.player_name && (
             <Link href={`/player/${post.player_id}`}>
               <div className={cn(
-                'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs mb-2 hover:opacity-80 transition-opacity',
+                'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs mb-2 hover:opacity-80 transition-opacity',
                 isOwnedPlayer
                   ? 'bg-gold/15 text-gold border border-gold/20'
                   : 'bg-white/5 text-white/70'
@@ -322,7 +322,7 @@ export default function PostCard({
           )}
           {/* Exclusive badge */}
           {post.is_exclusive && !isLockedExclusive && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 mb-2">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 mb-2">
               <Lock className="w-2.5 h-2.5" />
               {tc('exclusiveTag')}
             </span>
@@ -332,7 +332,7 @@ export default function PostCard({
           {post.tags.length > 0 && (
             <div className="flex items-center gap-1.5 mb-2 flex-wrap">
               {post.tags.map((tag) => (
-                <span key={tag} className="px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-white/40">
+                <span key={tag} className="px-1.5 py-0.5 rounded-full text-[10px] bg-white/5 text-white/40">
                   #{tag}
                 </span>
               ))}

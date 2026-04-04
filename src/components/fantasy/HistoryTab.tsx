@@ -310,7 +310,7 @@ export const HistoryTab = ({
                       </td>
                       <td className="py-3 px-4 text-center text-sm tabular-nums">{p.gameweek}</td>
                       <td className="py-3 px-4 text-center">
-                        <div className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded text-white text-sm font-bold tabular-nums', formResult.color)}>
+                        <div className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-sm font-bold tabular-nums', formResult.color)}>
                           #{p.rank}
                         </div>
                       </td>

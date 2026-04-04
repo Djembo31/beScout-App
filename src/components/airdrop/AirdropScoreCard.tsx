@@ -82,7 +82,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-white/50 uppercase">Credits Airdrop</span>
               <span
-                className="px-1.5 py-0.5 rounded text-[9px] font-black"
+                className="px-1.5 py-0.5 rounded-full text-[9px] font-black"
                 style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
               >
                 {tierLabel[score.tier]}

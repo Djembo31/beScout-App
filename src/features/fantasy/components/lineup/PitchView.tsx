@@ -156,7 +156,7 @@ export function PitchView({
                       {/* DPC Ownership Bonus badge (bottom-left) */}
                       {player && isOwnedPlayer && !hasScore && !isWildcard && (
                         <div className={cn(
-                          'absolute -bottom-1 -left-2 z-30 px-1 py-0.5 rounded text-[9px] font-black shadow-lg',
+                          'absolute -bottom-1 -left-2 z-30 px-1 py-0.5 rounded-full text-[9px] font-black shadow-lg',
                           hasActiveBonus
                             ? 'bg-gold/90 text-black'
                             : 'bg-white/10 text-white/30'
@@ -253,7 +253,7 @@ export function PitchView({
                         <button
                           onClick={() => onWildcardToggle(slotDbKey)}
                           className={cn(
-                            'mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors',
+                            'mt-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-colors',
                             isWildcard
                               ? 'bg-purple-500/80 text-white'
                               : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50'

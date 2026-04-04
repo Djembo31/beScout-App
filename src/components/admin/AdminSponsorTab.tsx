@@ -130,7 +130,7 @@ export default function AdminSponsorTab({ club }: { club: ClubWithAdmin }) {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-bold truncate">{sponsor.name}</div>
                   <span className={cn(
-                    'inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border mt-0.5',
+                    'inline-block px-1.5 py-0.5 rounded-full text-[10px] font-semibold border mt-0.5',
                     PLACEMENT_COLORS[sponsor.placement] ?? 'bg-white/5 text-white/50 border-white/10'
                   )}>
                     {sponsor.placement.replace(/_/g, ' ')}

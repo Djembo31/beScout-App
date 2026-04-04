@@ -95,7 +95,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               {isScouting ? tb('scoutingTask') : bounty.is_user_bounty ? tb('userTask') : tb('clubTask')}
             </span>
             {bounty.min_tier && (
-              <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', TIER_COLORS[bounty.min_tier])}>
+              <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border', TIER_COLORS[bounty.min_tier])}>
                 <Lock className="w-2.5 h-2.5" />
                 {TIER_LABELS[bounty.min_tier] ?? bounty.min_tier}+
               </span>

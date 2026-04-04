@@ -74,7 +74,7 @@ export function StatusPill({ status }: { status: PlayerStatus }) {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
-    <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', cfg.bg, cfg.border, cfg.text)}>
+    <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border', cfg.bg, cfg.border, cfg.text)}>
       <Icon className="size-2.5" aria-hidden="true" />
       <span className="hidden sm:inline">{t(cfg.shortKey)}</span>
     </span>
@@ -159,17 +159,17 @@ export function MarketBadges({ hasIpo, listedQty, offerCount }: { hasIpo: boolea
   return (
     <div className="flex items-center gap-1">
       {hasIpo && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-500/10 border border-purple-400/20 rounded text-[9px] font-bold text-purple-300" title={t('badgeActiveIpo')}>
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-500/10 border border-purple-400/20 rounded-full text-[9px] font-bold text-purple-300" title={t('badgeActiveIpo')}>
           <Rocket className="size-2.5" aria-hidden="true" />IPO
         </span>
       )}
       {listedQty > 0 && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gold/10 border border-gold/20 rounded text-[9px] font-bold text-gold" title={t('badgeOnTransferList')}>
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gold/10 border border-gold/20 rounded-full text-[9px] font-bold text-gold" title={t('badgeOnTransferList')}>
           <Tag className="size-2.5" aria-hidden="true" />{listedQty}
         </span>
       )}
       {offerCount > 0 && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-sky-500/10 border border-sky-400/20 rounded text-[9px] font-bold text-sky-300" title={t('badgeIncomingOffers')}>
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-sky-500/10 border border-sky-400/20 rounded-full text-[9px] font-bold text-sky-300" title={t('badgeIncomingOffers')}>
           <MessageSquare className="size-2.5" aria-hidden="true" />{offerCount}
         </span>
       )}

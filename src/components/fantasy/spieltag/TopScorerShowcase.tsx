@@ -56,7 +56,7 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
         <div className="flex-1 min-w-0">
           <div className="text-lg font-bold truncate">{stat.player_first_name} {stat.player_last_name}</div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
+            <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${posColor(stat.player_position)}`}>
               {stat.player_position}
             </span>
             <span className="text-xs text-white/40">{stat.club_short}</span>
@@ -113,7 +113,7 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold truncate">{stat.player_first_name.charAt(0)}. {stat.player_last_name}</div>
           <div className="flex items-center gap-1.5">
-            <span className={`px-1 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
+            <span className={`px-1 py-0.5 rounded-full text-xs font-bold ${posColor(stat.player_position)}`}>
               {stat.player_position}
             </span>
             <span className="text-xs text-white/30">{stat.club_short}</span>
@@ -129,7 +129,7 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
   return (
     <PlayerLink playerId={stat.player_id} className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-surface-subtle rounded-lg transition-colors">
       <span className="w-5 text-center font-bold text-white/25 tabular-nums">{rank}</span>
-      <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
+      <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${posColor(stat.player_position)}`}>
         {stat.player_position}
       </span>
       <span className="flex-1 font-semibold truncate min-w-0">
@@ -139,7 +139,7 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
       {stat.goals > 0 && <span className="text-gold font-bold tabular-nums">{stat.goals}G</span>}
       {stat.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{stat.assists}A</span>}
       <span
-        className="px-1.5 py-0.5 rounded text-xs font-black tabular-nums"
+        className="px-1.5 py-0.5 rounded-full text-xs font-black tabular-nums"
         style={getScoreBadgeStyle(score)}
       >
         {score ?? '\u2013'}

@@ -103,7 +103,7 @@ export function SpielplanTab({
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-black">{t('fixtureGameweek', { gw })}</span>
                     {gwPlayed && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/15 text-green-500">{t('fixturePlayed')}</span>
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-green-500/15 text-green-500">{t('fixturePlayed')}</span>
                     )}
                   </div>
                   <ChevronDown className={cn('size-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />

@@ -163,7 +163,7 @@ export default function AirdropPage() {
                         </span>
                         {isMe && <span className="text-[10px] text-purple-400/60">({t('you')})</span>}
                         <span
-                          className="px-1.5 py-0.5 rounded text-[9px] font-black"
+                          className="px-1.5 py-0.5 rounded-full text-[9px] font-black"
                           style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
                         >
                           {TIER_LABELS[entry.tier]}
@@ -172,7 +172,7 @@ export default function AirdropPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       {entry.founding_multiplier > 1 && (
-                        <span className="px-1 py-0.5 rounded text-[9px] font-black bg-gold/15 text-gold border border-gold/25">
+                        <span className="px-1 py-0.5 rounded-full text-[9px] font-black bg-gold/15 text-gold border border-gold/25">
                           {entry.founding_multiplier}x
                         </span>
                       )}

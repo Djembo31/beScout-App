@@ -143,19 +143,19 @@ function CommunityTabInner({
               <span className="text-[10px] text-white/40">{formatTimeAgo(post.created_at, tc('timeJust'), dateLocale)}</span>
             </div>
             {isRumor ? (
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border mb-1.5 bg-red-500/15 text-red-300 border-red-500/20">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border mb-1.5 bg-red-500/15 text-red-300 border-red-500/20">
                 {post.rumor_source ? `📡 ${post.rumor_source}` : `📡 ${t('rumor')}`}
               </span>
             ) : post.category ? (
               <span className={cn(
-                'inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border mb-1.5',
+                'inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border mb-1.5',
                 POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-white/5 text-white/50 border-white/10'
               )}>
                 {post.category}
               </span>
             ) : null}
             {isRumor && post.rumor_club_target && (
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border mb-1.5 ml-1 bg-amber-500/15 text-amber-300 border-amber-500/20">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border mb-1.5 ml-1 bg-amber-500/15 text-amber-300 border-amber-500/20">
                 → {post.rumor_club_target}
               </span>
             )}
@@ -163,7 +163,7 @@ function CommunityTabInner({
             {post.tags.length > 0 && (
               <div className="flex gap-1 mb-1.5 flex-wrap">
                 {post.tags.map(tag => (
-                  <span key={tag} className="px-1 py-0.5 rounded text-[9px] bg-white/5 text-white/40">#{tag}</span>
+                  <span key={tag} className="px-1 py-0.5 rounded-full text-[9px] bg-white/5 text-white/40">#{tag}</span>
                 ))}
               </div>
             )}

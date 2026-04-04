@@ -48,7 +48,7 @@ export function ClubEventsSection({ events, clubColor }: Props) {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className={cn(
-                  'px-1.5 py-0.5 rounded text-[9px] font-bold uppercase',
+                  'px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase',
                   event.status === 'running' || event.status === 'late-reg'
                     ? 'bg-green-500/15 text-green-500'
                     : 'bg-white/[0.06] text-white/50'

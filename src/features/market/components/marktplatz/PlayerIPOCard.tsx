@@ -125,7 +125,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
         {/* Contract + Status chips */}
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
           <span className={cn(
-            'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-bold',
+            'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-[10px] font-bold',
             contract.urgent
               ? 'bg-red-500/10 border-red-500/20 text-red-400'
               : contract.monthsLeft <= 12
@@ -137,7 +137,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
           </span>
           {player.status !== 'fit' && (
             <span className={cn(
-              'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[10px] font-bold',
+              'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] font-bold',
               player.status === 'injured' && 'bg-red-500/10 border-red-500/20 text-red-300',
               player.status === 'suspended' && 'bg-purple-500/10 border-purple-500/20 text-purple-300',
               player.status === 'doubtful' && 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300',
@@ -148,7 +148,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
             </span>
           )}
           {player.status === 'fit' && (
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[10px] font-bold bg-green-500/10 border-green-500/20 text-green-400">
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] font-bold bg-green-500/10 border-green-500/20 text-green-400">
               {tp('fit', { defaultMessage: 'Fit' })}
             </span>
           )}
@@ -236,7 +236,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
         {/* Owned + Countdown */}
         <div className="flex items-center justify-between mt-1.5">
           {player.dpc.owned > 0 ? (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-bold bg-gold/10 border-gold/20 text-gold tabular-nums font-mono">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-[10px] font-bold bg-gold/10 border-gold/20 text-gold tabular-nums font-mono">
               {player.dpc.owned} SC
             </span>
           ) : (

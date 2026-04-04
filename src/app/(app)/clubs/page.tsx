@@ -238,7 +238,7 @@ export default function ClubsDiscoveryPage() {
                       <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-surface-minimal rounded-lg text-xs text-white/50">
                         <Calendar className="size-3 text-green-500 flex-shrink-0" />
                         <span className="font-mono tabular-nums text-white/30">GW {nf.gameweek}</span>
-                        <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold', nf.isHome ? 'bg-green-500/10 text-green-500' : 'bg-sky-500/10 text-sky-400')}>
+                        <span className={cn('px-1 py-0.5 rounded-full text-[9px] font-bold', nf.isHome ? 'bg-green-500/10 text-green-500' : 'bg-sky-500/10 text-sky-400')}>
                           {nf.isHome ? 'H' : 'A'}
                         </span>
                         <span className="truncate">vs {nf.opponentShort || nf.opponentName}</span>

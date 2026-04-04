@@ -96,7 +96,7 @@ export function AdminFanWishesTab() {
             <div key={w.id} className="flex items-start justify-between gap-3 py-2 px-3 bg-white/[0.03] rounded-lg">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold uppercase',
+                  <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase',
                     w.wish_type === 'player' ? 'bg-sky-500/20 text-sky-400' : 'bg-amber-500/20 text-amber-400')}>
                     {w.wish_type}
                   </span>

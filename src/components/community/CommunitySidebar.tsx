@@ -55,7 +55,7 @@ function CommunitySidebarInner({
               <div key={post.id} className="p-2.5 rounded-xl bg-surface-minimal border border-divider">
                 <div className="flex items-center gap-2 mb-1">
                   {post.call && (
-                    <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold', callColor[post.call] ?? 'bg-white/10 text-white/50')}>
+                    <span className={cn('px-1.5 py-0.5 rounded-full text-[9px] font-bold', callColor[post.call] ?? 'bg-white/10 text-white/50')}>
                       {post.call}
                     </span>
                   )}

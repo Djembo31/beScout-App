@@ -372,7 +372,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   {clubNews.map(news => (
                     <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
                           {tcom('clubNewsLabel')}
                         </span>
                         <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>

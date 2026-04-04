@@ -293,7 +293,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                         <Sparkles className="size-3 text-gold shrink-0" aria-hidden="true" />
                       )}
                       {catStyle && (
-                        <span className={cn('px-1.5 py-0.5 rounded text-xs font-bold border', catStyle.color)}>
+                        <span className={cn('px-1.5 py-0.5 rounded-full text-xs font-bold border', catStyle.color)}>
                           {catStyle.label}
                         </span>
                       )}

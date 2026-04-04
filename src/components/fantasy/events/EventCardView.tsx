@@ -50,7 +50,7 @@ export function EventCardView({ event, onClick }: Props) {
           )}
           {isArena && (
             <span className={cn(
-              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold border',
+              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-bold border',
               tierStyle.bg, tierStyle.border, tierStyle.color
             )}>
               <tierStyle.icon className="size-3" aria-hidden="true" />

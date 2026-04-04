@@ -256,7 +256,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
                 {mvp.player_first_name ? `${mvp.player_first_name.charAt(0)}. ` : ''}{mvp.player_last_name || '?'}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold', posColor(mvp.player_position))}>
+                <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-bold', posColor(mvp.player_position))}>
                   {mvp.player_position}
                 </span>
                 {mvp.goals > 0 && <span className="flex items-center gap-0.5 text-[10px] text-white/60"><GoalIcon size={12} /> {mvp.goals}</span>}
@@ -383,7 +383,7 @@ function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
       />
 
       {/* Position */}
-      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
+      <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
         {stat.player_position}
       </span>
 

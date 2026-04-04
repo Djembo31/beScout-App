@@ -369,7 +369,7 @@ export default function LineupPanel({
                         {/* DPC Ownership Bonus badge (bottom-left) */}
                         {player && isOwnedPlayer && !hasScore && !isWildcard && (
                           <div className={cn(
-                            'absolute -bottom-1 -left-2 z-30 px-1 py-0.5 rounded text-[9px] font-black shadow-lg',
+                            'absolute -bottom-1 -left-2 z-30 px-1 py-0.5 rounded-full text-[9px] font-black shadow-lg',
                             hasActiveBonus
                               ? 'bg-gold/90 text-black'
                               : 'bg-white/10 text-white/30'
@@ -466,7 +466,7 @@ export default function LineupPanel({
                           <button
                             onClick={() => onToggleWildcard(slotDbKey)}
                             className={cn(
-                              'mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors',
+                              'mt-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-colors',
                               isWildcard
                                 ? 'bg-purple-500/80 text-white'
                                 : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50'
@@ -603,7 +603,7 @@ export default function LineupPanel({
                     <div className="text-xs text-white/40 flex items-center gap-1.5">
                       {player.club}
                       {tierCfg && (
-                        <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
                           {tierCfg.labelDe} +{tierCfg.bonusCents / 100} CR
                         </span>
                       )}

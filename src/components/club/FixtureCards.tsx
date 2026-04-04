@@ -72,7 +72,7 @@ export function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; club
             {fixture.home_score} - {fixture.away_score}
           </span>
           {result && (
-            <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-black', resultBadge[result].color)}>
+            <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-black', resultBadge[result].color)}>
               {resultBadge[result].label}
             </span>
           )}
@@ -170,7 +170,7 @@ export function NextMatchCard({ fixtures, clubId, club }: { fixtures: Fixture[];
         {/* VS */}
         <div className="flex flex-col items-center gap-1">
           <span className={cn(
-            'px-2 py-0.5 rounded text-[10px] font-black',
+            'px-2 py-0.5 rounded-full text-[10px] font-black',
             isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400'
           )}>
             {isHome ? t('home') : t('away')}
@@ -242,7 +242,7 @@ export function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clu
               <span className="flex-1 truncate text-white/70">{isHome ? f.away_club_name : f.home_club_name}</span>
               <span className="font-mono font-bold tabular-nums text-sm">{f.home_score} - {f.away_score}</span>
               {result && (
-                <span className={cn('px-2 py-0.5 rounded text-[10px] font-black text-center', resultBadge[result].color)}>
+                <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-black text-center', resultBadge[result].color)}>
                   {resultBadge[result].label}
                 </span>
               )}

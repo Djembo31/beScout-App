@@ -276,7 +276,7 @@ export default function AnalystTab({
                       ) : post.player_name ? (
                         <span className="text-[10px] font-bold text-white/70">{post.player_name}</span>
                       ) : null}
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/5 text-white/40 border border-divider">
+                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-white/40 border border-divider">
                         {post.horizon}
                       </span>
                     </div>

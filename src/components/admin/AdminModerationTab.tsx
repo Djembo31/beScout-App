@@ -169,7 +169,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <span className={cn(
-                        'text-[10px] font-semibold px-1.5 py-0.5 rounded border',
+                        'text-[10px] font-semibold px-1.5 py-0.5 rounded-full border',
                         report.target_type === 'post'
                           ? 'bg-sky-500/15 text-sky-300 border-sky-500/20'
                           : 'bg-purple-500/15 text-purple-300 border-purple-500/20'

@@ -320,7 +320,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             <button
               key={s}
               onClick={() => state.setSortBy(s)}
-              className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors',
+              className={cn('px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-colors',
                 state.sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/30 hover:text-white/60'
               )}
             >{s === 'perf' ? 'L5' : s === 'price' ? t('kaderSortValue') : 'A-Z'}</button>
