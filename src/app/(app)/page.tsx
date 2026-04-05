@@ -180,11 +180,18 @@ export default function HomePage() {
 
       <div className="divider-gradient" aria-hidden="true" />
 
-      {/* ── 2. PORTFOLIO + EVENT ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
+      {/* ══════════════════════════════════════════════════════════
+          DESKTOP: 2-column layout (main + sidebar)
+          MOBILE: single column, natural DOM order
+          ══════════════════════════════════════════════════════════ */}
+      <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-8">
+
+        {/* ── LEFT COLUMN (Main Content) ── */}
+        <div className="space-y-8 md:space-y-10 min-w-0">
+          {/* Portfolio Strip */}
           <PortfolioStrip holdings={holdings} />
 
+          {/* Portfolio Top Movers */}
           {topMovers.length > 0 && (
             <div>
               <SectionHeader title={t('topMovers')} href="/market" />
@@ -215,9 +222,44 @@ export default function HomePage() {
               </div>
             </div>
           )}
+
+          {/* Global Top Movers */}
+          {!playersLoading && hasGlobalMovers && (
+            <div>
+              <SectionHeader title={t('globalMovers')} href="/market" />
+              <div className="mt-2">
+                <TopMoversStrip players={players} />
+              </div>
+            </div>
+          )}
+
+          {/* Most Watched */}
+          {uid && <MostWatchedStrip userId={uid} />}
+
+          {/* Market Pulse */}
+          {!playersLoading && trendingWithPlayers.length > 0 && (
+            <div>
+              <SectionHeader title={t('marketPulse')} href="/market" />
+              <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {trendingWithPlayers.map(({ tp, player }) => (
+                  <DiscoveryCard
+                    key={player.id}
+                    player={player}
+                    variant="trending"
+                    tradeCount={tp.tradeCount}
+                    change24h={tp.change24h}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="space-y-6">
+        {/* ── RIGHT COLUMN (Sidebar — sticky on desktop) ── */}
+        <div className="space-y-8 mt-8 lg:mt-0">
+          <div className="lg:sticky lg:top-20 space-y-6">
+
+          {/* Next Event */}
           {!playersLoading && nextEvent && spotlightType !== 'event' && (
             <div>
               <SectionHeader
@@ -262,7 +304,7 @@ export default function HomePage() {
                             </span>
                           )}
                         </div>
-                        <h3 className="text-base md:text-lg font-black text-balance">{nextEvent.name}</h3>
+                        <h3 className="text-base font-black text-balance">{nextEvent.name}</h3>
                         <div className="flex items-center gap-3 mt-1.5 text-xs text-white/50">
                           <span className={cn(
                             'flex items-center gap-1 px-1.5 py-0.5 rounded-md',
@@ -280,7 +322,7 @@ export default function HomePage() {
                       <div className="text-right shrink-0">
                         <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
                         <div className={cn(
-                          'text-xl md:text-2xl font-black font-mono tabular-nums text-gold',
+                          'text-xl font-black font-mono tabular-nums text-gold',
                           isEventLive && 'gold-glow'
                         )}>
                           {formatPrize(centsToBsd(nextEvent.prize_pool))}
@@ -294,9 +336,10 @@ export default function HomePage() {
             </div>
           )}
 
+          {/* Active IPO */}
           {!playersLoading && activeIPOs.length > 0 && spotlightType !== 'ipo' && (
             <Link href={`/player/${activeIPOs[0].id}`} className="block">
-              <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-green-500/10">
+              <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-card-glow-green shadow-card-md">
                 <div className="relative flex items-center justify-between p-4 gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex items-center justify-center size-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
@@ -326,43 +369,9 @@ export default function HomePage() {
               </div>
             </Link>
           )}
-        </div>
-      </div>
 
-      <div className="divider-gradient" aria-hidden="true" />
-
-      {/* ── 2a2. GLOBAL TOP MOVERS ── */}
-      {!playersLoading && hasGlobalMovers && (
-        <div>
-          <SectionHeader title={t('globalMovers')} href="/market" />
-          <div className="mt-2">
-            <TopMoversStrip players={players} />
-          </div>
-        </div>
-      )}
-
-      {/* ── 2a3. MOST WATCHED PLAYERS ── */}
-      {uid && <MostWatchedStrip userId={uid} />}
-
-      {/* ── 2b. SCORE ROAD STRIP ── */}
-      {uid && <ScoreRoadStrip userId={uid} />}
-
-      {/* ── 2c. STREAK MILESTONE ── */}
-      {retention?.streakMilestone && (
-        <StreakMilestoneBanner milestone={retention.streakMilestone} />
-      )}
-
-      {/* ── 2d. SUGGESTED ACTION ── */}
-      {retention?.suggestedAction && (
-        <SuggestedActionBanner action={retention.suggestedAction} />
-      )}
-
-      <div className="divider-gradient" aria-hidden="true" />
-
-      {/* ── 3. ENGAGEMENT ZONE ── */}
-      {uid && (
-        <>
-          {(todaysChallenge || todaysAnswer) && <DailyChallengeCard
+          {/* Daily Challenge */}
+          {uid && (todaysChallenge || todaysAnswer) && <DailyChallengeCard
             challenge={todaysChallenge}
             userAnswer={todaysAnswer ? {
               selectedOption: todaysAnswer.selected_option,
@@ -377,7 +386,8 @@ export default function HomePage() {
             onOpenMysteryBox={() => setShowMysteryBox(true)}
           />}
 
-          <MysteryBoxModal
+          {/* Mystery Box Modal */}
+          {uid && <MysteryBoxModal
             open={showMysteryBox}
             onClose={() => setShowMysteryBox(false)}
             onOpen={handleOpenMysteryBox}
@@ -389,67 +399,62 @@ export default function HomePage() {
               return lastFreeBoxWeek < currentWeek;
             })()}
             ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
-          />
-        </>
-      )}
+          />}
 
-      {/* ── 4. DYNAMIC FEED ── */}
-      {!playersLoading && trendingWithPlayers.length > 0 && (
-        <div>
-          <SectionHeader title={t('marketPulse')} href="/market" />
-          <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-            {trendingWithPlayers.map(({ tp, player }) => (
-              <DiscoveryCard
-                key={player.id}
-                player={player}
-                variant="trending"
-                tradeCount={tp.tradeCount}
-                change24h={tp.change24h}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+          {/* Score Road */}
+          {uid && <ScoreRoadStrip userId={uid} />}
 
-      <div className="divider-gradient" aria-hidden="true" />
+          {/* Streak Milestone */}
+          {retention?.streakMilestone && (
+            <StreakMilestoneBanner milestone={retention.streakMilestone} />
+          )}
 
-      {/* ── 5. MY CLUBS ── */}
-      {followedClubs.length > 0 && (
-        <div>
-          <SectionHeader title={t('myClubs')} href="/clubs" />
-          <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-            {followedClubs.map(club => {
-              const color = club.primary_color ?? '#FFD700';
-              return (
-                <Link
-                  key={club.id}
-                  href={`/club/${club.slug}`}
-                  className="flex items-center gap-2 px-3 py-2 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-colors shrink-0"
-                >
-                  <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}20` }}>
-                    {club.logo_url ? (
-                      <Image src={club.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
-                    ) : (
-                      <Shield className="size-3.5" style={{ color }} />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold truncate max-w-[100px]">{club.name}</div>
-                    <div className="text-[10px] text-white/30">{club.league}</div>
-                  </div>
+          {/* Suggested Action */}
+          {retention?.suggestedAction && (
+            <SuggestedActionBanner action={retention.suggestedAction} />
+          )}
+
+          {/* My Clubs */}
+          {followedClubs.length > 0 && (
+            <div>
+              <SectionHeader title={t('myClubs')} href="/clubs" />
+              <div className="flex lg:flex-col gap-2 mt-3 overflow-x-auto lg:overflow-x-visible scrollbar-hide pb-1 lg:pb-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {followedClubs.map(club => {
+                  const color = club.primary_color ?? '#FFD700';
+                  return (
+                    <Link
+                      key={club.id}
+                      href={`/club/${club.slug}`}
+                      className="flex items-center gap-2 px-3 py-2 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-colors shrink-0 lg:shrink"
+                    >
+                      <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}20` }}>
+                        {club.logo_url ? (
+                          <Image src={club.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
+                        ) : (
+                          <Shield className="size-3.5" style={{ color }} />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold truncate max-w-[100px] lg:max-w-none">{club.name}</div>
+                        <div className="text-[10px] text-white/30">{club.league}</div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                <Link href="/clubs" className="flex items-center gap-2 px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl hover:bg-gold/[0.06] transition-colors shrink-0 lg:shrink">
+                  <Compass className="size-4 text-gold/60" />
+                  <span className="text-xs font-medium text-gold/60">{t('discover')}</span>
                 </Link>
-              );
-            })}
-            <Link href="/clubs" className="flex items-center gap-2 px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl hover:bg-gold/[0.06] transition-colors shrink-0">
-              <Compass className="size-4 text-gold/60" />
-              <span className="text-xs font-medium text-gold/60">{t('discover')}</span>
-            </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Sponsor */}
+          <SponsorBanner placement="home_mid" />
+
           </div>
         </div>
-      )}
-
-      {/* ── 6. SPONSOR ── */}
-      <SponsorBanner placement="home_mid" />
+      </div>
     </div>
   );
 }
