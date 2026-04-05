@@ -81,7 +81,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+    <div className="max-w-[1200px] mx-auto space-y-8 md:space-y-10">
 
       {/* ── 0. WELCOME BONUS MODAL ── */}
       {isNewUser && balanceCents != null && balanceCents > 0 && (
@@ -110,7 +110,7 @@ export default function HomePage() {
       {uid && !highestPass && (
         <Link
           href="/founding"
-          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-gold/[0.06] to-gold/[0.02] border border-gold/20 hover:border-gold/30 transition-colors group"
+          className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-card-glow-gold border border-gold/15 hover:border-gold/30 transition-colors group shadow-card-md"
         >
           <div className="size-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
             <Crown className="size-4 text-gold" />
@@ -125,24 +125,24 @@ export default function HomePage() {
 
       {/* ── 1b. QUICK ACTIONS BAR ── */}
       {showQuickActions && (
-        <nav aria-label={t('quickActions')} className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mt-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <nav aria-label={t('quickActions')} className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mt-3" style={{ WebkitOverflowScrolling: 'touch' }}>
           {[
-            { href: '/market?tab=kaufen', icon: ShoppingCart, label: t('qaBuy'), color: 'text-gold', bg: 'bg-gold/10 border-gold/20' },
-            { href: '/fantasy', icon: Swords, label: t('qaFantasy'), color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-400/20' },
-            { href: '/missions', icon: Target, label: t('qaMissions'), color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-400/20' },
-            { href: '/community', icon: MessageSquare, label: t('qaCommunity'), color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-400/20' },
-          ].map(({ href, icon: Icon, label, color, bg }) => (
+            { href: '/market?tab=kaufen', icon: ShoppingCart, label: t('qaBuy'), color: 'text-gold', bg: 'bg-gold/10 border-gold/20', glow: 'rgba(255,215,0,0.25)' },
+            { href: '/fantasy', icon: Swords, label: t('qaFantasy'), color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-400/20', glow: 'rgba(168,85,247,0.25)' },
+            { href: '/missions', icon: Target, label: t('qaMissions'), color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-400/20', glow: 'rgba(245,158,11,0.25)' },
+            { href: '/community', icon: MessageSquare, label: t('qaCommunity'), color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-400/20', glow: 'rgba(14,165,233,0.25)' },
+          ].map(({ href, icon: Icon, label, color, bg, glow }) => (
             <Link
               key={href}
               href={href}
               className={cn(
-                'flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-xl border shrink-0',
-                'hover:scale-[1.03] active:scale-[0.97] transition-colors',
+                'flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-xl border shrink-0 shadow-card-sm',
+                'hover:scale-[1.03] active:scale-[0.97] transition-all',
                 bg,
               )}
             >
-              <Icon className={cn('size-5', color)} />
-              <span className="text-[10px] font-bold text-white/70">{label}</span>
+              <Icon className={cn('size-5', color)} style={{ filter: `drop-shadow(0 0 6px ${glow})` }} />
+              <span className="text-[10px] font-bold text-white/60">{label}</span>
             </Link>
           ))}
         </nav>
@@ -178,7 +178,7 @@ export default function HomePage() {
         />
       )}
 
-      <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" aria-hidden="true" />
+      <div className="divider-gradient" aria-hidden="true" />
 
       {/* ── 2. PORTFOLIO + EVENT ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -195,8 +195,11 @@ export default function HomePage() {
                     <Link
                       key={h.playerId}
                       href={`/player/${h.playerId}`}
-                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-surface-minimal hover:bg-surface-base transition-colors shrink-0 min-w-[180px] shadow-card-sm"
-                      style={{ borderColor: up ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border card-showcase shrink-0 min-w-[180px] shadow-card-md"
+                      style={{
+                        borderColor: up ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+                        background: `linear-gradient(135deg, ${up ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)'} 0%, rgba(255,255,255,0.02) 100%)`,
+                      }}
                     >
                       <div className="min-w-0">
                         <div className="text-sm font-bold truncate">{h.player}</div>
@@ -326,7 +329,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" aria-hidden="true" />
+      <div className="divider-gradient" aria-hidden="true" />
 
       {/* ── 2a2. GLOBAL TOP MOVERS ── */}
       {!playersLoading && hasGlobalMovers && (
@@ -354,7 +357,7 @@ export default function HomePage() {
         <SuggestedActionBanner action={retention.suggestedAction} />
       )}
 
-      <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" aria-hidden="true" />
+      <div className="divider-gradient" aria-hidden="true" />
 
       {/* ── 3. ENGAGEMENT ZONE ── */}
       {uid && (
@@ -408,7 +411,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" aria-hidden="true" />
+      <div className="divider-gradient" aria-hidden="true" />
 
       {/* ── 5. MY CLUBS ── */}
       {followedClubs.length > 0 && (

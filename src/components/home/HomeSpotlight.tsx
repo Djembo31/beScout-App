@@ -30,7 +30,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
     const posColor = posTintColors[ipo.pos];
     return (
       <Link href={`/player/${ipo.id}`} className="block">
-        <Card surface="hero" className="p-4 relative overflow-hidden shadow-glow-live">
+        <Card surface="hero" className="p-4 relative overflow-hidden shadow-glow-live card-entrance">
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `linear-gradient(135deg, ${posColor}40, transparent 60%)` }} />
           <div className="absolute -top-12 -right-12 size-32 rounded-full blur-3xl opacity-30" style={{ background: posColor }} />
           <div className="relative flex items-center gap-3">
@@ -78,7 +78,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
   if (nextEvent) {
     return (
       <Link href="/fantasy" className="block">
-        <Card surface="hero" className="p-4 relative overflow-hidden shadow-[0_0_24px_rgba(168,85,247,0.15)]">
+        <Card surface="hero" className="p-4 relative overflow-hidden shadow-card-elevated card-entrance" style={{ boxShadow: '0 0 24px rgba(168,85,247,0.15), 0 8px 32px rgba(0,0,0,0.6)' }}>
           <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-purple-500/8 to-transparent" />
           <div className="absolute -top-12 -right-12 size-32 rounded-full bg-purple-500 blur-3xl opacity-20" />
           <div className="relative">
@@ -123,7 +123,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
       const history = matchedPlayer?.prices.history7d;
       return (
         <Link href={`/player/${best.playerId}`} className="block">
-          <Card surface="hero" className="p-4 relative overflow-hidden" style={{ borderLeftColor: posColor, borderLeftWidth: 2 }}>
+          <Card surface="hero" className="p-4 relative overflow-hidden shadow-card-elevated card-entrance" style={{ borderLeftColor: posColor, borderLeftWidth: 2 }}>
             <div className="absolute inset-0 opacity-15" style={{ backgroundImage: `linear-gradient(135deg, ${posColor}40, transparent 60%)` }} />
             <div className="relative flex items-center gap-3">
               <PlayerPhoto imageUrl={best.imageUrl} first={best.player.split(' ')[0]} last={best.player.split(' ').slice(1).join(' ')} pos={best.pos} size={44} />
@@ -160,7 +160,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
     const matchedPlayer = players.find(p => p.id === tp.playerId);
     return (
       <Link href={matchedPlayer ? `/player/${matchedPlayer.id}` : '/market'} className="block">
-        <Card surface="hero" className="p-4 relative overflow-hidden" style={{ borderLeftColor: posColor, borderLeftWidth: 2 }}>
+        <Card surface="hero" className="p-4 relative overflow-hidden shadow-card-elevated card-entrance" style={{ borderLeftColor: posColor, borderLeftWidth: 2 }}>
           <div className="absolute inset-0 opacity-15" style={{ backgroundImage: `linear-gradient(135deg, ${posColor}40, transparent 60%)` }} />
           <div className="relative flex items-center gap-3">
             {matchedPlayer && (
@@ -191,7 +191,7 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
   // Priority 5: Fallback CTA for new users
   return (
     <Link href="/market?tab=kaufen" className="block">
-      <Card surface="hero" className="p-4 relative overflow-hidden group">
+      <Card surface="hero" className="p-4 relative overflow-hidden group shadow-card-elevated card-entrance">
         <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.12] via-gold/[0.04] to-transparent" />
         <div className="relative flex items-center justify-between">
           <div>
