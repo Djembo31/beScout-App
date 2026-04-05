@@ -55,6 +55,7 @@ interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  profileLoading: boolean;
   refreshProfile: () => Promise<void>;
   platformRole: PlatformAdminRole | null;
   clubAdmin: ClubAdminInfo | null;
@@ -64,6 +65,7 @@ const AuthContext = createContext<AuthContextValue>({
   user: null,
   profile: null,
   loading: true,
+  profileLoading: false,
   refreshProfile: async () => {},
   platformRole: null,
   clubAdmin: null,
@@ -95,14 +97,14 @@ export function displayName(user: User | null): string {
 
 /** Hook that redirects to /onboarding if user has no profile */
 export function useRequireProfile() {
-  const { profile, loading } = useUser();
+  const { profile, loading, profileLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !profile) router.replace('/onboarding');
-  }, [loading, profile, router]);
+    if (!loading && !profileLoading && !profile) router.replace('/onboarding');
+  }, [loading, profileLoading, profile, router]);
 
-  return { profile, loading };
+  return { profile, loading: loading || profileLoading };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -112,14 +114,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [platformRole, setPlatformRole] = useState<PlatformAdminRole | null>(null);
   const [clubAdmin, setClubAdmin] = useState<ClubAdminInfo | null>(null);
 
-  const loadProfile = useCallback(async (userId: string) => {
-    try {
-      // Single RPC call for profile + platformRole + clubAdmin
-      const authState = await withTimeout(getAuthState(userId), 15000);
+  const loadProfile = useCallback(async (userId: string, _retry = true, _isRefresh = false) => {
+    if (!_isRefresh) setProfileLoading(true);
 
+    const applyAuthState = (authState: { profile: Profile | null; platformRole: PlatformAdminRole | null; clubAdmin: ClubAdminInfo | null }) => {
       setProfile(authState.profile);
       if (authState.profile) {
         ssSet(SS_PROFILE, authState.profile);
@@ -133,42 +135,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setClubAdmin(authState.clubAdmin);
       if (authState.clubAdmin) ssSet(SS_CLUB_ADMIN, authState.clubAdmin); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
+    };
+
+    // Try primary RPC
+    try {
+      const authState = await withTimeout(getAuthState(userId), 10000);
+      applyAuthState(authState);
+      if (!_isRefresh) setProfileLoading(false);
+      return;
     } catch (err) {
       console.error('[AuthProvider] loadProfile RPC failed, falling back to 3 queries:', err);
-      // Fallback: 3 separate queries for resilience
-      try {
-        const [p, pRole, cAdmin] = await Promise.allSettled([
-          withTimeout(getProfile(userId), 15000),
-          withTimeout(getPlatformAdminRole(userId), 15000),
-          withTimeout(getClubAdminFor(userId), 15000),
-        ]);
+    }
 
-        if (p.status === 'fulfilled') {
-          setProfile(p.value);
-          if (p.value) {
-            ssSet(SS_PROFILE, p.value);
-            if (typeof document !== 'undefined' && p.value.language) {
-              document.cookie = `bescout-locale=${p.value.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
-            }
+    // Fallback: 3 separate queries
+    try {
+      const [p, pRole, cAdmin] = await Promise.allSettled([
+        withTimeout(getProfile(userId), 8000),
+        withTimeout(getPlatformAdminRole(userId), 8000),
+        withTimeout(getClubAdminFor(userId), 8000),
+      ]);
+
+      if (p.status === 'fulfilled') {
+        setProfile(p.value);
+        if (p.value) {
+          ssSet(SS_PROFILE, p.value);
+          if (typeof document !== 'undefined' && p.value.language) {
+            document.cookie = `bescout-locale=${p.value.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
           }
         }
-
-        const role = pRole.status === 'fulfilled' ? pRole.value : null;
-        setPlatformRole(role);
-        if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err2) { console.error('[AuthProvider] removeItem platformRole:', err2); }
-
-        const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
-        setClubAdmin(ca);
-        if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err2) { console.error('[AuthProvider] removeItem clubAdmin:', err2); }
-      } catch (fallbackErr) {
-        console.error('[AuthProvider] loadProfile fallback:', fallbackErr);
       }
+
+      const role = pRole.status === 'fulfilled' ? pRole.value : null;
+      setPlatformRole(role);
+      if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err2) { console.error('[AuthProvider] removeItem platformRole:', err2); }
+
+      const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
+      setClubAdmin(ca);
+      if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err2) { console.error('[AuthProvider] removeItem clubAdmin:', err2); }
+
+      // If profile query succeeded (even returning null = legit no profile), we're done
+      if (p.status === 'fulfilled') {
+        if (!_isRefresh) setProfileLoading(false);
+        return;
+      }
+    } catch (fallbackErr) {
+      console.error('[AuthProvider] loadProfile fallback:', fallbackErr);
     }
+
+    // Both failed — retry once after 2s
+    if (_retry) {
+      console.warn('[AuthProvider] Profile load failed, retrying in 2s…');
+      await new Promise(r => setTimeout(r, 2000));
+      await loadProfile(userId, false, _isRefresh);
+      return;
+    }
+
+    // All attempts exhausted
+    console.error('[AuthProvider] Profile load failed after retry');
+    if (!_isRefresh) setProfileLoading(false);
   }, []);
 
   const refreshProfile = useCallback(async () => {
     if (user) {
-      await loadProfile(user.id);
+      await loadProfile(user.id, true, true);
     }
   }, [user, loadProfile]);
 
@@ -211,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currentUserId = null;
       setUser(null);
       setProfile(null);
+      setProfileLoading(false);
       setPlatformRole(null);
       setClubAdmin(null);
       ssClear();
@@ -282,8 +312,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadProfile]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, profile, loading, refreshProfile, platformRole, clubAdmin }),
-    [user, profile, loading, refreshProfile, platformRole, clubAdmin],
+    () => ({ user, profile, loading, profileLoading, refreshProfile, platformRole, clubAdmin }),
+    [user, profile, loading, profileLoading, refreshProfile, platformRole, clubAdmin],
   );
 
   return (

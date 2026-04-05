@@ -23,20 +23,20 @@ function ContentSkeleton() {
 }
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading } = useUser();
+  const { user, profile, loading, profileLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || profileLoading) return;
     if (!user) {
       router.replace('/login');
     } else if (!profile) {
       router.replace('/onboarding');
     }
-  }, [user, profile, loading, router]);
+  }, [user, profile, loading, profileLoading, router]);
 
-  // Show skeleton in content area (SideNav + TopBar already visible)
-  if (loading) return <ContentSkeleton />;
+  // Show skeleton while auth or profile is loading
+  if (loading || profileLoading) return <ContentSkeleton />;
 
   // Show skeleton while redirecting — prevents flash of blank content
   if (!user || !profile) return <ContentSkeleton />;

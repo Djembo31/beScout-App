@@ -27,7 +27,7 @@ describe('AuthGuard', () => {
   });
 
   it('shows skeleton while loading', () => {
-    mockUseUser.mockReturnValue({ user: null, profile: null, loading: true });
+    mockUseUser.mockReturnValue({ user: null, profile: null, loading: true, profileLoading: false });
     const { container } = render(
       <AuthGuard><div data-testid="protected">Secret</div></AuthGuard>,
     );
@@ -35,14 +35,24 @@ describe('AuthGuard', () => {
     expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
+  it('shows skeleton while profileLoading', () => {
+    mockUseUser.mockReturnValue({ user: { id: 'u1' }, profile: null, loading: false, profileLoading: true });
+    const { container } = render(
+      <AuthGuard><div data-testid="protected">Secret</div></AuthGuard>,
+    );
+    expect(screen.queryByTestId('protected')).not.toBeInTheDocument();
+    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
   it('redirects to /login when no user', () => {
-    mockUseUser.mockReturnValue({ user: null, profile: null, loading: false });
+    mockUseUser.mockReturnValue({ user: null, profile: null, loading: false, profileLoading: false });
     render(<AuthGuard><div>Secret</div></AuthGuard>);
     expect(mockReplace).toHaveBeenCalledWith('/login');
   });
 
   it('redirects to /onboarding when user but no profile', () => {
-    mockUseUser.mockReturnValue({ user: { id: 'u1' }, profile: null, loading: false });
+    mockUseUser.mockReturnValue({ user: { id: 'u1' }, profile: null, loading: false, profileLoading: false });
     render(<AuthGuard><div>Secret</div></AuthGuard>);
     expect(mockReplace).toHaveBeenCalledWith('/onboarding');
   });
@@ -52,6 +62,7 @@ describe('AuthGuard', () => {
       user: { id: 'u1' },
       profile: { handle: 'test' },
       loading: false,
+      profileLoading: false,
     });
     render(<AuthGuard><div data-testid="protected">Secret</div></AuthGuard>);
     expect(screen.getByTestId('protected')).toBeInTheDocument();
@@ -59,7 +70,13 @@ describe('AuthGuard', () => {
   });
 
   it('does not redirect while loading', () => {
-    mockUseUser.mockReturnValue({ user: null, profile: null, loading: true });
+    mockUseUser.mockReturnValue({ user: null, profile: null, loading: true, profileLoading: false });
+    render(<AuthGuard><div>Secret</div></AuthGuard>);
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('does not redirect while profileLoading', () => {
+    mockUseUser.mockReturnValue({ user: { id: 'u1' }, profile: null, loading: false, profileLoading: true });
     render(<AuthGuard><div>Secret</div></AuthGuard>);
     expect(mockReplace).not.toHaveBeenCalled();
   });

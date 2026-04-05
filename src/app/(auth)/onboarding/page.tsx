@@ -21,7 +21,7 @@ type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, profile, loading, refreshProfile } = useUser();
+  const { user, profile, loading, profileLoading, refreshProfile } = useUser();
   const t = useTranslations('auth');
 
   const [step, setStep] = useState(1);
@@ -55,8 +55,8 @@ function OnboardingContent() {
 
   // Redirect if already has profile
   useEffect(() => {
-    if (!loading && profile) router.replace('/');
-  }, [loading, profile, router]);
+    if (!loading && !profileLoading && profile) router.replace('/');
+  }, [loading, profileLoading, profile, router]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -271,7 +271,7 @@ function OnboardingContent() {
     }
   }, [user, isOAuthUser, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, referrer, referralClub, refreshProfile, router]);
 
-  if (loading || profile) {
+  if (loading || profileLoading || profile) {
     return (
       <div className="flex items-center justify-center">
         <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" aria-hidden="true" />

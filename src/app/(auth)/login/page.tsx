@@ -24,7 +24,7 @@ const DEMO_ACCOUNTS = [
 function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, profile, loading, platformRole, clubAdmin } = useUser();
+  const { user, profile, loading, profileLoading, platformRole, clubAdmin } = useUser();
   const t = useTranslations('auth');
   const tc = useTranslations('common');
   const td = useTranslations('demo');
@@ -33,7 +33,8 @@ function LoginContent() {
 
   // Redirect authenticated users away from login — smart redirect by role
   useEffect(() => {
-    if (!loading && user) {
+    if (loading || profileLoading) return;
+    if (user) {
       if (!profile) {
         const clubParam = searchParams.get('club');
         const refParam = searchParams.get('ref');
@@ -45,7 +46,7 @@ function LoginContent() {
       if (clubAdmin) { router.replace(`/club/${clubAdmin.slug}/admin`); return; }
       router.replace('/');
     }
-  }, [loading, user, profile, platformRole, clubAdmin, router]);
+  }, [loading, profileLoading, user, profile, platformRole, clubAdmin, router]);
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
