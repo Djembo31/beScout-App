@@ -26,6 +26,13 @@ const config: Config = {
         },
         divider: "rgba(255,255,255,0.06)",
       },
+      backgroundImage: {
+        "hero-stadium": "radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.07) 0%, rgba(34,197,94,0.02) 35%, transparent 65%)",
+        "hero-vignette": "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 100%)",
+        "card-glow-gold": "radial-gradient(ellipse at 50% -20%, rgba(255,215,0,0.08) 0%, transparent 70%)",
+        "card-glow-green": "radial-gradient(ellipse at 50% -20%, rgba(34,197,94,0.08) 0%, transparent 70%)",
+        "card-glow-purple": "radial-gradient(ellipse at 50% -20%, rgba(168,85,247,0.08) 0%, transparent 70%)",
+      },
       boxShadow: {
         "glow-gk": "0 0 24px rgba(16,185,129,0.25), 0 0 48px rgba(16,185,129,0.12)",
         "glow-def": "0 0 24px rgba(245,158,11,0.25), 0 0 48px rgba(245,158,11,0.12)",
@@ -36,6 +43,8 @@ const config: Config = {
         "card-sm": "0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
         "card-md": "0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
         "card-lg": "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+        "card-elevated": "0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+        "hero-stat": "0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04)",
       },
       fontFamily: {
         sans: ["var(--font-outfit)", "Outfit", "sans-serif"],

@@ -40,71 +40,74 @@ function HomeStoryHeaderInner({
   const PnlIcon = pnlPositive ? ArrowUpRight : ArrowDownRight;
 
   return (
-    <div>
-      {/* ━━━ GREETING + STREAK ━━━ */}
-      <div className="flex items-center justify-between">
-        <div className="relative">
-          <div className="absolute -inset-6 bg-gold/[0.10] rounded-full blur-2xl -z-10" />
-          <div className="text-sm text-white/40" suppressHydrationWarning>{t(greetingKey)},</div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-            {loading ? '...' : firstName}
-            <span className="text-gold">.</span>
-          </h1>
+    <div className="relative -mx-4 -mt-4 lg:-mx-6 lg:-mt-6 px-4 pt-6 pb-6 lg:px-6 lg:pt-8 lg:pb-8 bg-hero-stadium overflow-hidden">
+      {/* Vignette overlay for depth */}
+      <div className="absolute inset-0 bg-hero-vignette pointer-events-none" aria-hidden="true" />
+
+      <div className="relative z-10">
+        {/* ━━━ GREETING + BADGES ━━━ */}
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-white/30 font-semibold" suppressHydrationWarning>{t(greetingKey)}</div>
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight mt-0.5">
+              {loading ? '...' : firstName}
+              <span className="text-gold">.</span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            {userStats?.tier && <TierBadge tier={userStats.tier} size="md" />}
+            {streak >= 2 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade shadow-[0_0_12px_rgba(249,115,22,0.15)]">
+                <Flame className="size-5 text-orange-400 motion-safe:animate-pulse" aria-hidden="true" />
+                <span className="text-base font-black text-orange-300 font-mono tabular-nums">{streak}</span>
+              </div>
+            )}
+            {shieldsRemaining != null && shieldsRemaining > 0 && (
+              <div
+                className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-sky-500/10 border border-sky-400/20 anim-fade"
+                title={tg('streak.shieldHint')}
+              >
+                <Shield className="size-3.5 text-sky-400" aria-hidden="true" />
+                <span className="text-xs font-black text-sky-300">{shieldsRemaining}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ━━━ HERO NUMBER — Portfolio Value ━━━ */}
+        <Link href="/market?tab=portfolio" data-tour-id="home-stats" className="block mt-5 group">
+          <div className="anim-number-reveal">
+            <span className={cn('font-mono font-black text-4xl md:text-5xl gold-glow tracking-tight', portfolioTick)}>
+              {fmtScout(portfolioValue)}
+            </span>
+            <span className="text-sm text-white/30 font-medium ml-2">CR</span>
+          </div>
+          <div className="text-[10px] uppercase tracking-widest text-white/25 font-semibold mt-1">
+            {t('portfolioRoster')}
+            <InfoTooltip text={t('portfolioRosterTooltip')} />
+          </div>
+        </Link>
+
+        {/* ━━━ INLINE STATS — compact pills ━━━ */}
+        <div className="flex items-center gap-3 mt-4">
+          <div className={cn('hero-stat-pill flex items-center gap-1.5 px-3 py-1.5 rounded-lg', pnlPositive ? 'border-vivid-green/15' : 'border-vivid-red/15')}>
+            <PnlIcon className={cn('size-3.5', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')} aria-hidden="true" />
+            <span className={cn('font-mono font-bold text-sm tabular-nums', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')}>
+              {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
+            </span>
+            <span className="text-[10px] text-white/30 font-medium">{t('pnl')}</span>
+          </div>
+
+          <div className="hero-stat-pill flex items-center gap-1.5 px-3 py-1.5 rounded-lg">
+            <span className="font-mono font-bold text-sm text-white tabular-nums">{holdingsCount}</span>
+            <span className="text-[10px] text-white/30 font-medium">{t('players')}</span>
+          </div>
+
           {storyMessage && (
-            <p className="text-xs text-white/50 mt-1 max-w-[300px] leading-relaxed">
+            <p className="text-[11px] text-white/30 ml-auto max-w-[180px] text-right leading-snug hidden md:block">
               {t(storyMessage.key, storyMessage.params)}
             </p>
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          {userStats?.tier && <TierBadge tier={userStats.tier} size="md" />}
-          {streak >= 2 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade shadow-[0_0_12px_rgba(249,115,22,0.15)]">
-              <Flame className="size-5 text-orange-400 motion-safe:animate-pulse" />
-              <span className="text-base font-black text-orange-300 font-mono tabular-nums">{streak}</span>
-              <span className="text-[10px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
-            </div>
-          )}
-          {shieldsRemaining != null && shieldsRemaining > 0 && (
-            <div
-              className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-sky-500/10 border border-sky-400/20 anim-fade"
-              title={tg('streak.shieldHint')}
-            >
-              <Shield className="size-3.5 text-sky-400" />
-              <span className="text-xs font-black text-sky-300">{shieldsRemaining}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ━━━ COMPACT STAT STRIP — grid fills portrait width ━━━ */}
-      <div data-tour-id="home-stats" className="mt-4 grid grid-cols-3 gap-2.5">
-        <Link
-          href="/market?tab=portfolio"
-          className="flex flex-col items-center justify-center py-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors shadow-card-sm"
-        >
-          <span className={cn('font-mono font-black text-base gold-glow', portfolioTick)}>{fmtScout(portfolioValue)}</span>
-          <span className="text-[10px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
-        </Link>
-
-        <div className={cn(
-          'flex flex-col items-center justify-center py-3 rounded-xl border shadow-card-sm',
-          pnlPositive
-            ? 'bg-vivid-green/[0.06] border-vivid-green/15'
-            : 'bg-vivid-red/[0.06] border-vivid-red/15'
-        )}>
-          <div className="flex items-center gap-1">
-            <PnlIcon className={cn('size-3', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')} />
-            <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')} style={{ textShadow: `0 0 12px ${pnlPositive ? 'rgba(0,230,118,0.4)' : 'rgba(255,59,105,0.4)'}` }}>
-              {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
-            </span>
-          </div>
-          <span className="text-[10px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
-        </div>
-
-        <div className="flex flex-col items-center justify-center py-3 bg-surface-base border border-white/[0.08] rounded-xl shadow-card-sm">
-          <span className="font-mono font-bold text-sm text-white">{holdingsCount}</span>
-          <span className="text-[10px] text-white/40 uppercase font-semibold mt-0.5">{t('players')}</span>
         </div>
       </div>
     </div>

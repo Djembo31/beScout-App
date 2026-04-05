@@ -35,11 +35,11 @@ export function getGreetingKey(): string {
 export function SectionHeader({ title, href, badge }: { title: string; href?: string; badge?: React.ReactNode }) {
   const content = (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2.5">
-        <h2 className="text-base md:text-lg font-black uppercase tracking-wide border-b-2 border-gold/25 pb-1 inline-block">{title}</h2>
+      <div className="section-accent flex items-center gap-2.5">
+        <h2 className="text-xs md:text-sm font-bold uppercase tracking-[0.15em] text-white/50">{title}</h2>
         {badge}
       </div>
-      {href && <ChevronRight className="w-5 h-5 text-white/30" />}
+      {href && <ChevronRight className="w-4 h-4 text-white/20" />}
     </div>
   );
   if (href) {
