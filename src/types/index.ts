@@ -2020,29 +2020,8 @@ export type DbUserEquipment = {
 };
 
 // ============================================
-// CHIP TYPES (Gamification v5 Phase C)
+// LEGACY CHIP TYPES (deprecated — replaced by Equipment System)
+// Kept for DB compatibility (chip_usages table still exists)
 // ============================================
 
 export type ChipType = 'triple_captain' | 'synergy_surge' | 'second_chance' | 'wildcard';
-
-export type DbChipUsage = {
-  id: string;
-  user_id: string;
-  event_id: string;
-  chip_type: ChipType;
-  activated_at: string;
-  deactivated_at: string | null;
-  is_active: boolean;
-  season: string;
-};
-
-export type ChipDefinition = {
-  type: ChipType;
-  name_de: string;
-  name_tr: string;
-  cost_tickets: number;
-  season_limit: number;
-  description_de: string;
-  description_tr: string;
-  icon: string;
-};

@@ -25,12 +25,6 @@ import { EventDetailHeader } from '@/features/fantasy/components/event-detail/Ev
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
 import { JoinConfirmDialog } from '@/features/fantasy/components/event-detail/JoinConfirmDialog';
 
-// Lazy-loaded ChipSelector (legacy — hidden, kept for backwards compat)
-const ChipSelector = dynamic(() => import('@/components/gamification/ChipSelector'), {
-  ssr: false,
-  loading: () => <div className="h-24 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
-});
-
 // Lazy-loaded EquipmentPicker
 const EquipmentPicker = dynamic(() => import('@/components/gamification/EquipmentPicker'), {
   ssr: false,

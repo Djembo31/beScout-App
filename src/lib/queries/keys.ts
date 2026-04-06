@@ -317,12 +317,6 @@ export const qk = {
     history: (userId: string, limit?: number) => ['mystery-box', userId, limit] as const,
   },
 
-  // ── Chips (Gamification v5 Phase C — Legacy) ──
-  chips: {
-    event: (eventId: string) => ['chips', 'event', eventId] as const,
-    season: (season: string) => ['chips', 'season', season] as const,
-  },
-
   // ── Equipment (replaces legacy chips) ──
   equipment: {
     definitions: () => ['equipment', 'definitions'] as const,

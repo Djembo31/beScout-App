@@ -117,7 +117,7 @@ vi.mock('../event-tabs/OverviewPanel', () => ({ default: () => null }));
 vi.mock('../event-tabs/LineupPanel', () => ({ default: () => null }));
 vi.mock('../event-tabs/LeaderboardPanel', () => ({ default: () => null }));
 vi.mock('../EventCommunityTab', () => ({ default: () => null }));
-vi.mock('@/components/gamification/ChipSelector', () => ({ default: () => null }));
+vi.mock('@/components/gamification/EquipmentPicker', () => ({ default: () => null }));
 
 // ============================================
 // Mocks — extracted sub-components
