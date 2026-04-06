@@ -1,0 +1,3 @@
+C:\\bescout-app\\wiki\\bescout-overview.md
+C:\\bescout-app\\memory\\session-handoff.md
+C:\\bescout-app\\wiki\\business-model.md
