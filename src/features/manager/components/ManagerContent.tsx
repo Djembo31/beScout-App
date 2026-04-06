@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Modal } from '@/components/ui';
@@ -8,10 +9,12 @@ import { useManagerData } from '../hooks/useManagerData';
 import { useManagerStore } from '../store/managerStore';
 import { FORMATIONS, DEFAULT_FORMATIONS } from '../lib/formations';
 import SquadPitch from '@/features/market/components/portfolio/SquadPitch';
-import type { Pos, Player } from '@/types';
+import type { Pos, Player, EquipmentPosition } from '@/types';
 import StatusBar from './StatusBar';
 import IntelPanel from './IntelPanel';
 import SquadStrip from './SquadStrip';
+
+const EquipmentPicker = dynamic(() => import('@/components/gamification/EquipmentPicker'), { ssr: false });
 
 export default function ManagerContent() {
   const { user } = useUser();
@@ -110,6 +113,41 @@ export default function ManagerContent() {
     store.setSquadSize(size);
   }, [store]);
 
+  // ── Equipment Picker State ──
+  const [equipPickerOpen, setEquipPickerOpen] = useState(false);
+  const [equipPickerSlot, setEquipPickerSlot] = useState<{
+    slotIndex: number;
+    playerPos: EquipmentPosition;
+    playerName: string;
+  } | null>(null);
+
+  const handleEquipmentTap = useCallback((slotIndex: number) => {
+    const playerId = store.assignments.get(slotIndex);
+    if (!playerId) return;
+    const player = playerMap.get(playerId);
+    if (!player) return;
+    setEquipPickerSlot({
+      slotIndex,
+      playerPos: player.pos as EquipmentPosition,
+      playerName: `${player.first} ${player.last}`,
+    });
+    setEquipPickerOpen(true);
+  }, [store.assignments, playerMap]);
+
+  const handleEquip = useCallback((equipmentId: string) => {
+    if (!equipPickerSlot) return;
+    store.planEquipment(equipPickerSlot.slotIndex, equipmentId);
+    setEquipPickerOpen(false);
+    setEquipPickerSlot(null);
+  }, [equipPickerSlot, store]);
+
+  const handleUnequip = useCallback(() => {
+    if (!equipPickerSlot) return;
+    store.unplanEquipment(equipPickerSlot.slotIndex);
+    setEquipPickerOpen(false);
+    setEquipPickerSlot(null);
+  }, [equipPickerSlot, store]);
+
   // ── Loading ──
   if (playersLoading) {
     return (
@@ -184,6 +222,7 @@ export default function ManagerContent() {
             fitnessDots={fitnessMap}
             eventLocks={eventLocks}
             equipmentPlan={enrichedEquipmentPlan}
+            onEquipmentTap={handleEquipmentTap}
           />
 
           {/* Preset Controls */}
@@ -260,7 +299,7 @@ export default function ManagerContent() {
       <Modal
         open={store.intelOpen && !!selectedPlayer}
         onClose={() => store.setIntelOpen(false)}
-        className="lg:hidden"
+        title={selectedPlayer ? `${selectedPlayer.first} ${selectedPlayer.last}` : ''}
       >
         <div className="p-4 max-h-[60vh] overflow-y-auto">
           <IntelPanel
@@ -275,6 +314,22 @@ export default function ManagerContent() {
           />
         </div>
       </Modal>
+
+      {/* ── Equipment Picker (Manager mode: localStorage only, no RPC) ── */}
+      {equipPickerSlot && (
+        <EquipmentPicker
+          open={equipPickerOpen}
+          onClose={() => { setEquipPickerOpen(false); setEquipPickerSlot(null); }}
+          playerPosition={equipPickerSlot.playerPos}
+          playerName={equipPickerSlot.playerName}
+          slotKey={`slot_${equipPickerSlot.slotIndex}`}
+          inventory={userEquipment ?? []}
+          definitions={equipDefs ?? []}
+          equippedId={store.equipmentPlan.get(equipPickerSlot.slotIndex) ?? null}
+          onEquip={handleEquip}
+          onUnequip={handleUnequip}
+        />
+      )}
     </div>
   );
 }
