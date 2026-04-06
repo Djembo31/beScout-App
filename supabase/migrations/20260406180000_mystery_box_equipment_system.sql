@@ -204,48 +204,48 @@ BEGIN
 
   IF v_total_w = 0 THEN
     -- No config: fallback
-    v_rarity := 'common'; v_reward_type := 'tickets'; v_min_val := 5; v_max_val := 15;
-    GOTO do_reward;
-  END IF;
+    v_rarity := 'common';
+    v_reward_type := 'tickets';
+    v_min_val := 5;
+    v_max_val := 15;
+  ELSE
+    v_rarity_roll := floor(random() * v_total_w)::INTEGER;
+    FOR v_rarity_rec IN
+      SELECT DISTINCT ON (rarity) rarity, drop_weight
+      FROM public.mystery_box_config WHERE active ORDER BY rarity
+    LOOP
+      v_rarity_acc := v_rarity_acc + v_rarity_rec.drop_weight;
+      IF v_rarity_acc > v_rarity_roll THEN
+        v_rarity := v_rarity_rec.rarity;
+        EXIT;
+      END IF;
+    END LOOP;
 
-  v_rarity_roll := floor(random() * v_total_w)::INTEGER;
-  FOR v_rarity_rec IN
-    SELECT DISTINCT ON (rarity) rarity, drop_weight
-    FROM public.mystery_box_config WHERE active ORDER BY rarity
-  LOOP
-    v_rarity_acc := v_rarity_acc + v_rarity_rec.drop_weight;
-    IF v_rarity_acc > v_rarity_roll THEN
-      v_rarity := v_rarity_rec.rarity;
-      EXIT;
+    IF v_rarity IS NULL THEN v_rarity := 'common'; END IF;
+
+    -- ── Roll reward type within rarity ──
+    SELECT COALESCE(SUM(reward_weight), 0) INTO v_total_w
+    FROM public.mystery_box_config WHERE active AND rarity = v_rarity;
+
+    v_reward_roll := floor(random() * v_total_w)::INTEGER;
+    v_reward_acc := 0;
+    FOR v_reward_rec IN
+      SELECT reward_type, reward_weight, min_value, max_value
+      FROM public.mystery_box_config WHERE active AND rarity = v_rarity ORDER BY id
+    LOOP
+      v_reward_acc := v_reward_acc + v_reward_rec.reward_weight;
+      IF v_reward_acc > v_reward_roll THEN
+        v_reward_type := v_reward_rec.reward_type;
+        v_min_val := v_reward_rec.min_value;
+        v_max_val := v_reward_rec.max_value;
+        EXIT;
+      END IF;
+    END LOOP;
+
+    IF v_reward_type IS NULL THEN
+      v_reward_type := 'tickets'; v_min_val := 5; v_max_val := 15;
     END IF;
-  END LOOP;
-
-  IF v_rarity IS NULL THEN v_rarity := 'common'; END IF;
-
-  -- ── Roll reward type within rarity ──
-  SELECT COALESCE(SUM(reward_weight), 0) INTO v_total_w
-  FROM public.mystery_box_config WHERE active AND rarity = v_rarity;
-
-  v_reward_roll := floor(random() * v_total_w)::INTEGER;
-  v_reward_acc := 0;
-  FOR v_reward_rec IN
-    SELECT reward_type, reward_weight, min_value, max_value
-    FROM public.mystery_box_config WHERE active AND rarity = v_rarity ORDER BY id
-  LOOP
-    v_reward_acc := v_reward_acc + v_reward_rec.reward_weight;
-    IF v_reward_acc > v_reward_roll THEN
-      v_reward_type := v_reward_rec.reward_type;
-      v_min_val := v_reward_rec.min_value;
-      v_max_val := v_reward_rec.max_value;
-      EXIT;
-    END IF;
-  END LOOP;
-
-  IF v_reward_type IS NULL THEN
-    v_reward_type := 'tickets'; v_min_val := 5; v_max_val := 15;
   END IF;
-
-  <<do_reward>>
 
   -- ── Generate reward ──
   CASE v_reward_type
