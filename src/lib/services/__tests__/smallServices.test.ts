@@ -160,7 +160,7 @@ describe('getUserMasteryAll', () => {
 // ============================================
 describe('openMysteryBox', () => {
   it('opens box and returns reward', async () => {
-    mockRpc('open_mystery_box', {
+    mockRpc('open_mystery_box_v2', {
       ok: true, rarity: 'rare', reward_type: 'cosmetic',
       cosmetic_key: 'gold_frame', cosmetic_name: 'Gold Frame',
     });
@@ -168,25 +168,50 @@ describe('openMysteryBox', () => {
     expect(result.ok).toBe(true);
     expect(result.rarity).toBe('rare');
     expect(result.cosmeticKey).toBe('gold_frame');
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box', { p_free: false });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: false });
   });
 
   it('passes free flag', async () => {
-    mockRpc('open_mystery_box', { ok: true, rarity: 'common', reward_type: 'tickets', tickets_amount: 5 });
+    mockRpc('open_mystery_box_v2', { ok: true, rarity: 'common', reward_type: 'tickets', tickets_amount: 5 });
     await openMysteryBox(true);
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box', { p_free: true });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: true });
   });
 
   it('returns error on RPC failure', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockRpc('open_mystery_box', null, { message: 'Insufficient tickets' });
+    mockRpc('open_mystery_box_v2', null, { message: 'Insufficient tickets' });
     expect(await openMysteryBox()).toEqual({ ok: false, error: 'Insufficient tickets' });
     consoleSpy.mockRestore();
   });
 
   it('returns error when RPC ok=false', async () => {
-    mockRpc('open_mystery_box', { ok: false, error: 'Cooldown active' });
+    mockRpc('open_mystery_box_v2', { ok: false, error: 'Cooldown active' });
     expect(await openMysteryBox()).toEqual({ ok: false, error: 'Cooldown active' });
+  });
+
+  it('returns equipment reward', async () => {
+    mockRpc('open_mystery_box_v2', {
+      ok: true, rarity: 'epic', reward_type: 'equipment',
+      equipment_type: 'fire_shot', equipment_rank: 2,
+      equipment_name_de: 'Feuerschuss', equipment_name_tr: 'Ates Sutu',
+      equipment_position: 'ATT',
+    });
+    const result = await openMysteryBox();
+    expect(result.ok).toBe(true);
+    expect(result.rewardType).toBe('equipment');
+    expect(result.equipmentType).toBe('fire_shot');
+    expect(result.equipmentRank).toBe(2);
+  });
+
+  it('returns bcredits reward', async () => {
+    mockRpc('open_mystery_box_v2', {
+      ok: true, rarity: 'legendary', reward_type: 'bcredits',
+      bcredits_amount: 15000,
+    });
+    const result = await openMysteryBox();
+    expect(result.ok).toBe(true);
+    expect(result.rewardType).toBe('bcredits');
+    expect(result.bcreditsAmount).toBe(15000);
   });
 });
 

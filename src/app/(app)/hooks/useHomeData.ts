@@ -199,8 +199,18 @@ export function useHomeData() {
     if (!uid) return null;
     const result = await openMysteryBox(free);
     if (result.ok) {
+      // Always invalidate tickets
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
-      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+      // Conditional invalidation based on reward type
+      if (result.rewardType === 'cosmetic') {
+        queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+      }
+      if (result.rewardType === 'equipment') {
+        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(uid) });
+      }
+      if (result.rewardType === 'bcredits') {
+        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
+      }
       const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
       if (free) {
         const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
@@ -212,8 +222,19 @@ export function useHomeData() {
         reward_type: result.rewardType!,
         tickets_amount: result.ticketsAmount ?? null,
         cosmetic_id: result.cosmeticKey ?? null,
+        equipment_type: result.equipmentType ?? null,
+        equipment_rank: result.equipmentRank ?? null,
+        bcredits_amount: result.bcreditsAmount ?? null,
         ticket_cost: effectiveCost,
         opened_at: new Date().toISOString(),
+        // Pass-through for display (not persisted in MysteryBoxResult type)
+        equipment_name_de: result.equipmentNameDe,
+        equipment_name_tr: result.equipmentNameTr,
+        equipment_position: result.equipmentPosition,
+      } as import('@/types').MysteryBoxResult & {
+        equipment_name_de?: string;
+        equipment_name_tr?: string;
+        equipment_position?: string;
       };
     }
     return null;

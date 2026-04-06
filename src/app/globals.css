@@ -150,6 +150,58 @@ body {
 .anim-scale-pop { animation: scale-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .anim-pulse-green { animation: pulse-green 1.5s ease-in-out 2; }
 
+/* Mystery Box Premium — Star Drops */
+@keyframes mystery-anticipation {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--glow-color, rgba(255,215,0,0.3)); }
+  25% { transform: scale(1.03); box-shadow: 0 0 12px 4px var(--glow-color, rgba(255,215,0,0.3)); }
+  50% { transform: scale(0.98); box-shadow: 0 0 6px 2px var(--glow-color, rgba(255,215,0,0.2)); }
+  75% { transform: scale(1.05); box-shadow: 0 0 18px 6px var(--glow-color, rgba(255,215,0,0.4)); }
+  100% { transform: scale(1.08); box-shadow: 0 0 24px 8px var(--glow-color, rgba(255,215,0,0.5)); }
+}
+@keyframes mystery-shake-premium {
+  0%, 100% { transform: rotate(0deg) scale(1.08); }
+  8% { transform: rotate(-10deg) scale(1.09); }
+  16% { transform: rotate(10deg) scale(1.10); }
+  24% { transform: rotate(-12deg) scale(1.12); }
+  32% { transform: rotate(12deg) scale(1.14); }
+  40% { transform: rotate(-14deg) scale(1.16); }
+  48% { transform: rotate(14deg) scale(1.14); }
+  56% { transform: rotate(-12deg) scale(1.12); }
+  64% { transform: rotate(10deg) scale(1.10); }
+  72% { transform: rotate(-8deg) scale(1.08); }
+  80% { transform: rotate(6deg) scale(1.06); }
+  88% { transform: rotate(-3deg) scale(1.04); }
+}
+@keyframes mystery-burst {
+  0% { transform: scale(1.16); opacity: 1; }
+  30% { transform: scale(1.6); opacity: 0.8; }
+  60% { transform: scale(0.9); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes mystery-celebrate {
+  0% { transform: scale(0.5) translateY(10px); opacity: 0; }
+  50% { transform: scale(1.08) translateY(-4px); opacity: 1; }
+  70% { transform: scale(0.96) translateY(1px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes mystery-screen-flash {
+  0% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+@keyframes mystery-rainbow-border {
+  0% { border-color: #FFD700; }
+  25% { border-color: #A855F7; }
+  50% { border-color: #38BDF8; }
+  75% { border-color: #F43F5E; }
+  100% { border-color: #FFD700; }
+}
+.anim-mystery-anticipation { animation: mystery-anticipation 1.5s ease-in-out; }
+.anim-mystery-shake { animation: mystery-shake-premium 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+.anim-mystery-burst { animation: mystery-burst 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.anim-mystery-celebrate { animation: mystery-celebrate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.anim-mystery-flash { animation: mystery-screen-flash 0.3s ease-out forwards; }
+.anim-mystery-rainbow { animation: mystery-rainbow-border 2s linear infinite; }
+
 /* Shimmer skeleton animation */
 @keyframes shimmer {
   0% { background-position: -200% 0; }

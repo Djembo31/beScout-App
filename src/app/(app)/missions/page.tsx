@@ -74,9 +74,16 @@ export default function MissionsPage() {
     const result = await openMysteryBox(free);
     if (result.ok) {
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
-      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+      if (result.rewardType === 'cosmetic') {
+        queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+      }
+      if (result.rewardType === 'equipment') {
+        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(uid) });
+      }
+      if (result.rewardType === 'bcredits') {
+        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
+      }
       const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
-      // Track free box claim per week (client-side)
       if (free) {
         const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
         localStorage.setItem('bescout-free-box-week', String(currentWeek));
@@ -87,8 +94,18 @@ export default function MissionsPage() {
         reward_type: result.rewardType!,
         tickets_amount: result.ticketsAmount ?? null,
         cosmetic_id: result.cosmeticKey ?? null,
+        equipment_type: result.equipmentType ?? null,
+        equipment_rank: result.equipmentRank ?? null,
+        bcredits_amount: result.bcreditsAmount ?? null,
         ticket_cost: effectiveCost,
         opened_at: new Date().toISOString(),
+        equipment_name_de: result.equipmentNameDe,
+        equipment_name_tr: result.equipmentNameTr,
+        equipment_position: result.equipmentPosition,
+      } as import('@/types').MysteryBoxResult & {
+        equipment_name_de?: string;
+        equipment_name_tr?: string;
+        equipment_position?: string;
       };
     }
     return null;

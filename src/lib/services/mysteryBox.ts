@@ -1,21 +1,27 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { CosmeticRarity, MysteryBoxResult } from '@/types';
+import type { MysteryBoxRarity, MysteryBoxRewardType, MysteryBoxResult } from '@/types';
 
 // ============================================
-// Mystery Box Service
+// Mystery Box Service (v2 — Equipment + bCredits)
 // ============================================
 
 /** Open a mystery box (costs 15 tickets, or free if p_free = true) */
 export async function openMysteryBox(free = false): Promise<{
   ok: boolean;
-  rarity?: CosmeticRarity;
-  rewardType?: 'tickets' | 'cosmetic';
+  rarity?: MysteryBoxRarity;
+  rewardType?: MysteryBoxRewardType;
   ticketsAmount?: number;
+  equipmentType?: string;
+  equipmentRank?: number;
+  equipmentNameDe?: string;
+  equipmentNameTr?: string;
+  equipmentPosition?: string;
+  bcreditsAmount?: number;
   cosmeticKey?: string;
   cosmeticName?: string;
   error?: string;
 }> {
-  const { data, error } = await supabase.rpc('open_mystery_box', {
+  const { data, error } = await supabase.rpc('open_mystery_box_v2', {
     p_free: free,
   });
 
@@ -26,9 +32,15 @@ export async function openMysteryBox(free = false): Promise<{
 
   const result = data as {
     ok: boolean;
-    rarity?: CosmeticRarity;
-    reward_type?: 'tickets' | 'cosmetic';
+    rarity?: MysteryBoxRarity;
+    reward_type?: MysteryBoxRewardType;
     tickets_amount?: number;
+    equipment_type?: string;
+    equipment_rank?: number;
+    equipment_name_de?: string;
+    equipment_name_tr?: string;
+    equipment_position?: string;
+    bcredits_amount?: number;
     cosmetic_key?: string;
     cosmetic_name?: string;
     error?: string;
@@ -38,7 +50,7 @@ export async function openMysteryBox(free = false): Promise<{
     return { ok: false, error: result.error ?? 'Unknown error' };
   }
 
-  // Mission tracking (fire-and-forget, auth.uid() used internally by RPC)
+  // Mission tracking (fire-and-forget)
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress('', ['open_mystery_box', 'daily_activity']);
   }).catch(err => console.error('[MysteryBox] Mission tracking failed:', err));
@@ -47,9 +59,15 @@ export async function openMysteryBox(free = false): Promise<{
     ok: true,
     rarity: result.rarity,
     rewardType: result.reward_type,
-    ticketsAmount: result.tickets_amount,
-    cosmeticKey: result.cosmetic_key,
-    cosmeticName: result.cosmetic_name,
+    ticketsAmount: result.tickets_amount ?? undefined,
+    equipmentType: result.equipment_type ?? undefined,
+    equipmentRank: result.equipment_rank ?? undefined,
+    equipmentNameDe: result.equipment_name_de ?? undefined,
+    equipmentNameTr: result.equipment_name_tr ?? undefined,
+    equipmentPosition: result.equipment_position ?? undefined,
+    bcreditsAmount: result.bcredits_amount ?? undefined,
+    cosmeticKey: result.cosmetic_key ?? undefined,
+    cosmeticName: result.cosmetic_name ?? undefined,
   };
 }
 
@@ -57,7 +75,7 @@ export async function openMysteryBox(free = false): Promise<{
 export async function getMysteryBoxHistory(userId: string, limit = 20): Promise<MysteryBoxResult[]> {
   const { data, error } = await supabase
     .from('mystery_box_results')
-    .select('id, rarity, reward_type, tickets_amount, cosmetic_id, ticket_cost, opened_at')
+    .select('id, rarity, reward_type, tickets_amount, cosmetic_id, equipment_type, equipment_rank, bcredits_amount, ticket_cost, opened_at')
     .eq('user_id', userId)
     .order('opened_at', { ascending: false })
     .limit(limit);

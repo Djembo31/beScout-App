@@ -1,11 +1,28 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
+// jsdom doesn't provide matchMedia
+beforeAll(() => {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+});
+
 vi.mock('lucide-react', () => {
   const Stub = () => null;
-  return { Gift: Stub, Ticket: Stub, Sparkles: Stub, AlertCircle: Stub };
+  return { Gift: Stub, Ticket: Stub, Sparkles: Stub, AlertCircle: Stub, Coins: Stub, Swords: Stub };
 });
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
@@ -17,6 +34,14 @@ vi.mock('@/components/ui', () => ({
     <button onClick={onClick} disabled={!!disabled}>{children}</button>
   ),
 }));
+vi.mock('../particles', () => {
+  class MockParticleSystem {
+    burst = vi.fn();
+    glow = vi.fn();
+    destroy = vi.fn();
+  }
+  return { ParticleSystem: MockParticleSystem };
+});
 
 import MysteryBoxModal from '../MysteryBoxModal';
 
@@ -51,7 +76,6 @@ describe('MysteryBoxModal', () => {
   it('calls onOpen when open button clicked', async () => {
     const onOpen = vi.fn().mockResolvedValue(null);
     renderWithProviders(<MysteryBoxModal {...defaultProps} onOpen={onOpen} />);
-    // Find the open button (not the free one)
     const buttons = screen.getAllByRole('button');
     const openBtn = buttons.find(b => b.textContent?.includes('openBox'));
     if (openBtn) fireEvent.click(openBtn);

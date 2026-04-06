@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { Gift, Ticket, Sparkles, AlertCircle } from 'lucide-react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Gift, Ticket, Sparkles, AlertCircle, Coins, Swords } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import type { CosmeticRarity, MysteryBoxResult } from '@/types';
+import type { MysteryBoxResult, MysteryBoxRarity } from '@/types';
+import { RARITY_CONFIG, EQUIPMENT_POSITION_COLORS } from './rarityConfig';
+import { ParticleSystem } from './particles';
 
 // ============================================
-// MYSTERY BOX MODAL
+// MYSTERY BOX MODAL — Premium Star Drops
 // ============================================
 
 interface MysteryBoxModalProps {
@@ -17,61 +19,21 @@ interface MysteryBoxModalProps {
   onOpen: (free?: boolean) => Promise<MysteryBoxResult | null>;
   ticketBalance: number;
   hasFreeBox?: boolean;
-  /** Streak-based ticket discount (server-enforced in open_mystery_box RPC). */
   ticketDiscount?: number;
 }
 
 const MYSTERY_BOX_BASE_COST = 15;
 
-const RARITY_CONFIG: Record<CosmeticRarity, {
-  label: string;
-  bgClass: string;
-  textClass: string;
-  borderClass: string;
-  glowClass?: string;
-}> = {
-  common: {
-    label: 'Common',
-    bgClass: 'bg-white/[0.06]',
-    textClass: 'text-white/60',
-    borderClass: 'border-white/10',
-  },
-  uncommon: {
-    label: 'Uncommon',
-    bgClass: 'bg-emerald-500/15',
-    textClass: 'text-emerald-400',
-    borderClass: 'border-emerald-500/25',
-  },
-  rare: {
-    label: 'Rare',
-    bgClass: 'bg-sky-500/15',
-    textClass: 'text-sky-400',
-    borderClass: 'border-sky-500/25',
-  },
-  epic: {
-    label: 'Epic',
-    bgClass: 'bg-purple-500/15',
-    textClass: 'text-purple-400',
-    borderClass: 'border-purple-500/25',
-  },
-  legendary: {
-    label: 'Legendary',
-    bgClass: 'bg-gold/15',
-    textClass: 'text-gold',
-    borderClass: 'border-gold/30',
-    glowClass: 'shadow-[0_0_20px_rgba(255,215,0,0.35)]',
-  },
-};
-
-const REWARD_PREVIEW: { rarity: CosmeticRarity; ticketRange: [number, number]; cosmeticChance: boolean; dropPct: number }[] = [
-  { rarity: 'common', ticketRange: [5, 15], cosmeticChance: false, dropPct: 45 },
-  { rarity: 'uncommon', ticketRange: [15, 40], cosmeticChance: true, dropPct: 30 },
-  { rarity: 'rare', ticketRange: [40, 100], cosmeticChance: true, dropPct: 15 },
-  { rarity: 'epic', ticketRange: [100, 250], cosmeticChance: true, dropPct: 8 },
-  { rarity: 'legendary', ticketRange: [250, 500], cosmeticChance: true, dropPct: 2 },
+/** Reward preview per rarity (shown in idle state) */
+const REWARD_PREVIEW: { rarity: MysteryBoxRarity; rewards: string }[] = [
+  { rarity: 'common', rewards: 'Tickets' },
+  { rarity: 'rare', rewards: 'Tickets / Equipment R1' },
+  { rarity: 'epic', rewards: 'Tickets / Equipment R1-R2' },
+  { rarity: 'legendary', rewards: 'Tickets / Equipment R1-R3 / bCredits' },
+  { rarity: 'mythic', rewards: 'Equipment R3-R4 / bCredits' },
 ];
 
-type BoxState = 'idle' | 'opening' | 'revealed';
+type BoxState = 'idle' | 'anticipation' | 'shake' | 'burst' | 'celebration';
 
 export default function MysteryBoxModal({
   open,
@@ -85,50 +47,120 @@ export default function MysteryBoxModal({
   const [boxState, setBoxState] = useState<BoxState>('idle');
   const [result, setResult] = useState<MysteryBoxResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particleRef = useRef<ParticleSystem | null>(null);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 
-  // Server applies streak discount in open_mystery_box RPC (migration 20260314).
-  // Progressive pricing (15/20/25/30) also handled server-side.
   const effectiveCost = Math.max(1, MYSTERY_BOX_BASE_COST - ticketDiscount);
   const canAfford = hasFreeBox || ticketBalance >= effectiveCost;
+
+  // Canvas setup
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const rect = canvas.parentElement?.getBoundingClientRect();
+    if (rect) {
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    particleRef.current = new ParticleSystem(canvas);
+    return () => {
+      particleRef.current?.destroy();
+      particleRef.current = null;
+    };
+  }, [open]);
+
+  const triggerHaptic = useCallback((ms: number) => {
+    if (ms > 0 && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(ms);
+    }
+  }, []);
 
   const handleOpen = useCallback(async () => {
     if (!canAfford) return;
     setError(null);
-    setBoxState('opening');
+
+    if (reducedMotion.current) {
+      // Reduced motion: skip animation, go straight to result
+      try {
+        const boxResult = await onOpen(hasFreeBox);
+        if (boxResult) {
+          setResult(boxResult);
+          setBoxState('celebration');
+        }
+      } catch (err) {
+        console.error('MysteryBoxModal open error:', err);
+        setError(t('openBoxError'));
+      }
+      return;
+    }
+
+    // Phase 1: Anticipation (1.5s)
+    setBoxState('anticipation');
 
     try {
-      // Simulate shake animation duration
-      const shakePromise = new Promise<void>(resolve => setTimeout(resolve, 1500));
+      // Start RPC call in parallel with anticipation animation
       const resultPromise = onOpen(hasFreeBox);
 
-      const [, boxResult] = await Promise.all([shakePromise, resultPromise]);
+      await new Promise<void>(resolve => setTimeout(resolve, 1500));
 
-      if (boxResult) {
-        setResult(boxResult);
-        setBoxState('revealed');
-      } else {
-        // Failed — reset
+      // Phase 2: Shake (1.2s)
+      setBoxState('shake');
+      await new Promise<void>(resolve => setTimeout(resolve, 1200));
+
+      const boxResult = await resultPromise;
+
+      if (!boxResult) {
         setBoxState('idle');
+        return;
       }
+
+      setResult(boxResult);
+
+      // Phase 3: Burst (0.5s)
+      setBoxState('burst');
+      const rarityConf = RARITY_CONFIG[boxResult.rarity];
+
+      // Screen flash for legendary/mythic
+      if (rarityConf.screenFlash) {
+        triggerHaptic(rarityConf.hapticMs);
+      } else if (rarityConf.hapticMs > 0) {
+        triggerHaptic(rarityConf.hapticMs);
+      }
+
+      // Canvas particle burst
+      particleRef.current?.burst(rarityConf.particleCount, rarityConf.color);
+      particleRef.current?.glow(rarityConf.color, 0.4, 600);
+
+      await new Promise<void>(resolve => setTimeout(resolve, 500));
+
+      // Phase 4: Celebration
+      setBoxState('celebration');
     } catch (err) {
       console.error('MysteryBoxModal open error:', err);
       setError(t('openBoxError'));
       setBoxState('idle');
     }
-  }, [canAfford, hasFreeBox, onOpen, t]);
+  }, [canAfford, hasFreeBox, onOpen, t, triggerHaptic]);
 
   const handleClose = useCallback(() => {
     setBoxState('idle');
     setResult(null);
+    particleRef.current?.destroy();
     onClose();
   }, [onClose]);
 
   const handleOpenAnother = useCallback(() => {
     setBoxState('idle');
     setResult(null);
+    particleRef.current?.destroy();
   }, []);
 
   const canOpenAnother = ticketBalance >= effectiveCost;
+  const isAnimating = boxState === 'anticipation' || boxState === 'shake' || boxState === 'burst';
+  const rarityConf = result ? RARITY_CONFIG[result.rarity] : null;
 
   return (
     <Modal
@@ -136,43 +168,67 @@ export default function MysteryBoxModal({
       onClose={handleClose}
       title={t('mysteryBox')}
       size="sm"
-      preventClose={boxState === 'opening'}
+      preventClose={isAnimating}
     >
-      <div className="flex flex-col items-center py-4">
+      <div className="relative flex flex-col items-center py-4 overflow-hidden">
+        {/* Canvas overlay for particles */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 pointer-events-none z-10"
+          aria-hidden="true"
+        />
+
+        {/* Screen flash overlay */}
+        {boxState === 'burst' && rarityConf?.screenFlash && (
+          <div
+            className="absolute inset-0 z-20 bg-white/70 anim-mystery-flash pointer-events-none"
+            aria-hidden="true"
+          />
+        )}
+
         {/* Box Icon */}
         <div className={cn(
-          'relative mb-6',
-          boxState === 'opening' && 'animate-mystery-shake',
-        )}>
+          'relative mb-6 z-[5]',
+          boxState === 'anticipation' && 'anim-mystery-anticipation',
+          boxState === 'shake' && 'anim-mystery-shake',
+          boxState === 'burst' && 'anim-mystery-burst',
+        )}
+          style={boxState === 'anticipation' || boxState === 'shake'
+            ? { '--glow-color': rarityConf?.glowColor ?? RARITY_CONFIG.common.glowColor } as React.CSSProperties
+            : undefined
+          }
+        >
           <div className={cn(
             'size-24 rounded-2xl flex items-center justify-center transition-colors duration-300',
             boxState === 'idle' && 'bg-gold/10 border-2 border-gold/20',
-            boxState === 'opening' && 'bg-gold/20 border-2 border-gold/40',
-            boxState === 'revealed' && result && cn(
-              RARITY_CONFIG[result.rarity].bgClass,
-              'border-2',
-              RARITY_CONFIG[result.rarity].borderClass,
-              RARITY_CONFIG[result.rarity].glowClass,
+            (boxState === 'anticipation' || boxState === 'shake') && 'bg-gold/20 border-2 border-gold/40',
+            boxState === 'burst' && rarityConf && cn(rarityConf.bgClass, 'border-2', rarityConf.borderClass),
+            boxState === 'celebration' && rarityConf && cn(
+              rarityConf.bgClass, 'border-2', rarityConf.borderClass, rarityConf.glowClass,
+              result?.rarity === 'mythic' && 'anim-mystery-rainbow',
             ),
           )}>
-            {boxState === 'revealed' && result ? (
-              <Sparkles className={cn('size-12 anim-scale-pop', RARITY_CONFIG[result.rarity].textClass)} />
+            {boxState === 'celebration' && result ? (
+              <RewardIcon result={result} rarityConf={rarityConf!} />
             ) : (
               <Gift className={cn(
                 'size-12 text-gold transition-transform',
-                boxState === 'opening' && 'scale-110',
+                (boxState === 'anticipation' || boxState === 'shake') && 'scale-110',
               )} />
             )}
           </div>
 
-          {/* Legendary glow ring */}
-          {boxState === 'revealed' && result?.rarity === 'legendary' && (
-            <div className="absolute inset-0 rounded-2xl border-2 border-gold/40 animate-pulse motion-reduce:animate-none" />
+          {/* Legendary/Mythic pulse ring */}
+          {boxState === 'celebration' && result && (result.rarity === 'legendary' || result.rarity === 'mythic') && (
+            <div className={cn(
+              'absolute inset-0 rounded-2xl border-2 animate-pulse motion-reduce:animate-none',
+              result.rarity === 'mythic' ? 'border-gold/50 anim-mystery-rainbow' : 'border-gold/40',
+            )} />
           )}
         </div>
 
-        {/* State-based content */}
-        {boxState === 'idle' && (
+        {/* ── IDLE STATE ── */}
+        {boxState === 'idle' && !result && (
           <>
             <p className="text-sm text-white/50 mb-1 text-center">
               {hasFreeBox ? t('freeBox') : t('openBox')}
@@ -220,67 +276,58 @@ export default function MysteryBoxModal({
                 {t('possibleRewardsTitle')}
               </p>
               <div className="space-y-1.5">
-                {REWARD_PREVIEW.map(rp => (
-                  <div
-                    key={rp.rarity}
-                    className={cn(
-                      'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px]',
-                      RARITY_CONFIG[rp.rarity].bgClass,
-                    )}
-                  >
-                    <span className={cn('font-black w-[72px] flex-shrink-0', RARITY_CONFIG[rp.rarity].textClass)}>
-                      {RARITY_CONFIG[rp.rarity].label}
-                    </span>
-                    <span className="text-white/40 flex-1 font-mono tabular-nums">
-                      {rp.ticketRange[0]}–{rp.ticketRange[1]} {t('tickets')}
-                      {rp.cosmeticChance && ' + Cosmetic'}
-                    </span>
-                    <span className="text-white/25 font-mono tabular-nums flex-shrink-0">
-                      {rp.dropPct}%
-                    </span>
-                  </div>
-                ))}
+                {REWARD_PREVIEW.map(rp => {
+                  const conf = RARITY_CONFIG[rp.rarity];
+                  return (
+                    <div
+                      key={rp.rarity}
+                      className={cn(
+                        'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px]',
+                        conf.bgClass,
+                      )}
+                    >
+                      <span className={cn('font-black w-[72px] flex-shrink-0', conf.textClass)}>
+                        {conf.label_de}
+                      </span>
+                      <span className="text-white/40 flex-1">
+                        {rp.rewards}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </>
         )}
 
-        {boxState === 'opening' && (
+        {/* ── ANIMATING STATES ── */}
+        {(boxState === 'anticipation' || boxState === 'shake') && (
           <p className="text-sm text-gold font-bold animate-pulse motion-reduce:animate-none">
             {t('opening')}
           </p>
         )}
 
-        {boxState === 'revealed' && result && (
+        {boxState === 'burst' && (
+          <p className="text-sm text-gold font-black anim-scale-pop">
+            {rarityConf?.label_de ?? ''}
+          </p>
+        )}
+
+        {/* ── CELEBRATION / REVEALED ── */}
+        {boxState === 'celebration' && result && rarityConf && (
           <>
             {/* Rarity badge */}
             <span className={cn(
-              'px-3 py-1 rounded-full border text-xs font-black mb-3 anim-scale-pop',
-              RARITY_CONFIG[result.rarity].bgClass,
-              RARITY_CONFIG[result.rarity].textClass,
-              RARITY_CONFIG[result.rarity].borderClass,
+              'px-3 py-1 rounded-full border text-xs font-black mb-3 anim-mystery-celebrate',
+              rarityConf.bgClass, rarityConf.textClass, rarityConf.borderClass,
             )}>
-              {RARITY_CONFIG[result.rarity].label}
+              {rarityConf.label_de}
             </span>
 
             {/* Reward content */}
-            {result.reward_type === 'tickets' && result.tickets_amount != null && (
-              <div className="text-center anim-scale-pop">
-                <div className="flex items-center gap-2 text-2xl font-black text-gold font-mono tabular-nums">
-                  <Ticket className="size-6" />
-                  +{result.tickets_amount}
-                </div>
-                <p className="text-xs text-white/40 mt-1">{t('ticketsEarned', { amount: result.tickets_amount })}</p>
-              </div>
-            )}
-
-            {result.reward_type === 'cosmetic' && (
-              <div className="text-center anim-scale-pop">
-                <Sparkles className={cn('size-8 mx-auto mb-2', RARITY_CONFIG[result.rarity].textClass)} />
-                <p className="text-sm font-bold text-white">{t('cosmeticUnlocked')}</p>
-                <p className="text-xs text-white/40 mt-1">{t('cosmeticAddedToCollection')}</p>
-              </div>
-            )}
+            <div className="anim-mystery-celebrate" style={{ animationDelay: '0.15s' }}>
+              <RewardDisplay result={result} t={t} />
+            </div>
 
             {/* Actions */}
             <div className="flex gap-3 w-full mt-6">
@@ -296,25 +343,93 @@ export default function MysteryBoxModal({
           </>
         )}
       </div>
-
-      {/* CSS for shake animation */}
-      <style jsx>{`
-        @keyframes mystery-shake {
-          0%, 100% { transform: rotate(0deg) scale(1); }
-          10% { transform: rotate(-8deg) scale(1.02); }
-          20% { transform: rotate(8deg) scale(1.04); }
-          30% { transform: rotate(-10deg) scale(1.06); }
-          40% { transform: rotate(10deg) scale(1.08); }
-          50% { transform: rotate(-12deg) scale(1.1); }
-          60% { transform: rotate(12deg) scale(1.08); }
-          70% { transform: rotate(-8deg) scale(1.06); }
-          80% { transform: rotate(6deg) scale(1.03); }
-          90% { transform: rotate(-3deg) scale(1.01); }
-        }
-        .animate-mystery-shake {
-          animation: mystery-shake 1.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-        }
-      `}</style>
     </Modal>
   );
+}
+
+// ============================================
+// REWARD ICON (inside the box)
+// ============================================
+
+function RewardIcon({ result, rarityConf }: { result: MysteryBoxResult; rarityConf: NonNullable<typeof RARITY_CONFIG[MysteryBoxRarity]> }) {
+  switch (result.reward_type) {
+    case 'tickets':
+      return <Ticket className={cn('size-12 anim-scale-pop', rarityConf.textClass)} />;
+    case 'equipment':
+      return <Swords className={cn('size-12 anim-scale-pop', rarityConf.textClass)} />;
+    case 'bcredits':
+      return <Coins className={cn('size-12 anim-scale-pop text-gold')} />;
+    case 'cosmetic':
+      return <Sparkles className={cn('size-12 anim-scale-pop', rarityConf.textClass)} />;
+    default:
+      return <Gift className={cn('size-12 anim-scale-pop', rarityConf.textClass)} />;
+  }
+}
+
+// ============================================
+// REWARD DISPLAY (details below the box)
+// ============================================
+
+function RewardDisplay({ result, t }: { result: MysteryBoxResult; t: ReturnType<typeof useTranslations> }) {
+  switch (result.reward_type) {
+    case 'tickets':
+      return (
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 text-2xl font-black text-gold font-mono tabular-nums">
+            <Ticket className="size-6" />
+            +{result.tickets_amount}
+          </div>
+          <p className="text-xs text-white/40 mt-1">
+            {t('ticketsEarned', { amount: result.tickets_amount ?? 0 })}
+          </p>
+        </div>
+      );
+
+    case 'equipment': {
+      const posColors = EQUIPMENT_POSITION_COLORS[(result as MysteryBoxResult & { equipment_position?: string }).equipment_position ?? 'ALL'] ?? EQUIPMENT_POSITION_COLORS.ALL;
+      return (
+        <div className="text-center">
+          <div className={cn(
+            'inline-flex items-center gap-2 px-4 py-2 rounded-xl border mb-2',
+            posColors.bg, posColors.border,
+          )}>
+            <Swords className={cn('size-5', posColors.text)} />
+            <span className={cn('font-black text-sm', posColors.text)}>
+              {(result as MysteryBoxResult & { equipment_name_de?: string }).equipment_name_de ?? result.equipment_type}
+            </span>
+            <span className="font-mono font-black text-xs text-white/60 bg-white/[0.08] px-1.5 py-0.5 rounded">
+              R{result.equipment_rank}
+            </span>
+          </div>
+          <p className="text-xs text-white/40 mt-1">{t('rewardEquipment')}</p>
+        </div>
+      );
+    }
+
+    case 'bcredits': {
+      const amount = result.bcredits_amount ?? 0;
+      const displayAmount = Math.round(amount / 100);
+      return (
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 text-2xl font-black text-gold font-mono tabular-nums">
+            <Coins className="size-6" />
+            +{displayAmount.toLocaleString('de-DE')} CR
+          </div>
+          <p className="text-xs text-white/40 mt-1">{t('bcreditsEarned')}</p>
+        </div>
+      );
+    }
+
+    case 'cosmetic':
+      return (
+        <div className="text-center">
+          <Sparkles className="size-8 mx-auto mb-2 text-purple-400" />
+          <p className="text-sm font-bold text-white">{t('cosmeticUnlocked')}</p>
+          <p className="text-xs text-white/40 mt-1">{t('cosmeticAddedToCollection')}</p>
+        </div>
+      );
+
+    default:
+      return null;
+  }
 }

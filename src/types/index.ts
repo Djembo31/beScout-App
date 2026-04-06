@@ -1959,14 +1959,62 @@ export type DbUserDailyChallenge = {
 // MYSTERY BOX TYPES
 // ============================================
 
+export type MysteryBoxRarity = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
+
+export type MysteryBoxRewardType = 'tickets' | 'cosmetic' | 'equipment' | 'bcredits';
+
 export type MysteryBoxResult = {
   id: string;
-  rarity: CosmeticRarity;
-  reward_type: 'tickets' | 'cosmetic';
+  rarity: MysteryBoxRarity;
+  reward_type: MysteryBoxRewardType;
   tickets_amount: number | null;
   cosmetic_id: string | null;
+  equipment_type: string | null;
+  equipment_rank: number | null;
+  bcredits_amount: number | null;
   ticket_cost: number;
   opened_at: string;
+};
+
+// ============================================
+// EQUIPMENT TYPES
+// ============================================
+
+export type EquipmentType = 'fire_shot' | 'banana_cross' | 'iron_wall' | 'cat_eye' | 'captain';
+
+export type EquipmentPosition = 'ATT' | 'MID' | 'DEF' | 'GK' | 'ALL';
+
+export type EquipmentSource = 'mystery_box' | 'achievement' | 'mission' | 'admin_grant' | 'event_reward';
+
+export type DbEquipmentDefinition = {
+  id: string;
+  key: EquipmentType;
+  name_de: string;
+  name_tr: string;
+  description_de: string | null;
+  description_tr: string | null;
+  position: EquipmentPosition;
+  icon: string | null;
+  active: boolean;
+  created_at: string;
+};
+
+export type DbEquipmentRank = {
+  id: number;
+  rank: number;
+  multiplier: number;
+  label: string;
+};
+
+export type DbUserEquipment = {
+  id: string;
+  user_id: string;
+  equipment_key: EquipmentType;
+  rank: number;
+  source: EquipmentSource;
+  equipped_player_id: string | null;
+  equipped_event_id: string | null;
+  acquired_at: string;
 };
 
 // ============================================

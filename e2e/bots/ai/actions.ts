@@ -321,7 +321,7 @@ export async function submitLineup(
 // ── Mystery Box WRITE ──
 
 export async function openMysteryBox(sb: SupabaseClient, free = false) {
-  const { data, error } = await sb.rpc('open_mystery_box', { p_free: free });
+  const { data, error } = await sb.rpc('open_mystery_box_v2', { p_free: free });
   if (error) return { success: false, error: error.message };
   const result = data as Record<string, unknown>;
   return {
