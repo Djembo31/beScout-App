@@ -9,15 +9,11 @@ import { BottomNav } from '../BottomNav';
 // ============================================
 vi.mock('lucide-react', () => {
   const Stub = ({ className }: { className?: string }) => <span className={className} />;
-  return { Home: Stub, Trophy: Stub, Briefcase: Stub, Building2: Stub, Compass: Stub };
+  return { Home: Stub, Trophy: Stub, ClipboardList: Stub, TrendingUp: Stub, Compass: Stub };
 });
 
 vi.mock('@/lib/utils', () => ({
   cn: (...classes: (string | boolean | undefined | null)[]) => classes.filter(Boolean).join(' '),
-}));
-
-vi.mock('@/components/providers/ClubProvider', () => ({
-  useClub: () => ({ activeClub: { slug: 'sakaryaspor', name: 'Sakaryaspor' } }),
 }));
 
 // ============================================
@@ -41,8 +37,8 @@ describe('BottomNav', () => {
     const hrefs = links.map(l => l.getAttribute('href'));
     expect(hrefs).toContain('/');
     expect(hrefs).toContain('/fantasy');
+    expect(hrefs).toContain('/manager');
     expect(hrefs).toContain('/market');
-    expect(hrefs).toContain('/club/sakaryaspor');
     expect(hrefs).toContain('/community');
   });
 
@@ -51,8 +47,8 @@ describe('BottomNav', () => {
     // useTranslations returns key
     expect(screen.getByText('navHome')).toBeInTheDocument();
     expect(screen.getByText('navSpieltag')).toBeInTheDocument();
+    expect(screen.getByText('navManager')).toBeInTheDocument();
     expect(screen.getByText('navMarkt')).toBeInTheDocument();
-    expect(screen.getByText('navClub')).toBeInTheDocument();
     expect(screen.getByText('navCommunity')).toBeInTheDocument();
   });
 });

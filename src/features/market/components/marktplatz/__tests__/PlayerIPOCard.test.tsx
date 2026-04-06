@@ -16,9 +16,14 @@ vi.mock('@/lib/services/players', () => ({ centsToBsd: (n: number) => n / 100 })
 vi.mock('@/components/player', () => ({
   PlayerPhoto: () => null,
   PositionBadge: () => null,
+  FormBars: () => null,
+}));
+vi.mock('@/components/player/positionColors', () => ({
+  posCardFrame: { GK: '#000', DEF: '#000', MID: '#000', ATT: '#000' },
 }));
 vi.mock('@/components/player/PlayerRow', () => ({
   getContractInfo: () => ({ dateStr: 'Jun 2027', monthsLeft: 18, color: '', urgent: false }),
+  posTintColors: { GK: '#000', DEF: '#000', MID: '#000', ATT: '#000' },
 }));
 vi.mock('../CountdownBadge', () => ({ default: () => null }));
 vi.mock('next/link', () => ({

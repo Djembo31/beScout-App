@@ -77,8 +77,10 @@ vi.mock('@/features/market/components/portfolio/SquadSummaryStats', () => ({
 }));
 
 vi.mock('@/components/player', () => ({
+  PlayerPhoto: ({ first, last }: { first?: string; last?: string }) => <div data-testid="player-photo">{first} {last}</div>,
   PositionBadge: ({ pos }: { pos: string }) => <div data-testid="position-badge">{pos}</div>,
   MatchIcon: () => <span data-testid="match-icon" />,
+  FormBars: () => <div data-testid="form-bars" />,
 }));
 vi.mock('@/features/market/components/portfolio/bestand/bestandHelpers', () => ({
   StatusPill: ({ status }: { status: string }) => <span data-testid="status-pill">{status}</span>,
