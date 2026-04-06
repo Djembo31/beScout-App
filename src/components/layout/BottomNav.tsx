@@ -3,22 +3,20 @@
 import { memo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Trophy, Briefcase, Building2, Compass } from 'lucide-react';
+import { Home, Trophy, ClipboardList, TrendingUp, Compass } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useClub } from '@/components/providers/ClubProvider';
 import { cn } from '@/lib/utils';
 
 const BOTTOM_TABS = [
   { labelKey: 'navHome', href: '/', icon: Home, tourId: undefined as string | undefined },
   { labelKey: 'navSpieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
-  { labelKey: 'navMarkt', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
-  { labelKey: 'navClub', href: '/club', icon: Building2, tourId: undefined as string | undefined },
+  { labelKey: 'navManager', href: '/manager', icon: ClipboardList, tourId: undefined as string | undefined },
+  { labelKey: 'navMarkt', href: '/market', icon: TrendingUp, tourId: 'bottomnav-market' },
   { labelKey: 'navCommunity', href: '/community', icon: Compass, tourId: undefined as string | undefined },
 ];
 
 export const BottomNav = memo(function BottomNav() {
   const pathname = usePathname();
-  const { activeClub } = useClub();
   const tc = useTranslations('common');
   const tn = useTranslations('nav');
 
@@ -44,11 +42,7 @@ export const BottomNav = memo(function BottomNav() {
       <div className="flex items-center justify-around h-16 px-1">
         {BOTTOM_TABS.map((tab) => {
           const Icon = tab.icon;
-          // Club tab: if already on a club page, go to /clubs (escape the trap)
-          // Otherwise, go to active club or /clubs discovery
-          const href = tab.href === '/club'
-            ? (pathname.startsWith('/club/') ? '/clubs' : (activeClub?.slug ? `/club/${activeClub.slug}` : '/clubs'))
-            : tab.href;
+          const href = tab.href;
           const isActive = mounted && (tab.href === '/'
             ? pathname === '/'
             : pathname.startsWith(tab.href));

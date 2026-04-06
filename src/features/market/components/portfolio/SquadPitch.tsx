@@ -1,18 +1,23 @@
 'use client';
 
 import React from 'react';
-import type { Player, Pos } from '@/types';
+import type { Player, Pos, PlayerStatus } from '@/types';
 import type { SquadFormation } from './types';
 import { getPosColor, getScoreColor, getSlotPosition } from './helpers';
-import { Plus } from 'lucide-react';
+import { Plus, Lock } from 'lucide-react';
 
 interface SquadPitchProps {
   formation: SquadFormation;
   assignments: Map<number, Player>; // slotIndex → Player
   onSlotClick: (slotIndex: number, pos: Pos) => void;
+  // Optional enhancements (Manager Command Center)
+  fitnessDots?: Map<string, PlayerStatus>;
+  eventLocks?: Set<string>;
+  equipmentPlan?: Map<number, { key: string; rank: number }>;
+  onEquipmentTap?: (slotIndex: number) => void;
 }
 
-export default function SquadPitch({ formation, assignments, onSlotClick }: SquadPitchProps) {
+export default function SquadPitch({ formation, assignments, onSlotClick, fitnessDots, eventLocks, equipmentPlan, onEquipmentTap }: SquadPitchProps) {
   // Count players per row for position calculations
   const rowCounts = new Map<number, number>();
   formation.slots.forEach(s => rowCounts.set(s.row, (rowCounts.get(s.row) ?? 0) + 1));
@@ -90,6 +95,33 @@ export default function SquadPitch({ formation, assignments, onSlotClick }: Squa
                       >
                         {player.perf.l5}
                       </div>
+                    )}
+                    {/* Fitness Dot (top-left) — optional */}
+                    {fitnessDots?.has(player.id) && (
+                      <div
+                        className="absolute -top-1 -left-1 z-20 size-3 rounded-full border border-black/60"
+                        style={{
+                          backgroundColor: fitnessDots.get(player.id) === 'doubtful' ? '#eab308' : '#ef4444',
+                        }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    {/* Event Lock (bottom-center) — optional */}
+                    {eventLocks?.has(player.id) && (
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 bg-amber-600 rounded-full p-0.5">
+                        <Lock className="size-2 text-white" aria-hidden="true" />
+                      </div>
+                    )}
+                    {/* Equipment Badge (bottom-left) — optional */}
+                    {equipmentPlan?.has(idx) && (
+                      <button
+                        type="button"
+                        className="absolute -bottom-1.5 -left-2 z-30 bg-white/10 border border-white/20 rounded px-1 py-0.5 text-[7px] md:text-[8px] font-mono font-bold text-gold hover:bg-white/20 transition-colors"
+                        onClick={(e) => { e.stopPropagation(); onEquipmentTap?.(idx); }}
+                        aria-label="Equipment"
+                      >
+                        R{equipmentPlan.get(idx)!.rank}
+                      </button>
                     )}
                     {/* Name */}
                     <div className="text-[9px] md:text-[10px] mt-1 font-medium truncate max-w-[60px] md:max-w-[80px] text-center" style={{ color: posColor + 'cc' }}>
