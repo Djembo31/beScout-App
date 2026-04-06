@@ -24,6 +24,8 @@ import {
 } from '../helpers';
 import FantasyPlayerRow from '@/components/fantasy/FantasyPlayerRow';
 import { PickerSortFilter } from '@/components/fantasy/PickerSortFilter';
+import EquipmentBadge from '@/components/gamification/EquipmentBadge';
+import type { EquipmentType } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
 import { useLineupPanelState } from './useLineupPanelState';
 
@@ -75,6 +77,9 @@ export interface LineupPanelProps {
   // Wild Cards
   wildcardSlots?: Set<string>;
   onToggleWildcard?: (slotKey: string) => void;
+  // Equipment
+  equipmentMap?: Record<string, { id: string; key: string; rank: number; position: string }>;
+  onEquipmentTap?: (slotKey: string, playerPosition: string, playerName: string) => void;
 }
 
 export default function LineupPanel({
@@ -112,6 +117,8 @@ export default function LineupPanel({
   onClose,
   wildcardSlots,
   onToggleWildcard,
+  equipmentMap,
+  onEquipmentTap,
 }: LineupPanelProps) {
   const t = useTranslations('fantasy');
   const tsp = useTranslations('sponsor');
@@ -360,8 +367,28 @@ export default function LineupPanel({
                     const slotReadOnly = isReadOnly || slotLocked;
                     const slotDbKey = slotDbKeys[slot.slot];
                     const isWildcard = wildcardSlots?.has(slotDbKey) ?? false;
+                    const slotEquipment = equipmentMap?.[slotDbKeys[slot.slot]];
                     return (
                       <div key={slot.slot} className="flex flex-col items-center relative">
+                        {/* Equipment badge (bottom-right, above WC) */}
+                        {player && slotEquipment && (
+                          <div
+                            className="absolute -bottom-3 right-1/2 translate-x-1/2 z-30 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!slotReadOnly && onEquipmentTap) {
+                                onEquipmentTap(slotDbKeys[slot.slot], player.pos, player.last);
+                              }
+                            }}
+                          >
+                            <EquipmentBadge
+                              equipmentKey={slotEquipment.key as EquipmentType}
+                              rank={slotEquipment.rank}
+                              position={slotEquipment.position}
+                              size="sm"
+                            />
+                          </div>
+                        )}
                         {/* Wild Card badge (bottom-right) */}
                         {isWildcard && !hasScore && (
                           <div className="absolute -bottom-1 -right-2 z-30 px-1 py-0.5 rounded bg-purple-500/90 text-[9px] font-black text-white shadow-lg">WC</div>
@@ -461,6 +488,15 @@ export default function LineupPanel({
                           <div className="text-xs text-purple-300/60">L5: {player.perfL5}</div>
                         )}
                         </button>
+                        {/* Equipment assign button — only when player exists, no equipment, not locked */}
+                        {player && !slotEquipment && !slotReadOnly && !hasScore && onEquipmentTap && (
+                          <button
+                            onClick={() => onEquipmentTap(slotDbKeys[slot.slot], player.pos, player.last)}
+                            className="mt-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-surface-base text-white/30 hover:bg-white/10 hover:text-white/50 transition-colors"
+                          >
+                            ⚔️
+                          </button>
+                        )}
                         {/* Wild Card toggle — only when event allows and slot is editable */}
                         {event?.wildcardsAllowed && !isReadOnly && !slotLocked && !hasScore && onToggleWildcard && (
                           <button

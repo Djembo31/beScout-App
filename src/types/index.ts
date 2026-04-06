@@ -682,6 +682,7 @@ export type DbLineup = {
   synergy_details: SynergyDetail[] | null;
   streak_bonus_pct: number;
   wildcard_slots: string[];
+  equipment_map: Record<string, string> | null;
 };
 
 export type DbEventEntry = {
@@ -2015,6 +2016,7 @@ export type DbUserEquipment = {
   equipped_player_id: string | null;
   equipped_event_id: string | null;
   acquired_at: string;
+  consumed_at: string | null;
 };
 
 // ============================================

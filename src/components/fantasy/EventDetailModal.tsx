@@ -13,16 +13,27 @@ import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding } from 
 import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys } from './constants';
 import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
+import { useEquipmentDefinitions, useUserEquipment } from '@/lib/queries/equipment';
+import { equipToSlot, unequipFromSlot } from '@/lib/services/equipment';
+import { mapPlayerPosition } from '@/components/gamification/EquipmentPicker';
+import { useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queries/keys';
+import type { EquipmentPosition } from '@/types';
 
 // Extracted components
 import { EventDetailHeader } from '@/features/fantasy/components/event-detail/EventDetailHeader';
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
 import { JoinConfirmDialog } from '@/features/fantasy/components/event-detail/JoinConfirmDialog';
 
-// Lazy-loaded ChipSelector (only needed when editing lineup)
+// Lazy-loaded ChipSelector (legacy — hidden, kept for backwards compat)
 const ChipSelector = dynamic(() => import('@/components/gamification/ChipSelector'), {
   ssr: false,
   loading: () => <div className="h-24 animate-pulse motion-reduce:animate-none bg-surface-minimal rounded-2xl" />,
+});
+
+// Lazy-loaded EquipmentPicker
+const EquipmentPicker = dynamic(() => import('@/components/gamification/EquipmentPicker'), {
+  ssr: false,
 });
 
 // Lazy-loaded tab panels
@@ -84,6 +95,72 @@ export const EventDetailModal = ({
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [wildcardSlots, setWildcardSlots] = useState<Set<string>>(new Set());
+
+  // Equipment state
+  const [equipPickerOpen, setEquipPickerOpen] = useState(false);
+  const [equipPickerSlot, setEquipPickerSlot] = useState<{ slotKey: string; playerPosition: EquipmentPosition; playerName: string } | null>(null);
+  const [equipLoading, setEquipLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: equipDefs } = useEquipmentDefinitions();
+  const { data: userEquipment } = useUserEquipment(user?.id);
+
+  // Build equipment map from lineup's equipment_map (loaded on lineup fetch)
+  const [equipmentMap, setEquipmentMap] = useState<Record<string, { id: string; key: string; rank: number; position: string }>>({});
+
+  const handleEquipmentTap = useCallback((slotKey: string, playerPosition: string, playerName: string) => {
+    setEquipPickerSlot({
+      slotKey,
+      playerPosition: mapPlayerPosition(playerPosition),
+      playerName,
+    });
+    setEquipPickerOpen(true);
+  }, []);
+
+  const handleEquip = useCallback(async (equipmentId: string) => {
+    if (!event || !equipPickerSlot || !user?.id) return;
+    setEquipLoading(true);
+    try {
+      const result = await equipToSlot(event.id, equipmentId, equipPickerSlot.slotKey);
+      if (result.ok) {
+        // Find equipment details from inventory
+        const eq = userEquipment?.find(e => e.id === equipmentId);
+        const def = equipDefs?.find(d => d.key === eq?.equipment_key);
+        if (eq && def) {
+          setEquipmentMap(prev => ({
+            ...prev,
+            [equipPickerSlot.slotKey]: { id: equipmentId, key: eq.equipment_key, rank: eq.rank, position: def.position },
+          }));
+        }
+        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(user.id) });
+        setEquipPickerOpen(false);
+      }
+    } catch (err) {
+      console.error('[Equipment] equip failed:', err);
+    } finally {
+      setEquipLoading(false);
+    }
+  }, [event, equipPickerSlot, user?.id, userEquipment, equipDefs, queryClient]);
+
+  const handleUnequip = useCallback(async () => {
+    if (!event || !equipPickerSlot || !user?.id) return;
+    setEquipLoading(true);
+    try {
+      const result = await unequipFromSlot(event.id, equipPickerSlot.slotKey);
+      if (result.ok) {
+        setEquipmentMap(prev => {
+          const next = { ...prev };
+          delete next[equipPickerSlot.slotKey];
+          return next;
+        });
+        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(user.id) });
+        setEquipPickerOpen(false);
+      }
+    } catch (err) {
+      console.error('[Equipment] unequip failed:', err);
+    } finally {
+      setEquipLoading(false);
+    }
+  }, [event, equipPickerSlot, user?.id, queryClient]);
 
   // Set default tab based on join status when modal opens -- reset transient state
   useEffect(() => {
@@ -197,10 +274,28 @@ export const EventDetailModal = ({
           });
 
           setSelectedPlayers(finalLineup);
+
+          // Load equipment map from saved lineup
+          if (dbLineup.equipment_map && typeof dbLineup.equipment_map === 'object') {
+            const eMap: Record<string, { id: string; key: string; rank: number; position: string }> = {};
+            const eqMap = dbLineup.equipment_map as Record<string, string>;
+            for (const [slotKey, eqId] of Object.entries(eqMap)) {
+              // Find equipment details from inventory
+              const eq = userEquipment?.find(e => e.id === eqId);
+              const def = equipDefs?.find(d => d.key === eq?.equipment_key);
+              if (eq && def) {
+                eMap[slotKey] = { id: eqId, key: eq.equipment_key, rank: eq.rank, position: def.position };
+              }
+            }
+            setEquipmentMap(eMap);
+          } else {
+            setEquipmentMap({});
+          }
         } else {
           setSelectedPlayers([]);
           setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
           setSlotScores(null);
+          setEquipmentMap({});
         }
       }).catch((err) => {
         console.error('[EventDetailModal] Failed to load lineup:', err);
@@ -492,11 +587,24 @@ export const EventDetailModal = ({
                     return next;
                   });
                 }}
+                equipmentMap={equipmentMap}
+                onEquipmentTap={handleEquipmentTap}
               />
-              {!isScored && event.status !== 'ended' && (
-                <div className="mt-4 pt-4 border-t border-divider">
-                  <ChipSelector eventId={event.id} />
-                </div>
+              {/* Equipment Picker Modal */}
+              {equipPickerSlot && (
+                <EquipmentPicker
+                  open={equipPickerOpen}
+                  onClose={() => setEquipPickerOpen(false)}
+                  playerPosition={equipPickerSlot.playerPosition}
+                  playerName={equipPickerSlot.playerName}
+                  slotKey={equipPickerSlot.slotKey}
+                  inventory={userEquipment ?? []}
+                  definitions={equipDefs ?? []}
+                  equippedId={equipmentMap[equipPickerSlot.slotKey]?.id ?? null}
+                  onEquip={handleEquip}
+                  onUnequip={handleUnequip}
+                  loading={equipLoading}
+                />
               )}
             </>
           )}
