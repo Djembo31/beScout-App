@@ -87,7 +87,7 @@ export class ParticleSystem {
 
       if (progress >= 1) return;
 
-      const radius = maxRadius * progress;
+      const radius = Math.max(1, maxRadius * progress);
       const alpha = intensity * (1 - progress);
 
       const gradient = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
