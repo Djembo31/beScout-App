@@ -1,5 +1,16 @@
 # Session Handoff
-## Letzte Session: 2026-04-06 (Nachmittag/Abend)
+## Letzte Session: 2026-04-07 (Nacht)
+
+### Knowledge Wiki Migration (Karpathy LLM Wiki Pattern)
+- Redundanz eliminiert: 5 Duplikat-Dateien geloescht, 3 Sektionen → Pointer, workflow.md merged+geloescht
+- Feedback-Loop repariert: 4 Hooks verdrahtet (capture-correction, session-retro, quality-gate-v2, inject-learnings)
+- AutoDream v3 rewrite: Wiki-Compiler mit 5 Phasen (wiki-index.md + wiki-log.md)
+- Morning-Briefing erweitert: zeigt Wiki-Status
+- 10 Agent-Referenzen auf geloeschte Dateien gefixt
+- Spec: docs/plans/2026-04-07-knowledge-wiki-spec.md
+
+---
+## Vorherige Session: 2026-04-06 (Nachmittag/Abend)
 
 ## Was wurde gemacht
 

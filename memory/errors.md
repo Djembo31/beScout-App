@@ -1,35 +1,12 @@
 # BeScout Error Reference
 
 > Top 50 Fehler, gruppiert nach Kategorie.
-> Quellen: common-errors.md, database.md, trading.md
+> Single Source fuer DB Columns + CHECK Constraints: `.claude/rules/database.md`
 
 ---
 
-### DB Columns
-
-- **`players.name` statt `first_name`/`last_name`:** Tabelle hat kein `name` Feld. → **Fix:** `first_name` und `last_name` separat nutzen.
-- **`wallets.id` oder `wallets.currency`:** Wallets hat KEIN `id` und KEIN `currency` Feld. → **Fix:** PK ist `user_id`.
-- **`orders.type` statt `orders.side`:** Spalte heisst `side`, nicht `type`. → **Fix:** `side` nutzen ('buy'/'sell').
-- **`orders.updated_at`:** Existiert nicht. → **Fix:** Nur `created_at` und `expires_at` verfuegbar.
-- **`post_votes.vote_type` als boolean:** Ist SMALLINT 1/-1. → **Fix:** `1` fuer Upvote, `-1` fuer Downvote.
-- **`profiles.role` statt `profiles.top_role`:** Spalte heisst `top_role`. → **Fix:** `top_role` nutzen, Wert `'Admin'` mit grossem A.
-- **`notifications.is_read`:** Spalte heisst `read`. → **Fix:** `read` nutzen (boolean).
-- **`activity_log.action_type`:** Spalte heisst `action`. → **Fix:** `action` nutzen.
-- **`user_follows.followed_id`:** Spalte heisst `following_id`. → **Fix:** `following_id` nutzen.
-- **`trades.created_at` statt `trades.executed_at`:** Timestamp heisst `executed_at`. → **Fix:** `executed_at` nutzen.
-- **`offers.price_cents`:** Spalte heisst einfach `price`. → **Fix:** `price` nutzen (ist bereits in cents).
-- **`research_posts.upvotes`/`downvotes`:** Diese Spalten existieren NICHT. → **Fix:** Votes ueber `research_ratings` Tabelle aggregieren.
-- **`research_ratings.score`:** Spalte heisst `rating`. → **Fix:** `rating` nutzen.
-- **`user_achievements.achievement_id`:** Spalte heisst `achievement_key`. → **Fix:** `achievement_key` nutzen.
-- **`players.ticket_number`:** Spalte heisst `shirt_number`. → **Fix:** `shirt_number` nutzen.
-
-### CHECK Constraints
-
-- **`club_subscriptions.tier = 'silver'`:** DB erwartet `'silber'` (deutsch). → **Fix:** `'bronze'`/`'silber'`/`'gold'` nutzen.
-- **`user_stats.tier` falsche Werte:** Nur exakte Werte erlaubt. → **Fix:** `'Rookie'`/`'Amateur'`/`'Profi'`/`'Elite'`/`'Legende'`/`'Ikone'`.
-- **`research_posts.call` lowercase:** Muss capitalized sein. → **Fix:** `'Bullish'`/`'Bearish'`/`'Neutral'`.
-- **`research_posts.category` falsche Werte:** Nur exakte deutsche Werte. → **Fix:** `'Spieler-Analyse'`/`'Transfer-Empfehlung'`/`'Taktik'`/`'Saisonvorschau'`/`'Scouting-Report'`.
-- **`lineups.captain_slot` mit 'slot_' Prefix:** Kein Prefix erlaubt. → **Fix:** `'gk'`/`'def1'` etc. direkt nutzen.
+### DB Columns + CHECK Constraints
+→ Single Source: `.claude/rules/database.md` (Column Quick-Reference + CHECK Constraints)
 
 ### RPC Anti-Patterns
 
