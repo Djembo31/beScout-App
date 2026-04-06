@@ -76,8 +76,8 @@ next-intl (Cookie bescout-locale) | lucide-react
 - $SCOUT = Platform Credits (NIEMALS: Investment, ROI, Profit, Ownership)
 - Scout Card = Digitale Spielerkarte (kein Eigentum, keine Anlage)
 - Code-intern: "dpc" in Variablen/DB-Columns bleibt (nur UI umbenannt)
-- Fee-Split Trading: 6% (Platform 3.5% + PBT 1.5% + Club 1%)
-- Fee-Split IPO: 85% Club, 10% Platform, 5% PBT
+- Fee-Splits → `business.md` (7 Kategorien: Trading, IPO, Research, Bounty, Polls, P2P, Club Abos)
+- DB Columns → `database.md` (Column Quick-Reference + CHECK Constraints)
 
 ## Rules (auto-loaded)
-`common-errors.md` (DB columns, constraints) | `business.md` (compliance) | `workflow.md` (how I work)
+`common-errors.md` (patterns, traps) | `database.md` (columns, RLS, RPCs) | `business.md` (compliance, fees) | `workflow-reference.md` (agents, skills, hooks)

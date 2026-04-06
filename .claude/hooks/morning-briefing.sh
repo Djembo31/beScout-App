@@ -82,6 +82,21 @@ mkdir -p memory/senses
     fi
   fi
 
+  # Wiki status
+  echo "## Wiki"
+  if [ -f "memory/wiki-index.md" ]; then
+    WIKI_FILES=$(grep -c "^|" memory/wiki-index.md 2>/dev/null || echo 0)
+    WIKI_DATE=$(head -1 memory/wiki-index.md 2>/dev/null | sed -n 's/.*generated \(.*\))/\1/p')
+    echo "- Index: $WIKI_FILES Eintraege (Stand: ${WIKI_DATE:-unbekannt})"
+  else
+    echo "- Index: nicht vorhanden"
+  fi
+  if [ -f "memory/wiki-log.md" ]; then
+    LAST_LOG=$(grep "^## \[" memory/wiki-log.md 2>/dev/null | tail -1)
+    echo "- Letzter Log: ${LAST_LOG:-kein Eintrag}"
+  fi
+  echo ""
+
 } > "$BRIEFING"
 
 # Output to context (replaces inject-learnings.sh)

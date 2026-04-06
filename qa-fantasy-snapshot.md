@@ -1,0 +1,63 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - link "Zum Inhalt springen" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - link "BeScout" [ref=e9] [cursor=pointer]:
+            - /url: /
+          - button "Menü öffnen" [ref=e12] [cursor=pointer]
+        - generic [ref=e14]:
+          - generic [ref=e15]
+          - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e80]
+          - button "Suche..." [ref=e19] [cursor=pointer]
+          - button "Benachrichtigungen" [ref=e24] [cursor=pointer]
+          - generic "4 Tage Streak" [ref=e28]
+          - link "Mein Profil" [ref=e33] [cursor=pointer]:
+            - /url: /profile
+    - main [ref=e36]:
+      - generic [ref=e85]:
+        - heading "Fantasy" [level=1] [ref=e87]:
+          - img [ref=e88]
+          - text: Fantasy
+        - generic [ref=e94]:
+          - generic [ref=e95]
+          - generic [ref=e108]
+        - button "Wie werden Punkte berechnet?" [ref=e122] [cursor=pointer]:
+          - generic [ref=e123]
+          - img [ref=e126]
+        - generic [ref=e128]:
+          - generic [ref=e129]
+          - generic [ref=e145]
+        - generic [ref=e166]:
+          - button "🇹🇷 TFF 1. Lig" [ref=e169] [cursor=pointer]
+          - generic [ref=e174]
+          - link "Gesponsert von EA Sports EA Sports" [ref=e204] [cursor=pointer]:
+            - /url: https://www.ea.com/sports/fc
+          - button "Tippe auf Ergebnisse und sammle Punkte" [ref=e213] [cursor=pointer]
+          - button "Topspiel Sivasspor SİV ? ? Ergebnis ausstehend Esenler Erokspor ERK" [ref=e223] [cursor=pointer]
+          - generic [ref=e249]
+  - navigation "Hauptnavigation" [ref=e48]:
+    - generic [ref=e49]:
+      - link "Home" [ref=e50] [cursor=pointer]:
+        - /url: /
+        - img [ref=e51]
+        - generic [ref=e54]: Home
+      - link "Spieltag" [ref=e55] [cursor=pointer]:
+        - /url: /fantasy
+        - img [ref=e57]
+        - generic [ref=e63]: Spieltag
+      - link "Markt" [ref=e64] [cursor=pointer]:
+        - /url: /market
+        - img [ref=e65]
+        - generic [ref=e68]: Markt
+      - link "Club" [ref=e69] [cursor=pointer]:
+        - /url: /clubs
+        - img [ref=e70]
+        - generic [ref=e74]: Club
+      - link "Community" [ref=e75] [cursor=pointer]:
+        - /url: /community
+        - img [ref=e76]
+        - generic [ref=e79]: Community

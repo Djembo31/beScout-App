@@ -2,24 +2,8 @@
 description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ---
 
-## DB Column Names (Top Fehlerquelle)
-- `players`: `first_name`/`last_name` (NICHT `name`)
-- `wallets`: PK=`user_id` (KEIN `id`, KEIN `currency`)
-- `orders`: `side` (NICHT `type`), KEIN `updated_at`
-- `post_votes.vote_type` = SMALLINT 1/-1 (NICHT boolean)
-- `profiles.top_role` (NICHT `role`), Wert `'Admin'` mit grossem A
-- `notifications.read` (NICHT `is_read`)
-- `activity_log.action` (NICHT `action_type`)
-- `user_follows.following_id` (NICHT `followed_id`)
-- `trades.executed_at` (NICHT `created_at`)
-- `offers.price` (NICHT `price_cents`)
-- `research_posts`: hat KEINE upvotes/downvotes Spalten
-
-## CHECK Constraints (DB wirft Error bei falschem Wert)
-- `club_subscriptions.tier`: 'bronze'/'silber'/'gold' (silber, NICHT silver!)
-- `user_stats.tier`: 'Rookie'/'Amateur'/'Profi'/'Elite'/'Legende'/'Ikone'
-- `research_posts.call`: 'Bullish'/'Bearish'/'Neutral' (Capitalized)
-- `lineups.captain_slot`: 'gk'/'def1' etc. (KEIN 'slot_' Prefix)
+## DB Columns + CHECK Constraints
+→ Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 
 ## React/TypeScript
 - Hooks VOR early returns (React rules)

@@ -1,30 +1,33 @@
-# System-Status (auto-generated 2026-04-03 17:58)
+# System-Status (auto-generated 2026-04-07 00:41)
 
 ## Git (seit letzter Session)
-- 10 Commits:
-  8a44a32 chore(session-282): final handoff — 25 commits, /spec skill, 6 workflow gaps filled
-  18a1ad6 fix(workflow): fill 6 gaps exposed by Session 282 failure
-  087d418 chore: remove 12 orphaned components from failed redesign attempt
-  cae8e90 feat(skill): add /spec — migration-first engineering specification process
-  393e351 feat: split Manager from Market — KaderTab moves to /manager, no duplicates
-  99f5ab9 revert: restore original Market page + nav (redesign not ready for production)
-  3aa4017 feat: wire Manager <-> Market deep-link bridges
-  7855a1e feat(market): new MarketContentV2 — side-by-side Portfolio + Marktplatz
-  aa7d508 chore(session-282): update handoff + sprint — Manager redesign Phase 0-1 done
-  ea8d825 feat(market): add PortfolioCard with sparkline, P&L, quick actions
+- 6 Commits:
+  f7fba3b docs: session handoff + premium roadmap for next sessions
+  c71d1df refactor: remove legacy chip system — replaced by Equipment
+  e2e0e13 feat: Equipment Lineup Integration — equip items to players + scoring multiplier
+  4444212 fix: prevent negative radius in particle glow (Canvas createRadialGradient)
+  289ee3f fix: remove GOTO from open_mystery_box_v2 RPC (Postgres compatibility)
+  58d4eee feat: Mystery Box Premium — Equipment System + Star Drops Animation
 
-## Uncommitted: 3 Files
+## Uncommitted: 10 Files
 ```
- M memory/senses/morning-briefing.md
-?? .claude/session-files.txt
-?? memory/working-memory.md
+ M .claude/agents/SHARED-PREFIX.md
+ M .claude/agents/autodream.md
+ M .claude/agents/backend.md
+ M .claude/agents/frontend.md
+ M .claude/agents/healer.md
+ M .claude/agents/reviewer.md
+ M .claude/agents/test-writer.md
+ M .claude/hooks/inject-learnings.sh
+ M .claude/hooks/morning-briefing.sh
+ M .claude/rules/common-errors.md
 ```
 
 ## Build
 - tsc: CLEAN
 
 ## Supabase
-- Migrations: 38, letzte: 20260401193000_rpc_get_most_watched_players.sql
+- Migrations: 43, letzte: 20260406190000_equipment_lineup_integration.sql
 
 ## Sprint
 ## Naechste Prioritaet
@@ -47,4 +50,8 @@
 - - `grep -oP` mit `\K` scheitert SILENT auf Windows (Locale-Bug: "supports only unibyte and UTF-8 locales")
 - - Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'` statt `grep -oP`
 - - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` — Fallback auf Main-Repo-Path oder Task gut verpacken
+
+## Wiki
+- Index: 77 Eintraege (Stand: 2026-04-07)
+- Letzter Log: ## [2026-04-07] Initial Migration (Karpathy Wiki Pattern)
 

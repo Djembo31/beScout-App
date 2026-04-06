@@ -97,7 +97,7 @@ Write 5 failure scenarios and a mitigation for each:
 | 4 | Agent baut isolierte Komponente die nicht passt | Agents nur fuer klar definierte, reviewbare Tasks |
 | 5 | Store-Default zeigt auf geloeschten Tab | Store-Aenderung in derselben Wave wie Tab-Entfernung |
 
-Pull from `common-errors.md` and `memory/episodisch/fehler/errors.md` for known traps.
+Pull from `common-errors.md` and `memory/errors.md` for known traps.
 
 ### 1.6 Invarianten + Constraints
 

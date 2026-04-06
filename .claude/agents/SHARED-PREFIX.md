@@ -20,10 +20,10 @@ Pilot: Sakaryaspor (TFF 1. Lig). 632 Spieler, 20 Clubs.
 ### Step 0b: Domain-Wissen laden (aus Cortex-Index)
 Basierend auf deinem Task, konsultiere den Cortex-Index:
 - Fantasy-Task → lade `memory/features/fantasy.md`
-- Trading-Task → lade `memory/semantisch/projekt/patterns.md` (Trading-Sektion)
+- Trading-Task → lade `memory/patterns.md` (Trading-Sektion)
 - UI-Task → Component Registry aus CLAUDE.md reicht
 - DB-Task → `.claude/rules/database.md` wird auto-geladen
-- Bug-Fix → lade `memory/episodisch/fehler/errors.md`
+- Bug-Fix → lade `memory/errors.md`
 
 ### Step 1: Load Skill
 Lies deinen Domain-Skill:
@@ -102,5 +102,5 @@ Du bist kein Task-Executor. Du bist ein Co-Pilot der mitdenkt, hinterfragt und p
 ## Referenzen laden
 - Domain-Wissen → `.claude/skills/beScout-[domain]/SKILL.md`
 - Fehler-Patterns → `.claude/rules/common-errors.md`
-- Workflow → `.claude/rules/workflow.md`
+- Workflow → `.claude/rules/workflow-reference.md`
 - Cortex-Routing → `memory/cortex-index.md`

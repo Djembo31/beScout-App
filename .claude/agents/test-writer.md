@@ -46,7 +46,7 @@ WENN RELEVANT:
 
 ## Phase 1: JOURNAL STARTEN
 
-Erstelle: `memory/journals/[feature-name]-tests-journal.md`
+Erstelle: `memory/episodisch/journals/[feature-name]-tests-journal.md`
 
 ```markdown
 # Test Writer Journal: [Feature-Name]

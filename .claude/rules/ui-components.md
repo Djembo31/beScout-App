@@ -46,10 +46,7 @@ paths:
 - `will-change` NUR temporaer, `backdrop-blur` max `sm` (4px)
 
 ## Spieler-Darstellung
-- IMMER `PlayerDisplay` aus `@/components/player/PlayerRow` (compact/card)
-- IMMER `PlayerPhoto` aus `player/index.tsx` — NIEMALS inline img+fallback
-- L5-Tokens: `getL5Color()`/`getL5Hex()`/`getL5Bg()` aus `player/index.tsx`
-- PlayerKPIs: 8 Kontexte (portfolio/market/lineup/result/picker/ipo/search/default)
+→ Component Registry in `CLAUDE.md` (PlayerDisplay, PlayerPhoto, L5 Tokens, PlayerKPIs)
 
 ## Mobile Tab-Bars
 - `flex-shrink-0` (NIEMALS `flex-1`) + `overflow-x-auto` + `scrollbar-hide`

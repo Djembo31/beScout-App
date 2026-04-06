@@ -1,0 +1,116 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - link "Zum Inhalt springen" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - link "BeScout" [ref=e9] [cursor=pointer]:
+            - /url: /
+            - img "BeScout" [ref=e11]
+          - button "Menü öffnen" [ref=e12] [cursor=pointer]:
+            - img [ref=e13]
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - img [ref=e16]
+            - generic [ref=e18]: "7.540"
+          - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e79]:
+            - img [ref=e80]
+            - generic [ref=e82]: "25"
+          - button "Suche..." [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+          - button "Benachrichtigungen" [ref=e24] [cursor=pointer]:
+            - img [ref=e25]
+            - generic [ref=e83]: 9+
+          - generic "4 Tage Streak" [ref=e28]:
+            - img [ref=e29]
+            - generic [ref=e31]: "4"
+          - link "Mein Profil" [ref=e33] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e35]: J
+    - main [ref=e36]:
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - img [ref=e87]
+            - heading "Missionen & Challenges" [level=1] [ref=e91]
+          - paragraph [ref=e92]: Erledige Aufgaben, sammle Rewards und steige im Rang auf.
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - img [ref=e95]
+            - generic [ref=e97]: 4 Tage in Folge
+          - generic [ref=e98]:
+            - generic [ref=e99]: +10 Tickets/Tag
+            - generic [ref=e100]: "-1 Ticket Rabatt auf Mystery Boxes"
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - img [ref=e103]
+            - generic [ref=e105]: Tägliche Challenge
+          - paragraph [ref=e106]: Heute keine Challenge verfügbar
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - img [ref=e109]
+              - generic [ref=e111]: "25"
+              - text: Tickets
+              - button "Info" [ref=e113] [cursor=pointer]:
+                - generic [ref=e114]: "?"
+            - button "Mystery Box" [ref=e115] [cursor=pointer]:
+              - img [ref=e116]
+              - text: Mystery Box
+        - button "Missionen +2.530 CR 0/30 30 offen 3h 33m" [ref=e121] [cursor=pointer]:
+          - generic [ref=e122]:
+            - img [ref=e124]
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - generic [ref=e130]: Missionen
+                - generic [ref=e131]: +2.530 CR
+              - generic [ref=e132]:
+                - generic [ref=e133]: 0/30 30 offen
+                - generic [ref=e134]
+          - img [ref=e138]
+        - generic [ref=e140]:
+          - generic [ref=e141]:
+            - img [ref=e142]
+            - heading "Rang-Aufstieg" [level=3] [ref=e148]
+            - generic [ref=e149]: Season 1
+          - generic [ref=e150]:
+            - generic [ref=e156]:
+              - generic [ref=e157]:
+                - generic [ref=e158]: Bronze II
+                - generic [ref=e159]: "350"
+              - generic [ref=e160]:
+                - generic [ref=e161]: 200 CR
+                - button "Einlösen" [ref=e162] [cursor=pointer]
+            - generic [ref=e166]:
+              - generic [ref=e167]:
+                - generic [ref=e168]: Bronze III
+                - generic [ref=e169]: "700"
+              - generic [ref=e170]:
+                - generic [ref=e171]: 300 CR
+                - img [ref=e172]
+          - button "Alle 11 Meilensteine" [ref=e175] [cursor=pointer]:
+            - img [ref=e176]
+            - text: Alle 11 Meilensteine
+  - navigation "Hauptnavigation" [ref=e48]:
+    - generic [ref=e49]:
+      - link "Home" [ref=e50] [cursor=pointer]:
+        - /url: /
+        - img [ref=e51]
+        - generic [ref=e54]: Home
+      - link "Spieltag" [ref=e55] [cursor=pointer]:
+        - /url: /fantasy
+        - img [ref=e56]
+        - generic [ref=e62]: Spieltag
+      - link "Markt" [ref=e63] [cursor=pointer]:
+        - /url: /market
+        - img [ref=e64]
+        - generic [ref=e67]: Markt
+      - link "Club" [ref=e68] [cursor=pointer]:
+        - /url: /clubs
+        - img [ref=e69]
+        - generic [ref=e73]: Club
+      - link "Community" [ref=e74] [cursor=pointer]:
+        - /url: /community
+        - img [ref=e75]
+        - generic [ref=e78]: Community

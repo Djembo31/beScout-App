@@ -51,12 +51,30 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/capture-correction.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/session-handoff-auto.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/session-retro.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/quality-gate-v2.sh"
           }
         ]
       }
@@ -68,6 +86,10 @@
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/morning-briefing.sh",
             "timeout": 60000
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/inject-learnings.sh"
           }
         ]
       }

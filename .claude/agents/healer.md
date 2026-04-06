@@ -27,7 +27,7 @@ PFLICHT (immer):
 3. memory/patterns.md             → Korrekte Patterns als Referenz
 
 WENN VORHANDEN:
-4. memory/journals/[name]-journal.md → Implementer-Journal (Kontext der Aenderung)
+4. memory/episodisch/journals/[name]-journal.md → Implementer-Journal (Kontext der Aenderung)
 ```
 
 **common-errors.md ist deine wichtigste Waffe.** Die meisten Build-Fehler sind bekannte Muster.

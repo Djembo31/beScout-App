@@ -58,7 +58,7 @@ Der CTO hat im Prompt ALLES mitgegeben:
 ## Phase 1: JOURNAL + IMPLEMENTIEREN
 
 ### Journal starten
-Erstelle: `memory/journals/[feature-name]-journal.md`
+Erstelle: `memory/episodisch/journals/[feature-name]-journal.md`
 
 ```markdown
 # Frontend Journal: [Feature-Name]

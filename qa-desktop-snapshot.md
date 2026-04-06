@@ -1,0 +1,108 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - link "Zum Inhalt springen" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - complementary "Sidebar-Navigation" [ref=e5]:
+      - link "BeScout BeScout" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "BeScout" [ref=e9]
+        - img "BeScout" [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e14]:
+          - img [ref=e16]
+          - generic [ref=e18]:
+            - generic [ref=e19]: Guthaben
+            - generic [ref=e20]: 7.540 CR
+        - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e154]:
+          - img [ref=e155]
+          - generic [ref=e157]: "18"
+          - generic [ref=e158]: Tickets
+      - navigation "Hauptnavigation" [ref=e23]:
+        - generic [ref=e24]:
+          - link "Home" [ref=e25] [cursor=pointer]:
+            - /url: /
+            - img [ref=e26]
+            - generic [ref=e29]: Home
+          - link "Manager" [ref=e30] [cursor=pointer]:
+            - /url: /manager
+            - img [ref=e31]
+            - generic [ref=e34]: Manager
+          - link "Transfermarkt" [ref=e35] [cursor=pointer]:
+            - /url: /market
+            - img [ref=e36]
+            - generic [ref=e39]: Transfermarkt
+          - link "Spieltag" [ref=e40] [cursor=pointer]:
+            - /url: /fantasy
+            - img [ref=e41]
+            - generic [ref=e47]: Spieltag
+          - link "Missionen" [ref=e48] [cursor=pointer]:
+            - /url: /missions
+            - img [ref=e49]
+            - generic [ref=e53]: Missionen
+          - link "Club" [ref=e54] [cursor=pointer]:
+            - /url: /clubs
+            - img [ref=e55]
+            - generic [ref=e59]: Club
+          - link "Community" [ref=e60] [cursor=pointer]:
+            - /url: /community
+            - img [ref=e61]
+            - generic [ref=e64]: Community
+        - generic [ref=e66]: Mehr
+        - generic [ref=e67]:
+          - link "Founding Pass" [ref=e68] [cursor=pointer]:
+            - /url: /founding
+            - img [ref=e69]
+            - generic [ref=e71]: Founding Pass
+          - link "Airdrop" [ref=e72] [cursor=pointer]:
+            - /url: /airdrop
+            - img [ref=e73]
+            - generic [ref=e78]: Airdrop
+      - generic [ref=e79]:
+        - button "Wunsch einreichen" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+          - generic [ref=e83]: Wunsch einreichen
+        - link "Einstellungen" [ref=e84] [cursor=pointer]:
+          - /url: /profile/settings
+          - img [ref=e85]
+          - generic [ref=e88]: Einstellungen
+        - button "Abmelden" [ref=e89] [cursor=pointer]:
+          - img [ref=e90]
+          - generic [ref=e93]: Abmelden
+      - button "Sidebar einklappen" [ref=e94] [cursor=pointer]:
+        - img [ref=e95]
+    - generic [ref=e97]:
+      - banner [ref=e98]:
+        - generic [ref=e99]:
+          - button "Suche... ⌘ K" [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - generic [ref=e105]: Suche...
+            - generic [ref=e106]
+          - generic [ref=e108]:
+            - generic [ref=e109]
+            - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e159]
+            - button "Push aktivieren" [ref=e113] [cursor=pointer]
+            - button "Benachrichtigungen" [ref=e120] [cursor=pointer]
+            - button "Feedback senden" [ref=e124] [cursor=pointer]
+            - button "Glossar" [ref=e127] [cursor=pointer]
+            - generic "4 Tage Streak" [ref=e131]
+            - generic [ref=e135]
+      - main [ref=e142]:
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - generic [ref=e166]
+            - paragraph [ref=e172]: Erledige Aufgaben, sammle Rewards und steige im Rang auf.
+          - generic [ref=e173]:
+            - generic [ref=e174]
+            - generic [ref=e178]
+          - generic [ref=e181]:
+            - generic [ref=e182]
+            - paragraph [ref=e186]: Heute keine Challenge verfügbar
+            - generic [ref=e187]
+          - button "Missionen +2.530 CR 1/30 29 offen 3h 30m" [ref=e201] [cursor=pointer]:
+            - generic [ref=e202]
+            - img [ref=e218]
+          - generic [ref=e220]:
+            - generic [ref=e221]
+            - generic [ref=e230]
+            - button "Alle 11 Meilensteine" [ref=e255] [cursor=pointer]

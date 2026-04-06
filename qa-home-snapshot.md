@@ -1,0 +1,254 @@
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - link "Zum Inhalt springen" [active] [ref=e49] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - link "BeScout" [ref=e55] [cursor=pointer]:
+            - /url: /
+            - img "BeScout" [ref=e57]
+          - button "Menü öffnen" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - img [ref=e62]
+            - generic [ref=e64]: "7.540"
+          - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e65]:
+            - img [ref=e66]
+            - generic [ref=e68]: "25"
+          - button "Suche..." [ref=e69] [cursor=pointer]:
+            - img [ref=e70]
+          - button "Benachrichtigungen" [ref=e74] [cursor=pointer]:
+            - img [ref=e75]
+            - generic [ref=e78]: 9+
+          - generic "4 Tage Streak" [ref=e79]:
+            - img [ref=e80]
+            - generic [ref=e82]: "4"
+          - link "Mein Profil" [ref=e84] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e86]: J
+    - main [ref=e87]:
+      - generic [ref=e88]:
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: Guten Abend
+              - heading "Jarvis." [level=1] [ref=e94]
+            - generic [ref=e96]:
+              - img [ref=e97]
+              - generic [ref=e99]: "4"
+          - link "3.560CR Spielerkader Info" [ref=e100] [cursor=pointer]:
+            - /url: /market?tab=portfolio
+            - generic [ref=e101]: 3.560CR
+            - generic [ref=e102]:
+              - text: Spielerkader
+              - button "Info" [ref=e104]:
+                - generic [ref=e105]: "?"
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - img [ref=e108]
+              - generic [ref=e111]: +0.0%
+              - generic [ref=e112]: Wertentwicklung
+            - generic [ref=e113]:
+              - generic [ref=e114]: "8"
+              - generic [ref=e115]: Spieler
+        - link "Founding Pass sichern Permanenter Gründer-Status, niedrigere Fees, exklusive Events Mehr erfahren" [ref=e116] [cursor=pointer]:
+          - /url: /founding
+          - img [ref=e118]
+          - generic [ref=e120]:
+            - generic [ref=e121]: Founding Pass sichern
+            - generic [ref=e122]: Permanenter Gründer-Status, niedrigere Fees, exklusive Events
+          - generic [ref=e123]: Mehr erfahren
+        - link "Entdecke den Markt Kaufe Scout Cards, handle am Markt und baue dein Portfolio auf." [ref=e124] [cursor=pointer]:
+          - /url: /market?tab=kaufen
+          - generic [ref=e127]:
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - img [ref=e130]
+                - generic [ref=e132]: Entdecke den Markt
+              - generic [ref=e133]: Kaufe Scout Cards, handle am Markt und baue dein Portfolio auf.
+            - img [ref=e134]
+        - generic [ref=e139]:
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - img [ref=e143]
+              - generic [ref=e147]: Deine ersten Schritte
+            - generic [ref=e148]: 1/5
+          - generic [ref=e151]:
+            - link "Kaufe deine erste Scout Card +1.000 CR" [ref=e152] [cursor=pointer]:
+              - /url: /market?tab=kaufen
+              - img [ref=e153]
+              - generic [ref=e156]:
+                - generic [ref=e157]: Kaufe deine erste Scout Card
+                - generic [ref=e158]: +1.000 CR
+            - 'link "Stelle dein erstes Fantasy-Lineup auf Achievement: Erster Event" [ref=e159] [cursor=pointer]':
+              - /url: /fantasy
+              - img [ref=e160]
+              - generic [ref=e162]:
+                - generic [ref=e163]: Stelle dein erstes Fantasy-Lineup auf
+                - generic [ref=e164]: "Achievement: Erster Event"
+              - img [ref=e165]
+            - link "Beantworte die Daily Challenge +10 Tickets" [ref=e167] [cursor=pointer]:
+              - /url: /
+              - img [ref=e168]
+              - generic [ref=e170]:
+                - generic [ref=e171]: Beantworte die Daily Challenge
+                - generic [ref=e172]: +10 Tickets
+              - img [ref=e173]
+            - link "Schreibe deinen ersten Beitrag +3 Tickets" [ref=e175] [cursor=pointer]:
+              - /url: /community
+              - img [ref=e176]
+              - generic [ref=e178]:
+                - generic [ref=e179]: Schreibe deinen ersten Beitrag
+                - generic [ref=e180]: +3 Tickets
+              - img [ref=e181]
+            - link "Folge einem Club Fan-Rang aktiviert" [ref=e183] [cursor=pointer]:
+              - /url: /clubs
+              - img [ref=e184]
+              - generic [ref=e186]:
+                - generic [ref=e187]: Folge einem Club
+                - generic [ref=e188]: Fan-Rang aktiviert
+              - img [ref=e189]
+        - generic [ref=e192]:
+          - generic [ref=e194]:
+            - link "Mein Spielerkader" [ref=e195] [cursor=pointer]:
+              - /url: /market?tab=portfolio
+              - generic [ref=e196]:
+                - heading "Mein Spielerkader" [level=2] [ref=e198]
+                - img [ref=e199]
+            - generic [ref=e201]:
+              - link "Emre Demir 72 Demir MID 550 2 SC +0.0%" [ref=e202] [cursor=pointer]:
+                - /url: /player/2f3442ea-a9f3-4cf3-aa90-267b78e326ca
+                - generic [ref=e203]:
+                  - generic [ref=e204]:
+                    - img "Emre Demir" [ref=e206]
+                    - generic [ref=e208]: "72"
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: Demir
+                    - generic [ref=e211]: MID
+                - generic [ref=e213]:
+                  - generic [ref=e214]:
+                    - generic [ref=e215]: "550"
+                    - generic [ref=e216]: 2 SC
+                  - generic [ref=e217]: +0.0%
+              - link "Alaaddin Okumuş 71 Okumuş DEF 100 2 SC +0.0%" [ref=e218] [cursor=pointer]:
+                - /url: /player/4aa28827-c7a0-4da0-8a8e-8ccbdad09f2f
+                - generic [ref=e219]:
+                  - generic [ref=e220]:
+                    - img "Alaaddin Okumuş" [ref=e222]
+                    - generic [ref=e224]: "71"
+                  - generic [ref=e225]:
+                    - generic [ref=e226]: Okumuş
+                    - generic [ref=e227]: DEF
+                - generic [ref=e229]:
+                  - generic [ref=e230]:
+                    - generic [ref=e231]: "100"
+                    - generic [ref=e232]: 2 SC
+                  - generic [ref=e233]: +0.0%
+              - link "Melih Bostan 70 Bostan ATT 800 2 SC +0.0%" [ref=e234] [cursor=pointer]:
+                - /url: /player/46ca0d1b-7585-4440-9699-1e39a0ea1f4e
+                - generic [ref=e235]:
+                  - generic [ref=e236]:
+                    - img "Melih Bostan" [ref=e238]
+                    - generic [ref=e240]: "70"
+                  - generic [ref=e241]:
+                    - generic [ref=e242]: Bostan
+                    - generic [ref=e243]: ATT
+                - generic [ref=e245]:
+                  - generic [ref=e246]:
+                    - generic [ref=e247]: "800"
+                    - generic [ref=e248]: 2 SC
+                  - generic [ref=e249]: +0.0%
+              - link "Owusu Kwabena 68 Kwabena ATT 400 1 SC +0.0%" [ref=e250] [cursor=pointer]:
+                - /url: /player/46c054dc-293f-41a9-a43c-8b4f31f1a890
+                - generic [ref=e251]:
+                  - generic [ref=e252]:
+                    - img "Owusu Kwabena" [ref=e254]
+                    - generic [ref=e256]: "68"
+                  - generic [ref=e257]:
+                    - generic [ref=e258]: Kwabena
+                    - generic [ref=e259]: ATT
+                - generic [ref=e261]:
+                  - generic [ref=e262]:
+                    - generic [ref=e263]: "400"
+                    - generic [ref=e264]: 1 SC
+                  - generic [ref=e265]: +0.0%
+              - link "Jakub Szumski 72 Szumski GK 50 1 SC +0.0%" [ref=e266] [cursor=pointer]:
+                - /url: /player/a881f299-72db-4893-a4c8-56170d8cedfc
+                - generic [ref=e267]:
+                  - generic [ref=e268]:
+                    - img "Jakub Szumski" [ref=e270]
+                    - generic [ref=e272]: "72"
+                  - generic [ref=e273]:
+                    - generic [ref=e274]: Szumski
+                    - generic [ref=e275]: GK
+                - generic [ref=e277]:
+                  - generic [ref=e278]:
+                    - generic [ref=e279]: "50"
+                    - generic [ref=e280]: 1 SC
+                  - generic [ref=e281]: +0.0%
+              - link "AÖ 68 Özçimen GK 10 1 SC +0.0%" [ref=e282] [cursor=pointer]:
+                - /url: /player/aa4701ef-b81f-44cd-9b11-ec9d51c5e468
+                - generic [ref=e283]:
+                  - generic [ref=e284]:
+                    - generic [ref=e286]: AÖ
+                    - generic [ref=e288]: "68"
+                  - generic [ref=e289]:
+                    - generic [ref=e290]: Özçimen
+                    - generic [ref=e291]: GK
+                - generic [ref=e293]:
+                  - generic [ref=e294]:
+                    - generic [ref=e295]: "10"
+                    - generic [ref=e296]: 1 SC
+                  - generic [ref=e297]: +0.0%
+              - link "+2" [ref=e298] [cursor=pointer]:
+                - /url: /market?tab=portfolio
+                - img [ref=e299]
+                - generic [ref=e301]: "+2"
+          - generic [ref=e303]:
+            - link "Rang-Aufstieg" [ref=e304] [cursor=pointer]:
+              - /url: /profile
+              - img [ref=e306]
+              - generic [ref=e310]: Bronze II
+              - generic [ref=e314]: 500 / 700
+              - generic [ref=e315]:
+                - img [ref=e316]
+                - generic [ref=e320]: "1"
+            - link "Melde dich fuer ein Fantasy-Event an" [ref=e321] [cursor=pointer]:
+              - /url: /fantasy
+              - img [ref=e322]
+              - generic [ref=e324]: Melde dich fuer ein Fantasy-Event an
+              - img [ref=e325]
+            - link "Gesponsert von Mastercard Mastercard" [ref=e327] [cursor=pointer]:
+              - /url: https://www.mastercard.com
+              - generic [ref=e328]:
+                - generic [ref=e329]:
+                  - img [ref=e330]
+                  - generic [ref=e332]: Gesponsert von
+                - generic [ref=e333]:
+                  - img "Mastercard" [ref=e334]
+                  - generic [ref=e335]: Mastercard
+  - navigation "Hauptnavigation" [ref=e336]:
+    - generic [ref=e337]:
+      - link "Home" [ref=e338] [cursor=pointer]:
+        - /url: /
+        - img [ref=e340]
+        - generic [ref=e343]: Home
+      - link "Spieltag" [ref=e344] [cursor=pointer]:
+        - /url: /fantasy
+        - img [ref=e345]
+        - generic [ref=e351]: Spieltag
+      - link "Markt" [ref=e352] [cursor=pointer]:
+        - /url: /market
+        - img [ref=e353]
+        - generic [ref=e356]: Markt
+      - link "Club" [ref=e357] [cursor=pointer]:
+        - /url: /clubs
+        - img [ref=e358]
+        - generic [ref=e362]: Club
+      - link "Community" [ref=e363] [cursor=pointer]:
+        - /url: /community
+        - img [ref=e364]
+        - generic [ref=e367]: Community

@@ -31,7 +31,7 @@ PFLICHT (immer):
 3. memory/patterns.md             → 30+ Code-Patterns (Konvention-Check)
 4. Betroffene Domain-Rules        → (trading.md, fantasy.md, ui-components.md etc.)
 5. Die geaenderten Files VOLLSTAENDIG lesen
-6. Das Implementer-Journal        → (memory/journals/[name]-journal.md)
+6. Das Implementer-Journal        → (memory/episodisch/journals/[name]-journal.md)
    → Welche Entscheidungen wurden getroffen und warum?
    → Gab es gescheiterte Runden? Was war der Root Cause?
 

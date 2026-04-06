@@ -4,11 +4,7 @@
 
 cd C:/bescout-app
 
-# 0. Morning briefing (system status from senses)
-if [ -f "memory/senses/morning-briefing.md" ]; then
-  cat "memory/senses/morning-briefing.md"
-  echo ""
-fi
+# Morning briefing already output by morning-briefing.sh — no duplicate needed
 
 # 1. Last retrospective
 LATEST_RETRO=$(ls -t memory/episodisch/sessions/retro-*.md 2>/dev/null | head -1)
@@ -37,8 +33,8 @@ if [ -n "$RECENT_FEEDBACK" ]; then
 fi
 
 # 3. Last 3 errors from errors.md
-if [ -f "memory/episodisch/fehler/errors.md" ]; then
-  RECENT_ERRORS=$(tail -10 memory/episodisch/fehler/errors.md 2>/dev/null)
+if [ -f "memory/errors.md" ]; then
+  RECENT_ERRORS=$(tail -10 memory/errors.md 2>/dev/null)
   if [ -n "$RECENT_ERRORS" ]; then
     echo "## Recent Error Patterns"
     echo "$RECENT_ERRORS"
