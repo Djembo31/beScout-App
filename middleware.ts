@@ -6,15 +6,13 @@ export async function middleware(request: NextRequest) {
     // After Wave 2 migration, /market?tab=portfolio (and the bestand sub-tab)
     // moved to /manager?tab=kader. Permanent redirect preserves bookmarks +
     // shared links + crawler indexing.
-    if (request.nextUrl.pathname === '/market') {
-        const tab = request.nextUrl.searchParams.get('tab');
-        const sub = request.nextUrl.searchParams.get('sub');
+    const { pathname, searchParams } = request.nextUrl;
+    if (pathname === '/market') {
+        const tab = searchParams.get('tab');
+        const sub = searchParams.get('sub');
         if (tab === 'portfolio' || sub === 'bestand') {
-            const url = request.nextUrl.clone();
-            url.pathname = '/manager';
-            url.search = '';
-            url.searchParams.set('tab', 'kader');
-            return NextResponse.redirect(url, 301);
+            const target = new URL('/manager?tab=kader', request.url);
+            return NextResponse.redirect(target, { status: 301 });
         }
     }
 
