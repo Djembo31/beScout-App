@@ -171,7 +171,7 @@ export function useHomeData() {
     return players.some(p => p.prices.change24h !== 0 && !p.isLiquidated);
   }, [players]);
 
-  const showQuickActions = !!uid && (!retention?.onboarding || retention.onboarding.every(i => i.completed));
+  const showQuickActions = !!uid;
   const isEventLive = nextEvent?.status === 'running';
 
   // ── Actions ──
