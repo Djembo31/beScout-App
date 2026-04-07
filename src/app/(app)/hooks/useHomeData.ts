@@ -12,9 +12,8 @@ import {
   qk,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
-import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
+import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useUserTickets } from '@/lib/queries/tickets';
-import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { getRetentionContext } from '@/lib/retentionEngine';
@@ -35,7 +34,6 @@ export function useHomeData() {
   const [streak, setStreak] = useState(0);
   const [shieldsRemaining, setShieldsRemaining] = useState<number | null>(null);
   const [belowFoldReady, setBelowFoldReady] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
   // ── Deferred Loading ──
@@ -55,15 +53,9 @@ export function useHomeData() {
   const { data: trendingPlayers = [] } = useTrendingPlayers(5);
 
   // ── Gamification v5 Hooks ──
-  const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge(belowFoldReady);
   const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
   const { data: ticketData = null } = useUserTickets(uid, belowFoldReady);
   const { data: highestPass } = useHighestPass(uid, belowFoldReady);
-
-  const todaysAnswer = useMemo(() => {
-    if (!todaysChallenge || !challengeHistory.length) return null;
-    return challengeHistory.find(h => h.challenge_id === todaysChallenge.id) ?? null;
-  }, [todaysChallenge, challengeHistory]);
 
   // ── Holdings Transform ──
   const holdings = useMemo<DpcHolding[]>(() =>
@@ -183,18 +175,6 @@ export function useHomeData() {
   const isEventLive = nextEvent?.status === 'running';
 
   // ── Actions ──
-  const handleChallengeSubmit = useCallback(async (challengeId: string, option: number) => {
-    if (!uid) return;
-    setIsSubmitting(true);
-    try {
-      await submitDailyChallenge(challengeId, option);
-      queryClient.invalidateQueries({ queryKey: qk.dailyChallenge.history(uid) });
-      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [uid]);
-
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
     if (!uid) return null;
     const result = await openMysteryBox(free);
@@ -254,10 +234,10 @@ export function useHomeData() {
     // Events
     events, nextEvent, isEventLive,
     // Gamification
-    userStats, todaysChallenge, todaysAnswer, challengeLoading,
+    userStats,
     challengeHistory, ticketData, highestPass,
-    isSubmitting, showMysteryBox, setShowMysteryBox,
-    handleChallengeSubmit, handleOpenMysteryBox,
+    showMysteryBox, setShowMysteryBox,
+    handleOpenMysteryBox,
     // Derived
     storyMessage, spotlightType, retention, showQuickActions,
     belowFoldReady, followedClubs,

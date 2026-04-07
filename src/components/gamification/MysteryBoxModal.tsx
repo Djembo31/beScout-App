@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Gift, Ticket, Sparkles, AlertCircle, Coins, Swords } from 'lucide-react';
+import Link from 'next/link';
+import { Gift, Ticket, Sparkles, AlertCircle, Coins, Swords, Package } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -340,6 +341,18 @@ export default function MysteryBoxModal({
                 </Button>
               )}
             </div>
+
+            {/* "In Inventar ansehen" Link — only for collectible rewards */}
+            {(result.reward_type === 'equipment' || result.reward_type === 'cosmetic') && (
+              <Link
+                href={`/inventory?tab=${result.reward_type === 'equipment' ? 'equipment' : 'cosmetics'}`}
+                onClick={handleClose}
+                className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold/80 hover:text-gold transition-colors"
+              >
+                <Package className="size-3.5" aria-hidden="true" />
+                {t('viewInInventory')}
+              </Link>
+            )}
           </>
         )}
       </div>

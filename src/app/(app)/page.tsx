@@ -12,7 +12,7 @@ import {
   Clock, Trophy, Users, Rocket, Crown,
   Shield, Compass, Coins, TrendingUp, TrendingDown,
   ShoppingCart, Swords, Target, MessageSquare,
-  Gift, Ticket,
+  Gift, Ticket, Package,
 } from 'lucide-react';
 import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
@@ -30,18 +30,9 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
-const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
-  ssr: false,
-  loading: () => <div className="h-40 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
-});
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), { ssr: false });
-const ScoreRoadStrip = dynamic(() => import('@/components/gamification/ScoreRoadStrip'), {
-  ssr: false,
-  loading: () => <div className="h-10 rounded-xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
-});
 const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
-const StreakMilestoneBanner = dynamic(() => import('@/components/home/StreakMilestoneBanner'), { ssr: false });
 const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), { ssr: false });
 
@@ -63,9 +54,9 @@ export default function HomePage() {
     topMovers, hasGlobalMovers,
     portfolioValue, pnl, pnlPct,
     nextEvent, isEventLive,
-    userStats, todaysChallenge, todaysAnswer, challengeLoading,
+    userStats,
     ticketData, showMysteryBox, setShowMysteryBox,
-    isSubmitting, handleChallengeSubmit, handleOpenMysteryBox,
+    handleOpenMysteryBox,
     storyMessage, spotlightType, retention, showQuickActions,
     followedClubs, highestPass,
   } = useHomeData();
@@ -131,6 +122,7 @@ export default function HomePage() {
             { href: '/market?tab=kaufen', icon: ShoppingCart, label: t('qaBuy'), color: 'text-gold', bg: 'bg-gold/10 border-gold/20', glow: 'rgba(255,215,0,0.25)' },
             { href: '/fantasy', icon: Swords, label: t('qaFantasy'), color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-400/20', glow: 'rgba(168,85,247,0.25)' },
             { href: '/missions', icon: Target, label: t('qaMissions'), color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-400/20', glow: 'rgba(245,158,11,0.25)' },
+            { href: '/inventory', icon: Package, label: t('qaInventory'), color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-400/20', glow: 'rgba(52,211,153,0.25)' },
             { href: '/community', icon: MessageSquare, label: t('qaCommunity'), color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-400/20', glow: 'rgba(14,165,233,0.25)' },
           ].map(({ href, icon: Icon, label, color, bg, glow }) => (
             <Link
@@ -389,21 +381,6 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* Daily Challenge — always shown */}
-          {uid && <DailyChallengeCard
-            challenge={todaysChallenge}
-            userAnswer={todaysAnswer ? {
-              selectedOption: todaysAnswer.selected_option,
-              isCorrect: todaysAnswer.is_correct,
-              ticketsAwarded: todaysAnswer.tickets_awarded,
-            } : null}
-            onSubmit={handleChallengeSubmit}
-            isSubmitting={isSubmitting}
-            streakDays={streak}
-            isLoading={challengeLoading}
-            ticketBalance={ticketData?.balance ?? 0}
-          />}
-
           {/* Mystery Box Modal */}
           {uid && <MysteryBoxModal
             open={showMysteryBox}
@@ -418,14 +395,6 @@ export default function HomePage() {
             })()}
             ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
           />}
-
-          {/* Score Road */}
-          {uid && <ScoreRoadStrip userId={uid} />}
-
-          {/* Streak Milestone */}
-          {retention?.streakMilestone && (
-            <StreakMilestoneBanner milestone={retention.streakMilestone} />
-          )}
 
           {/* Suggested Action */}
           {retention?.suggestedAction && (

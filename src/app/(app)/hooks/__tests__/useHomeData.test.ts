@@ -10,7 +10,6 @@ const mockUseHoldings = vi.fn();
 const mockUseEvents = vi.fn();
 const mockUseUserStats = vi.fn();
 const mockUseTrendingPlayers = vi.fn();
-const mockUseTodaysChallenge = vi.fn();
 const mockUseChallengeHistory = vi.fn();
 const mockUseUserTickets = vi.fn();
 const mockUseHighestPass = vi.fn();
@@ -29,7 +28,6 @@ vi.mock('@/lib/queries', () => ({
 }));
 
 vi.mock('@/lib/queries/dailyChallenge', () => ({
-  useTodaysChallenge: (...a: any[]) => mockUseTodaysChallenge(...a),
   useChallengeHistory: (...a: any[]) => mockUseChallengeHistory(...a),
 }));
 
@@ -72,11 +70,6 @@ const mockCentsToBsd = vi.fn().mockImplementation((v: number) => v / 100000);
 
 vi.mock('@/lib/services/players', () => ({
   centsToBsd: (...args: any[]) => mockCentsToBsd(...args),
-}));
-
-const mockSubmitDailyChallenge = vi.fn().mockResolvedValue(undefined);
-vi.mock('@/lib/services/dailyChallenge', () => ({
-  submitDailyChallenge: (...args: any[]) => mockSubmitDailyChallenge(...args),
 }));
 
 const mockOpenMysteryBox = vi.fn().mockResolvedValue({ ok: false });
@@ -185,7 +178,6 @@ function setDefaults() {
   mockUseEvents.mockReturnValue({ data: [] });
   mockUseUserStats.mockReturnValue({ data: null });
   mockUseTrendingPlayers.mockReturnValue({ data: [] });
-  mockUseTodaysChallenge.mockReturnValue({ data: null, isLoading: false });
   mockUseChallengeHistory.mockReturnValue({ data: [] });
   mockUseUserTickets.mockReturnValue({ data: null });
   mockUseHighestPass.mockReturnValue({ data: undefined });
@@ -387,43 +379,7 @@ describe('useHomeData', () => {
     expect(result.current.hasGlobalMovers).toBe(false);
   });
 
-  // ── Daily Challenge ──
-
-  it('finds todaysAnswer from challenge history', () => {
-    mockUseTodaysChallenge.mockReturnValue({ data: { id: 'ch-1' }, isLoading: false });
-    mockUseChallengeHistory.mockReturnValue({
-      data: [
-        { challenge_id: 'ch-0', option: 1 },
-        { challenge_id: 'ch-1', option: 2 },
-      ],
-    });
-    const { result } = renderHook(() => useHomeData());
-    expect(result.current.todaysAnswer).toEqual({ challenge_id: 'ch-1', option: 2 });
-  });
-
-  it('todaysAnswer=null when no matching history', () => {
-    mockUseTodaysChallenge.mockReturnValue({ data: { id: 'ch-99' }, isLoading: false });
-    mockUseChallengeHistory.mockReturnValue({ data: [{ challenge_id: 'ch-1', option: 1 }] });
-    const { result } = renderHook(() => useHomeData());
-    expect(result.current.todaysAnswer).toBeNull();
-  });
-
-  // ── Actions: handleChallengeSubmit ──
-
-  it('handleChallengeSubmit calls service and invalidates queries', async () => {
-    const { queryClient } = await import('@/lib/queryClient');
-    const { result } = renderHook(() => useHomeData());
-    await act(async () => {
-      await result.current.handleChallengeSubmit('ch-1', 2);
-    });
-    expect(mockSubmitDailyChallenge).toHaveBeenCalledWith('ch-1', 2);
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: qk.dailyChallenge.history('u1'),
-    });
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: qk.tickets.balance('u1'),
-    });
-  });
+  // Daily Challenge tests removed — moved to /missions in 3-hub refactor
 
   // ── Actions: handleOpenMysteryBox ──
 
