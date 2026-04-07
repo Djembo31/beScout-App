@@ -74,6 +74,10 @@ export function useLineupBuilder({
   const [equipPickerOpen, setEquipPickerOpen] = useState(false);
   const [equipPickerSlot, setEquipPickerSlot] = useState<EquipmentPickerSlot | null>(null);
 
+  // Raw equipment_map from DB, deferred until equipDefs/userEquipment queries resolve.
+  // Set by load effect, consumed by population effect once both queries are ready.
+  const [dbEquipmentRaw, setDbEquipmentRaw] = useState<Record<string, string> | null>(null);
+
   // ==================== External data ====================
   const { data: equipDefs } = useEquipmentDefinitions();
   const { data: userEquipment } = useUserEquipment(userId);
@@ -86,9 +90,35 @@ export function useLineupBuilder({
       setMyTotalScore(null);
       setMyRank(null);
       setEquipmentMap({});
+      setDbEquipmentRaw(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, event?.id]);
+
+  // ==================== Populate equipmentMap from DB once queries are ready ====================
+  // Decoupled from getLineup() callback to fix closure-race: getLineup resolves
+  // before useEquipmentDefinitions/useUserEquipment, so the closure captured
+  // undefined and the equipmentMap stayed empty until a 2nd modal open.
+  useEffect(() => {
+    if (!dbEquipmentRaw) return;
+    if (!userEquipment || !equipDefs) return; // wait for queries
+
+    const eMap: Record<string, EquipmentSlotState> = {};
+    for (const [slotKey, eqId] of Object.entries(dbEquipmentRaw)) {
+      const eq = userEquipment.find((e) => e.id === eqId);
+      const def = equipDefs.find((d) => d.key === eq?.equipment_key);
+      if (eq && def) {
+        eMap[slotKey] = {
+          id: eqId,
+          key: eq.equipment_key,
+          rank: eq.rank,
+          position: def.position,
+        };
+      }
+    }
+    setEquipmentMap(eMap);
+    setDbEquipmentRaw(null); // consumed
+  }, [dbEquipmentRaw, userEquipment, equipDefs]);
 
   // ==================== Effective holdings (unlocks current event's DPCs) ====================
   const effectiveHoldings = useMemo(() => {
@@ -292,29 +322,19 @@ export function useLineupBuilder({
             setMyTotalScore(dbLineup.total_score);
             setMyRank(dbLineup.rank);
 
+            // Defer equipment population until equipDefs/userEquipment queries resolve.
+            // Population effect above watches dbEquipmentRaw + queries.
             if (dbLineup.equipment_map && typeof dbLineup.equipment_map === 'object') {
-              const eMap: Record<string, EquipmentSlotState> = {};
-              const eqMap = dbLineup.equipment_map as Record<string, string>;
-              for (const [slotKey, eqId] of Object.entries(eqMap)) {
-                const eq = userEquipment?.find((e) => e.id === eqId);
-                const def = equipDefs?.find((d) => d.key === eq?.equipment_key);
-                if (eq && def) {
-                  eMap[slotKey] = {
-                    id: eqId,
-                    key: eq.equipment_key,
-                    rank: eq.rank,
-                    position: def.position,
-                  };
-                }
-              }
-              setEquipmentMap(eMap);
+              setDbEquipmentRaw(dbLineup.equipment_map as Record<string, string>);
             } else {
               setEquipmentMap({});
+              setDbEquipmentRaw(null);
             }
           } else {
             storeResetLineup(getDefaultFormation(event.format, event.lineupSize));
             setSlotScores(null);
             setEquipmentMap({});
+            setDbEquipmentRaw(null);
           }
         })
         .catch((err) => {

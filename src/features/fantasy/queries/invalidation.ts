@@ -32,14 +32,20 @@ export async function invalidateAfterScoring(clubId?: string): Promise<void> {
   await invalidateFantasyQueriesCore(undefined, clubId);
 }
 
-/** Internal core invalidation */
+/** Internal core invalidation
+ *
+ * NOTE: joinedIds is intentionally NOT invalidated here. joinEvent/leaveEvent
+ * already update joinedIds via setQueryData (optimistic). Invalidating it from
+ * lineup-save / scoring would refetch from server and potentially overwrite the
+ * optimistic update with a stale list (server replication lag), causing the
+ * user's joined event to disappear from the UI right after save.
+ */
 async function invalidateFantasyQueriesCore(userId?: string, clubId?: string): Promise<void> {
   queryClient.invalidateQueries({ queryKey: qk.events.leagueGw });
   if (clubId) queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
   const critical: Promise<void>[] = [queryClient.invalidateQueries({ queryKey: qk.events.all })];
   if (userId) {
     critical.push(
-      queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(userId) }),
       queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(userId) }),
       queryClient.invalidateQueries({ queryKey: qk.events.usage(userId) }),
       queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(userId) }),
