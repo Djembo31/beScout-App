@@ -1,26 +1,30 @@
-# System-Status (auto-generated 2026-04-07 00:41)
+# System-Status (auto-generated 2026-04-07 01:57)
 
 ## Git (seit letzter Session)
-- 6 Commits:
+- 10 Commits:
+  bc65e9f docs: session handoff + wiki + memory updates
+  40ca325 fix: update test mocks for BottomNav, KaderTab, PlayerIPOCard
+  5f53291 refactor: Knowledge Wiki — final dedup + session handoff
+  f7ae49c chore: housekeeping — config, memory consolidation, specs, QA snapshots
+  32144af feat: Equipment planning on Manager Pitch — Wave 5
+  52b211b feat: Manager Command Center — 4-zone layout with IntelPanel, SquadStrip, StatusBar
   f7fba3b docs: session handoff + premium roadmap for next sessions
   c71d1df refactor: remove legacy chip system — replaced by Equipment
   e2e0e13 feat: Equipment Lineup Integration — equip items to players + scoring multiplier
   4444212 fix: prevent negative radius in particle glow (Canvas createRadialGradient)
-  289ee3f fix: remove GOTO from open_mystery_box_v2 RPC (Postgres compatibility)
-  58d4eee feat: Mystery Box Premium — Equipment System + Star Drops Animation
 
 ## Uncommitted: 10 Files
 ```
- M .claude/agents/SHARED-PREFIX.md
- M .claude/agents/autodream.md
- M .claude/agents/backend.md
- M .claude/agents/frontend.md
- M .claude/agents/healer.md
- M .claude/agents/reviewer.md
- M .claude/agents/test-writer.md
- M .claude/hooks/inject-learnings.sh
- M .claude/hooks/morning-briefing.sh
- M .claude/rules/common-errors.md
+ M .claude/session-files.txt
+ M memory/episodisch/metriken/sessions.jsonl
+ D memory/episodisch/sessions/retro-20260407-014213.md
+ M memory/senses/morning-briefing.md
+ M wiki/index.md
+ M wiki/log.md
+?? memory/episodisch/sessions/retro-20260407-015305.md
+?? wiki/compliance.md
+?? wiki/equipment-system.md
+?? wiki/fantasy-tournaments.md
 ```
 
 ## Build
@@ -40,6 +44,8 @@
 - 2026-04-02-smoke-test-worktree-skills.md
 
 ## Recent Error Patterns
+- ## DB Columns + CHECK Constraints
+- → Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 - ## Data Contract Changes (NICHT als UI-Change behandeln)
 - - required → optional (Feld, Prop, DB Column) = Contract Change → ERST alle Consumer greppen
 - - optional → required = Breaking Change → Migration + Backfill noetig
@@ -48,8 +54,6 @@
 - 
 - ## Shell / Hooks (Windows Git Bash)
 - - `grep -oP` mit `\K` scheitert SILENT auf Windows (Locale-Bug: "supports only unibyte and UTF-8 locales")
-- - Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'` statt `grep -oP`
-- - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` — Fallback auf Main-Repo-Path oder Task gut verpacken
 
 ## Wiki
 - Index: 77 Eintraege (Stand: 2026-04-07)

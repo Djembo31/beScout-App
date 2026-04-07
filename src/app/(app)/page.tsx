@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ErrorState } from '@/components/ui';
+import { ErrorState, Card } from '@/components/ui';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout, cn } from '@/lib/utils';
@@ -12,6 +12,7 @@ import {
   Clock, Trophy, Users, Rocket, Crown,
   Shield, Compass, Coins, TrendingUp, TrendingDown,
   ShoppingCart, Swords, Target, MessageSquare,
+  Gift, Ticket,
 } from 'lucide-react';
 import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
@@ -370,8 +371,26 @@ export default function HomePage() {
             </Link>
           )}
 
-          {/* Daily Challenge */}
-          {uid && (todaysChallenge || todaysAnswer) && <DailyChallengeCard
+          {/* Mystery Box — always visible */}
+          {uid && (
+            <Card className="p-3 md:p-4 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs text-white/50">
+                <Ticket className="size-4 text-gold/60" />
+                <span className="font-mono font-bold text-white/70">{ticketData?.balance ?? 0}</span>
+                {' Tickets'}
+              </span>
+              <button
+                onClick={() => setShowMysteryBox(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-xs font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors"
+              >
+                <Gift className="size-4" />
+                Mystery Box
+              </button>
+            </Card>
+          )}
+
+          {/* Daily Challenge — always shown */}
+          {uid && <DailyChallengeCard
             challenge={todaysChallenge}
             userAnswer={todaysAnswer ? {
               selectedOption: todaysAnswer.selected_option,
@@ -383,7 +402,6 @@ export default function HomePage() {
             streakDays={streak}
             isLoading={challengeLoading}
             ticketBalance={ticketData?.balance ?? 0}
-            onOpenMysteryBox={() => setShowMysteryBox(true)}
           />}
 
           {/* Mystery Box Modal */}
