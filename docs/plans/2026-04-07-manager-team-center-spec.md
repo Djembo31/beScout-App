@@ -228,8 +228,8 @@ EventDetailModal (in /fantasy)
 | `marketStore` | `bestandLens` | BestandTab | → `managerStore.kaderLens` |
 | `marketStore` | `bestandGroupByClub` | BestandTab | → `managerStore.kaderGroupByClub` |
 | `marketStore` | `bestandSellPlayerId` | BestandTab | → `managerStore.kaderSellPlayerId` |
-| `marketStore` | `expandedClubs` | BestandTab + ClubVerkaufExpander? | **CHECK** — wenn nur BestandTab → migrate. Wenn shared → behalten und in beiden referenziert |
-| `marketStore` | `tab`, `portfolioSubTab`, `kaufenSubTab` | MarketContent | STAYS, aber `portfolioSubTab` Default aendern (kein 'bestand' mehr) |
+| `marketStore` | `expandedClubs` | BestandTab only (Anil bestaetigt 2026-04-07) | → `managerStore.expandedClubs` |
+| `marketStore` | `tab`, `portfolioSubTab`, `kaufenSubTab` | MarketContent | STAYS, `portfolioSubTab` Default → **`'angebote'`** (Anil bestaetigt 2026-04-07) |
 | `marketStore` | `filterPos`, `filterMinL5`, etc. | Marktplatz Filters | STAYS |
 | `managerStore` | `assignments`, `equipmentPlan`, `presets`, etc. | ManagerContent | **DELETE** — neuer State |
 
@@ -451,12 +451,9 @@ EventDetailModal (in /fantasy)
    - calculateSynergyPreview, etc.
 ```
 
-**Aktion:** AufstellenTab wird ZWEITER Consumer. **Kritisch:** LineupPanel hat ~30 Props. Wir muessen die ganze State-Maschine die in EventDetailModal lebt (lines 51-489) extrahieren. **2 Optionen:**
+**Aktion:** AufstellenTab wird ZWEITER Consumer. **Kritisch:** LineupPanel hat ~30 Props. Wir muessen die ganze State-Maschine die in EventDetailModal lebt (lines 51-489) extrahieren.
 
-- **Option 1: Extract zu shared Hook** `useLineupBuilder(event, userId)` der den State + Handlers liefert. Beide Consumer (EventDetailModal + AufstellenTab) nutzen den Hook. Klean, aber Refactor in EventDetailModal noetig (Risiko).
-- **Option 2: AufstellenTab haelt eigenen State** und kopiert die Logik aus EventDetailModal. Schneller, aber Code-Duplikation.
-
-**Empfehlung:** Option 1 — Extract zu Hook. **Constraint C2** (Move und Change nie im selben Schritt) heisst: Hook-Extraction in eigener Wave VOR der Manager-Integration.
+**Entscheidung (Anil 2026-04-07): Option 1 — Extract zu Hook** `useLineupBuilder(event, userId)`. Beide Consumer (EventDetailModal + AufstellenTab) nutzen den Hook. Hook-Extraction in eigener **Wave 0** VOR der Manager-Integration. Reines Refactoring, alte Tests muessen alle gruen bleiben.
 
 #### G) `marketStore.ts` Default-Tab Aenderung
 
@@ -466,7 +463,7 @@ portfolioSubTab default ist heute 'bestand'
 → Sonst: Component crash beim ersten Render
 ```
 
-**Aktion:** marketStore Default ändern in **selber Wave** wie BestandTab Removal aus PortfolioTab. **Constraint check:** bestaetigt durch Pre-Mortem Failure #5 vom skill template.
+**Aktion:** marketStore Default ändern auf **`'angebote'`** in **selber Wave** wie BestandTab Removal aus PortfolioTab. **Constraint check:** bestaetigt durch Pre-Mortem Failure #5 vom skill template.
 
 ### Cross-Over Analysis
 
@@ -516,12 +513,12 @@ portfolioSubTab default ist heute 'bestand'
 | 1 | **Doppelter Bestand:** BestandTab in /market UND /manager weil Wave 2 nur added ohne removed. User sieht 2x dasselbe, Bug-Reports. | Hoch | Constraint: Move + Delete in **derselben Wave**. Wave 2 schreibt PortfolioTab.tsx um (Bestand-SubTab raus) **gleichzeitig** mit dem KaderTab Import in /manager. Spec GATE prueft `grep BestandTab src/features/market` = 0 Treffer nach Wave 2. |
 | 2 | **Externe Links brechen:** PortfolioStrip + HomeStoryHeader linken zu `/market?tab=portfolio` nach der Migration. User klickt auf Spielerkader-Card auf Home, landet in leerem Market-Bestand-State. | Hoch | Blast Radius Map listet alle 4 Link-Stellen. Wave 2 enthaelt explizit den Update dieser 2 Files. Self-Test Gate: alle 4 Links manuell klicken nach Push. |
 | 3 | **Leere Manager Page deployed:** Wave 1 Skeleton committed ohne dass die Tabs Inhalt zeigen. User oeffnet /manager und sieht "Coming Soon" oder Crash. | Mittel | Wave 1 Skeleton zeigt **bewusst Placeholder** mit "Tab in Migration" Text. ABER: Wave 1 wird NICHT alleine geshipped. Wave 1 + Wave 2 als Bundle. Erst Push wenn Tab 2 (Kader) funktioniert. |
-| 4 | **LineupPanel Hook-Extraction bricht EventDetailModal:** Beim Refactor um `useLineupBuilder` Hook zu extrahieren wird ein State-Update vergessen. Fantasy User koennen plötzlich keine Lineups mehr speichern. | Sehr hoch | Hook-Extraction ist **eigene Wave** (Wave 0 vor Manager Integration). Wave 0 nur Refactor — keine neuen Features, alte Tests muessen alle gruen bleiben. EventDetailModal nutzt den neuen Hook **vor** Manager AufstellenTab gebaut wird. Komplette Manual-Smoke-Test in /fantasy nach Wave 0. |
+| 4 | **LineupPanel Hook-Extraction bricht EventDetailModal:** Beim Refactor um `useLineupBuilder` Hook zu extrahieren wird ein State-Update vergessen. Fantasy User koennen plötzlich keine Lineups mehr speichern. | Sehr hoch | **Wave 0 dedicated** (Anil bestaetigt 2026-04-07). Reines Refactor — keine neuen Features, alte Tests muessen alle gruen bleiben. EventDetailModal nutzt den neuen Hook **vor** Manager AufstellenTab gebaut wird. Komplette Manual-Smoke-Test in /fantasy nach Wave 0: 1 Lineup join + 1 Lineup edit + 1 Equipment assign + 1 Reset. |
 | 5 | **marketStore Default-Tab Crash:** `portfolioSubTab` default ist `'bestand'`, BestandTab existiert nicht mehr → Component nicht gefunden → /market crash beim ersten Open. | Sehr hoch | Wave 2 enthaelt **gleichzeitig**: BestandTab raus + marketStore Default = 'angebote' + PortfolioTab JSX angepasst. Self-Test Gate: /market direkt nach Push laden, keine Console-Errors. |
 | 6 | **EventSelector zeigt ENDED Events:** EventSelector laedt alle Events aber filtert nicht nach Status → User sieht alte Events und kann sich anmelden zu Toten Events. RPC Error oder lock 0-rows. | Mittel | EventSelector Service-Call: `getEvents().filter(e => !['ended','cancelled'].includes(e.status))`. Test mit ended Events in DB pruefen. |
 | 7 | **Kader-Detail-Modal "Im Lineup planen" Action verliert sich:** User klickt auf Spieler in Tab 2, sieht Detail-Modal, klickt "Im Lineup planen", Tab wechselt zu Tab 1, aber Player wird nicht gesetzt weil Event-Selector noch null ist oder Slot nicht gefunden. | Mittel | "Im Lineup planen" prueft FIRST: ist ein Event ausgewaehlt? Wenn nein → erst EventSelector oeffnen. Wenn ja → versuche Slot zu finden, sonst Toast "Kein passender Slot frei" + Spieler im Picker hervorheben. |
 | 8 | **History Performance:** User mit 50+ vergangenen Events laedt Historie-Tab, alle Lineup-Snapshots werden gleichzeitig geladen → 50 parallele DB-Queries → langsame Page. | Mittel | Compact-State ist EINE Query (`getUserFantasyHistory`). Expanded-State laed `getLineup` **on-demand pro Click**. React Query Cache mit `staleTime: Infinity` (Lineups sind immutable nach scoring). |
-| 9 | **Equipment-Plan localStorage geht verloren:** Heute speichern manche User Equipment in `managerStore.equipmentPlan` localStorage. Wenn Manager rewrite den Store wiped, gehen User-Daten kaputt. | Mittel | localStorage migration: Store-Rewrite explizit **clear** den alten Key (`bescout-manager-store`) ODER ueberlebt alte Werte indem neuer Store anderen Key nutzt. Anil informieren: "Manager Presets werden zurueckgesetzt — sie waren nie persistent gemeint" |
+| 9 | **Equipment-Plan localStorage geht verloren:** Heute speichern manche User Equipment in `managerStore.equipmentPlan` localStorage. Wenn Manager rewrite den Store wiped, gehen User-Daten kaputt. | Niedrig | **Entscheidung Anil 2026-04-07: stille Loeschung.** Presets waren nie funktional persistent. Store-Rewrite clear-t den alten Key (`bescout-manager-store`). Kein Toast, kein Migration-Warning. |
 | 10 | **Mobile Tab-Bar zu eng:** 3 Tabs auf 360px viewport mit deutschen Labels (Aufstellen / Kader / Historie) — Labels koennten gequetscht werden. | Niedrig | TabBar `shortLabel` Pattern wie /inventory: "Auf / Kader / Hist". Visual Self-Test bei 360px. |
 | 11 | **Loading-State Flash:** Tab-Wechsel zeigt kurz Skeleton, dann Content, dann Layout-Shift weil React Query Daten erst nach Mount laden. | Mittel | Tab 2 + Tab 3 nutzen `keepPreviousData: true`. Tab 1 zeigt Skeleton bis Event-Daten geladen. Stable Layout-Container fuer Pitch (fixed aspect-ratio). |
 | 12 | **Self-Test ueberspringt einen Edge-Case:** wir testen Tab 1 + Tab 2 + Tab 3, aber nicht: 0 Holdings, 0 Events, 1 Spieler in Lineup. | Mittel | Akzeptanzkriterien (Section 1.7) decken alle Empty-States ab. Self-Test Checklist enthaelt explizit "with 0 holdings" und "with no open events". |
@@ -575,8 +572,11 @@ GIVEN: User oeffnet /manager
 WHEN:  Page laedt
 THEN:  Page-Header zeigt:
        - Title "Manager · Dein Team-Center"
-       - 3 Stat-Pills: [💼 8 Spieler] [💚 6 fit·1 doubt·1 inj] [📅 GW33 in 2d]
+       - Stat-Pill 1: "💼 N Spieler" — N = mySquadPlayers.length (filtert isLiquidated)
+       - Stat-Pill 2: "💚 X fit · Y doubt · Z inj" — health counts aus mySquadPlayers
+       - Stat-Pill 3: "📅 EventName in Zd" oder "kein Event"
   AND: Tap auf "Naechstes Event" Pill → Tab wechselt zu "Aufstellen" mit dem Event vorgewaehlt
+  AND NOT: Header zeigt holdings.length (das wuerde liquidierte Holdings einschliessen)
   AND NOT: Header zeigt Daten bevor useManagerData geladen (Skeleton statt 0)
   AND NOT: Header bleibt sichtbar wenn User nicht eingeloggt
 ```
@@ -728,8 +728,12 @@ THEN:  Stats-Box oben: "Events: 12 · Top 10: 8 · Wins: 2 · Total: 1.450 CR"
   AND: Default-Sort: Datum desc (neueste oben)
   AND: Filter: Zeitraum (Alle/30d/90d/Saison), Format (Alle/11er/7er), Status (Alle/Top3/Top10/Sonstige)
   AND: Tap "Aufstellung anzeigen ▾" → Card expandiert
+  AND: Single Open Behavior — beim Expand einer neuen Card schliesst die vorher offene
   AND NOT: Lineup-Snapshots werden eager geladen (Performance)
+  AND NOT: Mehrere Cards gleichzeitig expanded (Single Open enforced)
 ```
+
+**Future Enhancement (Anil 2026-04-07):** History-Liste eventuell als horizontale Slidebar/Carousel statt vertikale Liste. Nicht in v1, evaluieren nach Launch wenn User-Feedback es nahelegt.
 
 ### AC12: Tab 3 Historie — Expand + Lineup-Snapshot
 
@@ -764,11 +768,12 @@ THEN:  Tab wechselt zu Tab 1 (Aufstellen)
 GIVEN: Bestand wurde aus /market migriert
 WHEN:  User oeffnet /market
 THEN:  Portfolio-Tab Sub-Tabs: Angebote + Watchlist (kein Bestand)
-  AND: Default-SubTab: Angebote (oder Watchlist — TBD)
+  AND: Default-SubTab: **'angebote'** (Anil bestaetigt 2026-04-07)
   AND: Marktplatz-Tab unveraendert (Club Verkauf, Transferliste, Trending)
   AND: Filters und Search funktionieren
   AND NOT: Console errors zu fehlendem BestandTab
   AND NOT: marketStore Field-References auf bestand* in PortfolioTab
+  AND NOT: marketStore enthaelt expandedClubs Field (wandert nach managerStore)
 ```
 
 ### AC15: Redirects + Link-Updates
@@ -815,35 +820,20 @@ THEN:  /fantasy EventDetailModal Lineup-Tab funktional unveraendert
 - [x] Section 1.5 Pre-Mortem mit 12 Failure Scenarios + Mitigations
 - [x] Section 1.6 Invarianten (12) + Constraints (12)
 - [x] Section 1.7 Akzeptanzkriterien (16 ACs)
-- [ ] **Anil hat die Spec reviewed und abgenommen**
+- [x] **Open Questions Q1-Q6 von Anil beantwortet (2026-04-07)**
+- [x] **Anil hat die Spec reviewed und abgenommen (2026-04-07)**
+
+**SPEC GATE PASSED 2026-04-07** — bereit fuer PHASE 2 PLAN.
 
 ---
 
-> **Wenn SPEC GATE bestanden:** weiter zu PHASE 2 (PLAN — Wave Design + Task Specification).
+## Open Questions — beantwortet von Anil 2026-04-07
 
----
-
-## Open Questions for Anil
-
-Diese Punkte muss Anil beantworten BEVOR die Spec final ist:
-
-**Q1: marketStore `expandedClubs` — shared mit Marktplatz?**
-Heute ist `expandedClubs` im marketStore. Wird es nur von BestandTab genutzt oder auch von ClubVerkauf/Marktplatz? Wenn shared → Field bleibt im marketStore, wir nutzen es referenzhalber. Wenn nur BestandTab → wandert in managerStore.
-
-**Q2: PortfolioTab Default-SubTab nach Bestand-Removal — Angebote oder Watchlist?**
-Heute ist Default `bestand`. Wenn weg, was wird Default? Vorschlag: `angebote` (Trading-relevant). Oder `watchlist` (passive)?
-
-**Q3: History "Aufstellung anzeigen" — Single Open oder Multi Open?**
-Wenn mehrere History-Cards expandiert werden koennen → mehr Daten parallel laden. Wenn nur eine → schliesst beim Tap auf andere. Vorschlag: Single Open (Performance + UX).
-
-**Q4: localStorage Migration — alte Manager-Presets?**
-Heute speichert managerStore.presets in localStorage. Beim Rewrite werden diese verloren. Toast oder stille Loeschung? Vorschlag: Stille Loeschung (Presets waren nie funktional persistiert auf Backend).
-
-**Q5: LineupPanel Hook Extraction — Wave 0 oder direkt Manager Integration?**
-Option 1: useLineupBuilder Hook extrahieren (sauber, eigene Wave 0, Risiko in EventDetailModal Refactor).
-Option 2: AufstellenTab haelt eigenen State (Code-Duplikation, schneller).
-Vorschlag: **Option 1** (sauberer fuer langfristige Wartung, Wave 0 ist isoliert testbar).
-
-**Q6: PageHeader Stats — was ist die Datenquelle fuer "8 Spieler"?**
-mySquadPlayers.length aus useManagerData? Oder holdings.length? Subtle difference (mySquadPlayers filtert isLiquidated, holdings nicht).
-Vorschlag: `mySquadPlayers.length` (konsistent mit BestandTab Summary).
+| # | Frage | Antwort |
+|---|-------|---------|
+| Q1 | `marketStore.expandedClubs` shared? | **Nur BestandTab** → wandert nach `managerStore.expandedClubs` |
+| Q2 | PortfolioTab Default-SubTab nach Bestand-Removal? | **`'angebote'`** (Trading-relevant) |
+| Q3 | History Cards Single oder Multi Open? | **Single Open** + Future Enhancement: evtl. horizontale Slidebar/Carousel (nicht in v1) |
+| Q4 | localStorage Migration alte Manager-Presets? | **Stille Loeschung** — alte Presets waren nie funktional persistent |
+| Q5 | LineupPanel Hook Extraction Wave 0 oder Direct? | **Option 1: Wave 0 dedicated** Hook-Extraction (`useLineupBuilder`) — reines Refactoring, alte Tests gruen |
+| Q6 | PageHeader Stats Datenquelle? | **`mySquadPlayers.length`** (filtert isLiquidated, konsistent) |
