@@ -3,7 +3,7 @@
 import { memo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Trophy, ClipboardList, TrendingUp, Compass } from 'lucide-react';
+import { Home, Trophy, ClipboardList, TrendingUp, Compass, Target, Package } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,8 @@ const BOTTOM_TABS = [
   { labelKey: 'navSpieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
   { labelKey: 'navManager', href: '/manager', icon: ClipboardList, tourId: undefined as string | undefined },
   { labelKey: 'navMarkt', href: '/market', icon: TrendingUp, tourId: 'bottomnav-market' },
+  { labelKey: 'navMissionen', href: '/missions', icon: Target, tourId: undefined as string | undefined },
+  { labelKey: 'navInventar', href: '/inventory', icon: Package, tourId: undefined as string | undefined },
   { labelKey: 'navCommunity', href: '/community', icon: Compass, tourId: undefined as string | undefined },
 ];
 
@@ -39,7 +41,10 @@ export const BottomNav = memo(function BottomNav() {
         boxShadow: '0 -2px 12px rgba(0,0,0,0.3)',
       }}
     >
-      <div className="flex items-center justify-around h-16 px-1">
+      <div
+        className="flex items-center gap-1 h-16 px-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         {BOTTOM_TABS.map((tab) => {
           const Icon = tab.icon;
           const href = tab.href;
@@ -52,7 +57,7 @@ export const BottomNav = memo(function BottomNav() {
               href={href}
               data-tour-id={tab.tourId}
               className={cn(
-                'relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1.5 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
+                'relative flex flex-col items-center justify-center gap-0.5 flex-shrink-0 w-[72px] min-h-[44px] py-1.5 rounded-xl snap-center transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 isActive
                   ? 'text-gold bg-gold/[0.12]'
                   : 'text-white/50 active:text-white/70 active:bg-surface-elevated active:scale-95'
