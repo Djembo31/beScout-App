@@ -115,7 +115,7 @@ export async function buyFromMarket(
             .from('players')
             .select('first_name, last_name')
             .eq('id', playerId)
-            .single();
+            .maybeSingle();
           const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
           const { createNotification } = await import('@/lib/services/notifications');
           createNotification(
@@ -230,13 +230,13 @@ export async function buyFromOrder(
           .from('orders')
           .select('user_id, player_id')
           .eq('id', orderId)
-          .single();
+          .maybeSingle();
         if (order && order.user_id !== buyerId) {
           const { data: pl } = await supabase
             .from('players')
             .select('first_name, last_name')
             .eq('id', order.player_id)
-            .single();
+            .maybeSingle();
           const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
           const { createNotification } = await import('@/lib/services/notifications');
           createNotification(

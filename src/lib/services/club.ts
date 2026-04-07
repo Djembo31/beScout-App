@@ -22,8 +22,9 @@ export async function getClubById(clubId: string): Promise<DbClub | null> {
     .from('clubs')
     .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .eq('id', clubId)
-    .single();
+    .maybeSingle();
   if (error) { console.error('[Club] getClubById failed:', error); return null; }
+  if (!data) return null;
   return data as DbClub;
 }
 
@@ -162,7 +163,7 @@ export async function toggleFollowClub(
       .select('is_primary')
       .eq('user_id', userId)
       .eq('club_id', clubId)
-      .single();
+      .maybeSingle();
 
     const { error } = await supabase
       .from('club_followers')
@@ -179,7 +180,7 @@ export async function toggleFollowClub(
         .select('club_id, clubs!club_id(name)')
         .eq('user_id', userId)
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (nextClub) {
         // Promote next club to primary
@@ -502,7 +503,7 @@ export async function getActiveGameweek(clubId: string): Promise<number> {
     .from('clubs')
     .select('active_gameweek')
     .eq('id', clubId)
-    .single();
+    .maybeSingle();
   if (error || !data) return 1;
   return (data.active_gameweek as number) ?? 1;
 }
@@ -515,7 +516,7 @@ export async function getLeagueActiveGameweek(): Promise<number> {
     .select('active_gameweek')
     .order('active_gameweek', { ascending: true })
     .limit(1)
-    .single();
+    .maybeSingle();
   if (error || !data) return 1;
   return (data.active_gameweek as number) ?? 1;
 }
@@ -560,7 +561,7 @@ export async function getClubFantasySettings(clubId: string): Promise<ClubFantas
     .from('clubs')
     .select('fantasy_entry_fee_cents, fantasy_jurisdiction_preset, fantasy_allow_entry_fees')
     .eq('id', clubId)
-    .single();
+    .maybeSingle();
   if (error || !data) {
     return { fantasy_entry_fee_cents: 0, fantasy_jurisdiction_preset: 'TR', fantasy_allow_entry_fees: false };
   }

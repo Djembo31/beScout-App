@@ -5,7 +5,7 @@ export async function getUserReferralCode(userId: string): Promise<string | null
     .from('profiles')
     .select('referral_code')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return data.referral_code as string | null;
 }
@@ -24,7 +24,7 @@ export async function getProfileByReferralCode(code: string): Promise<{ id: stri
     .from('profiles')
     .select('id, handle, display_name')
     .eq('referral_code', code.toUpperCase())
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return data as { id: string; handle: string; display_name: string | null };
 }
@@ -40,7 +40,7 @@ export async function applyReferralCode(userId: string, referrerCode: string): P
     .from('profiles')
     .select('invited_by')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
   if (profile?.invited_by) return { success: false, error: 'alreadyInvited' };
 
   // Set invited_by

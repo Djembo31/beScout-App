@@ -54,9 +54,9 @@ export async function getPlayerById(id: string): Promise<DbPlayer | null> {
     .from('players')
     .select(PLAYER_SELECT_COLS)
     .eq('id', id)
-    .single();
+    .maybeSingle();
 
-  if (error) return null;
+  if (error || !data) return null;
   return data as unknown as DbPlayer;
 }
 

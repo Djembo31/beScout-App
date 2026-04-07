@@ -197,7 +197,7 @@ export async function updateEventStatus(
   if (status === 'running') {
     (async () => {
       try {
-        const { data: event } = await supabase.from('events').select('name').eq('id', eventId).single();
+        const { data: event } = await supabase.from('events').select('name').eq('id', eventId).maybeSingle();
         const { data: lineups } = await supabase.from('lineups').select('user_id').eq('event_id', eventId);
         if (lineups && lineups.length > 0) {
           const { createNotification } = await import('@/lib/services/notifications');
@@ -260,7 +260,7 @@ export async function updateEvent(
     .from('events')
     .select('status')
     .eq('id', eventId)
-    .single();
+    .maybeSingle();
 
   if (fetchErr || !event) {
     return { success: false, error: fetchErr?.message ?? 'Event nicht gefunden' };

@@ -86,7 +86,7 @@ export async function getPlayerMatchTimeline(
     .from('players')
     .select('club_id')
     .eq('id', playerId)
-    .single();
+    .maybeSingle();
 
   if (!playerData?.club_id) return [];
   const clubId = playerData.club_id as string;

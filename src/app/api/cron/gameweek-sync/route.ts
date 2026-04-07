@@ -1239,7 +1239,7 @@ export async function GET(request: Request) {
         .in('status', ['FT', 'finished', 'simulated'])
         .order('gameweek', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       const currentGw = maxGwData?.gameweek ?? 0;
       if (currentGw === 0) return { marked_doubtful: 0, reactivated: 0, current_gw: 0 };

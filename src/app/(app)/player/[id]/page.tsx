@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       .from('players')
       .select('first_name, last_name, position, club, image_url, floor_price, price_change_24h')
       .eq('id', params.id)
-      .single();
+      .maybeSingle();
     if (data) {
       const name = `${data.first_name} ${data.last_name}`;
       const floor = data.floor_price ? `Floor: ${(data.floor_price / 100).toFixed(0)} bC` : '';

@@ -56,7 +56,7 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
       try {
         const lb = await getEventLeaderboard(eventId);
         const { createNotificationsBatch } = await import('@/lib/services/notifications');
-        const { data: evt } = await supabase.from('events').select('name').eq('id', eventId).single();
+        const { data: evt } = await supabase.from('events').select('name').eq('id', eventId).maybeSingle();
         const eventName = evt?.name ?? 'Event';
 
         // Build batch: all participants + top 3 rewards

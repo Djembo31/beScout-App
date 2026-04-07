@@ -112,7 +112,7 @@ export async function completeChallenge(userId: string, challengeId: string): Pr
     .from('club_challenges')
     .select('fan_rank_points, club_id, status')
     .eq('id', challengeId)
-    .single();
+    .maybeSingle();
 
   if (chErr || !challenge) {
     throw new Error('Challenge not found');

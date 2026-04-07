@@ -396,7 +396,7 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
     .gt('score', 0)
     .order('gameweek', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (!latest) return new Map();
 

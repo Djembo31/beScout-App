@@ -12,7 +12,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     .from('profiles')
     .select('id, handle, display_name, avatar_url, bio, favorite_club, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return data as Profile;
@@ -110,7 +110,7 @@ export async function getProfileByHandle(handle: string): Promise<Profile | null
     .from('profiles')
     .select('id, handle, display_name, avatar_url, bio, favorite_club, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
     .eq('handle', handle.toLowerCase())
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return data as Profile;
