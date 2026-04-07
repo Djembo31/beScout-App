@@ -53,7 +53,7 @@ export default function AchievementUnlockModal({
               {t('continue')}
             </button>
             <Link
-              href="/profile?tab=overview"
+              href="/missions"
               onClick={onClose}
               className="flex-1 py-3 rounded-xl bg-gold/10 border border-gold/20 text-sm font-bold text-gold hover:bg-gold/20 transition-colors flex items-center justify-center min-h-[44px]"
             >

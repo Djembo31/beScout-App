@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Target, Flame, Sparkles } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
@@ -10,12 +10,15 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useUserTickets } from '@/lib/queries/tickets';
+import { useUserStats } from '@/lib/queries';
 import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
+import { getUserAchievements } from '@/lib/services/social';
 import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import { getLoginStreak } from '@/components/home/helpers';
 import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits';
+import { getStreakMilestone } from '@/lib/retentionEngine';
 
 const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
   ssr: false,
@@ -32,6 +35,14 @@ const ScoreRoadCard = dynamic(() => import('@/components/gamification/ScoreRoadC
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
   ssr: false,
 });
+const StreakMilestoneBanner = dynamic(() => import('@/components/missions/StreakMilestoneBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
+const AchievementsSection = dynamic(() => import('@/components/missions/AchievementsSection'), {
+  ssr: false,
+  loading: () => <div className="h-48 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
 
 export default function MissionsPage() {
   const { user, loading } = useUser();
@@ -42,6 +53,8 @@ export default function MissionsPage() {
   const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
   const { data: challengeHistory = [] } = useChallengeHistory(uid);
   const { data: ticketData = null } = useUserTickets(uid);
+  const { data: userStats = null } = useUserStats(uid);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
@@ -49,6 +62,20 @@ export default function MissionsPage() {
   const streak = useMemo(() => getLoginStreak().current, []);
   const streakBenefits = useMemo(() => getStreakBenefits(streak), [streak]);
   const benefitLabels = useMemo(() => getStreakBenefitLabels(streak), [streak]);
+  const streakMilestone = useMemo(() => getStreakMilestone(streak), [streak]);
+
+  // ── Unlocked Achievements ──
+  useEffect(() => {
+    if (!uid) return;
+    let cancelled = false;
+    getUserAchievements(uid)
+      .then(rows => {
+        if (cancelled) return;
+        setUnlockedAchievements(new Set(rows.map(r => r.achievement_key)));
+      })
+      .catch(err => console.error('[MissionsPage] getUserAchievements:', err));
+    return () => { cancelled = true; };
+  }, [uid]);
 
   // ── Today's answer ──
   const todaysAnswer = useMemo(() => {
@@ -160,6 +187,9 @@ export default function MissionsPage() {
         </div>
       )}
 
+      {/* Streak Milestone Banner (when user exactly hits a milestone day) */}
+      {streakMilestone && <StreakMilestoneBanner milestone={streakMilestone} />}
+
       {/* Daily Challenge */}
       {uid && (
         <DailyChallengeCard
@@ -183,6 +213,9 @@ export default function MissionsPage() {
 
       {/* Score Road / Rang Progress */}
       {uid && <ScoreRoadCard userId={uid} />}
+
+      {/* Achievements (moved from Profile in 3-hub refactor) */}
+      {uid && <AchievementsSection userStats={userStats} unlockedKeys={unlockedAchievements} />}
 
       {/* Mystery Box Modal */}
       <MysteryBoxModal

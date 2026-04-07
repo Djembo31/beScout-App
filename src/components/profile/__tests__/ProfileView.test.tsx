@@ -140,10 +140,6 @@ vi.mock('../AnalystTab', () => ({
   default: () => <div data-testid="analyst-tab">AnalystTab</div>,
 }));
 
-vi.mock('../AchievementsSection', () => ({
-  default: () => <div data-testid="achievements-section">AchievementsSection</div>,
-}));
-
 vi.mock('../TimelineTab', () => ({
   default: () => <div data-testid="timeline-tab">TimelineTab</div>,
 }));
