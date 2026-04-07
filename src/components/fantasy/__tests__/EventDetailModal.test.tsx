@@ -301,13 +301,13 @@ describe('EventDetailModal', () => {
     });
   });
 
-  it('defaults to overview tab for non-joined events', async () => {
+  it('defaults to lineup tab for non-scored events', async () => {
     const event = makeEvent({ isJoined: false, scoredAt: null });
     renderWithProviders(
       <EventDetailModal {...defaultProps} event={event} />,
     );
     await waitFor(() => {
-      expect(screen.getByTestId('overview-panel')).toBeInTheDocument();
+      expect(screen.getByTestId('lineup-panel')).toBeInTheDocument();
     });
   });
 
@@ -318,14 +318,14 @@ describe('EventDetailModal', () => {
       <EventDetailModal {...defaultProps} event={event} />,
     );
     await waitFor(() => {
-      expect(screen.getByTestId('overview-panel')).toBeInTheDocument();
+      expect(screen.getByTestId('lineup-panel')).toBeInTheDocument();
     });
 
     await user.click(screen.getByText('tabRanking'));
     await waitFor(() => {
       expect(screen.getByTestId('leaderboard-panel')).toBeInTheDocument();
     });
-    expect(screen.queryByTestId('overview-panel')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('lineup-panel')).not.toBeInTheDocument();
   });
 
   it('shows event status badge', async () => {
@@ -369,11 +369,17 @@ describe('EventDetailModal', () => {
     });
   });
 
-  it('renders OverviewPanel in overview tab', async () => {
+  it('renders OverviewPanel when overview tab is clicked', async () => {
+    const user = userEvent.setup();
     const event = makeEvent({ name: 'My Event' });
     renderWithProviders(
       <EventDetailModal {...defaultProps} event={event} />,
     );
+    await waitFor(() => {
+      expect(screen.getByTestId('lineup-panel')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText('tabOverview'));
     await waitFor(() => {
       const panel = screen.getByTestId('overview-panel');
       expect(panel).toBeInTheDocument();

@@ -492,9 +492,9 @@ export default function LineupPanel({
                         {player && !slotEquipment && !slotReadOnly && !hasScore && onEquipmentTap && (
                           <button
                             onClick={() => onEquipmentTap(slotDbKeys[slot.slot], player.pos, player.last)}
-                            className="mt-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-surface-base text-white/30 hover:bg-white/10 hover:text-white/50 transition-colors"
+                            className="mt-0.5 px-2 py-1 rounded-full text-[11px] font-bold bg-gold/20 text-gold border border-gold/30 hover:bg-gold/30 transition-colors"
                           >
-                            ⚔️
+                            + Equip
                           </button>
                         )}
                         {/* Wild Card toggle — only when event allows and slot is editable */}

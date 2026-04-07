@@ -14,7 +14,7 @@ import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys } from './
 import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { useEquipmentDefinitions, useUserEquipment } from '@/lib/queries/equipment';
-import { equipToSlot, unequipFromSlot } from '@/lib/services/equipment';
+import { equipToSlot } from '@/lib/services/equipment';
 import { mapPlayerPosition } from '@/components/gamification/EquipmentPicker';
 import { useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
@@ -93,7 +93,6 @@ export const EventDetailModal = ({
   // Equipment state
   const [equipPickerOpen, setEquipPickerOpen] = useState(false);
   const [equipPickerSlot, setEquipPickerSlot] = useState<{ slotKey: string; playerPosition: EquipmentPosition; playerName: string } | null>(null);
-  const [equipLoading, setEquipLoading] = useState(false);
   const queryClient = useQueryClient();
   const { data: equipDefs } = useEquipmentDefinitions();
   const { data: userEquipment } = useUserEquipment(user?.id);
@@ -110,51 +109,28 @@ export const EventDetailModal = ({
     setEquipPickerOpen(true);
   }, []);
 
-  const handleEquip = useCallback(async (equipmentId: string) => {
-    if (!event || !equipPickerSlot || !user?.id) return;
-    setEquipLoading(true);
-    try {
-      const result = await equipToSlot(event.id, equipmentId, equipPickerSlot.slotKey);
-      if (result.ok) {
-        // Find equipment details from inventory
-        const eq = userEquipment?.find(e => e.id === equipmentId);
-        const def = equipDefs?.find(d => d.key === eq?.equipment_key);
-        if (eq && def) {
-          setEquipmentMap(prev => ({
-            ...prev,
-            [equipPickerSlot.slotKey]: { id: equipmentId, key: eq.equipment_key, rank: eq.rank, position: def.position },
-          }));
-        }
-        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(user.id) });
-        setEquipPickerOpen(false);
-      }
-    } catch (err) {
-      console.error('[Equipment] equip failed:', err);
-    } finally {
-      setEquipLoading(false);
+  const handleEquip = useCallback((equipmentId: string) => {
+    if (!equipPickerSlot) return;
+    const eq = userEquipment?.find(e => e.id === equipmentId);
+    const def = equipDefs?.find(d => d.key === eq?.equipment_key);
+    if (eq && def) {
+      setEquipmentMap(prev => ({
+        ...prev,
+        [equipPickerSlot.slotKey]: { id: equipmentId, key: eq.equipment_key, rank: eq.rank, position: def.position },
+      }));
     }
-  }, [event, equipPickerSlot, user?.id, userEquipment, equipDefs, queryClient]);
+    setEquipPickerOpen(false);
+  }, [equipPickerSlot, userEquipment, equipDefs]);
 
-  const handleUnequip = useCallback(async () => {
-    if (!event || !equipPickerSlot || !user?.id) return;
-    setEquipLoading(true);
-    try {
-      const result = await unequipFromSlot(event.id, equipPickerSlot.slotKey);
-      if (result.ok) {
-        setEquipmentMap(prev => {
-          const next = { ...prev };
-          delete next[equipPickerSlot.slotKey];
-          return next;
-        });
-        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(user.id) });
-        setEquipPickerOpen(false);
-      }
-    } catch (err) {
-      console.error('[Equipment] unequip failed:', err);
-    } finally {
-      setEquipLoading(false);
-    }
-  }, [event, equipPickerSlot, user?.id, queryClient]);
+  const handleUnequip = useCallback(() => {
+    if (!equipPickerSlot) return;
+    setEquipmentMap(prev => {
+      const next = { ...prev };
+      delete next[equipPickerSlot.slotKey];
+      return next;
+    });
+    setEquipPickerOpen(false);
+  }, [equipPickerSlot]);
 
   // Set default tab based on join status when modal opens -- reset transient state
   useEffect(() => {
@@ -491,6 +467,19 @@ export const EventDetailModal = ({
         setParticipantCount(prev => prev + 1);
       }
       await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
+
+      // Persist equipment assignments after lineup is saved
+      const eqEntries = Object.entries(equipmentMap);
+      if (eqEntries.length > 0 && user?.id) {
+        const results = await Promise.allSettled(
+          eqEntries.map(([slotKey, eq]) => equipToSlot(event.id, eq.id, slotKey))
+        );
+        const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.ok));
+        if (failed.length > 0) {
+          console.error('[Equipment] Some equip calls failed:', failed);
+        }
+        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(user.id) });
+      }
     } catch (err) {
       console.error('[EventDetail] handleSaveLineup failed:', err);
       alert(t('errorShort', { msg: err instanceof Error ? err.message : 'Lineup save failed' }));
@@ -597,7 +586,7 @@ export const EventDetailModal = ({
                   equippedId={equipmentMap[equipPickerSlot.slotKey]?.id ?? null}
                   onEquip={handleEquip}
                   onUnequip={handleUnequip}
-                  loading={equipLoading}
+                  loading={false}
                 />
               )}
             </>
