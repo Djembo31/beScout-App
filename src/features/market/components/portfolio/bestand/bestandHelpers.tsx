@@ -59,7 +59,7 @@ export const DEFAULT_SORT: Record<BestandLens, string> = {
 };
 
 // ============================================
-// STATUS HELPERS (shared with KaderTab)
+// STATUS HELPERS
 // ============================================
 
 export const STATUS_CONFIG: Record<PlayerStatus, { labelKey: string; shortKey: string; bg: string; border: string; text: string; icon: typeof Heart }> = {
@@ -82,7 +82,7 @@ export function StatusPill({ status }: { status: PlayerStatus }) {
 }
 
 // ============================================
-// MINUTES HELPERS (shared with KaderTab)
+// MINUTES HELPERS
 // ============================================
 
 export function MinutesPill({ minutes }: { minutes: number[] | undefined }) {
@@ -132,7 +132,7 @@ export function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: 
 }
 
 // ============================================
-// NEXT MATCH (shared with KaderTab)
+// NEXT MATCH
 // ============================================
 
 export function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefined }) {
