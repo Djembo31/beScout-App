@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Flame, Shield, Eye, Crown, Banana, Swords, Loader2, Package } from 'lucide-react';
-import { Card, EmptyState } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/lib/queries/equipment';
 import { EQUIPMENT_POSITION_COLORS } from '@/components/gamification/rarityConfig';
 import type { DbUserEquipment, DbEquipmentDefinition } from '@/types';
+import EquipmentDetailModal from './EquipmentDetailModal';
 
 // ============================================
 // EQUIPMENT ICONS — duplicated from EquipmentPicker.tsx
@@ -79,6 +80,19 @@ export default function EquipmentSection() {
     return out;
   }, [ranks]);
 
+  // Max rank for "R3 / R4" display in detail modal
+  const maxRank = useMemo(() => {
+    if (ranks.length > 0) return Math.max(...ranks.map(r => r.rank));
+    return 4; // Fallback to legacy 4-rank system
+  }, [ranks]);
+
+  // Selected item for detail modal
+  const [selected, setSelected] = useState<{
+    def: DbEquipmentDefinition;
+    rank: number;
+    items: DbUserEquipment[];
+  } | null>(null);
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -115,12 +129,18 @@ export default function EquipmentSection() {
           const stackCount = items.length;
 
           return (
-            <Card
+            <button
               key={`${def.key}_${rank}`}
+              type="button"
+              onClick={() => setSelected({ def, rank, items })}
+              aria-label={`${def.name_de} R${rank} — ${t('equipmentDetailOpen')}`}
               className={cn(
-                'p-3 flex flex-col gap-2 relative transition-colors',
-                isEquipped && 'border-gold/40 bg-gold/[0.04]',
+                'text-left p-3 flex flex-col gap-2 relative rounded-2xl border bg-white/[0.02] border-white/10 shadow-card-sm transition-all',
+                'hover:bg-white/[0.04] hover:border-white/20 active:scale-[0.97]',
+                'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
+                isEquipped && 'border-gold/40 bg-gold/[0.04] hover:border-gold/50',
               )}
+              style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}
             >
               {/* Equipped badge — top-right */}
               {isEquipped && (
@@ -171,10 +191,21 @@ export default function EquipmentSection() {
                   )}
                 </div>
               </div>
-            </Card>
+            </button>
           );
         })}
       </div>
+
+      {/* Detail Modal */}
+      <EquipmentDetailModal
+        open={selected !== null}
+        onClose={() => setSelected(null)}
+        def={selected?.def ?? null}
+        rank={selected?.rank ?? 0}
+        items={selected?.items ?? []}
+        multiplierLabel={selected ? multiplierLabels[selected.rank] ?? `×${selected.rank}` : ''}
+        maxRank={maxRank}
+      />
     </div>
   );
 }
