@@ -10,7 +10,7 @@ export async function getAirdropScore(userId: string): Promise<DbAirdropScore | 
     .from('airdrop_scores')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
   if (error || !data) return null;
   return data as DbAirdropScore;
 }
@@ -85,7 +85,7 @@ export async function refreshAirdropScore(userId: string): Promise<DbAirdropScor
     .from('airdrop_scores')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
   return (row as DbAirdropScore) ?? null;
 }
 
