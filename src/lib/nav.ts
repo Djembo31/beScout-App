@@ -9,6 +9,7 @@ import {
   Rocket,
   Target,
   Crown,
+  Package,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ export const NAV_MAIN: NavItem[] = [
   { label: 'market', href: '/market', icon: TrendingUp },
   { label: 'fantasy', href: '/fantasy', icon: Trophy },
   { label: 'missions', href: '/missions', icon: Target },
+  { label: 'inventory', href: '/inventory', icon: Package },
   { label: 'club', href: '/club', icon: Building2 },
   { label: 'scouting', href: '/community', icon: Compass },
 ];
