@@ -107,7 +107,7 @@ export default function PlayerDetailModal() {
             className="flex-1 flex items-center justify-center gap-2"
           >
             <Tag className="size-4" aria-hidden="true" />
-            {tMarket('bestandSellShort')}
+            {tMarket('bestandSell')}
           </Button>
         </div>
       </div>
