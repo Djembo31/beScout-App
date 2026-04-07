@@ -39,6 +39,23 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Wave 2 migration: legacy /market?tab=portfolio → /manager?tab=kader
+      {
+        source: '/market',
+        has: [{ type: 'query', key: 'tab', value: 'portfolio' }],
+        destination: '/manager?tab=kader',
+        permanent: true,
+      },
+      {
+        source: '/market',
+        has: [{ type: 'query', key: 'sub', value: 'bestand' }],
+        destination: '/manager?tab=kader',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

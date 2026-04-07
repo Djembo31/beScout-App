@@ -1,21 +1,12 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabaseMiddleware";
 
-export async function middleware(request: NextRequest) {
-    // ── 301 Redirects: legacy Bestand URLs → new Manager Kader-Tab ──
-    // After Wave 2 migration, /market?tab=portfolio (and the bestand sub-tab)
-    // moved to /manager?tab=kader. Permanent redirect preserves bookmarks +
-    // shared links + crawler indexing.
-    const { pathname, searchParams } = request.nextUrl;
-    if (pathname === '/market') {
-        const tab = searchParams.get('tab');
-        const sub = searchParams.get('sub');
-        if (tab === 'portfolio' || sub === 'bestand') {
-            const target = new URL('/manager?tab=kader', request.url);
-            return NextResponse.redirect(target, { status: 301 });
-        }
-    }
+// Note: Wave 2 legacy redirects (/market?tab=portfolio → /manager?tab=kader)
+// are configured in next.config.mjs `redirects()` rather than here. The
+// middleware approach didn't fire reliably on Vercel; native config redirects
+// run at the edge layer above middleware and work consistently.
 
+export async function middleware(request: NextRequest) {
     return await updateSession(request);
 }
 
