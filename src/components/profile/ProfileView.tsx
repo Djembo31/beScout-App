@@ -20,7 +20,6 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 const ManagerTab = dynamic(() => import('./ManagerTab'));
 const TraderTab = dynamic(() => import('./TraderTab'));
 const AnalystTab = dynamic(() => import('./AnalystTab'));
-const AchievementsSection = dynamic(() => import('./AchievementsSection'));
 const TimelineTab = dynamic(() => import('./TimelineTab'));
 
 interface ProfileViewProps {
@@ -39,7 +38,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
     loading, dataError, retry,
     holdings, ticketTransactions, userStats,
     myResearch, trackRecord, recentTrades, fantasyResults,
-    unlockedAchievements, creatorPayouts, clubSub,
+    creatorPayouts, clubSub,
     portfolioPnlPct, avgFantasyRank, publicTransactions,
     scores, dimOrder,
     tab, setTab,
@@ -57,7 +56,6 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
       id: dim,
       label: t(`tab${dim.charAt(0).toUpperCase() + dim.slice(1)}`),
     })),
-    { id: 'achievements' as const, label: t('tabAchievements') },
     { id: 'timeline' as const, label: t('tabTimeline') },
   ], [dimOrder, t]);
 
@@ -173,13 +171,6 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                   isSelf={isSelf}
                   transactions={publicTransactions}
                   creatorPayouts={creatorPayouts}
-                />
-              </TabPanel>
-
-              <TabPanel id="achievements" activeTab={tab}>
-                <AchievementsSection
-                  userStats={userStats}
-                  unlockedKeys={unlockedAchievements}
                 />
               </TabPanel>
 

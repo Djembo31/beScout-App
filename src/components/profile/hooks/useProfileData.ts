@@ -5,7 +5,7 @@ import { getMyPayouts } from '@/lib/services/creatorFund';
 import {
   getUserStats, refreshUserStats, getFollowerCount, getFollowingCount,
   checkAndUnlockAchievements, isFollowing as checkIsFollowing,
-  followUser, unfollowUser, getUserAchievements,
+  followUser, unfollowUser,
 } from '@/lib/services/social';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
@@ -47,7 +47,6 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
   const [trackRecord, setTrackRecord] = useState<AuthorTrackRecord | null>(null);
   const [recentTrades, setRecentTrades] = useState<UserTradeWithPlayer[]>([]);
   const [fantasyResults, setFantasyResults] = useState<UserFantasyResult[]>([]);
-  const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(new Set());
   const [creatorPayouts, setCreatorPayouts] = useState<DbCreatorFundPayout[]>([]);
   const [clubSub, setClubSub] = useState<{ tier: string; clubName: string } | null>(null);
 
@@ -89,7 +88,6 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
           getAuthorTrackRecord(targetUserId),
           getUserTrades(targetUserId, 10),
           getUserFantasyHistory(targetUserId, 10),
-          getUserAchievements(targetUserId).then(rows => rows.map(r => ({ achievement_key: r.achievement_key }))),
           isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
           isSelf ? getTicketTransactions(targetUserId, 50) : Promise.resolve([]),
         ]);
@@ -105,10 +103,8 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
           setTrackRecord(val(results[6], null));
           setRecentTrades(val(results[7], []));
           setFantasyResults(val(results[8], []));
-          const achRows = val(results[9], [] as { achievement_key: string }[]);
-          setUnlockedAchievements(new Set(achRows.map(r => r.achievement_key)));
-          setCreatorPayouts(val(results[10], []) as DbCreatorFundPayout[]);
-          setTicketTransactions(val(results[11], []));
+          setCreatorPayouts(val(results[9], []) as DbCreatorFundPayout[]);
+          setTicketTransactions(val(results[10], []));
           setDataError(false);
 
           if (!tabInitialized && stats) {
@@ -220,7 +216,7 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
     loading: holdingsLoading, dataError, retry,
     holdings, transactions, ticketTransactions, userStats,
     myResearch, trackRecord, recentTrades, fantasyResults,
-    unlockedAchievements, creatorPayouts, clubSub,
+    creatorPayouts, clubSub,
     portfolioPnlPct, avgFantasyRank, publicTransactions,
     scores, dimOrder,
     tab, setTab,

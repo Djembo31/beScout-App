@@ -25,7 +25,6 @@ export interface ProfileDataResult {
   trackRecord: AuthorTrackRecord | null;
   recentTrades: UserTradeWithPlayer[];
   fantasyResults: UserFantasyResult[];
-  unlockedAchievements: Set<string>;
   creatorPayouts: DbCreatorFundPayout[];
   clubSub: { tier: string; clubName: string } | null;
 

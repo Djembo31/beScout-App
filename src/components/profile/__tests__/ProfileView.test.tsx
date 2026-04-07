@@ -506,19 +506,18 @@ describe('ProfileView', () => {
     });
 
     // getDimensionTabOrder returns ['manager','trader','analyst']
-    // Plus 'achievements' and 'timeline'
+    // Plus 'timeline' (achievements moved to /missions in 3-hub refactor)
     expect(screen.getByTestId('tab-manager')).toBeInTheDocument();
     expect(screen.getByTestId('tab-trader')).toBeInTheDocument();
     expect(screen.getByTestId('tab-analyst')).toBeInTheDocument();
-    expect(screen.getByTestId('tab-achievements')).toBeInTheDocument();
     expect(screen.getByTestId('tab-timeline')).toBeInTheDocument();
+    expect(screen.queryByTestId('tab-achievements')).not.toBeInTheDocument();
 
     // Tab labels come from t() which returns the key
     // t('tabManager') → 'tabManager', etc.
     expect(screen.getByTestId('tab-manager')).toHaveTextContent('tabManager');
     expect(screen.getByTestId('tab-trader')).toHaveTextContent('tabTrader');
     expect(screen.getByTestId('tab-analyst')).toHaveTextContent('tabAnalyst');
-    expect(screen.getByTestId('tab-achievements')).toHaveTextContent('tabAchievements');
     expect(screen.getByTestId('tab-timeline')).toHaveTextContent('tabTimeline');
   });
 
