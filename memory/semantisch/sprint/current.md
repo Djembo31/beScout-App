@@ -29,10 +29,23 @@
 - 25 Commits
 
 ## Naechste Prioritaet
-1. Vercel Deploy verifizieren (bescout.net)
-2. Visual QA: Nav Mobile (7 Items)
-3. Manager Command Center mit /spec Skill (richtig diesmal)
-4. i18n Cleanup
+1. **Wave 0: useLineupBuilder Hook Extraction** (kritisch — refactor /fantasy)
+2. Wave 1+2 Bundle: Manager Foundation + Kader Migration
+3. Wave 3: Aufstellen-Tab mit Direct Event Join
+4. Wave 4: Historie-Tab
+5. Wave 5: Cleanup + Visual QA
+
+## Erledigt 2026-04-07 Abend (10 Commits)
+- UX Fix Quick Actions Bar fuer Early-Stage User
+- score_event RPC: 0-Lineup graceful close (Migration + 1 Phantom-Event closed)
+- **Tailwind features-scan Bug fix** (CRITICAL — content paths erweitern)
+- Manager Desktop Layout Side-by-Side (Folge des Tailwind-Fix)
+- KaderTab + Dependencies cleanup (−1662 LOC)
+- BottomNav 5 → 7 Items horizontal scroll (Inventar + Missionen rein)
+- Equipment Detail-View Modal in /inventory (tap to open)
+- Manager Team-Center Brainstorm Design Doc (427 LOC)
+- Manager Team-Center SPEC GATE passed (849 LOC)
+- Manager Team-Center PLAN GATE passed (817 LOC)
 
 ## Board Status
 - 100+ issues, 97+ done
