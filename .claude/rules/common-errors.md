@@ -5,6 +5,11 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ## DB Columns + CHECK Constraints
 → Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 
+## Supabase Client
+- `.single()` wenn 0 Rows moeglich → HTTP 406 Error → `.maybeSingle()` nutzen
+- Regel: Wenn "existiert dieser Datensatz garantiert?" → NEIN → `.maybeSingle()`
+- Audit-Signal: HTTP 406 Fehler in Logs/QA → systematisch alle Service-Calls pruefen
+
 ## React/TypeScript
 - Hooks VOR early returns (React rules)
 - `Array.from(new Set())` statt `[...new Set()]` (strict TS)

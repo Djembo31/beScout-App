@@ -30,3 +30,4 @@
 | Entscheidungen (ADRs) | `memory/episodisch/entscheidungen/` |
 | Feature-Specs | `memory/features/` |
 | System-Status | `memory/senses/morning-briefing.md` |
+| 3-Hub Architektur (Inventory, Profile, Missions, Home) | `memory/semantisch/projekt/architecture-3hub.md` |

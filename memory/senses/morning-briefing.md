@@ -1,7 +1,10 @@
-# System-Status (auto-generated 2026-04-07 01:57)
+# System-Status (auto-generated 2026-04-07 12:06)
 
 ## Git (seit letzter Session)
 - 10 Commits:
+  7adc7d2 fix: Equipment badge larger + glow on pitch, md badge with dark bg
+  a2ba96d fix: Equipment local-first flow + TR wording compliance + test fixes
+  c61b615 feat: Mystery Box always visible + Product Wiki (18 pages)
   bc65e9f docs: session handoff + wiki + memory updates
   40ca325 fix: update test mocks for BottomNav, KaderTab, PlayerIPOCard
   5f53291 refactor: Knowledge Wiki — final dedup + session handoff
@@ -9,22 +12,19 @@
   32144af feat: Equipment planning on Manager Pitch — Wave 5
   52b211b feat: Manager Command Center — 4-zone layout with IntelPanel, SquadStrip, StatusBar
   f7fba3b docs: session handoff + premium roadmap for next sessions
-  c71d1df refactor: remove legacy chip system — replaced by Equipment
-  e2e0e13 feat: Equipment Lineup Integration — equip items to players + scoring multiplier
-  4444212 fix: prevent negative radius in particle glow (Canvas createRadialGradient)
 
 ## Uncommitted: 10 Files
 ```
- M .claude/session-files.txt
  M memory/episodisch/metriken/sessions.jsonl
- D memory/episodisch/sessions/retro-20260407-014213.md
+ D memory/episodisch/sessions/retro-20260407-023026.md
+ D memory/episodisch/sessions/retro-20260407-023357.md
+ D memory/episodisch/sessions/retro-20260407-023437.md
+ D memory/episodisch/sessions/retro-20260407-023525.md
+ D memory/episodisch/sessions/retro-20260407-023608.md
  M memory/senses/morning-briefing.md
- M wiki/index.md
- M wiki/log.md
-?? memory/episodisch/sessions/retro-20260407-015305.md
-?? wiki/compliance.md
-?? wiki/equipment-system.md
-?? wiki/fantasy-tournaments.md
+ M memory/session-handoff.md
+?? memory/episodisch/sessions/retro-20260407-040641.md
+?? memory/episodisch/sessions/retro-20260407-040956.md
 ```
 
 ## Build

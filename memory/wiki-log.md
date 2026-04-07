@@ -3,6 +3,22 @@
 > Chronologisches Aenderungslog. Jeder AutoDream-Run und jede manuelle Aenderung wird hier protokolliert.
 > Parseable mit: `grep "^## \[" memory/wiki-log.md`
 
+## [2026-04-07] AutoDream Run #2 (Session 98, Counter 79)
+- Verdichtet: 5 Retros (retro-20260407-135831..183450) -> 1 semantisches Update
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/architecture-3hub.md)
+- Archiviert: 0 Sessions (alle <30 Tage, 5 unarchived retros sind von heute)
+- Neue Error-Patterns: .single() vs .maybeSingle() in errors.md + common-errors.md
+- Drafts pending review: 1 (2026-04-07-qa-visual-3hub-refactor.md)
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/architecture-3hub.md (NEU)
+  - memory/errors.md (+.single()/.maybeSingle() pattern)
+  - .claude/rules/common-errors.md (+Supabase Client Sektion)
+  - memory/wiki-index.md (aktualisiert: neue Datei, Zeilenzahlen)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
+
 ## [2026-04-07] Initial Migration (Karpathy Wiki Pattern)
 - **Redundanz eliminiert:** 5 Duplikat-Dateien geloescht, 3 Sektionen → Pointer
   - memory/semantisch/projekt/patterns.md → geloescht (Source: memory/patterns.md)

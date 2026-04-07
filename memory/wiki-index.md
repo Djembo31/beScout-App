@@ -3,13 +3,13 @@
 > Vollstaendiger Index aller Knowledge-Dateien. Generiert von AutoDream v3.
 > Nutze diesen Index um Dateien nach Domain/Typ zu finden.
 
-## Rules (.claude/rules/) — 13 Dateien, ~948 Zeilen
+## Rules (.claude/rules/) — 13 Dateien, ~962 Zeilen
 
 | File | Domain | Lines | Summary |
 |------|--------|-------|---------|
 | database.md | DB | 65 | Column names, RLS Checkliste, RPC Regeln, Schema, CHECK Constraints |
 | business.md | Compliance | 55 | Licensing-Phasen, Wording, Geofencing, Fee-Splits, i18n |
-| common-errors.md | Cross-Domain | 68 | React/TS/CSS/Shell Patterns, RLS Trap, RPC Anti-Patterns, Vercel |
+| common-errors.md | Cross-Domain | 73 | React/TS/CSS/Shell/Supabase Patterns, RLS Trap, RPC Anti-Patterns, Vercel |
 | trading.md | Trading | 78 | Order-Logik, Fee-Berechnung, Liquidation Guards |
 | fantasy.md | Fantasy | 71 | Event-Types, Lineup-Validation, Scoring |
 | community.md | Community | 75 | Posts, Research, Voting, Moderation |
@@ -26,16 +26,15 @@
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
 | patterns.md | Reference | 231 | Top 20 Code Patterns (Service Layer, Query Keys, Loading Guards) |
-| errors.md | Reference | 97 | Top 50 Error Patterns (DB, React, CSS, Turkish Unicode, API-Football) |
-| cortex-index.md | Routing | 30 | Routing-Tabelle: welches Wissen bei welchem Task laden |
-| current-sprint.md | Sprint | 25 | Aktueller Sprint-Status |
-| session-handoff.md | Handoff | 58 | Letzte Session: Was gemacht, was offen |
-| working-memory.md | Ephemeral | 27 | Pre-Compaction Blackboard |
+| errors.md | Reference | 78 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football) |
+| cortex-index.md | Routing | 32 | Routing-Tabelle: welches Wissen bei welchem Task laden |
+| session-handoff.md | Handoff | 55 | Letzte Session: Was gemacht, was offen |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
-| research-agent-systems-best-practices.md | Research | 371 | Agent Workflow v2: 24 Patterns |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
-| semantisch/projekt/agent-research.md | Research | 371 | Agent-System Patterns |
+| semantisch/projekt/agent-research.md | Research | 371 | Agent-System Patterns (24 Patterns, Must-Haves) |
+| semantisch/projekt/architecture-3hub.md | Architecture | 48 | 3-Hub Refactor 2026-04-07: Profile/Inventory/Missions/Home (NEU) |
+| semantisch/sprint/current.md | Sprint | 40 | Sprint-Status Jarvis Cortex v1 |
 
 ## Features (memory/features/) — 8 Specs
 
@@ -81,7 +80,7 @@
 | beScout-backend | 43 | DB, RPCs, Services Patterns |
 | metrics | 38 | Session-Metriken Aggregation |
 | beScout-frontend | 36 | UI, Components, Hooks Patterns |
-| promote-rule | 35 | Pending Rules → common-errors.md |
+| promote-rule | 35 | Pending Rules -> common-errors.md |
 | beScout-business | 34 | Compliance, Wording, Legal |
 | reflect | 31 | Learnings Queue Review |
 
@@ -89,8 +88,9 @@
 
 | File | Status | Content |
 |------|--------|---------|
-| drafts/2026-04-02-smoke-test-hooks-grep.md | Pending Review | Smoke Test Hooks/Grep |
-| drafts/2026-04-02-smoke-test-worktree-skills.md | Pending Review | Worktree Skills |
+| drafts/2026-04-02-smoke-test-hooks-grep.md | Reviewed/Promoted | grep -oP Windows Bug -> common-errors.md |
+| drafts/2026-04-02-smoke-test-worktree-skills.md | Reviewed/Promoted | Worktree Skills Fallback -> common-errors.md |
+| drafts/2026-04-07-qa-visual-3hub-refactor.md | Pending Review | Visual QA Multi-Page Refactor Patterns |
 | beScout-backend.md | Stub | Awaiting first learning |
 | beScout-frontend.md | Stub | Awaiting first learning |
 | beScout-business.md | Stub | Awaiting first learning |
@@ -100,4 +100,4 @@
 
 ---
 
-*Last generated: 2026-04-07 by AutoDream v3 initial migration*
+*Last generated: 2026-04-07 by AutoDream v3 Run #2 (Session 98)*

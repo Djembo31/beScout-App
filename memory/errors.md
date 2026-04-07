@@ -25,6 +25,10 @@
 - **RLS Policies nicht verifiziert nach Migration:** Policies koennten fehlen. → **Fix:** `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`.
 - **RLS `.update()` stumm blockiert:** Update-Queries returnieren OK aber aendern nichts. → **Fix:** RPC fuer geschuetzte Tabellen nutzen statt direktem `.update()`.
 
+### Supabase Client
+
+- **`.single()` wenn 0 Rows moeglich:** HTTP 406 Error, Query crasht. → **Fix:** `.maybeSingle()` fuer alle Lookups wo der Datensatz optional ist (User-Airdrop, optionale Profile-Daten, etc.). Regel: Wenn die Frage "Existiert dieser Datensatz sicher?" mit NEIN beantwortet werden kann → `.maybeSingle()`. Audit-Trigger: Visual QA HTTP 406 Fehler. (2026-04-07, 23 Service-Calls gefixt, Commit d66f0f6)
+
 ### React/TypeScript
 
 - **Hooks nach early return:** React Rules Verletzung, Runtime-Crash. → **Fix:** ALLE Hooks VOR dem ersten `if (...) return`.
