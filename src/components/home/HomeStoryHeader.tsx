@@ -75,7 +75,7 @@ function HomeStoryHeaderInner({
         </div>
 
         {/* ━━━ HERO NUMBER — Portfolio Value ━━━ */}
-        <Link href="/market?tab=portfolio" data-tour-id="home-stats" className="block mt-5 group">
+        <Link href="/manager?tab=kader" data-tour-id="home-stats" className="block mt-5 group">
           <div className="anim-number-reveal">
             <span className={cn('font-mono font-black text-4xl md:text-5xl gold-glow tracking-tight', portfolioTick)}>
               {fmtScout(portfolioValue)}

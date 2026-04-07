@@ -7,7 +7,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { getClub } from '@/lib/clubs';
 import { cn } from '@/lib/utils';
 
-interface BestandClubGroupProps {
+interface KaderClubGroupProps {
   clubId: string;
   clubName: string;
   playerCount: number;
@@ -16,7 +16,7 @@ interface BestandClubGroupProps {
   children: React.ReactNode;
 }
 
-export default function BestandClubGroup({ clubId, clubName, playerCount, isExpanded, onToggle, children }: BestandClubGroupProps) {
+export default function KaderClubGroup({ clubId, clubName, playerCount, isExpanded, onToggle, children }: KaderClubGroupProps) {
   const t = useTranslations('market');
   const clubData = getClub(clubId);
 

@@ -5,14 +5,14 @@ import { Filter, X, Layers, ArrowUpDown } from 'lucide-react';
 import { SearchInput, PosFilter } from '@/components/ui';
 import { SortPills } from '@/components/ui/SortPills';
 import { cn } from '@/lib/utils';
-import { LENS_OPTIONS, LENS_SORTS } from './bestandHelpers';
-import type { BestandLens } from './bestandHelpers';
+import { LENS_OPTIONS, LENS_SORTS } from './kaderHelpers';
+import type { KaderLens } from './kaderHelpers';
 import type { Pos } from '@/types';
 import { useTranslations } from 'next-intl';
 
-interface BestandToolbarProps {
-  lens: BestandLens;
-  onLensChange: (lens: BestandLens) => void;
+interface KaderToolbarProps {
+  lens: KaderLens;
+  onLensChange: (lens: KaderLens) => void;
   sortBy: string;
   onSortChange: (sort: string) => void;
   query: string;
@@ -28,7 +28,7 @@ interface BestandToolbarProps {
   onShowFiltersChange: (v: boolean) => void;
 }
 
-export default function BestandToolbar({
+export default function KaderToolbar({
   lens, onLensChange,
   sortBy, onSortChange,
   query, onQueryChange,
@@ -37,7 +37,7 @@ export default function BestandToolbar({
   availableClubs,
   groupByClub, onGroupByClubChange,
   showFilters, onShowFiltersChange,
-}: BestandToolbarProps) {
+}: KaderToolbarProps) {
   const t = useTranslations('market');
 
   const lensOptions = LENS_OPTIONS.map(opt => ({
@@ -56,7 +56,7 @@ export default function BestandToolbar({
     <div className="space-y-2">
       {/* Lens Switcher */}
       <div className="overflow-x-auto -mx-1 px-1">
-        <SortPills options={lensOptions} active={lens} onChange={(id) => onLensChange(id as BestandLens)} />
+        <SortPills options={lensOptions} active={lens} onChange={(id) => onLensChange(id as KaderLens)} />
       </div>
 
       {/* Search + Sort + Group + Filter */}

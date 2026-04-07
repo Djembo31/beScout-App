@@ -161,13 +161,7 @@ export default function MarketContent() {
       <TabPanel id="portfolio" activeTab={tab}>
         <PortfolioTab
           players={data.players}
-          holdings={data.holdings}
-          ipoList={data.ipoList}
-          userId={user?.id}
-          incomingOffers={data.incomingOffers}
           watchlistEntries={data.watchlistEntries}
-          onSell={trade.handleSell}
-          onCancelOrder={trade.handleCancelOrder}
         />
       </TabPanel>
 

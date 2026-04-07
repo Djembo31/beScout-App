@@ -13,8 +13,8 @@ import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import {
   StatusPill, MinutesPill, PerfPills, NextMatchBadge, MarketBadges,
-} from './bestandHelpers';
-import type { BestandLens } from './bestandHelpers';
+} from './kaderHelpers';
+import type { KaderLens } from './kaderHelpers';
 import type { Player } from '@/types';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 
@@ -22,7 +22,7 @@ import type { NextFixtureInfo } from '@/lib/services/fixtures';
 // TYPES
 // ============================================
 
-export type BestandPlayer = {
+export type KaderPlayer = {
   player: Player;
   quantity: number;
   avgBuyPriceBsd: number;
@@ -40,9 +40,9 @@ export type BestandPlayer = {
   hasActiveIpo: boolean;
 };
 
-interface BestandPlayerRowProps {
-  item: BestandPlayer;
-  lens: BestandLens;
+interface KaderPlayerRowProps {
+  item: KaderPlayer;
+  lens: KaderLens;
   minutes?: number[];
   scores?: (number | null)[];
   nextFixture?: NextFixtureInfo;
@@ -51,13 +51,16 @@ interface BestandPlayerRowProps {
   /** Bulk-select mode */
   isSelected?: boolean;
   onToggleSelect?: (playerId: string) => void;
+  /** When provided, tapping the row opens an in-context detail modal instead of navigating.
+   *  Middle-click and keyboard navigation still go to /player/[id] (Link preserved). */
+  onRowClick?: (playerId: string) => void;
 }
 
 // ============================================
 // LENS-SPECIFIC COLUMNS
 // ============================================
 
-function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; minutes?: number[]; nextFixture?: NextFixtureInfo }) {
+function PerformanceCols({ item, minutes, nextFixture }: { item: KaderPlayer; minutes?: number[]; nextFixture?: NextFixtureInfo }) {
   const t = useTranslations('market');
   const p = item.player;
   return (
@@ -89,7 +92,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
   );
 }
 
-function MarktCols({ item }: { item: BestandPlayer }) {
+function MarktCols({ item }: { item: KaderPlayer }) {
   const t = useTranslations('market');
   const pnlColor = item.pnlBsd >= 0 ? 'text-vivid-green' : 'text-vivid-red';
   const TrendIcon = item.pnlBsd > 0 ? TrendingUp : item.pnlBsd < 0 ? TrendingDown : Minus;
@@ -121,7 +124,7 @@ function MarktCols({ item }: { item: BestandPlayer }) {
   );
 }
 
-function HandelCols({ item }: { item: BestandPlayer }) {
+function HandelCols({ item }: { item: KaderPlayer }) {
   const t = useTranslations('market');
   return (
     <>
@@ -156,7 +159,7 @@ function HandelCols({ item }: { item: BestandPlayer }) {
   );
 }
 
-function VertragCols({ item }: { item: BestandPlayer }) {
+function VertragCols({ item }: { item: KaderPlayer }) {
   const t = useTranslations('market');
   const p = item.player;
   const months = p.contractMonthsLeft;
@@ -193,7 +196,7 @@ function VertragCols({ item }: { item: BestandPlayer }) {
 // MAIN ROW
 // ============================================
 
-function BestandPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineup, onSellClick, isSelected, onToggleSelect }: BestandPlayerRowProps) {
+function KaderPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineup, onSellClick, isSelected, onToggleSelect, onRowClick }: KaderPlayerRowProps) {
   const t = useTranslations('market');
   const p = item.player;
   const tint = posTintColors[p.pos];
@@ -210,7 +213,16 @@ function BestandPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLin
       )}
       style={{ borderLeftColor: tint }}
     >
-      <Link href={`/player/${p.id}`} className="flex gap-3 px-3 py-2.5">
+      <Link
+        href={`/player/${p.id}`}
+        className="flex gap-3 px-3 py-2.5"
+        onClick={(e) => {
+          if (onRowClick) {
+            e.preventDefault();
+            onRowClick(p.id);
+          }
+        }}
+      >
         {/* Bulk-select checkbox */}
         {onToggleSelect && (
           <button
@@ -280,4 +292,4 @@ function BestandPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLin
   );
 }
 
-export const BestandPlayerRow = memo(BestandPlayerRowInner);
+export const KaderPlayerRow = memo(KaderPlayerRowInner);

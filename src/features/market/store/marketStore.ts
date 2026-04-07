@@ -1,11 +1,10 @@
 import { create } from 'zustand';
 import type { Pos } from '@/types';
-import type { BestandLens } from '@/features/market/components/portfolio/bestand/bestandHelpers';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
 export type MarketTab = 'portfolio' | 'marktplatz';
-export type PortfolioSubTab = 'bestand' | 'angebote' | 'watchlist';
+export type PortfolioSubTab = 'angebote' | 'watchlist';
 export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending';
 export type IpoViewState = 'laufend' | 'geplant' | 'beendet';
 
@@ -14,12 +13,6 @@ interface MarketState {
   tab: MarketTab;
   portfolioSubTab: PortfolioSubTab;
   kaufenSubTab: KaufenSubTab;
-
-  // ── Bestand-Tab state ──
-  bestandLens: BestandLens;
-  bestandGroupByClub: boolean;
-  bestandSellPlayerId: string | null;
-  expandedClubs: Set<string>;
 
   // ── Market filters (shared: Club Verkauf + Transferliste) ──
   filterPos: Set<Pos>;
@@ -46,10 +39,6 @@ interface MarketState {
   setTab: (t: MarketTab) => void;
   setPortfolioSubTab: (v: PortfolioSubTab) => void;
   setKaufenSubTab: (v: KaufenSubTab) => void;
-  setBestandLens: (lens: BestandLens) => void;
-  setBestandGroupByClub: (v: boolean) => void;
-  setBestandSellPlayerId: (id: string | null) => void;
-  toggleClubExpand: (club: string) => void;
   setFilterPos: (pos: Set<Pos>) => void;
   toggleFilterPos: (pos: Pos) => void;
   setFilterMinL5: (v: number) => void;
@@ -73,14 +62,8 @@ interface MarketState {
 export const useMarketStore = create<MarketState>()((set) => ({
   // ── Navigation ──
   tab: 'portfolio',
-  portfolioSubTab: 'bestand',
+  portfolioSubTab: 'angebote',
   kaufenSubTab: 'clubverkauf',
-
-  // ── Bestand-Tab state ──
-  bestandLens: 'performance',
-  bestandGroupByClub: false,
-  bestandSellPlayerId: null,
-  expandedClubs: new Set<string>(),
 
   // ── Market filters ──
   filterPos: new Set<Pos>(),
@@ -104,14 +87,6 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setTab: (t) => set({ tab: t }),
   setPortfolioSubTab: (v) => set({ portfolioSubTab: v }),
   setKaufenSubTab: (v) => set({ kaufenSubTab: v }),
-  setBestandLens: (lens) => set({ bestandLens: lens }),
-  setBestandGroupByClub: (v) => set({ bestandGroupByClub: v }),
-  setBestandSellPlayerId: (id) => set({ bestandSellPlayerId: id }),
-  toggleClubExpand: (club) => set((state) => {
-    const next = new Set(state.expandedClubs);
-    if (next.has(club)) next.delete(club); else next.add(club);
-    return { expandedClubs: next };
-  }),
   setFilterPos: (pos) => set({ filterPos: pos }),
   toggleFilterPos: (pos) => set((state) => {
     const next = new Set(state.filterPos);

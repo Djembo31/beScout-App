@@ -16,16 +16,16 @@ import type { NextFixtureInfo } from '@/lib/services/fixtures';
 // LENS TYPES + CONFIG
 // ============================================
 
-export type BestandLens = 'performance' | 'markt' | 'handel' | 'vertrag';
+export type KaderLens = 'performance' | 'markt' | 'handel' | 'vertrag';
 
-export const LENS_OPTIONS: { id: BestandLens; labelKey: string }[] = [
+export const LENS_OPTIONS: { id: KaderLens; labelKey: string }[] = [
   { id: 'performance', labelKey: 'bestandLensPerformance' },
   { id: 'markt', labelKey: 'bestandLensMarkt' },
   { id: 'handel', labelKey: 'bestandLensHandel' },
   { id: 'vertrag', labelKey: 'bestandLensVertrag' },
 ];
 
-export const LENS_SORTS: Record<BestandLens, { id: string; labelKey: string }[]> = {
+export const LENS_SORTS: Record<KaderLens, { id: string; labelKey: string }[]> = {
   performance: [
     { id: 'l5', labelKey: 'bestandSortL5' },
     { id: 'minutes', labelKey: 'bestandSortMinutes' },
@@ -51,7 +51,7 @@ export const LENS_SORTS: Record<BestandLens, { id: string; labelKey: string }[]>
   ],
 };
 
-export const DEFAULT_SORT: Record<BestandLens, string> = {
+export const DEFAULT_SORT: Record<KaderLens, string> = {
   performance: 'l5',
   markt: 'value_desc',
   handel: 'offers_desc',

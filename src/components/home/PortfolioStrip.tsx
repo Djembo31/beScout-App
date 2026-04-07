@@ -22,7 +22,7 @@ function PortfolioStripInner({ holdings }: PortfolioStripProps) {
   if (holdings.length === 0) {
     return (
       <div>
-        <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
+        <SectionHeader title={t('myRoster')} href="/manager?tab=kader" />
         <Link href="/market?tab=kaufen" className="block mt-3">
           <Card className="p-6 text-center bg-card-glow-gold border-gold/10 shadow-card-md">
             <Briefcase className="size-10 mx-auto mb-2 text-gold/40" aria-hidden="true" />
@@ -42,7 +42,7 @@ function PortfolioStripInner({ holdings }: PortfolioStripProps) {
 
   return (
     <div>
-      <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
+      <SectionHeader title={t('myRoster')} href="/manager?tab=kader" />
       <div aria-live="polite" className="mt-3 flex gap-3 overflow-x-auto scrollbar-hide scroll-touch pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>
         {top6.map((h, i) => {
           const posColor = posTintColors[h.pos];
@@ -105,7 +105,7 @@ function PortfolioStripInner({ holdings }: PortfolioStripProps) {
         })}
         {holdings.length > 6 && (
           <Link
-            href="/market?tab=portfolio"
+            href="/manager?tab=kader"
             className="flex-shrink-0 w-[80px] flex flex-col items-center justify-center rounded-2xl border border-white/[0.06] bg-surface-base hover:bg-surface-elevated transition-colors shadow-card-sm"
           >
             <ChevronRight className="size-5 text-gold mb-1" aria-hidden="true" />

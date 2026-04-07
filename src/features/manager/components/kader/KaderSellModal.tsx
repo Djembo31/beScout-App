@@ -7,19 +7,19 @@ import { Tag, Loader2, Trash2, AlertCircle, MessageSquare, Clock } from 'lucide-
 import { Modal, Button } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { BestandPlayer } from './BestandPlayerRow';
+import type { KaderPlayer } from './KaderPlayerRow';
 
 const FEE_RATE = 0.06;
 
-interface BestandSellModalProps {
-  item: BestandPlayer | null;
+interface KaderSellModalProps {
+  item: KaderPlayer | null;
   open: boolean;
   onClose: () => void;
   onSell: (playerId: string, qty: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
   onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-export default function BestandSellModal({ item, open, onClose, onSell, onCancelOrder }: BestandSellModalProps) {
+export default function KaderSellModal({ item, open, onClose, onSell, onCancelOrder }: KaderSellModalProps) {
   const t = useTranslations('market');
   const [qty, setQty] = useState(1);
   const [priceBsd, setPriceBsd] = useState('');

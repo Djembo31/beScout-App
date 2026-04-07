@@ -1,7 +1,23 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabaseMiddleware";
 
 export async function middleware(request: NextRequest) {
+    // ── 301 Redirects: legacy Bestand URLs → new Manager Kader-Tab ──
+    // After Wave 2 migration, /market?tab=portfolio (and the bestand sub-tab)
+    // moved to /manager?tab=kader. Permanent redirect preserves bookmarks +
+    // shared links + crawler indexing.
+    if (request.nextUrl.pathname === '/market') {
+        const tab = request.nextUrl.searchParams.get('tab');
+        const sub = request.nextUrl.searchParams.get('sub');
+        if (tab === 'portfolio' || sub === 'bestand') {
+            const url = request.nextUrl.clone();
+            url.pathname = '/manager';
+            url.search = '';
+            url.searchParams.set('tab', 'kader');
+            return NextResponse.redirect(url, 301);
+        }
+    }
+
     return await updateSession(request);
 }
 

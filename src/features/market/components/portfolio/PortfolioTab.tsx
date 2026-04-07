@@ -7,15 +7,10 @@ import dynamic from 'next/dynamic';
 import { SkeletonCard } from '@/components/ui';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { PortfolioSubTab } from '@/features/market/store/marketStore';
-import type { Player, DbIpo, OfferWithDetails } from '@/types';
+import type { Player } from '@/types';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
-import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
-const BestandTab = dynamic(() => import('./BestandTab'), {
-  ssr: false,
-  loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
-});
 const OffersTab = dynamic(() => import('./OffersTab'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
@@ -31,24 +26,14 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 
 type Props = {
   players: Player[];
-  holdings: HoldingWithPlayer[];
-  ipoList: DbIpo[];
-  userId: string | undefined;
-  incomingOffers: OfferWithDetails[];
   watchlistEntries: WatchlistEntry[];
-  onSell: (playerId: string, qty: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
-  onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
 };
 
-export default function PortfolioTab({
-  players, holdings, ipoList, userId,
-  incomingOffers, watchlistEntries, onSell, onCancelOrder,
-}: Props) {
+export default function PortfolioTab({ players, watchlistEntries }: Props) {
   const t = useTranslations('market');
   const { portfolioSubTab, setPortfolioSubTab } = useMarketStore();
 
   const subTabs: Array<{ id: PortfolioSubTab; label: string; icon: React.ReactNode | null }> = [
-    { id: 'bestand', label: t('inventory'), icon: null },
     { id: 'angebote', label: t('offers'), icon: null },
     { id: 'watchlist', label: t('watchlist'), icon: <Heart className="size-3" /> },
   ];
@@ -72,9 +57,6 @@ export default function PortfolioTab({
           </button>
         ))}
       </div>
-      {portfolioSubTab === 'bestand' && (
-        <BestandTab players={players} holdings={holdings} ipoList={ipoList} userId={userId} incomingOffers={incomingOffers} onSell={onSell} onCancelOrder={onCancelOrder} />
-      )}
       {portfolioSubTab === 'angebote' && (
         <OffersTab players={players} />
       )}

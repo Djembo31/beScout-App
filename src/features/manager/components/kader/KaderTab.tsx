@@ -10,23 +10,23 @@ import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
 import { useHoldingLocks } from '@/lib/queries/events';
-import { useMarketStore } from '@/lib/stores/marketStore';
+import { useManagerStore } from '@/features/manager/store/managerStore';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-import { DEFAULT_SORT } from './bestand/bestandHelpers';
-import type { BestandLens } from './bestand/bestandHelpers';
-import { BestandPlayerRow } from './bestand/BestandPlayerRow';
-import type { BestandPlayer } from './bestand/BestandPlayerRow';
-import BestandSellModal from './bestand/BestandSellModal';
-import BestandToolbar from './bestand/BestandToolbar';
-import BestandClubGroup from './bestand/BestandClubGroup';
+import { DEFAULT_SORT } from './kaderHelpers';
+import type { KaderLens } from './kaderHelpers';
+import { KaderPlayerRow } from './KaderPlayerRow';
+import type { KaderPlayer } from './KaderPlayerRow';
+import KaderSellModal from './KaderSellModal';
+import KaderToolbar from './KaderToolbar';
+import KaderClubGroup from './KaderClubGroup';
 import { useTranslations } from 'next-intl';
 
 // ============================================
 // TYPES
 // ============================================
 
-interface ManagerBestandTabProps {
+interface KaderTabProps {
   players: Player[];
   holdings: HoldingWithPlayer[];
   ipoList: DbIpo[];
@@ -40,7 +40,7 @@ interface ManagerBestandTabProps {
 // SORT FUNCTION
 // ============================================
 
-function sortItems(items: BestandPlayer[], sortBy: string, minutesMap: Map<string, number[]> | undefined): BestandPlayer[] {
+function sortItems(items: KaderPlayer[], sortBy: string, minutesMap: Map<string, number[]> | undefined): KaderPlayer[] {
   const sorted = [...items];
   sorted.sort((a, b) => {
     switch (sortBy) {
@@ -72,27 +72,28 @@ function sortItems(items: BestandPlayer[], sortBy: string, minutesMap: Map<strin
 // MAIN COMPONENT
 // ============================================
 
-export default function ManagerBestandTab({
+export default function KaderTab({
   players, holdings, ipoList, userId, incomingOffers, onSell, onCancelOrder,
-}: ManagerBestandTabProps) {
+}: KaderTabProps) {
   const t = useTranslations('market');
 
   // Store state
-  const lens = useMarketStore(s => s.bestandLens);
-  const setLens = useMarketStore(s => s.setBestandLens);
-  const groupByClub = useMarketStore(s => s.bestandGroupByClub);
-  const setGroupByClub = useMarketStore(s => s.setBestandGroupByClub);
-  const sellPlayerId = useMarketStore(s => s.bestandSellPlayerId);
-  const setSellPlayerId = useMarketStore(s => s.setBestandSellPlayerId);
-  const expandedClubs = useMarketStore(s => s.expandedClubs);
-  const toggleClubExpand = useMarketStore(s => s.toggleClubExpand);
+  const lens = useManagerStore(s => s.kaderLens);
+  const setLens = useManagerStore(s => s.setKaderLens);
+  const groupByClub = useManagerStore(s => s.kaderGroupByClub);
+  const setGroupByClub = useManagerStore(s => s.setKaderGroupByClub);
+  const sellPlayerId = useManagerStore(s => s.kaderSellPlayerId);
+  const setSellPlayerId = useManagerStore(s => s.setKaderSellPlayerId);
+  const expandedClubs = useManagerStore(s => s.expandedClubs);
+  const toggleClubExpand = useManagerStore(s => s.toggleClubExpand);
+  const setKaderDetailPlayerId = useManagerStore(s => s.setKaderDetailPlayerId);
 
   // Local state
   const [query, setQuery] = useState('');
   const [posFilter, setPosFilter] = useState<Set<Pos>>(new Set());
   const [clubFilter, setClubFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [sortByMap, setSortByMap] = useState<Partial<Record<BestandLens, string>>>({});
+  const [sortByMap, setSortByMap] = useState<Partial<Record<KaderLens, string>>>({});
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkSelling, setBulkSelling] = useState(false);
@@ -135,7 +136,7 @@ export default function ManagerBestandTab({
       offersByPlayer.set(offer.player_id, existing);
     }
 
-    const items: BestandPlayer[] = [];
+    const items: KaderPlayer[] = [];
     for (const h of holdings) {
       const player = playerMap.get(h.player_id);
       if (!player || player.isLiquidated) continue;
@@ -225,7 +226,7 @@ export default function ManagerBestandTab({
   // Club-grouped data
   const clubGroups = useMemo(() => {
     if (!groupByClub) return null;
-    const groups = new Map<string, { clubId: string; clubName: string; items: BestandPlayer[] }>();
+    const groups = new Map<string, { clubId: string; clubName: string; items: KaderPlayer[] }>();
     for (const item of filtered) {
       const key = item.player.clubId ?? item.player.club;
       const existing = groups.get(key);
@@ -246,8 +247,8 @@ export default function ManagerBestandTab({
 
   const getPnlColor = (pnl: number) => pnl >= 0 ? 'text-vivid-green' : 'text-vivid-red';
 
-  const renderRow = (item: BestandPlayer) => (
-    <BestandPlayerRow
+  const renderRow = (item: KaderPlayer) => (
+    <KaderPlayerRow
       key={item.player.id}
       item={item}
       lens={lens}
@@ -258,6 +259,7 @@ export default function ManagerBestandTab({
       onSellClick={setSellPlayerId}
       isSelected={bulkMode ? selectedIds.has(item.player.id) : undefined}
       onToggleSelect={bulkMode ? toggleSelect : undefined}
+      onRowClick={bulkMode ? undefined : setKaderDetailPlayerId}
     />
   );
 
@@ -303,7 +305,7 @@ export default function ManagerBestandTab({
       <SponsorBanner placement="market_portfolio" className="mb-2" />
 
       {/* Toolbar */}
-      <BestandToolbar
+      <KaderToolbar
         lens={lens}
         onLensChange={setLens}
         sortBy={sortBy}
@@ -362,7 +364,7 @@ export default function ManagerBestandTab({
         groupByClub && clubGroups ? (
           <div className="space-y-2">
             {clubGroups.map(group => (
-              <BestandClubGroup
+              <KaderClubGroup
                 key={group.clubId || group.clubName}
                 clubId={group.clubId}
                 clubName={group.clubName}
@@ -371,7 +373,7 @@ export default function ManagerBestandTab({
                 onToggle={() => toggleClubExpand(group.clubId || group.clubName)}
               >
                 {group.items.map(renderRow)}
-              </BestandClubGroup>
+              </KaderClubGroup>
             ))}
           </div>
         ) : (
@@ -408,7 +410,7 @@ export default function ManagerBestandTab({
       )}
 
       {/* Sell Modal */}
-      <BestandSellModal
+      <KaderSellModal
         item={sellItem}
         open={!!sellPlayerId}
         onClose={() => setSellPlayerId(null)}

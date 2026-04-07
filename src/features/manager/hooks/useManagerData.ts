@@ -5,6 +5,8 @@ import type { Player, PlayerStatus } from '@/types';
 import { useMarketData } from '@/features/market/hooks/useMarketData';
 import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
 import { useUserEquipment, useEquipmentDefinitions, useEquipmentRanks } from '@/lib/queries/equipment';
+import { useIncomingOffers } from '@/features/market/queries/offers';
+import { useActiveIpos } from '@/features/market/queries/ipos';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 
 export interface HealthCounts {
@@ -27,6 +29,10 @@ export interface NextEventInfo {
 export function useManagerData(userId: string | undefined) {
   // ── Core player data (shared cache with Market) ──
   const { players, mySquadPlayers, playersLoading, playersError, holdings, getFloor } = useMarketData(userId);
+
+  // ── Trading data needed by Kader Tab (shared cache with Market) ──
+  const { data: ipoList = [] } = useActiveIpos();
+  const { data: incomingOffers = [] } = useIncomingOffers(userId);
 
   // ── Manager-specific queries ──
   const { data: minutesMap } = useRecentMinutes();
@@ -118,6 +124,10 @@ export function useManagerData(userId: string | undefined) {
     holdings,
     playersLoading,
     playersError,
+
+    // Trading data (for Kader Tab)
+    ipoList,
+    incomingOffers,
 
     // Manager queries
     minutesMap,
