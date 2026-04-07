@@ -47,13 +47,13 @@ export default function EquipmentBadge({ equipmentKey, rank, position, size = 's
 
   return (
     <div className={cn(
-      'flex items-center gap-1 px-1.5 py-0.5 rounded-lg border text-[10px]',
-      posColors.bg, posColors.border,
+      'flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] bg-[#0a0a0a]/90 backdrop-blur-sm',
+      posColors.border,
       className,
     )}>
-      <Icon className={cn('size-3', posColors.text)} aria-hidden="true" />
+      <Icon className={cn('size-3.5', posColors.text)} aria-hidden="true" />
       <span className={cn('font-black', posColors.text)}>R{rank}</span>
-      <span className="text-white/40 font-mono">×{multiplierLabels[rank] ?? rank}</span>
+      <span className="text-white/50 font-mono tabular-nums">×{multiplierLabels[rank] ?? rank}</span>
     </div>
   );
 }

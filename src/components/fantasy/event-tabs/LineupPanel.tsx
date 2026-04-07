@@ -370,10 +370,10 @@ export default function LineupPanel({
                     const slotEquipment = equipmentMap?.[slotDbKeys[slot.slot]];
                     return (
                       <div key={slot.slot} className="flex flex-col items-center relative">
-                        {/* Equipment badge (bottom-right, above WC) */}
+                        {/* Equipment badge (centered below player) */}
                         {player && slotEquipment && (
                           <div
-                            className="absolute -bottom-3 right-1/2 translate-x-1/2 z-30 cursor-pointer"
+                            className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-30 cursor-pointer drop-shadow-[0_0_6px_rgba(255,215,0,0.4)]"
                             onClick={(e) => {
                               e.stopPropagation();
                               if (!slotReadOnly && onEquipmentTap) {
@@ -385,7 +385,7 @@ export default function LineupPanel({
                               equipmentKey={slotEquipment.key as EquipmentType}
                               rank={slotEquipment.rank}
                               position={slotEquipment.position}
-                              size="sm"
+                              size="md"
                             />
                           </div>
                         )}
