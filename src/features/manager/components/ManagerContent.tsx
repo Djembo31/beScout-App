@@ -11,7 +11,8 @@ import { SkeletonCard } from '@/components/ui';
 import { useManagerData } from '../hooks/useManagerData';
 import { useManagerStore, type ManagerTab } from '../store/managerStore';
 import { useTradeActions } from '@/features/market/hooks/useTradeActions';
-import PageHeader from './PageHeader';
+import { useOpenEvents } from '../queries/eventQueries';
+import PageHeader, { type NextEventInfo } from './PageHeader';
 
 const KaderTab = dynamic(() => import('./kader/KaderTab'), {
   ssr: false,
@@ -48,6 +49,11 @@ function ManagerInner() {
     players, mySquadPlayers, healthCounts, playersLoading,
     holdings, ipoList, incomingOffers,
   } = useManagerData(user?.id);
+
+  const { events: openEvents } = useOpenEvents();
+  const nextEvent: NextEventInfo = openEvents.length > 0
+    ? { id: openEvents[0].id, name: openEvents[0].name, startTime: openEvents[0].startTime }
+    : null;
 
   const { handleSell, handleCancelOrder } = useTradeActions(user?.id, ipoList);
 
@@ -101,7 +107,7 @@ function ManagerInner() {
       <PageHeader
         squadCount={mySquadPlayers.length}
         healthCounts={healthCounts}
-        nextEvent={null}
+        nextEvent={nextEvent}
         loading={playersLoading}
       />
 
