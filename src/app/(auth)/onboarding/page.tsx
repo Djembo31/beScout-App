@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift, Star } from 'lucide-react';
+import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
@@ -97,22 +97,13 @@ function OnboardingContent() {
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load clubs when reaching step 3, pre-select Sakaryaspor (pilot club)
+  // Load clubs when reaching step 3 — NO pre-selection, user chooses freely.
+  // Pilot was Sakaryaspor, but BeScout is a multi-club platform from the start.
   useEffect(() => {
     if (step === 3 && allClubs.length === 0) {
       setClubsLoading(true);
       getAllClubs()
-        .then(clubs => {
-          setAllClubs(clubs);
-          // Pre-select Sakaryaspor as default pilot club (user can deselect)
-          const sakaryaspor = clubs.find(c => c.slug === 'sakaryaspor');
-          if (sakaryaspor) {
-            setSelectedClubIds(prev => {
-              if (prev.size === 0) return new Set([sakaryaspor.id]);
-              return new Set(prev).add(sakaryaspor.id);
-            });
-          }
-        })
+        .then(clubs => setAllClubs(clubs))
         .catch(err => console.error('[Onboarding] Failed to load clubs:', err))
         .finally(() => setClubsLoading(false));
     }
@@ -195,6 +186,8 @@ function OnboardingContent() {
     });
   };
 
+  // Filter by search query, then sort by league (grouped) + alphabetically within league.
+  // No pilot-club priority — BeScout is multi-club from the start.
   const filteredClubs = allClubs
     .filter(c =>
       c.name.toLowerCase().includes(clubSearch.toLowerCase()) ||
@@ -202,11 +195,23 @@ function OnboardingContent() {
       c.short.toLowerCase().includes(clubSearch.toLowerCase())
     )
     .sort((a, b) => {
-      // Sakaryaspor (pilot club) always first
-      if (a.slug === 'sakaryaspor') return -1;
-      if (b.slug === 'sakaryaspor') return 1;
-      return 0;
+      const leagueA = a.league ?? 'zzz';
+      const leagueB = b.league ?? 'zzz';
+      if (leagueA !== leagueB) return leagueA.localeCompare(leagueB);
+      return a.name.localeCompare(b.name);
     });
+
+  // Group filteredClubs by league for rendering with league headers
+  const clubsByLeague = useMemo(() => {
+    const groups = new Map<string, DbClub[]>();
+    for (const club of filteredClubs) {
+      const league = club.league ?? '—';
+      const arr = groups.get(league);
+      if (arr) arr.push(club);
+      else groups.set(league, [club]);
+    }
+    return Array.from(groups.entries());
+  }, [filteredClubs]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) return;
@@ -562,9 +567,9 @@ function OnboardingContent() {
 
         {step === 3 && (
           <>
-            <h2 className="text-xl font-black text-balance mb-1">{t('chooseClub')}</h2>
+            <h2 className="text-xl font-black text-balance mb-1">{t('chooseClubMulti')}</h2>
             <p className="text-sm text-white/50 text-pretty mb-4">
-              {t('chooseClubHint')}
+              {t('chooseClubMultiHint')}
             </p>
 
             {/* Club Search */}
@@ -580,60 +585,65 @@ function OnboardingContent() {
               />
             </div>
 
-            {/* Club Grid */}
+            {/* Club Grid — grouped by league */}
             {clubsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="size-6 text-gold animate-spin motion-reduce:animate-none" aria-hidden="true" />
               </div>
             ) : (
-              <div className="max-h-[260px] overflow-y-auto space-y-1.5 mb-4 pr-1">
-                {filteredClubs.map((club) => {
-                  const selected = selectedClubIds.has(club.id);
-                  const color = club.primary_color ?? '#FFD700';
-                  return (
-                    <button
-                      key={club.id}
-                      onClick={() => toggleClub(club.id)}
-                      className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
-                        selected
-                          ? 'bg-gold/10 border border-gold/30'
-                          : 'bg-surface-subtle border border-divider hover:bg-surface-base'
-                      )}
-                    >
-                      <div
-                        className="size-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black"
-                        style={{ backgroundColor: `${color}20`, color }}
-                      >
-                        {club.logo_url ? (
-                          <Image src={club.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
-                        ) : (
-                          club.short?.slice(0, 3)
-                        )}
-                      </div>
-                      <div className="flex-1 text-left min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className={cn('text-sm font-semibold truncate', selected ? 'text-gold' : 'text-white')}>
-                            {club.name}
-                          </span>
-                          {club.slug === 'sakaryaspor' && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gold/15 border border-gold/25 text-[9px] font-bold text-gold uppercase shrink-0">
-                              <Star className="size-2.5" aria-hidden="true" />
-                              {t('recommended')}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-white/40">{club.league}</div>
-                      </div>
-                      {club.is_verified && <Shield className="size-3.5 text-gold/50 flex-shrink-0" aria-hidden="true" />}
-                      {selected && (
-                        <div className="size-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
-                          <Check className="size-3 text-black" aria-hidden="true" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+              <div className="max-h-[260px] overflow-y-auto space-y-3 mb-4 pr-1">
+                {clubsByLeague.map(([league, clubsInLeague]) => (
+                  <div key={league}>
+                    <div className="sticky top-0 bg-[#0a0a0a]/95 backdrop-blur-sm z-10 pb-1">
+                      <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
+                        {league}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5 mt-1">
+                      {clubsInLeague.map((club) => {
+                        const selected = selectedClubIds.has(club.id);
+                        const color = club.primary_color ?? '#FFD700';
+                        return (
+                          <button
+                            key={club.id}
+                            onClick={() => toggleClub(club.id)}
+                            className={cn(
+                              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
+                              selected
+                                ? 'bg-gold/10 border border-gold/30'
+                                : 'bg-surface-subtle border border-divider hover:bg-surface-base'
+                            )}
+                          >
+                            <div
+                              className="size-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black"
+                              style={{ backgroundColor: `${color}20`, color }}
+                            >
+                              {club.logo_url ? (
+                                <Image src={club.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
+                              ) : (
+                                club.short?.slice(0, 3)
+                              )}
+                            </div>
+                            <div className="flex-1 text-left min-w-0">
+                              <span className={cn('text-sm font-semibold truncate block', selected ? 'text-gold' : 'text-white')}>
+                                {club.name}
+                              </span>
+                              {club.city && (
+                                <div className="text-[10px] text-white/40">{club.city}</div>
+                              )}
+                            </div>
+                            {club.is_verified && <Shield className="size-3.5 text-gold/50 flex-shrink-0" aria-hidden="true" />}
+                            {selected && (
+                              <div className="size-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
+                                <Check className="size-3 text-black" aria-hidden="true" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
                 {filteredClubs.length === 0 && (
                   <p className="text-center text-sm text-white/40 py-4">{t('noClubsFound')}</p>
                 )}
@@ -664,7 +674,9 @@ function OnboardingContent() {
                 loading={submitting}
                 onClick={handleSubmit}
               >
-                {t('letsGo')}
+                {selectedClubIds.size === 0
+                  ? t('skipClubSelection')
+                  : t('followClubsBtn', { count: selectedClubIds.size })}
               </Button>
             </div>
 

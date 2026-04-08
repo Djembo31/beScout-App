@@ -165,7 +165,11 @@
     "backToLogin": "Girişe dön",
     "loginProcessing": "Giriş işleniyor...",
     "loginSlow": "Beklenenden uzun sürüyor...",
-    "recommended": "Önerilen"
+    "recommended": "Önerilen",
+    "chooseClubMulti": "Hangi kulüpler ilgini çekiyor?",
+    "chooseClubMultiHint": "İsteğe bağlı — istediğin zaman daha sonra takip edebilirsin.",
+    "skipClubSelection": "Seçim olmadan devam et",
+    "followClubsBtn": "{count, plural, =1 {1 Kulüp takip et ve başla} other {# Kulüp takip et ve başla}}"
   },
   "welcome": {
     "heroTitle": "Futbol bilgin artık bir",

@@ -165,7 +165,11 @@
     "backToLogin": "Zurück zum Login",
     "loginProcessing": "Anmeldung wird verarbeitet...",
     "loginSlow": "Dauert länger als erwartet...",
-    "recommended": "Empfohlen"
+    "recommended": "Empfohlen",
+    "chooseClubMulti": "Welche Clubs interessieren dich?",
+    "chooseClubMultiHint": "Optional — du kannst jederzeit später folgen.",
+    "skipClubSelection": "Weiter ohne Auswahl",
+    "followClubsBtn": "{count, plural, =1 {1 Club folgen & starten} other {# Clubs folgen & starten}}"
   },
   "welcome": {
     "heroTitle": "Dein Fußball-Wissen hat endlich einen",
