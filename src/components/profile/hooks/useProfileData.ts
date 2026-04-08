@@ -61,8 +61,10 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
   const [statsRefreshing, setStatsRefreshing] = useState(false);
 
   // ── Tab State ──
-  const [tab, setTab] = useState<ProfileTab>('manager');
-  const [tabInitialized, setTabInitialized] = useState(false);
+  // Deep link takes precedence at mount: if ?tab=X is valid, start there immediately.
+  // Otherwise fall back to 'manager' until stats load + strongest dimension is computed.
+  const [tab, setTab] = useState<ProfileTab>(() => (isValidTab(initialTab) ? initialTab : 'manager'));
+  const [tabInitialized, setTabInitialized] = useState(() => isValidTab(initialTab));
 
   // ── Founding Pass ──
   const { data: highestPassData } = useHighestPass(targetUserId);
