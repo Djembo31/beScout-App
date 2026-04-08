@@ -348,6 +348,9 @@ export const qk = {
       ['fantasy', 'progressiveScores', gw, ...playerIds],
     lineupScores: (uid: string | undefined, eventIds: string[]) =>
       ['fantasy', 'lineupScores', uid, ...eventIds],
+    userHistory: (uid: string | undefined) => ['fantasy', 'userHistory', uid] as const,
+    lineupSnapshot: (eventId: string, uid: string | undefined) =>
+      ['fantasy', 'lineupSnapshot', eventId, uid] as const,
   },
 
   // ── Fantasy Leagues ──

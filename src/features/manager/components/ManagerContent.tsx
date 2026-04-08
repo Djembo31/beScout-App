@@ -22,6 +22,10 @@ const AufstellenTab = dynamic(() => import('./aufstellen/AufstellenTab'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
 });
+const HistorieTab = dynamic(() => import('./historie/HistorieTab'), {
+  ssr: false,
+  loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
+});
 
 const VALID_TABS = new Set<ManagerTab>(['aufstellen', 'kader', 'historie']);
 const isValidTab = (v: string | null): v is ManagerTab => v !== null && VALID_TABS.has(v as ManagerTab);
@@ -120,9 +124,7 @@ function ManagerInner() {
       </TabPanel>
 
       <TabPanel id="historie" activeTab={activeTab}>
-        <div className="py-12 text-center text-white/40 text-sm">
-          {t('historiePlaceholder', { defaultValue: 'Historie-Tab kommt in Wave 4' })}
-        </div>
+        <HistorieTab />
       </TabPanel>
 
       {/* Player detail modal — opens via setKaderDetailPlayerId from KaderTab row tap */}
