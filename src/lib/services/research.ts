@@ -254,7 +254,11 @@ export async function unlockResearch(userId: string, researchId: string): Promis
   const result = data as UnlockResult;
 
   if (result.success) {
-    // Gamification (analyst score, missions, airdrop refresh) handled by DB trigger trg_fn_research_unlock_gamification
+    // Gamification (analyst score, airdrop refresh) handled by DB trigger trg_fn_research_unlock_gamification
+    // Mission tracking: daily_unlock_research + community_activity
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) =>
+      triggerMissionProgress(userId, ['daily_unlock_research', 'community_activity'])
+    ).catch(err => console.error('[Research] Mission tracking failed:', err));
 
     // Activity log
     import('@/lib/services/activityLog').then(({ logActivity }) => {

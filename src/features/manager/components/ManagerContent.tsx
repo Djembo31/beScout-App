@@ -14,6 +14,7 @@ import { useTradeActions } from '@/features/market/hooks/useTradeActions';
 import { useOpenEvents } from '../queries/eventQueries';
 import PageHeader, { type NextEventInfo } from './PageHeader';
 
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 const KaderTab = dynamic(() => import('./kader/KaderTab'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
@@ -110,6 +111,9 @@ function ManagerInner() {
         nextEvent={nextEvent}
         loading={playersLoading}
       />
+
+      {/* Contextual Mission Hints */}
+      <MissionHintList context="fantasy" />
 
       <TabBar tabs={tabDefs} activeTab={activeTab} onChange={handleTabChange} />
 

@@ -147,7 +147,7 @@ export async function createPost(
   // Gamification (analyst score, mastery XP, missions) handled by DB trigger trg_analyst_score_on_post
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, ['create_post', 'community_activity']);
+    triggerMissionProgress(userId, ['daily_post', 'create_post', 'community_activity']);
   }).catch(err => console.error('[Posts] Mission tracking failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {

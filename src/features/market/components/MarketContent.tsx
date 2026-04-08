@@ -25,6 +25,7 @@ import MarktplatzTab from './marktplatz/MarktplatzTab';
 const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false });
 const BuyConfirmModal = dynamic(() => import('./shared/BuyConfirmModal'), { ssr: false });
 const BuyOrderModal = dynamic(() => import('./shared/BuyOrderModal'), { ssr: false });
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 
 // ── Tab config ──
 const TAB_IDS: MarketTab[] = ['portfolio', 'marktplatz'];
@@ -156,6 +157,9 @@ export default function MarketContent() {
           </button>
         ))}
       </div>
+
+      {/* Contextual Mission Hints */}
+      <MissionHintList context="trading" />
 
       {/* Portfolio Tab */}
       <TabPanel id="portfolio" activeTab={tab}>

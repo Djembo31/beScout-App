@@ -32,6 +32,7 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 });
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), { ssr: false });
 const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
 const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), { ssr: false });
@@ -158,6 +159,9 @@ export default function HomePage() {
       {!isNewUser && retention?.onboarding && (
         <OnboardingChecklist items={retention.onboarding} />
       )}
+
+      {/* ── 1c-2. Contextual Mission Hints (returns null if no active hints) ── */}
+      {!isNewUser && <MissionHintList context="fantasy" />}
 
       {/* ── 1d. WELCOME BONUS ── */}
       {isNewUser && balanceCents != null && balanceCents > 0 && (

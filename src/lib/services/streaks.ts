@@ -11,6 +11,9 @@ export async function recordLoginStreak(userId: string): Promise<StreakResult> {
   const result = data as StreakResult;
 
   // Credit login tickets based on compound streak benefits
+  // Note: daily_login mission progress is incremented by record_login_streak RPC
+  // itself (SECURITY DEFINER calls update_mission_progress internally).
+  // Do NOT add a client-side triggerMissionProgress here — would double-count.
   if (result.ok && !result.already_today) {
     const { getStreakBenefits } = await import('@/lib/streakBenefits');
     const benefits = getStreakBenefits(result.streak);
