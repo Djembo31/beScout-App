@@ -71,17 +71,29 @@ Calibration v1 (Migration `20260407120000_mystery_box_calibration_v1.sql`) von A
 - Onboarding-Call
 - Anils Produkt-Entscheidung
 
-### C — Realtime `activity_log` Subscription (optional)
+### C — Realtime `activity_log` Subscription ✅ DONE (2026-04-08 Abend)
 **Quelle:** B2 Following Feed Handoff
-- Aktuell: 2min staleTime
-- Optional: Live-Updates via Supabase Realtime
-- Nice-to-have, nicht dringend
 
-### D — Equipment Inventar Screen (optional)
+Commit `7ddac0b` feat(social): live scout activity feed via supabase realtime.
+Migration `20260408220000_activity_log_realtime.sql` setzt REPLICA IDENTITY FULL +
+publication. Hook `useFollowingFeed` bekommt Realtime-Channel mit Throttle-2s-Window,
+UI rendert "X neue Aktivitäten"-Gold-Pill (ICU plural), Click → invalidate + refetch
+(keepPreviousData global default → flicker-free). End-to-end live getestet auf
+bescout.net (5 fake events → Pill "5 neue Aktivitäten" → click → Feed updated).
+
+Neuer Pattern dokumentiert: `memory/patterns.md` #21 Realtime + React Query.
+Key insight: Supabase Realtime respektiert RLS — kein Client-Filter nötig wenn
+cross-user SELECT-Policy präzise ist.
+
+### D — Equipment Inventar Screen ✅ DONE (2026-04-08 Abend)
 **Quelle:** `project_chip_equipment_system.md`
-- User sieht Equipment nur im Lineup-Picker
-- Dediziertes Inventar-Screen als Transparenz-Feature
-- Nicht dringend
+
+Commits `d71975a` + `6ee9629`. Existing `/inventory?tab=equipment` wurde um
+alle 5 nice-to-haves erweitert: Stats-Header (Items · Typen X/5 · Max Rang ·
+Equipped), Pokédex-Matrix mit 20 Slots (owned + missing ghost cards),
+"Verbraucht"-View mit N× verwendet Badges, Position-Filter-Chips +
+Sort-Dropdown, sowie EquipmentShortcut in Manager Aufstellen + Kader Tabs
+(happy + empty states). Live verifiziert auf bescout.net mit jarvis-qa.
 
 ## Umgebung / Lokaler State
 - `.next-old/` und `.next-old2/` im Repo-Root (gitignored) — können gelöscht werden (`.next` wurde 2x im QA restartet wegen Webpack cache issues)

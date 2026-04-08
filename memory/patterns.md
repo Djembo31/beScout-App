@@ -229,3 +229,46 @@ import { PlayerPhoto } from '@/components/player/index'
 />
 ```
 **Warum:** Einheitliches Fallback-Verhalten, Positions-Farben, Image-Optimierung. NIE inline `<img>` mit eigenem Fallback.
+
+### 21. Realtime + React Query (Live Feed Pattern)
+**Wann:** Live-Updates auf Listen (Following Feed, Notifications, Chat, Leaderboards).
+**Wie:** Subscribe auf INSERT/UPDATE via `supabase.channel()`, bufferRef-Counter mit Throttle-Timer (first-event-starts-window), bei User-Aktion `invalidateQueries` — `keepPreviousData` ist global default, also flicker-frei.
+```typescript
+// Voraussetzungen (einmalig pro Tabelle, Migration):
+ALTER TABLE public.foo REPLICA IDENTITY FULL;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.foo;
+
+// Hook-Pattern (src/lib/queries/social.ts: useFollowingFeed):
+useEffect(() => {
+  if (!userId) return;
+  const bufferRef = { count: 0 };
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const channel = supabase
+    .channel(`foo-${userId}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'foo' }, (payload) => {
+      // WICHTIG: RLS filtert serverseitig — kein client filter noetig wenn
+      // SELECT-Policy prazise genug ist. Nur own-event Skip falls relevant.
+      const row = payload.new as { user_id?: string };
+      if (row.user_id === userId) return;
+
+      bufferRef.count += 1;
+      if (timer === null) {
+        // Throttle (NICHT debounce): first event starts window, burst events
+        // buffern ohne timer reset — sonst feuert Window bei stetigen Events nie.
+        timer = setTimeout(() => {
+          setPendingCount((c) => c + bufferRef.count);
+          bufferRef.count = 0;
+          timer = null;
+        }, 2000);
+      }
+    })
+    .subscribe();
+  return () => { if (timer) clearTimeout(timer); supabase.removeChannel(channel); };
+}, [userId]);
+```
+**Warum:**
+- **Supabase Realtime respektiert RLS** → ein sauberer cross-user SELECT-Policy ersetzt clientseitige Filter. Getestet 2026-04-08 mit `activity_log` Feed-Policy (user_id IN following + action IN FEED_ACTIONS).
+- **Throttle statt Debounce** → classic debounce (timer reset bei jedem Event) feuert bei stetigem Traffic nie. Throttle window garantiert max. 1 flush pro window.
+- **`queryClient.invalidateQueries` statt `setQueryData`** → Service enriched Rows mit Profile-Joins, rohe Realtime-Payload reicht nicht. `keepPreviousData` ist global default (`queryClient.ts:11`), deshalb flicker-frei ohne extra Opt-in.
+- **REPLICA IDENTITY FULL** → nicht strikt noetig fuer INSERT-only, aber Best-Practice fuer Publication-Tabellen (UPDATE/DELETE-Events brauchen volle alte Row).
