@@ -18,6 +18,10 @@ const KaderTab = dynamic(() => import('./kader/KaderTab'), {
   loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
 });
 const PlayerDetailModal = dynamic(() => import('./kader/PlayerDetailModal'), { ssr: false });
+const AufstellenTab = dynamic(() => import('./aufstellen/AufstellenTab'), {
+  ssr: false,
+  loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
+});
 
 const VALID_TABS = new Set<ManagerTab>(['aufstellen', 'kader', 'historie']);
 const isValidTab = (v: string | null): v is ManagerTab => v !== null && VALID_TABS.has(v as ManagerTab);
@@ -100,9 +104,7 @@ function ManagerInner() {
       <TabBar tabs={tabDefs} activeTab={activeTab} onChange={handleTabChange} />
 
       <TabPanel id="aufstellen" activeTab={activeTab}>
-        <div className="py-12 text-center text-white/40 text-sm">
-          {t('aufstellenPlaceholder', { defaultValue: 'Aufstellen-Tab kommt in Wave 3' })}
-        </div>
+        <AufstellenTab />
       </TabPanel>
 
       <TabPanel id="kader" activeTab={activeTab}>
