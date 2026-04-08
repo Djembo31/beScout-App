@@ -60,9 +60,60 @@ Begleitend: `useLineupSave` Hook (9763f95) + 26 neue Unit-Tests (d9c1a5a).
 
 ### Was koennte als naechstes kommen
 - Keine kritischen offenen Punkte.
-- Optional: Node.js 20 → 24 Upgrade in CI workflows (GitHub deprecation Warning, September 2026 deadline).
-- Optional: 7 pre-existing ESLint Warnings aufraeumen (PitchView `<img>` → `next/image`, useLineupBuilder exhaustive-deps explicit disable mit comment).
-- Naechste Feature-Arbeit: leer, Anil waehlt Prio.
+- Naechste Feature-Arbeit aus project_e2e_features.md: B2 Following Feed E2E, B3 Transactions History E2E.
+- Onboarding ohne Club-Bezug (project_onboarding_multi_club.md).
+- Chip/Equipment System (project_chip_equipment_system.md).
+
+## B1 Missions E2E Audit + Polish (diese Session Nachmittag, 4 Commits)
+
+**Discovery:** Backend + Components + DB Schema existieren komplett. Aber
+6 Code-Call-Sites triggerten non-existent mission keys, 5 DB-Definitions
+waren Dead-Duplicates ohne Code-Coverage, Market/Manager/Home fehlten
+MissionHintList-Integration, und Claim-Notification crashte an CHECK
+constraint.
+
+**Phase A — Code→DB key alignment (3c23199):**
+- `daily_trade` → `daily_trade_2` (4 trading.ts + 1 offers.ts + 1 ipo.ts)
+- `weekly_5_trades` → `weekly_trade_5` (gleiche 6 stellen)
+- `first_ipo_buy` entfernt (nicht in DB, system unterstuetzt kein onetime type)
+- Plus: buyFromMarket/buyFromOrder/placeBuyOrder triggern jetzt zusaetzlich `daily_buy_1`, placeSellOrder triggert `daily_sell_1`
+
+**Phase B — DB cleanup (701c071):**
+- Migration `missions_deactivate_dead_duplicates`: 5 Definitions auf active=false:
+  - weekly_3_posts (duplicate zu create_post)
+  - weekly_research (duplicate zu write_research)
+  - daily_visit_players (braeuchte page-visit tracking)
+  - weekly_diverse (braeuchte holdings diversity counter)
+  - weekly_follow_3 (braeuchte weekly follow counter)
+- Resultat: 30 → 25 active mission_definitions
+
+**Phase C — Fehlende Triggers + HintList Rollout (929eeca):**
+- posts.ts createPost: daily_post zusaetzlich
+- research.ts unlockResearch: daily_unlock_research + community_activity
+- streaks.ts: KEIN client-trigger (record_login_streak RPC ruft intern
+  update_mission_progress('daily_login') via SECURITY DEFINER — client-side
+  waere Doppel-Increment, nur im Kommentar dokumentiert)
+- MissionHintList integriert:
+  - Market (context="trading"): nach TabBar, vor TabPanels
+  - Manager (context="fantasy"): zwischen PageHeader und TabBar
+  - Home (context="fantasy"): bedingt auf !isNewUser (weil new user bereits
+    OnboardingChecklist als strukturierte Fortschrittsliste sehen)
+
+**Phase E — Live Test Findings (be63858):**
+- Claim Flow E2E durchgezogen als jarvis-qa
+- **Bug entdeckt:** Claim von daily_login reward crashte an
+  `notifications_reference_type_check` (erlaubte 10 types, 'mission' fehlte)
+- **Fix:** Migration `notifications_allow_mission_reference` — CHECK extended
+  um 'mission' als 11. erlaubten reference_type
+- Verifiziert nach Fix:
+  - claim daily_login: wallet 755000 → nope noch nicht, claim erfolgte vor Fix
+  - claim weekly_fantasy: wallet 755000 → 770000 cents (+150 $SCOUT)
+  - mission_notif_count: 0 → 1 (Notification erstellt)
+  - 0 Console-Errors
+- MissionHintList verifiziert live:
+  - /manager: "Fantasy-Event beitreten +50", "Top 3 Platzierung +250" sichtbar
+  - /market: "Kaufe 1 DPC +35", "Verkaufe 1 DPC +35" sichtbar (NEUE triggers live!)
+  - /: keine Hints (jarvis-qa ist onboarding 1/5 = new user, by design)
 
 ## Wichtige Dateien fuer naechste Session
 - `docs/plans/2026-04-07-manager-team-center-plan.md` — vollstaendiger Wave 0-5 Status
