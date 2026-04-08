@@ -33,7 +33,7 @@ export default function PageHeader({ squadCount, healthCounts, nextEvent, loadin
   return (
     <div className="space-y-2">
       <h1 className="text-2xl font-black text-white text-balance">
-        {t('teamCenterTitle', { defaultValue: 'Manager · Dein Team-Center' })}
+        {t('teamCenterTitle')}
       </h1>
 
       {loading ? (
@@ -52,7 +52,7 @@ export default function PageHeader({ squadCount, healthCounts, nextEvent, loadin
             <Briefcase className="size-4 text-gold" aria-hidden="true" />
             <span className="font-mono tabular-nums text-sm text-white">{squadCount}</span>
             <span className="text-xs text-white/50">
-              {t('squadPlayers', { defaultValue: 'Spieler' })}
+              {t('squadPlayers')}
             </span>
           </div>
 
@@ -92,7 +92,7 @@ export default function PageHeader({ squadCount, healthCounts, nextEvent, loadin
             >
               <Calendar className="size-4 text-white/30" aria-hidden="true" />
               <span className="text-xs text-white/50">
-                {t('noEvent', { defaultValue: 'Kein Event' })}
+                {t('noEvent')}
               </span>
             </div>
           )}

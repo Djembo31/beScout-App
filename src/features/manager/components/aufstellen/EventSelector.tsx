@@ -86,19 +86,17 @@ export default function EventSelector() {
 
   const { events, isLoading } = useOpenEvents();
 
-  // Auto-select default if none chosen yet
-  const effectiveSelectedId = useMemo(() => {
-    if (selectedEventId && events.find((e) => e.id === selectedEventId)) {
-      return selectedEventId;
+  // Resolve selected event with auto-pick fallback. Single useMemo —
+  // returning the event object is enough; consumers derive id from event.id.
+  const selectedEvent = useMemo<FantasyEvent | null>(() => {
+    if (selectedEventId) {
+      const found = events.find((e) => e.id === selectedEventId);
+      if (found) return found;
     }
-    const def = pickDefaultEvent(events);
-    return def?.id ?? null;
+    return pickDefaultEvent(events);
   }, [selectedEventId, events]);
 
-  const selectedEvent = useMemo(
-    () => events.find((e) => e.id === effectiveSelectedId) ?? null,
-    [events, effectiveSelectedId],
-  );
+  const effectiveSelectedId = selectedEvent?.id ?? null;
 
   const handleSelect = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -114,7 +112,7 @@ export default function EventSelector() {
   if (events.length === 0) {
     return (
       <div className="px-4 py-4 rounded-xl bg-white/[0.02] border border-white/10 text-center text-sm text-white/40">
-        {t('noOpenEvents', { defaultValue: 'Keine offenen Events' })}
+        {t('noOpenEvents')}
       </div>
     );
   }
@@ -126,7 +124,7 @@ export default function EventSelector() {
         onClick={() => setOpen(true)}
         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] transition-colors min-h-[56px] active:scale-[0.99]"
         style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}
-        aria-label={t('selectEvent', { defaultValue: 'Event wählen' })}
+        aria-label={t('selectEvent')}
       >
         <Calendar className="size-4 text-gold flex-shrink-0" aria-hidden="true" />
         {selectedEvent ? (
@@ -144,7 +142,7 @@ export default function EventSelector() {
           </>
         ) : (
           <span className="flex-1 text-sm text-white/50">
-            {t('selectEvent', { defaultValue: 'Event wählen' })}
+            {t('selectEvent')}
           </span>
         )}
         <ChevronDown className="size-4 text-white/40 flex-shrink-0" aria-hidden="true" />
@@ -153,7 +151,7 @@ export default function EventSelector() {
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={t('selectEvent', { defaultValue: 'Event wählen' })}
+        title={t('selectEvent')}
         size="md"
       >
         <div className="-mx-4 md:-mx-5 max-h-[60vh] overflow-y-auto">

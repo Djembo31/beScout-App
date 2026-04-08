@@ -45,24 +45,24 @@ export default function HistoryStats({ results }: HistoryStatsProps) {
     <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
       <StatPill
         icon={<History className="size-4 text-white/60" aria-hidden="true" />}
-        label={t('historyEventsLabel', { defaultValue: 'Events' })}
+        label={t('historyEventsLabel')}
         value={events}
       />
       <StatPill
         icon={<Trophy className="size-4 text-gold" aria-hidden="true" />}
-        label={t('historyWinsLabel', { defaultValue: 'Siege' })}
+        label={t('historyWinsLabel')}
         value={wins}
         color="text-gold"
       />
       <StatPill
         icon={<Award className="size-4 text-emerald-400" aria-hidden="true" />}
-        label={t('historyTop10Label', { defaultValue: 'Top 10' })}
+        label={t('historyTop10Label')}
         value={top10}
         color="text-emerald-400"
       />
       <StatPill
         icon={<Target className="size-4 text-gold" aria-hidden="true" />}
-        label={t('historyRewardLabel', { defaultValue: 'Belohnung' })}
+        label={t('historyRewardLabel')}
         value={`+${fmtScout(Math.round(totalReward / 100))}`}
         color="text-gold"
       />

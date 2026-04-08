@@ -73,7 +73,7 @@ function ManagerInner() {
   if (!user) {
     return (
       <div className="text-center py-24 text-white/40 text-sm">
-        {t('notSignedIn', { defaultValue: 'Bitte anmelden' })}
+        {t('notSignedIn')}
       </div>
     );
   }
@@ -81,17 +81,17 @@ function ManagerInner() {
   const tabDefs = [
     {
       id: 'aufstellen',
-      label: t('tabAufstellen', { defaultValue: 'Aufstellen' }),
+      label: t('tabAufstellen'),
       icon: <Users className="size-4" aria-hidden="true" />,
     },
     {
       id: 'kader',
-      label: t('tabKader', { defaultValue: 'Kader' }),
+      label: t('tabKader'),
       icon: <Briefcase className="size-4" aria-hidden="true" />,
     },
     {
       id: 'historie',
-      label: t('tabHistorie', { defaultValue: 'Historie' }),
+      label: t('tabHistorie'),
       icon: <History className="size-4" aria-hidden="true" />,
     },
   ];

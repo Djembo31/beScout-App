@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Users, Tag } from 'lucide-react';
@@ -21,10 +22,15 @@ export default function PlayerDetailModal() {
   const t = useTranslations('manager');
   const tMarket = useTranslations('market');
   const { user } = useUser();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const playerId = useManagerStore((s) => s.kaderDetailPlayerId);
   const setPlayerId = useManagerStore((s) => s.setKaderDetailPlayerId);
   const setKaderSellPlayerId = useManagerStore((s) => s.setKaderSellPlayerId);
   const setActiveTab = useManagerStore((s) => s.setActiveTab);
+  const setPendingLineupPlayerId = useManagerStore((s) => s.setPendingLineupPlayerId);
 
   const {
     playerMap, holdings, getFloor,
@@ -47,8 +53,14 @@ export default function PlayerDetailModal() {
   const handleClose = () => setPlayerId(null);
 
   const handlePlanInLineup = () => {
+    if (!player) return;
+    setPendingLineupPlayerId(player.id);
     handleClose();
     setActiveTab('aufstellen');
+    // Update URL so AufstellenTab consumes via useSearchParams (URL is source of truth in ManagerInner)
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'aufstellen');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handleSell = () => {
@@ -57,9 +69,9 @@ export default function PlayerDetailModal() {
   };
 
   const tabDefs = [
-    { id: 'stats', label: t('detailStats', { defaultValue: 'Stats' }) },
-    { id: 'form', label: t('detailForm', { defaultValue: 'Form' }) },
-    { id: 'markt', label: t('detailMarkt', { defaultValue: 'Markt' }) },
+    { id: 'stats', label: t('detailStats') },
+    { id: 'form', label: t('detailForm') },
+    { id: 'markt', label: t('detailMarkt') },
   ];
 
   return (
@@ -99,7 +111,7 @@ export default function PlayerDetailModal() {
             className="flex-1 flex items-center justify-center gap-2"
           >
             <Users className="size-4" aria-hidden="true" />
-            {t('planInLineup', { defaultValue: 'Im Lineup planen' })}
+            {t('planInLineup')}
           </Button>
           <Button
             variant="gold"

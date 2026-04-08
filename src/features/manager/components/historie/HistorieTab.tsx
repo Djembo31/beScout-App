@@ -8,6 +8,7 @@ import { useManagerStore } from '../../store/managerStore';
 import { useUserFantasyHistory } from '../../queries/historyQueries';
 import HistoryEventCard from './HistoryEventCard';
 import HistoryStats from './HistoryStats';
+import { applyTimeFilter, applyStatusFilter, sortResults } from './historieHelpers';
 import type { UserFantasyResult } from '@/types';
 
 // ============================================
@@ -59,7 +60,7 @@ function FilterPills<T extends string>({
               : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70',
           )}
         >
-          {t(opt.labelKey, { defaultValue: opt.id })}
+          {t(opt.labelKey)}
         </button>
       ))}
     </div>
@@ -83,51 +84,10 @@ export default function HistorieTab() {
   const { data: results = [], isLoading } = useUserFantasyHistory(50);
 
   const filtered = useMemo<UserFantasyResult[]>(() => {
-    let arr = [...results];
-
-    // Time filter
-    if (timeFilter !== 'all') {
-      const now = Date.now();
-      const cutoff =
-        timeFilter === '30d'
-          ? now - 30 * 86400000
-          : timeFilter === '90d'
-          ? now - 90 * 86400000
-          : 0; // 'season' = no cutoff for now (would require season start date)
-      if (cutoff > 0) {
-        arr = arr.filter((r) => {
-          if (!r.eventDate) return false;
-          return new Date(r.eventDate).getTime() >= cutoff;
-        });
-      }
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      arr = arr.filter((r) => {
-        if (statusFilter === 'top3') return r.rank > 0 && r.rank <= 3;
-        if (statusFilter === 'top10') return r.rank > 0 && r.rank <= 10;
-        if (statusFilter === 'other') return r.rank > 10;
-        return true;
-      });
-    }
-
-    // Sort
-    arr.sort((a, b) => {
-      switch (sort) {
-        case 'score':
-          return b.totalScore - a.totalScore;
-        case 'rank':
-          return (a.rank || 9999) - (b.rank || 9999);
-        case 'reward':
-          return (b.rewardAmount ?? 0) - (a.rewardAmount ?? 0);
-        case 'date':
-        default:
-          return new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime();
-      }
-    });
-
-    return arr;
+    return sortResults(
+      applyStatusFilter(applyTimeFilter(results, timeFilter), statusFilter),
+      sort,
+    );
   }, [results, timeFilter, statusFilter, sort]);
 
   if (isLoading) {
@@ -143,10 +103,10 @@ export default function HistorieTab() {
       <div className="py-16 text-center">
         <History className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
         <div className="text-sm font-bold text-white/60 mb-1">
-          {t('historyEmptyTitle', { defaultValue: 'Noch keine Historie' })}
+          {t('historyEmptyTitle')}
         </div>
         <div className="text-xs text-white/40">
-          {t('historyEmptyDesc', { defaultValue: 'Spiele dein erstes Event, um Ergebnisse zu sehen' })}
+          {t('historyEmptyDesc')}
         </div>
       </div>
     );
@@ -169,7 +129,7 @@ export default function HistorieTab() {
 
       {filtered.length === 0 ? (
         <div className="py-12 text-center text-xs text-white/40">
-          {t('historyFilterEmpty', { defaultValue: 'Kein Event entspricht den Filtern' })}
+          {t('historyFilterEmpty')}
         </div>
       ) : (
         <div className="space-y-2">

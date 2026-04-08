@@ -64,7 +64,7 @@ function LineupView({ eventId }: { eventId: string }) {
   if (!lineup) {
     return (
       <div className="py-4 text-center text-xs text-white/40">
-        {t('noLineupSnapshot', { defaultValue: 'Aufstellung nicht verfügbar' })}
+        {t('noLineupSnapshot')}
       </div>
     );
   }
@@ -118,6 +118,7 @@ function LineupView({ eventId }: { eventId: string }) {
       format,
       formation: formation.id,
       slotPlayerIds,
+      captainSlot: lineup.captain_slot ?? null,
       sourceEventId: eventId,
     };
 
@@ -177,7 +178,7 @@ function LineupView({ eventId }: { eventId: string }) {
         className="w-full flex items-center justify-center gap-2 mt-3 px-4 py-2.5 min-h-[44px] rounded-xl bg-gold/[0.08] border border-gold/30 text-gold text-sm font-bold hover:bg-gold/[0.12] transition-colors active:scale-[0.98]"
       >
         <ArrowRight className="size-4" aria-hidden="true" />
-        {t('applyToLineup', { defaultValue: 'In Aufstellung übernehmen' })}
+        {t('applyToLineup')}
       </button>
     </div>
   );
@@ -238,7 +239,7 @@ export default function HistoryEventCard({ result }: HistoryEventCardProps) {
           {/* Score */}
           <div className="px-2 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06]">
             <div className="text-[8px] text-white/40 uppercase font-bold leading-none mb-0.5">
-              {t('historyScore', { defaultValue: 'Score' })}
+              {t('historyScore')}
             </div>
             <div className="text-sm font-mono font-black tabular-nums text-white">
               {Math.round(result.totalScore)}
@@ -248,7 +249,7 @@ export default function HistoryEventCard({ result }: HistoryEventCardProps) {
           {/* Rank */}
           <div className={cn('px-2 py-1 rounded-lg border border-white/[0.06]', rankCfg.bg)}>
             <div className="text-[8px] text-white/40 uppercase font-bold leading-none mb-0.5">
-              {t('historyRank', { defaultValue: 'Rang' })}
+              {t('historyRank')}
             </div>
             <div className={cn('text-sm font-mono font-black tabular-nums', rankCfg.text)}>
               {rankCfg.emoji ?? `#${result.rank}`}
