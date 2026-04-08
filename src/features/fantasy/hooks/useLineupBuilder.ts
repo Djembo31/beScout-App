@@ -136,6 +136,7 @@ export function useLineupBuilder({
       }
       return h;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- event nur via event.id als stabiler Key; volles Objekt wuerde bei unrelated Field-Updates neu berechnen
   }, [holdings, event?.id]);
 
   // ==================== Formation data ====================
@@ -375,6 +376,7 @@ export function useLineupBuilder({
       cancelled = true;
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- event fields used as individual stable keys (full object would re-poll on unrelated updates); selectedPlayers.length is intentional (only re-trigger on count change, not slot edits)
   }, [isOpen, event?.id, event?.status, event?.gameweek, event?.isJoined, selectedPlayers.length]);
 
   // ==================== Lineup handlers ====================

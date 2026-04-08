@@ -1,5 +1,11 @@
 'use client';
 
+// Sponsor logos rendern als plain <img> und nicht via next/image:
+// sie sind klein (h-4 bis size-12), nicht LCP-critical, und die URL kommt
+// aus einer dynamischen DB-Spalte ohne feste Remote-Domain in next.config.
+// next/image waere hier overhead ohne Nutzen.
+/* eslint-disable @next/next/no-img-element */
+
 import React, { useMemo } from 'react';
 import {
   Crown, Plus, Sparkles, Building2,

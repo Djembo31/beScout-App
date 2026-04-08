@@ -109,6 +109,7 @@ export const EventDetailModal = ({
       setTab(event.scoredAt ? (event.isJoined ? 'lineup' : 'leaderboard') : 'lineup');
       setScoringJustFinished(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- event fields als stabile Keys statt volles Objekt (sonst Re-run bei unrelated Updates)
   }, [isOpen, event?.id, event?.scoredAt, event?.isJoined]);
 
   // ==================== Load leaderboard on tab switch or when scored ====================
@@ -130,6 +131,7 @@ export const EventDetailModal = ({
       }, 30_000);
     }
     return () => { cancelled = true; if (interval) clearInterval(interval); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- event fields als stabile Keys; vermeidet Re-poll bei unrelated Updates
   }, [isOpen, event?.id, tab, event?.scoredAt, event?.status]);
 
   // ==================== Load participants on open ====================
@@ -137,6 +139,7 @@ export const EventDetailModal = ({
     if (!isOpen || !event) return;
     getEventParticipants(event.id, 10).then(setParticipants);
     getEventParticipantCount(event.id).then(count => setParticipantCount(Math.max(count, event.participants || 0)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- event fields als stabile Keys
   }, [isOpen, event?.id, event?.participants]);
 
   // ==================== Reset event (testing tool) ====================
