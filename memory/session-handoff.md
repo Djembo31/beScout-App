@@ -1,123 +1,118 @@
 # Session Handoff
-## Letzte Session: 2026-04-08 (Abend, 13+ Commits, B3 + Onboarding + Memory Hygiene)
+## Letzte Session: 2026-04-08 Abend → 2026-04-09 Nacht (7 Commits, Equipment v2 + Realtime Feed + DB-Migration-Doku)
 
 ## TL;DR
-Alle 3 Pilot-E2E-Features (B1 Missions, B2 Following Feed, B3 Transactions) sind live. Onboarding auf Multi-Club umgebaut. Memory-Hygiene-Sweep: 4 stale `project_*.md` Einträge gefunden die DONE-Features als offen angezeigt haben — alle aktualisiert. Neuer Feedback-Pattern: `feedback_verify_before_claiming_open.md` damit vor Status-Antworten immer git log + file check passiert.
 
-## NEXT SESSION KICKOFF — Equipment Ökonomie-Session
+Sauberer Doppel-Sprint: (1) Equipment-Inventar-Screen von plain-grid auf Collection-Style gehoben, (2) Following Feed auf Realtime umgestellt. Beide Features live auf bescout.net und mit Playwright + Supabase-service-role als echte INSERT-Events verifiziert. Plus: stale v1 Mystery-Box-Drop-Raten als final bestätigt, Migration-Registry-Drift diagnostiziert und als Rule dokumentiert (nicht repariert — bewusste Entscheidung).
+
+## NEXT SESSION KICKOFF — offen nur noch Produkt-Entscheidungen
 
 **Erstmal lesen:**
 1. Diesen Handoff (du bist hier)
-2. `memory/feedback_verify_before_claiming_open.md` — **neue Regel: vor "was ist offen" Liste IMMER verifizieren**
-3. `C:\Users\Anil\.claude\projects\C--bescout-app\memory\project_chip_equipment_system.md` — Equipment System Stand + was noch offen ist
-4. `C:\Users\Anil\.claude\projects\C--bescout-app\memory\MEMORY.md` — Project Status (alle 4 mit aktuellem DONE/offen Flag)
+2. `.claude/rules/database.md` — die neue Migration-Workflow-Regel (wichtig für jede DB-Arbeit)
+3. `C:\Users\Anil\.claude\projects\C--bescout-app\memory\MEMORY.md` — alle Projects DONE-Flags korrekt
 
-**Start-Pattern:**
-1. `git log --since="2026-04-08" --oneline` — was wurde zuletzt committed
-2. `mcp__supabase__execute_sql` auf `mystery_box_config` → Drop-Raten lesen
-3. Mit Anil Ökonomie-Modell besprechen (Scarcity/Balance Input nötig)
-4. Migration + Live-Test mit Mystery Box Flow
+**Es gibt KEINE offenen Code-Punkte.** Nächste Session wird entweder:
+- **B) Beta-Tester formalisieren** (Produkt-Entscheidung: Anzahl/Zeitrahmen/Onboarding-Call)
+- **Revenue Streams** aus `memory/project_missing_revenue_streams.md` priorisieren (Sponsor Flat Fee / Event Boost / Chip Economy)
+- **Equipment Lineup Live QA** sobald ein offenes Fantasy Event läuft (externe Abhängigkeit, nicht unter Kontrolle)
+- **Freies Thema** wenn Anil was neues einbringt
 
-## Was heute passiert ist
+## Was in dieser Session passiert ist
 
-### B3 Transactions History E2E (7 Commits)
-- Wave 1: `9264bb2` feat(db): transactions public RLS + type SSOT
-- Wave 2: `402324f` refactor(profile): wire transaction query hooks + prefix invalidation
-- Wave 3: `615ad30` feat(timeline): fantasy ranking + SSOT types + deep link
-- Wave 4: `e10e414` feat(transactions): dedicated history page with csv export
-- Wave 5: `c7af525` feat(transactions): wildcards hook + consistency cleanup
-- QA-Fix: `d28f843` fix(profile): deep link initial tab via lazy useState init
-- Memory: `e08b17e` docs(memory): B3 closure + autodream run #5
+### 1. Equipment Ökonomie v1 bestätigt (Commit 76003b1)
+Ist-Stand der Mystery Box Calibration v1 (Migration `20260407120000`) analysiert und Anil 3 Detail-Fragen gestellt (EV / R4-Scarcity / Full-Set-Cadence). Antwort war A/A/A = Status Quo = final. Keine neue Migration nötig. `project_chip_equipment_system.md` + Handoff + MEMORY.md auf "bestätigt" geflippt.
 
-Vollständig live-QA als jarvis-qa (Desktop + Mobile) verifiziert. Screenshots im Repo-Root (gitignored).
+### 2. Equipment Inventar Screen v2 (Commits d71975a + 6ee9629)
+**Stopp, der Screen existierte schon** unter `/inventory?tab=equipment` — Handoff-Notiz "User sieht Equipment nur im Lineup-Picker" war stale. Anil wollte trotzdem alle 5 nice-to-haves drin:
 
-### Onboarding Multi-Club (2 Commits)
-- `46ec6be` feat(onboarding): multi-club redesign step 3
-- `16be582` fix(community): remove hardcoded sakaryaspor club fallback
+- **Stats-Header:** Items · Typen X/5 · Höchster Rang · Aktiv (gold-accented wenn Rang oder equipped > 0)
+- **Pokédex-Matrix** ("Alle" Mode): 20 Slots = 5 Typen × 4 Ränge. Owned Cards farbig + Equipped-Badge, missing Slots dashed-border + Lock-Icon + grayed Icon.
+- **Verbraucht-View:** includeConsumed Service-Param + separater Query-Key (`qk.equipment.inventoryAll`), grayscale cards mit "N× verwendet" Badge.
+- **Filter/Sort:** Position-Chips (Alle/GK/DEF/MID/ATT/Universal), Sort-Dropdown (Rang ↓/↑/Neueste), Sort nur in Aktiv+Verbraucht-Mode sichtbar (Matrix hat fixen Reihenfolge).
+- **Manager Shortcut:** Neue `EquipmentShortcut.tsx` Komponente in Aufstellen + Kader Tabs (inkl. beider Early-Return Empty States — da fehlte er initial, deshalb der fix-Commit `6ee9629`).
 
-Live verifiziert mit fresh test user `testtrading@bescout.test`. Step 3 neutral + Liga-gruppiert + ohne Sakaryaspor-Bias. Community-Seite zeigt null-club Users die neutrale "Scouting Zone".
+Live verifiziert auf bescout.net mobile + desktop als jarvis-qa (7 Items, Max R4, 1 equipped).
 
-### Memory Hygiene Sweep
-Nach Anil's Kommentar "du zeigst mir fertige Sachen als offen an" (Ende der Session):
+### 3. Following Feed Realtime (Commits 7ddac0b + 41c0218)
+Migration `20260408220000_activity_log_realtime.sql` → REPLICA IDENTITY FULL + publication. `useFollowingFeed` Hook bekam:
+- **Channel-Subscription** auf `activity_log` INSERT ohne Client-Filter (Key-Insight: Supabase Realtime respektiert RLS; cross-user SELECT-Policy aus `e61be4a` filtert serverseitig auf `following + FEED_ACTIONS`)
+- **Throttle-2s-Window** (first event starts timer, subsequent events buffern ohne reset → verhindert stetiges Debounce-Verschieben)
+- **`pendingCount` + `applyPending()`** als Hook-Return
 
-**Stale Memory-Einträge gefunden und aktualisiert:**
-- `project_e2e_features.md` → alle 3 Features DONE (war: "3 Features zu bauen")
-- `project_manager_team_center.md` → Waves 0-5 DONE (war: "Wave 0 startet nächste Session")
-- `project_onboarding_multi_club.md` → DONE (war: "next session: check onboarding flow")
-- `.claude/rules/business.md` → Kill-Switch BSD-Sales als implementiert markiert (war: "noch nicht implementiert" — ist aber seit längerem in `AdminFoundingPassesTab.tsx:15` live)
+`FollowingFeedRail` rendert Gold-Pill `↑ {count} neue Aktivitäten` (ICU plural DE/TR), Click → `invalidateQueries` + `keepPreviousData` (bereits global default in `queryClient.ts:11` → flicker-free).
 
-**Neuer Feedback-Pattern:**
-- `memory/feedback_verify_before_claiming_open.md` — systematische Regel: vor jeder "was ist offen" Antwort git log + file existence prüfen, Memory ist Point-in-Time Snapshot
+**Live bewiesen** mit `e2e/qa-realtime-feed.ts`: Playwright loggt als jarvis-qa ein, service-role inserted 5 fake `post_create` Rows auf einen gefolgten User (emre_snipe), Pill zeigt "5 neue Aktivitäten", Click refetcht, Feed rendert die neuen Einträge, Cleanup entfernt die Fakes.
 
-**Referenziert jetzt in MEMORY.md** unter "Anil Preferences" und "Project Status".
+**Neuer Pattern:** `memory/patterns.md` #21 Realtime + React Query als wiederverwendbares Template für zukünftige Live-Features.
 
-### Code Status (final)
+### 4. Migration-Registry-Drift diagnostiziert (Commit 66dda23)
+Root Cause analysiert: 3 Bugs gleichzeitig — MCP-Timestamp-Mismatch (7), Ghost-Rows in `schema_migrations` (7), Legacy 8-stellige Datum-Prefixe (~17). Surgical Repair (Option A) bewertet und bewusst geparkt, weil jeder neue `mcp__supabase__apply_migration` Bug 1 wieder einführt → Sisyphos. Stattdessen: Workflow-Regel in `.claude/rules/database.md` festgehalten ("NIE `supabase db push`, IMMER `mcp__supabase__apply_migration`"), plus komplette Diagnose im User-Memory `reference_migration_workflow.md`.
+
+### 5. Tech-Debt-Verifikation
+Stale `working-memory.md` (2026-04-07) Punkte geprüft:
+- `ipo.test.ts` (war "failing") → **36 tests passed** ✅
+- `EventDetailModal.test.tsx` (war "failing") → **14 tests passed** ✅
+- Equipment Inventar Screen (war "optional offen") → geliefert ✅
+
+## Code Status (final)
+
 - `tsc --noEmit`: CLEAN
-- Betroffene Vitest-Suites: grün
-- Keine Console Errors in Live-QA
-- Dev Server gestoppt, keine laufenden Background-Processes
+- `next lint` auf allen changed files: clean
+- `next build`: clean (nur pre-existing Warnings in `global-error.tsx`)
+- Playwright Live QA auf bescout.net: alle 3 Features verifiziert
+- `activity_log` Realtime: `relreplident=f`, `in_publication=1`
+- Keine Background-Processes, Dev Server nie gestartet (lief schon auf :3000 von Anil)
 
-## Wirklich offene Punkte
+## Commits dieser Session (7)
 
-### A — Equipment Ökonomie-Session ✅ DONE (2026-04-08 Abend)
-**Quelle:** `memory/project_chip_equipment_system.md`
+| Hash | Message |
+|------|---------|
+| `d71975a` | feat(inventory): equipment pokedex + stats + consumed history + manager shortcuts |
+| `76003b1` | docs(memory): mystery box drop rates v1 confirmed final |
+| `6ee9629` | fix(manager): show EquipmentShortcut in Aufstellen empty states |
+| `7ddac0b` | feat(social): live scout activity feed via supabase realtime |
+| `41c0218` | test(e2e): QA script for realtime following feed |
+| `32c4248` | docs(memory): realtime + react query pattern + close session handoff |
+| `66dda23` | docs(database): document migration workflow + registry drift |
 
-Calibration v1 (Migration `20260407120000_mystery_box_calibration_v1.sql`) von Anil am 2026-04-08 bestätigt. EV +29%, R4 bei 0,65% (~1 in 154 Boxen), Full R1 Set ~50 Boxen. Keine neue Migration nötig — Werte sind final.
+Alle auf `origin/main` gepusht, alle via Vercel deployed auf bescout.net.
 
-### B — Beta-Tester-Gruppe formalisieren (Produkt, kein Code)
-**Quelle:** `wiki/early-feedback-freundeskreis.md`
-- Anzahl Beta-Tester
-- Zeitrahmen
-- Onboarding-Call
-- Anils Produkt-Entscheidung
+## Neue Memory-Einträge
 
-### C — Realtime `activity_log` Subscription ✅ DONE (2026-04-08 Abend)
-**Quelle:** B2 Following Feed Handoff
-
-Commit `7ddac0b` feat(social): live scout activity feed via supabase realtime.
-Migration `20260408220000_activity_log_realtime.sql` setzt REPLICA IDENTITY FULL +
-publication. Hook `useFollowingFeed` bekommt Realtime-Channel mit Throttle-2s-Window,
-UI rendert "X neue Aktivitäten"-Gold-Pill (ICU plural), Click → invalidate + refetch
-(keepPreviousData global default → flicker-free). End-to-end live getestet auf
-bescout.net (5 fake events → Pill "5 neue Aktivitäten" → click → Feed updated).
-
-Neuer Pattern dokumentiert: `memory/patterns.md` #21 Realtime + React Query.
-Key insight: Supabase Realtime respektiert RLS — kein Client-Filter nötig wenn
-cross-user SELECT-Policy präzise ist.
-
-### D — Equipment Inventar Screen ✅ DONE (2026-04-08 Abend)
-**Quelle:** `project_chip_equipment_system.md`
-
-Commits `d71975a` + `6ee9629`. Existing `/inventory?tab=equipment` wurde um
-alle 5 nice-to-haves erweitert: Stats-Header (Items · Typen X/5 · Max Rang ·
-Equipped), Pokédex-Matrix mit 20 Slots (owned + missing ghost cards),
-"Verbraucht"-View mit N× verwendet Badges, Position-Filter-Chips +
-Sort-Dropdown, sowie EquipmentShortcut in Manager Aufstellen + Kader Tabs
-(happy + empty states). Live verifiziert auf bescout.net mit jarvis-qa.
+- `memory/patterns.md` → **Pattern #21** (Realtime + React Query Live Feed Template, mit throttle-window und invalidate+keepPreviousData Recipe)
+- `.claude/rules/database.md` → **Migration Workflow Section** (NIE `db push`, immer MCP, Registry-Drift dokumentiert)
+- `~/.claude/projects/C--bescout-app/memory/pattern_supabase_realtime_rls.md` → Reference: Supabase Realtime respektiert RLS
+- `~/.claude/projects/C--bescout-app/memory/reference_migration_workflow.md` → Komplette Diagnose des Drifts für zukünftige Sessions
 
 ## Umgebung / Lokaler State
-- `.next-old/` und `.next-old2/` im Repo-Root (gitignored) — können gelöscht werden (`.next` wurde 2x im QA restartet wegen Webpack cache issues)
-- Dev Server gestoppt
-- `testtrading@bescout.test` auth user existiert noch, Profile wurde nach QA gelöscht (Passwort: `OnboardingTest2026!` falls erneuter Test)
-- Alle 13 Commits heute gepusht zu `origin/main`
+
+- `.next-old/` und `.next-old2/` im Repo-Root (gitignored) — liegen seit 2026-04-08 rum, können beim nächsten Aufräumen gelöscht werden
+- Anil's Dev Server lief durchgehend auf :3000, musste nie restartet werden
+- `activity_log` hat jetzt REPLICA IDENTITY FULL + ist in `supabase_realtime` publication
+- `schema_migrations` Registry ist drifted, aber der drift ist **bewusst dokumentiert** und nicht repariert (siehe `reference_migration_workflow.md`)
 
 ## QA Account (unverändert)
-- Email: jarvis-qa@bescout.net / Handle: jarvisqa
+
+- Email: `jarvis-qa@bescout.net` / Handle: `jarvisqa` / UUID: `535bbcaf-f33c-4c66-8861-b15cbff2e136`
 - Password: `JarvisQA2026!`
 - ~7.700 CR, 63 Tickets, 6 Tage Streak, 8 Holdings, 1 Manager-Lineup
-- 3 Follows: `kemal2`, `test12`, `emre_snipe` (B2 Fixture)
+- 7 Equipment Items (Kapitän R4 equipped)
+- 3 Follows: `kemal2`, `test12`, `emre_snipe`
 - **favorite_club_id = null** (perfekter null-club Test User)
 
-## Projekt-Status Snapshot (alle 4 Hauptthemen DONE)
+## Projekt-Status Snapshot (alle Hauptthemen DONE)
 
 | Thema | Status |
 |-------|--------|
 | Manager Team-Center Migration | ✅ Waves 0-5 DONE (2026-04-07/08) |
 | B1 Scout Missions E2E | ✅ DONE |
 | B2 Following Feed E2E | ✅ DONE (2026-04-08 Vormittag) |
+| B2 Following Feed **Realtime** | ✅ DONE (2026-04-09 Nacht) |
 | B3 Transactions History E2E | ✅ DONE (2026-04-08 Abend) |
 | Onboarding Multi-Club | ✅ DONE (2026-04-08 Abend) |
-| Equipment System | ✅ DEPLOYED LIVE (2026-04-07) — Drop-Raten **final bestätigt 2026-04-08** |
+| Equipment System | ✅ DEPLOYED LIVE, Drop-Raten bestätigt, Inventar Screen v2 live |
 | Kill-Switch Founding Passes 900K | ✅ IMPLEMENTIERT |
+| Migration Registry Drift | ✅ Dokumentiert (bewusst nicht repariert) |
 
-Keine Krümel zurückgelassen. Nächste Session kann mit sauberer Basis starten.
+Keine Krümel. Nächste Session startet von einem sauberen Stand.
