@@ -1,6 +1,1 @@
-C:\\bescout-app\\memory\\errors.md
-C:\\bescout-app\\memory\\errors.md
-C:\\bescout-app\\memory\\errors.md
-C:\\bescout-app\\memory\\wiki-index.md
-C:\\bescout-app\\memory\\wiki-index.md
-C:\\bescout-app\\memory\\wiki-log.md
+C:\\bescout-app\\memory\\session-handoff.md
