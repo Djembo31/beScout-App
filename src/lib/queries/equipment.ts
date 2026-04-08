@@ -25,11 +25,18 @@ export function useEquipmentRanks() {
   });
 }
 
-/** Fetch user's equipment inventory */
-export function useUserEquipment(userId: string | undefined) {
+/**
+ * Fetch user's equipment inventory.
+ * @param includeConsumed — include consumed items (Equipment Inventar "Verbraucht" view).
+ *        Default false = active items only (lineup picker behavior). Query key varies
+ *        by flag so the two variants cache independently.
+ */
+export function useUserEquipment(userId: string | undefined, includeConsumed = false) {
   return useQuery({
-    queryKey: qk.equipment.inventory(userId!),
-    queryFn: () => getUserEquipment(userId!),
+    queryKey: includeConsumed
+      ? qk.equipment.inventoryAll(userId!)
+      : qk.equipment.inventory(userId!),
+    queryFn: () => getUserEquipment(userId!, includeConsumed),
     enabled: !!userId,
     staleTime: THIRTY_SEC,
   });

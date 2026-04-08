@@ -21,6 +21,7 @@ import KaderSellModal from './KaderSellModal';
 import KaderToolbar from './KaderToolbar';
 import KaderClubGroup from './KaderClubGroup';
 import { useTranslations } from 'next-intl';
+import EquipmentShortcut from '../EquipmentShortcut';
 
 // ============================================
 // TYPES
@@ -303,6 +304,9 @@ export default function KaderTab({
       </div>
 
       <SponsorBanner placement="market_portfolio" className="mb-2" />
+
+      {/* Equipment shortcut → /inventory?tab=equipment */}
+      <EquipmentShortcut />
 
       {/* Toolbar */}
       <KaderToolbar

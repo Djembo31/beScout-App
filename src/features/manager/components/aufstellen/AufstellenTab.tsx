@@ -16,6 +16,7 @@ import { useEventActions } from '@/features/fantasy/hooks/useEventActions';
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
 import type { LineupPlayer } from '@/features/fantasy/types';
 import EventSelector from './EventSelector';
+import EquipmentShortcut from '../EquipmentShortcut';
 
 // Lazy-loaded heavy panels (mirrors EventDetailModal)
 const LineupPanel = dynamic(() => import('@/components/fantasy/event-tabs/LineupPanel'), {
@@ -282,6 +283,9 @@ export default function AufstellenTab() {
     <div className="space-y-4">
       {/* Event Selector */}
       <EventSelector />
+
+      {/* Equipment shortcut → /inventory?tab=equipment */}
+      <EquipmentShortcut />
 
       {/* Lineup Panel */}
       <LineupPanel

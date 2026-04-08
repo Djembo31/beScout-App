@@ -34,14 +34,27 @@ export async function getEquipmentRanks(): Promise<DbEquipmentRank[]> {
   return (data ?? []) as DbEquipmentRank[];
 }
 
-/** Fetch user's available equipment (not consumed, not equipped elsewhere) */
-export async function getUserEquipment(userId: string): Promise<DbUserEquipment[]> {
-  const { data, error } = await supabase
+/**
+ * Fetch user's equipment.
+ * @param userId target user
+ * @param includeConsumed — when true, returns consumed items as well (needed for the
+ *        "Verbraucht" view on the Equipment Inventar Screen). Default false keeps the
+ *        legacy lineup-picker behavior (active items only).
+ */
+export async function getUserEquipment(
+  userId: string,
+  includeConsumed = false,
+): Promise<DbUserEquipment[]> {
+  let query = supabase
     .from('user_equipment')
     .select('id, user_id, equipment_key, rank, source, equipped_player_id, equipped_event_id, acquired_at, consumed_at')
-    .eq('user_id', userId)
-    .is('consumed_at', null)
-    .order('acquired_at', { ascending: false });
+    .eq('user_id', userId);
+
+  if (!includeConsumed) {
+    query = query.is('consumed_at', null);
+  }
+
+  const { data, error } = await query.order('acquired_at', { ascending: false });
 
   if (error) {
     console.error('[Equipment] getUserEquipment error:', error);

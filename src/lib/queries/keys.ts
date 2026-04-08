@@ -322,6 +322,7 @@ export const qk = {
     definitions: () => ['equipment', 'definitions'] as const,
     ranks: () => ['equipment', 'ranks'] as const,
     inventory: (userId: string) => ['equipment', 'inventory', userId] as const,
+    inventoryAll: (userId: string) => ['equipment', 'inventory-all', userId] as const,
   },
 
   // ── Club Challenges (B10: Fan Rewards) ──
