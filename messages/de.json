@@ -2020,7 +2020,8 @@
     "analystEmptyDesc": "Teile deine Einschätzung zu Spielern.",
     "analystEmptyPublic": "Noch keine Analysen.",
     "goToEvents": "Zu den Events",
-    "writeResearch": "Research schreiben"
+    "writeResearch": "Research schreiben",
+    "pointsAbbr": "Pkt"
   },
   "player": {
     "overview": "Übersicht",

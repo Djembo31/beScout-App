@@ -26,6 +26,8 @@ interface TraderTabProps {
   holdings: HoldingRow[];
   recentTrades: UserTradeWithPlayer[];
   isSelf: boolean;
+  /** Target user's handle — required to build correct /profile/{handle} links for non-self views */
+  targetHandle?: string;
 }
 
 // ============================================
@@ -68,6 +70,7 @@ export default function TraderTab({
   holdings,
   recentTrades,
   isSelf,
+  targetHandle,
 }: TraderTabProps) {
   const tp = useTranslations('profile');
   const tg = useTranslations('gamification');
@@ -269,7 +272,10 @@ export default function TraderTab({
         <Card className="p-4 md:p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-black text-sm">{tp('recentTradesLabel')}</h3>
-            <Link href={`/profile/${userId}?tab=activity`} className="text-[10px] text-gold hover:text-gold/80 transition-colors">
+            <Link
+              href={isSelf ? '/profile?tab=timeline' : `/profile/${targetHandle ?? userId}?tab=timeline`}
+              className="text-[10px] text-gold hover:text-gold/80 transition-colors"
+            >
               {tp('allTrades')} <ArrowRight className="inline size-3" />
             </Link>
           </div>

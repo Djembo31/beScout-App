@@ -2020,7 +2020,8 @@
     "analystEmptyDesc": "Oyuncular hakkındaki değerlendirmeni paylaş.",
     "analystEmptyPublic": "Henüz analiz yok.",
     "goToEvents": "Etkinliklere git",
-    "writeResearch": "Araştırma yaz"
+    "writeResearch": "Araştırma yaz",
+    "pointsAbbr": "P"
   },
   "player": {
     "overview": "Genel Bakış",

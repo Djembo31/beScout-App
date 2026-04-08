@@ -25,7 +25,13 @@ import type {
 } from '@/types';
 import type { UseProfileDataParams, ProfileDataResult } from './types';
 
-export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfileDataParams): ProfileDataResult {
+const VALID_TABS: ReadonlyArray<ProfileTab> = ['manager', 'trader', 'analyst', 'timeline'];
+
+function isValidTab(value: string | undefined): value is ProfileTab {
+  return !!value && (VALID_TABS as readonly string[]).includes(value);
+}
+
+export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab }: UseProfileDataParams): ProfileDataResult {
   const { user } = useUser();
 
   // ── Query Hooks (cached, invalidated by trade/research/poll mutations) ──
@@ -101,12 +107,17 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
           setDataError(false);
 
           if (!tabInitialized && stats) {
-            const scores = {
-              manager_score: stats.manager_score ?? 0,
-              trading_score: stats.trading_score ?? 0,
-              scout_score: stats.scout_score ?? 0,
-            };
-            setTab(getStrongestDimension(scores));
+            if (isValidTab(initialTab)) {
+              // Deep link takes precedence over default dimension logic
+              setTab(initialTab);
+            } else {
+              const scores = {
+                manager_score: stats.manager_score ?? 0,
+                trading_score: stats.trading_score ?? 0,
+                scout_score: stats.scout_score ?? 0,
+              };
+              setTab(getStrongestDimension(scores));
+            }
             setTabInitialized(true);
           }
         }
@@ -119,7 +130,7 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
 
     load();
     return () => { cancelled = true; };
-  }, [targetUserId, isSelf, retryCount, tabInitialized]);
+  }, [targetUserId, isSelf, retryCount, tabInitialized, initialTab]);
 
   // ── Club Subscription ──
   useEffect(() => {

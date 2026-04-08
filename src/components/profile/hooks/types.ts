@@ -8,6 +8,8 @@ export interface UseProfileDataParams {
   targetUserId: string;
   targetProfile: Profile;
   isSelf: boolean;
+  /** Initial tab from URL ?tab=X (optional, falls back to strongest dimension) */
+  initialTab?: string;
 }
 
 export interface ProfileDataResult {

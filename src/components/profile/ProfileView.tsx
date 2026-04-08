@@ -26,14 +26,16 @@ interface ProfileViewProps {
   targetUserId: string;
   targetProfile: Profile;
   isSelf: boolean;
+  /** Initial tab from URL ?tab=X (optional, falls back to strongest dimension) */
+  initialTab?: string;
 }
 
-export default function ProfileView({ targetUserId, targetProfile, isSelf }: ProfileViewProps) {
+export default function ProfileView({ targetUserId, targetProfile, isSelf, initialTab }: ProfileViewProps) {
   const { balanceCents } = useWallet();
   const t = useTranslations('profile');
 
   // ── Data + Actions Hook ──
-  const data = useProfileData({ targetUserId, targetProfile, isSelf });
+  const data = useProfileData({ targetUserId, targetProfile, isSelf, initialTab });
   const {
     loading, dataError, retry,
     holdings, ticketTransactions, userStats,
@@ -159,6 +161,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                   holdings={holdings}
                   recentTrades={recentTrades}
                   isSelf={isSelf}
+                  targetHandle={targetProfile.handle}
                 />
               </TabPanel>
 
@@ -178,6 +181,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                 <TimelineTab
                   transactions={publicTransactions}
                   ticketTransactions={ticketTransactions}
+                  fantasyResults={fantasyResults}
                   userId={targetUserId}
                   isSelf={isSelf}
                 />

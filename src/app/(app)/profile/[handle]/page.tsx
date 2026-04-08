@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { Suspense, useState, useEffect } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Skeleton, SkeletonCard } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -9,9 +9,11 @@ import { getProfileByHandle } from '@/lib/services/profiles';
 import ProfileView from '@/components/profile/ProfileView';
 import type { Profile } from '@/types';
 
-export default function PublicProfilePage() {
+function PublicProfileContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab');
   const { user, profile: ownProfile } = useUser();
   const handle = typeof params.handle === 'string' ? params.handle : '';
 
@@ -96,6 +98,38 @@ export default function PublicProfilePage() {
       targetUserId={targetProfile.id}
       targetProfile={targetProfile}
       isSelf={isSelf}
+      initialTab={initialTab ?? undefined}
     />
+  );
+}
+
+function PublicProfileFallback() {
+  return (
+    <div className="max-w-[1400px] mx-auto space-y-6">
+      <div className="animate-pulse motion-reduce:animate-none bg-surface-minimal border border-white/10 rounded-2xl h-48 relative">
+        <div className="absolute bottom-4 left-4 flex items-end gap-4">
+          <Skeleton className="size-20 rounded-2xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}
+      </div>
+      <Skeleton className="h-10 rounded-xl" />
+      <div className="space-y-3">
+        {[1, 2, 3].map(i => <SkeletonCard key={i} className="h-24" />)}
+      </div>
+    </div>
+  );
+}
+
+export default function PublicProfilePage() {
+  return (
+    <Suspense fallback={<PublicProfileFallback />}>
+      <PublicProfileContent />
+    </Suspense>
   );
 }

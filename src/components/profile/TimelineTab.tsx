@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   CircleDollarSign, Trophy, Award, Users, Zap, FileText,
-  Vote, Activity, Target, Flame, Banknote,
+  Vote, Activity, Target, Flame, Banknote, Lock, Unlock, Coins,
 } from 'lucide-react';
 import { Card, LoadMoreButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -12,8 +12,9 @@ import { getTicketTransactions } from '@/lib/services/tickets';
 import {
   getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime,
 } from '@/lib/activityHelpers';
+import { FILTER_TYPE_MAP } from '@/lib/transactionTypes';
 import { useTranslations, useLocale } from 'next-intl';
-import type { DbTransaction, DbTicketTransaction } from '@/types';
+import type { DbTransaction, DbTicketTransaction, UserFantasyResult } from '@/types';
 
 // ============================================
 // ICON MAP
@@ -24,6 +25,7 @@ import { Gift, Calendar, Ticket } from 'lucide-react';
 const ICON_MAP: Record<string, React.ElementType> = {
   CircleDollarSign, Trophy, Award, Users, Zap, FileText,
   Vote, Activity, Target, Flame, Banknote, Gift, Calendar, Ticket,
+  Lock, Unlock, Coins,
 };
 
 function renderActivityIcon(type: string) {
@@ -40,17 +42,7 @@ const PAGE_SIZE = 20;
 
 type TimelineFilter = 'all' | 'credits' | 'tickets' | 'trades' | 'fantasy' | 'rewards';
 
-const FILTER_TYPE_MAP: Record<'trades' | 'fantasy' | 'research' | 'rewards', Set<string>> = {
-  trades: new Set(['buy', 'sell', 'ipo_buy']),
-  fantasy: new Set(['fantasy_join', 'fantasy_reward', 'entry_fee']),
-  research: new Set(['research_earning', 'mission_reward']),
-  rewards: new Set([
-    'bounty_reward', 'streak_bonus', 'poll_earning',
-    'tip_receive', 'scout_subscription_earning', 'creator_fund_payout',
-    'ad_revenue_payout', 'pbt_liquidation',
-  ]),
-};
-
+// Filter definitions — trades/fantasy/research/rewards use FILTER_TYPE_MAP from SSOT
 const FILTERS: { id: TimelineFilter; labelKey: string }[] = [
   { id: 'all', labelKey: 'filterAll' },
   { id: 'credits', labelKey: 'filterCredits' },
@@ -77,19 +69,41 @@ const TICKET_ICON_MAP: Record<string, string> = {
   research_rating: 'FileText',
 };
 
-// Unified row type for mixed timeline
-type TimelineRow = {
-  id: string;
-  amount: number;
-  created_at: string;
-  description: string | null;
-  currency: 'credits' | 'tickets';
-  type: string; // transaction type or ticket source
-};
+// Unified row type for mixed timeline (credits + tickets + fantasy results)
+type TimelineRow =
+  | {
+      kind: 'credit';
+      id: string;
+      amount: number;
+      created_at: string;
+      description: string | null;
+      type: string; // transaction type
+      reference_id?: string | null;
+    }
+  | {
+      kind: 'ticket';
+      id: string;
+      amount: number;
+      created_at: string;
+      description: string | null;
+      type: string; // ticket source
+    }
+  | {
+      kind: 'fantasy';
+      id: string;
+      created_at: string;
+      eventId: string;
+      eventName: string;
+      gameweek: number | null;
+      rank: number;
+      totalScore: number;
+      rewardAmount: number;
+    };
 
 interface TimelineTabProps {
   transactions: DbTransaction[];
   ticketTransactions: DbTicketTransaction[];
+  fantasyResults?: UserFantasyResult[];
   userId: string;
   isSelf: boolean;
 }
@@ -136,7 +150,13 @@ function groupByDay(txs: TimelineRow[]): { dayKey: string; items: TimelineRow[] 
 // COMPONENT
 // ============================================
 
-export default function TimelineTab({ transactions: initial, ticketTransactions: initialTickets, userId, isSelf }: TimelineTabProps) {
+export default function TimelineTab({
+  transactions: initial,
+  ticketTransactions: initialTickets,
+  fantasyResults = [],
+  userId,
+  isSelf,
+}: TimelineTabProps) {
   const t = useTranslations('profile');
   const ta = useTranslations('activity');
   const locale = useLocale();
@@ -147,43 +167,78 @@ export default function TimelineTab({ transactions: initial, ticketTransactions:
   const [hasMore, setHasMore] = useState(initial.length >= PAGE_SIZE);
   const [filter, setFilter] = useState<TimelineFilter>('all');
 
+  // Build a set of event_ids from fantasyResults so we can dedupe
+  // credit transactions of type `fantasy_reward` that share the same
+  // reference_id (i.e. the lineup reward RPC writes both a lineup record
+  // with rank+score AND a tx — we keep the richer fantasy row).
+  const fantasyEventIds = useMemo(
+    () => new Set(fantasyResults.map(f => f.eventId)),
+    [fantasyResults],
+  );
+
   // Convert to unified rows
   const creditRows: TimelineRow[] = useMemo(() =>
-    transactions.map(tx => ({
-      id: tx.id,
-      amount: tx.amount,
-      created_at: tx.created_at,
-      description: tx.description,
-      currency: 'credits' as const,
-      type: tx.type,
-    })),
-    [transactions],
+    transactions
+      // Drop fantasy_reward txs that already have a richer fantasy row for the same event
+      .filter(tx => !(tx.type === 'fantasy_reward' && tx.reference_id && fantasyEventIds.has(tx.reference_id)))
+      .map(tx => ({
+        kind: 'credit' as const,
+        id: tx.id,
+        amount: tx.amount,
+        created_at: tx.created_at,
+        description: tx.description,
+        type: tx.type,
+        reference_id: tx.reference_id,
+      })),
+    [transactions, fantasyEventIds],
   );
 
   const ticketRows: TimelineRow[] = useMemo(() =>
     ticketTxs.map(tx => ({
+      kind: 'ticket' as const,
       id: `t-${tx.id}`,
       amount: tx.amount,
       created_at: tx.created_at,
       description: tx.description,
-      currency: 'tickets' as const,
       type: tx.source,
     })),
     [ticketTxs],
   );
 
+  const fantasyRows: TimelineRow[] = useMemo(() =>
+    fantasyResults.map(fr => ({
+      kind: 'fantasy' as const,
+      id: `f-${fr.eventId}`,
+      created_at: fr.eventDate || new Date().toISOString(),
+      eventId: fr.eventId,
+      eventName: fr.eventName,
+      gameweek: fr.gameweek,
+      rank: fr.rank,
+      totalScore: fr.totalScore,
+      rewardAmount: fr.rewardAmount,
+    })),
+    [fantasyResults],
+  );
+
   const filteredRows = useMemo(() => {
     if (filter === 'all') {
-      return [...creditRows, ...ticketRows].sort(
+      return [...creditRows, ...ticketRows, ...fantasyRows].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
     }
     if (filter === 'credits') return creditRows;
     if (filter === 'tickets') return ticketRows;
-    // Sub-filters apply to credits only
+    // Sub-filters
+    if (filter === 'fantasy') {
+      const filterSet = FILTER_TYPE_MAP.fantasy;
+      const matchingCredits = creditRows.filter(r => r.kind === 'credit' && filterSet.has(r.type));
+      return [...matchingCredits, ...fantasyRows].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+    }
     const filterSet = FILTER_TYPE_MAP[filter as keyof typeof FILTER_TYPE_MAP];
-    return filterSet ? creditRows.filter(tx => filterSet.has(tx.type)) : creditRows;
-  }, [filter, creditRows, ticketRows]);
+    return filterSet ? creditRows.filter(r => r.kind === 'credit' && filterSet.has(r.type)) : creditRows;
+  }, [filter, creditRows, ticketRows, fantasyRows]);
 
   // Date keys for today / yesterday
   const { todayKey, yesterdayKey } = useMemo(() => {
@@ -272,32 +327,85 @@ export default function TimelineTab({ transactions: initial, ticketTransactions:
 
                 {/* Transaction Rows */}
                 <div className="space-y-0.5">
-                  {items.map(tx => {
-                    const positive = tx.amount > 0;
-                    const isTicket = tx.currency === 'tickets';
+                  {items.map(row => {
+                    if (row.kind === 'fantasy') {
+                      return (
+                        <div
+                          key={row.id}
+                          className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors"
+                        >
+                          {/* Fantasy Icon */}
+                          <div className="flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5 bg-emerald-400/10 text-emerald-400">
+                            <Trophy className="size-4" aria-hidden="true" />
+                          </div>
+
+                          {/* Fantasy content: Event name + rank badge + score */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium leading-snug truncate">
+                                {row.eventName}
+                              </span>
+                              {/* Rank Badge */}
+                              <span className={cn(
+                                'text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 tabular-nums',
+                                row.rank === 1 ? 'bg-gold/15 text-gold' :
+                                row.rank === 2 ? 'bg-white/10 text-white/80' :
+                                row.rank === 3 ? 'bg-orange-500/15 text-orange-400' :
+                                'bg-surface-base text-white/40',
+                              )}>
+                                {row.rank === 1 ? '🥇 ' : row.rank === 2 ? '🥈 ' : row.rank === 3 ? '🥉 ' : '#'}
+                                {row.rank}
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-white/40 mt-0.5 flex items-center gap-2">
+                              {row.gameweek !== null && (
+                                <span>GW {row.gameweek}</span>
+                              )}
+                              <span className="tabular-nums">{row.totalScore.toFixed(0)} {t('pointsAbbr')}</span>
+                              <span>·</span>
+                              <span>{getRelativeTime(row.created_at, ta('justNow'), dateLocale)}</span>
+                            </div>
+                          </div>
+
+                          {/* Reward */}
+                          {row.rewardAmount > 0 && (
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-mono font-bold tabular-nums text-green-500">
+                                +{formatScout(row.rewardAmount)}
+                              </span>
+                              <div className="text-[10px] text-white/20 mt-0.5">CR</div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Credit or ticket row
+                    const positive = row.amount > 0;
+                    const isTicket = row.kind === 'ticket';
                     return (
                       <div
-                        key={tx.id}
+                        key={row.id}
                         className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors"
                       >
                         {/* Icon */}
                         <div className={cn(
                           'flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5',
-                          isTicket ? 'bg-amber-500/10 text-amber-400' : getActivityColor(tx.type),
+                          isTicket ? 'bg-amber-500/10 text-amber-400' : getActivityColor(row.type),
                         )}>
                           {isTicket
-                            ? (() => { const I = ICON_MAP[TICKET_ICON_MAP[tx.type] ?? 'Ticket'] ?? Ticket; return <I className="size-4" aria-hidden="true" />; })()
-                            : renderActivityIcon(tx.type)
+                            ? (() => { const I = ICON_MAP[TICKET_ICON_MAP[row.type] ?? 'Ticket'] ?? Ticket; return <I className="size-4" aria-hidden="true" />; })()
+                            : renderActivityIcon(row.type)
                           }
                         </div>
 
                         {/* Description */}
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium leading-snug">
-                            {tx.description || (isTicket ? t(`ticketSource_${tx.type}`) : ta(getActivityLabelKey(tx.type)))}
+                            {row.description || (isTicket ? t(`ticketSource_${row.type}`) : ta(getActivityLabelKey(row.type)))}
                           </div>
                           <div className="text-[10px] text-white/25 mt-0.5">
-                            {getRelativeTime(tx.created_at, ta('justNow'), dateLocale)}
+                            {getRelativeTime(row.created_at, ta('justNow'), dateLocale)}
                           </div>
                         </div>
 
@@ -308,7 +416,7 @@ export default function TimelineTab({ transactions: initial, ticketTransactions:
                               'text-xs font-mono font-bold tabular-nums',
                               positive ? 'text-green-500' : 'text-white/40',
                             )}>
-                              {positive ? '+' : ''}{isTicket ? tx.amount : formatScout(tx.amount)}
+                              {positive ? '+' : ''}{isTicket ? row.amount : formatScout(row.amount)}
                             </span>
                             <div className="text-[10px] text-white/20 mt-0.5">
                               {isTicket ? 'Tickets' : 'CR'}
