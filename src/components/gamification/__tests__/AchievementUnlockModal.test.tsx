@@ -67,11 +67,11 @@ describe('AchievementUnlockModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('links to profile page', () => {
+  it('links to missions page', () => {
     render(
       <AchievementUnlockModal achievement={mockAchievement} open={true} onClose={vi.fn()} />,
     );
     const link = screen.getByText('viewAll').closest('a');
-    expect(link).toHaveAttribute('href', '/profile?tab=overview');
+    expect(link).toHaveAttribute('href', '/missions');
   });
 });
