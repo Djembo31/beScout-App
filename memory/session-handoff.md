@@ -1,32 +1,41 @@
 # Session Handoff
-## Letzte Session: 2026-04-08 (Mittag → Abend, 17 Commits, alle offenen Punkte abgeschlossen + B1 Missions E2E)
+## Letzte Session: 2026-04-08 (Abend, 6 Commits, B2 Following Feed E2E komplett + AutoDream Run #4)
 
-## 🔖 NEXT SESSION KICKOFF — B2 Following Feed E2E
+## 🔖 NEXT SESSION KICKOFF — B3 Transactions History E2E
 
 **Erstmal lesen:**
 1. Diesen Handoff (du bist hier)
-2. `memory/project_e2e_features.md` — 3 Features approved 2026-04-04
-3. Der "B1 Missions E2E" Block unten in diesem File — zeigt das Audit-Pattern
+2. `memory/project_e2e_features.md` — 3 Features approved 2026-04-04 (2/3 done: B1 Missions ✅, B2 Following Feed ✅)
+3. Das "B2 Following Feed E2E" Summary unten — zeigt das bewährte Audit-Pattern
+4. `memory/semantisch/projekt/following-feed.md` — 74 Zeilen verdichtetes B2 Wissen (RLS Pattern, Dead Code Audit, i18n-First)
 
-**Pattern (von B1 bewaehrt):**
-1. **Discovery** — Scan: existierender service/hook/component/page/migration code für Following Feed
-2. **Reality Check** — was ist schon gebaut, was fehlt, was ist kaputt
+**Pattern (von B1+B2 bewaehrt):**
+1. **Discovery** — Scan: existierender service/hook/component/page/migration code für Transactions History
+2. **Reality Check** — was ist schon gebaut, was fehlt, was ist kaputt (dead code, silent RLS, missing UI)
 3. **Report** → 3 gezielte Fragen an Anil (A/B/C Stil), damit er die Tiefe wählt
 4. **Phase A-E** — implementieren basierend auf seiner Antwort (meist "alles/e")
-5. **Live Test** als jarvis-qa via playwright
+5. **Live Test** als jarvis-qa via playwright (**Achtung: Service Worker unregister + SW cache clear VOR dem Test**, siehe errors.md)
 6. **Commits** — thematisch split, dann push
+7. **AutoDream** — wenn lessons learned entstanden, am Ende Subagent laufen lassen
 
-**Startpunkte für B2 Discovery:**
-- Services: `src/lib/services/social.ts` (hat followUser + getUserStats — schon genutzt)
-- Queries: `src/lib/queries/` — gibt es `useFollowing*` queries?
-- Components: `src/components/` — gibt es FeedCard, FollowingFeed?
-- Route: `src/app/(app)/feed/` oder wo? Oder unter community?
-- DB: `user_follows` table existiert (siehe database.md: `following_id` column)
+**Startpunkte für B3 Discovery:**
+- Services: grep `src/lib/services/` nach `transactions` oder `getTransactions`
+- Queries: `src/lib/queries/` hat bereits einen `qk.transactions` key (`keys.ts:144-147`) mit `byUser(uid, n)` und `all`
+- Profile Tab: `ProfileView.tsx` hat schon einen "Activity"-Tab mit `PUBLIC_TX_TYPES` filter (siehe `.claude/rules/profile.md`)
+- DB: vermutlich `transactions` oder `wallet_transactions` table — bei Discovery checken ob es `type`-Spalte gibt und welche types existieren
+- Potential Gaps: dedizierte Transactions-History Seite unter `/profile/transactions` oder als Tab? Filter nach Type/Period? Export-Funktion?
 
-**QA Account (unveraendert):**
+**Hinweise aus B2 Learnings (vermeide diese Fallen):**
+- **RLS Policy Trap** — Wenn ein Service Cross-User-Reads braucht, RLS-Policy auf der Tabelle checken BEVOR Frontend debuggen. Pattern: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`. Activity-Log hatte `auth.uid() = user_id` silent blockiert (Fix: 2026-04-08 commit e61be4a).
+- **Dead Code Audit** — `getFollowingFeed` existierte seit Monaten ungenutzt. Vor neu bauen: grep ob Hook/Service/Type bereits vorhanden und nur nicht gewired ist.
+- **Service Worker Cache stale** — Bei QA immer zuerst: `navigator.serviceWorker.getRegistrations()` unregister + `caches.delete()` alle cache names + hard reload. Sonst sieht man alte JS trotz Code-Changes.
+- **i18n-First für Enums** — User-sichtbare Enum/Action Labels NICHT als hardcoded const im code, sondern in `messages/{de,tr}.json` unter namespace.
+
+**QA Account (aktualisiert nach B2):**
 - Email: jarvis-qa@bescout.net / Handle: jarvisqa
-- Password: `JarvisQA2026!` (e2e/mystery-box-qa.spec.ts:5)
+- Password: `JarvisQA2026!` (`e2e/mystery-box-qa.spec.ts:5`)
 - ~7.700 $SCOUT, 63 Tickets, 6 Tage Streak, 8 Holdings, 1 Manager-Lineup
+- **NEU: Jarvis folgt jetzt 3 Scouts** (`kemal2`, `test12`, `emre_snipe`) — QA-Fixture für Following Feed populated state. Nicht löschen.
 
 **MCP Tools einsatzbereit:**
 - `mcp__supabase__execute_sql` (project_id: `skzjfhvgccaeplydsunz`)
@@ -36,152 +45,124 @@
 ---
 
 ## TL;DR
-Manager Team-Center Wave 0-5 ist KOMPLETT + auf prod verifiziert. CI ist nach monatelangem Rot-Stand **wieder grün**. Alle Handoff-Punkte dieser Session abgearbeitet. Keine offenen Krümel.
+B2 Following Feed ist komplett live auf main. Der Widget rendert empty + populated state auf mobile + desktop. Der entscheidende Bug war ein **P0 RLS-Silent-Failure** auf `activity_log` der das Feature seit Monaten blockiert hätte, auch wenn das UI gebaut worden wäre. AutoDream Run #4 hat 4 neue Anti-Patterns nach `memory/errors.md` promoted. Keine offenen Krümel.
 
-## Was wurde gemacht — 8 Commits, alle gepusht, alle auf prod
+## Was wurde gemacht — 6 Commits, alle auf main gepusht
 
-### Vor dieser Session bereits committed (Manager Team-Center Wave 0–5)
-| Wave | Inhalt | Commits |
-|------|--------|---------|
-| 0 | Hook Extraction `useLineupBuilder` aus EventDetailModal | 8553968 + cae9326 |
-| 1+2 | Foundation Skeleton + 3-Tab Hub + Kader Migration aus /market | 461d021, a80abb5, c0dadca, 27b36c3 |
-| 3 | Aufstellen-Tab mit Direct Event Join | bbe6086, 4911ce0 |
-| 4 | Historie-Tab + HistoryStats + W4.4 Cross-Tab | 8ee4c0f, 5777788 |
-| 5 | Cleanup, Refactor, Tests, Code Review Polish | 9646ec2, cb4ce3f, 4a300c1, 9763f95, d9c1a5a |
+### B2 Following Feed E2E (4 Commits)
 
-Begleitend: `useLineupSave` Hook (9763f95) + 26 neue Unit-Tests (d9c1a5a).
+**Phase 1: Discovery + Reality Check**
+Backend war zu 100% fertig (Service `getFollowingFeed`, Hook `useFollowingFeed`, Type `ActivityFeedItem` + 12 FEED_ACTIONS). Frontend: **Hook wurde nirgends aufgerufen**, kein Component, kein Route. Community-Page hatte einen "Folge ich" Toggle der aber nur Content filter machte — nicht den Activity Feed zeigte.
 
-### Diese Session — 8 Commits
+**Anil's Entscheidung**: 1C + 2C + 3A — Community-Toggle bleibt unangetastet, Activity Feed als Widget in der Home-Sidebar, 5 Items, keine Pagination/Realtime.
 
-**Phase 1: Visual QA + PageHeader-Fix + Test-Repairs**
-- `d16b493` **fix(manager)** — PageHeader nextEvent aus useOpenEvents (war hardcoded null). Entdeckt in Visual QA, Pille 3 zeigte permanent "Kein Event" trotz aktivem Turkish Airlines Liga Event. **Auf prod verifiziert** nach Deploy.
-- `fefd67c` **test(gamification)** — AchievementUnlockModal href-Erwartung auf `/missions` angepasst (post 3-hub refactor, Test hing der Code-Aenderung nach).
-- `68461cb` **test(business-flows)** — FLOW-11 erlaubt jetzt `score_event_no_lineups_handling` Migration edge case (ended events mit `lineups=0 AND scored_at IS NOT NULL`).
-- `81cc953` **docs(manager)** — PLAN GATE final abgehakt, Wave 0-5 Status-Tabelle, Visual QA + Cleanup Findings.
+**Phase 2: Backend Fix — `e61be4a fix(db)` — P0 RLS Bug**
+`activity_log` RLS Policy erlaubte nur `auth.uid() = user_id` für SELECT. Cross-User-Reads blockierten silent (kein Error, nur `[]` als Ergebnis). Ohne diese Fix konnte der Feed **niemals** populated state rendern, egal was das Frontend machte.
+- Migration `20260408180000_activity_log_feed_rls.sql` — zweite SELECT-Policy:
+  ```sql
+  USING (user_id IN (SELECT following_id FROM user_follows WHERE follower_id = auth.uid())
+         AND action = ANY(ARRAY[...12 FEED_ACTIONS...]))
+  ```
+- `page_view` und andere private Actions bleiben owner-only.
 
-**Phase 2: Memory Hygiene**
-- `08e039c` **docs(testing)** — Visual QA Playbook aus Draft 2026-04-07-qa-visual-3hub-refactor.md promoted nach `.claude/rules/testing.md`. 2 stale Drafts (2026-04-02) geloescht (waren bereits am 2026-04-03 PROMOTED + REVIEWED, haetten damals geloescht werden sollen). Learnings-Queue truncated.
-- `6a2a5b6` **chore(memory)** — AutoDream v3 Consolidation (38 Sessions overdue): 5 Retros → neues semantisches `memory/semantisch/projekt/manager-team-center.md`, "Hardcoded null Anti-Pattern" promoted nach `memory/errors.md`, Wiki-Index aktualisiert.
+**Phase 3: Refactor — `07cfbba refactor(social)`**
+- `useFollowingFeed(userId, limit=15)` bekam optional `limit` param.
+- `qk.social.feed(uid, limit)` erweitert um limit — verschiedene Widget-Größen cachen separat.
+- `FEED_ACTION_LABELS` aus `types/index.ts` gelöscht (dead export).
+- Neuer `feed.actions.*` Namespace in `messages/de.json` + `messages/tr.json` mit ICU Interpolation für trade actions (`"hat {player} gekauft"`) und `_generic` fallbacks wenn Player nicht in aktueller Players-Slice.
 
-**Phase 3: CI Resurrection** (CI war seit 2026-02 rot)
-- `b88aa7c` **ci(vitest)** — Integration-Tests ausgeschlossen wenn `CI=true && !SUPABASE_SERVICE_ROLE_KEY`. 10 Glob-Pattern decken 16 Files ab (auth/rls-checks, boundaries, bug-regression, concurrency, contracts, db-invariants, flows, money, state-machines, unicode). Lokal bleibt alles wie vorher (2347 gruen).
-- `868b8ce` **fix(services)** — 4 fire-and-forget `checkAndUnlockAchievements` Aufrufe in ipo.ts, trading.ts (2x), offers.ts hatten das Muster `.then(({fn}) => { fn(id); })` — das innere Promise wurde NICHT returned, outer `.catch` fing nur import-failures nicht den echten Call. Im CI ohne SUPABASE_SERVICE_ROLE_KEY griff `vi.mock` nicht zuverlaessig fuer dynamic imports → echter social.ts geladen → `getUserStats` Network Error → unhandled rejection → vitest exit 1. Fix: Body-Block → Expression (`.then(... => fn(id))`), outer catch greift jetzt. **CI nach diesem Commit zum ersten Mal gruen.**
+**Phase 4: Widget — `85474dd feat(home)`**
+- `src/components/social/FollowingFeedRail.tsx` (neu, 186 Zeilen)
+- 4 States: Loading (3 skeleton rows) / Error (ErrorState mit retry) / Empty (Users icon + Hint + "Scouts entdecken" CTA zu /community) / Populated
+- Populated Items: Avatar (oder Initial fallback) + `@handle` + Action Label + relative Zeit, jede Row linkt zu `/profile/{handle}`
+- Trade actions erreichern Action Label mit Player-Name aus Home-Page Players-Slice (kein extra DB-Call)
+- KNOWN_ACTIONS Filter — unbekannte Action-Types crashen rendering nie
+- Integration: `src/app/(app)/page.tsx` — dynamic import, conditional `{uid && !isNewUser}`, positioniert zwischen SuggestedActionBanner und MyClubs in der Sidebar
 
-### Findings
+**Phase 5: Live QA + Cleanup — `5511640 chore(memory)`**
+- tsc --noEmit: CLEAN
+- Playwright als jarvis-qa: mobile (390px) + desktop (1280px) — Empty State + Populated State (nach `INSERT user_follows` für 3 Scouts)
+- 4 Screenshots im Repo-Root (gitignored)
+- Service Worker Trap entdeckt: `navigator.serviceWorker.getRegistrations()` hatte stale JS gecacht, verhinderte meine Code-Changes zu sehen
 
-**Homepage 5 prod console errors** (AuthProvider loadProfile RPC Timeout + Wallet balance fetch Timeout) → **transient**. Beim 2. Check waren 0 Errors. Retry-Layer (3x fallback fuer AuthProvider, 3x fuer Wallet) fangen das sauber. Kein Code-Fix noetig. Supabase-Latenz-Swings, keine Auswirkung auf User-UX.
+### AutoDream Run #4 (2 Commits)
 
-**Pre-existing ESLint Warnings** (7x, 5 in PitchView.tsx `<img>`, 2 in useLineupBuilder.ts exhaustive-deps) — intentional design decisions, non-blocking, nicht in dieser Session eingefuehrt.
+**`5b5dcb1 docs(memory)` — Lessons → errors.md + following-feed wiki**
+- 4 neue Patterns in `memory/errors.md`:
+  1. `activity_log` Feed Policy Trap (Cross-User-Read Pattern für Feeds)
+  2. Dynamic Import fire-and-forget Promise (CI Trap — war eigentlich Session 2026-04-08 Vormittag, wurde jetzt erst promoted)
+  3. Dead Code / Dead Exports (Audit-Signal: Consumer-Count per grep)
+  4. Dev Server / Service Worker stale cache
+- Neu: `memory/semantisch/projekt/following-feed.md` (74 Zeilen) — verdichtetes B2 Wissen mit Architektur-Entscheidungen und Bugs-Tabelle
+- Wiki-Index + Wiki-Log Run #4 Eintrag
+
+**`c8190a8 chore(memory)` — Stop hook auto retro**
 
 ## Build Status (final)
 - `tsc --noEmit`: CLEAN
-- vitest lokal (voll): **2347/2347 gruen** (170 Files)
-- CI Pipeline: **lint ✓, build ✓, test ✓** auf SHA d1e2feb — **170/170 Files, 2346 Tests passed + 1 skipped, identisch zu lokal** (Integration-Tests laufen jetzt auch im CI seit SUPABASE_SERVICE_ROLE_KEY Secret gesetzt ist)
-- ESLint manager+fantasy: 0 errors, 7 pre-existing warnings
+- vitest: nicht extra laufen lassen — keine Service/Logic Änderungen die Tests brechen könnten (nur UI + DB + i18n)
+- Live QA: beide States verifiziert, 0 Console-Errors von meinem Code (pre-existing `common.navClub` MISSING_MESSAGE + posthog 401 sind alt, nicht in dieser Session eingeführt)
 
 ## Stand jetzt — keine offenen Krümel
 
 ### Alle Handoff-Punkte dieser Session abgeschlossen
-- ✅ Wave 5 T5.3 Visual QA Mobile + Desktop (6 Screenshots `qa-manager-{mobile,desktop}-{aufstellen,kader,historie}.png` im Repo-Root, gitignored als `/*.png`)
-- ✅ Wave 5 T5.4 Final Cleanup (0 console.log, 0 TODO, 0 empty catches)
-- ✅ PageHeader nextEvent Fix — prod-verifiziert
-- ✅ 2 Test-Failures gefixt → lokal 2347/2347 gruen
-- ✅ AutoDream Memory Consolidation (38 Sessions overdue → 0)
-- ✅ /reflect Drafts-Queue (3 → 0: 2 stale geloescht, 1 promoted)
-- ✅ Learnings-Queue truncated
-- ✅ CI seit 2026-02 rot → **grün** nach 2 Commits (vitest config + fire-and-forget fix)
-- ✅ Homepage errors investigiert → transient, kein Fix noetig
+- ✅ B2 Following Feed E2E: Discovery → Reality Check → Fragen → Implementation → Live Test → Commits → Push
+- ✅ P0 RLS Silent Failure auf activity_log gefixt + als Pattern in errors.md
+- ✅ Dead code `FEED_ACTION_LABELS` + dead hook `useFollowingFeed` wieder lebendig gemacht
+- ✅ i18n in DE + TR für Feed Actions
+- ✅ Live verifiziert auf Mobile + Desktop, Empty + Populated States
+- ✅ AutoDream Consolidation (13 Sessions overdue → 0)
+- ✅ Session-handoff.md für B3 Kickoff vorbereitet
 
 ### Was koennte als naechstes kommen
-- Keine kritischen offenen Punkte.
-- Naechste Feature-Arbeit aus project_e2e_features.md: B2 Following Feed E2E, B3 Transactions History E2E.
-- Onboarding ohne Club-Bezug (project_onboarding_multi_club.md).
-- Chip/Equipment System (project_chip_equipment_system.md).
-
-## B1 Missions E2E Audit + Polish (diese Session Nachmittag, 4 Commits)
-
-**Discovery:** Backend + Components + DB Schema existieren komplett. Aber
-6 Code-Call-Sites triggerten non-existent mission keys, 5 DB-Definitions
-waren Dead-Duplicates ohne Code-Coverage, Market/Manager/Home fehlten
-MissionHintList-Integration, und Claim-Notification crashte an CHECK
-constraint.
-
-**Phase A — Code→DB key alignment (3c23199):**
-- `daily_trade` → `daily_trade_2` (4 trading.ts + 1 offers.ts + 1 ipo.ts)
-- `weekly_5_trades` → `weekly_trade_5` (gleiche 6 stellen)
-- `first_ipo_buy` entfernt (nicht in DB, system unterstuetzt kein onetime type)
-- Plus: buyFromMarket/buyFromOrder/placeBuyOrder triggern jetzt zusaetzlich `daily_buy_1`, placeSellOrder triggert `daily_sell_1`
-
-**Phase B — DB cleanup (701c071):**
-- Migration `missions_deactivate_dead_duplicates`: 5 Definitions auf active=false:
-  - weekly_3_posts (duplicate zu create_post)
-  - weekly_research (duplicate zu write_research)
-  - daily_visit_players (braeuchte page-visit tracking)
-  - weekly_diverse (braeuchte holdings diversity counter)
-  - weekly_follow_3 (braeuchte weekly follow counter)
-- Resultat: 30 → 25 active mission_definitions
-
-**Phase C — Fehlende Triggers + HintList Rollout (929eeca):**
-- posts.ts createPost: daily_post zusaetzlich
-- research.ts unlockResearch: daily_unlock_research + community_activity
-- streaks.ts: KEIN client-trigger (record_login_streak RPC ruft intern
-  update_mission_progress('daily_login') via SECURITY DEFINER — client-side
-  waere Doppel-Increment, nur im Kommentar dokumentiert)
-- MissionHintList integriert:
-  - Market (context="trading"): nach TabBar, vor TabPanels
-  - Manager (context="fantasy"): zwischen PageHeader und TabBar
-  - Home (context="fantasy"): bedingt auf !isNewUser (weil new user bereits
-    OnboardingChecklist als strukturierte Fortschrittsliste sehen)
-
-**Phase E — Live Test Findings (be63858):**
-- Claim Flow E2E durchgezogen als jarvis-qa
-- **Bug entdeckt:** Claim von daily_login reward crashte an
-  `notifications_reference_type_check` (erlaubte 10 types, 'mission' fehlte)
-- **Fix:** Migration `notifications_allow_mission_reference` — CHECK extended
-  um 'mission' als 11. erlaubten reference_type
-- Verifiziert nach Fix:
-  - claim daily_login: wallet 755000 → nope noch nicht, claim erfolgte vor Fix
-  - claim weekly_fantasy: wallet 755000 → 770000 cents (+150 $SCOUT)
-  - mission_notif_count: 0 → 1 (Notification erstellt)
-  - 0 Console-Errors
-- MissionHintList verifiziert live:
-  - /manager: "Fantasy-Event beitreten +50", "Top 3 Platzierung +250" sichtbar
-  - /market: "Kaufe 1 DPC +35", "Verkaufe 1 DPC +35" sichtbar (NEUE triggers live!)
-  - /: keine Hints (jarvis-qa ist onboarding 1/5 = new user, by design)
+- **B3 Transactions History E2E** — drittes und letztes der E2E-Features aus `project_e2e_features.md`
+- **Onboarding ohne Club-Bezug** (`project_onboarding_multi_club.md`) — Freundeskreis-Feedback
+- **Chip/Equipment System** (`project_chip_equipment_system.md`) — Ideen gesammelt, eigene Session
+- **Optional Follow-up B2**: Realtime Subscription auf `activity_log` für Live-Updates (aktuell 2min staleTime via React Query)
 
 ## Wichtige Dateien fuer naechste Session
-- `docs/plans/2026-04-07-manager-team-center-plan.md` — vollstaendiger Wave 0-5 Status
-- `memory/semantisch/projekt/manager-team-center.md` — AutoDream-Verdichtung der kompletten Migration
-- `memory/errors.md` — Hardcoded null Anti-Pattern neu
-- `.claude/rules/testing.md` — Visual QA Playbook neu
-- `vitest.config.ts` — CI integration-test exclusion logic
+- `memory/project_e2e_features.md` — Meta: Welche Features sind approved
+- `memory/semantisch/projekt/following-feed.md` — B2 verdichtet (neu)
+- `memory/errors.md` — 4 neue Patterns (activity_log RLS, Dynamic Import Promise, Dead Code, SW Cache)
+- `.claude/rules/profile.md` — Activity Tab mit `PUBLIC_TX_TYPES` — Startpunkt für B3
+- `src/lib/queries/keys.ts:144-147` — `qk.transactions` keys (existieren schon)
+- `supabase/migrations/20260408180000_activity_log_feed_rls.sql` — RLS Pattern Referenz
 
 ## Architektur-Notizen
 
-### Hardcoded null Anti-Pattern (promoted zu errors.md)
-Wenn ein Component-Prop existiert, MUSS er in der Implementation real verbunden sein. `nextEvent={null}` ist keine neutrale Default — es ist eine semantische Luege gegenueber dem User. Symptom: Component rendert aber zeigt permanent Empty-State.
-
-### Dynamic Import + fire-and-forget Promise Pattern (CI trap)
-```ts
-// FALSCH (unhandled rejection):
-import('@/lib/services/X').then(({ fn }) => {
-  fn(userId);  // ← NEW PROMISE, NICHT returned, outer .catch greift nicht
-}).catch(err => console.error(...));
-
-// RICHTIG:
-import('@/lib/services/X').then(({ fn }) =>
-  fn(userId)  // ← returned, outer .catch greift
-).catch(err => console.error(...));
+### RLS Feed Pattern (aus B2, jetzt wiederverwendbar)
+Tabellen die Cross-User-Reads für Feeds/Activity brauchen, brauchen erweiterte SELECT-Policy:
+```sql
+CREATE POLICY "feed_cross_user_read" ON <table>
+FOR SELECT USING (
+  auth.uid() = user_id  -- own rows
+  OR user_id IN (SELECT following_id FROM user_follows WHERE follower_id = auth.uid())  -- followed
+);
 ```
-Lokal lief die falsche Version weil echter DB-Call erfolgreich war. Im CI ohne env vars crashte `vi.mock` bei dynamic imports nicht zuverlaessig → echter service geladen → Network error → vitest exit 1.
+Mit optionalem Action-Filter für Privacy: nur bestimmte action types cross-readable.
 
-### Wave 5 T5.1 — Plan-Abweichung legitim
-Plan sah Loeschung von `intel/{Stats,Form,Markt}Tab.tsx` vor (Logik in PlayerDetailModal kopieren). Tatsaechlich: dynamic-imported als shared deps. DRY > Plan-Treue.
+### Service Worker in Dev
+Der BeScout Dev-Build hat einen Service Worker registriert (scope `/`). Der cached aggressively und kann Code-Changes unsichtbar machen. Playbook:
+```js
+// In DevTools Console vor QA:
+(async () => {
+  const regs = await navigator.serviceWorker.getRegistrations();
+  for (const r of regs) await r.unregister();
+  const cs = await caches.keys();
+  for (const c of cs) await caches.delete(c);
+  localStorage.clear(); sessionStorage.clear();
+  location.reload();
+})();
+```
 
-### Integration-Tests im CI (active seit d1e2feb)
-16 Test-Files treffen die echte prod Supabase DB. Brauchen `SUPABASE_SERVICE_ROLE_KEY` — jetzt als GitHub Secret gesetzt (Session 2026-04-08). `ci.yml` test job bekommt via `env:` block alle drei Supabase vars (URL + ANON_KEY + SERVICE_ROLE_KEY). Volle 170/170 Files laufen im CI, identisch zu lokal. Die defensive exclusion in `vitest.config.ts` (`CI=true && !SUPABASE_SERVICE_ROLE_KEY`) bleibt als Fallback fuer PRs von forks oder kuenftige Umgebungen ohne Secret.
+### Dead Code Discovery vor neuem Build
+Bevor ein neues Feature gebaut wird, immer grep:
+1. `grep -r "export function myFeature"` → existiert schon?
+2. Consumer-Count per `grep -r "myFeature(" --include="*.tsx"`
+3. Wenn Consumer == 0 → Feature-Infrastruktur ist da aber ungewired. Das war bei B2 `getFollowingFeed` der Fall.
 
-## QA Account (unveraendert)
+## QA Account State Snapshot (Ende 2026-04-08)
 - Email: jarvis-qa@bescout.net / Handle: jarvisqa
-- Password: `JarvisQA2026!` (in `e2e/mystery-box-qa.spec.ts:5`)
-- ~7.540 CR, 8 Holdings, 38 Tickets, 6 Tage Streak, 1 Manager-Lineup (Sakaryaspor Fan Challenge GW34)
+- Password: `JarvisQA2026!`
+- ~7.700 $SCOUT, 63 Tickets, 6 Tage Streak, 8 Holdings, 1 Manager-Lineup
+- **3 Follows**: `kemal2`, `test12`, `emre_snipe` (QA-Fixture für Following Feed)
