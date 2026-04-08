@@ -24,12 +24,20 @@ vi.mock('@/components/providers/ToastProvider', () => ({
 // Mocks — services
 // ============================================
 const mockGetHoldings = vi.fn();
-const mockGetTransactions = vi.fn();
 const mockFormatScout = vi.fn((v: number) => String(v / 100));
 vi.mock('@/lib/services/wallet', () => ({
   getHoldings: (...args: unknown[]) => mockGetHoldings(...args),
-  getTransactions: (...args: unknown[]) => mockGetTransactions(...args),
   formatScout: (v: number) => mockFormatScout(v),
+}));
+
+// Query hooks — mocked directly (isolate from React Query + Supabase env)
+const mockUseTransactions = vi.fn();
+const mockUseTicketTransactions = vi.fn();
+vi.mock('@/lib/queries/misc', () => ({
+  useTransactions: (...args: unknown[]) => mockUseTransactions(...args),
+}));
+vi.mock('@/lib/queries/tickets', () => ({
+  useTicketTransactions: (...args: unknown[]) => mockUseTicketTransactions(...args),
 }));
 
 const mockGetMyPayouts = vi.fn();
@@ -82,9 +90,8 @@ vi.mock('@/lib/services/clubSubscriptions', () => ({
   getMySubscription: (...args: unknown[]) => mockGetMySubscription(...args),
 }));
 
-vi.mock('@/lib/services/tickets', () => ({
-  getTicketTransactions: vi.fn(() => Promise.resolve([])),
-}));
+// NOTE: ticket_transactions service access is now via useTicketTransactions hook
+// (mocked above), so no direct service mock is needed.
 
 // ============================================
 // Mocks — helpers / utils
@@ -210,7 +217,6 @@ const defaultStats = {
 
 function setupServiceDefaults() {
   mockGetHoldings.mockResolvedValue([]);
-  mockGetTransactions.mockResolvedValue([]);
   mockGetUserStats.mockResolvedValue(defaultStats);
   mockGetFollowerCount.mockResolvedValue(42);
   mockGetFollowingCount.mockResolvedValue(10);
@@ -227,6 +233,8 @@ function setupServiceDefaults() {
   mockUnfollowUser.mockResolvedValue(undefined);
   mockRefreshUserStats.mockResolvedValue(undefined);
   mockCheckAndUnlockAchievements.mockResolvedValue(undefined);
+  mockUseTransactions.mockReturnValue({ data: [], isLoading: false, refetch: vi.fn() });
+  mockUseTicketTransactions.mockReturnValue({ data: [], isLoading: false, refetch: vi.fn() });
 }
 
 // ============================================
@@ -256,7 +264,8 @@ describe('ProfileView', () => {
   it('shows loading spinner initially', () => {
     // Never resolve services so component stays in loading state
     mockGetHoldings.mockReturnValue(new Promise(() => {}));
-    mockGetTransactions.mockReturnValue(new Promise(() => {}));
+    mockUseTransactions.mockReturnValue({ data: undefined, isLoading: true, refetch: vi.fn() });
+    mockUseTicketTransactions.mockReturnValue({ data: undefined, isLoading: true, refetch: vi.fn() });
     mockGetUserStats.mockReturnValue(new Promise(() => {}));
     mockGetFollowerCount.mockReturnValue(new Promise(() => {}));
     mockGetFollowingCount.mockReturnValue(new Promise(() => {}));
@@ -301,7 +310,6 @@ describe('ProfileView', () => {
   // 4. shows ErrorState on data error, with retry
   it('shows ErrorState on data fetch failure with retry button', async () => {
     mockGetHoldings.mockRejectedValue(new Error('Network error'));
-    mockGetTransactions.mockRejectedValue(new Error('Network error'));
     mockGetUserStats.mockRejectedValue(new Error('Network error'));
     mockGetFollowerCount.mockRejectedValue(new Error('Network error'));
     mockGetFollowingCount.mockRejectedValue(new Error('Network error'));

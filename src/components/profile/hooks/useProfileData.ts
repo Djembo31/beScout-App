@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useUser } from '@/components/providers/AuthProvider';
-import { getHoldings, getTransactions } from '@/lib/services/wallet';
+import { getHoldings } from '@/lib/services/wallet';
 import { getMyPayouts } from '@/lib/services/creatorFund';
 import {
   getUserStats, refreshUserStats, getFollowerCount, getFollowingCount,
@@ -10,33 +10,30 @@ import {
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
-import { getTicketTransactions } from '@/lib/services/tickets';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import { val } from '@/lib/settledHelpers';
 import { getLoginStreak } from '@/components/home/helpers';
 import { getDimensionTabOrder, getStrongestDimension } from '@/lib/scoutReport';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
+import { useTransactions } from '@/lib/queries/misc';
+import { useTicketTransactions } from '@/lib/queries/tickets';
+import { isPublicTxType } from '@/lib/transactionTypes';
 import type {
-  ProfileTab, HoldingRow, DbTransaction, DbUserStats,
+  ProfileTab, HoldingRow, DbUserStats,
   ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer,
   UserFantasyResult, DbCreatorFundPayout,
 } from '@/types';
 import type { UseProfileDataParams, ProfileDataResult } from './types';
 
-// Transaction types safe to show publicly
-const PUBLIC_TX_TYPES = new Set([
-  'buy', 'sell', 'ipo_buy', 'fantasy_join', 'fantasy_reward',
-  'bounty_reward', 'research_earning', 'mission_reward',
-  'streak_bonus', 'poll_earning',
-]);
-
 export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfileDataParams): ProfileDataResult {
   const { user } = useUser();
 
-  // ── Data State ──
+  // ── Query Hooks (cached, invalidated by trade/research/poll mutations) ──
+  const txQuery = useTransactions(targetUserId, { limit: 50 });
+  const ticketTxQuery = useTicketTransactions(targetUserId, { limit: 50, enabled: isSelf });
+
+  // ── Data State (non-cached sources) ──
   const [holdings, setHoldings] = useState<HoldingRow[]>([]);
-  const [transactions, setTransactions] = useState<DbTransaction[]>([]);
-  const [ticketTransactions, setTicketTransactions] = useState<import('@/types').DbTicketTransaction[]>([]);
   const [holdingsLoading, setHoldingsLoading] = useState(true);
   const [dataError, setDataError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -80,7 +77,6 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
       try {
         const results = await Promise.allSettled([
           getHoldings(targetUserId),
-          getTransactions(targetUserId, 50),
           getUserStats(targetUserId),
           getFollowerCount(targetUserId),
           getFollowingCount(targetUserId),
@@ -89,22 +85,19 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
           getUserTrades(targetUserId, 10),
           getUserFantasyHistory(targetUserId, 10),
           isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
-          isSelf ? getTicketTransactions(targetUserId, 50) : Promise.resolve([]),
         ]);
         if (!cancelled) {
           setHoldings(val(results[0], []) as HoldingRow[]);
-          setTransactions(val(results[1], []));
-          const stats = val(results[2], null);
+          const stats = val(results[1], null);
           setUserStats(stats);
-          setFollowerCount(val(results[3], 0));
-          setFollowingCount(val(results[4], 0));
-          const researchResult = val(results[5], [] as ResearchPostWithAuthor[]);
+          setFollowerCount(val(results[2], 0));
+          setFollowingCount(val(results[3], 0));
+          const researchResult = val(results[4], [] as ResearchPostWithAuthor[]);
           setMyResearch(isSelf ? researchResult.filter(p => p.is_own) : researchResult.filter(p => p.user_id === targetUserId));
-          setTrackRecord(val(results[6], null));
-          setRecentTrades(val(results[7], []));
-          setFantasyResults(val(results[8], []));
-          setCreatorPayouts(val(results[9], []) as DbCreatorFundPayout[]);
-          setTicketTransactions(val(results[10], []));
+          setTrackRecord(val(results[5], null));
+          setRecentTrades(val(results[6], []));
+          setFantasyResults(val(results[7], []));
+          setCreatorPayouts(val(results[8], []) as DbCreatorFundPayout[]);
           setDataError(false);
 
           if (!tabInitialized && stats) {
@@ -205,15 +198,25 @@ export function useProfileData({ targetUserId, targetProfile, isSelf }: UseProfi
 
   const dimOrder = useMemo(() => getDimensionTabOrder(scores), [scores]);
 
+  // Derive transactions from Query Hooks (cached, auto-invalidated by mutations)
+  const transactions = useMemo(() => txQuery.data ?? [], [txQuery.data]);
+  const ticketTransactions = useMemo(() => ticketTxQuery.data ?? [], [ticketTxQuery.data]);
+
   const publicTransactions = useMemo(
-    () => isSelf ? transactions : transactions.filter(tx => PUBLIC_TX_TYPES.has(tx.type)),
+    () => isSelf ? transactions : transactions.filter(tx => isPublicTxType(tx.type)),
     [transactions, isSelf],
   );
 
-  const retry = useCallback(() => setRetryCount(c => c + 1), []);
+  const retry = useCallback(() => {
+    setRetryCount(c => c + 1);
+    void txQuery.refetch();
+    void ticketTxQuery.refetch();
+  }, [txQuery, ticketTxQuery]);
+
+  const loading = holdingsLoading || txQuery.isLoading || (isSelf && ticketTxQuery.isLoading);
 
   return {
-    loading: holdingsLoading, dataError, retry,
+    loading, dataError, retry,
     holdings, transactions, ticketTransactions, userStats,
     myResearch, trackRecord, recentTrades, fantasyResults,
     creatorPayouts, clubSub,

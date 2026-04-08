@@ -21,11 +21,15 @@ const ONE_MIN = 60 * 1000;
 const TWO_MIN = 2 * 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
 
-export function useTransactions(userId: string | undefined, limit = 10) {
+export function useTransactions(
+  userId: string | undefined,
+  opts: { limit?: number; enabled?: boolean } = {},
+) {
+  const { limit = 50, enabled = true } = opts;
   return useQuery({
     queryKey: qk.transactions.byUser(userId!, limit),
     queryFn: () => getTransactions(userId!, limit),
-    enabled: !!userId,
+    enabled: !!userId && enabled,
     staleTime: TWO_MIN,
   });
 }

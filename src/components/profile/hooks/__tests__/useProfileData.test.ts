@@ -6,7 +6,6 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 // ============================================
 
 const mockGetHoldings = vi.fn().mockResolvedValue([]);
-const mockGetTransactions = vi.fn().mockResolvedValue([]);
 const mockGetUserStats = vi.fn().mockResolvedValue(null);
 const mockGetFollowerCount = vi.fn().mockResolvedValue(0);
 const mockGetFollowingCount = vi.fn().mockResolvedValue(0);
@@ -16,7 +15,6 @@ const mockGetUserTrades = vi.fn().mockResolvedValue([]);
 const mockGetUserFantasyHistory = vi.fn().mockResolvedValue([]);
 const mockGetUserAchievements = vi.fn().mockResolvedValue([]);
 const mockGetMyPayouts = vi.fn().mockResolvedValue([]);
-const mockGetTicketTransactions = vi.fn().mockResolvedValue([]);
 const mockResolveExpiredResearch = vi.fn().mockResolvedValue(0);
 const mockFollowUser = vi.fn().mockResolvedValue(undefined);
 const mockUnfollowUser = vi.fn().mockResolvedValue(undefined);
@@ -25,10 +23,23 @@ const mockRefreshUserStats = vi.fn().mockResolvedValue(undefined);
 const mockCheckAndUnlockAchievements = vi.fn().mockResolvedValue(undefined);
 const mockGetMySubscription = vi.fn().mockResolvedValue(null);
 
+// Query hooks are mocked directly (isolate from React Query + Supabase env)
+const mockUseTransactions = vi.fn();
+const mockUseTicketTransactions = vi.fn();
+const mockTxRefetch = vi.fn();
+const mockTicketTxRefetch = vi.fn();
+
 vi.mock('@/lib/services/wallet', () => ({
   getHoldings: (...a: any[]) => mockGetHoldings(...a),
-  getTransactions: (...a: any[]) => mockGetTransactions(...a),
   formatScout: (v: number) => `${v}`,
+}));
+
+vi.mock('@/lib/queries/misc', () => ({
+  useTransactions: (...a: any[]) => mockUseTransactions(...a),
+}));
+
+vi.mock('@/lib/queries/tickets', () => ({
+  useTicketTransactions: (...a: any[]) => mockUseTicketTransactions(...a),
 }));
 
 vi.mock('@/lib/services/social', () => ({
@@ -55,10 +66,6 @@ vi.mock('@/lib/services/trading', () => ({
 
 vi.mock('@/lib/services/lineups', () => ({
   getUserFantasyHistory: (...a: any[]) => mockGetUserFantasyHistory(...a),
-}));
-
-vi.mock('@/lib/services/tickets', () => ({
-  getTicketTransactions: (...a: any[]) => mockGetTicketTransactions(...a),
 }));
 
 vi.mock('@/lib/services/creatorFund', () => ({
@@ -121,7 +128,6 @@ describe('useProfileData', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetHoldings.mockResolvedValue([]);
-    mockGetTransactions.mockResolvedValue([]);
     mockGetUserStats.mockResolvedValue(null);
     mockGetFollowerCount.mockResolvedValue(0);
     mockGetFollowingCount.mockResolvedValue(0);
@@ -131,8 +137,9 @@ describe('useProfileData', () => {
     mockGetUserFantasyHistory.mockResolvedValue([]);
     mockGetUserAchievements.mockResolvedValue([]);
     mockGetMyPayouts.mockResolvedValue([]);
-    mockGetTicketTransactions.mockResolvedValue([]);
     mockCheckIsFollowing.mockResolvedValue(false);
+    mockUseTransactions.mockReturnValue({ data: [], isLoading: false, refetch: mockTxRefetch });
+    mockUseTicketTransactions.mockReturnValue({ data: [], isLoading: false, refetch: mockTicketTxRefetch });
   });
 
   // ── Loading States ──
@@ -166,7 +173,7 @@ describe('useProfileData', () => {
     const { result } = renderHook(() => useProfileData(SELF_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(mockGetHoldings).toHaveBeenCalledWith('u-self');
-    expect(mockGetTransactions).toHaveBeenCalledWith('u-self', 50);
+    expect(mockUseTransactions).toHaveBeenCalledWith('u-self', { limit: 50 });
     expect(mockGetUserStats).toHaveBeenCalledWith('u-self');
     expect(mockGetFollowerCount).toHaveBeenCalledWith('u-self');
     expect(mockGetFollowingCount).toHaveBeenCalledWith('u-self');
@@ -176,7 +183,7 @@ describe('useProfileData', () => {
     const { result } = renderHook(() => useProfileData(SELF_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(mockGetMyPayouts).toHaveBeenCalledWith('u-self');
-    expect(mockGetTicketTransactions).toHaveBeenCalledWith('u-self', 50);
+    expect(mockUseTicketTransactions).toHaveBeenCalledWith('u-self', { limit: 50, enabled: true });
     expect(mockResolveExpiredResearch).toHaveBeenCalled();
   });
 
@@ -224,11 +231,15 @@ describe('useProfileData', () => {
   // ── Public Transactions ──
 
   it('filters public transactions for other users', async () => {
-    mockGetTransactions.mockResolvedValue([
-      { type: 'buy', id: '1' },
-      { type: 'deposit', id: '2' },
-      { type: 'sell', id: '3' },
-    ]);
+    mockUseTransactions.mockReturnValue({
+      data: [
+        { type: 'buy', id: '1' },
+        { type: 'deposit', id: '2' },
+        { type: 'sell', id: '3' },
+      ],
+      isLoading: false,
+      refetch: mockTxRefetch,
+    });
     const { result } = renderHook(() => useProfileData(OTHER_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.publicTransactions).toHaveLength(2);
@@ -236,10 +247,14 @@ describe('useProfileData', () => {
   });
 
   it('shows all transactions for self', async () => {
-    mockGetTransactions.mockResolvedValue([
-      { type: 'buy', id: '1' },
-      { type: 'deposit', id: '2' },
-    ]);
+    mockUseTransactions.mockReturnValue({
+      data: [
+        { type: 'buy', id: '1' },
+        { type: 'deposit', id: '2' },
+      ],
+      isLoading: false,
+      refetch: mockTxRefetch,
+    });
     const { result } = renderHook(() => useProfileData(SELF_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.publicTransactions).toHaveLength(2);
@@ -342,6 +357,8 @@ describe('useProfileData', () => {
 
     act(() => result.current.retry());
     await waitFor(() => expect(mockGetHoldings).toHaveBeenCalledTimes(2));
+    expect(mockTxRefetch).toHaveBeenCalled();
+    expect(mockTicketTxRefetch).toHaveBeenCalled();
   });
 
   // ── Streak (self only) ──

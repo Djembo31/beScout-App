@@ -17,11 +17,15 @@ export function useUserTickets(userId: string | undefined, active = true) {
 }
 
 /** Fetch ticket transaction history */
-export function useTicketTransactions(userId: string | undefined, limit = 20) {
+export function useTicketTransactions(
+  userId: string | undefined,
+  opts: { limit?: number; enabled?: boolean } = {},
+) {
+  const { limit = 50, enabled = true } = opts;
   return useQuery({
     queryKey: qk.tickets.transactions(userId!, limit),
     queryFn: () => getTicketTransactions(userId!, limit),
-    enabled: !!userId,
+    enabled: !!userId && enabled,
     staleTime: THIRTY_SEC,
   });
 }
