@@ -1,3 +1,0 @@
-**2026-04-02 — Smoke Test** / `grep -oP` with `\K` (Perl regex lookahead reset) silently fails on Windows Git Bash due to locale issue ("supports only unibyte and UTF-8 locales"). All 4 hooks (auto-lint, file-size-warning, safety-guard, track-file-changes) were broken since creation. Fix: use `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'` instead. / Confidence: high
-**PROMOTED** → common-errors.md (Shell / Hooks section) — 2026-04-03
-**REVIEWED** → Verified in common-errors.md L72-73. Draft closed.

@@ -30,3 +30,10 @@ globs: ["src/**/*.test.ts", "src/**/*.test.tsx", "tests/**/*"]
 - `npx vitest run src/lib/services/` — nur Services
 - `npx vitest --watch` — Watch Mode fuer Development
 - `npx tsc --noEmit` — IMMER zusammen mit Tests ausfuehren
+
+## Visual QA / Playwright
+- Bei Multi-Page-Refactors: starte QA mit der Page die am MEISTEN Aenderungen erwartet — die faellt am schnellsten um und zeigt Integration-Gaps
+- Default-Tab Pages (z.B. `/profile` zeigt standardmaessig einen Tab): explizit durch alle Tabs klicken, `fullPage` Screenshot deckt nur den Default ab
+- Deep-Link Tab-Params NIE raten — immer Component-Source pruefen fuer den echten URL-Param-Namen
+- qa-visual Agent hat KEINE Playwright MCP Tools — nutze `npx tsx e2e/qa-*.ts` mit `@playwright/test` chromium API. Template: `e2e/screenshot-home.ts`
+- jarvis-qa Password: `e2e/mystery-box-qa.spec.ts:5` (nicht in .env.local)
