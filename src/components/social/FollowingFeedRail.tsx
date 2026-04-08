@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, ArrowUp } from 'lucide-react';
 import { useFollowingFeed } from '@/lib/queries/social';
 import { formatTimeAgo } from '@/lib/utils';
 import { Skeleton, ErrorState } from '@/components/ui';
@@ -26,7 +26,14 @@ type Props = {
 
 export default function FollowingFeedRail({ userId, players, limit = 5 }: Props) {
   const t = useTranslations('feed');
-  const { data: feed, isLoading, isError, refetch } = useFollowingFeed(userId, limit);
+  const {
+    data: feed,
+    isLoading,
+    isError,
+    refetch,
+    pendingCount,
+    applyPending,
+  } = useFollowingFeed(userId, limit);
 
   // Player lookup map for trade action enrichment
   const playerMap = useMemo(
@@ -99,6 +106,17 @@ export default function FollowingFeedRail({ userId, players, limit = 5 }: Props)
   return (
     <div>
       <SectionHeader title={t('scoutActivity')} />
+      {pendingCount > 0 && (
+        <button
+          type="button"
+          onClick={applyPending}
+          className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-xs font-bold text-gold hover:bg-gold/15 hover:border-gold/40 active:scale-[0.98] transition-colors min-h-[40px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
+          aria-label={t('newActivities', { count: pendingCount })}
+        >
+          <ArrowUp className="size-3.5" aria-hidden="true" />
+          {t('newActivities', { count: pendingCount })}
+        </button>
+      )}
       <div className="mt-3 space-y-2">
         {visibleItems.map((item) => (
           <FeedItemCard key={item.id} item={item} playerMap={playerMap} t={t} />

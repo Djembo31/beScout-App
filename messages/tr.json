@@ -4400,6 +4400,7 @@
     "empty": "Diğer scoutların ne yaptığını görmek için onları takip et.",
     "emptyCta": "Scoutları keşfet",
     "justNow": "şimdi",
+    "newActivities": "{count, plural, =1 {# yeni aktivite} other {# yeni aktivite}}",
     "actions": {
       "trade_buy": "{player} aldı",
       "trade_buy_generic": "bir oyuncu aldı",

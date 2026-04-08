@@ -4400,6 +4400,7 @@
     "empty": "Folge anderen Scouts, um zu sehen, was sie tun.",
     "emptyCta": "Scouts entdecken",
     "justNow": "jetzt",
+    "newActivities": "{count, plural, =1 {# neue Aktivität} other {# neue Aktivitäten}}",
     "actions": {
       "trade_buy": "hat {player} gekauft",
       "trade_buy_generic": "hat einen Spieler gekauft",

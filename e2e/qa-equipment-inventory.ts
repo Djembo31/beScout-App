@@ -5,7 +5,7 @@ import fs from 'fs';
 const screenshotDir = path.join(__dirname, 'screenshots', 'equipment');
 fs.mkdirSync(screenshotDir, { recursive: true });
 
-const BASE = 'http://localhost:3000';
+const BASE = process.env.QA_BASE_URL ?? 'http://localhost:3000';
 const EMAIL = 'jarvis-qa@bescout.net';
 const PASSWORD = 'JarvisQA2026!';
 
