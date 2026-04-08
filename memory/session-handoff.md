@@ -42,8 +42,7 @@ Begleitend: `useLineupSave` Hook (9763f95) + 26 neue Unit-Tests (d9c1a5a).
 ## Build Status (final)
 - `tsc --noEmit`: CLEAN
 - vitest lokal (voll): **2347/2347 gruen** (170 Files)
-- vitest CI-mode (`CI=1`): **2190/2190 gruen + 1 skipped** (154 Files, Integration-Tests excluded)
-- CI Pipeline: **lint ✓, build ✓, test ✓** auf SHA 868b8ce
+- CI Pipeline: **lint ✓, build ✓, test ✓** auf SHA d1e2feb — **170/170 Files, 2346 Tests passed + 1 skipped, identisch zu lokal** (Integration-Tests laufen jetzt auch im CI seit SUPABASE_SERVICE_ROLE_KEY Secret gesetzt ist)
 - ESLint manager+fantasy: 0 errors, 7 pre-existing warnings
 
 ## Stand jetzt — keine offenen Krümel
@@ -61,9 +60,8 @@ Begleitend: `useLineupSave` Hook (9763f95) + 26 neue Unit-Tests (d9c1a5a).
 
 ### Was koennte als naechstes kommen
 - Keine kritischen offenen Punkte.
-- Optional: GitHub Secret `SUPABASE_SERVICE_ROLE_KEY` hinzufuegen → dann wuerden die 16 Integration-Tests auch im CI laufen (aktuell skipped mit ordentlicher Erklaerung in vitest.config.ts).
 - Optional: Node.js 20 → 24 Upgrade in CI workflows (GitHub deprecation Warning, September 2026 deadline).
-- Optional: 7 pre-existing ESLint Warnings aufräumen (PitchView `<img>` → `next/image`, useLineupBuilder exhaustive-deps explicit disable mit comment).
+- Optional: 7 pre-existing ESLint Warnings aufraeumen (PitchView `<img>` → `next/image`, useLineupBuilder exhaustive-deps explicit disable mit comment).
 - Naechste Feature-Arbeit: leer, Anil waehlt Prio.
 
 ## Wichtige Dateien fuer naechste Session
@@ -95,8 +93,8 @@ Lokal lief die falsche Version weil echter DB-Call erfolgreich war. Im CI ohne e
 ### Wave 5 T5.1 — Plan-Abweichung legitim
 Plan sah Loeschung von `intel/{Stats,Form,Markt}Tab.tsx` vor (Logik in PlayerDetailModal kopieren). Tatsaechlich: dynamic-imported als shared deps. DRY > Plan-Treue.
 
-### Integration-Tests im CI
-16 Test-Files treffen die echte prod Supabase DB. Brauchen `SUPABASE_SERVICE_ROLE_KEY`, der nicht als GitHub Secret existiert (nur ANON_KEY ist gesetzt). Die vitest.config.ts excludiert sie bei `CI=true && !SUPABASE_SERVICE_ROLE_KEY`. Lokal laufen sie ganz normal. Zum Aktivieren im CI: GitHub Secret anlegen + ci.yml test job mit `env:` block ausstatten.
+### Integration-Tests im CI (active seit d1e2feb)
+16 Test-Files treffen die echte prod Supabase DB. Brauchen `SUPABASE_SERVICE_ROLE_KEY` — jetzt als GitHub Secret gesetzt (Session 2026-04-08). `ci.yml` test job bekommt via `env:` block alle drei Supabase vars (URL + ANON_KEY + SERVICE_ROLE_KEY). Volle 170/170 Files laufen im CI, identisch zu lokal. Die defensive exclusion in `vitest.config.ts` (`CI=true && !SUPABASE_SERVICE_ROLE_KEY`) bleibt als Fallback fuer PRs von forks oder kuenftige Umgebungen ohne Secret.
 
 ## QA Account (unveraendert)
 - Email: jarvis-qa@bescout.net / Handle: jarvisqa
