@@ -1,175 +1,114 @@
 # Session Handoff
-## Letzte Session: 2026-04-07 (Abend, ~3h)
+## Letzte Session: 2026-04-08 (Mittag, Wave-5 Cleanup + Visual QA)
 
-## Was wurde gemacht (10 Commits, alle gepusht)
+## Was wurde gemacht heute
 
-### Block 1: P1-P3 Bug Fixes (4 Commits)
+### Vor der Session bereits committed (Manager Team-Center Wave 0–5)
+Die Manager Migration ist KOMPLETT. Alle 6 Waves (0/1+2/3/4/5) auf prod (https://www.bescout.net) deployt.
 
-**1. UX Fix Quick Actions Bar — `4e8ed7c`**
-- `src/app/(app)/hooks/useHomeData.ts:174` 1-line change
-- `showQuickActions = !!uid` (vorher nur wenn Onboarding fertig)
-- Early-Stage User (1/5) sehen jetzt den Inventar-Link auf Home
-- Verifiziert auf prod (jarvis-qa)
+| Wave | Inhalt | Commits |
+|------|--------|---------|
+| 0 | Hook Extraction `useLineupBuilder` aus EventDetailModal | 8553968 + cae9326 (Race-Fix smoke) |
+| 1+2 | Foundation Skeleton + 3-Tab Hub + Kader Migration aus /market | 461d021, a80abb5, c0dadca, 27b36c3 |
+| 3 | Aufstellen-Tab mit Direct Event Join (EventSelector) | bbe6086, 4911ce0 |
+| 4 | Historie-Tab + HistoryStats + Filter + W4.4 Cross-Tab Action | 8ee4c0f, 5777788 |
+| 5 | Cleanup, Refactor, Tests, Code Review Polish | 9646ec2, cb4ce3f, 4a300c1, 9763f95, d9c1a5a |
 
-**2. score_event RPC 0-Lineup Fix — `e3d1cda`**
-- Migration: `20260407190000_score_event_no_lineups_handling.sql`
-- **Bug:** Wenn `current_entries > 0` (User zahlt) aber `lineups = 0` (kein Submit), returned RPC error → `scored_at` blieb NULL → Event orphaned
-- **Root Cause:** `current_entries` zaehlt event_entries (Bezahlung), Scoring iteriert lineups (Submission). Nicht equivalent.
-- **Fix:** Bei `v_scored_count = 0` set status='ended' + scored_at + return success+note='no_lineups'
-- 1 Phantom Event geclosed (Sakaryaspor Fan Cup GW33)
-- 31/31 scoring-v2 Tests gruen
+Begleitend: `useLineupSave` Hook extrahiert (DRY zwischen EventDetailModal und AufstellenTab — Commit 9763f95). 26 neue Unit-Tests fuer pure helpers (eventHelpers + historieHelpers — Commit d9c1a5a).
 
-**3. Tailwind features-scan Fix — `158ebcd`** ⚠️ CRITICAL FIND
-- `tailwind.config.ts` content paths: `src/features/**` hinzugefuegt
-- **Bug:** Tailwind JIT scannte nur `pages`/`components`/`app`. Klassen nur in `src/features/**` (118 Files) wurden silent NICHT generiert.
-- Discovered durch Manager Desktop Layout Bug: `lg:flex-row` in ManagerContent.tsx war nicht im CSS Bundle
-- **Impact:** Hat potentiell viele andere stille CSS-Bugs in fantasy/manager/market features gefixt
-- **Lesson:** Bei jedem neuen Feature-Folder content paths in tailwind.config pruefen
+### Diese Session: Final Sweep + Visual QA
 
-**4. Manager Desktop Layout Side-by-Side — `158ebcd` (kombinierter fix)**
-- War Folge des Tailwind features-Scans Fix
-- Pitch + IntelPanel jetzt korrekt nebeneinander auf Desktop ≥lg
+**1. Baseline verifiziert**
+- `tsc --noEmit`: clean
+- vitest run (volle Suite): 2 pre-existing failures gefunden + gefixt:
+  - `AchievementUnlockModal.test.tsx` erwartete `/profile?tab=overview`, Code zeigt seit 3-Hub Refactor `/missions`. Test angepasst.
+  - `business-flows.test.ts` FLOW-11 stiess auf "Sakaryaspor Fan Cup" (current_entries=1, lineups=0). Das ist genau der edge case der `score_event_no_lineups_handling` Migration. Test ergaenzt: ended events mit `lineups=0 AND scored_at IS NOT NULL` werden uebersprungen.
+- Resultat: **170/170 Test Files, 2347/2347 Tests gruen.**
 
-### Block 2: Cleanup + Features (3 Commits)
+**2. Visual QA Mobile 390px + Desktop 1280px (Wave 5 T5.3)**
+- Alle 3 Tabs (Aufstellen / Kader / Historie) auf beiden Viewports gerendert und screenshot-verifiziert
+- BottomNav Manager-Item active state OK
+- 0 Console-Errors auf /manager
+- Screenshots: `qa-manager-mobile-{aufstellen,kader,historie}.png` + `qa-manager-desktop-{aufstellen,kader,historie}.png` im Repo-Root
+- **Issue gefunden:** PageHeader Pill 3 zeigte permanent "Kein Event" obwohl ein offenes Event existierte. Root cause: `nextEvent={null}` hardcoded in `src/features/manager/components/ManagerContent.tsx`.
+- **Fix:** `useOpenEvents()` Query eingebaut, erstes (frueheste startTime) Event als `nextEvent={id,name,startTime}` an PageHeader gereicht. tsc clean. Wartet auf Deploy zum visuellen Beweis.
 
-**5. KaderTab Cleanup — `5d3124d`**
-- 7 Files geloescht (KaderTab + useKaderState + SquadSummaryStats + 3 Tests)
-- −1662 LOC (15 KB)
-- Nur Self-Test importierte sie noch
-- bestandHelpers.tsx Comments aufgeraeumt
+**3. Final Cleanup (Wave 5 T5.4)**
+- 0 `console.log`/`console.debug` in features/manager + features/fantasy
+- 0 TODO/FIXME/HACK in features/manager
+- 0 ESLint errors. 7 Warnings (5x `<img>` in PitchView.tsx, 2x exhaustive-deps in useLineupBuilder.ts) — alle pre-existing, intentional, non-blocking.
+- Stale `smoke-mid1.yml` (965 Zeilen Playwright Snapshot Artefakt) im Repo-Root geloescht.
 
-**6. BottomNav 5 → 7 Items horizontal scroll — `c0feef0`**
-- Items: Home / Spieltag / Manager / Markt / Missionen / Inventar / Community
-- `flex items-center gap-1 ... overflow-x-auto scrollbar-hide snap-x snap-mandatory`
-- `w-[72px] flex-shrink-0` pro Item
-- /inventory + /missions zeigen jetzt korrekten Active-State (war kein Item active)
-- i18n DE+TR
-- Test 4/4 gruen
+**4. Plan-Doc aktualisiert**
+- `docs/plans/2026-04-07-manager-team-center-plan.md`: PLAN GATE Checklist abgehakt, Status-Block (Waves 0–5) + Visual QA Findings + Cleanup Findings hinzugefuegt.
 
-**7. Equipment Detail-View — `27811d3`**
-- Neue `EquipmentDetailModal.tsx` (~200 LOC)
-- Tap auf Equipment-Card oeffnet Modal mit:
-  - Big Icon + Multiplier (×1.10) prominent
-  - Description (DE) — war hidden
-  - Stats Grid: Position / Rank R/4 / Stack / Status
-  - Quelle (Mystery Box / Achievement / etc) + Acquired-Date
-- Mobile = Bottom-Sheet, Desktop = Modal (auto via Modal Component)
-- Cards sind jetzt `<button>` mit aria-label + active scale + focus ring
-- 15 neue i18n Keys DE+TR
-
-### Block 3: Manager Team-Center Spec Process (4 Commits)
-
-Anil zur aktuellen `/manager` Page: "Schrott, kein User-Nutzen. Sandbox ohne Output."
-
-**8. Brainstorm Design — `4bdb3ad`**
-- `docs/plans/2026-04-07-manager-team-center-design.md` (427 Zeilen)
-- Process: `superpowers:brainstorming` Skill
-- Vision: 3-Tab Hub
-  - Tab 1 Aufstellen: LineupPanel (recycled aus EventDetailModal) + EventSelector + Direct Event Join
-  - Tab 2 Kader: BestandTab migriert von /market mit Lens-System
-  - Tab 3 Historie: getUserFantasyHistory mit lazy Lineup-Detail
-- **Decision A:** Bestand wandert vollstaendig von /market nach /manager (loest Duplicate-Konflikt)
-- Konkurrenten-Vergleich: Sorare/FPL/FM/DraftKings — niemand hat Sandbox-Lineup ohne Wirkung
-- 5 Waves Migration Plan, jede shippable
-
-**9. SPEC Phase 1 — `b83ff58`**
-- `docs/plans/2026-04-07-manager-team-center-spec.md` (849 Zeilen)
-- Process: `/spec` Skill Phase 1
-- 1.1 Current State: 46 Features inventariert (15 MA + 14 BT + 15 LP + 2 FH)
-- 1.2 Goals (6) + Non-Goals (12) + Anti-Requirements (8)
-- 1.3 Migration Map: 54 Features mit Action (Move/Stays/Remove/Merge/Replace/Reuse/New)
-- 1.4 Blast Radius: 7 Areas + 4 Cross-Over Analyses
-- 1.5 Pre-Mortem: 12 Failure Scenarios
-- 1.6 Invarianten (12) + Constraints (12)
-- 1.7 Akzeptanzkriterien: 16 ACs Given/When/Then
-- 6 Open Questions fuer Anil
-
-**10. SPEC GATE PASSED — `756460f`**
-- Anil's Antworten Q1-Q6 integriert:
-  - Q1: expandedClubs nur BestandTab → managerStore
-  - Q2: PortfolioTab Default 'angebote'
-  - Q3: Single Open History Cards (Slidebar als Future Enhancement)
-  - Q4: Stille localStorage Loeschung alte Presets
-  - Q5: Wave 0 dedicated useLineupBuilder Hook Extraction
-  - Q6: mySquadPlayers.length fuer PageHeader Stats
-- SPEC GATE: 9/9 ✓
-
-**11. PLAN Phase 2 — `e5ac3bc`**
-- `docs/plans/2026-04-07-manager-team-center-plan.md` (817 Zeilen)
-- Process: `/spec` Skill Phase 2
-- 6 Waves + 18 Tasks + Agent-Dispatch Regeln
-- PLAN GATE: 8/8 ✓
+### Nicht fix-relevante Findings
+- Homepage zeigt 5 prod-Errors (AuthProvider loadProfile RPC Timeout 3x retry, Wallet Balance fetch Timeout 2x retry). Hat eigene Retry-Logik, UI-Daten kommen trotzdem an. **Separater Issue, nicht Manager-related.**
 
 ## Build Status
 - `tsc --noEmit`: CLEAN
-- Tests: alle gruen (scoring-v2 31/31, BottomNav 4/4, portfolio 17/17)
-- 11 Commits gepusht zu main, alle deployed
-- BescoutNet auf prod verifiziert (Mobile + Desktop, mehrere Rounds)
+- vitest: **2347/2347 gruen** (170 Files)
+- ESLint manager+fantasy: 0 errors, 7 warnings (alle non-blocking pre-existing)
+- 11 Commits seit gestern Abend gepusht zu main (Wave 0 + 1+2 + 3 + 4 + 5 + Refactors)
 
 ## Stand jetzt — wartet auf naechste Session
 
-### PLAN GATE bestanden — bereit fuer Wave 0
+### Manager Team-Center DONE — wartet auf Anil Visual Approval auf prod
 
-Naechste Session startet hier: **Wave 0 — Hook Extraction `useLineupBuilder`**.
+Naechste Session sollte:
+1. **Anil verifiziert /manager auf prod** nach Deploy meines `nextEvent` Pill-Fixes (siehe Diff am Ende dieses Handoffs)
+2. Wenn alles OK: Plan-Doc final als "DELIVERED" markieren
+3. Naechste Prio waehlen:
+   - Pending Learning Drafts reviewen via `/reflect`:
+     - 2026-04-02-smoke-test-hooks-grep.md
+     - 2026-04-02-smoke-test-worktree-skills.md
+     - 2026-04-07-qa-visual-3hub-refactor.md
+   - 38 Sessions → AutoDream Memory Consolidation faellig (Trigger im Morning Briefing)
+   - Homepage Auth/Wallet Timeout Errors investigieren (5 prod errors auf /)
 
-**Wave 0 Risk:** Refactor in EventDetailModal /fantasy. Wenn ein State-Update vergessen wird, koennen User keine Lineups mehr speichern. Wave 0 ist **reines Refactor** — keine neuen Features. Alte Tests muessen alle gruen bleiben. Manueller Smoke Test in /fantasy nach Wave 0 PFLICHT.
+### Uncommitted Diff dieser Session (manuell zu committen)
 
-**Wave 0 Tasks:**
-- T0.1: useLineupBuilder Hook erstellen (Extract State + Handlers aus EventDetailModal Z.51-489)
-- T0.2: EventDetailModal nutzt den Hook (refactor von 637 → ~250 LOC)
-- T0.3: Manueller Smoke Test in /fantasy
+```
+M  src/components/gamification/__tests__/AchievementUnlockModal.test.tsx
+M  src/lib/__tests__/flows/business-flows.test.ts
+M  src/features/manager/components/ManagerContent.tsx
+M  docs/plans/2026-04-07-manager-team-center-plan.md
+M  memory/session-handoff.md
+D  smoke-mid1.yml
+?? qa-manager-{mobile,desktop}-{aufstellen,kader,historie}.png   (6 QA Screenshots — gitignored als /*.png)
+```
 
-**Files Wave 0:**
-- Create: `src/features/fantasy/hooks/useLineupBuilder.ts`
-- Modify: `src/components/fantasy/EventDetailModal.tsx`
-
-**DONE Wave 0 means:**
-- [ ] Hook exportiert mit ~25 Returns
-- [ ] EventDetailModal kompiliert + ist ~440 LOC kuerzer
-- [ ] tsc 0 errors
-- [ ] Alle vorhandenen Tests gruen
-- [ ] Manueller Smoke Test in /fantasy: 1 Lineup join + 1 Lineup edit + 1 Equipment assign + 1 Reset
-
-**Pause-Punkte nach jeder Wave:**
-- Nach W0 → Anil verifiziert /fantasy
-- Nach W1+W2 (Bundle) → Anil verifiziert Manager-Kader
-- Nach W3 → Anil verifiziert Aufstellen
-- Nach W4 → Anil verifiziert Historie
-- W5 → DONE
+Vorgeschlagene Commit-Splits:
+1. `fix(manager)`: PageHeader nextEvent Pill aus useOpenEvents (war hardcoded null) — `ManagerContent.tsx`
+2. `fix(tests)`: AchievementUnlockModal href + business-flows FLOW-11 migration edge case — beide test files
+3. `chore(repo)`: delete stale playwright snapshot smoke-mid1.yml
+4. `docs(manager)`: PLAN GATE done + Wave 0–5 status + visual QA findings — plan.md + handoff.md
 
 ## Wichtige Dateien fuer naechste Session
 
-- `docs/plans/2026-04-07-manager-team-center-design.md` — Brainstorm Output
-- `docs/plans/2026-04-07-manager-team-center-spec.md` — SPEC (54 Features Migration Map)
-- `docs/plans/2026-04-07-manager-team-center-plan.md` — PLAN (6 Waves + 18 Tasks)
-- `src/components/fantasy/EventDetailModal.tsx` — Source fuer Hook Extraction (Z.51-489)
-- `src/components/fantasy/event-tabs/LineupPanel.tsx` — bleibt unangetastet (922 LOC)
+- `docs/plans/2026-04-07-manager-team-center-plan.md` — vollstaendiger Status, Findings, Anweisungen
+- `src/features/manager/components/ManagerContent.tsx` — der Fix
+- `src/features/manager/components/PageHeader.tsx` — die Konsumentenseite
+- `src/features/manager/queries/eventQueries.ts` — `useOpenEvents()` Hook
 
 ## Architektur-Notizen
 
-### Tailwind features-scan Bug
-- `tailwind.config.ts` `content` muss `src/features/**` enthalten
-- Bei jedem neuen Top-Level Folder mit React Components → content paths pruefen
-- JIT generiert nur Klassen die es findet — fehlende paths = silent CSS bugs
-- Heute: Manager Desktop Layout Bug exposed dies, fixed mit 1-Zeilen-Aenderung
-- Latente Risiko: andere features-only Klassen koennten betroffen sein, sichtbar nur wenn jemand sie testet
+### Hardcoded null Anti-Pattern
+Vor dem Fix:
+```tsx
+<PageHeader squadCount={...} healthCounts={...} nextEvent={null} loading={...} />
+```
 
-### score_event 0-Lineup Pattern
-- `current_entries` = paid event_entries
-- `lineups` = submitted lineups
-- Diese 2 sind NICHT equivalent — User kann zahlen aber nie submitten
-- Scoring loops `lineups`, also Filter mit `current_entries > 0` ist falscher Indikator
-- Heute fix: 0-lineup events werden gracefully closed mit success+note='no_lineups'
+Symptom: Pille rendert visuell, zeigt aber semantisch "Kein Event" obwohl Events existieren. SPEC AC1 (Z.577) verlangt aber Event-Pill mit Name + Countdown + Tap → Tab Wechsel.
 
-### 3-Hub-Konsequenz im Mobile Nav
-- /inventory + /missions sind first-class Destinations seit 3-Hub Refactor
-- BottomNav muss sie zeigen — sonst sehen User auf diesen Pages keinen Hierarchie-Anker
-- 7 Items in horizontalem Snap-Scroll ist die Loesung
-- Per-Item: 72px width, fits ~5 visible auf 360px viewport
+Lehre: **Wenn ein Component Prop entstanden ist (PageHeader.nextEvent), MUSS er in der Implementation real verbunden sein.** Hardcoded null ist kein neutraler Default — es ist eine semantische Luege gegenueber dem User.
+
+### Wave 5 T5.1 — Plan-Abweichung legitim
+Plan sah Loeschung von `intel/{Stats,Form,Markt}Tab.tsx` vor (Logik nach `kader/PlayerDetailModal.tsx` kopieren). Tatsaechlich: dynamic-imported als shared deps. Vorteile: kein Code-Duplikat, kein doppelter Maintenance-Burden. Anti-Pattern (premature copy-paste) vermieden.
 
 ## QA Account (unveraendert)
 - Email: jarvis-qa@bescout.net / Handle: jarvisqa
 - Password: `JarvisQA2026!` (in `e2e/mystery-box-qa.spec.ts:5`)
-- ~7.540 CR, 8 Holdings, 7 Equipment Items
-- Onboarding 1/5, Streak 5 Tage
-- 1 Manager-Lineup (von letzter Session)
+- ~7.540 CR, 8 Holdings, 38 Tickets
+- Onboarding 1/5, Streak 6 Tage
+- 1 Manager-Lineup (Sakaryaspor Fan Challenge GW34)
