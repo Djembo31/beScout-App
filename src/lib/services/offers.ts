@@ -211,7 +211,7 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
 
     // Mission progress: daily trade + weekly trades (matches buyFromOrder pattern)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+      triggerMissionProgress(userId, ['daily_trade_2', 'weekly_trade_5']);
     }).catch(err => console.error('[Offers] Mission tracking failed:', err));
   }
 

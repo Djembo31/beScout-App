@@ -122,9 +122,9 @@ export async function buyFromIpo(
     import('@/lib/services/referral').then(({ triggerReferralReward }) => {
       triggerReferralReward(userId);
     }).catch(err => console.error('[IPO] Referral reward failed:', err));
-    // Mission progress: first IPO buy + daily trade + weekly trades
+    // Mission progress: daily trade + weekly trades + daily buy (IPO is also a buy)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(userId, ['first_ipo_buy', 'daily_trade', 'weekly_5_trades']);
+      triggerMissionProgress(userId, ['daily_trade_2', 'weekly_trade_5', 'daily_buy_1']);
     }).catch(err => console.error('[IPO] Mission tracking failed:', err));
     // Notification: IPO purchase confirmed (fire-and-forget)
     import('@/lib/services/notifications').then(({ createNotification }) => {

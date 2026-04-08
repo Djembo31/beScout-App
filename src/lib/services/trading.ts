@@ -129,9 +129,9 @@ export async function buyFromMarket(
         } catch (err) { console.error('[Trade] Seller notification failed:', err); }
       })();
     }
-    // Mission progress: daily trade + weekly trades
+    // Mission progress: buy side (buy, trade count, weekly trades)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+      triggerMissionProgress(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
     }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   }
   return result;
@@ -176,10 +176,10 @@ export async function placeSellOrder(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_sell', 'trading', { playerId, quantity, priceCents });
   }).catch(err => console.error('[Trade] Activity log failed:', err));
-  // Mission progress: daily trade + weekly trades (listing counts as trading activity)
+  // Mission progress: sell side (sell, trade count, weekly trades)
   if (result.success) {
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+      triggerMissionProgress(userId, ['daily_sell_1', 'daily_trade_2', 'weekly_trade_5']);
     }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   }
   return result;
@@ -252,7 +252,7 @@ export async function buyFromOrder(
     })();
     // Mission progress: daily trade + weekly trades
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(buyerId, ['daily_trade', 'weekly_5_trades']);
+      triggerMissionProgress(buyerId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
     }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   }
   return result;
@@ -483,9 +483,9 @@ export async function placeBuyOrder(
       });
     }).catch(err => console.error('[Trade] Activity log failed:', err));
 
-    // Mission progress
+    // Mission progress: buy order placed (counts as buy intent)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+      triggerMissionProgress(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
     }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   }
 
