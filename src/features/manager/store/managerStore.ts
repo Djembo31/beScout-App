@@ -9,6 +9,16 @@ export type HistoryFormatFilter = 'all' | '11er' | '7er';
 export type HistoryStatusFilter = 'all' | 'top3' | 'top10' | 'other';
 export type HistorySort = 'date' | 'score' | 'rank' | 'reward';
 
+/** One-shot template to apply a historical lineup to the current Aufstellen event.
+ *  Set by HistoryEventCard, consumed + cleared by AufstellenTab. */
+export type ApplyLineupTemplate = {
+  format: '7er' | '11er';
+  formation: string;
+  /** Slot index (0..6 for 7er, 0..10 for 11er) → playerId */
+  slotPlayerIds: Record<number, string>;
+  sourceEventId: string;
+};
+
 // ── Cleanup: clear stale localStorage keys from old sandbox-store ──
 // Old keys are no longer used; left here for one release cycle of safe cleanup.
 if (typeof window !== 'undefined') {
@@ -52,6 +62,10 @@ interface ManagerState {
   setHistoryStatusFilter: (v: HistoryStatusFilter) => void;
   setHistorySort: (v: HistorySort) => void;
   setExpandedHistoryEventId: (id: string | null) => void;
+
+  // Cross-tab apply (Historie → Aufstellen)
+  applyLineupTemplate: ApplyLineupTemplate | null;
+  setApplyLineupTemplate: (template: ApplyLineupTemplate | null) => void;
 }
 
 export const useManagerStore = create<ManagerState>((set) => ({
@@ -91,4 +105,8 @@ export const useManagerStore = create<ManagerState>((set) => ({
   setHistoryStatusFilter: (historyStatusFilter) => set({ historyStatusFilter }),
   setHistorySort: (historySort) => set({ historySort }),
   setExpandedHistoryEventId: (expandedHistoryEventId) => set({ expandedHistoryEventId }),
+
+  // ── Cross-tab apply ──
+  applyLineupTemplate: null,
+  setApplyLineupTemplate: (applyLineupTemplate) => set({ applyLineupTemplate }),
 }));

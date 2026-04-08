@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/components/providers/ToastProvider';
 import { qk } from '@/lib/queries/keys';
 import { equipToSlot } from '@/lib/services/equipment';
 import { useManagerStore } from '../../store/managerStore';
@@ -15,6 +16,7 @@ import { useFantasyHoldings } from '@/features/fantasy/hooks/useFantasyHoldings'
 import { useFixtureDeadlines } from '@/features/fantasy/hooks/useFixtureDeadlines';
 import { useEventActions } from '@/features/fantasy/hooks/useEventActions';
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
+import type { LineupPlayer } from '@/features/fantasy/types';
 import EventSelector from './EventSelector';
 
 // Lazy-loaded heavy panels (mirrors EventDetailModal)
@@ -65,6 +67,84 @@ export default function AufstellenTab() {
   // ==================== Trade actions (join + submit) ====================
   // useEventActions requires clubId for fee-config; fall back to '' for global events.
   const { joinEvent, submitLineup, leaveEvent } = useEventActions(effectiveEvent?.clubId ?? '');
+
+  // ==================== Apply lineup template (cross-tab from Historie) ====================
+  const applyTemplate = useManagerStore((s) => s.applyLineupTemplate);
+  const setApplyTemplate = useManagerStore((s) => s.setApplyLineupTemplate);
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    if (!applyTemplate) return;
+    if (!effectiveEvent) return; // wait until an event is resolved
+    if (lb.formationSlots.length === 0) return; // wait until lb is computed
+
+    // Detect target format from current formation slots count
+    const targetFormat: '7er' | '11er' = lb.formationSlots.length === 7 ? '7er' : '11er';
+
+    // Format mismatch — can't safely map
+    if (applyTemplate.format !== targetFormat) {
+      addToast(
+        t('applyFormatMismatch', {
+          defaultValue: 'Format passt nicht (Quelle {src}, Ziel {tgt}). Aufstellung nicht übernommen.',
+          src: applyTemplate.format,
+          tgt: targetFormat,
+        }),
+        'error',
+      );
+      setApplyTemplate(null);
+      return;
+    }
+
+    // Switch to source formation if it exists in target's available formations
+    const matchedFormation = lb.availableFormations.find((f) => f.id === applyTemplate.formation);
+    if (matchedFormation && lb.selectedFormation !== matchedFormation.id) {
+      lb.handleFormationChange(matchedFormation.id);
+      // Wait for formation slots to recompute on next render
+      return;
+    }
+
+    // Build LineupPlayer[] from template, filtering by ownership + lock status
+    const lineup: LineupPlayer[] = [];
+    let missing = 0;
+    lb.formationSlots.forEach((slot, idx) => {
+      const playerId = applyTemplate.slotPlayerIds[idx];
+      if (!playerId) return;
+      const holding = lb.effectiveHoldings.find((h) => h.id === playerId);
+      const locked = lb.isPlayerLocked(playerId);
+      if (!holding || holding.dpcAvailable <= 0 || locked) {
+        missing++;
+        return;
+      }
+      lineup.push({
+        playerId,
+        position: slot.pos,
+        slot: idx,
+        isLocked: false,
+      });
+    });
+
+    if (lineup.length > 0) {
+      lb.handleApplyPreset(lb.selectedFormation, lineup);
+    }
+
+    if (missing > 0) {
+      addToast(
+        t('applyMissingPlayers', {
+          defaultValue: '{count} Spieler nicht mehr verfügbar — manuell ergänzen',
+          count: missing,
+        }),
+        'info',
+      );
+    } else {
+      addToast(
+        t('applySuccess', { defaultValue: 'Aufstellung übernommen — vor Save prüfen' }),
+        'success',
+      );
+    }
+
+    setApplyTemplate(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lb.handleApplyPreset/handleFormationChange identity stable; t/addToast stable
+  }, [applyTemplate, effectiveEvent, lb.formationSlots, lb.selectedFormation, lb.availableFormations, lb.effectiveHoldings]);
 
   // ==================== Save flow (mirrors EventDetailModal handleSaveLineup) ====================
   const [joining, setJoining] = useState(false);

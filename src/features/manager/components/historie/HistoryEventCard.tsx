@@ -2,14 +2,16 @@
 
 import { useMemo } from 'react';
 import Image from 'next/image';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
-  ChevronDown, ChevronRight, Trophy, Crown, Loader2, Calendar,
+  ChevronDown, ChevronRight, Trophy, Crown, Loader2, Calendar, ArrowRight,
 } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
-import { useManagerStore } from '../../store/managerStore';
+import { useManagerStore, type ApplyLineupTemplate } from '../../store/managerStore';
 import { useLineupSnapshot } from '../../queries/historyQueries';
 import { useManagerData } from '../../hooks/useManagerData';
+import { useOpenEvents, pickDefaultEvent } from '../../queries/eventQueries';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getFormationsForFormat, buildSlotDbKeys } from '@/features/fantasy/constants';
 import type { UserFantasyResult } from '@/types';
@@ -38,9 +40,18 @@ function formatDate(iso: string): string {
 
 function LineupView({ eventId }: { eventId: string }) {
   const t = useTranslations('manager');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useUser();
   const { data: lineup, isLoading } = useLineupSnapshot(eventId, true);
   const { playerMap } = useManagerData(user?.id);
+
+  const setApplyLineupTemplate = useManagerStore((s) => s.setApplyLineupTemplate);
+  const setActiveTab = useManagerStore((s) => s.setActiveTab);
+  const setSelectedEventId = useManagerStore((s) => s.setSelectedEventId);
+  const selectedEventId = useManagerStore((s) => s.selectedEventId);
+  const { events: openEvents } = useOpenEvents();
 
   if (isLoading) {
     return (
@@ -96,6 +107,34 @@ function LineupView({ eventId }: { eventId: string }) {
     }
   }
 
+  const handleApplyToLineup = () => {
+    // Build template: slotIndex → playerId for non-empty rows
+    const slotPlayerIds: Record<number, string> = {};
+    rows.forEach((row, idx) => {
+      if (row.playerId) slotPlayerIds[idx] = row.playerId;
+    });
+
+    const template: ApplyLineupTemplate = {
+      format,
+      formation: formation.id,
+      slotPlayerIds,
+      sourceEventId: eventId,
+    };
+
+    // If no event selected yet, auto-pick a default open event
+    if (!selectedEventId) {
+      const def = pickDefaultEvent(openEvents);
+      if (def) setSelectedEventId(def.id);
+    }
+
+    // Set template + switch tab (URL + store)
+    setApplyLineupTemplate(template);
+    setActiveTab('aufstellen');
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'aufstellen');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
   return (
     <div className="space-y-1.5 mt-3">
       {rows.map((row, i) => {
@@ -131,6 +170,15 @@ function LineupView({ eventId }: { eventId: string }) {
           </div>
         );
       })}
+
+      <button
+        type="button"
+        onClick={handleApplyToLineup}
+        className="w-full flex items-center justify-center gap-2 mt-3 px-4 py-2.5 min-h-[44px] rounded-xl bg-gold/[0.08] border border-gold/30 text-gold text-sm font-bold hover:bg-gold/[0.12] transition-colors active:scale-[0.98]"
+      >
+        <ArrowRight className="size-4" aria-hidden="true" />
+        {t('applyToLineup', { defaultValue: 'In Aufstellung übernehmen' })}
+      </button>
     </div>
   );
 }
