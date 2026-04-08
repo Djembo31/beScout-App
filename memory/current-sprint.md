@@ -1,25 +1,45 @@
-# Current Sprint — Agent Workflow v2
+# Current Sprint — Pilot Feature Complete
 
-## Stand (2026-04-02, Session 280)
-- **Tests:** tsc 0 Errors, 145+ vitest green
-- **Branch:** main
-- **Migrations:** 299
-- **Agent Team:** v3 + CLS v1.3, CodexReviewer paused, Proactive Scan fixed
+## Stand (2026-04-09, Session-Ende)
 
-## Erledigt (Session 280)
-- Legacy Cleanup: market/ + manager/ geloescht
-- CLS E2E: CEO Auto-Close PASS, Proactive Scan PASS, CodexReviewer FAIL→entfernt
-- Insight Pool Domain-Fix + Constitution als Scan-Quelle
-- Agent Workflow v2 Research: 9 Gamechangers identifiziert
-- SE autonomer Fix: BES-105 (e8e5def, 6 empty catches)
+- **Branch:** main (clean, alles gepusht)
+- **Commits heute:** 7 Stueck (Equipment Inventar v2 + Realtime Following Feed + Migration-Workflow-Regel)
+- **Letzter Commit:** `60ff354` docs(memory): session-handoff for 2026-04-08 evening → 2026-04-09 night
+- **Migrations:** 50 lokal / 31 in remote Registry (drift bewusst dokumentiert, NIE `supabase db push` nutzen)
+- **Tests:** tsc clean, vitest grün (inkl. ipo.test.ts + EventDetailModal.test.tsx die früher rot waren)
+- **Live auf bescout.net:** alles verifiziert als jarvis-qa (mobile + desktop)
 
-## Naechste Prioritaet
-**Agent Workflow v2 Grundsetup** — Anil plant, dann gemeinsame Umsetzung aller 9 Punkte.
+## Alle Hauptthemen DONE
 
-## Board Status
-- 100+ issues, 97+ done
-- CLS v1.3: 36 Constitution, 14 active insights
-- Paperclip: 6 active, 1 paused (CodexReviewer)
+| Feature | Status | Kommentar |
+|---|---|---|
+| Manager Team-Center | ✅ Waves 0-5 | 2026-04-07/08 |
+| B1 Scout Missions E2E | ✅ DONE | |
+| B2 Following Feed E2E | ✅ DONE | 2026-04-08 Vormittag |
+| B2 Following Feed **Realtime** | ✅ DONE | 2026-04-09 Nacht (Pill + Throttle) |
+| B3 Transactions History E2E | ✅ DONE | 2026-04-08 Abend |
+| Onboarding Multi-Club | ✅ DONE | 2026-04-08 Abend |
+| Equipment System | ✅ LIVE | Drop-Raten bestätigt, Inventar Screen v2 mit Pokédex-Matrix |
+| Mystery Box Premium | ✅ LIVE | Drop-Raten v1 als final bestätigt |
+| Kill-Switch Founding Passes 900K | ✅ IMPLEMENTIERT | `AdminFoundingPassesTab.tsx:15` |
+| Migration Registry Drift | ✅ DOKUMENTIERT | `.claude/rules/database.md` + `reference_migration_workflow.md` |
 
-## Blocker
-- Keine — Anil plant
+## Keine offenen Code-Punkte
+
+**Was noch existiert (alles ohne Code-Arbeit):**
+
+1. **Produkt-Entscheidungen** (warten auf Anils Kopf)
+   - Beta-Tester-Gruppe formalisieren (Anzahl / Zeitrahmen / Onboarding-Call)
+   - Revenue Stream Prio aus `memory/project_missing_revenue_streams.md` (Sponsor Flat Fee / Event Boost / Chip Economy)
+
+2. **Externe Abhängigkeit**
+   - Equipment Lineup Visual QA braucht ein offenes Fantasy Event (alle 100 waren "ended")
+
+## Naechste Session
+
+Start mit `memory/session-handoff.md` lesen. Der Handoff enthaelt die komplette Session-Story und alle Next-Steps. Keine Krümel zurückgelassen.
+
+## Neue Patterns dieser Session
+
+- `memory/patterns.md` #21 — Realtime + React Query Live Feed (throttle + invalidate + keepPreviousData)
+- `.claude/rules/database.md` "Migration Workflow" — NIE `supabase db push`, nur `mcp__supabase__apply_migration`
