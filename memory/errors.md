@@ -93,3 +93,16 @@
 ### Dev Server / Service Worker
 
 - **Service Worker Cache zeigt stale JS/HTML bei Dev:** Browser liefert gecachte Version des Build-Artifacts auch nach Code-Aenderungen. → **Fix:** Vor jedem frischen QA-Test: DevTools → Application → Service Workers → "Unregister" + "Update on reload" aktivieren + Hard Reload (Shift+F5). Alternativ: Incognito-Window. Immer zuerst pruefen ob SW aktiv ist bevor Rendering-Bugs reported werden. (2026-04-08, B2 Following Feed QA)
+- **SW Re-Registration waehrend QA-Session:** `navigator.serviceWorker.unregister()` allein reicht nicht — App-Code re-registriert den SW nach Navigate sofort wieder. Dann serviert der SW weiterhin den alten Bundle-Cache. → **Fix:** Caches AUCH loeschen: `const cs = await caches.keys(); for (const c of cs) await caches.delete(c);`. Nach Navigate erneut pruefen ob SW wieder aktiv. Audit-Signal: Code-Changes sichtbar in Source, tsc clean, Browser zeigt altes Verhalten → IMMER zuerst SW + Caches pruefen. (2026-04-08, B3 Transactions History QA)
+
+### React State / URL Params
+
+- **URL-derived State via useEffect statt lazy init:** `useState('default')` + `useEffect(() => { if (!init && stats) setTab(initialTab) })` erzeugt Tab-Flash und Race-Condition (Effect kommt zu spaet, SW-Cache macht es sticky). → **Fix:** Lazy initializer direkt aus URL-Prop: `useState<Tab>(() => isValidTab(p) ? p : 'default')`. Effect-Setzung nur als Fallback fuer Data-derived Defaults. Regel: URL/Prop-derived State → lazy init. Data-derived Default → useEffect nach Load. (2026-04-08, B3 deep link fix, Commit d28f843)
+
+### DB/Code Type Drift
+
+- **Code-Filtermap kennt nicht alle DB-Types:** Filter verpasst Rows weil DB `trade_buy`/`trade_sell` hat aber Code nur `['buy','sell']` kennt. Passiert bei organisch gewachsenen Enums. → **Fix:** VOR Feature-Bau: `SELECT DISTINCT type, COUNT(*) FROM <tabelle> GROUP BY type ORDER BY 2 DESC;` → Ergebnis gegen Code-Konstanten greppen. Wenn >3 DB-Types nicht im Code → Drift beheben bevor Implementation. SSOT-Datei erstellen die Code + RLS spiegelt. (2026-04-08, B3 FILTER_TYPE_MAP, Commit 9264bb2)
+
+### Feed/Social Read Tabellen
+
+- **Cross-User Read Policy generell fehlt:** Zweiter Fall nach B2 `activity_log` — `transactions` hatte nur `auth.uid() = user_id`, blockierte damit Public Profile Timeline komplett (silent: keine Rows, kein Error). → **Fix:** Feed/Social-Tabellen die Cross-User-Reads brauchen (Public Profile, Follower-Feed) IMMER zwei SELECT-Policies: `own-all` + `public-whitelist`. Pattern: `type = ANY(ARRAY['safe_type1','safe_type2'])` fuer die public-readable Subset. RLS nach jeder Migration: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`. (2026-04-08, B3 transactions RLS, Commit 9264bb2)

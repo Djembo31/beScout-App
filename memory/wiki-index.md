@@ -1,4 +1,4 @@
-# Wiki Index (auto-generated 2026-04-08)
+# Wiki Index (auto-generated 2026-04-08, Run #5)
 
 > Vollstaendiger Index aller Knowledge-Dateien. Generiert von AutoDream v3.
 > Nutze diesen Index um Dateien nach Domain/Typ zu finden.
@@ -26,9 +26,9 @@
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
 | patterns.md | Reference | 231 | Top 20 Code Patterns (Service Layer, Query Keys, Loading Guards) |
-| errors.md | Reference | 95 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, Dynamic Import, Feed RLS) |
+| errors.md | Reference | 115 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2) |
 | cortex-index.md | Routing | 33 | Routing-Tabelle: welches Wissen bei welchem Task laden |
-| session-handoff.md | Handoff | 187 | Letzte Session: B2 Following Feed E2E + B1 Missions E2E DONE |
+| session-handoff.md | Handoff | 140 | Letzte Session: B3 Transactions History E2E DONE. B1+B2+B3 alle 3 abgeschlossen. Naechste: Onboarding ohne Club-Bezug. |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
@@ -36,6 +36,7 @@
 | semantisch/projekt/architecture-3hub.md | Architecture | 48 | 3-Hub Refactor 2026-04-07: Profile/Inventory/Missions/Home |
 | semantisch/projekt/manager-team-center.md | Architecture | 71 | Manager Team-Center Wave 0-5 DONE: useLineupBuilder, Kader Migration, Historie-Tab (NEU) |
 | semantisch/projekt/following-feed.md | Feature | 74 | B2 Following Feed E2E: RLS Fix, Dead Code Audit, i18n Labels, Feed Widget |
+| semantisch/projekt/transactions-history.md | Feature | 100 | B3 Transactions History E2E: SSOT Pattern, RLS Fix, CSV Export, Fantasy Ranking, 4 Tx Tables |
 | semantisch/sprint/current.md | Sprint | 55 | Sprint-Status Jarvis Cortex v1 |
 
 ## Features (memory/features/) — 8 Specs
@@ -102,4 +103,4 @@
 
 ---
 
-*Last generated: 2026-04-08 by AutoDream v3 Run #4 (5 Retros: B2 Following Feed + B1 Missions Aftermath)*
+*Last generated: 2026-04-08 by AutoDream v3 Run #5 (B3 Transactions History E2E Completion — 6 Commits, 5 new error patterns)*

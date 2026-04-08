@@ -1,150 +1,122 @@
 # Session Handoff
-## Letzte Session: 2026-04-08 (Abend, 6 Commits, B2 Following Feed E2E komplett + AutoDream Run #4)
+## Letzte Session: 2026-04-08 (Abend, 6 Commits, B3 Transactions History E2E komplett + AutoDream Run #5)
 
-## 🔖 NEXT SESSION KICKOFF — B3 Transactions History E2E
+## NEXT SESSION KICKOFF — Onboarding ohne Club-Bezug
 
 **Erstmal lesen:**
 1. Diesen Handoff (du bist hier)
-2. `memory/project_e2e_features.md` — 3 Features approved 2026-04-04 (2/3 done: B1 Missions ✅, B2 Following Feed ✅)
-3. Das "B2 Following Feed E2E" Summary unten — zeigt das bewährte Audit-Pattern
-4. `memory/semantisch/projekt/following-feed.md` — 74 Zeilen verdichtetes B2 Wissen (RLS Pattern, Dead Code Audit, i18n-First)
+2. `memory/project_e2e_features.md` — alle 3 Features done: B1 Missions ✅, B2 Following Feed ✅, B3 Transactions History ✅
+3. `memory/semantisch/projekt/transactions-history.md` — 100 Zeilen verdichtetes B3 Wissen (SSOT Pattern, RLS Fix, CSV Export)
+4. `C:\Users\Anil\.claude\projects\C--bescout-app\memory\project_onboarding_multi_club.md` — Onboarding ohne Club-Bezug (naechste Prioritaet)
 
-**Pattern (von B1+B2 bewaehrt):**
-1. **Discovery** — Scan: existierender service/hook/component/page/migration code für Transactions History
-2. **Reality Check** — was ist schon gebaut, was fehlt, was ist kaputt (dead code, silent RLS, missing UI)
-3. **Report** → 3 gezielte Fragen an Anil (A/B/C Stil), damit er die Tiefe wählt
-4. **Phase A-E** — implementieren basierend auf seiner Antwort (meist "alles/e")
-5. **Live Test** als jarvis-qa via playwright (**Achtung: Service Worker unregister + SW cache clear VOR dem Test**, siehe errors.md)
-6. **Commits** — thematisch split, dann push
-7. **AutoDream** — wenn lessons learned entstanden, am Ende Subagent laufen lassen
+**Entscheidungen aus B3 (Anil's 1C Full Scope + 2B Fantasy Ranking + 3B Wire Hooks):**
+- 1C: Full Scope (dedizierte /transactions Page + Profile Timeline Enhancement)
+- 2B: Fantasy Ranking rows im Timeline Tab (rank badge, gameweek, score, reward)
+- 3B: Wire Transaction Query Hooks in useProfileData (Hybrid React Query + Promise.allSettled)
 
-**Startpunkte für B3 Discovery:**
-- Services: grep `src/lib/services/` nach `transactions` oder `getTransactions`
-- Queries: `src/lib/queries/` hat bereits einen `qk.transactions` key (`keys.ts:144-147`) mit `byUser(uid, n)` und `all`
-- Profile Tab: `ProfileView.tsx` hat schon einen "Activity"-Tab mit `PUBLIC_TX_TYPES` filter (siehe `.claude/rules/profile.md`)
-- DB: vermutlich `transactions` oder `wallet_transactions` table — bei Discovery checken ob es `type`-Spalte gibt und welche types existieren
-- Potential Gaps: dedizierte Transactions-History Seite unter `/profile/transactions` oder als Tab? Filter nach Type/Period? Export-Funktion?
-
-**Hinweise aus B2 Learnings (vermeide diese Fallen):**
-- **RLS Policy Trap** — Wenn ein Service Cross-User-Reads braucht, RLS-Policy auf der Tabelle checken BEVOR Frontend debuggen. Pattern: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`. Activity-Log hatte `auth.uid() = user_id` silent blockiert (Fix: 2026-04-08 commit e61be4a).
-- **Dead Code Audit** — `getFollowingFeed` existierte seit Monaten ungenutzt. Vor neu bauen: grep ob Hook/Service/Type bereits vorhanden und nur nicht gewired ist.
-- **Service Worker Cache stale** — Bei QA immer zuerst: `navigator.serviceWorker.getRegistrations()` unregister + `caches.delete()` alle cache names + hard reload. Sonst sieht man alte JS trotz Code-Changes.
-- **i18n-First für Enums** — User-sichtbare Enum/Action Labels NICHT als hardcoded const im code, sondern in `messages/{de,tr}.json` unter namespace.
-
-**QA Account (aktualisiert nach B2):**
+**QA Account (aktualisiert nach B3):**
 - Email: jarvis-qa@bescout.net / Handle: jarvisqa
 - Password: `JarvisQA2026!` (`e2e/mystery-box-qa.spec.ts:5`)
 - ~7.700 $SCOUT, 63 Tickets, 6 Tage Streak, 8 Holdings, 1 Manager-Lineup
-- **NEU: Jarvis folgt jetzt 3 Scouts** (`kemal2`, `test12`, `emre_snipe`) — QA-Fixture für Following Feed populated state. Nicht löschen.
+- 3 Follows: `kemal2`, `test12`, `emre_snipe` (QA-Fixture fuer Following Feed, nicht loeschen)
 
 **MCP Tools einsatzbereit:**
 - `mcp__supabase__execute_sql` (project_id: `skzjfhvgccaeplydsunz`)
-- `mcp__supabase__apply_migration` — für DB cleanup migrations
-- `mcp__playwright__browser_*` — für Live E2E Tests
+- `mcp__supabase__apply_migration` — fuer DB cleanup migrations
+- `mcp__playwright__browser_*` — fuer Live E2E Tests
 
 ---
 
 ## TL;DR
-B2 Following Feed ist komplett live auf main. Der Widget rendert empty + populated state auf mobile + desktop. Der entscheidende Bug war ein **P0 RLS-Silent-Failure** auf `activity_log` der das Feature seit Monaten blockiert hätte, auch wenn das UI gebaut worden wäre. AutoDream Run #4 hat 4 neue Anti-Patterns nach `memory/errors.md` promoted. Keine offenen Krümel.
+B3 Transactions History ist komplett live auf main. 6 Commits, alle gepusht, Live QA mit Playwright als jarvis-qa verifiziert. Damit sind alle 3 E2E-Features aus `project_e2e_features.md` abgeschlossen (B1 Missions, B2 Following Feed, B3 Transactions History). Entscheidende Bugs: P0 RLS Silent Failure auf `transactions` (public profile leer), DB/Code Type Drift in FILTER_TYPE_MAP (90% der Trades nicht gefiltert), Deep Link Race Condition (lazy init fix). AutoDream Run #5 hat 5 neue Anti-Patterns promoted + Wiki-Eintrag erstellt. Keine offenen Kruemel.
 
 ## Was wurde gemacht — 6 Commits, alle auf main gepusht
 
-### B2 Following Feed E2E (4 Commits)
+### B3 Transactions History E2E (6 Commits)
 
-**Phase 1: Discovery + Reality Check**
-Backend war zu 100% fertig (Service `getFollowingFeed`, Hook `useFollowingFeed`, Type `ActivityFeedItem` + 12 FEED_ACTIONS). Frontend: **Hook wurde nirgends aufgerufen**, kein Component, kein Route. Community-Page hatte einen "Folge ich" Toggle der aber nur Content filter machte — nicht den Activity Feed zeigte.
+**Anil's Entscheidungen:**
+- 1C: Full Scope — dedizierte /transactions Page + Profile Timeline Enhancement
+- 2B: Fantasy Ranking Integration in Timeline Tab (rank badge, gameweek, score, reward)
+- 3B: Wire Transaction Query Hooks in useProfileData (Hybrid Pattern)
 
-**Anil's Entscheidung**: 1C + 2C + 3A — Community-Toggle bleibt unangetastet, Activity Feed als Widget in der Home-Sidebar, 5 Items, keine Pagination/Realtime.
+**Wave 1 — `9264bb2 feat(db)` — SSOT + RLS Fix (P0)**
+- `src/lib/transactionTypes.ts` (NEU): `ALL_CREDIT_TX_TYPES`, `PUBLIC_TX_TYPES`, `FILTER_TYPE_MAP`
+- Migration `20260408190000_transactions_public_rls.sql`: Policy-Split in `transactions_select_own` + `transactions_select_public_types`
+- Ohne Fix: Public Profile Timeline komplett leer (silent RLS-Block)
+- DB/Code Type Drift behoben: `trade_buy`/`trade_sell` statt `buy`/`sell`, `streak_reward` statt `streak_bonus`
 
-**Phase 2: Backend Fix — `e61be4a fix(db)` — P0 RLS Bug**
-`activity_log` RLS Policy erlaubte nur `auth.uid() = user_id` für SELECT. Cross-User-Reads blockierten silent (kein Error, nur `[]` als Ergebnis). Ohne diese Fix konnte der Feed **niemals** populated state rendern, egal was das Frontend machte.
-- Migration `20260408180000_activity_log_feed_rls.sql` — zweite SELECT-Policy:
-  ```sql
-  USING (user_id IN (SELECT following_id FROM user_follows WHERE follower_id = auth.uid())
-         AND action = ANY(ARRAY[...12 FEED_ACTIONS...]))
-  ```
-- `page_view` und andere private Actions bleiben owner-only.
+**Wave 2 — `402324f refactor(profile)` — React Query Hooks**
+- `useProfileData.ts`: Transactions + TicketTransactions auf Query Hooks migriert
+- `invalidation.ts`: Prefix `['transactions', userId]` mit `exact: false` (war hardcoded `(uid, 10)`)
+- Retry merged: `setRetryCount` + `txQuery.refetch()` + `ticketTxQuery.refetch()`
 
-**Phase 3: Refactor — `07cfbba refactor(social)`**
-- `useFollowingFeed(userId, limit=15)` bekam optional `limit` param.
-- `qk.social.feed(uid, limit)` erweitert um limit — verschiedene Widget-Größen cachen separat.
-- `FEED_ACTION_LABELS` aus `types/index.ts` gelöscht (dead export).
-- Neuer `feed.actions.*` Namespace in `messages/de.json` + `messages/tr.json` mit ICU Interpolation für trade actions (`"hat {player} gekauft"`) und `_generic` fallbacks wenn Player nicht in aktueller Players-Slice.
+**Wave 3 — `615ad30 feat(timeline)` — Fantasy Ranking + Deep Link**
+- `TimelineTab.tsx`: Discriminated union `TimelineRow` (credit | ticket | fantasy)
+- Fantasy rows: rank badge (gold/silber/bronze), gameweek, score, reward. Dedup via `event_id`.
+- `12 neue activity.*` i18n keys + DE + TR
 
-**Phase 4: Widget — `85474dd feat(home)`**
-- `src/components/social/FollowingFeedRail.tsx` (neu, 186 Zeilen)
-- 4 States: Loading (3 skeleton rows) / Error (ErrorState mit retry) / Empty (Users icon + Hint + "Scouts entdecken" CTA zu /community) / Populated
-- Populated Items: Avatar (oder Initial fallback) + `@handle` + Action Label + relative Zeit, jede Row linkt zu `/profile/{handle}`
-- Trade actions erreichern Action Label mit Player-Name aus Home-Page Players-Slice (kein extra DB-Call)
-- KNOWN_ACTIONS Filter — unbekannte Action-Types crashen rendering nie
-- Integration: `src/app/(app)/page.tsx` — dynamic import, conditional `{uid && !isNewUser}`, positioniert zwischen SuggestedActionBanner und MyClubs in der Sidebar
+**Wave 4 — `e10e414 feat(transactions)` — Dedizierte Page + CSV Export**
+- `src/app/(app)/transactions/page.tsx` (NEU) — auth-guarded Route
+- `TransactionsPageContent.tsx` (NEU, ~400 LoC): Date Range Picker, Filter Chips, Search, Aggregations, Load More
+- `src/lib/exportTransactions.ts` (NEU): Client-side CSV, RFC 4180 escaped, UTF-8 BOM fuer Excel TR
+- `src/lib/nav.ts`: SideNav Entry "Transaktionen" mit Receipt icon in NAV_MORE
+- `17 transactions.*` i18n keys + nav.transactions + profile.allTransactions
 
-**Phase 5: Live QA + Cleanup — `5511640 chore(memory)`**
-- tsc --noEmit: CLEAN
-- Playwright als jarvis-qa: mobile (390px) + desktop (1280px) — Empty State + Populated State (nach `INSERT user_follows` für 3 Scouts)
-- 4 Screenshots im Repo-Root (gitignored)
-- Service Worker Trap entdeckt: `navigator.serviceWorker.getRegistrations()` hatte stale JS gecacht, verhinderte meine Code-Changes zu sehen
+**Wave 5 — `c7af525 feat(transactions)` — Wildcards Hook + Cleanup**
+- Wildcard transactions Hook gewired
+- Konsistenz-Cleanup: unused imports, edge-case guards
 
-### AutoDream Run #4 (2 Commits)
+**Fix — `d28f843 fix(profile)` — Deep Link Lazy Init**
+- `?tab=timeline` Deep Link landete immer auf Default Tab ('manager')
+- Fix: `useState<Tab>(() => isValidTab(initialTab) ? initialTab : 'manager')` (Lazy init statt Effect)
 
-**`5b5dcb1 docs(memory)` — Lessons → errors.md + following-feed wiki**
-- 4 neue Patterns in `memory/errors.md`:
-  1. `activity_log` Feed Policy Trap (Cross-User-Read Pattern für Feeds)
-  2. Dynamic Import fire-and-forget Promise (CI Trap — war eigentlich Session 2026-04-08 Vormittag, wurde jetzt erst promoted)
-  3. Dead Code / Dead Exports (Audit-Signal: Consumer-Count per grep)
-  4. Dev Server / Service Worker stale cache
-- Neu: `memory/semantisch/projekt/following-feed.md` (74 Zeilen) — verdichtetes B2 Wissen mit Architektur-Entscheidungen und Bugs-Tabelle
-- Wiki-Index + Wiki-Log Run #4 Eintrag
-
-**`c8190a8 chore(memory)` — Stop hook auto retro**
+### AutoDream Run #5 (dieser Run)
+- 5 neue Error Patterns in `memory/errors.md`
+- Neu: `memory/semantisch/projekt/transactions-history.md` (~100 Zeilen)
+- Wiki-Index + Wiki-Log + Morning Briefing + Session-Handoff aktualisiert
 
 ## Build Status (final)
 - `tsc --noEmit`: CLEAN
-- vitest: nicht extra laufen lassen — keine Service/Logic Änderungen die Tests brechen könnten (nur UI + DB + i18n)
-- Live QA: beide States verifiziert, 0 Console-Errors von meinem Code (pre-existing `common.navClub` MISSING_MESSAGE + posthog 401 sind alt, nicht in dieser Session eingeführt)
+- vitest: nicht extra laufen lassen — keine Logic-Aenderungen die bestehende Tests brechen
+- Live QA: Playwright als jarvis-qa — Timeline Tab (credit + ticket + fantasy rows), /transactions Page (filter + CSV export), Deep Link `?tab=timeline` verifiziert
 
-## Stand jetzt — keine offenen Krümel
+## Stand jetzt — keine offenen Kruemel
 
-### Alle Handoff-Punkte dieser Session abgeschlossen
-- ✅ B2 Following Feed E2E: Discovery → Reality Check → Fragen → Implementation → Live Test → Commits → Push
-- ✅ P0 RLS Silent Failure auf activity_log gefixt + als Pattern in errors.md
-- ✅ Dead code `FEED_ACTION_LABELS` + dead hook `useFollowingFeed` wieder lebendig gemacht
-- ✅ i18n in DE + TR für Feed Actions
-- ✅ Live verifiziert auf Mobile + Desktop, Empty + Populated States
-- ✅ AutoDream Consolidation (13 Sessions overdue → 0)
-- ✅ Session-handoff.md für B3 Kickoff vorbereitet
+### Alle E2E Features abgeschlossen
+- B1 Missions E2E: DONE (2026-04-07)
+- B2 Following Feed E2E: DONE (2026-04-08 Mittag, 4 Commits)
+- B3 Transactions History E2E: DONE (2026-04-08 Abend, 6 Commits, QA verifiziert)
 
 ### Was koennte als naechstes kommen
-- **B3 Transactions History E2E** — drittes und letztes der E2E-Features aus `project_e2e_features.md`
-- **Onboarding ohne Club-Bezug** (`project_onboarding_multi_club.md`) — Freundeskreis-Feedback
+- **Onboarding ohne Club-Bezug** (`project_onboarding_multi_club.md`) — Freundeskreis-Feedback, jetzt hoehere Prioritaet
 - **Chip/Equipment System** (`project_chip_equipment_system.md`) — Ideen gesammelt, eigene Session
-- **Optional Follow-up B2**: Realtime Subscription auf `activity_log` für Live-Updates (aktuell 2min staleTime via React Query)
+- **Optional Follow-up B2/B3**: Realtime Subscription auf `activity_log` / `transactions` fuer Live-Updates
 
 ## Wichtige Dateien fuer naechste Session
-- `memory/project_e2e_features.md` — Meta: Welche Features sind approved
-- `memory/semantisch/projekt/following-feed.md` — B2 verdichtet (neu)
-- `memory/errors.md` — 4 neue Patterns (activity_log RLS, Dynamic Import Promise, Dead Code, SW Cache)
-- `.claude/rules/profile.md` — Activity Tab mit `PUBLIC_TX_TYPES` — Startpunkt für B3
-- `src/lib/queries/keys.ts:144-147` — `qk.transactions` keys (existieren schon)
-- `supabase/migrations/20260408180000_activity_log_feed_rls.sql` — RLS Pattern Referenz
+- `memory/semantisch/projekt/transactions-history.md` — B3 verdichtet (neu)
+- `memory/semantisch/projekt/following-feed.md` — B2 verdichtet
+- `memory/errors.md` — 5 neue Patterns (SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2, Cross-User Policy)
+- `src/lib/transactionTypes.ts` — SSOT fuer alle TX types
+- `.claude/rules/profile.md` — SSOT-Verweis + Activity Tab Doku
+- `supabase/migrations/20260408190000_transactions_public_rls.sql` — RLS Pattern Referenz (B3)
+- `supabase/migrations/20260408180000_activity_log_feed_rls.sql` — RLS Pattern Referenz (B2)
 
 ## Architektur-Notizen
 
-### RLS Feed Pattern (aus B2, jetzt wiederverwendbar)
-Tabellen die Cross-User-Reads für Feeds/Activity brauchen, brauchen erweiterte SELECT-Policy:
+### RLS Feed Pattern (aus B2 + B3 etabliert, 2x Anwendung)
+Tabellen mit Cross-User-Reads (Public Profile, Feed) brauchen Policy-Split:
 ```sql
-CREATE POLICY "feed_cross_user_read" ON <table>
-FOR SELECT USING (
-  auth.uid() = user_id  -- own rows
-  OR user_id IN (SELECT following_id FROM user_follows WHERE follower_id = auth.uid())  -- followed
-);
+-- Policy 1: Owner liest alles
+CREATE POLICY "<table>_select_own" ON <table>
+  FOR SELECT USING (auth.uid() = user_id);
+-- Policy 2: Public liest nur whitelisted types (mit Action-Filter fuer Privacy)
+CREATE POLICY "<table>_select_public_types" ON <table>
+  FOR SELECT USING (type = ANY(ARRAY['safe_type1','safe_type2']));
 ```
-Mit optionalem Action-Filter für Privacy: nur bestimmte action types cross-readable.
 
-### Service Worker in Dev
-Der BeScout Dev-Build hat einen Service Worker registriert (scope `/`). Der cached aggressively und kann Code-Changes unsichtbar machen. Playbook:
+### Service Worker Playbook (komplett)
 ```js
-// In DevTools Console vor QA:
+// In DevTools Console VOR jedem QA:
 (async () => {
   const regs = await navigator.serviceWorker.getRegistrations();
   for (const r of regs) await r.unregister();
@@ -152,17 +124,18 @@ Der BeScout Dev-Build hat einen Service Worker registriert (scope `/`). Der cach
   for (const c of cs) await caches.delete(c);
   localStorage.clear(); sessionStorage.clear();
   location.reload();
+  // Nach Navigate: ERNEUT pruefen — App re-registriert SW automatisch
 })();
 ```
 
-### Dead Code Discovery vor neuem Build
-Bevor ein neues Feature gebaut wird, immer grep:
-1. `grep -r "export function myFeature"` → existiert schon?
-2. Consumer-Count per `grep -r "myFeature(" --include="*.tsx"`
-3. Wenn Consumer == 0 → Feature-Infrastruktur ist da aber ungewired. Das war bei B2 `getFollowingFeed` der Fall.
+### DB/Code Type Sync Checkliste (vor Feature-Bau)
+```sql
+SELECT DISTINCT type, COUNT(*) as cnt FROM <tabelle> GROUP BY type ORDER BY cnt DESC;
+```
+Ergebnis gegen Code-Konstanten greppen. Wenn >3 DB-Types nicht im Code → SSOT erstellen bevor Implementation.
 
-## QA Account State Snapshot (Ende 2026-04-08)
+## QA Account State Snapshot (Ende 2026-04-08 Abend)
 - Email: jarvis-qa@bescout.net / Handle: jarvisqa
 - Password: `JarvisQA2026!`
 - ~7.700 $SCOUT, 63 Tickets, 6 Tage Streak, 8 Holdings, 1 Manager-Lineup
-- **3 Follows**: `kemal2`, `test12`, `emre_snipe` (QA-Fixture für Following Feed)
+- 3 Follows: `kemal2`, `test12`, `emre_snipe` (QA-Fixture fuer Following Feed, nicht loeschen)

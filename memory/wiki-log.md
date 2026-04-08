@@ -54,6 +54,21 @@
   - .claude/autodream-last-run (Timestamp)
   - .claude/session-counter (reset zu 0)
 
+## [2026-04-08] AutoDream Run #5 (B3 Transactions History E2E — 6 Commits, alle 3 E2E Features done)
+- Verdichtet: 1 Retro (retro-20260408-182125.md) + Session-Handoff B3 → 1 neues semantisches File
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/transactions-history.md ~100 Zeilen)
+- Archiviert: 0 Sessions (alle Retros von heute 2026-04-08 < 1 Tag alt)
+- Neue Error-Patterns (5): SW Re-Registration during QA, Lazy useState Init fuer URL-derived State, DB/Code Type Drift, Feed/Social Cross-User Policy (2. Fall), React Query Hybrid Pattern
+- Drafts pending review: 1 (2026-04-07-qa-visual-3hub-refactor.md — unveraendert)
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/transactions-history.md (NEU, ~100 Zeilen)
+  - memory/errors.md (+5 Patterns: SW Re-Registration / Lazy Init / Type Drift / Feed RLS #2 / Cross-User Policy)
+  - memory/wiki-index.md (neue Datei, Zeilenzahlen, Run #5 Footer)
+  - memory/wiki-log.md (dieser Eintrag)
+  - memory/session-handoff.md (B3 komplett, Naechste: Onboarding)
+  - memory/senses/morning-briefing.md (B3 Status + neue Prioritaeten)
+
 ## [2026-04-08] AutoDream Run #4 (5 Retros, B2 Following Feed Abend-Session)
 - Verdichtet: 5 Retros (retro-20260408-171724..181031) -> 1 neues semantisches File
 - Index: 1 neue Datei katalogisiert (semantisch/projekt/following-feed.md)
