@@ -1,9 +1,6 @@
-C:\\bescout-app\\src\\lib\\queries\\keys.ts
-C:\\bescout-app\\src\\lib\\queries\\social.ts
-C:\\bescout-app\\messages\\de.json
-C:\\bescout-app\\messages\\tr.json
-C:\\bescout-app\\src\\types\\index.ts
-C:\\bescout-app\\src\\components\\social\\FollowingFeedRail.tsx
-C:\\bescout-app\\src\\app\\(app)\\page.tsx
-C:\\bescout-app\\src\\app\\(app)\\page.tsx
-C:\\bescout-app\\supabase\\migrations\\20260408180000_activity_log_feed_rls.sql
+C:\\bescout-app\\memory\\errors.md
+C:\\bescout-app\\memory\\errors.md
+C:\\bescout-app\\memory\\errors.md
+C:\\bescout-app\\memory\\wiki-index.md
+C:\\bescout-app\\memory\\wiki-index.md
+C:\\bescout-app\\memory\\wiki-log.md
