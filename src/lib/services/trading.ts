@@ -99,9 +99,9 @@ export async function buyFromMarket(
   }).catch(err => console.error('[Trade] Activity log failed:', err));
   if (result.success) {
     // Gamification: stats/airdrop handled by DB triggers. Achievements fire-and-forget.
-    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-      checkAndUnlockAchievements(userId);
-    }).catch(err => console.error('[Trade] Achievement check failed:', err));
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) =>
+      checkAndUnlockAchievements(userId)
+    ).catch(err => console.error('[Trade] Achievement check failed:', err));
     // Fire-and-forget: referral reward (triggers on first trade by referred user)
     import('@/lib/services/referral').then(({ triggerReferralReward }) => {
       triggerReferralReward(userId);
@@ -216,9 +216,9 @@ export async function buyFromOrder(
   }).catch(err => console.error('[Trade] Activity log failed:', err));
   if (result.success) {
     // Gamification: achievements fire-and-forget
-    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-      checkAndUnlockAchievements(buyerId);
-    }).catch(err => console.error('[Trade] Achievement check failed:', err));
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) =>
+      checkAndUnlockAchievements(buyerId)
+    ).catch(err => console.error('[Trade] Achievement check failed:', err));
     // Fire-and-forget: referral reward (triggers on first trade by referred user)
     import('@/lib/services/referral').then(({ triggerReferralReward }) => {
       triggerReferralReward(buyerId);

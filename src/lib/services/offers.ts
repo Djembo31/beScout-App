@@ -200,9 +200,9 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
 
   if (result.success) {
     // Gamification: achievements fire-and-forget (matches buyFromOrder pattern)
-    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-      checkAndUnlockAchievements(userId);
-    }).catch(err => console.error('[Offers] Achievement check failed:', err));
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) =>
+      checkAndUnlockAchievements(userId)
+    ).catch(err => console.error('[Offers] Achievement check failed:', err));
 
     // Fire-and-forget: referral reward (triggers on first trade by referred user)
     import('@/lib/services/referral').then(({ triggerReferralReward }) => {

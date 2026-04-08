@@ -115,9 +115,9 @@ export async function buyFromIpo(
   }).catch(err => console.error('[IPO] Activity log failed:', err));
   if (result.success) {
     // Gamification: achievements fire-and-forget
-    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-      checkAndUnlockAchievements(userId);
-    }).catch(err => console.error('[IPO] Achievement check failed:', err));
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) =>
+      checkAndUnlockAchievements(userId)
+    ).catch(err => console.error('[IPO] Achievement check failed:', err));
     // Fire-and-forget: referral reward (triggers on first trade by referred user)
     import('@/lib/services/referral').then(({ triggerReferralReward }) => {
       triggerReferralReward(userId);
