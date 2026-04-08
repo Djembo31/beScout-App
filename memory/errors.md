@@ -76,3 +76,7 @@
 
 - **Spieler ohne Link zu `/player/[id]`:** User kann nicht zur Detail-Seite navigieren. → **Fix:** IMMER Link setzen (Ausnahme: Picker-UIs).
 - **`<button>` in `<Link>` gewrappt:** Invalid HTML, unvorhersehbares Verhalten. → **Fix:** `href` Prop nutzen oder Wrapper-Komponente.
+
+### Component Props
+
+- **Hardcoded null fuer Prop das Daten braucht:** `<PageHeader nextEvent={null} />` rendert visuell OK aber semantisch falsch (zeigt "Kein Event" obwohl Events existieren). → **Fix:** Prop IMMER aus echtem Query (useOpenEvents etc.) verbinden. Hardcoded null ist semantische Luege. (2026-04-08, Manager PageHeader, Commit d16b493)

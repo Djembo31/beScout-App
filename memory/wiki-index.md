@@ -1,4 +1,4 @@
-# Wiki Index (auto-generated 2026-04-07)
+# Wiki Index (auto-generated 2026-04-08)
 
 > Vollstaendiger Index aller Knowledge-Dateien. Generiert von AutoDream v3.
 > Nutze diesen Index um Dateien nach Domain/Typ zu finden.
@@ -26,15 +26,16 @@
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
 | patterns.md | Reference | 231 | Top 20 Code Patterns (Service Layer, Query Keys, Loading Guards) |
-| errors.md | Reference | 78 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football) |
-| cortex-index.md | Routing | 32 | Routing-Tabelle: welches Wissen bei welchem Task laden |
-| session-handoff.md | Handoff | 55 | Letzte Session: Was gemacht, was offen |
+| errors.md | Reference | 84 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props) |
+| cortex-index.md | Routing | 33 | Routing-Tabelle: welches Wissen bei welchem Task laden |
+| session-handoff.md | Handoff | 114 | Letzte Session: Manager Wave 0-5 DONE, Visual QA Fix, Build 2347/2347 gruen |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
 | semantisch/projekt/agent-research.md | Research | 371 | Agent-System Patterns (24 Patterns, Must-Haves) |
-| semantisch/projekt/architecture-3hub.md | Architecture | 48 | 3-Hub Refactor 2026-04-07: Profile/Inventory/Missions/Home (NEU) |
-| semantisch/sprint/current.md | Sprint | 40 | Sprint-Status Jarvis Cortex v1 |
+| semantisch/projekt/architecture-3hub.md | Architecture | 48 | 3-Hub Refactor 2026-04-07: Profile/Inventory/Missions/Home |
+| semantisch/projekt/manager-team-center.md | Architecture | 68 | Manager Team-Center Wave 0-5 DONE: useLineupBuilder, Kader Migration, Historie-Tab (NEU) |
+| semantisch/sprint/current.md | Sprint | 55 | Sprint-Status Jarvis Cortex v1 |
 
 ## Features (memory/features/) — 8 Specs
 
@@ -100,4 +101,4 @@
 
 ---
 
-*Last generated: 2026-04-07 by AutoDream v3 Run #2 (Session 98)*
+*Last generated: 2026-04-08 by AutoDream v3 Run #3 (Session 42, Counter 38)*
