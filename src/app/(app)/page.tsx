@@ -36,6 +36,7 @@ const MissionHintList = dynamic(() => import('@/components/missions/MissionHintL
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
 const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), { ssr: false });
+const FollowingFeedRail = dynamic(() => import('@/components/social/FollowingFeedRail'), { ssr: false });
 
 import { useHomeData } from './hooks/useHomeData';
 
@@ -403,6 +404,11 @@ export default function HomePage() {
           {/* Suggested Action */}
           {retention?.suggestedAction && (
             <SuggestedActionBanner action={retention.suggestedAction} />
+          )}
+
+          {/* Scout Activity (Following Feed) — active users only */}
+          {uid && !isNewUser && (
+            <FollowingFeedRail userId={uid} players={players} limit={5} />
           )}
 
           {/* My Clubs */}
