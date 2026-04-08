@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getEventParticipants, getEventParticipantCount } from '@/lib/services/lineups';
@@ -10,10 +10,8 @@ import { useTranslations } from 'next-intl';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding } from './types';
 import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
-import { equipToSlot } from '@/lib/services/equipment';
-import { useQueryClient } from '@tanstack/react-query';
-import { qk } from '@/lib/queries/keys';
 import { useLineupBuilder } from '@/features/fantasy/hooks/useLineupBuilder';
+import { useLineupSave } from '@/features/fantasy/hooks/useLineupSave';
 
 // Extracted components
 import { EventDetailHeader } from '@/features/fantasy/components/event-detail/EventDetailHeader';
@@ -65,7 +63,6 @@ export const EventDetailModal = ({
 }) => {
   const { user } = useUser();
   const t = useTranslations('fantasy');
-  const queryClient = useQueryClient();
 
   // ==================== Local modal-only state ====================
   const [tab, setTab] = useState<EventDetailTab>('overview');
@@ -75,7 +72,6 @@ export const EventDetailModal = ({
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [scoringJustFinished, setScoringJustFinished] = useState(false);
-  const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
   // ==================== Lineup builder hook (owns all lineup state) ====================
@@ -85,6 +81,26 @@ export const EventDetailModal = ({
     isOpen,
     holdings: userHoldings,
     fixtureDeadlines,
+  });
+
+  // ==================== Save flow (shared hook with /manager AufstellenTab) ====================
+  const incrementParticipantCount = useCallback(() => {
+    setParticipantCount((prev) => prev + 1);
+  }, []);
+
+  const { joining, handleSaveLineup } = useLineupSave({
+    event,
+    userId: user?.id,
+    isLineupComplete: lb.isLineupComplete,
+    reqCheck: lb.reqCheck,
+    selectedPlayers: lb.selectedPlayers,
+    selectedFormation: lb.selectedFormation,
+    captainSlot: lb.captainSlot,
+    wildcardSlots: lb.wildcardSlots,
+    equipmentMap: lb.equipmentMap,
+    onJoin,
+    onSubmitLineup,
+    onAfterJoin: incrementParticipantCount,
   });
 
   // ==================== Reset modal-only transient state on open ====================
@@ -171,38 +187,6 @@ export const EventDetailModal = ({
   // Join: opens lineup tab -- actual join happens on lineup save
   const handleConfirmJoin = () => {
     setTab('lineup');
-  };
-
-  const handleSaveLineup = async () => {
-    if (!lb.isLineupComplete) { alert(t('incompleteLineupAlert')); return; }
-    if (!lb.reqCheck.ok) { alert(lb.reqCheck.message); return; }
-    setJoining(true);
-    try {
-      // If not yet joined: join first (payment + entry), then save lineup
-      if (!event.isJoined) {
-        await onJoin(event);
-        setParticipantCount(prev => prev + 1);
-      }
-      await onSubmitLineup(event, lb.selectedPlayers, lb.selectedFormation, lb.captainSlot, Array.from(lb.wildcardSlots));
-
-      // Persist equipment assignments after lineup is saved
-      const eqEntries = Object.entries(lb.equipmentMap);
-      if (eqEntries.length > 0 && user?.id) {
-        const results = await Promise.allSettled(
-          eqEntries.map(([slotKey, eq]) => equipToSlot(event.id, eq.id, slotKey))
-        );
-        const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.ok));
-        if (failed.length > 0) {
-          console.error('[Equipment] Some equip calls failed:', failed);
-        }
-        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(user.id) });
-      }
-    } catch (err) {
-      console.error('[EventDetail] handleSaveLineup failed:', err);
-      alert(t('errorShort', { msg: err instanceof Error ? err.message : 'Lineup save failed' }));
-    } finally {
-      setJoining(false);
-    }
   };
 
   return (
