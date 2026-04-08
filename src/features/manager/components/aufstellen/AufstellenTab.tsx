@@ -258,6 +258,7 @@ export default function AufstellenTab() {
     return (
       <div className="space-y-4">
         <EventSelector />
+        <EquipmentShortcut />
         <div className="py-12 text-center text-sm text-white/40">
           {t('noOpenEvents')}
         </div>
@@ -269,6 +270,7 @@ export default function AufstellenTab() {
     return (
       <div className="space-y-4">
         <EventSelector />
+        <EquipmentShortcut />
         <div className="py-12 text-center text-sm text-white/40">
           {t('selectEventHint')}
         </div>
