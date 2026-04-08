@@ -1,5 +1,39 @@
 # Session Handoff
-## Letzte Session: 2026-04-08 (Mittag → Nachmittag, alle offenen Punkte abgeschlossen)
+## Letzte Session: 2026-04-08 (Mittag → Abend, 17 Commits, alle offenen Punkte abgeschlossen + B1 Missions E2E)
+
+## 🔖 NEXT SESSION KICKOFF — B2 Following Feed E2E
+
+**Erstmal lesen:**
+1. Diesen Handoff (du bist hier)
+2. `memory/project_e2e_features.md` — 3 Features approved 2026-04-04
+3. Der "B1 Missions E2E" Block unten in diesem File — zeigt das Audit-Pattern
+
+**Pattern (von B1 bewaehrt):**
+1. **Discovery** — Scan: existierender service/hook/component/page/migration code für Following Feed
+2. **Reality Check** — was ist schon gebaut, was fehlt, was ist kaputt
+3. **Report** → 3 gezielte Fragen an Anil (A/B/C Stil), damit er die Tiefe wählt
+4. **Phase A-E** — implementieren basierend auf seiner Antwort (meist "alles/e")
+5. **Live Test** als jarvis-qa via playwright
+6. **Commits** — thematisch split, dann push
+
+**Startpunkte für B2 Discovery:**
+- Services: `src/lib/services/social.ts` (hat followUser + getUserStats — schon genutzt)
+- Queries: `src/lib/queries/` — gibt es `useFollowing*` queries?
+- Components: `src/components/` — gibt es FeedCard, FollowingFeed?
+- Route: `src/app/(app)/feed/` oder wo? Oder unter community?
+- DB: `user_follows` table existiert (siehe database.md: `following_id` column)
+
+**QA Account (unveraendert):**
+- Email: jarvis-qa@bescout.net / Handle: jarvisqa
+- Password: `JarvisQA2026!` (e2e/mystery-box-qa.spec.ts:5)
+- ~7.700 $SCOUT, 63 Tickets, 6 Tage Streak, 8 Holdings, 1 Manager-Lineup
+
+**MCP Tools einsatzbereit:**
+- `mcp__supabase__execute_sql` (project_id: `skzjfhvgccaeplydsunz`)
+- `mcp__supabase__apply_migration` — für DB cleanup migrations
+- `mcp__playwright__browser_*` — für Live E2E Tests
+
+---
 
 ## TL;DR
 Manager Team-Center Wave 0-5 ist KOMPLETT + auf prod verifiziert. CI ist nach monatelangem Rot-Stand **wieder grün**. Alle Handoff-Punkte dieser Session abgearbeitet. Keine offenen Krümel.
