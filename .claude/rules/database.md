@@ -63,3 +63,20 @@ paths:
 - Types zentral in `src/types/index.ts`
 - `entry.rank` in Airdrop-Queries ist nullable → IMMER `?? 999` / `?? 0`
 - `options` in Polls/Votes = JSONB Array: `{label: string; votes: number}[]`
+
+## Migration Workflow (KRITISCH — Registry-Drift vermeiden)
+- **IMMER** `mcp__supabase__apply_migration` nutzen fuer neue Migrations
+- **NIE** `supabase db push` — die remote `schema_migrations` Registry ist drifted (Diagnose 2026-04-09):
+  - Bug 1: `apply_migration` stempelt remote Version mit Aufruf-Zeitpunkt, nicht File-Name → 7 Mismatches bei heutigen Migrations (z.B. lokal `20260408220000_activity_log_realtime.sql` vs remote `20260408214045`). `db push` wuerde diese als "neu" sehen und Re-Apply versuchen → Crash.
+  - Bug 2: 7 "Ghost" Rows in `schema_migrations` mit `name=null, statements=null` (Versions `20260401124653`, `20260404190000`, `20260406180000` etc.)
+  - Legacy: ~17 lokale Files mit 8-stelligem Datum-Prefix (`20260330_*.sql`) wurden nie in der Registry registriert weil Supabase CLI pro Datum nur einen File nimmt
+- **Workflow fuer neue Migrations:**
+  1. Migration File lokal schreiben unter `supabase/migrations/YYYYMMDDHHMMSS_name.sql`
+  2. Via `mcp__supabase__apply_migration` ausfuehren (project_id, name, query)
+  3. Verifizieren mit `mcp__supabase__execute_sql` gegen `schema_migrations` oder direkt gegen die Zieltabelle
+  4. File committen — Registry-Mismatch ist erwartet und harmlos solange `db push` nie genutzt wird
+- **Verifikation nach Apply:**
+  - Fuer RLS: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`
+  - Fuer Tabelle: `SELECT relreplident FROM pg_class WHERE relname = 'X'` (Realtime-Tabellen = 'f')
+  - Fuer Publication: `SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime'`
+- **Falls `db push` irgendwann wirklich gebraucht wird** (CI-Migration, neues Team-Mitglied): erst die Registry via `schema_migrations` UPDATE/INSERT glattziehen — sonst Crash beim Re-Apply.
