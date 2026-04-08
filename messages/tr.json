@@ -4373,6 +4373,28 @@
     "streakBonus": "Seri bonusu",
     "justNow": "az önce"
   },
+  "feed": {
+    "scoutActivity": "Scout Aktivitesi",
+    "empty": "Diğer scoutların ne yaptığını görmek için onları takip et.",
+    "emptyCta": "Scoutları keşfet",
+    "justNow": "şimdi",
+    "actions": {
+      "trade_buy": "{player} aldı",
+      "trade_buy_generic": "bir oyuncu aldı",
+      "trade_sell": "{player} sattı",
+      "trade_sell_generic": "bir oyuncu sattı",
+      "research_create": "bir analiz yayınladı",
+      "post_create": "bir gönderi paylaştı",
+      "lineup_submit": "bir kadro gönderdi",
+      "follow": "birini takip ediyor",
+      "bounty_submit": "bir göreve başvurdu",
+      "bounty_create": "bir görev oluşturdu",
+      "offer_create": "bir teklif yaptı",
+      "offer_accept": "bir teklifi kabul etti",
+      "poll_create": "bir anket başlattı",
+      "vote_create": "bir oylama başlattı"
+    }
+  },
   "roles": {
     "owner": "Sahip",
     "admin": "Yönetici",

@@ -93,7 +93,7 @@ export const qk = {
 
   // ── Social ──
   social: {
-    feed: (uid: string) => ['social', 'feed', uid] as const,
+    feed: (uid: string, limit = 15) => ['social', 'feed', uid, limit] as const,
     followerCount: (uid: string) => ['social', 'followerCount', uid] as const,
     followingCount: (uid: string) => ['social', 'followingCount', uid] as const,
     followingIds: (uid: string) => ['social', 'followingIds', uid] as const,

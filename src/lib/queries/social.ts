@@ -8,10 +8,10 @@ import { getClubFollowerCount, isUserFollowingClub } from '@/lib/services/club';
 
 const TWO_MIN = 2 * 60 * 1000;
 
-export function useFollowingFeed(userId: string | undefined) {
+export function useFollowingFeed(userId: string | undefined, limit = 15) {
   return useQuery({
-    queryKey: qk.social.feed(userId!),
-    queryFn: () => getFollowingFeed(userId!, 15),
+    queryKey: qk.social.feed(userId!, limit),
+    queryFn: () => getFollowingFeed(userId!, limit),
     enabled: !!userId,
     staleTime: TWO_MIN,
   });
