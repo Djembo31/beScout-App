@@ -4371,7 +4371,19 @@
     "bountyReward": "Bounty ödülü",
     "pbtLiquidation": "PBT dağıtımı",
     "streakBonus": "Seri bonusu",
-    "justNow": "az önce"
+    "justNow": "az önce",
+    "streakReward": "Seri Ödülü",
+    "tierBonus": "Kademe Bonusu",
+    "welcomeBonus": "Hoşgeldin Bonusu",
+    "offerLock": "Teklif kilitlendi",
+    "offerUnlock": "Teklif açıldı",
+    "offerBuy": "Teklif kabul (Alım)",
+    "offerSell": "Teklif kabul (Satış)",
+    "fantasyJoin": "Fantezi'ye katıldı",
+    "tipReceive": "Bahşiş alındı",
+    "subscriptionEarning": "Abonelik geliri",
+    "creatorPayout": "Yaratıcı ödemesi",
+    "adRevenue": "Reklam geliri"
   },
   "feed": {
     "scoutActivity": "Scout Aktivitesi",

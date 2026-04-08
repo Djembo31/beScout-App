@@ -4371,7 +4371,19 @@
     "bountyReward": "Bounty-Belohnung",
     "pbtLiquidation": "PBT-Ausschüttung",
     "streakBonus": "Streak-Bonus",
-    "justNow": "gerade eben"
+    "justNow": "gerade eben",
+    "streakReward": "Streak-Belohnung",
+    "tierBonus": "Tier-Bonus",
+    "welcomeBonus": "Willkommensbonus",
+    "offerLock": "Gebot gesperrt",
+    "offerUnlock": "Gebot freigegeben",
+    "offerBuy": "Gebot angenommen (Kauf)",
+    "offerSell": "Gebot angenommen (Verkauf)",
+    "fantasyJoin": "Fantasy beigetreten",
+    "tipReceive": "Tipp erhalten",
+    "subscriptionEarning": "Abo-Einnahme",
+    "creatorPayout": "Creator-Auszahlung",
+    "adRevenue": "Werbe-Einnahme"
   },
   "feed": {
     "scoutActivity": "Scout Aktivität",
