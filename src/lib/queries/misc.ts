@@ -15,6 +15,7 @@ import { getLiquidationEvent } from '@/lib/services/liquidation';
 import { getSellOrders } from '@/lib/services/trading';
 import { getIpoForPlayer, getUserIpoPurchases } from '@/lib/services/ipo';
 import { getOpenBids } from '@/lib/services/offers';
+import { getWildcardHistory } from '@/features/fantasy/services/wildcards';
 import type { PostType } from '@/types';
 
 const ONE_MIN = 60 * 1000;
@@ -29,6 +30,27 @@ export function useTransactions(
   return useQuery({
     queryKey: qk.transactions.byUser(userId!, limit),
     queryFn: () => getTransactions(userId!, limit),
+    enabled: !!userId && enabled,
+    staleTime: TWO_MIN,
+  });
+}
+
+/**
+ * Fetch wildcard transaction history for a user.
+ * Reads from the `wildcard_transactions` table via getWildcardHistory.
+ * Currently the table is empty (wildcards not yet emitting tx rows), but
+ * the hook is live so that once mint/spend RPCs start writing rows,
+ * consumers can mount this hook in Timeline / Transactions without code
+ * changes elsewhere.
+ */
+export function useWildcardHistory(
+  userId: string | undefined,
+  opts: { limit?: number; enabled?: boolean } = {},
+) {
+  const { limit = 50, enabled = true } = opts;
+  return useQuery({
+    queryKey: ['wildcards', 'history', userId!, limit] as const,
+    queryFn: () => getWildcardHistory(userId!, limit),
     enabled: !!userId && enabled,
     staleTime: TWO_MIN,
   });

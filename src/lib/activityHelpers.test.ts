@@ -95,7 +95,9 @@ describe('getActivityLabelKey', () => {
     expect(getActivityLabelKey('bounty_cost')).toBe('bountyCost');
     expect(getActivityLabelKey('bounty_reward')).toBe('bountyReward');
     expect(getActivityLabelKey('pbt_liquidation')).toBe('pbtLiquidation');
-    expect(getActivityLabelKey('streak_bonus')).toBe('streakBonus');
+    // B3: both legacy streak_bonus and DB-canonical streak_reward map to streakReward i18n key
+    expect(getActivityLabelKey('streak_bonus')).toBe('streakReward');
+    expect(getActivityLabelKey('streak_reward')).toBe('streakReward');
   });
 
   it('returns raw type for unknown types', () => {

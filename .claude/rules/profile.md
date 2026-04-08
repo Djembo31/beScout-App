@@ -19,15 +19,14 @@ paths:
 | Settings Tab | ja | nein |
 | Wallet Balance | ja | nein |
 | Follow Button | nein | ja |
-| Transactions | alle Typen | nur PUBLIC_TX_TYPES |
+| Transactions | alle Typen | nur `PUBLIC_TX_TYPES` (SSOT) |
 | Level-Up Toast | ja | nein |
 
-```typescript
-PUBLIC_TX_TYPES = ['buy', 'sell', 'ipo_buy', 'fantasy_join', 'fantasy_reward',
-  'bounty_reward', 'research_earning', 'mission_reward', 'streak_reward',
-  'poll_revenue', 'pbt_liquidation', 'tip_receive', 'scout_subscription_earning',
-  'creator_fund_payout', 'ad_revenue_payout']
-```
+**Transaction Type SSOT:** `src/lib/transactionTypes.ts`
+- `PUBLIC_TX_TYPES` — Whitelist fuer Public Profile Timeline
+- `FILTER_TYPE_MAP` — Filter groups (trades/fantasy/research/rewards)
+- `ALL_CREDIT_TX_TYPES` — komplette Liste aller known types
+- RLS Policy `transactions_select_public_types` MUSS diese Whitelist spiegeln (Migration `20260408190000_transactions_public_rls.sql`)
 
 ## Tabs
 ```typescript
