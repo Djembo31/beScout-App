@@ -16,6 +16,8 @@ export type ApplyLineupTemplate = {
   formation: string;
   /** Slot index (0..6 for 7er, 0..10 for 11er) → playerId */
   slotPlayerIds: Record<number, string>;
+  /** Captain slot key (e.g. 'gk', 'def1', 'mid2') if the source lineup had a captain */
+  captainSlot: string | null;
   sourceEventId: string;
 };
 
@@ -66,6 +68,10 @@ interface ManagerState {
   // Cross-tab apply (Historie → Aufstellen)
   applyLineupTemplate: ApplyLineupTemplate | null;
   setApplyLineupTemplate: (template: ApplyLineupTemplate | null) => void;
+
+  // Cross-tab pre-pick (Kader PlayerDetail → Aufstellen): one-shot
+  pendingLineupPlayerId: string | null;
+  setPendingLineupPlayerId: (id: string | null) => void;
 }
 
 export const useManagerStore = create<ManagerState>((set) => ({
@@ -109,4 +115,8 @@ export const useManagerStore = create<ManagerState>((set) => ({
   // ── Cross-tab apply ──
   applyLineupTemplate: null,
   setApplyLineupTemplate: (applyLineupTemplate) => set({ applyLineupTemplate }),
+
+  // ── Cross-tab pre-pick (one-shot, consumed by AufstellenTab apply effect) ──
+  pendingLineupPlayerId: null,
+  setPendingLineupPlayerId: (pendingLineupPlayerId) => set({ pendingLineupPlayerId }),
 }));

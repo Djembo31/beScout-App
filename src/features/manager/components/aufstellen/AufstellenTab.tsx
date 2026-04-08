@@ -5,13 +5,11 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/providers/ToastProvider';
-import { qk } from '@/lib/queries/keys';
-import { equipToSlot } from '@/lib/services/equipment';
 import { useManagerStore } from '../../store/managerStore';
 import { useOpenEvents, pickDefaultEvent } from '../../queries/eventQueries';
 import { useLineupBuilder } from '@/features/fantasy/hooks/useLineupBuilder';
+import { useLineupSave } from '@/features/fantasy/hooks/useLineupSave';
 import { useFantasyHoldings } from '@/features/fantasy/hooks/useFantasyHoldings';
 import { useFixtureDeadlines } from '@/features/fantasy/hooks/useFixtureDeadlines';
 import { useEventActions } from '@/features/fantasy/hooks/useEventActions';
@@ -33,7 +31,6 @@ export default function AufstellenTab() {
   const tFantasy = useTranslations('fantasy');
   const { user } = useUser();
   const userId = user?.id;
-  const queryClient = useQueryClient();
 
   // ==================== Event selection ====================
   const selectedEventId = useManagerStore((s) => s.selectedEventId);
@@ -85,7 +82,6 @@ export default function AufstellenTab() {
     if (applyTemplate.format !== targetFormat) {
       addToast(
         t('applyFormatMismatch', {
-          defaultValue: 'Format passt nicht (Quelle {src}, Ziel {tgt}). Aufstellung nicht übernommen.',
           src: applyTemplate.format,
           tgt: targetFormat,
         }),
@@ -125,75 +121,110 @@ export default function AufstellenTab() {
 
     if (lineup.length > 0) {
       lb.handleApplyPreset(lb.selectedFormation, lineup);
+      // handleApplyPreset clears captain (storeLoadFromDb passes null).
+      // Restore captain from template if the captain slot still has a player.
+      if (applyTemplate.captainSlot) {
+        // Resolve captain slot key (e.g. 'mid2') → slot index (e.g. 4)
+        const captainIdx = lb.slotDbKeys.findIndex((k) => k === applyTemplate.captainSlot);
+        if (captainIdx >= 0 && lineup.some((p) => p.slot === captainIdx)) {
+          lb.setCaptainSlot(applyTemplate.captainSlot);
+        }
+      }
     }
 
     if (missing > 0) {
       addToast(
-        t('applyMissingPlayers', {
-          defaultValue: '{count} Spieler nicht mehr verfügbar — manuell ergänzen',
-          count: missing,
-        }),
+        t('applyMissingPlayers', { count: missing }),
         'info',
       );
     } else {
       addToast(
-        t('applySuccess', { defaultValue: 'Aufstellung übernommen — vor Save prüfen' }),
+        t('applySuccess'),
         'success',
       );
     }
 
     setApplyTemplate(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- lb.handleApplyPreset/handleFormationChange identity stable; t/addToast stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lb handler refs (handleApplyPreset, handleFormationChange, setCaptainSlot, isPlayerLocked) are useCallback'd in useLineupBuilder and only change when their underlying store setters change (never in practice). lb.slotDbKeys is derived from lb.formationSlots so adding it would be redundant. addToast/setApplyTemplate/t are stable. Effect re-runs when applyTemplate is set OR when the lineup state stabilises after a formation switch.
   }, [applyTemplate, effectiveEvent, lb.formationSlots, lb.selectedFormation, lb.availableFormations, lb.effectiveHoldings]);
 
-  // ==================== Save flow (mirrors EventDetailModal handleSaveLineup) ====================
-  const [joining, setJoining] = useState(false);
+  // ==================== Pre-pick player from Kader (Player Detail → "Im Lineup planen") ====================
+  const pendingPlayerId = useManagerStore((s) => s.pendingLineupPlayerId);
+  const setPendingPlayerId = useManagerStore((s) => s.setPendingLineupPlayerId);
+
+  useEffect(() => {
+    if (!pendingPlayerId) return;
+    if (!effectiveEvent) return;
+    if (lb.formationSlots.length === 0) return;
+
+    // Player must be in the user's holdings + available + not locked
+    const holding = lb.effectiveHoldings.find((h) => h.id === pendingPlayerId);
+    if (!holding) {
+      addToast(t('pendingPlayerMissing'), 'error');
+      setPendingPlayerId(null);
+      return;
+    }
+    if (holding.dpcAvailable <= 0 || lb.isPlayerLocked(pendingPlayerId)) {
+      addToast(t('pendingPlayerLocked'), 'error');
+      setPendingPlayerId(null);
+      return;
+    }
+
+    // If player already in lineup → just toast + clear, don't move
+    if (lb.selectedPlayers.some((p) => p.playerId === pendingPlayerId)) {
+      addToast(t('pendingPlayerAlreadyInLineup'), 'info');
+      setPendingPlayerId(null);
+      return;
+    }
+
+    // Find first empty slot matching the player's position
+    const playerPos = holding.pos.toUpperCase();
+    const posMap: Record<string, string[]> = {
+      GK: ['GK'],
+      DEF: ['DEF', 'CB', 'LB', 'RB'],
+      MID: ['MID', 'CM', 'CDM', 'CAM', 'LM', 'RM'],
+      ATT: ['ATT', 'FW', 'ST', 'CF', 'LW', 'RW'],
+    };
+    const usedSlots = new Set(lb.selectedPlayers.map((p) => p.slot));
+    const targetSlot = lb.formationSlots.find((s) => {
+      if (usedSlots.has(s.slot)) return false;
+      const validPositions = posMap[s.pos] || [s.pos];
+      return validPositions.some((vp) => playerPos.includes(vp));
+    });
+
+    if (!targetSlot) {
+      addToast(t('pendingPlayerNoSlot'), 'info');
+      setPendingPlayerId(null);
+      return;
+    }
+
+    lb.handleSelectPlayer(pendingPlayerId, targetSlot.pos, targetSlot.slot);
+    addToast(
+      t('pendingPlayerAdded', {
+        name: `${holding.first} ${holding.last}`,
+      }),
+      'success',
+    );
+    setPendingPlayerId(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lb handler refs (handleSelectPlayer, isPlayerLocked) and addToast/setPendingPlayerId/t are stable enough; effect re-runs when pendingPlayerId or effectiveEvent or formationSlots/effectiveHoldings/selectedPlayers change.
+  }, [pendingPlayerId, effectiveEvent, lb.formationSlots, lb.effectiveHoldings, lb.selectedPlayers]);
+
+  // ==================== Save flow (shared hook with EventDetailModal) ====================
   const [leaving, setLeaving] = useState(false);
 
-  const handleSaveLineup = useCallback(async () => {
-    if (!effectiveEvent) return;
-    if (!lb.isLineupComplete) {
-      alert(tFantasy('incompleteLineupAlert'));
-      return;
-    }
-    if (!lb.reqCheck.ok) {
-      alert(lb.reqCheck.message);
-      return;
-    }
-    setJoining(true);
-    try {
-      if (!effectiveEvent.isJoined) {
-        await joinEvent(effectiveEvent);
-      }
-      await submitLineup(
-        effectiveEvent,
-        lb.selectedPlayers,
-        lb.selectedFormation,
-        lb.captainSlot,
-        Array.from(lb.wildcardSlots),
-      );
-
-      // Persist equipment after lineup save
-      const eqEntries = Object.entries(lb.equipmentMap);
-      if (eqEntries.length > 0 && userId) {
-        const results = await Promise.allSettled(
-          eqEntries.map(([slotKey, eq]) => equipToSlot(effectiveEvent.id, eq.id, slotKey)),
-        );
-        const failed = results.filter(
-          (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.ok),
-        );
-        if (failed.length > 0) {
-          console.error('[AufstellenTab] Some equip calls failed:', failed);
-        }
-        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(userId) });
-      }
-    } catch (err) {
-      console.error('[AufstellenTab] handleSaveLineup failed:', err);
-      alert(tFantasy('errorShort', { msg: err instanceof Error ? err.message : 'Lineup save failed' }));
-    } finally {
-      setJoining(false);
-    }
-  }, [effectiveEvent, lb, joinEvent, submitLineup, userId, queryClient, tFantasy]);
+  const { joining, handleSaveLineup } = useLineupSave({
+    event: effectiveEvent,
+    userId,
+    isLineupComplete: lb.isLineupComplete,
+    reqCheck: lb.reqCheck,
+    selectedPlayers: lb.selectedPlayers,
+    selectedFormation: lb.selectedFormation,
+    captainSlot: lb.captainSlot,
+    wildcardSlots: lb.wildcardSlots,
+    equipmentMap: lb.equipmentMap,
+    onJoin: joinEvent,
+    onSubmitLineup: submitLineup,
+  });
 
   const handleLeave = useCallback(async () => {
     if (!effectiveEvent || leaving) return;
@@ -227,7 +258,7 @@ export default function AufstellenTab() {
       <div className="space-y-4">
         <EventSelector />
         <div className="py-12 text-center text-sm text-white/40">
-          {t('noOpenEvents', { defaultValue: 'Keine offenen Events' })}
+          {t('noOpenEvents')}
         </div>
       </div>
     );
@@ -238,7 +269,7 @@ export default function AufstellenTab() {
       <div className="space-y-4">
         <EventSelector />
         <div className="py-12 text-center text-sm text-white/40">
-          {t('selectEventHint', { defaultValue: 'Wähle ein Event oben' })}
+          {t('selectEventHint')}
         </div>
       </div>
     );
