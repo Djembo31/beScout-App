@@ -59,18 +59,10 @@ Nach Anil's Kommentar "du zeigst mir fertige Sachen als offen an" (Ende der Sess
 
 ## Wirklich offene Punkte
 
-### A — Equipment Ökonomie-Session (empfohlen als nächster Task)
+### A — Equipment Ökonomie-Session ✅ DONE (2026-04-08 Abend)
 **Quelle:** `memory/project_chip_equipment_system.md`
 
-Equipment System ist deployed live seit 2026-04-07. **Drop-Raten in `mystery_box_config` sind Platzhalter.** Die echte Ökonomie muss kalibriert werden.
-
-**Was zu tun:**
-- Aktuelle Platzhalter-Raten auslesen (`mystery_box_config` SELECT)
-- Ökonomie-Modell: Wie selten soll R4 (×1.25) sein? R3 (×1.15)? R2 (×1.10)?
-- Balance: Scarcity vs. Frustration bei Mystery Box Öffnungen
-- Drop-Rate pro Mystery-Box-Stufe × pro Equipment-Rang = Matrix
-- **Braucht Anils Input** für Business-Entscheidungen (Ökonomie-Balance)
-- Migration mit neuen Werten, Live-Test mit Mystery Box Flow
+Calibration v1 (Migration `20260407120000_mystery_box_calibration_v1.sql`) von Anil am 2026-04-08 bestätigt. EV +29%, R4 bei 0,65% (~1 in 154 Boxen), Full R1 Set ~50 Boxen. Keine neue Migration nötig — Werte sind final.
 
 ### B — Beta-Tester-Gruppe formalisieren (Produkt, kein Code)
 **Quelle:** `wiki/early-feedback-freundeskreis.md`
@@ -113,7 +105,7 @@ Equipment System ist deployed live seit 2026-04-07. **Drop-Raten in `mystery_box
 | B2 Following Feed E2E | ✅ DONE (2026-04-08 Vormittag) |
 | B3 Transactions History E2E | ✅ DONE (2026-04-08 Abend) |
 | Onboarding Multi-Club | ✅ DONE (2026-04-08 Abend) |
-| Equipment System | ✅ DEPLOYED LIVE (2026-04-07) — **Drop-Raten noch Platzhalter** |
+| Equipment System | ✅ DEPLOYED LIVE (2026-04-07) — Drop-Raten **final bestätigt 2026-04-08** |
 | Kill-Switch Founding Passes 900K | ✅ IMPLEMENTIERT |
 
 Keine Krümel zurückgelassen. Nächste Session kann mit sauberer Basis starten.
