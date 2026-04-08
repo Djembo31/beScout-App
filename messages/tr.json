@@ -249,7 +249,8 @@
     "feedback": "Geri bildirim gönder",
     "glossary": "Sözlük",
     "closeSearch": "Aramayı kapat",
-    "levelPlan": "Sv {level} · {plan}"
+    "levelPlan": "Sv {level} · {plan}",
+    "transactions": "İşlemler"
   },
   "home": {
     "greeting": "Tekrar hoş geldin",
@@ -2021,7 +2022,8 @@
     "analystEmptyPublic": "Henüz analiz yok.",
     "goToEvents": "Etkinliklere git",
     "writeResearch": "Araştırma yaz",
-    "pointsAbbr": "P"
+    "pointsAbbr": "P",
+    "allTransactions": "Tüm işlemler →"
   },
   "player": {
     "overview": "Genel Bakış",
@@ -4739,5 +4741,24 @@
     "fantasy": "Maç Günü",
     "market": "Pazar",
     "player": "Oyuncu"
+  },
+  "transactions": {
+    "title": "İşlem Geçmişi",
+    "subtitle": "Tüm Credits ve Bilet hareketleri filtre, arama ve dışa aktarma ile",
+    "backToProfile": "← Profile dön",
+    "signInPrompt": "Geçmişi görmek için lütfen giriş yapın",
+    "rangeLabel": "Zaman aralığı",
+    "range7d": "7 Gün",
+    "range30d": "30 Gün",
+    "range90d": "90 Gün",
+    "rangeAll": "Tümü",
+    "searchPlaceholder": "Açıklama ara...",
+    "exportCsv": "CSV",
+    "totalEarned": "Kazanılan",
+    "totalSpent": "Harcanan",
+    "net": "Net",
+    "emptyTitle": "Seçilen aralıkta işlem yok",
+    "emptyHint": "Daha fazla görmek için filtreyi veya aralığı değiştirin",
+    "showingCount": "{count, plural, =0 {Kayıt yok} =1 {1 kayıt} other {# kayıt}}"
   }
 }

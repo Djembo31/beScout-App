@@ -249,7 +249,8 @@
     "feedback": "Feedback senden",
     "glossary": "Glossar",
     "closeSearch": "Suche schließen",
-    "levelPlan": "Lv {level} · {plan}"
+    "levelPlan": "Lv {level} · {plan}",
+    "transactions": "Transaktionen"
   },
   "home": {
     "greeting": "Willkommen zurück",
@@ -2021,7 +2022,8 @@
     "analystEmptyPublic": "Noch keine Analysen.",
     "goToEvents": "Zu den Events",
     "writeResearch": "Research schreiben",
-    "pointsAbbr": "Pkt"
+    "pointsAbbr": "Pkt",
+    "allTransactions": "Alle Transaktionen →"
   },
   "player": {
     "overview": "Übersicht",
@@ -4739,5 +4741,24 @@
     "fantasy": "Fantasy",
     "market": "Marktplatz",
     "player": "Spieler"
+  },
+  "transactions": {
+    "title": "Transaktionsverlauf",
+    "subtitle": "Alle Credits- und Tickets-Bewegungen mit Filter, Suche und Export",
+    "backToProfile": "← Zurück zum Profil",
+    "signInPrompt": "Bitte einloggen um deinen Verlauf zu sehen",
+    "rangeLabel": "Zeitraum",
+    "range7d": "7 Tage",
+    "range30d": "30 Tage",
+    "range90d": "90 Tage",
+    "rangeAll": "Gesamt",
+    "searchPlaceholder": "Beschreibung suchen...",
+    "exportCsv": "CSV",
+    "totalEarned": "Eingenommen",
+    "totalSpent": "Ausgegeben",
+    "net": "Netto",
+    "emptyTitle": "Keine Transaktionen im gewählten Zeitraum",
+    "emptyHint": "Ändere Filter oder Zeitraum um mehr zu sehen",
+    "showingCount": "{count, plural, =0 {Keine Einträge} =1 {1 Eintrag} other {# Einträge}}"
   }
 }
