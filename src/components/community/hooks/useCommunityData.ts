@@ -86,10 +86,13 @@ export function useCommunityData(
         const primaryClub = await getUserPrimaryClub(userId!);
         if (primaryClub) { cId = primaryClub.id; cName = primaryClub.name; }
       }
-      const clubData = await getClubBySlug(cId ? (cName ?? '') : 'sakaryaspor', userId!).catch(() => null);
-      if (!cId && clubData) { cId = clubData.id; cName = clubData.name; }
-      if (!cancelled && cId) { dispatch({ type: 'SET_CLUB', clubId: cId, clubName: cName }); }
-      if (!cancelled && clubData) { dispatch({ type: 'SET_CLUB_ADMIN', value: clubData.is_admin }); }
+      // Multi-club: no hardcoded fallback to pilot club. If the user follows no
+      // clubs, the community hook stays in a null-scope — downstream UI can
+      // render a "follow clubs to personalize" empty state.
+      if (!cId || !cName) return;
+      const clubData = await getClubBySlug(cName, userId!).catch(() => null);
+      if (!cancelled) dispatch({ type: 'SET_CLUB', clubId: cId, clubName: cName });
+      if (!cancelled && clubData) dispatch({ type: 'SET_CLUB_ADMIN', value: clubData.is_admin });
     }
     resolveClub();
     return () => { cancelled = true; };
