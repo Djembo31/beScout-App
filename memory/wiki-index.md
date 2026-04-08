@@ -19,22 +19,23 @@
 | ui-components.md | UI | 75 | Mobile-First, States, Accessibility, Animations |
 | workflow-reference.md | Workflow | 175 | How I Work, Agent-Team, Skills, MCP, Hooks |
 | performance.md | Performance | 28 | Query-Optimierung, Bundle, Rendering |
-| testing.md | Testing | 32 | Unit/Integration/E2E Konventionen |
+| testing.md | Testing | 32 | Unit/Integration/E2E Konventionen (inkl. Visual QA Playbook) |
 
 ## Memory (memory/) — Reference Files
 
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
 | patterns.md | Reference | 231 | Top 20 Code Patterns (Service Layer, Query Keys, Loading Guards) |
-| errors.md | Reference | 84 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props) |
+| errors.md | Reference | 95 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, Dynamic Import, Feed RLS) |
 | cortex-index.md | Routing | 33 | Routing-Tabelle: welches Wissen bei welchem Task laden |
-| session-handoff.md | Handoff | 114 | Letzte Session: Manager Wave 0-5 DONE, Visual QA Fix, Build 2347/2347 gruen |
+| session-handoff.md | Handoff | 187 | Letzte Session: B2 Following Feed E2E + B1 Missions E2E DONE |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
 | semantisch/projekt/agent-research.md | Research | 371 | Agent-System Patterns (24 Patterns, Must-Haves) |
 | semantisch/projekt/architecture-3hub.md | Architecture | 48 | 3-Hub Refactor 2026-04-07: Profile/Inventory/Missions/Home |
-| semantisch/projekt/manager-team-center.md | Architecture | 68 | Manager Team-Center Wave 0-5 DONE: useLineupBuilder, Kader Migration, Historie-Tab (NEU) |
+| semantisch/projekt/manager-team-center.md | Architecture | 71 | Manager Team-Center Wave 0-5 DONE: useLineupBuilder, Kader Migration, Historie-Tab (NEU) |
+| semantisch/projekt/following-feed.md | Feature | 74 | B2 Following Feed E2E: RLS Fix, Dead Code Audit, i18n Labels, Feed Widget |
 | semantisch/sprint/current.md | Sprint | 55 | Sprint-Status Jarvis Cortex v1 |
 
 ## Features (memory/features/) — 8 Specs
@@ -101,4 +102,4 @@
 
 ---
 
-*Last generated: 2026-04-08 by AutoDream v3 Run #3 (Session 42, Counter 38)*
+*Last generated: 2026-04-08 by AutoDream v3 Run #4 (5 Retros: B2 Following Feed + B1 Missions Aftermath)*

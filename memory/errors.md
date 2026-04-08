@@ -24,6 +24,11 @@
 - **`console.error` ohne `throw` bei DB-Writes:** Fehler wird geloggt aber nicht geworfen. → **Fix:** `throw` nach `console.error` bei kritischen Writes.
 - **RLS Policies nicht verifiziert nach Migration:** Policies koennten fehlen. → **Fix:** `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`.
 - **RLS `.update()` stumm blockiert:** Update-Queries returnieren OK aber aendern nichts. → **Fix:** RPC fuer geschuetzte Tabellen nutzen statt direktem `.update()`.
+- **`activity_log` Feed Policy nur `auth.uid() = user_id`:** Blockiert Feeds von gefolgten Usern, da der lesende User eine ANDERE user_id hat. Pattern wie Session 255 holding_locks. → **Fix:** Policy erweitern: `auth.uid() = user_id OR user_id IN (SELECT following_id FROM user_follows WHERE follower_id = auth.uid())`. Anwendbar auf JEDE Feed-Tabelle die Cross-User-Reads benoetigt. (2026-04-08, B2 Following Feed, Commit e61be4a)
+
+### Dynamic Import + fire-and-forget Promise
+
+- **Inner Promise nicht returned in `.then()` body-block:** `import('X').then(({ fn }) => { fn(id); })` — `fn(id)` erzeugt neues Promise das NICHT zum outer `.catch` propagiert. Lokal verdeckt weil echter DB-Call erfolgreich ist. Im CI ohne env vars crasht `vi.mock` nicht zuverlaessig fuer dynamic imports → echter Service geladen → Network Error → vitest exit 1. → **Fix:** Expression-Form: `.then(({ fn }) => fn(id))`. (2026-04-08, CI Resurrection, Commit 868b8ce)
 
 ### Supabase Client
 
@@ -80,3 +85,11 @@
 ### Component Props
 
 - **Hardcoded null fuer Prop das Daten braucht:** `<PageHeader nextEvent={null} />` rendert visuell OK aber semantisch falsch (zeigt "Kein Event" obwohl Events existieren). → **Fix:** Prop IMMER aus echtem Query (useOpenEvents etc.) verbinden. Hardcoded null ist semantische Luege. (2026-04-08, Manager PageHeader, Commit d16b493)
+
+### Dead Code / Dead Exports
+
+- **Exportierter Hook ohne Consumer:** `getFollowingFeed` existierte seit Monaten in `social.ts`, wurde nie aufgerufen. `FEED_ACTION_LABELS` war dead export in queries. → **Fix:** Audit-Signal: grep nach jedem exportierten Hook/Typ → wenn 0 Consumer → entweder drahtlos oder loeschen. Vor neuer Feature-Implementierung: existierende dead-code Kandidaten suchen, nicht neu bauen. (2026-04-08, B2 Following Feed Discovery)
+
+### Dev Server / Service Worker
+
+- **Service Worker Cache zeigt stale JS/HTML bei Dev:** Browser liefert gecachte Version des Build-Artifacts auch nach Code-Aenderungen. → **Fix:** Vor jedem frischen QA-Test: DevTools → Application → Service Workers → "Unregister" + "Update on reload" aktivieren + Hard Reload (Shift+F5). Alternativ: Incognito-Window. Immer zuerst pruefen ob SW aktiv ist bevor Rendering-Bugs reported werden. (2026-04-08, B2 Following Feed QA)

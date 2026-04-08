@@ -53,3 +53,18 @@
   - memory/wiki-log.md (dieser Eintrag)
   - .claude/autodream-last-run (Timestamp)
   - .claude/session-counter (reset zu 0)
+
+## [2026-04-08] AutoDream Run #4 (5 Retros, B2 Following Feed Abend-Session)
+- Verdichtet: 5 Retros (retro-20260408-171724..181031) -> 1 neues semantisches File
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/following-feed.md)
+- Archiviert: 0 Sessions (alle Retros von heute 2026-04-08 < 1 Tag alt; 5 Retros vom 2026-04-07 sind deleted/staged, kein Handlungsbedarf)
+- Neue Error-Patterns (4): activity_log Feed RLS Policy Trap, Dead Code Exports Audit-Signal, Service Worker Cache stale in Dev, Dynamic Import fire-and-forget Promise
+- Drafts pending review: 1 (2026-04-07-qa-visual-3hub-refactor.md — unveraendert, Anil muss reviewen)
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/following-feed.md (NEU)
+  - memory/errors.md (+4 Patterns: Feed RLS / Dead Exports / SW Cache / Dynamic Import Promise)
+  - memory/wiki-index.md (aktualisiert: neue Datei, Zeilenzahlen, session-handoff Lines, Run #4 Footer)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
