@@ -276,10 +276,13 @@ describe('Business Flows — Cross-Table Verification', () => {
   });
 
   // ── 11. Event current_entries matches actual lineup count ──
+  // Note: ended events with 0 lineups but >0 current_entries are a legit edge case
+  // covered by score_event_no_lineups_handling migration (2026-04-07): user paid
+  // but never submitted a lineup → event gracefully closed with scored_at set.
   it('FLOW-11: event current_entries equals actual lineup count', async () => {
     const { data: events, error } = await sb
       .from('events')
-      .select('id, name, current_entries')
+      .select('id, name, current_entries, status, scored_at')
       .in('status', ['registering', 'running', 'ended'])
       .gt('current_entries', 0)
       .limit(50);
@@ -294,11 +297,17 @@ describe('Business Flows — Cross-Table Verification', () => {
         .select('id', { count: 'exact', head: true })
         .eq('event_id', evt.id);
 
-      if ((count ?? 0) !== evt.current_entries) {
-        violations.push(
-          `Event "${evt.name}": current_entries=${evt.current_entries} but ${count} lineups`
-        );
+      const lineupCount = count ?? 0;
+      if (lineupCount === evt.current_entries) continue;
+
+      // Skip migration edge case: ended event with 0 lineups but paid entries
+      if (lineupCount === 0 && evt.status === 'ended' && evt.scored_at !== null) {
+        continue;
       }
+
+      violations.push(
+        `Event "${evt.name}": current_entries=${evt.current_entries} but ${lineupCount} lineups`
+      );
     }
     expect(violations, violations.join('\n')).toHaveLength(0);
   });
