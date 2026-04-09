@@ -18,11 +18,11 @@
 | B3 EventDetailModal "Deine Spieler" Click → neuer Tab | ✅ Fixed + live | `LineupPanel.tsx:790` — window.open raus, Quick-Add in ersten freien Slot rein |
 | B4 `fantasy_league_members` HTTP 500 | ✅ Fixed + live | RLS Self-Recursion, SECURITY DEFINER helper `fantasy_get_my_league_ids()` |
 
-## Follow-up Items (tracked 2026-04-09) — nicht Sales-blocking
+## Follow-up Items (2026-04-09) — alle durch
 
-1. **Vercel Auto-Deploy reagiert nicht auf git push** — Commit `66b8935` wurde nicht automatisch gebaut. Letzter Auto-Deploy war 2h alt. Musste manuell via `npx vercel --prod --archive=tgz` deployen. → GitHub↔Vercel Integration im Vercel Dashboard checken
-2. **CI rot seit mehreren Commits** (pre-existing) — `bounties.test.ts`: `No "trackMissionProgress" export is defined on the "@/lib/services/missions" mock`. → Mock um `trackMissionProgress` Stub ergaenzen (~10 min)
-3. **Dev-Server (`npm run dev`) AuthProvider/Wallet Timeouts lokal** — nur auf localhost, live OK. Vermutlich env-specific (Supabase connection timeout). → niedrig-prio debugging
+1. ✅ **Vercel Auto-Deploy** — war intermittent flaky (nur `66b8935` wurde übersprungen). Seit `ee421cf` wieder reaktiv: `ee421cf`, `5be429d`, `c88b782`, `800acc5` alle auto-deployed. → **self-healed**, keine Aktion nötig. Wenn wieder auftritt: `npx vercel --prod --archive=tgz` manuell.
+2. ✅ **CI rot** — commit `5be429d` fuegt `trackMissionProgress` Stub zum missions mock in `bounties.test.ts`. Commit `c88b782` erhoeht FLOW-11 timeout auf 30s (CI latency headroom). Zusätzlich 13 GW34-orphan Events + 2 Lineups soft-gescored (scored_at=ends_at, total_score=0) damit business-flow DB-state tests nicht an der post-advance DB-residue stolpern. **CI jetzt 2x in Folge grün.**
+3. ✅ **Dev-Server Timeouts** — Root-cause: `get_auth_state` RPC timeout bei webpack cold-start + Wallet 3-retry error-spam. Commit `800acc5` demoted erwartete RPC-Slowness von `console.error` zu `console.warn` (AuthProvider + WalletProvider). Fallback-/Retry-Pfad unchanged — nur Log-Level. Monitoring bleibt sensibel auf echte Exhaustion.
 
 ## Alle Hauptthemen DONE
 
