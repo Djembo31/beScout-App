@@ -103,6 +103,14 @@
 
 - **Code-Filtermap kennt nicht alle DB-Types:** Filter verpasst Rows weil DB `trade_buy`/`trade_sell` hat aber Code nur `['buy','sell']` kennt. Passiert bei organisch gewachsenen Enums. → **Fix:** VOR Feature-Bau: `SELECT DISTINCT type, COUNT(*) FROM <tabelle> GROUP BY type ORDER BY 2 DESC;` → Ergebnis gegen Code-Konstanten greppen. Wenn >3 DB-Types nicht im Code → Drift beheben bevor Implementation. SSOT-Datei erstellen die Code + RLS spiegelt. (2026-04-08, B3 FILTER_TYPE_MAP, Commit 9264bb2)
 
+### Navigation-Abort / Fetch-Abort Noise
+
+- **`console.error` fuer "Failed to fetch" bei Navigation:** Passiert wenn User navigiert waehrend Layout-Queries noch in-flight sind. Nicht ein echter API-Fehler — erzeugt aber Monitoring-Noise. → **Fix:** `logSupabaseError(prefix, error)` aus `src/lib/supabaseErrors.ts` nutzen statt direktem `console.error`. Klassifiziert automatisch: `warn` fuer Transients (Failed to fetch, NetworkError, ERR_NETWORK, network request failed), `error` fuer echte API-Fehler. Alle 5 Consumer (sponsors, tickets, trading, welcomeBonus, useHomeData) als Referenz. (2026-04-09, Commit ef13d85)
+
+### RLS Self-Recursion (SECURITY DEFINER Pattern)
+
+- **RLS Policy referenziert dieselbe Tabelle im Subquery:** PostgreSQL re-applied dieselbe Policy auf den Inner-SELECT → infinite recursion → PostgREST HTTP 500. Pattern: `SELECT league_id FROM fantasy_league_members WHERE user_id = auth.uid()` innerhalb einer Policy auf `fantasy_league_members`. → **Fix:** SECURITY DEFINER Helper-Funktion erstellen die ausserhalb des Policy-Kontexts laeuft: `CREATE FUNCTION get_my_ids() RETURNS SETOF uuid LANGUAGE sql SECURITY DEFINER STABLE AS $$ SELECT id FROM tbl WHERE user_id = auth.uid(); $$;`. Policy nutzt dann den Helper: `id IN (SELECT get_my_ids())`. Regel: Wann immer eine RLS Policy dieselbe Tabelle im Subquery referenziert → SECURITY DEFINER. (2026-04-09, fantasy_league_members, Migration 20260409150000, Commit 66b8935)
+
 ### Feed/Social Read Tabellen
 
 - **Cross-User Read Policy generell fehlt:** Zweiter Fall nach B2 `activity_log` — `transactions` hatte nur `auth.uid() = user_id`, blockierte damit Public Profile Timeline komplett (silent: keine Rows, kein Error). → **Fix:** Feed/Social-Tabellen die Cross-User-Reads brauchen (Public Profile, Follower-Feed) IMMER zwei SELECT-Policies: `own-all` + `public-whitelist`. Pattern: `type = ANY(ARRAY['safe_type1','safe_type2'])` fuer die public-readable Subset. RLS nach jeder Migration: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`. (2026-04-08, B3 transactions RLS, Commit 9264bb2)

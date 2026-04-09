@@ -84,6 +84,24 @@
   - .claude/autodream-last-run (Timestamp)
   - .claude/session-counter (reset zu 0)
 
+## [2026-04-09] AutoDream Run #7 (Fantasy QA Stabilisation + Navigation-Abort + CI fixes — 9 Commits)
+- Verdichtet: 5 Retros (retro-20260409-200738, -215318, -215411, -215429, -215730) → 1 neues semantisches File
+  - 200738: CI follow-ups (trackMissionProgress stub, FLOW-11 timeout, AuthProvider warn demotion, 3 follow-ups resolved)
+  - 215318/215411/215429/215730: 4 Duplikate des gleichen Commits ef13d85 (Navigation-Abort error classification)
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/fantasy-qa-stabilisation.md ~77 Zeilen)
+- Neue Error-Patterns: 2 (Navigation-Abort/Fetch-Abort Noise, RLS Self-Recursion / SECURITY DEFINER Pattern)
+- Archiviert: 0 Sessions (alle 2026-04-09 Retros < 1 Tag alt; die 5 deleted-staged Retros waren bereits aus dem FS entfernt)
+- Cortex-Index: aktuell, keine verwaisten Eintraege
+- Drafts pending review: 0 (drafts/ hat nur .gitkeep; 2026-04-07 draft wurde in Run #4 promoted/deleted)
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/fantasy-qa-stabilisation.md (NEU, ~77 Zeilen)
+  - memory/errors.md (+2 Patterns: Navigation-Abort, RLS Self-Recursion/SECURITY DEFINER)
+  - memory/wiki-index.md (Run #7: neue Datei, errors.md 108→116, cortex-index 33→36, sprint current.md summary aktualisiert)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
+
 ## [2026-04-09] AutoDream Run #6 (Equipment v2 + Realtime Feed + Migration-Doku — 7 Commits)
 - Verdichtet: 5 Retros (retro-20260409-004110..153419) → 1 neues semantisches File
 - Index: 1 neue Datei katalogisiert (semantisch/projekt/equipment-realtime.md ~83 Zeilen)
