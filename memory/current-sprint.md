@@ -1,55 +1,69 @@
-# Current Sprint — Pilot Feature Complete + Live QA
+# Current Sprint — Polish Sweep (Pre-Launch Page Polish)
 
-## Stand (2026-04-09, nachmittag sales-readiness sweep)
+## Stand (2026-04-10 Nacht, Home Pass 2 gelandet)
 
-- **Branch:** main (mit neuen Fixes)
-- **Letzter Commit:** `66b8935` fix(fantasy): lineup quick-add + fantasy_league_members RLS recursion
-- **Migrations:** 51 lokal (neu: `20260409150000_fix_fantasy_league_members_rls_recursion.sql`)
-- **Tests:** tsc clean
-- **Live auf bescout.net:** verifiziert als jarvis-qa (Mobile 390px + Desktop 1280px). Fantasy Join Flow end-to-end bestätigt (Lineup → Beitreten → Counter +1)
-- **GW35 gestartet:** 10 Fixtures + 13 Events manuell in DB (SQL direct) — Cron war stuck wegen 3 verschobener GW34-Spiele (Boluspor/Sivasspor, Esenler/Amedspor, İstanbulspor/Erzurumspor verschoben auf Mi 9.4.). GW34 bleibt ungescored (3 Test-Entries verloren — acceptable)
+- **Branch:** main
+- **Letzter Commit:** `aa4cea7` feat(home): polish pass 2 — track B1 (letzter spieltag widget)
+- **Deployed:** live auf bescout.net via Vercel `bescout-2ijp6zwyr-bescouts-projects.vercel.app`
+- **Migrations:** 51 lokal, unverändert (keine DB-Arbeit in diesem Pass)
+- **Tests:** `tsc --noEmit` clean
+- **Live auf bescout.net verifiziert** als jarvis-qa (Mobile 390px + Desktop 1280px) — Home Widget rendert populated state mit "Sakaryaspor Fan-Challenge" 487 pts / #26 / +250 CR / 7er Lineup
 
-## QA-Durchgang 2026-04-09 — 4 Bugs durch
+## Aktueller Fokus: Polish Sweep
 
-| ID | Status | Fix |
-|---|---|---|
-| B1 Community Desktop layout | ✅ False positive | Playwright-Timing-Artefakt, kein Code-Bug |
-| B2 Mobile Fantasy stale GW | ✅ False positive | Transient state, nicht reproducible |
-| B3 EventDetailModal "Deine Spieler" Click → neuer Tab | ✅ Fixed + live | `LineupPanel.tsx:790` — window.open raus, Quick-Add in ersten freien Slot rein |
-| B4 `fantasy_league_members` HTTP 500 | ✅ Fixed + live | RLS Self-Recursion, SECURITY DEFINER helper `fantasy_get_my_league_ids()` |
+SSOT: `memory/polish-sweep.md`. Ziel: Jede der 29 Pages + zugehörigen Modals systematisch polieren und committen.
 
-## Follow-up Items (2026-04-09) — alle durch
+### Phase 1 — Critical Path Progress
 
-1. ✅ **Vercel Auto-Deploy** — war intermittent flaky (nur `66b8935` wurde übersprungen). Seit `ee421cf` wieder reaktiv: `ee421cf`, `5be429d`, `c88b782`, `800acc5` alle auto-deployed. → **self-healed**, keine Aktion nötig. Wenn wieder auftritt: `npx vercel --prod --archive=tgz` manuell.
-2. ✅ **CI rot** — commit `5be429d` fuegt `trackMissionProgress` Stub zum missions mock in `bounties.test.ts`. Commit `c88b782` erhoeht FLOW-11 timeout auf 30s (CI latency headroom). Zusätzlich 13 GW34-orphan Events + 2 Lineups soft-gescored (scored_at=ends_at, total_score=0) damit business-flow DB-state tests nicht an der post-advance DB-residue stolpern. **CI jetzt 2x in Folge grün.**
-3. ✅ **Dev-Server Timeouts** — Root-cause: `get_auth_state` RPC timeout bei webpack cold-start + Wallet 3-retry error-spam. Commit `800acc5` demoted erwartete RPC-Slowness von `console.error` zu `console.warn` (AuthProvider + WalletProvider). Fallback-/Retry-Pfad unchanged — nur Log-Level. Monitoring bleibt sensibel auf echte Exhaustion.
+| # | Page | Status | Kommentar |
+|---|------|--------|-----------|
+| 1 | Home (`/`) | ✅ done | Pass 1 (A declutter + C mystery box daily, `d995738`) + Pass 2 (B1 letzter spieltag widget, `aa4cea7`). Track D deferred zu Liga-Projekt |
+| 2 | Market (`/market`) | ⏳ nächste Page | Tabs: Kaufen / Verkaufen / Sell-Orders / Liste |
+| 3 | Fantasy (`/fantasy`) | ⏳ | Tabs + 5 Modals (EventDetail, Summary, CreatePrediction, FixtureDetail, CreateEvent) |
+| 4 | Player Detail (`/player/[id]`) | ⏳ | 4 Action-Modals (Buy/Sell/LimitOrder/Offer) |
+| 5 | Profile (`/profile`) | ⏳ | 4 Tabs (Übersicht/Holdings/Verlauf/Timeline) + FollowList Modal |
+| 6 | Inventory (`/inventory`) | ⏳ | 4 Tabs (equipment/cosmetics/wildcards/history) + EquipmentDetail Modal |
 
-## Alle Hauptthemen DONE
+Phase 2 (12 Pages) / Phase 3 (5 Pages) / Phase 4 (2 Pages) / Phase 5 (4 Pages) — siehe `memory/polish-sweep.md`.
 
-| Feature | Status | Kommentar |
-|---|---|---|
-| Manager Team-Center | ✅ Waves 0-5 | 2026-04-07/08 |
-| B1 Scout Missions E2E | ✅ DONE | |
-| B2 Following Feed E2E | ✅ DONE | 2026-04-08 Vormittag |
-| B2 Following Feed **Realtime** | ✅ DONE | 2026-04-09 Nacht (Pill + Throttle) |
-| B3 Transactions History E2E | ✅ DONE | 2026-04-08 Abend |
-| Onboarding Multi-Club | ✅ DONE | 2026-04-08 Abend |
-| Equipment System | ✅ LIVE | Drop-Raten bestätigt, Inventar Screen v2 mit Pokédex-Matrix |
-| Equipment Lineup Live QA | ✅ DONE | 2026-04-09 Nachmittag (GW35 Event BeScout Classic, full Join Flow + Synergy +15% verifiziert) |
-| Mystery Box Premium | ✅ LIVE | Drop-Raten v1 als final bestätigt |
-| Kill-Switch Founding Passes 900K | ✅ IMPLEMENTIERT | `AdminFoundingPassesTab.tsx:15` |
-| Migration Registry Drift | ✅ DOKUMENTIERT | `.claude/rules/database.md` + `reference_migration_workflow.md` |
+### Home Pass 2 — was konkret reinkam
 
-## Produkt-Entscheidungen (warten auf Anils Kopf)
+- `src/components/home/LastGameweekWidget.tsx` — neuer self-contained Widget mit home-scoped Query-Keys (kein Cache-Collide mit Manager-Historie)
+- Datenquelle: existierende `getUserFantasyHistory(uid, 1)` + `getLineup(eventId, uid)` Services aus `@/features/fantasy/services/lineups.queries` (reuse, no duplication)
+- Format-Detection und Slot-Key-Building via `@/features/fantasy/constants` Helpers (reuse, no duplication)
+- Full Lineup Grid Darstellung (Anil Option C): Header + KPI-Row (Score/Rang/Belohnung) + alle 7/11 Slots in pitch order (ATT→MID→DEF→GK) + Footer-Link zu `/manager?tab=historie`
+- Empty State Card mit `/fantasy` CTA (Anil Option B)
+- i18n DE/TR unter `home.lastGameweek.*`
+- Position: Main Column zwischen `ScoutCardStats` und "Top Mover der Woche" (Anil Option B)
+
+## Produkt-Entscheidungen (warten weiter auf Anils Kopf)
 
 1. Beta-Tester-Gruppe formalisieren (Anzahl / Zeitrahmen / Onboarding-Call)
 2. Revenue Stream Prio aus `memory/project_missing_revenue_streams.md` (Sponsor Flat Fee / Event Boost / Chip Economy)
+3. BeScout Liga Q1/Q3/Q4/Q5/Q6 Antworten (siehe `memory/project_bescout_liga.md`) — aber erst nach Polish Sweep
+
+## Scope-Creep (aus dem Polish Sweep Log)
+
+| Gefunden bei | Item | Severity | Status |
+|---|---|---|---|
+| Home A3 | `get_my_top_movers_7d` RPC fehlt — aktuell nur change24h verfügbar für "Top Mover der Woche" | M | ⏳ |
+| Home C4 | `open_mystery_box_v2` backend daily-cap check — Frontend-only gating derzeit | M | ⏳ |
+| Track D | CardMastery Konzept existiert nicht im Code — muss definiert werden | L | ⏳ |
 
 ## Naechste Session
 
-Start mit `memory/session-handoff.md` lesen. Der Handoff enthaelt die komplette Session-Story und alle Next-Steps. Keine Krümel zurückgelassen.
+Start mit `memory/session-handoff.md` lesen. Dann Page #2 Market starten:
 
-## Neue Patterns dieser Session
+```
+QA_BASE_URL=https://bescout.net MSYS_NO_PATHCONV=1 npx tsx e2e/qa-polish.ts --path=/market --slug=market
+```
 
-- `memory/patterns.md` #21 — Realtime + React Query Live Feed (throttle + invalidate + keepPreviousData)
-- `.claude/rules/database.md` "Migration Workflow" — NIE `supabase db push`, nur `mcp__supabase__apply_migration`
+→ Screenshots mobile+desktop angucken → Anil alignen → fixen → commit → nächste Page.
+
+## Session Commits (2026-04-10 Nacht)
+
+| Hash | Message |
+|---|---|
+| `aa4cea7` | feat(home): polish pass 2 — track B1 (letzter spieltag widget) |
+
+Auf origin/main gepusht, via Vercel deployed, live verifiziert.
