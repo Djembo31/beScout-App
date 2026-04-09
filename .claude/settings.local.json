@@ -17,7 +17,9 @@
       "mcp__supabase__apply_migration",
       "Skill(codex:setup)",
       "Skill(claude-api)",
-      "mcp__supabase__list_projects"
+      "mcp__supabase__list_projects",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__list_migrations"
     ]
   },
   "enableAllProjectMcpServers": true,
