@@ -787,7 +787,18 @@ export default function LineupPanel({
             <FantasyPlayerRow
               key={player.id}
               {...props}
-              onClick={() => window.open(`/player/${player.id}`, '_blank')}
+              onClick={() => {
+                // Quick-add: place player into first free slot for their position.
+                // Keeps users inside the event modal instead of blowing up context
+                // with a new player-detail tab.
+                const freeSlot = formationSlots.find(slot =>
+                  slot.pos === player.pos &&
+                  !selectedPlayers.some(sp => sp.position === slot.pos && sp.slot === slot.slot),
+                );
+                if (freeSlot) {
+                  onSelectPlayer(player.id, freeSlot.pos, freeSlot.slot);
+                }
+              }}
             />
           );
         })}
