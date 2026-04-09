@@ -144,7 +144,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!_isRefresh) setProfileLoading(false);
       return;
     } catch (err) {
-      console.error('[AuthProvider] loadProfile RPC failed, falling back to 3 queries:', err);
+      // Expected on dev-server cold-start (webpack warmup) and under prod
+      // peak latency. The 3-query fallback below is the designed recovery
+      // path, not a failure mode — keep this at warn level to avoid noisy
+      // monitoring alarms.
+      console.warn('[AuthProvider] loadProfile RPC slow, using 3-query fallback:', err);
     }
 
     // Fallback: 3 separate queries

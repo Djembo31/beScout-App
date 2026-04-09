@@ -73,18 +73,24 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             // Success — prevent further retries
             retryCount.current = MAX_RETRIES;
         } catch (err) {
-            console.error(`[Wallet] Balance fetch failed (attempt ${retryCount.current + 1}/${MAX_RETRIES}):`, err);
             retryCount.current += 1;
-
-            if (retryCount.current < MAX_RETRIES) {
+            const isFinalAttempt = retryCount.current >= MAX_RETRIES;
+            const msg = `[Wallet] Balance fetch failed (attempt ${retryCount.current}/${MAX_RETRIES})`;
+            // Intermediate retries are expected on dev-server cold-start and
+            // under peak load — only escalate to console.error once all
+            // retries are exhausted, so monitoring does not fire three times
+            // for a transient hiccup that self-heals.
+            if (isFinalAttempt) {
+                console.error(`${msg} — exhausted:`, err);
+                // All retries exhausted — set to 0 so UI doesn't show perpetual loading
+                setBalanceCentsRaw(prev => prev === null ? 0 : prev);
+            } else {
+                console.warn(`${msg}, retrying:`, err);
                 // Schedule retry with backoff
                 const delay = RETRY_DELAYS[retryCount.current] ?? 3000;
                 retryTimer.current = setTimeout(() => {
                     fetchBalance();
                 }, delay);
-            } else {
-                // All retries exhausted — set to 0 so UI doesn't show perpetual loading
-                setBalanceCentsRaw(prev => prev === null ? 0 : prev);
             }
         }
     }, [user, setBalanceCents]);
