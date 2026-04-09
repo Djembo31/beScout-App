@@ -194,8 +194,9 @@ export function useHomeData() {
       }
       const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
       if (free) {
-        const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
-        localStorage.setItem('bescout-free-box-week', String(currentWeek));
+        // Daily cadence — mark today as claimed so the gate closes until tomorrow.
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('bescout-free-box-day', today);
       }
       return {
         id: crypto.randomUUID(),

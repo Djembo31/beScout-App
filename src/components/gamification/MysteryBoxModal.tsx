@@ -54,8 +54,13 @@ export default function MysteryBoxModal({
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
 
+  // NOTE: Mystery box is a daily free-open reward only — ticket purchase
+  // was removed (polish-sweep Track C1). `effectiveCost` is kept because the
+  // handleOpen branch below still references it for the openMysteryBox call
+  // shape, but the UI never charges tickets. canAfford is now gated purely
+  // on the daily free slot.
   const effectiveCost = Math.max(1, MYSTERY_BOX_BASE_COST - ticketDiscount);
-  const canAfford = hasFreeBox || ticketBalance >= effectiveCost;
+  const canAfford = hasFreeBox;
 
   // Canvas setup
   useEffect(() => {
@@ -159,7 +164,9 @@ export default function MysteryBoxModal({
     particleRef.current?.destroy();
   }, []);
 
-  const canOpenAnother = ticketBalance >= effectiveCost;
+  // Daily free-open only: once claimed today, no more boxes until tomorrow.
+  // "Open Another" button is gated on the same daily slot.
+  const canOpenAnother = false;
   const isAnimating = boxState === 'anticipation' || boxState === 'shake' || boxState === 'burst';
   const rarityConf = result ? RARITY_CONFIG[result.rarity] : null;
 
@@ -232,29 +239,23 @@ export default function MysteryBoxModal({
         {boxState === 'idle' && !result && (
           <>
             <p className="text-sm text-white/50 mb-1 text-center">
-              {hasFreeBox ? t('freeBox') : t('openBox')}
+              {hasFreeBox ? t('freeBox') : t('dailyBoxClaimed')}
             </p>
-            {!hasFreeBox && (
-              <p className="text-xs text-white/30 mb-6 font-mono tabular-nums">
-                {t('ticketCost', { cost: effectiveCost })}
-              </p>
-            )}
-            {hasFreeBox && <div className="mb-6" />}
+            <div className="mb-6" />
 
-            <Button
-              variant="gold"
-              size="lg"
-              fullWidth
-              onClick={handleOpen}
-              disabled={!canAfford}
-              aria-label={t('openBoxAriaLabel')}
-            >
-              {hasFreeBox ? t('freeBox') : t('openBox')}
-            </Button>
-
-            {!canAfford && !hasFreeBox && (
-              <p className="text-[10px] text-red-400/60 mt-2">
-                {t('notEnoughTickets')}
+            {hasFreeBox ? (
+              <Button
+                variant="gold"
+                size="lg"
+                fullWidth
+                onClick={handleOpen}
+                aria-label={t('openBoxAriaLabel')}
+              >
+                {t('freeBox')}
+              </Button>
+            ) : (
+              <p className="text-xs text-white/40 text-center px-4">
+                {t('dailyBoxClaimedDesc')}
               </p>
             )}
 
@@ -264,12 +265,6 @@ export default function MysteryBoxModal({
                 <p className="text-red-400 text-sm">{error}</p>
               </div>
             )}
-
-            {/* Ticket balance */}
-            <div className="flex items-center gap-1 mt-3 text-[10px] text-white/30">
-              <Ticket className="size-3" />
-              <span className="font-mono tabular-nums">{ticketBalance}</span>
-            </div>
 
             {/* Reward Preview */}
             <div className="w-full mt-5 pt-4 border-t border-divider">

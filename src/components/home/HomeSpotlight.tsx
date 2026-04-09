@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import Link from 'next/link';
-import { Rocket, Trophy, TrendingUp, Zap, Clock, Users } from 'lucide-react';
+import { Trophy, TrendingUp, Clock, Users } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { PlayerPhoto, PositionBadge, MiniSparkline } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
@@ -188,24 +188,11 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
     );
   }
 
-  // Priority 5: Fallback CTA for new users
-  return (
-    <Link href="/market?tab=kaufen" className="block">
-      <Card surface="hero" className="p-4 relative overflow-hidden group shadow-card-elevated card-entrance">
-        <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.12] via-gold/[0.04] to-transparent" />
-        <div className="relative flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Zap className="size-4 text-gold" />
-              <span className="text-[10px] font-black uppercase text-gold">{t('spotlightCta')}</span>
-            </div>
-            <div className="font-black text-sm">{t('emptyPortfolioDesc')}</div>
-          </div>
-          <Rocket className="size-8 text-gold/30 group-hover:text-gold/60 transition-colors" />
-        </div>
-      </Card>
-    </Link>
-  );
+  // No spotlight content available — return null. Previously this showed
+  // an "Entdecke den Markt" fallback CTA, removed per polish-sweep A1
+  // (Anil requested 2026-04-09): home should not push market discovery
+  // in the spotlight slot when nothing else is happening.
+  return null;
 }
 
 export default memo(HomeSpotlightInner);

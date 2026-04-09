@@ -112,8 +112,9 @@ export default function MissionsPage() {
       }
       const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
       if (free) {
-        const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
-        localStorage.setItem('bescout-free-box-week', String(currentWeek));
+        // Daily cadence — mirror useHomeData behaviour.
+        const today = new Date().toISOString().slice(0, 10);
+        localStorage.setItem('bescout-free-box-day', today);
       }
       return {
         id: crypto.randomUUID(),
@@ -224,10 +225,11 @@ export default function MissionsPage() {
         onOpen={handleOpenMysteryBox}
         ticketBalance={ticketData?.balance ?? 0}
         hasFreeBox={(() => {
-          if (streakBenefits.freeMysteryBoxesPerWeek <= 0) return false;
-          const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
-          const lastFreeBoxWeek = parseInt(localStorage.getItem('bescout-free-box-week') || '0');
-          return lastFreeBoxWeek < currentWeek;
+          // Daily cadence: 1 free box per day, localStorage-gated on the client.
+          // Backend RPC gating tracked as scope-creep C4 in polish-sweep.md.
+          const today = new Date().toISOString().slice(0, 10);
+          const lastFreeBoxDay = localStorage.getItem('bescout-free-box-day') ?? '';
+          return lastFreeBoxDay !== today;
         })()}
         ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
       />

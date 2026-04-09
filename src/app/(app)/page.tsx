@@ -20,9 +20,8 @@ import { queryClient } from '@/lib/queryClient';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
-import PortfolioStrip from '@/components/home/PortfolioStrip';
+import ScoutCardStats from '@/components/home/ScoutCardStats';
 import TopMoversStrip from '@/components/home/TopMoversStrip';
-import DiscoveryCard from '@/features/market/components/shared/DiscoveryCard';
 import { SectionHeader, formatPrize, getTimeUntil } from '@/components/home/helpers';
 
 const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), { ssr: false });
@@ -34,7 +33,6 @@ const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryB
 const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
-const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), { ssr: false });
 const FollowingFeedRail = dynamic(() => import('@/components/social/FollowingFeedRail'), { ssr: false });
 
@@ -186,38 +184,50 @@ export default function HomePage() {
 
         {/* ── LEFT COLUMN (Main Content) ── */}
         <div className="space-y-8 md:space-y-10 min-w-0">
-          {/* Portfolio Strip */}
-          <PortfolioStrip holdings={holdings} />
+          {/* Squad Stats — total Scout Cards + position breakdown */}
+          <ScoutCardStats holdings={holdings} />
 
-          {/* Portfolio Top Movers */}
-          {topMovers.length > 0 && (
+          {/* Top Mover der Woche — own holdings winner/loser.
+              Empty-state shown when user holds players but there's no
+              price movement yet (Track A3 empty-state, Anil option A).
+              Note: change24h used as fallback until the 7d RPC ships
+              (scope-creep in polish-sweep.md). */}
+          {holdings.length > 0 && (
             <div>
-              <SectionHeader title={t('topMovers')} href="/market" />
-              <div className="flex gap-2.5 mt-2 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {topMovers.map(h => {
-                  const up = h.change24h >= 0;
-                  return (
-                    <Link
-                      key={h.playerId}
-                      href={`/player/${h.playerId}`}
-                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border card-showcase shrink-0 min-w-[180px] shadow-card-md"
-                      style={{
-                        borderColor: up ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                        background: `linear-gradient(135deg, ${up ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)'} 0%, rgba(255,255,255,0.02) 100%)`,
-                      }}
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-bold truncate">{h.player}</div>
-                        <div className="text-[10px] text-white/40">{h.club}</div>
-                      </div>
-                      <div className={cn('flex items-center gap-0.5 ml-auto font-mono font-bold text-sm tabular-nums shrink-0', up ? 'text-green-500' : 'text-red-400')}>
-                        {up ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
-                        {up ? '+' : ''}{h.change24h.toFixed(1)}%
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+              <SectionHeader title={t('topMoversWeek')} href="/market" />
+              {topMovers.length > 0 ? (
+                <div className="flex gap-2.5 mt-2 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  {topMovers.map(h => {
+                    const up = h.change24h >= 0;
+                    return (
+                      <Link
+                        key={h.playerId}
+                        href={`/player/${h.playerId}`}
+                        className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border card-showcase shrink-0 min-w-[180px] shadow-card-md"
+                        style={{
+                          borderColor: up ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+                          background: `linear-gradient(135deg, ${up ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)'} 0%, rgba(255,255,255,0.02) 100%)`,
+                        }}
+                      >
+                        <div className="min-w-0">
+                          <div className="text-sm font-bold truncate">{h.player}</div>
+                          <div className="text-[10px] text-white/40">{h.club}</div>
+                        </div>
+                        <div className={cn('flex items-center gap-0.5 ml-auto font-mono font-bold text-sm tabular-nums shrink-0', up ? 'text-green-500' : 'text-red-400')}>
+                          {up ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
+                          {up ? '+' : ''}{h.change24h.toFixed(1)}%
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-2 px-4 py-5 rounded-2xl border border-white/[0.06] bg-surface-minimal text-center shadow-card-sm">
+                  <div className="text-xs text-white/40 max-w-[280px] mx-auto">
+                    {t('topMoversWeekEmpty')}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -233,24 +243,6 @@ export default function HomePage() {
 
           {/* Most Watched */}
           {uid && <MostWatchedStrip userId={uid} />}
-
-          {/* Market Pulse */}
-          {!playersLoading && trendingWithPlayers.length > 0 && (
-            <div>
-              <SectionHeader title={t('marketPulse')} href="/market" />
-              <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {trendingWithPlayers.map(({ tp, player }) => (
-                  <DiscoveryCard
-                    key={player.id}
-                    player={player}
-                    variant="trending"
-                    tradeCount={tp.tradeCount}
-                    change24h={tp.change24h}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ── RIGHT COLUMN (Sidebar — sticky on desktop) ── */}
@@ -386,25 +378,21 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* Mystery Box Modal */}
+          {/* Mystery Box Modal — daily free open only (no ticket purchase) */}
           {uid && <MysteryBoxModal
             open={showMysteryBox}
             onClose={() => setShowMysteryBox(false)}
             onOpen={handleOpenMysteryBox}
             ticketBalance={ticketData?.balance ?? 0}
             hasFreeBox={(() => {
-              if (streakBenefits.freeMysteryBoxesPerWeek <= 0) return false;
-              const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
-              const lastFreeBoxWeek = parseInt(localStorage.getItem('bescout-free-box-week') || '0');
-              return lastFreeBoxWeek < currentWeek;
+              // Daily cadence: 1 free box per day, localStorage-gated on the client.
+              // Backend RPC gating is tracked as scope-creep C4 in polish-sweep.md.
+              const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+              const lastFreeBoxDay = localStorage.getItem('bescout-free-box-day') ?? '';
+              return lastFreeBoxDay !== today;
             })()}
             ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
           />}
-
-          {/* Suggested Action */}
-          {retention?.suggestedAction && (
-            <SuggestedActionBanner action={retention.suggestedAction} />
-          )}
 
           {/* Scout Activity (Following Feed) — active users only */}
           {uid && !isNewUser && (
