@@ -355,6 +355,16 @@
     "topMovers": "Top Hareketlerim",
     "topMoversWeek": "Haftanın Top Oyuncuları",
     "topMoversWeekEmpty": "Portföyünde henüz fiyat hareketi yok — oyuncuların işlem görmeye başladığında burada görünecek.",
+    "lastGameweek": {
+      "title": "Son Haftan",
+      "score": "Puan",
+      "rank": "Sıra",
+      "reward": "Ödül",
+      "allHistory": "Tüm Haftalar",
+      "emptyTitle": "Henüz hiç oynamadın",
+      "emptyDesc": "Bir Fantasy etkinliğine katıl ve skorlandıktan sonra performansını burada gör.",
+      "emptyCta": "Şimdi katıl"
+    },
     "globalMovers": "Bugünün en büyük hareketleri",
     "mostWatched": "En Çok İzlenen",
     "watcherCount": "{count} İzleyici",

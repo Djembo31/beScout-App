@@ -26,7 +26,7 @@
 
 ## Phase 1 — Critical Path (6 Pages)
 
-### #1 Home — `/` → `home` — Status: 🔨 in_progress (Pass 1 done, Pass 2 pending)
+### #1 Home — `/` → `home` — Status: ✅ done (Pass 1 + Pass 2 A+B1+C, Track D deferred)
 
 **Session 2026-04-09 Abend Requirements (Anil):**
 
@@ -39,11 +39,26 @@
 | A3 | "Mein Spielerkader" (PortfolioStrip) raus + neuer "Top Mover der Woche" Block mit Empty-State | ✅ (Empty-State Option A implementiert) |
 | A4 | SC-Count + TW/ABW/MID/ATT Split Widget (`ScoutCardStats.tsx`) | ✅ |
 
-**Track B — "Letzter Spieltag" Widget — ⏳ Pass 2 (nächste Session)**
+**Track B — "Letzter Spieltag" Widget — ✅ Pass 2 DONE**
 
 | ID | Item | Scope | Status |
 |----|------|-------|--------|
-| B1 | Home-Widget "Dein letzter Spieltag" | **Nur Fantasy-Event Teilnahmen** (keine Predictions/Missions). Zeigt: letztes gescorte Event + User-Aufstellung + Platzierung + Punkte + Link | ⏳ |
+| B1 | Home-Widget "Dein letzter Spieltag" | **Nur Fantasy-Event Teilnahmen** (keine Predictions/Missions). Zeigt: letztes gescorte Event + User-Aufstellung + Platzierung + Punkte + Link | ✅ |
+
+**Pass 2 Artefakte (B1):**
+- New file: `src/components/home/LastGameweekWidget.tsx` — self-contained component
+  - Queries: inline `useQuery` with home-scoped keys (`['home','lastFantasyResult',uid]` + `['home','lineupSnapshot',eventId,uid]`) to avoid cache collision with Manager Historie tab
+  - Services reused: `getUserFantasyHistory(uid, 1)` + `getLineup(eventId, uid)` from `@/features/fantasy/services/lineups.queries`
+  - Format detection: `getFormationsForFormat` + `buildSlotDbKeys` from `@/features/fantasy/constants`
+  - Slot rows reversed for pitch order (ATT → MID → DEF → GK)
+  - Anil option C: full lineup grid, one row per slot with position tag + player + score
+  - Empty state: Card with Swords icon + CTA to `/fantasy`
+  - Footer link: `/manager?tab=historie` for full history
+- Modified: `src/app/(app)/page.tsx` — widget rendered between ScoutCardStats and Top-Mover block in main column
+- Modified: `src/components/home/index.ts` — barrel export
+- Modified: `messages/de.json` + `messages/tr.json` — `home.lastGameweek.*` namespace (title/score/rank/reward/allHistory + emptyTitle/Desc/Cta)
+- Verified: `tsc --noEmit` clean
+- Screenshots: `e2e/screenshots/polish-sweep/home/{mobile,desktop}.png` (refreshed after widget render; jarvis-qa shows real "Sakaryaspor Fan-Challenge" data — 487 score / #26 rank / +250 CR reward / 7 lineup slots)
 
 **Track C — Mystery Box Compliance — ✅ Pass 1 DONE (Commit pending)**
 
@@ -60,7 +75,7 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 **Home Page DONE-Kriterium:**
 - ✅ Track A1-A4 umgesetzt, tsc clean, Mobile-Screenshot beweist alle Änderungen
-- ⏳ Track B1 umgesetzt, Last-Event-Widget rendert mit echten Daten
+- ✅ Track B1 umgesetzt, Last-Event-Widget rendert mit echten Daten (jarvis-qa Sakaryaspor Fan-Challenge 487/#26/+250)
 - ✅ Track C1-C2 umgesetzt, Mystery Box Modal zeigt nur daily free-open, kein Kauf (Modal-Verifikation C-Live als nächste Session bei Bedarf)
 - ✅ Track D Liga-Widget-Integration wird nach separatem Liga-Spec gemacht (nicht heute)
 
@@ -140,3 +155,5 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 - **2026-04-09 20:00** — File erstellt, Sitemap inventarisiert (29 Pages, ~24 Modals). Start mit Home (#1).
 - **2026-04-09 22:30** — Home Requirements session mit Anil. Track A/B/C/D defined. Track D deferred to separate spec (`project_bescout_liga.md`). Track A+B+C starten jetzt.
+- **2026-04-09 23:57** — Home Pass 1 (A+C) committed (d995738). Track B1 + Track D deferred to next session.
+- **2026-04-10 00:30** — Home Pass 2 (B1) committed. Anil Option C (full lineup grid) / Position B (main column after ScoutCardStats) / Empty B (recruit CTA). Widget reused existing fantasy services via self-contained inline queries with home-scoped keys. Home page flipped to ✅ done — Market is next.

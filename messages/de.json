@@ -355,6 +355,16 @@
     "topMovers": "Meine Top-Mover",
     "topMoversWeek": "Top Mover der Woche",
     "topMoversWeekEmpty": "Noch keine Preisbewegungen in deinem Portfolio — sobald deine Spieler handeln, erscheinen sie hier.",
+    "lastGameweek": {
+      "title": "Dein letzter Spieltag",
+      "score": "Score",
+      "rank": "Rang",
+      "reward": "Belohnung",
+      "allHistory": "Alle Spieltage",
+      "emptyTitle": "Noch kein Spieltag gespielt",
+      "emptyDesc": "Spiele bei einem Fantasy-Event mit und sieh hier deine Performance nach dem Scoring.",
+      "emptyCta": "Jetzt mitspielen"
+    },
     "globalMovers": "Größte Beweger heute",
     "mostWatched": "Meistbeobachtet",
     "watcherCount": "{count} Beobachter",

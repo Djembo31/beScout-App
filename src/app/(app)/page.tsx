@@ -21,6 +21,7 @@ import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
 import ScoutCardStats from '@/components/home/ScoutCardStats';
+import LastGameweekWidget from '@/components/home/LastGameweekWidget';
 import TopMoversStrip from '@/components/home/TopMoversStrip';
 import { SectionHeader, formatPrize, getTimeUntil } from '@/components/home/helpers';
 
@@ -186,6 +187,12 @@ export default function HomePage() {
         <div className="space-y-8 md:space-y-10 min-w-0">
           {/* Squad Stats — total Scout Cards + position breakdown */}
           <ScoutCardStats holdings={holdings} />
+
+          {/* Dein letzter Spieltag — last scored fantasy event with lineup
+              grid. Active users see score/rank/reward + full per-slot
+              scores; new users see an empty state with a CTA to /fantasy.
+              Track B1 of polish-sweep.md Home Pass 2. */}
+          <LastGameweekWidget uid={uid} players={players} />
 
           {/* Top Mover der Woche — own holdings winner/loser.
               Empty-state shown when user holds players but there's no
