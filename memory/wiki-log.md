@@ -102,6 +102,26 @@
   - .claude/autodream-last-run (Timestamp)
   - .claude/session-counter (reset zu 0)
 
+## [2026-04-10] AutoDream Run #8 (Home Polish Pass 1+2 — Track A+B1+C done, BeScout Liga Spec — 2 Commits)
+- Verdichtet: 5 Retros → 1 neues semantisches File
+  - retro-225856 + retro-233703: Duplikate (gleiche Commits wie Run #7 — ef13d85 + e04bd76)
+  - retro-235753: Home Polish Pass 1 (d995738 — Track A+C committed)
+  - retro-002547 + retro-005856: Duplikate (gleiche Commits — aa4cea7 + d995738, Home Pass 2 B1)
+- Index: 3 neue Dateien katalogisiert (semantisch/projekt/home-polish-sweep.md + polish-sweep.md + project_bescout_liga.md)
+- Cortex-Index: 3 neue Routing-Eintraege (Polish Sweep, Home Page/LastGameweekWidget, BeScout Liga)
+- Archiviert: 0 Sessions (alle Retros 2026-04-09/10, <1 Tag alt; archive/ hat 5 Retros vom 2026-04-02)
+- Neue Error-Patterns: 0 (keine neuen Fehler in diesen Sessions)
+- Neue semantische Erkenntnisse: Polish Sweep Pattern (commit-per-page), LastGameweekWidget (self-contained queries + home-scoped cache keys), Mystery Box compliance (daily-only), BeScout Liga als Spec-Projekt
+- Drafts pending review: 0 (drafts/ leer ausser .gitkeep)
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/home-polish-sweep.md (NEU, ~80 Zeilen)
+  - memory/cortex-index.md (+3 Routing-Eintraege: Polish Sweep, Home, Liga)
+  - memory/wiki-index.md (neue Datei, polish-sweep.md + project_bescout_liga.md katalogisiert, Datum aktualisiert)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
+
 ## [2026-04-09] AutoDream Run #6 (Equipment v2 + Realtime Feed + Migration-Doku — 7 Commits)
 - Verdichtet: 5 Retros (retro-20260409-004110..153419) → 1 neues semantisches File
 - Index: 1 neue Datei katalogisiert (semantisch/projekt/equipment-realtime.md ~83 Zeilen)

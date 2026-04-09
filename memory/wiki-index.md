@@ -26,9 +26,11 @@
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
 | patterns.md | Reference | 274 | Top 21 Code Patterns (Service Layer, Query Keys, Loading Guards, Realtime+RQ Live Feed) |
-| errors.md | Reference | 116 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2, Navigation-Abort, RLS Self-Recursion) |
-| cortex-index.md | Routing | 36 | Routing-Tabelle: welches Wissen bei welchem Task laden |
+| errors.md | Reference | 117 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2, Navigation-Abort, RLS Self-Recursion) |
+| cortex-index.md | Routing | 39 | Routing-Tabelle: welches Wissen bei welchem Task laden (Run #8: +Polish Sweep, +Home, +Liga) |
 | session-handoff.md | Handoff | 118 | Letzte Session: Equipment v2 + Realtime Feed DONE. Alle Sprints abgeschlossen. |
+| polish-sweep.md | Project | 159 | Polish Sweep SSOT: 29 Pages, Home ✅ done (Pass 1+2), Market naechste |
+| project_bescout_liga.md | Spec | 216 | BeScout Liga spec-phase: 6 offene Q, CardMastery UNDEFINIERT, blockt: Polish Sweep |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
@@ -39,6 +41,7 @@
 | semantisch/projekt/transactions-history.md | Feature | 128 | B3 Transactions History E2E: SSOT Pattern, RLS Fix, CSV Export, Fantasy Ranking, 4 Tx Tables |
 | semantisch/projekt/equipment-realtime.md | Feature | 83 | Equipment Inventar v2 (Pokédex-Matrix) + Realtime Feed + Migration Registry Drift Doku |
 | semantisch/projekt/fantasy-qa-stabilisation.md | Feature | 77 | B3/B4 QA Fixes: LineupPanel Quick-Add, fantasy_league_members RLS Recursion (SECURITY DEFINER), Navigation-Abort Error Classification, CI follow-ups |
+| semantisch/projekt/home-polish-sweep.md | Feature | 80 | Home Polish Pass 1+2: Track A (Declutter), B1 (LastGameweekWidget), C (Mystery Box daily), D (Liga deferred) |
 | semantisch/sprint/current.md | Sprint | 56 | Sprint komplett: alle Features DONE, 3 CI follow-ups resolved, GW35 live |
 
 ## Features (memory/features/) — 8 Specs
@@ -105,4 +108,4 @@
 
 ---
 
-*Last generated: 2026-04-09 by AutoDream v3 Run #7 (Fantasy QA Stabilisation + Navigation-Abort + CI fixes — 9 Commits, 1 new semantic file)*
+*Last generated: 2026-04-10 by AutoDream v3 Run #8 (Home Polish Pass 1+2 — Track A+B1+C done, BeScout Liga Spec created, 2 Commits, 1 new semantic file)*

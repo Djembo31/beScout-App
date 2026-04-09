@@ -23,6 +23,9 @@
 | Performance | `memory/patterns.md` (Performance-Sektion) |
 | Realtime / Live-Feed / Subscriptions | `memory/patterns.md` (Pattern #21) + `memory/semantisch/projekt/equipment-realtime.md` |
 | Equipment / Inventory / Mystery Box | `memory/semantisch/projekt/equipment-realtime.md` |
+| Polish Sweep / Visual QA / Page Polish | `memory/polish-sweep.md` (SSOT Status) + `memory/semantisch/projekt/home-polish-sweep.md` |
+| Home Page / LastGameweekWidget / ScoutCardStats | `memory/semantisch/projekt/home-polish-sweep.md` |
+| BeScout Liga / Rankings Hub / Saison-System | `memory/project_bescout_liga.md` (Spec-Phase, blockt: polish-sweep fertig) |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |
