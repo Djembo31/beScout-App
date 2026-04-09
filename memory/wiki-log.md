@@ -83,3 +83,20 @@
   - memory/wiki-log.md (dieser Eintrag)
   - .claude/autodream-last-run (Timestamp)
   - .claude/session-counter (reset zu 0)
+
+## [2026-04-09] AutoDream Run #6 (Equipment v2 + Realtime Feed + Migration-Doku — 7 Commits)
+- Verdichtet: 5 Retros (retro-20260409-004110..153419) → 1 neues semantisches File
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/equipment-realtime.md ~83 Zeilen)
+- Archiviert: 0 Sessions (alle 2026-04-09 Retros < 1 Tag alt; retro-153419 ist leer/no-commits)
+- Neue Error-Patterns: 0 (alle Patterns aus dieser Session bereits in Run #5 eingetragen: SW Re-Registration, Lazy Init, Type Drift, Feed RLS #2)
+- Cortex-Index: 2 neue Routing-Eintraege (Realtime/Live-Feed, Equipment/Inventory)
+- Drafts pending review: 1 (2026-04-07-qa-visual-3hub-refactor.md — unveraendert, Anil muss reviewen)
+- Session-Counter reset: 0
+- Notiz: 4 von 5 neuen Retros decken identischen Session-Content ab (gleiche Commits, gleiche Files) — Merge bei naechstem Run wenn >30 Tage alt
+- Aenderungen:
+  - memory/semantisch/projekt/equipment-realtime.md (NEU, ~83 Zeilen)
+  - memory/wiki-index.md (Run #6: neue Datei, Zeilenzahlen, database.md 65→82, patterns 231→274, errors 115→108, session-handoff 140→118)
+  - memory/cortex-index.md (+2 Routing-Eintraege: Realtime, Equipment)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)

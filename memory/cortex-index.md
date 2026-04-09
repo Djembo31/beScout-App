@@ -21,6 +21,8 @@
 | Agent / Workflow | `memory/semantisch/projekt/agent-research.md` |
 | Feature / Redesign / Refactoring (3+ Files) | `.claude/skills/spec/SKILL.md` (PFLICHT: Migration-First) |
 | Performance | `memory/patterns.md` (Performance-Sektion) |
+| Realtime / Live-Feed / Subscriptions | `memory/patterns.md` (Pattern #21) + `memory/semantisch/projekt/equipment-realtime.md` |
+| Equipment / Inventory / Mystery Box | `memory/semantisch/projekt/equipment-realtime.md` |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |
@@ -31,3 +33,4 @@
 | Feature-Specs | `memory/features/` |
 | System-Status | `memory/senses/morning-briefing.md` |
 | 3-Hub Architektur (Inventory, Profile, Missions, Home) | `memory/semantisch/projekt/architecture-3hub.md` |
+| Migration Registry Drift Diagnose | `~/.claude/projects/C--bescout-app/memory/reference_migration_workflow.md` |

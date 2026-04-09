@@ -1,34 +1,34 @@
-# Wiki Index (auto-generated 2026-04-08, Run #5)
+# Wiki Index (auto-generated 2026-04-09, Run #6)
 
 > Vollstaendiger Index aller Knowledge-Dateien. Generiert von AutoDream v3.
 > Nutze diesen Index um Dateien nach Domain/Typ zu finden.
 
-## Rules (.claude/rules/) — 13 Dateien, ~962 Zeilen
+## Rules (.claude/rules/) — 13 Dateien, ~994 Zeilen
 
 | File | Domain | Lines | Summary |
 |------|--------|-------|---------|
-| database.md | DB | 65 | Column names, RLS Checkliste, RPC Regeln, Schema, CHECK Constraints |
+| database.md | DB | 82 | Column names, RLS Checkliste, RPC Regeln, Schema, CHECK Constraints, Migration Workflow |
 | business.md | Compliance | 55 | Licensing-Phasen, Wording, Geofencing, Fee-Splits, i18n |
 | common-errors.md | Cross-Domain | 73 | React/TS/CSS/Shell/Supabase Patterns, RLS Trap, RPC Anti-Patterns, Vercel |
 | trading.md | Trading | 78 | Order-Logik, Fee-Berechnung, Liquidation Guards |
 | fantasy.md | Fantasy | 71 | Event-Types, Lineup-Validation, Scoring |
 | community.md | Community | 75 | Posts, Research, Voting, Moderation |
-| profile.md | Profile | 81 | Felder, Validation, Social, Stats |
+| profile.md | Profile | 80 | Felder, Validation, Social, Stats |
 | gamification.md | Gamification | 74 | Achievements, Badges, Leaderboards, Rewards |
 | club-admin.md | Club Admin | 71 | Dashboard, Events, Analytics, Moderation |
 | ui-components.md | UI | 75 | Mobile-First, States, Accessibility, Animations |
 | workflow-reference.md | Workflow | 175 | How I Work, Agent-Team, Skills, MCP, Hooks |
 | performance.md | Performance | 28 | Query-Optimierung, Bundle, Rendering |
-| testing.md | Testing | 32 | Unit/Integration/E2E Konventionen (inkl. Visual QA Playbook) |
+| testing.md | Testing | 39 | Unit/Integration/E2E Konventionen (inkl. Visual QA Playbook) |
 
 ## Memory (memory/) — Reference Files
 
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
-| patterns.md | Reference | 231 | Top 20 Code Patterns (Service Layer, Query Keys, Loading Guards) |
-| errors.md | Reference | 115 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2) |
+| patterns.md | Reference | 274 | Top 21 Code Patterns (Service Layer, Query Keys, Loading Guards, Realtime+RQ Live Feed) |
+| errors.md | Reference | 108 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2) |
 | cortex-index.md | Routing | 33 | Routing-Tabelle: welches Wissen bei welchem Task laden |
-| session-handoff.md | Handoff | 140 | Letzte Session: B3 Transactions History E2E DONE. B1+B2+B3 alle 3 abgeschlossen. Naechste: Onboarding ohne Club-Bezug. |
+| session-handoff.md | Handoff | 118 | Letzte Session: Equipment v2 + Realtime Feed DONE. Alle Sprints abgeschlossen. |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
@@ -36,8 +36,9 @@
 | semantisch/projekt/architecture-3hub.md | Architecture | 48 | 3-Hub Refactor 2026-04-07: Profile/Inventory/Missions/Home |
 | semantisch/projekt/manager-team-center.md | Architecture | 71 | Manager Team-Center Wave 0-5 DONE: useLineupBuilder, Kader Migration, Historie-Tab (NEU) |
 | semantisch/projekt/following-feed.md | Feature | 74 | B2 Following Feed E2E: RLS Fix, Dead Code Audit, i18n Labels, Feed Widget |
-| semantisch/projekt/transactions-history.md | Feature | 100 | B3 Transactions History E2E: SSOT Pattern, RLS Fix, CSV Export, Fantasy Ranking, 4 Tx Tables |
-| semantisch/sprint/current.md | Sprint | 55 | Sprint-Status Jarvis Cortex v1 |
+| semantisch/projekt/transactions-history.md | Feature | 128 | B3 Transactions History E2E: SSOT Pattern, RLS Fix, CSV Export, Fantasy Ranking, 4 Tx Tables |
+| semantisch/projekt/equipment-realtime.md | Feature | 83 | Equipment Inventar v2 (Pokédex-Matrix) + Realtime Feed + Migration Registry Drift Doku (NEU) |
+| semantisch/sprint/current.md | Sprint | 56 | Sprint-Status Jarvis Cortex v1 |
 
 ## Features (memory/features/) — 8 Specs
 
@@ -103,4 +104,4 @@
 
 ---
 
-*Last generated: 2026-04-08 by AutoDream v3 Run #5 (B3 Transactions History E2E Completion — 6 Commits, 5 new error patterns)*
+*Last generated: 2026-04-09 by AutoDream v3 Run #6 (Equipment v2 + Realtime Feed + Migration-Doku — 7 Commits, 1 new semantic file)*
