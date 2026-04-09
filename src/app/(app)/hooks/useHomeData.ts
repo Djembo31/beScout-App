@@ -3,6 +3,7 @@ import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { centsToBsd } from '@/lib/services/players';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 import {
   usePlayers,
   useHoldings,
@@ -105,7 +106,7 @@ export function useHomeData() {
         if (result.shield_used) {
           addToast(tg('streak.shieldUsed') + ` ${tg('streak.shieldsRemaining', { count: result.shields_remaining })}`, 'success');
         }
-      }).catch(err => console.error('[Home] Login streak record failed:', err));
+      }).catch(err => logSupabaseError('[Home] Login streak record failed', err));
     }).catch(err => console.error('[Home] Streaks module load failed:', err));
 
     return () => { cancelled = true; };

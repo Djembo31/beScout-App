@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 import type { DbSponsor, SponsorPlacement } from '@/types';
 
 // ============================================
@@ -29,7 +30,7 @@ export async function getSponsorForPlacement(
 
   const { data, error } = await query;
   if (error) {
-    console.error('[Sponsors] getSponsorForPlacement failed:', error);
+    logSupabaseError('[Sponsors] getSponsorForPlacement', error);
     return null;
   }
 

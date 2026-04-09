@@ -23,12 +23,27 @@ export function EventCardView({ event, onClick }: Props) {
   const tierStyle = getTierStyle(event.eventTier);
   const isArena = event.eventTier === 'arena';
 
+  // Use role="button" instead of a real <button> here because Row 7 renders
+  // a native <Button> CTA for the primary action, and nested <button>
+  // elements are invalid HTML (React throws a hydration warning). The inner
+  // Button stays keyboard-reachable via Tab; the outer zone gives mouse
+  // users a full-card click target with the same onClick handler.
+  const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={handleKey}
       className={cn(
-        'w-full text-left rounded-2xl p-4 border transition-colors active:scale-[0.98]',
+        'w-full text-left rounded-2xl p-4 border transition-colors active:scale-[0.98] cursor-pointer',
         'bg-surface-minimal shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
         event.isJoined
           ? 'border-green-500/20 bg-green-500/[0.02]'
           : isArena
@@ -136,6 +151,6 @@ export function EventCardView({ event, onClick }: Props) {
           )}
         </Button>
       </div>
-    </button>
+    </div>
   );
 }

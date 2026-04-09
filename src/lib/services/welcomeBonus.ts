@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 
 // ============================================
 // Welcome Bonus Service
@@ -14,7 +15,7 @@ export async function claimWelcomeBonus(): Promise<{
   const { data, error } = await supabase.rpc('claim_welcome_bonus');
 
   if (error) {
-    console.error('[WelcomeBonus] claimWelcomeBonus error:', error);
+    logSupabaseError('[WelcomeBonus] claimWelcomeBonus', error);
     return { ok: false, alreadyClaimed: false };
   }
 

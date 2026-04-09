@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 import { notifText } from '@/lib/notifText';
 import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
@@ -374,7 +375,7 @@ export type TrendingPlayer = {
 export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
   const { data, error } = await supabase.rpc('rpc_get_trending_players', { p_limit: limit });
 
-  if (error) console.error('[Trading] getTrendingPlayers failed:', error);
+  if (error) logSupabaseError('[Trading] getTrendingPlayers', error);
   if (error || !data || (data as unknown[]).length === 0) return [];
 
   return (data as Array<{

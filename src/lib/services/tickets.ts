@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 import type { DbUserTickets, DbTicketTransaction, TicketSource } from '@/types';
 
 // ============================================
@@ -10,7 +11,7 @@ export async function getUserTickets(userId: string): Promise<DbUserTickets | nu
   const { data, error } = await supabase.rpc('get_user_tickets');
 
   if (error) {
-    console.error('[Tickets] getUserTickets error:', error);
+    logSupabaseError('[Tickets] getUserTickets', error);
     return null;
   }
 
