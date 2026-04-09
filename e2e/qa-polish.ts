@@ -21,8 +21,16 @@ import path from 'path';
 import fs from 'fs';
 
 const BASE = process.env.QA_BASE_URL ?? 'http://localhost:3000';
-const EMAIL = 'jarvis-qa@bescout.net';
-const PASSWORD = 'JarvisQA2026!';
+
+// Account selection: --account=empty uses the empty QA user (no holdings,
+// no fantasy, no equipment — for empty-state verification). Default is the
+// main QA user with rich data.
+const ACCOUNTS: Record<string, { email: string; password: string }> = {
+  default: { email: 'jarvis-qa@bescout.net', password: 'JarvisQA2026!' },
+  empty:   { email: 'jarvis-qa-empty@bescout.net', password: 'JarvisQA2026!' },
+};
+const accountKey = arg('account') ?? 'default';
+const { email: EMAIL, password: PASSWORD } = ACCOUNTS[accountKey] ?? ACCOUNTS.default;
 
 // ── Parse CLI args ───────────────────────────────────────────────────
 function arg(key: string): string | undefined {
