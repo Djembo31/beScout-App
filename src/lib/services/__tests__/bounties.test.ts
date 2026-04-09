@@ -11,7 +11,14 @@ vi.mock('@/lib/services/notifications', () => ({
   createNotification: vi.fn(),
   createNotificationsBatch: vi.fn(),
 }));
-vi.mock('@/lib/services/missions', () => ({ triggerMissionProgress: vi.fn() }));
+vi.mock('@/lib/services/missions', () => ({
+  triggerMissionProgress: vi.fn(),
+  // triggerMissionProgress internally dynamic-imports its own module to
+  // fetch trackMissionProgress (circular-dep workaround in missions.ts).
+  // Vitest resolves the dynamic import against this mock, so the stub
+  // needs both exports or the call path throws "no export on mock".
+  trackMissionProgress: vi.fn(),
+}));
 vi.mock('@/lib/services/social', () => ({ checkAndUnlockAchievements: vi.fn() }));
 vi.mock('@/lib/notifText', () => ({ notifText: vi.fn((key: string) => key) }));
 vi.mock('@/lib/services/posts', () => ({ createPost: vi.fn() }));
