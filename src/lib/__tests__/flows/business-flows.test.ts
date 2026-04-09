@@ -279,6 +279,10 @@ describe('Business Flows — Cross-Table Verification', () => {
   // Note: ended events with 0 lineups but >0 current_entries are a legit edge case
   // covered by score_event_no_lineups_handling migration (2026-04-07): user paid
   // but never submitted a lineup → event gracefully closed with scored_at set.
+  //
+  // Timeout: bumped to 30s because this test fans out into up to 50 sequential
+  // lineup count queries per event. CI runner + remote Supabase latency blows
+  // past the 5s default. Local runs finish in ~2s.
   it('FLOW-11: event current_entries equals actual lineup count', async () => {
     const { data: events, error } = await sb
       .from('events')
@@ -310,7 +314,7 @@ describe('Business Flows — Cross-Table Verification', () => {
       );
     }
     expect(violations, violations.join('\n')).toHaveLength(0);
-  });
+  }, 30_000);
 
   // ── 12. Offer parties are different users ──
   it('FLOW-12: no offer has sender = receiver', async () => {
