@@ -27,6 +27,7 @@ export type EventFormState = {
   sponsorName: string;
   sponsorLogo: string;
   currency: EventCurrency;
+  isLigaEvent: boolean;
 };
 
 // =============================================================================
@@ -66,6 +67,7 @@ export const INITIAL_FORM_STATE: EventFormState = {
   sponsorName: '',
   sponsorLogo: '',
   currency: 'tickets',
+  isLigaEvent: false,
 };
 
 // =============================================================================

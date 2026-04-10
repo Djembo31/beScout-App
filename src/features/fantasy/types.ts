@@ -84,6 +84,7 @@ export type FantasyEvent = {
   lineupSize?: 7 | 11;
   ticketCost: number;
   currency: 'tickets' | 'scout';
+  isLigaEvent: boolean;
 };
 
 export type LineupPlayer = {

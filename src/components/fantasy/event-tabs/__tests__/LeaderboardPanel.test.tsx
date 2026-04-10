@@ -82,6 +82,7 @@ function makeEvent(overrides: Partial<FantasyEvent> = {}): FantasyEvent {
     rewards: [],
     ticketCost: 0,
     currency: 'tickets' as const,
+    isLigaEvent: false,
     ...overrides,
   };
 }

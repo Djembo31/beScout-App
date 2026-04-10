@@ -33,6 +33,7 @@ export interface EventFormLabels {
   minScPerSlot?: string;     // Platform-only
   wildcardsAllowed?: string; // Platform-only
   maxWildcards?: string;     // Platform-only
+  isLigaEvent?: string;      // Platform-only
   gameweek: string;
   gameweekPlaceholder: string;
   maxEntries: string;
@@ -263,6 +264,23 @@ export function EventFormModal({
                 />
               </div>
             )}
+          </div>
+        )}
+
+        {/* BeScout Liga Event (Platform-only) */}
+        {L.isLigaEvent && (
+          <div className="flex items-center gap-2 min-h-[44px]">
+            <input
+              type="checkbox"
+              id="formIsLigaEvent"
+              checked={form.isLigaEvent}
+              onChange={(e) => setField('isLigaEvent', e.target.checked)}
+              disabled={isFieldDisabled('is_liga_event')}
+              className="w-4 h-4 accent-gold rounded"
+            />
+            <label htmlFor="formIsLigaEvent" className="text-sm font-bold text-gold">
+              {L.isLigaEvent}
+            </label>
           </div>
         )}
 

@@ -32,6 +32,7 @@ export async function createEvent(params: {
   maxWildcardsPerLineup?: number;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
+  isLigaEvent?: boolean;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
   // Phase-4 gate: Tournament events with paid entry require MGA license (ADR-028)
   if (params.type === 'tournament' && params.entryFeeCents > 0) {
@@ -64,6 +65,7 @@ export async function createEvent(params: {
       wildcards_allowed: params.wildcardsAllowed ?? false,
       max_wildcards_per_lineup: params.maxWildcardsPerLineup ?? 0,
       reward_structure: params.rewardStructure ?? null,
+      is_liga_event: params.isLigaEvent ?? false,
       status: 'registering',
       current_entries: 0,
     })
@@ -116,7 +118,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap')
+    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, is_liga_event')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -166,6 +168,7 @@ export async function createNextGameweekEvents(
     min_tier: t.min_tier,
     min_subscription_tier: t.min_subscription_tier,
     salary_cap: t.salary_cap,
+    is_liga_event: t.is_liga_event ?? false,
     starts_at: startsAt,
     locks_at: locksAt,
     ends_at: endsAt,
@@ -223,14 +226,14 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
-    'reward_structure',
+    'reward_structure', 'is_liga_event',
   ],
   registering: [
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
-    'reward_structure',
+    'reward_structure', 'is_liga_event',
   ],
   'late-reg': ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],
   running: ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],

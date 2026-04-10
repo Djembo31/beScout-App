@@ -634,6 +634,7 @@ export type DbEvent = {
   min_sc_per_slot: number;
   wildcards_allowed: boolean;
   max_wildcards_per_lineup: number;
+  is_liga_event: boolean;
   created_at: string;
 };
 

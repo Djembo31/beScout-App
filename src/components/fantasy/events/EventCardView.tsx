@@ -72,6 +72,11 @@ export function EventCardView({ event, onClick }: Props) {
               Arena
             </span>
           )}
+          {event.isLigaEvent && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-black bg-gold/15 border border-gold/25 text-gold">
+              Liga
+            </span>
+          )}
           {event.isJoined && (
             <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/15">
               <CheckCircle2 className="size-3 text-green-500" aria-hidden="true" />

@@ -1117,7 +1117,7 @@ export async function GET(request: Request) {
           const { data: templates } = await supabaseAdmin
             .from('events')
             .select(
-              'name, type, format, lineup_size, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap',
+              'name, type, format, lineup_size, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, is_liga_event',
             )
             .eq('club_id', club.id)
             .eq('gameweek', activeGw);
@@ -1177,6 +1177,7 @@ export async function GET(request: Request) {
             min_tier: t.min_tier,
             min_subscription_tier: t.min_subscription_tier,
             salary_cap: t.salary_cap,
+            is_liga_event: t.is_liga_event ?? false,
             starts_at: startsAt,
             locks_at: locksAt,
             ends_at: endsAt,

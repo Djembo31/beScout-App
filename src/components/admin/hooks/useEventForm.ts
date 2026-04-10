@@ -44,6 +44,7 @@ function populateFromEvent(event: DbEvent): EventFormState {
     sponsorName: event.sponsor_name ?? '',
     sponsorLogo: event.sponsor_logo ?? '',
     currency: event.currency ?? 'tickets',
+    isLigaEvent: event.is_liga_event ?? false,
   };
 }
 
@@ -173,6 +174,7 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
           : 0,
         rewardStructure: form.rewardStructure,
         currency: form.currency,
+        isLigaEvent: form.isLigaEvent,
       };
     },
     [form],
@@ -212,6 +214,7 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
         : 0);
       maybePut('reward_structure', form.rewardStructure);
       maybePut('currency', form.currency);
+      maybePut('is_liga_event', form.isLigaEvent);
 
       return payload;
     },

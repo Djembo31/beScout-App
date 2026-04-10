@@ -60,6 +60,7 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     lineupSize: db.lineup_size ?? (db.format === '11er' || db.format === '11er-reserve' ? 11 : 7),
     ticketCost: db.ticket_cost ?? 0,
     currency: db.currency ?? 'tickets',
+    isLigaEvent: db.is_liga_event ?? false,
     clubId: db.club_id ?? undefined,
     clubName: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).name : undefined,
     clubLogo: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).logo_url ?? undefined : undefined,

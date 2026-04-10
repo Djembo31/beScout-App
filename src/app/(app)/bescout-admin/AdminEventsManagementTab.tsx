@@ -30,6 +30,7 @@ const FORM_LABELS: EventFormLabels = {
   salaryCap: 'Salary Cap', salaryCapPlaceholder: 'Optional',
   minScPerSlot: 'Min SC pro Slot',
   wildcardsAllowed: 'Wild Cards erlaubt', maxWildcards: 'Max Wild Cards',
+  isLigaEvent: 'BeScout Liga Event',
   gameweek: 'Spieltag', gameweekPlaceholder: '1-38', maxEntries: 'Max. Teilnehmer',
   entryFee: 'Startgebuehr (Credits)', prizePool: 'Preisgeld (Credits)',
   currency: 'Waehrung', currencyTickets: 'Tickets',
