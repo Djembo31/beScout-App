@@ -75,27 +75,31 @@ export default function BestandView({
   }, [buyOrders, uid]);
 
   // ── Build bestand items ──
+  // NOTE: floorMap values are in $SCOUT (BSD), NOT cents — enrichment already converts via centsToBsd.
+  // holdings.avg_buy_price is in cents (BIGINT) → must convert here.
+  // sell order prices in recentOrders are in cents → pass raw, convert in display.
   const items: BestandItem[] = useMemo(() => {
     return mySquadPlayers.map(p => {
       const h = holdingsMap.get(p.id);
       const qty = h?.quantity ?? p.dpc.owned;
       const avgBuyCents = h?.avgBuyCents ?? 0;
-      const floorCents = floorMap.get(p.id) ?? 0;
-      const valueCents = qty * floorCents;
-      const costCents = qty * avgBuyCents;
-      const pnlPct = costCents > 0 ? ((valueCents - costCents) / costCents) * 100 : 0;
+      const avgBuyBsd = avgBuyCents / 100;
+      const floorBsd = floorMap.get(p.id) ?? 0;
+      const valueBsd = qty * floorBsd;
+      const costBsd = qty * avgBuyBsd;
+      const pnlPct = costBsd > 0 ? ((valueBsd - costBsd) / costBsd) * 100 : 0;
 
       return {
         player: p,
         quantity: qty,
-        avgBuyCents,
-        floorCents,
-        valueCents,
+        avgBuyBsd,
+        floorBsd,
+        valueBsd,
         pnlPct,
         lockedQty: lockedMap?.get(p.id) ?? 0,
-        mySellOrders: mySellOrdersMap.get(p.id) ?? [],
+        mySellOrders: (mySellOrdersMap.get(p.id) ?? []).map(o => ({ priceCents: o.price, quantity: o.quantity })),
         buyOrderCount: buyOrderCountMap.get(p.id) ?? 0,
-        lastTradeCents: p.prices.lastTrade ?? null,
+        lastTradeBsd: p.prices.lastTrade ?? null,
       };
     });
   }, [mySquadPlayers, holdingsMap, floorMap, lockedMap, mySellOrdersMap, buyOrderCountMap]);
@@ -104,7 +108,7 @@ export default function BestandView({
   const sorted = useMemo(() => {
     const copy = [...items];
     switch (sortBy) {
-      case 'value': return copy.sort((a, b) => b.valueCents - a.valueCents);
+      case 'value': return copy.sort((a, b) => b.valueBsd - a.valueBsd);
       case 'pnl': return copy.sort((a, b) => b.pnlPct - a.pnlPct);
       case 'l5': return copy.sort((a, b) => b.player.perf.l5 - a.player.perf.l5);
       case 'name': return copy.sort((a, b) => a.player.last.localeCompare(b.player.last));
@@ -112,9 +116,9 @@ export default function BestandView({
     }
   }, [items, sortBy]);
 
-  // ── Portfolio totals ──
-  const totalValueCents = useMemo(() => items.reduce((s, i) => s + i.valueCents, 0), [items]);
-  const totalCostCents = useMemo(() => items.reduce((s, i) => s + i.quantity * i.avgBuyCents, 0), [items]);
+  // ── Portfolio totals (all in $SCOUT / BSD) ──
+  const totalValueBsd = useMemo(() => items.reduce((s, i) => s + i.valueBsd, 0), [items]);
+  const totalCostBsd = useMemo(() => items.reduce((s, i) => s + i.quantity * i.avgBuyBsd, 0), [items]);
   const scCount = useMemo(() => items.reduce((s, i) => s + i.quantity, 0), [items]);
 
   // ── Switch to Marktplatz tab ──
@@ -144,8 +148,8 @@ export default function BestandView({
     <div className="space-y-3">
       {/* Portfolio Header */}
       <BestandHeader
-        totalValueCents={totalValueCents}
-        totalCostCents={totalCostCents}
+        totalValueBsd={totalValueBsd}
+        totalCostBsd={totalCostBsd}
         scCount={scCount}
       />
 

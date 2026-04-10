@@ -18,14 +18,14 @@ import type { Player } from '@/types';
 export type BestandItem = {
   player: Player;
   quantity: number;
-  avgBuyCents: number;
-  floorCents: number;
-  valueCents: number;
+  avgBuyBsd: number;      // $SCOUT (already converted)
+  floorBsd: number;       // $SCOUT (from floorMap, already converted)
+  valueBsd: number;       // qty * floorBsd
   pnlPct: number;
   lockedQty: number;
-  mySellOrders: { price: number; quantity: number }[];
+  mySellOrders: { priceCents: number; quantity: number }[];  // cents from DB
   buyOrderCount: number;
-  lastTradeCents: number | null;
+  lastTradeBsd: number | null;  // $SCOUT (already converted)
 };
 
 interface BestandPlayerRowProps {
@@ -48,11 +48,8 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
   }));
 
   const clubData = p.clubId ? getClub(p.clubId) : null;
-  const avgBuyBsd = item.avgBuyCents / 100;
-  const floorBsd = item.floorCents / 100;
-  const valueBsd = item.valueCents / 100;
   const hasSellOrder = item.mySellOrders.length > 0;
-  const sellPrice = hasSellOrder ? item.mySellOrders[0].price / 100 : 0;
+  const sellPriceBsd = hasSellOrder ? item.mySellOrders[0].priceCents / 100 : 0;
 
   return (
     <Link
@@ -114,11 +111,11 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
             </span>
           )}
           <span className="text-[10px] text-white/30">
-            {t('bestandAvgBuy', { defaultMessage: 'Ø' })} {fmtScout(avgBuyBsd)}
+            {t('bestandAvgBuy', { defaultMessage: 'Ø' })} {fmtScout(item.avgBuyBsd)}
           </span>
           <span className="text-white/10">&rarr;</span>
           <span className="text-[10px] font-mono font-bold tabular-nums text-gold">
-            {fmtScout(floorBsd)} CR
+            {fmtScout(item.floorBsd)} CR
           </span>
           <span className={cn(
             'text-[10px] font-mono font-bold tabular-nums ml-auto',
@@ -137,16 +134,16 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
           )}
           {hasSellOrder && (
             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/15 text-gold">
-              {t('bestandYourSell', { defaultMessage: 'Verkauf' })}: {fmtScout(sellPrice)}
+              {t('bestandYourSell', { defaultMessage: 'Verkauf' })}: {fmtScout(sellPriceBsd)}
             </span>
           )}
-          {item.lastTradeCents != null && item.lastTradeCents > 0 && (
+          {item.lastTradeBsd != null && item.lastTradeBsd > 0 && (
             <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-white/[0.04] text-white/40">
-              {t('bestandLastTrade', { defaultMessage: 'Letzter' })}: {fmtScout(item.lastTradeCents / 100)}
+              {t('bestandLastTrade', { defaultMessage: 'Letzter' })}: {fmtScout(item.lastTradeBsd)}
             </span>
           )}
           <span className="ml-auto text-xs font-mono font-bold tabular-nums text-gold">
-            = {fmtScout(valueBsd)}
+            = {fmtScout(item.valueBsd)}
           </span>
         </div>
       </div>

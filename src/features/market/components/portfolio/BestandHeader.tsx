@@ -5,17 +5,15 @@ import { fmtScout, cn } from '@/lib/utils';
 import { Briefcase } from 'lucide-react';
 
 interface BestandHeaderProps {
-  totalValueCents: number;
-  totalCostCents: number;
+  totalValueBsd: number;
+  totalCostBsd: number;
   scCount: number;
 }
 
-export default function BestandHeader({ totalValueCents, totalCostCents, scCount }: BestandHeaderProps) {
+export default function BestandHeader({ totalValueBsd, totalCostBsd, scCount }: BestandHeaderProps) {
   const t = useTranslations('market');
-  const pnlCents = totalValueCents - totalCostCents;
-  const pnlPct = totalCostCents > 0 ? (pnlCents / totalCostCents) * 100 : 0;
-  const valueBsd = totalValueCents / 100;
-  const pnlBsd = pnlCents / 100;
+  const pnlBsd = totalValueBsd - totalCostBsd;
+  const pnlPct = totalCostBsd > 0 ? (pnlBsd / totalCostBsd) * 100 : 0;
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex items-center justify-between gap-4"
@@ -28,7 +26,7 @@ export default function BestandHeader({ totalValueCents, totalCostCents, scCount
         <div>
           <div className="text-xs text-white/40">{t('bestandPortfolioValue')}</div>
           <div className="font-mono font-black text-lg tabular-nums text-gold">
-            {fmtScout(valueBsd)} CR
+            {fmtScout(totalValueBsd)} CR
           </div>
         </div>
       </div>
@@ -39,9 +37,9 @@ export default function BestandHeader({ totalValueCents, totalCostCents, scCount
         </div>
         <div className={cn(
           'font-mono font-bold text-sm tabular-nums',
-          pnlCents >= 0 ? 'text-green-500' : 'text-red-400'
+          pnlBsd >= 0 ? 'text-green-500' : 'text-red-400'
         )}>
-          {pnlCents >= 0 ? '+' : ''}{fmtScout(pnlBsd)} CR ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%)
+          {pnlBsd >= 0 ? '+' : ''}{fmtScout(pnlBsd)} CR ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%)
         </div>
       </div>
     </div>
