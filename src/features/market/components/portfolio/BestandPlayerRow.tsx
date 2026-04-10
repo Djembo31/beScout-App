@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Lock, Tag } from 'lucide-react';
+import { Lock, DollarSign } from 'lucide-react';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
@@ -170,10 +170,15 @@ function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowPr
           {onSellClick && (
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(); }}
-              className="p-2 rounded-lg bg-surface-base border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-colors shrink-0"
+              className={cn(
+                'p-2 rounded-lg border transition-colors shrink-0',
+                hasSellOrder
+                  ? 'bg-gold/10 border-gold/20 text-gold'
+                  : 'bg-surface-base border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5'
+              )}
               aria-label={t('bestandYourSell', { defaultMessage: 'Verkauf' })}
             >
-              <Tag className="size-3.5" aria-hidden="true" />
+              <DollarSign className="size-3.5" aria-hidden="true" />
             </button>
           )}
         </div>
