@@ -2,12 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Lock } from 'lucide-react';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { fmtScout, cn } from '@/lib/utils';
-import { getClubName } from '@/lib/clubs';
+import { getClub } from '@/lib/clubs';
 import type { Player } from '@/types';
 
 // ============================================
@@ -46,6 +47,7 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
     status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
   }));
 
+  const clubData = p.clubId ? getClub(p.clubId) : null;
   const avgBuyBsd = item.avgBuyCents / 100;
   const floorBsd = item.floorCents / 100;
   const valueBsd = item.valueCents / 100;
@@ -84,7 +86,14 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
 
         {/* Line 2: Club + Stats */}
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-white/40 truncate">{getClubName(p.club)}</span>
+          <span className="text-xs text-white/40 truncate flex items-center gap-1">
+            {clubData?.logo ? (
+              <Image src={clubData.logo} alt="" width={14} height={14} className="size-3.5 rounded-full object-cover" />
+            ) : clubData?.colors?.primary ? (
+              <span className="size-3.5 rounded-full inline-block" style={{ backgroundColor: clubData.colors.primary }} />
+            ) : null}
+            {clubData?.name ?? p.club}
+          </span>
           <span className="text-white/10">|</span>
           <span className="text-[10px] font-mono text-white/50 tabular-nums">
             {p.stats.matches}<span className="text-white/30">{t('statMatchesAbbr')}</span>{' '}
