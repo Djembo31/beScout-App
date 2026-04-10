@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Lock } from 'lucide-react';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
-import { GoalIcon, AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
+import { AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
 import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import type { Player } from '@/types';
@@ -108,7 +108,7 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
             {p.stats.matches}<span className="text-white/30">{t('statMatchesAbbr')}</span>
           </span>
           <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
-            <GoalIcon size={10} />{p.stats.goals}
+            <span className="text-[9px] leading-none" aria-hidden="true">⚽</span>{p.stats.goals}
           </span>
           <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
             <AssistIcon size={10} />{p.stats.assists}
