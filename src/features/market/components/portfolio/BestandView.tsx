@@ -88,6 +88,16 @@ export default function BestandView({
     return m;
   }, [buyOrders, uid]);
 
+  // ── Incoming offer count per player (P2P direct offers) ──
+  const incomingOfferCountMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const o of incomingOffers) {
+      if (o.status !== 'pending') continue;
+      m.set(o.player_id, (m.get(o.player_id) ?? 0) + 1);
+    }
+    return m;
+  }, [incomingOffers]);
+
   // ── Build bestand items ──
   const items: BestandItem[] = useMemo(() => {
     return mySquadPlayers.map(p => {
@@ -110,10 +120,11 @@ export default function BestandView({
         lockedQty: lockedMap?.get(p.id) ?? 0,
         mySellOrders: (mySellOrdersMap.get(p.id) ?? []).map(o => ({ priceCents: o.price, quantity: o.quantity })),
         buyOrderCount: buyOrderCountMap.get(p.id) ?? 0,
+        incomingOfferCount: incomingOfferCountMap.get(p.id) ?? 0,
         lastTradeBsd: p.prices.lastTrade ?? null,
       };
     });
-  }, [mySquadPlayers, holdingsMap, floorMap, lockedMap, mySellOrdersMap, buyOrderCountMap]);
+  }, [mySquadPlayers, holdingsMap, floorMap, lockedMap, mySellOrdersMap, buyOrderCountMap, incomingOfferCountMap]);
 
   // ── Position counts (filtered by club if selected, so pos badges reflect club context) ──
   const posCounts = useMemo(() => {

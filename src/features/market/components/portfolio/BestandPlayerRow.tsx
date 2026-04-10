@@ -26,6 +26,7 @@ export type BestandItem = {
   lockedQty: number;
   mySellOrders: { priceCents: number; quantity: number }[];  // cents from DB
   buyOrderCount: number;
+  incomingOfferCount: number;   // P2P direct offers for this player
   lastTradeBsd: number | null;  // $SCOUT (already converted)
 };
 
@@ -150,9 +151,9 @@ function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowPr
 
         {/* Line 4: Value (right) + Market Chips */}
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-          {item.buyOrderCount > 0 && (
+          {(item.buyOrderCount > 0 || item.incomingOfferCount > 0) && (
             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/15 text-green-400">
-              {t('bestandBidCount', { count: item.buyOrderCount, defaultMessage: '{count} Gebote' })}
+              {t('bestandBidCount', { count: item.buyOrderCount + item.incomingOfferCount, defaultMessage: '{count} Gebote' })}
             </span>
           )}
           {hasSellOrder && (
@@ -173,7 +174,7 @@ function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowPr
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(); }}
               className={cn(
                 'p-2 rounded-lg border transition-colors shrink-0',
-                item.buyOrderCount > 0
+                (item.buyOrderCount > 0 || item.incomingOfferCount > 0)
                   ? 'bg-red-500/10 border-red-500/20 text-red-400'
                   : hasSellOrder
                     ? 'bg-gold/10 border-gold/20 text-gold'
