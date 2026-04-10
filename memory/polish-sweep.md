@@ -89,7 +89,7 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 | # | Page | Slug | Sub-Routes / Tabs | Modals | Status |
 |---|------|------|-------------------|--------|--------|
-| 2 | Market | `/market` → `market` | Kaufen / Verkaufen / Sell-Orders / Liste | — (player modals unter #4) | ⏳ |
+| 2 | Market | `/market` → `market` | Mein Kader (Bestand/Angebote) + Marktplatz (Club Verkauf/Von Usern/Trending/Watchlist) | SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal | 🔨 in_progress |
 | 3 | Fantasy | `/fantasy` → `fantasy` | Spiele / Events / Mitmachen / Ergebnisse | EventDetail, Summary, CreatePrediction, FixtureDetail, CreateEvent | ⏳ |
 | 4 | Player Detail | `/player/[id]` → `player` | — | Buy, Sell, LimitOrder, Offer | ⏳ |
 | 5 | Profile (eigen) | `/profile` → `profile` | Übersicht / Holdings / Verlauf / Timeline | FollowList | ⏳ |
@@ -157,3 +157,7 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 - **2026-04-09 22:30** — Home Requirements session mit Anil. Track A/B/C/D defined. Track D deferred to separate spec (`project_bescout_liga.md`). Track A+B+C starten jetzt.
 - **2026-04-09 23:57** — Home Pass 1 (A+C) committed (d995738). Track B1 + Track D deferred to next session.
 - **2026-04-10 00:30** — Home Pass 2 (B1) committed. Anil Option C (full lineup grid) / Position B (main column after ScoutCardStats) / Empty B (recruit CTA). Widget reused existing fantasy services via self-contained inline queries with home-scoped keys. Home page flipped to ✅ done — Market is next.
+- **2026-04-10 Abend** — Market Polish Pass 1: DPC→Scout Card (DB), bC→CR (6 Stellen), HOT-Badge raus, 21 Platzhalter-Sponsoren deaktiviert (4d4f4cc).
+- **2026-04-10 Abend** — Market "Bestand" Tab (neuer Default in Mein Kader): Portfolio-Header, FormBars+L5 (KaderPlayerRow Pattern), Position/Club Filter, Sell-Button ($) mit 3 Zustaenden (rot=Nachfrage, gold=gelistet, grau=normal), Pitch/Goal/Assist Icons, Club-Logos, Trikotnummer+Alter, StatusBadge. 12 Commits.
+- **2026-04-10 Abend** — FormBars Reihenfolge gefixt (oldest→newest links→rechts) global.
+- **2026-04-10 Abend** — Naechste Session: Watchlist in Marktplatz verschieben, Marktplatz-Tab im Detail durchgehen.
