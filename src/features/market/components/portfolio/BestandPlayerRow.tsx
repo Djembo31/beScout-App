@@ -172,9 +172,11 @@ function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowPr
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(); }}
               className={cn(
                 'p-2 rounded-lg border transition-colors shrink-0',
-                hasSellOrder
-                  ? 'bg-gold/10 border-gold/20 text-gold'
-                  : 'bg-surface-base border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5'
+                item.buyOrderCount > 0
+                  ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                  : hasSellOrder
+                    ? 'bg-gold/10 border-gold/20 text-gold'
+                    : 'bg-surface-base border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5'
               )}
               aria-label={t('bestandYourSell', { defaultMessage: 'Verkauf' })}
             >
