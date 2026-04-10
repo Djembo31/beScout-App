@@ -424,10 +424,11 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
 
   if (lookup.size === 0) return new Map();
 
-  // Step 4: Build result — newest→oldest, null for missing GWs
+  // Step 4: Build result — oldest→newest (left→right in FormBars)
+  const gwOldestFirst = [...gameweeks].reverse();
   const result = new Map<string, (number | null)[]>();
   lookup.forEach((gwMap, playerId) => {
-    result.set(playerId, gameweeks.map(gw => gwMap.get(gw) ?? null));
+    result.set(playerId, gwOldestFirst.map(gw => gwMap.get(gw) ?? null));
   });
 
   return result;
