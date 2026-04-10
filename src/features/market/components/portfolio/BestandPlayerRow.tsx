@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Lock, DollarSign } from 'lucide-react';
-import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
+import { PlayerPhoto, PositionBadge, StatusBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
 import { fmtScout, cn } from '@/lib/utils';
@@ -70,6 +70,7 @@ function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowPr
         <div className="flex items-center gap-1.5">
           <span className="font-black text-sm text-white truncate">{p.last.toUpperCase()}</span>
           <PositionBadge pos={p.pos} size="sm" />
+          <StatusBadge status={p.status} />
           <div className="ml-auto flex items-center gap-2 shrink-0">
             <FormBars entries={formEntries} />
             <div
