@@ -32,19 +32,20 @@ import { AdminFoundingPassesTab } from './AdminFoundingPassesTab';
 import { AdminTreasuryTab } from './AdminTreasuryTab';
 import { AdminEconomyTab } from './AdminEconomyTab';
 import { AdminFanWishesTab } from './AdminFanWishesTab';
+import { AdminLigaTab } from './AdminLigaTab';
 
 // ============================================
 // Tab Config
 // ============================================
 
-type AdminTab = 'overview' | 'users' | 'clubs' | 'founding_passes' | 'treasury' | 'fees' | 'economy' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'wishes' | 'debug';
+type AdminTab = 'overview' | 'users' | 'clubs' | 'founding_passes' | 'treasury' | 'fees' | 'economy' | 'liga' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'wishes' | 'debug';
 
 const TAB_ICONS: Record<AdminTab, React.ElementType> = {
   overview: BarChart3, users: Users, clubs: Building2, founding_passes: Gift, treasury: Banknote, fees: Percent,
-  economy: Coins, ipos: Zap, gameweeks: Calendar, events: Trophy, airdrop: Rocket, sponsors: Megaphone,
+  economy: Coins, liga: Trophy, ipos: Zap, gameweeks: Calendar, events: Trophy, airdrop: Rocket, sponsors: Megaphone,
   creator_fund: Sparkles, wishes: Heart, debug: Bug,
 };
-const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'founding_passes', 'treasury', 'fees', 'economy', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'wishes', 'debug'];
+const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'founding_passes', 'treasury', 'fees', 'economy', 'liga', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'wishes', 'debug'];
 
 // ============================================
 // Overview Tab (inline â€” 12 lines)
@@ -302,7 +303,7 @@ export default function BescoutAdminContent() {
       {(() => {
         const TAB_LABELS: Record<AdminTab, string> = {
           overview: t('tabOverview'), users: t('tabUsers'), clubs: t('tabClubs'), founding_passes: t('tabFoundingPasses'), treasury: t('tabTreasury'), fees: t('tabFees'),
-          economy: 'Economy', ipos: t('tabIpos'), gameweeks: t('tabGameweeks'), events: t('tabEvents'), airdrop: t('tabAirdrop'),
+          economy: 'Economy', liga: 'Liga', ipos: t('tabIpos'), gameweeks: t('tabGameweeks'), events: t('tabEvents'), airdrop: t('tabAirdrop'),
           sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), wishes: 'Fan Wishes', debug: t('tabDebug'),
         };
         return (
@@ -343,6 +344,7 @@ export default function BescoutAdminContent() {
       {tab === 'treasury' && <AdminTreasuryTab />}
       {tab === 'fees' && user && <AdminFeesTab adminId={user.id} />}
       {tab === 'economy' && user && <AdminEconomyTab adminId={user.id} role={adminRole} />}
+      {tab === 'liga' && <AdminLigaTab />}
       {tab === 'ipos' && <IposTab />}
       {tab === 'gameweeks' && <AdminGameweeksTab />}
       {tab === 'events' && user && <AdminEventsManagementTab adminId={user.id} />}
