@@ -5,12 +5,16 @@ import { useTranslations } from 'next-intl';
 import { ArrowUpDown, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PosFilter } from '@/components/ui/PosFilter';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMarketStore } from '@/features/market/store/marketStore';
+import { getClub } from '@/lib/clubs';
+import type { ClubLookup } from '@/lib/clubs';
 import BestandHeader from './BestandHeader';
+import type { ClubCount } from './BestandHeader';
 import BestandPlayerRow from './BestandPlayerRow';
 import type { BestandItem } from './BestandPlayerRow';
-import type { Player, DbOrder } from '@/types';
+import type { Player, DbOrder, Pos } from '@/types';
 
 // ============================================
 // TYPES
@@ -40,6 +44,8 @@ export default function BestandView({
   const uid = user?.id;
   const { setTab } = useMarketStore();
   const [sortBy, setSortBy] = useState<SortKey>('value');
+  const [filterPos, setFilterPos] = useState<Set<Pos>>(new Set());
+  const [filterClub, setFilterClub] = useState<string | null>(null);
 
   // ── Build holdings map ──
   const holdingsMap = useMemo(() => {
@@ -68,16 +74,13 @@ export default function BestandView({
     const m = new Map<string, number>();
     if (!uid) return m;
     for (const o of buyOrders) {
-      if (o.user_id === uid) continue; // eigene Buy-Orders nicht zaehlen
+      if (o.user_id === uid) continue;
       m.set(o.player_id, (m.get(o.player_id) ?? 0) + 1);
     }
     return m;
   }, [buyOrders, uid]);
 
   // ── Build bestand items ──
-  // NOTE: floorMap values are in $SCOUT (BSD), NOT cents — enrichment already converts via centsToBsd.
-  // holdings.avg_buy_price is in cents (BIGINT) → must convert here.
-  // sell order prices in recentOrders are in cents → pass raw, convert in display.
   const items: BestandItem[] = useMemo(() => {
     return mySquadPlayers.map(p => {
       const h = holdingsMap.get(p.id);
@@ -104,9 +107,45 @@ export default function BestandView({
     });
   }, [mySquadPlayers, holdingsMap, floorMap, lockedMap, mySellOrdersMap, buyOrderCountMap]);
 
+  // ── Position counts (unfiltered, for header + filter badges) ──
+  const posCounts = useMemo(() => {
+    const counts: Record<Pos, number> = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
+    for (const i of items) counts[i.player.pos] += i.quantity;
+    return counts;
+  }, [items]);
+
+  // ── Club counts (unfiltered, for header) ──
+  const clubCounts: ClubCount[] = useMemo(() => {
+    const map = new Map<string, { club: ClubLookup; count: number }>();
+    for (const i of items) {
+      const clubId = i.player.clubId;
+      if (!clubId) continue;
+      const entry = map.get(clubId);
+      if (entry) {
+        entry.count += i.quantity;
+      } else {
+        const club = getClub(clubId);
+        if (club) map.set(clubId, { club, count: i.quantity });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }, [items]);
+
+  // ── Filter items ──
+  const filtered = useMemo(() => {
+    let result = items;
+    if (filterPos.size > 0) {
+      result = result.filter(i => filterPos.has(i.player.pos));
+    }
+    if (filterClub) {
+      result = result.filter(i => i.player.clubId === filterClub);
+    }
+    return result;
+  }, [items, filterPos, filterClub]);
+
   // ── Sort ──
   const sorted = useMemo(() => {
-    const copy = [...items];
+    const copy = [...filtered];
     switch (sortBy) {
       case 'value': return copy.sort((a, b) => b.valueBsd - a.valueBsd);
       case 'pnl': return copy.sort((a, b) => b.pnlPct - a.pnlPct);
@@ -114,15 +153,25 @@ export default function BestandView({
       case 'name': return copy.sort((a, b) => a.player.last.localeCompare(b.player.last));
       default: return copy;
     }
-  }, [items, sortBy]);
+  }, [filtered, sortBy]);
 
-  // ── Portfolio totals (all in $SCOUT / BSD) ──
+  // ── Portfolio totals (all in $SCOUT / BSD, from ALL items, not filtered) ──
   const totalValueBsd = useMemo(() => items.reduce((s, i) => s + i.valueBsd, 0), [items]);
   const totalCostBsd = useMemo(() => items.reduce((s, i) => s + i.quantity * i.avgBuyBsd, 0), [items]);
   const scCount = useMemo(() => items.reduce((s, i) => s + i.quantity, 0), [items]);
 
-  // ── Switch to Marktplatz tab ──
+  // ── Handlers ──
   const handleGoToMarktplatz = useCallback(() => setTab('marktplatz'), [setTab]);
+  const handleTogglePos = useCallback((pos: Pos) => {
+    setFilterPos(prev => {
+      const next = new Set(prev);
+      if (next.has(pos)) next.delete(pos); else next.add(pos);
+      return next;
+    });
+  }, []);
+  const handleToggleClub = useCallback((clubId: string) => {
+    setFilterClub(prev => prev === clubId ? null : clubId);
+  }, []);
 
   // ── Sort options ──
   const sortOptions: { key: SortKey; label: string }[] = [
@@ -146,17 +195,51 @@ export default function BestandView({
 
   return (
     <div className="space-y-3">
-      {/* Portfolio Header */}
+      {/* Portfolio Header with position + club breakdown */}
       <BestandHeader
         totalValueBsd={totalValueBsd}
         totalCostBsd={totalCostBsd}
         scCount={scCount}
+        posCounts={posCounts}
+        clubCounts={clubCounts}
       />
+
+      {/* Filters: Position + Club */}
+      <div className="space-y-2">
+        <PosFilter
+          multi
+          selected={filterPos}
+          onChange={handleTogglePos}
+          counts={posCounts}
+        />
+        {clubCounts.length > 1 && (
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+            {clubCounts.map(({ club }) => (
+              <button
+                key={club.id}
+                onClick={() => handleToggleClub(club.id)}
+                className={cn(
+                  'flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-colors shrink-0',
+                  filterClub === club.id
+                    ? 'bg-white/10 border-white/20 text-white'
+                    : 'bg-surface-base border-white/10 text-white/40 hover:text-white/60'
+                )}
+              >
+                {club.logo && (
+                  <img src={club.logo} alt="" width={12} height={12} className="size-3 rounded-full object-cover" />
+                )}
+                {club.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Sort bar */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-white/50">
-          {items.length} {items.length === 1 ? 'Spieler' : 'Spieler'}
+          {sorted.length} {sorted.length === 1 ? 'Spieler' : 'Spieler'}
+          {(filterPos.size > 0 || filterClub) && ` / ${items.length}`}
         </span>
         <div className="flex items-center gap-1">
           <ArrowUpDown className="size-3.5 text-white/30" aria-hidden="true" />
@@ -187,6 +270,13 @@ export default function BestandView({
           />
         ))}
       </div>
+
+      {/* No results after filter */}
+      {sorted.length === 0 && items.length > 0 && (
+        <div className="text-center text-sm text-white/30 py-8">
+          {t('bestandNoFilterResults', { defaultMessage: 'Keine Spieler fuer diesen Filter.' })}
+        </div>
+      )}
     </div>
   );
 }
