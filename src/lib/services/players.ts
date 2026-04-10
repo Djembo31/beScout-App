@@ -224,3 +224,31 @@ export async function createPlayer(params: {
   if (error) return { success: false, error: error.message };
   return { success: true, playerId: data.id };
 }
+
+// ============================================
+// 7-Day Price Changes (via RPC)
+// ============================================
+
+export type PriceChange7d = {
+  player_id: string;
+  price_7d_ago: number;
+  price_now: number;
+  change_abs: number;
+  change_pct: number;
+};
+
+/** Get top movers by 7-day price change */
+export async function getPlayerPriceChanges7d(
+  playerIds?: string[],
+  limit: number = 20,
+): Promise<PriceChange7d[]> {
+  const { data, error } = await supabase.rpc('get_player_price_changes_7d', {
+    p_player_ids: playerIds ?? null,
+    p_limit: limit,
+  });
+  if (error) {
+    console.error('[Players] getPlayerPriceChanges7d error:', error);
+    return [];
+  }
+  return (data as PriceChange7d[]) ?? [];
+}

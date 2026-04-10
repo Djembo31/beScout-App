@@ -1,0 +1,4 @@
+-- See applied migration via mcp__supabase__apply_migration
+-- 1. open_mystery_box_v2: server-side daily free-box cap (COUNT where ticket_cost=0 AND today)
+-- 2. get_player_price_changes_7d RPC: 7d price changes from trades table
+-- Full SQL in migration name: mystery_box_daily_cap_and_price_change_7d

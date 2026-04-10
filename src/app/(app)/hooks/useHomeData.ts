@@ -16,6 +16,7 @@ import { queryClient } from '@/lib/queryClient';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useUserTickets } from '@/lib/queries/tickets';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
+import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
@@ -160,12 +161,25 @@ export function useHomeData() {
       .slice(0, 5);
   }, [trendingPlayers, players]);
 
-  const topMovers = useMemo(() => {
-    if (holdings.length < 2) return [];
-    return [...holdings]
-      .filter(h => h.change24h !== 0)
-      .sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h))
-      .slice(0, 3);
+  // Top Movers: 7d price changes for user's holdings (RPC-backed)
+  const [topMovers, setTopMovers] = useState<{ playerId: string; player: string; club: string; change24h: number }[]>([]);
+  useEffect(() => {
+    if (holdings.length < 2) { setTopMovers([]); return; }
+    const playerIds = holdings.map(h => h.playerId);
+    let cancelled = false;
+    getPlayerPriceChanges7d(playerIds, 3).then(changes => {
+      if (cancelled) return;
+      setTopMovers(changes.map(c => {
+        const h = holdings.find(h => h.playerId === c.player_id);
+        return {
+          playerId: c.player_id,
+          player: h?.player ?? '',
+          club: h?.club ?? '',
+          change24h: Number(c.change_pct),
+        };
+      }));
+    }).catch(err => logSupabaseError('[Home] 7d price changes failed', err));
+    return () => { cancelled = true; };
   }, [holdings]);
 
   const hasGlobalMovers = useMemo(() => {
