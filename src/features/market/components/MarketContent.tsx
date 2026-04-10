@@ -180,6 +180,7 @@ export default function MarketContent() {
           onSell={trade.handleSell}
           onCancelOrder={trade.handleCancelOrder}
           incomingOffers={data.incomingOffers}
+          openBids={data.openBids}
         />
       </TabPanel>
 

@@ -37,11 +37,12 @@ type Props = {
   onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
   onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
   incomingOffers: OfferWithDetails[];
+  openBids: OfferWithDetails[];
 };
 
 export default function PortfolioTab({
   players, mySquadPlayers, holdings, floorMap, recentOrders, buyOrders,
-  watchlistEntries, scoresMap, lockedMap, onSell, onCancelOrder, incomingOffers,
+  watchlistEntries, scoresMap, lockedMap, onSell, onCancelOrder, incomingOffers, openBids,
 }: Props) {
   const t = useTranslations('market');
   const { portfolioSubTab, setPortfolioSubTab } = useMarketStore();
@@ -83,6 +84,7 @@ export default function PortfolioTab({
           onSell={onSell}
           onCancelOrder={onCancelOrder}
           incomingOffers={incomingOffers}
+          openBids={openBids}
         />
       )}
       {portfolioSubTab === 'angebote' && (

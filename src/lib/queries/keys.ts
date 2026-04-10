@@ -138,6 +138,7 @@ export const qk = {
     incoming: (uid: string) => ['offers', 'incoming', uid] as const,
     outgoing: (uid: string) => ['offers', 'outgoing', uid] as const,
     bids: (pid: string) => ['offers', 'bids', pid] as const,
+    openBids: ['offers', 'openBids'] as const,
   },
 
   // ── Transactions ──

@@ -36,6 +36,7 @@ interface BestandViewProps {
   onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
   onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
   incomingOffers: OfferWithDetails[];
+  openBids: OfferWithDetails[];
 }
 
 // ============================================
@@ -44,7 +45,7 @@ interface BestandViewProps {
 
 export default function BestandView({
   mySquadPlayers, holdings, floorMap, recentOrders, buyOrders, scoresMap, lockedMap,
-  onSell, onCancelOrder, incomingOffers,
+  onSell, onCancelOrder, incomingOffers, openBids,
 }: BestandViewProps) {
   const t = useTranslations('market');
   const { user } = useUser();
@@ -88,15 +89,22 @@ export default function BestandView({
     return m;
   }, [buyOrders, uid]);
 
-  // ── Incoming offer count per player (P2P direct offers) ──
+  // ── Incoming offer count per player (direct offers + open public bids) ──
   const incomingOfferCountMap = useMemo(() => {
     const m = new Map<string, number>();
     for (const o of incomingOffers) {
       if (o.status !== 'pending') continue;
       m.set(o.player_id, (m.get(o.player_id) ?? 0) + 1);
     }
+    // Open bids (receiver_id = null) that match my held players
+    const myPlayerIds = new Set(mySquadPlayers.map(p => p.id));
+    for (const o of openBids) {
+      if (!myPlayerIds.has(o.player_id)) continue;
+      if (o.sender_id === uid) continue; // eigene Bids ignorieren
+      m.set(o.player_id, (m.get(o.player_id) ?? 0) + 1);
+    }
     return m;
-  }, [incomingOffers]);
+  }, [incomingOffers, openBids, mySquadPlayers, uid]);
 
   // ── Build bestand items ──
   const items: BestandItem[] = useMemo(() => {

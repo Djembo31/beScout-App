@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
-import { getIncomingOffers } from '@/lib/services/offers';
+import { getIncomingOffers, getOpenBids } from '@/lib/services/offers';
 
 const ONE_MIN = 60 * 1000;
 
@@ -13,5 +13,14 @@ export function useIncomingOffers(userId: string | undefined, options?: { enable
     enabled: !!userId && (options?.enabled ?? true),
     staleTime: ONE_MIN,
     select: (data) => data.filter(o => o.status === 'pending'),
+  });
+}
+
+/** All open public bids (receiver_id = null, pending) — used to show demand in Bestand */
+export function useOpenBids() {
+  return useQuery({
+    queryKey: qk.offers.openBids,
+    queryFn: () => getOpenBids(),
+    staleTime: ONE_MIN,
   });
 }

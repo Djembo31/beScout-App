@@ -7,7 +7,7 @@ import { useActiveIpos, useAnnouncedIpos, useRecentlyEndedIpos } from '@/feature
 import { useTrendingPlayers } from '@/features/market/queries/trending';
 import { useAllPriceHistories } from '@/features/market/queries/priceHist';
 import { useWatchlist } from '@/features/market/queries/watchlist';
-import { useIncomingOffers } from '@/features/market/queries/offers';
+import { useIncomingOffers, useOpenBids } from '@/features/market/queries/offers';
 import { useMarketStore } from '@/features/market/store/marketStore';
 
 export function useMarketData(userId: string | undefined) {
@@ -20,6 +20,7 @@ export function useMarketData(userId: string | undefined) {
   const { data: watchlistEntries = [] } = useWatchlist(userId);
   const { data: recentOrders = [] } = useAllOpenOrders();
   const { data: incomingOffers = [] } = useIncomingOffers(userId);
+  const { data: openBids = [] } = useOpenBids();
 
   // ── Tab-gated queries (marktplatz only) ──
   const { data: priceHistMap } = useAllPriceHistories(10, { enabled: tab === 'marktplatz' });
@@ -71,7 +72,7 @@ export function useMarketData(userId: string | undefined) {
 
   return {
     players, playersLoading, playersError,
-    holdings, ipoList, watchlistEntries, recentOrders, incomingOffers,
+    holdings, ipoList, watchlistEntries, recentOrders, incomingOffers, openBids,
     announcedIpos, endedIpos, trending, buyOrders, priceHistMap,
     playerMap, floorMap, watchlistMap, mySquadPlayers, getFloor,
   };
