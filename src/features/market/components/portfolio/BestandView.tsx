@@ -11,7 +11,6 @@ import { useMarketStore } from '@/features/market/store/marketStore';
 import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import BestandHeader from './BestandHeader';
-import type { ClubCount } from './BestandHeader';
 import BestandPlayerRow from './BestandPlayerRow';
 import type { BestandItem } from './BestandPlayerRow';
 import type { Player, DbOrder, Pos } from '@/types';
@@ -114,8 +113,8 @@ export default function BestandView({
     return counts;
   }, [items]);
 
-  // ── Club counts (unfiltered, for header) ──
-  const clubCounts: ClubCount[] = useMemo(() => {
+  // ── Club counts (unfiltered, for filter chips) ──
+  const clubCounts = useMemo(() => {
     const map = new Map<string, { club: ClubLookup; count: number }>();
     for (const i of items) {
       const clubId = i.player.clubId;
@@ -200,8 +199,6 @@ export default function BestandView({
         totalValueBsd={totalValueBsd}
         totalCostBsd={totalCostBsd}
         scCount={scCount}
-        posCounts={posCounts}
-        clubCounts={clubCounts}
       />
 
       {/* Filters: Position + Club */}
@@ -214,12 +211,12 @@ export default function BestandView({
         />
         {clubCounts.length > 1 && (
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
-            {clubCounts.map(({ club }) => (
+            {clubCounts.map(({ club, count }) => (
               <button
                 key={club.id}
                 onClick={() => handleToggleClub(club.id)}
                 className={cn(
-                  'flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-colors shrink-0',
+                  'flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border transition-colors shrink-0',
                   filterClub === club.id
                     ? 'bg-white/10 border-white/20 text-white'
                     : 'bg-surface-base border-white/10 text-white/40 hover:text-white/60'
@@ -229,6 +226,7 @@ export default function BestandView({
                   <img src={club.logo} alt="" width={12} height={12} className="size-3 rounded-full object-cover" />
                 )}
                 {club.name}
+                <span className="font-mono tabular-nums text-white/30">{count}</span>
               </button>
             ))}
           </div>
