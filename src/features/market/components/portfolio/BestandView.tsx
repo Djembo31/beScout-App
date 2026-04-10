@@ -8,12 +8,16 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PosFilter } from '@/components/ui/PosFilter';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMarketStore } from '@/features/market/store/marketStore';
+import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import BestandHeader from './BestandHeader';
 import BestandPlayerRow from './BestandPlayerRow';
 import type { BestandItem } from './BestandPlayerRow';
-import type { Player, DbOrder, Pos } from '@/types';
+import type { Player, DbOrder, Pos, OfferWithDetails } from '@/types';
+import dynamic from 'next/dynamic';
+import type { KaderPlayer } from '@/features/manager/components/kader/KaderPlayerRow';
+const KaderSellModal = dynamic(() => import('@/features/manager/components/kader/KaderSellModal'), { ssr: false });
 
 // ============================================
 // TYPES
@@ -29,6 +33,9 @@ interface BestandViewProps {
   buyOrders: DbOrder[];
   scoresMap?: Map<string, (number | null)[]>;
   lockedMap?: Map<string, number>;
+  onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
+  onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
+  incomingOffers: OfferWithDetails[];
 }
 
 // ============================================
@@ -37,6 +44,7 @@ interface BestandViewProps {
 
 export default function BestandView({
   mySquadPlayers, holdings, floorMap, recentOrders, buyOrders, scoresMap, lockedMap,
+  onSell, onCancelOrder, incomingOffers,
 }: BestandViewProps) {
   const t = useTranslations('market');
   const { user } = useUser();
@@ -45,6 +53,7 @@ export default function BestandView({
   const [sortBy, setSortBy] = useState<SortKey>('value');
   const [filterPos, setFilterPos] = useState<Set<Pos>>(new Set());
   const [filterClub, setFilterClub] = useState<string | null>(null);
+  const [sellPlayerId, setSellPlayerId] = useState<string | null>(null);
 
   // ── Build holdings map ──
   const holdingsMap = useMemo(() => {
@@ -55,14 +64,14 @@ export default function BestandView({
     return m;
   }, [holdings]);
 
-  // ── Build my sell orders per player ──
+  // ── Build my sell orders per player (full detail for SellModal) ──
   const mySellOrdersMap = useMemo(() => {
-    const m = new Map<string, { price: number; quantity: number }[]>();
+    const m = new Map<string, { id: string; price: number; quantity: number; expiresAt: string | null }[]>();
     if (!uid) return m;
     for (const o of recentOrders) {
       if (o.user_id !== uid || o.side !== 'sell') continue;
       const arr = m.get(o.player_id) ?? [];
-      arr.push({ price: o.price, quantity: o.quantity - (o.filled_qty ?? 0) });
+      arr.push({ id: o.id, price: o.price, quantity: o.quantity - (o.filled_qty ?? 0), expiresAt: o.expires_at });
       m.set(o.player_id, arr);
     }
     return m;
@@ -266,6 +275,7 @@ export default function BestandView({
             key={item.player.id}
             item={item}
             scores={scoresMap?.get(item.player.id)}
+            onSellClick={() => setSellPlayerId(item.player.id)}
           />
         ))}
       </div>
@@ -276,6 +286,48 @@ export default function BestandView({
           {t('bestandNoFilterResults', { defaultMessage: 'Keine Spieler fuer diesen Filter.' })}
         </div>
       )}
+
+      {/* Sell Modal — maps BestandItem → KaderPlayer for reuse */}
+      {sellPlayerId && (() => {
+        const bi = items.find(i => i.player.id === sellPlayerId);
+        if (!bi) return null;
+        const orders = mySellOrdersMap.get(sellPlayerId) ?? [];
+        const listedQty = orders.reduce((s, o) => s + o.quantity, 0);
+        const playerOffers = incomingOffers
+          .filter(o => o.player_id === sellPlayerId)
+          .map(o => ({ id: o.id, sender_handle: o.sender_handle ?? '?', quantity: o.quantity, price: o.price }));
+        const sellItem: KaderPlayer = {
+          player: bi.player,
+          quantity: bi.quantity,
+          avgBuyPriceBsd: bi.avgBuyBsd,
+          floorBsd: bi.floorBsd,
+          ipoPriceBsd: bi.player.prices.ipoPrice ?? null,
+          valueBsd: bi.floorBsd,
+          pnlBsd: bi.floorBsd - bi.avgBuyBsd,
+          pnlPct: bi.pnlPct,
+          purchasedAt: '',
+          myListings: orders.map(o => ({
+            id: o.id,
+            qty: o.quantity,
+            priceBsd: centsToBsd(o.price),
+            expiresAt: o.expiresAt ? new Date(o.expiresAt).getTime() : 0,
+          })),
+          listedQty,
+          lockedQty: bi.lockedQty,
+          availableToSell: bi.quantity - bi.lockedQty - listedQty,
+          offers: playerOffers,
+          hasActiveIpo: false,
+        };
+        return (
+          <KaderSellModal
+            item={sellItem}
+            open
+            onClose={() => setSellPlayerId(null)}
+            onSell={onSell}
+            onCancelOrder={onCancelOrder}
+          />
+        );
+      })()}
     </div>
   );
 }

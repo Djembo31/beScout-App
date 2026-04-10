@@ -177,6 +177,9 @@ export default function MarketContent() {
           watchlistEntries={data.watchlistEntries}
           scoresMap={scoresMap}
           lockedMap={lockedMap}
+          onSell={trade.handleSell}
+          onCancelOrder={trade.handleCancelOrder}
+          incomingOffers={data.incomingOffers}
         />
       </TabPanel>
 

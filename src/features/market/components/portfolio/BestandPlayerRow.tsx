@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Lock } from 'lucide-react';
+import { Lock, Tag } from 'lucide-react';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
@@ -32,13 +32,14 @@ export type BestandItem = {
 interface BestandPlayerRowProps {
   item: BestandItem;
   scores?: (number | null)[];
+  onSellClick?: () => void;
 }
 
 // ============================================
 // COMPONENT
 // ============================================
 
-function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
+function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowProps) {
   const t = useTranslations('market');
   const p = item.player;
   const tint = posTintColors[p.pos];
@@ -166,6 +167,15 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
           <span className="ml-auto text-xs font-mono font-bold tabular-nums text-gold">
             = {fmtScout(item.valueBsd)}
           </span>
+          {onSellClick && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(); }}
+              className="p-2 rounded-lg bg-surface-base border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-colors shrink-0"
+              aria-label={t('bestandYourSell', { defaultMessage: 'Verkauf' })}
+            >
+              <Tag className="size-3.5" aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
     </Link>

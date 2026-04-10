@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { SkeletonCard } from '@/components/ui';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { PortfolioSubTab } from '@/features/market/store/marketStore';
-import type { Player, DbOrder } from '@/types';
+import type { Player, DbOrder, OfferWithDetails } from '@/types';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
@@ -34,11 +34,14 @@ type Props = {
   watchlistEntries: WatchlistEntry[];
   scoresMap?: Map<string, (number | null)[]>;
   lockedMap?: Map<string, number>;
+  onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
+  onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
+  incomingOffers: OfferWithDetails[];
 };
 
 export default function PortfolioTab({
   players, mySquadPlayers, holdings, floorMap, recentOrders, buyOrders,
-  watchlistEntries, scoresMap, lockedMap,
+  watchlistEntries, scoresMap, lockedMap, onSell, onCancelOrder, incomingOffers,
 }: Props) {
   const t = useTranslations('market');
   const { portfolioSubTab, setPortfolioSubTab } = useMarketStore();
@@ -77,6 +80,9 @@ export default function PortfolioTab({
           buyOrders={buyOrders}
           scoresMap={scoresMap}
           lockedMap={lockedMap}
+          onSell={onSell}
+          onCancelOrder={onCancelOrder}
+          incomingOffers={incomingOffers}
         />
       )}
       {portfolioSubTab === 'angebote' && (
