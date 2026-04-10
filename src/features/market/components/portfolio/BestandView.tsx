@@ -106,12 +106,13 @@ export default function BestandView({
     });
   }, [mySquadPlayers, holdingsMap, floorMap, lockedMap, mySellOrdersMap, buyOrderCountMap]);
 
-  // ── Position counts (unfiltered, for header + filter badges) ──
+  // ── Position counts (filtered by club if selected, so pos badges reflect club context) ──
   const posCounts = useMemo(() => {
     const counts: Record<Pos, number> = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
-    for (const i of items) counts[i.player.pos] += i.quantity;
+    const source = filterClub ? items.filter(i => i.player.clubId === filterClub) : items;
+    for (const i of source) counts[i.player.pos] += i.quantity;
     return counts;
-  }, [items]);
+  }, [items, filterClub]);
 
   // ── Club counts (unfiltered, for filter chips) ──
   const clubCounts = useMemo(() => {
