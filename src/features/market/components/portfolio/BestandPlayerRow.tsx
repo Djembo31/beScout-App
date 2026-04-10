@@ -105,7 +105,12 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
         {/* Line 3: Matches · Goals · Assists with icons */}
         <div className="flex items-center gap-2 mt-0.5">
           <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
-            <span className="text-[9px] leading-none" aria-hidden="true">🏟️</span>{p.stats.matches}
+            <svg aria-hidden="true" width="11" height="8" viewBox="0 0 22 16" className="flex-shrink-0">
+              <rect x="0.5" y="0.5" width="21" height="15" rx="1" fill="#166534" stroke="#4ade80" strokeWidth="0.8" />
+              <line x1="11" y1="0.5" x2="11" y2="15.5" stroke="#4ade80" strokeWidth="0.6" />
+              <circle cx="11" cy="8" r="3" fill="none" stroke="#4ade80" strokeWidth="0.6" />
+            </svg>
+            {p.stats.matches}
           </span>
           <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
             <span className="text-[9px] leading-none" aria-hidden="true">⚽</span>{p.stats.goals}
