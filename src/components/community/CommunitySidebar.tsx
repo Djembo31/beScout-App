@@ -88,7 +88,7 @@ function CommunitySidebarInner({
             <Trophy className="w-4 h-4 text-gold" />
             <span className="font-bold text-sm">Top Scouts</span>
           </div>
-          <Link href="/community?tab=ranking" className="text-xs text-gold hover:underline">
+          <Link href="/rankings" className="text-xs text-gold hover:underline">
             {t('sidebar.showAll')}
           </Link>
         </div>

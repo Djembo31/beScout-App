@@ -3,7 +3,7 @@
 import { memo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Trophy, ClipboardList, TrendingUp, Compass, Target, Package } from 'lucide-react';
+import { Home, Trophy, ClipboardList, TrendingUp, Compass, Target, Package, BarChart3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,7 @@ const BOTTOM_TABS = [
   { labelKey: 'navSpieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
   { labelKey: 'navManager', href: '/manager', icon: ClipboardList, tourId: undefined as string | undefined },
   { labelKey: 'navMarkt', href: '/market', icon: TrendingUp, tourId: 'bottomnav-market' },
+  { labelKey: 'navRankings', href: '/rankings', icon: BarChart3, tourId: undefined as string | undefined },
   { labelKey: 'navMissionen', href: '/missions', icon: Target, tourId: undefined as string | undefined },
   { labelKey: 'navInventar', href: '/inventory', icon: Package, tourId: undefined as string | undefined },
   { labelKey: 'navCommunity', href: '/community', icon: Compass, tourId: undefined as string | undefined },

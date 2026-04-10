@@ -176,7 +176,9 @@ export function ScoutCard({
       </div>
 
       {/* ── Gesamt-Rang ── */}
-      <div className="mt-3 flex items-center justify-center gap-1">
+      <Link href="/rankings" className="mt-3 flex items-center justify-center gap-1 group">
+        <span className="text-[9px] font-bold text-white/30 uppercase tracking-wider group-hover:text-gold/50 transition-colors">BeScout Liga</span>
+        <span className="text-white/20 mx-0.5">|</span>
         <span className={cn('text-sm font-black', rang.color)}>
           {tg(`rang.${rang.i18nKey}`)}
         </span>
@@ -186,7 +188,7 @@ export function ScoutCard({
           </span>
         )}
         <InfoTooltip text={tg('dimensionTooltip')} />
-      </div>
+      </Link>
 
       {/* ── Auto Badges ── */}
       {badges.length > 0 && (

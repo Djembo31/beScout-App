@@ -1913,6 +1913,47 @@ export type DbFanRanking = {
 };
 
 // ============================================
+// LIGA SEASON TYPES
+// ============================================
+
+export type DbLigaSeason = {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type LigaDimension = 'trader' | 'manager' | 'analyst' | 'overall';
+
+export type DbMonthlyLigaSnapshot = {
+  id: string;
+  month: string;
+  user_id: string;
+  dimension: LigaDimension;
+  score_delta: number;
+  final_score: number;
+  rank: number | null;
+  created_at: string;
+};
+
+export type DbMonthlyLigaWinner = {
+  id?: string;
+  month: string;
+  dimension: LigaDimension;
+  user_id: string;
+  rank: number;
+  reward_cents: number;
+  badge_key: string | null;
+  created_at?: string;
+  // joined from profiles
+  handle?: string;
+  display_name?: string | null;
+  avatar_url?: string | null;
+};
+
+// ============================================
 // DAILY CHALLENGE TYPES
 // ============================================
 

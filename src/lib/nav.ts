@@ -11,6 +11,7 @@ import {
   Crown,
   Package,
   Receipt,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export const NAV_MAIN: NavItem[] = [
   { label: 'manager', href: '/manager', icon: ClipboardList },
   { label: 'market', href: '/market', icon: TrendingUp },
   { label: 'fantasy', href: '/fantasy', icon: Trophy },
+  { label: 'rankings', href: '/rankings', icon: BarChart3 },
   { label: 'missions', href: '/missions', icon: Target },
   { label: 'inventory', href: '/inventory', icon: Package },
   { label: 'club', href: '/club', icon: Building2 },

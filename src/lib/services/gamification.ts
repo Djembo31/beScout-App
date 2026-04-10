@@ -10,12 +10,19 @@ export type {
   ScoutScoreRow,
   ScoreHistoryEntry,
   ScoutLeaderboardEntry,
+  LigaSeasonRow,
+  MonthlyWinnerRow,
 } from './scoutScores';
 
 export {
   getScoutScores,
   getScoutLeaderboard,
   getMedianScore,
+  getCurrentLigaSeason,
+  getMonthlyLigaWinners,
+  getFriendsLeaderboard,
+  getMonthlyLeaderboard,
+  getClubLeaderboard,
 } from './scoutScores';
 
 // ============================================

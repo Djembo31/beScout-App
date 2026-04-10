@@ -9,7 +9,7 @@ import { BottomNav } from '../BottomNav';
 // ============================================
 vi.mock('lucide-react', () => {
   const Stub = ({ className }: { className?: string }) => <span className={className} />;
-  return { Home: Stub, Trophy: Stub, ClipboardList: Stub, TrendingUp: Stub, Compass: Stub, Target: Stub, Package: Stub };
+  return { Home: Stub, Trophy: Stub, ClipboardList: Stub, TrendingUp: Stub, Compass: Stub, Target: Stub, Package: Stub, BarChart3: Stub };
 });
 
 vi.mock('@/lib/utils', () => ({
@@ -20,10 +20,10 @@ vi.mock('@/lib/utils', () => ({
 // Tests
 // ============================================
 describe('BottomNav', () => {
-  it('renders 7 navigation links', () => {
+  it('renders 8 navigation links', () => {
     renderWithProviders(<BottomNav />);
     const links = screen.getAllByRole('link');
-    expect(links.length).toBe(7);
+    expect(links.length).toBe(8);
   });
 
   it('renders nav element', () => {
@@ -39,6 +39,7 @@ describe('BottomNav', () => {
     expect(hrefs).toContain('/fantasy');
     expect(hrefs).toContain('/manager');
     expect(hrefs).toContain('/market');
+    expect(hrefs).toContain('/rankings');
     expect(hrefs).toContain('/missions');
     expect(hrefs).toContain('/inventory');
     expect(hrefs).toContain('/community');
@@ -51,6 +52,7 @@ describe('BottomNav', () => {
     expect(screen.getByText('navSpieltag')).toBeInTheDocument();
     expect(screen.getByText('navManager')).toBeInTheDocument();
     expect(screen.getByText('navMarkt')).toBeInTheDocument();
+    expect(screen.getByText('navRankings')).toBeInTheDocument();
     expect(screen.getByText('navMissionen')).toBeInTheDocument();
     expect(screen.getByText('navInventar')).toBeInTheDocument();
     expect(screen.getByText('navCommunity')).toBeInTheDocument();

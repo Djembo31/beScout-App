@@ -240,6 +240,11 @@ export const qk = {
     scoutScores: (uid: string) => ['gamification', 'scoutScores', uid] as const,
     scoreRoad: (uid: string) => ['gamification', 'scoreRoad', uid] as const,
     leaderboardByDim: (dim: string, n: number) => ['gamification', 'leaderboard', dim, n] as const,
+    currentSeason: ['gamification', 'currentSeason'] as const,
+    monthlyWinners: (month?: string) => ['gamification', 'monthlyWinners', month ?? 'all'] as const,
+    friendsLeaderboard: (uid: string) => ['gamification', 'friendsLeaderboard', uid] as const,
+    monthlyLeaderboard: (month: string, dim: string) => ['gamification', 'monthlyLeaderboard', month, dim] as const,
+    clubLeaderboard: (clubId: string) => ['gamification', 'clubLeaderboard', clubId] as const,
   },
 
   // ── DPC Mastery ──
