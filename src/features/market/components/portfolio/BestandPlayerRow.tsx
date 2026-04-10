@@ -104,8 +104,8 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
 
         {/* Line 3: Matches · Goals · Assists with icons */}
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] font-mono text-white/50 tabular-nums">
-            {p.stats.matches}<span className="text-white/30">{t('statMatchesAbbr')}</span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
+            <span className="text-[9px] leading-none" aria-hidden="true">🏟️</span>{p.stats.matches}
           </span>
           <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
             <span className="text-[9px] leading-none" aria-hidden="true">⚽</span>{p.stats.goals}
