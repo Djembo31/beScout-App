@@ -55,7 +55,8 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
   return (
     <Link
       href={`/player/${p.id}`}
-      className="flex gap-3 p-3 rounded-xl bg-surface-minimal border border-white/[0.08] hover:bg-surface-subtle transition-colors shadow-card-sm"
+      className="flex gap-3 px-3 py-2.5 rounded-xl bg-surface-base border border-divider border-l-2 hover:bg-surface-elevated hover:border-white/[0.12] transition-colors"
+      style={{ borderLeftColor: tint }}
     >
       {/* Photo */}
       <div className="shrink-0 self-start">
