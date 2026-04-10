@@ -47,7 +47,6 @@ type ClubAggregate = {
   totalOffered: number;
   avgPrice: number;
   earliestEnd: string | null;
-  isHot: boolean;
 };
 
 export default function ClubVerkaufSection({
@@ -132,7 +131,6 @@ export default function ClubVerkaufSection({
         totalOffered,
         avgPrice: priceCount > 0 ? Math.round(totalPrice / priceCount) : 0,
         earliestEnd: getEarliestEndDate(endDates),
-        isHot: clubPlayers.length >= 5,
       });
     });
 
@@ -256,7 +254,6 @@ export default function ClubVerkaufSection({
                 totalSold={agg.totalSold}
                 totalOffered={agg.totalOffered}
                 earliestEnd={agg.earliestEnd}
-                isHot={agg.isHot && isBuyable}
                 isExpanded={clubVerkaufExpandedClub === agg.clubName}
                 isFollowed={followedClubIds.has(agg.club.id)}
                 onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}

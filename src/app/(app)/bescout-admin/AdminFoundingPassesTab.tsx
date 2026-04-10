@@ -329,7 +329,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             >
               {FOUNDING_PASS_TIERS.map(t => (
                 <option key={t.tier} value={t.tier} className="bg-surface-popover">
-                  {t.tier.charAt(0).toUpperCase() + t.tier.slice(1)} — {fmtScout(t.bcreditsCents / 100)} bC
+                  {t.tier.charAt(0).toUpperCase() + t.tier.slice(1)} — {fmtScout(t.bcreditsCents / 100)} CR
                 </option>
               ))}
             </select>

@@ -176,7 +176,7 @@ export default function TraderTab({
           {/* Row 1: Portfolio Value, PnL (self only), DPC Count */}
           <StatCell
             label={tp('portfolioValue')}
-            value={`${formatScout(portfolioValueCents)} bC`}
+            value={`${formatScout(portfolioValueCents)} CR`}
           />
           {isSelf ? (
             <StatCell

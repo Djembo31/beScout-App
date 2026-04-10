@@ -99,7 +99,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
           <StatCell label={t('eventsPlayed')} value={String(fantasyResults.length)} />
           <StatCell label={t('bestRank')} value={stats ? `#${stats.bestRank}` : '\u2014'} />
           <StatCell label={t('avgRank')} value={stats ? `#${stats.avgRank.toFixed(1)}` : '\u2014'} />
-          <StatCell label={t('totalEarned')} value={stats ? `${formatScout(stats.totalEarned)} bC` : '\u2014'} />
+          <StatCell label={t('totalEarned')} value={stats ? `${formatScout(stats.totalEarned)} CR` : '\u2014'} />
         </div>
 
         {/* Podium medals line */}
@@ -128,7 +128,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
                 </span>
               </div>
               <div className="text-[10px] text-white/40 mt-0.5 font-mono tabular-nums">
-                Score: {r.totalScore} &middot; Rank: #{r.rank} &middot; +{formatScout(r.rewardAmount)} bC
+                Score: {r.totalScore} &middot; Rank: #{r.rank} &middot; +{formatScout(r.rewardAmount)} CR
               </div>
             </div>
           ))}

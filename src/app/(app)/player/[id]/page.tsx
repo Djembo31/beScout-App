@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       .maybeSingle();
     if (data) {
       const name = `${data.first_name} ${data.last_name}`;
-      const floor = data.floor_price ? `Floor: ${(data.floor_price / 100).toFixed(0)} bC` : '';
+      const floor = data.floor_price ? `Floor: ${(data.floor_price / 100).toFixed(0)} CR` : '';
       const change = data.price_change_24h ? ` | ${data.price_change_24h >= 0 ? '+' : ''}${data.price_change_24h.toFixed(1)}%` : '';
       const desc = `${data.position} · ${data.club}${floor ? ` | ${floor}` : ''}${change}`;
       return {

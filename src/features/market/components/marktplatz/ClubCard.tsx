@@ -3,7 +3,6 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Flame } from 'lucide-react';
 import { PlayerPhoto, getL5Color } from '@/components/player';
 import type { Pos } from '@/types';
 import CountdownBadge from './CountdownBadge';
@@ -27,7 +26,6 @@ interface ClubCardProps {
   totalSold: number;
   totalOffered: number;
   earliestEnd: string | null;
-  isHot: boolean;
   isExpanded: boolean;
   isFollowed: boolean;
   onToggle: () => void;
@@ -35,7 +33,7 @@ interface ClubCardProps {
 
 export default function ClubCard({
   club, players, ipoMap, totalSold, totalOffered,
-  earliestEnd, isHot, isExpanded, isFollowed, onToggle,
+  earliestEnd, isExpanded, isFollowed, onToggle,
 }: ClubCardProps) {
   const t = useTranslations('market');
   const pc = club.colors.primary;
@@ -83,19 +81,11 @@ export default function ClubCard({
       }}
     >
       {/* Badges */}
-      {(isFollowed || isHot) && (
+      {isFollowed && (
         <div className="flex items-center gap-1 mb-1.5">
-          {isFollowed && (
-            <span className="px-1 py-0.5 bg-gold/15 rounded text-[8px] font-black text-gold leading-none">
-              {t('followedBadge', { defaultMessage: 'Mein Club' })}
-            </span>
-          )}
-          {isHot && (
-            <span className="flex items-center gap-0.5 px-1 py-0.5 bg-vivid-red/15 rounded text-[8px] font-black text-vivid-red leading-none">
-              <Flame className="size-2" aria-hidden="true" />
-              HOT
-            </span>
-          )}
+          <span className="px-1 py-0.5 bg-gold/15 rounded text-[8px] font-black text-gold leading-none">
+            {t('followedBadge', { defaultMessage: 'Mein Club' })}
+          </span>
         </div>
       )}
 

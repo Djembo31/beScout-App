@@ -39,7 +39,7 @@ export default function MissionHint({ title, reward, progress, target, compact }
             <span className="font-semibold text-gold/80">{t('hintTitle')}: </span>
             {title}
           </span>
-          <span className="text-[10px] font-mono text-gold/60 shrink-0">+{rewardBsd} bC</span>
+          <span className="text-[10px] font-mono text-gold/60 shrink-0">+{rewardBsd} CR</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1 bg-surface-base rounded-full overflow-hidden">
