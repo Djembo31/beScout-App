@@ -16,6 +16,8 @@ import { useWatchlistActions } from '@/features/market/hooks/useWatchlistActions
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { GeoGate } from '@/components/geo/GeoGate';
+import { useRecentScores } from '@/lib/queries/managerData';
+import { useHoldingLocks } from '@/features/fantasy/queries/events';
 import dynamic from 'next/dynamic';
 
 import MarketHeader from './MarketHeader';
@@ -69,6 +71,8 @@ export default function MarketContent() {
   const data = useMarketData(user?.id);
   const trade = useTradeActions(user?.id, data.ipoList);
   useWatchlistActions(user?.id, data.watchlistMap);
+  const { data: scoresMap } = useRecentScores();
+  const { data: lockedMap } = useHoldingLocks(user?.id);
 
   // ── URL sync (once on mount) ──
   const tabSyncedRef = useRef(false);
@@ -165,7 +169,14 @@ export default function MarketContent() {
       <TabPanel id="portfolio" activeTab={tab}>
         <PortfolioTab
           players={data.players}
+          mySquadPlayers={data.mySquadPlayers}
+          holdings={data.holdings}
+          floorMap={data.floorMap}
+          recentOrders={data.recentOrders}
+          buyOrders={data.buyOrders}
           watchlistEntries={data.watchlistEntries}
+          scoresMap={scoresMap}
+          lockedMap={lockedMap}
         />
       </TabPanel>
 

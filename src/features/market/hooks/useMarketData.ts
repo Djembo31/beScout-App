@@ -26,7 +26,7 @@ export function useMarketData(userId: string | undefined) {
   const { data: announcedIpos = [] } = useAnnouncedIpos({ enabled: tab === 'marktplatz' });
   const { data: endedIpos = [] } = useRecentlyEndedIpos({ enabled: tab === 'marktplatz' });
   const { data: trending = [] } = useTrendingPlayers(8, { enabled: tab === 'marktplatz' });
-  const { data: buyOrders = [] } = useAllOpenBuyOrders({ enabled: tab === 'marktplatz' });
+  const { data: buyOrders = [] } = useAllOpenBuyOrders();
 
   // ── Derived: merge price histories ──
   const players = useMemo(() => {

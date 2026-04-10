@@ -1,16 +1,20 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Heart } from 'lucide-react';
+import { Heart, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { SkeletonCard } from '@/components/ui';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { PortfolioSubTab } from '@/features/market/store/marketStore';
-import type { Player } from '@/types';
+import type { Player, DbOrder } from '@/types';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
+const BestandView = dynamic(() => import('./BestandView'), {
+  ssr: false,
+  loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-28" />)}</div>,
+});
 const OffersTab = dynamic(() => import('./OffersTab'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
@@ -19,23 +23,30 @@ const WatchlistView = dynamic(() => import('./WatchlistView'), {
   ssr: false,
   loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
 });
-const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
-  ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
-});
 
 type Props = {
   players: Player[];
+  mySquadPlayers: Player[];
+  holdings: { player_id: string; quantity: number; avg_buy_price: number }[];
+  floorMap: Map<string, number>;
+  recentOrders: DbOrder[];
+  buyOrders: DbOrder[];
   watchlistEntries: WatchlistEntry[];
+  scoresMap?: Map<string, (number | null)[]>;
+  lockedMap?: Map<string, number>;
 };
 
-export default function PortfolioTab({ players, watchlistEntries }: Props) {
+export default function PortfolioTab({
+  players, mySquadPlayers, holdings, floorMap, recentOrders, buyOrders,
+  watchlistEntries, scoresMap, lockedMap,
+}: Props) {
   const t = useTranslations('market');
   const { portfolioSubTab, setPortfolioSubTab } = useMarketStore();
 
   const subTabs: Array<{ id: PortfolioSubTab; label: string; icon: React.ReactNode | null }> = [
+    { id: 'bestand', label: t('bestandTab', { defaultMessage: 'Bestand' }), icon: <Briefcase className="size-3" aria-hidden="true" /> },
     { id: 'angebote', label: t('offers'), icon: null },
-    { id: 'watchlist', label: t('watchlist'), icon: <Heart className="size-3" /> },
+    { id: 'watchlist', label: t('watchlist'), icon: <Heart className="size-3" aria-hidden="true" /> },
   ];
 
   return (
@@ -57,13 +68,23 @@ export default function PortfolioTab({ players, watchlistEntries }: Props) {
           </button>
         ))}
       </div>
+      {portfolioSubTab === 'bestand' && (
+        <BestandView
+          mySquadPlayers={mySquadPlayers}
+          holdings={holdings}
+          floorMap={floorMap}
+          recentOrders={recentOrders}
+          buyOrders={buyOrders}
+          scoresMap={scoresMap}
+          lockedMap={lockedMap}
+        />
+      )}
       {portfolioSubTab === 'angebote' && (
         <OffersTab players={players} />
       )}
       {portfolioSubTab === 'watchlist' && (
         <WatchlistView players={players} watchlistEntries={watchlistEntries} />
       )}
-      <SponsorBanner placement="market_top" />
       <TradingDisclaimer variant="card" />
     </>
   );
