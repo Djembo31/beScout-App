@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Lock } from 'lucide-react';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
+import { GoalIcon, AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
 import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import type { Player } from '@/types';
@@ -81,8 +82,8 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
           </div>
         </div>
 
-        {/* Line 2: Club + Stats */}
-        <div className="flex items-center gap-2 mt-0.5">
+        {/* Line 2: Club · #Shirt · Age */}
+        <div className="flex items-center gap-1.5 mt-0.5">
           <span className="text-xs text-white/40 truncate flex items-center gap-1">
             {clubData?.logo ? (
               <Image src={clubData.logo} alt="" width={14} height={14} className="size-3.5 rounded-full object-cover" />
@@ -91,11 +92,26 @@ function BestandPlayerRowInner({ item, scores }: BestandPlayerRowProps) {
             ) : null}
             {clubData?.name ?? p.club}
           </span>
-          <span className="text-white/10">|</span>
+          {p.ticket > 0 && (
+            <>
+              <span className="text-white/10">·</span>
+              <span className="text-[10px] font-mono text-white/40">#{p.ticket}</span>
+            </>
+          )}
+          <span className="text-white/10">·</span>
+          <span className="text-[10px] text-white/40">{p.age}</span>
+        </div>
+
+        {/* Line 3: Matches · Goals · Assists with icons */}
+        <div className="flex items-center gap-2 mt-0.5">
           <span className="text-[10px] font-mono text-white/50 tabular-nums">
-            {p.stats.matches}<span className="text-white/30">{t('statMatchesAbbr')}</span>{' '}
-            {p.stats.goals}<span className="text-white/30">{t('statGoalsAbbr')}</span>{' '}
-            {p.stats.assists}<span className="text-white/30">{t('statAssistsAbbr')}</span>
+            {p.stats.matches}<span className="text-white/30">{t('statMatchesAbbr')}</span>
+          </span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
+            <GoalIcon size={10} />{p.stats.goals}
+          </span>
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-mono tabular-nums text-white/50">
+            <AssistIcon size={10} />{p.stats.assists}
           </span>
         </div>
 
