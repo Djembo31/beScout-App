@@ -76,6 +76,12 @@ export function usePlayerTrading({
     invalidateTradeQueries(pid, uid);
     invalidatePlayerDetailQueries(pid, uid);
     queryClient.invalidateQueries({ queryKey: qk.offers.bids(pid) });
+    // Force-refetch the full holdings list even if no observer is mounted
+    // on the player detail page. Otherwise the cache stays stale until the
+    // user navigates to /market and waits for the background refetch.
+    if (uid) {
+      queryClient.refetchQueries({ queryKey: qk.holdings.byUser(uid), type: 'all' });
+    }
   }, [queryClient]);
 
   // ─── Optimistic holdings-list patch ─────────
