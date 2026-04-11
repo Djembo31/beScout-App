@@ -1,13 +1,13 @@
 # Current Sprint — Polish Sweep (Pre-Launch Page Polish)
 
-## Stand (2026-04-10 Nacht, Home Pass 2 gelandet)
+## Stand (2026-04-11, Market Polish Session Ende)
 
 - **Branch:** main
-- **Letzter Commit:** `aa4cea7` feat(home): polish pass 2 — track B1 (letzter spieltag widget)
-- **Deployed:** live auf bescout.net via Vercel `bescout-2ijp6zwyr-bescouts-projects.vercel.app`
-- **Migrations:** 51 lokal, unverändert (keine DB-Arbeit in diesem Pass)
-- **Tests:** `tsc --noEmit` clean
-- **Live auf bescout.net verifiziert** als jarvis-qa (Mobile 390px + Desktop 1280px) — Home Widget rendert populated state mit "Sakaryaspor Fan-Challenge" 487 pts / #26 / +250 CR / 7er Lineup
+- **Letzte Session-Commits:** siehe `session-handoff.md` Tabelle — 13 Commits, darunter 1 kritischer Money-Bug (accept_offer NULL-guard) + 1 Tickets-Root-Cause-Fix (service throw)
+- **Deployed:** live auf bescout.net via Vercel nach jedem Commit
+- **Migrations:** +6 neue (mystery_box daily cap fix, equipment branch fix, ticket source fix, cancel cooldown removal, accept_offer NULL-guard, create_offer NULL-guard)
+- **Tests:** `tsc --noEmit` clean, relevante Test-Files alle grün nach Session
+- **Session-Charakter:** Reaktiv. Anil hat Pacing kritisiert ("wir hinterlassen zu viele krümel und übersehen einiges"). Anti-Krümel-Regeln in `session-handoff.md` dokumentiert.
 
 ## Aktueller Fokus: Polish Sweep
 

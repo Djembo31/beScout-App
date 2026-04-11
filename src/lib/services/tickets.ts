@@ -6,19 +6,31 @@ import type { DbUserTickets, DbTicketTransaction, TicketSource } from '@/types';
 // Tickets Service
 // ============================================
 
-/** Fetch the user's ticket balance via RPC */
-export async function getUserTickets(userId: string): Promise<DbUserTickets | null> {
+/**
+ * Fetch the user's ticket balance via RPC.
+ *
+ * IMPORTANT — error propagation: this function THROWS on RPC error
+ * instead of silently returning null. The RPC `get_user_tickets`
+ * raises `'Nicht authentifiziert'` when `auth.uid()` is null, which
+ * happens on first paint before the Supabase session is fully
+ * hydrated. If the service swallowed that error and returned null,
+ * React Query would cache null as a successful result and NOT retry,
+ * leaving the TopBar ticket pill stuck on its skeleton for 30s
+ * (staleTime) or until the next navigation refocused the query.
+ * By throwing, we let React Query's default retry (3×, exponential
+ * backoff) fire — by retry time the session is ready and the pill
+ * populates correctly without the user seeing a disappearing number.
+ */
+export async function getUserTickets(_userId: string): Promise<DbUserTickets | null> {
   const { data, error } = await supabase.rpc('get_user_tickets');
 
   if (error) {
     logSupabaseError('[Tickets] getUserTickets', error);
-    return null;
+    throw new Error(error.message);
   }
 
-  // RPC returns a single row or null
   if (!data) return null;
 
-  // Handle both single-row and array responses from Supabase
   const row = Array.isArray(data) ? data[0] : data;
   return row as DbUserTickets | null;
 }

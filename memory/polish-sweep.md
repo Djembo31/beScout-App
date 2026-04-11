@@ -148,6 +148,8 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 | Home A3 | **`price_change_7d` / `get_my_top_movers_7d` RPC** — aktuell nur 24h-change verfügbar. Für echtes "Top Mover der Woche" braucht es entweder neue DB column oder RPC der aus `trades` aggregiert | M | Home Widget, später auch Market-Page | ✅ done (efcb3f5 — `get_player_price_changes_7d` RPC live, `useHomeData` wired) |
 | Home C4 | **Backend open_mystery_box_v2 daily-cap check** — aktuell `freeMysteryBoxesPerWeek`, nach daily switch prüfen ob backend gated | M | Mystery Box RPC | ✅ done (efcb3f5 initial + 7eb7d37 follow-up fixte 3 RPC-Bugs + server-authoritative Frontend-Gate; live auf bescout.net verifiziert 2026-04-11) |
 | Track D | **CardMastery Konzept** — Anil hat es als Economy-Touchpoint erwähnt, aber das Feature existiert nicht im Code. Muss definiert werden. | L | BeScout Liga Spec | 🚫 skip — Anil 2026-04-10: "AUS SCOPE ENTFERNT" (siehe `bescout-liga.md` Economy-Entscheidungen) |
+| Tickets Pop-In | **Silent-Null Services Audit** — `getUserTickets` fing Auth-Race-Error ab und returnte null, React Query cached success → kein retry → Pop-In. Gleiche Pattern in ~10 anderen Services (`airdropScore`, `clubChallenges`, `adRevenueShare`, `dailyChallenge`, `fanRanking`, `club.getClubById`, `wallet.getHoldings/getWallet`, mehrere in `trading.ts`). Jeder dieser Calls hat dasselbe Pop-In-Potenzial unter Auth/RLS-Race. | M | gesamte App | ⏳ Scope-Flag fuer separaten Sweep (nach Market Polish) |
+| accept_offer / create_offer | **NULL-comparison Money-Bug** — `(SELECT COALESCE(...) FROM ...) < x` bypasst den Check wenn keine Row existiert. Live exploit von Anil ausgeloest, gefixt (d1de1db), historischer Audit clean (nur seed-daten unbacked). Pre-Launch: Fan-Seed-Accounts loeschen + Supply-Invariant CI-Test einbauen. | **CRITICAL** | Trading RPCs | ✅ gefixt + exploit rolled back. Follow-up in `pre-launch-checklist.md` |
 
 ---
 
@@ -161,4 +163,12 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 - **2026-04-10 Abend** — Market "Bestand" Tab (neuer Default in Mein Kader): Portfolio-Header, FormBars+L5 (KaderPlayerRow Pattern), Position/Club Filter, Sell-Button ($) mit 3 Zustaenden (rot=Nachfrage, gold=gelistet, grau=normal), Pitch/Goal/Assist Icons, Club-Logos, Trikotnummer+Alter, StatusBadge. 12 Commits.
 - **2026-04-10 Abend** — FormBars Reihenfolge gefixt (oldest→newest links→rechts) global.
 - **2026-04-10 Abend** — Naechste Session: Watchlist in Marktplatz verschieben, Marktplatz-Tab im Detail durchgehen.
-- **2026-04-11** — Mystery Box endless-loop bug gefixt (3 kaskadierende RPC-Bugs in efcb3f5 + server-authoritative Gate, Commit 7eb7d37). Live auf bescout.net verifiziert. Scope-Creep-Log auf aktuellen Stand gebracht: Home A3 ✅, C4 ✅, Track D 🚫. Naechste Session weiter mit Market Polish (Watchlist-Move + Marktplatz-Tabs im Detail).
+- **2026-04-11** — Mystery Box endless-loop bug gefixt (3 kaskadierende RPC-Bugs in efcb3f5 + server-authoritative Gate, Commit 7eb7d37). Live auf bescout.net verifiziert. Scope-Creep-Log auf aktuellen Stand gebracht: Home A3 ✅, C4 ✅, Track D 🚫.
+- **2026-04-11** — Market Polish Session, aber ueberwiegend kritische Bugs statt echter Polish-Fortschritt. 13 Commits. Hauptpunkte:
+  - Mystery Box camelCase Service-Cast bug (74d9446) — nur "gewoehnlich" sichtbar, kein reward.
+  - Trading UX: sell-cancel cooldown raus, buy-modal 2.5s success state mit Zum-Bestand CTA, optimistic holdings update, phantom-success fix, force-refetch fuer inactive observers.
+  - ScoutCardStats ins Home-Hero gehoben (b3995bc).
+  - TopBar iPhone-16 overflow (62f2acd) + streak raus + tickets-pill skeleton statt pop-in (b1ac20f).
+  - **KRITISCH:** accept_offer + create_offer NULL-comparison Money-Bug (d1de1db) — user konnte Gebote fuer Spieler annehmen die er nicht besitzt. Live exploit von Anil gefunden, gefixt + rolled back + historical audit (nur seed-daten unbacked). Pre-Launch-Checkliste angelegt.
+  - **Tickets Root Cause** (nach Anil-Kritik): getUserTickets schluckte Auth-Race-Error und returned null → React Query cached success → kein retry → Pop-In. Fix: throw statt swallow.
+  - Nachste Session weiter mit Market Polish (Watchlist-Move + Marktplatz-Tabs im Detail), aber mit strikterer Anti-Kruemel-Disziplin (siehe session-handoff.md).
