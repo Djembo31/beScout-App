@@ -95,6 +95,13 @@ export default function HomePage() {
         storyMessage={storyMessage}
       />
 
+      {/* Scout Cards — total + position breakdown.
+          Placed directly under the Wertentwicklung pill inside the hero
+          (self-renders null when portfolio is empty, so new users never
+          see an empty card). Moved here from the main column on Anil's
+          request so it visually anchors the squad overview. */}
+      <ScoutCardStats holdings={holdings} />
+
       {/* ── 1a. NEW USER: Intro + Checklist + Founding Pass ── */}
       {isNewUser && <BeScoutIntroCard />}
       {isNewUser && retention?.onboarding && (
@@ -185,9 +192,6 @@ export default function HomePage() {
 
         {/* ── LEFT COLUMN (Main Content) ── */}
         <div className="space-y-8 md:space-y-10 min-w-0">
-          {/* Squad Stats — total Scout Cards + position breakdown */}
-          <ScoutCardStats holdings={holdings} />
-
           {/* Dein letzter Spieltag — last scored fantasy event with lineup
               grid. Active users see score/rank/reward + full per-slot
               scores; new users see an empty state with a CTA to /fantasy.
