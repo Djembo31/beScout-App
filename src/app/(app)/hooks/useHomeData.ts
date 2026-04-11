@@ -57,7 +57,11 @@ export function useHomeData() {
 
   // ── Gamification v5 Hooks ──
   const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
-  const { data: ticketData = null } = useUserTickets(uid, belowFoldReady);
+  // Tickets load immediately (never gated on belowFoldReady). The pill is
+  // always visible in the TopBar, so deferring it by 800ms caused a visible
+  // pop-in on first paint and interacted badly with TopBar's observer
+  // leaving a window where no observer was enabled → query never fired.
+  const { data: ticketData = null } = useUserTickets(uid);
   const { data: highestPass } = useHighestPass(uid, belowFoldReady);
   const { hasFreeBoxToday } = useHasFreeBoxToday(uid);
 

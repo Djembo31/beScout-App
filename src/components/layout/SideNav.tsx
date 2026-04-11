@@ -113,15 +113,20 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
           </div>
         </div>
 
-        {/* Ticket Balance */}
-        {ticketBalance !== null && !collapsed && (
+        {/* Ticket Balance — always rendered so the side nav layout is stable
+            (skeleton while loading, matches the wallet balance pattern). */}
+        {!collapsed && (
           <div className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/[0.06] border border-amber-500/[0.15]" title={tc('ticketTooltip')}>
             <Ticket className="size-3.5 text-amber-400 flex-shrink-0" />
-            <span className="font-mono font-bold text-amber-400 text-xs tabular-nums">{ticketBalance}</span>
+            {ticketBalance === null ? (
+              <span className="inline-block w-8 h-3.5 rounded bg-amber-400/20 animate-pulse motion-reduce:animate-none" />
+            ) : (
+              <span className="font-mono font-bold text-amber-400 text-xs tabular-nums">{ticketBalance}</span>
+            )}
             <span className="text-[10px] text-white/40">Tickets</span>
           </div>
         )}
-        {ticketBalance !== null && collapsed && (
+        {collapsed && (
           <div className="mt-2 flex items-center justify-center" title={tc('ticketTooltip')}>
             <Ticket className="size-3.5 text-amber-400" />
           </div>

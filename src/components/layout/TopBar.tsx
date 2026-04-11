@@ -4,7 +4,7 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket, HelpCircle, Flame } from 'lucide-react';
+import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNumTick } from '@/lib/hooks/useNumTick';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
@@ -40,21 +40,10 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
   const balanceTick = useNumTick(balanceCents);
   const t = useTranslations('nav');
-  // Streak from localStorage (written by useHomeData)
-  const [streakDays, setStreakDays] = useState(0);
 
   const name = profile?.display_name || displayName(user);
   const initial = name.charAt(0).toUpperCase();
   const plan = profile?.plan ?? 'Free';
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('bescout-login-streak');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setStreakDays(parsed.current ?? 0);
-      }
-    } catch { /* ignore */ }
-  }, []);
 
   // Realtime notification subscription (replaces 60s polling)
   const {
@@ -172,13 +161,16 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             )}
           </div>
 
-          {/* Ticket Balance pill */}
-          {ticketBalance !== null && (
-            <div className="flex items-center gap-1 px-2 py-1 sm:py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl" title={t('ticketTooltip')}>
-              <Ticket className="size-3 sm:size-3.5 text-amber-400" />
+          {/* Ticket Balance pill — always rendered (skeleton while loading)
+              so the layout is stable and the user never sees a pop-in. */}
+          <div className="flex items-center gap-1 px-2 py-1 sm:py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl" title={t('ticketTooltip')}>
+            <Ticket className="size-3 sm:size-3.5 text-amber-400" />
+            {ticketBalance === null ? (
+              <span className="inline-block w-6 sm:w-8 h-3.5 rounded bg-amber-400/20 animate-pulse motion-reduce:animate-none" />
+            ) : (
               <span className="font-mono font-bold text-amber-400 text-[10px] sm:text-xs tabular-nums">{ticketBalance}</span>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Search icon — mobile only */}
           <button
@@ -258,14 +250,10 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <HelpCircle className="size-4 md:size-5 text-white/70" />
           </button>
 
-          {/* Streak badge — hidden on mobile (the hero header shows a big streak pill,
-              so duplicating it here just eats horizontal space on iPhone 16 etc.) */}
-          {streakDays > 0 && (
-            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-500/10 border border-orange-400/20" title={t('streakDays', { count: streakDays })}>
-              <Flame className="size-3.5 text-orange-400" aria-hidden="true" />
-              <span className="text-xs font-bold text-orange-300 tabular-nums">{streakDays}</span>
-            </div>
-          )}
+          {/* Streak badge: removed from TopBar entirely — the hero header on
+              home already shows a prominent orange streak pill, and surfacing
+              the same information twice just wasted horizontal space and
+              pushed the profile avatar off-screen on iPhone 16. */}
 
           {/* User avatar — borderless + tight on mobile to keep the avatar inside the viewport */}
           <div className="flex items-center gap-3 sm:pl-2 md:pl-3 sm:border-l sm:border-white/10 shrink-0">

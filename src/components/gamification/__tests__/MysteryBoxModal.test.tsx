@@ -63,21 +63,28 @@ describe('MysteryBoxModal', () => {
     expect(screen.getByTestId('modal')).toBeInTheDocument();
   });
 
-  it('shows ticket balance', () => {
-    renderWithProviders(<MysteryBoxModal {...defaultProps} ticketBalance={42} />);
-    expect(screen.getByText(/42/)).toBeInTheDocument();
+  // Daily-free-only model (Track C1): the modal no longer exposes the
+  // ticket balance or a paid-open path. `ticketBalance` remains in props
+  // for API compatibility but is not rendered. The previous assertions
+  // (ticket balance visible, default-state open button) are replaced by
+  // the current states: daily-claimed text when hasFreeBox=false, and
+  // a free-box CTA when hasFreeBox=true.
+
+  it('shows daily-claimed state when no free box available', () => {
+    renderWithProviders(<MysteryBoxModal {...defaultProps} hasFreeBox={false} />);
+    expect(screen.getByText('dailyBoxClaimed')).toBeInTheDocument();
   });
 
-  it('shows free box button when hasFreeBox', () => {
+  it('shows free box CTA when hasFreeBox', () => {
     renderWithProviders(<MysteryBoxModal {...defaultProps} hasFreeBox={true} />);
     expect(screen.getAllByText('freeBox').length).toBeGreaterThanOrEqual(1);
   });
 
-  it('calls onOpen when open button clicked', async () => {
+  it('calls onOpen when the free-box button is clicked', async () => {
     const onOpen = vi.fn().mockResolvedValue(null);
-    renderWithProviders(<MysteryBoxModal {...defaultProps} onOpen={onOpen} />);
+    renderWithProviders(<MysteryBoxModal {...defaultProps} hasFreeBox={true} onOpen={onOpen} />);
     const buttons = screen.getAllByRole('button');
-    const openBtn = buttons.find(b => b.textContent?.includes('openBox'));
+    const openBtn = buttons.find(b => b.textContent?.includes('freeBox'));
     if (openBtn) fireEvent.click(openBtn);
     await waitFor(() => {
       expect(onOpen).toHaveBeenCalled();

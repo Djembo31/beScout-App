@@ -51,8 +51,10 @@ vi.mock('@/features/market/queries/watchlist', () => ({
 }));
 
 const mockIncomingOffers = vi.fn().mockReturnValue({ data: [] });
+const mockOpenBids = vi.fn().mockReturnValue({ data: [] });
 vi.mock('@/features/market/queries/offers', () => ({
   useIncomingOffers: (uid: unknown) => mockIncomingOffers(uid),
+  useOpenBids: () => mockOpenBids(),
 }));
 
 // Import AFTER mocks are set up

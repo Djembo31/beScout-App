@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 
 // ============================================
 // Mocks — Query hooks
@@ -68,13 +68,24 @@ vi.mock('@/components/providers/ClubProvider', () => ({
 
 const mockCentsToBsd = vi.fn().mockImplementation((v: number) => v / 100000);
 
+const mockGetPlayerPriceChanges7d = vi.fn().mockResolvedValue([]);
 vi.mock('@/lib/services/players', () => ({
   centsToBsd: (...args: any[]) => mockCentsToBsd(...args),
+  getPlayerPriceChanges7d: (...args: any[]) => mockGetPlayerPriceChanges7d(...args),
 }));
 
 const mockOpenMysteryBox = vi.fn().mockResolvedValue({ ok: false });
 vi.mock('@/lib/services/mysteryBox', () => ({
   openMysteryBox: (...args: any[]) => mockOpenMysteryBox(...args),
+  countFreeMysteryBoxesToday: vi.fn().mockResolvedValue(0),
+}));
+
+// useHasFreeBoxToday wraps useQuery; stub it so the hook doesn't need a
+// QueryClientProvider in unit tests. Also stubs useMysteryBoxHistory in
+// case a future test imports it.
+vi.mock('@/lib/queries/mysteryBox', () => ({
+  useHasFreeBoxToday: () => ({ hasFreeBoxToday: true, isLoading: false }),
+  useMysteryBoxHistory: () => ({ data: [], isLoading: false }),
 }));
 
 vi.mock('@/lib/queryClient', () => ({
@@ -327,19 +338,26 @@ describe('useHomeData', () => {
 
   // ── Top Movers ──
 
-  it('returns top movers sorted by absolute change', () => {
+  it('returns top movers from the 7d price changes RPC', async () => {
     mockCentsToBsd.mockImplementation((v: number) => v / 100000);
     mockUseHoldings.mockReturnValue({
       data: [
-        makeHolding({ id: 'h-1', player_id: 'p-1', player: { ...makeHolding().player, price_change_24h: -10 } }),
-        makeHolding({ id: 'h-2', player_id: 'p-2', player: { ...makeHolding().player, price_change_24h: 5 } }),
-        makeHolding({ id: 'h-3', player_id: 'p-3', player: { ...makeHolding().player, price_change_24h: 20 } }),
+        makeHolding({ id: 'h-1', player_id: 'p-1' }),
+        makeHolding({ id: 'h-2', player_id: 'p-2' }),
+        makeHolding({ id: 'h-3', player_id: 'p-3' }),
       ],
     });
+    // RPC returns rows already sorted by absolute change — the hook trusts that order.
+    mockGetPlayerPriceChanges7d.mockResolvedValueOnce([
+      { player_id: 'p-3', change_pct: 20 },
+      { player_id: 'p-1', change_pct: -10 },
+      { player_id: 'p-2', change_pct: 5 },
+    ]);
     const { result } = renderHook(() => useHomeData());
-    expect(result.current.topMovers).toHaveLength(3);
+    await waitFor(() => expect(result.current.topMovers).toHaveLength(3));
     expect(result.current.topMovers[0].change24h).toBe(20);
     expect(result.current.topMovers[1].change24h).toBe(-10);
+    expect(result.current.topMovers[2].change24h).toBe(5);
   });
 
   it('returns empty topMovers with fewer than 2 holdings', () => {
@@ -383,14 +401,12 @@ describe('useHomeData', () => {
 
   // ── Actions: handleOpenMysteryBox ──
 
-  it('handleOpenMysteryBox returns null on failure', async () => {
-    mockOpenMysteryBox.mockResolvedValue({ ok: false });
+  it('handleOpenMysteryBox throws on failure so the modal can surface the error', async () => {
+    mockOpenMysteryBox.mockResolvedValue({ ok: false, error: 'daily_free_limit_reached' });
     const { result } = renderHook(() => useHomeData());
-    let res: unknown;
     await act(async () => {
-      res = await result.current.handleOpenMysteryBox();
+      await expect(result.current.handleOpenMysteryBox()).rejects.toThrow('daily_free_limit_reached');
     });
-    expect(res).toBeNull();
   });
 
   it('handleOpenMysteryBox returns reward on success', async () => {
