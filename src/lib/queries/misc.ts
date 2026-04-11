@@ -206,7 +206,7 @@ export function useSellOrders(playerId: string | undefined) {
 export function useOpenBids(playerId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.offers.bids(playerId!),
-    queryFn: () => getOpenBids(playerId!),
+    queryFn: () => getOpenBids({ playerId }),
     enabled: !!playerId && active,
     staleTime: ONE_MIN,
   });

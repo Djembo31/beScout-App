@@ -83,17 +83,46 @@ export async function getOutgoingOffers(userId: string): Promise<OfferWithDetail
   return enrichOffers((data ?? []) as DbOffer[]);
 }
 
-/** Open bids (no receiver) */
-export async function getOpenBids(playerId?: string): Promise<OfferWithDetails[]> {
+/**
+ * Open public buy bids (offers with no explicit receiver, still pending,
+ * not expired). When called from the "Mein Kader → Angebote → Offene
+ * Angebote" tab, pass `ownedByUserId` so the result is restricted to
+ * players the user actually owns — otherwise the tab shows bids for
+ * players the user can't fulfill, and the Accept button used to let the
+ * backend create supply out of nothing (until the NULL-guard fix in
+ * migration 20260411130000).
+ */
+export async function getOpenBids(opts: {
+  playerId?: string;
+  ownedByUserId?: string;
+} = {}): Promise<OfferWithDetails[]> {
+  const { playerId, ownedByUserId } = opts;
+
+  // Restrict to the user's actually-owned players first. If they own
+  // nothing, skip the offers fetch entirely — no bids can be actionable.
+  let ownedPlayerIds: string[] | null = null;
+  if (ownedByUserId) {
+    const { data: holdings, error: holdingsErr } = await supabase
+      .from('holdings')
+      .select('player_id')
+      .eq('user_id', ownedByUserId)
+      .gt('quantity', 0);
+    if (holdingsErr) throw new Error(holdingsErr.message);
+    ownedPlayerIds = (holdings ?? []).map(h => h.player_id as string);
+    if (ownedPlayerIds.length === 0) return [];
+  }
+
   let query = supabase
     .from('offers')
     .select('id, player_id, sender_id, receiver_id, side, price, quantity, status, counter_offer_id, message, expires_at, created_at, updated_at')
     .is('receiver_id', null)
     .eq('status', 'pending')
+    .eq('side', 'buy')
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
     .limit(50);
   if (playerId) query = query.eq('player_id', playerId);
+  if (ownedPlayerIds) query = query.in('player_id', ownedPlayerIds);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
   return enrichOffers((data ?? []) as DbOffer[]);

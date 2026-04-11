@@ -36,7 +36,7 @@ export function useOffersState() {
       let data: OfferWithDetails[] = [];
       if (subTab === 'incoming') data = await getIncomingOffers(uid);
       else if (subTab === 'outgoing') data = await getOutgoingOffers(uid);
-      else if (subTab === 'open') data = await getOpenBids();
+      else if (subTab === 'open') data = await getOpenBids({ ownedByUserId: uid });
       else data = await getOfferHistory(uid);
       setOffers(data);
     } catch (e) {

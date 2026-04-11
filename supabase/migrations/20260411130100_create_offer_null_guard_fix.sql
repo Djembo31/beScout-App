@@ -1,0 +1,8 @@
+-- Applied via mcp__supabase__apply_migration (name: create_offer_null_guard_fix)
+-- Same NULL-comparison hole as accept_offer (20260411130000): when the
+-- sender has no holdings row for the player, SELECT INTO v_holding_qty
+-- leaves v_holding_qty NULL, and `NULL < p_quantity` evaluates to NULL,
+-- which PL/pgSQL treats as false in an IF. The sell-offer guard was
+-- bypassed and a user could list DPCs for a player they did not own.
+-- Fix: COALESCE on the scalar variable (v_holding_qty) outside the
+-- SELECT projection, so a missing row becomes 0.

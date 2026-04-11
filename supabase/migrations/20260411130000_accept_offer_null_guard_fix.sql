@@ -1,0 +1,14 @@
+-- Applied via mcp__supabase__apply_migration (name: accept_offer_null_guard_fix)
+-- CRITICAL MONEY-BUG FIX: accept_offer had a NULL-comparison hole.
+-- The seller-ownership guard used
+--   IF (SELECT COALESCE(quantity,0) FROM holdings WHERE ...) < v_offer.quantity
+-- When the seller had no holdings row at all, the scalar subquery returned
+-- NULL (COALESCE applies per row, not to an empty result set). NULL < 1
+-- evaluates to NULL, and PL/pgSQL treats NULL in an IF as false, so the
+-- error branch was skipped and the trade proceeded.
+-- This let a user accept a public buy offer for a player they did not own,
+-- minting SC supply and CR out of thin air. Confirmed reproducible, live
+-- trade from 2026-04-11 11:15 was rolled back in the same session.
+-- Fix: fetch seller quantity into a scalar with FOR UPDATE, then
+--   IF COALESCE(v_seller_qty, 0) < v_offer.quantity THEN reject;
+-- Full SQL in remote via apply_migration.

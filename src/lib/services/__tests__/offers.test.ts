@@ -133,7 +133,7 @@ describe('getOpenBids', () => {
 
   it('returns empty array when no bids for specific player', async () => {
     mockSupabaseResponse([]);
-    const result = await getOpenBids('player-123');
+    const result = await getOpenBids({ playerId: 'player-123' });
     expect(result).toEqual([]);
   });
 
