@@ -30,19 +30,23 @@ export async function openMysteryBox(free = false): Promise<{
     return { ok: false, error: error.message };
   }
 
+  // RPC `open_mystery_box_v2` returns camelCase keys (rewardType, ticketsAmount,
+  // equipmentType, cosmeticKey, …) — see `jsonb_build_object` call in the
+  // migration. The legacy v1 RPC used snake_case; do NOT "fix" this to
+  // snake_case without also updating the migration.
   const result = data as {
     ok: boolean;
     rarity?: MysteryBoxRarity;
-    reward_type?: MysteryBoxRewardType;
-    tickets_amount?: number;
-    equipment_type?: string;
-    equipment_rank?: number;
-    equipment_name_de?: string;
-    equipment_name_tr?: string;
-    equipment_position?: string;
-    bcredits_amount?: number;
-    cosmetic_key?: string;
-    cosmetic_name?: string;
+    rewardType?: MysteryBoxRewardType;
+    ticketsAmount?: number;
+    equipmentType?: string;
+    equipmentRank?: number;
+    equipmentNameDe?: string;
+    equipmentNameTr?: string;
+    equipmentPosition?: string;
+    bcreditsAmount?: number;
+    cosmeticKey?: string;
+    cosmeticName?: string;
     error?: string;
   };
 
@@ -58,16 +62,16 @@ export async function openMysteryBox(free = false): Promise<{
   return {
     ok: true,
     rarity: result.rarity,
-    rewardType: result.reward_type,
-    ticketsAmount: result.tickets_amount ?? undefined,
-    equipmentType: result.equipment_type ?? undefined,
-    equipmentRank: result.equipment_rank ?? undefined,
-    equipmentNameDe: result.equipment_name_de ?? undefined,
-    equipmentNameTr: result.equipment_name_tr ?? undefined,
-    equipmentPosition: result.equipment_position ?? undefined,
-    bcreditsAmount: result.bcredits_amount ?? undefined,
-    cosmeticKey: result.cosmetic_key ?? undefined,
-    cosmeticName: result.cosmetic_name ?? undefined,
+    rewardType: result.rewardType,
+    ticketsAmount: result.ticketsAmount ?? undefined,
+    equipmentType: result.equipmentType ?? undefined,
+    equipmentRank: result.equipmentRank ?? undefined,
+    equipmentNameDe: result.equipmentNameDe ?? undefined,
+    equipmentNameTr: result.equipmentNameTr ?? undefined,
+    equipmentPosition: result.equipmentPosition ?? undefined,
+    bcreditsAmount: result.bcreditsAmount ?? undefined,
+    cosmeticKey: result.cosmeticKey ?? undefined,
+    cosmeticName: result.cosmeticName ?? undefined,
   };
 }
 

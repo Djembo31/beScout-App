@@ -161,8 +161,8 @@ describe('getUserMasteryAll', () => {
 describe('openMysteryBox', () => {
   it('opens box and returns reward', async () => {
     mockRpc('open_mystery_box_v2', {
-      ok: true, rarity: 'rare', reward_type: 'cosmetic',
-      cosmetic_key: 'gold_frame', cosmetic_name: 'Gold Frame',
+      ok: true, rarity: 'rare', rewardType: 'cosmetic',
+      cosmeticKey: 'gold_frame', cosmeticName: 'Gold Frame',
     });
     const result = await openMysteryBox();
     expect(result.ok).toBe(true);
@@ -172,7 +172,7 @@ describe('openMysteryBox', () => {
   });
 
   it('passes free flag', async () => {
-    mockRpc('open_mystery_box_v2', { ok: true, rarity: 'common', reward_type: 'tickets', tickets_amount: 5 });
+    mockRpc('open_mystery_box_v2', { ok: true, rarity: 'common', rewardType: 'tickets', ticketsAmount: 5 });
     await openMysteryBox(true);
     expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: true });
   });
@@ -191,10 +191,10 @@ describe('openMysteryBox', () => {
 
   it('returns equipment reward', async () => {
     mockRpc('open_mystery_box_v2', {
-      ok: true, rarity: 'epic', reward_type: 'equipment',
-      equipment_type: 'fire_shot', equipment_rank: 2,
-      equipment_name_de: 'Feuerschuss', equipment_name_tr: 'Ates Sutu',
-      equipment_position: 'ATT',
+      ok: true, rarity: 'epic', rewardType: 'equipment',
+      equipmentType: 'fire_shot', equipmentRank: 2,
+      equipmentNameDe: 'Feuerschuss', equipmentNameTr: 'Ates Sutu',
+      equipmentPosition: 'ATT',
     });
     const result = await openMysteryBox();
     expect(result.ok).toBe(true);
@@ -205,8 +205,8 @@ describe('openMysteryBox', () => {
 
   it('returns bcredits reward', async () => {
     mockRpc('open_mystery_box_v2', {
-      ok: true, rarity: 'legendary', reward_type: 'bcredits',
-      bcredits_amount: 15000,
+      ok: true, rarity: 'legendary', rewardType: 'bcredits',
+      bcreditsAmount: 15000,
     });
     const result = await openMysteryBox();
     expect(result.ok).toBe(true);
