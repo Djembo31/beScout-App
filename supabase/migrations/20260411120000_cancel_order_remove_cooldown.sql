@@ -1,0 +1,5 @@
+-- Applied via mcp__supabase__apply_migration (name: cancel_order_remove_cooldown)
+-- Drop the 60s anti-fraud cooldown from cancel_order. Pilot phase = closed
+-- economy, no fraud vector that justifies blocking self-cancel. Caused
+-- silent-fail UX ("storno funzt nicht sicher") reported by user.
+-- Full SQL in remote via apply_migration.

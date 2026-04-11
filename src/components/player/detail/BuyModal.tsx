@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Lock, Zap, ShoppingCart, Target, Loader2, Send } from 'lucide-react';
+import { Lock, Zap, ShoppingCart, Target, Loader2, Send, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Modal, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -120,10 +121,25 @@ export default function BuyModal({
   const tm = useTranslations('market');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showAllOrders, setShowAllOrders] = useState(false);
+  const [justPurchased, setJustPurchased] = useState(false);
   // Reset selection when modal opens/closes
   useEffect(() => {
-    if (!open) { setSelectedOrderId(null); setShowAllOrders(false); }
+    if (!open) { setSelectedOrderId(null); setShowAllOrders(false); setJustPurchased(false); }
   }, [open]);
+
+  // Success state: when buySuccess lands AND nothing is in-flight, show the
+  // "In deinem Kader" confirmation card for 2.5s, then auto-close the modal.
+  // Gives the user a confident signal that the buy landed and a one-click
+  // path to verify it on the Bestand tab.
+  useEffect(() => {
+    if (!open || !buySuccess || buying || ipoBuying) return;
+    setJustPurchased(true);
+    const t1 = setTimeout(() => {
+      setJustPurchased(false);
+      onClose();
+    }, 2500);
+    return () => clearTimeout(t1);
+  }, [open, buySuccess, buying, ipoBuying, onClose]);
 
   const isLiquidated = player.isLiquidated;
   const isIPO = activeIpo !== null && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
@@ -161,6 +177,27 @@ export default function BuyModal({
   return (
     <Modal open={open} onClose={onClose} title={t('buyDpc')} subtitle={`${player.first} ${player.last}`}>
       <div className="space-y-3">
+          {/* Success state — replaces the buy form for 2.5s after a successful buy */}
+          {justPurchased ? (
+            <div className="py-8 px-4 text-center space-y-3" role="status" aria-live="polite">
+              <div className="size-14 mx-auto rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center">
+                <CheckCircle2 className="size-8 text-green-400" aria-hidden="true" />
+              </div>
+              <div>
+                <div className="text-base font-black text-green-300">{t('buySuccessInKader')}</div>
+                {buySuccess && <div className="text-xs text-white/50 mt-1">{buySuccess}</div>}
+              </div>
+              <Link
+                href="/market?tab=bestand"
+                onClick={onClose}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-gold/10 text-gold border border-gold/30 hover:bg-gold/20 transition-colors text-sm font-bold"
+              >
+                {t('viewInBestand')}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </div>
+          ) : (
+            <>
           {/* Liquidated Guard */}
           {isLiquidated && (
             <div role="alert" className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300">
@@ -325,7 +362,9 @@ export default function BuyModal({
               )}
             </>
           )}
-        <TradingDisclaimer />
+          <TradingDisclaimer />
+            </>
+          )}
       </div>
     </Modal>
   );

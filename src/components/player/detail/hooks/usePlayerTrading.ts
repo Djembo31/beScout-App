@@ -14,6 +14,7 @@ import { invalidateTradeQueries, invalidatePlayerDetailQueries } from '@/lib/que
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { Player, DbIpo, DbOrder } from '@/types';
+import type { HoldingWithPlayer } from '@/lib/services/wallet';
 
 interface UsePlayerTradingParams {
   playerId: string;
@@ -77,6 +78,66 @@ export function usePlayerTrading({
     queryClient.invalidateQueries({ queryKey: qk.offers.bids(pid) });
   }, [queryClient]);
 
+  // ─── Optimistic holdings-list patch ─────────
+  // After a successful buy, immediately splice the new/updated holding into
+  // the full qk.holdings.byUser(uid) cache so the Bestand tab shows the
+  // player instantly. The background refetch triggered by invalidation
+  // confirms/corrects the state. Prevents the "did I actually buy it?"
+  // confidence gap reported by users after IPO/market buys.
+  const optimisticallyAddHolding = useCallback((
+    uid: string,
+    quantity: number,
+    priceCents: number,
+  ) => {
+    if (!player) return;
+    const now = new Date().toISOString();
+    const playerFields: HoldingWithPlayer['player'] = {
+      first_name: player.first,
+      last_name: player.last,
+      position: player.pos,
+      club: player.club,
+      club_id: player.clubId ?? null,
+      floor_price: player.prices.floor ?? player.prices.lastTrade,
+      price_change_24h: player.prices.change24h,
+      perf_l5: player.perf.l5,
+      perf_l15: player.perf.l15,
+      matches: player.stats.matches,
+      goals: player.stats.goals,
+      assists: player.stats.assists,
+      status: player.status,
+      shirt_number: player.ticket,
+      age: player.age,
+      image_url: player.imageUrl ?? null,
+    };
+    queryClient.setQueryData<HoldingWithPlayer[] | undefined>(
+      qk.holdings.byUser(uid),
+      (old) => {
+        if (!old) return old;
+        const existing = old.find(h => h.player_id === playerId);
+        if (existing) {
+          const newQty = existing.quantity + quantity;
+          const newAvg = Math.round(
+            ((existing.avg_buy_price * existing.quantity) + (priceCents * quantity)) / newQty
+          );
+          return old.map(h => h.player_id === playerId
+            ? { ...h, quantity: newQty, avg_buy_price: newAvg, updated_at: now }
+            : h);
+        }
+        const synth: HoldingWithPlayer = {
+          id: `optimistic-${playerId}-${Date.now()}`,
+          user_id: uid,
+          player_id: playerId,
+          quantity,
+          avg_buy_price: priceCents,
+          created_at: now,
+          updated_at: now,
+          player: playerFields,
+        };
+        return [synth, ...old];
+      }
+    );
+  }, [player, playerId, queryClient]);
+
   // ─── Handlers ──────────────────────────────
 
   const executeBuy = useCallback(async (quantity: number, orderId?: string | null) => {
@@ -96,13 +157,14 @@ export function usePlayerTrading({
         setBuySuccess(t('buySuccess', { quantity, price: priceBsd }));
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
+        optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
         invalidateAfterTrade(playerId, userId);
         refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { buyingRef.current = false; setBuying(false); }
-  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, te]);
+  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, te]);
 
   const handleBuy = useCallback((quantity: number, orderId?: string) => {
     if (!userId || !player || player.isLiquidated) return;
@@ -125,17 +187,20 @@ export function usePlayerTrading({
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
+        optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
         if (result.user_total_purchased != null) {
           queryClient.setQueryData(['ipos', 'purchases', userId, activeIpo.id], result.user_total_purchased);
         }
         invalidateAfterTrade(playerId, userId);
         refreshBalance();
-        setBuyModalOpen(false);
+        setBuySuccess(t('ipoBuySuccess', { quantity, price: priceBsd }));
         addToast(t('ipoBuySuccess', { quantity, price: priceBsd }), 'success');
+        // Modal close is handled by BuyModal's own success-state timer
+        // so the user sees the "In deinem Kader" confirmation.
       }
     } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { ipoBuyingRef.current = false; setIpoBuying(false); }
-  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, te]);
+  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, addToast, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, te]);
 
   const handleSell = useCallback(async (quantity: number, priceCents: number) => {
     if (!userId || player?.isLiquidated || sellingRef.current) return;

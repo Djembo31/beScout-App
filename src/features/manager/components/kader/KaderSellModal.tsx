@@ -61,8 +61,19 @@ export default function KaderSellModal({ item, open, onClose, onSell, onCancelOr
 
   const handleCancel = async (orderId: string) => {
     setCancellingId(orderId);
-    await onCancelOrder(orderId);
-    setCancellingId(null);
+    setError(null);
+    setSuccess(null);
+    try {
+      const result = await onCancelOrder(orderId);
+      if (!result.success) {
+        setError(result.error || t('cancelFailed'));
+      } else {
+        setSuccess(t('sellCancelSuccess'));
+        setTimeout(() => setSuccess(null), 3000);
+      }
+    } finally {
+      setCancellingId(null);
+    }
   };
 
   const subtitle = `${item.player.first} ${item.player.last} · ${item.player.club}`;
