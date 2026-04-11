@@ -57,7 +57,7 @@ export default function HomePage() {
     nextEvent, isEventLive,
     userStats,
     ticketData, showMysteryBox, setShowMysteryBox,
-    handleOpenMysteryBox,
+    handleOpenMysteryBox, hasFreeBoxToday,
     storyMessage, spotlightType, retention, showQuickActions,
     followedClubs, highestPass,
   } = useHomeData();
@@ -385,19 +385,15 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* Mystery Box Modal — daily free open only (no ticket purchase) */}
+          {/* Mystery Box Modal — daily free open only (no ticket purchase).
+              Daily gate is server-authoritative via useHasFreeBoxToday: counts
+              ticket_cost=0 rows in mystery_box_results for today's UTC day. */}
           {uid && <MysteryBoxModal
             open={showMysteryBox}
             onClose={() => setShowMysteryBox(false)}
             onOpen={handleOpenMysteryBox}
             ticketBalance={ticketData?.balance ?? 0}
-            hasFreeBox={(() => {
-              // Daily cadence: 1 free box per day, localStorage-gated on the client.
-              // Backend RPC gating is tracked as scope-creep C4 in polish-sweep.md.
-              const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-              const lastFreeBoxDay = localStorage.getItem('bescout-free-box-day') ?? '';
-              return lastFreeBoxDay !== today;
-            })()}
+            hasFreeBox={hasFreeBoxToday}
             ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
           />}
 

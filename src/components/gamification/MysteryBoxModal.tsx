@@ -95,10 +95,15 @@ export default function MysteryBoxModal({
         if (boxResult) {
           setResult(boxResult);
           setBoxState('celebration');
+        } else {
+          setBoxState('idle');
+          setError(t('openBoxError'));
         }
       } catch (err) {
         console.error('MysteryBoxModal open error:', err);
-        setError(t('openBoxError'));
+        const msg = err instanceof Error && err.message ? err.message : null;
+        setError(msg ?? t('openBoxError'));
+        setBoxState('idle');
       }
       return;
     }
@@ -120,6 +125,7 @@ export default function MysteryBoxModal({
 
       if (!boxResult) {
         setBoxState('idle');
+        setError(t('openBoxError'));
         return;
       }
 
@@ -146,7 +152,8 @@ export default function MysteryBoxModal({
       setBoxState('celebration');
     } catch (err) {
       console.error('MysteryBoxModal open error:', err);
-      setError(t('openBoxError'));
+      const msg = err instanceof Error && err.message ? err.message : null;
+      setError(msg ?? t('openBoxError'));
       setBoxState('idle');
     }
   }, [canAfford, hasFreeBox, onOpen, t, triggerHaptic]);

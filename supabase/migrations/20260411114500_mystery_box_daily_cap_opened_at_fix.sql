@@ -1,0 +1,6 @@
+-- Applied via mcp__supabase__apply_migration (name: mystery_box_daily_cap_opened_at_fix)
+-- Fix: open_mystery_box_v2 referenced non-existent `created_at` column on mystery_box_results.
+-- Daily-cap check now uses `opened_at >= date_trunc('day', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC'`.
+-- Root cause: previous v2 migration (20260410170000) silently errored on every free-box call,
+-- causing frontend localStorage gate to never close → endless-loop symptom reported by user.
+-- Full SQL in remote via apply_migration.

@@ -15,6 +15,7 @@ import {
 import { queryClient } from '@/lib/queryClient';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useUserTickets } from '@/lib/queries/tickets';
+import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
@@ -58,6 +59,7 @@ export function useHomeData() {
   const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
   const { data: ticketData = null } = useUserTickets(uid, belowFoldReady);
   const { data: highestPass } = useHighestPass(uid, belowFoldReady);
+  const { hasFreeBoxToday } = useHasFreeBoxToday(uid);
 
   // ── Holdings Transform ──
   const holdings = useMemo<DpcHolding[]>(() =>
@@ -193,47 +195,47 @@ export function useHomeData() {
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
     if (!uid) return null;
     const result = await openMysteryBox(free);
-    if (result.ok) {
-      // Always invalidate tickets
-      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
-      // Conditional invalidation based on reward type
-      if (result.rewardType === 'cosmetic') {
-        queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
-      }
-      if (result.rewardType === 'equipment') {
-        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(uid) });
-      }
-      if (result.rewardType === 'bcredits') {
-        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
-      }
-      const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
-      if (free) {
-        // Daily cadence — mark today as claimed so the gate closes until tomorrow.
-        const today = new Date().toISOString().slice(0, 10);
-        localStorage.setItem('bescout-free-box-day', today);
-      }
-      return {
-        id: crypto.randomUUID(),
-        rarity: result.rarity!,
-        reward_type: result.rewardType!,
-        tickets_amount: result.ticketsAmount ?? null,
-        cosmetic_id: result.cosmeticKey ?? null,
-        equipment_type: result.equipmentType ?? null,
-        equipment_rank: result.equipmentRank ?? null,
-        bcredits_amount: result.bcreditsAmount ?? null,
-        ticket_cost: effectiveCost,
-        opened_at: new Date().toISOString(),
-        // Pass-through for display (not persisted in MysteryBoxResult type)
-        equipment_name_de: result.equipmentNameDe,
-        equipment_name_tr: result.equipmentNameTr,
-        equipment_position: result.equipmentPosition,
-      } as import('@/types').MysteryBoxResult & {
-        equipment_name_de?: string;
-        equipment_name_tr?: string;
-        equipment_position?: string;
-      };
+    if (!result.ok) {
+      // Surface the real RPC error — the modal catches and displays it.
+      throw new Error(result.error ?? 'Unknown error');
     }
-    return null;
+    // Always invalidate tickets
+    queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+    // Conditional invalidation based on reward type
+    if (result.rewardType === 'cosmetic') {
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+    }
+    if (result.rewardType === 'equipment') {
+      queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(uid) });
+    }
+    if (result.rewardType === 'bcredits') {
+      queryClient.invalidateQueries({ queryKey: qk.wallet.all });
+    }
+    if (free) {
+      // Close the daily gate by refetching the server-authoritative count.
+      queryClient.invalidateQueries({ queryKey: qk.mysteryBox.freeBoxToday(uid) });
+    }
+    const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
+    return {
+      id: crypto.randomUUID(),
+      rarity: result.rarity!,
+      reward_type: result.rewardType!,
+      tickets_amount: result.ticketsAmount ?? null,
+      cosmetic_id: result.cosmeticKey ?? null,
+      equipment_type: result.equipmentType ?? null,
+      equipment_rank: result.equipmentRank ?? null,
+      bcredits_amount: result.bcreditsAmount ?? null,
+      ticket_cost: effectiveCost,
+      opened_at: new Date().toISOString(),
+      // Pass-through for display (not persisted in MysteryBoxResult type)
+      equipment_name_de: result.equipmentNameDe,
+      equipment_name_tr: result.equipmentNameTr,
+      equipment_position: result.equipmentPosition,
+    } as import('@/types').MysteryBoxResult & {
+      equipment_name_de?: string;
+      equipment_name_tr?: string;
+      equipment_position?: string;
+    };
   }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
 
   return {
@@ -253,7 +255,7 @@ export function useHomeData() {
     userStats,
     challengeHistory, ticketData, highestPass,
     showMysteryBox, setShowMysteryBox,
-    handleOpenMysteryBox,
+    handleOpenMysteryBox, hasFreeBoxToday,
     // Derived
     storyMessage, spotlightType, retention, showQuickActions,
     belowFoldReady, followedClubs,

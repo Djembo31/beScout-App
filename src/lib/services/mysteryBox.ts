@@ -71,6 +71,29 @@ export async function openMysteryBox(free = false): Promise<{
   };
 }
 
+/**
+ * Count free mystery boxes the user has already opened today (UTC day).
+ * Used as the server-authoritative gate for the daily free-box slot.
+ * Returns 0 on RLS/fetch errors so the UI fails open — the RPC enforces the real cap.
+ */
+export async function countFreeMysteryBoxesToday(userId: string): Promise<number> {
+  const startOfUtcDay = new Date();
+  startOfUtcDay.setUTCHours(0, 0, 0, 0);
+
+  const { count, error } = await supabase
+    .from('mystery_box_results')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('ticket_cost', 0)
+    .gte('opened_at', startOfUtcDay.toISOString());
+
+  if (error) {
+    console.error('[MysteryBox] countFreeMysteryBoxesToday error:', error);
+    return 0;
+  }
+  return count ?? 0;
+}
+
 /** Fetch mystery box opening history (newest first) */
 export async function getMysteryBoxHistory(userId: string, limit = 20): Promise<MysteryBoxResult[]> {
   const { data, error } = await supabase

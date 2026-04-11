@@ -10,6 +10,7 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useUserTickets } from '@/lib/queries/tickets';
+import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useUserStats } from '@/lib/queries';
 import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
@@ -54,6 +55,7 @@ export default function MissionsPage() {
   const { data: challengeHistory = [] } = useChallengeHistory(uid);
   const { data: ticketData = null } = useUserTickets(uid);
   const { data: userStats = null } = useUserStats(uid);
+  const { hasFreeBoxToday } = useHasFreeBoxToday(uid);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
@@ -99,44 +101,42 @@ export default function MissionsPage() {
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
     if (!uid) return null;
     const result = await openMysteryBox(free);
-    if (result.ok) {
-      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
-      if (result.rewardType === 'cosmetic') {
-        queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
-      }
-      if (result.rewardType === 'equipment') {
-        queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(uid) });
-      }
-      if (result.rewardType === 'bcredits') {
-        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
-      }
-      const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
-      if (free) {
-        // Daily cadence — mirror useHomeData behaviour.
-        const today = new Date().toISOString().slice(0, 10);
-        localStorage.setItem('bescout-free-box-day', today);
-      }
-      return {
-        id: crypto.randomUUID(),
-        rarity: result.rarity!,
-        reward_type: result.rewardType!,
-        tickets_amount: result.ticketsAmount ?? null,
-        cosmetic_id: result.cosmeticKey ?? null,
-        equipment_type: result.equipmentType ?? null,
-        equipment_rank: result.equipmentRank ?? null,
-        bcredits_amount: result.bcreditsAmount ?? null,
-        ticket_cost: effectiveCost,
-        opened_at: new Date().toISOString(),
-        equipment_name_de: result.equipmentNameDe,
-        equipment_name_tr: result.equipmentNameTr,
-        equipment_position: result.equipmentPosition,
-      } as import('@/types').MysteryBoxResult & {
-        equipment_name_de?: string;
-        equipment_name_tr?: string;
-        equipment_position?: string;
-      };
+    if (!result.ok) {
+      throw new Error(result.error ?? 'Unknown error');
     }
-    return null;
+    queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+    if (result.rewardType === 'cosmetic') {
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+    }
+    if (result.rewardType === 'equipment') {
+      queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(uid) });
+    }
+    if (result.rewardType === 'bcredits') {
+      queryClient.invalidateQueries({ queryKey: qk.wallet.all });
+    }
+    if (free) {
+      queryClient.invalidateQueries({ queryKey: qk.mysteryBox.freeBoxToday(uid) });
+    }
+    const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
+    return {
+      id: crypto.randomUUID(),
+      rarity: result.rarity!,
+      reward_type: result.rewardType!,
+      tickets_amount: result.ticketsAmount ?? null,
+      cosmetic_id: result.cosmeticKey ?? null,
+      equipment_type: result.equipmentType ?? null,
+      equipment_rank: result.equipmentRank ?? null,
+      bcredits_amount: result.bcreditsAmount ?? null,
+      ticket_cost: effectiveCost,
+      opened_at: new Date().toISOString(),
+      equipment_name_de: result.equipmentNameDe,
+      equipment_name_tr: result.equipmentNameTr,
+      equipment_position: result.equipmentPosition,
+    } as import('@/types').MysteryBoxResult & {
+      equipment_name_de?: string;
+      equipment_name_tr?: string;
+      equipment_position?: string;
+    };
   }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
 
   if (loading) {
@@ -218,19 +218,13 @@ export default function MissionsPage() {
       {/* Achievements (moved from Profile in 3-hub refactor) */}
       {uid && <AchievementsSection userStats={userStats} unlockedKeys={unlockedAchievements} />}
 
-      {/* Mystery Box Modal */}
+      {/* Mystery Box Modal — server-authoritative daily gate via useHasFreeBoxToday */}
       <MysteryBoxModal
         open={showMysteryBox}
         onClose={() => setShowMysteryBox(false)}
         onOpen={handleOpenMysteryBox}
         ticketBalance={ticketData?.balance ?? 0}
-        hasFreeBox={(() => {
-          // Daily cadence: 1 free box per day, localStorage-gated on the client.
-          // Backend RPC gating tracked as scope-creep C4 in polish-sweep.md.
-          const today = new Date().toISOString().slice(0, 10);
-          const lastFreeBoxDay = localStorage.getItem('bescout-free-box-day') ?? '';
-          return lastFreeBoxDay !== today;
-        })()}
+        hasFreeBox={hasFreeBoxToday}
         ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
       />
     </div>
