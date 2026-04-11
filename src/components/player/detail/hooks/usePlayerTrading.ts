@@ -278,7 +278,16 @@ export function usePlayerTrading({
     } catch { addToast(t('shareFailed'), 'error'); }
   }, [userId, player, shared, playerId, addToast, t]);
 
-  const openBuyModal = useCallback(() => setBuyModalOpen(true), []);
+  const openBuyModal = useCallback(() => {
+    // Fresh open: clear residual success/error state so the BuyModal
+    // success-state effect only fires for a NEW buy. Without this,
+    // re-opening the modal within the 5s buySuccess setTimeout window
+    // would immediately auto-close with the previous purchase's
+    // confirmation — a phantom success.
+    setBuySuccess(null);
+    setBuyError(null);
+    setBuyModalOpen(true);
+  }, []);
   const closeBuyModal = useCallback(() => setBuyModalOpen(false), []);
   const openSellModal = useCallback(() => setSellModalOpen(true), []);
   const closeSellModal = useCallback(() => setSellModalOpen(false), []);
