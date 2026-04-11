@@ -161,7 +161,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
           {/* $SCOUT Balance pill — compact on mobile */}
           <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gold/10 border border-gold/20 rounded-xl">
             <DollarSign className="size-3 sm:size-3.5 text-gold" />
@@ -258,16 +258,17 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <HelpCircle className="size-4 md:size-5 text-white/70" />
           </button>
 
-          {/* Streak badge */}
+          {/* Streak badge — hidden on mobile (the hero header shows a big streak pill,
+              so duplicating it here just eats horizontal space on iPhone 16 etc.) */}
           {streakDays > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-500/10 border border-orange-400/20" title={t('streakDays', { count: streakDays })}>
+            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-500/10 border border-orange-400/20" title={t('streakDays', { count: streakDays })}>
               <Flame className="size-3.5 text-orange-400" aria-hidden="true" />
               <span className="text-xs font-bold text-orange-300 tabular-nums">{streakDays}</span>
             </div>
           )}
 
-          {/* User avatar */}
-          <div className="flex items-center gap-3 pl-2 md:pl-3 border-l border-white/10">
+          {/* User avatar — borderless + tight on mobile to keep the avatar inside the viewport */}
+          <div className="flex items-center gap-3 sm:pl-2 md:pl-3 sm:border-l sm:border-white/10 shrink-0">
             <div className="text-right hidden lg:block">
               <div className="font-semibold text-sm">{loading ? '...' : name}</div>
               <div className="text-[10px] text-white/50">{plan}</div>
