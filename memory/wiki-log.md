@@ -102,6 +102,25 @@
   - .claude/autodream-last-run (Timestamp)
   - .claude/session-counter (reset zu 0)
 
+## [2026-04-10] AutoDream Run #9 (BeScout Liga DONE — /rankings + scoring + economy decisions — 4 Commits)
+- Verdichtet: 5 Retros → 1 neues semantisches File
+  - retro-162647 + retro-163004: Duplikate (gleiche 3 Commits — 8ea2400 Liga Page, 314ece6 Admin, c94a7c1 Scoring)
+  - retro-163539 + retro-164702 + retro-165446: Duplikate (gleiche 4 Commits + efcb3f5 Scope-Creep Fixes)
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/bescout-liga.md, 103 Zeilen)
+- Cortex-Index: 4 neue Routing-Eintraege (Liga DONE, /rankings, Mystery Box Cap, 7d Price Changes)
+- Archiviert: 0 Sessions (alle Retros 2026-04-10, <1 Tag alt; archive/ hat 5 Retros vom 2026-04-02)
+- Neue Error-Patterns: 0 (keine neuen Fehler in dieser Session)
+- Neue semantische Erkenntnisse: BeScout Liga DONE (alle Economy-Entscheidungen final: Fussball-Saison, 80% Soft-Reset, $SCOUT Rewards, keine Fee-Discounts, kein PBT-Pool, kein Community-Fee-Boost, kein Club-Stacking, CardMastery aus Scope entfernt), is_liga_event Scoring-Pattern (1.0x Liga / 0.25x non-Liga / 10% cap), Scope-Creep-Fix Pattern (server-side enforcement > client-side)
+- Drafts pending review: 0
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/bescout-liga.md (NEU, 103 Zeilen)
+  - memory/cortex-index.md (+4 Routing-Eintraege, 39→42 Zeilen)
+  - memory/wiki-index.md (neue Datei, Run #9 Footer, project_bescout_liga.md Update)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
+
 ## [2026-04-10] AutoDream Run #8 (Home Polish Pass 1+2 — Track A+B1+C done, BeScout Liga Spec — 2 Commits)
 - Verdichtet: 5 Retros → 1 neues semantisches File
   - retro-225856 + retro-233703: Duplikate (gleiche Commits wie Run #7 — ef13d85 + e04bd76)

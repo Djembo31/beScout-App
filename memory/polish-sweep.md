@@ -145,9 +145,9 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 | Gefunden bei | Item | Severity | Target-Page / Context | Status |
 |--------------|------|----------|------------------------|--------|
-| Home A3 | **`price_change_7d` / `get_my_top_movers_7d` RPC** — aktuell nur 24h-change verfügbar. Für echtes "Top Mover der Woche" braucht es entweder neue DB column oder RPC der aus `trades` aggregiert | M | Home Widget, später auch Market-Page | ⏳ |
-| Home C4 | **Backend open_mystery_box_v2 daily-cap check** — aktuell `freeMysteryBoxesPerWeek`, nach daily switch prüfen ob backend gated | M | Mystery Box RPC | ⏳ |
-| Track D | **CardMastery Konzept** — Anil hat es als Economy-Touchpoint erwähnt, aber das Feature existiert nicht im Code. Muss definiert werden. | L | BeScout Liga Spec | ⏳ |
+| Home A3 | **`price_change_7d` / `get_my_top_movers_7d` RPC** — aktuell nur 24h-change verfügbar. Für echtes "Top Mover der Woche" braucht es entweder neue DB column oder RPC der aus `trades` aggregiert | M | Home Widget, später auch Market-Page | ✅ done (efcb3f5 — `get_player_price_changes_7d` RPC live, `useHomeData` wired) |
+| Home C4 | **Backend open_mystery_box_v2 daily-cap check** — aktuell `freeMysteryBoxesPerWeek`, nach daily switch prüfen ob backend gated | M | Mystery Box RPC | ✅ done (efcb3f5 initial + 7eb7d37 follow-up fixte 3 RPC-Bugs + server-authoritative Frontend-Gate; live auf bescout.net verifiziert 2026-04-11) |
+| Track D | **CardMastery Konzept** — Anil hat es als Economy-Touchpoint erwähnt, aber das Feature existiert nicht im Code. Muss definiert werden. | L | BeScout Liga Spec | 🚫 skip — Anil 2026-04-10: "AUS SCOPE ENTFERNT" (siehe `bescout-liga.md` Economy-Entscheidungen) |
 
 ---
 
@@ -161,3 +161,4 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 - **2026-04-10 Abend** — Market "Bestand" Tab (neuer Default in Mein Kader): Portfolio-Header, FormBars+L5 (KaderPlayerRow Pattern), Position/Club Filter, Sell-Button ($) mit 3 Zustaenden (rot=Nachfrage, gold=gelistet, grau=normal), Pitch/Goal/Assist Icons, Club-Logos, Trikotnummer+Alter, StatusBadge. 12 Commits.
 - **2026-04-10 Abend** — FormBars Reihenfolge gefixt (oldest→newest links→rechts) global.
 - **2026-04-10 Abend** — Naechste Session: Watchlist in Marktplatz verschieben, Marktplatz-Tab im Detail durchgehen.
+- **2026-04-11** — Mystery Box endless-loop bug gefixt (3 kaskadierende RPC-Bugs in efcb3f5 + server-authoritative Gate, Commit 7eb7d37). Live auf bescout.net verifiziert. Scope-Creep-Log auf aktuellen Stand gebracht: Home A3 ✅, C4 ✅, Track D 🚫. Naechste Session weiter mit Market Polish (Watchlist-Move + Marktplatz-Tabs im Detail).

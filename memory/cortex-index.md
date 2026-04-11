@@ -25,7 +25,10 @@
 | Equipment / Inventory / Mystery Box | `memory/semantisch/projekt/equipment-realtime.md` |
 | Polish Sweep / Visual QA / Page Polish | `memory/polish-sweep.md` (SSOT Status) + `memory/semantisch/projekt/home-polish-sweep.md` |
 | Home Page / LastGameweekWidget / ScoutCardStats | `memory/semantisch/projekt/home-polish-sweep.md` |
-| BeScout Liga / Rankings Hub / Saison-System | `memory/project_bescout_liga.md` (Spec-Phase, blockt: polish-sweep fertig) |
+| BeScout Liga / Rankings Hub / Saison-System | `memory/semantisch/projekt/bescout-liga.md` (DONE 2026-04-10) + `memory/project_bescout_liga.md` (Original-Spec) |
+| /rankings Page / Liga Scoring / is_liga_event | `memory/semantisch/projekt/bescout-liga.md` |
+| Mystery Box Daily-Cap / open_mystery_box_v2 | `memory/semantisch/projekt/bescout-liga.md` (Scope-Creep-Fixes Sektion) |
+| 7d Price Changes / get_player_price_changes_7d | `memory/semantisch/projekt/bescout-liga.md` (Scope-Creep-Fixes Sektion) |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |
