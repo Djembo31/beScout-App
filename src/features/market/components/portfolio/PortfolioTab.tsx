@@ -1,14 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Heart, Briefcase } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { SkeletonCard } from '@/components/ui';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { PortfolioSubTab } from '@/features/market/store/marketStore';
 import type { Player, DbOrder, OfferWithDetails } from '@/types';
-import type { WatchlistEntry } from '@/lib/services/watchlist';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 const BestandView = dynamic(() => import('./BestandView'), {
@@ -19,11 +18,6 @@ const OffersTab = dynamic(() => import('./OffersTab'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
 });
-const WatchlistView = dynamic(() => import('./WatchlistView'), {
-  ssr: false,
-  loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
-});
-
 type Props = {
   players: Player[];
   mySquadPlayers: Player[];
@@ -31,7 +25,6 @@ type Props = {
   floorMap: Map<string, number>;
   recentOrders: DbOrder[];
   buyOrders: DbOrder[];
-  watchlistEntries: WatchlistEntry[];
   scoresMap?: Map<string, (number | null)[]>;
   lockedMap?: Map<string, number>;
   onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
@@ -42,7 +35,7 @@ type Props = {
 
 export default function PortfolioTab({
   players, mySquadPlayers, holdings, floorMap, recentOrders, buyOrders,
-  watchlistEntries, scoresMap, lockedMap, onSell, onCancelOrder, incomingOffers, openBids,
+  scoresMap, lockedMap, onSell, onCancelOrder, incomingOffers, openBids,
 }: Props) {
   const t = useTranslations('market');
   const { portfolioSubTab, setPortfolioSubTab } = useMarketStore();
@@ -50,7 +43,6 @@ export default function PortfolioTab({
   const subTabs: Array<{ id: PortfolioSubTab; label: string; icon: React.ReactNode | null }> = [
     { id: 'bestand', label: t('bestandTab', { defaultMessage: 'Bestand' }), icon: <Briefcase className="size-3" aria-hidden="true" /> },
     { id: 'angebote', label: t('offers'), icon: null },
-    { id: 'watchlist', label: t('watchlist'), icon: <Heart className="size-3" aria-hidden="true" /> },
   ];
 
   return (
@@ -89,9 +81,6 @@ export default function PortfolioTab({
       )}
       {portfolioSubTab === 'angebote' && (
         <OffersTab players={players} />
-      )}
-      {portfolioSubTab === 'watchlist' && (
-        <WatchlistView players={players} watchlistEntries={watchlistEntries} />
       )}
       <TradingDisclaimer variant="card" />
     </>

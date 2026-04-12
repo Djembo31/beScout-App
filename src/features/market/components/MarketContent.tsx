@@ -32,7 +32,7 @@ const MissionHintList = dynamic(() => import('@/components/missions/MissionHintL
 // ── Tab config ──
 const TAB_IDS: MarketTab[] = ['portfolio', 'marktplatz'];
 const TAB_ALIAS: Record<string, MarketTab> = {
-  bestand: 'portfolio', offers: 'portfolio', watchlist: 'portfolio',
+  bestand: 'portfolio', offers: 'portfolio', watchlist: 'marktplatz',
   compare: 'marktplatz', spieler: 'marktplatz', transferlist: 'marktplatz',
   scouting: 'marktplatz', kaufen: 'marktplatz',
 };
@@ -174,7 +174,6 @@ export default function MarketContent() {
           floorMap={data.floorMap}
           recentOrders={data.recentOrders}
           buyOrders={data.buyOrders}
-          watchlistEntries={data.watchlistEntries}
           scoresMap={scoresMap}
           lockedMap={lockedMap}
           onSell={trade.handleSell}
@@ -190,6 +189,7 @@ export default function MarketContent() {
           players={data.players}
           playerMap={data.playerMap}
           floorMap={data.floorMap}
+          watchlistEntries={data.watchlistEntries}
           ipoList={data.ipoList}
           announcedIpos={data.announcedIpos}
           endedIpos={data.endedIpos}

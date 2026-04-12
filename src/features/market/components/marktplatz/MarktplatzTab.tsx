@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Zap, Search, Send } from 'lucide-react';
+import { Zap, Search, Send, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { SkeletonCard } from '@/components/ui';
@@ -10,6 +10,7 @@ import { useMarketStore } from '@/features/market/store/marketStore';
 import type { KaufenSubTab } from '@/features/market/store/marketStore';
 import type { Player, DbIpo, DbOrder } from '@/types';
 import type { TrendingPlayer } from '@/lib/services/trading';
+import type { WatchlistEntry } from '@/lib/services/watchlist';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import type { OfferWithDetails } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
@@ -26,6 +27,10 @@ const TransferListSection = dynamic(() => import('./TransferListSection'), {
 const TrendingSection = dynamic(() => import('./TrendingSection'), { ssr: false });
 const MarketSearch = dynamic(() => import('../shared/MarketSearch'), { ssr: false });
 const BuyOrdersSection = dynamic(() => import('./BuyOrdersSection'), { ssr: false });
+const WatchlistView = dynamic(() => import('./WatchlistView'), {
+  ssr: false,
+  loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
+});
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
@@ -42,6 +47,7 @@ type Props = {
   recentOrders: DbOrder[];
   buyOrders: DbOrder[];
   holdings: HoldingWithPlayer[];
+  watchlistEntries: WatchlistEntry[];
   incomingOffers: OfferWithDetails[];
   balanceCents: number;
   buyingId: string | null;
@@ -52,7 +58,7 @@ type Props = {
 
 export default function MarktplatzTab({
   players, playerMap, floorMap, ipoList, announcedIpos, endedIpos,
-  trending, recentOrders, buyOrders, holdings, incomingOffers,
+  trending, recentOrders, buyOrders, holdings, watchlistEntries, incomingOffers,
   balanceCents, buyingId, onBuy, onIpoBuy, onCreateBuyOrder,
 }: Props) {
   const t = useTranslations('market');
@@ -62,10 +68,11 @@ export default function MarktplatzTab({
 
   const getFloor = (p: Player) => floorMap.get(p.id) ?? 0;
 
-  const subTabs: Array<{ id: KaufenSubTab; label: string }> = [
+  const subTabs: Array<{ id: KaufenSubTab; label: string; icon?: React.ReactNode }> = [
     { id: 'clubverkauf', label: t('clubSale', { defaultMessage: 'Club Verkauf' }) },
     { id: 'transferliste', label: t('transferList', { defaultMessage: 'Transferliste' }) },
     { id: 'trending', label: t('trendingTab', { defaultMessage: 'Trending' }) },
+    { id: 'watchlist', label: t('watchlist'), icon: <Heart className="size-3" aria-hidden="true" /> },
   ];
 
   return (
@@ -78,12 +85,13 @@ export default function MarktplatzTab({
               key={st.id}
               onClick={() => { setKaufenSubTab(st.id); setSearchOpen(false); }}
               className={cn(
-                'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px]',
+                'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px] inline-flex items-center gap-1.5',
                 kaufenSubTab === st.id && !searchOpen
                   ? 'bg-white/[0.12] text-white border border-white/[0.15]'
                   : 'text-white/40 hover:text-white/60 border border-transparent'
               )}
             >
+              {st.icon}
               {st.label}
             </button>
           ))}
@@ -159,6 +167,9 @@ export default function MarktplatzTab({
           />
           <BuyOrdersSection buyOrders={buyOrders} playerMap={playerMap} />
         </>
+      )}
+      {kaufenSubTab === 'watchlist' && (
+        <WatchlistView players={players} watchlistEntries={watchlistEntries} />
       )}
       <SponsorBanner placement="market_top" />
       <TradingDisclaimer variant="card" />

@@ -4,8 +4,8 @@ import type { Pos } from '@/types';
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
 export type MarketTab = 'portfolio' | 'marktplatz';
-export type PortfolioSubTab = 'bestand' | 'angebote' | 'watchlist';
-export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending';
+export type PortfolioSubTab = 'bestand' | 'angebote';
+export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending' | 'watchlist';
 export type IpoViewState = 'laufend' | 'geplant' | 'beendet';
 
 interface MarketState {
