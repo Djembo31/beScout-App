@@ -97,6 +97,21 @@ mkdir -p memory/senses
   fi
   echo ""
 
+  # Session Digest from last session (learnings + warnings for this session)
+  if [ -f "memory/session-digest.md" ]; then
+    echo "## Letzte Session Digest"
+    sed -n '/^## Letzte Session/,$ p' "memory/session-digest.md" | head -30
+    echo ""
+  fi
+
+  # AutoDream check
+  COUNTER=$(cat .claude/session-counter 2>/dev/null || echo 0)
+  if [ "$COUNTER" -ge 20 ] 2>/dev/null; then
+    echo "## AutoDream: Memory Consolidation faellig ($COUNTER Sessions)"
+    echo "→ Starte AutoDream Subagent um Memory zu konsolidieren"
+    echo ""
+  fi
+
 } > "$BRIEFING"
 
 # Output to context (replaces inject-learnings.sh)

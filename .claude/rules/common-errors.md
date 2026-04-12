@@ -71,3 +71,27 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ## UX Konsistenz
 - Spieler-Anzeigen MUESSEN Link zu `/player/[id]` haben (Ausnahme: Picker-UIs)
 - `<button>` NICHT in `<Link>` wrappen (invalid HTML) → stattdessen `href` Prop oder Wrapper-Komponente
+
+## PL/pgSQL NULL-in-Scalar (2026-04-11 — CRITICAL Money Bug)
+- `IF (SELECT COALESCE(x, 0) FROM t WHERE ...) < y` ist FALSCH wenn keine Row existiert
+- Scalar-Subquery auf leeres Result-Set → NULL (COALESCE laeuft per-Zeile, nicht auf leere Sets)
+- `NULL < y` = NULL = falsy in PL/pgSQL IF → Guard wird UEBERSPRUNGEN
+- Richtig: `SELECT x INTO v_x; IF COALESCE(v_x, 0) < y THEN reject`
+- Oder: `IF NOT FOUND THEN reject` (sicherstes Pattern)
+- Audit: `grep 'SELECT COALESCE.*FROM.*WHERE' supabase/migrations/`
+
+## Service Error-Swallowing (2026-04-11 — Tickets Pop-In)
+- `if (error) { console.error(...); return null; }` → React Query cached null als SUCCESS
+- Kein Retry, UI zeigt Skeleton/Empty fuer 30s (staleTime)
+- Kritisch bei Auth-Race: RPC wirft 'Nicht authentifiziert', Service schluckt
+- Richtig: `if (error) { logSupabaseError(...); throw new Error(error.message); }`
+- React Query retried automatisch (3x backoff) → nach ~1s ist Auth ready
+- Audit: `grep -rn 'if (error).*return null' src/lib/services/`
+
+## RPC Response camelCase/snake_case Mismatch (2026-04-11 — Mystery Box)
+- RPC `jsonb_build_object('rewardType', ...)` → camelCase im Response
+- Service castet `data as { reward_type: ... }` → snake_case → ALLE Felder undefined
+- TypeScript faengt das NICHT (as = unchecked assertion)
+- Richtig: Service-Cast MUSS die ECHTEN Keys der RPC matchen
+- Check: `pg_get_functiondef()` → Return-Shape → Service-Cast vergleichen
+- Audit: Neuer RPC deployed? → Service-Datei pruefen ob Cast echte Keys nutzt

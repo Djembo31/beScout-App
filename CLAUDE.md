@@ -81,3 +81,52 @@ next-intl (Cookie bescout-locale) | lucide-react
 
 ## Rules (auto-loaded)
 `common-errors.md` (patterns, traps) | `database.md` (columns, RLS, RPCs) | `business.md` (compliance, fees) | `workflow-reference.md` (agents, skills, hooks)
+
+## Pre-Edit Checks (PFLICHT — vor JEDER Datei-Aenderung)
+
+### RPC / Migration (`supabase/migrations/`, `CREATE FUNCTION`)
+- NULL-in-scalar: `COALESCE` auf Variable, NIE `(SELECT COALESCE(x,0) FROM t WHERE ...)`
+- CHECK constraints: Column-Werte gegen `database.md` verifizieren
+- RLS: neue Tabelle → ALLE Ops (SELECT+INSERT+UPDATE+DELETE)
+- Return-Shape: camelCase oder snake_case? Service-Cast MUSS matchen
+- Holdings/Balance-Check: `NOT FOUND` oder `COALESCE(v_var, 0)`
+
+### Service (`src/lib/services/*.ts`)
+- Error-Handling: THROW bei Error, NIE `return null` wenn UI "loading" zeigt
+- Return-Type: MUSS RPC-Response-Shape matchen (camelCase/snake_case pruefen)
+- Nach Edit: `npx vitest run` auf Test-File
+- Consumer-Check: wer konsumiert Return? Typ kompatibel?
+
+### Component (`src/components/`, `src/features/`, `src/app/`)
+- Mobile: passt in 393px (iPhone 16)?
+- Loading-State: Skeleton statt conditional-hide
+- Error-State: sichtbar, nicht silent
+- Hooks vor Returns (React Rules)
+
+### Vor JEDEM Commit
+- `npx tsc --noEmit` + `npx vitest run [betroffene Tests]`
+- Diff reviewen gegen common-errors.md Patterns
+- Bug-Fix? → `common-errors.md` JETZT updaten
+
+## Work Rhythm (6-Takt, PFLICHT)
+1. **VERSTEHEN** — Task lesen, Files lesen, laut sagen was ich vorhabe. 3+ Files → `/impact`
+2. **PLANEN** — Welche Files, welche Checks? Explizit benennen.
+3. **IMPLEMENTIEREN** — Ein File nach dem anderen. Nach JEDEM: Checklist + sofort verifizieren.
+4. **VERIFIZIEREN** — tsc + vitest + Diff-Review. Bug-Fix → common-errors.md updaten.
+5. **BEWEISEN** — Screenshot, DB-Query, Test-Output. "Fertig" = bewiesen.
+6. **AUFRAUMEN** — Tests, i18n DE+TR, Barrel-Exports, Memory aktuell?
+
+## After Bug-Fix: Knowledge Compilation (→ Details in workflow-reference.md)
+1. Pattern → `common-errors.md` sofort (kein Draft, kein Pending)
+2. Analyse → Wiki-Seite `memory/semantisch/projekt/` bei komplexen Investigations
+3. cortex-index → neues Routing wenn neue Domain
+4. Gute Analysen → Wiki-Seite filen, nicht in Chat-History sterben lassen
+5. Session-Digest → Lektionen + Warnungen fuer morgen
+
+## Agent-Delegation (Context-Management)
+- Research >3 Files → Explore Agent
+- Vor DB/RPC/Service → Impact Agent
+- Nach Implementation → Reviewer Agent (frische Augen)
+- Tests schreiben → test-writer Agent (Worktree)
+- Context >500K → Verification an Agent delegieren
+- SELBST: Bug-Fixes, Anil-Alignment, <3 Files, Geld/Security

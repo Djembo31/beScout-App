@@ -43,6 +43,20 @@ Spec-Driven. Code lesen, nicht annehmen. Fertig heisst fertig — keine Restarbe
 5. **Messen vor optimieren.** Keine Performance-Aenderung ohne Baseline.
 6. **Fertig = verifiziert.** "tsc clean" allein ist kein Beweis. "Sollte passen" ist kein Beweis.
 
+### After Bug-Fix: Knowledge Compilation (Karpathy-Pattern)
+1. **Pattern → common-errors.md** — SOFORT in derselben Session, kein Draft/Pending
+2. **Analyse → Wiki-Seite** — Bei komplexen Investigations: `memory/semantisch/projekt/[topic].md`
+3. **cortex-index → Routing** — Neues Routing wenn Bug eine neue Domain betrifft
+4. **Session-Digest** — Am Ende: Lektionen + Warnungen fuer morgen schreiben
+5. **Gute Analysen zurueck ins Wiki filen** — Chat-Antworten die wertvoll sind NICHT sterben lassen
+
+### Context-Management Strategie
+- Research (>3 Files) → Explore Agent (schuetzt Primary Context)
+- Nach komplexer Implementation → Reviewer Agent mit frischem Context
+- Impact-Check vor DB/RPC/Service → Impact Agent
+- Context >500K → Verification an Agent delegieren, NICHT selbst
+- Gute Analysen → Wiki-Seite erstellen, nicht in Chat-History verlieren
+
 ---
 
 ## Agent-Team (Skynet)
@@ -121,18 +135,24 @@ Alle Agents laden: SHARED-PREFIX.md → Domain-SKILL.md → LEARNINGS.md → Pha
 | `/codex:rescue` | Circuit-Breaker Eskalation |
 | `context7` MCP | Library-Docs (React, Next, Tailwind) |
 
-## Hooks (8)
+## Hooks (SSOT: `.claude/settings.json`)
 
-| Event | Hook | Typ |
-|-------|------|-----|
-| PostToolUse (Edit/Write) | auto-lint.sh | command |
-| PostToolUse (Edit/Write) | file-size-warning.sh | command |
-| PostToolUse (Edit/Write) | track-file-changes.sh | command |
-| PreToolUse (Bash) | safety-guard.sh | command |
-| PreCompact | pre-compact-backup.sh | command |
-| PreCompact | inject-context-on-compact.sh | command |
-| Stop | session-handoff-auto.sh | command |
-| SessionStart | morning-briefing.sh | command |
+| Event | Hook | Zweck |
+|-------|------|-------|
+| PostToolUse (Edit/Write) | auto-lint.sh | Formatierung |
+| PostToolUse (Edit/Write) | file-size-warning.sh | Dateigroesse |
+| PostToolUse (Edit/Write) | track-file-changes.sh | Session-Tracking |
+| PostToolUse (Edit/Write) | test-reminder.sh | Vitest-Reminder bei Service/RPC-Edits |
+| PreToolUse (Bash) | safety-guard.sh | Destruktive Commands blocken |
+| PreCompact | pre-compact-backup.sh | Context-Backup |
+| PreCompact | inject-context-on-compact.sh | Context-Injection |
+| UserPromptSubmit | capture-correction.sh | Korrekturen erfassen |
+| Stop | session-handoff-auto.sh | Handoff schreiben |
+| Stop | session-retro.sh | Retro generieren |
+| Stop | quality-gate-v2.sh | Session-Counter |
+| Stop | pattern-check.sh | Fix-Commits ohne Error-Pattern? |
+| SessionStart | morning-briefing.sh | Status + Digest + AutoDream-Check |
+| SessionStart | inject-learnings.sh | Learnings-Injection |
 
 ## 3 Gesetze
 
