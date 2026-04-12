@@ -87,6 +87,16 @@
         ]
       }
     ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/crash-recovery.sh"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [

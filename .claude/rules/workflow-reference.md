@@ -228,11 +228,12 @@ Jede Session macht das Team schlauer. LEARNINGS.md wachsen mit ECHTEN Bugs.
 | PreCompact | pre-compact-backup.sh | Context-Backup |
 | PreCompact | inject-context-on-compact.sh | Context-Injection |
 | UserPromptSubmit | capture-correction.sh | Korrekturen erfassen |
-| Stop | session-handoff-auto.sh | Handoff schreiben |
+| Stop | session-handoff-auto.sh | Handoff: Worktrees + Changes + Commits |
 | Stop | session-retro.sh | Retro generieren |
 | Stop | quality-gate-v2.sh | Session-Counter |
 | Stop | pattern-check.sh | Fix-Commits ohne Error-Pattern? |
-| SessionStart | morning-briefing.sh | Status + Digest + AutoDream-Check |
+| **StopFailure** | **crash-recovery.sh** | **Crash: Diff-Backup + Handoff-Append** |
+| SessionStart | morning-briefing.sh | Status + **Worktrees** + Digest + AutoDream |
 | SessionStart | inject-learnings.sh | Learnings-Injection |
 
 ## 3 Gesetze
@@ -244,12 +245,23 @@ Jede Session macht das Team schlauer. LEARNINGS.md wachsen mit ECHTEN Bugs.
 ## Session Lifecycle
 
 ```
-SessionStart → Morning Briefing (Git + tsc + Sprint + Errors)
+SessionStart → Morning Briefing (Git + tsc + Worktrees + Sprint + Errors)
   ↓
-Waehrend Session → auto-lint + file-size-warning + safety-guard
+  → Pending Agent Work? → MERGE ZUERST, dann neue Arbeit
+  → session-handoff.md lesen → Kontext der letzten Session
   ↓
-Stop → session-handoff-auto (Uebergabe fuer naechste Session)
+Waehrend Session → auto-lint + file-size-warning + safety-guard + test-reminder
+  ↓
+Stop → session-handoff-auto (Worktrees + Changes + Commits)
+  ↓
+StopFailure (Crash) → crash-recovery (Diff-Backup + Handoff-Append)
 ```
+
+### Session-Start Checkliste (PFLICHT)
+1. Morning-Briefing OUTPUT lesen (Worktrees, tsc, Uncommitted)
+2. `memory/session-handoff.md` lesen (was war in Arbeit?)
+3. Pending Agent Worktrees? → Pruefen + Mergen BEVOR neue Arbeit
+4. Dann erst: Was will Anil?
 
 ## Wann Agent, wann selbst?
 

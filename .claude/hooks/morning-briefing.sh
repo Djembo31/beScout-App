@@ -35,6 +35,39 @@ mkdir -p memory/senses
     echo ""
   fi
 
+  # Worktrees with pending work
+  WORKTREE_COUNT=0
+  WORKTREE_DETAILS=""
+  while IFS= read -r WT_LINE; do
+    WT_PATH=$(echo "$WT_LINE" | awk '{print $1}')
+    WT_BRANCH=$(echo "$WT_LINE" | sed -n 's/.*\[\(.*\)\].*/\1/p')
+    # Skip main worktree
+    [ "$WT_PATH" = "C:/bescout-app" ] && continue
+    # Check for uncommitted changes in this worktree
+    WT_DIFF=$(cd "$WT_PATH" && git diff --stat HEAD 2>/dev/null | tail -1)
+    if [ -n "$WT_DIFF" ]; then
+      WORKTREE_COUNT=$((WORKTREE_COUNT + 1))
+      WT_NAME=$(basename "$WT_PATH")
+      WORKTREE_DETAILS="${WORKTREE_DETAILS}  ${WT_NAME} (${WT_BRANCH}): ${WT_DIFF}\n"
+    fi
+  done < <(git worktree list 2>/dev/null)
+
+  if [ "$WORKTREE_COUNT" -gt 0 ]; then
+    echo "## ⚠ PENDING AGENT WORK: $WORKTREE_COUNT Worktrees mit Aenderungen"
+    echo "→ ZUERST pruefen und mergen, BEVOR neue Arbeit beginnt!"
+    echo '```'
+    echo -e "$WORKTREE_DETAILS"
+    echo '```'
+    echo ""
+  fi
+
+  # Count total worktrees (for cleanup hint)
+  TOTAL_WT=$(git worktree list 2>/dev/null | grep -cv "^C:/bescout-app " || true)
+  if [ "$TOTAL_WT" -gt 5 ] 2>/dev/null; then
+    echo "## Worktree Cleanup: $TOTAL_WT Worktrees vorhanden (>5 = Cleanup empfohlen)"
+    echo ""
+  fi
+
   # Build health (quick — no vitest, too slow for hook)
   echo "## Build"
   TSC_OUTPUT=$(npx tsc --noEmit 2>&1)
@@ -65,8 +98,9 @@ mkdir -p memory/senses
   echo ""
 
   # Learnings pending
-  DRAFT_COUNT=$(ls memory/learnings/drafts/*.md 2>/dev/null | grep -cv "PROMOTED" 2>/dev/null || echo 0)
-  if [ "$DRAFT_COUNT" -gt 0 ]; then
+  DRAFT_COUNT=$(ls memory/learnings/drafts/*.md 2>/dev/null | grep -cv "PROMOTED" 2>/dev/null || true)
+  DRAFT_COUNT=${DRAFT_COUNT:-0}
+  if [ "$DRAFT_COUNT" -gt 0 ] 2>/dev/null; then
     echo "## Pending Learnings: $DRAFT_COUNT Drafts"
     ls memory/learnings/drafts/*.md 2>/dev/null | xargs -I{} basename {} | sed 's/^/- /'
     echo ""
