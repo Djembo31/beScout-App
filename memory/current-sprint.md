@@ -1,13 +1,13 @@
 # Current Sprint — Polish Sweep (Pre-Launch Page Polish)
 
-## Stand (2026-04-11, Market Polish Session Ende)
+## Stand (2026-04-12, Ferrari Knowledge System installiert)
 
 - **Branch:** main
-- **Letzte Session-Commits:** siehe `session-handoff.md` Tabelle — 13 Commits, darunter 1 kritischer Money-Bug (accept_offer NULL-guard) + 1 Tickets-Root-Cause-Fix (service throw)
-- **Deployed:** live auf bescout.net via Vercel nach jedem Commit
-- **Migrations:** +6 neue (mystery_box daily cap fix, equipment branch fix, ticket source fix, cancel cooldown removal, accept_offer NULL-guard, create_offer NULL-guard)
-- **Tests:** `tsc --noEmit` clean, relevante Test-Files alle grün nach Session
-- **Session-Charakter:** Reaktiv. Anil hat Pacing kritisiert ("wir hinterlassen zu viele krümel und übersehen einiges"). Anti-Krümel-Regeln in `session-handoff.md` dokumentiert.
+- **Letzter Commit:** `679eb54` feat(system): Ferrari Knowledge System — complete installation
+- **Deployed:** live auf bescout.net (keine Produkt-Aenderungen, nur System)
+- **Ferrari Status:** 9/9 Teile installiert, CTO-reviewed, Hooks getestet
+- **Tests:** `tsc --noEmit` clean, settings.json valid
+- **Session-Charakter:** Strategisch. Karpathy-Research → IST-Analyse → Design → Installation. Naechste Session = erster Proof-of-Concept mit Market Polish.
 
 ## Aktueller Fokus: Polish Sweep
 
