@@ -9,9 +9,18 @@
 - `memory/session-handoff.md` — Uebergabe letzte Session
 - `.claude/rules/common-errors.md` — Top-Fehler (auto-loaded)
 
+## Produkt-Wissen (bei Produkt-Entscheidungen, neuen Features, Prioritaeten)
+| Ressource | Pfad |
+|-----------|------|
+| Product Map (WAS ist beScout) | `memory/semantisch/produkt/bescout-product-map.md` |
+| Vision & Strategie (WARUM + WOHIN) | `memory/semantisch/produkt/bescout-vision.md` |
+| Feature Dependencies (WIE haengt alles zusammen) | `memory/semantisch/produkt/bescout-feature-dependencies.md` |
+| Mogul Mutationsplan (18-Monats-Fahrplan, VERTRAULICH) | `memory/semantisch/produkt/mogul-mutationsplan.md` |
+
 ## Nach Domain laden
 | Wenn Task betrifft... | Dann lade... |
 |----------------------|--------------|
+| Produkt-Entscheidung / Priorisierung / Neues Feature | `memory/semantisch/produkt/` (alle 3 Seiten) |
 | Fantasy | `memory/features/fantasy.md` + `memory/deps/cross-domain-map.md` |
 | Trading / Wallet / IPO | `memory/patterns.md` (Trading-Sektion) |
 | UI / Components | CLAUDE.md Component Registry (bereits geladen) |

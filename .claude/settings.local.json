@@ -19,7 +19,9 @@
       "Skill(claude-api)",
       "mcp__supabase__list_projects",
       "mcp__supabase__list_tables",
-      "mcp__supabase__list_migrations"
+      "mcp__supabase__list_migrations",
+      "Bash(echo \"src/lib/services/tickets.ts\")",
+      "Bash(bash .claude/hooks/test-reminder.sh)"
     ]
   },
   "enableAllProjectMcpServers": true,
