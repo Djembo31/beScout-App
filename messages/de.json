@@ -392,7 +392,11 @@
     "introCommunity": "Community",
     "introCommunityDesc": "Schreibe Analysen, stimme ab und verdiene Credits.",
     "introScouting": "Scouting",
-    "introScoutingDesc": "Bewerte Spieler und werde als Top-Scout belohnt."
+    "introScoutingDesc": "Bewerte Spieler und werde als Top-Scout belohnt.",
+    "mysteryBoxTitle": "Mystery Box",
+    "mysteryBoxFreeAvailable": "Gratis Box wartet!",
+    "mysteryBoxClaimedTomorrow": "Morgen wieder verfügbar",
+    "mysteryBoxFreeLabel": "Gratis"
   },
   "fantasy": {
     "title": "Spieltag",

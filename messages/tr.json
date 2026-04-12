@@ -392,7 +392,11 @@
     "introCommunity": "Topluluk",
     "introCommunityDesc": "Analizler yaz, oyla ve kredi kazan.",
     "introScouting": "Keşif",
-    "introScoutingDesc": "Oyuncuları değerlendir ve en iyi keşifçi olarak ödüllen."
+    "introScoutingDesc": "Oyuncuları değerlendir ve en iyi keşifçi olarak ödüllen.",
+    "mysteryBoxTitle": "Gizem Kutusu",
+    "mysteryBoxFreeAvailable": "Ücretsiz kutu seni bekliyor!",
+    "mysteryBoxClaimedTomorrow": "Yarın tekrar gel",
+    "mysteryBoxFreeLabel": "Ücretsiz"
   },
   "fantasy": {
     "title": "Maç Günü",

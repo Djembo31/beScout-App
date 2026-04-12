@@ -371,21 +371,60 @@ export default function HomePage() {
             </Link>
           )}
 
-          {/* Mystery Box — always visible */}
+          {/* Mystery Box — animated when free box available */}
           {uid && (
-            <Card className="p-3 md:p-4 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs text-white/50">
-                <Ticket className="size-4 text-gold/60" />
-                <span className="font-mono font-bold text-white/70">{ticketData?.balance ?? 0}</span>
-                {' Tickets'}
-              </span>
-              <button
-                onClick={() => setShowMysteryBox(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-xs font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-colors"
-              >
-                <Gift className="size-4" />
-                Mystery Box
-              </button>
+            <Card
+              className={cn(
+                'p-3 md:p-4 flex items-center justify-between relative overflow-hidden cursor-pointer group',
+                hasFreeBoxToday
+                  ? 'border-gold/25 anim-mystery-card-glow'
+                  : '',
+              )}
+              onClick={() => setShowMysteryBox(true)}
+            >
+              {/* Gold shimmer sweep when free box available */}
+              {hasFreeBoxToday && (
+                <div
+                  className="absolute inset-0 pointer-events-none anim-mystery-card-shimmer motion-reduce:hidden"
+                  style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.08) 45%, rgba(255,215,0,0.15) 50%, rgba(255,215,0,0.08) 55%, transparent 100%)' }}
+                  aria-hidden="true"
+                />
+              )}
+              <div className="flex items-center gap-3 relative z-[1]">
+                <div className={cn(
+                  'size-10 rounded-xl flex items-center justify-center shrink-0',
+                  hasFreeBoxToday
+                    ? 'bg-gold/15 border border-gold/25'
+                    : 'bg-gold/[0.06] border border-gold/10',
+                )}>
+                  <Gift className={cn(
+                    'size-5',
+                    hasFreeBoxToday ? 'text-gold anim-mystery-gift-wiggle motion-reduce:animate-none' : 'text-gold/50',
+                  )} />
+                </div>
+                <div className="min-w-0">
+                  <div className={cn(
+                    'text-sm font-bold',
+                    hasFreeBoxToday ? 'text-gold' : 'text-white/60',
+                  )}>
+                    {t('mysteryBoxTitle')}
+                  </div>
+                  <div className="text-[10px] text-white/40">
+                    {hasFreeBoxToday ? t('mysteryBoxFreeAvailable') : t('mysteryBoxClaimedTomorrow')}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 relative z-[1]">
+                <span className="flex items-center gap-1 text-[10px] text-white/40">
+                  <Ticket className="size-3.5 text-gold/40" />
+                  <span className="font-mono font-bold text-white/50">{ticketData?.balance ?? 0}</span>
+                </span>
+                {hasFreeBoxToday && (
+                  <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-[10px] font-black text-black uppercase tracking-wide group-hover:brightness-110 transition-all">
+                    {t('mysteryBoxFreeLabel')}
+                  </span>
+                )}
+              </div>
             </Card>
           )}
 

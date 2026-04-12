@@ -202,6 +202,35 @@ body {
 .anim-mystery-flash { animation: mystery-screen-flash 0.3s ease-out forwards; }
 .anim-mystery-rainbow { animation: mystery-rainbow-border 2s linear infinite; }
 
+/* Mystery Box — Home Card Trigger */
+@keyframes mystery-gift-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  10% { transform: rotate(-18deg) scale(1.1); }
+  20% { transform: rotate(15deg) scale(1.15); }
+  30% { transform: rotate(-12deg) scale(1.1); }
+  40% { transform: rotate(8deg) scale(1.05); }
+  50% { transform: rotate(-4deg) scale(1); }
+}
+.anim-mystery-gift-wiggle {
+  animation: mystery-gift-wiggle 2.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+  animation-delay: 1s;
+  transform-origin: center;
+}
+@keyframes mystery-card-glow {
+  0%, 100% { box-shadow: 0 0 8px 0 rgba(255,215,0,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
+  50% { box-shadow: 0 0 20px 4px rgba(255,215,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06); }
+}
+.anim-mystery-card-glow {
+  animation: mystery-card-glow 2.5s ease-in-out infinite;
+}
+@keyframes mystery-card-shimmer {
+  0% { transform: translateX(-100%); }
+  50%, 100% { transform: translateX(200%); }
+}
+.anim-mystery-card-shimmer {
+  animation: mystery-card-shimmer 4s ease-in-out infinite;
+}
+
 /* Shimmer skeleton animation */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
