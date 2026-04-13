@@ -95,12 +95,3 @@ export async function refreshAllAirdropScores(): Promise<number> {
   return (data as number) ?? 0;
 }
 
-// ============================================
-// Cache Invalidation
-// ============================================
-
-export function invalidateAirdropData(_userId?: string): void {
-  // No-op: React Query handles cache invalidation
-}
-
-// triggerAirdropRefresh removed — airdrop refresh now handled by DB triggers

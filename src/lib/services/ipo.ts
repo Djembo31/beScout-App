@@ -232,28 +232,6 @@ export async function getAnnouncedIpos(): Promise<DbIpo[]> {
   return (data ?? []) as DbIpo[];
 }
 
-/** Get all IPOs for a club's players (by club name — legacy) */
-export async function getIposByClub(clubName: string): Promise<DbIpo[]> {
-  const { data: clubPlayers, error: playersError } = await supabase
-    .from('players')
-    .select('id')
-    .eq('club', clubName);
-
-  if (playersError) throw new Error(playersError.message);
-  if (!clubPlayers || clubPlayers.length === 0) return [];
-
-  const playerIds = clubPlayers.map(p => p.id);
-
-  const { data, error } = await supabase
-    .from('ipos')
-    .select('*')
-    .in('player_id', playerIds)
-    .order('created_at', { ascending: false });
-
-  if (error) throw new Error(error.message);
-  return (data ?? []) as DbIpo[];
-}
-
 /** Get all IPOs for a club's players (by club_id) */
 export async function getIposByClubId(clubId: string): Promise<DbIpo[]> {
   const { data: clubPlayers, error: playersError } = await supabase

@@ -3,7 +3,7 @@ import { mockSupabase, mockTable, mockRpc, resetMocks } from '@/test/mocks/supab
 
 import {
   getAirdropScore, getAirdropLeaderboard, getAirdropStats,
-  refreshAirdropScore, refreshAllAirdropScores, invalidateAirdropData,
+  refreshAirdropScore, refreshAllAirdropScores,
 } from '../airdropScore';
 
 beforeEach(() => { resetMocks(); vi.clearAllMocks(); });
@@ -116,9 +116,3 @@ describe('refreshAllAirdropScores', () => {
   });
 });
 
-describe('invalidateAirdropData', () => {
-  it('is a no-op', () => {
-    expect(() => invalidateAirdropData('u1')).not.toThrow();
-    expect(() => invalidateAirdropData()).not.toThrow();
-  });
-});

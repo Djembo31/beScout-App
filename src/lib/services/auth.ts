@@ -30,10 +30,6 @@ export async function signInWithOAuth(provider: 'google' | 'apple', redirectUrl:
   });
 }
 
-export async function updateUserPassword(password: string) {
-  return supabase.auth.updateUser({ password });
-}
-
 export async function signOut() {
   return supabase.auth.signOut();
 }
