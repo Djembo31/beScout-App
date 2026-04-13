@@ -116,26 +116,26 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 | # | Page | Slug | Status |
 |---|------|------|--------|
-| 19 | Welcome | `/welcome` | ⏳ |
-| 20 | Login | `/login` | ⏳ |
-| 21 | Onboarding | `/onboarding` | ⏳ |
-| 22 | Pitch | `/pitch` | ⏳ |
-| 23 | Blocked | `/blocked` | ⏳ |
+| 19 | Welcome | `/welcome` | ✅ done |
+| 20 | Login | `/login` | ✅ done |
+| 21 | Onboarding | `/onboarding` | ✅ done |
+| 22 | Pitch | `/pitch` | ✅ done |
+| 23 | Blocked | `/blocked` | ✅ done |
 
 ## Phase 4 — Admin (2 Pages)
 
 | # | Page | Status |
 |---|------|--------|
-| 24 | Club Admin (`/club/[slug]/admin`) | ⏳ |
-| 25 | BeScout Admin (`/bescout-admin`) | ⏳ |
+| 24 | Club Admin (`/club/[slug]/admin`) | ✅ done |
+| 25 | BeScout Admin (`/bescout-admin`) | ✅ done |
 
 ## Phase 5 — Static / Legal (4 Pages)
 
 | # | Page | Status |
 |---|------|--------|
-| 26 | AGB (`/agb`) | ⏳ |
-| 27 | Datenschutz (`/datenschutz`) | ⏳ |
-| 28 | Impressum (`/impressum`) | ⏳ |
+| 26 | AGB (`/agb`) | ✅ done |
+| 27 | Datenschutz (`/datenschutz`) | ✅ done |
+| 28 | Impressum (`/impressum`) | ✅ done |
 | 29 | Auth Callback (`/auth/callback`) | 🚫 technical redirect |
 
 ---
@@ -195,3 +195,10 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
   - Clubs CLEAN, Club Detail CLEAN (SEO metadata minor), Compare CLEAN, Airdrop CLEAN, Founding CLEAN
   - MembershipSection: "CR / Monat" → `ts('perMonth')` gefixt (TR-User sahen deutsch)
   - **Phase 2 Supporting Pages (12 Pages) KOMPLETT ✅**
+- **2026-04-13** — Phase 3/4/5: Compliance-Scan via Agent-Batches. Auth/Onboarding, Admin, Legal Pages.
+  - Globaler i18n-Sweep: Null "Lizenzen"/"lisans"/"Investment"/"ROI"/"Profit"/"Gewinn"/"G/V"/"P&L" in user-facing Values
+  - Legal disclaimer korrekt: nennt "keine Renditen, Zinsen oder Dividenden" (pflichtgemaess)
+  - **Phase 3 Auth/Onboarding (5 Pages) KOMPLETT ✅**
+  - **Phase 4 Admin (2 Pages) KOMPLETT ✅**
+  - **Phase 5 Legal (4 Pages) KOMPLETT ✅**
+  - **POLISH SWEEP KOMPLETT — 29/29 Pages ✅**
