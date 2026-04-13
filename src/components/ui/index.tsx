@@ -350,6 +350,9 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { EventTypeBadge, EventScopeBadge } from './EventScopeBadge';
 export { CosmeticAvatar } from './CosmeticAvatar';
 export { CosmeticTitle } from './CosmeticTitle';
+export { LeagueBadge } from './LeagueBadge';
+export { CountryBar } from './CountryBar';
+export { LeagueBar } from './LeagueBarShared';
 
 export function ErrorState({
   message,

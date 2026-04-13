@@ -4,6 +4,23 @@
  */
 
 // ============================================
+// LEAGUE TYPES
+// ============================================
+
+export type League = {
+  id: string;
+  name: string;
+  short: string;
+  country: string;
+  season: string;
+  logoUrl: string | null;
+  apiFootballId: number | null;
+  activeGameweek: number;
+  maxGameweeks: number;
+  isActive: boolean;
+};
+
+// ============================================
 // PLAYER TYPES
 // ============================================
 
@@ -31,6 +48,9 @@ export type Player = {
   club: string;
   clubId?: string;
   league?: string;
+  leagueShort?: string;
+  leagueCountry?: string;
+  leagueLogoUrl?: string;
   pos: Pos;
   status: PlayerStatus;
   age: number;

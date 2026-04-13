@@ -7,6 +7,10 @@ interface FantasyState {
   selectedGameweek: number | null;
   currentGw: number;
 
+  // League Filter
+  fantasyCountry: string;
+  fantasyLeague: string;
+
   // Event Detail Modal
   selectedEventId: string | null;
   showCreateModal: boolean;
@@ -21,6 +25,8 @@ interface FantasyState {
   setMainTab: (tab: FantasyTab) => void;
   setSelectedGameweek: (gw: number | null) => void;
   setCurrentGw: (gw: number) => void;
+  setFantasyCountry: (country: string) => void;
+  setFantasyLeague: (league: string) => void;
   openEvent: (id: string) => void;
   closeEvent: () => void;
   openCreateModal: () => void;
@@ -34,6 +40,8 @@ export const useFantasyStore = create<FantasyState>((set) => ({
   mainTab: 'paarungen',
   selectedGameweek: null,
   currentGw: 1,
+  fantasyCountry: '',
+  fantasyLeague: '',
   selectedEventId: null,
   showCreateModal: false,
   summaryEventId: null,
@@ -43,6 +51,8 @@ export const useFantasyStore = create<FantasyState>((set) => ({
   setMainTab: (tab) => set({ mainTab: tab }),
   setSelectedGameweek: (gw) => set({ selectedGameweek: gw }),
   setCurrentGw: (gw) => set({ currentGw: gw }),
+  setFantasyCountry: (country) => set({ fantasyCountry: country, fantasyLeague: '' }),
+  setFantasyLeague: (league) => set({ fantasyLeague: league }),
   openEvent: (id) => set({ selectedEventId: id }),
   closeEvent: () => set({ selectedEventId: null }),
   openCreateModal: () => set({ showCreateModal: true }),

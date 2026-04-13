@@ -11,6 +11,7 @@ import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import {
   StatusPill, MinutesPill, PerfPills, NextMatchBadge, MarketBadges,
 } from './kaderHelpers';
@@ -180,6 +181,9 @@ function VertragCols({ item }: { item: KaderPlayer }) {
             <div className="size-3.5 rounded-full" style={{ backgroundColor: clubData.colors.primary }} />
           ) : null}
           {p.club}
+          {p.leagueShort && (
+            <> · <LeagueBadge logoUrl={p.leagueLogoUrl} name={p.league ?? p.leagueShort} short={p.leagueShort} size="xs" /></>
+          )}
         </span>
       </div>
       {/* Mobile */}

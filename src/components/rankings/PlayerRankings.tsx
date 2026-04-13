@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { Card } from '@/components/ui';
 import { PlayerPhoto } from '@/components/player';
 import { supabase } from '@/lib/supabaseClient';
 import { fmtScout } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
 import { Loader2, Users } from 'lucide-react';
 import type { Pos } from '@/types';
 
@@ -22,6 +23,7 @@ type PlayerRankEntry = {
   floor_price: number;
   volume_24h: number;
   price_change_24h: number;
+  club_id: string | null;
 };
 
 const SORT_TABS: { key: SortMode; labelKey: string }[] = [
@@ -30,7 +32,12 @@ const SORT_TABS: { key: SortMode; labelKey: string }[] = [
   { key: 'change', labelKey: 'sortChange' },
 ];
 
-export function PlayerRankings() {
+interface PlayerRankingsProps {
+  filterCountry?: string;
+  filterLeague?: string;
+}
+
+export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsProps) {
   const t = useTranslations('rankings');
   const locale = useLocale();
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
@@ -38,25 +45,41 @@ export function PlayerRankings() {
 
   const orderCol = sort === 'floor' ? 'floor_price' : sort === 'volume' ? 'volume_24h' : 'price_change_24h';
 
-  const { data: players = [], isLoading } = useQuery({
+  const { data: allPlayers = [], isLoading } = useQuery({
     queryKey: ['rankings', 'players', sort],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('players')
-        .select('id, first_name, last_name, position, floor_price, volume_24h, price_change_24h')
+        .select('id, first_name, last_name, position, floor_price, volume_24h, price_change_24h, club_id')
         .eq('is_liquidated', false)
         .gt('floor_price', 0)
         .order(orderCol, { ascending: false })
-        .limit(20);
+        .limit(100);
 
       if (error) {
         console.error('[PlayerRankings] error:', error);
-        return [];
+        throw new Error(error.message);
       }
       return (data ?? []) as PlayerRankEntry[];
     },
     staleTime: 5 * 60 * 1000,
   });
+
+  // Client-side filter via club cache
+  const players = useMemo(() => {
+    if (!filterCountry && !filterLeague) return allPlayers.slice(0, 20);
+
+    const filtered = allPlayers.filter(p => {
+      if (!p.club_id) return false;
+      const club = getClub(p.club_id);
+      if (!club) return false;
+      if (filterLeague && club.league !== filterLeague) return false;
+      if (filterCountry && club.country !== filterCountry) return false;
+      return true;
+    });
+
+    return filtered.slice(0, 20);
+  }, [allPlayers, filterCountry, filterLeague]);
 
   return (
     <Card className="p-5">

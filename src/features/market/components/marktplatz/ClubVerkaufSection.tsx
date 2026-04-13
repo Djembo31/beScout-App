@@ -10,7 +10,6 @@ import { useClub } from '@/components/providers/ClubProvider';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import { applyFilters } from '../shared/MarketFilters';
 import EndingSoonStrip from './EndingSoonStrip';
-import LeagueBar from './LeagueBar';
 import ClubCard from './ClubCard';
 import ClubAccordion from './ClubAccordion';
 import { getEarliestEndDate } from './CountdownBadge';
@@ -56,7 +55,7 @@ export default function ClubVerkaufSection({
   const { followedClubs } = useClub();
   const store = useMarketStore();
   const {
-    clubVerkaufLeague, setClubVerkaufLeague,
+    selectedLeague,
     clubVerkaufExpandedClub, setClubVerkaufExpandedClub,
     ipoViewState, setIpoViewState,
   } = store;
@@ -99,8 +98,8 @@ export default function ClubVerkaufSection({
       const club = getClub(clubName);
       if (!club) return;
 
-      // League filter
-      if (clubVerkaufLeague && club.league !== clubVerkaufLeague) return;
+      // League filter (now uses global selectedLeague from store)
+      if (selectedLeague && club.league !== selectedLeague) return;
 
       const ipoMap = new Map<string, DbIpo>();
       const endDates: string[] = [];
@@ -145,7 +144,7 @@ export default function ClubVerkaufSection({
       if (aEnd !== bEnd) return aEnd - bEnd;
       return b.dpcCount - a.dpcCount;
     });
-  }, [players, viewIpos, store, clubVerkaufLeague, iposByPlayer, followedClubIds]);
+  }, [players, viewIpos, store, selectedLeague, iposByPlayer, followedClubIds]);
 
   const hasContent = clubAggregates.length > 0;
   const isBuyable = ipoViewState === 'laufend';
@@ -215,9 +214,6 @@ export default function ClubVerkaufSection({
           buyingId={buyingId}
         />
       )}
-
-      {/* 4. Navigation: league bar */}
-      <LeagueBar selected={clubVerkaufLeague} onSelect={setClubVerkaufLeague} />
 
       {/* 5. Empty state */}
       {!hasContent && (

@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Trophy } from 'lucide-react';
+import { CountryBar, LeagueBar } from '@/components/ui/index';
+import { getCountries } from '@/lib/leagues';
 import {
   SelfRankCard,
   GlobalLeaderboard,
@@ -15,12 +18,32 @@ import {
 export default function RankingsPage() {
   const t = useTranslations('rankings');
 
+  const [filterCountry, setFilterCountry] = useState('');
+  const [filterLeague, setFilterLeague] = useState('');
+  const countries = useMemo(() => getCountries(), []);
+
+  // When country changes, reset league (Smart Collapse)
+  const handleCountryChange = useCallback((country: string) => {
+    setFilterCountry(country);
+    setFilterLeague('');
+  }, []);
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-6 space-y-6 pb-24">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Trophy className="size-6 text-gold" />
         <h1 className="text-2xl font-black text-white">{t('title')}</h1>
+      </div>
+
+      {/* Country + League Filter */}
+      <div className="space-y-2">
+        <CountryBar countries={countries} selected={filterCountry} onSelect={handleCountryChange} />
+        <LeagueBar
+          selected={filterLeague}
+          onSelect={setFilterLeague}
+          country={filterCountry || undefined}
+        />
       </div>
 
       {/* Self Rank */}
@@ -39,7 +62,7 @@ export default function RankingsPage() {
           <FriendsLeaderboard />
           <ClubLeaderboard />
           <LastEventResults />
-          <PlayerRankings />
+          <PlayerRankings filterCountry={filterCountry} filterLeague={filterLeague} />
         </div>
       </div>
     </div>

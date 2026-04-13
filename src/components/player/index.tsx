@@ -8,6 +8,7 @@ import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
 import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
 import { cn, fmtScout } from '@/lib/utils';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 
 export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
 export { MatchIcon } from './StatIcons';
@@ -314,7 +315,7 @@ export interface IpoDisplayData {
 /** The sacred identity row — always the same everywhere.
  *  Photo (with club-logo overlay) + Name + PosBadge + StatusBadge + Meta line */
 export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatus = true, className = '' }: {
-  player: Pick<Player, 'first' | 'last' | 'pos' | 'status' | 'club' | 'clubId' | 'ticket' | 'age' | 'imageUrl' | 'league'> & { lastAppearanceGw?: number };
+  player: Pick<Player, 'first' | 'last' | 'pos' | 'status' | 'club' | 'clubId' | 'ticket' | 'age' | 'imageUrl' | 'league'> & { lastAppearanceGw?: number; leagueShort?: string; leagueLogoUrl?: string | null };
   size?: 'sm' | 'md' | 'lg';
   showMeta?: boolean;
   showStatus?: boolean;
@@ -357,11 +358,15 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
         </div>
         {showMeta && (
           <div className="flex items-center gap-1 text-[10px] md:text-[10px] text-white/40">
-            <span className="truncate">
+            <span className="inline-flex items-center gap-0.5 truncate">
               {player.club}
+              {player.leagueShort ? (
+                <> · <LeagueBadge logoUrl={player.leagueLogoUrl} name={player.league ?? player.leagueShort} short={player.leagueShort} size="xs" /></>
+              ) : (
+                player.league && <> · {player.league}</>
+              )}
               {useTrikot && <> · <span className="font-mono text-white/30">#{player.ticket}</span></>}
               {player.age > 0 && <> · {player.age}J.</>}
-              {player.league && <> · {player.league}</>}
             </span>
           </div>
         )}

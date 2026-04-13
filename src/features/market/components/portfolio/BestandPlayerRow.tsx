@@ -10,6 +10,7 @@ import { posTintColors } from '@/components/player/positionColors';
 import { AssistIcon } from '@/components/fantasy/spieltag/MatchIcons';
 import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import type { Player } from '@/types';
 
 // ============================================
@@ -94,6 +95,9 @@ function BestandPlayerRowInner({ item, scores, onSellClick }: BestandPlayerRowPr
               <span className="size-3.5 rounded-full inline-block" style={{ backgroundColor: clubData.colors.primary }} />
             ) : null}
             {clubData?.name ?? p.club}
+            {p.leagueShort && (
+              <> · <LeagueBadge logoUrl={p.leagueLogoUrl} name={p.league ?? p.leagueShort} short={p.leagueShort} size="xs" /></>
+            )}
           </span>
           {p.ticket > 0 && (
             <>

@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Trophy, Loader2 } from 'lucide-react';
-import { ErrorBoundary } from '@/components/ui';
+import { ErrorBoundary, CountryBar, LeagueBar } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { useUserTickets } from '@/lib/queries/tickets';
+import { getClub } from '@/lib/clubs';
+import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
 import { useIsClubAdmin } from '@/lib/queries/events';
 import type { FantasyEvent } from '@/components/fantasy';
 import { CreateEventModal, SpieltagTab } from '@/components/fantasy';
@@ -87,6 +89,47 @@ export default function FantasyContent() {
 
   // Keep ticket balance cache warm
   useUserTickets(userId);
+
+  // ── Country + League filter ──
+  const { fantasyCountry, fantasyLeague, setFantasyCountry, setFantasyLeague } = store;
+
+  // Derive countries that actually have events (from club -> country mapping)
+  const eventCountries = useMemo(() => {
+    const allCountries = getCountries();
+    // Filter to only countries that have events in the current set
+    const eventCountryCodes = new Set<string>();
+    for (const e of gwEvents) {
+      if (e.clubId) {
+        const club = getClub(e.clubId);
+        if (club) eventCountryCodes.add(club.country);
+      }
+    }
+    // If no club-scoped events exist, show all countries
+    if (eventCountryCodes.size === 0) return allCountries;
+    return allCountries.filter(c => eventCountryCodes.has(c.code));
+  }, [gwEvents]);
+
+  // Smart auto-select: when country has only 1 league, auto-set league
+  useEffect(() => {
+    if (!fantasyCountry) return;
+    const countryLeagues = getLeaguesByCountry(fantasyCountry);
+    if (countryLeagues.length === 1) {
+      setFantasyLeague(countryLeagues[0].name);
+    }
+  }, [fantasyCountry, setFantasyLeague]);
+
+  // Filter gwEvents by selected league
+  const filteredGwEvents = useMemo(() => {
+    if (!fantasyLeague && !fantasyCountry) return gwEvents;
+    return gwEvents.filter(e => {
+      if (!e.clubId) return true; // Global events always show
+      const club = getClub(e.clubId);
+      if (!club) return true;
+      if (fantasyLeague) return club.league === fantasyLeague;
+      if (fantasyCountry) return club.country === fantasyCountry;
+      return true;
+    });
+  }, [gwEvents, fantasyLeague, fantasyCountry]);
 
   // ── Dashboard stats (for ErgebnisseTab) ──
   const dashboardStats = useMemo(() => {
@@ -177,13 +220,28 @@ export default function FantasyContent() {
       {/* Scoring Rules */}
       <ScoringRules />
 
+      {/* COUNTRY + LEAGUE FILTER */}
+      <CountryBar
+        countries={eventCountries}
+        selected={fantasyCountry}
+        onSelect={setFantasyCountry}
+        className="mb-1"
+      />
+      <LeagueBar
+        selected={fantasyLeague}
+        onSelect={setFantasyLeague}
+        country={fantasyCountry || undefined}
+        size="sm"
+        className="mb-1"
+      />
+
       {/* STICKY NAV */}
       <FantasyNav
         currentGw={gw.currentGw}
         activeGw={gw.activeGw ?? 1}
         gwStatus={gw.gwStatus}
         fixtureCount={gw.fixtureCount}
-        eventCount={gwEvents.length}
+        eventCount={filteredGwEvents.length}
         mainTab={store.mainTab}
         onTabChange={store.setMainTab}
         onGameweekChange={gw.setSelectedGameweek}
@@ -196,7 +254,7 @@ export default function FantasyContent() {
           activeGameweek={gw.activeGw ?? 1}
           clubId={clubId}
           isAdmin={isAdmin}
-          events={gwEvents}
+          events={filteredGwEvents}
           userId={user.id}
           onSimulated={handleSimulated}
           onTabChange={store.setMainTab}
@@ -206,7 +264,7 @@ export default function FantasyContent() {
       {/* ========== EVENTS TAB ========== */}
       {store.mainTab === 'events' && user && (
         <EventsTab
-          events={gwEvents}
+          events={filteredGwEvents}
           onEventClick={handleEventClick}
         />
       )}
@@ -216,7 +274,7 @@ export default function FantasyContent() {
         <MitmachenTab
           gameweek={gw.currentGw}
           activeGameweek={gw.activeGw ?? 1}
-          events={gwEvents}
+          events={filteredGwEvents}
           userId={user.id}
           onEventClick={handleEventClick}
           onTabChange={store.setMainTab}
@@ -229,7 +287,7 @@ export default function FantasyContent() {
           gameweek={gw.currentGw}
           activeGameweek={gw.activeGw ?? 1}
           fixtureCount={gw.fixtureCount}
-          events={gwEvents}
+          events={filteredGwEvents}
           userId={user.id}
           participations={dashboardStats.pastParticipations}
           userDisplayName={profile?.display_name || user?.email?.split('@')[0] || 'User'}

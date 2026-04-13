@@ -41,7 +41,7 @@ function HeroSection() {
           {t('heroSubtitle')}
         </p>
         <div className="flex flex-wrap justify-center gap-3 text-sm">
-          {['566 Oyuncu', '20 Kulüp', 'TFF 1. Lig', 'Beta'].map((stat) => (
+          {['4.200+ Spieler', '134 Clubs', '7 Ligen', 'Beta'].map((stat) => (
             <span key={stat} className="px-4 py-1.5 rounded-full bg-surface-base border border-white/10 text-white/60 font-mono">
               {stat}
             </span>

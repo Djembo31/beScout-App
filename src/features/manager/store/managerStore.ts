@@ -47,11 +47,15 @@ interface ManagerState {
   kaderSellPlayerId: string | null;
   expandedClubs: Set<string>;
   kaderDetailPlayerId: string | null;
+  kaderCountry: string;
+  kaderLeague: string;
   setKaderLens: (lens: KaderLens) => void;
   setKaderGroupByClub: (v: boolean) => void;
   setKaderSellPlayerId: (id: string | null) => void;
   toggleClubExpand: (club: string) => void;
   setKaderDetailPlayerId: (id: string | null) => void;
+  setKaderCountry: (v: string) => void;
+  setKaderLeague: (v: string) => void;
 
   // Tab 3: Historie
   historyTimeFilter: HistoryTimeFilter;
@@ -89,6 +93,8 @@ export const useManagerStore = create<ManagerState>((set) => ({
   kaderSellPlayerId: null,
   expandedClubs: new Set<string>(),
   kaderDetailPlayerId: null,
+  kaderCountry: '',
+  kaderLeague: '',
   setKaderLens: (kaderLens) => set({ kaderLens }),
   setKaderGroupByClub: (kaderGroupByClub) => set({ kaderGroupByClub }),
   setKaderSellPlayerId: (kaderSellPlayerId) => set({ kaderSellPlayerId }),
@@ -99,6 +105,8 @@ export const useManagerStore = create<ManagerState>((set) => ({
     return { expandedClubs: next };
   }),
   setKaderDetailPlayerId: (kaderDetailPlayerId) => set({ kaderDetailPlayerId }),
+  setKaderCountry: (kaderCountry) => set({ kaderCountry, kaderLeague: '' }),
+  setKaderLeague: (kaderLeague) => set({ kaderLeague }),
 
   // ── Tab 3: Historie ──
   historyTimeFilter: 'all',

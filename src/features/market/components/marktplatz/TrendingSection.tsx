@@ -1,8 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Zap } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
+import { useMarketStore } from '@/features/market/store/marketStore';
 import type { Player } from '@/types';
 import type { TrendingPlayer } from '@/lib/services/trading';
 import DiscoveryCard from '../shared/DiscoveryCard';
@@ -14,8 +16,18 @@ type Props = {
 
 export default function TrendingSection({ trending, playerMap }: Props) {
   const t = useTranslations('market');
+  const { selectedLeague } = useMarketStore();
 
-  if (trending.length === 0) {
+  // Filter trending by global league selection
+  const filtered = useMemo(() => {
+    if (!selectedLeague) return trending;
+    return trending.filter(tp => {
+      const player = playerMap.get(tp.playerId);
+      return player?.league === selectedLeague;
+    });
+  }, [trending, playerMap, selectedLeague]);
+
+  if (filtered.length === 0) {
     return (
       <EmptyState
         icon={<Zap className="size-5" />}
@@ -27,7 +39,7 @@ export default function TrendingSection({ trending, playerMap }: Props) {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-      {trending.map(tp => {
+      {filtered.map(tp => {
         const player = playerMap.get(tp.playerId);
         if (!player) return null;
         return (

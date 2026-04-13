@@ -25,7 +25,7 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: { default: 'BeScout - Fan-Engagement Plattform', template: '%s | BeScout' },
-  description: 'Trade Digital Player Cards, Fantasy Events & Research in der TFF 1. Lig.',
+  description: 'Trade Scout Cards, Fantasy Events & Research in Europas Top-Ligen.',
   openGraph: { type: 'website', locale: 'de_DE', siteName: 'BeScout' },
   manifest: '/manifest.webmanifest',
   icons: {

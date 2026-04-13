@@ -29,6 +29,10 @@ interface MarketState {
   filterBestDeals: boolean;
   marketSortBy: SortOption;
 
+  // ── Global country/league filter (shared across all sub-tabs) ──
+  selectedCountry: string;         // '' = alle
+  selectedLeague: string;          // '' = alle
+
   // ── Club Verkauf specific ──
   clubVerkaufLeague: string;
   clubVerkaufExpandedClub: string | null;
@@ -39,6 +43,8 @@ interface MarketState {
   setTab: (t: MarketTab) => void;
   setPortfolioSubTab: (v: PortfolioSubTab) => void;
   setKaufenSubTab: (v: KaufenSubTab) => void;
+  setSelectedCountry: (v: string) => void;
+  setSelectedLeague: (v: string) => void;
   setFilterPos: (pos: Set<Pos>) => void;
   toggleFilterPos: (pos: Pos) => void;
   setFilterMinL5: (v: number) => void;
@@ -65,6 +71,10 @@ export const useMarketStore = create<MarketState>()((set) => ({
   portfolioSubTab: 'bestand',
   kaufenSubTab: 'clubverkauf',
 
+  // ── Global country/league filter ──
+  selectedCountry: '',
+  selectedLeague: '',
+
   // ── Market filters ──
   filterPos: new Set<Pos>(),
   filterMinL5: 0,
@@ -87,6 +97,8 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setTab: (t) => set({ tab: t }),
   setPortfolioSubTab: (v) => set({ portfolioSubTab: v }),
   setKaufenSubTab: (v) => set({ kaufenSubTab: v }),
+  setSelectedCountry: (v) => set({ selectedCountry: v, selectedLeague: '' }),
+  setSelectedLeague: (v) => set({ selectedLeague: v }),
   setFilterPos: (pos) => set({ filterPos: pos }),
   toggleFilterPos: (pos) => set((state) => {
     const next = new Set(state.filterPos);

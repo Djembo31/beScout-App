@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getClub } from '@/lib/clubs';
+import { getLeague } from '@/lib/leagues';
+import type { League } from '@/types';
 import type { DbPlayer, Player, PlayerStatus, Pos } from '@/types';
 import { toPos } from '@/types';
 
@@ -102,6 +104,12 @@ function calcContractMonths(contractEnd?: string | null): number {
   return Math.max(0, months);
 }
 
+/** Resolve league for a club_id via Club → League cache chain. */
+function leagueLookup(clubId: string): League | undefined {
+  const club = getClub(clubId);
+  return club?.league ? getLeague(club.league) : undefined;
+}
+
 /**
  * Konvertiert eine DB-Row in den Frontend Player-Type.
  * Felder die nicht in der DB sind (listings, topOwners, pbt, ipo)
@@ -119,6 +127,9 @@ export function dbToPlayer(db: DbPlayer): Player {
     club: db.club,
     clubId: db.club_id ?? undefined,
     league: db.club_id ? (getClub(db.club_id)?.league ?? undefined) : undefined,
+    leagueShort: db.club_id ? (leagueLookup(db.club_id)?.short ?? undefined) : undefined,
+    leagueLogoUrl: db.club_id ? (leagueLookup(db.club_id)?.logoUrl ?? undefined) : undefined,
+    leagueCountry: db.club_id ? (leagueLookup(db.club_id)?.country ?? undefined) : undefined,
     pos: toPos(db.position),
     status: (db.status as PlayerStatus) ?? 'fit',
     age: db.age ?? 0,

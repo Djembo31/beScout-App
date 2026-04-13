@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { createClub } from '@/lib/services/platformAdmin';
 import { useToast } from '@/components/providers/ToastProvider';
+import { getAllLeaguesCached, getCountryName } from '@/lib/leagues';
 
 interface CreateClubModalProps {
   open: boolean;
@@ -41,8 +42,8 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [short, setShort] = useState('');
-  const [league, setLeague] = useState('TFF 1. Lig');
-  const [country, setCountry] = useState('Türkei');
+  const [league, setLeague] = useState('');
+  const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
   const [plan, setPlan] = useState('baslangic');
   const [loading, setLoading] = useState(false);
@@ -147,14 +148,21 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="club-league" className="block text-xs text-white/60 mb-1">{t('clubLeagueLabel')}</label>
-            <input
+            <select
               id="club-league"
-              type="text"
               value={league}
-              onChange={(e) => setLeague(e.target.value)}
-              placeholder="TFF 1. Lig"
+              onChange={(e) => {
+                const l = getAllLeaguesCached().find(lg => lg.name === e.target.value);
+                setLeague(e.target.value);
+                if (l) setCountry(getCountryName(l.country));
+              }}
               className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
-            />
+            >
+              <option value="">{tc('all')}</option>
+              {getAllLeaguesCached().map(l => (
+                <option key={l.short} value={l.name}>{l.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="club-country" className="block text-xs text-white/60 mb-1">{t('clubCountryLabel')}</label>

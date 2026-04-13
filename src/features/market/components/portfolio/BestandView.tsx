@@ -6,6 +6,9 @@ import { ArrowUpDown, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PosFilter } from '@/components/ui/PosFilter';
+import { CountryBar, LeagueBar } from '@/components/ui/index';
+import { getAllLeaguesCached, getCountryName } from '@/lib/leagues';
+import type { CountryInfo } from '@/lib/leagues';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import { centsToBsd } from '@/lib/services/players';
@@ -54,6 +57,8 @@ export default function BestandView({
   const [sortBy, setSortBy] = useState<SortKey>('value');
   const [filterPos, setFilterPos] = useState<Set<Pos>>(new Set());
   const [filterClub, setFilterClub] = useState<string | null>(null);
+  const [filterCountry, setFilterCountry] = useState<string>('');
+  const [filterLeague, setFilterLeague] = useState<string>('');
   const [sellPlayerId, setSellPlayerId] = useState<string | null>(null);
 
   // ── Build holdings map ──
@@ -134,18 +139,40 @@ export default function BestandView({
     });
   }, [mySquadPlayers, holdingsMap, floorMap, lockedMap, mySellOrdersMap, buyOrderCountMap, incomingOfferCountMap]);
 
-  // ── Position counts (filtered by club if selected, so pos badges reflect club context) ──
+  // ── Countries derived from holdings ──
+  const holdingCountries: CountryInfo[] = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      const cc = item.player.leagueCountry;
+      if (cc) map.set(cc, (map.get(cc) ?? 0) + item.quantity);
+    }
+    return Array.from(map.entries())
+      .map(([code, count]) => ({
+        code,
+        name: getCountryName(code),
+        leagueCount: count,
+      }))
+      .sort((a, b) => b.leagueCount - a.leagueCount);
+  }, [items]);
+
+  // ── Position counts (filtered by active filters, so pos badges reflect context) ──
   const posCounts = useMemo(() => {
     const counts: Record<Pos, number> = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
-    const source = filterClub ? items.filter(i => i.player.clubId === filterClub) : items;
+    let source = items;
+    if (filterCountry) source = source.filter(i => i.player.leagueCountry === filterCountry);
+    if (filterLeague) source = source.filter(i => i.player.league === filterLeague);
+    if (filterClub) source = source.filter(i => i.player.clubId === filterClub);
     for (const i of source) counts[i.player.pos] += i.quantity;
     return counts;
-  }, [items, filterClub]);
+  }, [items, filterCountry, filterLeague, filterClub]);
 
-  // ── Club counts (unfiltered, for filter chips) ──
+  // ── Club counts (filtered by country/league, for filter chips) ──
   const clubCounts = useMemo(() => {
     const map = new Map<string, { club: ClubLookup; count: number }>();
-    for (const i of items) {
+    let source = items;
+    if (filterCountry) source = source.filter(i => i.player.leagueCountry === filterCountry);
+    if (filterLeague) source = source.filter(i => i.player.league === filterLeague);
+    for (const i of source) {
       const clubId = i.player.clubId;
       if (!clubId) continue;
       const entry = map.get(clubId);
@@ -157,11 +184,17 @@ export default function BestandView({
       }
     }
     return Array.from(map.values()).sort((a, b) => b.count - a.count);
-  }, [items]);
+  }, [items, filterCountry, filterLeague]);
 
   // ── Filter items ──
   const filtered = useMemo(() => {
     let result = items;
+    if (filterCountry) {
+      result = result.filter(i => i.player.leagueCountry === filterCountry);
+    }
+    if (filterLeague) {
+      result = result.filter(i => i.player.league === filterLeague);
+    }
     if (filterPos.size > 0) {
       result = result.filter(i => filterPos.has(i.player.pos));
     }
@@ -169,7 +202,7 @@ export default function BestandView({
       result = result.filter(i => i.player.clubId === filterClub);
     }
     return result;
-  }, [items, filterPos, filterClub]);
+  }, [items, filterCountry, filterLeague, filterPos, filterClub]);
 
   // ── Sort ──
   const sorted = useMemo(() => {
@@ -199,6 +232,17 @@ export default function BestandView({
   }, []);
   const handleToggleClub = useCallback((clubId: string) => {
     setFilterClub(prev => prev === clubId ? null : clubId);
+  }, []);
+  const handleCountrySelect = useCallback((code: string) => {
+    setFilterCountry(code);
+    const leagues = code ? getAllLeaguesCached().filter(l => l.country === code) : [];
+    if (leagues.length === 1) setFilterLeague(leagues[0].name);
+    else setFilterLeague('');
+    setFilterClub(null);
+  }, []);
+  const handleLeagueSelect = useCallback((league: string) => {
+    setFilterLeague(league);
+    setFilterClub(null);
   }, []);
 
   // ── Sort options ──
@@ -230,8 +274,21 @@ export default function BestandView({
         scCount={scCount}
       />
 
-      {/* Filters: Position + Club */}
+      {/* Filters: Country + League + Position + Club */}
       <div className="space-y-2">
+        <CountryBar
+          countries={holdingCountries}
+          selected={filterCountry}
+          onSelect={handleCountrySelect}
+        />
+        {filterCountry && (
+          <LeagueBar
+            selected={filterLeague}
+            onSelect={handleLeagueSelect}
+            country={filterCountry}
+            size="sm"
+          />
+        )}
         <PosFilter
           multi
           selected={filterPos}
@@ -266,7 +323,7 @@ export default function BestandView({
       <div className="flex items-center justify-between">
         <span className="text-sm text-white/50">
           {sorted.length} {sorted.length === 1 ? 'Spieler' : 'Spieler'}
-          {(filterPos.size > 0 || filterClub) && ` / ${items.length}`}
+          {(filterPos.size > 0 || filterClub || filterCountry || filterLeague) && ` / ${items.length}`}
         </span>
         <div className="flex items-center gap-1">
           <ArrowUpDown className="size-3.5 text-white/30" aria-hidden="true" />

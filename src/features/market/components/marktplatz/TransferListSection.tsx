@@ -76,6 +76,11 @@ export default function TransferListSection({
   const listingPlayers = useMemo(() => {
     let result = players.filter(p => listings.has(p.id));
 
+    // Global league filter from store
+    if (store.selectedLeague) {
+      result = result.filter(p => p.league === store.selectedLeague);
+    }
+
     // Apply shared filters
     result = applyFilters(result, store);
 
@@ -251,7 +256,7 @@ export default function TransferListSection({
                           aria-label={t('showOrderBook', { defaultMessage: 'Orderbuch anzeigen' })}
                           aria-expanded={isExpanded}
                         >
-                          <span>{t('offerPlural', { count: agg.count })}</span>
+                          <span>{agg.count} {t('offerPlural', { count: agg.count })}</span>
                           <ChevronDown className={cn('size-3 transition-transform', isExpanded && 'rotate-180')} aria-hidden="true" />
                         </button>
                       )}

@@ -2,10 +2,11 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { Package, Tag, MessageSquare, ShoppingCart, CheckSquare, X, Loader2 } from 'lucide-react';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, CountryBar, LeagueBar } from '@/components/ui';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
@@ -88,6 +89,10 @@ export default function KaderTab({
   const expandedClubs = useManagerStore(s => s.expandedClubs);
   const toggleClubExpand = useManagerStore(s => s.toggleClubExpand);
   const setKaderDetailPlayerId = useManagerStore(s => s.setKaderDetailPlayerId);
+  const kaderCountry = useManagerStore(s => s.kaderCountry);
+  const setKaderCountry = useManagerStore(s => s.setKaderCountry);
+  const kaderLeague = useManagerStore(s => s.kaderLeague);
+  const setKaderLeague = useManagerStore(s => s.setKaderLeague);
 
   // Local state
   const [query, setQuery] = useState('');
@@ -190,10 +195,36 @@ export default function KaderTab({
     setBulkMode(false);
   }, [selectedIds, bulkSelling, bestandItems, onSell]);
 
-  const availableClubs = useMemo(() =>
-    Array.from(new Set(bestandItems.map(i => i.player.club))).sort(),
-    [bestandItems]
-  );
+  // Derive unique countries from players in Kader
+  const kaderCountries = useMemo(() => {
+    const allCountries = getCountries();
+    const playerCountryCodes = new Set(
+      bestandItems
+        .map(i => i.player.leagueCountry)
+        .filter((c): c is string => !!c)
+    );
+    return allCountries.filter(c => playerCountryCodes.has(c.code));
+  }, [bestandItems]);
+
+  // Smart collapse: auto-select league when country has only 1 league
+  const smartLeague = useMemo(() => {
+    if (!kaderCountry) return '';
+    const countryLeagues = getLeaguesByCountry(kaderCountry);
+    if (countryLeagues.length === 1) return countryLeagues[0].name;
+    return kaderLeague;
+  }, [kaderCountry, kaderLeague]);
+
+  // Filter available clubs by selected league
+  const availableClubs = useMemo(() => {
+    let items = bestandItems;
+    if (kaderCountry) {
+      items = items.filter(i => i.player.leagueCountry === kaderCountry);
+    }
+    if (smartLeague) {
+      items = items.filter(i => i.player.league === smartLeague);
+    }
+    return Array.from(new Set(items.map(i => i.player.club))).sort();
+  }, [bestandItems, kaderCountry, smartLeague]);
 
   // Summary stats
   const summary = useMemo(() => {
@@ -213,6 +244,13 @@ export default function KaderTab({
   // Filtered + sorted
   const filtered = useMemo(() => {
     let result = [...bestandItems];
+    // Country / League filter
+    if (kaderCountry) {
+      result = result.filter(item => item.player.leagueCountry === kaderCountry);
+    }
+    if (smartLeague) {
+      result = result.filter(item => item.player.league === smartLeague);
+    }
     if (query) {
       const q = query.toLowerCase();
       result = result.filter(item =>
@@ -222,7 +260,7 @@ export default function KaderTab({
     if (posFilter.size > 0) result = result.filter(item => posFilter.has(item.player.pos));
     if (clubFilter) result = result.filter(item => item.player.club === clubFilter);
     return sortItems(result, sortBy, minutesMap);
-  }, [bestandItems, query, posFilter, clubFilter, sortBy, minutesMap]);
+  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, sortBy, minutesMap]);
 
   // Club-grouped data
   const clubGroups = useMemo(() => {
@@ -308,6 +346,19 @@ export default function KaderTab({
       {/* Equipment shortcut → /inventory?tab=equipment */}
       <EquipmentShortcut />
 
+      {/* Country + League Bars */}
+      <CountryBar
+        countries={kaderCountries}
+        selected={kaderCountry}
+        onSelect={setKaderCountry}
+      />
+      <LeagueBar
+        selected={smartLeague}
+        onSelect={setKaderLeague}
+        country={kaderCountry || undefined}
+        size="sm"
+      />
+
       {/* Toolbar */}
       <KaderToolbar
         lens={lens}
@@ -359,7 +410,7 @@ export default function KaderTab({
           />
         ) : (
           <EmptyState icon={<Package />} title={t('bestandFilterEmpty')} description={t('bestandFilterEmptyDesc')}
-            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); }}} />
+            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); }}} />
         )
       )}
 

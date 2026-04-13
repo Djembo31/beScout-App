@@ -3,6 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useUser } from './AuthProvider';
 import { initClubCache } from '@/lib/clubs';
+import { initLeagueCache } from '@/lib/leagues';
 import { getUserFollowedClubs, toggleFollowClub } from '@/lib/services/club';
 import type { DbClub } from '@/types';
 
@@ -74,8 +75,8 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     setLoading(true); // Always reset to loading when user changes
 
     async function load() {
-      // Always init the club cache (sync lookup for getClub() calls)
-      await initClubCache();
+      // Always init the club + league caches (sync lookups for getClub() / getLeague() calls)
+      await Promise.all([initClubCache(), initLeagueCache()]);
 
       if (!user) {
         setFollowedClubs([]);

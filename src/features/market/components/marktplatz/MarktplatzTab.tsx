@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Zap, Search, Send, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
-import { SkeletonCard } from '@/components/ui';
+import { SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
+import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { KaufenSubTab } from '@/features/market/store/marketStore';
 import type { Player, DbIpo, DbOrder } from '@/types';
@@ -63,8 +64,22 @@ export default function MarktplatzTab({
 }: Props) {
   const t = useTranslations('market');
   const tt = useTranslations('tips');
-  const { kaufenSubTab, setKaufenSubTab, setTab, setPortfolioSubTab } = useMarketStore();
+  const {
+    kaufenSubTab, setKaufenSubTab, setTab, setPortfolioSubTab,
+    selectedCountry, setSelectedCountry, selectedLeague, setSelectedLeague,
+  } = useMarketStore();
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const countries = useMemo(() => getCountries(), []);
+
+  // Smart auto-select: when country has only 1 league, auto-set selectedLeague
+  useEffect(() => {
+    if (!selectedCountry) return;
+    const countryLeagues = getLeaguesByCountry(selectedCountry);
+    if (countryLeagues.length === 1) {
+      setSelectedLeague(countryLeagues[0].name);
+    }
+  }, [selectedCountry, setSelectedLeague]);
 
   const getFloor = (p: Player) => floorMap.get(p.id) ?? 0;
 
@@ -77,6 +92,21 @@ export default function MarktplatzTab({
 
   return (
     <>
+      {/* Country + League filter bars */}
+      <CountryBar
+        countries={countries}
+        selected={selectedCountry}
+        onSelect={setSelectedCountry}
+        className="mb-2"
+      />
+      <LeagueBar
+        selected={selectedLeague}
+        onSelect={setSelectedLeague}
+        country={selectedCountry || undefined}
+        size="sm"
+        className="mb-3"
+      />
+
       {/* Sub-Tabs + Search toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
