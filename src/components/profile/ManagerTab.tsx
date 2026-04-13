@@ -25,13 +25,13 @@ interface ManagerTabProps {
 
 const MEDAL: Record<number, string> = { 1: '\u{1F947}', 2: '\u{1F948}', 3: '\u{1F949}' };
 
-const FAN_RANK_LABELS: Record<string, string> = {
-  zuschauer: 'Zuschauer',
-  stammgast: 'Stammgast',
-  ultra: 'Ultra',
-  legende: 'Legende',
-  ehrenmitglied: 'Ehrenmitglied',
-  vereinsikone: 'Vereinsikone',
+const FAN_RANK_KEYS: Record<string, string> = {
+  zuschauer: 'fanRankZuschauer',
+  stammgast: 'fanRankStammgast',
+  ultra: 'fanRankUltra',
+  legende: 'fanRankLegende',
+  ehrenmitglied: 'fanRankEhrenmitglied',
+  vereinsikone: 'fanRankVereinsikone',
 };
 
 export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, favoriteClubId, favoriteClubName }: ManagerTabProps) {
@@ -151,7 +151,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
           <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.06] border border-gold/15">
             <div className="text-center">
               <div className="text-sm font-black text-gold">
-                {FAN_RANK_LABELS[fanRanking.rank_tier] ?? fanRanking.rank_tier}
+                {FAN_RANK_KEYS[fanRanking.rank_tier] ? t(FAN_RANK_KEYS[fanRanking.rank_tier]) : fanRanking.rank_tier}
               </div>
               {favoriteClubName && (
                 <div className="text-[10px] text-white/40 mt-0.5">{favoriteClubName}</div>

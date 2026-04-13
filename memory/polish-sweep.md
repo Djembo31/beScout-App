@@ -92,8 +92,8 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 | 2 | Market | `/market` → `market` | Mein Kader (Bestand/Angebote) + Marktplatz (Club Verkauf/Von Usern/Trending/Watchlist) | SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal | ✅ done |
 | 3 | Fantasy | `/fantasy` → `fantasy` | Spiele / Events / Mitmachen / Ergebnisse | EventDetail, Summary, CreatePrediction, FixtureDetail, CreateEvent | ✅ done |
 | 4 | Player Detail | `/player/[id]` → `player` | — | Buy, Sell, LimitOrder, Offer | ✅ done |
-| 5 | Profile (eigen) | `/profile` → `profile` | Übersicht / Holdings / Verlauf / Timeline | FollowList | ⏳ |
-| 6 | Inventory | `/inventory` → `inventory` | equipment / cosmetics / wildcards / history | EquipmentDetail | ⏳ |
+| 5 | Profile (eigen) | `/profile` → `profile` | Übersicht / Holdings / Verlauf / Timeline | FollowList | ✅ done |
+| 6 | Inventory | `/inventory` → `inventory` | equipment / cosmetics / wildcards / history | EquipmentDetail | ✅ done |
 
 ## Phase 2 — Supporting Pages (12 Pages)
 
@@ -186,3 +186,7 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
   - **Fantasy → ✅ done**
 - **2026-04-13** — Player Detail Polish: Visuell auf bescout.net geprueft (Emre Demir MID). Compliance-Scan aller Components. KRITISCH: "Gewinn / Verlust" und "G/V"/"K/Z"/"P&L" in 8 i18n-Keys war verbotenes Wording → APP-WEIT gefixt zu "+/−" (kurz) und "Wertänderung" (lang). Betrifft: Player Detail, Market Bestand, Manager, Profile Stats.
   - **Player Detail → ✅ done**
+- **2026-04-13** — Profile Polish: 4 Tabs (Manager/Trader/Analyst/Timeline) geprueft. FAN_RANK_LABELS hardcoded deutsch → i18n Keys (6 Rang-Stufen DE + TR). Inventory: CLEAN, keine Fixes noetig.
+  - **Profile → ✅ done**
+  - **Inventory → ✅ done**
+  - **Phase 1 Critical Path (6 Pages) KOMPLETT ✅**
