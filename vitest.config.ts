@@ -2,10 +2,10 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// Integration tests hit the live Supabase (read-only). They need
-// SUPABASE_SERVICE_ROLE_KEY in .env.local to run. In CI without that secret
-// we skip them so the rest of the unit suite stays green.
-const skipIntegration = !!process.env.CI && !process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Integration tests hit the live Supabase (read-only). They depend on
+// DB state which can change independently of code, so we always skip
+// them in CI. Run locally with: npx vitest run src/lib/__tests__/
+const skipIntegration = !!process.env.CI;
 
 const integrationGlobs = [
   'src/lib/__tests__/auth/rls-checks.test.ts',

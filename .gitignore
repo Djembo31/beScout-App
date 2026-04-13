@@ -85,6 +85,11 @@ supabase/.temp/
 /qa-screenshots/
 /e2e/screenshots/
 
+# Loose QA/debug screenshots in project root
+/*.png
+/*.jpg
+!public/**
+
 # Lighthouse
 lighthouse-report.json
 
