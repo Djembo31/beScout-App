@@ -89,8 +89,8 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 | # | Page | Slug | Sub-Routes / Tabs | Modals | Status |
 |---|------|------|-------------------|--------|--------|
-| 2 | Market | `/market` → `market` | Mein Kader (Bestand/Angebote) + Marktplatz (Club Verkauf/Von Usern/Trending/Watchlist) | SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal | 🔨 in_progress |
-| 3 | Fantasy | `/fantasy` → `fantasy` | Spiele / Events / Mitmachen / Ergebnisse | EventDetail, Summary, CreatePrediction, FixtureDetail, CreateEvent | ⏳ |
+| 2 | Market | `/market` → `market` | Mein Kader (Bestand/Angebote) + Marktplatz (Club Verkauf/Von Usern/Trending/Watchlist) | SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal | ✅ done |
+| 3 | Fantasy | `/fantasy` → `fantasy` | Spiele / Events / Mitmachen / Ergebnisse | EventDetail, Summary, CreatePrediction, FixtureDetail, CreateEvent | ✅ done |
 | 4 | Player Detail | `/player/[id]` → `player` | — | Buy, Sell, LimitOrder, Offer | ⏳ |
 | 5 | Profile (eigen) | `/profile` → `profile` | Übersicht / Holdings / Verlauf / Timeline | FollowList | ⏳ |
 | 6 | Inventory | `/inventory` → `inventory` | equipment / cosmetics / wildcards / history | EquipmentDetail | ⏳ |
@@ -180,3 +180,7 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
   - i18n: Hardcoded "Lizenzen" in DiscoveryCard → neuer `discoveryOnMarket` Key (DE + TR)
   - Null verbleibende "Lizenzen"/"lisans" Instanzen in i18n-Files
   - Naechster Schritt: Angebote-Tab + Modals (SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal) durchgehen
+  - Angebote-Tab + alle 4 Trading-Modals geprueft — sauber, keine Fixes noetig
+  - **Market → ✅ done** (alle Tabs, Sub-Tabs, Modals)
+- **2026-04-13** — Fantasy Page Polish: Alle 4 Tabs (Spiele/Events/Mitmachen/Ergebnisse) auf bescout.net geprueft. Code-Analyse aller Components + Modals. Compliance-Check: "Halter-Bonus" (kein "Ownership"), "Scout Cards" (kein "DPC"/"Lizenzen"). Keine Fixes noetig.
+  - **Fantasy → ✅ done**
