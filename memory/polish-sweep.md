@@ -91,7 +91,7 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 |---|------|------|-------------------|--------|--------|
 | 2 | Market | `/market` → `market` | Mein Kader (Bestand/Angebote) + Marktplatz (Club Verkauf/Von Usern/Trending/Watchlist) | SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal | ✅ done |
 | 3 | Fantasy | `/fantasy` → `fantasy` | Spiele / Events / Mitmachen / Ergebnisse | EventDetail, Summary, CreatePrediction, FixtureDetail, CreateEvent | ✅ done |
-| 4 | Player Detail | `/player/[id]` → `player` | — | Buy, Sell, LimitOrder, Offer | ⏳ |
+| 4 | Player Detail | `/player/[id]` → `player` | — | Buy, Sell, LimitOrder, Offer | ✅ done |
 | 5 | Profile (eigen) | `/profile` → `profile` | Übersicht / Holdings / Verlauf / Timeline | FollowList | ⏳ |
 | 6 | Inventory | `/inventory` → `inventory` | equipment / cosmetics / wildcards / history | EquipmentDetail | ⏳ |
 
@@ -184,3 +184,5 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
   - **Market → ✅ done** (alle Tabs, Sub-Tabs, Modals)
 - **2026-04-13** — Fantasy Page Polish: Alle 4 Tabs (Spiele/Events/Mitmachen/Ergebnisse) auf bescout.net geprueft. Code-Analyse aller Components + Modals. Compliance-Check: "Halter-Bonus" (kein "Ownership"), "Scout Cards" (kein "DPC"/"Lizenzen"). Keine Fixes noetig.
   - **Fantasy → ✅ done**
+- **2026-04-13** — Player Detail Polish: Visuell auf bescout.net geprueft (Emre Demir MID). Compliance-Scan aller Components. KRITISCH: "Gewinn / Verlust" und "G/V"/"K/Z"/"P&L" in 8 i18n-Keys war verbotenes Wording → APP-WEIT gefixt zu "+/−" (kurz) und "Wertänderung" (lang). Betrifft: Player Detail, Market Bestand, Manager, Profile Stats.
+  - **Player Detail → ✅ done**
