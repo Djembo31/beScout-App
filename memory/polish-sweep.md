@@ -99,18 +99,18 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 | # | Page | Slug | Status |
 |---|------|------|--------|
-| 7 | Manager | `/manager` → `manager` | ⏳ |
-| 8 | Missions | `/missions` → `missions` | ⏳ |
-| 9 | Community | `/community` → `community` | ⏳ |
-| 10 | Transactions | `/transactions` → `transactions` | ⏳ |
-| 11 | Clubs | `/clubs` → `clubs` | ⏳ |
-| 12 | Club (eigen) | `/club` → `club-own` | ⏳ |
-| 13 | Club Detail | `/club/[slug]` → `club-detail` | ⏳ |
-| 14 | Compare | `/compare` → `compare` | ⏳ |
-| 15 | Airdrop | `/airdrop` → `airdrop` | ⏳ |
-| 16 | Founding | `/founding` → `founding` | ⏳ |
-| 17 | Profile (public) | `/profile/[handle]` → `profile-public` | ⏳ |
-| 18 | Profile Settings | `/profile/settings` → `profile-settings` | ⏳ |
+| 7 | Manager | `/manager` → `manager` | ✅ done |
+| 8 | Missions | `/missions` → `missions` | ✅ done |
+| 9 | Community | `/community` → `community` | ✅ done |
+| 10 | Transactions | `/transactions` → `transactions` | ✅ done |
+| 11 | Clubs | `/clubs` → `clubs` | ✅ done |
+| 12 | Club (eigen) | `/club` → `club-own` | ✅ done |
+| 13 | Club Detail | `/club/[slug]` → `club-detail` | ✅ done |
+| 14 | Compare | `/compare` → `compare` | ✅ done |
+| 15 | Airdrop | `/airdrop` → `airdrop` | ✅ done |
+| 16 | Founding | `/founding` → `founding` | ✅ done |
+| 17 | Profile (public) | `/profile/[handle]` → `profile-public` | ✅ done |
+| 18 | Profile Settings | `/profile/settings` → `profile-settings` | ✅ done |
 
 ## Phase 3 — Auth / Onboarding / Public (5 Pages)
 
@@ -190,3 +190,8 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
   - **Profile → ✅ done**
   - **Inventory → ✅ done**
   - **Phase 1 Critical Path (6 Pages) KOMPLETT ✅**
+- **2026-04-13** — Phase 2 Supporting Pages: Compliance-Scan aller 12 Pages via Agent-Batches. Ergebnis:
+  - Manager CLEAN, Missions CLEAN, Community CLEAN (nur "Follower" loanword), Transactions CLEAN (nur "Tickets"/"CR" loanwords)
+  - Clubs CLEAN, Club Detail CLEAN (SEO metadata minor), Compare CLEAN, Airdrop CLEAN, Founding CLEAN
+  - MembershipSection: "CR / Monat" → `ts('perMonth')` gefixt (TR-User sahen deutsch)
+  - **Phase 2 Supporting Pages (12 Pages) KOMPLETT ✅**
