@@ -17,7 +17,7 @@ export async function reportContent(
     p_reason: reason,
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) throw new Error(error.message);
 
   const result = data as { success: boolean; error?: string };
   return result;
@@ -41,10 +41,7 @@ export async function getPendingReports(
   }
 
   const { data, error } = await query;
-  if (error) {
-    console.error('[ContentReports] getPendingReports:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
 
   const reports = (data ?? []) as ContentReportWithDetails[];
 
@@ -146,7 +143,7 @@ export async function resolveReport(
     })
     .eq('id', reportId);
 
-  if (error) return { success: false, error: error.message };
+  if (error) throw new Error(error.message);
 
   // Notify reporter
   import('@/lib/services/notifications').then(m => {

@@ -23,7 +23,7 @@ export async function getClubById(clubId: string): Promise<DbClub | null> {
     .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .eq('id', clubId)
     .maybeSingle();
-  if (error) { console.error('[Club] getClubById failed:', error); return null; }
+  if (error) throw new Error(error.message);
   if (!data) return null;
   return data as DbClub;
 }
@@ -244,7 +244,8 @@ export async function getUserFollowedClubs(userId: string): Promise<DbClub[]> {
     .eq('user_id', userId)
     .order('is_primary', { ascending: false });
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
   return data.map((row) => {
     const club = row.clubs as unknown as DbClub;
     return club;
@@ -306,7 +307,8 @@ export async function getClubsWithStats(): Promise<Array<DbClub & { follower_cou
       .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
       .order('name');
 
-  if (error || !clubs) return [];
+  if (error) throw new Error(error.message);
+  if (!clubs) return [];
 
   // Get follower counts
   const clubIds = clubs.map(c => c.id);
@@ -410,7 +412,7 @@ export async function getClubRecentTrades(
     .order('executed_at', { ascending: false })
     .limit(limit);
 
-  if (error) return [];
+  if (error) throw new Error(error.message);
   return (trades ?? []) as unknown as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
 }
 
@@ -451,10 +453,7 @@ export async function getClubAdmins(clubId: string): Promise<(DbClubAdmin & { ha
     .select('*, profiles!user_id(handle, display_name)')
     .eq('club_id', clubId);
 
-  if (error) {
-    console.error(`[Club] getClubAdmins failed (club=${clubId}):`, error.message);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []).map((row: Record<string, unknown>) => {
     const profiles = row.profiles as { handle: string; display_name: string | null } | null;
     return {
@@ -642,10 +641,7 @@ export async function getClubWithdrawals(clubId: string): Promise<(DbClubWithdra
     .eq('club_id', clubId)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error(`[Club] getClubWithdrawals failed (club=${clubId}):`, error.message);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []).map((row: Record<string, unknown>) => {
     const profiles = row.profiles as { handle: string } | null;
     return {

@@ -27,11 +27,9 @@ describe('getScoreRoadClaims', () => {
     expect(mockSupabase.from).toHaveBeenCalledWith('score_road_claims');
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('score_road_claims', null, { message: 'err' });
-    expect(await getScoreRoadClaims('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getScoreRoadClaims('u1')).rejects.toThrow('err');
   });
 
   it('returns [] when data is null', async () => {
@@ -118,11 +116,9 @@ describe('getScoreHistory', () => {
     // Function should work without errors
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('score_history', null, { message: 'err' });
-    expect(await getScoreHistory('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getScoreHistory('u1')).rejects.toThrow('err');
   });
 
   it('returns [] when data is null', async () => {

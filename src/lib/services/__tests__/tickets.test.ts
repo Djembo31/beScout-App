@@ -18,11 +18,9 @@ describe('getUserTickets', () => {
     expect(result).toEqual({ user_id: 'u1', balance: 50 });
   });
 
-  it('returns null on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on RPC error', async () => {
     mockRpc('get_user_tickets', null, { message: 'err' });
-    expect(await getUserTickets('u1')).toBeNull();
-    consoleSpy.mockRestore();
+    await expect(getUserTickets('u1')).rejects.toThrow('err');
   });
 
   it('returns null when no data', async () => {
@@ -38,11 +36,9 @@ describe('getTicketTransactions', () => {
     expect(await getTicketTransactions('u1')).toEqual(txns);
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('ticket_transactions', null, { message: 'err' });
-    expect(await getTicketTransactions('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getTicketTransactions('u1')).rejects.toThrow('err');
   });
 
   it('returns [] when null data', async () => {

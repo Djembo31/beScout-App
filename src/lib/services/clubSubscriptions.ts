@@ -67,7 +67,8 @@ export async function getActiveSubscriptionsByUsers(userIds: string[]): Promise<
     .in('user_id', userIds)
     .eq('status', 'active')
     .gt('expires_at', new Date().toISOString());
-  if (error || !data) return new Map();
+  if (error) throw new Error(error.message);
+  if (!data) return new Map();
   // If user has multiple subs, pick highest tier
   const tierRank: Record<string, number> = { bronze: 1, silber: 2, gold: 3 };
   const result = new Map<string, SubscriptionTier>();
@@ -91,7 +92,8 @@ export async function getMySubscription(userId: string, clubId: string): Promise
     .eq('status', 'active')
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) throw new Error(error.message);
+  if (!data) return null;
   return data as ClubSubscription;
 }
 
@@ -148,7 +150,8 @@ export async function getClubSubscribers(clubId: string): Promise<{
     .eq('club_id', clubId)
     .eq('status', 'active');
 
-  if (error || !data) return { total: 0, byTier: { bronze: 0, silber: 0, gold: 0 }, revenueCents: 0 };
+  if (error) throw new Error(error.message);
+  if (!data) return { total: 0, byTier: { bronze: 0, silber: 0, gold: 0 }, revenueCents: 0 };
 
   const byTier = { bronze: 0, silber: 0, gold: 0 };
   let revenueCents = 0;

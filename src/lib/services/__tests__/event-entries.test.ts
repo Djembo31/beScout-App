@@ -212,11 +212,10 @@ describe('getUserEnteredEventIds', () => {
     expect(result).toEqual(['evt-1', 'evt-2']);
   });
 
-  it('returns empty array on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('event_entries', null, { message: 'RLS error' });
 
-    const result = await getUserEnteredEventIds('u1');
-    expect(result).toEqual([]);
+    await expect(getUserEnteredEventIds('u1')).rejects.toThrow('RLS error');
   });
 });
 

@@ -21,11 +21,9 @@ describe('getUserCosmetics', () => {
     expect(result[0].cosmetic.name).toBe('Gold Frame');
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('user_cosmetics', null, { message: 'err' });
-    expect(await getUserCosmetics('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getUserCosmetics('u1')).rejects.toThrow('err');
   });
 
   it('returns [] when null data', async () => {
@@ -46,11 +44,9 @@ describe('getEquippedCosmetics', () => {
     expect(result[0].equipped).toBe(true);
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('user_cosmetics', null, { message: 'err' });
-    expect(await getEquippedCosmetics('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getEquippedCosmetics('u1')).rejects.toThrow('err');
   });
 });
 
@@ -80,12 +76,9 @@ describe('getBatchEquippedCosmetics', () => {
     // Should work without issues
   });
 
-  it('returns empty Map on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('user_cosmetics', null, { message: 'err' });
-    const result = await getBatchEquippedCosmetics(['u1']);
-    expect(result.size).toBe(0);
-    consoleSpy.mockRestore();
+    await expect(getBatchEquippedCosmetics(['u1'])).rejects.toThrow('err');
   });
 
   it('initializes missing users with null values', async () => {
@@ -133,11 +126,9 @@ describe('getAllCosmetics', () => {
     expect(await getAllCosmetics()).toEqual(defs);
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('cosmetic_definitions', null, { message: 'err' });
-    expect(await getAllCosmetics()).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getAllCosmetics()).rejects.toThrow('err');
   });
 
   it('returns [] when null data', async () => {

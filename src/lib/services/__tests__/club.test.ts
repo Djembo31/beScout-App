@@ -45,9 +45,9 @@ describe('getClubById', () => {
     mockTable('clubs', { id: 'c1', name: 'Test' });
     expect((await getClubById('c1'))?.name).toBe('Test');
   });
-  it('returns null on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('clubs', null, { message: 'err' });
-    expect(await getClubById('c1')).toBeNull();
+    await expect(getClubById('c1')).rejects.toThrow('err');
   });
 });
 
@@ -164,9 +164,9 @@ describe('getUserFollowedClubs', () => {
     const result = await getUserFollowedClubs('u1');
     expect(result).toHaveLength(1);
   });
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('club_followers', null, { message: 'err' });
-    expect(await getUserFollowedClubs('u1')).toEqual([]);
+    await expect(getUserFollowedClubs('u1')).rejects.toThrow('err');
   });
 });
 
@@ -194,9 +194,9 @@ describe('getClubsWithStats', () => {
     expect(result[0].follower_count).toBe(2);
     expect(result[0].player_count).toBe(3);
   });
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('clubs', null, { message: 'err' });
-    expect(await getClubsWithStats()).toEqual([]);
+    await expect(getClubsWithStats()).rejects.toThrow('err');
   });
 });
 
@@ -266,11 +266,9 @@ describe('getClubAdmins', () => {
     const result = await getClubAdmins('c1');
     expect(result[0].handle).toBe('alice');
   });
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('club_admins', null, { message: 'err' });
-    expect(await getClubAdmins('c1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getClubAdmins('c1')).rejects.toThrow('err');
   });
 });
 
@@ -391,11 +389,9 @@ describe('getClubWithdrawals', () => {
     const result = await getClubWithdrawals('c1');
     expect(result[0].requester_handle).toBe('admin');
   });
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('club_withdrawals', null, { message: 'err' });
-    expect(await getClubWithdrawals('c1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getClubWithdrawals('c1')).rejects.toThrow('err');
   });
 });
 

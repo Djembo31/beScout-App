@@ -65,21 +65,23 @@ async function enrichBounties(
 ): Promise<BountyWithCreator[]> {
   // Fetch creator profiles
   const creatorIds = Array.from(new Set(bounties.map(b => b.created_by)));
-  const { data: profiles } = await supabase
+  const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
     .select('id, handle, display_name, avatar_url')
     .in('id', creatorIds);
 
+  if (profilesError) throw new Error(profilesError.message);
   const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
 
   // Fetch player names if any bounty references a player
   const playerIds = bounties.map(b => b.player_id).filter(Boolean) as string[];
   let playerMap = new Map<string, { name: string; position: string }>();
   if (playerIds.length > 0) {
-    const { data: players } = await supabase
+    const { data: players, error: playersError } = await supabase
       .from('players')
       .select('id, first_name, last_name, position')
       .in('id', playerIds);
+    if (playersError) throw new Error(playersError.message);
     if (players) {
       playerMap = new Map(players.map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, position: p.position }]));
     }
@@ -88,10 +90,11 @@ async function enrichBounties(
   // Check user submissions
   let userSubmittedIds = new Set<string>();
   if (currentUserId) {
-    const { data: subs } = await supabase
+    const { data: subs, error: subsError } = await supabase
       .from('bounty_submissions')
       .select('bounty_id')
       .eq('user_id', currentUserId);
+    if (subsError) throw new Error(subsError.message);
     if (subs) userSubmittedIds = new Set(subs.map(s => s.bounty_id));
   }
 

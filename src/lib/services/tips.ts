@@ -18,10 +18,7 @@ export async function getTipsForContent(
     .eq('content_id', contentId)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('[Tips] getTipsForContent failed:', error);
-    return { tips: [], totalCents: 0, count: 0 };
-  }
+  if (error) throw new Error(error.message);
 
   const tips = (data ?? []) as DbTip[];
   const totalCents = tips.reduce((sum, t) => sum + t.amount_cents, 0);
@@ -35,10 +32,7 @@ export async function getTipsReceived(userId: string): Promise<number> {
     .select('receiver_earned_cents')
     .eq('receiver_id', userId);
 
-  if (error) {
-    console.error('[Tips] getTipsReceived failed:', error);
-    return 0;
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []).reduce((sum, t) => sum + (t.receiver_earned_cents ?? 0), 0);
 }
 
@@ -49,10 +43,7 @@ export async function getTipsSent(userId: string): Promise<number> {
     .select('amount_cents')
     .eq('sender_id', userId);
 
-  if (error) {
-    console.error('[Tips] getTipsSent failed:', error);
-    return 0;
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []).reduce((sum, t) => sum + (t.amount_cents ?? 0), 0);
 }
 

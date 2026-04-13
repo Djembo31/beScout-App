@@ -14,10 +14,7 @@ export async function getUserFoundingPasses(userId: string): Promise<DbUserFound
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('[FoundingPasses] getUserFoundingPasses error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbUserFoundingPass[];
 }
 
@@ -68,29 +65,22 @@ export async function grantFoundingPass(
 
 /** Get sold counts per tier (for public display) */
 export async function getFoundingPassCounts(): Promise<{ total: number; byTier: Record<FoundingPassTier, number> }> {
-  const result: Record<FoundingPassTier, number> = { fan: 0, scout: 0, pro: 0, founder: 0 };
-  try {
-    const { data, error } = await supabase
-      .from('user_founding_passes')
-      .select('tier');
+  const { data, error } = await supabase
+    .from('user_founding_passes')
+    .select('tier');
 
-    if (error) {
-      console.error('[FoundingPasses] getFoundingPassCounts error:', error);
-      return { total: 0, byTier: result };
+  if (error) throw new Error(error.message);
+
+  const result: Record<FoundingPassTier, number> = { fan: 0, scout: 0, pro: 0, founder: 0 };
+  let total = 0;
+  for (const row of data ?? []) {
+    const t = row.tier as FoundingPassTier;
+    if (t in result) {
+      result[t]++;
+      total++;
     }
-    let total = 0;
-    for (const row of data ?? []) {
-      const t = row.tier as FoundingPassTier;
-      if (t in result) {
-        result[t]++;
-        total++;
-      }
-    }
-    return { total, byTier: result };
-  } catch (err) {
-    console.error('[FoundingPasses] getFoundingPassCounts error:', err);
-    return { total: 0, byTier: result };
   }
+  return { total, byTier: result };
 }
 
 /** Quick check: does user have any founding pass? */

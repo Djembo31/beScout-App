@@ -17,12 +17,13 @@ export type RateResult = {
 
 /** Lightweight sentiment counts for a single player (used in buy confirmation) */
 export async function getPlayerSentimentCounts(playerId: string) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('research_posts')
     .select('call')
     .eq('player_id', playerId)
     .order('created_at', { ascending: false })
     .limit(100);
+  if (error) throw new Error(error.message);
   if (!data) return { bullish: 0, bearish: 0, neutral: 0, total: 0 };
   const bullish = data.filter(r => r.call === 'Bullish').length;
   const bearish = data.filter(r => r.call === 'Bearish').length;
@@ -391,9 +392,8 @@ export async function resolveExpiredResearch(): Promise<number> {
   _resolvePromise = (async () => {
     const { data, error } = await supabase.rpc('resolve_expired_research');
     if (error) {
-      console.error('[Research] resolveExpiredResearch RPC failed:', error.message);
       _resolvePromise = null; // allow retry on error
-      return 0;
+      throw new Error(error.message);
     }
     return (data as { resolved: number })?.resolved ?? 0;
   })();
@@ -407,7 +407,8 @@ export async function getAuthorTrackRecord(userId: string): Promise<AuthorTrackR
     .eq('user_id', userId)
     .gt('price_at_creation', 0);
 
-  if (error || !data) return { totalCalls: 0, correctCalls: 0, incorrectCalls: 0, pendingCalls: 0, hitRate: 0 };
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return { totalCalls: 0, correctCalls: 0, incorrectCalls: 0, pendingCalls: 0, hitRate: 0 };
 
   let correctCalls = 0;
   let incorrectCalls = 0;

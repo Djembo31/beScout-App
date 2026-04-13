@@ -545,12 +545,9 @@ describe('getAllEventsAdmin', () => {
     expect(result).toHaveLength(1);
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('events', null, { message: 'Admin query failed' });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const result = await getAllEventsAdmin();
-    expect(result).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getAllEventsAdmin()).rejects.toThrow('Admin query failed');
   });
 
   it('returns [] when data is null', async () => {
@@ -668,12 +665,9 @@ describe('getEventAdminStats', () => {
     expect(stats.activeCount).toBe(1);
   });
 
-  it('returns zeros on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('events', null, { message: 'err' });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const stats = await getEventAdminStats();
-    expect(stats).toEqual({ activeCount: 0, totalParticipants: 0, totalPool: 0 });
-    consoleSpy.mockRestore();
+    await expect(getEventAdminStats()).rejects.toThrow('err');
   });
 
   it('handles null current_entries and prize_pool', async () => {

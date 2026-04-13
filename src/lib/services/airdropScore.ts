@@ -11,7 +11,8 @@ export async function getAirdropScore(userId: string): Promise<DbAirdropScore | 
     .select('*')
     .eq('user_id', userId)
     .maybeSingle();
-  if (error || !data) return null;
+  if (error) throw new Error(error.message);
+  if (!data) return null;
   return data as DbAirdropScore;
 }
 
@@ -28,7 +29,8 @@ export async function getAirdropLeaderboard(limit = 50): Promise<AirdropLeaderbo
     .order('total_score', { ascending: false })
     .limit(limit);
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
   return (data as Array<Record<string, unknown>>).map(row => {
     const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
     const { profiles: _p, ...score } = row;
@@ -53,7 +55,8 @@ export async function getAirdropStats(): Promise<AirdropStats> {
     .select('total_score, tier')
     .limit(1000);
 
-  if (error || !data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silber: 0, gold: 0, diamond: 0 } };
+  if (error) throw new Error(error.message);
+  if (!data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silber: 0, gold: 0, diamond: 0 } };
 
   const dist = { bronze: 0, silber: 0, gold: 0, diamond: 0 };
   let sum = 0;
@@ -76,10 +79,7 @@ export async function getAirdropStats(): Promise<AirdropStats> {
 export async function refreshAirdropScore(userId: string): Promise<DbAirdropScore | null> {
   // Use wrapper RPC that calls auth.uid() internally (direct refresh_airdrop_score is REVOKED)
   const { data, error } = await supabase.rpc('refresh_my_airdrop_score');
-  if (error) {
-    console.error('[Airdrop] Refresh failed:', error.message);
-    return null;
-  }
+  if (error) throw new Error(error.message);
   // Re-fetch full row
   const { data: row } = await supabase
     .from('airdrop_scores')

@@ -14,9 +14,9 @@ describe('getAirdropScore', () => {
     mockTable('airdrop_scores', score);
     expect(await getAirdropScore('u1')).toEqual(score);
   });
-  it('returns null on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('airdrop_scores', null, { message: 'err' });
-    expect(await getAirdropScore('u1')).toBeNull();
+    await expect(getAirdropScore('u1')).rejects.toThrow('err');
   });
   it('returns null when no data', async () => {
     mockTable('airdrop_scores', null);
@@ -45,9 +45,9 @@ describe('getAirdropLeaderboard', () => {
     expect(result[0].handle).toBe('bob');
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('airdrop_scores', null, { message: 'err' });
-    expect(await getAirdropLeaderboard()).toEqual([]);
+    await expect(getAirdropLeaderboard()).rejects.toThrow('err');
   });
 
   it('returns [] when null data', async () => {
@@ -70,11 +70,9 @@ describe('getAirdropStats', () => {
     expect(stats.tier_distribution).toEqual({ bronze: 1, silber: 1, gold: 1, diamond: 1 });
   });
 
-  it('returns zeros on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('airdrop_scores', null, { message: 'err' });
-    expect(await getAirdropStats()).toEqual({
-      total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silber: 0, gold: 0, diamond: 0 },
-    });
+    await expect(getAirdropStats()).rejects.toThrow('err');
   });
 
   it('ignores unknown tiers', async () => {
@@ -100,11 +98,9 @@ describe('refreshAirdropScore', () => {
     expect(result?.total_score).toBe(1600);
   });
 
-  it('returns null on RPC error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on RPC error', async () => {
     mockRpc('refresh_my_airdrop_score', null, { message: 'err' });
-    expect(await refreshAirdropScore('u1')).toBeNull();
-    consoleSpy.mockRestore();
+    await expect(refreshAirdropScore('u1')).rejects.toThrow('err');
   });
 });
 

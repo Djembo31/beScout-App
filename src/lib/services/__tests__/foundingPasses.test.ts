@@ -25,11 +25,9 @@ describe('getUserFoundingPasses', () => {
     expect(await getUserFoundingPasses('u1')).toEqual(passes);
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('user_founding_passes', null, { message: 'err' });
-    expect(await getUserFoundingPasses('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getUserFoundingPasses('u1')).rejects.toThrow('err');
   });
 
   it('returns [] when null data', async () => {
@@ -100,12 +98,9 @@ describe('getFoundingPassCounts', () => {
     expect(result.byTier).toEqual({ fan: 2, scout: 1, pro: 1, founder: 1 });
   });
 
-  it('returns zeros on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('user_founding_passes', null, { message: 'err' });
-    const result = await getFoundingPassCounts();
-    expect(result.total).toBe(0);
-    consoleSpy.mockRestore();
+    await expect(getFoundingPassCounts()).rejects.toThrow('err');
   });
 
   it('ignores unknown tiers', async () => {

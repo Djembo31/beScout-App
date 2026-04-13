@@ -108,7 +108,7 @@ export async function submitScoutMission(
     p_gameweek: gameweek,
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) throw new Error(error.message);
   const result = data as { success: boolean; error?: string; reward_cents?: number };
   return {
     success: result.success,
@@ -129,7 +129,7 @@ export async function claimScoutMissionReward(
     p_gameweek: gameweek,
   });
 
-  if (error) return { success: false, error: error.message };
+  if (error) throw new Error(error.message);
   const result = data as { success: boolean; error?: string; reward_cents?: number };
   return {
     success: result.success,

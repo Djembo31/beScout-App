@@ -91,10 +91,7 @@ export async function countFreeMysteryBoxesToday(userId: string): Promise<number
     .eq('ticket_cost', 0)
     .gte('opened_at', startOfUtcDay.toISOString());
 
-  if (error) {
-    console.error('[MysteryBox] countFreeMysteryBoxesToday error:', error);
-    return 0;
-  }
+  if (error) throw new Error(error.message);
   return count ?? 0;
 }
 
@@ -107,9 +104,6 @@ export async function getMysteryBoxHistory(userId: string, limit = 20): Promise<
     .order('opened_at', { ascending: false })
     .limit(limit);
 
-  if (error) {
-    console.error('[MysteryBox] getMysteryBoxHistory error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as MysteryBoxResult[];
 }

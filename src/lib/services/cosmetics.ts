@@ -13,10 +13,7 @@ export async function getUserCosmetics(userId: string): Promise<UserCosmeticWith
     .eq('user_id', userId)
     .order('acquired_at', { ascending: false });
 
-  if (error) {
-    console.error('[Cosmetics] getUserCosmetics error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
 
   // Map PostgREST join to our expected shape
   return ((data ?? []) as Array<Record<string, unknown>>).map(row => ({
@@ -38,10 +35,7 @@ export async function getEquippedCosmetics(userId: string): Promise<UserCosmetic
     .eq('user_id', userId)
     .eq('equipped', true);
 
-  if (error) {
-    console.error('[Cosmetics] getEquippedCosmetics error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
 
   return ((data ?? []) as Array<Record<string, unknown>>).map(row => ({
     id: row.id as string,
@@ -75,10 +69,8 @@ export async function getBatchEquippedCosmetics(
     .in('user_id', unique)
     .eq('equipped', true);
 
-  if (error || !data) {
-    console.error('[Cosmetics] getBatchEquippedCosmetics error:', error);
-    return result;
-  }
+  if (error) throw new Error(error.message);
+  if (!data) return result;
 
   for (const row of data as Array<Record<string, unknown>>) {
     const uid = row.user_id as string;
@@ -126,9 +118,6 @@ export async function getAllCosmetics(): Promise<DbCosmeticDefinition[]> {
     .order('rarity')
     .order('type');
 
-  if (error) {
-    console.error('[Cosmetics] getAllCosmetics error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbCosmeticDefinition[];
 }

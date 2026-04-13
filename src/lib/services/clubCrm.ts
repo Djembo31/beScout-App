@@ -51,6 +51,10 @@ export async function getClubFanSegments(clubId: string): Promise<FanSegment[]> 
       .eq('club_id', clubId),
   ]);
 
+  if (followResult.error) throw new Error(followResult.error.message);
+  if (subsResult.error) throw new Error(subsResult.error.message);
+  if (playersResult.error) throw new Error(playersResult.error.message);
+
   const followerCount = followResult.count ?? 0;
   const subs = subsResult.data ?? [];
   const playerIds = (playersResult.data ?? []).map(p => p.id);
@@ -103,6 +107,9 @@ export async function getClubFanList(
       .eq('club_id', clubId),
   ]);
 
+  if (followersResult.error) throw new Error(followersResult.error.message);
+  if (clubPlayersResult.error) throw new Error(clubPlayersResult.error.message);
+
   const followers = followersResult.data;
   if (!followers || followers.length === 0) return [];
 
@@ -137,6 +144,11 @@ export async function getClubFanList(
       .order('created_at', { ascending: false })
       .limit(1000),
   ]);
+
+  if (profilesResult.error) throw new Error(profilesResult.error.message);
+  if (subsResult.error) throw new Error(subsResult.error.message);
+  if ('error' in holdingsResult && holdingsResult.error) throw new Error(holdingsResult.error.message);
+  if (activitiesResult.error) throw new Error(activitiesResult.error.message);
 
   const holdingsMap = new Map<string, number>();
   if (holdingsResult.data) {
@@ -186,10 +198,11 @@ export async function getClubFanList(
 /** Get retention metrics (DAU/WAU/MAU) for a club's followers */
 export async function getClubRetentionMetrics(clubId: string): Promise<RetentionMetrics> {
   // Get follower IDs
-  const { data: followers, count: totalFollowers } = await supabase
+  const { data: followers, count: totalFollowers, error: followersErr } = await supabase
     .from('club_followers')
     .select('user_id', { count: 'exact' })
     .eq('club_id', clubId);
+  if (followersErr) throw new Error(followersErr.message);
 
   const userIds = followers?.map(f => f.user_id) ?? [];
   if (userIds.length === 0) {
@@ -202,33 +215,37 @@ export async function getClubRetentionMetrics(clubId: string): Promise<Retention
   const day30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   // DAU — distinct users active in last 24h
-  const { count: dau } = await supabase
+  const { count: dau, error: dauErr } = await supabase
     .from('activity_log')
     .select('user_id', { count: 'exact', head: true })
     .in('user_id', userIds)
     .gte('created_at', day1);
+  if (dauErr) throw new Error(dauErr.message);
 
   // WAU — distinct users active in last 7 days
-  const { count: wau } = await supabase
+  const { count: wau, error: wauErr } = await supabase
     .from('activity_log')
     .select('user_id', { count: 'exact', head: true })
     .in('user_id', userIds)
     .gte('created_at', day7);
+  if (wauErr) throw new Error(wauErr.message);
 
   // MAU — distinct users active in last 30 days
-  const { count: mau } = await supabase
+  const { count: mau, error: mauErr } = await supabase
     .from('activity_log')
     .select('user_id', { count: 'exact', head: true })
     .in('user_id', userIds)
     .gte('created_at', day30);
+  if (mauErr) throw new Error(mauErr.message);
 
   // Active subscribers
-  const { count: totalSubscribers } = await supabase
+  const { count: totalSubscribers, error: subsErr } = await supabase
     .from('club_subscriptions')
     .select('*', { count: 'exact', head: true })
     .eq('club_id', clubId)
     .eq('status', 'active')
     .gt('expires_at', now.toISOString());
+  if (subsErr) throw new Error(subsErr.message);
 
   return {
     dau: dau ?? 0,

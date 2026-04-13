@@ -13,10 +13,7 @@ export async function getEquipmentDefinitions(): Promise<DbEquipmentDefinition[]
     .eq('active', true)
     .order('position');
 
-  if (error) {
-    console.error('[Equipment] getEquipmentDefinitions error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbEquipmentDefinition[];
 }
 
@@ -27,10 +24,7 @@ export async function getEquipmentRanks(): Promise<DbEquipmentRank[]> {
     .select('id, rank, multiplier, label')
     .order('rank');
 
-  if (error) {
-    console.error('[Equipment] getEquipmentRanks error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbEquipmentRank[];
 }
 
@@ -56,10 +50,7 @@ export async function getUserEquipment(
 
   const { data, error } = await query.order('acquired_at', { ascending: false });
 
-  if (error) {
-    console.error('[Equipment] getUserEquipment error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbUserEquipment[];
 }
 

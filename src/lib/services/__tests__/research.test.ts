@@ -347,11 +347,9 @@ describe('resolveExpiredResearch', () => {
     expect(await resolveExpiredResearch()).toBe(5);
   });
 
-  it('returns 0 on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on RPC error', async () => {
     mockRpc('resolve_expired_research', null, { message: 'RPC failed' });
-    expect(await resolveExpiredResearch()).toBe(0);
-    consoleSpy.mockRestore();
+    await expect(resolveExpiredResearch()).rejects.toThrow('RPC failed');
   });
 
   it('returns 0 when data is null', async () => {
@@ -392,10 +390,9 @@ describe('getAuthorTrackRecord', () => {
     });
   });
 
-  it('returns zeros on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('research_posts', null, { message: 'err' });
-    const result = await getAuthorTrackRecord('u1');
-    expect(result.totalCalls).toBe(0);
+    await expect(getAuthorTrackRecord('u1')).rejects.toThrow('err');
   });
 
   it('returns zeros for empty results', async () => {

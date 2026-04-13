@@ -14,10 +14,7 @@ export async function getFanRanking(userId: string, clubId: string): Promise<DbF
     .eq('club_id', clubId)
     .maybeSingle();
 
-  if (error) {
-    console.error('[FanRanking] getFanRanking error:', error);
-    return null;
-  }
+  if (error) throw new Error(error.message);
   return data as DbFanRanking | null;
 }
 
@@ -33,10 +30,7 @@ export async function getClubFanLeaderboard(
     .order('total_score', { ascending: false })
     .limit(limit);
 
-  if (error) {
-    console.error('[FanRanking] getClubFanLeaderboard error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
 
   // Map the PostgREST join format to our expected shape
   // PostgREST returns `profiles` as object (not array) with !inner join on FK

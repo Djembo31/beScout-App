@@ -38,11 +38,9 @@ describe('getTodaysChallenge', () => {
     expect(result).toEqual(challenge);
   });
 
-  it('returns null on RPC error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on RPC error', async () => {
     mockRpc('get_todays_challenge', null, { message: 'RPC failed' });
-    expect(await getTodaysChallenge()).toBeNull();
-    consoleSpy.mockRestore();
+    await expect(getTodaysChallenge()).rejects.toThrow('RPC failed');
   });
 
   it('returns null when no data', async () => {
@@ -138,11 +136,9 @@ describe('getUserChallengeHistory', () => {
     // Function should work without errors
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('user_daily_challenges', null, { message: 'err' });
-    expect(await getUserChallengeHistory('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getUserChallengeHistory('u1')).rejects.toThrow('err');
   });
 
   it('returns [] when data is null', async () => {

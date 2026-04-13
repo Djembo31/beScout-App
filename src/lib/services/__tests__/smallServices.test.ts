@@ -124,11 +124,9 @@ describe('getDpcMastery', () => {
     const result = await getDpcMastery('u1', 'p1');
     expect(result?.level).toBe(3);
   });
-  it('returns null on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('dpc_mastery', null, { message: 'err' });
-    expect(await getDpcMastery('u1', 'p1')).toBeNull();
-    consoleSpy.mockRestore();
+    await expect(getDpcMastery('u1', 'p1')).rejects.toThrow('err');
   });
 });
 
@@ -137,11 +135,9 @@ describe('getUserMasteryAll', () => {
     mockTable('dpc_mastery', [{ level: 5, xp: 400 }, { level: 2, xp: 50 }]);
     expect(await getUserMasteryAll('u1')).toHaveLength(2);
   });
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('dpc_mastery', null, { message: 'err' });
-    expect(await getUserMasteryAll('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getUserMasteryAll('u1')).rejects.toThrow('err');
   });
   it('returns [] when null', async () => {
     mockTable('dpc_mastery', null);
@@ -214,11 +210,9 @@ describe('getMysteryBoxHistory', () => {
     mockTable('mystery_box_results', [{ id: 'mb1', rarity: 'common' }]);
     expect(await getMysteryBoxHistory('u1')).toHaveLength(1);
   });
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('mystery_box_results', null, { message: 'err' });
-    expect(await getMysteryBoxHistory('u1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getMysteryBoxHistory('u1')).rejects.toThrow('err');
   });
 });
 

@@ -35,11 +35,9 @@ describe('getFanRanking', () => {
     expect(await getFanRanking('u1', 'c1')).toBeNull();
   });
 
-  it('returns null on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('fan_rankings', null, { message: 'err' });
-    expect(await getFanRanking('u1', 'c1')).toBeNull();
-    consoleSpy.mockRestore();
+    await expect(getFanRanking('u1', 'c1')).rejects.toThrow('err');
   });
 });
 
@@ -68,11 +66,9 @@ describe('getClubFanLeaderboard', () => {
     // Should not error
   });
 
-  it('returns [] on error', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockTable('fan_rankings', null, { message: 'err' });
-    expect(await getClubFanLeaderboard('c1')).toEqual([]);
-    consoleSpy.mockRestore();
+    await expect(getClubFanLeaderboard('c1')).rejects.toThrow('err');
   });
 
   it('returns [] when data is null', async () => {

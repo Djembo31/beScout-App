@@ -107,10 +107,9 @@ describe('getActiveSubscriptionsByUsers', () => {
     expect(result.get('u1')).toBe('silber');
   });
 
-  it('returns empty Map on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('club_subscriptions', null, { message: 'err' });
-    const result = await getActiveSubscriptionsByUsers(['u1']);
-    expect(result.size).toBe(0);
+    await expect(getActiveSubscriptionsByUsers(['u1'])).rejects.toThrow('err');
   });
 
   it('returns empty Map when data is null', async () => {
@@ -140,9 +139,9 @@ describe('getMySubscription', () => {
     expect(await getMySubscription('u1', 'c1')).toBeNull();
   });
 
-  it('returns null on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('club_subscriptions', null, { message: 'err' });
-    expect(await getMySubscription('u1', 'c1')).toBeNull();
+    await expect(getMySubscription('u1', 'c1')).rejects.toThrow('err');
   });
 });
 
@@ -210,10 +209,9 @@ describe('getClubSubscribers', () => {
     expect(result.revenueCents).toBe(550000);
   });
 
-  it('returns zeros on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('club_subscriptions', null, { message: 'err' });
-    const result = await getClubSubscribers('c1');
-    expect(result).toEqual({ total: 0, byTier: { bronze: 0, silber: 0, gold: 0 }, revenueCents: 0 });
+    await expect(getClubSubscribers('c1')).rejects.toThrow('err');
   });
 
   it('returns zeros when no data', async () => {

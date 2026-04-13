@@ -42,9 +42,9 @@ describe('getFixturesByGameweek', () => {
     expect(result[0].home_club_primary_color).toBeNull();
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('fixtures', null, { message: 'err' });
-    expect(await getFixturesByGameweek(10)).toEqual([]);
+    await expect(getFixturesByGameweek(10)).rejects.toThrow('err');
   });
 });
 
@@ -62,9 +62,9 @@ describe('getFixturesByClub', () => {
     }]);
     expect(await getFixturesByClub('c1')).toHaveLength(1);
   });
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('fixtures', null, { message: 'err' });
-    expect(await getFixturesByClub('c1')).toEqual([]);
+    await expect(getFixturesByClub('c1')).rejects.toThrow('err');
   });
 });
 
@@ -104,9 +104,9 @@ describe('getFixturePlayerStats', () => {
     expect(result[0].player_last_name).toBe('Yilmaz');
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('fixture_player_stats', null, { message: 'err' });
-    expect(await getFixturePlayerStats('f1')).toEqual([]);
+    await expect(getFixturePlayerStats('f1')).rejects.toThrow('err');
   });
 });
 
@@ -131,9 +131,9 @@ describe('getGameweekStatuses', () => {
     expect(gw11.is_complete).toBe(true);
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('fixtures', null, { message: 'err' });
-    expect(await getGameweekStatuses(1, 10)).toEqual([]);
+    await expect(getGameweekStatuses(1, 10)).rejects.toThrow('err');
   });
 });
 
@@ -223,9 +223,9 @@ describe('getFixtureSubstitutions', () => {
     expect(result[0].player_out_last_name).toBe('Emre');
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('fixture_substitutions', null, { message: 'err' });
-    expect(await getFixtureSubstitutions('f1')).toEqual([]);
+    await expect(getFixtureSubstitutions('f1')).rejects.toThrow('err');
   });
 });
 

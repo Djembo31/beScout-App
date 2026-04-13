@@ -14,7 +14,8 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     .eq('id', userId)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) throw new Error(error.message);
+  if (!data) return null;
   return data as Profile;
 }
 
@@ -97,7 +98,7 @@ export async function getProfilesByIds(
     .select('id, handle, display_name')
     .in('id', uniqueIds);
 
-  if (error) return {};
+  if (error) throw new Error(error.message);
   const map: Record<string, { handle: string; display_name: string | null }> = {};
   for (const p of data ?? []) {
     map[p.id] = { handle: p.handle, display_name: p.display_name };
@@ -112,7 +113,8 @@ export async function getProfileByHandle(handle: string): Promise<Profile | null
     .eq('handle', handle.toLowerCase())
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) throw new Error(error.message);
+  if (!data) return null;
   return data as Profile;
 }
 

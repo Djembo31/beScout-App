@@ -9,10 +9,7 @@ import type { DbDailyChallenge, DbUserDailyChallenge } from '@/types';
 export async function getTodaysChallenge(): Promise<DbDailyChallenge | null> {
   const { data, error } = await supabase.rpc('get_todays_challenge');
 
-  if (error) {
-    console.error('[DailyChallenge] getTodaysChallenge error:', error);
-    return null;
-  }
+  if (error) throw new Error(error.message);
 
   if (!data) return null;
 
@@ -67,9 +64,6 @@ export async function getUserChallengeHistory(userId: string, limit = 20): Promi
     .order('completed_at', { ascending: false })
     .limit(limit);
 
-  if (error) {
-    console.error('[DailyChallenge] getUserChallengeHistory error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbUserDailyChallenge[];
 }

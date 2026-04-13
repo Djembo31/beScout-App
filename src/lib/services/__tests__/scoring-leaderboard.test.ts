@@ -62,15 +62,13 @@ describe('getSeasonLeaderboard', () => {
     expect(result[1].userId).toBe('user-2');
   });
 
-  it('returns empty array on error', async () => {
+  it('throws on RPC error', async () => {
     vi.mocked(supabase.rpc).mockResolvedValue({
       data: null,
       error: { message: 'fail' },
     } as never);
 
-    const result = await getSeasonLeaderboard();
-
-    expect(result).toEqual([]);
+    await expect(getSeasonLeaderboard()).rejects.toThrow('fail');
   });
 
   it('returns empty array when no data', async () => {

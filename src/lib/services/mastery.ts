@@ -36,10 +36,7 @@ export async function getDpcMastery(userId: string, playerId: string): Promise<D
     .eq('player_id', playerId)
     .maybeSingle();
 
-  if (error) {
-    console.error('[Mastery] getDpcMastery error:', error);
-    return null;
-  }
+  if (error) throw new Error(error.message);
   return data;
 }
 
@@ -53,10 +50,7 @@ export async function getUserMasteryAll(userId: string): Promise<DbDpcMastery[]>
     .order('level', { ascending: false })
     .order('xp', { ascending: false });
 
-  if (error) {
-    console.error('[Mastery] getUserMasteryAll error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return data ?? [];
 }
 

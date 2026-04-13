@@ -132,9 +132,9 @@ describe('getPredictions', () => {
     expect(result[0].player).toBeUndefined();
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('predictions', null, { message: 'err' });
-    expect(await getPredictions('u1')).toEqual([]);
+    await expect(getPredictions('u1')).rejects.toThrow('err');
   });
 
   it('returns [] on null data', async () => {
@@ -166,9 +166,9 @@ describe('getResolvedPredictions', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('predictions', null, { message: 'err' });
-    expect(await getResolvedPredictions('u1')).toEqual([]);
+    await expect(getResolvedPredictions('u1')).rejects.toThrow('err');
   });
 });
 
@@ -181,9 +181,9 @@ describe('getPredictionCount', () => {
     expect(await getPredictionCount('u1', 10)).toBe(5);
   });
 
-  it('returns 0 on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('predictions', null, { message: 'err' }, null);
-    expect(await getPredictionCount('u1', 10)).toBe(0);
+    await expect(getPredictionCount('u1', 10)).rejects.toThrow('err');
   });
 
   it('returns 0 when count is null', async () => {
@@ -258,10 +258,9 @@ describe('getPredictionStats', () => {
     expect(stats).toEqual({ total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, totalPoints: 0 });
   });
 
-  it('returns zeros on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('predictions', null, { message: 'err' });
-    const stats = await getPredictionStats('u1');
-    expect(stats).toEqual({ total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, totalPoints: 0 });
+    await expect(getPredictionStats('u1')).rejects.toThrow('err');
   });
 
   it('handles null points_awarded', async () => {
@@ -304,9 +303,9 @@ describe('getFixturesForPrediction', () => {
     expect(result[0].playedAt).toBeNull();
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('fixtures', null, { message: 'err' });
-    expect(await getFixturesForPrediction(10)).toEqual([]);
+    await expect(getFixturesForPrediction(10)).rejects.toThrow('err');
   });
 
   it('returns [] when no data', async () => {
@@ -328,9 +327,9 @@ describe('getPlayersForFixture', () => {
     expect(result).toHaveLength(2);
   });
 
-  it('returns [] on error', async () => {
+  it('throws on DB error', async () => {
     mockTable('players', null, { message: 'err' });
-    expect(await getPlayersForFixture('c1', 'c2')).toEqual([]);
+    await expect(getPlayersForFixture('c1', 'c2')).rejects.toThrow('err');
   });
 
   it('returns [] when no data', async () => {

@@ -20,20 +20,22 @@ export async function submitFanWish(params: {
 }
 
 export async function getMyWishes(): Promise<DbFanWish[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('fan_wishes')
     .select('*')
     .order('created_at', { ascending: false });
-  return (data as DbFanWish[]) || [];
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbFanWish[];
 }
 
 export async function getAllWishes(): Promise<DbFanWish[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('fan_wishes')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(500);
-  return (data as DbFanWish[]) || [];
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbFanWish[];
 }
 
 export async function updateWishStatus(wishId: string, status: string): Promise<{ success: boolean; error?: string }> {

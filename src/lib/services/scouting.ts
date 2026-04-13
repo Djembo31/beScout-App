@@ -20,10 +20,7 @@ export async function getPlayerScoutingSummaries(clubId: string): Promise<Player
     .not('evaluation', 'is', null)
     .not('player_id', 'is', null);
 
-  if (error) {
-    console.error('[Scouting] Failed to fetch reports:', error.message);
-    return [];
-  }
+  if (error) throw new Error(error.message);
 
   if (!reports || reports.length === 0) return [];
 
@@ -31,12 +28,13 @@ export async function getPlayerScoutingSummaries(clubId: string): Promise<Player
   const playerIds = Array.from(new Set((reports as { player_id: string }[]).map(r => r.player_id)));
 
   // Fetch player details for these IDs (only club players)
-  const { data: players } = await supabase
+  const { data: players, error: playersError } = await supabase
     .from('players')
     .select('id, first_name, last_name, position, club_id')
     .in('id', playerIds)
     .eq('club_id', clubId);
 
+  if (playersError) throw new Error(playersError.message);
   if (!players || players.length === 0) return [];
 
   const playerMap = new Map(players.map(p => [p.id, p]));
@@ -176,7 +174,8 @@ export async function getGlobalTopScouts(limit = 10): Promise<TopScout[]> {
     .gt('scout_score', 0)
     .limit(limit);
 
-  if (error || !scores || scores.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!scores || scores.length === 0) return [];
 
   const userIds = scores.map(s => s.user_id as string);
 

@@ -242,7 +242,7 @@ describe('getLineup', () => {
     expect(result).toBeNull();
   });
 
-  it('returns null on error', async () => {
+  it('throws on DB error', async () => {
     mockSupabase.from.mockImplementation(() => {
       const builder: Record<string, unknown> = {};
       const chainMethods = [
@@ -262,8 +262,7 @@ describe('getLineup', () => {
       return builder;
     });
 
-    const result = await getLineup(EVENT_ID, USER_ID);
-    expect(result).toBeNull();
+    await expect(getLineup(EVENT_ID, USER_ID)).rejects.toThrow('query error');
   });
 });
 
@@ -341,7 +340,7 @@ describe('getEventParticipants', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns empty array when lineups query errors', async () => {
+  it('throws when lineups query errors', async () => {
     mockSupabase.from.mockImplementation(() => {
       const builder: Record<string, unknown> = {};
       const chainMethods = [
@@ -361,8 +360,7 @@ describe('getEventParticipants', () => {
       return builder;
     });
 
-    const result = await getEventParticipants(EVENT_ID);
-    expect(result).toEqual([]);
+    await expect(getEventParticipants(EVENT_ID)).rejects.toThrow('err');
   });
 });
 
@@ -399,7 +397,7 @@ describe('getEventParticipantCount', () => {
     expect(result).toBe(42);
   });
 
-  it('returns 0 on error', async () => {
+  it('throws on DB error', async () => {
     mockSupabase.from.mockImplementation(() => {
       const builder: Record<string, unknown> = {};
       const chainMethods = [
@@ -419,8 +417,7 @@ describe('getEventParticipantCount', () => {
       return builder;
     });
 
-    const result = await getEventParticipantCount(EVENT_ID);
-    expect(result).toBe(0);
+    await expect(getEventParticipantCount(EVENT_ID)).rejects.toThrow('err');
   });
 
   it('returns 0 when count is null', async () => {

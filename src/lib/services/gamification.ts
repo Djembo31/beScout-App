@@ -42,10 +42,7 @@ export async function getScoreRoadClaims(userId: string): Promise<ScoreRoadClaim
     .eq('user_id', userId)
     .order('milestone', { ascending: true });
 
-  if (error) {
-    console.error('[Gamification] getScoreRoadClaims error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return data ?? [];
 }
 
@@ -89,9 +86,6 @@ export async function getScoreHistory(userId: string, dimension?: Dimension, lim
   }
 
   const { data, error } = await query;
-  if (error) {
-    console.error('[Gamification] getScoreHistory error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return data ?? [];
 }

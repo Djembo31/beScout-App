@@ -44,10 +44,7 @@ export async function getTicketTransactions(userId: string, limit = 20): Promise
     .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (error) {
-    console.error('[Tickets] getTicketTransactions error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbTicketTransaction[];
 }
 
