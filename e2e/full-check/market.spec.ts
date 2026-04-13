@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { waitForApp } from './helpers';
+import { waitForApp } from '../helpers';
 
 /**
  * Market Page — Full E2E Check

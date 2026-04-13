@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { waitForApp, CLUB_SLUG } from './helpers';
+import { waitForApp, CLUB_SLUG } from '../helpers';
 
 /**
  * Navigate to a player detail page using multiple fallback strategies.
