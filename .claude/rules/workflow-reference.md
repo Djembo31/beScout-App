@@ -31,9 +31,23 @@ Spec-Driven. Code lesen, nicht annehmen. Fertig heisst fertig — keine Restarbe
 |-----------|--------|
 | Jede | `tsc --noEmit` clean |
 | Logik/Service | Betroffene Tests gruen |
-| UI | Playwright Screenshot 390px |
+| UI | Playwright gegen bescout.net (nach Deploy) — NICHT localhost |
 | DB/RPC | SELECT Query mit echten Daten |
 | i18n | DE + TR verifiziert |
+
+### Playwright gegen bescout.net (NICHT localhost)
+```bash
+# Nach Vercel Deploy — Full Suite:
+PLAYWRIGHT_BASE_URL=https://bescout.net npx playwright test
+
+# Einzelne QA-Scripts:
+QA_BASE_URL=https://bescout.net npx tsx e2e/qa-polish.ts --path=/ --slug=home
+
+# Playwright MCP (aus der Session heraus):
+# → mcp__playwright__browser_navigate zu https://bescout.net/...
+# → mcp__playwright__browser_take_screenshot
+```
+Kein `npx next dev` noetig. Config erkennt PLAYWRIGHT_BASE_URL und skippt webServer.
 
 ### Prinzipien
 1. **Code lesen, nicht annehmen.** Jede Hypothese verifizieren.
@@ -102,17 +116,19 @@ WICHTIG: Lies deine LEARNINGS.md VOR dem Arbeiten.
 | Feature 3+ Files, cross-domain | Parallel: backend + frontend in Worktrees |
 | Neue Feature-Spec noetig | /spec Skill, dann Agents |
 | DB/RPC Aenderung | /impact ZUERST, dann Agent |
-| Nach Implementation | Reviewer Agent (IMMER, nicht optional) |
+| Nach Implementation | Reviewer Agent (PFLICHT — auch bei "identischem Pattern") |
 | Reviewer findet Issues | Healer Agent fixt |
 | UI betroffen | qa-visual Agent fuer Screenshots |
 | Geld/Trading/Security | SELBST machen (zu kritisch fuer Delegation) |
 
 ### After-Action Protocol (nach JEDEM Agent-Ergebnis)
-1. **Review:** Agent-Output lesen und gegen Task pruefen
-2. **Extract:** Neues Pattern entdeckt? → LEARNINGS.md des Agent-Typs updaten
-3. **Compile:** Neuer Error gefunden? → common-errors.md updaten
-4. **Merge:** Worktree-Changes in main mergen
-5. **Verify:** tsc + vitest auf merged Code
+1. **Verify Output:** Agent behauptet Files erstellt? → `ls` / `git diff --stat` im Worktree. Kein Vertrauen auf Behauptungen.
+2. **Review:** Reviewer Agent dispatchen (PFLICHT, nicht optional — auch bei "identischem Pattern")
+3. **Extract:** Neues Pattern entdeckt? → LEARNINGS.md des Agent-Typs updaten
+4. **Compile:** Neuer Error gefunden? → common-errors.md updaten
+5. **Merge:** Worktree-Changes in main mergen
+6. **Verify:** tsc + vitest auf merged Code
+7. **Visual:** Bei UI-Aenderungen: Playwright gegen bescout.net (nach Deploy)
 
 ### Quality Guardian Briefing (fuer Reviewer Agent)
 ```

@@ -80,13 +80,16 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - Oder: `IF NOT FOUND THEN reject` (sicherstes Pattern)
 - Audit: `grep 'SELECT COALESCE.*FROM.*WHERE' supabase/migrations/`
 
-## Service Error-Swallowing (2026-04-11 — Tickets Pop-In)
+## Service Error-Swallowing (2026-04-11 — Tickets Pop-In, 2026-04-13 — Full Hardening)
 - `if (error) { console.error(...); return null; }` → React Query cached null als SUCCESS
 - Kein Retry, UI zeigt Skeleton/Empty fuer 30s (staleTime)
 - Kritisch bei Auth-Race: RPC wirft 'Nicht authentifiziert', Service schluckt
 - Richtig: `if (error) { logSupabaseError(...); throw new Error(error.message); }`
 - React Query retried automatisch (3x backoff) → nach ~1s ist Auth ready
-- Audit: `grep -rn 'if (error).*return null' src/lib/services/`
+- **SCHLIMMSTE Variante:** `const { data } = await supabase...` OHNE error-Destructuring
+  - Error komplett unsichtbar: kein log, kein throw, data=null wie "keine Rows"
+  - Audit: `grep -rn 'const { data } = await supabase' src/lib/services/`
+- **2026-04-13: 117 Fixes in 61 Services — alle Saeulen gehaertet, 1192 Tests gruen**
 
 ## RPC Response camelCase/snake_case Mismatch (2026-04-11 — Mystery Box)
 - RPC `jsonb_build_object('rewardType', ...)` → camelCase im Response

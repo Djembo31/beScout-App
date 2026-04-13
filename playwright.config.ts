@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 
 const authDir = path.join(__dirname, '.auth');
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
+const isRemote = !!process.env.PLAYWRIGHT_BASE_URL;
 
 export default defineConfig({
   testDir: './e2e',
@@ -12,7 +14,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 120_000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 30_000,
@@ -60,10 +62,12 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'npx next dev',
-    url: 'http://localhost:3000/',
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-  },
+  webServer: isRemote
+    ? undefined
+    : {
+        command: 'npx next dev',
+        url: 'http://localhost:3000/',
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+      },
 });
