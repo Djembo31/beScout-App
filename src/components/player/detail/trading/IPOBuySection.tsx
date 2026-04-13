@@ -72,11 +72,11 @@ export default function IPOBuySection({
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="bg-surface-minimal rounded-lg p-3">
             <div className="text-xs text-white/40">{t('yourLimit')}</div>
-            <div className="font-mono font-bold tabular-nums">{ipo.max_per_user} {t('licensesUnit', { defaultMessage: 'Lizenzen' })}</div>
+            <div className="font-mono font-bold tabular-nums">{ipo.max_per_user} {t('licensesUnit', { defaultMessage: 'Scout Cards' })}</div>
           </div>
           <div className="bg-surface-minimal rounded-lg p-3">
             <div className="text-xs text-white/40">{t('alreadyBought')}</div>
-            <div className="font-mono font-bold tabular-nums">{userPurchased} {t('licensesUnit', { defaultMessage: 'Lizenzen' })}</div>
+            <div className="font-mono font-bold tabular-nums">{userPurchased} {t('licensesUnit', { defaultMessage: 'Scout Cards' })}</div>
           </div>
         </div>
         {/* Buy form */}

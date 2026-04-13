@@ -172,3 +172,11 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
   - **KRITISCH:** accept_offer + create_offer NULL-comparison Money-Bug (d1de1db) — user konnte Gebote fuer Spieler annehmen die er nicht besitzt. Live exploit von Anil gefunden, gefixt + rolled back + historical audit (nur seed-daten unbacked). Pre-Launch-Checkliste angelegt.
   - **Tickets Root Cause** (nach Anil-Kritik): getUserTickets schluckte Auth-Race-Error und returned null → React Query cached success → kein retry → Pop-In. Fix: throw statt swallow.
   - Nachste Session weiter mit Market Polish (Watchlist-Move + Marktplatz-Tabs im Detail), aber mit strikterer Anti-Kruemel-Disziplin (siehe session-handoff.md).
+- **2026-04-13** — Marktplatz-Tab Polish: Alle 4 Sub-Tabs (Club Verkauf/Von Usern/Trending/Watchlist) visuell auf bescout.net geprueft (Mobile 390 + Desktop 1280). 12 Worktrees aufgeraeumt (alle stale). Fixes:
+  - BUG: Doppelter Count in Transferliste ("6 6 Angebote" → "6 Angebote") — TransferListSection.tsx
+  - COMPLIANCE: "Spieler Lizenzen" → "Scout Cards" in 5 Tooltip-/Description-Keys (DE + TR)
+  - COMPLIANCE: "Lizenzen" → "Scout Cards" in licensesUnit + DiscoveryCard + IPOBuySection (DE + TR)
+  - COMPLIANCE: dpcIntroDesc unvollstaendiger Satz gefixt (DE + TR)
+  - i18n: Hardcoded "Lizenzen" in DiscoveryCard → neuer `discoveryOnMarket` Key (DE + TR)
+  - Null verbleibende "Lizenzen"/"lisans" Instanzen in i18n-Files
+  - Naechster Schritt: Angebote-Tab + Modals (SellModal, BuyConfirmModal, BuyOrderModal, CreateOfferModal) durchgehen

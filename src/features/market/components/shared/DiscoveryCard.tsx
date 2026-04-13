@@ -184,7 +184,7 @@ export default function DiscoveryCard({
 
       {variant === 'listing' && (
         <div className="mt-1.5 flex items-center gap-1.5 text-[9px] text-white/40">
-          <span className="font-mono font-bold text-gold/70">{p.dpc.onMarket} Lizenzen</span>
+          <span className="font-mono font-bold text-gold/70">{t('discoveryOnMarket', { count: p.dpc.onMarket })}</span>
           {listingCount !== undefined && listingCount > 1 && (
             <><span className="text-white/15">·</span><span>{t('discoverySellerCount', { count: listingCount })}</span></>
           )}

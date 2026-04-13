@@ -251,7 +251,7 @@ export default function TransferListSection({
                           aria-label={t('showOrderBook', { defaultMessage: 'Orderbuch anzeigen' })}
                           aria-expanded={isExpanded}
                         >
-                          <span>{agg.count} {t('offerPlural', { count: agg.count })}</span>
+                          <span>{t('offerPlural', { count: agg.count })}</span>
                           <ChevronDown className={cn('size-3 transition-transform', isExpanded && 'rotate-180')} aria-hidden="true" />
                         </button>
                       )}
