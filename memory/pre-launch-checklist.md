@@ -24,7 +24,7 @@ Items die erst beim Pilot-Start abgearbeitet werden, nicht vorher.
 
 ## Supply Invariant CI Test
 
-- [ ] **Automatic check in CI** (would have caught the accept_offer NULL-guard bug today)
+- [x] **Automatic check in CI** — `supply-invariant.test.ts` (Commit dc9bfed, 2026-04-13)
   - Per player: assert `sum(holdings.quantity) = sum(ipo_purchases.quantity)`
   - Per (user, player): time-ordered replay of trades never goes negative
   - Run in `test-live-db.yml` (or a nightly cron). Red = supply leak = halt deploy.
@@ -32,6 +32,8 @@ Items die erst beim Pilot-Start abgearbeitet werden, nicht vorher.
 ## Other Pre-Launch Items
 
 - [ ] Remove demo `test444`, `jarvis-qa`, and any other QA account SC inflation (they accumulated test state during polish sweep)
+- [x] **Clean "DPC"/"Cents" from transaction descriptions** — Migration `cleanup_dpc_transaction_descriptions` + `fix_broken_transaction_descriptions` (2026-04-13). Frontend display-time sanitization in `cleanDescription()` als Fallback.
+- [ ] **RPC functions still write "DPC" in descriptions** — 11 RPCs need update (buy_from_ipo, buy_from_market, place_sell_order, etc.). Too risky for bulk replace, needs dedicated review per function.
 - [ ] Verify migration registry drift is resolved OR documented as permanent (see `.claude/rules/database.md`)
 - [ ] Re-run full `vitest` suite and fix all live-DB integration test failures that the final seed-cleanup doesn't automatically fix
 
