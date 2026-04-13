@@ -375,8 +375,8 @@ export type TrendingPlayer = {
 export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
   const { data, error } = await supabase.rpc('rpc_get_trending_players', { p_limit: limit });
 
-  if (error) logSupabaseError('[Trading] getTrendingPlayers', error);
-  if (error || !data || (data as unknown[]).length === 0) return [];
+  if (error) { logSupabaseError('[Trading] getTrendingPlayers', error); throw new Error(error.message); }
+  if (!data || (data as unknown[]).length === 0) return [];
 
   return (data as Array<{
     player_id: string;
@@ -409,8 +409,8 @@ export async function getAllPriceHistories(limit = 10): Promise<Map<string, numb
     .order('executed_at', { ascending: false })
     .limit(200);
 
-  if (error) console.error('[Trading] getAllPriceHistories failed:', error);
-  if (error || !data) return new Map();
+  if (error) { logSupabaseError('[Trading] getAllPriceHistories', error); throw new Error(error.message); }
+  if (!data) return new Map();
 
   // Group by player, keep only last N per player (chronological)
   const grouped = new Map<string, number[]>();
@@ -541,7 +541,7 @@ export async function getAllOpenBuyOrders(playerId?: string): Promise<DbOrder[]>
 /** Get price cap for a player (for sell form orientation) */
 export async function getPriceCap(playerId: string): Promise<number | null> {
   const { data, error } = await supabase.rpc('get_price_cap', { p_player_id: playerId });
-  if (error) { console.error('[Trading] getPriceCap failed:', error); return null; }
+  if (error) { logSupabaseError('[Trading] getPriceCap', error); return null; }
   return data as number;
 }
 

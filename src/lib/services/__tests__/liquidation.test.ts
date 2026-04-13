@@ -17,19 +17,7 @@ import {
   liquidatePlayer,
   getLiquidationEvent,
   getLiquidationPayouts,
-  invalidateLiquidationData,
 } from '../liquidation';
-
-// ============================================
-// invalidateLiquidationData
-// ============================================
-
-describe('invalidateLiquidationData', () => {
-  it('is a no-op that does not throw', () => {
-    expect(() => invalidateLiquidationData()).not.toThrow();
-    expect(() => invalidateLiquidationData('player-123')).not.toThrow();
-  });
-});
 
 // ============================================
 // setSuccessFeeCap
@@ -218,6 +206,11 @@ describe('getLiquidationEvent', () => {
     const result = await getLiquidationEvent('player-no-liq');
     expect(result).toBeNull();
   });
+
+  it('throws on DB error', async () => {
+    mockSupabaseResponse(null, { message: 'connection refused' });
+    await expect(getLiquidationEvent('player-1')).rejects.toThrow('connection refused');
+  });
 });
 
 // ============================================
@@ -278,5 +271,10 @@ describe('getLiquidationPayouts', () => {
     expect(result).toHaveLength(1);
     // handle may or may not be present depending on how mock resolves
     expect(result[0]).toHaveProperty('user_id', 'user-2');
+  });
+
+  it('throws on DB error', async () => {
+    mockSupabaseResponse(null, { message: 'query timeout' });
+    await expect(getLiquidationPayouts('liq-1')).rejects.toThrow('query timeout');
   });
 });

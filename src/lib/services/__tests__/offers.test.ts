@@ -10,7 +10,6 @@ vi.mock('@/lib/services/referral', () => ({ triggerReferralReward: vi.fn() }));
 vi.mock('@/lib/notifText', () => ({ notifText: vi.fn((key: string) => key) }));
 
 import {
-  invalidateOfferData,
   getIncomingOffers,
   getOutgoingOffers,
   getOpenBids,
@@ -21,17 +20,6 @@ import {
   counterOffer,
   cancelOffer,
 } from '../offers';
-
-// ============================================
-// invalidateOfferData
-// ============================================
-
-describe('invalidateOfferData', () => {
-  it('is a no-op that does not throw', () => {
-    expect(() => invalidateOfferData()).not.toThrow();
-    expect(() => invalidateOfferData('user-123')).not.toThrow();
-  });
-});
 
 // ============================================
 // getIncomingOffers

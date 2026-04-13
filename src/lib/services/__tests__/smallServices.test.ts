@@ -12,7 +12,7 @@ vi.mock('@/lib/streakBenefits', () => ({
 vi.mock('@/lib/services/tickets', () => ({ creditTickets: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/services/missions', () => ({ triggerMissionProgress: vi.fn() }));
 
-import { getPbtForPlayer, getPbtTransactions, getFeeConfig, getAllFeeConfigs, invalidatePbtData } from '../pbt';
+import { getPbtForPlayer, getPbtTransactions, getFeeConfig, getAllFeeConfigs } from '../pbt';
 import { MASTERY_XP_THRESHOLDS, MASTERY_LEVEL_LABELS, getXpForNextLevel, getDpcMastery, getUserMasteryAll } from '../mastery';
 import { openMysteryBox, getMysteryBoxHistory } from '../mysteryBox';
 import { submitFeedback } from '../feedback';
@@ -89,12 +89,6 @@ describe('getAllFeeConfigs', () => {
   });
 });
 
-describe('invalidatePbtData', () => {
-  it('is a no-op', () => {
-    expect(() => invalidatePbtData()).not.toThrow();
-    expect(() => invalidatePbtData('p1')).not.toThrow();
-  });
-});
 
 // ============================================
 // Mastery

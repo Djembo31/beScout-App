@@ -130,16 +130,9 @@ describe('getHoldingQty', () => {
     expect(result).toBe(0);
   });
 
-  it('returns 0 on error (logs, does not throw)', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockSupabaseResponse(null, { message: 'some db error' });
-    const result = await getHoldingQty('u1', 'p1');
-    expect(result).toBe(0);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[Wallet] getHoldingQty failed'),
-      'some db error',
-    );
-    consoleSpy.mockRestore();
+    await expect(getHoldingQty('u1', 'p1')).rejects.toThrow('some db error');
   });
 
   it('returns 0 when holding has quantity=0', async () => {
@@ -161,16 +154,9 @@ describe('getPlayerHolderCount', () => {
     expect(result).toBe(42);
   });
 
-  it('returns 0 on error (logs, does not throw)', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('throws on DB error', async () => {
     mockSupabaseResponse(null, { message: 'count failed' });
-    const result = await getPlayerHolderCount('p1');
-    expect(result).toBe(0);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[Wallet] getPlayerHolderCount failed'),
-      'count failed',
-    );
-    consoleSpy.mockRestore();
+    await expect(getPlayerHolderCount('p1')).rejects.toThrow('count failed');
   });
 
   it('returns 0 when zero holders', async () => {

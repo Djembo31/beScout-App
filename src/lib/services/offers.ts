@@ -3,14 +3,6 @@ import { notifText } from '@/lib/notifText';
 import type { DbOffer, OfferWithDetails } from '@/types';
 
 // ============================================
-// Cache helpers
-// ============================================
-
-export function invalidateOfferData(_userId?: string): void {
-  // No-op: React Query handles cache invalidation
-}
-
-// ============================================
 // Offer enrichment (attach player + profile info)
 // ============================================
 

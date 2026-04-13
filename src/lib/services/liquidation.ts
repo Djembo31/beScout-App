@@ -104,30 +104,33 @@ export async function liquidatePlayer(
 // ============================================
 
 export async function getLiquidationEvent(playerId: string): Promise<DbLiquidationEvent | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('liquidation_events')
     .select('id, player_id, club_id, triggered_by, pbt_balance_cents, success_fee_cents, distributed_cents, holder_count, transfer_value_eur, fee_per_dpc_cents, created_at')
     .eq('player_id', playerId)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (error) throw new Error(error.message);
   return (data as DbLiquidationEvent) || null;
 }
 
 export async function getLiquidationPayouts(liquidationId: string): Promise<(DbLiquidationPayout & { handle?: string })[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('liquidation_payouts')
     .select('id, liquidation_id, user_id, dpc_quantity, payout_cents, pbt_payout_cents, success_fee_payout_cents, created_at')
     .eq('liquidation_id', liquidationId)
     .order('payout_cents', { ascending: false });
+  if (error) throw new Error(error.message);
   if (!data) return [];
 
   // Enrich with profile handles
   const userIds = Array.from(new Set((data as DbLiquidationPayout[]).map(p => p.user_id)));
-  const { data: profiles } = await supabase
+  const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
     .select('id, handle')
     .in('id', userIds);
+  if (profilesError) throw new Error(profilesError.message);
   const handleMap = new Map((profiles || []).map(p => [p.id, p.handle as string]));
 
   return (data as DbLiquidationPayout[]).map(p => ({
@@ -136,10 +139,3 @@ export async function getLiquidationPayouts(liquidationId: string): Promise<(DbL
   }));
 }
 
-// ============================================
-// Cache Invalidation
-// ============================================
-
-export function invalidateLiquidationData(_playerId?: string): void {
-  // No-op: React Query handles cache invalidation
-}

@@ -79,10 +79,7 @@ export async function getHoldingQty(userId: string, playerId: string): Promise<n
     .eq('player_id', playerId)
     .maybeSingle();
 
-  if (error) {
-    console.error(`[Wallet] getHoldingQty failed (user=${userId}, player=${playerId}):`, error.message);
-    return 0;
-  }
+  if (error) throw new Error(error.message);
   return data?.quantity ?? 0;
 }
 
@@ -92,7 +89,7 @@ export async function getAvailableSc(userId: string, playerId: string): Promise<
     p_user_id: userId,
     p_player_id: playerId,
   });
-  if (error) { console.error('[Wallet] getAvailableSc error:', error); return 0; }
+  if (error) throw new Error(error.message);
   return (data as number) ?? 0;
 }
 
@@ -102,7 +99,7 @@ export async function getUserHoldingLocks(userId: string): Promise<DbHoldingLock
     .from('holding_locks')
     .select('*')
     .eq('user_id', userId);
-  if (error) { console.error('[Wallet] getUserHoldingLocks error:', error); return []; }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbHoldingLock[];
 }
 
@@ -113,10 +110,7 @@ export async function getPlayerHolderCount(playerId: string): Promise<number> {
     .select('*', { count: 'exact', head: true })
     .eq('player_id', playerId)
     .gt('quantity', 0);
-  if (error) {
-    console.error(`[Wallet] getPlayerHolderCount failed (player=${playerId}):`, error.message);
-    return 0;
-  }
+  if (error) throw new Error(error.message);
   return count ?? 0;
 }
 
