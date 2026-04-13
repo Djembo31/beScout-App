@@ -64,7 +64,7 @@ export async function getLineup(eventId: string, userId: string): Promise<DbLine
     .eq('user_id', userId)
     .maybeSingle();
 
-  if (error) return null;
+  if (error) throw new Error(error.message);
   return data as DbLineup;
 }
 
@@ -77,7 +77,8 @@ export async function getEventParticipants(eventId: string, limit = 10): Promise
     .eq('event_id', eventId)
     .limit(limit);
 
-  if (lError || !lineups || lineups.length === 0) return [];
+  if (lError) throw new Error(lError.message);
+  if (!lineups || lineups.length === 0) return [];
 
   const userIds = lineups.map(l => l.user_id);
 
@@ -98,7 +99,7 @@ export async function getEventParticipantCount(eventId: string): Promise<number>
     .select('*', { count: 'exact', head: true })
     .eq('event_id', eventId);
 
-  if (error) return 0;
+  if (error) throw new Error(error.message);
   return count ?? 0;
 }
 
@@ -111,7 +112,8 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
     .eq('user_id', userId)
     .maybeSingle();
 
-  if (error || !lineup) return null;
+  if (error) throw new Error(error.message);
+  if (!lineup) return null;
 
   const dbLineup = lineup as DbLineup;
 
@@ -180,7 +182,8 @@ export async function getPlayerEventUsage(userId: string): Promise<Map<string, s
     `)
     .eq('user_id', userId);
 
-  if (error || !data) return new Map();
+  if (error) throw new Error(error.message);
+  if (!data) return new Map();
 
   const usageMap = new Map<string, string[]>();
 
@@ -214,7 +217,8 @@ export async function getUserFantasyHistory(userId: string, limit = 10): Promise
     .not('total_score', 'is', null)
     .order('submitted_at', { ascending: false })
     .limit(limit);
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
   return data.map((row: Record<string, unknown>) => {
     const event = row.event as { name?: string; gameweek?: number; starts_at?: string } | null;
     return {

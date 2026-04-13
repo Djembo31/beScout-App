@@ -7,20 +7,22 @@ import type { DbFantasyLeague, LeagueLeaderboardEntry } from '@/types';
 
 /** Get leagues the user is a member of */
 export async function getMyLeagues(userId: string): Promise<DbFantasyLeague[]> {
-  const { data: memberships } = await supabase
+  const { data: memberships, error: memError } = await supabase
     .from('fantasy_league_members')
     .select('league_id')
     .eq('user_id', userId);
 
+  if (memError) throw new Error(memError.message);
   if (!memberships || memberships.length === 0) return [];
 
   const leagueIds = memberships.map(m => m.league_id);
-  const { data: leagues } = await supabase
+  const { data: leagues, error: leaguesError } = await supabase
     .from('fantasy_leagues')
     .select('*')
     .in('id', leagueIds)
     .order('created_at', { ascending: false });
 
+  if (leaguesError) throw new Error(leaguesError.message);
   if (!leagues) return [];
 
   // Get member counts
@@ -65,6 +67,7 @@ export async function leaveLeague(leagueId: string): Promise<{ success: boolean;
 /** Get leaderboard for a league */
 export async function getLeagueLeaderboard(leagueId: string): Promise<LeagueLeaderboardEntry[]> {
   const { data, error } = await supabase.rpc('get_league_leaderboard', { p_league_id: leagueId });
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
   return (data as LeagueLeaderboardEntry[]) ?? [];
 }

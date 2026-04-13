@@ -40,7 +40,8 @@ export async function getPlayerGameweekScores(playerId: string): Promise<PlayerG
     .eq('player_id', playerId)
     .order('gameweek', { ascending: false });
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row) => ({
     gameweek: row.gameweek as number,
@@ -82,12 +83,13 @@ export async function getPlayerMatchTimeline(
   limit = 15
 ): Promise<MatchTimelineEntry[]> {
   // 1. Get the player's club_id
-  const { data: playerData } = await supabase
+  const { data: playerData, error: playerError } = await supabase
     .from('players')
     .select('club_id')
     .eq('id', playerId)
     .maybeSingle();
 
+  if (playerError) throw new Error(playerError.message);
   if (!playerData?.club_id) return [];
   const clubId = playerData.club_id as string;
 
@@ -104,17 +106,19 @@ export async function getPlayerMatchTimeline(
     .order('gameweek', { ascending: false })
     .limit(limit);
 
-  if (fixError || !clubFixtures || clubFixtures.length === 0) return [];
+  if (fixError) throw new Error(fixError.message);
+  if (!clubFixtures || clubFixtures.length === 0) return [];
 
   const fixtureIds = clubFixtures.map(f => f.id as string);
 
   // 3. Get player stats for these fixtures (includes minutes=0 bench entries)
-  const { data: statsData } = await supabase
+  const { data: statsData, error: statsError } = await supabase
     .from('fixture_player_stats')
     .select('fixture_id, minutes_played, goals, assists, clean_sheet, yellow_card, red_card, saves, rating, is_starter')
     .eq('player_id', playerId)
     .in('fixture_id', fixtureIds);
 
+  if (statsError) throw new Error(statsError.message);
   const statsMap = new Map<string, Record<string, unknown>>();
   for (const row of statsData ?? []) {
     statsMap.set(row.fixture_id as string, row);
@@ -122,12 +126,13 @@ export async function getPlayerMatchTimeline(
 
   // 4. Get GW scores
   const gameweeks = clubFixtures.map(f => f.gameweek as number);
-  const { data: scoresData } = await supabase
+  const { data: scoresData, error: scoresError } = await supabase
     .from('player_gameweek_scores')
     .select('gameweek, score')
     .eq('player_id', playerId)
     .in('gameweek', gameweeks);
 
+  if (scoresError) throw new Error(scoresError.message);
   const scoreMap = new Map<number, number>();
   for (const row of scoresData ?? []) {
     scoreMap.set(row.gameweek as number, row.score as number);
@@ -194,12 +199,13 @@ export async function getProgressiveScores(
 ): Promise<Map<string, number>> {
   if (playerIds.length === 0) return new Map();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('player_gameweek_scores')
     .select('player_id, score')
     .eq('gameweek', gameweek)
     .in('player_id', playerIds);
 
+  if (error) throw new Error(error.message);
   const result = new Map<string, number>();
   for (const row of data ?? []) {
     result.set(row.player_id as string, row.score as number);
@@ -216,14 +222,17 @@ export async function getEventLeaderboard(eventId: string): Promise<LeaderboardE
     .not('rank', 'is', null)
     .order('rank', { ascending: true });
 
-  if (error || !data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
   // Fetch profiles for all participants
   const userIds = data.map(l => l.user_id);
-  const { data: profiles } = await supabase
+  const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
     .select('id, handle, display_name, avatar_url')
     .in('id', userIds);
+
+  if (profilesError) throw new Error(profilesError.message);
 
   const profileMap = new Map(
     (profiles ?? []).map(p => [p.id, p])
@@ -263,7 +272,8 @@ export type SeasonLeaderboardEntry = {
 export async function getSeasonLeaderboard(limit = 50): Promise<SeasonLeaderboardEntry[]> {
   const { data, error } = await supabase.rpc('get_season_leaderboard', { p_limit: limit });
 
-  if (error || !data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
   return (data as Array<{
     user_id: string;
@@ -305,7 +315,8 @@ export async function getBatchFormScores(
     .order('gameweek', { ascending: false })
     .limit(playerIds.length * limit);
 
-  if (error || !data) return new Map();
+  if (error) throw new Error(error.message);
+  if (!data) return new Map();
 
   const result = new Map<string, { score: number; status: 'played' | 'bench' | 'not_in_squad' }[]>();
   for (const row of data) {

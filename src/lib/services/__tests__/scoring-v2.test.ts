@@ -277,12 +277,10 @@ describe('Scoring Service v2', () => {
       expect(result).toEqual([]);
     });
 
-    it('returns empty array on query error', async () => {
+    it('throws on query error', async () => {
       setFromResponse('lineups', null, { message: 'query failed' });
 
-      const result = await getEventLeaderboard('err-event');
-
-      expect(result).toEqual([]);
+      await expect(getEventLeaderboard('err-event')).rejects.toThrow('query failed');
     });
 
     it('handles missing profiles gracefully with fallback handle', async () => {

@@ -50,7 +50,7 @@ export async function getUserJoinedEventIds(userId: string): Promise<string[]> {
     .select('event_id')
     .eq('user_id', userId);
 
-  if (error) return [];
+  if (error) throw new Error(error.message);
   return (data ?? []).map(row => row.event_id);
 }
 
@@ -76,7 +76,7 @@ export async function getUserEnteredEventIds(userId: string): Promise<string[]> 
     .select('event_id')
     .eq('user_id', userId);
 
-  if (error) return [];
+  if (error) throw new Error(error.message);
   return (data ?? []).map(row => row.event_id);
 }
 
@@ -101,10 +101,7 @@ export async function getEventAdminStats(): Promise<{
     .from('events')
     .select('status, current_entries, prize_pool');
 
-  if (error) {
-    console.error('[Events] getEventAdminStats error:', error.message);
-    return { activeCount: 0, totalParticipants: 0, totalPool: 0 };
-  }
+  if (error) throw new Error(error.message);
 
   const activeStatuses = new Set(['registering', 'late-reg', 'running']);
   const active = (data ?? []).filter(e => activeStatuses.has(e.status));
@@ -147,9 +144,6 @@ export async function getAllEventsAdmin(filters?: {
 
   const { data, error } = await query;
 
-  if (error) {
-    console.error('[Events] getAllEventsAdmin error:', error.message);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as unknown as DbEvent[];
 }

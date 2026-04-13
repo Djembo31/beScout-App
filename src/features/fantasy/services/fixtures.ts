@@ -17,7 +17,8 @@ export async function getFixturesByGameweek(gw: number): Promise<Fixture[]> {
     .eq('gameweek', gw)
     .order('created_at');
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row: Record<string, unknown>) => {
     const home = row.home_club as { name: string; short: string; primary_color: string | null } | null;
@@ -56,7 +57,8 @@ export async function getFixturesByClub(clubId: string): Promise<Fixture[]> {
     .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
     .order('gameweek', { ascending: true });
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row: Record<string, unknown>) => {
     const home = row.home_club as { name: string; short: string; primary_color: string | null } | null;
@@ -140,7 +142,8 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
     error: { message: string } | null;
   };
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row) => mapStatRow(row));
 }
@@ -153,7 +156,8 @@ export async function getGameweekStatuses(fromGw: number, toGw: number): Promise
     .gte('gameweek', fromGw)
     .lte('gameweek', toGw);
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   const gwMap = new Map<number, { total: number; simulated: number }>();
   for (const row of data) {
@@ -175,12 +179,13 @@ export async function getGameweekStatuses(fromGw: number, toGw: number): Promise
 /** Get top scorers for a gameweek */
 export async function getGameweekTopScorers(gw: number, limit: number = 5): Promise<FixturePlayerStat[]> {
   // First get fixture IDs for this gameweek
-  const { data: fixtures } = await supabase
+  const { data: fixtures, error: fixError } = await supabase
     .from('fixtures')
     .select('id')
     .eq('gameweek', gw)
     .in('status', ['simulated', 'finished']);
 
+  if (fixError) throw new Error(fixError.message);
   if (!fixtures || fixtures.length === 0) return [];
 
   const fixtureIds = fixtures.map(f => f.id);
@@ -198,7 +203,8 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
     error: { message: string } | null;
   };
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row) => mapStatRow(row));
 }
@@ -207,12 +213,13 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
 export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]): Promise<FixturePlayerStat[]> {
   if (playerIds.length === 0) return [];
 
-  const { data: fixtures } = await supabase
+  const { data: fixtures, error: fixError2 } = await supabase
     .from('fixtures')
     .select('id')
     .eq('gameweek', gw)
     .in('status', ['simulated', 'finished']);
 
+  if (fixError2) throw new Error(fixError2.message);
   if (!fixtures || fixtures.length === 0) return [];
 
   const fixtureIds = fixtures.map(f => f.id);
@@ -229,7 +236,8 @@ export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]
     error: { message: string } | null;
   };
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row) => mapStatRow(row));
 }
@@ -251,7 +259,8 @@ export async function getFixtureSubstitutions(fixtureId: string): Promise<Fixtur
     error: { message: string } | null;
   };
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((row) => {
     const playerIn = row.player_in as { first_name: string; last_name: string } | null;
@@ -341,12 +350,13 @@ export async function getFixtureDeadlinesByGameweek(gw: number): Promise<Map<str
 
 /** Get recent minutes played per player (last 5 completed gameweeks) */
 export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
-  const { data: completedFixtures } = await supabase
+  const { data: completedFixtures, error: cfError } = await supabase
     .from('fixtures')
     .select('id, gameweek')
     .in('status', ['simulated', 'finished'])
     .order('gameweek', { ascending: false });
 
+  if (cfError) throw new Error(cfError.message);
   if (!completedFixtures || completedFixtures.length === 0) return new Map();
 
   const gameweeks = Array.from(new Set(completedFixtures.map(f => f.gameweek as number)))
@@ -358,12 +368,13 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
 
   if (fixtureIds.length === 0) return new Map();
 
-  const { data: stats } = await supabase
+  const { data: stats, error: statsError } = await supabase
     .from('fixture_player_stats')
     .select('player_id, minutes_played, fixture_id')
     .in('fixture_id', fixtureIds)
     .not('player_id', 'is', null);
 
+  if (statsError) throw new Error(statsError.message);
   if (!stats) return new Map();
 
   const fixtureGwMap = new Map(completedFixtures.map(f => [f.id as string, f.gameweek as number]));
@@ -390,7 +401,7 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
  *  Always 5 entries per player, aligned to the 5 most recent scored GWs. */
 export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
   // Step 1: Find the latest GW with real scores (score>0, range 0-100)
-  const { data: latest } = await supabase
+  const { data: latest, error: latestError } = await supabase
     .from('player_gameweek_scores')
     .select('gameweek')
     .gt('score', 0)
@@ -398,6 +409,7 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
     .limit(1)
     .maybeSingle();
 
+  if (latestError) throw new Error(latestError.message);
   if (!latest) return new Map();
 
   const maxGw = latest.gameweek as number;
@@ -408,12 +420,13 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
   const lookup = new Map<string, Map<number, number>>();
 
   await Promise.all(gameweeks.map(async (gw) => {
-    const { data } = await supabase
+    const { data, error: gwError } = await supabase
       .from('player_gameweek_scores')
       .select('player_id, score')
       .eq('gameweek', gw)
       .gt('score', 0);
 
+    if (gwError) throw new Error(gwError.message);
     if (!data) return;
     for (const s of data) {
       const pid = s.player_id as string;
@@ -444,7 +457,7 @@ export type NextFixtureInfo = {
 
 /** Get next scheduled fixture for each club */
 export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureInfo>> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('fixtures')
     .select(`
       gameweek, home_club_id, away_club_id, played_at,
@@ -454,6 +467,7 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
     .eq('status', 'scheduled')
     .order('gameweek', { ascending: true });
 
+  if (error) throw new Error(error.message);
   if (!data) return new Map();
 
   const result = new Map<string, NextFixtureInfo>();
@@ -525,11 +539,12 @@ export async function syncFixtureScores(gameweek: number): Promise<{ success: bo
  *  Returns Map<playerId, floorPriceCents>. Players without DPCs (floor_price=0) are omitted. */
 export async function getFloorPricesForPlayers(playerIds: string[]): Promise<Map<string, number>> {
   if (playerIds.length === 0) return new Map();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('players')
     .select('id, floor_price')
     .in('id', playerIds)
     .gt('floor_price', 0);
+  if (error) throw new Error(error.message);
   const map = new Map<string, number>();
   for (const row of data ?? []) {
     map.set(row.id, row.floor_price);

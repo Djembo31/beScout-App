@@ -57,7 +57,8 @@ export async function getPredictions(userId: string, gameweek?: number): Promise
   }
 
   const { data, error } = await query;
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map(mapPrediction);
 }
@@ -83,7 +84,8 @@ export async function getResolvedPredictions(userId?: string, gameweek?: number)
   }
 
   const { data, error } = await query;
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map(mapPrediction);
 }
@@ -96,7 +98,7 @@ export async function getPredictionCount(userId: string, gameweek: number): Prom
     .eq('user_id', userId)
     .eq('gameweek', gameweek);
 
-  if (error) return 0;
+  if (error) throw new Error(error.message);
   return count ?? 0;
 }
 
@@ -118,7 +120,8 @@ export async function getPredictionStats(userId: string): Promise<PredictionStat
     .in('status', ['correct', 'wrong'])
     .order('resolved_at', { ascending: true });
 
-  if (error || !data || data.length === 0) {
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) {
     return { total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, totalPoints: 0 };
   }
 
@@ -159,7 +162,8 @@ export async function getFixturesForPrediction(gameweek: number) {
     .eq('status', 'scheduled')
     .order('played_at', { ascending: true });
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
 
   return data.map((f: Record<string, unknown>) => {
     const homeClub = f.home_club as Record<string, unknown> | null;
@@ -195,7 +199,8 @@ export async function getPlayersForFixture(
     .in('club_id', [homeClubId, awayClubId])
     .order('last_name');
 
-  if (error || !data) return [];
+  if (error) throw new Error(error.message);
+  if (!data) return [];
   return data;
 }
 
