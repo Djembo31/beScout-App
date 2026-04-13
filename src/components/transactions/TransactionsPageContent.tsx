@@ -11,6 +11,15 @@ import {
 import { Card, Button, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
+
+/** Sanitize legacy DB descriptions: replace internal "DPC"/"Cents" with user-facing terms */
+function cleanDescription(desc: string): string {
+  return desc
+    .replace(/\bDPCs?\b/g, 'SC')
+    .replace(/Cents\/SC/g, 'CR')
+    .replace(/Cents\/DPC/g, 'CR')
+    .replace(/(\d+)\s*Cents\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`);
+}
 import { useTransactions } from '@/lib/queries/misc';
 import { useTicketTransactions } from '@/lib/queries/tickets';
 import {
@@ -373,7 +382,7 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
                   {/* Description */}
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium leading-snug">
-                      {tx.description || (isTicket ? tp(`ticketSource_${type}`) : ta(getActivityLabelKey(type)))}
+                      {tx.description ? cleanDescription(tx.description) : (isTicket ? tp(`ticketSource_${type}`) : ta(getActivityLabelKey(type)))}
                     </div>
                     <div className="text-[10px] text-white/30 mt-0.5 flex items-center gap-2">
                       <span>{formatDate(tx.created_at, dateLocale)}</span>

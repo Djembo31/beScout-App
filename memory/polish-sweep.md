@@ -99,10 +99,10 @@ Separates Feature-Projekt mit eigenem Spec. Home wird nach Track-D-Abschluss um 
 
 | # | Page | Slug | Status |
 |---|------|------|--------|
-| 7 | Manager | `/manager` → `manager` | ✅ done |
+| 7 | Manager | `/manager` → `manager` | ✅ done (3 Tabs visuell) |
 | 8 | Missions | `/missions` → `missions` | ✅ done |
 | 9 | Community | `/community` → `community` | ✅ done |
-| 10 | Transactions | `/transactions` → `transactions` | ✅ done |
+| 10 | Transactions | `/transactions` → `transactions` | ✅ done (DPC→SC Display-Fix) |
 | 11 | Clubs | `/clubs` → `clubs` | ✅ done |
 | 12 | Club (eigen) | `/club` → `club-own` | ✅ done |
 | 13 | Club Detail | `/club/[slug]` → `club-detail` | ✅ done |

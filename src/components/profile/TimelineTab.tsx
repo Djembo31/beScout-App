@@ -8,6 +8,15 @@ import {
 import { Card, LoadMoreButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout, getTransactions } from '@/lib/services/wallet';
+
+/** Sanitize legacy DB descriptions: replace internal "DPC"/"Cents" with user-facing terms */
+function cleanDescription(desc: string): string {
+  return desc
+    .replace(/\bDPCs?\b/g, 'SC')
+    .replace(/Cents\/SC/g, 'CR')
+    .replace(/Cents\/DPC/g, 'CR')
+    .replace(/(\d+)\s*Cents\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`);
+}
 import { getTicketTransactions } from '@/lib/services/tickets';
 import {
   getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime,
@@ -402,7 +411,7 @@ export default function TimelineTab({
                         {/* Description */}
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium leading-snug">
-                            {row.description || (isTicket ? t(`ticketSource_${row.type}`) : ta(getActivityLabelKey(row.type)))}
+                            {row.description ? cleanDescription(row.description) : (isTicket ? t(`ticketSource_${row.type}`) : ta(getActivityLabelKey(row.type)))}
                           </div>
                           <div className="text-[10px] text-white/25 mt-0.5">
                             {getRelativeTime(row.created_at, ta('justNow'), dateLocale)}
