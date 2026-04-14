@@ -30,17 +30,11 @@ interface MysteryBoxModalProps {
 const MYSTERY_BOX_BASE_COST = 15;
 
 /**
- * Reward preview per rarity (shown in idle state).
- * Drop-rates in percent match `mystery_box_config` (J5B-10).
- * Labels are resolved via i18n (gamification.possibleRewards.*).
+ * Reward preview rarities in display order (shown in idle state).
+ * Drop-rates kommen live aus `useMysteryBoxDropRates` (AR-48), Fallback
+ * DEFAULT_DROP_PERCENTS. Labels via i18n (gamification.possibleRewards.*).
  */
-const REWARD_PREVIEW: { rarity: MysteryBoxRarity; dropRate: number }[] = [
-  { rarity: 'common', dropRate: 45 },
-  { rarity: 'rare', dropRate: 30 },
-  { rarity: 'epic', dropRate: 17 },
-  { rarity: 'legendary', dropRate: 6 },
-  { rarity: 'mythic', dropRate: 2 },
-];
+const REWARD_PREVIEW_RARITIES: MysteryBoxRarity[] = ['common', 'rare', 'epic', 'legendary', 'mythic'];
 
 /**
  * Fallback drop percentages (AR-48) — used when `useMysteryBoxDropRates`
@@ -366,12 +360,12 @@ export default function MysteryBoxModal({
                 {t('possibleRewardsTitle')}
               </p>
               <div className="space-y-1.5">
-                {REWARD_PREVIEW.map(rp => {
-                  const conf = RARITY_CONFIG[rp.rarity];
-                  const pct = dropPercents[rp.rarity];
+                {REWARD_PREVIEW_RARITIES.map(rarity => {
+                  const conf = RARITY_CONFIG[rarity];
+                  const pct = dropPercents[rarity];
                   return (
                     <div
-                      key={rp.rarity}
+                      key={rarity}
                       className={cn(
                         'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px]',
                         conf.bgClass,
@@ -384,10 +378,7 @@ export default function MysteryBoxModal({
                         {pct}%
                       </span>
                       <span className="text-white/40 flex-1">
-                        {t(`possibleRewards.${rp.rarity}`)}
-                      </span>
-                      <span className="text-white/50 font-mono tabular-nums text-[10px] flex-shrink-0">
-                        {rp.dropRate}%
+                        {t(`possibleRewards.${rarity}`)}
                       </span>
                     </div>
                   );
