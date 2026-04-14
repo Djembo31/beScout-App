@@ -1,15 +1,16 @@
-# Session Handoff (2026-04-14 18:52)
+# Session Handoff (2026-04-14 19:20)
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 4 Files
 ```
  M memory/session-handoff.md
-?? .claude/backups/crash-20260413-173328.diff
-?? .claude/backups/crash-20260413-173529.diff
-?? .claude/backups/crash-20260413-173950.diff
-?? .claude/backups/crash-20260413-174052.diff
+?? .claude/scheduled_tasks.lock
+?? memory/journey-3-backend-audit.md
+?? memory/journey-3-frontend-audit.md
 ```
 
 ## Session Commits: 10
+- e7e4b6a chore: remove stale crash-recovery backup
+- a6d9069 chore(session): handoff ready fuer naechste Session (Journey #3 Sekundaer-Trade)
 - 86431bd docs(beta): SSOT update — alle 6 AR-Items (Journey #2) done, J2 full-sweep abgeschlossen
 - 739a46b feat(beta): AR-7 IPO-Vokabel-Sweep + business.md Begriffsregel
 - 3067405 feat(beta): AR-9 IPO Fee-Transparenz im BuyConfirmModal (10/5/85 Breakdown)
@@ -18,8 +19,6 @@
 - df94b70 feat(beta): AR-8 drift-backfill + AR-6 zero-price guards (IPO RPCs)
 - bb91372 docs(beta): Journey #2 audits + CEO-approvals + SSOT update
 - 65737cd merge(beta): J2 Round 1 Backend Fixes
-- aec7ca2 merge(beta): J2 Round 1 Frontend Fixes
-- 3c02ebd feat(beta): Journey #2 Round 1 — Frontend Fixes — FIX-01..FIX-14
 
-## Stale Worktrees: 1 (cleanup candidates)
+## Stale Worktrees: 2 (cleanup candidates)
 

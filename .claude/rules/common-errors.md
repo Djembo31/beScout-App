@@ -100,12 +100,30 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
   wrappen, `console.error` + continue (analog Avatar-Upload-Pattern)
 - Audit-Signal: Service-PR aendert return-shape oder error-Semantik → vor Merge `grep -rn 'serviceName' src/`
 
-## i18n-Key-Leak via Service-Errors (2026-04-14 — Journey #1 Reviewer)
+## i18n-Key-Leak via Service-Errors (2026-04-14 — J1 Reviewer, J3 bestaetigt + erweitert)
 - `throw new Error('handleReserved')` in Service → `err.message === 'handleReserved'` (Raw-Key)
 - Wenn Caller `setError(err.message)` macht → User sieht literal "handleReserved" unuebersetzt
-- Fix-Pattern: Caller resolved known Keys via `t(msg)` Lookup, oder Service wirft bereits uebersetzt
+- Fix-Pattern: Caller resolved known Keys via `t(msg)` Lookup (`mapErrorToKey(normalizeError(err)) → te(key)`)
 - Konvention: Service wirft I18N-KEYS, Consumer muss via `t()` resolven. Dokumentieren in Service-JSDoc.
 - Audit: `grep -n 'throw new Error' src/lib/services/` → Keys sammeln, gegen Caller-`setError(err.message)` pruefen
+- **J3 Evidence (2026-04-14):** J2 hat nur `handleBuy` gefixt, aber `handleSell`/`handleCancelOrder`/`placeBuyOrder` blieben offen (raw-key-leak). Pattern ist SYSTEMATISCH — **nach JEDEM swallow→throw-Refactor ALLE gleichartigen Consumer-Pfade greppen, nicht nur den direkt betroffenen.** Das gleiche Service (useTradeActions/trading.ts) hat 4 aehnliche Methoden, nur 1 war gefixt.
+- **Triple-Red-Flag Service-Error Pattern (J3 Healer A):** `throw new Error(\`Price exceeds maximum (${X} $SCOUT)\`)` = (a) DE/EN-Mix, (b) $SCOUT-Ticker im User-Face, (c) dynamischer Wert in Error-Message. Regel: **Error-Messages NIE dynamische Werte enthalten** — dynamic gehoert in Pre-Submit-Hints, nicht Post-Error.
+
+## Modal preventClose Pattern (2026-04-14 — J2F-04 + J3F-06..08)
+- Jeder Modal mit `useMutation.isPending` → IMMER `preventClose={isPending}` setzen
+- Schuetzt vor ESC/Backdrop-Click-State-Verlust mitten in DB-Transaction (200-500ms Latenz auf 4G)
+- Ohne preventClose: User drueckt ESC → Mutation laeuft weiter, UI verliert State (Balance-Before, Pending-Qty), kein Success-Feedback
+- Heuristik fuer Healer-Sweep: `Modal` + (`isPending|cancelling|selling|buying|submitting`) im gleichen File → preventClose nachruesten
+- J3-Fund: BuyModal (`buying \|\| ipoBuying`), SellModal (`selling \|\| cancellingId !== null \|\| acceptingBidId != null`), LimitOrderModal (`false` + TODO fuer Feature-Live)
+- Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` — Modals ohne preventClose bei Money/Trading-Context pruefen
+
+## Multi-League Props-Propagation-Gap (2026-04-14 — J3 Frontend + Reviewer)
+- Neues optionales Player-Feld (z.B. `leagueShort?`) auf Type hinzugefuegt → nur 2 von 8 Render-Call-Sites bedient
+- TSC/Tests merken NICHTS (optional Prop, kein Error)
+- Visual-QA im Pilot (1 Liga) uebersieht's, Fehler tritt erst im Multi-League-Betrieb auf
+- Regel: Neues Player-Feld → **ALLE Render-Call-Sites manuell auditieren** (Grep alle `<PlayerRow`, `<PlayerHero`, `<TradingCardFrame`, `<PlayerIdentity`, `<PlayerIPOCard` etc.)
+- Teil des `/impact` Skills fuer Player-Type-Aenderungen
+- J3-Fund: TradingCardFrame Front+Back + PlayerHero + TransferListSection hatten 0 Liga-Logos trotz vollstaendigem Player-Type seit 2026-04-07
 
 ## RPC Response camelCase/snake_case Mismatch (2026-04-11 — Mystery Box)
 - RPC `jsonb_build_object('rewardType', ...)` → camelCase im Response
