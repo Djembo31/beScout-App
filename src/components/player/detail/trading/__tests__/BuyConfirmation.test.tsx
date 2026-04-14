@@ -6,9 +6,12 @@ import BuyConfirmation from '../BuyConfirmation';
 
 vi.mock('lucide-react', () => {
   const Stub = () => null;
-  return { AlertTriangle: Stub, CheckCircle2: Stub, Loader2: Stub };
+  return { AlertTriangle: Stub, CheckCircle2: Stub, Loader2: Stub, Info: Stub };
 });
-vi.mock('@/lib/utils', () => ({ fmtScout: (n: number) => String(n) }));
+vi.mock('@/lib/utils', () => ({
+  fmtScout: (n: number) => String(n),
+  cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
+}));
 vi.mock('@/lib/services/wallet', () => ({ formatScout: (n: number) => `${n} CR` }));
 vi.mock('@/components/ui', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,

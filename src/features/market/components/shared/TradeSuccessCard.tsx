@@ -3,8 +3,9 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Package } from 'lucide-react';
 import { PlayerPhoto, PositionBadge } from '@/components/player';
+import { useMarketStore } from '@/features/market/store/marketStore';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player } from '@/types';
@@ -52,6 +53,7 @@ export default function TradeSuccessCard({
   player, quantity, oldBalanceCents, newBalanceCents, source, onDismiss,
 }: TradeSuccessCardProps) {
   const t = useTranslations('market');
+  const setTab = useMarketStore((s) => s.setTab);
   const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
   const [paused, setPaused] = useState(false);
   const elapsedRef = useRef(0);
@@ -163,6 +165,15 @@ export default function TradeSuccessCard({
               </div>
             </div>
 
+            <button
+              type="button"
+              onClick={() => { setTab('portfolio'); onDismiss(); }}
+              className="p-2 rounded-lg bg-surface-base hover:bg-white/10 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label={t('toBestand', { defaultMessage: 'Zum Bestand' })}
+              title={t('toBestand', { defaultMessage: 'Zum Bestand' })}
+            >
+              <Package className="size-4 text-gold/80" />
+            </button>
             <Link
               href={`/player/${player.id}`}
               className="p-2 rounded-lg bg-surface-base hover:bg-white/10 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"

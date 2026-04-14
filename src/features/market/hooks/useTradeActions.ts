@@ -8,6 +8,7 @@ import { useBuyFromMarket, useBuyFromIpo } from '@/features/market/mutations/tra
 import { invalidateTradeQueries } from '@/lib/queries';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useToast } from '@/components/providers/ToastProvider';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 
 type BuySource = 'market' | 'ipo';
 type PendingBuy = { playerId: string; source: BuySource } | null;
@@ -18,6 +19,7 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
   const { addToast } = useToast();
   const t = useTranslations('market');
   const tc = useTranslations('common');
+  const te = useTranslations('errors');
 
   // ── Buy state ──
   const [pendingBuy, setPendingBuy] = useState<PendingBuy>(null);
@@ -35,7 +37,19 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
   const buyingId = (buyPending ? (buyVars?.playerId ?? null) : null) || (ipoBuyPending ? (ipoBuyVars?.playerId ?? null) : null);
   const buySuccess = buyIsSuccess ? t('dpcBought', { count: buyVars?.quantity ?? 1 }) : ipoBuyIsSuccess ? t('dpcBought', { count: ipoBuyVars?.quantity ?? 1 }) : null;
   const lastBoughtId = buyIsSuccess ? (buyVars?.playerId ?? null) : ipoBuyIsSuccess ? (ipoBuyVars?.playerId ?? null) : null;
-  const buyError = buyIsError ? (buyMutError?.message ?? tc('unknownError')) : ipoBuyIsError ? (ipoBuyMutError?.message ?? tc('unknownError')) : null;
+  // Resolve i18n-key from mutation error. Services throw keys like 'insufficientBalance';
+  // mapErrorToKey passes them through, or maps raw messages to known keys, or 'generic'.
+  const buyError = (() => {
+    const raw = buyIsError ? buyMutError : ipoBuyIsError ? ipoBuyMutError : null;
+    if (!raw) return null;
+    const key = mapErrorToKey(normalizeError(raw));
+    // te(key) always resolves because KNOWN_KEYS + 'generic' guarantee a match; fallback is defensive only.
+    try {
+      return te(key);
+    } catch {
+      return tc('unknownError');
+    }
+  })();
 
   // ── Success toast ──
   useEffect(() => {
@@ -74,6 +88,8 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
 
   const executeBuy = useCallback((qty: number) => {
     if (!userId || !pendingBuy) return;
+    // Parallel-Mutation-Guard: prevent double-submit if a buy is already in flight
+    if (buyPending || ipoBuyPending) return;
     balanceBeforeBuyRef.current = balanceCents ?? 0;
     setPendingBuy(null);
     if (pendingBuy.source === 'market') {
@@ -83,7 +99,7 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
       if (!ipoId) return;
       doIpoBuy({ userId, ipoId, playerId: pendingBuy.playerId, quantity: qty });
     }
-  }, [userId, pendingBuy, doBuy, doIpoBuy, ipoIdMap, balanceCents]);
+  }, [userId, pendingBuy, buyPending, ipoBuyPending, doBuy, doIpoBuy, ipoIdMap, balanceCents]);
 
   const handleSell = useCallback(async (playerId: string, quantity: number, priceCents: number): Promise<ActionResult> => {
     if (!userId) return { success: false, error: t('notLoggedIn') };

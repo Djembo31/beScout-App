@@ -11,6 +11,7 @@ import {
   PlayerPhoto, PositionBadge, FormBars,
 } from '@/components/player';
 import { getContractInfo, posTintColors } from '@/components/player/PlayerRow';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import CountdownBadge from './CountdownBadge';
 import { fmtScout, cn, countryToFlag } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -75,6 +76,14 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <PositionBadge pos={player.pos} size="sm" />
+              {player.leagueShort && (
+                <LeagueBadge
+                  logoUrl={player.leagueLogoUrl}
+                  name={player.league ?? player.leagueShort}
+                  short={player.leagueShort}
+                  size="xs"
+                />
+              )}
               {player.ticket > 0 && (
                 <span className="font-mono text-[10px] text-white/30 font-bold">#{player.ticket}</span>
               )}

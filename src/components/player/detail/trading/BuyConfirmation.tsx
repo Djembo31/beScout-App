@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import type { DbOrder } from '@/types';
 
 interface BuyConfirmationProps {
@@ -54,6 +55,8 @@ export default function BuyConfirmation({
             </div>
           )}
         </div>
+        {/* Compliance: TradingDisclaimer vor finalem Kauf-CTA */}
+        <TradingDisclaimer variant="inline" />
         <div className="flex items-center gap-2">
           <Button variant="gold" size="sm" className="flex-1" onClick={() => onConfirmBuy(pendingBuyQty, pendingOrderId ?? undefined)} disabled={buying}>
             {buying ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <CheckCircle2 className="size-4" aria-hidden="true" />}

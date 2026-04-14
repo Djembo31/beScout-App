@@ -11,7 +11,7 @@ const KNOWN_KEYS = new Set([
   'generic', 'insufficientBalance', 'playerLiquidated', 'notEnoughDpc', 'orderNotFound',
   'cannotBuyOwn', 'alreadyJoined', 'eventFull', 'eventClosed', 'lineupIncomplete',
   'offerExpired', 'offerAlreadyHandled', 'alreadyExists', 'notFound', 'permissionDenied',
-  'rateLimited', 'networkError', 'timeout', 'subscriptionRequired', 'tierTooLow',
+  'rateLimited', 'networkError', 'timeout', 'subscriptionRequired', 'earlyAccessRequired', 'tierTooLow',
   'invalidQuantity', 'maxQuantityExceeded', 'playerNotFound', 'clubAdminRestricted',
   'noMatchingOrders', 'invalidPrice', 'maxPriceExceeded', 'eventNotFound', 'eventEnded',
   'eventGameweekNotFound', 'playerLockedRemove', 'playerLockedAdd', 'duplicatePlayer',
@@ -80,6 +80,7 @@ const ERROR_MAP: [RegExp, string][] = [
   [/out.of.stock/i, 'cosmeticOutOfStock'],
 
   // Subscription
+  [/early.?access/i, 'earlyAccessRequired'],
   [/subscription.*required/i, 'subscriptionRequired'],
   [/min.*tier/i, 'tierTooLow'],
 ];

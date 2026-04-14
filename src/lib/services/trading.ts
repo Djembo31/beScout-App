@@ -13,9 +13,15 @@ export function mapRpcError(message: string): string {
   const lower = message.toLowerCase();
   if (lower.includes('insufficient balance') || lower.includes('not enough'))
     return 'insufficientBalance';
+  // Early Access / Subscription gate (IPO early_access status, Silber+ required).
+  // Matched BEFORE 'subscription required' generic, so Upgrade-CTA key wins.
+  if (lower.includes('early access') || lower.includes('subscription required'))
+    return 'earlyAccessRequired';
   if (lower.includes('not found') || lower.includes('does not exist'))
     return 'orderNotFound';
-  if (lower.includes('already liquidated') || lower.includes('liquidat'))
+  // Liquidation: matches EN 'liquidated' + DE 'liquidiert'. Avoid bare 'liquidation'
+  // (notification categories) by requiring either form of the participle.
+  if (lower.includes('liquidated') || lower.includes('liquidiert'))
     return 'playerLiquidated';
   if (lower.includes('exceeds') || lower.includes('limit'))
     return 'maxQuantityExceeded';
