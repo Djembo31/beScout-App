@@ -205,7 +205,33 @@ Jede Journey wird systematisch durchgegangen:
 | 11 | Equipment + Inventar | MysteryBox → Equip auf Player → Lineup-Effekt | 🟡 High |
 | 12 | Multi-League Discovery | /market Liga-Filter → Cross-League Compare | 🟢 Medium |
 
-**Output pro Journey:** 
+**Multi-League Integration pro Journey (Status 2026-04-14):**
+
+Die Multi-League-Expansion (7 Ligen, 134 Clubs, 4.263 Spieler, Commit 8a5014d) ist teils live, teils offen. Jede Journey prueft zusaetzlich Liga-Aspekte. Multi-League-Offene-Items werden im Journey-Audit aufgedeckt + gefixt.
+
+| Journey | Multi-League-Checks / Fixes |
+|---------|------------------------------|
+| 1 Onboarding | Home-Widgets Liga-Logos (TopMoversStrip, MostWatchedStrip, HomeSpotlight) fehlen — P1 |
+| 2 IPO-Kauf | PlayerIPOCard Header + TradingCardFrame Liga-Logo — P1. **P1 IPO-Launch-Strategie:** 4.263 neue Spieler haben `dpc_total=0`, brauchen IPO-Launch (pro Spieler manuell vs Bulk-Auto — CEO-Decision pending) |
+| 3 Sekundaer-Trade | TradingCardFrame Front+Back Liga-Logo fehlen, PlayerRow Card-Variant Header, Player-Detail Hero Liga-Badge — P1 |
+| 4 Fantasy-Event | **🔴 P0 CRON MULTI-LEAGUE:** `src/app/api/cron/gameweek-sync/route.ts` hat keine `activeLeagues`-Loop → Gameweek-Sync/Scoring laeuft aktuell nur auf Ur-Liga (TFF 1. Lig). Events in BL/PL/Serie A/LaLiga/SuperLig/BL2 werden NICHT automatisch gescored. **Beta-Blocker.** Plus: EventDetailHeader + GwHeroSummary Liga-Logos (P1) |
+| 5 Mystery Box | — (keine Multi-League-Relevanz) |
+| 6 Profile + Following | Transactions Liga-Filter + Badge fehlen; Profile-Portfolio Liga-Breakdown optional — P2 |
+| 7 Mission/Streak | — (keine Multi-League-Relevanz im Beta-Scope) |
+| 8 Verkaufen + Order-Buch | TradingCardFrame Liga-Logo (gemeinsam mit J3) — P1 |
+| 9 Liga-Rang | Rankings Liga-Filter ✅ done. Home Liga-Rang Widget Liga-Badge — P2 |
+| 10 Watchlist + Notifications | Notification-Items Liga-Logo (P2); Watchlist-Filter bereits via MarktplatzTab ✅ |
+| 11 Equipment + Inventar | — (keine Multi-League-Relevanz) |
+| 12 Multi-League Discovery | CountryBar+LeagueBar ✅ live (MarktplatzTab, BestandView, KaderTab). Clubs-Page Liga-Gruppierung — P2. Cross-Liga Compare Feature — P2 |
+
+**Nicht-Journey Multi-League-Items (nach Phase 2 als Cleanup):**
+- ClubChips shared Component (aktuell inline BestandView)
+- PlayerFilterStack Composite (optional)
+- Navigation (SideNav Liga-Indikator, TopBar Liga-Info, SearchOverlay Liga-Gruppierung)
+- Admin Panel Multi-League Support (Liga-Selector, AdminLigaTab multi-liga) — nicht Beta-Scope
+- Community Liga-Filter — nicht Beta-Scope
+
+**Output pro Journey:**
 - Playwright-Recording (success + fail paths)
 - Bug-Liste mit Severity (CRITICAL/HIGH/MEDIUM/LOW)
 - Wording-Compliance Check
