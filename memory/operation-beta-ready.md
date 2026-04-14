@@ -97,31 +97,21 @@ TOTAL PHANTOM: 11 SCs
 
 **Verify danach:** Supply-Invariant-Test grün, kein Player mit `held > purchased`.
 
-#### Item 1.2: Test-Account SC Cleanup 🔴
+#### Item 1.2: Test-Account SC Cleanup ⏸️ DEFERRED bis post-Beta
 
-**Live-DB Beweis (2026-04-14):**
-| Handle | UUID | SCs | Players |
-|--------|------|-----|---------|
-| test12 | 46535ade-4db2-4866-8dfa-b8a8bcdbd933 | 30 | 16 |
-| jarvisqa | 535bbcaf-f33c-4c66-8861-b15cbff2e136 | 18 | 9 |
-| test1 | ca37ebe6-2ce7-4d1e-b296-ec9f291c4ae7 | 17 | 14 |
-| test2 | 01c36853-ad96-453a-bab7-3cec3c6832be | 11 | 11 |
-| test | cc8e9304-91ae-4a14-bc2c-0751aff9a7fa | 10 | 9 |
-| test444 | 782777a7-9e4a-4e5f-9681-0db78db66648 | 4 | 3 |
+**CEO-Decision 2026-04-14:** Test-Accounts BLEIBEN waehrend Beta. Begruendung: bei 50 Mann Start braucht der Markt Belebung, sonst tot.
 
-**Total: 90 SCs** in 6 QA-Accounts.
+**Status:** Item komplett auf post-Beta verschoben. Phase 1 reduziert auf 1.1 + 1.3 + 1.4 + 1.5.
 
-**Wichtig:** Diese SCs sind NICHT phantom (durch echte Trades), aber pollutet Marktdaten. Decision: loeschen ODER nur SCs nullen ODER beibehalten als "QA Demo Accounts"?
+**Live-DB Snapshot (2026-04-14):** 90 SCs in 6 Test-Accounts (test12=30, jarvisqa=18, test1=17, test2=11, test=10, test444=4) bleiben aktiv im Markt.
 
-**Empfehlung:** test444 + jarvisqa BEHALTEN (fuer ongoing QA), aber SC-Holdings nullen + neu seeden mit kleinen Zahlen. test/test1/test2/test12 komplett loeschen (Cascade wie Item 1.1).
+**Optional waehrend Beta:** Test-Accounts rebranden auf realistische Demo-Handles (z.B. "demo_haci", "demo_emre") damit es nicht nach "test" aussieht. → Nur wenn Beta-User es bemerken/ansprechen.
 
-**WAITING ON CEO:** Welche Accounts sollen bleiben fuer post-launch QA?
+#### Item 1.3: 16 RPCs DPC-Sanitize + Function-Rename 🔴 (CEO 2026-04-14: rename approved)
 
-#### Item 1.3: 14 RPCs DPC-String Sanitize 🔴
+**Live-DB Beweis (2026-04-14):** 16 RPCs enthalten "DPC" string.
 
-**Live-DB Beweis (2026-04-14):** 16 RPCs enthalten "DPC" string:
-
-**14 RPCs mit DPC im Body** (description-strings, comments):
+**14 RPCs mit DPC im Body** (description-strings, comments → string-replace):
 1. accept_offer
 2. award_mastery_xp
 3. buy_from_ipo
@@ -137,21 +127,26 @@ TOTAL PHANTOM: 11 SCs
 13. place_sell_order
 14. refresh_airdrop_score
 
-**2 RPCs mit DPC im Function-Name** (Decision needed):
-- `buy_player_dpc` — Legacy-Alias? Renamed to `buy_player_sc`?
-- `calculate_dpc_of_week` — Renamed to `calculate_sc_of_week`?
+**2 RPCs mit DPC im Function-Name → CEO 2026-04-14: RENAME**:
+- `buy_player_dpc` → `buy_player_sc`
+- `calculate_dpc_of_week` → `calculate_sc_of_week`
+- **Plus:** alle Service-Konsumenten (`src/lib/services/*.ts`) updaten
+- **Plus:** alle Hooks/Components die diese RPCs nutzen
+- **Plus:** Impact-Agent VOR Rename — jeder caller muss bekannt sein
 
-**Approach:** Pro RPC einzeln:
+**Approach (per RPC einzeln):**
 1. `pg_get_functiondef()` lesen
-2. Code-grep wo RPC aufgerufen wird
-3. String-replace "DPC" → "SC" in Function-Body (description text only, NICHT in column-names oder business-logic)
-4. Migration mit `mcp__supabase__apply_migration`
-5. Supply-Invariant + Geld-Tests gruen
-6. Reviewer Agent (Opus) prueft Geld-Invarianten
+2. Code-grep wo RPC aufgerufen wird (Service-Layer + direkte Callers)
+3. **Body-Strings:** "DPC" → "SC" in description text only (NICHT in column-names oder business-logic)
+4. **Function-Renames:** CREATE OR REPLACE FUNCTION mit neuem Namen, dann DROP alter Name (oder Alias-Pattern fuer 1 Migration)
+5. Migration mit `mcp__supabase__apply_migration`
+6. Service-Files updaten + tsc clean
+7. Supply-Invariant + Geld-Tests gruen
+8. Reviewer Agent (Opus) prueft Geld-Invarianten + Rename-Vollstaendigkeit
 
-**WICHTIG:** Code-intern bleibt "dpc" in Variable/Column-Names (siehe business.md). Nur USER-FACING strings in Descriptions werden umbenannt.
+**WICHTIG:** Code-intern bleibt "dpc" in Variable/Column-Names (siehe business.md). Nur USER-FACING strings + Function-Names werden umbenannt.
 
-**Aufwand:** ~3 Min pro RPC × 14 = 45 Min + Reviewer 30 Min = 75 Min total.
+**Aufwand:** ~3 Min pro RPC × 14 Body + 15 Min pro Rename × 2 = ~75 Min Backend + 15 Min Impact-Check + 30 Min Reviewer = ~2 Stunden total.
 
 #### Item 1.4: Migration-Drift dokumentieren 🟡
 
@@ -247,23 +242,23 @@ Jede Journey wird systematisch durchgegangen:
 
 ---
 
-### Phase 4 — Beta Launch Gate (Definition)
+### Phase 4 — Beta Launch Gate (Definition, CEO-Decisions 2026-04-14)
 
 EXPLIZITE Checklist. Was hier nicht ✅ ist, blockt Beta-Launch.
 
 - [ ] Alle 12 User Journeys laufen ohne CRITICAL/HIGH-Bug durch (Playwright-Beweis)
-- [ ] Onboarding < 60 Sekunden (Welcome bis erste Action)
+- [ ] Onboarding < 60 Sekunden (Welcome bis erste Action) — Comunio-Veteranen brauchen kein Hand-Holding
 - [ ] RPC-P95 < 200ms für: buy_from_market, buy_from_order, place_sell_order, accept_offer, score_event
-- [ ] Mobile 390px clean auf jeder Page (Screenshot-Beweis)
+- [ ] **Mobile-First clean:** iPhone 12+ baseline, 4G Tuerkei, Bundle <300KB, LCP <2s (CEO Q3)
 - [ ] DE + TR coverage 100% für user-facing strings
 - [ ] Compliance-Sweep clean (0 forbidden words live)
 - [ ] Sentry hooked up + DSN live + Source-Maps uploaded
-- [ ] PostHog hooked up (optional, falls vorhanden)
-- [ ] Beta-Onboarding Email/SMS-Flow ready
-- [ ] Pre-Launch Cleanup done (Phase 1 alle 5 Items ✅)
+- [ ] Beta-Onboarding Email/SMS-Flow ready (Founder-Status communiziert)
+- [ ] Pre-Launch Cleanup done (Phase 1.1 + 1.3 + 1.4 ✅, 1.2 deferred post-Beta)
 - [ ] Supply-Invariant + NULL-Money-Bug Tests gruen in CI
-- [ ] Roll-back Plan + Hotfix-Workflow dokumentiert
-- [ ] CEO Beta-User-Liste finalisiert (50 Mann)
+- [ ] **Roll-back Plan + P0 Hotfix-Workflow dokumentiert** (P0 = Geld + Onboarding + Lineup-Submit, CEO Q2)
+- [ ] CEO Beta-User-Liste finalisiert (Familie + Freunde + Comunio.de Veteranen, CEO Q1)
+- [ ] **Founder-Onboarding-Komms:** Welcome-Mail mit Founder-Status, Bug-Report-Channel definiert
 
 ---
 
@@ -303,8 +298,8 @@ Skizze fuer spaetere Sessions:
 |-------|--------|-------|-------------|
 | 0 — Inventory | ⏳ pending | CTO + 2 Explore Agents | — |
 | 1.1 Fan-Seed Cleanup | 🔴 ready | Backend Agent | Live-Beweis 2026-04-14 |
-| 1.2 Test-Account Cleanup | ⏳ waiting CEO decision | Backend Agent | 2026-04-14 |
-| 1.3 14 RPCs DPC-Sanitize | 🔴 ready | Backend Agent + Reviewer | Live-Beweis 2026-04-14 |
+| 1.2 Test-Account Cleanup | ⏸️ DEFERRED post-Beta | — | CEO-Decision 2026-04-14: brauchen Markt-Belebung |
+| 1.3 16 RPCs DPC-Sanitize+Rename | 🔴 ready | Backend Agent + Impact + Reviewer | CEO-Decision 2026-04-14: Rename approved |
 | 1.4 Migration-Drift Doku | 🟡 quick-doc | CTO | 2026-04-14 |
 | 1.5 Live-DB Tests | ✅ verified intentional | — | 2026-04-14 |
 | 2 — Journey Audits (12) | ⏳ pending | Frontend+Backend+Business+Reviewer | — |
@@ -324,19 +319,19 @@ Skizze fuer spaetere Sessions:
 
 ---
 
-## Open Questions for CEO (sammeln, nicht jedes Mal fragen)
+## CEO-Decisions (final — 2026-04-14)
 
-- [ ] Beta-User Profile: Hardcore-Fans? Casuals? Mix? (Phase 4 Gate)
-- [ ] Failure-Tolerance: Was darf NIE kaputt gehen? (Geld-Layer? Lineup? Onboarding?)
-- [ ] Performance-Erwartung: Mobile auf 4G Tuerkei? Desktop only?
-- [ ] Welche Test-Accounts behalten fuer post-launch QA? (Item 1.2)
-- [ ] Function-Names `buy_player_dpc` + `calculate_dpc_of_week` rename ODER legacy lassen? (Item 1.3)
-- [ ] PostHog hooked? (Phase 4 Gate Item 8)
-
-Sammeln und in einer 15-Min Spec-Session abarbeiten, nicht einzeln.
+- [x] **Q1 Beta-User Profile:** Familie + Freunde als **Founder** mitmachen. Comunio.de-Veteranen → erfahrene Manager-Spieler. Sie kennen Trading, Lineup, Stats von Day 1. **Implication:** Onboarding kurz halten (kein Hand-Holding noetig), aber Marktdepth + Lineup-Logic + Stats muessen tight sein. Founder-Status starke Motivation → werden Bugs proaktiv melden.
+- [x] **Q2 Failure-Tolerance:** Alle 3 = P0 (Geld + Onboarding + Lineup-Submit). Hot-Fix sofort + Rollback noetig bei Bug. Rest = P1.
+- [x] **Q3 Performance:** Mobile-First, 4G Tuerkei, iPhone 12+ Baseline. Bundle <300KB, LCP <2s.
+- [x] **Q4 Test-Accounts:** **BEHALTEN bis post-Beta.** Brauchen Markt-Belebung (sonst toter Markt bei 50 Mann Start). Cleanup-Plan = post-Beta. Phase 1.2 → DEFERRED.
+- [x] **Q5 RPC-Function-Names:** **RENAME** (`buy_player_dpc` → `buy_player_sc`, `calculate_dpc_of_week` → `calculate_sc_of_week`). Saubere Codebase. Phase 1.3 erweitert auf 16 RPCs inkl. Function-Renames + alle Service-Konsumenten.
+- [x] **Q6 PostHog:** Nein, Beta laeuft nur mit Sentry. Behavior-Daten erst post-Beta.
+- [x] **Bonus Cadence:** Session-Ende Status-Reports. CEO checkt SSOT wann gewuenscht.
 
 ---
 
 ## Session-Log
 
 - **2026-04-14** — Operation Beta Ready definiert. Live-DB Pre-Launch Scan durchgefuehrt — alle Items 1.1-1.5 mit echten Daten verifiziert. Tool-Setup: Sentry MCP scoped + GitHub gh + Vercel CLI alle live (siehe `cto-tools-setup.md`). Naechste Session: Phase 0 Inventory + Phase 1 Cleanup parallel starten.
+- **2026-04-14 Late** — CEO-Spec-Session: alle 6 Open Questions beantwortet. Beta-User = Comunio-Veteranen-Founder, Failure-P0 = Geld+Onboarding+Lineup, Mobile-First Performance, Test-Accounts deferred (Markt-Belebung), RPC-Rename approved, kein PostHog, Session-End Reports. Phase 1 reduziert auf 1.1+1.3+1.4+1.5 (1.2 post-Beta).
