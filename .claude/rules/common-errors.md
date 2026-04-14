@@ -91,6 +91,22 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
   - Audit: `grep -rn 'const { data } = await supabase' src/lib/services/`
 - **2026-04-13: 117 Fixes in 61 Services — alle Saeulen gehaertet, 1192 Tests gruen**
 
+## Service Contract-Change Propagation (2026-04-14 — Journey #1 Reviewer)
+- Service-Aenderung `if(error) console.error → throw` ist Breaking-Change fuer Caller
+- Pattern: Nach JEDEM swallow→throw Refactor IMMER alle Caller greppen + try/catch-Logik auditen
+- Concrete Falle: `applyClubReferral.throw` ohne Consumer-Fix → onboarding/page.tsx trapped User:
+  createProfile OK, clubFollow throw, User gefangen (Retry scheitert an unique-handle)
+- Fix-Pattern: Bei "best-effort" Side-Effects (club-follow, referral, avatar) in separates try/catch
+  wrappen, `console.error` + continue (analog Avatar-Upload-Pattern)
+- Audit-Signal: Service-PR aendert return-shape oder error-Semantik → vor Merge `grep -rn 'serviceName' src/`
+
+## i18n-Key-Leak via Service-Errors (2026-04-14 — Journey #1 Reviewer)
+- `throw new Error('handleReserved')` in Service → `err.message === 'handleReserved'` (Raw-Key)
+- Wenn Caller `setError(err.message)` macht → User sieht literal "handleReserved" unuebersetzt
+- Fix-Pattern: Caller resolved known Keys via `t(msg)` Lookup, oder Service wirft bereits uebersetzt
+- Konvention: Service wirft I18N-KEYS, Consumer muss via `t()` resolven. Dokumentieren in Service-JSDoc.
+- Audit: `grep -n 'throw new Error' src/lib/services/` → Keys sammeln, gegen Caller-`setError(err.message)` pruefen
+
 ## RPC Response camelCase/snake_case Mismatch (2026-04-11 — Mystery Box)
 - RPC `jsonb_build_object('rewardType', ...)` → camelCase im Response
 - Service castet `data as { reward_type: ... }` → snake_case → ALLE Felder undefined
