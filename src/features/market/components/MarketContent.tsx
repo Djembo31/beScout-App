@@ -18,6 +18,7 @@ import { qk } from '@/lib/queries/keys';
 import { GeoGate } from '@/components/geo/GeoGate';
 import { useRecentScores } from '@/lib/queries/managerData';
 import { useHoldingLocks } from '@/features/fantasy/queries/events';
+import { FEATURE_BUY_ORDERS } from '@/lib/featureFlags';
 import dynamic from 'next/dynamic';
 
 import MarketHeader from './MarketHeader';
@@ -26,7 +27,8 @@ import MarktplatzTab from './marktplatz/MarktplatzTab';
 
 const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false });
 const BuyConfirmModal = dynamic(() => import('./shared/BuyConfirmModal'), { ssr: false });
-const BuyOrderModal = dynamic(() => import('./shared/BuyOrderModal'), { ssr: false });
+// BuyOrderModal aus Beta entfernt (AR-11) — lazy-Import bleibt gestrichen.
+// Wenn Matching-Engine live ist: `FEATURE_BUY_ORDERS = true` + hier re-adden.
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 
 // ── Tab config ──
@@ -93,8 +95,12 @@ export default function MarketContent() {
   };
   const tabs = TAB_IDS.map(id => ({ id, label: TAB_LABELS[id] }));
 
-  // ── Buy order modal helper ──
+  // ── Buy order modal helper (AR-11: aus Beta entfernt, FEATURE_BUY_ORDERS=false) ──
+  // Flag-gated no-op: TransferList ueber onCreateBuyOrder=undefined signalisiert,
+  // dass der Buy-Order-Button nicht gerendert wird (MarktplatzTab + TransferListSection
+  // propagieren undefined, Button haengt hinter `{onCreateBuyOrder && (...)}`).
   const handleCreateBuyOrder = useCallback((playerId: string) => {
+    if (!FEATURE_BUY_ORDERS) return;
     const p = data.playerMap.get(playerId);
     if (p) trade.setBuyOrderPlayer(p);
   }, [data.playerMap, trade]);
@@ -202,7 +208,7 @@ export default function MarketContent() {
           buyingId={trade.buyingId}
           onBuy={trade.handleBuy}
           onIpoBuy={trade.handleIpoBuy}
-          onCreateBuyOrder={handleCreateBuyOrder}
+          onCreateBuyOrder={FEATURE_BUY_ORDERS ? handleCreateBuyOrder : undefined}
         />
       </TabPanel>
 
@@ -236,12 +242,8 @@ export default function MarketContent() {
         );
       })()}
 
-      {/* Buy Order Modal */}
-      <BuyOrderModal
-        player={trade.buyOrderPlayer}
-        open={trade.buyOrderPlayer !== null}
-        onClose={() => trade.setBuyOrderPlayer(null)}
-      />
+      {/* Buy Order Modal — AR-11: aus Beta entfernt (FEATURE_BUY_ORDERS=false). */}
+      {/* Wenn `place_buy_order` Matching-Engine live ist: Modal + import wieder aktivieren. */}
     </div>
     </GeoGate>
   );

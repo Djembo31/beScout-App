@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
 import type { FantasyEvent, EventMode, LineupFormat } from './types';
 
 export const CreateEventModal = ({
@@ -21,10 +22,14 @@ export const CreateEventModal = ({
   const [description, setDescription] = useState('');
   const [mode, setMode] = useState<EventMode>('tournament');
   const [format, setFormat] = useState<LineupFormat>('7er');
-  const [buyIn, setBuyIn] = useState(0);
   const [maxParticipants, setMaxParticipants] = useState(50);
   const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // AR-31 (J4): PAID_FANTASY_ENABLED=false in Beta. buyIn + Fee-Preview
+  // + Creator-Fee-Berechnung sind Phase-4-Features (NICHT BAUEN).
+  // Feld + Preview-Block werden im Render-Block nur bei aktivem Flag gerendert.
+  const [buyIn] = useState(0); // hardcoded 0 — kein Setter in Beta noetig.
 
   const canSubmit = name.trim().length >= 3;
 
@@ -39,7 +44,7 @@ export const CreateEventModal = ({
       description,
       mode,
       format,
-      buyIn,
+      buyIn: PAID_FANTASY_ENABLED ? buyIn : 0,
       maxParticipants,
       type: 'creator',
       status: 'registering',
@@ -52,8 +57,9 @@ export const CreateEventModal = ({
     setError(null);
   };
 
-  const creatorFee = Math.round(buyIn * maxParticipants * 0.05);
-  const prizePool = buyIn * maxParticipants - creatorFee;
+  // Creator-Fee nur in Phase 4 relevant (AR-38). In Beta bleibt Preview-Block versteckt.
+  const creatorFee = PAID_FANTASY_ENABLED ? Math.round(buyIn * maxParticipants * 0.05) : 0;
+  const prizePool = PAID_FANTASY_ENABLED ? (buyIn * maxParticipants - creatorFee) : 0;
 
   return (
     <Modal
@@ -137,22 +143,25 @@ export const CreateEventModal = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="create-event-buyin" className="block text-sm font-medium mb-2">{t('buyInLabel')}</label>
-            <input
-              id="create-event-buyin"
-              type="number"
-              inputMode="numeric"
-              value={buyIn}
-              onChange={(e) => setBuyIn(Number(e.target.value))}
-              min={0}
-              max={0}
-              disabled
-              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
-            />
-            <div className="text-xs text-white/30 mt-1">{t('buyInPilotHint')}</div>
-          </div>
+        <div className={cn('grid gap-4', PAID_FANTASY_ENABLED ? 'grid-cols-2' : 'grid-cols-1')}>
+          {/* AR-31: buyIn-Feld nur in Phase 4 (PAID_FANTASY_ENABLED=true). */}
+          {PAID_FANTASY_ENABLED && (
+            <div>
+              <label htmlFor="create-event-buyin" className="block text-sm font-medium mb-2">{t('buyInLabel')}</label>
+              <input
+                id="create-event-buyin"
+                type="number"
+                inputMode="numeric"
+                value={buyIn}
+                readOnly
+                min={0}
+                max={0}
+                disabled
+                className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
+              />
+              <div className="text-xs text-white/30 mt-1">{t('buyInPilotHint')}</div>
+            </div>
+          )}
           <div>
             <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">{t('maxParticipantsLabel')}</label>
             <input
@@ -184,23 +193,26 @@ export const CreateEventModal = ({
           </button>
         </div>
 
-        <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
-          <div className="text-sm text-white/60 mb-2">{t('previewSection')}</div>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div>
-              <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} CR</div>
-              <div className="text-xs text-white/40">{t('entryLabel')}</div>
-            </div>
-            <div>
-              <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} CR</div>
-              <div className="text-xs text-white/40">{t('prizeMoney')}</div>
-            </div>
-            <div>
-              <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} CR</div>
-              <div className="text-xs text-white/40">{t('creatorFee')}</div>
+        {/* AR-31+38: Preview-Section mit Entry/PrizePool/CreatorFee nur in Phase 4. */}
+        {PAID_FANTASY_ENABLED && (
+          <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
+            <div className="text-sm text-white/60 mb-2">{t('previewSection')}</div>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} CR</div>
+                <div className="text-xs text-white/40">{t('entryLabel')}</div>
+              </div>
+              <div>
+                <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} CR</div>
+                <div className="text-xs text-white/40">{t('prizeMoney')}</div>
+              </div>
+              <div>
+                <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} CR</div>
+                <div className="text-xs text-white/40">{t('creatorFee')}</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
       </div>
     </Modal>

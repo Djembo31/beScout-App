@@ -54,7 +54,10 @@ type Props = {
   buyingId: string | null;
   onBuy: (playerId: string) => void;
   onIpoBuy: (playerId: string) => void;
-  onCreateBuyOrder: (playerId: string) => void;
+  // AR-11: FEATURE_BUY_ORDERS=false in Beta — handler ist optional, damit aufrufende
+  // Stellen `undefined` propagieren koennen (TransferListSection rendert den Button
+  // nur wenn handler vorhanden).
+  onCreateBuyOrder?: (playerId: string) => void;
 };
 
 export default function MarktplatzTab({
