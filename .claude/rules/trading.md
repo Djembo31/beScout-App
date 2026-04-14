@@ -30,7 +30,7 @@ paths:
 - **P2P Offers (3% total):** Platform 2% + PBT 0.5% + Club 0.5% (ADR-025 updated, `offer_*_bps` in fee_config)
 - **Club Abos:** 100% Club (ADR-027)
 - Fee-Discount: Platform absorbs Rabatt, PBT+Club immer voller Anteil
-- Abo-Discount: `buy_player_dpc` prueft `club_subscriptions` (active + expires_at > now)
+- Abo-Discount: `buy_player_sc` prueft `club_subscriptions` (active + expires_at > now). Alter Name `buy_player_dpc` existiert als thin-alias (seit 2026-04-14, Migration 20260414151000).
 
 ## Escrow Pattern (Offers + Bounties)
 1. Check wallet balance (available = balance - locked)
