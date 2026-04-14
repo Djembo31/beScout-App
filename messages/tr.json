@@ -3414,6 +3414,8 @@
     "cookieImprint": "Künye",
     "tradingDisclaimer": "Credits, platform özelliklerine erişim için kullanılan platform kredileridir. Finansal ürün değildir, garantili getiri yoktur. İşlem ücreti: %6 (%3,5 Platform, %1,5 Oyuncu Ödül Havuzu, %1 Kulüp).",
     "tradingDisclaimerShort": "Platform kredileri, finansal ürün değildir. %6 işlem ücreti.",
+    "fantasyDisclaimer": "Fantasy turnuvaları eğlence hizmetleridir. Pilot aşamasında ücretsizdir. Credits ödülleri sıralamaya göre dağıtılır — kulübün takdirindedir, hak talebi veya garanti yoktur. Şans oyunu düzenlemesine tabi değildir.",
+    "fantasyDisclaimerShort": "Ücretsiz katılım. Credits ödülleri takdire bağlı, hak talebi yok. Şans oyunu değildir.",
     "backToHome": "Ana sayfaya dön",
     "copyright": "© 2026 BeScout. Tüm hakları saklıdır.",
     "impressum": {

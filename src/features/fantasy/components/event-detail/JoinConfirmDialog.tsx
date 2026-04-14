@@ -7,6 +7,7 @@ import { fmtScout } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
 import type { FantasyEvent } from '@/components/fantasy/types';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
 export interface JoinConfirmDialogProps {
   event: FantasyEvent;
@@ -79,6 +80,8 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
             </p>
           </div>
         )}
+        {/* Compliance Disclaimer (AR-33 Journey #4) — vor Confirm-Buttons */}
+        <FantasyDisclaimer variant="inline" className="mb-3" />
         <div className="flex gap-3">
           <Button variant="outline" size="lg" fullWidth onClick={onCancel} disabled={joining}>
             {t('cancelBtn')}

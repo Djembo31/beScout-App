@@ -18,6 +18,7 @@ import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 // Extracted components
 import { EventDetailHeader } from '@/features/fantasy/components/event-detail/EventDetailHeader';
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
 // Lazy-loaded EquipmentPicker
 const EquipmentPicker = dynamic(() => import('@/components/gamification/EquipmentPicker'), {
@@ -343,6 +344,9 @@ export const EventDetailModal = ({
             />
           )}
         </div>
+
+        {/* Compliance Disclaimer (AR-33 Journey #4) — inline vor Footer */}
+        <FantasyDisclaimer variant="inline" className="mt-3" />
 
         {/* Footer Actions */}
         <EventDetailFooter

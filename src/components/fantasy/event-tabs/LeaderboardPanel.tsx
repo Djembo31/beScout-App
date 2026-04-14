@@ -15,6 +15,7 @@ import type { LeaderboardEntry } from '@/lib/services/scoring';
 import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { getScoreColor, getPosAccentColor } from '../helpers';
 import type { FantasyEvent } from '../types';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 
@@ -44,6 +45,12 @@ export default function LeaderboardPanel({
   // Batch-fetch cosmetics for all leaderboard users
   const leaderboardUserIds = useMemo(() => leaderboard.map(e => e.userId), [leaderboard]);
   const { data: cosmeticsMap } = useBatchEquippedCosmetics(leaderboardUserIds);
+
+  // AR-33 (J4): FantasyDisclaimer rendern wenn mindestens eine Reward > 0 ist.
+  const hasRewards = useMemo(
+    () => leaderboard.some((e) => e.rewardAmount > 0),
+    [leaderboard]
+  );
 
   return (
     <div className="space-y-2">
@@ -282,6 +289,8 @@ export default function LeaderboardPanel({
                   <RefreshCw aria-hidden="true" className="size-4 mx-auto text-white/30 animate-spin motion-reduce:animate-none" />
                 </div>
               )}
+              {/* AR-33 (J4): FantasyDisclaimer nur wenn echte Rewards vergeben sind */}
+              {hasRewards && <FantasyDisclaimer variant="inline" className="mt-3" />}
             </>
           )}
         </>

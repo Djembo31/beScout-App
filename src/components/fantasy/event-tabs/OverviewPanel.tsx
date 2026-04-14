@@ -13,6 +13,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { InfoTooltip } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
 export interface OverviewPanelProps {
   event: FantasyEvent;
@@ -192,6 +193,8 @@ export default function OverviewPanel({ event, userId, participants, participant
             );
           })}
         </div>
+        {/* Compliance Disclaimer (AR-33 Journey #4) — unter Reward-Verteilung */}
+        <FantasyDisclaimer variant="inline" className="mt-2" />
       </div>
 
       {/* Participants List */}

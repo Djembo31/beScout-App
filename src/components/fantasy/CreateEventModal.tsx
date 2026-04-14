@@ -7,6 +7,7 @@ import { Button, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
 import type { FantasyEvent, EventMode, LineupFormat } from './types';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
 export const CreateEventModal = ({
   isOpen,
@@ -192,6 +193,9 @@ export const CreateEventModal = ({
             <div className={cn('size-5 rounded-full bg-white shadow-md transform transition-transform', isPrivate ? 'translate-x-6' : 'translate-x-0.5')} />
           </button>
         </div>
+
+        {/* Compliance Disclaimer (AR-33 Journey #4) — im Modal-Footer */}
+        <FantasyDisclaimer variant="inline" />
 
         {/* AR-31+38: Preview-Section mit Entry/PrizePool/CreatorFee nur in Phase 4. */}
         {PAID_FANTASY_ENABLED && (

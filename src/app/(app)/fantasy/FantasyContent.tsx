@@ -57,6 +57,7 @@ const EventDetailModal = dynamic(
   }
 );
 import EventSummaryModal, { markEventSeen } from '@/components/fantasy/EventSummaryModal';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
 // ============================================
 // MAIN ORCHESTRATOR
@@ -219,6 +220,9 @@ export default function FantasyContent() {
 
       {/* Scoring Rules */}
       <ScoringRules />
+
+      {/* Compliance Disclaimer (AR-33 Journey #4) */}
+      <FantasyDisclaimer variant="card" />
 
       {/* COUNTRY + LEAGUE FILTER */}
       <CountryBar

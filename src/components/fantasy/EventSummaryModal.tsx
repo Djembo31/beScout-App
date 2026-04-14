@@ -7,6 +7,7 @@ import { fmtScout } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { FantasyEvent } from './types';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
+import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
 const RANK_MEDALS: Record<number, string> = { 1: '\uD83E\uDD47', 2: '\uD83E\uDD48', 3: '\uD83E\uDD49' };
 
@@ -89,6 +90,9 @@ export default function EventSummaryModal({
             </div>
           </div>
         )}
+
+        {/* Compliance Disclaimer (AR-33 Journey #4) — zwischen Reward und CTA */}
+        <FantasyDisclaimer variant="inline" />
 
         {/* CTA — AR-36: neutralisiert, kein Reinvest-Pitch nach Gewinn-Erlebnis.
             "Aufstocken" → "Zum Kader" (neutral, kein Trading-CTA direkt nach Reward). */}
