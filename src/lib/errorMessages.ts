@@ -20,8 +20,8 @@ const KNOWN_KEYS = new Set([
   'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown', 'orderRateLimit',
   'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
   'ipoMisconfigured',
-  // Mystery Box (J5F-06 / J5B-13)
-  'mysteryBoxDailyLimit', 'mysteryBoxNotEnoughTickets',
+  // Mystery Box (J5F-06 / J5B-13 / AR-49)
+  'mysteryBoxDailyLimit', 'mysteryBoxNotEnoughTickets', 'mysteryBoxPaidDisabled',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -88,9 +88,10 @@ const ERROR_MAP: [RegExp, string][] = [
   [/subscription.*required/i, 'subscriptionRequired'],
   [/min.*tier/i, 'tierTooLow'],
 
-  // Mystery Box (J5F-06 / J5B-13) — raw RPC strings → i18n keys
+  // Mystery Box (J5F-06 / J5B-13 / AR-49) — raw RPC strings → i18n keys
   [/daily.?free.?limit.?reached|daily.*box.*claimed/i, 'mysteryBoxDailyLimit'],
   [/not.?enough.?tickets|insufficient.?tickets/i, 'mysteryBoxNotEnoughTickets'],
+  [/paid.mystery.box.disabled/i, 'mysteryBoxPaidDisabled'],
 ];
 
 /**

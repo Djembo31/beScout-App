@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMysteryBoxHistory } from '@/lib/queries/mysteryBox';
 import { RARITY_CONFIG, type RarityVisualConfig } from '@/components/gamification/rarityConfig';
+import { MysteryBoxDisclaimer } from '@/components/legal/MysteryBoxDisclaimer';
 import type { MysteryBoxResult, MysteryBoxRewardType } from '@/types';
 
 const HISTORY_LIMIT = 20;
@@ -83,12 +84,16 @@ export default function MysteryBoxHistorySection() {
 
   if (history.length === 0) {
     return (
-      <EmptyState
-        icon={<Gift />}
-        title={t('historyEmpty')}
-        description={t('historyEmptyDesc')}
-        action={{ label: t('historyEmptyCta'), href: '/missions' }}
-      />
+      <div className="space-y-4">
+        {/* AR-47: Compliance-Disclaimer — auch im Empty-State sichtbar */}
+        <MysteryBoxDisclaimer variant="card" />
+        <EmptyState
+          icon={<Gift />}
+          title={t('historyEmpty')}
+          description={t('historyEmptyDesc')}
+          action={{ label: t('historyEmptyCta'), href: '/missions' }}
+        />
+      </div>
     );
   }
 
@@ -100,6 +105,9 @@ export default function MysteryBoxHistorySection() {
           {t('historySubtitle', { limit: HISTORY_LIMIT })}
         </p>
       </div>
+
+      {/* AR-47: Compliance-Disclaimer oberhalb der History-Liste */}
+      <MysteryBoxDisclaimer variant="card" />
 
       <Card className="p-0 overflow-hidden">
         <ul className="divide-y divide-white/[0.06]">

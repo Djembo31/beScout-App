@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Gift, Ticket, Sparkles, AlertCircle, Coins, Swords, Package } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
@@ -10,6 +10,9 @@ import type { MysteryBoxResult, MysteryBoxRarity } from '@/types';
 import { RARITY_CONFIG, EQUIPMENT_POSITION_COLORS, type RarityVisualConfig } from './rarityConfig';
 import { ParticleSystem } from './particles';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
+import { MysteryBoxDisclaimer } from '@/components/legal/MysteryBoxDisclaimer';
+import { useMysteryBoxDropRates } from '@/lib/queries/mysteryBox';
+import { PAID_MYSTERY_BOX_ENABLED } from '@/lib/featureFlags';
 
 // ============================================
 // MYSTERY BOX MODAL — Premium Star Drops
@@ -38,6 +41,20 @@ const REWARD_PREVIEW: { rarity: MysteryBoxRarity; dropRate: number }[] = [
   { rarity: 'legendary', dropRate: 6 },
   { rarity: 'mythic', dropRate: 2 },
 ];
+
+/**
+ * Fallback drop percentages (AR-48) — used when `useMysteryBoxDropRates`
+ * hook is loading or errored. Matches live DB-config at build-time
+ * (Common 45 / Rare 30 / Epic 17 / Legendary 6 / Mythic 2).
+ */
+const DEFAULT_DROP_PERCENTS: Record<MysteryBoxRarity, number> = {
+  common: 45,
+  uncommon: 0,
+  rare: 30,
+  epic: 17,
+  legendary: 6,
+  mythic: 2,
+};
 
 type BoxState = 'idle' | 'anticipation' | 'shake' | 'burst' | 'celebration';
 
@@ -69,6 +86,24 @@ export default function MysteryBoxModal({
   const reducedMotion = useRef(
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
+
+  // AR-48: Drop-Rates aus DB-Config dynamisch (via RPC). Fallback auf statische
+  // DEFAULT_DROP_PERCENTS wenn Hook loading/error — UX-Consistency.
+  const { data: dropRatesData } = useMysteryBoxDropRates();
+  const dropPercents = useMemo<Record<MysteryBoxRarity, number>>(() => {
+    if (!dropRatesData?.rates?.length) return DEFAULT_DROP_PERCENTS;
+    const result: Record<MysteryBoxRarity, number> = { ...DEFAULT_DROP_PERCENTS };
+    for (const rate of dropRatesData.rates) {
+      if (rate.rarity in result) {
+        result[rate.rarity] = rate.drop_percent;
+      }
+    }
+    return result;
+  }, [dropRatesData]);
+
+  // AR-49: Paid-Mystery-Box Feature-Flag. Wenn Paid-Path deaktiviert + keine
+  // Gratis-Box verfuegbar → Open-Button versteckt, Hint zeigen.
+  const paidEnabled = PAID_MYSTERY_BOX_ENABLED;
 
   // NOTE: Mystery box is a daily free-open reward only — ticket purchase
   // was removed (polish-sweep Track C1). `effectiveCost` is kept because the
@@ -116,6 +151,13 @@ export default function MysteryBoxModal({
 
   const handleOpen = useCallback(async () => {
     if (!canAfford) return;
+    // AR-49: Paid-Mystery-Box Feature-Flag. Free-Daily bleibt immer erlaubt;
+    // paid-Purchase (!free + paidEnabled=false) wird clientseitig geblockt.
+    // Backend wirft zusaetzlich `paid_mystery_box_disabled`.
+    if (!hasFreeBox && !paidEnabled) {
+      setError(t('openBoxError'));
+      return;
+    }
     setError(null);
     setIsOpening(true);
 
@@ -196,7 +238,7 @@ export default function MysteryBoxModal({
     } finally {
       setIsOpening(false);
     }
-  }, [canAfford, hasFreeBox, onOpen, t, tErrors, triggerHaptic]);
+  }, [canAfford, hasFreeBox, paidEnabled, onOpen, t, tErrors, triggerHaptic]);
 
   const handleClose = useCallback(() => {
     setBoxState('idle');
@@ -299,6 +341,9 @@ export default function MysteryBoxModal({
                 fullWidth
                 onClick={handleOpen}
                 aria-label={t('openBoxAriaLabel')}
+                // AR-49: Defensive Guard — selbst wenn hasFreeBox falsch gesetzt
+                // waere, wuerde handleOpen den Flag pruefen und abbrechen.
+                disabled={!paidEnabled && !hasFreeBox}
               >
                 {t('freeBox')}
               </Button>
@@ -315,7 +360,7 @@ export default function MysteryBoxModal({
               </div>
             )}
 
-            {/* Reward Preview (FIX-05 locale, FIX-10 i18n + drop-rates) */}
+            {/* Reward Preview (FIX-05 locale + FIX-10 i18n + AR-48 Drop-Raten aus DB) */}
             <div className="w-full mt-5 pt-4 border-t border-divider">
               <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider mb-2.5">
                 {t('possibleRewardsTitle')}
@@ -323,6 +368,7 @@ export default function MysteryBoxModal({
               <div className="space-y-1.5">
                 {REWARD_PREVIEW.map(rp => {
                   const conf = RARITY_CONFIG[rp.rarity];
+                  const pct = dropPercents[rp.rarity];
                   return (
                     <div
                       key={rp.rarity}
@@ -333,6 +379,9 @@ export default function MysteryBoxModal({
                     >
                       <span className={cn('font-black w-[72px] flex-shrink-0', conf.textClass)}>
                         {resolveRarityLabel(conf, locale)}
+                      </span>
+                      <span className="font-mono tabular-nums text-white/50 w-[36px] flex-shrink-0 text-right">
+                        {pct}%
                       </span>
                       <span className="text-white/40 flex-1">
                         {t(`possibleRewards.${rp.rarity}`)}
@@ -345,6 +394,9 @@ export default function MysteryBoxModal({
                 })}
               </div>
             </div>
+
+            {/* AR-47: Compliance-Disclaimer (nach Reward-Preview, vor Disclaimer-Abschnitt) */}
+            <MysteryBoxDisclaimer variant="card" className="w-full mt-4" />
           </>
         )}
 

@@ -322,6 +322,7 @@ export const qk = {
   mysteryBox: {
     history: (userId: string, limit?: number) => ['mystery-box', userId, limit] as const,
     freeBoxToday: (userId: string) => ['mystery-box', 'free-today', userId] as const,
+    dropRates: ['mystery-box', 'drop-rates'] as const,
   },
 
   // ── Equipment (replaces legacy chips) ──
