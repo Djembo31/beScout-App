@@ -20,6 +20,7 @@ const KNOWN_KEYS = new Set([
   'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown', 'orderRateLimit',
   'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
   'ipoMisconfigured',
+  'mysteryBoxPaidDisabled',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -85,6 +86,9 @@ const ERROR_MAP: [RegExp, string][] = [
   [/early.?access/i, 'earlyAccessRequired'],
   [/subscription.*required/i, 'subscriptionRequired'],
   [/min.*tier/i, 'tierTooLow'],
+
+  // Mystery Box
+  [/paid.mystery.box.disabled/i, 'mysteryBoxPaidDisabled'],
 ];
 
 /**

@@ -3404,7 +3404,8 @@
     "orderRateLimit": "Oyuncu başına saatte maksimum 10 satış emri. Lütfen bekleyin.",
     "researchWeeklyCap": "Haftada maksimum 3 araştırma yazısı yayınlanabilir. Lütfen gelecek haftayı bekleyin.",
     "cosmeticAlreadyOwned": "Bu kozmetik zaten sende var.",
-    "cosmeticOutOfStock": "Bu kozmetik tükenmiş."
+    "cosmeticOutOfStock": "Bu kozmetik tükenmiş.",
+    "mysteryBoxPaidDisabled": "Ücretli Gizem Kutuları şu anda kullanılamıyor. Yalnızca günlük ücretsiz kutu açılabilir."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",
@@ -3416,6 +3417,8 @@
     "tradingDisclaimerShort": "Platform kredileri, finansal ürün değildir. %6 işlem ücreti.",
     "fantasyDisclaimer": "Fantasy turnuvaları eğlence hizmetleridir. Pilot aşamasında ücretsizdir. Credits ödülleri sıralamaya göre dağıtılır — kulübün takdirindedir, hak talebi veya garanti yoktur. Şans oyunu düzenlemesine tabi değildir.",
     "fantasyDisclaimerShort": "Ücretsiz katılım. Credits ödülleri takdire bağlı, hak talebi yok. Şans oyunu değildir.",
+    "mysteryBoxDisclaimer": "Gizem Kutusu ödülleri tamamen sanal platform içeriğidir, parasal değeri yoktur. Düşme oranları rastgeledir ve istendiği zaman değiştirilebilir. Nakit çekimi ve devir mümkün değildir. 18 yaş altı için önerilmez.",
+    "mysteryBoxDisclaimerShort": "Sanal içerik, parasal değeri yok. Rastgele oranlar, nakit çekimi ve devir yok. 18+.",
     "backToHome": "Ana sayfaya dön",
     "copyright": "© 2026 BeScout. Tüm hakları saklıdır.",
     "impressum": {

@@ -5,6 +5,22 @@ import type { MysteryBoxRarity, MysteryBoxRewardType, MysteryBoxResult } from '@
 // Mystery Box Service (v2 — Equipment + bCredits)
 // ============================================
 
+/**
+ * Drop-Rate-Entry fuer eine Rarity — returned von `get_mystery_box_drop_rates`.
+ * snake_case weil der RPC-Body snake_case keys benutzt
+ * (`{rates: [{rarity, drop_weight, drop_percent}], total_weight}`).
+ */
+export interface MysteryBoxDropRate {
+  rarity: MysteryBoxRarity;
+  drop_weight: number;
+  drop_percent: number;
+}
+
+export interface MysteryBoxDropRatesResponse {
+  rates: MysteryBoxDropRate[];
+  total_weight: number;
+}
+
 /** Open a mystery box (costs 15 tickets, or free if p_free = true) */
 export async function openMysteryBox(free = false): Promise<{
   ok: boolean;
@@ -93,6 +109,22 @@ export async function countFreeMysteryBoxesToday(userId: string): Promise<number
 
   if (error) throw new Error(error.message);
   return count ?? 0;
+}
+
+/**
+ * Fetch current drop-rates from the DB-side config (AR-48 Drop-Rate-Transparenz).
+ * RPC is authenticated-only — `mystery_box_config` is RLS-gelocked, UI must NOT read directly.
+ * Response keys are snake_case (`drop_weight`, `drop_percent`) — matches the `jsonb_build_object`
+ * in `get_mystery_box_drop_rates()`. If you change RPC-keys, update this cast.
+ */
+export async function getDropRates(): Promise<MysteryBoxDropRatesResponse> {
+  const { data, error } = await supabase.rpc('get_mystery_box_drop_rates');
+  if (error) throw new Error(error.message);
+  const result = data as MysteryBoxDropRatesResponse;
+  return {
+    rates: result.rates ?? [],
+    total_weight: result.total_weight ?? 0,
+  };
 }
 
 /** Fetch mystery box opening history (newest first) */

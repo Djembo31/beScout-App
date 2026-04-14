@@ -43,6 +43,23 @@ vi.mock('../particles', () => {
   return { ParticleSystem: MockParticleSystem };
 });
 
+// AR-48: Mock drop-rate query to avoid Supabase client init during tests
+// (same pattern other modal tests avoid — service-layer imports pull supabaseClient).
+vi.mock('@/lib/queries/mysteryBox', () => ({
+  useMysteryBoxDropRates: () => ({ data: undefined, isLoading: false, isError: false }),
+}));
+
+// AR-47: MysteryBoxDisclaimer is a pure next-intl + lucide UI — stub it to keep
+// the test suite focused on the Modal-behaviour, no i18n provider required.
+vi.mock('@/components/legal/MysteryBoxDisclaimer', () => ({
+  MysteryBoxDisclaimer: () => null,
+}));
+
+// AR-49: featureFlags is a static module but pulls env — stub to keep defaults.
+vi.mock('@/lib/featureFlags', () => ({
+  PAID_MYSTERY_BOX_ENABLED: false,
+}));
+
 import MysteryBoxModal from '../MysteryBoxModal';
 
 describe('MysteryBoxModal', () => {

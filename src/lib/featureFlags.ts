@@ -9,6 +9,7 @@
  * - AR-11 (J3): BuyOrder-Matching-Engine fehlt — Feature aus Beta.
  * - AR-23 (J3): LimitOrder ist Placeholder-UI ohne Live-RPC — Feature aus Beta.
  * - AR-31 (J4): Paid-Fantasy ist Phase 4 (post-MGA) — NICHT BAUEN, NICHT VORBEREITEN.
+ * - AR-49 (J5): Paid-Mystery-Box ist Phase 4 (Loot-Box-Regulierung) — NICHT BAUEN, NICHT VORBEREITEN.
  *
  * Aktivierung erfordert:
  *   1. Feature-Implementation vollstaendig (RPC + Service + UI + Tests)
@@ -50,3 +51,20 @@ export const FEATURE_LIMIT_ORDERS = false;
  * NICHT BAUEN".* "NICHT BAUEN" = auch NICHT VORBEREITEN.
  */
 export const PAID_FANTASY_ENABLED = false;
+
+/**
+ * Paid-Mystery-Box (Phase 4, Loot-Box-Regulierung). AR-49 (J5).
+ *
+ * Backend-RPC `open_mystery_box_v2` hat einen paid-Path der Tickets-Balance reduziert.
+ * Aktuell `false`: UI-seitig nur noch die taegliche Gratis-Box verfuegbar.
+ * Backend-Guard: RPC wirft `paid_mystery_box_disabled` wenn
+ * `app.paid_mystery_box_enabled` nicht true (server-side Setting).
+ *
+ * Betrifft UI-Paths:
+ *   - MysteryBoxModal Open-Button + Tickets-Bezug
+ *   - Error-Mapping `mysteryBoxPaidDisabled`
+ *
+ * business.md: Loot-Box-Regulierung (Apple 3.1.1, Belgian Gaming Commission, MGA).
+ * NICHT BAUEN = NICHT VORBEREITEN. Frei-Daily-Slot bleibt zulaessig (keine Zahlung).
+ */
+export const PAID_MYSTERY_BOX_ENABLED = process.env.NEXT_PUBLIC_PAID_MYSTERY_BOX_ENABLED === 'true';
