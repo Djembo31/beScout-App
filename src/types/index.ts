@@ -2007,7 +2007,10 @@ export type DbUserDailyChallenge = {
 // MYSTERY BOX TYPES
 // ============================================
 
-export type MysteryBoxRarity = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
+// Legacy-safe: 'uncommon' kept for backwards compatibility with 3 pre-type-update rows
+// in `mystery_box_results` (live DB, opened before rarity set was finalized).
+// Do NOT drop without a full DB migration — see AR-46, journey-5-findings-aggregate.md.
+export type MysteryBoxRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
 
 export type MysteryBoxRewardType = 'tickets' | 'cosmetic' | 'equipment' | 'bcredits';
 
