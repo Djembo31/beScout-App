@@ -45,6 +45,23 @@ export const RARITY_CONFIG: Record<MysteryBoxRarity, RarityVisualConfig> = {
     screenFlash: false,
     hapticMs: 0,
   },
+  // Legacy-safe entry for 3 pre-type-update rows in `mystery_box_results` (AR-46).
+  // Green matches existing CosmeticRarity 'uncommon' convention (CosmeticTitle +
+  // CosmeticsSection). Between common (grey) and rare (sky) on the rarity ladder.
+  uncommon: {
+    label_de: 'Ungewoehnlich',
+    label_tr: 'Siradisi',
+    color: '#4ADE80',       // green-400 (matches CosmeticRarity.uncommon)
+    glowColor: 'rgba(74, 222, 128, 0.28)',
+    bgClass: 'bg-green-500/15',
+    textClass: 'text-green-400',
+    borderClass: 'border-green-500/25',
+    glowClass: 'shadow-[0_0_10px_rgba(74,222,128,0.22)]',
+    particleCount: 14,
+    celebrationDuration: 900,
+    screenFlash: false,
+    hapticMs: 15,
+  },
   rare: {
     label_de: 'Selten',
     label_tr: 'Nadir',
