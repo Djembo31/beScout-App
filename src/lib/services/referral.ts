@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 
 export async function getUserReferralCode(userId: string): Promise<string | null> {
   const { data, error } = await supabase
@@ -91,6 +92,9 @@ export async function applyClubReferral(userId: string, clubId: string): Promise
       { user_id: userId, club_id: clubId, is_primary: true },
       { onConflict: 'user_id,club_id' }
     );
-  if (error) console.error('[Referral] applyClubReferral failed:', error.message);
+  if (error) {
+    logSupabaseError('[Referral] applyClubReferral failed', error);
+    throw new Error(error.message);
+  }
 }
 

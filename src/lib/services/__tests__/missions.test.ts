@@ -68,6 +68,14 @@ describe('getUserMissions', () => {
     await expect(getUserMissions('u1')).rejects.toThrow();
   });
 
+  it('throws when mission_definitions query errors (no silent swallow)', async () => {
+    mockRpc('assign_user_missions', [
+      { id: 'um1', user_id: 'u1', mission_id: 'def-1', progress: 0, completed: false, claimed: false },
+    ]);
+    mockTable('mission_definitions', null, { message: 'definitions query failed' });
+    await expect(getUserMissions('u1')).rejects.toThrow('definitions query failed');
+  });
+
   it('returns empty when no missions assigned', async () => {
     mockRpc('assign_user_missions', []);
     mockTable('mission_definitions', []);

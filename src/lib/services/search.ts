@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getAllClubsCached } from '@/lib/clubs';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 import type { Pos } from '@/types';
 
 export type SearchResultType = 'player' | 'club' | 'profile';
@@ -73,11 +74,15 @@ export async function spotlightSearch(
   if (shouldSearch('player')) {
     promises.push(
       (async () => {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('players')
           .select('id, first_name, last_name, position, club, club_id, floor_price, ipo_price, perf_l5, image_url')
           .or(`first_name.ilike.${q},last_name.ilike.${q}`)
           .limit(8);
+        if (error) {
+          logSupabaseError('[Search] player search failed', error);
+          throw new Error(error.message);
+        }
         if (data) {
           for (const p of data) {
             results.push({
@@ -103,18 +108,26 @@ export async function spotlightSearch(
   if (shouldSearch('profile')) {
     promises.push(
       (async () => {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .select('id, handle, display_name, avatar_url, level')
           .or(`handle.ilike.${q},display_name.ilike.${q}`)
           .limit(8);
+        if (error) {
+          logSupabaseError('[Search] profile search failed', error);
+          throw new Error(error.message);
+        }
         if (data && data.length > 0) {
           // Batch fetch total_score from user_stats
           const ids = data.map((u) => u.id);
-          const { data: stats } = await supabase
+          const { data: stats, error: statsError } = await supabase
             .from('user_stats')
             .select('user_id, total_score')
             .in('user_id', ids);
+          if (statsError) {
+            logSupabaseError('[Search] user_stats lookup failed', statsError);
+            throw new Error(statsError.message);
+          }
           const scoreMap = new Map<string, number>();
           if (stats) {
             for (const s of stats) scoreMap.set(s.user_id, s.total_score ?? 0);

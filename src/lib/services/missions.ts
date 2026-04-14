@@ -14,13 +14,17 @@ export function invalidateMissionData(_userId: string) {
 // GET MISSION DEFINITIONS
 // ============================================
 
-async function getMissionDefinitions(): Promise<DbMissionDefinition[]> {
-  const { data } = await supabase
+async function getMissionDefinitions(userId: string): Promise<DbMissionDefinition[]> {
+  const { data, error } = await supabase
     .from('mission_definitions')
     .select('*')
     .eq('active', true)
     .order('type')
     .order('key');
+  if (error) {
+    _missionsCache.delete(userId); // allow retry on error
+    throw new Error(error.message);
+  }
   return (data ?? []) as DbMissionDefinition[];
 }
 
@@ -51,7 +55,7 @@ export async function getUserMissions(userId: string): Promise<UserMissionWithDe
     }
 
     // Fetch definitions for enrichment
-    const defs = await getMissionDefinitions();
+    const defs = await getMissionDefinitions(userId);
     const defMap = new Map(defs.map(d => [d.id, d]));
 
     return ((userMissions ?? []) as DbUserMission[])

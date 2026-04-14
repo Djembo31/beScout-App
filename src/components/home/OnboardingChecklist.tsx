@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { CheckCircle2, Circle, Gift, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui';
 import type { OnboardingProgress } from '@/lib/retentionEngine';
@@ -13,6 +13,8 @@ interface OnboardingChecklistProps {
 
 export default function OnboardingChecklist({ items, className = '' }: OnboardingChecklistProps) {
   const t = useTranslations('home');
+  const locale = useLocale();
+  const isTr = locale === 'tr';
   const completed = items.filter((i) => i.completed).length;
   const total = items.length;
   const pct = Math.round((completed / total) * 100);
@@ -56,9 +58,9 @@ export default function OnboardingChecklist({ items, className = '' }: Onboardin
             )}
             <div className="flex-1 min-w-0">
               <div className={`text-sm font-medium ${item.completed ? 'line-through text-white/40' : ''}`}>
-                {item.labelDe}
+                {isTr ? item.labelTr : item.labelDe}
               </div>
-              <div className="text-[10px] text-gold/70">{item.rewardLabel}</div>
+              <div className="text-[10px] text-gold/70">{isTr ? item.rewardLabelTr : item.rewardLabelDe}</div>
             </div>
             {!item.completed && (
               <ChevronRight className="size-4 text-white/20 shrink-0" aria-hidden="true" />

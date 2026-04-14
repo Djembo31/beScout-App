@@ -23,7 +23,8 @@ export interface OnboardingProgress {
   completed: boolean;
   labelDe: string;
   labelTr: string;
-  rewardLabel: string;
+  rewardLabelDe: string;
+  rewardLabelTr: string;
   href: string;
 }
 
@@ -125,7 +126,8 @@ export function getOnboardingProgress(stats: {
       completed: stats.holdingsCount > 0,
       labelDe: 'Kaufe deine erste Scout Card',
       labelTr: 'İlk Scout Card\'ını satın al',
-      rewardLabel: '+1.000 CR',
+      rewardLabelDe: '+1.000 CR',
+      rewardLabelTr: '+1.000 CR',
       href: '/market?tab=kaufen',
     },
     {
@@ -133,7 +135,8 @@ export function getOnboardingProgress(stats: {
       completed: stats.eventsJoined > 0,
       labelDe: 'Stelle dein erstes Fantasy-Lineup auf',
       labelTr: 'İlk fantezi kadronuzu kurun',
-      rewardLabel: 'Achievement: Erster Event',
+      rewardLabelDe: 'Achievement: Erster Event',
+      rewardLabelTr: 'Başarı: İlk Etkinlik',
       href: '/fantasy',
     },
     {
@@ -141,7 +144,8 @@ export function getOnboardingProgress(stats: {
       completed: stats.challengesCompleted > 0,
       labelDe: 'Beantworte die Daily Challenge',
       labelTr: 'Günlük meydan okumayı yanıtla',
-      rewardLabel: '+10 Tickets',
+      rewardLabelDe: '+10 Tickets',
+      rewardLabelTr: '+10 Bilet',
       href: '/',
     },
     {
@@ -149,7 +153,8 @@ export function getOnboardingProgress(stats: {
       completed: stats.postsCount > 0,
       labelDe: 'Schreibe deinen ersten Beitrag',
       labelTr: 'İlk gönderini yaz',
-      rewardLabel: '+3 Tickets',
+      rewardLabelDe: '+3 Tickets',
+      rewardLabelTr: '+3 Bilet',
       href: '/community',
     },
     {
@@ -157,7 +162,8 @@ export function getOnboardingProgress(stats: {
       completed: stats.followedClubs > 0,
       labelDe: 'Folge einem Club',
       labelTr: 'Bir kulübü takip et',
-      rewardLabel: 'Fan-Rang aktiviert',
+      rewardLabelDe: 'Fan-Rang aktiviert',
+      rewardLabelTr: 'Fan rütbesi aktif',
       href: '/clubs',
     },
   ];

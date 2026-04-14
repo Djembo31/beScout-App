@@ -130,6 +130,7 @@
     "handlePlaceholder": "dein_name",
     "handleTaken": "Dieser Name ist bereits vergeben.",
     "handleInvalid": "3-20 Zeichen, nur a-z, 0-9 und _",
+    "handleReserved": "Dieser Benutzername ist reserviert.",
     "handleAvailable": "Verfügbar!",
     "handleChecking": "Handle wird geprüft...",
     "handleTakenShort": "Handle ist vergeben — wähle einen anderen.",
@@ -1836,6 +1837,7 @@
     "handleLabel": "Manager-Name",
     "handleTaken": "Bereits vergeben.",
     "handleInvalid": "3-20 Zeichen, nur a-z, 0-9 und _",
+    "handleReserved": "Dieser Benutzername ist reserviert.",
     "displayNameLabel": "Anzeigename",
     "displayNamePlaceholder": "Dein Name",
     "bioLabel": "Bio",
@@ -3161,7 +3163,7 @@
     "welcomeDesc": "Du hast {amount} Credits erhalten! Kaufe jetzt deinen ersten Spieler und starte dein Portfolio.",
     "welcomeCta": "Zum Marktplatz",
     "welcomeLater": "Später",
-    "welcomeBonusExplainer": "Credits sind deine Währung auf BeScout. Kaufe damit Scout Cards — Scout Cards — und baue dein Portfolio auf."
+    "welcomeBonusExplainer": "Credits sind dein Plattform-Guthaben für Features auf BeScout. Kaufe damit Scout Cards und baue dein Portfolio auf."
   },
   "scouting": {
     "dimensions": "Bewertungsdimensionen",

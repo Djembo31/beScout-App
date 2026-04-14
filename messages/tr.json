@@ -130,6 +130,7 @@
     "handlePlaceholder": "kullanici_adi",
     "handleTaken": "Bu isim zaten alınmış.",
     "handleInvalid": "3-20 karakter, sadece a-z, 0-9 ve _",
+    "handleReserved": "Bu kullanıcı adı ayrılmış.",
     "handleAvailable": "Kullanılabilir!",
     "handleChecking": "Kullanıcı adı kontrol ediliyor...",
     "handleTakenShort": "Kullanıcı adı alınmış — başka bir tane seç.",
@@ -288,7 +289,7 @@
     "welcomeCommunity": "Topluluk",
     "portfolioRoster": "Oyuncu Kadrosu",
     "portfolioRosterTooltip": "Kadronuzdaki tüm Scout Card'ların toplam değeri, güncel piyasa fiyatına göre.",
-    "pnl": "+/−",
+    "pnl": "Değer Gelişimi",
     "pnlTooltip": "Değer gelişimi — mevcut değer ile ortalama alış fiyatınız arasındaki fark.",
     "players": "Oyuncular",
     "bescoutScore": "Scout Rütbe",
@@ -1836,6 +1837,7 @@
     "handleLabel": "Menajer Adı",
     "handleTaken": "Bu isim alınmış.",
     "handleInvalid": "3-20 karakter, sadece a-z, 0-9 ve _",
+    "handleReserved": "Bu kullanıcı adı ayrılmış.",
     "displayNameLabel": "Görünen ad",
     "displayNamePlaceholder": "Adın",
     "bioLabel": "Hakkında",
@@ -3161,7 +3163,7 @@
     "welcomeDesc": "{amount} Credits kazandın! İlk oyuncunu satın al ve portföyünü başlat.",
     "welcomeCta": "Markete Git",
     "welcomeLater": "Daha Sonra",
-    "welcomeBonusExplainer": "Credits, BeScout'taki para birimindir. Scout Card'lar satın al ve portföyünü oluştur."
+    "welcomeBonusExplainer": "Credits, BeScout üzerindeki platform kredisi. Scout Card'lar satın al ve portföyünü oluştur."
   },
   "scouting": {
     "dimensions": "Değerlendirme Boyutları",

@@ -3,8 +3,38 @@ import type { Profile } from '@/types';
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,20}$/;
 
+/**
+ * Reserved handles that no user may claim.
+ * Keep lowercase (handles are normalized to lowercase before validation).
+ * Sorted by category: team/brand, roles, generic authority.
+ */
+export const RESERVED_HANDLES: readonly string[] = [
+  // Brand / team
+  'bescout', 'bescout_official', 'bescout_team', 'official',
+  // Internal / company
+  'anil', 'team', 'founder', 'founders', 'jarvis',
+  // Roles / moderation
+  'admin', 'administrator', 'mod', 'moderator', 'support',
+  'root', 'superuser', 'system', 'sys', 'staff',
+  // Generic authority
+  'help', 'owner', 'null', 'undefined', 'me', 'you',
+];
+
+const RESERVED_SET = new Set(RESERVED_HANDLES);
+
 export function isValidHandle(handle: string): boolean {
   return HANDLE_REGEX.test(handle);
+}
+
+export function isReservedHandle(handle: string): boolean {
+  return RESERVED_SET.has(handle.toLowerCase());
+}
+
+/** Full validation: regex + reserved blocklist. Returns an i18n error key or null if OK. */
+export function validateHandle(handle: string): 'handleInvalid' | 'handleReserved' | null {
+  if (!isValidHandle(handle)) return 'handleInvalid';
+  if (isReservedHandle(handle)) return 'handleReserved';
+  return null;
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
@@ -30,6 +60,11 @@ export async function createProfile(
     invited_by?: string | null;
   }
 ): Promise<Profile> {
+  // Validate handle: regex + reserved blocklist
+  const normalizedHandle = data.handle.toLowerCase();
+  const handleError = validateHandle(normalizedHandle);
+  if (handleError) throw new Error(handleError);
+
   // Generate 8-char uppercase referral code
   const referral_code = Array.from(
     { length: 8 },
@@ -40,7 +75,7 @@ export async function createProfile(
     .from('profiles')
     .insert({
       id: userId,
-      handle: data.handle.toLowerCase(),
+      handle: normalizedHandle,
       display_name: data.display_name ?? null,
       favorite_club: data.favorite_club ?? null,
       favorite_club_id: data.favorite_club_id ?? null,
@@ -67,7 +102,12 @@ export async function updateProfile(
   data: Partial<Pick<Profile, 'handle' | 'display_name' | 'bio' | 'favorite_club' | 'favorite_club_id' | 'language' | 'avatar_url' | 'region'>>
 ): Promise<Profile> {
   const update: Record<string, unknown> = {};
-  if (data.handle !== undefined) update.handle = data.handle.toLowerCase();
+  if (data.handle !== undefined) {
+    const normalizedHandle = data.handle.toLowerCase();
+    const handleError = validateHandle(normalizedHandle);
+    if (handleError) throw new Error(handleError);
+    update.handle = normalizedHandle;
+  }
   if (data.display_name !== undefined) update.display_name = data.display_name;
   if (data.bio !== undefined) update.bio = data.bio;
   if (data.favorite_club !== undefined) update.favorite_club = data.favorite_club;

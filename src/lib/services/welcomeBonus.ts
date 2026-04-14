@@ -14,9 +14,12 @@ export async function claimWelcomeBonus(): Promise<{
 }> {
   const { data, error } = await supabase.rpc('claim_welcome_bonus');
 
+  // Real Supabase/RPC errors must surface so React Query can retry
+  // and the UI can show an actionable error. `ok:false` is reserved
+  // for the legit "already claimed" RPC-level signal below.
   if (error) {
     logSupabaseError('[WelcomeBonus] claimWelcomeBonus', error);
-    return { ok: false, alreadyClaimed: false };
+    throw new Error(error.message);
   }
 
   const result = data as {

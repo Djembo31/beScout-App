@@ -6,6 +6,7 @@ import type { OnboardingProgress } from '@/lib/retentionEngine';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
+  useLocale: () => 'de',
 }));
 vi.mock('next/link', () => ({
   default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
@@ -25,7 +26,8 @@ const makeItems = (completed: boolean[]) =>
     href: `/step/${i}`,
     labelDe: `Schritt ${i + 1}`,
     labelTr: `Adim ${i + 1}`,
-    rewardLabel: `${(i + 1) * 10} XP`,
+    rewardLabelDe: `${(i + 1) * 10} XP`,
+    rewardLabelTr: `${(i + 1) * 10} XP`,
   }));
 
 describe('OnboardingChecklist', () => {

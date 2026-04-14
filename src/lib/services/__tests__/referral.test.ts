@@ -136,10 +136,10 @@ describe('applyClubReferral', () => {
     await applyClubReferral('u1', 'c1');
     expect(mockSupabase.from).toHaveBeenCalledWith('club_followers');
   });
-  it('logs error but does not throw on failure', async () => {
+  it('throws on upsert failure so React Query can retry', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockTable('club_followers', null, { message: 'upsert failed' });
-    await applyClubReferral('u1', 'c1'); // should not throw
+    await expect(applyClubReferral('u1', 'c1')).rejects.toThrow('upsert failed');
     consoleSpy.mockRestore();
   });
 });

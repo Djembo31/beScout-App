@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
 import type { NotificationType, NotificationCategory, NotificationPreferences, DbNotification } from '@/types';
 
 // ============================================
@@ -78,11 +79,16 @@ export const NOTIFICATION_CATEGORIES: { key: NotificationCategory; icon: string 
 
 /** Get notification preferences for a user. Returns defaults (all true) if no row exists. */
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('notification_preferences')
     .select('user_id, trading, offers, fantasy, social, bounties, rewards, updated_at')
     .eq('user_id', userId)
     .maybeSingle();
+
+  if (error) {
+    logSupabaseError('[Notifications] getNotificationPreferences failed', error);
+    throw new Error(error.message);
+  }
 
   if (data) return data as NotificationPreferences;
 
