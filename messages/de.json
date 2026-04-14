@@ -3421,7 +3421,9 @@
     "orderRateLimit": "Max 10 Verkaufsorders pro Spieler pro Stunde. Bitte warte.",
     "researchWeeklyCap": "Max 3 Research-Posts pro Woche erlaubt. Bitte warte bis nächste Woche.",
     "cosmeticAlreadyOwned": "Dieses Cosmetic besitzt du bereits.",
-    "cosmeticOutOfStock": "Dieses Cosmetic ist ausverkauft."
+    "cosmeticOutOfStock": "Dieses Cosmetic ist ausverkauft.",
+    "mysteryBoxDailyLimit": "Du hast deine kostenlose Mystery Box heute bereits geöffnet. Morgen gibt es eine neue.",
+    "mysteryBoxNotEnoughTickets": "Nicht genügend Tickets, um diese Box zu öffnen."
   },
   "legal": {
     "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse. Mehr in unserer <privacyLink>Datenschutzerklärung</privacyLink>.",

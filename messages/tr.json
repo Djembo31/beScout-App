@@ -3421,7 +3421,9 @@
     "orderRateLimit": "Oyuncu başına saatte maksimum 10 satış emri. Lütfen bekleyin.",
     "researchWeeklyCap": "Haftada maksimum 3 araştırma yazısı yayınlanabilir. Lütfen gelecek haftayı bekleyin.",
     "cosmeticAlreadyOwned": "Bu kozmetik zaten sende var.",
-    "cosmeticOutOfStock": "Bu kozmetik tükenmiş."
+    "cosmeticOutOfStock": "Bu kozmetik tükenmiş.",
+    "mysteryBoxDailyLimit": "Bugünkü ücretsiz Mystery Box'ını zaten açtın. Yarın yenisi gelecek.",
+    "mysteryBoxNotEnoughTickets": "Bu kutuyu açmak için yeterli bilet yok."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",
