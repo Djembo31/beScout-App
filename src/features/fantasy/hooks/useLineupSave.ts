@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
 import { equipToSlot } from '@/lib/services/equipment';
+import { useToast } from '@/components/providers/ToastProvider';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { FantasyEvent, LineupPlayer } from '../types';
 import type { EquipmentSlotState } from './useLineupBuilder';
 
@@ -44,12 +46,16 @@ type UseLineupSaveReturn = {
  * /fantasy EventDetailModal and /manager AufstellenTab.
  *
  * Validates completeness + requirement check, joins (if not joined),
- * submits lineup, then persists equipment assignments. All errors
- * surface as user-facing alerts via the fantasy i18n namespace.
+ * submits lineup, then persists equipment assignments. Validation errors
+ * surface as toasts (not native alerts) via the fantasy i18n namespace.
+ * Service errors resolved via mapErrorToKey → errors-namespace
+ * (i18n-Key-Leak-Schutz, J3-Pattern).
  */
 export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
   const tFantasy = useTranslations('fantasy');
+  const te = useTranslations('errors');
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
   const [joining, setJoining] = useState(false);
 
   const {
@@ -61,11 +67,12 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
   const handleSaveLineup = useCallback(async () => {
     if (!event) return;
     if (!isLineupComplete) {
-      alert(tFantasy('incompleteLineupAlert'));
+      addToast(tFantasy('incompleteLineupAlert'), 'error');
       return;
     }
     if (!reqCheck.ok) {
-      alert(reqCheck.message);
+      // reqCheck.message ist bereits eine user-facing String (kein Raw-Key).
+      addToast(reqCheck.message, 'error');
       return;
     }
 
@@ -99,7 +106,9 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
       }
     } catch (err) {
       console.error('[useLineupSave] handleSaveLineup failed:', err);
-      alert(tFantasy('errorShort', { msg: err instanceof Error ? err.message : 'Lineup save failed' }));
+      // i18n-Key-Leak-Schutz: err.message ist ggf. Raw-Key → via mapErrorToKey resolven
+      const msg = te(mapErrorToKey(normalizeError(err)));
+      addToast(tFantasy('errorShort', { msg }), 'error');
     } finally {
       setJoining(false);
     }
@@ -107,7 +116,7 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
     event, userId, isLineupComplete, reqCheck,
     selectedPlayers, selectedFormation, captainSlot, wildcardSlots, equipmentMap,
     onJoin, onSubmitLineup, onAfterJoin,
-    tFantasy, queryClient,
+    tFantasy, te, queryClient, addToast,
   ]);
 
   return { joining, handleSaveLineup };

@@ -21,8 +21,19 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
   const ticketCost = event.ticketCost ?? 0;
   const hasCost = ticketCost > 0;
 
+  // preventClose-Aequivalent: backdrop-Klick waehrend `joining` schliesst nicht.
+  // (Kein Modal-Component → kein preventClose-Prop → Handler blockt Cancel-Call.)
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return;
+    if (joining) return;
+    onCancel();
+  };
+
   return (
-    <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+    <div
+      className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-surface-popover border border-white/10 rounded-2xl p-6 max-w-sm w-full">
         <div className="flex items-center gap-3 mb-4">
           <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
@@ -64,7 +75,7 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
           </div>
         )}
         <div className="flex gap-3">
-          <Button variant="outline" size="lg" fullWidth onClick={onCancel}>
+          <Button variant="outline" size="lg" fullWidth onClick={onCancel} disabled={joining}>
             {t('cancelBtn')}
           </Button>
           <Button variant="gold" size="lg" fullWidth onClick={onConfirm} disabled={joining}>

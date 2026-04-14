@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Modal } from '@/components/ui';
+import { Modal, ConfirmDialog } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useToast } from '@/components/providers/ToastProvider';
 import { getEventParticipants, getEventParticipantCount } from '@/lib/services/lineups';
 import { resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
@@ -12,6 +13,7 @@ import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { useLineupBuilder } from '@/features/fantasy/hooks/useLineupBuilder';
 import { useLineupSave } from '@/features/fantasy/hooks/useLineupSave';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 
 // Extracted components
 import { EventDetailHeader } from '@/features/fantasy/components/event-detail/EventDetailHeader';
@@ -62,7 +64,9 @@ export const EventDetailModal = ({
   fixtureDeadlines?: Map<string, FixtureDeadline>;
 }) => {
   const { user } = useUser();
+  const { addToast } = useToast();
   const t = useTranslations('fantasy');
+  const te = useTranslations('errors');
 
   // ==================== Local modal-only state ====================
   const [tab, setTab] = useState<EventDetailTab>('overview');
@@ -73,6 +77,19 @@ export const EventDetailModal = ({
   const [resetting, setResetting] = useState(false);
   const [scoringJustFinished, setScoringJustFinished] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  // Confirm-Dialogs (replace native confirm/alert)
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+
+  // Resolve an unknown error into a translated message via errors-namespace.
+  // Protects against i18n-Key-Leak (raw keys like 'event_locked' leaking to UI).
+  const resolveErrorMessage = useCallback((err: unknown): string => {
+    try {
+      return te(mapErrorToKey(normalizeError(err)));
+    } catch {
+      return te('generic');
+    }
+  }, [te]);
 
   // ==================== Lineup builder hook (owns all lineup state) ====================
   const lb = useLineupBuilder({
@@ -143,9 +160,14 @@ export const EventDetailModal = ({
   }, [isOpen, event?.id, event?.participants]);
 
   // ==================== Reset event (testing tool) ====================
+  // Native confirm()/alert() replaced with ConfirmDialog + addToast (Mobile-UX).
+  const openResetConfirm = () => {
+    if (!event || resetting) return;
+    setResetConfirmOpen(true);
+  };
+
   const handleResetEvent = async () => {
     if (!event || resetting) return;
-    if (!confirm(t('confirmResetMsg'))) return;
     setResetting(true);
     try {
       const result = await resetEvent(event.id);
@@ -157,29 +179,35 @@ export const EventDetailModal = ({
         setScoringJustFinished(false);
         setTab('overview');
         onReset(event);
-        alert(t('resetSuccess'));
+        addToast(t('resetSuccess'), 'success');
       } else {
-        alert(t('resetFailed', { error: result.error ?? 'Unknown' }));
+        // i18n-Key-Leak-Schutz: result.error ist ggf. Raw-Key → via resolveErrorMessage
+        addToast(t('resetFailed', { error: result.error ? resolveErrorMessage(result.error) : te('generic') }), 'error');
       }
     } catch (e: unknown) {
-      alert(t('errorShort', { msg: e instanceof Error ? e.message : 'Unknown' }));
+      addToast(t('errorShort', { msg: resolveErrorMessage(e) }), 'error');
     } finally {
       setResetting(false);
+      setResetConfirmOpen(false);
     }
+  };
+
+  const openLeaveConfirm = () => {
+    if (!user || !event || leaving) return;
+    setLeaveConfirmOpen(true);
   };
 
   const handleLeave = async () => {
     if (!user || !event || leaving) return;
-    if (confirm(t('confirmLeaveMsg', { name: event.name }))) {
-      setLeaving(true);
-      try {
-        await onLeave(event);
-        onClose();
-      } catch (e: unknown) {
-        alert(t('leaveError', { msg: e instanceof Error ? e.message : 'Unknown' }));
-      } finally {
-        setLeaving(false);
-      }
+    setLeaving(true);
+    try {
+      await onLeave(event);
+      setLeaveConfirmOpen(false);
+      onClose();
+    } catch (e: unknown) {
+      addToast(t('leaveError', { msg: resolveErrorMessage(e) }), 'error');
+    } finally {
+      setLeaving(false);
     }
   };
 
@@ -193,13 +221,19 @@ export const EventDetailModal = ({
   };
 
   return (
-    <Modal open={isOpen} onClose={onClose} title={event.name} size="lg">
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={event.name}
+      size="lg"
+      preventClose={joining || leaving || resetting}
+    >
         {/* Header: Status Badges + Meta */}
         <EventDetailHeader
           event={event}
           isScored={isScored}
           resetting={resetting}
-          onReset={handleResetEvent}
+          onReset={openResetConfirm}
         />
 
         {/* Tabs */}
@@ -326,8 +360,32 @@ export const EventDetailModal = ({
           leaving={leaving}
           onConfirmJoin={handleConfirmJoin}
           onSaveLineup={handleSaveLineup}
-          onLeave={handleLeave}
+          onLeave={openLeaveConfirm}
           onViewResults={() => setTab('leaderboard')}
+        />
+
+        {/* Confirm-Dialogs (ersetzen native confirm()) */}
+        <ConfirmDialog
+          open={resetConfirmOpen}
+          title={t('resetBtn')}
+          message={t('confirmResetMsg')}
+          confirmLabel={t('resetBtn')}
+          cancelLabel={t('cancelBtn')}
+          onConfirm={handleResetEvent}
+          onCancel={() => { if (!resetting) setResetConfirmOpen(false); }}
+          confirming={resetting}
+          confirmVariant="danger"
+        />
+        <ConfirmDialog
+          open={leaveConfirmOpen}
+          title={t('leaveBtn')}
+          message={t('confirmLeaveMsg', { name: event.name })}
+          confirmLabel={t('leaveBtn')}
+          cancelLabel={t('cancelBtn')}
+          onConfirm={handleLeave}
+          onCancel={() => { if (!leaving) setLeaveConfirmOpen(false); }}
+          confirming={leaving}
+          confirmVariant="danger"
         />
 
     </Modal>

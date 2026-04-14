@@ -15,6 +15,8 @@ import { useFixtureDeadlines } from '@/features/fantasy/hooks/useFixtureDeadline
 import { useEventActions } from '@/features/fantasy/hooks/useEventActions';
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
 import type { LineupPlayer } from '@/features/fantasy/types';
+import { ConfirmDialog } from '@/components/ui';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import EventSelector from './EventSelector';
 import EquipmentShortcut from '../EquipmentShortcut';
 
@@ -30,6 +32,7 @@ const EquipmentPicker = dynamic(() => import('@/components/gamification/Equipmen
 export default function AufstellenTab() {
   const t = useTranslations('manager');
   const tFantasy = useTranslations('fantasy');
+  const te = useTranslations('errors');
   const { user } = useUser();
   const userId = user?.id;
 
@@ -212,6 +215,7 @@ export default function AufstellenTab() {
 
   // ==================== Save flow (shared hook with EventDetailModal) ====================
   const [leaving, setLeaving] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
 
   const { joining, handleSaveLineup } = useLineupSave({
     event: effectiveEvent,
@@ -227,18 +231,26 @@ export default function AufstellenTab() {
     onSubmitLineup: submitLineup,
   });
 
+  // Openes ConfirmDialog; actual leave flow in handleLeave (native confirm/alert raus).
+  const openLeaveConfirm = useCallback(() => {
+    if (!effectiveEvent || leaving) return;
+    setLeaveConfirmOpen(true);
+  }, [effectiveEvent, leaving]);
+
   const handleLeave = useCallback(async () => {
     if (!effectiveEvent || leaving) return;
-    if (!confirm(tFantasy('confirmLeaveMsg', { name: effectiveEvent.name }))) return;
     setLeaving(true);
     try {
       await leaveEvent(effectiveEvent);
+      setLeaveConfirmOpen(false);
     } catch (e) {
-      alert(tFantasy('leaveError', { msg: e instanceof Error ? e.message : 'Unknown' }));
+      // i18n-Key-Leak-Schutz: err.message ist ggf. Raw-Key → via mapErrorToKey resolven
+      const msg = te(mapErrorToKey(normalizeError(e)));
+      addToast(tFantasy('leaveError', { msg }), 'error');
     } finally {
       setLeaving(false);
     }
-  }, [effectiveEvent, leaving, leaveEvent, tFantasy]);
+  }, [effectiveEvent, leaving, leaveEvent, tFantasy, te, addToast]);
 
   // Sandbox-style: opening from manager skips confirm dialog (already wired via EventSelector)
   const handleConfirmJoin = useCallback(() => {
@@ -362,8 +374,21 @@ export default function AufstellenTab() {
         leaving={leaving}
         onConfirmJoin={handleConfirmJoin}
         onSaveLineup={handleSaveLineup}
-        onLeave={handleLeave}
+        onLeave={openLeaveConfirm}
         onViewResults={() => { /* no results modal in manager */ }}
+      />
+
+      {/* Confirm-Dialog ersetzt native confirm() fuer Leave-Event (Mobile-UX). */}
+      <ConfirmDialog
+        open={leaveConfirmOpen}
+        title={tFantasy('leaveBtn')}
+        message={tFantasy('confirmLeaveMsg', { name: effectiveEvent.name })}
+        confirmLabel={tFantasy('leaveBtn')}
+        cancelLabel={tFantasy('cancelBtn')}
+        onConfirm={handleLeave}
+        onCancel={() => { if (!leaving) setLeaveConfirmOpen(false); }}
+        confirming={leaving}
+        confirmVariant="danger"
       />
     </div>
   );

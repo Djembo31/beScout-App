@@ -353,6 +353,7 @@ export { CosmeticTitle } from './CosmeticTitle';
 export { LeagueBadge } from './LeagueBadge';
 export { CountryBar } from './CountryBar';
 export { LeagueBar } from './LeagueBarShared';
+export { ConfirmDialog } from './ConfirmDialog';
 
 export function ErrorState({
   message,

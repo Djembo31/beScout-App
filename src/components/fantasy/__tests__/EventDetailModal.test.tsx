@@ -43,6 +43,10 @@ vi.mock('lucide-react', () => {
     Eye: Stub, RefreshCw: Stub, History: Stub, Loader2: Stub,
     Sparkles: Stub, Building2: Stub, Gift: Stub, UserPlus: Stub,
     Star: Stub, Swords: Stub,
+    // Added for ToastProvider (used transitively via useToast in EventDetailModal):
+    X: Stub, AlertCircle: Stub, Info: Stub,
+    // Added for Modal/Button (Modal has its own lucide usage in ui/index):
+    AlertTriangle: Stub,
   };
 });
 
@@ -72,6 +76,12 @@ vi.mock('@/components/providers/AuthProvider', () => {
   };
 });
 
+// Mock ToastProvider so the heavy Confetti/lucide icon tree is not loaded
+vi.mock('@/components/providers/ToastProvider', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 vi.mock('@/components/ui', () => ({
   Modal: ({ open, children, title, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
     open ? <div data-testid="modal" data-title={title}><button data-testid="modal-close" onClick={onClose}>close</button>{children}</div> : null,
@@ -84,6 +94,14 @@ vi.mock('@/components/ui', () => ({
   EventScopeBadge: ({ scope }: { scope: string }) => (
     <span data-testid="event-scope-badge">{scope}</span>
   ),
+  // Added for J4 FIX-02/03: native confirm() replaced with ConfirmDialog
+  ConfirmDialog: ({ open, title, onConfirm, onCancel }: { open: boolean; title: string; onConfirm: () => void; onCancel: () => void }) =>
+    open ? (
+      <div data-testid="confirm-dialog" data-title={title}>
+        <button data-testid="confirm-confirm" onClick={onConfirm}>confirm</button>
+        <button data-testid="confirm-cancel" onClick={onCancel}>cancel</button>
+      </div>
+    ) : null,
 }));
 
 vi.mock('@/types', () => ({

@@ -745,6 +745,7 @@
     "confirmLeaveMsg": "Möchtest du dich wirklich vom Event \"{name}\" abmelden?",
     "leaveError": "Fehler beim Abmelden: {msg}",
     "incompleteLineupAlert": "Bitte stelle deine komplette Aufstellung auf!",
+    "lineupSaveFailed": "Aufstellung konnte nicht gespeichert werden. Bitte erneut versuchen.",
     "statusScored": "Ausgewertet",
     "statusJoined": "Nimmt teil",
     "statusFit": "Fit",

@@ -39,7 +39,15 @@ export default function EventSummaryModal({
   const top3 = leaderboard.slice(0, 3);
 
   return (
-    <Modal open={open} onClose={onClose} title={t('summary.title')}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('summary.title')}
+      // TODO(J4 FIX-02): EventSummaryModal zeigt read-only Results (keine Mutation).
+      // preventClose={false} bewusst. Sobald Reward-Claim als async Mutation hier
+      // eingebaut wird, `preventClose={claiming}` nachruesten.
+      preventClose={false}
+    >
       <div className="space-y-5 py-2">
         {/* Event name */}
         <div className="text-center">

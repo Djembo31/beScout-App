@@ -140,7 +140,8 @@ export function useEventActions(clubId: string) {
     wildcardSlots: string[] = [],
   ) => {
     if (!user?.id) {
-      addToast(t('errorGeneric', { error: 'Not authenticated' }), 'error');
+      // i18n-Key-Leak-Schutz: resolve via errors-namespace statt EN-Raw-String
+      addToast(t('errorGeneric', { error: te('notAuthenticated') }), 'error');
       return;
     }
 
@@ -180,7 +181,8 @@ export function useEventActions(clubId: string) {
       } else if (msg === 'holding_lock_failed') {
         addToast(t('holdingLockFailed'), 'error');
       } else if (msg === 'lineup_save_failed') {
-        addToast(t('errorGeneric', { error: 'Lineup konnte nicht gespeichert werden. Bitte erneut versuchen.' }), 'error');
+        // i18n-Key-Leak-Schutz: DE-Hardcode raus, resolve via fantasy-namespace
+        addToast(t('lineupSaveFailed'), 'error');
       } else {
         addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
       }

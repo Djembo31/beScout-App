@@ -745,6 +745,7 @@
     "confirmLeaveMsg": "\"{name}\" etkinliğinden gerçekten ayrılmak istiyor musun?",
     "leaveError": "Ayrılma hatası: {msg}",
     "incompleteLineupAlert": "Lütfen tüm kadroyu kur!",
+    "lineupSaveFailed": "Kadro kaydedilemedi. Lütfen tekrar dene.",
     "statusScored": "Değerlendirildi",
     "statusJoined": "Katılıyor",
     "statusFit": "Fit",
