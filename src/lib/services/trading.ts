@@ -85,14 +85,14 @@ export async function buyFromMarket(
   const restricted = await isRestrictedFromTrading(userId, playerId);
   if (restricted) throw new Error('clubAdminRestricted');
 
-  const { data, error } = await supabase.rpc('buy_player_dpc', {
+  const { data, error } = await supabase.rpc('buy_player_sc', {
     p_user_id: userId,
     p_player_id: playerId,
     p_quantity: quantity,
   });
 
   if (error) throw new Error(mapRpcError(error.message));
-  if (!data) throw new Error('buy_player_dpc returned null');
+  if (!data) throw new Error('buy_player_sc returned null');
   const result = data as TradeResult;
   // Activity log (always fires for audit trail, regardless of success)
   import('@/lib/services/activityLog').then(({ logActivity }) => {

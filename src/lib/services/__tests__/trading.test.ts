@@ -187,7 +187,7 @@ describe('buyFromMarket', () => {
     // Not restricted (no club_id)
     mockTable('players', null);
     // RPC returns error
-    mockRpc('buy_player_dpc', null, { message: 'insufficient balance' });
+    mockRpc('buy_player_sc', null, { message: 'insufficient balance' });
 
     await expect(buyFromMarket(userId, playerId, 1)).rejects.toThrow('insufficientBalance');
   });
@@ -195,16 +195,16 @@ describe('buyFromMarket', () => {
   it('throws when RPC returns null', async () => {
     mockTable('players', { is_liquidated: false });
     mockTable('players', null); // not restricted
-    mockRpc('buy_player_dpc', null);
+    mockRpc('buy_player_sc', null);
 
-    await expect(buyFromMarket(userId, playerId, 1)).rejects.toThrow('buy_player_dpc returned null');
+    await expect(buyFromMarket(userId, playerId, 1)).rejects.toThrow('buy_player_sc returned null');
   });
 
   it('returns result when RPC returns {success: true}', async () => {
     const rpcResult = { success: true, trade_id: 'trade-1', total_cost: 5000, source: 'order' };
     mockTable('players', { is_liquidated: false });
     mockTable('players', null); // not restricted
-    mockRpc('buy_player_dpc', rpcResult);
+    mockRpc('buy_player_sc', rpcResult);
 
     const result = await buyFromMarket(userId, playerId, 1);
     expect(result.success).toBe(true);
@@ -216,7 +216,7 @@ describe('buyFromMarket', () => {
     const rpcResult = { success: false, error: 'some error' };
     mockTable('players', { is_liquidated: false });
     mockTable('players', null); // not restricted
-    mockRpc('buy_player_dpc', rpcResult);
+    mockRpc('buy_player_sc', rpcResult);
 
     const result = await buyFromMarket(userId, playerId, 1);
     expect(result.success).toBe(false);

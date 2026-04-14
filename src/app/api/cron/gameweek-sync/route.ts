@@ -1085,10 +1085,10 @@ export async function GET(request: Request) {
 
     await logStep(activeGw, 'resolve_predictions', predResult ? 'success' : 'error', predResult ?? { error: 'resolve_predictions failed' });
 
-    // ---- 9c. DPC of the Week ----
+    // ---- 9c. SC of the Week ----
     // RPC supports service_role via v_is_service_role JWT check (migration 20260314).
-    const { result: dpcResult } = await runStep('dpc_of_week', async () => {
-      const { data, error } = await supabaseAdmin.rpc('calculate_dpc_of_week', {
+    const { result: dpcResult } = await runStep('sc_of_week', async () => {
+      const { data, error } = await supabaseAdmin.rpc('calculate_sc_of_week', {
         p_gameweek: activeGw,
       });
       if (error) throw new Error(error.message);

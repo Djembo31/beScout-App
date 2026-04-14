@@ -11,7 +11,7 @@
  *   mockTable('lineups', null);  // no existing lineup
  *
  *   // RPC-specific responses:
- *   mockRpc('buy_player_dpc', { success: true, price_per_dpc: 500 });
+ *   mockRpc('buy_player_sc', { success: true, price_per_dpc: 500 });
  *
  *   // Call-sequence (FIFO queue per table):
  *   mockTable('players', { is_liquidated: false });  // 1st call

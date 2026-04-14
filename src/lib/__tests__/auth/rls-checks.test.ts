@@ -93,8 +93,8 @@ describe('Authorization — RLS Checks', () => {
   });
 
   // ── 3. Anon user cannot call trading RPC ──
-  it('AUTH-03: anon user cannot call buy_player_dpc RPC', async () => {
-    const { error } = await anonClient.rpc('buy_player_dpc', {
+  it('AUTH-03: anon user cannot call buy_player_sc RPC', async () => {
+    const { error } = await anonClient.rpc('buy_player_sc', {
       p_user_id: '00000000-0000-0000-0000-000000000000',
       p_player_id: '00000000-0000-0000-0000-000000000000',
       p_quantity: 1,

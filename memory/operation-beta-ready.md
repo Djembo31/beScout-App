@@ -296,11 +296,11 @@ Skizze fuer spaetere Sessions:
 
 | Phase | Status | Owner | Last-Update |
 |-------|--------|-------|-------------|
-| 0 — Inventory | ⏳ pending | CTO + 2 Explore Agents | — |
-| 1.1 Fan-Seed Cleanup | 🔴 ready | Backend Agent | Live-Beweis 2026-04-14 |
+| 0 — Inventory | ✅ complete | CTO + 2 Explore Agents | 2026-04-14: feature-map.md + service-map.md geschrieben |
+| 1.1 Fan-Seed Cleanup | ✅ done | CTO via MCP | 2026-04-14: 10 Accounts + cascade purged, Supply-Invariant gruen |
 | 1.2 Test-Account Cleanup | ⏸️ DEFERRED post-Beta | — | CEO-Decision 2026-04-14: brauchen Markt-Belebung |
-| 1.3 16 RPCs DPC-Sanitize+Rename | 🔴 ready | Backend Agent + Impact + Reviewer | CEO-Decision 2026-04-14: Rename approved |
-| 1.4 Migration-Drift Doku | 🟡 quick-doc | CTO | 2026-04-14 |
+| 1.3 14 RPCs DPC-Sanitize+Rename | ✅ done | CTO via MCP | 2026-04-14: A=10 RPCs sanitized, B=2 Renames mit Alias-Pattern, Code+Tests updated |
+| 1.4 Migration-Drift Doku | ✅ done | CTO | 2026-04-14: database.md Zeile 67-82 + pre-launch [x] |
 | 1.5 Live-DB Tests | ✅ verified intentional | — | 2026-04-14 |
 | 2 — Journey Audits (12) | ⏳ pending | Frontend+Backend+Business+Reviewer | — |
 | 3 — Cross-Cutting (4) | ⏳ pending | parallel zu Phase 2 | — |
@@ -335,3 +335,4 @@ Skizze fuer spaetere Sessions:
 
 - **2026-04-14** — Operation Beta Ready definiert. Live-DB Pre-Launch Scan durchgefuehrt — alle Items 1.1-1.5 mit echten Daten verifiziert. Tool-Setup: Sentry MCP scoped + GitHub gh + Vercel CLI alle live (siehe `cto-tools-setup.md`). Naechste Session: Phase 0 Inventory + Phase 1 Cleanup parallel starten.
 - **2026-04-14 Late** — CEO-Spec-Session: alle 6 Open Questions beantwortet. Beta-User = Comunio-Veteranen-Founder, Failure-P0 = Geld+Onboarding+Lineup, Mobile-First Performance, Test-Accounts deferred (Markt-Belebung), RPC-Rename approved, kein PostHog, Session-End Reports. Phase 1 reduziert auf 1.1+1.3+1.4+1.5 (1.2 post-Beta).
+- **2026-04-14 Evening** — Phase 0 + Phase 1 COMPLETE. Inventaries geschrieben (feature-map.md + service-map.md). Phase 1.1 Fan-Seed-Cleanup durch (10 casual-Accounts + cascade, Supply-Invariant gruen). Phase 1.3 durch (10 RPCs sanitized, 2 Renames mit Alias-Pattern, 8 Code-Files + Tests updated, tsc + vitest gruen). Migration-Files als 20260414150000 + 20260414151000 committed. Beta-Ready-Checklist Phase 1 komplett → bereit fuer Phase 2 Journey-Audits.

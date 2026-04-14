@@ -8,7 +8,7 @@ Items die erst beim Pilot-Start abgearbeitet werden, nicht vorher.
 
 ## Data Cleanup
 
-- [ ] **Seed-Casual-Accounts löschen** (casual01 – casual10, UUIDs s.u.) — **🔴 LIVE BESTAETIGT 2026-04-14**
+- [x] **Seed-Casual-Accounts gelöscht** (casual01 – casual10) — **✅ DONE 2026-04-14**: 10 profiles + 10 auth.users + 3 holdings + 3 trades + 1 ipo_purchase + 6 offers + 2 orders + 2 pbt_transactions + 20 transactions + 10 wallets + 10 user_tickets + 4 dpc_mastery + 28 score_history + 10 scout_scores gelöscht. Supply-Invariant gruen (0 Player mit held != purchased).
   - Handles sind `casual01-10` (NICHT `fan01-10` wie ursprünglich dokumentiert)
   - Grund: Sie halten **exakt 11 "phantom" Scout Cards** die nicht durch IPO-Käufe gedeckt sind
   - Live Beweis (2026-04-14): `Mendy Mamadou: held=24, purchased=15 → +9 phantom (casual06 hält 9)` + `Doğukan Tuzcu: held=4, purchased=2 → +2 phantom (casual01)`
@@ -46,10 +46,10 @@ Items die erst beim Pilot-Start abgearbeitet werden, nicht vorher.
   - test444 (UUID 782777a7-9e4a-4e5f-9681-0db78db66648): 4 SCs in 3 Players
   - Empfehlung: test444 + jarvisqa BEHALTEN (für ongoing QA, SCs nullen + neu seeden), Rest komplett DELETE
 - [x] **Clean "DPC"/"Cents" from transaction descriptions** — Migration `cleanup_dpc_transaction_descriptions` + `fix_broken_transaction_descriptions` (2026-04-13). Frontend display-time sanitization in `cleanDescription()` als Fallback.
-- [ ] **RPC functions still write "DPC" in descriptions** — 🔴 LIVE BESTAETIGT 2026-04-14: **16 RPCs** referenzieren "DPC" (mehr als ursprünglich geschätzt 11). Per-function review nötig.
-  - **14 mit DPC im Body** (description-strings): accept_offer, award_mastery_xp, buy_from_ipo, buy_from_market, buy_from_order, calculate_fan_rank, create_ipo, create_offer, fn_mastery_on_trade, increment_mastery_hold_days, liquidate_player, place_buy_order, place_sell_order, refresh_airdrop_score
-  - **2 mit DPC im Function-Name** (CEO-Decision needed): `buy_player_dpc`, `calculate_dpc_of_week` — rename oder legacy lassen?
-  - Approach pro RPC: pg_get_functiondef → code-grep Konsumenten → string-replace (DPC→SC) in descriptions only → migration → Supply-Invariant + Geld-Tests → Reviewer Agent (Opus) prüft Geld-Invarianten
+- [x] **RPC functions DPC-Sanitize + Function-Renames** — **✅ DONE 2026-04-14** (Migrations 20260414150000 + 20260414151000):
+  - **Kategorie A (10 RPCs Body-Sanitize):** accept_offer, buy_from_ipo, buy_from_market, buy_from_order, calculate_fan_rank, create_ipo, create_offer, liquidate_player, place_buy_order, place_sell_order — DPC/DPCs → SC/SCs in user-facing strings. Die 4 mastery-RPCs (award_mastery_xp, fn_mastery_on_trade, increment_mastery_hold_days, refresh_airdrop_score) hatten nur lowercase `dpc_mastery` Table-Refs → unchanged.
+  - **Kategorie B (2 Function-Renames mit Alias-Pattern):** `buy_player_dpc` → `buy_player_sc`, `calculate_dpc_of_week` → `calculate_sc_of_week`. Alte Namen bleiben als thin-alias retained (sichere Migration-Uebergangsphase).
+  - **Code-Updates:** src/lib/services/trading.ts, src/app/api/cron/gameweek-sync/route.ts, 4 Test-Files + 1 Mock-Docstring.
 - [x] **Migration registry drift** — 🟡 LIVE BESTAETIGT 2026-04-14: Local 61 vs Remote 44 (Drift permanent). Documented as "permanent ignore" pattern. NIE `supabase db push`, IMMER `mcp__supabase__apply_migration` (siehe `reference_migration_workflow.md` + CLAUDE.md)
 - [x] **Live-DB Integration Tests** — ✅ LIVE BESTAETIGT 2026-04-14: vitest.config.ts excludet 11 globs wenn `process.env.CI=true` (intentional design). Lokal laufen lassen vor Pilot-Start.
 - [ ] Re-run full `vitest` suite locally after final seed-cleanup, fix any DB-state-dependent test failures

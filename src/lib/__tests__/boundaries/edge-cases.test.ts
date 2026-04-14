@@ -60,8 +60,8 @@ beforeAll(async () => {
 
 describe('Boundary / Edge Cases', () => {
   // ── 1. Buy 0 SC → FAIL ──
-  it('EDGE-01: buy_player_dpc rejects quantity=0', async () => {
-    const { data } = await botClient.rpc('buy_player_dpc', {
+  it('EDGE-01: buy_player_sc rejects quantity=0', async () => {
+    const { data } = await botClient.rpc('buy_player_sc', {
       p_user_id: botId,
       p_player_id: testPlayerId,
       p_quantity: 0,
@@ -70,8 +70,8 @@ describe('Boundary / Edge Cases', () => {
   });
 
   // ── 2. Buy 301 SC (>300 max) → FAIL ──
-  it('EDGE-02: buy_player_dpc rejects quantity=301', async () => {
-    const { data } = await botClient.rpc('buy_player_dpc', {
+  it('EDGE-02: buy_player_sc rejects quantity=301', async () => {
+    const { data } = await botClient.rpc('buy_player_sc', {
       p_user_id: botId,
       p_player_id: testPlayerId,
       p_quantity: 301,
@@ -113,8 +113,8 @@ describe('Boundary / Edge Cases', () => {
   });
 
   // ── 6. Buy negative quantity → FAIL ──
-  it('EDGE-06: buy_player_dpc rejects negative quantity', async () => {
-    const { data } = await botClient.rpc('buy_player_dpc', {
+  it('EDGE-06: buy_player_sc rejects negative quantity', async () => {
+    const { data } = await botClient.rpc('buy_player_sc', {
       p_user_id: botId,
       p_player_id: testPlayerId,
       p_quantity: -1,
