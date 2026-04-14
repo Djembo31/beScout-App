@@ -519,7 +519,7 @@
       "reward": "Ödül",
       "top3": "İlk 3",
       "close": "Kapat",
-      "buyCta": "Güçlendir"
+      "buyCta": "Kadroya Git"
     },
     "dashboard": {
       "wonScout": "Kazanılan Credits",
@@ -788,8 +788,8 @@
     "ptsShort": "Puan",
     "placementLabel": "Sıralama",
     "rewardLabel": "Ödül",
-    "strengthenPortfolio": "Portföyünü güçlendir?",
-    "portfolioHint": "Daha iyi oyuncular = daha yüksek puanlar. Pazara git →",
+    "strengthenPortfolio": "Daha çok Scout Card, daha çok seçenek",
+    "portfolioHint": "Daha büyük koleksiyon = Lineup'ta daha çok esneklik. Pazara git →",
     "scoreBreakdownLabel": "Bireysel puanlar",
     "liveBreakdownLabel": "Canlı değerlendirmeler",
     "lineupComplete": "Kadro tamamlandı — aşağıdan katılımı onayla!",

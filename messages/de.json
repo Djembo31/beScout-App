@@ -519,7 +519,7 @@
       "reward": "Belohnung",
       "top3": "Top 3",
       "close": "Schließen",
-      "buyCta": "Aufstocken"
+      "buyCta": "Zum Kader"
     },
     "dashboard": {
       "wonScout": "Gewonnene Credits",
@@ -788,8 +788,8 @@
     "ptsShort": "Pkt",
     "placementLabel": "Platzierung",
     "rewardLabel": "Prämie",
-    "strengthenPortfolio": "Portfolio stärken?",
-    "portfolioHint": "Bessere Spieler = höhere Scores. Zum Marktplatz →",
+    "strengthenPortfolio": "Mehr Scout Cards für mehr Optionen",
+    "portfolioHint": "Grössere Sammlung = mehr Flexibilität beim Lineup. Zum Marktplatz →",
     "scoreBreakdownLabel": "Einzelbewertungen",
     "liveBreakdownLabel": "Live-Bewertungen",
     "lineupComplete": "Aufstellung vollständig — unten Teilnahme bestätigen!",

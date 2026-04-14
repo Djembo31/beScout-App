@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Trophy, Medal, ShoppingCart } from 'lucide-react';
+import { Trophy, Users } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -90,14 +90,15 @@ export default function EventSummaryModal({
           </div>
         )}
 
-        {/* CTA */}
+        {/* CTA — AR-36: neutralisiert, kein Reinvest-Pitch nach Gewinn-Erlebnis.
+            "Aufstocken" → "Zum Kader" (neutral, kein Trading-CTA direkt nach Reward). */}
         <div className="flex gap-3">
           <Button variant="outline" fullWidth onClick={onClose} className="min-h-[44px]">
             {t('summary.close')}
           </Button>
-          <Link href="/market?tab=kaufen" className="flex-1" onClick={onClose}>
+          <Link href="/manager?tab=kader" className="flex-1" onClick={onClose}>
             <Button variant="gold" fullWidth className="gap-1.5 min-h-[44px]">
-              <ShoppingCart className="size-4" aria-hidden="true" />
+              <Users className="size-4" aria-hidden="true" />
               {t('summary.buyCta')}
             </Button>
           </Link>
