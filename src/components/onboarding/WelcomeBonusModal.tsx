@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Coins, ArrowRight } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { Confetti } from '@/components/ui/Confetti';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -78,6 +79,8 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
               {t('welcomeLater')}
             </button>
           </div>
+
+          <TradingDisclaimer variant="inline" className="mt-4" />
         </div>
       </Modal>
     </>

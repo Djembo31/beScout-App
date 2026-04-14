@@ -10,6 +10,7 @@ import { signUp, signInWithPassword, signInWithOtp, signInWithOAuth } from '@/li
 import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn } from '@/lib/utils';
 
 type LoadingState = 'email' | 'password' | 'google' | 'apple' | 'demo' | null;
@@ -501,7 +502,12 @@ function LoginContent() {
           <Link href="/datenschutz" className="text-white/50 hover:text-white/70 underline transition-colors">
             {t('privacy')}
           </Link>
+          {' · '}
+          <Link href="/impressum" className="text-white/50 hover:text-white/70 underline transition-colors">
+            {t('imprint')}
+          </Link>
         </p>
+        <TradingDisclaimer variant="inline" className="mt-4 justify-center" />
       </div>
     </div>
   );

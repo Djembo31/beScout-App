@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { TrendingUp, Trophy, Users, Vote, ChevronDown, Wallet, ShoppingCart, BarChart3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn } from '@/lib/utils';
 
 export default function WelcomePage() {
@@ -227,6 +228,11 @@ export default function WelcomePage() {
             {t('finalCtaButton')}
           </Button>
         </Link>
+      </section>
+
+      {/* ── 7b. Legal Disclaimer ── */}
+      <section className="relative max-w-4xl mx-auto px-4 pb-8">
+        <TradingDisclaimer variant="card" />
       </section>
 
       {/* ── 8. Footer ── */}

@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Shield, Gift } from 'lucide-react';
+import Link from 'next/link';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
 import { getProfileByReferralCode, getClubByReferralCode, applyClubReferral } from '@/lib/services/referral';
@@ -383,6 +385,16 @@ function OnboardingContent() {
           </>
         )}
       </Card>
+
+      {/* Legal Footer */}
+      <div className="text-center mt-6">
+        <div className="flex items-center justify-center gap-4 text-xs text-white/30">
+          <Link href="/agb" className="hover:text-white/50 transition-colors">{t('terms')}</Link>
+          <Link href="/datenschutz" className="hover:text-white/50 transition-colors">{t('privacy')}</Link>
+          <Link href="/impressum" className="hover:text-white/50 transition-colors">{t('imprint')}</Link>
+        </div>
+        <TradingDisclaimer variant="inline" className="mt-3 justify-center" />
+      </div>
     </div>
   );
 }

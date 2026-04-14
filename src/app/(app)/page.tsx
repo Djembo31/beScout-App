@@ -17,6 +17,7 @@ import {
 import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
@@ -46,6 +47,7 @@ import { useHomeData } from './hooks/useHomeData';
 export default function HomePage() {
   const { balanceCents } = useWallet();
   const t = useTranslations('home');
+  const tLegal = useTranslations('legal');
 
   const {
     user, uid, loading, firstName,
@@ -108,19 +110,24 @@ export default function HomePage() {
         <OnboardingChecklist items={retention.onboarding} />
       )}
       {uid && !highestPass && (
-        <Link
-          href="/founding"
-          className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-card-glow-gold border border-gold/15 hover:border-gold/30 transition-colors group shadow-card-md"
-        >
-          <div className="size-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
-            <Crown className="size-4 text-gold" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold text-gold">{t('foundingUpsellTitle')}</div>
-            <div className="text-xs text-white/50 truncate">{t('foundingUpsellDesc')}</div>
-          </div>
-          <div className="text-xs font-bold text-gold/70 group-hover:text-gold transition-colors shrink-0">{t('foundingUpsellCta')}</div>
-        </Link>
+        <div>
+          <Link
+            href="/founding"
+            className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-card-glow-gold border border-gold/15 hover:border-gold/30 transition-colors group shadow-card-md"
+          >
+            <div className="size-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+              <Crown className="size-4 text-gold" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-gold">{t('foundingUpsellTitle')}</div>
+              <div className="text-xs text-white/50 truncate">{t('foundingUpsellDesc')}</div>
+            </div>
+            <div className="text-xs font-bold text-gold/70 group-hover:text-gold transition-colors shrink-0">{t('foundingUpsellCta')}</div>
+          </Link>
+          <p className="text-[10px] text-white/40 mt-2 px-1 leading-relaxed">
+            {tLegal('foundingPassDisclaimer')}
+          </p>
+        </div>
       )}
 
       {/* ── 1b. QUICK ACTIONS BAR ── */}
@@ -485,6 +492,11 @@ export default function HomePage() {
 
           </div>
         </div>
+      </div>
+
+      {/* ── Legal Disclaimer (page bottom) ── */}
+      <div className="pt-4">
+        <TradingDisclaimer variant="card" />
       </div>
     </div>
   );
