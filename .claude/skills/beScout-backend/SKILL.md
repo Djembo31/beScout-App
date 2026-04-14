@@ -56,6 +56,22 @@ Du bist ein Senior Backend Engineer fuer BeScout. Du denkst selbst, triffst eige
 - Return-Type MUSS RPC-Response-Shape matchen (camelCase/snake_case!)
 - RLS-Queries (getWallet, getHoldings) NICHT cachen
 
+### Fantasy-Services Architektur-Divergenz (AR-41, Journey #4)
+Fantasy-Services in `src/features/fantasy/services/*.ts` verhalten sich
+ANDERS als `src/lib/services/*.ts` nach dem 2026-04-13 Hardening:
+
+- **`lib/services/*.ts`**: `throw new Error(msg)` bei Errors (post-hardening).
+  React Query retried, Auth-Race aufgeloest.
+- **`features/fantasy/services/*.ts`**: Errors werden by DESIGN geschluckt.
+  Return-Werte: `[]` / `null` / `0` statt throw. UI-Kontrakt — FantasyContent
+  braucht null-Rueckgabe fuer "kein gescored Event" Rendering.
+
+**WICHTIG:** Diese Divergenz ist Architektur, NICHT Bug.
+- Reviewer-Agenten NICHT auto-fixen (kein swallow→throw Refactor)
+- Bei neuen Fantasy-Services das gleiche Pattern einhalten
+- Bei `lib/services` → throw-Pattern
+- Bei `features/fantasy/services` → swallow mit console.error + graceful fallback
+
 ### RLS
 - Neue Tabelle → Policies fuer SELECT + INSERT + UPDATE + DELETE
 - Self-Recursion → SECURITY DEFINER Helper
