@@ -4141,6 +4141,7 @@
     "offersCount": "{count} Angebot",
     "offersCountPlural": "{count} Angebote",
     "cheapestFirst": "Günstigstes zuerst",
+    "anonSeller": "Anonymer Verkäufer",
     "notAvailable": "Nicht verfügbar",
     "noSaleNoOffers": "Kein Erstverkauf aktiv und keine Markt-Angebote",
     "makeOffer": "Kaufangebot machen",

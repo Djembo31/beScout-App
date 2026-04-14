@@ -268,11 +268,11 @@ describe('placeSellOrder', () => {
     await expect(placeSellOrder(userId, playerId, 1, 1.5)).rejects.toThrow('invalidPrice');
   });
 
-  it('throws when price exceeds price cap', async () => {
+  it('throws maxPriceExceeded when price exceeds price cap', async () => {
     // getPriceCap calls rpc('get_price_cap')
     mockRpc('get_price_cap', 5000);
     // Price 6000 > cap 5000
-    await expect(placeSellOrder(userId, playerId, 1, 6000)).rejects.toThrow('Price exceeds maximum');
+    await expect(placeSellOrder(userId, playerId, 1, 6000)).rejects.toThrow('maxPriceExceeded');
   });
 
   it('throws playerLiquidated when player is liquidated', async () => {
@@ -422,7 +422,7 @@ describe('cancelOrder', () => {
 });
 
 // ============================================
-// placeBuyOrder (returns {success:false} instead of throwing)
+// placeBuyOrder (throws i18n keys — see JSDoc)
 // ============================================
 
 describe('placeBuyOrder', () => {
@@ -433,67 +433,51 @@ describe('placeBuyOrder', () => {
     resetMocks();
   });
 
-  it('returns {success: false} when quantity=0', async () => {
-    const result = await placeBuyOrder(userId, playerId, 0, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid quantity');
+  it('throws invalidQuantity when quantity=0', async () => {
+    await expect(placeBuyOrder(userId, playerId, 0, 1000)).rejects.toThrow('invalidQuantity');
   });
 
-  it('returns {success: false} when quantity=301', async () => {
-    const result = await placeBuyOrder(userId, playerId, 301, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid quantity');
+  it('throws maxQuantityExceeded when quantity=301', async () => {
+    await expect(placeBuyOrder(userId, playerId, 301, 1000)).rejects.toThrow('maxQuantityExceeded');
   });
 
-  it('returns {success: false} when price=0', async () => {
-    const result = await placeBuyOrder(userId, playerId, 1, 0);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid price');
+  it('throws invalidPrice when price=0', async () => {
+    await expect(placeBuyOrder(userId, playerId, 1, 0)).rejects.toThrow('invalidPrice');
   });
 
-  it('returns {success: false} when player not found', async () => {
+  it('throws playerNotFound when player not in DB', async () => {
     mockTable('players', null);
-    const result = await placeBuyOrder(userId, playerId, 1, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('playerNotFound');
+    await expect(placeBuyOrder(userId, playerId, 1, 1000)).rejects.toThrow('playerNotFound');
   });
 
-  it('returns {success: false} when player is liquidated', async () => {
+  it('throws playerLiquidated when player is liquidated', async () => {
     mockTable('players', { is_liquidated: true });
-    const result = await placeBuyOrder(userId, playerId, 1, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('playerLiquidated');
+    await expect(placeBuyOrder(userId, playerId, 1, 1000)).rejects.toThrow('playerLiquidated');
   });
 
-  it('returns {success: false} when user is club admin', async () => {
+  it('throws clubAdminRestricted when user is club admin', async () => {
     mockTable('players', { is_liquidated: false });
     // isRestrictedFromTrading: player has club, user is admin
     mockTable('players', { club_id: 'club-1' });
     mockTable('club_admins', { id: 'admin-1' });
 
-    const result = await placeBuyOrder(userId, playerId, 1, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('clubAdminRestricted');
+    await expect(placeBuyOrder(userId, playerId, 1, 1000)).rejects.toThrow('clubAdminRestricted');
   });
 
-  it('returns {success: false} when RPC returns error', async () => {
+  it('throws mapped error when RPC returns error', async () => {
     mockTable('players', { is_liquidated: false });
     mockTable('players', null); // not restricted
     mockRpc('place_buy_order', null, { message: 'insufficient balance' });
 
-    const result = await placeBuyOrder(userId, playerId, 1, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('insufficientBalance');
+    await expect(placeBuyOrder(userId, playerId, 1, 1000)).rejects.toThrow('insufficientBalance');
   });
 
-  it('returns {success: false} when RPC returns null', async () => {
+  it('throws when RPC returns null', async () => {
     mockTable('players', { is_liquidated: false });
     mockTable('players', null); // not restricted
     mockRpc('place_buy_order', null);
 
-    const result = await placeBuyOrder(userId, playerId, 1, 1000);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('No response');
+    await expect(placeBuyOrder(userId, playerId, 1, 1000)).rejects.toThrow('place_buy_order returned null');
   });
 
   it('returns result on happy path', async () => {

@@ -13,7 +13,7 @@ export function useBuyFromMarket() {
   return useMutation({
     mutationFn: async ({ userId, playerId, quantity }: { userId: string; playerId: string; quantity: number }) => {
       const result = await buyFromMarket(userId, playerId, quantity);
-      if (!result.success) throw new Error(result.error || 'Kauf fehlgeschlagen');
+      if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
     onSuccess: (result, { playerId, userId }) => {
@@ -30,7 +30,7 @@ export function useBuyFromIpo() {
   return useMutation({
     mutationFn: async ({ userId, ipoId, playerId, quantity }: { userId: string; ipoId: string; playerId: string; quantity: number }) => {
       const result = await buyFromIpo(userId, ipoId, quantity, playerId);
-      if (!result.success) throw new Error(result.error || 'IPO-Kauf fehlgeschlagen');
+      if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
     onSuccess: (result, { playerId, userId }) => {
@@ -50,8 +50,11 @@ export function usePlaceBuyOrder() {
     mutationFn: async ({ userId, playerId, quantity, maxPriceCents }: {
       userId: string; playerId: string; quantity: number; maxPriceCents: number;
     }) => {
+      // Service throws i18n keys directly (see placeBuyOrder JSDoc).
+      // Safety-net: if result.success === false slips through, re-throw the
+      // (already-key'd) error rather than a raw DE-string.
       const result = await placeBuyOrder(userId, playerId, quantity, maxPriceCents);
-      if (!result.success) throw new Error(result.error || 'Kaufgesuch fehlgeschlagen');
+      if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
     onSuccess: (_result, { playerId, userId }) => {
@@ -67,7 +70,7 @@ export function useCancelBuyOrder() {
   return useMutation({
     mutationFn: async ({ userId, orderId }: { userId: string; orderId: string }) => {
       const result = await cancelBuyOrder(userId, orderId);
-      if (!result.success) throw new Error(result.error || 'Stornierung fehlgeschlagen');
+      if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
     onSuccess: (_result, { userId }) => {

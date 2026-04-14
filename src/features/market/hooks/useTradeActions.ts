@@ -101,29 +101,41 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
     }
   }, [userId, pendingBuy, buyPending, ipoBuyPending, doBuy, doIpoBuy, ipoIdMap, balanceCents]);
 
+  // Resolve an i18n-key (or raw service/RPC error) into an already-translated
+  // message. Services throw i18n keys like 'insufficientBalance' — Raw-Keys
+  // must never leak into the UI (see common-errors.md: i18n-Key-Leak).
+  const resolveErrorMessage = useCallback((raw: unknown): string => {
+    const key = mapErrorToKey(normalizeError(raw));
+    try {
+      return te(key);
+    } catch {
+      return tc('unknownError');
+    }
+  }, [te, tc]);
+
   const handleSell = useCallback(async (playerId: string, quantity: number, priceCents: number): Promise<ActionResult> => {
     if (!userId) return { success: false, error: t('notLoggedIn') };
     try {
       const result = await placeSellOrder(userId, playerId, quantity, priceCents);
-      if (!result.success) return { success: false, error: result.error || t('listingFailed') };
+      if (!result.success) return { success: false, error: resolveErrorMessage(result.error ?? 'generic') };
       invalidateTradeQueries(playerId, userId);
       return { success: true };
     } catch (err) {
-      return { success: false, error: err instanceof Error ? err.message : tc('unknownError') };
+      return { success: false, error: resolveErrorMessage(err) };
     }
-  }, [userId, t, tc]);
+  }, [userId, t, resolveErrorMessage]);
 
   const handleCancelOrder = useCallback(async (orderId: string): Promise<ActionResult> => {
     if (!userId) return { success: false, error: t('notLoggedIn') };
     try {
       const result = await cancelOrder(userId, orderId);
-      if (!result.success) return { success: false, error: result.error || t('cancelFailed') };
+      if (!result.success) return { success: false, error: resolveErrorMessage(result.error ?? 'generic') };
       invalidateTradeQueries('', userId);
       return { success: true };
     } catch (err) {
-      return { success: false, error: err instanceof Error ? err.message : tc('unknownError') };
+      return { success: false, error: resolveErrorMessage(err) };
     }
-  }, [userId, t, tc]);
+  }, [userId, t, resolveErrorMessage]);
 
   return {
     pendingBuy, setPendingBuy, executeBuy,

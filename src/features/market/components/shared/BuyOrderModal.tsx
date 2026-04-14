@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, AlertCircle, ShoppingCart } from 'lucide-react';
+import { Loader2, AlertCircle, Info, ShoppingCart } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { usePlaceBuyOrder } from '@/lib/mutations/trading';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { Player } from '@/types';
 
 interface BuyOrderModalProps {
@@ -21,6 +23,7 @@ interface BuyOrderModalProps {
 export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalProps) {
   const t = useTranslations('market');
   const tc = useTranslations('common');
+  const te = useTranslations('errors');
   const tp = useTranslations('playerDetail');
   const { user } = useUser();
   const { balanceCents, lockedBalanceCents } = useWallet();
@@ -70,7 +73,15 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
           }, 2000);
         },
         onError: (err) => {
-          setError(err instanceof Error ? err.message : tc('unknownError'));
+          // Service throws i18n keys (see placeBuyOrder JSDoc). Resolve via
+          // mapErrorToKey + te() so we never leak raw keys to the UI
+          // (see common-errors.md: i18n-Key-Leak via Service-Errors).
+          const key = mapErrorToKey(normalizeError(err));
+          try {
+            setError(te(key));
+          } catch {
+            setError(tc('unknownError'));
+          }
         },
       }
     );
@@ -221,10 +232,26 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
           </div>
         )}
 
+        {/* Fee info (Platform/PBT/Club breakdown — 3.5/1.5/1% analog BuyConfirmModal) */}
+        <div className="space-y-1.5 text-xs text-white/40">
+          <div className="flex items-center gap-2">
+            <Info className="size-3.5 flex-shrink-0" aria-hidden="true" />
+            {t('feeInfoMarket')}
+          </div>
+          <div className="ml-5.5 pl-[22px] text-[10px] text-white/25 space-y-0.5">
+            <div>{t('feeBreakdownPlatform')}</div>
+            <div>{t('feeBreakdownPbt')}</div>
+            <div>{t('feeBreakdownClub')}</div>
+          </div>
+        </div>
+
         {/* Info text */}
         <p className="text-[10px] text-white/25 leading-relaxed">
           {t('buyOrderInfo')}
         </p>
+
+        {/* Compliance: TradingDisclaimer (MiCA/CASP-Gate vor Geld-Transaktion) */}
+        <TradingDisclaimer variant="inline" />
       </div>
     </Modal>
   );

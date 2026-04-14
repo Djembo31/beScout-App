@@ -4141,6 +4141,7 @@
     "offersCount": "{count} Teklif",
     "offersCountPlural": "{count} Teklif",
     "cheapestFirst": "En ucuz önce",
+    "anonSeller": "Anonim Satıcı",
     "notAvailable": "Mevcut değil",
     "noSaleNoOffers": "Aktif ilk satış veya piyasa teklifi yok",
     "makeOffer": "Alım teklifi ver",

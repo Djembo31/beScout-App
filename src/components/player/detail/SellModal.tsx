@@ -78,6 +78,7 @@ export default function SellModal({
       onClose={onClose}
       title={t('sell')}
       subtitle={`${player.first} ${player.last}`}
+      preventClose={selling || cancellingId !== null || acceptingBidId != null}
       footer={availableToSell > 0 && !player.isLiquidated ? (
         <div>
           <Button variant="gold" fullWidth size="lg"
