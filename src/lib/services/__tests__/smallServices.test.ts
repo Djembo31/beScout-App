@@ -274,10 +274,10 @@ describe('claimWelcomeBonus', () => {
     expect(result.alreadyClaimed).toBe(true);
   });
 
-  it('returns error on RPC failure', async () => {
+  it('throws on RPC failure so React Query can retry', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockRpc('claim_welcome_bonus', null, { message: 'err' });
-    expect(await claimWelcomeBonus()).toEqual({ ok: false, alreadyClaimed: false });
+    await expect(claimWelcomeBonus()).rejects.toThrow('err');
     consoleSpy.mockRestore();
   });
 

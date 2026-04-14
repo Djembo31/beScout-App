@@ -8,7 +8,7 @@ import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Shield, Gift } fr
 import Link from 'next/link';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
-import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
+import { createProfile, checkHandleAvailable, validateHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
 import { getProfileByReferralCode, getClubByReferralCode, applyClubReferral } from '@/lib/services/referral';
 import { signOut } from '@/lib/services/auth';
@@ -17,7 +17,7 @@ import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { followClubsBatch } from '@/lib/services/club';
 
-type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'reserved';
 
 function OnboardingContent() {
   const router = useRouter();
@@ -88,8 +88,13 @@ function OnboardingContent() {
       setHandleStatus('idle');
       return;
     }
-    if (!isValidHandle(handle)) {
+    const validationError = validateHandle(handle);
+    if (validationError === 'handleInvalid') {
       setHandleStatus('invalid');
+      return;
+    }
+    if (validationError === 'handleReserved') {
+      setHandleStatus('reserved');
       return;
     }
     setHandleStatus('checking');
@@ -140,10 +145,17 @@ function OnboardingContent() {
         invited_by: referrer?.id ?? null,
       });
 
-      // Auto-follow referral club if present
+      // Auto-follow referral club if present — non-blocking:
+      // Profile is already persisted; if club-follow or referral-apply fails
+      // (network hiccup, RLS edge case), user can still reach /home. Partial
+      // failure is logged but doesn't trap the user on this screen.
       if (referralClub) {
-        await followClubsBatch(user.id, [referralClub.id]);
-        await applyClubReferral(user.id, referralClub.id);
+        try {
+          await followClubsBatch(user.id, [referralClub.id]);
+          await applyClubReferral(user.id, referralClub.id);
+        } catch (followErr) {
+          console.error('[Onboarding] Club follow/referral failed:', followErr);
+        }
       }
 
       // Upload avatar if selected
@@ -168,7 +180,12 @@ function OnboardingContent() {
         router.replace('/login');
         return;
       }
-      setError(msg);
+      // Service layer throws i18n keys for validation errors — resolve them here
+      const translatedMsg =
+        msg === 'handleReserved' || msg === 'handleInvalid'
+          ? t(msg)
+          : msg;
+      setError(translatedMsg);
       setSubmitting(false);
     }
   }, [user, handle, displayNameValue, avatarFile, language, referrer, referralClub, refreshProfile, router]);
@@ -250,6 +267,7 @@ function OnboardingContent() {
                     handleStatus === 'available' && 'border-green-500/40 focus:border-green-500/60',
                     handleStatus === 'taken' && 'border-red-400/40 focus:border-red-400/60',
                     handleStatus === 'invalid' && 'border-red-400/40 focus:border-red-400/60',
+                    handleStatus === 'reserved' && 'border-red-400/40 focus:border-red-400/60',
                     (handleStatus === 'idle' || handleStatus === 'checking') && 'border-white/10 focus:border-gold/40'
                   )}
                 />
@@ -258,11 +276,13 @@ function OnboardingContent() {
                   {handleStatus === 'available' && <Check className="size-4 text-green-500" aria-hidden="true" />}
                   {handleStatus === 'taken' && <X className="size-4 text-red-400" aria-hidden="true" />}
                   {handleStatus === 'invalid' && <X className="size-4 text-red-400" aria-hidden="true" />}
+                  {handleStatus === 'reserved' && <X className="size-4 text-red-400" aria-hidden="true" />}
                 </div>
               </div>
               <div className="mt-1.5 text-xs">
                 {handleStatus === 'taken' && <span className="text-red-400">{t('handleTaken')}</span>}
                 {handleStatus === 'invalid' && <span className="text-red-400">{t('handleInvalid')}</span>}
+                {handleStatus === 'reserved' && <span className="text-red-400">{t('handleReserved')}</span>}
                 {handleStatus === 'available' && <span className="text-green-500">{t('handleAvailable')}</span>}
                 {handleStatus === 'idle' && <span className="text-white/30">{t('handleInvalid')}</span>}
               </div>
@@ -291,6 +311,7 @@ function OnboardingContent() {
                 {handleStatus === 'checking' ? t('handleChecking') :
                  handleStatus === 'taken' ? t('handleTakenShort') :
                  handleStatus === 'invalid' ? t('handleInvalid') :
+                 handleStatus === 'reserved' ? t('handleReserved') :
                  null}
               </div>
             )}
