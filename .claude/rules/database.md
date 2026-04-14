@@ -80,3 +80,31 @@ paths:
   - Fuer Tabelle: `SELECT relreplident FROM pg_class WHERE relname = 'X'` (Realtime-Tabellen = 'f')
   - Fuer Publication: `SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime'`
 - **Falls `db push` irgendwann wirklich gebraucht wird** (CI-Migration, neues Team-Mitglied): erst die Registry via `schema_migrations` UPDATE/INSERT glattziehen — sonst Crash beim Re-Apply.
+
+## Migration-Template-Pflichten (AR-44, 2026-04-15)
+
+Jede Migration die `CREATE OR REPLACE FUNCTION` enthaelt MUSS am Ende dieser 3-Zeilen-Block:
+```sql
+REVOKE EXECUTE ON FUNCTION public.fn_name(arg_types) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.fn_name(arg_types) FROM anon;
+GRANT EXECUTE ON FUNCTION public.fn_name(arg_types) TO authenticated;
+```
+**Grund:** `CREATE OR REPLACE` resettet Privilegien auf Default (PUBLIC grant). Ohne explizit REVOKE+GRANT kann anon zugreifen — J4 `earn_wildcards` war genau dieses Pattern (Live-Exploit).
+
+**Audit-Command vor jedem Commit:**
+```bash
+# Findet Migrations mit CREATE FUNCTION ohne REVOKE-Block
+for f in supabase/migrations/*.sql; do
+  if grep -q "CREATE OR REPLACE FUNCTION\|CREATE FUNCTION" "$f" && ! grep -q "REVOKE EXECUTE" "$f"; then
+    echo "MISSING REVOKE: $f"
+  fi
+done
+```
+
+**Ausnahme:** Trigger-Funktionen (`LANGUAGE plpgsql` + `RETURNS trigger`) brauchen kein REVOKE (werden nur via TRIGGER aufgerufen, nie direkt).
+
+## Stub-Migration-Verbot (AR-43, 2026-04-15)
+
+Stubs (Comment-only Migration ohne SQL) sind **verboten**. Jede `apply_migration`-Call MUSS vollstaendige SQL enthalten — auch wenn sie bereits live sind (Greenfield-db-reset soll funktionieren).
+
+Audit: `for f in supabase/migrations/*.sql; do [ $(wc -l <$f) -lt 10 ] && echo "SHORT: $f"; done` — Files unter 10 Zeilen pruefen, oft Stubs.

@@ -1,7 +1,6 @@
--- Applied via mcp__supabase__apply_migration (name: mystery_box_equipment_branch_fix)
--- Fix: equipment branch referenced v_reward_rec.equipment_type / .equipment_rank which
--- don't exist on mystery_box_config. Rank range lives in min_value/max_value; equipment
--- key is picked randomly from active equipment_definitions.
--- Also fixed the reward-weight accumulation to select from the row record instead of
--- a dependent sub-select.
--- Unmasked after the created_at → opened_at fix in 20260411114500.
+-- STUB (applied via mcp__supabase__apply_migration auf Remote).
+-- SUPERSEDED by 20260414230000_ar42 + 20260414233000_ar42b + 20260415000300_ar49
+-- Inhalt: equipment-branch wird aus equipment_definitions gepicked (nicht
+-- mystery_box_config). Fix ist in jeder nachfolgenden open_mystery_box_v2
+-- CREATE OR REPLACE erhalten. NOTE: diese Stub hat den AR-42-Bug EINGEFUEHRT
+-- (equipment_rank statt rank) — von AR-42 Migration korrigiert.

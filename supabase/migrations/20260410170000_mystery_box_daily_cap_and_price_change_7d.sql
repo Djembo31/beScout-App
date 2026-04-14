@@ -1,4 +1,7 @@
--- See applied migration via mcp__supabase__apply_migration
--- 1. open_mystery_box_v2: server-side daily free-box cap (COUNT where ticket_cost=0 AND today)
--- 2. get_player_price_changes_7d RPC: 7d price changes from trades table
--- Full SQL in migration name: mystery_box_daily_cap_and_price_change_7d
+-- STUB (applied via mcp__supabase__apply_migration auf Remote).
+-- SUPERSEDED by 20260415000000_ar43_mystery_box_consolidated_snapshot.sql
+--   + 20260414230000_ar42 + 20260414233000_ar42b + 20260415000300_ar49
+-- Inhalt dieses Stubs war:
+--   1. open_mystery_box_v2 (v2) — jetzt in AR-42/42b/49 consolidated
+--   2. get_player_price_changes_7d — jetzt in AR-43 snapshot
+-- Greenfield db-reset funktioniert via nachfolgende Snapshots.

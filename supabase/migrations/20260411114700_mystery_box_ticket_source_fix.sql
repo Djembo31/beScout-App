@@ -1,6 +1,5 @@
--- Applied via mcp__supabase__apply_migration (name: mystery_box_ticket_source_fix)
--- Fix: ticket_transactions CHECK constraint on `source` does not include 'mystery_box_reward'.
--- All reward inserts now use source='mystery_box' (same as the spend side); description
--- distinguishes credit/debit. Allowed sources: daily_login, mission, daily_challenge,
--- achievement, streak_bonus, mystery_box, event_entry, chip_use, live_prediction,
--- admin_grant. Also added ticket_transactions inserts to all fallback paths.
+-- STUB (applied via mcp__supabase__apply_migration auf Remote).
+-- SUPERSEDED by 20260414230000_ar42 + 20260414233000_ar42b + 20260415000300_ar49
+-- Inhalt: source='mystery_box' in ticket_transactions (statt 'mystery_box_reward'
+-- welches CHECK-constraint verletzt haette). Fix ist in jeder nachfolgenden
+-- open_mystery_box_v2 CREATE OR REPLACE erhalten.
