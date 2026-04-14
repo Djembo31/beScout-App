@@ -211,6 +211,13 @@ export default function BuyConfirmModal({
               <div>{t('feeBreakdownClub')}</div>
             </div>
           )}
+          {!isMarket && (
+            <div className="ml-5.5 pl-[22px] text-[10px] text-white/25 space-y-0.5">
+              <div>{t('feeBreakdownIpoClub')}</div>
+              <div>{t('feeBreakdownIpoPlatform')}</div>
+              <div>{t('feeBreakdownIpoPbt')}</div>
+            </div>
+          )}
         </div>
 
         {/* Total + Balance */}
