@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Clock } from 'lucide-react';
 import { PlayerPhoto } from '@/components/player';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import CountdownBadge from './CountdownBadge';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -62,7 +63,17 @@ export default function EndingSoonStrip({ activeIpos, playerMap, max = 5 }: Endi
                 <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={32} />
                 <div className="min-w-0 flex-1">
                   <div className="font-bold text-xs text-white truncate">{p.first} {p.last}</div>
-                  <div className="text-[9px] text-white/30 truncate">{p.club}</div>
+                  <div className="flex items-center gap-1 text-[9px] text-white/30 truncate">
+                    <span className="truncate">{p.club}</span>
+                    {p.leagueShort && (
+                      <LeagueBadge
+                        logoUrl={p.leagueLogoUrl}
+                        name={p.league ?? p.leagueShort}
+                        short={p.leagueShort}
+                        size="xs"
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
 

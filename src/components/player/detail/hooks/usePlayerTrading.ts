@@ -187,7 +187,7 @@ export function usePlayerTrading({
     ipoBuyingRef.current = true;
     setIpoBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
-      const result = await buyFromIpo(userId, activeIpo.id, quantity);
+      const result = await buyFromIpo(userId, activeIpo.id, quantity, playerId);
       if (!result.success) { setBuyError(result.error || t('ipoBuyFailed')); }
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';

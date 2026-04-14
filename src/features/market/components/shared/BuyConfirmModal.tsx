@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getPlayerSentimentCounts } from '@/lib/services/research';
@@ -71,7 +72,7 @@ export default function BuyConfirmModal({
   // Empty state: nothing available to buy
   if (priceCents <= 0 || maxQty <= 0) {
     return (
-      <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm">
+      <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
         <div className="py-8 text-center space-y-3">
           <AlertCircle className="size-8 mx-auto text-white/20" aria-hidden="true" />
           <p className="text-sm text-white/50">
@@ -88,7 +89,7 @@ export default function BuyConfirmModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm">
+    <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
       <div className="space-y-4">
         {/* Player identity */}
         <div className="flex items-center gap-3 bg-surface-subtle border border-white/[0.08] rounded-xl p-3">
@@ -232,6 +233,9 @@ export default function BuyConfirmModal({
             {tp('notEnoughScout', { defaultMessage: 'Nicht genug Credits' })}
           </div>
         )}
+
+        {/* Compliance: TradingDisclaimer (MiCA/CASP-Gate vor Geld-Transaktion) */}
+        <TradingDisclaimer variant="inline" />
 
         {/* Actions */}
         <div className="flex gap-3">

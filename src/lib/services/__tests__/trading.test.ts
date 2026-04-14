@@ -89,6 +89,14 @@ describe('mapRpcError', () => {
     expect(mapRpcError('unauthorized access')).toBe('permissionDenied');
   });
 
+  it('maps "early access" to earlyAccessRequired', () => {
+    expect(mapRpcError('IPO early access required')).toBe('earlyAccessRequired');
+  });
+
+  it('maps "subscription required" to earlyAccessRequired', () => {
+    expect(mapRpcError('subscription required for this')).toBe('earlyAccessRequired');
+  });
+
   it('maps unknown message to generic', () => {
     expect(mapRpcError('something random')).toBe('generic');
   });
