@@ -44,6 +44,9 @@ export type FantasyEvent = {
   creatorName?: string;
   leagueId?: string;
   leagueName?: string;
+  leagueShort?: string;
+  leagueLogoUrl?: string;
+  leagueCountry?: string;
   gameweek?: number;
   startTime: number;
   endTime: number;
@@ -103,6 +106,9 @@ export type UserDpcHolding = {
   club: string;
   clubId: string | null;
   clubLogo?: string;
+  leagueShort?: string;
+  leagueLogoUrl?: string;
+  leagueCountry?: string;
   dpcOwned: number;
   eventsUsing: number;
   dpcAvailable: number;

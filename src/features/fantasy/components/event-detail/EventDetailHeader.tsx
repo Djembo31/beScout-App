@@ -6,6 +6,7 @@ import {
   RefreshCw, History,
 } from 'lucide-react';
 import { Chip, EventTypeBadge } from '@/components/ui';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { useTranslations, useLocale } from 'next-intl';
 import type { FantasyEvent } from '@/components/fantasy/types';
 import { getStatusStyle, getTypeStyle, formatCountdown } from '@/components/fantasy/helpers';
@@ -44,6 +45,14 @@ export function EventDetailHeader({ event, isScored, resetting, onReset }: Event
           </div>
         )}
         <EventTypeBadge type={event.type} clubName={event.clubName} clubLogo={event.clubLogo} sponsorName={event.sponsorName} size="sm" />
+        {event.leagueShort && (
+          <LeagueBadge
+            logoUrl={event.leagueLogoUrl}
+            name={event.leagueName ?? event.leagueShort}
+            short={event.leagueShort}
+            size="sm"
+          />
+        )}
         <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? t('modeLiga') : t('modeTurnier')} • {event.format}</Chip>
         {event.status === 'running' && !isScored && <Chip className="bg-green-500 text-white">LIVE</Chip>}
         {isScored && (

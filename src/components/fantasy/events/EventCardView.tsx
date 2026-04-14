@@ -4,6 +4,7 @@ import React from 'react';
 import { Plus, Edit3, Lock, Eye, Play, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, EventTypeBadge } from '@/components/ui';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
 import { getTypeStyle, getTierStyle, formatEventCost } from '../helpers';
@@ -91,8 +92,16 @@ export function EventCardView({ event, onClick }: Props) {
       <h3 className="font-black text-sm line-clamp-2 mb-1">{event.name}</h3>
 
       {/* Row 3: Meta */}
-      <div className="flex items-center gap-1.5 text-xs text-white/40 mb-2">
+      <div className="flex items-center gap-1.5 text-xs text-white/40 mb-2 flex-wrap">
         <EventTypeBadge type={event.type} clubName={event.clubName} clubLogo={event.clubLogo} sponsorName={event.sponsorName} size="sm" />
+        {event.leagueShort && (
+          <LeagueBadge
+            logoUrl={event.leagueLogoUrl}
+            name={event.leagueName ?? event.leagueShort}
+            short={event.leagueShort}
+            size="xs"
+          />
+        )}
         <span>{event.format}</span>
         <span className="text-white/15">·</span>
         <span>{event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</span>

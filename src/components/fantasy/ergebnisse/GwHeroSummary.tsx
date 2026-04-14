@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { Goal, HandHelping, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
 import { getRingFrameClass, getMatchScore } from '../spieltag/helpers';
 import { getScoreBadgeStyle } from '@/components/player/scoreColor';
+import { getClub } from '@/lib/clubs';
+import { getLeague } from '@/lib/leagues';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 
@@ -28,6 +31,10 @@ export function GwHeroSummary({ summary }: Props) {
   const tf = useTranslations('fantasy');
   const { best, avgRating, totalGoals, totalAssists, cleanSheets, yellowCards } = summary;
   const mvpScore = getMatchScore(best);
+
+  // Resolve MVP's league via club_id → clubs.league → leagues
+  const mvpClub = best.club_id ? getClub(best.club_id) : null;
+  const mvpLeague = mvpClub?.league ? getLeague(mvpClub.league) : undefined;
 
   return (
     <Card surface="elevated" className="rounded-2xl overflow-hidden">
@@ -59,11 +66,19 @@ export function GwHeroSummary({ summary }: Props) {
           <div className="font-black text-sm truncate">
             {best.player_first_name.charAt(0)}. {best.player_last_name}
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
             <span className="px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums" style={getScoreBadgeStyle(mvpScore)}>
               {mvpScore ?? '\u2013'}
             </span>
             <PositionBadge pos={best.player_position as Pos} size="sm" />
+            {mvpLeague && (
+              <LeagueBadge
+                logoUrl={mvpLeague.logoUrl}
+                name={mvpLeague.name}
+                short={mvpLeague.short}
+                size="xs"
+              />
+            )}
           </div>
         </div>
 

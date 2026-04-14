@@ -7,6 +7,7 @@ import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/positionColors';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import FDRBadge from './FDRBadge';
 import type { Pos } from '@/types';
 
@@ -29,6 +30,8 @@ interface FantasyPlayerRowProps {
     dpcOwned: number;
     dpcAvailable: number;
     eventsUsing: number;
+    leagueShort?: string;
+    leagueLogoUrl?: string;
   };
   formEntries: { score: number; status: 'played' | 'bench' | 'not_in_squad' }[];
   nextFixture?: {
@@ -108,14 +111,22 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
             </div>
           </div>
 
-          {/* Line 2: Position + Club */}
-          <div className="flex items-center gap-1.5 mt-0.5">
+          {/* Line 2: Position + Club + League */}
+          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
             <PositionBadge pos={player.pos} size="sm" />
             {clubData?.logo && (
               <Image src={clubData.logo} alt="" width={16} height={16}
                 className="size-4 shrink-0" aria-hidden="true" />
             )}
             <span className="text-xs text-white/50">{player.club}</span>
+            {player.leagueShort && (
+              <LeagueBadge
+                logoUrl={player.leagueLogoUrl}
+                name={player.leagueShort}
+                short={player.leagueShort}
+                size="xs"
+              />
+            )}
           </div>
 
           {/* Line 3: Next fixture + stats */}

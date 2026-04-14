@@ -114,6 +114,8 @@ export function PlayerPicker({
         dpcOwned: player.dpcOwned,
         dpcAvailable: player.dpcAvailable,
         eventsUsing: player.eventsUsing,
+        leagueShort: player.leagueShort,
+        leagueLogoUrl: player.leagueLogoUrl,
       },
       formEntries,
       nextFixture: nextFix ? { opponentShort: nextFix.opponentShort, opponentName: nextFix.opponentName, isHome: nextFix.isHome } : null,

@@ -1,8 +1,14 @@
 import type { UserDpcHolding } from '../types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
+import { getClub } from '@/lib/clubs';
+import { getLeague } from '@/lib/leagues';
 
 /** Map DB holding row to local UserDpcHolding shape */
 export function dbHoldingToUserDpcHolding(h: HoldingWithPlayer): UserDpcHolding {
+  // Resolve league via player.club_id → clubs.league → leagues (client-side cache)
+  const clubLookup = h.player?.club_id ? getClub(h.player.club_id) : null;
+  const league = clubLookup?.league ? getLeague(clubLookup.league) : undefined;
+
   return {
     id: h.player_id,
     first: h.player?.first_name ?? '',
@@ -10,6 +16,9 @@ export function dbHoldingToUserDpcHolding(h: HoldingWithPlayer): UserDpcHolding 
     pos: h.player?.position ?? 'MID',
     club: h.player?.club ?? '',
     clubId: h.player?.club_id ?? null,
+    leagueShort: league?.short,
+    leagueLogoUrl: league?.logoUrl ?? undefined,
+    leagueCountry: league?.country,
     dpcOwned: h.quantity,
     eventsUsing: 0,
     dpcAvailable: h.quantity,

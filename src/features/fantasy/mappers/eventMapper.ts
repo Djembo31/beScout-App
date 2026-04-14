@@ -1,6 +1,8 @@
 import type { EventStatus, FantasyEvent, LineupFormat } from '../types';
 import type { DbEvent } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
+import { getClub } from '@/lib/clubs';
+import { getLeague } from '@/lib/leagues';
 
 /** Derive actual event status from DB status — admin-controlled, no timestamp overrides */
 export function deriveEventStatus(db: DbEvent): EventStatus {
@@ -14,6 +16,10 @@ export function deriveEventStatus(db: DbEvent): EventStatus {
 
 /** Map DB event to local FantasyEvent shape */
 export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?: { total_score: number | null; rank: number | null; reward_amount: number } | null): FantasyEvent {
+  // Resolve league via club_id → clubs.league → leagues (client-side cache)
+  const clubLookup = db.club_id ? getClub(db.club_id) : null;
+  const league = clubLookup?.league ? getLeague(clubLookup.league) : undefined;
+
   return {
     id: db.id,
     name: db.name,
@@ -64,5 +70,8 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     clubId: db.club_id ?? undefined,
     clubName: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).name : undefined,
     clubLogo: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).logo_url ?? undefined : undefined,
+    leagueShort: league?.short,
+    leagueLogoUrl: league?.logoUrl ?? undefined,
+    leagueCountry: league?.country,
   };
 }
