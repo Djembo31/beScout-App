@@ -117,13 +117,34 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - J3-Fund: BuyModal (`buying \|\| ipoBuying`), SellModal (`selling \|\| cancellingId !== null \|\| acceptingBidId != null`), LimitOrderModal (`false` + TODO fuer Feature-Live)
 - Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` — Modals ohne preventClose bei Money/Trading-Context pruefen
 
-## Multi-League Props-Propagation-Gap (2026-04-14 — J3 Frontend + Reviewer)
+## SECURITY DEFINER RPC ohne REVOKE (2026-04-14 — J4 LIVE-EXPLOIT)
+- J4-Backend-Audit hat `earn_wildcards` RPC live exploited (anon konnte 99.999 Wildcards minten, reverted)
+- Root-Cause: `SECURITY DEFINER` RPC OHNE `REVOKE EXECUTE FROM anon, authenticated` + `auth.uid() = p_user_id` Guard
+- Weitere betroffene RPCs mit gleichem Pattern: `spend_wildcards`, `get_wildcard_balance`, `refund_wildcards_on_leave`, `admin_grant_wildcards` (letztere mit p_admin_id brittle)
+- Regel: Jedes `CREATE OR REPLACE FUNCTION ... SECURITY DEFINER` MUSS begleitet sein von:
+  1. `REVOKE EXECUTE ON FUNCTION X FROM anon, authenticated;`
+  2. `GRANT EXECUTE ON FUNCTION X TO authenticated;`
+  3. `IF auth.uid() IS DISTINCT FROM p_user_id THEN RAISE 'Nicht authentifiziert'` Guard im Body (bei trust-client Parametern)
+- Audit: `grep -rn 'SECURITY DEFINER' supabase/migrations/ | xargs -I {} grep -L 'REVOKE EXECUTE' {}` → RPCs ohne REVOKE-Block
+- Full SECURITY DEFINER-Audit vor Beta-Launch PFLICHT (AR-27 J4)
+
+## ConfirmDialog statt native alert/confirm (2026-04-14 — J4 Healer A)
+- `window.alert()` + `window.confirm()` sind systematisch durch `ConfirmDialog` Component zu ersetzen
+- Live-Location: `src/components/ui/ConfirmDialog.tsx` (neu, J4)
+- Pattern: preventClose built-in, loading/disabled-Props fuer double-click-Schutz, `confirmVariant: 'gold' | 'danger'` wiederverwendbar
+- Grund: native-Dialoge sind unstyled (Browser-default), blockieren Main-Thread, nicht i18n-ready, ignorieren preventClose
+- J4-Fund: 6 Stellen in EventDetailModal + useLineupSave + AufstellenTab (`alert()`) + LeaguesSection (`confirm()`, nicht in J4-Scope)
+- Regel: KEINE native alert/confirm in User-Flows. Lint-Regel empfohlen `no-restricted-globals: ["alert", "confirm"]`
+- Audit: `grep -rn 'window.alert\|window.confirm\|\\balert(\|\\bconfirm(' src/components/ src/features/`
+
+## Multi-League Props-Propagation-Gap (2026-04-14 — J3 Frontend + Reviewer, J4 bestaetigt)
 - Neues optionales Player-Feld (z.B. `leagueShort?`) auf Type hinzugefuegt → nur 2 von 8 Render-Call-Sites bedient
 - TSC/Tests merken NICHTS (optional Prop, kein Error)
 - Visual-QA im Pilot (1 Liga) uebersieht's, Fehler tritt erst im Multi-League-Betrieb auf
 - Regel: Neues Player-Feld → **ALLE Render-Call-Sites manuell auditieren** (Grep alle `<PlayerRow`, `<PlayerHero`, `<TradingCardFrame`, `<PlayerIdentity`, `<PlayerIPOCard` etc.)
 - Teil des `/impact` Skills fuer Player-Type-Aenderungen
 - J3-Fund: TradingCardFrame Front+Back + PlayerHero + TransferListSection hatten 0 Liga-Logos trotz vollstaendigem Player-Type seit 2026-04-07
+- **J4-Erweiterung (2026-04-14):** FantasyEvent + UserDpcHolding Types hatten `club*` Fields aber KEIN `league*`. Same Pattern. Fix via client-side Cache-Lookup `getClub() → getLeague()` Zero-RPC-Change. Regel: **Jedes Type mit `club*` Field MUSS spiegelbildlich `league*` Fields haben.**
 
 ## RPC Response camelCase/snake_case Mismatch (2026-04-11 — Mystery Box)
 - RPC `jsonb_build_object('rewardType', ...)` → camelCase im Response
