@@ -146,7 +146,7 @@ export async function buyFromMarket(
   return result;
 }
 
-/** Sell-Order erstellen (DPCs zum Verkauf listen) */
+/** Sell-Order erstellen (SCs zum Verkauf listen) */
 export async function placeSellOrder(
   userId: string,
   playerId: string,
@@ -157,10 +157,12 @@ export async function placeSellOrder(
   if (quantity > 300) throw new Error('maxQuantityExceeded');
   if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('invalidPrice');
   if (priceCents > 100_000_000) throw new Error('maxPriceExceeded');
-  // Price cap validation (frontend guard — DB RPC also enforces)
+  // Price cap validation (frontend guard — DB RPC also enforces).
+  // Throw i18n key so consumers can resolve via mapErrorToKey + te() instead of
+  // leaking a raw DE/EN string with $SCOUT ticker (see common-errors.md: i18n-Key-Leak).
   const cap = await getPriceCap(playerId);
   if (cap !== null && priceCents > cap) {
-    throw new Error(`Price exceeds maximum (${Math.floor(cap / 100)} $SCOUT)`);
+    throw new Error('maxPriceExceeded');
   }
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
@@ -194,7 +196,7 @@ export async function placeSellOrder(
   return result;
 }
 
-/** DPCs von einem Sell-Order kaufen */
+/** SCs von einem Sell-Order kaufen */
 export async function buyFromOrder(
   buyerId: string,
   orderId: string,
@@ -446,28 +448,31 @@ type BuyOrderResult = {
   unlocked?: number;
 };
 
-/** Place a buy order (Kaufgesuch) — locks funds in escrow */
+/**
+ * Place a buy order (Kaufgesuch) — locks funds in escrow.
+ *
+ * Throws i18n keys (e.g. 'invalidQuantity', 'insufficientBalance') so consumers
+ * can resolve them via mapErrorToKey + te() instead of receiving raw DE/EN
+ * strings (see common-errors.md: i18n-Key-Leak via Service-Errors).
+ */
 export async function placeBuyOrder(
   userId: string,
   playerId: string,
   quantity: number,
   maxPriceCents: number
 ): Promise<BuyOrderResult> {
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 300) {
-    return { success: false, error: 'Invalid quantity' };
-  }
-  if (!Number.isInteger(maxPriceCents) || maxPriceCents < 1) {
-    return { success: false, error: 'Invalid price' };
-  }
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
+  if (quantity > 300) throw new Error('maxQuantityExceeded');
+  if (!Number.isInteger(maxPriceCents) || maxPriceCents < 1) throw new Error('invalidPrice');
 
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
-  if (!pl) return { success: false, error: 'playerNotFound' };
-  if (pl.is_liquidated) return { success: false, error: 'playerLiquidated' };
+  if (!pl) throw new Error('playerNotFound');
+  if (pl.is_liquidated) throw new Error('playerLiquidated');
 
   // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
   const restricted = await isRestrictedFromTrading(userId, playerId);
-  if (restricted) return { success: false, error: 'clubAdminRestricted' };
+  if (restricted) throw new Error('clubAdminRestricted');
 
   const { data, error } = await supabase.rpc('place_buy_order', {
     p_user_id: userId,
@@ -476,8 +481,8 @@ export async function placeBuyOrder(
     p_max_price: maxPriceCents,
   });
 
-  if (error) return { success: false, error: mapRpcError(error.message) };
-  if (!data) return { success: false, error: 'No response' };
+  if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('place_buy_order returned null');
 
   const result = data as BuyOrderResult;
 

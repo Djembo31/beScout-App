@@ -175,7 +175,13 @@ export default function BuyModal({
     : 0;
 
   return (
-    <Modal open={open} onClose={onClose} title={t('buyDpc')} subtitle={`${player.first} ${player.last}`}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('buyDpc')}
+      subtitle={`${player.first} ${player.last}`}
+      preventClose={buying || ipoBuying}
+    >
       <div className="space-y-3">
           {/* Success state — replaces the buy form for 2.5s after a successful buy */}
           {justPurchased ? (
@@ -307,7 +313,7 @@ export default function BuyModal({
                             <span className="text-sm font-mono font-bold text-gold tabular-nums">{fmtScout(orderBsd)}</span>
                             <span className="text-xs text-white/40">{remaining}x</span>
                           </div>
-                          <span className="text-xs text-white/50">@{profileMap?.[order.user_id]?.handle ?? order.user_id.slice(0, 8)}</span>
+                          <span className="text-xs text-white/50">{profileMap?.[order.user_id]?.handle ? `@${profileMap[order.user_id].handle}` : t('anonSeller')}</span>
                         </button>
                       );
                     })}

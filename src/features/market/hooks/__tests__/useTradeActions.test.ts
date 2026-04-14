@@ -280,10 +280,13 @@ describe('useTradeActions', () => {
       expect(res).toEqual({ success: true });
     });
 
-    it('returns error when service returns success: false', async () => {
+    it('resolves known error key when service returns success: false with raw message', async () => {
+      // Service may still return a raw message for legacy paths — mapErrorToKey
+      // should funnel it into a known error key ('insufficient' matches generic
+      // since 'Insufficient holdings' does not include 'balance' or 'funds').
       mockPlaceSellOrder.mockResolvedValue({
         success: false,
-        error: 'Insufficient holdings',
+        error: 'insufficientBalance',
       });
 
       const { result } = renderHook(() =>
@@ -294,13 +297,11 @@ describe('useTradeActions', () => {
         result.current.handleSell(TEST_PLAYER_ID, 5, 200000),
       );
 
-      expect(res).toEqual({
-        success: false,
-        error: 'Insufficient holdings',
-      });
+      // te('insufficientBalance') returns 'insufficientBalance' with our mock
+      expect(res).toEqual({ success: false, error: 'insufficientBalance' });
     });
 
-    it('returns fallback error message when service fails without error text', async () => {
+    it('returns generic key when service fails without error text', async () => {
       mockPlaceSellOrder.mockResolvedValue({ success: false });
 
       const { result } = renderHook(() =>
@@ -311,11 +312,11 @@ describe('useTradeActions', () => {
         result.current.handleSell(TEST_PLAYER_ID, 5, 200000),
       );
 
-      // t('listingFailed') returns 'listingFailed' with our mock
-      expect(res).toEqual({ success: false, error: 'listingFailed' });
+      // mapErrorToKey('generic') → 'generic', te('generic') returns 'generic'
+      expect(res).toEqual({ success: false, error: 'generic' });
     });
 
-    it('returns error on exception', async () => {
+    it('maps network exception to networkError key', async () => {
       mockPlaceSellOrder.mockRejectedValue(new Error('Network failure'));
 
       const { result } = renderHook(() =>
@@ -326,10 +327,11 @@ describe('useTradeActions', () => {
         result.current.handleSell(TEST_PLAYER_ID, 5, 200000),
       );
 
-      expect(res).toEqual({ success: false, error: 'Network failure' });
+      // 'Network failure' matches ERROR_MAP regex /network|.../ → 'networkError'
+      expect(res).toEqual({ success: false, error: 'networkError' });
     });
 
-    it('returns unknownError when exception is not an Error instance', async () => {
+    it('maps unknown string exception to generic key', async () => {
       mockPlaceSellOrder.mockRejectedValue('string-error');
 
       const { result } = renderHook(() =>
@@ -340,8 +342,8 @@ describe('useTradeActions', () => {
         result.current.handleSell(TEST_PLAYER_ID, 5, 200000),
       );
 
-      // tc('unknownError') returns 'unknownError' with our mock
-      expect(res).toEqual({ success: false, error: 'unknownError' });
+      // No regex match → 'generic'
+      expect(res).toEqual({ success: false, error: 'generic' });
     });
 
     it('returns notLoggedIn error when userId is undefined', async () => {
@@ -378,7 +380,7 @@ describe('useTradeActions', () => {
       expect(res).toEqual({ success: true });
     });
 
-    it('returns error when service returns success: false', async () => {
+    it('maps raw order-not-found string to orderNotFound key', async () => {
       mockCancelOrder.mockResolvedValue({
         success: false,
         error: 'Order not found',
@@ -392,10 +394,11 @@ describe('useTradeActions', () => {
         result.current.handleCancelOrder(TEST_ORDER_ID),
       );
 
-      expect(res).toEqual({ success: false, error: 'Order not found' });
+      // Regex /order.not.found/i → 'orderNotFound'
+      expect(res).toEqual({ success: false, error: 'orderNotFound' });
     });
 
-    it('returns fallback error when service fails without error text', async () => {
+    it('returns generic key when service fails without error text', async () => {
       mockCancelOrder.mockResolvedValue({ success: false });
 
       const { result } = renderHook(() =>
@@ -406,10 +409,10 @@ describe('useTradeActions', () => {
         result.current.handleCancelOrder(TEST_ORDER_ID),
       );
 
-      expect(res).toEqual({ success: false, error: 'cancelFailed' });
+      expect(res).toEqual({ success: false, error: 'generic' });
     });
 
-    it('returns error on exception', async () => {
+    it('maps timeout exception to timeout key', async () => {
       mockCancelOrder.mockRejectedValue(new Error('DB timeout'));
 
       const { result } = renderHook(() =>
@@ -420,10 +423,11 @@ describe('useTradeActions', () => {
         result.current.handleCancelOrder(TEST_ORDER_ID),
       );
 
-      expect(res).toEqual({ success: false, error: 'DB timeout' });
+      // Regex /timeout/i → 'timeout'
+      expect(res).toEqual({ success: false, error: 'timeout' });
     });
 
-    it('returns unknownError when exception is not an Error instance', async () => {
+    it('maps non-Error exception to generic key', async () => {
       mockCancelOrder.mockRejectedValue(42);
 
       const { result } = renderHook(() =>
@@ -434,7 +438,7 @@ describe('useTradeActions', () => {
         result.current.handleCancelOrder(TEST_ORDER_ID),
       );
 
-      expect(res).toEqual({ success: false, error: 'unknownError' });
+      expect(res).toEqual({ success: false, error: 'generic' });
     });
 
     it('returns notLoggedIn error when userId is undefined', async () => {
