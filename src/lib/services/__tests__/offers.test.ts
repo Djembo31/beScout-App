@@ -39,7 +39,7 @@ describe('getIncomingOffers', () => {
 
   it('throws on supabase error', async () => {
     mockSupabaseResponse(null, { message: 'DB connection failed' });
-    await expect(getIncomingOffers('user-1')).rejects.toThrow('DB connection failed');
+    await expect(getIncomingOffers('user-1')).rejects.toThrow('generic');
   });
 
   it('returns offers with enrichment data from players/profiles', async () => {
@@ -94,7 +94,7 @@ describe('getOutgoingOffers', () => {
 
   it('throws on supabase error', async () => {
     mockSupabaseResponse(null, { message: 'Query failed' });
-    await expect(getOutgoingOffers('user-1')).rejects.toThrow('Query failed');
+    await expect(getOutgoingOffers('user-1')).rejects.toThrow('generic');
   });
 
   it('queries with sender_id filter', async () => {
@@ -127,7 +127,7 @@ describe('getOpenBids', () => {
 
   it('throws on supabase error', async () => {
     mockSupabaseResponse(null, { message: 'Timeout' });
-    await expect(getOpenBids()).rejects.toThrow('Timeout');
+    await expect(getOpenBids()).rejects.toThrow('timeout');
   });
 
   it('calls from("offers") for the query', async () => {
@@ -286,7 +286,7 @@ describe('createOffer', () => {
       side: 'buy',
       priceCents: 50000,
       quantity: 1,
-    })).rejects.toThrow('Insufficient balance');
+    })).rejects.toThrow('insufficientBalance');
   });
 
   it('returns RPC result with success: false', async () => {
@@ -325,7 +325,7 @@ describe('acceptOffer', () => {
 
   it('throws on RPC error', async () => {
     mockSupabaseRpc(null, { message: 'Offer expired' });
-    await expect(acceptOffer('user-2', 'offer-1')).rejects.toThrow('Offer expired');
+    await expect(acceptOffer('user-2', 'offer-1')).rejects.toThrow('offerExpired');
   });
 
   it('returns unsuccessful result from RPC', async () => {
@@ -356,7 +356,7 @@ describe('rejectOffer', () => {
 
   it('throws on RPC error', async () => {
     mockSupabaseRpc(null, { message: 'Not authorized' });
-    await expect(rejectOffer('user-2', 'offer-1')).rejects.toThrow('Not authorized');
+    await expect(rejectOffer('user-2', 'offer-1')).rejects.toThrow('permissionDenied');
   });
 
   it('returns unsuccessful result from RPC', async () => {
@@ -398,7 +398,7 @@ describe('counterOffer', () => {
 
   it('throws on RPC error', async () => {
     mockSupabaseRpc(null, { message: 'Invalid offer' });
-    await expect(counterOffer('user-2', 'offer-1', 60000)).rejects.toThrow('Invalid offer');
+    await expect(counterOffer('user-2', 'offer-1', 60000)).rejects.toThrow('generic');
   });
 
   it('returns unsuccessful result from RPC', async () => {
@@ -429,7 +429,7 @@ describe('cancelOffer', () => {
 
   it('throws on RPC error', async () => {
     mockSupabaseRpc(null, { message: 'Cannot cancel' });
-    await expect(cancelOffer('user-1', 'offer-1')).rejects.toThrow('Cannot cancel');
+    await expect(cancelOffer('user-1', 'offer-1')).rejects.toThrow('generic');
   });
 
   it('returns unsuccessful result from RPC', async () => {

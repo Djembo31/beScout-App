@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSupabaseError } from '@/lib/supabaseErrors';
+import { mapErrorToKey } from '@/lib/errorMessages';
 import { notifText } from '@/lib/notifText';
 import type { DbOffer, OfferWithDetails } from '@/types';
 
@@ -58,7 +60,7 @@ export async function getIncomingOffers(userId: string): Promise<OfferWithDetail
     .eq('status', 'pending')
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] getIncomingOffers', error); throw new Error(mapErrorToKey(error.message)); }
   return enrichOffers((data ?? []) as DbOffer[]);
 }
 
@@ -71,7 +73,7 @@ export async function getOutgoingOffers(userId: string): Promise<OfferWithDetail
     .in('status', ['pending'])
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] getOutgoingOffers', error); throw new Error(mapErrorToKey(error.message)); }
   return enrichOffers((data ?? []) as DbOffer[]);
 }
 
@@ -99,7 +101,7 @@ export async function getOpenBids(opts: {
       .select('player_id')
       .eq('user_id', ownedByUserId)
       .gt('quantity', 0);
-    if (holdingsErr) throw new Error(holdingsErr.message);
+    if (holdingsErr) { logSupabaseError('[Offers] getOpenBids holdings', holdingsErr); throw new Error(mapErrorToKey(holdingsErr.message)); }
     ownedPlayerIds = (holdings ?? []).map(h => h.player_id as string);
     if (ownedPlayerIds.length === 0) return [];
   }
@@ -116,7 +118,7 @@ export async function getOpenBids(opts: {
   if (playerId) query = query.eq('player_id', playerId);
   if (ownedPlayerIds) query = query.in('player_id', ownedPlayerIds);
   const { data, error } = await query;
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] getOpenBids', error); throw new Error(mapErrorToKey(error.message)); }
   return enrichOffers((data ?? []) as DbOffer[]);
 }
 
@@ -140,8 +142,8 @@ export async function getOfferHistory(userId: string): Promise<OfferWithDetails[
   ).slice(0, 50);
   const data = merged;
   const error = sentRes.status === 'rejected' && recvRes.status === 'rejected'
-    ? { message: 'Offers konnten nicht geladen werden' } : null;
-  if (error) throw new Error(error.message);
+    ? { message: 'networkError' } : null;
+  if (error) throw new Error(mapErrorToKey(error.message));
   return enrichOffers((data ?? []) as DbOffer[]);
 }
 
@@ -175,7 +177,7 @@ export async function createOffer(params: {
     p_message: params.message ?? null,
     p_expires_hours: params.expiresHours ?? 48,
   });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] RPC error', error); throw new Error(mapErrorToKey(error.message)); }
   const result = data as OfferResult;
   // Notify receiver
   if (result.success && params.receiverId) {
@@ -199,7 +201,7 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
     p_user_id: userId,
     p_offer_id: offerId,
   });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] acceptOffer', error); throw new Error(mapErrorToKey(error.message)); }
   const result = data as OfferResult & { trade_price?: number };
 
   // Notify sender
@@ -244,7 +246,7 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
     p_user_id: userId,
     p_offer_id: offerId,
   });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] RPC error', error); throw new Error(mapErrorToKey(error.message)); }
   const result = data as OfferResult;
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -273,7 +275,7 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
     p_new_price: newPriceCents,
     p_message: message ?? null,
   });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] RPC error', error); throw new Error(mapErrorToKey(error.message)); }
   const result = data as OfferResult;
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -300,7 +302,7 @@ export async function cancelOffer(userId: string, offerId: string): Promise<Offe
     p_user_id: userId,
     p_offer_id: offerId,
   });
-  if (error) throw new Error(error.message);
+  if (error) { logSupabaseError('[Offers] cancelOffer', error); throw new Error(mapErrorToKey(error.message)); }
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'offer_cancel', 'trading', { offerId });

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Zap, Check, X as XIcon, Ticket, Flame, AlertCircle, Gift } from 'lucide-react';
 import { Card, Button, Skeleton, InfoTooltip } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { DbDailyChallenge } from '@/types';
 import { getStreakBenefitLabels } from '@/lib/streakBenefits';
 
@@ -40,6 +40,8 @@ export default function DailyChallengeCard({
   onOpenMysteryBox,
 }: DailyChallengeCardProps) {
   const t = useTranslations('gamification');
+  const tc = useTranslations('common');
+  const locale = useLocale();
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,7 +131,13 @@ export default function DailyChallengeCard({
 
   const streakBonusThreshold = 7;
   const streakRemaining = streakBonusThreshold - (streakDays % streakBonusThreshold);
-  const benefitLabels = streakDays >= 4 ? getStreakBenefitLabels(streakDays) : [];
+  // J7F-05 fix: pass the common-namespace translator so labels are localized in TR.
+  // params.n is always a number from getStreakBenefitLabels — narrow the type.
+  const benefitLabels = streakDays >= 4
+    ? getStreakBenefitLabels(streakDays, (key, params) =>
+        tc(key, params as Record<string, string | number | Date>),
+      )
+    : [];
 
   return (
     <Card className="p-4 md:p-5 border-amber-500/20 overflow-hidden relative">
@@ -149,9 +157,9 @@ export default function DailyChallengeCard({
         )}
       </div>
 
-      {/* Question */}
+      {/* Question — locale-aware (J7F-10 fix). Falls back to DE when TR is missing. */}
       <p className="text-sm text-white/80 font-medium mb-4 leading-relaxed">
-        {challenge.question_de}
+        {locale === 'tr' && challenge.question_tr ? challenge.question_tr : challenge.question_de}
       </p>
 
       {/* Options Grid */}

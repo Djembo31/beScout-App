@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { StreakMilestone } from '@/lib/retentionEngine';
 
@@ -13,8 +13,15 @@ interface StreakMilestoneBannerProps {
 
 export default function StreakMilestoneBanner({ milestone, className = '' }: StreakMilestoneBannerProps) {
   const tc = useTranslations('common');
+  const locale = useLocale();
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
+
+  // J7F-05 fix: localize milestone label/benefit. Falls back to DE if a future
+  // locale is added without translations on the milestone struct.
+  const isTr = locale === 'tr';
+  const label = isTr ? milestone.labelTr : milestone.labelDe;
+  const benefit = isTr ? milestone.benefitTr : milestone.benefitDe;
 
   return (
     <div
@@ -28,8 +35,8 @@ export default function StreakMilestoneBanner({ milestone, className = '' }: Str
           {milestone.icon}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="font-black text-gold">{milestone.labelDe}</div>
-          <div className="text-sm text-white/60">{milestone.benefitDe}</div>
+          <div className="font-black text-gold">{label}</div>
+          <div className="text-sm text-white/60">{benefit}</div>
         </div>
         <button
           onClick={() => setDismissed(true)}

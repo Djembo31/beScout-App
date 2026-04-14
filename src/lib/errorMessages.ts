@@ -22,6 +22,10 @@ const KNOWN_KEYS = new Set([
   'ipoMisconfigured',
   // Mystery Box (J5F-06 / J5B-13 / AR-49)
   'mysteryBoxDailyLimit', 'mysteryBoxNotEnoughTickets', 'mysteryBoxPaidDisabled',
+  // Missions (J7B-06 / J7B-13)
+  'missionAlreadyClaimed', 'missionNotCompleted', 'missionNotFound', 'notAuthenticated',
+  // J8 Healer (FIX-03) — Sell-flow / Cancel-flow raw RPC strings
+  'orderCannotBeCancelled',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -40,8 +44,17 @@ const ERROR_MAP: [RegExp, string][] = [
   [/invalid.quantity/i, 'invalidQuantity'],
   [/max.quantity.exceeded|exceeds.*limit/i, 'maxQuantityExceeded'],
   [/invalid.price/i, 'invalidPrice'],
-  [/max.price.exceeded/i, 'maxPriceExceeded'],
+  [/max.price.exceeded|preis.*berschreitet|price.*exceeds/i, 'maxPriceExceeded'],
   [/player.not.found/i, 'playerNotFound'],
+
+  // J8 Healer (FIX-03) — Sell-flow + Cancel-flow raw RPC strings → keys
+  // RPC-Bodies wirfen DE-Strings wie "Keine SCs zum Verkaufen", "Verkaeufer hat
+  // nicht genug SCs", "Nur X SC verfuegbar (Y in Events gesperrt)" — diese
+  // wuerden bisher 'generic' werden statt 'notEnoughDpc'.
+  [/keine.*sc.*zum.*verkaufen|no.*sc.*to.*sell/i, 'notEnoughDpc'],
+  [/verk.{1,3}ufer.*nicht.*genug|seller.*not.*enough/i, 'notEnoughDpc'],
+  [/nur.*sc.*verf.{1,3}gbar|in.*events.*gesperrt|locked.*in.*event/i, 'notEnoughDpc'],
+  [/order.*kann.*nicht.*storniert|cannot.*cancel.*order/i, 'orderCannotBeCancelled'],
 
   // Fantasy / Lineups
   [/already.joined/i, 'alreadyJoined'],
@@ -92,6 +105,14 @@ const ERROR_MAP: [RegExp, string][] = [
   [/daily.?free.?limit.?reached|daily.*box.*claimed/i, 'mysteryBoxDailyLimit'],
   [/not.?enough.?tickets|insufficient.?tickets/i, 'mysteryBoxNotEnoughTickets'],
   [/paid.mystery.box.disabled/i, 'mysteryBoxPaidDisabled'],
+
+  // Missions (J7B-06 / J7B-13) — RPC error strings → i18n keys
+  // claim_mission_reward returns: "Mission already claimed" | "Mission not completed" |
+  // "Mission not found" | "auth_uid_mismatch: Nicht berechtigt" | "Nicht authentifiziert"
+  [/mission.*already.*claim|already.*claimed/i, 'missionAlreadyClaimed'],
+  [/mission.*not.*completed|not.*yet.*completed/i, 'missionNotCompleted'],
+  [/mission.*not.*found/i, 'missionNotFound'],
+  [/auth.*uid.*mismatch|nicht.berechtigt|nicht.authentifiziert|not.authenticated/i, 'notAuthenticated'],
 ];
 
 /**

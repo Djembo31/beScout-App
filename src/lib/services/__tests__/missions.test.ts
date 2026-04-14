@@ -68,12 +68,16 @@ describe('getUserMissions', () => {
     await expect(getUserMissions('u1')).rejects.toThrow();
   });
 
-  it('throws when mission_definitions query errors (no silent swallow)', async () => {
+  it('throws an i18n key (mapErrorToKey) when mission_definitions query errors', async () => {
+    // J7B-13: errors are now mapped to i18n keys before being thrown so that
+    // Caller's setError(err.message) shows a translatable string instead of
+    // the raw RPC text (which leaked DE-only into TR users' UI).
     mockRpc('assign_user_missions', [
       { id: 'um1', user_id: 'u1', mission_id: 'def-1', progress: 0, completed: false, claimed: false },
     ]);
     mockTable('mission_definitions', null, { message: 'definitions query failed' });
-    await expect(getUserMissions('u1')).rejects.toThrow('definitions query failed');
+    // 'definitions query failed' has no specific regex match → falls through to 'generic'.
+    await expect(getUserMissions('u1')).rejects.toThrow('generic');
   });
 
   it('returns empty when no missions assigned', async () => {
@@ -108,17 +112,20 @@ describe('claimMissionReward', () => {
     });
   });
 
-  it('returns error on RPC failure', async () => {
+  it('returns an i18n-key error on RPC failure', async () => {
+    // J7B-06: error is mapped via mapErrorToKey → 'generic' for unknown messages.
     mockRpc('claim_mission_reward', null, { message: 'Claim failed' });
     const result = await claimMissionReward('u1', 'mission-1');
-    expect(result).toEqual({ success: false, error: 'Claim failed' });
+    expect(result).toEqual({ success: false, error: 'generic' });
   });
 
-  it('returns failure result when RPC returns success=false', async () => {
+  it('maps known RPC error messages to i18n keys when RPC returns success=false', async () => {
+    // J7B-06: "Already claimed" matches the missionAlreadyClaimed regex
+    // → resolved to a known i18n key in `errors` namespace.
     mockRpc('claim_mission_reward', { success: false, error: 'Already claimed' });
     const result = await claimMissionReward('u1', 'mission-1');
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Already claimed');
+    expect(result.error).toBe('missionAlreadyClaimed');
   });
 
   it('calculates ticket amount from reward (min 10, max 50)', async () => {

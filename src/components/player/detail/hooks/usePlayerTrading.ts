@@ -146,6 +146,20 @@ export function usePlayerTrading({
 
   // ─── Handlers ──────────────────────────────
 
+  // Resolve raw service/RPC errors (or i18n-keys) into translated strings.
+  // Mirrors features/market/hooks/useTradeActions.ts:107-117. Without this,
+  // result.error from RPC ("Keine SCs zum Verkaufen", "Verdaechtiges
+  // Handelsmuster erkannt", etc.) leaks into the UI literally and TR users
+  // see DE-strings (see common-errors.md: i18n-Key-Leak).
+  const resolveErrorMessage = useCallback((raw: unknown): string => {
+    const key = mapErrorToKey(normalizeError(raw));
+    try {
+      return te(key);
+    } catch {
+      return tc('unknownError');
+    }
+  }, [te, tc]);
+
   const executeBuy = useCallback(async (quantity: number, orderId?: string | null) => {
     if (!userId || !player || buyingRef.current) return;
     buyingRef.current = true;
@@ -157,7 +171,7 @@ export function usePlayerTrading({
       const result = orderId
         ? await buyFromOrder(userId, orderId, quantity)
         : await buyFromMarket(userId, playerId, quantity);
-      if (!result.success) { setBuyError(result.error || t('buyFailed')); }
+      if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
         setBuySuccess(t('buySuccess', { quantity, price: priceBsd }));
@@ -168,9 +182,9 @@ export function usePlayerTrading({
         refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
+    } catch (err) { setBuyError(resolveErrorMessage(err)); }
     finally { buyingRef.current = false; setBuying(false); }
-  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, te]);
+  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, resolveErrorMessage]);
 
   const handleBuy = useCallback((quantity: number, orderId?: string) => {
     if (!userId || !player || player.isLiquidated) return;
@@ -188,7 +202,7 @@ export function usePlayerTrading({
     setIpoBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
       const result = await buyFromIpo(userId, activeIpo.id, quantity, playerId);
-      if (!result.success) { setBuyError(result.error || t('ipoBuyFailed')); }
+      if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
@@ -204,9 +218,9 @@ export function usePlayerTrading({
         // Modal close is handled by BuyModal's own success-state timer
         // so the user sees the "In deinem Kader" confirmation.
       }
-    } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
+    } catch (err) { setBuyError(resolveErrorMessage(err)); }
     finally { ipoBuyingRef.current = false; setIpoBuying(false); }
-  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, addToast, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, te]);
+  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, addToast, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, resolveErrorMessage]);
 
   const handleSell = useCallback(async (quantity: number, priceCents: number) => {
     if (!userId || player?.isLiquidated || sellingRef.current) return;
@@ -214,23 +228,23 @@ export function usePlayerTrading({
     setSelling(true); setSellError(null); setBuySuccess(null); setShared(false);
     try {
       const result = await placeSellOrder(userId, playerId, quantity, priceCents);
-      if (!result.success) { setSellError(result.error || t('listFailed')); }
+      if (!result.success) { setSellError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
         setBuySuccess(t('listSuccess', { quantity, price: formatScout(priceCents) }));
         invalidateAfterTrade(playerId, userId);
         setSellModalOpen(false);
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setSellError(te(mapErrorToKey(normalizeError(err)))); }
+    } catch (err) { setSellError(resolveErrorMessage(err)); }
     finally { sellingRef.current = false; setSelling(false); }
-  }, [userId, player, playerId, invalidateAfterTrade, t, te]);
+  }, [userId, player, playerId, invalidateAfterTrade, t, resolveErrorMessage]);
 
   const handleCancelOrder = useCallback(async (orderId: string) => {
     if (!userId) return;
     setCancellingId(orderId); setBuyError(null);
     try {
       const result = await cancelOrder(userId, orderId);
-      if (!result.success) { setBuyError(result.error || t('cancelFailed')); }
+      if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
         setBuySuccess(t('orderCancelled'));
         queryClient.setQueryData(qk.orders.byPlayer(playerId), (old: DbOrder[] | undefined) =>
@@ -239,9 +253,9 @@ export function usePlayerTrading({
         invalidateAfterTrade(playerId, userId);
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
+    } catch (err) { setBuyError(resolveErrorMessage(err)); }
     finally { setCancellingId(null); }
-  }, [userId, playerId, invalidateAfterTrade, queryClient, t, te]);
+  }, [userId, playerId, invalidateAfterTrade, queryClient, t, resolveErrorMessage]);
 
   const handleCreateOffer = useCallback(async () => {
     if (!userId || !offerPrice) return;
@@ -257,10 +271,10 @@ export function usePlayerTrading({
         addToast(t('buyOfferCreated'), 'success');
         setShowOfferModal(false); setOfferPrice(''); setOfferMessage('');
         queryClient.invalidateQueries({ queryKey: qk.offers.bids(playerId) });
-      } else { addToast(result.error ?? tc('unknownError'), 'error'); }
-    } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
+      } else { addToast(resolveErrorMessage(result.error ?? 'generic'), 'error'); }
+    } catch (e) { addToast(resolveErrorMessage(e), 'error'); }
     finally { setOfferLoading(false); }
-  }, [userId, offerPrice, offerMessage, playerId, addToast, queryClient, t, tc, te]);
+  }, [userId, offerPrice, offerMessage, playerId, addToast, queryClient, t, resolveErrorMessage]);
 
   const handleAcceptBid = useCallback(async (offerId: string) => {
     if (!userId || acceptingBidId) return;
@@ -270,10 +284,10 @@ export function usePlayerTrading({
       if (result.success) {
         addToast(t('offerAccepted'), 'success');
         invalidateAfterTrade(playerId, userId);
-      } else { addToast(result.error ?? tc('unknownError'), 'error'); }
-    } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
+      } else { addToast(resolveErrorMessage(result.error ?? 'generic'), 'error'); }
+    } catch (e) { addToast(resolveErrorMessage(e), 'error'); }
     finally { setAcceptingBidId(null); }
-  }, [userId, acceptingBidId, playerId, addToast, invalidateAfterTrade, t, tc, te]);
+  }, [userId, acceptingBidId, playerId, addToast, invalidateAfterTrade, t, resolveErrorMessage]);
 
   const handleShareTrade = useCallback(async () => {
     if (!userId || !player || shared) return;

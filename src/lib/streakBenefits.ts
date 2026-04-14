@@ -64,7 +64,16 @@ export function getStreakBenefitsFromConfig(
 }
 
 /** Human-readable list of active benefits for display.
- *  Accepts a translator function t(key, params) for i18n support. */
+ *
+ *  IMPORTANT: All callers MUST pass a `t` translator (next-intl `useTranslations('common')`).
+ *  The German hardcoded fallback exists ONLY for SSR-safe unit tests and emergency
+ *  fallback when no provider is available. In production the absence of `t` is a bug
+ *  — TR users will see DE labels (J7F-05). Audit: grep for `getStreakBenefitLabels(`
+ *  and verify every call passes a `t` arg.
+ *
+ *  Keys live in `common` namespace: streakTickets, streakFantasy, streakElo,
+ *  streakMysteryBox, streakMysteryDiscount.
+ */
 export function getStreakBenefitLabels(
   streakDays: number,
   t?: (key: string, params?: Record<string, unknown>) => string,
@@ -72,7 +81,7 @@ export function getStreakBenefitLabels(
   const b = getStreakBenefits(streakDays);
   const labels: string[] = [];
   const fmt = t ?? ((key: string, p?: Record<string, unknown>) => {
-    // Fallback: German hardcoded (backward compat)
+    // Fallback: German hardcoded (SSR + emergency only). DO NOT rely in production.
     if (key === 'streakTickets') return `+${p?.n} Tickets/Tag`;
     if (key === 'streakFantasy') return `+${p?.n}% Fantasy-Bonus`;
     if (key === 'streakElo') return `+${p?.n}% Elo-Gewinn`;

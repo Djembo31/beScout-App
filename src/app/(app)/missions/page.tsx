@@ -12,12 +12,12 @@ import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChal
 import { useUserTickets } from '@/lib/queries/tickets';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useUserStats } from '@/lib/queries';
+import { useLoginStreak } from '@/lib/queries/streaks';
 import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { getUserAchievements } from '@/lib/services/social';
 import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
-import { getLoginStreak } from '@/components/home/helpers';
 import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits';
 import { getStreakMilestone } from '@/lib/retentionEngine';
 
@@ -49,6 +49,9 @@ export default function MissionsPage() {
   const { user, loading } = useUser();
   const uid = user?.id;
   const t = useTranslations('missions');
+  // Streak-Benefit Labels live in the `common` namespace (streakTickets,
+  // streakFantasy, streakElo, streakMysteryBox, streakMysteryDiscount).
+  const tc = useTranslations('common');
 
   // ── Queries ──
   const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
@@ -60,10 +63,23 @@ export default function MissionsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
-  // ── Streak (read-only) ──
-  const streak = useMemo(() => getLoginStreak().current, []);
+  // ── Streak — DB-authoritative via React Query (J7F-01 fix) ──
+  // Was: getLoginStreak() from localStorage → returned 0 for deep-link users
+  // who entered /missions without first visiting /home.
+  // Now: useLoginStreak triggers record_login_streak RPC (idempotent) and
+  // shares the result via React Query cache (60s stale).
+  const { streak } = useLoginStreak(uid);
   const streakBenefits = useMemo(() => getStreakBenefits(streak), [streak]);
-  const benefitLabels = useMemo(() => getStreakBenefitLabels(streak), [streak]);
+  // Pass the common-namespace translator so labels are localized in TR (FIX-06).
+  // The keys (streakTickets, streakFantasy, …) live under "common" in messages/.
+  // The `params.n` is always a number from getStreakBenefitLabels — narrow the type.
+  const benefitLabels = useMemo(
+    () =>
+      getStreakBenefitLabels(streak, (key, params) =>
+        tc(key, params as Record<string, string | number | Date>),
+      ),
+    [streak, tc],
+  );
   const streakMilestone = useMemo(() => getStreakMilestone(streak), [streak]);
 
   // ── Unlocked Achievements ──
