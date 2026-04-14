@@ -4579,6 +4579,8 @@
   "notifTemplates": {
     "newIpoTitle": "Yeni IPO!",
     "newIpoBody": "{name} artık Scout Card olarak mevcut — hemen al!",
+    "ipoPurchaseTitle": "Scout Card alındı",
+    "ipoPurchaseBody": "{quantity}x Scout Card alındı",
     "offerReceivedTitle": "Yeni Teklif",
     "offerReceivedBody": "Yeni bir teklif aldın",
     "offerAcceptedTitle": "Teklif kabul edildi",

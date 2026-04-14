@@ -4579,6 +4579,8 @@
   "notifTemplates": {
     "newIpoTitle": "Neuer IPO!",
     "newIpoBody": "{name} ist jetzt als Scout Card verfügbar — jetzt kaufen!",
+    "ipoPurchaseTitle": "Scout Card gekauft",
+    "ipoPurchaseBody": "{quantity}x Scout Card gekauft",
     "offerReceivedTitle": "Neues Angebot",
     "offerReceivedBody": "Du hast ein neues Angebot erhalten",
     "offerAcceptedTitle": "Angebot angenommen",

@@ -53,7 +53,13 @@ export async function getActiveIpos(): Promise<DbIpo[]> {
   return (data ?? []) as DbIpo[];
 }
 
-/** Active IPO for a specific player */
+/**
+ * Active IPO for a specific player.
+ * Priority: open > early_access > announced (status first, created_at DESC as tiebreaker).
+ * Supabase-JS supports no CASE-expression in .order() → client-side priority sort after fetch.
+ * FIX-13 (Journey #2): A player with Tranche1=open + Tranche2=announced previously
+ * returned Tranche2 (newer created_at) — incorrect. Now returns the tradable one.
+ */
 export async function getIpoForPlayer(playerId: string): Promise<DbIpo | null> {
   const { data, error } = await supabase
     .from('ipos')
@@ -61,11 +67,21 @@ export async function getIpoForPlayer(playerId: string): Promise<DbIpo | null> {
     .eq('player_id', playerId)
     .in('status', ['open', 'early_access', 'announced'])
     .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(10);
 
   if (error) throw new Error(error.message);
-  return data as DbIpo | null;
+  const rows = (Array.isArray(data) ? data : data ? [data] : []) as DbIpo[];
+  if (rows.length === 0) return null;
+
+  const priority: Record<string, number> = { open: 1, early_access: 2, announced: 3 };
+  const sorted = [...rows].sort((a, b) => {
+    const pa = priority[a.status as string] ?? 99;
+    const pb = priority[b.status as string] ?? 99;
+    if (pa !== pb) return pa - pb;
+    // Tiebreaker: newer first (already sorted DESC by created_at from DB, keep stable)
+    return 0;
+  });
+  return sorted[0] ?? null;
 }
 
 /** How many DPCs a user already bought in a specific IPO */
@@ -74,7 +90,8 @@ export async function getUserIpoPurchases(userId: string, ipoId: string): Promis
     .from('ipo_purchases')
     .select('quantity')
     .eq('ipo_id', ipoId)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .limit(500);
 
   if (error) throw new Error(error.message);
   return (data ?? []).reduce((sum: number, row: { quantity: number }) => sum + row.quantity, 0);
@@ -128,7 +145,14 @@ export async function buyFromIpo(
     }).catch(err => console.error('[IPO] Mission tracking failed:', err));
     // Notification: IPO purchase confirmed (fire-and-forget)
     import('@/lib/services/notifications').then(({ createNotification }) => {
-      createNotification(userId, 'ipo_purchase', `${quantity}x Scout Card gekauft`, undefined, ipoId, 'ipo');
+      createNotification(
+        userId,
+        'ipo_purchase',
+        notifText('ipoPurchaseTitle'),
+        notifText('ipoPurchaseBody', { quantity }),
+        ipoId,
+        'ipo',
+      );
     }).catch(err => console.error('[IPO] Purchase notification failed:', err));
   }
   return result;
