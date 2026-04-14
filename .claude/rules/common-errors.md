@@ -153,3 +153,14 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - Richtig: Service-Cast MUSS die ECHTEN Keys der RPC matchen
 - Check: `pg_get_functiondef()` → Return-Shape → Service-Cast vergleichen
 - Audit: Neuer RPC deployed? → Service-Datei pruefen ob Cast echte Keys nutzt
+
+## RPC INSERT Column-Mismatch gegen Live-Schema (2026-04-14 — J5 AR-42 + AR-42b)
+- `CREATE OR REPLACE FUNCTION` parst den Body aber validiert KEINE Column-Existenz der referenzierten Tabellen
+- Fehlender/falscher Column-Name wird erst beim RPC-CALL geworfen (PG 42703), NICHT beim apply_migration
+- Silent fail: Transaction rollback, User sieht "Open Error" Toast, Ticket-Kosten revertiert aber Reward weg, 0 Rows in Target-Table
+- **AR-42 (2026-04-08 tot):** RPC `open_mystery_box_v2` INSERT `user_equipment(...equipment_rank...)` — Spalte heisst `rank`. 6d Equipment-Drops tot.
+- **AR-42b (seit RPC existiert tot):** Gleicher RPC INSERT `transactions(...amount_cents...)` — Spalten heissen `amount` + `balance_after` (NOT NULL). bCredits-Drops NIE funktioniert.
+- **Regel:** Nach JEDER `CREATE OR REPLACE FUNCTION`-Migration, die INSERT/UPDATE auf eine Tabelle macht: `\d+ target_table` oder `SELECT column_name FROM information_schema.columns WHERE table_name=X` pruefen und Body-Statements matchen.
+- **Audit-Pattern:** `SELECT DISTINCT p.proname FROM pg_proc p JOIN pg_namespace n ON p.pronamespace=n.oid WHERE n.nspname='public' AND pg_get_functiondef(p.oid) ILIKE '%suspected_column%'` um cross-RPC-Hits zu finden.
+- **Fix-Migration-Verify:** `pg_get_functiondef(oid) ~ 'expected_pattern' AS correct, ~ 'buggy_pattern' AS bug` nach Apply.
+- **Watchlist (J5 Audit 2026-04-14):** 5 weitere RPCs mit `amount_cents` im Body (`adjust_user_wallet`, `claim_welcome_bonus`, `get_club_balance`, `request_club_withdrawal`, `send_tip`) — Phase-3-Audit pflicht vor Beta.
