@@ -28,13 +28,15 @@ import {
 import TradingTab from '@/components/player/detail/TradingTab';
 import PerformanceTab from '@/components/player/detail/PerformanceTab';
 import StickyDashboardStrip from '@/components/player/detail/StickyDashboardStrip';
+import { FEATURE_LIMIT_ORDERS } from '@/lib/featureFlags';
 import dynamic from 'next/dynamic';
 
 // Modals: lazy-loaded since they only render on user interaction
 const BuyModal = dynamic(() => import('@/components/player/detail/BuyModal'), { ssr: false });
 const SellModal = dynamic(() => import('@/components/player/detail/SellModal'), { ssr: false });
 const OfferModal = dynamic(() => import('@/components/player/detail/OfferModal'), { ssr: false });
-const LimitOrderModal = dynamic(() => import('@/components/player/detail/LimitOrderModal'), { ssr: false });
+// LimitOrderModal aus Beta entfernt (AR-23, FEATURE_LIMIT_ORDERS=false).
+// Import + Render-Block bleiben nur aktiv wenn Flag true.
 
 // ============================================
 // TYPES
@@ -64,7 +66,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const [showStrip, setShowStrip] = useState(false);
   const [isWatchlisted, setIsWatchlisted] = useState(false);
-  const [showLimitOrder, setShowLimitOrder] = useState(false);
+  // showLimitOrder State nur aktiv wenn FEATURE_LIMIT_ORDERS=true.
+  // In Beta gehen alle LimitOrder-Trigger auf no-op.
 
   // ─── Data Hook ──────────────────────────
   const data = usePlayerDetailData(playerId, uid, tab);
@@ -180,7 +183,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onShare={handleShare}
           onBuyClick={guardedBuy}
           onSellClick={guardedSell}
-          onLimitClick={() => setShowLimitOrder(true)}
+          // onLimitClick nur aktiv wenn FEATURE_LIMIT_ORDERS=true (AR-23).
+          onLimitClick={undefined}
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
           masteryLevel={data.masteryData?.level ?? 0}
@@ -308,14 +312,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         />
       </ErrorBoundary>
 
-      {player && (
-        <LimitOrderModal
-          open={showLimitOrder}
-          onClose={() => setShowLimitOrder(false)}
-          playerName={`${player.first} ${player.last}`}
-          floorPrice={player.prices.floor ?? player.prices.lastTrade}
-        />
-      )}
+      {/* LimitOrderModal aus Beta entfernt (AR-23, FEATURE_LIMIT_ORDERS=false). */}
+      {/* Wenn Feature reaktiviert: Modal + import + showLimitOrder State + onLimitClick handlers wieder aktivieren. */}
 
       {/* Mobile Trading Bar */}
       <MobileTradingBar
@@ -325,7 +323,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         isLiquidated={player.isLiquidated || isRestrictedAdmin}
         onBuyClick={guardedBuy}
         onSellClick={guardedSell}
-        onLimitClick={() => setShowLimitOrder(true)}
+        // onLimitClick nur aktiv wenn FEATURE_LIMIT_ORDERS=true (AR-23).
+        onLimitClick={undefined}
       />
     </div>
     </>
