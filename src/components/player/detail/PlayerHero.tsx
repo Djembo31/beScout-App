@@ -18,6 +18,7 @@ import type { Player, DbIpo } from '@/types';
 import type { MatchTimelineEntry } from '@/lib/services/scoring';
 import TradingCardFrame from './TradingCardFrame';
 import CountryFlag from '@/components/ui/CountryFlag';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import type { CardBackData } from './TradingCardFrame';
 
 
@@ -186,6 +187,9 @@ function PlayerHeroInner({
               country={player.country}
               backData={backData}
               masteryLevel={masteryLevel}
+              league={player.league}
+              leagueShort={player.leagueShort}
+              leagueLogoUrl={player.leagueLogoUrl}
             />
           </div>
 
@@ -196,13 +200,24 @@ function PlayerHeroInner({
               {player.first} {player.last}
             </h1>
 
-            {/* Club · Flag · Position · Age */}
+            {/* Club · Flag · League · Position · Age */}
             <div className="flex items-center gap-2 text-xs md:text-sm text-white/60 mt-1 flex-wrap justify-center md:justify-start">
               {clubData?.logo && (
                 <Image src={clubData.logo} alt={clubData.name} width={16} height={16} className="size-4 rounded-full object-cover" />
               )}
               <span>{player.club}</span>
               {player.country && <CountryFlag code={player.country} size={12} />}
+              {player.leagueShort && (
+                <>
+                  <span className="text-white/20">&middot;</span>
+                  <LeagueBadge
+                    logoUrl={player.leagueLogoUrl}
+                    name={player.league ?? player.leagueShort}
+                    short={player.leagueShort}
+                    size="xs"
+                  />
+                </>
+              )}
               <span className="text-white/20">&middot;</span>
               <span>{player.pos}</span>
               {player.age != null && player.age > 0 && (

@@ -8,6 +8,7 @@ import { Loader2, TrendingUp, TrendingDown, Minus, ChevronDown, ShoppingCart } f
 import { PlayerIdentity, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { InfoTooltip, EmptyState } from '@/components/ui';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import MarketFilters, { applyFilters, applySorting } from '../shared/MarketFilters';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import { useRecentScores } from '@/lib/queries/managerData';
@@ -188,6 +189,17 @@ export default function TransferListSection({
                 >
                   {/* Player identity */}
                   <PlayerIdentity player={p} size="sm" showStatus className="flex-1 min-w-0" />
+
+                  {/* League badge (md+ to save mobile space) */}
+                  {p.leagueShort && (
+                    <LeagueBadge
+                      logoUrl={p.leagueLogoUrl}
+                      name={p.league ?? p.leagueShort}
+                      short={p.leagueShort}
+                      size="xs"
+                      className="hidden sm:inline-flex"
+                    />
+                  )}
 
                   {/* Form bars + L5 circle */}
                   {(() => {

@@ -9,6 +9,7 @@ import { getScoreHex } from '@/components/player/scoreColor';
 import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, cn } from '@/lib/utils';
 import CountryFlag from '@/components/ui/CountryFlag';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import type { Pos } from '@/types';
 import type { MatchTimelineEntry } from '@/lib/services/scoring';
 
@@ -45,6 +46,9 @@ interface TradingCardFrameProps {
   age?: number;
   country?: string;
   masteryLevel?: number;
+  league?: string;
+  leagueShort?: string;
+  leagueLogoUrl?: string;
 }
 
 /* FIFA-style stat cell: big number on top, tiny label below */
@@ -141,7 +145,7 @@ const formatMV = (v: number) => {
 
 function TradingCardFrameInner({
   first, last, pos, club, shirtNumber, imageUrl, l5, l5Apps = 0, l15Apps = 0, edition, className = '', backData,
-  age, country, masteryLevel,
+  age, country, masteryLevel, league, leagueShort, leagueLogoUrl,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
   const [flipped, setFlipped] = useState(false);
@@ -210,19 +214,29 @@ function TradingCardFrameInner({
               }}
             />
 
-            {/* Top Bar: Club Logo | Flag + Age | Position Pill */}
-            <div className="relative z-10 flex items-center justify-between px-3 pt-2.5">
-              {/* Club Logo */}
-              {clubData?.logo ? (
-                <div className="size-8 md:size-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center backdrop-blur-sm">
-                  <Image src={clubData.logo} alt={clubData.name} width={28} height={28} className="size-6 md:size-7 rounded-full object-cover" />
-                </div>
-              ) : (
-                <div className="size-8" />
-              )}
+            {/* Top Bar: Club Logo + LeagueBadge | Flag + Age | Position Pill */}
+            <div className="relative z-10 flex items-center justify-between gap-2 px-3 pt-2.5">
+              {/* Club Logo + League */}
+              <div className="flex items-center gap-1.5 min-w-0">
+                {clubData?.logo ? (
+                  <div className="size-8 md:size-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center backdrop-blur-sm shrink-0">
+                    <Image src={clubData.logo} alt={clubData.name} width={28} height={28} className="size-6 md:size-7 rounded-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="size-8 shrink-0" />
+                )}
+                {leagueShort && (
+                  <LeagueBadge
+                    logoUrl={leagueLogoUrl}
+                    name={league ?? leagueShort}
+                    short={leagueShort}
+                    size="xs"
+                  />
+                )}
+              </div>
 
               {/* Flag + Age */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {country && <CountryFlag code={country} size={14} />}
                 {age != null && age > 0 && (
                   <span className="text-[10px] font-bold text-white/50 tabular-nums">{age}Y</span>
@@ -231,7 +245,7 @@ function TradingCardFrameInner({
 
               {/* Position Pill with shirt number */}
               <div
-                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black backdrop-blur-sm"
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black backdrop-blur-sm shrink-0"
                 style={{ backgroundColor: `${tint}40`, color: '#fff', border: `1px solid ${tint}60`, textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               >
                 {pos} {shirtNumber > 0 && <span className="font-mono tabular-nums">#{shirtNumber}</span>}
@@ -391,9 +405,34 @@ function TradingCardFrameInner({
 
                 {/* ── Trading Data ── */}
                 <div className="relative z-10 px-3 pt-3 md:pt-4">
-                  <div className="text-[7px] font-bold uppercase tracking-[0.2em] text-white/25 mb-2">
+                  <div className="text-[7px] font-bold uppercase tracking-[0.2em] text-white/25 mb-1">
                     {tp('cardBack.scoutCardData')}
                   </div>
+
+                  {/* League context */}
+                  {leagueShort && (
+                    <div className="flex items-center gap-1.5 text-[8px] text-white/40 mb-2">
+                      {leagueLogoUrl ? (
+                        <Image
+                          src={leagueLogoUrl}
+                          alt=""
+                          width={10}
+                          height={10}
+                          className="size-2.5 rounded-sm object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <span
+                          className="size-2.5 rounded-sm bg-white/10 flex items-center justify-center font-mono font-bold text-white/40"
+                          style={{ fontSize: 6 }}
+                          aria-hidden="true"
+                        >
+                          {leagueShort.charAt(0)}
+                        </span>
+                      )}
+                      <span className="font-mono uppercase tracking-wider">{leagueShort}</span>
+                    </div>
+                  )}
 
                   {/* 2x2 Metric Grid */}
                   <div className="grid grid-cols-2 gap-1.5">
