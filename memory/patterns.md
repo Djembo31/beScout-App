@@ -230,6 +230,51 @@ import { PlayerPhoto } from '@/components/player/index'
 ```
 **Warum:** Einheitliches Fallback-Verhalten, Positions-Farben, Image-Optimierung. NIE inline `<img>` mit eigenem Fallback.
 
+### 22. RPC-Rename via Alias-Pattern (Null-Downtime)
+**Wann:** Postgres-Funktion umbenennen ohne Downtime (besonders fuer Cron-kritische RPCs).
+**Wie:** Dreistufig — Create → Deploy → Drop.
+```sql
+-- Schritt 1: Neue Funktion mit neuem Namen (identischer Body)
+CREATE OR REPLACE FUNCTION buy_player_sc(p_buyer_id uuid, ...)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  -- identischer Body, DPC→SC in Strings
+END;
+$$;
+GRANT EXECUTE ON FUNCTION buy_player_sc TO authenticated;
+
+-- Alte Funktion = duenner Alias-Wrapper
+CREATE OR REPLACE FUNCTION buy_player_dpc(p_buyer_id uuid, ...)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN buy_player_sc(p_buyer_id, ...); -- delegiert
+END;
+$$;
+GRANT EXECUTE ON FUNCTION buy_player_dpc TO authenticated; -- identische Grants
+```
+**Phase 2:** Code-Deploy — Caller migrieren auf neuen Namen.
+**Phase 3:** Nach 1-2 Sessions Verify → `DROP FUNCTION buy_player_dpc` in separater Migration.
+**Warum:** Reversibel, Null-Downtime zwischen Migration-Apply und Code-Deploy. Kritisch wenn Cron-Jobs oder externe Callers nicht atomar mit DB-Migration deploybar sind.
+
+### 23. Bulk-Sanitize via regex_replace + pg_get_functiondef
+**Wann:** Viele RPC-Funktionen haben String-Literals (RAISE, description) die umbenannt werden muessen ohne Signatur-Aenderung.
+**Wie:** `pg_get_functiondef` lesen, `regex_replace` mit Word-Boundary anwenden.
+```sql
+-- Word-Boundary \y schuetzt lowercase Identifier (dpc_amount bleibt unberuehrt)
+-- DPCs vor DPC replacen (Greedy-Matching: laengeres Pattern zuerst)
+CREATE OR REPLACE FUNCTION my_rpc(...)
+RETURNS ... AS $$
+  -- Body mit regex_replace(original_body, '\yDPCs\y', 'SCs', 'g')
+  -- dann:     regex_replace(result,        '\yDPC\y',  'SC',  'g')
+$$;
+
+-- Verify nach Migration:
+SELECT proname FROM pg_proc
+WHERE proname IN ('accept_offer', 'buy_from_market', ...)
+  AND prosrc LIKE '%DPC%'; -- sollte 0 Rows liefern
+```
+**Warum:** Gesammelte Migration (1 statt 14) = weniger Registry-Eintraege. `\y` = PostgreSQL Word-Boundary Regex-Operator (schuetzt `dpc` in Variablen/Columns). Kein Caller-Code muss angepasst werden (nur Strings im Body, nicht Signatur).
+
 ### 21. Realtime + React Query (Live Feed Pattern)
 **Wann:** Live-Updates auf Listen (Following Feed, Notifications, Chat, Leaderboards).
 **Wie:** Subscribe auf INSERT/UPDATE via `supabase.channel()`, bufferRef-Counter mit Throttle-Timer (first-event-starts-window), bei User-Aktion `invalidateQueries` — `keepPreviousData` ist global default, also flicker-frei.

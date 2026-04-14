@@ -111,6 +111,12 @@
 
 - **RLS Policy referenziert dieselbe Tabelle im Subquery:** PostgreSQL re-applied dieselbe Policy auf den Inner-SELECT → infinite recursion → PostgREST HTTP 500. Pattern: `SELECT league_id FROM fantasy_league_members WHERE user_id = auth.uid()` innerhalb einer Policy auf `fantasy_league_members`. → **Fix:** SECURITY DEFINER Helper-Funktion erstellen die ausserhalb des Policy-Kontexts laeuft: `CREATE FUNCTION get_my_ids() RETURNS SETOF uuid LANGUAGE sql SECURITY DEFINER STABLE AS $$ SELECT id FROM tbl WHERE user_id = auth.uid(); $$;`. Policy nutzt dann den Helper: `id IN (SELECT get_my_ids())`. Regel: Wann immer eine RLS Policy dieselbe Tabelle im Subquery referenziert → SECURITY DEFINER. (2026-04-09, fantasy_league_members, Migration 20260409150000, Commit 66b8935)
 
+### Fantasy Services Error-Swallowing (Architektur-Entscheidung, NICHT Bug)
+
+- **`features/fantasy/services/`-Dateien swallowing Errors by design:** Geben `[]`/`null`/`0` zurueck statt zu werfen — ANDERS als `lib/services/` die nach dem 2026-04-13 Hardening werfen. Nicht reparieren ohne bewusste Entscheidung (UI-Kontrakt). Audit-Signal: `getEventParticipants` wirft auf `profiles` Query, schluckt aber `lineups` Query — inkonsistent. (2026-04-13, Test-Writer Fantasy Services, 103 Tests)
+- **`@/test/mocks/supabase` v2 API ist canonical fuer neue Tests:** `mockTable`/`mockRpc`/`resetMocks` (table-aware, FIFO-Queues, sticky single responses) — NICHT das gehoistet `vi.mock` Pattern in `scoring-v2.test.ts` (legacy). Neue Tests: immer v2. (2026-04-13, Test-Writer)
+- **Count-Queries (`getEventParticipantCount`, `hasAnyPrediction`):** Supabase liefert `{ count, error }` ohne `data` — Service muss auf `count` direkt zugreifen, NICHT auf `data`. (2026-04-13)
+
 ### Feed/Social Read Tabellen
 
 - **Cross-User Read Policy generell fehlt:** Zweiter Fall nach B2 `activity_log` — `transactions` hatte nur `auth.uid() = user_id`, blockierte damit Public Profile Timeline komplett (silent: keine Rows, kein Error). → **Fix:** Feed/Social-Tabellen die Cross-User-Reads brauchen (Public Profile, Follower-Feed) IMMER zwei SELECT-Policies: `own-all` + `public-whitelist`. Pattern: `type = ANY(ARRAY['safe_type1','safe_type2'])` fuer die public-readable Subset. RLS nach jeder Migration: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`. (2026-04-08, B3 transactions RLS, Commit 9264bb2)

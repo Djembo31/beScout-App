@@ -3,6 +3,28 @@
 > Chronologisches Aenderungslog. Jeder AutoDream-Run und jede manuelle Aenderung wird hier protokolliert.
 > Parseable mit: `grep "^## \[" memory/wiki-log.md`
 
+## [2026-04-14] AutoDream Run #10 (Operation Beta Ready Phase 0+1 — Session 187, Counter N/A)
+- Verdichtet: 5 Retros (retro-20260414-142940..151818) + Session-Handoff → 1 neues semantisches File
+  - Alle 5 Retros decken gleiche 2 Commits ab (c788135 + 9471b2d) — Haupt-Content war untracked Files
+  - Key: Operation Beta Ready Phase 0+1 komplett (Feature-Map, Service-Map, 1.1 Phantom-SC, 1.3 A+B Migrations)
+- Index: 1 neue Datei katalogisiert (semantisch/projekt/operation-beta-ready-phase0-1.md, 59 Zeilen)
+- Cortex-Index: 9 neue Routing-Eintraege (+Operation Beta Ready, +Feature-Map SSOT, +Service-Map SSOT, +RPC-Rename, +Bulk-Sanitize, +Phase 1.3 Impact, +Fantasy Tests)
+- Neue Code-Patterns (2): Pattern #22 RPC-Rename Alias-Pattern, Pattern #23 Bulk-Sanitize regex_replace
+- Neue Error-Patterns (3): Fantasy Services Swallow-Architektur, v2 Mock API canonical, Count-Query Shape
+- Archiviert: 0 Sessions (alle Retros 2026-04-14, <1 Tag alt; archive/ hat 5 Retros vom 2026-04-02)
+- Crash-Backups: 4 Crash-Diffs vom 2026-04-13 in .claude/backups/ — stale aber <7 Tage, Cleanup nach 7 Tagen
+- Drafts pending review: 1 (2026-04-13-test-writer-fantasy-services.md — Kernaussagen promotet zu errors.md)
+- Session-Counter reset: 0
+- Aenderungen:
+  - memory/semantisch/projekt/operation-beta-ready-phase0-1.md (NEU, 59 Zeilen)
+  - memory/patterns.md (+Pattern #22 RPC-Rename Alias, +Pattern #23 Bulk-Sanitize, 274→319 Zeilen)
+  - memory/errors.md (+3 Patterns: Fantasy Swallow, v2 Mock canonical, Count-Query, 116→122 Zeilen)
+  - memory/cortex-index.md (+9 Routing-Eintraege, 51→58 Zeilen)
+  - memory/wiki-index.md (neu generiert: Run #10, neue Dateien, aktualisierte Zeilenzahlen)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
+
 ## [2026-04-07] AutoDream Run #2 (Session 98, Counter 79)
 - Verdichtet: 5 Retros (retro-20260407-135831..183450) -> 1 semantisches Update
 - Index: 1 neue Datei katalogisiert (semantisch/projekt/architecture-3hub.md)

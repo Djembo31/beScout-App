@@ -38,6 +38,13 @@
 | /rankings Page / Liga Scoring / is_liga_event | `memory/semantisch/projekt/bescout-liga.md` |
 | Mystery Box Daily-Cap / open_mystery_box_v2 | `memory/semantisch/projekt/bescout-liga.md` (Scope-Creep-Fixes Sektion) |
 | 7d Price Changes / get_player_price_changes_7d | `memory/semantisch/projekt/bescout-liga.md` (Scope-Creep-Fixes Sektion) |
+| Operation Beta Ready / Beta-Launch Checkliste | `memory/operation-beta-ready.md` (SSOT) + `memory/semantisch/projekt/operation-beta-ready-phase0-1.md` |
+| Feature Map / Frontend-Inventar / alle Pages + Components | `memory/feature-map.md` (SSOT, 221 Zeilen) |
+| Service Map / Backend-Inventar / alle Services + RPCs | `memory/service-map.md` (SSOT, 266 Zeilen) |
+| RPC-Rename / Alias-Pattern / Null-Downtime Migration | `memory/patterns.md` (Pattern #22) + `memory/semantisch/projekt/operation-beta-ready-phase0-1.md` |
+| Bulk-Sanitize RPC / regex_replace / pg_get_functiondef | `memory/patterns.md` (Pattern #23) + `memory/semantisch/projekt/operation-beta-ready-phase0-1.md` |
+| Phase 1.3 Impact-Map / buy_player_sc / calculate_sc_of_week | `memory/phase-1.3-impact-map.md` (Caller-Details) |
+| Fantasy Services Tests / fixtures / lineups / predictions | `memory/semantisch/projekt/operation-beta-ready-phase0-1.md` + Journal `memory/episodisch/journals/fantasy-services-tests-journal.md` |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |

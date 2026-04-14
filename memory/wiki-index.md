@@ -1,15 +1,15 @@
-# Wiki Index (auto-generated 2026-04-10, Run #9)
+# Wiki Index (auto-generated 2026-04-14, Run #10)
 
 > Vollstaendiger Index aller Knowledge-Dateien. Generiert von AutoDream v3.
 > Nutze diesen Index um Dateien nach Domain/Typ zu finden.
 
-## Rules (.claude/rules/) — 13 Dateien, ~994 Zeilen
+## Rules (.claude/rules/) — 13 Dateien, ~1132 Zeilen
 
 | File | Domain | Lines | Summary |
 |------|--------|-------|---------|
 | database.md | DB | 82 | Column names, RLS Checkliste, RPC Regeln, Schema, CHECK Constraints, Migration Workflow |
 | business.md | Compliance | 55 | Licensing-Phasen, Wording, Geofencing, Fee-Splits, i18n |
-| common-errors.md | Cross-Domain | 73 | React/TS/CSS/Shell/Supabase Patterns, RLS Trap, RPC Anti-Patterns, Vercel |
+| common-errors.md | Cross-Domain | 100 | React/TS/CSS/Shell/Supabase Patterns, RLS Trap, RPC Anti-Patterns, Vercel, PL/pgSQL NULL-in-Scalar, Service Error-Swallowing, camelCase/snake_case Mismatch |
 | trading.md | Trading | 78 | Order-Logik, Fee-Berechnung, Liquidation Guards |
 | fantasy.md | Fantasy | 71 | Event-Types, Lineup-Validation, Scoring |
 | community.md | Community | 75 | Posts, Research, Voting, Moderation |
@@ -17,7 +17,7 @@
 | gamification.md | Gamification | 74 | Achievements, Badges, Leaderboards, Rewards |
 | club-admin.md | Club Admin | 71 | Dashboard, Events, Analytics, Moderation |
 | ui-components.md | UI | 75 | Mobile-First, States, Accessibility, Animations |
-| workflow-reference.md | Workflow | 175 | How I Work, Agent-Team, Skills, MCP, Hooks |
+| workflow-reference.md | Workflow | 304 | How I Work, Agent-Team (Skynet), Skills (17), MCP, Hooks, Imperium-Vision |
 | performance.md | Performance | 28 | Query-Optimierung, Bundle, Rendering |
 | testing.md | Testing | 39 | Unit/Integration/E2E Konventionen (inkl. Visual QA Playbook) |
 
@@ -25,12 +25,17 @@
 
 | File | Type | Lines | Summary |
 |------|------|-------|---------|
-| patterns.md | Reference | 274 | Top 21 Code Patterns (Service Layer, Query Keys, Loading Guards, Realtime+RQ Live Feed) |
-| errors.md | Reference | 117 | Error Patterns (DB, React, CSS, Supabase, Turkish Unicode, API-Football, Props, Dead Code, SW Cache, SW Re-Registration, Lazy Init, Type Drift, Feed RLS x2, Navigation-Abort, RLS Self-Recursion) |
-| cortex-index.md | Routing | 42 | Routing-Tabelle: welches Wissen bei welchem Task laden (Run #9: +Liga DONE, +Rankings, +Mystery Box, +7d Price) |
-| session-handoff.md | Handoff | 118 | Letzte Session: Equipment v2 + Realtime Feed DONE. Alle Sprints abgeschlossen. |
-| polish-sweep.md | Project | 159 | Polish Sweep SSOT: 29 Pages, Home ✅ done (Pass 1+2), Market naechste |
+| patterns.md | Reference | 319 | Top 23 Code Patterns (+RPC-Rename Alias-Pattern, +Bulk-Sanitize regex_replace) |
+| errors.md | Reference | 122 | Error Patterns (+Fantasy Services Swallow-Pattern, +v2 Mock API canonical, +Count-Query Shape) |
+| cortex-index.md | Routing | 58 | Routing-Tabelle (+Operation Beta Ready, +Feature/Service Map, +RPC-Rename, +Bulk-Sanitize, +Phase 1.3 Impact) |
+| session-handoff.md | Handoff | 30 | Letzte Session: Operation Beta Ready Phase 0+1 DONE. Uncommitted: 20 Files incl. migrations + tests. |
+| polish-sweep.md | Project | 159 | Polish Sweep SSOT: 29/29 Pages KOMPLETT (2026-04-13) |
 | project_bescout_liga.md | Spec | 216 | BeScout Liga Original-Spec (historisch) — DONE 2026-04-10, semantisch: bescout-liga.md |
+| feature-map.md | SSOT | 221 | Frontend-Inventar: alle Pages, Features, Components, Hooks. 12 User Journeys. (Phase 0, 2026-04-14) |
+| service-map.md | SSOT | 266 | Backend-Inventar: 63 Services, 341 Funktionen, alle RPCs, Domain-Map. (Phase 0, 2026-04-14) |
+| phase-1.3-impact-map.md | Project | 148 | Phase 1.3 Caller-Impact: buy_player_sc (10 Caller), calculate_sc_of_week (1 Cron-Caller) |
+| operation-beta-ready.md | SSOT | ~120 | Operation Beta Ready Master: 5 Phasen, 12 User Journeys, Approval-Triggers, Checkliste |
+| pre-launch-checklist.md | Checklist | ~50 | Pre-Launch Gate-Checklist |
 | deps/cross-domain-map.md | Reference | 53 | Cross-Domain Trigger Matrix |
 | project_missing_revenue_streams.md | Business | 52 | 7 identifizierte Revenue-Opportunities |
 | semantisch/personen/anil.md | Profile | 20 | Founder Arbeitsstil |
@@ -40,10 +45,11 @@
 | semantisch/projekt/following-feed.md | Feature | 74 | B2 Following Feed E2E: RLS Fix, Dead Code Audit, i18n Labels, Feed Widget |
 | semantisch/projekt/transactions-history.md | Feature | 128 | B3 Transactions History E2E: SSOT Pattern, RLS Fix, CSV Export, Fantasy Ranking, 4 Tx Tables |
 | semantisch/projekt/equipment-realtime.md | Feature | 83 | Equipment Inventar v2 (Pokédex-Matrix) + Realtime Feed + Migration Registry Drift Doku |
-| semantisch/projekt/fantasy-qa-stabilisation.md | Feature | 77 | B3/B4 QA Fixes: LineupPanel Quick-Add, fantasy_league_members RLS Recursion (SECURITY DEFINER), Navigation-Abort Error Classification, CI follow-ups |
+| semantisch/projekt/fantasy-qa-stabilisation.md | Feature | 77 | B3/B4 QA Fixes: LineupPanel Quick-Add, fantasy_league_members RLS Recursion (SECURITY DEFINER), Navigation-Abort |
 | semantisch/projekt/home-polish-sweep.md | Feature | 80 | Home Polish Pass 1+2: Track A (Declutter), B1 (LastGameweekWidget), C (Mystery Box daily), D (Liga deferred) |
-| semantisch/projekt/bescout-liga.md | Feature | 103 | BeScout Liga DONE: /rankings (7 widgets), 3 DB tables, 4 RPCs, is_liga_event scoring, Economy decisions final, CardMastery removed |
-| semantisch/sprint/current.md | Sprint | 56 | Sprint komplett: alle Features DONE, 3 CI follow-ups resolved, GW35 live |
+| semantisch/projekt/bescout-liga.md | Feature | 116 | BeScout Liga DONE: /rankings (7 widgets), 3 DB tables, 4 RPCs, is_liga_event scoring, Economy decisions final |
+| semantisch/projekt/operation-beta-ready-phase0-1.md | Feature | 59 | Operation Beta Ready Phase 0+1: Inventory DONE, Phantom-SC Cleanup, RPC Sanitize, RPC-Rename Alias-Pattern |
+| semantisch/sprint/current.md | Sprint | 74 | Operation Beta Ready aktiv: CTO-Mode, Tools live, Phase 0+1.1+1.3 DONE |
 
 ## Features (memory/features/) — 8 Specs
 
@@ -73,7 +79,7 @@
 | impact-analyst.md | Opus | 95 | Cross-cutting Analysis (read-only) |
 | qa-visual.md | Sonnet | 92 | Visual QA mit Playwright |
 
-## Skills (.claude/skills/) — 15 Skills
+## Skills (.claude/skills/) — 17 Skills
 
 | Skill | Lines | Domain |
 |-------|-------|--------|
@@ -86,11 +92,11 @@
 | improve | 51 | Session-Retrospektive (alle 10 Sessions) |
 | eval-skill | 49 | Skill-Effectiveness Testing |
 | competing-hypotheses | 45 | 3 parallele Hypothesen bei 3x Failure |
-| beScout-backend | 43 | DB, RPCs, Services Patterns |
+| beScout-backend | 79 | DB, RPCs, Services Patterns |
+| beScout-frontend | 89 | UI, Components, Hooks Patterns |
+| beScout-business | 88 | Compliance, Wording, Legal |
 | metrics | 38 | Session-Metriken Aggregation |
-| beScout-frontend | 36 | UI, Components, Hooks Patterns |
 | promote-rule | 35 | Pending Rules -> common-errors.md |
-| beScout-business | 34 | Compliance, Wording, Legal |
 | reflect | 31 | Learnings Queue Review |
 
 ## Learnings (memory/learnings/) — Pipeline
@@ -100,6 +106,7 @@
 | drafts/2026-04-02-smoke-test-hooks-grep.md | Reviewed/Promoted | grep -oP Windows Bug -> common-errors.md |
 | drafts/2026-04-02-smoke-test-worktree-skills.md | Reviewed/Promoted | Worktree Skills Fallback -> common-errors.md |
 | drafts/2026-04-07-qa-visual-3hub-refactor.md | Promoted/Deleted | Visual QA Multi-Page Refactor Patterns (promoted to testing.md Run #4) |
+| drafts/2026-04-13-test-writer-fantasy-services.md | Pending Review | Fantasy Services Mock-Pattern (v2 API canonical), Error-Swallow-Architektur, mapStatRow-Fallback |
 | beScout-backend.md | Stub | Awaiting first learning |
 | beScout-frontend.md | Stub | Awaiting first learning |
 | beScout-business.md | Stub | Awaiting first learning |
@@ -109,4 +116,4 @@
 
 ---
 
-*Last generated: 2026-04-10 by AutoDream v3 Run #9 (BeScout Liga DONE — /rankings + 7 widgets + is_liga_event scoring + Economy decisions + Scope-Creep Fixes, 4 Commits, 1 new semantic file)*
+*Last generated: 2026-04-14 by AutoDream v3 Run #10 (Operation Beta Ready Phase 0+1 — Feature/Service Map, RPC Sanitize, RPC-Rename Alias-Pattern, 2 neue Code Patterns, 3 neue Error-Patterns, 1 neues semantisches File)*
