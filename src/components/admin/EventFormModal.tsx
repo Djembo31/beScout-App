@@ -3,6 +3,7 @@
 import { Modal, Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { bsdToCents } from '@/lib/services/players';
+import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
 import RewardStructureEditor from './RewardStructureEditor';
 import { INPUT_CLS, SELECT_CLS } from './hooks/types';
 import type { EventFormState } from './hooks/types';
@@ -359,7 +360,10 @@ export function EventFormModal({
             className={cn(SELECT_CLS, disabledCls)}
           >
             <option value="tickets">{L.currencyTickets}</option>
-            {scoutEventsEnabled && <option value="scout">$SCOUT</option>}
+            {/* AR-31 (J4): $SCOUT-currency nur in Phase 4 (PAID_FANTASY_ENABLED=true).
+                Admin-Toggle `scoutEventsEnabled` bleibt als DB-Flag, aber die Option
+                wird erst mit PAID_FANTASY_ENABLED live. */}
+            {scoutEventsEnabled && PAID_FANTASY_ENABLED && <option value="scout">$SCOUT</option>}
           </select>
         </div>
 

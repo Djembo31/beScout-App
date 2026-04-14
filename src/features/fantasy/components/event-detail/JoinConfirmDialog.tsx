@@ -5,6 +5,7 @@ import { Trophy, CheckCircle2, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
 import type { FantasyEvent } from '@/components/fantasy/types';
 
 export interface JoinConfirmDialogProps {
@@ -19,7 +20,11 @@ export interface JoinConfirmDialogProps {
 export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holdingsCount = 0, slotsRequired = 0 }: JoinConfirmDialogProps) {
   const t = useTranslations('fantasy');
   const ticketCost = event.ticketCost ?? 0;
-  const hasCost = ticketCost > 0;
+  // AR-31 (J4): scout-currency-branch nur in Phase 4 (PAID_FANTASY_ENABLED=true).
+  // In Beta wird `event.currency === 'scout'` als "free" gerendert — Paid-Fantasy-Preview weg.
+  const isScoutCurrency = PAID_FANTASY_ENABLED && event.currency === 'scout' && ticketCost > 0;
+  const isTicketCurrency = event.currency === 'tickets' && ticketCost > 0;
+  const hasCost = isScoutCurrency || isTicketCurrency;
 
   // preventClose-Aequivalent: backdrop-Klick waehrend `joining` schliesst nicht.
   // (Kein Modal-Component → kein preventClose-Prop → Handler blockt Cancel-Call.)
@@ -45,13 +50,13 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
           </div>
         </div>
         <div className="space-y-2 mb-5 text-sm">
-          {/* Cost display -- currency-aware */}
+          {/* Cost display -- currency-aware (AR-31: scout-branch flag-gated). */}
           <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-base">
             <span className="text-white/60">{t('entryFeeLabel')}</span>
-            {event.currency === 'tickets' && ticketCost > 0 ? (
+            {isTicketCurrency ? (
               <span className="font-bold font-mono tabular-nums text-amber-400">{t('ticketCost', { cost: ticketCost })}</span>
-            ) : event.currency === 'scout' && ticketCost > 0 ? (
-              <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(ticketCost / 100)} $SCOUT</span>
+            ) : isScoutCurrency ? (
+              <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(ticketCost / 100)} Credits</span>
             ) : (
               <span className="font-bold text-green-500">{t('freeLabel')}</span>
             )}
