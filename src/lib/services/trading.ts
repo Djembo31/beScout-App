@@ -29,6 +29,8 @@ export function mapRpcError(message: string): string {
     return 'noMatchingOrders';
   if (lower.includes('own order'))
     return 'cannotBuyOwn';
+  if (lower.includes('ipo_misconfigured'))
+    return 'ipoMisconfigured';
   if (lower.includes('club-admin') || lower.includes('club admin'))
     return 'clubAdminRestricted';
   if (lower.includes('permission') || lower.includes('denied') || lower.includes('unauthorized'))

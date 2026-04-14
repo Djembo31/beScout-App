@@ -3373,6 +3373,7 @@
     "timeout": "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.",
     "subscriptionRequired": "Ein Club-Abo wird für diese Aktion benötigt.",
     "earlyAccessRequired": "Vorkaufsrecht erforderlich. Upgrade auf Silber+ im Club-Abo, um jetzt zu kaufen.",
+    "ipoMisconfigured": "Dieser Erstverkauf ist nicht korrekt konfiguriert. Bitte den Verein kontaktieren.",
     "tierTooLow": "Dein Abo-Tier ist zu niedrig für diese Aktion.",
     "invalidQuantity": "Ungültige Menge.",
     "maxQuantityExceeded": "Maximale Kaufmenge überschritten.",

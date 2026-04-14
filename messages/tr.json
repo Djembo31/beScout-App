@@ -3373,6 +3373,7 @@
     "timeout": "İstek zaman aşımına uğradı. Lütfen tekrar deneyin.",
     "subscriptionRequired": "Bu işlem için kulüp aboneliği gerekiyor.",
     "earlyAccessRequired": "Ön alım hakkı gerekli. Şimdi satın almak için Gümüş+ kulüp aboneliğine yükselt.",
+    "ipoMisconfigured": "Bu ilk satış doğru yapılandırılmamış. Lütfen kulüple iletişime geç.",
     "tierTooLow": "Abonelik seviyeniz bu işlem için yetersiz.",
     "invalidQuantity": "Geçersiz miktar.",
     "maxQuantityExceeded": "Maksimum satın alma miktarı aşıldı.",

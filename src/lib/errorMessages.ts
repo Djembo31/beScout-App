@@ -19,6 +19,7 @@ const KNOWN_KEYS = new Set([
   'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
   'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown', 'orderRateLimit',
   'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
+  'ipoMisconfigured',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -80,6 +81,7 @@ const ERROR_MAP: [RegExp, string][] = [
   [/out.of.stock/i, 'cosmeticOutOfStock'],
 
   // Subscription
+  [/ipo_misconfigured/i, 'ipoMisconfigured'],
   [/early.?access/i, 'earlyAccessRequired'],
   [/subscription.*required/i, 'subscriptionRequired'],
   [/min.*tier/i, 'tierTooLow'],
