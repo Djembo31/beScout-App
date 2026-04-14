@@ -1,4 +1,4 @@
-# Session Handoff (2026-04-14 16:33)
+# Session Handoff (2026-04-14 18:52)
 
 ## Uncommitted Changes: 5 Files
 ```
@@ -10,16 +10,16 @@
 ```
 
 ## Session Commits: 10
-- e2a10a5 docs(cto): Journey #1 complete — Knowledge Compilation + SSOT update
-- 4418c45 fix(beta): Reviewer-Issues aus Journey #1 — Contract-Change Propagation
-- b31fef1 feat(beta): Journey #1 Round 2 — TradingDisclaimer auf Entry-Pages
-- 155a31c feat(beta): Operation Beta Ready Phase 2 Journey #1 — Round 1 fixes
-- 0742fed docs(beta): Multi-League Items in Phase 2 Journey-Audits integriert
-- 646f722 docs(autodream): Run #10 — Phase 0+1 verdichtet, 2 Patterns + 3 Errors promoted
-- 8f3b2d1 docs(rules): update trading.md RPC-Name auf buy_player_sc (Alias-Info)
-- 3d0b196 feat(beta): Operation Beta Ready Phase 0+1 komplett
-- 9471b2d docs(cto): CEO-Spec-Session — alle 6 Open Questions beantwortet
-- c788135 docs(cto): Operation Beta Ready aktiviert + Tool-Setup live
+- 86431bd docs(beta): SSOT update — alle 6 AR-Items (Journey #2) done, J2 full-sweep abgeschlossen
+- 739a46b feat(beta): AR-7 IPO-Vokabel-Sweep + business.md Begriffsregel
+- 3067405 feat(beta): AR-9 IPO Fee-Transparenz im BuyConfirmModal (10/5/85 Breakdown)
+- d1f2170 feat(beta): AR-10 sync trigger players.ipo_price <- ipos.price
+- 6937b01 feat(beta): AR-5 Multi-League Bulk-IPO-Launch (3596 new IPOs live)
+- df94b70 feat(beta): AR-8 drift-backfill + AR-6 zero-price guards (IPO RPCs)
+- bb91372 docs(beta): Journey #2 audits + CEO-approvals + SSOT update
+- 65737cd merge(beta): J2 Round 1 Backend Fixes
+- aec7ca2 merge(beta): J2 Round 1 Frontend Fixes
+- 3c02ebd feat(beta): Journey #2 Round 1 — Frontend Fixes — FIX-01..FIX-14
 
 ## Stale Worktrees: 1 (cleanup candidates)
 
