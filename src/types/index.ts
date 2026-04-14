@@ -2025,6 +2025,13 @@ export type MysteryBoxResult = {
   bcredits_amount: number | null;
   ticket_cost: number;
   opened_at: string;
+  // Optional display fields — only populated on fresh RPC-returned results
+  // (open_mystery_box_v2). Not persisted in mystery_box_results row.
+  cosmetic_key?: string;
+  cosmetic_name?: string;
+  equipment_name_de?: string;
+  equipment_name_tr?: string;
+  equipment_position?: string;
 };
 
 // ============================================

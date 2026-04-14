@@ -231,15 +231,14 @@ export function useHomeData() {
       bcredits_amount: result.bcreditsAmount ?? null,
       ticket_cost: effectiveCost,
       opened_at: new Date().toISOString(),
-      // Pass-through for display (not persisted in MysteryBoxResult type)
+      // Pass-through display fields — populated only on freshly opened boxes
+      // (not on persisted `mystery_box_results` rows).
       equipment_name_de: result.equipmentNameDe,
       equipment_name_tr: result.equipmentNameTr,
       equipment_position: result.equipmentPosition,
-    } as import('@/types').MysteryBoxResult & {
-      equipment_name_de?: string;
-      equipment_name_tr?: string;
-      equipment_position?: string;
-    };
+      cosmetic_key: result.cosmeticKey,
+      cosmetic_name: result.cosmeticName,
+    } satisfies import('@/types').MysteryBoxResult;
   }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
 
   return {

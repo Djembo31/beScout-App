@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Gift, Ticket, Sparkles, AlertCircle, Coins, Swords, Package } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { MysteryBoxResult, MysteryBoxRarity } from '@/types';
-import { RARITY_CONFIG, EQUIPMENT_POSITION_COLORS } from './rarityConfig';
+import { RARITY_CONFIG, EQUIPMENT_POSITION_COLORS, type RarityVisualConfig } from './rarityConfig';
 import { ParticleSystem } from './particles';
 
 // ============================================
@@ -25,16 +25,25 @@ interface MysteryBoxModalProps {
 
 const MYSTERY_BOX_BASE_COST = 15;
 
-/** Reward preview per rarity (shown in idle state) */
-const REWARD_PREVIEW: { rarity: MysteryBoxRarity; rewards: string }[] = [
-  { rarity: 'common', rewards: 'Tickets' },
-  { rarity: 'rare', rewards: 'Tickets / Equipment R1' },
-  { rarity: 'epic', rewards: 'Tickets / Equipment R1-R2' },
-  { rarity: 'legendary', rewards: 'Tickets / Equipment R1-R3 / bCredits' },
-  { rarity: 'mythic', rewards: 'Equipment R3-R4 / bCredits' },
+/**
+ * Reward preview per rarity (shown in idle state).
+ * Drop-rates in percent match `mystery_box_config` (J5B-10).
+ * Labels are resolved via i18n (gamification.possibleRewards.*).
+ */
+const REWARD_PREVIEW: { rarity: MysteryBoxRarity; dropRate: number }[] = [
+  { rarity: 'common', dropRate: 45 },
+  { rarity: 'rare', dropRate: 30 },
+  { rarity: 'epic', dropRate: 17 },
+  { rarity: 'legendary', dropRate: 6 },
+  { rarity: 'mythic', dropRate: 2 },
 ];
 
 type BoxState = 'idle' | 'anticipation' | 'shake' | 'burst' | 'celebration';
+
+/** Resolve rarity label locale-aware (FIX-05). */
+function resolveRarityLabel(conf: RarityVisualConfig, locale: string): string {
+  return locale === 'tr' ? conf.label_tr : conf.label_de;
+}
 
 export default function MysteryBoxModal({
   open,
@@ -45,9 +54,14 @@ export default function MysteryBoxModal({
   ticketDiscount = 0,
 }: MysteryBoxModalProps) {
   const t = useTranslations('gamification');
+  const locale = useLocale();
   const [boxState, setBoxState] = useState<BoxState>('idle');
   const [result, setResult] = useState<MysteryBoxResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // FIX-03: Track in-flight RPC for reduced-motion branch — `isAnimating` only
+  // covers the staged animation. Without this, ESC/backdrop-click during the
+  // reduced-motion RPC call would dismiss the modal mid-transaction.
+  const [isOpening, setIsOpening] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particleRef = useRef<ParticleSystem | null>(null);
   const reducedMotion = useRef(
@@ -62,17 +76,31 @@ export default function MysteryBoxModal({
   const effectiveCost = Math.max(1, MYSTERY_BOX_BASE_COST - ticketDiscount);
   const canAfford = hasFreeBox;
 
-  // Canvas setup
+  // Canvas setup (FIX-11: ResizeObserver for orientation-change support)
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
-    const rect = canvas.parentElement?.getBoundingClientRect();
-    if (rect) {
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-    }
+    const parent = canvas.parentElement;
+    const resize = () => {
+      const rect = parent?.getBoundingClientRect();
+      if (rect && rect.width > 0 && rect.height > 0) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+    };
+    resize();
     particleRef.current = new ParticleSystem(canvas);
+
+    let observer: ResizeObserver | null = null;
+    if (parent && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => {
+        resize();
+      });
+      observer.observe(parent);
+    }
+
     return () => {
+      observer?.disconnect();
       particleRef.current?.destroy();
       particleRef.current = null;
     };
@@ -87,9 +115,11 @@ export default function MysteryBoxModal({
   const handleOpen = useCallback(async () => {
     if (!canAfford) return;
     setError(null);
+    setIsOpening(true);
 
     if (reducedMotion.current) {
-      // Reduced motion: skip animation, go straight to result
+      // Reduced motion: skip animation, go straight to result.
+      // `isOpening` keeps preventClose active during the RPC call.
       try {
         const boxResult = await onOpen(hasFreeBox);
         if (boxResult) {
@@ -104,6 +134,8 @@ export default function MysteryBoxModal({
         const msg = err instanceof Error && err.message ? err.message : null;
         setError(msg ?? t('openBoxError'));
         setBoxState('idle');
+      } finally {
+        setIsOpening(false);
       }
       return;
     }
@@ -155,6 +187,8 @@ export default function MysteryBoxModal({
       const msg = err instanceof Error && err.message ? err.message : null;
       setError(msg ?? t('openBoxError'));
       setBoxState('idle');
+    } finally {
+      setIsOpening(false);
     }
   }, [canAfford, hasFreeBox, onOpen, t, triggerHaptic]);
 
@@ -175,6 +209,8 @@ export default function MysteryBoxModal({
   // "Open Another" button is gated on the same daily slot.
   const canOpenAnother = false;
   const isAnimating = boxState === 'anticipation' || boxState === 'shake' || boxState === 'burst';
+  // FIX-03: preventClose must also cover reduced-motion RPC window (no animation states).
+  const preventClose = isAnimating || isOpening;
   const rarityConf = result ? RARITY_CONFIG[result.rarity] : null;
 
   return (
@@ -183,7 +219,7 @@ export default function MysteryBoxModal({
       onClose={handleClose}
       title={t('mysteryBox')}
       size="sm"
-      preventClose={isAnimating}
+      preventClose={preventClose}
     >
       <div className="relative flex flex-col items-center py-4 overflow-hidden">
         {/* Canvas overlay for particles */}
@@ -273,7 +309,7 @@ export default function MysteryBoxModal({
               </div>
             )}
 
-            {/* Reward Preview */}
+            {/* Reward Preview (FIX-05 locale, FIX-10 i18n + drop-rates) */}
             <div className="w-full mt-5 pt-4 border-t border-divider">
               <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider mb-2.5">
                 {t('possibleRewardsTitle')}
@@ -290,10 +326,13 @@ export default function MysteryBoxModal({
                       )}
                     >
                       <span className={cn('font-black w-[72px] flex-shrink-0', conf.textClass)}>
-                        {conf.label_de}
+                        {resolveRarityLabel(conf, locale)}
                       </span>
                       <span className="text-white/40 flex-1">
-                        {rp.rewards}
+                        {t(`possibleRewards.${rp.rarity}`)}
+                      </span>
+                      <span className="text-white/50 font-mono tabular-nums text-[10px] flex-shrink-0">
+                        {rp.dropRate}%
                       </span>
                     </div>
                   );
@@ -312,24 +351,24 @@ export default function MysteryBoxModal({
 
         {boxState === 'burst' && (
           <p className="text-sm text-gold font-black anim-scale-pop">
-            {rarityConf?.label_de ?? ''}
+            {rarityConf ? resolveRarityLabel(rarityConf, locale) : ''}
           </p>
         )}
 
         {/* ── CELEBRATION / REVEALED ── */}
         {boxState === 'celebration' && result && rarityConf && (
           <>
-            {/* Rarity badge */}
+            {/* Rarity badge (FIX-05 locale-aware) */}
             <span className={cn(
               'px-3 py-1 rounded-full border text-xs font-black mb-3 anim-mystery-celebrate',
               rarityConf.bgClass, rarityConf.textClass, rarityConf.borderClass,
             )}>
-              {rarityConf.label_de}
+              {resolveRarityLabel(rarityConf, locale)}
             </span>
 
             {/* Reward content */}
             <div className="anim-mystery-celebrate" style={{ animationDelay: '0.15s' }}>
-              <RewardDisplay result={result} t={t} />
+              <RewardDisplay result={result} t={t} locale={locale} />
             </div>
 
             {/* Actions */}
@@ -385,7 +424,15 @@ function RewardIcon({ result, rarityConf }: { result: MysteryBoxResult; rarityCo
 // REWARD DISPLAY (details below the box)
 // ============================================
 
-function RewardDisplay({ result, t }: { result: MysteryBoxResult; t: ReturnType<typeof useTranslations> }) {
+function RewardDisplay({
+  result,
+  t,
+  locale,
+}: {
+  result: MysteryBoxResult;
+  t: ReturnType<typeof useTranslations>;
+  locale: string;
+}) {
   switch (result.reward_type) {
     case 'tickets':
       return (
@@ -401,7 +448,11 @@ function RewardDisplay({ result, t }: { result: MysteryBoxResult; t: ReturnType<
       );
 
     case 'equipment': {
-      const posColors = EQUIPMENT_POSITION_COLORS[(result as MysteryBoxResult & { equipment_position?: string }).equipment_position ?? 'ALL'] ?? EQUIPMENT_POSITION_COLORS.ALL;
+      const posColors = EQUIPMENT_POSITION_COLORS[result.equipment_position ?? 'ALL'] ?? EQUIPMENT_POSITION_COLORS.ALL;
+      const equipmentName =
+        (locale === 'tr' ? result.equipment_name_tr : result.equipment_name_de) ??
+        result.equipment_name_de ??
+        result.equipment_type;
       return (
         <div className="text-center">
           <div className={cn(
@@ -410,7 +461,7 @@ function RewardDisplay({ result, t }: { result: MysteryBoxResult; t: ReturnType<
           )}>
             <Swords className={cn('size-5', posColors.text)} />
             <span className={cn('font-black text-sm', posColors.text)}>
-              {(result as MysteryBoxResult & { equipment_name_de?: string }).equipment_name_de ?? result.equipment_type}
+              {equipmentName}
             </span>
             <span className="font-mono font-black text-xs text-white/60 bg-white/[0.08] px-1.5 py-0.5 rounded">
               R{result.equipment_rank}
@@ -424,25 +475,33 @@ function RewardDisplay({ result, t }: { result: MysteryBoxResult; t: ReturnType<
     case 'bcredits': {
       const amount = result.bcredits_amount ?? 0;
       const displayAmount = Math.round(amount / 100);
+      const amountLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
       return (
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-2xl font-black text-gold font-mono tabular-nums">
             <Coins className="size-6" />
-            +{displayAmount.toLocaleString('de-DE')} CR
+            +{displayAmount.toLocaleString(amountLocale)} CR
           </div>
           <p className="text-xs text-white/40 mt-1">{t('bcreditsEarned')}</p>
         </div>
       );
     }
 
-    case 'cosmetic':
+    case 'cosmetic': {
+      // FIX-07: Prefer the actual cosmetic display name over a generic label.
+      // RPC returns `cosmetic_name` (resolved in `useHomeData`); fall back to
+      // `cosmetic_key`/`cosmetic_id` for legacy rows, then the generic string.
+      const cosmeticLabel = result.cosmetic_name ?? result.cosmetic_key ?? result.cosmetic_id ?? null;
       return (
         <div className="text-center">
           <Sparkles className="size-8 mx-auto mb-2 text-purple-400" />
-          <p className="text-sm font-bold text-white">{t('cosmeticUnlocked')}</p>
-          <p className="text-xs text-white/40 mt-1">{t('cosmeticAddedToCollection')}</p>
+          <p className="text-sm font-bold text-white">{cosmeticLabel ?? t('cosmeticUnlocked')}</p>
+          <p className="text-xs text-white/40 mt-1">
+            {cosmeticLabel ? t('cosmeticUnlocked') : t('cosmeticAddedToCollection')}
+          </p>
         </div>
       );
+    }
 
     default:
       return null;

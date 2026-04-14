@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Gift,
   Loader2,
@@ -14,7 +14,7 @@ import { Card, EmptyState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMysteryBoxHistory } from '@/lib/queries/mysteryBox';
-import { RARITY_CONFIG } from '@/components/gamification/rarityConfig';
+import { RARITY_CONFIG, type RarityVisualConfig } from '@/components/gamification/rarityConfig';
 import type { MysteryBoxResult, MysteryBoxRewardType } from '@/types';
 
 const HISTORY_LIMIT = 20;
@@ -25,6 +25,11 @@ const REWARD_ICONS: Record<MysteryBoxRewardType, React.ComponentType<{ className
   cosmetic: Sparkles,
   equipment: Swords,
 };
+
+/** Resolve rarity label locale-aware (FIX-05). */
+function resolveRarityLabel(conf: RarityVisualConfig, locale: string): string {
+  return locale === 'tr' ? conf.label_tr : conf.label_de;
+}
 
 function formatRewardLabel(
   entry: MysteryBoxResult,
@@ -42,8 +47,14 @@ function formatRewardLabel(
       }
       return t('historyRewardEquipmentNoRank', { name });
     }
-    case 'cosmetic':
-      return t('historyRewardCosmetic');
+    case 'cosmetic': {
+      // FIX-08: Prefer an actual cosmetic display name where available; fall
+      // back to the cosmetic key/id from the stored row, then the generic
+      // "Cosmetic" label. `mystery_box_results` only persists `cosmetic_id`
+      // (= cosmetic key) — the RPC-return `cosmetic_name` is transient.
+      const name = entry.cosmetic_name ?? entry.cosmetic_key ?? entry.cosmetic_id ?? null;
+      return name ? t('historyRewardCosmeticNamed', { name }) : t('historyRewardCosmetic');
+    }
     default:
       return entry.reward_type;
   }
@@ -54,8 +65,11 @@ function formatRewardLabel(
 // ============================================
 export default function MysteryBoxHistorySection() {
   const t = useTranslations('inventory');
+  const locale = useLocale();
   const { user } = useUser();
   const uid = user?.id;
+
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
   const { data: history = [], isLoading } = useMysteryBoxHistory(uid, HISTORY_LIMIT);
 
@@ -92,11 +106,17 @@ export default function MysteryBoxHistorySection() {
           {history.map(entry => {
             const rarityCfg = RARITY_CONFIG[entry.rarity];
             const RewardIcon = REWARD_ICONS[entry.reward_type] ?? Gift;
-            const date = new Date(entry.opened_at).toLocaleDateString('de-DE', {
+            // FIX-09: Date-Format locale-aware
+            const date = new Date(entry.opened_at).toLocaleDateString(dateLocale, {
               day: '2-digit',
               month: '2-digit',
               year: 'numeric',
             });
+            // FIX-13: Ticket-cost transparency per opening (0 = free daily slot)
+            const costLabel =
+              entry.ticket_cost > 0
+                ? t('historyTicketCost', { cost: entry.ticket_cost })
+                : t('historyTicketCostFree');
 
             return (
               <li key={entry.id} className="flex items-center gap-3 p-3">
@@ -117,12 +137,14 @@ export default function MysteryBoxHistorySection() {
                   <div className="text-sm font-bold text-white truncate">
                     {formatRewardLabel(entry, t)}
                   </div>
-                  <div className="text-[10px] text-white/40 mt-0.5 font-mono tabular-nums">
-                    {date}
+                  <div className="mt-0.5 flex items-center gap-2 text-[10px] text-white/40">
+                    <span className="font-mono tabular-nums">{date}</span>
+                    <span aria-hidden="true" className="text-white/20">·</span>
+                    <span className="truncate">{costLabel}</span>
                   </div>
                 </div>
 
-                {/* Rarity label */}
+                {/* Rarity label (FIX-05 locale-aware) */}
                 <span
                   className={cn(
                     'text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded flex-shrink-0',
@@ -132,7 +154,7 @@ export default function MysteryBoxHistorySection() {
                     rarityCfg.borderClass,
                   )}
                 >
-                  {rarityCfg.label_de}
+                  {resolveRarityLabel(rarityCfg, locale)}
                 </span>
               </li>
             );

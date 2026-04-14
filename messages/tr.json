@@ -3108,6 +3108,22 @@
     "noCosmetics": "Henüz kozmetik yok",
     "noCosmeticsHint": "Rütbe Yolu, Gizem Kutuları ve Başarılarla kazan",
     "possibleRewardsTitle": "Olası Ödüller",
+    "possibleRewards": {
+      "common": "Bilet",
+      "uncommon": "Bilet / Ekipman R1",
+      "rare": "Bilet / Ekipman R1",
+      "epic": "Bilet / Ekipman R1-R2",
+      "legendary": "Bilet / Ekipman R1-R3 / Credits",
+      "mythic": "Ekipman R3-R4 / Credits"
+    },
+    "rarityLabel": {
+      "common": "Sıradan",
+      "uncommon": "Sıradışı",
+      "rare": "Nadir",
+      "epic": "Epik",
+      "legendary": "Efsanevi",
+      "mythic": "Mitolojik"
+    },
     "opening": "Açılıyor...",
     "cosmeticUnlocked": "Yeni kozmetik açıldı!",
     "cosmeticAddedToCollection": "Koleksiyona eklendi",
@@ -4848,7 +4864,10 @@
     "historyRewardEquipment": "{name} (R{rank})",
     "historyRewardEquipmentNoRank": "{name}",
     "historyRewardBcredits": "{amount} Credit",
-    "historyRewardCosmetic": "Kozmetik"
+    "historyRewardCosmetic": "Kozmetik",
+    "historyRewardCosmeticNamed": "{name}",
+    "historyTicketCost": "Maliyet: {cost} 🎟️",
+    "historyTicketCostFree": "Ücretsiz"
   },
   "meta": {
     "profile": "Profil",

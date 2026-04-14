@@ -3108,6 +3108,22 @@
     "noCosmetics": "Noch keine Cosmetics",
     "noCosmeticsHint": "Verdiene sie durch Score Road, Mystery Boxes und Achievements",
     "possibleRewardsTitle": "Mögliche Belohnungen",
+    "possibleRewards": {
+      "common": "Tickets",
+      "uncommon": "Tickets / Equipment R1",
+      "rare": "Tickets / Equipment R1",
+      "epic": "Tickets / Equipment R1-R2",
+      "legendary": "Tickets / Equipment R1-R3 / Credits",
+      "mythic": "Equipment R3-R4 / Credits"
+    },
+    "rarityLabel": {
+      "common": "Gewöhnlich",
+      "uncommon": "Ungewöhnlich",
+      "rare": "Selten",
+      "epic": "Episch",
+      "legendary": "Legendär",
+      "mythic": "Mythisch"
+    },
     "opening": "Wird geöffnet...",
     "cosmeticUnlocked": "Neues Cosmetic freigeschaltet!",
     "cosmeticAddedToCollection": "Zur Sammlung hinzugefügt",
@@ -4848,7 +4864,10 @@
     "historyRewardEquipment": "{name} (R{rank})",
     "historyRewardEquipmentNoRank": "{name}",
     "historyRewardBcredits": "{amount} Credits",
-    "historyRewardCosmetic": "Cosmetic"
+    "historyRewardCosmetic": "Cosmetic",
+    "historyRewardCosmeticNamed": "{name}",
+    "historyTicketCost": "Kosten: {cost} 🎟️",
+    "historyTicketCostFree": "Kostenlos"
   },
   "meta": {
     "profile": "Profil",
