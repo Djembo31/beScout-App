@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import type { MysteryBoxResult, MysteryBoxRarity } from '@/types';
 import { RARITY_CONFIG, EQUIPMENT_POSITION_COLORS } from './rarityConfig';
 import { ParticleSystem } from './particles';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 
 // ============================================
 // MYSTERY BOX MODAL — Premium Star Drops
@@ -45,6 +46,7 @@ export default function MysteryBoxModal({
   ticketDiscount = 0,
 }: MysteryBoxModalProps) {
   const t = useTranslations('gamification');
+  const tErrors = useTranslations('errors');
   const [boxState, setBoxState] = useState<BoxState>('idle');
   const [result, setResult] = useState<MysteryBoxResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -101,8 +103,11 @@ export default function MysteryBoxModal({
         }
       } catch (err) {
         console.error('MysteryBoxModal open error:', err);
-        const msg = err instanceof Error && err.message ? err.message : null;
-        setError(msg ?? t('openBoxError'));
+        // J5F-06: RPC raw strings ('daily_free_limit_reached', 'Not enough tickets')
+        // are mapped to i18n keys and resolved via the `errors` namespace.
+        // Fallback: gamification.openBoxError for unknown errors.
+        const key = mapErrorToKey(normalizeError(err));
+        setError(key === 'generic' ? t('openBoxError') : tErrors(key));
         setBoxState('idle');
       }
       return;
@@ -152,11 +157,12 @@ export default function MysteryBoxModal({
       setBoxState('celebration');
     } catch (err) {
       console.error('MysteryBoxModal open error:', err);
-      const msg = err instanceof Error && err.message ? err.message : null;
-      setError(msg ?? t('openBoxError'));
+      // J5F-06: See reduced-motion branch above for mapping rationale.
+      const key = mapErrorToKey(normalizeError(err));
+      setError(key === 'generic' ? t('openBoxError') : tErrors(key));
       setBoxState('idle');
     }
-  }, [canAfford, hasFreeBox, onOpen, t, triggerHaptic]);
+  }, [canAfford, hasFreeBox, onOpen, t, tErrors, triggerHaptic]);
 
   const handleClose = useCallback(() => {
     setBoxState('idle');
