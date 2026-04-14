@@ -401,7 +401,8 @@
     "mysteryBoxTitle": "Mystery Box",
     "mysteryBoxFreeAvailable": "Gratis Box wartet!",
     "mysteryBoxClaimedTomorrow": "Morgen wieder verfügbar",
-    "mysteryBoxFreeLabel": "Gratis"
+    "mysteryBoxFreeLabel": "Gratis",
+    "mysteryBoxOpenCta": "Mystery Box öffnen"
   },
   "fantasy": {
     "title": "Spieltag",
@@ -3141,7 +3142,7 @@
     "openBoxAriaLabel": "Mystery Box öffnen",
     "openBoxError": "Konnte Mystery Box nicht öffnen",
     "rewardEquipment": "Neues Equipment freigeschaltet!",
-    "bcreditsEarned": "bCredits gutgeschrieben",
+    "bcreditsEarned": "Credits gutgeschrieben",
     "equipmentFireShot": "Feuerschuss",
     "equipmentBananaCross": "Bananen Flanke",
     "equipmentIronWall": "Eiserne Mauer",

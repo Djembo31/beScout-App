@@ -401,7 +401,8 @@
     "mysteryBoxTitle": "Gizem Kutusu",
     "mysteryBoxFreeAvailable": "Ücretsiz kutu seni bekliyor!",
     "mysteryBoxClaimedTomorrow": "Yarın tekrar gel",
-    "mysteryBoxFreeLabel": "Ücretsiz"
+    "mysteryBoxFreeLabel": "Ücretsiz",
+    "mysteryBoxOpenCta": "Gizem Kutusunu Aç"
   },
   "fantasy": {
     "title": "Maç Günü",
@@ -3141,7 +3142,7 @@
     "openBoxAriaLabel": "Mystery Box aç",
     "openBoxError": "Mystery Box açılamadı",
     "rewardEquipment": "Yeni ekipman kazanildi!",
-    "bcreditsEarned": "bCredits hesabina eklendi",
+    "bcreditsEarned": "Credits hesabina eklendi",
     "equipmentFireShot": "Ates Sutu",
     "equipmentBananaCross": "Muz Ortasi",
     "equipmentIronWall": "Demir Duvar",

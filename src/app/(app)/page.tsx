@@ -381,13 +381,23 @@ export default function HomePage() {
           {/* Mystery Box — animated when free box available */}
           {uid && (
             <Card
+              role="button"
+              tabIndex={0}
+              aria-label={t('mysteryBoxOpenCta')}
               className={cn(
                 'p-3 md:p-4 flex items-center justify-between relative overflow-hidden cursor-pointer group',
+                'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
                 hasFreeBoxToday
                   ? 'border-gold/25 anim-mystery-card-glow'
                   : '',
               )}
               onClick={() => setShowMysteryBox(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setShowMysteryBox(true);
+                }
+              }}
             >
               {/* Gold shimmer sweep when free box available */}
               {hasFreeBoxToday && (
