@@ -15,6 +15,12 @@ description: Business-Regeln, Compliance und Geofencing
 - Scout Card = "Digitale Spielerkarte" (nicht Spieleranteil, kein Eigentum)
 - Code-intern bleiben Variable/DB-Column-Namen mit "dpc" (nur UI umbenannt)
 - Disclaimers auf JEDER Seite mit $SCOUT/DPC (TradingDisclaimer Component)
+- **IPO-Begriffsregel (AR-7, Journey #2):** Kuerzel "IPO" (Initial Public Offering) ist
+  Securities-Terminologie und triggert potenziell SPK/MASAK-Signale.
+  - User-facing Strings: IMMER "Erstverkauf" (DE) / "Kulüp Satışı" (TR)
+  - Admin-facing Strings (Club-Admin-Panel, Analytics): "IPO" darf bleiben
+  - Code-intern (Variablen, DB-Columns, i18n-Keys): "ipo" darf bleiben (nur Values uebersetzt)
+  - Glossar user-facing: title = "Erstverkauf" / "Kulüp Satışı"
 
 ## Geofencing-Tiers
 | Tier | Laender | Zugang |

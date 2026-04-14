@@ -1310,7 +1310,7 @@
     "statusInjuredShort": "Verl.",
     "statusSuspendedShort": "Gesp.",
     "statusDoubtfulShort": "Fragl.",
-    "badgeActiveIpo": "Aktive IPO",
+    "badgeActiveIpo": "Erstverkauf",
     "badgeOnTransferList": "Auf Transferliste",
     "badgeIncomingOffers": "Eingehende Angebote",
     "bestandSortLabel": "Sortieren nach",
@@ -2142,8 +2142,8 @@
     "toMarket": "Zum Marktplatz",
     "buyFailed": "Kauf fehlgeschlagen",
     "buySuccess": "{quantity} Scout Card vom Transfermarkt für {price} Credits gekauft",
-    "ipoBuyFailed": "IPO-Kauf fehlgeschlagen",
-    "ipoBuySuccess": "{quantity} Scout Card per IPO für {price} Credits gekauft",
+    "ipoBuyFailed": "Erstverkauf-Kauf fehlgeschlagen",
+    "ipoBuySuccess": "{quantity} Scout Card per Erstverkauf für {price} Credits gekauft",
     "listFailed": "Listing fehlgeschlagen",
     "listSuccess": "{quantity} Scout Card für {price} Credits gelistet",
     "cancelFailed": "Stornierung fehlgeschlagen",
@@ -4417,7 +4417,7 @@
     "emptyTradingDesc": "Kaufe die erste Scout Card und starte den Markt für diesen Spieler.",
     "emptyTradingBuy": "Jetzt kaufen",
     "emptyChartTitle": "Erster Trade setzt den Kurs",
-    "emptyChartIpo": "IPO-Preis: {price} CR",
+    "emptyChartIpo": "Erstverkauf-Preis: {price} CR",
     "emptyResearchDesc": "Noch keine Analysen — verdiene Credits mit deinem ersten Scout Report",
     "emptyPostsDesc": "Die Community wartet auf deine Einschätzung",
     "showAllOrders": "Alle {count} Orders anzeigen",
@@ -4450,7 +4450,7 @@
   "activity": {
     "tradeBuy": "Scout Card gekauft",
     "tradeSell": "Scout Card verkauft",
-    "ipoBuy": "IPO-Kauf",
+    "ipoBuy": "Erstverkauf",
     "entryFee": "Event-Eintritt",
     "entryRefund": "Event-Erstattung",
     "fantasyReward": "Fantasy-Belohnung",
@@ -4518,7 +4518,7 @@
     "dashboardTitle": "Dein Dashboard",
     "dashboardDesc": "Kader-Wert, Wertentwicklung und Spieler-Anzahl — deine wichtigsten Kennzahlen.",
     "managerTitle": "Manager Office",
-    "managerDescDesktop": "Kaufe und verkaufe Scout Cards, verwalte dein Portfolio und finde IPOs.",
+    "managerDescDesktop": "Kaufe und verkaufe Scout Cards, verwalte dein Portfolio und finde Erstverkäufe.",
     "managerDescMobile": "Kaufe und verkaufe Scout Cards und verwalte dein Portfolio.",
     "fantasyTitle": "Fantasy Events",
     "fantasyDesc": "Stelle dein Lineup auf, tritt gegen andere an und gewinne Credits-Preise!",
@@ -4581,7 +4581,7 @@
     "invited": "{email} wurde als {role} für \"{club}\" eingeladen."
   },
   "notifTemplates": {
-    "newIpoTitle": "Neuer IPO!",
+    "newIpoTitle": "Neuer Erstverkauf!",
     "newIpoBody": "{name} ist jetzt als Scout Card verfügbar — jetzt kaufen!",
     "ipoPurchaseTitle": "Scout Card gekauft",
     "ipoPurchaseBody": "{quantity}x Scout Card gekauft",
@@ -4651,8 +4651,8 @@
         "description": "Plattform-Guthaben zum Kaufen, Handeln und Teilnehmen."
       },
       "ipo": {
-        "title": "IPO",
-        "description": "Erstverkauf — der Verein bietet neue Scout Cards zum Festpreis an."
+        "title": "Erstverkauf",
+        "description": "Der Verein bietet neue Scout Cards zum Festpreis an."
       },
       "floorPrice": {
         "title": "Floor Price",
