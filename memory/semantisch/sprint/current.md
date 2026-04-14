@@ -1,48 +1,74 @@
-# Current Sprint — Jarvis Cortex v1
+# Current Sprint — Operation Beta Ready
 
-## Stand (2026-04-10, Session Ende — Market Polish + Bestand Tab)
+## Stand (2026-04-14, CTO-Mode aktiviert)
 - **Tests:** tsc CLEAN
-- **Branch:** main (20 Commits diese Session gepusht)
-- **Migrations:** 55 (1 neu: market_polish_dpc_to_scout_card_and_sponsors)
-- **CI:** Build + Lint green, Tests haben pre-existierende Failures (nicht von dieser Session)
+- **Branch:** main (10 Commits seit letztem Sprint-Update)
+- **Migrations:** 61 lokal / 44 remote (Drift dokumentiert, kein Action)
+- **CI:** Build + Lint + Tests gruen (Live-DB Tests intentional skip in CI)
+- **CTO Tools live:** Sentry MCP scoped + Vercel CLI + GitHub gh + Supabase MCP + Playwright MCP
 
-## Erledigt 2026-04-10 (Market Polish Sweep)
+## Erledigt 2026-04-13/14 (Polish Sweep KOMPLETT + Vision-Reset)
 
-### Polish Pass 1 (Commit 4d4f4cc)
-- DB: Mission-Texte "DPC" → "Scout Card" (3 Rows in mission_definitions)
-- DB: 21 Platzhalter-Sponsoren deaktiviert (Visa, Adidas, Nike etc.)
-- Code: Waehrungslabel "bC" → "CR" einheitlich (6 Stellen, 5 Dateien)
-- Code: HOT-Badge von allen ClubCards entfernt
+### Polish Sweep — alle 29/29 Pages ✅ (Commit 27de0eb)
+- Phase 1 Critical Path: Home, Market, Fantasy, Player Detail, Profile, Inventory
+- Phase 2 Supporting: 12 Pages compliance-clean
+- Phase 3 Auth/Onboarding: 5 Pages
+- Phase 4 Admin: 2 Pages  
+- Phase 5 Legal: 4 Pages
 
-### Bestand-Tab — Neuer Default in "Mein Kader" (12 Commits)
-- Portfolio-Header: Gesamtwert + SC-Count + P&L
-- Spieler-Zeilen: KaderPlayerRow-Pattern (FormBars + L5 rechts oben)
-- Positions-Streifen links (border-l-2, pos-tinted)
-- Club-Logos neben Club-Name
-- Trikotnummer (#XX) + Alter
-- Icons: Pitch-SVG (Spiele), ⚽ (Tore), AssistIcon/blauer Schuh (Assists)
-- StatusBadge (injured/suspended/doubtful)
-- Position-Filter (PosFilter multi-select) + Club-Filter mit SC-Counts
-- Pos-Counts passen sich an Club-Filter an
-- Sell-Button ($): 3 Zustaende (rot=Nachfrage, gold=gelistet, grau=normal)
-- Sell-Button oeffnet KaderSellModal direkt (kein Navigieren noetig)
-- Nachfrage-Erkennung: Direct P2P Offers + Open Public Bids + Buy Orders
-- Unit-Fix: floorMap ist BSD nicht Cents
+### Multi-League Expansion ✅ (Commit 8a5014d)
+- 7 europaeische Ligen, 134 Clubs, 4.263 Spieler
+- Filter-Hierarchie auf MarktplatzTab+BestandView+KaderTab+FantasyContent+Rankings
+- Liga-Logos ueberall (PlayerIdentity, Scout Card, Rows)
+- Admin CreateClub Dropdown
+- i18n DE+TR
 
-### Globale Fixes
-- FormBars: Reihenfolge oldest→newest (links→rechts) in getRecentPlayerScores
-- Betrifft: Kader, Bestand, TransferList, FantasyPlayerRow
+### Service-Hardening DONE ✅ (Commits c8d844e+c00fa87+de763f1)
+- 117 Silent-Null Fixes in 61 Services
+- Trading + Fantasy + Saeulen 3-6 alle gehaertet
+- 1192 Tests gruen
+- 3 dead code removals
 
-### Test-Daten erstellt (fuer QA)
-- 4 P2P-Offers in offers-Tabelle (Eingehend/Ausgehend/Offen/Verlauf)
-- 1 Sell-Order in orders-Tabelle (Szumski auf Transferliste)
+### CTO-Vision-Reset (2026-04-14)
+- CEO Anil hat Operation Beta Ready authorisiert
+- 50 Mann in Pipeline warten auf Beta-Access
+- Tools eingerichtet (Sentry MCP, Vercel CLI, GitHub gh)
+- SSOT erstellt: `memory/operation-beta-ready.md`
 
-## Naechste Session (Prioritaet)
-1. **Watchlist von Mein Kader → Marktplatz verschieben** (Anil-Entscheidung)
-2. **Marktplatz-Tab im Detail durchgehen** (Club Verkauf / Von Usern / Trending)
-3. Danach: Fantasy (#3), Player Detail (#4), Profile (#5), Inventory (#6)
+## Naechste Session (Prioritaet — autonom mit Status-Report am Ende)
 
-## Offene Punkte (Backlog)
-- **FormBars Enrichment:** Gelb/Rot-Karten, Bank, Kader-Status visuell differenzieren (DB+RPC+Component Refactor) → memory/project_formbars_enrichment.md
-- **Cross-Source Buy-Routing:** Automatisch guenstigste Quelle waehlen beim Kauf (IPO vs Transferliste) — aktuell getrennte Flows
-- **Market Buy = 1 SC only:** Hardcoded im RPC, Bulk-Buy vom Markt nicht moeglich
+### Phase 0 — Inventory (60-90 Min)
+- 2 Explore Agents parallel: Frontend-Inventory + Backend-Inventory
+- Output: Feature-Map + User-Journey-Map
+
+### Phase 1 — Pre-Launch Cleanup (parallel)
+- **1.1 Fan-Seed Phantom SCs loeschen** — 11 SCs in casual01/casual06 (Live-Beweis 2026-04-14)
+- **1.2 Test-Account SC-Cleanup** — 90 SCs in 6 Accounts (waiting CEO decision welche behalten)
+- **1.3 14 RPCs DPC-Sanitize** — Backend Agent + Reviewer
+- **1.4 Migration-Drift Doku** — quick-doc
+- **1.5 Live-DB Tests** — verified intentional, kein Action
+
+### Approval-Triggers (CEO NUR hier einbinden)
+1. Geld-Migrations
+2. Compliance-Wording
+3. Architektur-Lock-Ins
+4. Externe System-Touchpoints
+
+## Offene Punkte (Backlog — post-Beta)
+
+### Imperium-Tracks (DEFERRED)
+- **BeScout Liga** (memory/project_bescout_liga.md, 6 Design-Fragen offen)
+- **Multi-League v2** (Cross-League Suche, Compare, Rankings)
+- **FormBars Enrichment** (memory/project_formbars_enrichment.md)
+- **Globale Expansion** (EN/ES/FR/IT, Multi-Currency)
+- **B2B Sales Onboarding** (post-Sakaryaspor Pilot)
+- **Token-Phase 3+** (CASP/MGA: Cash-Out, Exchange, Paid Fantasy)
+- **Creator Economy** (Research-Posts, Polls, Bounties weiter)
+
+### Open Questions for CEO (Spec-Session 15 Min)
+1. Beta-User Profile (Hardcore? Casuals? Mix?)
+2. Failure-Tolerance (was darf nie kaputt?)
+3. Performance-Erwartung (Mobile 4G TR? Desktop?)
+4. Welche Test-Accounts behalten?
+5. RPC-Names `buy_player_dpc`/`calculate_dpc_of_week` — rename oder legacy?
+6. PostHog hooked?

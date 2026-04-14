@@ -1,12 +1,18 @@
 # Pre-Launch Checklist (Pilot Start)
 
+**Status:** ✅ Alle Items mit Live-DB verifiziert 2026-04-14. Aktiv in Operation Beta Ready Phase 1.
+
+**SSOT:** `memory/operation-beta-ready.md` (Phase 1 Section)
+
 Items die erst beim Pilot-Start abgearbeitet werden, nicht vorher.
 
 ## Data Cleanup
 
-- [ ] **Seed-Fan-Accounts löschen** (Fan 01 – Fan 10, UUIDs s.u.)
-  - Grund: Sie halten ~11 "phantom" Scout Cards die nicht durch IPO-Käufe gedeckt sind (seed-script hat direkt in holdings inserted statt über `buy_from_ipo`). Post-Launch soll der Invariant `sum(holdings) = sum(ipo_purchases)` pro Spieler HARD gelten, damit der Supply-Invariant-CI-Test greift.
-  - Betroffene Spieler: Mendy Mamadou (9 SC bei Fan 06), Doğukan Tuzcu (2 SC bei Fan 01)
+- [ ] **Seed-Casual-Accounts löschen** (casual01 – casual10, UUIDs s.u.) — **🔴 LIVE BESTAETIGT 2026-04-14**
+  - Handles sind `casual01-10` (NICHT `fan01-10` wie ursprünglich dokumentiert)
+  - Grund: Sie halten **exakt 11 "phantom" Scout Cards** die nicht durch IPO-Käufe gedeckt sind
+  - Live Beweis (2026-04-14): `Mendy Mamadou: held=24, purchased=15 → +9 phantom (casual06 hält 9)` + `Doğukan Tuzcu: held=4, purchased=2 → +2 phantom (casual01)`
+  - Trade-Aktivität: casual01 hat 2 Trades, casual06 hat 1 Trade — **Cascade-CARE**: UPDATE seller_id=NULL vor DELETE
   - Created batch: 2026-02-15 20:37:40 UTC
   - UUIDs:
     - Fan 01 `671269ed-199a-5e73-9959-e30e54f05f03`
@@ -31,11 +37,22 @@ Items die erst beim Pilot-Start abgearbeitet werden, nicht vorher.
 
 ## Other Pre-Launch Items
 
-- [ ] Remove demo `test444`, `jarvis-qa`, and any other QA account SC inflation (they accumulated test state during polish sweep)
+- [ ] **Test-Account SC-Inflation Cleanup** — 🔴 LIVE BESTAETIGT 2026-04-14: **90 SCs total** in 6 QA-Accounts. WAITING CEO DECISION welche Accounts behalten:
+  - test12 (UUID 46535ade-4db2-4866-8dfa-b8a8bcdbd933): 30 SCs in 16 Players
+  - jarvisqa (UUID 535bbcaf-f33c-4c66-8861-b15cbff2e136): 18 SCs in 9 Players
+  - test1 (UUID ca37ebe6-2ce7-4d1e-b296-ec9f291c4ae7): 17 SCs in 14 Players
+  - test2 (UUID 01c36853-ad96-453a-bab7-3cec3c6832be): 11 SCs in 11 Players
+  - test (UUID cc8e9304-91ae-4a14-bc2c-0751aff9a7fa): 10 SCs in 9 Players
+  - test444 (UUID 782777a7-9e4a-4e5f-9681-0db78db66648): 4 SCs in 3 Players
+  - Empfehlung: test444 + jarvisqa BEHALTEN (für ongoing QA, SCs nullen + neu seeden), Rest komplett DELETE
 - [x] **Clean "DPC"/"Cents" from transaction descriptions** — Migration `cleanup_dpc_transaction_descriptions` + `fix_broken_transaction_descriptions` (2026-04-13). Frontend display-time sanitization in `cleanDescription()` als Fallback.
-- [ ] **RPC functions still write "DPC" in descriptions** — 11 RPCs need update (buy_from_ipo, buy_from_market, place_sell_order, etc.). Too risky for bulk replace, needs dedicated review per function.
-- [ ] Verify migration registry drift is resolved OR documented as permanent (see `.claude/rules/database.md`)
-- [ ] Re-run full `vitest` suite and fix all live-DB integration test failures that the final seed-cleanup doesn't automatically fix
+- [ ] **RPC functions still write "DPC" in descriptions** — 🔴 LIVE BESTAETIGT 2026-04-14: **16 RPCs** referenzieren "DPC" (mehr als ursprünglich geschätzt 11). Per-function review nötig.
+  - **14 mit DPC im Body** (description-strings): accept_offer, award_mastery_xp, buy_from_ipo, buy_from_market, buy_from_order, calculate_fan_rank, create_ipo, create_offer, fn_mastery_on_trade, increment_mastery_hold_days, liquidate_player, place_buy_order, place_sell_order, refresh_airdrop_score
+  - **2 mit DPC im Function-Name** (CEO-Decision needed): `buy_player_dpc`, `calculate_dpc_of_week` — rename oder legacy lassen?
+  - Approach pro RPC: pg_get_functiondef → code-grep Konsumenten → string-replace (DPC→SC) in descriptions only → migration → Supply-Invariant + Geld-Tests → Reviewer Agent (Opus) prüft Geld-Invarianten
+- [x] **Migration registry drift** — 🟡 LIVE BESTAETIGT 2026-04-14: Local 61 vs Remote 44 (Drift permanent). Documented as "permanent ignore" pattern. NIE `supabase db push`, IMMER `mcp__supabase__apply_migration` (siehe `reference_migration_workflow.md` + CLAUDE.md)
+- [x] **Live-DB Integration Tests** — ✅ LIVE BESTAETIGT 2026-04-14: vitest.config.ts excludet 11 globs wenn `process.env.CI=true` (intentional design). Lokal laufen lassen vor Pilot-Start.
+- [ ] Re-run full `vitest` suite locally after final seed-cleanup, fix any DB-state-dependent test failures
 
 ## Why this list exists
 
