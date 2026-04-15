@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-04-15T20:36:19.492Z",
+  "purpose": "Pre-migration counts for scoring backfill rollback. Delete inserted rows to revert.",
+  "rollback_sql_template": "-- Per league, delete fps + pgw rows inserted by this script:\n-- DELETE FROM fixture_player_stats WHERE fixture_id IN (SELECT id FROM fixtures WHERE league_id = '<UUID>' AND status = 'finished');\n-- DELETE FROM player_gameweek_scores WHERE player_id IN (SELECT p.id FROM players p JOIN clubs c ON p.club_id=c.id WHERE c.league_id = '<UUID>') AND gameweek BETWEEN <FROM> AND <TO>;\n-- Then rerun: SELECT cron_recalc_perf();",
+  "pre_counts": {
+    "BL1": {
+      "league_id": "4f968f3a-b70d-454d-9353-74a5ce288c79",
+      "finished_fixtures": 261,
+      "pgw_scores": 513,
+      "players": 542
+    }
+  },
+  "post_run": {
+    "ran_at": "2026-04-15T20:36:25.130Z",
+    "api_calls": 18,
+    "global_stats": {
+      "BL1": {
+        "gwsProcessed": 0,
+        "fixturesProcessed": 0,
+        "fixturesImported": 0,
+        "statsImported": 0,
+        "scoresSynced": 0,
+        "unmatchedPlayers": 32,
+        "apiCallsUsed": 18
+      }
+    }
+  }
+}
