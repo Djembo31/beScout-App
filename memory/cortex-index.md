@@ -50,6 +50,13 @@
 | Achievements i18n / resolveAchievementLabel / title_tr DB-Backfill | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (Phase 3 Achievement Sektion) |
 | Notifications i18n / notifText locale / price_alert Dropdown / WatchlistView | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J10 Sektion) |
 | Missions Disclaimer / MissionDisclaimer Component / useLoginStreak / streaks.ts | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J7 Sektion) |
+| Journey-Audits J1-J5 / Bug-Tracker / XC-Series / E2E Full-Cycle | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` |
+| SECURITY DEFINER Exploit AR-27 / earn_wildcards / REVOKE Pattern | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (J4 Sektion) + `memory/audit-high-risk-rpcs-2026-04-15.md` |
+| RPC INSERT Column-Mismatch AR-42/AR-42b / equipment_rank / PG 42703 | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (J5 Sektion) |
+| CHECK Constraint Enum-Erweiterung / XC-09 transactions_type / XC-10 notifications | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (XC-Sektion) |
+| Multi-League Props-Propagation-Gap / leagueShort / club* mirror league* | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (Multi-League Sektion) |
+| Silent-UI-State-Divergence / Watchlist XC-07 / on[Toggle] without Service-Call | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (XC-07 Sektion) |
+| High-Risk RPC Security Audit / 29 Money-RPCs / Zero-Sum Trade | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (Audit Sektion) |
 | Ferrari 10/10 Workflow / Pre-Commit Guards / Governance-Files / ar-counter.md | CLAUDE.md (Ferrari Sektion) + `memory/ar-counter.md` |
 
 ## On-Demand (nur wenn explizit gebraucht)
