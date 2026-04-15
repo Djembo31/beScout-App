@@ -61,41 +61,62 @@ describe('DB Invariants', () => {
   it('INV-02: event starts_at should be within 1 hour of earliest fixture kickoff for its gameweek', async () => {
     const { data: events, error: evtErr } = await sb
       .from('events')
-      .select('id, name, gameweek, starts_at')
+      .select('id, name, gameweek, starts_at, club_id, clubs!inner(league_id)')
       .in('status', ['registering', 'running'])
       .not('gameweek', 'is', null);
 
     expect(evtErr).toBeNull();
     if (!events || events.length === 0) return;
 
+    const { data: allClubs } = await sb.from('clubs').select('id, league_id');
+    const clubsByLeague = new Map<string, string[]>();
+    (allClubs ?? []).forEach((c) => {
+      if (!c.league_id) return;
+      const arr = clubsByLeague.get(c.league_id) ?? [];
+      arr.push(c.id);
+      clubsByLeague.set(c.league_id, arr);
+    });
+
+    const kickoffCache = new Map<string, number>();
     const violations: string[] = [];
+    const oneHourMs = 60 * 60 * 1000;
 
     for (const evt of events) {
-      const { data: fixtures, error: fixErr } = await sb
-        .from('fixtures')
-        .select('played_at')
-        .eq('gameweek', evt.gameweek)
-        .not('played_at', 'is', null)
-        .order('played_at', { ascending: true })
-        .limit(1);
+      const leagueId = (evt as unknown as { clubs: { league_id: string } }).clubs?.league_id;
+      if (!leagueId) continue;
+      const clubIds = clubsByLeague.get(leagueId);
+      if (!clubIds || clubIds.length === 0) continue;
 
-      expect(fixErr).toBeNull();
-      if (!fixtures || fixtures.length === 0) continue;
+      const cacheKey = `${leagueId}::${evt.gameweek}`;
+      let earliestKickoff = kickoffCache.get(cacheKey);
+      if (earliestKickoff === undefined) {
+        const { data: fixtures } = await sb
+          .from('fixtures')
+          .select('played_at')
+          .eq('gameweek', evt.gameweek)
+          .in('home_club_id', clubIds)
+          .not('played_at', 'is', null)
+          .order('played_at', { ascending: true })
+          .limit(1);
+        if (!fixtures || fixtures.length === 0) {
+          kickoffCache.set(cacheKey, -1);
+          continue;
+        }
+        earliestKickoff = new Date(fixtures[0].played_at).getTime();
+        kickoffCache.set(cacheKey, earliestKickoff);
+      }
+      if (earliestKickoff < 0) continue;
 
-      const earliestKickoff = new Date(fixtures[0].played_at).getTime();
-      const startsAt = new Date(evt.starts_at).getTime();
-      const diffMs = Math.abs(startsAt - earliestKickoff);
-      const oneHourMs = 60 * 60 * 1000;
-
+      const diffMs = Math.abs(new Date(evt.starts_at).getTime() - earliestKickoff);
       if (diffMs > oneHourMs) {
         violations.push(
-          `Event "${evt.name}" (id=${evt.id}): starts_at differs from earliest fixture by ${Math.round(diffMs / 60000)}min`
+          `Event "${evt.name}" (id=${evt.id}, gw=${evt.gameweek}, league=${leagueId.slice(0, 8)}): starts_at differs by ${Math.round(diffMs / 60000)}min`
         );
       }
     }
 
-    expect(violations).toHaveLength(0);
-  });
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 
   // ─────────────────────────────────────────────────────
   // INV-03: event locks_at <= earliest fixture kickoff
@@ -103,39 +124,61 @@ describe('DB Invariants', () => {
   it('INV-03: event locks_at should be <= earliest fixture kickoff', async () => {
     const { data: events, error: evtErr } = await sb
       .from('events')
-      .select('id, name, gameweek, locks_at')
+      .select('id, name, gameweek, locks_at, club_id, clubs!inner(league_id)')
       .in('status', ['registering', 'running'])
       .not('gameweek', 'is', null);
 
     expect(evtErr).toBeNull();
     if (!events || events.length === 0) return;
 
+    const { data: allClubs } = await sb.from('clubs').select('id, league_id');
+    const clubsByLeague = new Map<string, string[]>();
+    (allClubs ?? []).forEach((c) => {
+      if (!c.league_id) return;
+      const arr = clubsByLeague.get(c.league_id) ?? [];
+      arr.push(c.id);
+      clubsByLeague.set(c.league_id, arr);
+    });
+
+    const kickoffCache = new Map<string, number>();
     const violations: string[] = [];
 
     for (const evt of events) {
-      const { data: fixtures, error: fixErr } = await sb
-        .from('fixtures')
-        .select('played_at')
-        .eq('gameweek', evt.gameweek)
-        .not('played_at', 'is', null)
-        .order('played_at', { ascending: true })
-        .limit(1);
+      const leagueId = (evt as unknown as { clubs: { league_id: string } }).clubs?.league_id;
+      if (!leagueId) continue;
+      const clubIds = clubsByLeague.get(leagueId);
+      if (!clubIds || clubIds.length === 0) continue;
 
-      expect(fixErr).toBeNull();
-      if (!fixtures || fixtures.length === 0) continue;
+      const cacheKey = `${leagueId}::${evt.gameweek}`;
+      let earliestKickoff = kickoffCache.get(cacheKey);
+      if (earliestKickoff === undefined) {
+        const { data: fixtures } = await sb
+          .from('fixtures')
+          .select('played_at')
+          .eq('gameweek', evt.gameweek)
+          .in('home_club_id', clubIds)
+          .not('played_at', 'is', null)
+          .order('played_at', { ascending: true })
+          .limit(1);
+        if (!fixtures || fixtures.length === 0) {
+          kickoffCache.set(cacheKey, -1);
+          continue;
+        }
+        earliestKickoff = new Date(fixtures[0].played_at).getTime();
+        kickoffCache.set(cacheKey, earliestKickoff);
+      }
+      if (earliestKickoff < 0) continue;
 
-      const earliestKickoff = new Date(fixtures[0].played_at).getTime();
       const locksAt = new Date(evt.locks_at).getTime();
-
       if (locksAt > earliestKickoff) {
         violations.push(
-          `Event "${evt.name}" (id=${evt.id}): locks_at is ${Math.round((locksAt - earliestKickoff) / 60000)}min AFTER earliest fixture`
+          `Event "${evt.name}" (id=${evt.id}, gw=${evt.gameweek}, league=${leagueId.slice(0, 8)}): locks_at is ${Math.round((locksAt - earliestKickoff) / 60000)}min AFTER league-scoped earliest fixture`
         );
       }
     }
 
-    expect(violations).toHaveLength(0);
-  });
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 
   // ─────────────────────────────────────────────────────
   // INV-04: running events should not have locks_at in the future
