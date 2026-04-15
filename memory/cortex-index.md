@@ -55,9 +55,14 @@
 | RPC INSERT Column-Mismatch AR-42/AR-42b / equipment_rank / PG 42703 | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (J5 Sektion) |
 | CHECK Constraint Enum-Erweiterung / XC-09 transactions_type / XC-10 notifications | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (XC-Sektion) |
 | Multi-League Props-Propagation-Gap / leagueShort / club* mirror league* | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (Multi-League Sektion) |
+| Multi-League Phase 1 Retro / Fixtures-Import / TFF Backfill / XC-15 / Scripts-Inventar | `memory/semantisch/projekt/multi-league-phase-1.md` (NEU 2026-04-15) |
 | Silent-UI-State-Divergence / Watchlist XC-07 / on[Toggle] without Service-Call | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (XC-07 Sektion) |
 | High-Risk RPC Security Audit / 29 Money-RPCs / Zero-Sum Trade | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (Audit Sektion) |
 | Ferrari 10/10 Workflow / Pre-Commit Guards / Governance-Files / ar-counter.md | CLAUDE.md (Ferrari Sektion) + `memory/ar-counter.md` |
+| Backend Scripts-Inventar / import-fixtures / backfill-tff-players / fix-tff-logos / seed-events / backfill-scoring | `memory/semantisch/projekt/multi-league-phase-1.md` (Scripts-Sektion) |
+| CDN HEAD 403 Quirk / GET Range Reachability / api-sports.io CDN Pattern | `memory/semantisch/projekt/multi-league-phase-1.md` (Lessons) + `memory/learnings/drafts/2026-04-15-backend-cdn-head-quirk.md` |
+| Preflight Schema-Introspection / supabase REST 1-row + Object.keys / Schema-Drift Import | `memory/semantisch/projekt/multi-league-phase-1.md` (Lessons) + `memory/learnings/drafts/2026-04-15-backend-fixtures-import-schema-drift.md` |
+| XC-15 expire_pending_orders / filled_qty / AR-42 SELECT-Variante / Cron-Silent-Fail | `memory/semantisch/projekt/multi-league-phase-1.md` (XC-15 Sektion) + `memory/learnings/drafts/2026-04-15-backend-ar42-third-occurrence.md` |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |

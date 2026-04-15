@@ -3,6 +3,24 @@
 > Chronologisches Aenderungslog. Jeder AutoDream-Run und jede manuelle Aenderung wird hier protokolliert.
 > Parseable mit: `grep "^## \[" memory/wiki-log.md`
 
+## [2026-04-15] AutoDream Run #12 (Multi-League Phase 1 — 21 Commits, Session-Ende)
+- Verdichtet: 5 Retros (retro-20260415-222415..231002) + 6 Journals + 3 Learnings-Drafts → 1 neues semantisches File
+  - Journals decken: TFF-Logo, TFF-Player-Backfill, Fixtures-Import, Fantasy-Events-Seed, Historical-Scoring-Backfill, XC-15
+  - Key: Multi-League Phase 1 komplett (Fixtures, TFF Re-Import, Slug-Typos, XC-15, 18 seeded Events)
+- Index: 1 neue Datei erstellt (semantisch/projekt/multi-league-phase-1.md, ~100 Zeilen)
+- Cortex-Index: 6 neue Routing-Eintraege (+Multi-League Phase 1 Retro, +Backend Scripts-Inventar, +CDN HEAD Quirk, +Preflight Schema-Introspection, +XC-15 AR-42 SELECT-Variante)
+- Promoted Rules: EMPFEHLUNG fuer common-errors.md (kein Edit-Zugriff auf .claude/rules/): AR-42 Sektion um XC-15 SELECT-Variante + Dry-Run-Regel + OpenAPI-Schnellcheck erweitern
+- Archiviert: 0 Sessions (<7 Tage alt, alle 2026-04-15)
+- Drafts pending review: 3 (cdn-head-quirk, fixtures-import-schema-drift, ar42-third-occurrence — alle 2026-04-15)
+- Debug-File: memory/debug-backfill-payload-BL1-gw4.json (220KB) — einmaliges Debug-Artefakt, Empfehlung: archivieren nach memory/archive/ oder loeschen wenn kein Rollback mehr noetig
+- Session-Counter: war 104, reset zu 0
+- Aenderungen:
+  - memory/semantisch/projekt/multi-league-phase-1.md (NEU, ~100 Zeilen)
+  - memory/cortex-index.md (+6 Routing-Eintraege, 71→79 Zeilen)
+  - memory/wiki-log.md (dieser Eintrag)
+  - .claude/autodream-last-run (Timestamp)
+  - .claude/session-counter (reset zu 0)
+
 ## [2026-04-14] AutoDream Run #10 (Operation Beta Ready Phase 0+1 — Session 187, Counter N/A)
 - Verdichtet: 5 Retros (retro-20260414-142940..151818) + Session-Handoff → 1 neues semantisches File
   - Alle 5 Retros decken gleiche 2 Commits ab (c788135 + 9471b2d) — Haupt-Content war untracked Files

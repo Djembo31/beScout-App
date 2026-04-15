@@ -118,6 +118,8 @@ __pycache__/
 .claude/session-counter
 .claude/learnings-queue.jsonl
 .claude/session-files.txt
+.claude/scheduled_tasks.lock
+.claude/backups/
 
 # Session-transient memory (consumed by autodream, not committed)
 memory/episodisch/sessions/retro-*.md
