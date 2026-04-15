@@ -2,66 +2,118 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { TrendingUp, Trophy, Users, Vote, ChevronDown, Wallet, ShoppingCart, BarChart3 } from 'lucide-react';
+import { TrendingUp, Trophy, Users, Vote, ChevronDown, Wallet, ShoppingCart, BarChart3, Star, PenLine } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn } from '@/lib/utils';
+import { useRegionGuard } from '@/lib/useRegionGuard';
 
 export default function WelcomePage() {
   const t = useTranslations('welcome');
+  // TIER_RESTRICTED users (TR) see a Fantasy/Community-only version of
+  // this landing page: no Trading CTAs, no Credits-framing, no TradingDisclaimer.
+  // The page layout stays identical; only section content swaps.
+  const { allowed: tradingAllowed } = useRegionGuard('dpc_trading');
 
-  const features = [
-    {
-      icon: TrendingUp,
-      color: 'text-gold',
-      bg: 'bg-gold/10',
-      title: t('featureDpcTitle'),
-      text: t('featureDpcText'),
-    },
-    {
-      icon: Trophy,
-      color: 'text-purple-400',
-      bg: 'bg-purple-400/10',
-      title: t('featureFantasyTitle'),
-      text: t('featureFantasyText'),
-    },
-    {
-      icon: Users,
-      color: 'text-sky-400',
-      bg: 'bg-sky-400/10',
-      title: t('featureCommunityTitle'),
-      text: t('featureCommunityText'),
-    },
-    {
-      icon: Vote,
-      color: 'text-green-500',
-      bg: 'bg-green-500/10',
-      title: t('featureVotesTitle'),
-      text: t('featureVotesText'),
-    },
-  ];
+  const features = tradingAllowed
+    ? [
+        {
+          icon: TrendingUp,
+          color: 'text-gold',
+          bg: 'bg-gold/10',
+          title: t('featureDpcTitle'),
+          text: t('featureDpcText'),
+        },
+        {
+          icon: Trophy,
+          color: 'text-purple-400',
+          bg: 'bg-purple-400/10',
+          title: t('featureFantasyTitle'),
+          text: t('featureFantasyText'),
+        },
+        {
+          icon: Users,
+          color: 'text-sky-400',
+          bg: 'bg-sky-400/10',
+          title: t('featureCommunityTitle'),
+          text: t('featureCommunityText'),
+        },
+        {
+          icon: Vote,
+          color: 'text-green-500',
+          bg: 'bg-green-500/10',
+          title: t('featureVotesTitle'),
+          text: t('featureVotesText'),
+        },
+      ]
+    : [
+        // Restricted: Fantasy/Community/Votes only — NO Trading card
+        {
+          icon: Trophy,
+          color: 'text-purple-400',
+          bg: 'bg-purple-400/10',
+          title: t('featureFantasyTitle'),
+          text: t('featureFantasyTextRestricted'),
+        },
+        {
+          icon: Users,
+          color: 'text-sky-400',
+          bg: 'bg-sky-400/10',
+          title: t('featureCommunityTitle'),
+          text: t('featureCommunityText'),
+        },
+        {
+          icon: Vote,
+          color: 'text-green-500',
+          bg: 'bg-green-500/10',
+          title: t('featureVotesTitle'),
+          text: t('featureVotesText'),
+        },
+      ];
 
-  const steps = [
-    {
-      icon: Wallet,
-      num: '01',
-      title: t('step1Title'),
-      text: t('step1Text'),
-    },
-    {
-      icon: ShoppingCart,
-      num: '02',
-      title: t('step2Title'),
-      text: t('step2Text'),
-    },
-    {
-      icon: BarChart3,
-      num: '03',
-      title: t('step3Title'),
-      text: t('step3Text'),
-    },
-  ];
+  const steps = tradingAllowed
+    ? [
+        {
+          icon: Wallet,
+          num: '01',
+          title: t('step1Title'),
+          text: t('step1Text'),
+        },
+        {
+          icon: ShoppingCart,
+          num: '02',
+          title: t('step2Title'),
+          text: t('step2Text'),
+        },
+        {
+          icon: BarChart3,
+          num: '03',
+          title: t('step3Title'),
+          text: t('step3Text'),
+        },
+      ]
+    : [
+        // Restricted: Fantasy-path steps (no Credits, no purchases, no "handle am Markt")
+        {
+          icon: Wallet,
+          num: '01',
+          title: t('step1TitleRestricted'),
+          text: t('step1TextRestricted'),
+        },
+        {
+          icon: Star,
+          num: '02',
+          title: t('step2TitleRestricted'),
+          text: t('step2TextRestricted'),
+        },
+        {
+          icon: PenLine,
+          num: '03',
+          title: t('step3TitleRestricted'),
+          text: t('step3TextRestricted'),
+        },
+      ];
 
   const stats = [
     { value: '25', label: t('statsPlayers') },
@@ -101,7 +153,7 @@ export default function WelcomePage() {
         </h1>
 
         <p className="mt-4 md:mt-6 text-base md:text-lg text-white/60 text-pretty max-w-xl leading-relaxed">
-          {t('heroSubtitle')}
+          {tradingAllowed ? t('heroSubtitle') : t('heroSubtitleRestricted')}
         </p>
 
         <Link href="/login" className="mt-8">
@@ -134,7 +186,7 @@ export default function WelcomePage() {
       {/* ── 3. Features ── */}
       <section className="relative max-w-6xl mx-auto px-4 py-20 md:py-28">
         <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center text-balance mb-12 md:mb-16">
-          {t('featuresTitle')}
+          {tradingAllowed ? t('featuresTitle') : t('featuresTitleRestricted')}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -221,7 +273,7 @@ export default function WelcomePage() {
           {t('finalCtaTitle')}
         </h2>
         <p className="text-sm md:text-base text-white/50 text-pretty mb-8 max-w-md mx-auto">
-          {t('finalCtaDesc')}
+          {tradingAllowed ? t('finalCtaDesc') : t('finalCtaDescRestricted')}
         </p>
         <Link href="/login">
           <Button variant="gold" size="lg" className="text-base md:text-lg px-8 py-3.5">
@@ -230,10 +282,12 @@ export default function WelcomePage() {
         </Link>
       </section>
 
-      {/* ── 7b. Legal Disclaimer ── */}
-      <section className="relative max-w-4xl mx-auto px-4 pb-8">
-        <TradingDisclaimer variant="card" />
-      </section>
+      {/* ── 7b. Legal Disclaimer (Trading users only) ── */}
+      {tradingAllowed && (
+        <section className="relative max-w-4xl mx-auto px-4 pb-8">
+          <TradingDisclaimer variant="card" />
+        </section>
+      )}
 
       {/* ── 8. Footer ── */}
       <footer className="relative border-t border-divider bg-white/[0.01]">

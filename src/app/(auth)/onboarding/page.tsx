@@ -8,6 +8,7 @@ import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Shield, Gift } fr
 import Link from 'next/link';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
+import { useRegionGuard } from '@/lib/useRegionGuard';
 import { createProfile, checkHandleAvailable, validateHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
 import { getProfileByReferralCode, getClubByReferralCode, applyClubReferral } from '@/lib/services/referral';
@@ -24,6 +25,10 @@ function OnboardingContent() {
   const searchParams = useSearchParams();
   const { user, profile, loading, profileLoading, refreshProfile } = useUser();
   const t = useTranslations('auth');
+  // TIER_RESTRICTED users (TR) must not see Trading-related disclaimers
+  // during onboarding. The onboarding flow itself (handle/name/avatar/language)
+  // stays identical — only the Trading-framing is suppressed.
+  const { allowed: tradingAllowed } = useRegionGuard('dpc_trading');
 
   const [step, setStep] = useState(1);
   const [handle, setHandle] = useState('');
@@ -414,7 +419,9 @@ function OnboardingContent() {
           <Link href="/datenschutz" className="hover:text-white/50 transition-colors">{t('privacy')}</Link>
           <Link href="/impressum" className="hover:text-white/50 transition-colors">{t('imprint')}</Link>
         </div>
-        <TradingDisclaimer variant="inline" className="mt-3 justify-center" />
+        {tradingAllowed && (
+          <TradingDisclaimer variant="inline" className="mt-3 justify-center" />
+        )}
       </div>
     </div>
   );
