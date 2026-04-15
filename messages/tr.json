@@ -214,7 +214,17 @@
     "statsPlayers": "Oyuncu",
     "statsPartner": "Partner Kulüp",
     "statsLeague": "1. Lig",
-    "statsPhase": "Faz"
+    "statsPhase": "Faz",
+    "heroSubtitleRestricted": "Fantezi turnuvalara katıl. Kulüp kararlarında oy kullan. Analizler yaz. Toplulukla bağlantı kur.",
+    "featuresTitleRestricted": "BeScout'u keşfet",
+    "featureFantasyTextRestricted": "Hayalindeki takımı kur ve diğer izcilere karşı yarış. Ücretsiz oyna.",
+    "step1TitleRestricted": "Kayıt ol",
+    "step1TextRestricted": "Ücretsiz hesabını oluştur ve BeScout topluluğunun parçası ol.",
+    "step2TitleRestricted": "Fantezi oyna",
+    "step2TextRestricted": "Hayalindeki takımı kur ve ücretsiz turnuvalarda diğer taraftarlarla yarış.",
+    "step3TitleRestricted": "Analizleri paylaş",
+    "step3TextRestricted": "Scout raporları yaz, tahminler yap ve takipçi kitlesi oluştur.",
+    "finalCtaDescRestricted": "Ücretsiz hesabını şimdi oluştur ve BeScout topluluğuna katıl."
   },
   "nav": {
     "sideNavLabel": "Kenar çubuğu",

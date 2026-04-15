@@ -9,6 +9,7 @@ import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { useRegionGuard } from '@/lib/useRegionGuard';
 
 const STORAGE_KEY = 'bescout-welcome-shown';
 
@@ -20,15 +21,24 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
   const t = useTranslations('onboarding');
   const router = useRouter();
   const [visible, setVisible] = useState(false);
+  // Compliance: Credits welcome-bonus presupposes Scout Card Trading flow.
+  // TIER_RESTRICTED (TR) users get Free-Fantasy only and must not see
+  // Credits-CTAs / Trading-upsell. Skip modal entirely for them.
+  // Consider `allowed` true until hydrated to avoid a flicker where we'd
+  // mark the modal shown for everyone on first paint.
+  const { allowed, isHydrated, geofencingEnabled } = useRegionGuard('dpc_trading');
+  const blocked = geofencingEnabled && isHydrated && !allowed;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (localStorage.getItem(STORAGE_KEY)) return;
+    if (blocked) return;
     // Show after short delay for smooth UX
     const timer = setTimeout(() => setVisible(true), 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [blocked]);
 
+  if (blocked) return null;
   if (!visible) return null;
 
   const dismiss = () => {

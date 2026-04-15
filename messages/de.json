@@ -214,7 +214,17 @@
     "statsPlayers": "Spieler",
     "statsPartner": "Partnerverein",
     "statsLeague": "1. Lig",
-    "statsPhase": "Phase"
+    "statsPhase": "Phase",
+    "heroSubtitleRestricted": "Spiele Fantasy-Turniere. Stimme in Club-Entscheidungen ab. Schreibe Analysen. Vernetze dich mit der Community.",
+    "featuresTitleRestricted": "Entdecke BeScout",
+    "featureFantasyTextRestricted": "Stelle dein Dream-Team auf und tritt gegen andere Scouts an. Kostenlos spielen.",
+    "step1TitleRestricted": "Registrieren",
+    "step1TextRestricted": "Erstelle dein kostenloses Konto und werde Teil der BeScout-Community.",
+    "step2TitleRestricted": "Fantasy spielen",
+    "step2TextRestricted": "Stelle dein Dream-Team zusammen und miss dich mit anderen Fans in kostenlosen Turnieren.",
+    "step3TitleRestricted": "Analysen teilen",
+    "step3TextRestricted": "Schreibe Scout-Berichte, gib Prognosen ab und baue dir eine Follower-Basis auf.",
+    "finalCtaDescRestricted": "Erstelle jetzt dein kostenloses Konto und starte in der BeScout-Community."
   },
   "nav": {
     "sideNavLabel": "Sidebar-Navigation",
