@@ -158,7 +158,7 @@ export async function buyFromIpo(sb: SupabaseClient, userId: string, ipoId: stri
 }
 
 export async function buyFromMarket(sb: SupabaseClient, userId: string, playerId: string, quantity: number) {
-  const { data, error } = await sb.rpc('buy_player_dpc', {
+  const { data, error } = await sb.rpc('buy_player_sc', {
     p_user_id: userId,
     p_player_id: playerId,
     p_quantity: quantity,

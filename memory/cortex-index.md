@@ -63,6 +63,7 @@
 | CDN HEAD 403 Quirk / GET Range Reachability / api-sports.io CDN Pattern | `memory/semantisch/projekt/multi-league-phase-1.md` (Lessons) + `memory/learnings/drafts/2026-04-15-backend-cdn-head-quirk.md` |
 | Preflight Schema-Introspection / supabase REST 1-row + Object.keys / Schema-Drift Import | `memory/semantisch/projekt/multi-league-phase-1.md` (Lessons) + `memory/learnings/drafts/2026-04-15-backend-fixtures-import-schema-drift.md` |
 | XC-15 expire_pending_orders / filled_qty / AR-42 SELECT-Variante / Cron-Silent-Fail | `memory/semantisch/projekt/multi-league-phase-1.md` (XC-15 Sektion) + `memory/learnings/drafts/2026-04-15-backend-ar42-third-occurrence.md` |
+| Missions System / mission_definitions / user_missions / useLoginStreak / assign_user_missions / claim_mission_reward / Race-Safety / TR-i18n | `memory/semantisch/projekt/missions-architecture.md` |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |

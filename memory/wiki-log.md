@@ -3,6 +3,16 @@
 > Chronologisches Aenderungslog. Jeder AutoDream-Run und jede manuelle Aenderung wird hier protokolliert.
 > Parseable mit: `grep "^## \[" memory/wiki-log.md`
 
+## [2026-04-15] AutoDream Run #13 (Post-Multi-League Phase 1 — Session-Start, Worktree-Edit blocked)
+- Verdichtet: 5 Retros gesichtet (alle 2026-04-15, same commit set — kein neuer Content seit Run #12)
+- Neue semantische Promotion: `missions-architecture.md` (96 Zeilen) war als Run #12-Nachzuegler bereits vorhanden → jetzt cortex-indexiert
+- In-Progress Journals NICHT promoviert: `cron-multi-league-journal.md` (AR-26+34 unvollstaendig), `backfill-scoring-historical-journal.md` (Task 13 Script noch nicht ausgefuehrt)
+- Cortex-Index: +1 Eintrag (Missions System Routing)
+- Archiviert: 0 Sessions (alle Retros <1 Tag alt)
+- Drafts pending review: 3 (unveraendert — cdn-head-quirk, fixtures-import-schema-drift, ar42-third-occurrence)
+- Worktree-Edit-Permission: Subagent konnte nicht selbst editieren → Main-Claude hat Updates manuell appliziert
+- Aenderungen: memory/cortex-index.md (+1 Zeile), memory/wiki-log.md (dieser Eintrag), .claude/session-counter reset
+
 ## [2026-04-15] AutoDream Run #12 (Multi-League Phase 1 — 21 Commits, Session-Ende)
 - Verdichtet: 5 Retros (retro-20260415-222415..231002) + 6 Journals + 3 Learnings-Drafts → 1 neues semantisches File
   - Journals decken: TFF-Logo, TFF-Player-Backfill, Fixtures-Import, Fantasy-Events-Seed, Historical-Scoring-Backfill, XC-15
