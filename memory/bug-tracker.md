@@ -153,6 +153,12 @@ Pages: `/welcome` → `/(auth)/login` → `/(auth)/onboarding` → `/home`
 
 **Wave 3 Screenshots:** 9 Pages + Desktop+Mobile (rankings, airdrop, community, clubs, inventory, missions, founding, transactions, manager) captured.
 
+**Wave 5 Fantasy Event Full-Cycle:**
+- ✅ lock_event_entry auf "BeScout Rising Stars" (7er, free, currency=tickets, amount_locked=0)
+- ✅ save_lineup: formation 1-3-2-1, captain=att, 7 Slots gefüllt (GK+3DEF+2MID+ATT) — lineup_id 319918f7 created
+- ✅ AR-27 Wildcard-Security VERIFIED: alle 5 RPCs (earn/spend/get_balance/refund/admin_grant) mit anon=false + auth_guard=true
+- ✅ Cleanup: unlock_event_entry → 0 entries, 0 lineups
+
 ### XC-07 NEW P0 BUG (E2E-Discovery)
 
 | ID | Sev | Title | File:Line | Status |
