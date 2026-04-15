@@ -26,6 +26,9 @@ const KNOWN_KEYS = new Set([
   'missionAlreadyClaimed', 'missionNotCompleted', 'missionNotFound', 'notAuthenticated',
   // J8 Healer (FIX-03) — Sell-flow / Cancel-flow raw RPC strings
   'orderCannotBeCancelled',
+  // J11 Healer (FIX-07) — Equipment RPC error strings
+  'equipmentNotAvailable', 'lineupNotFound', 'slotEmpty', 'positionMismatch',
+  'lineupLocked', 'noEquipmentOnSlot', 'equipmentSaveFailed',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -113,6 +116,15 @@ const ERROR_MAP: [RegExp, string][] = [
   [/mission.*not.*completed|not.*yet.*completed/i, 'missionNotCompleted'],
   [/mission.*not.*found/i, 'missionNotFound'],
   [/auth.*uid.*mismatch|nicht.berechtigt|nicht.authentifiziert|not.authenticated/i, 'notAuthenticated'],
+
+  // Equipment (J11F-07 / J11B-03) — RPC error strings from equip_to_slot /
+  // unequip_from_slot → i18n keys (J3/J4 pattern). Matches DE+TR+EN.
+  [/equipment.*not.*available|ekipman.*bulunamadı|equipment.*nicht.*verfügbar/i, 'equipmentNotAvailable'],
+  [/no.*lineup.*found|kadro.*bulunamadı|kein.*lineup.*gefunden/i, 'lineupNotFound'],
+  [/no.*equipment.*on.*this.*slot|slotta.*donanım.*yok|kein.*equipment.*auf.*slot/i, 'noEquipmentOnSlot'],
+  [/slot.*is.*empty|slot.*boş|slot.*leer/i, 'slotEmpty'],
+  [/position.*mismatch|pozisyon.*uyumsuz|position.*passt.*nicht/i, 'positionMismatch'],
+  [/lineup.*is.*locked|kadro.*kilitli|lineup.*gesperrt/i, 'lineupLocked'],
 ];
 
 /**

@@ -276,7 +276,7 @@ export async function unlockResearch(userId: string, researchId: string): Promis
           .maybeSingle();
         if (post && post.user_id !== userId) {
           const { createNotification } = await import('@/lib/services/notifications');
-          createNotification(
+          await createNotification(
             post.user_id,
             'research_unlock',
             notifText('researchUnlockTitle'),
@@ -346,7 +346,7 @@ export async function rateResearch(
         if (post && post.user_id !== userId) {
           const { createBatchedNotification } = await import('@/lib/services/notifications');
           const titleSnippet = post.title.slice(0, 60);
-          createBatchedNotification(
+          await createBatchedNotification(
             post.user_id,
             'research_rating',
             researchId,

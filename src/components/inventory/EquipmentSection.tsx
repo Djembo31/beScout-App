@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Flame,
   Shield,
@@ -23,6 +23,7 @@ import {
   useEquipmentRanks,
 } from '@/lib/queries/equipment';
 import { EQUIPMENT_POSITION_COLORS } from '@/components/gamification/rarityConfig';
+import { resolveEquipmentName } from '@/components/gamification/equipmentNames';
 import type { DbUserEquipment, DbEquipmentDefinition, EquipmentPosition } from '@/types';
 import EquipmentDetailModal from './EquipmentDetailModal';
 
@@ -99,14 +100,16 @@ function groupConsumed(
   return Array.from(map.values());
 }
 
-function sortGroups(groups: GroupEntry[], sort: SortMode): GroupEntry[] {
+function sortGroups(groups: GroupEntry[], sort: SortMode, locale: string): GroupEntry[] {
   const out = [...groups];
+  const nameOf = (g: GroupEntry) => resolveEquipmentName(g.def, locale);
+  // FIX-12: localeCompare nutzt locale-Param fuer korrekte TR-Unicode-Order (ş/ç/ğ/ı/ö/ü).
   switch (sort) {
     case 'rank_desc':
-      out.sort((a, b) => b.rank - a.rank || a.def.name_de.localeCompare(b.def.name_de));
+      out.sort((a, b) => b.rank - a.rank || nameOf(a).localeCompare(nameOf(b), locale));
       break;
     case 'rank_asc':
-      out.sort((a, b) => a.rank - b.rank || a.def.name_de.localeCompare(b.def.name_de));
+      out.sort((a, b) => a.rank - b.rank || nameOf(a).localeCompare(nameOf(b), locale));
       break;
     case 'recent':
       out.sort((a, b) => {
@@ -124,6 +127,7 @@ function sortGroups(groups: GroupEntry[], sort: SortMode): GroupEntry[] {
 // ============================================
 export default function EquipmentSection() {
   const t = useTranslations('inventory');
+  const locale = useLocale();
   const { user } = useUser();
   const uid = user?.id;
 
@@ -142,8 +146,17 @@ export default function EquipmentSection() {
   const [selected, setSelected] = useState<GroupEntry | null>(null);
 
   // ── Rank multiplier labels ──
+  // FIX-10: Wenn `equipment_ranks` leer ist (DB-Query pending oder RLS-Lockdown),
+  // bleibt der Fallback für die bekannten Beta-Ranks R1-R4 aktiv. Sobald Admin
+  // via `equipment_ranks` einen neuen Rank (R5+) addet, wird dieser genutzt.
   const multiplierLabels = useMemo<Record<number, string>>(() => {
-    const out: Record<number, string> = { 1: '×1.05', 2: '×1.10', 3: '×1.15', 4: '×1.25' };
+    // Ohne DB-Daten: konservative Defaults für bekannte Ranks.
+    if (ranks.length === 0) {
+      return { 1: '×1.05', 2: '×1.10', 3: '×1.15', 4: '×1.25' };
+    }
+    // Mit DB-Daten: ausschliesslich DB als Source-of-Truth — verhindert Ghost-Labels
+    // für nicht-geseedete Ranks (z.B. R5 ohne multiplier -> Fallback wuerde luegen).
+    const out: Record<number, string> = {};
     for (const r of ranks) {
       out[r.rank] = `×${r.multiplier.toFixed(2).replace(/\.?0+$/, '')}`;
     }
@@ -167,7 +180,12 @@ export default function EquipmentSection() {
     const typesOwned = new Set(active.map(eq => eq.equipment_key));
     const totalTypes = definitions.length || 5;
     const maxOwnedRank = active.reduce((m, eq) => Math.max(m, eq.rank), 0);
-    const equippedCount = active.filter(eq => eq.equipped_event_id !== null).length;
+    // FIX-09: equipped=Count filtert non-consumed items. Nach erstem Scoring-Event
+    // wird `consumed_at` gesetzt — der `equipped_event_id`-Pointer bleibt aber
+    // (historisch). Ohne `!consumed_at` zaehlt die Zahl verbrauchte Items.
+    const equippedCount = active.filter(
+      eq => eq.equipped_event_id !== null && !eq.consumed_at,
+    ).length;
     return {
       totalItems,
       typesOwnedCount: typesOwned.size,
@@ -181,14 +199,14 @@ export default function EquipmentSection() {
   const activeGroups = useMemo(() => {
     const g = groupActive(invActive, definitions);
     const filtered = posFilter === 'all' ? g : g.filter(entry => entry.def.position === posFilter);
-    return sortGroups(filtered, sort);
-  }, [invActive, definitions, posFilter, sort]);
+    return sortGroups(filtered, sort, locale);
+  }, [invActive, definitions, posFilter, sort, locale]);
 
   const consumedGroups = useMemo(() => {
     const g = groupConsumed(invAll, definitions);
     const filtered = posFilter === 'all' ? g : g.filter(entry => entry.def.position === posFilter);
-    return sortGroups(filtered, sort);
-  }, [invAll, definitions, posFilter, sort]);
+    return sortGroups(filtered, sort, locale);
+  }, [invAll, definitions, posFilter, sort, locale]);
 
   // ── Matrix entries for "Alle" mode: every definition × every rank ──
   type MatrixEntry = {
@@ -208,7 +226,11 @@ export default function EquipmentSection() {
       const ai = order.indexOf(a.position);
       const bi = order.indexOf(b.position);
       if (ai !== bi) return ai - bi;
-      return a.name_de.localeCompare(b.name_de);
+      // FIX-01+FIX-12: locale-aware sort on the resolved display name.
+      return resolveEquipmentName(a, locale).localeCompare(
+        resolveEquipmentName(b, locale),
+        locale,
+      );
     });
     const out: MatrixEntry[] = [];
     for (const def of sortedDefs) {
@@ -222,7 +244,7 @@ export default function EquipmentSection() {
       }
     }
     return out;
-  }, [invActive, definitions, rankList, posFilter]);
+  }, [invActive, definitions, rankList, posFilter, locale]);
 
   // ── Position filter chips ──
   const positionChips: readonly { id: PositionFilter; label: string }[] = useMemo(
@@ -448,6 +470,7 @@ function StatBox({
 // ============================================
 function OwnedCard({
   entry,
+  displayName,
   multiplierLabels,
   onSelect,
   tEquipped,
@@ -455,6 +478,7 @@ function OwnedCard({
   tDetailOpen,
 }: {
   entry: GroupEntry;
+  displayName: string;
   multiplierLabels: Record<number, string>;
   onSelect: (g: GroupEntry) => void;
   tEquipped: string;
@@ -471,7 +495,7 @@ function OwnedCard({
     <button
       type="button"
       onClick={() => onSelect(entry)}
-      aria-label={`${entry.def.name_de} R${entry.rank} — ${tDetailOpen}`}
+      aria-label={`${displayName} R${entry.rank} — ${tDetailOpen}`}
       className={cn(
         'text-left p-3 flex flex-col gap-2 relative rounded-2xl border bg-white/[0.02] border-white/10 shadow-card-sm transition-all min-h-[44px]',
         'hover:bg-white/[0.04] hover:border-white/20 active:scale-[0.97]',
@@ -496,7 +520,7 @@ function OwnedCard({
           <Icon className={cn('size-5', eqPosColors.text)} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-white truncate">{entry.def.name_de}</div>
+          <div className="text-sm font-bold text-white truncate">{displayName}</div>
           <div className="text-[10px] text-white/40 mt-0.5 truncate">
             {multiplierLabels[entry.rank] ?? `×${entry.rank}`} {tMultiplier}
           </div>
@@ -532,11 +556,13 @@ function OwnedCard({
 // ============================================
 function MissingCard({
   def,
+  displayName,
   rank,
   multiplierLabels,
   tMissing,
 }: {
   def: DbEquipmentDefinition;
+  displayName: string;
   rank: number;
   multiplierLabels: Record<number, string>;
   tMissing: string;
@@ -549,7 +575,7 @@ function MissingCard({
         'p-3 flex flex-col gap-2 relative rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.01] min-h-[44px]',
         'opacity-60',
       )}
-      aria-label={`${def.name_de} R${rank} — ${tMissing}`}
+      aria-label={`${displayName} R${rank} — ${tMissing}`}
     >
       <span className="absolute top-2 right-2 text-white/30">
         <Lock className="size-3" aria-hidden="true" />
@@ -560,7 +586,7 @@ function MissingCard({
           <Icon className="size-5 text-white/20" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-white/40 truncate">{def.name_de}</div>
+          <div className="text-sm font-bold text-white/40 truncate">{displayName}</div>
           <div className="text-[10px] text-white/25 mt-0.5 truncate">
             {multiplierLabels[rank] ?? `×${rank}`}
           </div>
@@ -584,6 +610,7 @@ function MissingCard({
 // ============================================
 function ConsumedCard({
   entry,
+  displayName,
   multiplierLabels,
   onSelect,
   tUsed,
@@ -591,6 +618,7 @@ function ConsumedCard({
   tDetailOpen,
 }: {
   entry: GroupEntry;
+  displayName: string;
   multiplierLabels: Record<number, string>;
   onSelect: (g: GroupEntry) => void;
   tUsed: string;
@@ -605,7 +633,7 @@ function ConsumedCard({
     <button
       type="button"
       onClick={() => onSelect(entry)}
-      aria-label={`${entry.def.name_de} R${entry.rank} — ${tDetailOpen}`}
+      aria-label={`${displayName} R${entry.rank} — ${tDetailOpen}`}
       className={cn(
         'text-left p-3 flex flex-col gap-2 relative rounded-2xl border bg-white/[0.015] border-white/[0.06] min-h-[44px]',
         'transition-colors hover:bg-white/[0.03] hover:border-white/10 active:scale-[0.97]',
@@ -626,7 +654,7 @@ function ConsumedCard({
           <Icon className={cn('size-5', eqPosColors.text)} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-white/70 truncate">{entry.def.name_de}</div>
+          <div className="text-sm font-bold text-white/70 truncate">{displayName}</div>
           <div className="text-[10px] text-white/30 mt-0.5 truncate">
             {multiplierLabels[entry.rank] ?? `×${entry.rank}`} {tMultiplier}
           </div>
@@ -665,6 +693,7 @@ function MatrixGrid({
   onSelect: (g: GroupEntry) => void;
 }) {
   const t = useTranslations('inventory');
+  const locale = useLocale();
   if (entries.length === 0) {
     return (
       <div className="text-center py-12 text-sm text-white/40">
@@ -679,6 +708,7 @@ function MatrixGrid({
           <OwnedCard
             key={`${def.key}_${rank}`}
             entry={owned}
+            displayName={resolveEquipmentName(owned.def, locale)}
             multiplierLabels={multiplierLabels}
             onSelect={onSelect}
             tEquipped={t('equipmentEquipped')}
@@ -689,6 +719,7 @@ function MatrixGrid({
           <MissingCard
             key={`${def.key}_${rank}_ghost`}
             def={def}
+            displayName={resolveEquipmentName(def, locale)}
             rank={rank}
             multiplierLabels={multiplierLabels}
             tMissing={t('equipmentMissingSlot')}
@@ -711,6 +742,7 @@ function ActiveGrid({
   emptyText: string;
 }) {
   const t = useTranslations('inventory');
+  const locale = useLocale();
   if (groups.length === 0) {
     return (
       <div className="text-center py-12 text-sm text-white/40">{emptyText}</div>
@@ -722,6 +754,7 @@ function ActiveGrid({
         <OwnedCard
           key={`${entry.def.key}_${entry.rank}`}
           entry={entry}
+          displayName={resolveEquipmentName(entry.def, locale)}
           multiplierLabels={multiplierLabels}
           onSelect={onSelect}
           tEquipped={t('equipmentEquipped')}
@@ -745,6 +778,7 @@ function ConsumedGrid({
   emptyText: string;
 }) {
   const t = useTranslations('inventory');
+  const locale = useLocale();
   if (groups.length === 0) {
     return (
       <div className="text-center py-12 text-sm text-white/40">{emptyText}</div>
@@ -756,6 +790,7 @@ function ConsumedGrid({
         <ConsumedCard
           key={`${entry.def.key}_${entry.rank}`}
           entry={entry}
+          displayName={resolveEquipmentName(entry.def, locale)}
           multiplierLabels={multiplierLabels}
           onSelect={onSelect}
           tUsed={t('equipmentConsumedBadge')}

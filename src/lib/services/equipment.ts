@@ -1,8 +1,16 @@
 import { supabase } from '@/lib/supabaseClient';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { DbEquipmentDefinition, DbEquipmentRank, DbUserEquipment } from '@/types';
 
 // ============================================
 // Equipment Service
+//
+// Error-Handling (J11 Healer — FIX-05):
+// - Writes (`equipToSlot`, `unequipFromSlot`) werfen `Error(i18n-key)` analog
+//   zum J3/J4-Throw-Pattern statt `return {ok:false, error:...}`. Consumer
+//   resolven via `te(mapErrorToKey(normalizeError(err)))`. Zuvor schluckten
+//   Fehler in `console.error`, der UI-Pfad rief nur einen Log auf — User sah
+//   kein Feedback, Equipment wurde scheinbar "gespeichert".
 // ============================================
 
 /** Fetch all active equipment definitions */
@@ -54,12 +62,21 @@ export async function getUserEquipment(
   return (data ?? []) as DbUserEquipment[];
 }
 
-/** Equip an equipment item to a lineup slot */
+/**
+ * Equip an equipment item to a lineup slot.
+ *
+ * Wirft `Error(<i18n-key>)` bei Supabase- oder RPC-Fehler — Caller resolved via
+ * `te(mapErrorToKey(normalizeError(err)))`. Success-Return ist immer `{ok:true}`.
+ *
+ * RPC kann `{ok:false, error:'Equipment not available'|'No lineup found'|
+ * 'Slot is empty'|'Position mismatch'|'Lineup is locked'}` zurueckgeben — dies
+ * wird ebenfalls in einen Throw konvertiert.
+ */
 export async function equipToSlot(
   eventId: string,
   equipmentId: string,
   slotKey: string,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: true }> {
   const { data, error } = await supabase.rpc('equip_to_slot', {
     p_event_id: eventId,
     p_equipment_id: equipmentId,
@@ -67,29 +84,39 @@ export async function equipToSlot(
   });
 
   if (error) {
-    console.error('[Equipment] equipToSlot error:', error);
-    return { ok: false, error: error.message };
+    throw new Error(mapErrorToKey(normalizeError(error)));
   }
 
   const result = data as { ok: boolean; error?: string };
-  return { ok: result.ok, error: result.error };
+  if (!result.ok) {
+    throw new Error(mapErrorToKey(result.error ?? 'generic'));
+  }
+  return { ok: true };
 }
 
-/** Remove equipment from a lineup slot */
+/**
+ * Remove equipment from a lineup slot.
+ *
+ * Wirft `Error(<i18n-key>)` bei Fehler. Success-Return ist `{ok:true}`.
+ * RPC kann `{ok:false, error:'No lineup found'|'No equipment on this slot'}`
+ * zurueckgeben — wird in Throw konvertiert.
+ */
 export async function unequipFromSlot(
   eventId: string,
   slotKey: string,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: true }> {
   const { data, error } = await supabase.rpc('unequip_from_slot', {
     p_event_id: eventId,
     p_slot_key: slotKey,
   });
 
   if (error) {
-    console.error('[Equipment] unequipFromSlot error:', error);
-    return { ok: false, error: error.message };
+    throw new Error(mapErrorToKey(normalizeError(error)));
   }
 
   const result = data as { ok: boolean; error?: string };
-  return { ok: result.ok, error: result.error };
+  if (!result.ok) {
+    throw new Error(mapErrorToKey(result.error ?? 'generic'));
+  }
+  return { ok: true };
 }

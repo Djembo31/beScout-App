@@ -76,18 +76,20 @@ export function SelfRankCard() {
         <div className="flex-1 w-full space-y-4">
           <DimensionRangStack scores={dimScores} />
 
-          {/* Season Delta */}
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-            <TrendingUp className={cn('size-4', medianDelta >= 0 ? 'text-emerald-400' : 'text-rose-400')} />
-            <div className="flex-1">
+          {/* Season Delta — FIX-15 (J9F-16): flex-wrap so DeltaPill siblings don't overflow on 393px */}
+          <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            <TrendingUp className={cn('size-4 shrink-0', medianDelta >= 0 ? 'text-emerald-400' : 'text-rose-400')} aria-hidden="true" />
+            <div className="flex-1 min-w-[80px]">
               <span className="text-[10px] text-white/40 block">{t('seasonDelta')}</span>
               <span className={cn('text-sm font-mono font-bold tabular-nums', medianDelta >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
                 {medianDelta >= 0 ? '+' : ''}{medianDelta.toLocaleString(numLocale)}
               </span>
             </div>
-            <DeltaPill label={t('trader')} delta={traderDelta} numLocale={numLocale} />
-            <DeltaPill label={t('manager')} delta={managerDelta} numLocale={numLocale} />
-            <DeltaPill label={t('analyst')} delta={analystDelta} numLocale={numLocale} />
+            <div className="flex items-center gap-2 flex-wrap">
+              <DeltaPill label={t('trader')} delta={traderDelta} numLocale={numLocale} />
+              <DeltaPill label={t('manager')} delta={managerDelta} numLocale={numLocale} />
+              <DeltaPill label={t('analyst')} delta={analystDelta} numLocale={numLocale} />
+            </div>
           </div>
 
           {/* Season Progress Bar */}

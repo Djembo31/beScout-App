@@ -226,6 +226,7 @@ export async function getMonthlyLeaderboard(
     .select('user_id, score_delta, final_score, rank, profiles!inner(handle, display_name, avatar_url)')
     .eq('month', month)
     .eq('dimension', dimension)
+    .gt('rank', 0)  // FIX-03 (J9B-02): Filter out rank=0 (invalid/default before backfill)
     .order('rank', { ascending: true })
     .limit(limit);
 

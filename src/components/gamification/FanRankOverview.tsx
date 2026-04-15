@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Trophy } from 'lucide-react';
+import Link from 'next/link';
+import { Trophy, ArrowRight } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
 import FanRankBadge from '@/components/ui/FanRankBadge';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { useCurrentLigaSeason } from '@/lib/queries/gamification';
 import type { DbFanRanking } from '@/types';
 
 // ============================================
@@ -41,6 +43,9 @@ export default function FanRankOverview({
   isLoading = false,
 }: FanRankOverviewProps) {
   const t = useTranslations('gamification');
+  // FIX-05 (J9F-06): Replace hardcoded "Season 1" with live season name from get_current_liga_season RPC
+  const { data: currentSeason } = useCurrentLigaSeason();
+  const seasonLabel = currentSeason?.name ?? t('seasonDefault');
 
   if (isLoading) {
     return (
@@ -71,7 +76,15 @@ export default function FanRankOverview({
           <Trophy className="size-4 text-white/30" />
           <span className="font-black text-sm text-white/50">{t('fanRank')}</span>
         </div>
-        <p className="text-sm text-white/30">{t('noFanRank')}</p>
+        <p className="text-sm text-white/30 mb-3">{t('noFanRank')}</p>
+        {/* FIX-14 (J9F-15): CTA to fantasy so user can act, not just see dead-end */}
+        <Link
+          href="/fantasy"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-gold hover:text-gold/80 transition-colors min-h-[44px] py-2"
+        >
+          {t('noFanRankCta')}
+          <ArrowRight className="size-3.5" aria-hidden="true" />
+        </Link>
       </Card>
     );
   }
@@ -82,7 +95,7 @@ export default function FanRankOverview({
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="size-4 text-gold" />
         <span className="font-black text-sm">{t('fanRank')}</span>
-        <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Season 1</span>
+        <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">{seasonLabel}</span>
       </div>
 
       {/* Badge + CSF Multiplier */}

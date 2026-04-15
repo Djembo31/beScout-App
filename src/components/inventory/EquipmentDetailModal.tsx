@@ -1,11 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Flame, Shield, Eye, Crown, Banana, Swords } from 'lucide-react';
 import { Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { EQUIPMENT_POSITION_COLORS } from '@/components/gamification/rarityConfig';
+import {
+  resolveEquipmentName,
+  resolveEquipmentDescription,
+} from '@/components/gamification/equipmentNames';
 import type { DbUserEquipment, DbEquipmentDefinition, EquipmentSource } from '@/types';
 
 // ============================================
@@ -50,11 +54,16 @@ export default function EquipmentDetailModal({
   maxRank,
 }: EquipmentDetailModalProps) {
   const t = useTranslations('inventory');
+  const locale = useLocale();
 
   if (!def) return null;
 
   const Icon = getEquipmentIcon(def.icon);
   const eqPosColors = EQUIPMENT_POSITION_COLORS[def.position] ?? EQUIPMENT_POSITION_COLORS.ALL;
+
+  // FIX-01: Locale-aware display name + description (previously hardcoded `name_de`/`description_de`).
+  const displayName = resolveEquipmentName(def, locale);
+  const displayDescription = resolveEquipmentDescription(def, locale);
 
   const equippedItem = items.find(eq => eq.equipped_event_id !== null);
   const isEquipped = !!equippedItem;
@@ -62,8 +71,10 @@ export default function EquipmentDetailModal({
 
   // Latest acquired item (most recent acquired_at)
   const latest = [...items].sort((a, b) => b.acquired_at.localeCompare(a.acquired_at))[0];
+  // FIX-03: Date-Format locale-aware (de-DE vs tr-TR).
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const acquiredDate = latest?.acquired_at
-    ? new Date(latest.acquired_at).toLocaleDateString('de-DE', {
+    ? new Date(latest.acquired_at).toLocaleDateString(dateLocale, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -81,7 +92,7 @@ export default function EquipmentDetailModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={def.name_de} size="sm">
+    <Modal open={open} onClose={onClose} title={displayName} size="sm">
       <div className="p-4 space-y-5">
         {/* ── Hero: Big Icon + Multiplier ── */}
         <div className="flex items-center gap-4">
@@ -108,9 +119,9 @@ export default function EquipmentDetailModal({
         </div>
 
         {/* ── Description ── */}
-        {def.description_de && (
+        {displayDescription && (
           <div className="text-sm text-white/70 text-pretty leading-relaxed">
-            {def.description_de}
+            {displayDescription}
           </div>
         )}
 

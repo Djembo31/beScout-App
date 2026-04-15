@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Flame, Shield, Eye, Crown, Banana, X, Swords } from 'lucide-react';
+import { Flame, Shield, Eye, Crown, Banana, Swords } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { DbUserEquipment, DbEquipmentDefinition, EquipmentPosition } from '@/types';
 import { EQUIPMENT_POSITION_COLORS } from './rarityConfig';
+import { resolveEquipmentName } from './equipmentNames';
 
 // ============================================
 // EQUIPMENT PICKER — Bottom Sheet
@@ -73,6 +74,8 @@ export default function EquipmentPicker({
   loading = false,
 }: EquipmentPickerProps) {
   const t = useTranslations('gamification');
+  const tInv = useTranslations('inventory');
+  const locale = useLocale();
 
   // Filter inventory to matching position (equipment.position matches player, or equipment is ALL)
   const availableEquipment = useMemo(() => {
@@ -89,6 +92,7 @@ export default function EquipmentPicker({
   }, [inventory, definitions, playerPosition, equippedId]);
 
   // Group by equipment_key + rank for stacking display
+  // FIX-01 + FIX-12: Locale-aware sort (TR Unicode ş/ç/ğ/ı/ö/ü).
   const grouped = useMemo(() => {
     const map = new Map<string, { def: DbEquipmentDefinition; rank: number; items: DbUserEquipment[] }>();
     for (const eq of availableEquipment) {
@@ -103,15 +107,30 @@ export default function EquipmentPicker({
         }
       }
     }
-    // Sort: higher rank first, then by name
-    return Array.from(map.values()).sort((a, b) => b.rank - a.rank || a.def.name_de.localeCompare(b.def.name_de));
-  }, [availableEquipment, definitions]);
+    // Sort: higher rank first, then by resolved display name.
+    return Array.from(map.values()).sort(
+      (a, b) =>
+        b.rank - a.rank ||
+        resolveEquipmentName(a.def, locale).localeCompare(
+          resolveEquipmentName(b.def, locale),
+          locale,
+        ),
+    );
+  }, [availableEquipment, definitions, locale]);
 
   const posColors = EQUIPMENT_POSITION_COLORS[playerPosition ?? 'ALL'] ?? EQUIPMENT_POSITION_COLORS.ALL;
   const multiplierLabels: Record<number, string> = { 1: '×1.05', 2: '×1.10', 3: '×1.15', 4: '×1.25' };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('equipmentPickerTitle')} size="sm">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('equipmentPickerTitle')}
+      size="sm"
+      // FIX-08: Prevent-Close waehrend Server-Call laeuft — verhindert dass User
+      // mid-transaction den Sheet zumacht und den (optimistic) State verliert.
+      preventClose={loading}
+    >
       <div className="px-1 py-2">
         {/* Player info */}
         <div className={cn('flex items-center gap-2 px-3 py-2 rounded-xl mb-3', posColors.bg)}>
@@ -173,13 +192,15 @@ export default function EquipmentPicker({
                   {/* Name + Position */}
                   <div className="flex-1 text-left min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white truncate">{def.name_de}</span>
+                      <span className="text-sm font-bold text-white truncate">
+                        {resolveEquipmentName(def, locale)}
+                      </span>
                       <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', eqPosColors.bg, eqPosColors.text)}>
                         {def.position}
                       </span>
                     </div>
                     <div className="text-[10px] text-white/40 mt-0.5">
-                      {multiplierLabels[rank] ?? `×${rank}`} Spieltag-Boost
+                      {multiplierLabels[rank] ?? `×${rank}`} {tInv('equipmentMultiplier')}
                     </div>
                   </div>
 

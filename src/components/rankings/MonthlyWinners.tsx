@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Card, CosmeticAvatar } from '@/components/ui';
 import { useMonthlyLigaWinners } from '@/lib/queries/gamification';
 import { fmtScout } from '@/lib/utils';
-import { Loader2, Crown, Medal } from 'lucide-react';
+import { Loader2, Crown, Medal, Info } from 'lucide-react';
 
 const RANK_COLORS = ['text-gold', 'text-slate-300', 'text-amber-600'] as const;
 const DIM_LABELS: Record<string, { color: string }> = {
@@ -32,6 +32,10 @@ export function MonthlyWinners() {
 
   const months = Array.from(byMonth.keys()).sort((a, b) => b.localeCompare(a));
 
+  // FIX-08 (J9B-03): Show disclaimer if any winner has reward_cents > 0 —
+  // payout is processed after month-close (see close_monthly_liga RPC)
+  const hasPendingRewards = winners.some(w => w.reward_cents > 0);
+
   return (
     <Card className="p-5">
       <div className="flex items-center gap-2 mb-4">
@@ -50,6 +54,12 @@ export function MonthlyWinners() {
         </div>
       ) : (
         <div className="space-y-4 max-h-[480px] overflow-y-auto scrollbar-hide">
+          {hasPendingRewards && (
+            <div className="flex items-start gap-1.5 text-[10px] text-white/30 -mt-2">
+              <Info className="size-3 shrink-0 mt-0.5" aria-hidden="true" />
+              <span>{t('rewardPendingTooltip')}</span>
+            </div>
+          )}
           {months.map(month => {
             const monthWinners = byMonth.get(month)!;
             const monthLabel = formatMonth(month, locale);
@@ -86,7 +96,10 @@ export function MonthlyWinners() {
                               {w.display_name || w.handle}
                             </span>
                             {w.reward_cents > 0 && (
-                              <span className="text-[9px] font-mono tabular-nums text-emerald-400">
+                              <span
+                                className="text-[9px] font-mono tabular-nums text-emerald-400/80"
+                                title={t('rewardPendingTooltip')}
+                              >
                                 +{fmtScout(w.reward_cents)}
                               </span>
                             )}
@@ -106,6 +119,12 @@ export function MonthlyWinners() {
 }
 
 function formatMonth(dateStr: string, locale: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { month: 'long', year: 'numeric' });
+  // FIX-10 (J9F-11): Error-safe fallback if dateStr is invalid (e.g. "2026-99")
+  try {
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { month: 'long', year: 'numeric' });
+  } catch {
+    return dateStr;
+  }
 }

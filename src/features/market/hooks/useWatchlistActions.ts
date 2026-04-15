@@ -16,6 +16,10 @@ export function useWatchlistActions(
   const t = useTranslations('market');
 
   // ── Optimistic toggle ──
+  // FIX-18 (J10): always invalidate after the mutation resolves so the
+  // optimistic `opt-${id}` placeholder is replaced with the real DB row id.
+  // Previously a 23505 unique-violation left `opt-xxx` lingering in cache
+  // until the natural staleTime expired, producing duplicate visuals.
   const toggleWatch = useCallback((id: string) => {
     if (!userId) return;
     const isWatched = !!watchlistMap[id];
@@ -33,11 +37,15 @@ export function useWatchlistActions(
       }];
     });
     const action = isWatched ? removeFromWatchlist(userId, id) : addToWatchlist(userId, id);
-    action.catch((err) => {
-      console.error('[Market] Watchlist toggle failed:', err);
-      queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(userId) });
-      addToast(t('watchlistError'), 'error');
-    });
+    action
+      .catch((err) => {
+        console.error('[Market] Watchlist toggle failed:', err);
+        addToast(t('watchlistError'), 'error');
+      })
+      .finally(() => {
+        // Always reconcile with DB so opt-${id} is replaced by real row.
+        queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(userId) });
+      });
   }, [userId, watchlistMap, addToast, t]);
 
   // ── One-time localStorage migration ──

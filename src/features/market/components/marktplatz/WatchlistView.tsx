@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Heart, HeartOff, Loader2, ArrowUpDown, Bell } from 'lucide-react';
+import { Star, StarOff, Loader2, ArrowUpDown, Bell } from 'lucide-react';
 import type { Player } from '@/types';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClubName } from '@/lib/clubs';
@@ -226,15 +226,25 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
   if (watchlistEntries.length === 0) {
     return (
       <EmptyState
-        icon={<Heart />}
+        icon={<Star />}
         title={t('watchlistEmpty')}
         description={t('watchlistEmptyDesc')}
       />
     );
   }
 
+  // FIX-16: Surface stale entries (player removed from market — liquidated/unavailable)
+  const staleCount = watchlistEntries.length - watchlistPlayers.length;
+
   return (
     <div className="space-y-3">
+      {/* FIX-16: stale-entry warning (players no longer in market) */}
+      {staleCount > 0 && (
+        <div className="px-3 py-2 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-amber-300/80">
+          {t('watchlistStaleNotice', { count: staleCount })}
+        </div>
+      )}
+
       {/* Header: Count + Sort */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-white/50">
@@ -338,7 +348,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
                 {isRemoving ? (
                   <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
                 ) : (
-                  <HeartOff className="size-4" />
+                  <StarOff className="size-4" />
                 )}
               </button>
             </Link>

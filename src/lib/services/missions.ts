@@ -153,18 +153,23 @@ export async function claimMissionReward(userId: string, missionId: string): Pro
       creditTickets(userId, ticketAmount, 'mission', missionId).catch(console.error);
     }).catch(err => console.error('[Missions] Ticket credit failed:', err));
 
-    // Notify user about mission reward
+    // Notify user about mission reward (await inside to swallow throws — J10 FIX-03)
     const bsd = ((result.reward_cents ?? 0) / 100).toFixed(0);
-    import('@/lib/services/notifications').then(({ createNotification }) => {
-      createNotification(
-        userId,
-        'mission_reward',
-        notifText('missionRewardTitle'),
-        notifText('missionRewardBody', { amount: bsd }),
-        missionId,
-        'mission',
-      );
-    }).catch(err => console.error('[Missions] Notification failed:', err));
+    (async () => {
+      try {
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification(
+          userId,
+          'mission_reward',
+          notifText('missionRewardTitle'),
+          notifText('missionRewardBody', { amount: bsd }),
+          missionId,
+          'mission',
+        );
+      } catch (err) {
+        console.error('[Missions] Notification failed:', err);
+      }
+    })();
   }
 
   return result;

@@ -34,12 +34,14 @@ export function GlobalLeaderboard() {
     <Card className="p-5">
       <h2 className="text-sm font-black text-white mb-4">{t('globalTop')}</h2>
 
-      {/* Dimension Tabs */}
-      <div className="flex gap-1 mb-4 overflow-x-auto scrollbar-hide">
+      {/* Dimension Tabs — FIX-11 (J9F-12): a11y role="tab" + aria-selected */}
+      <div className="flex gap-1 mb-4 overflow-x-auto scrollbar-hide" role="tablist" aria-label={t('globalTop')}>
         {TABS.map(dim => (
           <button
             key={dim}
             onClick={() => setActiveDim(dim)}
+            role="tab"
+            aria-selected={activeDim === dim}
             className={cn(
               'px-3 py-1.5 rounded-lg text-[11px] font-bold flex-shrink-0 transition-colors',
               activeDim === dim

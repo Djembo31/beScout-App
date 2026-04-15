@@ -126,7 +126,14 @@ export async function getMostWatchedPlayers(limit = 5): Promise<MostWatchedPlaye
   }));
 }
 
-/** Migrate localStorage watchlist to DB (one-time). Returns number of items migrated. */
+/**
+ * Migrate localStorage watchlist to DB (one-time). Returns number of items migrated.
+ *
+ * FIX-17 (J10, 2026-04-15): localStorage is now removed ONLY when ALL ids
+ * migrated successfully. Previously a partial failure (e.g. invalid playerId)
+ * still cleared LS, dropping the user's queued items. Now we keep LS for the
+ * next attempt unless the migration was complete.
+ */
 export async function migrateLocalWatchlist(userId: string): Promise<number> {
   const LEGACY_KEY = 'bescout-watchlist';
   try {
@@ -134,22 +141,31 @@ export async function migrateLocalWatchlist(userId: string): Promise<number> {
     if (!stored) return 0;
 
     const ids: string[] = JSON.parse(stored);
-    if (!Array.isArray(ids) || ids.length === 0) return 0;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      // Empty / invalid payload — safe to clean up.
+      localStorage.removeItem(LEGACY_KEY);
+      return 0;
+    }
 
     let migrated = 0;
+    let failures = 0;
     for (const playerId of ids) {
       try {
         await addToWatchlist(userId, playerId);
         migrated++;
-      } catch {
-        // Skip duplicates or invalid IDs
+      } catch (err) {
+        failures++;
+        console.error('[Watchlist] Migration failed for player:', playerId, err);
       }
     }
 
-    // Remove localStorage after successful migration
-    localStorage.removeItem(LEGACY_KEY);
+    // Atomic: only clear LS when every id was processed without error.
+    if (failures === 0) {
+      localStorage.removeItem(LEGACY_KEY);
+    }
     return migrated;
-  } catch {
+  } catch (err) {
+    console.error('[Watchlist] Migration crashed:', err);
     return 0;
   }
 }

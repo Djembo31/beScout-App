@@ -5,7 +5,7 @@ import { renderWithProviders } from '@/test/renderWithProviders';
 
 vi.mock('lucide-react', () => {
   const Stub = () => null;
-  return { Heart: Stub, HeartOff: Stub, Loader2: Stub, ArrowUpDown: Stub, Bell: Stub };
+  return { Star: Stub, StarOff: Stub, Loader2: Stub, ArrowUpDown: Stub, Bell: Stub };
 });
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),

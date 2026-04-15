@@ -7,6 +7,7 @@ import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { getAirdropScore, refreshAirdropScore } from '@/lib/services/airdropScore';
 import type { DbAirdropScore, AirdropTier } from '@/types';
+import { normaliseAirdropTier } from '@/types';
 
 const TIER_CONFIG: Record<AirdropTier, { color: string; bg: string; border: string }> = {
   bronze:  { color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
@@ -68,7 +69,11 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
 
   if (!score) return null;
 
-  const tier = TIER_CONFIG[score.tier];
+  // FIX-02 (J9B-01): Defensive fallback — normalise tier at component-boundary to guard
+  // against raw DB values like English 'silver' (CHECK constraint) vs German 'silber' (TS/UI).
+  // Prevents `TIER_CONFIG[undefined].bg` crash. Service-layer already normalises, but defense-in-depth.
+  const safeTier = normaliseAirdropTier(score.tier as string);
+  const tier = TIER_CONFIG[safeTier] ?? TIER_CONFIG.bronze;
 
   // Compact version for sidebar
   if (compact) {
@@ -85,7 +90,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
                 className="px-1.5 py-0.5 rounded-full text-[9px] font-black"
                 style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
               >
-                {tierLabel[score.tier]}
+                {tierLabel[safeTier]}
               </span>
             </div>
             <div className="flex items-baseline gap-2 mt-0.5">
@@ -113,7 +118,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
           className="px-2 py-0.5 rounded-lg text-[10px] font-black"
           style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
         >
-          {tierLabel[score.tier]}
+          {tierLabel[safeTier]}
         </span>
       </div>
 

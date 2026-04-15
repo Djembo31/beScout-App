@@ -99,9 +99,9 @@ describe('getUnreadCount', () => {
     mockTable('notifications', null, null, 7);
     expect(await getUnreadCount('u1')).toBe(7);
   });
-  it('returns 0 on error', async () => {
+  it('throws on error (J10 FIX-01: surface for retry)', async () => {
     mockTable('notifications', null, { message: 'err' });
-    expect(await getUnreadCount('u1')).toBe(0);
+    await expect(getUnreadCount('u1')).rejects.toThrow('err');
   });
 });
 
@@ -110,9 +110,9 @@ describe('getNotifications', () => {
     mockTable('notifications', [{ id: 'n1', type: 'trade', title: 'Kauf', read: false }]);
     expect(await getNotifications('u1')).toHaveLength(1);
   });
-  it('returns [] on error', async () => {
+  it('throws on error (J10 FIX-01: surface for retry)', async () => {
     mockTable('notifications', null, { message: 'err' });
-    expect(await getNotifications('u1')).toEqual([]);
+    await expect(getNotifications('u1')).rejects.toThrow('err');
   });
 });
 
@@ -158,12 +158,11 @@ describe('createNotification', () => {
     // No preference check for system type
   });
 
-  it('handles insert error gracefully', async () => {
+  it('throws on insert error (J10 FIX-03: surface for caller)', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockTable('notification_preferences', null); // defaults (all true)
     mockTable('notifications', null, { message: 'Insert failed' });
-    await createNotification('u1', 'follow', 'New follower');
-    // Should not throw
+    await expect(createNotification('u1', 'follow', 'New follower')).rejects.toThrow('Insert failed');
     consoleSpy.mockRestore();
   });
 });
@@ -213,13 +212,14 @@ describe('createNotificationsBatch', () => {
     // system type bypasses preference check
   });
 
-  it('handles insert error gracefully', async () => {
+  it('throws on batch insert error (J10 FIX-04: surface for caller)', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockTable('notification_preferences', []);
     mockTable('notifications', null, { message: 'Batch insert failed' });
 
-    await createNotificationsBatch([{ userId: 'u1', type: 'trade', title: 'X' }]);
-    // Should not throw
+    await expect(
+      createNotificationsBatch([{ userId: 'u1', type: 'trade', title: 'X' }])
+    ).rejects.toThrow('Batch insert failed');
     consoleSpy.mockRestore();
   });
 });

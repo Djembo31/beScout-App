@@ -131,39 +131,56 @@ export async function getUnreadCount(userId: string): Promise<number> {
     .eq('user_id', userId)
     .eq('read', false);
 
-  if (error) return 0;
+  if (error) {
+    logSupabaseError('[Notifications] getUnreadCount failed', error);
+    throw new Error(error.message);
+  }
   return count ?? 0;
 }
 
-/** Get notifications (paginated) */
+/** Get notifications (paginated). limit is hard-capped at 100 to prevent abuse. */
 export async function getNotifications(userId: string, limit = 20, offset = 0): Promise<DbNotification[]> {
+  const safeLimit = Math.min(Math.max(1, limit), 100);
   const { data, error } = await supabase
     .from('notifications')
     .select('id, user_id, type, title, body, reference_id, reference_type, read, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
+    .range(offset, offset + safeLimit - 1);
 
-  if (error) return [];
+  if (error) {
+    logSupabaseError('[Notifications] getNotifications failed', error);
+    throw new Error(error.message);
+  }
   return (data ?? []) as DbNotification[];
 }
 
 /** Mark a single notification as read */
 export async function markAsRead(notificationId: string, userId: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('notifications')
     .update({ read: true })
     .eq('id', notificationId)
     .eq('user_id', userId);
+
+  if (error) {
+    logSupabaseError('[Notifications] markAsRead failed', error);
+    throw new Error(error.message);
+  }
 }
 
 /** Mark all notifications as read */
 export async function markAllAsRead(userId: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('notifications')
     .update({ read: true })
     .eq('user_id', userId)
     .eq('read', false);
+
+  if (error) {
+    logSupabaseError('[Notifications] markAllAsRead failed', error);
+    throw new Error(error.message);
+  }
 }
 
 // ============================================
@@ -235,8 +252,8 @@ export async function createNotification(
   });
 
   if (error) {
-    console.error(`[Notifications] Failed to create notification (type=${type}, user=${userId}):`, error.message);
-    return;
+    logSupabaseError(`[Notifications] Failed to create notification (type=${type}, user=${userId})`, error);
+    throw new Error(error.message);
   }
 
   // Fire-and-forget push notification (works from client AND server)
@@ -308,7 +325,8 @@ export async function createBatchedNotification(
       .eq('id', existing.id);
 
     if (error) {
-      console.error(`[Notifications] Batched update failed (type=${type}, user=${userId}):`, error.message);
+      logSupabaseError(`[Notifications] Batched update failed (type=${type}, user=${userId})`, error);
+      throw new Error(error.message);
     }
     // No push for batched updates — the original push already drew attention
   } else {
@@ -377,7 +395,8 @@ export async function createNotificationsBatch(items: BatchNotificationInput[]):
   const { error } = await supabase.from('notifications').insert(rows);
 
   if (error) {
-    console.error(`[Notifications] Batch insert failed (${rows.length} items):`, error.message);
+    logSupabaseError(`[Notifications] Batch insert failed (${rows.length} items)`, error);
+    throw new Error(error.message);
   }
 
   // Fire-and-forget push notifications (works from client AND server)

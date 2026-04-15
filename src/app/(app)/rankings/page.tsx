@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Trophy } from 'lucide-react';
 import { CountryBar, LeagueBar } from '@/components/ui/index';
 import { getCountries } from '@/lib/leagues';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import {
   SelfRankCard,
   GlobalLeaderboard,
@@ -29,7 +30,7 @@ export default function RankingsPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-6 space-y-6 pb-24">
+    <div className="w-full max-w-5xl mx-auto px-4 py-6 space-y-6 pb-24 lg:pb-8">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Trophy className="size-6 text-gold" />
@@ -65,6 +66,9 @@ export default function RankingsPage() {
           <PlayerRankings filterCountry={filterCountry} filterLeague={filterLeague} />
         </div>
       </div>
+
+      {/* FIX-16 (J9Biz-02): Disclaimer — page shows $SCOUT rewards (MonthlyWinners) */}
+      <TradingDisclaimer variant="card" />
     </div>
   );
 }

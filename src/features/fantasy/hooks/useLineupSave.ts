@@ -90,17 +90,19 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
         Array.from(wildcardSlots),
       );
 
-      // Persist equipment assignments after lineup save (best-effort)
+      // Persist equipment assignments after lineup save (best-effort).
+      // J11 Healer — FIX-05 + FIX-06: equipToSlot throws on error (i18n-key),
+      // failed slots → User-visible Toast (nicht nur console.error).
       const eqEntries = Object.entries(equipmentMap);
       if (eqEntries.length > 0 && userId) {
         const results = await Promise.allSettled(
           eqEntries.map(([slotKey, eq]) => equipToSlot(event.id, eq.id, slotKey)),
         );
-        const failed = results.filter(
-          (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.ok),
-        );
+        const failed = results.filter(r => r.status === 'rejected');
         if (failed.length > 0) {
           console.error('[useLineupSave] Some equip calls failed:', failed);
+          // FIX-06: Toast an User — Lineup war OK, aber Equipment nicht persistiert.
+          addToast(te('equipmentSaveFailed', { count: failed.length }), 'error');
         }
         queryClient.invalidateQueries({ queryKey: qk.equipment.inventory(userId) });
       }

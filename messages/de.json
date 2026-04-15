@@ -3428,7 +3428,14 @@
     "missionNotCompleted": "Diese Mission ist noch nicht abgeschlossen.",
     "missionNotFound": "Mission nicht gefunden.",
     "notAuthenticated": "Nicht authentifiziert. Bitte erneut einloggen.",
-    "orderCannotBeCancelled": "Diese Order kann nicht mehr storniert werden."
+    "orderCannotBeCancelled": "Diese Order kann nicht mehr storniert werden.",
+    "equipmentNotAvailable": "Dieses Equipment ist nicht mehr verfuegbar.",
+    "lineupNotFound": "Kein Lineup gefunden. Bitte speichere dein Lineup zuerst.",
+    "slotEmpty": "Dieser Slot ist leer.",
+    "positionMismatch": "Equipment passt nicht zur Spieler-Position.",
+    "lineupLocked": "Lineup ist gesperrt — Aenderungen nicht mehr moeglich.",
+    "noEquipmentOnSlot": "Kein Equipment auf diesem Slot.",
+    "equipmentSaveFailed": "{count, plural, =1 {1 Equipment konnte nicht gespeichert werden.} other {# Equipment-Slots konnten nicht gespeichert werden.}} Bitte Aufstellung erneut speichern."
   },
   "legal": {
     "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse. Mehr in unserer <privacyLink>Datenschutzerklärung</privacyLink>.",
@@ -4879,7 +4886,8 @@
     "historyRewardCosmetic": "Cosmetic",
     "historyRewardCosmeticNamed": "{name}",
     "historyTicketCost": "Kosten: {cost} 🎟️",
-    "historyTicketCostFree": "Kostenlos"
+    "historyTicketCostFree": "Kostenlos",
+    "historyEquipmentCta": "Zu meinem Equipment"
   },
   "meta": {
     "profile": "Profil",

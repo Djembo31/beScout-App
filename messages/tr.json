@@ -3140,7 +3140,7 @@
     "submitError": "Gönderme hatası",
     "openBoxAriaLabel": "Mystery Box aç",
     "openBoxError": "Mystery Box açılamadı",
-    "rewardEquipment": "Yeni ekipman kazanildi!",
+    "rewardEquipment": "Yeni ekipman eklendi!",
     "bcreditsEarned": "Credits hesabina eklendi",
     "equipmentFireShot": "Ates Sutu",
     "equipmentBananaCross": "Muz Ortasi",
@@ -3428,7 +3428,14 @@
     "missionNotCompleted": "Bu görev henüz tamamlanmadı.",
     "missionNotFound": "Görev bulunamadı.",
     "notAuthenticated": "Kimlik doğrulanmadı. Lütfen tekrar giriş yapın.",
-    "orderCannotBeCancelled": "Bu emir artık iptal edilemez."
+    "orderCannotBeCancelled": "Bu emir artık iptal edilemez.",
+    "equipmentNotAvailable": "Bu donanım artık mevcut değil.",
+    "lineupNotFound": "Kadro bulunamadı. Lütfen önce kadronu kaydet.",
+    "slotEmpty": "Bu slot boş.",
+    "positionMismatch": "Donanım oyuncu pozisyonuna uymuyor.",
+    "lineupLocked": "Kadro kilitli — artık değişiklik yapılamaz.",
+    "noEquipmentOnSlot": "Bu slotta donanım yok.",
+    "equipmentSaveFailed": "{count, plural, =1 {1 donanım kaydedilemedi.} other {# donanım slotu kaydedilemedi.}} Lütfen kadronu tekrar kaydet."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",
@@ -4844,7 +4851,7 @@
     "equipmentSortRankDesc": "Rank azalan",
     "equipmentSortRankAsc": "Rank artan",
     "equipmentSortRecent": "En yeni önce",
-    "equipmentMissingSlot": "Henüz kazanılmadı",
+    "equipmentMissingSlot": "Henüz elde edilmedi",
     "equipmentActiveEmpty": "Bu görünümde aktif parça yok.",
     "equipmentConsumedEmpty": "Henüz kullanılmış donanım yok.",
     "equipmentConsumedBadge": "kullanıldı",
@@ -4879,7 +4886,8 @@
     "historyRewardCosmetic": "Kozmetik",
     "historyRewardCosmeticNamed": "{name}",
     "historyTicketCost": "Maliyet: {cost} 🎟️",
-    "historyTicketCostFree": "Ücretsiz"
+    "historyTicketCostFree": "Ücretsiz",
+    "historyEquipmentCta": "Donanımıma git"
   },
   "meta": {
     "profile": "Profil",

@@ -179,11 +179,16 @@ export async function createOffer(params: {
   });
   if (error) { logSupabaseError('[Offers] RPC error', error); throw new Error(mapErrorToKey(error.message)); }
   const result = data as OfferResult;
-  // Notify receiver
+  // Notify receiver — fire-and-forget, but await inside to swallow throws (J10 FIX-03 contract)
   if (result.success && params.receiverId) {
-    import('@/lib/services/notifications').then(({ createNotification }) => {
-      createNotification(params.receiverId!, 'offer_received', notifText('offerReceivedTitle'), params.message ?? notifText('offerReceivedBody'));
-    }).catch(err => console.error('[Offers] Side-effect failed:', err));
+    (async () => {
+      try {
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification(params.receiverId!, 'offer_received', notifText('offerReceivedTitle'), params.message ?? notifText('offerReceivedBody'));
+      } catch (err) {
+        console.error('[Offers] createNotification failed:', err);
+      }
+    })();
   }
 
   // Activity log

@@ -1,72 +1,43 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
-import { fmtScout } from '@/lib/utils';
-import { centsToBsd } from '@/lib/services/players';
 import type { Player } from '@/types';
 
-const PRICE_ALERTS_KEY = 'bescout-price-alerts';
-
-function loadPriceAlerts(): Record<string, { target: number; dir: 'above' | 'below' }> {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(PRICE_ALERTS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function savePriceAlerts(alerts: Record<string, { target: number; dir: 'above' | 'below' }>): void {
-  localStorage.setItem(PRICE_ALERTS_KEY, JSON.stringify(alerts));
-}
-
+/**
+ * @deprecated J10 FIX-15 (2026-04-15)
+ *
+ * Local price-alerts via localStorage are deprecated in favour of the
+ * server-side `watchlist.alert_threshold_pct` system (AR-59 trigger
+ * `notify_watchlist_price_change`). The legacy hook is kept as a no-op so
+ * existing call-sites (PlayerContent, PlayerHero) continue to compile, but it
+ * no longer reads or writes any state.
+ *
+ * Migration path: users add players to their watchlist (Star/Heart icon) and
+ * configure threshold via the WatchlistView ThresholdPopover (Bell icon).
+ */
 interface UsePriceAlertsParams {
   playerId: string;
   player: Player | null;
 }
 
-export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
+export function usePriceAlerts(_params: UsePriceAlertsParams) {
   const tp = useTranslations('player');
   const { addToast } = useToast();
-  const [priceAlert, setPriceAlert] = useState<{ target: number; dir: 'above' | 'below' } | null>(null);
 
-  // Load + check trigger
-  useEffect(() => {
-    if (!player) return;
-    const alerts = loadPriceAlerts();
-    const existing = alerts[playerId];
-    if (existing) {
-      const floorBsd = centsToBsd(player.prices.floor ?? 0);
-      const triggered = existing.dir === 'below' ? floorBsd <= existing.target : floorBsd >= existing.target;
-      if (triggered && floorBsd > 0) {
-        addToast(tp('priceAlertTriggered', { first: player.first, last: player.last, direction: tp(existing.dir === 'below' ? 'priceAlertBelow' : 'priceAlertAbove'), target: fmtScout(existing.target) }), 'success');
-        delete alerts[playerId];
-        savePriceAlerts(alerts);
-        setPriceAlert(null);
-      } else {
-        setPriceAlert(existing);
-      }
-    }
-  }, [player, playerId, addToast, tp]);
-
-  const handleSetPriceAlert = useCallback((target: number) => {
-    if (!player) return;
-    const currentBsd = centsToBsd(player.prices.floor ?? 0);
-    const dir = target < currentBsd ? 'below' : 'above';
-    const alerts = loadPriceAlerts();
-    alerts[playerId] = { target, dir };
-    savePriceAlerts(alerts);
-    setPriceAlert({ target, dir });
-    addToast(tp('priceAlertSet', { symbol: dir === 'below' ? '\u2264' : '\u2265', target: fmtScout(target) }), 'success');
-  }, [player, playerId, addToast, tp]);
+  // Setting an alert now redirects users to the watchlist-based system.
+  const handleSetPriceAlert = useCallback(() => {
+    addToast(tp('priceAlertDeprecated'), 'info');
+  }, [addToast, tp]);
 
   const handleRemovePriceAlert = useCallback(() => {
-    const alerts = loadPriceAlerts();
-    delete alerts[playerId];
-    savePriceAlerts(alerts);
-    setPriceAlert(null);
-  }, [playerId]);
+    /* no-op — nothing to remove */
+  }, []);
 
-  return { priceAlert, handleSetPriceAlert, handleRemovePriceAlert };
+  return {
+    priceAlert: null as { target: number; dir: 'above' | 'below' } | null,
+    handleSetPriceAlert,
+    handleRemovePriceAlert,
+  };
 }

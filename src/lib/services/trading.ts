@@ -127,7 +127,7 @@ export async function buyFromMarket(
             .maybeSingle();
           const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
           const { createNotification } = await import('@/lib/services/notifications');
-          createNotification(
+          await createNotification(
             sellerId,
             'trade',
             notifText('tradeSoldTitle'),
@@ -250,7 +250,7 @@ export async function buyFromOrder(
             .maybeSingle();
           const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
           const { createNotification } = await import('@/lib/services/notifications');
-          createNotification(
+          await createNotification(
             order.user_id,
             'trade',
             notifText('tradeSoldTitle'),

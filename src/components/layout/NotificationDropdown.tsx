@@ -8,6 +8,11 @@ import NotificationPreferencesPanel from '@/components/layout/NotificationPrefer
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { DbNotification, NotificationType } from '@/types';
+import { getPlayerById } from '@/lib/services/players';
+
+// Known notifTemplates keys that may arrive as raw strings in notification.title/body.
+// Trigger-Functions write i18n-keys here (J10 AR-59) — Frontend resolves via t().
+const KNOWN_TITLE_KEYS = new Set(['priceAlertDown', 'priceAlertUp']);
 
 function getNotifIcon(type: NotificationType) {
   switch (type) {
@@ -141,6 +146,7 @@ const EXIT_MS = 200;
 export default function NotificationDropdown({ userId, open, onClose, notifications, loading, onMarkRead, onMarkAllRead }: NotificationDropdownProps) {
   const tn = useTranslations('notifications');
   const tc = useTranslations('common');
+  const tNotifTpl = useTranslations('notifTemplates');
   const locale = useLocale();
   const router = useRouter();
   const desktopRef = useRef<HTMLDivElement>(null);
@@ -152,6 +158,66 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
   const [closing, setClosing] = useState(false);
   const closingRef = useRef(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
+
+  // Player-name cache for price_alert notifications (reference_id = player_id)
+  const [playerNameCache, setPlayerNameCache] = useState<Record<string, string>>({});
+
+  // Lazy-load player names for any new price_alert notifications
+  useEffect(() => {
+    const playerIds = notifications
+      .filter((n) => n.type === 'price_alert' && n.reference_id && !playerNameCache[n.reference_id])
+      .map((n) => n.reference_id as string);
+    if (playerIds.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const updates: Record<string, string> = {};
+      for (const pid of Array.from(new Set(playerIds))) {
+        try {
+          const player = await getPlayerById(pid);
+          if (player) updates[pid] = `${player.first_name ?? ''} ${player.last_name ?? ''}`.trim();
+        } catch (err) {
+          console.error('[NotificationDropdown] getPlayerById failed:', err);
+        }
+      }
+      if (!cancelled && Object.keys(updates).length > 0) {
+        setPlayerNameCache((prev) => ({ ...prev, ...updates }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [notifications, playerNameCache]);
+
+  /**
+   * Resolve title for notifications whose backend wrote an i18n KEY (not a literal string).
+   * Currently used for price_alert (AR-59) — Trigger writes 'priceAlertDown' / 'priceAlertUp'.
+   * Falls back to the raw title when key is unknown.
+   */
+  const resolveTitle = useCallback((notif: DbNotification): string => {
+    if (notif.type === 'price_alert' && KNOWN_TITLE_KEYS.has(notif.title)) {
+      return tNotifTpl(notif.title as 'priceAlertDown' | 'priceAlertUp');
+    }
+    return notif.title;
+  }, [tNotifTpl]);
+
+  /**
+   * Resolve body for notifications whose backend left it NULL or wrote an i18n key.
+   * For price_alert we synthesize "Floor Price von {Player} hat sich geändert."
+   * using the cached player name (loaded async via useEffect above).
+   */
+  const resolveBody = useCallback((notif: DbNotification): string | null => {
+    if (notif.type === 'price_alert' && notif.reference_id) {
+      const playerName = playerNameCache[notif.reference_id];
+      if (playerName) {
+        return tNotifTpl('priceAlertBody', { playerName });
+      }
+      // Loading state — body is filled later when cache resolves.
+      return null;
+    }
+    return notif.body ?? null;
+  }, [playerNameCache, tNotifTpl]);
 
   useEffect(() => {
     if (open) {
@@ -172,27 +238,28 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
     }
   }, [open, mounted]);
 
-  // Close on click outside
+  // Close on click outside (FIX-12: ignore while mark-all-read mutation is in flight)
   useEffect(() => {
     if (!mounted || closing) return;
     function handleClick(e: MouseEvent) {
       const target = e.target as Node;
       if (desktopRef.current?.contains(target) || mobileRef.current?.contains(target)) return;
+      if (isMarkingAll) return;
       onClose();
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [mounted, closing, onClose]);
+  }, [mounted, closing, onClose, isMarkingAll]);
 
-  // Close on ESC
+  // Close on ESC (FIX-12: ignore while mark-all-read mutation is in flight)
   useEffect(() => {
     if (!mounted || closing) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !isMarkingAll) onClose();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [mounted, closing, onClose]);
+  }, [mounted, closing, onClose, isMarkingAll]);
 
   const handleClick = useCallback(async (notif: DbNotification) => {
     if (!notif.read) {
@@ -210,8 +277,13 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
     onClose();
   }, [router, onClose, onMarkRead]);
 
-  const handleMarkAllRead = useCallback(() => {
-    onMarkAllRead();
+  const handleMarkAllRead = useCallback(async () => {
+    setIsMarkingAll(true);
+    try {
+      await Promise.resolve(onMarkAllRead());
+    } finally {
+      setIsMarkingAll(false);
+    }
   }, [onMarkAllRead]);
 
   // Portal target (SSR-safe)
@@ -253,32 +325,36 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
             {tn('noNew')}
           </div>
         ) : (
-          notifications.map(notif => (
-            <button
-              key={notif.id}
-              onClick={() => handleClick(notif)}
-              className={cn(
-                'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-surface-subtle transition-colors border-b border-white/[0.04] min-h-[44px]',
-                !notif.read && 'bg-surface-minimal'
-              )}
-            >
-              <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))} aria-hidden="true">
-                {getNotifIcon(notif.type)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={cn('text-sm font-medium leading-snug', !notif.read && 'text-white')}>
-                  {notif.title}
-                </div>
-                {notif.body && (
-                  <div className="text-xs text-white/40 mt-0.5 line-clamp-2">{notif.body}</div>
+          notifications.map(notif => {
+            const resolvedTitle = resolveTitle(notif);
+            const resolvedBody = resolveBody(notif);
+            return (
+              <button
+                key={notif.id}
+                onClick={() => handleClick(notif)}
+                className={cn(
+                  'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-surface-subtle transition-colors border-b border-white/[0.04] min-h-[44px]',
+                  !notif.read && 'bg-surface-minimal'
                 )}
-                <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at, tc('timeNow'), dateLocale)}</div>
-              </div>
-              {!notif.read && (
-                <div className="size-2 rounded-full bg-gold shrink-0 mt-2" />
-              )}
-            </button>
-          ))
+              >
+                <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))} aria-hidden="true">
+                  {getNotifIcon(notif.type)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={cn('text-sm font-medium leading-snug', !notif.read && 'text-white')}>
+                    {resolvedTitle}
+                  </div>
+                  {resolvedBody && (
+                    <div className="text-xs text-white/40 mt-0.5 line-clamp-2">{resolvedBody}</div>
+                  )}
+                  <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at, tc('timeNow'), dateLocale)}</div>
+                </div>
+                {!notif.read && (
+                  <div className="size-2 rounded-full bg-gold shrink-0 mt-2" />
+                )}
+              </button>
+            );
+          })
         )}
       </div>
     </>
@@ -300,14 +376,14 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
         {notifContent}
       </div>
 
-      {/* Mobile: bottom sheet — slide up/down */}
+      {/* Mobile: bottom sheet — slide up/down (FIX-12: ignore backdrop while mark-all in flight) */}
       <div
         className={cn(
           'md:hidden fixed inset-0 z-[100] transition-opacity',
           closing ? 'opacity-0' : 'opacity-100 bg-black/70 backdrop-blur-sm',
         )}
         style={{ transitionDuration: `${EXIT_MS}ms` }}
-        onClick={onClose}
+        onClick={() => { if (!isMarkingAll) onClose(); }}
       >
         <div
           ref={mobileRef}

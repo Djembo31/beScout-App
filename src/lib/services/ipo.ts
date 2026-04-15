@@ -143,17 +143,22 @@ export async function buyFromIpo(
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_trade_2', 'weekly_trade_5', 'daily_buy_1']);
     }).catch(err => console.error('[IPO] Mission tracking failed:', err));
-    // Notification: IPO purchase confirmed (fire-and-forget)
-    import('@/lib/services/notifications').then(({ createNotification }) => {
-      createNotification(
-        userId,
-        'ipo_purchase',
-        notifText('ipoPurchaseTitle'),
-        notifText('ipoPurchaseBody', { quantity }),
-        ipoId,
-        'ipo',
-      );
-    }).catch(err => console.error('[IPO] Purchase notification failed:', err));
+    // Notification: IPO purchase confirmed (fire-and-forget — await inside to swallow throws)
+    (async () => {
+      try {
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification(
+          userId,
+          'ipo_purchase',
+          notifText('ipoPurchaseTitle'),
+          notifText('ipoPurchaseBody', { quantity }),
+          ipoId,
+          'ipo',
+        );
+      } catch (err) {
+        console.error('[IPO] Purchase notification failed:', err);
+      }
+    })();
   }
   return result;
 }

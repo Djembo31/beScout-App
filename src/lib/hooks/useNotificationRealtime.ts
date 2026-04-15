@@ -50,7 +50,7 @@ export function useNotificationRealtime(userId: string | undefined) {
     fetchNotifications();
   }, [userId, fetchNotifications]);
 
-  // Realtime subscription
+  // Realtime subscription — listens to BOTH INSERT (new notif) + UPDATE (multi-device read sync)
   useEffect(() => {
     if (!userId) return;
 
@@ -77,6 +77,28 @@ export function useNotificationRealtime(userId: string | undefined) {
           onNewNotifRef.current?.(newNotif);
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          // Multi-device read-state sync: when another device marks notifs as read,
+          // mirror the change locally so unreadCount stays correct.
+          const updated = payload.new as DbNotification;
+          const oldRow = payload.old as Partial<DbNotification> | undefined;
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === updated.id ? { ...n, ...updated } : n)),
+          );
+          // Only decrement if the read flag flipped false -> true
+          if (updated.read && oldRow?.read === false) {
+            setUnreadCount((prev) => Math.max(0, prev - 1));
+          }
+        },
+      )
       .subscribe();
 
     return () => {
@@ -86,29 +108,51 @@ export function useNotificationRealtime(userId: string | undefined) {
 
   const markReadLocal = useCallback(async (notifId: string) => {
     if (!userId) return;
-    // Optimistic update
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notifId ? { ...n, read: true } : n)),
-    );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+    // Capture previous state for rollback
+    let prevRead = false;
+    setNotifications((prev) => {
+      const target = prev.find((n) => n.id === notifId);
+      prevRead = target?.read ?? false;
+      return prev.map((n) => (n.id === notifId ? { ...n, read: true } : n));
+    });
+    if (!prevRead) {
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    }
 
     try {
       await markAsRead(notifId, userId);
     } catch (err) {
-      console.error('[useNotificationRealtime] markAsRead failed:', err);
+      console.error('[useNotificationRealtime] markAsRead failed — rolling back:', err);
+      // Rollback optimistic update
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notifId ? { ...n, read: prevRead } : n)),
+      );
+      if (!prevRead) {
+        setUnreadCount((prev) => prev + 1);
+      }
     }
   }, [userId]);
 
   const markAllReadLocal = useCallback(async () => {
     if (!userId) return;
-    // Optimistic update
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    setUnreadCount(0);
+    // Snapshot for rollback
+    let prevSnapshot: DbNotification[] = [];
+    let prevUnread = 0;
+    setNotifications((prev) => {
+      prevSnapshot = prev;
+      return prev.map((n) => ({ ...n, read: true }));
+    });
+    setUnreadCount((prev) => {
+      prevUnread = prev;
+      return 0;
+    });
 
     try {
       await markAllAsRead(userId);
     } catch (err) {
-      console.error('[useNotificationRealtime] markAllAsRead failed:', err);
+      console.error('[useNotificationRealtime] markAllAsRead failed — rolling back:', err);
+      setNotifications(prevSnapshot);
+      setUnreadCount(prevUnread);
     }
   }, [userId]);
 

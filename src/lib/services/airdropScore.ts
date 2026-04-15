@@ -1,9 +1,23 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { DbAirdropScore } from '@/types';
+import { normaliseAirdropTier } from '@/types';
 
 // ============================================
 // Read
 // ============================================
+
+/**
+ * Normalise the tier column — DB RPC returns 'silver' (English CHECK),
+ * while TS/UI uses 'silber' (German). Prevents TIER_CONFIG[undefined] crash.
+ */
+function normaliseRow<T extends { tier?: unknown } | null>(row: T): T {
+  if (!row || typeof row !== 'object') return row;
+  const tier = (row as { tier?: unknown }).tier;
+  if (typeof tier === 'string') {
+    (row as { tier: string }).tier = normaliseAirdropTier(tier);
+  }
+  return row;
+}
 
 export async function getAirdropScore(userId: string): Promise<DbAirdropScore | null> {
   const { data, error } = await supabase
@@ -13,7 +27,7 @@ export async function getAirdropScore(userId: string): Promise<DbAirdropScore | 
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  return data as DbAirdropScore;
+  return normaliseRow(data as DbAirdropScore);
 }
 
 export type AirdropLeaderboardEntry = DbAirdropScore & {
@@ -34,12 +48,14 @@ export async function getAirdropLeaderboard(limit = 50): Promise<AirdropLeaderbo
   return (data as Array<Record<string, unknown>>).map(row => {
     const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
     const { profiles: _p, ...score } = row;
-    return {
+    const entry = {
       ...score,
+      tier: normaliseAirdropTier(score.tier as string),
       handle: (profile as Record<string, unknown>)?.handle ?? '',
       display_name: (profile as Record<string, unknown>)?.display_name as string | null ?? null,
       avatar_url: (profile as Record<string, unknown>)?.avatar_url as string | null ?? null,
     } as AirdropLeaderboardEntry;
+    return entry;
   });
 }
 
@@ -62,8 +78,9 @@ export async function getAirdropStats(): Promise<AirdropStats> {
   let sum = 0;
   for (const row of data) {
     sum += row.total_score;
-    const t = row.tier as keyof typeof dist;
-    if (t in dist) dist[t]++;
+    // Normalise DB 'silver' -> 'silber' before bucketing
+    const t = normaliseAirdropTier(row.tier as string);
+    dist[t]++;
   }
   return {
     total_users: data.length,
@@ -86,7 +103,8 @@ export async function refreshAirdropScore(userId: string): Promise<DbAirdropScor
     .select('*')
     .eq('user_id', userId)
     .maybeSingle();
-  return (row as DbAirdropScore) ?? null;
+  if (!row) return null;
+  return normaliseRow(row as DbAirdropScore);
 }
 
 export async function refreshAllAirdropScores(): Promise<number> {

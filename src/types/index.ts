@@ -1597,7 +1597,18 @@ export interface BeforeInstallPromptEvent extends Event {
 // AIRDROP SCORE
 // ============================================
 
+// NOTE (J9-FIX-01): DB-RPC `refresh_airdrop_score` returns `'silver'` (English CHECK constraint),
+// while legacy TS/UI uses `'silber'` (German). Union accepts both; service maps silver->silber.
+// Normalise with `normaliseAirdropTier()` at the boundary before using as TIER_CONFIG key.
+export type AirdropTierRaw = 'bronze' | 'silver' | 'silber' | 'gold' | 'diamond';
 export type AirdropTier = 'bronze' | 'silber' | 'gold' | 'diamond';
+
+/** Map DB tier-value to UI-tier (silver→silber) to avoid TIER_CONFIG lookup crash. */
+export function normaliseAirdropTier(raw: string | null | undefined): AirdropTier {
+  if (raw === 'silver') return 'silber';
+  if (raw === 'bronze' || raw === 'silber' || raw === 'gold' || raw === 'diamond') return raw;
+  return 'bronze';
+}
 
 export type DbAirdropScore = {
   user_id: string;
