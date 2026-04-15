@@ -1241,6 +1241,9 @@ export type DbAchievementDefinition = {
   category: AchievementCategory;
   title: string;
   description: string;
+  /** Phase 3 (2026-04-14): TR-Übersetzungen. NULL fällt auf title/description (DE). */
+  title_tr: string | null;
+  description_tr: string | null;
   icon: string;
   featured: boolean;
   active: boolean;

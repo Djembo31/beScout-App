@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Trophy, Star } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,8 @@ import {
   getFeaturedAchievements,
   getHiddenAchievements,
   fetchAchievements,
+  resolveAchievementLabel,
+  resolveAchievementDescription,
 } from '@/lib/achievements';
 import type { AchievementDef } from '@/lib/achievements';
 import ScoreProgress from '@/components/profile/ScoreProgress';
@@ -34,6 +36,7 @@ const DIMENSIONS: { key: Dimension; scoreKey: keyof DbUserStats }[] = [
 
 export default function AchievementsSection({ userStats, unlockedKeys }: AchievementsSectionProps) {
   const t = useTranslations('profile');
+  const locale = useLocale();
   const [featured, setFeatured] = useState<AchievementDef[]>(() => getFeaturedAchievements());
   const [hidden, setHidden] = useState<AchievementDef[]>(() => getHiddenAchievements());
 
@@ -93,10 +96,10 @@ export default function AchievementsSection({ userStats, unlockedKeys }: Achieve
             >
               <div className="text-2xl mb-1.5">{ach.icon}</div>
               <p className={cn('text-xs font-bold', unlocked ? 'text-white' : 'text-white/40')}>
-                {ach.label}
+                {resolveAchievementLabel(ach, locale)}
               </p>
               <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
-                {unlocked ? ach.description : t('achievementLocked')}
+                {unlocked ? resolveAchievementDescription(ach, locale) : t('achievementLocked')}
               </p>
             </div>
           );
@@ -117,8 +120,8 @@ export default function AchievementsSection({ userStats, unlockedKeys }: Achieve
                 className={cn('p-3 rounded-xl border', CATEGORY_COLORS[ach.category])}
               >
                 <div className="text-2xl mb-1.5">{ach.icon}</div>
-                <p className="text-xs font-bold text-white">{ach.label}</p>
-                <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">{ach.description}</p>
+                <p className="text-xs font-bold text-white">{resolveAchievementLabel(ach, locale)}</p>
+                <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">{resolveAchievementDescription(ach, locale)}</p>
               </div>
             ))}
           </div>

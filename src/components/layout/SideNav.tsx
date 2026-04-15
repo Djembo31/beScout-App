@@ -280,7 +280,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
           )}
         >
           <Sparkles className="size-3.5" aria-hidden="true" />
-          {!collapsed && <span>Wunsch einreichen</span>}
+          {!collapsed && <span>{t('wishButton')}</span>}
         </button>
         <FanWishModal open={wishOpen} onClose={() => setWishOpen(false)} />
         <Link

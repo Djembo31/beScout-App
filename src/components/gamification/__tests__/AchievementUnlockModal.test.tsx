@@ -23,6 +23,8 @@ const mockAchievement = {
   key: 'first_trade',
   label: 'Erster Deal',
   description: 'Ersten Scout Card Trade abgeschlossen',
+  label_tr: 'İlk Anlaşma',
+  description_tr: 'İlk Scout Card ticaretini tamamladın',
   category: 'trading' as const,
   icon: '🏆',
   featured: true,
