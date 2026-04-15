@@ -1,0 +1,135 @@
+diff --git a/memory/cortex-index.md b/memory/cortex-index.md
+index 490ae98..db05629 100644
+--- a/memory/cortex-index.md
++++ b/memory/cortex-index.md
+@@ -50,6 +50,13 @@
+ | Achievements i18n / resolveAchievementLabel / title_tr DB-Backfill | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (Phase 3 Achievement Sektion) |
+ | Notifications i18n / notifText locale / price_alert Dropdown / WatchlistView | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J10 Sektion) |
+ | Missions Disclaimer / MissionDisclaimer Component / useLoginStreak / streaks.ts | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J7 Sektion) |
++| Journey-Audits J1-J5 / Bug-Tracker / XC-Series / E2E Full-Cycle | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` |
++| SECURITY DEFINER Exploit AR-27 / earn_wildcards / REVOKE Pattern | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (J4 Sektion) + `memory/audit-high-risk-rpcs-2026-04-15.md` |
++| RPC INSERT Column-Mismatch AR-42/AR-42b / equipment_rank / PG 42703 | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (J5 Sektion) |
++| CHECK Constraint Enum-Erweiterung / XC-09 transactions_type / XC-10 notifications | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (XC-Sektion) |
++| Multi-League Props-Propagation-Gap / leagueShort / club* mirror league* | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (Multi-League Sektion) |
++| Silent-UI-State-Divergence / Watchlist XC-07 / on[Toggle] without Service-Call | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (XC-07 Sektion) |
++| High-Risk RPC Security Audit / 29 Money-RPCs / Zero-Sum Trade | `memory/semantisch/projekt/operation-beta-ready-phase3-5.md` (Audit Sektion) |
+ | Ferrari 10/10 Workflow / Pre-Commit Guards / Governance-Files / ar-counter.md | CLAUDE.md (Ferrari Sektion) + `memory/ar-counter.md` |
+ 
+ ## On-Demand (nur wenn explizit gebraucht)
+diff --git a/memory/session-handoff.md b/memory/session-handoff.md
+index 5bd56de..6907331 100644
+--- a/memory/session-handoff.md
++++ b/memory/session-handoff.md
+@@ -1,80 +1,40 @@
+-# Session Handoff (2026-04-15 ENDE) — BETA-READY + Next: Multi-League 100%
++# Session Handoff (2026-04-15 18:09)
+ 
+-## Heutige Session: 9 Commits, 16 Bugs gefixt
+-
+-**Commits (main):** `cb19ce9 → 979b52b`
+-- Phase 0 Inventory + RPC Audit
+-- Info-Leak Auth-Guards (XC-01/02)
+-- J1-02/03/04/09 + Broken-Images
+-- E2E Full-Cycle VERIFIED docs
+-- Wave 4 UX Polish (XC-03/04/06/07 Watchlist+Cents+Query+auth_state)
+-- Wave 5 Fantasy Event
+-- Wave 6 RPC Comprehensive: 4 P1 Silent-Crashes (XC-08/09/10/14)
+-
+-## Coverage final
+-
+-**12/12 Journeys E2E ✓** (Login, IPO, Trade, Fantasy-Event, MysteryBox, Profile/Follow, Mission/Streak, Sell, Liga-Rang, Watchlist, Equipment, Multi-League-Discovery)
+-
+-**40+ RPCs live-verified, 4 P1 Silent-Crashes gefixt.** Details in `memory/bug-tracker.md`.
+-
+-## State
+-- tsc clean, 49/49 Component-Tests, 4704 i18n keys DE↔TR parity, compliance-audit grün
+-- jarvisqa: 599350 cents + 50000 locked (test-bounty) + 1 watchlist-row + 1 club-subscription
+-- test1: +1 Burcu holding
+-- Test bounty offen (auto-close nach 7d)
+-
+----
+-
+-## NEXT SESSION — Multi-League 100% Audit (Anil-Brief)
+-
+-**Ziel:** Vollstaendige Verifikation dass alle 7 Ligen auf JEDER User-Ebene funktional + sichtbar sind — nicht nur TFF 1. Lig sondern auch Bundesliga, 2. Bundesliga, La Liga, Premier League, Serie A, Sueper Lig.
+-
+-**Test-Matrix pro Liga (23 Checks × 7 Ligen = 161 Verify-Points):**
+-
+-### Data Completeness (API-Import-Status)
+-1. Spieler-Import: alle Spieler jeder Liga in DB (first/last_name, position, shirt_number, club_id, league_id komplett)
+-2. Stats: L5-Scores, xG, Tore, Assists etc. pro Spieler
+-3. Bilder: player-photo, team-logo, league-badge alle verfuegbar
+-4. Marktwert: transfermarkt-value nicht null, nicht stale
+-5. Vertrag: contract-end-date importiert
+-6. Club-Metadata: name, logo, country, league, founded_year etc.
+-
+-### Handel & Trading
+-7. IPO: jeder Spieler hat offene oder geplante IPO-Tranche
+-8. Kaufen (IPO): buy_from_ipo pro Liga durchgespielt
+-9. Kaufen (Secondary): buy_from_order cross-Liga
+-10. Verkaufen: place_sell_order pro Liga
+-11. Orderbuch: Angebots-Tiefe rendert aus allen 7 Ligen
+-
+-### Fantasy & Events
+-12. Events: Fantasy-Events je Liga aktiv (registering)
+-13. Aufstellen: save_lineup mit Cross-Liga Spielern
+-14. Scoring: gameweek-sync Cron laeuft fuer alle 7 Ligen
+-15. Spieltag-Paarungen: Fixtures pro Liga visible
+-
+-### Pages & Discovery
+-16. Spielerdetail `/player/[id]`: alle Tabs rendern fuer Spieler aller 7 Ligen
+-17. Club-Page `/club/[slug]`: alle 134 Clubs erreichbar
+-18. Clubs-Liste `/clubs`: alle 134 Clubs gruppiert + Multi-League-Filter
+-19. Suche findet Spieler + Clubs aus allen Ligen
+-20. Follow/Abo cross-Liga (Watchlist)
++## Uncommitted Changes: 6 Files
++```
++ M memory/cortex-index.md
++ M memory/session-handoff.md
++?? .claude/backups/
++?? memory/audit_multi_league_backend_20260415.md
++?? memory/audit_multi_league_frontend_20260415.md
++?? memory/semantisch/projekt/operation-beta-ready-phase3-5.md
++```
+ 
+-### Navigation & UI
+-21. CountryBar + LeagueBar: alle 7 + 5 Laender Filter
+-22. Logos in allen Kontexten (TradingCard, PlayerRow, PlayerHero, PlayerIPOCard, TransferListSection, Club-Hero, Rankings)
+-23. Rankings Liga-Filter
++## Session Commits: 10
++- 176b5e5 docs(handoff): Session-Ende + Next-Session-Brief Multi-League 100% Audit
++- 979b52b fix(beta): XC-08+09+10+14 — 4 Silent-Crash Bugs via Comprehensive RPC E2E
++- d87769c docs(beta): Wave 5 Fantasy Event Full-Cycle VERIFIED
++- cb19ce9 docs(handoff): Beta-Ready Sign-Off 2026-04-15
++- 891ce5c fix(beta): Wave 4 UX Polish — XC-03/04/06/07 Bundle
++- 062a4a1 Merge branches 'worktree-agent-a2f8ea72' and 'worktree-agent-ade57268'
++- a14c161 fix(player): wire up DB-backed watchlist + XC-03 TX formatting + XC-04 holdings refetch
++- 76f0f1c fix(XC-06): get_auth_state auth.uid()-Guard (AR-44 Template)
++- 89f6669 docs(beta): E2E Full-Cycle VERIFIED + 4 Findings documented
++- 63b4c82 fix(beta): J1-02/03/04/09 + Broken Images — 4 Beta-Ready Fixes
+ 
+-### Expected State (baseline Commit 8a5014d)
+-- 7 Ligen, 134 Clubs, 4.263 Spieler, 4.166 IPOs (97% Coverage)
+-- Logo-URLs gefixt (XC-05 media-4→media)
+ 
+-### Methodik Next Session
+-1. Explore-Agent: DB-Audit "per-Liga-Completeness" (COUNT/NULL-Check pro Field)
+-2. Playwright-MCP: Screenshot pro Liga-Filter auf 8 Haupt-Pages
+-3. Pro Gap: Fix-Backend (API Re-Import) + Fix-Frontend (Liga-Propagation)
++## ⚠ CRASH RECOVERY (20260415-181509)
++Session crashed. State at crash time:
+ 
+-## Uncommitted
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-181509.diff)
+ ```
++ M memory/cortex-index.md
++ M memory/session-handoff.md
+ ?? .claude/backups/
+-?? .claude/scheduled_tasks.lock
++?? memory/audit_multi_league_backend_20260415.md
++?? memory/audit_multi_league_frontend_20260415.md
++?? memory/semantisch/projekt/operation-beta-ready-phase3-5.md
+ ```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-181509.diff`

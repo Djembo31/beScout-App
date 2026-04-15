@@ -1,0 +1,150 @@
+diff --git a/memory/session-handoff.md b/memory/session-handoff.md
+index 7c555d2..c65ff93 100644
+--- a/memory/session-handoff.md
++++ b/memory/session-handoff.md
+@@ -1,65 +1,99 @@
+-# Session Handoff (2026-04-15 16:32) — BETA-READY SIGN-OFF
++# Session Handoff (2026-04-15 16:34)
+ 
+-## Session-Gesamtwerk (5 Commits auf main)
+-1. `84d6584` Phase 0 Inventory + HIGH-RISK RPC Audit
+-2. `348af4d` Info-Leak Auth-Guards (get_club_balance + get_available_sc)
+-3. `63b4c82` J1-02/03/04/09 + Broken-Images (5 Fixes)
+-4. `89f6669` E2E Full-Cycle VERIFIED + Findings docs
+-5. `891ce5c` Wave 4 UX Polish — XC-03/04/06/07 (4 Fixes)
++## Uncommitted Changes: 3 Files
++```
++ M memory/session-handoff.md
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++```
++
++## Session Commits: 10
++- cb19ce9 docs(handoff): Beta-Ready Sign-Off 2026-04-15
++- 891ce5c fix(beta): Wave 4 UX Polish — XC-03/04/06/07 Bundle
++- 062a4a1 Merge branches 'worktree-agent-a2f8ea72' and 'worktree-agent-ade57268'
++- a14c161 fix(player): wire up DB-backed watchlist + XC-03 TX formatting + XC-04 holdings refetch
++- 76f0f1c fix(XC-06): get_auth_state auth.uid()-Guard (AR-44 Template)
++- 89f6669 docs(beta): E2E Full-Cycle VERIFIED + 4 Findings documented
++- 63b4c82 fix(beta): J1-02/03/04/09 + Broken Images — 4 Beta-Ready Fixes
++- e8acdde Merge branches 'worktree-agent-a2985c1d' and 'worktree-agent-a52857ab'
++- 30cc654 feat(compliance): TIER_RESTRICTED geofencing on welcome/onboarding/WelcomeBonus
++- 0190959 fix(J1): Wallet-Init-Trigger + record_login_streak NULL-Guard (Beta-Blocker)
++
++
++## ⚠ CRASH RECOVERY (20260415-164204)
++Session crashed. State at crash time:
++
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-164204.diff)
++```
++ M memory/session-handoff.md
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-164204.diff`
++
++## ⚠ CRASH RECOVERY (20260415-164248)
++Session crashed. State at crash time:
++
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-164248.diff)
++```
++ M memory/session-handoff.md
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-164248.diff`
++
++## ⚠ CRASH RECOVERY (20260415-164456)
++Session crashed. State at crash time:
+ 
+-## Coverage (Wave 1+2 E2E)
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-164456.diff)
++```
++ M memory/session-handoff.md
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++```
+ 
+-**Solo Flows:** Login, Home, MysteryBox-Open-RPC (rare tickets +44 live, AR-42/42b fixes verified), IPO-Buy (wallet-10000, holding+1, TX), Sell place+cancel, Broken-Images zero-errors.
+ 
+-**Multi-Account Flows:** Register+Trigger-Init-Wallet (profile INSERT → wallet auto-created), Cross-User Trade (jarvisqa→test1, zero-sum verified, fee-split 3.5/1.5/1% korrekt 700/300/200), P2P-Offer Escrow (locked 15000→released), Follow/Unfollow sauber.
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-164456.diff`
+ 
+-**Audit:** 9 Pages Screenshots (desktop+mobile), HIGH-RISK RPC-Audit 29 Money-RPCs (alle safe), Watchlist-Handler-Pattern-Sweep (1 Bug XC-07 gefunden).
++## ⚠ CRASH RECOVERY (20260415-164712)
++Session crashed. State at crash time:
+ 
+-## Findings Final-State
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-164712.diff)
++```
++ M memory/session-handoff.md
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++```
+ 
+-| ID | Sev | Status |
+-|----|-----|--------|
+-| J1-01..12 (12x) | mixed | 8 FIXED (prior) + 4 FIXED (heute: J1-02/03/04/09) |
+-| XC-01 Info-Leak get_club_balance | HIGH | FIXED (348af4d) |
+-| XC-02 Info-Leak get_available_sc | HIGH | FIXED (348af4d) |
+-| XC-03 TX raw cents | LOW | FIXED (891ce5c) |
+-| XC-04 React Query stale post-IPO | MED | FIXED (891ce5c) |
+-| XC-05 Broken Images (51 errors) | CRIT | FIXED (63b4c82) |
+-| XC-06 get_auth_state trust-client | LOW | FIXED (891ce5c) |
+-| XC-07 Watchlist Silent Failure | CRIT | FIXED (891ce5c) |
+ 
+-**12 Findings diese Session, alle FIXED + live-verified.**
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-164712.diff`
+ 
+-## Live-DB-Verify Snapshots
++## ⚠ CRASH RECOVERY (20260415-165147)
++Session crashed. State at crash time:
+ 
+-- `trg_init_user_wallet` exists + 0 wallet-less profiles
+-- `record_login_streak` has `v_new_balance IS NULL` guard
+-- `get_club_balance`, `get_available_sc`, `get_auth_state` — anon_can_execute=false, role_guard=YES
+-- `leagues.logo_url` — 0 mit media-4, 7 mit media
+-- Mystery Box RPC AR-42/AR-42b columns korrekt
+-- Watchlist INSERT on click working (live E2E)
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-165147.diff)
++```
++ M memory/session-handoff.md
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++```
+ 
+-## Tests
+-- tsc: CLEAN
+-- i18n-Audit: 4704 Keys DE↔TR Parität
+-- Compliance-Audit: passed
+-- Component-Tests: 49/49 green
+ 
+-## State nach Session
+-- jarvisqa: balance 694900 cents + 1 Watchlist-Row (Burcu)
+-- test1: +1 Burcu (von cross-user trade)
+-- test2: unverändert
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-165147.diff`
+ 
+-## Offen (post-Beta, nicht Blocker)
+-- Playwright MCP Viewport-Resize Bug (innerWidth fix 524 statt 393)
+-- /notifications, /wallet, /help Pages existieren nicht (inline statt dediziert)
++## ⚠ CRASH RECOVERY (20260415-165427)
++Session crashed. State at crash time:
+ 
+-## Uncommitted
++### Uncommitted Changes (saved as .claude/backups/crash-20260415-165427.diff)
+ ```
++ M memory/session-handoff.md
+ ?? .claude/backups/
+ ?? .claude/scheduled_tasks.lock
+ ```
+ 
+-## Ready für 50-Mann Closed Beta ✅
+-Alle P0/P1 Findings gefixt, alle RPC-Sicherheit verifiziert, E2E multi-account
+-Trading+Offer+Follow flows durchgespielt mit zero-sum-Verification.
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260415-165427.diff`

@@ -1,0 +1,814 @@
+diff --git a/memory/session-handoff.md b/memory/session-handoff.md
+index 18c0101..5ac8d07 100644
+--- a/memory/session-handoff.md
++++ b/memory/session-handoff.md
+@@ -1,4 +1,4 @@
+-# Session Handoff (2026-04-14 20:01)
++# Session Handoff (2026-04-14 21:09)
+ 
+ ## Uncommitted Changes: 2 Files
+ ```
+@@ -7,6 +7,9 @@
+ ```
+ 
+ ## Session Commits: 10
++- eef496f docs(beta): Journey #4 Fantasy-Event audits + CEO-approvals + SSOT update
++- cae1f78 feat(beta): J4 FIX-12..14 Multi-League FantasyEvent/Holding Types + LeagueBadge auf EventHeader/GwHeroSummary/PlayerPicker
++- 3603c00 feat(beta): J4 FIX-01..03 Fantasy-i18n-Leak + preventClose × 4 + native-alerts raus
+ - ae61638 docs(beta): Journey #3 Sekundaer-Trade audits + CEO-approvals + SSOT update
+ - 32f2643 merge(beta): J3 FIX-01..07 Money-Safety + i18n + Modal-Safety (Healer A)
+ - 22467fa feat(beta): J3 FIX-01..07 Money-Safety + i18n + Modal-Safety (Sekundaer-Trade)
+@@ -14,9 +17,70 @@
+ - e7e4b6a chore: remove stale crash-recovery backup
+ - a6d9069 chore(session): handoff ready fuer naechste Session (Journey #3 Sekundaer-Trade)
+ - 86431bd docs(beta): SSOT update — alle 6 AR-Items (Journey #2) done, J2 full-sweep abgeschlossen
+-- 739a46b feat(beta): AR-7 IPO-Vokabel-Sweep + business.md Begriffsregel
+-- 3067405 feat(beta): AR-9 IPO Fee-Transparenz im BuyConfirmModal (10/5/85 Breakdown)
+-- d1f2170 feat(beta): AR-10 sync trigger players.ipo_price <- ipos.price
+ 
+-## Stale Worktrees: 4 (cleanup candidates)
++## Stale Worktrees: 8 (cleanup candidates)
+ 
++
++## ⚠ CRASH RECOVERY (20260414-212928)
++Session crashed. State at crash time:
++
++### Uncommitted Changes (saved as .claude/backups/crash-20260414-212928.diff)
++```
++ M memory/session-handoff.md
++ M src/app/api/cron/gameweek-sync/route.ts
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++?? memory/episodisch/journals/cron-multi-league-journal.md
++?? supabase/migrations/20260414200000_security_wildcard_rpcs_guards.sql
++```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260414-212928.diff`
++
++## ⚠ CRASH RECOVERY (20260414-212947)
++Session crashed. State at crash time:
++
++### Uncommitted Changes (saved as .claude/backups/crash-20260414-212947.diff)
++```
++ M memory/session-handoff.md
++ M src/app/api/cron/gameweek-sync/route.ts
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++?? memory/episodisch/journals/cron-multi-league-journal.md
++?? supabase/migrations/20260414200000_security_wildcard_rpcs_guards.sql
++```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260414-212947.diff`
++
++## ⚠ CRASH RECOVERY (20260414-213245)
++Session crashed. State at crash time:
++
++### Uncommitted Changes (saved as .claude/backups/crash-20260414-213245.diff)
++```
++ M memory/session-handoff.md
++ M src/app/api/cron/gameweek-sync/route.ts
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++?? memory/episodisch/journals/cron-multi-league-journal.md
++?? supabase/migrations/20260414200000_security_wildcard_rpcs_guards.sql
++```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260414-213245.diff`
++
++## ⚠ CRASH RECOVERY (20260414-213747)
++Session crashed. State at crash time:
++
++### Uncommitted Changes (saved as .claude/backups/crash-20260414-213747.diff)
++```
++ M memory/session-handoff.md
++ M src/app/api/cron/gameweek-sync/route.ts
++?? .claude/backups/
++?? .claude/scheduled_tasks.lock
++?? memory/episodisch/journals/cron-multi-league-journal.md
++?? supabase/migrations/20260414200000_security_wildcard_rpcs_guards.sql
++```
++
++
++### Recovery: Apply diff with `git apply .claude/backups/crash-20260414-213747.diff`
+diff --git a/src/app/api/cron/gameweek-sync/route.ts b/src/app/api/cron/gameweek-sync/route.ts
+index 24b0980..f280ca5 100644
+--- a/src/app/api/cron/gameweek-sync/route.ts
++++ b/src/app/api/cron/gameweek-sync/route.ts
+@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
+ import { supabaseAdmin } from '@/lib/supabaseAdmin';
+ import {
+   apiFetch,
+-  getLeagueId,
+   getCurrentSeason,
+   mapPosition,
+   normalizeForMatch,
+@@ -77,13 +76,44 @@ type StepResult = {
+   duration_ms: number;
+ };
+ 
++// ============================================
++// Types
++// ============================================
++
++type ActiveLeague = {
++  id: string;
++  short: string;
++  apiFootballId: number;
++};
++
++type LeagueSyncResult = {
++  short: string;
++  apiFootballId: number;
++  gameweek: number;
++  status: 'success' | 'skipped' | 'partial' | 'error';
++  reason?: string;
++  fixturesImported?: number;
++  statsImported?: number;
++  scoresSynced?: number;
++  eventsScored?: number;
++  eventsClosed?: number;
++  eventsTransitioned?: number;
++  nextGwEventsCreated?: number;
++  phase?: 'full' | 'partial';
++  newlyProcessed?: number;
++  nextGameweek?: number;
++  duration_ms: number;
++  steps: StepResult[];
++  error?: string;
++};
++
+ // ============================================
+ // GET /api/cron/gameweek-sync
+ // ============================================
+ 
+ export async function GET(request: Request) {
+   const runStart = Date.now();
+-  const steps: StepResult[] = [];
++  const globalSteps: StepResult[] = [];
+ 
+   // ---- 1. Auth ----
+   const cronSecret = process.env.CRON_SECRET;
+@@ -100,10 +130,9 @@ export async function GET(request: Request) {
+     return NextResponse.json({ error: 'API_FOOTBALL_KEY not configured' }, { status: 500 });
+   }
+ 
+-  const leagueId = getLeagueId();
+   const season = getCurrentSeason();
+ 
+-  // ---- Helpers ----
++  // ---- Helpers (shared between global + per-league scopes) ----
+ 
+   async function logStep(
+     gameweek: number,
+@@ -125,32 +154,38 @@ export async function GET(request: Request) {
+     }
+   }
+ 
+-  async function runStep<T>(
+-    name: string,
+-    fn: () => Promise<T>,
+-  ): Promise<{ result: T | null; error: string | null }> {
+-    const stepStart = Date.now();
+-    try {
+-      const result = await fn();
+-      steps.push({ step: name, status: 'success', duration_ms: Date.now() - stepStart });
+-      return { result, error: null };
+-    } catch (e) {
+-      const err = e instanceof Error ? e.message : 'Unknown error';
+-      steps.push({
+-        step: name,
+-        status: 'error',
+-        details: { error: err },
+-        duration_ms: Date.now() - stepStart,
+-      });
+-      return { result: null, error: err };
+-    }
++  function makeRunStep(steps: StepResult[]) {
++    return async function runStep<T>(
++      name: string,
++      fn: () => Promise<T>,
++    ): Promise<{ result: T | null; error: string | null }> {
++      const stepStart = Date.now();
++      try {
++        const result = await fn();
++        steps.push({ step: name, status: 'success', duration_ms: Date.now() - stepStart });
++        return { result, error: null };
++      } catch (e) {
++        const err = e instanceof Error ? e.message : 'Unknown error';
++        steps.push({
++          step: name,
++          status: 'error',
++          details: { error: err },
++          duration_ms: Date.now() - stepStart,
++        });
++        return { result: null, error: err };
++      }
++    };
+   }
+ 
+-  let activeGw = 1;
++  const runGlobalStep = makeRunStep(globalSteps);
+ 
+   try {
++    // ============================================
++    // GLOBAL STEPS (once per cron run, not per-league)
++    // ============================================
++
+     // ---- 2b. Auto-expire IPOs past ends_at ----
+-    await runStep('expire_ipos', async () => {
++    await runGlobalStep('expire_ipos', async () => {
+       const { data, error } = await supabaseAdmin
+         .from('ipos')
+         .update({ status: 'ended' })
+@@ -163,34 +198,192 @@ export async function GET(request: Request) {
+     });
+ 
+     // ---- 2c. Expire stale offers + release locked funds ----
+-    await runStep('expire_pending_offers', async () => {
++    await runGlobalStep('expire_pending_offers', async () => {
+       const { data, error } = await supabaseAdmin.rpc('expire_pending_offers');
+       if (error) throw new Error(error.message);
+       return data;
+     });
+ 
+     // ---- 2c2. Expire stale orders ----
+-    await runStep('expire_pending_orders', async () => {
++    await runGlobalStep('expire_pending_orders', async () => {
+       const { data, error } = await supabaseAdmin.rpc('expire_pending_orders');
+       if (error) throw new Error(error.message);
+       return data;
+     });
+ 
+     // ---- 2d. Daily price_change_24h + volume_24h reset ----
+-    await runStep('daily_price_volume_reset', async () => {
++    await runGlobalStep('daily_price_volume_reset', async () => {
+       const { data, error } = await supabaseAdmin.rpc('daily_price_volume_reset');
+       if (error) throw new Error(error.message);
+       return data;
+     });
+ 
+-    // ---- 3. Get active gameweek ----
++    // ---- 2e. Load active leagues ----
++    // SOURCE OF TRUTH: Ligen, die Clubs haben + mapped api_football_id.
++    // `leagues.is_active` ist in DB teilweise unset (Migration 20260413180000 → false for 6 neue),
++    // daher nutzen wir clubs.league_id als Aktivitaets-Signal.
++    const { result: activeLeagues } = await runGlobalStep('load_active_leagues', async () => {
++      // 1) DISTINCT league_ids that actually have clubs assigned
++      const { data: clubLeagueRows, error: clubErr } = await supabaseAdmin
++        .from('clubs')
++        .select('league_id')
++        .not('league_id', 'is', null);
++      if (clubErr) throw new Error(clubErr.message);
++      const leagueIds = Array.from(
++        new Set((clubLeagueRows ?? []).map((r) => r.league_id as string)),
++      );
++      if (leagueIds.length === 0) throw new Error('No leagues with clubs');
++
++      // 2) Fetch league metadata (only rows with api_football_id mapped)
++      const { data: leagueRows, error: leagueErr } = await supabaseAdmin
++        .from('leagues')
++        .select('id, short, api_football_id')
++        .in('id', leagueIds)
++        .not('api_football_id', 'is', null);
++      if (leagueErr) throw new Error(leagueErr.message);
++
++      const leagues: ActiveLeague[] = (leagueRows ?? [])
++        .map((l) => ({
++          id: l.id as string,
++          short: l.short as string,
++          apiFootballId: l.api_football_id as number,
++        }))
++        // Sanity: ensure both fields are present
++        .filter((l) => l.id && l.short && typeof l.apiFootballId === 'number');
++
++      if (leagues.length === 0) {
++        throw new Error('No leagues with api_football_id mapped');
++      }
++
++      return leagues;
++    });
++
++    if (!activeLeagues || activeLeagues.length === 0) {
++      return NextResponse.json(
++        { error: 'Failed to load active leagues', steps: globalSteps },
++        { status: 500 },
++      );
++    }
++
++    // ============================================
++    // PER-LEAGUE PIPELINE
++    // ============================================
++
++    const leagueResults = await Promise.all(
++      activeLeagues.map((league) => syncLeague(league, season, logStep, makeRunStep)),
++    );
++
++    // ============================================
++    // GLOBAL SUMMARY
++    // ============================================
++
++    const anySuccess = leagueResults.some(
++      (r) => r.status === 'success' || r.status === 'partial',
++    );
++    const anyError = leagueResults.some((r) => r.status === 'error');
++
++    // Aggregate totals for convenience
++    const totalsFixtures = leagueResults.reduce((a, r) => a + (r.fixturesImported ?? 0), 0);
++    const totalsStats = leagueResults.reduce((a, r) => a + (r.statsImported ?? 0), 0);
++    const totalsScores = leagueResults.reduce((a, r) => a + (r.scoresSynced ?? 0), 0);
++    const totalsEventsScored = leagueResults.reduce((a, r) => a + (r.eventsScored ?? 0), 0);
++    const totalsEventsClosed = leagueResults.reduce((a, r) => a + (r.eventsClosed ?? 0), 0);
++    const totalsNextGwEvents = leagueResults.reduce(
++      (a, r) => a + (r.nextGwEventsCreated ?? 0),
++      0,
++    );
++
++    const totalDuration = Date.now() - runStart;
++    await logStep(0, 'cron_complete', 'success', {
++      leagues: leagueResults.length,
++      any_success: anySuccess,
++      any_error: anyError,
++      total_duration_ms: totalDuration,
++      totals_fixtures: totalsFixtures,
++      totals_stats: totalsStats,
++      totals_scores: totalsScores,
++      totals_events_scored: totalsEventsScored,
++      totals_events_closed: totalsEventsClosed,
++      totals_next_gw_events: totalsNextGwEvents,
++    }, totalDuration);
++
++    return NextResponse.json({
++      success: anySuccess,
++      leagues: leagueResults,
++      totals: {
++        fixturesImported: totalsFixtures,
++        statsImported: totalsStats,
++        scoresSynced: totalsScores,
++        eventsScored: totalsEventsScored,
++        eventsClosed: totalsEventsClosed,
++        nextGwEventsCreated: totalsNextGwEvents,
++      },
++      duration_ms: totalDuration,
++      globalSteps,
++    });
++  } catch (error) {
++    const err = error instanceof Error ? error.message : 'Unknown error';
++    await logStep(0, 'fatal', 'error', { error: err }, Date.now() - runStart);
++    return NextResponse.json(
++      { error: err, globalSteps },
++      { status: 500 },
++    );
++  }
++}
++
++// ============================================
++// syncLeague(league) — Per-League Pipeline
++// ============================================
++
++async function syncLeague(
++  league: ActiveLeague,
++  season: number,
++  logStepFn: (
++    gameweek: number,
++    step: string,
++    status: string,
++    details?: Record<string, unknown>,
++    durationMs?: number,
++  ) => Promise<void>,
++  makeRunStepFn: (steps: StepResult[]) => <T>(
++    name: string,
++    fn: () => Promise<T>,
++  ) => Promise<{ result: T | null; error: string | null }>,
++): Promise<LeagueSyncResult> {
++  const leagueStart = Date.now();
++  const steps: StepResult[] = [];
++  const runStep = makeRunStepFn(steps);
++  const leagueId = league.apiFootballId;
++  const leagueShort = league.short;
++
++  // logStep wrapper to inject league_short into details
++  const logStep = (
++    gameweek: number,
++    step: string,
++    status: string,
++    details?: Record<string, unknown>,
++    durationMs?: number,
++  ) =>
++    logStepFn(
++      gameweek,
++      step,
++      status,
++      { league: leagueShort, ...(details ?? {}) },
++      durationMs,
++    );
++
++  let activeGw = 1;
++
++  try {
++    // ---- 3. Get active gameweek (per league) ----
+     const { result: gwResult } = await runStep('get_active_gw', async () => {
+       const { data: clubs } = await supabaseAdmin
+         .from('clubs')
+         .select('id, active_gameweek')
++        .eq('league_id', league.id)
+         .order('active_gameweek', { ascending: true });
+ 
+-      if (!clubs || clubs.length === 0) throw new Error('No clubs found');
++      if (!clubs || clubs.length === 0) throw new Error(`No clubs for league ${leagueShort}`);
+ 
+       const minGw = Math.min(
+         ...clubs.map((c) => (c.active_gameweek as number) ?? 1),
+@@ -202,10 +395,15 @@ export async function GET(request: Request) {
+     });
+ 
+     if (!gwResult) {
+-      return NextResponse.json(
+-        { error: 'Failed to get active gameweek', steps },
+-        { status: 500 },
+-      );
++      return {
++        short: leagueShort,
++        apiFootballId: leagueId,
++        gameweek: activeGw,
++        status: 'error',
++        error: 'Failed to get active gameweek',
++        duration_ms: Date.now() - leagueStart,
++        steps,
++      };
+     }
+ 
+     activeGw = gwResult.gameweek;
+@@ -214,16 +412,27 @@ export async function GET(request: Request) {
+       active_gameweek: number;
+     }>;
+ 
++    // Fetch ALL clubs of this league (needed for fixture-scoping — fixtures.gameweek is not
++    // globally unique across leagues; scope via home_club_id IN leagueClubIds).
++    const { data: allLeagueClubRows } = await supabaseAdmin
++      .from('clubs')
++      .select('id')
++      .eq('league_id', league.id);
++    const allLeagueClubIds = (allLeagueClubRows ?? []).map((c) => c.id as string);
++
+     await logStep(activeGw, 'get_active_gw', 'success', {
+       gameweek: activeGw,
+       clubs: clubsToProcess.length,
++      league_clubs_total: allLeagueClubIds.length,
+     });
+ 
+     // ---- 3b. Check for processable fixtures (past played_at OR all already finished) ----
++    // SCOPED per-league via home_club_id IN allLeagueClubIds
+     const { data: unfinishedFixtures } = await supabaseAdmin
+       .from('fixtures')
+       .select('id, played_at')
+       .eq('gameweek', activeGw)
++      .in('home_club_id', allLeagueClubIds)
+       .neq('status', 'finished')
+       .limit(1);
+ 
+@@ -239,7 +448,15 @@ export async function GET(request: Request) {
+ 
+       if (!unscoredEvents || unscoredEvents.length === 0) {
+         await logStep(activeGw, 'already_complete', 'skipped', { reason: 'All fixtures finished, all events scored' });
+-        return NextResponse.json({ status: 'skipped', reason: 'GW already fully processed', gameweek: activeGw, duration_ms: Date.now() - runStart });
++        return {
++          short: leagueShort,
++          apiFootballId: leagueId,
++          gameweek: activeGw,
++          status: 'skipped',
++          reason: 'GW already fully processed',
++          duration_ms: Date.now() - leagueStart,
++          steps,
++        };
+       }
+       // Fixtures done but events not scored — fall through to Phase B
+     } else {
+@@ -248,6 +465,7 @@ export async function GET(request: Request) {
+         .from('fixtures')
+         .select('id')
+         .eq('gameweek', activeGw)
++        .in('home_club_id', allLeagueClubIds)
+         .neq('status', 'finished')
+         .lt('played_at', new Date().toISOString())
+         .limit(1);
+@@ -255,7 +473,15 @@ export async function GET(request: Request) {
+       if (!pastUnfinished || pastUnfinished.length === 0) {
+         // All unfinished fixtures are in the future — nothing to sync
+         await logStep(activeGw, 'no_past_fixtures', 'skipped', { reason: 'No fixtures past kickoff yet' });
+-        return NextResponse.json({ status: 'skipped', reason: 'No fixtures past kickoff', gameweek: activeGw, duration_ms: Date.now() - runStart });
++        return {
++          short: leagueShort,
++          apiFootballId: leagueId,
++          gameweek: activeGw,
++          status: 'skipped',
++          reason: 'No fixtures past kickoff',
++          duration_ms: Date.now() - leagueStart,
++          steps,
++        };
+       }
+     }
+ 
+@@ -287,12 +513,15 @@ export async function GET(request: Request) {
+         total: info.total,
+         finished: info.finished,
+       });
+-      return NextResponse.json({
+-        skipped: true,
++      return {
++        short: leagueShort,
++        apiFootballId: leagueId,
+         gameweek: activeGw,
++        status: 'skipped',
+         reason: `No finished fixtures on API (${info.finished}/${info.total})`,
++        duration_ms: Date.now() - leagueStart,
+         steps,
+-      });
++      };
+     }
+ 
+     const apiFixData = fixtureCheck.apiData;
+@@ -304,12 +533,14 @@ export async function GET(request: Request) {
+     });
+ 
+     // ---- 5. Load DB mappings ----
++    // Fixtures + players scoped per-league via home_club_id / club_id IN allLeagueClubIds
+     const { result: mappings } = await runStep('load_mappings', async () => {
+       const [fixtureRes, extIdRes, playerRes, clubExtRes] = await Promise.all([
+         supabaseAdmin
+           .from('fixtures')
+           .select('id, home_club_id, away_club_id, api_fixture_id')
+           .eq('gameweek', activeGw)
++          .in('home_club_id', allLeagueClubIds)
+           .not('api_fixture_id', 'is', null),
+         supabaseAdmin
+           .from('player_external_ids')
+@@ -317,15 +548,17 @@ export async function GET(request: Request) {
+           .in('source', ['api_football_squad', 'api_football_fixture']),
+         supabaseAdmin
+           .from('players')
+-          .select('id, position, first_name, last_name, club_id, shirt_number'),
++          .select('id, position, first_name, last_name, club_id, shirt_number')
++          .in('club_id', allLeagueClubIds),
+         supabaseAdmin
+           .from('club_external_ids')
+           .select('club_id, external_id')
+-          .eq('source', 'api_football'),
++          .eq('source', 'api_football')
++          .in('club_id', allLeagueClubIds),
+       ]);
+ 
+       if (!fixtureRes.data?.length)
+-        throw new Error('No mapped fixtures for this gameweek');
++        throw new Error(`No mapped fixtures for ${leagueShort} GW${activeGw}`);
+       if (!extIdRes.data?.length) throw new Error('No mapped players');
+ 
+       // Build player position lookup
+@@ -395,10 +628,15 @@ export async function GET(request: Request) {
+ 
+     if (!mappings) {
+       await logStep(activeGw, 'load_mappings', 'error');
+-      return NextResponse.json(
+-        { error: 'Failed to load mappings', gameweek: activeGw, steps },
+-        { status: 500 },
+-      );
++      return {
++        short: leagueShort,
++        apiFootballId: leagueId,
++        gameweek: activeGw,
++        status: 'error',
++        error: 'Failed to load mappings',
++        duration_ms: Date.now() - leagueStart,
++        steps,
++      };
+     }
+ 
+     await logStep(activeGw, 'load_mappings', 'success', {
+@@ -408,12 +646,14 @@ export async function GET(request: Request) {
+     });
+ 
+     // ---- 5b. Identify newly finished fixtures (API=FT, DB!=finished) ----
++    // Scoped per-league
+     const dbFinishedIds = new Set<string>();
+     {
+       const { data: alreadyFinished } = await supabaseAdmin
+         .from('fixtures')
+         .select('id')
+         .eq('gameweek', activeGw)
++        .in('home_club_id', allLeagueClubIds)
+         .eq('status', 'finished');
+       for (const f of alreadyFinished ?? []) {
+         dbFinishedIds.add(f.id as string);
+@@ -433,13 +673,15 @@ export async function GET(request: Request) {
+     if (newlyFinishedFixtures.length === 0 && !allFixturesDone) {
+       // No new fixtures to process and GW not complete — skip gracefully
+       await logStep(activeGw, 'no_new_fixtures', 'skipped', { alreadyFinished: dbFinishedIds.size, total: mappings.fixtures.length });
+-      return NextResponse.json({
+-        status: 'partial',
++      return {
++        short: leagueShort,
++        apiFootballId: leagueId,
+         gameweek: activeGw,
++        status: 'partial',
+         reason: `No newly finished fixtures (${dbFinishedIds.size}/${mappings.fixtures.length} already done)`,
+-        duration_ms: Date.now() - runStart,
++        duration_ms: Date.now() - leagueStart,
+         steps,
+-      });
++      };
+     }
+ 
+     const fixturesToProcess = newlyFinishedFixtures;
+@@ -829,10 +1071,15 @@ export async function GET(request: Request) {
+ 
+     if (!statsResult) {
+       await logStep(activeGw, 'fetch_stats', 'error');
+-      return NextResponse.json(
+-        { error: 'Failed to fetch stats', gameweek: activeGw, steps },
+-        { status: 500 },
+-      );
++      return {
++        short: leagueShort,
++        apiFootballId: leagueId,
++        gameweek: activeGw,
++        status: 'error',
++        error: 'Failed to fetch stats',
++        duration_ms: Date.now() - leagueStart,
++        steps,
++      };
+     }
+ 
+     // Structural dedup: remove ghost starters (dual-ID entries with 0 min, null rating)
+@@ -954,21 +1201,35 @@ export async function GET(request: Request) {
+     await runStep('score_events', async () => {
+       // Score-coverage guard: skip auto-scoring if no real player data exists
+       // (prevents meaningless default-40 scores when API-Football is unavailable)
+-      const { count: gwScoreCount } = await supabaseAdmin
+-        .from('player_gameweek_scores')
+-        .select('*', { count: 'exact', head: true })
+-        .eq('gameweek', activeGw);
++      // Scoped per-league via player_id IN leaguePlayerIds
++      // Get all player IDs for this league first
++      const { data: leaguePlayers } = await supabaseAdmin
++        .from('players')
++        .select('id')
++        .in('club_id', allLeagueClubIds);
++      const leaguePlayerIds = (leaguePlayers ?? []).map((p) => p.id as string);
++
++      const { count: gwScoreCount } =
++        leaguePlayerIds.length > 0
++          ? await supabaseAdmin
++              .from('player_gameweek_scores')
++              .select('*', { count: 'exact', head: true })
++              .eq('gameweek', activeGw)
++              .in('player_id', leaguePlayerIds)
++          : { count: 0 };
+ 
+       if ((gwScoreCount ?? 0) < 50) {
+-        console.warn(`[GW-SYNC] Skipping auto-score: only ${gwScoreCount ?? 0} player scores for GW${activeGw} (need ≥50)`);
++        console.warn(`[GW-SYNC] [${leagueShort}] Skipping auto-score: only ${gwScoreCount ?? 0} player scores for GW${activeGw} (need ≥50)`);
+         return { scored: 0, closed: 0, transitioned: 0, skipped_reason: 'insufficient_scores' };
+       }
+ 
+       // BUG-004 Guard: check if ANY fixture in this GW has actually started
++      // Scoped per-league
+       const { data: gwFixtures } = await supabaseAdmin
+         .from('fixtures')
+         .select('status')
+-        .eq('gameweek', activeGw);
++        .eq('gameweek', activeGw)
++        .in('home_club_id', allLeagueClubIds);
+       const hasStartedFixtures = gwFixtures?.some(f => f.status !== 'scheduled') ?? false;
+ 
+       for (const club of clubsToProcess) {
+@@ -1124,11 +1385,12 @@ export async function GET(request: Request) {
+ 
+           if (!templates || templates.length === 0) continue;
+ 
+-          // Derive timing from next GW fixtures
++          // Derive timing from next GW fixtures (scoped per-league)
+           const { data: nextFixtures } = await supabaseAdmin
+             .from('fixtures')
+             .select('played_at')
+-            .eq('gameweek', nextGw);
++            .eq('gameweek', nextGw)
++            .in('home_club_id', allLeagueClubIds);
+ 
+           let startsAt: string;
+           let locksAt: string;
+@@ -1231,13 +1493,15 @@ export async function GET(request: Request) {
+ 
+     } // END Phase B (allFixturesDone)
+ 
+-    // ---- 13. Sync player activity status ----
++    // ---- 13. Sync player activity status (per-league) ----
++    // Scoped: nur Players dieser Liga, currentGw aus Liga-fixtures
+     const { result: statusResult } = await runStep('sync_activity_status', async () => {
+-      // Get current max finished GW
++      // Get current max finished GW for THIS league
+       const { data: maxGwData } = await supabaseAdmin
+         .from('fixtures')
+         .select('gameweek')
+         .in('status', ['FT', 'finished', 'simulated'])
++        .in('home_club_id', allLeagueClubIds)
+         .order('gameweek', { ascending: false })
+         .limit(1)
+         .maybeSingle();
+@@ -1246,10 +1510,12 @@ export async function GET(request: Request) {
+       if (currentGw === 0) return { marked_doubtful: 0, reactivated: 0, current_gw: 0 };
+ 
+       // Players who haven't appeared in 5+ GWs but are still 'fit' -> mark as 'doubtful'
++      // Scoped to this league via club_id
+       const { data: updated, error } = await supabaseAdmin
+         .from('players')
+         .update({ status: 'doubtful' })
+         .eq('status', 'fit')
++        .in('club_id', allLeagueClubIds)
+         .lt('last_appearance_gw', currentGw - 5)
+         .gt('matches', 0)  // only players who DID play at some point
+         .select('id');
+@@ -1257,10 +1523,12 @@ export async function GET(request: Request) {
+       if (error) throw new Error(error.message);
+ 
+       // Players who DID appear in the latest GW but aren't 'fit' -> set back to 'fit'
++      // Scoped to this league via club_id
+       const { data: reactivated, error: err2 } = await supabaseAdmin
+         .from('players')
+         .update({ status: 'fit' })
+         .neq('status', 'fit')
++        .in('club_id', allLeagueClubIds)
+         .gte('last_appearance_gw', currentGw - 2)  // appeared in last 2 GWs
+         .select('id');
+ 
+@@ -1280,16 +1548,16 @@ export async function GET(request: Request) {
+ 
+     // ---- Integrity Validation ----
+     if (statsResult) {
+-      console.warn(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
++      console.warn(`[INTEGRITY] [${leagueShort}] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
+ 
+       if (statsResult.unmatchedCount > 0) {
+         const nullPlayerStats = dedupedStats.filter(s => s.player_id === null);
+-        console.warn(`[INTEGRITY] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
++        console.warn(`[INTEGRITY] [${leagueShort}] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
+       }
+     }
+ 
+     // ---- Summary ----
+-    const totalDuration = Date.now() - runStart;
++    const totalDuration = Date.now() - leagueStart;
+     await logStep(
+       activeGw,
+       'complete',
+@@ -1301,15 +1569,18 @@ export async function GET(request: Request) {
+         scores_synced: importResult?.scores_synced ?? 0,
+         events_scored: eventsScored,
+         events_closed: eventsClosed,
++        events_transitioned: eventsTransitioned,
+         next_gw_events_created: nextGwEventsCreated,
+         next_gameweek: nextGw,
+       },
+       totalDuration,
+     );
+ 
+-    return NextResponse.json({
+-      success: true,
++    return {
++      short: leagueShort,
++      apiFootballId: leagueId,
+       gameweek: activeGw,
++      status: 'success',
+       phase: allFixturesDone ? 'full' : 'partial',
+       newlyProcessed: fixturesToProcess.length,
+       nextGameweek: allFixturesDone ? nextGw : activeGw,
+@@ -1319,15 +1590,22 @@ export async function GET(request: Request) {
+       scoresSynced: importResult?.scores_synced ?? 0,
+       eventsScored,
+       eventsClosed,
++      eventsTransitioned,
+       nextGwEventsCreated,
+       steps,
+-    });
++    };
+   } catch (error) {
+     const err = error instanceof Error ? error.message : 'Unknown error';
+-    await logStep(activeGw, 'fatal', 'error', { error: err }, Date.now() - runStart);
+-    return NextResponse.json(
+-      { error: err, gameweek: activeGw, steps },
+-      { status: 500 },
+-    );
++    console.error(`[cron] League ${leagueShort} failed:`, err);
++    await logStep(activeGw, 'fatal', 'error', { error: err }, Date.now() - leagueStart);
++    return {
++      short: leagueShort,
++      apiFootballId: leagueId,
++      gameweek: activeGw,
++      status: 'error',
++      error: err,
++      duration_ms: Date.now() - leagueStart,
++      steps,
++    };
+   }
+ }
