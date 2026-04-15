@@ -121,7 +121,26 @@ Pages: `/welcome` → `/(auth)/login` → `/(auth)/onboarding` → `/home`
 
 **Kein Money-Exploit gefunden.** Alle 29 Money-RPCs haben funktionierende auth.uid Guards. Escrow (Offer+Bounty) ist atomic via PL/pgSQL. adjust_user_wallet ist fully audit-logged.
 
-**Proposed Fix-Migration:** 1 Migration beide Guards nachruesten + REVOKE-Template (database.md AR-44 schon dokumentiert).
+**XC-01/02 FIXED (2026-04-15 Commit 348af4d):** Migration `20260415150000_info_leak_fix_auth_guards.sql` — beide RPCs jetzt auth-gated, anon-blocked, Role-Check aktiv.
+
+### E2E-Discovery Findings (2026-04-15)
+
+| ID | Sev | Title | Evidence | Status |
+|----|-----|-------|----------|--------|
+| XC-03 | 🟢 LOW | TX-description zeigt raw cents "IPO: 1 SC für 10000 Cents/SC" statt "100 CR" | `transactions.description` nach ipo_buy via Playwright | OPEN (UX-Polish post-Beta) |
+| XC-04 | 🟡 MED | React Query Cache stale nach IPO-Buy → Manager/Kader zeigt nicht neuen Holding ohne Full-Refresh | E2E: nach buy_from_ipo auf Player-Detail, Manager→Kader zeigte N-1 Spieler | OPEN (Invalidate-Sweep post-Beta) |
+| XC-05 | 🔴 CRIT | 51 Image-Errors auf /market: media-4.api-sports.io NXDOMAIN (7 Liga-Logos) + media.api-sports.io next/image 400 (44 Team/Player) | E2E: Playwright console, 51 errors | FIXED (Commit 63b4c82) |
+| XC-06 | 🟢 LOW | `get_auth_state` hat keinen auth.uid Guard gegen p_user_id (trust-client param) | Reviewer-Finding, RLS greift weiter | OPEN (Post-Beta hardening) |
+
+### E2E Full-Cycle VERIFIED (2026-04-15 13:22-13:32 UTC)
+
+- ✅ Login (jarvis-qa@bescout.net) via Email+Password
+- ✅ Home Rendering (Balance 6.861 CR, 9 Spieler, Mystery Box Preview)
+- ✅ Mystery Box Modal (Drop-Rates 45/30/17/6/2 = 100% korrekt, Gratis-Box anzeigbar)
+- ✅ IPO-Kauf Livan Burcu (Union Berlin, BL1, 100 CR) — DB verified: wallet -10000 cents, holding +1, TX logged
+- ✅ Sell-Order Place (100 CR, Floor-Button, Fee-Breakdown Brutto 100 / Gebühr 6 / Netto 94) — DB verified: orders.status=open
+- ✅ Sell-Order Cancel — DB verified: orders.status=cancelled
+- ✅ Broken-Images Fix live-verified: 0 Console-Errors nach Deploy (vorher 51)
 
 ---
 
