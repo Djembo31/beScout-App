@@ -26,18 +26,20 @@ Pages: `/welcome` → `/(auth)/login` → `/(auth)/onboarding` → `/home`
 
 | ID | Sev | Title | File:Line | Status |
 |----|-----|-------|-----------|--------|
-| J1-01 | 🔴 CRIT | OnboardingChecklist rendert IMMER DE (`item.labelDe`) — TR-User sehen nur Deutsch | `src/components/home/OnboardingChecklist.tsx:59` | OPEN |
-| J1-02 | 🔴 CRIT | RPC-Migration-Drift: `claim_welcome_bonus`, `record_login_streak`, `get_auth_state` live aber KEIN Migration-File. Rollback = tot | Live-DB vs `supabase/migrations/` | OPEN |
-| J1-03 | 🔴 CRIT | Kein Wallet-Init-Trigger. User der `claim_welcome_bonus` nicht erreicht → keine Wallet → Trading broken. Live-DB Evidence: `trg_create_scout_scores` + `trg_init_user_tickets` vorhanden, Wallet-Trigger FEHLT | `supabase/migrations/*` | OPEN |
-| J1-04 | 🟡 HIGH | `record_login_streak` updated wallet OHNE Existence-Check → wenn wallet fehlt: `v_new_balance=NULL`, transaction INSERT broken | Live-DB RPC def | OPEN |
-| J1-05 | 🟡 HIGH | WelcomeBonusModal (erster Credits-Touchpoint!) ohne `<TradingDisclaimer>` | `src/components/onboarding/WelcomeBonusModal.tsx` | OPEN |
-| J1-06 | 🟡 HIGH | `/welcome` ohne TradingDisclaimer, bewirbt Trading+Credits | `src/app/welcome/page.tsx` | OPEN |
-| J1-07 | 🟡 HIGH | `/home` ohne TradingDisclaimer trotz Portfolio/PnL/Trading | `src/app/(app)/page.tsx` | OPEN |
-| J1-08 | 🟡 HIGH | FoundingPass-Upsell ohne `legal.foundingPassDisclaimer` | `src/app/(app)/page.tsx:110-124` | OPEN |
-| J1-09 | 🟡 HIGH | TIER_RESTRICTED (TR) Geofencing fehlt auf Welcome+Onboarding+WelcomeBonus — TR-User sehen Trading-CTAs | Multi-File | OPEN |
-| J1-10 | 🟡 HIGH | Multi-RPC-Chain in `handleSubmit` nicht atomar (profile + club-follow + referral + avatar + refresh) — Partial-Failure moeglich | `src/app/(auth)/onboarding/page.tsx:130-145` | OPEN |
-| J1-11 | 🟡 HIGH | `applyClubReferral` schluckt DB-Error silent (`console.error` ohne throw) | `src/lib/services/referral.ts:94` | OPEN |
-| J1-12 | 🟡 HIGH | `getMissionDefinitions` ohne error-destructuring (schlimmste Variante) | `src/lib/services/missions.ts:17-25` | OPEN |
+| J1-01 | 🔴 CRIT | OnboardingChecklist rendert IMMER DE (`item.labelDe`) — TR-User sehen nur Deutsch | `src/components/home/OnboardingChecklist.tsx:59` | FIXED (155a31c) |
+| J1-02 | 🔴 CRIT | RPC-Migration-Drift: `claim_welcome_bonus`, `record_login_streak`, `get_auth_state` live aber KEIN Migration-File. Rollback = tot | Live-DB vs `supabase/migrations/` | OPEN (partial — record_login_streak fixed via AR-50 20260415010000, claim_welcome_bonus+get_auth_state pending) |
+| J1-03 | 🔴 CRIT | Kein Wallet-Init-Trigger. User der `claim_welcome_bonus` nicht erreicht → keine Wallet → Trading broken. Live-DB Evidence: `trg_create_scout_scores` + `trg_init_user_tickets` vorhanden, Wallet-Trigger FEHLT | `supabase/migrations/*` | OPEN 🔴 BETA-BLOCKER |
+| J1-04 | 🟡 HIGH | `record_login_streak` updated wallet OHNE Existence-Check → wenn wallet fehlt: `v_new_balance=NULL`, transaction INSERT broken | Live-DB RPC def (AR-50 Migration) | OPEN 🔴 BETA-BLOCKER (gekoppelt mit J1-03) |
+| J1-05 | 🟡 HIGH | WelcomeBonusModal (erster Credits-Touchpoint!) ohne `<TradingDisclaimer>` | `src/components/onboarding/WelcomeBonusModal.tsx` | FIXED (b31fef1) |
+| J1-06 | 🟡 HIGH | `/welcome` ohne TradingDisclaimer, bewirbt Trading+Credits | `src/app/welcome/page.tsx` | FIXED (b31fef1) |
+| J1-07 | 🟡 HIGH | `/home` ohne TradingDisclaimer trotz Portfolio/PnL/Trading | `src/app/(app)/page.tsx` | FIXED (b31fef1) |
+| J1-08 | 🟡 HIGH | FoundingPass-Upsell ohne `legal.foundingPassDisclaimer` | `src/app/(app)/page.tsx:110-124` | FIXED (b31fef1) |
+| J1-09 | 🟡 HIGH | TIER_RESTRICTED (TR) Geofencing fehlt auf Welcome+Onboarding+WelcomeBonus — TR-User sehen Trading-CTAs | Multi-File | OPEN 🟡 Compliance |
+| J1-10 | 🟡 HIGH | Multi-RPC-Chain in `handleSubmit` nicht atomar (profile + club-follow + referral + avatar + refresh) — Partial-Failure moeglich | `src/app/(auth)/onboarding/page.tsx:130-145` | FIXED (b31fef1 best-effort by design) |
+| J1-11 | 🟡 HIGH | `applyClubReferral` schluckt DB-Error silent (`console.error` ohne throw) | `src/lib/services/referral.ts:94` | FIXED (155a31c) |
+| J1-12 | 🟡 HIGH | `getMissionDefinitions` ohne error-destructuring (schlimmste Variante) | `src/lib/services/missions.ts:17-25` | FIXED (155a31c) |
+
+**J1 Verification 2026-04-15:** 8/12 bereits gefixt (Commits 155a31c + b31fef1). 4 echt OPEN: J1-02 (Registry-Drift), J1-03+J1-04 (gekoppelt, Beta-Blocker), J1-09 (TR-Compliance).
 | J1-13 | 🟡 HIGH | Handle-Validation blockt keine Reserved Words (admin, bescout, support, root) | `src/lib/services/profiles.ts:4` | OPEN |
 | J1-14 | 🟠 MED | `claim_welcome_bonus` Service schluckt ALLE Errors mit `return { ok: false }` — kein Retry-Signal | `src/lib/services/welcomeBonus.ts:17-20` | OPEN |
 | J1-15 | 🟠 MED | `welcomeBonusExplainer` nennt Credits "Waehrung" / "para birimi" — kollidiert mit "Platform Credits" Wording | `messages/de.json:3164` + `tr.json:3164` | OPEN |

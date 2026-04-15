@@ -26,6 +26,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'img.a.transfermarkt.technology',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.api-sports.io',
+      },
     ],
   },
   async headers() {
