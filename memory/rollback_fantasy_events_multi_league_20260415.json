@@ -1,0 +1,112 @@
+{
+  "seededAt": "2026-04-15T19:44:56.500Z",
+  "totalEvents": 18,
+  "eventIds": [
+    "ea5aaac3-0a5a-49a7-99c6-9293b6a58215",
+    "e0758d88-f08e-4089-abee-89d86a3ee85b",
+    "21b3fee6-1f4b-4d0e-8cd9-2246c5703e88",
+    "ffa90690-8f97-46e4-90e1-b1f8c0800d22",
+    "0bea1384-3261-43ec-b976-8c8afb2064ca",
+    "3467d047-73da-49dc-8486-03cb1bf51206",
+    "534ac6a8-23c8-40a9-bdf2-28c762d172d5",
+    "430d33ca-f854-4b54-a92a-9ee76e9919c0",
+    "af7c72c7-b7f8-4955-a03d-0ec0a7a52e02",
+    "8b1be5a7-1aab-4ef7-adac-003eb287cc27",
+    "1f6e35f9-29af-4887-a440-37dc904cd42e",
+    "2c8731cd-764b-4e1e-9ac3-117d1e1eec64",
+    "a2255fce-45a8-4b21-8274-1072fa392429",
+    "6ee69415-4a49-47dd-98cc-f97da909028d",
+    "aa92287f-e24b-423d-965e-92e91f983a78",
+    "c6ea979f-6802-4394-bd40-653fcc671b29",
+    "88bb3913-f186-4d53-92fe-675beb136a25",
+    "4dce9a8f-7b6e-4d72-ad71-0b3a6b6ce7e5"
+  ],
+  "byLeague": {
+    "BL1": [
+      {
+        "id": "ea5aaac3-0a5a-49a7-99c6-9293b6a58215",
+        "name": "Bundesliga Meisterschaft"
+      },
+      {
+        "id": "e0758d88-f08e-4089-abee-89d86a3ee85b",
+        "name": "Bundesliga Arena Cup"
+      },
+      {
+        "id": "21b3fee6-1f4b-4d0e-8cd9-2246c5703e88",
+        "name": "Rising Stars BL1"
+      }
+    ],
+    "BL2": [
+      {
+        "id": "ffa90690-8f97-46e4-90e1-b1f8c0800d22",
+        "name": "2. Bundesliga Meisterschaft"
+      },
+      {
+        "id": "0bea1384-3261-43ec-b976-8c8afb2064ca",
+        "name": "2. Bundesliga Arena Cup"
+      },
+      {
+        "id": "3467d047-73da-49dc-8486-03cb1bf51206",
+        "name": "Rising Stars BL2"
+      }
+    ],
+    "LL": [
+      {
+        "id": "534ac6a8-23c8-40a9-bdf2-28c762d172d5",
+        "name": "La Liga Meisterschaft"
+      },
+      {
+        "id": "430d33ca-f854-4b54-a92a-9ee76e9919c0",
+        "name": "La Liga Arena Cup"
+      },
+      {
+        "id": "af7c72c7-b7f8-4955-a03d-0ec0a7a52e02",
+        "name": "Rising Stars La Liga"
+      }
+    ],
+    "PL": [
+      {
+        "id": "8b1be5a7-1aab-4ef7-adac-003eb287cc27",
+        "name": "Premier League Meisterschaft"
+      },
+      {
+        "id": "1f6e35f9-29af-4887-a440-37dc904cd42e",
+        "name": "Premier League Arena Cup"
+      },
+      {
+        "id": "2c8731cd-764b-4e1e-9ac3-117d1e1eec64",
+        "name": "Rising Stars PL"
+      }
+    ],
+    "SA": [
+      {
+        "id": "a2255fce-45a8-4b21-8274-1072fa392429",
+        "name": "Serie A Meisterschaft"
+      },
+      {
+        "id": "6ee69415-4a49-47dd-98cc-f97da909028d",
+        "name": "Serie A Arena Cup"
+      },
+      {
+        "id": "aa92287f-e24b-423d-965e-92e91f983a78",
+        "name": "Rising Stars Serie A"
+      }
+    ],
+    "SL": [
+      {
+        "id": "c6ea979f-6802-4394-bd40-653fcc671b29",
+        "name": "Süper Lig Meisterschaft"
+      },
+      {
+        "id": "88bb3913-f186-4d53-92fe-675beb136a25",
+        "name": "Süper Lig Arena Cup"
+      },
+      {
+        "id": "4dce9a8f-7b6e-4d72-ad71-0b3a6b6ce7e5",
+        "name": "Rising Stars SL"
+      }
+    ]
+  },
+  "deleteQuery": "DELETE FROM events WHERE id IN ('ea5aaac3-0a5a-49a7-99c6-9293b6a58215','e0758d88-f08e-4089-abee-89d86a3ee85b','21b3fee6-1f4b-4d0e-8cd9-2246c5703e88','ffa90690-8f97-46e4-90e1-b1f8c0800d22','0bea1384-3261-43ec-b976-8c8afb2064ca','3467d047-73da-49dc-8486-03cb1bf51206','534ac6a8-23c8-40a9-bdf2-28c762d172d5','430d33ca-f854-4b54-a92a-9ee76e9919c0','af7c72c7-b7f8-4955-a03d-0ec0a7a52e02','8b1be5a7-1aab-4ef7-adac-003eb287cc27','1f6e35f9-29af-4887-a440-37dc904cd42e','2c8731cd-764b-4e1e-9ac3-117d1e1eec64','a2255fce-45a8-4b21-8274-1072fa392429','6ee69415-4a49-47dd-98cc-f97da909028d','aa92287f-e24b-423d-965e-92e91f983a78','c6ea979f-6802-4394-bd40-653fcc671b29','88bb3913-f186-4d53-92fe-675beb136a25','4dce9a8f-7b6e-4d72-ad71-0b3a6b6ce7e5');",
+  "notes": "Multi-League Fantasy Events Seed — 18 events across 6 Major Leagues (BL1, BL2, LL, PL, SA, SL)"
+}
