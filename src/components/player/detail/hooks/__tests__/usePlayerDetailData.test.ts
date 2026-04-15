@@ -45,6 +45,10 @@ vi.mock('@/lib/queries/mastery', () => ({
   useDpcMastery: vi.fn(() => ({ data: undefined })),
 }));
 
+vi.mock('@/lib/queries/watchlist', () => ({
+  useWatchlist: vi.fn(() => ({ data: undefined })),
+}));
+
 vi.mock('@/lib/services/profiles', () => ({
   getProfilesByIds: vi.fn(() => Promise.resolve({})),
 }));

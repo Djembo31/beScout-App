@@ -12,10 +12,16 @@ import { Card, Button, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 
-/** Sanitize legacy DB descriptions: replace internal "DPC"/"Cents" with user-facing terms */
+/** Sanitize legacy DB descriptions: replace internal "DPC"/"Cents" with user-facing terms.
+ *  FIX (XC-03): Match `<N> Cents/SC` and `<N> Cents/DPC` FIRST, converting raw cents
+ *  to formatted CR. Previously the `/SC` variant fell through to a literal `Cents/SC → CR`
+ *  replace, leaking raw cents into user-facing TX lines (e.g. "10000 Cents/SC" → "10000 CR").
+ *  Now: "10000 Cents/SC" → "100 CR".
+ */
 function cleanDescription(desc: string): string {
   return desc
     .replace(/\bDPCs?\b/g, 'SC')
+    .replace(/(\d+)\s*Cents\/(?:SC|DPC)\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`)
     .replace(/Cents\/SC/g, 'CR')
     .replace(/Cents\/DPC/g, 'CR')
     .replace(/(\d+)\s*Cents\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`);

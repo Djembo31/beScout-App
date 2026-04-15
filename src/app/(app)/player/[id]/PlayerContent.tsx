@@ -17,6 +17,7 @@ import {
   usePlayerCommunity,
   usePriceAlerts,
 } from '@/components/player/detail/hooks';
+import { useWatchlistActions } from '@/features/market/hooks/useWatchlistActions';
 
 import {
   PlayerDetailSkeleton,
@@ -65,12 +66,20 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const [tab, setTab] = useState<Tab>('trading');
   const heroRef = useRef<HTMLDivElement>(null);
   const [showStrip, setShowStrip] = useState(false);
-  const [isWatchlisted, setIsWatchlisted] = useState(false);
   // showLimitOrder State nur aktiv wenn FEATURE_LIMIT_ORDERS=true.
   // In Beta gehen alle LimitOrder-Trigger auf no-op.
 
   // ─── Data Hook ──────────────────────────
   const data = usePlayerDetailData(playerId, uid, tab);
+
+  // ─── Watchlist (DB-backed, replaces the old local-only useState) ─
+  // FIX: Player-Detail watchlist star was hardcoded false on mount and the
+  // toggle was a pure local setState — no DB write. Reload reverted the star.
+  // Now we read from useWatchlist(uid) via usePlayerDetailData and delegate
+  // the toggle to useWatchlistActions which already does optimistic update +
+  // service call + invalidation (DRY with WatchlistView/Marktplatz).
+  const { toggleWatch } = useWatchlistActions(uid, data.watchlistMap);
+  const onToggleWatchlist = () => toggleWatch(playerId);
 
   // ─── Action Hooks ───────────────────────
   const trading = usePlayerTrading({
@@ -177,9 +186,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           holderCount={data.holderCount}
           watcherCount={data.watcherCount}
           holdingQty={data.holdingQty}
-          isWatchlisted={isWatchlisted}
+          isWatchlisted={data.isWatchlisted}
           priceAlert={alerts.priceAlert}
-          onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
+          onToggleWatchlist={onToggleWatchlist}
           onShare={handleShare}
           onBuyClick={guardedBuy}
           onSellClick={guardedSell}

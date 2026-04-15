@@ -20,6 +20,10 @@ export function useBuyFromMarket() {
       if (result.new_balance != null) setBalanceCents(result.new_balance);
       refreshBalance();
       invalidateTradeQueries(playerId, userId);
+      // Force-refetch the full holdings list even if no observer is mounted
+      // on Market. Otherwise navigating to /manager?tab=kader briefly shows
+      // N-1 players until staleTime triggers a background refetch.
+      queryClient.refetchQueries({ queryKey: qk.holdings.byUser(userId), type: 'all' });
       queryClient.invalidateQueries({ queryKey: qk.offers.incoming(userId) });
     },
   });
@@ -37,6 +41,10 @@ export function useBuyFromIpo() {
       if (result.new_balance != null) setBalanceCents(result.new_balance);
       refreshBalance();
       invalidateTradeQueries(playerId, userId);
+      // FIX (XC-04): force-refetch holdings even if no observer is mounted so
+      // Manager Kader (navigated-to after IPO-buy) sees the new player
+      // immediately instead of N-1 until staleTime expires.
+      queryClient.refetchQueries({ queryKey: qk.holdings.byUser(userId), type: 'all' });
       queryClient.invalidateQueries({ queryKey: qk.ipos.active });
       queryClient.invalidateQueries({ queryKey: qk.ipos.announced });
       queryClient.invalidateQueries({ queryKey: qk.ipos.recentlyEnded });

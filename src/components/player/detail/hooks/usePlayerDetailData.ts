@@ -31,6 +31,7 @@ import { usePlayerResearch } from '@/lib/queries/research';
 import { usePlayerTrades } from '@/lib/queries/trades';
 import { useHoldingLocks } from '@/lib/queries/events';
 import { useDpcMastery } from '@/lib/queries/mastery';
+import { useWatchlist } from '@/lib/queries/watchlist';
 
 type Tab = 'trading' | 'performance' | 'community';
 
@@ -45,6 +46,8 @@ export interface PlayerDetailData {
   holdingQty: number;
   holderCount: number;
   watcherCount: number;
+  isWatchlisted: boolean;
+  watchlistMap: Record<string, boolean>;
   lockedScMap: Map<string, number> | undefined;
   allSellOrders: DbOrder[];
   openBids: OfferWithDetails[];
@@ -90,6 +93,7 @@ export function usePlayerDetailData(
   const { data: lockedScMap } = useHoldingLocks(userId);
   const { data: holderCountData } = usePlayerHolderCount(playerId);
   const { data: watcherCountData } = useWatcherCount(playerId);
+  const { data: watchlistEntries } = useWatchlist(userId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
   const { data: activeIpo } = useIpoForPlayer(playerId);
 
@@ -119,6 +123,12 @@ export function usePlayerDetailData(
   const holdingQty = holdingQtyData ?? 0;
   const holderCount = holderCountData ?? 0;
   const watcherCount = watcherCountData ?? 0;
+  const watchlistMap = useMemo(() => {
+    const m: Record<string, boolean> = {};
+    (watchlistEntries ?? []).forEach(e => { m[e.playerId] = true; });
+    return m;
+  }, [watchlistEntries]);
+  const isWatchlisted = !!watchlistMap[playerId];
   const allSellOrders = allSellOrdersData ?? [];
   const openBids = openBidsData ?? [];
   const trades = tradesData ?? [];
@@ -183,6 +193,8 @@ export function usePlayerDetailData(
     holdingQty,
     holderCount,
     watcherCount,
+    isWatchlisted,
+    watchlistMap,
     lockedScMap,
     allSellOrders,
     openBids,
