@@ -4668,7 +4668,10 @@
     "tipReceivedTitle": "Bahşiş aldın!",
     "tipReceivedBody": "{amount} Credits bahşiş aldın",
     "missionRewardTitle": "Görev tamamlandı!",
-    "missionRewardBody": "Ödül olarak {amount} Credits kazandın"
+    "missionRewardBody": "Ödül olarak {amount} Credits aldın",
+    "priceAlertDown": "Fiyat düştü",
+    "priceAlertUp": "Fiyat yükseldi",
+    "priceAlertBody": "{playerName}: Taban fiyat değişti"
   },
   "glossary": {
     "title": "Sözlük",

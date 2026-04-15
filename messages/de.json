@@ -4668,7 +4668,10 @@
     "tipReceivedTitle": "Trinkgeld erhalten!",
     "tipReceivedBody": "Du hast {amount} Credits als Trinkgeld erhalten",
     "missionRewardTitle": "Mission abgeschlossen!",
-    "missionRewardBody": "Du hast {amount} Credits als Belohnung erhalten"
+    "missionRewardBody": "Du hast {amount} Credits als Belohnung erhalten",
+    "priceAlertDown": "Preis gefallen",
+    "priceAlertUp": "Preis gestiegen",
+    "priceAlertBody": "{playerName}: Floor Price hat sich geändert"
   },
   "glossary": {
     "title": "Glossar",
