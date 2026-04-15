@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-04-15T19:10:55.461Z",
+  "purpose": "Rollback snapshot for TFF club logo migration",
+  "row_count": 9,
+  "rollback_sql_template": "UPDATE clubs SET logo_url = $1 WHERE id = $2; -- apply per row from 'rows' array",
+  "rows": [
+    {
+      "id": "d28884c9-d7d8-454b-ae8d-29f511424e52",
+      "name": "Bandırmaspor",
+      "slug": "bandirmaspor",
+      "short": "BAN",
+      "api_football_id": 3584,
+      "logo_url": "/clubs/bandirmaspor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "ca7f19f5-c6df-4e23-bfe0-cfa7722cff2d",
+      "name": "Boluspor",
+      "slug": "boluspor",
+      "short": "BOL",
+      "api_football_id": 3569,
+      "logo_url": "/clubs/boluspor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "9bb44e57-454b-47f0-b4be-a2d6142874fe",
+      "name": "Erzurumspor FK",
+      "slug": "erzurumspor",
+      "short": "ERZ",
+      "api_football_id": 1009,
+      "logo_url": "/clubs/erzurumspor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "84c09600-7844-4be9-85a2-dc8097ceab22",
+      "name": "İstanbulspor",
+      "slug": "istanbulspor",
+      "short": "İST",
+      "api_football_id": 3578,
+      "logo_url": "/clubs/istaciospor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "40ccd992-345a-4be9-98b1-680a96dcd6d8",
+      "name": "Keçiörengücü",
+      "slug": "keciorenguru",
+      "short": "KEÇ",
+      "api_football_id": 3595,
+      "logo_url": "/clubs/keciörengücü.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "e49dd994-fb00-476b-ba8b-55c799d76053",
+      "name": "Manisa FK",
+      "slug": "manisa",
+      "short": "MAN",
+      "api_football_id": 3597,
+      "logo_url": "/clubs/manisa.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "8c8216db-3250-49d2-8b13-682aefe12be8",
+      "name": "Pendikspor",
+      "slug": "pendikspor",
+      "short": "PEN",
+      "api_football_id": 3601,
+      "logo_url": "/clubs/pendikspor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "2bf30014-db88-4567-9885-9da215e3a0d4",
+      "name": "Sakaryaspor",
+      "slug": "sakaryaspor",
+      "short": "SAK",
+      "api_football_id": 3602,
+      "logo_url": "/clubs/sakaryaspor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    },
+    {
+      "id": "6792271f-7be4-42ee-a762-43cf06dede8a",
+      "name": "Ümraniyespor",
+      "slug": "umraniyespor",
+      "short": "ÜMR",
+      "api_football_id": 3577,
+      "logo_url": "/clubs/umraniyespor.png",
+      "league_id": "b08cffec-6a37-4d95-ab61-0be8f7beb6ce"
+    }
+  ]
+}
