@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Target, Calendar, Check, ChevronDown, Gift, Clock, Shield, Loader2, AlertCircle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
-import { getUserMissions, claimMissionReward } from '@/lib/services/missions';
+import { getUserMissions, claimMissionReward, resolveMissionTitle } from '@/lib/services/missions';
 import { centsToBsd } from '@/lib/services/players';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 // Direct import from keys (NOT '@/lib/queries' barrel) to keep the test setup
@@ -300,6 +300,9 @@ function MissionRow({ mission: m, claiming, onClaim }: {
   claiming: string | null;
   onClaim: (id: string) => void;
 }) {
+  // AR-54 J7: locale-aware title (tr with DE fallback when title_tr NULL)
+  const locale = useLocale();
+  const resolvedTitle = resolveMissionTitle(m.definition, locale);
   const pct = Math.min(100, (m.progress / m.target_value) * 100);
   const isClaimed = m.status === 'claimed';
   const isCompleted = m.status === 'completed';
@@ -321,7 +324,7 @@ function MissionRow({ mission: m, claiming, onClaim }: {
             'text-xs font-medium truncate',
             isClaimed && 'line-through text-white/40'
           )}>
-            {m.definition.title}
+            {resolvedTitle}
           </span>
           <span className="text-[10px] font-mono tabular-nums text-white/40 shrink-0 ml-2">
             {m.progress}/{m.target_value}

@@ -1,8 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
-import { getUserMissions } from '@/lib/services/missions';
+import { getUserMissions, resolveMissionTitle } from '@/lib/services/missions';
 import { qk } from './keys';
 import type { UserMissionWithDef } from '@/types';
 
@@ -24,7 +25,7 @@ export type MissionHintData = {
   target: number;
 };
 
-function filterByContext(missions: UserMissionWithDef[], context: HintContext): MissionHintData[] {
+function filterByContext(missions: UserMissionWithDef[], context: HintContext, locale: string): MissionHintData[] {
   const keywords = CONTEXT_KEYWORDS[context];
   return missions
     .filter(m => m.status === 'active')
@@ -35,7 +36,8 @@ function filterByContext(missions: UserMissionWithDef[], context: HintContext): 
     .slice(0, 2)
     .map(m => ({
       missionId: m.id,
-      title: m.definition.title,
+      // AR-54 J7: locale-aware title (tr with DE fallback when title_tr NULL)
+      title: resolveMissionTitle(m.definition, locale),
       icon: m.definition.icon,
       reward: Number(m.reward_cents),
       progress: m.progress,
@@ -48,6 +50,7 @@ const THIRTY_SEC = 30 * 1000;
 export function useMissionHints(context: HintContext) {
   const { user } = useUser();
   const uid = user?.id;
+  const locale = useLocale();
 
   const { data: missions = [], isLoading } = useQuery({
     queryKey: [...qk.missions.scout, 'hints', uid] as const,
@@ -56,7 +59,7 @@ export function useMissionHints(context: HintContext) {
     staleTime: THIRTY_SEC,
   });
 
-  const hints = uid ? filterByContext(missions, context) : [];
+  const hints = uid ? filterByContext(missions, context, locale) : [];
 
   return { hints, isLoading };
 }

@@ -14,6 +14,9 @@ const mockGetMissions = vi.fn();
 vi.mock('@/lib/services/missions', () => ({
   getUserMissions: (...a: unknown[]) => mockGetMissions(...a),
   claimMissionReward: vi.fn(),
+  // AR-54 J7: locale-aware title resolver (DE fallback)
+  resolveMissionTitle: (def: { title: string; title_tr: string | null }, locale: string) =>
+    locale === 'tr' && def.title_tr ? def.title_tr : def.title,
 }));
 
 import MissionBanner from '../MissionBanner';

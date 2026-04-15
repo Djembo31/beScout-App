@@ -4,6 +4,33 @@ import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { DbMissionDefinition, DbUserMission, UserMissionWithDef } from '@/types';
 
 // ============================================
+// LOCALE-AWARE RESOLVERS (AR-54 Journey #7)
+// ============================================
+
+/**
+ * Resolve a mission-definition title for the given locale, with DE fallback
+ * when the TR column is NULL (robust: new missions ship DE-only first).
+ *
+ * Consumers (MissionBanner) pass `useLocale()` from next-intl.
+ */
+export function resolveMissionTitle(def: Pick<DbMissionDefinition, 'title' | 'title_tr'>, locale: string): string {
+  if (locale === 'tr' && def.title_tr) return def.title_tr;
+  return def.title;
+}
+
+/**
+ * Resolve a mission-definition description for the given locale, with DE
+ * fallback when the TR column is NULL.
+ */
+export function resolveMissionDescription(
+  def: Pick<DbMissionDefinition, 'description' | 'description_tr'>,
+  locale: string,
+): string {
+  if (locale === 'tr' && def.description_tr) return def.description_tr;
+  return def.description;
+}
+
+// ============================================
 // CACHE HELPERS
 // ============================================
 

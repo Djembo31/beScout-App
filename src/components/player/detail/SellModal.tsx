@@ -37,6 +37,8 @@ export default function SellModal({
 }: SellModalProps) {
   const t = useTranslations('playerDetail');
   const tm = useTranslations('market');
+  // tm('feeBreakdownPlatform'|'feeBreakdownPbt'|'feeBreakdownClub') shared
+  // with BuyConfirmModal — AR-56 J8 Transparenz-Fix.
   const [sellQty, setSellQty] = useState(1);
   const [sellPriceBsd, setSellPriceBsd] = useState('');
   const [sellSuccess, setSellSuccess] = useState<string | null>(null);
@@ -251,7 +253,7 @@ export default function SellModal({
                 )}
               </div>
 
-              {/* Fee breakdown */}
+              {/* Fee breakdown — AR-56 J8: Platform 3.5% + PBT 1.5% + Club 1% = 6% Total */}
               {showFee && (
                 <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
@@ -261,6 +263,12 @@ export default function SellModal({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/50">{t('feePercent', { pct: TRADE_FEE_PCT })}</span>
                     <span className="font-mono tabular-nums text-red-400/70">-{fmtScout(fee)} CR</span>
+                  </div>
+                  {/* Inline Fee-Split (3.5% Platform + 1.5% PBT + 1% Club) — shared keys with BuyConfirmModal */}
+                  <div className="pl-3 pt-0.5 text-[10px] text-white/25 space-y-0.5 border-l border-white/10 ml-1">
+                    <div>{tm('feeBreakdownPlatform')}</div>
+                    <div>{tm('feeBreakdownPbt')}</div>
+                    <div>{tm('feeBreakdownClub')}</div>
                   </div>
                   <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">
                     <span className="text-white/50">{t('netProceeds')}</span>

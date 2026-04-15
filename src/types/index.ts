@@ -1264,6 +1264,9 @@ export type DbMissionDefinition = {
   type: MissionType;
   title: string;
   description: string;
+  /** AR-54 J7: Turkish translations (nullable → falls back to `title`/`description`). */
+  title_tr: string | null;
+  description_tr: string | null;
   icon: string;
   target_value: number;
   reward_cents: number;

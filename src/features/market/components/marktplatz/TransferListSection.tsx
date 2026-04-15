@@ -265,7 +265,7 @@ export default function TransferListSection({
                         <button
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setExpandedPlayer(isExpanded ? null : p.id); }}
                           className="flex items-center gap-0.5 text-white/30 hover:text-white/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded"
-                          aria-label={t('showOrderBook', { defaultMessage: 'Orderbuch anzeigen' })}
+                          aria-label={t('showOrderBook', { defaultMessage: 'Angebots-Tiefe anzeigen' })}
                           aria-expanded={isExpanded}
                         >
                           <span>{agg.count} {t('offerPlural', { count: agg.count })}</span>

@@ -20,6 +20,7 @@ import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits';
 import { getStreakMilestone } from '@/lib/retentionEngine';
+import { MissionDisclaimer } from '@/components/legal/MissionDisclaimer';
 
 const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
   ssr: false,
@@ -233,6 +234,9 @@ export default function MissionsPage() {
 
       {/* Achievements (moved from Profile in 3-hub refactor) */}
       {uid && <AchievementsSection userStats={userStats} unlockedKeys={unlockedAchievements} />}
+
+      {/* Compliance-Disclaimer (AR-56 Journey #7) — virtuelle Plattform-Guthaben, keine Auszahlung */}
+      <MissionDisclaimer variant="card" />
 
       {/* Mystery Box Modal — server-authoritative daily gate via useHasFreeBoxToday */}
       <MysteryBoxModal
