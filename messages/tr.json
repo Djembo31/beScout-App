@@ -1005,6 +1005,22 @@
     "emptyDesc": "Bir lig oluştur veya katıl, arkadaşlarınla oyna.",
     "unknownError": "Bilinmeyen hata"
   },
+  "leagueNames": {
+    "tff1lig": "TFF 1. Lig",
+    "superlig": "Süper Lig",
+    "bundesliga": "Bundesliga",
+    "bundesliga2": "2. Bundesliga",
+    "laliga": "La Liga",
+    "premierleague": "Premier League",
+    "seriea": "Serie A",
+    "tff1ligShort": "TFF1",
+    "superligShort": "SL",
+    "bundesligaShort": "BL1",
+    "bundesliga2Short": "BL2",
+    "laligaShort": "LL",
+    "premierleagueShort": "PL",
+    "serieaShort": "SA"
+  },
   "manager": {
     "title": "Menajer",
     "teamCenterTitle": "Menajer · Takım Merkezin",
