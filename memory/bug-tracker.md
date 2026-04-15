@@ -159,6 +159,37 @@ Pages: `/welcome` → `/(auth)/login` → `/(auth)/onboarding` → `/home`
 - ✅ AR-27 Wildcard-Security VERIFIED: alle 5 RPCs (earn/spend/get_balance/refund/admin_grant) mit anon=false + auth_guard=true
 - ✅ Cleanup: unlock_event_entry → 0 entries, 0 lineups
 
+**Wave 6 Comprehensive RPC Coverage (40+ RPCs tested):**
+- ✅ vote_post (vote_type=1 persisted)
+- ✅ submit_daily_challenge (is_correct=true, idempotent on re-submit)
+- ✅ claim_mission_reward (balance +3500, claimed_at set)
+- ✅ subscribe_to_club bronze (tier=bronze active, XC-09 fixed)
+- ✅ send_tip test1→jarvisqa (amount 1000, platform_fee 50 (5%), receiver_earned 950, XC-10 fixed)
+- ✅ claim_score_road (XC-09 fixed)
+- ✅ create_user_bounty (reward_cents=50000, escrow locked)
+- ✅ submit_bounty_response (100-char content-check verified)
+- ✅ accept_offer — blocked by AR-18 Circular-Trade-Guard (same-partner 7d restriction) — WORKING AS INTENDED
+- ✅ reject_offer (status=rejected)
+- ✅ counter_offer (new pending offer created @ 11000)
+- ✅ cancel_offer_rpc (status=cancelled, escrow released)
+- ✅ cancel_user_bounty — blocked when submissions exist — WORKING AS INTENDED
+- ✅ submit_player_valuation (1 row created)
+- ✅ report_content post-target (1 row created)
+- ✅ refresh_my_airdrop_score → total_score=83, tier=bronze (XC-08+XC-14 fixed)
+- ✅ rpc_get_user_social_stats
+- ✅ refresh_my_stats (ok)
+- ✅ get_wildcard_balance + get_club_balance + get_available_sc (alle auth-guard greifen)
+
+### XC-08/09/10/14 NEW P1 BUGS (E2E-Discovery Wave 6)
+
+| ID | Sev | Title | Status |
+|----|-----|-------|--------|
+| XC-08 | 🔴 CRIT | refresh_airdrop_score: research_posts.author_id column doesnt exist (should be user_id) | FIXED Migration 20260415200100 |
+| XC-09 | 🔴 CRIT | transactions_type_check zu restriktiv — 7 RPCs crashen: subscribe_to_club, renew_club_subscription, grant_founding_pass, approve_bounty_submission, unlock_research, reward_referral, cast_community_poll_vote | FIXED Migration 20260415190000 |
+| XC-10 | 🔴 CRIT | notifications_reference_type_check zu restriktiv — send_tip + Subscriptions + Trades crashen | FIXED Migration 20260415190100 |
+| XC-14 | 🔴 CRIT | refresh_airdrop_score INSERT auf non-existing columns (total_trades, research_count) — ganzer Airdrop-Refresh tot | FIXED Migration 20260415200100 |
+| XC-13 | 🟡 INFO | approve_bounty_submission verlangt club_admin — User-Bounty-Creator kann nicht selbst approven | ARCHITECTURE (not bug, club-moderated by design) |
+
 ### XC-07 NEW P0 BUG (E2E-Discovery)
 
 | ID | Sev | Title | File:Line | Status |
