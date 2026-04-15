@@ -132,15 +132,34 @@ Pages: `/welcome` → `/(auth)/login` → `/(auth)/onboarding` → `/home`
 | XC-05 | 🔴 CRIT | 51 Image-Errors auf /market: media-4.api-sports.io NXDOMAIN (7 Liga-Logos) + media.api-sports.io next/image 400 (44 Team/Player) | E2E: Playwright console, 51 errors | FIXED (Commit 63b4c82) |
 | XC-06 | 🟢 LOW | `get_auth_state` hat keinen auth.uid Guard gegen p_user_id (trust-client param) | Reviewer-Finding, RLS greift weiter | OPEN (Post-Beta hardening) |
 
-### E2E Full-Cycle VERIFIED (2026-04-15 13:22-13:32 UTC)
+### E2E Full-Cycle VERIFIED (2026-04-15 13:22-14:10 UTC)
 
+**Wave 1 Solo:**
 - ✅ Login (jarvis-qa@bescout.net) via Email+Password
 - ✅ Home Rendering (Balance 6.861 CR, 9 Spieler, Mystery Box Preview)
 - ✅ Mystery Box Modal (Drop-Rates 45/30/17/6/2 = 100% korrekt, Gratis-Box anzeigbar)
+- ✅ **Mystery Box OPEN via RPC** — rare tickets +44 (182→226) — AR-42/42b Fixes LIVE-VERIFIED
 - ✅ IPO-Kauf Livan Burcu (Union Berlin, BL1, 100 CR) — DB verified: wallet -10000 cents, holding +1, TX logged
 - ✅ Sell-Order Place (100 CR, Floor-Button, Fee-Breakdown Brutto 100 / Gebühr 6 / Netto 94) — DB verified: orders.status=open
 - ✅ Sell-Order Cancel — DB verified: orders.status=cancelled
 - ✅ Broken-Images Fix live-verified: 0 Console-Errors nach Deploy (vorher 51)
+- 🔴 XC-07 Watchlist-Star-Toggle: Silent Failure gefunden (siehe unten)
+
+**Wave 2 Multi-Account:**
+- ✅ **Register+Trigger-Init-Wallet**: Profile INSERT → Wallet auto-created (J1-03 Fix LIVE-VERIFIED)
+- ✅ **Cross-User Trade**: jarvisqa → test1 Burcu @ 200 CR via buy_from_order. Zero-Sum verified: money -20000 + 18800 + 1200 fees = 0. Fee-Split 3.5%/1.5%/1% korrekt (700/300/200 cents).
+- ✅ **P2P Offer + Escrow**: jarvisqa create_offer 150 CR → wallet.locked_balance 15000 cents (Escrow-Lock pattern verified). Cancel → locked_balance=0 (escrow released).
+- ✅ **Follow/Unfollow**: user_follows row created + removed sauber
+
+**Wave 3 Screenshots:** 9 Pages + Desktop+Mobile (rankings, airdrop, community, clubs, inventory, missions, founding, transactions, manager) captured.
+
+### XC-07 NEW P0 BUG (E2E-Discovery)
+
+| ID | Sev | Title | File:Line | Status |
+|----|-----|-------|-----------|--------|
+| XC-07 | 🔴 CRIT | Watchlist-Star auf Player-Detail ist **Silent Broken** — nur lokaler React State-Toggle, kein Service-Call, DB nie geupdated | `src/app/(app)/player/[id]/PlayerContent.tsx:68,180-182` | OPEN (Agent-Fix in Arbeit) |
+
+Evidence: `onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}` — ruft NICHT `addToWatchlist`/`removeFromWatchlist`. Cross-Check via Explore-Agent: 1/6 Handler-Pattern-Matches war dieser einzige Bug, alle anderen (Vote/Follow/Post-Vote) korrekt verdrahtet.
 
 ---
 
