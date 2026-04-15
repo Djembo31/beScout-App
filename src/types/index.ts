@@ -117,6 +117,12 @@ export type DpcHolding = {
   playerId: string;
   player: string;
   club: string;
+  clubId?: string;
+  leagueId?: string;
+  league?: string;
+  leagueShort?: string;
+  leagueLogoUrl?: string | null;
+  leagueCountry?: string;
   pos: Pos;
   qty: number;
   avgBuy: number;
@@ -373,6 +379,9 @@ export type Club = {
   slug: string;
   name: string;
   league: string;
+  leagueId?: string;
+  leagueShort?: string;
+  leagueLogoUrl?: string | null;
   country: string;
   scouts: number;
   volume24h: number;
@@ -639,6 +648,11 @@ export type DbEvent = {
   scored_at: string | null;
   created_by: string | null;
   club_id: string | null;
+  /**
+   * League scoping for multi-league filter (optional until DB column added).
+   * Until backfilled, derive via club_id → getClub() → league_id lookup.
+   */
+  league_id?: string | null;
   sponsor_name: string | null;
   sponsor_logo: string | null;
   event_tier?: 'arena' | 'club' | 'user';

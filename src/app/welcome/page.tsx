@@ -118,7 +118,9 @@ export default function WelcomePage() {
   const stats = [
     { value: '25', label: t('statsPlayers') },
     { value: '1', label: t('statsPartner') },
-    { value: 'TFF', label: t('statsLeague') },
+    // Multi-league static count. Drives user trust signal on welcome page.
+    // When we add a new league, bump this number in lockstep with the DB.
+    { value: '7', label: t('statsLeague') },
     { value: 'Beta', label: t('statsPhase') },
   ];
 

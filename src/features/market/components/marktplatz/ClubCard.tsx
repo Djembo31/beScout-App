@@ -4,6 +4,8 @@ import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { PlayerPhoto, getL5Color } from '@/components/player';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
+import { getLeague } from '@/lib/leagues';
 import type { Pos } from '@/types';
 import CountdownBadge from './CountdownBadge';
 import { cn } from '@/lib/utils';
@@ -98,7 +100,22 @@ export default function ClubCard({
         )}
         <div className="min-w-0 flex-1">
           <div className="font-black text-[10px] text-white truncate leading-tight">{club.name}</div>
-          <div className="text-[9px] text-white/40 truncate leading-tight">{club.league}</div>
+          {(() => {
+            const leagueMeta = getLeague(club.league);
+            if (leagueMeta) {
+              return (
+                <div className="mt-0.5">
+                  <LeagueBadge
+                    logoUrl={leagueMeta.logoUrl}
+                    name={leagueMeta.name}
+                    short={leagueMeta.short}
+                    size="xs"
+                  />
+                </div>
+              );
+            }
+            return <div className="text-[9px] text-white/40 truncate leading-tight">{club.league}</div>;
+          })()}
         </div>
       </div>
 

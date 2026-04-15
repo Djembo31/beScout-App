@@ -30,6 +30,27 @@ vi.mock('@/lib/services/footballData', () => ({
   hasApiFixtures: (...args: unknown[]) => mockHasApiFixtures(args[0] as number),
 }));
 
+// Mock leagues module to avoid supabase init in tests
+vi.mock('@/lib/leagues', () => ({
+  getActiveLeagues: () => [{
+    id: 'tff1',
+    name: 'TFF 1. Lig',
+    short: 'TFF',
+    country: 'TR',
+    season: '2025/26',
+    logoUrl: null,
+    apiFootballId: 204,
+    activeGameweek: 1,
+    maxGameweeks: 34,
+    isActive: true,
+  }],
+}));
+
+// Mock LeagueBadge to avoid Image issues in tests
+vi.mock('@/components/ui/LeagueBadge', () => ({
+  LeagueBadge: ({ name }: { name: string }) => <span data-testid="league-badge">{name}</span>,
+}));
+
 // ============================================
 // Mocks — child components (stubs)
 // ============================================
