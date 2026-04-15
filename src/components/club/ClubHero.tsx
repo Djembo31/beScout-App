@@ -9,9 +9,11 @@ import {
   Loader2, Briefcase, TrendingUp, Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { fmtScout, cn } from '@/lib/utils';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useParallax } from '@/hooks/useParallax';
+import { getLeague } from '@/lib/leagues';
 import { PRESTIGE_CONFIG } from '@/components/club/ClubStatsBar';
 import type { ClubWithAdmin } from '@/types';
 import type { PrestigeTier } from '@/lib/services/club';
@@ -139,8 +141,21 @@ export function ClubHero({
                 {club.is_verified && <BadgeCheck className="size-6 md:size-10 text-gold" />}
               </div>
               <div className="flex items-center gap-2 text-xs md:text-sm text-white/70 justify-center mt-1">
-                <Trophy className="size-3.5 md:size-4" />
-                <span>{club.league}</span>
+                <Trophy className="size-3.5 md:size-4" aria-hidden="true" />
+                {(() => {
+                  const leagueMeta = getLeague(club.league);
+                  if (leagueMeta) {
+                    return (
+                      <LeagueBadge
+                        logoUrl={leagueMeta.logoUrl}
+                        name={leagueMeta.name}
+                        short={leagueMeta.short}
+                        size="sm"
+                      />
+                    );
+                  }
+                  return <span>{club.league}</span>;
+                })()}
                 {club.city && (
                   <>
                     <span className="text-white/30">|</span>
