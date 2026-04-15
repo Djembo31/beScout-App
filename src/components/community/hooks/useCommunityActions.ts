@@ -8,6 +8,7 @@ import { castVote } from '@/lib/services/votes';
 import { castCommunityPollVote, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { qk, invalidateResearchQueries } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { PostWithAuthor, PostType } from '@/types';
 
 import type { CommunityState, CommunityAction } from './types';
@@ -29,6 +30,7 @@ export function useCommunityActions({
 }: UseCommunityActionsParams) {
   const { addToast } = useToast();
   const t = useTranslations('community');
+  const tErrors = useTranslations('errors');
 
   const handleVotePost = useCallback(async (postId: string, voteType: number) => {
     if (!userId) return;
@@ -307,11 +309,14 @@ export function useCommunityActions({
       dispatch({ type: 'SET_CREATE_BOUNTY_OPEN', value: false });
       addToast(t('createBounty.success'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Service throws i18n-keys (e.g. 'bountyRewardMinimum') — resolve via errors-namespace.
+      // Avoids raw-key-leak (common-errors.md: i18n-Key-Leak via Service-Errors, 2026-04-14).
+      const key = mapErrorToKey(normalizeError(err));
+      addToast(tErrors(key), 'error');
     } finally {
       dispatch({ type: 'SET_BOUNTY_CREATING', value: false });
     }
-  }, [userId, state.clubId, state.clubName, addToast, t, dispatch]);
+  }, [userId, state.clubId, state.clubName, addToast, t, tErrors, dispatch]);
 
   return {
     handleVotePost,

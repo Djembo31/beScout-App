@@ -98,6 +98,25 @@ function termRegex(term: string): RegExp {
   return new RegExp(`(?<!\\w)${escaped}(?!\\w)`, 'i');
 }
 
+/**
+ * Build a Turkish stem-regex that matches any kazan*-form (kazan, kazandı,
+ * kazanıldı, kazanma, kazanır, kazançlar, ...). Uses lookbehind for
+ * left word-boundary and allows any suffix on the right.
+ */
+function turkishStemRegex(stem: string): RegExp {
+  const escaped = stem.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?<!\\w)${escaped}\\w*`, 'i');
+}
+
+/**
+ * Build a regex that matches an arbitrary substring (no word-boundary).
+ * Used for patterns that span multiple words (e.g. "Marktwert steigt").
+ */
+function phraseRegex(phrase: string): RegExp {
+  const escaped = phrase.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(escaped, 'i');
+}
+
 // ---------------------------------------------------------------------------
 // Forbidden term definitions with word-boundary matching
 // ---------------------------------------------------------------------------
@@ -158,6 +177,99 @@ const FORBIDDEN_CRYPTO = [
   'blockchain token',
   'blockchain-token',
 ].map((t) => ({ term: t, regex: termRegex(t) }));
+
+/**
+ * Turkish `kazan*`-family (gambling verb per business.md).
+ * Covers: kazan, kazandın, kazandı, kazanıldı, kazanma, kazanır, kazançlar.
+ * Note: `kazancı/kazanç` Substantivform is also caught by the stem-regex.
+ */
+const FORBIDDEN_TR_KAZAN = [
+  { term: 'kazan*', regex: turkishStemRegex('kazan') },
+];
+
+/**
+ * "Trader/Tüccar" role-detection — business.md Securities-Identity-Rule.
+ *
+ * SCOPE NOTE: This test guards against NEW role-framing inserts.
+ * Existing `Trader`/`Tüccar` role-strings in profile.trader, achievements etc.
+ * are tracked under a separate Phase-4 compliance-refactor ticket (role-rename
+ * to `Scout`/`Koleksiyoncu` requires DB + achievement_key migration).
+ *
+ * We match ONLY explicit role-framing patterns: "als Trader", "olarak Tüccar",
+ * or role-claim constructions like "du bist Trader".
+ */
+const FORBIDDEN_ROLE_TRADER = [
+  // Claim-construction: "als Trader" / "als Tüccar" (DE)
+  { term: 'als Trader', regex: /\bals\s+trader\b/i },
+  { term: 'als Tüccar', regex: /\bals\s+tüccar\b/i },
+  // Role-assignment: "Tüccar olarak" / "Trader olarak" (TR)
+  { term: 'Trader olarak', regex: /\btrader\s+olarak\b/i },
+  { term: 'Tüccar olarak', regex: /\btüccar\s+olarak\b/i },
+  // "Du bist Trader" claim
+  { term: 'bist Trader', regex: /\bbist\s+trader\b/i },
+  { term: 'sen Tüccar', regex: /\bsen\s+tüccar\b/i },
+];
+
+/**
+ * Reward-Kausalität patterns — Rendite-Kausalitätsbotschaften per business.md.
+ * "Marktwert steigt → Fee steigt" suggests that rewards are tied to market value,
+ * which is a financial-instrument signal. Also catches "am Erfolg beteiligen" and
+ * "Handle clever" spekulations-framing.
+ */
+const FORBIDDEN_REWARD_CAUSALITY = [
+  { term: 'Marktwert steigt', regex: phraseRegex('marktwert steigt') },
+  { term: 'piyasa değeri artınca', regex: phraseRegex('piyasa değeri artınca') },
+  { term: 'am Erfolg beteiligen', regex: phraseRegex('am erfolg beteilig') },
+  { term: 'başarıya ortak', regex: phraseRegex('başarıya ortak') },
+  { term: 'Handle clever', regex: phraseRegex('handle clever') },
+  { term: 'akıllıca işlem', regex: phraseRegex('akıllıca işlem') },
+];
+
+/**
+ * $SCOUT ticker in user-facing strings — Code-Variable/Admin OK, but
+ * user-facing Values must say "Credits". The `$SCOUT` literal is specifically
+ * forbidden in values of the `fantasy`/`home`/`welcome`/`community` namespaces.
+ * We catch any `$SCOUT` substring in ANY value except the admin-facing block.
+ *
+ * Scope: User-facing = anything that is NOT in `bescoutAdmin` namespace.
+ * Since we flatten all strings, we need an allowlist: admin-facing values
+ * containing `$SCOUT` are allowed (per business.md IPO-rule analog).
+ */
+const FORBIDDEN_SCOUT_TICKER = [
+  { term: '$SCOUT', regex: /\$SCOUT/ },
+];
+
+/**
+ * Admin-facing $SCOUT values (per business.md: admin strings may retain `$SCOUT`).
+ * These are hardcoded from the current bescoutAdmin namespace — if new admin
+ * values are added, they must be allowlisted here.
+ */
+const ADMIN_SCOUT_ALLOWLIST = new Set([
+  '$SCOUT Events',
+  '$SCOUT als Waehrung fuer Fantasy Events aktivieren',
+  '$SCOUT Events aktiviert',
+  '$SCOUT Events deaktiviert',
+  '$SCOUT Etkinlikler',
+  'Fantasy etkinlikler icin $SCOUT para birimini etkinlestir',
+  '$SCOUT etkinlikler etkinlestirildi',
+  '$SCOUT etkinlikler devre disi birakildi',
+]);
+
+/**
+ * "Prize / Prämien-Liga" patterns — gambling-vocabulary per business.md.
+ * Checks for `prize` (EN), `prämie` (DE), `preisgeld`, `preispool`.
+ * Note: "Preis" alone is ambiguous (e.g. "Marktpreis") — only flag the compound
+ * forms like "Prämien-Liga", "Preispool", "Preisgeld".
+ */
+const FORBIDDEN_PRIZE = [
+  { term: 'prize league', regex: termRegex('prize league') },
+  { term: 'prize pool', regex: termRegex('prize pool') },
+  { term: 'prämien-liga', regex: termRegex('prämien-liga') },
+  { term: 'prämienliga', regex: termRegex('prämienliga') },
+  { term: 'preisgeld', regex: termRegex('preisgeld') },
+  { term: 'preispool', regex: termRegex('preispool') },
+  { term: 'preis-pool', regex: termRegex('preis-pool') },
+];
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -251,6 +363,147 @@ describe('Compliance Wording', () => {
     if (allViolations.length > 0) {
       expect.fail(
         `$SCOUT must not be described as cryptocurrency:\n${allViolations.map((v) => `  - ${v}`).join('\n')}`
+      );
+    }
+  });
+
+  // ─────────────────────────────────────────────────────
+  // COMPL-tr-kazan: TR kazan*-family (gambling verb per business.md)
+  // Catches: kazan, kazandın, kazandı, kazanıldı, kazanma, kazanır, kazançlar, kazancı.
+  // Phase 3 Compliance — MASAK §4 Abs.1 e (Turkish gambling law).
+  // ─────────────────────────────────────────────────────
+  it('COMPL-tr-kazan: Turkish locale contains no kazan*-family verbs (gambling vocabulary)', () => {
+    const violations = findViolations(tr.raw, FORBIDDEN_TR_KAZAN);
+
+    if (violations.length > 0) {
+      const report = violations
+        .map((v) => `  - "${v.term}" found in: ${v.examples.map((e) => `"${e}"`).join(', ')}`)
+        .join('\n');
+      expect.fail(
+        `Turkish locale (tr.json) contains gambling-family kazan* verbs:\n${report}\n\n` +
+        `Fix: Use "topla" (collect), "al" (take/receive), or "elde et" (obtain) per business.md.`
+      );
+    }
+  });
+
+  // ─────────────────────────────────────────────────────
+  // COMPL-role-trader: "Trader/Tüccar" als Rolle (Securities-Identity)
+  // business.md: Securities-Terminologie → "Sammler"/"Scout"/"Koleksiyoncu".
+  // ─────────────────────────────────────────────────────
+  it('COMPL-role-trader: No locale uses "Trader/Tüccar" as a role label', () => {
+    const allLocales = [
+      { locale: 'de', data: de },
+      { locale: 'tr', data: tr },
+    ];
+
+    const allViolations: string[] = [];
+
+    for (const { locale, data } of allLocales) {
+      const violations = findViolations(data.raw, FORBIDDEN_ROLE_TRADER);
+      for (const v of violations) {
+        allViolations.push(
+          `[${locale}] "${v.term}" found in: ${v.examples.map((e) => `"${e}"`).join(', ')}`
+        );
+      }
+    }
+
+    if (allViolations.length > 0) {
+      expect.fail(
+        `"Trader/Tüccar" as a role label is forbidden (SPK/MiCA signal):\n${allViolations.map((v) => `  - ${v}`).join('\n')}\n\n` +
+        `Fix: Use "Sammler"/"Scout" (DE) or "Koleksiyoncu"/"Scout" (TR) per business.md.`
+      );
+    }
+  });
+
+  // ─────────────────────────────────────────────────────
+  // COMPL-reward-causality: "Marktwert steigt → Bonus" (Rendite-Kausalität)
+  // business.md: Financial-instrument signal — "Hoehe haengt von Markt-Bewertung ab"
+  // neutralisiert die Kausalität.
+  // ─────────────────────────────────────────────────────
+  it('COMPL-reward-causality: No locale uses reward-causality patterns (Rendite-Kausalität)', () => {
+    const allLocales = [
+      { locale: 'de', data: de },
+      { locale: 'tr', data: tr },
+    ];
+
+    const allViolations: string[] = [];
+
+    for (const { locale, data } of allLocales) {
+      const violations = findViolations(data.raw, FORBIDDEN_REWARD_CAUSALITY);
+      for (const v of violations) {
+        allViolations.push(
+          `[${locale}] "${v.term}" found in: ${v.examples.map((e) => `"${e}"`).join(', ')}`
+        );
+      }
+    }
+
+    if (allViolations.length > 0) {
+      expect.fail(
+        `Reward-causality patterns are forbidden (Rendite-Kausalität signals):\n${allViolations.map((v) => `  - ${v}`).join('\n')}\n\n` +
+        `Fix: Use neutral framing like "Die Hoehe haengt von Markt-Bewertung ab" per business.md.`
+      );
+    }
+  });
+
+  // ─────────────────────────────────────────────────────
+  // COMPL-scout-ticker: $SCOUT in user-facing values (must be "Credits")
+  // business.md: Code-intern bleiben Variable/DB-Column-Namen. Admin-facing darf
+  // bleiben. User-facing Values → "Credits".
+  // Allowlist: ADMIN_SCOUT_ALLOWLIST contains the current admin-namespace values.
+  // ─────────────────────────────────────────────────────
+  it('COMPL-scout-ticker: $SCOUT ticker must not appear in user-facing values', () => {
+    const allLocales = [
+      { locale: 'de', data: de },
+      { locale: 'tr', data: tr },
+    ];
+
+    const allViolations: string[] = [];
+
+    for (const { locale, data } of allLocales) {
+      // Filter: allow admin-namespace values that intentionally retain $SCOUT.
+      const userFacing = data.raw.filter((s) => !ADMIN_SCOUT_ALLOWLIST.has(s));
+      const violations = findViolations(userFacing, FORBIDDEN_SCOUT_TICKER);
+      for (const v of violations) {
+        allViolations.push(
+          `[${locale}] "${v.term}" found in: ${v.examples.map((e) => `"${e}"`).join(', ')}`
+        );
+      }
+    }
+
+    if (allViolations.length > 0) {
+      expect.fail(
+        `$SCOUT ticker is forbidden in user-facing strings (only admin namespace allowed):\n${allViolations.map((v) => `  - ${v}`).join('\n')}\n\n` +
+        `Fix: Replace "$SCOUT" with "Credits" in user-facing values. If this is a new admin-facing string, ` +
+        `add it to ADMIN_SCOUT_ALLOWLIST in wording-compliance.test.ts.`
+      );
+    }
+  });
+
+  // ─────────────────────────────────────────────────────
+  // COMPL-prize: Prize-League / Prämien-Liga (Glücksspiel-Vokabel)
+  // business.md: Prize/Prämie = Gluecksspiel-Terminologie → Reward/Belohnung.
+  // ─────────────────────────────────────────────────────
+  it('COMPL-prize: No locale uses prize-league / prämien-liga / preisgeld', () => {
+    const allLocales = [
+      { locale: 'de', data: de },
+      { locale: 'tr', data: tr },
+    ];
+
+    const allViolations: string[] = [];
+
+    for (const { locale, data } of allLocales) {
+      const violations = findViolations(data.raw, FORBIDDEN_PRIZE);
+      for (const v of violations) {
+        allViolations.push(
+          `[${locale}] "${v.term}" found in: ${v.examples.map((e) => `"${e}"`).join(', ')}`
+        );
+      }
+    }
+
+    if (allViolations.length > 0) {
+      expect.fail(
+        `Prize/Prämie-vocabulary is forbidden (gambling-terminology):\n${allViolations.map((v) => `  - ${v}`).join('\n')}\n\n` +
+        `Fix: Use "Reward"/"Belohnung" (DE) or "Ödül" (TR) per business.md.`
       );
     }
   });
