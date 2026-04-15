@@ -328,7 +328,7 @@ Skizze fuer spaetere Sessions:
 | 1.3 14 RPCs DPC-Sanitize+Rename | ✅ done | CTO via MCP | 2026-04-14: A=10 RPCs sanitized, B=2 Renames mit Alias-Pattern, Code+Tests updated |
 | 1.4 Migration-Drift Doku | ✅ done | CTO | 2026-04-14: database.md Zeile 67-82 + pre-launch [x] |
 | 1.5 Live-DB Tests | ✅ verified intentional | — | 2026-04-14 |
-| 2 — Journey Audits (12) | 🟡 in-progress | Frontend+Backend+Business+Reviewer | J1 ✅. J2 ✅ + 6 AR-Items. J3 ✅ **ALLE 15 AR-Items** (Schnellbahn 2026-04-14). J4 ✅ **ALLE 16 AR-Items** (inkl. P0 Security). J5 ✅ **ALLE 9 AR-Items durchgezogen** (AR-42/42b/46 LIVE-FIX + 12 autonome FIX-03..14 + **CEO-Schnellbahn AR-43/44/45/47/48/49** 2026-04-15). J6+ nächstes. |
+| 2 — Journey Audits (12) | 🟡 in-progress | Frontend+Backend+Business+Reviewer | J1 ✅. J2 ✅ 6 AR. J3 ✅ **15 AR**. J4 ✅ **16 AR**. J5 ✅ **9 AR**. J6+J7+J8 🟡 Round 1 done (2026-04-15): **5 AKUT-P0 LIVE-FIX** (Streak-Race-Exploit-Reversal + assign_user_missions Security + 7 Trade-RPCs REVOKE + expire_pending_orders BUY-branch + DROP buy_from_market) + **46 autonome Healer-Fixes** (J6+J7+J8 Wording+Streak+Error-Mapping) + **Rework-Round** (orderCannotBeCancelled i18n, Wording-Sweep Portfolio/Trader/Einzahlen, Streak-Source-of-Truth Migration, J6 4 RPCs REVOKE). Offen: restliche ~10 reguläre CEO-Items (Realtime-Publication, TR-Glossar-Approval, Rate-Limit-Tier, Fee-Transparenz, SellModal-Refactor post-Beta). J9+ pending. |
 | 3 — Cross-Cutting (4) | ⏳ pending | parallel zu Phase 2 | — |
 | 4 — Beta Gate | ⏳ definition pending | CEO + CTO | — |
 | 5 — Launch | ⏳ blocked by 4 | — | — |
