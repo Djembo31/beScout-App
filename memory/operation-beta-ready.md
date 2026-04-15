@@ -268,6 +268,22 @@ Die Multi-League-Expansion (7 Ligen, 134 Clubs, 4.263 Spieler, Commit 8a5014d) i
 
 ---
 
+## 🔴 NAECHSTE SESSION PRIORITAET: Ferrari 10x Phase 1 Fundament
+
+**Vor weiterer Beta-Phase-Arbeit:** Workflow-Upgrade durchziehen. Siehe `memory/ferrari-10x-upgrade-plan.md`.
+
+- Phase 1 komplett (1 Session, ~3h): Agent-Verify-Hook + SSOT-Merge + Staleness-Audit + AutoDream-Fix + Commit-Knowledge-Check
+- Nach Phase 1: 1 Woche normale Arbeit, messen ob Verification-Overhead -30%
+- Dann Phase 2 Koordinations-Layer
+- Phase 3 Autonom-Loop erst nach 2 Wochen Phase-2-Stabilitaet
+
+**Parallel offene Beta-Items (fuer nachher):**
+- Item 1.1 Phantom-SC-Cleanup (CEO-gated)
+- Phase 2 Playwright-Evidence auf bescout.net
+- DB-Invariants jarvisqa Dev-Account-Cleanup (3 Test-Failures)
+
+---
+
 ### Phase 4 — Beta Launch Gate (Definition, CEO-Decisions 2026-04-14)
 
 EXPLIZITE Checklist. Was hier nicht ✅ ist, blockt Beta-Launch.

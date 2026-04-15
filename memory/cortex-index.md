@@ -64,6 +64,7 @@
 | Preflight Schema-Introspection / supabase REST 1-row + Object.keys / Schema-Drift Import | `memory/semantisch/projekt/multi-league-phase-1.md` (Lessons) + `memory/learnings/drafts/2026-04-15-backend-fixtures-import-schema-drift.md` |
 | XC-15 expire_pending_orders / filled_qty / AR-42 SELECT-Variante / Cron-Silent-Fail | `memory/semantisch/projekt/multi-league-phase-1.md` (XC-15 Sektion) + `memory/learnings/drafts/2026-04-15-backend-ar42-third-occurrence.md` |
 | Missions System / mission_definitions / user_missions / useLoginStreak / assign_user_missions / claim_mission_reward / Race-Safety / TR-i18n | `memory/semantisch/projekt/missions-architecture.md` |
+| Ferrari 10x Upgrade Plan / Agent-Verify-Hook / SSOT-Merge / Staleness-Audit / working-memory.md / agent-queue.md / Queue-Watcher / File-Coordinated Team | `memory/ferrari-10x-upgrade-plan.md` (NEU 2026-04-16, Phase 1 ready) |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |
