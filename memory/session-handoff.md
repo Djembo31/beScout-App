@@ -1,65 +1,80 @@
-# Session Handoff (2026-04-15 16:32) — BETA-READY SIGN-OFF
+# Session Handoff (2026-04-15 ENDE) — BETA-READY + Next: Multi-League 100%
 
-## Session-Gesamtwerk (5 Commits auf main)
-1. `84d6584` Phase 0 Inventory + HIGH-RISK RPC Audit
-2. `348af4d` Info-Leak Auth-Guards (get_club_balance + get_available_sc)
-3. `63b4c82` J1-02/03/04/09 + Broken-Images (5 Fixes)
-4. `89f6669` E2E Full-Cycle VERIFIED + Findings docs
-5. `891ce5c` Wave 4 UX Polish — XC-03/04/06/07 (4 Fixes)
+## Heutige Session: 9 Commits, 16 Bugs gefixt
 
-## Coverage (Wave 1+2 E2E)
+**Commits (main):** `cb19ce9 → 979b52b`
+- Phase 0 Inventory + RPC Audit
+- Info-Leak Auth-Guards (XC-01/02)
+- J1-02/03/04/09 + Broken-Images
+- E2E Full-Cycle VERIFIED docs
+- Wave 4 UX Polish (XC-03/04/06/07 Watchlist+Cents+Query+auth_state)
+- Wave 5 Fantasy Event
+- Wave 6 RPC Comprehensive: 4 P1 Silent-Crashes (XC-08/09/10/14)
 
-**Solo Flows:** Login, Home, MysteryBox-Open-RPC (rare tickets +44 live, AR-42/42b fixes verified), IPO-Buy (wallet-10000, holding+1, TX), Sell place+cancel, Broken-Images zero-errors.
+## Coverage final
 
-**Multi-Account Flows:** Register+Trigger-Init-Wallet (profile INSERT → wallet auto-created), Cross-User Trade (jarvisqa→test1, zero-sum verified, fee-split 3.5/1.5/1% korrekt 700/300/200), P2P-Offer Escrow (locked 15000→released), Follow/Unfollow sauber.
+**12/12 Journeys E2E ✓** (Login, IPO, Trade, Fantasy-Event, MysteryBox, Profile/Follow, Mission/Streak, Sell, Liga-Rang, Watchlist, Equipment, Multi-League-Discovery)
 
-**Audit:** 9 Pages Screenshots (desktop+mobile), HIGH-RISK RPC-Audit 29 Money-RPCs (alle safe), Watchlist-Handler-Pattern-Sweep (1 Bug XC-07 gefunden).
+**40+ RPCs live-verified, 4 P1 Silent-Crashes gefixt.** Details in `memory/bug-tracker.md`.
 
-## Findings Final-State
+## State
+- tsc clean, 49/49 Component-Tests, 4704 i18n keys DE↔TR parity, compliance-audit grün
+- jarvisqa: 599350 cents + 50000 locked (test-bounty) + 1 watchlist-row + 1 club-subscription
+- test1: +1 Burcu holding
+- Test bounty offen (auto-close nach 7d)
 
-| ID | Sev | Status |
-|----|-----|--------|
-| J1-01..12 (12x) | mixed | 8 FIXED (prior) + 4 FIXED (heute: J1-02/03/04/09) |
-| XC-01 Info-Leak get_club_balance | HIGH | FIXED (348af4d) |
-| XC-02 Info-Leak get_available_sc | HIGH | FIXED (348af4d) |
-| XC-03 TX raw cents | LOW | FIXED (891ce5c) |
-| XC-04 React Query stale post-IPO | MED | FIXED (891ce5c) |
-| XC-05 Broken Images (51 errors) | CRIT | FIXED (63b4c82) |
-| XC-06 get_auth_state trust-client | LOW | FIXED (891ce5c) |
-| XC-07 Watchlist Silent Failure | CRIT | FIXED (891ce5c) |
+---
 
-**12 Findings diese Session, alle FIXED + live-verified.**
+## NEXT SESSION — Multi-League 100% Audit (Anil-Brief)
 
-## Live-DB-Verify Snapshots
+**Ziel:** Vollstaendige Verifikation dass alle 7 Ligen auf JEDER User-Ebene funktional + sichtbar sind — nicht nur TFF 1. Lig sondern auch Bundesliga, 2. Bundesliga, La Liga, Premier League, Serie A, Sueper Lig.
 
-- `trg_init_user_wallet` exists + 0 wallet-less profiles
-- `record_login_streak` has `v_new_balance IS NULL` guard
-- `get_club_balance`, `get_available_sc`, `get_auth_state` — anon_can_execute=false, role_guard=YES
-- `leagues.logo_url` — 0 mit media-4, 7 mit media
-- Mystery Box RPC AR-42/AR-42b columns korrekt
-- Watchlist INSERT on click working (live E2E)
+**Test-Matrix pro Liga (23 Checks × 7 Ligen = 161 Verify-Points):**
 
-## Tests
-- tsc: CLEAN
-- i18n-Audit: 4704 Keys DE↔TR Parität
-- Compliance-Audit: passed
-- Component-Tests: 49/49 green
+### Data Completeness (API-Import-Status)
+1. Spieler-Import: alle Spieler jeder Liga in DB (first/last_name, position, shirt_number, club_id, league_id komplett)
+2. Stats: L5-Scores, xG, Tore, Assists etc. pro Spieler
+3. Bilder: player-photo, team-logo, league-badge alle verfuegbar
+4. Marktwert: transfermarkt-value nicht null, nicht stale
+5. Vertrag: contract-end-date importiert
+6. Club-Metadata: name, logo, country, league, founded_year etc.
 
-## State nach Session
-- jarvisqa: balance 694900 cents + 1 Watchlist-Row (Burcu)
-- test1: +1 Burcu (von cross-user trade)
-- test2: unverändert
+### Handel & Trading
+7. IPO: jeder Spieler hat offene oder geplante IPO-Tranche
+8. Kaufen (IPO): buy_from_ipo pro Liga durchgespielt
+9. Kaufen (Secondary): buy_from_order cross-Liga
+10. Verkaufen: place_sell_order pro Liga
+11. Orderbuch: Angebots-Tiefe rendert aus allen 7 Ligen
 
-## Offen (post-Beta, nicht Blocker)
-- Playwright MCP Viewport-Resize Bug (innerWidth fix 524 statt 393)
-- /notifications, /wallet, /help Pages existieren nicht (inline statt dediziert)
+### Fantasy & Events
+12. Events: Fantasy-Events je Liga aktiv (registering)
+13. Aufstellen: save_lineup mit Cross-Liga Spielern
+14. Scoring: gameweek-sync Cron laeuft fuer alle 7 Ligen
+15. Spieltag-Paarungen: Fixtures pro Liga visible
+
+### Pages & Discovery
+16. Spielerdetail `/player/[id]`: alle Tabs rendern fuer Spieler aller 7 Ligen
+17. Club-Page `/club/[slug]`: alle 134 Clubs erreichbar
+18. Clubs-Liste `/clubs`: alle 134 Clubs gruppiert + Multi-League-Filter
+19. Suche findet Spieler + Clubs aus allen Ligen
+20. Follow/Abo cross-Liga (Watchlist)
+
+### Navigation & UI
+21. CountryBar + LeagueBar: alle 7 + 5 Laender Filter
+22. Logos in allen Kontexten (TradingCard, PlayerRow, PlayerHero, PlayerIPOCard, TransferListSection, Club-Hero, Rankings)
+23. Rankings Liga-Filter
+
+### Expected State (baseline Commit 8a5014d)
+- 7 Ligen, 134 Clubs, 4.263 Spieler, 4.166 IPOs (97% Coverage)
+- Logo-URLs gefixt (XC-05 media-4→media)
+
+### Methodik Next Session
+1. Explore-Agent: DB-Audit "per-Liga-Completeness" (COUNT/NULL-Check pro Field)
+2. Playwright-MCP: Screenshot pro Liga-Filter auf 8 Haupt-Pages
+3. Pro Gap: Fix-Backend (API Re-Import) + Fix-Frontend (Liga-Propagation)
 
 ## Uncommitted
 ```
 ?? .claude/backups/
 ?? .claude/scheduled_tasks.lock
 ```
-
-## Ready für 50-Mann Closed Beta ✅
-Alle P0/P1 Findings gefixt, alle RPC-Sicherheit verifiziert, E2E multi-account
-Trading+Offer+Follow flows durchgespielt mit zero-sum-Verification.
