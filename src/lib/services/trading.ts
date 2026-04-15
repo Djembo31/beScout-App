@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
 
@@ -120,18 +120,19 @@ export async function buyFromMarket(
       const sellerId = result.seller_id;
       (async () => {
         try {
+          const loc = await getRecipientLocale(sellerId);
           const { data: pl } = await supabase
             .from('players')
             .select('first_name, last_name')
             .eq('id', playerId)
             .maybeSingle();
-          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
+          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer', undefined, loc);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(
             sellerId,
             'trade',
-            notifText('tradeSoldTitle'),
-            notifText('tradeSoldBody', { name }),
+            notifText('tradeSoldTitle', undefined, loc),
+            notifText('tradeSoldBody', { name }, loc),
             playerId,
             'player'
           );
@@ -243,18 +244,19 @@ export async function buyFromOrder(
           .eq('id', orderId)
           .maybeSingle();
         if (order && order.user_id !== buyerId) {
+          const loc = await getRecipientLocale(order.user_id);
           const { data: pl } = await supabase
             .from('players')
             .select('first_name, last_name')
             .eq('id', order.player_id)
             .maybeSingle();
-          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
+          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer', undefined, loc);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(
             order.user_id,
             'trade',
-            notifText('tradeSoldTitle'),
-            notifText('tradeSoldBody', { name }),
+            notifText('tradeSoldTitle', undefined, loc),
+            notifText('tradeSoldBody', { name }, loc),
             order.player_id,
             'player'
           );

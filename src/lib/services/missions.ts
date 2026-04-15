@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { DbMissionDefinition, DbUserMission, UserMissionWithDef } from '@/types';
 
@@ -157,12 +157,13 @@ export async function claimMissionReward(userId: string, missionId: string): Pro
     const bsd = ((result.reward_cents ?? 0) / 100).toFixed(0);
     (async () => {
       try {
+        const loc = await getRecipientLocale(userId);
         const { createNotification } = await import('@/lib/services/notifications');
         await createNotification(
           userId,
           'mission_reward',
-          notifText('missionRewardTitle'),
-          notifText('missionRewardBody', { amount: bsd }),
+          notifText('missionRewardTitle', undefined, loc),
+          notifText('missionRewardBody', { amount: bsd }, loc),
           missionId,
           'mission',
         );

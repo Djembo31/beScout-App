@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import { mapErrorToKey } from '@/lib/errorMessages';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbOffer, OfferWithDetails } from '@/types';
 
 // ============================================
@@ -183,8 +183,9 @@ export async function createOffer(params: {
   if (result.success && params.receiverId) {
     (async () => {
       try {
+        const loc = await getRecipientLocale(params.receiverId!);
         const { createNotification } = await import('@/lib/services/notifications');
-        await createNotification(params.receiverId!, 'offer_received', notifText('offerReceivedTitle'), params.message ?? notifText('offerReceivedBody'));
+        await createNotification(params.receiverId!, 'offer_received', notifText('offerReceivedTitle', undefined, loc), params.message ?? notifText('offerReceivedBody', undefined, loc));
       } catch (err) {
         console.error('[Offers] createNotification failed:', err);
       }
@@ -215,8 +216,9 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
       try {
         const { data: offer } = await supabase.from('offers').select('sender_id, player_id').eq('id', offerId).maybeSingle();
         if (!offer) return;
+        const loc = await getRecipientLocale(offer.sender_id);
         const { createNotification } = await import('@/lib/services/notifications');
-        await createNotification(offer.sender_id, 'offer_accepted', notifText('offerAcceptedTitle'), notifText('offerAcceptedBody'));
+        await createNotification(offer.sender_id, 'offer_accepted', notifText('offerAcceptedTitle', undefined, loc), notifText('offerAcceptedBody', undefined, loc));
       } catch (err) { console.error('[Offers] Accept notification failed:', err); }
     })();
   }
@@ -264,8 +266,9 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
       try {
         const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).maybeSingle();
         if (!offer) return;
+        const loc = await getRecipientLocale(offer.sender_id);
         const { createNotification } = await import('@/lib/services/notifications');
-        await createNotification(offer.sender_id, 'offer_rejected', notifText('offerRejectedTitle'), notifText('offerRejectedBody'));
+        await createNotification(offer.sender_id, 'offer_rejected', notifText('offerRejectedTitle', undefined, loc), notifText('offerRejectedBody', undefined, loc));
       } catch (err) { console.error('[Offers] Reject notification failed:', err); }
     })();
   }
@@ -293,8 +296,9 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
       try {
         const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).maybeSingle();
         if (!offer) return;
+        const loc = await getRecipientLocale(offer.sender_id);
         const { createNotification } = await import('@/lib/services/notifications');
-        await createNotification(offer.sender_id, 'offer_countered', notifText('offerCounteredTitle'), notifText('offerCounteredBody'));
+        await createNotification(offer.sender_id, 'offer_countered', notifText('offerCounteredTitle', undefined, loc), notifText('offerCounteredBody', undefined, loc));
       } catch (err) { console.error('[Offers] Counter notification failed:', err); }
     })();
   }

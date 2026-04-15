@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbResearchPost, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 import { toPos } from '@/types';
 
@@ -275,12 +275,13 @@ export async function unlockResearch(userId: string, researchId: string): Promis
           .eq('id', researchId)
           .maybeSingle();
         if (post && post.user_id !== userId) {
+          const loc = await getRecipientLocale(post.user_id);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(
             post.user_id,
             'research_unlock',
-            notifText('researchUnlockTitle'),
-            notifText('researchUnlockBody', { title: post.title }),
+            notifText('researchUnlockTitle', undefined, loc),
+            notifText('researchUnlockBody', { title: post.title }, loc),
             researchId,
             'research'
           );
@@ -344,6 +345,7 @@ export async function rateResearch(
           .eq('id', researchId)
           .maybeSingle();
         if (post && post.user_id !== userId) {
+          const loc = await getRecipientLocale(post.user_id);
           const { createBatchedNotification } = await import('@/lib/services/notifications');
           const titleSnippet = post.title.slice(0, 60);
           await createBatchedNotification(
@@ -352,11 +354,11 @@ export async function rateResearch(
             researchId,
             'research',
             (count) => count === 1
-              ? notifText('researchRatingTitle', { rating })
-              : notifText('researchRatingBatchedTitle', { count }),
+              ? notifText('researchRatingTitle', { rating }, loc)
+              : notifText('researchRatingBatchedTitle', { count }, loc),
             (count) => count === 1
-              ? notifText('researchRatingBody', { title: titleSnippet })
-              : notifText('researchRatingBatchedBody', { count, title: titleSnippet }),
+              ? notifText('researchRatingBody', { title: titleSnippet }, loc)
+              : notifText('researchRatingBatchedBody', { count, title: titleSnippet }, loc),
           );
           // Fire-and-forget: Credit author tickets for rating 4.0+
           if (rating >= 4) {

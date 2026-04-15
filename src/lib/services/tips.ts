@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbTip, TipResult } from '@/types';
 
 // ============================================
@@ -81,12 +81,13 @@ export async function sendTip(
     const bsd = (amountCents / 100).toFixed(0);
     (async () => {
       try {
+        const loc = await getRecipientLocale(receiverId);
         const { createNotification } = await import('@/lib/services/notifications');
         await createNotification(
           receiverId,
           'tip_received',
-          notifText('tipReceivedTitle'),
-          notifText('tipReceivedBody', { amount: bsd }),
+          notifText('tipReceivedTitle', undefined, loc),
+          notifText('tipReceivedBody', { amount: bsd }, loc),
           contentId,
           contentType === 'research' ? 'research' : 'post',
         );

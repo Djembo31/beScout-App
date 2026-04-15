@@ -897,7 +897,9 @@
     "wildcardCounter": "Wild Cards: {used}/{max} kullanıldı",
     "settingsFailed": "Ayar kaydedilemedi.",
     "entryCost": "Giriş ücreti",
-    "scoutEventsNotAvailable": "$SCOUT etkinlikler şu anda kullanılamıyor."
+    "scoutEventsNotAvailable": "$SCOUT etkinlikler şu anda kullanılamıyor.",
+    "liveUpdating": "Sıralama canlı güncelleniyor",
+    "eventLockedError": "Etkinlik zaten kilitli — artık ayrılamazsınız"
   },
   "predictions": {
     "title": "Tahminler",
@@ -1532,7 +1534,9 @@
     "portfolioCardFloor": "Taban",
     "portfolioCardAvgBuy": "Ort.",
     "portfolioCardToManager": "Menajer",
-    "portfolioCardQty": "{count}x"
+    "portfolioCardQty": "{count}x",
+    "watchlistStaleNotice": "{count} oyuncu artık piyasada mevcut değil (likide edildi veya kaldırıldı)",
+    "bestandNoFilterResults": "Bu filtre için oyuncu yok."
   },
   "community": {
     "title": "Topluluk",
@@ -2228,6 +2232,7 @@
     "explainInactive": "GW {gw}'den beri maça çıkmadı. Oyuncu sakatlanmış, transfer olmuş veya kadroda olmayabilir.",
     "explainNoAppearances": "Bu sezon henüz resmi maça çıkmadı.",
     "explainNoData": "Performans verisi bulunamadı.",
+    "priceAlertDeprecated": "Fiyat uyarıları artık İzleme Listesi'nin parçasıdır — oyuncuyu İzleme Listesi'ne ekle",
     "cardBack": {
       "scoutCardData": "Scout Card Verileri",
       "marketValue": "Piyasa Değeri",
@@ -2898,7 +2903,8 @@
     "seasonDelta": "Sezon Delta",
     "sortFloor": "Taban Fiyat",
     "sortVolume": "24s Hacim",
-    "sortChange": "24s Değişim"
+    "sortChange": "24s Değişim",
+    "rewardPendingTooltip": "Ödül sezon sonunda ödenecek"
   },
   "gamification": {
     "rang": {
@@ -3157,6 +3163,9 @@
     "equipError": "Donatma hatası",
     "lineup_players_label": "Oyuncu",
     "lineup_players_aria": "{current}/{max} Oyuncu seçildi",
+    "seasonDefault": "Sezon 1",
+    "noFanRankCta": "Hemen bir Fantasy etkinliği oyna",
+    "tierLabel": "Seviye {tier}",
     "rankUp": {
       "title": "Rütbe Yükselişi",
       "headline": "Yeni rütbeye ulaştın!",
@@ -3447,6 +3456,7 @@
     "tradingDisclaimerShort": "Platform kredileri, finansal ürün değildir. %6 işlem ücreti.",
     "fantasyDisclaimer": "Fantasy turnuvaları eğlence hizmetleridir. Pilot aşamasında ücretsizdir. Credits ödülleri sıralamaya göre dağıtılır — kulübün takdirindedir, hak talebi veya garanti yoktur. Şans oyunu düzenlemesine tabi değildir.",
     "fantasyDisclaimerShort": "Ücretsiz katılım. Credits ödülleri takdire bağlı, hak talebi yok. Şans oyunu değildir.",
+    "foundingPassDisclaimer": "Founding Pass, BeScout platformunda tek seferlik destekçi statüsüdür. Finansal araç değildir, kâra ortaklık sağlamaz. Avantajlar BeScout'un takdirine göre ayarlanır.",
     "mysteryBoxDisclaimer": "Gizem Kutusu ödülleri tamamen sanal platform içeriğidir, parasal değeri yoktur. Düşme oranları rastgeledir ve istendiği zaman değiştirilebilir. Nakit çekimi ve devir mümkün değildir. 18 yaş altı için önerilmez.",
     "mysteryBoxDisclaimerShort": "Sanal içerik, parasal değeri yok. Rastgele oranlar, nakit çekimi ve devir yok. 18+.",
     "missionDisclaimer": "Görev ödülleri tamamen sanal platform kredileridir, parasal değeri yoktur. İlerleme ve ödüller istendiği zaman değiştirilebilir. Nakit çekimi ve devir mümkün değildir. 18 yaş altı için önerilmez.",
@@ -4460,7 +4470,8 @@
     "emptyResearchDesc": "Henüz analiz yok — ilk Scout Raporu'nla Credits kazan",
     "emptyPostsDesc": "Topluluk senin değerlendirmeni bekliyor",
     "showAllOrders": "Tüm {count} emri göster",
-    "sellLabel": "Sat"
+    "sellLabel": "Sat",
+    "clubSale": "Kulüp Satışı"
   },
   "pwa": {
     "installTitle": "Uygulamayı Yükle",

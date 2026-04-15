@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { mapRpcError } from '@/lib/services/trading';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbIpo } from '@/types';
 
 // ============================================
@@ -146,12 +146,13 @@ export async function buyFromIpo(
     // Notification: IPO purchase confirmed (fire-and-forget — await inside to swallow throws)
     (async () => {
       try {
+        const loc = await getRecipientLocale(userId);
         const { createNotification } = await import('@/lib/services/notifications');
         await createNotification(
           userId,
           'ipo_purchase',
-          notifText('ipoPurchaseTitle'),
-          notifText('ipoPurchaseBody', { quantity }),
+          notifText('ipoPurchaseTitle', undefined, loc),
+          notifText('ipoPurchaseBody', { quantity }, loc),
           ipoId,
           'ipo',
         );

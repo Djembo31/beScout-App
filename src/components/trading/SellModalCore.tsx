@@ -107,7 +107,7 @@ export function SellModalCore({
   const handleSubmit = async () => {
     if (isLiquidated) return;
     if (qty < 1 || qty > availableToSell) {
-      setLocalError(t('invalidQty'));
+      setLocalError(tp('invalidQty'));
       return;
     }
     const priceCents = Math.round(priceNum * 100);

@@ -897,7 +897,9 @@
     "wildcardCounter": "Wild Cards: {used}/{max} verwendet",
     "settingsFailed": "Einstellung konnte nicht gespeichert werden.",
     "entryCost": "Eintrittskosten",
-    "scoutEventsNotAvailable": "$SCOUT Events sind derzeit nicht verfügbar."
+    "scoutEventsNotAvailable": "$SCOUT Events sind derzeit nicht verfügbar.",
+    "liveUpdating": "Rangliste wird live aktualisiert",
+    "eventLockedError": "Event ist bereits gesperrt — kein Verlassen mehr möglich"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -1532,7 +1534,9 @@
     "portfolioCardFloor": "Floor",
     "portfolioCardAvgBuy": "EK",
     "portfolioCardToManager": "Manager",
-    "portfolioCardQty": "{count}x"
+    "portfolioCardQty": "{count}x",
+    "watchlistStaleNotice": "{count} Spieler nicht mehr im Markt verfügbar (liquidiert oder entfernt)",
+    "bestandNoFilterResults": "Keine Spieler für diesen Filter."
   },
   "community": {
     "title": "Community",
@@ -2228,6 +2232,7 @@
     "explainInactive": "Kein Einsatz seit GW {gw}. Spieler ist möglicherweise verletzt, transferiert oder nicht im Kader.",
     "explainNoAppearances": "Bisher kein Pflichtspieleinsatz in dieser Saison.",
     "explainNoData": "Keine Leistungsdaten vorhanden.",
+    "priceAlertDeprecated": "Preis-Alerts sind jetzt Teil der Watchlist — füge den Spieler zur Watchlist hinzu",
     "cardBack": {
       "scoutCardData": "Scout Card Data",
       "marketValue": "Marktwert",
@@ -2898,7 +2903,8 @@
     "seasonDelta": "Saison-Delta",
     "sortFloor": "Floor Price",
     "sortVolume": "24h Volumen",
-    "sortChange": "24h Change"
+    "sortChange": "24h Change",
+    "rewardPendingTooltip": "Belohnung wird nach Saisonende ausgezahlt"
   },
   "gamification": {
     "rang": {
@@ -3157,6 +3163,9 @@
     "equipError": "Fehler beim Ausrüsten",
     "lineup_players_label": "Spieler",
     "lineup_players_aria": "{current} von {max} Spieler ausgewählt",
+    "seasonDefault": "Saison 1",
+    "noFanRankCta": "Jetzt ein Fantasy Event spielen",
+    "tierLabel": "Tier {tier}",
     "rankUp": {
       "title": "Rang-Aufstieg",
       "headline": "Neuer Rang erreicht!",
@@ -3447,6 +3456,7 @@
     "tradingDisclaimerShort": "Plattform-Credits, kein Finanzprodukt. 6% Handelsgebühr.",
     "fantasyDisclaimer": "Fantasy-Turniere sind Unterhaltungsangebote. In der Pilot-Phase kostenlos. Credits-Rewards werden nach Platzierung verteilt — nach alleinigem Ermessen, kein Anspruch, keine Garantie. Keine Glücksspiel-Regulierung.",
     "fantasyDisclaimerShort": "Kostenlose Teilnahme. Credits-Rewards nach alleinigem Ermessen, kein Anspruch. Kein Glücksspiel.",
+    "foundingPassDisclaimer": "Founding Pass ist ein einmaliger Unterstützer-Status auf der BeScout-Plattform. Kein Finanzinstrument, keine Gewinnbeteiligung. Vorteile werden nach alleinigem Ermessen von BeScout angepasst.",
     "mysteryBoxDisclaimer": "Mystery Box Belohnungen sind rein virtuelle Plattform-Inhalte ohne Geldwert. Drop-Raten basieren auf Zufall und können jederzeit angepasst werden. Keine Auszahlung, keine Übertragung möglich. Nur für Nutzer ab 18 Jahren empfohlen.",
     "mysteryBoxDisclaimerShort": "Virtuelle Inhalte ohne Geldwert. Zufalls-Drop-Raten, keine Auszahlung, keine Übertragung. 18+.",
     "missionDisclaimer": "Mission-Belohnungen sind rein virtuelle Plattform-Guthaben ohne Geldwert. Fortschritt und Belohnungen können jederzeit angepasst werden. Keine Auszahlung, keine Übertragung möglich. Nur für Nutzer ab 18 Jahren empfohlen.",
@@ -4460,7 +4470,8 @@
     "emptyResearchDesc": "Noch keine Analysen — verdiene Credits mit deinem ersten Scout Report",
     "emptyPostsDesc": "Die Community wartet auf deine Einschätzung",
     "showAllOrders": "Alle {count} Orders anzeigen",
-    "sellLabel": "Verkaufen"
+    "sellLabel": "Verkaufen",
+    "clubSale": "Erstverkauf"
   },
   "pwa": {
     "installTitle": "App installieren",

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { notifText } from '@/lib/notifText';
+import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbPost, PostWithAuthor, PostType } from '@/types';
 import { toPos } from '@/types';
 
@@ -237,17 +237,18 @@ export async function createReply(
         .eq('id', parentId)
         .maybeSingle();
       if (!parent || parent.user_id === userId) return;
+      const loc = await getRecipientLocale(parent.user_id);
       const { createNotification } = await import('@/lib/services/notifications');
       const { data: replier } = await supabase
         .from('profiles')
         .select('handle')
         .eq('id', userId)
         .maybeSingle();
-      const name = replier?.handle ?? notifText('someoneFallback');
+      const name = replier?.handle ?? notifText('someoneFallback', undefined, loc);
       await createNotification(
         parent.user_id,
         'reply',
-        notifText('replyNotifTitle', { name }),
+        notifText('replyNotifTitle', { name }, loc),
         content.slice(0, 100)
       );
     } catch (err) { console.error('[Posts] Reply notification failed:', err); }
