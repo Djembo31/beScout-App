@@ -17,6 +17,8 @@ const KNOWN_KEYS = new Set([
   'eventGameweekNotFound', 'playerLockedRemove', 'playerLockedAdd', 'duplicatePlayer',
   'lineupDeleteFailed', 'lineupSizeMismatch', 'playerNotInClub',
   'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
+  'bountyRewardMinimum', 'bountyRewardMaximum', 'bountyDeadlineInvalid',
+  'bountyMaxSubmissionsInvalid', 'bountyTitleRequired', 'bountyDescriptionRequired',
   'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown', 'orderRateLimit',
   'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
   'ipoMisconfigured',
@@ -63,6 +65,12 @@ const ERROR_MAP: [RegExp, string][] = [
   // Bounties
   [/bounty.*creat.*fail/i, 'bountyCreateFailed'],
   [/bounty.*cancel.*fail|cancel.*fail/i, 'bountyCancelFailed'],
+  [/reward.*at.least|reward.*min(imum)?|min(imum)?.*reward/i, 'bountyRewardMinimum'],
+  [/reward.*exceed|reward.*max(imum)?|max(imum)?.*reward/i, 'bountyRewardMaximum'],
+  [/deadline.*(must|invalid|range)/i, 'bountyDeadlineInvalid'],
+  [/max.*submission.*(must|invalid|range)/i, 'bountyMaxSubmissionsInvalid'],
+  [/title.*(is.*required|required)/i, 'bountyTitleRequired'],
+  [/description.*(is.*required|required)/i, 'bountyDescriptionRequired'],
 
   // Wallet
   [/wallet.*error|wallet.*fail/i, 'walletError'],

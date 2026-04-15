@@ -232,13 +232,15 @@ export async function createUserBounty(params: {
   maxSubmissions: number;
   playerId?: string;
 }): Promise<{ bounty_id: string }> {
-  // Validate inputs before RPC call
-  if (params.rewardCents < 100) throw new Error('Reward must be at least 1 $SCOUT (100 cents)');
-  if (params.rewardCents > 100_000_000) throw new Error('Reward exceeds maximum');
-  if (params.deadlineDays < 1 || params.deadlineDays > 90) throw new Error('Deadline must be 1-90 days');
-  if (params.maxSubmissions < 1 || params.maxSubmissions > 100) throw new Error('Max submissions must be 1-100');
-  if (!params.title.trim()) throw new Error('Title is required');
-  if (!params.description.trim()) throw new Error('Description is required');
+  // Validate inputs before RPC call.
+  // Throws i18n-keys (see src/lib/errorMessages.ts KNOWN_KEYS) — consumer must resolve via t('errors.KEY').
+  // Rationale: no dynamic values in error-messages, no tickers, no DE/EN mix (common-errors.md J3 Healer A).
+  if (params.rewardCents < 100) throw new Error('bountyRewardMinimum');
+  if (params.rewardCents > 100_000_000) throw new Error('bountyRewardMaximum');
+  if (params.deadlineDays < 1 || params.deadlineDays > 90) throw new Error('bountyDeadlineInvalid');
+  if (params.maxSubmissions < 1 || params.maxSubmissions > 100) throw new Error('bountyMaxSubmissionsInvalid');
+  if (!params.title.trim()) throw new Error('bountyTitleRequired');
+  if (!params.description.trim()) throw new Error('bountyDescriptionRequired');
 
   // Atomic RPC: locks wallet (FOR UPDATE), checks available balance, locks funds, creates bounty
   const { data, error } = await supabase.rpc('create_user_bounty', {
