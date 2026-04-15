@@ -117,6 +117,42 @@
 - **`@/test/mocks/supabase` v2 API ist canonical fuer neue Tests:** `mockTable`/`mockRpc`/`resetMocks` (table-aware, FIFO-Queues, sticky single responses) — NICHT das gehoistet `vi.mock` Pattern in `scoring-v2.test.ts` (legacy). Neue Tests: immer v2. (2026-04-13, Test-Writer)
 - **Count-Queries (`getEventParticipantCount`, `hasAnyPrediction`):** Supabase liefert `{ count, error }` ohne `data` — Service muss auf `count` direkt zugreifen, NICHT auf `data`. (2026-04-13)
 
+### i18n / Wording / Compliance
+
+- **Raw i18n-Key als Error-Message sichtbar:** Service wirft `throw new Error('handleBuy')`, Consumer macht `setError(err.message)` → User sieht `handleBuy` unuebersetzt. → **Fix:** Service wirft I18N-KEY, Consumer resolved via `mapErrorToKey(normalizeError(err))` + `te(key)`. Pattern: `resolveErrorMessage` Helper in `@/lib/errorMessages.ts`. Audit: `grep -n 'throw new Error' src/lib/services/` + alle `setError(err.message)` Consumer pruefen. (J1, J2, J3, J4 — 5 Wiederholungen)
+- **Dynamischer Wert in Error-Message:** `'Price exceeds maximum (${X} $SCOUT)'` ist Triple-Red-Flag: (a) DE/EN-Mix, (b) $SCOUT-Ticker, (c) dynamischer Wert unlokalisierbar. → **Fix:** Service wirft statischen i18n-Key. Dynamischer Wert gehoert in Pre-Submit-Hint (vor Submit), nicht in Post-Error. Regel: Error-Messages NIEMALS dynamische Werte enthalten.
+- **`kazan*` in TR-i18n ist systematisch MASAK-Risiko:** Jede Reward-UX-Zeile mit `kazan*` triggert MASAK §4 Abs.1.e. Gefunden in Fantasy (AR-32), Equipment-Reward (AR-62), Ghost-Slot (AR-63), plus Cosmetics + Misc. → **Fix:** `grep -iE "kazan" messages/tr.json | grep -iE "cosmetic|mystery|equipment|reward|mission|achievement"` → alle zu `al/topla/ekle/elde et` umbenennen. (J11 Observation 6)
+- **`defaultMessage` als Glossar-Leak:** `t('showOrderBook', { defaultMessage: 'Orderbuch anzeigen' })` korrekte i18n-Keys, aber inline fallback zeigt alten Verbotsbegriff wenn Lookup fehlschlaegt. → **Fix:** Audit: `grep -rn "defaultMessage.*Orderbuch\|defaultMessage.*Trader\|defaultMessage.*Portfolio" src/` nach jedem Glossar-Sweep. (J6/J7/J8 Round 2)
+- **`de-DE` als Literal in toLocaleDateString:** `new Date().toLocaleDateString('de-DE', ...)` hardcoded. TR-User sieht DE-Datumsformat. → **Fix:** `const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE'`. Audit: `grep -rn "toLocaleDateString\s*(\s*['\"]" src/` — Literal-String als erstes Arg = Bug-Vector. (J5, J11)
+- **localeCompare ohne locale-Param:** `a.localeCompare(b)` ohne 2nd-Arg nutzt default-Locale — bei TR-Strings (ş/ç/ğ/ı) ist Sort-Order falsch. → **Fix:** `.localeCompare(other, locale)`. Audit: `grep -rn '.localeCompare(' src/ | grep -v ', locale'`. (J11 Observation 5)
+- **Compliance-Feature nur an einem Modal-Touchpoint:** Fee-Breakdown i18n-Keys fuer BuyConfirmModal (J3) nicht in SellModal wiederverwendet → SellModal zeigt nur Total-Fee. Pattern: Bei Compliance-Features aus J1-J3 nach JEDEM neuen UI-Touchpoint `grep 'feeBreakdown' src/components/**` — wenn nicht ueberall, sofort nachziehen. (J6/J7/J8 Round 2)
+
+### Locale-Resolver (DB-Types mit _de/_tr)
+
+- **Direkter `.name_de`-Zugriff im JSX:** Ohne Helper-Fn entstehen 13+ Call-Sites mit hardcoded `def.name_de` — TR-User sieht DE-Strings (kein Crash, silent). → **Fix:** `resolveEquipmentName(def, locale)` Helper NEBEN Type-Def anlegen. Audit: `grep -rn '\.name_de\|\.name_tr\|\.label_de\|\.title_tr' src/`. Regel: Jeder neue DB-Type mit locale-Suffix-Columns → Helper beim Type anlegen. (J11 Observation 1)
+- **i18n-Key als DB-Backfill-Quelle:** Vor neuem TR-DB-Backfill IMMER `messages/tr.json` greppen — vorhandene i18n-Keys ersetzen stundenlange Uebersetzungs-Approvals. Bestaetigt 3x: AR-54 missions, J11 equipment, Phase 3 achievements. → **Fix:** `jq '.gamification.achievement' messages/tr.json` als Seed fuer DB-Backfill.
+
+### Modal + preventClose
+
+- **Modal mit Mutation ohne preventClose:** ESC/Backdrop-Click mitten in DB-Transaction (200-500ms 4G) → State-Verlust, kein Success-Feedback. → **Fix:** JEDER Modal mit `isPending|cancelling|selling|buying|submitting` → `preventClose={isPending}`. Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` dann Trading/Fantasy-Context pruefen. Bestaetigt in allen Domains: Trading (J2/J3), Fantasy (J4), Mystery Box (J5), Equipment (J11). (J3 Observation 3, J4 Observation 5)
+- **preventClose deckt nicht alle Code-Pfade ab:** Reduced-Motion-Branch ruft RPC direkt auf (ohne Animation-State). ESC-Press mitten im `await onOpen(...)` moeglichverloren. → **Fix:** Dedizierter `isOpening` State via `finally { setIsOpening(false) }` zusaetzlich zu Animation-State. Regel: Jeder Modal mit 2 Ausfuehrungs-Pfaden MUSS BEIDE in preventClose abdecken. (J5-Healer-A Observation 1)
+
+### Component Architecture
+
+- **Parallel Twin-Components Drift:** Zwei Components mit aehnlicher UI (SellModal/KaderSellModal) entstehen parallel in verschiedenen Feature-Ordnern. Hardcoded Konstanten driften (FEE_RATE=0.06 vs TRADE_FEE_PCT=6), Quality-Level differiert (preventClose nur in einem). → **Fix:** Shared Core mit Slots, thin Wrappers als Adapters. Audit: `grep -rn "SellModal\|BuyModal" src/components/ src/features/ | grep -l .` — wenn Twin ohne "Core" im Namen → DRY-Refactor Kandidat. (J8-AR-57 Observation 1)
+- **Array.sort() auf Props direkt:** `openBids.sort(...)` mutiert Props — Re-Renders erzeugen andere Sort-Order als Parent erwartet. → **Fix:** `openBids.slice().sort(...)`. Audit: `grep -rn '\.sort(' src/components/ src/features/ | grep -v '\.slice()'`. (J8-AR-57 Observation 2)
+- **Card-Component ohne `as`-Prop:** Wenn Interaktion auf Card noetig: NICHT `as="button"` (nicht supported). → **Fix:** `role="button" + tabIndex={0} + aria-label + onKeyDown(Enter: onClick, Space: preventDefault + onClick)`. Space braucht preventDefault() sonst scrollt die Page. Focus-ring: `focus-visible:ring-gold/50`. (J5-Healer-C)
+
+### Test-Infrastruktur
+
+- **Lucide-Icon-Mock unvollstaendig:** Component importiert `useToast` → triggert `ToastProvider` → braucht 5 lucide-Icons (`AlertCircle`, `CheckCircle2`, `Info`, `Sparkles`, `X`). Wenn vi.mock nur Subset hat → Vitest-Fehler `No "AlertCircle" export`. → **Fix:** ToastProvider komplett mocken: `vi.mock('@/components/providers/...', () => ({ useToast: () => ({ addToast: vi.fn() }) }))`. (J4-Healer-A Observation 1)
+- **Test-Fixture als Contract-Change-Risk:** Type-Extension mit neuen optional/required Fields → Fixtures in `__tests__/*.test.tsx` muessen aktualisiert werden. TSC faengt das. → **Fix:** Nach jeder Type-Extension: `grep -rn "TypeName" src/**/__tests__/` + Fixtures auf neue Felder pruefen. (Phase 3 Achievement i18n)
+- **Frontend-Agent ohne mcp__supabase__apply_migration:** Migration committed aber nicht applied — CTO/Anil muss apply manuell machen. → **Regel:** Briefings mit Backend-Migration-Forderung + Frontend-Agent muessen explizit kommunizieren: "Migration committed, nicht applied". (Phase 3 Achievement i18n)
+
+### Legacy Enum / Union Extension
+
+- **Legacy DB-Wert nicht im Type-Union:** `mystery_box_results.rarity='uncommon'` existiert in DB, aber `MysteryBoxRarity` kennt es nicht + `RARITY_CONFIG: Record<MysteryBoxRarity, ...>` crasht beim Render. → **Fix:** Union erweitern + Config-Entry hinzufuegen (NICHT DB-Migration fuer Geld-Tabellen — CEO-gated). TypeScript `Record<Union, X>` erzwingt vollstaendige Abdeckung, Compiler fail-closed. Grep bestehende Farb-Praezedenz: `CosmeticRarity.uncommon` = green-400 → konsistente Farbe waehlen. (AR-46 Legacy Enum)
+
 ### Feed/Social Read Tabellen
 
 - **Cross-User Read Policy generell fehlt:** Zweiter Fall nach B2 `activity_log` — `transactions` hatte nur `auth.uid() = user_id`, blockierte damit Public Profile Timeline komplett (silent: keine Rows, kein Error). → **Fix:** Feed/Social-Tabellen die Cross-User-Reads brauchen (Public Profile, Follower-Feed) IMMER zwei SELECT-Policies: `own-all` + `public-whitelist`. Pattern: `type = ANY(ARRAY['safe_type1','safe_type2'])` fuer die public-readable Subset. RLS nach jeder Migration: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`. (2026-04-08, B3 transactions RLS, Commit 9264bb2)

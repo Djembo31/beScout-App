@@ -317,3 +317,44 @@ useEffect(() => {
 - **Throttle statt Debounce** → classic debounce (timer reset bei jedem Event) feuert bei stetigem Traffic nie. Throttle window garantiert max. 1 flush pro window.
 - **`queryClient.invalidateQueries` statt `setQueryData`** → Service enriched Rows mit Profile-Joins, rohe Realtime-Payload reicht nicht. `keepPreviousData` ist global default (`queryClient.ts:11`), deshalb flicker-frei ohne extra Opt-in.
 - **REPLICA IDENTITY FULL** → nicht strikt noetig fuer INSERT-only, aber Best-Practice fuer Publication-Tabellen (UPDATE/DELETE-Events brauchen volle alte Row).
+
+### 24. Locale-Resolver fuer DB-Types mit _de/_tr Columns
+**Wann:** DB-Typ hat `name_de`/`name_tr`/`description_de`/`description_tr` oder aehnliche locale-Suffix-Pairs.
+**Wie:** Helper-Funktion NEBEN dem Type-Def, Grid-Wrapper loest EINMAL auf und reicht `displayName` als Prop durch.
+```typescript
+// Helper neben Type (nicht im Service-Layer — reiner Display-Concern):
+export function resolveEquipmentName(
+  def: DbEquipmentDefinition,
+  locale: string
+): string {
+  return (locale === 'tr' ? def.name_tr : def.name_de) ?? def.name_de ?? def.name_key
+}
+
+// Grid-Wrapper: einmal aufloesen, als Prop durchreichen
+const displayName = resolveEquipmentName(def, locale)
+return <EquipmentCard displayName={displayName} />
+
+// NIEMALS direkt im JSX:
+// <div>{def.name_de}</div>  ← TR-User sieht DE-Strings, kein Crash
+```
+**Audit:** `grep -rn '\.name_de\|\.name_tr\|\.label_tr\|\.title_tr' src/` → alle Treffer brauchen Helper.
+**Warum:** 13 direkte Call-Sites entstanden weil Equipment kein Helper hatte → TR sah nur DE. 1 Helper-Fix deckt alle ab.
+
+### 25. Service Error-Contract (throw statt swallow)
+**Wann:** JEDER Service-Call der fehlschlagen kann.
+**Wie:** Fehler werfen, NICHT `return null` oder `return { ok: false }`.
+```typescript
+// FALSCH: React Query cached null als SUCCESS, kein Retry, UI bleibt in Skeleton/Empty
+if (error) { console.error(error); return null; }
+
+// RICHTIG: React Query retried automatisch (3x backoff)
+if (error) { logSupabaseError('getHoldings', error); throw new Error(error.message); }
+
+// RICHTIG fuer i18n-Keys:
+throw new Error('handleBuy')  // Consumer resolved via mapErrorToKey + te()
+
+// Best-effort Side-Effects (club-follow, referral, avatar) → separates try/catch:
+try { await applyClubReferral(uid) } catch (e) { console.error(e) /* continue */ }
+```
+**Audit:** `grep -rn 'const { data } = await supabase' src/lib/services/` → ohne error-Destructuring = unsichtbarer Fehler.
+**Warum:** 117 Fixes in 61 Services (2026-04-13). `return null` = React Query cached Fehler als leere Daten.
