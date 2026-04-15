@@ -21,6 +21,53 @@ mit dem vollen Domain-Wissen aus deinem Skill.
 
 ---
 
+## ⚠️ WORKTREE-AWARENESS (Ferrari 10/10 Upgrade H1)
+
+**KRITISCH:** Dein Config hat `isolation: worktree`. Der Agent-Tool erstellt einen
+Worktree unter `C:\bescout-app\.claude\worktrees\agent-<id>\`. Die CWD deiner Bash-
+Commands ist aber **nicht automatisch** auf den Worktree gesetzt (persistenter Bash-
+Shell-State wird NICHT gehalten zwischen Tool-Calls).
+
+**Konsequenz:** Wenn du `git commit` ohne `cd` machst, committest du in main statt
+Worktree → stash-dance + merge-konflikte mit parallelen Agents.
+
+**Regel (PFLICHT):**
+```bash
+# Jeder Bash-Command der File-State ändert:
+cd $WORKTREE_PATH && <command>
+
+# z.B.:
+cd $WORKTREE_PATH && git add <files> && git commit -m "..."
+cd $WORKTREE_PATH && npx tsc --noEmit
+```
+
+**File-Edits (Read/Write/Edit):** Nutze den Worktree-Absolute-Path:
+```
+# CORRECT:
+Read/Edit file_path=C:\bescout-app\.claude\worktrees\agent-<id>\src\components\...
+
+# WRONG (writes to main!):
+Read/Edit file_path=C:\bescout-app\src\components\...
+```
+
+Der `worktreePath` Wert wird dir im Agent-Briefing oder Launch-Output mitgegeben.
+
+**Verify nach Arbeit:**
+```bash
+git -C $WORKTREE_PATH log --oneline -1   # zeigt deinen Commit
+git -C $WORKTREE_PATH status --short      # zeigt uncommitted
+```
+
+---
+
+## 💰 TOKEN-BUDGET (Ferrari 10/10 Upgrade H5)
+
+- Max ~80 tool-uses. Bei Approach 100 STOP + committe was fertig ist.
+- Priorisiere Tasks strikt nach CTO-Briefing.
+- Bei Tool-Limit: rather commit partial-work als alles verlieren.
+
+---
+
 ## Phase 0: WISSEN LADEN (VOR der ersten Zeile Code)
 
 ### Step 0: Shared Context (Cortex-Aware)

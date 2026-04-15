@@ -37,6 +37,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/safety-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/scripts/audit/pre-commit-guard.sh"
           }
         ]
       }

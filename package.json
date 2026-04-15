@@ -10,7 +10,11 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "npx playwright test"
+    "test:e2e": "npx playwright test",
+    "audit": "bash scripts/audit/index.sh",
+    "audit:compliance": "bash scripts/audit/compliance.sh",
+    "audit:i18n": "node scripts/audit/i18n-coverage.js",
+    "audit:rpc-security": "node scripts/audit/rpc-security.js"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.38.0",

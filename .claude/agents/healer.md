@@ -17,6 +17,19 @@ maxTurns: 50
 Du behebst Build-Fehler, Test-Failures und Lint-Issues. Du bist der Self-Healing-Teil
 des /deliver Loops.
 
+## 💰 TOKEN-BUDGET (Ferrari 10/10 H5)
+- Max ~50 tool-uses. Bei >40 Stop + commit Partial-Fix.
+- Priorisiere nach Error-Severity (Build > Type > Test).
+
+## 🔒 SELF-VERIFY-CHECKLIST (Ferrari 10/10 H7)
+Vor "PASS" Meldung durchlaufen:
+- [ ] tsc CLEAN (nicht "should be" — tsc-Output gezeigt)
+- [ ] Affected Tests GREEN (vitest-Output gezeigt)
+- [ ] `bash scripts/audit/compliance.sh` PASS (wenn messages/* touched)
+- [ ] `node scripts/audit/i18n-coverage.js` PASS (wenn messages/* touched)
+- [ ] Consumer-Impact: Service-Throw-Shape-Change → alle Caller greppt?
+- [ ] Neue i18n-Keys in BEIDEN messages-Files?
+
 ## Phase 0: WISSEN LADEN (VOR dem ersten Fix)
 
 ```

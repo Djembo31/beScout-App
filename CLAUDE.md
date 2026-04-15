@@ -82,6 +82,33 @@ next-intl (Cookie bescout-locale) | lucide-react
 ## Rules (auto-loaded)
 `common-errors.md` (patterns, traps) | `database.md` (columns, RLS, RPCs) | `business.md` (compliance, fees) | `workflow-reference.md` (agents, skills, hooks)
 
+## Ferrari 10/10 Workflow (2026-04-15 Upgrade)
+
+**Automatisierte Audits on-demand:**
+```bash
+npm run audit              # Full Suite (compliance + i18n + rpc-security)
+npm run audit:compliance   # business.md + common-errors.md violations
+npm run audit:i18n         # DE↔TR Key-Parität + leere Values
+npm run audit:rpc-security # Live-DB SECURITY DEFINER + anon-Grants
+```
+
+**Pre-Commit Guard (automatisch via `.claude/settings.json`):**
+- Blockt Commits wenn Compliance-Violations oder i18n-Gaps
+- Scope: `$SCOUT` Ticker in user-facing, `kazan*` in TR, Merge-Markers, CREATE OR REPLACE ohne REVOKE
+- Bypass nur in Emergency: `git commit --no-verify`
+
+**Governance-Files:**
+- `memory/ar-counter.md` — AR-Number-Tracking (verhindert Audit-Collisions)
+- `memory/tr-review-queue.md` — TR-String-Batch-Review (statt Einzel-Friction)
+- `memory/agent-briefing-template.md` — Standard-Briefing mit Token-Budget + Self-Verify
+
+**Migration-Body-Extractor:** `node scripts/pg/extract-rpc.js <proname>` → saubere Full-Body-Edits statt regex-replace.
+
+**Agent-Konventionen (Ferrari 10/10):**
+- Worktree-Agents: **ALLE Bash-Commands** mit `cd $WORKTREE_PATH && ...` Prefix (Bash-State nicht persistent)
+- Token-Budget explizit: "~80 tool-uses, bei 100 STOP"
+- Self-Verify-Checklist PFLICHT vor PASS-Meldung
+
 ## Pre-Edit Checks (PFLICHT — vor JEDER Datei-Aenderung)
 
 ### RPC / Migration (`supabase/migrations/`, `CREATE FUNCTION`)
