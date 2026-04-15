@@ -45,6 +45,12 @@
 | Bulk-Sanitize RPC / regex_replace / pg_get_functiondef | `memory/patterns.md` (Pattern #23) + `memory/semantisch/projekt/operation-beta-ready-phase0-1.md` |
 | Phase 1.3 Impact-Map / buy_player_sc / calculate_sc_of_week | `memory/phase-1.3-impact-map.md` (Caller-Details) |
 | Fantasy Services Tests / fixtures / lineups / predictions | `memory/semantisch/projekt/operation-beta-ready-phase0-1.md` + Journal `memory/episodisch/journals/fantasy-services-tests-journal.md` |
+| Operation Beta Ready Phase 2+3 / J5-J11 Healer-Wave / Equipment i18n / Achievements i18n / Rankings / Notifications | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` |
+| Equipment i18n / resolveEquipmentName / equipmentNames.ts / EquipmentPicker locale | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J11 Sektion) |
+| Achievements i18n / resolveAchievementLabel / title_tr DB-Backfill | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (Phase 3 Achievement Sektion) |
+| Notifications i18n / notifText locale / price_alert Dropdown / WatchlistView | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J10 Sektion) |
+| Missions Disclaimer / MissionDisclaimer Component / useLoginStreak / streaks.ts | `memory/semantisch/projekt/operation-beta-ready-phase2-3.md` (J7 Sektion) |
+| Ferrari 10/10 Workflow / Pre-Commit Guards / Governance-Files / ar-counter.md | CLAUDE.md (Ferrari Sektion) + `memory/ar-counter.md` |
 
 ## On-Demand (nur wenn explizit gebraucht)
 | Ressource | Pfad |

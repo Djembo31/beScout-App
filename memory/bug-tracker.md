@@ -110,7 +110,16 @@ Pages: `/welcome` → `/(auth)/login` → `/(auth)/onboarding` → `/home`
 
 ## Cross-Cutting Findings (Multi-Journey)
 
-(werden gesammelt wenn Pattern ueber mehrere Journeys auftritt)
+### HIGH-RISK RPC Audit (2026-04-15) — siehe `audit-high-risk-rpcs-2026-04-15.md`
+
+| ID | Sev | Title | File/RPC | Status |
+|----|-----|-------|----------|--------|
+| XC-01 | 🟡 HIGH | `get_club_balance` anon-callable, NO auth-Guard — Club-Treasury fuer anon sichtbar (Business-Privacy-Leak) | Live-DB RPC | OPEN (CEO-Approval pending) |
+| XC-02 | 🟡 HIGH | `get_available_sc` anon-callable, NO auth-Guard — fremde User-Holdings fuer anon sichtbar | Live-DB RPC + `src/lib/services/wallet.ts:87` | OPEN (CEO-Approval pending) |
+
+**Kein Money-Exploit gefunden.** Alle 29 Money-RPCs haben funktionierende auth.uid Guards. Escrow (Offer+Bounty) ist atomic via PL/pgSQL. adjust_user_wallet ist fully audit-logged.
+
+**Proposed Fix-Migration:** 1 Migration beide Guards nachruesten + REVOKE-Template (database.md AR-44 schon dokumentiert).
 
 ---
 

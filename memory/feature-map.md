@@ -219,3 +219,34 @@ MissionBanner, MissionHintList, NewUserTip, WelcomeBonusModal, OnboardingFlow
 - Legal Pages (`/agb`, `/datenschutz`, `/impressum`, `/blocked`): static — nicht in Journey-Map ✓
 - State Routing: fantasyStore + marketStore + managerStore = Feature-lokales UI-State (kein global auth/wallet) ✓
 - Hook Distribution: keine orphan hooks ✓
+
+---
+
+## 9. Phase-0-Refresh 2026-04-15 (Delta + Blindspots)
+
+**Totals Neu-Erfassung:**
+- 31 Routes (27 app-gated, 4 public) + 4 static + 1 auth-callback
+- 337 Components gesamt (~120-150 Domain + ~50 UI + ~15 Admin)
+- 13 Custom Hooks (3 generic in src/hooks, 10 in src/features/*/hooks)
+- 3 Feature Modules (fantasy, market, manager)
+- 5 Providers (Auth, Wallet, Club, Toast, WalletProvider)
+
+**Frontend-Blindspots:**
+1. `/compare` — `useRawPlayers()` evtl. keine Pagination → bei 4.263 Spielern schwer
+2. `/player/[id]` PlayerContent — SSR metadata OK, Detail-Implementation nicht vollstaendig gegrept
+3. FantasyContent (GeoGate + dynamic) Child-Tabs — alle 5 Tabs rendern? (EventsTab/PredictionsTab/HistoryTab/ErgebnisseTab/MitmachenTab)
+4. MysteryBoxResult Type — `equipment_name_de/tr`, `equipment_position` Population durch Backend pruefen
+5. Modal Deep-Linking — Modals persistieren nicht in URL (`/player/123?modal=offers` fehlt)
+6. Fehlende Pages — `/notifications`, `/wallet`, `/help`, `/faq` (alle inline oder in Settings)
+
+**Backend-Blindspots (HIGH-RISK Zonen):**
+1. **platformAdmin.ts** — Treasury via `adjust_user_wallet`: MUSS audit-logged + RLS-gated (platform_admins table)
+2. **Trading 12 RPCs** — ±Millionen cents: alle 12 REVOKE-Schema verifizieren
+3. **Bounty/Offer Escrow** — Lock-Unlock RPC atomic: E2E Rollback-Test fehlt
+4. **Fantasy Leagues 0 RPCs** (read-only Services) — Join/Leave API unklar
+5. **Wildcards** — nicht in src/lib/services/, nur features/fantasy/ lokal
+
+**Neu-Totals Backend:**
+- 61 Services (non-test), 93 RPCs called, 45 Query-Hook Files, 82 DB Types
+- 22 Geld-Operationen (Trading 12 + IPO 3 + Bounty 5 + Liquidation 2)
+- 7 Admin-Only RPCs
