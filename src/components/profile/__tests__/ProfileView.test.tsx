@@ -110,8 +110,8 @@ vi.mock('@/lib/queries/foundingPasses', () => ({
   useHighestPass: () => ({ data: null }),
 }));
 
-vi.mock('@/components/home/helpers', () => ({
-  getLoginStreak: () => ({ current: 3 }),
+vi.mock('@/lib/queries/streaks', () => ({
+  useLoginStreak: () => ({ streak: 3, isLoading: false, data: null }),
 }));
 
 // ============================================
@@ -411,19 +411,8 @@ describe('ProfileView', () => {
     expect(screen.getByText(/CR/)).toBeInTheDocument();
   });
 
-  // 7. self: shows deposit button
-  it('self: shows deposit button', async () => {
-    renderWithProviders(
-      <ProfileView targetUserId="u1" targetProfile={baseProfile} isSelf={true} />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId('scout-card')).toBeInTheDocument();
-    });
-
-    // t('depositBtn') → 'depositBtn'
-    expect(screen.getByText('depositBtn')).toBeInTheDocument();
-  });
+  // 7. self: deposit button entfernt (Phase 1 closed economy — kein Cash-In)
+  // Test absichtlich entfernt nach Reviewer J6+J7 Rework
 
   // 8. self: shows ReferralCard
   it('self: shows ReferralCard', async () => {

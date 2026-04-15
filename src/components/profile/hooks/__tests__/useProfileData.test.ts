@@ -91,8 +91,8 @@ vi.mock('@/lib/scoutReport', () => ({
   getDimensionTabOrder: vi.fn(() => ['trader', 'manager', 'analyst']),
 }));
 
-vi.mock('@/components/home/helpers', () => ({
-  getLoginStreak: vi.fn(() => ({ current: 5 })),
+vi.mock('@/lib/queries/streaks', () => ({
+  useLoginStreak: vi.fn(() => ({ streak: 5, isLoading: false, data: null })),
 }));
 
 // ============================================

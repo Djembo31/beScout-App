@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Loader2, ArrowRight } from 'lucide-react';
-import { Card, Button, ErrorState } from '@/components/ui';
+import { Card, ErrorState } from '@/components/ui';
 
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
@@ -123,9 +123,6 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, initi
                 )}
               </div>
               <div className="text-sm text-white/50 mb-4">{t('walletAvailable')}</div>
-              <div className="grid grid-cols-1 gap-2">
-                <Button variant="gold" size="sm">{t('depositBtn')}</Button>
-              </div>
               <Link
                 href="/transactions"
                 className="mt-3 flex items-center justify-between text-[11px] text-white/40 hover:text-gold transition-colors"

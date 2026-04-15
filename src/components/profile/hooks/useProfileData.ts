@@ -12,7 +12,7 @@ import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import { val } from '@/lib/settledHelpers';
-import { getLoginStreak } from '@/components/home/helpers';
+import { useLoginStreak } from '@/lib/queries/streaks';
 import { getDimensionTabOrder, getStrongestDimension } from '@/lib/scoutReport';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { useTransactions } from '@/lib/queries/misc';
@@ -71,7 +71,11 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
   const highestPass = highestPassData?.tier ?? null;
 
   // ── Streak ──
-  const streakDays = isSelf ? getLoginStreak().current : 0;
+  // Source-of-truth via `useLoginStreak` (Server-Authority).
+  // Replaces legacy `getLoginStreak()` localStorage Mirror, der `streak=0` lieferte
+  // wenn der User /profile via Deep-Link aufgerufen hat ohne vorher /home zu besuchen.
+  const { streak: ownStreak } = useLoginStreak(isSelf ? targetUserId : undefined);
+  const streakDays = isSelf ? ownStreak : 0;
 
   // ── Load All Data ──
   useEffect(() => {

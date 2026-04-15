@@ -142,25 +142,17 @@ export function getStoryMessage(
   return null;
 }
 
-// ── Login Streak (localStorage) ──
+// ── Login Streak (localStorage Mirror — NICHT Source-of-truth!) ──
+//
+// HYBRID-PATTERN (J7F-01 Reviewer-Rework):
+// `STREAK_KEY` ist nur ein localStorage-Cache-Mirror fuer sync-Leser
+// (z.B. Server-Render Hydration, frueher Story-Bar Render).
+// Source-of-truth ist `useLoginStreak` (src/lib/queries/streaks.ts) ueber RPC
+// `record_login_streak` — Server-Authority, idempotent pro UTC-Tag.
+// `useHomeData` updated den Mirror nach erfolgreichem RPC-Call.
+//
+// Die Funktionen `getLoginStreak()` und `updateLoginStreak()` wurden ENTFERNT,
+// weil sie `streak=0` ausgaben fuer Deep-Link-User die /missions oder /profile
+// VOR /home aufgerufen haben. Wer den Streak braucht: `useLoginStreak` Hook nutzen.
 
 export const STREAK_KEY = 'bescout-login-streak';
-
-export function getLoginStreak(): { current: number; lastDate: string } {
-  if (typeof window === 'undefined') return { current: 0, lastDate: '' };
-  try {
-    const raw = localStorage.getItem(STREAK_KEY);
-    if (!raw) return { current: 0, lastDate: '' };
-    return JSON.parse(raw);
-  } catch { return { current: 0, lastDate: '' }; }
-}
-
-export function updateLoginStreak(): number {
-  const today = new Date().toISOString().slice(0, 10);
-  const { current, lastDate } = getLoginStreak();
-  if (lastDate === today) return current;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  const newStreak = lastDate === yesterday ? current + 1 : 1;
-  localStorage.setItem(STREAK_KEY, JSON.stringify({ current: newStreak, lastDate: today }));
-  return newStreak;
-}

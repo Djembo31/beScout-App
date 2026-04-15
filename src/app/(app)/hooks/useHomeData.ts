@@ -16,12 +16,13 @@ import { queryClient } from '@/lib/queryClient';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useUserTickets } from '@/lib/queries/tickets';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
+import { useLoginStreak } from '@/lib/queries/streaks';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
-import { updateLoginStreak, STREAK_KEY, getStoryMessage } from '@/components/home/helpers';
+import { STREAK_KEY, getStoryMessage } from '@/components/home/helpers';
 import { useTranslations } from 'next-intl';
 import type { DpcHolding, Pos } from '@/types';
 
@@ -34,7 +35,9 @@ export function useHomeData() {
   const uid = user?.id;
 
   // ── UI State ──
-  const [streak, setStreak] = useState(0);
+  // Source-of-truth login streak (Server-Authority via RPC).
+  // Replaces legacy `updateLoginStreak()` localStorage-only Pattern.
+  const { streak, data: streakData } = useLoginStreak(uid);
   const [shieldsRemaining, setShieldsRemaining] = useState<number | null>(null);
   const [belowFoldReady, setBelowFoldReady] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
@@ -89,35 +92,31 @@ export function useHomeData() {
     [rawHoldings]
   );
 
-  // ── Login Streak + Mission Tracking ──
+  // ── Login Streak Side-Effects (Toasts + localStorage Mirror) ──
+  // `useLoginStreak` Hook (oben) ist Source-of-truth fuer den `streak` Wert.
+  // Hier nur noch one-shot Side-Effects ausloesen wenn frische Server-Antwort kommt
+  // (already_today=false), und localStorage-Mirror fuer Cross-Page Read updaten.
   const tg = useTranslations('gamification');
   useEffect(() => {
-    if (!user) return;
-    const userId = user.id;
-    let cancelled = false;
-
-    setStreak(updateLoginStreak());
-
-    import('@/lib/services/streaks').then(({ recordLoginStreak }) => {
-      recordLoginStreak(userId).then(result => {
-        if (cancelled) return;
-        setStreak(result.streak);
-        setShieldsRemaining(result.shields_remaining);
-        localStorage.setItem(STREAK_KEY, JSON.stringify({ current: result.streak, lastDate: new Date().toISOString().slice(0, 10) }));
-        if (result.daily_tickets) {
-          addToast(`+${result.daily_tickets} Tickets`, 'info');
-        }
-        if (result.milestone_reward > 0 && result.milestone_label) {
-          addToast(result.milestone_label, 'success');
-        }
-        if (result.shield_used) {
-          addToast(tg('streak.shieldUsed') + ` ${tg('streak.shieldsRemaining', { count: result.shields_remaining })}`, 'success');
-        }
-      }).catch(err => logSupabaseError('[Home] Login streak record failed', err));
-    }).catch(err => console.error('[Home] Streaks module load failed:', err));
-
-    return () => { cancelled = true; };
-  }, [user]);
+    if (!streakData) return;
+    setShieldsRemaining(streakData.shields_remaining);
+    try {
+      localStorage.setItem(
+        STREAK_KEY,
+        JSON.stringify({ current: streakData.streak, lastDate: new Date().toISOString().slice(0, 10) }),
+      );
+    } catch (err) { console.error('[Home] localStorage streak mirror failed:', err); }
+    if (streakData.already_today) return;  // Side-Effects nur bei erstem Daily-Hit
+    if (streakData.daily_tickets) {
+      addToast(`+${streakData.daily_tickets} Tickets`, 'info');
+    }
+    if (streakData.milestone_reward > 0 && streakData.milestone_label) {
+      addToast(streakData.milestone_label, 'success');
+    }
+    if (streakData.shield_used) {
+      addToast(tg('streak.shieldUsed') + ` ${tg('streak.shieldsRemaining', { count: streakData.shields_remaining })}`, 'success');
+    }
+  }, [streakData, addToast, tg]);
 
   // ── Derived Data ──
   const portfolioValue = useMemo(() => holdings.reduce((s, h) => s + h.qty * h.floor, 0), [holdings]);

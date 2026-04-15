@@ -101,13 +101,28 @@ vi.mock('@/lib/streakBenefits', () => ({
 }));
 
 vi.mock('@/components/home/helpers', () => ({
-  updateLoginStreak: vi.fn(() => 3),
   STREAK_KEY: 'bescout-login-streak',
   getStoryMessage: vi.fn(() => null),
 }));
 
 vi.mock('next-intl', () => ({
   useTranslations: () => ((key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`),
+}));
+
+vi.mock('@/lib/queries/streaks', () => ({
+  useLoginStreak: vi.fn(() => ({
+    streak: 3,
+    isLoading: false,
+    data: {
+      streak: 3,
+      shields_remaining: 2,
+      milestone_reward: 0,
+      milestone_label: null,
+      shield_used: false,
+      already_today: false,
+      daily_tickets: 0,
+    },
+  })),
 }));
 
 vi.mock('@/lib/services/streaks', () => ({
