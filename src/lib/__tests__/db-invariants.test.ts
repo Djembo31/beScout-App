@@ -822,4 +822,57 @@ describe('DB Invariants', () => {
 
     expect(drifts, drifts.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-21: no SECURITY DEFINER RPC with p_user_id + authenticated-grant lacks auth.uid()
+  // ─────────────────────────────────────────────────────
+  // Blocker A-02 Exploit-Klasse: SECURITY DEFINER + authenticated-grant + p_user_id
+  // uuid parameter OHNE auth.uid()-check im body = authenticated user kann fremde
+  // User-IDs uebergeben. Slice 005 hat 4 solche RPCs gehaertet. INV-21 ist der
+  // Regression-Guard gegen future-drift.
+  //
+  // Whitelist: RPCs die explicit ohne auth.uid() auskommen duerfen (z.B. read-only
+  // reading fremder Profiles mit optional p_user_id).
+  it('INV-21: no SECURITY DEFINER with p_user_id+authenticated-grant lacks auth.uid()', async () => {
+    // Whitelist: RPCs die keinen auth.uid()-Guard brauchen (z.B. optional p_user_id fuer public lookups)
+    const WHITELIST = new Set<string>([
+      'get_club_by_slug',   // p_user_id DEFAULT NULL, public club lookup
+      'is_club_admin',      // read-only permission check, p_user_id kann any
+    ]);
+
+    const { data, error } = await sb.rpc('get_auth_guard_audit');
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+
+    const rows = (data ?? []) as Array<{
+      proname: string;
+      has_authenticated_grant: boolean;
+      has_auth_uid_in_body: boolean;
+      has_p_user_id_param: boolean;
+    }>;
+
+    const violations = rows
+      .filter(
+        (r) =>
+          r.has_p_user_id_param &&
+          r.has_authenticated_grant &&
+          !r.has_auth_uid_in_body &&
+          !WHITELIST.has(r.proname)
+      )
+      .map(
+        (r) =>
+          `RPC "${r.proname}" has p_user_id+authenticated-grant but no auth.uid() check (A-02 exploit class)`
+      );
+
+    if (violations.length === 0) {
+      const totalDef = rows.length;
+      const atRisk = rows.filter(
+        (r) => r.has_p_user_id_param && r.has_authenticated_grant
+      ).length;
+      console.log(
+        `[INV-21] checked ${totalDef} SECURITY DEFINER RPCs, ${atRisk} with p_user_id+auth-grant (all guarded or whitelisted), 0 violations`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

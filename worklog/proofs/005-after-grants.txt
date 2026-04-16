@@ -1,0 +1,35 @@
+SLICE 005 — AFTER AUTH-GUARD HARDENING
+========================================
+Timestamp: 2026-04-17 (post-apply)
+Migrations: 20260417000000_auth_guard_hardening.sql, 20260417010000_audit_helper_auth_guard.sql
+Applied via: mcp__supabase__apply_migration (both success:true)
+
+--- VERIFICATION QUERY ---
+SELECT proname, has_guard (regex ~ 'IF auth\.uid\(\) IS NOT NULL'), grantees
+FROM pg_proc WHERE proname IN (4 RPCs)
+
+--- RESULT ---
+| RPC                         | has_guard | grantees                |
+|-----------------------------|-----------|-------------------------|
+| check_analyst_decay         | yes       | postgres,service_role   |
+| refresh_airdrop_score       | yes       | postgres,service_role   |
+| renew_club_subscription     | yes       | postgres,service_role   |
+| rpc_lock_event_entry        | yes       | postgres,service_role   |
+
+--- COMPARISON TO BEFORE ---
+- 4 RPCs: authenticated-grant REVOKED (war: authenticated,postgres,service_role)
+- 4 RPCs: auth.uid()-Guard im Body (war: kein auth.uid() reference)
+- Client-Wrapper unberuehrt: lock_event_entry, refresh_my_airdrop_score
+
+--- INV-21 RESULT ---
+[INV-21] checked 193 SECURITY DEFINER RPCs, 0 with p_user_id+auth-grant
+         (all guarded or whitelisted), 0 violations
+
+Whitelist (keine Guard-Pflicht):
+  - get_club_by_slug (p_user_id DEFAULT NULL, public lookup)
+  - is_club_admin (read-only permission check)
+
+--- RESIDUAL RISK ---
+- Cron/service_role Calls funktionieren (Guard skippt via IS NOT NULL)
+- Breaking change: keine, da Client bereits Wrapper nutzt
+- Future drift: INV-21 fangt jedes zukuenftige RPC das die exploit-Klasse reintroduziert

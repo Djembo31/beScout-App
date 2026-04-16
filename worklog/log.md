@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 005 | 2026-04-17 | Auth-Guard Hardening (A-02)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417000000_auth_guard_hardening.sql` (4 RPCs hardened)
+  - `supabase/migrations/20260417010000_audit_helper_auth_guard.sql` (INV-21 helper)
+  - `src/lib/__tests__/db-invariants.test.ts` (+55 Zeilen, INV-21)
+- Proofs: `worklog/proofs/005-{before,after}-grants.txt`, `005-inv21.txt`
+- Commit: (pending)
+- Notes: 4 SECURITY DEFINER RPCs hatten authenticated+p_user_id+kein auth.uid() (A-02 exploit class, P3-22 in phase3-db-audit). Fix: REVOKE authenticated + defense-in-depth body guard (`IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN RAISE`). Cron (service_role) bleibt funktional. Client nutzt Wrapper (lock_event_entry, refresh_my_airdrop_score) unveraendert. INV-21 meta-test: 193 SECURITY DEFINER geprueft, 0 violations. CEO-approved 2026-04-17.
+- Severity: [HIGH] rpc_lock_event_entry + renew_club_subscription (fremdes Wallet/Tickets deduct), [MED] check_analyst_decay (Score-Penalty auf fremde User), [LOW] refresh_airdrop_score (recompute).
+
+---
+
 ## 004 | 2026-04-16 | RLS Policy Coverage Audit (A-03)
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files:

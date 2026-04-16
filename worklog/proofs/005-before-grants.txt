@@ -1,0 +1,61 @@
+SLICE 005 — BEFORE AUTH-GUARD HARDENING
+=========================================
+Timestamp: 2026-04-17 (pre-apply)
+Source: mcp__supabase__execute_sql + pg_get_functiondef
+
+--- AKTUELLE GRANTS (problematisch) ---
+
+rpc_lock_event_entry(p_event_id, p_user_id)
+  Grants: authenticated, postgres, service_role  ← authenticated hat KEINEN Guard
+  Body: kein `auth.uid()` reference
+
+refresh_airdrop_score(p_user_id)
+  Grants: authenticated, postgres, service_role  ← authenticated hat KEINEN Guard
+  Body: kein `auth.uid()` reference
+  Client nutzt stattdessen `refresh_my_airdrop_score()` (wrapper, laut airdropScore.ts:97)
+
+check_analyst_decay(p_user_id)
+  Grants: authenticated, postgres, service_role  ← authenticated hat KEINEN Guard
+  Body: kein `auth.uid()` reference
+  Kein Client-Caller
+
+renew_club_subscription(p_user_id, p_subscription_id)
+  Grants: authenticated, postgres, service_role  ← authenticated hat KEINEN Guard
+  Body: kein `auth.uid()` reference
+  p_user_id wird im Body ignoriert — stattdessen v_sub.user_id
+  Kein Client-Caller (Auto-Renewal via Cron vermutet)
+
+--- EXPLOIT KLASSEN ---
+
+[HIGH] rpc_lock_event_entry: Authenticated-User kann Event-Entry fuer fremden
+       User locken. Falls event.currency='scout' → Scout-Balance fremden Users
+       wird deducted. Falls 'tickets' → Tickets fremden Users werden gespent.
+
+[HIGH] renew_club_subscription: Authenticated-User kann Club-Abo fuer fremden
+       User erneuern → price_cents wird von fremdem Wallet abgezogen.
+       Idempotent gegen auto_renew=false (dann returns "not active"), aber
+       gegen active+auto_renew=true subscriptions funktioniert der Abuse.
+
+[MED]  check_analyst_decay: Authenticated-User kann fremden User -10 analyst
+       Score geben (once-per-30-days cap via already_decayed check).
+
+[LOW]  refresh_airdrop_score: Authenticated-User kann fremden User's airdrop
+       score recomputen (idempotent, nur rate-limit-bypass).
+
+--- FIX-STRATEGIE ---
+
+Alle 4 RPCs:
+  1. REVOKE EXECUTE FROM authenticated (nur service_role + postgres)
+  2. Body-Guard am Anfang:
+     IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
+       RAISE EXCEPTION 'auth_uid_mismatch: Nicht berechtigt';
+     END IF;
+     (NULL-skip fuer service_role Cron; DISTINCT-reject fuer authenticated)
+
+renew_club_subscription: Guard gegen v_sub.user_id NACH dem SELECT (weil
+  p_user_id im Body ignoriert wird):
+     IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM v_sub.user_id THEN
+       RAISE EXCEPTION 'auth_uid_mismatch: Nicht berechtigt';
+     END IF;
+
+Wrapper `lock_event_entry` + `refresh_my_airdrop_score` bleiben unberuehrt.
