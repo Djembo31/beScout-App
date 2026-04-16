@@ -875,4 +875,34 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-22: ALL_CREDIT_TX_TYPES (TS) ⊇ DB transactions.type CHECK values
+  // ─────────────────────────────────────────────────────
+  // Garantiert dass jede transactions.type DB-Wert in TS `ALL_CREDIT_TX_TYPES`
+  // Union ist, sonst weiss TS/UI nix vom Typ (raw-string-fallback).
+  // Slice 006 (2026-04-17) hat TS nachgezogen. Drift = Test-Fail → Reminder.
+  it('INV-22: ALL_CREDIT_TX_TYPES contains every DB transactions.type CHECK value', async () => {
+    const { data: dbValues, error } = await sb.rpc('get_check_enum_values', {
+      p_constraint_name: 'transactions_type_check',
+    });
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+    expect(dbValues).not.toBeNull();
+
+    const { ALL_CREDIT_TX_TYPES } = await import('@/lib/transactionTypes');
+    const tsSet = new Set<string>(ALL_CREDIT_TX_TYPES);
+
+    const missing = ((dbValues as string[]) ?? []).filter((v) => !tsSet.has(v)).sort();
+    const violations = missing.map(
+      (v) => `DB transactions.type has "${v}" but ALL_CREDIT_TX_TYPES doesn't — UI/services may show raw string`
+    );
+
+    if (violations.length === 0) {
+      console.log(
+        `[INV-22] DB has ${(dbValues as string[]).length} transaction types, all present in TS ALL_CREDIT_TX_TYPES`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

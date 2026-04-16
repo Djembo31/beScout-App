@@ -14,25 +14,40 @@
  */
 
 // All known credit transaction types (union of DB reality + extended future types)
+//
+// Slice 006 (2026-04-17): aligned with DB CHECK constraint `transactions_type_check`.
+// TS union is now superset of DB: every DB-allowed value is present in TS, plus extras
+// for future/legacy compatibility (checked by INV-22).
 export const ALL_CREDIT_TX_TYPES = [
-  // Trading (P1)
-  'trade_buy', 'trade_sell', 'buy', 'sell', 'ipo_buy',
-  'offer_buy', 'offer_sell', 'offer_lock', 'offer_unlock',
-  // Wallet operations (private)
-  'deposit', 'welcome_bonus',
-  // Achievements (public-safe)
-  'mission_reward', 'streak_reward', 'streak_bonus',
+  // Trading (DB canonical)
+  'trade_buy', 'trade_sell', 'ipo_buy',
+  // Trading (TS-legacy, used by activityHelpers)
+  'buy', 'sell', 'offer_buy',
+  // Orders + Offers lifecycle (DB canonical)
+  'order_cancel', 'offer_sell', 'offer_lock', 'offer_unlock', 'offer_execute',
+  // Wallet operations (DB canonical)
+  'deposit', 'welcome_bonus', 'admin_adjustment', 'withdrawal',
+  // Achievements (DB canonical)
+  'mission_reward', 'streak_reward',
   'bounty_reward', 'bounty_cost',
-  'research_earning', 'research_unlock',
+  'research_earn', 'research_unlock',
   'tier_bonus',
-  // Fantasy
+  // Achievements (TS-legacy, used by activityHelpers)
+  'streak_bonus', 'research_earning',
+  // Fantasy (DB canonical — only fantasy_join via event_entry_lock, fantasy_reward synthesized via liga_reward)
+  'liga_reward',
+  // Fantasy (TS-legacy, used by activityHelpers)
   'fantasy_reward', 'fantasy_join', 'entry_fee', 'entry_refund',
-  // Polls / Votes
-  'poll_earning', 'poll_vote_cost', 'vote_fee',
-  // Revenue / Payouts
-  'tip_receive', 'scout_subscription_earning',
-  'creator_fund_payout', 'ad_revenue_payout',
-  'pbt_liquidation',
+  // Polls / Votes (DB canonical)
+  'poll_earn', 'poll_vote_cost',
+  // Polls / Votes (TS-legacy, used by activityHelpers)
+  'poll_earning', 'vote_fee',
+  // Revenue / Payouts (DB canonical)
+  'tip_send', 'tip_receive', 'subscription', 'referral_reward',
+  // Revenue / Payouts (TS-legacy, used by activityHelpers)
+  'scout_subscription_earning', 'creator_fund_payout', 'ad_revenue_payout', 'pbt_liquidation',
+  // Gamification drops (DB canonical)
+  'mystery_box_reward', 'founding_pass',
 ] as const;
 
 export type CreditTxType = typeof ALL_CREDIT_TX_TYPES[number];

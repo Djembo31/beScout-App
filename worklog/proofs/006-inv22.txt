@@ -1,0 +1,40 @@
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-01: format=7er events must have lineup_size=7, format=11er must have lineup_size=11
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-02: event starts_at should be within 1 hour of earliest fixture kickoff for its gameweek
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-03: event locks_at should be <= earliest fixture kickoff
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-04: no event with status=running should have locks_at in the future
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-05: no wallet balance < 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-06: locked_balance <= balance for all wallets
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-07: every wallet with locked_balance > 0 should have at least 1 open order or pending offer
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-08: no holding with quantity <= 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-09: IPO sold <= total_offered
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-10: floor_price <= 3x ipo_price for all players with ipo_price > 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-11: no open/partial orders for liquidated players
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-12: no duplicate player in same lineup slots
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-13: trade fee splits must be internally consistent (platform + pbt + club > 0)
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-14: all active IPOs (open/early_access/announced) have price > 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-15: no negative locked_balance
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-16: wallets.balance matches latest transactions.balance_after per user
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-17: every wallets.user_id must reference an existing profile
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-18: CHECK constraint values match expected snapshot
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-19: every RLS-enabled table has at least one policy (except whitelist)
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-20: critical money/trading tables have expected policy coverage
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-21: no SECURITY DEFINER with p_user_id+authenticated-grant lacks auth.uid()
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts[2m > [22m[2mDB Invariants[2m > [22m[2mINV-22: ALL_CREDIT_TX_TYPES contains every DB transactions.type CHECK value
+[22m[39m[INV-22] DB has 28 transaction types, all present in TS ALL_CREDIT_TX_TYPES
+
+ [32m✓[39m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-22: ALL_CREDIT_TX_TYPES contains every DB transactions.type CHECK value[33m 1204[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[2m | [22m[33m21 skipped[39m[90m (22)[39m
+[2m   Start at [22m 00:36:14
+[2m   Duration [22m 4.79s[2m (transform 625ms, setup 1.20s, import 866ms, tests 1.30s, environment 0ms)[22m
+

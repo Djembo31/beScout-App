@@ -11,6 +11,15 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 006 | 2026-04-17 | ALL_CREDIT_TX_TYPES ⊇ DB alignment (A-05 Follow-up)
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files: `src/lib/transactionTypes.ts` (+10 canonical DB types), `src/lib/__tests__/db-invariants.test.ts` (+INV-22)
+- Proof: `worklog/proofs/006-inv22.txt` — 28 DB types, all in TS
+- Commit: (pending)
+- Notes: TS Union war subset drift vs DB (fehlten: admin_adjustment, order_cancel, offer_execute, liga_reward, mystery_box_reward, tip_send, subscription, founding_pass, referral_reward, withdrawal). Pragmatischer Fix: ADD (keep TS-extras fuer activityHelpers compat), KEINE removals. INV-22 guard'd. activityHelpers-Labels+Icons fuer neue DB-types: separater CEO-Slice (TR-i18n).
+
+---
+
 ## 005 | 2026-04-17 | Auth-Guard Hardening (A-02)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
