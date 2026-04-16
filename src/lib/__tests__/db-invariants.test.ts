@@ -587,4 +587,153 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-18: CHECK constraint values match hardcoded expected sets
+  // ─────────────────────────────────────────────────────
+  // Freezes current DB enum-CHECK state for critical money/identity columns.
+  // A migration that adds/removes a value here will fail this test →
+  // reminder to sync TS unions, UI labels, common-errors.md before merging.
+  //
+  // Nutzt `public.get_check_enum_values(p_constraint_name)` RPC aus
+  // `20260416240000_audit_helper_check_enum_values.sql`.
+  it('INV-18: CHECK constraint values match expected snapshot', async () => {
+    const cases: Array<{
+      table: string;
+      column: string;
+      constraint: string;
+      expected: readonly string[];
+    }> = [
+      {
+        table: 'transactions',
+        column: 'type',
+        constraint: 'transactions_type_check',
+        expected: [
+          'deposit', 'welcome_bonus', 'admin_adjustment', 'tier_bonus',
+          'trade_buy', 'trade_sell', 'ipo_buy', 'order_cancel',
+          'offer_lock', 'offer_unlock', 'offer_execute', 'offer_sell',
+          'mission_reward', 'streak_reward', 'liga_reward',
+          'mystery_box_reward', 'tip_send', 'tip_receive',
+          'subscription', 'founding_pass', 'bounty_cost', 'bounty_reward',
+          'research_unlock', 'research_earn', 'referral_reward',
+          'poll_vote_cost', 'poll_earn', 'withdrawal',
+        ],
+      },
+      {
+        table: 'orders',
+        column: 'status',
+        constraint: 'orders_status_check',
+        expected: ['open', 'partial', 'filled', 'cancelled'],
+      },
+      {
+        table: 'orders',
+        column: 'side',
+        constraint: 'orders_side_check',
+        expected: ['buy', 'sell'],
+      },
+      {
+        table: 'offers',
+        column: 'status',
+        constraint: 'offers_status_check',
+        expected: ['pending', 'accepted', 'rejected', 'countered', 'expired', 'cancelled'],
+      },
+      {
+        table: 'offers',
+        column: 'side',
+        constraint: 'offers_side_check',
+        expected: ['buy', 'sell'],
+      },
+      {
+        table: 'events',
+        column: 'status',
+        constraint: 'events_status_check',
+        expected: ['upcoming', 'registering', 'late-reg', 'running', 'scoring', 'ended'],
+      },
+      {
+        table: 'events',
+        column: 'type',
+        constraint: 'events_type_check',
+        expected: ['bescout', 'club', 'sponsor', 'special'],
+      },
+      {
+        table: 'players',
+        column: 'position',
+        constraint: 'players_position_check',
+        expected: ['GK', 'DEF', 'MID', 'ATT'],
+      },
+      {
+        table: 'user_stats',
+        column: 'tier',
+        constraint: 'user_stats_tier_check',
+        expected: ['Rookie', 'Amateur', 'Profi', 'Elite', 'Legende', 'Ikone'],
+      },
+      {
+        table: 'research_posts',
+        column: 'call',
+        constraint: 'research_posts_call_check',
+        expected: ['Bullish', 'Bearish', 'Neutral'],
+      },
+      {
+        table: 'research_posts',
+        column: 'category',
+        constraint: 'research_posts_category_check',
+        expected: ['Spieler-Analyse', 'Transfer-Empfehlung', 'Taktik', 'Saisonvorschau', 'Scouting-Report'],
+      },
+      {
+        table: 'lineups',
+        column: 'captain_slot',
+        constraint: 'lineups_captain_slot_check',
+        expected: [
+          'gk', 'def1', 'def2', 'def3', 'def4',
+          'mid1', 'mid2', 'mid3', 'mid4',
+          'att', 'att2', 'att3',
+        ],
+      },
+      {
+        table: 'club_subscriptions',
+        column: 'tier',
+        constraint: 'club_subscriptions_tier_check',
+        expected: ['bronze', 'silber', 'gold'],
+      },
+      {
+        table: 'user_founding_passes',
+        column: 'tier',
+        constraint: 'user_founding_passes_tier_check',
+        expected: ['fan', 'scout', 'pro', 'founder'],
+      },
+    ];
+
+    const drifts: string[] = [];
+
+    for (const c of cases) {
+      const { data, error } = await sb.rpc('get_check_enum_values', {
+        p_constraint_name: c.constraint,
+      });
+
+      expect(error, `RPC failed for ${c.constraint}: ${error?.message}`).toBeNull();
+      expect(data, `Constraint ${c.constraint} not found`).not.toBeNull();
+
+      const dbSet = new Set<string>((data as string[]) ?? []);
+      const expectedSet = new Set<string>(c.expected);
+
+      const onlyInDb = Array.from(dbSet).filter((v) => !expectedSet.has(v)).sort();
+      const onlyInExpected = Array.from(expectedSet).filter((v) => !dbSet.has(v)).sort();
+
+      if (onlyInDb.length > 0 || onlyInExpected.length > 0) {
+        drifts.push(
+          `${c.table}.${c.column}: ` +
+            (onlyInDb.length > 0 ? `DB-only=[${onlyInDb.join(', ')}] ` : '') +
+            (onlyInExpected.length > 0 ? `expected-only=[${onlyInExpected.join(', ')}]` : '')
+        );
+      }
+    }
+
+    if (drifts.length === 0) {
+      console.log(
+        `[INV-18] checked ${cases.length} CHECK constraints, 0 drifts`
+      );
+    }
+
+    expect(drifts, drifts.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

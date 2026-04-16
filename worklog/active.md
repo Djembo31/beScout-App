@@ -28,9 +28,9 @@ Starte mit: `/ship new "Kurzbeschreibung der Aufgabe"`.
 
 ## Regeln
 
-1. **Nur EIN aktiver Slice gleichzeitig.** Wechsel = aktuellen pausieren ODER abschliessen.
-2. **Keine Stage-Skips.** Wenn eine Stage nicht zutrifft (z.B. IMPACT bei reinem UI-Fix): explizit als `skipped (Grund)` vermerken, nicht weglassen.
-3. **Proof ist Pflicht.** Kein `DONE` ohne `proof:` Pfad zu Artefakt.
+1. **Nur EIN aktiver Slice gleichzeitig.**
+2. **Keine Stage-Skips.** `skipped (Grund)` wenn nicht zutreffend.
+3. **Proof ist Pflicht.** Kein `DONE` ohne Artefakt.
 
 ## Historie
 
