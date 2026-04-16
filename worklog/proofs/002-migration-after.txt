@@ -1,0 +1,36 @@
+SLICE 002 — AFTER MIGRATION SNAPSHOT
+=======================================
+Timestamp: 2026-04-16 23:10 UTC (approx, post-apply)
+Source: mcp__supabase__execute_sql against skzjfhvgccaeplydsunz
+Migration: supabase/migrations/20260416230000_wallets_profile_fk_cascade.sql
+Applied via: mcp__supabase__apply_migration (success:true)
+
+--- METRIKEN ---
+orphan_wallets: 0              (was 2)
+total_wallets: 126             (was 127, 1 deleted)
+total_profiles: 126            (was 125, 1 backfilled)
+fk_exists: yes                 (was no)
+fk_delete_rule: CASCADE        (NEW)
+testtrading_profile: ok (is_demo=true)
+taki_okuyucu_wallet_exists: deleted (ok)
+
+--- OUTCOME ---
+[1] 862c96a1 (testtrading@bescout.test)
+    Action: Profile backfilled
+    Profile now: handle='testtrading', is_demo=true, display_name='Test Trading Account'
+    Wallet: kept (balance=1100000)
+
+[2] 9e0edfed (taki.okuyucu@gmx.de)
+    Action: Wallet deleted
+    Auth user: still exists (taki.okuyucu@gmx.de, abandoned signup)
+    Loss: 1000000 cents (10.000 $SCOUT Baseline-Default, no real activity)
+
+--- FK-VERIFY ---
+Constraint: wallets_user_id_profiles_fkey
+References: public.profiles(id)
+Delete Rule: CASCADE
+Effect: Kuenftige profile-DELETE → wallet wird automatisch geloescht.
+
+--- INVARIANT-CHECK ---
+INV-17 should be green (orphan_wallets=0).
+INV-16 should remain green, but checked count drops from 127 → 126.

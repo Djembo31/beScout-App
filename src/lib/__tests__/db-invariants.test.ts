@@ -541,4 +541,50 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 60_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-17: every wallets.user_id must reference an existing profile
+  // ─────────────────────────────────────────────────────
+  // Orphan-Wallet-Guard (Slice 002): FK wallets_user_id_profiles_fkey wurde
+  // 2026-04-16 hinzugefuegt mit ON DELETE CASCADE. Dieser Test verifiziert
+  // dass keine Orphans existieren. Vor Slice 002 gab es 2 Orphans aus
+  // Pre-J1-03-Zeit (ein abandoned signup geloescht, ein Test-Account via
+  // Profile-Backfill erhalten). FK blockiert ab jetzt jeden neuen Orphan
+  // auf DB-Ebene, INV-17 ist Regression-Guard falls FK versehentlich
+  // entfernt wird oder schema-Drift eintritt.
+  it('INV-17: every wallets.user_id must reference an existing profile', async () => {
+    const { data: wallets, error: wErr } = await sb
+      .from('wallets')
+      .select('user_id, balance');
+
+    expect(wErr).toBeNull();
+    if (!wallets || wallets.length === 0) return;
+
+    const userIds = wallets.map((w) => w.user_id);
+    const profileIdSet = new Set<string>();
+    const chunkSize = 500;
+
+    for (let i = 0; i < userIds.length; i += chunkSize) {
+      const chunk = userIds.slice(i, i + chunkSize);
+      const { data: profiles, error: pErr } = await sb
+        .from('profiles')
+        .select('id')
+        .in('id', chunk);
+      expect(pErr).toBeNull();
+      (profiles ?? []).forEach((p) => profileIdSet.add(p.id));
+    }
+
+    const orphans = wallets.filter((w) => !profileIdSet.has(w.user_id));
+    const violations = orphans.map(
+      (w) => `Orphan wallet: user_id=${w.user_id.slice(0, 8)} balance=${w.balance}`
+    );
+
+    if (violations.length === 0) {
+      console.log(
+        `[INV-17] checked ${wallets.length} wallets, all have matching profile, 0 orphans`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

@@ -1,0 +1,38 @@
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-01: format=7er events must have lineup_size=7, format=11er must have lineup_size=11
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-02: event starts_at should be within 1 hour of earliest fixture kickoff for its gameweek
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-03: event locks_at should be <= earliest fixture kickoff
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-04: no event with status=running should have locks_at in the future
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-05: no wallet balance < 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-06: locked_balance <= balance for all wallets
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-07: every wallet with locked_balance > 0 should have at least 1 open order or pending offer
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-08: no holding with quantity <= 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-09: IPO sold <= total_offered
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-10: floor_price <= 3x ipo_price for all players with ipo_price > 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-11: no open/partial orders for liquidated players
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-12: no duplicate player in same lineup slots
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-13: trade fee splits must be internally consistent (platform + pbt + club > 0)
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-14: all active IPOs (open/early_access/announced) have price > 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-15: no negative locked_balance
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts[2m > [22m[2mDB Invariants[2m > [22m[2mINV-16: wallets.balance matches latest transactions.balance_after per user
+[22m[39m[INV-16] checked 126 wallets, 124 with transactions, 2 without (skipped), 0 violations
+
+ [32m✓[39m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-16: wallets.balance matches latest transactions.balance_after per user[33m 876[2mms[22m[39m
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts[2m > [22m[2mDB Invariants[2m > [22m[2mINV-17: every wallets.user_id must reference an existing profile
+[22m[39m[INV-17] checked 126 wallets, all have matching profile, 0 orphans
+
+ [32m✓[39m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-17: every wallets.user_id must reference an existing profile[32m 248[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[2m | [22m[33m15 skipped[39m[90m (17)[39m
+[2m   Start at [22m 23:35:40
+[2m   Duration [22m 2.13s[2m (transform 129ms, setup 353ms, import 206ms, tests 1.16s, environment 0ms)[22m
+
