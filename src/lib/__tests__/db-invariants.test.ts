@@ -460,4 +460,85 @@ describe('DB Invariants', () => {
     expect(error).toBeNull();
     expect(violations ?? []).toHaveLength(0);
   });
+
+  // ─────────────────────────────────────────────────────
+  // INV-16: wallets.balance matches latest transactions.balance_after per user
+  // ─────────────────────────────────────────────────────
+  // Ledger-Drift-Check (Blocker A-04): Jede transactions-Row schreibt
+  // balance_after als Snapshot der wallets.balance NACH der Mutation.
+  // Die juengste Transaction eines Users MUSS daher mit wallets.balance
+  // uebereinstimmen. Drift = RPC-Bug (Balance-Update ohne Transaction-Insert
+  // oder vice versa) oder silent Error-Swallowing in Service-Layer.
+  it('INV-16: wallets.balance matches latest transactions.balance_after per user', async () => {
+    // 5s Toleranz-Fenster: Mutations die JUST passieren koennten Wallet oder
+    // Transaction bereits geschrieben haben aber die andere Seite noch nicht.
+    const raceCutoff = new Date(Date.now() - 5000).toISOString();
+
+    const { data: wallets, error: wErr } = await sb
+      .from('wallets')
+      .select('user_id, balance');
+
+    expect(wErr).toBeNull();
+    if (!wallets || wallets.length === 0) return;
+
+    // Fetch transactions paginiert (max 1000 per Supabase-Query) und dedup
+    // client-seitig: erster Eintrag pro user_id = juengster (ORDER BY user_id ASC,
+    // created_at DESC, id DESC).
+    const latestByUser = new Map<string, { balanceAfter: number; txId: string; createdAt: string }>();
+    const pageSize = 1000;
+    let offset = 0;
+
+    while (true) {
+      const { data: rows, error: tErr } = await sb
+        .from('transactions')
+        .select('id, user_id, balance_after, created_at')
+        .lt('created_at', raceCutoff)
+        .order('user_id', { ascending: true })
+        .order('created_at', { ascending: false })
+        .order('id', { ascending: false })
+        .range(offset, offset + pageSize - 1);
+
+      expect(tErr).toBeNull();
+      if (!rows || rows.length === 0) break;
+
+      for (const row of rows) {
+        if (!latestByUser.has(row.user_id)) {
+          latestByUser.set(row.user_id, {
+            balanceAfter: row.balance_after,
+            txId: row.id,
+            createdAt: row.created_at,
+          });
+        }
+      }
+
+      if (rows.length < pageSize) break;
+      offset += pageSize;
+    }
+
+    const violations: string[] = [];
+    let skippedNoTx = 0;
+
+    for (const wallet of wallets) {
+      const latest = latestByUser.get(wallet.user_id);
+      if (!latest) {
+        skippedNoTx += 1;
+        continue;
+      }
+      if (BigInt(wallet.balance) !== BigInt(latest.balanceAfter)) {
+        const diff = BigInt(wallet.balance) - BigInt(latest.balanceAfter);
+        violations.push(
+          `User ${wallet.user_id.slice(0, 8)}: wallet.balance=${wallet.balance} vs latest tx.balance_after=${latest.balanceAfter} (diff=${diff}, tx=${latest.txId.slice(0, 8)}, at=${latest.createdAt})`
+        );
+      }
+    }
+
+    // Info-Log fuer Kontext (sichtbar wenn Test gruen)
+    if (violations.length === 0) {
+      console.log(
+        `[INV-16] checked ${wallets.length} wallets, ${latestByUser.size} with transactions, ${skippedNoTx} without (skipped), 0 violations`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 60_000);
 });
