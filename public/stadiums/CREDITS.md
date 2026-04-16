@@ -38,3 +38,15 @@ Used as blurred background images on club pages (blur-sm + dark gradient overlay
 | umraniyespor.jpg | Copy of default.jpg (no Wikimedia image available) |
 | default.jpg | Generic stadium fallback |
 | sakaryaspor.jpg | Pilot club (original) |
+
+## Stadium Images (2026-04-16)
+
+Stadium photographs sourced from Wikipedia and Wikimedia Commons.
+Licensed under Creative Commons Attribution-ShareAlike (CC BY-SA).
+See individual image pages for specific attribution.
+
+## Stadium Images (2026-04-16)
+
+Stadium photographs sourced from Wikipedia and Wikimedia Commons.
+Licensed under Creative Commons Attribution-ShareAlike (CC BY-SA).
+See individual image pages for specific attribution.

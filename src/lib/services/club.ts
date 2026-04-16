@@ -310,23 +310,25 @@ export async function getClubsWithStats(): Promise<Array<DbClub & { follower_cou
   if (error) throw new Error(error.message);
   if (!clubs) return [];
 
-  // Get follower counts
+  // Get follower counts — override default 1000-row limit for scalability
   const clubIds = clubs.map(c => c.id);
   const { data: followerData } = await supabase
     .from('club_followers')
     .select('club_id')
-    .in('club_id', clubIds);
+    .in('club_id', clubIds)
+    .limit(10000);
 
   const followerCounts = new Map<string, number>();
   for (const f of followerData ?? []) {
     followerCounts.set(f.club_id, (followerCounts.get(f.club_id) ?? 0) + 1);
   }
 
-  // Get player counts
+  // Get player counts — must override default 1000-row limit (4400+ players)
   const { data: playerData } = await supabase
     .from('players')
     .select('club_id')
-    .in('club_id', clubIds);
+    .in('club_id', clubIds)
+    .limit(10000);
 
   const playerCounts = new Map<string, number>();
   for (const p of playerData ?? []) {

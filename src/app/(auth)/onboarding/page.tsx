@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { useRegionGuard } from '@/lib/useRegionGuard';
-import { createProfile, checkHandleAvailable, validateHandle } from '@/lib/services/profiles';
+import { createProfile, checkHandleAvailable, validateHandle, getProfile } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
 import { getProfileByReferralCode, getClubByReferralCode, applyClubReferral } from '@/lib/services/referral';
 import { signOut } from '@/lib/services/auth';
@@ -46,10 +46,30 @@ function OnboardingContent() {
   // Club referral — auto-follow silently, no manual club selection step
   const [referralClub, setReferralClub] = useState<{ id: string; name: string; slug: string; logo_url: string | null } | null>(null);
 
-  // Redirect if already has profile
+  // Direct profile existence check — independent of AuthProvider state.
+  // Catches the case where AuthProvider failed to load profile (RPC timeout,
+  // cold start) but the profile actually exists in DB.
+  const [profileChecked, setProfileChecked] = useState(false);
   useEffect(() => {
-    if (!loading && !profileLoading && profile) router.replace('/');
-  }, [loading, profileLoading, profile, router]);
+    if (!user || loading) return;
+    // If AuthProvider already has the profile, skip the extra query
+    if (profile) {
+      router.replace('/');
+      return;
+    }
+    getProfile(user.id).then(async (p) => {
+      if (p) {
+        // Profile exists — AuthProvider missed it. Refresh and redirect.
+        await refreshProfile();
+        router.replace('/');
+      } else {
+        setProfileChecked(true);
+      }
+    }).catch((err) => {
+      console.error('[Onboarding] Direct profile check failed:', err);
+      setProfileChecked(true); // Assume new user if check fails
+    });
+  }, [user, loading, profile, refreshProfile, router]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -105,14 +125,14 @@ function OnboardingContent() {
     setHandleStatus('checking');
     const requestId = ++handleCheckRef.current;
     const timer = setTimeout(async () => {
-      const available = await checkHandleAvailable(handle);
+      const available = await checkHandleAvailable(handle, user?.id);
       // Only apply result if this is still the latest request
       if (requestId === handleCheckRef.current) {
         setHandleStatus(available ? 'available' : 'taken');
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [handle]);
+  }, [handle, user?.id]);
 
   const validateStep1 = (): boolean => {
     return handleStatus === 'available' && handle.length >= 3;
@@ -179,6 +199,12 @@ function OnboardingContent() {
       router.push('/');
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('profileCreateError');
+      // Profile already exists (duplicate key) — user shouldn't be on onboarding
+      if (msg.includes('duplicate key') || msg.includes('already exists') || msg.includes('unique') || msg.includes('23505')) {
+        await refreshProfile();
+        router.replace('/');
+        return;
+      }
       // Stale session: user was deleted but session token remains
       if (msg.includes('foreign key') || msg.includes('fkey')) {
         await signOut();
@@ -195,7 +221,7 @@ function OnboardingContent() {
     }
   }, [user, handle, displayNameValue, avatarFile, language, referrer, referralClub, refreshProfile, router]);
 
-  if (loading || profileLoading || profile) {
+  if (loading || profileLoading || profile || !profileChecked) {
     return (
       <div className="flex items-center justify-center">
         <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" aria-hidden="true" />

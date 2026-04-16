@@ -158,12 +158,17 @@ export async function getProfileByHandle(handle: string): Promise<Profile | null
   return data as Profile;
 }
 
-export async function checkHandleAvailable(handle: string): Promise<boolean> {
-  const { count, error } = await supabase
+export async function checkHandleAvailable(handle: string, excludeUserId?: string): Promise<boolean> {
+  let query = supabase
     .from('profiles')
     .select('id', { count: 'exact', head: true })
     .eq('handle', handle.toLowerCase());
 
+  if (excludeUserId) {
+    query = query.neq('id', excludeUserId);
+  }
+
+  const { count, error } = await query;
   if (error) {
     console.error('[Profiles] checkHandleAvailable query failed:', error.message);
     return false;
