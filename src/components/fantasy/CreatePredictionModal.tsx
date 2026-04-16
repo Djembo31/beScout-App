@@ -9,6 +9,7 @@ import { getClub } from '@/lib/clubs';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { usePredictionFixtures, useCreatePrediction } from '@/lib/queries/predictions';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { PredictionFixture } from '@/lib/services/predictions';
 import type { PredictionType, MatchCondition, PlayerCondition, PredictionCondition } from '@/types';
 
@@ -38,6 +39,7 @@ const PLAYER_CONDITIONS: { key: PlayerCondition; options: string[] }[] = [
 
 export function CreatePredictionModal({ open, onClose, gameweek, userId, currentCount }: CreatePredictionModalProps) {
   const t = useTranslations('predictions');
+  const tErrors = useTranslations('errors');
   const { data: fixtures = [] } = usePredictionFixtures(gameweek);
   const createMutation = useCreatePrediction(userId, gameweek);
 
@@ -127,10 +129,11 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
       if (result.ok) {
         handleClose();
       } else {
-        setError(result.error ?? t('genericError'));
+        // i18n-Key-Leak-Schutz (B-06, Slice 009): map raw RPC string → errors-namespace key.
+        setError(result.error ? tErrors(mapErrorToKey(result.error)) : t('genericError'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('networkError'));
+      setError(tErrors(mapErrorToKey(normalizeError(err))));
     }
   };
 

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { createEvent, updateEventStatus } from '@/lib/services/events';
 import { simulateGameweek } from '@/lib/services/fixtures';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { DbEvent } from '@/types';
 import type { useEventForm } from './useEventForm';
 
@@ -23,6 +24,7 @@ export function useClubEventsActions({
   refreshGwStatuses,
 }: UseClubEventsActionsParams) {
   const t = useTranslations('admin');
+  const tErrors = useTranslations('errors');
 
   // Internal state — Club Admin uses inline alerts, NOT toast
   const [modalOpen, setModalOpen] = useState(false);
@@ -41,7 +43,8 @@ export function useClubEventsActions({
       const payload = form.buildCreatePayload({ clubId, createdBy: userId });
       const result = await createEvent(payload);
       if (!result.success) {
-        setError(result.error || t('eventCreateError'));
+        // i18n-Key-Leak-Schutz (B-06, Slice 009): map raw RPC/Supabase string → errors-namespace key.
+        setError(result.error ? tErrors(mapErrorToKey(result.error)) : t('eventCreateError'));
       } else {
         setSuccess(t('eventCreateSuccess'));
         await refreshEvents();
@@ -50,11 +53,11 @@ export function useClubEventsActions({
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('unknownError'));
+      setError(tErrors(mapErrorToKey(normalizeError(err))));
     } finally {
       setSaving(false);
     }
-  }, [userId, form, clubId, refreshEvents, t]);
+  }, [userId, form, clubId, refreshEvents, t, tErrors]);
 
   // -- Status change (with mutex) ---------------------------------------------
   const handleStatusChange = useCallback(async (eventId: string, newStatus: string) => {
@@ -64,16 +67,16 @@ export function useClubEventsActions({
     try {
       const result = await updateEventStatus(eventId, newStatus);
       if (!result.success) {
-        setError(result.error || t('statusChangeError'));
+        setError(result.error ? tErrors(mapErrorToKey(result.error)) : t('statusChangeError'));
       } else {
         await refreshEvents();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('unknownError'));
+      setError(tErrors(mapErrorToKey(normalizeError(err))));
     } finally {
       setChangingId(null);
     }
-  }, [changingId, refreshEvents, t]);
+  }, [changingId, refreshEvents, t, tErrors]);
 
   // -- Simulate gameweek ------------------------------------------------------
   const handleSimulate = useCallback(async (gw: number) => {
@@ -82,7 +85,7 @@ export function useClubEventsActions({
     try {
       const result = await simulateGameweek(gw);
       if (!result.success) {
-        setError(result.error || t('simulationFailed'));
+        setError(result.error ? tErrors(mapErrorToKey(result.error)) : t('simulationFailed'));
       } else {
         setSuccess(t('simulationResult', {
           gw,
@@ -93,11 +96,11 @@ export function useClubEventsActions({
         await refreshGwStatuses();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('unknownError'));
+      setError(tErrors(mapErrorToKey(normalizeError(err))));
     } finally {
       setSimulating(false);
     }
-  }, [refreshGwStatuses, t]);
+  }, [refreshGwStatuses, t, tErrors]);
 
   // -- Clone event ------------------------------------------------------------
   const handleClone = useCallback((event: DbEvent) => {

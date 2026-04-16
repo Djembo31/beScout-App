@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 009 | 2026-04-17 | Error-States Community/Fantasy (B-06)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `src/components/admin/hooks/useClubEventsActions.ts` (+ `mapErrorToKey, normalizeError` import, +`tErrors` Namespace, 6 Error-Setter-Stellen gehaertet)
+  - `src/components/fantasy/CreatePredictionModal.tsx` (+ imports, +`tErrors`, 2 Error-Setter gehaertet)
+- Proofs:
+  - `worklog/proofs/009-diff.txt` (git diff: 2 Files)
+  - `worklog/proofs/009-tsc.txt` (empty = clean)
+  - `worklog/proofs/009-tests.txt` (events-v2 + events: 77/77 green)
+- Commit: (pending)
+- Notes: Defensive Haertung gegen i18n-Key-Leak-Klasse (common-errors.md J1/J3). 8 Error-Setter-Stellen in 2 Consumer-Files umgestellt von `err.message` / `result.error` direkt → `tErrors(mapErrorToKey(normalizeError(...)))`. Pattern aus `features/fantasy/hooks/useEventActions.ts:187` (canonical J3-Fix). Community/Fantasy Service-Side (Bounties, Wildcards, Lineups, Offers) war bereits J3 gehaertet — B-06 war Consumer-Seitige Lueckenschliessung. Scope-out: `src/app/(auth)/login/page.tsx` x4 Auth-Exposures (vendor-Text, separate Error-Klasse, eigener Slice). Blocker-Status: B-06 geschlossen. Verbleibend: B-02, B-03, B-04, B-05.
+
+---
+
 ## 008 | 2026-04-17 | Floor-Price-Drift eliminieren (B-01)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
