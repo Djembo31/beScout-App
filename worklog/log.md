@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 010 | 2026-04-17 | INV-25 Service-Throw-Key Coverage (B-02 sub-class)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/__tests__/error-keys-coverage.test.ts` (NEW, 171 LOC)
+- Proofs:
+  - `worklog/proofs/010-inv25.txt` (2 tests passed)
+  - `worklog/proofs/010-diff.txt` (scan inventory + drift-class doc)
+- Commit: (pending)
+- Notes: Statischer CI-Regression-Guard gegen den Drift-Pattern "Service wirft neuen Key, KNOWN_KEYS nicht erweitert, Consumer faellt silent auf errors.generic". Scannt `src/lib/services` + `src/features/*\/services` nach literal `throw new Error('<identifier>')`, assertert Coverage via `mapErrorToKey`-Pass-through-Branch ODER `INV25_WHITELIST` (namespace-spezifisch, consumer-resolved). Aktueller Stand: 60 Service-Files, 32 Call-Sites, 14 distinct keys, 13 in KNOWN_KEYS, 1 whitelisted (insufficient_wildcards → fantasy namespace resolved by useEventActions.ts:173). Zweiter Test schuetzt gegen stale Whitelist-Eintraege. Scope-Out: Expression-Form-Throws, Component-/API-Route-Throws, broader B-02 Return-Type-Audit. B-02 Status bleibt GELB (nur error-Kanal-Drift geschlossen).
+
+---
+
 ## 009 | 2026-04-17 | Error-States Community/Fantasy (B-06)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:

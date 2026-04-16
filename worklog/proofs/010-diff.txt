@@ -1,0 +1,67 @@
+Slice 010 — INV-25 Service-Throw-Key Coverage
+Generated: 2026-04-17
+
+=============================================================================
+FILES CREATED
+=============================================================================
+src/lib/__tests__/error-keys-coverage.test.ts — 171 LOC, new unit test
+  - Scans src/lib/services + src/features/*/services for literal
+    `throw new Error('<identifier>')` patterns.
+  - Asserts each extracted key either (a) resolves to itself via
+    mapErrorToKey (= is in KNOWN_KEYS) or (b) is explicitly whitelisted.
+  - Includes anti-stale check that flags WHITELIST entries no longer
+    thrown anywhere.
+worklog/specs/010-service-throw-key-coverage.md — spec
+worklog/proofs/010-inv25.txt — vitest output
+worklog/proofs/010-diff.txt — this file
+
+=============================================================================
+FILES MODIFIED
+=============================================================================
+None. INV-25 is a pure CI-regression guard — no production code touched.
+
+=============================================================================
+INV-25 CURRENT RESULT (vitest run — see 010-inv25.txt)
+=============================================================================
+2 tests passed:
+- "every literal thrown identifier-key is in KNOWN_KEYS or WHITELIST" ✓
+- "every WHITELIST entry is actually thrown somewhere (no stale entries)" ✓
+
+Scan inventory (from the test console.log):
+- Service files scanned: ~60
+- Literal thrown identifier-keys found: 32 call sites
+- Distinct keys: 14
+  (invalidQuantity, maxQuantityExceeded, playerNotFound, playerLiquidated,
+   clubAdminRestricted, invalidPrice, maxPriceExceeded, bountyRewardMinimum,
+   bountyRewardMaximum, bountyDeadlineInvalid, bountyMaxSubmissionsInvalid,
+   bountyTitleRequired, bountyDescriptionRequired, insufficient_wildcards)
+- KNOWN_KEYS matches: 13
+- WHITELIST entries: 1 (insufficient_wildcards — fantasy namespace)
+- Violations: 0
+
+=============================================================================
+DRIFT CLASS THIS GUARD CATCHES
+=============================================================================
+Developer adds `throw new Error('someNewKey')` in a service, forgets to add
+`someNewKey` to KNOWN_KEYS (errorMessages.ts) or ERROR_MAP. Any consumer
+using `setError(mapErrorToKey(normalizeError(err)))` would silently fall
+through to 'generic' → user sees `errors.generic` instead of the intended
+translated message.
+
+CI test now fails on that drift with a pointer to file:line + the key.
+Resolver path:
+  (a) Add key to KNOWN_KEYS + translations in messages/de.json + messages/tr.json
+      (CEO-Scope for new user-facing text), or
+  (b) Add WHITELIST entry with a citation to the explicit consumer-side
+      handler that resolves the key without going through mapErrorToKey
+      (e.g. fantasy-namespace keys handled in useEventActions.ts).
+
+=============================================================================
+OUT OF SCOPE (documented for future slices)
+=============================================================================
+- Expression-form throws (`throw new Error(x ?? 'fallback')`) — regex only
+  matches pure literals. Caught by different audits if ever routed through
+  mapErrorToKey.
+- Component-level throws in src/app, src/components — not scanned.
+- API-route / edge-function throws — not scanned.
+- Full B-02 Return-Type-Konsistenz-Audit — larger scope, separate slice.
