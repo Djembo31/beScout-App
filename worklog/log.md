@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/008-staletime-diff.txt` (git diff: 2 Files, 14 LOC)
   - `worklog/proofs/008-tsc.txt` (empty = clean)
   - `worklog/proofs/008-tests.txt` (977/977 service tests green)
-- Commit: (pending)
+- Commit: c1869bf
 - Notes: Cross-User Drift-Fenster von 2min auf 30s reduziert — user sieht stale Sell-Order max. 30s nach Fremduser-Fill (vorher 2min), dann auto-Refetch via React Query. Self-Action-Drift unverändert 0s (Post-Mutation-Invalidation via `qk.orders.all` in `features/market/mutations/trading.ts:71+87`). Kein Money-Impact (Floor ist display-only; `buy_player_sc` revalidiert FOR UPDATE gegen DB). Kanonische Fallback-Chain jetzt konsistent zu `enriched.ts:74` (`floorFromOrders ?? prices.floor ?? 0`); `referencePrice`-Fallback war dead-code post-enrichment, entfernt. Scope-Out: Realtime-Subscription auf orders-Tabelle fuer 0s-Drift — separater Slice. Performance-Impact im Pilot-Volume (~10-50 active users) akzeptabel.
 
 ---
