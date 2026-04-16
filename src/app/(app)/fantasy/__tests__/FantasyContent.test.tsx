@@ -411,6 +411,8 @@ vi.mock('@/components/ui', () => ({
     <div data-testid="skeleton-card" className={className} />
   ),
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  CountryBar: () => <div data-testid="country-bar" />,
+  LeagueBar: () => <div data-testid="league-bar" />,
 }));
 
 // ============================================

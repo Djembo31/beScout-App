@@ -75,13 +75,13 @@ describe('getAirdropStats', () => {
     await expect(getAirdropStats()).rejects.toThrow('err');
   });
 
-  it('ignores unknown tiers', async () => {
+  it('normalizes unknown tiers to bronze', async () => {
     mockTable('airdrop_scores', [
       { total_score: 100, tier: 'platinum' },
     ]);
     const stats = await getAirdropStats();
     expect(stats.total_users).toBe(1);
-    expect(stats.tier_distribution).toEqual({ bronze: 0, silber: 0, gold: 0, diamond: 0 });
+    expect(stats.tier_distribution).toEqual({ bronze: 1, silber: 0, gold: 0, diamond: 0 });
   });
 
   it('returns 0 avg for empty data', async () => {

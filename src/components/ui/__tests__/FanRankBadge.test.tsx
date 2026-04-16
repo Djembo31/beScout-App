@@ -16,17 +16,17 @@ import FanRankBadge from '../FanRankBadge';
 describe('FanRankBadge', () => {
   it('shows Zuschauer for zuschauer tier', () => {
     renderWithProviders(<FanRankBadge tier="zuschauer" />);
-    expect(screen.getByText('Zuschauer')).toBeInTheDocument();
+    expect(screen.getByText('fanRankZuschauer')).toBeInTheDocument();
   });
 
   it('shows Stammgast for stammgast tier', () => {
     renderWithProviders(<FanRankBadge tier="stammgast" />);
-    expect(screen.getByText('Stammgast')).toBeInTheDocument();
+    expect(screen.getByText('fanRankStammgast')).toBeInTheDocument();
   });
 
   it('shows Ultra for ultra tier', () => {
     renderWithProviders(<FanRankBadge tier="ultra" />);
-    expect(screen.getByText('Ultra')).toBeInTheDocument();
+    expect(screen.getByText('fanRankUltra')).toBeInTheDocument();
   });
 
   it('renders tier icon', () => {
