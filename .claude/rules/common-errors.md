@@ -117,6 +117,23 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - J3-Fund: BuyModal (`buying \|\| ipoBuying`), SellModal (`selling \|\| cancellingId !== null \|\| acceptingBidId != null`), LimitOrderModal (`false` + TODO fuer Feature-Live)
 - Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` — Modals ohne preventClose bei Money/Trading-Context pruefen
 
+## SECURITY DEFINER + authenticated-Grant ohne auth.uid()-Guard (2026-04-17 — Slice 005 A-02)
+- **NEBEN** dem anon-REVOKE-Pattern (unten J4) existiert die **authenticated-to-other-user Exploit-Klasse**:
+  SECURITY DEFINER RPC mit `p_user_id uuid` Parameter + `authenticated`-Grant + keinem auth.uid()-Check im Body
+  → jeder eingeloggte User kann fremde user_id schicken und RPC im Namen des anderen Users ausfuehren.
+- J4 hatte das fuer `earn_wildcards` mit anon-Exploit. Slice 005 (2026-04-17) fand 4 RPCs mit authenticated-Exploit:
+  `rpc_lock_event_entry` (fremdes Wallet/Tickets locken), `renew_club_subscription` (fremdes Wallet deducten),
+  `check_analyst_decay` (Score-Penalty), `refresh_airdrop_score` (Score-Recompute).
+- **Fix-Pattern:** REVOKE authenticated + defense-in-depth Body-Guard:
+  ```sql
+  IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'auth_uid_mismatch: Nicht berechtigt';
+  END IF;
+  ```
+  `IS NOT NULL` skippt fuer service_role (Cron), `IS DISTINCT FROM` reject authenticated-to-other-user.
+- **Prevention:** Bei SECURITY DEFINER RPC mit `p_user_id` immer entscheiden: (a) direkter Client-Aufruf → Guard Pflicht, (b) nur Cron/internal → REVOKE authenticated.
+- **Regression-Guard:** INV-21 in `db-invariants.test.ts` + `public.get_auth_guard_audit()` RPC fangen neue Drift automatisch.
+
 ## SECURITY DEFINER RPC ohne REVOKE (2026-04-14 — J4 LIVE-EXPLOIT)
 - J4-Backend-Audit hat `earn_wildcards` RPC live exploited (anon konnte 99.999 Wildcards minten, reverted)
 - Root-Cause: `SECURITY DEFINER` RPC OHNE `REVOKE EXECUTE FROM anon, authenticated` + `auth.uid() = p_user_id` Guard
