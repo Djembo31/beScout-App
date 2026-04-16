@@ -1,0 +1,59 @@
+diff --git a/src/features/market/hooks/useMarketData.ts b/src/features/market/hooks/useMarketData.ts
+index 16afa2a6..8ce157ae 100644
+--- a/src/features/market/hooks/useMarketData.ts
++++ b/src/features/market/hooks/useMarketData.ts
+@@ -47,10 +47,14 @@ export function useMarketData(userId: string | undefined) {
+   }, [watchlistEntries]);
+ 
+   // ── Derived: floor prices ──
++  // Canonical chain matches enrichPlayersWithData (enriched.ts):
++  //   live-listings Math.min → enriched `prices.floor` → 0.
++  // `prices.floor` is always a number post-enrichment (floorFromOrders ??
++  // old floor ?? ipoPrice ?? 0), so the secondary fallback is sufficient.
+   const floorMap = useMemo(() => {
+     const m = new Map<string, number>();
+     for (const p of players) {
+-      m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0);
++      m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0);
+     }
+     return m;
+   }, [players]);
+diff --git a/src/lib/queries/orders.ts b/src/lib/queries/orders.ts
+index 2d5be84c..65bb926f 100644
+--- a/src/lib/queries/orders.ts
++++ b/src/lib/queries/orders.ts
+@@ -5,7 +5,13 @@ import { qk } from './keys';
+ import { getAllOpenSellOrders, getAllOpenBuyOrders } from '@/lib/services/trading';
+ import type { DbOrder } from '@/types';
+ 
+-/** All open sell orders — shared across Market + Home */
++/**
++ * All open sell orders — shared across Market + Home.
++ * staleTime 30s caps the floor-price drift window for cross-user trades
++ * (B-01, Slice 008): if another user buys the cheapest sell-order, this
++ * client re-fetches within 30s instead of 2min. Post-mutation invalidation
++ * via `qk.orders.all` keeps self-actions instant (see `invalidation.ts`).
++ */
+ export function useAllOpenOrders() {
+   return useQuery({
+     queryKey: qk.orders.all,
+@@ -13,16 +19,16 @@ export function useAllOpenOrders() {
+       const { orders } = await getAllOpenSellOrders();
+       return orders;
+     },
+-    staleTime: 2 * 60_000,
++    staleTime: 30_000,
+   });
+ }
+ 
+-/** All open buy orders — for Kaufgesuche section */
++/** All open buy orders — for Kaufgesuche section. Same 30s floor-drift cap. */
+ export function useAllOpenBuyOrders(options?: { enabled?: boolean }) {
+   return useQuery({
+     queryKey: qk.orders.buy,
+     queryFn: () => getAllOpenBuyOrders(),
+-    staleTime: 2 * 60_000,
++    staleTime: 30_000,
+     enabled: options?.enabled ?? true,
+   });
+ }

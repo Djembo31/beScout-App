@@ -47,10 +47,14 @@ export function useMarketData(userId: string | undefined) {
   }, [watchlistEntries]);
 
   // ── Derived: floor prices ──
+  // Canonical chain matches enrichPlayersWithData (enriched.ts):
+  //   live-listings Math.min → enriched `prices.floor` → 0.
+  // `prices.floor` is always a number post-enrichment (floorFromOrders ??
+  // old floor ?? ipoPrice ?? 0), so the secondary fallback is sufficient.
   const floorMap = useMemo(() => {
     const m = new Map<string, number>();
     for (const p of players) {
-      m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0);
+      m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0);
     }
     return m;
   }, [players]);

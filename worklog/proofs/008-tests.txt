@@ -1,0 +1,739 @@
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+[90mstdout[2m | src/lib/services/__tests__/ipo.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+[90mstdout[2m | src/lib/services/__tests__/bounties.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+[90mstdout[2m | src/lib/services/__tests__/events-v2.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+[90mstderr[2m | src/lib/services/__tests__/ipo.test.ts[2m > [22m[2mbuyFromIpo[2m > [22m[2minput validation[2m > [22m[2maccepts quantity = 1 (boundary)
+[22m[39m[IPO] Purchase notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/ipo.ts:149:27
+    at Module.buyFromIpo (C:/bescout-app/src/lib/services/ipo.ts:116:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/ipo.test.ts:76:22
+    at [90mfile:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.0/node_modules/[4m@vitest[24m/runner/dist/index.js:1258:20 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/ipo.test.ts[2m > [22m[2mbuyFromIpo[2m > [22m[2minput validation[2m > [22m[2maccepts quantity = 300 (boundary)
+[22m[39m[IPO] Purchase notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/ipo.ts:149:27
+    at Module.buyFromIpo (C:/bescout-app/src/lib/services/ipo.ts:116:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/ipo.test.ts:84:22 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/ipo.test.ts[2m > [22m[2mbuyFromIpo[2m > [22m[2mdefense-in-depth checks (playerId provided)[2m > [22m[2mskips liquidation + admin checks when playerId is not provided
+[22m[39m[IPO] Purchase notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/ipo.ts:149:27
+    at Module.buyFromIpo (C:/bescout-app/src/lib/services/ipo.ts:116:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/ipo.test.ts:118:22 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/ipo.test.ts[2m > [22m[2mbuyFromIpo[2m > [22m[2mRPC call[2m > [22m[2mreturns successful result from RPC
+[22m[39m[IPO] Purchase notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/ipo.ts:149:27
+    at Module.buyFromIpo (C:/bescout-app/src/lib/services/ipo.ts:116:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/ipo.test.ts:162:22 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/ipo.test.ts[2m > [22m[2mbuyFromIpo[2m > [22m[2mRPC call[2m > [22m[2mpasses correct params to RPC
+[22m[39m[IPO] Purchase notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/ipo.ts:149:27
+    at Module.buyFromIpo (C:/bescout-app/src/lib/services/ipo.ts:116:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/ipo.test.ts:181:7 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+ [32m✓[39m src/lib/services/__tests__/ipo.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 233[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/bounties.test.ts [2m([22m[2m59 tests[22m[2m)[22m[33m 400[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/events-v2.test.ts [2m([22m[2m75 tests[22m[2m)[22m[33m 383[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/research.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+[90mstdout[2m | src/lib/services/__tests__/offers.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+[90mstderr[2m | src/lib/services/__tests__/research.test.ts[2m > [22m[2munlockResearch[2m > [22m[2munlocks via RPC on success
+[22m[39m[Research] Unlock notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/research.ts:278:29
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/research.test.ts[2m > [22m[2mrateResearch[2m > [22m[2mrates via RPC on success
+[22m[39m[Research] Rating notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/research.ts:348:29
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mgetIncomingOffers[2m > [22m[2mthrows on supabase error
+[22m[39m[Offers] getIncomingOffers { message: [32m'DB connection failed'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/research.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 417[2mms[22m[39m
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mgetOutgoingOffers[2m > [22m[2mthrows on supabase error
+[22m[39m[Offers] getOutgoingOffers { message: [32m'Query failed'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mgetOpenBids[2m > [22m[2mthrows on supabase error
+[22m[39m[Offers] getOpenBids { message: [32m'Timeout'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mcreateOffer[2m > [22m[2mpasses receiver_id when provided
+[22m[39m[Offers] createNotification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/offers.ts:186:27
+    at Module.createOffer (C:/bescout-app/src/lib/services/offers.ts:159:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/offers.test.ts:239:5 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mcreateOffer[2m > [22m[2mthrows on RPC error
+[22m[39m[Offers] RPC error { message: [32m'Insufficient balance'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2macceptOffer[2m > [22m[2mreturns success with trade_price on valid accept
+[22m[39m[Offers] Accept notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/offers.ts:219:27
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2macceptOffer[2m > [22m[2mthrows on RPC error
+[22m[39m[Offers] acceptOffer { message: [32m'Offer expired'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mrejectOffer[2m > [22m[2mreturns success on valid rejection
+[22m[39m[Offers] Reject notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/offers.ts:269:27
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mrejectOffer[2m > [22m[2mthrows on RPC error
+[22m[39m[Offers] RPC error { message: [32m'Not authorized'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mcounterOffer[2m > [22m[2mreturns success on valid counter
+[22m[39m[Offers] Counter notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/offers.ts:299:27
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mcounterOffer[2m > [22m[2mpasses optional message to RPC
+[22m[39m[Offers] Counter notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/offers.ts:299:27
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mcounterOffer[2m > [22m[2mthrows on RPC error
+[22m[39m[Offers] RPC error { message: [32m'Invalid offer'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/offers.test.ts[2m > [22m[2mcancelOffer[2m > [22m[2mthrows on RPC error
+[22m[39m[Offers] cancelOffer { message: [32m'Cannot cancel'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/offers.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 318[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/club.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+[90mstderr[2m | src/lib/services/__tests__/club.test.ts[2m > [22m[2mgetClubFollowerCount[2m > [22m[2mreturns 0 on error
+[22m[39m[Club] getClubFollowerCount failed: { message: [32m'err'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/club.test.ts[2m > [22m[2misUserFollowingClub[2m > [22m[2mreturns false on error
+[22m[39m[Club] isUserFollowingClub failed: { message: [32m'err'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/club.test.ts [2m([22m[2m59 tests[22m[2m)[22m[32m 295[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/social.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+[90mstdout[2m | src/lib/services/__tests__/predictions.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+ [32m✓[39m src/lib/services/__tests__/social.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 271[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/predictions.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/trading.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+ [32m✓[39m src/lib/services/__tests__/trading.test.ts [2m([22m[2m69 tests[22m[2m)[22m[32m 230[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/notifications-v2.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mgetUnreadCount[2m > [22m[2mthrows on error (J10 FIX-01: surface for retry)
+[22m[39m[Notifications] getUnreadCount failed { message: [32m'err'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mgetNotifications[2m > [22m[2mthrows on error (J10 FIX-01: surface for retry)
+[22m[39m[Notifications] getNotifications failed { message: [32m'err'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mcreateNotification[2m > [22m[2mcreates notification when category enabled
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotification (C:/bescout-app/src/lib/services/notifications.ts:261:3)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-v2.test.ts:144:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mcreateNotification[2m > [22m[2malways creates system notifications
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotification (C:/bescout-app/src/lib/services/notifications.ts:261:3)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-v2.test.ts:157:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mcreateNotificationsBatch[2m > [22m[2mfilters out items where user disabled category
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-v2.test.ts:185:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mcreateNotificationsBatch[2m > [22m[2minserts all items when no preferences exist (defaults)
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-v2.test.ts:196:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-v2.test.ts:196:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-v2.test.ts[2m > [22m[2mcreateNotificationsBatch[2m > [22m[2malways includes system notifications
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-v2.test.ts:209:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+ [32m✓[39m src/lib/services/__tests__/notifications-v2.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 173[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/missions.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+[90mstderr[2m | src/lib/services/__tests__/missions.test.ts[2m > [22m[2mclaimMissionReward[2m > [22m[2mclaims reward via RPC on success
+[22m[39m[Missions] Notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/missions.ts:160:27
+    at Module.claimMissionReward (C:/bescout-app/src/lib/services/missions.ts:157:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/missions.test.ts:106:20 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/missions.test.ts[2m > [22m[2mclaimMissionReward[2m > [22m[2mcalculates ticket amount from reward (min 10, max 50)
+[22m[39m[Missions] Notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/missions.ts:160:27
+    at Module.claimMissionReward (C:/bescout-app/src/lib/services/missions.ts:157:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/missions.test.ts:134:20 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/missions.test.ts[2m > [22m[2mclaimMissionReward[2m > [22m[2mhandles zero reward_cents for ticket calculation
+[22m[39m[Missions] Notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/missions.ts:160:27
+    at Module.claimMissionReward (C:/bescout-app/src/lib/services/missions.ts:157:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/missions.test.ts:141:20 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+[90mstderr[2m | src/lib/services/__tests__/missions.test.ts[2m > [22m[2mclaimMissionReward[2m > [22m[2mhandles null reward_cents
+[22m[39m[Missions] Notification failed: Error: [vitest] No "getRecipientLocale" export is defined on the "@/lib/notifText" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17[90m)[39m
+    at Object.get [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16[90m)[39m
+    at C:/bescout-app/src/lib/services/missions.ts:160:27
+    at Module.claimMissionReward (C:/bescout-app/src/lib/services/missions.ts:157:5)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at C:/bescout-app/src/lib/services/__tests__/missions.test.ts:147:20 {
+  codeFrame: [32m'vi.mock(import("@/lib/notifText"), async (importOriginal) => {\n'[39m +
+    [32m'  const actual = await importOriginal()\n'[39m +
+    [32m'  return {\n'[39m +
+    [32m'    ...actual,\n'[39m +
+    [32m'    // your mocked methods\n'[39m +
+    [32m'  }\n'[39m +
+    [32m'})'[39m
+}
+
+ [32m✓[39m src/lib/services/__tests__/missions.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 172[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/wallet.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+ [32m✓[39m src/lib/services/__tests__/wallet.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/wallet-v2.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+ [32m✓[39m src/lib/services/__tests__/wallet-v2.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 171[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/fixtures.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+ [32m✓[39m src/lib/services/__tests__/fixtures.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 132[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/clubCrm.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+ [32m✓[39m src/lib/services/__tests__/clubCrm.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/clubSubscriptions.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+ [32m✓[39m src/lib/services/__tests__/clubSubscriptions.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 102[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/referral.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+
+ [32m✓[39m src/lib/services/__tests__/referral.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/scoring-v2.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+ [32m✓[39m src/lib/services/__tests__/scoring-v2.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 133[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/liquidation.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+
+[90mstderr[2m | src/lib/services/__tests__/liquidation.test.ts[2m > [22m[2mliquidatePlayer[2m > [22m[2mreturns full result on successful liquidation
+[22m[39m[Liquidation] Holder notification failed: TypeError: payouts is not iterable
+    at C:/bescout-app/src/lib/services/liquidation.ts:69:25
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | src/lib/services/__tests__/liquidation.test.ts[2m > [22m[2mliquidatePlayer[2m > [22m[2mdefaults transfer_value_eur to 0 when not provided
+[22m[39m[Liquidation] Holder notification failed: TypeError: payouts is not iterable
+    at C:/bescout-app/src/lib/services/liquidation.ts:69:25
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | src/lib/services/__tests__/liquidation.test.ts[2m > [22m[2mliquidatePlayer[2m > [22m[2mdoes not throw from fire-and-forget notification errors
+[22m[39m[Liquidation] Holder notification failed: TypeError: payouts is not iterable
+    at C:/bescout-app/src/lib/services/liquidation.ts:69:25
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | src/lib/services/__tests__/liquidation.test.ts[2m > [22m[2mliquidatePlayer[2m > [22m[2mreturns zero holder_count for player with no holders
+[22m[39m[Liquidation] Holder notification failed: TypeError: payouts is not iterable
+    at C:/bescout-app/src/lib/services/liquidation.ts:69:25
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | src/lib/services/__tests__/liquidation.test.ts[2m > [22m[2mliquidatePlayer[2m > [22m[2mreturns success_fee_cents: 0 when no success fee
+[22m[39m[Liquidation] Holder notification failed: TypeError: payouts is not iterable
+    at C:/bescout-app/src/lib/services/liquidation.ts:69:25
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+ [32m✓[39m src/lib/services/__tests__/liquidation.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/lineups.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows RPC error message on RPC failure
+[22m[39m[Lineup] save_lineup RPC failed: { message: [32m'event_not_found'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows event_ended from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'event_ended'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows event_locked from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'event_locked'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows must_enter_first from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'must_enter_first'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows duplicate_player from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'duplicate_player'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows insufficient_sc from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'insufficient_sc'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows wildcards_not_allowed from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'wildcards_not_allowed'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows too_many_wildcards from RPC
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m, error: [32m'too_many_wildcards'[39m }
+
+[90mstderr[2m | src/lib/services/__tests__/lineups.test.ts[2m > [22m[2msubmitLineup — RPC error propagation[2m > [22m[2mthrows lineup_save_failed when RPC returns ok: false without error
+[22m[39m[Lineup] save_lineup returned ok:false: { ok: [33mfalse[39m }
+
+ [32m✓[39m src/lib/services/__tests__/lineups.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/cosmetics.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+ [32m✓[39m src/lib/services/__tests__/cosmetics.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/watchlist.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+ [32m✓[39m src/lib/services/__tests__/watchlist.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/sponsors.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+ [32m✓[39m src/lib/services/__tests__/sponsors.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/foundingPasses.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+ [32m✓[39m src/lib/services/__tests__/foundingPasses.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/pbt.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+ [32m✓[39m src/lib/services/__tests__/pbt.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/airdropScore.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+ [32m✓[39m src/lib/services/__tests__/airdropScore.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/event-entries.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+[90mstderr[2m | src/lib/services/__tests__/event-entries.test.ts[2m > [22m[2mcancelEventEntries[2m > [22m[2mreturns error on RPC failure
+[22m[39m[Events] cancelEventEntries RPC error: { message: [32m'unauthorized'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/event-entries.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/gamification.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+
+ [32m✓[39m src/lib/services/__tests__/gamification.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/fanRanking-v2.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+
+ [32m✓[39m src/lib/services/__tests__/fanRanking-v2.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/notifications-batch.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-batch.test.ts[2m > [22m[2mcreateNotificationsBatch[2m > [22m[2minserts multiple notifications in a single call
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-batch.test.ts:37:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-batch.test.ts:37:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+[90mstderr[2m | src/lib/services/__tests__/notifications-batch.test.ts[2m > [22m[2mcreateNotificationsBatch[2m > [22m[2mfilters out users who disabled the notification category
+[22m[39m[Push] Client-side API call failed: TypeError: Failed to parse URL from /api/push
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m {
+  [cause]: TypeError: Invalid URL
+  [90m    at new URL (node:internal/url:818:25)[39m
+      at new URL [90m(file:///C:/bescout-app/[39mnode_modules/[4m.pnpm[24m/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/[4mvitest[24m/dist/chunks/index.EY6TCHpo.js:557:2[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:9586:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:10315:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:13508:10)[39m
+  [90m    at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)[39m
+      at firePush (C:/bescout-app/src/lib/services/notifications.ts:221:5)
+      at Module.createNotificationsBatch (C:/bescout-app/src/lib/services/notifications.ts:405:5)
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+      at C:/bescout-app/src/lib/services/__tests__/notifications-batch.test.ts:65:5 {
+    code: [32m'ERR_INVALID_URL'[39m,
+    input: [32m'/api/push'[39m
+  }
+}
+
+ [32m✓[39m src/lib/services/__tests__/notifications-batch.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/dailyChallenge.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+ [32m✓[39m src/lib/services/__tests__/dailyChallenge.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/tickets.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+
+[90mstderr[2m | src/lib/services/__tests__/tickets.test.ts[2m > [22m[2mgetUserTickets[2m > [22m[2mthrows on RPC error
+[22m[39m[Tickets] getUserTickets { message: [32m'err'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/tickets.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/smallServices.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+
+ [32m✓[39m src/lib/services/__tests__/smallServices.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 174[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/footballData.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+ [32m✓[39m src/lib/services/__tests__/footballData.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/players.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+
+ [32m✓[39m src/lib/services/__tests__/players.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/profiles.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+ [32m✓[39m src/lib/services/__tests__/profiles.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/scoring-leaderboard.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+ [32m✓[39m src/lib/services/__tests__/scoring-leaderboard.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/search.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+[90mstderr[2m | src/lib/services/__tests__/search.test.ts[2m > [22m[2mspotlightSearch[2m > [22m[2mhandles DB errors gracefully via Promise.allSettled
+[22m[39m[Search] player search failed { message: [32m'DB fail'[39m }
+[Search] profile search failed { message: [32m'DB fail'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/search.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/events.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+ [32m✓[39m src/lib/services/__tests__/events.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+[90mstdout[2m | src/lib/services/__tests__/fanRanking.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+[90mstderr[2m | src/lib/services/__tests__/fanRanking.test.ts[2m > [22m[2mbatchRecalculateFanRanks[2m > [22m[2mreturns error on RPC failure
+[22m[39m[FanRanking] batchRecalculateFanRanks error: { message: [32m'DB error'[39m }
+
+ [32m✓[39m src/lib/services/__tests__/fanRanking.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m40 passed[39m[22m[90m (40)[39m
+[2m      Tests [22m [1m[32m977 passed[39m[22m[90m (977)[39m
+[2m   Start at [22m 01:31:46
+[2m   Duration [22m 115.95s[2m (transform 5.51s, setup 34.92s, import 8.88s, tests 5.71s, environment 238.09s)[22m
+
