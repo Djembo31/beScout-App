@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/009-diff.txt` (git diff: 2 Files)
   - `worklog/proofs/009-tsc.txt` (empty = clean)
   - `worklog/proofs/009-tests.txt` (events-v2 + events: 77/77 green)
-- Commit: (pending)
+- Commit: 9835025
 - Notes: Defensive Haertung gegen i18n-Key-Leak-Klasse (common-errors.md J1/J3). 8 Error-Setter-Stellen in 2 Consumer-Files umgestellt von `err.message` / `result.error` direkt → `tErrors(mapErrorToKey(normalizeError(...)))`. Pattern aus `features/fantasy/hooks/useEventActions.ts:187` (canonical J3-Fix). Community/Fantasy Service-Side (Bounties, Wildcards, Lineups, Offers) war bereits J3 gehaertet — B-06 war Consumer-Seitige Lueckenschliessung. Scope-out: `src/app/(auth)/login/page.tsx` x4 Auth-Exposures (vendor-Text, separate Error-Klasse, eigener Slice). Blocker-Status: B-06 geschlossen. Verbleibend: B-02, B-03, B-04, B-05.
 
 ---
