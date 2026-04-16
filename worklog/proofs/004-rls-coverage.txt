@@ -1,0 +1,41 @@
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-01: format=7er events must have lineup_size=7, format=11er must have lineup_size=11
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-02: event starts_at should be within 1 hour of earliest fixture kickoff for its gameweek
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-03: event locks_at should be <= earliest fixture kickoff
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-04: no event with status=running should have locks_at in the future
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-05: no wallet balance < 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-06: locked_balance <= balance for all wallets
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-07: every wallet with locked_balance > 0 should have at least 1 open order or pending offer
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-08: no holding with quantity <= 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-09: IPO sold <= total_offered
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-10: floor_price <= 3x ipo_price for all players with ipo_price > 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-11: no open/partial orders for liquidated players
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-12: no duplicate player in same lineup slots
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-13: trade fee splits must be internally consistent (platform + pbt + club > 0)
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-14: all active IPOs (open/early_access/announced) have price > 0
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-15: no negative locked_balance
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-16: wallets.balance matches latest transactions.balance_after per user
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-17: every wallets.user_id must reference an existing profile
+ [2m[90m↓[39m[22m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-18: CHECK constraint values match expected snapshot
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts[2m > [22m[2mDB Invariants[2m > [22m[2mINV-19: every RLS-enabled table has at least one policy (except whitelist)
+[22m[39m[INV-19] checked 120 RLS-tables, 4 zero-policy (all whitelisted), 0 violations
+
+ [32m✓[39m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-19: every RLS-enabled table has at least one policy (except whitelist)[33m 465[2mms[22m[39m
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts[2m > [22m[2mDB Invariants[2m > [22m[2mINV-20: critical money/trading tables have expected policy coverage
+[22m[39m[INV-20] checked 14 critical tables, 0 drifts
+
+ [32m✓[39m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-20: critical money/trading tables have expected policy coverage[32m 71[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[2m | [22m[33m18 skipped[39m[90m (20)[39m
+[2m   Start at [22m 23:49:09
+[2m   Duration [22m 1.67s[2m (transform 168ms, setup 391ms, import 259ms, tests 580ms, environment 0ms)[22m
+

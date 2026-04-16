@@ -736,4 +736,90 @@ describe('DB Invariants', () => {
 
     expect(drifts, drifts.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-19: every RLS-enabled table has ≥1 policy (except whitelist)
+  // ─────────────────────────────────────────────────────
+  // Schuetzt vor dem Silent-Fail aus `.claude/rules/common-errors.md` (Session 255,
+  // holding_locks): RLS=true + 0 policies → Client kann weder lesen noch schreiben,
+  // kein Error-Log, unsichtbar kaputt. Whitelist = Tabellen die nur via service_role
+  // oder SECURITY DEFINER RPCs angesprochen werden (Client-Access gewollt blockiert).
+  it('INV-19: every RLS-enabled table has at least one policy (except whitelist)', async () => {
+    // Whitelist: Tabellen ohne Client-Access (server-role/RPC only)
+    const ZERO_POLICY_WHITELIST = new Set<string>([
+      '_rpc_body_snapshots',     // interne Debug-Tabelle
+      'club_external_ids',       // API-Football-Sync, server-role only
+      'player_external_ids',     // API-Football-Sync, server-role only
+      'mystery_box_config',      // server-only, Client ruft RPC
+    ]);
+
+    const { data, error } = await sb.rpc('get_rls_policy_coverage');
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+
+    const rows = (data ?? []) as Array<{ table_name: string; cmds: string; policy_count: number }>;
+    const violations = rows
+      .filter((r) => r.policy_count === 0 && !ZERO_POLICY_WHITELIST.has(r.table_name))
+      .map((r) => `RLS enabled on "${r.table_name}" but 0 policies (silent-fail risk)`);
+
+    if (violations.length === 0) {
+      const zeroPolicyCount = rows.filter((r) => r.policy_count === 0).length;
+      console.log(
+        `[INV-19] checked ${rows.length} RLS-tables, ${zeroPolicyCount} zero-policy (all whitelisted), 0 violations`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-20: critical money/trading tables have expected CRUD coverage
+  // ─────────────────────────────────────────────────────
+  // Freezes current policy-coverage for money/trading-critical tables. Accidental
+  // drift (z.B. wallets verliert SELECT-Policy) triggered sofort.
+  it('INV-20: critical money/trading tables have expected policy coverage', async () => {
+    // Expected coverage: exakter Match (nicht Superset).
+    // Werte sortiert alphabetisch, wie von get_rls_policy_coverage() string_agg zurueck gegeben.
+    const EXPECTED: Record<string, string> = {
+      wallets: 'INSERT,SELECT',
+      transactions: 'SELECT',
+      orders: 'SELECT',
+      trades: 'SELECT',
+      holdings: 'SELECT',
+      offers: 'INSERT,SELECT,UPDATE',
+      ipos: 'SELECT',
+      pbt_transactions: 'SELECT',
+      pbt_treasury: 'SELECT',
+      ipo_purchases: 'SELECT',
+      liquidation_payouts: 'SELECT',
+      liquidation_events: 'SELECT',
+      welcome_bonus_claims: 'SELECT',
+      ticket_transactions: 'SELECT',
+    };
+
+    const { data, error } = await sb.rpc('get_rls_policy_coverage');
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+
+    const rows = (data ?? []) as Array<{ table_name: string; cmds: string; policy_count: number }>;
+    const byName = new Map(rows.map((r) => [r.table_name, r.cmds]));
+
+    const drifts: string[] = [];
+    for (const [table, expectedCmds] of Object.entries(EXPECTED)) {
+      const actual = byName.get(table);
+      if (actual === undefined) {
+        drifts.push(`${table}: RLS not enabled or table missing (expected cmds=${expectedCmds})`);
+        continue;
+      }
+      if (actual !== expectedCmds) {
+        drifts.push(`${table}: cmds=[${actual}] expected=[${expectedCmds}]`);
+      }
+    }
+
+    if (drifts.length === 0) {
+      console.log(
+        `[INV-20] checked ${Object.keys(EXPECTED).length} critical tables, 0 drifts`
+      );
+    }
+
+    expect(drifts, drifts.join('\n')).toHaveLength(0);
+  }, 30_000);
 });
