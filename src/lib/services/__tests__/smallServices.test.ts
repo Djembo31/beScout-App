@@ -152,7 +152,7 @@ describe('openMysteryBox', () => {
   it('opens box and returns reward', async () => {
     mockRpc('open_mystery_box_v2', {
       ok: true, rarity: 'rare', rewardType: 'cosmetic',
-      cosmeticKey: 'gold_frame', cosmeticName: 'Gold Frame',
+      cosmeticKey: 'gold_frame',
     });
     const result = await openMysteryBox();
     expect(result.ok).toBe(true);

@@ -67,11 +67,11 @@ function formatRewardLabel(
       return t('historyRewardEquipmentNoRank', { name });
     }
     case 'cosmetic': {
-      // FIX-08: Prefer an actual cosmetic display name where available; fall
-      // back to the cosmetic key/id from the stored row, then the generic
-      // "Cosmetic" label. `mystery_box_results` only persists `cosmetic_id`
-      // (= cosmetic key) — the RPC-return `cosmetic_name` is transient.
-      const name = entry.cosmetic_name ?? entry.cosmetic_key ?? entry.cosmetic_id ?? null;
+      // Persisted rows only carry `cosmetic_id` (= cosmetic key stored at
+      // insert); fresh RPC rows also expose `cosmetic_key`. Slice 007 removed
+      // the never-populated `cosmetic_name` field (open_mystery_box_v2 does
+      // not return it).
+      const name = entry.cosmetic_key ?? entry.cosmetic_id ?? null;
       return name ? t('historyRewardCosmeticNamed', { name }) : t('historyRewardCosmetic');
     }
     default:

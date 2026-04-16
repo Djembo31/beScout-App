@@ -34,7 +34,6 @@ export async function openMysteryBox(free = false): Promise<{
   equipmentPosition?: string;
   bcreditsAmount?: number;
   cosmeticKey?: string;
-  cosmeticName?: string;
   error?: string;
 }> {
   const { data, error } = await supabase.rpc('open_mystery_box_v2', {
@@ -62,7 +61,6 @@ export async function openMysteryBox(free = false): Promise<{
     equipmentPosition?: string;
     bcreditsAmount?: number;
     cosmeticKey?: string;
-    cosmeticName?: string;
     error?: string;
   };
 
@@ -87,7 +85,6 @@ export async function openMysteryBox(free = false): Promise<{
     equipmentPosition: result.equipmentPosition ?? undefined,
     bcreditsAmount: result.bcreditsAmount ?? undefined,
     cosmeticKey: result.cosmeticKey ?? undefined,
-    cosmeticName: result.cosmeticName ?? undefined,
   };
 }
 

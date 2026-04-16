@@ -1,0 +1,228 @@
+Slice 007 — RPC Response Shape Audit (A-07)
+Generated: 2026-04-17
+Audit-Helper: public.get_rpc_jsonb_keys(text) — Migration 20260417020000
+
+=============================================================================
+SUMMARY
+=============================================================================
+Total public RPCs with jsonb_build_object / json_build_object in body: 116
+INV-23 whitelist coverage (client-consumed + documented shape): 68 RPCs
+Drifts found: 1
+  - open_mystery_box_v2: Service cast had `cosmeticName?` but RPC never
+    populates it. Fixed in this slice (removed from Service + consumers).
+Excluded from INV-23 (string-literal JSON-cast only, parser cannot extract):
+  - admin_delete_post
+  - update_community_guidelines
+
+Other RPCs (48) not in INV-23 whitelist:
+  - Admin-only wrappers w/ no client-cast (accept_mentee, cancel_scout_subscription,
+    deduct_wallet_balance, refund_wallet_balance, season_reset_scores,
+    verify_scout, subscribe_to_scout, renew_club_subscription, request_mentor,
+    check_analyst_decay, claim_milestone_reward, refresh_airdrop_score,
+    calculate_sc_of_week, chip-admin (activate/deactivate/get_season_chip_usage),
+    award_dimension_score, award_mastery_xp, award_score_points,
+    purchase_cosmetic_listing, get_club_dashboard_stats(_v2), get_club_balance,
+    get_user_social_stats, rpc_get_player_percentiles)
+  - Cron/internal wrappers (cron_recalc_perf, cron_process_gameweek,
+    admin_resync_gw_scores, expire_pending_offers)
+  - Wrapper-only (no own jsonb keys): lock_event_entry, unlock_event_entry,
+    cancel_event_entries, save_lineup — whitelisted via their INNER RPCs
+    (rpc_lock_event_entry, rpc_unlock_event_entry, rpc_cancel_event_entries,
+    rpc_save_lineup)
+
+=============================================================================
+DRIFT FIXED (Slice 007 BUILD)
+=============================================================================
+
+RPC: open_mystery_box_v2
+Extracted keys:
+  bcreditsAmount, cosmeticKey, equipmentNameDe, equipmentNameTr,
+  equipmentPosition, equipmentRank, equipmentType, error, id, ok, rarity,
+  rewardType, ticketCost, ticketsAmount
+
+Service mysteryBox.ts (pre-fix) expected:
+  ok, rarity, rewardType, ticketsAmount, equipmentType, equipmentRank,
+  equipmentNameDe, equipmentNameTr, equipmentPosition, bcreditsAmount,
+  cosmeticKey, cosmeticName ← NEVER EMITTED BY RPC, error
+
+Consumers affected by the dead field:
+  - src/lib/services/mysteryBox.ts  (returns cosmeticName: result.cosmeticName ?? undefined — always undefined)
+  - src/app/(app)/hooks/useHomeData.ts:239  (passes cosmetic_name: result.cosmeticName — always undefined)
+  - src/components/gamification/MysteryBoxModal.tsx:543  (fallback-chain `cosmetic_name ?? cosmetic_key ?? cosmetic_id` — always skipped first)
+  - src/components/inventory/MysteryBoxHistorySection.tsx:74  (same fallback-chain pattern)
+  - src/lib/services/__tests__/smallServices.test.ts  (mocked cosmeticName in test fixture)
+  - src/types/index.ts MysteryBoxResult type  (optional cosmetic_name? — never set)
+
+Fix applied:
+  - Removed cosmeticName from mysteryBox.ts (interface + cast + return-mapping)
+  - Removed cosmetic_name from MysteryBoxResult type
+  - Updated useHomeData.ts, MysteryBoxModal, MysteryBoxHistorySection to drop `cosmetic_name` from fallback chains
+  - Updated smallServices.test.ts mock fixture
+
+User-visible behavior: UNCHANGED. The fallback chain was already landing
+on `cosmetic_key` for all freshly opened boxes (and `cosmetic_id` for
+history rows). The `cosmetic_name` slot was dead code since the RPC was
+shipped.
+
+=============================================================================
+FULL RPC SHAPE TABLE
+=============================================================================
+
+(all top-level keys emitted by jsonb_build_object / json_build_object; used
+by INV-23 as the "allowed key set" per RPC — Service casts must be a subset)
+
+| RPC                              | Top-level keys                          |
+|----------------------------------|-----------------------------------------|
+| accept_mentee                    | error, success                          |
+| accept_offer                     | buyer_new_balance, club_fee, error, pbt_fee, platform_fee, seller_net, success, trade_id, trade_price |
+| activate_chip                    | chip_id, detail, error, ok, remaining_season_uses, ticket_cost |
+| add_club_admin                   | error, success                          |
+| adjust_user_wallet               | amount_cents, error, new_balance, reason, success, target_user_id |
+| admin_import_gameweek_stats      | error, fixtures_imported, scores_synced, stats_imported, success |
+| admin_map_clubs                  | error, success, updated_count           |
+| admin_map_fixtures               | error, success, updated_count           |
+| admin_map_players                | error, success, updated_count           |
+| admin_resync_gw_scores           | success, synced_count                   |
+| admin_toggle_pin                 | is_pinned, success  (error via '{"success":false,"error":…}'::JSONB literal — unparseable) |
+| approve_bounty_submission        | error, reward, success                  |
+| award_dimension_score            | boosted, delta, dimension, error, ok, score_after, score_before, skipped |
+| award_mastery_xp                 | level, leveled_up, ok, reason, skipped, xp |
+| award_score_points               | arena_score, club_score, error, gold_boost, peak_score, scout_score, success, total_score |
+| batch_recalculate_fan_ranks      | error, errors, ok, recalculated, skipped |
+| buy_from_ipo                     | club_share, error, ipo_remaining, new_balance, pbt_share, platform_share, price_per_dpc, quantity, source, success, total_cost, trade_id, user_total_purchased |
+| buy_from_order                   | buyer_new_balance, effective_fee_bps, error, fee_discount_bps, fees, price, quantity, seller_new_balance, success, total_cost, trade_id |
+| buy_player_sc                    | club_fee, effective_fee_bps, error, fee_discount_bps, new_balance, order_id, pbt_fee, platform_fee, price_per_dpc, quantity, seller_id, source, success, total_cost, trade_id |
+| calculate_ad_revenue_share       | error, paid_count, pool_cents, success, total_paid_cents, total_revenue_cents |
+| calculate_creator_fund_payout    | error, paid_count, pool_cents, rolled_count, success, total_impressions, total_paid_cents |
+| calculate_fan_rank               | components, csf_multiplier, ok, rank_tier, total_score  (no error branch) |
+| calculate_sc_of_week             | error, holder_count, player_id, score, success |
+| cancel_buy_order                 | error, success, unlocked                |
+| cancel_event_entries             | error, ok  (refunded_count from inner rpc_cancel_event_entries) |
+| cancel_offer_rpc                 | error, success                          |
+| cancel_order                     | error, order_id, success                |
+| cancel_scout_subscription        | error, success                          |
+| cancel_user_bounty               | error, success                          |
+| cast_community_poll_vote         | cost, creator_share, error, success, total_votes |
+| cast_vote                        | cost, success, total_votes, weight      |
+| check_analyst_decay              | days_inactive, days_since, decayed, ok, reason, skipped |
+| claim_milestone_reward           | error, reward_cents, success            |
+| claim_mission_reward             | error, new_balance, reward_cents, success |
+| claim_score_road                 | error, median, median_score, milestone, ok, reward_bsd |
+| claim_scout_mission_reward       | error, new_balance, reward_cents, success |
+| claim_welcome_bonus              | already_claimed, amount_cents, new_balance, ok |
+| close_monthly_liga               | error, month, ok, payouts_credited, total_paid_cents, winners_inserted |
+| counter_offer                    | error, offer_id, success                |
+| create_club_by_platform_admin    | club_id, error, slug, success           |
+| create_ipo                       | ends_at, error, ipo_id, starts_at, status, success |
+| create_league                    | error, league_id, success               |
+| create_offer                     | error, offer_id, success                |
+| create_prediction                | difficulty, error, gameweek, id, ok     |
+| create_user_bounty               | bounty_id, error, success               |
+| credit_tickets                   | new_balance, ok                         |
+| cron_process_gameweek            | fixtures_imported, scores_synced, stats_imported, success |
+| cron_recalc_perf                 | agg_updated, perf_updated, success      |
+| deactivate_chip                  | detail, error, ok, tickets_refunded     |
+| deduct_wallet_balance            | error, new_balance, success             |
+| equip_cosmetic                   | equipped, error, ok                     |
+| equip_to_slot                    | equipment_id, equipment_key, equipment_rank, error, ok, slot_key |
+| expire_pending_offers            | expired_count, funds_released_cents     |
+| get_auth_state                   | clubAdmin, clubId, platformRole, profile, role, slug  (inner clubAdmin sub-keys captured too) |
+| get_club_balance                 | available, sub_revenue, total_earned, total_withdrawn, trade_fees |
+| get_club_by_slug                 | admin_role, city, community_guidelines, country, created_at, id, is_admin, is_verified, league, logo_url, name, plan, primary_color, secondary_color, short, slug, stadium |
+| get_club_dashboard_stats         | avatar_url, handle, holdings_count, ipo_revenue_cents, top_fans, total_fans, total_score, user_id |
+| get_club_dashboard_stats_v2      | avatar_url, handle, holdings_count, ipo_revenue_cents, top_fans, total_fans, total_score, user_id |
+| get_mystery_box_drop_rates       | drop_percent, drop_weight, rarity, rates, total_weight |
+| get_season_chip_usage            | error, ok, second_chance, synergy_surge, triple_captain, wildcard |
+| get_todays_challenge             | already_answered, challenge, error, ok  |
+| get_treasury_stats               | pbt_total_balance, pbt_trading_inflow, total_circulating_cents, total_club_fees, total_locked_cents, total_pass_bcredits, total_passes_sold, total_pbt_fees, total_platform_fees, total_tickets_circulating, total_tickets_earned, total_tickets_spent, total_trades, wallets_with_balance, welcome_bonuses_claimed |
+| get_user_social_stats            | follower_count, following_count, following_ids |
+| get_user_tickets                 | balance, created_at, earned_total, exists, spent_total, updated_at |
+| grant_founding_pass              | bcredits_granted, error, limit_eur_cents, message, new_balance, ok, pass_id, total_eur_cents |
+| join_league                      | error, league_id, league_name, success  |
+| leave_league                     | error, success                          |
+| liquidate_player                 | distributed_cents, fee_per_dpc_cents, holder_count, liquidation_id, multiplier_cap, pbt_distributed_cents, success, success_fee_cents, transfer_value_eur, weighted |
+| open_mystery_box_v2              | bcreditsAmount, cosmeticKey, equipmentNameDe, equipmentNameTr, equipmentPosition, equipmentRank, equipmentType, error, id, ok, rarity, rewardType, ticketCost, ticketsAmount |
+| place_buy_order                  | error, new_available, order_id, success, total_locked |
+| place_sell_order                 | error, order_id, price, quantity, success |
+| purchase_cosmetic_listing        | cosmetic_id, cosmetic_key, error, ok, price_tickets |
+| rate_research                    | avg_rating, error, ratings_count, success, user_rating |
+| record_login_streak              | already_today, longest, milestone_label, milestone_reward, ok, shield_used, shields_remaining, streak |
+| refresh_airdrop_score            | ok, tier, total                         |
+| refresh_my_airdrop_score         | error, ok                               |
+| refresh_my_stats                 | error, ok                               |
+| refund_wallet_balance            | error, new_balance, success             |
+| reject_bounty_submission         | error, success                          |
+| reject_offer                     | error, success                          |
+| remove_club_admin                | error, success                          |
+| renew_club_subscription          | error, new_balance, new_expires_at, success |
+| report_content                   | error, success                          |
+| request_club_withdrawal          | available_after, error, success, withdrawal_id |
+| request_mentor                   | error, mentorship_id, success           |
+| reset_event                      | error, message, success                 |
+| resolve_expired_research         | resolved                                |
+| resolve_gameweek_predictions     | correct, error, ok, resolved, void, wrong |
+| reward_referral                  | reason, referee_reward, referrer_id, reward, success |
+| rpc_cancel_event_entries         | error, ok, refunded_count               |
+| rpc_get_player_percentiles       | floor_price_pct, holder_count_pct, l15_score_pct, l5_score_pct, pos_assists_pct, pos_clean_sheets_pct, pos_goals_pct, pos_l5_pct, pos_l5_rank, pos_l5_total, pos_matches_pct, pos_minutes_pct, pos_saves_pct, total_trades_pct |
+| rpc_lock_event_entry             | already_entered, balance_after, beneficiary, currency, error, have, need, ok, platform, prize_pool |
+| rpc_save_lineup                  | available, cap, error, is_new, lineup_id, max, ok, player_id, required, total_salary, used |
+| rpc_unlock_event_entry           | balance_after, currency, error, ok      |
+| score_event                      | bonus_pct, count, error, gameweek, note, prize_distributed, scored_count, source, success, type, winner_name |
+| season_reset_scores              | ok, reset_count                         |
+| send_tip                         | amount_cents, error, platform_fee, receiver_earned, success, tip_id |
+| set_success_fee_cap              | error, success                          |
+| simulate_gameweek                | error, fixtures_simulated, gameweek, player_stats_created, success |
+| soft_reset_season                | new_season_id, ok, users_reset          |
+| spend_tickets                    | current_balance, error, new_balance, ok, requested |
+| submit_bounty_response           | error, submission_id, success           |
+| submit_daily_challenge           | error, is_correct, ok, streak_bonus_box, streak_days, tickets_awarded |
+| submit_fan_wish                  | error, success                          |
+| submit_player_valuation          | error, median_cents, success, vote_count |
+| submit_scout_mission             | error, reward_cents, success            |
+| subscribe_to_club                | error, expires_at, new_balance, price_cents, subscription_id, success, tier |
+| subscribe_to_scout               | error, expires_at, price_cents, scout_earned, subscription_id, success |
+| sync_fixture_scores              | success, synced_count                   |
+| track_my_mission_progress        | error, ok                               |
+| unequip_from_slot                | error, ok, slot_key                     |
+| unlock_research                  | amount_paid, author_earned, error, platform_fee, success |
+| update_fan_wish_status           | error, success                          |
+| update_fee_config_rpc            | config_id, error, success               |
+| update_ipo_status                | error, ipo_id, new_status, success      |
+| verify_scout                     | error, success                          |
+| vote_post                        | downvotes, upvotes                      |
+
+=============================================================================
+PARSER NOTES (get_rpc_jsonb_keys)
+=============================================================================
+- Extracts keys from jsonb_build_object AND json_build_object calls.
+- Records keys at call_depth = 1 (i.e., 1st/3rd/5th... string-literal args at
+  the outermost build_object's paren depth).
+- Sibling calls at depth 1 are also captured (multiple build_object statements
+  in one RPC body → union of all their keys).
+- Tracks comment ranges (-- line and /* block */) to avoid false positives.
+- Tracks string-literal escaping (doubled '' → continued literal).
+- Limitation: string-literal-returned JSON (`'{"a":1}'::JSONB`) is NOT parsed.
+  These RPCs are excluded from INV-23 with documented reason (RPC_SHAPE_EXCLUDED).
+
+=============================================================================
+INV-23 WHITELIST COVERAGE
+=============================================================================
+68 of 116 RPCs explicitly whitelisted (Service-consumed). Each whitelist
+entry pins the exact set of top-level keys a TS cast expects to read.
+
+Covers all money-critical paths:
+  Trading: buy_player_sc, place_sell_order, buy_from_order, cancel_order,
+           place_buy_order, cancel_buy_order
+  IPO:     buy_from_ipo, create_ipo, update_ipo_status
+  Offers:  create_offer, accept_offer, reject_offer, counter_offer,
+           cancel_offer_rpc
+  Liquid.: liquidate_player, set_success_fee_cap
+  Wallet:  adjust_user_wallet, claim_welcome_bonus, grant_founding_pass,
+           send_tip, credit_tickets, spend_tickets, get_user_tickets
+  Events:  rpc_lock_event_entry, rpc_unlock_event_entry,
+           rpc_cancel_event_entries, rpc_save_lineup, score_event, reset_event
+  Auth:    get_auth_state
+  Admin:   update_fee_config_rpc, create_club_by_platform_admin, get_treasury_stats
+  Mystery: open_mystery_box_v2, get_mystery_box_drop_rates
+
+Passing → 0 Service-Cast drifts in these 68 RPCs as of Slice 007 close.

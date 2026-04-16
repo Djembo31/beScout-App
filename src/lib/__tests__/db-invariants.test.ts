@@ -905,4 +905,226 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-23: Service-Cast keys ⊆ RPC top-level jsonb_build_object keys
+  // ─────────────────────────────────────────────────────
+  // Blocker A-07 drift class: `jsonb_build_object('rewardType', …)` (camelCase
+  // in RPC) vs `data as { reward_type: … }` (snake_case in Service) → every
+  // field silently `undefined`. TypeScript-Cast (`as`) is unchecked, so compile
+  // passes. Audited in Slice 007 (2026-04-17).
+  //
+  // Per-RPC whitelist = the exact key set the Service reads from the RPC
+  // response. Each entry asserts `expected ⊆ extracted_keys`, which catches
+  // camelCase/snake_case renames, typos, and removed keys without failing on
+  // additional keys the RPC may emit (harmless supersets).
+  //
+  // Wrappers (lock_event_entry → rpc_lock_event_entry, save_lineup →
+  // rpc_save_lineup, cancel_event_entries → rpc_cancel_event_entries,
+  // unlock_event_entry → rpc_unlock_event_entry): whitelisted against the
+  // INNER RPC because that is where the Service-consumed keys are actually
+  // emitted (the wrapper body just forwards the inner result).
+  //
+  // Exclusions: RPCs that only return string-literal-cast JSON
+  // (e.g. `'{"success":true}'::JSONB`) like `admin_delete_post` and
+  // `update_community_guidelines` cannot be audited by this parser because
+  // their keys never appear in a `jsonb_build_object(...)` call. Documented
+  // in RPC_SHAPE_EXCLUDED below.
+  it('INV-23: Service-consumed RPCs emit the keys their TS casts expect', async () => {
+    // Key set per RPC that the Service layer casts to and reads from.
+    // If you change a Service-Cast shape, update this map. If you change the
+    // RPC return shape, this test will catch the drift.
+    const RPC_SHAPE_WHITELIST: Record<string, string[]> = {
+      // Trading (money)
+      buy_player_sc: ['success', 'error', 'trade_id', 'total_cost', 'new_balance', 'quantity', 'price_per_dpc', 'order_id', 'seller_id', 'source'],
+      place_sell_order: ['success', 'error', 'order_id', 'quantity', 'price'],
+      buy_from_order: ['success', 'error', 'trade_id', 'total_cost', 'quantity', 'price', 'buyer_new_balance', 'seller_new_balance'],
+      cancel_order: ['success', 'error', 'order_id'],
+      place_buy_order: ['success', 'error', 'order_id', 'total_locked', 'new_available'],
+      cancel_buy_order: ['success', 'error', 'unlocked'],
+
+      // IPO (money)
+      buy_from_ipo: ['success', 'error', 'trade_id', 'total_cost', 'new_balance', 'quantity', 'price_per_dpc', 'source', 'user_total_purchased', 'ipo_remaining'],
+      create_ipo: ['success', 'error', 'ipo_id', 'status', 'starts_at', 'ends_at'],
+      update_ipo_status: ['success', 'error', 'ipo_id', 'new_status'],
+
+      // Offers (money)
+      create_offer: ['success', 'error', 'offer_id'],
+      accept_offer: ['success', 'error', 'trade_price'],
+      reject_offer: ['success', 'error'],
+      counter_offer: ['success', 'error', 'offer_id'],
+      cancel_offer_rpc: ['success', 'error'],
+
+      // Liquidation (money)
+      liquidate_player: ['success', 'holder_count', 'distributed_cents', 'pbt_distributed_cents', 'success_fee_cents', 'fee_per_dpc_cents', 'transfer_value_eur', 'liquidation_id'],
+      set_success_fee_cap: ['success', 'error'],
+
+      // Mystery Box (tickets/credits)
+      open_mystery_box_v2: ['ok', 'error', 'rarity', 'rewardType', 'ticketsAmount', 'equipmentType', 'equipmentRank', 'equipmentNameDe', 'equipmentNameTr', 'equipmentPosition', 'bcreditsAmount', 'cosmeticKey'],
+      get_mystery_box_drop_rates: ['rates', 'total_weight', 'rarity', 'drop_weight', 'drop_percent'],
+
+      // Wallet/Credits
+      claim_welcome_bonus: ['ok', 'already_claimed', 'amount_cents', 'new_balance'],
+      get_user_tickets: ['balance', 'earned_total', 'spent_total', 'updated_at', 'created_at'],
+      credit_tickets: ['ok', 'new_balance'],
+      spend_tickets: ['ok', 'new_balance', 'error'],
+      send_tip: ['success', 'error', 'tip_id', 'amount_cents', 'platform_fee', 'receiver_earned'],
+      grant_founding_pass: ['ok', 'error', 'pass_id', 'bcredits_granted', 'new_balance'],
+
+      // Social
+      get_auth_state: ['profile', 'platformRole', 'clubAdmin'],
+      refresh_my_stats: ['ok', 'error'],
+      refresh_my_airdrop_score: ['ok', 'error'],
+
+      // Mission/Gamification
+      claim_mission_reward: ['success', 'error', 'reward_cents', 'new_balance'],
+      track_my_mission_progress: ['ok', 'error'],
+      record_login_streak: ['ok', 'already_today', 'streak'],
+      claim_score_road: ['ok', 'error', 'reward_bsd', 'milestone'],
+      submit_daily_challenge: ['ok', 'error', 'is_correct', 'tickets_awarded'],
+      // calculate_fan_rank has no error branch — always returns ok=true with components
+      calculate_fan_rank: ['ok', 'rank_tier', 'csf_multiplier', 'total_score', 'components'],
+      batch_recalculate_fan_ranks: ['ok', 'recalculated', 'errors'],
+      get_todays_challenge: ['ok', 'error', 'already_answered', 'challenge'],
+
+      // Events/Fantasy (via wrappers — whitelisted against inner RPC where keys live)
+      rpc_lock_event_entry: ['ok', 'error', 'currency', 'balance_after', 'already_entered', 'have', 'need'],
+      rpc_unlock_event_entry: ['ok', 'error', 'currency', 'balance_after'],
+      rpc_cancel_event_entries: ['ok', 'error', 'refunded_count'],
+      rpc_save_lineup: ['ok', 'error', 'lineup_id'],
+      score_event: ['success', 'error'],
+      reset_event: ['success', 'error', 'message'],
+      simulate_gameweek: ['success', 'error', 'fixtures_simulated', 'gameweek', 'player_stats_created'],
+      create_prediction: ['ok', 'error', 'id', 'gameweek', 'difficulty'],
+      resolve_gameweek_predictions: ['ok', 'error', 'resolved'],
+      close_monthly_liga: ['ok', 'error', 'month', 'winners_inserted', 'payouts_credited', 'total_paid_cents'],
+      soft_reset_season: ['ok', 'new_season_id', 'users_reset'],
+
+      // Leagues
+      create_league: ['success', 'error', 'league_id'],
+      join_league: ['success', 'error', 'league_id', 'league_name'],
+      leave_league: ['success', 'error'],
+
+      // Research
+      unlock_research: ['success', 'error', 'amount_paid', 'author_earned', 'platform_fee'],
+      rate_research: ['success', 'error', 'avg_rating', 'ratings_count', 'user_rating'],
+
+      // Valuations/Voting
+      submit_player_valuation: ['success', 'error', 'median_cents', 'vote_count'],
+      cast_vote: ['success', 'cost', 'total_votes'],
+      cast_community_poll_vote: ['success', 'error', 'cost', 'total_votes', 'creator_share'],
+
+      // Posts
+      vote_post: ['upvotes', 'downvotes'],
+      admin_toggle_pin: ['success', 'is_pinned'],
+
+      // Bounties
+      create_user_bounty: ['success', 'error', 'bounty_id'],
+      cancel_user_bounty: ['success', 'error'],
+      submit_bounty_response: ['success', 'error', 'submission_id'],
+      approve_bounty_submission: ['success', 'error', 'reward'],
+      reject_bounty_submission: ['success', 'error'],
+
+      // Platform Admin
+      adjust_user_wallet: ['success', 'error', 'new_balance'],
+      update_fee_config_rpc: ['success', 'error'],
+      create_club_by_platform_admin: ['success', 'error', 'club_id', 'slug'],
+      get_treasury_stats: ['total_circulating_cents', 'total_locked_cents', 'wallets_with_balance', 'total_platform_fees', 'total_pbt_fees', 'total_club_fees', 'pbt_total_balance', 'pbt_trading_inflow', 'total_pass_bcredits', 'total_passes_sold', 'welcome_bonuses_claimed', 'total_tickets_circulating', 'total_tickets_earned', 'total_tickets_spent', 'total_trades'],
+
+      // Club
+      get_club_by_slug: ['id', 'slug', 'name', 'short', 'logo_url', 'league', 'country', 'city', 'stadium', 'plan', 'is_verified', 'admin_role', 'is_admin', 'community_guidelines', 'primary_color', 'secondary_color', 'created_at'],
+      add_club_admin: ['success', 'error'],
+      remove_club_admin: ['success', 'error'],
+      request_club_withdrawal: ['success', 'error'],
+
+      // Scout missions
+      submit_scout_mission: ['success', 'error', 'reward_cents'],
+      claim_scout_mission_reward: ['success', 'error', 'reward_cents', 'new_balance'],
+
+      // Equipment/Cosmetics
+      equip_to_slot: ['ok', 'error'],
+      unequip_from_slot: ['ok', 'error', 'slot_key'],
+      equip_cosmetic: ['ok', 'error'],
+
+      // Content/Community
+      report_content: ['success', 'error'],
+      submit_fan_wish: ['success', 'error'],
+      update_fan_wish_status: ['success', 'error'],
+
+      // Ad Revenue / Creator
+      calculate_ad_revenue_share: ['success', 'error', 'total_revenue_cents', 'pool_cents', 'paid_count', 'total_paid_cents'],
+      calculate_creator_fund_payout: ['success', 'error', 'total_impressions', 'pool_cents', 'paid_count', 'rolled_count', 'total_paid_cents'],
+
+      // Subscription
+      subscribe_to_club: ['success', 'error', 'subscription_id', 'tier', 'price_cents', 'expires_at', 'new_balance'],
+
+      // Referral
+      reward_referral: ['success', 'reason', 'referrer_id', 'referee_reward'],
+
+      // Football Data (admin)
+      admin_map_clubs: ['success', 'error', 'updated_count'],
+      admin_map_players: ['success', 'error', 'updated_count'],
+      admin_map_fixtures: ['success', 'error', 'updated_count'],
+      admin_import_gameweek_stats: ['success', 'error', 'fixtures_imported', 'stats_imported', 'scores_synced'],
+
+      // Research auto-resolve
+      resolve_expired_research: ['resolved'],
+
+      // Fixtures sync
+      sync_fixture_scores: ['success', 'synced_count'],
+    };
+
+    // RPCs that return string-literal JSON (e.g. '{"success":true}'::JSONB)
+    // rather than jsonb_build_object — cannot be parsed by get_rpc_jsonb_keys
+    // but still conform to their Service-Cast shape. Documented for future
+    // audit-helper improvements (Slice 007+).
+    const RPC_SHAPE_EXCLUDED = new Set<string>([
+      'admin_delete_post',           // string-literal returns only
+      'update_community_guidelines', // string-literal returns only
+    ]);
+
+    const names = Object.keys(RPC_SHAPE_WHITELIST);
+    const violations: string[] = [];
+    let checked = 0;
+
+    for (const rpcName of names) {
+      const { data, error } = await sb.rpc('get_rpc_jsonb_keys', {
+        p_rpc_name: rpcName,
+      });
+      if (error) {
+        violations.push(`${rpcName}: audit-helper RPC failed: ${error.message}`);
+        continue;
+      }
+
+      const rows = (data ?? []) as Array<{
+        rpc_name: string;
+        uses_jsonb_build: boolean;
+        uses_json_build: boolean;
+        top_level_keys: string[] | null;
+      }>;
+      const row = rows[0];
+      if (!row) {
+        violations.push(`${rpcName}: RPC not found in public schema (was it renamed or deleted?)`);
+        continue;
+      }
+
+      checked++;
+      const extracted = new Set(row.top_level_keys ?? []);
+      const expected = RPC_SHAPE_WHITELIST[rpcName]!;
+      const missing = expected.filter((k) => !extracted.has(k));
+      if (missing.length > 0) {
+        violations.push(
+          `${rpcName}: Service cast expects [${missing.join(', ')}] but RPC body emits [${Array.from(extracted).sort().join(', ')}]`
+        );
+      }
+    }
+
+    if (violations.length === 0) {
+      console.log(
+        `[INV-23] ${checked} RPCs checked, 0 shape drifts — all Service-Cast keys present in RPC bodies (${RPC_SHAPE_EXCLUDED.size} RPCs excluded: string-literal returns only)`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 60_000);
 });

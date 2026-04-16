@@ -236,7 +236,6 @@ export function useHomeData() {
       equipment_name_tr: result.equipmentNameTr,
       equipment_position: result.equipmentPosition,
       cosmetic_key: result.cosmeticKey,
-      cosmetic_name: result.cosmeticName,
     } satisfies import('@/types').MysteryBoxResult;
   }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
 

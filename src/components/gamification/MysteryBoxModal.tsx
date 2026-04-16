@@ -537,10 +537,11 @@ function RewardDisplay({
     }
 
     case 'cosmetic': {
-      // FIX-07: Prefer the actual cosmetic display name over a generic label.
-      // RPC returns `cosmetic_name` (resolved in `useHomeData`); fall back to
-      // `cosmetic_key`/`cosmetic_id` for legacy rows, then the generic string.
-      const cosmeticLabel = result.cosmetic_name ?? result.cosmetic_key ?? result.cosmetic_id ?? null;
+      // Prefer the cosmetic display key over a generic label. `cosmetic_key` is
+      // only populated on freshly opened boxes; persisted rows fall back to
+      // `cosmetic_id` (= the cosmetic key stored at insert), then the generic
+      // string. Slice 007 removed the never-populated `cosmetic_name` field.
+      const cosmeticLabel = result.cosmetic_key ?? result.cosmetic_id ?? null;
       return (
         <div className="text-center">
           <Sparkles className="size-8 mx-auto mb-2 text-purple-400" />

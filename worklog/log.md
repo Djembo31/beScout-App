@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 007 | 2026-04-17 | RPC Response Shape Audit (A-07)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417020000_audit_helper_rpc_jsonb_keys.sql` (new, Helper-RPC `get_rpc_jsonb_keys(text)`)
+  - `src/lib/__tests__/db-invariants.test.ts` (+225 Zeilen, INV-23 + 68-RPC Whitelist)
+  - `src/lib/services/mysteryBox.ts` (`cosmeticName` entfernt — dead field, RPC emits only `cosmeticKey`)
+  - `src/types/index.ts` (`cosmetic_name?` aus `MysteryBoxResult` entfernt)
+  - `src/app/(app)/hooks/useHomeData.ts` (pass-through `cosmetic_name` entfernt)
+  - `src/components/gamification/MysteryBoxModal.tsx` (Fallback-Chain bereinigt)
+  - `src/components/inventory/MysteryBoxHistorySection.tsx` (Fallback-Chain bereinigt)
+  - `src/lib/services/__tests__/smallServices.test.ts` (Mock-Fixture angepasst)
+- Proofs: `worklog/proofs/007-rpc-shape-audit.txt` (116 RPCs tabelliert), `worklog/proofs/007-inv23.txt` (vitest green)
+- Commit: (pending)
+- Notes: A-07 schließt Blocker-A komplett. Audit-Helper parsed plpgsql-Body mit echtem Paren/String/Comment-Tokenizer (kein Regex) und extrahiert Top-Level `jsonb_build_object`/`json_build_object` Keys. INV-23 lockt 68 Service-konsumierte RPCs (alle Money-Pfade inkl. Trading/IPO/Offers/Liquidation/Mystery) gegen Service-Cast-Drift (AR-42-Klasse: camelCase RPC vs snake_case Cast → silent `undefined`). 1 echte Drift gefunden und behoben: `cosmeticName` in mysteryBox.ts war seit RPC-Deploy tot (RPC emits nur `cosmeticKey`), Consumer-Fallback-Chain hat es kompensiert → User-visible Behavior UNVERAENDERT. 2 RPCs (admin_delete_post, update_community_guidelines) in RPC_SHAPE_EXCLUDED dokumentiert wegen string-literal-cast Returns. Pre-existing INV-07/INV-08 failures (Holdings/Wallet Data-Drift) nicht Scope 007 — separater Data-Cleanup.
+
+---
+
 ## 006 | 2026-04-17 | ALL_CREDIT_TX_TYPES ⊇ DB alignment (A-05 Follow-up)
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files: `src/lib/transactionTypes.ts` (+10 canonical DB types), `src/lib/__tests__/db-invariants.test.ts` (+INV-22)
