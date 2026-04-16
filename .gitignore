@@ -125,3 +125,7 @@ __pycache__/
 memory/episodisch/sessions/retro-*.md
 memory/senses/morning-briefing.md
 memory/episodisch/metriken/sessions.jsonl
+
+# Firecrawl cache
+.firecrawl/
+walkthrough/

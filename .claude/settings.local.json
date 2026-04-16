@@ -21,7 +21,13 @@
       "mcp__supabase__list_tables",
       "mcp__supabase__list_migrations",
       "Bash(echo \"src/lib/services/tickets.ts\")",
-      "Bash(bash .claude/hooks/test-reminder.sh)"
+      "Bash(bash .claude/hooks/test-reminder.sh)",
+      "Skill(update-config)",
+      "mcp__sentry__whoami",
+      "Bash(mkdir -p memory/_archive/2026-04-meta-plans worklog/specs worklog/impact worklog/proofs .claude/skills/ship)",
+      "Bash(git mv *)",
+      "Bash(rm -f walkthrough/*.md)",
+      "Bash(rm -f .claude/hooks/walkthrough-status.sh)"
     ]
   },
   "enableAllProjectMcpServers": true,

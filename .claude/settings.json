@@ -21,11 +21,11 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/track-file-changes.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/test-reminder.sh"
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/test-reminder.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/ship-post-service.sh"
           }
         ]
       }
@@ -41,6 +41,33 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/scripts/audit/pre-commit-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-proof-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-spec-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-meta-plan-block.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-status-gate.sh"
           }
         ]
       }
@@ -51,20 +78,6 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/pre-compact-backup.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/inject-context-on-compact.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/capture-correction.sh"
           }
         ]
       }
@@ -78,15 +91,7 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/session-retro.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/quality-gate-v2.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/pattern-check.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/ship-no-audit-slice.sh"
           }
         ]
       }
@@ -106,12 +111,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/morning-briefing.sh",
-            "timeout": 60000
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/inject-learnings.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/ship-session-start.sh",
+            "timeout": 10
           }
         ]
       }

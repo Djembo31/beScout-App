@@ -1,13 +1,16 @@
 ---
 name: spec
-description: Use BEFORE any feature work, redesign, or refactoring. Replaces brainstorming + writing-plans with a migration-first 3-phase process (SPEC → PLAN → EXECUTE). Enforces current-state analysis, blast radius mapping, pre-mortem, wave delivery. Mandatory for Jarvis and all agents. Trigger on any task that changes user-visible behavior or moves/renames code.
+description: Use BEFORE any feature work, redesign, or refactoring. Replaces brainstorming + writing-plans with a senior-dev specification process. Enforces mandatory code reading, DB schema verification, consumer mapping, edge case enumeration, executable acceptance criteria, and test strategy. No code is written until the user approves the spec. Trigger on any task that changes user-visible behavior, moves/renames code, or touches 3+ files.
 ---
 
-# /spec — Engineering Specification
+# /spec — Senior Engineering Specification
 
-You are writing a spec that PREVENTS mistakes, not just DESCRIBES what to build.
-A spec without a current-state analysis is a wish list.
-A plan without a migration map is a recipe for duplicates.
+A spec that doesn't prevent bugs is a wish list.
+A spec without code reading is fiction.
+A spec without edge cases is a happy-path fantasy.
+
+This skill produces a DOCUMENT so complete that implementation is mechanical.
+If the spec doesn't cover a case and a bug appears — that's a spec bug, not a code bug.
 
 ## When to Use
 
@@ -15,272 +18,301 @@ A plan without a migration map is a recipe for duplicates.
 - Any redesign, refactoring, or migration
 - Any task touching 3+ files
 - Before dispatching agents for implementation
-- When Anil says "mach das besser" / "das muss anders"
+- When Anil gives direction ("mach das", "das muss anders")
 
-## The 3 Phases
+## The 2 Phases
 
 ```
-SPEC (understand before you build)
-  ↓
-PLAN (translate to safe, shippable waves)
-  ↓
-EXECUTE (one wave at a time, verify between)
+SPEC (investigate + specify — NO CODE YET)
+  ↓ Anil approves
+PLAN (translate to safe, shippable waves with exact tasks)
 ```
 
-Each phase has a gate. You cannot enter the next phase until the gate passes.
+No Phase 3 "Execute" — that's /deliver's job with the approved spec as input.
 
 ---
 
 ## PHASE 1: SPEC
 
 Write the spec in `docs/plans/YYYY-MM-DD-<topic>-spec.md`.
-Every section is mandatory. Skip nothing.
+Every section is mandatory. The quality bar: a senior dev who never saw this codebase
+could implement it correctly from your spec alone.
 
-### 1.1 Current State (PFLICHT — immer zuerst)
+### 1.1 Discovery Probes (MUST READ CODE — not grep, not guess)
 
-Before you think about what to build, understand what EXISTS.
+These are concrete investigations. Each probe produces evidence (file paths, line numbers,
+actual code). You cannot write the spec without completing every applicable probe.
 
-- **Feature Inventory:** List every user-visible feature in the affected area. Not code — FEATURES. What can the user SEE and DO? Number each one.
-- **File Inventory:** List every file involved, with line counts.
-- **Data Flow:** Which hooks, services, stores, queries are used?
-- **External Links:** Grep for every URL/route that links TO the affected area. List each one with file + line number.
-- **Shared State:** Which Zustand stores, React Query keys, Context providers touch this area?
+**Probe A: Feature Inventory**
+- Open every page/component in the affected area. READ the JSX.
+- List every user-visible feature: what can the user SEE and DO?
+- Number each feature. This becomes the migration map input.
 
-This is not optional. This is the foundation. If you skip this, you will build the wrong thing.
+**Probe B: Data Flow Trace**
+- For each feature, trace the data path:
+  `Component → Hook (useQuery/useMutation) → Service → RPC/Supabase call → Table`
+- Write the actual function names, not generic descriptions.
+- Example: `BuyButton.onClick → useBuyPlayer.mutate → buyPlayer() → rpc('buy_player_dpc') → orders + transactions tables`
 
-### 1.2 Goals + Non-Goals + Anti-Requirements
+**Probe C: Consumer Map (2 levels deep)**
+- For every function/type/component that will change:
+  1. `grep -rn "FunctionName" src/` — direct consumers (Level 1)
+  2. For each Level 1 consumer, what does IT export? Who imports THAT? (Level 2)
+  3. `grep -rn "queryKeyName" src/` — query subscribers
+- Document every result with file:line.
 
-| Section | Purpose | Example |
-|---------|---------|---------|
-| **Goals** | What this change achieves (3-5, measurable) | "Squad Builder has its own page at /manager" |
-| **Non-Goals** | Things that COULD be goals but explicitly ARE NOT | "Redesign the trading flow" |
-| **Anti-Requirements** | Things explicitly FORBIDDEN during this work | "Do NOT create new components where existing ones work" |
+**Probe D: DB Schema Verification (if DB/RPC involved)**
+- Actual column names: read the migration files or run `\d+ table_name`
+- CHECK constraints: what values are allowed? (from database.md + migrations)
+- RLS policies: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`
+- Foreign keys: what depends on this table?
+- NOT NULL columns: what MUST be provided in INSERT?
 
-Non-Goals and Anti-Requirements prevent scope creep during execution. They are as important as Goals.
+**Probe E: Known Traps Scan**
+- Read common-errors.md. For each pattern, ask: "Does this apply to my change?"
+- Read business.md. Does this change touch compliance-critical wording?
+- Read database.md. Are there column naming traps?
+- List every applicable trap with its ID/name.
 
-### 1.3 Feature Migration Map
+**Probe F: Security Surface (if DB/RPC/auth involved)**
+- Is this SECURITY DEFINER? → REVOKE + auth.uid() guard mandatory
+- Does anon have EXECUTE on this? → Should they?
+- Are user-provided params validated in the RPC body?
+- Can a user call this for another user's data?
 
-For EVERY feature from the inventory (1.1), decide:
+### 1.2 Problem Statement
+
+- What's wrong or missing today? (1-3 sentences)
+- Evidence: screenshot, error message, user report, or Anil quote
+- Who is affected and how often?
+
+### 1.3 Solution Design
+
+- What changes and why (not how — the Plan covers how)
+- Data flow AFTER the change (same format as Probe B)
+- New or modified types/interfaces: write the EXACT TypeScript shape
+- New or modified DB objects: write the EXACT SQL signature
+
+### 1.4 Feature Migration Map (for redesigns/refactors)
+
+For EVERY feature from Probe A:
 
 | # | Feature | Current Location | Target | Action |
 |---|---------|-----------------|--------|--------|
-| 1 | Squad Builder | /market Portfolio→Team | /manager | MOVE |
-| 2 | Holdings | /market Portfolio→Bestand | /market (stays) | NONE |
-| 3 | ... | ... | ... | ... |
+| 1 | ... | file:line | file:line | MOVE/STAYS/REMOVE/MERGE/SPLIT/ENHANCE |
 
-Actions: MOVE, STAYS, REMOVE, MERGE, SPLIT, ENHANCE.
+Rules:
+- Every feature must appear. No feature left unaccounted.
+- MOVE means the old location is cleaned up in the SAME wave.
+- STAYS means explicitly verified it still works after surrounding changes.
 
-**Rule:** Every feature must appear in this table. No feature may be left unaccounted.
-**Rule:** If a feature MOVES, the old location must be cleaned up in the SAME wave.
+### 1.5 Acceptance Criteria (EXECUTABLE — not prose)
 
-### 1.4 Blast Radius Map
+For each user flow affected, write criteria that can be VERIFIED by running a command,
+clicking a specific path, or querying the database. Not "feature works" — SPECIFIC.
 
-For every change in the migration map, run the 3-Grep:
-
-1. **Direct consumers:** `grep -r "ImportedName"` — who imports this?
-2. **Indirect consumers:** For each direct consumer, what does IT export? Who imports THAT?
-3. **Runtime consumers:** `grep -r "queryKey"` / `grep -r "storeName"` — who subscribes to the same data?
-
-Document every result. This is your dependency map.
-
-### 1.5 Pre-Mortem
-
-"Es ist 2 Wochen spaeter. Das Redesign ist gescheitert. Was ist passiert?"
-
-Write 5 failure scenarios and a mitigation for each:
-
-| # | Failure Scenario | Mitigation |
-|---|-----------------|------------|
-| 1 | Doppelte Funktionalitaet (Feature an zwei Orten) | Migration Map erzwingt: Move = Delete old in same wave |
-| 2 | Externe Links brechen | Blast Radius Map listet alle Links VOR dem Code |
-| 3 | Leere Seite deployed | Self-Test Gate: interagiere mit der Seite vor Push |
-| 4 | Agent baut isolierte Komponente die nicht passt | Agents nur fuer klar definierte, reviewbare Tasks |
-| 5 | Store-Default zeigt auf geloeschten Tab | Store-Aenderung in derselben Wave wie Tab-Entfernung |
-
-Pull from `common-errors.md` and `memory/errors.md` for known traps.
-
-### 1.6 Invarianten + Constraints
-
-**Invarianten** — Dinge die sich NICHT aendern duerfen:
-- "Floor Price Berechnung muss identische Ergebnisse liefern"
-- "Alle 18 externen /market Links muessen weiterhin funktionieren"
-- "Tab-Reihenfolge in bestehenden Seiten aendert sich nicht"
-
-**Constraints** — Harte Grenzen fuer die Implementation:
-- "Max 10 Files pro Wave"
-- "Keine neuen Komponenten wo bestehende reichen"
-- "Move und Change NIE im selben Schritt"
-- "Kein Push ohne Self-Test (interagieren, nicht nur Screenshot)"
-
-### 1.7 Akzeptanzkriterien (Regressions-aware)
-
-Fuer jede veraenderte User-Flow:
-
+Format:
 ```
-GIVEN: [bestehender Zustand]
-WHEN: [Aktion die VOR dem Redesign existierte]
-THEN: [Verhalten ist IDENTISCH zu vorher]
-  AND: [spezifische Messung]
-  AND NOT: [bekannte Regression]
+AC-01: [Category] [Description]
+  VERIFY: [Exact command, URL path, or DB query]
+  EXPECTED: [Exact result — what you see/get]
+  FAIL IF: [What would indicate a bug]
 ```
 
-Beispiel:
+Categories and mandatory coverage:
+
+| Category | Mandatory for | Example |
+|----------|---------------|---------|
+| HAPPY | Every flow | User buys → balance reduced, holdings +1 |
+| EMPTY | Every list/display | No data → empty state with CTA |
+| ERROR | Every write/mutation | Service throws → translated toast |
+| NULL | Every optional field | floor_price missing → shows 0, not "NaN" |
+| CONCURRENT | Every DB write | 2 users buy last card → only 1 succeeds |
+| MOBILE | Every UI change | 393px iPhone → no overflow, 44px touch targets |
+| I18N-DE | Every user-visible string | German text correct |
+| I18N-TR | Every user-visible string | Turkish text correct, no "kazan*" |
+| LOADING | Every async operation | Skeleton shown during fetch, not blank |
+| PENDING | Every mutation | Button disabled during mutation, modal preventClose |
+| REGRESSION | Every existing feature in blast radius | Feature X still works exactly as before |
+
+You need AT MINIMUM one AC per category per affected flow. More is better.
+
+### 1.6 Edge Cases Table
+
+Systematic enumeration — not "I think these might happen" but "these WILL happen":
+
+| # | Flow | Case | Input/State | Expected Output | Why it might break | Mitigation |
+|---|------|------|-------------|-----------------|-------------------|------------|
+
+Fill this by walking through each flow and asking for EACH cell:
+- What if the input is null/undefined/0/empty string/empty array?
+- What if the DB returns 0 rows? 1 row? 1000 rows?
+- What if the user is not authenticated? Wrong role?
+- What if the network request fails? Times out? Returns 500?
+- What if this runs twice (double-click, retry)?
+- What if the data changed between read and write (stale)?
+
+### 1.7 Error Strategy
+
+For every error that can occur in this change:
+
+| # | Error Source | Error Type | User Sees | i18n Key | Recovery |
+|---|-------------|-----------|-----------|----------|----------|
+| 1 | RPC | insufficient_balance | "Nicht genug $SCOUT" | trade.insufficientBalance | Dismiss toast |
+| 2 | RPC | player_not_found | "Spieler nicht gefunden" | trade.playerNotFound | Redirect to /market |
+| 3 | Network | timeout | "Verbindungsfehler" | common.networkError | Retry button |
+
+Rules:
+- Services THROW errors, never return null on failure.
+- Error messages are i18n KEYS, consumers resolve via `t()`.
+- No dynamic values in error messages (those go in pre-submit validation).
+- No raw English in user-facing errors.
+
+### 1.8 Test Strategy
+
+Concrete test cases — not "write tests" but WHICH tests with WHAT assertions.
+
+**Unit Tests (vitest):**
+```typescript
+// File: src/lib/services/__tests__/[service].test.ts
+describe('[ServiceName]', () => {
+  it('[exact test description]', () => {
+    // Input: ...
+    // Expected: ...
+  })
+  it('[error case]', () => {
+    // Input: invalid X
+    // Expected: throws '[i18n key]'
+  })
+})
 ```
-GIVEN: User hat 5 Holdings
-WHEN: User oeffnet /market, Portfolio Tab
-THEN: 5 Holdings angezeigt in gleicher Reihenfolge wie vorher
-  AND: Floor Prices korrekt (nicht null, nicht 0)
-  AND NOT: Flash of Empty State vor Datenladung
-  AND NOT: Team-Tab noch sichtbar (wurde entfernt)
+
+**Integration Checks (against real DB — listed, not mocked):**
+```sql
+-- After: [action]
+-- Verify: [exact query]
+-- Expected: [exact result shape]
 ```
 
-### SPEC GATE
+**Manual Verification (on bescout.net after deploy):**
+```
+1. Login as [user]
+2. Navigate to [exact path]
+3. Click [exact element]
+4. See: [exact expected state]
+5. Verify: [what to check]
+```
 
-Bevor du zum Plan uebergehst:
-- [ ] Current State komplett (jedes Feature nummeriert)?
-- [ ] Migration Map fuer JEDES Feature ausgefuellt?
-- [ ] Blast Radius fuer jede Aenderung gegreppt?
-- [ ] Pre-Mortem mit 5 Szenarien?
-- [ ] Invarianten + Constraints definiert?
-- [ ] Akzeptanzkriterien fuer jede betroffene User-Flow?
-- [ ] Anil hat die Spec reviewed und abgenommen?
+### 1.9 Pre-Mortem
 
-Erst wenn ALLE Punkte erfuellt → weiter zum Plan.
+"It's 1 week later. This change broke something. What happened?"
+
+| # | Failure | Probability | Impact | Mitigation | Detection |
+|---|---------|-------------|--------|------------|-----------|
+| 1 | ... | HIGH/MED/LOW | ... | ... | How would we notice? |
+
+Pull from common-errors.md. At least 5 scenarios.
+
+### SPEC GATE (Anil Approval — NO CODE before this passes)
+
+Present the spec to Anil. He approves or requests changes.
+
+Checklist before presenting:
+- [ ] Every Discovery Probe completed with evidence?
+- [ ] Every feature in affected area accounted for?
+- [ ] Consumer map covers 2 levels deep?
+- [ ] DB schema read from actual source (not assumed)?
+- [ ] Known traps from common-errors.md listed?
+- [ ] AC covers ALL categories (happy/empty/error/null/concurrent/mobile/i18n/loading/pending/regression)?
+- [ ] Edge cases table has at least 1 entry per flow?
+- [ ] Error strategy covers every throwable error?
+- [ ] Test cases are concrete (not "write tests for X")?
+- [ ] Pre-mortem has 5+ scenarios?
+
+**THE SPEC IS THE CONTRACT. If it's not in the spec, it's not in the code.**
 
 ---
 
 ## PHASE 2: PLAN
 
-Translate spec to implementation tasks in Wellen (Waves).
+Translate approved spec to implementation waves.
 
 ### 2.1 Wave Design
 
-Aufteilen in Wellen. Jede Welle ist eigenstaendig shippbar.
+| Wave | Rule | Max Files |
+|------|------|-----------|
+| Wave 1: Infra | Types, DB migrations, barrel exports. No UI. | 10 |
+| Wave 2: Backend | Services, RPCs, RLS policies. No UI. | 10 |
+| Wave 3: Frontend | Components, pages, hooks. Uses Wave 1+2 infra. | 10 |
+| Wave 4: Integration | Wiring, navigation, cache invalidation. | 5 |
+| Wave 5: Polish | i18n, edge cases, loading states, empty states. | 10 |
+| Wave 6: Cleanup | Delete old files, remove bridges. Only if grep shows 0 consumers. | 5 |
 
-| Wave | Zweck | Regel |
-|------|-------|-------|
-| Wave 1: Infra | Types, Stores, Queries, Barrel Exports | Kein UI-Change |
-| Wave 2: Move | Files bewegen, Bridge Re-Exports | Kein Behavior-Change |
-| Wave 3: Wire | Neue Orchestrierung, Layout-Changes | Behavior identisch, Struktur neu |
-| Wave 4: Enhance | Neue Features, Verbesserungen | Erst wenn Wave 1-3 verified |
-| Wave 5: Cleanup | Alte Files loeschen, Bridges entfernen | Nur wenn Grep 0 Treffer |
+Rules:
+- Move and Change NEVER in the same wave.
+- Each wave is independently shippable (doesn't break the app).
+- Each wave ends with: `tsc --noEmit` + vitest + specific ACs from the spec.
 
-**Regeln:**
-- Move und Change NIE im selben Schritt
-- Max 10 Files pro Wave
-- Jede Wave hat eigene Akzeptanzkriterien
-- Jede Wave endet mit: `tsc --noEmit` + Tests + Smoke Test
-- Nach jeder Wave: "Kann ich das shippen?" — wenn ja: Commit
+### 2.2 Task Format
 
-### 2.2 Task-Struktur
-
-Pro Task:
+Each task maps DIRECTLY to acceptance criteria from the spec.
 
 ```markdown
-### Task N: [Beschreibung]
+### Task [Wave].[N]: [Description]
 
-**Wave:** [1-5]
-**Files:** [exakte Pfade — Create/Modify/Delete]
-**Blast Radius:** [welche anderen Files sind betroffen]
+**Files:** [exact paths — Create/Modify/Delete]
+**Acceptance Criteria:** AC-[numbers] from spec
+**Edge Cases:** EC-[numbers] from spec
+**Known Traps:** [from 1.5 scan — specific to this task]
 
 **Steps:**
-1. [Aktion]
-2. [Aktion]
+1. [Specific action with file:line reference]
+2. [Specific action]
 3. Verify: `npx tsc --noEmit`
-4. Verify: `npx vitest run [betroffene Tests]`
+4. Verify: `npx vitest run [specific test file]`
 
 **DONE means:**
-- [ ] [Binaeres Kriterium]
-- [ ] [Binaeres Kriterium]
+- [ ] AC-XX verified: [exact check]
+- [ ] AC-YY verified: [exact check]
 - [ ] tsc 0 errors
-- [ ] Betroffene Tests gruen
+- [ ] Tests green: [specific test files]
 ```
 
-### 2.3 Agent-Dispatch Regeln
+### 2.3 Agent Dispatch Rules
 
-Agents bekommen NUR Tasks die:
-- Exakt 1 Datei erstellen oder aendern
-- Ein klar definiertes Props-Interface haben
-- Gegen bestehende Types kompilieren muessen
-- Keine Architektur-Entscheidungen erfordern
-- In der Spec VOLLSTAENDIG beschrieben sind (kein "figure it out")
+Agents receive tasks that are:
+- Fully specified (exact files, exact types, exact behavior)
+- Self-contained (no cross-file coordination needed)
+- Verifiable (agent can check their own work with tsc + vitest)
+- Accompanied by: Impact Manifest + Known Traps + ACs
 
-Agents bekommen NICHT:
-- Integration-Tasks (Verdrahtung mehrerer Komponenten)
-- Migration-Tasks (Files bewegen + alte loeschen)
-- Tasks die Store/Query/Route Aenderungen beinhalten
-- Tasks wo das erwartete Ergebnis unklar ist
+Agents DO NOT receive:
+- Integration tasks (wiring multiple components)
+- Tasks requiring architecture decisions
+- Tasks with ambiguous acceptance criteria
+- Geld/Wallet/Security tasks (CTO does those)
 
 ### PLAN GATE
 
-- [ ] Jede Wave ist eigenstaendig shippbar?
-- [ ] Max 10 Files pro Wave?
-- [ ] Move und Change in getrennten Waves?
-- [ ] Jeder Task hat "DONE means" Checkliste?
-- [ ] Agent-Tasks sind vollstaendig spezifiziert?
-- [ ] Anil hat den Plan reviewed?
+- [ ] Every AC from spec is assigned to exactly one task?
+- [ ] No AC is orphaned (missing from all tasks)?
+- [ ] Each wave is independently shippable?
+- [ ] Move and Change in separate waves?
+- [ ] Agent tasks are fully self-contained?
+- [ ] Anil approves the plan?
+
+After approval: execute via /deliver (one wave at a time).
 
 ---
 
-## PHASE 3: EXECUTE
+## Quality Bar
 
-### 3.1 Pro Wave
+The spec is done when a developer who has NEVER seen this codebase could:
+1. Read the spec
+2. Implement the feature
+3. Verify every AC
+4. Handle every edge case
+5. Pass every test
+...without asking a single question.
 
-1. Tasks der Wave ausfuehren
-2. Nach JEDEM Task: `tsc --noEmit`
-3. Nach der gesamten Wave:
-   - `npx vitest run` (betroffene Suites)
-   - Smoke Test: 3 kritischste User-Flows manuell pruefen
-   - "Kann ich das shippen?" — wenn ja: Commit + Tag
-4. Wave-Akzeptanzkriterien pruefen (aus der Spec)
-5. Erst wenn Wave N verified → Wave N+1
-
-### 3.2 Self-Test Gate (vor jedem Push)
-
-INTERAGIERE mit der Seite. Nicht nur Screenshot — KLICKEN, NAVIGIEREN, TESTEN.
-
-- Jeden geaenderten Screen einmal durchklicken
-- Jeden externen Link einmal testen
-- Jeden Edge Case aus den Akzeptanzkriterien pruefen
-- "Wenn Anil das jetzt oeffnet — wuerde er etwas Kaputtes sehen?"
-
-### 3.3 Restarbeiten + Erkenntnisse
-
-Waehrend der Execution entstehen neue Erkenntnisse:
-
-| Typ | Behandlung |
-|-----|-----------|
-| Bug gefunden | Separater Task, NICHT in aktuelle Wave einbauen |
-| Feature-Idee | In `docs/plans/backlog.md` notieren |
-| Verbesserungsvorschlag | In Spec als "Future Enhancement" Sektion |
-| Uebersehene Abhaengigkeit | STOP. Zurueck zur Spec, Blast Radius aktualisieren |
-| Constraint verletzt | STOP. Wave nicht committen bis Constraint erfuellt |
-
-### EXECUTE GATE (vor "fertig")
-
-- [ ] Alle Waves committed und verified?
-- [ ] Alle Akzeptanzkriterien aus der Spec erfuellt?
-- [ ] Alle Invarianten geprueft (Grep + manuell)?
-- [ ] Self-Test bestanden (interagiert, nicht nur geschaut)?
-- [ ] Keine doppelte Funktionalitaet (Feature an genau einem Ort)?
-- [ ] `tsc --noEmit` 0 errors?
-- [ ] Betroffene Tests gruen?
-
----
-
-## Zusammenfassung
-
-```
-/spec startet den Prozess.
-
-1. SPEC: Verstehe was existiert. Plane die Migration. Denke voraus was schiefgehen kann.
-2. PLAN: Uebersetze in sichere Wellen. Jede Welle eigenstaendig shippbar.
-3. EXECUTE: Eine Welle nach der anderen. Verify zwischen jeder. Self-Test vor Push.
-
-Der Skill ist erfolgreich wenn:
-- Kein Feature vergessen wurde
-- Keine doppelte Funktionalitaet entsteht
-- Kein externer Link bricht
-- Jede Wave eigenstaendig funktioniert
-- Das Ergebnis bei Anil VERTRAUEN aufbaut, nicht zerstoert
-```
+If they would need to ask "but what if X happens?" — your spec is missing X.

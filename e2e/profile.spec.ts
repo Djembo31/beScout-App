@@ -12,13 +12,12 @@ test.describe('Profile Page', () => {
     await expect(page.locator('body')).not.toBeEmpty();
   });
 
-  test('5 tabs visible (Trader, Manager, Analyst, Erfolge, Timeline)', async ({ page }) => {
-    // Profile uses TabBar with role="tab"
-    await expect(page.getByRole('tab', { name: /Trader/i })).toBeVisible();
-    await expect(page.getByRole('tab', { name: /Manager/i })).toBeVisible();
-    await expect(page.getByRole('tab', { name: /Analyst/i })).toBeVisible();
-    await expect(page.getByRole('tab', { name: /Erfolge/i })).toBeVisible();
-    await expect(page.getByRole('tab', { name: /Timeline/i })).toBeVisible();
+  test('4 tabs visible (Manager, Sammler, Analyst, Timeline)', async ({ page }) => {
+    // Profile uses custom tab buttons (not role="tab")
+    await expect(page.getByRole('button', { name: 'Manager', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sammler', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Analyst', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Timeline', exact: true })).toBeVisible();
   });
 
   test('Overview shows handle and avatar', async ({ page }) => {
