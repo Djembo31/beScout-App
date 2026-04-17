@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 054 | 2026-04-18 | TR-i18n Money-Path RPCs (048b Follow-Up)
+- Stage-Chain: SPEC → IMPACT(live-query) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418170000_slice_054_tr_i18n_money_rpcs.sql` (NEW) — 4 RPCs migriert
+  - `messages/de.json`, `messages/tr.json` — je +10 neue notifTemplates keys
+  - `worklog/specs/054-048b-tr-i18n-money-rpcs.md`, `worklog/proofs/054-i18n-verify.txt`
+- Proof: 4 RPCs + reward_referral (Slice 048) = 5 RPCs schreiben structured i18n. DE+TR synchron 4862 keys. tsc clean, 31/31 INV-Tests gruen.
+- Commit: tba
+- Notes: 048b Follow-Up. Migriert: award_dimension_score (rangUp/Down), send_tip (tipReceivedNotif), calculate_ad_revenue_share (adRevenuePayout), calculate_creator_fund_payout (creatorFundPayout). Bug-Fixes nebenbei: send_tip v_receiver_name → v_sender_name rename + BSD→Credits in 2 Notification-Bodies. Rest (9 RPCs) als 048c Follow-Up.
+
+---
+
 ## 053 | 2026-04-18 | B-01 Realtime-Orders refetchInterval Polling
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +30,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/lib/__tests__/playerMath.test.ts` (tsc-Type-Fix aus Slice 052 — asPlayer helper)
   - `worklog/specs/053-b01-realtime-orders-polling.md`
 - Proof: Orderbook-Queries nutzen jetzt aktives 30s-Polling waehrend Tab fokussiert. tsc clean, playerMath 9/9 Tests gruen.
-- Commit: tba
+- Commit: 7fb137ae
 - Notes: XS-Slice Variante-2 #10/10 FINAL. Briefing war stale (sagte 2min staleTime), tatsaechlich bereits 30s seit Slice 008. Einziger verbliebener Gap war refetchInterval fuer aktive User — jetzt geschlossen. Realtime-Subscription als 053b post-Beta (wenn Live-Usage das verlangt). **VARIANTE-2 KOMPLETT ABGESCHLOSSEN 10/10.**
 
 ---

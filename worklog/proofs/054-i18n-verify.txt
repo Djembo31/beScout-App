@@ -1,0 +1,60 @@
+# Slice 054 — TR-i18n Money-RPCs Verify (2026-04-18)
+# Source: Supabase MCP + grep
+
+# ============================================================
+# 1) RPC-Body-Verify: alle 4 schreiben i18n_key + i18n_params
+# ============================================================
+# Query:
+#   SELECT proname, body ~ 'i18n_key' AS writes_i18n_key,
+#          body ~ 'i18n_params' AS writes_i18n_params
+#   FROM pg_proc ...
+#   WHERE proname IN ('award_dimension_score','send_tip',
+#                     'calculate_ad_revenue_share','calculate_creator_fund_payout')
+#
+# Output:
+#   +------------------------------+-----------------+-------------------+
+#   | proname                      | writes_i18n_key | writes_i18n_params|
+#   +------------------------------+-----------------+-------------------+
+#   | award_dimension_score        | true            | true              |
+#   | calculate_ad_revenue_share   | true            | true              |
+#   | calculate_creator_fund_payout| true            | true              |
+#   | send_tip                     | true            | true              |
+#   +------------------------------+-----------------+-------------------+
+#
+# Plus Slice 048 Foundation: reward_referral = true/true
+
+# ============================================================
+# 2) Grants-Verify
+# ============================================================
+# award_dimension_score: service_role_only (Slice 044 REVOKE authenticated bleibt)
+# send_tip:              authenticated + service_role (client-callable)
+# calculate_ad_revenue_share:   authenticated + service_role (admin-guarded im body)
+# calculate_creator_fund_payout:authenticated + service_role (admin-guarded im body)
+
+# ============================================================
+# 3) Messages Sync-Check
+# ============================================================
+# grep -c ':' messages/de.json -> 4862
+# grep -c ':' messages/tr.json -> 4862
+# Delta zu vor Slice 054: +10 keys (5 title + 5 body)
+#
+# Neue Keys in notifTemplates:
+#   rangUp + rangUpBody ({dim, rang})
+#   rangDown + rangDownBody ({dim, rang})
+#   tipReceivedNotif + tipReceivedNotifBody ({senderName, amount})
+#   adRevenuePayout + adRevenuePayoutBody ({amount})
+#   creatorFundPayout + creatorFundPayoutBody ({amount})
+
+# ============================================================
+# 4) Regression Check
+# ============================================================
+# tsc --noEmit: clean
+# 31/31 INV-Tests grün
+
+# ============================================================
+# Bug-Fixes nebenbei
+# ============================================================
+# send_tip: Variable umbenannt v_receiver_name → v_sender_name (Query zielte korrekt
+#           auf sender, Variable-Name war irreführend).
+# calculate_ad_revenue_share: "BSD" in Notification-Body → "Credits" (AR-32/39).
+# calculate_creator_fund_payout: "BSD" in Notification-Body → "Credits" (AR-32/39).

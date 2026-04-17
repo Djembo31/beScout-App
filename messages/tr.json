@@ -4724,7 +4724,17 @@
     "referralRewardReferrer": "Referans Bonusu!",
     "referralRewardReferrerBody": "@{refereeHandle} ilk işlemini yaptı – {amount} Credits kazandın!",
     "referralRewardReferee": "Hoş Geldin Bonusu!",
-    "referralRewardRefereeBody": "İlk işlemin için {amount} Credits aldın! Seni davet eden: @{referrerHandle}"
+    "referralRewardRefereeBody": "İlk işlemin için {amount} Credits aldın! Seni davet eden: @{referrerHandle}",
+    "rangUp": "{dim}: {rang} rütbesine yükseldin!",
+    "rangUpBody": "{dim} rütben {rang} oldu. Devam et!",
+    "rangDown": "{dim}: {rang} rütbesine düştün",
+    "rangDownBody": "{dim} rütben {rang} seviyesine düştü.",
+    "tipReceivedNotif": "Scout-Bahşişi aldın!",
+    "tipReceivedNotifBody": "{senderName} sana {amount} Credits bahşiş gönderdi",
+    "adRevenuePayout": "Reklam payın hazır!",
+    "adRevenuePayoutBody": "{amount} Credits reklam payı aldın",
+    "creatorFundPayout": "Creator Fund Ödemesi!",
+    "creatorFundPayoutBody": "Creator Fund'dan {amount} Credits aldın"
   },
   "glossary": {
     "title": "Sözlük",

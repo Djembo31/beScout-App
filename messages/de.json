@@ -4724,7 +4724,17 @@
     "referralRewardReferrer": "Empfehlungsbonus!",
     "referralRewardReferrerBody": "@{refereeHandle} hat den ersten Trade gemacht – du erhältst {amount} Credits!",
     "referralRewardReferee": "Willkommensbonus!",
-    "referralRewardRefereeBody": "Du erhältst {amount} Credits für deinen ersten Trade! Eingeladen von @{referrerHandle}"
+    "referralRewardRefereeBody": "Du erhältst {amount} Credits für deinen ersten Trade! Eingeladen von @{referrerHandle}",
+    "rangUp": "{dim}: Aufstieg zu {rang}!",
+    "rangUpBody": "Dein {dim}-Rang ist auf {rang} gestiegen. Weiter so!",
+    "rangDown": "{dim}: Abstieg auf {rang}",
+    "rangDownBody": "Dein {dim}-Rang ist auf {rang} gefallen.",
+    "tipReceivedNotif": "Scout-Tipp erhalten!",
+    "tipReceivedNotifBody": "{senderName} hat dir {amount} Credits als Tipp gesendet",
+    "adRevenuePayout": "Werbeanteil erhalten!",
+    "adRevenuePayoutBody": "Du hast {amount} Credits Werbeanteil erhalten",
+    "creatorFundPayout": "Creator Fund Auszahlung!",
+    "creatorFundPayoutBody": "Du hast {amount} Credits aus dem Creator Fund erhalten"
   },
   "glossary": {
     "title": "Glossar",
