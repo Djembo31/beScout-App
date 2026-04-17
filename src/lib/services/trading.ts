@@ -197,21 +197,21 @@ export async function placeSellOrder(
   return result;
 }
 
-/** SCs von einem Sell-Order kaufen */
+/** SCs von einem Sell-Order kaufen. playerId wird von der UI durchgereicht — nach
+ *  RLS-Tighten (Slice 021) ist ein cross-user .from('orders')-Lookup nicht mehr
+ *  moeglich. seller_id kommt aus dem RPC-Response fuer die Notification. */
 export async function buyFromOrder(
   buyerId: string,
   orderId: string,
-  quantity: number
+  quantity: number,
+  playerId: string,
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
   if (quantity > 300) throw new Error('maxQuantityExceeded');
 
   // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
-  const { data: orderLookup } = await supabase.from('orders').select('player_id').eq('id', orderId).maybeSingle();
-  if (orderLookup) {
-    const restricted = await isRestrictedFromTrading(buyerId, orderLookup.player_id);
-    if (restricted) throw new Error('clubAdminRestricted');
-  }
+  const restricted = await isRestrictedFromTrading(buyerId, playerId);
+  if (restricted) throw new Error('clubAdminRestricted');
 
   const { data, error } = await supabase.rpc('buy_from_order', {
     p_buyer_id: buyerId,
@@ -236,33 +236,29 @@ export async function buyFromOrder(
       triggerReferralReward(buyerId);
     }).catch(err => console.error('[Trade] Referral reward failed:', err));
     // Notify the seller
-    (async () => {
-      try {
-        const { data: order } = await supabase
-          .from('orders')
-          .select('user_id, player_id')
-          .eq('id', orderId)
-          .maybeSingle();
-        if (order && order.user_id !== buyerId) {
-          const loc = await getRecipientLocale(order.user_id);
+    const sellerId = result.seller_id;
+    if (sellerId && sellerId !== buyerId) {
+      (async () => {
+        try {
+          const loc = await getRecipientLocale(sellerId);
           const { data: pl } = await supabase
             .from('players')
             .select('first_name, last_name')
-            .eq('id', order.player_id)
+            .eq('id', playerId)
             .maybeSingle();
           const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer', undefined, loc);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(
-            order.user_id,
+            sellerId,
             'trade',
             notifText('tradeSoldTitle', undefined, loc),
             notifText('tradeSoldBody', { name }, loc),
-            order.player_id,
+            playerId,
             'player'
           );
-        }
-      } catch (err) { console.error('[Trade] Seller notification failed:', err); }
-    })();
+        } catch (err) { console.error('[Trade] Seller notification failed:', err); }
+      })();
+    }
     // Mission progress: daily trade + weekly trades
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(buyerId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);

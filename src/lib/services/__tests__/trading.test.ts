@@ -340,51 +340,49 @@ describe('placeSellOrder', () => {
 describe('buyFromOrder', () => {
   const buyerId = 'buyer-123';
   const orderId = 'order-456';
+  const playerId = 'player-789';
 
   beforeEach(() => {
     resetMocks();
   });
 
   it('throws invalidQuantity when quantity=0', async () => {
-    await expect(buyFromOrder(buyerId, orderId, 0)).rejects.toThrow('invalidQuantity');
+    await expect(buyFromOrder(buyerId, orderId, 0, playerId)).rejects.toThrow('invalidQuantity');
   });
 
   it('throws maxQuantityExceeded when quantity=301', async () => {
-    await expect(buyFromOrder(buyerId, orderId, 301)).rejects.toThrow('maxQuantityExceeded');
+    await expect(buyFromOrder(buyerId, orderId, 301, playerId)).rejects.toThrow('maxQuantityExceeded');
   });
 
-  it('throws clubAdminRestricted when buyer is admin for order player', async () => {
-    // Order lookup returns player_id
-    mockTable('orders', { player_id: 'player-789' });
+  it('throws clubAdminRestricted when buyer is admin for player', async () => {
     // isRestrictedFromTrading: player has club_id, user is admin
     mockTable('players', { club_id: 'club-1' });
     mockTable('club_admins', { id: 'admin-1' });
 
-    await expect(buyFromOrder(buyerId, orderId, 1)).rejects.toThrow('clubAdminRestricted');
+    await expect(buyFromOrder(buyerId, orderId, 1, playerId)).rejects.toThrow('clubAdminRestricted');
   });
 
   it('throws mapped error when RPC returns error', async () => {
-    // Order lookup returns null (order not found — skip admin check)
-    mockTable('orders', null);
+    // Player not club-restricted (skip admin check)
+    mockTable('players', null);
     mockRpc('buy_from_order', null, { message: 'not found' });
 
-    await expect(buyFromOrder(buyerId, orderId, 1)).rejects.toThrow('orderNotFound');
+    await expect(buyFromOrder(buyerId, orderId, 1, playerId)).rejects.toThrow('orderNotFound');
   });
 
   it('throws when RPC returns null', async () => {
-    mockTable('orders', null);
+    mockTable('players', null);
     mockRpc('buy_from_order', null);
 
-    await expect(buyFromOrder(buyerId, orderId, 1)).rejects.toThrow('buy_from_order returned null');
+    await expect(buyFromOrder(buyerId, orderId, 1, playerId)).rejects.toThrow('buy_from_order returned null');
   });
 
   it('returns result on happy path', async () => {
     const rpcResult = { success: true, trade_id: 'trade-1', total_cost: 3000 };
-    // Order lookup — no player_id to skip restriction check
-    mockTable('orders', null);
+    mockTable('players', null);
     mockRpc('buy_from_order', rpcResult);
 
-    const result = await buyFromOrder(buyerId, orderId, 1);
+    const result = await buyFromOrder(buyerId, orderId, 1, playerId);
     expect(result.success).toBe(true);
     expect(result.trade_id).toBe('trade-1');
   });

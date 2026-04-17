@@ -169,7 +169,7 @@ export function usePlayerTrading({
     try {
       // If a specific order was selected, buy from that order; otherwise buy from cheapest (market)
       const result = orderId
-        ? await buyFromOrder(userId, orderId, quantity)
+        ? await buyFromOrder(userId, orderId, quantity, playerId)
         : await buyFromMarket(userId, playerId, quantity);
       if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
