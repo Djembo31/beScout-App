@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 034 | 2026-04-17 | P0 buy_player_sc transactions.type Drift + INV-30 Guard
+- Stage-Chain: SPEC → IMPACT(inline DB-Audit) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417160000_buy_player_sc_transactions_type_fix.sql` (NEW)
+  - `supabase/migrations/20260417160100_get_rpc_transaction_inserts.sql` (NEW Audit-Helper)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-30 Test)
+  - `worklog/specs/034-buy-player-sc-transactions-type-fix.md` (NEW)
+  - `worklog/proofs/034-{rpc-body-after,inv30,tsc-vitest,live-buy.png,live-buy}.{txt,png}` (NEW)
+- Proof: `worklog/proofs/034-live-buy.txt` — Live-Buy 1 SC Bozkurt: Wallet 799350→798290 (-1060), Holdings 9→10, transactions zeigt `type=trade_buy`, end-to-end auf bescout.net.
+- Commit: 0ed500a9
+- Notes: buy_player_sc schrieb `'buy'`/`'sell'` statt `'trade_buy'`/`'trade_sell'` → CHECK violation → silent HTTP 400. RPC-Body via apply_migration sofort gefixt + AR-44 REVOKE/GRANT. INV-30 scant alle RPC-Bodies, gleicht type-Strings gegen CHECK ab, meldet Drifts. 9 Slice-037-Followups dokumentiert in Allowlist (poll_earning, vote_fee, ad_revenue_payout, etc). Folge-Findings: (a) credit_tickets 400 fuer Achievement-Tickets (Achievement-Keys statt UUID als reference_id) — Slice 038, (b) Wallet-Header stale nach Buy (UI-Refresh-Bug) — Folge.
+
 ## 033 | 2026-04-17 | P0 BuyConfirmModal Money-Display-Drift (Faktor-100-Bug)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:

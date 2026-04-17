@@ -1,0 +1,42 @@
+Slice 034 — Live-Buy 1 SC auf bescout.net (Post-Migration)
+============================================================
+
+Migration applied direct via apply_migration (no Vercel deploy needed for DB-only fix)
+
+# Pre-state (jarvis-qa)
+SELECT balance, locked_balance, holdings_count
+  FROM auth.users u JOIN wallets w ON ... WHERE email='jarvis-qa@bescout.net';
+→ balance = 799350, locked = 50000, holdings = 9
+
+# Action: Buy 1 SC Serhat Bozkurt (cheapest order @ 1060 cents)
+- BuyConfirmModal opened
+- Display: "Preis/SC 10,6 CR" + "Gesamt 10,6 CR" + "Danach 7.982,9 CR"
+  (Slice 033 fix wirkt — kein Faktor-100-Drift mehr)
+- Click "Kaufen bestätigen"
+
+# Post-state
+→ balance = 798290, locked = 50000, holdings = 10
+- Diff: -1060 cents (= -10,60 CR) ✓ exact match Modal-prediction
+- Holdings: 9 → 10 ✓
+- Locked unveraendert ✓
+
+# transactions table (latest)
+type: trade_buy             ← Slice 034 fix wirkt (alt war 'buy')
+amount: -1060
+balance_after: 798290
+description: 'Kauf: 1x Serhat Bozkurt'
+created_at: 2026-04-17 11:37:18
+
+→ End-to-end Money-Flow korrekt. CHECK constraint passed.
+
+# Bonus-Findings (NICHT Teil 034)
+1. Achievement-Modal "Champion" zeigt sich nach erstem erfolgreichen Trade — gewollt.
+2. Header zeigt 7.993,5 CR statt 7.982,9 CR direkt nach Buy (stale —
+   Wallet-Refetch nicht getriggert). UI-Bug, kein Money-Bug. → Folge-Slice.
+3. 14 console errors `credit_tickets 400 invalid input syntax for type uuid: "first_trade"`
+   etc. — Achievement-Hook uebergibt Achievement-KEYS als reference_id (UUID-Spalte).
+   Tickets fuer Achievements werden nicht gutgeschrieben. → P1 Folge-Slice 038.
+4. trg trade_refresh "auth_uid_mismatch" hat NICHT mehr getriggert
+   (Buy ging durch). Slice 035 ggf. nicht mehr noetig — pruefen.
+
+# Verdikt: Slice 034 GREEN (Buy-Path live funktional)
