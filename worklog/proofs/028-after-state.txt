@@ -1,0 +1,20 @@
+-- Slice 028 — Post-Delete Verification
+
+Result of post-cleanup COUNT-query:
+
+{
+  "auth_users": 0,
+  "profiles": 0,
+  "wallets": 0,
+  "user_tickets": 0,
+  "handles_free": true
+}
+
+Alle 5 Assertions PASS:
+- 0 rows in auth.users fuer die 2 targeted uids
+- 0 rows in public.profiles (cascaded)
+- 0 rows in public.wallets (cascaded)
+- 0 rows in user_tickets (manuell vor auth.users delete geloescht)
+- handles 'k_demirtas' + 'kemal' sind wieder frei (nicht mehr in profiles.handle)
+
+Anil kann beide Accounts via normaler Auth-Registrierung neu anlegen.

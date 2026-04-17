@@ -1,0 +1,67 @@
+-- Slice 028 — Before-State: Row-Counts pro Tabelle fuer die 2 Ziel-Users
+-- Pre-Delete Audit via mcp__supabase__execute_sql
+
+## Public Tables Audit (27 Tabellen gepruft)
+
+| Table | Rows | FK-Type |
+|-------|------|---------|
+| wallets | 2 | CASCADE |
+| profiles | 2 (via id PK) | CASCADE |
+| holdings | 0 | CASCADE |
+| transactions | 0 | NO ACTION |
+| trades (buyer) | 0 | NO ACTION |
+| trades (seller) | 0 | NO ACTION |
+| orders | 0 | CASCADE |
+| offers (sender) | 0 | CASCADE |
+| offers (receiver) | 0 | SET NULL |
+| lineups | 0 | CASCADE |
+| activity_log | 0 | CASCADE |
+| event_entries | 0 | NO ACTION (via profiles, see 35-FK-list) |
+| holding_locks | 0 | NO ACTION (via profiles) |
+| predictions | 0 | NO ACTION (via profiles) |
+| tips (sender) | 0 | NO ACTION (via profiles) |
+| tips (receiver) | 0 | NO ACTION (via profiles) |
+| fan_wishes | 0 | NO ACTION (via profiles) |
+| fantasy_league_members | 0 | NO ACTION (via profiles) |
+| fantasy_leagues | 0 | NO ACTION (via profiles) |
+| content_impressions (viewer) | 0 | NO ACTION (via profiles) |
+| content_impressions (author) | 0 | NO ACTION (via profiles) |
+| scout_subscriptions (scout) | 0 | NO ACTION (via profiles) |
+| scout_subscriptions (subscriber) | 0 | NO ACTION (via profiles) |
+| creator_fund_payouts | 0 | NO ACTION (via profiles) |
+| profiles.invited_by | 0 | NO ACTION (self-FK) |
+
+## Additional NO-ACTION (auth.users FK) checks
+
+| Table | Rows |
+|-------|------|
+| user_tickets | **2** ← BLOCKER |
+| ticket_transactions | 0 |
+| chip_usages | 0 |
+| community_poll_votes | 0 |
+| community_polls | 0 |
+| events (created_by) | 0 |
+| fan_rankings | 0 |
+| ipo_purchases | 0 |
+| liquidation_events | 0 |
+| liquidation_payouts | 0 |
+| mystery_box_results | 0 |
+| player_valuations | 0 |
+| user_cosmetics | 0 |
+| user_daily_challenges | 0 |
+| user_founding_passes | 0 |
+| user_scout_missions | 0 |
+| verified_scouts | 0 |
+| welcome_bonus_claims | 0 |
+| bounty_submissions | 0 |
+| club_votes | 0 |
+| mentorships (mentee + mentor) | 0 |
+| sponsors (created_by) | 0 |
+
+## Conclusion
+
+**1 Blocker-Tabelle (user_tickets, 2 Rows), 43+ geprueft, alle anderen leer.**
+
+Dev-accounts hatten keinerlei Trading-Aktivitaet, keine Events erstellt, kein
+Content, keine Follows, keine Bounties etc. Reine Legacy-Wallet-Rows + die
+welcome-ticket-Grants (user_tickets). Clean-Wipe sicher.

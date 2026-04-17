@@ -1,0 +1,58 @@
+-- Slice 028 — FK-Audit: alle FKs auf auth.users
+-- Via pg_constraint + pg_class + pg_attribute
+
+## CASCADE (auto-clean beim auth.users delete)
+
+Public tables (35):
+  activity_log, bounties, bounty_submissions, club_admins, feedback,
+  holdings, lineups, notifications, offers.sender_id, orders,
+  platform_admins, post_votes, posts, profiles, research_posts,
+  research_ratings, research_unlocks, streak_milestones_claimed,
+  user_achievements, user_follows (follower+following), user_missions,
+  user_stats, user_streaks, vote_entries, wallets, watchlist
+
+Auth tables (intern, 8):
+  auth.identities, auth.mfa_factors, auth.oauth_authorizations,
+  auth.oauth_consents, auth.one_time_tokens, auth.sessions,
+  auth.webauthn_challenges, auth.webauthn_credentials
+
+## NO ACTION (Blocker wenn Rows vorhanden, manuell vorher cleanen)
+
+  bounty_submissions.reviewed_by
+  chip_usages.user_id
+  club_votes.created_by
+  community_poll_votes.user_id
+  community_polls.created_by
+  events.created_by
+  fan_rankings.user_id
+  fee_config.updated_by
+  ipo_purchases.user_id
+  liquidation_events.triggered_by
+  liquidation_payouts.user_id
+  mentorships.mentee_id, mentor_id
+  mystery_box_results.user_id
+  player_valuations.user_id
+  sponsors.created_by
+  ticket_transactions.user_id
+  trades.buyer_id, seller_id
+  transactions.user_id
+  user_cosmetics.user_id
+  user_daily_challenges.user_id
+  user_founding_passes.user_id, granted_by
+  user_scout_missions.user_id
+  user_tickets.user_id     ← BLOCKER (2 rows)
+  verified_scouts.verified_by, user_id
+  welcome_bonus_claims.user_id
+
+## SET NULL (1)
+
+  offers.receiver_id
+
+## Verdict fuer diese 2 Users
+
+Von 23 NO-ACTION-Tables hatte **nur `user_tickets`** Rows (2 rows, welcome-tickets).
+22 weitere NO-ACTION-Tables sind leer — kein Blocker.
+
+CASCADE-Side: `wallets` + `profiles` je 2 rows, alle anderen CASCADE-Tables leer.
+
+Cleanup: DELETE user_tickets → DELETE auth.users → CASCADE-Wave cleant profiles+wallets.

@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 028 | 2026-04-17 | Dev-Accounts Cleanup (k_demirtas + kemal)
+- Stage-Chain: SPEC → IMPACT(inline — FK-Audit + Row-Counts 44+ Tables) → BUILD(DELETE) → PROVE → LOG
+- Files:
+  - `worklog/specs/028-dev-accounts-cleanup.md` (NEW)
+- Proofs:
+  - `worklog/proofs/028-fk-audit.txt` (FK-Map auf auth.users — CASCADE vs NO ACTION)
+  - `worklog/proofs/028-before-counts.txt` (Row-Counts 44+ NO-ACTION-Tables gepruft, nur user_tickets mit 2 rows)
+  - `worklog/proofs/028-delete-sql.txt` (ausgefuehrte DELETE-Statements)
+  - `worklog/proofs/028-after-state.txt` (Post-Verify: alle counts=0, handles_free=true)
+- Commit: <pending>
+- Notes: CEO approved "einfach löschen, bei bedarf lege ich die neu an" 2026-04-17. Uids `eebba1ae-8f30-4ef0-9dcd-84a5f49fbf3c` (k_demirtas/Djembo) + `1c02ad43-074d-4a4d-b611-a3fba9c7f931` (kemal). 2-Step-Cleanup: (1) `DELETE FROM user_tickets WHERE user_id IN (...)` (2 rows, NO-ACTION-FK Blocker), (2) `DELETE FROM auth.users WHERE id IN (...)` cascades zu profiles + wallets + 30+ auto-clean Tables. Von 44+ gepruften user-FK-Tabellen hatte nur user_tickets Rows (welcome-ticket-grants). Kein Trading/Content/Follow etc. Reine Legacy-Wallet+Auth-Rows. Kein Migration-File committed — einmaliger Cleanup, Rollback nicht moeglich (auth.users mit hashed password nicht restorable ohne Backup). handles `k_demirtas` + `kemal` wieder frei fuer Neu-Registrierung via Supabase Auth.
+
+---
+
 ## 027 | 2026-04-17 | activityHelpers TR-i18n (4 fehlende transaction-types)
 - Stage-Chain: SPEC → IMPACT(inline — live-DB Audit ergab 4 fehlende types statt 10 im briefing) → BUILD → PROVE → LOG
 - Files:

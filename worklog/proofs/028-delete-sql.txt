@@ -1,0 +1,21 @@
+-- Slice 028 — ausgefuehrte DELETE-Statements (2026-04-17)
+-- Via mcp__supabase__execute_sql gegen Live-DB
+
+Target UUIDs:
+  - eebba1ae-8f30-4ef0-9dcd-84a5f49fbf3c  (handle=k_demirtas, display=Djembo, created 2026-02-09)
+  - 1c02ad43-074d-4a4d-b611-a3fba9c7f931  (handle=kemal, display=kemal, created 2026-02-09)
+
+Step 1 — Blocker entfernen (user_tickets hat NO ACTION FK):
+  DELETE FROM user_tickets
+  WHERE user_id IN ('eebba1ae-8f30-4ef0-9dcd-84a5f49fbf3c', '1c02ad43-074d-4a4d-b611-a3fba9c7f931');
+  -- DELETE 2
+
+Step 2 — auth.users delete mit CASCADE:
+  DELETE FROM auth.users
+  WHERE id IN ('eebba1ae-8f30-4ef0-9dcd-84a5f49fbf3c', '1c02ad43-074d-4a4d-b611-a3fba9c7f931');
+  -- DELETE 2
+  -- CASCADE zu: profiles, wallets, + 30+ auto-clean Tables (alle hatten 0 rows fuer diese 2 Users)
+
+Rollback-Plan (wenn benoetigt):
+  NICHT moeglich — auth.users mit email/password-hash nicht restorable ohne Backup.
+  Anil legt accounts bei bedarf neu an via normaler Auth-Registrierung.
