@@ -14,8 +14,7 @@ started: —
 
 | # | Titel | Status |
 |---|-------|--------|
-| 042 | Modal PUNKTE-Display Inconsistency | next (P2 UI) |
-| 043 | Compliance-Wording Trader/BSD | nach 042 |
+| 043 | Compliance-Wording Trader/BSD | next (P2 i18n) |
 | 040 | ClubProvider.test.tsx flake | low (P3) |
 
 ## Regeln

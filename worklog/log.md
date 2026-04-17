@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 042 | 2026-04-17 | EventSummaryModal PUNKTE=0 Race-Fix
+- Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
+- Files:
+  - `src/features/fantasy/hooks/useScoredEvents.ts` (+`e.userPoints != null` filter)
+  - `src/features/fantasy/mappers/eventMapper.ts` (Number coerce auf userPoints/Rank/Reward)
+  - `worklog/specs/042-event-summary-race-fix.md` + `worklog/proofs/042-{fix,fantasy-no-modal.png}` (NEW)
+- Proof: tsc clean, fantasy 103/103.
+- Commit: tba
+- Notes: Slice 032 Flow 12 Modal zeigte PUNKTE=0 trotz Top-3 470. Race: useScoredEvents triggert Modal sofort, useLineupScores ist async → event.userPoints=undefined. Plus Postgres NUMERIC kommt als String ("470.00") via PostgREST → Number-coerce defensive. Live-verify aktuell nicht moeglich (BeScout Classic war GW 35, current=30) — defensive Fix.
+
 ## 041 | 2026-04-17 | event-entry RPCs Wrapper-Pattern Doku
 - Stage-Chain: SPEC → BUILD → PROVE → LOG
 - Files:

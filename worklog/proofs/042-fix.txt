@@ -1,0 +1,25 @@
+Slice 042 — Fix
+
+# Root-Cause
+useScoredEvents triggert Modal sofort wenn scoredAt + joined.
+useLineupScores ist async (React Query) — beim ersten Render leer.
+Race: Modal opens mit event.userPoints=undefined → myScore ?? 0 = 0.
+
+Plus: total_score in DB ist NUMERIC → kommt als String ("470.00") via PostgREST.
+
+# Fixes
+1. useScoredEvents.ts: filter erweitert um e.userPoints != null
+2. eventMapper.ts: Number() coerce auf userPoints/userRank/userReward
+
+# Tests
+$ npx tsc --noEmit
+clean
+
+$ npx vitest run src/features/fantasy
+Test Files  3 passed (3)
+Tests       103 passed (103)
+
+# Live-verify
+Currently nicht reproduzierbar (BeScout Classic war GW 35, current GW = 30 →
+useScoredEvents filter `e.gameweek === currentGw` matcht nicht).
+Defensive code-fix bleibt valid für zukunftige scored events.

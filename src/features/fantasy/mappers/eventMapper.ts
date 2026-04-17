@@ -46,9 +46,11 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     isFeatured: db.type === 'sponsor',
     isJoined: joinedIds.has(db.id),
     isInterested: false,
-    userRank: userLineup?.rank ?? undefined,
-    userPoints: userLineup?.total_score ?? undefined,
-    userReward: userLineup?.reward_amount ?? undefined,
+    // Slice 042: Postgres NUMERIC arrives as string ("470.00") via PostgREST.
+    // Coerce to number explicitly — without this, downstream Math/sum fails silently.
+    userRank: userLineup?.rank != null ? Number(userLineup.rank) : undefined,
+    userPoints: userLineup?.total_score != null ? Number(userLineup.total_score) : undefined,
+    userReward: userLineup?.reward_amount != null ? Number(userLineup.reward_amount) : undefined,
     scoredAt: db.scored_at,
     eventTier: db.event_tier ?? 'club',
     minSubscriptionTier: db.min_subscription_tier ?? null,

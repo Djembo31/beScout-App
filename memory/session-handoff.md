@@ -1,11 +1,12 @@
-# Session Handoff (2026-04-17 18:15)
+# Session Handoff (2026-04-17 18:21)
 
 ## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
 ```
 
-## Session Commits: 9
+## Session Commits: 10
+- d5d1f919 docs(rpc): event-entry Wrapper-Pattern dokumentiert (Slice 041)
 - dec1210d docs(slice-039): close — Live-Verify GREEN, 0 console-errors
 - e18b634d fix(social): P2 user_achievements 409 race — upsert ignoreDuplicates (Slice 039)
 - ff0134d3 fix(rpc): P2 8 transactions.type drifts cleanup — INV-30 Allowlist EMPTY (Slice 037)

@@ -25,7 +25,14 @@ export function useScoredEvents(
 
   useEffect(() => {
     if (summaryShownRef.current || !user || !currentGw || events.length === 0) return;
-    const scoredJoined = events.filter(e => e.scoredAt && e.gameweek === currentGw && joinedSet.has(e.id));
+    // Slice 042: warten bis userPoints geladen ist (useLineupScores async),
+    // sonst Modal opens mit userPoints=undefined → myScore=0 trotz scored event.
+    const scoredJoined = events.filter(e =>
+      e.scoredAt &&
+      e.gameweek === currentGw &&
+      joinedSet.has(e.id) &&
+      e.userPoints != null
+    );
     const unseen = scoredJoined.find(e => !isEventSeen(e.id));
     if (!unseen) return;
     summaryShownRef.current = true;
