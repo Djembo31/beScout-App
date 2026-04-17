@@ -1523,4 +1523,215 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-32: Komplette RLS-Matrix aller public Tabellen (Slice 045)
+  // Erweitert INV-26 von 8 sensiblen Tables auf die komplette Matrix.
+  // EXPECTED_PUBLIC Allowlist: Tables die legitim qual=true Policies haben (public by design).
+  // EXPECTED_SENSITIVE Blocklist: Tables die NIE qual=true haben duerfen (AUTH-08 class).
+  // Drift-Detektion: Neue Table mit qual=true ohne Allowlist-Eintrag → Test-Fail.
+  // ─────────────────────────────────────────────────────
+  it('INV-32: komplette RLS-Matrix aller public Tabellen (AUTH-08 class erweitert)', async () => {
+    // Allowlist: Tables die legitim qual=true sind (public by design)
+    const EXPECTED_PUBLIC: Record<string, string> = {
+      // Reference / Definitions
+      achievement_definitions: 'Gamification: alle User brauchen Achievement-Definitions',
+      cosmetic_definitions: 'Cosmetic-Items Katalog, public read',
+      cosmetic_shop_listings: 'Shop-Listing, public read',
+      creator_config: 'Creator-Fee-Config, platform-wide read',
+      daily_challenges: 'Daily-Challenge Definitions, public read',
+      elo_config: 'ELO-Rating Config, platform-wide read',
+      equipment_definitions: 'Equipment-Definitionen, public katalog',
+      equipment_ranks: 'Equipment-Ranks, public read',
+      event_fee_config: 'Event-Fee-Config, platform-wide read',
+      fee_config: 'Fee-Config (Fee-Split), platform-wide read',
+      geofencing_config: 'Geofencing-Tiers, platform-wide read (determines feature access)',
+      manager_points_config: 'Manager-Points Config, platform-wide read',
+      mentorship_milestones: 'Mentorship-Milestones Katalog, public read',
+      mission_definitions: 'Mission Katalog, public read',
+      platform_settings: 'Platform-Settings, platform-wide read',
+      rang_thresholds: 'Rang-Thresholds, platform-wide read',
+      score_road_config: 'Score-Road-Config, platform-wide read',
+      streak_config: 'Streak-Config, platform-wide read',
+
+      // Content (public by design)
+      bounties: 'Bounties Marketplace, public',
+      bounty_submissions: 'Bounty-Submissions, public-by-design (Transparenz)',
+      club_votes: 'Club-Votes, Community-Transparenz',
+      community_polls: 'Community-Polls, public',
+      community_poll_votes: 'Poll-Votes, Community-Transparenz (nicht personifiziert)',
+      post_votes: 'Post-Votes, public-by-design',
+      posts: 'Community-Posts, public',
+      research_posts: 'Research-Posts, public (Scout-Content)',
+      research_ratings: 'Research-Ratings, public-by-design',
+      sponsors: 'Sponsoren-Metadaten, public',
+      user_achievements: 'User-Achievements, Leaderboard-by-design',
+
+      // Sport-Daten (public)
+      clubs: 'Clubs-Katalog, public read',
+      club_admins: 'Club-Admin-Mapping, public (fuer is_admin-checks)',
+      club_followers: 'Club-Follower-Mapping, public (Zahlen-Transparenz)',
+      dpc_mastery: 'DPC-Mastery-Leaderboard, public',
+      dpc_of_the_week: 'DPC-Weekly-Winner, public',
+      events: 'Events-Katalog, public',
+      founder_clubs: 'Founder-Club-Mapping, public',
+      fixtures: 'Fixtures-Daten (API-Football), public',
+      fixture_player_stats: 'Player-Stats pro Fixture, public',
+      fixture_substitutions: 'Substitutions pro Fixture, public',
+      ipos: 'IPOs, public (Marktplatz)',
+      leagues: 'Leagues-Katalog, public',
+      liga_seasons: 'Liga-Seasons, public',
+      players: 'Players-Katalog, public read',
+      trades: 'Trades-Historie, public (Orderbook-Transparenz)',
+
+      // Leaderboard / Scores (public by design)
+      airdrop_scores: 'Airdrop-Leaderboard, public',
+      arena_seasons: 'Arena-Seasons, public',
+      bescout_scores: 'BeScout-Score-Leaderboard, public',
+      fan_rankings: 'Fan-Rankings pro Club, public',
+      monthly_liga_snapshots: 'Monthly-Liga-Snapshots, public history',
+      monthly_liga_winners: 'Monthly-Winners, public',
+      player_fair_values: 'Player-Fair-Values (algorithmic), public',
+      player_gameweek_scores: 'Gameweek-Scores, public leaderboard',
+      scout_scores: 'Scout-Score-Leaderboard, public',
+      user_stats: 'User-Stats Leaderboard-by-design (auch in INV-26 Allowlist)',
+      vote_entries: 'Vote-Entries, Community-Transparenz',
+
+      // Social-Graph (public)
+      profiles: 'Public Profile, read-by-anyone (display_name, handle etc)',
+      user_follows: 'Follow-Graph, public',
+
+      // Platform Treasury (Transparenz)
+      pbt_transactions: 'PBT-Treasury-Transactions, Transparenz-by-design',
+      pbt_treasury: 'PBT-Treasury-State, Transparenz-by-design',
+
+      // Internal Operational Logs
+      cron_sync_log: 'Cron-Sync-Log, authenticated-read fuer Admin-UI',
+    };
+
+    // Blocklist: diese Tables duerfen NIE qual=true SELECT-Policy haben.
+    // Ueberlappung mit INV-26 SENSITIVE_TABLES ist bewusst (zwei Layer).
+    const EXPECTED_SENSITIVE = new Set<string>([
+      'holdings',
+      'transactions',
+      'ticket_transactions',
+      'activity_log',
+      'wallets',
+      'orders',
+      'offers',
+      'notifications',
+      'notification_preferences',
+      'push_subscriptions',
+      'lineups',
+      'event_entries',
+      'user_tickets',
+      'user_wildcards',
+      'user_equipment',
+      'user_cosmetics',
+      'user_founding_passes',
+      'user_mentorship_progress',
+      'user_missions',
+      'user_scout_missions',
+      'user_streaks',
+      'user_daily_challenges',
+      'tips',
+      'scout_subscriptions',
+      'scout_assignments',
+      'scout_mission_definitions',
+      'mentorships',
+      'mystery_box_results',
+      'welcome_bonus_claims',
+      'wildcard_transactions',
+      'watchlist',
+      'chip_usages',
+      'club_subscriptions',
+      'club_withdrawals',
+      'content_impressions',
+      'content_reports',
+      'creator_fund_payouts',
+      'fantasy_league_members',
+      'fantasy_leagues',
+      'fan_wishes',
+      'feedback',
+      'holding_locks',
+      'ipo_purchases',
+      'liquidation_events',
+      'liquidation_payouts',
+      'platform_admins',
+      'player_valuations',
+      'predictions',
+      'research_unlocks',
+      'score_events',
+      'score_history',
+      'score_road_claims',
+      'sponsor_impressions',
+      'sponsor_stats',
+      'streak_milestones_claimed',
+      'verified_scouts',
+    ]);
+
+    const { data, error } = await sb.rpc('get_rls_policy_matrix');
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+    expect(data, 'matrix returned null').toBeTruthy();
+
+    type MatrixRow = {
+      table_name: string;
+      has_rls: boolean;
+      force_rls: boolean;
+      policy_count: number;
+      permissive_select_update_delete_count: number;
+      qual_true_count: number;
+      is_qual_true: boolean;
+    };
+
+    const rows = (data ?? []) as MatrixRow[];
+    const violations: string[] = [];
+
+    for (const r of rows) {
+      // Case A: Table in Blocklist hat qual=true → AUTH-08 violation
+      if (EXPECTED_SENSITIVE.has(r.table_name) && r.is_qual_true) {
+        violations.push(
+          `${r.table_name}: AUTH-08 class — sensitive table has qual=true SELECT policy (MUST be user-scoped)`
+        );
+        continue;
+      }
+
+      // Case B: Table NICHT in Allowlist hat qual=true → unerwartete Permissivitaet
+      if (r.is_qual_true && !EXPECTED_PUBLIC[r.table_name]) {
+        violations.push(
+          `${r.table_name}: qual=true SELECT policy not in EXPECTED_PUBLIC allowlist — add reason or make user-scoped`
+        );
+        continue;
+      }
+
+      // Case C: Table in Allowlist aber KEIN qual=true mehr → Allowlist-Eintrag veraltet
+      // Intentionally silent: kein Fail, kein Warn. Dead reference ist harmlos
+      // (entweder Table wurde gedropped, oder Policy wurde geaendert aber Allowlist-Eintrag
+      // nicht mitgezogen). Scrub via Code-Review, nicht via Test-Fail.
+
+      // Case D: Table hat RLS aus — immer violation (in public Schema)
+      if (!r.has_rls) {
+        violations.push(
+          `${r.table_name}: RLS is DISABLED — all tables in public.* must have RLS enabled`
+        );
+      }
+    }
+
+    if (violations.length === 0) {
+      const allowlistedCount = rows.filter(
+        (r) => r.is_qual_true && EXPECTED_PUBLIC[r.table_name]
+      ).length;
+      const sensitiveProtectedCount = rows.filter(
+        (r) => EXPECTED_SENSITIVE.has(r.table_name) && !r.is_qual_true
+      ).length;
+      console.log(
+        `[INV-32] checked ${rows.length} public tables, ` +
+          `${allowlistedCount} qual=true allowlisted (public-by-design), ` +
+          `${sensitiveProtectedCount} sensitive-blocklist tables protected, ` +
+          `0 violations`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

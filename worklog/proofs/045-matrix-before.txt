@@ -1,0 +1,92 @@
+# Slice 045 — RLS-Matrix Before-State (2026-04-18)
+# Source: Supabase MCP execute_sql gegen skzjfhvgccaeplydsunz
+
+# TOTAL: 114 public tables, alle mit rls_enabled=true
+
+# ============================================================
+# Tables mit qual=true SELECT-Policy (60)
+# ============================================================
+# Kategorisiert fuer EXPECTED_PUBLIC Allowlist in INV-32:
+
+# -- Reference / Definitions (15) --
+#   achievement_definitions, cosmetic_definitions, equipment_definitions,
+#   equipment_ranks, mission_definitions, daily_challenges (definitions),
+#   mentorship_milestones, rang_thresholds, streak_config, score_road_config,
+#   elo_config, manager_points_config, cosmetic_shop_listings, creator_config,
+#   event_fee_config
+
+# -- Content (11) --
+#   posts, post_votes, bounties, bounty_submissions, community_polls,
+#   community_poll_votes, research_posts, research_ratings, user_achievements,
+#   club_votes, sponsors
+
+# -- Sport / Clubs / Players / Fixtures (13) --
+#   clubs, club_admins, club_followers, players, fixtures, fixture_player_stats,
+#   fixture_substitutions, founder_clubs, leagues, liga_seasons,
+#   dpc_of_the_week, dpc_mastery, events
+
+# -- Leaderboard / Scores (11) --
+#   user_stats, scout_scores, bescout_scores, airdrop_scores, fan_rankings,
+#   player_gameweek_scores, player_fair_values, arena_seasons,
+#   monthly_liga_snapshots, monthly_liga_winners, vote_entries
+
+# -- Platform-Config (4) --
+#   platform_settings, geofencing_config, fee_config, event_fee_config
+
+# -- Social-Graph (2) --
+#   user_follows, profiles
+
+# -- Orderbook / Trading (2) --
+#   ipos, trades
+
+# -- Platform Treasury Transparency (2) --
+#   pbt_transactions, pbt_treasury
+
+# -- Internal Operational Logs (1) --
+#   cron_sync_log
+
+# ============================================================
+# Sensible Tables (54) — kein qual=true, user-scoped Policies
+# ============================================================
+# Darunter die 8 aus INV-26 SENSITIVE_TABLES:
+#   holdings, transactions, ticket_transactions, activity_log,
+#   user_stats (leaderboard-by-design), wallets, orders, offers
+
+# Plus weitere user-scoped Tables die korrekt geschuetzt sind:
+#   chip_usages, club_subscriptions, club_withdrawals, content_impressions,
+#   content_reports, creator_fund_payouts, event_entries, fan_wishes,
+#   fantasy_league_members, fantasy_leagues, feedback, holding_locks,
+#   ipo_purchases, lineups, liquidation_events, liquidation_payouts,
+#   mentorships, mystery_box_results, notification_preferences, notifications,
+#   offers, platform_admins, player_valuations, predictions, push_subscriptions,
+#   research_unlocks, score_events, score_history, score_road_claims,
+#   scout_assignments, scout_mission_definitions, scout_subscriptions,
+#   sponsor_impressions, sponsor_stats, streak_milestones_claimed, tips,
+#   user_cosmetics, user_daily_challenges, user_equipment, user_founding_passes,
+#   user_mentorship_progress, user_missions, user_scout_missions, user_streaks,
+#   user_tickets, user_wildcards, verified_scouts, watchlist,
+#   welcome_bonus_claims, wildcard_transactions
+
+# ============================================================
+# Tables mit 0 Policies (RLS on, aber unzugaenglich — sicherster State)
+# ============================================================
+#   _rpc_body_snapshots, club_external_ids, mystery_box_config, player_external_ids
+
+# Alle nur via SECURITY DEFINER RPC oder service_role zugreifbar.
+
+# ============================================================
+# Roles-Breakdown der qual=true Policies
+# ============================================================
+# - 46 Policies mit roles='public' (= anon + authenticated)
+# - 14 Policies mit roles='authenticated' (= nur eingeloggte User)
+#
+# "public" anon-Exposure ist intended fuer:
+#   players, clubs, fixtures, fixture_player_stats, leagues, events (public views)
+#   leaderboard tables (scout_scores, user_stats, fan_rankings)
+#   content (posts, bounties, research_posts)
+#
+# "authenticated" qual=true fuer:
+#   cron_sync_log, daily_challenges, elo_config, manager_points_config,
+#   rang_thresholds, streak_config, score_road_config, platform_settings,
+#   achievement_definitions, player_gameweek_scores, event_fee_config
+# -- alle sind Platform-Config/Definitions fuer gameplay

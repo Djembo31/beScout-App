@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 045 | 2026-04-18 | A-03 RLS-Matrix komplett (INV-32)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418130000_slice_045_rls_matrix_audit.sql` (NEW) — Audit-RPC `get_rls_policy_matrix()`
+  - `src/lib/__tests__/db-invariants.test.ts` (+180 lines) — INV-32 mit EXPECTED_PUBLIC (60) + EXPECTED_SENSITIVE (56) Listen
+  - `worklog/specs/045-a03-rls-matrix-komplett.md`, `worklog/proofs/045-matrix-{before,after}.txt`, `worklog/proofs/045-inv32-vitest.txt`
+- Proof: 120 public Tables auditiert, 60 qual=true allowlisted, 56 sensitive-blocklist protected, 0 violations. 30/30 INV-Tests gruen.
+- Commit: tba
+- Notes: Variante-2 Slice #2/10. INV-32 erweitert INV-26 (8 Tables) auf komplette Matrix. Reviewer PASS. Future-Follow-Up (non-blocking): `pbt_treasury`/`pbt_transactions` Policies `TO PUBLIC` — anon kann Treasury lesen. Post-Slice-Polish-Thema (falls Business Transparenz auf authenticated beschraenken will). Sonst: 120 Tables entsprechen Erwartungen (urspruenglich 114 geschaetzt, Live-Count: 120).
+
+---
+
 ## 044 | 2026-04-18 | A-02 Vollstaendiger auth.uid() Body-Audit + INV-31
 - Stage-Chain: SPEC → IMPACT(live-DB-scan) → BUILD → PROVE → LOG
 - Files:
@@ -19,7 +31,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/lib/__tests__/db-invariants.test.ts` (+70 lines) — INV-31 komplette SECURITY-DEFINER-Matrix
   - `worklog/specs/044-a02-auth-uid-body-audit.md`, `worklog/impact/044-a02-auth-uid-body-audit.md`, `worklog/proofs/044-{audit-before,audit-after,inv31-vitest}.txt`
 - Proof: Audit 74 RPCs, 0 needs_fix. INV-31 gruen. INV-21 weiterhin gruen (kein Regression).
-- Commit: tba
+- Commit: e96f34e1
 - Notes: Variante-2 Slice #1/10. Reviewer PASS mit 2 Nitpicks (anon-grant auf Audit-RPC = defensiv ok, Spec-Pfad-Drift korrigiert). Slice 005 hatte A-02 partiell (4 RPCs) gefixt, Slice 044 schliesst Klasse komplett. 5 Kategorie-A Exploit-RPCs gehaertet (accept_mentee, request_mentor, subscribe_to_scout, cancel_scout_subscription mit AR-44-Body-Guard; award_dimension_score REVOKE authenticated alignt mit Intent aus src/lib/services/scoutScores.ts:109). 41 loose_guard+authenticated RPCs als "client-only" dokumentiert, scope-out für Slice 044b. Audit-RPC self-documenting Pattern — Breakdown: 41/15/5/4/3/2/2/2 = 74.
 
 ---

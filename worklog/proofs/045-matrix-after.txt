@@ -1,0 +1,72 @@
+# Slice 045 — RLS-Matrix After-State (2026-04-18)
+# Source: Supabase MCP execute_sql via public.get_rls_policy_matrix()
+
+# ============================================================
+# INV-32 Summary (aus Vitest-Run)
+# ============================================================
+# [INV-32] checked 120 public tables,
+#          60 qual=true allowlisted (public-by-design),
+#          56 sensitive-blocklist tables protected,
+#          0 violations
+
+# ============================================================
+# Audit-RPC deployed
+# ============================================================
+# public.get_rls_policy_matrix()
+#   RETURNS jsonb — Array mit {table_name, has_rls, force_rls, policy_count,
+#                              permissive_select_update_delete_count, qual_true_count, is_qual_true}
+#   GRANTS: authenticated + anon + service_role
+#   Reason: Read-only Scan von pg_class + pg_policy, kein Exploit-Risiko
+
+# ============================================================
+# Allowlist-Abdeckung (EXPECTED_PUBLIC, 60 Tables)
+# ============================================================
+# - 18 Reference/Definitions (achievement_definitions, cosmetic_definitions, ...)
+# - 11 Content (bounties, posts, research_posts, ...)
+# - 15 Sport-Daten (clubs, players, fixtures, events, ...)
+# - 11 Leaderboard/Scores (user_stats, scout_scores, fan_rankings, ...)
+# - 2 Social-Graph (profiles, user_follows)
+# - 2 Platform-Treasury (pbt_transactions, pbt_treasury)
+# - 1 Internal-Log (cron_sync_log)
+
+# ============================================================
+# Blocklist-Abdeckung (EXPECTED_SENSITIVE, 56 Tables)
+# ============================================================
+# Trading:     holdings, transactions, ticket_transactions, wallets, orders,
+#              offers, ipo_purchases, holding_locks, liquidation_events,
+#              liquidation_payouts, tips
+# User-State:  user_tickets, user_wildcards, user_equipment, user_cosmetics,
+#              user_founding_passes, user_mentorship_progress, user_missions,
+#              user_scout_missions, user_streaks, user_daily_challenges
+# Fantasy:     lineups, event_entries, fantasy_league_members, fantasy_leagues,
+#              predictions, player_valuations, mystery_box_results
+# Social:      activity_log, notifications, notification_preferences,
+#              push_subscriptions, mentorships, watchlist, feedback
+# Club:        club_subscriptions, club_withdrawals, platform_admins
+# Scout:       scout_subscriptions, scout_assignments, scout_mission_definitions,
+#              verified_scouts, research_unlocks
+# Content:     content_impressions, content_reports, creator_fund_payouts,
+#              sponsor_impressions, sponsor_stats
+# Fan:         fan_wishes, chip_usages, streak_milestones_claimed
+# Gamification: score_events, score_history, score_road_claims,
+#              welcome_bonus_claims, wildcard_transactions
+
+# ============================================================
+# 4 Tables mit 0 Policies (unzugaenglich-by-design)
+# ============================================================
+# Weder in Allowlist noch in Blocklist — faellt durch beide Filter.
+# INV-32 prueft `r.is_qual_true=false` + `EXPECTED_SENSITIVE.has=false`
+# → keine violation, aber konzeptuell sicherster State.
+#   - _rpc_body_snapshots (internal RPC body cache)
+#   - club_external_ids (scraper-data-integration)
+#   - mystery_box_config (read nur via RPC)
+#   - player_external_ids (api-football-mapping)
+
+# ============================================================
+# Vor-Nach-Vergleich
+# ============================================================
+# VOR: Nur INV-26 mit 8 sensiblen Tables, qual=true drift auf anderen Tables
+#      wurde NICHT automatisch detected. Manueller Audit noetig.
+# NACH: INV-32 scant alle 120 public Tables. Neue qual=true ohne Allowlist-Eintrag
+#       → Test-Fail. Neue Tabelle in Blocklist mit qual=true → Test-Fail.
+#       Doppel-Layer (INV-26 + INV-32) gibt Redundanz.
