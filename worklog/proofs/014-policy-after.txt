@@ -1,0 +1,26 @@
+Slice 014 — Holdings RLS After Snapshot
+Generated: 2026-04-17
+
+Query: SELECT policyname, cmd, roles, qual
+       FROM pg_policies
+       WHERE schemaname='public' AND tablename='holdings';
+
+Result:
+  policyname = holdings_select_own_or_admin
+  cmd        = SELECT
+  roles      = {authenticated}
+  qual       = ((auth.uid() = user_id)
+                OR (EXISTS (SELECT 1 FROM club_admins ca
+                            WHERE ca.user_id = auth.uid()))
+                OR (EXISTS (SELECT 1 FROM platform_admins pa
+                            WHERE pa.user_id = auth.uid())))
+
+RPC sanity check (cross-user count):
+  SELECT get_player_holder_count('5c8f2a89-...'::uuid);
+  → 1 (Livan Burcu has 1 distinct holder, matches pre-cleanup state;
+       Slice 012 removed the zero-qty row which does not count because
+       of `quantity > 0` filter — result is post-cleanup correct).
+
+Total policies on holdings: 1 SELECT (satisfies INV-20 whitelist).
+No INSERT/UPDATE/DELETE policy (writes still go through SECURITY
+DEFINER trading RPCs — unchanged by Slice 014).

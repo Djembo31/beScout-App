@@ -1,0 +1,28 @@
+Slice 014 — Holdings RLS Before Snapshot
+Generated: 2026-04-17
+
+Query: SELECT policyname, cmd, roles, qual, with_check
+       FROM pg_policies
+       WHERE schemaname='public' AND tablename='holdings';
+
+Result:
+  policyname  = holdings_select_all_authenticated
+  cmd         = SELECT
+  roles       = {authenticated}
+  qual        = true                   ← grants EVERY authenticated user
+                                         read access to EVERY holdings row
+  with_check  = null
+
+Interpretation:
+Any authenticated user can SELECT any row in public.holdings. This exposes
+portfolio details (user_id, player_id, quantity, avg_buy_price) of every
+other user. AUTH-08 (rls-checks.test.ts:167) asserts this is NOT allowed
+and therefore fails.
+
+Slice 014 replaces this policy with:
+  auth.uid() = user_id
+  OR EXISTS(SELECT 1 FROM public.club_admins   WHERE user_id = auth.uid())
+  OR EXISTS(SELECT 1 FROM public.platform_admins WHERE user_id = auth.uid())
+
+…keeping club-admin Fan-Analytics + Platform-admin Platform-wide visibility.
+Regular users see only their own holdings.

@@ -117,6 +117,15 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - J3-Fund: BuyModal (`buying \|\| ipoBuying`), SellModal (`selling \|\| cancellingId !== null \|\| acceptingBidId != null`), LimitOrderModal (`false` + TODO fuer Feature-Live)
 - Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` — Modals ohne preventClose bei Money/Trading-Context pruefen
 
+## RLS Policy qual=true auf sensiblen Tabellen (2026-04-17 — Slice 014 AUTH-08)
+- `CREATE POLICY x ON t FOR SELECT TO authenticated USING (true)` ist equivalent zu "keine Zugriffskontrolle fuer authenticated" — jeder eingeloggte User liest alle Rows.
+- Bei sensiblen Tabellen (holdings, transactions, activity_log, user_stats): **Portfolio-/Stat-Leak** systemweit. Client kann fremde User enumerieren.
+- Fix-Pattern: `USING (auth.uid() = user_id OR EXISTS(admin-check))`. Admins behalten Cross-User-Zugriff ueber explizite Branch.
+- Cross-User-Reads OHNE Admin-Rolle: SECURITY DEFINER RPC + REVOKE anon + GRANT authenticated (AR-44-Template) — bypasst RLS fuer Aggregate wie "distinct holder count per player".
+- **Regression-Guard:** INV-19 + INV-20 checken "jede kritische Tabelle hat SELECT-Policy" — aber **nicht** "qual != true". Denkbar: INV-neu das `qual='true'` auf kritischer-Tabellen-Whitelist failed.
+- Audit-Command: `SELECT tablename, policyname, qual FROM pg_policies WHERE schemaname='public' AND qual='true' ORDER BY tablename`
+- Concrete fix (Slice 014): `holdings_select_all_authenticated (qual=true)` → `holdings_select_own_or_admin` + `get_player_holder_count(uuid)` RPC fuer cross-count.
+
 ## SECURITY DEFINER + authenticated-Grant ohne auth.uid()-Guard (2026-04-17 — Slice 005 A-02)
 - **NEBEN** dem anon-REVOKE-Pattern (unten J4) existiert die **authenticated-to-other-user Exploit-Klasse**:
   SECURITY DEFINER RPC mit `p_user_id uuid` Parameter + `authenticated`-Grant + keinem auth.uid()-Check im Body

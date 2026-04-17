@@ -103,15 +103,21 @@ export async function getUserHoldingLocks(userId: string): Promise<DbHoldingLock
   return (data ?? []) as DbHoldingLock[];
 }
 
-/** Distinct holder count for a player */
+/**
+ * Distinct holder count for a player.
+ *
+ * Slice 014 (2026-04-17): since the `holdings` SELECT policy is now scoped
+ * to (own | club_admin | platform_admin), a direct count query from a
+ * non-admin user would only see their own row. The `get_player_holder_count`
+ * SECURITY DEFINER RPC bypasses RLS and returns the true distinct-holder
+ * count.
+ */
 export async function getPlayerHolderCount(playerId: string): Promise<number> {
-  const { count, error } = await supabase
-    .from('holdings')
-    .select('*', { count: 'exact', head: true })
-    .eq('player_id', playerId)
-    .gt('quantity', 0);
+  const { data, error } = await supabase.rpc('get_player_holder_count', {
+    p_player_id: playerId,
+  });
   if (error) throw new Error(error.message);
-  return count ?? 0;
+  return (data as number) ?? 0;
 }
 
 // ============================================

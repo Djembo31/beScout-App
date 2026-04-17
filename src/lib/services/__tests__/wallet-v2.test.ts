@@ -147,21 +147,23 @@ describe('getHoldingQty', () => {
 // ============================================
 
 describe('getPlayerHolderCount', () => {
+  // Slice 014 (2026-04-17): now delegates to `get_player_holder_count` RPC
+  // because holdings SELECT policy is scoped to (own | club_admin |
+  // platform_admin). A direct client count would only see own-user rows
+  // for non-admins.
   it('returns count on success', async () => {
-    mockSupabaseResponse(null);
-    mockSupabaseCount(42);
+    mockSupabaseRpc(42);
     const result = await getPlayerHolderCount('p1');
     expect(result).toBe(42);
   });
 
-  it('throws on DB error', async () => {
-    mockSupabaseResponse(null, { message: 'count failed' });
+  it('throws on RPC error', async () => {
+    mockSupabaseRpc(null, { message: 'count failed' });
     await expect(getPlayerHolderCount('p1')).rejects.toThrow('count failed');
   });
 
   it('returns 0 when zero holders', async () => {
-    mockSupabaseResponse(null);
-    mockSupabaseCount(0);
+    mockSupabaseRpc(0);
     const result = await getPlayerHolderCount('p-new');
     expect(result).toBe(0);
   });
