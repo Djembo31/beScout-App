@@ -8,10 +8,7 @@
   },
   "crons": [
     { "path": "/api/cron/gameweek-sync", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/close-expired-bounties", "schedule": "0 5 * * *" },
-    { "path": "/api/cron/sync-players-daily", "schedule": "0 3 * * *" },
-    { "path": "/api/cron/sync-transfermarkt-batch", "schedule": "0 */2 * * *" },
-    { "path": "/api/cron/transfermarkt-search-batch", "schedule": "30 * * * *" }
+    { "path": "/api/cron/close-expired-bounties", "schedule": "0 5 * * *" }
   ],
   "headers": [
     {
