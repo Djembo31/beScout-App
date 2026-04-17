@@ -21,7 +21,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/026-verdict.txt` (NEW — Final GREEN)
 - Proofs:
   - `worklog/proofs/026-verdict.txt` (Final Verdict GREEN)
-- Commit: <pending>
+- Commit: aa67e2a0
 - Notes: CTO-autonomer Audit-Slice. Briefing Session-3 Punkt 4 ("footballData.ts Client-Access auf server-only Tabellen") geschlossen. Verdict **GREEN**: (a) Alle Client-Reads auf Tabellen mit public SELECT-Policy — legitim. (b) Alle Writes via Admin-RPCs (`admin_map_*`, `admin_import_gameweek_stats`). (c) Silent-Dead-Code in `footballData.ts:549-553` (`supabase.from('fixtures').update(...)` — RLS blockt silent, fixtures hat keine UPDATE-Policy) ohne User-Impact, weil Cron-Route `src/app/api/cron/gameweek-sync/route.ts:826-831` die 334 formation-Rows via `supabaseAdmin` (service_role, RLS bypass) parallel fuellt. (d) Kein AUTH-08-Klasse-Drift: die betroffenen Tabellen (fixtures, fixture_player_stats, player_gameweek_scores) sind public-by-design, nicht in INV-26 SENSITIVE_TABLES. Cleanup (Dead-Code entfernen) out-of-scope — cosmetic, kein Security-Wert. Analog Slice 022 (B-03 UI-Mixing Verification) als Doc-only XS.
 
 ---
