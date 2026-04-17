@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 037 | 2026-04-17 | 8 transactions.type Drifts Cleanup — INV-30 Allowlist EMPTY
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417190000_transactions_type_drift_cleanup.sql` (NEW)
+  - `src/lib/transactionTypes.ts` (+event_entry_unlock, +scout_subscription)
+  - `src/lib/activityHelpers.ts` (mappings fuer 8 types — alt+neu beide gemappt)
+  - `messages/de.json` + `messages/tr.json` (+2 neue labels)
+  - `src/lib/__tests__/db-invariants.test.ts` (INV-18 snapshot +6, INV-30 allowlist EMPTY)
+  - `worklog/specs/037-transactions-type-drift-cleanup.md` (NEW)
+  - `worklog/proofs/037-result.txt` (NEW)
+- Proof: db-invariants 28/28 gruen incl. INV-30 ohne Allowlist; lib-suite 1332/1332.
+- Commit: tba (close-commit)
+- Notes: 2× RPC-Rename (poll_earning→poll_earn, research_earning→research_earn) + 6× CHECK extended (vote_fee, ad_revenue_payout, creator_fund_payout, event_entry_unlock, scout_subscription, scout_subscription_earning). INV-30 Allowlist jetzt LEER — alle 9 known drifts gefixt. Live-DB-Migration durch via apply_migration.
+
 ## 036 | 2026-04-17 | sync_event_statuses 42501 — Internal-Helper + pg_cron
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:

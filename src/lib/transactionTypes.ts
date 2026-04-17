@@ -44,8 +44,12 @@ export const ALL_CREDIT_TX_TYPES = [
   'poll_earning', 'vote_fee',
   // Revenue / Payouts (DB canonical)
   'tip_send', 'tip_receive', 'subscription', 'referral_reward',
-  // Revenue / Payouts (TS-legacy, used by activityHelpers)
-  'scout_subscription_earning', 'creator_fund_payout', 'ad_revenue_payout', 'pbt_liquidation',
+  // Slice 037: scout subscriptions (DB canonical, CHECK constraint extended)
+  'scout_subscription', 'scout_subscription_earning',
+  'creator_fund_payout', 'ad_revenue_payout',
+  'pbt_liquidation',
+  // Slice 037: event entry refund (DB canonical)
+  'event_entry_unlock',
   // Gamification drops (DB canonical)
   'mystery_box_reward', 'founding_pass',
 ] as const;

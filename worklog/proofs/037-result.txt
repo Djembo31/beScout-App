@@ -1,0 +1,42 @@
+Slice 037 — Result
+
+# Migration applied
+20260417190000_transactions_type_drift_cleanup
+  - cast_community_poll_vote: 'poll_earning' → 'poll_earn' ✓
+  - unlock_research:          'research_earning' → 'research_earn' ✓
+  - CHECK constraint extended: 28 → 34 valid types
+    +6: vote_fee, ad_revenue_payout, creator_fund_payout,
+        event_entry_unlock, scout_subscription, scout_subscription_earning
+
+# TS-Layer
+src/lib/transactionTypes.ts:
+  ALL_CREDIT_TX_TYPES → +event_entry_unlock, +scout_subscription
+  (others bereits als legacy enthalten)
+
+src/lib/activityHelpers.ts:
+  - poll_earning + poll_earn → gleicher icon/color/label ✓
+  - research_earning + research_earn → gleicher mapping ✓
+  - event_entry_unlock → Trophy icon, emerald color, eventEntryUnlock label ✓
+  - scout_subscription → Users icon, amber color, scoutSubscription label ✓
+
+# i18n
+messages/de.json:
+  + "eventEntryUnlock": "Event-Eintritt erstattet"
+  + "scoutSubscription": "Beratervertrag abgeschlossen"
+messages/tr.json:
+  + "eventEntryUnlock": "Etkinlik girişi iade edildi"
+  + "scoutSubscription": "Danışmanlık sözleşmesi yapıldı"
+
+# Tests
+$ npx vitest run src/lib/__tests__/db-invariants.test.ts
+Tests       28 passed (28)
+  - INV-18 expected snapshot updated +6 types ✓
+  - INV-22 ALL_CREDIT_TX_TYPES ⊇ DB ✓
+  - INV-30 RPC ⊆ CHECK with EMPTY allowlist ✓ (all 9 drifts gone)
+
+$ npx tsc --noEmit
+clean
+
+$ npx vitest run src/lib
+Test Files  65 passed (65)
+Tests       1332 passed (1332)

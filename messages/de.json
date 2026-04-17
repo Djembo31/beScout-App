@@ -4563,7 +4563,9 @@
     "subscription": "Club-Abo",
     "adminAdjustment": "Admin-Anpassung",
     "tipSend": "Tipp gesendet",
-    "offerExecute": "Gebot ausgeführt (Kauf)"
+    "offerExecute": "Gebot ausgeführt (Kauf)",
+    "eventEntryUnlock": "Event-Eintritt erstattet",
+    "scoutSubscription": "Beratervertrag abgeschlossen"
   },
   "feed": {
     "scoutActivity": "Scout Aktivität",

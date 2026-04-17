@@ -4563,7 +4563,9 @@
     "subscription": "Kulüp Aboneliği",
     "adminAdjustment": "Admin Ayarlaması",
     "tipSend": "Bahşiş gönderildi",
-    "offerExecute": "Teklif yürütüldü (Alım)"
+    "offerExecute": "Teklif yürütüldü (Alım)",
+    "eventEntryUnlock": "Etkinlik girişi iade edildi",
+    "scoutSubscription": "Danışmanlık sözleşmesi yapıldı"
   },
   "feed": {
     "scoutActivity": "Scout Aktivitesi",

@@ -633,6 +633,9 @@ describe('DB Invariants', () => {
           'subscription', 'founding_pass', 'bounty_cost', 'bounty_reward',
           'research_unlock', 'research_earn', 'referral_reward',
           'poll_vote_cost', 'poll_earn', 'withdrawal',
+          // Slice 037 additions (6)
+          'vote_fee', 'ad_revenue_payout', 'creator_fund_payout',
+          'event_entry_unlock', 'scout_subscription', 'scout_subscription_earning',
         ],
       },
       {
@@ -1337,7 +1340,7 @@ describe('DB Invariants', () => {
   // ALLOWLIST_KNOWN_DRIFTS: dokumentiert Slice-037-Followups, damit der Test
   // jetzt nicht rot ist aber nicht vergisst dass diese RPCs noch fixen muessen.
   // Wenn alle Slice-037-Drifts gefixt sind, ist die Allowlist leer.
-  it('INV-30: RPC bodies use only valid transactions.type values (Slice 034 fixed buy_player_sc; 7 Slice-037 followups allowlisted)', async () => {
+  it('INV-30: RPC bodies use only valid transactions.type values (Slice 037: Allowlist EMPTY)', async () => {
     const { data: checkValues, error: checkErr } = await sb.rpc('get_check_enum_values', {
       p_constraint_name: 'transactions_type_check',
     });
@@ -1348,19 +1351,11 @@ describe('DB Invariants', () => {
     expect(snipErr, `get_rpc_transaction_inserts failed: ${snipErr?.message}`).toBeNull();
     expect(snippets, 'no snippets returned').toBeTruthy();
 
-    // Allowlist of known-bad RPC/type pairs documented in Slice 034 spec.
-    // Each line = "<rpc_name>:<bad_type>" — Slice 037 will remove them one by one.
-    const ALLOWLIST_KNOWN_DRIFTS = new Set<string>([
-      'cast_community_poll_vote:poll_earning',     // CHECK has 'poll_earn'
-      'cast_vote:vote_fee',                         // not in CHECK
-      'unlock_research:research_earning',           // CHECK has 'research_earn'
-      'calculate_ad_revenue_share:ad_revenue_payout',     // not in CHECK
-      'calculate_creator_fund_payout:creator_fund_payout', // not in CHECK
-      'rpc_cancel_event_entries:event_entry_unlock',       // not in CHECK
-      'rpc_unlock_event_entry:event_entry_unlock',         // not in CHECK
-      'subscribe_to_scout:scout_subscription',             // not in CHECK
-      'subscribe_to_scout:scout_subscription_earning',     // not in CHECK
-    ]);
+    // Slice 037: Allowlist leer — alle 9 known drifts gefixt:
+    //   - 2× RPC-Rename (poll_earning→poll_earn, research_earning→research_earn)
+    //   - 6× CHECK extended (vote_fee, ad_revenue_payout, creator_fund_payout,
+    //     event_entry_unlock, scout_subscription, scout_subscription_earning)
+    const ALLOWLIST_KNOWN_DRIFTS = new Set<string>([]);
 
     type Snip = { rpc_name: string; snippet: string };
     const drifts: string[] = [];
