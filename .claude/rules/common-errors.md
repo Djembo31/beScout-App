@@ -261,6 +261,33 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Slice 027-Fund (2026-04-17):** 4 types im Live-DB (`subscription`/`admin_adjustment`/`tip_send`/`offer_execute`) waren ungemappt. Briefing behauptete "10 Types fehlen" — war stale, nur 4 aktuell, andere bereits gefixt.
 - Regel: **Neue transaction.type-Schreiber triggern immer 3-File-Change:** activityHelpers.ts (icon+color+key) + messages/de.json + messages/tr.json.
 
+## AR-44 Guard in Trigger-Aufruf-Pfad (2026-04-17 — Slice 035)
+- Trigger ruft AR-44-hardened RPC mit `p_user_id = NEW.seller_id` (anderer User als auth.uid())
+- Guard `IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN RAISE` trippt
+- Trigger faengt mit `EXCEPTION WHEN OTHERS THEN RAISE WARNING` → silent failure
+- Side-Effect (z.B. score-refresh) wird nie ausgefuehrt → fremde User haben stale Daten
+- **Slice 035 Fund:** `trg_fn_trade_refresh` ruft `refresh_airdrop_score(NEW.seller_id)`. Sellers (bot-003, bot-039) hatten `airdrop_scores.updated_at = NULL` trotz mehrerer Trades.
+- **Fix-Pattern:** Internal-Helper-RPC `_<fn>_internal(p_user_id)` ohne guard. REVOKE PUBLIC/anon/authenticated, GRANT service_role only. Trigger (SECURITY DEFINER, owner = postgres) kann internal aufrufen. Public wrapper behaelt guard fuer client-direct-call:
+  ```sql
+  CREATE OR REPLACE FUNCTION _refresh_airdrop_score_internal(p_user_id uuid)
+    RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$ BEGIN ... END $$;
+  REVOKE ALL ... FROM PUBLIC, anon, authenticated;
+  GRANT EXECUTE ... TO service_role;
+
+  CREATE OR REPLACE FUNCTION refresh_airdrop_score(p_user_id uuid)
+    RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
+  BEGIN
+    IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
+      RAISE EXCEPTION 'auth_uid_mismatch';
+    END IF;
+    RETURN _refresh_airdrop_score_internal(p_user_id);
+  END $$;
+
+  -- Trigger uses internal directly
+  PERFORM _refresh_airdrop_score_internal(NEW.seller_id);
+  ```
+- **Audit-Pflicht beim AR-44 Hardening:** pruefen ob hardened RPC von Triggern aufgerufen wird → sofort Internal-Helper extrahieren. Andernfalls: cumulative silent-fail.
+
 ## auth.users DELETE NO-ACTION-FK-Pre-Cleanup (2026-04-17 — Slice 028)
 - `DELETE FROM auth.users WHERE id IN (...)` scheitert an NO-ACTION-FK-Constraints in anderen Tabellen (Postgres: `23503: violates foreign key constraint`). Die Standard-CASCADE-Tables (profiles, wallets, holdings) werden automatisch gecleant — die NO-ACTION-Tables nicht.
 - Bekannte NO-ACTION-Tables auf `auth.users`: `user_tickets`, `ticket_transactions`, `transactions`, `trades`, `events.created_by`, `ipo_purchases`, `mystery_box_results`, `welcome_bonus_claims`, `chip_usages`, `mentorships`, `community_poll_votes`, `verified_scouts`, `fan_rankings`, `user_cosmetics`, `user_daily_challenges`, `user_founding_passes`, `user_scout_missions`, `liquidation_events`, `liquidation_payouts`, `sponsors.created_by`, `fee_config.updated_by`, `club_votes.created_by`, `bounty_submissions.reviewed_by`, `player_valuations` (23 Tables, Stand 2026-04-17).

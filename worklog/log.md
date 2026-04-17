@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 035 | 2026-04-17 | trg trade_refresh auth_uid_mismatch — Internal-Helper Fix
+- Stage-Chain: SPEC → IMPACT(inline DB-audit) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417170000_refresh_airdrop_score_trigger_internal.sql` (NEW)
+  - `worklog/specs/035-trg-trade-refresh-investigation.md` (NEW)
+  - `worklog/proofs/035-verdict.md` (NEW)
+- Proof: `worklog/proofs/035-verdict.md` — Live-Buy 14:52 → seller bot-037 airdrop_updated 14:52:56 (vorher NULL trotz mehrerer Trades).
+- Commit: tba (close-commit)
+- Notes: AR-44 guard in `refresh_airdrop_score` trippte im trigger-context (auth.uid()=buyer ≠ p_user_id=seller). Trigger fing exception silent → seller-Stats nie aktualisiert. Fix: Internal-Helper-RPC ohne guard (REVOKE all, GRANT service_role only). Public wrapper behaelt AR-44 guard fuer client-Calls. Pattern dokumentiert fuer common-errors.md.
+
 ## 032b | 2026-04-17 | Phase 7 Mutating-Flows Resume — 3/3 GREEN
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD(verify-only) → PROVE → LOG
 - Files:
