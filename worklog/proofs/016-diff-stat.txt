@@ -1,0 +1,7 @@
+ .../transactions/TransactionsPageContent.tsx       | 40 ++++++++++++++++++----
+ src/lib/queries/index.ts                           |  2 +-
+ src/lib/queries/keys.ts                            |  2 ++
+ src/lib/queries/misc.ts                            | 19 +++++++++-
+ src/lib/queries/tickets.ts                         | 19 +++++++++-
+ src/lib/services/tickets.ts                        |  6 ++--
+ 6 files changed, 75 insertions(+), 13 deletions(-)

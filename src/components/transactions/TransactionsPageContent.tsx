@@ -26,8 +26,8 @@ function cleanDescription(desc: string): string {
     .replace(/Cents\/DPC/g, 'CR')
     .replace(/(\d+)\s*Cents\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`);
 }
-import { useTransactions } from '@/lib/queries/misc';
-import { useTicketTransactions } from '@/lib/queries/tickets';
+import { useInfiniteTransactions } from '@/lib/queries/misc';
+import { useInfiniteTicketTransactions } from '@/lib/queries/tickets';
 import {
   getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime,
 } from '@/lib/activityHelpers';
@@ -118,6 +118,7 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
   const t = useTranslations('transactions');
   const tp = useTranslations('profile');
   const ta = useTranslations('activity');
+  const tc = useTranslations('common');
   const locale = useLocale();
   const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
@@ -125,12 +126,18 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
 
-  // Load up to 200 of each to give the page room to breathe
-  const txQuery = useTransactions(userId, { limit: 200 });
-  const ticketTxQuery = useTicketTransactions(userId, { limit: 200 });
+  // Infinite-query pagination. Initial page = 50 each. Load-more on demand.
+  const txQuery = useInfiniteTransactions(userId, 50);
+  const ticketTxQuery = useInfiniteTicketTransactions(userId, 50);
 
-  const allTx: DbTransaction[] = useMemo(() => txQuery.data ?? [], [txQuery.data]);
-  const allTicketTx: DbTicketTransaction[] = useMemo(() => ticketTxQuery.data ?? [], [ticketTxQuery.data]);
+  const allTx: DbTransaction[] = useMemo(
+    () => txQuery.data?.pages.flat() ?? [],
+    [txQuery.data],
+  );
+  const allTicketTx: DbTicketTransaction[] = useMemo(
+    () => ticketTxQuery.data?.pages.flat() ?? [],
+    [ticketTxQuery.data],
+  );
 
   const cutoff = useMemo(() => cutoffDate(range), [range]);
 
@@ -414,6 +421,25 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
             })}
           </div>
         </Card>
+      )}
+
+      {/* Load More */}
+      {(txQuery.hasNextPage || ticketTxQuery.hasNextPage) && (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={txQuery.isFetchingNextPage || ticketTxQuery.isFetchingNextPage}
+            onClick={() => {
+              if (txQuery.hasNextPage) void txQuery.fetchNextPage();
+              if (ticketTxQuery.hasNextPage) void ticketTxQuery.fetchNextPage();
+            }}
+          >
+            {(txQuery.isFetchingNextPage || ticketTxQuery.isFetchingNextPage) ? (
+              <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+            ) : tc('loadMore')}
+          </Button>
+        </div>
       )}
 
       {/* Footer count */}

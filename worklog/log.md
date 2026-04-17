@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 016 | 2026-04-17 | Transactions Pagination (B2, Flow-Audit Flow 14)
+- Stage-Chain: SPEC → IMPACT(inline — Consumers gecheckt, neue Infinite-Hooks parallel zu alten) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/services/tickets.ts` (getTicketTransactions offset-Default-Param, `.range()` statt `.limit()`)
+  - `src/lib/queries/keys.ts` (neue Query-Keys: `transactions.infinite`, `tickets.transactionsInfinite`)
+  - `src/lib/queries/misc.ts` (neue Hook `useInfiniteTransactions`)
+  - `src/lib/queries/tickets.ts` (neue Hook `useInfiniteTicketTransactions`)
+  - `src/lib/queries/index.ts` (Barrel-Export `useInfiniteTransactions`)
+  - `src/components/transactions/TransactionsPageContent.tsx` (Umstellung auf Infinite-Hooks, Load-More-Button mit Loader2-Spinner, tc('loadMore') common-i18n-Key)
+- Proofs:
+  - `worklog/proofs/016-diff.txt` + `016-diff-stat.txt` (6 Files, 75 insertions / 13 deletions)
+  - `worklog/proofs/016-tsc.txt` (leer = clean)
+  - `worklog/proofs/016-service-tests.txt` (wallet-v2 + tickets: 40/40 gruen)
+  - `worklog/proofs/016-profile-tests.txt` (profile/**: 54/55 gruen, 1 skipped nicht 016-related)
+  - `worklog/proofs/016-render-check.md` (8 Edge-Cases statisch verifiziert: 0 Tx, <50, =50, 120+10, Filter-aktiv, Doppel-Click, Initial-Error, Page-N-Error)
+- Commit: TBD
+- Notes: B2 von Block B. Bug-Klasse: 200-Row-Upfront-Load ohne Pagination skalierte nicht fuer Heavy-User. Fix: Neue `useInfinite*`-Hooks parallel zu den alten (alte bleiben fuer Profile Timeline-Tab mit fixer Top-50-Anzeige unveraendert). Pagination via `.range(offset, offset+pageSize-1)` auf `transactions` + `ticket_transactions`. `getNextPageParam` returned `undefined` wenn `lastPage.length < pageSize` — verhindert Infinite-Loop bei exakt-pageSize-Responses. Load-More-Button fetched nur die Queries die noch `hasNextPage=true` haben, Loader2-Spinner mit `isFetchingNextPage`-Guard. Common-i18n-Key `loadMore` existierte bereits, kein Message-Change. Scope-Out: Server-Side Filter, echte Server-Aggregation (earned/spent Total via RPC) = CEO-Scope, Infinite-Scroll via IntersectionObserver, Page-Error-Toast. Profile-Tests (useProfileData, ProfileView) blieben gruen weil alte Hook-Signaturen unveraendert.
+
+---
+
 ## 015 | 2026-04-17 | Logout React Query Cache Clear (B1, Flow-Audit Flow 15)
 - Stage-Chain: SPEC → IMPACT(skipped — 1-File AuthProvider-Edit, kein DB/RPC/Service) → BUILD → PROVE → LOG
 - Files:

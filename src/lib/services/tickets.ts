@@ -35,14 +35,14 @@ export async function getUserTickets(_userId: string): Promise<DbUserTickets | n
   return row as DbUserTickets | null;
 }
 
-/** Fetch ticket transaction history (newest first) */
-export async function getTicketTransactions(userId: string, limit = 20): Promise<DbTicketTransaction[]> {
+/** Fetch ticket transaction history (newest first, offset-paginated) */
+export async function getTicketTransactions(userId: string, limit = 20, offset = 0): Promise<DbTicketTransaction[]> {
   const { data, error } = await supabase
     .from('ticket_transactions')
     .select('id, user_id, amount, balance_after, source, reference_id, description, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
 
   if (error) throw new Error(error.message);
   return (data ?? []) as DbTicketTransaction[];

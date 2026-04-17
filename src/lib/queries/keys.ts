@@ -144,6 +144,7 @@ export const qk = {
   // ── Transactions ──
   transactions: {
     byUser: (uid: string, n: number) => ['transactions', uid, n] as const,
+    infinite: (uid: string, pageSize: number) => ['transactions', 'infinite', uid, pageSize] as const,
     all: ['transactions'] as const,
   },
 
@@ -296,6 +297,7 @@ export const qk = {
   tickets: {
     balance: (uid: string) => ['tickets', uid] as const,
     transactions: (uid: string, limit?: number) => ['tickets', 'transactions', uid, limit] as const,
+    transactionsInfinite: (uid: string, pageSize: number) => ['tickets', 'transactions', 'infinite', uid, pageSize] as const,
   },
 
   // ── Daily Challenges ──

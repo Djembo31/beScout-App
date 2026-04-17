@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import { getTransactions, getHoldingQty, getPlayerHolderCount } from '@/lib/services/wallet';
 import { getWatcherCount } from '@/lib/services/watchlist';
@@ -30,6 +30,23 @@ export function useTransactions(
   return useQuery({
     queryKey: qk.transactions.byUser(userId!, limit),
     queryFn: () => getTransactions(userId!, limit),
+    enabled: !!userId && enabled,
+    staleTime: TWO_MIN,
+  });
+}
+
+/** Offset-paginated credit-transaction history. Use for the /transactions page. */
+export function useInfiniteTransactions(
+  userId: string | undefined,
+  pageSize = 50,
+  enabled = true,
+) {
+  return useInfiniteQuery({
+    queryKey: qk.transactions.infinite(userId!, pageSize),
+    queryFn: ({ pageParam }) => getTransactions(userId!, pageSize, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < pageSize ? undefined : allPages.length * pageSize,
     enabled: !!userId && enabled,
     staleTime: TWO_MIN,
   });

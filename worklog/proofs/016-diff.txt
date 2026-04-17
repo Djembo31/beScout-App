@@ -1,0 +1,197 @@
+diff --git a/src/components/transactions/TransactionsPageContent.tsx b/src/components/transactions/TransactionsPageContent.tsx
+index b44b8a63..47aa3082 100644
+--- a/src/components/transactions/TransactionsPageContent.tsx
++++ b/src/components/transactions/TransactionsPageContent.tsx
+@@ -26,8 +26,8 @@ function cleanDescription(desc: string): string {
+     .replace(/Cents\/DPC/g, 'CR')
+     .replace(/(\d+)\s*Cents\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`);
+ }
+-import { useTransactions } from '@/lib/queries/misc';
+-import { useTicketTransactions } from '@/lib/queries/tickets';
++import { useInfiniteTransactions } from '@/lib/queries/misc';
++import { useInfiniteTicketTransactions } from '@/lib/queries/tickets';
+ import {
+   getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime,
+ } from '@/lib/activityHelpers';
+@@ -118,6 +118,7 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
+   const t = useTranslations('transactions');
+   const tp = useTranslations('profile');
+   const ta = useTranslations('activity');
++  const tc = useTranslations('common');
+   const locale = useLocale();
+   const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
+ 
+@@ -125,12 +126,18 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
+   const [filter, setFilter] = useState<Filter>('all');
+   const [query, setQuery] = useState('');
+ 
+-  // Load up to 200 of each to give the page room to breathe
+-  const txQuery = useTransactions(userId, { limit: 200 });
+-  const ticketTxQuery = useTicketTransactions(userId, { limit: 200 });
++  // Infinite-query pagination. Initial page = 50 each. Load-more on demand.
++  const txQuery = useInfiniteTransactions(userId, 50);
++  const ticketTxQuery = useInfiniteTicketTransactions(userId, 50);
+ 
+-  const allTx: DbTransaction[] = useMemo(() => txQuery.data ?? [], [txQuery.data]);
+-  const allTicketTx: DbTicketTransaction[] = useMemo(() => ticketTxQuery.data ?? [], [ticketTxQuery.data]);
++  const allTx: DbTransaction[] = useMemo(
++    () => txQuery.data?.pages.flat() ?? [],
++    [txQuery.data],
++  );
++  const allTicketTx: DbTicketTransaction[] = useMemo(
++    () => ticketTxQuery.data?.pages.flat() ?? [],
++    [ticketTxQuery.data],
++  );
+ 
+   const cutoff = useMemo(() => cutoffDate(range), [range]);
+ 
+@@ -416,6 +423,25 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
+         </Card>
+       )}
+ 
++      {/* Load More */}
++      {(txQuery.hasNextPage || ticketTxQuery.hasNextPage) && (
++        <div className="flex justify-center pt-2">
++          <Button
++            variant="outline"
++            size="sm"
++            disabled={txQuery.isFetchingNextPage || ticketTxQuery.isFetchingNextPage}
++            onClick={() => {
++              if (txQuery.hasNextPage) void txQuery.fetchNextPage();
++              if (ticketTxQuery.hasNextPage) void ticketTxQuery.fetchNextPage();
++            }}
++          >
++            {(txQuery.isFetchingNextPage || ticketTxQuery.isFetchingNextPage) ? (
++              <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
++            ) : tc('loadMore')}
++          </Button>
++        </div>
++      )}
++
+       {/* Footer count */}
+       <div className="text-center text-[10px] text-white/30 pb-4">
+         {t('showingCount', { count: rows.length })}
+diff --git a/src/lib/queries/index.ts b/src/lib/queries/index.ts
+index f372aa91..eb54d6b6 100644
+--- a/src/lib/queries/index.ts
++++ b/src/lib/queries/index.ts
+@@ -11,7 +11,7 @@ export { useEnrichedPlayers, enrichPlayersWithData } from './enriched';
+ export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds, useUserSocialStats } from './social';
+ export { useEvents, useJoinedEventIds } from './events';
+ export { useUserStats } from './stats';
+-export { useTransactions, useWildcardHistory, useLeaderboard, usePosts, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
++export { useTransactions, useInfiniteTransactions, useWildcardHistory, useLeaderboard, usePosts, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
+ export { useActiveIpos } from './ipos';
+ export { useTrendingPlayers } from './trending';
+ export { useAllPriceHistories } from './priceHist';
+diff --git a/src/lib/queries/keys.ts b/src/lib/queries/keys.ts
+index 1b01b39c..f480479a 100644
+--- a/src/lib/queries/keys.ts
++++ b/src/lib/queries/keys.ts
+@@ -144,6 +144,7 @@ export const qk = {
+   // ── Transactions ──
+   transactions: {
+     byUser: (uid: string, n: number) => ['transactions', uid, n] as const,
++    infinite: (uid: string, pageSize: number) => ['transactions', 'infinite', uid, pageSize] as const,
+     all: ['transactions'] as const,
+   },
+ 
+@@ -296,6 +297,7 @@ export const qk = {
+   tickets: {
+     balance: (uid: string) => ['tickets', uid] as const,
+     transactions: (uid: string, limit?: number) => ['tickets', 'transactions', uid, limit] as const,
++    transactionsInfinite: (uid: string, pageSize: number) => ['tickets', 'transactions', 'infinite', uid, pageSize] as const,
+   },
+ 
+   // ── Daily Challenges ──
+diff --git a/src/lib/queries/misc.ts b/src/lib/queries/misc.ts
+index 98644b3b..59ae6086 100644
+--- a/src/lib/queries/misc.ts
++++ b/src/lib/queries/misc.ts
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { useQuery } from '@tanstack/react-query';
++import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+ import { qk } from './keys';
+ import { getTransactions, getHoldingQty, getPlayerHolderCount } from '@/lib/services/wallet';
+ import { getWatcherCount } from '@/lib/services/watchlist';
+@@ -35,6 +35,23 @@ export function useTransactions(
+   });
+ }
+ 
++/** Offset-paginated credit-transaction history. Use for the /transactions page. */
++export function useInfiniteTransactions(
++  userId: string | undefined,
++  pageSize = 50,
++  enabled = true,
++) {
++  return useInfiniteQuery({
++    queryKey: qk.transactions.infinite(userId!, pageSize),
++    queryFn: ({ pageParam }) => getTransactions(userId!, pageSize, pageParam),
++    initialPageParam: 0,
++    getNextPageParam: (lastPage, allPages) =>
++      lastPage.length < pageSize ? undefined : allPages.length * pageSize,
++    enabled: !!userId && enabled,
++    staleTime: TWO_MIN,
++  });
++}
++
+ /**
+  * Fetch wildcard transaction history for a user.
+  * Reads from the `wildcard_transactions` table via getWildcardHistory.
+diff --git a/src/lib/queries/tickets.ts b/src/lib/queries/tickets.ts
+index 044d337e..cb5ca213 100644
+--- a/src/lib/queries/tickets.ts
++++ b/src/lib/queries/tickets.ts
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { useQuery } from '@tanstack/react-query';
++import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+ import { qk } from './keys';
+ import { getUserTickets, getTicketTransactions } from '@/lib/services/tickets';
+ 
+@@ -29,3 +29,20 @@ export function useTicketTransactions(
+     staleTime: THIRTY_SEC,
+   });
+ }
++
++/** Offset-paginated ticket-transaction history. Use for the /transactions page. */
++export function useInfiniteTicketTransactions(
++  userId: string | undefined,
++  pageSize = 50,
++  enabled = true,
++) {
++  return useInfiniteQuery({
++    queryKey: qk.tickets.transactionsInfinite(userId!, pageSize),
++    queryFn: ({ pageParam }) => getTicketTransactions(userId!, pageSize, pageParam),
++    initialPageParam: 0,
++    getNextPageParam: (lastPage, allPages) =>
++      lastPage.length < pageSize ? undefined : allPages.length * pageSize,
++    enabled: !!userId && enabled,
++    staleTime: THIRTY_SEC,
++  });
++}
+diff --git a/src/lib/services/tickets.ts b/src/lib/services/tickets.ts
+index 4d884b33..e913dc13 100644
+--- a/src/lib/services/tickets.ts
++++ b/src/lib/services/tickets.ts
+@@ -35,14 +35,14 @@ export async function getUserTickets(_userId: string): Promise<DbUserTickets | n
+   return row as DbUserTickets | null;
+ }
+ 
+-/** Fetch ticket transaction history (newest first) */
+-export async function getTicketTransactions(userId: string, limit = 20): Promise<DbTicketTransaction[]> {
++/** Fetch ticket transaction history (newest first, offset-paginated) */
++export async function getTicketTransactions(userId: string, limit = 20, offset = 0): Promise<DbTicketTransaction[]> {
+   const { data, error } = await supabase
+     .from('ticket_transactions')
+     .select('id, user_id, amount, balance_after, source, reference_id, description, created_at')
+     .eq('user_id', userId)
+     .order('created_at', { ascending: false })
+-    .limit(limit);
++    .range(offset, offset + limit - 1);
+ 
+   if (error) throw new Error(error.message);
+   return (data ?? []) as DbTicketTransaction[];
