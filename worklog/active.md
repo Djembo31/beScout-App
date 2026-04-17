@@ -13,7 +13,8 @@ started: —
 ## Pipeline (Variante 2 — Broad Sweep)
 
 1. ~~044 — A-02 auth.uid() Body-Audit + INV-31~~ ✅ DONE 2026-04-18 (e96f34e1)
-2. ~~045 — A-03 RLS-Matrix komplett~~ ✅ DONE 2026-04-18
+2. ~~045 — A-03 RLS-Matrix komplett~~ ✅ DONE 2026-04-18 (42690cbc)
+3. ~~046 — A-04 Live-Ledger-Health Reconciliation + INV-33~~ ✅ DONE 2026-04-18
 2. 045 — A-03 RLS-Matrix komplett (INV-26 erweitern)
 3. 046 — A-04 Live-Ledger-Health Query + INV-Test
 4. 047 — Historische Notifications umschreiben (XS)

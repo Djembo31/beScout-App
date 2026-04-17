@@ -1734,4 +1734,65 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-33: SUM(transactions.amount) == wallets.balance pro User (Slice 046)
+  // Ergaenzt INV-16 (latest tx.balance_after == wallet.balance).
+  // INV-16 faengt: Transaction nach Wallet-Update vergessen.
+  // INV-33 faengt: Wallet-Balance-Mutation ohne Transaction-Log (admin adjust,
+  //                racy init, legacy setup).
+  // Slice 046: 69 Dev-Accounts mit historischer drift reconciled via
+  // compensating welcome_bonus tx-rows. Alle 124 wallets jetzt balanced.
+  // ─────────────────────────────────────────────────────
+  it('INV-33: SUM(transactions.amount) matches wallets.balance for every user (Slice 046)', async () => {
+    // Pull wallets + transactions via Supabase-Client (service_role bypasses RLS),
+    // aggregiere client-side. Kein execute_sql_readonly RPC benoetigt.
+    const { data: wallets, error: wErr } = await sb
+      .from('wallets')
+      .select('user_id, balance');
+    expect(wErr, `wallets fetch failed: ${wErr?.message}`).toBeNull();
+
+    // Paginierung: transactions kann viele Rows haben. Supabase-Client default-limit ist 1000.
+    // Wir ziehen alle Seiten ueber range() bis erschoepft.
+    const txSumByUser = new Map<string, bigint>();
+    const PAGE_SIZE = 1000;
+    let offset = 0;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { data: txPage, error: tErr } = await sb
+        .from('transactions')
+        .select('user_id, amount')
+        .range(offset, offset + PAGE_SIZE - 1);
+      expect(tErr, `transactions fetch failed: ${tErr?.message}`).toBeNull();
+      if (!txPage || txPage.length === 0) break;
+
+      for (const tx of txPage as Array<{ user_id: string; amount: number | string }>) {
+        const amt = BigInt(String(tx.amount));
+        txSumByUser.set(tx.user_id, (txSumByUser.get(tx.user_id) ?? BigInt(0)) + amt);
+      }
+
+      if (txPage.length < PAGE_SIZE) break;
+      offset += PAGE_SIZE;
+    }
+
+    const drifts: string[] = [];
+    for (const w of (wallets ?? []) as Array<{ user_id: string; balance: number | string }>) {
+      const balance = BigInt(String(w.balance));
+      const txSum = txSumByUser.get(w.user_id) ?? BigInt(0);
+      const drift = balance - txSum;
+      if (drift !== BigInt(0)) {
+        drifts.push(
+          `User ${w.user_id}: wallet=${balance}, tx_sum=${txSum}, drift=${drift}`
+        );
+      }
+    }
+
+    if (drifts.length === 0) {
+      console.log(
+        `[INV-33] checked ${wallets?.length ?? 0} wallets, ${txSumByUser.size} users with tx history, 0 drift — ledger balanced`
+      );
+    }
+
+    expect(drifts, drifts.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

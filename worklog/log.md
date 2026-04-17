@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 046 | 2026-04-18 | A-04 Live-Ledger-Health Reconciliation + INV-33
+- Stage-Chain: SPEC → IMPACT(live-query) → BUILD(data-migration) → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418140000_slice_046_ledger_reconciliation.sql` (NEW) — 69 compensating welcome_bonus tx-rows fuer Dev-Accounts
+  - `src/lib/__tests__/db-invariants.test.ts` (+80 lines) — INV-33 mit pagination-based wallet vs tx-sum drift-check
+  - `worklog/specs/046-a04-ledger-health.md`, `worklog/proofs/046-ledger-query.txt`, `worklog/proofs/046-inv33-vitest.txt`
+- Proof: 69 drift Users → 0 drift. 124/124 balanced. Total reconciled 2,887,052 $SCOUT (= 288M cents). INV-33 gruen, 31/31 INV-Tests grun. tsc clean.
+- Commit: tba
+- Notes: Variante-2 Slice #3/10. Szenario B (N drift) statt Szenario A (0 drift). Alle 69 drift-User sind Dev/Test/Demo (bot001-050, test*, demo-*, elif_mgr, jarvisqa, k_dmrts). Kein produktiver User betroffen (Beta-Launch noch nicht live). Drift entstand pre-Slice-022 als Welcome-Bonus direkt in wallets.balance ohne transactions-row geschrieben wurde. Fix: compensating transactions-row mit created_at < MIN(existing_tx) — INV-16 bleibt gruen (last-balance_after unveraendert). INV-33 faengt zukuenftige drift-Klasse (wallet-mutation ohne tx-log).
+
+---
+
 ## 045 | 2026-04-18 | A-03 RLS-Matrix komplett (INV-32)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +30,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/lib/__tests__/db-invariants.test.ts` (+180 lines) — INV-32 mit EXPECTED_PUBLIC (60) + EXPECTED_SENSITIVE (56) Listen
   - `worklog/specs/045-a03-rls-matrix-komplett.md`, `worklog/proofs/045-matrix-{before,after}.txt`, `worklog/proofs/045-inv32-vitest.txt`
 - Proof: 120 public Tables auditiert, 60 qual=true allowlisted, 56 sensitive-blocklist protected, 0 violations. 30/30 INV-Tests gruen.
-- Commit: tba
+- Commit: 42690cbc
 - Notes: Variante-2 Slice #2/10. INV-32 erweitert INV-26 (8 Tables) auf komplette Matrix. Reviewer PASS. Future-Follow-Up (non-blocking): `pbt_treasury`/`pbt_transactions` Policies `TO PUBLIC` — anon kann Treasury lesen. Post-Slice-Polish-Thema (falls Business Transparenz auf authenticated beschraenken will). Sonst: 120 Tables entsprechen Erwartungen (urspruenglich 114 geschaetzt, Live-Count: 120).
 
 ---

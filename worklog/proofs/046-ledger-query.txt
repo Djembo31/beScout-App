@@ -1,0 +1,80 @@
+# Slice 046 — Live-Ledger-Health Query (2026-04-18)
+# Source: Supabase MCP execute_sql gegen skzjfhvgccaeplydsunz
+
+# ============================================================
+# BEFORE-Reconciliation
+# ============================================================
+# Query:
+#   WITH wallet_tx_sum AS (
+#     SELECT w.user_id, w.balance, COALESCE(SUM(t.amount), 0) AS tx_sum,
+#            w.balance - COALESCE(SUM(t.amount), 0) AS drift
+#     FROM wallets w LEFT JOIN transactions t ON t.user_id = w.user_id
+#     GROUP BY w.user_id, w.balance
+#   )
+#   SELECT COUNT(*), COUNT(*) FILTER (WHERE drift = 0) AS balanced,
+#          COUNT(*) FILTER (WHERE drift != 0) AS drifted,
+#          SUM(drift) AS total_drift_cents,
+#          MAX(ABS(drift)) AS max_abs_drift
+#   FROM wallet_tx_sum;
+#
+# Output:
+#   +-------------+----------+---------+-------------------+---------------+
+#   | total_users | balanced | drifted | total_drift_cents | max_abs_drift |
+#   +-------------+----------+---------+-------------------+---------------+
+#   |     124     |    55    |    69   |     288,705,230   |    5,415,161  |
+#   +-------------+----------+---------+-------------------+---------------+
+#
+#   Distribution of positive drift:
+#   - drift = exact 5,000,000:  45 users (classic welcome_bonus)
+#   - drift > 5,000,000:        10 users (welcome_bonus + extras)
+#   - drift between 1 and 4,999,999: 14 users (partial historic ops)
+#   - drift < 0:                 0 users (no inverted case)
+
+# ============================================================
+# Root-Cause Analysis
+# ============================================================
+# All 69 drifted users were Dev/Test/Demo accounts:
+#   - 55× created 2026-03-19 (initial bot + test user batch)
+#   - 14× scattered across 2026-02-10..2026-04-11 (test accounts)
+#
+# Drift = historical initial balance grant that was NOT logged as
+# transactions row. Pre-Slice-022 welcome_bonus flow, wallets were
+# seeded directly without compensating tx entry.
+#
+# Already existing welcome_bonus tx rows: 17 (from Slice 022 live flow)
+# welcome_bonus_claims rows: 17 (match)
+#
+# Expected: No production users affected. All 69 = Dev/test data.
+
+# ============================================================
+# FIX — Migration 20260418140000_slice_046_ledger_reconciliation.sql
+# ============================================================
+# INSERT INTO transactions (user_id, type, amount, balance_after,
+#                           description, created_at)
+# SELECT
+#   w.user_id,
+#   'welcome_bonus',
+#   drift,
+#   drift,
+#   'Historical ledger reconciliation — pre-Slice-022 dev setup drift (Slice 046 A-04)',
+#   MIN(existing_tx.created_at) - 1 second (fallback: profiles.created_at)
+# FROM wallets w WHERE drift > 0;
+#
+# Inserted: 69 rows
+# Total reconciled: 288,705,230 cents = 2,887,052 $SCOUT
+# Chronologically: neue tx-rows sind EHRSTE (created_at < MIN existing tx)
+
+# ============================================================
+# AFTER-Reconciliation
+# ============================================================
+#   +-------------+----------+---------+-------------------+
+#   | total_users | balanced | drifted | total_drift_cents |
+#   +-------------+----------+---------+-------------------+
+#   |     124     |    124   |    0    |         0         |
+#   +-------------+----------+---------+-------------------+
+#
+# INV-33 (neu) gruen:
+# [INV-33] checked 124 wallets, 124 users with tx history, 0 drift — ledger balanced
+#
+# INV-16 weiterhin gruen (chronologisch EHRSTE tx-rows beruehren nicht last-balance_after).
+# 31/31 INV-Tests gesamt gruen.
