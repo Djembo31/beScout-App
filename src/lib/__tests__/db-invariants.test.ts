@@ -1094,6 +1094,8 @@ describe('DB Invariants', () => {
 
       // Slice 049 — coverage expansion (A-07 audit)
       get_club_balance: ['total_earned', 'trade_fees', 'sub_revenue', 'total_withdrawn', 'available'],
+      // Slice 067 — Club-Assets Admin-Override
+      update_club_assets: ['success', 'error'],
       rpc_get_player_percentiles: ['floor_price_pct', 'holder_count_pct', 'l15_score_pct', 'l5_score_pct', 'pos_assists_pct', 'pos_clean_sheets_pct', 'pos_goals_pct', 'pos_l5_pct', 'pos_l5_rank', 'pos_l5_total', 'pos_matches_pct', 'pos_minutes_pct', 'pos_saves_pct', 'total_trades_pct'],
     };
 

@@ -668,6 +668,23 @@ export async function requestClubWithdrawal(
   return data as OperationResult;
 }
 
+/** Slice 067: Admin-Override fuer Stadium-Image + Logo-URL */
+export async function updateClubAssets(params: {
+  adminId: string;
+  clubId: string;
+  stadiumImageUrl?: string | null;
+  logoUrl?: string | null;
+}): Promise<OperationResult> {
+  const { data, error } = await supabase.rpc('update_club_assets', {
+    p_admin_id: params.adminId,
+    p_club_id: params.clubId,
+    p_stadium_image_url: params.stadiumImageUrl ?? null,
+    p_logo_url: params.logoUrl ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return data as OperationResult;
+}
+
 // ============================================
 // Club Fan Analytics
 // ============================================

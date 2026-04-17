@@ -6,7 +6,7 @@ import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users,
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Card, Button } from '@/components/ui';
-import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings, getClubAdmins, removeClubAdmin, addClubAdmin, updateClubBranding } from '@/lib/services/club';
+import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings, getClubAdmins, removeClubAdmin, addClubAdmin, updateClubBranding, updateClubAssets } from '@/lib/services/club';
 import type { ClubFantasySettings } from '@/lib/services/club';
 import {
   isApiConfigured,
@@ -373,6 +373,98 @@ const JURISDICTION_VALUES: ClubFantasySettings['fantasy_jurisdiction_preset'][] 
 
 type AdminWithProfile = DbClubAdmin & { handle: string; display_name: string | null };
 
+// ============================================
+// Slice 067: Club-Assets Section (Stadium-Image + Logo Override)
+// ============================================
+function ClubAssetsSection({ club, userId }: { club: ClubWithAdmin; userId: string }) {
+  const { addToast } = useToast();
+  const [stadiumUrl, setStadiumUrl] = useState(club.stadium_image_url ?? '');
+  const [logoUrl, setLogoUrl] = useState(club.logo_url ?? '');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      const result = await updateClubAssets({
+        adminId: userId,
+        clubId: club.id,
+        stadiumImageUrl: stadiumUrl.trim() || '',  // empty string = explicit clear
+        logoUrl: logoUrl.trim(),
+      });
+      if (result.success) {
+        addToast('Assets aktualisiert', 'success');
+      } else {
+        addToast(result.error ?? 'Fehler beim Speichern', 'error');
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }, [userId, club.id, stadiumUrl, logoUrl, addToast]);
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center">
+          <Palette className="w-5 h-5 text-sky-400" />
+        </div>
+        <div>
+          <div className="font-bold">Club-Assets</div>
+          <div className="text-xs text-white/50">Stadion-Bild + Logo-Override</div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs text-white/60 mb-1 block" htmlFor="stadium-url-input">
+            Stadion-Hero-Bild URL (optional)
+          </label>
+          <input
+            id="stadium-url-input"
+            type="url"
+            value={stadiumUrl}
+            onChange={(e) => setStadiumUrl(e.target.value)}
+            placeholder="https://..."
+            className="w-full px-3 py-2 bg-white/5 rounded-lg border border-white/10 text-sm focus:border-sky-500/50 focus:outline-none"
+            style={{ fontSize: '16px' }}
+          />
+          <p className="text-xs text-white/40 mt-1">
+            Fallback: <code>/stadiums/{club.slug}.jpg</code> → <code>/stadiums/default.jpg</code>. Leer lassen = Auto-Fallback.
+          </p>
+        </div>
+
+        <div>
+          <label className="text-xs text-white/60 mb-1 block" htmlFor="logo-url-input">
+            Logo-URL (Override der api-sports-Quelle)
+          </label>
+          <input
+            id="logo-url-input"
+            type="url"
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            placeholder="https://media.api-sports.io/football/teams/..."
+            className="w-full px-3 py-2 bg-white/5 rounded-lg border border-white/10 text-sm focus:border-sky-500/50 focus:outline-none"
+            style={{ fontSize: '16px' }}
+          />
+          <p className="text-xs text-white/40 mt-1">
+            Muss mit https:// beginnen. Aktuelle Quelle: {(club.logo_url || '').split('/')[2] || '—'}
+          </p>
+        </div>
+
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="min-h-[44px]"
+        >
+          {saving ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+          Speichern
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
   const { user } = useUser();
   const { addToast } = useToast();
@@ -542,6 +634,9 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
 
       {/* API-Football Integration — Owner + Admin */}
       {canSyncApi && user?.id && <ApiFootballSection userId={user.id} />}
+
+      {/* Slice 067: Club-Assets — Owner + Admin */}
+      {canSyncApi && user?.id && <ClubAssetsSection club={club} userId={user.id} />}
 
       {/* Fantasy Settings — Owner only for jurisdiction */}
       {canSetJurisdiction && (
