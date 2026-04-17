@@ -1,0 +1,16 @@
+-- Slice 024 — cron.job listing AFTER apply
+-- Captured 2026-04-17 via SELECT jobname, schedule, command, active FROM cron.job
+
+5 jobs aktiv (+1 neu: score-pending-events):
+
+| jobname                    | schedule        | active | command                                  |
+|----------------------------|-----------------|--------|------------------------------------------|
+| daily-analyst-decay        | 0 4 * * *       | true   | SELECT check_all_analyst_decay()         |
+| daily-mastery-hold-days    | 0 3 * * *       | true   | SELECT increment_mastery_hold_days()     |
+| event-status-sync          | */15 * * * *    | true   | running → ended (status transition)      |
+| gameweek-sync-trigger      | */30 * * * *    | true   | net.http_get → /api/cron/gameweek-sync   |
+| score-pending-events       | */5 * * * *     | true   | SELECT public.cron_score_pending_events()|  ← NEW
+
+Naechste geplante Laufzeit: innerhalb 5 Minuten nach Deploy (pg_cron startet sofort).
+Monitoring: SELECT * FROM cron.job_run_details WHERE jobname='score-pending-events' ORDER BY start_time DESC LIMIT 10;
+Rollback: SELECT cron.unschedule('score-pending-events');

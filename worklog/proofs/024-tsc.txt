@@ -1,0 +1,6 @@
+$ npx tsc --noEmit
+(no output — CLEAN)
+
+Slice 024 — B5 Event Scoring Automation
+tsc --noEmit laueft ohne Fehler durch, 0 type errors.
+Keine neuen TS-Types — nur pg_cron-Infrastruktur + 1 neuer INV-Test.

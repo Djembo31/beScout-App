@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 024 | 2026-04-17 | B5 Event Scoring Automation (pg_cron, Option c)
+- Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417130000_cron_score_pending_events.sql` (NEW — wrapper-RPC `cron_score_pending_events()` mit idempotenter Event-Scoring-Loop + AR-44 Block)
+  - `supabase/migrations/20260417140000_cron_schedule_score_pending.sql` (NEW — cron.schedule `*/5 * * * *` + Audit-Helper `get_cron_job_schedule(text)` + AR-44 Block)
+  - `src/lib/__tests__/db-invariants.test.ts` (+ INV-28: body-fragments + cron-job schedule/active via get_rpc_source + get_cron_job_schedule)
+  - `worklog/specs/024-b5-event-scoring-automation.md` (NEW)
+  - `worklog/impact/024-b5-event-scoring-automation.md` (NEW)
+- Proofs:
+  - `worklog/proofs/024-cron-before.txt` (4 jobs aktiv vor apply)
+  - `worklog/proofs/024-cron-after.txt` (5 jobs aktiv inkl. score-pending-events */5 * * * *)
+  - `worklog/proofs/024-rpc-body.txt` (cron_score_pending_events Body)
+  - `worklog/proofs/024-dry-run.txt` (`{success:true, scored:0, skipped:0, errored:0}` — RPC-Compile + Query-Pfad + JSONB-Return OK, keine faelligen events)
+  - `worklog/proofs/024-tsc.txt` (clean)
+  - `worklog/proofs/024-tests.txt` (db-invariants 26/26 inkl. INV-28)
+- Commit: <pending>
+- Notes: CEO approved (c) pg_cron 2026-04-17. Wrapper findet events mit `status='ended' OR (status='running' AND ends_at <= NOW())` AND `scored_at IS NULL` AND `gameweek IS NOT NULL` — ORDER BY ends_at ASC LIMIT 50. Per-event BEGIN/EXCEPTION-Block fuer Fail-Isolation (ein Crash blockt nicht Batch). `score_event` bereits idempotent via `scored_at IS NOT NULL` Guard + `no_player_game_stats` Early-Exit, keine Body-Aenderung. Neuer Audit-Helper `get_cron_job_schedule(text)` analog zu Slice 023's `get_rpc_source` — service_role-only (AR-44 REVOKE/GRANT korrekt), exclusiv fuer INV-28 genutzt. Bestehender `event-status-sync` cron (15min) bleibt unveraendert — transitioniert weiter `running → ended`, unser neuer cron scort dann `ended + scored_at=NULL`. Worst-case Delay: gameweek-sync 30min + score-cron 5min = ~35min zwischen Event-Ende und User-Reward. Rollback: `SELECT cron.unschedule('score-pending-events')` — Wrapper-RPC darf bleiben (seiteneffektfrei).
+
+---
+
 ## 023 | 2026-04-17 | B4 Lineup Server-Validation (Strict-Reject)
 - Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
 - Files:

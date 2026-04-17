@@ -1,0 +1,67 @@
+-- Slice 024 — cron_score_pending_events RPC body (post-apply)
+-- Via get_rpc_source('cron_score_pending_events')
+
+CREATE OR REPLACE FUNCTION public.cron_score_pending_events()
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_catalog
+AS $function$
+DECLARE
+  v_event RECORD;
+  v_result JSONB;
+  v_scored INT := 0;
+  v_skipped INT := 0;
+  v_errored INT := 0;
+  v_errors JSONB := '[]'::jsonb;
+BEGIN
+  FOR v_event IN
+    SELECT id, name, ends_at, gameweek
+    FROM public.events
+    WHERE (status = 'ended' OR (status = 'running' AND ends_at <= NOW()))
+      AND scored_at IS NULL
+      AND gameweek IS NOT NULL
+    ORDER BY ends_at ASC
+    LIMIT 50
+  LOOP
+    BEGIN
+      v_result := public.score_event(v_event.id);
+      IF (v_result->>'success')::BOOLEAN = true THEN
+        v_scored := v_scored + 1;
+      ELSE
+        v_skipped := v_skipped + 1;
+        v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+          'event_id', v_event.id,
+          'name', v_event.name,
+          'reason', COALESCE(v_result->>'error', 'unknown')
+        ));
+      END IF;
+    EXCEPTION WHEN OTHERS THEN
+      v_errored := v_errored + 1;
+      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+        'event_id', v_event.id,
+        'name', v_event.name,
+        'reason', 'EXCEPTION: ' || SQLERRM
+      ));
+    END;
+  END LOOP;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'scored', v_scored,
+    'skipped', v_skipped,
+    'errored', v_errored,
+    'errors', v_errors,
+    'ran_at', NOW()
+  );
+END;
+$function$;
+
+-- AR-44 Block angewendet:
+--   REVOKE EXECUTE FROM PUBLIC, anon, authenticated
+--   GRANT EXECUTE TO service_role
+
+-- score_event internal-Guards stellen Idempotency sicher:
+--   IF v_event.scored_at IS NOT NULL → return 'Event bereits ausgewertet'
+--   IF v_event.gameweek IS NULL → return 'Event hat keinen Gameweek'
+--   IF COUNT(player_gameweek_scores WHERE gameweek=...) = 0 → return 'no_player_game_stats'

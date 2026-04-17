@@ -1,0 +1,34 @@
+-- Slice 024 — Dry-Run Test
+-- Manueller Aufruf: SELECT public.cron_score_pending_events();
+-- Captured 2026-04-17 (pre-cron-run, aber post-deploy)
+
+Result:
+{
+  "success": true,
+  "scored": 0,
+  "skipped": 0,
+  "errored": 0,
+  "errors": [],
+  "ran_at": "2026-04-17T09:27:28.480063+00:00"
+}
+
+Interpretation:
+- `success=true` → Funktion laeuft ohne SQL/Body-Error
+- `scored=0 + skipped=0 + errored=0` → aktuell keine faelligen events
+  (events mit ends_at <= NOW() AND scored_at IS NULL AND gameweek IS NOT NULL)
+- Leere errors[] → kein Event-Level-Crash
+- ran_at timestamp vorhanden → Funktion retourniert korrekt
+
+Das Ergebnis zeigt:
+1. Wrapper-RPC compiled ohne Fehler
+2. Query-Pfad funktioniert (events-Tabelle + score_event() Referenz aufloesbar)
+3. JSONB-Response-Shape korrekt
+4. Keine ungewollte Nebenwirkung (scored=0 → kein Event-Update triggert)
+
+Der Cron wird alle 5min (`*/5 * * * *`) diese Funktion aufrufen.
+Nach erster Event-Ende wird scored/skipped/errored!=0 + errors populated.
+
+Monitoring:
+  SELECT * FROM cron.job_run_details
+  WHERE jobname='score-pending-events'
+  ORDER BY start_time DESC LIMIT 10;

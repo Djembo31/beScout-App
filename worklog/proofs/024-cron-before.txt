@@ -1,0 +1,13 @@
+-- Slice 024 — cron.job listing BEFORE apply
+-- Captured 2026-04-17 via SELECT jobname, schedule, active FROM cron.job
+
+4 jobs aktiv:
+
+| jobname                    | schedule        | active |
+|----------------------------|-----------------|--------|
+| daily-analyst-decay        | 0 4 * * *       | true   |
+| daily-mastery-hold-days    | 0 3 * * *       | true   |
+| event-status-sync          | */15 * * * *    | true   |
+| gameweek-sync-trigger      | */30 * * * *    | true   |
+
+Kein `score-pending-events` vorhanden — Admin-manuelles Scoring.

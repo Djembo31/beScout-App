@@ -1207,6 +1207,57 @@ describe('DB Invariants', () => {
   }, 30_000);
 
   // ─────────────────────────────────────────────────────
+  // INV-28: cron_score_pending_events scheduled + body sane
+  // ─────────────────────────────────────────────────────
+  // Slice 024 (B5): Event-Scoring Automation via pg_cron.
+  // Verifies (1) wrapper-RPC body contains expected filters + fail-isolation
+  //          (2) cron-job "score-pending-events" is scheduled and active.
+  it('INV-28: cron_score_pending_events scheduled with correct filters (B5 Slice 024)', async () => {
+    // 1. Wrapper-RPC body scan
+    const { data: bodyData, error: bodyErr } = await sb.rpc('get_rpc_source', {
+      p_rpc_name: 'cron_score_pending_events',
+    });
+    expect(bodyErr, `RPC failed: ${bodyErr?.message}`).toBeNull();
+    expect(bodyData, 'cron_score_pending_events RPC not found').toBeTruthy();
+
+    const body = String(bodyData);
+
+    const requiredFragments = [
+      'scored_at IS NULL',         // idempotency filter
+      'gameweek IS NOT NULL',      // score_event prerequisite
+      'score_event',               // delegates to existing RPC
+      'WHEN OTHERS',               // fail-isolation
+      'LIMIT 50',                  // safety bound
+      "status = 'ended'",          // post-transition scoring
+      "status = 'running'",        // race with event-status-sync
+      'ends_at',                   // time filter
+    ];
+    const missing = requiredFragments.filter((f) => !body.includes(f));
+    expect(
+      missing,
+      `Missing expected fragments in cron_score_pending_events: ${missing.join(', ')}`,
+    ).toHaveLength(0);
+
+    // 2. Cron-Job exists + schedule
+    const { data: jobData, error: jobErr } = await sb.rpc('get_cron_job_schedule', {
+      p_jobname: 'score-pending-events',
+    });
+    expect(jobErr, `get_cron_job_schedule failed: ${jobErr?.message}`).toBeNull();
+    expect(jobData, 'cron job score-pending-events not scheduled').toBeTruthy();
+
+    const job = jobData as {
+      jobname: string;
+      schedule: string;
+      command: string;
+      active: boolean;
+    };
+    expect(job.jobname).toBe('score-pending-events');
+    expect(job.schedule).toBe('*/5 * * * *');
+    expect(job.active).toBe(true);
+    expect(job.command).toContain('cron_score_pending_events');
+  }, 30_000);
+
+  // ─────────────────────────────────────────────────────
   // INV-27: rpc_save_lineup enforces formation validation
   // ─────────────────────────────────────────────────────
   // Slice 023 (B4): Client-Formation-Check ist umgehbar via direkten RPC-Call.
