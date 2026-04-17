@@ -129,3 +129,4 @@ memory/episodisch/metriken/sessions.jsonl
 # Firecrawl cache
 .firecrawl/
 walkthrough/
+.env.vercel-prod

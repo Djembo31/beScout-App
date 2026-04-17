@@ -24,38 +24,50 @@
 
 ## Was läuft autonom ab sofort
 
-**4 Vercel-Crons aktiv seit 2026-04-18:**
+**2 Vercel-Crons aktiv (Sync-Crons nach CEO-Decision pausiert):**
 
-| Cron | Schedule | Aktion | Expected-Impact |
-|------|----------|--------|-----------------|
-| `sync-players-daily` | 03:00 UTC | API-Football /players refresh 134 Clubs | 538 nationality+photo-Gaps gefüllt |
-| `transfermarkt-search-batch` | jede Stunde :30 | Name-Search für 3938 unmapped players | ~30 neue tm-Mappings/h → 5.5d Full-Discovery |
-| `sync-transfermarkt-batch` | alle 2h :00 | Profile-Scrape 50 players → market_value + contract_end | ~600 scrapes/Tag |
-| `gameweek-sync-trigger` | alle 30 min | Match-Stats (existing) | goals/assists |
+| Cron | Schedule | Aktion |
+|------|----------|--------|
+| `gameweek-sync-trigger` | 06:00 UTC | Match-Stats (existing) |
+| `close-expired-bounties` | 05:00 UTC | Bounty-Cleanup (existing) |
 
-**Erster Run:** morgen 03:00 UTC (player-sync), dann rolling ab :30.
+**Data-Sync-Crons deaktiviert** (Commit `044b66c9` nach CEO-Decision):
+- `sync-players-daily` — Endpoint bleibt aktiv, **nur manual-trigger**
+- `sync-transfermarkt-batch` — Endpoint bleibt aktiv, **nur manual-trigger**
+- `transfermarkt-search-batch` — Endpoint bleibt aktiv, **nur manual-trigger**
+
+**Manual-Trigger-Commands:**
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  https://bescout.net/api/cron/sync-players-daily
+
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  "https://bescout.net/api/cron/transfermarkt-search-batch?limit=30"
+
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  "https://bescout.net/api/cron/sync-transfermarkt-batch?limit=50"
+```
+
+**Middleware-Fix (`4e660199`):** `/api/cron/*` aus auth-middleware exkludiert, damit Cron-Endpoints triggerbar sind ohne User-Auth (nur CRON_SECRET).
 
 ---
 
 ## Offene Entscheidungen (User-Input nötig)
 
-### D1 — Cron-Frequenz korrigieren (PRIORITY: JETZT)
+### D1 — Cron-Schedule nach Launch einstellen
 
-CEO sagt: "reicht doch alle 4 Monate oder vertue ich mich? warum täglich?"
-Analyse bestätigt: Transfermarkt-Updates kommen 2-3×/Jahr + ad-hoc. Daily ist Overkill.
+CEO-Decision: Bis Launch nur manual. Post-Launch: Schedule je nach Usage-Patterns.
 
-**Vorschlag (Slice 069):**
-| Cron | Alt | Neu |
-|------|-----|-----|
-| `sync-transfermarkt-batch` | alle 2h | **1× pro Woche (Sonntag 04:00) + missing_only** |
-| `transfermarkt-search-batch` | stündlich | **high-freq 2 Wochen bis Discovery-Coverage, dann 1×/Woche** |
-| `sync-players-daily` | täglich | **unverändert** (API-Football günstig) |
+**Vorschlag für post-Launch (Slice 069):**
+| Cron | Vorgeschlagene Frequenz |
+|------|-------------------------|
+| `sync-transfermarkt-batch` | **1× pro Woche (Sonntag 04:00) + missing_only** |
+| `transfermarkt-search-batch` | **2 Wochen initial high-freq bis Discovery-Coverage, dann 1×/Woche** |
+| `sync-players-daily` | **1× täglich** (API-Football günstig, Shirt-Transfers) |
 
-**Plus:** Admin-Manual-Trigger-Button "Full Market-Value-Refresh" für 3×/Jahr CEO-getriggered Deep-Refresh.
+**Plus:** Admin-Manual-Trigger-Button "Full Market-Value-Refresh" im AdminSettingsTab für 3×/Jahr CEO-getriggered Deep-Refresh (nach Transferfenstern).
 
-**Effekt:** Transfermarkt-Load von ~2000/Tag auf ~80/Woche (25× weniger). Cloudflare-Risiko = null.
-
-**User-Entscheidung fehlt:** (a) Cron wöchentlich, CEO manual 3×/Jahr — ODER — (b) Komplett aus Cron, nur manual.
+**Effekt:** Transfermarkt-Load ~80/Woche statt daily. Cloudflare-Risiko null.
 
 ### D2 — Launch-Strategie für Ligen
 

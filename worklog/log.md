@@ -15,7 +15,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Stage-Chain: SPEC(inline) → BUILD(Playwright MCP) → PROVE → LOG
 - Files: `worklog/proofs/058-verify-report.md` + 3 Screenshots
 - Proof: **VERDICT GREEN** — 0 Regressions, 14 Slices live verified auf bescout.net. Notifications-Dropdown zeigt i18n-keys korrekt ("Aufstieg: Elite!" tierPromotionLevel + "Scout-Tipp... 10 Credits" tipReceivedNotif). 0 raw "Trader"/"BSD" user-facing. Player-Detail lädt mit pbt-authenticated-only policy (Slice 056). Profile + Market + Timeline alle 0 console-errors.
-- Commit: tba
+- Commit: 7ae8ec71
 - Notes: Re-Verify-Slice nach 14 deployed Slices. Bestaetigt dass Slice 044-057 keine Regressions auf live verursacht haben. Nicht verifiziert: Mobile 393px, Club-Admin Revenue-Tab (jarvis-qa hat kein admin), Push-Notifications Empfang, echter TR-Locale-Switch — alle kosmetisch / Beta-Feature. **Pilot-Readiness: GREEN fuer alle heute implementierten Hardening-Slices.**
 
 ---
