@@ -1607,9 +1607,9 @@ describe('DB Invariants', () => {
       profiles: 'Public Profile, read-by-anyone (display_name, handle etc)',
       user_follows: 'Follow-Graph, public',
 
-      // Platform Treasury (Transparenz)
-      pbt_transactions: 'PBT-Treasury-Transactions, Transparenz-by-design',
-      pbt_treasury: 'PBT-Treasury-State, Transparenz-by-design',
+      // Platform Treasury (Transparenz fuer authenticated)
+      pbt_transactions: 'PBT-Treasury-Transactions, Transparenz fuer authenticated (Slice 056)',
+      pbt_treasury: 'PBT-Treasury-State, Transparenz fuer authenticated (Slice 056)',
 
       // Internal Operational Logs
       cron_sync_log: 'Cron-Sync-Log, authenticated-read fuer Admin-UI',

@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 056 | 2026-04-18 | pbt_* Policies TO authenticated (Nitpick 045)
+- Stage-Chain: SPEC(inline) → IMPACT(grep) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418190000_slice_056_pbt_tighten_to_authenticated.sql` (NEW)
+  - `src/lib/__tests__/db-invariants.test.ts` — INV-32 Allowlist-Reason updated
+- Proof: Policies jetzt `TO authenticated` (war `{public}`). Kein Frontend-Consumer aus anon-Kontext. 31/31 INV-Tests gruen, tsc clean.
+- Commit: tba
+- Notes: Nitpick-Follow-Up aus Slice 045 Review. pbt_treasury + pbt_transactions hatten SELECT `USING (true) TO public` → anon konnte Treasury-State lesen. Jetzt nur authenticated. Transparenz-by-design bleibt fuer eingeloggte User gegeben.
+
+---
+
 ## 055 | 2026-04-18 | TR-i18n Social/Admin RPCs + message-Column Bug-Fixes (048c)
 - Stage-Chain: SPEC → IMPACT(live-query) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +29,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `messages/de.json`, `messages/tr.json` — je +16 neue notifTemplates keys (total 4878 each)
   - `worklog/specs/055-048c-tr-i18n-social-admin-rpcs.md`, `worklog/proofs/055-i18n-verify.txt`
 - Proof: 13/14 notification-RPCs schreiben structured i18n. 4 Latent-Bugs gefixt (message→body). tsc clean, 31/31 INV-Tests gruen.
-- Commit: tba
+- Commit: d8771b4d
 - Notes: 048c Follow-Up. TR-i18n Initiative komplett (ausser notify_watchlist_price_change - AR-59 async-pattern). Migriert: accept_mentee, admin_delete_post, claim_scout_mission_reward, refresh_user_stats, request_mentor, subscribe_to_scout, sync_level_on_stats_update, verify_scout. Latent-Bug-Fixes (4 RPCs hätten 42703 geworfen): accept_mentee, request_mentor, claim_scout_mission_reward, verify_scout auf body-Column umgestellt. BSD→Credits in claim_scout_mission_reward + subscribe_to_scout-error nebenbei.
 
 ---
