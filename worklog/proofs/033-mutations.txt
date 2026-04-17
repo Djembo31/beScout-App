@@ -1,0 +1,35 @@
+Slice 033 — Live-Verify auf bescout.net (Post-Deploy)
+======================================================
+
+Deploy-Commit: 79f244d3
+Vercel-Build: ~90s nach Push (2026-04-17 ~13:14 UTC)
+Verify-Time: 2026-04-17 13:17 UTC
+
+# Triangulation Burak Çoban
+DB orders.price_cents       = 48431
+Marktplatz-Liste            = "484,31"
+BuyConfirmModal Preis/SC    = "484,31 CR"
+BuyConfirmModal Gesamt      = "484,31 CR"
+BuyConfirmModal Danach      = "7.509,19 CR"
+Math: 7993,50 - 484,31      = 7509,19 ✓
+Math: 48431 / 100           = 484,31 ✓
+
+Vorher (Bug): Modal haette "4,84 CR" gezeigt (Faktor 100 zu klein).
+Jetzt (Fix):  Modal zeigt korrekte 484,31 CR.
+
+# Action
+- Modal NICHT bestaetigt (RPC immer noch broken durch Bug #2 transactions_type_check)
+- Modal via "Abbrechen" geschlossen — kein Wallet-Move, kein Holding-Add
+
+# Verdict
+Display-Drift = GREEN. UI versprochener Preis matched Listings UND DB.
+Sobald Bug #2 (Slice 034) gefixt ist, kann ein Live-Buy ohne Vertrauensbruch laufen.
+
+# Pending P0/P1 (Folge-Slices)
+- 034: buy_player_sc transactions.type 'buy' → 'trade_buy' Migration
+- 035: trg trade_refresh auth_uid_mismatch (Trigger-Body-Analyse)
+- 036: sync_event_statuses permission denied (Logs zeigen wiederholte Errors)
+
+# Slice 032 Phase 7 Verify-Status
+Read-only:  4/4 GREEN (Wallet, Events, Result-Modal, Notifications)
+Mutating:   blockiert bis 034 + 035 durch

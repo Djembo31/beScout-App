@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 033 | 2026-04-17 | P0 BuyConfirmModal Money-Display-Drift (Faktor-100-Bug)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `src/features/market/components/MarketContent.tsx` (Inline-Logik → Helper)
+  - `src/features/market/components/marketContent.priceCents.ts` (NEW Helper)
+  - `src/features/market/components/__tests__/marketContent.priceCents.test.ts` (NEW, 8 Lock-Tests)
+  - `src/types/index.ts` (JSDoc-Annotation auf Listing.price)
+  - `worklog/specs/033-money-unit-drift-audit.md` (NEW)
+  - `worklog/proofs/033-{bug-trace,grep-audit,tsc-vitest,buymodal-fixed.png,mutations}.{txt,png}` (NEW)
+- Proof: worklog/proofs/033-buymodal-fixed.png (Live: Burak Çoban 484,31 CR matched Liste + DB-cents/100)
+- Commit: 79f244d3
+- Notes: Listing.price ist BSD/CR (via centsToBsd in enriched.ts), wurde aber als priceCents an BuyConfirmModal weitergegeben → Modal teilte erneut durch 100 → Anzeige 100x zu klein. RPC haette korrekte cents abgezogen → User-Vertrauensbruch latent. Maskiert nur durch separate RPC-Crashes (Slice 034/035 pending). Audit zeigte: nur 1 Drift-Site existierte, alle anderen Money-UI korrekt.
+
+## 032 | 2026-04-17 | Phase 7 Part 2 — Read-only Flows GREEN, Mutating PAUSED
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD(verify-only) → PROVE(partial) → LOG(partial)
+- Files: `worklog/specs/032-phase7-verify-remaining-flows.md` (NEW), 5 Screenshots in worklog/proofs/032-flow-*.png
+- Proof: 4/4 Read-only GREEN (Wallet 03, Events 09, Result-Modal 12, Notifications 13). Mutating Flows (5/6/7/10) PAUSED durch P0-Findings.
+- Commit: 79f244d3 (gebuendelt mit 033)
+- Notes: Flow 5 (Buy from Market) deckte 4 Bugs auf — 1 Display-Drift (gefixt in 033), 3 RPC-/Trigger-Bugs (Slices 034/035/036 pending). Flow 12 zeigte zusaetzlich UI-Inconsistency: Modal "PUNKTE=0" trotz Top-3 Score 470. Flow 13 zeigte Wording "Trader: Aufstieg" + "BSD Tipp" (Compliance-Findings, separat). Slice wird nach 034/035 fortgesetzt.
+
 ## 031 | 2026-04-17 | Session 4 Wrapup (Briefing + MEMORY Refresh)
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD(edit) → PROVE → LOG
 - Files:
