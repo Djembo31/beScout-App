@@ -1,4 +1,4 @@
-# Session Handoff (2026-04-17 19:19)
+# Session Handoff (2026-04-17 19:54)
 
 ## Uncommitted Changes: 1 Files
 ```
@@ -6,6 +6,7 @@
 ```
 
 ## Session Commits: 10
+- f3b3761e fix(rpc): Compliance Wording Trader→Sammler + BSD→Credits (Slice 043)
 - f79e7fa0 fix(fantasy): EventSummaryModal PUNKTE=0 race + numeric coerce (Slice 042)
 - d5d1f919 docs(rpc): event-entry Wrapper-Pattern dokumentiert (Slice 041)
 - dec1210d docs(slice-039): close — Live-Verify GREEN, 0 console-errors
@@ -15,5 +16,4 @@
 - 1e73eeca fix(rpc): P1 sync_event_statuses 42501 — internal-helper + pg_cron (Slice 036)
 - bb7feedb fix(rpc): P1 trg trade_refresh — internal-helper bypasses AR-44 guard (Slice 035)
 - 6afd0350 docs(slice-032b): close — Phase 7 Mutating-Flows 3/3 GREEN, Phase 7 done
-- 02d40adb docs(slice-038): close — Live-Verify GREEN, Pipeline aktualisiert
 

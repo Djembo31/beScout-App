@@ -11,6 +11,15 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 040 | 2026-04-17 | ClubProvider.test.tsx CI-flake Fix
+- Stage-Chain: BUILD → PROVE → LOG
+- Files: `src/components/providers/__tests__/ClubProvider.test.tsx` (waitFor timeout 5000ms)
+- Proof: 5/5 local gruen
+- Commit: tba
+- Notes: Slice 038 CI-run scheiterte an diesem Test (waitFor default 1000ms CI-slow). 3 waitFor-Calls auf `{timeout: 5000}` umgestellt.
+
+---
+
 ## 043 | 2026-04-17 | Compliance-Wording Trader→Sammler + BSD→Credits
 - Stage-Chain: SPEC → IMPACT(DB-audit) → BUILD → PROVE → LOG
 - Files:

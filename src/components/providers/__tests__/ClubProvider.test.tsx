@@ -75,9 +75,10 @@ describe('ClubProvider', () => {
     render(
       <ClubProvider><ClubInspector /></ClubProvider>,
     );
+    // Slice 040: timeout 5000ms fuer CI-Stability (default 1000ms flaky auf CI-Runner)
     await waitFor(() => {
       expect(screen.getByTestId('loading').textContent).toBe('false');
-    });
+    }, { timeout: 5000 });
     expect(screen.getByTestId('active').textContent).toBe('none');
   });
 
@@ -88,9 +89,10 @@ describe('ClubProvider', () => {
     render(
       <ClubProvider><ClubInspector /></ClubProvider>,
     );
+    // Slice 040: timeout 5000ms fuer CI-Stability (default 1000ms flaky auf CI-Runner)
     await waitFor(() => {
       expect(screen.getByTestId('loading').textContent).toBe('false');
-    });
+    }, { timeout: 5000 });
     expect(screen.getByTestId('active').textContent).toBe('Club A');
     expect(screen.getByTestId('primary').textContent).toBe('Club A');
     expect(screen.getByTestId('followed-count').textContent).toBe('2');
@@ -105,9 +107,10 @@ describe('ClubProvider', () => {
     render(
       <ClubProvider><ClubInspector /></ClubProvider>,
     );
+    // Slice 040: timeout 5000ms fuer CI-Stability (default 1000ms flaky auf CI-Runner)
     await waitFor(() => {
       expect(screen.getByTestId('loading').textContent).toBe('false');
-    });
+    }, { timeout: 5000 });
 
     await user.click(screen.getByText('switch'));
     expect(screen.getByTestId('active').textContent).toBe('Club B');

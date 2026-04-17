@@ -12,11 +12,7 @@ started: —
 
 ## Pipeline
 
-| # | Titel | Status |
-|---|-------|--------|
-| 040 | ClubProvider.test.tsx flake | low (P3) |
-
-Alle P2-Findings aus Phase 7 abgearbeitet. 040 ist CI-stability only.
+Alle P0/P1/P2/P3-Findings aus Phase 7 abgearbeitet. Keine offenen Pipeline-Items.
 
 ## Regeln
 
