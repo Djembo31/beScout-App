@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 044 | 2026-04-18 | A-02 Vollstaendiger auth.uid() Body-Audit + INV-31
+- Stage-Chain: SPEC → IMPACT(live-DB-scan) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418120000_slice_044_auth_uid_body_audit.sql` (NEW) — 3 Body-Guards (accept_mentee, request_mentor, subscribe_to_scout) + REVOKE authenticated award_dimension_score + neue Audit-RPC get_security_definer_user_param_audit()
+  - `supabase/migrations/20260418120100_slice_044_part2_cancel_scout_subscription.sql` (NEW) — Part-2 Body-Guard cancel_scout_subscription (Audit-during-fix entdeckt)
+  - `src/lib/__tests__/db-invariants.test.ts` (+70 lines) — INV-31 komplette SECURITY-DEFINER-Matrix
+  - `worklog/specs/044-a02-auth-uid-body-audit.md`, `worklog/impact/044-a02-auth-uid-body-audit.md`, `worklog/proofs/044-{audit-before,audit-after,inv31-vitest}.txt`
+- Proof: Audit 74 RPCs, 0 needs_fix. INV-31 gruen. INV-21 weiterhin gruen (kein Regression).
+- Commit: tba
+- Notes: Variante-2 Slice #1/10. Reviewer PASS mit 2 Nitpicks (anon-grant auf Audit-RPC = defensiv ok, Spec-Pfad-Drift korrigiert). Slice 005 hatte A-02 partiell (4 RPCs) gefixt, Slice 044 schliesst Klasse komplett. 5 Kategorie-A Exploit-RPCs gehaertet (accept_mentee, request_mentor, subscribe_to_scout, cancel_scout_subscription mit AR-44-Body-Guard; award_dimension_score REVOKE authenticated alignt mit Intent aus src/lib/services/scoutScores.ts:109). 41 loose_guard+authenticated RPCs als "client-only" dokumentiert, scope-out für Slice 044b. Audit-RPC self-documenting Pattern — Breakdown: 41/15/5/4/3/2/2/2 = 74.
+
+---
+
 ## 040 | 2026-04-17 | ClubProvider.test.tsx CI-flake Fix
 - Stage-Chain: BUILD → PROVE → LOG
 - Files: `src/components/providers/__tests__/ClubProvider.test.tsx` (waitFor timeout 5000ms)

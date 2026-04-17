@@ -1455,4 +1455,72 @@ describe('DB Invariants', () => {
 
     expect(drifts, drifts.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-31: Vollstaendiger auth.uid() Body-Audit (Slice 044)
+  // Erweitert INV-21 auf die gesamte Matrix: alle SECURITY DEFINER RPCs mit
+  // user-identity-Parametern (p_user_id, p_mentor_id, p_subscriber_id, ...)
+  // muessen entweder Guard haben oder in Allowlist mit Reason sein.
+  //
+  // Audit-RPC klassifiziert pro RPC:
+  //   guard_type ∈ {strict_guard, loose_guard, admin_role_guard, club_admin_guard,
+  //                 explicit_caller_check, other_auth_use, no_guard}
+  //   grant_status ∈ {authenticated, service_role_only, default_public, other}
+  //   allowlist_reason: warum no-guard OK ist (null = muss gefixt werden)
+  //
+  // Test-Regel: needs_fix = (guard_type='no_guard' AND grant_status='authenticated'
+  //                          AND allowlist_reason IS NULL) muss 0 sein.
+  //
+  // Slice 044: 5 RPCs gefixt (accept_mentee, request_mentor, subscribe_to_scout,
+  // cancel_scout_subscription, award_dimension_score REVOKE authenticated).
+  // ─────────────────────────────────────────────────────
+  it('INV-31: vollstaendiger user-identity Body-Audit (alle SECURITY DEFINER RPCs)', async () => {
+    const { data, error } = await sb.rpc('get_security_definer_user_param_audit');
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+    expect(data, 'audit returned null').toBeTruthy();
+
+    type AuditRow = {
+      proname: string;
+      args: string;
+      grant_status: 'authenticated' | 'service_role_only' | 'default_public' | 'other';
+      guard_type:
+        | 'strict_guard'
+        | 'loose_guard'
+        | 'admin_role_guard'
+        | 'club_admin_guard'
+        | 'explicit_caller_check'
+        | 'other_auth_use'
+        | 'no_guard';
+      allowlist_reason: string | null;
+      needs_fix: boolean;
+    };
+
+    const rows = (data ?? []) as AuditRow[];
+
+    const violations = rows
+      .filter((r) => r.needs_fix)
+      .map(
+        (r) =>
+          `RPC "${r.proname}(${r.args})" — grant=${r.grant_status}, guard=${r.guard_type}, reason=${r.allowlist_reason} — A-02 exploit class: authenticated user can spoof identity`
+      );
+
+    if (violations.length === 0) {
+      const byCat = rows.reduce(
+        (acc, r) => {
+          const key = `${r.grant_status}/${r.guard_type}`;
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+      console.log(
+        `[INV-31] checked ${rows.length} SECURITY DEFINER RPCs with user-identity params, ` +
+          `0 violations. Breakdown: ${Object.entries(byCat)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(', ')}`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

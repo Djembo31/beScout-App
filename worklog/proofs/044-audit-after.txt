@@ -1,0 +1,70 @@
+# Slice 044 — After-Audit (2026-04-18 nach Migration)
+# Source: Supabase MCP execute_sql gegen skzjfhvgccaeplydsunz
+
+# ============================================================
+# 1) Die 5 gefixten RPCs — alle needs_fix=false
+# ============================================================
+#
+# +----------------------------+-----------------+----------------+---------------------+-----------+
+# | proname                    | grant_status    | guard_type     | allowlist_reason    | needs_fix |
+# +----------------------------+-----------------+----------------+---------------------+-----------+
+# | accept_mentee              | authenticated   | strict_guard   | null                | false     |
+# | award_dimension_score      | service_role_only| no_guard       | service_role_only   | false     |
+# | cancel_scout_subscription  | authenticated   | strict_guard   | null                | false     |
+# | request_mentor             | authenticated   | strict_guard   | null                | false     |
+# | subscribe_to_scout         | authenticated   | strict_guard   | null                | false     |
+# +----------------------------+-----------------+----------------+---------------------+-----------+
+
+# ============================================================
+# 2) Gesamtmatrix der 74 SECURITY DEFINER RPCs mit user-identity-Parameter
+# ============================================================
+#
+# +----------------+---------------------+-------+-------------+
+# | grant_status   | guard_type          | count | needs_fix   |
+# +----------------+---------------------+-------+-------------+
+# | authenticated  | loose_guard         |    41 |      0      |
+# | service_role_only | no_guard         |    15 |      0      |
+# | authenticated  | strict_guard        |     5 |      0      |
+# | authenticated  | club_admin_guard    |     4 |      0      |
+# | service_role_only | strict_guard     |     3 |      0      |
+# | authenticated  | explicit_caller_check |   2 |      0      |
+# | authenticated  | other_auth_use      |     2 |      0      |
+# | authenticated  | no_guard            |     2 |      0      |
+# +----------------+---------------------+-------+-------------+
+# TOTAL: 74, needs_fix=0
+
+# Breakdown explanation:
+# - loose_guard (41): auth.uid() IS DISTINCT FROM p_* ohne IS NOT NULL AND — client-only ok
+# - service_role_only/no_guard (15): REVOKED authenticated, only service_role callable (interne Helper / Cron)
+# - strict_guard (5+3=8): AR-44 Pattern mit IS NOT NULL AND IS DISTINCT FROM — Slice 005 + 044
+# - club_admin_guard (4): add_club_admin, create_ipo, remove_club_admin, update_ipo_status — role-check via club_admins table
+# - explicit_caller_check (2): credit_tickets, spend_tickets — IF v_caller_uid IS NOT NULL AND p_user_id <> v_caller_uid
+# - other_auth_use (2): grant_founding_pass (top_role='Admin'), get_available_sc (v_caller <> p_user_id + platform_admin)
+# - no_guard authenticated (2): is_club_admin + get_club_by_slug — read_only_helper (Allowlist)
+
+# ============================================================
+# 3) Vor-/Nach-Vergleich der 4 Kategorie-A Exploit-Klassen
+# ============================================================
+#
+# VOR (siehe 044-audit-before.txt):
+# - accept_mentee:          authenticated + no_guard  → EXPLOIT
+# - award_dimension_score:  authenticated + no_guard  → EXPLOIT (arbitrary score minting)
+# - request_mentor:         authenticated + no_guard  → EXPLOIT
+# - subscribe_to_scout:     authenticated + no_guard  → EXPLOIT (Money-Path!)
+# + cancel_scout_subscription: authenticated + no_guard → EXPLOIT (privilege violation, audit-during-fix discovered)
+#
+# NACH:
+# - accept_mentee:          authenticated + strict_guard (Body-Guard p_mentor_id)
+# - award_dimension_score:  service_role_only (REVOKE authenticated, Intent aligned mit scoutScores.ts:109)
+# - request_mentor:         authenticated + strict_guard (Body-Guard p_mentee_id)
+# - subscribe_to_scout:     authenticated + strict_guard (Body-Guard p_subscriber_id)
+# - cancel_scout_subscription: authenticated + strict_guard (Body-Guard p_subscriber_id)
+
+# ============================================================
+# 4) Infrastruktur: neue Audit-RPC
+# ============================================================
+# public.get_security_definer_user_param_audit() deployed.
+# GRANTs: authenticated + anon + service_role (nur Read via pg_proc-Scan).
+# Returns JSONB array mit {proname, args, guard_type, grant_status, allowlist_reason, needs_fix}
+# pro RPC mit user-identity-Parameter.
+# Nutzbar fuer INV-31 + Ad-hoc Audits.

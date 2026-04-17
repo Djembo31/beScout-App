@@ -1,0 +1,32 @@
+# Slice 044 — Before-Audit (2026-04-17 21:xx)
+# Source: Supabase MCP execute_sql gegen skzjfhvgccaeplydsunz
+
+# Query:
+#   SELECT proname, args, grant_status, guard_type FROM pg_proc ...
+#   WHERE proname IN ('accept_mentee','award_dimension_score','request_mentor','subscribe_to_scout')
+
+# Kategorie A — RPCs mit authenticated-Grant und KEINEM auth.uid()-Guard:
+#
+# +------------------------+--------------------------------------------------+----------------+-----------+
+# | proname                | args                                             | grant_status   | guard_type|
+# +------------------------+--------------------------------------------------+----------------+-----------+
+# | accept_mentee          | p_mentor_id uuid, p_mentorship_id uuid           | authenticated  | no_guard  |
+# | award_dimension_score  | p_user_id uuid, p_dimension text, p_delta int... | authenticated  | no_guard  |
+# | request_mentor         | p_mentee_id uuid, p_mentor_id uuid               | authenticated  | no_guard  |
+# | subscribe_to_scout     | p_subscriber_id uuid, p_scout_id uuid            | authenticated  | no_guard  |
+# +------------------------+--------------------------------------------------+----------------+-----------+
+
+# Exploit-Matrix:
+# - accept_mentee: authenticated-user kann fremde p_mentor_id senden -> Mentor-Accept im fremden Namen
+# - award_dimension_score: authenticated-user kann beliebige Scout-Score-Punkte an beliebige User geben (Trader/Manager/Analyst)
+# - request_mentor: authenticated-user kann fuer fremde p_mentee_id Mentor-Anfragen stellen
+# - subscribe_to_scout: authenticated-user kann fremde p_subscriber_id senden -> fremdes Wallet fuer Abo belasten
+
+# Begleitkontext:
+# - 73 Total RPCs mit user-identity-Parametern
+# - 4 davon sind Strict Guards (Slice 005)
+# - 41 sind Loose Guards (IS DISTINCT FROM ohne IS NOT NULL AND) - client-only ok
+# - 13 sind service_role_only (REVOKE authenticated) - interner Helper / Cron
+# - 8 sind "other auth" (role-check, eq-check, etc.) - OK
+# - 4 sind Kategorie A (obige Liste) - MUST FIX
+# - 0 sind anon-exposed (historische J4 Fixes)
