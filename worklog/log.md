@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 023 | 2026-04-17 | B4 Lineup Server-Validation (Strict-Reject)
+- Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417110000_save_lineup_formation_validation.sql` (NEW — erweitert rpc_save_lineup um 9 neue Error-Keys + Formation-Allowlist + AR-44 Block)
+  - `supabase/migrations/20260417120000_audit_helper_rpc_source.sql` (NEW — get_rpc_source helper fuer CI-Body-Scan, service_role only, AR-44 Block)
+  - `src/lib/services/__tests__/lineups.test.ts` (+9 it(...) Cases: invalid_formation, gk_required, invalid_slot_count_{def|mid|att}, extra_slot_for_formation, captain_slot_empty, wildcard_slot_invalid, wildcard_slot_empty)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-27: rpc_save_lineup body-scan via get_rpc_source — verifiziert alle 9 neuen Error-Keys + 2 Allowlist-Samples + preservation der bestehenden checks)
+  - `worklog/specs/023-b4-lineup-server-validation.md` (NEW)
+  - `worklog/impact/023-b4-lineup-server-validation.md` (NEW)
+- Proofs:
+  - `worklog/proofs/023-rpc-before.txt` (alter Body, keine Formation-Validation)
+  - `worklog/proofs/023-rpc-after.txt` (neuer Body-Presence-Scan 11/11 TRUE + Grant-Matrix kein anon/PUBLIC)
+  - `worklog/proofs/023-tsc.txt` (clean)
+  - `worklog/proofs/023-tests-lineups.txt` (lineups.test.ts 29/29 = 20 original + 9 B4)
+  - `worklog/proofs/023-tests-invariants.txt` (db-invariants.test.ts 25/25 inkl. INV-27)
+- Commit: <pending>
+- Notes: CEO approved (a) Strict-Reject am 2026-04-17. Neue Stage-Order im RPC: Pos 6.5a..j nach v_all_slots-Build und vor duplicate_player-Check. Billige Early-Exit-Checks (Formation/GK/Slot-Count/Captain/Wildcard-Empty) vor teuren DB-Joins (insufficient_sc SELECT + salary_cap SELECT). Formation-Allowlist: 3 11er (`1-4-3-3`, `1-4-4-2`, `1-3-4-3`) + 5 7er (`1-2-2-2`, `1-3-2-1`, `1-2-3-1`, `1-3-1-2`, `1-1-3-2`) = 8 IDs aus `src/features/fantasy/constants.ts`. Kein Client-Code-Change (Consumer senden bereits valide IDs). Neue Helper-RPC `get_rpc_source` ist service_role-only (AR-44 REVOKE/GRANT korrekt), wird ausschliesslich von INV-27 genutzt. Rollback via `_rpc_body_snapshots`.
+
+---
+
 ## 022 | 2026-04-18 | B-03 UI-Mixing Verification (Doc-only, XS)
 - Stage-Chain: SPEC → IMPACT(skipped — reine Verifikation) → BUILD(audit) → PROVE → LOG
 - Files:

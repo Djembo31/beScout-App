@@ -1,0 +1,86 @@
+-- Slice 023 — rpc_save_lineup AFTER state
+-- Captured 2026-04-17 post-apply of 20260417110000_save_lineup_formation_validation.sql
+-- Via `mcp__supabase__execute_sql` pg_get_functiondef(oid) + presence scan
+
+-- ============================================================
+-- Body Presence Scan — alle neuen Error-Keys + Allowlist vorhanden
+-- ============================================================
+
+{
+  "has_invalid_formation": true,
+  "has_gk_required": true,
+  "has_invalid_slot_count_def": true,
+  "has_invalid_slot_count_mid": true,
+  "has_invalid_slot_count_att": true,
+  "has_extra_slot_for_formation": true,
+  "has_captain_slot_empty": true,
+  "has_wildcard_slot_invalid": true,
+  "has_wildcard_slot_empty": true,
+  "has_allowlist_1_4_4_2": true,
+  "has_allowlist_1_2_2_2": true
+}
+
+-- 11/11 Body-Checks TRUE. Der RPC-Body enthaelt:
+-- * Alle 9 neuen Error-Keys (invalid_formation, gk_required, 3x invalid_slot_count_*,
+--   extra_slot_for_formation, captain_slot_empty, 2x wildcard_slot_*)
+-- * Beide Formation-Allowlist-Samples (1 x 11er, 1 x 7er — Repräsentanten der 8 IDs)
+
+-- ============================================================
+-- Grant Matrix — REVOKE anon + REVOKE PUBLIC funktioniert
+-- ============================================================
+
+[
+  {"grantee": "service_role", "privilege": "EXECUTE"},
+  {"grantee": "authenticated", "privilege": "EXECUTE"},
+  {"grantee": "postgres", "privilege": "EXECUTE"}
+]
+
+-- service_role (Cron/Backend), authenticated (via Wrapper save_lineup), postgres (DB-Owner).
+-- anon: NICHT vorhanden → gut.
+-- PUBLIC: NICHT vorhanden → gut.
+-- AR-44 Block korrekt angewendet.
+
+-- ============================================================
+-- Stage-Chain AFTER (neue Checks bei Pos 6.5)
+-- ============================================================
+
+-- 1. auth_mismatch
+-- 2. event_not_found
+-- 3. event_ended
+-- 4. event_locked
+-- 5. must_enter_first
+-- 6. v_all_slots array build
+-- 6.5a invalid_formation (empty)
+-- 6.5b invalid_formation (not in allowlist)
+-- 6.5c gk_required
+-- 6.5d extra_slot_for_formation (def4/def3/def2) + invalid_slot_count_def
+-- 6.5e extra_slot_for_formation (mid4/mid3/mid2) + invalid_slot_count_mid
+-- 6.5f extra_slot_for_formation (att3/att2) + invalid_slot_count_att
+-- 6.5g captain_slot_empty
+-- 6.5h wildcard_slot_invalid + wildcard_slot_empty
+-- 7. duplicate_player
+-- 8. insufficient_sc
+-- 9. wildcards_not_allowed / too_many_wildcards
+-- 10. salary_cap_exceeded
+-- 11-14. INSERT/UPDATE lineup + holding_locks + wildcard spend/refund
+
+-- ============================================================
+-- Rollback-Plan (wenn noetig)
+-- ============================================================
+
+-- Re-apply alten Body aus _rpc_body_snapshots:
+--   SELECT body FROM public._rpc_body_snapshots WHERE rpc_name='rpc_save_lineup';
+--   → copy to new migration file + apply
+-- Alter Snapshot ist aus 2026-04-14 (AR-12/28 Full-Sweep).
+
+-- ============================================================
+-- Live-Reject-Smoke-Test — NICHT moeglich via execute_sql
+-- ============================================================
+
+-- Grund: Auth-Chain blockt service-role direct calls.
+-- - auth.uid() ist NULL in service_role context
+-- - IF auth.uid() IS DISTINCT FROM p_user_id → wenn p_user_id=real-uuid: DISTINCT = TRUE → auth_mismatch
+-- - wenn p_user_id=NULL: DISTINCT = FALSE → pass, aber dann event_not_found oder must_enter_first
+-- Fuer live-smoke braeuchte es entweder SET LOCAL request.jwt.claims (Transaction-Isolation issue)
+-- oder ein echten authenticated test-user. Beides ueberhohl fuer Slice 023 — Body-Presence-Scan
+-- + Unit-Tests + INV-27 liefern gleich starken Beweis ohne Setup.

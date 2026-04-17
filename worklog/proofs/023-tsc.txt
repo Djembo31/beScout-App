@@ -1,0 +1,6 @@
+$ npx tsc --noEmit
+(no output — CLEAN)
+
+Slice 023 — B4 Lineup Server-Validation
+tsc --noEmit laueft ohne Fehler durch, 0 type errors.
+Keine neuen TS-Strings im Service-Contract (alle neuen Error-Keys bleiben string literals im Propagation-Pfad).

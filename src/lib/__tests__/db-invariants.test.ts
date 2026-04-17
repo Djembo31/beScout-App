@@ -1205,4 +1205,45 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-27: rpc_save_lineup enforces formation validation
+  // ─────────────────────────────────────────────────────
+  // Slice 023 (B4): Client-Formation-Check ist umgehbar via direkten RPC-Call.
+  // Nach Slice 023 ist der RPC die einzige Wahrheit. Verifiziert dass Body
+  // die B4-Checks enthaelt (scan via get_rpc_source helper — service_role only).
+  it('INV-27: rpc_save_lineup enforces formation validation (B4 Slice 023)', async () => {
+    const { data, error } = await sb.rpc('get_rpc_source', { p_rpc_name: 'rpc_save_lineup' });
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+    expect(data, 'rpc_save_lineup not found').toBeTruthy();
+
+    const body = String(data);
+
+    // B4 new error-keys
+    const requiredKeys = [
+      'invalid_formation',
+      'gk_required',
+      'invalid_slot_count_def',
+      'invalid_slot_count_mid',
+      'invalid_slot_count_att',
+      'extra_slot_for_formation',
+      'captain_slot_empty',
+      'wildcard_slot_invalid',
+      'wildcard_slot_empty',
+    ];
+    const missingKeys = requiredKeys.filter((k) => !body.includes(`'${k}'`));
+    expect(
+      missingKeys,
+      `Missing B4 error-keys in rpc_save_lineup: ${missingKeys.join(', ')}`,
+    ).toHaveLength(0);
+
+    // Formation allowlist — at least 1 representative of each format
+    expect(body, "11er formation '1-4-4-2' not in allowlist").toContain("'1-4-4-2'");
+    expect(body, "7er formation '1-2-2-2' not in allowlist").toContain("'1-2-2-2'");
+
+    // Pre-existing safety checks preserved
+    expect(body, 'existing duplicate_player check removed').toContain("'duplicate_player'");
+    expect(body, 'existing insufficient_sc check removed').toContain("'insufficient_sc'");
+    expect(body, 'existing event_not_found check removed').toContain("'event_not_found'");
+  }, 30_000);
 });

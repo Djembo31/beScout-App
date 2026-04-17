@@ -150,6 +150,109 @@ describe('submitLineup — RPC error propagation', () => {
     ).rejects.toThrow('too_many_wildcards');
   });
 
+  // ============================================
+  // B4 Slice 023 — Formation + Slot validation
+  // ============================================
+
+  it('throws invalid_formation from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'invalid_formation', formation: 'xxx' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, formation: 'xxx', slots: {} }),
+    ).rejects.toThrow('invalid_formation');
+  });
+
+  it('throws gk_required from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'gk_required' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: { def1: 'p1' } }),
+    ).rejects.toThrow('gk_required');
+  });
+
+  it('throws invalid_slot_count_def from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'invalid_slot_count_def', expected: 4, actual: 3 },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: { gk: 'g1', def1: 'd1', def2: 'd2', def3: 'd3' } }),
+    ).rejects.toThrow('invalid_slot_count_def');
+  });
+
+  it('throws invalid_slot_count_mid from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'invalid_slot_count_mid', expected: 4, actual: 3 },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {} }),
+    ).rejects.toThrow('invalid_slot_count_mid');
+  });
+
+  it('throws invalid_slot_count_att from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'invalid_slot_count_att', expected: 2, actual: 1 },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {} }),
+    ).rejects.toThrow('invalid_slot_count_att');
+  });
+
+  it('throws extra_slot_for_formation from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'extra_slot_for_formation', slot: 'def4' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, formation: '1-3-4-3', slots: { gk: 'g', def1: 'a', def2: 'b', def3: 'c', def4: 'd' } }),
+    ).rejects.toThrow('extra_slot_for_formation');
+  });
+
+  it('throws captain_slot_empty from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'captain_slot_empty', captain_slot: 'att2' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: { gk: 'g1' }, captainSlot: 'att2' }),
+    ).rejects.toThrow('captain_slot_empty');
+  });
+
+  it('throws wildcard_slot_invalid from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'wildcard_slot_invalid', slot: 'bogus' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {}, wildcardSlots: ['bogus'] }),
+    ).rejects.toThrow('wildcard_slot_invalid');
+  });
+
+  it('throws wildcard_slot_empty from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'wildcard_slot_empty', slot: 'mid2' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: { gk: 'g1' }, wildcardSlots: ['mid2'] }),
+    ).rejects.toThrow('wildcard_slot_empty');
+  });
+
   it('throws lineup_save_failed when RPC returns ok: false without error', async () => {
     mockSupabase.rpc.mockResolvedValue({
       data: { ok: false },
