@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 055 | 2026-04-18 | TR-i18n Social/Admin RPCs + message-Column Bug-Fixes (048c)
+- Stage-Chain: SPEC → IMPACT(live-query) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418180000_slice_055_tr_i18n_social_admin_rpcs.sql` (NEW) — 8 RPCs migriert
+  - `messages/de.json`, `messages/tr.json` — je +16 neue notifTemplates keys (total 4878 each)
+  - `worklog/specs/055-048c-tr-i18n-social-admin-rpcs.md`, `worklog/proofs/055-i18n-verify.txt`
+- Proof: 13/14 notification-RPCs schreiben structured i18n. 4 Latent-Bugs gefixt (message→body). tsc clean, 31/31 INV-Tests gruen.
+- Commit: tba
+- Notes: 048c Follow-Up. TR-i18n Initiative komplett (ausser notify_watchlist_price_change - AR-59 async-pattern). Migriert: accept_mentee, admin_delete_post, claim_scout_mission_reward, refresh_user_stats, request_mentor, subscribe_to_scout, sync_level_on_stats_update, verify_scout. Latent-Bug-Fixes (4 RPCs hätten 42703 geworfen): accept_mentee, request_mentor, claim_scout_mission_reward, verify_scout auf body-Column umgestellt. BSD→Credits in claim_scout_mission_reward + subscribe_to_scout-error nebenbei.
+
+---
+
 ## 054 | 2026-04-18 | TR-i18n Money-Path RPCs (048b Follow-Up)
 - Stage-Chain: SPEC → IMPACT(live-query) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +30,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `messages/de.json`, `messages/tr.json` — je +10 neue notifTemplates keys
   - `worklog/specs/054-048b-tr-i18n-money-rpcs.md`, `worklog/proofs/054-i18n-verify.txt`
 - Proof: 4 RPCs + reward_referral (Slice 048) = 5 RPCs schreiben structured i18n. DE+TR synchron 4862 keys. tsc clean, 31/31 INV-Tests gruen.
-- Commit: tba
+- Commit: 444d82bf
 - Notes: 048b Follow-Up. Migriert: award_dimension_score (rangUp/Down), send_tip (tipReceivedNotif), calculate_ad_revenue_share (adRevenuePayout), calculate_creator_fund_payout (creatorFundPayout). Bug-Fixes nebenbei: send_tip v_receiver_name → v_sender_name rename + BSD→Credits in 2 Notification-Bodies. Rest (9 RPCs) als 048c Follow-Up.
 
 ---

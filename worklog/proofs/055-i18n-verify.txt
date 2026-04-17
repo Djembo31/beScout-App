@@ -1,0 +1,73 @@
+# Slice 055 — TR-i18n Social/Admin Verify (2026-04-18)
+
+# ============================================================
+# 1) Alle 14 notification-RPCs: 13 nutzen i18n_key, 1 (AR-59) nicht
+# ============================================================
+# Query:
+#   SELECT proname, body ~ 'i18n_key' AS writes_i18n_key FROM pg_proc
+#   WHERE body ILIKE '%INSERT INTO notifications%';
+#
+# Output:
+#   +---------------------------------+-----------------+
+#   | proname                         | writes_i18n_key |
+#   +---------------------------------+-----------------+
+#   | accept_mentee                   | true            |
+#   | admin_delete_post               | true            |
+#   | award_dimension_score           | true            |
+#   | calculate_ad_revenue_share      | true            |
+#   | calculate_creator_fund_payout   | true            |
+#   | claim_scout_mission_reward      | true            |
+#   | refresh_user_stats              | true            |
+#   | request_mentor                  | true            |
+#   | reward_referral                 | true            |
+#   | send_tip                        | true            |
+#   | subscribe_to_scout              | true            |
+#   | sync_level_on_stats_update      | true            |
+#   | verify_scout                    | true            |
+#   | notify_watchlist_price_change   | false (AR-59)   |
+#   +---------------------------------+-----------------+
+
+# ============================================================
+# 2) 4 Latent-Bugs gefixt (message-column existiert nicht)
+# ============================================================
+# accept_mentee:              INSERT (user_id, type, title, message, ...) → body
+# request_mentor:             INSERT (user_id, type, title, message, ...) → body
+# claim_scout_mission_reward: INSERT (user_id, type, title, message, ...) → body
+# verify_scout:               INSERT (user_id, type, title, message)      → body
+#
+# Diese RPCs haetten bei erstem Call 42703 Postgres-Error geworfen.
+# Features sind aktuell nicht-live → Silent-Bug seit Schema-Migration.
+
+# ============================================================
+# 3) Wording-Fixes nebenbei (AR-32/39 Compliance)
+# ============================================================
+# claim_scout_mission_reward Body: 'BSD' → 'Credits'
+# subscribe_to_scout Error-msg:    'BSD' → 'Credits'
+
+# ============================================================
+# 4) Messages Sync
+# ============================================================
+# DE + TR: 4878 keys each (+16 neu in Slice 055)
+# Neue Keys:
+#   mentorAccepted + Body ()
+#   postRemovedByAdmin + Body ({contentSnippet})
+#   scoutMissionReward + Body ({amount})
+#   tierPromotion + Body ({tier})
+#   mentorRequest + Body ()
+#   scoutSubscriptionNew + Body ({subscriberName})
+#   tierPromotionLevel + Body ({tier, level})
+#   scoutVerified + Body ({badgeLevel})
+
+# ============================================================
+# 5) Regression
+# ============================================================
+# tsc --noEmit: clean
+# 31/31 INV-Tests gruen
+
+# ============================================================
+# Total Progress Slice 048/054/055 TR-i18n Initiative
+# ============================================================
+#   13/14 notification-schreibende RPCs auf structured i18n.
+#   TR-User sehen bei allen 13 RPCs lokalisiertes Wording.
+#   DE+TR messages 4878 synchron (von 4852 pre-Initiative = +26 keys).
+#   notify_watchlist_price_change skipped (AR-59 async pattern) — post-Beta.
