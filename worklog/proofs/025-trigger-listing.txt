@@ -1,0 +1,12 @@
+-- Slice 025 — Trigger listing post-apply
+-- Via SELECT tgname, tgenabled, tgisinternal FROM pg_trigger WHERE tgrelid='public.holdings'::regclass
+
+2 non-internal Trigger auf public.holdings:
+
+| tgname                       | tgenabled | internal |
+|------------------------------|-----------|----------|
+| holdings_auto_delete_zero    | O         | false    | ← NEW (Slice 025)
+| holdings_updated_at          | O         | false    | ← existing (pre-Slice)
+
+tgenabled='O' = Originally enabled (normal active state).
+Beide Trigger aktiv, keine Konflikte.

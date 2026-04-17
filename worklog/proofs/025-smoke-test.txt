@@ -1,0 +1,29 @@
+-- Slice 025 — Live Smoke-Test post-apply
+-- Executed via pg_temp.smoke_test_25() in execute_sql
+-- 2026-04-17
+
+Test-Szenario:
+  1. Finde existierenden user + player wo noch KEIN holding-Row existiert
+  2. INSERT test-holding (qty=5)
+  3. UPDATE qty=0 → Trigger sollte feuern + Row loeschen
+  4. COUNT pruefen — muss 0 sein
+
+Ergebnis:
+{
+  "test_user_id": "ff152a24-395f-490f-9ffb-9f778c3a78a9",
+  "test_player_id": "38dea2ff-ff43-4950-bbf3-477c3e8cd838",
+  "inserted_id": "c8775934-c9ac-4048-b0c5-474021f2cdba",
+  "count_after_update_to_zero": 0,
+  "still_exists": false,
+  "verdict": "PASS — Trigger deleted row after UPDATE to 0"
+}
+
+Interpretation:
+- INSERT erfolgreich (FK checks passed, CHECK qty=5 >= 0 passed)
+- UPDATE qty=0 wurde vom Trigger abgefangen → DELETE der Row
+- count_after_update_to_zero = 0 → Row nicht mehr da
+- verdict = PASS
+- Cleanup `DELETE FROM holdings WHERE id=...` war No-Op (Row schon weg)
+
+Der Mechanismus funktioniert live in der Produktions-DB gegen echte user/player-
+Daten ohne Nebenwirkung (keine fremden Rows modifiziert, Test-Row am Ende weg).

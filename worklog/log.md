@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 025 | 2026-04-17 | Holdings Auto-Delete-Zero (Trigger Approach)
+- Stage-Chain: SPEC → IMPACT(inline in Chat — Pre-Research) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417150000_holdings_auto_delete_zero.sql` (NEW — Trigger-Fn `delete_zero_qty_holding()` + Trigger `holdings_auto_delete_zero` AFTER UPDATE OF quantity FOR EACH ROW WHEN NEW.quantity=0)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-29: body-scan `delete_zero_qty_holding` DELETE-branch + live zero-count)
+  - `worklog/specs/025-holdings-auto-delete-zero.md` (NEW)
+- Proofs:
+  - `worklog/proofs/025-trigger-listing.txt` (2 non-internal triggers auf holdings, beide enabled)
+  - `worklog/proofs/025-trigger-body.txt` (Function + Trigger Definition + Semantik)
+  - `worklog/proofs/025-smoke-test.txt` (Live-Test PASS — INSERT qty=5 → UPDATE qty=0 → Row DELETED)
+  - `worklog/proofs/025-zombie-count.txt` (0 zombies before + after, 513 total holdings)
+  - `worklog/proofs/025-tsc.txt` (clean)
+  - `worklog/proofs/025-tests.txt` (db-invariants 27/27 inkl. INV-29)
+- Commit: <pending>
+- Notes: CEO approved (b) Trigger-Approach 2026-04-17. Pre-Research ergab **briefing-Korrektur**: nur 3 decrement-RPCs betroffen (accept_offer, buy_from_order, buy_player_sc) — `buy_from_ipo` macht NUR Increment, war faelschlich in briefing. Zero Zombies live (513 holdings, alle qty>=1) → Slice ist reines Future-Proofing. Trigger-Approach statt 3x RPC-Patch: zero-touch auf kritische Money-RPCs, future-proof (neue Decrement-RPCs "just work"). CHECK (quantity >= 0) bleibt unveraendert — Trigger bridged UPDATE→DELETE atomisch. Smoke-Test gegen Live-DB bestaetigt Mechanismus (UUID `c8775934-c9ac-4048-b0c5-474021f2cdba` INSERT → UPDATE qty=0 → count=0 after). Trigger-Granularitaet: `AFTER UPDATE OF quantity` + `WHEN (NEW.quantity=0)` — feuert nur bei echten qty=0-Updates, keine Nebenwirkung auf andere UPDATEs (updated_at etc.). Rollback: `DROP TRIGGER + DROP FUNCTION` — seiteneffektfrei.
+
+---
+
 ## 024 | 2026-04-17 | B5 Event Scoring Automation (pg_cron, Option c)
 - Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
 - Files:

@@ -1,0 +1,18 @@
+-- Slice 025 — holdings zombie-count before + after (baseline + confirmation)
+
+Before apply (via pre-research DB-Query):
+  qty_zero_holdings:     0
+  qty_negative_holdings: 0
+  total_holdings:        513
+
+After apply (via post-trigger DB-Query):
+  qty_zero:     0
+  qty_negative: 0
+  total:        513
+
+Keine Daten-Aenderung durch Slice 025 (war 0, bleibt 0).
+Slice ist reines Future-Proofing — verhindert dass kuenftige Decrement-RPCs
+(accept_offer, buy_from_order, buy_player_sc) Zombie-Rows hinterlassen.
+
+Smoke-Test (025-smoke-test.txt) hat den Mechanismus gegen echte DB bewiesen:
+INSERT qty=5 → UPDATE qty=0 → Row automatisch DELETED von Trigger.

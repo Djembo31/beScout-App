@@ -1,0 +1,20 @@
+-- Slice 025 — delete_zero_qty_holding() Function + Trigger definition
+
+Function `public.delete_zero_qty_holding()`:
+  - exists: true
+  - body_contains_delete: true (enthaelt "DELETE FROM public.holdings")
+
+Trigger `holdings_auto_delete_zero`:
+  - AFTER UPDATE OF quantity ON public.holdings
+  - FOR EACH ROW
+  - WHEN (NEW.quantity = 0)
+  - EXECUTE FUNCTION public.delete_zero_qty_holding()
+
+Semantik:
+  - Feuert NUR wenn UPDATE quantity beruehrt UND NEW.quantity = 0
+  - NICHT bei INSERT (CHECK quantity >= 0 erlaubt theoretisch 0, aber kein INSERT-Pfad
+    im Codebase erzeugt qty=0 via INSERT)
+  - NICHT bei UPDATE ohne quantity-aenderung (Spalte outside des OF clause)
+
+Co-existence:
+  - holdings_updated_at Trigger (pre-Slice): setzt updated_at. Unabhaengig.

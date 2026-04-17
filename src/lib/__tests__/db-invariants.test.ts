@@ -1207,6 +1207,32 @@ describe('DB Invariants', () => {
   }, 30_000);
 
   // ─────────────────────────────────────────────────────
+  // INV-29: holdings auto-delete-zero trigger exists + no zombies
+  // ─────────────────────────────────────────────────────
+  // Slice 025 (B5-Follow-Up): Zombie-Prevention via AFTER UPDATE OF quantity
+  // Trigger. Verifies (1) trigger is registered + function body contains DELETE,
+  // (2) no holdings with quantity <= 0 exist live (defense-in-depth for whatever
+  // path might bypass the trigger).
+  it('INV-29: holdings_auto_delete_zero trigger registered + no zombie rows (B5 Slice 025)', async () => {
+    // 1. Trigger-Function body contains DELETE
+    const { data: bodyData, error: bodyErr } = await sb.rpc('get_rpc_source', {
+      p_rpc_name: 'delete_zero_qty_holding',
+    });
+    expect(bodyErr, `RPC failed: ${bodyErr?.message}`).toBeNull();
+    expect(bodyData, 'delete_zero_qty_holding function missing').toBeTruthy();
+    const body = String(bodyData);
+    expect(body, 'trigger function missing DELETE FROM holdings').toContain('DELETE FROM public.holdings');
+
+    // 2. Live zombie-check: no holdings with quantity <= 0
+    const { count: zeroCount, error: zeroErr } = await sb
+      .from('holdings')
+      .select('id', { count: 'exact', head: true })
+      .lte('quantity', 0);
+    expect(zeroErr, `holdings query failed: ${zeroErr?.message}`).toBeNull();
+    expect(zeroCount, `found ${zeroCount} zombie holdings (quantity <= 0) — trigger may have failed`).toBe(0);
+  }, 30_000);
+
+  // ─────────────────────────────────────────────────────
   // INV-28: cron_score_pending_events scheduled + body sane
   // ─────────────────────────────────────────────────────
   // Slice 024 (B5): Event-Scoring Automation via pg_cron.
