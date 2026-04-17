@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 013 | 2026-04-17 | Players NFC Normalize (TURK-03)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417040000_players_nfc_normalize.sql` (NEW, idempotent UPDATE)
+- Proofs:
+  - `worklog/proofs/013-before-after.txt` (byte-diff target row + global count)
+  - `worklog/proofs/013-tests.txt` (TURK-* Suite 10/10 gruen)
+- Commit: (pending)
+- Notes: 1 Row in NFD-dekomposierter Form gefixt. `T. İnce` (id=bb44cdb4-...) hatte `last_name` bytes `49 cc 87 6e 63 65` (`I` + U+0307 combining dot + `nce`) waehrend alle anderen İ-Spieler in NFC-Form sind (U+0130 single codepoint, bytes `c4 b0`). Test TURK-03 failed weil JS `String.prototype.includes('İ')` strict Codepoint-Compare ist — SQL `ILIKE` matched beide Formen bereits. Fix: `UPDATE players SET ... = normalize(x, NFC)` idempotent. Kein UX-Impact, nur byte-Kodierung geaendert. Scope-Out: Clubs/Profiles/Research etc. — keine Drift dort (TURK-06/TURK-07 gruen). Import-Path-Analyse nicht im Scope (einmalige Drift, 1 Row). NFC-CHECK-Constraint als Prevention falls Drift wiederkehrt, separater Slice.
+
+---
+
 ## 012 | 2026-04-17 | Zero-Qty Holding Cleanup (INV-08, EDGE-17)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +30,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Proofs:
   - `worklog/proofs/012-before-after.txt` (1 Row vor, 0 Rows nach; Daten-Safety-Notiz)
   - `worklog/proofs/012-tests.txt` (db-invariants + boundaries/edge-cases: 43/43 gruen)
-- Commit: (pending)
+- Commit: c958c6a
 - Notes: Einmalige Data-Cleanup. 1 Orphan-Row (jarvisqa/Livan Burcu, quantity=0, avg_buy_price=10000, erstellt 2026-04-15) geloescht via Migration. Kein Value-Impact (0 DPCs = 0 SC). INV-08 + EDGE-17 jetzt gruen. **Root-Cause NICHT gefixt — CEO-Scope:** Trading-RPCs (`buy_player_sc`, `accept_offer`, `buy_from_order`, `buy_from_ipo`) dekrementieren `holdings.quantity` via UPDATE statt DELETE-when-zero. Dokumentiert im Proof als Follow-Up (RPC-Fix + CHECK `quantity > 0` gemeinsam). Erste neue quantity=0-Row nach diesem Slice = Beweis fuer CEO-Fix-Dringlichkeit.
 
 ---

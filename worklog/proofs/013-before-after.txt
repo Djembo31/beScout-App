@@ -1,0 +1,79 @@
+Slice 013 — Players NFC Normalize (TURK-03)
+Generated: 2026-04-17
+
+=============================================================================
+PRE-MIGRATION QUERY
+=============================================================================
+Target row (`T. İnce`, id=bb44cdb4-...):
+  last_name (UTF-8 hex): 49 cc 87 6e 63 65
+    = `I` (U+0049) + U+0307 COMBINING DOT ABOVE + `n` + `c` + `e`
+    (NFD decomposed form)
+  first_name: `T.`  (ASCII-only, unchanged)
+
+All other players with İ in last_name: already NFC (`c4 b0 ...` = U+0130
+single codepoint). Drift isolated to this 1 row.
+
+Pre-migration: `SELECT COUNT(*) FROM players WHERE last_name IS DISTINCT
+FROM normalize(last_name, NFC) OR first_name IS DISTINCT FROM
+normalize(first_name, NFC)` = 1.
+
+=============================================================================
+MIGRATION
+=============================================================================
+File: supabase/migrations/20260417040000_players_nfc_normalize.sql
+Applied: 2026-04-17 via mcp__supabase__apply_migration
+
+SQL:
+  UPDATE public.players
+  SET first_name = normalize(first_name, NFC),
+      last_name  = normalize(last_name,  NFC)
+  WHERE first_name IS DISTINCT FROM normalize(first_name, NFC)
+     OR last_name  IS DISTINCT FROM normalize(last_name,  NFC);
+
+Idempotent — only rows already out of NFC are rewritten.
+Rows updated: 1 (T. İnce).
+
+=============================================================================
+POST-MIGRATION QUERY
+=============================================================================
+Target row:
+  last_name (UTF-8 hex): c4 b0 6e 63 65
+    = U+0130 `İ` + `n` + `c` + `e`  (NFC composed form)
+  is_nfc = true
+
+Global count:
+  `SELECT COUNT(*) FROM players WHERE last_name IS DISTINCT FROM
+   normalize(last_name, NFC) OR first_name IS DISTINCT FROM
+   normalize(first_name, NFC)` = 0
+
+=============================================================================
+DATA SAFETY
+=============================================================================
+NFC normalization preserves visible rendering. The name "İnce" looks
+identical in every font/browser before and after. No impact on:
+  - Trading (player identified by id UUID, not name)
+  - Lineups (player_id FK)
+  - Search — Postgres ILIKE handled both forms equivalently already
+  - Notifications, posts, research, bounties (player_id FKs)
+
+Only affects JS string-identity comparisons like
+`last_name.includes('İ')` — which now return true (matching what
+downstream code already assumed).
+
+=============================================================================
+TEST STATUS
+=============================================================================
+Before: TURK-03 failing with "Player T. İnce should contain İ".
+After:  Turkish Unicode Handling suite 10/10 green.
+
+=============================================================================
+SCOPE-OUT
+=============================================================================
+Same fix could apply to clubs.name, profiles.display_name,
+research_posts.title, etc. — but TURK-06 / TURK-07 already passed,
+indicating no drift there. If a future test exposes drift in another
+text column, apply the same normalize(x, NFC) pattern in a new slice.
+
+Identifying the import path that wrote NFD bytes is out of scope here
+(single row, unclear which import script). If the drift recurs, add
+a CHECK constraint `x = normalize(x, NFC)` to block it at write time.
