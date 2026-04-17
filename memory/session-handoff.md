@@ -1,4 +1,4 @@
-# Session Handoff (2026-04-17 19:54)
+# Session Handoff (2026-04-17 20:01)
 
 ## Uncommitted Changes: 1 Files
 ```
@@ -6,6 +6,7 @@
 ```
 
 ## Session Commits: 10
+- 88925613 test(clubprovider): P3 CI-flake fix — waitFor timeout 5000ms (Slice 040)
 - f3b3761e fix(rpc): Compliance Wording Trader→Sammler + BSD→Credits (Slice 043)
 - f79e7fa0 fix(fantasy): EventSummaryModal PUNKTE=0 race + numeric coerce (Slice 042)
 - d5d1f919 docs(rpc): event-entry Wrapper-Pattern dokumentiert (Slice 041)
@@ -15,5 +16,4 @@
 - 55113cd6 docs(slice-036): close — 5/5 cron runs succeeded, kein 42501 mehr
 - 1e73eeca fix(rpc): P1 sync_event_statuses 42501 — internal-helper + pg_cron (Slice 036)
 - bb7feedb fix(rpc): P1 trg trade_refresh — internal-helper bypasses AR-44 guard (Slice 035)
-- 6afd0350 docs(slice-032b): close — Phase 7 Mutating-Flows 3/3 GREEN, Phase 7 done
 

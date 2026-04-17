@@ -1,154 +1,92 @@
-# Next-Session Briefing (Stand Ende Session 4, 2026-04-17)
+# Next-Session Briefing (2026-04-18)
 
-> Refreshed nach Slice 030 (Phase 7 Verify GREEN). Ersetzt den vorigen Stand (der B4/B5 noch als gelb zeigte).
+> Erstellt Ende Session 2026-04-17 (13 Slices 032-043, alle green auf bescout.net).
+> Ersetzt den vorigen Stand dieser Datei.
 
-## Zusammenfassung Session 4 (acht Slices, CTO-autonom)
+## Wie der Code aktuell steht
 
-Schwerpunkt: verbleibende B-Blocker (B4/B5) + alle 4 CEO-Follow-Ups aus
-Session 2 + Doc-Pflege + **Full Deploy-Verify auf bescout.net**. Alle 8 Slices gruen,
-kein Rework, alles gepusht. **Fehlerfreier Softwarestand auf bescout.net bestaetigt.**
+- 28 DB-Invariants gruen inkl. INV-30 leere Allowlist
+- Money-Path live verified: Buy, Sell+Cancel, P2P-Offer+Cancel, Event-Join+Unlock
+- 0 console-errors auf Buy-Path (vorher 14×)
+- bescout.net produktiv, alle 13 Slices committed + gepusht
+- Pipeline `worklog/active.md`: leer, status=idle
 
-### SHIP-Slices dieser Session (worklog/log.md, neueste oben)
+## User-priorisierte Restarbeit (aus Abschluss-Gespraech)
 
-| # | Slice | Commit | Ergebnis |
-|---|-------|--------|----------|
-| 030 | Phase 7 Verify GREEN | fd00cf1e | 7 DB-Checks + 7 UI-Flows via Playwright, 0 Bugs |
-| 029 | Doc-Refresh (common-errors + Briefing) | 0995ef08 | 5 neue Bug-Patterns aus Slices 023-028 kompiliert |
-| 028 | Dev-Accounts Cleanup (k_demirtas + kemal) | e45a26b2 | auth.users DELETE + 44-FK-Pre-Audit, Handles frei |
-| 027 | activityHelpers TR-i18n | 010b0811 | 4 fehlende transaction-types (nicht 10 wie briefing), DE+TR gefixt |
-| 026 | footballData Client-Access Audit (Doc-only) | aa67e2a0 | GREEN — Silent-Dead-Code ohne Impact (Cron parallel) |
-| 025 | Holdings Auto-Delete-Zero Trigger | 95c498ae | future-proof statt 3 RPC-Patches |
-| 024 | B5 Event Scoring Automation (pg_cron) | 948f09f2 | score-pending-events */5min + INV-28 |
-| 023 | B4 Lineup Server-Validation | a7fd95d4 | 9 Reject-Keys + Formation-Allowlist + INV-27 |
+Diese 5 Punkte sind explizit gesetzt fuer die naechste Session:
 
-### DB-Migrations live (5)
+### 1. A-02 Vollstaendiger auth.uid() Body-Audit
+- Heute: REVOKE-Layer schuetzt, aber nicht alle SECURITY-DEFINER-RPCs mit p_user_id haben body-Guards
+- Ansatz: alle 124 SECURITY DEFINER pro RPC pruefen. INV-21 existiert schon (Slice 005), aber nicht auf ALLE ausgedehnt
+- Output: jede RPC hat entweder `IF auth.uid() IS NOT NULL AND IS DISTINCT FROM p_user_id` ODER explizite Dokumentation warum nicht
+- Grobe Groesse: M (1-2h) — viele RPCs sind trivial-OK, 5-10 koennten fehlen
 
+### 2. A-03 Systematisches RLS-Audit aller Kern-Tabellen
+- Heute: 3 Luecken bekannt gefixt (transactions public-whitelist, activity_log, scout_card_blocking)
+- Ansatz: `SELECT tablename, policyname, cmd, qual FROM pg_policies` — jede Tabelle gegen Erwartungen matchen
+- INV-26 (Slice 019) scant nur Whitelist — erweitern auf vollstaendige Matrix
+- Grobe Groesse: M — systematisches Durcharbeiten
+
+### 3. A-04 Live-Balance-Health SUM(transactions) == wallet.balance
+- Heute: Laufzeit-Konsistenz nicht verifiziert. Single-Query, potenziell grosse Finding
+- Ansatz: `SELECT user_id, wallet_balance, SUM(transactions.amount) AS tx_sum, diff FROM wallets w LEFT JOIN ... GROUP BY ... WHERE diff != 0`
+- Wenn 0 Users drift: einfacher INV-Test. Wenn N Users drift: root-cause investigation pro User
+- Grobe Groesse: S-M (abhaengig von Finding)
+
+### 4. TR-i18n fuer RPC-Notifications
+- Heute: DB-RPCs schreiben hardcoded DE-Strings in notifications.title+body. UI rendert 1:1, keine Client-i18n-Layer
+- Betroffene RPCs: award_dimension_score, send_tip, reward_referral, approve_bounty_submission, calculate_ad_revenue_share, calculate_creator_fund_payout, ... (min. 10)
+- 2 Optionen:
+  - (a) **Structured-Key-Notifications**: RPCs emittieren `type + i18n_key + params` (z.B. `{key: 'notif.rang_up', params: {role: 'trader', rang: 'silber-1'}}`). Client resolved via `useTranslations`. Refactor ~10-15 RPCs + DE/TR labels + NotificationDropdown.
+  - (b) **TR-Locale-Client-Layer**: Message-Catalog client-side als Key-Lookup gegen DE-Text (fragil). Nicht empfohlen.
+- Empfehlung: (a). Grobe Groesse: L (2-3h fuer sauberen Refactor)
+
+### 5. Historische Notifications umschreiben
+- Heute: Slice 043 fixte RPC-Bodies, aber existing notifications mit "Trader"/"BSD" bleiben
+- Ansatz: Migration mit UPDATE statements auf notifications WHERE title/body ILIKE '%Trader%'/'%BSD%'
+- Risiko: User sieht plötzlich geänderte History — kosmetisch, User verstehen das
+- Grobe Groesse: XS (1 Migration, 10-20 Rows betroffen)
+
+---
+
+## GELB aus dem Walkthrough-Plan (2026-04-16, archiviert) — noch offen
+
+Ausser A-02 + A-03 + A-04 sind diese GELBs aus `memory/_archive/2026-04-meta-plans/walkthrough/` noch offen. **Nicht vom User als muss-tun priorisiert**, aber wert zu erwaehnen:
+
+| ID | Thema | Pilot-Risiko | Wenn angefasst |
+|----|-------|--------------|----------------|
+| A-07 | Schema-Drift (RPC-Response vs Service-Cast) | mittel — Mystery-Box Bug (2026-04-11) war so einer | INV-23 existiert, breitere Coverage |
+| B-01 | Datenquellen Floor-Price (staleTime 2min) | niedrig — akzeptabel fuer Beta | getRealtime-subscription auf orders, oder staleTime reduzieren |
+| B-02 | Service Return-Type Konsistenz | niedrig — 117 Error-Semantik-Fixes (2026-04-13) done, Types-Consistency noch nicht | Grep alle services, Return-Types matchen |
+| B-03 | UI Mixing (Components mit lokaler Logic) | niedrig — Pattern dokumentiert | PlayerKPIs + TradingCardFrame extrahieren auf Service-Layer |
+| B-06 | Error-States fuer Community+Fantasy | niedrig — Trading-Chain verifiziert | Analog Trading: Service throws → te(key) Chain pruefen |
+
+## Slice-Vorschlaege (wenn du durchgehen willst)
+
+### Variante 1 — User-Fokus (Security-Audit-Wave)
 ```
-20260417110000_save_lineup_formation_validation  (9 Reject-Keys)
-20260417120000_audit_helper_rpc_source           (get_rpc_source helper)
-20260417130000_cron_score_pending_events         (Wrapper-RPC)
-20260417140000_cron_schedule_score_pending       (cron.schedule + get_cron_job_schedule helper)
-20260417150000_holdings_auto_delete_zero         (Trigger)
+044: A-02 body-Audit + INV-31 (extended) fuer alle SECURITY DEFINER mit p_user_id
+045: A-03 RLS-Matrix komplett (INV-26 erweitern)
+046: A-04 Live-Ledger-Health Query + INV-Test
+047: Historische Notifications umschreiben (XS)
+048: TR-i18n structured notifications (L — evtl. in 2 Slices teilen)
 ```
+Gesamt: 5 Slices, ~6-10h
 
-### Phase 7 Verify-Ergebnis (Slice 030)
+### Variante 2 — Broad Sweep (inkl. Walkthrough-Rest)
+Variante 1 + dann:
+```
+049: A-07 RPC-Response-Shape-Audit
+050: B-02 Service Return-Type-Konsistenz
+051: B-06 Error-Chains fuer Community+Fantasy (analog Trading)
+052: B-03 UI-Mixing-Extraktion (PlayerKPIs + TradingCardFrame)
+053: B-01 Realtime-Orders fuer Floor-Price (niedrige Prio)
+```
+Gesamt: 10 Slices, ~15-20h
 
-**Status:** GREEN (0 Bugs, 0 Regressions)
-
-Part A (DB-Checks) 7/7:
-- score-pending-events Cron: 13/13 succeeded runs
-- Holdings Zombies: 0 qty<=0 / 513 total
-- rpc_save_lineup Body: alle 9 B4-Reject-Keys live
-- holdings_auto_delete_zero Trigger: registered + enabled
-- handles k_demirtas/kemal: frei fuer Neu-Registrierung
-- 16 transaction-types: alle in activityHelpers gemappt
-
-Part B (UI via Playwright MCP, jarvis-qa@bescout.net) 7/7:
-- Login + Home ✓ (6.949 CR, 19 Scout Cards, "Guten Tag Jarvis")
-- /transactions ✓ (44 Eintraege, kein Raw-Leak, Filter-Bar + CSV)
-- /manager?tab=kader ✓ (keine qty=0 Leaks)
-- /player/[id] ✓ (0 console errors)
-- RPC direct-call via fetch ✓ (auth-chain works, structured error-response)
-- Logout ✓ (sb-Cookie + bs_user + bs_profile wiped → redirect /login)
-
-## Blocker-Status (Ende Session 4)
-
-| Blocker | Vor Session | Jetzt |
-|---------|-------------|-------|
-| A-01..A-07 | GRUEN | GRUEN |
-| B-01..B-03 | GRUEN | GRUEN |
-| B1 (Logout Cache) | GRUEN (Session 3) | GRUEN |
-| B2 (Transactions Pagination) | GRUEN (Session 3) | GRUEN |
-| B3 (Player Detail Queries) | GRUEN (Session 3) | GRUEN |
-| **B4 (Lineup Server-Validation)** | GELB | **GRUEN (Slice 023)** |
-| **B5 (Event Scoring auto)** | GELB | **GRUEN (Slice 024)** |
-| AUTH-08-Klasse (holdings + orders) | GRUEN | GRUEN |
-| **Trading-Zero-Qty (Money-Integritaet)** | offen (CEO-FU) | **GRUEN (Slice 025)** |
-| **activityHelpers TR-i18n** | offen (CEO-FU) | **GRUEN (Slice 027)** |
-| **Dev-Accounts Cleanup** | offen (CEO-FU) | **GRUEN (Slice 028)** |
-| **footballData Security-Audit** | offen (CEO-FU) | **GRUEN (Slice 026, GREEN-Doc)** |
-
-**Block B komplett gruen. Alle CEO-Follow-Ups aus Session 2 geschlossen. Pilot-Blocker: keine bekannt.**
-
-## Security-Hardening dieser Session
-
-- **rpc_save_lineup:** 9 neue Reject-Keys, Formation-Allowlist (8 IDs), Slot-Count-Match, Captain/Wildcard-Slot-Empty — RPC ist einzige Wahrheit fuer Fantasy-Integritaet.
-- **get_rpc_source + get_cron_job_schedule:** 2 neue service_role-only Audit-Helper-RPCs fuer INV-Tests.
-- **holdings_auto_delete_zero Trigger:** Zero-touch Zombie-Prevention, future-proof.
-- **auth.users DELETE NO-ACTION-FK-Audit-Pattern** dokumentiert (common-errors.md).
-
-## Infrastruktur-Wins
-
-- **pg_cron `score-pending-events`** läuft alle 5min, erster Run live bestaetigt (6ms duration, succeeded).
-- **score_event** idempotent (scored_at Guard + no_player_game_stats Early-Exit) — Cron kann beliebig oft retryen ohne Double-Rewards.
-- **common-errors.md** um 5 neue Patterns erweitert (Trigger-auto-cleanup, pg_cron Wrapper, Server-Validation-Pflicht, Transaction-Type-Sync, NO-ACTION-FK-Audit).
-
-## Offene Punkte fuer naechste Session
-
-### 1. Phase 7 Restliche 8 Flows (Slice 030 hat 7 Flows verified — 8 verbleibend)
-**Verified in Slice 030:** Flow 1 (Login), 2 (Home), 4 (Market/Portfolio), 8 (Player Detail), 11 (Lineup RPC partial), 14 (Transactions), 15 (Logout).
-
-**Verbleibend:**
-- Flow 3 Wallet Load (Wallet-Context + Retry-Logik)
-- Flow 5 Buy from Market (BuyModal → buy_player_sc RPC)
-- Flow 6 Place Sell Order (SellModal → place_sell_order RPC)
-- Flow 7 Buy Order / Cancel Order (P2P Escrow-Pattern)
-- Flow 9 Event Browse (`/fantasy` + Filter)
-- Flow 10 Event Join (`lock_event_entry` + Optimistic Update)
-- Flow 12 Event Result/Reward UI-Sichtbarkeit (nach Cron-Score)
-- Flow 13 Notifications (Dropdown, Deeplinks, markAsRead)
-
-**Groesse:** L (8 Flows × 5-10min). Sinnvoll in 1-2 Sessions aufteilen.
-
-### 2. CTO-Residuen (niedrig-Prio)
-- **Broader B-02 Return-Type-Audit** — fuzzy scope, Grenznutzen klein
-- **Club-Admin Per-Club Scoping** — Privacy-Opt, nicht AUTH-08-Klasse
-- **footballData Dead-Code cleanup** — Zeile 549-553 entfernen (cosmetic, siehe Slice 026 Scope-Out)
-- **Session-Digest** — handoff.md wird automatisch geschrieben, muss nicht gepflegt werden
-
-### 3. Neue Features (wenn Anil priorisiert)
-- Pilot-Launch-Preparation?
-- User-Test-Onboarding?
-- Neue Meta-Entscheidungen?
-
-## Test-Stand (Ende Session 4)
-
-- tsc `--noEmit` clean
-- db-invariants: **27/27** inkl. INV-26/27/28/29
-- auth/rls-checks: 16/16 inkl. AUTH-16
-- activityHelpers: 17/17
-- lineups (Service): 29/29 (inkl. 9 neue B4-Cases)
-- trading + usePlayerDetailData + market + profile: alle gruen
-
-## Git-Stand
-
-- Branch: `main` clean
-- Ca. 14 Commits in Session 4 (023-029 inkl. Hash-Followups)
-- Alle auf origin/main gepusht
-- Vercel Deploy laueft automatisch beim Push
-
-## Post-Deploy Verify-Checklist
-
-1. **Lineup Speichern mit GK-NULL** — error, nicht silent success
-2. **Lineup mit ungueltiger Formation** (direkten RPC-Call via Browser-Console) — error `invalid_formation`
-3. **Ende eines Events beobachten** — innerhalb 5-15min `status=ended` + `scored_at` gesetzt + User-Rewards sichtbar
-4. **Portfolio-UI** — kein Spielereintrag mit `quantity=0` (Trigger)
-5. **Transactions-History** — `subscription`/`admin_adjustment`/`tip_send`/`offer_execute` zeigen Labels nicht raw-type
-6. **Neu-Registrierung `k_demirtas` oder `kemal`** — funktioniert, handle ist frei
-7. **Cron-Monitoring** — `cron.job_run_details` fuer `score-pending-events` zeigt succeeded-Runs alle 5min
-
-## Einstieg naechste Session
+## Einstieg
 
 1. Morgen-Briefing lesen (SessionStart-Hook)
-2. `memory/session-handoff.md` (Hook-auto) — letzter Stand + Commits
-3. **Dieser File** — ausfuehrlicher Kontext
-4. Deploy-Verify aus Post-Deploy-Checklist
-5. Entscheidung: Phase 7 jetzt oder anderes?
-
-## Observations aus Session 4
-
-- **7 Slices ohne Rework.** Jeder Slice: SPEC → IMPACT(inline oder separat) → BUILD → PROVE → LOG. Keine Rueckwaertsschritte, kein Pattern-Repeat.
-- **Briefing-Self-Correction:** 2x hat Live-DB-Audit die Briefing-Angaben korrigiert: (a) CEO-FU-1 sagte "10 TR-Labels fehlen" — eigentlich 4. (b) Briefing-Liste enthielt `buy_from_ipo` faelschlich bei decrement-RPCs — eigentlich 3 RPCs. Regel: **Immer Live-DB vor Spec checken.**
-- **Trigger > RPC-Patch fuer Decrement-Zombies:** Eleganterer Weg als 3 RPC-Patches. Slice 025 jetzt als Pattern dokumentiert.
-- **pg_cron Fail-Isolation:** per-Item BEGIN/EXCEPTION verhindert Batch-Stop. Pattern dokumentiert.
-- **5 neue Patterns in common-errors.md kompiliert (Slice 029).** Knowledge-Flywheel haelt.
+2. `memory/session-handoff.md` (auto-generiert)
+3. Diese File (ausfuehrlicher Kontext)
+4. Entscheidung: welche Variante / welcher Slice zuerst?
