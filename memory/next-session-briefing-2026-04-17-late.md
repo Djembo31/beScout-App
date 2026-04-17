@@ -89,14 +89,36 @@ Einstieg: 1M-Context Opus 4.7, autonom nach "abc autonom der Reihe nach" Freigab
 - Alles gepusht auf origin/main
 - 0 commits ahead of origin
 
-## Einstieg naechste Session
+## Einstieg naechste Session — **Block B: Flow-Audit Restrisiken**
 
+CEO-Direktion am Ende Session 2: *"im naechsten gehen wir b an"*. Das ist Block B aus der letzten Empfehlung — die **5 kritischen Restrisiken aus dem Flow-Audit** (walkthrough `03-flow-audit.md`, Summary am Ende):
+
+| # | Risiko | Flow | Scope | Groesse |
+|---|--------|------|-------|---------|
+| B1 | **Logout: React Query Cache nicht geleert** — stale Daten bei Re-Login sichtbar | Flow 15 (Logout) | CTO-autonom | S (1 File: auth.ts oder SideNav Handler, queryClient.clear()) |
+| B2 | **Transactions: Keine Pagination** — 200 Rows upfront, kein Infinite-Scroll | Flow 14 (Transactions) | CTO-autonom | M (Service + Hook + Component, React-Query Infinite-Query) |
+| B3 | **Player Detail: 15-19 parallele Queries** — Query-Waterfall | Flow 8 (Player Detail) | CTO-autonom (Performance-Messung Pflicht) | M-L (Combined-RPC ODER Query-Priorisierung) |
+| B4 | **Lineup: Server-Validation fehlt** — Client-only Formation-Check | Flow 11 (Lineup Save) | CEO-border (Money-Flow, Fantasy-RPC) | M (rpc_save_lineup erweitern) |
+| B5 | **Event-Scoring: Manuell + einmalig** — Admin-triggered, kein Auto-Score | Flow 12 (Event Result/Reward) | CEO-scope (Ops, evtl. neue Cron-Trigger) | M (Cron oder Retry-Mechanism) |
+
+Floor-Price (war #6) ist bereits in Slice 008 erledigt.
+
+**Empfohlener Start-Slice: B1 — Logout Cache-Clear.**
+Begruendung: klein (1-2 Files), CTO-autonom, sicherheitsrelevant (Datenleck bei Session-Wechsel auf shared Device), schneller Win. `queryClient.clear()` auf `signOut()`-Pfad. Commit-Pattern wie Slice 009.
+
+Danach nach Komplexitaet: B2 → B3 → B4 (CEO-Frage) → B5 (CEO-Frage).
+
+### Einstieg-Checkliste
 1. `git log --oneline -10` — Session 2 Commits bestaetigen (007..014 + Hotfixes + Log-Hashes = ~20 commits)
 2. `memory/session-handoff.md` lesen (Hook-auto-log)
 3. **Dieser File** fuer Context
-4. Entscheidung aus den 5 CEO-Scope oder 5 CTO-Scope Follow-Ups
-5. Empfehlung: **Trading-RPC Root-Cause-Fix** (CEO #1) — schliesst B-Klasse komplett, baut auf Slice 012 Arbeit auf
-6. `/ship new "<Titel>"`
+4. `memory/_archive/2026-04-meta-plans/walkthrough/03-flow-audit.md` — Flow 15 (Logout) Detailzeile lesen
+5. `/ship new "B1 — Logout React Query Cache Clear"`
+
+### Nicht in Block B (dokumentiert, separat)
+- **CEO-Scope Follow-Ups** (Trading-RPC Zero-Qty Fix, activityHelpers TR-i18n, Dev-Accounts Backfill, footballData RLS, Holdings CHECK tighten) — alle **nach Block B** oder bei CEO-Ansprache einbauen.
+- **CTO-Scope Residuen** (B-03 Verify, Broader B-02 Audit, Public-Profile Fetch-Gate, INV-qual=true-Guard) — **nach Block B**.
+- **Phase 7 Verifikation** (15 Flows von GELB auf GRUEN via bescout.net E2E nach Deploy) — kritischer Pfad zu User-Test-Freigabe, aber nach Block B sinnvoll (manche Block-B-Fixes sind Teil der Flow-Verifikation).
 
 ## Observations aus Session 2
 
