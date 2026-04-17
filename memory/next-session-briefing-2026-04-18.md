@@ -1,17 +1,19 @@
 # Next-Session Briefing (Stand Ende Session 4, 2026-04-17)
 
-> Refreshed nach Slice 029. Ersetzt den vorigen Stand (der B4/B5 noch als gelb zeigte).
+> Refreshed nach Slice 030 (Phase 7 Verify GREEN). Ersetzt den vorigen Stand (der B4/B5 noch als gelb zeigte).
 
-## Zusammenfassung Session 4 (sieben Slices, CTO-autonom)
+## Zusammenfassung Session 4 (acht Slices, CTO-autonom)
 
 Schwerpunkt: verbleibende B-Blocker (B4/B5) + alle 4 CEO-Follow-Ups aus
-Session 2 + Doc-Pflege. Alle 7 Slices gruen, kein Rework, alles gepusht.
+Session 2 + Doc-Pflege + **Full Deploy-Verify auf bescout.net**. Alle 8 Slices gruen,
+kein Rework, alles gepusht. **Fehlerfreier Softwarestand auf bescout.net bestaetigt.**
 
 ### SHIP-Slices dieser Session (worklog/log.md, neueste oben)
 
 | # | Slice | Commit | Ergebnis |
 |---|-------|--------|----------|
-| 029 | Doc-Refresh (common-errors + Briefing) | <pending> | 5 neue Bug-Patterns aus Slices 023-028 kompiliert |
+| 030 | Phase 7 Verify GREEN | fd00cf1e | 7 DB-Checks + 7 UI-Flows via Playwright, 0 Bugs |
+| 029 | Doc-Refresh (common-errors + Briefing) | 0995ef08 | 5 neue Bug-Patterns aus Slices 023-028 kompiliert |
 | 028 | Dev-Accounts Cleanup (k_demirtas + kemal) | e45a26b2 | auth.users DELETE + 44-FK-Pre-Audit, Handles frei |
 | 027 | activityHelpers TR-i18n | 010b0811 | 4 fehlende transaction-types (nicht 10 wie briefing), DE+TR gefixt |
 | 026 | footballData Client-Access Audit (Doc-only) | aa67e2a0 | GREEN — Silent-Dead-Code ohne Impact (Cron parallel) |
@@ -28,6 +30,26 @@ Session 2 + Doc-Pflege. Alle 7 Slices gruen, kein Rework, alles gepusht.
 20260417140000_cron_schedule_score_pending       (cron.schedule + get_cron_job_schedule helper)
 20260417150000_holdings_auto_delete_zero         (Trigger)
 ```
+
+### Phase 7 Verify-Ergebnis (Slice 030)
+
+**Status:** GREEN (0 Bugs, 0 Regressions)
+
+Part A (DB-Checks) 7/7:
+- score-pending-events Cron: 13/13 succeeded runs
+- Holdings Zombies: 0 qty<=0 / 513 total
+- rpc_save_lineup Body: alle 9 B4-Reject-Keys live
+- holdings_auto_delete_zero Trigger: registered + enabled
+- handles k_demirtas/kemal: frei fuer Neu-Registrierung
+- 16 transaction-types: alle in activityHelpers gemappt
+
+Part B (UI via Playwright MCP, jarvis-qa@bescout.net) 7/7:
+- Login + Home ✓ (6.949 CR, 19 Scout Cards, "Guten Tag Jarvis")
+- /transactions ✓ (44 Eintraege, kein Raw-Leak, Filter-Bar + CSV)
+- /manager?tab=kader ✓ (keine qty=0 Leaks)
+- /player/[id] ✓ (0 console errors)
+- RPC direct-call via fetch ✓ (auth-chain works, structured error-response)
+- Logout ✓ (sb-Cookie + bs_user + bs_profile wiped → redirect /login)
 
 ## Blocker-Status (Ende Session 4)
 
@@ -63,22 +85,31 @@ Session 2 + Doc-Pflege. Alle 7 Slices gruen, kein Rework, alles gepusht.
 
 ## Offene Punkte fuer naechste Session
 
-### 1. Deploy-Verify bescout.net (Anil, kein Code)
-- B4 smoke-test: Lineup mit `p_slot_gk=NULL` speichern soll Error werfen
-- B5 monitoring: `SELECT * FROM cron.job_run_details WHERE jobname='score-pending-events' ORDER BY start_time DESC LIMIT 10` — ersten 3-5 Laeufe beobachten
-- Generelle Flows: Trading, Lineup, Rewards — alle normal
-- **Nach Verify:** Phase 7 (unten) kann starten.
+### 1. Phase 7 Restliche 8 Flows (Slice 030 hat 7 Flows verified — 8 verbleibend)
+**Verified in Slice 030:** Flow 1 (Login), 2 (Home), 4 (Market/Portfolio), 8 (Player Detail), 11 (Lineup RPC partial), 14 (Transactions), 15 (Logout).
 
-### 2. Phase 7 — Flow-Audit E2E-Verifikation (L)
-- 15 Flows aus `memory/_archive/2026-04-meta-plans/walkthrough/03-flow-audit.md` via Playwright gegen bescout.net
-- Kritischer Pfad zu User-Test-Readiness
-- Teilweise schon implizit erledigt durch Slices B1/B2/B3 (Flow 15/14/8)
+**Verbleibend:**
+- Flow 3 Wallet Load (Wallet-Context + Retry-Logik)
+- Flow 5 Buy from Market (BuyModal → buy_player_sc RPC)
+- Flow 6 Place Sell Order (SellModal → place_sell_order RPC)
+- Flow 7 Buy Order / Cancel Order (P2P Escrow-Pattern)
+- Flow 9 Event Browse (`/fantasy` + Filter)
+- Flow 10 Event Join (`lock_event_entry` + Optimistic Update)
+- Flow 12 Event Result/Reward UI-Sichtbarkeit (nach Cron-Score)
+- Flow 13 Notifications (Dropdown, Deeplinks, markAsRead)
 
-### 3. CTO-Residuen (niedrig-Prio)
+**Groesse:** L (8 Flows × 5-10min). Sinnvoll in 1-2 Sessions aufteilen.
+
+### 2. CTO-Residuen (niedrig-Prio)
 - **Broader B-02 Return-Type-Audit** — fuzzy scope, Grenznutzen klein
 - **Club-Admin Per-Club Scoping** — Privacy-Opt, nicht AUTH-08-Klasse
 - **footballData Dead-Code cleanup** — Zeile 549-553 entfernen (cosmetic, siehe Slice 026 Scope-Out)
 - **Session-Digest** — handoff.md wird automatisch geschrieben, muss nicht gepflegt werden
+
+### 3. Neue Features (wenn Anil priorisiert)
+- Pilot-Launch-Preparation?
+- User-Test-Onboarding?
+- Neue Meta-Entscheidungen?
 
 ## Test-Stand (Ende Session 4)
 
