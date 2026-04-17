@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 047 | 2026-04-18 | Historische Notifications Wording umschreiben
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD(data-migration) → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418150000_slice_047_notifications_wording_rewrite.sql` (NEW) — 4 UPDATE statements
+  - `worklog/specs/047-historische-notifications-wording.md`, `worklog/proofs/047-before-after.txt`
+- Proof: BEFORE 45 Trader + 3 BSD → AFTER 0/0. 52 Sammler + 5 Credits total. 263 Gesamt-Rows unveraendert.
+- Commit: tba
+- Notes: XS-Slice Variante-2 #4/10. Komplementiert Slice 043 (RPC-Bodies gefixt). Migration idempotent via REPLACE + WHERE LIKE. Nicht-Scope: `message`-Column-Bug in accept_mentee/request_mentor-Bodies (diese RPCs haben im INSERT notifications-columns eine non-existing `message` col — aber die RPCs sind nicht live-callable, werden silent bei ersten Call fehlschlagen. Separater Slice 047b wenn ueberhaupt.).
+
+---
+
 ## 046 | 2026-04-18 | A-04 Live-Ledger-Health Reconciliation + INV-33
 - Stage-Chain: SPEC → IMPACT(live-query) → BUILD(data-migration) → PROVE → LOG
 - Files:
@@ -18,7 +29,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/lib/__tests__/db-invariants.test.ts` (+80 lines) — INV-33 mit pagination-based wallet vs tx-sum drift-check
   - `worklog/specs/046-a04-ledger-health.md`, `worklog/proofs/046-ledger-query.txt`, `worklog/proofs/046-inv33-vitest.txt`
 - Proof: 69 drift Users → 0 drift. 124/124 balanced. Total reconciled 2,887,052 $SCOUT (= 288M cents). INV-33 gruen, 31/31 INV-Tests grun. tsc clean.
-- Commit: tba
+- Commit: c01c0691
 - Notes: Variante-2 Slice #3/10. Szenario B (N drift) statt Szenario A (0 drift). Alle 69 drift-User sind Dev/Test/Demo (bot001-050, test*, demo-*, elif_mgr, jarvisqa, k_dmrts). Kein produktiver User betroffen (Beta-Launch noch nicht live). Drift entstand pre-Slice-022 als Welcome-Bonus direkt in wallets.balance ohne transactions-row geschrieben wurde. Fix: compensating transactions-row mit created_at < MIN(existing_tx) — INV-16 bleibt gruen (last-balance_after unveraendert). INV-33 faengt zukuenftige drift-Klasse (wallet-mutation ohne tx-log).
 
 ---

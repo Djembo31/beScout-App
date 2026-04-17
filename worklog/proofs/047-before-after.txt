@@ -1,0 +1,33 @@
+# Slice 047 — Historische Notifications Wording (2026-04-18)
+# Source: Supabase MCP execute_sql gegen skzjfhvgccaeplydsunz
+
+# ============================================================
+# BEFORE
+# ============================================================
+#   has_trader: 45
+#   has_bsd:     3
+#   total: 263
+
+# Sample pre-rewrite content:
+#   - "Trader: Aufstieg zu Silber II!" / "Dein Trader-Rang ist auf Silber II gestiegen. Weiter so!"
+#   - "Trader: Aufstieg zu Silber I!"
+#   - "Trader: Aufstieg zu Bronze III!"
+#   - "Scout-Tipp erhalten!" / "test1 hat dir 10 BSD Tipp gesendet"
+#   - "💰 Sammler" / "Kader über 1.000 BSD"
+
+# ============================================================
+# Migration 20260418150000_slice_047_notifications_wording_rewrite.sql
+# ============================================================
+# 4x UPDATE statements: Trader->Sammler (title,body), BSD->Credits (title,body)
+
+# ============================================================
+# AFTER
+# ============================================================
+#   has_trader:  0  ✓
+#   has_bsd:     0  ✓
+#   has_sammler: 52 (45 converted + 7 already 'Sammler')
+#   has_credits: 5  (3 converted + 2 already 'Credits')
+#   total: 263 (unchanged)
+
+# Idempotenz-Verify: Zweiter Apply der Migration waere NO-OP
+# (REPLACE ist idempotent, WHERE LIKE matcht 0 Rows nach erstem Apply).
