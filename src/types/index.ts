@@ -383,6 +383,15 @@ export type ClubBalance = {
   available: number;
 };
 
+/**
+ * Slice 050: Shared Operation-Result type fuer RPCs die { success, error? } returnen.
+ * Ersetzt wiederkehrende inline-casts in Services (club.ts, fanWishes.ts).
+ */
+export type OperationResult = {
+  success: boolean;
+  error?: string;
+};
+
 export type Club = {
   id: string;
   slug: string;

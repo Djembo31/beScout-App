@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { ContentReportWithDetails, ReportTargetType } from '@/types';
+import type { ContentReportWithDetails, ReportTargetType, OperationResult } from '@/types';
 
 // ============================================
 // Content Reports Service
@@ -10,7 +10,7 @@ export async function reportContent(
   targetType: ReportTargetType,
   targetId: string,
   reason: string,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<OperationResult> {
   const { data, error } = await supabase.rpc('report_content', {
     p_target_type: targetType,
     p_target_id: targetId,
@@ -19,8 +19,7 @@ export async function reportContent(
 
   if (error) throw new Error(error.message);
 
-  const result = data as { success: boolean; error?: string };
-  return result;
+  return data as OperationResult;
 }
 
 /** Get pending reports (for admin moderation tab) */

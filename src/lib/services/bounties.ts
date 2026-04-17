@@ -7,6 +7,7 @@ import type {
   DbBountySubmission,
   BountySubmissionWithUser,
   BountySubmissionWithBounty,
+  OperationResult,
 } from '@/types';
 
 // ============================================
@@ -274,7 +275,7 @@ export async function cancelBounty(userId: string, bountyId: string): Promise<vo
   });
 
   if (error) throw new Error(mapRpcError(error.message));
-  const result = data as { success: boolean; error?: string };
+  const result = data as OperationResult;
   if (!result.success) throw new Error(mapRpcError(result.error ?? 'bountyCancelFailed'));
 
   invalidateBountyData(userId);

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbFanWish } from '@/types';
+import type { DbFanWish, OperationResult } from '@/types';
 
 export async function submitFanWish(params: {
   wishType: 'player' | 'club';
@@ -16,7 +16,7 @@ export async function submitFanWish(params: {
     p_note: params.note ?? null,
   });
   if (error) return { success: false, error: error.message };
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 export async function getMyWishes(): Promise<DbFanWish[]> {
@@ -44,5 +44,5 @@ export async function updateWishStatus(wishId: string, status: string): Promise<
     p_status: status,
   });
   if (error) return { success: false, error: error.message };
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }

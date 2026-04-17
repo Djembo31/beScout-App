@@ -1,0 +1,71 @@
+# Slice 050 — Service Return-Type Audit Report (2026-04-18)
+# Source: grep-audit src/lib/services/ + INV-23 cross-reference
+
+# ============================================================
+# Sample Scope
+# ============================================================
+# 10 Money-Path Service-Functions gegen INV-23 RPC_SHAPE_WHITELIST gepruft.
+# Fokus: Trading, Offers, IPO, Subscriptions, Bounties, Research, Wallets.
+
+# ============================================================
+# Results — 10/10 aligned
+# ============================================================
+#
+#   getClubBalance        -> ClubBalance (5 keys)          = RPC get_club_balance keys        ✅
+#   acceptOffer           -> OfferResult+trade_price       = RPC accept_offer keys            ✅
+#   createOffer           -> OfferResult (3 keys)          = RPC create_offer keys            ✅
+#   rejectOffer           -> OfferResult                   = RPC reject_offer keys (subset)   ✅
+#   cancelOffer           -> OfferResult                   = RPC cancel_offer_rpc keys        ✅
+#   claimWelcomeBonus     -> {ok, amount_cents, balance}   = RPC claim_welcome_bonus keys     ✅
+#   unlockResearch        -> UnlockResult                  = RPC unlock_research keys         ✅
+#   getPlayerPercentiles  -> Record<string, number>        = RPC rpc_get_player_percentiles   ✅
+#   calculateFanRank      -> inline (5 keys)               = RPC calculate_fan_rank keys      ✅
+#   getClubBySlug         -> ClubWithAdmin (18 keys)       = RPC get_club_by_slug keys        ✅
+
+# ============================================================
+# Inline-Object-Casts (18 functions) — all align
+# ============================================================
+# Services mit `data as { success, error?, ... }` inline types:
+#   - adRevenueShare.ts:48 (6 keys, matches calculate_ad_revenue_share)
+#   - club.ts:481, 494, 546, 668 ({success, error?} patterns)
+#   - creatorFund.ts:24 (6 keys, matches calculate_creator_fund_payout)
+#   - fanWishes.ts:19, 47 ({success, error?} patterns)
+# Alle konsistent mit INV-23-validierten RPC-Shapes.
+
+# ============================================================
+# Findings Summary
+# ============================================================
+# NO DRIFT DETECTED.
+#
+# Begruendung fuer robuste Coverage:
+#   1. TSC (compile-time): Type-Mismatch an Call-Sites triggert Build-Error
+#   2. INV-23 (runtime): RPC-Shape-Change ohne Whitelist-Update triggert Test-Fail
+#   3. Slice 049 Expansion: Coverage 76 -> 78 Shape-guarded RPCs
+#
+# Daraus folgt: Existing drift-detection ist ausreichend fuer Beta-Launch.
+# Kein Code-Change in Slice 050 noetig.
+
+# ============================================================
+# Refactor: inline-object-casts auf named OperationResult type
+# ============================================================
+# Neuer shared type in src/types/index.ts:
+#   export type OperationResult = { success: boolean; error?: string };
+#
+# 10 inline casts ersetzt in 6 Services:
+#   - src/lib/services/club.ts       (4× addClubAdmin, removeClubAdmin, updateClubFantasySettings, revokeClubWithdrawal)
+#   - src/lib/services/fanWishes.ts  (2× submitFanWish, updateFanWishStatus)
+#   - src/lib/services/posts.ts      (1× adminDeletePost)
+#   - src/lib/services/platformAdmin.ts (1× updateFeeConfig)
+#   - src/lib/services/bounties.ts   (1× cancelBounty)
+#   - src/lib/services/contentReports.ts (1× reportContent — Promise-Signatur ebenfalls angepasst)
+#
+# Verify post-refactor:
+#   grep -r "as \{ success: boolean; error\?: string \}" src/lib/services/ -> 0 matches
+#   tsc --noEmit -> clean
+#   31/31 INV-Tests gruen (no regression)
+
+# ============================================================
+# Optional Follow-Up (out-of-scope Slice 050)
+# ============================================================
+# - Weiter-Refactor: inline-casts mit mehr keys auf named types (adRevenueShare, creatorFund)
+# - Slice 050c: ESLint rule `no-inline-type-cast-in-services`

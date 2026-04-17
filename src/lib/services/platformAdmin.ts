@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbFeeConfig, DbEventFeeConfig } from '@/types';
+import type { DbFeeConfig, DbEventFeeConfig, OperationResult } from '@/types';
 
 // ============================================
 // Admin Role Check
@@ -188,7 +188,7 @@ export async function updateFeeConfig(
     p_ipo_pbt_bps: feeData.ipo_pbt_bps ?? null,
   });
   if (error) throw new Error(error.message);
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 // ============================================

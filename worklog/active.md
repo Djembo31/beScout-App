@@ -16,7 +16,9 @@ started: —
 2. ~~045 — A-03 RLS-Matrix komplett~~ ✅ DONE 2026-04-18 (42690cbc)
 3. ~~046 — A-04 Live-Ledger-Health Reconciliation + INV-33~~ ✅ DONE 2026-04-18 (c01c0691)
 4. ~~047 — Historische Notifications Wording~~ ✅ DONE 2026-04-18 (fc1124f6)
-5. ~~048 — TR-i18n Notifications Foundation + reward_referral Pilot~~ ✅ DONE 2026-04-18 (Follow-Ups: 048b money-path RPCs, 048c social/admin)
+5. ~~048 — TR-i18n Notifications Foundation + reward_referral Pilot~~ ✅ DONE 2026-04-18 (f2809047)
+6. ~~049 — A-07 RPC-Response-Shape-Audit Coverage~~ ✅ DONE 2026-04-18 (b4c33b36)
+7. ~~050 — B-02 Service Return-Type Konsistenz~~ ✅ DONE 2026-04-18
 2. 045 — A-03 RLS-Matrix komplett (INV-26 erweitern)
 3. 046 — A-04 Live-Ledger-Health Query + INV-Test
 4. 047 — Historische Notifications umschreiben (XS)

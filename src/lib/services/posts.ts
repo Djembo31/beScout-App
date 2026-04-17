@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
-import type { DbPost, PostWithAuthor, PostType } from '@/types';
+import type { DbPost, PostWithAuthor, PostType, OperationResult } from '@/types';
 import { toPos } from '@/types';
 
 // ============================================
@@ -339,7 +339,7 @@ export async function adminDeletePost(
     p_post_id: postId,
   });
   if (error) throw new Error(error.message);
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 export async function adminTogglePin(

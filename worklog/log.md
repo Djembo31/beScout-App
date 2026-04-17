@@ -11,13 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 050 | 2026-04-18 | B-02 Service Return-Type Konsistenz + OperationResult Refactor
+- Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
+- Files:
+  - `src/types/index.ts` — neuer shared `OperationResult = {success, error?}` type
+  - `src/lib/services/club.ts, fanWishes.ts, posts.ts, platformAdmin.ts, bounties.ts, contentReports.ts` — 10 inline-casts ersetzt
+  - `worklog/specs/050-b02-service-return-type-audit.md`, `worklog/proofs/050-audit-report.txt`
+- Proof: 10 Money-Path Services gespotcheckt alle aligned. 10 inline `{ success, error? }`-casts auf `OperationResult` refactored. 31/31 INV-Tests gruen, tsc clean.
+- Commit: tba
+- Notes: S-Slice Variante-2 #7/10. Audit ergab NO DRIFT in Money-Path — dann Refactor fuer maintenance-friendliness nachgeschoben. Reduced inline-type-noise. Coverage durch TSC + INV-23 + INV-32 mehrfach layered.
+
+---
+
 ## 049 | 2026-04-18 | A-07 RPC-Response-Shape-Audit Coverage Expansion
 - Stage-Chain: SPEC → IMPACT(live-diff) → BUILD → PROVE → LOG
 - Files:
   - `src/lib/__tests__/db-invariants.test.ts` (+3 entries, +1 EXCLUDED) — INV-23 Whitelist erweitert
   - `worklog/specs/049-a07-rpc-response-shape-audit.md`, `worklog/proofs/049-inv23-vitest.txt`
 - Proof: 94 service-called RPCs identifiziert, 3 missing aus INV-23 zu whitelist addiert (get_club_balance, rpc_get_player_percentiles) + 1 zu EXCLUDED (rpc_get_user_social_stats). INV-23 gruen.
-- Commit: tba
+- Commit: b4c33b36
 - Notes: S-Slice Variante-2 #6/10. Coverage 76 → 78 Shape-guarded RPCs. Mystery-Box-Bug-Klasse erweitert geschuetzt. Scope-Out: 17 non-jsonb RPCs (scalar returns) + Audit-Helper-Verbesserung fuer non-literal-jsonb_build (Slice 007b).
 
 ---

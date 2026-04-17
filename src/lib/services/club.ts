@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, ClubDashboardStats, ClubAdminRole } from '@/types';
+import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, ClubDashboardStats, ClubAdminRole, OperationResult } from '@/types';
 
 // ============================================
 // Club Queries
@@ -478,7 +478,7 @@ export async function addClubAdmin(
     p_role: role,
   });
   if (error) throw new Error(error.message);
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 /** Remove club admin (via RPC — owner only) */
@@ -491,7 +491,7 @@ export async function removeClubAdmin(
     p_user_id: userId,
   });
   if (error) throw new Error(error.message);
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 // ============================================
@@ -543,7 +543,7 @@ export async function updateCommunityGuidelines(
     p_guidelines: guidelines,
   });
   if (error) throw new Error(error.message);
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 // ============================================
@@ -665,7 +665,7 @@ export async function requestClubWithdrawal(
     p_note: note ?? null,
   });
   if (error) throw new Error(error.message);
-  return data as { success: boolean; error?: string };
+  return data as OperationResult;
 }
 
 // ============================================
