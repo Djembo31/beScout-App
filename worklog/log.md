@@ -21,7 +21,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/019-tsc.txt` (clean)
   - `worklog/proofs/019-tests.txt` (db-invariants 24/24 gruen inkl. INV-26)
   - `worklog/proofs/019-rpc-sanity.txt` (RPC-Output: 14 Policies, 2 qual=true whitelisted, 0 violations)
-- Commit: TBD
+- Commit: 61d2438c
 - **CEO-Aufmerksamkeit erforderlich:** INV-26 hat `orders.orders_select` mit `qual='true'` gefunden — gleiche AUTH-08-Klasse wie Slice 014 Holdings. Orderbook ist typisch public-by-design (Market-Maker), aber `user_id`-Exposure ist die Frage: (a) keep-public, in INV-26 EXPECTED_PERMISSIVE belassen. (b) Anonymize via handle-projection, neuer Slice mit RLS-Tighten + Service-Projection. Aktuell als TODO im Test whitelisted mit CEO-Decision-Kommentar — Test gruen, aber Fund dokumentiert.
 - Notes: Pattern etabliert (Slice 004 `get_rls_policy_coverage`, Slice 007 `get_rpc_jsonb_keys`, Slice 005 `get_auth_guard_audit`). INSERT-policies mit qual=NULL bewusst ignoriert (USING applies zu row-being-inserted, WITH CHECK restricts payload). `user_stats.Anyone can read stats` explicit in Whitelist (Leaderboard-Public-Design). Test scannt: holdings, transactions, ticket_transactions, activity_log, user_stats, wallets, orders, offers.
 
