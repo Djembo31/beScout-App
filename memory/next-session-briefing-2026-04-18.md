@@ -92,7 +92,7 @@ user_stats, wallets, orders, offers. Expected-Permissive nur noch 1 Eintrag
 - **`footballData.ts` Client-Access auf server-only Tabellen** — Visual-QA erforderlich.
 
 ### 5. CTO-Scope Residuen
-- **B-03 Verification** — 10-min Audit ob UI-Mixing wirklich clean ist. Falls ja: Doku-Update. Falls nein: Mini-Refactor.
+- **B-03 Verification — GREEN (Slice 022, 2026-04-18):** Audit schloss ab. TradingCardFrame konsumiert `priceChange24h` als Prop (keine lokale Calc), PlayerKPIs nutzt L5 als Prop + Floor-Calc entspricht Architektur-Regel in `.claude/rules/trading.md`. PnL/PnLPct sind reine UI-Arithmetik. Proofs: `worklog/proofs/022-*.txt`.
 - **Broader B-02 Return-Type-Audit** — fuzzy scope, evtl. kleine Slices. Grenznutzen eher klein.
 - **Club-Admin Per-Club Scoping** — aktuell sieht jeder Club-Admin ALLE Orders/Holdings (nicht nur seines Clubs). Nicht AUTH-08-Klasse aber Privacy-Optimierung. Follow-Up wenn CEO will.
 - **Session-Digest / common-errors.md Pflege** — falls neue Patterns aus dieser Session nicht dokumentiert sind. (Check: RLS-qual-true Pattern bereits in common-errors.md erweitert mit Slice 020+021 Info und INV-26-Regression-Guard.)

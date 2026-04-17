@@ -1,0 +1,26 @@
+Slice 022 — Floor-Calc Architekturregel (trading.md)
+=====================================================
+
+File: .claude/rules/trading.md (Section "Preise")
+
+  ## Preise
+  - `ipo_price` = fest pro Tranche, aendert sich NIE durch Marktaktivitaet
+  - `floor_price` = MIN(offene User-Sell-Orders) oder `ipo_price` als Fallback
+  - Floor Price Client-seitig berechnen: `Math.min(...sellOrders.map(o => o.price))` — NICHT per-Player DB Query
+  - Pool/IPO verkauft immer zu `ipo_price`, nicht `floor_price`
+
+Das System-weite Pattern (grep-verifiziert):
+
+  src/features/market/hooks/useMarketData.ts:57         floorMap = ... Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0
+  src/features/market/components/marktplatz/WatchlistView.tsx:41   Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0
+  src/features/market/components/MarketContent.tsx:223  Math.min(...player.listings.map(l => l.price)) : Math.round((player.prices.floor ?? 0) * 100)
+  src/features/manager/components/kader/KaderTab.tsx:152           hasListings ? Math.min(...player.listings.map(l => l.price)) : null
+  src/components/player/PlayerRow.tsx:37               Math.min(...p.listings.map((l) => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0
+  src/components/player/index.tsx:493 (PlayerKPIs)     Math.min(...player.listings.map(l => l.price)) : player.prices.floor ?? player.prices.referencePrice ?? 0
+
+Alle 6 Call-Sites sind konsistent. Das ist eine **bewusste, dokumentierte Architektur-Entscheidung**
+(Client-side Floor-Computation um per-Player DB-Queries zu vermeiden). Nicht "UI-Mixing".
+
+Die B-01 Flow-Audit Konklusion (2026-04-16) bestaetigt das explizit:
+  "useMarketData.ts:53 berechnet Floor korrekt: MIN(orders) fallback DB floor_price.
+   Kein echter Drift, nur staleTime-Verzoegerung — akzeptabel fuer Beta, kein Preis-Taeuscher"

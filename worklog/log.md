@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 022 | 2026-04-18 | B-03 UI-Mixing Verification (Doc-only, XS)
+- Stage-Chain: SPEC → IMPACT(skipped — reine Verifikation) → BUILD(audit) → PROVE → LOG
+- Files:
+  - `worklog/specs/022-b03-ui-mixing-verification.md` (NEW — XS Spec)
+  - `worklog/proofs/022-player-kpis-extract.txt` (NEW)
+  - `worklog/proofs/022-tradingcardframe-props.txt` (NEW)
+  - `worklog/proofs/022-floor-rule.txt` (NEW)
+  - `worklog/proofs/022-audit-result.txt` (NEW — Final Verdict)
+  - `worklog/proofs/022-tsc.txt` (NEW — tsc clean, 0 Zeilen)
+  - `memory/next-session-briefing-2026-04-18.md` (Residuen-Punkt 5 → GREEN + Proof-Links)
+- Proofs:
+  - `worklog/proofs/022-audit-result.txt` (Verdict GREEN + Begruendung)
+  - `worklog/proofs/022-tsc.txt` (clean)
+- Commit: (pending)
+- Notes: CTO-autonomer Audit-Slice. Verdict **B-03 = GREEN**: (a) TradingCardFrame konsumiert `priceChange24h` als Prop aus `CardBackData` (Line 19/380), PlayerHero.tsx:81 liefert `player.prices.change24h` direkt durch — kein lokaler Preis-Delta-Compute. (b) PlayerKPIs bezieht L5 als Prop (`player.perf.l5`), Floor folgt system-weitem Architektur-Pattern aus `.claude/rules/trading.md` ("Floor Price Client-seitig berechnen: `Math.min(...sellOrders.map(o => o.price))`") mit 6 konsistenten Call-Sites (useMarketData, WatchlistView, MarketContent, KaderTab, PlayerRow, PlayerKPIs). (c) PnL/PnLPct sind reine UI-Arithmetik auf zwei Props (Floor + avgBuyPrice + quantity) — kein DB-Equivalent existiert per-User, kein Drift-Vektor. Keine Code-Aenderung erforderlich. Walkthrough-Archive (`memory/_archive/2026-04-meta-plans/walkthrough/05-blocker-b.md`) bleibt unveraendert (Archiv). B-03-Residuum in `next-session-briefing-2026-04-18.md` Punkt 5 als GREEN markiert.
+
+---
+
 ## 021 | 2026-04-17 | Orders RLS Tighten (CEO Option 2, Seal)
 - Stage-Chain: SPEC → IMPACT(inline — Slice 020 war Prep, orders Services bereits RPC-basiert) → BUILD → PROVE → LOG
 - Files:

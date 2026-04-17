@@ -1,0 +1,48 @@
+Slice 022 — PlayerKPIs props-usage audit
+=========================================
+
+File: src/components/player/index.tsx (Lines 483-497)
+
+  export function PlayerKPIs({ player, context = 'default', holding, ipoData, score, rank }: {
+    player: Pick<Player, 'perf' | 'prices' | 'stats' | 'dpc' | 'ipo' | 'contractMonthsLeft' | 'listings'>;
+    context?: PlayerContext;
+    holding?: HoldingData;
+    ipoData?: IpoDisplayData;
+    score?: number;
+    rank?: number;
+  }) {
+    const tp = useTranslations('player');
+    const floor = player.listings.length > 0
+      ? Math.min(...player.listings.map(l => l.price))
+      : player.prices.floor ?? player.prices.referencePrice ?? 0;          <-- OFFICIAL ARCHITECTURE PATTERN (trading.md)
+    const l5 = player.perf.l5;                                              <-- PROP ONLY, no re-compute
+    const l5Color = getL5Color(l5);                                         <-- pure formatting helper
+    const up = player.prices.change24h >= 0;                                <-- trivial sign-check on PROP
+
+Portfolio context (Lines 505-524):
+
+    case 'portfolio': {
+      const pnl = holding ? (floor - holding.avgBuyPriceBsd) * holding.quantity : 0;      <-- pure UI arithmetic
+      const pnlPct = holding && holding.avgBuyPriceBsd > 0
+        ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100
+        : 0;                                                                              <-- pure UI arithmetic
+
+Market context (Lines 527-541):
+
+    kpis.push(...prices.change24h.toFixed(1)%...)  <-- prop-consumption
+    kpis.push(...perf.l5...)                       <-- prop-consumption
+    kpis.push(...dpc.onMarket...)                  <-- prop-consumption
+    kpis.push(...stats.matches/goals/assists...)   <-- prop-consumption
+
+Verdict:
+- L5: PROP (player.perf.l5)          — no local re-compute
+- Change24h: PROP                     — trivial >= 0 sign-check
+- Floor: official architecture pattern (trading.md)
+- PnL / PnLPct: derived UI arithmetic from PROPS (floor, avgBuy, quantity) — no DB-equivalent exists per-user
+- Stats (goals/assists/matches): direct PROP consumption
+- onMarket count: direct PROP consumption
+
+NO LOCAL DOMAIN LOGIC. All values originate from props already enriched at the edge
+(enrichPlayersWithData in enriched.ts). The floor expression is intentionally identical
+to useMarketData.ts:57, WatchlistView.tsx:41, MarketContent.tsx:223, KaderTab.tsx:152,
+PlayerRow.tsx:37 — this is the SYSTEM-WIDE consistent computation.

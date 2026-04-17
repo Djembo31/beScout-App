@@ -1,0 +1,49 @@
+Slice 022 — B-03 Verification Result
+=====================================
+
+Datum: 2026-04-18 (CTO-autonom)
+Reviewer: Claude Opus 4.7 (Orchestrator)
+
+FRAGE:
+  Ist B-03 (UI-Mixing) weiterhin GELB oder effektiv GREEN?
+
+URSPRUENGLICHER VERDACHT:
+  - PlayerKPIs berechnet L5-Score lokal
+  - TradingCardFrame berechnet Preis-Delta lokal
+
+AUDIT (grep + read):
+
+  A) PlayerKPIs (src/components/player/index.tsx:483-609)
+     - L5 = player.perf.l5           -> PROP (not local re-compute)
+     - change24h = player.prices.change24h -> PROP
+     - Floor-Calc = Math.min(listings.price) : prices.floor ?? ref -> SYSTEM-WIDE ARCHITECTURE PATTERN
+       (dokumentiert in .claude/rules/trading.md "Preise" Sektion; 6 consistent call-sites)
+     - PnL / PnLPct = reine UI-Arithmetik auf Props -> kein Drift zu DB moeglich (user-spezifisch)
+     - Stats, Goals, Assists, Matches = direkter Prop-Zugriff
+
+  B) TradingCardFrame (src/components/player/detail/TradingCardFrame.tsx)
+     - priceChange24h IST Prop (CardBackData Line 19) -> Line 380: `change = backData.priceChange24h ?? 0`
+     - Parent PlayerHero.tsx:81 uebergibt player.prices.change24h direkt durch -> kein Re-Compute
+     - L5/L15 = Props; appearance-% NUR als DB-NULL-Fallback aus matchTimeline abgeleitet (UI-only)
+
+VERDICT: GREEN (vollstaendig verifiziert)
+
+BEGRUENDUNG:
+  1. Der urspruengliche TradingCardFrame-Concern ("lokales Preis-Delta") ist sauber geloest —
+     priceChange24h fliesst als Prop von DB ueber Player.prices bis ins Component.
+  2. Der PlayerKPIs-Concern ("lokaler L5-Score") trifft nicht zu — L5 ist ein reiner Prop.
+  3. Was in PlayerKPIs wie "lokaler Calc" aussieht (Floor-Min) ist eine **dokumentierte
+     System-Architektur** aus trading.md und mit der B-01 Floor-Price-Drift-Konklusion konsistent.
+  4. PnL/PnLPct ist per-User UI-Arithmetik ohne DB-Equivalent — kein Drift-Vektor.
+
+FOLGE-SCHRITTE:
+  - Keine Code-Aenderung noetig.
+  - Status-Update in memory/next-session-briefing-2026-04-18.md (B-03 Residuum geschlossen).
+  - Kein Refactor-Slice eroeffnen.
+  - Kein CEO-Input noetig (CTO-Scope).
+
+PROOF-ARTEFAKTE:
+  - 022-player-kpis-extract.txt
+  - 022-tradingcardframe-props.txt
+  - 022-floor-rule.txt
+  - 022-audit-result.txt (dieses File)

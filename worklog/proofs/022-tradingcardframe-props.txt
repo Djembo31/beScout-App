@@ -1,0 +1,54 @@
+Slice 022 — TradingCardFrame props-flow audit
+==============================================
+
+File: src/components/player/detail/TradingCardFrame.tsx (Lines 16-31)
+
+  export interface CardBackData {
+    marketValueEur?: number;
+    floorPrice?: number;
+    priceChange24h?: number;        <-- PROP (originally B-03 concern)
+    successFeeCap?: number;
+    holdingQty?: number;
+    supplyTotal: number;
+    contractMonths: number;
+    l15: number;
+    stats: { goals: number; assists: number; matches: number; };
+    matchTimeline?: MatchTimelineEntry[];
+  }
+
+Back-face change-rendering (Lines 379-381):
+
+  {backData && (() => {
+    const change = backData.priceChange24h ?? 0;                                          <-- PROP destructure + null-coalesce
+    const changeStr = change === 0 ? '\u2014' : `${change >= 0 ? '\u2191' : '\u2193'}${Math.abs(change).toFixed(1)}%`;
+    ...
+  })()}
+
+Also (Lines 154-157):
+
+  // Derive appearance counts from matchTimeline when DB columns are empty
+  const derivedL5Apps = l5Apps > 0 ? l5Apps : timeline.slice(0, 5).filter(e => e.status === 'played').length;
+  const derivedL15Apps = l15Apps > 0 ? l15Apps : timeline.filter(e => e.status === 'played').length;
+
+  <-- These are DB-NULL FALLBACKS (derive appearance count from timeline) — not domain drift,
+      consumed by progress-bar UI only, no price/score impact.
+
+Parent flow (src/components/player/detail/PlayerHero.tsx Lines 79-83):
+
+  const backData: CardBackData = {
+    marketValueEur: player.marketValue,
+    floorPrice: player.prices.floor,
+    priceChange24h: player.prices.change24h,          <-- direct DB-flow through Player type
+    successFeeCap: player.successFeeCap,
+    holdingQty,
+    ...
+  };
+
+Verdict:
+- priceChange24h: PROP, directly sourced from DB (player.prices.change24h)
+- L5/L15: PROPs (from Player type; TradingCardFrame only derives appearance-% from matchTimeline if l5Apps/l15Apps prop is 0)
+- Stats, MarketValue, FloorPrice, SuccessFeeCap: all PROPs
+- Holdings %: local arithmetic on two PROPs (holdingQty / supplyTotal * 100)
+
+NO LOCAL DOMAIN LOGIC. Original B-03 concern ("TradingCardFrame berechnet Preis-Delta lokal")
+is fully resolved — priceChange24h flows as prop through Player.prices.change24h.
