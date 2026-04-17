@@ -1,0 +1,18 @@
+Slice 039 — Fix
+
+# Code-diff (src/lib/services/social.ts:490-507)
+- .insert({user_id, achievement_key}).select().maybeSingle()
++ .upsert({user_id, achievement_key}, { onConflict: 'user_id,achievement_key', ignoreDuplicates: true })
++ .select().maybeSingle()
++ if (!error && data) newUnlocks.push(key)  // race-loser hat data=null
+
+# DB-Constraint matches
+user_achievements_user_id_achievement_key_key UNIQUE (user_id, achievement_key)
+
+# Tests
+$ npx vitest run src/lib/services/__tests__/social.test.ts
+Test Files  1 passed (1)
+Tests       37 passed (37)
+
+$ npx tsc --noEmit
+clean

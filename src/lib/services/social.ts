@@ -487,12 +487,19 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
 
   for (const [key, condition] of checks) {
     if (condition && !unlockedKeys.has(key) && ACHIEVEMENTS.find(a => a.key === key)) {
-      const { error } = await supabase
+      // Slice 039: upsert mit ignoreDuplicates → kein 409 bei race-condition
+      // (5 Caller fire-and-forget parallel: trading×2, offers, ipo, useProfileData).
+      // .select().maybeSingle() returns null wenn ignoreDuplicates skipped — daher
+      // .select().maybeSingle() auf data, nicht error → only push wenn echte Insert.
+      const { data, error } = await supabase
         .from('user_achievements')
-        .insert({ user_id: userId, achievement_key: key })
+        .upsert(
+          { user_id: userId, achievement_key: key },
+          { onConflict: 'user_id,achievement_key', ignoreDuplicates: true }
+        )
         .select()
         .maybeSingle();
-      if (!error) newUnlocks.push(key);
+      if (!error && data) newUnlocks.push(key);
     }
   }
 
