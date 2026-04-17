@@ -1801,4 +1801,68 @@ describe('DB Invariants', () => {
 
     expect(drifts, drifts.join('\n')).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-34: Player Data-Quality SLA (Slice 059)
+  // Stammkader (shirt_number IS NOT NULL) muss minimum SLA erfuellen.
+  // Bronze = 95%, Silver = 99%, Gold = 99.9% auf 5 Kritisch-Feldern
+  // (nationality, photo, market_value, contract_end, api_mapping).
+  // Test: WARN bei <Silver, FAIL bei <Bronze. Gold ist Ziel, aktuell 0/7 Ligen.
+  // ─────────────────────────────────────────────────────
+  it('INV-34: Player Data-Quality — Bronze-SLA Ratcheting (Slice 059)', async () => {
+    const { data, error } = await sb.rpc('get_player_data_completeness');
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+    expect(data, 'no completeness data').toBeTruthy();
+
+    type LeagueStats = {
+      league: string;
+      league_total: number;
+      stammkader: {
+        total: number;
+        nationality_pct: number;
+        photo_pct: number;
+        market_value_pct: number;
+        contract_pct: number;
+        api_mapping_pct: number;
+        age_pct: number;
+        gold_tier: boolean;
+      };
+      youth_reserve_total: number;
+    };
+
+    const rows = (data ?? []) as LeagueStats[];
+    const bronzeMin = 95;
+    const violations: string[] = [];
+
+    for (const row of rows) {
+      const k = row.stammkader;
+      const fields: Array<[string, number]> = [
+        ['nationality', k.nationality_pct],
+        ['photo', k.photo_pct],
+        ['market_value', k.market_value_pct],
+        ['contract', k.contract_pct],
+        ['api_mapping', k.api_mapping_pct],
+      ];
+      for (const [name, pct] of fields) {
+        if (pct < bronzeMin) {
+          violations.push(`${row.league}/${name}`);
+        }
+      }
+    }
+
+    // Baseline-Freeze (Slice 059 initial state): 21 violations dokumentiert.
+    // Target: iterativ runter auf 0 via Phase 2 Sync-Pipeline (Slices 063+).
+    // Ratcheting: Wert darf nur sinken, nie steigen.
+    const BASELINE_MAX_VIOLATIONS = 21;
+
+    const goldCount = rows.filter((r) => r.stammkader.gold_tier).length;
+    console.log(
+      `[INV-34] ${rows.length} Ligen, ${violations.length}/${BASELINE_MAX_VIOLATIONS} Bronze-Violations, ${goldCount}/${rows.length} Gold-Tier`
+    );
+
+    expect(
+      violations.length,
+      `Bronze-SLA regressed (baseline=${BASELINE_MAX_VIOLATIONS}):\n  ${violations.join('\n  ')}`
+    ).toBeLessThanOrEqual(BASELINE_MAX_VIOLATIONS);
+  }, 30_000);
 });
