@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/017-tsc.txt` (leer = clean)
   - `worklog/proofs/017-tests.txt` (usePlayerDetailData.test.ts: 8/8 passed)
   - `worklog/proofs/017-query-count.md` (Before/After Tabelle: 15 initial → 7 initial auf Trading-Tab, −53%)
-- Commit: TBD
+- Commit: 13cdf352
 - Notes: B3 von Block B. Bug-Klasse: 15-19 parallele Queries auf `/player/[id]` uebersteigen Browser-Concurrency-Limit (6), 9+ Queries warten in zweiter Welle = 200-500ms Latenz-Penalty auf 4G. Fix: `belowFoldReady` Pattern (bekannt aus `useHomeData` 800ms, `useCommunityData` 500ms) mit 300ms delay — Hero + Trading-Actions sofort, Info-Layer (Counter, Badges, Mastery, Timeline, Trades, Research, LiquidationEvent) deferred. Critical-Path: Player, HoldingQty, Watchlist, SellOrders, ActiveIPO, OpenBids, PBT = 7 Queries initial. Nach 300ms: 8 deferred Queries in zweiter Welle (wieder ueber 6-Limit, aber zu diesem Zeitpunkt ist Hero bereits gerendert — UX-Win ist vor allem Time-to-First-Render). Tab-gated Queries (Performance/Community) unveraendert. Null-Safety bereits etabliert (alle Consumer nutzen `?? []`, `?? null`). Post-Deploy Playwright-Messung gegen bescout.net = Phase 7 (separate).
 
 ---
