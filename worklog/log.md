@@ -25,7 +25,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/014-auth-tests.txt` (AUTH-* Suite 15/15 gruen inkl. AUTH-08)
   - `worklog/proofs/014-inv-tests.txt` (INV-19 + INV-20 gruen)
   - `worklog/proofs/014-wallet-tests.txt` (wallet-v2 25/25 gruen)
-- Commit: (pending)
+- Commit: ae2d66e
 - Notes: AUTH-08 geschlossen. CEO-approved Option 2 (2026-04-17 chat): partial tighten statt strict-own-only oder keep-as-is. Portfolio-Privacy fuer regulaere User wiederhergestellt; Club-Admin Fan-Analytics + Platform-Admin Sicht bleiben funktional via policy-branch statt RPC-wrap. Nur 1 Produktions-Consumer (`getPlayerHolderCount`) brach und wurde via SECURITY DEFINER RPC umgehoben. Public-Profile `getHoldings(targetUserId)` liefert jetzt `[]` bei fremdem Profil — kein UI-break (Portfolio-Tab ist isSelf-only laut profile.md), nur minor eager-fetch waste (Optimization-Slice separat). Scope-Out: per-club-scoping fuer Club-Admins, column-level avg_buy_price redaction, fetch-gate in useProfileData. common-errors.md um qual=true Pattern erweitert (neu nach Slice 005 A-02 Eintrag).
 
 ---
