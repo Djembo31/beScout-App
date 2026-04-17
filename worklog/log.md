@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 015 | 2026-04-17 | Logout React Query Cache Clear (B1, Flow-Audit Flow 15)
+- Stage-Chain: SPEC → IMPACT(skipped — 1-File AuthProvider-Edit, kein DB/RPC/Service) → BUILD → PROVE → LOG
+- Files:
+  - `src/components/providers/AuthProvider.tsx` (clearUserState: queryClient.clear() unconditional statt nur bei SIGNED_OUT, 5 Zeilen inkl. Kommentar)
+- Proofs:
+  - `worklog/proofs/015-diff.txt` (git diff: 1 File, 5 Zeilen)
+  - `worklog/proofs/015-tsc.txt` (leer = clean)
+  - `worklog/proofs/015-tests.txt` (auth/rls + db-invariants: 38/38 gruen)
+  - `worklog/proofs/015-flow-trace.md` (6 Szenarien Vorher/Nachher, identifiziert Szenario 3 — Grace-Period-Expire — als tatsaechlichen Bug-Fix)
+- Commit: TBD
+- Notes: B1 von Block B (flow-audit Restrisiken). Bug-Klasse: Cache-Clear war an `event === 'SIGNED_OUT'` gated — bei Silent-Token-Expire laeuft aber `clearUserState(event='INITIAL_SESSION')` via Grace-Period-Timer-Expire. Folge: Cache von User 1 bleibt, User 2 auf same tab sieht stale data (insbesondere Queries ohne user-id im Key). Fix: `queryClient.clear()` unconditional in clearUserState. Andere 5 Szenarien unveraendert (Szenario 1/2/6 clearen wie gehabt, Szenario 4 ist no-op bei leerem Cache, Szenario 5 nutzt weiter invalidate statt clear). Kein Playwright-E2E (Grace-Period-Expire ohne Auth-Harness nicht reproduzierbar) — Code-Flow-Trace als Equivalent. CEO-autonom per explizitem Briefing-Freigabe-Commit f0c9bdc7.
+
+---
+
 ## 014 | 2026-04-17 | Holdings RLS Tighten (AUTH-08, CEO-approved Option 2)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:

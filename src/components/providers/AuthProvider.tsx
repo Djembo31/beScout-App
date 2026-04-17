@@ -249,10 +249,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setClubAdmin(null);
       ssClear();
 
-      // Only clear React Query cache on explicit sign-out action.
-      if (event === 'SIGNED_OUT') {
-        setTimeout(() => queryClient.clear(), 0);
-      }
+      // Clear on any user-state loss (not just SIGNED_OUT) — prevents stale-cache
+      // leak on re-login after silent token expire (Flow-Audit Flow 15).
+      setTimeout(() => queryClient.clear(), 0);
       setLoading(false);
     };
 
