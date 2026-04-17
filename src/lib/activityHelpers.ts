@@ -28,6 +28,10 @@ export function getActivityIcon(type: string): string {
   if (type === 'scout_subscription_earning') return 'Users';
   if (type === 'creator_fund_payout') return 'Coins';
   if (type === 'ad_revenue_payout') return 'Banknote';
+  if (type === 'subscription') return 'Users';
+  if (type === 'admin_adjustment') return 'Settings';
+  if (type === 'tip_send') return 'Coins';
+  if (type === 'offer_execute') return 'CircleDollarSign';
   return 'Activity';
 }
 
@@ -60,6 +64,10 @@ export function getActivityColor(type: string): string {
   if (type === 'scout_subscription_earning') return 'text-gold bg-gold/10';
   if (type === 'creator_fund_payout') return 'text-green-500 bg-green-500/10';
   if (type === 'ad_revenue_payout') return 'text-green-500 bg-green-500/10';
+  if (type === 'subscription') return 'text-gold bg-gold/10';
+  if (type === 'admin_adjustment') return 'text-purple-400 bg-purple-400/10';
+  if (type === 'tip_send') return 'text-rose-400 bg-rose-400/10';
+  if (type === 'offer_execute') return 'text-gold bg-gold/10';
   return 'text-white/50 bg-white/5';
 }
 
@@ -93,6 +101,10 @@ export function getActivityLabelKey(type: string): string {
   if (type === 'scout_subscription_earning') return 'subscriptionEarning';
   if (type === 'creator_fund_payout') return 'creatorPayout';
   if (type === 'ad_revenue_payout') return 'adRevenue';
+  if (type === 'subscription') return 'subscription';
+  if (type === 'admin_adjustment') return 'adminAdjustment';
+  if (type === 'tip_send') return 'tipSend';
+  if (type === 'offer_execute') return 'offerExecute';
   return type;
 }
 

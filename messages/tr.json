@@ -4559,7 +4559,11 @@
     "tipReceive": "Bahşiş alındı",
     "subscriptionEarning": "Abonelik geliri",
     "creatorPayout": "Yaratıcı ödemesi",
-    "adRevenue": "Reklam geliri"
+    "adRevenue": "Reklam geliri",
+    "subscription": "Kulüp Aboneliği",
+    "adminAdjustment": "Admin Ayarlaması",
+    "tipSend": "Bahşiş gönderildi",
+    "offerExecute": "Teklif yürütüldü (Alım)"
   },
   "feed": {
     "scoutActivity": "Scout Aktivitesi",

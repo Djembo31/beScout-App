@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 027 | 2026-04-17 | activityHelpers TR-i18n (4 fehlende transaction-types)
+- Stage-Chain: SPEC → IMPACT(inline — live-DB Audit ergab 4 fehlende types statt 10 im briefing) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/activityHelpers.ts` (+12 Zeilen, je 4 Branches in getActivityIcon/Color/LabelKey)
+  - `messages/de.json` (+4 Keys im `activity` namespace: subscription, adminAdjustment, tipSend, offerExecute)
+  - `messages/tr.json` (+4 Keys analog, CEO-approved TR-Labels)
+  - `worklog/specs/027-activityhelpers-tr-i18n.md` (NEW)
+- Proofs:
+  - `worklog/proofs/027-diff.txt` (3 Files, 22 +/- 2)
+  - `worklog/proofs/027-tsc.txt` (clean)
+  - `worklog/proofs/027-tests.txt` (activityHelpers 17/17)
+- Commit: <pending>
+- Notes: Briefing-Korrektur: Live-DB-Audit (SELECT DISTINCT type FROM transactions) ergab **4** unlokalisierte types (subscription/admin_adjustment/tip_send/offer_execute), nicht 10 wie Briefing behauptete. Die uebrigen 28 activityHelpers-Keys hatten bereits DE+TR-Labels. TR-Labels explizit CEO-approved 2026-04-17 per `feedback_tr_i18n_validation.md`. Icons/Colors: subscription→Users/gold (Club-Abo), admin_adjustment→Settings/purple (System), tip_send→Coins/rose (Outflow), offer_execute→CircleDollarSign/gold (Trading). Kein DB-Change. Existing rows behalten raw type, aber UI rendert via `t(getActivityLabelKey(row.type))` nun translated Label. Kein Data-Migration noetig.
+
+---
+
 ## 026 | 2026-04-17 | footballData Client-Access Audit (Doc-only, XS)
 - Stage-Chain: SPEC → IMPACT(skipped — reine Verifikation) → BUILD(audit) → PROVE → LOG
 - Files:

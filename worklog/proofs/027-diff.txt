@@ -1,0 +1,5 @@
+warning: in the working copy of 'src/lib/activityHelpers.ts', LF will be replaced by CRLF the next time Git touches it
+ messages/de.json           |  6 +++++-
+ messages/tr.json           |  6 +++++-
+ src/lib/activityHelpers.ts | 12 ++++++++++++
+ 3 files changed, 22 insertions(+), 2 deletions(-)
