@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 036 | 2026-04-17 | sync_event_statuses 42501 — Internal-Helper + pg_cron
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417180000_sync_event_statuses_internal_cron.sql` (NEW — 3 RPCs + cron schedule)
+  - `src/app/api/events/route.ts` (sync-call entfernt)
+  - `worklog/specs/036-sync-event-statuses-grant-fix.md` (NEW)
+  - `worklog/proofs/036-{pre-state,cron-run,logs-clean}.txt` (NEW)
+- Proof: `worklog/proofs/036-logs-clean.txt` — 5/5 cron-runs succeeded (jede Minute), 0× permission-denied seit Migration.
+- Commit: 1e73eeca
+- Notes: /api/events route hat sync_event_statuses mit anon-key client gerufen → 42501. Pattern analog Slice 035: `_sync_event_statuses_internal()` ohne guards (service_role only), public wrapper behaelt admin-guard, `cron_sync_event_statuses()` wrapper mit pre/post counts fuer monitoring, pg_cron schedule alle 1 min. API-Route entlasten (cron handhabt sync). Manueller Test 15:02 success=true, Cron seit 15:04 alle 5 Runs gruen.
+
 ## 035 | 2026-04-17 | trg trade_refresh auth_uid_mismatch — Internal-Helper Fix
 - Stage-Chain: SPEC → IMPACT(inline DB-audit) → BUILD → PROVE → LOG
 - Files:

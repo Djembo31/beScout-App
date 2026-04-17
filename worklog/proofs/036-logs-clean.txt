@@ -1,0 +1,19 @@
+Slice 036 — Logs Post-Deploy
+
+# cron.job_run_details (last 5 runs of sync-event-statuses)
+2026-04-17 15:08:00 succeeded 3.4ms "1 row"
+2026-04-17 15:07:00 succeeded 4.5ms "1 row"
+2026-04-17 15:06:00 succeeded 8.6ms "1 row"
+2026-04-17 15:05:00 succeeded 3.3ms "1 row"
+2026-04-17 15:04:00 succeeded 76.7ms "1 row" (cold start)
+
+→ ALL succeeded. Cron läuft jede Minute, ~3-8ms duration.
+
+# postgres-logs nach 6 min (mcp__supabase__get_logs)
+- "cron job 8 starting: SELECT public.cron_sync_event_statuses();" — visible alle Minute
+- "permission denied for function sync_event_statuses" — 0 occurrences (vorher: alle ~30s ein Eintrag)
+- Last `permission denied` for sync_event_statuses: timestamp 1776437125 = 14:55:25 UTC
+  (= ~10 min vor Migration-Apply — also dem Slice-036-Fix VOR dem Cron-Setup)
+
+# Verdikt
+GREEN. Cron läuft, kein 42501-spam mehr.

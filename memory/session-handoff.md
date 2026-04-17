@@ -1,11 +1,12 @@
-# Session Handoff (2026-04-17 16:56)
+# Session Handoff (2026-04-17 17:04)
 
 ## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
 ```
 
-## Session Commits: 8
+## Session Commits: 9
+- 1e73eeca fix(rpc): P1 sync_event_statuses 42501 — internal-helper + pg_cron (Slice 036)
 - bb7feedb fix(rpc): P1 trg trade_refresh — internal-helper bypasses AR-44 guard (Slice 035)
 - 6afd0350 docs(slice-032b): close — Phase 7 Mutating-Flows 3/3 GREEN, Phase 7 done
 - 02d40adb docs(slice-038): close — Live-Verify GREEN, Pipeline aktualisiert
