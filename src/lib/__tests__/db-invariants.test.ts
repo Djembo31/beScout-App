@@ -1865,4 +1865,30 @@ describe('DB Invariants', () => {
       `Bronze-SLA regressed (baseline=${BASELINE_MAX_VIOLATIONS}):\n  ${violations.join('\n  ')}`
     ).toBeLessThanOrEqual(BASELINE_MAX_VIOLATIONS);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-35: Club-Logo Source Single-Domain (Slice 062)
+  // Alle Club-Logos muessen aus media.api-sports.io kommen (canonical).
+  // Verhindert Re-Drift durch manuelle Wikimedia/andere Imports.
+  // ─────────────────────────────────────────────────────
+  it('INV-35: Club-Logos sind aus einer Single-Source (api-sports canonical)', async () => {
+    const { data, error } = await sb.from('clubs').select('id, name, logo_url');
+    expect(error, `clubs fetch failed: ${error?.message}`).toBeNull();
+
+    const violations = ((data ?? []) as Array<{ id: string; name: string; logo_url: string | null }>)
+      .filter((c) => {
+        if (!c.logo_url) return true; // missing logo = violation
+        return !c.logo_url.startsWith('https://media.api-sports.io/');
+      })
+      .map((c) => `${c.name}: ${c.logo_url ?? 'NULL'}`);
+
+    if (violations.length === 0) {
+      console.log(`[INV-35] ${data?.length ?? 0} Club-Logos alle aus api-sports canonical source`);
+    }
+
+    expect(
+      violations,
+      `Non-canonical logo sources found:\n  ${violations.join('\n  ')}`
+    ).toHaveLength(0);
+  }, 30_000);
 });
