@@ -22,7 +22,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/027-diff.txt` (3 Files, 22 +/- 2)
   - `worklog/proofs/027-tsc.txt` (clean)
   - `worklog/proofs/027-tests.txt` (activityHelpers 17/17)
-- Commit: <pending>
+- Commit: 010b0811
 - Notes: Briefing-Korrektur: Live-DB-Audit (SELECT DISTINCT type FROM transactions) ergab **4** unlokalisierte types (subscription/admin_adjustment/tip_send/offer_execute), nicht 10 wie Briefing behauptete. Die uebrigen 28 activityHelpers-Keys hatten bereits DE+TR-Labels. TR-Labels explizit CEO-approved 2026-04-17 per `feedback_tr_i18n_validation.md`. Icons/Colors: subscription→Users/gold (Club-Abo), admin_adjustment→Settings/purple (System), tip_send→Coins/rose (Outflow), offer_execute→CircleDollarSign/gold (Trading). Kein DB-Change. Existing rows behalten raw type, aber UI rendert via `t(getActivityLabelKey(row.type))` nun translated Label. Kein Data-Migration noetig.
 
 ---
