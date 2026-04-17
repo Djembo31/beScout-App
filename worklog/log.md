@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 021 | 2026-04-17 | Orders RLS Tighten (CEO Option 2, Seal)
+- Stage-Chain: SPEC → IMPACT(inline — Slice 020 war Prep, orders Services bereits RPC-basiert) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417070100_orders_rls_tighten.sql` (NEW — DROP orders_select (qual=true), CREATE orders_select_own_or_admin via auth.uid() OR club_admin OR platform_admin)
+  - `src/lib/__tests__/db-invariants.test.ts` (INV-26 EXPECTED_PERMISSIVE entfernt `orders.orders_select`)
+  - `src/lib/__tests__/auth/rls-checks.test.ts` (NEW AUTH-16 Test: user cannot read other user's orders)
+- Proofs:
+  - `worklog/proofs/021-rls-before.txt` (vorher: qual=true)
+  - `worklog/proofs/021-rls-after.txt` (nachher: auth.uid() = user_id OR admin-check)
+  - `worklog/proofs/021-tsc.txt` (clean)
+  - `worklog/proofs/021-tests.txt` (db-invariants 24/24 + auth/rls-checks 16/16, inkl. AUTH-16 new = 40 total)
+- Commit: TBD
+- Notes: AUTH-08-Klasse vollstaendig geschlossen. Orderbook-UX weiterhin verfuegbar via `get_public_orderbook` RPC (Slice 020). Regulaere User sehen nur eigene Orders direct (Cancel-Button, social.ts:308 self-count). Club-Admin + Platform-Admin behalten Fan-Analytics-Zugriff via policy-branches — analog holdings_select_own_or_admin (Slice 014). INV-26 jetzt scharf ohne whitelist fuer orders. Kein Realtime-Publication fuer orders (pruefung via migrations-grep). Kein INSERT/UPDATE/DELETE Policy noetig — alle Mutationen via SECURITY DEFINER RPCs (place_sell_order, place_buy_order, buy_from_order, cancel_order).
+
+---
+
 ## 020 | 2026-04-17 | Orders Anonymize via Handle-Projection (CEO Option 2, Prep)
 - Stage-Chain: SPEC → IMPACT(inline — 8 UI-Consumers + 3 Services + 9 Prop-Types gemappt) → BUILD → PROVE → LOG
 - Files (24 total):

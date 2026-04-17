@@ -1167,11 +1167,9 @@ describe('DB Invariants', () => {
     // Format: `${table_name}.${policy_name}` with brief justification.
     const EXPECTED_PERMISSIVE: Record<string, string> = {
       'user_stats.Anyone can read stats': 'Leaderboard: all authenticated users need to read stats across the platform.',
-      // TODO CEO-decision: orders_select qual=true exposes user_id across the
-      // orderbook. Typical trading apps either (a) keep public (market-maker
-      // design) or (b) anonymize via handles. Option (b) would require a
-      // server-side projection. Flagged for review.
-      'orders.orders_select': 'Orderbook-public-by-design (pending CEO review — user_id currently exposed).',
+      // orders.orders_select was tightened in Slice 021 (2026-04-17) to
+      // `auth.uid() = user_id OR admin-check`. Cross-user orderbook reads
+      // go via get_public_orderbook RPC (handle+is_own, no user_id).
     };
 
     const { data, error } = await sb.rpc('get_rls_policy_quals', { p_tables: SENSITIVE_TABLES });

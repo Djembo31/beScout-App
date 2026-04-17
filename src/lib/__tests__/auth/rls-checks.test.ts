@@ -251,6 +251,17 @@ describe('Authorization — RLS Checks', () => {
     expect(error).not.toBeNull();
   });
 
+  // ── 16. User cannot read another user's orders ──
+  it('AUTH-16: user cannot read another user\'s orders', async () => {
+    const { data } = await botAClient
+      .from('orders')
+      .select('*')
+      .eq('user_id', botBId)
+      .limit(5);
+
+    expect(data ?? []).toHaveLength(0);
+  });
+
   // ── 15. Service role key not exposed in NEXT_PUBLIC vars ──
   it('AUTH-15: SUPABASE_SERVICE_ROLE_KEY must not be in NEXT_PUBLIC env vars', () => {
     const publicVars = Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_'));

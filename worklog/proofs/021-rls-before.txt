@@ -1,0 +1,13 @@
+-- pg_policies on public.orders BEFORE Slice 021 migration
+-- Queried via mcp__supabase__execute_sql (project skzjfhvgccaeplydsunz) 2026-04-17
+
+policyname     | cmd    | qual
+orders_select  | SELECT | true
+
+Nur 1 Policy: orders_select mit qual='true' — permissive-for-all-authenticated.
+Kein INSERT/UPDATE/DELETE Policy → alle Mutationen ausschliesslich via SECURITY DEFINER RPCs
+(place_sell_order, place_buy_order, buy_from_order, cancel_order, etc.).
+
+Das ist exakt die AUTH-08-Klasse: jeder authenticated User sieht user_id aller Orders.
+Slice 020 hat bereits alle cross-user Client-Reads auf get_public_orderbook umgestellt
+(RPC returnt handle+is_own OHNE user_id). Slice 021 tightens jetzt RLS.
