@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 051 | 2026-04-18 | B-06 Error-Chains Community + Fantasy (J3-Pattern)
+- Stage-Chain: SPEC → IMPACT(grep-audit) → BUILD → PROVE → LOG
+- Files:
+  - `src/components/community/hooks/useCommunityActions.ts` (7 locations fixed)
+  - `src/components/community/ReportModal.tsx` (1 location + imports)
+  - `worklog/specs/051-b06-error-chains-community-fantasy.md`, `worklog/proofs/051-error-chain-audit.txt`
+- Proof: Fantasy bereits compliant. Community: 7 raw err.message leaks → tErrors(mapErrorToKey(normalizeError(err))) resolved. tsc clean, 72/72 useCommunityActions tests gruen.
+- Commit: tba
+- Notes: S-Slice Variante-2 #8/10. J3-Pattern (Trading, 2026-04-14) analog auf Community angewandt. i18n-Key-Leak-Klasse geschlossen fuer community-Consumer. result.error + catch-blocks beide resolved.
+
+---
+
 ## 050 | 2026-04-18 | B-02 Service Return-Type Konsistenz + OperationResult Refactor
 - Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +30,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/lib/services/club.ts, fanWishes.ts, posts.ts, platformAdmin.ts, bounties.ts, contentReports.ts` — 10 inline-casts ersetzt
   - `worklog/specs/050-b02-service-return-type-audit.md`, `worklog/proofs/050-audit-report.txt`
 - Proof: 10 Money-Path Services gespotcheckt alle aligned. 10 inline `{ success, error? }`-casts auf `OperationResult` refactored. 31/31 INV-Tests gruen, tsc clean.
-- Commit: tba
+- Commit: d7123c87
 - Notes: S-Slice Variante-2 #7/10. Audit ergab NO DRIFT in Money-Path — dann Refactor fuer maintenance-friendliness nachgeschoben. Reduced inline-type-noise. Coverage durch TSC + INV-23 + INV-32 mehrfach layered.
 
 ---

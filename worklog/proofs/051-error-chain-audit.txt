@@ -1,0 +1,64 @@
+# Slice 051 — Community/Fantasy Error-Chain Audit (2026-04-18)
+# Source: grep-audit + targeted fixes
+
+# ============================================================
+# Audit Scope
+# ============================================================
+# Target: J3-Pattern (tErrors(mapErrorToKey(normalizeError(err)))) analog auf
+#         Community + Fantasy Error-Consumers anwenden.
+
+# ============================================================
+# Fantasy — Already compliant
+# ============================================================
+# src/features/fantasy/hooks/useLineupSave.ts:112
+#   const msg = te(mapErrorToKey(normalizeError(err)));
+#   addToast(tFantasy('errorShort', { msg }), 'error');
+# src/features/fantasy/hooks/useEventActions.ts
+#   Uses same pattern
+# NO FIXES NEEDED.
+
+# ============================================================
+# Community — 7 raw err.message leaks found + fixed
+# ============================================================
+# File: src/components/community/hooks/useCommunityActions.ts
+#   Line 97 (handleAdminDeletePost):
+#     BEFORE: addToast(err instanceof Error ? err.message : t('deleteError'), 'error')
+#     AFTER:  addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error')
+#            + result.error via tErrors(mapErrorToKey(result.error)) wrapped
+#
+#   Line 117 (handleTogglePin): same pattern
+#
+#   Line 185 (handleCreateResearch): raw err.message → tErrors(mapErrorToKey(normalizeError(err)))
+#
+#   Lines 224, 242, 257, 272, 285 (4 handlers with genericError fallback):
+#     BEFORE: addToast(err instanceof Error ? err.message : t('genericError'), 'error')
+#     AFTER:  addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error')
+#     (replace_all swept all 4 identical patterns)
+#
+# File: src/components/community/ReportModal.tsx
+#   Line 50 (catch-block): raw err.message → tErrors(mapErrorToKey(normalizeError(err)))
+#   Line 47 (result.error): raw string → tErrors(mapErrorToKey(result.error))
+#   + imports: mapErrorToKey, normalizeError, tErrors = useTranslations('errors')
+
+# ============================================================
+# Verification
+# ============================================================
+# Post-fix audit:
+#   grep -rnE "err instanceof Error \? err.message" src/components/community
+#   → 0 matches
+#
+#   grep -rnE "err\.message.*toast|toast.*err\.message" src/components/community
+#   → 0 matches
+#
+# tsc --noEmit: clean
+# useCommunityActions.test.ts: 72/72 passed
+
+# ============================================================
+# Community-Bereich nach Fix
+# ============================================================
+# Alle user-facing Error-Paths in src/components/community/:
+#   (a) catch-blocks: resolved via tErrors(mapErrorToKey(normalizeError(err)))
+#   (b) RPC result.error: resolved via tErrors(mapErrorToKey(result.error))
+#   (c) Hard fallback: t('genericError') als letzte Instanz
+#
+# Pattern 1:1 aligned mit J3-Trading-Pattern. Kein raw-i18n-key-leak moeglich.

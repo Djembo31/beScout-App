@@ -91,12 +91,14 @@ export function useCommunityActions({
         queryClient.invalidateQueries({ queryKey: qk.posts.all });
         addToast(t('postRemoved'), 'success');
       } else {
-        addToast(result.error ?? t('genericError'), 'error');
+        // Service result.error kann i18n-key sein → via tErrors resolven (Slice 051)
+        addToast(result.error ? tErrors(mapErrorToKey(result.error)) : t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('deleteError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz — err.message kann raw-key sein
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     }
-  }, [userId, addToast, t]);
+  }, [userId, addToast, t, tErrors]);
 
   const handleTogglePin = useCallback(async (postId: string, pinned: boolean) => {
     if (!userId) return;
@@ -111,12 +113,14 @@ export function useCommunityActions({
         );
         addToast(pinned ? t('postPinned') : t('postUnpinned'), 'success');
       } else {
-        addToast(result.error ?? t('genericError'), 'error');
+        // Slice 051: Service-result.error koennte i18n-key sein
+        addToast(result.error ? tErrors(mapErrorToKey(result.error)) : t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     }
-  }, [userId, addToast, scopeClubId, t]);
+  }, [userId, addToast, scopeClubId, t, tErrors]);
 
   const handleCreatePost = useCallback(async (
     playerId: string | null, content: string, tags: string[], category: string,
@@ -178,7 +182,8 @@ export function useCommunityActions({
       dispatch({ type: 'SET_CREATE_RESEARCH_OPEN', value: false });
       addToast(t('researchPublished'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('researchPublishError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       dispatch({ type: 'SET_RESEARCH_LOADING', value: false });
     }
@@ -217,7 +222,8 @@ export function useCommunityActions({
         addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       dispatch({ type: 'SET_UNLOCKING_RESEARCH', value: null });
     }
@@ -235,7 +241,8 @@ export function useCommunityActions({
         addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       dispatch({ type: 'SET_RATING_RESEARCH', value: null });
     }
@@ -250,7 +257,8 @@ export function useCommunityActions({
       queryClient.invalidateQueries({ queryKey: qk.votes.all });
       addToast(t('voteCast'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       dispatch({ type: 'SET_VOTING_ID', value: null });
     }
@@ -265,7 +273,8 @@ export function useCommunityActions({
       queryClient.invalidateQueries({ queryKey: qk.polls.all });
       addToast(t('voteCast'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       dispatch({ type: 'SET_POLL_VOTING_ID', value: null });
     }
@@ -278,7 +287,8 @@ export function useCommunityActions({
       queryClient.invalidateQueries({ queryKey: qk.polls.all });
       addToast(t('pollCancelled'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     }
   }, [userId, addToast, t]);
 

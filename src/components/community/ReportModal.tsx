@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Modal, Button } from '@/components/ui';
 import { reportContent } from '@/lib/services/contentReports';
 import { useToast } from '@/components/providers/ToastProvider';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { ReportTargetType } from '@/types';
 
 const REPORT_REASONS = [
@@ -25,6 +26,7 @@ interface ReportModalProps {
 
 export default function ReportModal({ open, onClose, targetType, targetId }: ReportModalProps) {
   const t = useTranslations('community');
+  const tErrors = useTranslations('errors');
   const { addToast } = useToast();
   const [selectedReason, setSelectedReason] = useState('');
   const [customReason, setCustomReason] = useState('');
@@ -44,10 +46,12 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
         setSelectedReason('');
         setCustomReason('');
       } else {
-        addToast(result.error ?? t('reportError'), 'error');
+        // Slice 051: Service-Error kann i18n-key sein
+        addToast(result.error ? tErrors(mapErrorToKey(result.error)) : t('reportError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : t('reportError'), 'error');
+      // Slice 051: i18n-Key-Leak-Schutz
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       setSubmitting(false);
     }
