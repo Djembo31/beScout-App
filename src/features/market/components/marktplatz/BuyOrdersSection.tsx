@@ -8,12 +8,12 @@ import { PlayerIdentity } from '@/components/player';
 import { EmptyState } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { useUser } from '@/components/providers/AuthProvider';
 import { useCancelBuyOrder } from '@/lib/mutations/trading';
-import type { Player, DbOrder } from '@/types';
+import { useUser } from '@/components/providers/AuthProvider';
+import type { Player, PublicOrder } from '@/types';
 
 interface BuyOrdersSectionProps {
-  buyOrders: DbOrder[];
+  buyOrders: PublicOrder[];
   playerMap: Map<string, Player>;
 }
 
@@ -42,8 +42,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
       if (available <= 0) continue;
 
       const existing = grouped.get(order.player_id);
-      const isOwn = user?.id === order.user_id;
-      const userOrder = isOwn ? {
+      const userOrder = order.is_own ? {
         id: order.id,
         price: order.price,
         qty: available,
@@ -67,7 +66,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
       }
     }
     return grouped;
-  }, [buyOrders, user?.id]);
+  }, [buyOrders]);
 
   // Sort by highest bid descending
   const sortedPlayerIds = useMemo(() => {

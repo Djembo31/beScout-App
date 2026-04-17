@@ -6,11 +6,11 @@ import { Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
-import type { DbOrder } from '@/types';
+import type { PublicOrder } from '@/types';
 
 interface BuyConfirmationProps {
   pendingBuyQty: number;
-  userOrders: DbOrder[];
+  userOrders: PublicOrder[];
   floorBsd: number;
   balanceCents: number | null;
   buying: boolean;

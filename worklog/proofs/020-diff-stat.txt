@@ -1,0 +1,26 @@
+ memory/session-handoff.md                          | 23 ++++-----
+ src/components/player/detail/BuyModal.tsx          | 12 ++---
+ src/components/player/detail/OrderbookDepth.tsx    |  4 +-
+ src/components/player/detail/OrderbookSummary.tsx  |  4 +-
+ src/components/player/detail/SellModal.tsx         |  4 +-
+ src/components/player/detail/TradingTab.tsx        | 10 ++--
+ .../player/detail/__tests__/TradingTab.test.tsx    | 20 ++++----
+ .../hooks/__tests__/usePlayerDetailData.test.ts    |  2 +-
+ .../player/detail/hooks/usePlayerDetailData.ts     | 11 ++---
+ .../player/detail/hooks/usePlayerTrading.ts        | 10 ++--
+ .../player/detail/trading/BuyConfirmation.tsx      |  4 +-
+ .../player/detail/trading/HoldingsSection.tsx      |  4 +-
+ src/features/manager/components/kader/KaderTab.tsx |  2 +-
+ .../components/marktplatz/BuyOrdersSection.tsx     | 11 ++---
+ .../market/components/marktplatz/MarktplatzTab.tsx |  6 +--
+ .../components/marktplatz/TransferListSection.tsx  |  4 +-
+ .../market/components/portfolio/BestandView.tsx    | 12 ++---
+ .../market/components/portfolio/PortfolioTab.tsx   |  6 +--
+ .../market/components/shared/MarketSearch.tsx      |  4 +-
+ .../market/hooks/__tests__/useMarketData.test.ts   | 10 ++--
+ src/lib/queries/enriched.ts                        | 11 +++--
+ src/lib/queries/orders.ts                          |  4 +-
+ src/lib/services/trading.ts                        | 54 +++++++---------------
+ src/types/index.ts                                 | 24 +++++++++-
+ worklog/active.md                                  | 16 +++----
+ 25 files changed, 136 insertions(+), 136 deletions(-)

@@ -5,10 +5,10 @@ import { useTranslations } from 'next-intl';
 import { Card, InfoTooltip } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { DbOrder } from '@/types';
+import type { PublicOrder } from '@/types';
 
 interface OrderbookDepthProps {
-  orders: DbOrder[];
+  orders: PublicOrder[];
   className?: string;
 }
 

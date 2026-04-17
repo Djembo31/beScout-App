@@ -7,7 +7,7 @@ import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import type { Player, DbOrder, OfferWithDetails } from '@/types';
+import type { Player, PublicOrder, OfferWithDetails } from '@/types';
 import { SellModalCore } from '@/components/trading/SellModalCore';
 
 interface SellModalProps {
@@ -16,7 +16,7 @@ interface SellModalProps {
   player: Player;
   holdingQty: number;
   lockedQty?: number;
-  userOrders: DbOrder[];
+  userOrders: PublicOrder[];
   openBids?: OfferWithDetails[];
   onSell: (qty: number, priceCents: number) => void;
   onCancelOrder: (orderId: string) => void;

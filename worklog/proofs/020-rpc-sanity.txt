@@ -1,0 +1,29 @@
+-- RPC Sanity: public.get_public_orderbook
+-- Applied via mcp__supabase__apply_migration (project skzjfhvgccaeplydsunz)
+-- Migration file: supabase/migrations/20260417070000_get_public_orderbook_rpc.sql
+
+-- Test SELECT with service-role context (auth.uid() NULL → is_own coalesced to false)
+SELECT id, player_id, side, price, quantity, filled_qty, status, handle, is_own
+FROM public.get_public_orderbook(NULL, 'sell') LIMIT 3;
+
+Result (2026-04-17):
+  id=57c718b4..., player_id=b07e1245..., side=sell, price=1060, quantity=1, filled_qty=0, status=open, handle=bot003, is_own=false
+  id=af00a59f..., player_id=2b69304f..., side=sell, price=1065, quantity=1, filled_qty=0, status=open, handle=bot005, is_own=false
+  id=c1e77a35..., player_id=a32e74a9..., side=sell, price=1065, quantity=1, filled_qty=0, status=open, handle=bot005, is_own=false
+
+Verify:
+- handle present (via LEFT JOIN profiles)
+- user_id NOT in response shape (privacy)
+- is_own=false under service-role (COALESCE kicks in for NULL auth.uid())
+- Sorted by price ASC (sell-side)
+- Only open + partial + non-expired filtered
+
+Grant-Matrix:
+  REVOKE EXECUTE FROM PUBLIC ✓
+  REVOKE EXECUTE FROM anon ✓
+  GRANT EXECUTE TO authenticated ✓
+  GRANT EXECUTE TO service_role ✓
+
+RLS bleibt in Slice 020 unveraendert (qual=true auf orders_select). Service-Layer
+nutzt nur noch RPC — kein direktes .from('orders').select() mehr fuer cross-user
+Reads. RLS-Tighten folgt in Slice 021 nach Verify-Deploy.

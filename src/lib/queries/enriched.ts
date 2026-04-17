@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { usePlayers } from './players';
 import { useHoldings } from './holdings';
 import { useAllOpenOrders } from './orders';
-import type { Player, DbOrder } from '@/types';
+import type { Player, PublicOrder } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { centsToBsd } from '@/lib/services/players';
 
@@ -30,7 +30,7 @@ export function useEnrichedPlayers(userId: string | undefined) {
 export function enrichPlayersWithData(
   players: Player[],
   holdings: HoldingWithPlayer[],
-  orders: DbOrder[],
+  orders: PublicOrder[],
 ): Player[] {
   // Build lookup maps — O(n)
   const holdingMap = new Map<string, number>();
@@ -38,7 +38,7 @@ export function enrichPlayersWithData(
     holdingMap.set(h.player_id, (holdingMap.get(h.player_id) ?? 0) + h.quantity);
   }
 
-  const ordersByPlayer = new Map<string, DbOrder[]>();
+  const ordersByPlayer = new Map<string, PublicOrder[]>();
   for (const o of orders) {
     const arr = ordersByPlayer.get(o.player_id);
     if (arr) arr.push(o);
@@ -59,8 +59,9 @@ export function enrichPlayersWithData(
 
     const listings = playerOrders.map(o => ({
       id: o.id,
-      sellerId: o.user_id,
-      sellerName: '',
+      isOwn: o.is_own,
+      sellerHandle: o.handle,
+      sellerName: o.handle ?? '',
       price: centsToBsd(o.price),
       qty: o.quantity - o.filled_qty,
       expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : 0,

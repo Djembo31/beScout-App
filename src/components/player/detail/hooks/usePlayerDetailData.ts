@@ -4,7 +4,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { dbToPlayer } from '@/lib/services/players';
 import { getProfilesByIds } from '@/lib/services/profiles';
 import type {
-  Player, DbPlayer, DbIpo, DbOrder, DbTrade,
+  Player, DbPlayer, DbIpo, PublicOrder, DbTrade,
   DbPbtTreasury, DbLiquidationEvent, OfferWithDetails,
   PostWithAuthor, ResearchPostWithAuthor,
 } from '@/types';
@@ -49,7 +49,7 @@ export interface PlayerDetailData {
   isWatchlisted: boolean;
   watchlistMap: Record<string, boolean>;
   lockedScMap: Map<string, number> | undefined;
-  allSellOrders: DbOrder[];
+  allSellOrders: PublicOrder[];
   openBids: OfferWithDetails[];
   trades: DbTrade[];
   tradesLoading: boolean;
@@ -150,14 +150,13 @@ export function usePlayerDetailData(
   const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
 
   useEffect(() => {
+    // Orders carry handle directly (Slice 020) — profileMap only needed
+    // for trades buyer/seller lookup now.
     const timer = setTimeout(() => {
       const userIds = new Set<string>();
       trades.forEach((tr) => {
         if (tr.buyer_id) userIds.add(tr.buyer_id);
         if (tr.seller_id) userIds.add(tr.seller_id);
-      });
-      allSellOrders.forEach((o) => {
-        if (o.user_id) userIds.add(o.user_id);
       });
       const ids = Array.from(userIds);
       if (ids.length > 0) {
@@ -168,7 +167,7 @@ export function usePlayerDetailData(
       }
     }, 2000);
     return () => clearTimeout(timer);
-  }, [trades, allSellOrders]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [trades]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Player With Ownership ────────────────
   const playerWithOwnership = useMemo(() => {

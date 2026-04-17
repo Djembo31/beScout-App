@@ -88,7 +88,10 @@ export type Player = {
 
 export type Listing = {
   id: string;
-  sellerId: string;
+  /** True when the order belongs to the viewing user. Replaces sellerId-identity check. */
+  isOwn: boolean;
+  /** Anonymized seller handle (null on deleted profiles). */
+  sellerHandle: string | null;
   sellerName: string;
   price: number;
   qty?: number;
@@ -593,6 +596,25 @@ export type DbOrder = {
   status: 'open' | 'partial' | 'filled' | 'cancelled';
   created_at: string;
   expires_at: string | null;
+};
+
+/**
+ * Public-facing orderbook row. Returned from `get_public_orderbook` RPC.
+ * user_id is withheld; `is_own` indicates whether the row belongs to the caller,
+ * `handle` is the author's display handle (nullable on deleted profiles).
+ */
+export type PublicOrder = {
+  id: string;
+  player_id: string;
+  side: 'buy' | 'sell';
+  price: number;
+  quantity: number;
+  filled_qty: number;
+  status: 'open' | 'partial' | 'filled' | 'cancelled';
+  created_at: string;
+  expires_at: string | null;
+  handle: string | null;
+  is_own: boolean;
 };
 
 export type DbTrade = {

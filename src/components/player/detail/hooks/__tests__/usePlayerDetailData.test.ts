@@ -320,7 +320,7 @@ describe('usePlayerDetailData', () => {
     vi.mocked(useHoldingQty).mockReturnValue({ data: 3 } as ReturnType<typeof useHoldingQty>);
     vi.mocked(usePlayerHolderCount).mockReturnValue({ data: 42 } as ReturnType<typeof usePlayerHolderCount>);
     vi.mocked(useSellOrders).mockReturnValue({
-      data: [{ id: 'o-1', player_id: PLAYER_ID, user_id: 'u-1', side: 'sell', price: 1000, quantity: 1, filled_qty: 0, status: 'open', created_at: '' }],
+      data: [{ id: 'o-1', player_id: PLAYER_ID, side: 'sell', price: 1000, quantity: 1, filled_qty: 0, status: 'open', created_at: '', expires_at: null, handle: 'u-1', is_own: false }],
     } as ReturnType<typeof useSellOrders>);
 
     const { result } = renderHook(

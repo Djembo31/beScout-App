@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { SkeletonCard } from '@/components/ui';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { PortfolioSubTab } from '@/features/market/store/marketStore';
-import type { Player, DbOrder, OfferWithDetails } from '@/types';
+import type { Player, PublicOrder, OfferWithDetails } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 const BestandView = dynamic(() => import('./BestandView'), {
@@ -23,8 +23,8 @@ type Props = {
   mySquadPlayers: Player[];
   holdings: { player_id: string; quantity: number; avg_buy_price: number }[];
   floorMap: Map<string, number>;
-  recentOrders: DbOrder[];
-  buyOrders: DbOrder[];
+  recentOrders: PublicOrder[];
+  buyOrders: PublicOrder[];
   scoresMap?: Map<string, (number | null)[]>;
   lockedMap?: Map<string, number>;
   onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;

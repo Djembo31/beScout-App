@@ -17,7 +17,7 @@ import type { ClubLookup } from '@/lib/clubs';
 import BestandHeader from './BestandHeader';
 import BestandPlayerRow from './BestandPlayerRow';
 import type { BestandItem } from './BestandPlayerRow';
-import type { Player, DbOrder, Pos, OfferWithDetails } from '@/types';
+import type { Player, PublicOrder, Pos, OfferWithDetails } from '@/types';
 import dynamic from 'next/dynamic';
 import type { KaderPlayer } from '@/features/manager/components/kader/KaderPlayerRow';
 const KaderSellModal = dynamic(() => import('@/features/manager/components/kader/KaderSellModal'), { ssr: false });
@@ -32,8 +32,8 @@ interface BestandViewProps {
   mySquadPlayers: Player[];
   holdings: { player_id: string; quantity: number; avg_buy_price: number }[];
   floorMap: Map<string, number>;
-  recentOrders: DbOrder[];
-  buyOrders: DbOrder[];
+  recentOrders: PublicOrder[];
+  buyOrders: PublicOrder[];
   scoresMap?: Map<string, (number | null)[]>;
   lockedMap?: Map<string, number>;
   onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
@@ -75,7 +75,7 @@ export default function BestandView({
     const m = new Map<string, { id: string; price: number; quantity: number; expiresAt: string | null }[]>();
     if (!uid) return m;
     for (const o of recentOrders) {
-      if (o.user_id !== uid || o.side !== 'sell') continue;
+      if (!o.is_own || o.side !== 'sell') continue;
       const arr = m.get(o.player_id) ?? [];
       arr.push({ id: o.id, price: o.price, quantity: o.quantity - (o.filled_qty ?? 0), expiresAt: o.expires_at });
       m.set(o.player_id, arr);
@@ -83,12 +83,12 @@ export default function BestandView({
     return m;
   }, [recentOrders, uid]);
 
-  // ── Build buy order count per player ──
+  // ── Build buy order count per player — nur fremde bids ──
   const buyOrderCountMap = useMemo(() => {
     const m = new Map<string, number>();
     if (!uid) return m;
     for (const o of buyOrders) {
-      if (o.user_id === uid) continue;
+      if (o.is_own) continue;
       m.set(o.player_id, (m.get(o.player_id) ?? 0) + 1);
     }
     return m;

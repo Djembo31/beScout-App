@@ -6,12 +6,12 @@ import { useTranslations } from 'next-intl';
 import { Card, InfoTooltip } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { DbOrder } from '@/types';
+import type { PublicOrder } from '@/types';
 import type { OfferWithDetails } from '@/types';
 import OrderbookDepth from './OrderbookDepth';
 
 interface OrderbookSummaryProps {
-  sellOrders: DbOrder[];
+  sellOrders: PublicOrder[];
   bids: OfferWithDetails[];
   className?: string;
 }

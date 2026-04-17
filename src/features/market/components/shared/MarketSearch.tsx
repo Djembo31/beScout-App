@@ -7,12 +7,12 @@ import { Search, X } from 'lucide-react';
 import { PlayerIdentity, getL5Color } from '@/components/player';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { Player, DbIpo, DbOrder } from '@/types';
+import type { Player, DbIpo, PublicOrder } from '@/types';
 
 interface MarketSearchProps {
   players: Player[];
   activeIpos: DbIpo[];
-  sellOrders: DbOrder[];
+  sellOrders: PublicOrder[];
   onClose: () => void;
 }
 

@@ -1,0 +1,12 @@
+src/components/player/detail/hooks/__tests__/usePlayerDetailData.test.ts(322,46): error TS2352: Conversion of type '{ data: { id: string; player_id: string; user_id: string; side: "sell"; price: number; quantity: number; filled_qty: number; status: "open"; created_at: string; }[]; }' to type 'UseQueryResult<PublicOrder[], Error>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ data: { id: string; player_id: string; user_id: string; side: "sell"; price: number; quantity: number; filled_qty: number; status: "open"; created_at: string; }[]; }' is missing the following properties from type 'QueryObserverPlaceholderResult<PublicOrder[], Error>': isError, error, isPending, isLoading, and 21 more.
+src/components/player/detail/hooks/usePlayerDetailData.ts(160,15): error TS2339: Property 'user_id' does not exist on type 'PublicOrder'.
+src/components/player/detail/hooks/usePlayerDetailData.ts(160,38): error TS2339: Property 'user_id' does not exist on type 'PublicOrder'.
+src/components/player/detail/hooks/usePlayerDetailData.ts(208,5): error TS2322: Type 'PublicOrder[]' is not assignable to type 'DbOrder[]'.
+  Property 'user_id' is missing in type 'PublicOrder' but required in type 'DbOrder'.
+src/features/market/components/MarketContent.tsx(182,11): error TS2322: Type 'PublicOrder[]' is not assignable to type 'DbOrder[]'.
+  Property 'user_id' is missing in type 'PublicOrder' but required in type 'DbOrder'.
+src/features/market/components/MarketContent.tsx(204,11): error TS2322: Type 'PublicOrder[]' is not assignable to type 'DbOrder[]'.
+  Property 'user_id' is missing in type 'PublicOrder' but required in type 'DbOrder'.
+src/lib/queries/orders.ts(20,7): error TS2322: Type 'PublicOrder[]' is not assignable to type 'DbOrder[]'.
+  Property 'user_id' is missing in type 'PublicOrder' but required in type 'DbOrder'.

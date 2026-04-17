@@ -158,7 +158,7 @@ export default function KaderTab({
       const pnlPct = avgBuyBsd > 0 ? ((valueBsd - avgBuyBsd) / avgBuyBsd) * 100 : 0;
 
       const myListings = userId
-        ? player.listings.filter(l => l.sellerId === userId).map(l => ({
+        ? player.listings.filter(l => l.isOwn).map(l => ({
             id: l.id, qty: l.qty ?? 1, priceBsd: l.price, expiresAt: l.expiresAt,
           }))
         : [];

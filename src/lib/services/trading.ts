@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
-import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
+import type { DbOrder, PublicOrder, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
 
 // ============================================
@@ -294,35 +294,23 @@ export async function cancelOrder(
 // Order Queries
 // ============================================
 
-/** Alle aktiven Sell-Orders (fuer Markt-Uebersicht) — capped, price-sorted so cheapest per player included */
-export async function getAllOpenSellOrders(limit = 1000): Promise<{ orders: DbOrder[]; capped: boolean }> {
-  const { data, error, count } = await supabase
-    .from('orders')
-    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at', { count: 'exact' })
-    .eq('side', 'sell')
-    .in('status', ['open', 'partial'])
-    .gt('expires_at', new Date().toISOString())
-    .order('price', { ascending: true })
-    .limit(limit);
+/** Alle aktiven Sell-Orders (fuer Markt-Uebersicht) — via anonymized RPC (no user_id). */
+export async function getAllOpenSellOrders(limit = 1000): Promise<{ orders: PublicOrder[]; capped: boolean }> {
+  const { data, error } = await supabase
+    .rpc('get_public_orderbook', { p_player_id: null, p_side: 'sell' });
 
   if (error) throw new Error(error.message);
-  const orders = (data ?? []) as DbOrder[];
-  return { orders, capped: (count ?? 0) > limit };
+  const orders = (data ?? []) as PublicOrder[];
+  return { orders, capped: orders.length >= limit };
 }
 
-/** Aktive Sell-Orders fuer einen Spieler (Orderbook) */
-export async function getSellOrders(playerId: string): Promise<DbOrder[]> {
+/** Aktive Sell-Orders fuer einen Spieler (Orderbook) — via anonymized RPC (no user_id). */
+export async function getSellOrders(playerId: string): Promise<PublicOrder[]> {
   const { data, error } = await supabase
-    .from('orders')
-    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
-    .eq('player_id', playerId)
-    .eq('side', 'sell')
-    .in('status', ['open', 'partial'])
-    .gt('expires_at', new Date().toISOString())
-    .order('price', { ascending: true });
+    .rpc('get_public_orderbook', { p_player_id: playerId, p_side: 'sell' });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as DbOrder[];
+  return (data ?? []) as PublicOrder[];
 }
 
 /** Letzte Trades fuer einen Spieler (Preis-History) */
@@ -531,22 +519,12 @@ export async function cancelBuyOrder(
   return result;
 }
 
-/** All active buy orders (for market overview) — highest bid first */
-export async function getAllOpenBuyOrders(playerId?: string): Promise<DbOrder[]> {
-  let query = supabase
-    .from('orders')
-    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
-    .eq('side', 'buy')
-    .in('status', ['open', 'partial'])
-    .gt('expires_at', new Date().toISOString())
-    .order('price', { ascending: false }) // highest bid first
-    .limit(500);
-
-  if (playerId) query = query.eq('player_id', playerId);
-
-  const { data, error } = await query;
+/** All active buy orders (for market overview) — via anonymized RPC (no user_id). */
+export async function getAllOpenBuyOrders(playerId?: string): Promise<PublicOrder[]> {
+  const { data, error } = await supabase
+    .rpc('get_public_orderbook', { p_player_id: playerId ?? null, p_side: 'buy' });
   if (error) throw new Error(error.message);
-  return (data ?? []) as DbOrder[];
+  return (data ?? []) as PublicOrder[];
 }
 
 // ============================================

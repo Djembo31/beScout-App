@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 020 | 2026-04-17 | Orders Anonymize via Handle-Projection (CEO Option 2, Prep)
+- Stage-Chain: SPEC → IMPACT(inline — 8 UI-Consumers + 3 Services + 9 Prop-Types gemappt) → BUILD → PROVE → LOG
+- Files (24 total):
+  - DB: `supabase/migrations/20260417070000_get_public_orderbook_rpc.sql` (NEW — SECURITY DEFINER, AR-44 REVOKE/GRANT, handle via LEFT JOIN profiles, is_own via COALESCE)
+  - Types: `src/types/index.ts` (new `PublicOrder` type; `Listing` — replaced `sellerId` with `isOwn: boolean` + `sellerHandle: string | null`)
+  - Services: `src/lib/services/trading.ts` (3 reads via rpc('get_public_orderbook'): getSellOrders, getAllOpenSellOrders, getAllOpenBuyOrders)
+  - Queries: `src/lib/queries/orders.ts`, `src/lib/queries/enriched.ts` (PublicOrder[] throughout, sellerId removed)
+  - Market UI: BestandView, BuyOrdersSection, MarktplatzTab, PortfolioTab, TransferListSection, MarketSearch (DbOrder[] → PublicOrder[], o.user_id → o.is_own / o.handle)
+  - Player Detail UI: BuyModal, TradingTab, OrderbookDepth, OrderbookSummary, SellModal, usePlayerTrading, usePlayerDetailData, HoldingsSection, BuyConfirmation
+  - Manager: KaderTab.tsx (l.sellerId === userId → l.isOwn)
+  - Tests: TradingTab.test.tsx, usePlayerDetailData.test.ts, useMarketData.test.ts (mock shapes updated)
+- Proofs:
+  - `worklog/proofs/020-diff-stat.txt` (25 files, 136/136 +/-)
+  - `worklog/proofs/020-tsc-step3.txt` (clean, 0 Bytes)
+  - `worklog/proofs/020-tests.txt` (24/24 test files, 306/306 tests gruen — market + player/detail + services + queries)
+  - `worklog/proofs/020-rpc-sanity.txt` (RPC Call mit 3-Row-Output verified, Grant-Matrix bestaetigt)
+- Commit: TBD
+- **Split-Entscheidung (operational CTO):** Slice 020 = Prep (RPC + Service-Switch + UI-Migration). RLS bleibt qual=true in diesem Slice — verhindert Deploy-Race (RLS-Tighten ohne Code-Deploy = Markt tot 10-30min). Slice 021 tightens RLS + entfernt INV-26 whitelist + fuegt AUTH-16 Test hinzu — nach Verify-Deploy dieses Slices.
+- Notes: CEO Option 2 approved (2026-04-17 chat, Slice 019 Finding). Neue `get_public_orderbook(p_player_id, p_side)` RPC projiziert Orders mit `handle` (via LEFT JOIN profiles) und `is_own` (COALESCE(o.user_id = auth.uid(), false)). `user_id` NICHT mehr im Cross-User-Response. Services nutzen RPC, direct `.from('orders').select(user_id,...)` fuer cross-user Reads entfernt. UI-Consumers: `order.user_id === uid` → `order.is_own`, `profileMap[order.user_id]?.handle` → `order.handle`, `@{order.user_id.slice(0,8)}` Fallback → `@{order.handle ?? t('anonSeller')}`. `Listing.sellerId` → `Listing.isOwn + sellerHandle` (KaderTab + enriched.ts). Interne RPC-Lookups in trading.ts (`.from('orders').select('user_id,player_id')` fuer Seller-Notification) bleiben unveraendert — authenticated user liest eigene Order (RLS qual=true heute + tightened RLS future = both OK fuer self-reads). PlayerDetail profileMap nur noch fuer trades buyer/seller-lookup (orders haben handle). Trades-Cache-Helper `queryClient.setQueryData(qk.orders.byPlayer,...)` auf PublicOrder[].
+
+---
+
 ## 019 | 2026-04-17 | INV-26 qual=true Regression-Guard (AUTH-08 Klasse)
 - Stage-Chain: SPEC → IMPACT(inline — Pattern aus Slice 004/005 wiederverwendet) → BUILD → PROVE → LOG
 - Files:

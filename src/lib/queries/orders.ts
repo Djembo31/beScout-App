@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import { getAllOpenSellOrders, getAllOpenBuyOrders } from '@/lib/services/trading';
-import type { DbOrder } from '@/types';
+import type { PublicOrder } from '@/types';
 
 /**
  * All open sell orders — shared across Market + Home.
@@ -15,7 +15,7 @@ import type { DbOrder } from '@/types';
 export function useAllOpenOrders() {
   return useQuery({
     queryKey: qk.orders.all,
-    queryFn: async (): Promise<DbOrder[]> => {
+    queryFn: async (): Promise<PublicOrder[]> => {
       const { orders } = await getAllOpenSellOrders();
       return orders;
     },

@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import TradingTab from '../TradingTab';
-import type { Player, DbTrade, DbOrder, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
+import type { Player, DbTrade, PublicOrder, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
 
 // ============================================
 // Mocks — child components as stubs
@@ -118,10 +118,9 @@ function makeTrade(overrides: Partial<DbTrade> = {}, index = 0): DbTrade {
   };
 }
 
-function makeOrder(overrides: Partial<DbOrder> = {}, index = 0): DbOrder {
+function makeOrder(overrides: Partial<PublicOrder> = {}, index = 0): PublicOrder {
   return {
     id: `o${index}`,
-    user_id: `seller${index}`,
     player_id: 'p1',
     side: 'sell' as const,
     price: 2000,
@@ -130,6 +129,8 @@ function makeOrder(overrides: Partial<DbOrder> = {}, index = 0): DbOrder {
     status: 'open' as const,
     created_at: new Date().toISOString(),
     expires_at: null,
+    handle: `seller${index}`,
+    is_own: false,
     ...overrides,
   };
 }
@@ -181,10 +182,9 @@ function makeResearch(index = 0): ResearchPostWithAuthor {
 }
 
 // Minimal sell order so the "normal trading" section renders (component hides it when both are empty)
-const minimalSellOrder = {
+const minimalSellOrder: PublicOrder = {
   id: 'o1',
   player_id: 'p1',
-  user_id: 'u-seller',
   side: 'sell' as const,
   price: 2000,
   quantity: 1,
@@ -192,12 +192,14 @@ const minimalSellOrder = {
   status: 'open' as const,
   created_at: new Date().toISOString(),
   expires_at: null,
-} as unknown as DbOrder;
+  handle: 'u-seller',
+  is_own: false,
+};
 
 const defaultProps = {
   player: basePlayer,
   trades: [] as DbTrade[],
-  allSellOrders: [minimalSellOrder] as DbOrder[],
+  allSellOrders: [minimalSellOrder] as PublicOrder[],
   tradesLoading: false,
   profileMap: {} as Record<string, { handle: string; display_name: string | null }>,
   userId: undefined as string | undefined,
@@ -411,8 +413,8 @@ describe('TradingTab', () => {
 
   it('renders order book table when allSellOrders > 0 with own orders highlighted', () => {
     const orders = [
-      makeOrder({ id: 'o1', user_id: 'u1', price: 2000, quantity: 3, filled_qty: 1 }, 0),
-      makeOrder({ id: 'o2', user_id: 'other', price: 3000, quantity: 2, filled_qty: 0 }, 1),
+      makeOrder({ id: 'o1', is_own: true, handle: 'myhandle', price: 2000, quantity: 3, filled_qty: 1 }, 0),
+      makeOrder({ id: 'o2', is_own: false, handle: 'otherhandle', price: 3000, quantity: 2, filled_qty: 0 }, 1),
     ];
     const profileMap = {
       u1: { handle: 'myhandle', display_name: null },

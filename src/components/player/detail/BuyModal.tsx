@@ -8,7 +8,7 @@ import { Modal, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import type { Player, DbIpo, DbOrder } from '@/types';
+import type { Player, DbIpo, PublicOrder } from '@/types';
 import {
   TradingToasts,
   BuyConfirmation,
@@ -22,8 +22,8 @@ interface BuyModalProps {
   activeIpo: DbIpo | null;
   userIpoPurchased: number;
   balanceCents: number | null;
-  allSellOrders: DbOrder[];
-  userOrders: DbOrder[];
+  allSellOrders: PublicOrder[];
+  userOrders: PublicOrder[];
   userId?: string;
   buying: boolean;
   ipoBuying: boolean;
@@ -147,9 +147,9 @@ export default function BuyModal({
   // Filter out user's own orders, sort by price ascending
   const userFilteredOrders = useMemo(
     () => allSellOrders
-      .filter(o => userId && o.user_id !== userId && (o.quantity - o.filled_qty) > 0)
+      .filter(o => !o.is_own && (o.quantity - o.filled_qty) > 0)
       .sort((a, b) => a.price - b.price),
-    [allSellOrders, userId]
+    [allSellOrders]
   );
 
   const transferAvailable = useMemo(
@@ -313,7 +313,7 @@ export default function BuyModal({
                             <span className="text-sm font-mono font-bold text-gold tabular-nums">{fmtScout(orderBsd)}</span>
                             <span className="text-xs text-white/40">{remaining}x</span>
                           </div>
-                          <span className="text-xs text-white/50">{profileMap?.[order.user_id]?.handle ? `@${profileMap[order.user_id].handle}` : t('anonSeller')}</span>
+                          <span className="text-xs text-white/50">{order.handle ? `@${order.handle}` : t('anonSeller')}</span>
                         </button>
                       );
                     })}

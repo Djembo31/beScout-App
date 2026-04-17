@@ -13,7 +13,7 @@ import { formatScout } from '@/lib/services/wallet';
 import { invalidateTradeQueries, invalidatePlayerDetailQueries } from '@/lib/queries/invalidation';
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
-import type { Player, DbIpo, DbOrder } from '@/types';
+import type { Player, DbIpo, PublicOrder } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 
 interface UsePlayerTradingParams {
@@ -21,7 +21,7 @@ interface UsePlayerTradingParams {
   player: Player | null;
   userId?: string;
   activeIpo: DbIpo | null;
-  allSellOrders: DbOrder[];
+  allSellOrders: PublicOrder[];
   holdingQty: number;
   balanceCents: number | null;
   userIpoPurchased: number;
@@ -65,8 +65,8 @@ export function usePlayerTrading({
 
   // ─── Derived ────────────────────────────────
   const userOrders = useMemo(
-    () => allSellOrders.filter(o => o.user_id === userId),
-    [allSellOrders, userId]
+    () => allSellOrders.filter(o => o.is_own),
+    [allSellOrders]
   );
 
   const isIPO = activeIpo !== null && activeIpo !== undefined && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
@@ -247,7 +247,7 @@ export function usePlayerTrading({
       if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
         setBuySuccess(t('orderCancelled'));
-        queryClient.setQueryData(qk.orders.byPlayer(playerId), (old: DbOrder[] | undefined) =>
+        queryClient.setQueryData(qk.orders.byPlayer(playerId), (old: PublicOrder[] | undefined) =>
           (old ?? []).filter(o => o.id !== orderId)
         );
         invalidateAfterTrade(playerId, userId);

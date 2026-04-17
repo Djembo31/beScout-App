@@ -238,9 +238,9 @@ describe('useMarketData', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [
-        { id: 'l1', sellerId: 's1', sellerName: 'Seller1', price: 500, expiresAt: 0 },
-        { id: 'l2', sellerId: 's2', sellerName: 'Seller2', price: 300, expiresAt: 0 },
-        { id: 'l3', sellerId: 's3', sellerName: 'Seller3', price: 700, expiresAt: 0 },
+        { id: 'l1', isOwn: false, sellerHandle: 's1', sellerName: 'Seller1', price: 500, expiresAt: 0 },
+        { id: 'l2', isOwn: false, sellerHandle: 's2', sellerName: 'Seller2', price: 300, expiresAt: 0 },
+        { id: 'l3', isOwn: false, sellerHandle: 's3', sellerName: 'Seller3', price: 700, expiresAt: 0 },
       ],
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
@@ -286,7 +286,7 @@ describe('useMarketData', () => {
   it('getFloor helper returns floor for a player', () => {
     const p1 = makePlayer({
       id: 'p1',
-      listings: [{ id: 'l1', sellerId: 's1', sellerName: 'S', price: 250, expiresAt: 0 }],
+      listings: [{ id: 'l1', isOwn: false, sellerHandle: 's1', sellerName: 'S', price: 250, expiresAt: 0 }],
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
@@ -389,7 +389,7 @@ describe('useMarketData', () => {
   it('floorMap handles player with single listing correctly', () => {
     const p1 = makePlayer({
       id: 'p1',
-      listings: [{ id: 'l1', sellerId: 's1', sellerName: 'S', price: 999, expiresAt: 0 }],
+      listings: [{ id: 'l1', isOwn: false, sellerHandle: 's1', sellerName: 'S', price: 999, expiresAt: 0 }],
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 

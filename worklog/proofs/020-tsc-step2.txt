@@ -1,0 +1,97 @@
+src/components/player/detail/__tests__/TradingTab.test.tsx(226,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(231,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(236,26): error TS2322: Type '{ userId: string; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(241,26): error TS2322: Type '{ userId: undefined; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(246,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(251,26): error TS2322: Type '{ isRestrictedAdmin: true; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(256,26): error TS2322: Type '{ isRestrictedAdmin: false; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(261,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(269,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(276,26): error TS2322: Type '{ userId: string; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(281,26): error TS2322: Type '{ userId: string; openBids: never[]; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 8 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(289,8): error TS2322: Type '{ userId: string; holdingQty: number; openBids: OfferWithDetails[]; onAcceptBid: Mock<Procedure>; player: Player; trades: DbTrade[]; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(306,8): error TS2322: Type '{ userId: string; holdingQty: number; openBids: OfferWithDetails[]; onAcceptBid: Mock<Procedure>; player: Player; trades: DbTrade[]; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(319,26): error TS2322: Type '{ tradesLoading: true; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(324,26): error TS2322: Type '{ trades: never[]; tradesLoading: false; player: Player; allSellOrders: DbOrder[]; profileMap: Record<string, { handle: string; display_name: string | null; }>; userId: string | undefined; ... 9 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(335,8): error TS2322: Type '{ trades: DbTrade[]; profileMap: { u1: { handle: string; display_name: null; }; u2: { handle: string; display_name: null; }; }; player: Player; allSellOrders: DbOrder[]; tradesLoading: boolean; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(356,8): error TS2322: Type '{ trades: DbTrade[]; profileMap: Record<string, { handle: string; display_name: string | null; }>; player: Player; allSellOrders: DbOrder[]; tradesLoading: boolean; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(374,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(395,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(403,26): error TS2322: Type '{ playerResearch: ResearchPostWithAuthor[]; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<...>; ... 9 more ...; isRestrictedAdmin: boolean; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(408,26): error TS2322: Type '{ playerResearch: never[]; player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 9 more ...; isRestrictedAdmin: boolean; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(422,49): error TS2322: Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+  Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/__tests__/TradingTab.test.tsx(449,26): error TS2322: Type '{ player: Player; trades: DbTrade[]; allSellOrders: DbOrder[]; tradesLoading: boolean; profileMap: Record<string, { handle: string; display_name: string | null; }>; ... 10 more ...; playerResearch: ResearchPostWithAuthor[]; }' is not assignable to type 'TradingTabProps'.
+  Types of property 'allSellOrders' are incompatible.
+    Type 'DbOrder[]' is not assignable to type 'PublicOrder[]'.
+      Type 'DbOrder' is missing the following properties from type 'PublicOrder': handle, is_own
+src/components/player/detail/hooks/__tests__/usePlayerDetailData.test.ts(322,46): error TS2352: Conversion of type '{ data: { id: string; player_id: string; user_id: string; side: "sell"; price: number; quantity: number; filled_qty: number; status: "open"; created_at: string; }[]; }' to type 'UseQueryResult<PublicOrder[], Error>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ data: { id: string; player_id: string; user_id: string; side: "sell"; price: number; quantity: number; filled_qty: number; status: "open"; created_at: string; }[]; }' is missing the following properties from type 'QueryObserverPlaceholderResult<PublicOrder[], Error>': isError, error, isPending, isLoading, and 21 more.
+src/features/market/hooks/__tests__/useMarketData.test.ts(241,21): error TS2353: Object literal may only specify known properties, and 'sellerId' does not exist in type 'Listing'.
+src/features/market/hooks/__tests__/useMarketData.test.ts(242,21): error TS2353: Object literal may only specify known properties, and 'sellerId' does not exist in type 'Listing'.
+src/features/market/hooks/__tests__/useMarketData.test.ts(243,21): error TS2353: Object literal may only specify known properties, and 'sellerId' does not exist in type 'Listing'.
+src/features/market/hooks/__tests__/useMarketData.test.ts(289,30): error TS2353: Object literal may only specify known properties, and 'sellerId' does not exist in type 'Listing'.
+src/features/market/hooks/__tests__/useMarketData.test.ts(392,30): error TS2353: Object literal may only specify known properties, and 'sellerId' does not exist in type 'Listing'.

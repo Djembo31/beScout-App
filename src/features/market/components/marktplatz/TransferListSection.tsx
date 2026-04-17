@@ -14,13 +14,13 @@ import { useMarketStore } from '@/lib/stores/marketStore';
 import { useRecentScores } from '@/lib/queries/managerData';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { Player, DbOrder } from '@/types';
+import type { Player, PublicOrder } from '@/types';
 
 const OrderDepthView = dynamic(() => import('../shared/OrderDepthView'), { ssr: false });
 
 interface TransferListSectionProps {
   players: Player[];
-  sellOrders: DbOrder[];
+  sellOrders: PublicOrder[];
   playerMap: Map<string, Player>;
   getFloor: (p: Player) => number;
   onBuy: (playerId: string) => void;

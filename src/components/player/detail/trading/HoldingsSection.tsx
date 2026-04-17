@@ -6,7 +6,7 @@ import { ShoppingCart, Send, Briefcase, Loader2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
-import type { Player, DbOrder } from '@/types';
+import type { Player, PublicOrder } from '@/types';
 import { TRADE_FEE_PCT } from '@/lib/constants';
 
 interface HoldingsSectionProps {
@@ -14,7 +14,7 @@ interface HoldingsSectionProps {
   holdingQty: number;
   lockedQty?: number;
   floorPriceCents: number;
-  userOrders: DbOrder[];
+  userOrders: PublicOrder[];
   onSell: (qty: number, priceCents: number) => void;
   onCancelOrder: (orderId: string) => void;
   selling: boolean;

@@ -19,12 +19,12 @@ import YourPosition from './YourPosition';
 import OrderbookSummary from './OrderbookSummary';
 import ScoutConsensus from './ScoutConsensus';
 import RewardsTab from './RewardsTab';
-import type { Player, DbOrder, DbTrade, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
+import type { Player, PublicOrder, DbTrade, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
 
 interface TradingTabProps {
   player: Player;
   trades: DbTrade[];
-  allSellOrders: DbOrder[];
+  allSellOrders: PublicOrder[];
   tradesLoading: boolean;
   profileMap: Record<string, { handle: string; display_name: string | null }>;
   userId?: string;
@@ -284,8 +284,8 @@ function TradingTabInner({
               </div>
               {(ordersExpanded ? allSellOrders : allSellOrders.slice(0, 5)).map((order) => {
                 const remaining = order.quantity - order.filled_qty;
-                const isOwn = userId && order.user_id === userId;
-                const sellerHandle = profileMap[order.user_id]?.handle;
+                const isOwn = order.is_own;
+                const sellerHandle = order.handle;
                 return (
                   <div key={order.id} className={cn(
                     'grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors',
@@ -299,7 +299,7 @@ function TradingTabInner({
                         ? <span className="text-gold font-bold">{t('you')}</span>
                         : sellerHandle
                           ? <Link href={`/profile/${sellerHandle}`} className="text-white/60 hover:text-gold transition-colors">@{sellerHandle}</Link>
-                          : <span className="text-white/60">@{order.user_id.slice(0, 8)}</span>
+                          : <span className="text-white/60">{t('anonSeller')}</span>
                       }
                     </span>
                   </div>
