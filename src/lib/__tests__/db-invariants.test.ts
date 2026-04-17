@@ -265,9 +265,25 @@ describe('DB Invariants', () => {
 
       expect(ofErr).toBeNull();
 
-      if (!pendingOffers || pendingOffers.length === 0) {
+      if (pendingOffers && pendingOffers.length > 0) continue;
+
+      // Slice 011: user-bounties also lock balance via `create_user_bounty`
+      // (is_user_bounty=true branch — see bounties.ts:246). Without this
+      // check, a user with a legitimate open user-bounty and no orders/offers
+      // would be falsely flagged as having orphan locked_balance.
+      const { data: openBounties, error: bErr } = await sb
+        .from('bounties')
+        .select('id')
+        .eq('created_by', wallet.user_id)
+        .eq('is_user_bounty', true)
+        .eq('status', 'open')
+        .limit(1);
+
+      expect(bErr).toBeNull();
+
+      if (!openBounties || openBounties.length === 0) {
         violations.push(
-          `Wallet user_id=${wallet.user_id} has locked_balance=${wallet.locked_balance} but no open orders or pending offers`
+          `Wallet user_id=${wallet.user_id} has locked_balance=${wallet.locked_balance} but no open orders, pending offers, or user-bounties`
         );
       }
     }

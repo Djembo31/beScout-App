@@ -114,10 +114,19 @@ describe('Wallet Guards — Money Flow', () => {
         .eq('sender_id', w.user_id)
         .eq('status', 'pending');
 
-      const totalActive = (buyOrderCount ?? 0) + (sellOrderCount ?? 0) + (offerCount ?? 0);
+      // Slice 011: user-bounties also lock balance via `create_user_bounty`
+      // (is_user_bounty=true Escrow pattern — bounties.ts:246).
+      const { count: bountyCount } = await sb
+        .from('bounties')
+        .select('id', { count: 'exact', head: true })
+        .eq('created_by', w.user_id)
+        .eq('is_user_bounty', true)
+        .eq('status', 'open');
+
+      const totalActive = (buyOrderCount ?? 0) + (sellOrderCount ?? 0) + (offerCount ?? 0) + (bountyCount ?? 0);
       if (totalActive === 0) {
         violations.push(
-          `User ${w.user_id.slice(0, 8)}: locked_balance=${w.locked_balance} but 0 active orders/offers`
+          `User ${w.user_id.slice(0, 8)}: locked_balance=${w.locked_balance} but 0 active orders/offers/bounties`
         );
       }
     }

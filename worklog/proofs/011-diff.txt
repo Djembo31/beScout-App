@@ -1,0 +1,93 @@
+diff --git a/src/lib/__tests__/db-invariants.test.ts b/src/lib/__tests__/db-invariants.test.ts
+index ff013148..c0dbaf97 100644
+--- a/src/lib/__tests__/db-invariants.test.ts
++++ b/src/lib/__tests__/db-invariants.test.ts
+@@ -265,9 +265,25 @@ describe('DB Invariants', () => {
+ 
+       expect(ofErr).toBeNull();
+ 
+-      if (!pendingOffers || pendingOffers.length === 0) {
++      if (pendingOffers && pendingOffers.length > 0) continue;
++
++      // Slice 011: user-bounties also lock balance via `create_user_bounty`
++      // (is_user_bounty=true branch — see bounties.ts:246). Without this
++      // check, a user with a legitimate open user-bounty and no orders/offers
++      // would be falsely flagged as having orphan locked_balance.
++      const { data: openBounties, error: bErr } = await sb
++        .from('bounties')
++        .select('id')
++        .eq('created_by', wallet.user_id)
++        .eq('is_user_bounty', true)
++        .eq('status', 'open')
++        .limit(1);
++
++      expect(bErr).toBeNull();
++
++      if (!openBounties || openBounties.length === 0) {
+         violations.push(
+-          `Wallet user_id=${wallet.user_id} has locked_balance=${wallet.locked_balance} but no open orders or pending offers`
++          `Wallet user_id=${wallet.user_id} has locked_balance=${wallet.locked_balance} but no open orders, pending offers, or user-bounties`
+         );
+       }
+     }
+diff --git a/src/lib/__tests__/money/escrow.test.ts b/src/lib/__tests__/money/escrow.test.ts
+index 765cb390..c7b4564f 100644
+--- a/src/lib/__tests__/money/escrow.test.ts
++++ b/src/lib/__tests__/money/escrow.test.ts
+@@ -154,7 +154,20 @@ describe('Escrow — Money Flow', () => {
+       .in('user_id', onlyClosed);
+ 
+     const hasOpenOrders = new Set((openOrders ?? []).map(o => o.user_id));
+-    const noActiveLocks = onlyClosed.filter(id => !hasOpenOrders.has(id));
++
++    // Slice 011: user-bounties also lock balance via `create_user_bounty`
++    // Escrow pattern — bounties.ts:246 (is_user_bounty=true branch).
++    const { data: openBounties } = await sb
++      .from('bounties')
++      .select('created_by')
++      .eq('is_user_bounty', true)
++      .eq('status', 'open')
++      .in('created_by', onlyClosed);
++
++    const hasOpenBounties = new Set((openBounties ?? []).map(b => b.created_by));
++    const noActiveLocks = onlyClosed.filter(
++      (id) => !hasOpenOrders.has(id) && !hasOpenBounties.has(id)
++    );
+ 
+     if (noActiveLocks.length === 0) return;
+ 
+@@ -167,7 +180,7 @@ describe('Escrow — Money Flow', () => {
+ 
+     expect(
+       wallets ?? [],
+-      `Found ${(wallets ?? []).length} users with locked_balance after all offers closed and no open orders`
++      `Found ${(wallets ?? []).length} users with locked_balance after all offers closed and no open orders/bounties`
+     ).toHaveLength(0);
+   });
+ });
+diff --git a/src/lib/__tests__/money/wallet-guards.test.ts b/src/lib/__tests__/money/wallet-guards.test.ts
+index f390b51c..c05d8e51 100644
+--- a/src/lib/__tests__/money/wallet-guards.test.ts
++++ b/src/lib/__tests__/money/wallet-guards.test.ts
+@@ -114,10 +114,19 @@ describe('Wallet Guards — Money Flow', () => {
+         .eq('sender_id', w.user_id)
+         .eq('status', 'pending');
+ 
+-      const totalActive = (buyOrderCount ?? 0) + (sellOrderCount ?? 0) + (offerCount ?? 0);
++      // Slice 011: user-bounties also lock balance via `create_user_bounty`
++      // (is_user_bounty=true Escrow pattern — bounties.ts:246).
++      const { count: bountyCount } = await sb
++        .from('bounties')
++        .select('id', { count: 'exact', head: true })
++        .eq('created_by', w.user_id)
++        .eq('is_user_bounty', true)
++        .eq('status', 'open');
++
++      const totalActive = (buyOrderCount ?? 0) + (sellOrderCount ?? 0) + (offerCount ?? 0) + (bountyCount ?? 0);
+       if (totalActive === 0) {
+         violations.push(
+-          `User ${w.user_id.slice(0, 8)}: locked_balance=${w.locked_balance} but 0 active orders/offers`
++          `User ${w.user_id.slice(0, 8)}: locked_balance=${w.locked_balance} but 0 active orders/offers/bounties`
+         );
+       }
+     }

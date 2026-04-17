@@ -1,0 +1,39 @@
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (0) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+ [31m❯[39m src/lib/__tests__/db-invariants.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 17627[2mms[22m[39m
+[31m     [31m×[31m INV-08: no holding with quantity <= 0[39m[32m 85[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-08: no holding with quantity <= 0
+[31m[1mAssertionError[22m: expected [ { …(3) } ] to have a length of +0 but got 1[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m src/lib/__tests__/db-invariants.test.ts:[2m304:30[22m[39m
+    [90m302|[39m
+    [90m303|[39m     [34mexpect[39m(error)[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m304|[39m     [34mexpect[39m(violations [33m??[39m [])[33m.[39m[34mtoHaveLength[39m([34m0[39m)[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m305|[39m   })[33m;[39m
+    [90m306|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m30 passed[39m[22m[90m (31)[39m
+[2m   Start at [22m 08:35:53
+[2m   Duration [22m 18.71s[2m (transform 407ms, setup 1.15s, import 778ms, tests 25.80s, environment 1ms)[22m
+

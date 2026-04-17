@@ -154,7 +154,20 @@ describe('Escrow — Money Flow', () => {
       .in('user_id', onlyClosed);
 
     const hasOpenOrders = new Set((openOrders ?? []).map(o => o.user_id));
-    const noActiveLocks = onlyClosed.filter(id => !hasOpenOrders.has(id));
+
+    // Slice 011: user-bounties also lock balance via `create_user_bounty`
+    // Escrow pattern — bounties.ts:246 (is_user_bounty=true branch).
+    const { data: openBounties } = await sb
+      .from('bounties')
+      .select('created_by')
+      .eq('is_user_bounty', true)
+      .eq('status', 'open')
+      .in('created_by', onlyClosed);
+
+    const hasOpenBounties = new Set((openBounties ?? []).map(b => b.created_by));
+    const noActiveLocks = onlyClosed.filter(
+      (id) => !hasOpenOrders.has(id) && !hasOpenBounties.has(id)
+    );
 
     if (noActiveLocks.length === 0) return;
 
@@ -167,7 +180,7 @@ describe('Escrow — Money Flow', () => {
 
     expect(
       wallets ?? [],
-      `Found ${(wallets ?? []).length} users with locked_balance after all offers closed and no open orders`
+      `Found ${(wallets ?? []).length} users with locked_balance after all offers closed and no open orders/bounties`
     ).toHaveLength(0);
   });
 });

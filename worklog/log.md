@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 011 | 2026-04-17 | Locked-Balance Test Coverage Gap (INV-07/MF-WAL-04/MF-ESC-04)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/__tests__/db-invariants.test.ts` (INV-07 erweitert)
+  - `src/lib/__tests__/money/wallet-guards.test.ts` (MF-WAL-04 erweitert)
+  - `src/lib/__tests__/money/escrow.test.ts` (MF-ESC-04 erweitert)
+- Proofs:
+  - `worklog/proofs/011-diff.txt` (git diff: 3 Files, 93 LOC)
+  - `worklog/proofs/011-tests.txt` (3 target tests gruen, INV-07 + MF-WAL-04 + MF-ESC-04)
+- Commit: (pending)
+- Notes: Test-Gap-Fix, kein DB/Code-Change. Alle 3 Tests pruefen jetzt auch `bounties WHERE is_user_bounty=true AND status='open' AND created_by=<user>` als Lock-Quelle (Escrow-Pattern aus `bounties.ts:246`). jarvisqa (user 535bbcaf..., locked_balance=50000, 1 open user-bounty, 0 orders, 0 offers) ist jetzt korrekt als legitime Escrow erkannt. Scope-Out: Exakt-Summen-Check (locked_balance == Σ escrow sources), holding_locks fuer Fantasy — separate Slices.
+
+---
+
 ## 010 | 2026-04-17 | INV-25 Service-Throw-Key Coverage (B-02 sub-class)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
