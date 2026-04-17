@@ -1,0 +1,83 @@
+-- Slice 030 Part A — DB-Level Verify (via mcp__supabase__execute_sql)
+-- 2026-04-17 10:30 UTC
+
+## Check 1: score-pending-events cron runs
+
+{
+  "total_runs": 13,
+  "succeeded": 13,
+  "latest": "2026-04-17 10:30:00.055873+00"
+}
+
+PASS — 13/13 succeeded. Cron laueft stabil seit Deploy (Slice 024).
+
+## Check 2: holdings zombies
+
+{
+  "qty_zero": 0,
+  "qty_negative": 0,
+  "total": 513
+}
+
+PASS — 0 zombies. Slice 025 Trigger haelt.
+
+## Check 3: rpc_save_lineup Body-Scan (9 Reject-Keys)
+
+{
+  "invalid_formation": true,
+  "gk_required": true,
+  "invalid_slot_count_def": true,
+  "invalid_slot_count_mid": true,
+  "invalid_slot_count_att": true,
+  "extra_slot_for_formation": true,
+  "captain_slot_empty": true,
+  "wildcard_slot_invalid": true,
+  "wildcard_slot_empty": true
+}
+
+PASS — alle 9 Keys im Body. Slice 023 B4-Validation live.
+
+## Check 4: cron_score_pending_events meta
+
+{
+  "active": true,
+  "schedule": "*/5 * * * *",
+  "body_has_limit_50": true
+}
+
+PASS — scheduled, active, LIMIT 50 safety-bound vorhanden.
+
+## Check 5: holdings_auto_delete_zero trigger
+
+{
+  "registered": true,
+  "enabled": "O"
+}
+
+PASS — Trigger live + originally enabled.
+
+## Check 6: handles free (Slice 028 cleanup)
+
+{
+  "k_demirtas_free": true,
+  "kemal_free": true
+}
+
+PASS — beide handles verfuegbar fuer Neu-Registrierung.
+
+## Check 7: activity_labels live coverage (Slice 027)
+
+{
+  "types_live": [
+    "admin_adjustment", "deposit", "ipo_buy", "mission_reward",
+    "offer_execute", "offer_lock", "offer_sell", "offer_unlock",
+    "streak_reward", "subscription", "tier_bonus", "tip_receive",
+    "tip_send", "trade_buy", "trade_sell", "welcome_bonus"
+  ],
+  "total_transactions": 1024
+}
+
+Alle 16 distinct types sind in activityHelpers.ts gemappt (verified cross-check).
+PASS — keine Raw-String-Leaks moeglich.
+
+## Part A: 7/7 GREEN

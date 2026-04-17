@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 030 | 2026-04-17 | Phase 7 Verify: Touched Flows + DB Invariants (GREEN)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD(E2E test run) → PROVE → LOG
+- Files:
+  - `worklog/specs/030-phase7-verify-touched-flows.md` (NEW)
+  - `worklog/proofs/030-db-checks.txt` (NEW — 7/7 DB-Checks GREEN)
+  - `worklog/proofs/030-ui-e2e.txt` (NEW — 7 Flows verifiziert via Playwright)
+  - `worklog/proofs/030-verdict.md` (NEW — Final GREEN)
+- Proofs:
+  - `worklog/proofs/030-verdict.md` (Verdict GREEN)
+- Commit: <pending>
+- Notes: Full-Verification Deploy bescout.net nach Session 3+4. Part A DB: cron score-pending-events 13/13 succeeded runs, 0 holdings zombies (Trigger 025), rpc_save_lineup Body-Scan alle 9 B4-Reject-Keys live, cron_score_pending_events active/scheduled/LIMIT50, holdings_auto_delete_zero trigger registered, handles k_demirtas/kemal frei, 16 transaction-types alle in activityHelpers gemappt. Part B UI via Playwright MCP + jarvis-qa@bescout.net: Login, Home (19 SCs, 6.949 CR), /transactions (44 Eintraege keine Raw-Leaks, Filter-Bar, CSV), /manager?tab=kader (keine qty=0), /player/[id] (0 errors), RPC direct-call via fetch (auth-chain OK, event_not_found first-check response), Logout (auth-cookie + bs_user + bs_profile wiped → /login). Keine Bugs gefunden. Softwarestand bescout.net GREEN. Restliche 8 Flows (nicht von Session 3+4 touchiert) fuer naechste Session.
+
+---
+
 ## 029 | 2026-04-17 | Doc-Refresh Session 4 (common-errors + Briefing)
 - Stage-Chain: SPEC → IMPACT(skipped — reine Doku) → BUILD(edit) → PROVE → LOG
 - Files:
