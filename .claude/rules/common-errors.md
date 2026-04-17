@@ -261,6 +261,16 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Slice 027-Fund (2026-04-17):** 4 types im Live-DB (`subscription`/`admin_adjustment`/`tip_send`/`offer_execute`) waren ungemappt. Briefing behauptete "10 Types fehlen" — war stale, nur 4 aktuell, andere bereits gefixt.
 - Regel: **Neue transaction.type-Schreiber triggern immer 3-File-Change:** activityHelpers.ts (icon+color+key) + messages/de.json + messages/tr.json.
 
+## Public Wrapper + Internal RPC Pattern (Event-Entry, 2026-04-17 — Slice 041)
+- Bei RPCs mit `p_user_id`-Param und auth-context-relevant: Pattern aus 2 Funktionen statt 1
+  - **Public Wrapper** `rpc_name(args_ohne_user_id)`: SECURITY DEFINER, GRANT authenticated, PERFORM `internal_rpc(args, auth.uid())`
+  - **Internal RPC** `internal_rpc(args, p_user_id)`: REVOKE authenticated, GRANT service_role only
+- Verhindert auth-to-other-user-Exploit (analog AR-44) ohne explicit auth_uid_mismatch-guard im body.
+- **Slice 032b/041 Beispiel:** `lock_event_entry(p_event_id)` → `rpc_lock_event_entry(p_event_id, auth.uid())`. Direct-call von `rpc_lock_event_entry` returned 403 — by design.
+- **Audit-Pattern:** wenn ein RPC `rpc_*` heisst → pruefen ob ein Wrapper ohne prefix existiert. Falls ja: clients muessen wrapper aufrufen.
+- **Doku-Pflicht:** beide RPCs brauchen `COMMENT ON FUNCTION` der das Pattern erklaert (sonst stolpert naechste Person).
+- **Unterschied zu Slice 035 internal-helper:** dort fuer trigger-context (interne caller). Hier fuer auth-context-injection (client-context).
+
 ## AR-44 Guard in Trigger-Aufruf-Pfad (2026-04-17 — Slice 035)
 - Trigger ruft AR-44-hardened RPC mit `p_user_id = NEW.seller_id` (anderer User als auth.uid())
 - Guard `IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN RAISE` trippt

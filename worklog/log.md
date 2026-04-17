@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 041 | 2026-04-17 | event-entry RPCs Wrapper-Pattern Doku
+- Stage-Chain: SPEC → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417200000_event_entry_wrapper_doc.sql` (NEW — 5 COMMENT stmts)
+  - `.claude/rules/common-errors.md` (+Public-Wrapper+Internal-RPC Pattern)
+  - `worklog/specs/041-event-entry-wrapper-doc.md` + `worklog/proofs/041-comments-applied.txt` (NEW)
+- Proof: 5/5 COMMENTs gesetzt — Slice 032b Flow 10 finding (rpc_lock_event_entry direct-call 403) ist by-design dokumentiert.
+- Commit: tba
+- Notes: Kein bug, nur doku. Pattern: lock_event_entry(p_event_id) wrapper injiziert auth.uid() → rpc_lock_event_entry(p_event_id, p_user_id) internal. REVOKE authenticated auf inner verhindert auth-to-other-user-Exploit. common-errors.md Eintrag erklaert Audit-Pattern + Unterschied zu Slice 035 internal-helper.
+
 ## 039 | 2026-04-17 | user_achievements 409 race — upsert ignoreDuplicates
 - Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
 - Files:

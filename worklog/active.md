@@ -14,8 +14,7 @@ started: —
 
 | # | Titel | Status |
 |---|-------|--------|
-| 041 | rpc_lock_event_entry Permission-Doku | next (P2) |
-| 042 | Modal PUNKTE-Display Inconsistency | nach 041 |
+| 042 | Modal PUNKTE-Display Inconsistency | next (P2 UI) |
 | 043 | Compliance-Wording Trader/BSD | nach 042 |
 | 040 | ClubProvider.test.tsx flake | low (P3) |
 

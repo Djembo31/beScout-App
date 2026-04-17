@@ -1,0 +1,20 @@
+Slice 041 — COMMENTs applied verify
+
+# Migration applied
+20260417200000_event_entry_wrapper_doc — 5 COMMENT statements
+
+# Verify
+SELECT pg_proc.proname + obj_description(oid, 'pg_proc'):
+  lock_event_entry            "Slice 041: PUBLIC client-wrapper. Injiziert auth.uid() ..."
+  unlock_event_entry          "Slice 041: PUBLIC client-wrapper. Injiziert auth.uid() ..."
+  rpc_lock_event_entry        "Slice 041: INTERNAL — service_role only. Clients muessen ..."
+  rpc_unlock_event_entry      "Slice 041: INTERNAL — service_role only. Clients muessen ..."
+  rpc_cancel_event_entries    "Slice 041: ADMIN/CRON — service_role only. KEIN client-facing ..."
+
+5/5 COMMENTs gesetzt ✓
+
+# common-errors.md
+Pattern "Public Wrapper + Internal RPC" ergaenzt mit Audit-Pattern + Doku-Pflicht.
+
+# Verdict GREEN
+Doku-Slice. Kein code-change, nur metadata.
