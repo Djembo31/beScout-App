@@ -26,7 +26,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/016-service-tests.txt` (wallet-v2 + tickets: 40/40 gruen)
   - `worklog/proofs/016-profile-tests.txt` (profile/**: 54/55 gruen, 1 skipped nicht 016-related)
   - `worklog/proofs/016-render-check.md` (8 Edge-Cases statisch verifiziert: 0 Tx, <50, =50, 120+10, Filter-aktiv, Doppel-Click, Initial-Error, Page-N-Error)
-- Commit: TBD
+- Commit: 9efb5983
 - Notes: B2 von Block B. Bug-Klasse: 200-Row-Upfront-Load ohne Pagination skalierte nicht fuer Heavy-User. Fix: Neue `useInfinite*`-Hooks parallel zu den alten (alte bleiben fuer Profile Timeline-Tab mit fixer Top-50-Anzeige unveraendert). Pagination via `.range(offset, offset+pageSize-1)` auf `transactions` + `ticket_transactions`. `getNextPageParam` returned `undefined` wenn `lastPage.length < pageSize` — verhindert Infinite-Loop bei exakt-pageSize-Responses. Load-More-Button fetched nur die Queries die noch `hasNextPage=true` haben, Loader2-Spinner mit `isFetchingNextPage`-Guard. Common-i18n-Key `loadMore` existierte bereits, kein Message-Change. Scope-Out: Server-Side Filter, echte Server-Aggregation (earned/spent Total via RPC) = CEO-Scope, Infinite-Scroll via IntersectionObserver, Page-Error-Toast. Profile-Tests (useProfileData, ProfileView) blieben gruen weil alte Hook-Signaturen unveraendert.
 
 ---
