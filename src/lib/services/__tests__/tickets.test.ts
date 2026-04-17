@@ -58,12 +58,33 @@ describe('creditTickets', () => {
     });
   });
 
-  it('passes optional params', async () => {
+  it('passes optional params (UUID reference passes through)', async () => {
     mockRpc('credit_tickets', { ok: true, new_balance: 200 });
-    await creditTickets('u1', 10, 'mission', 'ref-1', 'Mission complete');
+    const validUuid = '11111111-2222-3333-4444-555555555555';
+    await creditTickets('u1', 10, 'mission', validUuid, 'Mission complete');
     expect(mockSupabase.rpc).toHaveBeenCalledWith('credit_tickets', expect.objectContaining({
-      p_reference_id: 'ref-1', p_description: 'Mission complete',
+      p_reference_id: validUuid, p_description: 'Mission complete',
     }));
+  });
+
+  // Slice 038: Achievement-Hook in social.ts:522 passed achievement-keys (e.g.
+  // 'first_trade') as p_reference_id, but the RPC param is uuid-typed → 22P02 crash.
+  // creditTickets now sanitizes non-UUID strings to NULL with a console.warn instead
+  // of letting them reach the RPC. Drift-Lock for the regression.
+  it('drops non-UUID referenceId with warning (Slice 038 drift-lock)', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockRpc('credit_tickets', { ok: true, new_balance: 250 });
+
+    await creditTickets('u1', 25, 'achievement', 'first_trade', 'Achievement: first_trade');
+
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('credit_tickets', expect.objectContaining({
+      p_reference_id: null,
+      p_description: 'Achievement: first_trade',
+    }));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('referenceId "first_trade" is not a UUID'),
+    );
+    warnSpy.mockRestore();
   });
 
   it('returns error on RPC failure', async () => {

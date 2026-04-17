@@ -515,11 +515,13 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
     }).catch(err => console.error('[Social] Achievement notification import failed:', err));
 
     // Fire-and-forget: Credit tickets for each achievement unlock (featured=50, hidden=25)
+    // Slice 038: achievement-key (string) DARF NICHT in p_reference_id (UUID-Spalte) —
+    // PostgreSQL 22P02 invalid input syntax. Stattdessen: key in description, reference_id null.
     import('@/lib/services/tickets').then(({ creditTickets }) => {
       for (const key of newUnlocks) {
         const def = ACHIEVEMENTS.find(a => a.key === key);
         const ticketAmount = def?.featured ? 50 : 25;
-        creditTickets(userId, ticketAmount, 'achievement', key).catch(console.error);
+        creditTickets(userId, ticketAmount, 'achievement', undefined, `Achievement: ${key}`).catch(console.error);
       }
     }).catch(err => console.error('[Social] Achievement ticket credit failed:', err));
   }

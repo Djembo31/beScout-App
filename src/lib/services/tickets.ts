@@ -2,6 +2,23 @@ import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import type { DbUserTickets, DbTicketTransaction, TicketSource } from '@/types';
 
+/**
+ * UUID v4-ish regex (accepts any RFC-4122 variant). Used as guard before passing
+ * a referenceId to credit_tickets / spend_tickets — the RPC param is `uuid` typed,
+ * so a non-UUID string would crash with PostgreSQL 22P02 (Slice 038).
+ */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function sanitizeReferenceId(value: string | undefined, fnName: string): string | null {
+  if (value == null) return null;
+  if (UUID_RE.test(value)) return value;
+  console.warn(
+    `[Tickets] ${fnName}: referenceId "${value}" is not a UUID — dropping ` +
+      `to avoid PostgreSQL 22P02. Put non-UUID context in description instead.`,
+  );
+  return null;
+}
+
 // ============================================
 // Tickets Service
 // ============================================
@@ -48,7 +65,14 @@ export async function getTicketTransactions(userId: string, limit = 20, offset =
   return (data ?? []) as DbTicketTransaction[];
 }
 
-/** Credit tickets to a user via RPC */
+/**
+ * Credit tickets to a user via RPC.
+ *
+ * @param referenceId MUST be a UUID (FK to source-row, e.g. mission-id, post-id).
+ *   Non-UUID strings are silently dropped with a console.warn (Slice 038: Achievement-Hook
+ *   passed achievement-keys here, causing PostgreSQL 22P02). For non-UUID context,
+ *   put the value in `description` instead.
+ */
 export async function creditTickets(
   userId: string,
   amount: number,
@@ -60,7 +84,7 @@ export async function creditTickets(
     p_user_id: userId,
     p_amount: amount,
     p_source: source,
-    p_reference_id: referenceId ?? null,
+    p_reference_id: sanitizeReferenceId(referenceId, 'creditTickets'),
     p_description: description ?? null,
   });
 
@@ -78,7 +102,7 @@ export async function creditTickets(
   return { ok: true, newBalance: result.new_balance };
 }
 
-/** Spend tickets from a user's balance via RPC */
+/** Spend tickets from a user's balance via RPC. See creditTickets JSDoc re referenceId. */
 export async function spendTickets(
   userId: string,
   amount: number,
@@ -90,7 +114,7 @@ export async function spendTickets(
     p_user_id: userId,
     p_amount: amount,
     p_source: source,
-    p_reference_id: referenceId ?? null,
+    p_reference_id: sanitizeReferenceId(referenceId, 'spendTickets'),
     p_description: description ?? null,
   });
 

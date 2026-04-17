@@ -1,0 +1,17 @@
+Slice 038 — TSC + Vitest
+
+# TSC
+$ npx tsc --noEmit
+(no output, exit 0)
+→ CLEAN
+
+# Tickets-Service-Tests (incl. neuer Drift-Lock)
+$ npx vitest run src/lib/services/__tests__/tickets.test.ts
+Test Files  1 passed (1)
+Tests       16 passed (16)
+
+# Vollstaendige Services-Suite
+$ npx vitest run src/lib/services
+Test Files  40 passed (40)
+Tests       987 passed (987)
+Duration    41.90s

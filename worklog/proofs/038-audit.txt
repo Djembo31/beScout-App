@@ -1,0 +1,51 @@
+Slice 038 — Audit alle creditTickets-Aufrufer
+================================================
+
+# Grep
+$ rg "creditTickets\(" src/
+
+src/lib/services/social.ts:522
+  → creditTickets(userId, ticketAmount, 'achievement', key).catch(console.error)
+  → key = ACHIEVEMENT-KEY (z.B. 'first_trade', 'event_winner') ❌ NICHT UUID
+  → STATUS: gefixt (key in description, reference_id null)
+
+src/lib/services/research.ts:225
+  → creditTickets(params.userId, 10, 'research_publish', data.id).catch(console.error)
+  → data.id = research_post UUID ✓ SAFE
+
+src/lib/services/research.ts:366
+  → creditTickets(post.user_id, 5, 'research_rating', researchId, 'Rating 4.0+ received')
+  → researchId = research_post UUID ✓ SAFE
+
+src/lib/services/posts.ts:158
+  → creditTickets(userId, 3, 'post_create', data.id).catch(console.error)
+  → data.id = post UUID ✓ SAFE
+
+src/lib/services/missions.ts:153
+  → creditTickets(userId, ticketAmount, 'mission', missionId).catch(console.error)
+  → missionId = user_mission UUID ✓ SAFE
+
+src/lib/services/streaks.ts:22
+  → creditTickets(userId, benefits.dailyTickets, 'daily_login').catch(console.error)
+  → KEIN referenceId (default null) ✓ SAFE
+
+# RPC-Signatur (credit_tickets)
+p_user_id uuid, p_amount bigint, p_source text,
+p_reference_id uuid DEFAULT NULL,
+p_description text DEFAULT NULL
+
+# Hardening
+src/lib/services/tickets.ts:
+  - sanitizeReferenceId() helper introduced
+  - UUID_RE regex check vor RPC-Call
+  - Non-UUID strings → NULL + console.warn (statt 22P02 crash)
+  - Gilt auch fuer spendTickets
+
+# Test-Lock
+src/lib/services/__tests__/tickets.test.ts:
+  - "drops non-UUID referenceId with warning (Slice 038 drift-lock)"
+  - Verriegelt gegen Regression auf social.ts oder neue Caller
+
+# Verdikt
+Nur 1 Drift-Site existierte. Lokal gefixt + Service-Layer gehaerted +
+Test-Lock + JSDoc-Kommentar fuer zukuenftige Caller.
