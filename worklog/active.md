@@ -1,29 +1,32 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-started: —
+status: build
+slice: 034-buy-player-sc-transactions-type-fix
+stage: BUILD
+spec: worklog/specs/034-buy-player-sc-transactions-type-fix.md
+impact: inline (DB-Audit done, 1 RPC + INV-30 Test scope)
+proof: worklog/proofs/034-* (in Arbeit)
+started: 2026-04-17
 ```
 
 ## Aktuelle Aufgabe
 
-Keine aktive Arbeit.
+P0 Migration: `buy_player_sc` schreibt `transactions.type='buy'/'sell'` statt
+`'trade_buy'/'trade_sell'` → CHECK violation → Buy live tot.
 
-## Pipeline (priorisiert nach Slice 032 Flow-5 Findings)
+Plus: INV-30 Audit-Helper-RPC + Drift-Test der ALLE 7 weiteren Drift-RPCs
+(Slice 037 Followup) automatisch findet.
 
-| # | Titel | Typ | Status |
-|---|-------|-----|--------|
-| 034 | buy_player_sc transactions.type 'buy'→'trade_buy' | P0 Migration + Audit | next |
-| 035 | trg trade_refresh auth_uid_mismatch (Trigger-Body-Fix) | P0 Trigger-Analyse | nach 034 |
-| 036 | sync_event_statuses permission denied | P1 Grant-Fix | nach 035 |
-| 032b | Phase 7 Mutating-Flows (5/6/7/10) fortsetzen | E2E-Verify | nach 034+035 |
+## Pipeline
 
-Starte mit: `/ship new "034 buy_player_sc transactions.type fix"`.
+| # | Titel | Status |
+|---|-------|--------|
+| 034 | buy_player_sc transactions.type fix | active |
+| 035 | trg trade_refresh auth_uid_mismatch | next |
+| 036 | sync_event_statuses permission denied | nach 035 |
+| 037 | 7 weitere transactions-type-Drifts | nach 036 (INV-30 zeigt sie auf) |
+| 032b | Phase 7 Mutating-Flows fortsetzen | nach 035 |
 
 ## Regeln
 

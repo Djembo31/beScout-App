@@ -1,0 +1,32 @@
+Slice 034 — buy_player_sc body AFTER fix (verified via pg_get_functiondef)
+============================================================================
+
+Migration applied: 20260417160000_buy_player_sc_transactions_type_fix
+Audit-helper applied: 20260417160100_get_rpc_transaction_inserts
+
+# Body-check (after migration)
+SQL:
+  SELECT
+    pg_get_functiondef(oid) ~ E'''trade_buy''' AS has_trade_buy,
+    pg_get_functiondef(oid) ~ E'''trade_sell''' AS has_trade_sell,
+    pg_get_functiondef(oid) ~ E'''buy'',\\s' AS has_old_buy,
+    pg_get_functiondef(oid) ~ E'''sell'',\\s' AS has_old_sell
+  FROM pg_proc WHERE proname='buy_player_sc' AND pronamespace='public'::regnamespace;
+
+Result:
+  has_trade_buy   = true   ✓
+  has_trade_sell  = true   ✓
+  has_old_buy     = false  ✓
+  has_old_sell    = false  ✓
+
+# get_rpc_transaction_inserts() returns for buy_player_sc:
+"INSERT INTO transactions (user_id, type, amount, balance_after, reference_id, description) VALUES
+    (p_user_id, 'trade_buy', -v_total_cost, v_new_balance, v_trade_id,
+     'Kauf: ' || p_quantity || 'x ' || v_player.first_name || ' ' || v_player.last_name),
+    (v_order.user_id, 'trade_sell', v_seller_proceeds, v_seller_balance, v_trade_id,
+     'Verkauf: ' || p_quantity || 'x ' || v_player.first_name || ' ' || v_player.last_name);"
+
+# AR-44 grants
+REVOKE EXECUTE FROM PUBLIC ✓
+REVOKE EXECUTE FROM anon  ✓
+GRANT EXECUTE TO authenticated ✓

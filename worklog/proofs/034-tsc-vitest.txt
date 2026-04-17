@@ -1,0 +1,21 @@
+Slice 034 — TSC + Vitest Verify
+================================
+
+# TSC
+$ npx tsc --noEmit
+(no output, exit 0)
+→ CLEAN
+
+# DB-Invariants (incl. neue INV-30)
+$ npx vitest run src/lib/__tests__/db-invariants.test.ts
+
+Test Files  1 passed (1)
+Tests       28 passed (28)
+Duration    20.41s
+
+# Trading + Market Regression
+$ npx vitest run src/features/market src/lib/services/__tests__/trading.test.ts
+
+Test Files  10 passed (10)
+Tests       181 passed (181)
+Duration    16.76s

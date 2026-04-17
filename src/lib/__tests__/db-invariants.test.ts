@@ -1323,4 +1323,141 @@ describe('DB Invariants', () => {
     expect(body, 'existing insufficient_sc check removed').toContain("'insufficient_sc'");
     expect(body, 'existing event_not_found check removed').toContain("'event_not_found'");
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-30: transactions.type drift in RPC bodies vs CHECK constraint
+  // ─────────────────────────────────────────────────────
+  // Slice 034 entdeckte buy_player_sc schrieb 'buy'/'sell' obwohl CHECK
+  // 'trade_buy'/'trade_sell' erwartet → live HTTP 400 Crash, Buy ist tot.
+  //
+  // Dieser Invariant scannt alle RPC-Bodies via get_rpc_transaction_inserts(),
+  // extrahiert die type-Position der VALUES-Tuple aus der Spaltenliste, gleicht
+  // gegen den CHECK-Constraint ab und meldet jeden Drift.
+  //
+  // ALLOWLIST_KNOWN_DRIFTS: dokumentiert Slice-037-Followups, damit der Test
+  // jetzt nicht rot ist aber nicht vergisst dass diese RPCs noch fixen muessen.
+  // Wenn alle Slice-037-Drifts gefixt sind, ist die Allowlist leer.
+  it('INV-30: RPC bodies use only valid transactions.type values (Slice 034 fixed buy_player_sc; 7 Slice-037 followups allowlisted)', async () => {
+    const { data: checkValues, error: checkErr } = await sb.rpc('get_check_enum_values', {
+      p_constraint_name: 'transactions_type_check',
+    });
+    expect(checkErr, `get_check_enum_values failed: ${checkErr?.message}`).toBeNull();
+    const validTypes = new Set<string>((checkValues as string[]) ?? []);
+
+    const { data: snippets, error: snipErr } = await sb.rpc('get_rpc_transaction_inserts');
+    expect(snipErr, `get_rpc_transaction_inserts failed: ${snipErr?.message}`).toBeNull();
+    expect(snippets, 'no snippets returned').toBeTruthy();
+
+    // Allowlist of known-bad RPC/type pairs documented in Slice 034 spec.
+    // Each line = "<rpc_name>:<bad_type>" — Slice 037 will remove them one by one.
+    const ALLOWLIST_KNOWN_DRIFTS = new Set<string>([
+      'cast_community_poll_vote:poll_earning',     // CHECK has 'poll_earn'
+      'cast_vote:vote_fee',                         // not in CHECK
+      'unlock_research:research_earning',           // CHECK has 'research_earn'
+      'calculate_ad_revenue_share:ad_revenue_payout',     // not in CHECK
+      'calculate_creator_fund_payout:creator_fund_payout', // not in CHECK
+      'rpc_cancel_event_entries:event_entry_unlock',       // not in CHECK
+      'rpc_unlock_event_entry:event_entry_unlock',         // not in CHECK
+      'subscribe_to_scout:scout_subscription',             // not in CHECK
+      'subscribe_to_scout:scout_subscription_earning',     // not in CHECK
+    ]);
+
+    type Snip = { rpc_name: string; snippet: string };
+    const drifts: string[] = [];
+
+    // Helper: find first ';' OUTSIDE single-quoted strings — stop snippet there
+    function trimAtFirstStmtEnd(s: string): string {
+      let inStr = false;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (ch === "'" && s[i - 1] !== '\\') inStr = !inStr;
+        if (ch === ';' && !inStr) return s.slice(0, i + 1);
+      }
+      return s;
+    }
+
+    for (const rawRow of (snippets as Snip[]) ?? []) {
+      const row = { rpc_name: rawRow.rpc_name, snippet: trimAtFirstStmtEnd(rawRow.snippet) };
+      // Extract column list to find type-position. Column list looks like:
+      //   INSERT INTO transactions (user_id, type, amount, ...)
+      const colMatch = row.snippet.match(/transactions\s*\(([^)]+)\)/i);
+      if (!colMatch) continue;
+      const cols = colMatch[1].split(',').map((c) => c.trim().toLowerCase());
+      const typeIdx = cols.indexOf('type');
+      if (typeIdx < 0) continue;
+
+      // Extract VALUES tuples — match (...) groups after VALUES.
+      // Tuples may contain quoted strings, function calls, expressions.
+      // Simple split on top-level commas via tracking parens.
+      const valuesPart = row.snippet.slice(row.snippet.toUpperCase().indexOf('VALUES'));
+      // Find each top-level (...) block
+      const tuples: string[] = [];
+      let depth = 0;
+      let buf = '';
+      let inStr = false;
+      for (let i = 0; i < valuesPart.length; i++) {
+        const ch = valuesPart[i];
+        if (ch === "'" && valuesPart[i - 1] !== '\\') inStr = !inStr;
+        if (!inStr) {
+          if (ch === '(') {
+            if (depth === 0) buf = '';
+            depth++;
+            continue;
+          }
+          if (ch === ')') {
+            depth--;
+            if (depth === 0) tuples.push(buf);
+            continue;
+          }
+        }
+        if (depth > 0) buf += ch;
+      }
+
+      for (const tuple of tuples) {
+        // Split tuple on top-level commas
+        const fields: string[] = [];
+        let fbuf = '';
+        let fdepth = 0;
+        let fstr = false;
+        for (let i = 0; i < tuple.length; i++) {
+          const ch = tuple[i];
+          if (ch === "'" && tuple[i - 1] !== '\\') fstr = !fstr;
+          if (!fstr) {
+            if (ch === '(') fdepth++;
+            else if (ch === ')') fdepth--;
+            else if (ch === ',' && fdepth === 0) {
+              fields.push(fbuf.trim());
+              fbuf = '';
+              continue;
+            }
+          }
+          fbuf += ch;
+        }
+        if (fbuf.trim()) fields.push(fbuf.trim());
+
+        if (fields.length <= typeIdx) continue;
+        const typeField = fields[typeIdx];
+        // Match a single-quoted simple identifier (snake_case)
+        const litMatch = typeField.match(/^'([a-z_]+)'$/);
+        if (!litMatch) continue; // dynamic param like p_type — caller-validated
+
+        const typeValue = litMatch[1];
+        if (!validTypes.has(typeValue)) {
+          const key = `${row.rpc_name}:${typeValue}`;
+          if (!ALLOWLIST_KNOWN_DRIFTS.has(key)) {
+            drifts.push(`${row.rpc_name} writes type='${typeValue}' but CHECK does not allow it`);
+          }
+        }
+      }
+    }
+
+    if (drifts.length === 0) {
+      console.log(
+        `[INV-30] checked ${(snippets as Snip[]).length} INSERT-into-transactions snippets, ` +
+          `${ALLOWLIST_KNOWN_DRIFTS.size} known drifts allowlisted (Slice 037 followups), 0 unexpected violations`
+      );
+    }
+
+    expect(drifts, drifts.join('\n')).toHaveLength(0);
+  }, 30_000);
 });

@@ -1,0 +1,30 @@
+Slice 034 — INV-30 transaction.type drift detector
+====================================================
+
+# Test
+$ npx vitest run src/lib/__tests__/db-invariants.test.ts -t "INV-30"
+
+Test Files  1 passed (1)
+Tests       1 passed (1) | 27 skipped
+Duration    1.09s
+
+[INV-30] checked 30+ INSERT-into-transactions snippets, 9 known drifts allowlisted (Slice 037 followups), 0 unexpected violations
+
+# Allowlisted Slice-037-Followups (geplante Folge-Fixes)
+- cast_community_poll_vote: 'poll_earning'         → CHECK has 'poll_earn'
+- cast_vote: 'vote_fee'                              → not in CHECK
+- unlock_research: 'research_earning'               → CHECK has 'research_earn'
+- calculate_ad_revenue_share: 'ad_revenue_payout'  → not in CHECK
+- calculate_creator_fund_payout: 'creator_fund_payout' → not in CHECK
+- rpc_cancel_event_entries: 'event_entry_unlock'   → not in CHECK
+- rpc_unlock_event_entry: 'event_entry_unlock'     → not in CHECK
+- subscribe_to_scout: 'scout_subscription'         → not in CHECK
+- subscribe_to_scout: 'scout_subscription_earning' → not in CHECK
+
+# Full DB-invariants suite
+$ npx vitest run src/lib/__tests__/db-invariants.test.ts
+
+Test Files  1 passed (1)
+Tests       28 passed (28)
+
+→ INV-01 bis INV-30 alle gruen.
