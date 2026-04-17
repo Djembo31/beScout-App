@@ -24,7 +24,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/025-zombie-count.txt` (0 zombies before + after, 513 total holdings)
   - `worklog/proofs/025-tsc.txt` (clean)
   - `worklog/proofs/025-tests.txt` (db-invariants 27/27 inkl. INV-29)
-- Commit: <pending>
+- Commit: 95c498ae
 - Notes: CEO approved (b) Trigger-Approach 2026-04-17. Pre-Research ergab **briefing-Korrektur**: nur 3 decrement-RPCs betroffen (accept_offer, buy_from_order, buy_player_sc) — `buy_from_ipo` macht NUR Increment, war faelschlich in briefing. Zero Zombies live (513 holdings, alle qty>=1) → Slice ist reines Future-Proofing. Trigger-Approach statt 3x RPC-Patch: zero-touch auf kritische Money-RPCs, future-proof (neue Decrement-RPCs "just work"). CHECK (quantity >= 0) bleibt unveraendert — Trigger bridged UPDATE→DELETE atomisch. Smoke-Test gegen Live-DB bestaetigt Mechanismus (UUID `c8775934-c9ac-4048-b0c5-474021f2cdba` INSERT → UPDATE qty=0 → count=0 after). Trigger-Granularitaet: `AFTER UPDATE OF quantity` + `WHEN (NEW.quantity=0)` — feuert nur bei echten qty=0-Updates, keine Nebenwirkung auf andere UPDATEs (updated_at etc.). Rollback: `DROP TRIGGER + DROP FUNCTION` — seiteneffektfrei.
 
 ---
