@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/029-diff.txt` (NEW — diff stat)
 - Proofs:
   - `worklog/proofs/029-diff.txt` (2 Files, 185/-123 Zeilen)
-- Commit: <pending>
+- Commit: 0995ef08
 - Notes: Knowledge-Flywheel-Pflege nach 6 Slices (023-028). 5 neue Patterns in common-errors.md: (1) Server-Validation Pflicht fuer Money/Fantasy-RPCs (Slice 023), (2) pg_cron Wrapper-RPC Fail-Isolation per-Item BEGIN/EXCEPTION (Slice 024), (3) Holdings Zombie-Row Auto-Delete-Trigger als Alternative zu N RPC-Patches (Slice 025), (4) Transaction-Type → activityHelpers-Sync nach jedem neuen `INSERT INTO transactions` (Slice 027), (5) auth.users DELETE NO-ACTION-FK-Pre-Cleanup-Audit-Pattern via pg_constraint (Slice 028). Briefing-File komplett geupdated: B4/B5 gruen, alle CEO-FUs durch, Post-Deploy-Verify-Checklist (7 Punkte), Observations (Briefing-Self-Correction 2x in Session 4). Keine tsc/Test-Impact (pure doc). XS Slice analog 022/026.
 
 ---
