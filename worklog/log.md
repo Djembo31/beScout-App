@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 019 | 2026-04-17 | INV-26 qual=true Regression-Guard (AUTH-08 Klasse)
+- Stage-Chain: SPEC → IMPACT(inline — Pattern aus Slice 004/005 wiederverwendet) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417060000_audit_helper_rls_qual.sql` (NEW — `get_rls_policy_quals(p_tables text[])` SECURITY INVOKER Audit-RPC, AR-44 REVOKE/GRANT)
+  - `src/lib/__tests__/db-invariants.test.ts` (+ INV-26: scant 8 sensible Tabellen auf qual='true' / qual=NULL SELECT-Policies, EXPECTED_PERMISSIVE-Whitelist fuer intentionale public-policies)
+- Proofs:
+  - `worklog/proofs/019-diff.txt` (1 Migration + 1 Test-Block, 73 Zeilen)
+  - `worklog/proofs/019-tsc.txt` (clean)
+  - `worklog/proofs/019-tests.txt` (db-invariants 24/24 gruen inkl. INV-26)
+  - `worklog/proofs/019-rpc-sanity.txt` (RPC-Output: 14 Policies, 2 qual=true whitelisted, 0 violations)
+- Commit: TBD
+- **CEO-Aufmerksamkeit erforderlich:** INV-26 hat `orders.orders_select` mit `qual='true'` gefunden — gleiche AUTH-08-Klasse wie Slice 014 Holdings. Orderbook ist typisch public-by-design (Market-Maker), aber `user_id`-Exposure ist die Frage: (a) keep-public, in INV-26 EXPECTED_PERMISSIVE belassen. (b) Anonymize via handle-projection, neuer Slice mit RLS-Tighten + Service-Projection. Aktuell als TODO im Test whitelisted mit CEO-Decision-Kommentar — Test gruen, aber Fund dokumentiert.
+- Notes: Pattern etabliert (Slice 004 `get_rls_policy_coverage`, Slice 007 `get_rpc_jsonb_keys`, Slice 005 `get_auth_guard_audit`). INSERT-policies mit qual=NULL bewusst ignoriert (USING applies zu row-being-inserted, WITH CHECK restricts payload). `user_stats.Anyone can read stats` explicit in Whitelist (Leaderboard-Public-Design). Test scannt: holdings, transactions, ticket_transactions, activity_log, user_stats, wallets, orders, offers.
+
+---
+
 ## 018 | 2026-04-17 | Public-Profile Holdings Fetch-Gate (Slice 014 follow-up)
 - Stage-Chain: SPEC → IMPACT(inline, XS-Change) → BUILD → PROVE → LOG
 - Files:

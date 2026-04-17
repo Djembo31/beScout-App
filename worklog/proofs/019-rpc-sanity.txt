@@ -1,0 +1,25 @@
+-- SELECT * FROM public.get_rls_policy_quals(ARRAY['holdings','transactions','ticket_transactions','activity_log','user_stats','wallets','orders','offers']::text[])
+-- Applied: 2026-04-17 via mcp__supabase__apply_migration (project skzjfhvgccaeplydsunz)
+
+activity_log.Users insert own logs               INSERT  NULL
+activity_log.Users read feed activity of follow. SELECT  (user_id IN (SELECT following_id ...)) AND (action = ANY(ARRAY[...]))
+activity_log.Users read own logs                 SELECT  auth.uid() = user_id
+holdings.holdings_select_own_or_admin            SELECT  auth.uid() = user_id OR EXISTS (...club_admins...) OR EXISTS (...platform_admins...)
+offers.Users create offers                       INSERT  NULL
+offers.Users see relevant offers                 SELECT  auth.uid() = sender_id OR auth.uid() = receiver_id OR (receiver_id IS NULL AND status='pending')
+offers.Users update own offers                   UPDATE  auth.uid() = sender_id OR auth.uid() = receiver_id
+orders.orders_select                             SELECT  true                            <— permissive, CEO-TODO
+ticket_transactions.admins_select_all_ticket_txns SELECT EXISTS(admin-check)
+ticket_transactions.users_select_own_ticket_txns SELECT  user_id = auth.uid()
+transactions.transactions_select_own             SELECT  auth.uid() = user_id
+user_stats.Anyone can read stats                 SELECT  true                            <— whitelisted (leaderboard by design)
+wallets.wallets_insert                           INSERT  NULL
+wallets.wallets_select                           SELECT  auth.uid() = user_id
+
+Befund:
+- INV-26 scannt 14 Policies auf 8 sensiblen Tabellen
+- 2 Policies mit qual='true' gefunden:
+  * user_stats.Anyone can read stats        → EXPECTED_PERMISSIVE (Leaderboard-Design)
+  * orders.orders_select                    → EXPECTED_PERMISSIVE with TODO (CEO-Review pending)
+- 3 INSERT-Policies mit qual=NULL gefunden — bewusst ignoriert (INSERT USING applies to row-being-inserted, nicht SELECT-permission)
+- 0 unexpected violations → test PASS

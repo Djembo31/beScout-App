@@ -1143,4 +1143,68 @@ describe('DB Invariants', () => {
 
     expect(violations, violations.join('\n')).toHaveLength(0);
   }, 60_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-26: sensitive tables do not have unexpected qual='true' policies
+  // ─────────────────────────────────────────────────────
+  // AUTH-08-class regression-guard (Slice 014): qual='true' on a SELECT policy
+  // = permissive-for-all-authenticated = portfolio/financial/stat leak.
+  // Whitelist documents the *intentionally* public policies — anything else
+  // with qual='true' or qual=NULL on SENSITIVE_TABLES fails this test.
+  it('INV-26: sensitive tables have no unexpected qual=true policies (AUTH-08 class)', async () => {
+    const SENSITIVE_TABLES = [
+      'holdings',             // portfolio-privacy (Slice 014 fixed)
+      'transactions',         // financial-history-privacy
+      'ticket_transactions',  // ticket-history-privacy
+      'activity_log',         // social-graph-privacy
+      'user_stats',           // performance-privacy (but leaderboard is public-by-design)
+      'wallets',              // balance-privacy
+      'orders',               // trading-strategy-privacy (orderbook intent TBD CEO)
+      'offers',               // trading-strategy-privacy
+    ];
+
+    // Policies intentionally with qual='true' or qual=NULL (permissive-by-design).
+    // Format: `${table_name}.${policy_name}` with brief justification.
+    const EXPECTED_PERMISSIVE: Record<string, string> = {
+      'user_stats.Anyone can read stats': 'Leaderboard: all authenticated users need to read stats across the platform.',
+      // TODO CEO-decision: orders_select qual=true exposes user_id across the
+      // orderbook. Typical trading apps either (a) keep public (market-maker
+      // design) or (b) anonymize via handles. Option (b) would require a
+      // server-side projection. Flagged for review.
+      'orders.orders_select': 'Orderbook-public-by-design (pending CEO review — user_id currently exposed).',
+    };
+
+    const { data, error } = await sb.rpc('get_rls_policy_quals', { p_tables: SENSITIVE_TABLES });
+    expect(error, `RPC failed: ${error?.message}`).toBeNull();
+
+    const rows = (data ?? []) as Array<{ table_name: string; policy_name: string; cmd: string; qual: string | null }>;
+
+    const violations: string[] = [];
+    for (const r of rows) {
+      // NULL qual == no USING clause == permissive for all rows (same-class as qual='true').
+      const isPermissive = r.qual === 'true' || r.qual === null;
+      if (!isPermissive) continue;
+
+      // INSERT-only policies with NULL qual are fine — INSERT USING applies to
+      // row-being-inserted, and WITH CHECK normally restricts the payload.
+      // Flag SELECT/UPDATE/DELETE/ALL only.
+      if (r.cmd === 'INSERT') continue;
+
+      const key = `${r.table_name}.${r.policy_name}`;
+      if (EXPECTED_PERMISSIVE[key]) continue;
+
+      violations.push(
+        `${r.table_name}.${r.policy_name} (${r.cmd}) has permissive qual=${r.qual === null ? 'NULL' : "'true'"} — AUTH-08 class risk`
+      );
+    }
+
+    if (violations.length === 0) {
+      const flaggedCount = rows.filter((r) => (r.qual === 'true' || r.qual === null) && r.cmd !== 'INSERT').length;
+      console.log(
+        `[INV-26] checked ${SENSITIVE_TABLES.length} sensitive tables, ${rows.length} policies, ${flaggedCount} permissive (all whitelisted), 0 unexpected violations`
+      );
+    }
+
+    expect(violations, violations.join('\n')).toHaveLength(0);
+  }, 30_000);
 });
