@@ -19,7 +19,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/018-diff.txt` (1 Zeile)
   - `worklog/proofs/018-tsc.txt` (clean)
   - `worklog/proofs/018-tests.txt` (profile/**: 54/55 gruen, 1 skipped nicht-bezogen)
-- Commit: TBD
+- Commit: 0b087e32
 - Notes: CTO-autonomous Follow-Up zu Slice 014. Nach RLS-Tighten liefert `getHoldings(otherUserId)` auf Non-Admin-Public-Profile-Views immer `[]` — reine Network-Call-Verschwendung. Gate analog `getMyPayouts`-Pattern in derselben `Promise.allSettled`. Portfolio-Tab ist UI-seitig self-only laut profile.md — kein Verhaltensaenderung. Admin-Oversight ueber Admin-Panel, nicht Profile-Page (das war auch vor-014 der Fall, Regression neutral). Network-Savings: 1 Call pro Public-Profile-Visit.
 
 ---
