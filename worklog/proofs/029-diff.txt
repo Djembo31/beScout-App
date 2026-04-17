@@ -1,0 +1,30 @@
+-- Slice 029 — Doc-Refresh diff stat
+
+$ git diff --stat .claude/rules/common-errors.md memory/next-session-briefing-2026-04-18.md
+
+ .claude/rules/common-errors.md             |  88 ++++++++++++
+ memory/next-session-briefing-2026-04-18.md | 220 +++++++++++++----------------
+ 2 files changed, 185 insertions(+), 123 deletions(-)
+
+## common-errors.md (+88 Zeilen)
+
+5 neue Pattern-Sektionen appended (nach AR-42b Watchlist CLEARED):
+
+1. "Server-Validation Pflicht fuer Money/Fantasy-RPCs (Slice 023 B4)"
+2. "pg_cron Wrapper-RPC Fail-Isolation (Slice 024 B5)"
+3. "Holdings Zombie-Row Auto-Delete-Trigger (Slice 025)"
+4. "Transaction-Type → activityHelpers-Sync (Slice 027)"
+5. "auth.users DELETE NO-ACTION-FK-Pre-Cleanup (Slice 028)"
+
+Jede Sektion: Problem + Fix-Pattern + Audit-Signal + Regel.
+
+## next-session-briefing-2026-04-18.md (komplett-rewrite)
+
+Alter Stand: "B4 gelb, B5 gelb, 4 CEO-Follow-Ups offen"
+Neuer Stand: "Block B 5/5 gruen, alle CEO-FUs durch, 7 Slices dieser Session"
+
+- Slice-Tabelle 023-029 mit Commits
+- DB-Migrations-Liste (5 in Session 4)
+- Blocker-Status-Matrix (vor/nach)
+- Post-Deploy Verify-Checklist (7 Punkte)
+- Observations (Briefing-Self-Correction, Trigger-Pattern, Fail-Isolation)

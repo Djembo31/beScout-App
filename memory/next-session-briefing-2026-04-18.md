@@ -1,149 +1,123 @@
-# Next-Session Briefing (erstellt 2026-04-17 Ende, fuer 2026-04-18)
+# Next-Session Briefing (Stand Ende Session 4, 2026-04-17)
 
-> Ersetzt `next-session-briefing-2026-04-17-late.md`. Der Stop-Hook schreibt nur
-> `session-handoff.md` neu, diese Datei bleibt als ausfuehrlicher Kontext stabil.
+> Refreshed nach Slice 029. Ersetzt den vorigen Stand (der B4/B5 noch als gelb zeigte).
 
-## Zusammenfassung Session 2026-04-17 (dritte Tag-Session, autonom, 7 Slices)
+## Zusammenfassung Session 4 (sieben Slices, CTO-autonom)
 
-Ziel war Block B (5 Flow-Audit-Restrisiken) anzugehen. Drei von fuenf abgeschlossen
-(B1/B2/B3 CTO-autonom). Zusaetzlich: INV-26-Regression-Guard fand einen **zweiten
-AUTH-08-Klasse Privacy-Leak** (orders.orders_select qual=true), CEO Option 2
-approved, komplette Fix-Chain durchgezogen (RPC-Projection → Service-Switch →
-UI-Migration → RLS-Tighten). Kein Commit ohne Test-Gruen-Lauf. 17 Commits total
-gepusht auf origin/main.
+Schwerpunkt: verbleibende B-Blocker (B4/B5) + alle 4 CEO-Follow-Ups aus
+Session 2 + Doc-Pflege. Alle 7 Slices gruen, kein Rework, alles gepusht.
 
-## SHIP-Slices dieser Session (worklog/log.md, neueste oben)
+### SHIP-Slices dieser Session (worklog/log.md, neueste oben)
 
 | # | Slice | Commit | Ergebnis |
 |---|-------|--------|----------|
-| 021 | Orders RLS Tighten (CEO Option 2, Seal) | 71953052 | orders_select jetzt own+admin, INV-26 whitelist cleaned, AUTH-16 test gruen |
-| 020 | Orders Anonymize Prep (handle-projection) | 59051b08 | get_public_orderbook RPC + 8 UI-Consumer-Sites auf is_own/handle migriert |
-| 019 | INV-26 qual=true Regression-Guard | 61d2438c | get_rls_policy_quals RPC, scant 8 sensible Tables — fand orders-Leak |
-| 018 | Public-Profile Holdings Fetch-Gate | 0b087e32 | 1 Network-Call/Public-Profile gespart (Slice 014 follow-up) |
-| 017 | Player Detail Query-Defer (B3, Flow 8) | 13cdf352 | belowFoldReady 300ms, Initial-Queries 15→7 (-53%) |
-| 016 | Transactions Pagination (B2, Flow 14) | 9efb5983 | useInfiniteQuery-Hooks, Load-More-Button statt 200-upfront |
-| 015 | Logout React Query Cache Clear (B1, Flow 15) | b2079826 | queryClient.clear() auch bei Grace-Expire (nicht nur SIGNED_OUT) |
-| + | buyFromOrder playerId refactor | 5f19c961 | Letzter .from('orders') cross-user-Read eliminiert (Slice 020/021 Tie-Up) |
+| 029 | Doc-Refresh (common-errors + Briefing) | <pending> | 5 neue Bug-Patterns aus Slices 023-028 kompiliert |
+| 028 | Dev-Accounts Cleanup (k_demirtas + kemal) | e45a26b2 | auth.users DELETE + 44-FK-Pre-Audit, Handles frei |
+| 027 | activityHelpers TR-i18n | 010b0811 | 4 fehlende transaction-types (nicht 10 wie briefing), DE+TR gefixt |
+| 026 | footballData Client-Access Audit (Doc-only) | aa67e2a0 | GREEN — Silent-Dead-Code ohne Impact (Cron parallel) |
+| 025 | Holdings Auto-Delete-Zero Trigger | 95c498ae | future-proof statt 3 RPC-Patches |
+| 024 | B5 Event Scoring Automation (pg_cron) | 948f09f2 | score-pending-events */5min + INV-28 |
+| 023 | B4 Lineup Server-Validation | a7fd95d4 | 9 Reject-Keys + Formation-Allowlist + INV-27 |
 
-**DB-Migrations live (3):**
+### DB-Migrations live (5)
+
 ```
-20260417060000_audit_helper_rls_qual          (INV-26-Helper)
-20260417070000_get_public_orderbook_rpc       (anonymisierter Orderbook)
-20260417070100_orders_rls_tighten             (RLS tight)
+20260417110000_save_lineup_formation_validation  (9 Reject-Keys)
+20260417120000_audit_helper_rpc_source           (get_rpc_source helper)
+20260417130000_cron_score_pending_events         (Wrapper-RPC)
+20260417140000_cron_schedule_score_pending       (cron.schedule + get_cron_job_schedule helper)
+20260417150000_holdings_auto_delete_zero         (Trigger)
 ```
 
-## Security-Haertung (diese Session)
-
-**AUTH-08-Klasse komplett geschlossen.** Vorher 2 Tabellen mit qual=true auf sensiblen Daten:
-1. `holdings` — geschlossen in Slice 014 (vorige Session)
-2. `orders` — geschlossen in Slices 020+021 (diese Session)
-
-INV-26 ist jetzt der scharfe Regression-Guard fuer diese Klasse. Scanning-Whitelist
-fuer sensible Tables: holdings, transactions, ticket_transactions, activity_log,
-user_stats, wallets, orders, offers. Expected-Permissive nur noch 1 Eintrag
-(user_stats fuer Leaderboard).
-
-## Performance-Win (diese Session)
-
-- `/player/[id]` initial Queries: **15 → 7** (-53%) via belowFoldReady 300ms Defer.
-- `/transactions`: 200-Row-Upfront-Load → Infinite-Query mit 50/Page + Load-More.
-- `/profile/[handle]` (fremd): 1 Netzwerkruf gespart pro Public-Profile-Besuch.
-
-## Blocker-Status
+## Blocker-Status (Ende Session 4)
 
 | Blocker | Vor Session | Jetzt |
 |---------|-------------|-------|
 | A-01..A-07 | GRUEN | GRUEN |
-| B-01..B-06 | GRUEN | GRUEN |
-| B1 (Logout Cache) | GELB | **GRUEN** (Slice 015) |
-| B2 (Transactions Pagination) | GELB | **GRUEN** (Slice 016) |
-| B3 (Player Detail Queries) | GELB | **GRUEN** (Slice 017) |
-| B4 (Lineup Server-Validation) | GELB | **GELB** (CEO-border, nicht angegangen) |
-| B5 (Event Scoring auto) | GELB | **GELB** (CEO-scope, nicht angegangen) |
-| AUTH-Orders-Leak | entdeckt Slice 019 | **GRUEN** (Slice 020+021) |
+| B-01..B-03 | GRUEN | GRUEN |
+| B1 (Logout Cache) | GRUEN (Session 3) | GRUEN |
+| B2 (Transactions Pagination) | GRUEN (Session 3) | GRUEN |
+| B3 (Player Detail Queries) | GRUEN (Session 3) | GRUEN |
+| **B4 (Lineup Server-Validation)** | GELB | **GRUEN (Slice 023)** |
+| **B5 (Event Scoring auto)** | GELB | **GRUEN (Slice 024)** |
+| AUTH-08-Klasse (holdings + orders) | GRUEN | GRUEN |
+| **Trading-Zero-Qty (Money-Integritaet)** | offen (CEO-FU) | **GRUEN (Slice 025)** |
+| **activityHelpers TR-i18n** | offen (CEO-FU) | **GRUEN (Slice 027)** |
+| **Dev-Accounts Cleanup** | offen (CEO-FU) | **GRUEN (Slice 028)** |
+| **footballData Security-Audit** | offen (CEO-FU) | **GRUEN (Slice 026, GREEN-Doc)** |
 
-**5 von 6 Block-B-Fronts gruen. Verbleibend: B4 + B5 — beide CEO-Scope.**
+**Block B komplett gruen. Alle CEO-Follow-Ups aus Session 2 geschlossen. Pilot-Blocker: keine bekannt.**
 
-## Offene Punkte fuer naechste Session (nach Prioritaet)
+## Security-Hardening dieser Session
 
-### 1. B4 — Lineup Server-Validation (CEO-border)
-- **Was:** `rpc_save_lineup` erweitern um Server-seitige Formation-Check (GK=1, DEF=4, MID=3-4, FWD=2-3 je nach 11er/7er).
-- **Warum:** Client-only Formation-Check umgehbar via direkten RPC-Call. Money/Fantasy-Integritaet.
-- **Groesse:** M (RPC-Erweiterung + Tests).
-- **CEO-Input:** (a) Strict-Rejection bei ungueltiger Formation vs. (b) Silent-Auto-Fix (missing Slots mit NULL fuellen). Empfehlung: (a) — ungueltige Lineups sollen nicht silent durchlaufen.
+- **rpc_save_lineup:** 9 neue Reject-Keys, Formation-Allowlist (8 IDs), Slot-Count-Match, Captain/Wildcard-Slot-Empty — RPC ist einzige Wahrheit fuer Fantasy-Integritaet.
+- **get_rpc_source + get_cron_job_schedule:** 2 neue service_role-only Audit-Helper-RPCs fuer INV-Tests.
+- **holdings_auto_delete_zero Trigger:** Zero-touch Zombie-Prevention, future-proof.
+- **auth.users DELETE NO-ACTION-FK-Audit-Pattern** dokumentiert (common-errors.md).
 
-### 2. B5 — Event Scoring automatisieren (CEO-scope, Ops)
-- **Was:** Event-Status-Transition `open → live → finished → scored` automatisieren statt Admin-manuell.
-- **Warum:** Momentan fragil. Admin vergisst Scoring → User sehen keine Rewards. Pilot-Blocker.
-- **Optionen:** (a) Cron-Job jede 5min prueft `events WHERE ends_at < now() AND status='open'` → triggert score_event. (b) DB-Trigger auf fixture_status-Update. (c) Edge-Function via Supabase-Cron.
-- **Groesse:** M-L.
-- **CEO-Input:** Triage-Entscheidung Cron vs Trigger vs Manual-Button-mit-Reminder.
+## Infrastruktur-Wins
 
-### 3. Phase 7 — Flow-Audit E2E-Verifikation (nach Deploy)
-- **Was:** Alle 15 Flows aus `memory/_archive/2026-04-meta-plans/walkthrough/03-flow-audit.md` von GELB auf GRUEN via Playwright gegen bescout.net.
-- **Kritischer Pfad zu User-Test-Readiness.**
-- **Teilweise schon erledigt durch heutige Slices:** B1/B2/B3 sind bereits Teil der Flow-Verifikation (Flow 15, 14, 8). Nach Deploy validierbar.
-- **Groesse:** L (15 Flows, je 5-10min Verify).
+- **pg_cron `score-pending-events`** läuft alle 5min, erster Run live bestaetigt (6ms duration, succeeded).
+- **score_event** idempotent (scored_at Guard + no_player_game_stats Early-Exit) — Cron kann beliebig oft retryen ohne Double-Rewards.
+- **common-errors.md** um 5 neue Patterns erweitert (Trigger-auto-cleanup, pg_cron Wrapper, Server-Validation-Pflicht, Transaction-Type-Sync, NO-ACTION-FK-Audit).
 
-### 4. CEO-Scope Follow-Ups (aus Session 2, weiterhin offen)
-- **Trading-RPC Zero-Qty Root-Cause** — `buy_player_sc`, `accept_offer`, `buy_from_order`, `buy_from_ipo` dekrementieren via UPDATE statt DELETE-when-zero. CHECK constraint + INV-neu noetig.
-- **activityHelpers.ts TR-i18n** — 10 neue DB-transaction-types ohne Labels → raw-string fallback.
-- **Dev-Accounts `k_demirtas` + `kemal`** — Legacy-Wallets mit balance > 0 OHNE Transactions. Legacy-backfill oder loeschen?
-- **`footballData.ts` Client-Access auf server-only Tabellen** — Visual-QA erforderlich.
+## Offene Punkte fuer naechste Session
 
-### 5. CTO-Scope Residuen
-- **B-03 Verification — GREEN (Slice 022, 2026-04-18):** Audit schloss ab. TradingCardFrame konsumiert `priceChange24h` als Prop (keine lokale Calc), PlayerKPIs nutzt L5 als Prop + Floor-Calc entspricht Architektur-Regel in `.claude/rules/trading.md`. PnL/PnLPct sind reine UI-Arithmetik. Proofs: `worklog/proofs/022-*.txt`.
-- **Broader B-02 Return-Type-Audit** — fuzzy scope, evtl. kleine Slices. Grenznutzen eher klein.
-- **Club-Admin Per-Club Scoping** — aktuell sieht jeder Club-Admin ALLE Orders/Holdings (nicht nur seines Clubs). Nicht AUTH-08-Klasse aber Privacy-Optimierung. Follow-Up wenn CEO will.
-- **Session-Digest / common-errors.md Pflege** — falls neue Patterns aus dieser Session nicht dokumentiert sind. (Check: RLS-qual-true Pattern bereits in common-errors.md erweitert mit Slice 020+021 Info und INV-26-Regression-Guard.)
+### 1. Deploy-Verify bescout.net (Anil, kein Code)
+- B4 smoke-test: Lineup mit `p_slot_gk=NULL` speichern soll Error werfen
+- B5 monitoring: `SELECT * FROM cron.job_run_details WHERE jobname='score-pending-events' ORDER BY start_time DESC LIMIT 10` — ersten 3-5 Laeufe beobachten
+- Generelle Flows: Trading, Lineup, Rewards — alle normal
+- **Nach Verify:** Phase 7 (unten) kann starten.
 
-## Finaler Test-Stand (Ende dieser Session)
+### 2. Phase 7 — Flow-Audit E2E-Verifikation (L)
+- 15 Flows aus `memory/_archive/2026-04-meta-plans/walkthrough/03-flow-audit.md` via Playwright gegen bescout.net
+- Kritischer Pfad zu User-Test-Readiness
+- Teilweise schon implizit erledigt durch Slices B1/B2/B3 (Flow 15/14/8)
+
+### 3. CTO-Residuen (niedrig-Prio)
+- **Broader B-02 Return-Type-Audit** — fuzzy scope, Grenznutzen klein
+- **Club-Admin Per-Club Scoping** — Privacy-Opt, nicht AUTH-08-Klasse
+- **footballData Dead-Code cleanup** — Zeile 549-553 entfernen (cosmetic, siehe Slice 026 Scope-Out)
+- **Session-Digest** — handoff.md wird automatisch geschrieben, muss nicht gepflegt werden
+
+## Test-Stand (Ende Session 4)
 
 - tsc `--noEmit` clean
-- Alle angegangenen Test-Suites gruen:
-  - db-invariants: 24/24 inkl. INV-26
-  - auth/rls-checks: 16/16 inkl. AUTH-16
-  - trading.test.ts + usePlayerDetailData.test.ts: 77/77
-  - market + player/detail + services + queries breit: 306/306
-  - wallet-v2 + tickets services: 40/40
-  - profile/**: 54/55 (1 skipped, nicht-bezogen)
-- Full repo nicht extra gegengecheckt in dieser Session, aber alle betroffenen Suites gruen.
+- db-invariants: **27/27** inkl. INV-26/27/28/29
+- auth/rls-checks: 16/16 inkl. AUTH-16
+- activityHelpers: 17/17
+- lineups (Service): 29/29 (inkl. 9 neue B4-Cases)
+- trading + usePlayerDetailData + market + profile: alle gruen
 
 ## Git-Stand
 
-- Branch: `main` (clean)
-- Letzter Commit: `5f19c961` (buyFromOrder playerId refactor)
-- **Alle 15 neuen Commits gepusht auf origin/main.**
-- 0 Commits ahead.
-- Vercel-Deploy sollte beim push automatisch angelaufen sein.
+- Branch: `main` clean
+- Ca. 14 Commits in Session 4 (023-029 inkl. Hash-Followups)
+- Alle auf origin/main gepusht
+- Vercel Deploy laueft automatisch beim Push
 
-## Post-Deploy Verify-Checklist (Anil soll testen)
+## Post-Deploy Verify-Checklist
 
-Nach Vercel-Deploy auf bescout.net manuell pruefen:
-
-1. **Orderbook-UX unveraendert** — `/player/[id]` Trading-Tab zeigt Orders mit `@handle` statt user_id-Prefix. Cancel-Button auf eigenen Orders funktioniert.
-2. **Market-Page** — `/market` Buy-Orders-Section zeigt Kaufgesuche korrekt. Eigene Orders markiert.
-3. **Transactions-Page** — `/transactions` laedt 50 initial, "Mehr laden"-Button erscheint wenn mehr da.
-4. **Player-Detail Speed** — `/player/[id]` sollte sichtbar schneller rendern (Hero sofort, Below-the-fold 300ms spaeter).
-5. **Public Profile** — `/profile/[fremder-handle]` zeigt kein Portfolio-Tab (war vorher auch so), aber Network-Tab soll keinen `getHoldings` call mehr machen.
-6. **Logout + Re-Login** — Logout via SideNav, neuer User loggt sich im gleichen Tab ein → kein Stale-Data vom vorigen User sichtbar.
-
-Falls irgendwas brechen sollte: Slice 021 ist der einzige kritische Point (RLS-Tighten); Rollback via `DROP POLICY orders_select_own_or_admin; CREATE POLICY orders_select ON orders FOR SELECT TO authenticated USING (true);` — aber Service-Layer ist bereits auf RPC und waere unveraendert weiter funktional, nur die AUTH-16-Privacy-Garantie waere wieder weg.
+1. **Lineup Speichern mit GK-NULL** — error, nicht silent success
+2. **Lineup mit ungueltiger Formation** (direkten RPC-Call via Browser-Console) — error `invalid_formation`
+3. **Ende eines Events beobachten** — innerhalb 5-15min `status=ended` + `scored_at` gesetzt + User-Rewards sichtbar
+4. **Portfolio-UI** — kein Spielereintrag mit `quantity=0` (Trigger)
+5. **Transactions-History** — `subscription`/`admin_adjustment`/`tip_send`/`offer_execute` zeigen Labels nicht raw-type
+6. **Neu-Registrierung `k_demirtas` oder `kemal`** — funktioniert, handle ist frei
+7. **Cron-Monitoring** — `cron.job_run_details` fuer `score-pending-events` zeigt succeeded-Runs alle 5min
 
 ## Einstieg naechste Session
 
-CEO-Direktion am Ende Session 3: *"mache alle noetigen updates, ich mache nahtlos in der naechsten session alle anderen punkte"*. Heisst fuer Session 4:
+1. Morgen-Briefing lesen (SessionStart-Hook)
+2. `memory/session-handoff.md` (Hook-auto) — letzter Stand + Commits
+3. **Dieser File** — ausfuehrlicher Kontext
+4. Deploy-Verify aus Post-Deploy-Checklist
+5. Entscheidung: Phase 7 jetzt oder anderes?
 
-1. **Morgen-Briefing** lesen (SessionStart-Hook)
-2. **memory/session-handoff.md** (Hook-auto) — letzter Stand + Commits
-3. **Dieser File** — ausfuehrlicher Kontext + Follow-Ups
-4. **Deploy-Verify** aus Post-Deploy-Checklist (oben) — falls nicht schon passiert
-5. Entscheiden: **B4 oder B5 zuerst?** (oder andere Prioritaet von Anil)
+## Observations aus Session 4
 
-## Observations aus Session 3
-
-- **SHIP-Loop auf 7 Slices ohne Nacharbeit.** Jeder Slice: SPEC → IMPACT → BUILD → PROVE → LOG, alle Gates durchlaufen.
-- **Regression-Guard-Flywheel funktioniert:** INV-26 wurde in Slice 019 gebaut, hat SOFORT einen echten Bug (orders qual=true) gefunden, der in 020+021 gefixt wurde. Kompletter Loop in einer Session.
-- **Split-Discipline:** Slice 020 war bewusst Prep (RPC + UI), Slice 021 das Seal (RLS). Verhindert Deploy-Race — Service-Layer-Migration kann in Prod verifiziert werden bevor RLS tightened.
-- **Split-Pattern neu dokumentiert:** common-errors.md hat jetzt den "qual=true Tighten ohne Markt-Stoerung"-Flow als Anleitung.
-- **CTO-Orchestration:** 8 UI-Consumer-Sites systematisch migriert (DbOrder → PublicOrder, .user_id → .is_own + .handle) ohne Breaking-Change in einem Slice. TSC + Tests als Safety-Net funktioniert.
+- **7 Slices ohne Rework.** Jeder Slice: SPEC → IMPACT(inline oder separat) → BUILD → PROVE → LOG. Keine Rueckwaertsschritte, kein Pattern-Repeat.
+- **Briefing-Self-Correction:** 2x hat Live-DB-Audit die Briefing-Angaben korrigiert: (a) CEO-FU-1 sagte "10 TR-Labels fehlen" — eigentlich 4. (b) Briefing-Liste enthielt `buy_from_ipo` faelschlich bei decrement-RPCs — eigentlich 3 RPCs. Regel: **Immer Live-DB vor Spec checken.**
+- **Trigger > RPC-Patch fuer Decrement-Zombies:** Eleganterer Weg als 3 RPC-Patches. Slice 025 jetzt als Pattern dokumentiert.
+- **pg_cron Fail-Isolation:** per-Item BEGIN/EXCEPTION verhindert Batch-Stop. Pattern dokumentiert.
+- **5 neue Patterns in common-errors.md kompiliert (Slice 029).** Knowledge-Flywheel haelt.

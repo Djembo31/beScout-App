@@ -198,3 +198,91 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Audit-Pattern:** `SELECT DISTINCT p.proname FROM pg_proc p JOIN pg_namespace n ON p.pronamespace=n.oid WHERE n.nspname='public' AND pg_get_functiondef(p.oid) ILIKE '%suspected_column%'` um cross-RPC-Hits zu finden.
 - **Fix-Migration-Verify:** `pg_get_functiondef(oid) ~ 'expected_pattern' AS correct, ~ 'buggy_pattern' AS bug` nach Apply.
 - **Watchlist (J5 Audit 2026-04-14, 2026-04-15 CLEARED):** Die 5 Verdächtigen (`adjust_user_wallet`, `claim_welcome_bonus`, `get_club_balance`, `request_club_withdrawal`, `send_tip`) haben `amount_cents` nur als Parameter-Name oder Column-Name anderer Tabellen (`welcome_bonus_claims.amount_cents`, `club_withdrawals.amount_cents`, `tips.amount_cents` — alle bestätigt). Alle transactions-INSERTs nutzen korrekt `(user_id, type, amount, balance_after, ...)`. Kein AR-42b-artiger Bug. Watchlist CLEARED.
+
+## Server-Validation Pflicht fuer Money/Fantasy-RPCs (2026-04-17 — Slice 023 B4)
+- Client-only Validation (Formation-Check, Slot-Count, GK-Required, Captain-Slot) ist **umgehbar via direkten RPC-Call**. Client-UX ist nicht die Wahrheit — RPC muss die einzige Quelle sein.
+- Konkreter Bug: `rpc_save_lineup` akzeptierte `p_formation='xxx-not-a-formation'` ungeprueft, schrieb es direkt in `lineups.formation`. Kein ACID-Guard fuer die Scoring-Logik die spaeter annimmt Formation sei in Allowlist.
+- Fix-Pattern: Im RPC-Body Stage-6.5 Block (zwischen v_all_slots-Build und teuren DB-Joins) folgende Checks hintereinander:
+  1. Formation-Allowlist (`TRIM(p_formation) = ANY(ARRAY['1-4-4-2', ...])`) — sonst `invalid_formation`
+  2. GK-Required (`p_slot_gk IS NULL` → `gk_required`)
+  3. Slot-Count-Match: `v_def_f != v_def_n` → `invalid_slot_count_def` (analog mid, att)
+  4. Extra-Slot-Check: `v_def_n < 4 AND p_slot_def4 IS NOT NULL` → `extra_slot_for_formation`
+  5. Captain/Wildcard-Slot-Empty-Check (CASE-Expression pro slot_key)
+- Reihenfolge wichtig: BILLIGE Early-Exits (Formation-String-Match, NULL-Checks) VOR teuren DB-Joins (insufficient_sc SELECT, salary_cap SELECT).
+- Audit via Body-Scan: `SELECT pg_get_functiondef(oid) ~ 'invalid_formation' AS ok FROM pg_proc WHERE proname = 'rpc_save_lineup'` — in INV-27 automatisiert (Slice 023).
+- Regel: **Jeder Money/Fantasy-RPC der Client-Inputs nutzt MUSS sie ALLE selbst validieren.** Annahme "Client hat's geprueft" = Security-Theater.
+
+## pg_cron Wrapper-RPC Fail-Isolation (2026-04-17 — Slice 024 B5)
+- Cron-Job der mehrere Items in einer Loop verarbeitet: **ein RAISE EXCEPTION auf Item #2 blockt den ganzen Batch** (ohne Isolation). Alle nachfolgenden Items werden nicht verarbeitet.
+- Fix-Pattern: `BEGIN ... EXCEPTION WHEN OTHERS THEN ... END` pro Item innerhalb der FOR-Loop:
+  ```sql
+  FOR v_item IN SELECT ... LOOP
+    BEGIN
+      v_result := public.target_rpc(v_item.id);
+      IF (v_result->>'success')::BOOLEAN THEN v_ok := v_ok + 1;
+      ELSE v_skipped := v_skipped + 1; v_errors := v_errors || jsonb_build_array(...); END IF;
+    EXCEPTION WHEN OTHERS THEN
+      v_errored := v_errored + 1;
+      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+        'item_id', v_item.id, 'reason', 'EXCEPTION: ' || SQLERRM
+      ));
+    END;
+  END LOOP;
+  ```
+- Return-Shape: `{success, scored, skipped, errored, errors, ran_at}` — erlaubt Monitoring via `cron.job_run_details` + zukuenftige Alert-Hooks auf `errored > 0`.
+- Safety-Bound: `LIMIT 50` im FOR-Loop verhindert runaway (falls Schedule-Drift viele Items aufstaut).
+- Audit: `SELECT * FROM cron.job_run_details WHERE jobname='X' ORDER BY start_time DESC LIMIT 10` — Laufzeit + status + return_message.
+- Regel: **Batch-Cron-RPCs brauchen per-Item-Try/Catch**. Keine "happy-path only"-Loops in Cron-Pfaden.
+
+## Holdings Zombie-Row Auto-Delete-Trigger (2026-04-17 — Slice 025)
+- RPCs wie `accept_offer`, `buy_from_order`, `buy_player_sc` decrementieren seller-holdings via `UPDATE holdings SET quantity = quantity - X`. Wenn `quantity` auf 0 faellt, bleibt Row als Zombie stehen. CHECK `(quantity >= 0)` erlaubt 0 — daher kein Automatischer Error.
+- Symptome: Portfolio-UI zeigt `0`-qty Eintraege; Aggregationen (SUM, COUNT DISTINCT) zaehlen leer-Holdings mit; neue Decrement-RPCs uebersehen den Pattern.
+- Fix-Ansatz-Vergleich:
+  - (a) Inline-RPC-Patch (3-4 Call-Sites UPDATE → UPDATE + DELETE-when-zero) — viel Code-Duplikation, fragil fuer zukuenftige RPCs.
+  - (b) **Trigger-Approach (BEST):** `AFTER UPDATE OF quantity ON holdings FOR EACH ROW WHEN (NEW.quantity = 0) EXECUTE FUNCTION delete_zero_qty_holding()` — zero-touch, future-proof.
+- Trigger-Body: `DELETE FROM public.holdings WHERE id = OLD.id; RETURN NULL;` — OLD.id ist in AFTER-Trigger verfuegbar.
+- Keine CHECK-Verschaerfung noetig: Trigger bridged UPDATE→DELETE atomisch innerhalb derselben Transaction. `CHECK (quantity >= 0)` bleibt.
+- Regel: **Bei Decrement-Patterns pruefen ob Trigger statt RPC-Patch die saubere Loesung ist.** Trigger = "Datenintegritaet automatisch"; RPC-Patch = "jeder neue Caller muss daran denken".
+- Audit: `SELECT tgname FROM pg_trigger WHERE tgrelid = 'public.holdings'::regclass AND tgisinternal = false` — neue Trigger sichtbar.
+
+## Transaction-Type → activityHelpers-Sync (2026-04-17 — Slice 027)
+- RPC schreibt neue `transactions.type` (z.B. `subscription`, `admin_adjustment`, `tip_send`, `offer_execute`) → User sieht **raw-string in Transactions-History-UI** (nicht lokalisiert).
+- Root-Cause: `src/lib/activityHelpers.ts` mapped type → i18n-Key. Neuer type nicht gemappt → `return type` Default gibt snake_case-String.
+- Audit-Query: `SELECT DISTINCT type, COUNT(*) FROM transactions GROUP BY type ORDER BY count DESC` vs. grep-Check der types in activityHelpers.ts:
+  ```sql
+  -- DB DISTINCT:
+  SELECT DISTINCT type FROM transactions;
+  ```
+  ```bash
+  # Code mapped:
+  grep "type === '" src/lib/activityHelpers.ts | grep -oP "'\K[^']+"
+  ```
+- Nach JEDEM RPC der `INSERT INTO transactions` macht: activityHelpers.ts pruefen + DE/TR-Labels ergaenzen (CEO-Gate per `feedback_tr_i18n_validation.md`).
+- **Slice 027-Fund (2026-04-17):** 4 types im Live-DB (`subscription`/`admin_adjustment`/`tip_send`/`offer_execute`) waren ungemappt. Briefing behauptete "10 Types fehlen" — war stale, nur 4 aktuell, andere bereits gefixt.
+- Regel: **Neue transaction.type-Schreiber triggern immer 3-File-Change:** activityHelpers.ts (icon+color+key) + messages/de.json + messages/tr.json.
+
+## auth.users DELETE NO-ACTION-FK-Pre-Cleanup (2026-04-17 — Slice 028)
+- `DELETE FROM auth.users WHERE id IN (...)` scheitert an NO-ACTION-FK-Constraints in anderen Tabellen (Postgres: `23503: violates foreign key constraint`). Die Standard-CASCADE-Tables (profiles, wallets, holdings) werden automatisch gecleant — die NO-ACTION-Tables nicht.
+- Bekannte NO-ACTION-Tables auf `auth.users`: `user_tickets`, `ticket_transactions`, `transactions`, `trades`, `events.created_by`, `ipo_purchases`, `mystery_box_results`, `welcome_bonus_claims`, `chip_usages`, `mentorships`, `community_poll_votes`, `verified_scouts`, `fan_rankings`, `user_cosmetics`, `user_daily_challenges`, `user_founding_passes`, `user_scout_missions`, `liquidation_events`, `liquidation_payouts`, `sponsors.created_by`, `fee_config.updated_by`, `club_votes.created_by`, `bounty_submissions.reviewed_by`, `player_valuations` (23 Tables, Stand 2026-04-17).
+- Pre-Audit-Pattern:
+  ```sql
+  -- 1. Liste NO-ACTION-FKs auf auth.users
+  SELECT nsp.nspname||'.'||cls.relname AS tbl, att.attname AS col,
+    CASE con.confdeltype WHEN 'a' THEN 'NO ACTION' ELSE 'other' END
+  FROM pg_constraint con JOIN pg_class cls ON con.conrelid=cls.oid
+  JOIN pg_namespace nsp ON cls.relnamespace=nsp.oid
+  JOIN pg_class ref_cls ON con.confrelid=ref_cls.oid
+  JOIN pg_namespace ref_nsp ON ref_cls.relnamespace=ref_nsp.oid
+  JOIN LATERAL unnest(con.conkey) WITH ORDINALITY ck(attnum, ord) ON TRUE
+  JOIN pg_attribute att ON att.attrelid=cls.oid AND att.attnum=ck.attnum
+  WHERE con.contype='f' AND ref_nsp.nspname='auth' AND ref_cls.relname='users'
+    AND con.confdeltype='a';
+
+  -- 2. Row-Counts fuer target-Users pro NO-ACTION-Table
+  SELECT 'user_tickets' AS tbl, COUNT(*) FROM user_tickets WHERE user_id IN (...)
+  UNION ALL ...;
+
+  -- 3. Wenn Rows vorhanden: vorher loeschen, dann auth.users DELETE
+  ```
+- Achtung: `information_schema.constraint_column_usage` liefert bei cross-schema-FKs (public → auth) KEINE Treffer. Immer `pg_constraint` direkt nutzen.
+- Regel: **Bevor User-Delete (DEV-Accounts, GDPR-Request, etc.): NO-ACTION-FK-Audit Pflicht.** Rollback nicht moeglich (auth.users mit hashed password nicht restorable ohne Backup).

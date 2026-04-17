@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 029 | 2026-04-17 | Doc-Refresh Session 4 (common-errors + Briefing)
+- Stage-Chain: SPEC → IMPACT(skipped — reine Doku) → BUILD(edit) → PROVE → LOG
+- Files:
+  - `.claude/rules/common-errors.md` (+88 Zeilen — 5 neue Pattern-Sektionen)
+  - `memory/next-session-briefing-2026-04-18.md` (komplett-Rewrite — aktueller Stand Ende Session 4)
+  - `worklog/specs/029-doc-refresh-session-4.md` (NEW)
+  - `worklog/proofs/029-diff.txt` (NEW — diff stat)
+- Proofs:
+  - `worklog/proofs/029-diff.txt` (2 Files, 185/-123 Zeilen)
+- Commit: <pending>
+- Notes: Knowledge-Flywheel-Pflege nach 6 Slices (023-028). 5 neue Patterns in common-errors.md: (1) Server-Validation Pflicht fuer Money/Fantasy-RPCs (Slice 023), (2) pg_cron Wrapper-RPC Fail-Isolation per-Item BEGIN/EXCEPTION (Slice 024), (3) Holdings Zombie-Row Auto-Delete-Trigger als Alternative zu N RPC-Patches (Slice 025), (4) Transaction-Type → activityHelpers-Sync nach jedem neuen `INSERT INTO transactions` (Slice 027), (5) auth.users DELETE NO-ACTION-FK-Pre-Cleanup-Audit-Pattern via pg_constraint (Slice 028). Briefing-File komplett geupdated: B4/B5 gruen, alle CEO-FUs durch, Post-Deploy-Verify-Checklist (7 Punkte), Observations (Briefing-Self-Correction 2x in Session 4). Keine tsc/Test-Impact (pure doc). XS Slice analog 022/026.
+
+---
+
 ## 028 | 2026-04-17 | Dev-Accounts Cleanup (k_demirtas + kemal)
 - Stage-Chain: SPEC → IMPACT(inline — FK-Audit + Row-Counts 44+ Tables) → BUILD(DELETE) → PROVE → LOG
 - Files:
