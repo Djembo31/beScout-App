@@ -18,7 +18,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Proofs:
   - `worklog/proofs/013-before-after.txt` (byte-diff target row + global count)
   - `worklog/proofs/013-tests.txt` (TURK-* Suite 10/10 gruen)
-- Commit: (pending)
+- Commit: 5b88ba3
 - Notes: 1 Row in NFD-dekomposierter Form gefixt. `T. İnce` (id=bb44cdb4-...) hatte `last_name` bytes `49 cc 87 6e 63 65` (`I` + U+0307 combining dot + `nce`) waehrend alle anderen İ-Spieler in NFC-Form sind (U+0130 single codepoint, bytes `c4 b0`). Test TURK-03 failed weil JS `String.prototype.includes('İ')` strict Codepoint-Compare ist — SQL `ILIKE` matched beide Formen bereits. Fix: `UPDATE players SET ... = normalize(x, NFC)` idempotent. Kein UX-Impact, nur byte-Kodierung geaendert. Scope-Out: Clubs/Profiles/Research etc. — keine Drift dort (TURK-06/TURK-07 gruen). Import-Path-Analyse nicht im Scope (einmalige Drift, 1 Row). NFC-CHECK-Constraint als Prevention falls Drift wiederkehrt, separater Slice.
 
 ---
