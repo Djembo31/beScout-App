@@ -11,13 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 058 | 2026-04-18 | P7-Rest Re-Verify auf bescout.net (Slices 044-057)
+- Stage-Chain: SPEC(inline) → BUILD(Playwright MCP) → PROVE → LOG
+- Files: `worklog/proofs/058-verify-report.md` + 3 Screenshots
+- Proof: **VERDICT GREEN** — 0 Regressions, 14 Slices live verified auf bescout.net. Notifications-Dropdown zeigt i18n-keys korrekt ("Aufstieg: Elite!" tierPromotionLevel + "Scout-Tipp... 10 Credits" tipReceivedNotif). 0 raw "Trader"/"BSD" user-facing. Player-Detail lädt mit pbt-authenticated-only policy (Slice 056). Profile + Market + Timeline alle 0 console-errors.
+- Commit: tba
+- Notes: Re-Verify-Slice nach 14 deployed Slices. Bestaetigt dass Slice 044-057 keine Regressions auf live verursacht haben. Nicht verifiziert: Mobile 393px, Club-Admin Revenue-Tab (jarvis-qa hat kein admin), Push-Notifications Empfang, echter TR-Locale-Switch — alle kosmetisch / Beta-Feature. **Pilot-Readiness: GREEN fuer alle heute implementierten Hardening-Slices.**
+
+---
+
 ## 057 | 2026-04-18 | notify_watchlist_price_change i18n — TR-Initiative 14/14 ✅
 - Stage-Chain: SPEC(inline) → IMPACT(schema-check) → BUILD → PROVE → LOG
 - Files:
   - `supabase/migrations/20260418200000_slice_057_notify_watchlist_price_change_i18n.sql` (NEW)
   - `messages/de.json`, `messages/tr.json` — +2 Keys (priceAlertDownBody, priceAlertUpBody für Resolver-Convention)
 - Proof: 14/14 notification-RPCs schreiben structured i18n (Query `body ~ 'i18n_key'`). DE+TR 4880 keys. tsc clean.
-- Commit: tba
+- Commit: 7f3cebbf
 - Notes: Ersetzt AR-59 async-client-resolve-Pattern. Trigger liest player_name direkt via NEW.first_name+last_name statt playerNameCache-client-roundtrip. DE-Fallback title+body gefuellt. Resolver-Convention braucht {key}Body — priceAlertDownBody/priceAlertUpBody als Duplikate von priceAlertBody hinzugefuegt. **TR-i18n Initiative abgeschlossen: 14/14 notification-RPCs migriert.**
 
 ---
