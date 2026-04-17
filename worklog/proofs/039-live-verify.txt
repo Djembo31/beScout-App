@@ -1,0 +1,22 @@
+Slice 039 — Live-Verify auf bescout.net (Post-Deploy)
+
+Deploy: e18b634d
+Verify-Time: 2026-04-17 16:13 UTC
+
+# Live-Buy
+- Click first Kaufen → BuyConfirmModal
+- Click Kaufen bestätigen
+- Buy executed
+
+# Console-Errors
+0 (vorher Slice 038-Verify: 7×409 user_achievements UNIQUE)
+
+→ Slice 039 upsert ignoreDuplicates wirkt.
+
+# DB Post-State
+balance: 722077 cents (= 7.220,77 CR; pre 749859, diff -27782)
+holdings: 12 (+1)
+last_tx_type: trade_buy ✓
+
+# Verdict
+GREEN. user_achievements 409-spam komplett weg. Achievement-Hook race-safe.

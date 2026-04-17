@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 039 | 2026-04-17 | user_achievements 409 race — upsert ignoreDuplicates
+- Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/services/social.ts` (insert → upsert+ignoreDuplicates)
+  - `worklog/specs/039-user-achievements-upsert-race.md` (NEW)
+  - `worklog/proofs/039-{fix,live-verify}.txt` (NEW)
+- Proof: `worklog/proofs/039-live-verify.txt` — Live-Buy auf bescout.net post-deploy: 0 console-errors (vorher 7×409 user_achievements UNIQUE in Slice 038 verify).
+- Commit: e18b634d
+- Notes: 5 Caller (trading×2, offers, ipo, useProfileData) fire checkAndUnlockAchievements parallel. Concurrent SELECT identisch → beide INSERT → 409. Fix: upsert mit `onConflict: 'user_id,achievement_key', ignoreDuplicates: true`. Race-loser hat data=null → kein Push in newUnlocks → Notification/Ticket-dedup automatisch. social-tests 37/37, tsc clean.
+
 ## 037 | 2026-04-17 | 8 transactions.type Drifts Cleanup — INV-30 Allowlist EMPTY
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
