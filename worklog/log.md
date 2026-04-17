@@ -22,7 +22,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/021-rls-after.txt` (nachher: auth.uid() = user_id OR admin-check)
   - `worklog/proofs/021-tsc.txt` (clean)
   - `worklog/proofs/021-tests.txt` (db-invariants 24/24 + auth/rls-checks 16/16, inkl. AUTH-16 new = 40 total)
-- Commit: TBD
+- Commit: 71953052
 - Notes: AUTH-08-Klasse vollstaendig geschlossen. Orderbook-UX weiterhin verfuegbar via `get_public_orderbook` RPC (Slice 020). Regulaere User sehen nur eigene Orders direct (Cancel-Button, social.ts:308 self-count). Club-Admin + Platform-Admin behalten Fan-Analytics-Zugriff via policy-branches — analog holdings_select_own_or_admin (Slice 014). INV-26 jetzt scharf ohne whitelist fuer orders. Kein Realtime-Publication fuer orders (pruefung via migrations-grep). Kein INSERT/UPDATE/DELETE Policy noetig — alle Mutationen via SECURITY DEFINER RPCs (place_sell_order, place_buy_order, buy_from_order, cancel_order).
 
 ---
