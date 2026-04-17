@@ -11,13 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 048 | 2026-04-18 | TR-i18n Notifications Foundation + reward_referral Pilot
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260418160000_slice_048_notifications_i18n_columns.sql` (NEW) — add i18n_key + i18n_params columns
+  - `supabase/migrations/20260418160100_slice_048_reward_referral_i18n.sql` (NEW) — Pilot RPC migriert
+  - `src/types/index.ts` — DbNotification + i18n_key + i18n_params
+  - `src/components/layout/NotificationDropdown.tsx` — resolveTitle/resolveBody generalisiert (if notif.i18n_key → tNotifTpl)
+  - `messages/de.json` + `messages/tr.json` — 4 neue notifTemplates keys (beide synchron 4852 keys)
+  - `worklog/specs/048-tr-i18n-notifications-foundation.md` + `worklog/proofs/048-schema-after.txt`
+- Proof: Schema deployed, reward_referral schreibt i18n_key+params (verifiziert via pg_get_functiondef). 31/31 INV-Tests gruen, NotificationDropdown test gruen, tsc clean.
+- Commit: tba
+- Notes: L-Slice gesplittet in 048 (Foundation + 1 Pilot) + 048b (Money-Path RPCs) + 048c (Social/Admin). Variante-2 Position #5/10. Backwards-compatible: title/body bleiben gefuellt als DE-Fallback, Client bevorzugt i18n_key wenn vorhanden. Erweitert bestehendes AR-59-Pattern (price_alert) auf generischen Key-Lookup.
+
+---
+
 ## 047 | 2026-04-18 | Historische Notifications Wording umschreiben
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD(data-migration) → PROVE → LOG
 - Files:
   - `supabase/migrations/20260418150000_slice_047_notifications_wording_rewrite.sql` (NEW) — 4 UPDATE statements
   - `worklog/specs/047-historische-notifications-wording.md`, `worklog/proofs/047-before-after.txt`
 - Proof: BEFORE 45 Trader + 3 BSD → AFTER 0/0. 52 Sammler + 5 Credits total. 263 Gesamt-Rows unveraendert.
-- Commit: tba
+- Commit: fc1124f6
 - Notes: XS-Slice Variante-2 #4/10. Komplementiert Slice 043 (RPC-Bodies gefixt). Migration idempotent via REPLACE + WHERE LIKE. Nicht-Scope: `message`-Column-Bug in accept_mentee/request_mentor-Bodies (diese RPCs haben im INSERT notifications-columns eine non-existing `message` col — aber die RPCs sind nicht live-callable, werden silent bei ersten Call fehlschlagen. Separater Slice 047b wenn ueberhaupt.).
 
 ---

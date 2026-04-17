@@ -15,7 +15,8 @@ started: —
 1. ~~044 — A-02 auth.uid() Body-Audit + INV-31~~ ✅ DONE 2026-04-18 (e96f34e1)
 2. ~~045 — A-03 RLS-Matrix komplett~~ ✅ DONE 2026-04-18 (42690cbc)
 3. ~~046 — A-04 Live-Ledger-Health Reconciliation + INV-33~~ ✅ DONE 2026-04-18 (c01c0691)
-4. ~~047 — Historische Notifications Wording~~ ✅ DONE 2026-04-18
+4. ~~047 — Historische Notifications Wording~~ ✅ DONE 2026-04-18 (fc1124f6)
+5. ~~048 — TR-i18n Notifications Foundation + reward_referral Pilot~~ ✅ DONE 2026-04-18 (Follow-Ups: 048b money-path RPCs, 048c social/admin)
 2. 045 — A-03 RLS-Matrix komplett (INV-26 erweitern)
 3. 046 — A-04 Live-Ledger-Health Query + INV-Test
 4. 047 — Historische Notifications umschreiben (XS)

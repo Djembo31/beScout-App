@@ -4720,7 +4720,11 @@
     "missionRewardBody": "Ödül olarak {amount} Credits aldın",
     "priceAlertDown": "Fiyat düştü",
     "priceAlertUp": "Fiyat yükseldi",
-    "priceAlertBody": "{playerName}: Taban fiyat değişti"
+    "priceAlertBody": "{playerName}: Taban fiyat değişti",
+    "referralRewardReferrer": "Referans Bonusu!",
+    "referralRewardReferrerBody": "@{refereeHandle} ilk işlemini yaptı – {amount} Credits kazandın!",
+    "referralRewardReferee": "Hoş Geldin Bonusu!",
+    "referralRewardRefereeBody": "İlk işlemin için {amount} Credits aldın! Seni davet eden: @{referrerHandle}"
   },
   "glossary": {
     "title": "Sözlük",

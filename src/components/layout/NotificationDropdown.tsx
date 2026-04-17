@@ -191,11 +191,20 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
   }, [notifications, playerNameCache]);
 
   /**
-   * Resolve title for notifications whose backend wrote an i18n KEY (not a literal string).
-   * Currently used for price_alert (AR-59) — Trigger writes 'priceAlertDown' / 'priceAlertUp'.
-   * Falls back to the raw title when key is unknown.
+   * Resolve title for notifications with i18n_key (Slice 048 structured pattern) or
+   * legacy AR-59 price_alert pattern (title=key-string). Fallback to raw title.
    */
   const resolveTitle = useCallback((notif: DbNotification): string => {
+    // Slice 048: Structured i18n via dedicated columns
+    if (notif.i18n_key) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return tNotifTpl(notif.i18n_key as any, (notif.i18n_params ?? {}) as any);
+      } catch {
+        return notif.title;
+      }
+    }
+    // Legacy AR-59 pattern (title-field holds key)
     if (notif.type === 'price_alert' && KNOWN_TITLE_KEYS.has(notif.title)) {
       return tNotifTpl(notif.title as 'priceAlertDown' | 'priceAlertUp');
     }
@@ -203,17 +212,26 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
   }, [tNotifTpl]);
 
   /**
-   * Resolve body for notifications whose backend left it NULL or wrote an i18n key.
-   * For price_alert we synthesize "Floor Price von {Player} hat sich geändert."
-   * using the cached player name (loaded async via useEffect above).
+   * Resolve body for notifications with i18n_key (Slice 048) or legacy AR-59
+   * price_alert body synthesis. Fallback to raw body.
    */
   const resolveBody = useCallback((notif: DbNotification): string | null => {
+    // Slice 048: Structured i18n — body key is {i18n_key}+'Body' convention
+    if (notif.i18n_key) {
+      const bodyKey = notif.i18n_key + 'Body';
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return tNotifTpl(bodyKey as any, (notif.i18n_params ?? {}) as any);
+      } catch {
+        return notif.body ?? null;
+      }
+    }
+    // Legacy AR-59 pattern
     if (notif.type === 'price_alert' && notif.reference_id) {
       const playerName = playerNameCache[notif.reference_id];
       if (playerName) {
         return tNotifTpl('priceAlertBody', { playerName });
       }
-      // Loading state — body is filled later when cache resolves.
       return null;
     }
     return notif.body ?? null;

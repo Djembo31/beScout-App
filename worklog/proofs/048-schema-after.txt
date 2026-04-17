@@ -1,0 +1,62 @@
+# Slice 048 — Schema After (2026-04-18)
+# Source: information_schema.columns via Supabase MCP
+
+# ============================================================
+# notifications Schema — neue Columns
+# ============================================================
+#
+# +---------------+----------+----------------+-------------+
+# | column_name   | data_type| column_default | is_nullable |
+# +---------------+----------+----------------+-------------+
+# | i18n_key      | text     | NULL           | YES         |
+# | i18n_params   | jsonb    | '{}'::jsonb    | NO          |
+# +---------------+----------+----------------+-------------+
+
+# ============================================================
+# reward_referral Body — schreibt i18n_key + i18n_params
+# ============================================================
+#
+# Verify-Query:
+#   SELECT pg_get_functiondef(p.oid) ~ 'i18n_key' AS writes_i18n_key,
+#          pg_get_functiondef(p.oid) ~ 'referralRewardReferrer' AS writes_referrer_key,
+#          pg_get_functiondef(p.oid) ~ 'referralRewardReferee' AS writes_referee_key
+#   FROM pg_proc WHERE proname='reward_referral';
+#
+# Output:
+#   +-----------------+---------------------+--------------------+
+#   | writes_i18n_key | writes_referrer_key | writes_referee_key |
+#   +-----------------+---------------------+--------------------+
+#   | true            | true                | true               |
+#   +-----------------+---------------------+--------------------+
+
+# ============================================================
+# Frontend Integration
+# ============================================================
+# src/types/index.ts:
+#   DbNotification erweitert um { i18n_key: string | null; i18n_params: Record<string, string | number> | null }
+#
+# src/components/layout/NotificationDropdown.tsx:
+#   resolveTitle/resolveBody generalisiert:
+#     if (notif.i18n_key) -> tNotifTpl(i18n_key, i18n_params)
+#     if (notif.i18n_key+'Body' existiert) -> tNotifTpl(i18n_key+'Body', i18n_params)
+#     try/catch fallback auf raw title/body bei unbekanntem Key
+#
+# messages/de.json + messages/tr.json:
+#   +4 keys: referralRewardReferrer / ReferrerBody / Referee / RefereeBody
+#   DE + TR identisch Key-Count (4852 each)
+
+# ============================================================
+# Test-Suite
+# ============================================================
+#   db-invariants.test.ts: 31/31 gruen (kein Regression)
+#   NotificationDropdown.test.tsx: 1/1 gruen
+#   tsc --noEmit: clean
+
+# ============================================================
+# Follow-Up-Slices (out-of-scope 048)
+# ============================================================
+#   048b: award_dimension_score, send_tip, calculate_ad_revenue_share, calculate_creator_fund_payout
+#         (Money-Path RPCs, hohere Prio da mehr User sehen)
+#   048c: accept_mentee, admin_delete_post, claim_scout_mission_reward, notify_watchlist_price_change,
+#         refresh_user_stats, request_mentor, subscribe_to_scout, sync_level_on_stats_update, verify_scout
+#         (Social/Admin RPCs)

@@ -1161,6 +1161,10 @@ export type DbNotification = {
   reference_type: string | null;
   read: boolean;
   created_at: string;
+  // Slice 048: Structured i18n. Wenn i18n_key gesetzt, nutzt Client tNotifTpl(key, params).
+  // Sonst fallback auf title/body (DE-Fallback).
+  i18n_key: string | null;
+  i18n_params: Record<string, string | number> | null;
 };
 
 export type NotificationCategory = 'trading' | 'offers' | 'fantasy' | 'social' | 'bounties' | 'rewards';
