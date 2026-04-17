@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/015-tsc.txt` (leer = clean)
   - `worklog/proofs/015-tests.txt` (auth/rls + db-invariants: 38/38 gruen)
   - `worklog/proofs/015-flow-trace.md` (6 Szenarien Vorher/Nachher, identifiziert Szenario 3 — Grace-Period-Expire — als tatsaechlichen Bug-Fix)
-- Commit: TBD
+- Commit: b2079826
 - Notes: B1 von Block B (flow-audit Restrisiken). Bug-Klasse: Cache-Clear war an `event === 'SIGNED_OUT'` gated — bei Silent-Token-Expire laeuft aber `clearUserState(event='INITIAL_SESSION')` via Grace-Period-Timer-Expire. Folge: Cache von User 1 bleibt, User 2 auf same tab sieht stale data (insbesondere Queries ohne user-id im Key). Fix: `queryClient.clear()` unconditional in clearUserState. Andere 5 Szenarien unveraendert (Szenario 1/2/6 clearen wie gehabt, Szenario 4 ist no-op bei leerem Cache, Szenario 5 nutzt weiter invalidate statt clear). Kein Playwright-E2E (Grace-Period-Expire ohne Auth-Harness nicht reproduzierbar) — Code-Flow-Trace als Equivalent. CEO-autonom per explizitem Briefing-Freigabe-Commit f0c9bdc7.
 
 ---
