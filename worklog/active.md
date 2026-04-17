@@ -1,29 +1,36 @@
 # Active Slice
 
 ```
-status: build
-slice: 038-credit-tickets-uuid-fix
-stage: BUILD
-spec: worklog/specs/038-credit-tickets-uuid-fix.md
-impact: inline (1 caller-site fix + JSDoc-hardening + 1 test)
-proof: worklog/proofs/038-* (in Arbeit)
-started: 2026-04-17
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+started: —
 ```
 
 ## Aktuelle Aufgabe
 
-P1 Fix: Achievement-Hook ruft credit_tickets mit Achievement-Key (string) als
-p_reference_id (UUID-Spalte) → 22P02 invalid input syntax → Tickets nie gutgeschrieben.
+Keine aktive Arbeit.
 
-## Pipeline (NICHT VERGESSEN)
+## Pipeline (priorisiert, NICHT VERGESSEN)
 
-| # | Titel | Status |
-|---|-------|--------|
-| 038 | credit_tickets reference_id UUID-Bug | active |
-| 032b | Phase 7 Mutating-Flows (5 done, 6/7/10 offen) | nach 038 |
-| 035 | trg trade_refresh auth_uid_mismatch (downgraded P1) | nach 032b |
-| 036 | sync_event_statuses permission denied | nach 035 |
-| 037 | 7 weitere transactions.type Drifts (INV-30 Allowlist) | Cleanup, P2 |
+| # | Titel | Typ | Status |
+|---|-------|-----|--------|
+| 032b | Phase 7 Mutating-Flows resume (6 Sell, 7 P2P-Cancel, 10 Event-Join) | E2E-Verify | next — Buy schon GREEN durch 034 |
+| 035 | trg trade_refresh auth_uid_mismatch | P1 (downgraded — Slice 034/038 zeigten Buys gehen durch) | nach 032b |
+| 036 | sync_event_statuses permission denied | P1 Grant-Fix (wiederholt in postgres-Logs) | nach 035 |
+| 037 | 7 weitere transactions.type Drifts (INV-30 Allowlist) | P2 Cleanup | nach 036 |
+| 039 | user_achievements 409-UNIQUE Violations (Achievement-Hook Upsert) | P2 (entdeckt in Slice 038 Live-Verify) | nach 037 |
+| 040 | ClubProvider.test.tsx flaky waitFor | P3 (CI-Stability) | low-prio |
+
+## Verfuegbar fuer Resume
+
+Nahtloser Uebergang zu Slice 032b — Mutating Flows fortsetzen, nachdem
+Slice 033/034/038 alle Money-UI/RPC-Pfade geheilt haben.
+
+Starte mit: `/ship new "032b Phase 7 Mutating Flows resume"`.
 
 ## Regeln
 

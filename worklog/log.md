@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 038 | 2026-04-17 | P1 credit_tickets reference_id UUID-Drift + Sanitization
+- Stage-Chain: SPEC → IMPACT(inline grep-audit) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/services/social.ts` (achievement-key in description statt reference_id)
+  - `src/lib/services/tickets.ts` (sanitizeReferenceId helper + JSDoc-hardening)
+  - `src/lib/services/__tests__/tickets.test.ts` (drift-lock test)
+  - `worklog/specs/038-credit-tickets-uuid-fix.md` (NEW)
+  - `worklog/proofs/038-{audit,tsc-vitest,live-verify,marktplatz-pre-buy.png}.{txt,png}` (NEW)
+- Proof: `worklog/proofs/038-live-verify.txt` — Live-Buy auf bescout.net post-deploy: 0× credit_tickets 22P02, Wallet exact decrement, second clean trade_buy.
+- Commit: 93eed6ba
+- Notes: Achievement-Hook in social.ts:522 passte Achievement-Key (string) als p_reference_id (UUID-Spalte) → 22P02 silent crash → Achievement-Tickets seit unbekannt nie gutgeschrieben. Discovered via Slice 034 Live-Buy (14× console-errors). Fix lokal, dann Service-Layer gehaerted: sanitizeReferenceId regex-check verhindert Regression auf social.ts oder neue Caller (gilt fuer creditTickets + spendTickets). CI rerun nach flaky ClubProvider-test. Bonus-Finding: 7× 409 user_achievements UNIQUE-Violations bei wiederholtem Buy → separater Slice 039 (Achievement-Hook upsert-handling).
+
 ## 034 | 2026-04-17 | P0 buy_player_sc transactions.type Drift + INV-30 Guard
 - Stage-Chain: SPEC → IMPACT(inline DB-Audit) → BUILD → PROVE → LOG
 - Files:

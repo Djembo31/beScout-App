@@ -1,0 +1,35 @@
+Slice 038 — Live-Verify auf bescout.net (Post-Deploy)
+======================================================
+
+Deploy: 93eed6ba (Vercel build ~2m, CI rerun nach flaky ClubProvider-test)
+Verify-Time: 2026-04-17 14:13 UTC
+
+# Pre-state (jarvis-qa)
+balance:        798290 cents (= 7.982,90 CR)
+tickets:        266
+holdings:       10
+achievement_tx: 0  (← seit Bug-Beginn nie gutgeschrieben)
+
+# Action: Buy 1 SC Burak Çoban @ 48431 cents
+- BuyConfirmModal: "Preis/SC 484,31 CR / Gesamt 484,31 CR / Danach 7.498,59 CR"
+  (Slice 033 fix wirkt weiter)
+- Click "Kaufen bestätigen"
+
+# Console-Log (post-buy)
+0x ERROR: invalid input syntax for type uuid (Slice 038 fix bestaetigt!)
+7x ERROR: 409 user_achievements UNIQUE-violation (NEUER Bug, Slice 039 — Achievement-Hook ohne upsert-handling)
+
+→ Die 22P02-Klasse ist KOMPLETT WEG.
+
+# Post-state
+balance:        749859 cents (= 7.498,59 CR)
+  diff: -48431 cents (= -484,31 CR) — exact match Modal "Danach"
+tickets:        266 (unveraendert — keine NEUEN Achievements unlocked, alle bereits im Slice-034-Buy)
+holdings:       11 (+1) ✓
+achievement_tx: 0 (unveraendert, keine credit_tickets-Calls weil keine neuen Unlocks)
+last_tx_type:   'trade_buy' ✓
+
+# Verdikt
+Slice 038 LIVE GREEN: credit_tickets 22P02 weg, sanitization + JSDoc
++ test-lock + 1 caller-fix wirken end-to-end. Bonus-Findings 409
+user_achievements UNIQUE → Slice 039 (separat).
