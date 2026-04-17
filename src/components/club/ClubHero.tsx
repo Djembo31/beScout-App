@@ -55,7 +55,10 @@ export function ClubHero({
   const t = useTranslations('club');
   const clubColor = club.primary_color || '#006633';
   const secondaryColor = club.secondary_color || '#333';
-  const [stadiumSrc, setStadiumSrc] = useState(`/stadiums/${club.slug}.jpg`);
+  // Slice 065: Fallback-Chain — explizite stadium_image_url > lokales Asset > default
+  const [stadiumSrc, setStadiumSrc] = useState(
+    club.stadium_image_url || `/stadiums/${club.slug}.jpg`
+  );
 
   const scoutsCount = useCountUp(followerCount, 600);
   const volumeCount = useCountUp(totalVolume24h, 800, 0);

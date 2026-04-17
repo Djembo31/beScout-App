@@ -330,6 +330,7 @@ export type DbClub = {
   country: string;
   city: string | null;
   stadium: string | null;
+  stadium_image_url: string | null;
   logo_url: string | null;
   primary_color: string | null;
   secondary_color: string | null;

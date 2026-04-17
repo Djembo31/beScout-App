@@ -20,7 +20,7 @@ export async function getClubBySlug(slug: string, userId?: string): Promise<Club
 export async function getClubById(clubId: string): Promise<DbClub | null> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
+    .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .eq('id', clubId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -32,7 +32,7 @@ export async function getClubById(clubId: string): Promise<DbClub | null> {
 export async function getAllClubs(): Promise<DbClub[]> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
+    .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .order('name');
   if (error) throw new Error(error.message);
   return (data ?? []) as DbClub[];
@@ -304,7 +304,7 @@ export async function setUserPrimaryClub(userId: string, clubId: string): Promis
 export async function getClubsWithStats(): Promise<Array<DbClub & { follower_count: number; player_count: number }>> {
   const { data: clubs, error } = await supabase
       .from('clubs')
-      .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
+      .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
       .order('name');
 
   if (error) throw new Error(error.message);

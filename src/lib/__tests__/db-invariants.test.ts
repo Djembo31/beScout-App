@@ -1051,7 +1051,7 @@ describe('DB Invariants', () => {
       get_treasury_stats: ['total_circulating_cents', 'total_locked_cents', 'wallets_with_balance', 'total_platform_fees', 'total_pbt_fees', 'total_club_fees', 'pbt_total_balance', 'pbt_trading_inflow', 'total_pass_bcredits', 'total_passes_sold', 'welcome_bonuses_claimed', 'total_tickets_circulating', 'total_tickets_earned', 'total_tickets_spent', 'total_trades'],
 
       // Club
-      get_club_by_slug: ['id', 'slug', 'name', 'short', 'logo_url', 'league', 'country', 'city', 'stadium', 'plan', 'is_verified', 'admin_role', 'is_admin', 'community_guidelines', 'primary_color', 'secondary_color', 'created_at'],
+      get_club_by_slug: ['id', 'slug', 'name', 'short', 'logo_url', 'league', 'country', 'city', 'stadium', 'stadium_image_url', 'plan', 'is_verified', 'admin_role', 'is_admin', 'community_guidelines', 'primary_color', 'secondary_color', 'created_at'],
       add_club_admin: ['success', 'error'],
       remove_club_admin: ['success', 'error'],
       request_club_withdrawal: ['success', 'error'],
