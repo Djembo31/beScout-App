@@ -1,0 +1,14 @@
+Slice 043 — RPC Body Verify Post-Migration
+
+# award_dimension_score
+has_sammler:     true  ✓ (new label "Sammler" fuer trader-dimension)
+has_trader_literal: false ✓ ('Trader' string entfernt)
+
+# send_tip
+has_credits: true  ✓ (Error-Messages + Notification-Body zeigen "Credits")
+has_bsd:     false ✓ (keine "BSD" literal mehr)
+
+# Live-state
+Neue rang_up notifications werden "Sammler: Aufstieg zu ..." haben.
+Neue tip_received notifications werden "X Credits als Tipp gesendet" haben.
+Historische Daten nicht umgeschrieben (kosmetisch, nicht money-relevant).

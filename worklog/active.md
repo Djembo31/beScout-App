@@ -14,8 +14,9 @@ started: —
 
 | # | Titel | Status |
 |---|-------|--------|
-| 043 | Compliance-Wording Trader/BSD | next (P2 i18n) |
 | 040 | ClubProvider.test.tsx flake | low (P3) |
+
+Alle P2-Findings aus Phase 7 abgearbeitet. 040 ist CI-stability only.
 
 ## Regeln
 

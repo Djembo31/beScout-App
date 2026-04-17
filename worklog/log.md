@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 043 | 2026-04-17 | Compliance-Wording Trader→Sammler + BSD→Credits
+- Stage-Chain: SPEC → IMPACT(DB-audit) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417210000_trader_bsd_wording_compliance.sql` (NEW)
+  - `worklog/specs/043-trader-bsd-wording-fix.md` (NEW)
+  - `worklog/proofs/043-rpc-bodies-after.txt` (NEW)
+- Proof: award_dimension_score has_sammler=true/has_trader_literal=false; send_tip has_credits=true/has_bsd=false.
+- Commit: tba
+- Notes: Slice 032 Flow 13 fand 2 Wording-Verstoesse in Notifications. Root: hardcoded DE-Strings in DB-RPCs (UI rendert 1:1 ohne Client-i18n). award_dimension_score: 'Trader' label → 'Sammler' (business.md Securities-Glossar). send_tip: "BSD" → "Credits" in 3 Stellen (2 Errors + Notification-Body). Historische Daten nicht umgeschrieben.
+
 ## 042 | 2026-04-17 | EventSummaryModal PUNKTE=0 Race-Fix
 - Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
 - Files:
