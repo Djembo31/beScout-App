@@ -26,7 +26,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `worklog/proofs/023-tsc.txt` (clean)
   - `worklog/proofs/023-tests-lineups.txt` (lineups.test.ts 29/29 = 20 original + 9 B4)
   - `worklog/proofs/023-tests-invariants.txt` (db-invariants.test.ts 25/25 inkl. INV-27)
-- Commit: <pending>
+- Commit: a7fd95d4
 - Notes: CEO approved (a) Strict-Reject am 2026-04-17. Neue Stage-Order im RPC: Pos 6.5a..j nach v_all_slots-Build und vor duplicate_player-Check. Billige Early-Exit-Checks (Formation/GK/Slot-Count/Captain/Wildcard-Empty) vor teuren DB-Joins (insufficient_sc SELECT + salary_cap SELECT). Formation-Allowlist: 3 11er (`1-4-3-3`, `1-4-4-2`, `1-3-4-3`) + 5 7er (`1-2-2-2`, `1-3-2-1`, `1-2-3-1`, `1-3-1-2`, `1-1-3-2`) = 8 IDs aus `src/features/fantasy/constants.ts`. Kein Client-Code-Change (Consumer senden bereits valide IDs). Neue Helper-RPC `get_rpc_source` ist service_role-only (AR-44 REVOKE/GRANT korrekt), wird ausschliesslich von INV-27 genutzt. Rollback via `_rpc_body_snapshots`.
 
 ---
