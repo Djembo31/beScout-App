@@ -1,0 +1,45 @@
+-- Slice 026 — Quelle der 334 formation-Rows
+
+## Stats
+- total_fixtures: 2438
+- home_formation_set: 334
+- away_formation_set: 334
+- fixtures_with_api_id: 2438 (alle gemappt)
+
+## Analyse: Wo kommt die Formation-Fuellung her?
+
+Zwei Code-Pfade koennten es geschrieben haben:
+
+### Pfad 1: footballData.ts:549-553 (CLIENT, **DEAD**)
+```typescript
+await supabase
+  .from('fixtures')
+  .update(updates)
+  .eq('id', fixture.id);
+```
+- `supabase` ist anon-Client (aus `@/lib/supabaseClient`)
+- RLS blockt — UPDATE ohne Policy → default-deny
+- **WIRD NICHT DURCHGEFUEHRT.**
+
+### Pfad 2: src/app/api/cron/gameweek-sync/route.ts:826-831 (SERVER, **ACTIVE**)
+```typescript
+if (Object.keys(formationUpdates).length > 0) {
+  await supabaseAdmin
+    .from('fixtures')
+    .update(formationUpdates)
+    .eq('id', fixture.id);
+}
+```
+- `supabaseAdmin` ist service_role-Client (aus `@/lib/supabaseAdmin`)
+- Service_role bypasst RLS per Default
+- **WIRD DURCHGEFUEHRT.**
+- cron-Schedule: `gameweek-sync-trigger */30 * * * *` (alle 30min)
+- Triggert HTTP-GET via `pg_net.http_get('/api/cron/gameweek-sync')`
+
+## Conclusion
+
+Die 334 formations wurden **ausschliesslich** via Cron-Pfad gesetzt.
+Client-Pfad in footballData.ts ist Dead-Code, aber kein Impact weil Cron parallel fuellt.
+
+Dies ist ein Code-Smell (parallel-implementation) aber kein Bug.
+Cleanup optional in einem separaten Slice.

@@ -1,0 +1,65 @@
+-- Slice 026 — footballData.ts client-access grep
+-- Grep: `supabase\.from` in src/lib/services/footballData.ts
+
+Zeilen mit direkten supabase.from(...) Calls:
+
+Zeile 64-67:  `.from('clubs').select('id, name, short')`
+              SELECT — public data — OK (syncTeamMapping)
+
+Zeile 122-123: `.from('club_external_ids').select('club_id, external_id')`
+               SELECT — mapping data — OK (syncPlayerMapping)
+
+Zeile 124:     `.from('clubs').select('id, name')`
+               SELECT — public data — OK (syncPlayerMapping)
+
+Zeile 151-154: `.from('players').select('id, first_name, last_name, shirt_number').eq('club_id', ...)`
+               SELECT — public data — OK (syncPlayerMapping)
+
+Zeile 266-268: `.from('club_external_ids').select(...).eq('source', 'api_football')`
+               SELECT — mapping data — OK (syncFixtureMapping)
+
+Zeile 282-285: `.from('fixtures').select('id, home_club_id, away_club_id')`
+               SELECT — public data — OK (syncFixtureMapping)
+
+Zeile 352:     `.from('clubs').select('id')`
+Zeile 353:     `.from('club_external_ids').select('club_id').eq(...)`
+Zeile 354:     `.from('players').select('id').limit(1000)`
+Zeile 355:     `.from('player_external_ids').select('player_id').eq(...)`
+Zeile 356:     `.from('fixtures').select('id, api_fixture_id')`
+               Alle 5 SELECT — Mapping-Status counts — OK (getMappingStatus)
+
+Zeile 393-395: `.from('fixtures').select(...).eq('gameweek', gameweek).not('api_fixture_id', 'is', null)`
+               SELECT — OK (importGameweek)
+
+Zeile 405-407: `.from('player_external_ids').select('player_id, external_id')`
+               SELECT — OK (importGameweek)
+
+Zeile 410-411: `.from('players').select('id, position')`
+               SELECT — public data — OK (importGameweek)
+
+Zeile 436-438: `.from('club_external_ids').select(...)`
+               SELECT — mapping data — OK (importGameweek)
+
+Zeile 549-553: `.from('fixtures').update(updates).eq('id', fixture.id)`
+               *** DEAD-CODE — UPDATE blocked by RLS (keine UPDATE-Policy) ***
+               Aufruf silent-failed. home_formation / away_formation kommen stattdessen
+               via `supabaseAdmin.from('fixtures').update(...)` aus der Cron-Route
+               (`src/app/api/cron/gameweek-sync/route.ts:826-831`).
+
+Zeile 594-598: `.from('fixtures').select('id', {count:'exact', head:true}).eq(...).not(...)`
+               SELECT — OK (hasApiFixtures)
+
+---
+
+Writes via RPC (NICHT direkt via .from):
+- Zeile 95:    supabase.rpc('admin_map_clubs', {...})
+- Zeile 231:   supabase.rpc('admin_map_players', {...})
+- Zeile 315:   supabase.rpc('admin_map_fixtures', {...})
+- Zeile 561:   supabase.rpc('admin_import_gameweek_stats', {...})
+
+---
+
+Zusammenfassung:
+- 14 Client-Reads auf public-SELECT-Tabellen (alle legitim)
+- 1 Client-UPDATE (Silent-Dead-Code, RLS blockt, kein Impact)
+- 4 Writes via RPC (korrekt)

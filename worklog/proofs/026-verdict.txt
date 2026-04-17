@@ -1,0 +1,47 @@
+-- Slice 026 — Audit Final Verdict: GREEN
+
+## Briefing-Punkt geschlossen
+Briefing Session 3 Punkt 4: "footballData.ts Client-Access auf server-only
+Tabellen — Visual-QA erforderlich"
+
+## Verdict: **GREEN — kein Security-Drift**
+
+### Begruendung:
+
+1. **Keine "server-only Tabellen" im Zugriffs-Pattern:**
+   Die Tabellen die footballData.ts client-seitig liest (`fixtures`,
+   `fixture_player_stats`, `players`, `clubs`, `*_external_ids`) sind
+   ALLE **public-SELECT-by-design**. Das ist kein Security-Drift sondern
+   gewollt — Match-Scores, Player-Daten, Club-Daten sind per Design public.
+
+2. **Kein unkontrollierter Write:**
+   Alle schreibenden Operationen laufen via Admin-RPCs (`admin_map_clubs`,
+   `admin_map_players`, `admin_map_fixtures`, `admin_import_gameweek_stats`).
+   RPCs haben eigene Admin-Authentifizierung via `p_admin_id`-Param.
+
+3. **Silent-Dead-Code ist kein Risiko:**
+   footballData.ts:549-553 macht `.from('fixtures').update(...)` direkt.
+   RLS blockt silent (keine UPDATE-Policy). Der Code failt ohne Error,
+   ohne Seiteneffekt. Daten kommen via Cron-Route (service_role) trotzdem
+   an. Status-quo-Funktionalitaet unberuehrt.
+
+4. **Kein AUTH-08-Klasse-Trigger:**
+   INV-26 testet sensible Tabellen (holdings, transactions, user_stats etc.)
+   auf `qual=true`. footballData.ts-Tabellen sind nicht in der SENSITIVE-
+   Liste — sie SIND public-by-design.
+
+## Follow-Up
+
+Optional (nicht in Scope): Separater Slice "footballData dead-code cleanup"
+entfernt Zeile 549-553 aus footballData.ts. Cosmetic, kein Security-Wert.
+
+## Artefakte
+
+- worklog/proofs/026-grep-client-access.txt
+- worklog/proofs/026-rls-policies.txt
+- worklog/proofs/026-fill-source.txt
+- worklog/proofs/026-verdict.txt
+- worklog/specs/026-footballdata-client-access-audit.md
+
+## Keine Daten-/Code-Aenderung.
+Analog zu Slice 022 (B-03 UI-Mixing Verification) — Doc-only XS Audit.

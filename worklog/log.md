@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 026 | 2026-04-17 | footballData Client-Access Audit (Doc-only, XS)
+- Stage-Chain: SPEC → IMPACT(skipped — reine Verifikation) → BUILD(audit) → PROVE → LOG
+- Files:
+  - `worklog/specs/026-footballdata-client-access-audit.md` (NEW — XS Spec)
+  - `worklog/proofs/026-grep-client-access.txt` (NEW — alle .from() Call-Sites)
+  - `worklog/proofs/026-rls-policies.txt` (NEW — RLS-Enforcement-Pruefung)
+  - `worklog/proofs/026-fill-source.txt` (NEW — 334 formation-Rows Quelle)
+  - `worklog/proofs/026-verdict.txt` (NEW — Final GREEN)
+- Proofs:
+  - `worklog/proofs/026-verdict.txt` (Final Verdict GREEN)
+- Commit: <pending>
+- Notes: CTO-autonomer Audit-Slice. Briefing Session-3 Punkt 4 ("footballData.ts Client-Access auf server-only Tabellen") geschlossen. Verdict **GREEN**: (a) Alle Client-Reads auf Tabellen mit public SELECT-Policy — legitim. (b) Alle Writes via Admin-RPCs (`admin_map_*`, `admin_import_gameweek_stats`). (c) Silent-Dead-Code in `footballData.ts:549-553` (`supabase.from('fixtures').update(...)` — RLS blockt silent, fixtures hat keine UPDATE-Policy) ohne User-Impact, weil Cron-Route `src/app/api/cron/gameweek-sync/route.ts:826-831` die 334 formation-Rows via `supabaseAdmin` (service_role, RLS bypass) parallel fuellt. (d) Kein AUTH-08-Klasse-Drift: die betroffenen Tabellen (fixtures, fixture_player_stats, player_gameweek_scores) sind public-by-design, nicht in INV-26 SENSITIVE_TABLES. Cleanup (Dead-Code entfernen) out-of-scope — cosmetic, kein Security-Wert. Analog Slice 022 (B-03 UI-Mixing Verification) als Doc-only XS.
+
+---
+
 ## 025 | 2026-04-17 | Holdings Auto-Delete-Zero (Trigger Approach)
 - Stage-Chain: SPEC → IMPACT(inline in Chat — Pre-Research) → BUILD → PROVE → LOG
 - Files:

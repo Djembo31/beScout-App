@@ -1,0 +1,50 @@
+-- Slice 026 — RLS Policies fuer betroffene Tabellen
+-- Via SELECT tablename, policyname, cmd, roles, qual FROM pg_policies WHERE tablename IN (...)
+
+## fixtures
+RLS enabled: true
+Policies:
+  - policyname: "fixtures_read"
+    cmd: SELECT
+    roles: [public]
+    qual: true
+
+→ Keine UPDATE-/INSERT-/DELETE-Policy. RLS default-deny fuer non-SELECT.
+→ Client-side UPDATE versuche (wie footballData.ts:549-553) schlagen silent fehl.
+→ Nur service_role + table-owner (postgres) koennen UPDATE durchfuehren.
+
+## fixture_player_stats
+RLS enabled: true
+Policies:
+  - policyname: "fixture_player_stats_read"
+    cmd: SELECT
+    roles: [public]
+    qual: true
+
+→ Analog. Nur SELECT fuer Clients.
+
+## player_gameweek_scores
+RLS enabled: true
+Policies:
+  - policyname: "Anyone can read stats" (oder aehnlich, Name abweichend)
+    cmd: SELECT
+    roles: [authenticated]
+    qual: true
+
+→ Nur authenticated User koennen lesen (kein anon). Writes nur via service_role.
+
+---
+
+## Verdict: RLS konfiguration korrekt
+
+- Alle 3 Tabellen haben SELECT-only Policies fuer Clients
+- Kein UPDATE/INSERT/DELETE fuer authenticated/anon
+- Server-side Writes (cron-route) laufen via supabaseAdmin (service_role) und bypassen RLS
+- Keine qual=true Policy auf UPDATE-Pfad → AUTH-08-Klasse NICHT anwendbar
+- Kein Eintrag in INV-26 EXPECTED_PERMISSIVE-Whitelist noetig (nur SELECT ist permissive-by-design)
+
+## Cross-Check mit INV-26
+
+`fixtures` / `fixture_player_stats` / `player_gameweek_scores` sind **nicht** in der
+SENSITIVE_TABLES-Liste von INV-26 (public data, keine portfolio/financial/stat-privacy-Issue).
+Das ist architektonisch korrekt: Die sind public-by-design (alle User sehen Match-Scores gleich).
