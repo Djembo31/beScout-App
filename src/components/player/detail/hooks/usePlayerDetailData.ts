@@ -86,33 +86,42 @@ export function usePlayerDetailData(
   const { addToast } = useToast();
   const t = useTranslations('player');
 
+  // Below-the-fold queries (counters, banners, trades, research) load 300ms
+  // after mount to keep the initial burst under the browser's 6-concurrent
+  // connection limit. Critical-path (Hero + Trading-Actions) stays ungated.
+  const [belowFoldReady, setBelowFoldReady] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setBelowFoldReady(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ─── React Query Hooks ────────────────────
-  // ALWAYS loaded (Hero + Trading default tab):
+  // CRITICAL PATH (Hero + trading-actions, always initial):
   const { data: dbPlayer, isLoading, isError, refetch } = useDbPlayerById(playerId);
   const { data: holdingQtyData } = useHoldingQty(userId, playerId);
-  const { data: lockedScMap } = useHoldingLocks(userId);
-  const { data: holderCountData } = usePlayerHolderCount(playerId);
-  const { data: watcherCountData } = useWatcherCount(playerId);
   const { data: watchlistEntries } = useWatchlist(userId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
   const { data: activeIpo } = useIpoForPlayer(playerId);
 
-  // TRADING TAB (default — loaded immediately):
-  const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
+  // BELOW-THE-FOLD (info-layer, deferred 300ms):
+  const { data: lockedScMap } = useHoldingLocks(belowFoldReady ? userId : undefined);
+  const { data: holderCountData } = usePlayerHolderCount(belowFoldReady ? playerId : undefined);
+  const { data: watcherCountData } = useWatcherCount(belowFoldReady ? playerId : undefined);
+  const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(belowFoldReady ? playerId : undefined);
+  const { data: masteryData } = useDpcMastery(belowFoldReady ? userId : undefined, playerId);
+  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15, belowFoldReady);
+  const { data: liquidationEvent } = useLiquidationEvent(playerId, belowFoldReady);
+
+  // TRADING TAB (default tab-gated):
   const { data: openBidsData } = useOpenBids(playerId, tab === 'trading');
   const { data: pbtTreasury } = usePbtForPlayer(playerId, tab === 'trading');
   const { data: userIpoPurchasedData } = useUserIpoPurchases(userId, activeIpo?.id);
-  const { data: masteryData } = useDpcMastery(userId, playerId);
 
-  // HERO + PERFORMANCE shared:
-  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15);
-  const { data: liquidationEvent } = useLiquidationEvent(playerId);
-
-  // PERFORMANCE TAB (deferred):
+  // PERFORMANCE TAB (deferred — tab switch):
   const { data: gwScoresData } = usePlayerGwScores(playerId, tab === 'performance');
 
-  // COMMUNITY TAB (deferred):
-  const { data: playerResearchData } = usePlayerResearch(playerId, userId, tab === 'community' || tab === 'trading');
+  // COMMUNITY TAB (deferred — tab switch + below-fold):
+  const { data: playerResearchData } = usePlayerResearch(playerId, userId, (tab === 'community' || tab === 'trading') && belowFoldReady);
   const { data: playerPostsData } = usePosts({ playerId, limit: 30, active: tab === 'community' });
 
   // ─── Derived from queries ─────────────────
