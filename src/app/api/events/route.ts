@@ -16,9 +16,8 @@ export async function GET(request: Request) {
     });
   }
 
-  // Best-effort status sync
-  try { await supabaseServer.rpc('sync_event_statuses'); } catch (err) { console.error('[API/Events] Sync event statuses failed:', err); }
-
+  // Slice 036: status-sync wird von pg_cron 'sync-event-statuses' jede Minute uebernommen
+  // (vorher: anon-key call hier → 42501 permission denied wiederholt in postgres-Logs).
   const { data, error } = await supabaseServer
     .from('events')
     .select('*, clubs:club_id(name, logo_url)')

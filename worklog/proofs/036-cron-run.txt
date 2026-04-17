@@ -1,0 +1,21 @@
+Slice 036 — Cron Setup + Manual Test
+
+# Cron-Job
+SELECT jobname, schedule, active FROM cron.job WHERE jobname = 'sync-event-statuses';
+→ jobname='sync-event-statuses', schedule='* * * * *' (every minute), active=true
+
+# Manual call (verify body works without errors)
+SELECT public.cron_sync_event_statuses();
+→ {
+    "ran_at": "2026-04-17T15:02:45+00",
+    "success": true,
+    "ended_after": 126,
+    "ended_before": 126,
+    "running_after": 0,
+    "running_before": 0
+  }
+
+# Interpretation
+- success=true → keine permission-denied
+- ended count konstant → keine events haben in dieser Sekunde Status gewechselt
+- Cron schedule '* * * * *' wird ab naechster Minute automatisch laufen

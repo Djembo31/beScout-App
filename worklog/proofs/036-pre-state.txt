@@ -1,0 +1,28 @@
+Slice 036 — Pre-State
+
+# Postgres-Logs (vor Fix)
+Wiederholte Eintraege:
+  ERROR  permission denied for function sync_event_statuses
+Caller: anon-key client via /api/events route GET handler
+
+# RPC body (vor Fix)
+public.sync_event_statuses() — SECURITY DEFINER
+  IF auth.uid() IS NULL THEN RAISE 'auth_required';
+  IF NOT EXISTS (...club_admins...) THEN RAISE 'admin_required';
+  UPDATE events SET status = 'running' WHERE ...
+  UPDATE events SET status = 'ended' WHERE ...
+
+# Grants (vor Fix)
+EXECUTE: postgres, authenticated, service_role
+NICHT: anon
+
+# Caller
+src/app/api/events/route.ts:20:
+  await supabaseServer.rpc('sync_event_statuses')
+supabaseServer = createClient(URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+→ anon role at PostgREST → 42501 BEFORE body even runs
+
+# Folge
+- Permission-denied ERROR-spam in postgres-logs
+- events.status NIE durch API-route aktualisiert
+- Nur via Admin-Panel (manuell) oder bei naechstem Admin-RPC-Aufruf

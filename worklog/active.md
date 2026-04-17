@@ -1,30 +1,28 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-started: —
+status: build
+slice: 036-sync-event-statuses-grant-fix
+stage: BUILD
+spec: worklog/specs/036-sync-event-statuses-grant-fix.md
+impact: inline (1 RPC + 1 cron + 1 API-route + 1 internal helper)
+proof: worklog/proofs/036-* (in Arbeit)
+started: 2026-04-17
 ```
 
 ## Aktuelle Aufgabe
 
-Keine aktive Arbeit.
+P1 Fix: API-Route ruft sync_event_statuses mit anon-key → 42501. Internal-Helper +
+pg_cron statt API-route-call.
 
-## Pipeline (priorisiert)
+## Pipeline (nach 036)
 
 | # | Titel | Status |
 |---|-------|--------|
-| 036 | sync_event_statuses permission denied | next (P1) |
-| 037 | 7 transactions.type Drifts (INV-30 Allowlist) | nach 036 |
-| 039 | user_achievements 409 UNIQUE | parallel zu 037 |
-| 041 | rpc_lock_event_entry Permission-Doku | nach 037 |
-| 042 | Modal PUNKTE-Display Inconsistency | nach 041 |
-| 043 | Compliance-Wording Trader/BSD | nach 042 |
-| 040 | ClubProvider.test.tsx flake | low |
+| 037 | 7 transactions.type Drifts | next |
+| 039 | user_achievements 409 | parallel |
+| 041-043 | 3 P2 UI/Doku-Findings | nach 037 |
+| 040 | ClubProvider flake | low |
 
 ## Regeln
 
