@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 053 | 2026-04-18 | B-01 Realtime-Orders refetchInterval Polling
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/queries/orders.ts` (+2 Zeilen refetchInterval + Doc-Comment)
+  - `src/lib/__tests__/playerMath.test.ts` (tsc-Type-Fix aus Slice 052 — asPlayer helper)
+  - `worklog/specs/053-b01-realtime-orders-polling.md`
+- Proof: Orderbook-Queries nutzen jetzt aktives 30s-Polling waehrend Tab fokussiert. tsc clean, playerMath 9/9 Tests gruen.
+- Commit: tba
+- Notes: XS-Slice Variante-2 #10/10 FINAL. Briefing war stale (sagte 2min staleTime), tatsaechlich bereits 30s seit Slice 008. Einziger verbliebener Gap war refetchInterval fuer aktive User — jetzt geschlossen. Realtime-Subscription als 053b post-Beta (wenn Live-Usage das verlangt). **VARIANTE-2 KOMPLETT ABGESCHLOSSEN 10/10.**
+
+---
+
 ## 052 | 2026-04-18 | B-03 UI-Mixing-Extraktion (playerMath)
 - Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
 - Files:
@@ -19,7 +31,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/components/player/index.tsx, PlayerRow.tsx`, `src/features/market/components/marktplatz/WatchlistView.tsx`, `src/features/market/hooks/useMarketData.ts` — 4 Call-Sites angepasst
   - `worklog/specs/052-b03-ui-mixing-extraction.md`, `worklog/proofs/052-playermath-tests.txt`
 - Proof: 4 Floor-Price-Duplikationen eliminiert, 9/9 neue Unit-Tests gruen, tsc clean. Kein visueller Regression.
-- Commit: tba
+- Commit: 4612bdfd
 - Notes: S-Slice Variante-2 #9/10. TradingCardFrame hat KEINE Floor-Math-Duplikation (grep-confirmed, pure presentation) → out-of-scope. Extraction folgte DRY + Testability Principles.
 
 ---

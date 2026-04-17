@@ -2,41 +2,39 @@
 
 import { describe, it, expect } from 'vitest';
 import { computePlayerFloor, computeHoldingPnL } from '@/lib/playerMath';
+import type { Player } from '@/types';
+
+// Cast-Helper: Test-Inputs auf das Subset das computePlayerFloor braucht.
+// Unterfelder wie isOwn/sellerHandle sind fuer die reine Math-Logic irrelevant.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const asPlayer = (p: any): Pick<Player, 'listings' | 'prices'> => p;
 
 describe('computePlayerFloor', () => {
-  const baseplayer = {
-    listings: [],
-    prices: { floor: 0, referencePrice: 0 } as {
-      floor?: number | null;
-      referencePrice?: number | null;
-    },
-  };
-
   it('returns Math.min of listings when listings exist', () => {
-    const p = {
+    const p = asPlayer({
       listings: [{ price: 300 }, { price: 150 }, { price: 200 }],
-      prices: { floor: 500, referencePrice: 600 },
-    };
+      prices: { floor: 500, referencePrice: 600, lastTrade: 0, change24h: 0 },
+    });
     expect(computePlayerFloor(p)).toBe(150);
   });
 
   it('falls back to prices.floor when listings empty', () => {
-    const p = { ...baseplayer, prices: { floor: 250, referencePrice: 400 } };
+    const p = asPlayer({ listings: [], prices: { floor: 250, referencePrice: 400, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(250);
   });
 
   it('falls back to prices.referencePrice when floor is null', () => {
-    const p = { ...baseplayer, prices: { floor: null, referencePrice: 400 } };
+    const p = asPlayer({ listings: [], prices: { floor: null, referencePrice: 400, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(400);
   });
 
   it('falls back to 0 when both floor and referencePrice are null', () => {
-    const p = { ...baseplayer, prices: { floor: null, referencePrice: null } };
+    const p = asPlayer({ listings: [], prices: { floor: null, referencePrice: null, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(0);
   });
 
-  it('returns 0 for empty listings and undefined prices', () => {
-    const p = { listings: [], prices: {} };
+  it('returns 0 for empty listings and minimal prices', () => {
+    const p = asPlayer({ listings: [], prices: { lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(0);
   });
 });
