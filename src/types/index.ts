@@ -93,6 +93,12 @@ export type Listing = {
   /** Anonymized seller handle (null on deleted profiles). */
   sellerHandle: string | null;
   sellerName: string;
+  /**
+   * Price in BSD/CR (display units), NOT cents. Filled via `centsToBsd(o.price)` in
+   * `src/lib/queries/enriched.ts`. When passing this to RPC params or modal `priceCents`
+   * fields, multiply by 100 first: `Math.round(listing.price * 100)`.
+   * Slice 033 fixed a Faktor-100-Drift in MarketContent.tsx where this was passed raw.
+   */
   price: number;
   qty?: number;
   expiresAt: number;

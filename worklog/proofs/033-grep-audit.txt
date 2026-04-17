@@ -1,0 +1,49 @@
+Slice 033 — Money-Unit-Audit Greps
+====================================
+
+# 1. Alle Sites die listings.map(l => l.price) machen
+$ rg "listings\.map\(.*\.price\)" src/
+
+src/features/market/hooks/useMarketData.ts:57
+  m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0);
+  → BSD context (floorMap is BSD throughout). Used for sort/display only. SAFE.
+
+src/features/market/components/MarketContent.tsx:225 (POST FIX, via helper)
+  → BUG WAS HERE — gefixt via resolveBuyPriceCents() helper.
+
+src/features/market/components/marktplatz/WatchlistView.tsx:41
+  p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0;
+  → getFloor used for sort + display only (BSD context). SAFE.
+
+src/features/manager/components/kader/KaderTab.tsx:152
+  const floorBsd = hasListings ? Math.min(...player.listings.map(l => l.price)) : null;
+  → Variable explizit `floorBsd` benannt. SAFE.
+
+src/components/player/index.tsx:493
+  const floor = player.listings.length > 0 ? Math.min(...player.listings.map(l => l.price)) : player.prices.floor ?? player.prices.referencePrice ?? 0;
+  → Display-only (BSD context). SAFE.
+
+src/components/player/PlayerRow.tsx:37
+  const getFloor = (p: Player) => p.listings.length > 0 ? Math.min(...p.listings.map((l) => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0;
+  → Display-only (BSD context). SAFE.
+
+# 2. Alle priceCents-Konsumenten (RPC-Aufrufe + Modal-Props)
+$ rg "priceCents" src/lib/services/
+
+src/lib/services/trading.ts:96  buyFromMarket → RPC buy_player_sc (kein price-Param, RPC liest aus DB) — SAFE.
+src/lib/services/trading.ts:177 placeSellOrder → p_price: priceCents (caller muss cents passen) — SAFE.
+src/lib/services/trading.ts:467 placeBuyOrder → p_max_price: maxPriceCents (caller muss cents passen) — SAFE.
+src/lib/services/ipo.ts:120     buyFromIpo → RPC buy_from_ipo (kein price-Param) — SAFE.
+src/lib/services/offers.ts:170  createOffer → p_price: params.priceCents — SAFE.
+src/lib/services/offers.ts:206  acceptOffer → RPC accept_offer (kein price-Param) — SAFE.
+
+# 3. UI → priceCents Conversions
+$ rg "priceCents.*Math\.round.*\* 100|parseFloat.*\* 100" src/
+
+src/components/trading/SellModalCore.tsx:113     const priceCents = Math.round(priceNum * 100);  ✓
+src/features/market/components/portfolio/OffersTab.tsx:217  const priceCents = Math.round(parseFloat(price) * 100);  ✓
+src/features/market/components/shared/BuyOrderModal.tsx:51  const priceCents = Math.round(priceNum * 100);  ✓
+src/components/player/detail/BuyModal.tsx:171    const floorCents = Math.round((player.prices.floor ?? 0) * 100);  ✓
+
+# Verdikt
+Nur 1 Drift-Stelle existierte (MarketContent.tsx:223). Fix lokal, mit Test verriegelt, mit Type-JSDoc gehaerted.

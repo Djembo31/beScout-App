@@ -1,0 +1,30 @@
+Slice 033 — TSC + Vitest Verify
+================================
+
+# TSC
+$ npx tsc --noEmit
+(no output, exit 0)
+→ CLEAN
+
+# Vitest market + trading + offers
+$ npx vitest run src/features/market src/lib/services/__tests__/trading.test.ts src/lib/services/__tests__/offers.test.ts
+
+Test Files  11 passed (11)
+Tests       215 passed (215)
+Duration    14.74s
+
+→ ALLE GRUEN, inklusive 8 neue Lock-Tests in marketContent.priceCents.test.ts
+
+# Lock-Tests im Detail
+$ npx vitest run src/features/market/components/__tests__/marketContent.priceCents.test.ts
+
+Test Files  1 passed (1)
+Tests       8 passed (8)
+- returns ipo.price unchanged when isIpo=true (DB cents passthrough)
+- falls back to listings when isIpo=true but ipoPriceCents missing
+- multiplies min(listings.price) BSD by 100 → cents (echte 1060/10.6 Bug-Verriegelung)
+- falls back to floorBsd * 100 when no listings
+- returns 0 when no source available
+- rounds half-cent values to nearest cent
+- handles single-listing player
+- handles undefined floorBsd defensively

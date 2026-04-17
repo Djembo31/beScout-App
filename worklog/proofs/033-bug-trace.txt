@@ -1,0 +1,62 @@
+Slice 033 — Money-Display-Drift Bug-Trace
+==========================================
+
+Bug entdeckt in Slice 032 Flow 5 Test (Buy from Market).
+
+# DB-Wahrheit (orders.price ist cents, kanonische Quelle)
+SQL: SELECT id, price FROM orders WHERE player_id (Serhat Bozkurt) AND side='sell' ORDER BY price ASC LIMIT 1;
+→ price_raw = 1060 cents = 10,60 CR
+
+# Marktplatz-Liste (UI)
+"Letzter Deal: 10" + "Gelistet ab 10,6"
+→ KORREKT (BSD-Anzeige aus Listing.price = centsToBsd(o.price))
+
+# BuyConfirmModal VOR Fix
+"Preis/SC: 0,11 CR"
+"Gesamt: 0,11 CR"
+"Danach: 7.993,39 CR" (= 7993,50 - 0,11)
+→ FALSCH: Faktor 100 zu klein
+
+# RPC buy_player_sc
+v_total_cost := v_order.price * p_quantity   -- 1060 * 1 = 1060 cents
+v_new_balance := v_wallet.balance - v_total_cost  -- 799350 - 1060 = 798290 cents
+→ haette 10,60 CR vom User abgezogen, NICHT 0,11 CR
+
+# Mismatch
+UI verspricht: 0,11 CR (= 11 cents)
+RPC zieht ab: 10,60 CR (= 1060 cents)
+Differenz: 100x
+
+# Maskiert durch (separate P0-Bugs, nicht Teil 033)
+1. transactions_type_check violation in buy_player_sc → RPC-Crash ohne Money-Move
+2. trg trade_refresh: auth_uid_mismatch → Trigger reverted Transaction
+→ Daher hat noch kein User Geld verloren — pure Glueck
+
+# Root Cause
+src/features/market/components/MarketContent.tsx:223 (vor Fix):
+  const floorCents = isIpo && ipo
+    ? ipo.price                                        // ✓ cents (DB)
+    : (player.listings.length > 0
+        ? Math.min(...player.listings.map(l => l.price))   // ❌ BSD/CR als cents weitergegeben
+        : Math.round((player.prices.floor ?? 0) * 100));   // ✓ cents
+
+src/lib/queries/enriched.ts:65:
+  price: centsToBsd(o.price),
+→ Listing.price ist BSD/CR
+
+# Fix
+1. MarketContent.tsx → resolveBuyPriceCents() helper ausgelagert
+2. Helper multipliziert listings[].price mit 100 vor Weitergabe als priceCents
+3. Listing.price-Type bekommt JSDoc-Annotation als BSD/CR
+4. 8 Unit-Tests verriegeln den Kontrakt (incl. das echte 1060/10.6-Bug-Beispiel)
+
+# Audit-Ergebnis (alle anderen Money-UI-Sites)
+- BuyModal.tsx (Detail): Math.round(prices.floor * 100) ✓
+- SellModalCore.tsx: Math.round(priceNum * 100) ✓
+- OffersTab.tsx: Math.round(parseFloat(price) * 100) ✓
+- BuyOrderModal.tsx: Math.round(priceNum * 100) ✓
+- LimitOrderModal.tsx: Coming-Soon Placeholder, keine RPC ✓
+- floorMap (useMarketData): durchgehend BSD, nur fuer Sort+Display ✓
+- WatchlistView, KaderTab, PlayerRow, components/player: BSD, display-only ✓
+
+→ Nur 1 Drift-Stelle existierte. Komplett gefixt.

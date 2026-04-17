@@ -24,6 +24,7 @@ import dynamic from 'next/dynamic';
 import MarketHeader from './MarketHeader';
 import PortfolioTab from './portfolio/PortfolioTab';
 import MarktplatzTab from './marktplatz/MarktplatzTab';
+import { resolveBuyPriceCents } from './marketContent.priceCents';
 
 const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false });
 const BuyConfirmModal = dynamic(() => import('./shared/BuyConfirmModal'), { ssr: false });
@@ -218,9 +219,12 @@ export default function MarketContent() {
         if (!player) return null;
         const isIpo = trade.pendingBuy.source === 'ipo';
         const ipo = isIpo ? data.ipoList.find(i => i.player_id === trade.pendingBuy!.playerId) : null;
-        const floorCents = isIpo && ipo
-          ? ipo.price
-          : (player.listings.length > 0 ? Math.min(...player.listings.map(l => l.price)) : Math.round((player.prices.floor ?? 0) * 100));
+        const floorCents = resolveBuyPriceCents({
+          isIpo,
+          ipoPriceCents: ipo?.price,
+          listings: player.listings,
+          floorBsd: player.prices.floor,
+        });
         const ipoRemaining = ipo ? ipo.total_offered - ipo.sold : 0;
         const ipoProgress = ipo ? (ipo.sold / ipo.total_offered) * 100 : 0;
         const maxQty = isIpo && ipo ? Math.min(ipo.max_per_user, ipoRemaining) : 1;

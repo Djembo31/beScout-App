@@ -27,7 +27,8 @@
       "Bash(mkdir -p memory/_archive/2026-04-meta-plans worklog/specs worklog/impact worklog/proofs .claude/skills/ship)",
       "Bash(git mv *)",
       "Bash(rm -f walkthrough/*.md)",
-      "Bash(rm -f .claude/hooks/walkthrough-status.sh)"
+      "Bash(rm -f .claude/hooks/walkthrough-status.sh)",
+      "mcp__supabase__get_logs"
     ]
   },
   "enableAllProjectMcpServers": true,
