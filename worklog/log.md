@@ -11,6 +11,15 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 032b | 2026-04-17 | Phase 7 Mutating-Flows Resume — 3/3 GREEN
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD(verify-only) → PROVE → LOG
+- Files:
+  - `worklog/specs/032b-phase7-mutating-flows-resume.md` (NEW)
+  - `worklog/proofs/032b-verdict.md` (NEW — Final tabelle Phase 7)
+- Proof: `worklog/proofs/032b-verdict.md` — alle 3 Mutating-Flows live verifiziert auf bescout.net.
+- Commit: tba (mit close-commit)
+- Notes: Flow 6 Sell (place sell @ 1000c → cancel symmetric, status='cancelled'), Flow 7 P2P-Offer (escrow 500c balance/locked symmetric, total wallet konstant), Flow 10 Event-Join (lock_event_entry → entry created, unlock → deleted). Findings: rpc_lock_event_entry direkter Call 403 (Wrapper-Permission-Doku), Modal-Display PUNKTE=0 vs Top-3 470 (UI-Inconsistency). Kein neuer Money-Bug. Phase 7 abgeschlossen, Pilot-Ready Money-Path GREEN.
+
 ## 038 | 2026-04-17 | P1 credit_tickets reference_id UUID-Drift + Sanitization
 - Stage-Chain: SPEC → IMPACT(inline grep-audit) → BUILD → PROVE → LOG
 - Files:
