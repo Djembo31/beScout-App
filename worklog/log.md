@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 012 | 2026-04-17 | Zero-Qty Holding Cleanup (INV-08, EDGE-17)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
+- Files:
+  - `supabase/migrations/20260417030000_cleanup_zero_qty_holding.sql` (NEW, 1 DELETE)
+- Proofs:
+  - `worklog/proofs/012-before-after.txt` (1 Row vor, 0 Rows nach; Daten-Safety-Notiz)
+  - `worklog/proofs/012-tests.txt` (db-invariants + boundaries/edge-cases: 43/43 gruen)
+- Commit: (pending)
+- Notes: Einmalige Data-Cleanup. 1 Orphan-Row (jarvisqa/Livan Burcu, quantity=0, avg_buy_price=10000, erstellt 2026-04-15) geloescht via Migration. Kein Value-Impact (0 DPCs = 0 SC). INV-08 + EDGE-17 jetzt gruen. **Root-Cause NICHT gefixt — CEO-Scope:** Trading-RPCs (`buy_player_sc`, `accept_offer`, `buy_from_order`, `buy_from_ipo`) dekrementieren `holdings.quantity` via UPDATE statt DELETE-when-zero. Dokumentiert im Proof als Follow-Up (RPC-Fix + CHECK `quantity > 0` gemeinsam). Erste neue quantity=0-Row nach diesem Slice = Beweis fuer CEO-Fix-Dringlichkeit.
+
+---
+
 ## 011 | 2026-04-17 | Locked-Balance Test Coverage Gap (INV-07/MF-WAL-04/MF-ESC-04)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
@@ -20,7 +32,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Proofs:
   - `worklog/proofs/011-diff.txt` (git diff: 3 Files, 93 LOC)
   - `worklog/proofs/011-tests.txt` (3 target tests gruen, INV-07 + MF-WAL-04 + MF-ESC-04)
-- Commit: (pending)
+- Commit: abf9b0b
 - Notes: Test-Gap-Fix, kein DB/Code-Change. Alle 3 Tests pruefen jetzt auch `bounties WHERE is_user_bounty=true AND status='open' AND created_by=<user>` als Lock-Quelle (Escrow-Pattern aus `bounties.ts:246`). jarvisqa (user 535bbcaf..., locked_balance=50000, 1 open user-bounty, 0 orders, 0 offers) ist jetzt korrekt als legitime Escrow erkannt. Scope-Out: Exakt-Summen-Check (locked_balance == Σ escrow sources), holding_locks fuer Fantasy — separate Slices.
 
 ---
