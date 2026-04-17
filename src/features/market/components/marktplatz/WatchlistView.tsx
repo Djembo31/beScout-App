@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Star, StarOff, Loader2, ArrowUpDown, Bell } from 'lucide-react';
 import type { Player } from '@/types';
 import { cn, fmtScout } from '@/lib/utils';
+import { computePlayerFloor } from '@/lib/playerMath';
 import { getClubName } from '@/lib/clubs';
 import { removeFromWatchlist, updateAlertThreshold } from '@/lib/services/watchlist';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
@@ -37,8 +38,7 @@ const THRESHOLD_OPTIONS = [0, 5, 10, 20] as const;
 // HELPERS
 // ============================================
 
-const getFloor = (p: Player) =>
-  p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0;
+const getFloor = computePlayerFloor; // Slice 052: DRY extraction
 
 // ============================================
 // THRESHOLD POPOVER

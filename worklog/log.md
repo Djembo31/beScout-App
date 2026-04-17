@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 052 | 2026-04-18 | B-03 UI-Mixing-Extraktion (playerMath)
+- Stage-Chain: SPEC → IMPACT(grep) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/playerMath.ts` (NEW) — computePlayerFloor + computeHoldingPnL
+  - `src/lib/__tests__/playerMath.test.ts` (NEW) — 9 Unit-Tests
+  - `src/components/player/index.tsx, PlayerRow.tsx`, `src/features/market/components/marktplatz/WatchlistView.tsx`, `src/features/market/hooks/useMarketData.ts` — 4 Call-Sites angepasst
+  - `worklog/specs/052-b03-ui-mixing-extraction.md`, `worklog/proofs/052-playermath-tests.txt`
+- Proof: 4 Floor-Price-Duplikationen eliminiert, 9/9 neue Unit-Tests gruen, tsc clean. Kein visueller Regression.
+- Commit: tba
+- Notes: S-Slice Variante-2 #9/10. TradingCardFrame hat KEINE Floor-Math-Duplikation (grep-confirmed, pure presentation) → out-of-scope. Extraction folgte DRY + Testability Principles.
+
+---
+
 ## 051 | 2026-04-18 | B-06 Error-Chains Community + Fantasy (J3-Pattern)
 - Stage-Chain: SPEC → IMPACT(grep-audit) → BUILD → PROVE → LOG
 - Files:
@@ -18,7 +31,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/components/community/ReportModal.tsx` (1 location + imports)
   - `worklog/specs/051-b06-error-chains-community-fantasy.md`, `worklog/proofs/051-error-chain-audit.txt`
 - Proof: Fantasy bereits compliant. Community: 7 raw err.message leaks → tErrors(mapErrorToKey(normalizeError(err))) resolved. tsc clean, 72/72 useCommunityActions tests gruen.
-- Commit: tba
+- Commit: e002d00f
 - Notes: S-Slice Variante-2 #8/10. J3-Pattern (Trading, 2026-04-14) analog auf Community angewandt. i18n-Key-Leak-Klasse geschlossen fuer community-Consumer. result.error + catch-blocks beide resolved.
 
 ---

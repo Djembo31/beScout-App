@@ -8,6 +8,7 @@ import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
 import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
 import { cn, fmtScout } from '@/lib/utils';
+import { computePlayerFloor, computeHoldingPnL } from '@/lib/playerMath';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
 
 export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
@@ -489,9 +490,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
   rank?: number;
 }) {
   const tp = useTranslations('player');
-  const floor = player.listings.length > 0
-    ? Math.min(...player.listings.map(l => l.price))
-    : player.prices.floor ?? player.prices.referencePrice ?? 0;
+  const floor = computePlayerFloor(player); // Slice 052: extracted to playerMath
   const l5 = player.perf.l5;
   const l5Color = getL5Color(l5);
   const up = player.prices.change24h >= 0;
@@ -503,9 +502,10 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
 
   switch (context) {
     case 'portfolio': {
-      const pnl = holding ? (floor - holding.avgBuyPriceBsd) * holding.quantity : 0;
-      const pnlPct = holding && holding.avgBuyPriceBsd > 0 ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100 : 0;
-      const upPnl = pnl >= 0;
+      // Slice 052: PnL extracted to playerMath.computeHoldingPnL
+      const { pnl, pnlPct, up: upPnl } = holding
+        ? computeHoldingPnL(floor, holding)
+        : { pnl: 0, pnlPct: 0, up: true };
       kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="pnl" className={cn(kpiCls, upPnl ? 'text-vivid-green' : 'text-vivid-red')}>

@@ -11,6 +11,7 @@ import {
 import { useTranslations } from 'next-intl';
 import type { Player, Pos } from '@/types';
 import { cn, fmtScout, countryToFlag } from '@/lib/utils';
+import { computePlayerFloor } from '@/lib/playerMath';
 import { getClub } from '@/lib/clubs';
 import {
   MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg,
@@ -33,8 +34,7 @@ const isColorDark = (hex: string): boolean => {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.4;
 };
 
-const getFloor = (p: Player) =>
-  p.listings.length > 0 ? Math.min(...p.listings.map((l) => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0;
+const getFloor = computePlayerFloor; // Slice 052: DRY extraction
 
 // ============================================
 // TRIKOT BADGE (Shared)

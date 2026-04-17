@@ -2,6 +2,7 @@
 
 import { useMemo, useCallback } from 'react';
 import type { Player } from '@/types';
+import { computePlayerFloor } from '@/lib/playerMath';
 import { useEnrichedPlayers, useHoldings, useAllOpenOrders, useAllOpenBuyOrders } from '@/lib/queries';
 import { useActiveIpos, useAnnouncedIpos, useRecentlyEndedIpos } from '@/features/market/queries/ipos';
 import { useTrendingPlayers } from '@/features/market/queries/trending';
@@ -54,7 +55,7 @@ export function useMarketData(userId: string | undefined) {
   const floorMap = useMemo(() => {
     const m = new Map<string, number>();
     for (const p of players) {
-      m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0);
+      m.set(p.id, computePlayerFloor(p));
     }
     return m;
   }, [players]);

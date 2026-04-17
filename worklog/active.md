@@ -19,7 +19,8 @@ started: —
 5. ~~048 — TR-i18n Notifications Foundation + reward_referral Pilot~~ ✅ DONE 2026-04-18 (f2809047)
 6. ~~049 — A-07 RPC-Response-Shape-Audit Coverage~~ ✅ DONE 2026-04-18 (b4c33b36)
 7. ~~050 — B-02 Service Return-Type Konsistenz~~ ✅ DONE 2026-04-18 (d7123c87)
-8. ~~051 — B-06 Error-Chains Community + Fantasy~~ ✅ DONE 2026-04-18
+8. ~~051 — B-06 Error-Chains Community + Fantasy~~ ✅ DONE 2026-04-18 (e002d00f)
+9. ~~052 — B-03 UI-Mixing-Extraktion (playerMath)~~ ✅ DONE 2026-04-18
 2. 045 — A-03 RLS-Matrix komplett (INV-26 erweitern)
 3. 046 — A-04 Live-Ledger-Health Query + INV-Test
 4. 047 — Historische Notifications umschreiben (XS)
