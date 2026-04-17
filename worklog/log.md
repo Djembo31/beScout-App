@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 049 | 2026-04-18 | A-07 RPC-Response-Shape-Audit Coverage Expansion
+- Stage-Chain: SPEC → IMPACT(live-diff) → BUILD → PROVE → LOG
+- Files:
+  - `src/lib/__tests__/db-invariants.test.ts` (+3 entries, +1 EXCLUDED) — INV-23 Whitelist erweitert
+  - `worklog/specs/049-a07-rpc-response-shape-audit.md`, `worklog/proofs/049-inv23-vitest.txt`
+- Proof: 94 service-called RPCs identifiziert, 3 missing aus INV-23 zu whitelist addiert (get_club_balance, rpc_get_player_percentiles) + 1 zu EXCLUDED (rpc_get_user_social_stats). INV-23 gruen.
+- Commit: tba
+- Notes: S-Slice Variante-2 #6/10. Coverage 76 → 78 Shape-guarded RPCs. Mystery-Box-Bug-Klasse erweitert geschuetzt. Scope-Out: 17 non-jsonb RPCs (scalar returns) + Audit-Helper-Verbesserung fuer non-literal-jsonb_build (Slice 007b).
+
+---
+
 ## 048 | 2026-04-18 | TR-i18n Notifications Foundation + reward_referral Pilot
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD → PROVE → LOG
 - Files:
@@ -21,7 +32,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `messages/de.json` + `messages/tr.json` — 4 neue notifTemplates keys (beide synchron 4852 keys)
   - `worklog/specs/048-tr-i18n-notifications-foundation.md` + `worklog/proofs/048-schema-after.txt`
 - Proof: Schema deployed, reward_referral schreibt i18n_key+params (verifiziert via pg_get_functiondef). 31/31 INV-Tests gruen, NotificationDropdown test gruen, tsc clean.
-- Commit: tba
+- Commit: f2809047
 - Notes: L-Slice gesplittet in 048 (Foundation + 1 Pilot) + 048b (Money-Path RPCs) + 048c (Social/Admin). Variante-2 Position #5/10. Backwards-compatible: title/body bleiben gefuellt als DE-Fallback, Client bevorzugt i18n_key wenn vorhanden. Erweitert bestehendes AR-59-Pattern (price_alert) auf generischen Key-Lookup.
 
 ---

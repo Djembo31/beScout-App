@@ -1091,6 +1091,10 @@ describe('DB Invariants', () => {
 
       // Fixtures sync
       sync_fixture_scores: ['success', 'synced_count'],
+
+      // Slice 049 — coverage expansion (A-07 audit)
+      get_club_balance: ['total_earned', 'trade_fees', 'sub_revenue', 'total_withdrawn', 'available'],
+      rpc_get_player_percentiles: ['floor_price_pct', 'holder_count_pct', 'l15_score_pct', 'l5_score_pct', 'pos_assists_pct', 'pos_clean_sheets_pct', 'pos_goals_pct', 'pos_l5_pct', 'pos_l5_rank', 'pos_l5_total', 'pos_matches_pct', 'pos_minutes_pct', 'pos_saves_pct', 'total_trades_pct'],
     };
 
     // RPCs that return string-literal JSON (e.g. '{"success":true}'::JSONB)
@@ -1100,6 +1104,8 @@ describe('DB Invariants', () => {
     const RPC_SHAPE_EXCLUDED = new Set<string>([
       'admin_delete_post',           // string-literal returns only
       'update_community_guidelines', // string-literal returns only
+      // Slice 049: uses SELECT ... FROM ... not jsonb_build_object → audit-helper can't parse
+      'rpc_get_user_social_stats',   // SELECT ... aggregates, no literal build
     ]);
 
     const names = Object.keys(RPC_SHAPE_WHITELIST);
