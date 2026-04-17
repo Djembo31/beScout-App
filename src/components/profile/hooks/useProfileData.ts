@@ -88,7 +88,7 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
       }
       try {
         const results = await Promise.allSettled([
-          getHoldings(targetUserId),
+          isSelf ? getHoldings(targetUserId) : Promise.resolve([]),
           getUserStats(targetUserId),
           getFollowerCount(targetUserId),
           getFollowingCount(targetUserId),

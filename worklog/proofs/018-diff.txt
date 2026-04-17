@@ -1,0 +1,13 @@
+diff --git a/src/components/profile/hooks/useProfileData.ts b/src/components/profile/hooks/useProfileData.ts
+index 2913964a..72def816 100644
+--- a/src/components/profile/hooks/useProfileData.ts
++++ b/src/components/profile/hooks/useProfileData.ts
+@@ -88,7 +88,7 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
+       }
+       try {
+         const results = await Promise.allSettled([
+-          getHoldings(targetUserId),
++          isSelf ? getHoldings(targetUserId) : Promise.resolve([]),
+           getUserStats(targetUserId),
+           getFollowerCount(targetUserId),
+           getFollowingCount(targetUserId),
