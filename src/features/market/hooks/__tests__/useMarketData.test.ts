@@ -263,7 +263,12 @@ describe('useMarketData', () => {
     expect(result.current.floorMap.get('p1')).toBe(450);
   });
 
-  it('floorMap falls back to prices.referencePrice when floor is undefined', () => {
+  // NOTE: Slice 008 (B-01, 2026-04-17) removed the `?? p.prices.referencePrice`
+  // fallback from useMarketData's floorMap — it was dead code post-enrichment
+  // (enrichPlayersWithData in enriched.ts:74 always sets `prices.floor` to a
+  // number: `floorFromOrders ?? p.prices.floor ?? p.prices.ipoPrice ?? 0`).
+  // The canonical chain is now: live Math.min → enriched `prices.floor` → 0.
+  it('floorMap falls back to 0 when floor is undefined (no live listings, no enriched floor)', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [],
@@ -273,19 +278,8 @@ describe('useMarketData', () => {
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
-    expect(result.current.floorMap.get('p1')).toBe(800);
-  });
-
-  it('floorMap falls back to 0 when both floor and referencePrice are undefined', () => {
-    const p1 = makePlayer({
-      id: 'p1',
-      listings: [],
-      prices: { lastTrade: 1000, change24h: 5, floor: undefined, referencePrice: undefined },
-    });
-    mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
-
-    const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
-
+    // referencePrice is no longer consulted — useMarketData relies on enriched
+    // `prices.floor` being present. This is a defensive fallback for malformed data.
     expect(result.current.floorMap.get('p1')).toBe(0);
   });
 
