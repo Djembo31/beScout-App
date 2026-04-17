@@ -117,14 +117,22 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - J3-Fund: BuyModal (`buying \|\| ipoBuying`), SellModal (`selling \|\| cancellingId !== null \|\| acceptingBidId != null`), LimitOrderModal (`false` + TODO fuer Feature-Live)
 - Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` — Modals ohne preventClose bei Money/Trading-Context pruefen
 
-## RLS Policy qual=true auf sensiblen Tabellen (2026-04-17 — Slice 014 AUTH-08)
+## RLS Policy qual=true auf sensiblen Tabellen (2026-04-17 — Slice 014 AUTH-08, erweitert Slice 019-021)
 - `CREATE POLICY x ON t FOR SELECT TO authenticated USING (true)` ist equivalent zu "keine Zugriffskontrolle fuer authenticated" — jeder eingeloggte User liest alle Rows.
-- Bei sensiblen Tabellen (holdings, transactions, activity_log, user_stats): **Portfolio-/Stat-Leak** systemweit. Client kann fremde User enumerieren.
+- Bei sensiblen Tabellen (holdings, transactions, activity_log, user_stats, orders): **Portfolio-/Stat-/Trading-Leak** systemweit. Client kann fremde User enumerieren.
 - Fix-Pattern: `USING (auth.uid() = user_id OR EXISTS(admin-check))`. Admins behalten Cross-User-Zugriff ueber explizite Branch.
-- Cross-User-Reads OHNE Admin-Rolle: SECURITY DEFINER RPC + REVOKE anon + GRANT authenticated (AR-44-Template) — bypasst RLS fuer Aggregate wie "distinct holder count per player".
-- **Regression-Guard:** INV-19 + INV-20 checken "jede kritische Tabelle hat SELECT-Policy" — aber **nicht** "qual != true". Denkbar: INV-neu das `qual='true'` auf kritischer-Tabellen-Whitelist failed.
-- Audit-Command: `SELECT tablename, policyname, qual FROM pg_policies WHERE schemaname='public' AND qual='true' ORDER BY tablename`
-- Concrete fix (Slice 014): `holdings_select_all_authenticated (qual=true)` → `holdings_select_own_or_admin` + `get_player_holder_count(uuid)` RPC fuer cross-count.
+- Cross-User-Reads OHNE Admin-Rolle: SECURITY DEFINER RPC + REVOKE anon + GRANT authenticated (AR-44-Template) — bypasst RLS fuer Aggregate wie "distinct holder count per player" oder "Orderbook mit handle+is_own statt user_id".
+- **Regression-Guard LIVE (Slice 019):** `INV-26` in `db-invariants.test.ts` scannt sensible Tabellen-Whitelist gegen `qual='true'` oder `qual=NULL` via neuer Audit-RPC `public.get_rls_policy_quals(p_tables text[])`. EXPECTED_PERMISSIVE dokumentiert bewusste Ausnahmen (aktuell nur `user_stats.Anyone can read stats` fuer Leaderboard).
+- Audit-Command (manuell): `SELECT tablename, policyname, qual FROM pg_policies WHERE schemaname='public' AND qual='true' ORDER BY tablename`
+- **Bekannte Instanzen (historisch):**
+  - **Slice 014 (holdings):** `holdings_select_all_authenticated (qual=true)` → `holdings_select_own_or_admin` + `get_player_holder_count(uuid)` RPC.
+  - **Slice 020+021 (orders):** `orders_select (qual=true)` → `orders_select_own_or_admin` + `get_public_orderbook(uuid, text)` RPC projiziert `handle` (via LEFT JOIN profiles) + `is_own` (via auth.uid()). user_id verschwindet komplett aus cross-user-Reads. 8 UI-Consumer-Sites migriert von `order.user_id === uid` auf `order.is_own`, von `profileMap[order.user_id]?.handle` auf `order.handle`.
+- **Rollout-Pattern bei RLS-Tighten ohne Markt-Stoerung (Slice 020+021 Split):**
+  1. Projection-RPC deployen (SECURITY DEFINER, keine user_id im Return).
+  2. Service-Layer auf RPC umstellen, UI-Consumers migrieren — RLS bleibt noch qual=true.
+  3. Deploy + Verify Orderbook-UX online.
+  4. Erst DANN RLS tighten (DROP qual=true, CREATE own-or-admin) + AUTH-NN Test + INV-26 Whitelist entfernen.
+  Verhindert Deploy-Race (RLS-Tighten ohne Code-Deploy = 10-30min Markt-Stoerung).
 
 ## SECURITY DEFINER + authenticated-Grant ohne auth.uid()-Guard (2026-04-17 — Slice 005 A-02)
 - **NEBEN** dem anon-REVOKE-Pattern (unten J4) existiert die **authenticated-to-other-user Exploit-Klasse**:
