@@ -11,6 +11,40 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 079 | 2026-04-19 | Home `/` Polish Pass 1+2 + Deploy-Healing (Phase 1/6 Core)
+- Stage-Chain: SPEC → IMPACT(skipped, UI+1 seed-migration) → BUILD → PROVE (LIVE DE+TR) → LOG
+- Files (8 distinct):
+  - `messages/de.json` + `messages/tr.json` (Label-Keys, Empty-Slot-Keys, kazan→aldın/elde ettin)
+  - `src/app/(app)/page.tsx` (balanceCents prop)
+  - `src/components/home/HomeStoryHeader.tsx` (Balance-Pill + opacity fix + formatScout consistency)
+  - `src/components/home/LastGameweekWidget.tsx` (Empty-Slot dashed-border + "Nicht besetzt")
+  - `src/components/home/HomeSpotlight.tsx` (prize_pool=0 hide)
+  - `src/components/home/MostWatchedStrip.tsx` (<2 Players hide)
+  - `src/components/profile/ManagerTab.tsx` (F15 gamification namespace)
+  - `src/lib/scrapers/transfermarkt-profile.ts` (parser-regression CI-fix)
+  - `supabase/migrations/20260419120000_slice_079_mission_titles_disambiguate.sql`
+  - `tsconfig.json` (**CRITICAL HEALING:** exclude scripts + tmp)
+- Commits (5):
+  - `907a417f` Pass 1 — Hero-Label + Mission + Empty-Slots
+  - `ebb9012e` Pass 1.1 — Parser-Regression + TR-Compliance
+  - `858fc16c` Healing — tsconfig scripts/tmp exclude
+  - `5561835b` Pass 2 — Empty-States + Balance-Format
+  - `26c98b1d` F15 — profile.fanRankStammgast namespace
+  - `21224a74` DONE log
+- Proof: worklog/proofs/079-{baseline,pass1,pass2}/ + 079-home-functional.md
+- Notes:
+  - **CRITICAL Insight:** Slice 077/077b/078 waren 2 Tage nicht deployed wegen
+    `tsconfig.json` include `**/*.ts` + scripts/*.ts → playwright-import.
+    `tsc --noEmit` lokal clean, Vercel `next build` fail. Fix unblocked 4
+    Slices retrospektiv. Pattern dokumentiert in common-errors.md.
+  - **Functional testing mandatory** (Anil 2026-04-19): memory/feedback_polish_functional_pflicht.md
+  - DE↔TR Round-Trip durch Settings geprüft, beide locales verified
+  - 6 Click-Through Flows + 3 Cross-Page Nav bestätigt (Mystery Box Modal,
+    Notifications, Hero→Manager, Quick-Actions, Player-Detail, Club-Page)
+  - Phase 1/6: Home DONE. Nächste Page: `/market`.
+
+---
+
 ## 078 | 2026-04-19 | TM Parser Fix (Markup-Change 2026-04) + Loader Pagination-Fix
 - Stage-Chain: SPEC → IMPACT(skipped, no DB/Service/RPC) → BUILD → PROVE → LOG
 - Files (8):
