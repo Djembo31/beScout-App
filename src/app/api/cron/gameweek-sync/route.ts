@@ -373,6 +373,53 @@ async function syncLeague(
     );
 
   let activeGw = 1;
+  // Slice 071: Phase-A skip flag + hoisted allFixturesDone for fall-through path
+  let skipPhaseA = false;
+  let allFixturesDone = false;
+
+  // Slice 071: Hoist Phase-A artifacts so post-wrap code (integrity, summary, return)
+  // bleibt zugriffsfähig auch wenn Phase A geskipped wurde.
+  type PlayerStatRow = {
+    fixture_id: string;
+    player_id: string | null;
+    club_id: string;
+    minutes_played: number;
+    goals: number;
+    assists: number;
+    clean_sheet: boolean;
+    goals_conceded: number;
+    yellow_card: boolean;
+    red_card: boolean;
+    saves: number;
+    bonus: number;
+    fantasy_points: number;
+    rating: number | null;
+    match_position: string | null;
+    is_starter: boolean;
+    grid_position: string | null;
+    api_football_player_id: number;
+    player_name_api: string;
+  };
+  type StatsResult = {
+    fixtureResults: Array<{ fixture_id: string; home_score: number; away_score: number }>;
+    playerStats: PlayerStatRow[];
+    allSubstitutions: Array<{
+      fixture_id: string; club_id: string; minute: number; extra_minute: number | null;
+      player_in_id: string | null; player_out_id: string | null;
+      player_in_api_id: number; player_out_api_id: number;
+      player_in_name: string; player_out_name: string;
+    }>;
+    matchedCount: number;
+    unmatchedCount: number;
+    nameMatchCount: number;
+    shirtBridgeCount: number;
+    newExternalIds: Array<{ player_id: string; external_id: number }>;
+  };
+  let statsResult: StatsResult | null = null;
+  let importResult: { success: boolean; fixtures_imported: number; stats_imported: number; scores_synced: number } | null = null;
+  let dedupedStats: PlayerStatRow[] = [];
+  let ghostsRemoved = 0;
+  let fixturesToProcess: Array<{ id: string; home_club_id: string; away_club_id: string; api_fixture_id: number }> = [];
 
   try {
     // ---- 3. Get active gameweek (per league) ----
@@ -458,7 +505,13 @@ async function syncLeague(
           steps,
         };
       }
-      // Fixtures done but events not scored — fall through to Phase B
+      // Slice 071: Fixtures done but events not scored → skip Phase A, go to Phase B
+      // Saves ~1 API-Call/Liga (the /fixtures?...&round=... probe)
+      skipPhaseA = true;
+      allFixturesDone = true;
+      await logStep(activeGw, 'phase_a_skipped', 'skipped', {
+        reason: 'all_fixtures_db_finished_only_scoring',
+      });
     } else {
       // There are unfinished fixtures — check if any have played_at in the past
       const { data: pastUnfinished } = await supabaseAdmin
@@ -484,6 +537,9 @@ async function syncLeague(
         };
       }
     }
+
+    // ---- Slice 071: wrap Phase A (lines below) — skip when fall-through case set skipPhaseA ----
+    if (!skipPhaseA) {
 
     // ---- 4. Check API fixtures ----
     const { result: fixtureCheck } = await runStep(
@@ -525,7 +581,7 @@ async function syncLeague(
     }
 
     const apiFixData = fixtureCheck.apiData;
-    const allFixturesDone = fixtureCheck.allDone;
+    allFixturesDone = fixtureCheck.allDone;
     await logStep(activeGw, 'check_fixtures', 'success', {
       total: fixtureCheck.total,
       finished: fixtureCheck.finished,
@@ -684,32 +740,11 @@ async function syncLeague(
       };
     }
 
-    const fixturesToProcess = newlyFinishedFixtures;
+    fixturesToProcess = newlyFinishedFixtures;
 
-    // ---- 6. Fetch lineups + player stats ----
-    type PlayerStatRow = {
-      fixture_id: string;
-      player_id: string | null;
-      club_id: string;
-      minutes_played: number;
-      goals: number;
-      assists: number;
-      clean_sheet: boolean;
-      goals_conceded: number;
-      yellow_card: boolean;
-      red_card: boolean;
-      saves: number;
-      bonus: number;
-      fantasy_points: number;
-      rating: number | null;
-      match_position: string | null;
-      is_starter: boolean;
-      grid_position: string | null;
-      api_football_player_id: number;
-      player_name_api: string;
-    };
+    // ---- 6. Fetch lineups + player stats (PlayerStatRow type hoisted for Slice 071) ----
 
-    const { result: statsResult } = await runStep('fetch_stats', async () => {
+    ({ result: statsResult } = await runStep('fetch_stats', async () => {
       const fixtureResults: Array<{
         fixture_id: string;
         home_score: number;
@@ -1067,7 +1102,7 @@ async function syncLeague(
       }
 
       return { fixtureResults, playerStats, allSubstitutions, matchedCount, unmatchedCount, nameMatchCount, shirtBridgeCount, newExternalIds };
-    });
+    }));
 
     if (!statsResult) {
       await logStep(activeGw, 'fetch_stats', 'error');
@@ -1084,8 +1119,8 @@ async function syncLeague(
 
     // Structural dedup: remove ghost starters (dual-ID entries with 0 min, null rating)
     // Uses the football rule that a team has exactly 11 starters — catches ALL edge cases
-    const dedupedStats = deduplicateGhostStarters(statsResult.playerStats);
-    const ghostsRemoved = statsResult.playerStats.length - dedupedStats.length;
+    dedupedStats = deduplicateGhostStarters(statsResult.playerStats);
+    ghostsRemoved = statsResult.playerStats.length - dedupedStats.length;
 
     await logStep(activeGw, 'fetch_stats', 'success', {
       fixtures: statsResult.fixtureResults.length,
@@ -1098,12 +1133,12 @@ async function syncLeague(
     });
 
     // ---- 7. Import via RPC ----
-    const { result: importResult } = await runStep('import_data', async () => {
+    ({ result: importResult } = await runStep('import_data', async () => {
       const { data, error } = await supabaseAdmin.rpc(
         'cron_process_gameweek',
         {
           p_gameweek: activeGw,
-          p_fixture_results: statsResult.fixtureResults,
+          p_fixture_results: statsResult!.fixtureResults,
           p_player_stats: dedupedStats,
         },
       );
@@ -1114,7 +1149,7 @@ async function syncLeague(
         stats_imported: number;
         scores_synced: number;
       };
-    });
+    }));
 
     await logStep(
       activeGw,
@@ -1131,14 +1166,15 @@ async function syncLeague(
 
     // ---- 7b. Save substitution events ----
     if (statsResult.allSubstitutions.length > 0) {
+      const subs = statsResult.allSubstitutions; // local non-null capture for closure
       await runStep('save_substitutions', async () => {
         const { error: subErr } = await supabaseAdmin
           .from('fixture_substitutions')
-          .upsert(statsResult.allSubstitutions, {
+          .upsert(subs, {
             onConflict: 'fixture_id,club_id,minute,player_in_api_id',
           });
         if (subErr) throw new Error(subErr.message);
-        return { saved: statsResult.allSubstitutions.length };
+        return { saved: subs.length };
       });
 
       await logStep(activeGw, 'save_substitutions', 'success', {
@@ -1177,15 +1213,6 @@ async function syncLeague(
       });
     }
 
-    // ============================================
-    // PHASE B: GW Finalization (only when ALL fixtures done)
-    // ============================================
-    let eventsScored = 0;
-    let eventsClosed = 0;
-    let eventsTransitioned = 0;
-    const nextGw = activeGw + 1;
-    let nextGwEventsCreated = 0;
-
     if (!allFixturesDone) {
       steps.push({ step: 'phase_b_skipped', status: 'skipped', details: { reason: `${fixtureCheck.finished}/${fixtureCheck.total} finished`, newlyProcessed: fixturesToProcess.length }, duration_ms: 0 });
       await logStep(activeGw, 'phase_b_skipped', 'skipped', {
@@ -1194,6 +1221,17 @@ async function syncLeague(
         newlyProcessed: fixturesToProcess.length,
       });
     }
+
+    } // ---- Slice 071: end of Phase-A wrap ----
+
+    // ============================================
+    // PHASE B: GW Finalization (only when ALL fixtures done)
+    // ============================================
+    let eventsScored = 0;
+    let eventsClosed = 0;
+    let eventsTransitioned = 0;
+    const nextGw = activeGw + 1;
+    let nextGwEventsCreated = 0;
 
     if (allFixturesDone) {
     // ---- 8 & 9. Score events ----
