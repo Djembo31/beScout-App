@@ -226,40 +226,60 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
   const deduped = Array.from(byApiId.values());
 
-  // ---- Phase 2b: Pre-filter — nur existing api_football_ids (skip neue Players wegen CHECK dpc_total <= max_supply) ----
+  // ---- Phase 2b: Pre-fetch existing player-ids by api_football_id ----
+  // Reason: UPSERT schlaegt fehl auch fuer existing rows, weil Postgres die
+  // INSERT-Tuple-Defaults (dpc_total=10000, max_supply=300) gegen CHECK validiert
+  // BEVOR ON CONFLICT DO UPDATE triggert. Daher: echtes UPDATE statt UPSERT.
   const allApiIds = deduped.map((p) => p.api_football_id);
-  const existingIds = new Set<number>();
+  const apiIdToPlayerId = new Map<number, string>();
   for (const idChunk of chunks(allApiIds, 1000)) {
     const { data: rows, error: fetchErr } = await supabaseAdmin
       .from('players')
-      .select('api_football_id')
+      .select('id, api_football_id')
       .in('api_football_id', idChunk);
     if (fetchErr) {
       stats.errors.push(`existing-ids-fetch: ${fetchErr.message}`);
       continue;
     }
-    for (const r of (rows ?? []) as Array<{ api_football_id: number }>) {
-      existingIds.add(r.api_football_id);
+    for (const r of (rows ?? []) as Array<{ id: string; api_football_id: number }>) {
+      apiIdToPlayerId.set(r.api_football_id, r.id);
     }
   }
 
-  const filtered = deduped.filter((p) => {
-    if (existingIds.has(p.api_football_id)) return true;
-    stats.players_new_skipped++;
-    return false;
-  });
+  // Build update-tasks (skip new players — they'd need manual onboarding)
+  type UpdateTask = { id: string; payload: Omit<PlayerPayload, 'api_football_id'> };
+  const updateTasks: UpdateTask[] = [];
+  for (const p of deduped) {
+    const playerId = apiIdToPlayerId.get(p.api_football_id);
+    if (!playerId) {
+      stats.players_new_skipped++;
+      continue;
+    }
+    const { api_football_id: _ignored, ...cleanPayload } = p;
+    void _ignored;
+    updateTasks.push({ id: playerId, payload: cleanPayload });
+  }
 
-  // ---- Phase 3: Chunked batch-upsert (nur existing → UPDATE-path, kein CHECK-Violation) ----
-  for (const chunk of chunks(filtered, UPSERT_CHUNK_SIZE)) {
-    const { error: upErr } = await supabaseAdmin
-      .from('players')
-      .upsert(chunk, { onConflict: 'api_football_id', ignoreDuplicates: false });
-
-    if (upErr) {
-      stats.errors.push(`upsert-chunk: ${upErr.message}`);
-      stats.players_errored += chunk.length;
-    } else {
-      stats.players_upserted += chunk.length;
+  // ---- Phase 3: Chunked concurrent UPDATEs (50 parallel/chunk) ----
+  for (const chunk of chunks(updateTasks, UPSERT_CHUNK_SIZE)) {
+    const batchSize = 50;
+    for (const batch of chunks(chunk, batchSize)) {
+      const results = await Promise.all(
+        batch.map((t) =>
+          supabaseAdmin
+            .from('players')
+            .update(t.payload)
+            .eq('id', t.id)
+            .then((r) => ({ ok: !r.error, error: r.error?.message })),
+        ),
+      );
+      for (const r of results) {
+        if (r.ok) stats.players_upserted++;
+        else {
+          stats.players_errored++;
+          stats.errors.push(`update: ${r.error}`);
+        }
+      }
     }
   }
 
