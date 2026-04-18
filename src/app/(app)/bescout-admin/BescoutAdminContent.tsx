@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket, Gift,
-  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2, Trophy, Banknote, Coins, Heart,
+  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2, Trophy, Banknote, Coins, Heart, Database,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -33,19 +33,20 @@ import { AdminTreasuryTab } from './AdminTreasuryTab';
 import { AdminEconomyTab } from './AdminEconomyTab';
 import { AdminFanWishesTab } from './AdminFanWishesTab';
 import { AdminLigaTab } from './AdminLigaTab';
+import { AdminDataSyncTab } from './AdminDataSyncTab';
 
 // ============================================
 // Tab Config
 // ============================================
 
-type AdminTab = 'overview' | 'users' | 'clubs' | 'founding_passes' | 'treasury' | 'fees' | 'economy' | 'liga' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'wishes' | 'debug';
+type AdminTab = 'overview' | 'users' | 'clubs' | 'founding_passes' | 'treasury' | 'fees' | 'economy' | 'liga' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'wishes' | 'data_sync' | 'debug';
 
 const TAB_ICONS: Record<AdminTab, React.ElementType> = {
   overview: BarChart3, users: Users, clubs: Building2, founding_passes: Gift, treasury: Banknote, fees: Percent,
   economy: Coins, liga: Trophy, ipos: Zap, gameweeks: Calendar, events: Trophy, airdrop: Rocket, sponsors: Megaphone,
-  creator_fund: Sparkles, wishes: Heart, debug: Bug,
+  creator_fund: Sparkles, wishes: Heart, data_sync: Database, debug: Bug,
 };
-const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'founding_passes', 'treasury', 'fees', 'economy', 'liga', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'wishes', 'debug'];
+const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'founding_passes', 'treasury', 'fees', 'economy', 'liga', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'wishes', 'data_sync', 'debug'];
 
 // ============================================
 // Overview Tab (inline â€” 12 lines)
@@ -304,7 +305,7 @@ export default function BescoutAdminContent() {
         const TAB_LABELS: Record<AdminTab, string> = {
           overview: t('tabOverview'), users: t('tabUsers'), clubs: t('tabClubs'), founding_passes: t('tabFoundingPasses'), treasury: t('tabTreasury'), fees: t('tabFees'),
           economy: 'Economy', liga: 'Liga', ipos: t('tabIpos'), gameweeks: t('tabGameweeks'), events: t('tabEvents'), airdrop: t('tabAirdrop'),
-          sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), wishes: 'Fan Wishes', debug: t('tabDebug'),
+          sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), wishes: 'Fan Wishes', data_sync: t('tabDataSync'), debug: t('tabDebug'),
         };
         return (
           <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-divider overflow-x-auto scrollbar-hide">
@@ -352,6 +353,7 @@ export default function BescoutAdminContent() {
       {tab === 'sponsors' && user && <AdminSponsorsTab adminId={user.id} />}
       {tab === 'creator_fund' && user && <AdminCreatorFundTab adminId={user.id} />}
       {tab === 'wishes' && <AdminFanWishesTab />}
+      {tab === 'data_sync' && <AdminDataSyncTab />}
       {tab === 'debug' && <DebugTab />}
     </div>
   );
