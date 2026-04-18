@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 069 | 2026-04-18 | Cron-Frequenz-Fix + Manual-Trigger-Button + Deploy-Healing
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files:
+  - `vercel.json` (3 neue Cron-Entries)
+  - `src/app/api/admin/trigger-cron/[name]/route.ts` (NEW — Admin-Auth-Proxy)
+  - `src/app/(app)/bescout-admin/AdminDataSyncTab.tsx` (NEW — UI mit 3 Manual-Trigger)
+  - `src/app/(app)/bescout-admin/BescoutAdminContent.tsx` (Tab-Registration)
+  - `messages/de.json` + `messages/tr.json` (19 Keys, TR Anil-approved)
+  - **Healing:** `src/lib/scrapers/transfermarkt-profile.ts` + `src/lib/scrapers/transfermarkt-search.ts` (NEW — extracted from route.ts)
+  - **Healing:** `src/app/api/cron/sync-transfermarkt-batch/route.ts` + `src/app/api/cron/transfermarkt-search-batch/route.ts` (remove Named-Exports)
+  - **Healing:** `src/components/layout/NotificationDropdown.tsx` + `src/lib/__tests__/playerMath.test.ts` (ESLint disable-comment fix)
+  - `.claude/rules/common-errors.md` (2 neue Patterns)
+- Proof: `worklog/proofs/069-vercel-diff.txt` + `worklog/proofs/069-deploy-status.txt` (Deploy success 08:55:05Z, Endpoints existieren)
+- Commits: 37f2f0d6 (Slice) + 5f48aa0d (Healing) + d18daac9 (Docs)
+- Notes: **Kritisches Post-Mortem-Fund:** Deploy-Pipeline war SEIT Slice 064 (2026-04-18) kaputt — 11 Vercel-Deploys in Serie gefailt. Root-Cause: Named-Exports (`parseMarketValue`/`parseSearchResults` etc.) in `route.ts` verletzen Next-14-App-Router Type-Constraint + ESLint-disable-Comments referenzierten nicht-registrierte `@typescript-eslint/no-explicit-any` Rule. `tsc --noEmit` clean, aber `next build` fail. Slice 069 ist de-facto ein **Pipeline-Rescue** — nach Healing sind endlich alle Slices 064-069 live. Cron-Schedules per CEO-Decision: sync-players-daily Montag 03:00 UTC, sync-transfermarkt-batch 4x jaehrlich (1. Jan/Mai/Sep), transfermarkt-search-batch taeglich 02:30 UTC (manuell deaktivieren nach 2 Wochen). Admin-UI neuer Tab "Data Sync" mit 3 Manual-Trigger-Buttons. Final Live-Test (Screenshot + Manual-Trigger-Response) = CEO in bescout.net Admin-Panel.
+
+---
+
 ## 058 | 2026-04-18 | P7-Rest Re-Verify auf bescout.net (Slices 044-057)
 - Stage-Chain: SPEC(inline) → BUILD(Playwright MCP) → PROVE → LOG
 - Files: `worklog/proofs/058-verify-report.md` + 3 Screenshots

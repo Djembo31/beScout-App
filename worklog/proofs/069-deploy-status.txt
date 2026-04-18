@@ -1,0 +1,14 @@
+=== Endpoint-Existence-Test (POST ohne Auth → erwartet 307 middleware-redirect) ===
+
+# sync-players-daily
+HTTP 307 | redirect: https://www.bescout.net/api/admin/trigger-cron/sync-players-daily
+
+# invalid-name (whitelist-check waere 400 falls middleware durchlaesst)
+HTTP 307
+
+# transfermarkt-search-batch
+HTTP 307
+
+=== Vercel-Deploy-Status ===
+Commit-Chain: 37f2f0d6 (Slice 069) + 5f48aa0d (Healing) + d18daac9 (Docs)
+success at 2026-04-18T08:55:05Z
