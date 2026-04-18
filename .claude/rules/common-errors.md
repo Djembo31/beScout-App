@@ -5,6 +5,20 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ## DB Columns + CHECK Constraints
 → Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 
+## tsconfig `**/*.ts` includes lokale Scripts → Vercel Build-Error (2026-04-19 — Slice 079 Healing)
+- `tsconfig.json` hat `"include": ["**/*.ts"]` + `exclude: ["node_modules", "backup", "e2e"]` — aber **NICHT** `scripts/`.
+- Lokale dev-scripts in `scripts/` (z.B. `scripts/tm-profile-local.ts`) importieren Packages wie `playwright` die nicht als dep in `package.json` sind (läuft lokal via `npx tsx`, packet ist lokal verfügbar durch `@playwright/test` transitive dep).
+- `tsc --noEmit` lokal cleant: `skipLibCheck: true` + lokaler node_modules sieht playwright durch transitive resolution.
+- **Vercel `next build` schlägt fehl:** Type-error `Cannot find module 'playwright' or its corresponding type declarations`.
+- **Symptom:** Alle Commits seit Slice 077 (2 Tage, 4 Slices: 077, 077b, 078, 079) sind auf Vercel als "Error" geflagged. Production zeigt noch den letzten erfolgreichen Deploy davor. User sieht keine Code-Änderungen live.
+- **Fix:** `tsconfig.json` exclude erweitern um `scripts` (und `tmp`). Dev-scripts laufen via `npx tsx` weiterhin mit eigenem Type-Check.
+  ```json
+  "exclude": ["node_modules", "backup", "e2e", "scripts", "tmp"]
+  ```
+- **Audit-Signal nach neuen `scripts/*.ts` oder `tmp/*.ts` files:** immer `npx next build` lokal laufen, nicht nur `tsc --noEmit`. Next build scant anders als tsc — es baut die generated `.next/types/app/.../route.ts` Typen.
+- **Prevention:** neue lokale Scripts in `scripts/` anlegen (nicht z.B. `src/scripts/`) → sind automatisch excluded nach Slice 079 Fix.
+- **Vercel-Logs Debug:** `npx vercel inspect <deploy-url> --logs` liefert Build-Error-Trace. Vercel-Dashboard zeigt Status aber nicht detail; Logs brauchen CLI.
+
 ## External-Site Scraper-Regex silent-break (2026-04-19 — Slice 078)
 - Fremder Site (Transfermarkt) aendert Markup → unser Regex matcht nicht mehr → parser returnt `null` → DB behaelt 0/null → **Daten-Lücke wird silent grösser bei jedem Rerun**.
 - **Slice 078 Konkret:** TM hat 2026-04 von `data-header__box--marketvalue` auf `data-header__market-value-wrapper` umgestellt. Reihenfolge Zahl/Währung umgedreht (`€ X Mio.` → `X,XX <span class="waehrung">Mio. €</span>`). 433 Stammspieler hatten MV=0 in DB trotz echtem TM-Wert (Morgan Rogers €80M etc.).
