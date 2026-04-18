@@ -60,6 +60,7 @@ type SyncStats = {
   clubs_errored: number;
   players_upserted: number;
   players_errored: number;
+  players_new_skipped: number;
   api_calls: number;
   errors: string[];
 };
@@ -122,6 +123,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     clubs_errored: 0,
     players_upserted: 0,
     players_errored: 0,
+    players_new_skipped: 0,
     api_calls: 0,
     errors: [],
   };
@@ -224,8 +226,31 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
   const deduped = Array.from(byApiId.values());
 
-  // ---- Phase 3: Chunked batch-upsert ----
-  for (const chunk of chunks(deduped, UPSERT_CHUNK_SIZE)) {
+  // ---- Phase 2b: Pre-filter — nur existing api_football_ids (skip neue Players wegen CHECK dpc_total <= max_supply) ----
+  const allApiIds = deduped.map((p) => p.api_football_id);
+  const existingIds = new Set<number>();
+  for (const idChunk of chunks(allApiIds, 1000)) {
+    const { data: rows, error: fetchErr } = await supabaseAdmin
+      .from('players')
+      .select('api_football_id')
+      .in('api_football_id', idChunk);
+    if (fetchErr) {
+      stats.errors.push(`existing-ids-fetch: ${fetchErr.message}`);
+      continue;
+    }
+    for (const r of (rows ?? []) as Array<{ api_football_id: number }>) {
+      existingIds.add(r.api_football_id);
+    }
+  }
+
+  const filtered = deduped.filter((p) => {
+    if (existingIds.has(p.api_football_id)) return true;
+    stats.players_new_skipped++;
+    return false;
+  });
+
+  // ---- Phase 3: Chunked batch-upsert (nur existing → UPDATE-path, kein CHECK-Violation) ----
+  for (const chunk of chunks(filtered, UPSERT_CHUNK_SIZE)) {
     const { error: upErr } = await supabaseAdmin
       .from('players')
       .upsert(chunk, { onConflict: 'api_football_id', ignoreDuplicates: false });
@@ -251,6 +276,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         clubs_errored: stats.clubs_errored,
         players_upserted: stats.players_upserted,
         players_errored: stats.players_errored,
+        players_new_skipped: stats.players_new_skipped,
         api_calls: stats.api_calls,
         error_sample: stats.errors.slice(0, 5),
       },
@@ -269,6 +295,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       clubs_errored: stats.clubs_errored,
       players_upserted: stats.players_upserted,
       players_errored: stats.players_errored,
+      players_new_skipped: stats.players_new_skipped,
       api_calls: stats.api_calls,
       errors_count: stats.errors.length,
       error_sample: stats.errors.slice(0, 5),
