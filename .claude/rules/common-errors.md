@@ -298,6 +298,27 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
   ```
 - **Audit-Pflicht beim AR-44 Hardening:** pruefen ob hardened RPC von Triggern aufgerufen wird → sofort Internal-Helper extrahieren. Andernfalls: cumulative silent-fail.
 
+## Next.js Route-Handler: Named-Exports brechen Build (2026-04-18 — Slice 069 Healing)
+- `export function helper(...)` in `src/app/api/.../route.ts` ist **verboten** unter Next.js 14+ App-Router
+- Nur erlaubt: HTTP-Method-Handlers (`GET`/`POST`/`PUT`/`DELETE`/`PATCH`/`HEAD`/`OPTIONS`), plus `runtime`/`dynamic`/`dynamicParams`/`revalidate`/`fetchCache`/`maxDuration`/`generateStaticParams`/`config`
+- Jeder andere Named-Export → `next build` Type-Error: `'OmitWithTag<...>' does not satisfy the constraint '{ [x: string]: never; }'`
+- `tsc --noEmit` FAENGT DAS NICHT — der Type-Check entsteht aus generated `.next/types/app/.../route.ts` nur waehrend `next build`
+- Gleiches gilt fuer `type`-exports — nur `type` lokal deklarieren, export nur aus `lib/`-Files
+- **Kritisch:** Bug kann wochenlang verborgen sein, weil `tsc` lokal clean ist und `next build` nur im Deploy-CI laeuft
+- **Slice 069-Fund:** Slice 064 + 068 hatten `export function parseMarketValue/parseSearchResults/normalizeName/scoreMatch` in route.ts → **alle 11 Vercel-Deploys seit 2026-04-18 gefailt, Cron-Pipeline nicht live**
+- **Fix-Pattern:** Helpers nach `src/lib/scrapers/` (oder `src/lib/<domain>/`) extrahieren, route.ts + tests importieren aus lib/
+- **Regel:** Nach JEDEM Edit in `src/app/api/**/route.ts`: `npx next build` lokal laufen ODER zumindest pruefen ob neue Exports nur die erlaubten Symbole enthalten.
+
+## ESLint disable-comment mit undefined Rule (2026-04-18 — Slice 069 Healing)
+- `// eslint-disable-next-line @typescript-eslint/no-explicit-any` failt wenn `@typescript-eslint` Plugin NICHT in eslintrc registriert ist
+- Project-eslintrc ist `{ "extends": "next/core-web-vitals" }` — kein `@typescript-eslint` direkter Plugin
+- `next build` schlaegt fehl: `Error: Definition for rule '@typescript-eslint/no-explicit-any' was not found`
+- **Slice 069-Fund:** 3 Occurrences (Slice 048 TR-i18n NotificationDropdown + Slice 052 playerMath.test) — blockten alle Deploys
+- **Fix-Pattern:** Statt `as any` + disable-comment nutze:
+  - Typgerechten Cast: `(fn as unknown as (k: string, p?: Record<string, unknown>) => string)(...)`
+  - Oder `unknown` + enger Cast am Verwendungsort
+- **Regel:** Wenn `as any` noetig scheint, erst pruefen ob typgerechter Cast moeglich ist. Disable-comments mit Rule-Namen nur wenn Plugin installiert.
+
 ## auth.users DELETE NO-ACTION-FK-Pre-Cleanup (2026-04-17 — Slice 028)
 - `DELETE FROM auth.users WHERE id IN (...)` scheitert an NO-ACTION-FK-Constraints in anderen Tabellen (Postgres: `23503: violates foreign key constraint`). Die Standard-CASCADE-Tables (profiles, wallets, holdings) werden automatisch gecleant — die NO-ACTION-Tables nicht.
 - Bekannte NO-ACTION-Tables auf `auth.users`: `user_tickets`, `ticket_transactions`, `transactions`, `trades`, `events.created_by`, `ipo_purchases`, `mystery_box_results`, `welcome_bonus_claims`, `chip_usages`, `mentorships`, `community_poll_votes`, `verified_scouts`, `fan_rankings`, `user_cosmetics`, `user_daily_challenges`, `user_founding_passes`, `user_scout_missions`, `liquidation_events`, `liquidation_payouts`, `sponsors.created_by`, `fee_config.updated_by`, `club_votes.created_by`, `bounty_submissions.reviewed_by`, `player_valuations` (23 Tables, Stand 2026-04-17).
