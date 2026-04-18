@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 077 | 2026-04-19 | TM Local Scraper (Cloudflare-Workaround)
+- Stage-Chain: SPEC(inline) → IMPACT(skipped, scripts only) → BUILD → PROVE → LOG
+- Files (3):
+  - `scripts/tm-search-local.ts` (NEW — Playwright search → player_external_ids INSERT)
+  - `scripts/tm-profile-local.ts` (NEW — Playwright profile → players MV/contract UPDATE)
+  - `worklog/proofs/077-tm-local-scraper-results.txt` (NEW — Run-Statistik TFF 1. Lig)
+- Proof: worklog/proofs/077-tm-local-scraper-results.txt
+- Commit: (siehe git log)
+- Notes:
+  - TFF 1. Lig: mapped 471 → 598 (+127), contract_pct 70.2 → 77.6, MV stagniert bei 70.2 weil 81 Players TM-mv=0.
+  - Query-Order-Bug gefunden: Cron-Code nutzt `${last_name} ${first_name}` + TM-Search scheitert bei tuerk. Diacritics. Script nutzt `${first_name} ${last_name}` → Matches finden.
+  - Cloudflare-Block wurde nicht getriggert weil Local-IP statt Vercel-Datacenter.
+  - 2 Runs + 1 Profile-Run, 0 errored, ~18min total Laufzeit.
+
 ## 076 | 2026-04-18 | Manual CSV-Import (Transfermarkt-Block-Workaround)
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files (7):

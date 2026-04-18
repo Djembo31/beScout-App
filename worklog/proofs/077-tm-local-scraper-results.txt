@@ -1,0 +1,62 @@
+Slice 077 Proof — TM local scraper (Cloudflare-Workaround)
+Generated: 2026-04-19
+
+Kontext:
+Cron sync-transfermarkt-batch und transfermarkt-search-batch sind auf Vercel
+Cloudflare-blocked (siehe common-errors "Transfermarkt Cloudflare-Block").
+Ausserdem: Query-Order-Bug in transfermarkt-search-batch — `${last_name} ${first_name}`
+liefert 0 Matches bei tuerkischen Spielern mit Diacritics (Test: "Abdioğlu Yusuf" = 0,
+"Yusuf Abdioğlu" = 1).
+
+Loesung: zwei tsx-Scripts in scripts/ die lokal via Playwright chromium laufen:
+  - tm-search-local.ts : Search -> player_external_ids INSERT
+  - tm-profile-local.ts : Profile-scrape -> players.market_value_eur + contract_end UPDATE
+
+TFF 1. Lig Run-Statistik (2026-04-19):
+
+--- tm-search-local.ts, 2 Laeufe ---
+Run 1: limit=300, 81 processed
+  found=42  notFound=39  errored=0  duration=229s
+Run 2: limit=250, 232 processed
+  found=82  notFound=150 errored=0  duration=665s
+Total: 124 neue TM-mappings.
+
+--- tm-profile-local.ts, 1 Lauf ---
+Lauf: limit=500, 85 processed
+  mv_updated=0  contract_updated=56  unchanged=29  errored=0  duration=272s
+
+DB-State TFF 1. Lig Stammkader (shirt_number NOT NULL, is_liquidated=false):
+                   vorher   jetzt     delta
+  total            749      749         0
+  mapped           471      598      +127  (= 124 neu + Korrekturen)
+  unmapped         287      151      -136
+  contract_pct     70.2%    77.6%    +7.4pp
+  market_value_pct 70.2%    70.2%        0
+
+MV-Stagnation erklaert:
+  mapped_zero_mv=81   (Players die TM mit MV=0 bewertet)
+  mapped_no_contract=28
+  Beides via Scraping nicht recoverable — gehoert in CSV-Workflow.
+
+Gold-Tier-Schwelle fuer TFF 1. Lig noch offen:
+  232 Players ohne MV-Daten (151 unmapped + 81 mv=0).
+  Gold = >=95% → max 37 fehlend erlaubt → Luecke 195 Players.
+
+Scripts:
+  scripts/tm-search-local.ts   6.0 KB
+  scripts/tm-profile-local.ts  5.1 KB
+
+Usage:
+  npx tsx scripts/tm-search-local.ts --league="TFF 1. Lig" --limit=300
+  npx tsx scripts/tm-profile-local.ts --league="TFF 1. Lig" --limit=500
+  (Args: --rate=2500 --threshold=50 --headless=false --force=true)
+
+Laufzeit-Charakteristik: ~2.5s/Player (Rate-Limit dominant, Playwright-launch ~1s).
+
+Known Issues / Next:
+  - transfermarkt-search-batch Cron hat Query-Order-Bug (`${last_name} ${first_name}`).
+    Auf Vercel ohnehin Cloudflare-blocked, aber bei Proxy-Setup spaeter zu fixen.
+  - Threshold=50 verliert Abkuerzungen ("Y. Bozdemir" hat normFirst.length=1 < 3 → score-Cap).
+    Evtl separate Fuzzy-Heuristik fuer abgekuerzte Firstnames.
+  - Andere Ligen mit 0-Mappings: Süper Lig (596), Bundesliga (600), 2. Bundesliga (544),
+    La Liga (705), Premier League (654), Serie A (665) — jeweils ~20-25min.

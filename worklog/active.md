@@ -10,6 +10,10 @@ proof: —
 started: —
 ```
 
+## Session 2026-04-19 — Slice 077 DONE
+
+- **077** TM Local Scraper (Cloudflare-Workaround) — TFF +127 mappings, +56 contracts
+
 ## Session 2026-04-18 — 8 Slices abgeschlossen
 
 - **069** Cron-Frequenz-Fix + Manual-Trigger-Button + Deploy-Healing ✅
