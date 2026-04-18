@@ -1,0 +1,7 @@
+=== Slice 072 Deploy Verify ===
+Commit: dacfe6f4
+Vercel: success at 2026-04-18T10:50:46Z, target=https://vercel.com/bescouts-projects/bescout-app/75gnSGQzffRLYJ4at6mqDZXnD9rN
+
+=== Endpoint Existence (no-auth expect 401) ===
+cron/sync-transfers: HTTP 401
+admin/trigger-cron/sync-transfers: HTTP 401

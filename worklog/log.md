@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 072 | 2026-04-18 | sync-transfers Manual-Only + player_transfers table
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files (8):
+  - `supabase/migrations/20260418130000_slice_072_player_transfers.sql` (NEW table + RLS + 2 indexes)
+  - `src/app/api/cron/sync-transfers/route.ts` (NEW — 134 calls/run, manual-only)
+  - `src/app/api/admin/trigger-cron/[name]/route.ts` (Whitelist +sync-transfers)
+  - `src/app/(app)/bescout-admin/AdminDataSyncTab.tsx` (5. Card ArrowRightLeft)
+  - `messages/de.json` + `messages/tr.json` (3 Keys, TR Anil-approved)
+- Proof: (post-deploy `072-deploy-status.txt` + `072-rls.txt`)
+- Commit: dacfe6f4
+- Notes: **Hobby-Plan-Kompatibilität**: KEIN vercel.json-Entry (sonst wäre 7. Cron-Job bei Hobby 2-Limit). Admin triggert ad-hoc nach Transferfenster-Ende (Jan + Jul-Aug). **Side-Effect bei IN-Transfer zu mapped Club:** `players.club_id` wird aktualisiert — redundant mit sync-players-daily aber ad-hoc. **Orphan-Transfers** (destination nicht in DB z.B. 3. Liga): `team_in_id=NULL` + `team_in_api_football_id` erhalten für Future-Mapping. **API-Quota:** 134 Calls × 2-3× jährlich = ~400/Jahr (0.1% Monat-Pro-Quota). Migration via mcp__supabase__apply_migration. Local migration file für Greenfield-Reset geschrieben (AR-43 Stub-Verbot).
+
+---
+
 ## 071 | 2026-04-18 | gameweek-sync Phase-A-Skip (Schedule-3x-Rollback)
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE(partial) → LOG
 - Files (2):
