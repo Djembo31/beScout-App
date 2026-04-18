@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 070 | 2026-04-18 | Sync-Injuries-Cron — kritischste Pre-Launch-Lücke geschlossen
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files (8):
+  - `supabase/migrations/20260418120000_slice_070_player_injuries.sql` (NEW — 3 cols + CHECK)
+  - `src/app/api/cron/sync-injuries/route.ts` (NEW — 7 calls/run, recovery-logic, status-mapping)
+  - `vercel.json` (Cron-Entry: täglich 12:00 UTC)
+  - `src/app/(app)/bescout-admin/AdminDataSyncTab.tsx` (4. Card mit HeartPulse)
+  - `src/app/api/admin/trigger-cron/[name]/route.ts` (Whitelist erweitert)
+  - `messages/de.json` + `messages/tr.json` (3 Keys, TR Anil-approved)
+- Proof: `worklog/proofs/070-deploy-status.txt` — Deploy success 09:38:31Z, Endpoints 401/400 (auth+whitelist live), DB-Schema verified, CHECK constraint aktiv
+- Commit: dbf98f4e
+- Notes: Migration via `mcp__supabase__apply_migration` (NIE supabase db push). API-Football Pro-Tier 7500/day → 7 Calls/Tag (0.1% Quota). Status-Mapping: `Questionable→doubtful`, `Missing Fixture+suspend-keywords→suspended`, sonst `injured`. Recovery-Guard: nur wenn ALLE 7 Ligen erfolgreich (verhindert Mass-Fit bei API-Outage). gameweek-sync `doubtful` (von last_appearance_gw) bleibt unangetastet — injury hat Priorität. Final Live-Test: Anil triggert via Admin → Data Sync → Verletzungen.
+
+---
+
 ## 069 | 2026-04-18 | Cron-Frequenz-Fix + Manual-Trigger-Button + Deploy-Healing
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files:

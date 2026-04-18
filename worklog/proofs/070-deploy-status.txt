@@ -1,0 +1,16 @@
+=== Endpoint Existence (POST ohne Auth → 307 middleware) ===
+trigger-cron/sync-injuries: HTTP 307
+cron/sync-injuries (direct, no CRON_SECRET): HTTP 307
+
+=== Vercel-Deploy-Status ===
+Commit: dbf98f4e
+success at 2026-04-18T09:38:31Z
+
+=== Endpoint Test (mit -L follow redirect) ===
+cron/sync-injuries (no-auth ? expect 401): HTTP 401
+trigger-cron/sync-injuries (no-session ? expect 401): HTTP 401
+trigger-cron/invalid-name: HTTP 400
+
+=== DB Schema verified ===
+Columns added: injury_reason TEXT, injury_until DATE, status_updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+CHECK constraint: status IS NULL OR status IN ('fit','doubtful','injured','suspended')
