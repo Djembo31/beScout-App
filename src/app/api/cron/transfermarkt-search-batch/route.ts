@@ -56,6 +56,9 @@ export async function GET(request: Request): Promise<NextResponse> {
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get('limit') ?? String(BATCH_SIZE), 10), BATCH_SIZE);
   const mvPriority = url.searchParams.get('mv_priority') !== 'false';
+  // Slice 075: debug-mode sammelt Match-Statistiken pro Player, score-threshold override
+  const debug = url.searchParams.get('debug') === 'true';
+  const threshold = Math.max(30, parseInt(url.searchParams.get('threshold') ?? '50', 10));
 
   // Load target players: no tm-mapping + (optional) missing market-value
   const { data: candidates, error: fetchErr } = await supabaseAdmin
@@ -108,6 +111,8 @@ export async function GET(request: Request): Promise<NextResponse> {
   let errored = 0;
   const errors: string[] = [];
   const foundSample: Array<{ name: string; tm_id: string; score: number }> = [];
+  // Slice 075: debug trace — per-player match-count + best-score
+  const debugTrace: Array<{ name: string; parsed: number; bestScore: number; topMatch?: string }> = [];
 
   for (const player of players) {
     try {
@@ -143,7 +148,16 @@ export async function GET(request: Request): Promise<NextResponse> {
         }
       }
 
-      if (bestMatch && bestScore >= 50) {
+      if (debug && debugTrace.length < 20) {
+        debugTrace.push({
+          name: `${player.first_name} ${player.last_name}`,
+          parsed: searchMatches.length,
+          bestScore,
+          topMatch: bestMatch?.display_name,
+        });
+      }
+
+      if (bestMatch && bestScore >= threshold) {
         // Insert external_id
         const { error: insErr } = await supabaseAdmin
           .from('player_external_ids')
@@ -207,6 +221,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       errored,
       found_sample: foundSample,
       error_sample: errors.slice(0, 5),
+      ...(debug ? { debug_trace: debugTrace, threshold_used: threshold } : {}),
     },
   });
 }

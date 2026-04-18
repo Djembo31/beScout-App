@@ -1,12 +1,16 @@
 /**
  * Slice 070 — Sync Player-Injuries from API-Football
+ * Slice 075 — Batch-Refactor: 1 pre-query + chunked concurrent updates
  *
  * Fetches /injuries?league=X&season=Y per active league (~7 calls/run).
- * Updates players.status (injured|suspended|doubtful) + injury_reason + injury_until.
- * Recovery-Logik: Players die vorher injured/suspended waren aber nicht mehr in
- * API-Response auftauchen → status='fit' (gameweek-sync 'doubtful' bleibt unangetastet).
+ * Updates players.status (injured|suspended|doubtful) + injury_reason.
+ * Recovery: Players die vorher injured/suspended waren aber nicht mehr in
+ * API-Response → status='fit'.
  *
- * Cron-Schedule: Vercel Cron daily 12:00 UTC (mid-day = oft frische injuries).
+ * Performance:
+ * - Phase 1: 7 parallel API-calls (rate-limited 300ms stagger)
+ * - Phase 2: 1 pre-query lookup alle Players by api_football_id
+ * - Phase 3: Chunked concurrent UPDATEs (50/chunk)
  *
  * Auth: CRON_SECRET Bearer.
  */
@@ -17,22 +21,15 @@ import { apiFetch, getCurrentSeason } from '@/lib/footballApi';
 
 type ApiInjuryResponse = {
   response: Array<{
-    player: { id: number; name: string; photo: string | null };
+    player: { id: number; name: string };
     team: { id: number; name: string };
-    fixture: { id: number | null; date: string | null };
     league: { id: number; season: number };
-    type: string; // "Missing Fixture" | "Questionable"
-    reason: string | null; // "Knee Injury" | "Suspended" | "Calf Injury" | etc.
+    type: string;
+    reason: string | null;
   }>;
-  paging: { current: number; total: number };
-  errors?: unknown;
 };
 
-type LeagueRow = {
-  id: string;
-  short: string;
-  api_football_id: number;
-};
+type LeagueRow = { id: string; short: string; api_football_id: number };
 
 type SyncStats = {
   leagues_processed: number;
@@ -45,15 +42,20 @@ type SyncStats = {
 };
 
 const API_RATE_LIMIT_MS = 300;
+const UPDATE_CHUNK_SIZE = 50;
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Map API-Football injury entry → players.status value. */
+function chunks<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
 function mapStatus(type: string, reason: string | null): 'injured' | 'suspended' | 'doubtful' {
   if (type === 'Questionable') return 'doubtful';
-  // type === 'Missing Fixture' (or anything else)
   const r = (reason ?? '').toLowerCase();
   if (r.includes('suspend') || r.includes('red card') || r.includes('booked') || r.includes('sent off')) {
     return 'suspended';
@@ -64,13 +66,11 @@ function mapStatus(type: string, reason: string | null): 'injured' | 'suspended'
 export async function GET(request: Request): Promise<NextResponse> {
   const runStart = Date.now();
 
-  // ---- 1. Auth ----
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // ---- 2. Env validation ----
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured' }, { status: 500 });
   }
@@ -79,7 +79,6 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 
   const season = getCurrentSeason();
-
   const stats: SyncStats = {
     leagues_processed: 0,
     injuries_imported: 0,
@@ -90,7 +89,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     errors: [],
   };
 
-  // ---- 3. Load active leagues (with api_football_id) ----
+  // ---- Load leagues ----
   const { data: leagueRows, error: leagueErr } = await supabaseAdmin
     .from('leagues')
     .select('id, short, api_football_id')
@@ -108,27 +107,28 @@ export async function GET(request: Request): Promise<NextResponse> {
       api_football_id: l.api_football_id as number,
     }));
 
-  // ---- 4. Snapshot of currently-flagged players (for recovery logic) ----
-  // Only injured/suspended — doubtful from gameweek-sync stays untouched.
+  // ---- Snapshot flagged players (für Recovery) ----
   const { data: flaggedRows, error: flagErr } = await supabaseAdmin
     .from('players')
-    .select('id, api_football_id, status')
+    .select('id, api_football_id')
     .in('status', ['injured', 'suspended']);
 
   if (flagErr) {
     return NextResponse.json({ error: `flagged-players fetch: ${flagErr.message}` }, { status: 500 });
   }
 
-  // Map: api_football_id → player.id (only injured/suspended ones)
   const previouslyFlagged = new Map<number, string>();
   for (const p of (flaggedRows ?? []) as Array<{ id: string; api_football_id: number | null }>) {
     if (p.api_football_id) previouslyFlagged.set(p.api_football_id, p.id);
   }
 
-  // Track which previously-flagged players showed up again in API → those NOT seen get recovered
-  const seenApiIds = new Set<number>();
+  // ---- Phase 1: Sequential API-fetches mit Rate-Limit ----
+  const allInjuries: Array<{
+    apiPlayerId: number;
+    status: 'injured' | 'suspended' | 'doubtful';
+    reason: string;
+  }> = [];
 
-  // ---- 5. Iterate leagues + fetch injuries ----
   for (const league of activeLeagues) {
     try {
       await sleep(API_RATE_LIMIT_MS);
@@ -139,90 +139,119 @@ export async function GET(request: Request): Promise<NextResponse> {
 
       stats.injuries_imported += response.response?.length ?? 0;
 
-      // Track unique players seen in THIS API run (player can have multiple injury entries)
-      const processedInThisRun = new Set<number>();
-
       for (const entry of response.response ?? []) {
         const apiPlayerId = entry.player?.id;
         if (!apiPlayerId) continue;
-
-        seenApiIds.add(apiPlayerId);
-        if (processedInThisRun.has(apiPlayerId)) continue;
-        processedInThisRun.add(apiPlayerId);
-
-        const newStatus = mapStatus(entry.type, entry.reason);
-        const reason = entry.reason || 'Unknown';
-
-        // Lookup player by api_football_id
-        const { data: playerRow, error: lookupErr } = await supabaseAdmin
-          .from('players')
-          .select('id, status')
-          .eq('api_football_id', apiPlayerId)
-          .maybeSingle();
-
-        if (lookupErr) {
-          stats.errors.push(`Lookup api=${apiPlayerId}: ${lookupErr.message}`);
-          continue;
-        }
-
-        if (!playerRow) {
-          stats.unmatched++;
-          continue;
-        }
-
-        // Only update if status actually changed (or reason changed)
-        const { error: upErr } = await supabaseAdmin
-          .from('players')
-          .update({
-            status: newStatus,
-            injury_reason: reason,
-            status_updated_at: new Date().toISOString(),
-          })
-          .eq('id', playerRow.id);
-
-        if (upErr) {
-          stats.errors.push(`Update ${playerRow.id}: ${upErr.message}`);
-        } else {
-          stats.players_updated++;
-        }
+        allInjuries.push({
+          apiPlayerId,
+          status: mapStatus(entry.type, entry.reason),
+          reason: entry.reason || 'Unknown',
+        });
       }
 
       stats.leagues_processed++;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      stats.errors.push(`League ${league.short} (${league.api_football_id}): ${msg}`);
+      stats.errors.push(`League ${league.short}: ${msg}`);
     }
   }
 
-  // ---- 6. Recovery: previously-flagged players NOT seen in any API response → fit ----
-  // Guard: only run recovery if at least one league successfully returned data
-  // (sonst would full API outage flag all injured → fit which is wrong).
-  if (stats.leagues_processed > 0 && stats.api_calls === activeLeagues.length) {
+  // ---- Phase 2: Batch-Lookup alle Players auf einmal ----
+  const uniqueApiIds = Array.from(new Set(allInjuries.map((i) => i.apiPlayerId)));
+  let byApiId = new Map<number, { id: string; status: string | null }>();
+
+  // Supabase .in() limited auf ~1000 — chunked pre-query
+  for (const idChunk of chunks(uniqueApiIds, 1000)) {
+    const { data: players, error: playerErr } = await supabaseAdmin
+      .from('players')
+      .select('id, api_football_id, status')
+      .in('api_football_id', idChunk);
+
+    if (playerErr) {
+      stats.errors.push(`player-batch-lookup: ${playerErr.message}`);
+      continue;
+    }
+    for (const p of (players ?? []) as Array<{ id: string; api_football_id: number; status: string | null }>) {
+      byApiId.set(p.api_football_id, { id: p.id, status: p.status });
+    }
+  }
+
+  // ---- Phase 3: Build update-payloads (dedupe by player.id) ----
+  const updatesByPlayerId = new Map<
+    string,
+    { id: string; status: string; injury_reason: string; status_updated_at: string }
+  >();
+  const nowIso = new Date().toISOString();
+  const seenApiIds = new Set<number>();
+
+  for (const inj of allInjuries) {
+    seenApiIds.add(inj.apiPlayerId);
+    const p = byApiId.get(inj.apiPlayerId);
+    if (!p) {
+      stats.unmatched++;
+      continue;
+    }
+    if (!updatesByPlayerId.has(p.id)) {
+      updatesByPlayerId.set(p.id, {
+        id: p.id,
+        status: inj.status,
+        injury_reason: inj.reason,
+        status_updated_at: nowIso,
+      });
+    }
+  }
+
+  // ---- Phase 4: Chunked concurrent UPDATEs ----
+  const updates = Array.from(updatesByPlayerId.values());
+  for (const chunk of chunks(updates, UPDATE_CHUNK_SIZE)) {
+    const results = await Promise.all(
+      chunk.map((u) =>
+        supabaseAdmin
+          .from('players')
+          .update({
+            status: u.status,
+            injury_reason: u.injury_reason,
+            status_updated_at: u.status_updated_at,
+          })
+          .eq('id', u.id)
+          .then((r) => ({ ok: !r.error, error: r.error?.message })),
+      ),
+    );
+    for (const r of results) {
+      if (r.ok) stats.players_updated++;
+      else stats.errors.push(`update: ${r.error}`);
+    }
+  }
+
+  // ---- Phase 5: Recovery (single batch UPDATE via .in()) ----
+  if (stats.leagues_processed === activeLeagues.length && stats.leagues_processed > 0) {
     const recoveryIds: string[] = [];
     for (const [apiId, playerId] of Array.from(previouslyFlagged.entries())) {
       if (!seenApiIds.has(apiId)) recoveryIds.push(playerId);
     }
 
     if (recoveryIds.length > 0) {
-      const { error: recErr } = await supabaseAdmin
-        .from('players')
-        .update({
-          status: 'fit',
-          injury_reason: null,
-          injury_until: null,
-          status_updated_at: new Date().toISOString(),
-        })
-        .in('id', recoveryIds);
+      for (const idChunk of chunks(recoveryIds, 500)) {
+        const { error: recErr } = await supabaseAdmin
+          .from('players')
+          .update({
+            status: 'fit',
+            injury_reason: null,
+            injury_until: null,
+            status_updated_at: nowIso,
+          })
+          .in('id', idChunk);
 
-      if (recErr) {
-        stats.errors.push(`Recovery batch: ${recErr.message}`);
-      } else {
-        stats.players_recovered = recoveryIds.length;
+        if (recErr) {
+          stats.errors.push(`recovery-chunk: ${recErr.message}`);
+        } else {
+          stats.players_recovered += idChunk.length;
+        }
       }
     }
   }
 
-  // ---- 7. Log run ----
+  // ---- Log ----
   const durationMs = Date.now() - runStart;
   try {
     await supabaseAdmin.from('cron_sync_log').insert({
@@ -241,7 +270,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       duration_ms: durationMs,
     });
   } catch (logErr) {
-    console.error('[sync-injuries] Failed to write cron_sync_log:', logErr);
+    console.error('[sync-injuries] Failed cron_sync_log:', logErr);
   }
 
   return NextResponse.json({
@@ -262,4 +291,4 @@ export async function GET(request: Request): Promise<NextResponse> {
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const maxDuration = 60; // 7 leagues × 300ms + DB-Updates ~ 5s typical
+export const maxDuration = 60;
