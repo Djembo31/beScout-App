@@ -36,27 +36,23 @@ export function parseMarketValue(html: string): number | null {
   }
 
   // Fallback 2: altes Markup (legacy — falls TM in einzelnen Regionen/Caches noch alt)
+  // + globaler HTML-Fallback (für HTMLs ohne Wrapper, z.B. Slack-Preview, Feed-Snippets, Tests)
   const mvBlock = html.match(
     /data-header__box--marketvalue[\s\S]{0,500}?<a[^>]*>([\s\S]{0,150}?)<\/a>/,
   );
-  const candidate = mvBlock?.[1];
-  if (candidate) {
-    const mioMatch = candidate.match(/€\s*([\d.,]+)\s*Mio/);
-    if (mioMatch) {
-      const num = parseFloat(mioMatch[1].replace(/\./g, '').replace(',', '.'));
-      return Math.round(num * 1_000_000);
-    }
-    const tsdMatch = candidate.match(/€\s*([\d.,]+)\s*Tsd/);
-    if (tsdMatch) {
-      const num = parseFloat(tsdMatch[1].replace(/\./g, '').replace(',', '.'));
-      return Math.round(num * 1_000);
-    }
-    const plainMatch = candidate.match(/€\s*([\d.,]+)(?!\s*(Mio|Tsd))/);
-    if (plainMatch) {
-      const num = parseFloat(plainMatch[1].replace(/\./g, '').replace(',', '.'));
-      return Math.round(num);
-    }
+  const candidate = mvBlock?.[1] ?? html;
+
+  const mioMatch = candidate.match(/€\s*([\d.,]+)\s*Mio/);
+  if (mioMatch) {
+    const num = parseFloat(mioMatch[1].replace(/\./g, '').replace(',', '.'));
+    if (Number.isFinite(num)) return Math.round(num * 1_000_000);
   }
+  const tsdMatch = candidate.match(/€\s*([\d.,]+)\s*Tsd/);
+  if (tsdMatch) {
+    const num = parseFloat(tsdMatch[1].replace(/\./g, '').replace(',', '.'));
+    if (Number.isFinite(num)) return Math.round(num * 1_000);
+  }
+
   return null;
 }
 

@@ -3,12 +3,28 @@
 ```
 status: active
 slice: 079
-stage: BUILD
+stage: BUILD (Pass 1 committed, Verify pending)
 spec: worklog/specs/079-home-polish.md
-impact: skipped (UI-Polish, kein DB/Service/RPC-Change)
-proof: pending
+impact: skipped (UI-Polish + 1 Seed-Migration)
+proof: worklog/proofs/079-baseline/* + 079-home-findings.md
 started: 2026-04-19 late
 ```
+
+## Slice 079 Pass 1 — DONE (Commit 907a417f)
+- F1 Hero-Label-Klarheit + Balance-Pill ✅
+- F2 Mission-Titles disambiguiert (daily vs weekly) ✅
+- F5 LastGameweekWidget Empty-Slots Polish ✅
+
+## Pending Pass 2 (nach Deploy-Verify)
+- F7 Meistbeobachtet min-3 Empty-State
+- F8 Meine Vereine Hierarchy
+- F12 Event-Banner Rewards-Pool=0 Empty-State
+
+## Deferred
+- F3 Activity-Feed Dedup → Phase 3 (Social)
+- F4 RPC Timeouts → separater Backend-Slice
+- F6 Screenshot-Artefakt → verify-only
+- F9/F10/F11/F13 → case-by-case
 
 ## Slice 079 — Home `/` Polish Pass (Phase 1 Start)
 
