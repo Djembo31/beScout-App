@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 071 | 2026-04-18 | gameweek-sync Phase-A-Skip (Schedule-3x-Rollback)
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE(partial) → LOG
+- Files (2):
+  - `vercel.json` (Schedule blieb bei `0 6 * * *` nach Rollback)
+  - `src/app/api/cron/gameweek-sync/route.ts` (**Phase-A-Skip LIVE** + var-hoisting)
+- Proof: `worklog/proofs/071-vercel-diff.txt` + `071-route-diff.txt` + Vercel deploy success dca2c359 at 2026-04-18 post-rollback
+- Commits: 7a097ea2 (Slice) + dca2c359 (Healing)
+- Notes: **Phase-A-Skip LIVE:** Wenn alle DB-fixtures `status='finished'` aber events ungescored → kein `/fixtures?...&round=` API-Call mehr (saved 7 Calls/Run pro events-only-Pfad). Refactor: `let allFixturesDone` + `let skipPhaseA` hochgezogen, plus 5 Phase-A-Artifacts hoisted (statsResult, importResult, dedupedStats, ghostsRemoved, fixturesToProcess) mit explicit type aliases (PlayerStatRow, StatsResult). Phase A in `if (!skipPhaseA)` gewrappt. tsc clean, next build clean. **Schedule-Optimierung 3× täglich ZURÜCKGEROLLT:** `0 6,14,22 * * *` triggerte Vercel-Cron-Plan-Limit (deploy state=failure, redirect zu `vercel.com/docs/cron-jobs/usage-and-pricing`). Vercel-Plan muss geklärt werden (Pro erlaubt 40 Jobs + beliebige Frequenz, aber Multi-Trigger-Syntax könnte plan-abhängig sein). Offen für Slice 071b: 3 separate Cron-Entries ODER Schedule-Bypass via Vercel-Plan-Upgrade. **Late-Match-Latenz bleibt 8h aktuell.**
+
+---
+
 ## 070 | 2026-04-18 | Sync-Injuries-Cron — kritischste Pre-Launch-Lücke geschlossen
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files (8):

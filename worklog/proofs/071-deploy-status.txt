@@ -1,0 +1,11 @@
+=== Slice 071 Healing + Deploy Verify ===
+Commits: 7a097ea2 (Slice) → dca2c359 (Healing rollback schedule)
+
+7a097ea2 Vercel-Status:
+  state=failure, target=https://vercel.link/3Fpeeb1
+
+dca2c359 Vercel-Status (post-rollback):
+  state=success, target=https://vercel.com/bescouts-projects/bescout-app/CfaAzYoTcjY8MXakMbkkz24baQCA
+
+Decision: Schedule rollback auf 1x/Tag, Phase-A-Skip-Logik bleibt LIVE.
+Root-Cause: Vercel-Link '0 6,14,22 * * *' redirectet auf Cron-Pricing-Docs → Plan-Limit.
