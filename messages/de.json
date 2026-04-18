@@ -4114,7 +4114,10 @@
     "dataSyncMarketSchedule": "4x jährlich (1. Jan/Mai/Sep 04:00 UTC)",
     "dataSyncDiscoveryTitle": "Player-Discovery (Transfermarkt)",
     "dataSyncDiscoveryDesc": "Transfermarkt-IDs für ungemappte Player finden",
-    "dataSyncDiscoverySchedule": "Täglich 02:30 UTC"
+    "dataSyncDiscoverySchedule": "Täglich 02:30 UTC",
+    "dataSyncInjuriesTitle": "Verletzungen + Sperren (API-Football)",
+    "dataSyncInjuriesDesc": "Verletzte/gesperrte Spieler markieren — kritisch für Fantasy-Lineup",
+    "dataSyncInjuriesSchedule": "Täglich 12:00 UTC"
   },
   "offers": {
     "statusPending": "Ausstehend",

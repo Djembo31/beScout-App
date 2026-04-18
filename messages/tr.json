@@ -4114,7 +4114,10 @@
     "dataSyncMarketSchedule": "Yilda 4 kez (1 Oca/May/Eyl 04:00 UTC)",
     "dataSyncDiscoveryTitle": "Oyuncu Kesfi (Transfermarkt)",
     "dataSyncDiscoveryDesc": "Haritalanmamis oyuncular icin Transfermarkt-ID'leri bul",
-    "dataSyncDiscoverySchedule": "Gunluk 02:30 UTC"
+    "dataSyncDiscoverySchedule": "Gunluk 02:30 UTC",
+    "dataSyncInjuriesTitle": "Sakatliklar + Cezalar (API-Football)",
+    "dataSyncInjuriesDesc": "Sakat/cezali oyunculari isaretle — Fantasy lineup icin kritik",
+    "dataSyncInjuriesSchedule": "Gunluk 12:00 UTC"
   },
   "offers": {
     "statusPending": "Beklemede",
