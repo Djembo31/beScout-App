@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 073 | 2026-04-18 | sync-fixtures-future Manual-Only Cron
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files (6):
+  - `src/app/api/cron/sync-fixtures-future/route.ts` (NEW — 7 calls/run, UPSERT via api_fixture_id UNIQUE)
+  - `src/app/api/admin/trigger-cron/[name]/route.ts` (Whitelist +sync-fixtures-future)
+  - `src/app/(app)/bescout-admin/AdminDataSyncTab.tsx` (6. Card CalendarClock)
+  - `messages/de.json` + `messages/tr.json` (3 Keys, TR Anil-approved)
+  - `worklog/specs/073-sync-fixtures-future.md` (NEW)
+- Proof: (post-deploy `073-deploy-status.txt`)
+- Commit: 9d0b0a58
+- Notes: **KEINE Migration** (fixtures-Tabelle + api_fixture_id UNIQUE bestehen). Gameweek-Parse aus API-round `"Regular Season - 30"` via regex. Status-Mapping: FT/AET/PEN→finished, 1H/2H/ET→live, HT→halftime, PST→postponed, CANC/ABD→cancelled. **INSERT-vs-UPDATE Detection:** Pre-query existing via api_fixture_id → entscheidet Insert oder Update (nur bei Änderung → `fixtures_unchanged` Counter). **Use-Cases:** Neue Saison-Onboarding (2660 Rows), Mid-Season Liga-Backfill, Spielverlegungs-Propagierung. **Manual-Only** wegen Hobby-Plan. 7 API-Calls × seltene Trigger → 0.01% Pro-Quota.
+
+---
+
 ## 072 | 2026-04-18 | sync-transfers Manual-Only + player_transfers table
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files (8):

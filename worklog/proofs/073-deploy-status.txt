@@ -1,0 +1,7 @@
+=== Slice 073 Deploy Verify ===
+Commit: 9d0b0a58
+Vercel: success at 2026-04-18T11:31:18Z, target=https://vercel.com/bescouts-projects/bescout-app/oaKRKihjeJVygfkhVQToqsbH6BcM
+
+=== Endpoint Existence (expect 401) ===
+cron/sync-fixtures-future: HTTP 401
+admin/trigger-cron/sync-fixtures-future: HTTP 401
