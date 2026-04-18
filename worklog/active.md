@@ -1,28 +1,21 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-started: —
+status: active
+slice: 072
+stage: BUILD
+spec: worklog/specs/072-sync-transfers.md
+impact: skipped (additive migration + neuer endpoint, manual-only kein vercel.json)
+proof: (pending)
+started: 2026-04-18
 ```
 
-## Letzte Slices (heute)
-- **071 | 2026-04-18 | gameweek-sync Phase-A-Skip** ✅ (Schedule-3x-Rollback, Commits 7a097ea2 + dca2c359)
-- **070 | 2026-04-18 | Sync-Injuries-Cron** ✅ (dbf98f4e)
-- **069 | 2026-04-18 | Cron-Frequenz-Fix + Manual-Trigger-Button + Deploy-Healing** ✅
+## Titel
+sync-transfers Cron (Manual-Only, Hobby-Plan-compatible)
 
-## Pipeline Roadmap (Option B — inkrementell)
-- ~~**070** Sync-Injuries~~ ✅
-- ~~**071** gameweek-sync Phase-A-Skip~~ ✅ (Schedule 3× offen, pending Vercel-Plan-Klärung)
-- **071b** (optional) — 3 separate Cron-Entries ODER Schedule-Optimierung via Plan-Upgrade
-- **072** sync-transfers (Wechselperioden Jan + Jul-Aug)
-- **073** sync-fixtures-future (wöchentliche Saison-Fixtures-Updates)
-- **074** sync-standings (Liga-Tabelle authoritative)
-- **075** Notification on injury-change
-
-## Offene User-Fragen
-- Vercel-Plan (Hobby vs Pro) → entscheidet ob 071b möglich ist
+## Files
+1. supabase/migrations/YYYYMMDDHHMMSS_slice_072_player_transfers.sql — NEW table + RLS
+2. src/app/api/cron/sync-transfers/route.ts — NEW (manual-only)
+3. src/app/api/admin/trigger-cron/[name]/route.ts — Whitelist erweitert
+4. src/app/(app)/bescout-admin/AdminDataSyncTab.tsx — 5. Card
+5. messages/de.json + tr.json — 4 keys

@@ -4117,7 +4117,10 @@
     "dataSyncDiscoverySchedule": "Täglich 02:30 UTC",
     "dataSyncInjuriesTitle": "Verletzungen + Sperren (API-Football)",
     "dataSyncInjuriesDesc": "Verletzte/gesperrte Spieler markieren — kritisch für Fantasy-Lineup",
-    "dataSyncInjuriesSchedule": "Täglich 12:00 UTC"
+    "dataSyncInjuriesSchedule": "Täglich 12:00 UTC",
+    "dataSyncTransfersTitle": "Transfers (API-Football)",
+    "dataSyncTransfersDesc": "Transfer-Historie + Club-Wechsel — 134 Calls/Run",
+    "dataSyncTransfersSchedule": "MANUAL-ONLY (nach Transferfenster-Ende)"
   },
   "offers": {
     "statusPending": "Ausstehend",

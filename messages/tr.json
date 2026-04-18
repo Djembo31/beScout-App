@@ -4117,7 +4117,10 @@
     "dataSyncDiscoverySchedule": "Gunluk 02:30 UTC",
     "dataSyncInjuriesTitle": "Sakatliklar + Cezalar (API-Football)",
     "dataSyncInjuriesDesc": "Sakat/cezali oyunculari isaretle — Fantasy lineup icin kritik",
-    "dataSyncInjuriesSchedule": "Gunluk 12:00 UTC"
+    "dataSyncInjuriesSchedule": "Gunluk 12:00 UTC",
+    "dataSyncTransfersTitle": "Transferler (API-Football)",
+    "dataSyncTransfersDesc": "Transfer gecmisi + Kulup degisiklikleri — 134 cagri/calistirma",
+    "dataSyncTransfersSchedule": "MANUEL (transfer donemi sonrasinda)"
   },
   "offers": {
     "statusPending": "Beklemede",

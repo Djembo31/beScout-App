@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, Play, Users, TrendingUp, Search, CheckCircle2, XCircle, HeartPulse } from 'lucide-react';
+import { Loader2, Play, Users, TrendingUp, Search, CheckCircle2, XCircle, HeartPulse, ArrowRightLeft } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { cn } from '@/lib/utils';
 
-type CronName = 'sync-players-daily' | 'sync-transfermarkt-batch' | 'transfermarkt-search-batch' | 'sync-injuries';
+type CronName = 'sync-players-daily' | 'sync-transfermarkt-batch' | 'transfermarkt-search-batch' | 'sync-injuries' | 'sync-transfers';
 
 type CronResponse = {
   success: boolean;
@@ -54,6 +54,13 @@ const CRONS: CronMeta[] = [
     descKey: 'dataSyncDiscoveryDesc',
     scheduleKey: 'dataSyncDiscoverySchedule',
   },
+  {
+    name: 'sync-transfers',
+    icon: ArrowRightLeft,
+    titleKey: 'dataSyncTransfersTitle',
+    descKey: 'dataSyncTransfersDesc',
+    scheduleKey: 'dataSyncTransfersSchedule',
+  },
 ];
 
 export function AdminDataSyncTab() {
@@ -64,12 +71,14 @@ export function AdminDataSyncTab() {
     'sync-transfermarkt-batch': false,
     'transfermarkt-search-batch': false,
     'sync-injuries': false,
+    'sync-transfers': false,
   });
   const [results, setResults] = useState<Record<CronName, CronResponse | null>>({
     'sync-players-daily': null,
     'sync-transfermarkt-batch': null,
     'transfermarkt-search-batch': null,
     'sync-injuries': null,
+    'sync-transfers': null,
   });
 
   const handleTrigger = async (cron: CronName) => {
