@@ -95,6 +95,7 @@ export default function HomePage() {
         pnl={pnl}
         pnlPct={pnlPct}
         storyMessage={storyMessage}
+        balanceCents={balanceCents ?? null}
       />
 
       {/* Scout Cards — total + position breakdown.

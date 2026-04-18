@@ -298,8 +298,9 @@
     "welcomeFantasy": "Fantasy spielen",
     "welcomeBuyPlayers": "Scout Card kaufen",
     "welcomeCommunity": "Community",
-    "portfolioRoster": "Spielerkader",
-    "portfolioRosterTooltip": "Der Gesamtwert aller Scout Cards in deinem Kader, berechnet zum aktuellen Floor-Preis.",
+    "portfolioRoster": "Kader-Wert",
+    "portfolioRosterTooltip": "Gesamtwert aller Scout Cards in deinem Kader, berechnet zum aktuellen Floor-Preis.",
+    "balance": "Guthaben",
     "pnl": "Wertentwicklung",
     "pnlTooltip": "Wert-Entwicklung — die Differenz zwischen aktuellem Wert und deinem durchschnittlichen Kaufpreis.",
     "players": "Spieler",
@@ -380,7 +381,8 @@
       "allHistory": "Alle Spieltage",
       "emptyTitle": "Noch kein Spieltag gespielt",
       "emptyDesc": "Spiele bei einem Fantasy-Event mit und sieh hier deine Performance nach dem Scoring.",
-      "emptyCta": "Jetzt mitspielen"
+      "emptyCta": "Jetzt mitspielen",
+      "slotEmpty": "Nicht besetzt"
     },
     "globalMovers": "Größte Beweger heute",
     "mostWatched": "Meistbeobachtet",

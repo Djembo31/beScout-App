@@ -299,9 +299,17 @@ function LastGameweekWidgetInner({ uid, players }: LastGameweekWidgetProps) {
             return (
               <div
                 key={`${row.slotKey}-${i}`}
-                className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.06]"
+                className={cn(
+                  'flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg border',
+                  player
+                    ? 'bg-white/[0.02] border-white/[0.06]'
+                    : 'bg-transparent border-dashed border-white/[0.08]',
+                )}
               >
-                <span className="w-8 text-[9px] font-mono font-black text-white/40 tracking-wider">
+                <span className={cn(
+                  'w-8 text-[9px] font-mono font-black tracking-wider',
+                  player ? 'text-white/40' : 'text-white/25',
+                )}>
                   {row.pos}
                 </span>
                 <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -314,10 +322,15 @@ function LastGameweekWidgetInner({ uid, players }: LastGameweekWidgetProps) {
                       className="size-5 rounded-full object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="size-5 rounded-full bg-white/10 flex-shrink-0" />
+                    <div className="size-5 rounded-full bg-white/[0.04] border border-dashed border-white/[0.10] flex-shrink-0" />
                   )}
-                  <span className="text-xs font-bold text-white truncate">
-                    {player ? `${player.first.charAt(0)}. ${player.last}` : '—'}
+                  <span className={cn(
+                    'text-xs truncate',
+                    player ? 'font-bold text-white' : 'italic text-white/35',
+                  )}>
+                    {player
+                      ? `${player.first.charAt(0)}. ${player.last}`
+                      : t('lastGameweek.slotEmpty')}
                   </span>
                   {row.isCaptain && (
                     <Crown className="size-3 text-gold flex-shrink-0" aria-hidden="true" />

@@ -298,8 +298,9 @@
     "welcomeFantasy": "Fantezi oyna",
     "welcomeBuyPlayers": "Scout Card al",
     "welcomeCommunity": "Topluluk",
-    "portfolioRoster": "Oyuncu Kadrosu",
+    "portfolioRoster": "Kadro Değeri",
     "portfolioRosterTooltip": "Kadronuzdaki tüm Scout Card'ların toplam değeri, güncel piyasa fiyatına göre.",
+    "balance": "Bakiye",
     "pnl": "Değer Gelişimi",
     "pnlTooltip": "Değer gelişimi — mevcut değer ile ortalama alış fiyatınız arasındaki fark.",
     "players": "Oyuncular",
@@ -380,7 +381,8 @@
       "allHistory": "Tüm Haftalar",
       "emptyTitle": "Henüz hiç oynamadın",
       "emptyDesc": "Bir Fantasy etkinliğine katıl ve skorlandıktan sonra performansını burada gör.",
-      "emptyCta": "Şimdi katıl"
+      "emptyCta": "Şimdi katıl",
+      "slotEmpty": "Boş slot"
     },
     "globalMovers": "Bugünün en büyük hareketleri",
     "mostWatched": "En Çok İzlenen",
