@@ -1,0 +1,15 @@
+Slice 078 — BEFORE rerun completeness snapshot
+Timestamp: 2026-04-20 23:32 (local)
+Source: SELECT jsonb_pretty(public.get_player_data_completeness())
+
+League          | total | nat_pct | photo_pct | MV_pct | contract_pct | api_pct | gold
+----------------+-------+---------+-----------+--------+--------------+---------+------
+2. Bundesliga   |  541  |  96.1   |  98.0     |  91.3  |   94.8       |  99.8   | no
+Bundesliga      |  594  |  94.8   |  96.8     |  89.9  |   92.9       |  99.3   | no
+La Liga         |  704  |  89.9   |  95.6     |  72.0  |   84.9       |  99.4   | no
+Premier League  |  653  |  95.1   |  91.1     |  77.9  |   85.6       |  98.9   | no
+Serie A         |  665  |  89.6   |  98.8     |  69.0  |   85.6       |  99.8   | no
+Süper Lig       |  628  |  94.4   |  98.4     |  77.9  |   86.0       |  99.7   | no
+TFF 1. Lig      |  749  |  83.2   |  99.9     |  70.2  |   77.6       |  99.7   | no
+
+GOAL: alle 7 Ligen Stamm-MV >= 95% nach Rerun (AC4 Slice 078).

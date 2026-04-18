@@ -5,6 +5,32 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ## DB Columns + CHECK Constraints
 → Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 
+## External-Site Scraper-Regex silent-break (2026-04-19 — Slice 078)
+- Fremder Site (Transfermarkt) aendert Markup → unser Regex matcht nicht mehr → parser returnt `null` → DB behaelt 0/null → **Daten-Lücke wird silent grösser bei jedem Rerun**.
+- **Slice 078 Konkret:** TM hat 2026-04 von `data-header__box--marketvalue` auf `data-header__market-value-wrapper` umgestellt. Reihenfolge Zahl/Währung umgedreht (`€ X Mio.` → `X,XX <span class="waehrung">Mio. €</span>`). 433 Stammspieler hatten MV=0 in DB trotz echtem TM-Wert (Morgan Rogers €80M etc.).
+- **Regel:** Jeder externe HTML-Parser braucht Regression-Tests mit **echten HTML-Fixtures** (nicht synthetisch!).
+  - Workflow: Sanity-Script dumpt HTMLs in `tmp/` nach einem Markup-Update, Fixtures werden in Tests eingefroren.
+  - `src/lib/scrapers/transfermarkt-profile.test.ts` als Template.
+- **Audit-Signal:** Wenn die "completeness" bei gleichbleibendem Scraping stagniert oder Scraper wenig updated → Parser-Sanity-Check mit manueller Stichprobe.
+- **Entity-Drift:** HTML kann `€`, `&#8364;`, `&euro;` schreiben — Regex end-mit-`€` bricht bei Entity-Form. Im Slice 078 bewusst aufs `€` Matching verzichtet (endet bei `(Mio|Tsd)\.`), weil CSS-Scope bereits eindeutig ist.
+
+## PostgREST silent 1000-row cap auf Full-Scans (2026-04-19 — Slice 078)
+- `.limit(1000)` ohne `.range()` auf Supabase-Queries liefert **max 1000 Rows selbst wenn mehr existieren** — PostgREST-default cap.
+- **Slice 078 Konkret:** `scripts/tm-profile-local.ts` Full-Scan hat statt erwarteter ~4500 mappings nur 1000 geladen → 139 nach Filter → nur 3 von 7 Ligen wurden scraped (andere 4 wurden von der 1000-row-Cap nicht abgedeckt).
+- **Regel:** Bei >1000 Rows immer `.range(offset, offset+999)` in while-Loop nutzen:
+  ```ts
+  const PAGE = 1000;
+  let offset = 0;
+  while (true) {
+    const { data } = await supabase.from('t').select(...).range(offset, offset + PAGE - 1);
+    if (!data || data.length === 0) break;
+    // process ...
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
+  ```
+- **Audit-Signal:** Script "loaded X mapped players" obwohl DB viel mehr Kandidaten hat — count vergleichen.
+
 ## Supabase Client
 - `.single()` wenn 0 Rows moeglich → HTTP 406 Error → `.maybeSingle()` nutzen
 - Regel: Wenn "existiert dieser Datensatz garantiert?" → NEIN → `.maybeSingle()`

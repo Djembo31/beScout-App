@@ -1,0 +1,46 @@
+Slice 078 — AFTER rerun completeness snapshot
+Timestamp: 2026-04-19 (local, post-rerun)
+Source: SELECT jsonb_pretty(public.get_player_data_completeness())
+
+League          | total | nat_pct | photo_pct | MV_pct  | Δ MV  | contract_pct | api_pct
+----------------+-------+---------+-----------+---------+-------+--------------+---------
+2. Bundesliga   |  541  |  96.1   |  98.0     |  93.3   | +2.0  |   94.8       |  99.8
+Bundesliga      |  594  |  94.8   |  96.8     |  92.9   | +3.0  |   92.9       |  99.3
+La Liga         |  704  |  89.9   |  95.6     |  83.8   | +11.8 |   84.9       |  99.4
+Premier League  |  653  |  95.1   |  91.1     |  85.1   | +7.2  |   85.6       |  98.9
+Serie A         |  665  |  89.6   |  98.8     |  86.0   | +17.0 |   85.6       |  99.8
+Süper Lig       |  628  |  94.4   |  98.4     |  79.1   | +1.2  |   86.0       |  99.7
+TFF 1. Lig      |  749  |  83.2   |  99.9     |  76.0   | +5.8  |   77.6       |  99.7
+
+==================================================================
+BEYOND %: STAMM+ROTATION (Einsatz-Tier) MV-Lücken Vergleich
+==================================================================
+
+League          | STAMM+ROT MV-Lücken vor | nach  | Reduktion
+----------------+-------------------------+-------+----------
+2. Bundesliga   |   14                    |   13  |   -1
+Bundesliga      |   20                    |   13  |   -7
+La Liga         |   73                    |   41  |  -32
+Premier League  |   66                    |   37  |  -29
+Serie A         |  140                    |   53  |  -87 (größter Gewinn)
+Süper Lig       |   28                    |   24  |   -4
+TFF 1. Lig      |   92                    |   53  |  -39
+----------------+-------------------------+-------+----------
+TOTAL           |  433                    |  234  | -199 (-46%)
+
+==================================================================
+Run Stats (zweiter Rerun, paginated loader)
+==================================================================
+Command:          npx tsx scripts/tm-profile-local.ts --limit=800 --rate=2500
+Duration:         1459.4s (24.3 min)
+Loaded:           467 players needing scrape
+mv_updated:       267
+contract_updated: 0
+unchanged:        200 (TM zeigt echt 0 oder Wert identisch zu DB)
+errored:          0
+
+Interpretation: 267 MV-Updates via new parser in einem Durchlauf.
+Die verbleibenden 234 Stamm+Rot-Lücken sind entweder:
+(a) Players deren TM-Profile-MV wirklich 0 ist (Youngsters ohne Assessment)
+(b) TM-Mapping fehlt oder ist falsch
+Gelöst via CSV-Import (Slice 076) für den harten Rest.

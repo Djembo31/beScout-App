@@ -130,3 +130,6 @@ memory/episodisch/metriken/sessions.jsonl
 .firecrawl/
 walkthrough/
 .env.vercel-prod
+
+# Scraper debug HTML dumps (temporary, not committed)
+tmp/

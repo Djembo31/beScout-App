@@ -101,7 +101,11 @@ async function loadMappedPlayers(filterLeague: string | undefined, n: number): P
   const mappings: Mapping[] = [];
   const clubCache = new Map<string, string>();
 
-  const fetchBatch = async (playerIdChunk: string[] | null): Promise<void> => {
+  const fetchBatch = async (
+    playerIdChunk: string[] | null,
+    rangeStart = 0,
+    rangeEnd = 999,
+  ): Promise<number> => {
     let q = supabase
       .from('player_external_ids')
       .select(
@@ -109,7 +113,7 @@ async function loadMappedPlayers(filterLeague: string | undefined, n: number): P
       )
       .eq('source', 'transfermarkt');
     if (playerIdChunk) q = q.in('player_id', playerIdChunk);
-    q = q.limit(1000);
+    q = q.range(rangeStart, rangeEnd);
     const { data, error } = await q;
     if (error) throw new Error(error.message);
 
@@ -143,8 +147,9 @@ async function loadMappedPlayers(filterLeague: string | undefined, n: number): P
         current_mv: p.market_value_eur,
         current_contract: p.contract_end,
       });
-      if (mappings.length >= n) return;
+      if (mappings.length >= n) return data.length;
     }
+    return data?.length ?? 0;
   };
 
   if (candidatePlayerIds.length > 0) {
@@ -153,7 +158,14 @@ async function loadMappedPlayers(filterLeague: string | undefined, n: number): P
       await fetchBatch(candidatePlayerIds.slice(i, i + CHUNK));
     }
   } else {
-    await fetchBatch(null);
+    // Full-scan: paginate via .range() since PostgREST caps single query at 1000 rows
+    const PAGE = 1000;
+    let offset = 0;
+    while (mappings.length < n) {
+      const fetched = await fetchBatch(null, offset, offset + PAGE - 1);
+      if (fetched < PAGE) break;
+      offset += PAGE;
+    }
   }
 
   return mappings;

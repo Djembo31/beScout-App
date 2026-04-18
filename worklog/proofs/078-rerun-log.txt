@@ -1,0 +1,481 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+=== TM Profile Local ===
+league=(all) limit=800 rate=2500ms force=false
+
+Loaded 467 mapped players needing scrape.
+
+[1/467] ∅ Caner Erkin — no new data
+[2/467] ∅ Baran Alp Vardar — no new data
+[3/467] ∅ Bartu Göçmen — no new data
+[4/467] ∅ Cemilhan Aslan — no new data
+[5/467] ∅ Erol Colak — no new data
+[6/467] ∅ Muhammet Ali Özbaskıcı — no new data
+[7/467] ∅ Osman Topcu — no new data
+[8/467] ∅ Emir Yalcin — no new data
+[9/467] ∅ Pietro Comi — no new data
+[10/467] ∅ Oktay Aydin — no new data
+[11/467] ∅ Arda Cetin — no new data
+[12/467] ∅ Bartu Kaya — no new data
+[13/467] ∅ Ali Şaşal Vural — no new data
+[14/467] ∅ Talha Akkaya — no new data
+[15/467] ∅ Franck Leroy Atoen — no new data
+[16/467] ∅ Aras Celik — no new data
+[17/467] ∅ Ousmane Diabate — no new data
+[18/467] ∅ Beraat Keser — no new data
+[19/467] ∅ Orkun Özdemir — no new data
+[20/467] ∅ Boran Yagizer — no new data
+[21/467] ∅ Tunahan Basak — no new data
+[22/467] ∅ Erdem Güleç — no new data
+[23/467] ∅ Rijad Kobiljar — no new data
+[24/467] ∅ Muhammet Özkan — no new data
+[25/467] ∅ Yakup Ayan — no new data
+[26/467] ∅ Arda Çağan Çelik — no new data
+[27/467] ∅ Burak Isik — no new data
+[28/467] ∅ Diabel Ndoye — no new data
+[29/467] ∅ Hasan Ürkmez — no new data
+[30/467] ∅ Ahmet Bayam — no new data
+[31/467] ∅ Muhammet Yildiz — no new data
+[32/467] ∅ Emirzat Baycu — no new data
+[33/467] ∅ Ali Isik — no new data
+[34/467] ∅ Eren Kilic — no new data
+[35/467] ∅ Ramazan Ozcelik — no new data
+[36/467] ∅ Efe Yiğit Üstün — no new data
+[37/467] ∅ Mansur Acet — no new data
+[38/467] ∅ Dimitrios Kolovetsios — no new data
+[39/467] ∅ Muhammed Hasan Yıldırım — no new data
+[40/467] ∅ Ege Albayrak — no new data
+[41/467] ∅ Ege İzmirli — no new data
+[42/467] ∅ Seyfi Kiskanc — no new data
+[43/467] ∅ Efe Berat Töruz — no new data
+[44/467] ∅ Özgür Çoban — no new data
+[45/467] ∅ Muhammet Mustafa Yıldız — no new data
+[46/467] ∅ Bunyamin Cetinkaya — no new data
+[47/467] ∅ Deniz Cukurcu — no new data
+[48/467] ∅ Yusuf Özdemir — no new data
+[49/467] ∅ Deniz Seker — no new data
+[50/467] ∅ Ada Yuzgec — no new data
+[51/467] ∅ Cheikhou Kouyaté — no new data
+[52/467] ∅ Egemen Aydın — no new data
+[53/467] ∅ Semih Doganay — no new data
+[54/467] ∅ Oguzhan Odabas — no new data
+[55/467] ∅ Nevzat Uzel — no new data
+[56/467] ∅ Kerem Yandal — no new data
+[57/467] ∅ Ahmet Doğan Yıldırım — no new data
+[58/467] ∅ Abdulkadir Ahmed — no new data
+[59/467] ∅ Enes Ilik — no new data
+[60/467] ∅ Emirhan Kucuksolak — no new data
+[61/467] ∅ Hulusi Efe Ceylan — no new data
+[62/467] ∅ Bahtiyar Aras Özden — no new data
+[63/467] ∅ Huseyin Sen — no new data
+[64/467] ∅ Mert Hakan Yandaş — no new data
+[65/467] ∅ Alessandro Ciardi — no new data
+[66/467] ∅ Bernardo Conde — no new data
+[67/467] ∅ Emre Akboğa — no new data
+[68/467] ∅ Ensar Bilir — no new data
+[69/467] ∅ Arda Tuğra Saygı — no new data
+[70/467] ∅ Kadir Kaan Yurdakul — no new data
+[71/467] ∅ Eren Aydogdu — no new data
+[72/467] ∅ Abdulsamet Burak — no new data
+[73/467] ∅ Saikuba Jarju — no new data
+[74/467] ∅ Furkan Koçak — no new data
+[75/467] ∅ Necip Özer — no new data
+[76/467] ∅ Gunes Talas — no new data
+[77/467] ∅ Gabriele Casentini — no new data
+[78/467] ∅ Arda Altun — no new data
+[79/467] ∅ Eyüp Değirmenci — no new data
+[80/467] ∅ Mervan Mujdeci — no new data
+[81/467] ∅ Arda Işık — no new data
+[82/467] ∅ Caner Kaban — no new data
+[83/467] ∅ Yigit Solak — no new data
+[84/467] ∅ Serhat Bozkurt — no new data
+[85/467] ∅ Baran Kacan — no new data
+[86/467] ∅ Samet Akif Duyur — no new data
+[87/467] ∅ Engin Can Biterge — no new data
+[88/467] ∅ Arda Kaya — no new data
+[89/467] ∅ Federico Cassa — no new data
+[90/467] ∅ Davide De Battisti — no new data
+[91/467] ✓ Mehmet Ali Büyüksayar — MV=€50k
+[92/467] ∅ Eren Eker — no new data
+[93/467] ∅ Samet Karabatak — no new data
+[94/467] ✓ Alaettin Ekici — MV=€300k
+[95/467] ∅ Arda Ozyar — no new data
+[96/467] ✓ Riccardo Braschi — MV=€600k
+[97/467] ✓ Alessandro Cardinali — MV=€75k
+[98/467] ∅ Mirko Castagnini — no new data
+[99/467] ✓ Matteo Cocchi — MV=€1500k
+[100/467] ✓ Assane Diao Diaoune — MV=€30000k
+[101/467] ∅ Mamedi Doucoure — no new data
+[102/467] ✓ Burak Altıparmak — MV=€50k
+[103/467] ∅ Mehmet Cakmak — no new data
+[104/467] ∅ Sarp Ekinci — no new data
+[105/467] ✓ Gökhan Karadeniz — MV=€50k
+[106/467] ∅ Eymen Namli — no new data
+[107/467] ∅ Selimcan Temel — no new data
+[108/467] ∅ Ridvan Canibek — no new data
+[109/467] ✓ Thomas Berenbruch — MV=€1200k
+[110/467] ✓ Daniel Denoon — MV=€500k
+[111/467] ✓ Anastasios Douvikas — MV=€18000k
+[112/467] ✓ Saná Fernandes — MV=€700k
+[113/467] ✓ Romano Floriani Mussolini — MV=€2500k
+[114/467] ✓ Matteo Fuscaldo — MV=€50k
+[115/467] ✓ Julien Anziani — MV=€800k
+[116/467] ✓ Baran Engül — MV=€75k
+[117/467] ✓ Muhammet Fatih Karasu — MV=€50k
+[118/467] ✓ Dieumerci Ndongala — MV=€50k
+[119/467] ∅ Omer Akdag — no new data
+[120/467] ∅ Ege Arac — no new data
+[121/467] ∅ Metehan Baltacı — no new data
+[122/467] ✓ Ali Demirbilek — MV=€200k
+[123/467] ∅ Arda Kabukci — no new data
+[124/467] ∅ Cihan Memik — no new data
+[125/467] ✓ Ramzi Safouri — MV=€900k
+[126/467] ∅ Ahmet Tekke — no new data
+[127/467] ∅ Kerim Yerlikaya — no new data
+[128/467] ✓ Tolunay Artuç — MV=€50k
+[129/467] ✓ Yohan Cassubie — MV=€350k
+[130/467] ✓ Enes Erol — MV=€25k
+[131/467] ∅ Kadir Karayiğit — no new data
+[132/467] ∅ Yakup Tuna — no new data
+[133/467] ∅ Şant Kazancı — no new data
+[134/467] ∅ Alassane Ndao — no new data
+[135/467] ∅ Ali Pagda — no new data
+[136/467] ✓ Ebenezer Akinsanmiro — MV=€6500k
+[137/467] ✓ Martin Baturina — MV=€24000k
+[138/467] ✓ Nikola Čavlina — MV=€750k
+[139/467] ✓ Michele Collocolo — MV=€3000k
+[140/467] ✓ Kenan Fakılı — MV=€150k
+[141/467] ✓ Salih Kavrazlı — MV=€150k
+[142/467] ∅ Omer Cobanoglu — no new data
+[143/467] ∅ Yusuf Kahraman — no new data
+[144/467] ∅ Muhammed Kucuk — no new data
+[145/467] ∅ Papa Alioune Ndiaye — no new data
+[146/467] ✓ Emirhan Yiğit — MV=€100k
+[147/467] ∅ Daniele Bleve — no new data
+[148/467] ✓ Federico Ceccherini — MV=€400k
+[149/467] ✓ Lucas da Cunha — MV=€20000k
+[150/467] ✓ Valerio Farcomeni — MV=€100k
+[151/467] ✓ Mikayil Ngor Faye — MV=€5000k
+[152/467] ✓ Francesco Folino — MV=€700k
+[153/467] ∅ Matteo Franceschelli — no new data
+[154/467] ✓ Tommaso Gabellini — MV=€800k
+[155/467] ∅ Kris Gecaj — no new data
+[156/467] ∅ Giacomo Giacomone — no new data
+[157/467] ✓ Javier Gil Puche — MV=€1000k
+[158/467] ✓ Lorenzo Bonsignori Goggi — MV=€250k
+[159/467] ✓ Edoardo Goldaniga — MV=€2500k
+[160/467] ✓ Olaf Gorter — MV=€200k
+[161/467] ✓ Nicola Grandu — MV=€300k
+[162/467] ✓ Alberto Grassi — MV=€1800k
+[163/467] ✓ Jacopo Grossi — MV=€75k
+[164/467] ∅ Tommaso Guizzo — no new data
+[165/467] ∅ Ukko Happonen — no new data
+[166/467] ✓ Malthe Højholt — MV=€1200k
+[167/467] ✓ Iwo Kaczmarski — MV=€500k
+[168/467] ✓ Issiaka Kamate — MV=€1000k
+[169/467] ✓ Marc Oliver Kempf — MV=€3500k
+[170/467] ✓ Niko Kovač — MV=€300k
+[171/467] ✓ Nicolas-Gerrit Kühn — MV=€12000k
+[172/467] ✓ Adrian Adriano Lahdo — MV=€10000k
+[173/467] ✓ Matteo Lavelli — MV=€450k
+[174/467] ✓ Pietro Leonardelli — MV=€125k
+[175/467] ✓ Sergej Levak — MV=€800k
+[176/467] ✓ Sebastiano Luperto — MV=€4000k
+[177/467] ∅ Matteo Luppichini — no new data
+[178/467] ∅ Mattia Magalotti — no new data
+[179/467] ✓ Youssef Maleh — MV=€1000k
+[180/467] ∅ Adrián Malovec — no new data
+[181/467] ✓ Stefano Mangiapoco — MV=€300k
+[182/467] ✓ Marius Mihai Marin — MV=€3000k
+[183/467] ✓ Petar Markovic — MV=€100k
+[184/467] ∅ Rendijs Mihelsons — no new data
+[185/467] ✓ Daniel Mikołajewski — MV=€500k
+[186/467] ✓ Jacopo Mirra — MV=€75k
+[187/467] ✓ Luca Monticelli — MV=€500k
+[188/467] ✓ Alberto Moreno Pérez — MV=€1000k
+[189/467] ✓ Stefano Moreo — MV=€1500k
+[190/467] ✓ Mattia Mosconi — MV=€700k
+[191/467] ✓ Lapo Francesco Maria Nava — MV=€100k
+[192/467] ✓ Cyril Ngonge — MV=€8000k
+[193/467] ✓ Joi Nuredini — MV=€1000k
+[194/467] ✓ Relja Obrić — MV=€800k
+[195/467] ✓ Jayden Osei Addai — MV=€20000k
+[196/467] ✓ Piotr Pardel — MV=€300k
+[197/467] ∅ Davide Pavesi — no new data
+[198/467] ✓ Faris Pemi Moumbagna — MV=€4000k
+[199/467] ✓ Máximo Perrone — MV=€30000k
+[200/467] ✓ Rosen Petkov Bozhinov — MV=€4000k
+[201/467] ✓ Giuseppe Pezzella — MV=€2500k
+[202/467] ✓ Gabriele Piccinini — MV=€3500k
+[203/467] ✓ Matteo Pittarella — MV=€100k
+[204/467] ✓ Elia Plicco — MV=€500k
+[205/467] ∅ Niccolò Rizzo — no new data
+[206/467] ✓ Mattia Della Rocca — MV=€175k
+[207/467] ✓ Jesús Rodríguez Caraballo — MV=€30000k
+[208/467] ∅ Vincenzo Sarno — no new data
+[209/467] ✓ Simone Scaglia — MV=€25k
+[210/467] ✓ Simone Scuffet — MV=€1000k
+[211/467] ✓ Adrian Šemper — MV=€2000k
+[212/467] ✓ Federico Serra — MV=€450k
+[213/467] ✓ Marco Silvestri — MV=€500k
+[214/467] ✓ Bertram Skovgaard — MV=€25k
+[215/467] ✓ Ivan Smolčić — MV=€2500k
+[216/467] ✓ Matteo Spinaccè — MV=€1000k
+[217/467] ✓ Calvin Stengs — MV=€6000k
+[218/467] ✓ Filip Stojilković — MV=€3000k
+[219/467] ∅ Alain Taho — no new data
+[220/467] ✓ Filippo Terracciano — MV=€4500k
+[221/467] ✓ Simone Lottici Tessadri — MV=€200k
+[222/467] ✓ Morten Thorsby — MV=€3000k
+[223/467] ✓ Edoardo Tigani — MV=€25k
+[224/467] ✓ Bodin Tomašević — MV=€50k
+[225/467] ✓ Luka Topalović — MV=€2500k
+[226/467] ✓ Idrissa Touré — MV=€6000k
+[227/467] ✓ Mattéo Tramoni — MV=€5000k
+[228/467] ✓ Álex Valle Gómez — MV=€10000k
+[229/467] ∅ Manuel Valletta — no new data
+[230/467] ✓ Ignace Van der Brempt — MV=€3500k
+[231/467] ✓ Jari Vandeputte — MV=€3500k
+[232/467] ✓ Jamie Richard Vardy — MV=€1000k
+[233/467] ✓ Dominic Vavassori — MV=€2000k
+[234/467] ✓ Ioan Vermeșan — MV=€600k
+[235/467] ✓ Mauro Vigorito — MV=€150k
+[236/467] ✓ Mërgim Vojvoda — MV=€3000k
+[237/467] ✓ İsak Vural — MV=€5000k
+[238/467] ✓ Henrik Wendel Meister — MV=€4000k
+[239/467] ∅ Arda Yazıcı — no new data
+[240/467] ✓ Alessio Zerbin — MV=€2200k
+[241/467] ✓ Vicent Abril Sanz — MV=€200k
+[242/467] ✓ Diego Aguado Facio — MV=€5000k
+[243/467] ✓ Ibai Aguirre Basurco — MV=€500k
+[244/467] ✓ Eder Aller — MV=€50k
+[245/467] ✓ Andrés Antañón — MV=€300k
+[246/467] ✓ Juan Arango — MV=€100k
+[247/467] ✓ Ayman Arguigue — MV=€300k
+[248/467] ✓ Pol Arnau Camacho — MV=€100k
+[249/467] ✓ Adrian Arnuncio — MV=€2000k
+[250/467] ✓ Roberto Arroyo Gregorio — MV=€300k
+[251/467] ✓ Lander Astiazarán Escabias — MV=€2000k
+[252/467] ✓ Carlos Ballestero García — MV=€50k
+[253/467] ✓ Luken Beitia Aguirregomezcorta — MV=€600k
+[254/467] ✓ Jorge Benito de Valle Martín — MV=€25k
+[255/467] ✓ Javier Boñar Franco — MV=€1000k
+[256/467] ✓ Daniel Budesca López — MV=€500k
+[257/467] ✓ Gorka Carrera Zarranz — MV=€3000k
+[258/467] ✓ Raúl Chasco Ruiz — MV=€150k
+[259/467] ✓ Iván Corralejo Mantero — MV=€50k
+[260/467] ✓ Álvaro Cortés Moyano — MV=€2000k
+[261/467] ✓ Alberto Dadie — MV=€300k
+[262/467] ✓ Miguel de Jesús Narváez López — MV=€200k
+[263/467] ✓ Julio Díaz del Romo — MV=€1500k
+[264/467] ✓ David Delgado — MV=€200k
+[265/467] ✓ Alassane Diatta — MV=€500k
+[266/467] ✓ Mario Domínguez — MV=€200k
+[267/467] ✓ Mauro Echegoyen Berrozpe — MV=€200k
+[268/467] ✓ Omar El Hilali — MV=€15000k
+[269/467] ∅ Sergio Esteban — no new data
+[270/467] ✓ Roberto Fernández Jaén — MV=€10000k
+[271/467] ✓ Diego Ferrer Martínez — MV=€100k
+[272/467] ✓ Alberto Flores López — MV=€300k
+[273/467] ∅ Theo Mickael Kevin Folgado — no new data
+[274/467] ✓ Joel Fontanet — MV=€25k
+[275/467] ✓ Jesús Fortea Tejedo — MV=€3000k
+[276/467] ✓ Ángel Fortuño Viñas — MV=€300k
+[277/467] ✓ Pol Fortuny Aubareda — MV=€1000k
+[278/467] ✓ Aitor Fraga Torres — MV=€1000k
+[279/467] ∅ Facundo Tomás Garcés — no new data
+[280/467] ✓ Jon García — MV=€300k
+[281/467] ✓ Álvaro García Blanes — MV=€200k
+[282/467] ✓ Germán García Fernández — MV=€50k
+[283/467] ∅ Nicolás González — no new data
+[284/467] ✓ Hugo González Sotos — MV=€500k
+[285/467] ✓ Juan Hernández — MV=€2000k
+[286/467] ✓ Alex Herraiz — MV=€50k
+[287/467] ✓ Enrique Herrero — MV=€100k
+[288/467] ✓ Rubén Iranzo Lendínez — MV=€600k
+[289/467] ✓ David Jiménez Corredor — MV=€5000k
+[290/467] ✓ Gibert Jordana Camara — MV=€100k
+[291/467] ✓ Ilias Kostis — MV=€300k
+[292/467] ✓ Martín Wilhelm Krug — MV=€50k
+[293/467] ✓ Alex Douma Johan Lebarbier — MV=€400k
+[294/467] ✓ Álvaro Leiva Alemany — MV=€300k
+[295/467] ✓ Alex Marchal García — MV=€2000k
+[296/467] ✓ Arkaitz Mariezkurrena Etxezarreta — MV=€1000k
+[297/467] ✓ Antonio Martinez Bastida — MV=€25k
+[298/467] ∅ Aaron Mayol — no new data
+[299/467] ✓ Sergio Mestre Sánchez — MV=€200k
+[300/467] ∅ Rareș Vlad — no new data
+[301/467] ✓ Adrián Molina — MV=€25k
+[302/467] ✓ Charles Monginda Pickel — MV=€2500k
+[303/467] ✓ Jorge Montes — MV=€50k
+[304/467] ∅ Álvaro Moreno — no new data
+[305/467] ✓ Job Nguono Ochieng — MV=€1000k
+[306/467] ✓ Lucas Nuñez Ramirez — MV=€50k
+[307/467] ✓ L. Orejuela — MV=€300k
+[308/467] ✓ César Palacios Pérez — MV=€6000k
+[309/467] ✓ Martin Pedroarena Espinal — MV=€200k
+[310/467] ✓ Adrian Perez — MV=€1000k
+[311/467] ✓ Marc Vilaplana Dachs — MV=€150k
+[312/467] ✓ Lander Pinillos Wilson — MV=€200k
+[313/467] ✓ Aleksa Puric — MV=€1000k
+[314/467] ✓ Manu Rico — MV=€200k
+[315/467] ✓ Adrián Riquelme — MV=€50k
+[316/467] ∅ Robson Robson — no new data
+[317/467] ∅ Cayetano Romero Molina — no new data
+[318/467] ✓ Antonio Salguero Quiñones — MV=€50k
+[319/467] ✓ Iliesse Salhi — MV=€50k
+[320/467] ✓ Álex Sánchez — MV=€50k
+[321/467] ∅ Leo Sánchez — no new data
+[322/467] ✓ Javier Sarasa — MV=€50k
+[323/467] ✓ Llorenç Serred Martínez — MV=€100k
+[324/467] ✓ Marco de las Sías — MV=€150k
+[325/467] ✓ Daniel Yáñez Barla — MV=€3000k
+[326/467] ∅ Enock Atta Agyei — no new data
+[327/467] ✓ Ross Barkley — MV=€5000k
+[328/467] ✓ Reece Belfield Welch — MV=€250k
+[329/467] ✓ Marco Bizot — MV=€2500k
+[330/467] ∅ Aaron Bott — no new data
+[331/467] ✓ Bradley-Paul Burrowes — MV=€2000k
+[332/467] ∅ Theodore Carroll — no new data
+[333/467] ✓ Samuel Nicholas Chambers — MV=€200k
+[334/467] ∅ Michael Dacosta — no new data
+[335/467] ∅ Jesse Derry — no new data
+[336/467] ✓ Lucas Digne — MV=€8000k
+[337/467] ✓ Jaden Dixon — MV=€2500k
+[338/467] ✓ Bema Sina — MV=€50k
+[339/467] ✓ Hugo Solozábal Granados — MV=€100k
+[340/467] ✓ Gerónimo Spina — MV=€200k
+[341/467] ✓ Dimitrios Stamatakis — MV=€200k
+[342/467] ✓ Grégoire Swiderski — MV=€200k
+[343/467] ✓ Yassin Tallal Amiri — MV=€100k
+[344/467] ✓ Jofre Torrents Salvat — MV=€1000k
+[345/467] ✓ Pol Tristán Jiménez — MV=€50k
+[346/467] ∅ Samuel Amissah — no new data
+[347/467] ✓ Andre Annous — MV=€500k
+[348/467] ∅ Luka Bentt — no new data
+[349/467] ∅ Zyan Blake — no new data
+[350/467] ✓ Jun'ai Byfield — MV=€2000k
+[351/467] ✓ Matthew Stuart Cash — MV=€22000k
+[352/467] ∅ Malcom Dacosta — no new data
+[353/467] ∅ Julian Eyestone — no new data
+[354/467] ✓ Pau Francisco Torres — MV=€22000k
+[355/467] ✓ Tyler Fredricson — MV=€3000k
+[356/467] ✓ Andrés García Robledo — MV=€7000k
+[357/467] ✓ Kaide Gordon — MV=€800k
+[358/467] ✓ Braiden Graham — MV=€200k
+[359/467] ∅ Charlie Gray — no new data
+[360/467] ∅ Luca Gunter — no new data
+[361/467] ∅ Malachi Hardy — no new data
+[362/467] ✓ Aidan Harris — MV=€200k
+[363/467] ✓ George Hemmings — MV=€800k
+[364/467] ∅ Reigan Heskey — no new data
+[365/467] ∅ Tommy Hogan Setford — no new data
+[366/467] ✓ Harry Howell — MV=€8000k
+[367/467] ✓ Samuel Iling-Junior — MV=€8000k
+[368/467] ∅ Jenson Oliver Jones — no new data
+[369/467] ✓ Boubacar Bernard Kamara — MV=€40000k
+[370/467] ✓ Ezri Konsa Ngoyo — MV=€40000k
+[371/467] ∅ Godwill Kukonki — no new data
+[372/467] ∅ Rio Kyerematen — no new data
+[373/467] ∅ Wellity Lucky Omoruyi — no new data
+[374/467] ✓ Ian Ethan Maatsen — MV=€30000k
+[375/467] ✓ Brian Madjo — MV=€12000k
+[376/467] ✓ Bendito Mantato — MV=€400k
+[377/467] ∅ Ryan McAidoo — no new data
+[378/467] ✓ John McGinn — MV=€15000k
+[379/467] ∅ Alfie Shane McNally — no new data
+[380/467] ✓ Hannibal Mejbri — MV=€16000k
+[381/467] ∅ Max Merrick — no new data
+[382/467] ✓ Shumaira Mheuka — MV=€3000k
+[383/467] ✓ Tyrone Deon Mings — MV=€4000k
+[384/467] ✓ Jack Lee Moorhouse — MV=€100k
+[385/467] ∅ Kieran Morrison — no new data
+[386/467] ✓ Amara Nallo — MV=€1000k
+[387/467] ∅ Sean Thoms Neave — no new data
+[388/467] ✓ Luke Terry O'Nien — MV=€1000k
+[389/467] ✓ Nico O'Reilly — MV=€50000k
+[390/467] ∅ Russ Oakley — no new data
+[391/467] ∅ Saheed Olagunju — no new data
+[392/467] ∅ Malik Olayiwola — no new data
+[393/467] ✓ Lewis Orford — MV=€300k
+[394/467] ∅ Riley Owen — no new data
+[395/467] ✓ Seung-Soo Park — MV=€175k
+[396/467] ✓ Ármin Pécsi — MV=€800k
+[397/467] ∅ Oliver Pimlott — no new data
+[398/467] ∅ Carter Pinnington — no new data
+[399/467] ✓ Jack Porter — MV=€300k
+[400/467] ∅ Sam Proctor — no new data
+[401/467] ∅ Khari Ranson — no new data
+[402/467] ∅ Luke Rawlings — no new data
+[403/467] ✓ Remy Rees-Dottin — MV=€300k
+[404/467] ✓ Morgan Elliot Rogers — MV=€80000k
+[405/467] ✓ Alexei Rojas Fedorushchenko — MV=€250k
+[406/467] ∅ Leon Routh — no new data
+[407/467] ∅ James Rowswell — no new data
+[408/467] ✓ Marli Ellis Salmon — MV=€4000k
+[409/467] ✓ Jadon Malik Sancho — MV=€20000k
+[410/467] ∅ Leo Shahar — no new data
+[411/467] ∅ Freddie Simmonds — no new data
+[412/467] ∅ Jimmy Sinclair — no new data
+[413/467] ✓ Douglas Luiz Soares de Paulo — MV=€20000k
+[414/467] ∅ Ethan Sutherland — no new data
+[415/467] ✓ Charlie Tasker — MV=€200k
+[416/467] ✓ Reggie Walsh — MV=€500k
+[417/467] ✓ Oliver George Arthur Watkins — MV=€30000k
+[418/467] ∅ Jack Whittaker — no new data
+[419/467] ∅ Luca Jamie Williams-Barnett — no new data
+[420/467] ∅ Keehan Willows — no new data
+[421/467] ✓ James Wilson — MV=€1200k
+[422/467] ✓ James Wright — MV=€200k
+[423/467] ✓ Romeo Aigbekaen — MV=€100k
+[424/467] ✓ Mathis Albert — MV=€300k
+[425/467] ∅ Louis Babatz — no new data
+[426/467] ✓ Jannis Bärtl — MV=€75k
+[427/467] ✓ Elias Benkara — MV=€50k
+[428/467] ✓ Jeremiah Dennit Mensah — MV=€2000k
+[429/467] ✓ Marvin Dills — MV=€800k
+[430/467] ✓ Fousseny Doumbia — MV=€300k
+[431/467] ✓ Luca Erlein — MV=€1800k
+[432/467] ∅ Ben Hawighorst — no new data
+[433/467] ✓ Maximilian Tobias Herwerth — MV=€500k
+[434/467] ✓ Mussa Kaba — MV=€25k
+[435/467] ✓ Silas Katompa Mvumpa — MV=€3000k
+[436/467] ✓ Marin Ljubičić — MV=€2500k
+[437/467] ∅ Andrik Markgraf — no new data
+[438/467] ∅ Till Neininger — no new data
+[439/467] ✓ Wisdom Okpako Mike — MV=€5000k
+[440/467] ✓ Christopher Olivier — MV=€1000k
+[441/467] ✓ Erblin Osmani — MV=€2000k
+[442/467] ✓ David Michael Santos Daiber — MV=€3000k
+[443/467] ✓ Jan Urbich — MV=€300k
+[444/467] ✓ Simon Walde — MV=€200k
+[445/467] ∅ Hugo Luis Afonso — no new data
+[446/467] ∅ Tim Arnold — no new data
+[447/467] ∅ Lenny Alexander Borges — no new data
+[448/467] ✓ Leonard August Brodersen — MV=€75k
+[449/467] ∅ Alessandro Crimaldi — no new data
+[450/467] ✓ Elias Decker — MV=€400k
+[451/467] ✓ Tim-Justin Dietrich — MV=€150k
+[452/467] ✓ Robert Geller — MV=€100k
+[453/467] ∅ Neal Sixten Gibs — no new data
+[454/467] ∅ Leon Herdes — no new data
+[455/467] ∅ Philip Hildesheim — no new data
+[456/467] ✓ Niklas Jahn — MV=€175k
+[457/467] ✓ Louis Köster — MV=€250k
+[458/467] ✓ Noah Le Bret Maboulou — MV=€300k
+[459/467] ✓ Florian Micheler — MV=€500k
+[460/467] ∅ Erik Muller — no new data
+[461/467] ∅ Moussa N'Diaye — no new data
+[462/467] ✓ Montell Ndikom — MV=€125k
+[463/467] ✓ Raphael Ott — MV=€150k
+[464/467] ∅ Leon Parduzi — no new data
+[465/467] ∅ Max Pfister — no new data
+[466/467] ∅ Enis Vauclain Kamga — no new data
+[467/467] ✓ Felix Vogler — MV=€75k
+
+=== Result ===
+duration:         1459.4s
+mv_updated:       267
+contract_updated: 0
+unchanged:        200
+errored:          0

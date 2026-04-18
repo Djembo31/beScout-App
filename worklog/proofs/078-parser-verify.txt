@@ -1,0 +1,19 @@
+Slice 078 — Offline Parser Verify
+Command: npx tsx scripts/tm-parser-verify.ts
+Fixtures: tmp/tm-sanity/*.html (scraped 2026-04-20 via scripts/tm-parser-sanity.ts)
+
+=== TM Parser Verify (offline against saved HTMLs) ===
+
+TM-ID    | Name               | expected MV   | parser MV       | ok? | contract
+----------------------------------------------------------------------------------------------------
+290537   | Jean Butez         | € 8.00 Mio    | € 8.000.000     | OK  | 2028-06-30
+324358   | Ollie Watkins      | € 30.00 Mio   | € 30.000.000    | OK  | 2028-06-30
+413403   | Ezri Konsa         | € 40.00 Mio   | € 40.000.000    | OK  | 2028-06-30
+425334   | Matty Cash         | € 22.00 Mio   | € 22.000.000    | OK  | 2029-06-30
+503743   | Morgan Rogers      | € 80.00 Mio   | € 80.000.000    | OK  | 2031-06-30
+----------------------------------------------------------------------------------------------------
+
+RESULT: 5/5 passed, 0 failed
+
+Interpretation: alle 5 echten TM-HTMLs werden vom neuen parseMarketValue korrekt geparst.
+Vor-Fix-Baseline (selbe HTMLs, altes Markup-Regex): 0/5, alle null.

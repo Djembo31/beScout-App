@@ -1,0 +1,24 @@
+Slice 078 — Regression Tests
+Command: npx vitest run src/lib/scrapers/
+
+ RUN  v4.1.0 C:/bescout-app
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  23:31:34
+   Duration  2.06s
+
+Test Coverage:
+- parseMarketValue (new markup, 2026-04+)
+  ✓ parses 80 Mio. € from Morgan Rogers profile snippet
+  ✓ parses 8,00 Mio. € from Jean Butez profile snippet
+  ✓ parses 1,50 Mio. € with decimal comma
+  ✓ parses Tsd. € suffix (thousands)
+  ✓ returns null when no MV block present
+  ✓ returns null on malformed wrapper
+- parseMarketValue (legacy markup fallback)
+  ✓ parses legacy "€ X Mio." format when new markup absent
+  ✓ prefers new markup over legacy when both present
+- parseContractEnd
+  ✓ parses Vertrag bis DD.MM.YYYY
+  ✓ returns null when no contract block

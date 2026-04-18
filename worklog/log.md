@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 078 | 2026-04-19 | TM Parser Fix (Markup-Change 2026-04) + Loader Pagination-Fix
+- Stage-Chain: SPEC → IMPACT(skipped, no DB/Service/RPC) → BUILD → PROVE → LOG
+- Files (8):
+  - `src/lib/scrapers/transfermarkt-profile.ts` (EDIT — neue primary-Regex für `data-header__market-value-wrapper`, legacy-Fallbacks beibehalten)
+  - `src/lib/scrapers/transfermarkt-profile.test.ts` (NEW — 10 Regression-Tests mit echten HTML-Fixtures)
+  - `scripts/tm-profile-local.ts` (EDIT — full-scan Pagination via `.range()`)
+  - `scripts/tm-parser-sanity.ts` (NEW — Live-Check-Tool)
+  - `scripts/tm-parser-verify.ts` (NEW — Offline-Verify mit gespeicherten HTMLs)
+  - `scripts/tm-html-inspect.mjs` (NEW — DOM-Debug-Tool)
+  - `worklog/specs/078-tm-parser-fix.md` (NEW)
+  - `worklog/proofs/078-*.txt` (5 Proof-Files)
+- Proof: worklog/proofs/078-after-completeness.txt
+- Commit: (pending)
+- Notes:
+  - Root cause: TM hat 2026-04 von `data-header__box--marketvalue` auf `data-header__market-value-wrapper` umgestellt. Altes Format `€ X Mio.` (€ vor Zahl), neues `X,XX <span class="waehrung">Mio. €</span>` (€ nach Zahl in span).
+  - Sanity-Check: 5/5 Stammspieler (Morgan Rogers €80M, Ezri Konsa €40M, Ollie Watkins €30M, Matty Cash €22M, Jean Butez €8M) wurden in DB mit MV=0 geführt.
+  - Rerun (24 min): 267 MV-Updates, 0 errored. STAMM+ROTATION MV-Lücken 433 → 234 (-46%).
+  - Größte Gewinner: Serie A +17pp (69→86%), La Liga +12pp (72→84%), Premier +7pp (78→85%).
+  - Verbleibende 234 Lücken = meist echte TM-Nullwerte (Youngsters ohne MV-Assessment). Via CSV-Import (Slice 076) lösbar.
+
+---
+
 ## 077b | 2026-04-19 | All-Leagues TM Sweep + Profile-Loader Fix
 - Stage-Chain: BUILD (loader-fix) → PROVE → LOG (follow-up zu 077)
 - Files (2):
