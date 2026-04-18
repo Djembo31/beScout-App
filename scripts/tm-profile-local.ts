@@ -75,46 +75,85 @@ async function loadMappedPlayers(filterLeague: string | undefined, n: number): P
     leagueId = data.id;
   }
 
-  const { data: rows, error } = await supabase
-    .from('player_external_ids')
-    .select(
-      'player_id, external_id, players!inner(id, first_name, last_name, market_value_eur, contract_end, clubs!inner(name, league_id))',
-    )
-    .eq('source', 'transfermarkt')
-    .limit(n * 5);
-
-  if (error) throw new Error(error.message);
-
-  const mappings: Mapping[] = [];
-  for (const r of (rows ?? []) as unknown as Array<{
-    player_id: string;
-    external_id: string;
-    players: {
-      first_name: string;
-      last_name: string;
-      market_value_eur: number | null;
-      contract_end: string | null;
-      clubs: { name: string; league_id: string };
-    };
-  }>) {
-    const p = r.players;
-    if (!p) continue;
-    if (leagueId && p.clubs.league_id !== leagueId) continue;
-    if (!forceRefresh) {
-      const hasMv = p.market_value_eur !== null && p.market_value_eur > 0;
-      const hasContract = p.contract_end !== null;
-      if (hasMv && hasContract) continue;
+  // 1. Load candidate player_ids filtered by league (chunked via clubs)
+  let candidatePlayerIds: string[] = [];
+  if (leagueId) {
+    const { data: clubs } = await supabase
+      .from('clubs')
+      .select('id')
+      .eq('league_id', leagueId);
+    const clubIds = (clubs ?? []).map((c) => c.id);
+    const CHUNK = 50;
+    for (let i = 0; i < clubIds.length; i += CHUNK) {
+      const slice = clubIds.slice(i, i + CHUNK);
+      const { data: ps } = await supabase
+        .from('players')
+        .select('id')
+        .in('club_id', slice)
+        .eq('is_liquidated', false)
+        .not('shirt_number', 'is', null)
+        .limit(2000);
+      for (const p of ps ?? []) candidatePlayerIds.push(p.id as string);
     }
-    mappings.push({
-      player_id: r.player_id,
-      tm_id: r.external_id,
-      first_name: p.first_name,
-      last_name: p.last_name,
-      club_name: p.clubs.name,
-      current_mv: p.market_value_eur,
-      current_contract: p.contract_end,
-    });
-    if (mappings.length >= n) break;
+  }
+
+  // 2. Fetch mappings — chunk by player_id IN() if league-filtered, else full scan
+  const mappings: Mapping[] = [];
+  const clubCache = new Map<string, string>();
+
+  const fetchBatch = async (playerIdChunk: string[] | null): Promise<void> => {
+    let q = supabase
+      .from('player_external_ids')
+      .select(
+        'player_id, external_id, players!inner(id, first_name, last_name, club_id, market_value_eur, contract_end, clubs!inner(name, league_id))',
+      )
+      .eq('source', 'transfermarkt');
+    if (playerIdChunk) q = q.in('player_id', playerIdChunk);
+    q = q.limit(1000);
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
+
+    for (const r of (data ?? []) as unknown as Array<{
+      player_id: string;
+      external_id: string;
+      players: {
+        first_name: string;
+        last_name: string;
+        club_id: string;
+        market_value_eur: number | null;
+        contract_end: string | null;
+        clubs: { name: string; league_id: string };
+      };
+    }>) {
+      const p = r.players;
+      if (!p) continue;
+      if (leagueId && p.clubs.league_id !== leagueId) continue;
+      if (!forceRefresh) {
+        const hasMv = p.market_value_eur !== null && p.market_value_eur > 0;
+        const hasContract = p.contract_end !== null;
+        if (hasMv && hasContract) continue;
+      }
+      clubCache.set(p.club_id, p.clubs.name);
+      mappings.push({
+        player_id: r.player_id,
+        tm_id: r.external_id,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        club_name: p.clubs.name,
+        current_mv: p.market_value_eur,
+        current_contract: p.contract_end,
+      });
+      if (mappings.length >= n) return;
+    }
+  };
+
+  if (candidatePlayerIds.length > 0) {
+    const CHUNK = 100;
+    for (let i = 0; i < candidatePlayerIds.length && mappings.length < n; i += CHUNK) {
+      await fetchBatch(candidatePlayerIds.slice(i, i + CHUNK));
+    }
+  } else {
+    await fetchBatch(null);
   }
 
   return mappings;

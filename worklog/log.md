@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 077b | 2026-04-19 | All-Leagues TM Sweep + Profile-Loader Fix
+- Stage-Chain: BUILD (loader-fix) → PROVE → LOG (follow-up zu 077)
+- Files (2):
+  - `scripts/tm-profile-local.ts` (MODIFIED — loader chunked via clubs+players, umgeht PostgREST 1000-row-Limit)
+  - `worklog/proofs/077b-all-leagues-sweep.txt` (NEW — Sweep-Statistik aller 7 Ligen)
+- Proof: worklog/proofs/077b-all-leagues-sweep.txt
+- Commit: (siehe git log)
+- Notes:
+  - 5 weitere Ligen sequenziell durchgelaufen (Serie A → La Liga → PL → BuLi → 2. BuLi) ~2h Laufzeit.
+  - Biggest contract-wins: Serie A +16.6pp, La Liga +12.6pp, Premier League +7.8pp.
+  - api_mapping_pct auf >=98.9% ueber ALLE 7 Ligen nach Sweep.
+  - MV nicht verbessert — vorhandene Daten bereits in players-Tabelle aus frueheren Syncs.
+  - Gold Tier noch nicht erreicht. Naechster Schritt: CSV-Import der MV-Luecken (~20-80 Players je Liga).
+
 ## 077 | 2026-04-19 | TM Local Scraper (Cloudflare-Workaround)
 - Stage-Chain: SPEC(inline) → IMPACT(skipped, scripts only) → BUILD → PROVE → LOG
 - Files (3):

@@ -1,0 +1,61 @@
+Slice 077b Proof — All-Leagues TM Sweep
+Generated: 2026-04-19
+
+Kontext:
+Nach erstem TFF 1. Lig Run (Slice 077) wurden Scripts mit fixed loader
+(PostgREST 1000-row-Limit via club_id chunks umgangen) auf alle 6 anderen Ligen
+angewendet. Profile-loader analog gechunkt.
+
+Loader-Fix in scripts/tm-profile-local.ts:
+  Vorher: .from('player_external_ids').limit(n*5) — PostgREST cap bei 1000
+  Nachher: clubs.in(league_id) → players.in(club_id) chunked 50 →
+           player_external_ids.in(player_id) chunked 100
+
+Sweep-Statistik (2026-04-19):
+
+Liga               | Search found/notFound | Profile contracts/mv
+-------------------|-----------------------|---------------------
+Serie A            | 463 / 202             | 110 / 0
+La Liga            | 431 / 273             |  90 / 0
+Premier League     | 485 / 168             |  52 / 2
+Bundesliga         | 479 / 115             |  17 / 0
+2. Bundesliga      | 444 /  97             |  14 / 0
+(TFF + Süper Lig in slice 077 proof-file)
+
+Gold-Progression Deltas (2026-04-19):
+
+Liga             | api_map      | contract      | MV
+-----------------|--------------|---------------|--------
+2. Bundesliga    | 98.0 → 99.8  | 92.4 → 94.8   | 91.3
+Bundesliga       | 96.8 → 99.3  | 90.1 → 92.9   | 89.9
+Süper Lig        | 98.4 → 99.7  | 82.8 → 86.0   | 77.9
+Premier League   | 91.1 → 98.9  | 77.8 → 85.6   | 77.6 → 77.9
+TFF 1. Lig       | 99.7         | 70.2 → 77.6   | 70.2
+La Liga          | 95.6 → 99.4  | 72.3 → 84.9   | 72.0
+Serie A          | 98.8 → 99.8  | 69.0 → 85.6   | 69.0
+
+Session-Totals:
+  Total neue TM-Mappings:    ~2873
+  Total Contract-Updates:      359
+  Total MV-Updates:              2
+  Total Laufzeit (sequential): ~2h
+
+Kernbeobachtung:
+  MV-Updates sind minimal, weil players.market_value_eur in fast allen
+  mapped-Faellen bereits befuellt ist (aus alten TM-Syncs vor Cloudflare-Block,
+  ODER aus anderer Datenquelle). TM-Mapping bringt primaer Contract-Daten.
+
+Gold-Tier noch offen:
+  Keine Liga >= 95% auf allen Metriken. 2. Bundesliga + Bundesliga sind am
+  naechsten (MV-Luecke +3.7pp bzw +5.1pp). Erreichbar via CSV-Import der
+  fehlenden 20-80 Players.
+
+Run-Logs (ephemer in /tmp, werden nicht committed):
+  /tmp/tm-search-tff.log, /tmp/tm-search-tff-run2.log
+  /tmp/tm-profile-tff.log
+  /tmp/tm-search-sl.log, /tmp/tm-profile-sl.log, /tmp/tm-profile-sl2.log
+  /tmp/tm-all-leagues.log
+
+Scripts-Status nach Sweep:
+  scripts/tm-search-local.ts   (unchanged since 077)
+  scripts/tm-profile-local.ts  (Loader gefixt — chunked via clubs+players)

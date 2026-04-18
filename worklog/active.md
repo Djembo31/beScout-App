@@ -10,9 +10,10 @@ proof: —
 started: —
 ```
 
-## Session 2026-04-19 — Slice 077 DONE
+## Session 2026-04-19 — Slice 077 + 077b DONE
 
 - **077** TM Local Scraper (Cloudflare-Workaround) — TFF +127 mappings, +56 contracts
+- **077b** All-Leagues Sweep — ~2873 mappings + 359 contracts total (6 weitere Ligen)
 
 ## Session 2026-04-18 — 8 Slices abgeschlossen
 
