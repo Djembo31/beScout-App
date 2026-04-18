@@ -4120,7 +4120,10 @@
     "dataSyncInjuriesSchedule": "Gunluk 12:00 UTC",
     "dataSyncTransfersTitle": "Transferler (API-Football)",
     "dataSyncTransfersDesc": "Transfer gecmisi + Kulup degisiklikleri — 134 cagri/calistirma",
-    "dataSyncTransfersSchedule": "MANUEL (transfer donemi sonrasinda)"
+    "dataSyncTransfersSchedule": "MANUEL (transfer donemi sonrasinda)",
+    "dataSyncFixturesTitle": "Sezon Fikstur (API-Football)",
+    "dataSyncFixturesDesc": "Tum lig maclari dahil mac ertelemeleri — 7 cagri/calistirma",
+    "dataSyncFixturesSchedule": "MANUEL (yeni sezon / sezon ortasi backfill)"
   },
   "offers": {
     "statusPending": "Beklemede",

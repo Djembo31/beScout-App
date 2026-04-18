@@ -22,6 +22,7 @@ const TRIGGERABLE_CRONS = new Set([
   'transfermarkt-search-batch',
   'sync-injuries',
   'sync-transfers',
+  'sync-fixtures-future',
 ]);
 
 export async function POST(

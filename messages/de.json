@@ -4120,7 +4120,10 @@
     "dataSyncInjuriesSchedule": "Täglich 12:00 UTC",
     "dataSyncTransfersTitle": "Transfers (API-Football)",
     "dataSyncTransfersDesc": "Transfer-Historie + Club-Wechsel — 134 Calls/Run",
-    "dataSyncTransfersSchedule": "MANUAL-ONLY (nach Transferfenster-Ende)"
+    "dataSyncTransfersSchedule": "MANUAL-ONLY (nach Transferfenster-Ende)",
+    "dataSyncFixturesTitle": "Saison-Fixtures (API-Football)",
+    "dataSyncFixturesDesc": "Alle Spieltag-Fixtures pro Liga inkl. Spielverlegungen — 7 Calls/Run",
+    "dataSyncFixturesSchedule": "MANUAL-ONLY (neue Saison / mid-season Backfill)"
   },
   "offers": {
     "statusPending": "Ausstehend",
