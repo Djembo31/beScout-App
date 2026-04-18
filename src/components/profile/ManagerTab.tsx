@@ -36,6 +36,7 @@ const FAN_RANK_KEYS: Record<string, string> = {
 
 export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, favoriteClubId, favoriteClubName }: ManagerTabProps) {
   const t = useTranslations('profile');
+  const tg = useTranslations('gamification');
   const locale = useLocale();
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const { data: fanRanking } = useFanRanking(userId, favoriteClubId);
@@ -151,7 +152,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
           <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.06] border border-gold/15">
             <div className="text-center">
               <div className="text-sm font-black text-gold">
-                {FAN_RANK_KEYS[fanRanking.rank_tier] ? t(FAN_RANK_KEYS[fanRanking.rank_tier]) : fanRanking.rank_tier}
+                {FAN_RANK_KEYS[fanRanking.rank_tier] ? tg(FAN_RANK_KEYS[fanRanking.rank_tier]) : fanRanking.rank_tier}
               </div>
               {favoriteClubName && (
                 <div className="text-[10px] text-white/40 mt-0.5">{favoriteClubName}</div>
