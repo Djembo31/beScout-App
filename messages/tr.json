@@ -4123,7 +4123,10 @@
     "dataSyncTransfersSchedule": "MANUEL (transfer donemi sonrasinda)",
     "dataSyncFixturesTitle": "Sezon Fikstur (API-Football)",
     "dataSyncFixturesDesc": "Tum lig maclari dahil mac ertelemeleri — 7 cagri/calistirma",
-    "dataSyncFixturesSchedule": "MANUEL (yeni sezon / sezon ortasi backfill)"
+    "dataSyncFixturesSchedule": "MANUEL (yeni sezon / sezon ortasi backfill)",
+    "dataSyncStandingsTitle": "Lig Tablolari (API-Football)",
+    "dataSyncStandingsDesc": "Tablo + Puan + Form — 7 cagri/calistirma",
+    "dataSyncStandingsSchedule": "MANUEL (haftalik spieltag sonrasi onerilir)"
   },
   "offers": {
     "statusPending": "Beklemede",

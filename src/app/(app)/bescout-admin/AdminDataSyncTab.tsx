@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, Play, Users, TrendingUp, Search, CheckCircle2, XCircle, HeartPulse, ArrowRightLeft, CalendarClock } from 'lucide-react';
+import { Loader2, Play, Users, TrendingUp, Search, CheckCircle2, XCircle, HeartPulse, ArrowRightLeft, CalendarClock, Trophy } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { cn } from '@/lib/utils';
 
-type CronName = 'sync-players-daily' | 'sync-transfermarkt-batch' | 'transfermarkt-search-batch' | 'sync-injuries' | 'sync-transfers' | 'sync-fixtures-future';
+type CronName = 'sync-players-daily' | 'sync-transfermarkt-batch' | 'transfermarkt-search-batch' | 'sync-injuries' | 'sync-transfers' | 'sync-fixtures-future' | 'sync-standings';
 
 type CronResponse = {
   success: boolean;
@@ -68,6 +68,13 @@ const CRONS: CronMeta[] = [
     descKey: 'dataSyncFixturesDesc',
     scheduleKey: 'dataSyncFixturesSchedule',
   },
+  {
+    name: 'sync-standings',
+    icon: Trophy,
+    titleKey: 'dataSyncStandingsTitle',
+    descKey: 'dataSyncStandingsDesc',
+    scheduleKey: 'dataSyncStandingsSchedule',
+  },
 ];
 
 export function AdminDataSyncTab() {
@@ -80,6 +87,7 @@ export function AdminDataSyncTab() {
     'sync-injuries': false,
     'sync-transfers': false,
     'sync-fixtures-future': false,
+    'sync-standings': false,
   });
   const [results, setResults] = useState<Record<CronName, CronResponse | null>>({
     'sync-players-daily': null,
@@ -88,6 +96,7 @@ export function AdminDataSyncTab() {
     'sync-injuries': null,
     'sync-transfers': null,
     'sync-fixtures-future': null,
+    'sync-standings': null,
   });
 
   const handleTrigger = async (cron: CronName) => {

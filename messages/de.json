@@ -4123,7 +4123,10 @@
     "dataSyncTransfersSchedule": "MANUAL-ONLY (nach Transferfenster-Ende)",
     "dataSyncFixturesTitle": "Saison-Fixtures (API-Football)",
     "dataSyncFixturesDesc": "Alle Spieltag-Fixtures pro Liga inkl. Spielverlegungen — 7 Calls/Run",
-    "dataSyncFixturesSchedule": "MANUAL-ONLY (neue Saison / mid-season Backfill)"
+    "dataSyncFixturesSchedule": "MANUAL-ONLY (neue Saison / mid-season Backfill)",
+    "dataSyncStandingsTitle": "Liga-Tabellen (API-Football)",
+    "dataSyncStandingsDesc": "Tabelle + Punkte + Form pro Club — 7 Calls/Run",
+    "dataSyncStandingsSchedule": "MANUAL-ONLY (wöchentlich nach Spieltag empfohlen)"
   },
   "offers": {
     "statusPending": "Ausstehend",

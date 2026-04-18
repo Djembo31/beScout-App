@@ -23,6 +23,7 @@ const TRIGGERABLE_CRONS = new Set([
   'sync-injuries',
   'sync-transfers',
   'sync-fixtures-future',
+  'sync-standings',
 ]);
 
 export async function POST(
