@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 075 | 2026-04-18 | Cron Performance-Refactor + 2 Healing-Fixes
+- Stage-Chain: SPEC → BUILD → PROVE → LOG (3 iterations für healing)
+- Commits: e0c9abb2 (main) + 089ef0f9 (pre-filter fix) + ae03ebeb (UPDATE statt UPSERT)
+- Files (4):
+  - `src/app/api/cron/sync-injuries/route.ts` (Batch-Refactor: 60s timeout → **28s** measured)
+  - `src/app/api/cron/sync-players-daily/route.ts` (UPDATE-pattern statt UPSERT: 300s timeout → **52s** measured, 4074 players updated)
+  - `src/app/api/cron/transfermarkt-search-batch/route.ts` (debug-Mode + threshold-Parameter)
+  - `.claude/rules/common-errors.md` (3 neue Patterns: Postgres ON CONFLICT CHECK-Validation, Vercel Cron-Limits, Cloudflare-Block)
+- Proof: Live-Trigger via Playwright: sync-injuries 28s/1805 updates, sync-players-daily 52s/4074 updates
+- Notes: **3 Healing-Iterationen nötig.** Refactor-1 sync-injuries + sync-players-daily mit batch-upsert → players-daily failed 5019/5019 wegen CHECK `dpc_total <= max_supply`. Healing-1 pre-filter existing api_football_ids → STILL 4074/4074 failed weil Postgres ON CONFLICT DO UPDATE **validates INSERT-tuple-defaults BEFORE routing** (Postgres-gotcha dokumentiert). Healing-2: echtes `.update().eq()` statt `.upsert()` — funktioniert. **Transfermarkt-Scraping debug:** 0/10 players found on Vercel, `curl` vom local PC findet 10 matches = Cloudflare-Block für Vercel-Datacenter-IPs. Workaround = Proxy oder Partner-API. **Gold-Standard nicht erreicht:** Market-Value + Contract-End kommen aus TM, sync-players-daily brachte 50 neue Stammkader (shirt_number) ohne TM-Data → TFF 1. Lig Contract+MV von 80.8% auf 70.2% gesunken. **Nächste Slice 076 muss Proxy oder alternative Datenquelle sein.**
+
+---
+
 ## 074 | 2026-04-18 | sync-standings Manual-Only + league_standings table
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files (7):

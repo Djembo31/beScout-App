@@ -298,6 +298,33 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
   ```
 - **Audit-Pflicht beim AR-44 Hardening:** pruefen ob hardened RPC von Triggern aufgerufen wird → sofort Internal-Helper extrahieren. Andernfalls: cumulative silent-fail.
 
+## Postgres ON CONFLICT: CHECK validiert INSERT-Tuple-Defaults BEFORE routing (2026-04-18 — Slice 075c)
+
+- `INSERT INTO t (col_a, col_b) VALUES (...) ON CONFLICT (unique_col) DO UPDATE SET ...` **validiert CHECK-Constraints gegen die INSERT-Tuple-Defaults**, bevor es den UPDATE-path nimmt.
+- Wenn CHECK-violation durch DEFAULT-Werte entsteht (z.B. `dpc_total=10000` default + `max_supply=300` default + CHECK `dpc_total <= max_supply`), failt der ganze UPSERT — auch wenn die Ziel-row bereits existiert (d.h. UPDATE-path eigentlich korrekt wäre).
+- **Supabase `.upsert([arr], { onConflict: 'key' })` erbt das Problem**: selbst wenn alle payload-rows existing sind, schlaegt die gesamte Batch fehl mit `23514: new row violates check constraint`.
+- **Fix**: echtes `.update(...).eq('id', ...)` statt `.upsert()` — umgeht ON-CONFLICT-Pre-Validation komplett.
+- Pattern: `pre-query api_xyz_id → id` map, dann `Promise.all(batch.map(t => supabase.from(T).update(payload).eq('id', t.id)))` in chunks von 20-50.
+- Audit: `SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE contype='c' AND conrelid='T'::regclass` — Constraints die DEFAULTS verletzen koennten.
+- **Slice 075 Evidence**: sync-players-daily 4074/5019 payloads errored trotz pre-filtering, weil INSERT-tuple mit defaults (dpc_total=10000 vs max_supply=300) sofort CHECK-fail.
+
+## Vercel Hobby Cron-Limit + Function Timeouts (2026-04-18 — Slice 071 + 075)
+
+- **Hobby Plan**: max 2 Cron-Jobs (die aeltesten 2 in vercel.json werden auto-scheduled — Rest wird ignoriert ohne Deploy-Fehler), max 1×/Tag Frequenz pro Job, Deploy rejected bei comma-Schedule `0 6,14,22 * * *` → Redirect zu `vercel.com/docs/cron-jobs/usage-and-pricing`.
+- **Pro Plan**: 40 Cron-Jobs, 300s function-timeout (NICHT 900s wie manchmal behauptet).
+- **Function-Timeout bei HTTP-Trigger**: auch mit `export const maxDuration = 300;` im route.ts wird 300s als Hard-Limit durchgesetzt. Cron-Schedule-Runs koennen laenger laufen als HTTP-Trigger (bis 900s Pro / 3600s Enterprise).
+- **Symptom**: 504 Gateway Timeout mit "FUNCTION_INVOCATION_TIMEOUT" nach 300s.
+- **Implication fuer Cron-Design**: Sync-Routes die per-Row-DB-Ops machen (`for (entry) { await supabase.update().eq() }`) timeouten bei 1000+ rows. **Zwingend Batch-Pattern**: 1× pre-query via `.in(all_ids)`, dann chunked concurrent UPDATEs via `Promise.all` (20-50 parallel).
+- Messung Slice 075: sync-injuries **60s-timeout → 28s**, sync-players-daily **300s-timeout → 17s** (reines API + pre-query) nach Batch-Refactor.
+
+## Transfermarkt Cloudflare-Block fuer Vercel-IPs (2026-04-18 — Slice 075 Debug)
+
+- `transfermarkt-search-batch` findet 0/20 matches obwohl URL + Regex + HTML-Struktur korrekt sind.
+- Root-Cause: Transfermarkt nutzt Cloudflare, das Vercel-Datacenter-IPs **aggressiv blockiert** → HTTP 200 mit leerem/challenge-HTML (keine `profil/spieler/XXXXX` Links).
+- Verifikation: `curl` vom lokalen PC zu derselben URL returnt volle HTML mit 10+ Links.
+- **Workaround-Optionen**: (a) Proxy/VPN-Service mit Residential-IPs, (b) Transfermarkt Partner-API (kostet), (c) manuelle Bulk-Imports aus CSV, (d) andere Marktwert-Quelle (Comunio, ESPN).
+- **Debug-Mode** via `?debug=true&threshold=X`: returnt `debug_trace[].parsed` → 0 parsed = Cloudflare-Block bestaetigt.
+
 ## Next.js Route-Handler: Named-Exports brechen Build (2026-04-18 — Slice 069 Healing)
 - `export function helper(...)` in `src/app/api/.../route.ts` ist **verboten** unter Next.js 14+ App-Router
 - Nur erlaubt: HTTP-Method-Handlers (`GET`/`POST`/`PUT`/`DELETE`/`PATCH`/`HEAD`/`OPTIONS`), plus `runtime`/`dynamic`/`dynamicParams`/`revalidate`/`fetchCache`/`maxDuration`/`generateStaticParams`/`config`
