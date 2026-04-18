@@ -1,0 +1,5 @@
+=== Slice 076 Deploy Verify ===
+Commit: 78d1d412, Vercel success
+
+players-csv/export (no-auth ? 401 middleware-redirect): HTTP 401
+players-csv/import (no-auth ? 401): HTTP 401

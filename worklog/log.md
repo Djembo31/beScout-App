@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 076 | 2026-04-18 | Manual CSV-Import (Transfermarkt-Block-Workaround)
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files (7):
+  - `src/app/api/admin/players-csv/export/route.ts` (NEW — Admin-auth, returns CSV mit 6 columns)
+  - `src/app/api/admin/players-csv/import/route.ts` (NEW — POST JSON, validate + batch .update())
+  - `src/app/(app)/bescout-admin/AdminCSVImportTab.tsx` (NEW — Export-Btn + File-Upload + Preview + Apply)
+  - `src/app/(app)/bescout-admin/BescoutAdminContent.tsx` (Tab-Registration `csv_import` mit FileSpreadsheet-Icon)
+  - `messages/de.json` + `tr.json` (17 Keys, TR Anil-approved)
+  - `worklog/specs/076-manual-csv-import.md` (NEW)
+- Proof: (post-deploy)
+- Commit: 78d1d412
+- Notes: **Workaround für Slice 075 Cloudflare-Block**. Admin-Flow: (1) Export → CSV mit `player_id, full_name, club, position, market_value_eur, contract_end`, (2) Fill mv+contract extern (aus Comunio/SofaScore/eigenes Abo), (3) Upload → Parse (native CSV-Parser mit Comma+Semicolon-Support, BOM-strip, quoted-field-handling) → Preview 5 rows → Apply → bulk .update().eq() in 50er Chunks. **Validation: UUID-regex player_id, integer>=0 mv, YYYY-MM-DD contract_end, pre-filter existing IDs.** Result-Display mit updated/errored/validation_errors counts. Performance via Slice 075 UPDATE-pattern → kein CHECK-Violation-Bug. Scope-out: papaparse-Dependency, Auto-Detect Format, Historical-Log.
+
+---
+
 ## 075 | 2026-04-18 | Cron Performance-Refactor + 2 Healing-Fixes
 - Stage-Chain: SPEC → BUILD → PROVE → LOG (3 iterations für healing)
 - Commits: e0c9abb2 (main) + 089ef0f9 (pre-filter fix) + ae03ebeb (UPDATE statt UPSERT)
