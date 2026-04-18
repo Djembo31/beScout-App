@@ -6,8 +6,8 @@ import type { Player } from '@/types';
 
 // Cast-Helper: Test-Inputs auf das Subset das computePlayerFloor braucht.
 // Unterfelder wie isOwn/sellerHandle sind fuer die reine Math-Logic irrelevant.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const asPlayer = (p: any): Pick<Player, 'listings' | 'prices'> => p;
+const asPlayer = (p: unknown): Pick<Player, 'listings' | 'prices'> =>
+  p as Pick<Player, 'listings' | 'prices'>;
 
 describe('computePlayerFloor', () => {
   it('returns Math.min of listings when listings exist', () => {

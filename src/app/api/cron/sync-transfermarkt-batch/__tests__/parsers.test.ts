@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarketValue, parseContractEnd } from '../route';
+import { parseMarketValue, parseContractEnd } from '@/lib/scrapers/transfermarkt-profile';
 
 describe('parseMarketValue', () => {
   it('parses Mio-Euro with comma decimal', () => {

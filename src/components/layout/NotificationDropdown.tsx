@@ -198,8 +198,8 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
     // Slice 048: Structured i18n via dedicated columns
     if (notif.i18n_key) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return tNotifTpl(notif.i18n_key as any, (notif.i18n_params ?? {}) as any);
+        const tFn = tNotifTpl as unknown as (k: string, p?: Record<string, unknown>) => string;
+        return tFn(notif.i18n_key, notif.i18n_params ?? {});
       } catch {
         return notif.title;
       }
@@ -220,8 +220,8 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
     if (notif.i18n_key) {
       const bodyKey = notif.i18n_key + 'Body';
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return tNotifTpl(bodyKey as any, (notif.i18n_params ?? {}) as any);
+        const tFn = tNotifTpl as unknown as (k: string, p?: Record<string, unknown>) => string;
+        return tFn(bodyKey, notif.i18n_params ?? {});
       } catch {
         return notif.body ?? null;
       }

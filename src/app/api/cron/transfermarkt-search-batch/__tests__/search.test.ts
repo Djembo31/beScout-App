@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeName, parseSearchResults, scoreMatch } from '../route';
+import { normalizeName, parseSearchResults, scoreMatch } from '@/lib/scrapers/transfermarkt-search';
 
 describe('normalizeName', () => {
   it('lowercases + strips diacritics', () => {
