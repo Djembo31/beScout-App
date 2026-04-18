@@ -5,7 +5,7 @@ import { useNumTick } from '@/lib/hooks/useNumTick';
 import Link from 'next/link';
 import { Flame, Shield, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
 import { fmtScout, cn } from '@/lib/utils';
-import { centsToBsd } from '@/lib/services/players';
+import { formatScout } from '@/lib/services/wallet';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { InfoTooltip } from '@/components/ui';
 import { getGreetingKey } from './helpers';
@@ -99,7 +99,7 @@ function HomeStoryHeaderInner({
             >
               <Wallet className="size-3.5 text-gold" aria-hidden="true" />
               <span className="font-mono font-bold text-sm text-gold tabular-nums">
-                {fmtScout(centsToBsd(balanceCents))}
+                {formatScout(balanceCents)}
               </span>
               <span className="text-[10px] text-white/40 font-medium">{t('balance')}</span>
             </Link>

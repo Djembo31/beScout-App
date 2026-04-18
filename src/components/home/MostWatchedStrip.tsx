@@ -18,7 +18,9 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
   const t = useTranslations('home');
   const { data: players = [] } = useMostWatchedPlayers(userId, 10);
 
-  if (players.length === 0) return null;
+  // Strip wirkt dünn bei < 2 Players — hide bis genug Daten da sind.
+  // Market-Discovery läuft dann über /market "Most Watched"-Sektion.
+  if (players.length < 2) return null;
 
   return (
     <div>
