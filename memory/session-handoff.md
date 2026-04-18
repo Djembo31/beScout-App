@@ -1,4 +1,4 @@
-# Session Handoff (2026-04-17 20:01)
+# Session Handoff (2026-04-18 15:53)
 
 ## Uncommitted Changes: 1 Files
 ```
@@ -6,14 +6,14 @@
 ```
 
 ## Session Commits: 10
-- 88925613 test(clubprovider): P3 CI-flake fix — waitFor timeout 5000ms (Slice 040)
-- f3b3761e fix(rpc): Compliance Wording Trader→Sammler + BSD→Credits (Slice 043)
-- f79e7fa0 fix(fantasy): EventSummaryModal PUNKTE=0 race + numeric coerce (Slice 042)
-- d5d1f919 docs(rpc): event-entry Wrapper-Pattern dokumentiert (Slice 041)
-- dec1210d docs(slice-039): close — Live-Verify GREEN, 0 console-errors
-- e18b634d fix(social): P2 user_achievements 409 race — upsert ignoreDuplicates (Slice 039)
-- ff0134d3 fix(rpc): P2 8 transactions.type drifts cleanup — INV-30 Allowlist EMPTY (Slice 037)
-- 55113cd6 docs(slice-036): close — 5/5 cron runs succeeded, kein 42501 mehr
-- 1e73eeca fix(rpc): P1 sync_event_statuses 42501 — internal-helper + pg_cron (Slice 036)
-- bb7feedb fix(rpc): P1 trg trade_refresh — internal-helper bypasses AR-44 guard (Slice 035)
+- 0812f340 log(slice): Slice 076 DONE — Manual CSV-Import live (8 Slices heute)
+- 78d1d412 feat(admin): Slice 076 — Manual CSV-Import fuer Market-Value + Contract-End
+- 84158709 log(slice): Slice 075 DONE — Batch-Refactor + 3 common-errors patterns
+- ae03ebeb fix(cron): Slice 075c — sync-players-daily UPDATE statt UPSERT (CHECK-Pre-Validate-Bug)
+- 089ef0f9 fix(cron): Slice 075b — sync-players-daily pre-filter existing api_football_ids
+- e0c9abb2 perf(cron): Slice 075 — Batch-Refactor sync-injuries + sync-players-daily + search-batch debug
+- 5b8af404 log(slice): Slice 074 DONE — sync-standings live, Session-Close
+- eb0e6521 feat(cron): Slice 074 — sync-standings Manual-Only + league_standings table
+- d421e40e log(slice): Slice 073 DONE — sync-fixtures-future live
+- 9d0b0a58 feat(cron): Slice 073 — sync-fixtures-future Manual-Only Cron
 

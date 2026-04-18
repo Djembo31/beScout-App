@@ -1,242 +1,271 @@
 # Next-Session Briefing (2026-04-19)
 
 > Erstellt Ende Session 2026-04-18.
-> **Ersetzt den vorigen Briefing-Stand** (next-session-briefing-2026-04-18.md).
-> Stop-Hook liefert parallelen technischen Handoff in `memory/session-handoff.md`.
+> **Letzte Session war die produktivste seit Projektstart: 8 Slices (069–076) in einer Sitzung.**
 
 ---
 
 ## TL;DR — wo wir stehen
 
-**Heute gelaufen:** 24 Slices (044-068, kumulativ). Zwei Wellen:
-- **Security + TR-i18n + Verify** (044-058): Pilot-Ready-Hardening abgeschlossen. 14/14 notification-RPCs auf structured i18n, 5 Security-Guards, Ledger reconciled. Live-Verify GREEN auf bescout.net.
-- **Data-Integrity Phase 1+2 Start** (059-068): Audit-Baseline + Duplikate-Prevention + Logo-Normalisierung + **3 autonome Sync-Pipelines** für Player-Daten deployed.
+**Die komplette Data-Import-Infrastruktur ist gebaut.** 7 Cron-Endpoints + Admin-UI mit 8 Tabs + 3 neue Tabellen + Performance-Refactor.
 
-**Kritischer Follow-Up:** Cron-Frequenz-Review. Ich hatte die Crons auf daily/hourly gesetzt aus Copy-Paste-Muster. CEO hat zu Recht kritisiert: Transfermarkt-Market-Values ändern sich nur 2-3× pro Jahr (Transferfenster). Tägliches Polling ist Ressourcen-Verschwendung + Cloudflare-Risiko.
+**Was fehlt für Gold-Standard:** Manueller CSV-Upload (Slice 076 liefert das Werkzeug) — weil Transfermarkt-Scraping auf Vercel-IPs Cloudflare-blocked ist. **Gold ist jetzt NUR noch eine Frage der CSV-Arbeit, nicht mehr des Codes.**
 
-**Baseline Data-Quality (via `get_player_data_completeness()`):**
-- 0/7 Ligen auf Gold-Tier
-- 21 Bronze-Violations (<95%) — INV-34 ratcheted (darf nur sinken)
-- Worst: Serie A 68.3% market_value + contract
-- Best: 2. Bundesliga 92.9% contract
+**Aktueller Gold-Stand (verifiziert live):** 0/7 Ligen Gold. TFF 1. Lig hat Contract + Market-Value auf **70.2% gesunken** weil sync-players-daily neue Stammkader-Einträge (via shirt_number) brachte, die keine TM-Daten haben.
 
 ---
 
-## Was läuft autonom ab sofort
+## Heute gelaufen — 8 Slices
 
-**2 Vercel-Crons aktiv (Sync-Crons nach CEO-Decision pausiert):**
+| # | Slice | Commit(s) | Highlights |
+|---|---|---|---|
+| 069 | Cron-Frequenz + Manual-Trigger + Deploy-Healing | 37f2f0d6 + 5f48aa0d + d18daac9 | **Rettung:** 11 Vercel-Deploys waren gefailt seit Slice 064. Root-Cause: Named-Exports in route.ts + ESLint-Rule-Config-Gap. |
+| 070 | Sync-Injuries + players.status CHECK | dbf98f4e | Fantasy-kritisch: Verletzungen/Sperren tracking. `players.status` IN ('fit','doubtful','injured','suspended'). |
+| 071 | gameweek-sync Phase-A-Skip (3×-Schedule Rollback) | 7a097ea2 + dca2c359 | Perf-Opt im Code live. 3×/Tag Schedule rejected wegen Hobby-Plan-Limit. |
+| 072 | sync-transfers Manual-Only + player_transfers Tabelle | dacfe6f4 | 134 Calls/Run, Transfer-Historie-Log. |
+| 073 | sync-fixtures-future Manual-Only | 9d0b0a58 | Saison-Fixtures + Spielverlegungs-Update. |
+| 074 | sync-standings Manual-Only + league_standings Tabelle | eb0e6521 | **Einziger Cron der LIVE Daten gebracht hat:** 134 standings in 7 Ligen, Form-Indicator "WWDWL". |
+| 075 | Cron Performance-Refactor (Batch-Pattern) | e0c9abb2 + 089ef0f9 + ae03ebeb | sync-injuries **60s→28s** (1805 updates), sync-players-daily **300s→52s** (4074 updates). 3 Healing-Iterationen nötig. |
+| 076 | Manual CSV-Import (TM-Block-Workaround) | 78d1d412 | Export/Import-UI mit validation + batch-apply. Gold-Standard-Ziel via CSV erreichbar. |
 
-| Cron | Schedule | Aktion |
+**Kernmetriken:**
+- ~30 Commits gepusht
+- 3 neue DB-Tabellen: `player_transfers`, `league_standings`, + CHECK constraint auf `players.status`
+- 3 neue `players` Columns: `injury_reason`, `injury_until`, `status_updated_at`
+- Admin-UI erweitert von 16 auf 18 Tabs
+- 5 neue Common-Errors-Patterns dokumentiert
+
+---
+
+## Aktiv + Offen
+
+### Automatisch laufende Crons (Vercel Hobby = nur 2 Auto-Slots)
+
+| Cron | Schedule | Status |
 |------|----------|--------|
-| `gameweek-sync-trigger` | 06:00 UTC | Match-Stats (existing) |
-| `close-expired-bounties` | 05:00 UTC | Bounty-Cleanup (existing) |
+| `gameweek-sync` | 06:00 UTC täglich | ✅ Auto (Match-Stats, Ratings) |
+| `close-expired-bounties` | 05:00 UTC täglich | ✅ Auto |
 
-**Data-Sync-Crons deaktiviert** (Commit `044b66c9` nach CEO-Decision):
-- `sync-players-daily` — Endpoint bleibt aktiv, **nur manual-trigger**
-- `sync-transfermarkt-batch` — Endpoint bleibt aktiv, **nur manual-trigger**
-- `transfermarkt-search-batch` — Endpoint bleibt aktiv, **nur manual-trigger**
+### Manual-Only Crons (vercel.json listed aber Hobby-Limit blockt Auto-Schedule)
 
-**Manual-Trigger-Commands:**
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" \
-  https://bescout.net/api/cron/sync-players-daily
+Alle 7 Manual-Only via Admin-UI → **Data Sync** Tab (7 Cards):
 
-curl -H "Authorization: Bearer $CRON_SECRET" \
-  "https://bescout.net/api/cron/transfermarkt-search-batch?limit=30"
+| Cron | Performance | Was es liefert |
+|------|-------------|----------------|
+| sync-injuries | 28s | Verletzte/gesperrte (1805 live updates gemessen) |
+| sync-players-daily | 52s | Nationality/Photo/Shirt/Position (4074 updates) |
+| sync-transfermarkt-batch | 1.4s | Market-Value + Contract (**nur für mapped Players** — 505 von 4556) |
+| transfermarkt-search-batch | 70s | tm-ID Discovery — ⚠️ **Cloudflare-Block: 0 matches auf Vercel** |
+| sync-transfers | **Timeout 300s** | Transfer-Historie — braucht Batch-Refactor |
+| sync-fixtures-future | **Timeout 300s** | Saison-Fixtures + Verlegungen — braucht Batch-Refactor |
+| sync-standings | 23s | Liga-Tabelle + Form (134 standings live) |
 
-curl -H "Authorization: Bearer $CRON_SECRET" \
-  "https://bescout.net/api/cron/sync-transfermarkt-batch?limit=50"
-```
+### Nur via Admin-UI (kein Auto-Schedule)
 
-**Middleware-Fix (`4e660199`):** `/api/cron/*` aus auth-middleware exkludiert, damit Cron-Endpoints triggerbar sind ohne User-Auth (nur CRON_SECRET).
-
----
-
-## Offene Entscheidungen (User-Input nötig)
-
-### D1 — Cron-Schedule nach Launch einstellen
-
-CEO-Decision: Bis Launch nur manual. Post-Launch: Schedule je nach Usage-Patterns.
-
-**Vorschlag für post-Launch (Slice 069):**
-| Cron | Vorgeschlagene Frequenz |
-|------|-------------------------|
-| `sync-transfermarkt-batch` | **1× pro Woche (Sonntag 04:00) + missing_only** |
-| `transfermarkt-search-batch` | **2 Wochen initial high-freq bis Discovery-Coverage, dann 1×/Woche** |
-| `sync-players-daily` | **1× täglich** (API-Football günstig, Shirt-Transfers) |
-
-**Plus:** Admin-Manual-Trigger-Button "Full Market-Value-Refresh" im AdminSettingsTab für 3×/Jahr CEO-getriggered Deep-Refresh (nach Transferfenstern).
-
-**Effekt:** Transfermarkt-Load ~80/Woche statt daily. Cloudflare-Risiko null.
-
-### D2 — Launch-Strategie für Ligen
-
-Liga-Coverage ist ungleich (Serie A 68% market_value, 2. Bundesliga 92%).
-
-**Optionen:**
-- (a) Launch alle 7 Ligen gleichzeitig, mit Coverage-Badge pro Liga
-- (b) Launch nur komplette Ligen (Bundesliga + 2. Bundesliga + Süper Lig), Rest post-Full-Coverage
-- (c) Launch Sakaryaspor-Pilot only (Minimum-Scope), Rest post-Beta
-
-### D3 — 7 api_football_id Collisions manuell review
-
-Nach Slice 061 Backfill blieben 7 Drift-Cases wo 2 Players denselben api_football_id claimen. Das sind Daten-Inkonsistenzen in external_ids-Table.
-
-**Options:**
-- (a) CEO durchschaut + entscheidet welche der 2 Players legitim ist, andere kriegt NULL
-- (b) Ich baue Admin-UI "Resolve Mapping Conflict" (Slice 071)
-
-### D4 — Post-Discovery: Players ohne findbare tm-id
-
-Nach Slice 068 Discovery-Run (läuft 5.5d) wird es Players geben die KEINE Transfermarkt-Entsprechung haben (z.B. obscure TFF-Jugendspieler). Wie behandeln wir die?
-
-**Options:**
-- (a) "Kein Marktwert verfügbar" UI-state (transparent)
-- (b) Fallback-Value (Durchschnitt der Position/Liga) — fragil
-- (c) Admin-manual-Input-Field im Player-Detail (Slice 072)
+**Data Sync Tab (7 Cards)** + **CSV Import Tab (neu)**
 
 ---
 
-## Priorisierte Optionen für morgen
+## 🚨 Offene Entscheidungen für morgen
 
-### Option A — Data-Pipeline-Optimierung (empfohlen Start)
+### Entscheidung 1 — Vercel Pro-Upgrade?
 
-**Slice 069: Cron-Frequenz-Fix + Manual-Trigger**
-- Vercel-Cron Schedule umschreiben (Slice 069)
-- Admin-Endpoint `/api/admin/trigger-full-transfermarkt-refresh` (CEO-auth)
-- Button im AdminSettingsTab
-- Dauer: **30-60 Min**
+**Status:** Hobby max 2 Auto-Cron-Slots. Alle 7 Data-Sync-Crons laufen derzeit nur manuell.
 
-**Slice 071: Cron-Results-Health-Check**
-- SQL-Query: wie viele neue Mappings gefunden nach 1. Run?
-- Falls <20: Debug (blocked? wrong selector? 403?)
-- Falls 20-30: OK, weiter rolling
-- Dauer: **15 Min**
+**Pro ($20/mo) bringt:**
+- 40 Cron-Jobs erlaubt
+- 300s function-timeout (statt 10s Hobby)
+- Multi-Schedule-Syntax (`0 6,14,22 * * *`) erlaubt → 3×/Tag gameweek-sync möglich
 
-### Option B — User-Trust-Features
+**Alternative:** Manual-Only bleibt. Du triggerst 1× pro Woche im Admin-Panel.
 
-**Slice 070: User-facing Freshness-Badge**
-- Relative-Time-Component ("vor 2h", "vor 3 Tagen")
-- Color-coded: grün <24h, gelb 1-7d, rot >7d
-- Integration in Player-Detail, Market-Card, Portfolio-Row
-- +2 i18n keys (DE+TR)
-- Dauer: **1.5h**
+**Empfehlung:** Pre-Launch Hobby ist OK. Nach Launch direkt upgraden.
 
-**Slice 073: Admin Data-Quality-Dashboard**
-- Component: Live-Coverage-Matrix pro Liga
-- Calls `get_player_data_completeness()`
-- Shows: Bronze/Silver/Gold-Status, missing-count per Feld, last-sync-timestamp
-- Integration in Platform-Admin-Tab (owner-only)
-- Dauer: **1.5h**
+### Entscheidung 2 — CSV-Workflow durchziehen?
 
-### Option C — Database-Architecture (nice-to-have)
+**Der direkte Weg zu Gold-Standard:**
 
-**Slice 066: Stadium Master-Table**
-- `stadiums(id, name, city, capacity, opened_year, image_url)` table
-- FK von clubs (N clubs können shared stadium haben)
-- Migration-Path: move aus clubs.stadium string
-- Dauer: **2h**
+1. Admin → **CSV Import** Tab → `CSV herunterladen`
+2. Excel/Google-Sheets öffnen, `players-2026-04-18.csv`
+3. Spalten `market_value_eur` (Integer in €) + `contract_end` (YYYY-MM-DD) füllen
+4. Datenquellen-Optionen:
+   - Comunio / Kicker-Manager
+   - SofaScore (aber UI-scrape)
+   - Dein eigenes Kicker-Abo / Fußball-Datenbank
+   - Crowdsourcen über Discord/Twitter
+5. CSV speichern
+6. Zurück → `CSV hochladen` → Preview check → `Updates anwenden`
+7. Check-Query: `SELECT jsonb_pretty(public.get_player_data_completeness())`
 
-**Slice 074: player_history Tracking**
-- Table für Market-Value + Contract-End History
-- Trigger: bei UPDATE in players → insert history-row
-- Analytics: Price-Trajectory charts post-Beta
-- Dauer: **2h**
+**Zeitschätzung:** 2h für TFF 1. Lig (mit Abo als Datenquelle). 8h für alle 7 Ligen.
 
-### Option D — Komplett-andere Arbeit
+### Entscheidung 3 — Performance-Refactor für sync-transfers + sync-fixtures-future?
 
-Du kannst auch **nichts davon** machen und etwas ganz anderes:
-- Neue Feature bauen (Fantasy, Bounty, Events)
-- Marketing-Page polish
-- Beta-Launch-Vorbereitung
+**Betroffen:** Beide timeouten bei 300s wegen per-Row-DB-Ops. Gleiches Pattern wie bei sync-injuries.
+
+**Slice 077 Aufwand:** ~1h (Pattern aus Slice 075 copy-pasten).
+
+**Business-Impact:** Niedrig pre-launch (Transfer-Historie + Fixtures-Updates sind nicht-kritisch). Kann warten.
+
+### Entscheidung 4 — Frontend-UI für player_transfers + league_standings?
+
+**Status:** Backend-Daten sind da (134 standings live), UI fehlt.
+
+**Slices 078-080:**
+- **078** Club-Page: "Liga-Tabelle" Section (Position, Punkte, Form "WWDWL")
+- **079** Player-Detail: "Letzte Transfers" Section (5 last transfers)
+- **080** Home-Widget: "Top 3 Clubs aus Tabelle"
+
+**Zeit:** je ~2h.
 
 ---
 
-## Health-Checks für Session-Start morgen
+## 📋 Priorisierte To-Do Liste
 
-**1. Cron-Sync-Log prüfen:**
-```sql
-SELECT step, status, details, duration_ms, created_at
-FROM cron_sync_log
-WHERE step IN ('sync-players-daily', 'transfermarkt-search-batch', 'sync-transfermarkt-batch')
-  AND created_at > NOW() - interval '24 hours'
-ORDER BY created_at DESC;
-```
+### Kritisch (diese Woche, für Gold-Standard)
 
-**2. Data-Quality-Progress:**
+- [ ] **CSV-Workflow durchziehen** für TFF 1. Lig (Pilot) → `get_player_data_completeness()` checken
+- [ ] Bei Success: für alle 7 Ligen wiederholen
+- [ ] Regel für Laufende CSV-Updates: z.B. monatlich nach Transfer-Fenstern
+
+### Wichtig (diese Woche, Infrastructure)
+
+- [ ] **Slice 077** — sync-transfers + sync-fixtures-future Batch-Refactor (damit auch die manuell laufen)
+- [ ] Vercel Pro-Upgrade-Entscheidung (nach Launch okay, jetzt nicht dringend)
+- [ ] **Slice 071b** — Wenn Pro: 3 separate Cron-Entries für gameweek-sync (Late-Match-Coverage)
+
+### Nice-to-Have (nächste 2 Wochen)
+
+- [ ] **Slice 078** Frontend Club-Page "Liga-Tabelle" Section
+- [ ] **Slice 079** Frontend Player-Detail "Letzte Transfers" Section
+- [ ] **Slice 080** Frontend Home-Widget "Top 3 Clubs"
+- [ ] **Slice 081** Notification on injury-change (Watchlist + Holdings)
+
+### Deferred (nach Launch)
+
+- [ ] Transfermarkt Proxy-Integration (Bright Data / Smartproxy ~$50/mo)
+- [ ] UI: Cron-Status-Dashboard für Admin (zeigt letzten Run + Freshness)
+- [ ] Slice 065b: 76 Clubs ohne lokales Stadium-Asset (Anil fills via Admin-UI)
+- [ ] Slice 062b: 8 non-numeric api_football_ids auf NULL
+- [ ] Slice 068b: Player-Search-Scoring-Algorithmus tune (nach Proxy-Fix)
+
+---
+
+## 🧱 Technische Schulden
+
+### Cron-Endpoints die Timeouts haben
+
+- **sync-transfers** (300s) — per-Row player-lookup + transfer-insert. Fix: Batch-Pattern aus Slice 075.
+- **sync-fixtures-future** (300s) — per-Row pre-query fixture + insert/update. Fix: Batch via `.in()`.
+
+Beide in **Slice 077** konsolidierbar (~1h).
+
+### Vercel Function-Limits
+
+- Admin-Trigger-Proxy `maxDuration = 300` wird von Vercel-Hobby respektiert für diese Route-Typen
+- Direct Cron-Auto-Runs können länger laufen (aber fehlen wegen Hobby-2-Slot-Limit)
+
+### Transfermarkt-Abhängigkeit
+
+- Market-Value + Contract-End kommen EXKLUSIV aus Transfermarkt
+- Vercel-IPs sind Cloudflare-blocked
+- CSV-Import ist der Workaround, aber manuell
+- Langfristig: Proxy-Service ($50/mo) oder alternative Datenquelle (Comunio API falls existiert)
+
+### CSV-Import-Limitationen
+
+- Keine Auto-Match von Comunio/SofaScore-Formaten (user muss Mapping selbst machen)
+- Keine Historical-Log für spätere Audits
+- Frontend CSV-Parser ist minimal (kein papaparse) — OK für Standard-Exports, evtl. edge-cases
+
+---
+
+## 📚 Knowledge-Gewinn
+
+### 5 neue Common-Errors (`.claude/rules/common-errors.md`)
+
+1. **Next.js Route-Handler: Named-Exports brechen Build** (Slice 069)
+   - `export function helper(...)` in `route.ts` → Type-Error `'OmitWithTag<...> does not satisfy'`
+   - Fix: Helpers in `src/lib/...` extrahieren
+   
+2. **ESLint disable-comment mit undefined rule** (Slice 069)
+   - `// eslint-disable-next-line @typescript-eslint/no-explicit-any` fails wenn Plugin nicht im eslintrc
+   - Fix: typgerechter Cast statt `as any`
+
+3. **Postgres ON CONFLICT CHECK validiert INSERT-Tuple-Defaults BEFORE routing** (Slice 075)
+   - `.upsert()` failt auch für existing rows wenn INSERT-Defaults CHECK verletzen
+   - Fix: `.update().eq('id', ...)` statt `.upsert()`
+
+4. **Vercel Hobby Cron-Limit + Function-Timeouts** (Slice 071 + 075)
+   - Hobby: max 2 Crons, 60s functions, Deploy-Fail bei Multi-Schedule
+   - Pro: 40 Crons, 300s functions
+   - Batch-Pattern pflicht für >1000-Row-Ops
+
+5. **Transfermarkt Cloudflare-Block für Vercel-IPs** (Slice 075)
+   - Vercel-Datacenter-IPs returnen leere HTML
+   - curl vom lokalen PC findet matches
+   - Workaround: Proxy oder CSV-Import
+
+---
+
+## 🛠️ Anleitung — CSV-Workflow (für Gold-Standard)
+
+### Schritt 1: Export
+
+1. https://bescout.net/bescout-admin
+2. Tab **"CSV Import"** (FileSpreadsheet-Icon, nach Data Sync)
+3. **"CSV herunterladen"** → Datei `players-2026-04-18.csv` in Downloads
+
+### Schritt 2: Fill in Excel/Sheets
+
+CSV-Spalten:
+- `player_id` — **NICHT ANRÜHREN** (UUID)
+- `full_name` — readonly (Referenz)
+- `club` — readonly (Referenz)
+- `position` — readonly (Referenz)
+- `market_value_eur` — **FÜLLEN** (Integer in €, z.B. 500000 = 500k€)
+- `contract_end` — **FÜLLEN** (YYYY-MM-DD, z.B. 2026-06-30)
+
+**Leere Zellen** = NULL (kein Update).
+
+**Datenquellen-Ideen:**
+- Comunio-Liste (Bundesliga/2. Bundesliga)
+- Kicker-Manager Excel
+- Dein eigenes Abo
+- Crowdsourcing (Discord-Channel "Player-Daten")
+
+### Schritt 3: Upload + Apply
+
+1. Zurück zu **"CSV Import"** Tab
+2. **"CSV hochladen"** → File wählen
+3. **Preview:** erste 5 Zeilen + eventuelle parse errors
+4. **"Updates anwenden"** → Confirmation-Dialog → Apply
+5. **Result:** zeigt `updated / errored / invalid`
+
+### Schritt 4: Measure
+
+In Supabase-Dashboard SQL:
 ```sql
 SELECT jsonb_pretty(public.get_player_data_completeness());
 ```
-→ Vergleiche mit Baseline (21 Bronze-Violations, 0 Gold).
 
-**3. New Transfermarkt-Mappings:**
-```sql
-SELECT COUNT(*) FROM player_external_ids WHERE source='transfermarkt' AND created_at > NOW() - interval '24 hours';
-```
-→ Sollte 30-700 Range (depending on search-hit-rate).
-
-**4. Market-Value Coverage:**
-```sql
-SELECT 
-  COUNT(*) FILTER (WHERE market_value_eur > 0) AS has_mv,
-  COUNT(*) FILTER (WHERE market_value_eur IS NULL OR market_value_eur = 0) AS missing_mv
-FROM players WHERE shirt_number IS NOT NULL;
-```
-→ Baseline: 3405 has / 1038 missing. Should shrink.
+Liga mit alle Werte >= 95% = **Gold Tier erreicht ✅**
 
 ---
 
-## Pending Pipeline-Items (nicht akut)
+## 🗂️ Session-Ende Status
 
-Aus `memory/data-integrity-deep-dive-2026-04-18.md`:
-
-- **Slice 062b** Non-numeric api_football_ids auf NULL (8 cases wo external_id non-numeric war)
-- **Slice 065b** 76 Clubs ohne lokales Stadium-Asset → CEO/Admin nachträgt URL via UI (Slice 067 geliefert, Daten-Fill offen)
-- **Slice 068b** Player-Search-Scoring post-live: welche Scoring-Thresholds sind optimal? Sampling nach 1. Run.
-
----
-
-## Heutige Commits-Reference (alle auf main)
-
-```
-a56c9da9 feat(admin): Slice 067 — Club-Assets Override UI
-fc2ca816 feat(club): Slice 065 — Stadium-Image Fallback-Chain
-8436afe0 feat(scraper): Slice 068 — Transfermarkt Name-Search
-e5d417dc feat(data): Slice 062 — Club-Logo Canonical + INV-35
-5a598f17 feat(data): Slice 061 — Backfill api_football_id + Sync-Trigger
-f94d2c89 feat(data): Slice 060 — UNIQUE api_football_id
-b92ee250 feat(data): Slice 059 — Data-Quality-Audit + INV-34 Baseline
-b8a9b440 feat(scraper): Slice 064 — Transfermarkt Market-Value Scraper
-02d8b288 feat(cron): Slice 063 — Daily Player-Sync-Pipeline
-7ae8ec71 test(verify): Slice 058 — P7-Rest Re-Verify GREEN
-7f3cebbf feat(i18n): Slice 057 — TR-Initiative 14/14
-944693a1 fix(rls): Slice 056 — pbt_* TO authenticated
-d8771b4d feat(i18n): Slice 055 — TR-i18n Social/Admin + 4 Bug-Fixes
-444d82bf feat(i18n): Slice 054 — TR-i18n Money-RPCs
-7fb137ae perf(orders): Slice 053 — refetchInterval 30s
-4612bdfd refactor(player): Slice 052 — playerMath DRY
-e002d00f fix(i18n): Slice 051 — Error-Chains Community
-d7123c87 refactor(services): Slice 050 — OperationResult type
-b4c33b36 feat(test): Slice 049 — INV-23 Coverage
-f2809047 feat(i18n): Slice 048 — TR-i18n Foundation + Pilot
-fc1124f6 fix(notifications): Slice 047 — Historische Wording
-c01c0691 feat(money): Slice 046 — Ledger-Health + INV-33
-42690cbc feat(rls): Slice 045 — RLS-Matrix + INV-32
-e96f34e1 feat(rpc): Slice 044 — A-02 Body-Audit + INV-31
-```
+- `git status`: 1 uncommitted (memory/session-handoff.md — wird automatisch überschrieben)
+- `worklog/active.md`: `status: idle` ✅
+- `worklog/log.md`: 8 Slice-Einträge 069–076 ✅
+- `.claude/rules/common-errors.md`: 5 neue Patterns ✅
+- Pipeline geheilt: alle Deploys seit Session-Ende success ✅
 
 ---
 
-## Empfohlener Session-Start morgen
+**Session-Ende 2026-04-18. Bereit für 2026-04-19.**
 
-1. **Lies diesen Brief** (2 min)
-2. **Cron-Health-Check** (SQL Query #1 oben, 1 min) → wie viele Runs erfolgreich?
-3. **Data-Quality-Progress** (Query #2) → Bronze-Violations runtergegangen?
-4. **Entscheidung D1** (Cron-Frequenz): Slice 069 oder Cron-Disable?
-5. **Dann eine Option A/B/C** — je nach Budget + Energie-Level
-
-Falls Pipeline nicht wie geplant lief: Debug-Slice direkt anschließen (HTTP 403? Parser-Bug? Rate-Limit?).
-
----
-
-**Ende Briefing.** Alles committed, active.md idle, tsc clean, 33/33 INV-Tests grün.
+Los geht's am Morgen mit:
+1. `git log --oneline -10` — letzte Commits anschauen
+2. `SELECT jsonb_pretty(public.get_player_data_completeness())` — Gold-Progression messen
+3. Wähle: CSV-Workflow, Slice 077 Performance-Refactor, oder Frontend-UI-Slices
