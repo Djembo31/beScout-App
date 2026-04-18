@@ -1,0 +1,6 @@
+=== Slice 074 Deploy Verify ===
+Commit: eb0e6521
+Vercel: success at 2026-04-18T11:49:44Z
+
+cron/sync-standings: HTTP 401
+admin/trigger-cron/sync-standings: HTTP 401

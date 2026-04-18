@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 074 | 2026-04-18 | sync-standings Manual-Only + league_standings table
+- Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
+- Files (7):
+  - `supabase/migrations/20260418140000_slice_074_league_standings.sql` (NEW — RLS + UNIQUE + 2 indexes)
+  - `src/app/api/cron/sync-standings/route.ts` (NEW — 7 calls/run)
+  - `src/app/api/admin/trigger-cron/[name]/route.ts` (Whitelist +sync-standings)
+  - `src/app/(app)/bescout-admin/AdminDataSyncTab.tsx` (7. Card Trophy)
+  - `messages/de.json` + `messages/tr.json` (3 Keys, TR Anil-approved)
+  - `worklog/specs/074-sync-standings.md` (NEW)
+- Proof: (post-deploy `074-deploy-status.txt`)
+- Commit: eb0e6521
+- Notes: **Liga-Tabelle authoritative via API-Football.** API-Response-Struktur: `league.standings` = Array of Groups of Entries (flat-processed, multi-group support für UEFA-Tournaments falls irgendwann relevant). **form-Feld "WWDWL"** für Fantasy-UI-Indikatoren "Welche Clubs in Form?". **Future UI-Use-Cases:** Club-Page "Platz X, Y Punkte" + Event-Context "Tabellen-3. vs Tabellen-15". Upsert via `(league_id, club_id, season)` UNIQUE → rank-Changes zwischen Runs = last-write-wins. Pro-Quota-Impact: 7 Calls × wöchentlich = 30/Monat (0.013%). Migration via mcp__supabase__apply_migration.
+
+---
+
 ## 073 | 2026-04-18 | sync-fixtures-future Manual-Only Cron
 - Stage-Chain: SPEC → IMPACT(skipped) → BUILD → PROVE → LOG
 - Files (6):
