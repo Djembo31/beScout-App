@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 079c | 2026-04-20 morning | Audit-Fix 1000-row-cap (2 money-nahe Stellen)
+- Stage-Chain: SPEC → BUILD → PROVE → LOG (IMPACT skipped — Return-Shape unverändert, identischer Pattern aus 079b)
+- Files (3):
+  - `src/lib/services/footballData.ts` (EDIT — `.limit(1000)` → `count:'exact', head:true`, `playersTotal` via count statt data.length)
+  - `src/app/api/admin/sync-contracts/route.ts` (EDIT — `loadAllPlayers()` while-loop mit `.range()` wie /api/players)
+  - `src/lib/services/__tests__/footballData.test.ts` (EDIT — Mock für `head:true` Query mit count-Parameter)
+  - `.claude/rules/common-errors.md` (NIT — Pattern-Header "Slice 080" → "Slice 079b-emergency")
+- Proof:
+  - `npx tsc --noEmit` → clean
+  - `npx vitest run src/lib/services/__tests__/footballData.test.ts` → 7/7 passing
+  - `npx vitest run src/lib/services/` → 986/986 passing (kein Consumer-Break)
+- Commit: TBD
+- Notes:
+  - **Trigger:** CTO-Reviewer Slice 079 Follow-up F0 — `.from('players')` ohne Pagination in Admin-Dashboard-Count + täglichem sync-contracts-Cron.
+  - **Impact footballData.ts:** Admin-Mapping-Widget zeigte `playersTotal: 1000` (echte Zahl 4556). Nur Admin-Sicht-Täuschung, kein Client-Money.
+  - **Impact sync-contracts.ts:** Täglicher Cron aktualisierte `contract_end` nur für ersten 1000 Players alphabetisch (bis ~"Crociata"). Players > Alpha-1000 (inkl. TFF-1-Lig Spieler mit `Ş/Ç/Ö` Nachnamen, relevanter Teil des Pilots) hatten stale contract_end → Market-Value-Kalkulation konservativ verzerrt.
+  - **Scope-Out:** ~15 weitere `.from('players')` Hits in cron-routes (sync-players-daily, sync-injuries, sync-transfers, gameweek-sync, sync-transfermarkt-batch, players-csv) haben teilweise legitime `.eq()`-Filter. → F0-Audit-Queue für einzelne Evaluation.
+  - **Lesson:** Pattern-bekanntheit aus Slice 079b hat diesen Fix auf 20min reduziert. Karpathy-Pattern (common-errors.md sofort dokumentieren) zahlt sich direkt aus.
+
+---
+
 ## 079b-emergency | 2026-04-19 late | P0 /api/players PostgREST-Cap Money-Critical-Fix
 - Stage-Chain: BUG-REPORT (Anil, test12) → INVESTIGATE → FIX → PROVE LIVE → LOG
 - Files (3):

@@ -24,6 +24,35 @@ Eingehendes Feedback (Anil + später Tester). Triage nach Priorität, dann in Sl
 
 ## Offen
 
+### P1 | 2026-04-20 | F0 1000-row-cap Audit — restliche cron-routes (nach Slice 079c)
+- **Seite:** `src/app/api/cron/` + `src/app/api/admin/`
+- **Symptom:** ~15 weitere `.from('players')` Stellen ohne `.range()`. Einige haben `.eq()`-Filter (legitim unter 1000), andere nicht. Einzeln evaluieren.
+- **Verdächtig (braucht Audit):** `sync-players-daily:237,270`, `sync-injuries:112,166,210,236`, `sync-transfers:144,205`, `gameweek-sync:606,1245,1553,1566`, `sync-transfermarkt-batch:139`, `transfermarkt-search-batch:71`, `backfill-ratings:57`, `players-csv/export:57`, `players-csv/import:110,137`.
+- **Audit-Command:** `grep -rn "\.from('players')" src/app/api/ | grep -v "\.range\|\.limit(\|\.eq\|\.single\|\.maybeSingle\|test\|insert\|update"`
+- **Erwartung:** Pro Hit entscheiden: (a) `.eq('club_id', x)` Filter vorhanden → OK; (b) bekommt einen Batch wie `.in('id', ids)` → OK; (c) unbedingt ALLE players → while-loop wie 079c.
+- **Status:** open — separate Slice empfohlen, P2 vom Reviewer, hier als P1 weil Cron-Stille Data-Drift.
+- **Slice:** TBD
+
+### P2 | 2026-04-20 | F1 Multi-Account-Testing als Hook/Gate
+- **Seite:** Polish-Sweep Workflow
+- **Symptom:** `feedback_polish_multi_account.md` dokumentiert "2+ Test-Accounts durchklicken". Kein Hook enforced es. Nur Text.
+- **Erwartung:** In `/ship` Skill oder als PreToolUse-Hook auf `git commit -m "feat(" | "fix(..."` einchecken dass der Commit-Author mind. 2 Accounts durchgeklickt hat (vermutlich manuelle Checkbox im active.md).
+- **Status:** open
+- **Slice:** TBD
+
+### P2 | 2026-04-20 | F2 Balance-Format-Konsistenz TopBar vs Hero Cross-Page
+- **Seite:** Alle Pages mit TopBar-Balance
+- **Symptom:** Slice 079 Pass 2 hat Hero-Balance auf `formatScout()` angeglichen. Top-Bar nicht im Scope — möglich dass noch `7.225` vs Hero `7.220,77` divergent. Slice 080 Market-Polish soll Cross-Page-Check mit einbauen.
+- **Status:** open — in Slice 080 mit-prüfen
+- **Slice:** 080 (bei Market-Polish)
+
+### P3 | 2026-04-20 | F3 fanRankStammgast Graceful Fallback für unbekannte Tiers
+- **Seite:** `src/components/manager/ManagerTab.tsx:155`
+- **Symptom:** `tg(FAN_RANK_KEYS[fanRanking.rank_tier])` bricht wenn DB neuen Tier liefert der nicht im `FAN_RANK_KEYS`-Map ist → MISSING_MESSAGE raw-string.
+- **Erwartung:** `FAN_RANK_KEYS[fanRanking.rank_tier] ?? 'fanRankUnknown'` mit `gamification.fanRankUnknown` Fallback-Key.
+- **Status:** open — niedrig-Prio, nur relevant wenn DB neue Tiers bekommt
+- **Slice:** TBD
+
 ### P0 | 2026-04-19 late | /api/players PostgREST-cap → Holdings unsichtbar ✅ FIXED
 - **Seite:** /market (Bestand) + /manager (Kader) + Home ScoutCardStats-Count
 - **Symptom:** test12 hat 16 Holdings in DB, UI zeigt nur 7. Players mit last_name-alpha-pos > 1000 werden nicht enriched.

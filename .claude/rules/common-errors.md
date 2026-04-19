@@ -28,7 +28,7 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Audit-Signal:** Wenn die "completeness" bei gleichbleibendem Scraping stagniert oder Scraper wenig updated → Parser-Sanity-Check mit manueller Stichprobe.
 - **Entity-Drift:** HTML kann `€`, `&#8364;`, `&euro;` schreiben — Regex end-mit-`€` bricht bei Entity-Form. Im Slice 078 bewusst aufs `€` Matching verzichtet (endet bei `(Mio|Tsd)\.`), weil CSS-Scope bereits eindeutig ist.
 
-## PostgREST silent 1000-row cap — MONEY-CRITICAL in API-Routes (2026-04-19 — Slice 080)
+## PostgREST silent 1000-row cap — MONEY-CRITICAL in API-Routes (2026-04-19 — Slice 079b-emergency)
 - **Verschärfung des Slice-078-Patterns.** `/api/players` Route nutzte `supabaseServer.from('players').select().order('last_name')` ohne `.range()`.
 - DB hat 4556 Players → Client bekam nur erste 1000 alphabetisch.
 - Holdings auf Players mit `last_name`-Alpha-Position > 1000 wurden client-seitig nicht mit `dpc.owned` enriched → **unsichtbar im Marktplatz Bestand + Manager Kader**.

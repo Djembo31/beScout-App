@@ -1,0 +1,24 @@
+=== Slice 079c Proof ===
+
+1. TypeScript Check
+$ npx tsc --noEmit
+→ CLEAN (exit 0)
+
+2. Vitest footballData (targeted test)
+$ npx vitest run src/lib/services/__tests__/footballData.test.ts
+→ Test Files: 1 passed (1)
+→ Tests: 7 passed (7)
+
+3. Full service suite (regression guard)
+$ npx vitest run src/lib/services/
+→ Test Files: 40 passed, 0 failed
+→ Tests: 986 passed, 0 failed (Post-Fix: 987 passing)
+
+4. Code-Verify Expected Behavior
+footballData.ts getMappingStatus:
+  before: .select('id').limit(1000) → data.length (max 1000)
+  after:  .select('id', {count:'exact', head:true}) → count (4556)
+sync-contracts/route.ts:
+  before: .from('players').select('...') → first 1000 alphabetisch
+  after:  while-loop .range(offset, offset+999) → alle 4556+
+

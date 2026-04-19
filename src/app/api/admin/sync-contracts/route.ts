@@ -64,12 +64,35 @@ export async function POST(req: Request) {
 
 
   try {
-    // Load clubs + players (via external_ids tables)
-    const [{ data: clubExtIds }, { data: clubRows }, { data: extIds }, { data: players }] = await Promise.all([
+    // Load clubs + players (via external_ids tables).
+    // Players: paginate via .range() — PostgREST caps single queries at 1000 rows,
+    // we have 4556+ players. Without this, sync runs only against alpha-first 1000
+    // and contract_end stays stale for remaining ~3500 players.
+    // See common-errors.md "PostgREST silent 1000-row cap".
+    const PAGE = 1000;
+    const loadAllPlayers = async () => {
+      const all: Array<{ id: string; first_name: string; last_name: string; contract_end: string | null }> = [];
+      let offset = 0;
+      while (true) {
+        const { data, error } = await supabaseAdmin
+          .from('players')
+          .select('id, first_name, last_name, contract_end')
+          .order('id')
+          .range(offset, offset + PAGE - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        all.push(...(data as typeof all));
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      return all;
+    };
+
+    const [{ data: clubExtIds }, { data: clubRows }, { data: extIds }, players] = await Promise.all([
       supabaseAdmin.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
       supabaseAdmin.from('clubs').select('id, name'),
       supabaseAdmin.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
-      supabaseAdmin.from('players').select('id, first_name, last_name, contract_end'),
+      loadAllPlayers(),
     ]);
 
     // Build club API ID lookup

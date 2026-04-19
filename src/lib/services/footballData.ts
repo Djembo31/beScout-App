@@ -347,24 +347,26 @@ export type MappingStatus = {
 };
 
 export async function getMappingStatus(): Promise<MappingStatus> {
-  const [clubsRes, clubExtIdsRes, playersRes, playerExtIdsRes, fixturesRes] = await Promise.allSettled([
+  // players-count via head:true avoids PostgREST 1000-row cap (we have 4556+ players).
+  // See common-errors.md "PostgREST silent 1000-row cap".
+  const [clubsRes, clubExtIdsRes, playersCountRes, playerExtIdsRes, fixturesRes] = await Promise.allSettled([
     supabase.from('clubs').select('id'),
     supabase.from('club_external_ids').select('club_id').eq('source', 'api_football'),
-    supabase.from('players').select('id').limit(1000),
+    supabase.from('players').select('id', { count: 'exact', head: true }),
     supabase.from('player_external_ids').select('player_id').eq('source', 'api_football_squad'),
     supabase.from('fixtures').select('id, api_fixture_id'),
   ]);
 
   const clubs = clubsRes.status === 'fulfilled' ? clubsRes.value.data ?? [] : [];
   const clubExtIds = clubExtIdsRes.status === 'fulfilled' ? clubExtIdsRes.value.data ?? [] : [];
-  const players = playersRes.status === 'fulfilled' ? playersRes.value.data ?? [] : [];
+  const playersTotal = playersCountRes.status === 'fulfilled' ? playersCountRes.value.count ?? 0 : 0;
   const playerExtIds = playerExtIdsRes.status === 'fulfilled' ? playerExtIdsRes.value.data ?? [] : [];
   const fixtures = fixturesRes.status === 'fulfilled' ? fixturesRes.value.data ?? [] : [];
 
   return {
     clubsTotal: clubs.length,
     clubsMapped: clubExtIds.length,
-    playersTotal: players.length,
+    playersTotal,
     playersMapped: playerExtIds.length,
     fixturesTotal: fixtures.length,
     fixturesMapped: fixtures.filter(f => f.api_fixture_id != null).length,

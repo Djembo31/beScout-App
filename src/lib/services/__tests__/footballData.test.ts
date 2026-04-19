@@ -23,7 +23,7 @@ describe('getMappingStatus', () => {
   it('returns mapping counts from parallel queries', async () => {
     mockTable('clubs', [{ id: 'c1' }, { id: 'c2' }]);
     mockTable('club_external_ids', [{ club_id: 'c1' }]);
-    mockTable('players', [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]);
+    mockTable('players', null, null, 3); // count-only query (head:true)
     mockTable('player_external_ids', [{ player_id: 'p1' }, { player_id: 'p2' }]);
     mockTable('fixtures', [
       { id: 'f1', api_fixture_id: 12345 },
