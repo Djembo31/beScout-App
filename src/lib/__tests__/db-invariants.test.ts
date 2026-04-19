@@ -2087,9 +2087,9 @@ describe('DB Invariants', () => {
     }
 
     const ghosts: string[] = [];
-    for (const [, rows] of byKey) {
+    for (const rows of Array.from(byKey.values())) {
       if (rows.length < 2) continue;
-      const hasReal = rows.some((r) => r.last_appearance_gw > 0 && r.club_id !== null);
+      const hasReal = rows.some((r: Row) => r.last_appearance_gw > 0 && r.club_id !== null);
       if (!hasReal) continue;
       for (const r of rows) {
         if (r.last_appearance_gw === 0 && r.club_id !== null) {
