@@ -1,0 +1,68 @@
+Slice 086 — P0 Silent-Fail Fixes — Proof
+==========================================
+Date: 2026-04-21
+Status: COMPLETE (Reviewer PASS, merge-ready)
+
+## Changes Summary
+
+### 1. src/app/api/cron/gameweek-sync/route.ts (Claude solo, Money-adjacent)
+Lines 1244-1278:
+- Destructure { data, error: leaguePlayersError } + throw (war silent-swallow via { data })
+- Ternary mit single .in('player_id', leaguePlayerIds) → for-loop chunking 100er
+- gwScoreCount += per chunk Aufsummierung
+- Error-handling pro chunk mit chunk-index in Error-Message
+
+### 2. src/lib/services/footballData.ts (backend-agent, data-only)
+Lines 349-393 (+21 lines):
+- 5. Element von Promise.allSettled umgebaut zu IIFE fixturesPaginated
+- .range(offset, offset + PAGE - 1) while-loop
+- Destructure {data, error} + throw
+- Existing return-shape unverändert → kein Breaking-Change downstream
+
+## Verification Results
+
+| Check | Result |
+|-------|--------|
+| tsc --noEmit | PASS (clean) |
+| vitest footballData.test.ts | 7/7 passed (2.15s) |
+| Silent-Fail-Audit Re-Scan: total | 213 → 211 (-2) |
+| Silent-Fail-Audit Re-Scan: HIGH | 113 → 111 (-2 fixed) |
+| Line 1256 (gameweek-sync) in audit? | NO (gone) |
+| Line 357 (footballData) in audit? | NO (gone) |
+| Money-Invariant (Scoring-Logik unverändert) | YES (50-Score-Threshold + RPC unangetastet) |
+| Reviewer-Agent Verdict | PASS |
+
+## Reviewer-Findings (alle INFO-level, dokumentiert als Scope-Out)
+
+1. gameweek-sync:1247 — `.in('club_id', allLeagueClubIds)` upstream-call selbst hat keine .range().
+   Aktuell ~500-750 Players pro Liga (sicher <1000), aber wenn Multi-Liga oder Wachstum → silent-cap.
+   → Slice 087 candidate.
+
+2. footballData.ts:371-377 — Promise.allSettled swallowt Errors silent (pre-existing pattern, nicht durch 086 eingeführt).
+   IIFE-Throw wird in rejected-status verarbeitet → fixtures=[] → UI zeigt "no fixtures mapped".
+   → Folge-Audit für Sentry-Integration.
+
+## Reviewer-Lesson für common-errors.md
+
+"Wenn .in() chunked wird, prüfe ob UPSTREAM-Query selbst ihren eigenen 1000-row-cap-Risk hat."
+- Slice 086 hat .in('player_id', ...) chunked aber .in('club_id', ...) (das die player_ids erst lädt) ungechunkt gelassen.
+- Akzeptabel für aktuelle Cardinality, aber wichtig zu dokumentieren.
+
+## Workflow-Demo Summary (Parallel-Dispatch in Praxis)
+
+- ME (Claude): gameweek-sync fix (Money-adjacent → Solo-Regel)
+- backend-agent (worktree): footballData fix (data-only)
+- reviewer-agent (read-only): final review beider Changes
+- Kein REWORK nötig
+- Total time: ~10 min für 2 Money-Critical Fixes
+- Pattern bewährt — wiederholbar
+
+## Files Modified
+- src/app/api/cron/gameweek-sync/route.ts (+19 lines area 1244-1278)
+- src/lib/services/footballData.ts (+21 lines area 349-393)
+
+## Audit-Report
+- worklog/audits/silent-fail-2026-04-19.md (re-generated post-fix)
+
+## Spec Reference
+- worklog/specs/086-p0-silent-fail-fixes.md

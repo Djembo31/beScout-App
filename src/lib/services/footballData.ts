@@ -348,13 +348,32 @@ export type MappingStatus = {
 
 export async function getMappingStatus(): Promise<MappingStatus> {
   // players-count via head:true avoids PostgREST 1000-row cap (we have 4556+ players).
-  // See common-errors.md "PostgREST silent 1000-row cap".
+  // fixtures paginated via .range()-loop: fixtures grows linearly with gameweeks × league-count,
+  // so >1000 rows is a matter of time. See common-errors.md "PostgREST silent 1000-row cap".
+  const fixturesPaginated = (async (): Promise<{ data: Array<{ id: string; api_fixture_id: number | null }> }> => {
+    const PAGE = 1000;
+    let offset = 0;
+    const allRows: Array<{ id: string; api_fixture_id: number | null }> = [];
+    while (true) {
+      const { data, error } = await supabase
+        .from('fixtures')
+        .select('id, api_fixture_id')
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(`fixtures query failed: ${error.message}`);
+      if (!data || data.length === 0) break;
+      allRows.push(...(data as Array<{ id: string; api_fixture_id: number | null }>));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+    return { data: allRows };
+  })();
+
   const [clubsRes, clubExtIdsRes, playersCountRes, playerExtIdsRes, fixturesRes] = await Promise.allSettled([
     supabase.from('clubs').select('id'),
     supabase.from('club_external_ids').select('club_id').eq('source', 'api_football'),
     supabase.from('players').select('id', { count: 'exact', head: true }),
     supabase.from('player_external_ids').select('player_id').eq('source', 'api_football_squad'),
-    supabase.from('fixtures').select('id, api_fixture_id'),
+    fixturesPaginated,
   ]);
 
   const clubs = clubsRes.status === 'fulfilled' ? clubsRes.value.data ?? [] : [];

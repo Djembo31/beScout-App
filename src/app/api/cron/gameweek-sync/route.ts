@@ -1241,20 +1241,32 @@ async function syncLeague(
       // (prevents meaningless default-40 scores when API-Football is unavailable)
       // Scoped per-league via player_id IN leaguePlayerIds
       // Get all player IDs for this league first
-      const { data: leaguePlayers } = await supabaseAdmin
+      // Slice 086: explicit error-destructure (no silent-fail) + chunked .in() for player_id (can be 500-2000 UUIDs → PostgREST URL-overflow)
+      const { data: leaguePlayers, error: leaguePlayersError } = await supabaseAdmin
         .from('players')
         .select('id')
         .in('club_id', allLeagueClubIds);
+      if (leaguePlayersError) {
+        throw new Error(`leaguePlayers query failed: ${leaguePlayersError.message}`);
+      }
       const leaguePlayerIds = (leaguePlayers ?? []).map((p) => p.id as string);
 
-      const { count: gwScoreCount } =
-        leaguePlayerIds.length > 0
-          ? await supabaseAdmin
-              .from('player_gameweek_scores')
-              .select('*', { count: 'exact', head: true })
-              .eq('gameweek', activeGw)
-              .in('player_id', leaguePlayerIds)
-          : { count: 0 };
+      let gwScoreCount = 0;
+      if (leaguePlayerIds.length > 0) {
+        const CHUNK = 100;
+        for (let i = 0; i < leaguePlayerIds.length; i += CHUNK) {
+          const batch = leaguePlayerIds.slice(i, i + CHUNK);
+          const { count: batchCount, error: scoreCountError } = await supabaseAdmin
+            .from('player_gameweek_scores')
+            .select('*', { count: 'exact', head: true })
+            .eq('gameweek', activeGw)
+            .in('player_id', batch);
+          if (scoreCountError) {
+            throw new Error(`player_gameweek_scores chunk ${Math.floor(i / CHUNK)} failed: ${scoreCountError.message}`);
+          }
+          gwScoreCount += batchCount ?? 0;
+        }
+      }
 
       if ((gwScoreCount ?? 0) < 50) {
         console.warn(`[GW-SYNC] [${leagueShort}] Skipping auto-score: only ${gwScoreCount ?? 0} player scores for GW${activeGw} (need ≥50)`);
