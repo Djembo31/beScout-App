@@ -35,22 +35,36 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // All players — select only columns used by dbToPlayer() to reduce payload (~30% smaller)
+  // All players — select only columns used by dbToPlayer() to reduce payload (~30% smaller).
+  // IMPORTANT: PostgREST caps single queries at 1000 rows; we have ~4500 players,
+  // so we must paginate via .range() — otherwise Holdings on players with
+  // last_name > alphabet-position-1000 are silently missing from client-side
+  // dpc.owned enrichment → invisible in Marktplatz Bestand + Manager Kader.
   if (playersCache && Date.now() < playersCache.expiresAt) {
     return NextResponse.json(playersCache.data, {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
     });
   }
 
-  const { data, error } = await supabaseServer
-    .from('players')
-    .select(PLAYER_SELECT_COLS)
-    .order('last_name');
+  const PAGE = 1000;
+  const all: unknown[] = [];
+  let offset = 0;
+  while (true) {
+    const { data, error } = await supabaseServer
+      .from('players')
+      .select(PLAYER_SELECT_COLS)
+      .order('last_name')
+      .range(offset, offset + PAGE - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
 
-  playersCache = { data: data ?? [], expiresAt: Date.now() + FIVE_MIN };
-  return NextResponse.json(data, {
+  playersCache = { data: all, expiresAt: Date.now() + FIVE_MIN };
+  return NextResponse.json(all, {
     headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
   });
 }
