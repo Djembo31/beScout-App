@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 082 | 2026-04-20 | Re-Scraper Script fuer stale Spieler (Welle 1 Smoke-Test)
+- Stage-Chain: SPEC → IMPACT (skipped — lokales Script, kein Prod-Cron) → BUILD → PROVE → LOG
+- Files (3):
+  - `scripts/tm-rescrape-stale.ts` (NEW — ~250 LOC, Playwright-basiert, CLI-Flags)
+  - `worklog/specs/082-re-scraper-stale.md`, `worklog/proofs/082-smoke-test.txt`
+- Proof:
+  - `--help` output OK
+  - `--dry-run=true --limit=10 --league="Bundesliga"` → 10 Kandidaten gelistet
+  - Real-Run `--limit=3 --league="Bundesliga" --rate=3500` → 3/3 verified, 15.6s
+    - Koki Machida: contract 2025-07-01 → 2029-06-30
+    - Nathan Ngoumou: 2022-08-30 → 2027-06-30
+    - Linus Guther: verified, contract unchanged
+  - Cloudflare-Block auf Vercel: UMGANGEN (lokaler Playwright-Run funktioniert)
+- Commit: TBD
+- Notes:
+  - Script targeted `mv_source='transfermarkt_stale'` (nicht nur NULL/0 MV), verhindert unnoetige Rescrapes.
+  - Nach Success: `mv_source='transfermarkt_verified'`, nach Parse-Failure: bleibt stale (Retry bei naechstem Run).
+  - Re-Check pro Spieler vor Update → schuetzt vor konkurrierendem Admin-CSV-Import.
+  - **Beobachtung**: MVs waren meist bereits aktuell — Hauptnutzen ist Contract-End-Aktualisierung (2022→2027, 2025→2029).
+  - **Full Wellen-Execution liegt bei Anil** (lokal, geschaetzt 2-3h total fuer alle 7 Ligen × ~500 Spieler).
+  - **Slice 083 Frontend-Filter** wird nach allen Wellen aktiviert mit `mv_source != 'transfermarkt_stale'` als Filter-Kriterium (statt urspruenglich fragwuerdigem last_appearance/created_at).
+
+---
+
 ## 081c | 2026-04-20 | Orphan Stale Contracts (>12 Mon. abgelaufen)
 - Stage-Chain: SPEC → IMPACT (skipped — data-flag only) → BUILD → PROVE → LOG
 - Files (4):

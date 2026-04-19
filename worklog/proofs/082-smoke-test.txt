@@ -1,0 +1,52 @@
+Slice 082 — Re-Scraper Smoke-Test (2026-04-20)
+
+=== Sanity ===
+npx tsx scripts/tm-rescrape-stale.ts --help    → OK (help-output printed)
+
+=== Dry-Run Bundesliga limit=10 ===
+Loaded 10 stale players with TM-mapping.
+Sample candidates:
+  Koki Machida [1899 Hoffenheim] current=€7M, contract=2025-07-01
+  Nathan Ngoumou [B. Mönchengladbach] current=€3.5M, contract=2022-08-30
+  Jakub Zielinski [VfL Wolfsburg] current=€0.5M, contract=2025-07-01
+  ...
+
+=== Real Smoke-Run Bundesliga limit=3 rate=3500ms ===
+duration:         15.6s
+verified:         3
+  mv changed:     0 (MVs waren nahe den echten Werten)
+  contract new:   2 (contract-ends waren stale)
+parse_failed:     0
+errored:          0
+
+Updated Players:
+  Koki Machida          €7M → €7M       contract: 2025-07-01 → 2029-06-30
+  Nathan Ngoumou        €4M → €4M       contract: 2022-08-30 → 2027-06-30
+  Linus Guther          €1M → €1M       (contract unchanged)
+
+Bundesliga Coverage nach Smoke-Run: verified=3, stale remaining=379
+
+=== Verifikation ===
+Cloudflare-Block auf Vercel: UMGANGEN (lokaler Playwright-Run hat funktioniert).
+Rate 3500ms ist konservativ, kein 429/Block beobachtet.
+TM Parser-Logic aus src/lib/scrapers/transfermarkt-profile.ts funktioniert korrekt.
+mv_source von 'transfermarkt_stale' → 'transfermarkt_verified' geupdated (3 Rows).
+
+=== Offen fuer Anil (lokal auszufuehren) ===
+
+WELLE 1 — DE-Ligen:
+  npx tsx scripts/tm-rescrape-stale.ts --league="Bundesliga" --limit=500 --rate=3000
+  npx tsx scripts/tm-rescrape-stale.ts --league="2. Bundesliga" --limit=500 --rate=3000
+  (geschaetzt ~30 Min pro Liga, ~1h total)
+
+WELLE 2 — TR-Ligen:
+  npx tsx scripts/tm-rescrape-stale.ts --league="Süper Lig" --limit=500 --rate=3000
+  npx tsx scripts/tm-rescrape-stale.ts --league="TFF 1. Lig" --limit=500 --rate=3000
+
+WELLE 3 — EU-Top-3:
+  npx tsx scripts/tm-rescrape-stale.ts --league="Premier League" --limit=500 --rate=3000
+  npx tsx scripts/tm-rescrape-stale.ts --league="La Liga" --limit=500 --rate=3000
+  npx tsx scripts/tm-rescrape-stale.ts --league="Serie A" --limit=500 --rate=3000
+
+NACH ALLEN WELLEN: Slice 083 (Frontend-Filter) final aktivieren.
+Filter-Kandidat: `AND mv_source != 'transfermarkt_stale'` statt fraglicher last_appearance/created_at.
