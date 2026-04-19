@@ -300,8 +300,15 @@ export async function setUserPrimaryClub(userId: string, clubId: string): Promis
 
 }
 
-/** Get all clubs with follower + player counts (for discovery page) */
-export async function getClubsWithStats(): Promise<Array<DbClub & { follower_count: number; player_count: number }>> {
+/**
+ * Get all clubs with follower + player counts (for discovery page).
+ *
+ * @param opts.activeOnly Wenn true, zählt nur Spieler mit `mv_source != 'transfermarkt_stale'`
+ *   (analog Slice 083). Default false = Full-Count (backward-compat).
+ */
+export async function getClubsWithStats(
+  opts?: { activeOnly?: boolean }
+): Promise<Array<DbClub & { follower_count: number; player_count: number }>> {
   const { data: clubs, error } = await supabase
       .from('clubs')
       .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
@@ -324,11 +331,17 @@ export async function getClubsWithStats(): Promise<Array<DbClub & { follower_cou
   }
 
   // Get player counts — must override default 1000-row limit (4400+ players)
-  const { data: playerData } = await supabase
+  let playerQuery = supabase
     .from('players')
     .select('club_id')
     .in('club_id', clubIds)
     .limit(10000);
+
+  if (opts?.activeOnly) {
+    playerQuery = playerQuery.neq('mv_source', 'transfermarkt_stale');
+  }
+
+  const { data: playerData } = await playerQuery;
 
   const playerCounts = new Map<string, number>();
   for (const p of playerData ?? []) {

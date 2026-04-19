@@ -54,7 +54,7 @@ export default function ClubsDiscoveryPage() {
   useEffect(() => {
     let cancelled = false;
     setDataError(false);
-    Promise.all([getClubsWithStats(), getNextFixturesByClub()])
+    Promise.all([getClubsWithStats({ activeOnly: true }), getNextFixturesByClub()])
       .then(([clubData, fixtureData]) => {
         if (!cancelled) {
           setClubs(clubData);
