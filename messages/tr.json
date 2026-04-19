@@ -1126,6 +1126,7 @@
   },
   "market": {
     "title": "Pazar Yeri",
+    "tabsAriaLabel": "Pazar Alanları",
     "roster": "Kadro",
     "holdings": "Kadrom",
     "compare": "Karşılaştır",

@@ -1126,6 +1126,7 @@
   },
   "market": {
     "title": "Marktplatz",
+    "tabsAriaLabel": "Market-Bereiche",
     "roster": "Kader",
     "holdings": "Mein Kader",
     "compare": "Vergleich",
