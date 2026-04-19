@@ -11,6 +11,52 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 086 | 2026-04-21 | P0 Silent-Fail Fixes (gameweek-sync + footballData) via Parallel-Hybrid
+- Stage-Chain: SPEC → IMPACT (inline, 2-file targeted) → BUILD → PROVE → LOG
+- Commits: TBD (user entscheidet)
+- Scope:
+  - **gameweek-sync/route.ts:1244-1278** (Claude solo, Money-adjacent): Destructure `{data, error}` + throw, `.in('player_id', ids)` ternary → for-loop 100er-chunking + `gwScoreCount +=` Aufsummierung, error-handling pro chunk mit index
+  - **footballData.ts:349-393** (backend-agent worktree): Promise.allSettled 5. Element → IIFE `fixturesPaginated` mit `.range()` while-loop, Destructure mit error+throw, return-shape unverändert
+  - **common-errors.md** ergänzt: "UPSTREAM-Query auch prüfen" + "Aufsummierungs-Validität bei disjunkten Batches"
+- Proof: `worklog/proofs/086-after.txt` (10-Check-Liste alle PASS, Reviewer-Verdict PASS)
+- Verification:
+  - tsc clean
+  - 7/7 footballData tests
+  - Silent-Fail-Audit Re-Scan: 113 → 111 HIGH (Line 1256 + 357 verschwunden)
+  - Money-Invariant: Scoring-Logik UNVERÄNDERT (50-Threshold + RPC unangetastet)
+- Notes:
+  - **Erste vollwertige Anwendung von Parallel-Dispatch (Hybrid):** Claude solo auf Money-adjacent + Agent auf data-only + Reviewer-Agent am Ende. Pattern bewährt.
+  - Backend-Agent hat eigenständig Folge-Bugs identifiziert (Lines 428-432 same class) und ehrlich als Scope-Out gemeldet → Slice 087 candidate.
+  - Reviewer-Findings: 2 INFO-level (alle bereits dokumentiert als Scope-Out für 087: gameweek-sync:1247 upstream + Promise.allSettled silent-Error-pattern)
+  - **Knowledge-Flywheel:** Reviewer-Lesson "UPSTREAM-Query auch prüfen" sofort in common-errors.md übertragen
+  - Total time ~10 min für 2 Money-Critical Bug-Fixes inkl. parallel agents + review
+
+---
+
+## 085 | 2026-04-21 | Claude-Setup Ferrari — Parallel-Agents + Skills + Obsidian + Notion Slice-DB
+- Stage-Chain: SPEC → IMPACT (inline, meta-slice) → BUILD → PROVE → LOG
+- Commits: TBD (user entscheidet)
+- Scope:
+  - **6 neue Skills**: /optimize (AutoResearch-Loop Karpathy-Pattern), /plan-ceo-review (Business-Hat), /plan-qa-review (12 Edge-Case-Kategorien), /plan-legal-review (Wording+Phase+Disclaimer), /silent-fail-audit (6-Pattern-Scan), /parallel-dispatch (Agent-Team-Playbook)
+  - **3 neue Hooks**: ship-context7-gate (UserPromptSubmit → Library-Keyword-Detection), ship-cto-review-gate (PreToolUse Bash → feat/fix-Warning), ship-kanban-sync (Stop + SessionStart → Notion-Reminder)
+  - **Obsidian-Vault**: memory/.obsidian/{app,core-plugins,graph}.json + memory/tags.md (Tag-Glossary)
+  - **Notion Slice-Database** (neu): https://www.notion.so/57670082f03a4ac4a305f68186c981a0 mit DUAL-Relation zur Kanban + Views Timeline + "Aktive Slices" Board
+  - **scripts/silent-fail-audit.ts**: 180 LOC, 6 Patterns, Baseline 2026-04-21: 1008 Files / 256 Findings / HIGH risk
+  - **Doku-Updates**: CLAUDE.md (Parallel-Dispatch Default + context7 Policy + neue Skills + Notion + Obsidian sections), memory/reference_claude_setup_2026_04_21.md (250 LOC Ferrari-Config), memory/cortex-index.md ([[wiki-links]] + neue Routing), memory/MEMORY.md (Pointer), .claude/rules/common-errors.md (Silent-Fail-Audit Pattern)
+- Proof: `worklog/proofs/085-after.txt` (10-Check-Liste alle PASS)
+- Notes:
+  - Motiviert durch Retro-Befund: Setup matched 2026-Best-Practices (Jock.pl, Karpathy, Garry Tan, Razbakov) fast 1:1, aber nur ~30% Aktivierung. 9 Agents vorhanden, 0 dispatched in letzten 10 Tagen.
+  - **Neue Defaults ab sofort:**
+    - Multi-Domain 3+ Files → `/parallel-dispatch` (backend + frontend + test-writer parallel in Worktrees)
+    - Library-Question → context7 MCP VOR Antwort (Hook erinnert)
+    - feat/fix Commit → Reviewer-Agent oder /cto-review davor (Hook warnt)
+    - Wöchentlich Mo → silent-fail-audit + Review
+  - Skills 16 → 22 · Hooks 25 → 28 · MCPs 12 konfiguriert (4 unterbenutzt: sentry, memory, figma, chrome-devtools)
+  - Post-085 Backlog: Memory-MCP Entity-Bootstrap, /improve Cron, Firecrawl TM-Experiment, Sentry-Full-Integration, Monitor-Loop Deploy-Check
+  - **Kanban-DB bekommt automatisch "Slices"-Backreference** durch DUAL-Relation — Notion zeigt von jedem Kanban-Item aus welche Slices dran arbeiten.
+
+---
+
 ## Phase B | 2026-04-20 Abend | Gold-Standard Push 43% → 80%
 - Commits: `1b4f3874` (tm-search-scrape-unknown) · `9792f6fd` (phase-B: shirt-check + unknown-mode + parseShirtNumber)
 - Scope: 3 Scripts, 13 autonome Parallel-Runs, 1240 unknown-mapped + 62 unknown-unmapped Spieler neu verifiziert.
