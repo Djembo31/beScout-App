@@ -24,6 +24,14 @@ Eingehendes Feedback (Anil + später Tester). Triage nach Priorität, dann in Sl
 
 ## Offen
 
+### P0 | 2026-04-19 late | /api/players PostgREST-cap → Holdings unsichtbar ✅ FIXED
+- **Seite:** /market (Bestand) + /manager (Kader) + Home ScoutCardStats-Count
+- **Symptom:** test12 hat 16 Holdings in DB, UI zeigt nur 7. Players mit last_name-alpha-pos > 1000 werden nicht enriched.
+- **Root:** `/api/players` ohne `.range()`-Pagination → PostgREST-cap 1000. DB hat 4556 players.
+- **Fix:** Commit `459da7b1` + `c1f7eac3` (pnpm-lock sync) → /api/players returnt jetzt 4556 ✓ verified live
+- **Status:** fixed
+- **Slice:** 079b-emergency (kein formaler Slice wegen Notfall-Charakter)
+
 ### P1 | 2026-04-19 | F4 AuthProvider + Wallet RPC-Timeouts (affects alle Pages)
 - **Seite:** global Layout (AuthProvider)
 - **Symptom:** Login dauert 10-15s. Console: `loadProfile RPC slow, using 3-query fallback`, `[Wallet] Balance fetch failed (attempt 3/3) — exhausted: Timeout`. Nach Retry klappts, aber User-Experience zum Kotzen.
