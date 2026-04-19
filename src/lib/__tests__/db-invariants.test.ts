@@ -1893,4 +1893,50 @@ describe('DB Invariants', () => {
       `Non-canonical logo sources found:\n  ${violations.join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-36: Kein Duplicate-Cluster-Poisoning in market_value_eur (Slice 081)
+  // Verhindert, dass TM-Scraper-Fallback-Defaults (wie 500K/2025-07-01) als echte
+  // Werte durchgehen. Wenn mehr als 3 Spieler identisches (mv, contract_end)-Paar
+  // teilen UND nicht als 'transfermarkt_stale' markiert sind → Fail.
+  // Bereits markierte stale-Rows sind ausgenommen (warten auf Re-Scraper in A.2).
+  // ─────────────────────────────────────────────────────
+  it('INV-36: kein ungeflagtes Duplicate-Cluster-Poisoning in market_value_eur', async () => {
+    type Row = { market_value_eur: number; contract_end: string; mv_source: string };
+    const all: Row[] = [];
+    const PAGE = 1000;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await sb
+        .from('players')
+        .select('market_value_eur, contract_end, mv_source')
+        .gt('market_value_eur', 0)
+        .not('contract_end', 'is', null)
+        .neq('mv_source', 'transfermarkt_stale')
+        .range(offset, offset + PAGE - 1);
+      expect(error, `players fetch failed: ${error?.message}`).toBeNull();
+      if (!data || data.length === 0) break;
+      all.push(...(data as Row[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+
+    const clusters = new Map<string, number>();
+    for (const p of all) {
+      const key = `${p.market_value_eur}|${p.contract_end}`;
+      clusters.set(key, (clusters.get(key) ?? 0) + 1);
+    }
+    const violations = Array.from(clusters.entries())
+      .filter(([, n]) => n > 3)
+      .map(([key, n]) => `${n}× ${key}`);
+
+    if (violations.length === 0) {
+      console.log(`[INV-36] ${all.length} unflagged players, 0 duplicate-clusters > 3`);
+    }
+
+    expect(
+      violations,
+      `Duplicate-Cluster-Poisoning detected (>3 Spieler mit identisch mv+contract_end, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
+    ).toHaveLength(0);
+  }, 30_000);
 });

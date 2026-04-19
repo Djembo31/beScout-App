@@ -1,0 +1,47 @@
+Slice 081 — AFTER-State (2026-04-20)
+
+=== Money-Invariant (byte-identisch vor/nach BEIDEN Migrations) ===
+sum(market_value_eur) = 30.894.919.125   (BEFORE: 30.894.919.125 ✓)
+sum(reference_price)  = 299.822.691.250  (BEFORE: 299.822.691.250 ✓)
+total_players         = 4556             (BEFORE: 4556 ✓)
+total_holdings_qty    = 708              (BEFORE: 708 ✓)
+distinct_holders      = 66               (BEFORE: 66 ✓)
+
+=> ZERO Money-Drift. Trigger-Guard "IF NEW.mv IS DISTINCT FROM OLD.mv" hielt:
+   Update auf mv_source feuerte trg_update_reference_price nicht.
+
+=== mv_source Distribution nach 2 Migrations ===
+Migration 1 (HAVING COUNT >= 10): 268 geflaggt
+Migration 2 (HAVING COUNT >=  4): weitere 629 geflaggt → 897 total
+
+unknown               = 3659
+transfermarkt_stale   = 897
+                      = 4556 total ✓
+
+=== Exposure ===
+Holdings auf gelabelte Rows: 24 Spieler, 69 Scout Cards, ~7 User betroffen
+Open orders auf gelabelte Rows: 6
+
+=== Stichproben ===
+Galatasaray poisoned (stale): 2 (aus Phase 1, Sub-10-Cluster noch unbehandelt)
+Arda Yilmaz (ID 334e3913):
+  mv_source         = unknown  (Cluster=2 mit Baris Alper, unter Schwelle 4)
+  market_value_eur  = 26000000 (unveraendert)
+  reference_price   = 260000000 (unveraendert)
+Baris Alper Yilmaz (ID e17a9045):
+  mv_source         = unknown  (Cluster=2, unter Schwelle 4)
+
+=== INV-36 Regression-Guard: GREEN ===
+npx vitest run src/lib/__tests__/db-invariants.test.ts -t "INV-36"
+  => 1 passed, 33 skipped
+  => 3659 unflagged Rows gescannt, 0 Duplicate-Cluster > 3 gefunden
+
+=== Offen fuer Folgeslices ===
+A.1b — Paired Scraper-Mismatch (Cluster 2-3 mit gleichem last_name):
+       Detection via SELF-JOIN auf (last_name, mv, contract_end) mit
+       DISTINCT player_id. Fix: Arda + Baris Alper + aehnliche Paare.
+A.1c — Orphan Stale Contract: contract_end < current_date - 6 Monate.
+       Betrifft Kader-Altbestand der nicht mehr aktiv ist.
+A.2  — Re-Scraper: lokale Playwright ueber alle 897 transfermarkt_stale
+       Spieler. DE+TR Ligen zuerst (Prio 1+2), EU-Top-3 danach.
+A.3  — Frontend-Filter getPlayersByClubId: Altbestand ausblenden.

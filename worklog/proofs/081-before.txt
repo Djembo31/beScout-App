@@ -1,0 +1,42 @@
+Slice 081 — BEFORE-State (2026-04-20)
+
+=== Money-Invariant ===
+sum(market_value_eur) = 30.894.919.125
+sum(reference_price)  = 299.822.691.250
+total_players         = 4556
+total_holdings_qty    = 708
+distinct_holders      = 66
+
+=== Poisoned Cluster Count ===
+Spieler mit MV+contract_end-Paar >= 10-fach dupliziert: 268
+- 17x MV=500.000 EUR + contract_end=2025-07-01
+- 14x MV=50.000 EUR + contract_end=2026-06-30
+- 13x MV=8.000.000 EUR + contract_end=2025-07-01
+- 13x MV=800.000 EUR + contract_end=2025-07-01
+- 13x MV=600.000 EUR + contract_end=2025-07-01
+- 13x MV=400.000 EUR + contract_end=2024-07-01
+- 12x MV=6.000.000 EUR + contract_end=2025-07-01
+- 12x MV=3.000.000 EUR + contract_end=2025-07-01
+- 12x MV=1.500.000 EUR + contract_end=2025-07-01
+- 12x MV=1.000.000 EUR + contract_end=2025-07-01
+- 12x MV=1.000.000 EUR + contract_end=2024-07-01
+- 12x MV=300.000 EUR + contract_end=2027-06-30
+- 12x MV=50.000 EUR + contract_end=2025-07-01
+- 11x MV=400.000 EUR + contract_end=2025-07-01
+- 10x MV=10.000.000 EUR + contract_end=2025-07-01
+- 10x MV=5.000.000 EUR + contract_end=2025-07-01
+- 10x MV=2.000.000 EUR + contract_end=2024-07-01
+- 10x MV=1.500.000 EUR + contract_end=2024-07-01
+- 10x MV=1.500.000 EUR + contract_end=2023-07-01
+- 10x MV=1.200.000 EUR + contract_end=2025-07-01
+
+=== Exposure ===
+Poisoned-Spieler in Holdings:     7
+Poisoned-Spieler in offenen Orders: 1
+Total Scout Cards auf Poisoned:    19
+
+=== Trigger-Safety ===
+trg_update_reference_price: BEFORE UPDATE, guarded via
+  "IF NEW.market_value_eur IS DISTINCT FROM OLD.market_value_eur THEN..."
+=> Update auf nur mv_source feuert reference_price-Recompute NICHT.
+=> Money-Invariant garantiert byte-identisch vor/nach Migration.

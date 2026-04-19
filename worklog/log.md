@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 081 | 2026-04-20 | Data-Cleanup Phase A.1 (Duplicate Default-Poisoning)
+- Stage-Chain: SPEC → IMPACT (skipped — kein Service-Layer, reines DB-Schema + Data-Flag) → BUILD → PROVE → LOG
+- Files (4):
+  - `supabase/migrations/slice_081_add_mv_source_and_flag_stale.sql` (NEW — mv_source column + CHECK + flag 268 rows)
+  - `supabase/migrations/slice_081_extend_stale_flag_threshold_4.sql` (NEW — erweitert auf Cluster >= 4, flaggt 629 mehr)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-36 Regression-Guard, 45 LOC)
+  - `worklog/specs/081-data-cleanup-poisoning.md`, `worklog/proofs/081-before.txt`, `worklog/proofs/081-after.txt`
+- Proof:
+  - `npx tsc --noEmit` → clean
+  - `npx vitest run -t "INV-36"` → 1 passed
+  - Money-Invariant byte-identisch: sum_mv=30.894.919.125, sum_ref=299.822.691.250, holdings=708, holders=66 (vor+nach)
+  - mv_source distribution: 897 transfermarkt_stale + 3659 unknown = 4556 ✓
+- Commit: TBD
+- Notes:
+  - **Trigger-Safety**: `trg_update_reference_price` ist guarded via `IF NEW.mv IS DISTINCT FROM OLD.mv` — update nur auf mv_source feuert reference_price-Recompute NICHT. Zero Money-Drift garantiert.
+  - **Bug-Klassifikation**: Mass-Poisoning (Cluster>=10, 268 Rows) + Medium-Poisoning (Cluster 4-9, 629 Rows) erfasst. Paired-Poisoning (Cluster 2-3, z.B. Arda Yilmaz + Baris Alper bei Galatasaray beide 26M EUR + contract 2021-07-10) noch offen → Slice 081b.
+  - **Exposure Holdings**: 24 Spieler / 69 Scout Cards / ~7 User betroffen — Markierung allein aendert nichts an user-balances.
+  - **Scope-Kontext (neu)**: alle 7 Ligen launch-ready, Sakaryaspor/TFF1 nur initialer Hook. Re-Scraper Phase A.2 folgt der Prio DE → TR → EU-Top-3.
+
+---
+
 ## 080 | 2026-04-20 morning | Market Polish Round 1 (F1 Balance + F3 P&L + F4 A11y)
 - Stage-Chain: SPEC → BUILD → PROVE → LOG (IMPACT skipped — small UI + i18n-only, no Service/RPC/Migration)
 - Files (6):

@@ -10,58 +10,38 @@ proof: —
 started: —
 ```
 
-## Letzter Slice: 080 Round 1 — COMPLETE ✅
+## Letzter Slice: 081 — Data-Cleanup Phase A.1 (Duplicate Default-Poisoning) ✅
 
-Market Polish Phase 1 Page 2/6 — 3 P1 Findings gefixt + live verified auf bescout.net.
+897 Spieler mit verdaechtigen Duplicate-MV/contract_end-Clustern als `mv_source='transfermarkt_stale'` markiert. **ZERO Money-Drift** — Trigger-Guard hielt, Money-Invariant byte-identisch vor/nach Migration.
 
-### Gefixt
-- **F1 TopBar Balance-Format** (money-adjacent, Reviewer-Follow-up) — TopBar nutzt jetzt konsistentes `fmtScout(centsToBsd(x))` wie Hero/MarketHeader. Verified: "7.220,77" = "7.220,77 CR".
-- **F3 Sort-Label "P&L" → "+/−"** (AR-17 Compliance) — Securities-Terminologie entfernt.
-- **F4 Market-Tabs A11y** — role=tablist + role=tab + aria-selected + aria-controls + focus-visible. IDs matchen TabPanel component.
+### Durchgefuehrt
+- **Migration 1**: `mv_source` Spalte + CHECK constraint + Flag 268 Rows (Cluster >= 10)
+- **Migration 2**: Erweiterung auf Cluster >= 4 → 629 additional geflaggt (total 897)
+- **INV-36**: CI-Regression-Guard im `db-invariants.test.ts`. Bei zukuenftigen Poisoning-Imports failt der Test.
 
-### Commits
-- `2ab40fb2` Round 1 (F1+F3+F4)
-- `6b0fffa4` i18n hotfix (market.tabsAriaLabel MISSING_MESSAGE)
-- Proof: `worklog/proofs/080-findings.md` + `080-fixes.txt`
+### Proof
+- `worklog/proofs/081-before.txt` — Baseline-Invariant (sum_mv, sum_ref, holdings)
+- `worklog/proofs/081-after.txt` — byte-identischer Post-State + INV-36 green
+- Migration DB-seitig angewendet, `mv_source` Distribution: 897 stale / 3659 unknown / 4556 total
 
-### Queue (→ user-feedback-queue.md)
-- F2 Club-Namen — **GESCHLOSSEN** (DB-Verify zeigte korrekte Namen, OCR-Fehler meinerseits)
-- F5 Filter-Chaos Mobile — Drawer-Refactor, separater Slice 080b
-- F6 Mission-Banner-Position — Component-Move, post-Beta
-- F7 "22 SC vs 12 Spieler" Label — Tooltip-Add
-- F8 Grid-vs-List inkonsistent — Design-Entscheidung CEO
-- F9 Compliance-Disclaimer Sticky — Policy-Entscheidung
+### Scope-Out (→ Folgeslices)
+- **A.1b — Paired Poisoning (Cluster 2-3)**: Arda Yilmaz + Baris Alper Fall. Eigene Detection ueber SELF-JOIN auf (last_name, mv, contract_end).
+- **A.1c — Orphan Stale Contract**: contract_end < current_date - 6 Monate → Altbestand-Flag.
+- **A.2 — Re-Scraper-Run**: lokale Playwright ueber alle 897 stale Spieler. Welle 1: DE+TR Ligen (Prio 1+2), Welle 2: EU-Top-3.
+- **A.3 — Frontend-Filter** in `getPlayersByClubId`: Altbestand-Exclusion.
 
-## Session-Stand 2026-04-20 Vormittag
+### Strategischer Kontext (neu seit heute)
+Anil's Scope-Korrektur: **alle 7 Ligen launch-ready**, nicht nur Sakaryaspor/TFF1.
+- Prio 1: Bundesliga, 2. Bundesliga (DE-Heimat)
+- Prio 2: Süper Lig, TFF 1. Lig (TR-Wurzeln)
+- Prio 3: Premier League, La Liga, Serie A (EU-Top)
+- Alle Ligen Ziel >=95% MV-Coverage.
+- Details: `memory/feedback_scope_all_leagues_launch_ready.md`
 
-### Heute abgeschlossen
-- Vercel MCP OAuth ✓
-- Notion MCP OAuth ✓
-- test12 P0-Fix verifiziert (16 Holdings sichtbar) ✓
-- CTO-Reviewer Slice 079: PASS mit 1 NIT + 3 Follow-ups ✓
-- Slice 079c audit-fix (1000-row-cap footballData + sync-contracts) ✓
-- Home Click-Throughs 22 Links + 3 Buttons verifiziert ✓
-- Slice 080 Round 1 Market Polish (F1+F3+F4) ✓
+### Phase-Plan Uebersicht
+- **Phase A — Emergency Cleanup**: Slice 081 (✅), 081b (Paired), 081c (Orphan Contract), 082 (Re-Scraper), 083 (Frontend-Filter)
+- **Phase B — SoT-Architektur**: `player_field_sources` Tabelle + Priority-Map + Staleness-Policy
+- **Phase C — Monitoring**: Daily Reconciliation Cron + Data-Quality-Dashboard
 
-### Phase 1 — Core Trading (6 Pages)
-- 079 Home `/` — ✅ DONE (Pass 1+2+Healing)
-- 079b-emergency P0 /api/players pagination — ✅ DONE
-- 079c audit-fix 1000-row-cap — ✅ DONE
-- 080 Market `/market` Round 1 — ✅ DONE
-- 080b Market Filter-Refactor — queue (F5+F6+F7+F8 bundle)
-- 081 Player Detail `/player/[id]` — NEXT
-- 082 Portfolio `/inventory` — pending
-- 083 Transactions `/transactions` — pending
-- 084 Profile `/profile` — pending
-
-### Pending aus Home Pass 2 (low-prio, post-Beta)
-- F9 Quick-Actions Label 10px manual Device-Test
-- F10 Divider-Gradient Abstand visual polish
-- F13 Welcome Bonus Modal (New-User-Account nötig)
-- OnboardingChecklist (New-User-Account nötig)
-
-### Tech-Debt CI-blockierend
-- `useMarketData.test.ts:283` — computePlayerFloor referencePrice fallback. CEO-Money-Decision pending. Blockt CI bei jedem Commit.
-
-### F4 AuthProvider + Wallet RPC-Timeouts (P1, separater Slice)
-- Login dauert 10-15s, Console-Warnings beim Wallet-Fetch-Retry. Backend-Perf-Slice nötig, EXPLAIN ANALYZE auf loadProfile/getWallet.
+### CI-Blocker noch offen
+- `useMarketData.test.ts:283` — computePlayerFloor referencePrice fallback. CEO-Decision pending.
