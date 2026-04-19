@@ -1,0 +1,46 @@
+Slice 081d — AFTER-State (2026-04-20)
+
+=== Money-Invariant (byte-identisch vor/nach) ===
+sum(market_value_eur) = 30.894.919.125   ✓
+sum(reference_price)  = 299.822.691.250  ✓
+total_holdings_qty    = 708              ✓
+distinct_holders      = 66               ✓
+
+=== Aston Villa Squad-Size ===
+Vorher: 62 Spieler (unrealistisch, real ~30)
+Nachher: 51 Spieler (− 11 Ghost-Rows)
+Orphans (club_id=NULL): 11
+
+=== Ghost-Rows (verschoben zu club_id=NULL) ===
+11 Spieler, alle am 2026-04-16 erstellt, alle last_appearance_gw=0:
+  Mio Backhaus, Felix Agu, Marco Friedl, Olivier Deman, Yukinari Sugawara,
+  Mitchell Weiser, Maximilian Wöber, +4 weitere.
+Alle hatten exakt Name+Contract+MV-Match zu echten Spielern anderer Clubs
+(Werder Bremen hauptsaechlich, plus Real Madrid/andere).
+Unterschiedliche api_football_ids → waren NICHT derselbe Supabase-Player,
+sondern API-Football-Fake-Entries die beim Aston-Villa-Squad-Sync am 16.04.
+reingekommen sind.
+
+=== Exposure ===
+Holdings betroffen: 0
+Open orders betroffen: 0
+Trades betroffen: 0 (keine Trades auf diese IDs existiert)
+
+=== Regression-Guard ===
+INV-39 ("Keine Cross-Club-Contamination Ghost-Rows"): PASS
+Test-Logic: Sucht Spieler mit 0 apps + club_id IS NOT NULL + Doppelgaenger
+(gleicher Name + Contract) bei anderem Club mit >0 apps. Sollte 0 sein.
+
+=== Phase A Gesamt-Status ===
+- 081 Mass-Poisoning:     897 flagged (stale)
+- 081b Paired-Poisoning:  +36 flagged (stale)
+- 081c Orphan Contracts:  +1434 flagged (stale)
+- 082 Re-Scraper Script:  built + smoke-tested
+- 081d Ghost-Rows:        11 orphaned (club_id=NULL)
+- 4 CI-Guards live: INV-36, INV-37, INV-38, INV-39
+
+=== Noch offen (nicht-blockierend fuer Phase A) ===
+- Phase A.2 Wellen-Execution (Anil lokal)
+- Slice 083 Frontend-Filter (mv_source != 'stale' nach Wellen)
+- Weitere Clubs mit Squad-Size > 40 manuell pruefen ob aehnliche
+  Ghost-Contaminations existieren (zB Barcelona 56, Hatayspor 52, Bayern 46)

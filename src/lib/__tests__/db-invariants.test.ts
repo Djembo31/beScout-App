@@ -2045,4 +2045,66 @@ describe('DB Invariants', () => {
       `Orphan-Stale-Contracts detected (${all.length} Spieler mit contract_end < ${cutoffIso}, nicht als stale markiert):\n  ${violations.join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-39: Keine Ghost-Rows (Cross-Club-Contamination, Slice 081d)
+  // Ein Spieler mit 0 Appearances und identisch Name + Contract + MV wie ein anderer
+  // Spieler mit >0 Appearances (anderer Club) ist ein Sync-Ghost. Solche Rows
+  // duerfen nicht mit aktivem club_id stehen.
+  // ─────────────────────────────────────────────────────
+  it('INV-39: keine Cross-Club-Contamination Ghost-Rows', async () => {
+    type Row = {
+      id: string;
+      first_name: string;
+      last_name: string;
+      contract_end: string | null;
+      market_value_eur: number;
+      club_id: string | null;
+      last_appearance_gw: number;
+    };
+    const all: Row[] = [];
+    const PAGE = 1000;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await sb
+        .from('players')
+        .select('id, first_name, last_name, contract_end, market_value_eur, club_id, last_appearance_gw')
+        .range(offset, offset + PAGE - 1);
+      expect(error, `players fetch failed: ${error?.message}`).toBeNull();
+      if (!data || data.length === 0) break;
+      all.push(...(data as Row[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+
+    const byKey = new Map<string, Row[]>();
+    for (const p of all) {
+      if (!p.contract_end) continue;
+      const key = `${p.first_name}|${p.last_name}|${p.contract_end}`;
+      const arr = byKey.get(key) ?? [];
+      arr.push(p);
+      byKey.set(key, arr);
+    }
+
+    const ghosts: string[] = [];
+    for (const [, rows] of byKey) {
+      if (rows.length < 2) continue;
+      const hasReal = rows.some((r) => r.last_appearance_gw > 0 && r.club_id !== null);
+      if (!hasReal) continue;
+      for (const r of rows) {
+        if (r.last_appearance_gw === 0 && r.club_id !== null) {
+          ghosts.push(`${r.first_name} ${r.last_name} (id=${r.id}, club assigned, 0 apps — should be orphan)`);
+        }
+      }
+    }
+
+    if (ghosts.length === 0) {
+      console.log('[INV-39] 0 Cross-Club-Contamination ghosts detected');
+    }
+
+    expect(
+      ghosts,
+      `Ghost-Rows detected (Spieler mit 0 apps + club_id + echter Doppelgaenger bei anderem Club):\n  ${ghosts.slice(0, 20).join('\n  ')}`
+    ).toHaveLength(0);
+  }, 30_000);
 });

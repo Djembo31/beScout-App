@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 081d | 2026-04-20 | Ghost-Rows Cleanup (Aston Villa Cross-Club-Contamination)
+- Stage-Chain: SPEC → IMPACT (skipped — isoliertes AV-Set, 0 Holdings) → BUILD → PROVE → LOG
+- Files (4):
+  - `supabase/migrations/20260420122000_slice_081d_ghost_rows_cleanup.sql` (NEW)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-39, client-side SELF-JOIN)
+  - `worklog/specs/081d-ghost-rows-aston-villa.md`, `worklog/proofs/081d-after.txt`
+- Proof:
+  - 11 Rows von Aston Villa auf `club_id=NULL` verschoben
+  - Aston Villa squad: 62 → 51 (realistisch ~30 nach Re-Scraper-Stale-Filter)
+  - `npx vitest run -t "INV-39"` → 1 passed
+  - Money-Invariant byte-identisch
+- Commit: TBD
+- Notes:
+  - **Root-Cause**: sync-players-daily am 16.04. hat fuer Aston Villa einen verunreinigten API-Football Squad-Response bekommen. 27 neue Rows angelegt, davon 11 mit Name+Contract exakt identisch zu echten Spielern anderer Clubs (Werder Bremen, Real Madrid).
+  - **Unterschiedliche api_football_ids** → API-Football fuehrt sie als verschiedene Spieler, aber es sind dieselben Personen.
+  - 0 Holdings/Orders betroffen → risk-free.
+  - club_id=NULL statt DELETE: reversibel, kein FK-Cascade-Risiko.
+  - INV-39 verhindert Re-Contamination.
+
+---
+
 ## 082 | 2026-04-20 | Re-Scraper Script fuer stale Spieler (Welle 1 Smoke-Test)
 - Stage-Chain: SPEC → IMPACT (skipped — lokales Script, kein Prod-Cron) → BUILD → PROVE → LOG
 - Files (3):

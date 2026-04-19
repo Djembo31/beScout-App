@@ -10,7 +10,19 @@ proof: —
 started: —
 ```
 
-## Letzter Slice: 082 — Re-Scraper Script ✅
+## Letzter Slice: 081d — Ghost-Rows Cleanup ✅
+
+11 Ghost-Rows bei Aston Villa (Cross-Club-Contamination vom 16.04. Sync) auf `club_id=NULL` verschoben. Aston Villa squad: 62 → 51. Money-Invariant identisch. INV-39 als CI-Guard.
+
+## Phase A — Fundament komplett ✅
+- 081 Mass-Poisoning:    897 flagged
+- 081b Paired-Poisoning: +36 flagged
+- 081c Orphan Contracts: +1434 flagged
+- 081d Ghost-Rows:       11 orphaned
+- 082 Re-Scraper Script: built + smoke-tested
+- **4 CI-Guards live**: INV-36, INV-37, INV-38, INV-39
+
+## Vorher: 082 — Re-Scraper Script ✅
 
 `scripts/tm-rescrape-stale.ts` gebaut. Filtert auf `mv_source='transfermarkt_stale'`, scraped via Playwright lokal (Cloudflare-bypass), setzt auf `transfermarkt_verified` bei Success.
 
