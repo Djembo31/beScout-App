@@ -28,7 +28,8 @@
       "Bash(git mv *)",
       "Bash(rm -f walkthrough/*.md)",
       "Bash(rm -f .claude/hooks/walkthrough-status.sh)",
-      "mcp__supabase__get_logs"
+      "mcp__supabase__get_logs",
+      "mcp__vercel__list_deployments"
     ]
   },
   "enableAllProjectMcpServers": true,
