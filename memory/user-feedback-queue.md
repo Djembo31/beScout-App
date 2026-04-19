@@ -40,11 +40,13 @@ Eingehendes Feedback (Anil + später Tester). Triage nach Priorität, dann in Sl
 - **Status:** open
 - **Slice:** TBD
 
-### P2 | 2026-04-20 | F2 Balance-Format-Konsistenz TopBar vs Hero Cross-Page
+### P2 | 2026-04-20 | F2 Balance-Format-Konsistenz TopBar vs Hero Cross-Page ✅ FIXED
 - **Seite:** Alle Pages mit TopBar-Balance
-- **Symptom:** Slice 079 Pass 2 hat Hero-Balance auf `formatScout()` angeglichen. Top-Bar nicht im Scope — möglich dass noch `7.225` vs Hero `7.220,77` divergent. Slice 080 Market-Polish soll Cross-Page-Check mit einbauen.
-- **Status:** open — in Slice 080 mit-prüfen
-- **Slice:** 080 (bei Market-Polish)
+- **Symptom:** Slice 079 Pass 2 hat Hero-Balance auf `formatScout()` angeglichen. Top-Bar nicht im Scope — möglich dass noch `7.225` vs Hero `7.220,77` divergent.
+- **Root:** TopBar nutzte `formatScout()` (gerundet, keine Dezimalen), MarketHeader nutzte `fmtScout(centsToBsd())` (2 Dezimalen) — format-mismatch.
+- **Fix:** Slice 080 R1 Commit `2ab40fb2` — TopBar auf `fmtScout(centsToBsd(balanceCents))` vereinheitlicht. Live verified: TopBar "7.220,77" === Header "7.220,77 CR".
+- **Status:** fixed
+- **Slice:** 080 Round 1
 
 ### P3 | 2026-04-20 | F3 fanRankStammgast Graceful Fallback für unbekannte Tiers
 - **Seite:** `src/components/manager/ManagerTab.tsx:155`
@@ -114,6 +116,15 @@ Eingehendes Feedback (Anil + später Tester). Triage nach Priorität, dann in Sl
 - **Status:** open — Phase 5 (Welcome/Onboarding)
 
 
-## Erledigt
+### P1 | 2026-04-20 | F2 Club-Namen-Typos im Market-Filter (Hatayspor/Karagümrük/Bandırmaspor) ✅ CLOSED
+- **Seite:** /market Bestand-Tab Club-Filter-Chips
+- **Symptom:** Ich las im Screenshot "Holoyspor", "Karagümrüka", "Bandirma" — vermutete DB-Typos oder verlorene Diacritics.
+- **Root:** Falsches OCR meinerseits. DB-Verify via supabase MCP zeigte alle Namen korrekt: `Hatayspor`, `Fatih Karagümrük`, `Bandırmaspor`, `Sakaryaspor`, `Adana Demirspor`.
+- **Status:** wontfix — kein Bug, OCR-Fehler. Lessons-Learned: vor DB-Migration immer erst DB-Query, nie auf Screenshot-Text vertrauen.
+- **Slice:** —
 
-(leer)
+## Erledigt (Heute-Stand 2026-04-20 Vormittag)
+
+- **P1 | 2026-04-19 late | /api/players PostgREST-cap** → fixed Slice 079b-emergency (`459da7b1`, `c1f7eac3`)
+- **P2 | 2026-04-20 | F2 Balance-Format Cross-Page** → fixed Slice 080 R1 (`2ab40fb2`)
+- **P1 | 2026-04-20 | F2 Club-Namen-Typos** → wontfix (OCR-Fehler, keine DB-Daten kaputt)
