@@ -5,6 +5,54 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ## DB Columns + CHECK Constraints
 → Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 
+## TM-Scraper Default-Poisoning (2026-04-19 — Slice 081)
+- **Symptom**: Parser-Fallback-Werte (500K/50K/8M bei contract_end 2024-07-01 bzw. 2025-07-01) erscheinen **identisch auf vielen Spielern** — sehen aus wie echte Daten.
+- **Konkret**: 17 Spieler mit MV=500K + contract=2025-07-01 aus verschiedenen Clubs/Ligen — kann kein echter Zufall sein. 13 mit 8M, 14 mit 50K, etc.
+- **Root-Cause**: Transfermarkt-Scraper (`src/lib/scrapers/transfermarkt-profile.ts`) hat bei Parse-Failures Fallback-Werte zurückgegeben. `sync-transfermarkt-batch` mit `missing_only=true` überschreibt diese Werte NIE (weil MV schon != 0 ist).
+- **Detection**:
+  ```sql
+  SELECT market_value_eur, contract_end, COUNT(*)
+  FROM players WHERE market_value_eur > 0 AND contract_end IS NOT NULL
+  GROUP BY market_value_eur, contract_end
+  HAVING COUNT(*) >= 4;
+  ```
+- **Mitigation (Slice 081)**: Neue Spalte `players.mv_source` (`unknown|transfermarkt_verified|transfermarkt_stale|manual_csv|api_football`). Duplicate-Cluster-Rows werden auf `transfermarkt_stale` gesetzt — NICHT MV überschreiben (Trigger-Safety).
+- **Re-Scraper**: `scripts/tm-rescrape-stale.ts` filtert gezielt auf `mv_source='transfermarkt_stale'` und setzt bei Success auf `'transfermarkt_verified'`.
+- **Regression-Guard**: INV-36 (Cluster > 3 ohne stale-Flag), INV-37 (Paired mit last_name), INV-38 (Orphan Contracts > 12 Mon.).
+
+## Trigger-Guard-Safety: mv-only-UPDATE ohne reference_price-Kaskade (2026-04-19 — Slice 081)
+- **Bug-Potenzial**: BEFORE UPDATE Trigger auf `players` kann reference_price re-calculieren wenn UPDATE gemacht wird — auch wenn nur andere Spalten (z.B. mv_source-Flag) geändert wurden. Bei Default-Fallback auf MV=0 würde reference_price=0 → Trading-Block.
+- **Guard-Pattern im Trigger-Body**:
+  ```sql
+  CREATE FUNCTION trg_update_reference_price() RETURNS trigger AS $$
+  BEGIN
+    IF NEW.market_value_eur IS DISTINCT FROM OLD.market_value_eur THEN
+      NEW.reference_price := ...;
+    END IF;
+    RETURN NEW;
+  END;
+  $$ LANGUAGE plpgsql;
+  ```
+- **Regel**: Jeder BEFORE UPDATE Trigger auf money-sensiblen Spalten MUSS `IF NEW.<col> IS DISTINCT FROM OLD.<col>` Guard haben. Andernfalls: jeder UPDATE feuert Money-Logic, auch wenn unnötig.
+- **Vor Migration**: Trigger-Body via `SELECT pg_get_functiondef('trigger_fn'::regproc)` einsehen + Guard verifizieren.
+- **Proof-Pattern**: sum_mv + sum_ref byte-identisch vor/nach Migration messen.
+
+## Cross-Club-Contamination via API-Football Squad-Response (2026-04-19 — Slice 081d)
+- **Symptom**: Club XYZ hat 62 Spieler in DB (realistisch ~30). Viele davon erschienen am selben Tag, haben 0 Appearances, Name+Contract-Match zu echten Spielern anderer Clubs (aber **unterschiedliche api_football_id**).
+- **Beispiel**: Aston Villa 62 am 16.04. — 11 Rows waren Duplikate von echten Werder-Bremen/Real-Madrid-Spielern. Mio Backhaus/Marco Friedl/Felix Agu/Olivier Deman etc.
+- **Root-Cause**: `sync-players-daily` hat für einen Club einen verunreinigten Squad-Response bekommen — API-Football hatte fremde Spieler mit frischen fake api_football_ids an Aston Villa zugeordnet.
+- **Detection**:
+  ```sql
+  SELECT p1.id FROM players p1
+  JOIN players p2 ON p2.first_name = p1.first_name AND p2.last_name = p1.last_name
+    AND p2.contract_end = p1.contract_end AND p2.club_id <> p1.club_id
+    AND p2.last_appearance_gw > 0
+  WHERE p1.last_appearance_gw = 0 AND p1.created_at >= '<recent-sync-date>';
+  ```
+- **Fix**: `club_id = NULL` (nicht DELETE) — reversibel, kein FK-Cascade-Risiko.
+- **Regression-Guard**: INV-39 (SELF-JOIN Detection).
+- **Nach neuen sync-players-daily Runs**: per-Club squad-size vergleichen vs. historische Baseline. Auffällige Sprünge = mögliche Contamination.
+
 ## tsconfig `**/*.ts` includes lokale Scripts → Vercel Build-Error (2026-04-19 — Slice 079 Healing)
 - `tsconfig.json` hat `"include": ["**/*.ts"]` + `exclude: ["node_modules", "backup", "e2e"]` — aber **NICHT** `scripts/`.
 - Lokale dev-scripts in `scripts/` (z.B. `scripts/tm-profile-local.ts`) importieren Packages wie `playwright` die nicht als dep in `package.json` sind (läuft lokal via `npx tsx`, packet ist lokal verfügbar durch `@playwright/test` transitive dep).

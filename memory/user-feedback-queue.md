@@ -24,6 +24,20 @@ Eingehendes Feedback (Anil + später Tester). Triage nach Priorität, dann in Sl
 
 ## Offen
 
+### P0 | 2026-04-19 | Data-Quality Scraper-Poisoning (Aydin/Arda Yilmaz-Fall) ✅ FIXED
+- **Seite:** /club/galatasaray + systemweit alle Liga-Kader
+- **Symptom:** Anil meldete "Aydin Yilmaz als Torwart bei Galatasaray mit 26M EUR, unrealistisch. Und Kader-Zahlen inkonsistent (36 vs 40)".
+- **Root:** (1) TM-Scraper-Fallback-Defaults als echte Werte durch (17 Spieler identisch 500K/2025-07-01 etc.). (2) Arda Yilmaz + Barış Alper Yılmaz bei Galatasaray: beide 26M + contract_end 2021-07-10 (Paired-Poisoning). (3) Aston Villa 62 Spieler (real ~30) wegen Cross-Club-Contamination vom 16.04. Squad-Sync. (4) 52% der DB-Spieler mit stale Daten.
+- **Fix:**
+  - Slice 081: 897 Mass-Poisoning-Rows (Cluster ≥4) als `mv_source='transfermarkt_stale'` flagged
+  - Slice 081b: +36 Paired-Poisoning (Arda+Barış Case gelöst)
+  - Slice 081c: +1434 Orphan Stale Contracts (>12 Mon. abgelaufen)
+  - Slice 082: Re-Scraper-Script `tm-rescrape-stale.ts` gebaut, Smoke-Test 3/3 grün
+  - Slice 081d: 11 Ghost-Rows Aston Villa auf club_id=NULL (AV 62→51)
+  - 4 CI-Regression-Guards: INV-36, INV-37, INV-38, INV-39
+- **Status:** fixed (Fundament), Phase A.2 Re-Scraper-Wellen pending (lokal auszuführen)
+- **Slice:** 081 + 081b + 081c + 082 + 081d
+
 ### P1 | 2026-04-20 | F0 1000-row-cap Audit — restliche cron-routes (nach Slice 079c)
 - **Seite:** `src/app/api/cron/` + `src/app/api/admin/`
 - **Symptom:** ~15 weitere `.from('players')` Stellen ohne `.range()`. Einige haben `.eq()`-Filter (legitim unter 1000), andere nicht. Einzeln evaluieren.

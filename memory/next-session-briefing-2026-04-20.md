@@ -1,138 +1,145 @@
 # Next-Session Briefing (2026-04-20)
 
-> Erstellt Ende Session 2026-04-19.
-> **Heute: 2 Slices (077 + 077b), ~2873 neue TM-Mappings, 359 Contracts.**
+> Erstellt 2026-04-19 nach Phase-A-Fundament-Abschluss.
+> **Heute: 6 Commits, 5 Slices (081 + 081b + 081c + 082 + 081d) — kompletter Data-Quality-Refactor.**
 
 ---
 
-## TL;DR — wo wir stehen
+## TL;DR
 
-**api_mapping_pct** ist auf allen 7 Ligen >=98.9% gepusht (via Local-Playwright-Scraper).
-**contract_pct** teilweise massiv verbessert (Serie A +16.6pp, La Liga +12.6pp).
-**market_value_pct** stagniert — MVs sind schon in der DB, die ~900 fehlenden
-Players haben entweder `tm-mv=0` oder sind komplett unmapped und nur via CSV lösbar.
+Der Aydin/Arda-Yilmaz-Fall den du heute Mittag gemeldet hast: **systematisch geschlossen**. Die DB hatte 52% verdächtige Daten (2367 von 4556 Spielern). Alle kategorisiert, markiert, Re-Scraper bereit. 4 CI-Regression-Guards live — neue Poisoning wird automatisch geblockt.
 
----
+**Money-Invariant war durchgängig byte-identisch** — kein Trading-Risiko, kein Holdings-Verlust.
 
-## Gold-Tier Lücken (Stand 2026-04-19 Ende)
-
-| Liga | api_map | contract | MV | MV-Lücke | CSV für Gold |
-|---|---|---|---|---|---|
-| **2. Bundesliga** | 99.8 | 94.8 | 91.3 | 47 | **20** ⭐ |
-| **Bundesliga** | 99.3 | 92.9 | 89.9 | 60 | **31** |
-| Süper Lig | 99.7 | 86.0 | 77.9 | 139 | 108 |
-| Premier League | 98.9 | 85.6 | 77.9 | 144 | 112 |
-| La Liga | 99.4 | 84.9 | 72.0 | 197 | 162 |
-| Serie A | 99.8 | 85.6 | 69.0 | 206 | 173 |
-| TFF 1. Lig | 99.7 | 77.6 | 70.2 | 223 | 186 |
-
-## Quickest Gold-Win
-
-**2. Bundesliga + Bundesliga:** 51 Spieler CSV → 2 Ligen Gold.
-
-**Workflow (aus Slice 076):**
-1. Admin → **CSV Import** → Export CSV
-2. Excel/Sheets öffnen, filtern nach `club` = BuLi / 2. BuLi
-3. MVs aus Kicker-Manager oder Comunio (hast Abo) eintragen
-4. Contract-Dates dazu (Transfermarkt ist CF-blocked für Vercel — die sind im heutigen Run auch nicht gefunden worden, weil notFound)
-5. CSV hochladen → Preview → Apply
-6. Measure: `SELECT jsonb_pretty(public.get_player_data_completeness())`
+**Offene Action für dich (lokal)**: Re-Scraper-Wellen über Nacht laufen lassen. Script ist getestet (3/3 Bundesliga grün in 15.6s), Cloudflare-Block via lokalem Playwright umgangen.
 
 ---
 
-## Neue Tools ab heute
+## Was heute gebaut wurde
 
-`scripts/tm-search-local.ts` + `scripts/tm-profile-local.ts` — Playwright-basiert, umgeht
-CF. Usage:
+### 1. Tiefer Data-Audit
+Du hast gefragt: "warum Aydin Yilmaz als Torwart bei Galatasaray mit 26M?". Resultat:
+- **Arda Yilmaz + Barış Alper** haben identisch 26M EUR + contract_end 2021-07-10 — verschiedene TM-IDs aber gleicher Scraper-Fehler
+- **Systemweit:** 17 Spieler mit identisch MV=500K, 13 mit 8M, 14 mit 50K — Scraper-Fallback-Defaults masquerading as real data
+- **Pilot-Ligen Süper Lig/TFF1 haben worst Coverage (75-79%)** — opposite zum alten Narrative
 
+### 2. Scope-Korrektur gespeichert
+**Alle 7 Ligen launch-ready**, nicht nur Sakaryaspor/TFF1. DE → TR → EU-Top-3 Prio. Gespeichert als `feedback_scope_all_leagues_launch_ready.md`.
+
+### 3. Flag-Trilogie (081 + 081b + 081c)
+Neue Spalte `players.mv_source` mit 5 Werten: `unknown|transfermarkt_verified|transfermarkt_stale|manual_csv|api_football`.
+
+- **081:** Mass-Poisoning Cluster ≥ 4 → 897 Rows
+- **081b:** Paired + last_name match → +36 (Arda + Barış erfasst)
+- **081c:** Orphan Contracts > 12 Mon. → +1434
+
+**Zero Money-Drift** durchgängig — `trg_update_reference_price` guarded via `IF NEW.mv IS DISTINCT FROM OLD.mv`.
+
+### 4. Re-Scraper-Script (Slice 082)
+`scripts/tm-rescrape-stale.ts`:
+- Filter: `mv_source='transfermarkt_stale'`
+- Playwright lokal → Cloudflare-Block umgangen
+- Success → `mv_source='transfermarkt_verified'`
+- Re-Check pro Spieler vs. konkurrierende Admin-Imports
+- CLI: `--league --limit --rate --dry-run --headless`
+
+**Smoke-Test 3/3 grün**: Koki Machida 2025→2029, Nathan Ngoumou 2022→2027.
+
+### 5. Ghost-Rows Cleanup (Slice 081d)
+**11 Aston Villa Spieler vom 16.04. Sync** — fake, 0 Apps, Name+Contract-Duplikate echter Spieler anderer Clubs. API-Football Squad-Response war verunreinigt.
+
+Fix: `club_id=NULL`. AV squad 62 → 51. 0 Holdings/Orders betroffen.
+
+---
+
+## Status am Session-Ende
+
+### DB
+- 4559 Players (inkl. 11 orphans)
+- 2367 stale, 2189 unknown, 3 verified
+- sum_mv=30.894.919.125, sum_ref=299.822.691.250, holdings_qty=708, holders=66
+- **Byte-identisch zur Session-Start-Baseline**
+
+### Code
+- Branch `main`, 6 Commits
+- `worklog/active.md`: status=idle
+- tsc clean, INV-36/37/38/39 grün
+
+---
+
+## 🔴 Action morgen: Re-Scraper-Wellen (lokal, du)
+
+**Welle 1 — DE (~1 h):**
 ```bash
-npx tsx scripts/tm-search-local.ts --league="TFF 1. Lig" --limit=300 --rate=2500
-npx tsx scripts/tm-profile-local.ts --league="Süper Lig" --limit=1000 --rate=2500
+npx tsx scripts/tm-rescrape-stale.ts --league="Bundesliga" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="2. Bundesliga" --limit=500 --rate=3000
 ```
 
-Args: `--threshold=50` (score-cap), `--headless=false`, `--force=true`, `--rate=MS`.
-
----
-
-## Offene Entscheidungen
-
-### A — CSV-Workflow 2. BuLi + BuLi (51 Players)
-**Aufwand:** 1-2h manuell (MVs aus Kicker eintragen)
-**Gewinn:** 2 Ligen Gold-Tier erreicht
-
-### B — Retry notFound-Cases mit lower threshold
-**Status:** ~1055 Players haben heute "no match >=50" gesehen (alle 7 Ligen zusammen).
-Viele: abgekürzte Firstnames ("Y. Bozdemir"), Diacritic-Drifts, Club-short fehlt.
-
-**Aufwand:** ~1h Script-Tuning (score für abbreviated firstname) + 1h Full-Retry
-**Gewinn:** evtl +100-200 Mappings, aber MV-Problem bleibt weil die fehlenden
-haben meist auch auf TM MV=0.
-
-### C — Cron-Bugfix
-Query-Order-Bug in `src/app/api/cron/transfermarkt-search-batch/route.ts`:
-```diff
-- `${player.last_name} ${player.first_name}`
-+ `${player.first_name} ${player.last_name}`
+**Welle 2 — TR (~1 h):**
+```bash
+npx tsx scripts/tm-rescrape-stale.ts --league="Süper Lig" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="TFF 1. Lig" --limit=500 --rate=3000
 ```
-Auf Vercel ohnehin CF-blocked, aber bei Proxy-Setup später wichtig. 5min-Slice.
 
-### D — Frontend-UI Club-Page mit League-Standings
-Slice 074 hat `league_standings` table gefüllt (134 Rows). Kein UI drauf bislang.
-Slice 078-Aufwand: ~2h.
+**Welle 3 — EU-Top-3 (~2 h):**
+```bash
+npx tsx scripts/tm-rescrape-stale.ts --league="Premier League" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="La Liga" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="Serie A" --limit=500 --rate=3000
+```
 
----
-
-## Priorisierte To-Do
-
-### Kritisch (diese Woche)
-- [ ] Entscheiden: CSV-Workflow 2. BuLi + BuLi (A) — konkreter Gold-Win
-- [ ] Entscheiden: Retry notFound Optimization (B) — breiter aber weniger fokussiert
-
-### Wichtig (diese Woche)
-- [ ] Slice 078 — Frontend League-Standings UI (Club-Page Section)
-- [ ] Slice 079 — Frontend Player-Transfers UI (Player-Detail Section)
-
-### Nice-to-Have
-- [ ] Slice 077c — Cron-Query-Bugfix (1-zeilig)
-- [ ] Slice 080 — Home-Widget "Top 3 Clubs aus Tabelle"
-- [ ] Slice 081 — Notification bei Injury-Change (Slice 070 follow-up)
+Script loggt pro Spieler, bricht nicht bei Einzelfehlern ab, Coverage-Report am Ende.
 
 ---
 
-## Technische Bemerkungen
+## 🟠 Nach Wellen → Slice 083 Frontend-Filter aktivieren
 
-### Der MV-Wert 70-78% ist künstlich niedrig
-Aufgrund `market_value_eur = 0` für ~81-206 Players je Liga. TM zeigt `0` für
-Youngsters, Amateure, Ex-Retired. Script kann nicht unterscheiden — `parseMarketValue`
-returnt null für `> 0 == false`. Könnte via `parse als -1 = "TM gibt mv=0 zurück"`
-distinct werden + in Completeness-RPC anders gezählt (MVs=0 dürften Gold-counten
-wenn TM sie so gelistet).
+Spec existiert: `worklog/specs/083-altbestand-filter.md`. Nach Wellen-Run ist der Filter effektiv (viele Spieler `verified`, weniger `stale`).
 
-Aber: das wäre Reframing, nicht echter Wert. Für Fantasy-Game ist MV=NULL nicht OK.
+Kern-Change: `getPlayersByClubId(clubId, { activeOnly: true })` → `mv_source != 'transfermarkt_stale'`. Club-Kader zeigen nur aktive Spieler.
 
-### Playwright lokal ist PC-abhängig
-Scripts laufen auf Anils Windows-Machine, brauchen `npm install`, env.local, Playwright
-chromium (bereits installiert). Macht aber kein Problem — wir brauchen die Scripts
-nur für gelegentliche Refresh-Runs (z.B. wöchentlich oder post-Transfer-Fenster).
-
-### Vercel-Cron bleibt manuell-only
-Transfer-Sync, Fixtures-Future-Sync, Standings-Sync auf Vercel Hobby nur manuell
-triggerbar. Bei Pro-Upgrade ($20/mo) werden sie automatisch.
+**Impact bekannt:** Admin-Views Full-Set (activeOnly=false), User-Views activeOnly=true, Cache-Key getrennt. ~45 min.
 
 ---
 
-## Session-Ende Status
-- `git status`: 1 uncommitted (memory/session-handoff.md — Hook überschreibt)
-- `worklog/active.md`: Slice 077 + 077b DONE markiert
-- `worklog/log.md`: 2 neue Einträge
-- Branch: main
-- 2 Commits ahead of last night (Session-Start)
+## 🟡 Parallel-Kandidaten falls Wellen nicht gelaufen
+
+**Slice 084** — Ghost-Audit weitere Clubs mit Squad > 40:
+Barcelona 56, Hatayspor 52, Bayern 46, Istanbulspor/Kayserispor/Boluspor je 44, VfB/Antalyaspor/Real je 43.
+
+**Slice 085** — CI-Blocker `useMarketData.test.ts:283`:
+CEO-Money-Decision: `referencePrice`-Fallback in `computePlayerFloor` behalten oder Test auf 800 updaten? 15 min wenn entschieden.
 
 ---
 
-**Session-Ende 2026-04-19.**
+## 🟢 Backlog (nicht dringend)
 
-Los am Morgen mit:
-1. `git log --oneline -5` — commits ansehen
-2. `SELECT jsonb_pretty(public.get_player_data_completeness())` — Gold-Stand messen
-3. Wähle: CSV-Workflow (A) oder notFound-Retry (B) oder Frontend-UI (D) oder Cron-Bugfix (C)
+- **080b** Market Round 2 (Filter F5-F9 Bundle)
+- **086** Player-Row-Dedup echte Name-Collisions (Jake O'Brien Everton, Nico O'Reilly ManCity)
+- **Phase B** SoT-Architektur `player_field_sources`
+- **Phase C** Daily Reconciliation Cron + Data-Quality-Dashboard
+- **Playwright** als direct-dep in package.json
+- **Multi-Account-Gate** als Pre-Commit-Hook
+
+---
+
+## Erste Action morgen (Checklist)
+
+1. `git log -1` + `cat worklog/active.md` → status=idle bestätigen
+2. `SELECT mv_source, COUNT(*) FROM players GROUP BY mv_source` → verified-Count prüfen
+3. Je nach Stand:
+   - **A)** Wellen gelaufen → Slice 083 aktivieren
+   - **B)** Wellen nicht gelaufen → Wellen starten ODER Slice 084/085 parallel
+   - **C)** Alles grün, Zeit für Phase 2 → 080b Market Round 2 ODER Phase B SoT
+
+---
+
+## Kontextuell
+
+- **Scope**: ALLE 7 Ligen launch-ready, Sakaryaspor war nur Hook
+- **CTO-Autonomie**: bei Border-Cases 2-3 Optionen + Empfehlung, du entscheidest
+- **CEO-Scope offen**: useMarketData Money-Decision
+- **MCPs live**: Supabase, Playwright, Vercel, Notion, Chrome DevTools, Sentry, Context7
+- **4 CI-Guards live**: INV-36/37/38/39 blocken Re-Poisoning
+
+**Gute Nacht. Morgen geht's weiter.**

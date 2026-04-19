@@ -1,73 +1,120 @@
-# Session Handoff
-## Letzte Session: 2026-04-19 — TM Local Scraper + All-Leagues Sweep
+# Session Handoff (2026-04-19 Nachmittag)
 
-## Was wurde gemacht
+## TL;DR
 
-### Slice 077 — TM Local Scraper (Cloudflare-Workaround)
-Zwei Playwright-tsx-Scripts in `scripts/` gebaut die lokal Transfermarkt scrapen
-(umgeht Cloudflare-Block der Vercel-Datacenter-IPs trifft):
+**Phase A — Data-Quality Fundament komplett gebaut.** Anil hat den Aydin/Arda-Yilmaz-Fall gemeldet → tiefer Audit → systematische Root-Cause-Analyse → 5 Slices in einer Session:
 
-- `scripts/tm-search-local.ts` — Schnellsuche → `player_external_ids` INSERT
-- `scripts/tm-profile-local.ts` — Profile-Scrape → `players.market_value_eur` + `contract_end` UPDATE
+| Slice | Was | Effekt |
+|-------|-----|--------|
+| **081** | Mass-Poisoning flaggen (Cluster ≥ 4) | 897 Spieler → `mv_source='transfermarkt_stale'` |
+| **081b** | Paired-Poisoning mit last_name match | +36 Spieler flagged. **Arda Yilmaz + Barış Alper geschlossen.** |
+| **081c** | Orphan Stale Contracts (>12 Mon. abgelaufen) | +1434 Spieler flagged |
+| **082** | Re-Scraper-Script `tm-rescrape-stale.ts` gebaut + Smoke-Test | 3/3 Bundesliga verifiziert, Cloudflare-Block umgangen |
+| **081d** | Ghost-Rows Cleanup (Aston Villa Cross-Club-Contamination) | 11 Rows `club_id=NULL`. AV squad 62 → 51. |
 
-**Kritischer Bugfix gefunden:** Der Vercel-Cron nutzt `${last_name} ${first_name}` als Query.
-Tuerkische Diacritics + diese Reihenfolge ergibt 0 Matches bei TM-Search.
-Scripts nutzen `${first_name} ${last_name}` → Matches finden.
+**Total stale: 2367 / 4556 (52% der DB).** Money-Invariant byte-identisch durchgängig. 4 CI-Regression-Guards live.
 
-### Slice 077b — All-Leagues Sweep
-Alle 7 Ligen sequenziell durch search + profile gelaufen (~2h total):
+## Session-Commits (2026-04-19 Nachmittag)
 
 ```
-Liga             | Mapping   | Contract  | MV
-2. Bundesliga    | +444      | +14       | 0
-Bundesliga       | +479      | +17       | 0
-La Liga          | +431      | +90       | 0
-Premier League   | +485      | +52       | 2
-Serie A          | +463      | +110      | 0
-Süper Lig        | +447      | +20+41    | 0
-TFF 1. Lig       | +124      | +56       | 0
+c1f7bf38 fix(test): INV-39 TSC-Fehler — Array.from(Map) + explicit Row type
+d47d4bdd feat(data): Slice 081d — Ghost-Rows Cleanup (Aston Villa)
+47c9f906 feat(scripts): Slice 082 — Re-Scraper Script
+2a03c89e feat(data): Slice 081c — Orphan Stale Contracts (>12 Mon.)
+c046c4bc feat(data): Slice 081b — Paired-Poisoning (Cluster 2-3 + last_name)
+006809b6 feat(data): Slice 081 — Data-Cleanup Phase A.1 (897 stale)
 ```
 
-### Session-Totals
-- **~2873 neue TM-Mappings** (alle 7 Ligen >=98.9% api_mapping)
-- **359 Contract-Updates**
-- **2 MV-Updates** (praktisch alle MVs waren bereits in `players`)
+## Kritischer Kontext — NEUE Strategie
 
-## Commits
-- e110e794 — feat(scripts): Slice 077 — TM Local Scraper
-- 17e1c9b0 — feat(scripts): Slice 077b — All-Leagues TM Sweep + Loader-Fix
+**Anil's Scope-Korrektur heute**: Alle 7 Ligen launch-ready, nicht mehr "Sakaryaspor/TFF1 Pilot". Produktstand reicht um Bundesliga/Süper-Lig-Clubs direkt anzusprechen. DE+TR-Prio 1 wegen Anil's Wurzeln, aber ALLE Ligen auf gleichen Standard.
 
-## Build Status
-- tsc: CLEAN (unverändert — nur Script-Additions in scripts/)
-- 2 neue Slice-Proofs: 077-tm-local-scraper-results.txt + 077b-all-leagues-sweep.txt
+Gespeichert: `feedback_scope_all_leagues_launch_ready.md` (user memory).
 
-## Gold-Tier Progress (2026-04-19 Ende)
-Alle 7 Ligen naeher dran aber 0 im Gold. api_mapping ist solid.
-Bottleneck bleibt `market_value_eur` — die meisten Luecken sind Players
-mit TM-`mv=0` oder komplett unmapped.
+Prio-Reihenfolge Wellen-Rollout:
+1. Bundesliga + 2. Bundesliga (Anil's Heimat)
+2. Süper Lig + TFF 1. Lig (TR-Wurzeln)
+3. Premier League + La Liga + Serie A (EU-Top)
 
-| Liga | api_map | contract | MV | Gold? |
-|---|---|---|---|---|
-| 2. Bundesliga | 99.8% | 94.8% | 91.3% | nein (MV-Luecke 3.7pp) |
-| Bundesliga | 99.3% | 92.9% | 89.9% | nein (MV-Luecke 5.1pp) |
-| Süper Lig | 99.7% | 86.0% | 77.9% | nein |
-| Premier League | 98.9% | 85.6% | 77.9% | nein |
-| TFF 1. Lig | 99.7% | 77.6% | 70.2% | nein |
-| La Liga | 99.4% | 84.9% | 72.0% | nein |
-| Serie A | 99.8% | 85.6% | 69.0% | nein |
+## Daten-Quality Status (Session-Ende)
 
-## Schnellster Gold-Win morgen
-- 2. Bundesliga: **20 Players** CSV → Gold
-- Bundesliga:    **31 Players** CSV → Gold
-- Beide zusammen: 51 Players (1-2h Kicker/Comunio → CSV-Upload)
+### mv_source Distribution
 
-## Common-Errors dokumentiert heute
-- Keine neuen. Scripts-Bugs (query-order, PostgREST 1000-limit) in Proof-Files.
+| Source | Count |
+|--------|-------|
+| `unknown` | 2189 |
+| `transfermarkt_stale` | 2367 |
+| `transfermarkt_verified` | 3 (nur Smoke-Test BL) |
+| **TOTAL** | **4559** (inkl. 11 orphans mit club_id=NULL) |
 
-## Noch offen
-- CSV-Workflow fuer Gold-Tier
-- Retry notFound-Cases mit lower threshold (1055 Players potentiell)
-- Cron-Query-Order-Bug fixen (auf Vercel ohnehin CF-blocked)
+### CI-Regression-Guards (alle green)
 
-## Blocker
-- Keine
+- **INV-36**: Keine Mass-Poisoning-Cluster > 3 (ohne stale-Flag)
+- **INV-37**: Keine Paired-Poisoning mit gleichem last_name (TR-normalisiert)
+- **INV-38**: Keine Spieler mit contract_end > 12 Mon. abgelaufen (ohne stale)
+- **INV-39**: Keine Cross-Club-Contamination Ghost-Rows
+
+## Phase A.2 — Lokale Wellen (TODO Anil)
+
+```bash
+# Welle 1 — DE (~1h)
+npx tsx scripts/tm-rescrape-stale.ts --league="Bundesliga" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="2. Bundesliga" --limit=500 --rate=3000
+
+# Welle 2 — TR (~1h)
+npx tsx scripts/tm-rescrape-stale.ts --league="Süper Lig" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="TFF 1. Lig" --limit=500 --rate=3000
+
+# Welle 3 — EU (~2h)
+npx tsx scripts/tm-rescrape-stale.ts --league="Premier League" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="La Liga" --limit=500 --rate=3000
+npx tsx scripts/tm-rescrape-stale.ts --league="Serie A" --limit=500 --rate=3000
+```
+
+Script getestet, Smoke-Test 3/3 grün (15.6s). Cloudflare-Block umgangen via lokalem Playwright.
+
+## Phase A.3 — Nach allen Wellen
+
+**Slice 083 Frontend-Filter aktivieren:**
+- `getPlayersByClubId` bekommt `opts?: { activeOnly?: boolean }` Parameter
+- Filter-Kriterium: `mv_source != 'transfermarkt_stale'` (statt originalem last_appearance/created_at das nichts filterte)
+- Service + Hook + Cache-Key + 4 Caller müssen angepasst werden
+- Spec existiert: `worklog/specs/083-altbestand-filter.md`
+- Impact-Analyse gemacht: Admin-Views nutzen `activeOnly=false` (Full-Set), User-Views `activeOnly=true`
+
+**Weitere offene Slices:**
+- **084** Weitere Clubs mit Squad-Size > 40 auditieren ob Ghost-Contaminations existieren (Barcelona 56, Hatayspor 52, Bayern 46)
+- **085** CI-Blocker `useMarketData.test.ts:283` — CEO-Money-Decision (referencePrice fallback)
+- **086** Player-Row-Dedup (Jake O'Brien, Nico O'Reilly bei ManCity — echte name-collision-rows)
+
+## Scope-Out
+
+- **Phase B — SoT-Architektur**: `player_field_sources` Tabelle, Merge-Priority-Config, Staleness-Policy pro Feld
+- **Phase C — Monitoring**: Daily Reconciliation Cron, Data-Quality-Dashboard, Admin-Review-Queue
+- **Partner-API-Evaluation**: OPTA/Sportmonks Lizenz (~3-10k€/Jahr) — nach Beta-Launch
+
+## Tech-Debt (nicht blockierend)
+
+1. `useMarketData.test.ts:283` CI-Blocker, CEO-Money-Decision pending
+2. Playwright als direct-dep fehlt in package.json (nutzt transitive resolution)
+3. Multi-Account-Gate nicht enforced (nur Text-Regel)
+
+## Neue Patterns (dokumentiert in common-errors.md update)
+
+- **TM-Scraper Default-Poisoning**: Parser-Fallbacks setzen identische MV+contract_end auf viele Spieler. Detection via GROUP BY. Mitigation: `mv_source`-Flag statt MV=0.
+- **Trigger-Guard-Safety**: BEFORE UPDATE Trigger mit `IF NEW.mv IS DISTINCT FROM OLD.mv` erlaubt mv_source-only UPDATE ohne reference_price-Kaskade.
+- **Cross-Club-Contamination**: API-Football Squad-Response kann Spieler falsch zuordnen. Detection via SELF-JOIN auf (first+last+contract) mit 0-apps-Ghost vs >0-apps-Original.
+
+## Erste Action nächste Session
+
+1. **Status-Check**: `git log -1`, `cat worklog/active.md`, `SELECT mv_source, COUNT(*) FROM players GROUP BY mv_source`
+2. **Falls Wellen gelaufen** → `verified`-Anteil prüfen → Slice 083 Frontend-Filter starten
+3. **Falls Wellen nicht gelaufen** → entweder jetzt starten oder parallel Slice 084/085 angehen
+4. `memory/next-session-briefing-2026-04-20.md` hat Details
+
+## Files to read next session (in Order)
+
+1. Dieser handoff (`memory/session-handoff.md`)
+2. `memory/next-session-briefing-2026-04-20.md`
+3. `worklog/active.md`
+4. `worklog/log.md` (letzten 5 Slices)
