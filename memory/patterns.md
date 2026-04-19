@@ -1,3 +1,10 @@
+---
+name: BeScout Code Patterns
+description: Top 20 etablierte Patterns aus dem Codebase. Quellen CLAUDE.md, common-errors.md, ui-components.md, database.md, trading.md.
+type: reference
+tags: [reference, pattern]
+---
+
 # BeScout Code Patterns
 
 > Top 20 etablierte Patterns aus dem Codebase.

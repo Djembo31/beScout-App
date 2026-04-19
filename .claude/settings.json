@@ -45,6 +45,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-proof-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-cto-review-gate.sh"
           }
         ]
       },
@@ -68,6 +72,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-status-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-context7-gate.sh"
           }
         ]
       }
@@ -92,6 +100,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-no-audit-slice.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-kanban-sync.sh"
           }
         ]
       }
@@ -113,6 +125,11 @@
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-session-start.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-kanban-sync.sh",
+            "timeout": 5
           }
         ]
       }

@@ -1,0 +1,73 @@
+Slice 085 — Claude-Setup Optimization — Proof Artifact
+=========================================================
+Date: 2026-04-21
+Status: COMPLETE
+
+## 1. Skills Added (6) — visible in Skill Registry
+- /optimize (AutoResearch-Loop, Karpathy-Pattern)
+- /plan-ceo-review (Business-Hat)
+- /plan-qa-review (QA-Hat, 12 Edge-Case-Kategorien)
+- /plan-legal-review (Legal-Hat, Wording+Phase+Disclaimer)
+- /silent-fail-audit (6-Pattern-Scan)
+- /parallel-dispatch (Agent-Team Playbook)
+
+All 6 appeared in system-reminder after Write — confirmed loadable.
+
+## 2. Hooks Added (3) — registered in .claude/settings.json
+- ship-context7-gate.sh (UserPromptSubmit) — bash -n OK
+- ship-cto-review-gate.sh (PreToolUse Bash) — bash -n OK
+- ship-kanban-sync.sh (Stop + SessionStart) — bash -n OK
+
+settings.json: node-JSON.parse successful = VALID
+
+## 3. Obsidian Vault
+- memory/.obsidian/app.json ✓
+- memory/.obsidian/core-plugins.json ✓ (19 plugins)
+- memory/.obsidian/graph.json ✓ (with color-groups per tag)
+- memory/tags.md ✓ (Tag Glossary)
+
+## 4. Notion Extensions
+- Slice-Database created: https://www.notion.so/57670082f03a4ac4a305f68186c981a0
+  Data Source: 764b2667-22fd-4207-8320-7c97a6706ca5
+- Relation Kanban-Item (DUAL) — bidirectional with Kanban
+- View "Timeline" created (by Started/Completed)
+- View "Aktive Slices" (Board grouped by Stage, filtered != Erledigt)
+- Slice 085 seeded in DB with Stage=BUILD + Status="In Bearbeitung"
+
+## 5. Silent-Fail-Audit Script
+- scripts/silent-fail-audit.ts (~180 LOC)
+- Test-Run 2026-04-21:
+  - Files scanned: 1008
+  - Findings: 256
+  - Total risk: HIGH
+  - Report: worklog/audits/silent-fail-2026-04-19.md (date based on system)
+
+## 6. Documentation
+- CLAUDE.md: Added Parallel-Dispatch default + context7 policy + new Skills table + Notion-Integration + Obsidian-Vault sections
+- memory/reference_claude_setup_2026_04_21.md: Full Ferrari-Config doc (~250 lines)
+- memory/cortex-index.md: Added wiki-links + new routing entries
+- memory/MEMORY.md: Added pointers to setup-ref + tags
+- .claude/rules/common-errors.md: Added silent-fail-audit Pattern entry
+
+## 7. Verification Summary
+
+| Check | Result |
+|-------|--------|
+| Skills loadable | PASS — all 6 appear in Skill Registry |
+| Hooks syntax | PASS — bash -n all 3 |
+| settings.json valid | PASS — node JSON.parse |
+| Notion Slice-DB created | PASS — data_source_id received |
+| Notion Views created | PASS — Timeline + Board |
+| Seed Slice 085 | PASS — page_id received |
+| Silent-Fail-Audit runs | PASS — 256 findings reported |
+| Memory tags docs | PASS — file created |
+| CLAUDE.md updated | PASS — no length explosion |
+| Common-errors updated | PASS — silent-fail entry added |
+
+## Next-Actions (Post-085 Backlog)
+- Memory-MCP Entity-Bootstrap (2. Knowledge-Graph)
+- /improve Cron-Schedule (alle 10 Sessions)
+- Firecrawl TM-Parser-Experiment
+- Sentry-MCP Full-Integration
+- Monitor-Loop für Deploy-Checks
+- Review 256 Silent-Fail-Findings + priorisieren

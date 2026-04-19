@@ -1,3 +1,10 @@
+---
+name: Cortex Index
+description: Routing-Tabelle für memory/ — sagt WO Wissen liegt. Wird bei JEDEM Session-Start gelesen.
+type: reference
+tags: [reference, index, workflow]
+---
+
 # Cortex Index
 
 > Routing-Tabelle. Sagt WO Wissen liegt, nicht WAS es ist.
@@ -8,6 +15,9 @@
 - `memory/semantisch/personen/anil.md` — Founder Arbeitsweise
 - `memory/session-handoff.md` — Uebergabe letzte Session
 - `.claude/rules/common-errors.md` — Top-Fehler (auto-loaded)
+- [[reference_claude_setup_2026_04_21]] — Claude-Setup Ferrari-Config (Skills, Hooks, Agents, MCPs, Notion, Obsidian)
+- [[reference_notion_integration]] — Notion Source-of-Truth Split + Sync-Regeln
+- [[tags]] — Memory Tag Glossary (Obsidian-kompatibel)
 
 ## Produkt-Wissen (bei Produkt-Entscheidungen, neuen Features, Prioritaeten)
 | Ressource | Pfad |
@@ -27,7 +37,14 @@
 | DB / Migration / RPC | `.claude/rules/database.md` (auto-loaded by path) |
 | Neues Feature | `memory/patterns.md` + Business-Regeln |
 | Bug-Fix | `memory/errors.md` + `memory/senses/morning-briefing.md` |
-| Agent / Workflow | `memory/semantisch/projekt/agent-research.md` |
+| Agent / Workflow | `memory/semantisch/projekt/agent-research.md` + [[reference_claude_setup_2026_04_21]] |
+| Parallel-Dispatch / Worktree-Orchestration | `.claude/skills/parallel-dispatch/SKILL.md` |
+| AutoResearch / Optimization-Loop | `.claude/skills/optimize/SKILL.md` (Karpathy-Pattern) |
+| Plan-Review (CEO/QA/Legal Hats) | `.claude/skills/plan-{ceo,qa,legal}-review/SKILL.md` |
+| Silent-Fail-Scan (Money-Critical Code) | `.claude/skills/silent-fail-audit/SKILL.md` + `scripts/silent-fail-audit.ts` |
+| context7 Policy bei Library-Questions | Hook `ship-context7-gate.sh` (UserPromptSubmit) |
+| Notion-Kanban + Slice-DB Sync | [[reference_notion_integration]] + Hook `ship-kanban-sync.sh` |
+| Obsidian Graph-View | memory/ als Vault oeffnen — `.obsidian/` ist configured |
 | Feature / Redesign / Refactoring (3+ Files) | `.claude/skills/spec/SKILL.md` (PFLICHT: Migration-First) |
 | Performance | `memory/patterns.md` (Performance-Sektion) |
 | Realtime / Live-Feed / Subscriptions | `memory/patterns.md` (Pattern #21) + `memory/semantisch/projekt/equipment-realtime.md` |

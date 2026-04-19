@@ -97,11 +97,42 @@ Next.js 14 App Router | TypeScript strict | Tailwind (Dark Mode) | Supabase (PG 
 
 ## Agents (via Agent-Tool)
 
-backend, frontend, reviewer (PFLICHT nach Impl), healer, test-writer, impact-analyst, qa-visual, business, autodream
+backend, frontend, reviewer (PFLICHT nach Impl), healer, test-writer, impact-analyst, qa-visual, business, autodream, Explore (read-only Research), Plan (Architektur)
+
+**Default seit Slice 085 (2026-04-21):** Bei **3+ Files cross-domain** → Parallel-Dispatch (backend + frontend + test-writer parallel in Worktrees). Serial-Claude nur bei <3 Files oder Money/Trading. Siehe `/parallel-dispatch` Skill.
 
 ## MCPs
 
-supabase, playwright, context7, sequential-thinking, sentry (aktiv), posthog (nach Neustart), firecrawl
+supabase, playwright, context7, sequential-thinking, sentry (aktiv), posthog (nach Neustart), firecrawl, notion, vercel, chrome-devtools, memory
+
+**context7 Policy (seit Slice 085):** Bei React/Next/Supabase/Tailwind/TanStack/zustand/next-intl/lucide-react Library-Questions IMMER `context7` fetchen VOR Antwort. Training-Cutoff Jan 2026 — Libraries drift. Hook `ship-context7-gate` erinnert automatisch.
+
+## Neue Skills (seit Slice 085, 2026-04-21)
+
+| Skill | Trigger |
+|-------|---------|
+| `/parallel-dispatch` | Multi-Domain-Feature, 3+ Files cross-domain |
+| `/optimize` | AutoResearch-Loop mit messbarer Metric (Gold-%, Bundle-Size, Match-Rate) |
+| `/plan-ceo-review` | Business-Perspektive nach Spec, vor Build |
+| `/plan-qa-review` | Edge-Case-Enumeration nach Spec, vor Build |
+| `/plan-legal-review` | Wording/Compliance bei Money/Fantasy/IPO-Features |
+| `/silent-fail-audit` | Wöchentlicher Scan proaktiv oder nach /impact |
+
+Ergänzend Hooks: `ship-context7-gate`, `ship-cto-review-gate` (warn), `ship-kanban-sync`.
+
+## Notion-Integration (seit Slice 085)
+
+- **Kanban** (Backlog/Roadmap): https://www.notion.so/20273b4a80e98050b014f37d659bed5c
+- **Slice-Database** (SHIP-Loop Spiegel): https://www.notion.so/57670082f03a4ac4a305f68186c981a0
+  - Views: Board (Aktive Slices), Timeline (CEO-Roadmap), Table (all)
+  - Relation `Kanban-Item`: verlinkt Slice ↔ Kanban-Item
+- **Status-Page** (Executive): https://www.notion.so/34773b4a80e9814e97fac38763659dc0
+
+## Obsidian-Vault (seit Slice 085)
+
+`memory/` ist Obsidian-Vault (plain Markdown + `.obsidian/` config).
+Tags via `memory/tags.md` — `#user`, `#pattern`, `#bug`, `#decision`, `#feedback`, `#money`, `#security`, etc.
+Anil kann memory/ als Obsidian-Vault öffnen für Graph-View + Backlinks.
 
 ## Knowledge Flywheel
 

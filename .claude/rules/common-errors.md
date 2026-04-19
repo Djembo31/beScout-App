@@ -5,6 +5,20 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ## DB Columns + CHECK Constraints
 → Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
 
+## Silent-Fail-Audit automatisiert (seit 2026-04-21, Slice 085)
+- **Skill:** `/silent-fail-audit`
+- **Script:** `npx tsx scripts/silent-fail-audit.ts` → `worklog/audits/silent-fail-YYYY-MM-DD.md`
+- **Cadence:** wöchentlich (Mo morgen) + nach jedem /impact für Money/Data-Code
+- **6 Patterns:** .in() unchecked, .select() unranged, silent catch, error-swallow, data-destructure ohne error, hart-codierte script-state-checks
+- **Baseline 2026-04-21 (Slice 085):** 1008 Files, 256 Findings → nach /optimize Refine: 213 / 113 HIGH (Precision 11.7% → 53.1%)
+- **Regel:** Bei neuem Service/RPC/API-Route → script laufen lassen, findings priorisieren nach HIGH/MEDIUM
+
+## .in() Chunking — UPSTREAM-Query auch prüfen (2026-04-21, Slice 086 Reviewer-Lesson)
+- Wenn `.in('col', ids)` chunked wird, prüfe ob die **upstream-Query** die ids erstellt hat selbst auch silent-fail-anfällig ist.
+- **Slice 086 Beispiel**: `.in('player_id', leaguePlayerIds)` (Line 1256) wurde in 100er-Batches chunked. Aber `leaguePlayerIds` kommt aus `.select('id').in('club_id', allLeagueClubIds)` (Line 1247) — wenn Players in einer Liga > 1000 → 1000-row-cap → leaguePlayerIds incomplete → silent-falsche Score-Counts.
+- **Regel:** Bei Chunk-Fix immer auch die **Loader-Query** prüfen (entweder .range()-Loop ODER explicit count-validation gegen erwartete Cardinality).
+- **Aufsummierungs-Validität:** Bei Chunk-Counts (`gwScoreCount += batchCount`) — Batches müssen DISJUNKT sein. Slice 086 OK weil player_ids unique. Bei `.in('status', [...])` mit überlappenden Conditions: nicht summierbar.
+
 ## TM-Scraper Default-Poisoning (2026-04-19 — Slice 081)
 - **Symptom**: Parser-Fallback-Werte (500K/50K/8M bei contract_end 2024-07-01 bzw. 2025-07-01) erscheinen **identisch auf vielen Spielern** — sehen aus wie echte Daten.
 - **Konkret**: 17 Spieler mit MV=500K + contract=2025-07-01 aus verschiedenen Clubs/Ligen — kann kein echter Zufall sein. 13 mit 8M, 14 mit 50K, etc.
