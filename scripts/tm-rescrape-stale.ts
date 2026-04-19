@@ -127,17 +127,23 @@ async function loadStalePlayers(filterLeague: string | undefined, n: number): Pr
     if (error) throw new Error(`players query: ${error.message}`);
     if (!data || data.length === 0) break;
 
-    // Fetch TM-IDs for this batch
+    // Fetch TM-IDs for this batch. IMPORTANT: Chunk `.in()` to <=100 UUIDs.
+    // Supabase PostgREST GET-URL hat eff. Limit bei ~14KB. 400 UUIDs × 36 chars = silent fail.
     const playerIds = data.map((p) => p.id as string);
-    const { data: mappings } = await supabase
-      .from('player_external_ids')
-      .select('player_id, external_id')
-      .eq('source', 'transfermarkt')
-      .in('player_id', playerIds);
-
-    const tmIdByPlayer = new Map<string, string>(
-      (mappings ?? []).map((m) => [m.player_id as string, m.external_id as string]),
-    );
+    const tmIdByPlayer = new Map<string, string>();
+    const UUID_CHUNK = 100;
+    for (let i = 0; i < playerIds.length; i += UUID_CHUNK) {
+      const batch = playerIds.slice(i, i + UUID_CHUNK);
+      const { data: mappings, error: mErr } = await supabase
+        .from('player_external_ids')
+        .select('player_id, external_id')
+        .eq('source', 'transfermarkt')
+        .in('player_id', batch);
+      if (mErr) throw new Error(`player_external_ids query: ${mErr.message}`);
+      for (const m of mappings ?? []) {
+        tmIdByPlayer.set(m.player_id as string, m.external_id as string);
+      }
+    }
 
     for (const p of data as unknown as Array<{
       id: string;
