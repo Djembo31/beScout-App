@@ -29,7 +29,13 @@
       "Bash(rm -f walkthrough/*.md)",
       "Bash(rm -f .claude/hooks/walkthrough-status.sh)",
       "mcp__supabase__get_logs",
-      "mcp__vercel__list_deployments"
+      "mcp__vercel__list_deployments",
+      "mcp__vercel__list_teams",
+      "mcp__notion__notion-get-teams",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch",
+      "mcp__notion__notion-create-pages",
+      "mcp__notion__notion-update-page"
     ]
   },
   "enableAllProjectMcpServers": true,
