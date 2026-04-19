@@ -1,26 +1,35 @@
-# Next Session Briefing — 2026-04-21 (Full Gold-Standard Report)
+# Next Session Briefing — 2026-04-21 (Full Gold-Standard Report — FINAL)
+
+## User-Agenda für nächste Session
+
+Laut User-Ansage (2026-04-20 Abend):
+1. **Workflow-Bewertung** — CTO-Orchestrator-Modell, SHIP-Loop, Agent-Dispatch analysieren
+2. **Notion-Integration-Strategie** definieren — Kanban + Status-Pages + Wiki + CSV-Workflow
+3. **Offene Punkte durcharbeiten** — 15 Items aus Notion Kanban priorisiert
+
+**NICHT direkt mit Code starten.** Erst Retro + Plan.
 
 ## TL;DR
 
-Heute (2026-04-20) wurde die Data-Quality für alle 7 Ligen von **43% → 80% Gold-Standard** gepushed.
-**10 Commits deployed, 3 neue Scripts, 5 Regression-Guards (INV-36..40), 80% aktive Saison-Spieler verifiziert.**
+Heute (2026-04-20) wurde die Data-Quality für alle 7 Ligen von **43% → 86.6% Gold-Standard** gepushed.
+**12 Commits deployed, 3 neue Scripts, 5 Regression-Guards (INV-36..40), 86.6% aktive Saison-Spieler verifiziert.**
 
 ---
 
-## Gold-Standard Status (End-of-Session 2026-04-20)
+## Gold-Standard Status (End-of-Session 2026-04-20) — FINAL nach Phase C
 
 ### Pro Liga (aktive Saison-Spieler: matches>0 OR last_appearance_gw>0)
 
 | Liga | Aktive | Gold | Unknown | Stale | **Gold %** |
 |------|--------|------|---------|-------|-----------|
-| **TFF 1. Lig** | 625 | 545 | 71 | 9 | **87.2%** |
-| **2. Bundesliga** | 469 | 405 | 20 | 44 | **86.4%** |
-| **Bundesliga** | 548 | 464 | 24 | 60 | **84.7%** |
+| **Bundesliga** | 548 | 513 | 24 | 11 | **93.6%** ⭐ |
+| **La Liga** | 600 | 531 | 43 | 26 | **88.5%** |
+| **TFF 1. Lig** | 625 | 546 | 71 | 8 | **87.4%** |
+| **2. Bundesliga** | 469 | 406 | 20 | 43 | **86.6%** |
+| **Serie A** | 635 | 548 | 64 | 23 | **86.3%** |
+| **Premier League** | 548 | 457 | 69 | 22 | **83.4%** |
 | **Süper Lig** | 512 | 409 | 76 | 27 | **79.9%** |
-| **Serie A** | 635 | 493 | 64 | 78 | **77.6%** |
-| **Premier League** | 548 | 407 | 69 | 72 | **74.3%** |
-| **La Liga** | 600 | 444 | 43 | 113 | **74.0%** |
-| **TOTAL** | **3937** | **3167** | **367** | **403** | **80.4%** |
+| **TOTAL** | **3937** | **3410** | **367** | **160** | **86.6%** |
 
 ### Was ist sicher
 - **Money-Invariant byte-identisch** durch alle Migrations heute

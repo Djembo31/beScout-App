@@ -1,12 +1,12 @@
-# Session Handoff (2026-04-19 22:16)
+# Session Handoff (2026-04-19 22:17)
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 1 Files
 ```
- M .claude/settings.local.json
  M memory/session-handoff.md
 ```
 
-## Session Commits: 7
+## Session Commits: 8
+- f562fdd6 chore(session): Final Gold-Standard Push 43% → 86.6% (end-of-day)
 - 39ca377e docs(session): Phase B Gold-Standard finaler Bericht + TODO-Liste
 - 9792f6fd feat(data): Phase B Gold-Standard push — 43% → 80% aktive Spieler verified
 - 1b4f3874 feat(scripts): tm-search-scrape-unknown — TM-Mapping + Scrape für unknown-Spieler

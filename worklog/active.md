@@ -9,19 +9,39 @@ impact: —
 proof: —
 ```
 
-## Letzter Slice: Phase B + Slice 083 + Slice 084 — 2026-04-20 ✅
+## Letzter Slice: Data-Quality Gold-Standard — 2026-04-20 ✅
 
-Data-Quality-Kampagne: **43% → 80% Gold-Standard** für aktive Saison-Spieler.
-- 9 Commits heute alle deployed
-- Bundesliga + 2. Bundesliga + TFF 1. Lig bei **85-87%** Gold
-- Alle 7 Ligen ≥74% Gold
-- Siehe `worklog/log.md` Phase B + 083+084
+**43% → 86.6% Gold** für alle 7 Ligen aktive Saison-Spieler.
+- 12 Commits heute deployed
+- Bundesliga 93.6%, alle anderen 79-88%
+- Notion-Integration aktiv (15 Kanban-Items in BeScout Control Center-HQ)
+- Siehe: `memory/next-session-briefing-2026-04-21-full.md`
 
-## Next-Session-Kandidaten
+## Next-Session Agenda (User-Ansage 2026-04-20)
 
-1. **Phase C Retry-Welle Completion verifizieren** (läuft jetzt parallel — La Liga/Serie A/Premier/Bundesliga stale recovery)
-2. **CSV-Workflow für 367 unknown** ohne TM-Mapping (Admin-UI existiert seit Slice 076) — **manueller Workflow, CEO-Ressource**
-3. **sync-players-daily Monitoring** ob Re-Contamination auftritt (INV-40 + Cross-Club-Check)
-4. **User-Visible Verbesserungen**: Frontend-Badge "Verified Data" + Stale-Warning im Admin
+**Reihenfolge:**
+1. **Workflow-Bewertung** — CTO-Orchestrator-Modell, SHIP-Loop, Agent-Dispatch analysieren
+2. **Notion-Integration-Strategie** — Kanban + Status-Pages + Wiki + CSV-Workflow-DB
+3. **Offene Punkte durcharbeiten** — 15 Items aus Kanban-Board priorisiert
 
-Siehe: `memory/next-session-briefing-2026-04-21-full.md`
+**NICHT direkt mit Code starten.** Erst Retro + Plan.
+
+## 15 Offene Items (in Notion Kanban)
+
+- **2× CRITICAL** — Paid-Fantasy + Paid-Mystery-Box Flags gated (Compliance)
+- **2× P0** — Gold 95% via CSV-Workflow + Vercel-Deploy-Check
+- **5× P1** — AuthProvider, 1000-row-Audit, useMarketData, Gold-Badge, Multi-Account
+- **5× P2** — Cron, Monitoring, Name-Norm, Squad-Scraper, Playwright-dep
+- **1× P3** — Parser-Regression-Tests
+
+## Scripts einsatzbereit (für next-session)
+
+- `scripts/tm-rescrape-stale.ts` — `--mv-source=stale|unknown` + `--active-only`
+- `scripts/tm-search-scrape-unknown.ts` — Search + Shirt-Check + Fallback
+- `scripts/debug-postgrest.ts` — war debug, kann gelöscht werden
+
+## Links
+
+- **Notion Kanban:** https://www.notion.so/20273b4a80e98050b014f37d659bed5c
+- **Notion Status-Page:** https://www.notion.so/34773b4a80e9814e97fac38763659dc0
+- **Detail-Briefing:** `memory/next-session-briefing-2026-04-21-full.md`
