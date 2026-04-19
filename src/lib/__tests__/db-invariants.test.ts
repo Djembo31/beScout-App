@@ -2107,4 +2107,57 @@ describe('DB Invariants', () => {
       `Ghost-Rows detected (Spieler mit 0 apps + club_id + echter Doppelgaenger bei anderem Club):\n  ${ghosts.slice(0, 20).join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-40: Keine Same-Club Player-Duplicates (Slice 084)
+  // Spieler mit identischem first_name + last_name + club_id duerfen nicht
+  // mehrfach mit aktivem club_id existieren. Root-Cause: sync-players-daily
+  // Cross-Club-Contamination + Apostrophe-Namen (O'Brien/O'Reilly).
+  // ─────────────────────────────────────────────────────
+  it('INV-40: keine Same-Club Player-Duplicates', async () => {
+    type Row = { id: string; first_name: string; last_name: string; club_id: string | null };
+    const all: Row[] = [];
+    const PAGE = 1000;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await sb
+        .from('players')
+        .select('id, first_name, last_name, club_id')
+        .not('club_id', 'is', null)
+        .range(offset, offset + PAGE - 1);
+      expect(error, `players fetch failed: ${error?.message}`).toBeNull();
+      if (!data || data.length === 0) break;
+      all.push(...(data as Row[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+
+    const byKey = new Map<string, Row[]>();
+    for (const p of all) {
+      if (!p.club_id) continue;
+      const fn = (p.first_name ?? '').trim().toLowerCase();
+      const ln = (p.last_name ?? '').trim().toLowerCase();
+      const key = `${fn}|${ln}|${p.club_id}`;
+      const arr = byKey.get(key) ?? [];
+      arr.push(p);
+      byKey.set(key, arr);
+    }
+
+    const dupes: string[] = [];
+    for (const [key, rows] of Array.from(byKey.entries())) {
+      if (rows.length > 1) {
+        const [fn, ln] = key.split('|');
+        dupes.push(`${fn} ${ln}: ${rows.length} rows (ids=${rows.map(r => r.id).join(', ')})`);
+      }
+    }
+
+    if (dupes.length === 0) {
+      console.log('[INV-40] 0 same-club player duplicates detected');
+    }
+
+    expect(
+      dupes,
+      `Same-Club Player-Duplicates gefunden:\n  ${dupes.slice(0, 20).join('\n  ')}`
+    ).toHaveLength(0);
+  }, 30_000);
 });

@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 083+084 | 2026-04-20 | Slice 083 Altbestand-Filter + Slice 084 Player-Dedup + Matching-Fixes
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- Commits: 1816ed4e (083) · 1e6dfaa2 (normalize) · f48dc87e (script-chunk) · 9d2f9754 (docs) · 9cedb71d (083-follow-up) · Slice 084 (pending)
+- Scope:
+  - **083 BUILD**: getPlayersByClubId/usePlayersByClub/qk.players.byClub um `activeOnly` Flag. Consumer: useClubData + AdminOverviewTab + AdminRevenueTab + clubs/page (follow-up).
+  - **084 Player-Dedup**: 2 Same-Club Duplicates (Jake O'Brien, Nico O'Reilly) → `club_id=NULL`.
+  - **Matching**: normalizeForMatch erweitert um ø/æ/ð/þ/ł/ß/đ (Skandinavisch/Polnisch/Deutsch/Südslawisch).
+  - **Script-Fix**: tm-rescrape-stale chunked `.in()` — PostgREST silent-fail bei >400 UUIDs.
+  - **Rules-Update**: common-errors.md um PostgREST `.in()` Pattern ergänzt.
+- Proof: worklog/proofs/083-after.txt, worklog/proofs/084-after.txt
+- Tests: INV-40 neu, 181/181 slice-tests grün, 9/9 normalize-tests grün, 59/59 club-tests grün.
+- Notes:
+  - Phase A.2 Wellen 1A+1B+2A+2B+3C komplett (Welle 3A+3B laufen noch).
+  - DB stale-count: 2367 (Morgen) → 1276 (aktuell) → ~500 erwartet nach 3A/3B.
+  - INV-40 ergänzt als Regression-Guard für Same-Club-Duplicates.
+
+---
+
 ## 081d | 2026-04-20 | Ghost-Rows Cleanup (Aston Villa Cross-Club-Contamination)
 - Stage-Chain: SPEC → IMPACT (skipped — isoliertes AV-Set, 0 Holdings) → BUILD → PROVE → LOG
 - Files (4):

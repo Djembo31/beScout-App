@@ -1,0 +1,59 @@
+Slice 084 — Player-Row-Dedup (Same-Club Duplicates)
+Datum: 2026-04-20
+
+================================================================
+1. Detection Query (Before)
+================================================================
+2 Same-Club Duplicate-Gruppen identifiziert:
+
+| Canonical (behalten)                                  | Fake (→ club_id=NULL)                                   | Club       |
+|-------------------------------------------------------|----------------------------------------------------------|------------|
+| b73f8f3a Jake O'Brien  (27 matches, created 13.04.)   | 791ff869 Jake O'Brien (0 matches, created 16.04.)        | Everton    |
+| a72fc666 Nico O'Reilly (26 matches, created 13.04.)   | 65f98e3d Nico O'Reilly (0 matches, created 16.04.)       | Man City   |
+
+Pattern: Beide Apostrophe-Namen (O') — sync-players-daily 16.04. hat sie
+bei Cross-Club-Contamination nicht als existing erkannt (gleicher Bug
+wie Slice 081d Aston Villa).
+
+Safety:
+  Holdings: 0
+  Orders:   0
+  Trades:   0
+
+================================================================
+2. Migration apply
+================================================================
+Migration 20260420150000_slice_084_player_dedup_same_club.sql: success:true
+Post-Check (in migration): 0 same-club duplicates remaining.
+
+================================================================
+3. Money-Invariant Before/After
+================================================================
+                  Before          After           Delta
+sum_mv_eur        30864969125     30796969125     -68000000 (2 Fake-Rows raus)
+sum_ref_cents     300120191250    300120191250    0 ✓
+sum_holdings      708             708             0 ✓
+affected_rows     57              55              -2 ✓
+
+Ref-Price + Holdings byte-identisch — Money-Invariant erhalten.
+sum_mv_eur -68M = die 2 Fake-MVs (Jake O'Brien fake + Nico O'Reilly fake).
+
+================================================================
+4. Regression-Guard
+================================================================
+INV-40 (src/lib/__tests__/db-invariants.test.ts):
+  - SELF-JOIN via Client-side Map
+  - Keyed on LOWER(TRIM(first_name))|LOWER(TRIM(last_name))|club_id
+  - Assertion: 0 same-club duplicate groups
+
+Test-Run:
+  npx vitest run src/lib/__tests__/db-invariants.test.ts -t "INV-40"
+  → 1 passed (37 skipped)
+  [INV-40] 0 same-club player duplicates detected
+
+================================================================
+5. Scope-Out (dokumentiert)
+================================================================
+- 11 Ghost-Rows (club_id=NULL) sind bereits via Slice 081d clean — nichts zu tun.
+- Holdings-Merge-Logic nicht noetig (0 Holdings an Fake-Rows).
+- Cross-Club-Transfers (gleicher Name, verschiedene Clubs) — separater Scope.
