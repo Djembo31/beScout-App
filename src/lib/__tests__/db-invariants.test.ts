@@ -1939,4 +1939,68 @@ describe('DB Invariants', () => {
       `Duplicate-Cluster-Poisoning detected (>3 Spieler mit identisch mv+contract_end, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-37: Kein Paired-Poisoning (Slice 081b)
+  // Erweitert INV-36 auf Cluster 2-3 WENN zusaetzlich last_name identisch ist
+  // (TR-normalisiert via Diakritika-Strip). Faengt Arda Yilmaz + Baris Alper-Case:
+  // gleicher Nachname, gleicher mv, gleicher contract_end = TM-Scraper-Mismatch.
+  // Bereits markierte stale-Rows sind ausgenommen.
+  // ─────────────────────────────────────────────────────
+  it('INV-37: kein ungeflagtes Paired-Poisoning (Cluster 2-3 mit gleichem last_name)', async () => {
+    type Row = {
+      market_value_eur: number;
+      contract_end: string;
+      last_name: string;
+      mv_source: string;
+    };
+    const all: Row[] = [];
+    const PAGE = 1000;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await sb
+        .from('players')
+        .select('market_value_eur, contract_end, last_name, mv_source')
+        .gt('market_value_eur', 0)
+        .not('contract_end', 'is', null)
+        .neq('mv_source', 'transfermarkt_stale')
+        .range(offset, offset + PAGE - 1);
+      expect(error, `players fetch failed: ${error?.message}`).toBeNull();
+      if (!data || data.length === 0) break;
+      all.push(...(data as Row[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+
+    // TR-normalize: lowercase + strip türkische Diakritika (Pattern aus common-errors.md)
+    const normalize = (s: string): string => {
+      const map: Record<string, string> = {
+        ş: 's', Ş: 's', ç: 'c', Ç: 'c', ğ: 'g', Ğ: 'g',
+        ı: 'i', İ: 'i', ö: 'o', Ö: 'o', ü: 'u', Ü: 'u',
+      };
+      return s
+        .split('')
+        .map((ch) => map[ch] ?? ch)
+        .join('')
+        .toLowerCase();
+    };
+
+    const clusters = new Map<string, number>();
+    for (const p of all) {
+      const key = `${p.market_value_eur}|${p.contract_end}|${normalize(p.last_name)}`;
+      clusters.set(key, (clusters.get(key) ?? 0) + 1);
+    }
+    const violations = Array.from(clusters.entries())
+      .filter(([, n]) => n >= 2)
+      .map(([key, n]) => `${n}× ${key}`);
+
+    if (violations.length === 0) {
+      console.log(`[INV-37] ${all.length} unflagged players, 0 paired-clusters (same last_name + mv + contract_end)`);
+    }
+
+    expect(
+      violations,
+      `Paired-Poisoning detected (>=2 Spieler mit identisch mv+contract_end+normalized last_name, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
+    ).toHaveLength(0);
+  }, 30_000);
 });

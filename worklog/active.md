@@ -10,7 +10,11 @@ proof: —
 started: —
 ```
 
-## Letzter Slice: 081 — Data-Cleanup Phase A.1 (Duplicate Default-Poisoning) ✅
+## Letzter Slice: 081b — Paired-Poisoning ✅
+
+36 Spieler in 18 Paired-Clustern (2-3 Rows mit identisch mv + contract_end + last_name) als stale markiert. **Arda Yilmaz + Baris Alper Fall geschlossen.** Money-Invariant byte-identisch. Total stale jetzt 933.
+
+## Vorher: 081 — Data-Cleanup Phase A.1 ✅
 
 897 Spieler mit verdaechtigen Duplicate-MV/contract_end-Clustern als `mv_source='transfermarkt_stale'` markiert. **ZERO Money-Drift** — Trigger-Guard hielt, Money-Invariant byte-identisch vor/nach Migration.
 

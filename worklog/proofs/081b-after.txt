@@ -1,0 +1,37 @@
+Slice 081b — AFTER-State (2026-04-20)
+
+=== Money-Invariant (byte-identisch vor/nach) ===
+sum(market_value_eur) = 30.894.919.125   ✓
+sum(reference_price)  = 299.822.691.250  ✓
+total_holdings_qty    = 708              ✓
+distinct_holders      = 66               ✓
+
+=== mv_source Distribution ===
+transfermarkt_stale = 933  (vorher 897, +36 = 18 Cluster × 2-3 Spieler)
+unknown             = 3623
+
+=== Arda Yilmaz + Baris Alper Case (geschlossen) ===
+Arda Yilmaz (334e3913):   mv_source=transfermarkt_stale ✓
+Baris Alper Yilmaz (e17a9045): mv_source=transfermarkt_stale ✓
+Beide MV unveraendert (26.000.000 EUR), reference_price unveraendert.
+
+=== Sample Paare (18 Cluster) ===
+- Arda Yilmaz [GK] + Baris Alper Yilmaz [ATT] @ Galatasaray (26M, 2021-07-10)
+- Cihan Akgun [MID] + Yunus Akgun [ATT] (18M, 2018-07-01)
+- Romano Schmid + Romano Christian Schmid [MID] (15M, 2019-01-03)  ← vermutl. Duplicate-Row
+- Mio Backhaus × 2 [GK] (12M, 2022-07-12)                           ← echte Duplicate-Row
+- Marco Friedl × 2 [DEF] (12M, 2019-07-01)                          ← echte Duplicate-Row
+- Senne Lynen + Senne Maaike Lynen (10M, 2023-08-08)                ← vermutl. Duplicate-Row
+- Yukinari Sugawara × 2 [DEF] (7.5M, 2025-08-26)                    ← echte Duplicate-Row
+- Felix Agu × 2 [DEF] (6M, 2020-07-01)                              ← echte Duplicate-Row
+- ... (10 weitere)
+
+=== Bonus-Discovery: Echte Duplikat-Rows ===
+Von den 18 Clustern sind ~10 echte DUPLIZIERTE Player-Rows — gleiche API-Football-ID
+zweimal importiert (unterschiedliche UUID aber identische Namen + Stats).
+Eigene Bug-Klasse → Slice 081d "Player Row Dedup" (separat).
+
+=== Regression-Guards ===
+INV-36 (Cluster >3 ohne last_name): PASS
+INV-37 (Cluster 2-3 mit gleichem norm_last): PASS
+Beide CI-grün, jeder neue Import wird bei Poisoning geblockt.

@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 081b | 2026-04-20 | Paired-Poisoning (Cluster 2-3 mit gleichem last_name)
+- Stage-Chain: SPEC → IMPACT (skipped — data-flag only) → BUILD → PROVE → LOG
+- Files (4):
+  - `supabase/migrations/20260420121000_slice_081b_flag_paired_poisoning.sql` (NEW — SELF-JOIN mit TR-normalize)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-37, TR-normalize client-side)
+  - `worklog/specs/081b-paired-poisoning.md`, `worklog/proofs/081b-after.txt`
+- Proof:
+  - 36 Spieler in 18 Clustern jetzt `transfermarkt_stale` (Total: 933, vorher 897)
+  - `npx vitest run -t "INV-36|INV-37"` → 2 passed
+  - Money-Invariant byte-identisch (sum_mv, sum_ref, holdings)
+  - **Arda Yilmaz + Baris Alper Yilmaz** (Anil's Original-Case) jetzt beide als stale markiert
+- Commit: TBD
+- Notes:
+  - TR-Diakritika-Normalize Pattern aus common-errors.md angewendet (`ı`/`İ`/`ş`/`ç`/`ğ`/`ö`/`ü`).
+  - **Bonus-Discovery**: ~10 von 18 Clustern sind ECHTE Duplicate-Rows (Mio Backhaus × 2, Marco Friedl × 2, Felix Agu × 2 etc.) — gleicher Name + Stats, unterschiedliche UUIDs. Eigene Bug-Klasse → Slice 081d "Player Row Dedup".
+  - 0 Holdings, 0 Orders auf den 36 Spielern → Flag-Operation risk-free.
+
+---
+
 ## 081 | 2026-04-20 | Data-Cleanup Phase A.1 (Duplicate Default-Poisoning)
 - Stage-Chain: SPEC → IMPACT (skipped — kein Service-Layer, reines DB-Schema + Data-Flag) → BUILD → PROVE → LOG
 - Files (4):
