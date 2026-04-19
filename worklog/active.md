@@ -10,63 +10,58 @@ proof: —
 started: —
 ```
 
-## Letzter Slice: 079c — COMPLETE ✅
+## Letzter Slice: 080 Round 1 — COMPLETE ✅
 
-**20min Follow-up-Fix aus Reviewer Slice 079:**
-- `footballData.ts` `getMappingStatus()` zeigt jetzt echte player-Total (via count:'exact') statt .limit(1000)-Täuschung
-- `sync-contracts/route.ts` lädt jetzt ALLE Players via while-loop .range() (nicht nur alphabetisch erste 1000)
-- 7/7 Footballdata-Tests pass, 986/986 full service suite pass, tsc clean
-- Proof: `worklog/proofs/079c-audit-fix.txt`
+Market Polish Phase 1 Page 2/6 — 3 P1 Findings gefixt + live verified auf bescout.net.
 
-**Restliche 1000-row-Cap Audit-Items** → user-feedback-queue.md (F0/F1/F2/F3, P1-P3)
+### Gefixt
+- **F1 TopBar Balance-Format** (money-adjacent, Reviewer-Follow-up) — TopBar nutzt jetzt konsistentes `fmtScout(centsToBsd(x))` wie Hero/MarketHeader. Verified: "7.220,77" = "7.220,77 CR".
+- **F3 Sort-Label "P&L" → "+/−"** (AR-17 Compliance) — Securities-Terminologie entfernt.
+- **F4 Market-Tabs A11y** — role=tablist + role=tab + aria-selected + aria-controls + focus-visible. IDs matchen TabPanel component.
 
-## Slice 079 — COMPLETE ✅ (Home `/` Polish Pass 1 + 2 + Healing)
+### Commits
+- `2ab40fb2` Round 1 (F1+F3+F4)
+- `6b0fffa4` i18n hotfix (market.tabsAriaLabel MISSING_MESSAGE)
+- Proof: `worklog/proofs/080-findings.md` + `080-fixes.txt`
 
-15 Commits heute Abend, alle live auf bescout.net verified DE + TR.
+### Queue (→ user-feedback-queue.md)
+- F2 Club-Namen — **GESCHLOSSEN** (DB-Verify zeigte korrekte Namen, OCR-Fehler meinerseits)
+- F5 Filter-Chaos Mobile — Drawer-Refactor, separater Slice 080b
+- F6 Mission-Banner-Position — Component-Move, post-Beta
+- F7 "22 SC vs 12 Spieler" Label — Tooltip-Add
+- F8 Grid-vs-List inkonsistent — Design-Entscheidung CEO
+- F9 Compliance-Disclaimer Sticky — Policy-Entscheidung
 
-### Pass 1 LIVE
-- F1 Hero-Label "Kader-Wert" + Balance-Pill "7.220,77 Guthaben" ✅
-- F2 Mission-Titles "Tägliches" + "Wöchentliches" ✅
-- F5 Empty-Slots "Nicht besetzt" dashed-border ✅
+## Session-Stand 2026-04-20 Vormittag
 
-### Pass 2 LIVE
-- F7 Meistbeobachtet min-2 Empty-Hide
-- F8 Meine Vereine Hierarchy
-- F12 Event-Rewards-Pool=0 Empty
-- F15 fanRankStammgast namespace fix
-- Balance-Format-Konsistenz Hero `formatScout`
+### Heute abgeschlossen
+- Vercel MCP OAuth ✓
+- Notion MCP OAuth ✓
+- test12 P0-Fix verifiziert (16 Holdings sichtbar) ✓
+- CTO-Reviewer Slice 079: PASS mit 1 NIT + 3 Follow-ups ✓
+- Slice 079c audit-fix (1000-row-cap footballData + sync-contracts) ✓
+- Home Click-Throughs 22 Links + 3 Buttons verifiziert ✓
+- Slice 080 Round 1 Market Polish (F1+F3+F4) ✓
 
-### Healing
-- tsconfig `exclude: ["scripts", "tmp"]` unblocked Slice 077+077b+078+079 retrospektiv
-- Parser-Regression + TR-Compliance CI-Fix
-
-### Functional Click-Through (6/18 verifiziert)
-- Hero Portfolio ✅, Quick-Action Kaufen ✅, Top Mover Emre ✅
-- Meine Vereine Adana ✅, Mystery Box Modal ✅, Notifications ✅
-- 12 weitere → Task 5 next
-
-### Reviewer Verdict PASS
-- 1 NIT fixed (common-errors.md Slice-Nr)
-- 3 Follow-ups als Queue-Items
-- 2 money-adjacent Stellen als Slice 079c sofort gefixt
-
-## Phase 1 — Core Trading (6 Pages)
+### Phase 1 — Core Trading (6 Pages)
 - 079 Home `/` — ✅ DONE (Pass 1+2+Healing)
 - 079b-emergency P0 /api/players pagination — ✅ DONE
 - 079c audit-fix 1000-row-cap — ✅ DONE
-- 080 Market `/market` — NEXT
-- 081 Player Detail `/player/[id]` — pending
+- 080 Market `/market` Round 1 — ✅ DONE
+- 080b Market Filter-Refactor — queue (F5+F6+F7+F8 bundle)
+- 081 Player Detail `/player/[id]` — NEXT
 - 082 Portfolio `/inventory` — pending
 - 083 Transactions `/transactions` — pending
 - 084 Profile `/profile` — pending
 
-## Offene Home-Items (vor Slice 080)
-- Task 5: 12 restliche Click-Throughs (Bottom-Nav, Section-Headers, Top-Bar, Feed-Items, Mystery-Box claim)
-- F9 Quick-Actions Label 10px — manual Device-Test
-- F10 Divider-Gradient Abstand — visual polish
-- F13 Welcome Bonus Modal — New-User-Account nötig
-- OnboardingChecklist — New-User-Account nötig
+### Pending aus Home Pass 2 (low-prio, post-Beta)
+- F9 Quick-Actions Label 10px manual Device-Test
+- F10 Divider-Gradient Abstand visual polish
+- F13 Welcome Bonus Modal (New-User-Account nötig)
+- OnboardingChecklist (New-User-Account nötig)
 
-## Feedback-Kanal
-- Anil meldet Fehler → `memory/user-feedback-queue.md`
-- Ende Phase 1: In-App-Feedback-Button Slice ~085 vor User-Test-Start
+### Tech-Debt CI-blockierend
+- `useMarketData.test.ts:283` — computePlayerFloor referencePrice fallback. CEO-Money-Decision pending. Blockt CI bei jedem Commit.
+
+### F4 AuthProvider + Wallet RPC-Timeouts (P1, separater Slice)
+- Login dauert 10-15s, Console-Warnings beim Wallet-Fetch-Retry. Backend-Perf-Slice nötig, EXPLAIN ANALYZE auf loadProfile/getWallet.

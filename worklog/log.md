@@ -11,6 +11,32 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 080 | 2026-04-20 morning | Market Polish Round 1 (F1 Balance + F3 P&L + F4 A11y)
+- Stage-Chain: SPEC → BUILD → PROVE → LOG (IMPACT skipped — small UI + i18n-only, no Service/RPC/Migration)
+- Files (6):
+  - `src/components/layout/TopBar.tsx` (F1 — import fmtScout+centsToBsd, replace formatScout call)
+  - `src/features/market/components/portfolio/BestandView.tsx` (F3 — 'P&L' → t('bestandSortPnl'))
+  - `src/features/market/components/MarketContent.tsx` (F4 — role=tablist + role=tab + aria-selected + aria-controls + focus-visible ring + tabIndex)
+  - `messages/de.json` (+bestandSortPnl "+/−", +tabsAriaLabel "Market-Bereiche")
+  - `messages/tr.json` (+bestandSortPnl "+/−", +tabsAriaLabel "Pazar Alanları")
+  - `worklog/specs/080-market-polish.md`, `worklog/proofs/080-findings.md`, `worklog/proofs/080-fixes.txt`, `worklog/proofs/079-click-throughs.txt`
+- Commits: `2ab40fb2` (F1+F3+F4) + `6b0fffa4` (i18n MISSING_MESSAGE hotfix)
+- Proof:
+  - `npx tsc --noEmit` → CLEAN (2×)
+  - `npx vitest run src/features/market/ src/lib/services/` → 1098/1099 pass (1 pre-existing useMarketData.test.ts:283 — P2 Queue)
+  - Live-Verify via Playwright MCP on 2ab40fb2 deploy:
+    - TopBar "7.220,77" === Header "7.220,77 CR" ✓ (vorher 7.221 vs 7.220,77)
+    - Sort-Buttons: Wert, +/−, L5, Name ✓ (P&L gone)
+    - Tabs: `{id: tab-portfolio, aria-selected: true, aria-controls: tabpanel-portfolio}` ✓
+- Notes:
+  - **Trigger:** Reviewer Slice 079 Follow-ups (F2 Balance-Konsistenz) + Slice 080 Market-Rundgang 9 Findings.
+  - **Priorisierung:** Top-3 P1 (Money-adjacent + Compliance + A11y). Rest in user-feedback-queue als Q-Items.
+  - **F2 Club-Namen-Typos**: Mein Screenshot-OCR war falsch. DB-Verify zeigte korrekte Namen (Hatayspor, Fatih Karagümrük, Bandırmaspor, Sakaryaspor, Adana Demirspor). Kein DB-Fix nötig. Queue-Item geschlossen.
+  - **Hotfix**: `tabsAriaLabel` defaultMessage reicht bei next-intl nicht — MISSING_MESSAGE console-error. i18n-Keys DE+TR nachgelegt.
+  - **Scope-Out (→ Queue P2-P3):** F5 Filter-Chaos (Drawer-Refactor), F6 Mission-Banner-Position, F7 Card-Count-Label, F8 Grid-vs-List, F9 Compliance-Sticky.
+
+---
+
 ## 079c | 2026-04-20 morning | Audit-Fix 1000-row-cap (2 money-nahe Stellen)
 - Stage-Chain: SPEC → BUILD → PROVE → LOG (IMPACT skipped — Return-Shape unverändert, identischer Pattern aus 079b)
 - Files (3):
