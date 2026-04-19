@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 079b-emergency | 2026-04-19 late | P0 /api/players PostgREST-Cap Money-Critical-Fix
+- Stage-Chain: BUG-REPORT (Anil, test12) → INVESTIGATE → FIX → PROVE LIVE → LOG
+- Files (3):
+  - `src/app/api/players/route.ts` (EDIT — .range()-Pagination via while-loop)
+  - `pnpm-lock.yaml` (SYNC — nach `pnpm install` für lhci/cli devDep)
+  - `.claude/rules/common-errors.md` (Pattern verschärft: user-facing API-Routes nicht nur Scripts)
+- Commits: `459da7b1` (fix) + `c1f7eac3` (lockfile+docs) + `94f78aab` (queue-update)
+- Proof: `curl https://www.bescout.net/api/players | length → 4556` (vorher 1000)
+- Notes:
+  - **Anil repro:** test12 hat 16 Holdings in DB, UI zeigt nur 7. 11 GK-Cards im Home richtig, aber im Bestand nur 4.
+  - Root cause: `/api/players` nutzte `supabaseServer.from().select().order()` ohne `.range()` — PostgREST-Cap 1000 rows. DB hat 4556 players.
+  - Holdings auf Players mit `last_name` alphabetisch > 1000 (z.B. Sarıcalı 3701, Tutar 4191) wurden client-seitig nicht `dpc.owned`-enriched → in UI-Bestand-Filter `p.dpc.owned > 0` unsichtbar.
+  - Impact für User mit Multi-Liga-Holdings: Money-critical. Nicht verkaufbar via UI.
+  - **Pattern**: bereits in common-errors.md seit Slice 078 (tm-profile-local Loader), aber Audit-Regel nicht für user-facing API-Routes getriggert.
+  - **Lesson für Polish-Sweep:** mindestens 2 Test-Accounts pro Page (einer mit Holdings verschiedener Ligen, einer New-User). Doku: `feedback_polish_multi_account.md`.
+
+---
+
 ## 079 | 2026-04-19 | Home `/` Polish Pass 1+2 + Deploy-Healing (Phase 1/6 Core)
 - Stage-Chain: SPEC → IMPACT(skipped, UI+1 seed-migration) → BUILD → PROVE (LIVE DE+TR) → LOG
 - Files (8 distinct):

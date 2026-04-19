@@ -7,9 +7,21 @@
 
 ## TL;DR
 
-Home-Page ist Test-ready. **Aber nicht alle Polish-Sweep-Regel-Items wurden durchlaufen** — restliche Click-Throughs + F9/F10/F13 offen. Plus: CI failed seit Slice 075 wegen 1 pre-existing test (CEO-Scope Money-Logic).
+Home-Page ist Test-ready **UND P0 Money-Critical Bug gefixt**. Aber nicht alle Polish-Sweep-Regel-Items wurden durchlaufen — restliche Click-Throughs + F9/F10/F13 offen.
 
-**Erste Action morgen:** Session-Restart → MCP-Auth → Reviewer-Agent für Slice 079 → dann restliche Click-Throughs → dann `/market` Slice 080.
+**Erste Action morgen:** test12 re-test um P0-Fix zu verifizieren → Session-Restart → MCP-Auth → Reviewer-Agent → dann `/market` Slice 080.
+
+---
+
+## 🔥 P0 gefixt heute Nacht nach deinem test12-Feedback
+
+- **Bug:** test12 hatte 16 Holdings in DB, UI zeigte nur 7. Demir Sarıcalı 7× Cards komplett unsichtbar.
+- **Root Cause:** `/api/players` PostgREST-Cap 1000 von 4556 Players → alle Holdings mit `last_name` alphabetisch > 1000 (ab ~Crociata) wurden clientseitig nicht enriched.
+- **Fix:** Pagination via `.range()` in while-loop. Commit `459da7b1`. Verified live: curl returnt 4556 players.
+- **Plus:** pnpm-lock.yaml sync (vercel build hatte 3 Fails wegen npm install -D @lhci/cli). Commit `c1f7eac3`.
+- **Wichtig morgen früh:** **test12 Login → Marktplatz Bestand** öffnen → solltest jetzt alle 16 Holdings sehen inkl. Sarıcalı 7×. Wenn ja → Fix bestätigt.
+
+---
 
 ---
 
