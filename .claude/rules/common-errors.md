@@ -28,6 +28,19 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Audit-Signal:** Wenn die "completeness" bei gleichbleibendem Scraping stagniert oder Scraper wenig updated → Parser-Sanity-Check mit manueller Stichprobe.
 - **Entity-Drift:** HTML kann `€`, `&#8364;`, `&euro;` schreiben — Regex end-mit-`€` bricht bei Entity-Form. Im Slice 078 bewusst aufs `€` Matching verzichtet (endet bei `(Mio|Tsd)\.`), weil CSS-Scope bereits eindeutig ist.
 
+## PostgREST silent 1000-row cap — MONEY-CRITICAL in API-Routes (2026-04-19 — Slice 080)
+- **Verschärfung des Slice-078-Patterns.** `/api/players` Route nutzte `supabaseServer.from('players').select().order('last_name')` ohne `.range()`.
+- DB hat 4556 Players → Client bekam nur erste 1000 alphabetisch.
+- Holdings auf Players mit `last_name`-Alpha-Position > 1000 wurden client-seitig nicht mit `dpc.owned` enriched → **unsichtbar im Marktplatz Bestand + Manager Kader**.
+- **test12 Repro:** 16 Holdings in DB, 9 nicht sichtbar (inkl. 7× Demir Sarıcalı — alle Cards betroffen).
+- **Fix:** `/api/players` pagination via while-loop `.range(offset, offset+999)`.
+- **Lesson:** Slice 078 dokumentierte den Pattern, aber Audit triggerte nicht für user-facing API-Routes. Bei **jedem** `.select()` auf Tabellen > 1000 Rows: Pagination Pflicht, egal ob Script/Cron/API-Route/Client.
+- **Audit-Command für ALLE `.select()` ohne range/limit:**
+  ```bash
+  grep -rn "\.from('.*')\\s*\\.\\s*select" src/app/api/ src/lib/ src/features/ | grep -v "\.range\|\.limit(\|\.eq\|\.single\|\.maybeSingle\|test\|insert\|update"
+  ```
+  Treffer gegen table-sizes prüfen (players=4556, clubs=140, holdings=per-user, events=dozens).
+
 ## PostgREST silent 1000-row cap auf Full-Scans (2026-04-19 — Slice 078)
 - `.limit(1000)` ohne `.range()` auf Supabase-Queries liefert **max 1000 Rows selbst wenn mehr existieren** — PostgREST-default cap.
 - **Slice 078 Konkret:** `scripts/tm-profile-local.ts` Full-Scan hat statt erwarteter ~4500 mappings nur 1000 geladen → 139 nach Filter → nur 3 von 7 Ligen wurden scraped (andere 4 wurden von der 1000-row-Cap nicht abgedeckt).
