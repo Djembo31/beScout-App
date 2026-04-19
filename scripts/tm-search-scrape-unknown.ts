@@ -20,6 +20,7 @@ import path from 'path';
 import {
   parseMarketValue,
   parseContractEnd,
+  parseShirtNumber,
 } from '../src/lib/scrapers/transfermarkt-profile';
 import { parseSearchResults, scoreMatch } from '../src/lib/scrapers/transfermarkt-search';
 
@@ -49,7 +50,9 @@ const limit = Math.max(1, parseInt(args.limit ?? '100', 10));
 const rateMs = Math.max(500, parseInt(args.rate ?? '3000', 10));
 const headless = args.headless !== 'false';
 const dryRun = args['dry-run'] === 'true';
-const scoreThreshold = parseInt(args.threshold ?? '40', 10);
+// Mit Trikot-Check (Shirt-Mismatch = SKIP) können wir den Threshold auf 30 senken
+// — false-positives werden durch shirt-compare abgefangen.
+const scoreThreshold = parseInt(args.threshold ?? '30', 10);
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -64,6 +67,7 @@ type UnknownPlayer = {
   club_short: string | null;
   current_mv: number;
   current_contract: string | null;
+  shirt_number: number | null;
 };
 
 async function loadUnknownActivePlayers(filterLeague: string | undefined, n: number): Promise<UnknownPlayer[]> {
@@ -96,6 +100,7 @@ async function loadUnknownActivePlayers(filterLeague: string | undefined, n: num
     club_id: string;
     market_value_eur: number;
     contract_end: string | null;
+    shirt_number: number | null;
     clubs: { name: string; short: string | null };
   }> = [];
   const PAGE = 500;
@@ -104,7 +109,7 @@ async function loadUnknownActivePlayers(filterLeague: string | undefined, n: num
   while (raw.length < n * 3) {
     let q = supabase
       .from('players')
-      .select('id, first_name, last_name, club_id, market_value_eur, contract_end, matches, last_appearance_gw, clubs!inner(name, short)')
+      .select('id, first_name, last_name, club_id, market_value_eur, contract_end, shirt_number, matches, last_appearance_gw, clubs!inner(name, short)')
       .eq('mv_source', 'unknown')
       .or('matches.gt.0,last_appearance_gw.gt.0');
 
@@ -148,6 +153,7 @@ async function loadUnknownActivePlayers(filterLeague: string | undefined, n: num
       club_short: p.clubs.short,
       current_mv: p.market_value_eur,
       current_contract: p.contract_end,
+      shirt_number: p.shirt_number,
     });
   }
   return result;
@@ -160,7 +166,7 @@ async function searchPlayer(page: Page, query: string): Promise<string> {
   return await page.content();
 }
 
-async function scrapeProfile(page: Page, tmId: string): Promise<{ mv: number | null; contract: string | null }> {
+async function scrapeProfile(page: Page, tmId: string): Promise<{ mv: number | null; contract: string | null; shirt: number | null }> {
   const url = `https://www.transfermarkt.de/spieler/profil/spieler/${tmId}`;
   const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   if (!resp || !resp.ok()) throw new Error(`profile HTTP ${resp?.status() ?? '??'}`);
@@ -168,6 +174,7 @@ async function scrapeProfile(page: Page, tmId: string): Promise<{ mv: number | n
   return {
     mv: parseMarketValue(html),
     contract: parseContractEnd(html),
+    shirt: parseShirtNumber(html),
   };
 }
 
@@ -244,7 +251,21 @@ async function main() {
         continue;
       }
 
-      // 3. Insert mapping
+      // 3. Scrape profile BEFORE mapping — to verify shirt-number match.
+      await sleep(rateMs);
+      const { mv, contract, shirt } = await scrapeProfile(page, best.transfermarkt_id);
+
+      // 4. Trikot-Check: Wenn DB-Shirt + TM-Shirt beide existieren, MUESSEN sie matchen.
+      //    Mismatch → skip (false-positive schutz). Log fuer manual review.
+      const dbShirt = p.shirt_number;
+      if (dbShirt !== null && dbShirt > 0 && shirt !== null && shirt !== dbShirt) {
+        console.log(`${label} ⚠ ${fullQuery} [${p.club_name}] SHIRT-MISMATCH db=${dbShirt} tm=${shirt} tmId=${best.transfermarkt_id} score=${bestScore} — SKIP`);
+        noMatch++;
+        await sleep(rateMs);
+        continue;
+      }
+
+      // 5. Insert mapping (shirt match oder beide null)
       await supabase.from('player_external_ids').upsert({
         player_id: p.player_id,
         source: 'transfermarkt',
@@ -252,11 +273,7 @@ async function main() {
       }, { onConflict: 'player_id,source' });
       mapped++;
 
-      // 4. Scrape profile
-      await sleep(rateMs);
-      const { mv, contract } = await scrapeProfile(page, best.transfermarkt_id);
-
-      // 5. UPDATE player
+      // 6. UPDATE player
       const updatePayload: { mv_source: string; updated_at: string; market_value_eur?: number; contract_end?: string | null } = {
         mv_source: 'transfermarkt_verified',
         updated_at: new Date().toISOString(),
@@ -269,7 +286,8 @@ async function main() {
 
       const mvStr = mv !== null ? `€${(mv / 1_000_000).toFixed(1)}M` : '?';
       const contractStr = contract ? contract : '?';
-      console.log(`${label} ✓ ${fullQuery} [${p.club_name}] score=${bestScore} tmId=${best.transfermarkt_id} mv=${mvStr} contract=${contractStr}`);
+      const shirtStr = shirt !== null && dbShirt !== null ? `shirt✓${shirt}` : shirt !== null ? `shirt?${shirt}` : '';
+      console.log(`${label} ✓ ${fullQuery} [${p.club_name}] score=${bestScore} ${shirtStr} tmId=${best.transfermarkt_id} mv=${mvStr} contract=${contractStr}`);
 
       await sleep(rateMs);
     } catch (err) {

@@ -70,6 +70,11 @@ const limit = Math.max(1, parseInt(args.limit ?? '100', 10));
 const rateMs = Math.max(500, parseInt(args.rate ?? '2500', 10));
 const headless = args.headless !== 'false';
 const dryRun = args['dry-run'] === 'true';
+// --mv-source default='transfermarkt_stale'. Alternative: 'unknown' um Spieler mit existing
+// TM-mapping aber ohne verified MV zu rescraped. Nur aktive Spieler (matches>0 OR last_apps>0).
+const mvSource = args['mv-source'] ?? 'transfermarkt_stale';
+const activeOnly = args['active-only'] !== 'false'; // default true
+
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -118,7 +123,11 @@ async function loadStalePlayers(filterLeague: string | undefined, n: number): Pr
     let q = supabase
       .from('players')
       .select('id, first_name, last_name, club_id, market_value_eur, contract_end, mv_source, clubs!inner(name, league_id)')
-      .eq('mv_source', 'transfermarkt_stale');
+      .eq('mv_source', mvSource);
+
+    if (activeOnly) {
+      q = q.or('matches.gt.0,last_appearance_gw.gt.0');
+    }
 
     if (clubFilter) q = q.in('club_id', clubFilter);
     q = q.range(offset, offset + PAGE - 1);
@@ -238,8 +247,8 @@ async function main(): Promise<void> {
         .select('mv_source')
         .eq('id', p.player_id)
         .maybeSingle();
-      if (!fresh || fresh.mv_source !== 'transfermarkt_stale') {
-        console.log(`${prefix} ∅ ${p.last_name} — no longer stale, skip`);
+      if (!fresh || fresh.mv_source !== mvSource) {
+        console.log(`${prefix} ∅ ${p.last_name} — mv_source changed (${fresh?.mv_source ?? 'null'}), skip`);
         continue;
       }
 

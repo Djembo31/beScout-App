@@ -66,3 +66,35 @@ export function parseContractEnd(html: string): string | null {
   const [, dd, mm, yyyy] = match;
   return `${yyyy}-${mm}-${dd}`;
 }
+
+/** Parse Trikotnummer aus Transfermarkt Profil-HTML.
+ *  TM zeigt Trikotnummer oft im Header-Bereich: <span class="data-header__shirt-number">9</span>
+ *  Alternative HTMLs:
+ *   - <span class="dataRN">9</span>
+ *   - Aus "Rückennummer: 9" Text
+ *  Return: number or null
+ */
+export function parseShirtNumber(html: string): number | null {
+  // Primary: modern header markup
+  const m1 = html.match(/data-header__shirt-number["'][^>]*>\s*#?(\d{1,3})\s*</);
+  if (m1) {
+    const n = parseInt(m1[1], 10);
+    if (Number.isFinite(n) && n > 0 && n < 100) return n;
+  }
+
+  // Fallback: alte dataRN
+  const m2 = html.match(/class="dataRN"[^>]*>\s*#?(\d{1,3})\s*</);
+  if (m2) {
+    const n = parseInt(m2[1], 10);
+    if (Number.isFinite(n) && n > 0 && n < 100) return n;
+  }
+
+  // Fallback: text-based "Rückennummer: 9"
+  const m3 = html.match(/R(?:u|ü)ckennummer[^<>]{0,30}?(\d{1,3})/);
+  if (m3) {
+    const n = parseInt(m3[1], 10);
+    if (Number.isFinite(n) && n > 0 && n < 100) return n;
+  }
+
+  return null;
+}
