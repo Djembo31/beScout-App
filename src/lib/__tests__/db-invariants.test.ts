@@ -2003,4 +2003,46 @@ describe('DB Invariants', () => {
       `Paired-Poisoning detected (>=2 Spieler mit identisch mv+contract_end+normalized last_name, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-38: Keine unflagged Orphan-Stale-Contracts (Slice 081c)
+  // Spieler mit contract_end > 12 Monate in der Vergangenheit müssen als
+  // transfermarkt_stale markiert sein — TM-Daten sind eindeutig veraltet.
+  // ─────────────────────────────────────────────────────
+  it('INV-38: kein unflagged Player mit contract_end > 12 Monate in der Vergangenheit', async () => {
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - 12);
+    const cutoffIso = cutoff.toISOString().slice(0, 10);
+
+    type Row = { id: string; first_name: string; last_name: string; contract_end: string };
+    const all: Row[] = [];
+    const PAGE = 1000;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await sb
+        .from('players')
+        .select('id, first_name, last_name, contract_end')
+        .lt('contract_end', cutoffIso)
+        .neq('mv_source', 'transfermarkt_stale')
+        .range(offset, offset + PAGE - 1);
+      expect(error, `players fetch failed: ${error?.message}`).toBeNull();
+      if (!data || data.length === 0) break;
+      all.push(...(data as Row[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+
+    if (all.length === 0) {
+      console.log(`[INV-38] 0 unflagged players with contract_end < ${cutoffIso}`);
+    }
+
+    const violations = all
+      .slice(0, 20)
+      .map((p) => `${p.first_name} ${p.last_name} (contract_end=${p.contract_end})`);
+
+    expect(
+      all,
+      `Orphan-Stale-Contracts detected (${all.length} Spieler mit contract_end < ${cutoffIso}, nicht als stale markiert):\n  ${violations.join('\n  ')}`
+    ).toHaveLength(0);
+  }, 30_000);
 });

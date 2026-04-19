@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 081c | 2026-04-20 | Orphan Stale Contracts (>12 Mon. abgelaufen)
+- Stage-Chain: SPEC → IMPACT (skipped — data-flag only) → BUILD → PROVE → LOG
+- Files (4):
+  - `supabase/migrations/20260420121500_slice_081c_flag_orphan_stale_contracts.sql` (NEW)
+  - `src/lib/__tests__/db-invariants.test.ts` (+INV-38)
+  - `worklog/specs/081c-orphan-stale-contracts.md`, `worklog/proofs/081c-after.txt`
+- Proof:
+  - 1434 zusaetzliche Spieler als `transfermarkt_stale` markiert (Total: 2367)
+  - `npx vitest run -t "INV-36|INV-37|INV-38"` → 3 passed
+  - Money-Invariant byte-identisch (sum_mv + sum_ref + holdings)
+  - Schwelle: `contract_end < CURRENT_DATE - INTERVAL '12 months'`
+- Commit: TBD
+- Notes:
+  - 12-Monate-Schwelle gewaehlt statt 6 Monaten um fresh-expired (Q4-2025) zu schonen.
+  - Älteste erfasste contract_end: 2009.
+  - 56 zusaetzliche Holdings, 17 offene Orders auf den Spielern — MV unveraendert, Trading laeuft weiter.
+  - **Flag-Trilogie abgeschlossen**: ~52% der DB stale markiert = reale Poisoning-Tiefe. Re-Scraper in Phase A.2 targeted.
+
+---
+
 ## 081b | 2026-04-20 | Paired-Poisoning (Cluster 2-3 mit gleichem last_name)
 - Stage-Chain: SPEC → IMPACT (skipped — data-flag only) → BUILD → PROVE → LOG
 - Files (4):

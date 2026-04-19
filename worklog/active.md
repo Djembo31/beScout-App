@@ -10,7 +10,13 @@ proof: —
 started: —
 ```
 
-## Letzter Slice: 081b — Paired-Poisoning ✅
+## Letzter Slice: 081c — Orphan Stale Contracts ✅
+
+1434 Spieler mit `contract_end > 12 Mon. in Vergangenheit` als stale markiert. Total stale: 2367 (52% der DB). Money-Invariant byte-identisch. INV-38 als CI-Guard aktiv.
+
+**Phase-A Flag-Trilogie abgeschlossen** (081 + 081b + 081c). Naechste Stufe: Re-Scraper (082) oder Frontend-Filter (083).
+
+## Vorher: 081b — Paired-Poisoning ✅
 
 36 Spieler in 18 Paired-Clustern (2-3 Rows mit identisch mv + contract_end + last_name) als stale markiert. **Arda Yilmaz + Baris Alper Fall geschlossen.** Money-Invariant byte-identisch. Total stale jetzt 933.
 

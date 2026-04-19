@@ -1,0 +1,38 @@
+Slice 081c — AFTER-State (2026-04-20)
+
+=== Money-Invariant (byte-identisch vor/nach) ===
+sum(market_value_eur) = 30.894.919.125   ✓
+sum(reference_price)  = 299.822.691.250  ✓
+total_holdings_qty    = 708              ✓
+distinct_holders      = 66               ✓
+
+=== mv_source Distribution ===
+transfermarkt_stale = 2367  (vorher 933, +1434 Orphan Stale Contracts)
+unknown             = 2189
+                    = 4556 total ✓
+
+=== Contract-Year Verteilung der nun stale-markierten (Probe) ===
+2009: 3 | 2010: 3 | 2011: 2 | 2012: 5 | 2013: 6 | 2014: 13 | 2015: 14
+2016: 18 | 2017: 27 | 2018: 48 | 2019: 64 | 2020: 88 | 2021: 118
+2022: 192 | 2023: 303 | 2024: 391 | 2025 (bis 2025-04-20): ~149
+
+=== Exposure ===
+Players in Holdings mit stale contract: +56 (total nach A-A/B/C)
+Players in offenen Orders: +17
+Scout Cards: +248
+
+=== Regression-Guards ===
+INV-36 (Cluster > 3):           PASS
+INV-37 (Paired mit last_name):  PASS
+INV-38 (Orphan Contracts):      PASS
+=> 3 CI-Guards verhindern jegliche Re-Poisoning
+
+=== Neue Baseline nach Phase-A-Flag-Trilogie ===
+~52% der DB (2367/4556) sind stale markiert.
+Das ist die REALE Poisoning-Tiefe — nicht ein Bug.
+Re-Scraper in Phase A.2 wird gezielt diese 2367 Spieler neu pullen.
+
+=== Noch offen (Phase A remaining) ===
+- Slice 082: Re-Scraper Run (Wellen nach DE/TR/EU-Prio)
+- Slice 083: Frontend Altbestand-Filter in getPlayersByClubId
+- Slice 081d: Player-Row-Dedup (Mio Backhaus × 2 etc.)
