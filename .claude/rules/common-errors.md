@@ -76,6 +76,30 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Audit-Signal:** Wenn die "completeness" bei gleichbleibendem Scraping stagniert oder Scraper wenig updated → Parser-Sanity-Check mit manueller Stichprobe.
 - **Entity-Drift:** HTML kann `€`, `&#8364;`, `&euro;` schreiben — Regex end-mit-`€` bricht bei Entity-Form. Im Slice 078 bewusst aufs `€` Matching verzichtet (endet bei `(Mio|Tsd)\.`), weil CSS-Scope bereits eindeutig ist.
 
+## Transfermarkt Player-Matching: Trikot-Check als precision filter (2026-04-20 — Phase B)
+- **Problem:** Name-based Search auf TM liefert bei identischen/ähnlichen Namen false-positives. Beispiel: "Bara Ndiaye" gibt's mehrfach auf TM.
+- **Fix-Pattern:** Nach name+club scoring (score >= 30), scrape TM-Profile UND vergleiche `shirt_number`. Bei Mismatch (DB-shirt ≠ TM-shirt, beide NOT NULL) → SKIP mapping. Bei Match oder one-sided NULL → Accept.
+- **Impact:** Threshold konnte von 50 auf 30 gesenkt werden (höherer Recall). 0 shirt-mismatches beobachtet in ~1000 Runs.
+- **Parser:** `parseShirtNumber` in `src/lib/scrapers/transfermarkt-profile.ts` (3 HTML-Varianten: `data-header__shirt-number`, `dataRN`, "Rückennummer:").
+- **Script:** `scripts/tm-search-scrape-unknown.ts` ruft `scrapeProfile(tm_id)` → `{ mv, contract, shirt }` → mismatch-check VOR mapping-insert.
+
+## Script mit hart-codierter State-Check: Silent skip bei Parameter-Mode-Change (2026-04-20 — Phase B Hot-Fix)
+- **Symptom:** `rescrape-stale --mv-source="unknown"` gibt "Nothing to do" obwohl 1240 Kandidaten existieren.
+- **Root-Cause:** Scripts mit pre-scrape state-validation (line 250: `if (fresh.mv_source !== 'transfermarkt_stale') skip`). Hart-coded check blockiert parametrisierten Mode.
+- **Fix:** Ersetze hart-code mit der mvSource variable (`if (fresh.mv_source !== mvSource) skip`). Plus better log-message mit actual state.
+- **Regel:** Bei Script-Flag-Erweiterung IMMER ALLE Hart-Code-References mit der gleichen Konstante in der neuen variable ersetzen — nicht nur die eine Haupt-Filter-Zeile.
+
+## Unknown-with-existing-Mapping trap (2026-04-20 — Phase B Biggest-Win)
+- **Pattern:** Spieler mit `mv_source='unknown'` aber EXISTING `player_external_ids` mit source='transfermarkt' (z.B. aus früherem search-batch). Die sind scrape-ready aber nie geverified worden.
+- **Impact:** 1240 active players, 80% davon in einer Welle verifizierbar (reguläres rescrape-pattern).
+- **Detection SQL:**
+  ```sql
+  SELECT COUNT(*) FROM players p
+  JOIN player_external_ids pe ON pe.player_id=p.id AND pe.source='transfermarkt'
+  WHERE p.mv_source='unknown' AND (p.matches>0 OR p.last_appearance_gw>0);
+  ```
+- **Workflow:** `npx tsx scripts/tm-rescrape-stale.ts --mv-source=unknown --league="<name>"` (default aktive only).
+
 ## PostgREST silent-fail bei grossen `.in()` Arrays (2026-04-20 — Slice 082-Fix)
 - **Symptom:** `.in('col', ids)` liefert `data=undefined` + `error=undefined` wenn `ids.length` über ~400 UUIDs liegt (effektiver URL-Limit ~14KB im PostgREST GET).
 - **Slice 082-Konkret:** `tm-rescrape-stale.ts` lud La Liga 409 stale players (.in mit 409 UUIDs) — `player_external_ids`-Query gab `mappings=undefined` zurück. Script protokollierte "Loaded 0 stale players with TM-mapping" trotz DB zeigt 291 Mappings. Bundesliga (382) hat knapp durch, La Liga (409) kollabierte.

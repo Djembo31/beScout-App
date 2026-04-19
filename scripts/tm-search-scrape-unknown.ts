@@ -53,6 +53,8 @@ const dryRun = args['dry-run'] === 'true';
 // Mit Trikot-Check (Shirt-Mismatch = SKIP) können wir den Threshold auf 30 senken
 // — false-positives werden durch shirt-compare abgefangen.
 const scoreThreshold = parseInt(args.threshold ?? '30', 10);
+// --mv-source filter (default 'unknown', alternative 'transfermarkt_stale')
+const mvSource = args['mv-source'] ?? 'unknown';
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -110,7 +112,7 @@ async function loadUnknownActivePlayers(filterLeague: string | undefined, n: num
     let q = supabase
       .from('players')
       .select('id, first_name, last_name, club_id, market_value_eur, contract_end, shirt_number, matches, last_appearance_gw, clubs!inner(name, short)')
-      .eq('mv_source', 'unknown')
+      .eq('mv_source', mvSource)
       .or('matches.gt.0,last_appearance_gw.gt.0');
 
     if (clubFilter) q = q.in('club_id', clubFilter);

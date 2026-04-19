@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## Phase B | 2026-04-20 Abend | Gold-Standard Push 43% → 80%
+- Commits: `1b4f3874` (tm-search-scrape-unknown) · `9792f6fd` (phase-B: shirt-check + unknown-mode + parseShirtNumber)
+- Scope: 3 Scripts, 13 autonome Parallel-Runs, 1240 unknown-mapped + 62 unknown-unmapped Spieler neu verifiziert.
+- Kernerkenntnisse:
+  - **1240 aktive Spieler hatten bereits TM-Mapping aber mv_source=unknown** — via rescrape-stale mit --mv-source=unknown Modus gefixt.
+  - **Trikot-Check** als zweite Quelle neben Name/Club — Threshold auf 30 gesenkt, 0 shirt-mismatches beobachtet.
+  - **Last-name Fallback-Search** wenn Full-Name 0 results liefert.
+  - **Silent skip-Bug im rescrape-Script**: line 250 hart auf `transfermarkt_stale` — fix → `mvSource` var.
+- Gold-% pro Liga (aktive Saison-Spieler):
+  - TFF 1. Lig 87.2% · 2. Bundesliga 86.4% · Bundesliga 84.7% · Süper Lig 79.9% · Serie A 77.6% · Premier 74.3% · La Liga 74.0%
+  - Total: 3167/3937 = **80.4%**
+- Remaining (hard cases): 367 unknown (ohne TM-Mapping, Reserve/Jugend/Name-Mismatch) + 403 stale (Cloudflare-Timeouts — Phase C retry läuft).
+
+---
+
 ## 083+084 | 2026-04-20 | Slice 083 Altbestand-Filter + Slice 084 Player-Dedup + Matching-Fixes
 - Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
 - Commits: 1816ed4e (083) · 1e6dfaa2 (normalize) · f48dc87e (script-chunk) · 9d2f9754 (docs) · 9cedb71d (083-follow-up) · Slice 084 (pending)

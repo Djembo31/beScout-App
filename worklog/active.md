@@ -1,42 +1,27 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 083
-stage: BUILD
-spec: worklog/specs/083-altbestand-filter.md
-impact: inline (spec Zeile 22-32, grep-verifiziert)
-proof: worklog/proofs/083-after.txt (pending)
-started: 2026-04-20
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
 ```
 
-## Slice 083 — Altbestand-Filter `getPlayersByClubId`
+## Letzter Slice: Phase B + Slice 083 + Slice 084 — 2026-04-20 ✅
 
-Filter-Kriterium: `mv_source != 'transfermarkt_stale'` (nach Phase A).
+Data-Quality-Kampagne: **43% → 80% Gold-Standard** für aktive Saison-Spieler.
+- 9 Commits heute alle deployed
+- Bundesliga + 2. Bundesliga + TFF 1. Lig bei **85-87%** Gold
+- Alle 7 Ligen ≥74% Gold
+- Siehe `worklog/log.md` Phase B + 083+084
 
-**Rollout-Reihenfolge (Sicherheit):**
-1. BUILD + MERGE Infrastruktur
-2. NICHT pushen bis Wellen (Phase A.2) durch
-3. Nach Wellen: Push → Deploy → QA
+## Next-Session-Kandidaten
 
-## Phase A — Fundament komplett (vorher)
-- 081, 081b, 081c, 081d, 082 (siehe log.md)
-- 4 CI-Guards: INV-36/37/38/39
-- 2364 stale / 4556 (52%)
+1. **Phase C Retry-Welle Completion verifizieren** (läuft jetzt parallel — La Liga/Serie A/Premier/Bundesliga stale recovery)
+2. **CSV-Workflow für 367 unknown** ohne TM-Mapping (Admin-UI existiert seit Slice 076) — **manueller Workflow, CEO-Ressource**
+3. **sync-players-daily Monitoring** ob Re-Contamination auftritt (INV-40 + Cross-Club-Check)
+4. **User-Visible Verbesserungen**: Frontend-Badge "Verified Data" + Stale-Warning im Admin
 
-## Phase A.2 — Wellen (Anil lokal, BLOCKER fuer 083-Push)
-
-```bash
-# Welle 1 DE (~1h)
-npx tsx scripts/tm-rescrape-stale.ts --league="Bundesliga" --limit=500 --rate=3000
-npx tsx scripts/tm-rescrape-stale.ts --league="2. Bundesliga" --limit=500 --rate=3000
-
-# Welle 2 TR (~1h)
-npx tsx scripts/tm-rescrape-stale.ts --league="Süper Lig" --limit=500 --rate=3000
-npx tsx scripts/tm-rescrape-stale.ts --league="TFF 1. Lig" --limit=500 --rate=3000
-
-# Welle 3 EU-Top (~2h)
-npx tsx scripts/tm-rescrape-stale.ts --league="Premier League" --limit=500 --rate=3000
-npx tsx scripts/tm-rescrape-stale.ts --league="La Liga" --limit=500 --rate=3000
-npx tsx scripts/tm-rescrape-stale.ts --league="Serie A" --limit=500 --rate=3000
-```
+Siehe: `memory/next-session-briefing-2026-04-21-full.md`
