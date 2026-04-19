@@ -152,21 +152,33 @@ export default function MarketContent() {
       <MarketHeader balanceCents={balanceCents} />
 
       {/* Main Tabs */}
-      <div className="flex overflow-x-auto scrollbar-hide gap-1 rounded-xl bg-surface-subtle border border-white/[0.08] p-1">
-        {tabs.map(tb => (
-          <button
-            key={tb.id}
-            onClick={() => setTab(tb.id as MarketTab)}
-            className={cn(
-              'flex-shrink-0 rounded-lg px-4 py-2.5 text-sm font-bold transition-colors min-h-[44px]',
-              tab === tb.id
-                ? 'bg-white/[0.10] text-white'
-                : 'text-white/50 hover:text-white/70'
-            )}
-          >
-            {tb.label}
-          </button>
-        ))}
+      <div
+        role="tablist"
+        aria-label={t('tabsAriaLabel', { defaultMessage: 'Market-Bereiche' })}
+        className="flex overflow-x-auto scrollbar-hide gap-1 rounded-xl bg-surface-subtle border border-white/[0.08] p-1"
+      >
+        {tabs.map(tb => {
+          const isActive = tab === tb.id;
+          return (
+            <button
+              key={tb.id}
+              role="tab"
+              id={`tab-${tb.id}`}
+              aria-selected={isActive}
+              aria-controls={`tabpanel-${tb.id}`}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => setTab(tb.id as MarketTab)}
+              className={cn(
+                'flex-shrink-0 rounded-lg px-4 py-2.5 text-sm font-bold transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
+                isActive
+                  ? 'bg-white/[0.10] text-white'
+                  : 'text-white/50 hover:text-white/70'
+              )}
+            >
+              {tb.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Contextual Mission Hints */}

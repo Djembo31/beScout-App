@@ -1,0 +1,76 @@
+=== Slice 080 — Market Polish Round 1 Fixes Proof ===
+
+Scope: F1 (TopBar Balance-Format) + F3 (P&L Compliance) + F4 (Tab A11y)
+
+## F1 TopBar Balance-Format-Konsistenz
+
+Before:
+  TopBar: formatScout(balanceCents) → "7.221" (rounded to integer via Math.round)
+  MarketHeader: fmtScout(centsToBsd(balanceCents)) → "7.226,77" (2 decimals)
+
+After:
+  TopBar: fmtScout(centsToBsd(balanceCents)) → "7.226,77" (same formatter)
+  MarketHeader: unchanged, still "7.226,77"
+
+Change:
+  src/components/layout/TopBar.tsx:12 — import fmtScout + centsToBsd instead of formatScout
+  src/components/layout/TopBar.tsx:160 — use fmtScout(centsToBsd(balanceCents))
+
+## F3 Sort-Label "P&L" → "+/−" (AR-17 Compliance)
+
+Before:
+  src/features/market/components/portfolio/BestandView.tsx:251
+  { key: 'pnl', label: 'P&L' }  // hardcoded, SPK Securities-Terminologie
+
+After:
+  { key: 'pnl', label: t('bestandSortPnl', { defaultMessage: '+/−' }) }
+
+Added i18n keys:
+  messages/de.json: "bestandSortPnl": "+/−"
+  messages/tr.json: "bestandSortPnl": "+/−"
+
+Reasoning: Existing bestandSortPnlDesc/Asc already use "+/−" visual symbol —
+now the short-label matches.
+
+## F4 Market-Tabs A11y (aria-selected + role=tab/tablist)
+
+Before:
+  src/features/market/components/MarketContent.tsx:155-170
+  <div className="flex...">
+    {tabs.map(tb => <button onClick={...}>{tb.label}</button>)}
+  </div>
+  // no role, no aria-selected, no aria-controls
+
+After:
+  <div role="tablist" aria-label="Market-Bereiche" className="flex...">
+    {tabs.map(tb => (
+      <button
+        role="tab"
+        id={`tab-${tb.id}`}
+        aria-selected={isActive}
+        aria-controls={`tabpanel-${tb.id}`}
+        tabIndex={isActive ? 0 : -1}
+        className="... focus-visible:ring-2 focus-visible:ring-gold/50 ..."
+      >{tb.label}</button>
+    ))}
+  </div>
+
+IDs match existing TabPanel component (tabpanel-${id} + tab-${id}).
+Screen-Reader hears "tab, selected, Mein Kader" instead of just "button Mein Kader".
+Keyboard focus-indicator added (focus-visible ring).
+
+## Verification
+
+1. npx tsc --noEmit → CLEAN
+2. npx vitest run src/features/market/ src/lib/services/ → 1098/1099 passing
+   (1 pre-existing failure: useMarketData.test.ts:283 computePlayerFloor referencePrice —
+    tracked as P2 in user-feedback-queue.md, not caused by Slice 080 changes)
+
+## Out-of-Scope for Round 1 (→ user-feedback-queue)
+
+- F2 Club-Namen Typos (Holoyspor/Karagümrüka/Bandirma) — needs DB-verify against Transfermarkt official names
+- F5 Filter-Chaos Mobile — Filter-Drawer refactor, separater Slice 080b
+- F6 Mission-Banner im Bestand-Tab — Component-Move, post-Beta
+- F7 "22 SC vs 12 Spieler" Label — Tooltip-Add, P3
+- F8 Grid-vs-List inkonsistent — Design-Entscheidung, CEO
+- F9 Compliance-Disclaimer Sticky — policy-Entscheidung

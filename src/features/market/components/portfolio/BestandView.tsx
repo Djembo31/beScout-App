@@ -248,7 +248,7 @@ export default function BestandView({
   // ── Sort options ──
   const sortOptions: { key: SortKey; label: string }[] = [
     { key: 'value', label: t('bestandSortValue', { defaultMessage: 'Wert' }) },
-    { key: 'pnl', label: 'P&L' },
+    { key: 'pnl', label: t('bestandSortPnl', { defaultMessage: '+/−' }) },
     { key: 'l5', label: 'L5' },
     { key: 'name', label: 'Name' },
   ];

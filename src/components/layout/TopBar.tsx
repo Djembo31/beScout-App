@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils';
 import { useNumTick } from '@/lib/hooks/useNumTick';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { formatScout } from '@/lib/services/wallet';
+import { fmtScout } from '@/lib/utils';
+import { centsToBsd } from '@/lib/services/players';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';
 import { Glossary } from '@/components/help/Glossary';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
@@ -157,7 +158,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             {balanceCents === null ? (
               <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />
             ) : (
-              <span className={cn('font-mono font-bold text-gold text-[10px] sm:text-xs tabular-nums', balanceTick)}>{formatScout(balanceCents)}</span>
+              <span className={cn('font-mono font-bold text-gold text-[10px] sm:text-xs tabular-nums', balanceTick)}>{fmtScout(centsToBsd(balanceCents))}</span>
             )}
           </div>
 

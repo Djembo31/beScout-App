@@ -1528,6 +1528,7 @@
     "bestandPortfolioValue": "Kadro Değeri",
     "bestandAvgBuy": "Ort.",
     "bestandSortValue": "Değer",
+    "bestandSortPnl": "+/−",
     "bestandBidCount": "{count} Teklif",
     "bestandYourSell": "Satış",
     "bestandLastTrade": "Son",

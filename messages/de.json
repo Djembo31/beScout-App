@@ -1528,6 +1528,7 @@
     "bestandPortfolioValue": "Kader-Wert",
     "bestandAvgBuy": "Ø",
     "bestandSortValue": "Wert",
+    "bestandSortPnl": "+/−",
     "bestandBidCount": "{count} Gebote",
     "bestandYourSell": "Verkauf",
     "bestandLastTrade": "Letzter",
