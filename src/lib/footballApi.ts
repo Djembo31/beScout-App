@@ -365,13 +365,25 @@ export function normalizeForMatch(name: string): string {
   return name
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/ı/g, 'i')    // Turkish dotless ı (not decomposed by NFD)
-    .replace(/İ/gi, 'i')   // Turkish capital İ
+    // Turkish — not decomposed by NFD (standalone Unicode)
+    .replace(/ı/g, 'i')
+    .replace(/İ/gi, 'i')
     .replace(/ş/gi, 's')
     .replace(/ç/gi, 'c')
     .replace(/ğ/gi, 'g')
     .replace(/ö/gi, 'o')
     .replace(/ü/gi, 'u')
+    // Scandinavian — no NFD decomp (Norwegian/Danish/Icelandic)
+    .replace(/ø/gi, 'o')
+    .replace(/æ/gi, 'ae')
+    .replace(/ð/gi, 'd')
+    .replace(/þ/gi, 'th')
+    // Polish — no NFD decomp
+    .replace(/ł/gi, 'l')
+    // German — no NFD decomp (single sharp s → ss)
+    .replace(/ß/g, 'ss')
+    // Serbo-Croatian Latin — no NFD decomp
+    .replace(/đ/gi, 'd')
     .toLowerCase()
     .trim();
 }
