@@ -76,6 +76,24 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - **Audit-Signal:** Wenn die "completeness" bei gleichbleibendem Scraping stagniert oder Scraper wenig updated → Parser-Sanity-Check mit manueller Stichprobe.
 - **Entity-Drift:** HTML kann `€`, `&#8364;`, `&euro;` schreiben — Regex end-mit-`€` bricht bei Entity-Form. Im Slice 078 bewusst aufs `€` Matching verzichtet (endet bei `(Mio|Tsd)\.`), weil CSS-Scope bereits eindeutig ist.
 
+## PostgREST silent-fail bei grossen `.in()` Arrays (2026-04-20 — Slice 082-Fix)
+- **Symptom:** `.in('col', ids)` liefert `data=undefined` + `error=undefined` wenn `ids.length` über ~400 UUIDs liegt (effektiver URL-Limit ~14KB im PostgREST GET).
+- **Slice 082-Konkret:** `tm-rescrape-stale.ts` lud La Liga 409 stale players (.in mit 409 UUIDs) — `player_external_ids`-Query gab `mappings=undefined` zurück. Script protokollierte "Loaded 0 stale players with TM-mapping" trotz DB zeigt 291 Mappings. Bundesliga (382) hat knapp durch, La Liga (409) kollabierte.
+- **Fix-Pattern:** Chunk `.in()`-Calls in 100er-Batches + explicit error-Throw:
+  ```ts
+  const CHUNK = 100;
+  const byKey = new Map<string, string>();
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const batch = ids.slice(i, i + CHUNK);
+    const { data, error } = await supabase.from('t').select('k, v').in('k', batch);
+    if (error) throw new Error(`query: ${error.message}`);
+    for (const r of data ?? []) byKey.set(r.k, r.v);
+  }
+  ```
+- **Regel:** Jedes `.in()` mit >100 UUIDs **MUSS** gechunkt werden. Explicit error-Check Pflicht (silent undefined ist Default-Verhalten bei URL-Overflow).
+- **Audit-Command:** `grep -rn "\.in(" src/lib/ scripts/ | grep -v "\.slice\|CHUNK\|batch"`
+- **Pattern-Variante:** Gleicher Silent-Fail bei `.or()`-Filter mit vielen Werten. Analog chunk.
+
 ## PostgREST silent 1000-row cap — MONEY-CRITICAL in API-Routes (2026-04-19 — Slice 079b-emergency)
 - **Verschärfung des Slice-078-Patterns.** `/api/players` Route nutzte `supabaseServer.from('players').select().order('last_name')` ohne `.range()`.
 - DB hat 4556 Players → Client bekam nur erste 1000 alphabetisch.
