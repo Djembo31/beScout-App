@@ -245,7 +245,7 @@ describe('AdminRevenueTab', () => {
     });
 
     expect(mockGetClubTradingFees).toHaveBeenCalledWith('club-2');
-    expect(mockGetPlayersByClubId).toHaveBeenCalledWith('club-2');
+    expect(mockGetPlayersByClubId).toHaveBeenCalledWith('club-2', { activeOnly: true });
     expect(mockGetAllVotes).toHaveBeenCalledWith('club-2');
   });
 });

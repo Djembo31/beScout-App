@@ -28,7 +28,7 @@ export function useClubData({ slug, userId, filters }: UseClubDataParams): ClubD
   // ── React Query Hooks ──
   const { data: club, isLoading: clubLoading, isError: clubError } = useClubBySlug(slug, userId);
   const clubId = club?.id;
-  const { data: dbPlayersRaw = [], isLoading: playersLoading, isError: playersError } = usePlayersByClub(clubId);
+  const { data: dbPlayersRaw = [], isLoading: playersLoading, isError: playersError } = usePlayersByClub(clubId, true);
   const { data: followerCountData = 0 } = useClubFollowerCount(clubId);
   const { data: isFollowingData = false } = useIsFollowingClub(userId, clubId);
   const { data: dbHoldings = [] } = useHoldings(userId);

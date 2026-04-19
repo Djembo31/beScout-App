@@ -27,11 +27,11 @@ export function usePlayers(enabled = true) {
   });
 }
 
-/** Players by club ID */
-export function usePlayersByClub(clubId: string | undefined) {
+/** Players by club ID. `activeOnly=true` filtert `mv_source='transfermarkt_stale'` (Slice 083). */
+export function usePlayersByClub(clubId: string | undefined, activeOnly = false) {
   return useQuery<DbPlayer[]>({
-    queryKey: qk.players.byClub(clubId!),
-    queryFn: () => getPlayersByClubId(clubId!),
+    queryKey: qk.players.byClub(clubId!, activeOnly),
+    queryFn: () => getPlayersByClubId(clubId!, { activeOnly }),
     enabled: !!clubId,
     staleTime: FIVE_MIN,
   });

@@ -69,13 +69,28 @@ export async function getPlayerPercentiles(playerId: string): Promise<Record<str
   return (data as Record<string, number>) ?? {};
 }
 
-/** Alle Spieler eines Clubs laden (by club_id) */
-export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
-  const { data, error } = await supabase
+/**
+ * Alle Spieler eines Clubs laden (by club_id).
+ *
+ * @param opts.activeOnly Wenn true, werden Spieler mit `mv_source='transfermarkt_stale'`
+ *   ausgeschlossen. Default false = Full-Set (wird z.B. von Admin-Liquidate-UI gebraucht).
+ *   Filter-Hintergrund: Slice 081/081b/081c hat 52% der Rows als stale geflaggt.
+ */
+export async function getPlayersByClubId(
+  clubId: string,
+  opts?: { activeOnly?: boolean }
+): Promise<DbPlayer[]> {
+  let query = supabase
     .from('players')
     .select(PLAYER_SELECT_COLS)
     .eq('club_id', clubId)
     .order('last_name');
+
+  if (opts?.activeOnly) {
+    query = query.neq('mv_source', 'transfermarkt_stale');
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
   return (data ?? []) as unknown as DbPlayer[];

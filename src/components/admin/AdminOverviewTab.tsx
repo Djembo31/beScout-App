@@ -43,7 +43,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
       try {
         const [s, p, f, subs] = await Promise.all([
           getClubDashboardStats(club.id),
-          getPlayersByClubId(club.id),
+          getPlayersByClubId(club.id, { activeOnly: true }),
           getClubFollowerCount(club.id),
           getClubSubscribers(club.id),
         ]);

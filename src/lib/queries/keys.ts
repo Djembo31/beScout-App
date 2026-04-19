@@ -9,7 +9,7 @@ export const qk = {
     all: ['players'] as const,
     names: ['players', 'names'] as const,
     byId: (id: string) => ['players', id] as const,
-    byClub: (cid: string) => ['players', 'club', cid] as const,
+    byClub: (cid: string, activeOnly = false) => ['players', 'club', cid, activeOnly] as const,
     raw: ['players', 'raw'] as const,
   },
 

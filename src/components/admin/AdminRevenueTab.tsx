@@ -26,7 +26,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
       try {
         const [s, p, v, fees] = await Promise.all([
           getClubDashboardStats(club.id),
-          getPlayersByClubId(club.id),
+          getPlayersByClubId(club.id, { activeOnly: true }),
           getAllVotes(club.id),
           getClubTradingFees(club.id),
         ]);

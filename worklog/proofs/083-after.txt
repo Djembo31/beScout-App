@@ -1,0 +1,84 @@
+Slice 083 — Altbestand-Filter `getPlayersByClubId`
+Build Proof (BUILD-Stage Abschluss; PROVE-Visual-QA post-Wellen)
+Datum: 2026-04-20
+
+================================================================
+1. TypeScript Check
+================================================================
+$ npx tsc --noEmit
+<no output>  → clean
+
+================================================================
+2. Vitest — alle betroffenen Files
+================================================================
+$ npx vitest run src/lib/services/players src/lib/queries src/components/club src/components/admin
+  Test Files  13 passed (13)
+       Tests  181 passed (181)
+    Duration  22.43s
+
+================================================================
+3. DB-Query — erwarteter Filter-Effekt auf Top-Clubs
+================================================================
+Query:
+  WITH sample_clubs AS (
+    SELECT id, name FROM clubs WHERE slug IN ('aston-villa', 'galatasaray', 'sakaryaspor')
+  )
+  SELECT c.name, COUNT(*) FILTER (WHERE p.club_id IS NOT NULL) AS total_rows,
+         COUNT(*) FILTER (WHERE p.mv_source != 'transfermarkt_stale') AS active_only,
+         COUNT(*) FILTER (WHERE p.mv_source = 'transfermarkt_stale') AS stale,
+         COUNT(*) FILTER (WHERE p.mv_source = 'unknown') AS unknown
+  FROM sample_clubs c
+  LEFT JOIN players p ON p.club_id = c.id
+  GROUP BY c.name
+  ORDER BY c.name;
+
+Resultat (2026-04-20, vor Wellen):
+  ┌──────────────┬────────────┬─────────────┬───────┬─────────┐
+  │ club         │ total_rows │ active_only │ stale │ unknown │
+  ├──────────────┼────────────┼─────────────┼───────┼─────────┤
+  │ Aston Villa  │         51 │          38 │    13 │      38 │
+  │ Galatasaray  │         40 │          20 │    20 │      20 │
+  │ Sakaryaspor  │         41 │          32 │     9 │      32 │
+  └──────────────┴────────────┴─────────────┴───────┴─────────┘
+
+Interpretation:
+  - Aston Villa: -13 Rows (-25%) → realistische Kadergroesse
+  - Galatasaray: -20 Rows (-50%) → TR stark gestalte (Phase A bestaetigt)
+  - Sakaryaspor: -9 Rows (-22%) → mild gestalte
+  - Nach Wellen (Phase A.2) sinkt `stale` stark, `verified` steigt → `active_only` korrigiert sich nach oben
+
+================================================================
+4. Infrastruktur-Edits
+================================================================
+  src/lib/services/players.ts:73     getPlayersByClubId(clubId, opts?: { activeOnly?: boolean })
+  src/lib/queries/keys.ts:12         qk.players.byClub(cid, activeOnly = false)
+  src/lib/queries/players.ts:31      usePlayersByClub(clubId, activeOnly = false)
+
+================================================================
+5. Consumer-Map
+================================================================
+  ACTIVE ONLY (Filter an):
+    src/components/club/hooks/useClubData.ts:31   usePlayersByClub(clubId, true)
+    src/components/admin/AdminOverviewTab.tsx:46  getPlayersByClubId(club.id, { activeOnly: true })
+    src/components/admin/AdminRevenueTab.tsx:29   getPlayersByClubId(club.id, { activeOnly: true })
+
+  FULL SET (kein Filter — Liquidate/IPO/Cap brauchen auch stale Rows):
+    src/components/admin/useAdminPlayersState.ts:79,174,224,261
+
+================================================================
+6. Test-Anpassung
+================================================================
+  src/components/admin/__tests__/AdminRevenueTab.test.tsx:248
+    expect(mockGetPlayersByClubId).toHaveBeenCalledWith('club-2', { activeOnly: true });
+
+  Alle anderen Tests kompatibel via (...args: unknown[]) Mock-Signatur.
+
+================================================================
+7. Rollout-Blocker
+================================================================
+  NICHT PUSHEN bis Phase A.2 Wellen gelaufen:
+    - Aktuell 2364 stale / 4556 = 52% — nach Push wuerden User-Views ~52% weniger Spieler zeigen.
+    - Wellen (lokal, Anil) setzen stale → verified fuer echte Spieler.
+    - Nach Wellen: stale-Anteil sinkt auf ~10-15% → gesunder UX-Impact.
+
+  PROVE-Visual-QA auf bescout.net wird nach Deploy nachgereicht als `083-visual.png`.
