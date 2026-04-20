@@ -2,6 +2,14 @@
 
 > Append-only. Neueste Eintraege oben.
 
+## [2026-04-21] Pre-Beta-Check — Overview + Roadmap Rewrite
+- Seiten: bescout-overview.md, product-roadmap.md
+- Typ: major rewrite
+- Quelle: Codebase-Audit + worklog/log.md Slice 083-125 (40+ Slices seit Wiki-Erstellung)
+- Änderungen overview: Core Features verdoppelt (20 statt 7), neue Sektionen Data-Quality + Performance, noch-nicht-gebaut auf KYC + Vercel Env Vars minimiert
+- Änderungen roadmap: Prio 1 fast alle ✅ (nur KYC + Sentry Env Vars offen), Technische Gaps reduziert, Wave-Dokumentation Slice 083-125
+- Querverweise: [[scout-cards]], [[business-model]]
+
 ## [2026-04-21] Business Model — Pricing-Asset-Model Sektion aktualisiert
 - Seite: business-model.md
 - Typ: section update
