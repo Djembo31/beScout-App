@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { TrendingUp, Trophy, Zap, Star, Info } from 'lucide-react';
+import { TrendingUp, Trophy, Zap, Info } from 'lucide-react';
 import { Card, InfoTooltip } from '@/components/ui';
-import { SUCCESS_FEE_TIERS, getSuccessFeeTier } from '@/components/player/PlayerRow';
+import { calcSuccessFee } from '@/components/player/PlayerRow';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
@@ -16,26 +16,28 @@ interface RewardsTabProps {
 }
 
 const formatMarketValue = (value: number) => {
-  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M\u20AC`;
-  if (value >= 1000) return `${(value / 1000).toFixed(0)}K\u20AC`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M\u20AC`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K\u20AC`;
   return `${value}\u20AC`;
 };
 
-const formatGrowthLabel = (currentValue: number, tierMaxValue: number, mvLabel: string): string => {
-  if (tierMaxValue === Infinity || currentValue <= 0) return '';
-  const mult = tierMaxValue / currentValue;
-  if (mult <= 1) return '';
-  return `${formatMarketValue(tierMaxValue)} ${mvLabel}`;
-};
+type MilestoneKey = 'today' | 'doubled' | 'fivefold' | 'tenfold';
+
+// Slice 113 — Linear Growth Visualization (replaces 10-Tier Ladder)
+// Formula (CEO Pricing-Asset-Model): fee_per_card_cents = MV_EUR / 10
+// Synced with liquidate_player RPC via calcSuccessFee() helper.
+const MILESTONES: ReadonlyArray<{ key: MilestoneKey; multiplier: number; labelKey: string }> = [
+  { key: 'today', multiplier: 1, labelKey: 'milestoneToday' },
+  { key: 'doubled', multiplier: 2, labelKey: 'milestoneDoubled' },
+  { key: 'fivefold', multiplier: 5, labelKey: 'milestoneFivefold' },
+  { key: 'tenfold', multiplier: 10, labelKey: 'milestoneTenfold' },
+];
 
 export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
   const t = useTranslations('playerDetail');
   const marketValue = player.marketValue || 0;
-  const currentTier = marketValue > 0 ? getSuccessFeeTier(marketValue) : null;
   const ipoPrice = player.prices.ipoPrice ?? 0;
-
-  // Find current tier index
-  const currentIdx = SUCCESS_FEE_TIERS.findIndex(t => t === currentTier);
+  const hasHolding = holdingQty > 0;
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -58,130 +60,100 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4">
           <div className="text-[10px] text-white/40 mb-1">{t('currentMarketValue')}</div>
-          <div className="font-mono font-black tabular-nums text-lg">{marketValue > 0 ? formatMarketValue(marketValue) : '–'}</div>
+          <div className="font-mono font-black tabular-nums text-lg">
+            {marketValue > 0 ? formatMarketValue(marketValue) : '–'}
+          </div>
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 mb-1">{t('yourEntry')}</div>
-          <div className="font-mono font-black tabular-nums text-lg">{ipoPrice > 0 ? <>{fmtScout(ipoPrice)} <span className="text-sm text-white/40">Credits</span></> : '–'}</div>
-          {holdingQty > 0 && (
-            <div className="text-[10px] text-sky-300 mt-0.5">{t('dpcOwnership', { count: holdingQty })}</div>
+          <div className="font-mono font-black tabular-nums text-lg">
+            {ipoPrice > 0 ? (
+              <>
+                {fmtScout(ipoPrice)} <span className="text-sm text-white/40">Credits</span>
+              </>
+            ) : (
+              '–'
+            )}
+          </div>
+          {hasHolding && (
+            <div className="text-[10px] text-sky-300 mt-0.5">
+              {t('dpcOwnership', { count: holdingQty })}
+            </div>
           )}
         </Card>
       </div>
 
-      {/* Reward Ladder */}
+      {/* Growth Milestones (Slice 113 — linear formula visualization) */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-1 flex items-center gap-2 text-balance">
           <TrendingUp aria-hidden="true" className="size-5 text-gold" />
-          {t('rewardLadder')}
-          <InfoTooltip text={t('rewardLadderTooltip')} />
+          {t('growthMilestones')}
+          <InfoTooltip text={t('growthFormulaTooltip')} />
         </h3>
-        <p className="text-xs text-white/40 mb-4 text-pretty">{t('rewardLadderDesc')}</p>
+        <p className="text-xs text-white/40 mb-4 text-pretty">{t('growthMilestonesDesc')}</p>
 
-        <div className="space-y-1.5">
-          {SUCCESS_FEE_TIERS.map((tier, i) => {
-            const isActive = tier === currentTier;
-            const isPast = i < currentIdx;
-            const isFuture = i > currentIdx;
-            const reward = centsToBsd(tier.fee);
-            const growthLabel = formatGrowthLabel(marketValue, tier.maxValue, t('marketValueSuffix'));
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {MILESTONES.map(({ key, multiplier, labelKey }) => {
+            const milestoneMv = marketValue * multiplier;
+            const feeCents = calcSuccessFee(milestoneMv);
+            const rewardPerCard = centsToBsd(feeCents);
+            const totalReward = hasHolding ? rewardPerCard * holdingQty : 0;
+            const isToday = key === 'today';
 
             return (
               <div
-                key={tier.label}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-colors ${
-                  isActive
-                    ? 'bg-gold/[0.08] border-gold/30 ring-2 ring-gold/40 shadow-glow-gold scale-[1.02]'
-                    : isPast
-                    ? 'bg-white/[0.01] border-white/[0.04] opacity-40'
+                key={key}
+                className={`rounded-xl border p-3 transition-colors ${
+                  isToday
+                    ? 'bg-gold/[0.06] border-gold/30 ring-1 ring-gold/20'
                     : 'bg-surface-minimal border-divider'
                 }`}
               >
-                {/* Tier indicator */}
-                <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  isActive
-                    ? 'bg-gold/20'
-                    : isFuture
-                    ? 'bg-surface-base'
-                    : 'bg-surface-subtle'
-                }`}>
-                  {isActive ? (
-                    <Star aria-hidden="true" className="size-4 text-gold" />
-                  ) : isFuture ? (
-                    <Zap aria-hidden="true" className="size-4 text-white/30" />
-                  ) : (
-                    <div className="size-2 rounded-full bg-white/20" />
-                  )}
+                <div
+                  className={`text-[10px] font-bold uppercase tracking-wide mb-1 ${
+                    isToday ? 'text-gold' : 'text-white/40'
+                  }`}
+                >
+                  {t(labelKey)}
                 </div>
-
-                {/* Tier range */}
-                <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-bold ${isActive ? 'text-gold' : ''}`}>
-                    {isActive
-                      ? formatMarketValue(marketValue)
-                      : tier.maxValue === Infinity
-                        ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}`
-                        : formatMarketValue(tier.maxValue)}
+                <div className={`text-sm font-mono tabular-nums ${isToday ? 'text-gold' : 'text-white/70'}`}>
+                  {marketValue > 0 ? formatMarketValue(milestoneMv) : '–'}
+                </div>
+                <div className="mt-2 space-y-0.5">
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className={`font-mono font-bold tabular-nums text-base ${
+                        isToday ? 'text-gold' : 'text-green-500'
+                      }`}
+                    >
+                      {marketValue > 0 ? fmtScout(rewardPerCard) : '–'}
+                    </span>
+                    <span className="text-[10px] text-white/30">CR</span>
                   </div>
-                  {isActive && (
-                    <div className="text-[10px] text-gold/50">
-                      {t('currentTier')} ({tier.label})
+                  <div className="text-[10px] text-white/40">{t('perCard')}</div>
+                  {hasHolding && marketValue > 0 && (
+                    <div className="mt-1 pt-1 border-t border-white/[0.06]">
+                      <div className="font-mono font-bold tabular-nums text-xs text-sky-300">
+                        {fmtScout(totalReward)} CR
+                      </div>
+                      <div className="text-[10px] text-white/30">
+                        {t('totalAtMilestone', { qty: holdingQty })}
+                      </div>
                     </div>
-                  )}
-                  {growthLabel && isFuture && (
-                    <div className="text-[10px] text-white/40 font-mono">{t('fromPrefix')} {growthLabel}</div>
-                  )}
-                </div>
-
-                {/* Reward amount */}
-                <div className="text-right shrink-0">
-                  <div className={`font-mono font-bold tabular-nums text-sm ${
-                    isActive ? 'text-gold' : isFuture ? 'text-green-500' : 'text-white/30'
-                  }`}>
-                    {fmtScout(reward)} CR
-                  </div>
-                  {isActive && (
-                    <div className="text-[10px] font-mono text-gold/50">/SC</div>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
+
+        <div className="mt-4 flex items-start gap-2 text-[10px] text-white/30">
+          <Info aria-hidden="true" className="size-3 mt-0.5 shrink-0" />
+          <span className="text-pretty">{t('rewardDisclaimer')}</span>
+        </div>
       </Card>
 
-      {/* Potential Earnings (if holding) */}
-      {holdingQty > 0 && (
-        <Card className="p-4 md:p-6 border-sky-400/20 bg-gradient-to-br from-sky-400/5 to-transparent">
-          <h3 className="font-black text-base mb-3 flex items-center gap-2 text-balance">
-            <Zap aria-hidden="true" className="size-5 text-sky-400" />
-            {t('yourPotential')}
-          </h3>
-          <div className="space-y-2">
-            {SUCCESS_FEE_TIERS.filter((_, i) => i >= currentIdx).slice(0, 4).map(tier => {
-              const reward = centsToBsd(tier.fee);
-              const totalReward = reward * holdingQty;
-
-              return (
-                <div key={tier.label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
-                  <div className="text-sm text-white/60">
-                    {t('atValue', { value: tier.maxValue === Infinity ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue) })}
-                  </div>
-                  <div className="text-right">
-                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(totalReward)} CR</span>
-                    <div className="text-[10px] text-white/30 tabular-nums">{holdingQty} SC</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 flex items-start gap-2 text-[10px] text-white/30">
-            <Info aria-hidden="true" className="size-3 mt-0.5 shrink-0" />
-            <span className="text-pretty">{t('rewardDisclaimer')}</span>
-          </div>
-          <TradingDisclaimer className="mt-3" />
-        </Card>
-      )}
+      <TradingDisclaimer />
     </div>
   );
 }

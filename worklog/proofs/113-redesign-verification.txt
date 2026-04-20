@@ -1,0 +1,78 @@
+Slice 113 — RewardsTab Growth-Milestones Redesign Verification
+Date: 2026-04-20 22:18
+Approval: Anil "beides noch" (Slice 112 + 113 kombiniert)
+
+═══════════════════════════════════════════════════════════════════
+CHANGES
+═══════════════════════════════════════════════════════════════════
+
+1. src/components/player/detail/RewardsTab.tsx — KOMPLETT REDESIGN
+   Vorher: 10-Tier-Ladder (SUCCESS_FEE_TIERS.map → 10 Stufen)
+   Nachher: 4 Growth-Milestones (Heute / Verdoppelt / Verfünffacht / Verzehnfacht)
+
+   Key Design-Entscheidungen:
+   - Nutzt `calcSuccessFee(mv)` aus PlayerRow.tsx (Linear CEO-Formel MV/10 cents)
+   - 2×2 Grid auf Mobile, 4×1 auf Desktop (responsive md:grid-cols-4)
+   - "Heute" Card highlighted in Gold, Future-Milestones in Green
+   - "Your Holding" Total inline in jeder Milestone-Card (wenn qty > 0)
+   - InfoTooltip mit Formel-Erklärung: "Bonus pro Card = Marktwert ÷ 100.000 €"
+   - Kein separates "Potenzial" Section mehr (merged in Milestones)
+   - Disclaimer inline bleibt + TradingDisclaimer am Ende
+
+2. messages/de.json — 9 neue Keys unter playerDetail:
+   - growthMilestones, growthMilestonesDesc, growthFormulaTooltip
+   - milestoneToday, milestoneDoubled, milestoneFivefold, milestoneTenfold
+   - perCard, totalAtMilestone
+
+3. messages/tr.json — gleiche 9 Keys in Türkisch
+
+4. SUCCESS_FEE_TIERS Import entfernt (war vorher aus PlayerRow.tsx)
+   Bucket-Array bleibt in PlayerRow.tsx für AdminPlayersTab-Usage (kein Dead Code)
+
+═══════════════════════════════════════════════════════════════════
+FORMEL-KONSISTENZ (kein Drift-Risiko)
+═══════════════════════════════════════════════════════════════════
+
+Frontend:   calcSuccessFee(MV × multiplier) → cents
+RPC:        v_fee_per_dpc := GREATEST((v_transfer_value::BIGINT / 10), 0)
+
+Beide: MV ÷ 10 cents. Getestet in Slice 108 mit Zero-Drift-Invariant.
+
+═══════════════════════════════════════════════════════════════════
+UX-STORYTELLING
+═══════════════════════════════════════════════════════════════════
+
+Beispiel Bekir Turaç Böke (MV 1 Mio €, User hat 5 Cards):
+
+Heute:        1 Mio €   →    1.000 CR/Card  × 5 =  5.000 CR
+Verdoppelt:   2 Mio €   →    2.000 CR/Card  × 5 = 10.000 CR
+Verfünffacht: 5 Mio €   →    5.000 CR/Card  × 5 = 25.000 CR
+Verzehnfacht: 10 Mio €  →   10.000 CR/Card  × 5 = 50.000 CR
+
+Storytelling: "Wenn der Spieler zum 5× Marktwert transferiert wird,
+gewinnst du 5× mehr" — exakt CEO Pricing-Asset-Model.
+
+═══════════════════════════════════════════════════════════════════
+TESTS (63/63 PASS)
+═══════════════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit → clean
+$ npx vitest run src/components/player/__tests__/PlayerRow.test.tsx \
+                 src/lib/__tests__/playerMath.test.ts \
+                 src/lib/services/__tests__/players.test.ts
+
+ Test Files  3 passed (3)
+      Tests  63 passed (63)
+
+═══════════════════════════════════════════════════════════════════
+VISUAL QA (Scope-Out — nach Deploy)
+═══════════════════════════════════════════════════════════════════
+
+Screenshots gegen bescout.net folgen nach Deploy via:
+  mcp__playwright__browser_navigate → https://bescout.net/player/<id>
+  mcp__playwright__browser_take_screenshot
+
+Mobile (393px): 2×2 Grid
+Desktop (1280px): 4×1 Grid
+
+TradingDisclaimer bleibt. Formula-Tooltip testbar via Info-Icon.

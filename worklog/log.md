@@ -11,6 +11,32 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 113 | 2026-04-20 | RewardsTab Growth-Milestones Redesign (Slice 108 UX Follow-up)
+- Stage-Chain: SPEC → IMPACT (UI-only) → BUILD → PROVE → LOG
+- Approval: Anil "beides noch" (kombiniert mit Slice 112)
+- Files: 4 (RewardsTab rewrite + de.json + tr.json + Proof)
+- Scope:
+  - **Problem**: RewardsTab zeigte 10-Tier-Ladder mit `SUCCESS_FEE_TIERS.map`. Nach Slice 108 sind die fees linear MV/10 cents — Tier-Darstellung suggeriert künstliche Plateaus.
+  - **Redesign (Option 3 aus Spec 113 — Milestones statt Ladder):**
+    - 4 Milestone-Cards: Heute / Verdoppelt (2×) / Verfünffacht (5×) / Verzehnfacht (10×)
+    - 2×2 Grid Mobile, 4×1 Grid Desktop (responsive)
+    - "Heute" in Gold highlighted, Future-Milestones in Grün
+    - Pro Milestone: MV-Wert + `CR/Card` + (bei Holding) `Gesamt bei qty Cards`
+    - Formel-Tooltip via InfoTooltip: "Bonus pro Card = Marktwert ÷ 100.000 €"
+    - Nutzt `calcSuccessFee()` aus PlayerRow.tsx → Zero-Drift-Garanty zu liquidate_player RPC
+  - **i18n**: 9 neue Keys in DE + TR (playerDetail namespace)
+    - growthMilestones, growthMilestonesDesc, growthFormulaTooltip
+    - milestoneToday/Doubled/Fivefold/Tenfold
+    - perCard, totalAtMilestone
+  - **Nicht entfernt**: SUCCESS_FEE_TIERS Array in PlayerRow.tsx bleibt (AdminPlayersTab nutzt es für Liquidation-Preview-Bucket)
+- PROVE:
+  - 63/63 vitest PASS (PlayerRow + playerMath + players)
+  - tsc --noEmit clean
+  - `worklog/proofs/113-redesign-verification.txt`
+  - Visual QA (Screenshot bescout.net Mobile+Desktop) scope-out bis Deploy
+- Commit: pending
+- Notes: UX-Klarheit ≫ Ladder-Tiers. Storytelling "5× MV = 5× Payout" matcht exakt CEO-Modell.
+
 ## 112 | 2026-04-20 | reference_price Deprecate (Tech-Debt, Slice 108-Audit Follow-up)
 - Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
 - Approval: Anil "beides noch" (+ Option A in worklog/specs/112)
