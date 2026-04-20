@@ -11,6 +11,56 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 103 | 2026-04-20 | Nationality-Enrichment via TM + Ghost-Cleanup + Mapper-DE-Extension
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE (Phase 1 + Phase 2) → LOG
+- Approval: Anil "ok" auf revised plan — original Option (a) API-Football blockiert durch 0/267 api_football_id mapping
+- Files: 8 (lib edit + 2 new scripts + 1 deleted .mjs + 2 new tests + spec + 4 proofs)
+- Scope:
+
+  **BUILD**:
+  - `src/lib/scrapers/transfermarkt-profile.ts` — neue `parseNationality()` fn mit 2 Regex-Strategien (itemprop primary + Staatsbürgerschaft-Label fallback), handelt HTML-Entity (&uuml;), Dual-Cit (erste Flag), Diakritika
+  - `src/lib/scrapers/transfermarkt-profile.test.ts` — 8 neue Parser-Tests (21 total passing)
+  - `scripts/enrich-nationality-tm.ts` — Playwright-based TM scrape für 153 TM-mapped Spieler, Pattern analog tm-rescrape-stale.ts
+  - `src/lib/utils/countryNameToIso.ts` — Erweiterung um **~60 German-Aliases** (Spanien→ES, Italien→IT, Deutschland→DE, Türkei→TR, Elfenbeinküste→CI, Weißrussland→BY, Südkorea→KR, Katar→QA, etc.) + missing Malta→MT fix
+  - `src/lib/utils/__tests__/countryNameToIso.test.ts` — 39 neue German-Test-Cases (184 total passing)
+  - NEW `scripts/verify-nationality-coverage.ts` (ersetzt `.mjs` — nutzt jetzt live TS-Mapper statt stale inline-copy)
+
+  **PROVE Phase 1** (worklog/proofs/103-tm-scrape-run.txt):
+  - 153 Kandidaten gescraped, Rate 3500ms
+  - 152 ✅ Updated · 1 ✗ Timeout (T. Fletcher tm_id=1011140)
+  - 0 Parse-Empty (TM-Staatsbürgerschaft-Block auf allen geladenen Seiten vorhanden)
+  - Zeit: 901s (15 min)
+  - Language-Gotcha: TM.de liefert deutsche Namen ("Italien" statt "Italy") — entdeckt nach Run, gefixt durch Mapper-Extension statt DB-UPDATE (reversibel, lower-risk)
+
+  **PROVE Phase 2** (worklog/proofs/103-ghost-cleanup.txt):
+  - Safety-Check: 106 ghost-Spieler ohne Holdings/Trades/Orders (0/0/0)
+  - UPDATE: 106 rows `club_id = NULL` (Pattern Slice 081d)
+  - Reversibel, kein FK-Cascade, Trade-History intakt
+
+  **Coverage-Vergleich** (worklog/proofs/103-coverage-final.txt):
+  - **Vor Slice 103**: 4163/4556 mapped (91.4%), 393 empty/NULL
+  - **Nach Slice 103**: 4315/4556 mapped (94.7%), 241 empty/NULL, **0 unmapped**
+  - Non-TFF1 visible players (mit club_id nicht NULL): **3672/3681 (99.76%) nationality-filled**
+  - Remaining 241 = 126 TFF1 (Sperrgebiet) + 106 ghost-unlinked + 9 edge-cases
+
+- Proof:
+  - `worklog/proofs/103-tm-scrape-run.txt` (152/153 success)
+  - `worklog/proofs/103-ghost-cleanup.txt` (106 rows cleaned)
+  - `worklog/proofs/103-coverage-after.txt` (post-Phase-1)
+  - `worklog/proofs/103-coverage-final.txt` (post-Phase-2)
+- Commit: (dieser Commit)
+- Verification:
+  - tsc clean
+  - vitest 184/184 (countryNameToIso) + 21/21 (transfermarkt-profile) grün
+  - DB-Invariant: 0 unmapped nationality-values
+- Notes:
+  - Language-Drift (TM.de → German) wurde via Mapper-Extension elegant gefixt, keine DB-Data-Translation nötig
+  - Fletcher (1 Timeout) + 8 active-ohne-TM bleiben im Scope-Out — wird bei nächstem Full-TM-Rescrape automatisch nachgeholt
+  - 126 TFF1 missing-nationality = CEO-Sperrgebiet, separater Slice nach Freigabe
+  - Scope-Out: Future Runs sollten TM.de vs TM.com-Locale erwägen, oder Translation im Script. Mapper-Approach ist robuster
+
+---
+
 ## 101 | 2026-04-20 | Stadia v3 — Wikipedia Retry mit Exponential Backoff
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD (parked während Slice 102) → PROVE → LOG
 - Approval: Anil HOT-Task 1 via "a starten"

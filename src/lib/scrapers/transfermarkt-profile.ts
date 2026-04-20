@@ -75,6 +75,36 @@ export function parseContractEnd(html: string): string | null {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+/** Parse Nationalitaet aus Transfermarkt Profil-HTML.
+ *
+ *  TM zeigt Nationalitaet in 2 Bloecken:
+ *  (a) Header-Data-Block (primary, itemprop="nationality"):
+ *      <span itemprop="nationality" class="data-header__content">
+ *        <img title="Nigeria" alt="Nigeria" class="flaggenrahmen"/> Nigeria
+ *      </span>
+ *  (b) Info-Table Fallback:
+ *      Staatsbürgerschaft: ... <img title="Nigeria" class="flaggenrahmen"/>
+ *
+ *  Bei Doppel-Staatsbuergerschaft liegen zwei aufeinanderfolgende img title="..." —
+ *  wir nehmen die erste (primary).
+ *
+ *  HTML-Entity "ü" kann als &uuml; kommen (je nach TM-Rendering).
+ *
+ *  Return: englischer Full-Name wie "Nigeria", "Germany", "Cote d'Ivoire"
+ *  oder null wenn kein Block erkennbar.
+ */
+export function parseNationality(html: string): string | null {
+  // Strategy 1: itemprop="nationality" Block (modernes Markup)
+  const m1 = html.match(/itemprop="nationality"[\s\S]{0,400}?<img[^>]*title="([^"]+)"/);
+  if (m1 && m1[1].trim()) return m1[1].trim();
+
+  // Strategy 2: Staatsbürgerschaft-Label (Info-Table Fallback, entity-agnostic)
+  const m2 = html.match(/Staatsb(?:&uuml;|ü)rgerschaft:[\s\S]{0,400}?<img[^>]*title="([^"]+)"/);
+  if (m2 && m2[1].trim()) return m2[1].trim();
+
+  return null;
+}
+
 /** Parse Trikotnummer aus Transfermarkt Profil-HTML.
  *  TM zeigt Trikotnummer oft im Header-Bereich: <span class="data-header__shirt-number">9</span>
  *  Alternative HTMLs:

@@ -1,0 +1,10 @@
+============================================================
+ NATIONALITY MAPPING COVERAGE
+============================================================
+Total players: 4556
+Mapped to ISO: 4315 (94.7%)
+Empty/NULL:    241 (5.3%)
+Unmapped:      0 (0.0%)
+
+
+Sample mapping (top 20 DB values):

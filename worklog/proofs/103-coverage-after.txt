@@ -1,0 +1,29 @@
+============================================================
+ NATIONALITY MAPPING COVERAGE
+============================================================
+Total players: 4556
+Mapped to ISO: 4315 (94.7%)
+Empty/NULL:    241 (5.3%)
+Unmapped:      0 (0.0%)
+
+
+Sample mapping (top 20 DB values):
+  Germany                         656  → DE
+  Türkiye                         528  → TR
+  Spain                           461  → ES
+  England                         270  → GB-ENG
+  Italy                           222  → IT
+  France                          168  → FR
+  Brazil                          109  → BR
+  Turkey                          108  → TR
+  TR                               92  → TR
+  Netherlands                      92  → NL
+  Argentina                        75  → AR
+  Portugal                         72  → PT
+  Denmark                          62  → DK
+  Belgium                          57  → BE
+  Switzerland                      52  → CH
+  Croatia                          50  → HR
+  Austria                          47  → AT
+  Nigeria                          47  → NG
+  Poland                           47  → PL

@@ -1,0 +1,28 @@
+Slice 103 Phase 2 — Ghost-Cleanup Output
+Datum: 2026-04-20 ~19:30
+
+Safety-Check vor UPDATE:
+- total_ghosts:       106
+- holdings_affected:  0
+- trades_affected:    0
+- orders_affected:    0
+→ Safe to cleanup (0 user-interactions auf diesen Spielern).
+
+UPDATE (via mcp__supabase__execute_sql):
+WITH ghosts AS (
+  SELECT p.id FROM players p
+  LEFT JOIN clubs c ON c.id = p.club_id
+  LEFT JOIN leagues l ON l.id = c.league_id
+  WHERE (p.nationality IS NULL OR p.nationality = '')
+    AND (l.short != 'TFF1' OR l.short IS NULL)
+    AND p.matches = 0
+    AND (p.last_appearance_gw IS NULL OR p.last_appearance_gw = 0)
+)
+UPDATE players SET club_id = NULL, updated_at = NOW()
+WHERE id IN (SELECT id FROM ghosts) RETURNING id;
+
+Result: 106 Rows Updated (club_id = NULL).
+
+Pattern: analog Slice 081d Cross-Club-Contamination (reversibel, kein FK-Cascade).
+Effect: Spieler erscheinen nicht mehr in Club-squad-views oder Market-Filters,
+        aber bleiben als players-Row für eventuelle zukünftige Re-Assignments.

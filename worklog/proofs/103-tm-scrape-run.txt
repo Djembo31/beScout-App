@@ -1,0 +1,179 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+
+=== TM Nationality Enrichment (Slice 103 Phase 1) ===
+limit=all rate=3500ms dry=false headless=true
+
+Loaded 153 candidates (non-TFF1, missing nationality, TM-mapped). Running 153.
+
+[1/153] ✅ Juan Hernández [Barcelona, LL] → Spanien
+[2/153] ✅ Adrián Riquelme [Getafe, LL] → Spanien
+[3/153] ✅ J. Peci [Hellas Verona, SA] → Italien
+[4/153] ✅ E. De Chiara [Napoli, SA] → Italien
+[5/153] ✅ Tommaso Guizzo [Pisa, SA] → Italien
+[6/153] ✅ R. Malfitano [Cagliari, SA] → Italien
+[7/153] ✅ Mirko Castagnini [Hellas Verona, SA] → Italien
+[8/153] ✅ S. Ridgeon [Fulham, PL] → England
+[9/153] ✅ Mamedi Doucoure [Genoa, SA] → Frankreich
+[10/153] ✅ Matteo Franceschelli [Bologna, SA] → Italien
+[11/153] ✅ M. Bah [AS Roma, SA] → Katar
+[12/153] ✅ L. Deli [Fiorentina, SA] → Frankreich
+[13/153] ✅ David Delgado [Elche, LL] → Spanien
+[14/153] ✅ R. Huli [Juventus, SA] → Spanien
+[15/153] ✅ Kris Gecaj [Genoa, SA] → Albanien
+[16/153] ✅ Malcom Dacosta [Bournemouth, PL] → Ecuador
+[17/153] ✅ Álex Sánchez [Elche, LL] → Spanien
+[18/153] ✅ M. Cardozo [Bayern München, BL1] → Brasilien
+[19/153] ✅ A. Lickunas [Cremonese, SA] → Litauen
+[20/153] ✗ T. Fletcher: page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "https://www.transfermarkt.de/spieler/profil/spieler/1011140", waiting until "domcontentloaded"[22m
+
+[21/153] ✅ J. A. Gaitan Diaz [Villarreal, LL] → Kolumbien
+[22/153] ✅ D. Benamar [Crystal Palace, PL] → England
+[23/153] ✅ J. Stephenson [Brentford, PL] → England
+[24/153] ✅ K. M. Brown [Burnley, PL] → Argentinien
+[25/153] ✅ Giacomo Giacomone [Lazio, SA] → Italien
+[26/153] ✅ T. Schnitzer [FC Augsburg, BL1] → Deutschland
+[27/153] ✅ L. Lemke [Hamburger SV, BL1] → Deutschland
+[28/153] ✅ Erblin Osmani [Bayern München, BL1] → Deutschland
+[29/153] ✅ Aaron Mayol [Valencia, LL] → Spanien
+[30/153] ✅ X. Espart [Barcelona, LL] → Spanien
+[31/153] ✅ M. Khadr [FC Schalke 04, BL2] → Deutschland
+[32/153] ✅ A. Millgramm [1. FC Magdeburg, BL2] → Deutschland
+[33/153] ✅ L. Prescott [Bayern München, BL1] → Deutschland
+[34/153] ✅ Erik Muller [1. FC Kaiserslautern, BL2] → Deutschland
+[35/153] ✅ Felix Vogler [1. FC Magdeburg, BL2] → Deutschland
+[36/153] ✅ Brian Madjo [Aston Villa, PL] → England
+[37/153] ✅ W. L. Ouedraogo [Genoa, SA] → Burkina Faso
+[38/153] ✅ Mario Domínguez [Valencia, LL] → Spanien
+[39/153] ✅ Aras Celik [Kayserispor, SL] → Türkei
+[40/153] ✅ Emirzat Baycu [Gençlerbirliği S.K., SL] → Türkei
+[41/153] ✅ Ridvan Canibek [Eyüpspor, SL] → Türkei
+[42/153] ✅ Ayman Arguigue [Villarreal, LL] → Marokko
+[43/153] ✅ Adrian Perez [Athletic Club, LL] → Spanien
+[44/153] ✅ Adrian Arnuncio [Real Madrid, LL] → Spanien
+[45/153] ✅ S. Alabi [Newcastle, PL] → Bulgarien
+[46/153] ✅ C. De Paoli [Como, SA] → Italien
+[47/153] ✅ A. Golambeckis [West Ham, PL] → England
+[48/153] ✅ N. Oriola [Brighton, PL] → England
+[49/153] ✅ Robson Robson [Real Betis, LL] → Brasilien
+[50/153] ✅ Bernardo Conde [Parma, SA] → Frankreich
+[51/153] ✅ G. Brierley [Burnley, PL] → England
+[52/153] ✅ Daniele Bleve [Lecce, SA] → Italien
+[53/153] ✅ Matteo Luppichini [Pisa, SA] → Italien
+[54/153] ✅ Malik Olayiwola [Everton, PL] → England
+[55/153] ✅ Leo Sánchez [Mallorca, LL] → Kuba
+[56/153] ✅ Alessandro Cardinali [Parma, SA] → Italien
+[57/153] ✅ Montell Ndikom [Hannover 96, BL2] → Deutschland
+[58/153] ✅ S. Cinquegrano [Inter, SA] → Italien
+[59/153] ✅ R. Marina [Real Betis, LL] → Spanien
+[60/153] ✅ Raphael Ott [FC Schalke 04, BL2] → Deutschland
+[61/153] ✅ Lorenzo Bonsignori Goggi [Como, SA] → Italien
+[62/153] ✅ Louis Babatz [FSV Mainz 05, BL1] → Deutschland
+[63/153] ✅ B. Casey [Crystal Palace, PL] → England
+[64/153] ✅ Simon Walde [Borussia Mönchengladbach, BL1] → Deutschland
+[65/153] ✅ Oguzhan Odabas [Fatih Karagümrük, SL] → Türkei
+[66/153] ✅ Omer Akdag [Fatih Karagümrük, SL] → Türkei
+[67/153] ✅ Joel Fontanet [Valencia, LL] → Spanien
+[68/153] ✅ O. Shield [Brentford, PL] → England
+[69/153] ✅ M. Aleksandrov [Getafe, LL] → Bulgarien
+[70/153] ✅ Mattia Magalotti [Fiorentina, SA] → Italien
+[71/153] ✅ L. Szimionas [Hellas Verona, SA] → Rumänien
+[72/153] ✅ I. Luque [Atletico Madrid, LL] → Spanien
+[73/153] ✅ Hulusi Efe Ceylan [Fenerbahçe, SL] → Türkei
+[74/153] ✅ Cihan Memik [Alanyaspor, SL] → Türkei
+[75/153] ✅ T. Weigel [1. FC Heidenheim, BL1] → Deutschland
+[76/153] ✅ Petar Markovic [Bologna, SA] → Österreich
+[77/153] ✅ J. Morcillo [Atletico Madrid, LL] → Spanien
+[78/153] ✅ E. C. Owen [Bayer Leverkusen, BL1] → England
+[79/153] ✅ L. Fati [Real Madrid, LL] → Spanien
+[80/153] ✅ L. Laso [Getafe, LL] → Deutschland
+[81/153] ✅ Ali Isik [Gaziantep FK, SL] → Türkei
+[82/153] ✅ Gunes Talas [Kayserispor, SL] → Türkei
+[83/153] ✅ Michael Dacosta [Bournemouth, PL] → Spanien
+[84/153] ✅ Edoardo Tigani [Parma, SA] → Italien
+[85/153] ✅ D. Ofli [Bayern München, BL1] → Türkei
+[86/153] ✅ Bertram Skovgaard [Lecce, SA] → Dänemark
+[87/153] ✅ M. Mena [Parma, SA] → Spanien
+[88/153] ✅ Jorge Montes [Getafe, LL] → Spanien
+[89/153] ✅ Mehmet Karsli [Samsunspor, SL] → Türkei
+[90/153] ✅ V. Prisco [Napoli, SA] → Italien
+[91/153] ✅ C. Neumann [1. FC Köln, BL1] → Deutschland
+[92/153] ✅ Enrique Herrero [Levante, LL] → Spanien
+[93/153] ✅ Javier Sarasa [Girona, LL] → Spanien
+[94/153] ✅ Manu Rico [Osasuna, LL] → Spanien
+[95/153] ✅ Alex Herraiz [Elche, LL] → Spanien
+[96/153] ✅ Alberto Dadie [Real Sociedad, LL] → Spanien
+[97/153] ✅ Hugo Luis Afonso [Eintracht Braunschweig, BL2] → Luxemburg
+[98/153] ✅ Alessandro Crimaldi [VfL Bochum, BL2] → Italien
+[99/153] ✅ L. Orejuela [Mallorca, LL] → Kolumbien
+[100/153] ✅ Álvaro Moreno [Atletico Madrid, LL] → Spanien
+[101/153] ✅ T. Seidu [Atletico Madrid, LL] → Spanien
+[102/153] ✅ Jacopo Grossi [Genoa, SA] → Italien
+[103/153] ✅ J. Olaizola [Mallorca, LL] → Spanien
+[104/153] ✅ Rendijs Mihelsons [Genoa, SA] → Lettland
+[105/153] ✅ L. Barani [Sassuolo, SA] → Italien
+[106/153] ✅ P. Felipe [Elche, LL] → Brasilien
+[107/153] ✅ G. King [Crystal Palace, PL] → Vereinigte Staaten
+[108/153] ✅ E. Lulli [AS Roma, SA] → Italien
+[109/153] ✅ K. Steinmann [SC Freiburg, BL1] → Österreich
+[110/153] ✅ S. Telib [Hertha BSC, BL2] → Ägypten
+[111/153] ✅ B. Bettazzi [Pisa, SA] → Italien
+[112/153] ✅ D. Drobnic [Parma, SA] → Slowenien
+[113/153] ✅ Simone Lottici Tessadri [Cremonese, SA] → Italien
+[114/153] ✅ F. Fleck [Borussia Mönchengladbach, BL1] → Deutschland
+[115/153] ✅ C. Bates [Everton, PL] → England
+[116/153] ✅ A. Panach [Valencia, LL] → Spanien
+[117/153] ✅ M. Wallentowitz [FC Schalke 04, BL2] → Deutschland
+[118/153] ✅ R. Montero [Alaves, LL] → Spanien
+[119/153] ✅ R. Tarnutzer [SC Freiburg, BL1] → Schweiz
+[120/153] ✅ H. Nakoha [Levante, LL] → Ghana
+[121/153] ✅ C. Frangella [Sassuolo, SA] → Italien
+[122/153] ✅ C. Stevens [Bournemouth, PL] → Niederlande
+[123/153] ✅ Espi Espi [Oviedo, LL] → Portugal
+[124/153] ✅ A. Mestanza [Getafe, LL] → Spanien
+[125/153] ✅ S. Lacey [Manchester United, PL] → England
+[126/153] ✅ L. Nyarko [Sassuolo, SA] → Italien
+[127/153] ✅ M. Avlayici [SpVgg Greuther Fürth, BL2] → Deutschland
+[128/153] ✅ W. Acquah [Torino, SA] → Ghana
+[129/153] ✅ E. Sala [AC Milan, SA] → Argentinien
+[130/153] ✅ N. Varelmann [Preußen Münster, BL2] → Deutschland
+[131/153] ✅ Gabriele Casentini [Parma, SA] → Italien
+[132/153] ✅ Joi Nuredini [Genoa, SA] → Albanien
+[133/153] ✅ N. Salvador [Elche, LL] → Italien
+[134/153] ✅ A. Hierro [Athletic Club, LL] → Spanien
+[135/153] ✅ P. Mendy [Cagliari, SA] → Frankreich
+[136/153] ✅ B. Katz [VfL Wolfsburg, BL1] → Österreich
+[137/153] ✅ D. Spinelli [Napoli, SA] → Argentinien
+[138/153] ✅ M. Pellini [Torino, SA] → Italien
+[139/153] ✅ Eder Aller [Barcelona, LL] → Spanien
+[140/153] ✅ L. Bovo [Inter, SA] → Italien
+[141/153] ✅ A. Costa [Sevilla, LL] → Spanien
+[142/153] ✅ F. Pavic [Bayern München, BL1] → Deutschland
+[143/153] ✅ J. Jones [Sunderland, PL] → England
+[144/153] ✅ A. Castiello [AC Milan, SA] → Italien
+[145/153] ✅ Juan Arango [Girona, LL] → Venezuela
+[146/153] ✅ Sergio Esteban [Atletico Madrid, LL] → Spanien
+[147/153] ✅ F. Gomez [Espanyol, LL] → Puerto Rico
+[148/153] ✅ J. Drakes-Thomas [Crystal Palace, PL] → England
+[149/153] ✅ P. Bonanno [Fiorentina, SA] → Malta
+[150/153] ✅ T. Macchioni [Sassuolo, SA] → Italien
+[151/153] ✅ Rareș Vlad [Mallorca, LL] → Rumänien
+[152/153] ✅ A. Yanik [Konyaspor, SL] → Türkei
+[153/153] ✅ H. Burcio [Celta Vigo, LL] → Spanien
+
+============================================================
+  TM NATIONALITY ENRICHMENT DONE
+============================================================
+  Processed:  153
+  ✅ Updated:  152
+  ⚠ Empty:    0 (TM-page ohne Staatsbürgerschaft-Block)
+  ✗ Errors:   1
+  Time:       901s
+============================================================
+
+First 10 errors:
+  [20/153] ✗ T. Fletcher: page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "https://www.transfermarkt.de/spieler/profil/spieler/1011140", waiting until "domcontentloaded"[22m
+

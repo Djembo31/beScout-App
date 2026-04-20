@@ -273,4 +273,51 @@ describe('mapNationalityToIso', () => {
       expect(mapNationalityToIso('NIGERIA')).toBe('NG');
     });
   });
+
+  describe('German aliases (Slice 103 — TM.de scrape)', () => {
+    // Alle Werte aus DB-query nach Phase 1 Run
+    it.each([
+      ['Spanien', 'ES'],
+      ['Italien', 'IT'],
+      ['Deutschland', 'DE'],
+      ['Türkei', 'TR'],
+      ['Tuerkei', 'TR'],
+      ['Frankreich', 'FR'],
+      ['Brasilien', 'BR'],
+      ['Österreich', 'AT'],
+      ['Oesterreich', 'AT'],
+      ['Argentinien', 'AR'],
+      ['Albanien', 'AL'],
+      ['Rumänien', 'RO'],
+      ['Rumaenien', 'RO'],
+      ['Bulgarien', 'BG'],
+      ['Kolumbien', 'CO'],
+      ['Schweiz', 'CH'],
+      ['Slowenien', 'SI'],
+      ['Ägypten', 'EG'],
+      ['Aegypten', 'EG'],
+      ['Vereinigte Staaten', 'US'],
+      ['Dänemark', 'DK'],
+      ['Daenemark', 'DK'],
+      ['Katar', 'QA'],
+      ['Kuba', 'CU'],
+      ['Lettland', 'LV'],
+      ['Litauen', 'LT'],
+      ['Luxemburg', 'LU'],
+      ['Marokko', 'MA'],
+      ['Niederlande', 'NL'],
+      ['Elfenbeinküste', 'CI'],
+      ['Elfenbeinkueste', 'CI'],
+      ['Weißrussland', 'BY'],
+      ['Weissrussland', 'BY'],
+      ['Südafrika', 'ZA'],
+      ['Südkorea', 'KR'],
+      ['Mexiko', 'MX'],
+      ['Neuseeland', 'NZ'],
+      ['Polen', 'PL'],
+      ['Ungarn', 'HU'],
+    ])('maps German "%s" to "%s"', (de, iso) => {
+      expect(mapNationalityToIso(de)).toBe(iso);
+    });
+  });
 });

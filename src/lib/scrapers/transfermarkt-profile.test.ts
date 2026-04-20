@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarketValue, parseContractEnd } from './transfermarkt-profile';
+import { parseMarketValue, parseContractEnd, parseNationality } from './transfermarkt-profile';
 
 // Regression-fixtures — real HTML snippets scraped from transfermarkt.de on 2026-04-20.
 // Source: scripts/tm-parser-sanity.ts — saved to tmp/tm-sanity/.
@@ -81,5 +81,71 @@ describe('parseContractEnd', () => {
 
   it('returns null when no contract block', () => {
     expect(parseContractEnd('<html></html>')).toBeNull();
+  });
+});
+
+// Fixtures aus live-TM HTML (Osimhen profile), geladen 2026-04-20 via curl
+const NATIONALITY_ITEMPROP_HTML = `<li class="data-header__label">Staatsbürgerschaft:
+  <span itemprop="nationality" class="data-header__content">
+    <img src="https://tmssl.akamaized.net/images/flagge/tiny/124.png" title="Nigeria" alt="Nigeria" class="flaggenrahmen" />
+    Nigeria
+  </span>
+</li>`;
+
+const NATIONALITY_INFOTABLE_HTML = `<span class="info-table__content info-table__content--regular">Staatsbürgerschaft:</span>
+<span class="info-table__content info-table__content--bold">
+  <img src="/flag.png" title="Germany" alt="Germany" class="flaggenrahmen" />&nbsp;&nbsp;Germany
+</span>`;
+
+const NATIONALITY_ENTITY_HTML = `<span class="info-table__content info-table__content--regular">Staatsb&uuml;rgerschaft:</span>
+<span class="info-table__content info-table__content--bold">
+  <img src="/flag.png" title="Senegal" alt="Senegal" class="flaggenrahmen" />Senegal
+</span>`;
+
+const NATIONALITY_DUAL_HTML = `<span itemprop="nationality" class="data-header__content">
+  <img title="Nigeria" alt="Nigeria" class="flaggenrahmen" />
+  <img title="Senegal" alt="Senegal" class="flaggenrahmen" />
+  Nigeria Senegal
+</span>`;
+
+const NATIONALITY_DIACRITIC_HTML = `<li class="data-header__label">Staatsbürgerschaft:
+  <span itemprop="nationality" class="data-header__content">
+    <img title="Côte d'Ivoire" class="flaggenrahmen" />
+    Côte d'Ivoire
+  </span>
+</li>`;
+
+describe('parseNationality', () => {
+  it('parses primary itemprop="nationality" block (Nigeria)', () => {
+    expect(parseNationality(NATIONALITY_ITEMPROP_HTML)).toBe('Nigeria');
+  });
+
+  it('falls back to info-table Staatsbürgerschaft label (Germany)', () => {
+    expect(parseNationality(NATIONALITY_INFOTABLE_HTML)).toBe('Germany');
+  });
+
+  it('handles HTML-entity encoded umlaut (&uuml;)', () => {
+    expect(parseNationality(NATIONALITY_ENTITY_HTML)).toBe('Senegal');
+  });
+
+  it('returns first flag for dual citizenship (Nigeria, not Senegal)', () => {
+    expect(parseNationality(NATIONALITY_DUAL_HTML)).toBe('Nigeria');
+  });
+
+  it('preserves diacritics ("Côte d\'Ivoire")', () => {
+    expect(parseNationality(NATIONALITY_DIACRITIC_HTML)).toBe("Côte d'Ivoire");
+  });
+
+  it('returns null when no Staatsbürgerschaft block exists', () => {
+    expect(parseNationality('<html><body>no nationality</body></html>')).toBeNull();
+  });
+
+  it('returns null for empty HTML', () => {
+    expect(parseNationality('')).toBeNull();
+  });
+
+  it('prefers itemprop over info-table when both present', () => {
+    const both = NATIONALITY_ITEMPROP_HTML + NATIONALITY_INFOTABLE_HTML;
+    expect(parseNationality(both)).toBe('Nigeria');
   });
 });
