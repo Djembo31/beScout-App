@@ -9,34 +9,31 @@ impact: —
 proof: —
 ```
 
-## Letzte Slices: 087 + 088 + 089 (2026-04-22)
+## Letzte Slices: 087 + 088 + 089 + 090 (2026-04-22)
+
+### 090 — silent-fail-audit Precision v2
+- Pattern 1 `.range()`/`.limit()` multi-line-awareness
+- Pattern 7 NEU: `Promise.allSettled` ohne `logSilentRejects` (regression-guard)
+- 211 → 195 Total · 111 → 98 HIGH (HIGH-FP-Rate 0%)
+- Proof: worklog/proofs/090-after.txt
 
 ### 089 — allSettled Sweep
 - 16 Stellen in 11 Files mit `logSilentRejects` instrumentiert
-- Priority 1 Money/Admin/User-Critical zuerst, dann Priority 2 Enrichment
-- 1177/1178 Tests in tangierten Suites grün
-- 20 Sentry-Call-Sites (war 1 vor 088)
-- Proof: worklog/proofs/089-after.txt
+- 20 Sentry-Call-Sites (war 1 vor Slice 088)
 
 ### 088 — Sentry Observability Util
 - `logSilentRejects(label, results)` util + 5 Unit-Tests
-- 3 Demo-Integrationen: AuthProvider · platformAdmin · scoring.queries
-- 136/136 Tests grün
-- Proof: worklog/proofs/088-after.txt
+- 3 Demo-Integrationen
 
 ### 087 — Upstream Silent-Fail Follow-Ups
-- gameweek-sync:1244-1264 `.range()`-while-loop
-- footballData:371-389 `Promise.allSettled` → `Promise.all`
-
-## Pre-Existing Failures (nicht durch 087/088/089 verursacht)
-- 6 DB-Invariants gegen Live-Supabase: INV-10/32/36/37/38/TURK-03 — Daten-State-Issues, follow-up aus Slice 081/082-Phase-C
-- 1 flaky `useMarketData.floorMap` — unabhängig von Sentry-Arbeit
+- gameweek-sync `.range()`-while-loop
+- footballData `Promise.all` + explicit `.error`
 
 ## Next-Session Options
 
-1. **Silent-Fail-Audit Precision v2** — multi-line `.range()` + Promise.allSettled pattern → audit-count sinkt
-2. **`.catch(() => null)` Observability** — `logSilentCatch` util analog zu logSilentRejects
+1. **DB-Invariants fixen** (INV-36/37/38) — Data-Poisoning-Residuen aus Slice 081
+2. **`.catch(() => null)` Observability** — `logSilentCatch` util analog zu logSilentRejects (Pattern 8 im Audit)
 3. **Sentry.setUser beim Login** — user_id in Sentry-Events
 4. **Sentry Breadcrumbs für Supabase-Queries** — supabase client wrapper
-5. **DB-Invariant-Failures fixen** (INV-36/37/38 — Data-Poisoning-Residuen aus Slice 081)
-6. **Kanban-Items durcharbeiten** (Task 3 aus gestrigem Plan)
+5. **CI-Gate: Audit-Baseline** — fail PR bei HIGH-Count-Increase
+6. **Kanban-Items durcharbeiten**

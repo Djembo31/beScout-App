@@ -1,14 +1,14 @@
 # Silent-Fail-Audit 2026-04-20
 
-- Files scanned: 1008
-- Total findings: 211
-- High severity: 111
-- Medium severity: 100
+- Files scanned: 1010
+- Total findings: 195
+- High severity: 98
+- Medium severity: 97
 - Total risk: **HIGH**
 
 ---
 
-## Pattern: in-without-chunking (138 findings)
+## Pattern: in-without-chunking (122 findings)
 
 - `e2e/qa-realtime-feed.ts:81` [MEDIUM] — const { error } = await admin.from('activity_log').delete().in('id', ids);
 - `scripts/backfill-complete-stats.mjs:552` [MEDIUM] — .in('fixture_id', gwFixtureIds);
@@ -32,13 +32,11 @@
 - `scripts/seed-multi-league-events.mjs:216` [MEDIUM] — .in('club_id', pilotIds)
 - `scripts/seed-multi-league-events.mjs:217` [MEDIUM] — .in('gameweek', gws);
 - `scripts/seed-multi-league-events.mjs:310` [MEDIUM] — .in('id', (inserted ?? []).map(e => e.id));
-- `scripts/silent-fail-audit.ts:174` [MEDIUM] — md += `- \`.in()\` in .test.ts files → filter later\n`;
+- `scripts/silent-fail-audit.ts:194` [MEDIUM] — md += `- \`.in()\` in .test.ts files → filter later\n`;
 - `scripts/tm-profile-local.ts:92` [MEDIUM] — .in('club_id', slice)
-- `scripts/tm-rescrape-stale.ts:132` [MEDIUM] — if (clubFilter) q = q.in('club_id', clubFilter);
 - `scripts/tm-rescrape-stale.ts:324` [MEDIUM] — .in('club_id', clubIds);
 - `scripts/tm-rescrape-stale.ts:329` [MEDIUM] — .in('club_id', clubIds);
 - `scripts/tm-search-local.ts:106` [MEDIUM] — .in('club_id', slice)
-- `scripts/tm-search-scrape-unknown.ts:118` [MEDIUM] — if (clubFilter) q = q.in('club_id', clubFilter);
 - `scripts/verify-multi-league-events.mjs:35` [MEDIUM] — .in('club_id', clubIds)
 - `scripts/verify-multi-league-events.mjs:72` [MEDIUM] — .in('club_id', (clubs ?? []).map(c => c.id))
 - `scripts/_investigate-gw4.mjs:18` [MEDIUM] — const { data: fps } = await supabase.from('fixture_player_stats').select('player_id, fixture_id').in('fixture_id', fxIds
@@ -49,26 +47,28 @@
 - `scripts/_preflight-stats.mjs:24` [MEDIUM] — const { data: players } = await supabase.from('players').select('id, perf_l5').in('club_id', ids);
 - `scripts/_verify-bl1-gw1.mjs:15` [MEDIUM] — const { data: players } = await supabase.from('players').select('id').in('club_id', clubIds);
 - `src/app/api/cron/gameweek-sync/route.ts:241` [HIGH] — .in('id', leagueIds)
-- `src/app/api/cron/gameweek-sync/route.ts:482` [HIGH] — .in('home_club_id', allLeagueClubIds)
 - `src/app/api/cron/gameweek-sync/route.ts:491` [HIGH] — .in('club_id', clubsToProcess.map(c => c.id))
 - `src/app/api/cron/gameweek-sync/route.ts:521` [HIGH] — .in('home_club_id', allLeagueClubIds)
 - `src/app/api/cron/gameweek-sync/route.ts:599` [HIGH] — .in('home_club_id', allLeagueClubIds)
 - `src/app/api/cron/gameweek-sync/route.ts:608` [HIGH] — .in('club_id', allLeagueClubIds),
 - `src/app/api/cron/gameweek-sync/route.ts:613` [HIGH] — .in('club_id', allLeagueClubIds),
 - `src/app/api/cron/gameweek-sync/route.ts:712` [HIGH] — .in('home_club_id', allLeagueClubIds)
-- `src/app/api/cron/gameweek-sync/route.ts:1254` [HIGH] — .in('club_id', allLeagueClubIds)
 - `src/app/api/cron/gameweek-sync/route.ts:1294` [HIGH] — .in('home_club_id', allLeagueClubIds);
 - `src/app/api/cron/gameweek-sync/route.ts:1378` [HIGH] — .in('event_id', eventIds);
 - `src/app/api/cron/gameweek-sync/route.ts:1455` [HIGH] — .in('home_club_id', allLeagueClubIds);
-- ... +88 more
+- `src/app/api/cron/gameweek-sync/route.ts:1580` [HIGH] — .in('club_id', allLeagueClubIds)
+- `src/app/api/cron/gameweek-sync/route.ts:1593` [HIGH] — .in('club_id', allLeagueClubIds)
+- `src/components/profile/FollowListModal.tsx:59` [MEDIUM] — .in('user_id', userIds);
+- `src/features/fantasy/services/events.mutations.ts:304` [MEDIUM] — .in('id', eventIds);
+- ... +72 more
 
 ## Pattern: error-check-without-throw-or-return (43 findings)
 
 - `src/lib/services/adRevenueShare.ts:26` [MEDIUM] — if (error) {
 - `src/lib/services/adRevenueShare.ts:44` [MEDIUM] — if (error) {
 - `src/lib/services/adRevenueShare.ts:62` [MEDIUM] — if (error) {
-- `src/lib/services/club.ts:110` [MEDIUM] — if (error) { console.error('[Club] getClubFollowerCount failed:', error); return 0; }
-- `src/lib/services/club.ts:636` [MEDIUM] — if (error) return { success: false, error: error.message };
+- `src/lib/services/club.ts:113` [MEDIUM] — if (error) { console.error('[Club] getClubFollowerCount failed:', error); return 0; }
+- `src/lib/services/club.ts:639` [MEDIUM] — if (error) return { success: false, error: error.message };
 - `src/lib/services/cosmetics.ts:98` [MEDIUM] — if (error) {
 - `src/lib/services/creatorFund.ts:20` [MEDIUM] — if (error) {
 - `src/lib/services/creatorFund.ts:55` [MEDIUM] — if (error) {
@@ -94,7 +94,7 @@
 - `src/lib/services/missions.ts:134` [MEDIUM] — if (error) return { success: false, error: mapErrorToKey(normalizeError(error)) };
 - `src/lib/services/mysteryBox.ts:43` [MEDIUM] — if (error) {
 - `src/lib/services/players.ts:250` [MEDIUM] — if (error) return { success: false, error: error.message };
-- `src/lib/services/pushSender.ts:52` [MEDIUM] — if (error) {
+- `src/lib/services/pushSender.ts:53` [MEDIUM] — if (error) {
 - `src/lib/services/referral.ts:19` [MEDIUM] — if (error) return 0;
 - `src/lib/services/referral.ts:52` [MEDIUM] — if (error) return { success: false, error: error.message };
 - `src/lib/services/referral.ts:62` [MEDIUM] — if (error) {
@@ -117,12 +117,12 @@
 - `src/lib/services/contentReports.ts:57` [HIGH] — ? supabase.from('posts').select('id, content, user_id, club_id').in('id', postIds)
 - `src/lib/services/contentReports.ts:60` [HIGH] — ? supabase.from('research_posts').select('id, title, user_id').in('id', researchIds)
 - `src/lib/services/footballData.ts:124` [HIGH] — supabase.from('clubs').select('id, name'),
-- `src/lib/services/offers.ts:21` [HIGH] — supabase.from('players').select('id, first_name, last_name, position, club').in('id', playerIds),
-- `src/lib/services/offers.ts:22` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),
-- `src/lib/services/social.ts:125` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
-- `src/lib/services/social.ts:126` [HIGH] — supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
-- `src/lib/services/social.ts:154` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
-- `src/lib/services/social.ts:155` [HIGH] — supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
+- `src/lib/services/offers.ts:22` [HIGH] — supabase.from('players').select('id, first_name, last_name, position, club').in('id', playerIds),
+- `src/lib/services/offers.ts:23` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),
+- `src/lib/services/social.ts:126` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
+- `src/lib/services/social.ts:127` [HIGH] — supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
+- `src/lib/services/social.ts:157` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
+- `src/lib/services/social.ts:158` [HIGH] — supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
 - `src/lib/__tests__/db-invariants.test.ts:71` [HIGH] — const { data: allClubs } = await sb.from('clubs').select('id, league_id');
 - `src/lib/__tests__/db-invariants.test.ts:134` [HIGH] — const { data: allClubs } = await sb.from('clubs').select('id, league_id');
 - `src/lib/__tests__/db-invariants.test.ts:1877` [HIGH] — const { data, error } = await sb.from('clubs').select('id, name, logo_url');
@@ -148,7 +148,7 @@
 
 ## Pattern: script-hardcoded-state-check (1 findings)
 
-- `scripts/silent-fail-audit.ts:106` [MEDIUM] — if (rel.startsWith('scripts/') && /'transfermarkt_stale'|'transfermarkt_verified'|'transfermarkt_unknown'|'unknown'/.tes
+- `scripts/silent-fail-audit.ts:108` [MEDIUM] — if (rel.startsWith('scripts/') && /'transfermarkt_stale'|'transfermarkt_verified'|'transfermarkt_unknown'|'unknown'/.tes
 
 ---
 

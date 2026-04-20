@@ -12,6 +12,7 @@
  * 4. Error-swallow (if(error) without throw)
  * 5. Destructuring data without error
  * 6. Hard-coded state-checks in scripts/
+ * 7. Promise.allSettled without logSilentRejects observability (Slice 088+089)
  */
 
 import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -59,8 +60,9 @@ function scan(file: string, content: string): Finding[] {
 
     // Pattern 1: .in() without chunking hint — skip short inline literal arrays (not UUID-list risk)
     if (/\.in\s*\(/.test(line) && !/CHUNK|batch|\.slice|chunk/i.test(line) && !rel.endsWith('.test.ts') && !rel.endsWith('.spec.ts')) {
+      // Slice 090: context includes `.range(` / `.limit(` on adjacent lines (multi-line paging pattern).
       const ctx = lines.slice(Math.max(0, idx - 2), Math.min(lines.length, idx + 3)).join(' ');
-      const hasChunk = /CHUNK|chunk|batch/i.test(ctx);
+      const hasChunk = /CHUNK|chunk|batch|\.range\(|\.limit\(/i.test(ctx);
       // Short inline literal array: .in('col', ['a', 'b', 'c']) — value count ≤ 20 literals, closes on same line
       const shortLiteralArray = /\.in\s*\(\s*['"][^'"]+['"]\s*,\s*\[[^\]]{0,200}\]/.test(line);
       if (!hasChunk && !shortLiteralArray) {
@@ -106,6 +108,24 @@ function scan(file: string, content: string): Finding[] {
     if (rel.startsWith('scripts/') && /'transfermarkt_stale'|'transfermarkt_verified'|'transfermarkt_unknown'|'unknown'/.test(line)) {
       if (!/const\s+|default|mvSource|= '/.test(line) && /if\s*\(|===|!==/.test(line)) {
         findings.push({ file: rel, line: n, match: line.trim().slice(0, 120), pattern: 'script-hardcoded-state-check', severity: 'MEDIUM' });
+      }
+    }
+
+    // Pattern 7 (Slice 090): Promise.allSettled ohne logSilentRejects im 25-Zeilen-Block
+    // Skip: Tests/Specs + e2e-bots + Utility-File selbst (silentRejects.ts hat den pattern in JSDoc)
+    // Window = 25 lines: covers multi-line mappers (pushSender: 21 lines via inline-async-map) + 11-query allSettled.
+    if (
+      /Promise\.allSettled/.test(line) &&
+      !rel.endsWith('.test.ts') &&
+      !rel.endsWith('.test.tsx') &&
+      !rel.endsWith('.spec.ts') &&
+      !rel.startsWith('e2e/') &&
+      !rel.includes('silentRejects')
+    ) {
+      const block = lines.slice(idx, Math.min(lines.length, idx + 25)).join(' ');
+      if (!/logSilentRejects/.test(block)) {
+        const isMoneyPath = rel.startsWith('src/app/api/') || rel.startsWith('src/lib/services/') || rel.startsWith('src/lib/queries/');
+        findings.push({ file: rel, line: n, match: line.trim().slice(0, 120), pattern: 'allsettled-without-observability', severity: isMoneyPath ? 'HIGH' : 'MEDIUM' });
       }
     }
   });

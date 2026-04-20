@@ -11,11 +11,12 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ## 1. Silent Fails (die stillsten Bugs)
 
-### Tool: `/silent-fail-audit` (Slice 085)
+### Tool: `/silent-fail-audit` (Slice 085 + 090 v2)
 - `npx tsx scripts/silent-fail-audit.ts` → `worklog/audits/silent-fail-YYYY-MM-DD.md`
-- 6 Pattern: `.in()` unchecked · `.select()` unranged · silent catch · error-swallow · data-destructure ohne error · hart-coded script state-checks
-- Baseline Slice 085: 213 findings / 113 HIGH (Precision 53% nach /optimize Refine)
+- 7 Pattern: `.in()` unchecked · `.select()` unranged · silent catch · error-swallow · data-destructure ohne error · hart-coded script state-checks · `Promise.allSettled` ohne `logSilentRejects`
+- Baseline Slice 090 v2: 195 findings / 98 HIGH / HIGH-FP-Rate 0%
 - Cadence: wöchentlich + nach jedem `/impact` für Money/Data-Code
+- v2 verbesserungen: Pattern 1 `.range()`/`.limit()` multi-line-awareness, Pattern 7 regression-guard für allSettled
 
 ### `.in()` Chunking — Upstream-Query auch prüfen (Slice 082 + 086)
 - `.in('col', ids)` mit >100 UUIDs liefert `data=undefined` + `error=undefined` (URL-Limit ~14KB). MUSS in 100er-Chunks split + explicit error-check.

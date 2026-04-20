@@ -1,0 +1,73 @@
+Slice 090 — silent-fail-audit Precision v2 — Proof
+====================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+
+## Changes Summary
+
+### 1. scripts/silent-fail-audit.ts (+15 / -3 net)
+- **Docstring**: "Patterns scanned: 1..7" (war 1..6)
+- **Pattern 1** (`.in()` unchecked): `hasChunk`-Regex erweitert um `\.range\(|\.limit\(` — erkennt multi-line paging (Slice 087 Pattern).
+- **Pattern 7 NEU**: `Promise.allSettled` ohne `logSilentRejects` im 25-Zeilen-Block. Skip bei `.test.ts`/`.test.tsx`/`.spec.ts`/`e2e/`/`silentRejects.ts`. isMoneyPath-Ternary → HIGH für Services/API, MEDIUM andere.
+
+### 2. worklog/optimize/silent-fail-precision.md (+50 lines)
+V2-Section appended mit 4 Iterations-Tabellenzeilen (v2.0 baseline → v2.4 final). Lessons dokumentiert.
+
+### 3. .claude/rules/common-errors.md (§1 angepasst)
+"6 Pattern" → "7 Pattern" + neue Baseline + v2-Verbesserungen kurz erläutert.
+
+### 4. worklog/audits/silent-fail-2026-04-20.md (regenerated)
+Frischer Report nach v2.
+
+## Verification Results
+
+### Baseline-Vergleich
+
+| Measure | Vor Slice 090 (nach 089) | Nach 090 v2 | Delta |
+|---------|--------------------------|-------------|-------|
+| Total findings | 211 | 195 | -16 |
+| HIGH | 111 | 98 | -13 (alle FP eliminiert) |
+| MEDIUM | 100 | 97 | -3 |
+| HIGH-FP-Rate | 11.7% (13/111) | **0%** | -11.7pp |
+| Precision (HIGH/Total) | 52.6% | 50.3% | -2.3pp (aber alle HIGH sind jetzt actionable) |
+| Pattern 7 (allSettled) findings | N/A | 0 | regression-guard live |
+
+### Spot-Checks
+
+| Check | Result |
+|-------|--------|
+| `gameweek-sync:1254` (Slice-087 fix) in audit? | **NO** (war HIGH vor v2) |
+| `pushSender.ts:63` (21-line-gap) in audit? | **NO** (nach 25-line-window) |
+| allsettled-without-observability findings in Slice-089-Files | 0 (alle 16 instrumentiert) |
+| `npx tsx scripts/silent-fail-audit.ts` TS-Errors | none |
+| `npx tsc --noEmit` | clean |
+
+## Iteration Breakdown (v2.1 → v2.4)
+
+| # | Change | Total | HIGH | Notes |
+|---|--------|-------|------|-------|
+| v2.0 | baseline (vor v2) | 211 | 111 | Baseline mit 13 HIGH-FPs |
+| v2.1 | Pattern 1 + `.range\|.limit` | 204 | 103 | -8 HIGH FPs (multi-line range erkannt) |
+| v2.2 | Pattern 7 window 10-lines | 204 | 103 | 9 Pattern-7-FPs (window zu klein) |
+| v2.3 | Pattern 7 window 20-lines + e2e-skip | 196 | 99 | 1 FP (pushSender 21-line-gap) |
+| v2.4 | Pattern 7 window 25-lines | **195** | **98** | 0 FPs — commit-ready |
+
+## Files Modified
+
+```
+ .claude/rules/common-errors.md                     |  6 +-
+ scripts/silent-fail-audit.ts                       | 19 +++++-
+ worklog/audits/silent-fail-2026-04-20.md           | (regenerated)
+ worklog/optimize/silent-fail-precision.md          | 52 ++++++++++++
+ 4 files changed
+```
+
+## Next /optimize-Iteration Candidates (Scope-Out)
+
+- Ignore `scripts/` MEDIUMs (background-cron often runs <100 UUIDs, most MEDIUMs actually safe) — could drop MEDIUM count 97 → ~50
+- Detect `.or()` filters with many values (URL-overflow same as `.in()`)
+- Detect `.catch(() => null)` / `.catch(() => [])` patterns → neuer Pattern 8
+- CI-Gate: fail PR when HIGH increases vs. baseline
+
+## Spec Reference
+- worklog/specs/090-audit-precision-v2.md

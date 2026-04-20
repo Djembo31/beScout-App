@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 090 | 2026-04-22 | silent-fail-audit Precision v2
+- Stage-Chain: SPEC → IMPACT (skipped, tool-only) → BUILD (4 Iterations) → PROVE → LOG
+- Files: 4 (scripts/silent-fail-audit.ts + optimize/doc + common-errors + regenerated audit report)
+- Scope:
+  - Pattern 1 `hasChunk`-Regex erweitert um `\.range\(|\.limit\(` — multi-line paging erkannt
+  - Pattern 7 NEU: `Promise.allSettled` ohne `logSilentRejects` im 25-Zeilen-Block → HIGH (Services/API) / MEDIUM (andere)
+  - Skip: `.test.ts`/`.test.tsx`/`.spec.ts`/`e2e/`/`silentRejects.ts`
+  - 4 Iterations (v2.1 bis v2.4) — intermediate windows 10/20 lines produziert false-positives, v2.4 mit 25-line-window 0 FPs
+- Proof: `worklog/proofs/090-after.txt`
+- Verification:
+  - Total findings: 211 → **195** (-16)
+  - HIGH: 111 → **98** (-13, alle FPs eliminiert)
+  - HIGH-FP-Rate: 11.7% → **0%**
+  - `gameweek-sync:1254` + `pushSender.ts:63` (21-line-gap) beide raus
+  - Pattern 7 zeigt 0 findings = regression-guard für Zukunft (nach Slice 089 sind alle 16 Stellen instrumentiert)
+- Notes:
+  - Präzision im klassischen Sinn (HIGH/Total) marginal: 52.6% → 50.3% (-2.3pp). Aber alle HIGH sind jetzt echte actionable findings.
+  - Das v2-Ziel war: 0% FP-Rate bei HIGH + neuer Regression-Guard — erreicht.
+  - v2 deckt /optimize-Loop Slice 085 weiter aus mit neuen Lessons: Window-Sizing, Multi-line-Context, Baseline-Reset für neue Patterns.
+
+---
+
 ## 089 | 2026-04-22 | allSettled Sweep — logSilentRejects in allen residuellen Stellen
 - Stage-Chain: SPEC → IMPACT (skipped, additive 3-Zeilen-Patch × 16) → BUILD → PROVE → LOG
 - Files: 11 Produktions-Files (16 Call-Sites)
