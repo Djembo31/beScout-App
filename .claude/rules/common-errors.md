@@ -326,6 +326,18 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ## 8. Cross-Cutting / Operational
 
+### Namespace-Import blockiert Tree-Shaking (Slice 120)
+- Symptom: `optimizePackageImports` in `next.config.mjs` tree-shaked nicht, obwohl Library drin ist. Bundle enthält alle Exports.
+- Root cause: `import * as X from 'lib' + X[dynamic]` = namespace-import mit dynamic lookup. Webpack kann nicht wissen welche Exports tatsächlich genutzt sind → bundled alles.
+- Slice 120 Evidenz: `country-flag-icons/react/3x2` als namespace-import = 235 kB parsed / 53 kB gzipped standalone-chunk. Enthält 265 Flag-Komponenten, tatsächlich gebraucht werden ~10 pro User-Session.
+- Lösung je nach Library:
+  - **Library liefert static assets (SVG/PNG)**: Assets nach `public/` kopieren + `<img src>` — browser-native caching, zero JS bundle. Empfehlung für Flags, Icons, Illustrations.
+  - **Library ist React-only (lucide-react etc.)**: Named imports statt Namespace. `import { X, Y, Z } from 'lib'` bleibt tree-shakable wenn `optimizePackageImports` drin.
+  - **Dynamic lookup zwingend nötig** (Code-Driven Rendering): Factory-Map mit `React.lazy` / `dynamic()` pro Export — generiert per-Variant chunks die lazy geladen werden.
+- Audit: In `@next/bundle-analyzer` Client-HTML nach chunks >200 kB suchen → drill-down auf node_modules — wenn ein einzelnes Module dominiert, ist das ein Namespace-Import-Suspect.
+- **Regel**: Vor `import * as X` aus einem schweren Package: prüfen ob Library static-asset-Alternative hat oder ob Named-Imports reichen. `optimizePackageImports` allein rettet nicht.
+- Gotcha: Savings erscheinen evtl. NICHT im `shared-all` Counter, sondern als eliminiertes standalone-chunk — echte Win sichtbar am Analyzer-HTML, nicht am `next build`-Output.
+
 ### Query-Konsolidierung ≠ LCP-Win wenn Queries schon parallel (Slice 109)
 - Symptom: N Einzel-Hooks (useHoldings/useUserStats/...) in EIN SECURITY DEFINER RPC konsolidiert. Structural correct — Network-Log zeigt eliminierte Calls. Aber LCP-Delta nur -1-5%, innerhalb Messrauschen auf Slow 4G.
 - Root cause: React Query feuert Einzel-Hooks **parallel** beim Mount (nicht sequentiell). Die 4 Roundtrips liefen schon gleichzeitig — Einsparung ist `max(1 RPC time) - max(4 parallel time)`, meist negativ oder <50ms. NICHT `4 × 150ms Latency = 600ms save`.

@@ -7,67 +7,79 @@ vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
 }));
 
-// Mock country-flag-icons
-vi.mock('country-flag-icons/react/3x2', () => ({
-  DE: (props: Record<string, unknown>) => <svg data-testid="flag-de" {...props} />,
-  TR: (props: Record<string, unknown>) => <svg data-testid="flag-tr" {...props} />,
-  NG: (props: Record<string, unknown>) => <svg data-testid="flag-ng" {...props} />,
-  // Library exports GB subdivisions with underscore (JS-identifier-safe)
-  GB_ENG: (props: Record<string, unknown>) => <svg data-testid="flag-gb-eng" {...props} />,
-  GB_SCT: (props: Record<string, unknown>) => <svg data-testid="flag-gb-sct" {...props} />,
-}));
+// Slice 120: CountryFlag now renders <img src="/flags/3x2/{code}.svg"> directly
+// — no more react-component namespace-import. Only `hasFlag` from the main
+// package is imported (a ~1 kB countries.json lookup).
 vi.mock('country-flag-icons', () => ({
   // `hasFlag` accepts the hyphenated form for subdivisions
   hasFlag: (code: string) => ['DE', 'TR', 'NG', 'GB-ENG', 'GB-SCT'].includes(code),
 }));
 
+function getFlagImg() {
+  return document.querySelector('img') as HTMLImageElement | null;
+}
+
 describe('CountryFlag', () => {
-  it('renders SVG flag for known country', () => {
+  it('renders <img> for known country', () => {
     render(<CountryFlag code="DE" />);
-    expect(screen.getByTestId('flag-de')).toBeInTheDocument();
+    const img = getFlagImg();
+    expect(img).not.toBeNull();
+    expect(img!.getAttribute('src')).toBe('/flags/3x2/DE.svg');
+    expect(img!.getAttribute('alt')).toBe('DE');
   });
 
-  it('renders SVG flag for TR', () => {
+  it('renders <img> for TR', () => {
     render(<CountryFlag code="TR" />);
-    expect(screen.getByTestId('flag-tr')).toBeInTheDocument();
+    expect(getFlagImg()?.getAttribute('src')).toBe('/flags/3x2/TR.svg');
   });
 
   it('renders text fallback for unknown country', () => {
     render(<CountryFlag code="XX" />);
     expect(screen.getByText('XX')).toBeInTheDocument();
+    expect(getFlagImg()).toBeNull();
   });
 
   it('handles lowercase input', () => {
     render(<CountryFlag code="de" />);
-    expect(screen.getByTestId('flag-de')).toBeInTheDocument();
+    expect(getFlagImg()?.getAttribute('src')).toBe('/flags/3x2/DE.svg');
   });
 
   it('renders text fallback for empty code', () => {
-    render(<CountryFlag code="" />);
-    // Empty string should show fallback
     const { container } = render(<CountryFlag code="" />);
     expect(container.querySelector('span')).toBeInTheDocument();
+    expect(container.querySelector('img')).toBeNull();
   });
 
-  it('applies custom size', () => {
+  it('applies custom size to <img> width/height', () => {
     render(<CountryFlag code="DE" size={24} />);
-    const flag = screen.getByTestId('flag-de');
-    expect(flag.style.height).toBe('24px');
-    expect(flag.style.width).toBe('36px'); // 24 * 1.5
+    const img = getFlagImg()!;
+    expect(img.style.height).toBe('24px');
+    expect(img.style.width).toBe('36px'); // 24 * 1.5
+    expect(img.getAttribute('width')).toBe('36');
+    expect(img.getAttribute('height')).toBe('24');
   });
 
   it('renders NG flag for Nigerian players (Osimhen regression)', () => {
     render(<CountryFlag code="NG" />);
-    expect(screen.getByTestId('flag-ng')).toBeInTheDocument();
+    expect(getFlagImg()?.getAttribute('src')).toBe('/flags/3x2/NG.svg');
   });
 
-  it('renders GB-ENG subdivision flag (hyphen → underscore export lookup)', () => {
+  it('renders GB-ENG subdivision flag with hyphenated filename', () => {
     render(<CountryFlag code="GB-ENG" />);
-    expect(screen.getByTestId('flag-gb-eng')).toBeInTheDocument();
+    // Filename keeps the hyphen (mirrors package's raw SVGs). React-export
+    // underscore mapping is no longer needed — Slice 120 renders via <img>.
+    expect(getFlagImg()?.getAttribute('src')).toBe('/flags/3x2/GB-ENG.svg');
   });
 
   it('renders GB-SCT subdivision flag', () => {
     render(<CountryFlag code="GB-SCT" />);
-    expect(screen.getByTestId('flag-gb-sct')).toBeInTheDocument();
+    expect(getFlagImg()?.getAttribute('src')).toBe('/flags/3x2/GB-SCT.svg');
+  });
+
+  it('uses loading=lazy + decoding=async for perf', () => {
+    render(<CountryFlag code="DE" />);
+    const img = getFlagImg()!;
+    expect(img.getAttribute('loading')).toBe('lazy');
+    expect(img.getAttribute('decoding')).toBe('async');
   });
 });

@@ -1,0 +1,11 @@
+$ npx tsc --noEmit
+(exit 0, no output — clean)
+
+Ran 2026-04-20 after Slice 120 BUILD.
+Files touched:
+  M src/components/ui/CountryFlag.tsx
+  M src/components/ui/__tests__/CountryFlag.test.tsx
+  M next.config.mjs (added @next/bundle-analyzer wrapper)
+  M package.json (added @next/bundle-analyzer devDep)
+  M package-lock.json
+  A public/flags/3x2/*.svg (265 files, ~591 kB static assets)

@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import * as Flags3x2 from 'country-flag-icons/react/3x2';
 import { hasFlag } from 'country-flag-icons';
 import { cn } from '@/lib/utils';
 
 interface CountryFlagProps {
-  /** ISO 3166-1 alpha-2 country code (e.g. "TR", "DE") */
+  /** ISO 3166-1 alpha-2 country code (e.g. "TR", "DE"). GB-subdivisions
+   *  like "GB-ENG" are supported where a matching file exists. */
   code: string;
   /** Height in px (width = height * 1.5 for 3:2 aspect ratio) */
   size?: number;
@@ -14,9 +14,15 @@ interface CountryFlagProps {
 }
 
 /**
- * Renders an SVG country flag from country-flag-icons.
- * Replaces emoji flags which don't render on Windows 10.
- * Falls back to a text badge with the country code if no flag is available.
+ * Renders an SVG country flag via <img src="/flags/3x2/{CODE}.svg">.
+ *
+ * Slice 120: static-asset approach replaces the previous
+ * `import * as Flags from 'country-flag-icons/react/3x2'` namespace import,
+ * which bundled the full 235 kB flag-component library on every page.
+ * SVGs are served from `public/flags/3x2/` (CDN cached, browser cached).
+ *
+ * Falls back to a text badge with the country code when `hasFlag(code)`
+ * is false (unknown / non-standard code).
  */
 export default function CountryFlag({ code, size = 16, className }: CountryFlagProps) {
   const upperCode = code?.toUpperCase() ?? '';
@@ -35,35 +41,19 @@ export default function CountryFlag({ code, size = 16, className }: CountryFlagP
     );
   }
 
-  // `country-flag-icons` exports GB subdivision components with underscore
-  // (GB_ENG, GB_SCT, GB_WLS, GB_NIR) while `hasFlag` accepts the hyphenated form.
-  // Normalize to the JS-identifier form for the React-export lookup.
-  const exportKey = upperCode.replace(/-/g, '_');
-
-  // The library types each flag as (props: HTMLAttributes & SVGAttributes) => JSX.Element
-  // We cast to a generic component accepting common HTML/SVG attributes
-  const FlagComponent = (Flags3x2 as Record<string, React.ComponentType<
-    React.HTMLAttributes<HTMLElement> & React.SVGAttributes<SVGElement> & { style?: React.CSSProperties }
-  >>)[exportKey];
-
-  if (!FlagComponent) {
-    return (
-      <span
-        className={cn(
-          'inline-flex items-center justify-center rounded-sm bg-white/10 text-[8px] font-bold text-white/50',
-          className
-        )}
-        style={{ width: size * 1.5, height: size }}
-      >
-        {upperCode}
-      </span>
-    );
-  }
-
+  // Filenames mirror the original package: "GB-ENG.svg" stays hyphenated,
+  // unlike the React exports which use underscores. `hasFlag` accepts the
+  // hyphenated form directly, so no conversion needed for the src path.
   return (
-    <FlagComponent
+    <img
+      src={`/flags/3x2/${upperCode}.svg`}
+      alt={upperCode}
       title={upperCode}
-      className={cn('rounded-sm shrink-0', className)}
+      width={size * 1.5}
+      height={size}
+      loading="lazy"
+      decoding="async"
+      className={cn('rounded-sm shrink-0 inline-block', className)}
       style={{ height: size, width: size * 1.5 }}
     />
   );
