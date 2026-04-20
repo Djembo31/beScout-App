@@ -9,6 +9,16 @@ impact: —
 proof: —
 ```
 
+## Letzter abgeschlossener Slice: 120
+
+**country-flag-icons Bundle-Split** — Commit `d0b41cd9` gepusht.
+
+Namespace-Import `import * as Flags3x2 from 'country-flag-icons/react/3x2'` bundled 265 Flag-Komponenten (235 kB parsed / 53 kB gzipped) als standalone-chunk. Ersetzt durch `<img src="/flags/3x2/{code}.svg">` + 265 SVGs in `public/flags/3x2/`.
+
+Bundle-Diff: `/player/[id]` FLJS **365 → 309 kB (−56 kB, −15%)**. /home/Market unverändert (CountryFlag nicht auf deren critical path — Win konzentriert auf player-detail + club pages). Standalone flag-chunk eliminated.
+
+Neues Pattern in `common-errors.md §8` verankert: "Namespace-Import blockiert Tree-Shaking".
+
 ## Letzter abgeschlossener Slice: 110
 
 **Auth+Wallet Robustness (Trading-Confidence)** — additive Provider-API Erweiterung + BuyModal/BuyOrderModal-Guards.
