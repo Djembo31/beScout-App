@@ -316,6 +316,9 @@ const NATIONALITY_TO_ISO: Record<string, string> = {
   saudiarabien: 'SA',
   syrien: 'SY',
   vereinigtearabischeemirate: 'AE',
+  tadschikistan: 'TJ',
+  usbekistan: 'UZ',
+  mauritius: 'MU',
 };
 
 /**

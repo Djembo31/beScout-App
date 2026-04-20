@@ -9,23 +9,28 @@ impact: —
 proof: —
 ```
 
-## Session 2026-04-20 Progress
+## Session 2026-04-20 Progress (6 Slices)
 
-| Slice | Title | Status |
+| Slice | Title | Result |
 |-------|-------|--------|
-| 102 | Nationality Full-Name → ISO Mapper (Flag Fix) | ✅ DONE (053e5084 + ba3a2fe7) |
-| 101 | Stadia v3 — Wikipedia Retry mit Exponential Backoff | ✅ DONE (41bb3945) |
-| 103 | Nationality-Enrichment via TM + Ghost-Cleanup + DE-Aliases | ✅ DONE (pending commit) |
-| 104 | Perf-Foundation (parallele Session) | 🟡 fremde Session, nicht angetastet |
+| 101 | Stadia v3 Wikipedia Retry | ✅ +68 Stadien, 0 429-blocked (`41bb3945`) |
+| 102 | Nationality Full-Name → ISO Mapper | ✅ Flag-Fix live, Osimhen + Walker-Peters verified (`053e5084` + `ba3a2fe7`) |
+| 103 | TM Nationality + Ghost-Cleanup + DE-Aliases | ✅ 152/153 scraped + 106 ghost-unlinked (`209bd5ad`) |
+| 104 | Perf-Foundation (parallele Session) | ✅ LCP 2091→874ms, Render 1774→498ms (`d4794684` + `b3b2b8d0`) |
+| 105 | TFF1 Nationality Scrape | ✅ 33/34 scraped, 6 Ligen >99.6%, TFF1 87.7% |
+| 106 | Stadium Image Compression | ✅ 2 Monster-Files 127MB → 1.4MB (-98.9%) |
 
-## Slice 103 Recap
+## Global Coverage (nach allen Slices)
 
-- **Phase 1**: 152/153 TM-scrape success (1 Fletcher timeout). TM.de lieferte deutsche Namen — gefixt durch Mapper-Erweiterung (+60 German aliases + malta fix)
-- **Phase 2**: 106 Ghost-Spieler `club_id = NULL` (Safety-verified: 0 holdings/trades/orders)
-- **Final Coverage**: 3672/3681 (99.76%) der visible non-TFF1 Spieler haben nationality
-- **Tests**: 205 grün (184 mapper + 21 parser)
+- **Nationality**: 4348/4556 mapped (95.4%), 0 unmapped, 208 NULL
+- **Per-Liga (visible)**: SL 100%, BL1/BL2/PL/LL/SA 99.6-99.8%, TFF1 87.7%
+- **Stadia**: 135/134 files (non-TFF1 Coverage 100%)
+- **Tests**: 187 Mapper + 21 Parser + 9 Flag = 217 grün
+- **Repo-Health**: -125.7MB Asset-Bloat beseitigt
 
-## Open (Scope-Outs)
+## Offen (Scope-Outs, post-Beta)
 
-- 126 TFF1 missing nationality → CEO-Sperrgebiet-Entscheidung nötig
-- Fletcher (tm_id 1011140) + 8 active-ohne-TM → bei nächstem Full-TM-Rescrape
+- **93 TFF1 ohne TM-Mapping**: brauchen Name-Search-API oder CSV-Workflow
+- **43 mittelgroße Stadion-Bilder** (>5MB): weitere -571MB Einsparung möglich, XS-Slice
+- **9 Edge-Cases** aus Slice 103 (Fletcher-Timeout + 8 active-ohne-TM): nächste TM-Rescrape-Welle
+- **Sentry Release-Tracking, Husky Pre-commit, Pattern 9 MEDIUM-Audit**: Backlog

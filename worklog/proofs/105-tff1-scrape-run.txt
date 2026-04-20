@@ -1,0 +1,52 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+
+=== TM Nationality Enrichment (Slice 103 Phase 1) ===
+limit=all rate=3500ms dry=false headless=true
+
+Loaded 34 candidates (TFF1-only, missing nationality, TM-mapped). Running 34.
+
+[1/34] ✅ Serhat Bozkurt [Bandırmaspor, TFF1] → Türkei
+[2/34] ✅ Ahmet Bayam [Hatayspor, TFF1] → Türkei
+[3/34] ✅ Yigit Solak [Manisa FK, TFF1] → Türkei
+[4/34] ✅ Muhammet Yildiz [Boluspor, TFF1] → Türkei
+[5/34] ✅ Boran Yagizer [Van Spor FK, TFF1] → Türkei
+[6/34] ✅ Tunahan Basak [Serik Belediyespor, TFF1] → Türkei
+[7/34] ✅ Enes Ilik [Amedspor, TFF1] → Türkei
+[8/34] ✅ Emirhan Kucuksolak [Keçiörengücü, TFF1] → Türkei
+[9/34] ✅ Yakup Tuna [Hatayspor, TFF1] → Türkei
+[10/34] ✅ Abdulkadir Ahmed [Hatayspor, TFF1] → Türkei
+[11/34] ✅ Eren Eker [Sarıyer, TFF1] → Türkei
+[12/34] ✅ Beraat Keser [Iğdır FK, TFF1] → Türkei
+[13/34] ✅ J Ofori [Keçiörengücü, TFF1] → Ghana
+[14/34] ✅ Y. E. Kose [Manisa FK, TFF1] → Polen
+[15/34] ✅ O Kanpalta [Ümraniyespor, TFF1] → Türkei
+[16/34] ✅ A Yilmaz [Iğdır FK, TFF1] → Türkei
+[17/34] ✅ Arda Özkanbas [Adana Demirspor, TFF1] → Türkei
+[18/34] ✅ A. Selvili [Sivasspor, TFF1] → Türkei
+[19/34] ✅ K Ozba [Adana Demirspor, TFF1] → Türkei
+[20/34] ✅ S Irga [Adana Demirspor, TFF1] → Tadschikistan
+[21/34] ✅ B Timur [Adana Demirspor, TFF1] → Usbekistan
+[22/34] ✅ V Alkan [Hatayspor, TFF1] → Türkei
+[23/34] ✅ O Diaby [Keçiörengücü, TFF1] → Spanien
+[24/34] ✅ B Uzel [Hatayspor, TFF1] → Nordmazedonien
+[25/34] ✅ M Bozkurt [Adana Demirspor, TFF1] → Niederlande
+[26/34] ✅ Y Gundogdu [Adana Demirspor, TFF1] → Türkei
+[27/34] ✅ T Bayar [Adana Demirspor, TFF1] → Mauritius
+[28/34] ✅ B Tog [Hatayspor, TFF1] → Iran
+[29/34] ✅ C Celenk [Adana Demirspor, TFF1] → Türkei
+[30/34] ⚠ D. Yildiz [Boluspor] — no nationality block found
+[31/34] ✅ M Ergen [Adana Demirspor, TFF1] → Niederlande
+[32/34] ✅ Muhammet Acikgoz [Boluspor, TFF1] → Türkei
+[33/34] ✅ M Bas [Adana Demirspor, TFF1] → Deutschland
+[34/34] ✅ Eymen Namli [Adana Demirspor, TFF1] → Türkei
+
+============================================================
+  TM NATIONALITY ENRICHMENT DONE
+============================================================
+  Processed:  34
+  ✅ Updated:  33
+  ⚠ Empty:    1 (TM-page ohne Staatsbürgerschaft-Block)
+  ✗ Errors:   0
+  Time:       146s
+============================================================
+

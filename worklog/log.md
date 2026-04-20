@@ -11,6 +11,52 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 106 | 2026-04-20 | Stadium Image Compression (2 Monster-Files → -99%)
+- Stage-Chain: SPEC (inline) → IMPACT (skipped) → BUILD → PROVE → LOG
+- Approval: Anil "3 noch erledigen" (CTO-Scope Repo-Hygiene)
+- Files: 3 (new compress-script + 2 modified JPG)
+- Scope:
+  - NEW `scripts/compress-stadium-images.mjs`: sharp-based resize auf 2400px width + JPG quality 85 mit mozjpeg, configurable threshold
+  - `public/stadiums/getafe.jpg`: **66.40MB → 0.64MB (-99.0%)** (12051×8442px → 2400px)
+  - `public/stadiums/preussen-munster.jpg`: **60.70MB → 0.76MB (-98.7%)** (10544×7896px → 2400px)
+- Proof: `worklog/proofs/106-compress-run.txt`
+- Verification:
+  - Gesamt-Einsparung: 127.10MB → 1.40MB (-98.9%, 125.70MB gespart)
+  - GitHub-Warnings beseitigt (>50MB)
+- Notes:
+  - Script ist idempotent — re-run findet keine Files mehr > 50MB
+  - **Potenzial**: 43 weitere Files >5MB könnten ebenfalls komprimiert werden (insgesamt 606MB → 34MB möglich). Scope-Out für separaten Slice nach Anil-Review.
+
+---
+
+## 105 | 2026-04-20 | TFF1 Nationality Scrape (CEO-Freigabe)
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
+- Approval: Anil "3 noch erledigen" — implizite CEO-Freigabe für TFF1-Sperrgebiet
+- Files: 3 (enrich-script flag-erweiterung + mapper fix + spec + 2 proofs)
+- Scope:
+  - `scripts/enrich-nationality-tm.ts`: neue CLI-Flags `--include-tff1=true` + `--only-tff1=true` für TFF1-Sperrgebiet-Bypass
+  - `src/lib/utils/countryNameToIso.ts`: +3 German aliases (Tadschikistan→TJ, Usbekistan→UZ, Mauritius→MU) aus TFF1-Scrape-Edge-Cases
+  - `src/lib/utils/__tests__/countryNameToIso.test.ts`: +3 Tests (187/187 passing)
+- Proof Phase 1 (`worklog/proofs/105-tff1-scrape-run.txt`):
+  - 34 TFF1 Kandidaten (Spieler mit TM-Mapping + missing nationality)
+  - 33 ✅ Updated · 1 ⚠ Empty (TM-page ohne Staatsbürgerschaft-Block) · 0 Errors
+  - Zeit: 146s (2.5 min)
+- Per-Liga Coverage nach Run (`worklog/proofs/105-coverage-final.txt`):
+  - SL: **100.0%** (608/608) ⭐
+  - BL2: 99.8% (542/543)
+  - PL: 99.8% (635/636)
+  - SA: 99.7% (643/645)
+  - BL1: 99.6% (566/568)
+  - LL: 99.6% (678/681)
+  - TFF1: 87.7% (663/756) — verbleibend 93 ohne TM-Mapping
+- Global: 4348/4556 (95.4%), 208 NULL/empty, **0 unmapped**
+- Notes:
+  - 93 TFF1-Lücken = Spieler ohne TM-Mapping → brauchen anderen Workflow (Name-Search via API-Football oder CSV-Import)
+  - Script-Flags: `--include-tff1=true` (alle Ligen inkl. TFF1), `--only-tff1=true` (nur TFF1)
+  - Mapper jetzt insgesamt 180+ Entries incl. 60 German + 3 TFF1-Edge-Cases
+
+---
+
 ## 104 | 2026-04-20 | Perf-Foundation (next.config optimizePackageImports + template.tsx + lazy Root-Overlays)
 - Stage-Chain: SPEC → IMPACT (skipped — additive infra, keine cross-cutting) → BUILD → PROVE (before + after trace) → LOG
 - Approval: Anil "fang an" nach Ferrari-Tiefenanalyse (Chrome DevTools Trace + 3 Explore-Agents Frontend/Data/Bundle Audit)

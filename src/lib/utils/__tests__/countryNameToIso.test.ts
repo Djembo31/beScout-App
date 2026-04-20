@@ -316,6 +316,10 @@ describe('mapNationalityToIso', () => {
       ['Neuseeland', 'NZ'],
       ['Polen', 'PL'],
       ['Ungarn', 'HU'],
+      // Slice 105: TFF1 edge cases
+      ['Tadschikistan', 'TJ'],
+      ['Usbekistan', 'UZ'],
+      ['Mauritius', 'MU'],
     ])('maps German "%s" to "%s"', (de, iso) => {
       expect(mapNationalityToIso(de)).toBe(iso);
     });

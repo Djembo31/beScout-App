@@ -50,6 +50,10 @@ const limit = args.limit ? Math.max(1, parseInt(args.limit, 10)) : Infinity;
 const rateMs = Math.max(500, parseInt(args.rate ?? '3500', 10));
 const headless = args.headless !== 'false';
 const dryRun = args['dry-run'] === 'true';
+// Slice 105: TFF1-Sperrgebiet Freigabe-Flag. Default false für Backward-Compat.
+const includeTff1 = args['include-tff1'] === 'true';
+// Slice 105: --only-tff1=true scoped exklusiv auf TFF1 (nur wenn nach Slice 103 non-TFF1 bereits verarbeitet).
+const onlyTff1 = args['only-tff1'] === 'true';
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -87,7 +91,9 @@ async function loadCandidates(): Promise<Candidate[]> {
     for (const row of data) {
       const clubs = row.clubs as unknown as { name: string; leagues: { short: string } | null } | null;
       const leagueShort = clubs?.leagues?.short ?? '';
-      if (leagueShort === 'TFF1') continue;
+      // Slice 105: TFF1-Filter
+      if (leagueShort === 'TFF1' && !includeTff1 && !onlyTff1) continue;
+      if (onlyTff1 && leagueShort !== 'TFF1') continue;
 
       const externalIds = row.player_external_ids as unknown as Array<{ source: string; external_id: string }>;
       const tmEntry = externalIds.find((e) => e.source === 'transfermarkt');
@@ -122,7 +128,8 @@ async function main(): Promise<void> {
 
   const all = await loadCandidates();
   const players = all.slice(0, limit === Infinity ? all.length : limit);
-  console.log(`Loaded ${all.length} candidates (non-TFF1, missing nationality, TM-mapped). Running ${players.length}.\n`);
+  const scope = onlyTff1 ? 'TFF1-only' : includeTff1 ? 'all leagues incl. TFF1' : 'non-TFF1';
+  console.log(`Loaded ${all.length} candidates (${scope}, missing nationality, TM-mapped). Running ${players.length}.\n`);
 
   if (players.length === 0) {
     console.log('Nothing to do.');
