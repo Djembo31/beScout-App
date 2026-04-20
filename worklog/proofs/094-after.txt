@@ -1,0 +1,51 @@
+Slice 094 — INV-10 Fix: ipo_price Nachkalibrierung — Proof
+============================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+CEO-Approval: Anil, direkt in session
+
+## Changes Summary
+
+### Ad-hoc SQL via Supabase MCP (3 rows)
+
+```sql
+UPDATE players SET ipo_price = reference_price
+WHERE id IN (
+  '01c803d4-eeea-43c7-beaf-94cbedbae396', -- İsmail Kalburcu (BOL)
+  '2d948bbf-eaa4-4489-921f-e4ed313e3121', -- Ahmet Karademir (PEN)
+  '060803b3-5f05-4f9d-a4d7-e438f67f9536'  -- Baha Karakaya (SER)
+);
+```
+
+Post-Update:
+- İsmail Kalburcu: ipo 37,281 → **3,728,160** (= ref, mv × 10)
+- Ahmet Karademir: ipo 25,000 → **3,000,000** (= ref, mv × 10)
+- Baha Karakaya: ipo 2,500 → **250,000** (= ref, mv × 10)
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| Rows updated | 3 |
+| Remaining INV-10 violations (floor > 3× ipo) | **0** |
+| `npx vitest run -t "INV-10"` | **PASS** |
+| Trade-Table untouched | YES (0-1 existing trades pro Card, historische prices unverändert) |
+| Wallet-Table untouched | YES |
+| Liquidation-Flags unverändert | YES |
+
+## Baha Karakaya Note
+
+Diese Card hatte 1 existierenden Trade zu altem price (2,500 cents). Der Trade bleibt historisch archiviert — wir updaten nur `players.ipo_price`, nicht `trades.*`. Neue IPO-Käufe gehen zum neuen ipo_price (250,000 cents = 250 $SCOUT).
+
+## Spec Reference
+- worklog/specs/094-inv10-ipo-recalibration.md
+
+## Scope-Out (Slice B später)
+
+- Admin-UI-Warnung bei `reference_price > ipo_price × 3`
+- Automatischer IPO-Tranche-Reset bei mv-drift
+- INV-10-Cron-Check + Slack-Notify
+
+## CEO-Approval-Kontext
+
+Anil explicit: "unbedingt nachschauen, das ist nicht möglich, diese art von fehlern dürfen nicht passieren". Fix-Option A (ipo = reference_price) autorisiert in gleicher session.

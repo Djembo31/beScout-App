@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 094 | 2026-04-22 | INV-10 Fix: ipo_price Nachkalibrierung (3 violators)
+- Stage-Chain: SPEC → IMPACT (skipped, 3 rows) → BUILD → PROVE → LOG
+- CEO-Approval: Anil direkt in session ("unbedingt nachschauen")
+- Scope:
+  - **3 Cards ipo_price auf reference_price**: İsmail Kalburcu (BOL), Ahmet Karademir (PEN), Baha Karakaya (SER)
+  - Root-Cause: ipo_price stammt aus alter mv-Bewertung, mv dann stark gestiegen, ref folgt via Trigger aber ipo_price bleibt starr (by-design, trading.md "IPO price fest pro Tranche")
+  - 0-1 Trades pro Card → kein Trader-Schaden durch Nachkalibrierung
+- Proof: `worklog/proofs/094-after.txt`
+- Verification:
+  - 3 rows updated, 0 remaining INV-10 violations
+  - `npx vitest run -t INV-10` PASS
+  - Trade/Wallet/Liquidation-Flags unverändert
+- Notes:
+  - Scope-Out Slice B (später): Admin-UI-Warnung bei ref>ipo×3 + Auto-Reset Option
+  - Baha Karakaya: 1 historischer Trade zu altem Preis bleibt archiviert
+
+---
+
 ## 093 | 2026-04-22 | CI-Gate silent-fail-audit Baseline
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
 - Files: 5 (audit-script + baseline + package + CI + common-errors)
