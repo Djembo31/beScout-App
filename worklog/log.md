@@ -55,6 +55,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - Phase-2-Proof: `worklog/proofs/095-phase2-after.txt`
 - Remaining INV-32 findings (OUT OF SCOPE): `league_standings` + `player_transfers` — separate Slice
 - Security-Gewinn: Portfolio-Inferenz-Leak geschlossen. Non-admins sehen nur own trades. Public price-history via SECURITY DEFINER RPC (Slice 095 Phase 1). Club-admin-aggregates via guarded RPCs.
+- **Hotfix (via Playwright-QA auf bescout.net)**: `rpc_get_club_recent_trades` Guard war zu strict — blockte `/club/<slug>` public profile page. Guard entfernt (Return-Shape hat keine user_ids, public-safe). Admin-only-RPCs (`rpc_get_club_trading_fees`, `rpc_get_club_fan_stats`) behalten ihren Guard. Migration `slice_095_fix_club_recent_trades_guard` via MCP. Proof: `worklog/proofs/095-hotfix-club-recent-trades.txt`.
 
 ---
 

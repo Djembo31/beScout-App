@@ -207,6 +207,13 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - Nach Migration: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`.
 - NIEMALS `console.error` ohne `throw` bei kritischen DB-Writes — silent failure ist der schlimmste Bug.
 
+### SECURITY DEFINER RPC Guard: Admin-only vs Public-safe (Slice 095 Hotfix)
+- Beim Design eines SECURITY DEFINER RPC: NICHT nur "wer darf diese Tabelle SELECT" fragen, sondern **"wo wird der RPC aufgerufen?"**.
+- Wenn Return-Shape KEINE user_ids / PII enthält (nur IDs + aggregates + public info) UND die UI-page public ist (/club/<slug>, /player/<id>): **kein Guard nötig** — der RPC *ist* die Security-Boundary via Projection.
+- Wenn Return-Shape user_ids / PII enthält (top-fans-by-volume, fees-per-user): **admin-Guard pflicht**.
+- **Slice 095 Beispiel**: `rpc_get_club_recent_trades` (public-safe: nur player+price+time) hatte fälschlicherweise club-admin-guard → blockte `/club/<slug>` für alle non-admin user. Fix: Guard entfernen.
+- **Regel**: Vor Deploy: grep für alle RPC-call-sites in `src/components/**` und `src/app/**` — wenn **eine** public-page es nutzt, MUSS RPC public-callable sein (via Projection statt Guard).
+
 ---
 
 ## 5. Frontend (React / TS / CSS)

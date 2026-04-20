@@ -1,0 +1,65 @@
+Slice 095 Hotfix — rpc_get_club_recent_trades Guard relaxed
+=============================================================
+Date: 2026-04-22
+Status: COMPLETE (production hotfix applied via MCP)
+
+## Bug
+
+Playwright-Test nach Phase 2 apply zeigte: `/club/<slug>` Page bricht mit 3× 400-Errors auf `rpc_get_club_recent_trades`. jarvis-qa ist nicht club-admin für Adana Demirspor → Guard trippte → Recent-Trades-Section broken.
+
+## Root-Cause
+
+Guard zu strict designt:
+```sql
+IF NOT (v_is_club_admin OR v_is_platform_admin) THEN
+  RAISE EXCEPTION 'not_club_admin_or_platform_admin';
+END IF;
+```
+
+Aber: `/club/<slug>` ist public club-profile-page, lädt recent-trades für ALLE authenticated user via `useClubRecentTrades`. NUR `/bescout-admin` Revenue/Analytics-Tabs sind admin-only.
+
+## Analyse
+
+Return-Shape von `rpc_get_club_recent_trades`:
+```
+id, player_id, player_first_name, player_last_name, player_position,
+price, quantity, executed_at
+```
+
+**KEINE user_ids** (buyer_id/seller_id nicht projiziert). Public-safe — analog zu Slice 020 `get_public_orderbook`.
+
+## Fix
+
+Migration `slice_095_fix_club_recent_trades_guard`:
+- Guard entfernt aus `rpc_get_club_recent_trades`
+- LANGUAGE sql statt plpgsql (kürzer, identische Semantik)
+- REVOKE PUBLIC/anon + GRANT authenticated unverändert
+- COMMENT erklärt explicit: public-safe weil keine user_ids im Return
+
+Admin-only-RPCs behalten ihren Guard:
+- `rpc_get_club_trading_fees` — aggregiert fees (admin-Metrik)
+- `rpc_get_club_fan_stats` — top fans mit user_id (PII-adjacent)
+
+## Verification
+
+Vor Hotfix:
+- Page `/club/adana-demirspor` als jarvis-qa: **3× 400-Errors** in Console
+- UI: recent-trades-Section broken
+
+Nach Hotfix:
+- Page `/club/adana-demirspor` als jarvis-qa: **0 Errors** in Console
+- Club-Profile-Page lädt komplett (trending players, fixture preview, follow-button)
+- Screenshots: `qa-screenshots/slice095-club-page-after-hotfix.png`
+
+## Lesson für common-errors
+
+Beim Design von SECURITY DEFINER RPCs:
+- **Admin-only** → strict guard OK
+- **Public with handle/anonymized projection** → no guard nötig (RPC *ist* die security-boundary)
+- Entscheidungs-Frage: **"Wer ruft das UI auf?"** — NICHT nur "Wer soll die Tabelle sehen?"
+
+Fehler hier: ich habe die Security-Logik von "wer darf trades SELECT" übertragen auf RPC-Guard, ohne zu checken **wo der RPC aufgerufen wird** (public page vs admin page).
+
+## Files Modified
+- `rpc_get_club_recent_trades` via MCP apply_migration (slice_095_fix_club_recent_trades_guard)
+- Kein Code-Change (function signature + return-shape unverändert)
