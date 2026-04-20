@@ -93,6 +93,10 @@ supabase/.temp/
 # Lighthouse
 lighthouse-report.json
 
+# Raw Chrome DevTools traces in proofs (58MB+ unkomprimiert — immer gzip committen)
+worklog/proofs/*-trace*.json
+!worklog/proofs/*-trace*.json.gz
+
 # Misc root artifacts
 /=
 
