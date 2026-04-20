@@ -1,0 +1,75 @@
+Slice 117 — Data-Quality Closure Results
+Date: 2026-04-20 23:15
+
+═══════════════════════════════════════════════════════════════════
+VORHER (start of slice)
+═══════════════════════════════════════════════════════════════════
+
+mv_source:
+  transfermarkt_verified: 3.673
+  unknown: 551
+  transfermarkt_stale: 332
+
+Per-Liga MV-Coverage:
+  Bundesliga:       97.4%
+  2. Bundesliga:    96.1%
+  Serie A:          93.0%
+  La Liga:          92.4%
+  Premier League:   89.2%
+  Süper Lig:        83.2%
+  TFF 1. Lig:       74.3%
+
+═══════════════════════════════════════════════════════════════════
+PHASE 1 — Re-Scrape Stale (default mv-source)
+═══════════════════════════════════════════════════════════════════
+
+Run 1: `npx tsx scripts/tm-rescrape-stale.ts --limit=50`
+  duration: 162s, verified: 46, parse_failed: 4, errors: 0 (92% success)
+
+Run 2: `npx tsx scripts/tm-rescrape-stale.ts --limit=500`
+  duration: 249s, verified: 69, parse_failed: 6, errors: 0 (92% success)
+  mv changed: 8, contract new: 7
+
+Total Phase 1: 115 Players stale → verified
+
+═══════════════════════════════════════════════════════════════════
+PHASE 2 — Re-Scrape Unknown (--mv-source=unknown)
+═══════════════════════════════════════════════════════════════════
+
+Run: `npx tsx scripts/tm-rescrape-stale.ts --mv-source=unknown --limit=300`
+  duration: 55s, loaded: 17 (active unknowns), verified: 7, parse_failed: 10
+  mv changed: 3, contract new: 2
+
+Erklärung für niedrigen Pool: Slice 099 Stage 2 hat bereits 60 von 141 active
+unknowns mit Search-Scrape verifiziert. Die 17 verbleibenden sind harter Rest
+(TM gibt MV=0 / deaktivierte Profile).
+
+═══════════════════════════════════════════════════════════════════
+NACHHER
+═══════════════════════════════════════════════════════════════════
+
+mv_source:
+  transfermarkt_verified: 3.795  (+122, +3.3%)
+  unknown:                  544  (-7)
+  transfermarkt_stale:      217  (-115, -34.6%)
+
+Gesamt: 122 Players von stale/unknown auf verified.
+
+Remaining Data-Gaps (by design):
+  - 221 "verified mv=0" Players (TM sagt legit 0, z.B. Jugend/Retired)
+  - 393 "unknown mv=0" Players (brauchen CSV-Import oder manuelles Mapping)
+  - 217 "stale" Players (non-active, wurden rausgefiltert — nicht kritisch)
+
+═══════════════════════════════════════════════════════════════════
+SCOPE-OUT (Next Steps)
+═══════════════════════════════════════════════════════════════════
+
+Phase 3 (Anil manuell): CSV-Import für 105 TFF1-Players ohne TM-Mapping
+  → via Admin-UI (CSV-Import-Route seit Slice 079)
+  → oder: `npx tsx scripts/tm-search-scrape-unknown.ts --league="TFF 1. Lig" --limit=50`
+
+Ghost-Audit für 228 inaktiv+mv=0 Players — separate Review vor Delete.
+
+501 Players ohne contract_end — partial-filled via erfolgreiches Re-Scrape
+(TM liefert contract_end mit). Nach Phase 1 sollte ein großer Anteil davon
+gefüllt sein (logs zeigen contract_new: 7+2 = 9 in dieser Session).

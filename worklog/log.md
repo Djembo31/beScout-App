@@ -11,6 +11,34 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 118 | 2026-04-20 | Sentry Release-Tracking + Husky Pre-commit (Operational Hygiene)
+- Stage-Chain: SPEC → IMPACT (none, additive) → BUILD → PROVE → LOG
+- Approval: Anil "6" (6. Punkt aus Backlog-Priorisierung)
+- Files: 5 (next.config.mjs + 2 new .husky/* + package.json deps + 1 Spec + 1 Proof)
+- Scope:
+  - **Sentry**: `withSentryConfig()` wrapper in next.config.mjs. Erwartet `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` als Vercel env vars. Ohne: Build stabil, source-map-upload silent deaktiviert. `automaticVercelMonitors: true` aktiviert Cron Monitoring.
+  - **Husky**: install + `prepare: husky` script. Pre-commit hook: `tsc --noEmit` (full) + eslint auf staged files only. Kein vitest im hook (zu lang).
+- PROVE:
+  - `npx next build` PASS mit wrapper (`worklog/proofs/118-build.txt`)
+  - `.husky/pre-commit` executable
+- Commit: pending
+- Notes: Anil muss Sentry-Env-Vars in Vercel setzen für full Source-Map-Upload. Ohne env-vars funktioniert alles, nur Release-Tracking unvollständig.
+
+## 117 | 2026-04-20 | Data-Quality Closure (Re-Scrape stale + unknown)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- Approval: Anil "A" (Data-Quality Priority)
+- Files: 2 (1 Spec + 1 Proof, kein Code-Change — nur DB-Updates via Script)
+- Scope:
+  - Phase 1 (test 50 + full 75): `tm-rescrape-stale.ts` auf `mv_source='transfermarkt_stale'` → 115 verified (92% success-rate)
+  - Phase 2: `--mv-source=unknown --limit=300` → nur 17 active-stale geladen (Slice 099 hat bulk schon gemacht), 7 verified
+- PROVE:
+  - Vorher: verified 3.673 / unknown 551 / stale 332
+  - Nachher: verified 3.795 (+122) / unknown 544 / stale 217 (-115)
+  - Success-Rate Phase 1: 92% (115/125 processed)
+  - `worklog/proofs/117-data-quality-result.txt`
+- Commit: pending
+- Notes: 4 Test-Script-Runs erfolgreich. Remaining Scope: 393 "unknown mv=0" + 105 TFF1 unmapped brauchen CSV-Import oder manuelles Search-Mapping (Phase 3).
+
 ## 116 | 2026-04-20 | CLS-Fix: loading Skeletons für 21 dynamic imports
 - Stage-Chain: SPEC → IMPACT (inline grep) → BUILD → PROVE → LOG
 - Approval: Anil "b" (CLS-Fix Priority) nach Status-Review

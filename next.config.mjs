@@ -1,5 +1,6 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 import createBundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const withBundleAnalyzer = createBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
@@ -64,4 +65,20 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer(withNextIntl(nextConfig));
+// Slice 118: Sentry Release-Tracking via withSentryConfig.
+// Erwartet SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT als Vercel env vars.
+// Ohne Token: Release-Tracking silent deaktiviert (build bleibt stabil).
+const sentryConfig = {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+};
+
+export default withSentryConfig(
+  withBundleAnalyzer(withNextIntl(nextConfig)),
+  sentryConfig,
+);

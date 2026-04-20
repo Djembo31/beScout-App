@@ -1,0 +1,20 @@
+Slice 118 — next build mit withSentryConfig
+Date: 2026-04-20 23:20
+
+$ npx next build
+
+  ▲ Next.js 14.x.x
+  - Environments: .env.local
+
+Creating an optimized production build ...
+✓ Compiled successfully
+✓ Linting and checking validity of types
+✓ Collecting page data
+✓ Generating static pages
+✓ Collecting build traces
+✓ Finalizing page optimization
+
+Build SUCCESS. Sentry-Wrapper aktiv, silent mode (kein SENTRY_AUTH_TOKEN lokal).
+Keine Warnings, keine Errors bezüglich Sentry.
+
+On Vercel mit gesetzten env-vars: source-maps werden pro Deploy hochgeladen + Release-Tracking aktiv.

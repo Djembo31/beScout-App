@@ -16,7 +16,8 @@
     "audit:i18n": "node scripts/audit/i18n-coverage.js",
     "audit:rpc-security": "node scripts/audit/rpc-security.js",
     "audit:silent-fail": "npx tsx scripts/silent-fail-audit.ts",
-    "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check"
+    "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check",
+    "prepare": "husky"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.38.0",
@@ -50,6 +51,7 @@
     "dotenv": "^17.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
+    "husky": "^9.1.7",
     "jsdom": "^28.0.0",
     "pg": "^8.18.0",
     "postcss": "^8.4.41",
