@@ -1,0 +1,49 @@
+Slice 100 — Stadia Images + Nationality Enrichment (partial)
+==============================================================
+Date: 2026-04-22
+Status: PARTIAL — scope-out dokumentiert
+
+## Task 1: Stadion-Bilder (alle Ligen außer TFF1)
+
+**Vor:** 36 existing jpgs, 0 `stadium_image_url` in DB (fallback-chain via `/stadiums/<slug>.jpg`)
+
+**Scope:** 114 non-TFF1 Clubs mit Fallback → `/stadiums/${slug}.jpg`
+
+**Script-Änderungen:**
+- `scripts/fetch-stadium-images.mjs` + `--exclude-league=<short,short>` flag
+- Sleep von 1500ms → 3500ms in v2
+
+**Results:**
+- v1 (1500ms sleep): +10 downloads (Bielefeld, Cagliari, Schalke, Galatasaray, HSV, KSC, Greuther Fürth, Elversberg, +2)
+- v2 (3500ms sleep): +0 downloads — Wikipedia API persistent 429 für meine IP (aus v1-spam rate-limit-block)
+- **Total: 46/114 non-TFF1 covered (40%)**
+
+**Scope-Out:**
+- Wikipedia rate-limit braucht ~30-60 min Cooldown
+- 7 "not found" (z.B. "Ennio Tardini", "Galatasaray", "Kasımpaşa") brauchen manuelle URL oder alternative Quelle
+- Nächste Session: script v3 mit retry-on-429 + exponential backoff + specific User-Agent
+
+## Task 3: Nationalitäten-Gap non-TFF1 (267 Spieler)
+
+**Script:** `scripts/enrich-nationality.mjs` + `--exclude-league=TFF1` flag added
+
+**Finding:** Dry-run zeigt **0 updates** — alle 267 missing-nat Spieler sind NICHT mehr in der aktuellen API-Football-Squad-Response ihres Clubs. Squads haben sie released/transferred aber die BeScout-DB hat sie noch mit `club_id` gesetzt.
+
+**Breakdown:**
+- 131 active (matches > 0) / 136 inactive
+- Per-Liga: BL1 37, BL2 22, LL 71, PL 32, SA 69, SL 36
+
+**Scope-Out:**
+- Alternative Enrichment via API-Football `/players?id=<player_id>&season=<s>` per-player (267 API-calls, zero waste)
+- ODER: Data-Cleanup — move "ghost" players to `club_id=NULL` (analog Slice 081d Cross-Club-Contamination fix)
+- ODER: TM-profile-Scrape (hat Nationalität in meta-tag)
+
+Nächste Session: choose enrichment strategy.
+
+## Files Modified
+- `scripts/fetch-stadium-images.mjs` (+ --exclude-league, 3500ms sleep)
+- `scripts/enrich-nationality.mjs` (+ --exclude-league)
+- `public/stadiums/*.jpg` (+10 files via v1 run)
+
+## Commits planned
+- 1 fix(scripts): --exclude-league flag für fetch-stadium-images + enrich-nationality

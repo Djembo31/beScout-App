@@ -28,6 +28,9 @@ for (const line of envFile.split('\n')) {
 const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 const DRY_RUN = process.argv.includes('--dry-run');
 const FORCE = process.argv.includes('--force');
+// Optional: --exclude-league=TFF1 (kommagetrennt)
+const excludeArg = process.argv.find(a => a.startsWith('--exclude-league='));
+const EXCLUDE_LEAGUES = excludeArg ? excludeArg.slice('--exclude-league='.length).split(',').map(s => s.trim()) : [];
 const STADIUMS_DIR = 'public/stadiums';
 
 // Ensure directory exists
@@ -133,11 +136,18 @@ async function main() {
   console.log(`  STADIUM IMAGE FETCHER ${DRY_RUN ? '(DRY RUN)' : ''}`);
   console.log(`${'='.repeat(60)}\n`);
 
-  // Load all clubs from DB
-  const { data: clubs } = await supabase
+  // Load all clubs from DB, mit JOIN auf leagues.short für --exclude-league filter
+  const { data: clubsRaw } = await supabase
     .from('clubs')
-    .select('id, slug, name, stadium, league')
+    .select('id, slug, name, stadium, league, leagues!inner(short)')
     .order('league').order('name');
+  const clubs = (clubsRaw ?? []).filter(c => {
+    const shortCode = c.leagues?.short;
+    return !EXCLUDE_LEAGUES.includes(shortCode);
+  });
+  if (EXCLUDE_LEAGUES.length > 0) {
+    console.log(`  Exclude leagues: ${EXCLUDE_LEAGUES.join(', ')} (skipping ${(clubsRaw ?? []).length - clubs.length} clubs)\n`);
+  }
 
   let downloaded = 0;
   let skipped = 0;
@@ -185,7 +195,7 @@ async function main() {
       failed++;
     }
 
-    await sleep(1500); // Respectful rate limiting for Wikipedia
+    await sleep(3500); // Slice 099b: erhöht von 1500ms — Wikipedia blockt aggressiver mit 429
   }
 
   console.log(`\n${'='.repeat(60)}`);

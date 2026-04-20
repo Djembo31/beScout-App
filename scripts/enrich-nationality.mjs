@@ -38,6 +38,9 @@ const API_BASE = 'https://v3.football.api-sports.io';
 const SEASON = 2025;
 const DRY_RUN = process.argv.includes('--dry-run');
 const LEAGUE_FILTER = process.argv.find(a => a.startsWith('--league='))?.split('=')[1] ?? null;
+// Optional: --exclude-league=TFF1 (kommagetrennt)
+const excludeArg = process.argv.find(a => a.startsWith('--exclude-league='));
+const EXCLUDE_LEAGUES = excludeArg ? excludeArg.slice('--exclude-league='.length).split(',').map(s => s.trim()) : [];
 
 let apiCallCount = 0;
 
@@ -58,8 +61,12 @@ async function main() {
   // Load leagues
   let leagueQuery = supabase.from('leagues').select('*').order('country').order('name');
   if (LEAGUE_FILTER) leagueQuery = leagueQuery.eq('short', LEAGUE_FILTER);
-  const { data: leagues } = await leagueQuery;
-  if (!leagues?.length) { console.error('No leagues found'); process.exit(1); }
+  const { data: rawLeagues } = await leagueQuery;
+  const leagues = (rawLeagues ?? []).filter(l => !EXCLUDE_LEAGUES.includes(l.short));
+  if (!leagues.length) { console.error('No leagues found'); process.exit(1); }
+  if (EXCLUDE_LEAGUES.length > 0) {
+    console.log(`  Exclude leagues: ${EXCLUDE_LEAGUES.join(', ')} (${(rawLeagues ?? []).length - leagues.length} skipped)\n`);
+  }
 
   let totalUpdated = 0;
   let totalSkipped = 0;
