@@ -11,6 +11,31 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 120 | 2026-04-20 | country-flag-icons Bundle-Split (Eliminate 235 kB Chunk)
+- Stage-Chain: SPEC → IMPACT (inline, static-asset migration) → BUILD → PROVE → LOG
+- Approval: inline (CTO-Scope: Perf-Optimization, kein Wording/Money/Security-Change)
+- Files: 276 (1 Component rewrite + 1 Test + 1 Config + 2 package-files + 265 SVG assets + 4 docs)
+- Scope:
+  - **Root cause** (via `@next/bundle-analyzer`): `import * as Flags3x2 from 'country-flag-icons/react/3x2'` in CountryFlag.tsx war Namespace-Import mit dynamic lookup `Flags3x2[code]`. Webpack konnte nicht tree-shaken → gesamtes Flag-Package (265 Komponenten, **235 kB parsed / 53 kB gzipped**) als standalone-chunk `f4898fe8.js` gebundled. `optimizePackageImports` hilft bei Namespace-Imports nicht.
+  - **Lösung (Option E — static assets)**: `node_modules/country-flag-icons/3x2/*.svg` (265 Files, ~591 kB total, Ø 2.2 kB) nach `public/flags/3x2/` kopiert. `CountryFlag.tsx` rendert jetzt `<img src={/flags/3x2/${code}.svg}>` mit `loading=lazy`, `decoding=async`, explicit `width`/`height`. API unchanged für alle 17+ Consumer.
+  - `hasFlag` aus Haupt-Package bleibt — ist nur countries.json-Array-Lookup (~1 kB), tree-shakable.
+  - **Bundle-Analyzer** (`@next/bundle-analyzer`) als dev-dep + Wrapper in `next.config.mjs`. Enabled via `ANALYZE=true npx next build`. Reports in `.next/analyze/{client,edge,nodejs}.html`.
+- PROVE:
+  - `worklog/proofs/120-bundle-diff.md` — Page-by-page FLJS-Vergleich + eliminierter standalone-chunk dokumentiert.
+  - `worklog/proofs/120-tsc-clean.txt` — tsc clean.
+  - `worklog/proofs/120-vitest.txt` — 10/10 CountryFlag tests PASS (rewrite für `<img>`-Assertions).
+- Bundle-Delta (messbar via `next build`):
+  - **Standalone chunk `f4898fe8.js` (235.4 kB / 53.3 kB gzipped): ELIMINATED.**
+  - `/player/[id]` FLJS **365 → 309 kB (−56 kB, −15%)**.
+  - `/home`, `/market`, `/club/[slug]`, `/community` unverändert (CountryFlag nicht auf deren critical path — chunk war conditional-shared).
+- AC-Bilanz: 7/9 ✅ · 1/9 ❌ (AC #5a `/home FLJS −30 kB` verfehlt — CountryFlag nicht in /home tree) · 1/9 ⚠ (AC #8 post-deploy visual check pending).
+- Commit: `d0b41cd9` (BUILD+BUNDLE) + `c2edb45e` (active.md LOG).
+- Notes:
+  - **Ehrliche Einordnung**: Spec erwartete "signifikanter LCP-Hebel auf allen Pages" (aus shared-bundle-Annahme). Tatsächlich war der Chunk standalone-conditional, nicht shared-all. Win-Lokation: `/player/[id]`. Pattern "Namespace-Import blockiert Tree-Shaking" in `.claude/rules/common-errors.md §8` verankert.
+  - User-Journey Home → Player: −56 kB beim 2nd-page-load, spürbar auf Slow 4G.
+  - Cold-Visit auf `/player/[id]` direkt: −15% FLJS.
+  - Follow-ups möglich: Supabase SSR chunk (204 kB, framework-nah), `/home`-spezifisches dynamic()-Splitting (−20-40 kB Schätzung).
+
 ## 115 | 2026-04-20 | Player.prices.referencePrice komplett entfernt (Slice 112 Scope-Out Follow-up)
 - Stage-Chain: SPEC (ad-hoc) → IMPACT (grep-basiert) → BUILD → PROVE → LOG
 - Approval: Anil "115, dann 113"
