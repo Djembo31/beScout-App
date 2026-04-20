@@ -9,32 +9,23 @@ impact: —
 proof: —
 ```
 
-## Heute komplett (Slices 087-098) — 16 Commits + Hotfix
+## Session 2026-04-22 COMPLETE — 22 Commits
 
-### 098 — Pre-existing Test-Failures fixed (TURK-03 + useMarketData)
-- Full-Suite **2617/2618 passed** (erster grüner Run heute)
+Detailed Handoff: `memory/session-handoff.md`
 
-### 097 — INV-32 Cleanup: league_standings + player_transfers Whitelist
-### 095 — INV-32 trades Tighten COMPLETE (Phase 1 + 2 + Hotfix)
-### 096 — Sentry.setUser GDPR-conservative
-### 094 — INV-10 Fix: ipo_price Nachkalibrierung
-### 093 — CI-Gate silent-fail-audit Baseline
-### 092 — Silent-Catch Observability
-### 091 — DB-Invariants INV-36/37/38 fix
-### 090 — silent-fail-audit Precision v2
-### 089 — allSettled Sweep
-### 088 — Sentry Observability Util
-### 087 — Upstream Silent-Fail Follow-Ups
+## Heute fertiggestellt (Slices 087-100)
 
-## Status
+- **087-093 + 096** — Observability-Serie (3-Tier Util-Stack, 25 Sentry-Sites, 8-Pattern Audit + CI-Gate)
+- **094** — INV-10 ipo_price Fix (3 cards, CEO-approved)
+- **095** — INV-32 trades Tighten (Phase 1 + 2 + Hotfix, Playwright-verified)
+- **097** — INV-32 Cleanup (league_standings + player_transfers whitelist)
+- **098** — TURK-03 + useMarketData Test-Failures gefixt
+- **099** — TM Re-Scrape (+227 verified)
+- **100 (partial)** — Stadia +12 / Nationality 0 (Wikipedia 429 + Squad-Response-Gap)
 
-- **Alle Invariants grün**: INV-10/32/36/37/38 + TURK-03 alles stable
-- **Observability-Stack komplett**: 3-Tier util + 8-Pattern Audit + CI-Gate
-- **25 Sentry Call-Sites** (was 1 before 088)
-- **trades-Leak geschlossen**: public price-history via RPC-Projection, RLS tight own-or-admin
-- **Sentry GDPR-safe**: UUID-only user-context + beforeSend-scrubber
+## Nächste Session HOT-Tasks
 
-## Next Ideas (wenn weiter)
-- Admin-UI "IPO-drift Warning" (Slice B aus 094) — UI-Component
-- Pattern 9 Audit (`if(error)console.error;return null` in services)
-- Kanban-Items / Feature-Arbeit
+1. **Stadia v3** — nach Wikipedia-Cooldown (~30-60 min), script v3 mit retry-on-429 erweitern
+2. **Nationality Strategy** — Anil-Entscheidung: per-player API / ghost-cleanup / TM-scrape / akzeptieren
+
+Details mit Copy-Paste-Commands in `memory/session-handoff.md`.
