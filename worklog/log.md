@@ -11,6 +11,40 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 096 | 2026-04-22 | Sentry.setUser GDPR-conservative
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
+- CEO-Delegation: Anil ("mit sentry kenne ich mich nicht so gut aus, die entscheidung überlasse ich dir")
+- Files: 4 (AuthProvider + 3 sentry configs)
+- Scope:
+  - **AuthProvider**: Sentry.setUser({id}) auf SIGNED_IN + setUser(null) auf clearUserState. Plus addBreadcrumb für signed_in/signed_out auth-events
+  - **beforeSend hook** in allen 3 Sentry-configs (client/server/edge): scrubt event.user auf {id} only — defense-in-depth gegen versehentliche PII-Leaks
+  - **GDPR-Policy**: Plain UUID gesendet (pseudonymer Identifier, DSGVO Art. 4), NIE email/handle/username
+- Proof: `worklog/proofs/096-after.txt`
+- Verification:
+  - tsc clean
+  - `npm run audit:silent-fail:check` PASS (193/98/95, kein regression)
+- Notes:
+  - Sentry ist per `enabled: NODE_ENV === 'production'` gated — kein Dev-Noise
+  - Consent-Banner nicht existierend, bei späterem Launch einführen
+  - Release-Tracking als Scope-Out (braucht Build-Config)
+
+---
+
+## 095 | 2026-04-22 | INV-32 trades Tighten — DEFERRED (needs User-verification between deploy phases)
+- Status: **NOT EXECUTED** in dieser Session
+- Reason: Rollout braucht 2 Vercel-Deploys mit Verify-Gap (analog Slice 020/021 orders) — nicht safe-autonom
+- Consumer-Analyse dokumentiert:
+  - Own-user-filter (direct-RLS-OK): trading.getUserTrades, social.Smart-Money-Check
+  - Cross-User-public (need anonymized RPC): trading.getPlayerTrades, trading.getAllPriceHistories
+  - Admin-aggregate (need RPC oder admin-branch in RLS): club × 4, platformAdmin × 2
+- Proposed approach:
+  - Migration A: 2 SECURITY DEFINER RPCs (get_anonymized_trades_for_player, get_sparkline_trades) + Service-Migration
+  - Verify bescout.net green online
+  - Migration B: RLS tighten auf `auth.uid() IN (buyer_id, seller_id) OR is_admin`
+- Für nächste Session: User Present Required für Phase-Verify
+
+---
+
 ## 094 | 2026-04-22 | INV-10 Fix: ipo_price Nachkalibrierung (3 violators)
 - Stage-Chain: SPEC → IMPACT (skipped, 3 rows) → BUILD → PROVE → LOG
 - CEO-Approval: Anil direkt in session ("unbedingt nachschauen")

@@ -8,6 +8,7 @@ import { getAuthState } from '@/lib/services/auth-state';
 import { getProfile } from '@/lib/services/profiles';
 import { getPlatformAdminRole, type PlatformAdminRole } from '@/lib/services/platformAdmin';
 import { getClubAdminFor } from '@/lib/services/club';
+import * as Sentry from '@sentry/nextjs';
 import { withTimeout } from '@/lib/utils';
 import { queryClient } from '@/lib/queryClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
@@ -244,6 +245,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           flushActivityLogs();
         }).catch(err => console.error('[AuthProvider] logActivity logout:', err));
       }
+      // Slice 096: Sentry user-context clear (GDPR — kein stale user-id in nachfolgenden Events)
+      Sentry.setUser(null);
+      if (event === 'SIGNED_OUT') {
+        Sentry.addBreadcrumb({ category: 'auth', message: 'signed_out', level: 'info' });
+      }
       currentUserId = null;
       setUser(null);
       setProfile(null);
@@ -277,6 +283,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           queryClient.invalidateQueries();
         }
         if (event === 'SIGNED_IN') {
+          // Slice 096: Sentry pseudonymous user-context (UUID only, GDPR-safe)
+          Sentry.setUser({ id: u.id });
+          Sentry.addBreadcrumb({ category: 'auth', message: 'signed_in', level: 'info' });
           import('@/lib/services/activityLog').then(({ logActivity }) => {
             logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
           }).catch(err => console.error('[AuthProvider] logActivity login:', err));

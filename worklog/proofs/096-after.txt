@@ -1,0 +1,59 @@
+Slice 096 — Sentry.setUser GDPR-conservative — Proof
+======================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+CEO-Delegation: Anil ("mit sentry kenne ich mich nicht so gut aus, die entscheidung überlasse ich dir")
+
+## Changes Summary
+
+### 1. src/components/providers/AuthProvider.tsx
+- Import `@sentry/nextjs`
+- SIGNED_IN branch: `Sentry.setUser({ id: u.id })` + addBreadcrumb 'auth:signed_in'
+- clearUserState: `Sentry.setUser(null)` + addBreadcrumb 'auth:signed_out' (wenn event === SIGNED_OUT)
+
+### 2. sentry.client.config.ts · sentry.server.config.ts · sentry.edge.config.ts
+`beforeSend(event)` hook: wenn `event.user` existiert, auf `{ id }` reduzieren. Scrubt versehentlich gesetzte `email`/`username`/`handle`-Felder.
+
+## GDPR-Entscheidungen (CTO-ownership)
+
+| Feld | Gesendet? | Begründung |
+|------|-----------|------------|
+| `user.id` (UUID) | JA | Pseudonymer Identifier per DSGVO Art. 4, kein PII |
+| `user.email` | NIE | Direktes PII |
+| `user.username` / `handle` | NIE | Indirekt identifizierend (lookup möglich) |
+| Breadcrumbs: `auth:signed_in` / `auth:signed_out` | JA | Event-Flow ohne PII |
+| Consent-Banner | N/A | BeScout hat aktuell keinen Banner; Sentry per `enabled: production` gated |
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS |
+| `npm run audit:silent-fail:check` | PASS (193/98/95 — kein regression) |
+| Sentry.setUser call-sites in AuthProvider | 2 (SIGNED_IN + clearUserState) |
+| beforeSend in Sentry configs | 3/3 (client + server + edge) |
+| Breadcrumb-calls | 2 (signed_in + signed_out) |
+
+## Sentry-Event-Flow (nach Deploy)
+
+1. User signed in → `Sentry.setUser({id: 'uuid'})` + Breadcrumb
+2. User triggert Error → Event gesendet mit user.id + letzte Breadcrumbs (inkl. signed_in)
+3. Dev sieht Sentry-Event: welcher User (via UUID), in welcher Session-Phase (Breadcrumb-Trail)
+4. GDPR-audit-safe: kein email/handle/name in Events
+
+## Files Modified
+```
+ sentry.client.config.ts                           |  8 ++++++++
+ sentry.edge.config.ts                             |  7 +++++++
+ sentry.server.config.ts                           |  7 +++++++
+ src/components/providers/AuthProvider.tsx         | 12 +++++++++++-
+ 4 files changed
+```
+
+## Spec Reference
+- worklog/specs/096-sentry-setuser-gdpr.md
+
+## Scope-Out
+- User-Consent-Banner (bei späterem Launch)
+- Release-Tracking via SENTRY_RELEASE env var
+- Session Replay enabled (bereits `replaysSessionSampleRate: 0`, on-error only)
