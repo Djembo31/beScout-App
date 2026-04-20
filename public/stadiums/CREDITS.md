@@ -56,3 +56,9 @@ See individual image pages for specific attribution.
 Stadium photographs sourced from Wikipedia and Wikimedia Commons.
 Licensed under Creative Commons Attribution-ShareAlike (CC BY-SA).
 See individual image pages for specific attribution.
+
+## Stadium Images (2026-04-20)
+
+Stadium photographs sourced from Wikipedia and Wikimedia Commons.
+Licensed under Creative Commons Attribution-ShareAlike (CC BY-SA).
+See individual image pages for specific attribution.

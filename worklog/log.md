@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 101 | 2026-04-20 | Stadia v3 — Wikipedia Retry mit Exponential Backoff
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD (parked während Slice 102) → PROVE → LOG
+- Approval: Anil HOT-Task 1 via "a starten"
+- Files: 2 (scripts/fetch-stadium-images.mjs + 68 neue public/stadiums/*.jpg + CREDITS)
+- Scope:
+  - **Root-Cause**: Slice 100 v2-Script wurde von Wikipedia 429-rate-limited. User-Agent war generisch ("BeScoutApp/1.0 (stadium-image-fetch)"), fehlte Kontakt-Info nach Wikimedia Policy.
+  - **BUILD**: User-Agent auf policy-konformes `BeScoutApp/1.0 (https://bescout.net; kx.demirtas@gmail.com)`. Neuer `fetchWithRetry()` Helper mit 3-step exponential backoff (5s → 15s → 60s) + Rate429Error class für fail-open-nach-exhaustion. Integration in alle 4 fetch-Call-sites (Search/PageImages/Commons/Download). Summary-Counter `failed429` ergänzt.
+  - **PROVE**: `node scripts/fetch-stadium-images.mjs --exclude-league=TFF1` — **68/68 erfolgreich, 0 failed, 0 429-blocked**. Der neue User-Agent wurde von Wikipedia sofort akzeptiert, retry-logic musste nie triggern.
+- Proof: `worklog/proofs/101-stadia-v3-run.txt`
+- Commit: (pending — dieser Commit)
+- Verification:
+  - node --check syntax OK
+  - Vor/Nach: 67 → **135 Stadion-Bilder** (+68)
+  - Stadion-Coverage non-TFF1: 114/114 Clubs (100%)
+  - Per-Liga Downloads: BL1, BL2, PL, SA, LL, SL komplett + TFF1 (via Slice 100 baseline)
+- Notes:
+  - User-Agent-Compliance allein reichte — retry-logic blieb ungenutzt aber bleibt als Safety-Net
+  - Slice 100 Scope-Out "7 not-found Stadia (Ennio Tardini etc.)" jetzt auch gefunden — Regex-Enhancements aus Slice 099/100 haben Vorarbeit geleistet
+  - Scope-Out bleibt: alternative Quellen (Google Images) — nicht nötig
+
+---
+
 ## 102 | 2026-04-20 | Nationality Full-Name → ISO Mapper (Flag Rendering Fix)
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
 - Approval: Anil "ja, ich möchte überall die flaggen sehen" — entdeckt an Osimhen

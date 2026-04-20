@@ -9,26 +9,28 @@ impact: —
 proof: —
 ```
 
-## Letzte Session 2026-04-20 (ongoing)
+## Session 2026-04-20 Progress
 
 | Slice | Title | Status |
 |-------|-------|--------|
-| 102 | Nationality Full-Name → ISO Mapper (Flag Rendering Fix) | ✅ DONE (commit 053e5084) |
-| 101 | Stadia v3 — Wikipedia Retry mit Exponential Backoff | 🟡 BUILD done, PROVE pending (Script-Run) |
-| 103 | Nationality-Enrichment Option (a) — Per-player API-Football | 🔵 queued |
+| 102 | Nationality Full-Name → ISO Mapper (Flag Fix) | ✅ DONE (053e5084 + ba3a2fe7) |
+| 101 | Stadia v3 — Wikipedia Retry mit Exponential Backoff | ✅ DONE (LOG commit pending) |
+| 103 | Nationality-Enrichment Option (a) — API-Football | 🔵 queued |
+
+## Slice 101 Recap
+
+- Wikipedia-Rate-Limit komplett gelöst durch policy-konformen User-Agent
+- **68/68 Stadien erfolgreich, 0 failed, 0 429-blocked**
+- Total Stadion-Coverage: 67 → **135 Bilder** (+68)
+- Retry-logic mit exponential backoff eingebaut als Safety-Net (ungenutzt in diesem Run)
+- Non-TFF1 Clubs: 100% Stadion-Coverage
 
 ## Slice 102 Recap
 
-- Bug: Osimhen zeigt kein Flag — Root-Cause `nationality=Full-Name` in DB, Component erwartet ISO
-- Fix: `src/lib/utils/countryNameToIso.ts` 180-Entry Mapper + `?? 'TR'` Default entfernt
-- Coverage: **4163/4556 mapped (91.4%), 0 unmapped, 393 NULL-empty**
-- Playwright-verifiziert: Osimhen (NG grün-weiß-grün) + Walker-Peters (GB-ENG St George's Cross)
-- 185/185 tests passing incl. 145 neue Mapper-Tests
+- 185/185 Tests grün incl. 145 neue Mapper-Tests
+- DB-Coverage: 4163/4556 mapped (91.4%), 0 unmapped, 393 NULL-empty
+- Playwright live-verifiziert: Osimhen (NG) + Walker-Peters (GB-ENG)
 
 ## Nächste Action
 
-Slice 101 PROVE: Wikipedia-Cooldown ist durch (verifiziert 18:18). Script-Run:
-```bash
-node scripts/fetch-stadium-images.mjs --exclude-league=TFF1
-```
-Target ≥40 neue Stadion-Bilder (67 → ≥107), Output nach `worklog/proofs/101-stadia-v3-run.txt`.
+Anil-Entscheidung: Slice 103 (API-Football nationality lookup) oder Session beenden?

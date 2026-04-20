@@ -39,8 +39,48 @@ if (!existsSync(STADIUMS_DIR)) mkdirSync(STADIUMS_DIR, { recursive: true });
 const WIKI_API = 'https://en.wikipedia.org/w/api.php';
 const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
 
+// Wikimedia User-Agent Policy: identifier + contact (https://meta.wikimedia.org/wiki/User-Agent_policy)
+const USER_AGENT = 'BeScoutApp/1.0 (https://bescout.net; kx.demirtas@gmail.com)';
+
 // Rate limit: 200ms between requests (respectful to Wikipedia)
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+class Rate429Error extends Error {
+  constructor(url) {
+    super(`429-exhausted after 3 retries: ${url}`);
+    this.name = 'Rate429Error';
+  }
+}
+
+/**
+ * fetch wrapper with exponential backoff on 429 (5s, 15s, 60s, then throw Rate429Error)
+ * and single retry on network errors (5s wait).
+ */
+async function fetchWithRetry(url, opts = {}) {
+  const RETRY_DELAYS_MS = [5_000, 15_000, 60_000];
+  const headers = { ...(opts.headers ?? {}), 'User-Agent': USER_AGENT };
+  const req = { ...opts, headers };
+
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    let res;
+    try {
+      res = await fetch(url, req);
+    } catch (err) {
+      if (attempt === 0) {
+        console.warn(`  [network] ${err.message} → retry in 5s`);
+        await sleep(5_000);
+        continue;
+      }
+      throw err;
+    }
+    if (res.status !== 429) return res;
+    if (attempt >= RETRY_DELAYS_MS.length) throw new Rate429Error(url);
+    const wait = RETRY_DELAYS_MS[attempt];
+    console.warn(`  [429] ${url.slice(0, 80)}... → backoff ${wait / 1000}s (retry ${attempt + 1}/${RETRY_DELAYS_MS.length})`);
+    await sleep(wait);
+  }
+  throw new Rate429Error(url); // unreachable, for TS comfort
+}
 
 /**
  * Search Wikipedia for a stadium article and get its main image URL
@@ -58,7 +98,7 @@ async function getStadiumImageUrl(stadiumName, clubName) {
     try {
       // Search Wikipedia
       const searchUrl = `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(term)}&srnamespace=0&srlimit=3&format=json`;
-      const searchRes = await fetch(searchUrl, { headers: { 'User-Agent': 'BeScoutApp/1.0 (stadium-image-fetch)' } });
+      const searchRes = await fetchWithRetry(searchUrl);
       const searchData = await searchRes.json();
       const results = searchData.query?.search ?? [];
 
@@ -76,7 +116,7 @@ async function getStadiumImageUrl(stadiumName, clubName) {
 
         // Get page image
         const imgUrl = `${WIKI_API}?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&piprop=original|thumbnail&pithumbsize=1200&format=json`;
-        const imgRes = await fetch(imgUrl, { headers: { 'User-Agent': 'BeScoutApp/1.0' } });
+        const imgRes = await fetchWithRetry(imgUrl);
         const imgData = await imgRes.json();
         const pages = imgData.query?.pages ?? {};
 
@@ -92,7 +132,8 @@ async function getStadiumImageUrl(stadiumName, clubName) {
         await sleep(100);
       }
     } catch (err) {
-      // Skip this search term on error
+      if (err instanceof Rate429Error) throw err;
+      // Skip this search term on non-429 errors
     }
     await sleep(150);
   }
@@ -100,7 +141,7 @@ async function getStadiumImageUrl(stadiumName, clubName) {
   // Strategy 2: Search Wikimedia Commons directly
   try {
     const commonsUrl = `${COMMONS_API}?action=query&generator=search&gsrsearch=${encodeURIComponent(stadiumName)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1200&format=json`;
-    const commonsRes = await fetch(commonsUrl, { headers: { 'User-Agent': 'BeScoutApp/1.0' } });
+    const commonsRes = await fetchWithRetry(commonsUrl);
     const commonsData = await commonsRes.json();
     const pages = commonsData.query?.pages ?? {};
 
@@ -114,7 +155,8 @@ async function getStadiumImageUrl(stadiumName, clubName) {
       return { url: thumbUrl, title: page.title, source: 'commons' };
     }
   } catch (err) {
-    // Commons search failed
+    if (err instanceof Rate429Error) throw err;
+    // Commons search failed on non-429 error
   }
 
   return null;
@@ -124,7 +166,7 @@ async function getStadiumImageUrl(stadiumName, clubName) {
  * Download an image and save as JPG
  */
 async function downloadImage(url, destPath) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'BeScoutApp/1.0' } });
+  const res = await fetchWithRetry(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const buffer = Buffer.from(await res.arrayBuffer());
   writeFileSync(destPath, buffer);
@@ -152,6 +194,7 @@ async function main() {
   let downloaded = 0;
   let skipped = 0;
   let failed = 0;
+  let failed429 = 0;
   let alreadyExists = 0;
 
   for (const club of clubs ?? []) {
@@ -170,7 +213,18 @@ async function main() {
     }
 
     // Search for stadium image
-    const result = await getStadiumImageUrl(club.stadium, club.name);
+    let result;
+    try {
+      result = await getStadiumImageUrl(club.stadium, club.name);
+    } catch (err) {
+      if (err instanceof Rate429Error) {
+        console.log(`  🚫 ${club.name.padEnd(30)} — Wikipedia 429-exhausted (search)`);
+        failed429++;
+        await sleep(3500);
+        continue;
+      }
+      throw err;
+    }
 
     if (!result) {
       console.log(`  ❌ ${club.name.padEnd(30)} — "${club.stadium}" not found on Wikipedia`);
@@ -191,15 +245,20 @@ async function main() {
       console.log(`  ✅ ${club.name.padEnd(30)} — ${sizeKB}KB (${result.title})`);
       downloaded++;
     } catch (err) {
-      console.log(`  ❌ ${club.name.padEnd(30)} — download failed: ${err.message}`);
-      failed++;
+      if (err instanceof Rate429Error) {
+        console.log(`  🚫 ${club.name.padEnd(30)} — Wikipedia 429-exhausted (download)`);
+        failed429++;
+      } else {
+        console.log(`  ❌ ${club.name.padEnd(30)} — download failed: ${err.message}`);
+        failed++;
+      }
     }
 
     await sleep(3500); // Slice 099b: erhöht von 1500ms — Wikipedia blockt aggressiver mit 429
   }
 
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`  Downloaded: ${downloaded} | Already had: ${alreadyExists} | Failed: ${failed} | Skipped: ${skipped}`);
+  console.log(`  Downloaded: ${downloaded} | Already had: ${alreadyExists} | Failed: ${failed} | 429-blocked: ${failed429} | Skipped: ${skipped}`);
   console.log(`${'='.repeat(60)}\n`);
 
   // Update CREDITS.md
