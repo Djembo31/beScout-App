@@ -1,31 +1,44 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
+status: prove
+slice: 102
+title: Nationality Full-Name → ISO Mapper (Flag Rendering Fix)
+stage: PROVE
+spec: worklog/specs/102-nationality-iso-mapper.md
+impact: skipped (Service-Layer + UI-Komponente, keine DB/RPC/Type-Contract-Änderung)
+proof: worklog/proofs/102-tests.txt
+additional_proof:
+  - worklog/proofs/102-coverage.txt (91.4% mapped / 0% unmapped / 8.6% NULL-empty)
+  - worklog/proofs/102-osimhen-flag.png (pending Vercel deploy → Playwright)
+size: XS
+ceo_scope: false
+s_slice: true
 ```
 
-## Session 2026-04-22 COMPLETE — 22 Commits
+## Context
 
-Detailed Handoff: `memory/session-handoff.md`
+Bug entdeckt während Slice 101 BUILD (18:10):
+Osimhen (Galatasaray) zeigt kein Flag. Root-Cause: `players.nationality` ist als Full-Name gespeichert ("Nigeria"), CountryFlag erwartet ISO-3166-1 alpha-2 ("NG"). Default `?? 'TR'` setzt zudem alle NULL-nationality auf türkisches Flag (falsch).
 
-## Heute fertiggestellt (Slices 087-100)
+Betrifft ~99% der Spieler (nur 92 "TR" + 1 "DE" + kleine ISO-Inseln zeigen derzeit korrekt).
 
-- **087-093 + 096** — Observability-Serie (3-Tier Util-Stack, 25 Sentry-Sites, 8-Pattern Audit + CI-Gate)
-- **094** — INV-10 ipo_price Fix (3 cards, CEO-approved)
-- **095** — INV-32 trades Tighten (Phase 1 + 2 + Hotfix, Playwright-verified)
-- **097** — INV-32 Cleanup (league_standings + player_transfers whitelist)
-- **098** — TURK-03 + useMarketData Test-Failures gefixt
-- **099** — TM Re-Scrape (+227 verified)
-- **100 (partial)** — Stadia +12 / Nationality 0 (Wikipedia 429 + Squad-Response-Gap)
+## Parked
 
-## Nächste Session HOT-Tasks
+Slice 101 BUILD done (scripts/fetch-stadium-images.mjs retry-on-429), PROVE deferred bis Slice 102 LOG. Wikipedia ist nicht mehr 429-blocked — Script-Run ready when 102 done.
 
-1. **Stadia v3** — nach Wikipedia-Cooldown (~30-60 min), script v3 mit retry-on-429 erweitern
-2. **Nationality Strategy** — Anil-Entscheidung: per-player API / ghost-cleanup / TM-scrape / akzeptieren
+## Plan
 
-Details mit Copy-Paste-Commands in `memory/session-handoff.md`.
+1. SPEC — `worklog/specs/102-nationality-iso-mapper.md`
+2. BUILD:
+   - NEW `src/lib/utils/countryNameToIso.ts` (lookup-Tabelle + mapper fn)
+   - EDIT `src/components/ui/CountryFlag.tsx` (GB-ENG → GB_ENG React-export-Quirk)
+   - EDIT `src/lib/services/players.ts:151` (mapper statt `?? 'TR'`)
+   - NEW unit-tests (countryNameToIso + CountryFlag subdivision)
+3. PROVE — Playwright-screenshot Osimhen mit NG-flag + vitest grün
+4. LOG — commit + log.md + common-errors pattern
+
+## Queued
+
+- Slice 101 PROVE (Stadia v3 script-run)
+- Slice 103 — API-Football per-player nationality-enrich (267 missing)

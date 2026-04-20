@@ -11,9 +11,14 @@ vi.mock('@/lib/utils', () => ({
 vi.mock('country-flag-icons/react/3x2', () => ({
   DE: (props: Record<string, unknown>) => <svg data-testid="flag-de" {...props} />,
   TR: (props: Record<string, unknown>) => <svg data-testid="flag-tr" {...props} />,
+  NG: (props: Record<string, unknown>) => <svg data-testid="flag-ng" {...props} />,
+  // Library exports GB subdivisions with underscore (JS-identifier-safe)
+  GB_ENG: (props: Record<string, unknown>) => <svg data-testid="flag-gb-eng" {...props} />,
+  GB_SCT: (props: Record<string, unknown>) => <svg data-testid="flag-gb-sct" {...props} />,
 }));
 vi.mock('country-flag-icons', () => ({
-  hasFlag: (code: string) => ['DE', 'TR'].includes(code),
+  // `hasFlag` accepts the hyphenated form for subdivisions
+  hasFlag: (code: string) => ['DE', 'TR', 'NG', 'GB-ENG', 'GB-SCT'].includes(code),
 }));
 
 describe('CountryFlag', () => {
@@ -49,5 +54,20 @@ describe('CountryFlag', () => {
     const flag = screen.getByTestId('flag-de');
     expect(flag.style.height).toBe('24px');
     expect(flag.style.width).toBe('36px'); // 24 * 1.5
+  });
+
+  it('renders NG flag for Nigerian players (Osimhen regression)', () => {
+    render(<CountryFlag code="NG" />);
+    expect(screen.getByTestId('flag-ng')).toBeInTheDocument();
+  });
+
+  it('renders GB-ENG subdivision flag (hyphen → underscore export lookup)', () => {
+    render(<CountryFlag code="GB-ENG" />);
+    expect(screen.getByTestId('flag-gb-eng')).toBeInTheDocument();
+  });
+
+  it('renders GB-SCT subdivision flag', () => {
+    render(<CountryFlag code="GB-SCT" />);
+    expect(screen.getByTestId('flag-gb-sct')).toBeInTheDocument();
   });
 });

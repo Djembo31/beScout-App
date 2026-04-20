@@ -181,8 +181,23 @@ describe('dbToPlayer', () => {
     expect(dbToPlayer(db).age).toBe(0);
   });
 
-  it('handles null nationality', () => {
+  it('maps null nationality to empty string (no TR fallback)', () => {
     const db = createMockDbPlayer({ nationality: null });
+    expect(dbToPlayer(db).country).toBe('');
+  });
+
+  it('maps full-name nationality to ISO code (Nigeria → NG)', () => {
+    const db = createMockDbPlayer({ nationality: 'Nigeria' });
+    expect(dbToPlayer(db).country).toBe('NG');
+  });
+
+  it('maps Türkiye endonym to TR', () => {
+    const db = createMockDbPlayer({ nationality: 'Türkiye' });
+    expect(dbToPlayer(db).country).toBe('TR');
+  });
+
+  it('passes through existing ISO code (TR)', () => {
+    const db = createMockDbPlayer({ nationality: 'TR' });
     expect(dbToPlayer(db).country).toBe('TR');
   });
 

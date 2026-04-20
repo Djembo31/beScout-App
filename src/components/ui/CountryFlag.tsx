@@ -35,11 +35,16 @@ export default function CountryFlag({ code, size = 16, className }: CountryFlagP
     );
   }
 
+  // `country-flag-icons` exports GB subdivision components with underscore
+  // (GB_ENG, GB_SCT, GB_WLS, GB_NIR) while `hasFlag` accepts the hyphenated form.
+  // Normalize to the JS-identifier form for the React-export lookup.
+  const exportKey = upperCode.replace(/-/g, '_');
+
   // The library types each flag as (props: HTMLAttributes & SVGAttributes) => JSX.Element
   // We cast to a generic component accepting common HTML/SVG attributes
   const FlagComponent = (Flags3x2 as Record<string, React.ComponentType<
     React.HTMLAttributes<HTMLElement> & React.SVGAttributes<SVGElement> & { style?: React.CSSProperties }
-  >>)[upperCode];
+  >>)[exportKey];
 
   if (!FlagComponent) {
     return (

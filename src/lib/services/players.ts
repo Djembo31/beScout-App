@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getClub } from '@/lib/clubs';
 import { getLeague } from '@/lib/leagues';
+import { mapNationalityToIso } from '@/lib/utils/countryNameToIso';
 import type { League } from '@/types';
 import type { DbPlayer, Player, PlayerStatus, Pos } from '@/types';
 import { toPos } from '@/types';
@@ -148,7 +149,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     pos: toPos(db.position),
     status: (db.status as PlayerStatus) ?? 'fit',
     age: db.age ?? 0,
-    country: db.nationality ?? 'TR',
+    country: mapNationalityToIso(db.nationality),
     contractMonthsLeft: calcContractMonths(db.contract_end),
     perf: {
       l5: Number(db.perf_l5),
