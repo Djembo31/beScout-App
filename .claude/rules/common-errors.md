@@ -68,6 +68,19 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - Script akzeptiert Flag `--mv-source=unknown` aber intern `if (fresh.mv_source !== 'transfermarkt_stale') skip` hart-codiert → silent skip trotz 1240 Kandidaten.
 - Fix: Flag-Wert in Variable, ALLE Hart-Code-Referenzen ersetzen (nicht nur die Haupt-Filter-Zeile).
 
+### Promise.allSettled ohne Observability (Slice 088)
+- `Promise.allSettled` + `r.status === 'fulfilled' ? r.value.data : []` ist graceful-degrade-by-design, aber rejected results sind komplett unsichtbar → Data-Liar im UI (z.B. "0/0 mapped").
+- Zwei Fix-Patterns je nach Absicht:
+  - **Alles-oder-nichts** (Slice 087 getMappingStatus): `Promise.all` + explicit `.error`-Checks → Fehler propagieren natural.
+  - **Graceful degrade gewollt**: `Promise.allSettled` behalten, aber `logSilentRejects(label, results)` einbauen → console.error (dev) + Sentry.captureException (prod).
+- Util: `src/lib/observability/silentRejects.ts`. Pattern:
+  ```ts
+  const results = await Promise.allSettled([q1, q2, q3]);
+  logSilentRejects('myModule.myFunction', results);
+  const [r1, r2, r3] = results;
+  ```
+- Audit: `grep -rn 'Promise.allSettled' src/ | grep -v __tests__ | grep -v logSilentRejects` — Stellen ohne Util instrumentieren.
+
 ---
 
 ## 2. Supabase / Postgres

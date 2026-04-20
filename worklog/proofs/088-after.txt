@@ -1,0 +1,81 @@
+Slice 088 — Sentry Observability für Promise.allSettled Silent-Rejects — Proof
+================================================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+
+## Changes Summary
+
+### 1. NEW: src/lib/observability/silentRejects.ts (26 lines)
+Utility `logSilentRejects(label, results)`:
+- Iteriert `PromiseSettledResult<unknown>[]`, behandelt nur rejected status
+- Wrappt nicht-Error reasons in `new Error(String(reason))`
+- Dev-mode: `console.error` mit `[silentReject] {label}[{idx}]:` prefix
+- Prod-mode: `Sentry.captureException` mit tags (`silentReject: 'true'`, `label`) + extra (`index`, `totalResults`)
+- Sentry ist per `enabled: process.env.NODE_ENV === 'production'` in sentry.client.config.ts gated → keine noise in dev
+
+### 2. NEW: src/lib/observability/__tests__/silentRejects.test.ts (80 lines, 5 tests)
+- Empty array → no-op (0 captureException, 0 console.error)
+- All fulfilled → no-op
+- 1 rejected (Error instance) → captureException with correct label+index, console.error fires
+- 2 rejected → 2 captureException in order, indexes correct (0 und 2)
+- String reason → wrapped in Error with matching message
+
+### 3. Integration in 3 kritischen Call-Sites
+- `src/components/providers/AuthProvider.tsx:157-163` (auth fallback: profile + platformRole + clubAdmin)
+- `src/lib/services/platformAdmin.ts:40-48` (admin dashboard: users + wallets + trades + events + offers)
+- `src/features/fantasy/services/scoring.queries.ts:355-360` (fantasy scoring: fixtures + events per GW)
+
+Pattern:
+```ts
+const results = await Promise.allSettled([...]);
+logSilentRejects('{module}.{function}', results);
+const [...destructured] = results;
+```
+Keine Änderung an existing fulfilled/rejected routing — pure additive observation.
+
+### 4. common-errors.md §1 neuer Entry "Promise.allSettled ohne Observability (Slice 088)"
+- Dokumentiert die 2 Fix-Patterns (Promise.all vs allSettled + logSilentRejects)
+- Audit-command für residuelle Stellen
+
+## Verification Results
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS (clean) |
+| `npx vitest run src/lib/observability` | 5/5 passed |
+| `npx vitest run src/lib/observability src/components/providers src/lib/services/__tests__/platformAdmin.test.ts src/features/fantasy/services` | 136/136 passed (9 test files) |
+| Existing AuthProvider-Tests unverändert | YES |
+| Existing platformAdmin-Tests unverändert | YES |
+| Existing scoring-Tests unverändert | YES |
+| No circular import | YES (util imports nur @sentry/nextjs, keine zirkulare Relation) |
+
+## Files Modified (non-settings)
+
+```
+ .claude/rules/common-errors.md                       | 13 +++++++++++++
+ src/components/providers/AuthProvider.tsx            |  5 ++++-
+ src/features/fantasy/services/scoring.queries.ts     |  5 ++++-
+ src/lib/services/platformAdmin.ts                    |  5 ++++-
+ src/lib/observability/silentRejects.ts               | 26 +++ (NEW)
+ src/lib/observability/__tests__/silentRejects.test.ts| 80 +++ (NEW)
+```
+
+## Sentry-Flow in Production
+
+1. User triggert AuthProvider.loadProfile fallback
+2. Eine der 3 Queries (getProfile / getPlatformAdminRole / getClubAdminFor) timeouts oder wirft
+3. allSettled resolved mit `{status: 'rejected', reason: Error}` für diesen Slot
+4. `logSilentRejects` iteriert results, findet rejected slot
+5. Im Prod: `Sentry.captureException(err, { tags: {silentReject: 'true', label: 'AuthProvider.loadProfile'}, extra: {index, totalResults} })`
+6. Sentry Dashboard zeigt Event mit Tag `silentReject:true` + `label:AuthProvider.loadProfile` — filterbar, gruppierbar per Stacktrace
+
+## Spec Reference
+- worklog/specs/088-sentry-silent-rejects.md
+
+## Scope-Out (weiter als separate Slices)
+
+- Restliche 17 Promise.allSettled-Stellen: club.ts, social.ts (2), scouting.ts (4), offers.ts (2), research.ts, search.ts, useLineupSave.ts, useProfileData.ts, FollowListModal.tsx, AdminGameweeksTab.tsx, pushSender.ts — per `/silent-fail-audit` Folge-Slice priorisiert nach Money/Auth/Admin-Nähe.
+- `.catch(() => null)` patterns → separate util (z.B. `logSilentCatch(label, err)`).
+- Sentry breadcrumbs für DB-Queries (supabase client wrapper).
+- `Sentry.setUser({id, email})` on AuthProvider login → separate slice.
+- Sentry-dashboard-config auf sentry.io (alerts, issue-grouping) → out-of-code scope.

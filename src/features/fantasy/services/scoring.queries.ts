@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText } from '@/lib/notifText';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 
 // ============================================
 // Scoring Service — Queries
@@ -351,10 +352,12 @@ export type FullGameweekStatus = {
 
 /** Get status for all 38 gameweeks */
 export async function getFullGameweekStatus(): Promise<FullGameweekStatus[]> {
-  const [fixturesRes, eventsRes] = await Promise.allSettled([
+  const results = await Promise.allSettled([
     supabase.from('fixtures').select('gameweek, status'),
     supabase.from('events').select('gameweek, status, scored_at').not('gameweek', 'is', null),
   ]);
+  logSilentRejects('scoring.getFullGameweekStatus', results);
+  const [fixturesRes, eventsRes] = results;
 
   const fixtures = fixturesRes.status === 'fulfilled' ? (fixturesRes.value.data ?? []) : [];
   const events = eventsRes.status === 'fulfilled' ? (eventsRes.value.data ?? []) : [];

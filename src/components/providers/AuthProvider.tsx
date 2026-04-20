@@ -10,6 +10,7 @@ import { getPlatformAdminRole, type PlatformAdminRole } from '@/lib/services/pla
 import { getClubAdminFor } from '@/lib/services/club';
 import { withTimeout } from '@/lib/utils';
 import { queryClient } from '@/lib/queryClient';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { Profile, ClubAdminRole } from '@/types';
 
 // ============================================
@@ -153,11 +154,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Fallback: 3 separate queries
     try {
-      const [p, pRole, cAdmin] = await Promise.allSettled([
+      const results = await Promise.allSettled([
         withTimeout(getProfile(userId), 8000),
         withTimeout(getPlatformAdminRole(userId), 8000),
         withTimeout(getClubAdminFor(userId), 8000),
       ]);
+      logSilentRejects('AuthProvider.loadProfile', results);
+      const [p, pRole, cAdmin] = results;
 
       if (p.status === 'fulfilled') {
         setProfile(p.value);

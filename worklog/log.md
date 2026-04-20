@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 088 | 2026-04-22 | Sentry Observability für Promise.allSettled Silent-Rejects
+- Stage-Chain: SPEC → IMPACT (skipped, additive + 3 targeted sites) → BUILD → PROVE → LOG
+- Files: 6 (2 new: observability/silentRejects.ts + tests; 3 integrations; 1 rules doc)
+- Scope:
+  - **NEW `src/lib/observability/silentRejects.ts`**: Utility `logSilentRejects(label, results)` — console.error (dev) + Sentry.captureException (prod) für rejected entries
+  - **NEW `src/lib/observability/__tests__/silentRejects.test.ts`**: 5 Tests (empty, all-fulfilled, 1-rejected, 2-rejected, string-reason)
+  - **Integration**: AuthProvider.tsx:157 (auth fallback), platformAdmin.ts:40 (getSystemStats), scoring.queries.ts:355 (getFullGameweekStatus)
+  - **common-errors.md §1**: neuer Entry "Promise.allSettled ohne Observability" mit 2 Fix-Patterns
+- Proof: `worklog/proofs/088-after.txt`
+- Verification:
+  - tsc clean
+  - 136/136 Tests passed (9 test files: observability/AuthProvider/platformAdmin/scoring + neighbors)
+  - Util-Signature `ReadonlyArray<PromiseSettledResult<unknown>>` umgeht generic tuple-inference issues
+- Notes:
+  - Additive observability — kein Break an existing fulfilled/rejected Logik
+  - Sentry nur in prod via config `enabled: NODE_ENV === 'production'` → kein noise in dev
+  - 17 weitere Promise.allSettled-Stellen per Folge-Audit instrumentieren (priorisiert nach Money/Auth/Admin-Nähe)
+
+---
+
 ## 087 | 2026-04-22 | Upstream Silent-Fail Follow-Ups (Slice 086 Scope-Outs)
 - Stage-Chain: SPEC → IMPACT (inline, Caller-grep verifiziert) → BUILD → PROVE → LOG
 - Files: 3 (gameweek-sync/route.ts +15, footballData.ts +8, footballData.test.ts -5)

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { DbFeeConfig, DbEventFeeConfig, OperationResult } from '@/types';
 
 // ============================================
@@ -36,13 +37,15 @@ export type SystemStats = {
 
 export async function getSystemStats(): Promise<SystemStats> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = await Promise.allSettled([
+  const results = await Promise.allSettled([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('wallets').select('balance').limit(5000),
     supabase.from('trades').select('price, quantity').gte('executed_at', since).limit(5000),
     supabase.from('events').select('*', { count: 'exact', head: true }).in('status', ['upcoming', 'registering', 'late-reg', 'running']),
     supabase.from('offers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
   ]);
+  logSilentRejects('platformAdmin.getSystemStats', results);
+  const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = results;
 
   const totalUsers = usersRes.status === 'fulfilled' ? (usersRes.value.count ?? 0) : 0;
   const wallets = walletsRes.status === 'fulfilled' ? (walletsRes.value.data ?? []) : [];
