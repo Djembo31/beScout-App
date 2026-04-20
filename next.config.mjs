@@ -10,6 +10,9 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ['lucide-react', '@supabase/supabase-js', 'posthog-js', '@tanstack/react-query', 'next-intl', 'zustand', 'country-flag-icons', '@sentry/nextjs'],
+    // Slice 125: Next.js 14 requires this flag for the instrumentation hook.
+    // Removed in Next.js 15 (stable by default).
+    instrumentationHook: true,
   },
   images: {
     remotePatterns: [
@@ -68,14 +71,21 @@ const nextConfig = {
 // Slice 118: Sentry Release-Tracking via withSentryConfig.
 // Erwartet SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT als Vercel env vars.
 // Ohne Token: Release-Tracking silent deaktiviert (build bleibt stabil).
+//
+// Slice 125: `disableLogger` + `automaticVercelMonitors` migrated to their
+// `webpack.*` equivalents per Sentry v10 deprecation warnings.
 const sentryConfig = {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   hideSourceMaps: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    automaticVercelMonitors: true,
+  },
 };
 
 export default withSentryConfig(
