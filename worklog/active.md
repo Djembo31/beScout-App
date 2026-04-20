@@ -1,13 +1,19 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
+status: active
+slice: 109
+stage: SPEC → IMPACT
+spec: worklog/specs/109-home-dashboard-rpc.md
+impact: pending
+proof: pending
 ```
+
+## Slice 109 — get_home_dashboard_v1 RPC
+
+**Ziel:** 4 per-User-Queries auf /home → 1 SECURITY DEFINER RPC. /home LCP 3792ms → <3200ms.
+**Scope-In:** holdings + user_stats + tickets + highest_pass in single jsonb RPC mit AR-44 Guard.
+**Scope-Out:** Wallet (RLS race) · hasFreeBoxToday (staleTime:0) · global queries · AuthProvider-Robustness → Slice 110.
 
 ## Session 2026-04-20 Progress (8 Slices)
 

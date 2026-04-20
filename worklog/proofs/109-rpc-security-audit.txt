@@ -1,0 +1,43 @@
+RPC: public.get_home_dashboard_v1(uuid)
+
+-- 1. SECURITY DEFINER + ACL check
+SELECT proname, prosecdef, proacl, pg_catalog.pg_get_function_identity_arguments(oid)
+FROM pg_proc
+WHERE proname = 'get_home_dashboard_v1';
+
+Result:
+[
+  {
+    "proname": "get_home_dashboard_v1",
+    "security_definer": true,
+    "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+    "args": "p_user_id uuid"
+  }
+]
+
+AR-44 compliance:
+- security_definer: true        ✓
+- acl contains authenticated:   ✓
+- acl does NOT contain anon:    ✓ (REVOKE applied)
+- acl does NOT contain PUBLIC:  ✓ (REVOKE applied)
+
+-- 2. RPC body contains auth.uid() Guard
+SELECT proname FROM pg_proc
+WHERE proname = 'get_home_dashboard_v1'
+  AND pg_get_functiondef(oid) ILIKE '%auth.uid() IS DISTINCT FROM%'
+  AND pg_get_functiondef(oid) ILIKE '%auth_uid_mismatch%';
+
+Result: 1 row (guard pattern present)
+
+-- 3. Smoke call for jarvis-qa (service_role context → auth.uid() IS NULL → guard skipped)
+SELECT jsonb_object_keys(public.get_home_dashboard_v1('535bbcaf-f33c-4c66-8861-b15cbff2e136'::uuid)) AS key;
+
+Result: tickets | holdings | user_stats | highest_pass   (all 4 keys present)
+
+-- 4. Payload shape sanity
+Result: {
+  holdings_count: 12,
+  total_score: "490",
+  tickets_balance: "326",
+  highest_pass_tier: null     (no founding pass for this user — expected)
+}

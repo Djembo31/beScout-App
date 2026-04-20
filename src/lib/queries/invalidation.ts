@@ -21,6 +21,7 @@ export function invalidateTradeQueries(playerId: string, userId?: string): void 
   }
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
+    queryClient.invalidateQueries({ queryKey: qk.homeDashboard.byUser(userId) });
     queryClient.invalidateQueries({ queryKey: ['transactions', userId], exact: false });
     if (playerId) {
       queryClient.invalidateQueries({ queryKey: qk.holdings.qty(userId, playerId) });
@@ -31,6 +32,7 @@ export function invalidateTradeQueries(playerId: string, userId?: string): void 
 /** Invalidate caches affected by social/reputation actions */
 export function invalidateSocialQueries(userId: string): void {
   queryClient.invalidateQueries({ queryKey: qk.userStats.byUser(userId) });
+  queryClient.invalidateQueries({ queryKey: qk.homeDashboard.byUser(userId) });
   queryClient.invalidateQueries({ queryKey: qk.social.followerCount(userId) });
   queryClient.invalidateQueries({ queryKey: qk.social.followingCount(userId) });
   queryClient.invalidateQueries({ queryKey: qk.social.feed(userId) });
@@ -93,6 +95,7 @@ export function invalidatePlayerDetailQueries(playerId: string, userId?: string)
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
     queryClient.invalidateQueries({ queryKey: qk.holdings.qty(userId, playerId) });
+    queryClient.invalidateQueries({ queryKey: qk.homeDashboard.byUser(userId) });
     queryClient.invalidateQueries({ queryKey: ['transactions', userId], exact: false });
   }
 }

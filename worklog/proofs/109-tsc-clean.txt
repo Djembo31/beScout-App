@@ -1,0 +1,14 @@
+$ npx tsc --noEmit
+(exit 0, no output — clean)
+
+Ran: 2026-04-20 end-of-day, after Slice 109 BUILD complete.
+Files changed:
+  M src/app/(app)/hooks/useHomeData.ts
+  M src/app/(app)/hooks/__tests__/useHomeData.test.ts
+  M src/lib/queries/index.ts
+  M src/lib/queries/invalidation.ts
+  M src/lib/queries/keys.ts
+  A src/lib/queries/homeDashboard.ts
+  A src/lib/services/homeDashboard.ts
+  A src/lib/services/__tests__/homeDashboard.test.ts
+  A supabase/migrations/20260420220000_slice_109_home_dashboard_rpc.sql

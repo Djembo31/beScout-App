@@ -1,0 +1,13 @@
+$ npx vitest run
+Test Files  187 passed (187)
+     Tests  2835 passed | 1 skipped (2836)
+  Duration  286.29s
+
+$ npx vitest run src/lib/services/__tests__/homeDashboard.test.ts src/app/\(app\)/hooks/__tests__/useHomeData.test.ts
+Test Files  2 passed (2)
+     Tests  31 passed (31)
+  Duration  3.50s
+
+Scope:
+- src/lib/services/__tests__/homeDashboard.test.ts — 4 tests (full payload, null slices, null payload, throw on error)
+- src/app/(app)/hooks/__tests__/useHomeData.test.ts — 27 tests, all green after mocks migrated from 4 individual hooks to single useHomeDashboard

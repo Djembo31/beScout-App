@@ -6,20 +6,17 @@ import { centsToBsd } from '@/lib/services/players';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import {
   usePlayers,
-  useHoldings,
   useEvents,
-  useUserStats,
   useTrendingPlayers,
+  useHomeDashboard,
   qk,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
-import { useUserTickets } from '@/lib/queries/tickets';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useLoginStreak } from '@/lib/queries/streaks';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { getPlayerPriceChanges7d } from '@/lib/services/players';
-import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
 import { STREAK_KEY, getStoryMessage } from '@/components/home/helpers';
@@ -53,19 +50,20 @@ export function useHomeData() {
 
   // ── React Query ──
   const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
-  const { data: rawHoldings = [] } = useHoldings(uid);
   const { data: events = [] } = useEvents();
-  const { data: userStats = null } = useUserStats(uid);
   const { data: trendingPlayers = [] } = useTrendingPlayers(5);
+
+  // Slice 109: 4 per-user queries (holdings + user_stats + tickets + highest_pass)
+  // consolidated into a single `get_home_dashboard_v1` RPC. Primes individual
+  // query caches so TopBar / SideNav / etc. stay warm without extra roundtrips.
+  const { data: dashboard } = useHomeDashboard(uid);
+  const rawHoldings = dashboard?.holdings ?? [];
+  const userStats = dashboard?.user_stats ?? null;
+  const ticketData = dashboard?.tickets ?? null;
+  const highestPass = dashboard?.highest_pass ?? null;
 
   // ── Gamification v5 Hooks ──
   const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
-  // Tickets load immediately (never gated on belowFoldReady). The pill is
-  // always visible in the TopBar, so deferring it by 800ms caused a visible
-  // pop-in on first paint and interacted badly with TopBar's observer
-  // leaving a window where no observer was enabled → query never fired.
-  const { data: ticketData = null } = useUserTickets(uid);
-  const { data: highestPass } = useHighestPass(uid, belowFoldReady);
   const { hasFreeBoxToday } = useHasFreeBoxToday(uid);
 
   // ── Holdings Transform ──
@@ -202,8 +200,9 @@ export function useHomeData() {
       // Surface the real RPC error — the modal catches and displays it.
       throw new Error(result.error ?? 'Unknown error');
     }
-    // Always invalidate tickets
+    // Always invalidate tickets + home dashboard (tickets live on dashboard payload)
     queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+    queryClient.invalidateQueries({ queryKey: qk.homeDashboard.byUser(uid) });
     // Conditional invalidation based on reward type
     if (result.rewardType === 'cosmetic') {
       queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });

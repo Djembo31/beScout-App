@@ -58,6 +58,11 @@ export const qk = {
     byUser: (uid: string) => ['userStats', uid] as const,
   },
 
+  // ── Home Dashboard (Slice 109 — aggregates holdings+user_stats+tickets+highest_pass) ──
+  homeDashboard: {
+    byUser: (uid: string) => ['home-dashboard', uid] as const,
+  },
+
   // ── IPOs ──
   ipos: {
     active: ['ipos', 'active'] as const,

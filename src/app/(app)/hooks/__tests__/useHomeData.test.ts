@@ -6,37 +6,48 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 // ============================================
 
 const mockUsePlayers = vi.fn();
-const mockUseHoldings = vi.fn();
 const mockUseEvents = vi.fn();
-const mockUseUserStats = vi.fn();
 const mockUseTrendingPlayers = vi.fn();
 const mockUseChallengeHistory = vi.fn();
-const mockUseUserTickets = vi.fn();
-const mockUseHighestPass = vi.fn();
+const mockUseHomeDashboard = vi.fn();
+
+// Helper to set a dashboard payload for tests; mirrors HomeDashboard shape.
+function setDashboard(
+  patch: Partial<{
+    holdings: unknown[];
+    user_stats: unknown;
+    tickets: unknown;
+    highest_pass: unknown;
+  }> = {},
+) {
+  mockUseHomeDashboard.mockReturnValue({
+    data: {
+      holdings: patch.holdings ?? [],
+      user_stats: patch.user_stats ?? null,
+      tickets: patch.tickets ?? null,
+      highest_pass: patch.highest_pass ?? null,
+    },
+  });
+}
 
 vi.mock('@/lib/queries', () => ({
   usePlayers: (...a: any[]) => mockUsePlayers(...a),
-  useHoldings: (...a: any[]) => mockUseHoldings(...a),
   useEvents: (...a: any[]) => mockUseEvents(...a),
-  useUserStats: (...a: any[]) => mockUseUserStats(...a),
   useTrendingPlayers: (...a: any[]) => mockUseTrendingPlayers(...a),
+  useHomeDashboard: (...a: any[]) => mockUseHomeDashboard(...a),
   qk: {
     dailyChallenge: { history: (uid: string) => ['dailyChallenge', 'history', uid] },
     tickets: { balance: (uid: string) => ['tickets', 'balance', uid] },
     cosmetics: { user: (uid: string) => ['cosmetics', 'user', uid] },
+    equipment: { inventory: (uid: string) => ['equipment', 'inventory', uid] },
+    wallet: { all: ['wallet'] },
+    mysteryBox: { freeBoxToday: (uid: string) => ['mysteryBox', 'freeBoxToday', uid] },
+    homeDashboard: { byUser: (uid: string) => ['home-dashboard', uid] },
   },
 }));
 
 vi.mock('@/lib/queries/dailyChallenge', () => ({
   useChallengeHistory: (...a: any[]) => mockUseChallengeHistory(...a),
-}));
-
-vi.mock('@/lib/queries/tickets', () => ({
-  useUserTickets: (...a: any[]) => mockUseUserTickets(...a),
-}));
-
-vi.mock('@/lib/queries/foundingPasses', () => ({
-  useHighestPass: (...a: any[]) => mockUseHighestPass(...a),
 }));
 
 // ============================================
@@ -142,7 +153,6 @@ vi.mock('@/lib/services/streaks', () => ({
 import { useHomeData } from '../useHomeData';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStoryMessage } from '@/components/home/helpers';
-import { qk } from '@/lib/queries';
 
 // ============================================
 // Fixtures
@@ -200,13 +210,10 @@ function makeEvent(overrides: Record<string, unknown> = {}) {
 
 function setDefaults() {
   mockUsePlayers.mockReturnValue({ data: [], isLoading: false, isError: false });
-  mockUseHoldings.mockReturnValue({ data: [] });
   mockUseEvents.mockReturnValue({ data: [] });
-  mockUseUserStats.mockReturnValue({ data: null });
   mockUseTrendingPlayers.mockReturnValue({ data: [] });
   mockUseChallengeHistory.mockReturnValue({ data: [] });
-  mockUseUserTickets.mockReturnValue({ data: null });
-  mockUseHighestPass.mockReturnValue({ data: undefined });
+  setDashboard();
 }
 
 // ============================================
@@ -245,8 +252,7 @@ describe('useHomeData', () => {
   // ── Holdings Transform ──
 
   it('transforms raw holdings into DpcHolding format', () => {
-    const raw = [makeHolding()];
-    mockUseHoldings.mockReturnValue({ data: raw });
+    setDashboard({ holdings: [makeHolding()] });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.holdings).toHaveLength(1);
     const h = result.current.holdings[0];
@@ -259,8 +265,12 @@ describe('useHomeData', () => {
   });
 
   it('filters out holdings with null player', () => {
-    const raw = [makeHolding(), { ...makeHolding({ id: 'h-2', player_id: 'p-2' }), player: null }];
-    mockUseHoldings.mockReturnValue({ data: raw });
+    setDashboard({
+      holdings: [
+        makeHolding(),
+        { ...makeHolding({ id: 'h-2', player_id: 'p-2' }), player: null },
+      ],
+    });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.holdings).toHaveLength(1);
   });
@@ -270,7 +280,7 @@ describe('useHomeData', () => {
   it('computes portfolioValue, portfolioCost, pnl, pnlPct', () => {
     // floor=6, avgBuy=5, qty=5 → value=30, cost=25, pnl=5, pnlPct=20%
     mockCentsToBsd.mockImplementation((v: number) => v / 100000);
-    mockUseHoldings.mockReturnValue({ data: [makeHolding()] });
+    setDashboard({ holdings: [makeHolding()] });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.portfolioValue).toBeCloseTo(30); // 5 * 6
     expect(result.current.portfolioCost).toBeCloseTo(25);  // 5 * 5
@@ -280,7 +290,7 @@ describe('useHomeData', () => {
 
   it('returns pnlPct=0 when portfolioCost is 0', () => {
     mockCentsToBsd.mockReturnValue(0);
-    mockUseHoldings.mockReturnValue({ data: [makeHolding()] });
+    setDashboard({ holdings: [makeHolding()] });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.pnlPct).toBe(0);
   });
@@ -355,8 +365,8 @@ describe('useHomeData', () => {
 
   it('returns top movers from the 7d price changes RPC', async () => {
     mockCentsToBsd.mockImplementation((v: number) => v / 100000);
-    mockUseHoldings.mockReturnValue({
-      data: [
+    setDashboard({
+      holdings: [
         makeHolding({ id: 'h-1', player_id: 'p-1' }),
         makeHolding({ id: 'h-2', player_id: 'p-2' }),
         makeHolding({ id: 'h-3', player_id: 'p-3' }),
@@ -376,7 +386,7 @@ describe('useHomeData', () => {
   });
 
   it('returns empty topMovers with fewer than 2 holdings', () => {
-    mockUseHoldings.mockReturnValue({ data: [makeHolding()] });
+    setDashboard({ holdings: [makeHolding()] });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.topMovers).toHaveLength(0);
   });
@@ -412,8 +422,6 @@ describe('useHomeData', () => {
     expect(result.current.hasGlobalMovers).toBe(false);
   });
 
-  // Daily Challenge tests removed — moved to /missions in 3-hub refactor
-
   // ── Actions: handleOpenMysteryBox ──
 
   it('handleOpenMysteryBox throws on failure so the modal can surface the error', async () => {
@@ -446,7 +454,7 @@ describe('useHomeData', () => {
   // ── Retention Context ──
 
   it('calls getRetentionContext with correct params', () => {
-    mockUseHoldings.mockReturnValue({ data: [makeHolding()] });
+    setDashboard({ holdings: [makeHolding()] });
     mockUseChallengeHistory.mockReturnValue({ data: [{ challenge_id: 'ch-1' }] });
     renderHook(() => useHomeData());
     expect(getRetentionContext).toHaveBeenCalledWith(
@@ -464,21 +472,21 @@ describe('useHomeData', () => {
 
   it('calls getStoryMessage with derived data', () => {
     mockCentsToBsd.mockImplementation((v: number) => v / 100000);
-    mockUseHoldings.mockReturnValue({ data: [makeHolding()] });
+    setDashboard({ holdings: [makeHolding()] });
     renderHook(() => useHomeData());
     expect(getStoryMessage).toHaveBeenCalled();
   });
 
-  // ── Gamification Pass-Through ──
+  // ── Gamification Pass-Through (Slice 109: now via dashboard payload) ──
 
-  it('passes through ticket data', () => {
-    mockUseUserTickets.mockReturnValue({ data: { balance: 42 } });
+  it('passes through ticket data from dashboard', () => {
+    setDashboard({ tickets: { balance: 42 } });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.ticketData).toEqual({ balance: 42 });
   });
 
-  it('passes through highestPass', () => {
-    mockUseHighestPass.mockReturnValue({ data: { tier: 'gold' } });
+  it('passes through highestPass from dashboard', () => {
+    setDashboard({ highest_pass: { tier: 'gold' } });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.highestPass).toEqual({ tier: 'gold' });
   });

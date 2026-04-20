@@ -6,6 +6,7 @@
 export { qk } from './keys';
 export { usePlayers, usePlayerNames } from './players';
 export { useHoldings } from './holdings';
+export { useHomeDashboard, primeHomeDashboardCaches } from './homeDashboard';
 export { useAllOpenOrders, useAllOpenBuyOrders } from './orders';
 export { useEnrichedPlayers, enrichPlayersWithData } from './enriched';
 export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds, useUserSocialStats } from './social';
