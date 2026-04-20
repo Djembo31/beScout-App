@@ -4404,7 +4404,7 @@
     "rewardLadderTooltip": "Oyuncunun piyasa değeri ne kadar yükselirse, Scout Card başına olası bonus o kadar artar. Kulüp dağıtıma karar verir.",
     "rewardLadderDesc": "Artan piyasa değerine göre Scout Card başına başarı primi",
     "growthMilestones": "Büyüme Kilometre Taşları",
-    "growthMilestonesDesc": "Piyasa değeri ne kadar çok artarsa, Card başına bonusun o kadar yüksek olur.",
+    "growthMilestonesDesc": "Card başına bonus miktarı, tasfiye anındaki piyasa değerlemesine bağlıdır.",
     "growthFormulaTooltip": "Formül: Card başına bonus = Piyasa değeri ÷ 100.000 €. 1 Milyon € piyasa değerinde → Card başına 10 €. Doğrusal ölçeklenir: 5 kat piyasa değeri = 5× bonus.",
     "milestoneToday": "Bugün",
     "milestoneDoubled": "İki Katı",

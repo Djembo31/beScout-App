@@ -4404,7 +4404,7 @@
     "rewardLadderTooltip": "Je höher der Marktwert des Spielers steigt, desto höher der mögliche Bonus pro Scout Card. Der Verein entscheidet über die Ausschüttung.",
     "rewardLadderDesc": "Erfolgsbonus pro Scout Card bei steigendem Marktwert",
     "growthMilestones": "Wachstums-Meilensteine",
-    "growthMilestonesDesc": "Je stärker der Marktwert steigt, desto höher dein Bonus pro Card.",
+    "growthMilestonesDesc": "Die Höhe des Bonus pro Card hängt von der Markt-Bewertung zum Liquidations-Zeitpunkt ab.",
     "growthFormulaTooltip": "Formel: Bonus pro Card = Marktwert ÷ 100.000 €. Bei 1 Mio € Marktwert → 10 € pro Card. Skaliert linear: verfünffachter Marktwert = 5× Bonus.",
     "milestoneToday": "Heute",
     "milestoneDoubled": "Verdoppelt",
