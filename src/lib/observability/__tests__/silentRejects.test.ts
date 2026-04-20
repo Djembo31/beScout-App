@@ -5,7 +5,7 @@ vi.mock('@sentry/nextjs', () => ({
   captureException: (...args: unknown[]) => captureExceptionMock(...args),
 }));
 
-import { logSilentRejects } from '../silentRejects';
+import { logSilentRejects, logSilentCatch } from '../silentRejects';
 
 describe('logSilentRejects', () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
@@ -79,5 +79,44 @@ describe('logSilentRejects', () => {
     const [capturedErr] = captureExceptionMock.mock.calls[0];
     expect(capturedErr).toBeInstanceOf(Error);
     expect((capturedErr as Error).message).toBe('plain string failure');
+  });
+});
+
+describe('logSilentCatch', () => {
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    captureExceptionMock.mockReset();
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  it('captures Error instance with label tag', () => {
+    const err = new Error('boom');
+    logSilentCatch('test.catch', err);
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1);
+    const [capturedErr, ctx] = captureExceptionMock.mock.calls[0];
+    expect(capturedErr).toBe(err);
+    expect(ctx).toEqual({
+      tags: { silentCatch: 'true', label: 'test.catch' },
+      extra: {},
+    });
+    expect(consoleErrorSpy).toHaveBeenCalledWith('[silentCatch] test.catch:', err);
+  });
+
+  it('wraps non-Error reason', () => {
+    logSilentCatch('test.stringErr', 'plain string');
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1);
+    const [capturedErr] = captureExceptionMock.mock.calls[0];
+    expect(capturedErr).toBeInstanceOf(Error);
+    expect((capturedErr as Error).message).toBe('plain string');
+  });
+
+  it('passes context as extra', () => {
+    const err = new Error('with ctx');
+    logSilentCatch('test.ctx', err, { userId: 'u-1', slug: 'bvb' });
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1);
+    const [, ctx] = captureExceptionMock.mock.calls[0];
+    expect(ctx.extra).toEqual({ userId: 'u-1', slug: 'bvb' });
+    expect(ctx.tags).toEqual({ silentCatch: 'true', label: 'test.ctx' });
   });
 });

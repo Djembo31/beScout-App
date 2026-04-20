@@ -29,3 +29,30 @@ export function logSilentRejects(
     });
   }
 }
+
+/**
+ * Logs a caught error to console (dev) + Sentry (prod) while keeping graceful-degrade
+ * behavior intact. Use in `.catch()` handlers where a fallback value is returned.
+ *
+ * Usage:
+ *   getClubBySlug(slug, userId).catch((err) => {
+ *     logSilentCatch('useCommunityData.getClubBySlug', err);
+ *     return null;
+ *   });
+ *
+ * Pure observation — caller decides fallback value.
+ */
+export function logSilentCatch(
+  label: string,
+  err: unknown,
+  context?: Record<string, unknown>
+): void {
+  const errObj = err instanceof Error ? err : new Error(String(err));
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(`[silentCatch] ${label}:`, err);
+  }
+  Sentry.captureException(errObj, {
+    tags: { silentCatch: 'true', label },
+    extra: context ?? {},
+  });
+}

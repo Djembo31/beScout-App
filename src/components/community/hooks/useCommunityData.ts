@@ -9,6 +9,7 @@ import { getUserPostVotes } from '@/lib/services/posts';
 import { getUserVotedIds } from '@/lib/services/votes';
 import { getUserPollVotedIds } from '@/lib/services/communityPolls';
 import { getGesamtRang } from '@/lib/gamification';
+import { logSilentCatch } from '@/lib/observability/silentRejects';
 import {
   usePlayerNames, useHoldings, usePosts, useLeaderboard,
   useUserSocialStats,
@@ -90,7 +91,10 @@ export function useCommunityData(
       // clubs, the community hook stays in a null-scope — downstream UI can
       // render a "follow clubs to personalize" empty state.
       if (!cId || !cName) return;
-      const clubData = await getClubBySlug(cName, userId!).catch(() => null);
+      const clubData = await getClubBySlug(cName, userId!).catch((err) => {
+        logSilentCatch('useCommunityData.getClubBySlug', err, { slug: cName });
+        return null;
+      });
       if (!cancelled) dispatch({ type: 'SET_CLUB', clubId: cId, clubName: cName });
       if (!cancelled && clubData) dispatch({ type: 'SET_CLUB_ADMIN', value: clubData.is_admin });
     }
@@ -116,8 +120,14 @@ export function useCommunityData(
     let cancelled = false;
     async function loadVoteIds() {
       const [vIds, pIds] = await Promise.all([
-        getUserVotedIds(userId!).catch(() => new Set<string>()),
-        getUserPollVotedIds(userId!).catch(() => new Set<string>()),
+        getUserVotedIds(userId!).catch((err) => {
+          logSilentCatch('useCommunityData.getUserVotedIds', err);
+          return new Set<string>();
+        }),
+        getUserPollVotedIds(userId!).catch((err) => {
+          logSilentCatch('useCommunityData.getUserPollVotedIds', err);
+          return new Set<string>();
+        }),
       ]);
       if (!cancelled) {
         setUserVotedIds(vIds);

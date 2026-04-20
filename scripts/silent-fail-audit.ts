@@ -13,6 +13,7 @@
  * 5. Destructuring data without error
  * 6. Hard-coded state-checks in scripts/
  * 7. Promise.allSettled without logSilentRejects observability (Slice 088+089)
+ * 8. .catch(() => null|[]|new Set|new Map) without logSilentCatch (Slice 092)
  */
 
 import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -54,6 +55,8 @@ function scan(file: string, content: string): Finding[] {
   const lines = content.split('\n');
   const findings: Finding[] = [];
   const rel = relative(ROOT, file).replace(/\\/g, '/');
+  // Skip the audit script itself (its regex literals would match as false-positives).
+  if (rel === 'scripts/silent-fail-audit.ts') return findings;
 
   lines.forEach((line, idx) => {
     const n = idx + 1;
@@ -109,6 +112,21 @@ function scan(file: string, content: string): Finding[] {
       if (!/const\s+|default|mvSource|= '/.test(line) && /if\s*\(|===|!==/.test(line)) {
         findings.push({ file: rel, line: n, match: line.trim().slice(0, 120), pattern: 'script-hardcoded-state-check', severity: 'MEDIUM' });
       }
+    }
+
+    // Pattern 8 (Slice 092): .catch(() => fallback) ohne logSilentCatch
+    // Fängt arrow-catch mit silent-fallback. Skip req.json-body-parses `({})`.
+    if (
+      /\.catch\s*\(\s*\(\s*\)\s*=>\s*(null|\[\s*\]|new Set|new Map|\{\s*\})/.test(line) &&
+      !/\.json\(\)\s*\.catch/.test(line) &&
+      !rel.endsWith('.test.ts') &&
+      !rel.endsWith('.test.tsx') &&
+      !rel.endsWith('.spec.ts') &&
+      !rel.startsWith('e2e/') &&
+      !rel.includes('silentRejects')
+    ) {
+      const isMoneyPath = rel.startsWith('src/app/api/') || rel.startsWith('src/lib/services/') || rel.startsWith('src/lib/queries/');
+      findings.push({ file: rel, line: n, match: line.trim().slice(0, 120), pattern: 'silent-catch-arrow-fallback', severity: isMoneyPath ? 'HIGH' : 'MEDIUM' });
     }
 
     // Pattern 7 (Slice 090): Promise.allSettled ohne logSilentRejects im 25-Zeilen-Block

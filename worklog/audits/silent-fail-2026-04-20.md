@@ -1,14 +1,14 @@
 # Silent-Fail-Audit 2026-04-20
 
 - Files scanned: 1010
-- Total findings: 195
+- Total findings: 193
 - High severity: 98
-- Medium severity: 97
+- Medium severity: 95
 - Total risk: **HIGH**
 
 ---
 
-## Pattern: in-without-chunking (122 findings)
+## Pattern: in-without-chunking (121 findings)
 
 - `e2e/qa-realtime-feed.ts:81` [MEDIUM] — const { error } = await admin.from('activity_log').delete().in('id', ids);
 - `scripts/backfill-complete-stats.mjs:552` [MEDIUM] — .in('fixture_id', gwFixtureIds);
@@ -32,7 +32,6 @@
 - `scripts/seed-multi-league-events.mjs:216` [MEDIUM] — .in('club_id', pilotIds)
 - `scripts/seed-multi-league-events.mjs:217` [MEDIUM] — .in('gameweek', gws);
 - `scripts/seed-multi-league-events.mjs:310` [MEDIUM] — .in('id', (inserted ?? []).map(e => e.id));
-- `scripts/silent-fail-audit.ts:194` [MEDIUM] — md += `- \`.in()\` in .test.ts files → filter later\n`;
 - `scripts/tm-profile-local.ts:92` [MEDIUM] — .in('club_id', slice)
 - `scripts/tm-rescrape-stale.ts:324` [MEDIUM] — .in('club_id', clubIds);
 - `scripts/tm-rescrape-stale.ts:329` [MEDIUM] — .in('club_id', clubIds);
@@ -46,21 +45,22 @@
 - `scripts/_preflight-stats.mjs:20` [MEDIUM] — const { count: playerCount } = await supabase.from('players').select('*', { head: true, count: 'exact' }).in('club_id', 
 - `scripts/_preflight-stats.mjs:24` [MEDIUM] — const { data: players } = await supabase.from('players').select('id, perf_l5').in('club_id', ids);
 - `scripts/_verify-bl1-gw1.mjs:15` [MEDIUM] — const { data: players } = await supabase.from('players').select('id').in('club_id', clubIds);
-- `src/app/api/cron/gameweek-sync/route.ts:241` [HIGH] — .in('id', leagueIds)
-- `src/app/api/cron/gameweek-sync/route.ts:491` [HIGH] — .in('club_id', clubsToProcess.map(c => c.id))
-- `src/app/api/cron/gameweek-sync/route.ts:521` [HIGH] — .in('home_club_id', allLeagueClubIds)
-- `src/app/api/cron/gameweek-sync/route.ts:599` [HIGH] — .in('home_club_id', allLeagueClubIds)
-- `src/app/api/cron/gameweek-sync/route.ts:608` [HIGH] — .in('club_id', allLeagueClubIds),
-- `src/app/api/cron/gameweek-sync/route.ts:613` [HIGH] — .in('club_id', allLeagueClubIds),
-- `src/app/api/cron/gameweek-sync/route.ts:712` [HIGH] — .in('home_club_id', allLeagueClubIds)
-- `src/app/api/cron/gameweek-sync/route.ts:1294` [HIGH] — .in('home_club_id', allLeagueClubIds);
-- `src/app/api/cron/gameweek-sync/route.ts:1378` [HIGH] — .in('event_id', eventIds);
-- `src/app/api/cron/gameweek-sync/route.ts:1455` [HIGH] — .in('home_club_id', allLeagueClubIds);
-- `src/app/api/cron/gameweek-sync/route.ts:1580` [HIGH] — .in('club_id', allLeagueClubIds)
-- `src/app/api/cron/gameweek-sync/route.ts:1593` [HIGH] — .in('club_id', allLeagueClubIds)
+- `src/app/api/cron/gameweek-sync/route.ts:242` [HIGH] — .in('id', leagueIds)
+- `src/app/api/cron/gameweek-sync/route.ts:492` [HIGH] — .in('club_id', clubsToProcess.map(c => c.id))
+- `src/app/api/cron/gameweek-sync/route.ts:522` [HIGH] — .in('home_club_id', allLeagueClubIds)
+- `src/app/api/cron/gameweek-sync/route.ts:600` [HIGH] — .in('home_club_id', allLeagueClubIds)
+- `src/app/api/cron/gameweek-sync/route.ts:609` [HIGH] — .in('club_id', allLeagueClubIds),
+- `src/app/api/cron/gameweek-sync/route.ts:614` [HIGH] — .in('club_id', allLeagueClubIds),
+- `src/app/api/cron/gameweek-sync/route.ts:713` [HIGH] — .in('home_club_id', allLeagueClubIds)
+- `src/app/api/cron/gameweek-sync/route.ts:1301` [HIGH] — .in('home_club_id', allLeagueClubIds);
+- `src/app/api/cron/gameweek-sync/route.ts:1385` [HIGH] — .in('event_id', eventIds);
+- `src/app/api/cron/gameweek-sync/route.ts:1462` [HIGH] — .in('home_club_id', allLeagueClubIds);
+- `src/app/api/cron/gameweek-sync/route.ts:1587` [HIGH] — .in('club_id', allLeagueClubIds)
+- `src/app/api/cron/gameweek-sync/route.ts:1600` [HIGH] — .in('club_id', allLeagueClubIds)
 - `src/components/profile/FollowListModal.tsx:59` [MEDIUM] — .in('user_id', userIds);
 - `src/features/fantasy/services/events.mutations.ts:304` [MEDIUM] — .in('id', eventIds);
-- ... +72 more
+- `src/features/fantasy/services/events.queries.ts:39` [MEDIUM] — .in('club_id', clubIds)
+- ... +71 more
 
 ## Pattern: error-check-without-throw-or-return (43 findings)
 
@@ -145,10 +145,6 @@
 
 - `scripts/fetch-stadium-images.mjs:91` [HIGH] — } catch (err) { (only-comment catch)
 - `scripts/fetch-stadium-images.mjs:113` [HIGH] — } catch (err) { (only-comment catch)
-
-## Pattern: script-hardcoded-state-check (1 findings)
-
-- `scripts/silent-fail-audit.ts:108` [MEDIUM] — if (rel.startsWith('scripts/') && /'transfermarkt_stale'|'transfermarkt_verified'|'transfermarkt_unknown'|'unknown'/.tes
 
 ---
 

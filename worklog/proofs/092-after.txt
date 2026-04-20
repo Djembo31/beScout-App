@@ -1,0 +1,74 @@
+Slice 092 — Silent-Catch Observability — Proof
+================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+
+## Changes Summary
+
+### 1. src/lib/observability/silentRejects.ts (+30 lines)
+`logSilentCatch(label, err, context?)` Util — analog zu logSilentRejects. Dev console.error + Prod Sentry.captureException mit tags (silentCatch/label) + extra (context).
+
+### 2. src/lib/observability/__tests__/silentRejects.test.ts (+45 lines)
+3 neue Tests: Error-instance, non-Error wrap, context-passed. Total Tests 5 → 8.
+
+### 3. Integration 5 Call-Sites
+| File:Line | Label |
+|-----------|-------|
+| useCommunityData.ts:93 | `useCommunityData.getClubBySlug` (+ slug context) |
+| useCommunityData.ts:119 | `useCommunityData.getUserVotedIds` |
+| useCommunityData.ts:120 | `useCommunityData.getUserPollVotedIds` |
+| gameweek-sync/route.ts:777 | `gameweek-sync.fetchLineups` (+ fixtureId context) |
+| gameweek-sync/route.ts:783 | `gameweek-sync.fetchEvents` (+ fixtureId context) |
+
+Skipped (legit `req.json()`-body-parses): backfill-positions, backfill-ratings, sync-contracts admin routes.
+
+### 4. scripts/silent-fail-audit.ts (+18 lines)
+- **Pattern 8 NEU**: `\.catch\s*\(\s*\(\s*\)\s*=>\s*(null|\[\]|new Set|new Map|\{\})` ohne logSilentCatch
+- Skip: `.json().catch` (body-parse), Tests, e2e, silentRejects.ts
+- **Self-skip**: `scripts/silent-fail-audit.ts` globally excluded (its regex literals false-matched)
+- Docstring: "Patterns scanned: 1..8"
+
+### 5. .claude/rules/common-errors.md
+§1 ergänzt: Pattern-Count 7→8, neuer Punkt "Silent-Catch ohne Observability" mit Fix-Pattern + Audit-Command.
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS (clean) |
+| `npx vitest run observability + community + api` | 195/195 passed (11 files) |
+| Audit Pattern 8 findings | **0** (alle 5 Stellen instrumentiert) |
+| Audit Baseline shift | 195 (091) → **193** (Total) · HIGH 98 unverändert · MEDIUM 97 → 95 (-2 Self-Match-FP) |
+| grep residual `.catch(() =>` ohne logSilentCatch in Production | 3 (alle `req.json()`-fallbacks, legit) |
+
+## Baseline-Progression (Observability-Serie)
+
+| Slice | Util/Pattern | Sentry Call-Sites | Audit Total |
+|-------|--------------|-------------------|-------------|
+| Pre-088 | — | 1 | 256 |
+| 088 | logSilentRejects + 3 integrations | 4 | 213 |
+| 089 | allSettled sweep (16) | 20 | 211 |
+| 090 | Pattern 7 audit + precision | 20 | 195 |
+| 091 | — | 20 | 195 |
+| **092** | logSilentCatch + Pattern 8 + 5 integrations | **25** | **193** |
+
+## Files Modified
+```
+ .claude/rules/common-errors.md                        | 10 ++-
+ scripts/silent-fail-audit.ts                          | 18 ++++++
+ src/app/api/cron/gameweek-sync/route.ts               |  9 +-
+ src/components/community/hooks/useCommunityData.ts    | 12 +++-
+ src/lib/observability/__tests__/silentRejects.test.ts | 43 ++++++++
+ src/lib/observability/silentRejects.ts                | 28 +++++-
+ 6 files changed
+```
+
+## Spec Reference
+- worklog/specs/092-silent-catch-observability.md
+
+## Scope-Out
+
+- `logSilentCatch` bei `.catch((err) => { console.error; return null; })` existing patterns (explicit logger + return null) — separate sweep
+- `try/catch` ohne throw — Pattern 9 Kandidat
+- Sentry user-context beim Login — separate Slice
+- CI-Gate für Audit-Baseline — Slice 093 geplant

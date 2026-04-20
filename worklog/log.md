@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 092 | 2026-04-22 | Silent-Catch Observability (logSilentCatch + Audit Pattern 8)
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
+- Files: 6 (util + tests + 2 integrations + audit + common-errors)
+- Scope:
+  - **NEW `logSilentCatch(label, err, context?)`** in silentRejects.ts — analog zu logSilentRejects (console.error + Sentry)
+  - **3 neue Unit-Tests** (Error-instance, non-Error wrap, context-passed) — total 8
+  - **5 Integrationen**: useCommunityData × 3 (getClubBySlug/getUserVotedIds/getUserPollVotedIds), gameweek-sync × 2 (fetchLineups/fetchEvents — fixtureId als context)
+  - **Audit Pattern 8 NEU**: `.catch(() => null|[]|new Set|new Map|{})` ohne logSilentCatch. Skip `req.json()`-fallbacks, tests, e2e, silentRejects.ts. Self-skip für silent-fail-audit.ts
+  - common-errors.md §1: Pattern-Count 7 → 8 + Silent-Catch-Pattern dokumentiert
+- Proof: `worklog/proofs/092-after.txt`
+- Verification:
+  - tsc clean, 195/195 Tests grün (observability + community + api)
+  - Pattern 8 findings: 0 (alle instrumentiert)
+  - Audit Baseline: 195 → 193 (HIGH 98 unverändert, MEDIUM 97→95 via Self-Skip)
+- Notes:
+  - Sentry Call-Sites: 20 → 25 (inkl. logSilentCatch Integrationen)
+  - 3 residuelle `.catch(() => ({}))` sind legitime `req.json()`-body-parse-fallbacks, nicht observable
+  - Observability-Serie jetzt 3-tier: rejected (allSettled) · rejected (catch arrow) · caught errors
+
+---
+
 ## 091 | 2026-04-22 | DB-Invariants INV-36/37/38 fixen
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD (Data-Fix + Test-Filter) → PROVE → LOG
 - Files: 1 Test + 130 DB-Rows (SQL via Supabase MCP)

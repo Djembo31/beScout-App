@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { logSilentCatch } from '@/lib/observability/silentRejects';
 import {
   apiFetch,
   getCurrentSeason,
@@ -774,13 +775,19 @@ async function syncLeague(
         const [lineupsData, apiStats, eventsData] = await Promise.all([
           apiFetch<ApiLineupsResponse>(
             `/fixtures/lineups?fixture=${fixture.api_fixture_id}`,
-          ).catch(() => ({ response: [] as ApiLineupsResponse['response'] })),
+          ).catch((err) => {
+            logSilentCatch('gameweek-sync.fetchLineups', err, { fixtureId: fixture.api_fixture_id });
+            return { response: [] as ApiLineupsResponse['response'] };
+          }),
           apiFetch<ApiFixturePlayerResponse>(
             `/fixtures/players?fixture=${fixture.api_fixture_id}`,
           ),
           apiFetch<ApiFixtureEventsResponse>(
             `/fixtures/events?fixture=${fixture.api_fixture_id}`,
-          ).catch(() => ({ response: [] as ApiFixtureEventsResponse['response'] })),
+          ).catch((err) => {
+            logSilentCatch('gameweek-sync.fetchEvents', err, { fixtureId: fixture.api_fixture_id });
+            return { response: [] as ApiFixtureEventsResponse['response'] };
+          }),
         ]);
 
         const apiMatch = apiFixData.response.find(

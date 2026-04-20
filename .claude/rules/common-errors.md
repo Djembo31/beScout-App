@@ -11,12 +11,18 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ## 1. Silent Fails (die stillsten Bugs)
 
-### Tool: `/silent-fail-audit` (Slice 085 + 090 v2)
+### Tool: `/silent-fail-audit` (Slice 085 + 090 v2 + 092)
 - `npx tsx scripts/silent-fail-audit.ts` → `worklog/audits/silent-fail-YYYY-MM-DD.md`
-- 7 Pattern: `.in()` unchecked · `.select()` unranged · silent catch · error-swallow · data-destructure ohne error · hart-coded script state-checks · `Promise.allSettled` ohne `logSilentRejects`
-- Baseline Slice 090 v2: 195 findings / 98 HIGH / HIGH-FP-Rate 0%
+- 8 Pattern: `.in()` unchecked · `.select()` unranged · silent catch · error-swallow · data-destructure ohne error · hart-coded script state-checks · `Promise.allSettled` ohne `logSilentRejects` · `.catch(() => fallback)` ohne `logSilentCatch`
+- Baseline Slice 092: 193 findings / 98 HIGH / HIGH-FP-Rate 0%
 - Cadence: wöchentlich + nach jedem `/impact` für Money/Data-Code
-- v2 verbesserungen: Pattern 1 `.range()`/`.limit()` multi-line-awareness, Pattern 7 regression-guard für allSettled
+- v2/092 Verbesserungen: multi-line-awareness (`.range()`/`.limit()`), allSettled + `.catch`-arrow-Regression-Guards, Skip `silent-fail-audit.ts` selbst
+
+### Silent-Catch ohne Observability (Slice 092)
+- `getClub(...).catch(() => null)` — rejected Promise wird silent auf null/[]/Set gemappt. Kein Log, kein Sentry-Event.
+- Fix: `.catch((err) => { logSilentCatch('module.fn', err); return null; })` aus `@/lib/observability/silentRejects`.
+- Skip: `req.json().catch(() => ({}))` body-parse-fallbacks sind legitim.
+- Audit: `grep -rn '\.catch(() =>' src/ | grep -v __tests__ | grep -v logSilentCatch | grep -v 'json().catch'`
 
 ### `.in()` Chunking — Upstream-Query auch prüfen (Slice 082 + 086)
 - `.in('col', ids)` mit >100 UUIDs liefert `data=undefined` + `error=undefined` (URL-Limit ~14KB). MUSS in 100er-Chunks split + explicit error-check.
