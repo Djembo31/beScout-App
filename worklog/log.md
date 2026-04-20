@@ -30,6 +30,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 099 | 2026-04-22 | TM Data-Quality Re-Scrape (Stage 1 + 2)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD (parser + 2-stage scrape) → PROVE → LOG
+- Scope:
+  - **Stage 1**: Re-Scraper (`scripts/tm-rescrape-stale.ts --mv-source=unknown`) pro Liga sequential
+  - **Parser-Enhancement** (commit 7c062828): "Marktwert: -" dash detection → returns 0 statt null. TFF1 22% → 89% success (+67pp).
+  - **Stage 2**: Search-Scrape (`scripts/tm-search-scrape-unknown.ts`) global für unknowns ohne TM-mapping. 184 candidates, 60 verified (33%).
+- Proof: `worklog/proofs/099-tm-data-rescrape.txt`
+- Results:
+  - Baseline: 75.8% Ø verified (3.445/4.543)
+  - Final: **80.8% Ø verified** (3.672/4.543), **+227 rows** verified
+  - Per-Liga: SA 88.1% ⭐, PL 84.5%, LL 83.2%, BL1 81.8%, TFF1 79.4%, SL 75.7%, BL2 71.6%
+- Notes:
+  - 571 verbleibend unknowns sind meist inactive Spieler — niedrigere Trading-Priorität
+  - Gold-Standard (100% verified) nicht erreicht, aber 80%+ coverage auf active players ausreichend für Beta
+
+---
+
 ## 098 | 2026-04-22 | Pre-existing Test-Failures: TURK-03 + useMarketData.floorMap
 - Stage-Chain: SPEC → IMPACT (inline-analysis) → BUILD → PROVE → LOG
 - Files: 2 (useMarketData.test.ts alignment + 5 DB-rows NFC-normalized via MCP)

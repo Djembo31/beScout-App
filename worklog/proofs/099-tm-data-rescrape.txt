@@ -1,0 +1,95 @@
+Slice 099 — TM Data-Quality Re-Scrape (Stage 1 + 2)
+======================================================
+Date: 2026-04-22
+Status: COMPLETE
+
+## Was passiert ist
+
+**Stage 1: Re-Scraper für existing TM-mappings (mv_source=unknown)**
+Parser-Enhancement eingebaut: "Marktwert: -" (TM-Dash) → return 0 + verified.
+Runs pro Liga sequential (Playwright local).
+
+**Stage 2: Search-Scrape für unknowns OHNE TM-mapping**
+Name+Club-based TM-search (threshold ≥ 30, shirt-verify) + profile-scrape.
+Single run across all leagues: 184 active candidates.
+
+## Baseline (Session-Start)
+
+```
+Liga    Verified  Total   %
+BL1     469       587     79.9%
+BL2     382       552     69.2%
+LL      577       704     82.0%
+PL      495       647     76.5%
+SA      548       664     82.5%
+SL      429       633     67.8%
+TFF1    545       756     72.1%
+─────────────────────────────
+Total   3.445     4.543   75.8% Ø
+```
+
+## Final
+
+```
+Liga    Verified  Total   %       Delta
+BL1     480       587     81.8%   +11
+BL2     395       552     71.6%   +13
+LL      586       704     83.2%    +9
+PL      547       647     84.5%   +52
+SA      585       664     88.1%   +37  ⭐
+SL      479       633     75.7%   +50
+TFF1    600       756     79.4%   +55
+─────────────────────────────
+Total   3.672     4.543   80.8% Ø  +227 verified
+```
+
+## Stage 1 Success-Rates (Re-Scraper)
+
+| Liga | Loaded | Verified | Rate | Notes |
+|------|--------|----------|------|-------|
+| TFF1 v1 | 59 | 13 | 22% | Pre-parser-enhancement |
+| TFF1 v2 | 46 | 41 | **89%** | Post-enhancement |
+| SL  | 35 | 32 | 91% | |
+| PL  | 32 | 30 | 94% | |
+| LL  | 10 |  8 | 80% | Nur 10 mit TM-mapping |
+| SA  | 21 | 19 | 90% | |
+| BL1 | 12 | 11 | 92% | |
+| BL2 | 15 | 13 | 87% | |
+
+## Stage 2 Search-Scrape
+
+```
+Total candidates: 184 (active unknowns ohne TM-mapping)
+Verified:          60 (33%)
+No match:         115 (search score < 30)
+Errored:            9 (TM timeouts/502)
+Duration:        1.441s (~24 min)
+```
+
+## Parser Enhancement (committed 7c062828)
+
+`src/lib/scrapers/transfermarkt-profile.ts`:
+- Added: `Marktwert: -` dash detection → returns 0 (not null)
+- 3 neue Unit-Tests
+
+`scripts/tm-rescrape-stale.ts`:
+- mv === 0 akzeptiert als verified (TM explicit "no-value")
+- Previously "mv <= 0 stays stale"
+
+Impact-Messung: TFF1 22% → 89% success (+67pp).
+
+## Verbleibend: 571 unknowns in DB
+
+Meist inactive Spieler (matches=0 AND last_appearance_gw=0) — niedrigere Trading-Priorität. Optionen:
+- CSV-Import über Admin-UI für high-value players manuell
+- Oder akzeptieren (80%+ coverage auf active players ist gut genug für Beta)
+
+## Files Modified
+- `.audit-baseline.json` N/A
+- `src/lib/scrapers/transfermarkt-profile.ts` (parser enhancement)
+- `src/lib/scrapers/transfermarkt-profile.test.ts` (+3 tests)
+- `scripts/tm-rescrape-stale.ts` (mv=0 as verified)
+- DB: 227 rows `mv_source` auf `transfermarkt_verified` via Scraper-Runs
+
+## Commits
+- 7c062828 fix(scraper): parser erkennt 'Marktwert: -' als explicit no-value
