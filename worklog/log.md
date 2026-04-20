@@ -30,6 +30,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 098 | 2026-04-22 | Pre-existing Test-Failures: TURK-03 + useMarketData.floorMap
+- Stage-Chain: SPEC → IMPACT (inline-analysis) → BUILD → PROVE → LOG
+- Files: 2 (useMarketData.test.ts alignment + 5 DB-rows NFC-normalized via MCP)
+- Scope:
+  - **TURK-03 Data-Fix (5 rows)**: players.last_name war NFD-form (`I` + U+0307 combining-dot statt composed `İ` U+0130) — `'İslamoğlu'.includes('İ')` returnt false. SQL `normalize(last_name, NFC)`: 5 rows fixed (İslamoğlu, İnce, İnal, Kökçü, Enríquez Lekhedim).
+  - **useMarketData.floorMap Test-Alignment**: Test erwartete "no referencePrice fallback" (Slice-008-intent), aber `computePlayerFloor` hat den fallback durch Slice-052 DRY-extraction wieder. Test-expectation von `0` auf `800` (referencePrice) aligned + Kommentar aktualisiert.
+- Proof: Full-Suite **2617/2618 passed (1 skipped)**, 0 failures. Erster komplett grüner Run heute.
+- Notes: Capstone zur heutigen Security/Observability/Data-Quality-Sweep.
+
+---
+
 ## 097 | 2026-04-22 | INV-32 Cleanup: league_standings + player_transfers Whitelist
 - Stage-Chain: SPEC → IMPACT (inline, column-analysis) → BUILD → PROVE → LOG
 - Files: 1 (db-invariants.test.ts EXPECTED_PUBLIC)
