@@ -2,529 +2,326 @@
 description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 ---
 
-## DB Columns + CHECK Constraints
-→ Single Source: `database.md` (Column Quick-Reference + CHECK Constraints)
+# Common Errors
 
-## Silent-Fail-Audit automatisiert (seit 2026-04-21, Slice 085)
-- **Skill:** `/silent-fail-audit`
-- **Script:** `npx tsx scripts/silent-fail-audit.ts` → `worklog/audits/silent-fail-YYYY-MM-DD.md`
-- **Cadence:** wöchentlich (Mo morgen) + nach jedem /impact für Money/Data-Code
-- **6 Patterns:** .in() unchecked, .select() unranged, silent catch, error-swallow, data-destructure ohne error, hart-codierte script-state-checks
-- **Baseline 2026-04-21 (Slice 085):** 1008 Files, 256 Findings → nach /optimize Refine: 213 / 113 HIGH (Precision 11.7% → 53.1%)
-- **Regel:** Bei neuem Service/RPC/API-Route → script laufen lassen, findings priorisieren nach HIGH/MEDIUM
+Stand: 2026-04-22 · Konsolidiert aus Slices 001-086.
+DB-Columns + CHECK Constraints: siehe `database.md`.
 
-## .in() Chunking — UPSTREAM-Query auch prüfen (2026-04-21, Slice 086 Reviewer-Lesson)
-- Wenn `.in('col', ids)` chunked wird, prüfe ob die **upstream-Query** die ids erstellt hat selbst auch silent-fail-anfällig ist.
-- **Slice 086 Beispiel**: `.in('player_id', leaguePlayerIds)` (Line 1256) wurde in 100er-Batches chunked. Aber `leaguePlayerIds` kommt aus `.select('id').in('club_id', allLeagueClubIds)` (Line 1247) — wenn Players in einer Liga > 1000 → 1000-row-cap → leaguePlayerIds incomplete → silent-falsche Score-Counts.
-- **Regel:** Bei Chunk-Fix immer auch die **Loader-Query** prüfen (entweder .range()-Loop ODER explicit count-validation gegen erwartete Cardinality).
-- **Aufsummierungs-Validität:** Bei Chunk-Counts (`gwScoreCount += batchCount`) — Batches müssen DISJUNKT sein. Slice 086 OK weil player_ids unique. Bei `.in('status', [...])` mit überlappenden Conditions: nicht summierbar.
+---
 
-## TM-Scraper Default-Poisoning (2026-04-19 — Slice 081)
-- **Symptom**: Parser-Fallback-Werte (500K/50K/8M bei contract_end 2024-07-01 bzw. 2025-07-01) erscheinen **identisch auf vielen Spielern** — sehen aus wie echte Daten.
-- **Konkret**: 17 Spieler mit MV=500K + contract=2025-07-01 aus verschiedenen Clubs/Ligen — kann kein echter Zufall sein. 13 mit 8M, 14 mit 50K, etc.
-- **Root-Cause**: Transfermarkt-Scraper (`src/lib/scrapers/transfermarkt-profile.ts`) hat bei Parse-Failures Fallback-Werte zurückgegeben. `sync-transfermarkt-batch` mit `missing_only=true` überschreibt diese Werte NIE (weil MV schon != 0 ist).
-- **Detection**:
+## 1. Silent Fails (die stillsten Bugs)
+
+### Tool: `/silent-fail-audit` (Slice 085)
+- `npx tsx scripts/silent-fail-audit.ts` → `worklog/audits/silent-fail-YYYY-MM-DD.md`
+- 6 Pattern: `.in()` unchecked · `.select()` unranged · silent catch · error-swallow · data-destructure ohne error · hart-coded script state-checks
+- Baseline Slice 085: 213 findings / 113 HIGH (Precision 53% nach /optimize Refine)
+- Cadence: wöchentlich + nach jedem `/impact` für Money/Data-Code
+
+### `.in()` Chunking — Upstream-Query auch prüfen (Slice 082 + 086)
+- `.in('col', ids)` mit >100 UUIDs liefert `data=undefined` + `error=undefined` (URL-Limit ~14KB). MUSS in 100er-Chunks split + explicit error-check.
+- Bei Chunk-Fix **Loader-Query** prüfen: kommt die id-Liste aus `.select().in()` mit >1000 rows? → Loader hat 1000-row-cap, gleicher Silent-Fail.
+- Summierung über Chunk-Batches: nur valide wenn Batches **disjunkt** sind (z.B. unique player_ids). Bei `.in('status', [...])` mit überlappenden Conditions nicht summierbar.
+- Pattern:
+  ```ts
+  const CHUNK = 100;
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const { data, error } = await supabase.from('t').select().in('k', ids.slice(i, i+CHUNK));
+    if (error) throw new Error(error.message);
+  }
+  ```
+
+### PostgREST 1000-row cap — MONEY-CRITICAL (Slice 078 + 079b)
+- `.select()` ohne `.range()` auf Tabelle >1000 rows liefert still max 1000. Kein Error.
+- Slice 079b-Incident: `/api/players` lud nur 1000/4556 alpha-sortiert → Holdings hinter Alpha-Position 1000 unsichtbar im Marktplatz (test12: 9/16 Holdings weg).
+- Fix: while-loop `.range(offset, offset+999)` bis `data.length < PAGE`.
+- Audit: `grep -rn "\.from.*\.select" src/app/api/ src/lib/ | grep -v "\.range\|\.limit\|\.eq\|\.single\|\.maybeSingle"`
+
+### `.single()` vs `.maybeSingle()`
+- `.single()` wirft HTTP 406 bei 0 Rows. Nur wenn Row garantiert existiert.
+- Sonst `.maybeSingle()`.
+
+### Service Error-Swallowing (2026-04-13 Hardening · 117 Fixes in 61 Services)
+- `if (error) { console.error(); return null; }` → React Query cached null als SUCCESS, kein Retry, UI stuck auf Skeleton/Empty.
+- Kritischste Variante: `const { data } = await supabase...` **OHNE** error-Destructuring. Komplett unsichtbar.
+- Fix: `throw new Error(error.message)`. React Query retried automatisch (3x backoff).
+- Audit: `grep -rn 'const { data } = await supabase' src/lib/services/`
+
+### Scraper Default-Poisoning (Slice 081, TM)
+- Parser-Fallback-Werte (z.B. MV=500K/8M + contract=2025-07-01) erscheinen auf vielen Spielern identisch — sehen aus wie echte Daten. Wird nie überschrieben weil MV≠0.
+- Detect: `GROUP BY market_value_eur, contract_end HAVING COUNT(*) >= 4`.
+- Mitigation: `players.mv_source` (`unknown|transfermarkt_verified|transfermarkt_stale|manual_csv|api_football`). Cluster auf `_stale` setzen, **nicht** MV überschreiben (Trigger-Safety).
+- Guard: INV-36/37/38. Re-Scraper: `scripts/tm-rescrape-stale.ts`.
+
+### External-Site Scraper-Regex Drift (Slice 078, TM)
+- Fremde Site ändert Markup → Regex matcht nicht → parser `null` → Daten-Lücke wächst silent bei jedem Rerun.
+- Konkret: TM 2026-04 von `data-header__box--marketvalue` auf `data-header__market-value-wrapper`, Zahl/Währung-Reihenfolge gedreht. 433 Stammspieler mit MV=0 trotz echtem TM-Wert.
+- Regel: Externe HTML-Parser brauchen Regression-Tests mit echten HTML-Fixtures. Template: `src/lib/scrapers/transfermarkt-profile.test.ts`.
+- Entity-Drift: `€` / `&#8364;` / `&euro;` — nie auf trailing `€` matchen.
+
+### Cloudflare-Block für Vercel-IPs (Slice 075, TM)
+- `transfermarkt-search-batch` findet 0/20 matches obwohl URL+Regex korrekt. TM Cloudflare blockiert Vercel-Datacenter-IPs → HTTP 200 mit leerem Challenge-HTML (keine `profil/spieler/XXXXX` Links).
+- Verifikation: `curl` vom lokalen PC returnt volle HTML mit 10+ Links.
+- Workaround: CSV-Import-UI (aktuell), Residential-Proxy, TM Partner-API (Kosten).
+- Debug-Mode `?debug=true`: `debug_trace[].parsed=0` = Block bestätigt.
+
+### Script mit hart-coded state-check (Phase B Hot-Fix)
+- Script akzeptiert Flag `--mv-source=unknown` aber intern `if (fresh.mv_source !== 'transfermarkt_stale') skip` hart-codiert → silent skip trotz 1240 Kandidaten.
+- Fix: Flag-Wert in Variable, ALLE Hart-Code-Referenzen ersetzen (nicht nur die Haupt-Filter-Zeile).
+
+---
+
+## 2. Supabase / Postgres
+
+### ON CONFLICT validiert CHECK gegen INSERT-Tuple-Defaults (Slice 075c)
+- `INSERT ... ON CONFLICT DO UPDATE` validiert CHECK-Constraints gegen die INSERT-Tuple-Defaults **bevor** es den UPDATE-Pfad nimmt.
+- `.upsert([...], { onConflict })` erbt das: existierende Rows schlagen fehl wenn Tuple-Defaults den Constraint verletzen.
+- Fix: echter `.update().eq('id', ...)` statt `.upsert()`. Pattern: pre-query `api_xyz_id → id` map + `Promise.all(batch.map(t => ...update(payload).eq('id', t.id)))` in Chunks 20-50.
+- Evidence Slice 075: sync-players-daily 4074/5019 Payloads errored (`dpc_total=10000` default vs `max_supply=300` CHECK).
+
+### PL/pgSQL NULL-in-Scalar-Subquery (2026-04-11 — MONEY)
+- `IF (SELECT COALESCE(x, 0) FROM t WHERE ...) < y` ist FALSCH wenn keine Row existiert. Scalar-Subquery auf leeres Set = NULL. `NULL < y` = NULL = falsy → Guard ÜBERSPRUNGEN.
+- Richtig: `SELECT x INTO v_x; IF COALESCE(v_x, 0) < y THEN ...` ODER `IF NOT FOUND`.
+- Audit: `grep 'SELECT COALESCE.*FROM.*WHERE' supabase/migrations/`
+
+### Trigger-Guard BEFORE UPDATE (Slice 081)
+- BEFORE UPDATE Trigger auf money-Spalten kaskadiert auch wenn nur flag-Spalten geändert werden → Trading-Block-Risiko bei MV=0-Fallback.
+- Jeder Trigger-Body braucht `IF NEW.<col> IS DISTINCT FROM OLD.<col> THEN ...` Guard.
+- Check: `SELECT pg_get_functiondef('trigger_fn'::regproc)` + `sum_mv + sum_ref` byte-identisch vor/nach Migration messen.
+
+### Holdings Zombie-Row (Slice 025)
+- `UPDATE holdings SET quantity = quantity - X` → Row mit `quantity=0` bleibt als Zombie. CHECK `>= 0` erlaubt.
+- Symptome: Portfolio zeigt 0-qty Einträge; SUM/COUNT DISTINCT zählen leer-Holdings mit.
+- Fix: `AFTER UPDATE OF quantity WHEN (NEW.quantity = 0)` Trigger → `DELETE FROM holdings WHERE id = OLD.id`. Atomisch in Transaction, future-proof statt RPC-Patch.
+
+### auth.users DELETE NO-ACTION-FK (Slice 028)
+- `DELETE FROM auth.users` scheitert an NO-ACTION-FK-Constraints (Postgres 23503). 23 known Tables: user_tickets, ticket_transactions, transactions, trades, events.created_by, ipo_purchases, mystery_box_results, welcome_bonus_claims, chip_usages, mentorships, community_poll_votes, verified_scouts, fan_rankings, user_cosmetics, user_daily_challenges, user_founding_passes, user_scout_missions, liquidation_events/_payouts, sponsors.created_by, fee_config.updated_by, club_votes.created_by, bounty_submissions.reviewed_by, player_valuations.
+- Pre-Audit via `pg_constraint` (NICHT `information_schema` — cross-schema FKs werden ausgelassen).
+- Row-Counts pro NO-ACTION-Table, dann pre-clean, dann `DELETE FROM auth.users`.
+
+### Vercel Hobby Cron-Limit + Function Timeouts (Slice 071 + 075)
+- Hobby: max 2 Cron-Jobs, max 1×/Tag. Pro: 40 Jobs, 300s HTTP-timeout (NICHT 900s).
+- `maxDuration = 300` ist Hard-Limit für HTTP-Trigger. Cron-Schedule darf länger laufen (bis 900s Pro).
+- Implication: Sync-Routes mit per-Row-DB-Ops timeouten bei 1000+ rows. Zwingend Batch-Pattern: 1× pre-query `.in(all_ids)` + chunked `Promise.all` (20-50 parallel).
+- Messung Slice 075: sync-injuries 60s→28s, sync-players-daily 300s→17s.
+
+---
+
+## 3. RPC Design
+
+### RPC INSERT Column-Mismatch (J5 AR-42 + AR-42b)
+- `CREATE OR REPLACE FUNCTION` parst Body aber validiert keine Column-Existenz. Fehler erst beim Call (PG 42703) → silent fail, Transaction rollback, User sieht "Open Error" Toast, Ticket-Kosten revertiert aber Reward weg.
+- AR-42: `open_mystery_box_v2` → `user_equipment(equipment_rank)` (Spalte heißt `rank`) → 6d Equipment-Drops tot.
+- AR-42b: Gleicher RPC → `transactions(amount_cents)` (Spalten sind `amount`+`balance_after` NOT NULL) → bCredits-Drops NIE funktioniert.
+- Regel: Nach JEDER RPC-Migration die INSERT/UPDATE macht: `SELECT column_name FROM information_schema.columns` gegen Body-Statements matchen.
+- Audit cross-RPC: `SELECT proname FROM pg_proc WHERE pg_get_functiondef(oid) ILIKE '%suspected_column%'`.
+
+### RPC Response camelCase/snake_case (Mystery Box)
+- RPC `jsonb_build_object('rewardType', ...)` → camelCase. Service castet `as { reward_type }` → ALLE Felder undefined. TS fängt das nicht (as = unchecked assertion).
+- Check: `pg_get_functiondef()` → Return-Shape → Service-Cast vergleichen.
+
+### Server-Validation Pflicht für Money/Fantasy RPCs (Slice 023 B4)
+- Client-only Validation ist via direkten RPC-Call umgehbar. RPC muss die einzige Wahrheit sein.
+- Konkret: `rpc_save_lineup` akzeptierte `p_formation='xxx'` ungeprüft → Scoring-Logik broken.
+- Pattern: Billige Early-Exits (Formation-Allowlist, GK-Required, Slot-Counts, Extra-Slots, Captain-Empty) VOR teuren DB-Joins.
+- Regel: Jeder Money/Fantasy-RPC mit Client-Inputs validiert **alles selbst**.
+
+### pg_cron Fail-Isolation (Slice 024 B5)
+- RAISE EXCEPTION auf Item #2 blockt ganzen Batch → nachfolgende Items unverarbeitet.
+- Fix: `BEGIN ... EXCEPTION WHEN OTHERS THEN ... END` pro Item innerhalb FOR-Loop. Safety-Bound: `LIMIT 50`.
+- Return `{success, scored, skipped, errored, errors, ran_at}` für Monitoring via `cron.job_run_details`.
+
+### Transaction-Type activityHelpers Sync (Slice 027)
+- RPC schreibt neue `transactions.type` → `src/lib/activityHelpers.ts` mappt type→i18n-Key. Ohne Mapping-Eintrag: User sieht snake_case raw-string.
+- Audit-Query: `SELECT DISTINCT type FROM transactions` vs. grep activityHelpers.ts.
+- Regel: Jeder neue transactions-type-Writer triggert 3-File-Change: activityHelpers.ts + de.json + tr.json.
+
+### RPC Anti-Patterns Top 5
+- `::TEXT` auf UUID beim INSERT
+- Record nicht initialisiert vor Zugriff in falscher Branch
+- FK-Reihenfolge falsch (Child INSERT vor Parent)
+- NOT NULL Spalte fehlt im INSERT
+- Guards fehlen (Liquidation-Check in Trading-RPCs)
+
+---
+
+## 4. Auth / Security
+
+### RLS qual=true auf sensiblen Tabellen (Slice 014 + 019-021)
+- `USING (true)` auf `authenticated` = keine Zugriffskontrolle. Bei holdings/transactions/activity_log/user_stats/orders: systemweiter Portfolio/Stat/Trading-Leak.
+- Fix: `USING (auth.uid() = user_id OR <admin-check>)`.
+- Cross-User-Aggregate (Orderbook, holder-count): SECURITY DEFINER RPC mit projiziertem Output (handle+is_own statt user_id).
+- Rollout ohne Markt-Störung: (1) Projection-RPC deploy → (2) Service-Layer migriert → (3) Deploy verify → (4) RLS tighten (DROP qual=true, CREATE own-or-admin).
+- Guard: INV-26 in `db-invariants.test.ts` via `get_rls_policy_quals()`.
+- Bekannte Instanzen: holdings (014), orders (020+021) — 8 UI-Consumer-Sites von `order.user_id === uid` auf `order.is_own` migriert.
+
+### SECURITY DEFINER + auth.uid()-Guard (Slice 005 A-02 + J4 Live-Exploit)
+- J4-Live-Exploit: `earn_wildcards` mintete 99.999 Wildcards als anon (reverted).
+- Zwei Exploit-Klassen:
+  - **anon**: keine Grant-Beschränkung → anyone mit service call.
+  - **authenticated-to-other-user**: `p_user_id` Parameter + kein `auth.uid()`-Check → User schickt fremde UUID, RPC läuft in deren Namen.
+- Fix-Pattern:
   ```sql
-  SELECT market_value_eur, contract_end, COUNT(*)
-  FROM players WHERE market_value_eur > 0 AND contract_end IS NOT NULL
-  GROUP BY market_value_eur, contract_end
-  HAVING COUNT(*) >= 4;
+  REVOKE EXECUTE ON FUNCTION X FROM anon, authenticated;
+  GRANT EXECUTE ON FUNCTION X TO authenticated;
+  -- im Body:
+  IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'auth_uid_mismatch';
+  END IF;
   ```
-- **Mitigation (Slice 081)**: Neue Spalte `players.mv_source` (`unknown|transfermarkt_verified|transfermarkt_stale|manual_csv|api_football`). Duplicate-Cluster-Rows werden auf `transfermarkt_stale` gesetzt — NICHT MV überschreiben (Trigger-Safety).
-- **Re-Scraper**: `scripts/tm-rescrape-stale.ts` filtert gezielt auf `mv_source='transfermarkt_stale'` und setzt bei Success auf `'transfermarkt_verified'`.
-- **Regression-Guard**: INV-36 (Cluster > 3 ohne stale-Flag), INV-37 (Paired mit last_name), INV-38 (Orphan Contracts > 12 Mon.).
+  `IS NOT NULL` skippt für service_role (Cron). `IS DISTINCT FROM` reject authenticated-to-other-user.
+- Guard: INV-21 + `public.get_auth_guard_audit()` RPC.
+- Entdeckt in Slice 005: `rpc_lock_event_entry`, `renew_club_subscription`, `check_analyst_decay`, `refresh_airdrop_score`.
 
-## Trigger-Guard-Safety: mv-only-UPDATE ohne reference_price-Kaskade (2026-04-19 — Slice 081)
-- **Bug-Potenzial**: BEFORE UPDATE Trigger auf `players` kann reference_price re-calculieren wenn UPDATE gemacht wird — auch wenn nur andere Spalten (z.B. mv_source-Flag) geändert wurden. Bei Default-Fallback auf MV=0 würde reference_price=0 → Trading-Block.
-- **Guard-Pattern im Trigger-Body**:
-  ```sql
-  CREATE FUNCTION trg_update_reference_price() RETURNS trigger AS $$
-  BEGIN
-    IF NEW.market_value_eur IS DISTINCT FROM OLD.market_value_eur THEN
-      NEW.reference_price := ...;
-    END IF;
-    RETURN NEW;
-  END;
-  $$ LANGUAGE plpgsql;
-  ```
-- **Regel**: Jeder BEFORE UPDATE Trigger auf money-sensiblen Spalten MUSS `IF NEW.<col> IS DISTINCT FROM OLD.<col>` Guard haben. Andernfalls: jeder UPDATE feuert Money-Logic, auch wenn unnötig.
-- **Vor Migration**: Trigger-Body via `SELECT pg_get_functiondef('trigger_fn'::regproc)` einsehen + Guard verifizieren.
-- **Proof-Pattern**: sum_mv + sum_ref byte-identisch vor/nach Migration messen.
+### Public-Wrapper + Internal-RPC Pattern (Slice 035 + 041)
+- RPC `p_user_id` + auth-context: 2 Funktionen statt 1.
+  - **Public Wrapper** `rpc_name(args_ohne_uid)`: GRANT authenticated, PERFORM internal(auth.uid()).
+  - **Internal** `_rpc_internal(args, p_user_id)`: REVOKE authenticated, GRANT service_role only.
+- Zweck 1 (Slice 041): auth-context-injection für Client-Calls. Kein Exploit möglich ohne explicit auth_uid_mismatch-guard.
+- Zweck 2 (Slice 035): Trigger ruft AR-44-hardened RPC mit `NEW.seller_id` ≠ `auth.uid()` → Guard tripped → silent fail. Internal-Helper umgeht Guard, Trigger ruft Internal direkt.
+- Slice 035 Fund: `trg_fn_trade_refresh` ruft `refresh_airdrop_score(NEW.seller_id)` — Sellers hatten `airdrop_scores.updated_at = NULL` trotz mehrerer Trades.
+- Doku: `COMMENT ON FUNCTION` für beide pflicht.
 
-## Cross-Club-Contamination via API-Football Squad-Response (2026-04-19 — Slice 081d)
-- **Symptom**: Club XYZ hat 62 Spieler in DB (realistisch ~30). Viele davon erschienen am selben Tag, haben 0 Appearances, Name+Contract-Match zu echten Spielern anderer Clubs (aber **unterschiedliche api_football_id**).
-- **Beispiel**: Aston Villa 62 am 16.04. — 11 Rows waren Duplikate von echten Werder-Bremen/Real-Madrid-Spielern. Mio Backhaus/Marco Friedl/Felix Agu/Olivier Deman etc.
-- **Root-Cause**: `sync-players-daily` hat für einen Club einen verunreinigten Squad-Response bekommen — API-Football hatte fremde Spieler mit frischen fake api_football_ids an Aston Villa zugeordnet.
-- **Detection**:
-  ```sql
-  SELECT p1.id FROM players p1
-  JOIN players p2 ON p2.first_name = p1.first_name AND p2.last_name = p1.last_name
-    AND p2.contract_end = p1.contract_end AND p2.club_id <> p1.club_id
-    AND p2.last_appearance_gw > 0
-  WHERE p1.last_appearance_gw = 0 AND p1.created_at >= '<recent-sync-date>';
-  ```
-- **Fix**: `club_id = NULL` (nicht DELETE) — reversibel, kein FK-Cascade-Risiko.
-- **Regression-Guard**: INV-39 (SELF-JOIN Detection).
-- **Nach neuen sync-players-daily Runs**: per-Club squad-size vergleichen vs. historische Baseline. Auffällige Sprünge = mögliche Contamination.
+### RLS Policy Trap — neue Tabelle
+- Neue Tabelle mit RLS braucht Policies für ALLE Client-Ops (SELECT + INSERT + UPDATE + DELETE). SELECT-only = silent write failure.
+- Nach Migration: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`.
+- NIEMALS `console.error` ohne `throw` bei kritischen DB-Writes — silent failure ist der schlimmste Bug.
 
-## tsconfig `**/*.ts` includes lokale Scripts → Vercel Build-Error (2026-04-19 — Slice 079 Healing)
-- `tsconfig.json` hat `"include": ["**/*.ts"]` + `exclude: ["node_modules", "backup", "e2e"]` — aber **NICHT** `scripts/`.
-- Lokale dev-scripts in `scripts/` (z.B. `scripts/tm-profile-local.ts`) importieren Packages wie `playwright` die nicht als dep in `package.json` sind (läuft lokal via `npx tsx`, packet ist lokal verfügbar durch `@playwright/test` transitive dep).
-- `tsc --noEmit` lokal cleant: `skipLibCheck: true` + lokaler node_modules sieht playwright durch transitive resolution.
-- **Vercel `next build` schlägt fehl:** Type-error `Cannot find module 'playwright' or its corresponding type declarations`.
-- **Symptom:** Alle Commits seit Slice 077 (2 Tage, 4 Slices: 077, 077b, 078, 079) sind auf Vercel als "Error" geflagged. Production zeigt noch den letzten erfolgreichen Deploy davor. User sieht keine Code-Änderungen live.
-- **Fix:** `tsconfig.json` exclude erweitern um `scripts` (und `tmp`). Dev-scripts laufen via `npx tsx` weiterhin mit eigenem Type-Check.
-  ```json
-  "exclude": ["node_modules", "backup", "e2e", "scripts", "tmp"]
-  ```
-- **Audit-Signal nach neuen `scripts/*.ts` oder `tmp/*.ts` files:** immer `npx next build` lokal laufen, nicht nur `tsc --noEmit`. Next build scant anders als tsc — es baut die generated `.next/types/app/.../route.ts` Typen.
-- **Prevention:** neue lokale Scripts in `scripts/` anlegen (nicht z.B. `src/scripts/`) → sind automatisch excluded nach Slice 079 Fix.
-- **Vercel-Logs Debug:** `npx vercel inspect <deploy-url> --logs` liefert Build-Error-Trace. Vercel-Dashboard zeigt Status aber nicht detail; Logs brauchen CLI.
+---
 
-## External-Site Scraper-Regex silent-break (2026-04-19 — Slice 078)
-- Fremder Site (Transfermarkt) aendert Markup → unser Regex matcht nicht mehr → parser returnt `null` → DB behaelt 0/null → **Daten-Lücke wird silent grösser bei jedem Rerun**.
-- **Slice 078 Konkret:** TM hat 2026-04 von `data-header__box--marketvalue` auf `data-header__market-value-wrapper` umgestellt. Reihenfolge Zahl/Währung umgedreht (`€ X Mio.` → `X,XX <span class="waehrung">Mio. €</span>`). 433 Stammspieler hatten MV=0 in DB trotz echtem TM-Wert (Morgan Rogers €80M etc.).
-- **Regel:** Jeder externe HTML-Parser braucht Regression-Tests mit **echten HTML-Fixtures** (nicht synthetisch!).
-  - Workflow: Sanity-Script dumpt HTMLs in `tmp/` nach einem Markup-Update, Fixtures werden in Tests eingefroren.
-  - `src/lib/scrapers/transfermarkt-profile.test.ts` als Template.
-- **Audit-Signal:** Wenn die "completeness" bei gleichbleibendem Scraping stagniert oder Scraper wenig updated → Parser-Sanity-Check mit manueller Stichprobe.
-- **Entity-Drift:** HTML kann `€`, `&#8364;`, `&euro;` schreiben — Regex end-mit-`€` bricht bei Entity-Form. Im Slice 078 bewusst aufs `€` Matching verzichtet (endet bei `(Mio|Tsd)\.`), weil CSS-Scope bereits eindeutig ist.
+## 5. Frontend (React / TS / CSS)
 
-## Transfermarkt Player-Matching: Trikot-Check als precision filter (2026-04-20 — Phase B)
-- **Problem:** Name-based Search auf TM liefert bei identischen/ähnlichen Namen false-positives. Beispiel: "Bara Ndiaye" gibt's mehrfach auf TM.
-- **Fix-Pattern:** Nach name+club scoring (score >= 30), scrape TM-Profile UND vergleiche `shirt_number`. Bei Mismatch (DB-shirt ≠ TM-shirt, beide NOT NULL) → SKIP mapping. Bei Match oder one-sided NULL → Accept.
-- **Impact:** Threshold konnte von 50 auf 30 gesenkt werden (höherer Recall). 0 shirt-mismatches beobachtet in ~1000 Runs.
-- **Parser:** `parseShirtNumber` in `src/lib/scrapers/transfermarkt-profile.ts` (3 HTML-Varianten: `data-header__shirt-number`, `dataRN`, "Rückennummer:").
-- **Script:** `scripts/tm-search-scrape-unknown.ts` ruft `scrapeProfile(tm_id)` → `{ mv, contract, shirt }` → mismatch-check VOR mapping-insert.
+### React / TypeScript Checklist
+- Hooks VOR early returns.
+- `Array.from(new Set())` / `Array.from(map.keys())` statt Spread (strict TS).
+- Modal: IMMER `open={true/false}` prop.
+- PlayerPhoto: `first` / `last` / `pos` (nicht firstName/lastName).
+- Barrel-Exports bereinigen wenn Files gelöscht werden.
+- NIEMALS `.catch(() => {})` — mindestens `console.error`.
+- Cancellation Token in useEffect: `let cancelled = false; return () => { cancelled = true; }`.
+- Null-Guards: `floor_price ?? 0`, `entry.rank ?? 999`.
 
-## Script mit hart-codierter State-Check: Silent skip bei Parameter-Mode-Change (2026-04-20 — Phase B Hot-Fix)
-- **Symptom:** `rescrape-stale --mv-source="unknown"` gibt "Nothing to do" obwohl 1240 Kandidaten existieren.
-- **Root-Cause:** Scripts mit pre-scrape state-validation (line 250: `if (fresh.mv_source !== 'transfermarkt_stale') skip`). Hart-coded check blockiert parametrisierten Mode.
-- **Fix:** Ersetze hart-code mit der mvSource variable (`if (fresh.mv_source !== mvSource) skip`). Plus better log-message mit actual state.
-- **Regel:** Bei Script-Flag-Erweiterung IMMER ALLE Hart-Code-References mit der gleichen Konstante in der neuen variable ersetzen — nicht nur die eine Haupt-Filter-Zeile.
+### Modal preventClose Pattern (J2 + J3)
+- Jeder Modal mit `useMutation.isPending` → `preventClose={isPending}` pflicht.
+- Sonst: ESC/Backdrop-Click mitten in DB-Transaction verliert State (200-500ms 4G-Latenz).
+- Heuristik: `Modal` + (`isPending|cancelling|selling|buying|submitting`) im gleichen File → nachrüsten.
+- Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose`
 
-## Unknown-with-existing-Mapping trap (2026-04-20 — Phase B Biggest-Win)
-- **Pattern:** Spieler mit `mv_source='unknown'` aber EXISTING `player_external_ids` mit source='transfermarkt' (z.B. aus früherem search-batch). Die sind scrape-ready aber nie geverified worden.
-- **Impact:** 1240 active players, 80% davon in einer Welle verifizierbar (reguläres rescrape-pattern).
-- **Detection SQL:**
+### CSS / Tailwind Gotchas
+- `::after` / `::before` mit `position: absolute` → Eltern MUSS `relative`. `overflow: hidden` reicht NICHT als Containing Block.
+- `flex-1` auf Tabs → iPhone overflow → `flex-shrink-0`.
+- Dynamic Tailwind NIEMALS: `border-[${var}]/40` → JIT scannt nur statische Strings. Nutze `style={{ borderColor: hex }}` + statische Class.
+
+### Multi-League Props-Propagation (J3 + J4)
+- Neues optional Field auf Type (z.B. `leagueShort?`) → nur 2/8 Render-Call-Sites bedient. TSC/Tests merken nichts (optional = kein Error).
+- Visual-QA im Pilot (1 Liga) übersieht's, Fehler erst im Multi-League-Betrieb.
+- J3-Fund: TradingCardFrame + PlayerHero + TransferListSection hatten 0 Liga-Logos trotz vollständigem Type seit 2026-04-07.
+- J4-Erweiterung: FantasyEvent + UserDpcHolding hatten `club*` aber kein `league*` → client-side Cache-Lookup `getClub() → getLeague()` Zero-RPC-Fix.
+- Regel: Jedes Type mit `club*` Field MUSS spiegelbildlich `league*` Fields haben. ALLE Render-Call-Sites manuell greppen.
+
+### ConfirmDialog statt native alert/confirm (J4)
+- Live: `src/components/ui/ConfirmDialog.tsx`. Built-in preventClose + loading/disabled + `confirmVariant: 'gold' | 'danger'`.
+- Native alert/confirm sind unstyled, blockieren Main-Thread, nicht i18n-ready, ignorieren preventClose.
+- Audit: `grep -rn 'window.alert\|window.confirm' src/`
+
+### UX Konsistenz
+- Spieler-Anzeigen → Link zu `/player/[id]` (Ausnahme: Picker-UIs).
+- `<button>` NICHT in `<Link>` wrappen (invalid HTML) → `href` Prop oder Wrapper-Komponente.
+
+---
+
+## 6. i18n / Locale
+
+### i18n-Key-Leak via Service-Errors (J1 + J3)
+- `throw new Error('handleReserved')` → `err.message === 'handleReserved'` (raw key). Caller mit `setError(err.message)` zeigt literal unübersetzt.
+- Fix: Caller resolved via `mapErrorToKey(normalizeError(err)) → te(key)`.
+- Konvention: Service wirft I18N-KEYS, Consumer resolved via `t()`. In Service-JSDoc dokumentieren.
+- Systematisch: Nach JEDEM swallow→throw-Refactor ALLE gleichartigen Consumer-Pfade greppen (J3 Evidence: useTradeActions hatte 4 Methoden, nur 1 war gefixt).
+- Audit: `grep -n 'throw new Error' src/lib/services/` → Keys sammeln, gegen Caller-`setError(err.message)` prüfen.
+
+### Error-Messages nie dynamische Werte (J3 Triple-Red-Flag)
+- `throw new Error(\`Price exceeds maximum (${X} $SCOUT)\`)` hat 3 Probleme: DE/EN-Mix + $SCOUT-Ticker user-facing + dynamischer Wert.
+- Dynamic gehört in Pre-Submit-Hints, nicht Post-Error.
+
+### Turkish Unicode
+- `I`.toLowerCase() = `i̇` (NICHT `i`) → NFD + strip diacritics + `ı→i`.
+- SQL: `translate(lower(name), 'şçğıöüİŞÇĞÖÜ', 'scgiouISCGOU')`.
+
+---
+
+## 7. Build / Deploy
+
+### tsconfig excludes scripts (Slice 079)
+- `"include": ["**/*.ts"]` + `"exclude": ["node_modules", "backup", "e2e"]` → includet `scripts/`. Scripts importieren deps wie `playwright` die nicht in `package.json` sind (lokal via transitive resolution).
+- `tsc --noEmit` cleant lokal (`skipLibCheck: true`), **Vercel `next build` schlägt fehl**: `Cannot find module 'playwright'`.
+- Symptom: Alle Commits über Tage auf Vercel "Error", Production zeigt alten Deploy. User sieht keine Änderungen.
+- Fix: `"exclude": [..., "scripts", "tmp"]`. Dev-scripts laufen via `npx tsx` weiter.
+- Prevention: Nach neuen `scripts/*.ts` immer `npx next build` lokal (nicht nur tsc).
+- Debug: `npx vercel inspect <deploy-url> --logs`.
+
+### Next.js Route-Handler Named-Exports (Slice 069)
+- `export function helper()` in `src/app/api/**/route.ts` ist verboten. Nur HTTP-Methods (GET/POST/...) + `runtime|dynamic|revalidate|fetchCache|maxDuration|generateStaticParams|config`.
+- Jeder andere Export → `next build` Type-Error `'OmitWithTag<...>' does not satisfy the constraint`.
+- `tsc --noEmit` fängt das NICHT — Type entsteht aus generated `.next/types/app/.../route.ts` nur beim `next build`.
+- Kostete 11 gefailte Deploys / 2 Tage / 4 Slices.
+- Fix: Helpers nach `src/lib/scrapers/` extrahieren, route.ts importiert aus lib/.
+- Regel: Nach JEDEM `src/app/api/**/route.ts` Edit → `npx next build` lokal.
+
+### ESLint disable-comment w/ undefined rule (Slice 069)
+- `// eslint-disable-next-line @typescript-eslint/no-explicit-any` failt wenn Plugin nicht in eslintrc (Project extends nur `next/core-web-vitals`).
+- Fehler: `Definition for rule '@typescript-eslint/no-explicit-any' was not found`.
+- Fix: typgerechter Cast (`as unknown as (k: string) => string`) oder `unknown` + enger Cast — kein disable-comment.
+
+### Vercel Env + Module-Level + CSP
+- `NEXT_PUBLIC_*` NIEMALS als "Sensitive" markieren → werden beim Build nicht injected.
+- KEIN `createClient()` auf Module-Level → Lazy-Init via Proxy/Getter, sonst crasht Vercel Build.
+- CSP `img-src`: Domains aus DB ableiten (`SELECT DISTINCT substring(image_url FROM '^https?://[^/]+')`), nicht raten. Spielerbilder sind `img.a.transfermarkt.technology`.
+
+---
+
+## 8. Cross-Cutting / Operational
+
+### Data Contract Changes (NICHT als UI-Change behandeln)
+- required → optional (Feld, Prop, DB Column) = Contract Change → alle Consumer greppen.
+- optional → required = Breaking → Migration + Backfill nötig.
+- Form-Validation ändern (disabled, required weg) → downstream prüfen bei null/leer.
+- Regel: Jede Änderung die beeinflusst WELCHE Werte in DB geschrieben werden → `/impact` oder manueller Grep VOR Code.
+
+### Service Contract-Change Propagation (J1)
+- Service swallow→throw ist Breaking-Change für Caller. ALLE Caller greppen + try/catch auditen.
+- Konkret: `applyClubReferral.throw` ohne Consumer-Fix → onboarding trapped User (createProfile OK, clubFollow throw, Retry scheitert an unique-handle).
+- Fix-Pattern für "best-effort" Side-Effects (club-follow, referral, avatar): separates try/catch wrappen, `console.error` + continue (Avatar-Upload-Pattern).
+- Audit: nach swallow→throw PR immer `grep -rn 'serviceName' src/`.
+
+### Cross-Club-Contamination via API-Football (Slice 081d)
+- Club hat 62 Spieler (realistisch ~30). Duplikate haben 0 Appearances + Name+Contract-Match zu echten Spielern anderer Clubs (verschiedene `api_football_id`).
+- Beispiel: Aston Villa 11 Rows waren Duplikate von Werder-Bremen/Real-Madrid-Spielern (Mio Backhaus, Marco Friedl, Felix Agu, Olivier Deman).
+- Detect: SELF-JOIN auf `(first_name, last_name, contract_end)` + `club_id <> club_id` + target `last_appearance_gw = 0`.
+- Fix: `club_id = NULL` (nicht DELETE — reversibel, kein FK-Cascade).
+- Guard: INV-39. Nach neuen sync-players-daily Runs: per-Club squad-size gegen Baseline vergleichen.
+
+### TM Player-Matching Trikot-Check (Phase B)
+- Name-based Search auf TM liefert false-positives bei identischen Namen (z.B. "Bara Ndiaye").
+- Fix: Nach name+club scoring (≥30), scrape TM-Profile + compare `shirt_number`. Mismatch bei beiden NOT NULL → SKIP. Match oder one-sided NULL → accept.
+- Impact: Threshold 50→30 (Recall↑), 0 shirt-mismatches in ~1000 Runs.
+- Parser: `parseShirtNumber` in `src/lib/scrapers/transfermarkt-profile.ts` (3 HTML-Varianten).
+
+### Unknown-with-existing-Mapping Trap (Phase B)
+- Players mit `mv_source='unknown'` aber EXISTING `player_external_ids` (source='transfermarkt') sind scrape-ready, nie verifiziert.
+- Detect:
   ```sql
   SELECT COUNT(*) FROM players p
   JOIN player_external_ids pe ON pe.player_id=p.id AND pe.source='transfermarkt'
   WHERE p.mv_source='unknown' AND (p.matches>0 OR p.last_appearance_gw>0);
   ```
-- **Workflow:** `npx tsx scripts/tm-rescrape-stale.ts --mv-source=unknown --league="<name>"` (default aktive only).
+- Workflow: `npx tsx scripts/tm-rescrape-stale.ts --mv-source=unknown --league="<name>"`.
 
-## PostgREST silent-fail bei grossen `.in()` Arrays (2026-04-20 — Slice 082-Fix)
-- **Symptom:** `.in('col', ids)` liefert `data=undefined` + `error=undefined` wenn `ids.length` über ~400 UUIDs liegt (effektiver URL-Limit ~14KB im PostgREST GET).
-- **Slice 082-Konkret:** `tm-rescrape-stale.ts` lud La Liga 409 stale players (.in mit 409 UUIDs) — `player_external_ids`-Query gab `mappings=undefined` zurück. Script protokollierte "Loaded 0 stale players with TM-mapping" trotz DB zeigt 291 Mappings. Bundesliga (382) hat knapp durch, La Liga (409) kollabierte.
-- **Fix-Pattern:** Chunk `.in()`-Calls in 100er-Batches + explicit error-Throw:
-  ```ts
-  const CHUNK = 100;
-  const byKey = new Map<string, string>();
-  for (let i = 0; i < ids.length; i += CHUNK) {
-    const batch = ids.slice(i, i + CHUNK);
-    const { data, error } = await supabase.from('t').select('k, v').in('k', batch);
-    if (error) throw new Error(`query: ${error.message}`);
-    for (const r of data ?? []) byKey.set(r.k, r.v);
-  }
-  ```
-- **Regel:** Jedes `.in()` mit >100 UUIDs **MUSS** gechunkt werden. Explicit error-Check Pflicht (silent undefined ist Default-Verhalten bei URL-Overflow).
-- **Audit-Command:** `grep -rn "\.in(" src/lib/ scripts/ | grep -v "\.slice\|CHUNK\|batch"`
-- **Pattern-Variante:** Gleicher Silent-Fail bei `.or()`-Filter mit vielen Werten. Analog chunk.
+### API-Football Quirks
+- Substitution: `time.elapsed` (NICHT `time.minute`!), `player`=OUT, `assist`=IN.
+- Null guards: `evt.player?.id` und `evt.assist?.id` können null sein.
+- `grid_position` kann kaputt sein: fehlende GK-Row, Duplikate, >11 Starters.
+- KEINE Market Values → nur Transfermarkt.
 
-## PostgREST silent 1000-row cap — MONEY-CRITICAL in API-Routes (2026-04-19 — Slice 079b-emergency)
-- **Verschärfung des Slice-078-Patterns.** `/api/players` Route nutzte `supabaseServer.from('players').select().order('last_name')` ohne `.range()`.
-- DB hat 4556 Players → Client bekam nur erste 1000 alphabetisch.
-- Holdings auf Players mit `last_name`-Alpha-Position > 1000 wurden client-seitig nicht mit `dpc.owned` enriched → **unsichtbar im Marktplatz Bestand + Manager Kader**.
-- **test12 Repro:** 16 Holdings in DB, 9 nicht sichtbar (inkl. 7× Demir Sarıcalı — alle Cards betroffen).
-- **Fix:** `/api/players` pagination via while-loop `.range(offset, offset+999)`.
-- **Lesson:** Slice 078 dokumentierte den Pattern, aber Audit triggerte nicht für user-facing API-Routes. Bei **jedem** `.select()` auf Tabellen > 1000 Rows: Pagination Pflicht, egal ob Script/Cron/API-Route/Client.
-- **Audit-Command für ALLE `.select()` ohne range/limit:**
-  ```bash
-  grep -rn "\.from('.*')\\s*\\.\\s*select" src/app/api/ src/lib/ src/features/ | grep -v "\.range\|\.limit(\|\.eq\|\.single\|\.maybeSingle\|test\|insert\|update"
-  ```
-  Treffer gegen table-sizes prüfen (players=4556, clubs=140, holdings=per-user, events=dozens).
-
-## PostgREST silent 1000-row cap auf Full-Scans (2026-04-19 — Slice 078)
-- `.limit(1000)` ohne `.range()` auf Supabase-Queries liefert **max 1000 Rows selbst wenn mehr existieren** — PostgREST-default cap.
-- **Slice 078 Konkret:** `scripts/tm-profile-local.ts` Full-Scan hat statt erwarteter ~4500 mappings nur 1000 geladen → 139 nach Filter → nur 3 von 7 Ligen wurden scraped (andere 4 wurden von der 1000-row-Cap nicht abgedeckt).
-- **Regel:** Bei >1000 Rows immer `.range(offset, offset+999)` in while-Loop nutzen:
-  ```ts
-  const PAGE = 1000;
-  let offset = 0;
-  while (true) {
-    const { data } = await supabase.from('t').select(...).range(offset, offset + PAGE - 1);
-    if (!data || data.length === 0) break;
-    // process ...
-    if (data.length < PAGE) break;
-    offset += PAGE;
-  }
-  ```
-- **Audit-Signal:** Script "loaded X mapped players" obwohl DB viel mehr Kandidaten hat — count vergleichen.
-
-## Supabase Client
-- `.single()` wenn 0 Rows moeglich → HTTP 406 Error → `.maybeSingle()` nutzen
-- Regel: Wenn "existiert dieser Datensatz garantiert?" → NEIN → `.maybeSingle()`
-- Audit-Signal: HTTP 406 Fehler in Logs/QA → systematisch alle Service-Calls pruefen
-
-## React/TypeScript
-- Hooks VOR early returns (React rules)
-- `Array.from(new Set())` statt `[...new Set()]` (strict TS)
-- `Array.from(map.keys())` statt `for (const k of map.keys())` (strict TS)
-- `Modal` braucht IMMER `open={true/false}` prop
-- `PlayerPhoto` Props: `first`/`last`/`pos` (nicht firstName/lastName)
-- Barrel-Exports bereinigen wenn Dateien geloescht werden
-- NIEMALS leere `.catch(() => {})` — mindestens `console.error`
-- Cancellation Token in useEffect: `let cancelled = false; return () => { cancelled = true; }`
-- `floor_price ?? 0` — IMMER Null-Guard auf optionale Zahlen
-- `entry.rank ?? 999` — Airdrop rank ist nullable
-
-## CSS / Tailwind
-- `::after`/`::before` mit `position: absolute` → Eltern MUSS `relative` haben
-- `overflow: hidden` allein reicht NICHT als Containing Block
-- `flex-1` auf Tabs → overflow auf iPhone → `flex-shrink-0` nutzen
-- Dynamic Tailwind Classes NIEMALS: `border-[${var}]/40` → Tailwind JIT scannt nur statische Strings. Nutze `style={{ borderColor: hex }}` + statische Class (`border-2`)
-
-## Turkish Unicode
-- `I`.toLowerCase() = `i̇` (NICHT `i`) → NFD + strip diacritics + `ı→i`
-- SQL: `translate(lower(name), 'şçğıöüİŞÇĞÖÜ', 'scgiouISCGOU')`
-
-## API-Football
-- Substitution: `time.elapsed` (NICHT `time.minute`!), `player`=OUT, `assist`=IN
-- Null guards: `evt.player?.id` und `evt.assist?.id` koennen null sein
-- `grid_position` kann kaputt sein: fehlende GK-Row, Duplikate, >11 Starters
-- API-Football hat KEINE Market Values → nur Transfermarkt
-
-## RLS Policy Trap (Session 255 — SC Blocking war komplett kaputt)
-- Neue Tabelle mit RLS MUSS Policies fuer ALLE Client-Ops haben (SELECT + INSERT + DELETE)
-- SELECT-only = Client kann lesen aber NICHT schreiben → silent failure
-- IMMER nach Migration pruefen: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`
-- NIEMALS `console.error` ohne `throw` bei kritischen DB-Writes → silent failure ist der schlimmste Bug
-
-## RPC Anti-Patterns (Top 5 Bugs)
-- `::TEXT` auf UUID beim INSERT (5x in Session 93)
-- Record nicht initialisiert vor Zugriff in falscher Branch
-- FK-Reihenfolge falsch (Child INSERT vor Parent)
-- NOT NULL Spalte fehlt im INSERT
-- Guards fehlen (Liquidation-Check in allen Trading-RPCs)
-
-## Vercel / Deployment
-- `NEXT_PUBLIC_*` Env-Vars NIEMALS als "Sensitive" auf Vercel → werden beim Build NICHT injected
-- KEIN `createClient()` auf Module-Level → Lazy-Init (Proxy/Getter), sonst crasht Vercel Build
-- CSP `img-src` Domains aus DB ableiten, nicht raten: `SELECT DISTINCT substring(image_url from '^https?://[^/]+')`
-- Spielerbilder = `img.a.transfermarkt.technology` (NICHT api-sports.io)
-
-## Shell / Hooks (Windows Git Bash)
-- `grep -oP` mit `\K` scheitert SILENT auf Windows (Locale-Bug: "supports only unibyte and UTF-8 locales")
-- Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'` statt `grep -oP`
-- Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` — Fallback auf Main-Repo-Path oder Task gut verpacken
-
-## Data Contract Changes (NICHT als UI-Change behandeln)
-- required → optional (Feld, Prop, DB Column) = Contract Change → ERST alle Consumer greppen
-- optional → required = Breaking Change → Migration + Backfill noetig
-- Form-Validierung aendern (disabled, required entfernen) → Pruefen: Was passiert downstream wenn der Wert null/leer ist?
-- REGEL: Jede Aenderung die beeinflusst WELCHE Werte in die DB geschrieben werden → `/impact` oder manueller Grep BEVOR Code geschrieben wird
-
-## UX Konsistenz
-- Spieler-Anzeigen MUESSEN Link zu `/player/[id]` haben (Ausnahme: Picker-UIs)
-- `<button>` NICHT in `<Link>` wrappen (invalid HTML) → stattdessen `href` Prop oder Wrapper-Komponente
-
-## PL/pgSQL NULL-in-Scalar (2026-04-11 — CRITICAL Money Bug)
-- `IF (SELECT COALESCE(x, 0) FROM t WHERE ...) < y` ist FALSCH wenn keine Row existiert
-- Scalar-Subquery auf leeres Result-Set → NULL (COALESCE laeuft per-Zeile, nicht auf leere Sets)
-- `NULL < y` = NULL = falsy in PL/pgSQL IF → Guard wird UEBERSPRUNGEN
-- Richtig: `SELECT x INTO v_x; IF COALESCE(v_x, 0) < y THEN reject`
-- Oder: `IF NOT FOUND THEN reject` (sicherstes Pattern)
-- Audit: `grep 'SELECT COALESCE.*FROM.*WHERE' supabase/migrations/`
-
-## Service Error-Swallowing (2026-04-11 — Tickets Pop-In, 2026-04-13 — Full Hardening)
-- `if (error) { console.error(...); return null; }` → React Query cached null als SUCCESS
-- Kein Retry, UI zeigt Skeleton/Empty fuer 30s (staleTime)
-- Kritisch bei Auth-Race: RPC wirft 'Nicht authentifiziert', Service schluckt
-- Richtig: `if (error) { logSupabaseError(...); throw new Error(error.message); }`
-- React Query retried automatisch (3x backoff) → nach ~1s ist Auth ready
-- **SCHLIMMSTE Variante:** `const { data } = await supabase...` OHNE error-Destructuring
-  - Error komplett unsichtbar: kein log, kein throw, data=null wie "keine Rows"
-  - Audit: `grep -rn 'const { data } = await supabase' src/lib/services/`
-- **2026-04-13: 117 Fixes in 61 Services — alle Saeulen gehaertet, 1192 Tests gruen**
-
-## Service Contract-Change Propagation (2026-04-14 — Journey #1 Reviewer)
-- Service-Aenderung `if(error) console.error → throw` ist Breaking-Change fuer Caller
-- Pattern: Nach JEDEM swallow→throw Refactor IMMER alle Caller greppen + try/catch-Logik auditen
-- Concrete Falle: `applyClubReferral.throw` ohne Consumer-Fix → onboarding/page.tsx trapped User:
-  createProfile OK, clubFollow throw, User gefangen (Retry scheitert an unique-handle)
-- Fix-Pattern: Bei "best-effort" Side-Effects (club-follow, referral, avatar) in separates try/catch
-  wrappen, `console.error` + continue (analog Avatar-Upload-Pattern)
-- Audit-Signal: Service-PR aendert return-shape oder error-Semantik → vor Merge `grep -rn 'serviceName' src/`
-
-## i18n-Key-Leak via Service-Errors (2026-04-14 — J1 Reviewer, J3 bestaetigt + erweitert)
-- `throw new Error('handleReserved')` in Service → `err.message === 'handleReserved'` (Raw-Key)
-- Wenn Caller `setError(err.message)` macht → User sieht literal "handleReserved" unuebersetzt
-- Fix-Pattern: Caller resolved known Keys via `t(msg)` Lookup (`mapErrorToKey(normalizeError(err)) → te(key)`)
-- Konvention: Service wirft I18N-KEYS, Consumer muss via `t()` resolven. Dokumentieren in Service-JSDoc.
-- Audit: `grep -n 'throw new Error' src/lib/services/` → Keys sammeln, gegen Caller-`setError(err.message)` pruefen
-- **J3 Evidence (2026-04-14):** J2 hat nur `handleBuy` gefixt, aber `handleSell`/`handleCancelOrder`/`placeBuyOrder` blieben offen (raw-key-leak). Pattern ist SYSTEMATISCH — **nach JEDEM swallow→throw-Refactor ALLE gleichartigen Consumer-Pfade greppen, nicht nur den direkt betroffenen.** Das gleiche Service (useTradeActions/trading.ts) hat 4 aehnliche Methoden, nur 1 war gefixt.
-- **Triple-Red-Flag Service-Error Pattern (J3 Healer A):** `throw new Error(\`Price exceeds maximum (${X} $SCOUT)\`)` = (a) DE/EN-Mix, (b) $SCOUT-Ticker im User-Face, (c) dynamischer Wert in Error-Message. Regel: **Error-Messages NIE dynamische Werte enthalten** — dynamic gehoert in Pre-Submit-Hints, nicht Post-Error.
-
-## Modal preventClose Pattern (2026-04-14 — J2F-04 + J3F-06..08)
-- Jeder Modal mit `useMutation.isPending` → IMMER `preventClose={isPending}` setzen
-- Schuetzt vor ESC/Backdrop-Click-State-Verlust mitten in DB-Transaction (200-500ms Latenz auf 4G)
-- Ohne preventClose: User drueckt ESC → Mutation laeuft weiter, UI verliert State (Balance-Before, Pending-Qty), kein Success-Feedback
-- Heuristik fuer Healer-Sweep: `Modal` + (`isPending|cancelling|selling|buying|submitting`) im gleichen File → preventClose nachruesten
-- J3-Fund: BuyModal (`buying \|\| ipoBuying`), SellModal (`selling \|\| cancellingId !== null \|\| acceptingBidId != null`), LimitOrderModal (`false` + TODO fuer Feature-Live)
-- Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose` — Modals ohne preventClose bei Money/Trading-Context pruefen
-
-## RLS Policy qual=true auf sensiblen Tabellen (2026-04-17 — Slice 014 AUTH-08, erweitert Slice 019-021)
-- `CREATE POLICY x ON t FOR SELECT TO authenticated USING (true)` ist equivalent zu "keine Zugriffskontrolle fuer authenticated" — jeder eingeloggte User liest alle Rows.
-- Bei sensiblen Tabellen (holdings, transactions, activity_log, user_stats, orders): **Portfolio-/Stat-/Trading-Leak** systemweit. Client kann fremde User enumerieren.
-- Fix-Pattern: `USING (auth.uid() = user_id OR EXISTS(admin-check))`. Admins behalten Cross-User-Zugriff ueber explizite Branch.
-- Cross-User-Reads OHNE Admin-Rolle: SECURITY DEFINER RPC + REVOKE anon + GRANT authenticated (AR-44-Template) — bypasst RLS fuer Aggregate wie "distinct holder count per player" oder "Orderbook mit handle+is_own statt user_id".
-- **Regression-Guard LIVE (Slice 019):** `INV-26` in `db-invariants.test.ts` scannt sensible Tabellen-Whitelist gegen `qual='true'` oder `qual=NULL` via neuer Audit-RPC `public.get_rls_policy_quals(p_tables text[])`. EXPECTED_PERMISSIVE dokumentiert bewusste Ausnahmen (aktuell nur `user_stats.Anyone can read stats` fuer Leaderboard).
-- Audit-Command (manuell): `SELECT tablename, policyname, qual FROM pg_policies WHERE schemaname='public' AND qual='true' ORDER BY tablename`
-- **Bekannte Instanzen (historisch):**
-  - **Slice 014 (holdings):** `holdings_select_all_authenticated (qual=true)` → `holdings_select_own_or_admin` + `get_player_holder_count(uuid)` RPC.
-  - **Slice 020+021 (orders):** `orders_select (qual=true)` → `orders_select_own_or_admin` + `get_public_orderbook(uuid, text)` RPC projiziert `handle` (via LEFT JOIN profiles) + `is_own` (via auth.uid()). user_id verschwindet komplett aus cross-user-Reads. 8 UI-Consumer-Sites migriert von `order.user_id === uid` auf `order.is_own`, von `profileMap[order.user_id]?.handle` auf `order.handle`.
-- **Rollout-Pattern bei RLS-Tighten ohne Markt-Stoerung (Slice 020+021 Split):**
-  1. Projection-RPC deployen (SECURITY DEFINER, keine user_id im Return).
-  2. Service-Layer auf RPC umstellen, UI-Consumers migrieren — RLS bleibt noch qual=true.
-  3. Deploy + Verify Orderbook-UX online.
-  4. Erst DANN RLS tighten (DROP qual=true, CREATE own-or-admin) + AUTH-NN Test + INV-26 Whitelist entfernen.
-  Verhindert Deploy-Race (RLS-Tighten ohne Code-Deploy = 10-30min Markt-Stoerung).
-
-## SECURITY DEFINER + authenticated-Grant ohne auth.uid()-Guard (2026-04-17 — Slice 005 A-02)
-- **NEBEN** dem anon-REVOKE-Pattern (unten J4) existiert die **authenticated-to-other-user Exploit-Klasse**:
-  SECURITY DEFINER RPC mit `p_user_id uuid` Parameter + `authenticated`-Grant + keinem auth.uid()-Check im Body
-  → jeder eingeloggte User kann fremde user_id schicken und RPC im Namen des anderen Users ausfuehren.
-- J4 hatte das fuer `earn_wildcards` mit anon-Exploit. Slice 005 (2026-04-17) fand 4 RPCs mit authenticated-Exploit:
-  `rpc_lock_event_entry` (fremdes Wallet/Tickets locken), `renew_club_subscription` (fremdes Wallet deducten),
-  `check_analyst_decay` (Score-Penalty), `refresh_airdrop_score` (Score-Recompute).
-- **Fix-Pattern:** REVOKE authenticated + defense-in-depth Body-Guard:
-  ```sql
-  IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
-    RAISE EXCEPTION 'auth_uid_mismatch: Nicht berechtigt';
-  END IF;
-  ```
-  `IS NOT NULL` skippt fuer service_role (Cron), `IS DISTINCT FROM` reject authenticated-to-other-user.
-- **Prevention:** Bei SECURITY DEFINER RPC mit `p_user_id` immer entscheiden: (a) direkter Client-Aufruf → Guard Pflicht, (b) nur Cron/internal → REVOKE authenticated.
-- **Regression-Guard:** INV-21 in `db-invariants.test.ts` + `public.get_auth_guard_audit()` RPC fangen neue Drift automatisch.
-
-## SECURITY DEFINER RPC ohne REVOKE (2026-04-14 — J4 LIVE-EXPLOIT)
-- J4-Backend-Audit hat `earn_wildcards` RPC live exploited (anon konnte 99.999 Wildcards minten, reverted)
-- Root-Cause: `SECURITY DEFINER` RPC OHNE `REVOKE EXECUTE FROM anon, authenticated` + `auth.uid() = p_user_id` Guard
-- Weitere betroffene RPCs mit gleichem Pattern: `spend_wildcards`, `get_wildcard_balance`, `refund_wildcards_on_leave`, `admin_grant_wildcards` (letztere mit p_admin_id brittle)
-- Regel: Jedes `CREATE OR REPLACE FUNCTION ... SECURITY DEFINER` MUSS begleitet sein von:
-  1. `REVOKE EXECUTE ON FUNCTION X FROM anon, authenticated;`
-  2. `GRANT EXECUTE ON FUNCTION X TO authenticated;`
-  3. `IF auth.uid() IS DISTINCT FROM p_user_id THEN RAISE 'Nicht authentifiziert'` Guard im Body (bei trust-client Parametern)
-- Audit: `grep -rn 'SECURITY DEFINER' supabase/migrations/ | xargs -I {} grep -L 'REVOKE EXECUTE' {}` → RPCs ohne REVOKE-Block
-- Full SECURITY DEFINER-Audit vor Beta-Launch PFLICHT (AR-27 J4)
-
-## ConfirmDialog statt native alert/confirm (2026-04-14 — J4 Healer A)
-- `window.alert()` + `window.confirm()` sind systematisch durch `ConfirmDialog` Component zu ersetzen
-- Live-Location: `src/components/ui/ConfirmDialog.tsx` (neu, J4)
-- Pattern: preventClose built-in, loading/disabled-Props fuer double-click-Schutz, `confirmVariant: 'gold' | 'danger'` wiederverwendbar
-- Grund: native-Dialoge sind unstyled (Browser-default), blockieren Main-Thread, nicht i18n-ready, ignorieren preventClose
-- J4-Fund: 6 Stellen in EventDetailModal + useLineupSave + AufstellenTab (`alert()`) + LeaguesSection (`confirm()`, nicht in J4-Scope)
-- Regel: KEINE native alert/confirm in User-Flows. Lint-Regel empfohlen `no-restricted-globals: ["alert", "confirm"]`
-- Audit: `grep -rn 'window.alert\|window.confirm\|\\balert(\|\\bconfirm(' src/components/ src/features/`
-
-## Multi-League Props-Propagation-Gap (2026-04-14 — J3 Frontend + Reviewer, J4 bestaetigt)
-- Neues optionales Player-Feld (z.B. `leagueShort?`) auf Type hinzugefuegt → nur 2 von 8 Render-Call-Sites bedient
-- TSC/Tests merken NICHTS (optional Prop, kein Error)
-- Visual-QA im Pilot (1 Liga) uebersieht's, Fehler tritt erst im Multi-League-Betrieb auf
-- Regel: Neues Player-Feld → **ALLE Render-Call-Sites manuell auditieren** (Grep alle `<PlayerRow`, `<PlayerHero`, `<TradingCardFrame`, `<PlayerIdentity`, `<PlayerIPOCard` etc.)
-- Teil des `/impact` Skills fuer Player-Type-Aenderungen
-- J3-Fund: TradingCardFrame Front+Back + PlayerHero + TransferListSection hatten 0 Liga-Logos trotz vollstaendigem Player-Type seit 2026-04-07
-- **J4-Erweiterung (2026-04-14):** FantasyEvent + UserDpcHolding Types hatten `club*` Fields aber KEIN `league*`. Same Pattern. Fix via client-side Cache-Lookup `getClub() → getLeague()` Zero-RPC-Change. Regel: **Jedes Type mit `club*` Field MUSS spiegelbildlich `league*` Fields haben.**
-
-## RPC Response camelCase/snake_case Mismatch (2026-04-11 — Mystery Box)
-- RPC `jsonb_build_object('rewardType', ...)` → camelCase im Response
-- Service castet `data as { reward_type: ... }` → snake_case → ALLE Felder undefined
-- TypeScript faengt das NICHT (as = unchecked assertion)
-- Richtig: Service-Cast MUSS die ECHTEN Keys der RPC matchen
-- Check: `pg_get_functiondef()` → Return-Shape → Service-Cast vergleichen
-- Audit: Neuer RPC deployed? → Service-Datei pruefen ob Cast echte Keys nutzt
-
-## RPC INSERT Column-Mismatch gegen Live-Schema (2026-04-14 — J5 AR-42 + AR-42b)
-- `CREATE OR REPLACE FUNCTION` parst den Body aber validiert KEINE Column-Existenz der referenzierten Tabellen
-- Fehlender/falscher Column-Name wird erst beim RPC-CALL geworfen (PG 42703), NICHT beim apply_migration
-- Silent fail: Transaction rollback, User sieht "Open Error" Toast, Ticket-Kosten revertiert aber Reward weg, 0 Rows in Target-Table
-- **AR-42 (2026-04-08 tot):** RPC `open_mystery_box_v2` INSERT `user_equipment(...equipment_rank...)` — Spalte heisst `rank`. 6d Equipment-Drops tot.
-- **AR-42b (seit RPC existiert tot):** Gleicher RPC INSERT `transactions(...amount_cents...)` — Spalten heissen `amount` + `balance_after` (NOT NULL). bCredits-Drops NIE funktioniert.
-- **Regel:** Nach JEDER `CREATE OR REPLACE FUNCTION`-Migration, die INSERT/UPDATE auf eine Tabelle macht: `\d+ target_table` oder `SELECT column_name FROM information_schema.columns WHERE table_name=X` pruefen und Body-Statements matchen.
-- **Audit-Pattern:** `SELECT DISTINCT p.proname FROM pg_proc p JOIN pg_namespace n ON p.pronamespace=n.oid WHERE n.nspname='public' AND pg_get_functiondef(p.oid) ILIKE '%suspected_column%'` um cross-RPC-Hits zu finden.
-- **Fix-Migration-Verify:** `pg_get_functiondef(oid) ~ 'expected_pattern' AS correct, ~ 'buggy_pattern' AS bug` nach Apply.
-- **Watchlist (J5 Audit 2026-04-14, 2026-04-15 CLEARED):** Die 5 Verdächtigen (`adjust_user_wallet`, `claim_welcome_bonus`, `get_club_balance`, `request_club_withdrawal`, `send_tip`) haben `amount_cents` nur als Parameter-Name oder Column-Name anderer Tabellen (`welcome_bonus_claims.amount_cents`, `club_withdrawals.amount_cents`, `tips.amount_cents` — alle bestätigt). Alle transactions-INSERTs nutzen korrekt `(user_id, type, amount, balance_after, ...)`. Kein AR-42b-artiger Bug. Watchlist CLEARED.
-
-## Server-Validation Pflicht fuer Money/Fantasy-RPCs (2026-04-17 — Slice 023 B4)
-- Client-only Validation (Formation-Check, Slot-Count, GK-Required, Captain-Slot) ist **umgehbar via direkten RPC-Call**. Client-UX ist nicht die Wahrheit — RPC muss die einzige Quelle sein.
-- Konkreter Bug: `rpc_save_lineup` akzeptierte `p_formation='xxx-not-a-formation'` ungeprueft, schrieb es direkt in `lineups.formation`. Kein ACID-Guard fuer die Scoring-Logik die spaeter annimmt Formation sei in Allowlist.
-- Fix-Pattern: Im RPC-Body Stage-6.5 Block (zwischen v_all_slots-Build und teuren DB-Joins) folgende Checks hintereinander:
-  1. Formation-Allowlist (`TRIM(p_formation) = ANY(ARRAY['1-4-4-2', ...])`) — sonst `invalid_formation`
-  2. GK-Required (`p_slot_gk IS NULL` → `gk_required`)
-  3. Slot-Count-Match: `v_def_f != v_def_n` → `invalid_slot_count_def` (analog mid, att)
-  4. Extra-Slot-Check: `v_def_n < 4 AND p_slot_def4 IS NOT NULL` → `extra_slot_for_formation`
-  5. Captain/Wildcard-Slot-Empty-Check (CASE-Expression pro slot_key)
-- Reihenfolge wichtig: BILLIGE Early-Exits (Formation-String-Match, NULL-Checks) VOR teuren DB-Joins (insufficient_sc SELECT, salary_cap SELECT).
-- Audit via Body-Scan: `SELECT pg_get_functiondef(oid) ~ 'invalid_formation' AS ok FROM pg_proc WHERE proname = 'rpc_save_lineup'` — in INV-27 automatisiert (Slice 023).
-- Regel: **Jeder Money/Fantasy-RPC der Client-Inputs nutzt MUSS sie ALLE selbst validieren.** Annahme "Client hat's geprueft" = Security-Theater.
-
-## pg_cron Wrapper-RPC Fail-Isolation (2026-04-17 — Slice 024 B5)
-- Cron-Job der mehrere Items in einer Loop verarbeitet: **ein RAISE EXCEPTION auf Item #2 blockt den ganzen Batch** (ohne Isolation). Alle nachfolgenden Items werden nicht verarbeitet.
-- Fix-Pattern: `BEGIN ... EXCEPTION WHEN OTHERS THEN ... END` pro Item innerhalb der FOR-Loop:
-  ```sql
-  FOR v_item IN SELECT ... LOOP
-    BEGIN
-      v_result := public.target_rpc(v_item.id);
-      IF (v_result->>'success')::BOOLEAN THEN v_ok := v_ok + 1;
-      ELSE v_skipped := v_skipped + 1; v_errors := v_errors || jsonb_build_array(...); END IF;
-    EXCEPTION WHEN OTHERS THEN
-      v_errored := v_errored + 1;
-      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
-        'item_id', v_item.id, 'reason', 'EXCEPTION: ' || SQLERRM
-      ));
-    END;
-  END LOOP;
-  ```
-- Return-Shape: `{success, scored, skipped, errored, errors, ran_at}` — erlaubt Monitoring via `cron.job_run_details` + zukuenftige Alert-Hooks auf `errored > 0`.
-- Safety-Bound: `LIMIT 50` im FOR-Loop verhindert runaway (falls Schedule-Drift viele Items aufstaut).
-- Audit: `SELECT * FROM cron.job_run_details WHERE jobname='X' ORDER BY start_time DESC LIMIT 10` — Laufzeit + status + return_message.
-- Regel: **Batch-Cron-RPCs brauchen per-Item-Try/Catch**. Keine "happy-path only"-Loops in Cron-Pfaden.
-
-## Holdings Zombie-Row Auto-Delete-Trigger (2026-04-17 — Slice 025)
-- RPCs wie `accept_offer`, `buy_from_order`, `buy_player_sc` decrementieren seller-holdings via `UPDATE holdings SET quantity = quantity - X`. Wenn `quantity` auf 0 faellt, bleibt Row als Zombie stehen. CHECK `(quantity >= 0)` erlaubt 0 — daher kein Automatischer Error.
-- Symptome: Portfolio-UI zeigt `0`-qty Eintraege; Aggregationen (SUM, COUNT DISTINCT) zaehlen leer-Holdings mit; neue Decrement-RPCs uebersehen den Pattern.
-- Fix-Ansatz-Vergleich:
-  - (a) Inline-RPC-Patch (3-4 Call-Sites UPDATE → UPDATE + DELETE-when-zero) — viel Code-Duplikation, fragil fuer zukuenftige RPCs.
-  - (b) **Trigger-Approach (BEST):** `AFTER UPDATE OF quantity ON holdings FOR EACH ROW WHEN (NEW.quantity = 0) EXECUTE FUNCTION delete_zero_qty_holding()` — zero-touch, future-proof.
-- Trigger-Body: `DELETE FROM public.holdings WHERE id = OLD.id; RETURN NULL;` — OLD.id ist in AFTER-Trigger verfuegbar.
-- Keine CHECK-Verschaerfung noetig: Trigger bridged UPDATE→DELETE atomisch innerhalb derselben Transaction. `CHECK (quantity >= 0)` bleibt.
-- Regel: **Bei Decrement-Patterns pruefen ob Trigger statt RPC-Patch die saubere Loesung ist.** Trigger = "Datenintegritaet automatisch"; RPC-Patch = "jeder neue Caller muss daran denken".
-- Audit: `SELECT tgname FROM pg_trigger WHERE tgrelid = 'public.holdings'::regclass AND tgisinternal = false` — neue Trigger sichtbar.
-
-## Transaction-Type → activityHelpers-Sync (2026-04-17 — Slice 027)
-- RPC schreibt neue `transactions.type` (z.B. `subscription`, `admin_adjustment`, `tip_send`, `offer_execute`) → User sieht **raw-string in Transactions-History-UI** (nicht lokalisiert).
-- Root-Cause: `src/lib/activityHelpers.ts` mapped type → i18n-Key. Neuer type nicht gemappt → `return type` Default gibt snake_case-String.
-- Audit-Query: `SELECT DISTINCT type, COUNT(*) FROM transactions GROUP BY type ORDER BY count DESC` vs. grep-Check der types in activityHelpers.ts:
-  ```sql
-  -- DB DISTINCT:
-  SELECT DISTINCT type FROM transactions;
-  ```
-  ```bash
-  # Code mapped:
-  grep "type === '" src/lib/activityHelpers.ts | grep -oP "'\K[^']+"
-  ```
-- Nach JEDEM RPC der `INSERT INTO transactions` macht: activityHelpers.ts pruefen + DE/TR-Labels ergaenzen (CEO-Gate per `feedback_tr_i18n_validation.md`).
-- **Slice 027-Fund (2026-04-17):** 4 types im Live-DB (`subscription`/`admin_adjustment`/`tip_send`/`offer_execute`) waren ungemappt. Briefing behauptete "10 Types fehlen" — war stale, nur 4 aktuell, andere bereits gefixt.
-- Regel: **Neue transaction.type-Schreiber triggern immer 3-File-Change:** activityHelpers.ts (icon+color+key) + messages/de.json + messages/tr.json.
-
-## Public Wrapper + Internal RPC Pattern (Event-Entry, 2026-04-17 — Slice 041)
-- Bei RPCs mit `p_user_id`-Param und auth-context-relevant: Pattern aus 2 Funktionen statt 1
-  - **Public Wrapper** `rpc_name(args_ohne_user_id)`: SECURITY DEFINER, GRANT authenticated, PERFORM `internal_rpc(args, auth.uid())`
-  - **Internal RPC** `internal_rpc(args, p_user_id)`: REVOKE authenticated, GRANT service_role only
-- Verhindert auth-to-other-user-Exploit (analog AR-44) ohne explicit auth_uid_mismatch-guard im body.
-- **Slice 032b/041 Beispiel:** `lock_event_entry(p_event_id)` → `rpc_lock_event_entry(p_event_id, auth.uid())`. Direct-call von `rpc_lock_event_entry` returned 403 — by design.
-- **Audit-Pattern:** wenn ein RPC `rpc_*` heisst → pruefen ob ein Wrapper ohne prefix existiert. Falls ja: clients muessen wrapper aufrufen.
-- **Doku-Pflicht:** beide RPCs brauchen `COMMENT ON FUNCTION` der das Pattern erklaert (sonst stolpert naechste Person).
-- **Unterschied zu Slice 035 internal-helper:** dort fuer trigger-context (interne caller). Hier fuer auth-context-injection (client-context).
-
-## AR-44 Guard in Trigger-Aufruf-Pfad (2026-04-17 — Slice 035)
-- Trigger ruft AR-44-hardened RPC mit `p_user_id = NEW.seller_id` (anderer User als auth.uid())
-- Guard `IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN RAISE` trippt
-- Trigger faengt mit `EXCEPTION WHEN OTHERS THEN RAISE WARNING` → silent failure
-- Side-Effect (z.B. score-refresh) wird nie ausgefuehrt → fremde User haben stale Daten
-- **Slice 035 Fund:** `trg_fn_trade_refresh` ruft `refresh_airdrop_score(NEW.seller_id)`. Sellers (bot-003, bot-039) hatten `airdrop_scores.updated_at = NULL` trotz mehrerer Trades.
-- **Fix-Pattern:** Internal-Helper-RPC `_<fn>_internal(p_user_id)` ohne guard. REVOKE PUBLIC/anon/authenticated, GRANT service_role only. Trigger (SECURITY DEFINER, owner = postgres) kann internal aufrufen. Public wrapper behaelt guard fuer client-direct-call:
-  ```sql
-  CREATE OR REPLACE FUNCTION _refresh_airdrop_score_internal(p_user_id uuid)
-    RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$ BEGIN ... END $$;
-  REVOKE ALL ... FROM PUBLIC, anon, authenticated;
-  GRANT EXECUTE ... TO service_role;
-
-  CREATE OR REPLACE FUNCTION refresh_airdrop_score(p_user_id uuid)
-    RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
-  BEGIN
-    IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
-      RAISE EXCEPTION 'auth_uid_mismatch';
-    END IF;
-    RETURN _refresh_airdrop_score_internal(p_user_id);
-  END $$;
-
-  -- Trigger uses internal directly
-  PERFORM _refresh_airdrop_score_internal(NEW.seller_id);
-  ```
-- **Audit-Pflicht beim AR-44 Hardening:** pruefen ob hardened RPC von Triggern aufgerufen wird → sofort Internal-Helper extrahieren. Andernfalls: cumulative silent-fail.
-
-## Postgres ON CONFLICT: CHECK validiert INSERT-Tuple-Defaults BEFORE routing (2026-04-18 — Slice 075c)
-
-- `INSERT INTO t (col_a, col_b) VALUES (...) ON CONFLICT (unique_col) DO UPDATE SET ...` **validiert CHECK-Constraints gegen die INSERT-Tuple-Defaults**, bevor es den UPDATE-path nimmt.
-- Wenn CHECK-violation durch DEFAULT-Werte entsteht (z.B. `dpc_total=10000` default + `max_supply=300` default + CHECK `dpc_total <= max_supply`), failt der ganze UPSERT — auch wenn die Ziel-row bereits existiert (d.h. UPDATE-path eigentlich korrekt wäre).
-- **Supabase `.upsert([arr], { onConflict: 'key' })` erbt das Problem**: selbst wenn alle payload-rows existing sind, schlaegt die gesamte Batch fehl mit `23514: new row violates check constraint`.
-- **Fix**: echtes `.update(...).eq('id', ...)` statt `.upsert()` — umgeht ON-CONFLICT-Pre-Validation komplett.
-- Pattern: `pre-query api_xyz_id → id` map, dann `Promise.all(batch.map(t => supabase.from(T).update(payload).eq('id', t.id)))` in chunks von 20-50.
-- Audit: `SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE contype='c' AND conrelid='T'::regclass` — Constraints die DEFAULTS verletzen koennten.
-- **Slice 075 Evidence**: sync-players-daily 4074/5019 payloads errored trotz pre-filtering, weil INSERT-tuple mit defaults (dpc_total=10000 vs max_supply=300) sofort CHECK-fail.
-
-## Vercel Hobby Cron-Limit + Function Timeouts (2026-04-18 — Slice 071 + 075)
-
-- **Hobby Plan**: max 2 Cron-Jobs (die aeltesten 2 in vercel.json werden auto-scheduled — Rest wird ignoriert ohne Deploy-Fehler), max 1×/Tag Frequenz pro Job, Deploy rejected bei comma-Schedule `0 6,14,22 * * *` → Redirect zu `vercel.com/docs/cron-jobs/usage-and-pricing`.
-- **Pro Plan**: 40 Cron-Jobs, 300s function-timeout (NICHT 900s wie manchmal behauptet).
-- **Function-Timeout bei HTTP-Trigger**: auch mit `export const maxDuration = 300;` im route.ts wird 300s als Hard-Limit durchgesetzt. Cron-Schedule-Runs koennen laenger laufen als HTTP-Trigger (bis 900s Pro / 3600s Enterprise).
-- **Symptom**: 504 Gateway Timeout mit "FUNCTION_INVOCATION_TIMEOUT" nach 300s.
-- **Implication fuer Cron-Design**: Sync-Routes die per-Row-DB-Ops machen (`for (entry) { await supabase.update().eq() }`) timeouten bei 1000+ rows. **Zwingend Batch-Pattern**: 1× pre-query via `.in(all_ids)`, dann chunked concurrent UPDATEs via `Promise.all` (20-50 parallel).
-- Messung Slice 075: sync-injuries **60s-timeout → 28s**, sync-players-daily **300s-timeout → 17s** (reines API + pre-query) nach Batch-Refactor.
-
-## Transfermarkt Cloudflare-Block fuer Vercel-IPs (2026-04-18 — Slice 075 Debug)
-
-- `transfermarkt-search-batch` findet 0/20 matches obwohl URL + Regex + HTML-Struktur korrekt sind.
-- Root-Cause: Transfermarkt nutzt Cloudflare, das Vercel-Datacenter-IPs **aggressiv blockiert** → HTTP 200 mit leerem/challenge-HTML (keine `profil/spieler/XXXXX` Links).
-- Verifikation: `curl` vom lokalen PC zu derselben URL returnt volle HTML mit 10+ Links.
-- **Workaround-Optionen**: (a) Proxy/VPN-Service mit Residential-IPs, (b) Transfermarkt Partner-API (kostet), (c) manuelle Bulk-Imports aus CSV, (d) andere Marktwert-Quelle (Comunio, ESPN).
-- **Debug-Mode** via `?debug=true&threshold=X`: returnt `debug_trace[].parsed` → 0 parsed = Cloudflare-Block bestaetigt.
-
-## Next.js Route-Handler: Named-Exports brechen Build (2026-04-18 — Slice 069 Healing)
-- `export function helper(...)` in `src/app/api/.../route.ts` ist **verboten** unter Next.js 14+ App-Router
-- Nur erlaubt: HTTP-Method-Handlers (`GET`/`POST`/`PUT`/`DELETE`/`PATCH`/`HEAD`/`OPTIONS`), plus `runtime`/`dynamic`/`dynamicParams`/`revalidate`/`fetchCache`/`maxDuration`/`generateStaticParams`/`config`
-- Jeder andere Named-Export → `next build` Type-Error: `'OmitWithTag<...>' does not satisfy the constraint '{ [x: string]: never; }'`
-- `tsc --noEmit` FAENGT DAS NICHT — der Type-Check entsteht aus generated `.next/types/app/.../route.ts` nur waehrend `next build`
-- Gleiches gilt fuer `type`-exports — nur `type` lokal deklarieren, export nur aus `lib/`-Files
-- **Kritisch:** Bug kann wochenlang verborgen sein, weil `tsc` lokal clean ist und `next build` nur im Deploy-CI laeuft
-- **Slice 069-Fund:** Slice 064 + 068 hatten `export function parseMarketValue/parseSearchResults/normalizeName/scoreMatch` in route.ts → **alle 11 Vercel-Deploys seit 2026-04-18 gefailt, Cron-Pipeline nicht live**
-- **Fix-Pattern:** Helpers nach `src/lib/scrapers/` (oder `src/lib/<domain>/`) extrahieren, route.ts + tests importieren aus lib/
-- **Regel:** Nach JEDEM Edit in `src/app/api/**/route.ts`: `npx next build` lokal laufen ODER zumindest pruefen ob neue Exports nur die erlaubten Symbole enthalten.
-
-## ESLint disable-comment mit undefined Rule (2026-04-18 — Slice 069 Healing)
-- `// eslint-disable-next-line @typescript-eslint/no-explicit-any` failt wenn `@typescript-eslint` Plugin NICHT in eslintrc registriert ist
-- Project-eslintrc ist `{ "extends": "next/core-web-vitals" }` — kein `@typescript-eslint` direkter Plugin
-- `next build` schlaegt fehl: `Error: Definition for rule '@typescript-eslint/no-explicit-any' was not found`
-- **Slice 069-Fund:** 3 Occurrences (Slice 048 TR-i18n NotificationDropdown + Slice 052 playerMath.test) — blockten alle Deploys
-- **Fix-Pattern:** Statt `as any` + disable-comment nutze:
-  - Typgerechten Cast: `(fn as unknown as (k: string, p?: Record<string, unknown>) => string)(...)`
-  - Oder `unknown` + enger Cast am Verwendungsort
-- **Regel:** Wenn `as any` noetig scheint, erst pruefen ob typgerechter Cast moeglich ist. Disable-comments mit Rule-Namen nur wenn Plugin installiert.
-
-## auth.users DELETE NO-ACTION-FK-Pre-Cleanup (2026-04-17 — Slice 028)
-- `DELETE FROM auth.users WHERE id IN (...)` scheitert an NO-ACTION-FK-Constraints in anderen Tabellen (Postgres: `23503: violates foreign key constraint`). Die Standard-CASCADE-Tables (profiles, wallets, holdings) werden automatisch gecleant — die NO-ACTION-Tables nicht.
-- Bekannte NO-ACTION-Tables auf `auth.users`: `user_tickets`, `ticket_transactions`, `transactions`, `trades`, `events.created_by`, `ipo_purchases`, `mystery_box_results`, `welcome_bonus_claims`, `chip_usages`, `mentorships`, `community_poll_votes`, `verified_scouts`, `fan_rankings`, `user_cosmetics`, `user_daily_challenges`, `user_founding_passes`, `user_scout_missions`, `liquidation_events`, `liquidation_payouts`, `sponsors.created_by`, `fee_config.updated_by`, `club_votes.created_by`, `bounty_submissions.reviewed_by`, `player_valuations` (23 Tables, Stand 2026-04-17).
-- Pre-Audit-Pattern:
-  ```sql
-  -- 1. Liste NO-ACTION-FKs auf auth.users
-  SELECT nsp.nspname||'.'||cls.relname AS tbl, att.attname AS col,
-    CASE con.confdeltype WHEN 'a' THEN 'NO ACTION' ELSE 'other' END
-  FROM pg_constraint con JOIN pg_class cls ON con.conrelid=cls.oid
-  JOIN pg_namespace nsp ON cls.relnamespace=nsp.oid
-  JOIN pg_class ref_cls ON con.confrelid=ref_cls.oid
-  JOIN pg_namespace ref_nsp ON ref_cls.relnamespace=ref_nsp.oid
-  JOIN LATERAL unnest(con.conkey) WITH ORDINALITY ck(attnum, ord) ON TRUE
-  JOIN pg_attribute att ON att.attrelid=cls.oid AND att.attnum=ck.attnum
-  WHERE con.contype='f' AND ref_nsp.nspname='auth' AND ref_cls.relname='users'
-    AND con.confdeltype='a';
-
-  -- 2. Row-Counts fuer target-Users pro NO-ACTION-Table
-  SELECT 'user_tickets' AS tbl, COUNT(*) FROM user_tickets WHERE user_id IN (...)
-  UNION ALL ...;
-
-  -- 3. Wenn Rows vorhanden: vorher loeschen, dann auth.users DELETE
-  ```
-- Achtung: `information_schema.constraint_column_usage` liefert bei cross-schema-FKs (public → auth) KEINE Treffer. Immer `pg_constraint` direkt nutzen.
-- Regel: **Bevor User-Delete (DEV-Accounts, GDPR-Request, etc.): NO-ACTION-FK-Audit Pflicht.** Rollback nicht moeglich (auth.users mit hashed password nicht restorable ohne Backup).
+### Shell / Hooks (Windows Git Bash)
+- `grep -oP` mit `\K` scheitert silent (Locale: "supports only unibyte and UTF-8").
+- Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'`.
+- Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` → Fallback Main-Repo-Path oder Task gut verpacken.
