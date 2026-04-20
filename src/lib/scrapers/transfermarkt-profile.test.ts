@@ -47,6 +47,22 @@ describe('parseMarketValue (new markup, 2026-04+)', () => {
   });
 });
 
+describe('parseMarketValue (TM no-value dash, Slice 098b)', () => {
+  it('returns 0 when TM zeigt "Marktwert: -" im meta-description', () => {
+    const html = '<meta content="Akan ➤ Marktwert: - ➤ * 14.07.1994 in Ankara, Türkei" /><body>no wrapper</body>';
+    expect(parseMarketValue(html)).toBe(0);
+  });
+
+  it('does NOT return 0 when Marktwert-wrapper mit echtem Wert existiert', () => {
+    const html = `<meta content="Foo ➤ Marktwert: - ➤ ..." /><a class="data-header__market-value-wrapper">80,00 <span class="waehrung">Mio. €</span></a>`;
+    expect(parseMarketValue(html)).toBe(80_000_000);
+  });
+
+  it('returns null wenn weder dash noch wrapper', () => {
+    expect(parseMarketValue('<html><body>no mv</body></html>')).toBeNull();
+  });
+});
+
 describe('parseMarketValue (legacy markup fallback)', () => {
   it('parses legacy "€ X Mio." format when new markup absent', () => {
     expect(parseMarketValue(LEGACY_MARKUP)).toBe(12_500_000);

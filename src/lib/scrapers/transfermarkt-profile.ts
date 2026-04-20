@@ -14,6 +14,14 @@
  *  Return: EUR als Integer, oder null wenn kein MV erkennbar.
  */
 export function parseMarketValue(html: string): number | null {
+  // Slice 098b: Explicit "TM hat keinen MV" Detection
+  // HTML-Meta: `<meta content="... Marktwert: - ➤ *"` — TM signalisiert explicit "no MV"
+  // Treatment: return 0 (nicht null), damit Caller als verified (0) anstatt stale-parse-fail behandelt.
+  // Nur matchen wenn kein Data-Header-Wrapper UND kein "Mio./Tsd." im MV-Context existiert.
+  if (/Marktwert:\s*-\s+[➤>]/.test(html) && !/data-header__market-value-wrapper/.test(html)) {
+    return 0;
+  }
+
   // Primary: neues Markup seit 2026-04
   // Akzeptiert € als Unicode, &#8364; entity, oder &euro;
   const primary = html.match(

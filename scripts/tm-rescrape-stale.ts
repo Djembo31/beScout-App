@@ -254,7 +254,10 @@ async function main(): Promise<void> {
 
       const { mv, contract } = await scrapeOne(page, p);
 
-      if (mv === null || mv <= 0) {
+      // Slice 098b: mv === 0 bedeutet TM hat explicit "Marktwert: -" (no-value).
+      // Das ist verified information (TM kennt den Spieler, hat aber keinen MV).
+      // Nur mv === null (parse-fail) oder negative = echter failure → stays stale.
+      if (mv === null || (typeof mv === 'number' && mv < 0)) {
         parseFailed++;
         console.log(`${prefix} ∅ ${p.last_name} — MV parse failed, stays stale`);
         continue;
