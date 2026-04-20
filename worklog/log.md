@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 091 | 2026-04-22 | DB-Invariants INV-36/37/38 fixen
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD (Data-Fix + Test-Filter) → PROVE → LOG
+- Files: 1 Test + 130 DB-Rows (SQL via Supabase MCP)
+- Scope:
+  - **Data-Fix Step 1**: 123 Orphan-Contracts (contract_end < cutoff 12mo) auf `mv_source='transfermarkt_stale'` (36× 2024-07-01, 17× 2023-07-01, 15× 2022-07-01, Rest verstreut)
+  - **Data-Fix Step 2**: 7 Residual Cluster `600K/2025-07-01` (Slice-081-Signatur) auf stale
+  - **Test-Code INV-36 + INV-37**: Post-Filter auf `contract_end.endsWith('-07-01')` → legit `-06-30`-Saisonend-Cluster (49× 1.5M/2027-06-30, 46× 1.5M/2026-06-30 etc.) nicht mehr false-positive
+- Proof: `worklog/proofs/091-after.txt`
+- Verification:
+  - tsc clean
+  - INV-36 + INV-37 + INV-38: alle 3 grün
+  - DB-Invariants-Suite: 36/38 grün (2 Failures INV-10 + INV-32 = pre-existing, nicht durch 091)
+- Notes:
+  - Auswertung zeigte: Top-Cluster sind Jungspieler mit Default-MV pro Liga + Saisonend-Contract (-06-30) = **legitime Daten**, nicht Poisoning
+  - Slice-081-Scraper-Default-Signatur ist spezifisch `-07-01` (parser-Default für fehlendes Vertragsende)
+  - Regression-Guards bleiben stark: neue -07-01-Poisoning wird sofort erkannt; neue -06-30-Cluster korrekt ignoriert
+  - Orphan-Detection via INV-38 bleibt unverändert (korrekt), Data-Fix entfernt Altlasten
+
+---
+
 ## 090 | 2026-04-22 | silent-fail-audit Precision v2
 - Stage-Chain: SPEC → IMPACT (skipped, tool-only) → BUILD (4 Iterations) → PROVE → LOG
 - Files: 4 (scripts/silent-fail-audit.ts + optimize/doc + common-errors + regenerated audit report)

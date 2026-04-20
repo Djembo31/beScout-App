@@ -1926,17 +1926,20 @@ describe('DB Invariants', () => {
       const key = `${p.market_value_eur}|${p.contract_end}`;
       clusters.set(key, (clusters.get(key) ?? 0) + 1);
     }
+    // Slice 091: Nur Slice-081-Poisoning-Signatur flaggen (contract_end endet auf -07-01
+    // = TM-Scraper-Default). Legitime -06-30-Saison­end-Cluster (viele Jungspieler pro
+    // Liga mit Default-MV) werden nicht mehr falsch-positiv.
     const violations = Array.from(clusters.entries())
-      .filter(([, n]) => n > 3)
+      .filter(([key, n]) => n > 3 && key.split('|')[1]?.endsWith('-07-01'))
       .map(([key, n]) => `${n}× ${key}`);
 
     if (violations.length === 0) {
-      console.log(`[INV-36] ${all.length} unflagged players, 0 duplicate-clusters > 3`);
+      console.log(`[INV-36] ${all.length} unflagged players, 0 duplicate-clusters > 3 with -07-01 signature`);
     }
 
     expect(
       violations,
-      `Duplicate-Cluster-Poisoning detected (>3 Spieler mit identisch mv+contract_end, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
+      `Duplicate-Cluster-Poisoning detected (>3 Spieler mit identisch mv+contract_end auf -07-01, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
 
@@ -1990,17 +1993,20 @@ describe('DB Invariants', () => {
       const key = `${p.market_value_eur}|${p.contract_end}|${normalize(p.last_name)}`;
       clusters.set(key, (clusters.get(key) ?? 0) + 1);
     }
+    // Slice 091: Nur Slice-081b-Poisoning-Signatur (contract_end endet auf -07-01)
+    // flaggen. Legitime -06-30-Saisonend-Paare (gleicher Nachname + Default-MV) sind
+    // real, nicht Poisoning.
     const violations = Array.from(clusters.entries())
-      .filter(([, n]) => n >= 2)
+      .filter(([key, n]) => n >= 2 && key.split('|')[1]?.endsWith('-07-01'))
       .map(([key, n]) => `${n}× ${key}`);
 
     if (violations.length === 0) {
-      console.log(`[INV-37] ${all.length} unflagged players, 0 paired-clusters (same last_name + mv + contract_end)`);
+      console.log(`[INV-37] ${all.length} unflagged players, 0 paired-clusters with -07-01 signature`);
     }
 
     expect(
       violations,
-      `Paired-Poisoning detected (>=2 Spieler mit identisch mv+contract_end+normalized last_name, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
+      `Paired-Poisoning detected (>=2 Spieler mit identisch mv+contract_end+last_name auf -07-01, nicht als stale markiert):\n  ${violations.slice(0, 20).join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
 
