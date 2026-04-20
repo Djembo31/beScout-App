@@ -201,34 +201,42 @@ describe('getClubsWithStats', () => {
 });
 
 describe('getClubTradingFees', () => {
-  it('returns aggregated fees', async () => {
-    mockTable('players', [{ id: 'p1' }]);
-    mockTable('trades', [
-      { club_fee: 100, platform_fee: 350, pbt_fee: 150 },
-      { club_fee: 200, platform_fee: 700, pbt_fee: 300 },
-    ]);
+  it('returns aggregated fees (Slice 095 Phase 2: via RPC)', async () => {
+    mockRpc('rpc_get_club_trading_fees', {
+      totalClubFee: 300, totalPlatformFee: 1050, totalPbtFee: 450, tradeCount: 2,
+    });
     const result = await getClubTradingFees('c1');
     expect(result.totalClubFee).toBe(300);
     expect(result.totalPlatformFee).toBe(1050);
     expect(result.tradeCount).toBe(2);
   });
-  it('returns zeros when no players', async () => {
-    mockTable('players', []);
+  it('returns zeros on RPC error', async () => {
+    mockRpc('rpc_get_club_trading_fees', null, { message: 'not_club_admin' });
     const result = await getClubTradingFees('c1');
     expect(result).toEqual({ totalClubFee: 0, totalPlatformFee: 0, totalPbtFee: 0, tradeCount: 0 });
   });
 });
 
 describe('getClubRecentTrades', () => {
-  it('returns trades with player info', async () => {
-    mockTable('players', [{ id: 'p1' }]);
-    mockTable('trades', [{ id: 't1', player_id: 'p1', price: 5000, player: { first_name: 'John', last_name: 'Doe', position: 'MID' } }]);
+  it('returns trades mapped to player-join shape (Slice 095 Phase 2: via RPC)', async () => {
+    mockRpc('rpc_get_club_recent_trades', [{
+      id: 't1',
+      player_id: 'p1',
+      player_first_name: 'John',
+      player_last_name: 'Doe',
+      player_position: 'MID',
+      price: 5000,
+      quantity: 1,
+      executed_at: new Date().toISOString(),
+    }]);
     const result = await getClubRecentTrades('c1');
     expect(result).toHaveLength(1);
+    expect(result[0].player.first_name).toBe('John');
+    expect(result[0].player.last_name).toBe('Doe');
   });
-  it('returns [] when no players', async () => {
-    mockTable('players', []);
-    expect(await getClubRecentTrades('c1')).toEqual([]);
+  it('returns [] on RPC error', async () => {
+    mockRpc('rpc_get_club_recent_trades', null, { message: 'not_club_admin' });
+    await expect(getClubRecentTrades('c1')).rejects.toThrow('not_club_admin');
   });
 });
 

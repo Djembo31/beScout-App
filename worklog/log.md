@@ -30,8 +30,8 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
-## 095 | 2026-04-22 | INV-32 trades Tighten — Phase 1 (RPCs + UI Migration)
-- Stage-Chain: SPEC → IMPACT → BUILD (Phase 1) → PROVE → LOG. **Phase 2 pending User-Verify**.
+## 095 | 2026-04-22 | INV-32 trades Tighten — COMPLETE (Phase 1 + 2)
+- Stage-Chain: SPEC → IMPACT → BUILD (Phase 1 + 2) → PROVE → LOG.
 - CEO-approved: Anil ("a nur trades")
 - Files: 10 (+2 neue RPCs via MCP, 1 neuer Type, 2 Services, 5 UI, 1 Hook, 1 Test)
 - Scope Phase 1:
@@ -46,10 +46,15 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - tsc clean
   - 202/202 tangierte Tests grün (src/components/player + trading service)
   - audit baseline 193/98/95 unverändert
-- Phase 2 pending (User-Action):
-  - **User verifiziert bescout.net** nach Vercel-Deploy (Marktplatz sparklines + Player-Trading-Tab)
-  - **Design-Entscheidung**: club_admins need trade-access (club.ts:385/420/737/752) — Options A/B/C im Proof dokumentiert
-  - Apply Phase 2 migration: RLS tighten auf `trades_select_own_or_admin`
+- **Phase 2 COMPLETE** (CEO-chose Option B):
+  - 3 SECURITY DEFINER RPCs mit club_admin-OR-platform_admin-Guard: `rpc_get_club_trading_fees`, `rpc_get_club_recent_trades`, `rpc_get_club_fan_stats`
+  - Service-Migration club.ts: 3 Functions auf RPCs, neuer Type `ClubRecentTrade`
+  - RLS tighten applied: `trades_select_own_or_platform_admin` — auth.uid() IN (buyer, seller) OR top_role='Admin'
+  - Tests adaptiert (97/97 club, 202/202 player)
+  - Baseline: 193/98/95 → **190/95/95** (-3 HIGH durch RPC-migration)
+  - Phase-2-Proof: `worklog/proofs/095-phase2-after.txt`
+- Remaining INV-32 findings (OUT OF SCOPE): `league_standings` + `player_transfers` — separate Slice
+- Security-Gewinn: Portfolio-Inferenz-Leak geschlossen. Non-admins sehen nur own trades. Public price-history via SECURITY DEFINER RPC (Slice 095 Phase 1). Club-admin-aggregates via guarded RPCs.
 
 ---
 

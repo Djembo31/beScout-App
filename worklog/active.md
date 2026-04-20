@@ -1,31 +1,32 @@
 # Active Slice
 
 ```
-status: paused (Phase 1 done, Phase 2 pending User-Verify)
-slice: 095
-stage: PROVE (Phase 1) → waiting for bescout.net verify → BUILD (Phase 2)
-spec: (inline, log.md 095 entry)
-impact: documented in 095-phase1-after.txt
-proof: worklog/proofs/095-phase1-after.txt
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
 ```
 
-## Slice 095 Phase 1 COMPLETE
+## Letzte Slices: 087-096 (2026-04-22)
 
-- 2 SECURITY DEFINER RPCs applied (handle+is_own projection, anon sparkline)
-- PublicTrade type + 10 Files migrated
-- tsc clean, 202/202 tests green
+### 095 — INV-32 trades Tighten COMPLETE (Phase 1 + 2, CEO-approved Option B)
+- Phase 1: PublicTrade type + 2 SECURITY DEFINER RPCs (handle+is_own projection) + UI Migration (5 components + 1 hook)
+- Phase 2: 3 SECURITY DEFINER RPCs mit club_admin-guard für club.ts + RLS tighten `own_or_platform_admin`
+- Baseline: 193/98/95 → 190/95/95
+- Security-Gewinn: Portfolio-Inferenz-Leak geschlossen
 
-## Phase 2 User-Gate
+### 096 — Sentry.setUser GDPR-conservative (CEO-delegated)
+### 094 — INV-10 Fix: ipo_price Nachkalibrierung (CEO-approved)
+### 093 — CI-Gate silent-fail-audit Baseline
+### 092 — Silent-Catch Observability
+### 091 — DB-Invariants INV-36/37/38 fix
+### 090 — silent-fail-audit Precision v2
+### 089 — allSettled Sweep
+### 088 — Sentry Observability Util
+### 087 — Upstream Silent-Fail Follow-Ups
 
-**Bevor Phase 2 applied werden kann, bitte:**
-1. Warte Vercel-Deploy (~3-5 min nach push)
-2. Verify auf bescout.net:
-   - Marktplatz: sparklines rendern normal
-   - Player-Page → Trading-Tab: trade list zeigt handles korrekt (@username + "Du" flag bei own trades)
-   - YourPosition zeigt P&L wenn du Holdings hast
-3. **Offene Design-Frage**: club_admins brauchen trade-access für ihre club-player queries (club.ts:385/420/737/752)
-   - Option A: zusätzliche RLS-Branch mit club_admins JOIN (teuer per-row)
-   - Option B: club-queries auf SECURITY DEFINER RPCs migrieren (mehr scope)
-   - Option C: RPC-Helper `is_club_admin_for_trade(player_id)` STABLE (mittel)
-
-Nach User-OK: apply Phase 2 RLS-tighten migration.
+## Remaining INV-32 Findings (separate Slice)
+- `league_standings` / `player_transfers` — public-read wohl gewollt (leaderboard/history) — Whitelist oder Tighten decision offen
+- TURK-03, useMarketData.floorMap flaky — separate QA

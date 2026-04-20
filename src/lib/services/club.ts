@@ -371,30 +371,17 @@ export async function getClubTradingFees(clubId: string): Promise<{
   totalPbtFee: number;
   tradeCount: number;
 }> {
-  // Get player IDs for this club
-  const { data: playerData } = await supabase
-    .from('players')
-    .select('id')
-    .eq('club_id', clubId);
-  if (!playerData || playerData.length === 0) {
-    return { totalClubFee: 0, totalPlatformFee: 0, totalPbtFee: 0, tradeCount: 0 };
-  }
-  const playerIds = playerData.map(p => p.id);
-
-  const { data, error } = await supabase
-    .from('trades')
-    .select('club_fee, platform_fee, pbt_fee')
-    .in('player_id', playerIds);
-
+  // Slice 095 Phase 2: SECURITY DEFINER RPC mit club-admin-OR-platform-admin guard
+  const { data, error } = await supabase.rpc('rpc_get_club_trading_fees', { p_club_id: clubId });
   if (error || !data) {
     return { totalClubFee: 0, totalPlatformFee: 0, totalPbtFee: 0, tradeCount: 0 };
   }
-
+  const d = data as { totalClubFee: number; totalPlatformFee: number; totalPbtFee: number; tradeCount: number };
   return {
-    totalClubFee: data.reduce((sum, t) => sum + (t.club_fee ?? 0), 0),
-    totalPlatformFee: data.reduce((sum, t) => sum + (t.platform_fee ?? 0), 0),
-    totalPbtFee: data.reduce((sum, t) => sum + (t.pbt_fee ?? 0), 0),
-    tradeCount: data.length,
+    totalClubFee: d.totalClubFee ?? 0,
+    totalPlatformFee: d.totalPlatformFee ?? 0,
+    totalPbtFee: d.totalPbtFee ?? 0,
+    tradeCount: d.tradeCount ?? 0,
   };
 }
 
@@ -402,36 +389,41 @@ export async function getClubTradingFees(clubId: string): Promise<{
 // Club Activity
 // ============================================
 
-/** Letzte Trades für Club-Spieler (by club_id) */
+/** Letzte Trades für Club-Spieler (by club_id) — Slice 095 Phase 2: via SECURITY DEFINER RPC */
+export type ClubRecentTrade = {
+  id: string;
+  player_id: string;
+  player: { first_name: string; last_name: string; position: string };
+  price: number;
+  quantity: number;
+  executed_at: string;
+};
+
 export async function getClubRecentTrades(
   clubId: string,
   limit = 10
-): Promise<(DbTrade & { player: { first_name: string; last_name: string; position: string } })[]> {
-  // Two-step: first get player IDs, then fetch trades
-  // (Supabase .in() subquery syntax crashes in postgrest-js — new Set(queryBuilder) is not iterable)
-  const { data: playerData } = await supabase
-    .from('players')
-    .select('id')
-    .eq('club_id', clubId);
-  if (!playerData || playerData.length === 0) return [];
-
-  const playerIds = playerData.map(p => p.id);
-  const { data: trades, error } = await supabase
-    .from('trades')
-    .select(`
-      id, player_id, buyer_id, seller_id, buy_order_id, sell_order_id, ipo_id, price, quantity, platform_fee, pbt_fee, club_fee, executed_at,
-      player:players!player_id (
-        first_name,
-        last_name,
-        position
-      )
-    `)
-    .in('player_id', playerIds)
-    .order('executed_at', { ascending: false })
-    .limit(limit);
-
+): Promise<ClubRecentTrade[]> {
+  const { data, error } = await supabase.rpc('rpc_get_club_recent_trades', {
+    p_club_id: clubId,
+    p_limit: limit,
+  });
   if (error) throw new Error(error.message);
-  return (trades ?? []) as unknown as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
+  return (data ?? []).map((r: {
+    id: string; player_id: string;
+    player_first_name: string; player_last_name: string; player_position: string;
+    price: number; quantity: number; executed_at: string;
+  }) => ({
+    id: r.id,
+    player_id: r.player_id,
+    player: {
+      first_name: r.player_first_name,
+      last_name: r.player_last_name,
+      position: r.player_position,
+    },
+    price: r.price,
+    quantity: r.quantity,
+    executed_at: r.executed_at,
+  }));
 }
 
 // ============================================
@@ -713,91 +705,23 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
   topFans: { user_id: string; handle: string; display_name: string | null; trade_count: number; volume_cents: number }[];
   engagementByType: { type: string; count: number }[];
 }> {
-  // Get player IDs for this club
-  const { data: playerData } = await supabase.from('players').select('id').eq('club_id', clubId);
-  const playerIds = (playerData ?? []).map(p => p.id);
+  // Slice 095 Phase 2: active-fans + top-fans via SECURITY DEFINER RPC
+  const { data: fanStats, error: fanErr } = await supabase.rpc('rpc_get_club_fan_stats', { p_club_id: clubId });
+  if (fanErr) throw new Error(fanErr.message);
+  const stats = (fanStats ?? {}) as {
+    activeFans7d: number;
+    activeFans30d: number;
+    topFans: { user_id: string; handle: string; display_name: string | null; trade_count: number; volume_cents: number }[];
+  };
 
-  // Followers
+  // Followers (separate table, direct supabase query — club_followers has its own RLS)
   const { count: totalFollowers } = await supabase
     .from('club_followers')
     .select('id', { count: 'exact', head: true })
     .eq('club_id', clubId);
 
-  // Active fans 7d (distinct users who traded club players in last 7 days)
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  // Engagement by type (last 30d from activity_log — unchanged)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-
-  let activeFans7d = 0;
-  let activeFans30d = 0;
-  const topFansMap = new Map<string, { count: number; volume: number }>();
-
-  if (playerIds.length > 0) {
-    // Trades in last 7d
-    const { data: trades7d } = await supabase
-      .from('trades')
-      .select('buyer_id, seller_id, price, quantity')
-      .in('player_id', playerIds)
-      .gte('executed_at', sevenDaysAgo)
-      .limit(10000);
-
-    const users7d = new Set<string>();
-    for (const t of trades7d ?? []) {
-      if (t.buyer_id) users7d.add(t.buyer_id as string);
-      if (t.seller_id) users7d.add(t.seller_id as string);
-    }
-    activeFans7d = users7d.size;
-
-    // Trades in last 30d (+ top fans)
-    const { data: trades30d } = await supabase
-      .from('trades')
-      .select('buyer_id, seller_id, price, quantity')
-      .in('player_id', playerIds)
-      .gte('executed_at', thirtyDaysAgo)
-      .limit(10000);
-
-    const users30d = new Set<string>();
-    for (const t of trades30d ?? []) {
-      const vol = ((t.price as number) ?? 0) * ((t.quantity as number) ?? 1);
-      if (t.buyer_id) {
-        users30d.add(t.buyer_id as string);
-        const prev = topFansMap.get(t.buyer_id as string) ?? { count: 0, volume: 0 };
-        topFansMap.set(t.buyer_id as string, { count: prev.count + 1, volume: prev.volume + vol });
-      }
-      if (t.seller_id) {
-        users30d.add(t.seller_id as string);
-        const prev = topFansMap.get(t.seller_id as string) ?? { count: 0, volume: 0 };
-        topFansMap.set(t.seller_id as string, { count: prev.count + 1, volume: prev.volume + vol });
-      }
-    }
-    activeFans30d = users30d.size;
-  }
-
-  // Top 10 fans by volume
-  const sortedFans = Array.from(topFansMap.entries())
-    .sort((a, b) => b[1].volume - a[1].volume)
-    .slice(0, 10);
-
-  let topFans: { user_id: string; handle: string; display_name: string | null; trade_count: number; volume_cents: number }[] = [];
-  if (sortedFans.length > 0) {
-    const fanIds = sortedFans.map(([id]) => id);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name')
-      .in('id', fanIds);
-    const profileMap = new Map<string, { handle: string; display_name: string | null }>();
-    for (const p of profiles ?? []) {
-      profileMap.set(p.id, { handle: p.handle, display_name: p.display_name });
-    }
-    topFans = sortedFans.map(([id, stats]) => ({
-      user_id: id,
-      handle: profileMap.get(id)?.handle ?? 'unknown',
-      display_name: profileMap.get(id)?.display_name ?? null,
-      trade_count: stats.count,
-      volume_cents: stats.volume,
-    }));
-  }
-
-  // Engagement by type (last 30d from activity_log)
   const { data: activityData } = await supabase
     .from('activity_log')
     .select('action')
@@ -814,10 +738,10 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
     .sort((a, b) => b.count - a.count);
 
   return {
-    activeFans7d,
-    activeFans30d,
+    activeFans7d: stats.activeFans7d ?? 0,
+    activeFans30d: stats.activeFans30d ?? 0,
     totalFollowers: totalFollowers ?? 0,
-    topFans,
+    topFans: stats.topFans ?? [],
     engagementByType,
   };
 }

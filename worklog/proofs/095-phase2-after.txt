@@ -1,0 +1,72 @@
+Slice 095 Phase 2 — INV-32 trades Tighten COMPLETE — Proof
+============================================================
+Date: 2026-04-22
+Status: COMPLETE
+CEO-Approved: "a nur trades" + Option B (Club-Queries auf SECURITY DEFINER RPCs)
+
+## Changes Summary
+
+### 1. DB Migration via MCP (slice_095_phase2_club_trade_rpcs_and_rls)
+
+**3 neue SECURITY DEFINER RPCs** (Guard: club_admin OR platform_admin):
+- `rpc_get_club_trading_fees(p_club_id)` — aggregierte club_fee/platform_fee/pbt_fee, tradeCount
+- `rpc_get_club_recent_trades(p_club_id, p_limit)` — trade list mit player-join (keine buyer_id/seller_id exposed)
+- `rpc_get_club_fan_stats(p_club_id)` — activeFans7d/30d + topFans[] by volume (last 30d)
+
+Alle drei: REVOKE PUBLIC/anon + GRANT authenticated. Bounds im limit (LIMIT 100/10000).
+
+**RLS tighten on trades**:
+- DROP `trades_select` (qual=true)
+- CREATE `trades_select_own_or_platform_admin`:
+  ```
+  auth.uid() = buyer_id
+  OR auth.uid() = seller_id
+  OR EXISTS (profiles WHERE id = auth.uid() AND top_role = 'Admin')
+  ```
+
+### 2. Service Migration (src/lib/services/club.ts)
+
+- `getClubTradingFees(clubId)` → RPC `rpc_get_club_trading_fees`
+- `getClubRecentTrades(clubId, limit)` → RPC `rpc_get_club_recent_trades`, new return type `ClubRecentTrade` mit gemapptem `player.first_name/last_name/position`
+- `getClubFanAnalytics(clubId)` → RPC `rpc_get_club_fan_stats` für Trades-Aggregate (followers + activity_log bleiben direct)
+
+### 3. Test Migration (src/lib/services/__tests__/club.test.ts)
+- 2 tests umgestellt auf `mockRpc(...)` statt `mockTable(...)`
+- Neuer return-shape mit `player.*` mapping verifiziert
+
+### 4. Baseline Update (.audit-baseline.json)
+- Vor: 193/98/95
+- Nach: **190/95/95** (−3 HIGH: club.ts trades-queries jetzt via RPC)
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS |
+| `npx vitest run src/lib/services/__tests__/club` | 97/97 passed |
+| `npx vitest run src/components/club` | 37/37 passed (from earlier) |
+| `npm run audit:silent-fail:check` | PASS 190/95/95 |
+| INV-32 (trades) | ✅ nicht mehr in qual=true-Liste |
+| DB verify trades policy | `own buyer OR own seller OR platform_admin` |
+
+## Remaining INV-32 Findings (OUT OF SCOPE)
+Tables die weiterhin qual=true haben aber separate Slices brauchen:
+- `league_standings` — public read wohl gewollt (leaderboard data)
+- `player_transfers` — public read wohl gewollt (transfer history)
+- **User Entscheidung in nächster Session:** Whitelist oder separate Tighten-Slice
+
+## Security-Gewinn
+**Vor Slice 095**: jeder authenticated user konnte `SELECT * FROM trades` und alle buyer_id/seller_id + Volumen inferrieren (Portfolio-Inferenz-Leak).
+**Nach Slice 095**:
+- Normale user sehen NUR eigene Trades (auth.uid() = buyer/seller)
+- Price-History public via SECURITY DEFINER RPC — keine user_id exposure
+- Club-Admin-Aggregate via guarded RPCs — nur legitime club_admins
+- Platform-Admin-Branch für admin UI
+
+## Files Modified (Phase 2)
+```
+ .audit-baseline.json                           | 4 +--
+ src/lib/services/club.ts                       | 113 +++++++-----
+ src/lib/services/__tests__/club.test.ts        | 37 ++--
+ supabase migrations (via MCP): slice_095_phase2_club_trade_rpcs_and_rls
+```
