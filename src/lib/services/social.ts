@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { ACHIEVEMENTS } from '@/lib/achievements';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { DbUserStats, DbUserAchievement, LeaderboardUser, ActivityFeedItem } from '@/types';
 
 // ============================================
@@ -121,10 +122,12 @@ export async function getFollowerList(userId: string, limit = 50): Promise<Profi
   if (error || !data || data.length === 0) return [];
 
   const ids = data.map(r => r.follower_id);
-  const [profilesRes, statsRes] = await Promise.allSettled([
+  const followerEnrich = await Promise.allSettled([
     supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
     supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
   ]);
+  logSilentRejects('social.getFollowerList', followerEnrich);
+  const [profilesRes, statsRes] = followerEnrich;
 
   const profiles = profilesRes.status === 'fulfilled' ? (profilesRes.value.data ?? []) : [];
   const stats = statsRes.status === 'fulfilled' ? (statsRes.value.data ?? []) : [];
@@ -150,10 +153,12 @@ export async function getFollowingList(userId: string, limit = 50): Promise<Prof
   if (error || !data || data.length === 0) return [];
 
   const ids = data.map(r => r.following_id);
-  const [profilesRes, statsRes] = await Promise.allSettled([
+  const followingEnrich = await Promise.allSettled([
     supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
     supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
   ]);
+  logSilentRejects('social.getFollowingList', followingEnrich);
+  const [profilesRes, statsRes] = followingEnrich;
 
   const profiles = profilesRes.status === 'fulfilled' ? (profilesRes.value.data ?? []) : [];
   const stats = statsRes.status === 'fulfilled' ? (statsRes.value.data ?? []) : [];

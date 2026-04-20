@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 089 | 2026-04-22 | allSettled Sweep — logSilentRejects in allen residuellen Stellen
+- Stage-Chain: SPEC → IMPACT (skipped, additive 3-Zeilen-Patch × 16) → BUILD → PROVE → LOG
+- Files: 11 Produktions-Files (16 Call-Sites)
+- Scope:
+  - **Priority 1 (Money/Admin/User-Critical):** useLineupSave (Fantasy SC-save) · offers.ts (×2 enrichment) · AdminGameweeksTab · useProfileData · FollowListModal · club.ts (getClubPrestige)
+  - **Priority 2 (User-Data):** social.ts (×2 follower/following) · scouting.ts (×4) · search.ts · research.ts · pushSender.ts
+  - Pattern identisch: `const results = await Promise.allSettled([...]); logSilentRejects('label', results); const [...] = results;`
+- Proof: `worklog/proofs/089-after.txt`
+- Verification:
+  - tsc clean
+  - 1177/1178 Tests in tangierten Suites grün (1 skipped)
+  - Full-Suite 2607/2615 passed — 7 Failures alle pre-existing (6 DB-Invariants gegen Live-Supabase + 1 flaky useMarketData.floorMap, nicht in 089 tangiert)
+  - grep-Verify: 0 Produktions-allSettled ohne logSilentRejects
+- Notes:
+  - Baseline-Shift: 1 Sentry-Call-Site (vor 088) → 20 Sentry-Call-Sites (nach 089)
+  - Completes Sentry Observability für gesamte Promise.allSettled-Klasse in Production Code
+  - Folge-Slices dokumentiert: .catch-Patterns, Sentry.setUser, Breadcrumbs für Supabase
+
+---
+
 ## 088 | 2026-04-22 | Sentry Observability für Promise.allSettled Silent-Rejects
 - Stage-Chain: SPEC → IMPACT (skipped, additive + 3 targeted sites) → BUILD → PROVE → LOG
 - Files: 6 (2 new: observability/silentRejects.ts + tests; 3 integrations; 1 rules doc)

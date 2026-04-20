@@ -4,6 +4,7 @@
  * and bounty_submissions (with evaluation).
  */
 import { supabase } from '@/lib/supabaseClient';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { PlayerScoutingSummary, TopScout, ScoutingEvaluation, Pos } from '@/types';
 import { toPos } from '@/types';
 
@@ -104,7 +105,7 @@ export type ScoutingStats = {
 };
 
 export async function getScoutingStatsForUser(userId: string): Promise<ScoutingStats> {
-  const [researchResult, bountiesResult, trackResult] = await Promise.allSettled([
+  const statsResults = await Promise.allSettled([
     supabase
       .from('research_posts')
       .select('avg_rating, ratings_count')
@@ -121,6 +122,8 @@ export async function getScoutingStatsForUser(userId: string): Promise<ScoutingS
       .gt('price_at_creation', 0)
       .not('outcome', 'is', null),
   ]);
+  logSilentRejects('scouting.getScoutingStatsForUser', statsResults);
+  const [researchResult, bountiesResult, trackResult] = statsResults;
 
   let reportCount = 0;
   let totalRating = 0;
@@ -180,11 +183,13 @@ export async function getGlobalTopScouts(limit = 10): Promise<TopScout[]> {
   const userIds = scores.map(s => s.user_id as string);
 
   // Parallel: profiles + research stats + approved bounties
-  const [profilesResult, researchResult, bountiesResult] = await Promise.allSettled([
+  const globalTopResults = await Promise.allSettled([
     supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),
     supabase.from('research_posts').select('user_id, avg_rating, ratings_count').in('user_id', userIds),
     supabase.from('bounty_submissions').select('user_id').eq('status', 'approved').in('user_id', userIds),
   ]);
+  logSilentRejects('scouting.getGlobalTopScouts', globalTopResults);
+  const [profilesResult, researchResult, bountiesResult] = globalTopResults;
 
   const profiles = profilesResult.status === 'fulfilled' ? (profilesResult.value.data ?? []) : [];
   const research = researchResult.status === 'fulfilled' ? (researchResult.value.data ?? []) : [];
@@ -235,7 +240,7 @@ export async function getGlobalTopScouts(limit = 10): Promise<TopScout[]> {
 
 export async function getTopScouts(clubId: string, limit = 20): Promise<TopScout[]> {
   // Parallel: research reports + approved bounty submissions
-  const [researchResult, bountiesResult] = await Promise.allSettled([
+  const topScoutsAggregates = await Promise.allSettled([
     supabase
       .from('research_posts')
       .select('user_id, avg_rating, ratings_count')
@@ -248,6 +253,8 @@ export async function getTopScouts(clubId: string, limit = 20): Promise<TopScout
       .not('evaluation', 'is', null)
       .eq('bounties.club_id', clubId),
   ]);
+  logSilentRejects('scouting.getTopScouts.aggregates', topScoutsAggregates);
+  const [researchResult, bountiesResult] = topScoutsAggregates;
 
   const reports = researchResult.status === 'fulfilled' ? (researchResult.value.data ?? []) : [];
   const approvals = bountiesResult.status === 'fulfilled' ? (bountiesResult.value.data ?? []) : [];
@@ -277,7 +284,7 @@ export async function getTopScouts(clubId: string, limit = 20): Promise<TopScout
 
   // Fetch profiles
   const userIds = Array.from(userMap.keys());
-  const [profilesResult, scoresResult] = await Promise.allSettled([
+  const topScoutsProfiles = await Promise.allSettled([
     supabase
       .from('profiles')
       .select('id, handle, display_name, avatar_url')
@@ -287,6 +294,8 @@ export async function getTopScouts(clubId: string, limit = 20): Promise<TopScout
       .select('user_id, scout_score')
       .in('user_id', userIds),
   ]);
+  logSilentRejects('scouting.getTopScouts.profiles', topScoutsProfiles);
+  const [profilesResult, scoresResult] = topScoutsProfiles;
 
   const profiles = profilesResult.status === 'fulfilled' ? (profilesResult.value.data ?? []) : [];
   const scores = scoresResult.status === 'fulfilled' ? (scoresResult.value.data ?? []) : [];

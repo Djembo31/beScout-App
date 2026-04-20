@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, ClubDashboardStats, ClubAdminRole, OperationResult } from '@/types';
 
 // ============================================
@@ -73,13 +74,15 @@ function getPrestigeTier(score: number): PrestigeTier {
 }
 
 export async function getClubPrestige(clubId: string): Promise<ClubPrestige> {
-  const [bountiesResult, approvedResult, votesResult, newsResult, followersResult] = await Promise.allSettled([
+  const prestigeResults = await Promise.allSettled([
     supabase.from('bounties').select('id', { count: 'exact', head: true }).eq('club_id', clubId),
     supabase.from('bounty_submissions').select('id, bounties!inner(club_id)', { count: 'exact', head: true }).eq('status', 'approved').eq('bounties.club_id', clubId),
     supabase.from('club_votes').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('status', 'active'),
     supabase.from('posts').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('post_type', 'club_news'),
     supabase.from('club_followers').select('id', { count: 'exact', head: true }).eq('club_id', clubId),
   ]);
+  logSilentRejects('club.getClubPrestige', prestigeResults);
+  const [bountiesResult, approvedResult, votesResult, newsResult, followersResult] = prestigeResults;
 
   const bounties = bountiesResult.status === 'fulfilled' ? (bountiesResult.value.count ?? 0) : 0;
   const approvedSubmissions = approvedResult.status === 'fulfilled' ? (approvedResult.value.count ?? 0) : 0;

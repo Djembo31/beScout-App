@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getAllClubsCached } from '@/lib/clubs';
 import { logSupabaseError } from '@/lib/supabaseErrors';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { Pos } from '@/types';
 
 export type SearchResultType = 'player' | 'club' | 'profile';
@@ -150,7 +151,8 @@ export async function spotlightSearch(
     );
   }
 
-  await Promise.allSettled(promises);
+  const searchResults = await Promise.allSettled(promises);
+  logSilentRejects('search.spotlightSearch', searchResults);
 
   return results;
 }

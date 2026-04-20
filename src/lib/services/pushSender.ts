@@ -1,5 +1,6 @@
 import webpush from 'web-push';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 
 // Lazy-initialized to avoid build-time crashes when env vars aren't available
 let _supabaseAdmin: SupabaseClient | null = null;
@@ -59,7 +60,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
   const jsonPayload = JSON.stringify(payload);
   const staleIds: string[] = [];
 
-  await Promise.allSettled(
+  const sendResults = await Promise.allSettled(
     subscriptions.map(async (sub) => {
       try {
         await webpush.sendNotification(
@@ -80,6 +81,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
       }
     }),
   );
+  logSilentRejects('pushSender.sendToUser', sendResults);
 
   // Clean up stale subscriptions
   if (staleIds.length > 0) {

@@ -11,6 +11,7 @@ import { getRang } from '@/lib/gamification';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabaseClient';
 import { useTranslations } from 'next-intl';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 
 interface FollowListModalProps {
   userId: string;
@@ -41,6 +42,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
         const checks = await Promise.allSettled(
           data.map(p => isFollowing(user.id, p.userId))
         );
+        logSilentRejects('FollowListModal.isFollowingChecks', checks);
         const map = new Map<string, boolean>();
         data.forEach((p, i) => {
           map.set(p.userId, checks[i].status === 'fulfilled' ? checks[i].value : false);

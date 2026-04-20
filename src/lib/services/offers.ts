@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import { mapErrorToKey } from '@/lib/errorMessages';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { DbOffer, OfferWithDetails } from '@/types';
 
 // ============================================
@@ -17,10 +18,12 @@ async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[]> {
     ...offers.filter(o => o.receiver_id).map(o => o.receiver_id!),
   ]));
 
-  const [playersRes, profilesRes] = await Promise.allSettled([
+  const enrichResults = await Promise.allSettled([
     supabase.from('players').select('id, first_name, last_name, position, club').in('id', playerIds),
     supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),
   ]);
+  logSilentRejects('offers.enrichOffers', enrichResults);
+  const [playersRes, profilesRes] = enrichResults;
 
   const players = playersRes.status === 'fulfilled' ? (playersRes.value.data ?? []) : [];
   const profiles = profilesRes.status === 'fulfilled' ? (profilesRes.value.data ?? []) : [];
@@ -125,7 +128,7 @@ export async function getOpenBids(opts: {
 /** Offer history for a user (accepted, rejected, countered, expired, cancelled) */
 export async function getOfferHistory(userId: string): Promise<OfferWithDetails[]> {
   const offerCols = 'id, player_id, sender_id, receiver_id, side, price, quantity, status, counter_offer_id, message, expires_at, created_at, updated_at';
-  const [sentRes, recvRes] = await Promise.allSettled([
+  const historyResults = await Promise.allSettled([
     supabase.from('offers').select(offerCols)
       .eq('sender_id', userId)
       .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
@@ -135,6 +138,8 @@ export async function getOfferHistory(userId: string): Promise<OfferWithDetails[
       .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
       .order('updated_at', { ascending: false }).limit(25),
   ]);
+  logSilentRejects('offers.getOfferHistory', historyResults);
+  const [sentRes, recvRes] = historyResults;
   const sent = sentRes.status === 'fulfilled' ? (sentRes.value.data ?? []) : [];
   const recv = recvRes.status === 'fulfilled' ? (recvRes.value.data ?? []) : [];
   const merged = [...sent, ...recv].sort((a, b) =>

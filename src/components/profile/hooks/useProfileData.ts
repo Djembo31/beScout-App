@@ -12,6 +12,7 @@ import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import { val } from '@/lib/settledHelpers';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import { useLoginStreak } from '@/lib/queries/streaks';
 import { getDimensionTabOrder, getStrongestDimension } from '@/lib/scoutReport';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
@@ -98,6 +99,7 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
           getUserFantasyHistory(targetUserId, 10),
           isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
         ]);
+        logSilentRejects('useProfileData.load', results);
         if (!cancelled) {
           setHoldings(val(results[0], []) as HoldingRow[]);
           const stats = val(results[1], null);

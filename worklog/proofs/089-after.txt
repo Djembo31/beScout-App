@@ -1,0 +1,75 @@
+Slice 089 — allSettled Sweep — Proof
+=====================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+
+## Changes Summary
+
+16 residuelle Promise.allSettled-Stellen in 11 Files instrumentiert mit `logSilentRejects(label, results)` — identischer 3-Zeilen-Patch pro Stelle + 1 Import pro File. Keine Änderung an existing fulfilled/rejected routing — pure additive observation.
+
+### Priority 1 — Money/Admin/User-Critical (7 Stellen in 5 Files)
+| File:Line | Label |
+|-----------|-------|
+| useLineupSave.ts:98 | `useLineupSave.equipToSlot` |
+| offers.ts:20 | `offers.enrichOffers` |
+| offers.ts:131 | `offers.getOfferHistory` |
+| AdminGameweeksTab.tsx:31 | `AdminGameweeksTab.load` |
+| useProfileData.ts:100 | `useProfileData.load` |
+| FollowListModal.tsx:43 | `FollowListModal.isFollowingChecks` |
+| club.ts:76 | `club.getClubPrestige` |
+
+### Priority 2 — User-Data / Enrichment (9 Stellen in 6 Files)
+| File:Line | Label |
+|-----------|-------|
+| social.ts:124 | `social.getFollowerList` |
+| social.ts:155 | `social.getFollowingList` |
+| scouting.ts:107 | `scouting.getScoutingStatsForUser` |
+| scouting.ts:185 | `scouting.getGlobalTopScouts` |
+| scouting.ts:240 | `scouting.getTopScouts.aggregates` |
+| scouting.ts:282 | `scouting.getTopScouts.profiles` |
+| search.ts:153 | `search.spotlightSearch` |
+| research.ts:108 | `research.enrichPosts` |
+| pushSender.ts:62 | `pushSender.sendToUser` |
+
+## Verification Results
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS (clean) |
+| Affected test suites (54 files / observability + providers + profile + fantasy + services) | 1177 passed / 1 skipped |
+| Full suite | 2607 passed / 7 failed / 1 skipped |
+| Failed tests scope | Pre-existing: 6 DB-Invariants gegen Live-Supabase (INV-10/32/36/37/38/TURK-03 — Daten-State, nicht Code) + 1 flaky `useMarketData.floorMap` (useMarketData.ts seit Slice 052 unverändert, nicht tangiert von 089) |
+| `grep -rln "Promise.allSettled" src/ | grep -v __tests__` MISSING logSilentRejects | **0** (alle 14 Produktions-Files instrumentiert + 1 utility = 15 Treffer) |
+
+## Before-Slice-088 Baseline vs. Nach 089
+- **Vor Slice 088:** 1 Sentry-Call-Site in ganzer Codebase (`src/app/global-error.tsx`). 20 Promise.allSettled-Stellen, 0 instrumented.
+- **Nach Slice 089:** 1 + 3 + 16 = **20 Sentry-Call-Sites** (global-error + 3 Slice-088-Integrationen + 16 Slice-089-Integrationen). 0 Promise.allSettled-Stellen in Produktion ohne Observability.
+
+## Files Modified (12 total — 11 src + 1 settings.local)
+
+```
+ src/app/(app)/bescout-admin/AdminGameweeksTab.tsx |  5 ++++-
+ src/components/profile/FollowListModal.tsx        |  2 ++
+ src/components/profile/hooks/useProfileData.ts    |  2 ++
+ src/features/fantasy/hooks/useLineupSave.ts       |  2 ++
+ src/lib/services/club.ts                          |  5 ++++-
+ src/lib/services/offers.ts                        |  9 +++++++--
+ src/lib/services/pushSender.ts                    |  4 +++-
+ src/lib/services/research.ts                      |  2 ++
+ src/lib/services/scouting.ts                      | 17 +++++++++++++----
+ src/lib/services/search.ts                        |  4 +++-
+ src/lib/services/social.ts                        |  9 +++++++--
+ 11 files changed, 58 insertions(+), 13 deletions(-)
+```
+
+## Spec Reference
+- worklog/specs/089-allsettled-sweep.md
+
+## Scope-Out (weiter als separate Slices)
+
+- Pre-existing DB-Invariant-Failures (INV-10/32/36/37/38/TURK-03): Daten-State-Issue, kein Code-Fix — Slice 081/082 Phase C follow-up oder manuelle Daten-Bereinigung.
+- `useMarketData.floorMap` flaky: separate QA-Slice oder stabilization.
+- `.catch(() => null)`-Patterns observable machen — separate Slice (z.B. `logSilentCatch`).
+- Sentry.setUser beim Login → separate Slice.
+- Sentry Breadcrumbs für Supabase-Queries → separate Slice (supabase client wrapper).
+- Silent-Fail-Audit Precision v2 (multi-line `.range()` + allSettled pattern) → separate `/optimize`-Iteration.

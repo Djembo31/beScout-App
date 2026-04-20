@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { DbResearchPost, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 import { toPos } from '@/types';
 
@@ -106,6 +107,7 @@ export async function getResearchPosts(options: {
     }
 
     const enrichResults = await Promise.allSettled(enrichPromises);
+    logSilentRejects('research.enrichPosts', enrichResults);
 
     type ProfileRow = { id: string; handle: string; display_name: string | null; avatar_url: string | null; level: number; verified: boolean; top_role: string | null };
     type PlayerRow = { id: string; first_name: string; last_name: string; position: string };

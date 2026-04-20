@@ -9,6 +9,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getFullGameweekStatus, simulateGameweekFlow, type FullGameweekStatus } from '@/lib/services/scoring';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 
 export function AdminGameweeksTab() {
   const t = useTranslations('bescoutAdmin');
@@ -28,7 +29,9 @@ export function AdminGameweeksTab() {
       import('@/lib/services/club').then(({ getActiveGameweek }) =>
         getActiveGameweek(selectedClubId)
       ),
-    ]).then(([gwRes, clubRes]) => {
+    ]).then((results) => {
+      logSilentRejects('AdminGameweeksTab.load', results);
+      const [gwRes, clubRes] = results;
       if (gwRes.status === 'fulfilled') setGwStatus(gwRes.value);
       if (clubRes.status === 'fulfilled') {
         setActiveGw(clubRes.value ?? 11);

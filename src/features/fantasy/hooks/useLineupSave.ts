@@ -7,6 +7,7 @@ import { qk } from '@/lib/queries/keys';
 import { equipToSlot } from '@/lib/services/equipment';
 import { useToast } from '@/components/providers/ToastProvider';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { FantasyEvent, LineupPlayer } from '../types';
 import type { EquipmentSlotState } from './useLineupBuilder';
 
@@ -98,6 +99,7 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
         const results = await Promise.allSettled(
           eqEntries.map(([slotKey, eq]) => equipToSlot(event.id, eq.id, slotKey)),
         );
+        logSilentRejects('useLineupSave.equipToSlot', results);
         const failed = results.filter(r => r.status === 'rejected');
         if (failed.length > 0) {
           console.error('[useLineupSave] Some equip calls failed:', failed);
