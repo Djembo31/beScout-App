@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 112 | 2026-04-20 | reference_price Deprecate (Tech-Debt, Slice 108-Audit Follow-up)
+- Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
+- Approval: Anil "beides noch" (+ Option A in worklog/specs/112)
+- Files: 5 (1 Migration + 2 Service/Type Edits + 1 Test Fixture + 1 Proof)
+- Scope:
+  - **Problem**: reference_price = MV × 10 cents setzte "0,1% des MV als cents-Wert" — inkonsistent mit CEO-Modell. AR-21 hatte get_price_cap bereits primär auf ipo_price × 3 umgestellt; reference_price war nur noch Tertiär-Fallback in 3 RPCs.
+  - **Migration 20260420214000**: Atomisch in BEGIN/COMMIT:
+    - CREATE OR REPLACE 3 RPCs ohne reference_price:
+      - `get_price_cap`: nur ipo_price × 3 als Basis + median bei ≥10 Trades
+      - `recalc_floor_price`: Fallback-Chain MIN(sell) → active IPO → last_price → existing floor
+      - `trg_recalc_floor_on_trade`: COALESCE ohne ref_price
+    - DROP TRIGGER trg_player_reference_price
+    - DROP FUNCTION trg_update_reference_price
+    - ALTER TABLE players DROP COLUMN reference_price CASCADE
+  - **Frontend (Option B Minimal-Invasiv):**
+    - `src/types/index.ts`: DbPlayer.reference_price entfernt
+    - `src/lib/services/players.ts`: select-list + mapper entfernt
+    - Test-Fixture angepasst
+    - `Player.prices.referencePrice` als Frontend-Field BELASSEN (optional, immer undefined nach Mapper) → 9 UI-Fallback-Stellen weiter syntaktisch valid, zeigen halt 0-Fallback statt reference-Value
+- PROVE:
+  - 6/6 DB-Invariants PASS (column/trigger/function dropped, 3 RPCs ohne reference_price)
+  - 40/40 vitest PASS (players.test + playerMath.test)
+  - tsc --noEmit clean
+  - `worklog/proofs/112-verification.txt`
+- Commit: pending
+- Notes: Tech-Debt-Reduktion, kein User-Impact. Scope-Out: Player.prices.referencePrice Frontend-Field komplett entfernen (Slice 115 wenn gewünscht — 9 Stellen in TradingTab/SellModal/PriceChart/PlayerHero/DiscoveryCard/TopMoversStrip/SquadPreviewSection/playerMath/useMarketData).
+
+---
+
 ## 109 | 2026-04-20 | get_home_dashboard_v1 RPC (Home-Data-Consolidation)
 - Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
 - Approval: inline (CTO-Scope: read-only Aggregation, keine Fee/Wording/Security-Änderung)

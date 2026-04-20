@@ -540,7 +540,6 @@ export type DbPlayer = {
   ipo_price: number;      // BIGINT in Cents — fester Club/IPO-Preis
   price_change_24h: number;
   volume_24h: number;
-  reference_price: number | null;         // BIGINT in Cents — Referenzpreis (IPO oder gewichteter Durchschnitt)
   initial_listing_price: number | null;   // BIGINT in Cents — erster IPO-Preis (unveraenderlich)
   status: 'fit' | 'injured' | 'suspended' | 'doubtful' | null;
   market_value_eur: number;

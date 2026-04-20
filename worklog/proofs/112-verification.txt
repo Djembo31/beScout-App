@@ -1,0 +1,87 @@
+Slice 112 — reference_price Deprecation Verification
+Date: 2026-04-20 22:09
+DB: skzjfhvgccaeplydsunz (BeScout Production)
+
+═══════════════════════════════════════════════════════════════════
+DB INVARIANTS (6/6 PASS)
+═══════════════════════════════════════════════════════════════════
+
+| Check                                           | Result            |
+|-------------------------------------------------|-------------------|
+| reference_price column exists?                  | PASS: dropped     |
+| trg_player_reference_price trigger exists?      | PASS: dropped     |
+| trg_update_reference_price function exists?     | PASS: dropped     |
+| get_price_cap body contains reference_price?    | PASS: no reference|
+| recalc_floor_price body contains reference_price?| PASS: no reference|
+| trg_recalc_floor_on_trade body contains ref_price?| PASS: no reference|
+
+═══════════════════════════════════════════════════════════════════
+FRONTEND CHANGES
+═══════════════════════════════════════════════════════════════════
+
+1. src/types/index.ts:543 — `DbPlayer.reference_price` entfernt
+   (Player.prices.referencePrice bleibt als optional Frontend-Field
+   für Backward-Compat — ist nach Mapper-Fix immer undefined)
+
+2. src/lib/services/players.ts:22 — 'reference_price' aus SELECT-Liste
+3. src/lib/services/players.ts:175 — db.reference_price Mapping entfernt
+4. src/lib/services/__tests__/players.test.ts:97 — Test-Fixture entfernt
+
+═══════════════════════════════════════════════════════════════════
+UI-FALLBACK-VERHALTEN NACH DEPRECATION
+═══════════════════════════════════════════════════════════════════
+
+Da Player.prices.referencePrice jetzt immer undefined ist:
+
+- `SellModal.tsx:101-105`: "Reference Price"-Anzeige rendert nicht mehr
+  (wegen `referencePrice != null && > 0` Guard)
+- `PriceChart.tsx:49,118`: Props weiterhin optional, zeigt stattdessen ipoPrice-Placeholder
+- `playerMath.ts:20`: `?? prices.referencePrice ?? 0` fällt direkt auf 0 durch
+- `DiscoveryCard.tsx:64-65`: Gleiche Fallback-Kette, nun 0-Fallback
+- `TopMoversStrip.tsx:54`: Gleiche Fallback-Kette
+- `SquadPreviewSection.tsx:71`: Gleiche Fallback-Kette
+- `PlayerHero.tsx:65`: `floor ?? referencePrice ?? 0` fällt auf 0
+
+NICHT kritisch weil alle Stellen haben floor_price + ipoPrice primär,
+referencePrice war nur Tertiär-Fallback. Floor ist via recalc_floor_price()
+hierarchy nun die einzige autoritative Quelle:
+  MIN(sell_orders) → active IPO → last_price → existing floor_price
+
+═══════════════════════════════════════════════════════════════════
+TESTS (40/40 PASS)
+═══════════════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit → clean
+$ npx vitest run src/lib/services/__tests__/players.test.ts \
+                 src/lib/__tests__/playerMath.test.ts
+
+ RUN  v4.1.0 C:/bescout-app
+
+ Test Files  2 passed (2)
+      Tests  40 passed (40)
+   Start at  22:09:15
+   Duration  6.49s
+
+═══════════════════════════════════════════════════════════════════
+ROLLBACK-OPTION
+═══════════════════════════════════════════════════════════════════
+
+Migration droppt column + trigger + function. Rollback:
+  ALTER TABLE players ADD COLUMN reference_price BIGINT;
+  CREATE FUNCTION trg_update_reference_price ... (old body)
+  CREATE TRIGGER trg_player_reference_price ...
+  UPDATE players SET reference_price = market_value_eur * 10;
+
+Kein Data-Loss: reference_price war derived von market_value_eur,
+kann beliebig re-computed werden.
+
+═══════════════════════════════════════════════════════════════════
+SCOPE-OUT (Slice 115 wenn gewünscht)
+═══════════════════════════════════════════════════════════════════
+
+- Frontend Player.prices.referencePrice optional Field komplett entfernen
+  → 9 UI-Fallback-Stellen updaten (`?? referencePrice` entfernen)
+- SellModal Reference-Price-Display-Block komplett entfernen (Zeile 101-107)
+- PriceChart referencePrice-Prop entfernen
+- Minimal-invasiver Option-B-Approach in Slice 112 belassen diese Tech-Debt
+  bewusst — Frontend ist funktional korrekt, nur noch rudiment.
