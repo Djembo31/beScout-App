@@ -214,8 +214,18 @@ export async function createPlayer(params: {
   clubName: string;
   nationality?: string;
   ipoPrice?: number;
+  marketValueEur?: number;
 }): Promise<{ success: boolean; playerId?: string; error?: string }> {
-  const ipoPriceCents = params.ipoPrice ? Math.round(params.ipoPrice * 100) : 500;
+  // Slice 108/111 CEO Pricing-Asset-Model:
+  // - Explicit ipoPrice (in $SCOUT): respect admin override
+  // - Else marketValueEur given: derive ipo_price_cents = MV / 10 (linear formula)
+  // - Else fallback 500 cents (5 $SCOUT legacy placeholder)
+  const mvEur = Number(params.marketValueEur) || 0;
+  const ipoPriceCents = params.ipoPrice
+    ? Math.round(params.ipoPrice * 100)
+    : mvEur > 0
+      ? Math.max(Math.floor(mvEur / 10), 0)
+      : 500;
   const { data, error } = await supabase
     .from('players')
     .insert({
@@ -227,6 +237,7 @@ export async function createPlayer(params: {
       club: params.clubName,
       club_id: params.clubId,
       nationality: params.nationality || 'TR',
+      market_value_eur: mvEur,
       ipo_price: ipoPriceCents,
       floor_price: ipoPriceCents,
       last_price: 0,

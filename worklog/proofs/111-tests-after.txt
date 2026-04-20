@@ -1,0 +1,31 @@
+Slice 111 — Test Verification (AFTER Fix)
+Date: 2026-04-20 21:25
+
+$ npx vitest run src/lib/services/__tests__/players.test.ts
+
+ RUN  v4.1.0 C:/bescout-app
+
+ Test Files  1 passed (1)
+      Tests  31 passed (31)
+   Start at  21:25:13
+   Duration  4.76s
+
+$ npx tsc --noEmit
+(no output, clean)
+
+Changes verified via diff:
+1. scripts/enrich-from-transfermarkt.mjs:388-408
+   - Insert-Branch: ipo_price aus tmPlayer.marketValue abgeleitet (MV/10 cents)
+   - Fallback 10000 cents bei MV=0 (Placeholder bis TM-Scrape MV liefert)
+   - floor_price = ipo_price (matcht Insert-Pattern)
+   - Added: market_value_eur: mvEur (war vorher impliziter DEFAULT 0)
+
+2. src/lib/services/players.ts createPlayer()
+   - Neuer Param: marketValueEur?: number
+   - ipoPriceCents Derivation: explicit ipoPrice > marketValueEur/10 > 500 fallback
+   - Insert payload: + market_value_eur: mvEur
+
+Update-Branch von enrich-from-transfermarkt.mjs (Zeile 426-428): BEWUSST NICHT geändert
+- trading.md: ipo_price ist fest pro Tranche, darf bei aktiver IPO nicht driften
+- Bei aktiver IPO würde ipo_price-Update Inkonsistenz zu ipos.price erzeugen (sync_player_ipo_price Trigger feuert nur IPO→Player, nicht umgekehrt)
+- MV-Drift bei existierenden Players adressiert separater Slice 114 (Backfill with CEO-approval + IPO-status guard)

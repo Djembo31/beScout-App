@@ -1,0 +1,33 @@
+Slice 111 — ipo_price Flat-Default Drift Report (BEFORE Fix)
+Date: 2026-04-20 21:26
+DB: skzjfhvgccaeplydsunz (BeScout Production)
+
+Drift-Analyse per MV-Bucket (4556 non-liquidated Players):
+
+| Bucket     | Players | Flat-Default (10000c) | Formel-conform | Drift-% |
+|------------|---------|----------------------|----------------|---------|
+| 0 (no MV)  |    604  |                 519  |             55 |    85%  |
+| <100K€     |    211  |                  73  |             74 |    35%  |
+| 100K-500K  |    723  |                 422  |            202 |    58%  |
+| 500K-1M    |    516  |                 410  |             27 |    79%  |
+| 1M-5M      |  1.139  |               1.109  |              7 |    97%  |
+| 5M-20M     |    826  |                 826  |              0 |   100%  |
+| >=20M      |    537  |                 537  |              0 |   100%  |
+
+Total: 4.556 Players, 3.896 auf Flat-Default (85,5%).
+
+KRITISCHE BEFUNDE:
+- 1.363 Players mit MV >=5M € → ALLE auf ipo_price = 10.000 cents (100 $SCOUT)
+  Korrekter Wert wäre 500.000+ cents (5.000+ $SCOUT pro Card)
+  → Spieler um Faktor 50-2000× unter-bepreist
+- 1.109 von 1.139 Players MV 1M-5M → Flat-Default
+  Korrekter Wert wäre 100.000-500.000 cents
+  → Faktor 10-50× Drift
+
+Impact-Schätzung (illustrativ, keine realen Trades notwendig):
+- Wenn jemand ein Ahmet Karademir (MV 20M€) für 100 $SCOUT kauft statt 2.000 $SCOUT
+  → Club verliert potenziell 1.900 $SCOUT pro Card bei IPO-Launch
+  → Bei max 10.000 Cards: 19 Mio $SCOUT = 190.000 € Verlust pro Player
+
+Slice 111 Scope: NEUE Imports werden korrekt gepricet.
+→ siehe NEUE Slice 114 (Backfill existing flat-defaults) mit CEO-Approval-Pflicht.

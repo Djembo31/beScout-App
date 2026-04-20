@@ -385,6 +385,10 @@ async function main() {
             'Attacking Midfield': 'MID', 'Left Winger': 'ATT', 'Right Winger': 'ATT', 'Centre-Forward': 'ATT', 'Second Striker': 'ATT' };
           const pos = posMap[tmPlayer.tmPosition] ?? 'MID';
 
+          // Slice 108/111 CEO Pricing-Asset-Model: fee_per_card_cents = MV_EUR / 10
+          // Fallback auf 10000 cents (100 $SCOUT) wenn MV=0 → placeholder bis MV bekannt
+          const mvEur = Number(tmPlayer.marketValue) || 0;
+          const ipoPriceCents = mvEur > 0 ? Math.max(Math.floor(mvEur / 10), 0) : 10000;
           const { data: newP, error: insErr } = await supabase.from('players').insert({
             first_name: firstName || lastName,
             last_name: lastName,
@@ -394,11 +398,11 @@ async function main() {
             shirt_number: tmPlayer.shirtNumber,
             age: tmPlayer.age ?? 0,
             nationality: tmPlayer.nationality ?? '',
-            market_value_eur: tmPlayer.marketValue,
+            market_value_eur: mvEur,
             contract_end: tmPlayer.contractEnd,
             status: 'fit',
-            ipo_price: 10000,
-            floor_price: 10000,
+            ipo_price: ipoPriceCents,
+            floor_price: ipoPriceCents,
             dpc_total: 0,
             dpc_available: 0,
             max_supply: 10000,

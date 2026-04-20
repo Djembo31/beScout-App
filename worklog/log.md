@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 111 | 2026-04-20 | ipo_price Formel-aware bei Player-Imports (Slice 108 Follow-up)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- Approval: Anil CEO "j" (starte Slice 111 als empfohlen)
+- Files: 4 (1 Script-Edit + 1 Service-Edit + 2 Proofs)
+- Scope:
+  - **enrich-from-transfermarkt.mjs:388-408**: Insert-Branch — `ipo_price` aus `tmPlayer.marketValue / 10` cents statt Flat 10.000. Fallback 10.000 cents (Placeholder) wenn MV=0. `market_value_eur` explizit im Payload (war vorher impliziter DEFAULT 0).
+  - **src/lib/services/players.ts createPlayer()**: Neuer optional Param `marketValueEur`. ipoPriceCents-Derivation: `explicit ipoPrice > MV/10 > 500-fallback`. `market_value_eur` im Insert payload.
+  - **Bewusst NICHT geändert**: Update-Branch von `enrich-from-transfermarkt.mjs:426-428` — `trading.md`-Regel sagt `ipo_price` fest pro Tranche. Bei MV-Update ohne aktive-IPO-Check würde Sync-Trigger `sync_player_ipo_price` nicht greifen (der feuert nur IPO→Player, nicht umgekehrt). Backfill bei bestehenden Players adressiert separater Slice 114 (CEO-Scope).
+- PROVE:
+  - `worklog/proofs/111-before-drift-report.txt` — DB-Audit: **3.896 von 4.556 Players auf Flat-Default (85,5%)**. 1.363 Players mit MV >=5M € haben ipo_price=10.000 (korrekt wären 500.000+ cents). Bei max-Ausgabe 19 Mio $SCOUT Verlust pro Player möglich wenn IPO zu Flat-Default gelauncht.
+  - `worklog/proofs/111-tests-after.txt` — 31/31 vitest PASS, tsc clean.
+- Scope-Out → Neue Slice 114: Backfill bestehender Players mit Flat-Default. MONEY-kritisch, CEO-Approval-Pflicht, IPO-Status-Guard (nur Players ohne aktive IPO updaten, sonst Drift zu ipos.price).
+- Commit: pending
+- Notes: Slice 108 Follow-up. Drift-Report zeigt: nur neue Imports fixen reicht nicht — fast alle High-Value-Players brauchen Backfill. Das geht als Slice 114 mit separater CEO-Entscheidung (safe-guard: nur pre-IPO-Players).
+
+---
+
 ## 108 | 2026-04-20 | liquidate_player Linear Formula (CEO MONEY-Fix)
 - Stage-Chain: SPEC → IMPACT (inline in spec) → BUILD → PROVE → LOG
 - Approval: Anil CEO 2026-04-20 "Option C, cap berücksichtigen" — nach 4-Iterationen Pricing-Asset-Model-Klärung
