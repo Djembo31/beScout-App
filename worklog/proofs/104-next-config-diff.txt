@@ -1,0 +1,38 @@
+warning: in the working copy of 'src/app/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+diff --git a/next.config.mjs b/next.config.mjs
+index e540ea6a..15222f45 100644
+--- a/next.config.mjs
++++ b/next.config.mjs
+@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+ const nextConfig = {
+   reactStrictMode: true,
+   experimental: {
+-    optimizePackageImports: ['lucide-react', '@supabase/supabase-js', 'posthog-js', '@tanstack/react-query', 'next-intl', 'zustand'],
++    optimizePackageImports: ['lucide-react', '@supabase/supabase-js', 'posthog-js', '@tanstack/react-query', 'next-intl', 'zustand', 'country-flag-icons', '@sentry/nextjs'],
+   },
+   images: {
+     remotePatterns: [
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index c47326cb..d4261b6c 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -4,8 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
+ import { getLocale, getMessages } from 'next-intl/server';
+ import { Outfit, Space_Mono } from 'next/font/google';
+ import { Providers } from '@/components/providers/Providers';
+-import { InstallPrompt } from '@/components/pwa/InstallPrompt';
+-import { CookieConsent } from '@/components/legal/CookieConsent';
++import { ClientOverlays } from '@/components/providers/ClientOverlays';
+ import { cn } from '@/lib/utils';
+ import './globals.css';
+ 
+@@ -60,8 +59,7 @@ export default async function RootLayout({
+         <NextIntlClientProvider messages={messages}>
+           <Providers>
+             {children}
+-            <InstallPrompt />
+-            <CookieConsent />
++            <ClientOverlays />
+           </Providers>
+         </NextIntlClientProvider>
+         <Script id="sw-register" strategy="afterInteractive">{`

@@ -4,8 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { Outfit, Space_Mono } from 'next/font/google';
 import { Providers } from '@/components/providers/Providers';
-import { InstallPrompt } from '@/components/pwa/InstallPrompt';
-import { CookieConsent } from '@/components/legal/CookieConsent';
+import { ClientOverlays } from '@/components/providers/ClientOverlays';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
@@ -60,8 +59,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <Providers>
             {children}
-            <InstallPrompt />
-            <CookieConsent />
+            <ClientOverlays />
           </Providers>
         </NextIntlClientProvider>
         <Script id="sw-register" strategy="afterInteractive">{`
