@@ -17,7 +17,9 @@ import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { GeoGate } from '@/components/geo/GeoGate';
 import { useRecentScores } from '@/lib/queries/managerData';
-import { useHoldingLocks } from '@/features/fantasy/queries/events';
+// Slice 121: import from isolated holdingLocks file (not the events barrel)
+// so the market bundle doesn't pull in events.queries/lineups.queries/wildcards.
+import { useHoldingLocks } from '@/features/fantasy/queries/holdingLocks';
 import { FEATURE_BUY_ORDERS } from '@/lib/featureFlags';
 import dynamic from 'next/dynamic';
 

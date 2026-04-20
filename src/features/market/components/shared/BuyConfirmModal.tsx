@@ -9,15 +9,23 @@ import { PlayerIdentity } from '@/components/player';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { getPlayerSentimentCounts } from '@/lib/services/research';
 import { qk } from '@/lib/queries/keys';
 import type { Player } from '@/types';
 
-/** Lightweight sentiment counts for a single player (only fetched when modal opens) */
+/**
+ * Lightweight sentiment counts for a single player (only fetched when modal opens).
+ *
+ * Slice 121: the `getPlayerSentimentCounts` service is dynamically imported inside
+ * queryFn so `@/lib/services/research` (and its transitive deps) are code-split into
+ * their own chunk instead of being bundled into /market's initial JS.
+ */
 function usePlayerSentiment(playerId: string, enabled: boolean) {
   return useQuery({
     queryKey: qk.research.sentiment(playerId),
-    queryFn: () => getPlayerSentimentCounts(playerId),
+    queryFn: async () => {
+      const { getPlayerSentimentCounts } = await import('@/lib/services/research');
+      return getPlayerSentimentCounts(playerId);
+    },
     enabled,
     staleTime: 60_000,
   });

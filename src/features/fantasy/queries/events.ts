@@ -40,22 +40,13 @@ export function usePlayerEventUsage(userId: string | undefined) {
   });
 }
 
-/** Holding locks for SC blocking — returns Map<playerId, totalLocked> */
-export function useHoldingLocks(userId: string | undefined) {
-  return useQuery({
-    queryKey: qk.events.holdingLocks(userId!),
-    queryFn: async () => {
-      const locks = await getUserHoldingLocks(userId!);
-      const map = new Map<string, number>();
-      for (const lock of locks) {
-        map.set(lock.player_id, (map.get(lock.player_id) ?? 0) + lock.quantity_locked);
-      }
-      return map;
-    },
-    enabled: !!userId,
-    staleTime: TWO_MIN,
-  });
-}
+/**
+ * Holding locks for SC blocking — returns Map<playerId, totalLocked>.
+ * Slice 121: implementation extracted to `./holdingLocks.ts` so market-bundle
+ * consumers can import the hook without pulling in this events barrel.
+ * Re-exported here for backwards compatibility with existing consumers.
+ */
+export { useHoldingLocks } from './holdingLocks';
 
 /** Wild card balance for lineup builder */
 export function useWildcardBalance(userId: string | undefined) {

@@ -1,0 +1,47 @@
+Slice 121 — Bundle Diff (measured with ANALYZE=true next build)
+==================================================================
+
+Baseline (main, pre-Slice-121, post-Sentry-118 + Slice-116):
+  /market:  19.4 kB page / 339 kB First Load JS
+  Shared:   159 kB
+
+After Slice 121 (events.ts + MarketContent + BuyConfirmModal changes only):
+  /market:  19.7 kB page / 339 kB First Load JS
+  Shared:   159 kB
+
+FLJS delta: 0 kB (within Next.js rounding).
+
+Structural win (verified via @next/bundle-analyzer):
+  - research.ts successfully moved to lazy-loaded chunk 5065-*.js (11.8 kB parsed).
+    Confirmed: 5065.js is NOT in app-build-manifest.json /market initial chunks.
+    → research.ts only loads when user opens BuyConfirmModal AND sentiment
+    query fires (conditional on modal `open`).
+  - useHoldingLocks now in isolated src/features/fantasy/queries/holdingLocks.ts.
+    MarketContent.tsx imports from new path, does not pull in events.ts barrel.
+  - events.ts re-exports useHoldingLocks for backwards-compat with existing
+    consumers (usePlayerDetailData, useFantasyHoldings, KaderTab, test mocks).
+
+Market-only chunks (analyzer):
+  Before: 70 kB parsed (7581.js 24 + 1099.js 15 + page.js 19 + 6908.js 11)
+  After:  73 kB parsed (9152.js 26 + 1099.js 16 + page.js 19 + 6908.js 11)
+  Delta:  +3 kB (chunk reshuffle due to webpack naming changes, not actual growth)
+
+Ehrliche Einordnung:
+  - Slice 121 Fix #1 (research lazy-load) funktioniert strukturell, spart ~8 kB
+    bei /market Cold-Load Initial-Parse. Next.js FLJS-Counter merkt das nicht
+    wegen Chunk-Granularität + Rounding.
+  - Slice 121 Fix #2 (useHoldingLocks extract) hat keinen measurable FLJS-Win
+    gebracht — predictions.ts + fantasy-queries kommen via andere Import-Ketten
+    ins Market-Bundle (useRecentScores → managerData → lineups.ts, etc).
+  - Spec-Target "/market FLJS ≥ -3 kB, Target -10 kB": nicht erreicht im FLJS-
+    Counter. Strukturell ist die research-Lazy-Chunk-Extraktion echte Win.
+
+Nicht erreicht:
+  - AC #6 (FLJS-Sink): ❌ — 0 kB reported.
+  - 1099.js bleibt bei 15-16 kB, enthält weiter fantasy/services/predictions.
+
+Pattern-Learning für common-errors.md:
+  - dynamic() imports schaffen lazy-chunks, aber wenn andere Import-Ketten
+    dasselbe Modul eager importieren, landet es trotzdem im Initial-Bundle.
+  - Vor "/route FLJS shrinks" verspreche: ALLE Import-Ketten im Analyzer
+    durchsuchen (nicht nur die eine die man sichtbar anpasst).

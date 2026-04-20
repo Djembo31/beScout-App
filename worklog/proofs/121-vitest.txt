@@ -1,0 +1,7 @@
+$ npx vitest run src/features/market src/features/fantasy src/components/player/detail src/app/(app)/fantasy
+
+Test Files  26 passed (26)
+     Tests  326 passed (326)
+Duration    41.21s
+
+0 regressions from Slice 121 changes.
