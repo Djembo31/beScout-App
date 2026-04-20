@@ -1,12 +1,15 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
+status: build
+slice: 107
+title: Data-Waterfall Fixes (Duplicate-Calls + N+1)
+stage: BUILD
+spec: worklog/specs/107-data-waterfall-fixes.md
+impact: skipped (query-opt only, no schema/RLS/money-change)
+proof: pending (worklog/proofs/107-*)
+size: S
+ceo_scope: false
 ```
 
 ## Session 2026-04-20 Progress (6 Slices)

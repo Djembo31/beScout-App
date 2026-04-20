@@ -413,27 +413,28 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
   if (!latest) return new Map();
 
   const maxGw = latest.gameweek as number;
-  const gameweeks = Array.from({ length: 5 }, (_, i) => maxGw - i); // [28,27,26,25,24]
+  const gameweeks = Array.from({ length: 5 }, (_, i) => maxGw - i); // [maxGw, maxGw-1, ... , maxGw-4]
 
-  // Step 2: Fetch each GW separately to stay under Supabase's 1000-row default.
-  // ~570 players per GW → each query well under limit, no silent truncation.
+  // Step 2: Single batched query with explicit range to bypass 1000-row default.
+  // ~570 players × 5 GWs = ~2850 rows; range 0-9999 is safe with margin.
   const lookup = new Map<string, Map<number, number>>();
 
-  await Promise.all(gameweeks.map(async (gw) => {
-    const { data, error: gwError } = await supabase
-      .from('player_gameweek_scores')
-      .select('player_id, score')
-      .eq('gameweek', gw)
-      .gt('score', 0);
+  const { data, error: gwError } = await supabase
+    .from('player_gameweek_scores')
+    .select('player_id, gameweek, score')
+    .in('gameweek', gameweeks)
+    .gt('score', 0)
+    .range(0, 9999);
 
-    if (gwError) throw new Error(gwError.message);
-    if (!data) return;
+  if (gwError) throw new Error(gwError.message);
+  if (data) {
     for (const s of data) {
       const pid = s.player_id as string;
+      const gw = s.gameweek as number;
       if (!lookup.has(pid)) lookup.set(pid, new Map());
       lookup.get(pid)!.set(gw, s.score as number);
     }
-  }));
+  }
 
   if (lookup.size === 0) return new Map();
 

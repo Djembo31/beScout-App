@@ -112,8 +112,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             try { sessionStorage.removeItem(WALLET_SESSION_KEY); } catch { /* ignore */ }
             return;
         }
-        // Reset on user change — clear stale data from previous user
-        if (prevUserId.current !== user.id) {
+        // AuthProvider can setUser twice on boot (sessionStorage hydrate + Supabase getSession)
+        // with identical user.id but different object references. Guard against duplicate fetch.
+        const isNewUser = prevUserId.current !== user.id;
+        if (isNewUser) {
             const cachedUid = (() => {
                 try {
                     const stored = sessionStorage.getItem(WALLET_SESSION_KEY);
@@ -128,7 +130,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             if (cachedUid !== user.id) setBalanceCentsRaw(null);
         }
         if (retryCount.current >= MAX_RETRIES) return;
-        fetchBalance();
+        // Only fetch on actual user.id change (not on user-object-ref churn).
+        if (isNewUser) fetchBalance();
     }, [user, fetchBalance]);
 
     // Fallback recovery: retry on tab focus / visibility change

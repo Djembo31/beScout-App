@@ -69,16 +69,20 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   const [activeClub, setActiveClubState] = useState<DbClub | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load clubs on mount / user change
+  // Load clubs on mount / user change.
+  // Depends on user?.id (not full user object) to prevent duplicate fetch on
+  // AuthProvider setUser-twice-same-id pattern (sessionStorage hydrate +
+  // Supabase getSession both update user).
+  const userId = user?.id ?? null;
   useEffect(() => {
     let cancelled = false;
-    setLoading(true); // Always reset to loading when user changes
+    setLoading(true); // Always reset to loading when userId changes
 
     async function load() {
       // Always init the club + league caches (sync lookups for getClub() / getLeague() calls)
       await Promise.all([initClubCache(), initLeagueCache()]);
 
-      if (!user) {
+      if (!userId) {
         setFollowedClubs([]);
         setPrimaryClub(null);
         setActiveClubState(null);
@@ -89,7 +93,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       try {
         // Single query — getUserFollowedClubs returns sorted by is_primary desc,
         // so the first element IS the primary club. Saves 1 DB round-trip.
-        const followed = await getUserFollowedClubs(user.id);
+        const followed = await getUserFollowedClubs(userId);
         const primary = followed[0] ?? null;
 
         if (cancelled) return;
@@ -112,7 +116,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
     load();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [userId]);
 
   const setActiveClub = useCallback((club: DbClub) => {
     setActiveClubState(club);
