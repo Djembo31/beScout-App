@@ -50,7 +50,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
           <div>
             <h3 className="font-black text-base mb-1 text-balance">{t('possibleRewards')}</h3>
             <p className="text-sm text-white/60 leading-relaxed text-pretty">
-              {t('rewardsIntro', { name: `${player.first} ${player.last}` })}
+              {t('rewardsIntro', { player: `${player.first} ${player.last}` })}
             </p>
           </div>
         </div>

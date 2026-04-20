@@ -1,0 +1,63 @@
+Slice 113 Visual QA — Growth Milestones gegen bescout.net (Livan Burcu)
+Date: 2026-04-20 22:40
+Deploy: `da852a19` (Slice 113 RewardsTab Redesign)
+User: jarvis-qa@bescout.net (auto-session)
+Player: Livan Burcu (Union Berlin, MV 4M€, 5c8f2a89-75f9-49cb-b7b7-a34acc707243)
+
+═══════════════════════════════════════════════════════════════════
+SCREENSHOTS (beide als Accordion expanded "Reward-Stufen")
+═══════════════════════════════════════════════════════════════════
+
+1. `worklog/proofs/113-rewards-mobile-livan.png` (393×852)
+   - 2×2 Grid: Heute / Verdoppelt / Verfünffacht / Verzehnfacht
+   - "HEUTE" in Gold highlighted, 4.000 CR pro Card bei 4M€
+   - Milestone-Skalierung korrekt: 4M → 8M → 20M → 40M
+   - Credits pro Card: 4.000 → 8.000 → 20.000 → 40.000 (linear ×1, ×2, ×5, ×10)
+   - Navigation: über Accordion "Reward-Stufen" expandiert
+
+2. `worklog/proofs/113-rewards-desktop-livan.png` (1280×800)
+   - 4×1 Grid responsive
+   - Alle 4 Milestones in einer Reihe
+   - Gleiche Values wie Mobile
+
+═══════════════════════════════════════════════════════════════════
+FINDINGS
+═══════════════════════════════════════════════════════════════════
+
+✅ Layout: 2×2 Mobile, 4×1 Desktop wie designed
+✅ Values: alle 4 Milestones zeigen korrekten Formel-Output (MV/1000 $SCOUT pro Card)
+✅ Gold-Highlight: "HEUTE" visuell hervorgehoben
+✅ Info-Tooltip: Icon sichtbar (Formel-Erklärung hinterlegt)
+✅ TradingDisclaimer: am Ende sichtbar
+
+🔴 BUG: `playerDetail.rewardsIntro` leakt als raw i18n-Key (nicht übersetzt)
+   - Root-Cause: Mein Code rief `t('rewardsIntro', { name: ... })` mit falschem Param-Namen
+   - Existing Key nutzt `{player}` Variable, nicht `{name}`
+   - Fix: `{ name: ... }` → `{ player: ... }` in RewardsTab.tsx Zeile 51
+   - Follow-up commit pending
+
+🟡 OBSERVATION: Tab-Struktur Mismatch
+   - URL-Param `?tab=rewards` wird ignoriert (kein matching Tab-Handler)
+   - RewardsTab wird nur via "Reward-Stufen" Accordion gerendered (unten auf der Seite)
+   - Nicht Slice-113-Scope, aber dokumentiert für späteren UX-Refactor
+
+═══════════════════════════════════════════════════════════════════
+FORMEL-VERIFIKATION
+═══════════════════════════════════════════════════════════════════
+
+Livan Burcu MV = 4.000.000 €
+
+Milestone       | MV × Mult  | Formel (MV/1000) | Screenshot | ✓
+HEUTE (×1)      |  4.000.000 |         4.000 SC |   4.000 CR | ✓
+VERDOPPELT (×2) |  8.000.000 |         8.000 SC |   8.000 CR | ✓
+VERFÜNFFACHT×5  | 20.000.000 |        20.000 SC |  20.000 CR | ✓
+VERZEHNFACHT×10 | 40.000.000 |        40.000 SC |  40.000 CR | ✓
+
+Linear-Formel rendert korrekt, matched exakt liquidate_player RPC (Slice 108).
+
+═══════════════════════════════════════════════════════════════════
+NEXT STEP
+═══════════════════════════════════════════════════════════════════
+
+Commit i18n-param-Fix → nach Deploy (2-3 min) ist intro-Bug weg.
+Ansonsten Slice 113 funktionell korrekt.
