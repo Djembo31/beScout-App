@@ -2,6 +2,19 @@
 
 > Append-only. Neueste Eintraege oben.
 
+## [2026-04-21] Scout Cards — Pricing-Asset-Model komplett überarbeitet
+- Seite: scout-cards.md
+- Typ: major update
+- Quelle: Anil Slice 108 (liquidate_player Linear Formula) + Slice 114 Backfill + Sivasspor-DB-Verifikation
+- Änderungen:
+  - Neue Sektion "Pricing-Asset-Model" mit Einheit (1 $SCOUT = 1 cent = 0,01 €), Card-Preis-Formel (MV_EUR / 10 cents), 10%-Community-Cap-Regel (max 10.000 Cards)
+  - Bekir-Baseline (Sivasspor) + Livan Burcu (Union Berlin) als Verifikation
+  - Beispiel-Table 1 Mio → 5 Mio € Liquidation (Club/Holder/Platform/PBT-Bilanz)
+  - Historische Drift-Korrekturen (Slice 108/111/114) dokumentiert
+  - Floor Price Hierarchy ohne `reference_price` Fallback (Slice 112 deprecate)
+  - Liquidation-Sektion Linear Formula + 3 Geldquellen (Success Fee + PBT + Mastery-Multiplier cap 1,15×)
+- Querverweise: + `memory/decision_pricing_asset_model.md`, `.claude/rules/trading.md`
+
 ## [2026-04-07] $SCOUT Launch Strategie ingestiert
 - Seite: scout-launch-strategie.md
 - Typ: created

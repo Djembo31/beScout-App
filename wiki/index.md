@@ -4,7 +4,7 @@
 
 ## BeScout (Produkt)
 - [BeScout Overview](bescout-overview.md) — Value Prop, Core Features, was fehlt
-- [Scout Cards](scout-cards.md) — Karten-System, IPO, Trading, Liquidation, Success Fees
+- [Scout Cards](scout-cards.md) — **Pricing-Asset-Model (MV/10 cents Linear)**, IPO, Trading, Liquidation, Success Fees — *aktualisiert 2026-04-21 nach Slice 108/114*
 - [Fantasy Tournaments](fantasy-tournaments.md) — Lineups, Scoring, Chips, Predictions, Wildcards
 - [Gamification](gamification.md) — 3-Dim Elo, 12 Tiers, Achievements, Missions, Streaks
 - [Equipment System](equipment-system.md) — 5 Typen, 4 Raenge, Mystery Boxes, Scoring-Boost
