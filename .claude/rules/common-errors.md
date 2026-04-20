@@ -246,6 +246,15 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - J4-Erweiterung: FantasyEvent + UserDpcHolding hatten `club*` aber kein `league*` → client-side Cache-Lookup `getClub() → getLeague()` Zero-RPC-Fix.
 - Regel: Jedes Type mit `club*` Field MUSS spiegelbildlich `league*` Fields haben. ALLE Render-Call-Sites manuell greppen.
 
+### Data-Format vs Component-Expectation Drift (Slice 102)
+- Scraper speichert Full-Name ("Nigeria") in DB, Component erwartet ISO-Code ("NG"). `hasFlag("NIGERIA")` = false → unsichtbarer text-badge-Fallback.
+- Bonus-Bug: Pilot-Default `?? 'TR'` auf service-layer `country: db.nationality ?? 'TR'` setzt NULL-Spieler auf türkisches Flag. Bei Multi-Liga-Expansion wird Pilot-Default zum Gift (Nigerianer zeigt TR-Flag).
+- Regel: Component-API-Contract muss in Service-Layer-Mapper erzwungen werden, nicht als DB-Schema-Annahme. **Nie** "wir speichern was der Scraper liefert" → service-layer normalisiert zur Component-Erwartung.
+- Regel: `?? 'Pilot-Default'` auf service-fields ist tech-debt-Falle. Leer/unbekannt → `""` / `undefined`, **nie** raten. Truthy-Check im Component (`{code && <Flag ...>}`) ist das richtige Muster.
+- Library-Quirk Pattern: `country-flag-icons` — `hasFlag("GB-ENG")` returnt true, aber React-Export heißt `GB_ENG` (Underscore). Mismatch im Component transformen, nicht im mapper.
+- Audit-Template für Display-Fields: `SELECT DISTINCT <field>, COUNT(*) FROM <table> GROUP BY <field>` → jede Zeile gegen Component-Contract validieren, nicht gegen DB-Type (der ist `string`, zu lax).
+- Slice 102 Evidenz: 4163/4556 mapped (91.4%), 0 unmapped nach 180-Entry-Lookup-Table. Coverage-Tool: `scripts/verify-nationality-coverage.mjs`.
+
 ### ConfirmDialog statt native alert/confirm (J4)
 - Live: `src/components/ui/ConfirmDialog.tsx`. Built-in preventClose + loading/disabled + `confirmVariant: 'gold' | 'danger'`.
 - Native alert/confirm sind unstyled, blockieren Main-Thread, nicht i18n-ready, ignorieren preventClose.

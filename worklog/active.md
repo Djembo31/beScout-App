@@ -1,44 +1,34 @@
 # Active Slice
 
 ```
-status: prove
-slice: 102
-title: Nationality Full-Name → ISO Mapper (Flag Rendering Fix)
-stage: PROVE
-spec: worklog/specs/102-nationality-iso-mapper.md
-impact: skipped (Service-Layer + UI-Komponente, keine DB/RPC/Type-Contract-Änderung)
-proof: worklog/proofs/102-tests.txt
-additional_proof:
-  - worklog/proofs/102-coverage.txt (91.4% mapped / 0% unmapped / 8.6% NULL-empty)
-  - worklog/proofs/102-osimhen-flag.png (pending Vercel deploy → Playwright)
-size: XS
-ceo_scope: false
-s_slice: true
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
 ```
 
-## Context
+## Letzte Session 2026-04-20 (ongoing)
 
-Bug entdeckt während Slice 101 BUILD (18:10):
-Osimhen (Galatasaray) zeigt kein Flag. Root-Cause: `players.nationality` ist als Full-Name gespeichert ("Nigeria"), CountryFlag erwartet ISO-3166-1 alpha-2 ("NG"). Default `?? 'TR'` setzt zudem alle NULL-nationality auf türkisches Flag (falsch).
+| Slice | Title | Status |
+|-------|-------|--------|
+| 102 | Nationality Full-Name → ISO Mapper (Flag Rendering Fix) | ✅ DONE (commit 053e5084) |
+| 101 | Stadia v3 — Wikipedia Retry mit Exponential Backoff | 🟡 BUILD done, PROVE pending (Script-Run) |
+| 103 | Nationality-Enrichment Option (a) — Per-player API-Football | 🔵 queued |
 
-Betrifft ~99% der Spieler (nur 92 "TR" + 1 "DE" + kleine ISO-Inseln zeigen derzeit korrekt).
+## Slice 102 Recap
 
-## Parked
+- Bug: Osimhen zeigt kein Flag — Root-Cause `nationality=Full-Name` in DB, Component erwartet ISO
+- Fix: `src/lib/utils/countryNameToIso.ts` 180-Entry Mapper + `?? 'TR'` Default entfernt
+- Coverage: **4163/4556 mapped (91.4%), 0 unmapped, 393 NULL-empty**
+- Playwright-verifiziert: Osimhen (NG grün-weiß-grün) + Walker-Peters (GB-ENG St George's Cross)
+- 185/185 tests passing incl. 145 neue Mapper-Tests
 
-Slice 101 BUILD done (scripts/fetch-stadium-images.mjs retry-on-429), PROVE deferred bis Slice 102 LOG. Wikipedia ist nicht mehr 429-blocked — Script-Run ready when 102 done.
+## Nächste Action
 
-## Plan
-
-1. SPEC — `worklog/specs/102-nationality-iso-mapper.md`
-2. BUILD:
-   - NEW `src/lib/utils/countryNameToIso.ts` (lookup-Tabelle + mapper fn)
-   - EDIT `src/components/ui/CountryFlag.tsx` (GB-ENG → GB_ENG React-export-Quirk)
-   - EDIT `src/lib/services/players.ts:151` (mapper statt `?? 'TR'`)
-   - NEW unit-tests (countryNameToIso + CountryFlag subdivision)
-3. PROVE — Playwright-screenshot Osimhen mit NG-flag + vitest grün
-4. LOG — commit + log.md + common-errors pattern
-
-## Queued
-
-- Slice 101 PROVE (Stadia v3 script-run)
-- Slice 103 — API-Football per-player nationality-enrich (267 missing)
+Slice 101 PROVE: Wikipedia-Cooldown ist durch (verifiziert 18:18). Script-Run:
+```bash
+node scripts/fetch-stadium-images.mjs --exclude-league=TFF1
+```
+Target ≥40 neue Stadion-Bilder (67 → ≥107), Output nach `worklog/proofs/101-stadia-v3-run.txt`.

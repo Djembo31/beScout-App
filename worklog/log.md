@@ -11,6 +11,33 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 102 | 2026-04-20 | Nationality Full-Name → ISO Mapper (Flag Rendering Fix)
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
+- Approval: Anil "ja, ich möchte überall die flaggen sehen" — entdeckt an Osimhen
+- Files: 6 (1 new util + 1 new test-suite + 3 edits + 1 diagnostic-script)
+- Scope:
+  - **Root-Cause**: `players.nationality` ist als Full-Name ("Nigeria") gespeichert. CountryFlag erwartet ISO-3166-1 alpha-2 ("NG"). 91.4% aller Spieler hatten dadurch kein Flag. Default `?? 'TR'` setzte zudem NULL-nationality auf türkisches Flag.
+  - **NEW `src/lib/utils/countryNameToIso.ts`**: Lookup-Table 180+ Full-Name → ISO incl. Türkiye/Turkey/TR Aliase, Côte d'Ivoire/Ivory Coast/CI Aliase, GB-Subdivisions (England→GB-ENG, Scotland→GB-SCT, Wales→GB-WLS, NIR), Congo-DR-vs-Congo Disambiguation, ISO pass-through.
+  - **EDIT `src/components/ui/CountryFlag.tsx`**: GB-ENG Bindestrich → GB_ENG Unterstrich Transform für React-Export-Lookup (Library-Quirk).
+  - **EDIT `src/lib/services/players.ts:152`**: `mapNationalityToIso()` ersetzt falsches `?? 'TR'` Default.
+  - **NEW `scripts/verify-nationality-coverage.mjs`**: Diagnostic-Tool für DB-Coverage-Messung.
+- Proof:
+  - `worklog/proofs/102-tests.txt` (185/185 grün incl. 145 neue Mapper-Tests)
+  - `worklog/proofs/102-coverage.txt` (4163/4556 mapped, **0 unmapped**, 393 NULL-empty)
+  - `worklog/proofs/102-osimhen-flag.png` (Nigerian flag rendert, Playwright-verified live)
+  - `worklog/proofs/102-england-walker-peters-flag.png` (St George's Cross rendert, nicht Union Jack)
+- Commit: `053e5084`
+- Verification:
+  - tsc clean
+  - vitest 185 passing (countryNameToIso.test.ts 145 + CountryFlag 9 + players.test.ts dbToPlayer 31)
+  - Playwright live-verifiziert Osimhen (NG) + Walker-Peters (GB-ENG) nach Vercel-Deploy
+- Notes:
+  - Vorher-Zustand nur "TR" (92 Spieler, 2%) zeigte korrektes Flag via ISO-Zufall
+  - Nach-Zustand: **100% der nicht-leeren Werte** mappen korrekt, 393 NULL-empty zeigen kein Flag (korrekt statt falsch-TR)
+  - Scope-Out: createPlayer admin-form input-normalization (params.nationality || 'TR'), DB-migration zu normalisieren existierende Werte, scraper-side normalization
+
+---
+
 ## 096 | 2026-04-22 | Sentry.setUser GDPR-conservative
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
 - CEO-Delegation: Anil ("mit sentry kenne ich mich nicht so gut aus, die entscheidung überlasse ich dir")
