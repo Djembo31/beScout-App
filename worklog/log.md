@@ -11,6 +11,36 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 107 | 2026-04-20 | Data-Waterfall Fixes (Duplicate-Calls + N+1)
+- Stage-Chain: SPEC → IMPACT (skipped — query-opt only) → BUILD → PROVE (before + after auf logged-in /home + /market) → LOG
+- Approval: Anil "b, dann c" — Data-Fixes autonom vor AuthProvider-Refactor
+- Parallel: Slice 105 + 106 (TFF1 Nationality + Stadium Compression) wurden vom parallelen Terminal zwischenzeitlich committed — `active.md` vom Parallel-Terminal maintained
+- Files: 7 (2 Provider fixes + 1 service fix + 1 spec + 3 proofs)
+- Scope:
+  - **Root-Causes identifiziert via Chrome DevTools MCP logged-in trace (jarvis-qa, Slow 4G + 4x CPU):**
+    - AuthProvider setUser 2x auf boot (sessionStorage hydrate + Supabase getSession), selbe user.id aber anderes Object-Ref → Provider useEffects mit `[user]` dep firen 2x → duplicate fetches
+    - `getRecentPlayerScores` macht Promise.all über 5 GWs = 5 quasi-sequenzielle Queries statt 1 batched
+  - **WalletProvider**: `isNewUser` guard ergänzt — fetchBalance feuert nur noch bei echtem user.id-Change, nicht bei user-Object-Ref-Churn
+  - **ClubProvider**: useEffect dep von `[user]` auf `[userId]` (stable string) → keine re-fetches bei auth-provider-re-renders mit gleicher user.id
+  - **fixtures.ts getRecentPlayerScores**: Single `.in('gameweek', [5])` + `.range(0, 9999)` statt 5er-Promise.all. Bypasst 1000-row-default via explicit range (~2850 rows erwartet). N+1 → 1.
+- **PROVE Before** (worklog/proofs/104-trace-gated-pages.md, logged-in):
+  - /home  LCP 5086ms · Render Delay 4641ms (91%)
+  - /market LCP 3018ms · Render Delay 2713ms (90%)
+  - Duplicate Calls: wallets 2x, club_followers 2x, get_public_orderbook 2x
+  - N+1: player_gameweek_scores 5x (gw 32-36)
+- **PROVE After** (worklog/proofs/107-trace-after.md, Deploy dpl_7qHqWvapvEnVorvyu2NexhTqL4gL):
+  - /home  **LCP 3792ms** (-25%, -1294ms) · Render Delay 3526ms · warm cache 2nd reload
+  - /market **LCP 1270ms** (-58%, -1748ms) · Render Delay 1060ms (-61%) · TTFB 210ms
+  - CLS /market: 0.00 → 0.11 (minor regression, <0.25 noch "Needs Improvement")
+  - Network verifiziert: wallets 1x ✅, club_followers 1x ✅
+- Commit: 5e453aac (feat(perf): Slice 107 — Data-Waterfall Fixes)
+- Proof: worklog/proofs/107-tsc-clean.txt, worklog/proofs/107-vitest.txt (43/43 grün), worklog/proofs/107-trace-after.md
+- Notes:
+  - **Konkurrenz-Benchmark**: /market 1270ms ist jetzt auf Augenhöhe mit Sorare (1.2s) / DraftKings (1.5s). /login 874ms ebenfalls. /home 3.79s bleibt 1.5-2x langsamer — Slice 108 (AuthProvider-Refactor, CEO-Scope) + Slice 109 (Home-Widget-Data-Consolidation) nötig für volle Parität.
+  - **Scope-Out**: get_public_orderbook duplicate blieb (unklar ob Bug oder 2 legitime Widgets), RSC-Prefetch-Throttling, CLSCulprits-Analyse.
+
+---
+
 ## 106 | 2026-04-20 | Stadium Image Compression (2 Monster-Files → -99%)
 - Stage-Chain: SPEC (inline) → IMPACT (skipped) → BUILD → PROVE → LOG
 - Approval: Anil "3 noch erledigen" (CTO-Scope Repo-Hygiene)
