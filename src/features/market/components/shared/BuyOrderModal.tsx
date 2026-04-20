@@ -26,7 +26,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
   const te = useTranslations('errors');
   const tp = useTranslations('playerDetail');
   const { user } = useUser();
-  const { balanceCents, lockedBalanceCents } = useWallet();
+  const { balanceCents, lockedBalanceCents, isBalanceFresh } = useWallet();
 
   const [qty, setQty] = useState(1);
   const [priceBsd, setPriceBsd] = useState('');
@@ -54,7 +54,9 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
   const availableCents = (balanceCents ?? 0) - (lockedBalanceCents ?? 0);
   const availableBsd = centsToBsd(availableCents);
   const balanceAfter = availableBsd - totalBsd;
-  const isValid = qty > 0 && priceNum > 0 && totalCents <= availableCents && !!user;
+  // Slice 110: block confirm on stale balance (never fetched or >30s old).
+  const balanceStale = balanceCents !== null && !isBalanceFresh;
+  const isValid = qty > 0 && priceNum > 0 && totalCents <= availableCents && !!user && !balanceStale;
 
   const handleSubmit = () => {
     if (!isValid || !user) return;
@@ -125,6 +127,11 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
           )}
           {success && (
             <div className="text-xs text-green-500 font-bold">{success}</div>
+          )}
+          {balanceStale && !isPending && !error && (
+            <div className="text-[10px] text-white/40 text-center" role="status" aria-live="polite">
+              {tp('balanceRefreshing')}
+            </div>
           )}
         </div>
       }

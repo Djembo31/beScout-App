@@ -9,6 +9,14 @@ impact: —
 proof: —
 ```
 
+## Letzter abgeschlossener Slice: 110
+
+**Auth+Wallet Robustness (Trading-Confidence)** — additive Provider-API Erweiterung + BuyModal/BuyOrderModal-Guards.
+
+Ergebnis: WalletProvider erhält `isFetching`, `lastFetchOk`, `isBalanceFresh` (30s-window). AuthProvider bekommt `useAuthState()` discriminated-union helper. Confirm-Buttons in BuyModal + BuyOrderModal disablen bei stale balance, subtle i18n-Status "Saldo wird aktualisiert…". Kein Money-Flow-Change, kein LCP-Impact, backwards-kompatibel.
+
+Test-Bilanz: 10/10 WalletProvider-Tests PASS (4 neu) · tsc clean · 2 Failures in parallel session's Slices 113/114 dokumentiert als nicht-110-Regression.
+
 ## Letzter abgeschlossener Slice: 109
 
 **get_home_dashboard_v1 RPC (Home-Data-Consolidation)** — Commit `1c4e63d7`, Deploy `dpl_5P2uXG7vzWfHBxFkKUj6pBHRLDv8` READY.

@@ -88,6 +88,26 @@ export function useRoles() {
   };
 }
 
+/**
+ * Slice 110: discriminated-union helper over the existing AuthContext state.
+ *
+ * - `'hydrating'` — initial mount, no user yet, loading in progress
+ * - `'anonymous'` — loaded, no session (signed-out or expired)
+ * - `'authenticated'` — user-object is present (including cache-hydrated cached User
+ *   before the Supabase session roundtrip completes — matches current loading:false
+ *   semantics the app already relies on)
+ *
+ * Exists to make consumer intent clearer than juggling `user`/`loading` booleans.
+ * Does NOT add new runtime state.
+ */
+export type AuthState = 'hydrating' | 'anonymous' | 'authenticated';
+export function useAuthState(): AuthState {
+  const { user, loading } = useContext(AuthContext);
+  if (user) return 'authenticated';
+  if (loading) return 'hydrating';
+  return 'anonymous';
+}
+
 /** Extract a display name from Supabase user metadata or email */
 export function displayName(user: User | null): string {
   if (!user) return 'User';

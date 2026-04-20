@@ -8,6 +8,7 @@ import { Modal, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
+import { useWallet } from '@/components/providers/WalletProvider';
 import type { Player, DbIpo, PublicOrder } from '@/types';
 import {
   TradingToasts,
@@ -56,11 +57,15 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
   onBuy: (qty: number) => void;
 }) {
   const t = useTranslations('playerDetail');
+  const { isBalanceFresh } = useWallet();
   const [qty, setQty] = useState(1);
   const clampedQty = maxQty > 0 ? Math.min(qty, maxQty) : qty;
   const totalBsd = priceBsd * clampedQty;
   const totalCents = priceCents * clampedQty;
   const afford = balanceCents !== null && balanceCents >= totalCents;
+  // Slice 110: block confirm when balance was not fetched/refreshed recently.
+  // Prevents race between cached balance + actual server-state on stale sessions.
+  const balanceStale = balanceCents !== null && !isBalanceFresh;
 
   return (
     <div className="space-y-2.5">
@@ -99,12 +104,17 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
             </div>
           )}
         </div>
-        <Button variant="gold" size="lg" onClick={() => onBuy(clampedQty)} disabled={isBuying || !afford || clampedQty < 1} className="shrink-0">
+        <Button variant="gold" size="lg" onClick={() => onBuy(clampedQty)} disabled={isBuying || !afford || clampedQty < 1 || balanceStale} className="shrink-0">
           {isBuying ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : icon}
           {isBuying ? '...' : label}
         </Button>
       </div>
       {!afford && !isBuying && <div className="text-[10px] text-red-400 text-center">{t('notEnoughScout')}</div>}
+      {afford && balanceStale && !isBuying && (
+        <div className="text-[10px] text-white/40 text-center" role="status" aria-live="polite">
+          {t('balanceRefreshing')}
+        </div>
+      )}
     </div>
   );
 }

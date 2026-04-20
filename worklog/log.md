@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 110 | 2026-04-20 | Auth+Wallet Robustness (Trading-Confidence)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- Approval: inline (CTO-Scope: additive Provider-API, kein Money-Flow-Change, kein Fee-Wording)
+- Files: 7 (2 Provider + 1 Provider-Test + 2 Modals + 2 Locale-JSONs) + 1 Spec + 3 Proofs
+- Scope:
+  - **WalletProvider API erweitert**: `isFetching: boolean`, `lastFetchOk: number | null`, `isBalanceFresh: boolean` (derived via `!isFetching && lastFetchOk !== null && Date.now() - lastFetchOk < 30_000`). `fetchBalance` setzt `setIsFetching`/`setLastFetchOk` sauber (inkl. `finally`). User-Switch/Logout resettet beide States. Backwards-kompatibel — `createContext`-Defaults decken ab.
+  - **AuthProvider `useAuthState()` Helper**: `type AuthState = 'hydrating' | 'anonymous' | 'authenticated'`. Derived über `user`/`loading`. Kein neuer State, nur klareres Consumer-API.
+  - **BuyModal BuyForm** (`src/components/player/detail/BuyModal.tsx`): `useWallet().isBalanceFresh` → `balanceStale`. Button disabled `|| balanceStale`. Subtle "Saldo wird aktualisiert…" Zeile unter Balance wenn `afford && balanceStale`.
+  - **BuyOrderModal** (`src/features/market/components/shared/BuyOrderModal.tsx`): analog — `isValid && !balanceStale`. Status-Zeile im Footer.
+  - **i18n**: neuer Key `playerDetail.balanceRefreshing` in DE + TR (`Saldo wird aktualisiert…` / `Bakiye güncelleniyor…`).
+  - **NICHT angefasst**: SellModal (nutzt holdings, nicht balance); 15 andere useWallet-Consumer (reine Display-Pfade).
+- PROVE:
+  - `worklog/proofs/110-tsc-clean.txt` — tsc clean.
+  - `worklog/proofs/110-vitest.txt` — 10/10 WalletProvider-Tests PASS (4 neue Freshness-Tests + 6 existing). Full-Suite 2839 pass / 2 failures **beide unrelated** zu Slice 110 (parallel session's Slice 113 wording + Slice 114 RLS-Table).
+  - `worklog/proofs/110-wallet-provider-api.md` — API-Delta dokumentiert + Consumer-Impact-Analyse (17 Files unverändert, 2 opt-in).
+- AC-Bilanz: 11/12 ✅, 1/12 ⚠ (AC #12 Post-Deploy Smoke-Test entfällt — 30s-stale-state in Chrome DevTools MCP ohne Warte-Hack nicht simulierbar; Test-Coverage + tsc genügen als Proof für additive-API ohne Verhaltens-Drift).
+- Commit: pending push
+- Notes:
+  - **Ehrliches Framing**: Slice 110 war kleiner als ursprünglich verkauft. Vieles war schon da (MAX_RETRIES, grace-period, afford-check). Realer Delta: Freshness-Awareness + discriminated-union Auth-State-Helper + 2 Confirm-Button-Guards. Kein "Race-Condition-Katastrophen-Schutz", sondern **cleaner error experience** auf stale-balance edge cases.
+  - Kein LCP-Impact erwartet oder gemessen — bewusst nicht Ziel des Slices.
+  - Folge-Slices denkbar (post-Beta): Auto-Refetch bei Modal-Open wenn `!isBalanceFresh`; WalletProvider-Migration zu React Query.
+
 ## 113 | 2026-04-20 | RewardsTab Growth-Milestones Redesign (Slice 108 UX Follow-up)
 - Stage-Chain: SPEC → IMPACT (UI-only) → BUILD → PROVE → LOG
 - Approval: Anil "beides noch" (kombiniert mit Slice 112)

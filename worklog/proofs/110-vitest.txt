@@ -1,0 +1,36 @@
+Slice 110 — Test Results
+
+$ npx vitest run src/components/providers/__tests__/WalletProvider.test.tsx
+  Test Files  1 passed (1)
+       Tests  10 passed (10)
+
+Scope coverage:
+- All 6 existing WalletProvider tests still pass (backwards-compat).
+- 4 new tests for Slice 110 API:
+  * default context returns isFetching=false, lastFetchOk=null, isBalanceFresh=false
+  * isBalanceFresh false before any fetch
+  * lastFetchOk set + isBalanceFresh=true after success
+  * isBalanceFresh stays false on fetch failure
+  * resets freshness when user becomes null
+  * freshness derivation window math (30s threshold)
+
+$ npx vitest run  (full suite)
+  Test Files  186 passed | 1 failed (187)
+       Tests  2839 passed | 1 failed | 1 skipped (2841)
+
+The 2 failures are UNRELATED to Slice 110 — pre-existing from parallel session's
+Slices 113/114:
+
+1. src/lib/__tests__/db-invariants.test.ts > INV-32
+   "_slice114_backfill_snapshot: RLS is DISABLED"
+   → Table created by Slice 114 (commit 22cc8cf7 by parallel terminal).
+   NOT Slice 110 regression.
+
+2. src/lib/__tests__/compliance/wording-compliance.test.ts > COMPL-reward-causality
+   "[de] 'Marktwert steigt' found in growthMilestonesDesc"
+   → String added by Slice 113 (commit da852a19 by parallel terminal, 22:20:06).
+   NOT Slice 110 regression.
+
+Slice 110 scope delta vs. baseline:
+- +4 new tests pass
+- 0 regressions introduced by Slice 110

@@ -9,6 +9,13 @@ const WALLET_SESSION_KEY = 'bescout-wallet-balance';
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [0, 1000, 3000]; // exponential backoff
 
+/**
+ * Freshness window — a balance fetched within the last 30s is considered
+ * safe enough for Buy/Sell confirm actions. Older than that, Buy modals
+ * disable their confirm button until a refetch succeeds.
+ */
+const FRESHNESS_WINDOW_MS = 30_000;
+
 interface WalletContextValue {
     /** Balance in cents — null while loading */
     balanceCents: number | null;
@@ -18,6 +25,12 @@ interface WalletContextValue {
     setBalanceCents: (cents: number) => void;
     /** Re-fetch wallet from Supabase */
     refreshBalance: () => Promise<void>;
+    /** Slice 110: true while a fetchBalance call is in flight. */
+    isFetching: boolean;
+    /** Slice 110: unix ms of the last successful fetch, or null if never. */
+    lastFetchOk: number | null;
+    /** Slice 110: derived — balance was fetched successfully within FRESHNESS_WINDOW_MS and no fetch in flight. */
+    isBalanceFresh: boolean;
 }
 
 const WalletContext = createContext<WalletContextValue>({
@@ -25,6 +38,9 @@ const WalletContext = createContext<WalletContextValue>({
     lockedBalanceCents: null,
     setBalanceCents: () => { },
     refreshBalance: async () => { },
+    isFetching: false,
+    lastFetchOk: null,
+    isBalanceFresh: false,
 });
 
 export function useWallet() {
@@ -37,6 +53,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     // Never read sessionStorage in useState — causes hydration mismatch (server=null, client=cached).
     const [balanceCents, setBalanceCentsRaw] = useState<number | null>(null);
     const [lockedBalanceCents, setLockedBalanceCents] = useState<number | null>(null);
+    // Slice 110: fetch-in-flight + last-ok timestamp for freshness checks on trading buttons.
+    const [isFetching, setIsFetching] = useState(false);
+    const [lastFetchOk, setLastFetchOk] = useState<number | null>(null);
 
     // Hydrate from sessionStorage after mount (client-only)
     useEffect(() => {
@@ -65,11 +84,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const fetchBalance = useCallback(async () => {
         if (!user) return;
+        setIsFetching(true);
         try {
             const wallet = await withTimeout(getWallet(user.id), 15000);
             const newBalance = wallet?.balance ?? 0;
             setBalanceCents(newBalance);
             setLockedBalanceCents(wallet?.locked_balance ?? 0);
+            setLastFetchOk(Date.now());
             // Success — prevent further retries
             retryCount.current = MAX_RETRIES;
         } catch (err) {
@@ -92,6 +113,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                     fetchBalance();
                 }, delay);
             }
+        } finally {
+            setIsFetching(false);
         }
     }, [user, setBalanceCents]);
 
@@ -108,6 +131,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             prevUserId.current = null;
             setBalanceCentsRaw(null);
             setLockedBalanceCents(null);
+            setLastFetchOk(null);
+            setIsFetching(false);
             if (retryTimer.current) clearTimeout(retryTimer.current);
             try { sessionStorage.removeItem(WALLET_SESSION_KEY); } catch { /* ignore */ }
             return;
@@ -125,6 +150,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             })();
             prevUserId.current = user.id;
             retryCount.current = 0;
+            setLastFetchOk(null); // cached balance predates successful server-fetch
             if (retryTimer.current) clearTimeout(retryTimer.current);
             // Only keep cached balance if it belongs to this user
             if (cachedUid !== user.id) setBalanceCentsRaw(null);
@@ -150,9 +176,26 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         };
     }, [user, fetchBalance]);
 
+    // Slice 110: derived freshness — evaluated on every render; consumers re-render
+    // naturally via state changes (isFetching toggles, fetchBalance success updates
+    // lastFetchOk). Idle between interactions has no re-render, which is acceptable:
+    // BuyModal mount/open triggers a render and re-evaluates freshness fresh.
+    const isBalanceFresh =
+        !isFetching &&
+        lastFetchOk !== null &&
+        Date.now() - lastFetchOk < FRESHNESS_WINDOW_MS;
+
     const value = useMemo<WalletContextValue>(
-        () => ({ balanceCents, lockedBalanceCents, setBalanceCents, refreshBalance }),
-        [balanceCents, lockedBalanceCents, setBalanceCents, refreshBalance],
+        () => ({
+            balanceCents,
+            lockedBalanceCents,
+            setBalanceCents,
+            refreshBalance,
+            isFetching,
+            lastFetchOk,
+            isBalanceFresh,
+        }),
+        [balanceCents, lockedBalanceCents, setBalanceCents, refreshBalance, isFetching, lastFetchOk, isBalanceFresh],
     );
 
     return (
