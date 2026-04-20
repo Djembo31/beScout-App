@@ -9,6 +9,16 @@ impact: —
 proof: —
 ```
 
+## Session 2026-04-21 End — 4 neue Slices live (nach Hotfix-Cascade)
+
+**Hotfix `d73dc235`**: pnpm-lock.yaml sync — 8 konsekutive ERROR-Deploys gefixt (Slice 118 husky + 120 bundle-analyzer waren via npm installiert, nicht pnpm).
+
+**Slice 125 — Sentry instrumentation.ts migration** (`718c7265`): Config-Deprecation gecleared, `/market` TTFB warm −62% (836→319ms), LCP warm −27% (3429→2492ms).
+
+**Slice 126 — Sentry Sampling reduction** (`1cdd4d9e`): tracesSampleRate 0.1→0.01, replaysOnError 1.0→0.1. **LCP 0ms impact** — Hypothesis disproven. Sampling ≠ code-path cost. Real win: 90% Sentry-Quota-Sparen.
+
+**Slice 127 — Close 4 failing tests** (`aee7d439`): INV-32 RLS, INV-36 11 players flagged stale, INV-38 100 players flagged stale, COMPL-reward wording fix. **47/47 green.**
+
 ## Letzter abgeschlossener Slice: 123
 
 **useEnrichedPlayers Input-Injection** — Commit `2aa81871` gepusht.

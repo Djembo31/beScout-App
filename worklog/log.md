@@ -11,6 +11,50 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 127 | 2026-04-21 | Close 4 pre-existing test failures (INV-32/36/38 + COMPL-reward)
+- Stage-Chain: SPEC (inline) → IMPACT (DB-query) → BUILD → PROVE → LOG
+- Approval: Anil "1,2,3,4" (batch-request nach Session-Bilanz)
+- Files: 3 (migration + messages/de.json + messages/tr.json)
+- Scope:
+  - **INV-32**: `public._slice114_backfill_snapshot` hatte RLS disabled. `ALTER TABLE … ENABLE RLS` + deny-all Policy (internal snapshot, service_role-only).
+  - **INV-36**: 11 players in Duplicate-Cluster-Poisoning (MV=600000, -07-01 contracts, cluster sizes 4+7). Flagged `mv_source='transfermarkt_stale'`.
+  - **INV-38**: 100 players mit `contract_end > 12 Monate` in Vergangenheit, unflagged. Alle als `transfermarkt_stale` markiert.
+  - **COMPL-reward-causality**: `growthMilestonesDesc` in DE+TR verletzte anti-causality rule (`business.md`). "Je stärker der Marktwert steigt…" → "Die Höhe des Bonus pro Card hängt von der Markt-Bewertung zum Liquidations-Zeitpunkt ab". TR analog.
+- PROVE: 47/47 tests PASS (db-invariants + compliance/wording). DB-state: alle 3 invariants 0 violations.
+- Commit: `aee7d439`
+
+## 126 | 2026-04-21 | Sentry Sampling Reduction (hypothesis disproven)
+- Stage-Chain: SPEC (inline) → BUILD → PROVE → LOG
+- Approval: Anil "1,2,3,4"
+- Files: 3 (instrumentation-client.ts + sentry.server.config.ts + sentry.edge.config.ts)
+- Scope: `tracesSampleRate` 0.1→0.01 (client+server+edge). `replaysOnErrorSampleRate` 1.0→0.1 (client).
+- PROVE: 2-run Chrome-DevTools trace /market.
+  - LCP mean: 2906→2911 ms **(0 ms, Rauschen)**
+  - TTFB mean: 538→546 ms (0 ms)
+  - CLS stayed 0.00
+- **Honest lesson**: Sentry-Overhead ist Code-Pfad-Execution, NICHT Event-Volumen. Sampling steuert nur send-to-dashboard. Der ~1.2s Restrest-Overhead bleibt (Bundle + Runtime-Wrapper).
+- **Real win**: 90% Sentry-Quota/Storage-Ersparnis (Beta-Cost-Optimierung, kein Perf-Win).
+- Commits: `1cdd4d9e` (code) + `248f17d8` (LOG)
+
+## 125 | 2026-04-21 | Sentry migrate to instrumentation.ts (TTFB fix)
+- Stage-Chain: SPEC (inline + context7) → BUILD → PROVE → LOG
+- Approval: Anil "1" (option 1 nach LCP-Regression-Diagnose)
+- Files: 4 (instrumentation.ts neu + instrumentation-client.ts neu + sentry.client.config.ts gelöscht + next.config.mjs)
+- Scope:
+  - `instrumentation.ts` (root) + `register()` der conditional `sentry.server.config` | `sentry.edge.config` lädt + `onRequestError = Sentry.captureRequestError`.
+  - `instrumentation-client.ts` (root, replaces deprecated `sentry.client.config.ts`) + `onRouterTransitionStart = Sentry.captureRouterTransitionStart` (v10 App Router Navigation-Instrumentation).
+  - `next.config.mjs`: `experimental.instrumentationHook: true` (Next 14 requirement). `disableLogger` → `webpack.treeshake.removeDebugLogging`. `automaticVercelMonitors` → `webpack.automaticVercelMonitors`.
+- PROVE:
+  - 3 Sentry-Deprecation-Warnings cleared in `next build` output.
+  - /market 2-run: LCP 3337→2906 ms mean **(−431 ms, −13%)**. Warm (Run 2): 3429→2492 ms **(−27%)**.
+  - TTFB warm: 836→319 ms **(−62%)**.
+  - CLS stayed 0.00.
+- **Honest einordnung**: Sentry bleibt ~1.2s overhead vs Slice 107 Baseline (1270 ms pre-Sentry). Migration holt den Cold-Start-Boost, den der Auto-Load-per-Request kostete.
+- Commits: `718c7265` (code) + `76484279` (LOG)
+
+## pnpm-lockfile hotfix `d73dc235` | 2026-04-21
+- NOT a slice, but critical: Vercel deploys seit Slice 118 alle ERROR wegen `ERR_PNPM_OUTDATED_LOCKFILE`. Slice 118 (husky) + Slice 120 (@next/bundle-analyzer) via `npm install` statt `pnpm install` → lockfile drift. Alle gestauten Slices 114-123 waren NICHT live, bescout.net lief auf Slice 113. Fix: `pnpm install` regenerate lockfile.
+
 ## 123 | 2026-04-21 | useEnrichedPlayers Input-Injection (Slice 122 Follow-up)
 - Stage-Chain: SPEC → IMPACT (inline, grep) → BUILD → PROVE → LOG
 - Approval: Anil "123" (Full-elimination nach Slice 122)
