@@ -1588,9 +1588,11 @@ describe('DB Invariants', () => {
       fixture_substitutions: 'Substitutions pro Fixture, public',
       ipos: 'IPOs, public (Marktplatz)',
       leagues: 'Leagues-Katalog, public',
+      league_standings: 'League-Rankings (rank/points/form), public sport-data — keine user_ids (Slice 097)',
       liga_seasons: 'Liga-Seasons, public',
       players: 'Players-Katalog, public read',
-      trades: 'Trades-Historie, public (Orderbook-Transparenz)',
+      player_transfers: 'Transfer-History pro Spieler, public sport-data — keine user_ids (Slice 097)',
+      // trades: REMOVED in Slice 095 — policy jetzt own-or-platform-admin. Price-history via RPC.
 
       // Leaderboard / Scores (public by design)
       airdrop_scores: 'Airdrop-Leaderboard, public',

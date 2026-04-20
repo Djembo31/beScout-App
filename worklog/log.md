@@ -30,6 +30,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 097 | 2026-04-22 | INV-32 Cleanup: league_standings + player_transfers Whitelist
+- Stage-Chain: SPEC → IMPACT (inline, column-analysis) → BUILD → PROVE → LOG
+- Files: 1 (db-invariants.test.ts EXPECTED_PUBLIC)
+- Analysis:
+  - `league_standings`: pure public rankings (rank/points/form/goals) — keine user_ids/PII
+  - `player_transfers`: public transfer-history (player_id + team IDs + dates) — keine user_ids/PII
+  - Beide = gleiche Scope wie `clubs`/`leagues`/`players`/`fixtures` (bereits whitelist)
+- Scope:
+  - **EXPECTED_PUBLIC added**: `league_standings`, `player_transfers`
+  - **EXPECTED_PUBLIC removed**: `trades` (veraltet nach Slice 095 Phase 2 RLS tighten)
+- Verification: 38/38 DB-Invariants grün. Alle INV-Regression-Guards kohärent mit production-db.
+- Notes: Kompletter Abschluss der RLS-/Data-Quality-Cleanup-Reihe (INV-10, INV-32, INV-36/37/38).
+
+---
+
 ## 095 | 2026-04-22 | INV-32 trades Tighten — COMPLETE (Phase 1 + 2)
 - Stage-Chain: SPEC → IMPACT → BUILD (Phase 1 + 2) → PROVE → LOG.
 - CEO-approved: Anil ("a nur trades")
