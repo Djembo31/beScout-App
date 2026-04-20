@@ -35,6 +35,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - CLS-Regression auf 0.14 (vorher 0.00) bleibt aus Slice 104/107 bestehen — nicht Scope von 109, aber vor Beta prüfen.
   - Priming-Pattern (via `queryClient.setQueryData`) hält Cross-Page-Cache warm — andere Pages (market, community, fantasy, club) profitieren nach /home-Besuch von Zero-Roundtrip-Hits auf ihre Einzelhooks.
 
+## 114 | 2026-04-20 | Backfill ipo_price Flat-Defaults (MONEY, Slice 108/111 Follow-up)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- Approval: Anil CEO "b" (Option B Backfill) + "x3" (Livan Burcu Early-Bird bleibt, ipo_price updated, initial_listing_price immutable)
+- Files: 3 (1 Migration + 1 Spec + 1 Proof)
+- Scope:
+  - **Pre-Check**: 3.596 aktive IPOs flat-priced, davon nur 1 mit Käufer (Livan Burcu 4M€ MV, 1 Card verkauft für 100 $SCOUT). 3.595 mit sold=0 → price-update trivial.
+  - **Migration 20260420213000**: 3 Phasen in atomic BEGIN/COMMIT:
+    - Phase 0: `_slice114_backfill_snapshot` Audit-Tabelle (permanent, Rollback-Basis)
+    - Phase 1+2: Snapshot + UPDATE `ipos.price = FLOOR(MV/10)` für active-IPOs mit price=10000 AND MV>0 (3.195 Rows, inkl. Livan Burcu). Trigger `sync_player_ipo_price` cascaded → `players.ipo_price`.
+    - Phase 1+2 Post-Sync: `players.floor_price = ipo_price` für betroffene Players ohne aktive sell-orders.
+    - Phase 3: Snapshot + UPDATE `players.ipo_price + floor_price` direkt für 409 Pre-IPO-Players (MV>0, no-IPO, no-trades, no-holdings, drift).
+- PROVE:
+  - Invariants 0 drift (active IPO-drift = 0, Pre-IPO Player-drift = 0)
+  - 3.604 Rows korrigiert (3.195 IPOs + 409 Players)
+  - Pool-Wert: alte Sum 3.195 € → neue Sum 305.976 € (96× Korrektur der Potenzial-Underpricing)
+  - Livan Burcu: ipos.price 10k→400k, sold=1 behalten, initial_listing_price=10k immutable (historischer Einstieg für 40× unrealisierten Gain)
+  - 58 übrige IPOs mit price=10000 sind Formel-korrekt (MV=100.000€ exakt → FLOOR/10 = 10000, no-op)
+  - `worklog/proofs/114-backfill-verification.txt`
+- Commit: pending
+- Notes: Größter Money-Fix der Session. 96× Pool-Wert-Korrektur, nur 1 User betroffen (als beabsichtigter Early-Bird). Rollback-Query in proof dokumentiert falls nötig.
+
 ## 111 | 2026-04-20 | ipo_price Formel-aware bei Player-Imports (Slice 108 Follow-up)
 - Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
 - Approval: Anil CEO "j" (starte Slice 111 als empfohlen)

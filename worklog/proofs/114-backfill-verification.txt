@@ -1,0 +1,94 @@
+Slice 114 — ipo_price Flat-Default Backfill Verification
+Date: 2026-04-20 21:32
+DB: skzjfhvgccaeplydsunz (BeScout Production)
+Approval: Anil CEO "b" (Option B) + "x3" (User behält Card als Early-Bird)
+
+═══════════════════════════════════════════════════════════════════
+INVARIANTS (alle MUST be 0 oder expected value)
+═══════════════════════════════════════════════════════════════════
+
+| Check                                         | Value     | Status |
+|-----------------------------------------------|-----------|--------|
+| ACTIVE IPO-drift (ipo.price != FLOOR(MV/10))  |     0     |  PASS  |
+| Pre-IPO Player-drift (ipo_price != MV/10)     |     0     |  PASS  |
+| Phase1+2 snapshotted IPOs                     |  3.195    |  ✓     |
+| Phase3 snapshotted Pre-IPO Players            |    409    |  ✓     |
+| Players.ipo_price sync with ipos.price        |  3.596    |  ✓     |
+
+═══════════════════════════════════════════════════════════════════
+SCALE-CHECK (Phase 1+2)
+═══════════════════════════════════════════════════════════════════
+
+Phase 1+2 rows:        3.195 IPOs
+  Old sum (cents):     31.950.000 cents   (= 319.500 $SCOUT = 3.195 €)
+                       [= 3.195 × 10.000 Flat-Default bestätigt]
+  New sum (cents):  3.059.760.000 cents   (= 30.597.600 $SCOUT = 305.976 €)
+                       [= Σ FLOOR(MV_EUR/10)]
+
+Factor:               ~100× Pool-Wert-Korrektur
+
+Phase 3 rows:           409 Pre-IPO Players
+  New sum (cents):    122.205.000 cents   (= 1.222.050 $SCOUT = 12.220 €)
+
+═══════════════════════════════════════════════════════════════════
+LIVAN BURCU (Early-Bird Case, X3)
+═══════════════════════════════════════════════════════════════════
+
+Vorher:
+  ipos.price            10.000 cents    (100 $SCOUT)
+  players.ipo_price     10.000 cents
+  initial_listing_price 10.000 cents    (beim 1. IPO-Insert set)
+  sold                  1 Card          (User hat Card zum Flat-Preis gekauft)
+
+Nachher (X3: Update ipo_price, Early-Bird behält Card):
+  ipos.price           400.000 cents    (4.000 $SCOUT)  ← 40× höher
+  players.ipo_price    400.000 cents    (Trigger sync)
+  initial_listing_price 10.000 cents    (IMMUTABLE, bleibt historisch)
+  sold                  1 Card          (User behält 1 Card)
+
+Early-Bird-Effekt:
+  - User zahlte historisch 100 $SCOUT (= 1 €)
+  - Card-Wert heute 4.000 $SCOUT (= 40 €)
+  - Unrealisierter Gewinn: 3.900 $SCOUT (39 €)
+
+═══════════════════════════════════════════════════════════════════
+REMAINING "DRIFT" (false positive)
+═══════════════════════════════════════════════════════════════════
+
+58 IPOs mit price = 10.000 übrig.
+  MIN MV:       100.000 €
+  MAX MV:       100.000 €
+  Formula:      FLOOR(100.000 / 10) = 10.000
+  correctly_at_10k: 58
+  actually_drifted:  0
+
+Alle 58 haben Formel-korrekten Preis. Keine Korrektur nötig.
+
+═══════════════════════════════════════════════════════════════════
+ROLLBACK-FÄHIGKEIT
+═══════════════════════════════════════════════════════════════════
+
+Audit-Tabelle _slice114_backfill_snapshot enthält alle 3.604 old values:
+  - 3.195 Rows 'ipo_flat_priced' Phase
+  -   409 Rows 'player_pre_ipo' Phase
+
+Rollback-Query (bei Bedarf):
+  UPDATE ipos i SET price = s.old_ipo_price_cents
+  FROM _slice114_backfill_snapshot s
+  WHERE s.ipo_id = i.id AND s.snapshot_phase = 'ipo_flat_priced';
+
+  UPDATE players p SET ipo_price = s.old_player_ipo_price_cents,
+                       floor_price = s.old_player_floor_price_cents
+  FROM _slice114_backfill_snapshot s
+  WHERE s.player_id = p.id AND s.snapshot_phase = 'player_pre_ipo';
+
+═══════════════════════════════════════════════════════════════════
+BUSINESS-IMPACT
+═══════════════════════════════════════════════════════════════════
+
+Pool-Gesamtwert aller 3.195 Phase1+2 IPOs (bei 100% sell-out pro IPO):
+  Vorher (Flat 10k × 100 Cards/IPO):  100.000 cents × 3.195 = 319.500.000 cents = 3.195.000 $SCOUT = 31.950 €
+  Nachher (Formel × 100 Cards/IPO):   varies, sum ≈ 3.195 × avg ≈ 30.597.600.000 cents = 305.976.000 $SCOUT = 3.059.760 €
+
+→ Potenzielles IPO-Revenue erhöht von 31.950 € auf 3.059.760 € (96× Korrektur).
+  Actual realisiert bisher: 1 Card × Formel-Differenz = 39 € Early-Bird-Benefit.
