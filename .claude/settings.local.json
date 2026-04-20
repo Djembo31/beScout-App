@@ -43,7 +43,8 @@
       "mcp__sentry__search_issues",
       "mcp__memory__create_entities",
       "mcp__memory__create_relations",
-      "mcp__memory__search_nodes"
+      "mcp__memory__search_nodes",
+      "mcp__chrome-devtools__new_page"
     ]
   },
   "enableAllProjectMcpServers": true,

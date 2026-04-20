@@ -1,11 +1,13 @@
-# Session Handoff (2026-04-20 18:57)
+# Session Handoff (2026-04-20 19:01)
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
+ M .claude/settings.local.json
  M memory/session-handoff.md
 ```
 
 ## Session Commits: 10
+- c9b6b6cb AUTO: pre-compact checkpoint 20260420-185809
 - 1761562a AUTO: pre-compact checkpoint 20260420-185720
 - 41bb3945 feat(stadia): Slice 101 — Wikipedia Retry + 68 neue Stadion-Bilder
 - ba3a2fe7 docs(slice-102): LOG — Playwright-Proof + common-errors Pattern
@@ -15,5 +17,4 @@
 - a9a50761 feat(data): Slice 100 — Stadia Images + Nationality Enrichment (partial)
 - acd944fc docs(data): Slice 099 — TM Data-Quality Re-Scrape Proof
 - 7c062828 fix(scraper): parser erkennt 'Marktwert: -' als explicit no-value (returns 0)
-- ac5045b6 test(capstone): Slice 098 — Pre-existing Failures gefixt (TURK-03 + useMarketData)
 
