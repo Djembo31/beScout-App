@@ -163,6 +163,15 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - NOT NULL Spalte fehlt im INSERT
 - Guards fehlen (Liquidation-Check in Trading-RPCs)
 
+### Money-RPC Pricing-Formel Drift (Slice 108)
+- RPC-Body in der DB ist einzige Wahrheit. Frontend-Tier-Konstanten driften, wenn Spec erst nachträglich geklärt wird.
+- Konkret: `liquidate_player` nutzte 10-stufige Tier-Table (`CASE WHEN tv >= 50M THEN 7.5M cents ... ELSE 5k`) obwohl CEO-Regel `fee = MV_EUR / 10` linear ist — Drift ~1,5× systematisch höher.
+- Frontend `SUCCESS_FEE_TIERS` war sync mit RPC-Tiers (keine UI-Drift), aber beide falsch gegenüber CEO-Modell.
+- Detect: `SELECT pg_get_functiondef('liquidate_player'::regproc)` und numerischer Dry-Run pro MV-Größenordnung gegen Spec-Formel.
+- Prevention: Test-Invariant `SUCCESS_FEE_TIERS[i].fee === calcSuccessFee(SUCCESS_FEE_TIERS[i].minValue)` garantiert Zero-Drift zwischen UI-Ladder und RPC-Formel.
+- Regel: Bei Money-RPC immer `COMMENT ON FUNCTION` mit Formel-Version (`formula_version: 'linear_v2_2026_04_20'` in Return-JSON), damit Migration-Audit sofort sieht welche Version live ist.
+- Pricing-Asset-Model-Referenz: `memory/decision_pricing_asset_model.md` + `.claude/rules/trading.md` (Pricing-Sektion).
+
 ---
 
 ## 4. Auth / Security
