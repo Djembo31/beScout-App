@@ -1,0 +1,45 @@
+Slice 109 — Post-Deploy Network-Log /home
+========================================
+
+Deploy: dpl_5P2uXG7vzWfHBxFkKUj6pBHRLDv8 READY at 1776713597032 (commit 1c4e63d7)
+URL: https://www.bescout.net/ (redirects logged-in jarvis-qa to Home)
+Conditions: Mobile Slow 4G + 4x CPU + 393x852 viewport
+
+Supabase-relevant requests on cold reload (xhr + fetch):
+
+BEFORE (Slice 107 proof baseline — 4 individual per-user queries):
+  GET /rest/v1/holdings?select=... user_id=eq.<uid>&quantity=gt.0
+  GET /rest/v1/user_stats?select=...&user_id=eq.<uid>
+  POST /rest/v1/rpc/get_user_tickets                    (TopBar, parallel)
+  GET /rest/v1/user_founding_passes?select=...&user_id=eq.<uid>
+
+AFTER (Slice 109 — consolidated via get_home_dashboard_v1):
+  POST /rest/v1/rpc/get_home_dashboard_v1  [200]        ✓ reqid=328
+  GET  /rest/v1/holdings?...                            ✗ NOT fired (consolidated)
+  GET  /rest/v1/user_stats?...                          ✗ NOT fired (consolidated)
+  GET  /rest/v1/user_founding_passes?...                ✗ NOT fired (consolidated)
+  POST /rest/v1/rpc/get_user_tickets       [200]        ⚠ reqid=318 (expected — TopBar is layout-level, see impact doc)
+
+Verified elimination:
+  - holdings .select() : 0 calls (baseline was 1)
+  - user_stats .select() : 0 calls (baseline was 1)
+  - user_founding_passes .select() : 0 calls (baseline was 1)
+  - get_home_dashboard_v1 RPC : 1 call (new)
+  Net: -2 Supabase roundtrips on /home cold-load.
+
+Still firing on cold /home (expected, not Slice 109 scope):
+  reqid=326 POST rpc/record_login_streak            (login-streak WRITE — keep)
+  reqid=318 POST rpc/get_user_tickets               (TopBar layout — keep)
+  reqid=327 POST rpc/rpc_get_trending_players       (global — keep)
+  reqid=330 POST rpc/claim_welcome_bonus            (welcome-bonus RPC)
+  reqid=331 GET  wallets?...                        (WalletProvider — RLS race)
+  reqid=332 GET  clubs?order=name.asc               (global list)
+  reqid=333 GET  leagues?order=name.asc             (global list)
+  reqid=334 POST rpc/get_most_watched_players       (global)
+  reqid=335 POST rpc/get_mystery_box_drop_rates     (global)
+  reqid=337 POST rpc/get_auth_state                 (global)
+  reqid=338 GET  club_followers                     (ClubProvider)
+  reqid=323 GET  notifications                      (TopBar)
+  ...
+
+Full 43 xhr/fetch requests captured — above are the Supabase.co subset.

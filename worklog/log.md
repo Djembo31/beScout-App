@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 109 | 2026-04-20 | get_home_dashboard_v1 RPC (Home-Data-Consolidation)
+- Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
+- Approval: inline (CTO-Scope: read-only Aggregation, keine Fee/Wording/Security-Änderung)
+- Files: 15 (1 Migration + 3 neue Query/Service + 2 modifizierte Queries + useHomeData + Tests + 3 Proofs + Spec/Impact)
+- Scope:
+  - **Migration `20260420220000_slice_109_home_dashboard_rpc.sql`** — `CREATE FUNCTION public.get_home_dashboard_v1(p_user_id uuid) RETURNS jsonb` SECURITY DEFINER mit AR-44-Guard (`auth.uid() IS DISTINCT FROM v_uid` → `RAISE EXCEPTION`) + REVOKE PUBLIC/anon + GRANT authenticated.
+  - **Service `src/lib/services/homeDashboard.ts`** — Thin RPC-Wrapper `getHomeDashboard()` + `HomeDashboard` Type (holdings + user_stats + tickets + highest_pass). Throws on error.
+  - **Hook `src/lib/queries/homeDashboard.ts`** — `useHomeDashboard(uid)` mit `queryClient.setQueryData`-Priming für die 4 Unter-Caches (qk.holdings, qk.userStats, qk.tickets, qk.foundingPasses.highest).
+  - **`useHomeData.ts` refactored** — 4 Einzelhooks (`useHoldings`, `useUserStats`, `useUserTickets`, `useHighestPass`) → 1 `useHomeDashboard`. `handleOpenMysteryBox` invalidiert zusätzlich `qk.homeDashboard.byUser(uid)`.
+  - **Invalidation-Kette erweitert** — `invalidateTradeQueries`, `invalidateSocialQueries`, `invalidatePlayerDetailQueries` invalidieren jetzt zusätzlich `qk.homeDashboard.byUser(uid)`.
+- PROVE:
+  - `worklog/proofs/109-tsc-clean.txt` — `npx tsc --noEmit` clean.
+  - `worklog/proofs/109-vitest.txt` — Full-Suite 2835/2836 PASS (1 pre-existing skip), 4 neue homeDashboard-Tests + 27 useHomeData-Tests (rewired).
+  - `worklog/proofs/109-rpc-security-audit.txt` — `pg_proc` zeigt `prosecdef=true`, `proacl={postgres,authenticated,service_role}` (anon REVOKED). Smoke-Call für jarvis-qa returnte 12 Holdings / user_stats.total_score=490 / tickets=326 / highest_pass=null.
+  - `worklog/proofs/109-network-after.txt` — Chrome-DevTools (Mobile Slow 4G + 4× CPU): `get_home_dashboard_v1` **1× gefeuert**, `holdings`/`user_stats`/`user_founding_passes` **0× gefeuert**. Structural win bestätigt: **-2 Supabase roundtrips auf /home cold-load**.
+  - `worklog/proofs/109-lcp-compare.md` — LCP 2-Run Average **3740ms** vs Baseline 3792ms (**-1.3%, innerhalb Messrauschen auf Slow 4G**).
+- EHRLICHE AC-Bilanz: 7/9 ✅, 1/9 ⚠ partial (#8a Request-Count -2 statt -3 weil TopBar-Tickets parallel), 1/9 ❌ (#8b LCP 3740ms statt <3200ms-Target — die 4 Einzelqueries liefen schon parallel via React Query, der Consolidation-Gewinn ist daher strukturell aber nicht in LCP sichtbar).
+- Commit: `1c4e63d7`
+- Deploy: `dpl_5P2uXG7vzWfHBxFkKUj6pBHRLDv8` (READY 2026-04-20 19:53 UTC)
+- Notes:
+  - Lesson: **Query-Konsolidierung ist structural-win, aber LCP profitiert nur wenn die konsolidierten Queries sequentiell waren oder LCP-blocking.** Die 4 /home-Queries liefen schon parallel, daher kein LCP-Win. Echter /home-LCP-Hebel bleibt Bundle-Split + Service-Worker (Slice 112+).
+  - CLS-Regression auf 0.14 (vorher 0.00) bleibt aus Slice 104/107 bestehen — nicht Scope von 109, aber vor Beta prüfen.
+  - Priming-Pattern (via `queryClient.setQueryData`) hält Cross-Page-Cache warm — andere Pages (market, community, fantasy, club) profitieren nach /home-Besuch von Zero-Roundtrip-Hits auf ihre Einzelhooks.
+
 ## 111 | 2026-04-20 | ipo_price Formel-aware bei Player-Imports (Slice 108 Follow-up)
 - Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
 - Approval: Anil CEO "j" (starte Slice 111 als empfohlen)

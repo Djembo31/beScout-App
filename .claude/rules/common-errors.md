@@ -326,6 +326,18 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ## 8. Cross-Cutting / Operational
 
+### Query-Konsolidierung ≠ LCP-Win wenn Queries schon parallel (Slice 109)
+- Symptom: N Einzel-Hooks (useHoldings/useUserStats/...) in EIN SECURITY DEFINER RPC konsolidiert. Structural correct — Network-Log zeigt eliminierte Calls. Aber LCP-Delta nur -1-5%, innerhalb Messrauschen auf Slow 4G.
+- Root cause: React Query feuert Einzel-Hooks **parallel** beim Mount (nicht sequentiell). Die 4 Roundtrips liefen schon gleichzeitig — Einsparung ist `max(1 RPC time) - max(4 parallel time)`, meist negativ oder <50ms. NICHT `4 × 150ms Latency = 600ms save`.
+- Latenz-Gewinn tritt nur auf bei: (a) wirklich **sequentiellen** Queries (waterfall), oder (b) LCP-blocking Queries (kritischer Pfad), oder (c) HTTP/1-Limits auf Connection-Count.
+- Structural Wins, die trotzdem echt sind:
+  - -N Roundtrips (weniger Connection-Overhead)
+  - Konsistenz (single transaction view vs. split-read race)
+  - Priming-Pattern für andere Pages (queryClient.setQueryData → Cross-Page-Cache warm)
+  - Backend-RPC billiger für DB als 4× PostgREST-select-parse
+- Regel: Vor Konsolidierung **prüfen ob Queries sequentiell sind oder parallel**. Parallel → kein LCP-Win versprechen, nur Connection-Count + Konsistenz. Sequentiell → Ja, 4× Latency-Save realistisch.
+- Evidenz Slice 109: /home LCP 3792ms → 3740ms (2-run mean, -1.3%). Structural: holdings/user_stats/user_founding_passes **0 Calls** (vorher 3) + `get_home_dashboard_v1` **1 Call** (neu). Net -2 roundtrips, LCP innerhalb Rauschen.
+
 ### Data Contract Changes (NICHT als UI-Change behandeln)
 - required → optional (Feld, Prop, DB Column) = Contract Change → alle Consumer greppen.
 - optional → required = Breaking → Migration + Backfill nötig.

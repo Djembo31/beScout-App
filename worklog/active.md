@@ -1,19 +1,21 @@
 # Active Slice
 
 ```
-status: active
-slice: 109
-stage: SPEC → IMPACT
-spec: worklog/specs/109-home-dashboard-rpc.md
-impact: pending
-proof: pending
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
 ```
 
-## Slice 109 — get_home_dashboard_v1 RPC
+## Letzter abgeschlossener Slice: 109
 
-**Ziel:** 4 per-User-Queries auf /home → 1 SECURITY DEFINER RPC. /home LCP 3792ms → <3200ms.
-**Scope-In:** holdings + user_stats + tickets + highest_pass in single jsonb RPC mit AR-44 Guard.
-**Scope-Out:** Wallet (RLS race) · hasFreeBoxToday (staleTime:0) · global queries · AuthProvider-Robustness → Slice 110.
+**get_home_dashboard_v1 RPC (Home-Data-Consolidation)** — Commit `1c4e63d7`, Deploy `dpl_5P2uXG7vzWfHBxFkKUj6pBHRLDv8` READY.
+
+Ergebnis (ehrlich): **Structural win** (3 Queries eliminiert) + **LCP-Win marginal** (-1.3%, innerhalb Messrauschen). Spec-Target LCP <3200ms verfehlt, Grund im log.md dokumentiert + Lesson in common-errors.md verankert.
+
+**Nächster Slice: 110** — Auth-Robustness (balanceIsStale + Button-Guards + state machine). Kein LCP-Win erwartet, sondern Trading-Race-Condition-Schutz.
 
 ## Session 2026-04-20 Progress (8 Slices)
 
