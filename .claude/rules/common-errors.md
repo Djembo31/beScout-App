@@ -326,6 +326,13 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ## 8. Cross-Cutting / Operational
 
+### dynamic() rettet nur wenn KEIN anderer Importpfad eager lädt (Slice 121)
+- Symptom: `const { fn } = await import('module')` im queryFn ausgetauscht, aber Modul bleibt im Initial-Bundle.
+- Root cause: Webpack erstellt zwar eine Lazy-Chunk, aber wenn **irgendein anderer Codepfad** denselben Modul eager importiert, bleibt Modul-Code in beiden Chunks. FLJS unverändert.
+- Slice 121 Evidenz: `BuyConfirmModal.tsx` lazy-importiert research.ts → lazy-chunk 5065-*.js entsteht (11.8 kB, NICHT in /market initial). ABER research.ts tauchte weiter im /market-only chunk 9152.js auf, weil ein anderer Import-Pfad (TradingTab o.ä.) es eager lädt. Market-only total 70→73 kB (keine Reduktion).
+- Regel: Vor "Seite X FLJS sinkt"-Versprechen: `grep -rn "from.*'@/lib/services/<modul>'" src/` → ALLE Call-Sites prüfen. Lazy import hilft nur wenn kein anderer eager.
+- Messen mit: `ANALYZE=true next build` + app-build-manifest.json — prüfen ob Lazy-Chunk NICHT in Ziel-Route's `pages[].chunks[]` erscheint.
+
 ### Namespace-Import blockiert Tree-Shaking (Slice 120)
 - Symptom: `optimizePackageImports` in `next.config.mjs` tree-shaked nicht, obwohl Library drin ist. Bundle enthält alle Exports.
 - Root cause: `import * as X from 'lib' + X[dynamic]` = namespace-import mit dynamic lookup. Webpack kann nicht wissen welche Exports tatsächlich genutzt sind → bundled alles.
