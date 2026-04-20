@@ -35,7 +35,15 @@
       "mcp__notion__notion-search",
       "mcp__notion__notion-fetch",
       "mcp__notion__notion-create-pages",
-      "mcp__notion__notion-update-page"
+      "mcp__notion__notion-update-page",
+      "mcp__notion__notion-update-data-source",
+      "mcp__notion__notion-create-database",
+      "mcp__notion__notion-create-view",
+      "mcp__memory__read_graph",
+      "mcp__sentry__search_issues",
+      "mcp__memory__create_entities",
+      "mcp__memory__create_relations",
+      "mcp__memory__search_nodes"
     ]
   },
   "enableAllProjectMcpServers": true,
