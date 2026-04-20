@@ -1,0 +1,70 @@
+Slice 122 — get_market_user_dashboard RPC Verification
+Date: 2026-04-20 23:43
+
+═══════════════════════════════════════════════════════════════════
+DB (via mcp__supabase__apply_migration)
+═══════════════════════════════════════════════════════════════════
+
+Migration applied: success=true
+
+Invariants (3/3 PASS via pg_get_functiondef):
+- auth_guard: PASS (contains 'auth_uid_mismatch')
+- sec_def:    PASS (SECURITY DEFINER)
+- owned_filter: PASS (v_owned_player_ids ANY-filter for open_bids)
+
+═══════════════════════════════════════════════════════════════════
+FRONTEND
+═══════════════════════════════════════════════════════════════════
+
+New files:
+- src/lib/services/marketDashboard.ts (getMarketUserDashboard + type)
+- src/lib/queries/marketDashboard.ts (useMarketUserDashboard + priming)
+- supabase/migrations/20260420230000_slice_122_market_user_dashboard.sql
+
+Modified:
+- src/lib/queries/keys.ts (+ qk.marketDashboard.byUser)
+- src/lib/queries/invalidation.ts (+ invalidate marketDashboard in 2 trade/detail paths)
+- src/lib/services/offers.ts (enrichOffers re-exported)
+- src/features/market/hooks/useMarketData.ts (4 hooks → 1 dashboard hook)
+- src/features/market/hooks/__tests__/useMarketData.test.ts (mocks angepasst)
+
+═══════════════════════════════════════════════════════════════════
+TESTS
+═══════════════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit → clean
+$ npx vitest run src/features/market src/lib/queries
+
+ Test Files  9 passed (9)
+      Tests  112 passed (112)
+   Duration  14.31s
+
+═══════════════════════════════════════════════════════════════════
+EXPECTED IMPACT
+═══════════════════════════════════════════════════════════════════
+
+Before Slice 122:
+  4 per-user queries (holdings, watchlist, incoming_offers, open_bids)
+  + 4 offer-enrichment queries (2x players + 2x profiles)
+  = 8 Supabase requests on cold /market
+
+After Slice 122:
+  1 RPC (get_market_user_dashboard)
+  + 2 offer-enrichment queries (1x players + 1x profiles combined)
+  = 3 Supabase requests
+
+Reduction: -5 requests per cold-load /market (-62.5%).
+
+Cross-page cache priming:
+  /market sets qk.holdings + qk.watchlist + qk.offers.incoming +
+  qk.offers.openBids → warm cache for TopBar, /home, /profile etc.
+
+═══════════════════════════════════════════════════════════════════
+NOTES
+═══════════════════════════════════════════════════════════════════
+
+- enrichOffers call ist async im queryFn — dashboard queryFn wartet auf Enrichment
+  bevor setQueryData primt. Garantiert korrekte OfferWithDetails-Shape im Cache.
+- useEnrichedPlayers in useMarketData triggered weiterhin sein eigenes useHoldings
+  parallel (race condition harmlos — gleicher queryKey, dedup via React Query
+  cache-set). Full elimination würde enrichedPlayers-API-Change erfordern (Slice 123+).

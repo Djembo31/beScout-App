@@ -9,7 +9,7 @@ import type { DbOffer, OfferWithDetails } from '@/types';
 // Offer enrichment (attach player + profile info)
 // ============================================
 
-async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[]> {
+export async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[]> {
   if (offers.length === 0) return [];
 
   const playerIds = Array.from(new Set(offers.map(o => o.player_id)));

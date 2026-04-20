@@ -63,6 +63,11 @@ export const qk = {
     byUser: (uid: string) => ['home-dashboard', uid] as const,
   },
 
+  // ── Market User Dashboard (Slice 122 — aggregates holdings+watchlist+offers+bids) ──
+  marketDashboard: {
+    byUser: (uid: string) => ['market-dashboard', uid] as const,
+  },
+
   // ── IPOs ──
   ipos: {
     active: ['ipos', 'active'] as const,

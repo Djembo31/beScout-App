@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 122 | 2026-04-20 | get_market_user_dashboard RPC (Query-Konsolidierung /market)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- Approval: Anil "a" (neuer RPC, analog zu 109)
+- Files: 9 (1 Migration + 2 neue Lib-Files + 5 Edits + 1 Spec + 1 Proof)
+- Scope:
+  - **Migration 20260420230000** — `get_market_user_dashboard(p_user_id uuid)` SECURITY DEFINER + AR-44 Guard + REVOKE/GRANT. Returns jsonb {holdings, watchlist, incoming_offers, open_bids}. open_bids pre-filtered auf owned players (matches getOpenBids({ownedByUserId})).
+  - **Service** `src/lib/services/marketDashboard.ts` — Thin RPC-Wrapper + `MarketUserDashboard` Type.
+  - **Hook** `src/lib/queries/marketDashboard.ts` — `useMarketUserDashboard(uid)` queryFn awaits enrichOffers for combined incoming+open_bids (dedup 2 sub-queries), dann setQueryData für 4 sub-caches (holdings, watchlist, offers.incoming, offers.openBids).
+  - **Keys** + **Invalidation** — `qk.marketDashboard.byUser`, invalidiert in invalidateTradeQueries + invalidatePlayerDetailQueries.
+  - **Refactor** `useMarketData` — useHoldings/useWatchlist/useIncomingOffers/useOpenBids → 1 useMarketUserDashboard. enrichOffers aus offers.ts exportiert.
+  - **Tests** — mocks umgestellt auf useMarketUserDashboard (25 PASS).
+- PROVE:
+  - 3/3 DB-Invariants PASS (auth_guard, sec_def, owned_filter)
+  - tsc clean
+  - 112/112 vitest PASS (9 market + queries test files)
+  - Expected Request-Count /market cold: 8 → 3 (-62.5%)
+- Commit: pending
+- Notes: Race-condition mit useEnrichedPlayers.useHoldings tolerant (same queryKey, React Query dedupt). Full-elimination würde enrichedPlayers-API-Change erfordern (Scope-Out).
+
 ## 118 | 2026-04-20 | Sentry Release-Tracking + Husky Pre-commit (Operational Hygiene)
 - Stage-Chain: SPEC → IMPACT (none, additive) → BUILD → PROVE → LOG
 - Approval: Anil "6" (6. Punkt aus Backlog-Priorisierung)

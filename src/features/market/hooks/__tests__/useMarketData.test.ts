@@ -14,15 +14,19 @@ vi.mock('@/features/market/store/marketStore', () => ({
 }));
 
 const mockEnrichedPlayers = vi.fn().mockReturnValue({ data: [] as Player[], isLoading: true, isError: false });
-const mockHoldings = vi.fn().mockReturnValue({ data: [] });
 const mockAllOpenOrders = vi.fn().mockReturnValue({ data: [] });
 const mockAllOpenBuyOrders = vi.fn().mockReturnValue({ data: [] });
 
 vi.mock('@/lib/queries', () => ({
   useEnrichedPlayers: (uid: unknown) => mockEnrichedPlayers(uid),
-  useHoldings: (uid: unknown) => mockHoldings(uid),
   useAllOpenOrders: () => mockAllOpenOrders(),
   useAllOpenBuyOrders: () => mockAllOpenBuyOrders(),
+}));
+
+// Slice 122: useMarketUserDashboard konsolidiert holdings/watchlist/offers/bids.
+const mockMarketDashboard = vi.fn().mockReturnValue({ data: undefined });
+vi.mock('@/lib/queries/marketDashboard', () => ({
+  useMarketUserDashboard: (uid: unknown) => mockMarketDashboard(uid),
 }));
 
 const mockActiveIpos = vi.fn().mockReturnValue({ data: [] });
@@ -45,17 +49,6 @@ vi.mock('@/features/market/queries/priceHist', () => ({
   useAllPriceHistories: () => mockAllPriceHistories(),
 }));
 
-const mockWatchlist = vi.fn().mockReturnValue({ data: [] });
-vi.mock('@/features/market/queries/watchlist', () => ({
-  useWatchlist: (uid: unknown) => mockWatchlist(uid),
-}));
-
-const mockIncomingOffers = vi.fn().mockReturnValue({ data: [] });
-const mockOpenBids = vi.fn().mockReturnValue({ data: [] });
-vi.mock('@/features/market/queries/offers', () => ({
-  useIncomingOffers: (uid: unknown) => mockIncomingOffers(uid),
-  useOpenBids: () => mockOpenBids(),
-}));
 
 // Import AFTER mocks are set up
 import { useMarketData } from '@/features/market/hooks/useMarketData';
@@ -115,7 +108,6 @@ describe('useMarketData', () => {
     mockTab = 'portfolio';
     // Reset to loading state
     mockEnrichedPlayers.mockReturnValue({ data: [] as Player[], isLoading: true, isError: false });
-    mockHoldings.mockReturnValue({ data: [] });
     mockAllOpenOrders.mockReturnValue({ data: [] });
     mockAllOpenBuyOrders.mockReturnValue({ data: [] });
     mockActiveIpos.mockReturnValue({ data: [] });
@@ -123,8 +115,9 @@ describe('useMarketData', () => {
     mockRecentlyEndedIpos.mockReturnValue({ data: [] });
     mockTrendingPlayers.mockReturnValue({ data: [] });
     mockAllPriceHistories.mockReturnValue({ data: undefined });
-    mockWatchlist.mockReturnValue({ data: [] });
-    mockIncomingOffers.mockReturnValue({ data: [] });
+    mockMarketDashboard.mockReturnValue({
+      data: { holdings: [], watchlist: [], incoming_offers: [], open_bids: [] },
+    });
   });
 
   // ── Test 1: Loading state ──
@@ -304,11 +297,16 @@ describe('useMarketData', () => {
   // ── Test 5: watchlistMap ──
 
   it('computes watchlistMap from watchlist entries', () => {
-    mockWatchlist.mockReturnValue({
-      data: [
-        { id: 'w1', playerId: 'p1', alertThresholdPct: 10, alertDirection: 'up', lastAlertPrice: 0, createdAt: '' },
-        { id: 'w2', playerId: 'p3', alertThresholdPct: 5, alertDirection: 'both', lastAlertPrice: 0, createdAt: '' },
-      ],
+    mockMarketDashboard.mockReturnValue({
+      data: {
+        holdings: [],
+        incoming_offers: [],
+        open_bids: [],
+        watchlist: [
+          { id: 'w1', playerId: 'p1', alertThresholdPct: 10, alertDirection: 'up', lastAlertPrice: 0, createdAt: '' },
+          { id: 'w2', playerId: 'p3', alertThresholdPct: 5, alertDirection: 'both', lastAlertPrice: 0, createdAt: '' },
+        ],
+      },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [], isLoading: false, isError: false });
 
@@ -319,7 +317,9 @@ describe('useMarketData', () => {
   });
 
   it('returns empty watchlistMap when user has no watchlist entries', () => {
-    mockWatchlist.mockReturnValue({ data: [] });
+    mockMarketDashboard.mockReturnValue({
+      data: { holdings: [], watchlist: [], incoming_offers: [], open_bids: [] },
+    });
     mockEnrichedPlayers.mockReturnValue({ data: [], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
@@ -378,9 +378,7 @@ describe('useMarketData', () => {
     expect(result.current.players).toEqual([]);
     // Verify hooks were called with undefined
     expect(mockEnrichedPlayers).toHaveBeenCalledWith(undefined);
-    expect(mockHoldings).toHaveBeenCalledWith(undefined);
-    expect(mockWatchlist).toHaveBeenCalledWith(undefined);
-    expect(mockIncomingOffers).toHaveBeenCalledWith(undefined);
+    expect(mockMarketDashboard).toHaveBeenCalledWith(undefined);
   });
 
   it('floorMap handles player with single listing correctly', () => {
@@ -403,10 +401,11 @@ describe('useMarketData', () => {
     const fakeOrders = [{ id: 'o1' }];
     const fakeOffers = [{ id: 'of1' }];
 
-    mockHoldings.mockReturnValue({ data: fakeHoldings });
+    mockMarketDashboard.mockReturnValue({
+      data: { holdings: fakeHoldings, watchlist: [], incoming_offers: fakeOffers, open_bids: [] },
+    });
     mockActiveIpos.mockReturnValue({ data: fakeIpos });
     mockAllOpenOrders.mockReturnValue({ data: fakeOrders });
-    mockIncomingOffers.mockReturnValue({ data: fakeOffers });
     mockEnrichedPlayers.mockReturnValue({ data: [], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
@@ -421,7 +420,9 @@ describe('useMarketData', () => {
     const fakeEntries = [
       { id: 'w1', playerId: 'p1', alertThresholdPct: 10, alertDirection: 'up' as const, lastAlertPrice: 0, createdAt: '' },
     ];
-    mockWatchlist.mockReturnValue({ data: fakeEntries });
+    mockMarketDashboard.mockReturnValue({
+      data: { holdings: [], watchlist: fakeEntries, incoming_offers: [], open_bids: [] },
+    });
     mockEnrichedPlayers.mockReturnValue({ data: [], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });

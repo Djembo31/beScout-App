@@ -3,12 +3,11 @@
 import { useMemo, useCallback } from 'react';
 import type { Player } from '@/types';
 import { computePlayerFloor } from '@/lib/playerMath';
-import { useEnrichedPlayers, useHoldings, useAllOpenOrders, useAllOpenBuyOrders } from '@/lib/queries';
+import { useEnrichedPlayers, useAllOpenOrders, useAllOpenBuyOrders } from '@/lib/queries';
+import { useMarketUserDashboard } from '@/lib/queries/marketDashboard';
 import { useActiveIpos, useAnnouncedIpos, useRecentlyEndedIpos } from '@/features/market/queries/ipos';
 import { useTrendingPlayers } from '@/features/market/queries/trending';
 import { useAllPriceHistories } from '@/features/market/queries/priceHist';
-import { useWatchlist } from '@/features/market/queries/watchlist';
-import { useIncomingOffers, useOpenBids } from '@/features/market/queries/offers';
 import { useMarketStore } from '@/features/market/store/marketStore';
 
 export function useMarketData(userId: string | undefined) {
@@ -17,11 +16,15 @@ export function useMarketData(userId: string | undefined) {
   // ── Core queries (always loaded) ──
   const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(userId);
   const { data: ipoList = [] } = useActiveIpos();
-  const { data: holdings = [] } = useHoldings(userId);
-  const { data: watchlistEntries = [] } = useWatchlist(userId);
+  // Slice 122: 4 per-user queries (holdings + watchlist + incoming_offers + open_bids)
+  // in 1 RPC konsolidiert. Primed caches halten useHoldings/useWatchlist/useIncomingOffers
+  // in useEnrichedPlayers + anderen Hooks warm (cross-page wins bei Navigation).
+  const { data: dashboard } = useMarketUserDashboard(userId);
+  const holdings = dashboard?.holdings ?? [];
+  const watchlistEntries = dashboard?.watchlist ?? [];
+  const incomingOffers = dashboard?.incoming_offers ?? [];
+  const openBids = dashboard?.open_bids ?? [];
   const { data: recentOrders = [] } = useAllOpenOrders();
-  const { data: incomingOffers = [] } = useIncomingOffers(userId);
-  const { data: openBids = [] } = useOpenBids();
 
   // ── Tab-gated queries (marktplatz only) ──
   const { data: priceHistMap } = useAllPriceHistories(10, { enabled: tab === 'marktplatz' });
