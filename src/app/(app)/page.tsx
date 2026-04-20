@@ -26,17 +26,40 @@ import LastGameweekWidget from '@/components/home/LastGameweekWidget';
 import TopMoversStrip from '@/components/home/TopMoversStrip';
 import { SectionHeader, formatPrize, getTimeUntil } from '@/components/home/helpers';
 
-const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), { ssr: false });
+// Slice 116 — CLS-Fix: loading-Skeletons mit fixed heights für alle inline dynamic imports.
+// Modals (MysteryBox, WelcomeBonus) brauchen keine Skeleton weil position:fixed → kein Layout-Impact.
+const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), {
+  ssr: false,
+  loading: () => <div className="h-20 rounded-2xl bg-surface-minimal/50 motion-reduce:animate-none" />,
+});
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
-const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), { ssr: false });
-const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
-const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
-const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
-const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), { ssr: false });
-const FollowingFeedRail = dynamic(() => import('@/components/social/FollowingFeedRail'), { ssr: false });
+const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
+  ssr: false,
+  loading: () => null,
+});
+const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), {
+  ssr: false,
+  loading: () => <div className="h-72 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
+  ssr: false,
+  loading: () => <div className="h-28 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
+const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), {
+  ssr: false,
+  loading: () => null,
+});
+const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), {
+  ssr: false,
+  loading: () => <div className="h-44 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
+const FollowingFeedRail = dynamic(() => import('@/components/social/FollowingFeedRail'), {
+  ssr: false,
+  loading: () => <div className="h-52 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
 
 import { useHomeData } from './hooks/useHomeData';
 

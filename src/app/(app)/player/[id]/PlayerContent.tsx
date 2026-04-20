@@ -33,9 +33,10 @@ import { FEATURE_LIMIT_ORDERS } from '@/lib/featureFlags';
 import dynamic from 'next/dynamic';
 
 // Modals: lazy-loaded since they only render on user interaction
-const BuyModal = dynamic(() => import('@/components/player/detail/BuyModal'), { ssr: false });
-const SellModal = dynamic(() => import('@/components/player/detail/SellModal'), { ssr: false });
-const OfferModal = dynamic(() => import('@/components/player/detail/OfferModal'), { ssr: false });
+// Slice 116 CLS-Fix: position:fixed → kein Layout-Impact, loading: null statt default spinner
+const BuyModal = dynamic(() => import('@/components/player/detail/BuyModal'), { ssr: false, loading: () => null });
+const SellModal = dynamic(() => import('@/components/player/detail/SellModal'), { ssr: false, loading: () => null });
+const OfferModal = dynamic(() => import('@/components/player/detail/OfferModal'), { ssr: false, loading: () => null });
 // LimitOrderModal aus Beta entfernt (AR-23, FEATURE_LIMIT_ORDERS=false).
 // Import + Render-Block bleiben nur aktiv wenn Flag true.
 

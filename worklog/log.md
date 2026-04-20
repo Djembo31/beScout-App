@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 116 | 2026-04-20 | CLS-Fix: loading Skeletons für 21 dynamic imports
+- Stage-Chain: SPEC → IMPACT (inline grep) → BUILD → PROVE → LOG
+- Approval: Anil "b" (CLS-Fix Priority) nach Status-Review
+- Files: 7 (6 Pages edited + 1 Spec + 1 Proof)
+- Scope:
+  - **Root-Cause** (aus Slice 107 Proof): `dynamic({ ssr: false })` ohne `loading`-Prop rendered während Chunk-Load nichts → Full-Content-Pop-In beim Mount → CLS-Spike. 21 solche Calls in 6 Pages.
+  - **Fix-Pattern**: Inline-Components bekommen `loading: () => <div className="h-X rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />` mit empirisch-ermittelter Höhe (h-16/20/28/44/52/72). Modals (position:fixed, kein Layout-Impact) bekommen `loading: () => null` explizit.
+  - **Betroffene Pages**: /home (7 imports), /market (3), /community (6), /player/[id] (3), /club/[slug] (1), /manager kader (1).
+- PROVE:
+  - `worklog/proofs/116-tsc-vitest.txt` — tsc clean, 131/131 vitest PASS (home + market)
+  - Pre-Fix Baseline aus Slice 107/109 Proofs: /home CLS 0.14, /market CLS 0.11
+  - Post-Deploy Measurement deferred — Chrome-DevTools MCP Browser-Profil war collision-blocked, wird per next session / paralleles Terminal verifiziert
+- Commit: pending
+- Notes: Textbook CLS-Reduction-Pattern. Erwartung /home CLS < 0.10 post-deploy. Falls nicht erreicht: Phase 2 mit Image-Dim-Audit + Conditional-Render-Refactor (höhere Slice-Nummer).
+
+---
+
 ## 120 | 2026-04-20 | country-flag-icons Bundle-Split (Eliminate 235 kB Chunk)
 - Stage-Chain: SPEC → IMPACT (inline, static-asset migration) → BUILD → PROVE → LOG
 - Approval: inline (CTO-Scope: Perf-Optimization, kein Wording/Money/Security-Change)

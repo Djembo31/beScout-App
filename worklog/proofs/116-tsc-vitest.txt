@@ -1,0 +1,84 @@
+Slice 116 — CLS-Fix Verification
+Date: 2026-04-20 23:01
+
+$ npx tsc --noEmit
+(no output, clean)
+
+$ npx vitest run src/components/home src/features/market
+
+ Test Files  13 passed (13)
+      Tests  131 passed (131)
+   Start at  23:01:25
+   Duration  19.05s
+
+═══════════════════════════════════════════════════════════════════
+CHANGES SUMMARY
+═══════════════════════════════════════════════════════════════════
+
+6 Files edited, 21 dynamic({ ssr: false }) calls now have explicit loading:
+
+/home (page.tsx):
+  - NewUserTip          → loading: h-20 skeleton
+  - SponsorBanner       → already h-16 skeleton (pre-existing)
+  - MysteryBoxModal     → loading: () => null (modal)
+  - OnboardingChecklist → loading: h-72 skeleton
+  - MissionHintList     → loading: h-28 skeleton
+  - WelcomeBonusModal   → loading: () => null (modal)
+  - MostWatchedStrip    → loading: h-44 skeleton
+  - FollowingFeedRail   → loading: h-52 skeleton
+
+/market (MarketContent.tsx):
+  - TradeSuccessCard    → loading: () => null (modal)
+  - BuyConfirmModal     → loading: () => null (modal)
+  - MissionHintList     → loading: h-28 skeleton
+
+/club/[slug] (ClubContent.tsx):
+  - SponsorBanner       → loading: h-16 skeleton
+
+/manager kader (KaderTab.tsx):
+  - SponsorBanner       → loading: h-16 skeleton
+
+/community (page.tsx):
+  - CreatePostModal     → loading: () => null
+  - CreateResearchModal → loading: () => null
+  - CreateBountyModal   → loading: () => null
+  - FollowListModal     → loading: () => null
+  - SponsorBanner       → loading: h-16 skeleton
+  - MissionHintList     → loading: h-28 skeleton
+
+/player/[id] (PlayerContent.tsx):
+  - BuyModal            → loading: () => null
+  - SellModal           → loading: () => null
+  - OfferModal          → loading: () => null
+
+═══════════════════════════════════════════════════════════════════
+EXPECTED IMPACT
+═══════════════════════════════════════════════════════════════════
+
+Pre-Fix Baseline (aus Slice 109 Proof):
+  /home CLS:  0.14 (post-Slice-109)
+  /market CLS: 0.11 (post-Slice-107)
+
+Target Post-Fix:
+  /home CLS:  < 0.10 (Google "Good" threshold)
+  /market CLS: < 0.05 (nur MissionHintList inline)
+
+Fix-Logik:
+  - Vorher: dynamic() ohne loading → height=0 bis mount → full content pops in → CLS spike
+  - Nachher: loading={h-X skeleton} → reserviert korrekte Höhe → mount swappt ohne Shift
+
+═══════════════════════════════════════════════════════════════════
+POST-DEPLOY MEASUREMENT (next session oder paralleles Terminal)
+═══════════════════════════════════════════════════════════════════
+
+Chrome DevTools MCP Trace (wenn Browser-Profil frei):
+  1. new_page url=bescout.net
+  2. Login jarvis-qa
+  3. emulate 393x852 Slow4G cpuThrottle=4
+  4. navigate /home
+  5. performance_start_trace reload=true autoStop=true
+  6. performance_analyze_insight "CLSCulprits"
+
+Target: CLS < 0.1, zero shifts in Top-3.
+
+Falls > 0.1: Phase 2 (Image-Dims + Conditional-Render-Refactor).

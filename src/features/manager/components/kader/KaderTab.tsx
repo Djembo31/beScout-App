@@ -13,7 +13,11 @@ import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage
 import { useHoldingLocks } from '@/lib/queries/events';
 import { useManagerStore } from '@/features/manager/store/managerStore';
 import dynamic from 'next/dynamic';
-const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
+// Slice 116 CLS-Fix: Skeleton mit fixed-height.
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
 import { DEFAULT_SORT } from './kaderHelpers';
 import type { KaderLens } from './kaderHelpers';
 import { KaderPlayerRow } from './KaderPlayerRow';

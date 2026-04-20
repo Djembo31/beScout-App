@@ -13,7 +13,11 @@ import {
 } from 'lucide-react';
 import { Card, Button, ErrorState, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import dynamic from 'next/dynamic';
-const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
+// Slice 116 CLS-Fix: fixed-height Skeleton um Layout-Shift beim Mount zu vermeiden.
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
 import { PlayerIdentity } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';

@@ -21,12 +21,20 @@ import dynamic from 'next/dynamic';
 import { useCommunityData, useCommunityActions } from '@/components/community/hooks';
 import type { CommunityState, CommunityAction } from '@/components/community/hooks';
 
-const CreatePostModal = dynamic(() => import('@/components/community/CreatePostModal'), { ssr: false });
-const CreateResearchModal = dynamic(() => import('@/components/community/CreateResearchModal'), { ssr: false });
-const CreateBountyModal = dynamic(() => import('@/components/community/CreateBountyModal'), { ssr: false });
-const FollowListModal = dynamic(() => import('@/components/profile/FollowListModal'), { ssr: false });
-const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
+// Slice 116 CLS-Fix: Modals (fixed position) brauchen keine Layout-Skeleton. Inline
+// Components (SponsorBanner, MissionHintList) brauchen fixed-height Skeleton.
+const CreatePostModal = dynamic(() => import('@/components/community/CreatePostModal'), { ssr: false, loading: () => null });
+const CreateResearchModal = dynamic(() => import('@/components/community/CreateResearchModal'), { ssr: false, loading: () => null });
+const CreateBountyModal = dynamic(() => import('@/components/community/CreateBountyModal'), { ssr: false, loading: () => null });
+const FollowListModal = dynamic(() => import('@/components/profile/FollowListModal'), { ssr: false, loading: () => null });
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
+  ssr: false,
+  loading: () => <div className="h-28 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
 
 // ============================================
 // State Reducer

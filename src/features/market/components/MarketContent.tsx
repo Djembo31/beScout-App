@@ -26,11 +26,16 @@ import PortfolioTab from './portfolio/PortfolioTab';
 import MarktplatzTab from './marktplatz/MarktplatzTab';
 import { resolveBuyPriceCents } from './marketContent.priceCents';
 
-const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false });
-const BuyConfirmModal = dynamic(() => import('./shared/BuyConfirmModal'), { ssr: false });
+// Slice 116 CLS-Fix: Modals haben position:fixed → keine Layout-Shift. MissionHintList ist
+// inline und braucht Skeleton mit fixed-height um CLS zu verhindern.
+const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false, loading: () => null });
+const BuyConfirmModal = dynamic(() => import('./shared/BuyConfirmModal'), { ssr: false, loading: () => null });
 // BuyOrderModal aus Beta entfernt (AR-11) — lazy-Import bleibt gestrichen.
 // Wenn Matching-Engine live ist: `FEATURE_BUY_ORDERS = true` + hier re-adden.
-const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
+  ssr: false,
+  loading: () => <div className="h-28 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
+});
 
 // ── Tab config ──
 const TAB_IDS: MarketTab[] = ['portfolio', 'marktplatz'];
