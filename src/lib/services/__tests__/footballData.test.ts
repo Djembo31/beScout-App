@@ -40,19 +40,14 @@ describe('getMappingStatus', () => {
     expect(result.fixturesMapped).toBe(2); // 2 with api_fixture_id
   });
 
-  it('handles all queries failing', async () => {
-    mockTable('clubs', null, { message: 'err' });
-    mockTable('club_external_ids', null, { message: 'err' });
-    mockTable('players', null, { message: 'err' });
-    mockTable('player_external_ids', null, { message: 'err' });
-    mockTable('fixtures', null, { message: 'err' });
+  it('throws when a query fails (Slice 087: no silent data-liar)', async () => {
+    mockTable('clubs', null, { message: 'clubs-err' });
+    mockTable('club_external_ids', [{ club_id: 'c1' }]);
+    mockTable('players', null, null, 3);
+    mockTable('player_external_ids', [{ player_id: 'p1' }]);
+    mockTable('fixtures', [{ id: 'f1', api_fixture_id: 123 }]);
 
-    const result = await getMappingStatus();
-    expect(result).toEqual({
-      clubsTotal: 0, clubsMapped: 0,
-      playersTotal: 0, playersMapped: 0,
-      fixturesTotal: 0, fixturesMapped: 0,
-    });
+    await expect(getMappingStatus()).rejects.toThrow(/query failed/);
   });
 
   it('handles empty data', async () => {

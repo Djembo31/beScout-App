@@ -1242,14 +1242,26 @@ async function syncLeague(
       // Scoped per-league via player_id IN leaguePlayerIds
       // Get all player IDs for this league first
       // Slice 086: explicit error-destructure (no silent-fail) + chunked .in() for player_id (can be 500-2000 UUIDs → PostgREST URL-overflow)
-      const { data: leaguePlayers, error: leaguePlayersError } = await supabaseAdmin
-        .from('players')
-        .select('id')
-        .in('club_id', allLeagueClubIds);
-      if (leaguePlayersError) {
-        throw new Error(`leaguePlayers query failed: ${leaguePlayersError.message}`);
+      // Slice 087: upstream .range()-loop eliminates silent 1000-row-cap for players-per-league (heute 500-750, safety for growth + multi-liga)
+      const leaguePlayerIds: string[] = [];
+      {
+        const PAGE = 1000;
+        let offset = 0;
+        while (true) {
+          const { data, error } = await supabaseAdmin
+            .from('players')
+            .select('id')
+            .in('club_id', allLeagueClubIds)
+            .range(offset, offset + PAGE - 1);
+          if (error) {
+            throw new Error(`leaguePlayers query failed (offset=${offset}): ${error.message}`);
+          }
+          if (!data || data.length === 0) break;
+          for (const p of data) leaguePlayerIds.push(p.id as string);
+          if (data.length < PAGE) break;
+          offset += PAGE;
+        }
       }
-      const leaguePlayerIds = (leaguePlayers ?? []).map((p) => p.id as string);
 
       let gwScoreCount = 0;
       if (leaguePlayerIds.length > 0) {

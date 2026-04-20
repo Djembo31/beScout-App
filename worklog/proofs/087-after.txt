@@ -1,0 +1,58 @@
+Slice 087 — Upstream Silent-Fail Follow-Ups — Proof
+=====================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+
+## Changes Summary
+
+### 1. src/app/api/cron/gameweek-sync/route.ts (lines 1244-1264, +15 lines)
+Previously the upstream loader for leaguePlayerIds ran a single `.in('club_id', allLeagueClubIds)` without .range() — silent 1000-row-cap if players-per-league ever exceeds 1000.
+Now wrapped in .range()-while-loop (PAGE=1000, offset increment, explicit error-throw per page).
+
+### 2. src/lib/services/footballData.ts (lines 371-389, +8 lines)
+Previously `Promise.allSettled` + `.status === 'fulfilled' ? … : []` silently turned rejected promises into empty arrays → Admin Dashboard shows "0/0 mapped" on DB failure without surfacing the error.
+Now `Promise.all` + explicit `.error` checks per query — rejected propagates, caller AdminSettingsTab.tsx has try/catch which logs.
+
+### 3. src/lib/services/__tests__/footballData.test.ts (-5/+5 lines)
+Updated test "handles all queries failing" to "throws when a query fails (Slice 087)" — mirrors new throw-semantics.
+
+## Verification Results
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS (clean) |
+| `npx vitest run footballData.test.ts` | 7/7 passed (2.52s) |
+| Silent-Fail-Audit total | 211 (unchanged from 086-baseline — see note) |
+| Silent-Fail-Audit HIGH | 111 (unchanged from 086-baseline — see note) |
+| footballData.ts:371 (allSettled) in audit? | NO (gone, replaced with Promise.all) |
+| footballData.ts residual findings | 1 (Line 124, unrelated syncTeamMapping .select() — separate slice) |
+| gameweek-sync:1247 (original upstream) in audit? | NO (code moved to .range()-loop) |
+| gameweek-sync:1254 still flagged? | YES — false-positive (`.in()` on line, `.range()` on next line; regex-audit doesn't look multi-line) |
+| Money-Invariant (Scoring-Logik unverändert) | YES (only loader + error mechanic, RPC untouched) |
+
+## Silent-Fail-Audit Precision Limitation (documented)
+
+The audit regex matches `.in('col', ...)` independently per line. After 087's fix, gameweek-sync:1254 has `.in('club_id', allLeagueClubIds)` on its own line with `.range(offset, offset + PAGE - 1)` on the line below. The audit counts this as HIGH even though the pattern is the correct fix.
+
+Net: Slice 087 actually eliminated 2 real silent-fails (1 in gameweek-sync, 1 in footballData allSettled) but the audit count shows no improvement due to regex-per-line + Promise.allSettled not being one of the 6 tracked patterns. Better audit precision is a future /optimize iteration (separate slice).
+
+## Files Modified
+- src/app/api/cron/gameweek-sync/route.ts (+26 / -11 = +15 net)
+- src/lib/services/footballData.ts (+13 / -5 = +8 net)
+- src/lib/services/__tests__/footballData.test.ts (+5 / -10 = -5 net)
+
+## Diff Stat
+```
+ src/app/api/cron/gameweek-sync/route.ts         | 26 ++++++++++++++++++-------
+ src/lib/services/__tests__/footballData.test.ts | 19 +++++++-----------
+ src/lib/services/footballData.ts                | 20 ++++++++++++-------
+ 3 files changed, 39 insertions(+), 26 deletions(-)
+```
+
+## Spec Reference
+- worklog/specs/087-upstream-silent-fail-followups.md
+
+## Scope-Out (documented)
+- Audit-script precision (multi-line .range() awareness) — `/optimize` iteration, separate slice
+- Sentry-integration for residual silent-rejects — separate slice (handoff-option 3)
+- Other .in() calls in gameweek-sync (Line 241, 482, 521, 599, 712, 1278, 1294, etc.) — they all use `allLeagueClubIds` which today ~140 clubs = safely under 1000. Monitor with INV-growth-check rather than bulk refactor.

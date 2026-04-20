@@ -368,19 +368,25 @@ export async function getMappingStatus(): Promise<MappingStatus> {
     return { data: allRows };
   })();
 
-  const [clubsRes, clubExtIdsRes, playersCountRes, playerExtIdsRes, fixturesRes] = await Promise.allSettled([
+  // Slice 087: Promise.all (not allSettled) + explicit .error checks — rejected propagates.
+  // Prevents "0/0 mapped" data-liar when a DB query fails (silent-rejected in allSettled + null .error in per-query result).
+  const [clubsRes, clubExtIdsRes, playersCountRes, playerExtIdsRes, fixturesRes] = await Promise.all([
     supabase.from('clubs').select('id'),
     supabase.from('club_external_ids').select('club_id').eq('source', 'api_football'),
     supabase.from('players').select('id', { count: 'exact', head: true }),
     supabase.from('player_external_ids').select('player_id').eq('source', 'api_football_squad'),
     fixturesPaginated,
   ]);
+  if (clubsRes.error) throw new Error(`clubs query failed: ${clubsRes.error.message}`);
+  if (clubExtIdsRes.error) throw new Error(`club_external_ids query failed: ${clubExtIdsRes.error.message}`);
+  if (playersCountRes.error) throw new Error(`players count query failed: ${playersCountRes.error.message}`);
+  if (playerExtIdsRes.error) throw new Error(`player_external_ids query failed: ${playerExtIdsRes.error.message}`);
 
-  const clubs = clubsRes.status === 'fulfilled' ? clubsRes.value.data ?? [] : [];
-  const clubExtIds = clubExtIdsRes.status === 'fulfilled' ? clubExtIdsRes.value.data ?? [] : [];
-  const playersTotal = playersCountRes.status === 'fulfilled' ? playersCountRes.value.count ?? 0 : 0;
-  const playerExtIds = playerExtIdsRes.status === 'fulfilled' ? playerExtIdsRes.value.data ?? [] : [];
-  const fixtures = fixturesRes.status === 'fulfilled' ? fixturesRes.value.data ?? [] : [];
+  const clubs = clubsRes.data ?? [];
+  const clubExtIds = clubExtIdsRes.data ?? [];
+  const playersTotal = playersCountRes.count ?? 0;
+  const playerExtIds = playerExtIdsRes.data ?? [];
+  const fixtures = fixturesRes.data ?? [];
 
   return {
     clubsTotal: clubs.length,

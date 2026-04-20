@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 087 | 2026-04-22 | Upstream Silent-Fail Follow-Ups (Slice 086 Scope-Outs)
+- Stage-Chain: SPEC → IMPACT (inline, Caller-grep verifiziert) → BUILD → PROVE → LOG
+- Files: 3 (gameweek-sync/route.ts +15, footballData.ts +8, footballData.test.ts -5)
+- Scope:
+  - **gameweek-sync/route.ts:1244-1264** (Claude solo, Money-adjacent): upstream `.in('club_id')` Loader in `.range()`-while-loop eingebettet → silent 1000-row-cap bei players-per-league-growth eliminiert
+  - **footballData.ts:371-389** (Claude solo): `Promise.allSettled` → `Promise.all` + explizite `.error` checks → silent rejected → "0/0 mapped" data-liar eliminiert
+  - **footballData.test.ts:43-51**: Test "handles all queries failing" → "throws when a query fails" (neue throw-Semantik)
+- Proof: `worklog/proofs/087-after.txt`
+- Verification:
+  - tsc clean
+  - 7/7 footballData tests
+  - Silent-Fail-Audit Re-Scan: 211 total / 111 HIGH (unchanged — audit precision limitation für `.in()` + next-line `.range()`, Promise.allSettled nicht in 6 tracked patterns)
+  - AdminSettingsTab.tsx:45 Caller hat try/catch → throw safe
+- Notes:
+  - Reviewer-Scope-Outs aus Slice 086 komplett geschlossen
+  - Silent-Fail-Audit-Precision als separate `/optimize`-Iteration dokumentiert (multi-line `.range()` awareness + Promise.allSettled pattern)
+  - Gleiche Session: common-errors.md Refactor (530→327 Zeilen, 8 Domain-Blöcke, Commit 891c08ba)
+
+---
+
 ## 086 | 2026-04-21 | P0 Silent-Fail Fixes (gameweek-sync + footballData) via Parallel-Hybrid
 - Stage-Chain: SPEC → IMPACT (inline, 2-file targeted) → BUILD → PROVE → LOG
 - Commits: TBD (user entscheidet)
