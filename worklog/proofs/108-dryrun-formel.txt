@@ -1,0 +1,42 @@
+Slice 108 — Formel Dry-Run gegen Live-DB
+Date: 2026-04-20 21:15
+Query: Simulate fee_per_dpc calculation without actual liquidation
+
+SELECT against real DB expression-tree:
+  GREATEST((mv_eur::BIGINT / 10), 0) AS fee_per_dpc_cents
+
+Test Cases:
+
+| market_value_eur | fee_per_dpc_cents | fee_$SCOUT | fee_EUR | assertion           |
+|------------------|-------------------|------------|---------|---------------------|
+|             -100 |                 0 |       0.00 |    0.00 | OK (negative guard) |
+|                0 |                 0 |       0.00 |    0.00 | OK (no payout)      |
+|          100.000 |            10.000 |     100.00 |    1.00 | OK                  |
+|        1.000.000 |           100.000 |   1.000.00 |   10.00 | OK (Bekir)          |
+|        5.000.000 |           500.000 |   5.000.00 |   50.00 | OK (5× growth)      |
+|       50.000.000 |         5.000.000 |  50.000.00 |  500.00 | OK                  |
+|      100.000.000 |        10.000.000 | 100.000.00 | 1.000.00| OK (at cap-upper)   |
+
+Formel-Sanity (im Beispiel mit 1 Mio € → 5 Mio € Liquidation, 800 verkaufte Cards):
+
+IPO (bei MV 1M€):
+  ipo_price = 100.000 cents = 1.000 $SCOUT = 10 € pro Card
+  800 × 10 € = 8.000 € Gesamterlös
+  Fee-Split 85/10/5:
+    Club:     6.800 €
+    Platform:   800 €
+    PBT:        400 €
+
+Liquidation (bei Transfer 5M€):
+  v_fee_per_dpc = 500.000 cents (= 5.000 $SCOUT = 50 €)
+  v_total_sf_pool = 500.000 × 800 = 400.000.000 cents = 4.000.000 $SCOUT = 40.000 €
+  Pro Holder (falls qty=1, kein Mastery-Bonus):
+    payout ≈ 500.000 cents = 5.000 $SCOUT = 50 €
+    ROI: 50 € / 10 € Einsatz = 5× = matcht MV-Growth ✓
+  800 Holder gemeinsam: 40.000 € Payout (excl PBT)
+
+Community-Anteil bei 10.000 Cards ausgegeben (Max):
+  v_total_sf_pool = 500.000 × 10.000 = 5.000.000.000 cents = 50 Mio $SCOUT = 500.000 €
+  = 10% von 5.000.000 € MV → 10%-Anchor automatisch erfüllt ✓
+
+Formel-Verifikation: linear, MV-proportional, Cap wird vor Formel-Output via LEAST() angewendet.

@@ -9,7 +9,7 @@ impact: —
 proof: —
 ```
 
-## Session 2026-04-20 Progress (7 Slices)
+## Session 2026-04-20 Progress (8 Slices)
 
 | Slice | Title | Result |
 |-------|-------|--------|
@@ -20,6 +20,7 @@ proof: —
 | 105 | TFF1 Nationality Scrape | ✅ 33/34 scraped, 6 Ligen >99.6%, TFF1 87.7% |
 | 106 | Stadium Image Compression | ✅ 2 Monster-Files 127MB → 1.4MB (-98.9%) |
 | 107 | Data-Waterfall Fixes (parallele Session) | ✅ Duplicate-Calls + N+1 Fixes (`5e453aac`) |
+| 108 | liquidate_player Linear Formula (CEO MONEY-Fix) | ✅ RPC + Frontend + 23 Tests, deployed live, 6/6 invariants PASS |
 
 ## Global Coverage (nach allen Slices)
 

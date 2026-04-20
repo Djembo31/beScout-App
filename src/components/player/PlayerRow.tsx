@@ -86,29 +86,56 @@ export function getContractInfo(monthsLeft: number) {
 }
 
 // ============================================
-// SUCCESS FEE HELPER (Shared)
+// SUCCESS FEE HELPER (Shared) — Slice 108 Linear Formula
 // ============================================
+//
+// CEO Pricing-Asset-Model (Anil 2026-04-20, Sivasspor-DB-verifiziert):
+//   fee_per_card_cents = MV_EUR / 10
+//   1 Mio € MV → 100.000 cents = 1.000 $SCOUT = 10 €/Card (Bekir-Baseline)
+//   Bei voll 10.000 Cards ergibt sich automatisch 10% Community-Pool
+//
+// RPC-SYNC: MUSS mit liquidate_player SQL-Migration 20260420210000 matchen.
+// Siehe worklog/specs/108-liquidate-player-linear-formula.md
 
 export type SuccessFeeTier = { minValue: number; maxValue: number; fee: number; label: string };
 
-// Fee per DPC (in cents) scales with market value so that
-// 10x market-value growth ≈ 10x reward on IPO price.
-// Formula: fee ≈ representative_market_value / 10  (same ratio as IPO pricing)
-export const SUCCESS_FEE_TIERS: SuccessFeeTier[] = [
-  { minValue: 0, maxValue: 100000, fee: 5000, label: '< 100K' },
-  { minValue: 100000, maxValue: 300000, fee: 20000, label: '100K-300K' },
-  { minValue: 300000, maxValue: 500000, fee: 40000, label: '300K-500K' },
-  { minValue: 500000, maxValue: 1000000, fee: 75000, label: '500K-1M' },
-  { minValue: 1000000, maxValue: 2000000, fee: 150000, label: '1M-2M' },
-  { minValue: 2000000, maxValue: 5000000, fee: 350000, label: '2M-5M' },
-  { minValue: 5000000, maxValue: 10000000, fee: 750000, label: '5M-10M' },
-  { minValue: 10000000, maxValue: 20000000, fee: 1500000, label: '10M-20M' },
-  { minValue: 20000000, maxValue: 50000000, fee: 3500000, label: '20M-50M' },
-  { minValue: 50000000, maxValue: Infinity, fee: 7500000, label: '> 50M' },
+/**
+ * Lineare CEO-Formel: Payout pro Card in cents = MV_EUR / 10.
+ * Matched `liquidate_player` RPC exakt.
+ */
+export const calcSuccessFee = (marketValueEur: number): number => {
+  if (!Number.isFinite(marketValueEur) || marketValueEur <= 0) return 0;
+  return Math.floor(marketValueEur / 10);
+};
+
+// Bucket-Definition für Ladder-UI (RewardsTab). Fees werden dynamisch aus calcSuccessFee(minValue) abgeleitet.
+const SUCCESS_FEE_BUCKETS: ReadonlyArray<Omit<SuccessFeeTier, 'fee'>> = [
+  { minValue: 0, maxValue: 100_000, label: '< 100K' },
+  { minValue: 100_000, maxValue: 300_000, label: '100K-300K' },
+  { minValue: 300_000, maxValue: 500_000, label: '300K-500K' },
+  { minValue: 500_000, maxValue: 1_000_000, label: '500K-1M' },
+  { minValue: 1_000_000, maxValue: 2_000_000, label: '1M-2M' },
+  { minValue: 2_000_000, maxValue: 5_000_000, label: '2M-5M' },
+  { minValue: 5_000_000, maxValue: 10_000_000, label: '5M-10M' },
+  { minValue: 10_000_000, maxValue: 20_000_000, label: '10M-20M' },
+  { minValue: 20_000_000, maxValue: 50_000_000, label: '20M-50M' },
+  { minValue: 50_000_000, maxValue: Infinity, label: '> 50M' },
 ];
 
-export const getSuccessFeeTier = (marketValue: number): SuccessFeeTier =>
-  SUCCESS_FEE_TIERS.find(t => marketValue >= t.minValue && marketValue < t.maxValue) || SUCCESS_FEE_TIERS[0];
+// Ladder-Array für UI — fee am Bucket-Einstieg (Milestone-Visualization).
+export const SUCCESS_FEE_TIERS: SuccessFeeTier[] = SUCCESS_FEE_BUCKETS.map(b => ({
+  ...b,
+  fee: calcSuccessFee(b.minValue),
+}));
+
+/**
+ * Für gegebenen MV: Bucket-Metadaten + echte lineare Fee für diesen MV.
+ * Admin-UI Liquidation-Preview nutzt das → zeigt exakten RPC-Payout an.
+ */
+export const getSuccessFeeTier = (marketValue: number): SuccessFeeTier => {
+  const bucket = SUCCESS_FEE_BUCKETS.find(b => marketValue >= b.minValue && marketValue < b.maxValue) ?? SUCCESS_FEE_BUCKETS[0];
+  return { ...bucket, fee: calcSuccessFee(marketValue) };
+};
 
 
 // ════════════════════════════════════════════

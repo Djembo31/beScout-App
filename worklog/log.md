@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 108 | 2026-04-20 | liquidate_player Linear Formula (CEO MONEY-Fix)
+- Stage-Chain: SPEC → IMPACT (inline in spec) → BUILD → PROVE → LOG
+- Approval: Anil CEO 2026-04-20 "Option C, cap berücksichtigen" — nach 4-Iterationen Pricing-Asset-Model-Klärung
+- Kontext: Audit deckte systematischen Drift zwischen CEO-Regel und Live-RPC auf. Tier-Table zahlte ~1,5× über linearer Formel. 0 Liquidation_Events existiert → freier Fix-Weg ohne User-Erwartungsbruch.
+- Files: 8 (1 Migration + 1 Frontend Edit + 1 Test Edit + 1 Spec + 3 Proofs + 2 Memory/Rules)
+- Scope:
+  - **Root-Cause**: `liquidate_player` nutzte 10-stufige Tier-Table (50M€→7.5M cents, 1M€→150k cents, ...) statt CEO-Regel `fee_per_dpc = MV_EUR / 10`. Frontend `SUCCESS_FEE_TIERS` spiegelte die Tier-Table, war in-sync mit RPC aber falsch gegenüber CEO-Modell.
+  - **Migration 20260420210000**: `CREATE OR REPLACE FUNCTION liquidate_player` — Tier-CASE durch `v_fee_per_dpc := GREATEST((v_transfer_value::BIGINT / 10), 0)` ersetzt. Cap (`LEAST(fee, success_fee_cap_cents)`) bleibt. Mastery-Bonus 1-5 + CSF-Multiplier, kombiniert cap 1,15× bleibt. PBT-Treasury-Distribution bleibt. Two-Pass-Weighted-Distribution bleibt. Return-Object enthält neu `formula_version: 'linear_v2_2026_04_20'`.
+  - **Frontend `src/components/player/PlayerRow.tsx`**: Export `calcSuccessFee(mvEur)` = `Math.floor(mv/10)` mit Guard für NaN/Infinity/≤0. `SUCCESS_FEE_TIERS` Array dynamisch aus `calcSuccessFee(bucket.minValue)` generiert (Ladder-UI Kompat). `getSuccessFeeTier(mv)` returns bucket-meta + `fee = calcSuccessFee(mv)` → Admin-UI zeigt exakten RPC-Payout.
+  - **Tests**: +15 neue Vitest-Cases (calcSuccessFee: 8 cases inkl. NaN/Infinity/negative/Bekir-Baseline/5×growth/floor; getSuccessFeeTier: 5 cases + 2 invariants: ladder fees monotonic, ladder fees === calcSuccessFee(minValue) → zero-drift garanty).
+- PROVE:
+  - **Live-RPC Body Invariants** (6/6 PASS): has_linear_formula, tier_table_removed, auth_guard_present, cap_applied, mastery_cap_preserved, version_tag_set → `worklog/proofs/108-rpc-body-after.txt`
+  - **Formula Dry-Run** (7/7 PASS): MV -100€/0/100K/1M/5M/50M/100M → alle Expected Values matchen → `worklog/proofs/108-dryrun-formel.txt`
+  - **Unit Tests**: 23/23 PASS (`npx vitest run src/components/player/__tests__/PlayerRow.test.tsx`) → `worklog/proofs/108-tests.txt`
+  - **tsc --noEmit**: clean
+- **CEO Pricing-Asset-Model dokumentiert**:
+  - `memory/decision_pricing_asset_model.md` (Sivasspor-verified: Bekir 1M€→1000 $SCOUT/Card, Manaj 2.2M€→2500 $SCOUT/Card)
+  - `memory/MEMORY.md` Index aktualisiert
+  - `.claude/rules/trading.md` Pricing-Formel inline als Pre-Edit-Reference
+- **Remaining audit findings (Scope-Out für spätere Slices):**
+  - `scripts/import-league.mjs:215` + `scripts/enrich-from-transfermarkt.mjs:400`: Flat `ipo_price: 10000` defaults → Multi-League-Import Formel-aware machen (Slice 109 o.ä.)
+  - `src/lib/services/players.ts:218`: `createPlayer()` default `ipoPrice = 500 cents` → Formel ableiten
+  - `supabase/migrations/20260319_pricing_architecture.sql:42`: `reference_price = MV × 10` Trigger — Semantik klären/deprecaten (fast keine Consumer)
+  - `SUCCESS_FEE_CAP_CENTS` upper-bound 10M cents matcht jetzt exakt Formel-Output bei MV=100M€ — Design OK
+- Commit: pending
+- Notes: Wichtigste MONEY-Korrektur seit Pilot. 0 Liquidations bisher → freie Bahn. Nächster potenzieller Drift-Hotspot ist Initial-IPO-Price bei Player-Import (noch Flat-Defaults).
+
+---
+
 ## 107 | 2026-04-20 | Data-Waterfall Fixes (Duplicate-Calls + N+1)
 - Stage-Chain: SPEC → IMPACT (skipped — query-opt only) → BUILD → PROVE (before + after auf logged-in /home + /market) → LOG
 - Approval: Anil "b, dann c" — Data-Fixes autonom vor AuthProvider-Refactor

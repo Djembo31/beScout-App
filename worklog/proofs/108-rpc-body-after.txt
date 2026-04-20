@@ -1,0 +1,41 @@
+Slice 108 — liquidate_player RPC Live-Body AFTER Migration
+Date: 2026-04-20 21:15
+Project: skzjfhvgccaeplydsunz (BeScout Production)
+
+Extracted via: SELECT pg_get_functiondef(oid) FROM pg_proc WHERE proname='liquidate_player';
+
+Invariant-Check Results (6/6 PASS):
+- has_linear_formula: PASS (body contains "v_transfer_value::BIGINT / 10")
+- tier_table_removed: PASS (old CASE WHEN v_transfer_value >= 50000000 THEN 7500000 gone)
+- auth_guard_present: PASS (auth.uid() != p_admin_id → exception)
+- cap_applied: PASS (LEAST(v_fee_per_dpc, v_player.success_fee_cap_cents))
+- mastery_cap_preserved: PASS (LEAST(1.15, v_raw_multiplier))
+- version_tag_set: PASS (formula_version: linear_v2_2026_04_20)
+
+Formula Dry-Run (SELECT with same arithmetic as RPC):
+
+| MV (EUR)     | fee_cents  | fee $SCOUT | fee EUR | assertion           |
+|--------------|------------|------------|---------|---------------------|
+| -100         |          0 |    0.00    |    0.00 | OK (negative guard) |
+| 0            |          0 |    0.00    |    0.00 | OK (no payout)      |
+| 100.000      |     10.000 |  100.00    |    1.00 | OK                  |
+| 1.000.000    |    100.000 | 1.000.00   |   10.00 | OK (Bekir-Baseline) |
+| 5.000.000    |    500.000 | 5.000.00   |   50.00 | OK (5× growth)      |
+| 50.000.000   |  5.000.000 | 50.000.00  |  500.00 | OK                  |
+| 100.000.000  | 10.000.000 | 100.000.00 | 1.000.00| OK (at cap-upper)   |
+
+All 7 test cases match expected linear formula: fee_per_dpc_cents = max(0, MV_EUR / 10).
+
+Notes:
+- MV = 100M € produces fee = 10M cents = 100k $SCOUT → equals set_success_fee_cap upper bound.
+  For players with MV > 100M €, a cap MUST be explicitly set, otherwise the formula would exceed
+  the admin-settable cap range (but RPC still works, just without cap-LEAST clamping).
+
+Unchanged invariants (same as before Migration):
+- SECURITY DEFINER
+- Club-Admin-Check via club_admins FK
+- FOR UPDATE locks (players + holdings + pbt_treasury)
+- Mastery-Level 1-5 + CSF-Multiplier × 1.15 combined cap
+- Two-Pass Distribution (effective_qty-weighted)
+- PBT Treasury proportional distribution
+- Holdings DELETE + is_liquidated := TRUE at end

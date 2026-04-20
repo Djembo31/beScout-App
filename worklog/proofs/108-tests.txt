@@ -1,0 +1,39 @@
+Slice 108 — PlayerRow helper tests (calcSuccessFee + getSuccessFeeTier)
+Date: 2026-04-20 21:12
+
+$ npx vitest run src/components/player/__tests__/PlayerRow.test.tsx
+
+ RUN  v4.1.0 C:/bescout-app
+
+ Test Files  1 passed (1)
+      Tests  23 passed (23)
+   Start at  21:10:39
+   Duration  3.19s
+
+Test suites covered:
+- PlayerRow helpers > posColors (2 tests)
+- PlayerRow helpers > posTintColors (1 test)
+- PlayerRow helpers > getContractInfo (4 tests)
+- PlayerRow helpers > calcSuccessFee (CEO linear formula) (8 tests) — NEW in Slice 108
+  - returns 0 for MV 0
+  - returns 0 for negative MV
+  - returns 0 for NaN / Infinity
+  - 1M€ MV → 100.000 cents (Bekir-Baseline)
+  - 5M€ MV → 500.000 cents (5× growth)
+  - 50M€ MV → 5.000.000 cents (scales linearly)
+  - 100K€ MV → 10.000 cents
+  - floors fractional results
+- PlayerRow helpers > getSuccessFeeTier (8 tests)
+  - returns lowest tier for MV 0 with linear fee
+  - returns correct tier for 250K with exact linear fee
+  - returns highest tier for 100M with linear fee
+  - 1M€ falls into "1M-2M" tier with 100K cents fee
+  - has 10 buckets
+  - buckets are contiguous (no gaps)
+  - ladder fees (at bucket minValue) increase monotonically
+  - ladder fees match calcSuccessFee(minValue) — formula sync (NEW invariant)
+
+Key invariant tested: SUCCESS_FEE_TIERS[i].fee === calcSuccessFee(SUCCESS_FEE_TIERS[i].minValue)
+→ Ladder-UI values always match RPC-payout formula. Zero drift possibility.
+
+Full tsc --noEmit: clean (no errors).

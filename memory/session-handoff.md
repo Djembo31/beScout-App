@@ -1,13 +1,14 @@
-# Session Handoff (2026-04-20 20:52)
+# Session Handoff (2026-04-20 21:08)
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 2 Files
 ```
- M .claude/rules/trading.md
- M .claude/settings.local.json
  M memory/session-handoff.md
+?? worklog/specs/108-liquidate-player-linear-formula.md
 ```
 
 ## Session Commits: 10
+- 80f29f00 docs(slice-107): LOG — Proof-After (/market -58%, /home -25%)
+- 16ba4bc4 chore(session): trading.md pricing-model ergänzt + active.md idle nach Slice 107
 - 5e453aac feat(perf): Slice 107 — Data-Waterfall Fixes (Duplicate-Calls + N+1)
 - aff3aaa3 feat(data): Slice 105 + 106 — TFF1 Nationality + Stadium Compression
 - 8178a43e docs(slice-104): measure gated pages — /home LCP 5086ms, /market 3018ms (Auth + Data Waterfalls)
@@ -16,6 +17,4 @@
 - d4794684 feat(perf): Slice 104 — Perf-Foundation (next.config + template.tsx + lazy Root-Overlays)
 - ad7706f2 AUTO: pre-compact checkpoint 20260420-190208
 - c9b6b6cb AUTO: pre-compact checkpoint 20260420-185809
-- 1761562a AUTO: pre-compact checkpoint 20260420-185720
-- 41bb3945 feat(stadia): Slice 101 — Wikipedia Retry + 68 neue Stadion-Bilder
 
