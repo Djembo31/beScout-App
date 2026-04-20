@@ -1,0 +1,89 @@
+Slice 093 — CI-Gate silent-fail-audit Baseline — Proof
+========================================================
+Date: 2026-04-22
+Status: COMPLETE (merge-ready)
+
+## Changes Summary
+
+### 1. scripts/silent-fail-audit.ts (+35 lines)
+`--check` flag:
+- Ohne Baseline-File: schreibt initial + exit 0 (first-run grace)
+- Mit Baseline: vergleicht counts, exit 1 bei HIGH-increase, warn (non-blocking) bei MEDIUM-increase
+- Baseline-drop-hint wenn counts unter baseline liegen
+
+### 2. .audit-baseline.json (NEU)
+```json
+{
+  "total": 193,
+  "high": 98,
+  "medium": 95
+}
+```
+Baseline ist der Slice-092-Post-state. Soll bei jedem fixed-silent-fail runtergesetzt werden.
+
+### 3. package.json (+2 scripts)
+- `audit:silent-fail` → `npx tsx scripts/silent-fail-audit.ts` (report)
+- `audit:silent-fail:check` → `npx tsx scripts/silent-fail-audit.ts --check` (CI-gate)
+
+### 4. .github/workflows/ci.yml
+Step nach `npm run type-check` im lint-job: `npm run audit:silent-fail:check`
+PR schlägt fehl wenn HIGH-count gegen Baseline ansteigt.
+
+### 5. common-errors.md §1
+Baseline-Info + CI-Gate + Baseline-Update-Workflow dokumentiert.
+
+## Verification (lokal)
+
+### Normal run (baseline match)
+```
+$ npm run audit:silent-fail:check
+silent-fail-audit: scanning...
+scanned 1010 files, found 193 candidates (98 HIGH, 95 MEDIUM)
+[--check] baseline: 193 total, 98 HIGH, 95 MEDIUM
+✅ audit within baseline
+exit=0
+```
+
+### HIGH-increase (simulated baseline=50)
+```
+❌ HIGH increased: 98 > 50 (baseline)
+   Fix new findings or update .audit-baseline.json explicitly.
+exit=1
+```
+
+### MEDIUM-increase (simulated baseline=50, warn-only)
+```
+⚠ MEDIUM increased: 95 > 50 (soft, non-blocking)
+✅ audit within baseline
+exit=0
+```
+
+## Files Modified
+
+```
+ .audit-baseline.json (NEU)                        |  5 +++
+ .claude/rules/common-errors.md                    |  8 ++-
+ .github/workflows/ci.yml                          |  1 +
+ package.json                                      |  4 +-
+ scripts/silent-fail-audit.ts                      | 36 +++++++++++-
+ 5 files changed
+```
+
+## CI-Flow
+1. PR commit
+2. GitHub Actions `lint` job: `npm ci` → `lint` → `type-check` → `audit:silent-fail:check`
+3. HIGH-increase → exit 1 → PR red
+4. Dev muss entweder (a) neue silent-fails fixen ODER (b) baseline explicit updaten mit Begruendung im PR
+
+## Baseline-Update-Workflow
+- Silent-Fail gefixt → `npm run audit:silent-fail` → counts ansehen
+- Wenn gesunken: `.audit-baseline.json` updaten auf neue niedrigere counts → commit
+- Verhindert "baseline stays same forever, fixes don't lower bar"
+
+## Spec Reference
+- worklog/specs/093-audit-baseline-ci-gate.md
+
+## Scope-Out
+- Husky Pre-commit Hook — nicht installed
+- Slack-Notify bei HIGH-increase → separate Slice
+- Per-pattern Baseline (granular) → separate Slice

@@ -11,12 +11,13 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ## 1. Silent Fails (die stillsten Bugs)
 
-### Tool: `/silent-fail-audit` (Slice 085 + 090 v2 + 092)
-- `npx tsx scripts/silent-fail-audit.ts` → `worklog/audits/silent-fail-YYYY-MM-DD.md`
+### Tool: `/silent-fail-audit` (Slice 085 + 090 v2 + 092 + 093)
+- `npm run audit:silent-fail` → full report → `worklog/audits/silent-fail-YYYY-MM-DD.md`
+- `npm run audit:silent-fail:check` → CI-gate gegen `.audit-baseline.json` (HIGH-increase = exit 1, MEDIUM-increase = warn)
 - 8 Pattern: `.in()` unchecked · `.select()` unranged · silent catch · error-swallow · data-destructure ohne error · hart-coded script state-checks · `Promise.allSettled` ohne `logSilentRejects` · `.catch(() => fallback)` ohne `logSilentCatch`
-- Baseline Slice 092: 193 findings / 98 HIGH / HIGH-FP-Rate 0%
-- Cadence: wöchentlich + nach jedem `/impact` für Money/Data-Code
-- v2/092 Verbesserungen: multi-line-awareness (`.range()`/`.limit()`), allSettled + `.catch`-arrow-Regression-Guards, Skip `silent-fail-audit.ts` selbst
+- Baseline (Slice 092): 193 findings / 98 HIGH / 95 MEDIUM / HIGH-FP-Rate 0%
+- CI-Gate (Slice 093): GitHub Actions lint-job blockiert PR bei HIGH-Increase
+- Baseline-Update: nach Silent-Fail-Fix → `.audit-baseline.json` mit neuen niedrigeren Zahlen committen
 
 ### Silent-Catch ohne Observability (Slice 092)
 - `getClub(...).catch(() => null)` — rejected Promise wird silent auf null/[]/Set gemappt. Kein Log, kein Sentry-Event.

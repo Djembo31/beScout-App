@@ -9,24 +9,23 @@ impact: —
 proof: —
 ```
 
-## Letzte Slices: 087-092 (2026-04-22)
+## Letzte Slices: 087-093 (2026-04-22)
 
-### 092 — Silent-Catch Observability
-- `logSilentCatch` util + 3 Tests + 5 Integrationen (community × 3, gameweek-sync × 2)
-- Audit Pattern 8 NEU: `.catch(() => fallback)` regression-guard
-- 25 Sentry Call-Sites (war 20)
+### 093 — CI-Gate silent-fail-audit Baseline
+- `--check` flag + `.audit-baseline.json` (193/98/95) + npm scripts + CI step
+- HIGH-increase blockiert PR, MEDIUM-increase = warn
+- Proof: worklog/proofs/093-after.txt
 
+### 092 — Silent-Catch Observability (Pattern 8 + logSilentCatch)
 ### 091 — DB-Invariants INV-36/37/38 fix
 ### 090 — silent-fail-audit Precision v2
 ### 089 — allSettled Sweep (16 Stellen)
 ### 088 — Sentry Observability Util + Demo
 ### 087 — Upstream Silent-Fail Follow-Ups
 
-## Pre-Existing Failures (CEO-Scope, offen)
-- INV-10 (floor_price <= 3x ipo_price) — Money-Critical
-- INV-32 (RLS-Matrix) — Auth-Sicherheit
-- TURK-03, useMarketData.floorMap flaky
+## Pre-Existing Failures (CEO-Scope)
+- INV-10 (Money-Critical) · INV-32 (Auth-Security) · TURK-03 · useMarketData.floorMap
 
 ## Next (CTO autonom)
-- Slice 093: CI-Gate Audit-Baseline (fail PR on HIGH-increase)
 - Slice 094: Sentry Breadcrumbs für Supabase-Queries
+- (später) Slice 095: Sentry.setUser beim Login — GDPR-Grauzone, CEO-Scope-Klärung nötig

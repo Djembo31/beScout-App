@@ -156,7 +156,12 @@ function today(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+const BASELINE_PATH = join(ROOT, '.audit-baseline.json');
+
+type Baseline = { total: number; high: number; medium: number };
+
 async function main() {
+  const isCheckMode = process.argv.includes('--check');
   console.log('silent-fail-audit: scanning...');
   const all: Finding[] = [];
   let filesScanned = 0;
@@ -172,7 +177,35 @@ async function main() {
     }
   }
 
-  console.log(`scanned ${filesScanned} files, found ${all.length} candidates`);
+  const totalHighCheck = all.filter(f => f.severity === 'HIGH').length;
+  const totalMedCheck = all.filter(f => f.severity === 'MEDIUM').length;
+
+  console.log(`scanned ${filesScanned} files, found ${all.length} candidates (${totalHighCheck} HIGH, ${totalMedCheck} MEDIUM)`);
+
+  // --check mode (Slice 093): compare against baseline, exit 1 on HIGH-increase
+  if (isCheckMode) {
+    if (!existsSync(BASELINE_PATH)) {
+      const initial: Baseline = { total: all.length, high: totalHighCheck, medium: totalMedCheck };
+      writeFileSync(BASELINE_PATH, JSON.stringify(initial, null, 2) + '\n', 'utf-8');
+      console.log(`[--check] no baseline yet — wrote initial to ${BASELINE_PATH}`);
+      process.exit(0);
+    }
+    const baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf-8')) as Baseline;
+    console.log(`[--check] baseline: ${baseline.total} total, ${baseline.high} HIGH, ${baseline.medium} MEDIUM`);
+    if (totalHighCheck > baseline.high) {
+      console.error(`❌ HIGH increased: ${totalHighCheck} > ${baseline.high} (baseline)`);
+      console.error(`   Fix new findings or update ${BASELINE_PATH} explicitly.`);
+      process.exit(1);
+    }
+    if (totalMedCheck > baseline.medium) {
+      console.warn(`⚠ MEDIUM increased: ${totalMedCheck} > ${baseline.medium} (soft, non-blocking)`);
+    }
+    if (totalHighCheck < baseline.high || totalMedCheck < baseline.medium) {
+      console.log(`💡 counts dropped below baseline — consider updating ${BASELINE_PATH}`);
+    }
+    console.log(`✅ audit within baseline`);
+    process.exit(0);
+  }
 
   // Group by pattern
   const byPattern = all.reduce((acc, f) => {

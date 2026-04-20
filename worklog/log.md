@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 093 | 2026-04-22 | CI-Gate silent-fail-audit Baseline
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
+- Files: 5 (audit-script + baseline + package + CI + common-errors)
+- Scope:
+  - **`--check` flag** im Audit-Script: first-run-grace (writes initial), dann baseline-compare. HIGH-increase → exit 1, MEDIUM-increase → warn
+  - **`.audit-baseline.json` NEU**: `{total:193, high:98, medium:95}` — Slice-092-Post-state als Baseline
+  - **npm scripts**: `audit:silent-fail` + `audit:silent-fail:check`
+  - **CI ci.yml**: Step nach type-check im lint-job
+  - common-errors.md §1: CI-Gate + Baseline-Update-Workflow
+- Proof: `worklog/proofs/093-after.txt`
+- Verification (alle 3 Modi):
+  - Match-baseline: ✅ exit 0
+  - HIGH-increase (simulated baseline=50): ❌ exit 1
+  - MEDIUM-increase (simulated baseline=50): ⚠ exit 0 (warn-only)
+- Notes:
+  - Baseline-Update-Workflow bewusst explicit — verhindert "fixes don't lower bar"
+  - CI-Gate blockiert jetzt neue Silent-Fails im PR
+  - Husky Pre-commit Hook + Slack-Notify als separate Slices dokumentiert
+
+---
+
 ## 092 | 2026-04-22 | Silent-Catch Observability (logSilentCatch + Audit Pattern 8)
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE → LOG
 - Files: 6 (util + tests + 2 integrations + audit + common-errors)
