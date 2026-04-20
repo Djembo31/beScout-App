@@ -649,6 +649,27 @@ export type DbTrade = {
   executed_at: string;
 };
 
+// Slice 095: handle+is_own projection (no buyer_id/seller_id exposed).
+// Returned by RPC get_player_trade_history — prep für RLS tighten.
+export type PublicTrade = {
+  id: string;
+  player_id: string;
+  buy_order_id: string | null;
+  sell_order_id: string | null;
+  ipo_id: string | null;
+  price: number;
+  quantity: number;
+  platform_fee: number;
+  pbt_fee: number;
+  club_fee: number;
+  executed_at: string;
+  buyer_handle: string | null;
+  seller_handle: string | null;
+  is_buyer_own: boolean;
+  is_seller_own: boolean;
+  is_ipo_buy: boolean;
+};
+
 export type UserTradeWithPlayer = {
   id: string;
   player_id: string;

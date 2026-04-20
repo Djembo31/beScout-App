@@ -4,12 +4,12 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { DbTrade } from '@/types';
+import type { PublicTrade } from '@/types';
 
 interface TradingQuickStatsProps {
   floorPrice: number;
   bestBid: number | null;
-  trades: DbTrade[];
+  trades: PublicTrade[];
   holderCount: number;
 }
 

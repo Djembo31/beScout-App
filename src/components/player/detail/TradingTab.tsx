@@ -19,11 +19,11 @@ import YourPosition from './YourPosition';
 import OrderbookSummary from './OrderbookSummary';
 import ScoutConsensus from './ScoutConsensus';
 import RewardsTab from './RewardsTab';
-import type { Player, PublicOrder, DbTrade, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
+import type { Player, PublicOrder, PublicTrade, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
 
 interface TradingTabProps {
   player: Player;
-  trades: DbTrade[];
+  trades: PublicTrade[];
   allSellOrders: PublicOrder[];
   tradesLoading: boolean;
   profileMap: Record<string, { handle: string; display_name: string | null }>;
@@ -355,11 +355,12 @@ function TradingTabInner({
           ) : (
             <div className="space-y-1">
               {visibleTrades.map((trade) => {
-                const isIpoBuy = trade.ipo_id !== null || trade.seller_id === null;
-                const isBuyer = userId && trade.buyer_id === userId;
-                const isSeller = userId && trade.seller_id === userId;
-                const buyerHandle = profileMap[trade.buyer_id]?.handle;
-                const sellerHandle = trade.seller_id ? profileMap[trade.seller_id]?.handle : null;
+                // Slice 095: RPC-projected fields (handle + is_own) ersetzen buyer_id/seller_id.
+                const isIpoBuy = trade.is_ipo_buy;
+                const isBuyer = trade.is_buyer_own;
+                const isSeller = trade.is_seller_own;
+                const buyerHandle = trade.buyer_handle;
+                const sellerHandle = trade.seller_handle;
                 return (
                   <div key={trade.id} className={cn(
                     'px-3 py-2 rounded-lg text-sm',
@@ -384,7 +385,7 @@ function TradingTabInner({
                         ? <span className="text-green-500 font-bold">{t('you')}</span>
                         : buyerHandle
                           ? <Link href={`/profile/${buyerHandle}`} className="hover:text-gold transition-colors">@{buyerHandle}</Link>
-                          : <span>@{trade.buyer_id.slice(0, 8)}</span>
+                          : <span className="text-white/30">—</span>
                       }
                       <ArrowRight className="size-2.5 text-white/20" aria-hidden="true" />
                       {isIpoBuy
@@ -393,7 +394,7 @@ function TradingTabInner({
                           ? <span className="text-red-300 font-bold">{t('you')}</span>
                           : sellerHandle
                             ? <Link href={`/profile/${sellerHandle}`} className="hover:text-gold transition-colors">@{sellerHandle}</Link>
-                            : <span>@{trade.seller_id?.slice(0, 8)}</span>
+                            : <span className="text-white/30">—</span>
                       }
                     </div>
                   </div>

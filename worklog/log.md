@@ -30,18 +30,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
-## 095 | 2026-04-22 | INV-32 trades Tighten — DEFERRED (needs User-verification between deploy phases)
-- Status: **NOT EXECUTED** in dieser Session
-- Reason: Rollout braucht 2 Vercel-Deploys mit Verify-Gap (analog Slice 020/021 orders) — nicht safe-autonom
-- Consumer-Analyse dokumentiert:
-  - Own-user-filter (direct-RLS-OK): trading.getUserTrades, social.Smart-Money-Check
-  - Cross-User-public (need anonymized RPC): trading.getPlayerTrades, trading.getAllPriceHistories
-  - Admin-aggregate (need RPC oder admin-branch in RLS): club × 4, platformAdmin × 2
-- Proposed approach:
-  - Migration A: 2 SECURITY DEFINER RPCs (get_anonymized_trades_for_player, get_sparkline_trades) + Service-Migration
-  - Verify bescout.net green online
-  - Migration B: RLS tighten auf `auth.uid() IN (buyer_id, seller_id) OR is_admin`
-- Für nächste Session: User Present Required für Phase-Verify
+## 095 | 2026-04-22 | INV-32 trades Tighten — Phase 1 (RPCs + UI Migration)
+- Stage-Chain: SPEC → IMPACT → BUILD (Phase 1) → PROVE → LOG. **Phase 2 pending User-Verify**.
+- CEO-approved: Anil ("a nur trades")
+- Files: 10 (+2 neue RPCs via MCP, 1 neuer Type, 2 Services, 5 UI, 1 Hook, 1 Test)
+- Scope Phase 1:
+  - **2 SECURITY DEFINER RPCs**: get_player_trade_history (handle+is_own projection) + get_global_price_sparkline (anonymous feed)
+  - **Neuer Type `PublicTrade`** in types/index.ts — keine buyer_id/seller_id, stattdessen *_handle + is_*_own + is_ipo_buy
+  - **Service trading.ts**: getPlayerTrades + getAllPriceHistories → RPCs
+  - **UI**: TradingTab/YourPosition/PriceChart/TradingQuickStats/CommunityTab — PublicTrade statt DbTrade
+  - **Hook usePlayerDetailData**: profileMap-auto-populate-Effect entfernt (trades tragen jetzt handles direkt)
+  - **Tests TradingTab.test.tsx**: makeTrade-Wrapper auf PublicTrade-Shape (legacy buyer_id/seller_id override-support)
+- Proof: `worklog/proofs/095-phase1-after.txt`
+- Verification:
+  - tsc clean
+  - 202/202 tangierte Tests grün (src/components/player + trading service)
+  - audit baseline 193/98/95 unverändert
+- Phase 2 pending (User-Action):
+  - **User verifiziert bescout.net** nach Vercel-Deploy (Marktplatz sparklines + Player-Trading-Tab)
+  - **Design-Entscheidung**: club_admins need trade-access (club.ts:385/420/737/752) — Options A/B/C im Proof dokumentiert
+  - Apply Phase 2 migration: RLS tighten auf `trades_select_own_or_admin`
 
 ---
 

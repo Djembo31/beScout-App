@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
-import type { DbOrder, PublicOrder, UserTradeWithPlayer, Pos } from '@/types';
+import type { DbOrder, PublicOrder, PublicTrade, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
 
 // ============================================
@@ -309,17 +309,15 @@ export async function getSellOrders(playerId: string): Promise<PublicOrder[]> {
   return (data ?? []) as PublicOrder[];
 }
 
-/** Letzte Trades fuer einen Spieler (Preis-History) */
-export async function getPlayerTrades(playerId: string, limit = 20) {
-  const { data, error } = await supabase
-    .from('trades')
-    .select('id, player_id, buyer_id, seller_id, buy_order_id, sell_order_id, ipo_id, price, quantity, platform_fee, pbt_fee, club_fee, executed_at')
-    .eq('player_id', playerId)
-    .order('executed_at', { ascending: false })
-    .limit(limit);
+/** Letzte Trades fuer einen Spieler (Preis-History) — Slice 095: via RPC mit handle+is_own projection */
+export async function getPlayerTrades(playerId: string, limit = 20): Promise<PublicTrade[]> {
+  const { data, error } = await supabase.rpc('get_player_trade_history', {
+    p_player_id: playerId,
+    p_limit: limit,
+  });
 
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as PublicTrade[];
 }
 
 /** Letzte Trades eines Users (fuer Profil) */
@@ -397,13 +395,9 @@ export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
   }));
 }
 
-/** Bulk load recent trade prices for all players (for sparklines on market page) */
+/** Bulk load recent trade prices for all players (for sparklines on market page) — Slice 095: via RPC anon */
 export async function getAllPriceHistories(limit = 10): Promise<Map<string, number[]>> {
-  const { data, error } = await supabase
-    .from('trades')
-    .select('player_id, price, executed_at')
-    .order('executed_at', { ascending: false })
-    .limit(200);
+  const { data, error } = await supabase.rpc('get_global_price_sparkline', { p_limit: 200 });
 
   if (error) { logSupabaseError('[Trading] getAllPriceHistories', error); throw new Error(error.message); }
   if (!data) return new Map();

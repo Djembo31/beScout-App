@@ -1,0 +1,78 @@
+Slice 095 Phase 1 — INV-32 trades Tighten: RPCs + Service + UI Migration — Proof
+===================================================================================
+Date: 2026-04-22
+Status: PHASE 1 COMPLETE (Phase 2 RLS tighten pending User-Verify on bescout.net)
+
+## Changes Summary
+
+### 1. DB Migration (applied via MCP)
+Migration `slice_095_trade_projection_rpcs`:
+- `get_player_trade_history(p_player_id, p_limit)` — SECURITY DEFINER, handle+is_own projection
+- `get_global_price_sparkline(p_limit)` — SECURITY DEFINER, anonymous price feed
+- Beide mit REVOKE PUBLIC/anon + GRANT authenticated
+- LEAST(p_limit, 200/1000) bounds verhindern unbounded exports
+
+### 2. Type `PublicTrade` (src/types/index.ts)
+Neuer type parallel zu `DbTrade`:
+- Keine `buyer_id` / `seller_id` (raw exposure eliminiert)
+- Neu: `buyer_handle`, `seller_handle` (LEFT JOIN profiles)
+- Neu: `is_buyer_own`, `is_seller_own` (auth.uid() compare)
+- Neu: `is_ipo_buy` (computed: ipo_id NOT NULL OR seller_id IS NULL)
+
+### 3. Service Migration (src/lib/services/trading.ts)
+- `getPlayerTrades` → RPC `get_player_trade_history`, returns PublicTrade[]
+- `getAllPriceHistories` → RPC `get_global_price_sparkline`
+
+### 4. UI Migration
+- `TradingTab.tsx` — buyer_handle/seller_handle/is_buyer_own/is_seller_own statt buyer_id/seller_id lookup
+- `YourPosition.tsx` — filter auf is_buyer_own (userId nicht mehr nötig für filter-logic)
+- `PriceChart.tsx`, `TradingQuickStats.tsx`, `CommunityTab.tsx` — type `DbTrade[]` → `PublicTrade[]`
+- `usePlayerDetailData.ts` — profileMap-auto-populate-Effect entfernt (trades carrying handles now)
+
+### 5. Tests
+- `TradingTab.test.tsx` — makeTrade umgebaut auf PublicTrade shape mit legacy `buyer_id`/`seller_id` override-support
+- 202/202 affected Tests grün (src/components/player + src/lib/services/__tests__/trading)
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | PASS |
+| `npx vitest run src/components/player src/lib/services/__tests__/trading` | 202/202 passed |
+| `npm run audit:silent-fail:check` | PASS (193/98/95 unveraendert) |
+| `get_player_trade_history` callable | verified via apply_migration success |
+| `get_global_price_sparkline` callable | verified via apply_migration success |
+
+## Phase 2 Pending (nach User-Verify on bescout.net)
+
+**User-Action needed:**
+1. Warten bis Vercel build deployed (~3-5 min nach push)
+2. Verify auf bescout.net:
+   - Marktplatz (sparklines rendern)
+   - Player-Page Trading-Tab (trade list zeigt handles + "Du" flag korrekt)
+   - YourPosition zeigt P&L wenn own holdings
+3. Bei OK: apply Phase 2 migration (RLS tighten)
+
+**Phase 2 Scope:**
+- DROP policy `trades_select` (qual=true)
+- CREATE policy `trades_select_own_or_admin`: auth.uid() IN (buyer_id, seller_id) OR is_platform_admin
+- **Offen**: club_admins brauchen auch trade-access für ihre club-player (club.ts:385/420/737/752)
+  - Option A: zusätzliche RLS-branch mit club_admins JOIN (teuer per-row)
+  - Option B: club-queries auf SECURITY DEFINER RPCs migrieren
+  - Option C: RPC-Helper `is_club_admin_for_trade(player_id)` STABLE
+  - Decision needed vor Phase 2-apply
+
+## Files Modified
+```
+ src/app/(app)/player/[id]/PlayerContent.tsx          | trades prop type (auto)
+ src/components/player/detail/CommunityTab.tsx        | trades: PublicTrade[], is_ipo_buy filter
+ src/components/player/detail/PriceChart.tsx          | trades: PublicTrade[]
+ src/components/player/detail/TradingQuickStats.tsx   | trades: PublicTrade[]
+ src/components/player/detail/TradingTab.tsx          | handle+is_own render
+ src/components/player/detail/YourPosition.tsx        | is_buyer_own filter
+ src/components/player/detail/__tests__/TradingTab.test.tsx | PublicTrade shape + makeTrade wrapper
+ src/components/player/detail/hooks/usePlayerDetailData.ts | profileMap auto-load entfernt, trades: PublicTrade[]
+ src/lib/services/trading.ts                          | RPC calls + PublicTrade import
+ src/types/index.ts                                   | PublicTrade type
+ supabase/migrations (via MCP) slice_095_trade_projection_rpcs | 2 RPCs
+```

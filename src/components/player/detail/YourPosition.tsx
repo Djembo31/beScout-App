@@ -5,24 +5,25 @@ import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
-import type { DbTrade } from '@/types';
+import type { PublicTrade } from '@/types';
 
 interface YourPositionProps {
   holdingQty: number;
   floorPrice: number;
-  trades: DbTrade[];
+  trades: PublicTrade[];
   userId: string;
   mastery?: { level: number; xp: number } | null;
 }
 
 export default function YourPosition({
-  holdingQty, floorPrice, trades, userId, mastery,
+  holdingQty, floorPrice, trades, mastery,
 }: YourPositionProps) {
   const t = useTranslations('playerDetail');
   const totalValue = holdingQty * floorPrice;
 
+  // Slice 095: is_buyer_own kommt von RPC (auth.uid() = buyer_id), ersetzt userId-compare.
   const avgCost = useMemo(() => {
-    const buyTrades = trades.filter((tr) => tr.buyer_id === userId);
+    const buyTrades = trades.filter((tr) => tr.is_buyer_own);
     if (buyTrades.length === 0) return null;
     let totalCostCents = 0;
     let totalQty = 0;
@@ -32,7 +33,7 @@ export default function YourPosition({
     }
     if (totalQty === 0) return null;
     return centsToBsd(totalCostCents / totalQty);
-  }, [trades, userId]);
+  }, [trades]);
 
   const pnl = useMemo(() => {
     if (avgCost == null || avgCost <= 0) return null;

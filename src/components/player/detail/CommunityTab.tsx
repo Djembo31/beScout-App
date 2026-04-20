@@ -13,13 +13,13 @@ import ResearchCard from '@/components/community/ResearchCard';
 import { POST_CATEGORIES, formatTimeAgo } from '@/components/community/PostCard';
 import SentimentGauge from './SentimentGauge';
 import ScoutConsensus from './ScoutConsensus';
-import type { ResearchPostWithAuthor, PostWithAuthor, DbTrade } from '@/types';
+import type { ResearchPostWithAuthor, PostWithAuthor, PublicTrade } from '@/types';
 
 interface CommunityTabProps {
   playerResearch: ResearchPostWithAuthor[];
   playerPosts: PostWithAuthor[];
   myPostVotes: Map<string, number>;
-  trades: DbTrade[];
+  trades: PublicTrade[];
   userId?: string;
   playerId: string;
   playerName: string;
@@ -305,7 +305,7 @@ function CommunityTabInner({
             <h3 className="font-bold text-sm text-white/60">{t('communitySentiment')}</h3>
             <span className="text-[10px] text-white/30">{t('sentimentBasis', { count: recentTrades.length })}</span>
           </div>
-          <SentimentGauge buyCount={recentTrades.length} sellCount={recentTrades.filter(tr => tr.seller_id !== null).length} />
+          <SentimentGauge buyCount={recentTrades.length} sellCount={recentTrades.filter(tr => !tr.is_ipo_buy).length} />
         </Card>
       )}
 

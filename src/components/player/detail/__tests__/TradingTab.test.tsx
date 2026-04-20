@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import TradingTab from '../TradingTab';
-import type { Player, DbTrade, PublicOrder, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
+import type { Player, PublicTrade, PublicOrder, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
 
 // ============================================
 // Mocks — child components as stubs
@@ -99,12 +99,15 @@ const basePlayer = {
   topOwners: [],
 } as unknown as Player;
 
-function makeTrade(overrides: Partial<DbTrade> = {}, index = 0): DbTrade {
+// Slice 095: PublicTrade shape (handle+is_own projection, no buyer_id/seller_id).
+// makeTrade accepts legacy overrides `buyer_id`/`seller_id` and maps them to is_*_own
+// if they equal 'u1' (test default userId).
+type TradeOverrides = Partial<PublicTrade> & { buyer_id?: string; seller_id?: string | null };
+function makeTrade(overrides: TradeOverrides = {}, index = 0): PublicTrade {
+  const { buyer_id, seller_id, ...rest } = overrides;
   return {
     id: `t${index}`,
     player_id: 'p1',
-    buyer_id: 'u1',
-    seller_id: 'u2',
     buy_order_id: null,
     sell_order_id: null,
     ipo_id: null,
@@ -114,7 +117,12 @@ function makeTrade(overrides: Partial<DbTrade> = {}, index = 0): DbTrade {
     pbt_fee: 0,
     club_fee: 0,
     executed_at: new Date().toISOString(),
-    ...overrides,
+    buyer_handle: buyer_id ?? 'buyer-default',
+    seller_handle: seller_id === null ? null : (seller_id ?? 'seller-default'),
+    is_buyer_own: buyer_id === 'u1',
+    is_seller_own: seller_id === 'u1',
+    is_ipo_buy: seller_id === null,
+    ...rest,
   };
 }
 
@@ -198,7 +206,7 @@ const minimalSellOrder: PublicOrder = {
 
 const defaultProps = {
   player: basePlayer,
-  trades: [] as DbTrade[],
+  trades: [] as PublicTrade[],
   allSellOrders: [minimalSellOrder] as PublicOrder[],
   tradesLoading: false,
   profileMap: {} as Record<string, { handle: string; display_name: string | null }>,
@@ -328,13 +336,13 @@ describe('TradingTab', () => {
   });
 
   it('shows trade rows', () => {
-    const trades = [makeTrade({}, 0), makeTrade({}, 1)];
-    const profileMap = {
-      u1: { handle: 'buyer1', display_name: null },
-      u2: { handle: 'seller1', display_name: null },
-    };
+    // Slice 095: buyer_handle/seller_handle kommen direct vom RPC.
+    const trades = [
+      makeTrade({ buyer_handle: 'buyer1', seller_handle: 'seller1' }, 0),
+      makeTrade({ buyer_handle: 'buyer1', seller_handle: 'seller1' }, 1),
+    ];
     renderWithProviders(
-      <TradingTab {...defaultProps} trades={trades} profileMap={profileMap} />,
+      <TradingTab {...defaultProps} trades={trades} />,
     );
     // Each trade shows buyer and seller handle
     const buyerLinks = screen.getAllByText('@buyer1');
@@ -345,30 +353,26 @@ describe('TradingTab', () => {
 
   it('shows only 5 trades initially and expand button shows all', async () => {
     const user = userEvent.setup();
+    // Slice 095: PublicTrade.buyer_handle directly (no profileMap-lookup).
     const trades = Array.from({ length: 7 }, (_, i) =>
-      makeTrade({ id: `t${i}`, buyer_id: `buyer${i}`, seller_id: `seller${i}` }, i),
+      makeTrade({ buyer_handle: `buyer${i}`, seller_handle: `seller${i}` }, i),
     );
-    const profileMap: Record<string, { handle: string; display_name: string | null }> = {};
-    trades.forEach((t) => {
-      profileMap[t.buyer_id] = { handle: `bh${t.buyer_id}`, display_name: null };
-      if (t.seller_id) profileMap[t.seller_id] = { handle: `sh${t.seller_id}`, display_name: null };
-    });
 
     renderWithProviders(
-      <TradingTab {...defaultProps} trades={trades} profileMap={profileMap} />,
+      <TradingTab {...defaultProps} trades={trades} />,
     );
 
     // Initially shows 5 trades — buyer handles for trade 5 and 6 should not be visible
-    expect(screen.queryByText(`@bh${trades[5].buyer_id}`)).not.toBeInTheDocument();
-    expect(screen.queryByText(`@bh${trades[6].buyer_id}`)).not.toBeInTheDocument();
+    expect(screen.queryByText('@buyer5')).not.toBeInTheDocument();
+    expect(screen.queryByText('@buyer6')).not.toBeInTheDocument();
 
     // Click expand button (showAllTrades key is returned by mocked t())
     const expandBtn = screen.getByRole('button', { name: /showAllTrades/i });
     await user.click(expandBtn);
 
     // Now all 7 trades visible
-    expect(screen.getByText(`@bh${trades[5].buyer_id}`)).toBeInTheDocument();
-    expect(screen.getByText(`@bh${trades[6].buyer_id}`)).toBeInTheDocument();
+    expect(screen.getByText('@buyer5')).toBeInTheDocument();
+    expect(screen.getByText('@buyer6')).toBeInTheDocument();
   });
 
   it('rewards accordion toggles on click', async () => {

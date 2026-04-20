@@ -6,10 +6,10 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { DbTrade } from '@/types';
+import type { PublicTrade } from '@/types';
 
 interface PriceChartProps {
-  trades: DbTrade[];
+  trades: PublicTrade[];
   ipoPrice?: number;
   referencePrice?: number;
   className?: string;

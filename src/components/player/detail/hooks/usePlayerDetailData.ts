@@ -2,9 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
 import { dbToPlayer } from '@/lib/services/players';
-import { getProfilesByIds } from '@/lib/services/profiles';
 import type {
-  Player, DbPlayer, DbIpo, PublicOrder, DbTrade,
+  Player, DbPlayer, DbIpo, PublicOrder, PublicTrade,
   DbPbtTreasury, DbLiquidationEvent, OfferWithDetails,
   PostWithAuthor, ResearchPostWithAuthor,
 } from '@/types';
@@ -51,7 +50,7 @@ export interface PlayerDetailData {
   lockedScMap: Map<string, number> | undefined;
   allSellOrders: PublicOrder[];
   openBids: OfferWithDetails[];
-  trades: DbTrade[];
+  trades: PublicTrade[];
   tradesLoading: boolean;
   activeIpo: DbIpo | null | undefined;
   userIpoPurchased: number;
@@ -147,27 +146,12 @@ export function usePlayerDetailData(
   const gwScores = gwScoresData ?? [];
 
   // ─── Profile Map Side-Effect ──────────────
-  const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
+  // Slice 095: setProfileMap entfällt (trades carrying handle direkt). profileMap bleibt empty default.
+  const [profileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
 
-  useEffect(() => {
-    // Orders carry handle directly (Slice 020) — profileMap only needed
-    // for trades buyer/seller lookup now.
-    const timer = setTimeout(() => {
-      const userIds = new Set<string>();
-      trades.forEach((tr) => {
-        if (tr.buyer_id) userIds.add(tr.buyer_id);
-        if (tr.seller_id) userIds.add(tr.seller_id);
-      });
-      const ids = Array.from(userIds);
-      if (ids.length > 0) {
-        getProfilesByIds(ids).then(setProfileMap).catch((err) => {
-          console.error('[Player] Profile map failed:', err);
-          addToast(t('couldNotLoadProfiles'), 'error');
-        });
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [trades]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Slice 095: trades RPC liefert buyer_handle/seller_handle direkt. profileMap-Lookup entfällt.
+  // Orders tragen handle seit Slice 020 direkt. profileMap bleibt als stabiler Return-Wert
+  // (empty Record) für Backwards-Compat mit BuyModal.
 
   // ─── Player With Ownership ────────────────
   const playerWithOwnership = useMemo(() => {
