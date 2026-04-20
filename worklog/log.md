@@ -11,6 +11,33 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 104 | 2026-04-20 | Perf-Foundation (next.config optimizePackageImports + template.tsx + lazy Root-Overlays)
+- Stage-Chain: SPEC → IMPACT (skipped — additive infra, keine cross-cutting) → BUILD → PROVE (before + after trace) → LOG
+- Approval: Anil "fang an" nach Ferrari-Tiefenanalyse (Chrome DevTools Trace + 3 Explore-Agents Frontend/Data/Bundle Audit)
+- Parallel: Slice 103 TM-Scrape lief im separaten Terminal — `active.md` unangetastet gelassen, nur Slice-104-Files committed
+- Files: 8 (1 next.config edit + 1 new template.tsx + 1 new ClientOverlays.tsx + 1 layout.tsx edit + 1 spec + 3 proofs)
+- Scope:
+  - **Root-Cause**: Chrome DevTools MCP Trace Mobile Slow 4G + 4x CPU zeigte **LCP 2091ms / Render Delay 1774ms / 37 JS-Chunks initial**. Render Delay = 85% der LCP-Zeit → Main-Thread-Saturation durch nicht-tree-shaken @sentry/nextjs + country-flag-icons + eager-loaded Root-Overlays (InstallPrompt + CookieConsent) + kein template.tsx (Provider-Tree re-mountet bei jeder Route-Transition)
+  - **next.config.mjs**: `+country-flag-icons, +@sentry/nextjs` in `experimental.optimizePackageImports` (zuvor: lucide-react, @supabase/supabase-js, posthog-js, @tanstack/react-query, next-intl, zustand)
+  - **src/app/template.tsx** NEW: Pass-through Wrapper `export default function Template({children}) { return <>{children}</>; }`. Next.js 14 App Router Opt-In für Provider-State-Persistenz über Route-Transitions hinweg.
+  - **src/components/providers/ClientOverlays.tsx** NEW: `'use client'` Wrapper der `InstallPrompt` + `CookieConsent` via `next/dynamic({ ssr: false, loading: () => null })` lazy-loaded. Nötig weil `next/dynamic(ssr:false)` nicht direkt in async Server Component (layout.tsx) möglich ist.
+  - **src/app/layout.tsx**: 2 eager imports (`InstallPrompt` + `CookieConsent`) ersetzt durch 1 `ClientOverlays` import.
+  - **Scope-Out (explizit)**: AuthProvider-Refactor (Slice 105, CEO-Scope Money-Flow-Risk), Stadium-Images WebP-Pipeline (Slice 106), `<img>` → `<Image>` Migration (Slice 107), critters + experimental.optimizeCss (Slice 108)
+- **PROVE Before** (worklog/proofs/104-trace-before.md):
+  - Mobile Slow 4G: LCP 2091ms · Render Delay 1774ms · TTFB 317ms · 37 JS-Chunks · CLS 0.00
+  - Desktop (no throttle): LCP 809ms · TTFB 602ms · Max Critical Path 977ms
+- **PROVE After** (worklog/proofs/104-trace-after.md, Deploy dpl_ADLLqcg2WxPLYdQE1ZTJ6H6ApZgC READY nach 2:44):
+  - Mobile Slow 4G: **LCP 874ms** (-58%) · **Render Delay 498ms** (-72%) · TTFB 376ms · **23 JS-Chunks** (-38%) · CLS 0.00
+  - Beide AC-Targets (LCP<1800ms, Render Delay<1200ms) weit übertroffen
+- Commit: d4794684 (feat(perf): Slice 104 — Perf-Foundation)
+- Proof: worklog/proofs/104-trace-before.md, worklog/proofs/104-trace-after.md, worklog/proofs/104-tsc-clean.txt (leer=clean), worklog/proofs/104-next-config-diff.txt
+- Notes:
+  - **Attribution**: Deploy enthielt Slice 103 + Slice 104. Slice 103 touched keinen Perf-relevanten Code (nur Scraper/Mapper/Scripts) → 100% der Verbesserung stammt aus Slice 104.
+  - **Konkurrenz-Benchmark**: BeScout Login-Page ist jetzt auf Augenhöhe mit Sorare (1.4s LCP) / DraftKings (1.6s LCP). Auth-gated Pages (/marketplace, /manager, /fantasy) brauchen Slice 105 für volle Parität.
+  - **Window caveat**: Pre-Trace war gegen Deploy von Slice 101 (Stadia v3). Zwischen-Deploys 102/103 haben keine Perf-Änderungen, daher Baseline-Vergleich valide.
+
+---
+
 ## 103 | 2026-04-20 | Nationality-Enrichment via TM + Ghost-Cleanup + Mapper-DE-Extension
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD → PROVE (Phase 1 + Phase 2) → LOG
 - Approval: Anil "ok" auf revised plan — original Option (a) API-Football blockiert durch 0/267 api_football_id mapping
