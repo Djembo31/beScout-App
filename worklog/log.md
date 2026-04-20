@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 115 | 2026-04-20 | Player.prices.referencePrice komplett entfernt (Slice 112 Scope-Out Follow-up)
+- Stage-Chain: SPEC (ad-hoc) → IMPACT (grep-basiert) → BUILD → PROVE → LOG
+- Approval: Anil "115, dann 113"
+- Files: 15 (1 Type + 8 Components + 6 Tests + 1 Proof)
+- Scope:
+  - **Problem**: Slice 112 hatte aus Minimal-Invasiv-Gründen `Player.prices.referencePrice` optional Field belassen. Nach DB-Column-Drop war es immer undefined, aber 9 UI-Stellen und 6 Test-Fixtures hatten noch Referenzen/Fallback-Ketten.
+  - **Cleanup**: `Player.prices.referencePrice` aus Type entfernt. Fallback-Chain in components + `playerMath.ts` reduziert auf `listings.min → floor → 0`. PriceChart-Prop entfernt. SellModal "Referenzwert"-Panel (war seit Slice 112 eh immer ausgeblendet) komplett raus.
+  - **Tests**: 2 obsolete `playerMath` Tests entfernt (waren auf nicht mehr existenten Fallback), 1 umbenannt. 4 Test-Fixtures in 4 anderen Files bereinigt.
+- PROVE:
+  - 83/83 vitest PASS über 6 betroffene Files
+  - tsc --noEmit clean
+  - `grep -rn 'referencePrice' src/` → nur 3 Slice-115-Kommentare, 0 Code-Usages
+  - `worklog/proofs/115-referenceprice-full-removal.txt`
+- Commit: pending
+- Notes: Konsolidiert reference_price-Tech-Debt von Slice 108 Audit. Floor ist jetzt einzige autoritative Preis-Quelle in UI-Components. `recalc_floor_price` RPC-Hierarchy handlet DB-seitige Fallback-Chain.
+
 ## 110 | 2026-04-20 | Auth+Wallet Robustness (Trading-Confidence)
 - Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
 - Approval: inline (CTO-Scope: additive Provider-API, kein Money-Flow-Change, kein Fee-Wording)

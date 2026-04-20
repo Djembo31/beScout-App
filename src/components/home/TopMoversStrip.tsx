@@ -51,7 +51,7 @@ function TopMoversStripInner({ players }: TopMoversStripProps) {
                 <Icon className="size-3.5" aria-hidden="true" />
                 {changeText}
               </div>
-              <div className="text-[10px] text-white/30 font-mono tabular-nums mt-0.5">{fmtScout(p.prices.floor ?? p.prices.lastTrade ?? p.prices.referencePrice ?? 0)} CR</div>
+              <div className="text-[10px] text-white/30 font-mono tabular-nums mt-0.5">{fmtScout(p.prices.floor ?? p.prices.lastTrade ?? 0)} CR</div>
             </div>
           </Link>
         );

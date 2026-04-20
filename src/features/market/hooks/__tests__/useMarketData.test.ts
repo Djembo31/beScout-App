@@ -100,7 +100,7 @@ function makePlayer(overrides: Partial<Player> & { id: string }): Player {
     lastAppearanceGw: 28,
     gwGap: 0,
     ...overrides,
-    prices: { lastTrade: 1000, change24h: 5, floor: undefined, referencePrice: undefined, ...overrides.prices },
+    prices: { lastTrade: 1000, change24h: 5, floor: undefined, ...overrides.prices },
     dpc: { supply: 300, float: 200, circulation: 150, onMarket: 10, owned: 0, ...overrides.dpc },
   };
 }
@@ -254,7 +254,7 @@ describe('useMarketData', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [],
-      prices: { lastTrade: 1000, change24h: 5, floor: 450, referencePrice: 600 },
+      prices: { lastTrade: 1000, change24h: 5, floor: 450 },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
@@ -263,21 +263,21 @@ describe('useMarketData', () => {
     expect(result.current.floorMap.get('p1')).toBe(450);
   });
 
-  // NOTE (Slice 098, 2026-04-22): Slice 052 DRY-extraction re-introduced the
-  // `?? prices.referencePrice` fallback via computePlayerFloor (playerMath.ts:20).
-  // Tests in playerMath.test.ts:26-28 explicitly assert this fallback. Aligned
-  // with current canonical chain: live Math.min → prices.floor → prices.referencePrice → 0.
-  it('floorMap falls back to referencePrice when floor is undefined', () => {
+  // Slice 115 (2026-04-20): referencePrice Frontend-Field entfernt. Fallback-Chain jetzt:
+  // live Math.min → prices.floor → 0. Der alte referencePrice-Fallback wurde nie
+  // von echten Usern konsumiert (DB-Column bereits in Slice 112 gedropped, Mapper
+  // liefert immer undefined).
+  it('floorMap returns 0 when floor is undefined and no listings', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [],
-      prices: { lastTrade: 1000, change24h: 5, floor: undefined, referencePrice: 800 },
+      prices: { lastTrade: 1000, change24h: 5, floor: undefined },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
-    expect(result.current.floorMap.get('p1')).toBe(800);
+    expect(result.current.floorMap.get('p1')).toBe(0);
   });
 
   it('getFloor helper returns floor for a player', () => {
@@ -431,11 +431,11 @@ describe('useMarketData', () => {
 
   // ── Regression: null guard on optional numeric fields (common-errors.md) ──
 
-  it('floorMap does not produce NaN when prices.floor is null-ish and referencePrice is 0', () => {
+  it('floorMap does not produce NaN when prices.floor is null-ish', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [],
-      prices: { lastTrade: 1000, change24h: 5, floor: undefined, referencePrice: 0 },
+      prices: { lastTrade: 1000, change24h: 5, floor: undefined },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 

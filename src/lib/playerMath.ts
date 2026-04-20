@@ -9,7 +9,7 @@ import type { Player } from '@/types';
 
 /**
  * Berechnet den Floor-Preis eines Players.
- * Fallback-Chain: aktuellste Listings.min → prices.floor → prices.referencePrice → 0
+ * Fallback-Chain: aktuellste Listings.min → prices.floor → 0
  */
 export function computePlayerFloor(
   player: Pick<Player, 'listings' | 'prices'>
@@ -17,7 +17,7 @@ export function computePlayerFloor(
   if (player.listings && player.listings.length > 0) {
     return Math.min(...player.listings.map((l) => l.price));
   }
-  return player.prices.floor ?? player.prices.referencePrice ?? 0;
+  return player.prices.floor ?? 0;
 }
 
 /**

@@ -95,17 +95,9 @@ export default function SellModal({
   // Orientation Bar + Accept Bids + nothing else — shown before the form
   const beforeForm = (
     <>
-      {/* Orientation: Referenzwert + Hoechstes Gesuch */}
+      {/* Orientation: Hoechstes Gesuch */}
       {availableToSell > 0 && !player.isLiquidated && (
         <div className="flex items-center gap-3 text-xs">
-          {player.prices.referencePrice != null && player.prices.referencePrice > 0 && (
-            <div className="flex-1 bg-white/[0.03] border border-divider rounded-xl px-3 py-2 text-center">
-              <div className="text-[10px] text-white/30">{tm('referenzwert')}</div>
-              <div className="font-mono font-bold text-white/60 tabular-nums">
-                {fmtScout(player.prices.referencePrice)}
-              </div>
-            </div>
-          )}
           {openBids.length > 0 && (
             <div className="flex-1 bg-green-500/[0.06] border border-green-500/20 rounded-xl px-3 py-2 text-center">
               <div className="text-[10px] text-white/30">{tm('hoechstesGesuch')}</div>

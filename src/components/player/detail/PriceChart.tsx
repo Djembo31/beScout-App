@@ -11,7 +11,6 @@ import type { PublicTrade } from '@/types';
 interface PriceChartProps {
   trades: PublicTrade[];
   ipoPrice?: number;
-  referencePrice?: number;
   className?: string;
 }
 
@@ -46,7 +45,7 @@ function catmullRomPath(pts: { x: number; y: number }[]): string {
   return d.join(' ');
 }
 
-function PriceChartInner({ trades, ipoPrice, referencePrice, className = '' }: PriceChartProps) {
+function PriceChartInner({ trades, ipoPrice, className = '' }: PriceChartProps) {
   const t = useTranslations('player');
   const tpd = useTranslations('playerDetail');
   const locale = useLocale();
@@ -115,7 +114,7 @@ function PriceChartInner({ trades, ipoPrice, referencePrice, className = '' }: P
   }, [chartData]);
 
   if (!chartData) {
-    const placeholderPrice = ipoPrice ? centsToBsd(ipoPrice) : referencePrice ? centsToBsd(referencePrice) : null;
+    const placeholderPrice = ipoPrice ? centsToBsd(ipoPrice) : null;
     return (
       <Card className={`p-4 md:p-6 ${className}`}>
         <div className="flex items-center justify-between mb-3">

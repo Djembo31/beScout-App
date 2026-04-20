@@ -92,7 +92,6 @@ const basePlayer = {
     floor: 1000,
     lastTrade: 500,
     ipoPrice: 100,
-    referencePrice: 800,
     initialListingPrice: 400,
   },
   listings: [],

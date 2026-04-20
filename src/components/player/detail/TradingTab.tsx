@@ -84,7 +84,6 @@ function TradingTabInner({
           <PriceChart
             trades={trades}
             ipoPrice={player.prices.ipoPrice ? Math.round(player.prices.ipoPrice * 100) : undefined}
-            referencePrice={player.prices.referencePrice ? Math.round(player.prices.referencePrice * 100) : undefined}
           />
           <Card className="p-8 text-center">
             <ShoppingCart className="size-10 mx-auto mb-3 text-white/15" aria-hidden="true" />
@@ -111,7 +110,6 @@ function TradingTabInner({
       <PriceChart
         trades={trades}
         ipoPrice={player.prices.ipoPrice ? Math.round(player.prices.ipoPrice * 100) : undefined}
-        referencePrice={player.prices.referencePrice ? Math.round(player.prices.referencePrice * 100) : undefined}
       />
 
       {/* ── 2. Quick Stats: Floor, Spread, 7d Volume, Holders ── */}
@@ -145,7 +143,7 @@ function TradingTabInner({
             </div>
           )}
           {player.prices.initialListingPrice != null && player.prices.initialListingPrice > 0 && (() => {
-            const current = player.prices.floor ?? player.prices.lastTrade ?? player.prices.referencePrice ?? 0;
+            const current = player.prices.floor ?? player.prices.lastTrade ?? 0;
             const initial = player.prices.initialListingPrice;
             const pctChange = initial > 0 ? ((current - initial) / initial * 100) : 0;
             return (

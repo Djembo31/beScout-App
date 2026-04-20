@@ -1,0 +1,74 @@
+Slice 115 — Player.prices.referencePrice Full Removal Verification
+Date: 2026-04-20 22:33
+Approval: Anil "115, dann 113"
+
+═══════════════════════════════════════════════════════════════════
+FILES GEÄNDERT (14 total)
+═══════════════════════════════════════════════════════════════════
+
+TYPE:
+1. src/types/index.ts                                         — prices.referencePrice?: number entfernt
+
+COMPONENTS:
+2. src/lib/playerMath.ts                                      — Fallback-Chain + JSDoc ohne referencePrice
+3. src/features/market/components/shared/DiscoveryCard.tsx    — 2× ?? referencePrice entfernt
+4. src/components/club/sections/SquadPreviewSection.tsx       — 1× ?? referencePrice entfernt
+5. src/components/home/TopMoversStrip.tsx                     — 1× ?? referencePrice entfernt
+6. src/components/player/detail/PlayerHero.tsx                — 1× ?? referencePrice entfernt
+7. src/components/player/detail/TradingTab.tsx                — 2× PriceChart-Prop + 1× Fallback entfernt
+8. src/components/player/detail/SellModal.tsx                 — Referenzwert-Display-Block komplett entfernt
+9. src/components/player/detail/PriceChart.tsx                — Prop entfernt aus Interface + Signature + Body
+
+TESTS:
+10. src/lib/__tests__/playerMath.test.ts                      — 2 Tests entfernt (obsolete), 1 umbenannt
+11. src/features/market/hooks/__tests__/useMarketData.test.ts — 4 Test-Fixtures, 1 Testcase umbenannt
+12. src/components/home/__tests__/TopMoversStrip.test.tsx     — Fixture
+13. src/components/player/detail/__tests__/SellModal.test.tsx — Fixture
+14. src/components/player/detail/__tests__/TradingTab.test.tsx— Fixture
+15. src/features/market/components/shared/__tests__/MarketFilters.test.ts — Fixture
+
+═══════════════════════════════════════════════════════════════════
+FINAL GREP (nur Slice-115-Kommentare übrig, kein Code)
+═══════════════════════════════════════════════════════════════════
+
+$ grep -rn 'referencePrice\|reference_price' src/
+
+src/features/market/hooks/__tests__/useMarketData.test.ts:266:  // Slice 115 ... referencePrice Frontend-Field entfernt.
+src/features/market/hooks/__tests__/useMarketData.test.ts:267:  // live Math.min → prices.floor → 0.
+src/lib/__tests__/playerMath.test.ts:26:  // Slice 115 ... referencePrice-Fallback entfernt.
+
+→ 3 Comment-Hinweise, 0 echte Usages.
+
+═══════════════════════════════════════════════════════════════════
+FALLBACK-CHAIN KONSOLIDIERT
+═══════════════════════════════════════════════════════════════════
+
+Alt (bis Slice 115):
+  listings.min → prices.floor → prices.referencePrice → 0
+
+Neu (Slice 115):
+  listings.min → prices.floor → 0
+
+Floor ist jetzt die einzige autoritative Quelle in Components.
+RPC recalc_floor_price() produziert den Wert aus Hierarchie:
+  MIN(sell_orders) → active IPO → last_price → existing floor_price.
+
+═══════════════════════════════════════════════════════════════════
+TESTS (83/83 PASS)
+═══════════════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit → clean
+$ npx vitest run (alle 6 betroffenen Test-Files)
+
+ Test Files  6 passed (6)
+      Tests  83 passed (83)
+   Duration  10.46s
+
+═══════════════════════════════════════════════════════════════════
+UI-IMPACT (kein User-sichtbarer Verlust)
+═══════════════════════════════════════════════════════════════════
+
+- SellModal "Referenzwert"-Panel entfernt (war seit Slice 112 eh immer ausgeblendet weil field undefined)
+- PriceChart Placeholder nutzt nur noch ipoPrice (referencePrice war Tertiär-Fallback)
+- Alle Floor-Display-Stellen fallen auf 0 statt auf Phantom-Wert (DB-Column war in Slice 112 gedropped)
+- Kein Information-Loss: alle Daten kommen aus floor_price (RPC-berechnet) + ipo_price (linear formula)

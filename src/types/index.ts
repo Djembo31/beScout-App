@@ -65,7 +65,6 @@ export type Player = {
     change24h: number;
     floor?: number;
     ipoPrice?: number;
-    referencePrice?: number;
     initialListingPrice?: number;
     history7d?: number[];
   };

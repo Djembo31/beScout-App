@@ -28,7 +28,6 @@ function makePlayer(overrides: Partial<Player> & { change24h: number }): Player 
     isLiquidated: false,
     prices: {
       floor: 100,
-      referencePrice: 100,
       lastTrade: null,
       change24h: overrides.change24h,
     },

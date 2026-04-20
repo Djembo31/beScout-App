@@ -13,23 +13,20 @@ describe('computePlayerFloor', () => {
   it('returns Math.min of listings when listings exist', () => {
     const p = asPlayer({
       listings: [{ price: 300 }, { price: 150 }, { price: 200 }],
-      prices: { floor: 500, referencePrice: 600, lastTrade: 0, change24h: 0 },
+      prices: { floor: 500, lastTrade: 0, change24h: 0 },
     });
     expect(computePlayerFloor(p)).toBe(150);
   });
 
   it('falls back to prices.floor when listings empty', () => {
-    const p = asPlayer({ listings: [], prices: { floor: 250, referencePrice: 400, lastTrade: 0, change24h: 0 } });
+    const p = asPlayer({ listings: [], prices: { floor: 250, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(250);
   });
 
-  it('falls back to prices.referencePrice when floor is null', () => {
-    const p = asPlayer({ listings: [], prices: { floor: null, referencePrice: 400, lastTrade: 0, change24h: 0 } });
-    expect(computePlayerFloor(p)).toBe(400);
-  });
-
-  it('falls back to 0 when both floor and referencePrice are null', () => {
-    const p = asPlayer({ listings: [], prices: { floor: null, referencePrice: null, lastTrade: 0, change24h: 0 } });
+  // Slice 115 (2026-04-20): referencePrice-Fallback entfernt. Floor ist nun die
+  // einzige autoritative Quelle (nach listings.min). Formel-Chain: listings.min → floor → 0.
+  it('falls back to 0 when listings empty and floor is null', () => {
+    const p = asPlayer({ listings: [], prices: { floor: null, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(0);
   });
 

@@ -29,7 +29,7 @@ vi.mock('@/components/legal/TradingDisclaimer', () => ({
 const mockPlayer = {
   id: 'p1', firstName: 'Test', lastName: 'Player', pos: 'MID',
   dpc: { circulation: 300 },
-  prices: { floor: 100, referencePrice: 100 },
+  prices: { floor: 100 },
   listings: [],
 } as any;
 

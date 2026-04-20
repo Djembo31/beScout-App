@@ -29,7 +29,7 @@ function makePlayer(overrides: Partial<{
     },
     contractMonthsLeft: overrides.contractMonthsLeft ?? 24,
     status: overrides.status ?? 'fit',
-    prices: { floor: 100, referencePrice: 100 },
+    prices: { floor: 100 },
     listings: [],
     clubId: 'c1',
     image: null,
