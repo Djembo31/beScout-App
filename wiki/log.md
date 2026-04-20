@@ -2,6 +2,12 @@
 
 > Append-only. Neueste Eintraege oben.
 
+## [2026-04-21] Business Model — Pricing-Asset-Model Sektion aktualisiert
+- Seite: business-model.md
+- Typ: section update
+- Änderungen: "Community Success Fee" Sektion komplett neu mit Linear-Formel (MV_EUR/10 cents), 1× = 0,01 € Konvention, korrigierte Growth-Beispiele (5× = 5×, nicht 150×), Cap-Schutz. Historische Tier-Table-Drift + Slice 108/114 Backfill dokumentiert.
+- Querverweise: [[scout-cards]], `memory/decision_pricing_asset_model.md`
+
 ## [2026-04-21] Scout Cards — Pricing-Asset-Model komplett überarbeitet
 - Seite: scout-cards.md
 - Typ: major update

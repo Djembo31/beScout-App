@@ -2,9 +2,9 @@
 title: Business Model
 type: decision
 created: 2026-04-07
-updated: 2026-04-07
-tags: [revenue, fees, licensing, b2b, pricing, treasury]
-sources: [business.md, trading.md, memory/business-context.md, decision_pilot_token_strategy.md]
+updated: 2026-04-21
+tags: [revenue, fees, licensing, b2b, pricing, treasury, pricing-asset-model]
+sources: [business.md, trading.md, memory/business-context.md, memory/decision_pricing_asset_model.md, decision_pilot_token_strategy.md]
 ---
 
 # Business Model
@@ -43,9 +43,17 @@ sources: [business.md, trading.md, memory/business-context.md, decision_pilot_to
 
 ## Community Success Fee (groesster Hebel)
 
-Wenn ein Spieler transferiert wird, erhalten DPC-Holder eine Success Fee basierend auf dem Marktwert-Tier:
-- Beispiel: Kauf bei 100 $SCOUT (1M EUR Marktwert), Transfer bei 15M EUR → 15.000 $SCOUT/DPC = **150x**
-- Cap wird einmal VOR dem ersten IPO gesetzt, aendert sich nie
+**Linear Pricing-Asset-Model** (Slice 108, CEO-Regel verifiziert 2026-04-20 gegen Sivasspor-DB):
+
+- Card-Preis fix: `ipo_price = MV_EUR / 10 cents` (= MV_EUR / 1.000 $SCOUT = MV_EUR / 100.000 €)
+- 1 $SCOUT = 1 cent = 0,01 €
+- Max 10.000 Cards tokenisierbar = 10% des Marktwerts. Verein behält 90%.
+- Bei Liquidation: Payout skaliert 1:1 mit MV-Growth
+  - 1 Mio € MV (Entry 10 € pro Card) → 5 Mio € MV (Exit 50 € pro Card) = **5×**
+  - 1 Mio € MV → 15 Mio € MV = **15×** (nicht 150× wie im alten Tier-Model)
+- Cap `success_fee_cap_cents` (max 10 Mio cents = 100k $SCOUT) greift VOR Formel — Verein-Schutz bei High-MV-Spielern
+
+**Historisch (pre-Slice 108):** Tier-Table im `liquidate_player` RPC zahlte ~1,5× über Linear-Formel. Per Slice 108 ersetzt, Slice 114 hat 3.604 existierende Rows backfilled (Pool-Wert +96× Korrektur). Siehe [[scout-cards]] für Details.
 
 ## Licensing-Phasen
 
@@ -78,5 +86,7 @@ Limit: 10.000 total. Kill-Switch bei 900K EUR.
 
 ## Siehe auch
 - [[bescout-overview]] — Produktuebersicht
+- [[scout-cards]] — **Pricing-Asset-Model Formel-Details + Liquidation-Mechanik**
 - [[compliance]] — Wording, Geofencing, Disclaimers
 - [[vergleich-competitors]] — Fee-Vergleich mit Sorare (6.5%), Socios (variabel)
+- `memory/decision_pricing_asset_model.md` — autoritative Pricing-Referenz (Slice 108/114)
