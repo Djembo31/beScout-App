@@ -2,21 +2,23 @@
 
 import { useMemo } from 'react';
 import { usePlayers } from './players';
-import { useHoldings } from './holdings';
-import { useAllOpenOrders } from './orders';
 import type { Player, PublicOrder } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { centsToBsd } from '@/lib/services/players';
 
 /**
  * Central combinator hook — enriches players with holdings + order data.
- * Replaces the per-page `enrichPlayers()` logic.
- * O(n) via Maps — same algorithm as market/page.tsx.
+ * Slice 123: holdings + orders werden vom Caller injected (entfernt doppelte
+ * useHoldings/useAllOpenOrders-Calls — useMarketData bekommt holdings vom
+ * get_market_user_dashboard RPC und orders via useAllOpenOrders parallel).
+ * O(n) via Maps.
  */
-export function useEnrichedPlayers(userId: string | undefined) {
+export function useEnrichedPlayers(
+  userId: string | undefined,
+  holdings: HoldingWithPlayer[],
+  orders: PublicOrder[],
+) {
   const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
-  const { data: holdings = [] } = useHoldings(userId);
-  const { data: orders = [] } = useAllOpenOrders();
 
   const enriched = useMemo(() => {
     if (!players.length) return players;

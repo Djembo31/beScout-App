@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 123 | 2026-04-21 | useEnrichedPlayers Input-Injection (Slice 122 Follow-up)
+- Stage-Chain: SPEC → IMPACT (inline, grep) → BUILD → PROVE → LOG
+- Approval: Anil "123" (Full-elimination nach Slice 122)
+- Files: 2 (enriched.ts API-Change + useMarketData consumer)
+- Scope:
+  - **Problem**: Slice 122 primed `qk.holdings.byUser(uid)` cache, aber `useEnrichedPlayers` (intern aufgerufen in `useMarketData`) startete trotzdem sein eigenes `useHoldings` query parallel → Race-Condition zwischen Dashboard-RPC und Holdings-Query. Beide Queries parallel, keine Dedup weil verschiedene queryKeys.
+  - **Fix**: `useEnrichedPlayers` API-Change von `(userId)` zu `(userId, holdings, orders)`. Interne `useHoldings` + `useAllOpenOrders` entfernt. Caller injected data direkt.
+  - **Nur 1 Consumer** (`useMarketData.ts` — grep verifiziert), daher API-Break safe.
+- PROVE:
+  - tsc --noEmit clean
+  - 53/53 vitest PASS in `src/features/market/hooks` + `src/lib/queries` (incl. `enriched.test.ts`-relevante Tests)
+  - Erwarteter Real-Win: /market cold-load nun **echte** 3 Requests (RPC + 2 enrichment) statt 3 + race-duplicate
+- Commit: pending
+
 ## 122 | 2026-04-20 | get_market_user_dashboard RPC (Query-Konsolidierung /market)
 - Stage-Chain: SPEC → IMPACT (inline) → BUILD → PROVE → LOG
 - Approval: Anil "a" (neuer RPC, analog zu 109)

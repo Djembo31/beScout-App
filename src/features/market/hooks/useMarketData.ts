@@ -14,17 +14,19 @@ export function useMarketData(userId: string | undefined) {
   const tab = useMarketStore(s => s.tab);
 
   // ── Core queries (always loaded) ──
-  const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(userId);
   const { data: ipoList = [] } = useActiveIpos();
   // Slice 122: 4 per-user queries (holdings + watchlist + incoming_offers + open_bids)
-  // in 1 RPC konsolidiert. Primed caches halten useHoldings/useWatchlist/useIncomingOffers
-  // in useEnrichedPlayers + anderen Hooks warm (cross-page wins bei Navigation).
+  // in 1 RPC konsolidiert.
   const { data: dashboard } = useMarketUserDashboard(userId);
   const holdings = dashboard?.holdings ?? [];
   const watchlistEntries = dashboard?.watchlist ?? [];
   const incomingOffers = dashboard?.incoming_offers ?? [];
   const openBids = dashboard?.open_bids ?? [];
   const { data: recentOrders = [] } = useAllOpenOrders();
+  // Slice 123: useEnrichedPlayers konsumiert holdings+orders als Input (entfernt
+  // doppelte useHoldings/useAllOpenOrders-Fetches die vorher race-conditional
+  // zu useMarketUserDashboard liefen).
+  const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(userId, holdings, recentOrders);
 
   // ── Tab-gated queries (marktplatz only) ──
   const { data: priceHistMap } = useAllPriceHistories(10, { enabled: tab === 'marktplatz' });
