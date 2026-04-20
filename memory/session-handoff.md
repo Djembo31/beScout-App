@@ -1,20 +1,21 @@
-# Session Handoff (2026-04-20 19:01)
+# Session Handoff (2026-04-20 20:52)
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M .claude/rules/trading.md
  M .claude/settings.local.json
  M memory/session-handoff.md
 ```
 
 ## Session Commits: 10
+- 5e453aac feat(perf): Slice 107 — Data-Waterfall Fixes (Duplicate-Calls + N+1)
+- aff3aaa3 feat(data): Slice 105 + 106 — TFF1 Nationality + Stadium Compression
+- 8178a43e docs(slice-104): measure gated pages — /home LCP 5086ms, /market 3018ms (Auth + Data Waterfalls)
+- b3b2b8d0 docs(slice-104): LOG — Perf-Foundation Proof-After (LCP -58%, Render Delay -72%)
+- 209bd5ad feat(data): Slice 103 — TM Nationality + Ghost-Cleanup + Mapper DE-Aliases
+- d4794684 feat(perf): Slice 104 — Perf-Foundation (next.config + template.tsx + lazy Root-Overlays)
+- ad7706f2 AUTO: pre-compact checkpoint 20260420-190208
 - c9b6b6cb AUTO: pre-compact checkpoint 20260420-185809
 - 1761562a AUTO: pre-compact checkpoint 20260420-185720
 - 41bb3945 feat(stadia): Slice 101 — Wikipedia Retry + 68 neue Stadion-Bilder
-- ba3a2fe7 docs(slice-102): LOG — Playwright-Proof + common-errors Pattern
-- 053e5084 feat(flags): Slice 102 — Nationality Full-Name → ISO Mapper
-- 33d7b0ff docs(handoff): detaillierter Session-Handoff 2026-04-22 End-of-Day
-- a0c59f28 feat(stadia): +2 stadia aus Slice 100 v2 run (udinese, villarreal)
-- a9a50761 feat(data): Slice 100 — Stadia Images + Nationality Enrichment (partial)
-- acd944fc docs(data): Slice 099 — TM Data-Quality Re-Scrape Proof
-- 7c062828 fix(scraper): parser erkennt 'Marktwert: -' als explicit no-value (returns 0)
 

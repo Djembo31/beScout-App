@@ -1,18 +1,15 @@
 # Active Slice
 
 ```
-status: build
-slice: 107
-title: Data-Waterfall Fixes (Duplicate-Calls + N+1)
-stage: BUILD
-spec: worklog/specs/107-data-waterfall-fixes.md
-impact: skipped (query-opt only, no schema/RLS/money-change)
-proof: pending (worklog/proofs/107-*)
-size: S
-ceo_scope: false
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
 ```
 
-## Session 2026-04-20 Progress (6 Slices)
+## Session 2026-04-20 Progress (7 Slices)
 
 | Slice | Title | Result |
 |-------|-------|--------|
@@ -22,6 +19,7 @@ ceo_scope: false
 | 104 | Perf-Foundation (parallele Session) | ✅ LCP 2091→874ms, Render 1774→498ms (`d4794684` + `b3b2b8d0`) |
 | 105 | TFF1 Nationality Scrape | ✅ 33/34 scraped, 6 Ligen >99.6%, TFF1 87.7% |
 | 106 | Stadium Image Compression | ✅ 2 Monster-Files 127MB → 1.4MB (-98.9%) |
+| 107 | Data-Waterfall Fixes (parallele Session) | ✅ Duplicate-Calls + N+1 Fixes (`5e453aac`) |
 
 ## Global Coverage (nach allen Slices)
 

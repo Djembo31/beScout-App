@@ -16,10 +16,34 @@ paths:
 - NIEMALS leere `.catch(() => {})` — mindestens `console.error`
 
 ## Preise
-- `ipo_price` = fest pro Tranche, aendert sich NIE durch Marktaktivitaet
+
+### Pricing Asset Model (MONEY-KRITISCH, 2026-04-20 Anil-Korrektur)
+- **Einheit:** `1 $SCOUT = 1 cent = 0,01 €`
+- **Card-Preis Formel (FIX):**
+  - `ipo_price (cents) = MV_EUR / 10`
+  - `ipo_price ($SCOUT) = MV_EUR / 1.000`
+  - `ipo_price (€) = MV_EUR / 100.000`
+- **Community-Anteil:** Max 10.000 Cards = 10% des MV tokenisierbar
+- **Card-Preis ist FIX, unabhängig von der Anzahl ausgegebener Cards**
+- Verein entscheidet, wie viele Cards (1.000 bis 10.000) er ausgibt → entsprechend kleinerer Community-Anteil
+- 90% des Spielers bleiben beim Verein (nicht-tokenisiert)
+- **Verified gegen Sivasspor-Live-DB (2026-04-20):**
+  - Bekir (MV 1M€) → ipo_price 100.000 cents = 1.000 $SCOUT ✓
+  - Manaj (MV 2,2M€) → ipo_price 250.000 cents ≈ Formel 220.000
+
+### Liquidation-Payout
+- Bei Transfer/Liquidation für `MV_liqui`:
+  - Payout pro Card = `MV_liqui / 100.000 €`
+  - Community-Pool-Share = `verkaufte_Cards / 10.000 × 10% × MV_liqui`
+  - Verein bekommt: Transfer-Erlös − Community-Payout + unverkaufte Cards-Reserve
+- Card-Value skaliert **1:1 mit MV_liqui** (5× MV-Growth = 5× Card-Value)
+
+### Regeln
+- `ipo_price` = fest pro Tranche nach Launch, aendert sich NIE durch Marktaktivitaet
 - `floor_price` = MIN(offene User-Sell-Orders) oder `ipo_price` als Fallback
 - Floor Price Client-seitig berechnen: `Math.min(...sellOrders.map(o => o.price))` — NICHT per-Player DB Query
 - Pool/IPO verkauft immer zu `ipo_price`, nicht `floor_price`
+- Details: `memory/decision_pricing_asset_model.md`
 
 ## Fee-Split
 - **Trading (6% total):** `trade_fee_bps=600` → Platform 3.5% + PBT 1.5% + Club 1%
