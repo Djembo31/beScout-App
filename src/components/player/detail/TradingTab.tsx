@@ -1,7 +1,8 @@
 'use client';
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import {
   ChevronDown, Trophy, ShoppingCart, History, Users,
@@ -51,9 +52,17 @@ function TradingTabInner({
   const t = useTranslations('playerDetail');
   const tm = useTranslations('market');
   const locale = useLocale();
-  const [rewardsOpen, setRewardsOpen] = useState(false);
+  const searchParams = useSearchParams();
+  // Slice 118: ?tab=rewards auto-expandiert das Rewards-Accordion beim Mount.
+  // Deep-Link-Support für direkte Rewards-Sicht (war bisher ignoriert).
+  const [rewardsOpen, setRewardsOpen] = useState(() => searchParams?.get('tab') === 'rewards');
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [ordersExpanded, setOrdersExpanded] = useState(false);
+
+  // Client-side navigation: ?tab=rewards auch bei Navigation-Change öffnen.
+  useEffect(() => {
+    if (searchParams?.get('tab') === 'rewards') setRewardsOpen(true);
+  }, [searchParams]);
 
   const formatTradeTime = (executedAt: string) => {
     const d = new Date(executedAt);
