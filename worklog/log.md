@@ -89,6 +89,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 121 | 2026-04-20 | /market Bundle Hygiene (Lazy research.ts + useHoldingLocks Isolate)
+- Stage-Chain: SPEC → IMPACT (bundle-analyzer) → BUILD → PROVE → LOG (parallel-terminal)
+- Approval: inline (CTO-Scope: Code-Hygiene ohne Verhaltensänderung)
+- Commit: `92edd866` (+ `7367d9b0` common-errors, `d73dc235` pnpm-lock hotfix)
+- Scope:
+  - BuyConfirmModal: `getPlayerSentimentCounts` dynamic-import in queryFn. research.ts als lazy chunk `5065-*.js` (11.8 kB parsed).
+  - NEW: `src/features/fantasy/queries/holdingLocks.ts` isolated hook (nur `@/lib/services/wallet` import).
+  - `events.ts` re-exportiert holdingLocks (backwards-compat).
+  - MarketContent importiert aus `./holdingLocks` statt barrel.
+- PROVE (ehrlich):
+  - /market FLJS 339 kB → 339 kB (reported-counter unchanged)
+  - Structural win: research.ts lazy (verified via app-build-manifest.json)
+  - Market-only chunks (analyzer): 70 → 73 kB (reshuffle, kein Growth)
+  - AC #6 FLJS-sink ≥3 kB: **MISSED** in reported counter
+- Notes: Pattern "dynamic() bypass wenn andere Importpfade eager" in common-errors.md dokumentiert. Remaining eager chain: fantasy-queries + predictions.ts via useRecentScores → managerData → lineups.ts (Scope-Out).
+
+---
+
 ## 120 | 2026-04-20 | country-flag-icons Bundle-Split (Eliminate 235 kB Chunk)
 - Stage-Chain: SPEC → IMPACT (inline, static-asset migration) → BUILD → PROVE → LOG
 - Approval: inline (CTO-Scope: Perf-Optimization, kein Wording/Money/Security-Change)

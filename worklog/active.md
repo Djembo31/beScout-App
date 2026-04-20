@@ -9,15 +9,21 @@ impact: —
 proof: —
 ```
 
+## Letzter abgeschlossener Slice: 123
+
+**useEnrichedPlayers Input-Injection** — Commit `2aa81871` gepusht.
+
+API-Change: `useEnrichedPlayers(userId, holdings, orders)` — kein internes useHoldings/useAllOpenOrders mehr. Entfernt Race-Condition mit `useMarketUserDashboard` (Slice 122). /market cold-load: 10 → 5 Requests (-50%).
+
+## Letzter abgeschlossener Slice: 122
+
+**get_market_user_dashboard RPC** — Commit `69cd5dba`. 4 per-user /market queries (holdings + watchlist + incoming_offers + open_bids) in 1 SECURITY DEFINER RPC + Cache-Priming für 4 downstream keys. 3/3 DB-Invariants PASS.
+
+## Letzter abgeschlossener Slice: 121
+
+**/market Bundle Hygiene** — Commit `92edd866`. BuyConfirmModal research.ts lazy, useHoldingLocks isoliert. Structural win (research lazy-loaded) aber 0 kB FLJS-reported — Pattern "dynamic() bypass wenn andere Importpfade eager" in common-errors verankert.
+
 ## Letzter abgeschlossener Slice: 120
-
-**country-flag-icons Bundle-Split** — Commit `d0b41cd9` gepusht.
-
-Namespace-Import `import * as Flags3x2 from 'country-flag-icons/react/3x2'` bundled 265 Flag-Komponenten (235 kB parsed / 53 kB gzipped) als standalone-chunk. Ersetzt durch `<img src="/flags/3x2/{code}.svg">` + 265 SVGs in `public/flags/3x2/`.
-
-Bundle-Diff: `/player/[id]` FLJS **365 → 309 kB (−56 kB, −15%)**. /home/Market unverändert (CountryFlag nicht auf deren critical path — Win konzentriert auf player-detail + club pages). Standalone flag-chunk eliminated.
-
-Neues Pattern in `common-errors.md §8` verankert: "Namespace-Import blockiert Tree-Shaking".
 
 ## Letzter abgeschlossener Slice: 110
 
