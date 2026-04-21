@@ -2,6 +2,11 @@ name: Post-Deploy Smoke
 on:
   deployment_status:
 
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
 jobs:
   smoke:
     # Only run when Vercel reports success on Production
