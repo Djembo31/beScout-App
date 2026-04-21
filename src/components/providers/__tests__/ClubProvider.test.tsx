@@ -56,6 +56,10 @@ const clubB = { id: 'c2', name: 'Club B', slug: 'club-b' };
 describe('ClubProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset mock implementation stacks (mockResolvedValueOnce queues leak across tests otherwise).
+    mockGetUserFollowedClubs.mockReset();
+    mockGetUserPrimaryClub.mockReset();
+    mockToggleFollowClub.mockReset();
     mockInitClubCache.mockResolvedValue(undefined);
     try { sessionStorage.clear(); } catch { /* ignore */ }
   });
@@ -227,45 +231,77 @@ describe('ClubProvider', () => {
     }, { timeout: 5000 });
   });
 
-  it('parallel toggles on different clubs do not overwrite each other (Slice 138)', async () => {
+  it('parallel follow-toggles on different clubs do not overwrite (Slice 138)', async () => {
     mockUseUser.mockReturnValue({ user: stableUser });
     mockGetUserFollowedClubs.mockResolvedValueOnce([]); // initial load
 
-    // Both toggleFollowClub calls hang until we resolve them.
     let resolveA: ((v: unknown) => void) | undefined;
     let resolveB: ((v: unknown) => void) | undefined;
     mockToggleFollowClub.mockImplementationOnce(() => new Promise(r => { resolveA = r; }));
     mockToggleFollowClub.mockImplementationOnce(() => new Promise(r => { resolveB = r; }));
-    // Final reconcile returns both clubs as followed.
-    mockGetUserFollowedClubs.mockResolvedValueOnce([clubA, clubB]);
     mockGetUserPrimaryClub.mockResolvedValue(null);
 
     const user = userEvent.setup();
     render(<ClubProvider><ParallelTestbed /></ClubProvider>);
     await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('0'), { timeout: 5000 });
 
-    // Fire both toggles while DB calls are still hanging.
     await user.click(screen.getByText('follow-a'));
     await user.click(screen.getByText('follow-b'));
-
-    // Optimistic state must show both immediately.
     expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
 
-    // Resolve A first — this should NOT trigger a reconcile (B still in-flight).
+    // Resolve A — no reconcile (B in-flight AND follow-path skips reconcile anyway).
     resolveA?.(undefined);
     await Promise.resolve();
-    // Still both present (no overwrite).
     expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
-    // getUserFollowedClubs was only called once (initial load), no reconcile yet.
     expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(1);
 
-    // Resolve B — last in-flight, triggers reconcile.
+    // Resolve B — Slice 139: follow-path skips reconcile even for last-in-flight.
     resolveB?.(undefined);
-    await waitFor(() => {
-      expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(2);
-    }, { timeout: 5000 });
-    await waitFor(() => {
-      expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
-    }, { timeout: 5000 });
+    await Promise.resolve();
+    expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
+    // Still only the initial load call, no reconcile after follow.
+    expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(1);
+  });
+
+  // ============================================
+  // Slice 139 — Skip reconcile on follow-success, keep on unfollow
+  // ============================================
+  it('skips reconcile after follow success (Slice 139 — avoids read-after-write race)', async () => {
+    mockUseUser.mockReturnValue({ user: stableUser });
+    mockGetUserFollowedClubs.mockResolvedValueOnce([]); // initial load
+    mockGetUserPrimaryClub.mockResolvedValue(null);
+    mockToggleFollowClub.mockResolvedValue(undefined);
+
+    const user = userEvent.setup();
+    render(<ClubProvider><FollowTestbed /></ClubProvider>);
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('0'), { timeout: 5000 });
+
+    await user.click(screen.getByText('follow'));
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('1'), { timeout: 5000 });
+
+    // Only the initial load — no post-follow reconcile.
+    expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('names').textContent).toBe('Club A');
+  });
+
+  it('reconciles after unfollow success (Slice 139 — needed for primary-promotion)', async () => {
+    mockUseUser.mockReturnValue({ user: stableUser });
+    // Initial load: user follows both clubs, A is primary.
+    mockGetUserFollowedClubs.mockResolvedValueOnce([clubA, clubB]);
+    mockGetUserPrimaryClub.mockResolvedValue(clubA);
+    mockToggleFollowClub.mockResolvedValue(undefined);
+    // After unfollowing A, server promotes B to primary and reconcile returns [clubB].
+    mockGetUserFollowedClubs.mockResolvedValueOnce([clubB]);
+
+    const user = userEvent.setup();
+    render(<ClubProvider><FollowTestbed /></ClubProvider>);
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('2'), { timeout: 5000 });
+
+    // FollowTestbed's button toggles c1 — currently=true → unfollow path.
+    await user.click(screen.getByText('follow'));
+
+    // Reconcile fires after unfollow (initial load + post-unfollow = 2 calls).
+    await waitFor(() => expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(2), { timeout: 5000 });
+    await waitFor(() => expect(screen.getByTestId('names').textContent).toBe('Club B'), { timeout: 5000 });
   });
 });

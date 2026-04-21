@@ -9,8 +9,9 @@ impact: —
 proof: —
 ```
 
-## Zuletzt: Slice 138 (2026-04-22) — ClubProvider Follow-Race-Mutex (XS)
+## Zuletzt: Slice 139 (2026-04-22) — Reconcile Read-After-Write-Fix (XS)
 
-Flaky Follow-UI gefixt: Mutex per clubId + stable callback (Refs statt State-Deps) + conditional Reconcile (nur wenn letzter In-flight-Toggle).
+Follow-Pfad skippt Reconcile (Optimistic-State ist deterministisch, kein pgBouncer-Race-Risk).
+Unfollow-Pfad behält Reconcile (Primary-Promotion zu unbekanntem Next-Club).
 
-Proof: `worklog/proofs/138-race-mutex.txt` (9 Tests grün, 2 neu: silent-discard + parallel-no-overwrite).
+Proof: `worklog/proofs/139-skip-reconcile.txt` (11 Tests grün, 2 neu, 1 Slice 138 Test angepasst).

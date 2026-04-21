@@ -1,0 +1,47 @@
+Slice 139 — Proof: Skip Reconcile on Follow, Keep on Unfollow
+
+## npx tsc --noEmit
+exit=0
+
+## npx vitest run src/components/providers/__tests__/ClubProvider.test.tsx
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+
+### Neue Tests (Slice 139)
+- skips reconcile after follow success
+  → mockGetUserFollowedClubs called exactly 1× (initial load only), NO reconcile post-follow
+  → followedClubs persists optimistic add ("Club A")
+- reconciles after unfollow success
+  → 2× calls to getUserFollowedClubs (initial + post-unfollow reconcile)
+  → Server-truth overrides optimistic to pick new primary (Club B)
+
+### Angepasster Test (Slice 138)
+- parallel follow-toggles on different clubs do not overwrite
+  → Updated: Slice 139 means follow-path NEVER reconciles, even last in-flight
+  → Both clubs remain from optimistic, getUserFollowedClubs called only once
+
+### Alle bestehenden Tests weiterhin grün
+- renders children
+- starts loading, then finishes when no user
+- loads clubs when user is available
+- sets active club via setActiveClub
+- useClub returns context value outside provider
+- toggleFollow optimistically adds clubData before DB resolve (Slice 133)
+- toggleFollow reverts optimistic add when DB call throws (Slice 133)
+- silently discards re-click on same club while in-flight (Slice 138)
+
+## Fix-Summary
+
+ClubProvider.tsx — conditional reconcile:
+- Before: `if (inflightRef.current.size === 0) { reconcile }`
+- After:  `if (currently && inflightRef.current.size === 0) { reconcile }`
+  (`currently=true` = unfollow path; `currently=false` = follow path → skip)
+
+Rationale:
+- Follow: Optimistic state is complete (we know clubData). Server-reconcile adds no
+  information, only risks pgBouncer read-after-write transient.
+- Unfollow: Service-layer transfers primary-flag to unpredictable next-club. Reconcile
+  is the only way to learn the new primary ordering.
+
+Plus beforeEach fix: mockReset() for leaky mockResolvedValueOnce queues between tests.

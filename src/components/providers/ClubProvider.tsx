@@ -184,10 +184,18 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await toggleFollowClub(user.id, clubId, clubName, !currently);
-      // Only the last outstanding toggle reconciles from server. Earlier calls
-      // skipping reconcile avoids overwriting other in-flight toggles' optimistic state.
+      // Reconcile strategy (Slice 139):
+      //  - Follow: skip reconcile. The optimistic state already knows exactly what
+      //    was added (clubData). Reading back via getUserFollowedClubs can hit a
+      //    pgBouncer read-after-write transient and silently drop the just-inserted
+      //    row → optimistic gets overwritten → UI flickers back.
+      //  - Unfollow: reconcile needed. toggleFollowClub transfers the primary flag
+      //    server-side to an unpredictable next club; only the server knows the new
+      //    primary ordering.
+      // In both cases only the last outstanding toggle reconciles (avoids a stale
+      // earlier reconcile overwriting another in-flight toggle's optimistic state).
       inflightRef.current.delete(clubId);
-      if (inflightRef.current.size === 0) {
+      if (currently && inflightRef.current.size === 0) {
         const followed = await getUserFollowedClubs(user.id);
         setFollowedClubs(followed);
         setPrimaryClub(followed[0] ?? null);
