@@ -3,29 +3,69 @@
 ```
 status: FREEZE
 slice: BETA-LAUNCH
-stage: Phase 3 (ready to start)
-spec: worklog/specs/BETA-SMOKE.md (Phase 2 done)
-impact: done — Phase 1+2 komplett, 6 Commits live
-proof: worklog/proofs/BETA-SMOKE-first-run.txt + 3 green post-deploy-GHA runs
+stage: Phase 3b (Anil kontaktiert 3 Tester)
+spec: memory/beta-testplan.md (Template fertig)
+impact: done — Phase 1+2+3a komplett, 8 Commits live
+proof: 4 green post-deploy-GHA runs + synthetic 3 profiles green + 2 bugs fixed
 ```
 
-## Session-End 2026-04-21 — Phase 1+2 DONE
+## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
 
-9 Tasks Phase 1 + 2 Tasks Phase 2 in 1 Session:
-- Vercel Sentry-Env-Vars live
-- 3 NEXT_PUBLIC_* Sensitive-Flags entfernt (PostHog+Sentry-DSN client-side OK)
+**Regel:** Keine neuen Feature-Slices. Nur Beta-Blocker. Jeder Commit gegen die Frage: "Bewegt das den Launch um einen Tag vor?"
+
+## Session-End 2026-04-21 — Phase 1+2+3a DONE
+
+**12 Tasks + 2 Bug-Fixes + 8 Commits** in 1 Session. Kein Feature-Code.
+
+### Phase 1 — Setup-Härtung (9/9)
+- Vercel Sentry-Env-Vars live (4 Vars inkl. SENTRY_URL=https://de.sentry.io/)
+- 3 NEXT_PUBLIC_* Sensitive-Flags entfernt (PostHog + Sentry-DSN client-side OK)
 - CI npm→pnpm migriert (23% → 100% Success-Rate)
-- Branch-Protection auf main aktiv
+- Branch-Protection auf main (lint+build+test required)
 - Feature-Freeze committed
 - Memory refreshed
-- 3 Secrets rotated (CRON, VAPID, SUPABASE)
-- SUPABASE migrated auf New API Keys System (zero-downtime)
-- Smoke-Suite live: 10 Flows / 13s / grün gegen bescout.net
-- Post-Deploy-GHA live: auto-runs, creates beta-blocker issue on fail
+- 3 Secrets rotated: CRON, VAPID, SUPABASE zero-downtime auf New-API-Keys-System migriert
 
-Kein Feature-Code. 100% operational hygiene.
+### Phase 2 — Post-Deploy-Validation (2/2)
+- `e2e/beta-smoke.spec.ts` — 10 Flows / 13s / grün gegen bescout.net
+- `.github/workflows/post-deploy-smoke.yml` — auto-runs nach deployment_status=success, creates beta-blocker GH-issue on fail
 
-**Next session first step:** `git log --oneline -10` + `gh run list --limit 5` → Beta-Smoke-Status checken → dann Phase 3 (Testplan für 3 Familie-und-Freunde-Tester) starten.
+### Phase 3a — Synthetic User Suite (1/1, Task #17)
+- `e2e/synthetic-users.spec.ts` — 3 Profile (Discovery + Power + TR-Locale), ~2 Min runtime
+- Screenshots + Reports + 802 TR-Strings-Dump in `qa-screenshots/synthetic/` (gitignored)
+- **2 Bugs automatisch gefunden + gefixt:**
+  - CSP Sentry-Block (echter Beta-Blocker, in `vercel.json` behoben)
+  - Test-Cookie-Subdomain-Mismatch (Test-Bug, in spec behoben)
+
+## Offen für nächste Session
+
+### Phase 3b — 3 echte Tester (wartet auf Anil)
+- 3 Personen kontaktieren (Familie/Freunde): min. 1 türkisch-sprachig, min. 1 ohne Fußball-Kontext
+- Zoom-Termine vereinbaren (je 30 Min)
+- `memory/beta-testplan.md` — 8 Tasks + Moderator-Script fertig
+- Results nach jedem Call in `memory/beta-test-results.md` (Template)
+
+### Phase 4 — Polish + TR-Review
+- Onboarding-Polish nach Real-User-Feedback (Task #10)
+- TR-Locale-Review mit Deutsch-Türke (Task #11) — nutzt 802 TR-Strings aus `qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt`
+
+### Phase 5 — Launch
+- Invite-Only Beta für 10-20 Pilot-Fans (Task #12)
+
+### Anil-Action-Items
+- Alten `sb_secret_vT7ae...` in Supabase Dashboard revoken (neuer ist live-proven)
+- 3 Tester kontaktieren
+- 1 Deutsch-Türke für TR-Review organisieren
+
+## Deferred / Post-Beta
+
+- KYC (Sumsub vs Veriff, Task #9) — Trading bleibt bis KYC hinter Feature-Flag
+- Synthetic-Suite `retries: 1` für Vercel-Cold-Starts (known issue)
+- Synthetic-Suite in Post-Deploy-GHA einbinden (aktuell nur lokal/on-demand)
+
+## Next session first step
+
+`git log --oneline -10` + `gh run list --limit 5` → alle CI/Deploy grün? → dann `memory/beta-testplan.md` lesen + Tester-Kontakt-Status mit Anil klären → Phase 3b starten.
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
 

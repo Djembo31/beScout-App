@@ -402,3 +402,86 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - `grep -oP` mit `\K` scheitert silent (Locale: "supports only unibyte and UTF-8").
 - Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'`.
 - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` → Fallback Main-Repo-Path oder Task gut verpacken.
+
+---
+
+## 9. Beta-Launch-Ops (BETA-PREP 2026-04-21 session)
+
+### CSP blocks Sentry EU ingest (silent error-tracking failure)
+- Sentry EU ingest endpoint = `https://<org>.ingest.de.sentry.io/` (aus org-token `region_url` lesbar)
+- Vercel CSP `connect-src` muss **explizit** Sentry enthalten, sonst werden alle JS-Events silent gedroppt (86 CSP-Violations per Synthetic-Run observed in `qa-screenshots/synthetic/profile-b-power/report.md`)
+- Fix in `vercel.json` `connect-src`: `https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.de.sentry.io`
+- Detect: `grep "Refused to connect" qa-screenshots/synthetic/*/report.md` — wenn Sentry-URL → CSP broken
+- Wichtig: Nach `NEXT_PUBLIC_SENTRY_DSN`-Sensitive-Flag-Fix (siehe unten) lädt Sentry-JS im Browser, aber CSP kann Events trotzdem blocken. Beide Fixes nötig.
+
+### Vercel "Sensitive" Flag auf NEXT_PUBLIC_* = Build-Injection-Bug
+- Vercel `NEXT_PUBLIC_*` Vars dürfen NIEMALS "Sensitive" sein
+- "Sensitive" = Build-Zeit-nicht-inject → `process.env.NEXT_PUBLIC_X = undefined` im Browser
+- Symptom: Sentry/PostHog lazy-init OK, aber `dsn === undefined` → silent "init without DSN" → Events gehen ins Leere
+- Fix-Workflow: In Vercel Env-UI MUSS Delete + Create New passieren (nicht Edit!). Edit-Dialog zeigt bei Sensitive-Vars `YOUR_SECRET_VALUE_GOES_HERE` als Placeholder statt echtem Wert — Save darauf ZERSTÖRT die Var.
+- Betrifft historisch: `NEXT_PUBLIC_POSTHOG_HOST`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`
+- Pre-Flight-Check: lokale `.env.local` + `.env.vercel-prod` öffnen, echten Wert kopieren, dann Delete+Create.
+
+### Supabase Legacy JWT vs New API Keys (migration 2024+)
+- Legacy (`anon` + `service_role` JWT): signed mit shared Secret. "Reset JWT Secret" invalidiert **alle** existing JWTs inkl. user sessions — Platform-weite Logout-Event = NIE MACHEN im Live-Betrieb.
+- New (`sb_publishable_...` + `sb_secret_...`): asymmetrisch signed. Rotation invalidiert KEINE user sessions.
+- Beide parallel aktiv in Migration-Phase (Legacy-Retirement Ende 2026).
+- Check current system: `mcp__supabase__get_publishable_keys(project_id)` — wenn `sb_publishable_...` returned, Projekt ist schon migriert (dual-mode).
+- **Zero-Downtime-Rotation-Pattern:**
+  1. Supabase Dashboard → Secret keys Section → "New secret key" (parallel zum alten, beide valid)
+  2. Update 4 Stellen: Vercel Prod + GitHub Repo Secret + `.env.local` + `.env.vercel-prod`
+  3. Vercel Redeploy via empty-commit-push
+  4. Post-Deploy-Smoke grün → DANN alten Key in Supabase revoken
+- Sentry-EU-Hook: Supabase-Project in `de.sentry.io`-Region → auch SENTRY_URL in Vercel nötig (`https://de.sentry.io/`).
+
+### Playwright Cookie Subdomain-Mismatch
+- `context.addCookies({ domain: 'bescout.net' })` → **nicht gesendet** an `www.bescout.net` (explicit domain = exact match).
+- Fix: Leading dot — `domain: '.bescout.net'` = valid für hostname + alle subdomains.
+- Audit: wenn Cookie-basierte Features (i18n-Locale, Feature-Flags, Preferences) im Test nicht greifen → Cookie-Domain + Subdomain-Redirect prüfen.
+- Plus: Cookie-Timing — wenn i18n-Cookie VOR Login gesetzt wird, rendert Login-Page im Target-Locale → lokalisierte Button-Namen (TR: "Giriş Yap") stimmen nicht mit `getByRole('button', { name: 'Anmelden' })` überein. Fix: Login in Default-Locale, DANN Cookie ändern für Post-Login-Navigation.
+
+### Vercel `deployment_status.target_url` in GHA = Preview-URL mit Auth-Wall
+- Der `deployment_status`-Event liefert `target_url = <unique-deploy>.vercel.app`, nicht die Custom-Domain.
+- Unique-Preview-URL hat **Vercel Deployment Protection** (Auth-Wall/Password-Gate).
+- Playwright läuft in die Auth-Wall → `getByPlaceholder('E-Mail Adresse')` findet nichts → 30s-Timeout.
+- Fix: In GHA hardcode die Custom-Domain: `env: PLAYWRIGHT_BASE_URL: https://bescout.net`. Custom-Domain switched atomic auf neuen Prod-Deploy sobald Ready — Zero-Timing-Risiko.
+
+### GitHub Actions: Default `GITHUB_TOKEN` hat KEINE `issues: write`
+- `actions/github-script@v7` mit `github.rest.issues.create({...})` failed mit `"Resource not accessible by integration"`.
+- Fix: `permissions:` Block am Workflow-Top:
+  ```yaml
+  permissions:
+    contents: read
+    issues: write
+    actions: read
+  ```
+- Null-safe payload access für `workflow_dispatch`-Trigger (kein `deployment` payload): `context.payload.deployment?.sha?.substring(0, 7) ?? context.sha.substring(0, 7)`.
+
+### Playwright Test-Timeout-Akkumulation gegen Prod
+- `test.setTimeout(180_000)` (3 min) reicht NICHT für 10-step Suites gegen Prod
+- Grund: jeder step mit `waitForApp()` akkumuliert bis zu 60s Default-Timeouts — bei Cold-Start 10× 15-30s = 150-300s
+- Fix: Lightweight-helper ohne full React-Hydration-Wait:
+  ```ts
+  async function smokeNavigate(page, url, label) {
+    const res = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    expect(res?.status()).toBeLessThan(500);
+    await expect(page.locator('main, [role="main"]')).toBeVisible({ timeout: 15_000 });
+  }
+  ```
+- Global `test.setTimeout(300_000)` für Prod-Suites
+- Runtime-Ziel: 10-Step-Smoke → <15s warm, <30s cold
+
+### Route existence vs. name assumption (Smoke-Test-Gotcha)
+- "Mein Kader" ist **ein Tab auf `/market`**, NICHT eine eigene URL `/kader`. GET `/kader` → 404.
+- "Spieltag" in Sidebar = Link `/fantasy`, NICHT `/fantasy/spieltag` (existiert nicht).
+- Pattern: vor Smoke/Synthetic-Tests `ls src/app/(app)/` prüfen — liefert die echten Route-Slugs.
+- Audit vor Test-Writing: `ls src/app/(app) && grep -rn "href=\"/" src/components/navigation/ src/components/layout/` für Sidebar-Links.
+
+### Two-lockfile drift (pnpm + npm parallel)
+- Wenn `pnpm-lock.yaml` UND `package-lock.json` beide existieren → CI braucht 1-2 Tage bis das Problem sichtbar wird:
+  - Lokal: `pnpm install` updated nur pnpm-lock.yaml
+  - CI mit `npm ci`: bleibt auf altem package-lock.json, installed falsche Versionen → Build kaputt
+  - Vercel (auto-detect): nimmt pnpm-lock.yaml → deployed funktioniert → aber CI failed
+  - 22 konsekutive CI-Fails hinter Branch-Protection (historisch: Slice 118-123 NICHT live für 8 Tage, Hotfix `d73dc235`)
+- Fix: `rm package-lock.json`, `packageManager: "pnpm@X.Y.Z"` in package.json pinnen, CI-Workflow auf `pnpm/action-setup@v4` + `pnpm install --frozen-lockfile` umstellen
+- Prevention: Branch-Protection mit `required_status_checks: [lint, build, test]` — roter main wird automatisch blockiert.

@@ -11,9 +11,37 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
-## BETA-PREP | 2026-04-21 | Phase 1+2 komplett — Setup-Härtung + Smoke-Suite live
+## BETA-PREP | 2026-04-21 | Phase 1+2+3a komplett — Setup + Smoke + Synthetic Users + 2 Bug-Fixes
 
-**NOT a slice — Beta-Launch-Preparation-Block.** 9 Tasks Phase 1 + 2 Tasks Phase 2 in einer Session durchgezogen. Kein Feature-Code, reine operational hygiene.
+**NOT a slice — Beta-Launch-Preparation-Block.** Phase 1 (9 Tasks) + Phase 2 (2 Tasks) + Phase 3a Synthetic User Suite + 2 echte Bug-Fixes gefunden durch Synthetic, in einer Session durchgezogen. Kein Feature-Code, reine operational hygiene.
+
+**Phase 3a Add-on (Task #17):**
+- `e2e/synthetic-users.spec.ts` — 3 Playwright-Profile gegen bescout.net:
+  - Profile A Discovery: 12 entry pages, screenshot + console-error-capture (43s)
+  - Profile B Power User: market → player detail → BuyModal UI-only → manager → fantasy → missions → transactions (26s)
+  - Profile C TR Locale: cookie-based TR-scan, 802 unique TR-strings gedumpt für Task #11 Review (37s)
+- `playwright.config.ts` — "synthetic" project, `pnpm run test:synthetic`
+- `worklog/specs/BETA-SYNTHETIC.md` — Spec + Runbook
+
+**2 Bug-Fixes durch Synthetic gefunden:**
+- **CSP blockt Sentry** (echter Beta-Blocker): `vercel.json connect-src` fehlten `https://*.sentry.io`, `https://*.ingest.sentry.io`, `https://*.ingest.de.sentry.io` → 86 CSP-Violations per Profile-B-Run. Sentry JS loaded (nach Sensitive-Flag-Fix), aber Events silent gedroppt. Fix: 3 Sentry-Domains zur connect-src hinzugefügt.
+- **Test-Cookie-Subdomain-Mismatch** (Test-Bug, nicht App): Cookie `bescout-locale=tr` war für `bescout.net` gesetzt, App läuft auf `www.bescout.net` → nicht gesendet. Fix: leading dot `.bescout.net` + Login erst in DE, dann Cookie setzen (sonst rendert Login-Page auf TR, "Anmelden"-Button matcht nicht).
+
+**Phase 3b Preparation:**
+- `memory/beta-testplan.md` — 8 Tasks pro Zoom-Call, Moderator-Script, Protokoll-Template
+- `memory/beta-test-results.md` — leeres Template zum Befüllen nach jedem Call
+
+**Commits (7):**
+- `5bd74fa` feature-freeze + CI pnpm migration + memory refresh
+- `6a7163b` phase 2 smoke suite live — 10 flows green vs bescout.net
+- `a0f5b69` trigger redeploy for CRON_SECRET rotation
+- `0c784a8` post-deploy-smoke add issues:write permission
+- `b459248` post-deploy-smoke target bescout.net + workflow_dispatch
+- `f23ca2f` + `9e37d61` redeploys for VAPID + Supabase rotation
+- `f6c74a8` phase 3a synthetic user suite + CSP Sentry fix
+- `e90f40e` docs BETA-PREP bilanz
+
+**Phase 1 — Setup-Härtung (9/9):**
 
 **Commits (6):**
 - `5bd74fa` feature-freeze + CI pnpm migration + memory refresh
