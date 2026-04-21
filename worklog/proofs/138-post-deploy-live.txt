@@ -1,0 +1,55 @@
+Slice 138 — Post-Deploy Live-Verifikation gegen bescout.net
+Deploy: dpl_EMdY2HWqq54sCMxHRxN5G2AvvFCX (Commit d6f2d40d, READY)
+Timestamp: 2026-04-22 ~01:45 UTC
+
+## Race-Mutex Live-Test (Rapid-Fire 3 Clicks in 30ms)
+
+Setup: jarvis-qa auf /clubs, first Süper-Lig-Card (Alanyaspor), Follow-Button
+
+DOM-Observation während Rapid-Click:
+| Click | disabled | Label |
+|-------|----------|-------|
+| 0 (pre) | false | "Folgen" |
+| 1 (pre) | true  | "Entfolgen" ← optimistic follow gerade applied |
+| 2 (pre) | true  | "Entfolgen" ← button blockiert, Click no-op |
+
+Expected Slice 138 Verhalten:
+- ✓ Button wird nach 1. Click disabled (togglingId === club.id → loading → disabled)
+- ✓ Clicks 2 + 3 werden vom Browser auf disabled Button als no-op behandelt
+- ✓ Nur 1 DB-Mutation statt 3 (confirmed via DB-state-check: genau 1 neuer Row in club_followers)
+
+## Separate Anomaly entdeckt (NICHT Slice 138 Scope)
+
+Nach 2-5s Settle war finalLabel="Folgen" und Alanyaspor NICHT in "Deine Vereine"
+— OBWOHL DB `club_followers` den Row enthielt:
+
+DB-Query (nach 1. Click):
+  user_id=535bbcaf… club_id=eb43fb36… (Alanyaspor) is_primary=false
+  created_at=2026-04-21 23:42:41 UTC
+
+UI-Observation (~5s nach Click):
+  Provider.followedClubs = [Adana Demirspor] only
+  Alanyaspor-Card shows "Folgen" (isFollowing=false)
+
+→ Reconcile-Query `getUserFollowedClubs` hat den gerade geschriebenen Row nicht
+  zurückgeliefert. Blind-Replace via `setFollowedClubs(followed)` überschrieb
+  den Optimistic-State.
+
+Nach voller Page-Refresh: Alanyaspor war dann korrekt in "Deine Vereine" sichtbar.
+→ Read-After-Write-Transient, wahrscheinlich Supabase pgBouncer transaction-pooling.
+
+## Separate Anomaly → Backlog B5
+
+memory/backlog.md updated mit B5:
+  "ClubProvider Reconcile Read-After-Write-Race"
+  P1, ~2h, Workaround: Reconcile 100-300ms delay ODER clubData-Merge statt blind-replace.
+
+## Conclusion Slice 138
+
+Race-Mutex-Fix **funktioniert wie spezifiziert**:
+- Code-Tests 9/9 (2 neue: silent-discard + parallel-no-overwrite)
+- Live-Observation: Button-disable post-Click + rapid-fire clicks 2+3 blockiert
+- Keine doppelten DB-Mutations
+
+Separate Reconcile-Race (B5) ist ein anderer Bug, nicht durch Slice 138 verursacht
+(auch vorher schon latent), aber durch Slice 138 Live-Test sichtbar gemacht.

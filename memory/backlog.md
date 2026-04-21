@@ -30,6 +30,8 @@ type: project
 | B1 | **Sync-Players-Daily Re-Contamination Monitoring** — Post-sync Hook in `src/app/api/cron/sync-players-daily/route.ts` (detektiert neue Cross-Club-Kontamination INV-39) | P2 | 1-2h | Kanban |
 | B2 | **Clubs-Discovery Bug + UX:** GW-Inkonsistenz + Gegner-Wappen vor Kürzel | P1 | 1h | **NEU 2026-04-22 (Anil)** |
 | B3 | **TM-Squad-Page Scraper Spec** — 140 Clubs × 1 Request statt ~500 Search-Requests | P2 | 2-3h (Spec+Build) | `next-session-briefing-2026-04-23.md` Option C |
+| B4 | **sync-fixtures Cron-Lag Root-Cause** — 4 GW-30 Süper-Lig-Fixtures haben `status='scheduled'` trotz `played_at` 30-60h in Vergangenheit. Vercel Hobby-Cron-Limit (max 2) oder API-Football-Lag? | P1 | 1-2h | Slice 137 scope-out |
+| B5 | **ClubProvider Reconcile Read-After-Write-Race** — `getUserFollowedClubs` direkt nach `upsert` liefert neuen Row manchmal nicht (Supabase pgBouncer transaction-pooling?). Folge: Optimistic-Add wird durch stale Reconcile überschrieben, UI reverted sichtbar. Workaround: Reconcile 100-300ms delay ODER `clubData`-Merge statt blind-replace. | P1 | 2h | Slice 138 Live-Test entdeckt |
 
 **Abhängigkeiten intern:**
 - B3 (Scraper) liefert HTML-Fixtures mit → ermöglicht L2-E1 (Parser-Regression-Tests) zusammen zu shippen
