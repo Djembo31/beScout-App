@@ -183,6 +183,79 @@ Anil-Feedback 2026-04-21: „Ich habe das Gefühl dass viele Dinge die wir ausar
 
 ---
 
+## D6 — PRODUCT: Beta-Usability-Test-Format (30 Min Zoom × 3 Tester mit heterogenen Profilen)
+
+**Datum:** 2026-04-21
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+Phase 3b Beta-Testing läuft als **30-Min Zoom-Calls** mit **3 Testern verschiedener Profile**, nicht als Survey/Async/Single-Profile:
+
+- **Tester A (Power-User):** Tech-affin + Fußball-Fan → validiert Power-Flows
+- **Tester B (Novice):** Nicht-fußballaffin → validiert ob App selbsterklärend
+- **Tester C (TR-Locale):** Türkisch-sprachig → live TR-UX (ergänzt Deutsch-Türke-Review der NUR 12 String-Findings durchklickt)
+
+**Format:** „Denk-laut"-Protokoll, 8 sequentielle Tasks (Onboarding → First-Trade → Fantasy → Community → Mission → Club-Abo → Profile), Moderator beobachtet ohne einzugreifen (45-Sek-Regel), 6-8 Abschluss-Fragen mit NPS.
+
+### Begründung
+
+- Anil ist Einzelperson — Zoom-Setup ist niedrige operative Hürde
+- 3 Tester in heterogenen Profilen maximieren Signal-pro-Zeit gegenüber 5 gleichen
+- „Denk laut" deckt Mental-Model-Mismatches auf, die Survey-Items nie fangen würden
+- Tester-C + Deutsch-Türke trennen **UX-Test** (lebendige Navigation) von **String-Review** (statische Korrektur) — beide nötig, aber verschiedene Methoden
+
+### Auswirkungen
+
+- 3 Files neu: `memory/beta-testplan.md`, `beta-test-results.md`, `beta-testing-runbook.md`
+- Severity-Schema erweitert: neben P0-P2 auch **P3 = Celebration** (positive Findings explizit kategorisieren)
+- Nachrichten-Template DE + TR für Tester-Akquise
+- Commit-Prefix `docs(beta-test): tester <A|B|C> results` etabliert
+
+### Alternativen erwogen
+
+- **Written Survey (Google Forms):** Verworfen — keine Observation möglich, Tester rationalisieren.
+- **Async Video-Recording (User-Testing-Style):** Verworfen — keine Rückfragen möglich bei Confusion, keine Follow-up-Probes.
+- **5+ Power-Users:** Verworfen — überbetont tech-affine Bubble, ignoriert Novice-Perspektive.
+- **Nur 1 Tester für alle Profile:** Verworfen — Tester A hat Fußball-Brille die UX-Gaps für B unsichtbar macht.
+- **Längere Sessions (60 Min):** Verworfen — Test-Fatigue nach 30 Min sichtbar in Fremdstudien.
+
+### Re-Visit-Trigger
+
+- Nach Phase 3b Aggregation: War 30 Min knapp? Fehlten Tasks? → Format für Public-Launch-Beta anpassen.
+- Bei >20 Testern (post-Beta): Methode umstellen auf PostHog-Funnel + selektive Zoom-Calls.
+
+---
+
+## D7 — PROCESS: Stale-Reference-Self-Heal bei Evidence-Check
+
+**Datum:** 2026-04-21
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+Wenn beim Evidenz-Check (z.B. „was ist in Phase 3 noch?") **stale references** gefunden werden (memory/MEMORY.md oder active.md behauptet File-X existiert aber `ls` zeigt Gegenteil), dann wird sofort in derselben Session der stale reference aufgelöst — entweder durch Erstellen des versprochenen Files ODER Entfernen der falschen Referenz. **Nicht „später"**.
+
+### Begründung
+
+Konkret erlebt in dieser Session: `memory/beta-testplan.md` und `beta-test-results.md` waren in `worklog/active.md` + `MEMORY.md` als fertig referenziert, existierten aber nicht. Genau das Pattern das D5 (DISTILL) adressieren soll — und es wäre beim nächsten Session-Start re-injected worden (CLAUDE reads MEMORY.md → findet Link → liest Content → Missing → Halluzination oder Verwirrung).
+
+Stale references sind **infektiös**: je länger sie stehen, desto mehr Files referenzieren sie weiter, desto schwerer rauszuräumen.
+
+### Auswirkungen
+
+- Integriert in DISTILL-Stage: Wenn Stale-Reference beim Chat-Scan gefunden wird, ist Action Teil von DISTILL (schließen vor Commit).
+- Bei Priorisierungsfragen vom Stale-Target: „jetzt" nicht „Slice später".
+- Slice 132 (94f8ceea) ist Proof-of-Concept: Gap entdeckt → selbe Session geschlossen.
+
+### Alternativen erwogen
+
+- **„Ticket öffnen und später"**: Verworfen — führt zu genau dem Problem das D5 löst.
+- **Nur Referenz löschen (nicht Content füllen)**: Verworfen wenn Content echt gebraucht wird (wie beta-testplan.md). Nur OK wenn Referenz unnötig ist.
+- **Aus MEMORY.md auto-Index auskommentieren**: Verworfen — Obsidian zeigt broken links trotzdem.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

@@ -26,6 +26,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 132 | 2026-04-21 | Phase 3b Runbook + DISTILL-Session-End (D6 + D7)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (none) → BUILD → PROVE → LOG → **DISTILL**
+- **Trigger:** Anil-Frage „was ist in Phase 3 noch?" → Stale-Reference entdeckt → sofort geschlossen (D7-Pattern)
+- **Files:**
+  - `memory/beta-testplan.md` (NEW) — 8 Tasks + Moderator-Script + Red-Flags
+  - `memory/beta-test-results.md` (NEW) — Template pro Tester + Aggregation
+  - `memory/beta-testing-runbook.md` (NEW) — Akquise + Setup + Opening/Closing/Anti-Patterns
+  - `memory/decisions.md` — **D6** (Beta-Test-Format) + **D7** (Stale-Reference-Self-Heal) appended
+  - `memory/MEMORY.md` — 3 neue Links
+  - `worklog/active.md` — Session-End-Summary + idle
+- **Proof:** inline (3 neue Files strukturell vollständig, DISTILL-Scan-Evidenz im Commit)
+- **Commit:** `94f8ceea` (Runbook) + DISTILL-final (D6/D7)
+- **Notes:** Erstes komplettes DISTILL-durchgezogenes Session-End. D7 ist Meta-Regel die aus dem realen Gap-Fund diese Session entstand.
+
+---
+
 ## 131 | 2026-04-21 | Memory System Hygiene + Decisions + DISTILL Protocol
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (system-wide doc) → BUILD → PROVE → LOG

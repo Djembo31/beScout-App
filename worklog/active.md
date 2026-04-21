@@ -1,12 +1,53 @@
 # Active Slice
 
 ```
-status: FREEZE
-slice: 131 — Memory System Hygiene + Decisions + DISTILL Protocol
-stage: LOG (wrapped)
-spec: inline (Anil-Feedback: „Kernerkenntnisse gehen verloren" — strukturelle Fix)
-impact: 4 stale-facts fix + memory/decisions.md (NEW) + workflow.md extended + Notion-Sync
-proof: worklog/proofs/131-memory-system-hygiene.txt
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+```
+
+## Session-End 2026-04-21 (22:30) — DISTILLED
+
+**11 Slices/Commits deployed, 5 runbooks, 7 Decisions (D1-D7), TR-Audit 36→12, Bot-DB cleaned, Phase 3b ready for Anil.**
+
+### Commits dieser Session (chronologisch, älteste zuerst)
+1. `2d3c8892` Slice 128 — TR-audit-tool + IPO compliance + cold-start retries
+2. `4caaad3f` Slice 129 — Ländernamen locale + Bot-Posts-Cleanup
+3. `3087bd51` Slice 130 — Non-Blocker TR-leaks (4 i18n-fixes)
+4. `f01fb34e` docs — TR-Delta-Report 36→12 (-67%)
+5. `5fafc894` docs — Beta-Exit-Kriterien (36 KPIs, 3 Ausgänge)
+6. `7dbe0041` docs — I+G+F Monitoring (Metrics + Sentry + Rollback)
+7. `33ad47ab` docs — J: Cost-Budget (Supabase/Vercel/Sentry)
+8. `21a3d5da` Slice 131 — Memory Hygiene + D1-D5 + DISTILL Protocol
+9. `94f8ceea` docs — L: Phase 3b Runbook (testplan + results + ops)
+10. `(final)` Session-End DISTILL — D6 + D7
+
+### Decisions etabliert diese Session (`memory/decisions.md`)
+- **D1** PRODUCT — 7 Ligen launch-ready (Sakaryaspor-Pilot aufgehoben)
+- **D2** ARCHITECTURE — Beta-Metrics via SQL statt PostHog
+- **D3** PROCESS — Rollback-Drill Pflicht vor Beta-Start
+- **D4** PROCESS — Memory: git=Truth, Obsidian=Lese, Notion=Coordination
+- **D5** PROCESS — DISTILL Session-End-Protokoll (Chat-Ausarbeitungen persistieren)
+- **D6** PRODUCT — Beta-Test-Format 30 Min × 3 Tester heterogene Profile
+- **D7** PROCESS — Stale-Reference-Self-Heal: sofort schließen, nicht „später"
+
+### Anil-Blocker für nächste Session
+1. **3 Tester kontaktieren** (`memory/beta-testplan.md` + DM-Templates in runbook)
+2. **Deutsch-Türke** für TR-Review (5-Min-Job nach Phase 3b)
+3. **Vercel-Cron-Check** (https://vercel.com/bescouts-projects/bescout-app/settings/cron-jobs) — 6 Crons definiert, Hobby-Limit 2
+4. **Sentry-Alerts Setup** (20 Min via `memory/beta-sentry-alerts-runbook.md`)
+5. **Rollback-Drill einmal üben** (20 Min via `memory/beta-rollback-runbook.md`)
+6. **Invite-Liste 10-20 Pilot-Fans** für Phase 5
+
+### Next-Session-Start
+```
+git log --oneline -15
+cat memory/decisions.md     # Alle D1-D7 als Kontext
+cat memory/beta-testplan.md # Was tun Tester in Phase 3b
+pnpm run beta:metrics       # Aktuelle Beta-Zahlen
 ```
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
