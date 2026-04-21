@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 129 | 2026-04-21 | Ländernamen locale-aware + Bot-Posts Cleanup (Beta-Blocker Bug 1+2)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (medium) → BUILD → PROVE → LOG
+- **Files:**
+  - `src/lib/leagues.ts` — `COUNTRY_NAMES_DE` + `COUNTRY_NAMES_TR` + `getCountryName(code, locale?)` + `getCountries(locale?)` + `CountryLocale` type export
+  - `src/lib/__tests__/leagues-locale.test.ts` (NEW) — 5 Tests, grün (DE+TR mapping, fallback, coverage-parity)
+  - 6 Consumer: `rankings/page.tsx`, `fantasy/FantasyContent.tsx`, `clubs/page.tsx`, `BestandView.tsx`, `MarktplatzTab.tsx`, `KaderTab.tsx`, `CreateClubModal.tsx` — alle mit `useLocale() as CountryLocale` + pass to getCountries/getCountryName
+  - `e2e/bots/ai/BETA-FREEZE.md` (NEW) — Dokumentation warum Bot-Scripts bis Beta-Ende nicht laufen dürfen
+- **DB-Changes (Production):**
+  - DELETE FROM posts WHERE user_id IN (50 bot-profiles) — 105 Bot-Posts
+  - DELETE FROM post_votes WHERE post_id IN (bot-posts) — 129 Votes
+  - DELETE FROM post_votes WHERE user_id IN (bot-profiles) AND post_id NOT IN (bot-posts) — 29 Votes
+  - Bot-Profiles behalten (50) — bleiben in Rankings-Listen sichtbar
+- **Proof:** `worklog/proofs/129-country-names-bot-cleanup.txt`
+- **Commit:** (pending)
+- **Notes:** Bug 1 aus Slice 128-Audit: TR-User sehen jetzt "Türkiye/Almanya/İspanya/..." statt "Türkei/Deutschland/Spanien/...". Bug 2: Community-Feed zeigt jetzt 10 Posts (alle human) statt 115 (91% Bot-DE-Posts). Bot-Profiles bleiben für Rankings-Visuals. 1h + 15 Min, genau wie geschätzt.
+
+---
+
 ## 128 | 2026-04-21 | TR-Locale Audit Tooling + IPO Compliance Fixes (Beta-Prep Phase 3a extension)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (none) → BUILD → PROVE → LOG

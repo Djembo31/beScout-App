@@ -2,11 +2,11 @@
 
 ```
 status: FREEZE
-slice: 128 — TR-Locale Audit Tooling + IPO Compliance Fixes
+slice: 129 — Ländernamen locale-aware + Bot-Posts Cleanup
 stage: LOG (wrapped)
-spec: inline (BETA-LAUNCH Phase 3b Prep — Pre-Audit für Deutsch-Türke-Reviewer)
-impact: none (Audit-Tooling + 5 i18n-string fixes + retries-config)
-proof: worklog/proofs/128-tr-audit-tooling.txt
+spec: inline (Beta-Blocker-Fix aus Slice 128 Audit — Bug 1 + Bug 2)
+impact: 7 Files (leagues.ts + 6 Consumer) + Production-DB (posts + post_votes)
+proof: worklog/proofs/129-country-names-bot-cleanup.txt
 ```
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)

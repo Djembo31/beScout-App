@@ -1,0 +1,44 @@
+# Slice 129 — Ländernamen locale-aware + Bot-Posts Cleanup
+Erzeugt: 2026-04-21T18:54:03Z
+
+## 1. Bot-Cleanup Pre-Counts
+---
+Bots: 50 | Bot-Posts: 105/115 (91%) | Bot-Votes: 157
+Human-Replies auf Bot-Posts: 0 (safe to delete)
+
+## 2. Bot-Cleanup Transaction Output
+---
+votes_on_bot_posts_deleted: 129
+bot_votes_elsewhere_deleted: 29
+bot_posts_deleted: 105
+
+## 3. Post-Cleanup Verification
+---
+total_posts_now: 10 (war 115)
+total_votes_now: 7 (war 164)
+bot_profiles_remaining: 50 (für Rankings)
+remaining_bot_posts: 0
+
+## 4. leagues-locale tests
+---
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 20:54:06
+[2m   Duration [22m 2.12s[2m (transform 68ms, setup 230ms, import 138ms, tests 7ms, environment 1.45s)[22m
+
+
+## 5. tsc --noEmit
+---
+exit=0
+
+## 6. Compliance-Audit
+---
+> bescout-app@0.1.0 audit:compliance C:\bescout-app
+> bash scripts/audit/compliance.sh
+
+🔍 Compliance-Audit running...
+[32m✅ Compliance-Audit passed[0m

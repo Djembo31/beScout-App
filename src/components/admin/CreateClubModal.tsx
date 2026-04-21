@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { createClub } from '@/lib/services/platformAdmin';
 import { useToast } from '@/components/providers/ToastProvider';
-import { getAllLeaguesCached, getCountryName } from '@/lib/leagues';
+import { getAllLeaguesCached, getCountryName, type CountryLocale } from '@/lib/leagues';
 
 interface CreateClubModalProps {
   open: boolean;
@@ -38,6 +38,7 @@ function slugify(text: string): string {
 export default function CreateClubModal({ open, onClose, adminId, onCreated }: CreateClubModalProps) {
   const t = useTranslations('bescoutAdmin');
   const tc = useTranslations('common');
+  const locale = useLocale() as CountryLocale;
   const { addToast } = useToast();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -154,7 +155,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
               onChange={(e) => {
                 const l = getAllLeaguesCached().find(lg => lg.name === e.target.value);
                 setLeague(e.target.value);
-                if (l) setCountry(getCountryName(l.country));
+                if (l) setCountry(getCountryName(l.country, locale));
               }}
               className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
             >

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar, Sparkles } from 'lucide-react';
 import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -11,7 +11,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { getClubsWithStats } from '@/lib/services/club';
 import { getNextFixturesByClub } from '@/lib/services/fixtures';
-import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
+import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 import type { DbClub } from '@/types';
 import { FanWishModal } from '@/components/fan-wishes/FanWishModal';
@@ -33,8 +33,9 @@ export default function ClubsDiscoveryPage() {
   const [filterCountry, setFilterCountry] = useState('');
   const [filterLeague, setFilterLeague] = useState('');
   const tw = useTranslations('fanWishes');
+  const locale = useLocale() as CountryLocale;
 
-  const countries = useMemo(() => getCountries(), []);
+  const countries = useMemo(() => getCountries(locale), [locale]);
 
   // When country changes, reset league (Smart Collapse)
   const handleCountryChange = useCallback((country: string) => {

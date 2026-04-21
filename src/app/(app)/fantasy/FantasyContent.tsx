@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useCallback, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Trophy, Loader2 } from 'lucide-react';
 import { ErrorBoundary, CountryBar, LeagueBar } from '@/components/ui';
@@ -11,7 +11,7 @@ import { useClub } from '@/components/providers/ClubProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { useUserTickets } from '@/lib/queries/tickets';
 import { getClub } from '@/lib/clubs';
-import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
+import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import { useIsClubAdmin } from '@/lib/queries/events';
 import type { FantasyEvent } from '@/components/fantasy';
 import { CreateEventModal, SpieltagTab } from '@/components/fantasy';
@@ -73,6 +73,7 @@ export default function FantasyContent() {
 
   const t = useTranslations('fantasy');
   const tt = useTranslations('tips');
+  const locale = useLocale() as CountryLocale;
 
   // Store (UI state)
   const store = useFantasyStore();
@@ -96,7 +97,7 @@ export default function FantasyContent() {
 
   // Derive countries that actually have events (from club -> country mapping)
   const eventCountries = useMemo(() => {
-    const allCountries = getCountries();
+    const allCountries = getCountries(locale);
     // Filter to only countries that have events in the current set
     const eventCountryCodes = new Set<string>();
     for (const e of gwEvents) {
@@ -108,7 +109,7 @@ export default function FantasyContent() {
     // If no club-scoped events exist, show all countries
     if (eventCountryCodes.size === 0) return allCountries;
     return allCountries.filter(c => eventCountryCodes.has(c.code));
-  }, [gwEvents]);
+  }, [gwEvents, locale]);
 
   // Smart auto-select: when country has only 1 league, auto-set league
   useEffect(() => {

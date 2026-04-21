@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useMemo, useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { ArrowUpDown, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PosFilter } from '@/components/ui/PosFilter';
 import { CountryBar, LeagueBar } from '@/components/ui/index';
-import { getAllLeaguesCached, getCountryName } from '@/lib/leagues';
+import { getAllLeaguesCached, getCountryName, type CountryLocale } from '@/lib/leagues';
 import type { CountryInfo } from '@/lib/leagues';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMarketStore } from '@/features/market/store/marketStore';
@@ -51,6 +51,7 @@ export default function BestandView({
   onSell, onCancelOrder, incomingOffers, openBids,
 }: BestandViewProps) {
   const t = useTranslations('market');
+  const locale = useLocale() as CountryLocale;
   const { user } = useUser();
   const uid = user?.id;
   const { setTab } = useMarketStore();
@@ -149,11 +150,11 @@ export default function BestandView({
     return Array.from(map.entries())
       .map(([code, count]) => ({
         code,
-        name: getCountryName(code),
+        name: getCountryName(code, locale),
         leagueCount: count,
       }))
       .sort((a, b) => b.leagueCount - a.leagueCount);
-  }, [items]);
+  }, [items, locale]);
 
   // ── Position counts (filtered by active filters, so pos badges reflect context) ──
   const posCounts = useMemo(() => {

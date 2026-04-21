@@ -6,7 +6,7 @@ import { EmptyState, CountryBar, LeagueBar } from '@/components/ui';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
+import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
@@ -25,7 +25,7 @@ import type { KaderPlayer } from './KaderPlayerRow';
 import KaderSellModal from './KaderSellModal';
 import KaderToolbar from './KaderToolbar';
 import KaderClubGroup from './KaderClubGroup';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import EquipmentShortcut from '../EquipmentShortcut';
 
 // ============================================
@@ -82,6 +82,7 @@ export default function KaderTab({
   players, holdings, ipoList, userId, incomingOffers, onSell, onCancelOrder,
 }: KaderTabProps) {
   const t = useTranslations('market');
+  const locale = useLocale() as CountryLocale;
 
   // Store state
   const lens = useManagerStore(s => s.kaderLens);
@@ -201,14 +202,14 @@ export default function KaderTab({
 
   // Derive unique countries from players in Kader
   const kaderCountries = useMemo(() => {
-    const allCountries = getCountries();
+    const allCountries = getCountries(locale);
     const playerCountryCodes = new Set(
       bestandItems
         .map(i => i.player.leagueCountry)
         .filter((c): c is string => !!c)
     );
     return allCountries.filter(c => playerCountryCodes.has(c.code));
-  }, [bestandItems]);
+  }, [bestandItems, locale]);
 
   // Smart collapse: auto-select league when country has only 1 league
   const smartLeague = useMemo(() => {

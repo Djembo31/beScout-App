@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Zap, Search, Send, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
-import { getCountries, getLeaguesByCountry } from '@/lib/leagues';
+import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { KaufenSubTab } from '@/features/market/store/marketStore';
 import type { Player, DbIpo, PublicOrder } from '@/types';
@@ -72,8 +72,9 @@ export default function MarktplatzTab({
     selectedCountry, setSelectedCountry, selectedLeague, setSelectedLeague,
   } = useMarketStore();
   const [searchOpen, setSearchOpen] = useState(false);
+  const locale = useLocale() as CountryLocale;
 
-  const countries = useMemo(() => getCountries(), []);
+  const countries = useMemo(() => getCountries(locale), [locale]);
 
   // Smart auto-select: when country has only 1 league, auto-set selectedLeague
   useEffect(() => {

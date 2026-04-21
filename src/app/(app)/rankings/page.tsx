@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Trophy } from 'lucide-react';
 import { CountryBar, LeagueBar } from '@/components/ui/index';
-import { getCountries } from '@/lib/leagues';
+import { getCountries, type CountryLocale } from '@/lib/leagues';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import {
   SelfRankCard,
@@ -18,10 +18,11 @@ import {
 
 export default function RankingsPage() {
   const t = useTranslations('rankings');
+  const locale = useLocale() as CountryLocale;
 
   const [filterCountry, setFilterCountry] = useState('');
   const [filterLeague, setFilterLeague] = useState('');
-  const countries = useMemo(() => getCountries(), []);
+  const countries = useMemo(() => getCountries(locale), [locale]);
 
   // When country changes, reset league (Smart Collapse)
   const handleCountryChange = useCallback((country: string) => {

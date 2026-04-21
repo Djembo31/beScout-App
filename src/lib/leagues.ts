@@ -9,8 +9,8 @@ let leagueCache: League[] = [];
 let cacheReady = false;
 let cachePromise: Promise<void> | null = null;
 
-/** Country display names for CountryBar */
-const COUNTRY_NAMES: Record<string, string> = {
+/** Country display names — locale-aware. AR-7 + TR-audit fix (2026-04-21). */
+const COUNTRY_NAMES_DE: Record<string, string> = {
   DE: 'Deutschland',
   TR: 'Türkei',
   GB: 'England',
@@ -20,6 +20,21 @@ const COUNTRY_NAMES: Record<string, string> = {
   NL: 'Niederlande',
   PT: 'Portugal',
 };
+
+const COUNTRY_NAMES_TR: Record<string, string> = {
+  DE: 'Almanya',
+  TR: 'Türkiye',
+  GB: 'İngiltere',
+  IT: 'İtalya',
+  ES: 'İspanya',
+  FR: 'Fransa',
+  NL: 'Hollanda',
+  PT: 'Portekiz',
+};
+
+export type CountryLocale = 'de' | 'tr';
+const pickNames = (locale?: CountryLocale) =>
+  locale === 'tr' ? COUNTRY_NAMES_TR : COUNTRY_NAMES_DE;
 
 export type CountryInfo = {
   code: string;
@@ -98,24 +113,26 @@ export function getLeaguesByCountry(countryCode: string): League[] {
   return leagueCache.filter((l) => l.country === countryCode);
 }
 
-/** Get unique countries with league counts (sorted by league count desc) */
-export function getCountries(): CountryInfo[] {
+/** Get unique countries with league counts (sorted by league count desc).
+ *  Pass `locale` for TR display names; default 'de'. */
+export function getCountries(locale?: CountryLocale): CountryInfo[] {
   const map = new Map<string, number>();
   for (const l of leagueCache) {
     map.set(l.country, (map.get(l.country) ?? 0) + 1);
   }
+  const names = pickNames(locale);
   return Array.from(map.entries())
     .map(([code, count]) => ({
       code,
-      name: COUNTRY_NAMES[code] ?? code,
+      name: names[code] ?? code,
       leagueCount: count,
     }))
     .sort((a, b) => b.leagueCount - a.leagueCount);
 }
 
-/** Get country display name by code */
-export function getCountryName(code: string): string {
-  return COUNTRY_NAMES[code] ?? code;
+/** Get country display name by code. Pass `locale` for TR; default 'de'. */
+export function getCountryName(code: string, locale?: CountryLocale): string {
+  return pickNames(locale)[code] ?? code;
 }
 
 /** Check if league cache is ready */
