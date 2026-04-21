@@ -238,9 +238,11 @@ MEHR FANS kommen → Flywheel dreht sich schneller
 
 ---
 
-## Ziel-Markt
+## Ziel-Markt (Stand 2026-04-21, siehe `memory/decisions.md` D1)
 
-- **Pilot:** Sakaryaspor (TFF 1. Lig), 1 Club, 25 Spieler, 50 Beta-Tester
-- **Phase 2:** 3-5 türkische Vereine (2. Liga)
-- **Phase 3:** Süper Lig (Galatasaray, Fenerbahçe, Beşiktaş)
-- **Langfristig:** Multi-Liga, Multi-Land (Bundesliga, Premier League, etc.)
+- **Beta (2026-04):** Invite-Only, 10-20 Pilot-Fans, alle 7 Ligen launch-ready
+- **7 Ligen launch-ready:** Süper Lig, TFF 1. Lig, Bundesliga, 2. Bundesliga, Premier League, La Liga, Serie A
+- **Sprachen-Prio:** DE + TR (aus persönlicher Nähe), alle Ligen gleicher Qualitätsstandard
+- **Post-Beta Club-Deal:** Direktes Targeting größerer Clubs (Bundesliga, Süper Lig, EU-Top-5) — Sakaryaspor/TFF1 nicht mehr Pilot-exklusiv
+
+**Historisch (pre-2026-04):** Sakaryaspor war initialer Hook und Vertriebs-Testfall. Produkt-Scope ist seitdem deutlich erweitert — Pilot-Exklusivität wurde aufgehoben weil Produktstand für größere Clubs reicht.

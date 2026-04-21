@@ -5,7 +5,7 @@
 
 ## Projekt
 BeScout: B2B2C Fan-Engagement. Next.js 14, TypeScript strict, Tailwind (Dark Only), Supabase.
-Pilot: Sakaryaspor (TFF 1. Lig). 632 Spieler, 20 Clubs.
+Scope: 7 Ligen launch-ready (Süper Lig, TFF1, Bundesliga, 2.BL, Premier League, La Liga, Serie A). 4.556 Spieler, >100 Clubs. DE+TR-Prio aber alle Ligen gleicher Qualitätsstandard (siehe `memory/decisions.md` D1).
 
 ---
 

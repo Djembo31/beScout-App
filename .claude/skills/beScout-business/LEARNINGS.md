@@ -70,9 +70,10 @@ Jede Seite die $SCOUT oder DPC erwaehnt MUSS den TradingDisclaimer Component ent
 | TIER_BLOCKED (USA/China/OFAC) | Kein Zugang |
 
 ### Tuerkei = TIER_RESTRICTED
-Pilot ist Sakaryaspor (tuerkischer Club), aber TR-User sind RESTRICTED.
+TR-User sind RESTRICTED (auch wenn TR-Clubs wie Sakaryaspor/Galatasaray Teil des Scope sind).
 Duerfen: Content lesen, Free Fantasy spielen.
 Duerfen NICHT: Handeln, $SCOUT kaufen/verkaufen.
+Scope-Kontext (2026-04-21): 7 Ligen launch-ready — siehe `memory/decisions.md` D1.
 
 ## i18n Compliance
 

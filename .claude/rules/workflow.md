@@ -1,14 +1,19 @@
 # BeScout Workflow — der SHIP-Loop
 
-**Eine Aufgabe. Fuenf Stufen. Keine Ausnahmen.**
+**Eine Aufgabe. Fuenf Stufen pro Slice. Plus DISTILL am Session-Ende.**
 
 ## Der Loop
 
 ```
 TASK  →  SPEC  →  IMPACT  →  BUILD  →  PROVE  →  LOG  →  next
+                                                         │
+                                          (Session-End)  ▼
+                                                      DISTILL → memory/decisions.md
 ```
 
 Jeder Slice durchlaeuft alle 5 Stufen. Was nicht zutrifft wird explizit als `skipped (Grund)` markiert — nicht weggelassen.
+
+**DISTILL** ist kein Slice-Stage, sondern ein **Session-End-Protokoll** — siehe Section am Ende.
 
 ## Stufen im Detail
 
@@ -147,3 +152,53 @@ Wenn Anil sagt: **"Notfall, einfach fixen"**:
 - Nach dem Fix: nachtraeglich Spec + Proof nachholen ODER bewusst als `emergency-fix` loggen
 
 Nicht missbrauchen. Wenn der Anti-Pattern-Count in einer Woche > 2 ist: Retrospektive.
+
+---
+
+## DISTILL — Session-End-Protokoll (seit 2026-04-21, siehe `memory/decisions.md` D5)
+
+**Zweck:** Chat-Ausarbeitungen nicht verloren gehen lassen. Strategic Decisions, Architektur-Alternativen und Process-Erfindungen werden am Session-Ende in `memory/decisions.md` extrahiert.
+
+### Wann triggern?
+
+- **Pflicht:** Am Ende jeder Session VOR Stop-Hook.
+- **Optional:** Nach jedem Slice (wenn Scope es rechtfertigt).
+- **Trigger-Phrasen in Chat, die einen Entry erzwingen:**
+  - „ist nicht mehr...", „ab jetzt...", „neu...", „Scope-Change..."
+  - „wir entscheiden uns für...", „lieber A als B weil..."
+  - „muss jede Session so gemacht werden", „neuer Prozess..."
+  - „unabhängig davon..." → oft Strategic-Redirect
+
+### Was extrahieren?
+
+| Art | Wohin | Commit-Prefix |
+|-----|-------|---------------|
+| Strategic (Scope, Markt, Zielgruppe) | `memory/decisions.md` Category PRODUCT | `docs(decision): D<n> — ...` |
+| Architektur mit Alternativen-Abwägung | `memory/decisions.md` Category ARCHITECTURE | `docs(decision): D<n> — ...` |
+| Process-Erfindung (Workflow, Regel, Checkliste) | `memory/decisions.md` Category PROCESS | `docs(decision): D<n> — ...` |
+| Code-Pattern (Bug-Klasse, Fix-Template) | `.claude/rules/common-errors.md` | `docs(learning): ...` |
+| Business-Wording (Compliance) | `.claude/rules/business.md` | `docs(compliance): ...` |
+
+### Pflicht-Sektionen im decisions.md-Entry
+
+Siehe Template in `memory/decisions.md` am Ende. Mindestens:
+- ID (D<n>, aufsteigend, nie wiederverwendet)
+- Category (PRODUCT | ARCHITECTURE | PROCESS)
+- Datum + Status (Aktiv/Trial/Verworfen/Superseded)
+- Entscheidung, Begründung, Auswirkungen, **Alternativen erwogen**, optional Re-Visit-Trigger
+
+### Beispiel-Ausführung
+
+Am Ende einer Session:
+1. Chat rückwärts scannen: Welche Ausarbeitungen gab es?
+2. Für jede: passt in PRODUCT / ARCHITECTURE / PROCESS?
+3. Nächste freie `D<n>`-ID nehmen
+4. Entry in `memory/decisions.md` einfügen (nicht anhängen — chronologisch aufsteigend nach ID)
+5. Commit: `docs(decision): D<n> — <title>` (Plural bei mehreren: `docs(decisions): D<a>-D<b> — ...`)
+
+### Anti-Patterns
+
+1. **„Ist doch in der Chat-History"** — nein, die ist nach 24h weg.
+2. **„Schreibe ich später rein"** — später heißt nie. Am Session-End jetzt.
+3. **Alles in 1 Entry stopfen** — jede Decision eigenes D<n>, sonst untrennbar.
+4. **Alternativen weglassen** — die „warum nicht anders"-Info ist der halbe Wert.

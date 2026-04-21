@@ -1,6 +1,8 @@
 # BeScout — CTO Playbook
 
-**B2B2C Fan-Engagement.** Clubs verkaufen Scout Cards, starten Events/Votes, verteilen $SCOUT-Credits. Pilot: Sakaryaspor (TFF 1. Lig).
+**B2B2C Fan-Engagement.** Clubs verkaufen Scout Cards, starten Events/Votes, verteilen $SCOUT-Credits.
+
+**Scope (2026-04-21, siehe `memory/decisions.md` D1):** Alle 7 Ligen launch-ready (Süper Lig, TFF 1. Lig, Bundesliga, 2. Bundesliga, Premier League, La Liga, Serie A). Sakaryaspor/TFF1 waren initialer Hook — nicht mehr Pilot-Exklusiv. DE+TR-Prio aus persönlicher Nähe, aber gleicher Qualitätsstandard für alle Ligen.
 
 ## Der Master-Prozess: SHIP-Loop
 

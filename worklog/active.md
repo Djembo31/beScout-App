@@ -2,11 +2,11 @@
 
 ```
 status: FREEZE
-slice: 130 — Non-Blocker TR-Locale-Leaks (Gestartet + DOUBTFUL + LIVE + Name)
+slice: 131 — Memory System Hygiene + Decisions + DISTILL Protocol
 stage: LOG (wrapped)
-spec: inline (4 Non-Blocker aus Slice 128 Audit)
-impact: 5 Files (kein DB-Change)
-proof: worklog/proofs/130-non-blocker-tr-fixes.txt
+spec: inline (Anil-Feedback: „Kernerkenntnisse gehen verloren" — strukturelle Fix)
+impact: 4 stale-facts fix + memory/decisions.md (NEW) + workflow.md extended + Notion-Sync
+proof: worklog/proofs/131-memory-system-hygiene.txt
 ```
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)

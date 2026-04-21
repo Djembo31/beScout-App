@@ -26,6 +26,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 131 | 2026-04-21 | Memory System Hygiene + Decisions + DISTILL Protocol
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (system-wide doc) → BUILD → PROVE → LOG
+- **Trigger:** Anil-Feedback — „ich habe das Gefühl dass viele Dinge die wir ausarbeiten verloren gehen"
+- **Files:**
+  - `CLAUDE.md` — Sakaryaspor-Pilot-Claim entfernt, 7-Ligen-Scope
+  - `.claude/agents/SHARED-PREFIX.md` — selbe
+  - `.claude/skills/beScout-business/LEARNINGS.md` — selbe
+  - `docs/VISION.md` — Ziel-Markt-Section komplett überarbeitet
+  - `memory/decisions.md` (NEW) — Persistent Decisions Log, 3 Kategorien (PRODUCT/ARCHITECTURE/PROCESS), 5 initial Entries D1-D5 + Template
+  - `memory/MEMORY.md` — Index mit decisions.md + 5 beta-*.md verlinkt
+  - `.claude/rules/workflow.md` — SHIP-Loop um **DISTILL** Session-End-Protokoll erweitert
+  - `memory/reference_notion_integration.md` — Strategic-Decisions-Sync-Pattern dokumentiert
+- **Notion-Sync:** Status-Page bekommt neue „Strategic Decisions"-Section mit Tabelle D1-D5
+- **Proof:** `worklog/proofs/131-memory-system-hygiene.txt`
+- **Commit:** (pending)
+- **Notes:** 5 initial Decision-Entries dokumentieren die strategischen Weichen heute (7 Ligen, SQL-statt-PostHog, Rollback-Drill-Pflicht, Memory-Architektur, DISTILL-Protokoll). Ab sofort muss Claude am Session-End Chat-Ausarbeitungen nach decisions.md extrahieren.
+
+---
+
 ## 129 | 2026-04-21 | Ländernamen locale-aware + Bot-Posts Cleanup (Beta-Blocker Bug 1+2)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (medium) → BUILD → PROVE → LOG

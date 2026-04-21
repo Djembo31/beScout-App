@@ -1,0 +1,43 @@
+# Slice 131 — Memory System Hygiene + Decisions + DISTILL Protocol
+Erzeugt: 2026-04-21T20:01:06Z
+
+## Stale Sakaryaspor-Facts — fixed in 4 files
+---
+warning: in the working copy of '.claude/agents/SHARED-PREFIX.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.claude/skills/beScout-business/LEARNINGS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'CLAUDE.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/VISION.md', LF will be replaced by CRLF the next time Git touches it
+ .claude/agents/SHARED-PREFIX.md              |  2 +-
+ .claude/skills/beScout-business/LEARNINGS.md |  3 ++-
+ CLAUDE.md                                    |  4 +++-
+ docs/VISION.md                               | 12 +++++++-----
+ 4 files changed, 13 insertions(+), 8 deletions(-)
+
+## Stale-Check post-fix
+---
+(expected: no matches = clean)
+
+## New file: memory/decisions.md
+---
+212 memory/decisions.md
+6
+Decision entries D1-D5 added.
+
+## Updated MEMORY.md index
+---
+6
+(new links to decisions.md + 5 beta-*.md)
+
+## Extended workflow.md with DISTILL section
+---
+4
+(DISTILL stage documented in SHIP-loop diagram + dedicated section)
+
+## Notion-Sync verified
+---
+Status-Page 34773b4a80e9814e97fac38763659dc0 updated with 'Strategic Decisions' section
+5 entries D1-D5 als table spiegel
+
+## tsc --noEmit
+---
+exit=0

@@ -3,11 +3,21 @@
 > Projekt-interne Memory-Files fuer Agents und Sessions.
 > User-Memory (auto-loaded) liegt in `~/.claude/projects/`.
 
+## Strategic + Architectural Decisions
+- **[decisions.md](decisions.md)** — Persistent Decisions Log (PRODUCT + ARCHITECTURE + PROCESS) mit ID-Schema D<n>, Alternativen, Superseded-Tracking. **Erster Stop bei "was haben wir nochmal entschieden?"**
+
 ## Knowledge Base
 - [errors.md](errors.md) — Top 50 Fehler nach Kategorie mit Fixes
 - [patterns.md](patterns.md) — Top 20 etablierte Code-Patterns
 - [current-sprint.md](current-sprint.md) — Aktueller Sprint-Stand + Blocker
 - [session-handoff.md](session-handoff.md) — Letzte Session + naechste Schritte
+
+## Beta-Launch Operations (aktiv 2026-04-21)
+- [beta-exit-criteria.md](beta-exit-criteria.md) — 36 KPIs + 3-Ausgangs-Logik (Go/Extend/Abort)
+- [beta-cost-budget.md](beta-cost-budget.md) — Supabase + Vercel + Sentry Usage vs Free-Tier
+- [beta-rollback-runbook.md](beta-rollback-runbook.md) — Rollback-Prozedur + Pre-Beta-Drill-Anleitung
+- [beta-sentry-alerts-runbook.md](beta-sentry-alerts-runbook.md) — 3 Alert-Rules Setup-Anleitung
+- [beta-tr-locale-findings.md](beta-tr-locale-findings.md) — TR-Audit Delta 36→12 + Deutsch-Türke-Review-Vorarbeit
 
 ## Feature Specs
 - [features/fantasy.md](features/fantasy.md) — Fantasy System (12 Flows)
