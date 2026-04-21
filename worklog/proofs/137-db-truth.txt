@@ -1,0 +1,47 @@
+Slice 137 — Proof: DB-Truth vor Fix
+
+## Süper-Lig Fixtures-Status pro Gameweek (2026-04-22 ~01:15 UTC)
+
+Heute-UTC: 2026-04-21 23:19
+
+SELECT gameweek, COUNT(*) n_total,
+  COUNT(*) FILTER (WHERE status='finished') n_finished,
+  COUNT(*) FILTER (WHERE status='scheduled') n_scheduled
+FROM fixtures f
+WHERE EXISTS (SELECT 1 FROM clubs c WHERE c.league ILIKE '%süper%'
+              AND (c.id=f.home_club_id OR c.id=f.away_club_id))
+GROUP BY gameweek ORDER BY gameweek DESC;
+
+gameweek | n_total | n_finished | n_scheduled
+---------+---------+------------+-------------
+      34 |       9 |          0 |           9
+      33 |       9 |          0 |           9
+      32 |       9 |          0 |           9
+      31 |       9 |          0 |           9
+      30 |       9 |          5 |           4   ← 4 stale-scheduled
+      29 |       9 |          9 |           0
+      28 |       9 |          9 |           0
+      27 |       9 |          9 |           0
+
+## Stale-scheduled Süper-Lig-Fixtures (played_at in Vergangenheit, status=scheduled)
+
+gameweek | status    | home | away | played_at
+---------+-----------+------+------+---------------------
+      30 | scheduled | GAZ  | KAY  | 2026-04-20 17:00 UTC  (30h past)
+      30 | scheduled | KAS  | ALA  | 2026-04-19 11:30 UTC  (60h past)
+      30 | scheduled | SAM  | BES  | 2026-04-19 14:00 UTC  (57h past)
+      30 | scheduled | TRA  | IST  | 2026-04-19 17:00 UTC  (54h past)
+
+## Interpretation
+
+Alle 4 scheduled-Fixtures haben played_at 30-60h in der Vergangenheit — sind also
+real gespielt aber sync-fixtures-Cron hat sie nicht auf 'finished' gesetzt.
+
+Vor dem Fix: 8 Süper-Lig-Clubs (involvierte Clubs in den 4 stale Fixtures) zeigten GW 30
+als "next" fixture, 10 andere zeigten GW 31 → inkonsistente UI.
+
+Nach dem Fix (Service-Side-Filter played_at < now()-6h):
+alle 18 Süper-Lig-Clubs zeigen die erste echte zukünftige Fixture.
+
+Root-Cause-Follow-Up (separat):
+sync-fixtures Cron hat 30-60h Lag — deferred in separaten Slice.

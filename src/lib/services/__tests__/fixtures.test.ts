@@ -277,17 +277,63 @@ describe('getFloorPricesForPlayers', () => {
 // Next Fixtures
 // ============================================
 describe('getNextFixturesByClub', () => {
-  it('maps home and away clubs', async () => {
+  const futureIso = () => new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+  const stalePastIso = () => new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+
+  it('maps home and away clubs including opponent logo', async () => {
     mockTable('fixtures', [{
-      gameweek: 15, home_club_id: 'c1', away_club_id: 'c2', played_at: '2025-03-22T18:00:00Z',
-      home_club: { name: 'Home FC', short: 'HFC' },
-      away_club: { name: 'Away FC', short: 'AFC' },
+      gameweek: 15, home_club_id: 'c1', away_club_id: 'c2', played_at: futureIso(),
+      home_club: { name: 'Home FC', short: 'HFC', logo_url: 'https://cdn/home.png' },
+      away_club: { name: 'Away FC', short: 'AFC', logo_url: 'https://cdn/away.png' },
     }]);
     const result = await getNextFixturesByClub();
     expect(result.get('c1')?.opponentShort).toBe('AFC');
+    expect(result.get('c1')?.opponentLogoUrl).toBe('https://cdn/away.png');
     expect(result.get('c1')?.isHome).toBe(true);
     expect(result.get('c2')?.opponentShort).toBe('HFC');
+    expect(result.get('c2')?.opponentLogoUrl).toBe('https://cdn/home.png');
     expect(result.get('c2')?.isHome).toBe(false);
+  });
+  it('returns null opponentLogoUrl when club has no logo', async () => {
+    mockTable('fixtures', [{
+      gameweek: 15, home_club_id: 'c1', away_club_id: 'c2', played_at: futureIso(),
+      home_club: { name: 'Home FC', short: 'HFC', logo_url: null },
+      away_club: { name: 'Away FC', short: 'AFC', logo_url: null },
+    }]);
+    const result = await getNextFixturesByClub();
+    expect(result.get('c1')?.opponentLogoUrl).toBeNull();
+    expect(result.get('c2')?.opponentLogoUrl).toBeNull();
+  });
+  it('skips stale scheduled fixtures (played_at more than 6h in the past)', async () => {
+    mockTable('fixtures', [
+      // Stale: played_at 48h ago but still status='scheduled' (sync lag)
+      {
+        gameweek: 30, home_club_id: 'c1', away_club_id: 'c2', played_at: stalePastIso(),
+        home_club: { name: 'Home FC', short: 'HFC', logo_url: null },
+        away_club: { name: 'Away FC', short: 'AFC', logo_url: null },
+      },
+      // Fresh: future fixture
+      {
+        gameweek: 31, home_club_id: 'c1', away_club_id: 'c3', played_at: futureIso(),
+        home_club: { name: 'Home FC', short: 'HFC', logo_url: null },
+        away_club: { name: 'Third FC', short: 'TFC', logo_url: null },
+      },
+    ]);
+    const result = await getNextFixturesByClub();
+    expect(result.get('c1')?.gameweek).toBe(31);
+    expect(result.get('c1')?.opponentShort).toBe('TFC');
+    expect(result.has('c2')).toBe(false);
+    expect(result.get('c3')?.gameweek).toBe(31);
+  });
+  it('keeps fixtures with played_at = null (unscheduled)', async () => {
+    mockTable('fixtures', [{
+      gameweek: 32, home_club_id: 'c1', away_club_id: 'c2', played_at: null,
+      home_club: { name: 'Home FC', short: 'HFC', logo_url: null },
+      away_club: { name: 'Away FC', short: 'AFC', logo_url: null },
+    }]);
+    const result = await getNextFixturesByClub();
+    expect(result.get('c1')?.gameweek).toBe(32);
+    expect(result.get('c1')?.playedAt).toBeNull();
   });
   it('returns empty Map when no data', async () => {
     mockTable('fixtures', null);

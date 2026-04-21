@@ -451,19 +451,22 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
 export type NextFixtureInfo = {
   opponentName: string;
   opponentShort: string;
+  opponentLogoUrl: string | null;
   isHome: boolean;
   gameweek: number;
   playedAt: string | null;
 };
 
-/** Get next scheduled fixture for each club */
+const STALE_SCHEDULED_GRACE_MS = 6 * 60 * 60 * 1000;
+
+/** Get next scheduled fixture for each club. Ignores stale-scheduled rows (played_at more than 6h in the past) to survive sync-lag. */
 export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureInfo>> {
   const { data, error } = await supabase
     .from('fixtures')
     .select(`
       gameweek, home_club_id, away_club_id, played_at,
-      home_club:clubs!fixtures_home_club_id_fkey(name, short),
-      away_club:clubs!fixtures_away_club_id_fkey(name, short)
+      home_club:clubs!fixtures_home_club_id_fkey(name, short, logo_url),
+      away_club:clubs!fixtures_away_club_id_fkey(name, short, logo_url)
     `)
     .eq('status', 'scheduled')
     .order('gameweek', { ascending: true });
@@ -471,10 +474,15 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
   if (error) throw new Error(error.message);
   if (!data) return new Map();
 
+  const staleCutoffMs = Date.now() - STALE_SCHEDULED_GRACE_MS;
+
   const result = new Map<string, NextFixtureInfo>();
   for (const row of data) {
-    const home = row.home_club as unknown as { name: string; short: string } | null;
-    const away = row.away_club as unknown as { name: string; short: string } | null;
+    const playedAt = row.played_at as string | null;
+    if (playedAt && new Date(playedAt).getTime() < staleCutoffMs) continue;
+
+    const home = row.home_club as unknown as { name: string; short: string; logo_url: string | null } | null;
+    const away = row.away_club as unknown as { name: string; short: string; logo_url: string | null } | null;
     const homeClubId = row.home_club_id as string;
     const awayClubId = row.away_club_id as string;
 
@@ -482,9 +490,10 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
       result.set(homeClubId, {
         opponentName: away?.name ?? '',
         opponentShort: away?.short ?? '',
+        opponentLogoUrl: away?.logo_url ?? null,
         isHome: true,
         gameweek: row.gameweek as number,
-        playedAt: row.played_at as string | null,
+        playedAt,
       });
     }
 
@@ -492,9 +501,10 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
       result.set(awayClubId, {
         opponentName: home?.name ?? '',
         opponentShort: home?.short ?? '',
+        opponentLogoUrl: home?.logo_url ?? null,
         isHome: false,
         gameweek: row.gameweek as number,
-        playedAt: row.played_at as string | null,
+        playedAt,
       });
     }
   }

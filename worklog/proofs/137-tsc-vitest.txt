@@ -1,0 +1,20 @@
+Slice 137 — Proof: tsc + vitest
+
+## npx tsc --noEmit
+exit=0 (clean)
+
+## npx vitest run src/lib/services/__tests__/fixtures.test.ts
+
+ RUN  v4.1.0 C:/bescout-app
+
+ Test Files  1 passed (1)
+      Tests  29 passed (29)
+   Start at  01:22:09
+   Duration  2.13s (transform 141ms, setup 222ms, import 131ms, tests 32ms, environment 1.44s)
+
+## Neue Tests (alle grün)
+- getNextFixturesByClub > maps home and away clubs including opponent logo
+- getNextFixturesByClub > returns null opponentLogoUrl when club has no logo
+- getNextFixturesByClub > skips stale scheduled fixtures (played_at more than 6h in the past)
+- getNextFixturesByClub > keeps fixtures with played_at = null (unscheduled)
+- getNextFixturesByClub > returns empty Map when no data
