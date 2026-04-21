@@ -1,0 +1,68 @@
+Slice 137 — Post-Deploy Live-Verifikation gegen bescout.net
+Deploy: dpl_48PKayE4RviTPwRL28FjmhmQ7ack (Commit 0eaf4b34, READY)
+Timestamp: 2026-04-22 ~01:30 UTC
+
+## Setup
+- URL: https://www.bescout.net/clubs
+- User: jarvis-qa (persistent Playwright-session)
+- Playwright MCP Viewport: Desktop + Mobile (393px)
+
+## DOM-Extraction — Süper-Lig-Section
+
+Script extracts from /clubs DOM:
+- Jede Club-Card in der Süper-Lig-Grid
+- Club-Name (aus a[href^="/club/"])
+- GW-Label (aus span.font-mono)
+- Opponent-Kürzel (last span.truncate im vs-Container)
+- hasLogo = opponent-Container enthält <img>
+
+### Ergebnis
+
+| # | Club | GW | Opp | Logo |
+|---|------|----|-----|------|
+| 1 | Alanyaspor | GW 31 | SAM | ✓ |
+| 2 | Antalyaspor | GW 31 | GOZ | ✓ |
+| 3 | Başakşehir | GW 31 | KAS | ✓ |
+| 4 | Beşiktaş | GW 31 | KAR | ✓ |
+| 5 | Eyüpspor | GW 31 | GAZ | ✓ |
+| 6 | Fatih Karagümrük | GW 31 | BES | ✓ |
+| 7 | Fenerbahçe | GW 31 | GAL | ✓ |
+| 8 | Galatasaray | GW 31 | FEN | ✓ |
+| 9 | Gaziantep FK | GW 31 | EYU | ✓ |
+| 10 | Gençlerbirliği S.K. | GW 31 | KOC | ✓ |
+| 11 | Göztepe | GW 31 | ANT | ✓ |
+| 12 | Kasımpaşa | GW 31 | IST | ✓ |
+| 13 | Kayserispor | GW 31 | RIZ | ✓ |
+| 14 | Kocaelispor | GW 31 | GEN | ✓ |
+| 15 | Konyaspor | GW 31 | TRA | ✓ |
+| 16 | Rizespor | GW 31 | KAY | ✓ |
+| 17 | Samsunspor | GW 31 | ALA | ✓ |
+| 18 | Trabzonspor | GW 31 | KON | ✓ |
+
+## Akzeptanz-Check
+
+| Criterion | Expected | Actual | Pass |
+|-----------|----------|--------|------|
+| Stale-Filter greift: alle Süper-Lig-Clubs zeigen dieselbe GW | GW 31 × 18 | GW 31 × 18 | ✓ |
+| opponentLogoUrl gerendert | 18/18 | 18/18 | ✓ |
+| Home↔Away-Paare stimmig | ja | SAM↔ALA, GAL↔FEN, ANT↔GOZ, KAY↔RIZ, BES↔KAR, KAS↔IST, EYU↔GAZ, KOC↔GEN, KON↔TRA | ✓ |
+| Backward-Compat (kein Crash) | console 0 errors | 0 errors, 5 warnings (unrelated) | ✓ |
+
+## Vorher/Nachher
+
+Vorher (Slice 133 + 4 stale-scheduled GW-30-Fixtures in DB):
+- 8 Süper-Lig-Clubs (GAZ, KAY, KAS, ALA, SAM, BES, TRA, IST) zeigten GW 30
+- 10 Süper-Lig-Clubs zeigten GW 31
+- Kein Opponent-Logo
+
+Nachher (Slice 137 mit 6h Stale-Filter + logo_url Join):
+- 18/18 Süper-Lig-Clubs zeigen GW 31
+- 18/18 Opponent-Logos sichtbar vor Kürzel
+
+## Methodology
+
+DOM-Inspection als Proof ist ausreichend weil:
+1. Die Zahlen (18 × GW 31, 18 × Logo) sind eindeutig reproduzierbar
+2. Die Service-Änderung ist reiner Service-Layer (kein Rendering-Risiko)
+3. 29/29 Vitest-Tests gegen mock-Daten bereits grün
+4. DB-Truth (137-db-truth.txt) zeigt die stale-scheduled Rows als Ursache
