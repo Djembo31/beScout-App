@@ -1,13 +1,30 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
+status: FREEZE
+slice: BETA-LAUNCH
+stage: Phase 1 (Setup-Härtung)
+spec: worklog/specs/BETA-LAUNCH.md (pending)
+impact: CI + Vercel + Secrets
+proof: CI-grün + Smoke-Suite + Real-User-Test
 ```
+
+## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
+
+**Regel:** Ab sofort **keine neuen Feature-Slices** mehr committed. Nur Beta-Blocker. Jeder neue Commit wird gegen diese Frage geprüft:
+
+> "Bewegt das den Launch um einen Tag vor?"
+
+Nein → in `post-beta.md` parken. Ja → Slice-Nummer vergeben + durch SHIP-Loop.
+
+**Offene Phase-1-Tasks** (siehe TaskList):
+- CI-Workflow von npm → pnpm (in progress)
+- Branch-Protection auf main aktivieren
+- 3 rotate-flagged Vercel-Secrets rotieren (VAPID, CRON_SECRET, SUPABASE_SERVICE_ROLE_KEY)
+
+**Ziel:** Beta-Launch (Invite-Only, 10-20 Pilot-Fans) innerhalb 5 Arbeitstage.
+
+---
 
 ## Session 2026-04-21 End — 4 neue Slices live (nach Hotfix-Cascade)
 
