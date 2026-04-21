@@ -23,10 +23,11 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/lib/services/__tests__/club.test.ts` — 2 neue Tests (Chunking bei >1000 rows, error-propagation im Loop) (+19)
   - `src/components/providers/__tests__/ClubProvider.test.tsx` — 2 neue Tests (Optimistic Add bei Success, Revert bei DB-Error) (+56)
 - **Proof:**
-  - `worklog/proofs/133-db-truth.txt` — SQL-Delta 12 Süper-Lig-Clubs (DB truth vs UI screenshot)
+  - `worklog/proofs/133-db-truth.txt` — SQL-Delta 12 Süper-Lig-Clubs (DB truth vs UI screenshot pre-fix)
   - `worklog/proofs/133-service-chunking.txt` — 68/68 Vitest grün (davon 4 neu)
-  - `worklog/proofs/133-clubs-page-live.png` — [pending post-deploy Playwright]
-- **Commit:** (pending)
+  - `worklog/proofs/133-clubs-page-live.png` — Playwright-Screenshot gegen bescout.net post-deploy
+  - `worklog/proofs/133-clubs-live-report.md` — 11/11 geprüfte Süper-Lig-Clubs zeigen exakt DB-truth (Beşiktaş 20, Galatasaray 35, Eyüpspor 47 …)
+- **Commit:** fd4a2282 (Code) + follow-up: proof-Commit (Playwright Live-Verify)
 - **Notes:** Erweitert den bekannten PostgREST-1000-row-cap-Pattern (Slice 079b) um die Erkenntnis, dass `.limit(N)` *kein* Override-Path ist — nur `.range()`-Chunking. common-errors.md erweitert.
 
 ---
