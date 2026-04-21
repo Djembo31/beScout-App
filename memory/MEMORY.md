@@ -18,6 +18,9 @@
 - [beta-rollback-runbook.md](beta-rollback-runbook.md) — Rollback-Prozedur + Pre-Beta-Drill-Anleitung
 - [beta-sentry-alerts-runbook.md](beta-sentry-alerts-runbook.md) — 3 Alert-Rules Setup-Anleitung
 - [beta-tr-locale-findings.md](beta-tr-locale-findings.md) — TR-Audit Delta 36→12 + Deutsch-Türke-Review-Vorarbeit
+- [beta-testplan.md](beta-testplan.md) — Phase 3b: 8 Tasks + Moderator-Script für 3 Zoom-Calls
+- [beta-test-results.md](beta-test-results.md) — Phase 3b: strukturiertes Template pro Tester + Aggregation
+- [beta-testing-runbook.md](beta-testing-runbook.md) — Phase 3b: Operative Zoom-Anleitung (Pre/During/Post-Call)
 
 ## Feature Specs
 - [features/fantasy.md](features/fantasy.md) — Fantasy System (12 Flows)
