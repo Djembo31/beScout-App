@@ -38,14 +38,16 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
   }
   ```
 
-### PostgREST 1000-row cap — MONEY-CRITICAL (Slice 078 + 079b + 133)
+### PostgREST 1000-row cap — MONEY-CRITICAL (Slice 078 + 079b + 133 + 134 + 135)
 - `.select()` ohne `.range()` auf Tabelle >1000 rows liefert still max 1000. Kein Error.
 - **`.limit(N)` ist KEIN Override-Path** (Slice 133): auch mit explizitem `.limit(10000)` cappt PostgREST die Antwort bei ~1000 Rows. Nur `.range(offset, offset+999)` im Loop ist zuverlässig.
 - Slice 079b-Incident: `/api/players` lud nur 1000/4556 alpha-sortiert → Holdings hinter Alpha-Position 1000 unsichtbar im Marktplatz (test12: 9/16 Holdings weg).
 - Slice 133-Incident: `getClubsWithStats` im `/clubs`-Discovery zeigte je Club ~23% der wahren player-counts (Beşiktaş 2 statt 20, Alanyaspor 7 statt 33, Eyüpspor 9 statt 47) — 4232 non-stale Rows × 23.6% ≈ 1000. Verteilung schwankte je nach physischer Row-Order, nicht alphabetisch. Trotz `.limit(10000)` im Code.
+- Slice 134+135-Sweep: 6 weitere Stellen gefixt (gameweek-sync Phase-A, footballData getMappingStatus+importGameweek, admin/sync-contracts, admin/backfill-ratings, admin/backfill-positions, cron/transfermarkt-search-batch). `player_external_ids` (5677+3922 rows) + `players` (4556 rows) waren systemweit die Silent-Cap-Opfer. **Domain-complete für `player_external_ids.select()` in `src/app/api/**`** post-Commit `4f11c914`.
 - Fix: while-loop `.range(offset, offset+999)` bis `data.length < PAGE`.
 - Audit: `grep -rn "\.from.*\.select" src/app/api/ src/lib/ | grep -v "\.range\|\.limit\|\.eq\|\.single\|\.maybeSingle"`
 - Zusätzlicher Audit für trügerischen `.limit(N)` Override: `grep -rn "\.limit([0-9]\{4,\})" src/lib/` — vierstelliges Limit ist verdächtig, gehört fast immer in einen `.range()`-Loop.
+- Worth-grep Referenz-Tables für Silent-Cap: `player_external_ids` (>5k), `players` (>4k), `fixtures` (>1k wachsend), `club_followers` (wachsend). Bei neuen `.in('col', ids)`-Queries: erst `SELECT COUNT(*) FROM <tbl>` — wenn >800 auf prod, paginate from day-one.
 
 ### `.single()` vs `.maybeSingle()`
 - `.single()` wirft HTTP 406 bei 0 Rows. Nur wenn Row garantiert existiert.
