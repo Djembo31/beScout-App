@@ -1,4 +1,30 @@
-# TR-Locale Pre-Audit Findings (2026-04-21)
+# TR-Locale Pre-Audit Findings (2026-04-21) — UPDATE nach Slices 128+129+130
+
+## Delta-Report Synthetic-Re-Run (nach 3 Slices live)
+
+**Findings 36 → 12 (-67%)** — gemessen 2026-04-21T19:09Z gegen `bescout.net` mit Slices 128+129+130 deployed.
+
+| Kategorie | Pre-Slice-128 | Nach 3 Slices | Delta |
+|-----------|---------------|---------------|-------|
+| DE-Leaks | 19 | 2 | -89% |
+| EN-Leaks | 7 | 1 | -86% |
+| Securities | 10 | 9 | -10% |
+| Gluecksspiel | 0 | 0 | — |
+| **Total** | **36** | **12** | **-67%** |
+
+**Strings-Delta:** 1277 → 1205 (104 removed, 32 added)
+- **104 removed:** 90+ Bot-Posts + Community-Feed DE-Flood (Slice 129 DB-Cleanup Effekt)
+- **32 added:** Echte Human-Posts die vorher von Bot-Flood verdeckt waren (u.a. "Bin neu halllo", "Hbbj", "Ich glaube osimehn rasiert am Wochenende", "Der wird der spieler der Saison")
+
+**Verbleibende 12 Findings sind alle False-Positives:**
+- **2 DE-Leaks + 1 EN-Leak im Community-Feed** = user-generated posts von DE/EN-sprachigen Fans (kein App-Bug — User darf auf der Plattform beliebige Sprachen posten)
+- **9 Trader-Seed-Handles** im Rankings = DB-Seeds aus `supabase/seeds/*` (post-Beta-Fix laut Original-Plan, Seed-Namen neu generieren)
+
+**Fazit:** Alle 3 Beta-Blocker-Bugs gelöst. Der Deutsch-Türke-Review ist jetzt ein 5-Minuten-Durchklick-Job — er muss die 9 Seed-Handles + 3 User-Posts als "nicht Bug" markieren.
+
+---
+
+## Original-Analyse (vor den Fixes)
 
 Pre-Audit-Arbeit VOR dem Deutsch-Türke-Review. 36 Findings aus 802 TR-Strings ausgespürt.
 
