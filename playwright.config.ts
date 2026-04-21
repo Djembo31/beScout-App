@@ -41,6 +41,12 @@ export default defineConfig({
       testMatch: /beta-smoke\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // --- Synthetic Users (3 profile deep crawl, own login, generates screenshots) ---
+    {
+      name: 'synthetic',
+      testMatch: /synthetic-users\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // --- Authenticated tests (fan) ---
     {
       name: 'authenticated',
