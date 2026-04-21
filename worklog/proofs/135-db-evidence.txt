@@ -1,0 +1,46 @@
+Slice 135 — DB-Truth Evidence für Admin-Routes Silent-Cap-Risk
+
+Query (via mcp__supabase__execute_sql, project beScout-App, 2026-04-22):
+
+  SELECT 'player_external_ids source=transfermarkt' AS scope,
+         COUNT(*) AS total_rows,
+         CASE WHEN COUNT(*) > 1000 THEN 'SILENT-CAP RISK' ELSE 'safe' END AS risk
+  FROM player_external_ids WHERE source = 'transfermarkt';
+
+Result:
+
+  scope                                      | total_rows | risk
+  -------------------------------------------+------------+------------------
+  player_external_ids source=transfermarkt   |  3922      | SILENT-CAP RISK
+
+Plus aus Slice 134 DB-Evidence (unveränderte Zahlen — identische tables):
+
+  player_external_ids (api_football_squad + fixture)  : 5677 rows → sync-contracts, backfill-ratings, backfill-positions
+  players total (unfiltered)                          : 4556 rows → backfill-ratings (players.select(...) ohne Filter)
+
+Pre-fix Impact (Slice 135 Baseline):
+
+  * sync-contracts/route.ts:94  — apiToLocal-Map hatte min(5677, 1000) = 1000 Einträge
+    → 4677 Spieler ohne TM/API-Football-ID-Lookup → silent skip Contract-Sync für 80%+
+
+  * backfill-ratings/route.ts:52-58 — zwei unpaginated Queries:
+    - player_external_ids: 5677 → 1000 (82% Lücke im extId-Lookup)
+    - players: 4556 → 1000 (78% Lücke im playerInfo-Map)
+    → manueller Rerun arbeitete auf 1000/4556 Spielern → 78% Coverage-Gap
+
+  * backfill-positions/route.ts:46-49 — player_external_ids 5677 → 1000
+    → Position-Backfill skippt 80%+ der mapped Spieler silent
+
+  * transfermarkt-search-batch/route.ts:82-85 — player_external_ids (source=transfermarkt) 3922 → 1000
+    → mappedSet (filter-out tm-mapped) unvollständig → Duplikate-Scrape
+    → Cloudflare-Block-Risk wachsend (unnötige Requests auf bereits gemappte Spieler)
+
+Post-fix (Slice 135 Expected):
+
+  Alle 4 Routes laden full dataset via .range()-loop mit PAGE=1000:
+  - sync-contracts: 6 Chunks (5677/1000)
+  - backfill-ratings: 6 Chunks extIds + 5 Chunks players
+  - backfill-positions: 6 Chunks extIds
+  - transfermarkt-search-batch: 4 Chunks mappedSet (3922/1000)
+
+  Extra-Roundtrip-Latenz: ~200-400ms pro Route-Call — Admin/Cron-Budget 300s, unerheblich.

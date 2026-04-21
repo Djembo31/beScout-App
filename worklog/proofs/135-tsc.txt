@@ -1,0 +1,13 @@
+$ npx tsc --noEmit
+(no output)
+$ echo "exit=$?"
+exit=0
+
+Interpretation: TypeScript clean (0 errors, 0 warnings) nach Slice 135 Edits in 4 Admin/Cron-Routes:
+- src/app/api/admin/sync-contracts/route.ts           (player_external_ids paginated IIFE)
+- src/app/api/admin/backfill-ratings/route.ts         (player_external_ids + players paginated)
+- src/app/api/admin/backfill-positions/route.ts       (player_external_ids paginated)
+- src/app/api/cron/transfermarkt-search-batch/route.ts (player_external_ids source=transfermarkt paginated)
+
+Full vitest services suite (post-edit):
+  41 test files, 998 tests, 100% pass (unchanged vs Slice 134 baseline — Admin-Routes haben keine direkten Tests, Pattern-Match via tsc + Services-Suite).

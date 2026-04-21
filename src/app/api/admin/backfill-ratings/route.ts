@@ -47,15 +47,47 @@ export async function POST(req: Request) {
   }
 
 
-  // Load player + club maps once (via external_ids tables)
-  const [extIdRes, playerRows2, clubExtRes] = await Promise.all([
-    supabaseAdmin
-      .from('player_external_ids')
-      .select('player_id, external_id')
-      .in('source', ['api_football_squad', 'api_football_fixture']),
-    supabaseAdmin
-      .from('players')
-      .select('id, club_id, first_name, last_name, position'),
+  // Slice 135: paginate player_external_ids (>5677) + players (>4556) — silent 1000-row-cap
+  type ExtIdRow = { player_id: string; external_id: string };
+  type PlayerInfoRow = { id: string; club_id: string; first_name: string; last_name: string; position: string };
+  const extIdsPromise: Promise<ExtIdRow[]> = (async () => {
+    const PAGE = 1000;
+    const rows: ExtIdRow[] = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await supabaseAdmin
+        .from('player_external_ids')
+        .select('player_id, external_id')
+        .in('source', ['api_football_squad', 'api_football_fixture'])
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(`player_external_ids query failed (offset=${offset}): ${error.message}`);
+      if (!data || data.length === 0) break;
+      rows.push(...(data as ExtIdRow[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+    return rows;
+  })();
+  const playersPromise: Promise<PlayerInfoRow[]> = (async () => {
+    const PAGE = 1000;
+    const rows: PlayerInfoRow[] = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await supabaseAdmin
+        .from('players')
+        .select('id, club_id, first_name, last_name, position')
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(`players query failed (offset=${offset}): ${error.message}`);
+      if (!data || data.length === 0) break;
+      rows.push(...(data as PlayerInfoRow[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+    return rows;
+  })();
+  const [extIdsData, playersData, clubExtRes] = await Promise.all([
+    extIdsPromise,
+    playersPromise,
     supabaseAdmin
       .from('club_external_ids')
       .select('club_id, external_id')
@@ -63,21 +95,21 @@ export async function POST(req: Request) {
   ]);
 
   const playerInfoMap = new Map<string, { clubId: string; position: string; name: string }>();
-  for (const p of (playerRows2.data ?? [])) {
-    playerInfoMap.set(p.id as string, {
-      clubId: p.club_id as string,
-      position: p.position as string,
+  for (const p of playersData) {
+    playerInfoMap.set(p.id, {
+      clubId: p.club_id,
+      position: p.position,
       name: `${p.first_name} ${p.last_name}`,
     });
   }
 
   const playerMap = new Map<number, { id: string; clubId: string; position: string; name: string }>();
-  for (const ext of (extIdRes.data ?? [])) {
-    const numId = parseInt(ext.external_id as string, 10);
+  for (const ext of extIdsData) {
+    const numId = parseInt(ext.external_id, 10);
     if (isNaN(numId)) continue;
-    const info = playerInfoMap.get(ext.player_id as string);
+    const info = playerInfoMap.get(ext.player_id);
     if (!info) continue;
-    playerMap.set(numId, { id: ext.player_id as string, ...info });
+    playerMap.set(numId, { id: ext.player_id, ...info });
   }
   const clubMap = new Map<number, string>();
   for (const ext of (clubExtRes.data ?? [])) {

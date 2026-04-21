@@ -1,0 +1,41 @@
+Slice 135 — Grep-Audit Delta vs Slice 134
+
+Command:
+  grep -rn "from('player_external_ids')" src/app/api/ --include='*.ts' -A 4
+
+Post-Slice-135 Ergebnis (2026-04-22):
+
+Alle 9 Treffer in src/app/api/** sind jetzt safe:
+
+(1) PAGINATED via .range()-while-loop (6 Stellen):
+
+  * src/app/api/cron/gameweek-sync/route.ts:607             (Slice 134)
+      .select('player_id, external_id').in('source', [...]).range(offset, offset + PAGE - 1)
+  * src/app/api/cron/transfermarkt-search-batch/route.ts:88  (Slice 135)
+      .select('player_id').eq('source', 'transfermarkt').range(offset, offset + PAGE - 1)
+  * src/app/api/admin/sync-contracts/route.ts:99             (Slice 135)
+      .select('player_id, external_id').in('source', [...]).range(offset, offset + PAGE - 1)
+  * src/app/api/admin/backfill-ratings/route.ts:59           (Slice 135)
+      .select('player_id, external_id').in('source', [...]).range(offset, offset + PAGE - 1)
+  * src/app/api/admin/backfill-positions/route.ts:53         (Slice 135)
+      .select('player_id, external_id').in('source', [...]).range(offset, offset + PAGE - 1)
+
+(2) WRITE / SAFE (3 Stellen):
+
+  * src/app/api/cron/transfermarkt-search-batch/route.ts:176 .insert({...})       — write, no cap
+  * src/app/api/cron/gameweek-sync/route.ts:1241             .upsert([...])        — write, no cap
+  * src/app/api/cron/sync-transfermarkt-batch/route.ts:62    .order().limit(N)    — explicit batch-limit
+
+ZERO unpaginated silent-cap risks remaining in src/app/api/** for player_external_ids. ✓
+
+---
+
+Slice 134 Pre-Fix Audit (for reference):
+  5 unpaginated `.select()` Stellen auf player_external_ids in src/app/api/
+  → Admin-routes + cron (gameweek-sync + transfermarkt-search-batch)
+  → Silent 1000-row-cap auf 5677 / 3922 / 4556 Rows → 80%+ Daten-Lücke.
+
+Slice 134 closed: 2 Stellen (gameweek-sync Phase-A + footballData in /lib/services)
+Slice 135 closed: 4 weitere Stellen (3 admin + 1 cron TM-search-batch) + zusätzlich players table in backfill-ratings (4556 rows).
+
+Nach Slice 135: DOMAIN COMPLETE — kein verbleibender silent-cap-risk für player_external_ids in Cron/Admin-Routes.

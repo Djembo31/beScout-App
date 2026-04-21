@@ -88,10 +88,31 @@ export async function POST(req: Request) {
       return all;
     };
 
-    const [{ data: clubExtIds }, { data: clubRows }, { data: extIds }, players] = await Promise.all([
+    // Slice 135: paginate player_external_ids (>5677 Rows, silent 1000-row-cap)
+    type ExtIdRow = { player_id: string; external_id: string };
+    const extIdsPaginated: Promise<ExtIdRow[]> = (async () => {
+      const PAGE = 1000;
+      const rows: ExtIdRow[] = [];
+      let offset = 0;
+      while (true) {
+        const { data, error } = await supabaseAdmin
+          .from('player_external_ids')
+          .select('player_id, external_id')
+          .in('source', ['api_football_squad', 'api_football_fixture'])
+          .range(offset, offset + PAGE - 1);
+        if (error) throw new Error(`player_external_ids query failed (offset=${offset}): ${error.message}`);
+        if (!data || data.length === 0) break;
+        rows.push(...(data as ExtIdRow[]));
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      return rows;
+    })();
+
+    const [{ data: clubExtIds }, { data: clubRows }, extIds, players] = await Promise.all([
       supabaseAdmin.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
       supabaseAdmin.from('clubs').select('id, name'),
-      supabaseAdmin.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+      extIdsPaginated,
       loadAllPlayers(),
     ]);
 
@@ -106,7 +127,7 @@ export async function POST(req: Request) {
       .map(c => ({ ...c, _apiFootballId: clubApiIdMap.get(c.id as string)! }));
 
     if (!clubs?.length) return NextResponse.json({ error: 'No clubs with api_football external ID' }, { status: 500 });
-    if (!extIds?.length) return NextResponse.json({ error: 'No mapped players' }, { status: 500 });
+    if (!extIds.length) return NextResponse.json({ error: 'No mapped players' }, { status: 500 });
 
     const playerNameMap = new Map<string, string>();
     for (const p of (players ?? [])) {
@@ -115,11 +136,11 @@ export async function POST(req: Request) {
 
     const apiToLocal = new Map<number, { id: string; name: string }>();
     for (const ext of extIds) {
-      const numId = parseInt(ext.external_id as string, 10);
+      const numId = parseInt(ext.external_id, 10);
       if (isNaN(numId)) continue;
       apiToLocal.set(numId, {
-        id: ext.player_id as string,
-        name: playerNameMap.get(ext.player_id as string) ?? 'Unknown',
+        id: ext.player_id,
+        name: playerNameMap.get(ext.player_id) ?? 'Unknown',
       });
     }
 

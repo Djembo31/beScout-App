@@ -9,6 +9,6 @@ impact: —
 proof: —
 ```
 
-## Zuletzt: Slice 134 (2026-04-22) — P0 Silent-Fail 1000-Row-Cap Folge-Fixes
+## Zuletzt: Slice 135 (2026-04-22) — Silent-Cap Admin-Routes Cleanup
 
-Siehe `worklog/log.md` für Details. Folge-Backlog: 4 Admin-Routes mit gleichem Pattern (sync-contracts, backfill-ratings, backfill-positions, transfermarkt-search-batch) — separater Slice 135 wenn Priorisierung es verlangt.
+Siehe `worklog/log.md` für Details. Domain-complete für `player_external_ids` Silent-Cap-Klasse in `src/app/api/**` (Slice 134 + 135 zusammen).

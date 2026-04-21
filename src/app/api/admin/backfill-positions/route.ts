@@ -42,16 +42,31 @@ export async function POST(req: Request) {
   }
 
 
-  // Load player map once (via player_external_ids)
-  const { data: extIds } = await supabaseAdmin
-    .from('player_external_ids')
-    .select('player_id, external_id')
-    .in('source', ['api_football_squad', 'api_football_fixture']);
+  // Slice 135: paginate player_external_ids (>5677 Rows) — silent 1000-row-cap
+  type ExtIdRow = { player_id: string; external_id: string };
+  const extIds: ExtIdRow[] = await (async () => {
+    const PAGE = 1000;
+    const rows: ExtIdRow[] = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await supabaseAdmin
+        .from('player_external_ids')
+        .select('player_id, external_id')
+        .in('source', ['api_football_squad', 'api_football_fixture'])
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(`player_external_ids query failed (offset=${offset}): ${error.message}`);
+      if (!data || data.length === 0) break;
+      rows.push(...(data as ExtIdRow[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+    return rows;
+  })();
 
   const playerMap = new Map<number, string>();
-  for (const ext of (extIds ?? [])) {
-    const numId = parseInt(ext.external_id as string, 10);
-    if (!isNaN(numId)) playerMap.set(numId, ext.player_id as string);
+  for (const ext of extIds) {
+    const numId = parseInt(ext.external_id, 10);
+    if (!isNaN(numId)) playerMap.set(numId, ext.player_id);
   }
 
   const { data: clubExtIds } = await supabaseAdmin

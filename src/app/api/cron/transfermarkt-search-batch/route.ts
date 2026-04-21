@@ -78,13 +78,26 @@ export async function GET(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: `players fetch: ${err.message}` }, { status: 500 });
   }
 
-  // Fetch existing tm-mapping player_ids (for filtering)
-  const { data: mapped } = await supabaseAdmin
-    .from('player_external_ids')
-    .select('player_id')
-    .eq('source', 'transfermarkt');
-
-  const mappedSet = new Set((mapped ?? []).map((r: { player_id: string }) => r.player_id));
+  // Slice 135: paginate player_external_ids (3922 Rows source=transfermarkt, silent 1000-row-cap)
+  const mappedSet = new Set<string>();
+  {
+    const PAGE = 1000;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await supabaseAdmin
+        .from('player_external_ids')
+        .select('player_id')
+        .eq('source', 'transfermarkt')
+        .range(offset, offset + PAGE - 1);
+      if (error) {
+        return NextResponse.json({ error: `player_external_ids fetch (offset=${offset}): ${error.message}` }, { status: 500 });
+      }
+      if (!data || data.length === 0) break;
+      for (const r of data as Array<{ player_id: string }>) mappedSet.add(r.player_id);
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+  }
 
   const players: PlayerToSearch[] = [];
   for (const row of (rawPlayers ?? []) as unknown as Array<{

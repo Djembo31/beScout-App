@@ -11,6 +11,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 135 | 2026-04-22 | Silent-Cap Admin-Routes Cleanup (Folge-Fix aus 134)
+
+- **Stage-Chain:** SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- **Trigger:** Slice 134 Grep-Audit hatte 4 weitere unpaginated `player_external_ids.select()`-Stellen in Admin-/TM-Sync-Routes dokumentiert. Kanban-Item "1000-row-cap Audit rest cron-routes" (P1).
+- **Root-Cause:** Gleiche Pattern-Klasse wie 134 — PostgREST silent 1000-row-cap auf:
+  - `player_external_ids (api_football_squad + fixture)`: 5677 Rows → 3 Admin-Routes (sync-contracts + backfill-ratings + backfill-positions) sahen je nur 1000
+  - `player_external_ids (source=transfermarkt)`: 3922 Rows → TM-search-batch mappedSet nur 1000 → Duplikate-Scrape-Risk
+  - `players` unfiltered: 4556 Rows → backfill-ratings playerInfoMap nur 1000 → 78% Coverage-Lücke im manuellen Rerun
+- **Files:**
+  - `src/app/api/admin/sync-contracts/route.ts` — `player_external_ids` paginated IIFE vor Promise.all, ExtIdRow typisiert, `if (!extIds.length)` statt `extIds?.length`
+  - `src/app/api/admin/backfill-ratings/route.ts` — zwei paginated IIFEs (`extIdsPromise` + `playersPromise`), destructure auf direkte Arrays
+  - `src/app/api/admin/backfill-positions/route.ts` — single paginated IIFE für `player_external_ids`
+  - `src/app/api/cron/transfermarkt-search-batch/route.ts` — inline `while`-loop für `mappedSet`, NextResponse-Error-Response pro Chunk (kein throw in Route-Handler)
+- **Proof:**
+  - `worklog/proofs/135-tsc.txt` — tsc clean + full services suite 998/998
+  - `worklog/proofs/135-vitest.txt` — vollständiger vitest-Output
+  - `worklog/proofs/135-db-evidence.txt` — DB-Counts Pre-Fix (via Supabase MCP): 5677 + 3922 + 4556
+  - `worklog/proofs/135-grep-delta.txt` — Grep-Audit zeigt ZERO remaining unpaginated `player_external_ids.select()` in `src/app/api/**`
+- **Commit:** (pending)
+- **Notes:** Domain-Complete für player_external_ids Silent-Cap-Klasse in API-Routes. Gleicher `.range()`-while-loop-Pattern wie Slice 086/088/133/134. Admin-Routes haben keine direkten Tests (NextResponse/supabaseAdmin-Mocks zu komplex) — Pattern-Match via tsc + Services-Suite. Helper-Extraction (`paginatePlayerExtIds`) jetzt 5× dupliziert — DRY-Refactor als Tech-Debt-Slice post-Beta.
+
+---
+
 ## 134 | 2026-04-22 | P0 Silent-Fail 1000-Row-Cap Folge-Fixes (gameweek-sync Phase-A + footballData mapping/import)
 
 - **Stage-Chain:** SPEC → IMPACT (inline) → BUILD → PROVE → LOG
