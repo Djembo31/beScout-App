@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 128 | 2026-04-21 | TR-Locale Audit Tooling + IPO Compliance Fixes (Beta-Prep Phase 3a extension)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (none) → BUILD → PROVE → LOG
+- **Files:**
+  - `scripts/audit/tr-strings.mjs` (NEW, 200 LOC) — Reproduzierbares Audit-Script, 4 Detectoren
+  - `memory/beta-tr-locale-findings.md` (NEW) — 3 Beta-Blocker + Fix-Empfehlungen
+  - `scripts/audit/compliance.sh` (+31 LOC) — IPO-Check hinzugefügt für AR-7 SPK-Glossar
+  - `messages/de.json` (5 Keys) + `messages/tr.json` (5 Keys) — IPO → Erstverkauf/Kulüp Satışı
+  - `e2e/beta-smoke.spec.ts` + `e2e/synthetic-users.spec.ts` — retries: 1 für Cold-Start
+  - `.audit-baseline.json` — 190 → 188 (2 HIGH eliminated)
+  - `package.json` — `pnpm run audit:tr-strings` registriert
+- **Proof:** `worklog/proofs/128-tr-audit-tooling.txt` — compliance + tr-strings + silent-fail + tsc alle grün
+- **Commit:** (pending)
+- **Notes:** Pre-Audit-Arbeit VOR Deutsch-Türke-Reviewer — 36 Findings aus 802 TR-Strings getraced zu Source. 2 weitere Beta-Blocker (Ländernamen hart-codiert DE, Bot-Posts DE in Production-DB) dokumentiert für Anil-Entscheidung. Audit-Gap im Pre-Commit-Compliance geschlossen (IPO-Check).
+
+---
+
 ## BETA-PREP | 2026-04-21 | Phase 1+2+3a komplett — Setup + Smoke + Synthetic Users + 2 Bug-Fixes
 
 **NOT a slice — Beta-Launch-Preparation-Block.** Phase 1 (9 Tasks) + Phase 2 (2 Tasks) + Phase 3a Synthetic User Suite + 2 echte Bug-Fixes gefunden durch Synthetic, in einer Session durchgezogen. Kein Feature-Code, reine operational hygiene.

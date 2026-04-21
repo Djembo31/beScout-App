@@ -2,154 +2,50 @@
 
 ```
 status: FREEZE
-slice: BETA-LAUNCH
-stage: Phase 3b (Anil kontaktiert 3 Tester)
-spec: memory/beta-testplan.md (Template fertig)
-impact: done — Phase 1+2+3a komplett, 8 Commits live
-proof: 4 green post-deploy-GHA runs + synthetic 3 profiles green + 2 bugs fixed
+slice: 128 — TR-Locale Audit Tooling + IPO Compliance Fixes
+stage: LOG (wrapped)
+spec: inline (BETA-LAUNCH Phase 3b Prep — Pre-Audit für Deutsch-Türke-Reviewer)
+impact: none (Audit-Tooling + 5 i18n-string fixes + retries-config)
+proof: worklog/proofs/128-tr-audit-tooling.txt
 ```
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
 
 **Regel:** Keine neuen Feature-Slices. Nur Beta-Blocker. Jeder Commit gegen die Frage: "Bewegt das den Launch um einen Tag vor?"
 
-## Session-End 2026-04-21 — Phase 1+2+3a DONE
+## Session-End 2026-04-21 — Slice 128 DONE (BETA-PREP Continuation)
 
-**12 Tasks + 2 Bug-Fixes + 8 Commits** in 1 Session. Kein Feature-Code.
+**Ziel:** Ohne Blockierung von Anil's Phase 3b (Tester-Kontakt) die Infrastruktur für den Deutsch-Türke TR-Review vorbereiten + Cold-Start-Resilience + Compliance-Audit-Gap schließen.
 
-### Phase 1 — Setup-Härtung (9/9)
-- Vercel Sentry-Env-Vars live (4 Vars inkl. SENTRY_URL=https://de.sentry.io/)
-- 3 NEXT_PUBLIC_* Sensitive-Flags entfernt (PostHog + Sentry-DSN client-side OK)
-- CI npm→pnpm migriert (23% → 100% Success-Rate)
-- Branch-Protection auf main (lint+build+test required)
-- Feature-Freeze committed
-- Memory refreshed
-- 3 Secrets rotated: CRON, VAPID, SUPABASE zero-downtime auf New-API-Keys-System migriert
+### Deliverables
+1. `scripts/audit/tr-strings.mjs` (NEW) — Reproduzierbares TR-Locale-Audit-Script, kategorisiert 4 Violation-Typen: DE-Leaks, EN-Leaks, Securities-Glossar (AR-7/AR-17), Glücksspiel-Vokabel (StGB §284/MASAK §4).
+2. `memory/beta-tr-locale-findings.md` (NEW) — 3 Beta-Blocker identifiziert mit Source-Trace + Fix-Empfehlungen für Anil:
+   - Ländernamen hart-codiert DE in `src/lib/leagues.ts:13-22` (7 Findings)
+   - Community-Bot-Posts auf DE in `e2e/bots/ai/agent.ts` (10 Findings, DB-persistiert)
+   - "IPO" user-facing → "Kulüp Satışı"/"Erstverkauf" (fixes DIESER Slice)
+3. IPO-Compliance-Fixes: 5 i18n-Keys × 2 Locales (market.ipoViewLabel, ipoShowActive/Planned/Ended, founding.extraIpoEarly, subscriptions.benefitIpoEarlyAccess)
+4. `scripts/audit/compliance.sh` — neuer IPO-Check eingebaut (fängt Future-Violations)
+5. `e2e/beta-smoke.spec.ts` — `retries: 0 → 1` für Vercel-Cold-Start-Resilience
+6. `e2e/synthetic-users.spec.ts` — `retries: 1` explicit am describe-level
+7. `.audit-baseline.json` — Silent-Fail-Baseline 190 → 188 (2 HIGH eliminated)
 
-### Phase 2 — Post-Deploy-Validation (2/2)
-- `e2e/beta-smoke.spec.ts` — 10 Flows / 13s / grün gegen bescout.net
-- `.github/workflows/post-deploy-smoke.yml` — auto-runs nach deployment_status=success, creates beta-blocker GH-issue on fail
+### Proof
+`worklog/proofs/128-tr-audit-tooling.txt` — compliance-audit + tr-strings-audit + silent-fail-check + tsc alle grün.
 
-### Phase 3a — Synthetic User Suite (1/1, Task #17)
-- `e2e/synthetic-users.spec.ts` — 3 Profile (Discovery + Power + TR-Locale), ~2 Min runtime
-- Screenshots + Reports + 802 TR-Strings-Dump in `qa-screenshots/synthetic/` (gitignored)
-- **2 Bugs automatisch gefunden + gefixt:**
-  - CSP Sentry-Block (echter Beta-Blocker, in `vercel.json` behoben)
-  - Test-Cookie-Subdomain-Mismatch (Test-Bug, in spec behoben)
+### Offen für Anil's nächste Session (entscheidend)
+- **Bug 1** Ländernamen i18n (`leagues.ts:13`): 1h Arbeit, 7 Call-Sites betroffen. Vorhandene TR-Werte in tr.json schon vorhanden (jurisdictionTR, region.turkey). Anil entscheidet ob Beta-Blocker.
+- **Bug 2** Community-Bot-Posts DE: 3 Fix-Optionen (DB-Cleanup 5 Min / bilingual 3h / Bots abschalten 10 Min). Empfehlung in memory/beta-tr-locale-findings.md.
 
-## Offen für nächste Session
-
-### Phase 3b — 3 echte Tester (wartet auf Anil)
+## Offen Phase 3b — 3 echte Tester (wartet auf Anil)
 - 3 Personen kontaktieren (Familie/Freunde): min. 1 türkisch-sprachig, min. 1 ohne Fußball-Kontext
-- Zoom-Termine vereinbaren (je 30 Min)
-- `memory/beta-testplan.md` — 8 Tasks + Moderator-Script fertig
-- Results nach jedem Call in `memory/beta-test-results.md` (Template)
+- Nach Feedback: Bug 1+2 fixen → `pnpm run test:synthetic` re-run → TR-Strings erneut auditieren → Deutsch-Türke-Review
 
-### Phase 4 — Polish + TR-Review
-- Onboarding-Polish nach Real-User-Feedback (Task #10)
-- TR-Locale-Review mit Deutsch-Türke (Task #11) — nutzt 802 TR-Strings aus `qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt`
-
-### Phase 5 — Launch
-- Invite-Only Beta für 10-20 Pilot-Fans (Task #12)
-
-### Anil-Action-Items
-- Alten `sb_secret_vT7ae...` in Supabase Dashboard revoken (neuer ist live-proven)
+## Anil-Action-Items (offen)
+- Alten `sb_secret_vT7ae...` in Supabase Dashboard revoken
 - 3 Tester kontaktieren
 - 1 Deutsch-Türke für TR-Review organisieren
-
-## Deferred / Post-Beta
-
-- KYC (Sumsub vs Veriff, Task #9) — Trading bleibt bis KYC hinter Feature-Flag
-- Synthetic-Suite `retries: 1` für Vercel-Cold-Starts (known issue)
-- Synthetic-Suite in Post-Deploy-GHA einbinden (aktuell nur lokal/on-demand)
+- **NEU:** Entscheidung zu Bug 1 (Ländernamen) + Bug 2 (Bot-Posts) aus `memory/beta-tr-locale-findings.md`
 
 ## Next session first step
 
-`git log --oneline -10` + `gh run list --limit 5` → alle CI/Deploy grün? → dann `memory/beta-testplan.md` lesen + Tester-Kontakt-Status mit Anil klären → Phase 3b starten.
-
-## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
-
-**Regel:** Ab sofort **keine neuen Feature-Slices** mehr committed. Nur Beta-Blocker. Jeder neue Commit wird gegen diese Frage geprüft:
-
-> "Bewegt das den Launch um einen Tag vor?"
-
-Nein → in `post-beta.md` parken. Ja → Slice-Nummer vergeben + durch SHIP-Loop.
-
-**Offene Phase-1-Tasks** (siehe TaskList):
-- CI-Workflow von npm → pnpm (in progress)
-- Branch-Protection auf main aktivieren
-- 3 rotate-flagged Vercel-Secrets rotieren (VAPID, CRON_SECRET, SUPABASE_SERVICE_ROLE_KEY)
-
-**Ziel:** Beta-Launch (Invite-Only, 10-20 Pilot-Fans) innerhalb 5 Arbeitstage.
-
----
-
-## Session 2026-04-21 End — 4 neue Slices live (nach Hotfix-Cascade)
-
-**Hotfix `d73dc235`**: pnpm-lock.yaml sync — 8 konsekutive ERROR-Deploys gefixt (Slice 118 husky + 120 bundle-analyzer waren via npm installiert, nicht pnpm).
-
-**Slice 125 — Sentry instrumentation.ts migration** (`718c7265`): Config-Deprecation gecleared, `/market` TTFB warm −62% (836→319ms), LCP warm −27% (3429→2492ms).
-
-**Slice 126 — Sentry Sampling reduction** (`1cdd4d9e`): tracesSampleRate 0.1→0.01, replaysOnError 1.0→0.1. **LCP 0ms impact** — Hypothesis disproven. Sampling ≠ code-path cost. Real win: 90% Sentry-Quota-Sparen.
-
-**Slice 127 — Close 4 failing tests** (`aee7d439`): INV-32 RLS, INV-36 11 players flagged stale, INV-38 100 players flagged stale, COMPL-reward wording fix. **47/47 green.**
-
-## Letzter abgeschlossener Slice: 123
-
-**useEnrichedPlayers Input-Injection** — Commit `2aa81871` gepusht.
-
-API-Change: `useEnrichedPlayers(userId, holdings, orders)` — kein internes useHoldings/useAllOpenOrders mehr. Entfernt Race-Condition mit `useMarketUserDashboard` (Slice 122). /market cold-load: 10 → 5 Requests (-50%).
-
-## Letzter abgeschlossener Slice: 122
-
-**get_market_user_dashboard RPC** — Commit `69cd5dba`. 4 per-user /market queries (holdings + watchlist + incoming_offers + open_bids) in 1 SECURITY DEFINER RPC + Cache-Priming für 4 downstream keys. 3/3 DB-Invariants PASS.
-
-## Letzter abgeschlossener Slice: 121
-
-**/market Bundle Hygiene** — Commit `92edd866`. BuyConfirmModal research.ts lazy, useHoldingLocks isoliert. Structural win (research lazy-loaded) aber 0 kB FLJS-reported — Pattern "dynamic() bypass wenn andere Importpfade eager" in common-errors verankert.
-
-## Letzter abgeschlossener Slice: 120
-
-## Letzter abgeschlossener Slice: 110
-
-**Auth+Wallet Robustness (Trading-Confidence)** — additive Provider-API Erweiterung + BuyModal/BuyOrderModal-Guards.
-
-Ergebnis: WalletProvider erhält `isFetching`, `lastFetchOk`, `isBalanceFresh` (30s-window). AuthProvider bekommt `useAuthState()` discriminated-union helper. Confirm-Buttons in BuyModal + BuyOrderModal disablen bei stale balance, subtle i18n-Status "Saldo wird aktualisiert…". Kein Money-Flow-Change, kein LCP-Impact, backwards-kompatibel.
-
-Test-Bilanz: 10/10 WalletProvider-Tests PASS (4 neu) · tsc clean · 2 Failures in parallel session's Slices 113/114 dokumentiert als nicht-110-Regression.
-
-## Letzter abgeschlossener Slice: 109
-
-**get_home_dashboard_v1 RPC (Home-Data-Consolidation)** — Commit `1c4e63d7`, Deploy `dpl_5P2uXG7vzWfHBxFkKUj6pBHRLDv8` READY.
-
-Ergebnis (ehrlich): **Structural win** (3 Queries eliminiert) + **LCP-Win marginal** (-1.3%, innerhalb Messrauschen). Spec-Target LCP <3200ms verfehlt, Grund im log.md dokumentiert + Lesson in common-errors.md verankert.
-
-**Nächster Slice: 110** — Auth-Robustness (balanceIsStale + Button-Guards + state machine). Kein LCP-Win erwartet, sondern Trading-Race-Condition-Schutz.
-
-## Session 2026-04-20 Progress (8 Slices)
-
-| Slice | Title | Result |
-|-------|-------|--------|
-| 101 | Stadia v3 Wikipedia Retry | ✅ +68 Stadien, 0 429-blocked (`41bb3945`) |
-| 102 | Nationality Full-Name → ISO Mapper | ✅ Flag-Fix live, Osimhen + Walker-Peters verified (`053e5084` + `ba3a2fe7`) |
-| 103 | TM Nationality + Ghost-Cleanup + DE-Aliases | ✅ 152/153 scraped + 106 ghost-unlinked (`209bd5ad`) |
-| 104 | Perf-Foundation (parallele Session) | ✅ LCP 2091→874ms, Render 1774→498ms (`d4794684` + `b3b2b8d0`) |
-| 105 | TFF1 Nationality Scrape | ✅ 33/34 scraped, 6 Ligen >99.6%, TFF1 87.7% |
-| 106 | Stadium Image Compression | ✅ 2 Monster-Files 127MB → 1.4MB (-98.9%) |
-| 107 | Data-Waterfall Fixes (parallele Session) | ✅ Duplicate-Calls + N+1 Fixes (`5e453aac`) |
-| 108 | liquidate_player Linear Formula (CEO MONEY-Fix) | ✅ RPC + Frontend + 23 Tests, deployed live, 6/6 invariants PASS |
-
-## Global Coverage (nach allen Slices)
-
-- **Nationality**: 4348/4556 mapped (95.4%), 0 unmapped, 208 NULL
-- **Per-Liga (visible)**: SL 100%, BL1/BL2/PL/LL/SA 99.6-99.8%, TFF1 87.7%
-- **Stadia**: 135/134 files (non-TFF1 Coverage 100%)
-- **Tests**: 187 Mapper + 21 Parser + 9 Flag = 217 grün
-- **Repo-Health**: -125.7MB Asset-Bloat beseitigt
-
-## Offen (Scope-Outs, post-Beta)
-
-- **93 TFF1 ohne TM-Mapping**: brauchen Name-Search-API oder CSV-Workflow
-- **43 mittelgroße Stadion-Bilder** (>5MB): weitere -571MB Einsparung möglich, XS-Slice
-- **9 Edge-Cases** aus Slice 103 (Fletcher-Timeout + 8 active-ohne-TM): nächste TM-Rescrape-Welle
-- **Sentry Release-Tracking, Husky Pre-commit, Pattern 9 MEDIUM-Audit**: Backlog
+`git log --oneline -10` + `cat memory/beta-tr-locale-findings.md` → Anil-Entscheidungen einholen → Bug 1+2 fixen ODER direkt weiter zu Phase 3b Tester-Kontakt.

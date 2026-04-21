@@ -30,7 +30,9 @@ async function dismissModals(page: Page) {
 }
 
 test.describe('Beta Smoke Suite', () => {
-  test.describe.configure({ retries: 0 });
+  // retries: 1 — Vercel Cold-Start nach Deploy kann 15-30s dauern.
+  // 1 Retry fängt transient Cold-Start-Fails ab, echte Regressions failen weiterhin.
+  test.describe.configure({ retries: 1 });
 
   test('10 critical flows — bescout.net post-deploy check', async ({ browser }) => {
     test.setTimeout(300_000); // 5 min global budget

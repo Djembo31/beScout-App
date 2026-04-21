@@ -23,6 +23,7 @@
     "audit:rpc-security": "node scripts/audit/rpc-security.js",
     "audit:silent-fail": "npx tsx scripts/silent-fail-audit.ts",
     "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check",
+    "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
     "prepare": "husky"
   },
   "dependencies": {

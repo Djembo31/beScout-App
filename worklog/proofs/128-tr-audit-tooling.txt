@@ -1,0 +1,44 @@
+# Slice 128 — TR-Locale Audit Tooling + IPO Compliance Fixes
+Erzeugt: 2026-04-21T18:35:27Z
+
+## 1. pnpm run audit:compliance
+---
+
+> bescout-app@0.1.0 audit:compliance C:\bescout-app
+> bash scripts/audit/compliance.sh
+
+🔍 Compliance-Audit running...
+[32m✅ Compliance-Audit passed[0m
+
+## 2. pnpm run audit:tr-strings
+---
+
+> bescout-app@0.1.0 audit:tr-strings C:\bescout-app
+> node scripts/audit/tr-strings.mjs
+
+
+✅ TR-Strings Audit complete
+   Dump: qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt (1814 lines)
+   Report: qa-screenshots/synthetic/profile-c-tr-locale/audit-report.md
+
+   DE-Leaks:        19
+   EN-Leaks:        7
+   Securities:      10
+   Gluecksspiel:    0
+   TOTAL:           36
+
+
+## 3. pnpm run audit:silent-fail:check
+---
+
+> bescout-app@0.1.0 audit:silent-fail:check C:\bescout-app
+> npx tsx scripts/silent-fail-audit.ts --check
+
+silent-fail-audit: scanning...
+scanned 1027 files, found 188 candidates (93 HIGH, 95 MEDIUM)
+[--check] baseline: 188 total, 93 HIGH, 95 MEDIUM
+✅ audit within baseline
+
+## 4. npx tsc --noEmit
+---
+exit=0

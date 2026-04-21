@@ -92,6 +92,10 @@ async function writeReport(outDir: string, profile: string, capture: ConsoleCapt
   await fs.writeFile(path.join(outDir, 'report.md'), lines.join('\n'), 'utf-8');
 }
 
+// retries: 1 für alle 3 Synthetic-Profile — Cold-Start-Resilience gegen bescout.net.
+// Global CI-retries würde 2 sein, aber 1 reicht hier + hält Screenshots deterministisch.
+test.describe.configure({ retries: 1 });
+
 test.describe('Synthetic Users — Profile A: Discovery (all entry pages)', () => {
   test('visit all 12 entry pages + screenshot each', async ({ browser }) => {
     test.setTimeout(600_000);

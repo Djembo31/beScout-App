@@ -42,6 +42,37 @@ if [ "$SCOUT_VIOL" = "FAIL" ] || [ -n "$SCOUT_VIOL" ] && [ "$SCOUT_VIOL" != "" ]
   fi
 fi
 
+# ── 1b. "IPO" user-facing (ausser admin/bescoutAdmin-namespace) — AR-7 SPK-Glossar ────
+IPO_VIOL=$(
+  node -e "
+    const de = require('./messages/de.json');
+    const tr = require('./messages/tr.json');
+    function walk(obj, path=[]){
+      const out=[];
+      for(const [k,v] of Object.entries(obj)){
+        const p=[...path,k];
+        if(typeof v==='object' && v) out.push(...walk(v,p));
+        else if(typeof v==='string' && /\\bIPO(?!'|Price|Config|Status|Event)/i.test(v)){
+          const ns=path[0]||'';
+          // Skip admin + code-level keys (ipoManagement etc. sind oft admin)
+          if(!/admin/i.test(ns) && !/bescoutAdmin/.test(ns)) out.push(p.join('.')+' = '+v.slice(0,60));
+        }
+      }
+      return out;
+    }
+    const all=[...walk(de).map(x=>'de: '+x),...walk(tr).map(x=>'tr: '+x)];
+    if(all.length){process.stderr.write(all.join('\n')+'\n');process.exit(1);}
+  " 2>&1 || echo "FAIL"
+)
+if [ "$IPO_VIOL" = "FAIL" ] || [ -n "$IPO_VIOL" ] && [ "$IPO_VIOL" != "" ]; then
+  if echo "$IPO_VIOL" | grep -q '='; then
+    red "❌ COMPLIANCE: 'IPO' in user-facing i18n Values (business.md AR-7 — SPK-Red-Flag)"
+    echo "$IPO_VIOL" | head -10
+    yellow "  Rule: user-facing = 'Erstverkauf' (DE) / 'Kulüp Satışı' (TR). Admin-namespace ausgenommen."
+    VIOLATIONS=$((VIOLATIONS+1))
+  fi
+fi
+
 # ── 2. kazan* Glücksspiel-Verb in TR user-facing ────
 KAZAN_VIOL=$(grep -rE ':\s*"[^"]*kazan[dıy][nıı]?[^"]*"' messages/tr.json 2>/dev/null | grep -v '"kazanc' | grep -v '"kazananlar"' || true)
 if [ -n "$KAZAN_VIOL" ]; then
