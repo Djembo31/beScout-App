@@ -216,7 +216,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
 
   // Sort options
   const sortOptions: { key: SortKey; label: string }[] = [
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: t('sortName') },
     { key: 'price', label: t('floorPrice') },
     { key: 'l5', label: 'L5' },
     { key: 'change', label: '24h' },

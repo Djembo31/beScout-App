@@ -1,0 +1,47 @@
+# Slice 130 — Non-Blocker TR-Locale-Leaks (Gestartet + DOUBTFUL + LIVE + Name)
+Erzeugt: 2026-04-21T19:02:27Z
+
+## Changes
+---
+1. src/components/player/index.tsx:71
+   status.toUpperCase() → tp(status).toUpperCase()
+   → 'DOUBTFUL' wird 'FRAGLICH' (DE) / 'ŞÜPHELI' (TR)
+
+2. src/features/manager/components/PageHeader.tsx
+   formatCountdown(...) → formatCountdown(..., tf('countdownStarted'))
+   → 'Gestartet' wird 'Gestartet' (DE) / 'Başladı' (TR)
+
+3. src/features/manager/components/aufstellen/EventSelector.tsx
+   STATUS_BADGE mit hart-codierten Labels (LIVE/REG/LATE/SOON/END)
+   → STATUS_STYLE + STATUS_KEY, i18n via useTranslations('fantasy')
+   → tf('statusLive'), tf('statusOpen'), tf('statusLateReg'), tf('statusUpcoming'), tf('statusEnded')
+   → TR-Consistent: CANLI statt LIVE
+   'DABEI' → tf('joined')
+   formatCountdown calls → mit tf('countdownStarted')
+
+4. src/features/market/components/portfolio/BestandView.tsx
+   sort-label 'Name' → t('sortName')
+   → 'Name A-Z' (DE) / 'İsim A-Z' (TR)
+
+5. src/features/market/components/marktplatz/WatchlistView.tsx
+   sort-label 'Name' → t('sortName') — gleich
+
+## Tests
+---
+### tsc --noEmit
+exit=0
+
+### EventDetailModal tests (regression check)
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 21:02:37
+[2m   Duration [22m 4.50s[2m (transform 287ms, setup 221ms, import 1.88s, tests 703ms, environment 1.40s)[22m
+
+
+### Compliance-Audit
+> bescout-app@0.1.0 audit:compliance C:\bescout-app
+> bash scripts/audit/compliance.sh
+
+🔍 Compliance-Audit running...
+[32m✅ Compliance-Audit passed[0m

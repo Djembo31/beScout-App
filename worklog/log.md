@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 130 | 2026-04-21 | Non-Blocker TR-Locale-Leaks (4 Fixes)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (klein) → BUILD → PROVE → LOG
+- **Files:**
+  - `src/components/player/index.tsx` — `status.toUpperCase()` → `tp(status).toUpperCase()` (DOUBTFUL/INJURED/SUSPENDED lokalisiert)
+  - `src/features/manager/components/PageHeader.tsx` — formatCountdown mit `tf('countdownStarted')`
+  - `src/features/manager/components/aufstellen/EventSelector.tsx` — STATUS_BADGE hart-codiert (LIVE/REG/LATE/SOON/END) → i18n via `useTranslations('fantasy')` mit statusLive/statusOpen/statusLateReg/statusUpcoming/statusEnded. DABEI → `tf('joined')`. 2× formatCountdown-Calls auf locale-aware
+  - `src/features/market/components/portfolio/BestandView.tsx` — sort-label 'Name' → `t('sortName')`
+  - `src/features/market/components/marktplatz/WatchlistView.tsx` — gleiche
+- **Proof:** `worklog/proofs/130-non-blocker-tr-fixes.txt`
+- **Commit:** (pending)
+- **Notes:** 4 der 7 Non-Blocker aus Audit gefixt. Erwartete TR-Audit-Delta nach Re-Run + Cleanup aus 129: ~15/36 Findings übrig (nur Bot-Handle-Seeds + ein paar Zahlen-Badges). Kleine PR, 5 Files, ~20 LOC. tsc grün + 14/14 EventDetailModal-Regression grün.
+
+---
+
 ## 129 | 2026-04-21 | Ländernamen locale-aware + Bot-Posts Cleanup (Beta-Blocker Bug 1+2)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (medium) → BUILD → PROVE → LOG

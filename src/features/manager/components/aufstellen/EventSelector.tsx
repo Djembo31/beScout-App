@@ -10,19 +10,30 @@ import { useManagerStore } from '../../store/managerStore';
 import { useOpenEvents, pickDefaultEvent } from '../../queries/eventQueries';
 import type { FantasyEvent } from '@/features/fantasy/types';
 
-const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
-  running: { label: 'LIVE', bg: 'bg-rose-500/15', text: 'text-rose-300' },
-  registering: { label: 'REG', bg: 'bg-emerald-500/15', text: 'text-emerald-300' },
-  'late-reg': { label: 'LATE', bg: 'bg-amber-500/15', text: 'text-amber-300' },
-  upcoming: { label: 'SOON', bg: 'bg-sky-500/15', text: 'text-sky-300' },
-  ended: { label: 'END', bg: 'bg-white/10', text: 'text-white/40' },
+// Status → fantasy-i18n-key (AR-7 TR-Locale fix: LIVE/REG/LATE etc.
+// sind inkonsistent zu Badges die schon 'CANLI/AÇIK' nutzen).
+const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
+  running: { bg: 'bg-rose-500/15', text: 'text-rose-300' },
+  registering: { bg: 'bg-emerald-500/15', text: 'text-emerald-300' },
+  'late-reg': { bg: 'bg-amber-500/15', text: 'text-amber-300' },
+  upcoming: { bg: 'bg-sky-500/15', text: 'text-sky-300' },
+  ended: { bg: 'bg-white/10', text: 'text-white/40' },
+};
+const STATUS_KEY: Record<string, string> = {
+  running: 'statusLive',
+  registering: 'statusOpen',
+  'late-reg': 'statusLateReg',
+  upcoming: 'statusUpcoming',
+  ended: 'statusEnded',
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_BADGE[status] ?? STATUS_BADGE.upcoming;
+  const tf = useTranslations('fantasy');
+  const style = STATUS_STYLE[status] ?? STATUS_STYLE.upcoming;
+  const key = STATUS_KEY[status] ?? STATUS_KEY.upcoming;
   return (
-    <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold tabular-nums', cfg.bg, cfg.text)}>
-      {cfg.label}
+    <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold tabular-nums uppercase', style.bg, style.text)}>
+      {tf(key)}
     </span>
   );
 }
@@ -32,6 +43,7 @@ function EventRow({ event, selected, onSelect }: {
   selected: boolean;
   onSelect: () => void;
 }) {
+  const tf = useTranslations('fantasy');
   const fillPct = event.maxParticipants ? Math.round((event.participants / event.maxParticipants) * 100) : 0;
   return (
     <button
@@ -51,13 +63,13 @@ function EventRow({ event, selected, onSelect }: {
         )}
         <span className="text-sm font-bold text-white truncate flex-1">{event.name}</span>
         {event.isJoined && (
-          <span className="text-[9px] font-bold text-emerald-400">DABEI</span>
+          <span className="text-[9px] font-bold text-emerald-400 uppercase">{tf('joined')}</span>
         )}
       </div>
       <div className="flex items-center gap-3 text-[10px] text-white/50 font-mono tabular-nums">
         <span className="flex items-center gap-1">
           <Clock className="size-3" aria-hidden="true" />
-          {formatCountdown(event.startTime)}
+          {formatCountdown(event.startTime, tf('countdownStarted'))}
         </span>
         {event.prizePool > 0 && (
           <span className="flex items-center gap-1 text-gold/80">
@@ -80,6 +92,7 @@ function EventRow({ event, selected, onSelect }: {
 
 export default function EventSelector() {
   const t = useTranslations('manager');
+  const tf = useTranslations('fantasy');
   const [open, setOpen] = useState(false);
   const selectedEventId = useManagerStore((s) => s.selectedEventId);
   const setSelectedEventId = useManagerStore((s) => s.setSelectedEventId);
@@ -136,7 +149,7 @@ export default function EventSelector() {
               </div>
               <div className="text-[10px] text-white/40 font-mono tabular-nums">
                 {selectedEvent.gameweek != null ? `GW ${selectedEvent.gameweek} · ` : ''}
-                {formatCountdown(selectedEvent.startTime)}
+                {formatCountdown(selectedEvent.startTime, tf('countdownStarted'))}
               </div>
             </div>
           </>

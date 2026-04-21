@@ -21,6 +21,7 @@ export type PageHeaderProps = {
 
 export default function PageHeader({ squadCount, healthCounts, nextEvent, loading }: PageHeaderProps) {
   const t = useTranslations('manager');
+  const tf = useTranslations('fantasy');
   const setSelectedEventId = useManagerStore((s) => s.setSelectedEventId);
   const setActiveTab = useManagerStore((s) => s.setActiveTab);
 
@@ -82,7 +83,7 @@ export default function PageHeader({ squadCount, healthCounts, nextEvent, loadin
               <Calendar className="size-4 text-gold" aria-hidden="true" />
               <span className="text-xs text-white truncate max-w-[120px]">{nextEvent.name}</span>
               <span className="text-xs font-mono tabular-nums text-gold">
-                {formatCountdown(nextEvent.startTime)}
+                {formatCountdown(nextEvent.startTime, tf('countdownStarted'))}
               </span>
             </button>
           ) : (

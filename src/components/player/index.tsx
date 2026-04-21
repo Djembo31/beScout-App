@@ -65,10 +65,11 @@ export function StatusBadge({ status, lastGw }: { status: PlayerStatus; lastGw?:
   const tp = useTranslations('player');
   if (status === 'fit') return null;
 
-  // When doubtful with a known last appearance GW, show contextual label
+  // When doubtful with a known last appearance GW, show contextual label.
+  // Else: i18n-resolved label uppercased — AR-7 fix so TR-User nicht "DOUBTFUL" sieht.
   const label = status === 'doubtful' && lastGw && lastGw > 0
     ? tp('inactiveSinceGw', { gw: lastGw })
-    : status.toUpperCase();
+    : tp(status).toUpperCase();
 
   return (
     <span className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[10px] font-black', statusClasses[status])}>

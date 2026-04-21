@@ -251,7 +251,7 @@ export default function BestandView({
     { key: 'value', label: t('bestandSortValue', { defaultMessage: 'Wert' }) },
     { key: 'pnl', label: t('bestandSortPnl', { defaultMessage: '+/−' }) },
     { key: 'l5', label: 'L5' },
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: t('sortName') },
   ];
 
   // ── Empty state ──

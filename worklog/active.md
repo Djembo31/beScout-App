@@ -2,11 +2,11 @@
 
 ```
 status: FREEZE
-slice: 129 — Ländernamen locale-aware + Bot-Posts Cleanup
+slice: 130 — Non-Blocker TR-Locale-Leaks (Gestartet + DOUBTFUL + LIVE + Name)
 stage: LOG (wrapped)
-spec: inline (Beta-Blocker-Fix aus Slice 128 Audit — Bug 1 + Bug 2)
-impact: 7 Files (leagues.ts + 6 Consumer) + Production-DB (posts + post_votes)
-proof: worklog/proofs/129-country-names-bot-cleanup.txt
+spec: inline (4 Non-Blocker aus Slice 128 Audit)
+impact: 5 Files (kein DB-Change)
+proof: worklog/proofs/130-non-blocker-tr-fixes.txt
 ```
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
