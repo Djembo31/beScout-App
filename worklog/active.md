@@ -3,11 +3,29 @@
 ```
 status: FREEZE
 slice: BETA-LAUNCH
-stage: Phase 1 (Setup-Härtung)
-spec: worklog/specs/BETA-LAUNCH.md (pending)
-impact: CI + Vercel + Secrets
-proof: CI-grün + Smoke-Suite + Real-User-Test
+stage: Phase 3 (ready to start)
+spec: worklog/specs/BETA-SMOKE.md (Phase 2 done)
+impact: done — Phase 1+2 komplett, 6 Commits live
+proof: worklog/proofs/BETA-SMOKE-first-run.txt + 3 green post-deploy-GHA runs
 ```
+
+## Session-End 2026-04-21 — Phase 1+2 DONE
+
+9 Tasks Phase 1 + 2 Tasks Phase 2 in 1 Session:
+- Vercel Sentry-Env-Vars live
+- 3 NEXT_PUBLIC_* Sensitive-Flags entfernt (PostHog+Sentry-DSN client-side OK)
+- CI npm→pnpm migriert (23% → 100% Success-Rate)
+- Branch-Protection auf main aktiv
+- Feature-Freeze committed
+- Memory refreshed
+- 3 Secrets rotated (CRON, VAPID, SUPABASE)
+- SUPABASE migrated auf New API Keys System (zero-downtime)
+- Smoke-Suite live: 10 Flows / 13s / grün gegen bescout.net
+- Post-Deploy-GHA live: auto-runs, creates beta-blocker issue on fail
+
+Kein Feature-Code. 100% operational hygiene.
+
+**Next session first step:** `git log --oneline -10` + `gh run list --limit 5` → Beta-Smoke-Status checken → dann Phase 3 (Testplan für 3 Familie-und-Freunde-Tester) starten.
 
 ## 🔒 Feature-Freeze aktiv (seit 2026-04-21)
 

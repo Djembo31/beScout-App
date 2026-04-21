@@ -11,6 +11,60 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## BETA-PREP | 2026-04-21 | Phase 1+2 komplett — Setup-Härtung + Smoke-Suite live
+
+**NOT a slice — Beta-Launch-Preparation-Block.** 9 Tasks Phase 1 + 2 Tasks Phase 2 in einer Session durchgezogen. Kein Feature-Code, reine operational hygiene.
+
+**Commits (6):**
+- `5bd74fa` feature-freeze + CI pnpm migration + memory refresh
+- `6a7163b` phase 2 smoke suite live — 10 flows green vs bescout.net
+- `a0f5b69` trigger redeploy for CRON_SECRET rotation
+- `0c784a8` post-deploy-smoke — add issues:write permission
+- `b459248` post-deploy-smoke — target bescout.net, add workflow_dispatch
+- `f23ca2f` + `9e37d61` trigger redeploy for VAPID + Supabase rotations
+
+**Phase 1 — Setup-Härtung (9/9):**
+- Vercel Sentry-Env-Vars gesetzt (SENTRY_AUTH_TOKEN + ORG + PROJECT + URL=https://de.sentry.io/)
+- 3 NEXT_PUBLIC_* Vars "Sensitive"-Flag entfernt (POSTHOG_HOST, POSTHOG_KEY, SENTRY_DSN) — Client-Side Sentry + PostHog funktionieren jetzt korrekt
+- CI-Workflow von `npm ci` auf `pnpm install --frozen-lockfile` migriert — löst 22 konsekutive CI-Fails
+- `package-lock.json` gelöscht, `packageManager: pnpm@10.29.2` gepinnt
+- Branch-Protection auf main aktiv (lint+build+test required, enforce_admins=false, linear history)
+- Feature-Freeze Status in worklog/active.md gesetzt
+- `memory/session-handoff.md` auf 127-Slice-State refreshed
+- CRON_SECRET rotated (Delete+Create in Vercel)
+- VAPID keypair rotated (PUBLIC + PRIVATE neu, alle push-subscriptions invalidated)
+- SUPABASE_SERVICE_ROLE_KEY rotated auf **neuen `sb_secret_`-Schlüssel** (zero-downtime-Migration vom Legacy JWT-System zum New API Keys System, beide parallel aktiv während Übergang, alter Key zum Revoken bereit)
+
+**Phase 2 — Post-Deploy-Validation (2/2):**
+- `e2e/beta-smoke.spec.ts` — 10 kritische Flows (home unauth, login, market, player-detail via click, manager, fantasy, community, missions, transactions, founding) als 1 Test mit 10 `test.step()`-Calls
+- `.github/workflows/post-deploy-smoke.yml` — triggered on `deployment_status: success` (Production) ODER `workflow_dispatch`, läuft gegen bescout.net mit `jarvis-qa@bescout.net`, auto-creates GitHub-Issue mit Label `beta-blocker` on fail (issues:write + null-safe payload-access)
+- Runtime: 13s cold / 1m17s in GHA — Live-Proof: 4 aufeinander folgende green runs gegen bescout.net
+
+**Iteration-Lessons (in Proofs dokumentiert):**
+- Smoke-Suite muss generic selectors (`<main>`, status<500) nutzen, NICHT seiten-spezifische (Kader-button findet nix)
+- `test.setTimeout(300_000)` für 10-step Suites gegen Prod nötig (sonst Cold-Start-Akkumulation)
+- Playwright-Config braucht eigenes "smoke"-Project (eigene Login, kein storageState)
+- GHA darf NICHT `deployment_status.target_url` nutzen — das ist Vercel's unique-preview-URL mit Deployment-Protection-Wall. Stattdessen hardcoded `https://bescout.net` Custom-Domain
+- `GITHUB_TOKEN` braucht explizites `permissions: issues: write` für Auto-Issue-Creation
+
+**Metrics:**
+- CI Success-Rate: 23% → 100% (letzte 8 Runs grün)
+- Deploy-Blind-Window: 8 Tage (Hotfix `d73dc235` Kontext) → ~2 Min (Auto-Smoke)
+- Secret-Rotation-Coverage: 0/3 → 3/3 (CRON+VAPID+SUPABASE)
+- Supabase Key-System: Legacy JWT → New API Keys (zero-downtime migration)
+
+**Proofs:**
+- `worklog/proofs/BETA-SMOKE-first-run.txt` — 1 passed (13.0s) initialer Beweis
+- CI grün Evidence: `gh run list --limit 10`
+- Auto Post-Deploy-Smoke grün: Run IDs `24724815233`, `24725179684`, `24736032844`
+
+**Status nach dieser Session:**
+- `worklog/active.md`: FREEZE + Phase 1+2 done
+- Offen: Phase 3 (Testplan + 3 Familie-und-Freunde-Tester), Phase 4 (Onboarding-Polish + TR-Review mit Deutsch-Türken), Phase 5 (Invite-Only Beta-Launch 10-20 Pilot-Fans)
+- KYC-Anbieter-Entscheidung (Sumsub vs Veriff): deferred post-Beta. Beta läuft ohne KYC, Trading bleibt hinter Feature-Flag bis KYC-Integration.
+
+---
+
 ## 127 | 2026-04-21 | Close 4 pre-existing test failures (INV-32/36/38 + COMPL-reward)
 - Stage-Chain: SPEC (inline) → IMPACT (DB-query) → BUILD → PROVE → LOG
 - Approval: Anil "1,2,3,4" (batch-request nach Session-Bilanz)
