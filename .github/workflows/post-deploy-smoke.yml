@@ -1,6 +1,7 @@
 name: Post-Deploy Smoke
 on:
   deployment_status:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -9,10 +10,11 @@ permissions:
 
 jobs:
   smoke:
-    # Only run when Vercel reports success on Production
+    # Run on manual dispatch OR on successful Production deploy
     if: >
-      github.event.deployment_status.state == 'success' &&
-      github.event.deployment.environment == 'Production'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -26,10 +28,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install chromium --with-deps
-      - name: Run Smoke Suite against deployed URL
+      - name: Run Smoke Suite against bescout.net
         id: smoke
         env:
-          PLAYWRIGHT_BASE_URL: ${{ github.event.deployment_status.target_url }}
+          # Hardcoded custom domain — Vercel's deployment target_url is the
+          # unique preview-URL which is protected by deployment-protection.
+          # bescout.net atomically switches to new Prod deploy when Ready.
+          PLAYWRIGHT_BASE_URL: https://bescout.net
           SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
           SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
         run: pnpm exec playwright test --project=smoke --reporter=list
@@ -37,7 +42,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: smoke-report-${{ github.event.deployment.sha }}
+          name: smoke-report-${{ github.event.deployment.sha || github.sha }}
           path: playwright-report/
           retention-days: 14
       - name: Create Issue on failure
@@ -45,8 +50,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const deployUrl = context.payload.deployment_status.target_url;
-            const sha = context.payload.deployment.sha.substring(0, 7);
+            const deployUrl = context.payload.deployment_status?.target_url ?? 'manual-dispatch';
+            const sha = context.payload.deployment?.sha?.substring(0, 7) ?? context.sha.substring(0, 7);
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.issues.create({
               owner: context.repo.owner,
