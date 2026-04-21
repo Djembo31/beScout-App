@@ -97,15 +97,26 @@ export default function ClubsDiscoveryPage() {
     if (!user) return;
     setTogglingId(club.id);
     const wasFollowing = isFollowing(club.id);
+
+    // Optimistic follower-count bump on the card — matches the provider's
+    // optimistic update of `followedClubs`, so the whole card + "Deine Vereine"
+    // section feel instant.
+    setClubs(prev => prev.map(c => {
+      if (c.id !== club.id) return c;
+      return { ...c, follower_count: c.follower_count + (wasFollowing ? -1 : 1) };
+    }));
+
     try {
-      await toggleFollow(club.id, club.name);
-      // Update local count after toggle
-      setClubs(prev => prev.map(c => {
-        if (c.id !== club.id) return c;
-        return { ...c, follower_count: c.follower_count + (wasFollowing ? -1 : 1) };
-      }));
+      // Pass `club` as clubData so provider can optimistic-add without awaiting
+      // the post-DB refetch.
+      await toggleFollow(club.id, club.name, club);
     } catch (err) {
       console.error('[Clubs] Toggle follow failed:', err);
+      // Revert card follower_count on error.
+      setClubs(prev => prev.map(c => {
+        if (c.id !== club.id) return c;
+        return { ...c, follower_count: c.follower_count + (wasFollowing ? 1 : -1) };
+      }));
     } finally {
       setTogglingId(null);
     }

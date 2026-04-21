@@ -17,7 +17,12 @@ type ClubContextValue = {
   primaryClub: DbClub | null;
   setActiveClub: (club: DbClub) => void;
   isFollowing: (clubId: string) => boolean;
-  toggleFollow: (clubId: string, clubName: string) => Promise<void>;
+  /**
+   * Toggle follow for a club. Pass `clubData` when following a *new* club so the
+   * provider can do an optimistic add — without it the UI waits for the post-DB
+   * refetch before the new club appears in `followedClubs`.
+   */
+  toggleFollow: (clubId: string, clubName: string, clubData?: DbClub) => Promise<void>;
   refreshClubs: () => Promise<void>;
   loading: boolean;
 };
@@ -131,22 +136,54 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return followedClubs.some(c => c.id === clubId);
   }, [followedClubs]);
 
-  const toggleFollow = useCallback(async (clubId: string, clubName: string) => {
+  const toggleFollow = useCallback(async (
+    clubId: string,
+    clubName: string,
+    clubData?: DbClub,
+  ) => {
     if (!user) return;
-    const currently = followedClubs.some(c => c.id === clubId);
-    await toggleFollowClub(user.id, clubId, clubName, !currently);
-    // Refresh (single query — primary is first element)
-    const followed = await getUserFollowedClubs(user.id);
-    const primary = followed[0] ?? null;
-    setFollowedClubs(followed);
-    setPrimaryClub(primary);
-    // If unfollowed the active club, switch
-    if (currently && activeClubRef.current?.id === clubId) {
-      const next = primary ?? followed[0] ?? null;
-      setActiveClubState(next);
-      ssSetClub(next);
+    const prevFollowed = followedClubs;
+    const prevPrimary = primaryClub;
+    const prevActive = activeClubRef.current;
+    const currently = prevFollowed.some(c => c.id === clubId);
+
+    // Optimistic: apply state change immediately so UI (Card-counts,
+    // "Deine Vereine" section, ClubSwitcher pills, etc.) updates without waiting
+    // on DB + refetch round-trips.
+    let optimisticFollowed: DbClub[];
+    if (currently) {
+      optimisticFollowed = prevFollowed.filter(c => c.id !== clubId);
+    } else if (clubData) {
+      optimisticFollowed = [...prevFollowed, clubData];
+    } else {
+      optimisticFollowed = prevFollowed;
     }
-  }, [user, followedClubs]);
+    const optimisticPrimary = optimisticFollowed[0] ?? null;
+    setFollowedClubs(optimisticFollowed);
+    setPrimaryClub(optimisticPrimary);
+    if (currently && prevActive?.id === clubId) {
+      const nextActive = optimisticPrimary ?? optimisticFollowed[0] ?? null;
+      setActiveClubState(nextActive);
+      ssSetClub(nextActive);
+    }
+
+    try {
+      await toggleFollowClub(user.id, clubId, clubName, !currently);
+      // Reconcile with server truth (primary-ordering, full row shape).
+      const followed = await getUserFollowedClubs(user.id);
+      setFollowedClubs(followed);
+      setPrimaryClub(followed[0] ?? null);
+    } catch (err) {
+      // Revert on error — leave the caller to surface a toast.
+      setFollowedClubs(prevFollowed);
+      setPrimaryClub(prevPrimary);
+      if (currently && prevActive?.id === clubId && prevActive) {
+        setActiveClubState(prevActive);
+        ssSetClub(prevActive);
+      }
+      throw err;
+    }
+  }, [user, followedClubs, primaryClub]);
 
   const refreshClubs = useCallback(async () => {
     if (!user) return;

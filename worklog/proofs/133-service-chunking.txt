@@ -1,0 +1,50 @@
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mfollowClubsBatch[2m > [22mretries once on error[32m 2[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetUserFollowedClubs[2m > [22mreturns clubs[32m 2[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetUserFollowedClubs[2m > [22mthrows on DB error[32m 2[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetUserPrimaryClub[2m > [22mreturns primary club[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetUserPrimaryClub[2m > [22mreturns null when no primary[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubsWithStats[2m > [22menriches clubs with follower and player counts[32m 2[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubsWithStats[2m > [22mthrows on DB error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubsWithStats[2m > [22mchunks players via .range() when payload exceeds one page (Slice 133)[32m 2[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubsWithStats[2m > [22mthrows when a player chunk returns an error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubTradingFees[2m > [22mreturns aggregated fees (Slice 095 Phase 2: via RPC)[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubTradingFees[2m > [22mreturns zeros on RPC error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubRecentTrades[2m > [22mreturns trades mapped to player-join shape (Slice 095 Phase 2: via RPC)[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubRecentTrades[2m > [22mreturns [] on RPC error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubDashboardStats[2m > [22mreturns stats via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubDashboardStats[2m > [22mthrows on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22misClubAdmin[2m > [22mreturns true[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22misClubAdmin[2m > [22mreturns false on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubAdmins[2m > [22mreturns admins with profiles[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubAdmins[2m > [22mthrows on DB error[32m 2[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22maddClubAdmin[2m > [22madds admin via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22maddClubAdmin[2m > [22mthrows on error[32m 4[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mremoveClubAdmin[2m > [22mremoves admin via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetActiveGameweek[2m > [22mreturns active gameweek[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetActiveGameweek[2m > [22mreturns 1 on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetActiveGameweek[2m > [22mreturns 1 when null[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetLeagueActiveGameweek[2m > [22mreturns min gameweek across clubs[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetLeagueActiveGameweek[2m > [22mreturns 1 on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22msetActiveGameweek[2m > [22msets via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22msetActiveGameweek[2m > [22mthrows on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mupdateCommunityGuidelines[2m > [22mupdates via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubFantasySettings[2m > [22mreturns settings[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubFantasySettings[2m > [22mreturns defaults on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mupdateClubFantasySettings[2m > [22mupdates via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mupdateClubFantasySettings[2m > [22mthrows on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubBalance[2m > [22mreturns balance via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubBalance[2m > [22mthrows on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubWithdrawals[2m > [22mreturns withdrawals with requester handle[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mgetClubWithdrawals[2m > [22mthrows on DB error[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mrequestClubWithdrawal[2m > [22mrequests via RPC[32m 1[2mms[22m[39m
+ [32m✓[39m src/lib/services/__tests__/club.test.ts[2m > [22mrequestClubWithdrawal[2m > [22mthrows on error[32m 1[2mms[22m[39m
+ [32m✓[39m src/components/providers/__tests__/ClubProvider.test.tsx[2m > [22mClubProvider[2m > [22msets active club via setActiveClub[32m 296[2mms[22m[39m
+ [32m✓[39m src/components/providers/__tests__/ClubProvider.test.tsx[2m > [22mClubProvider[2m > [22museClub returns context value outside provider[32m 2[2mms[22m[39m
+ [32m✓[39m src/components/providers/__tests__/ClubProvider.test.tsx[2m > [22mClubProvider[2m > [22mtoggleFollow optimistically adds clubData before DB resolve (Slice 133)[32m 107[2mms[22m[39m
+ [32m✓[39m src/components/providers/__tests__/ClubProvider.test.tsx[2m > [22mClubProvider[2m > [22mtoggleFollow reverts optimistic add when DB call throws (Slice 133)[32m 110[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m68 passed[39m[22m[90m (68)[39m
+[2m   Start at [22m 23:26:31
+[2m   Duration [22m 4.17s[2m (transform 343ms, setup 555ms, import 2.24s, tests 1.19s, environment 3.38s)[22m
+

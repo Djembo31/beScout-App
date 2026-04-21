@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 133 | 2026-04-22 | /clubs player-count chunking + follow optimistic (Beta-Blocker)
+
+- **Stage-Chain:** SPEC → IMPACT → BUILD → PROVE → LOG
+- **Trigger:** Anil-Screenshot von `/clubs` — Beşiktaş „2 Spieler", Alanyaspor „7", Eyüpspor „9" (DB-Realität: 20/33/47). Plus Follow-Klick spürbar verzögert.
+- **Root-Cause:** PostgREST-1000-row-cap in `getClubsWithStats`. `.limit(10000)` wurde ignoriert → nur ~23% der `players`-Rows kamen beim Client an, Counts per-Club wurden entsprechend klein. Zusätzlich: `ClubProvider.toggleFollow` hatte kein Optimistic Update → 2 await-Roundtrips bis UI reagierte.
+- **Files:**
+  - `src/lib/services/club.ts` — `getClubsWithStats` Chunking via `.range()`-Loop für `players` + `club_followers`, explicit error-throw pro Chunk (+32, -16)
+  - `src/components/providers/ClubProvider.tsx` — `toggleFollow` mit Optimistic Add/Remove + Revert-on-error, neuer optionaler `clubData: DbClub`-Parameter (+41, -9)
+  - `src/app/(app)/clubs/page.tsx` — `handleToggleFollow` Optimistic-Cleanup (lokaler Card-Count vor await, Revert bei catch), Pass-through von `club` an Provider (+15, -4)
+  - `src/lib/services/__tests__/club.test.ts` — 2 neue Tests (Chunking bei >1000 rows, error-propagation im Loop) (+19)
+  - `src/components/providers/__tests__/ClubProvider.test.tsx` — 2 neue Tests (Optimistic Add bei Success, Revert bei DB-Error) (+56)
+- **Proof:**
+  - `worklog/proofs/133-db-truth.txt` — SQL-Delta 12 Süper-Lig-Clubs (DB truth vs UI screenshot)
+  - `worklog/proofs/133-service-chunking.txt` — 68/68 Vitest grün (davon 4 neu)
+  - `worklog/proofs/133-clubs-page-live.png` — [pending post-deploy Playwright]
+- **Commit:** (pending)
+- **Notes:** Erweitert den bekannten PostgREST-1000-row-cap-Pattern (Slice 079b) um die Erkenntnis, dass `.limit(N)` *kein* Override-Path ist — nur `.range()`-Chunking. common-errors.md erweitert.
+
+---
+
 ## 130 | 2026-04-21 | Non-Blocker TR-Locale-Leaks (4 Fixes)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (klein) → BUILD → PROVE → LOG

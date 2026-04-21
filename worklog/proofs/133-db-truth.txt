@@ -1,0 +1,64 @@
+Slice 133 — DB Truth vs. UI Counts (Pre-Fix)
+==============================================
+Run: 2026-04-22
+Project: skzjfhvgccaeplydsunz (beScout)
+
+Problem-Evidenz: User-Screenshot von /clubs zeigt drastisch falsche Spieler-Zahlen.
+
+Query (simulates service `.neq('mv_source', 'transfermarkt_stale')` filter):
+---------------------------------------------------------------------------
+SELECT
+  c.name AS club,
+  c.slug,
+  c.league,
+  COUNT(p.id) AS total,
+  COUNT(p.id) FILTER (WHERE p.mv_source = 'transfermarkt_verified') AS verified,
+  COUNT(p.id) FILTER (WHERE p.mv_source = 'unknown') AS unknown,
+  COUNT(p.id) FILTER (WHERE p.mv_source = 'transfermarkt_stale') AS stale,
+  COUNT(p.id) FILTER (WHERE p.mv_source != 'transfermarkt_stale') AS ui_should_show
+FROM clubs c
+LEFT JOIN players p ON p.club_id = c.id
+WHERE c.name IN (
+  'Beşiktaş','Fenerbahçe','Galatasaray','Alanyaspor','Antalyaspor',
+  'Başakşehir','Eyüpspor','Fatih Karagümrük','Gaziantep FK',
+  'Gençlerbirliği S.K.','Göztepe','Kasımpaşa'
+)
+GROUP BY c.id, c.name, c.slug, c.league
+ORDER BY total DESC;
+
+Result (SQL source of truth) vs. UI screenshot (before fix):
+------------------------------------------------------------
+Club                 | DB ui_should_show | UI screenshot | Delta
+---------------------|-------------------|---------------|------
+Eyüpspor             | 47                | 9             | -38
+Galatasaray          | 35                | 8             | -27
+Antalyaspor          | 35                | 9             | -26
+Fatih Karagümrük     | 33                | 4             | -29
+Alanyaspor           | 33                | 7             | -26
+Kasımpaşa            | 33                | 8             | -25
+Fenerbahçe           | 31                | 10            | -21
+Gençlerbirliği S.K.  | 33                | 5             | -28
+Başakşehir           | 28                | 10            | -18
+Gaziantep FK         | 27                | 8             | -19
+Göztepe              | 25                | 4             | -21
+Beşiktaş             | 20                | 2             | -18
+
+Total DB Players: 4556
+- transfermarkt_verified: 3688
+- unknown: 544
+- transfermarkt_stale: 324
+- NULL: 0
+
+Non-stale should-show count: 4232 players distributed over 134 clubs.
+
+Root Cause Hypothesis:
+----------------------
+PostgREST/Supabase cappt Response bei ~1000 Rows trotz `.limit(10000)` override.
+1000 / 4232 ≈ 23.6% rows returned — matches observed UI shrinkage
+(z.B. Alanyaspor 33 × 23.6% ≈ 8 → UI: 7).
+
+Fix (this slice):
+-----------------
+`src/lib/services/club.ts` getClubsWithStats: replace `.limit(10000)` with
+`.range(offset, offset+999)` chunked loop for BOTH `players` and
+`club_followers` queries.

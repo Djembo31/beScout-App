@@ -125,4 +125,64 @@ describe('ClubProvider', () => {
     expect(value!.activeClub).toBeNull();
     expect(value!.loading).toBe(true);
   });
+
+  // ============================================
+  // Slice 133 — Optimistic toggleFollow
+  // ============================================
+  function FollowTestbed() {
+    const { followedClubs, toggleFollow } = useClub();
+    return (
+      <div>
+        <span data-testid="count">{followedClubs.length}</span>
+        <span data-testid="names">{followedClubs.map(c => c.name).join(',')}</span>
+        <button
+          onClick={() => toggleFollow('c1', 'Club A', clubA as any).catch(() => {})}
+        >
+          follow
+        </button>
+      </div>
+    );
+  }
+
+  it('toggleFollow optimistically adds clubData before DB resolve (Slice 133)', async () => {
+    mockUseUser.mockReturnValue({ user: stableUser });
+    // User starts with no follows.
+    mockGetUserFollowedClubs.mockResolvedValueOnce([]);
+    mockGetUserPrimaryClub.mockResolvedValue(null);
+    // Reconcile after toggle returns server truth (clubA is now followed).
+    mockGetUserFollowedClubs.mockResolvedValueOnce([clubA]);
+    mockToggleFollowClub.mockResolvedValue(undefined);
+    const user = userEvent.setup();
+
+    render(<ClubProvider><FollowTestbed /></ClubProvider>);
+    await waitFor(() => {
+      expect(screen.getByTestId('count').textContent).toBe('0');
+    }, { timeout: 5000 });
+
+    await user.click(screen.getByText('follow'));
+    await waitFor(() => {
+      expect(screen.getByTestId('count').textContent).toBe('1');
+    }, { timeout: 5000 });
+    expect(screen.getByTestId('names').textContent).toBe('Club A');
+  });
+
+  it('toggleFollow reverts optimistic add when DB call throws (Slice 133)', async () => {
+    mockUseUser.mockReturnValue({ user: stableUser });
+    mockGetUserFollowedClubs.mockResolvedValue([]);
+    mockGetUserPrimaryClub.mockResolvedValue(null);
+    mockToggleFollowClub.mockRejectedValue(new Error('network-fail'));
+    const user = userEvent.setup();
+
+    render(<ClubProvider><FollowTestbed /></ClubProvider>);
+    await waitFor(() => {
+      expect(screen.getByTestId('count').textContent).toBe('0');
+    }, { timeout: 5000 });
+
+    await user.click(screen.getByText('follow'));
+    // After the failed toggle, followedClubs must be back to empty.
+    await waitFor(() => {
+      expect(screen.getByTestId('count').textContent).toBe('0');
+    }, { timeout: 5000 });
+    expect(screen.getByTestId('names').textContent).toBe('');
+  });
 });

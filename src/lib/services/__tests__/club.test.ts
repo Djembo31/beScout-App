@@ -198,6 +198,25 @@ describe('getClubsWithStats', () => {
     mockTable('clubs', null, { message: 'err' });
     await expect(getClubsWithStats()).rejects.toThrow('err');
   });
+  it('chunks players via .range() when payload exceeds one page (Slice 133)', async () => {
+    // Root cause this test guards: PostgREST capped responses at ~1000 rows
+    // even with `.limit(10000)` → /clubs showed fractional player counts
+    // (Beşiktaş 2 instead of 20, Alanyaspor 7 instead of 33).
+    const chunk1 = Array.from({ length: 1000 }, () => ({ club_id: 'c1' }));
+    const chunk2 = Array.from({ length: 234 }, () => ({ club_id: 'c1' }));
+    mockTable('clubs', [{ id: 'c1', name: 'FC Big' }]);
+    mockTable('club_followers', []);
+    mockTable('players', chunk1);
+    mockTable('players', chunk2);
+    const result = await getClubsWithStats({ activeOnly: true });
+    expect(result[0].player_count).toBe(1234);
+  });
+  it('throws when a player chunk returns an error', async () => {
+    mockTable('clubs', [{ id: 'c1' }]);
+    mockTable('club_followers', []);
+    mockTable('players', null, { message: 'chunk-boom' });
+    await expect(getClubsWithStats({ activeOnly: true })).rejects.toThrow('chunk-boom');
+  });
 });
 
 describe('getClubTradingFees', () => {

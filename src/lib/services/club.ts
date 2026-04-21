@@ -306,6 +306,10 @@ export async function setUserPrimaryClub(userId: string, clubId: string): Promis
 /**
  * Get all clubs with follower + player counts (for discovery page).
  *
+ * Chunking: `.limit(10000)` allein reicht nicht — PostgREST/Supabase cappt
+ * manche Antworten hart bei ~1000 rows. Fix-Muster aus Slice 079b:
+ * `.range(offset, offset+PAGE-1)` in Schleife bis `data.length < PAGE`.
+ *
  * @param opts.activeOnly Wenn true, zählt nur Spieler mit `mv_source != 'transfermarkt_stale'`
  *   (analog Slice 083). Default false = Full-Count (backward-compat).
  */
@@ -320,37 +324,45 @@ export async function getClubsWithStats(
   if (error) throw new Error(error.message);
   if (!clubs) return [];
 
-  // Get follower counts — override default 1000-row limit for scalability
   const clubIds = clubs.map(c => c.id);
-  const { data: followerData } = await supabase
-    .from('club_followers')
-    .select('club_id')
-    .in('club_id', clubIds)
-    .limit(10000);
+  const PAGE = 1000;
 
+  // Follower counts — chunked read, explicit error propagation
   const followerCounts = new Map<string, number>();
-  for (const f of followerData ?? []) {
-    followerCounts.set(f.club_id, (followerCounts.get(f.club_id) ?? 0) + 1);
-  }
-
-  // Get player counts — must override default 1000-row limit (4400+ players)
-  let playerQuery = supabase
-    .from('players')
-    .select('club_id')
-    .in('club_id', clubIds)
-    .limit(10000);
-
-  if (opts?.activeOnly) {
-    playerQuery = playerQuery.neq('mv_source', 'transfermarkt_stale');
-  }
-
-  const { data: playerData } = await playerQuery;
-
-  const playerCounts = new Map<string, number>();
-  for (const p of playerData ?? []) {
-    if (p.club_id) {
-      playerCounts.set(p.club_id, (playerCounts.get(p.club_id) ?? 0) + 1);
+  for (let offset = 0; ; offset += PAGE) {
+    const { data, error: fErr } = await supabase
+      .from('club_followers')
+      .select('club_id')
+      .in('club_id', clubIds)
+      .range(offset, offset + PAGE - 1);
+    if (fErr) throw new Error(`getClubsWithStats followers: ${fErr.message}`);
+    const rows = data ?? [];
+    for (const f of rows) {
+      followerCounts.set(f.club_id, (followerCounts.get(f.club_id) ?? 0) + 1);
     }
+    if (rows.length < PAGE) break;
+  }
+
+  // Player counts — same pattern, with optional stale-filter
+  const playerCounts = new Map<string, number>();
+  for (let offset = 0; ; offset += PAGE) {
+    let q = supabase
+      .from('players')
+      .select('club_id')
+      .in('club_id', clubIds)
+      .range(offset, offset + PAGE - 1);
+    if (opts?.activeOnly) {
+      q = q.neq('mv_source', 'transfermarkt_stale');
+    }
+    const { data, error: pErr } = await q;
+    if (pErr) throw new Error(`getClubsWithStats players: ${pErr.message}`);
+    const rows = data ?? [];
+    for (const p of rows) {
+      if (p.club_id) {
+        playerCounts.set(p.club_id, (playerCounts.get(p.club_id) ?? 0) + 1);
+      }
+    }
+    if (rows.length < PAGE) break;
   }
 
   return clubs.map(c => ({
