@@ -350,6 +350,8 @@ export async function getMappingStatus(): Promise<MappingStatus> {
   // players-count via head:true avoids PostgREST 1000-row cap (we have 4556+ players).
   // fixtures paginated via .range()-loop: fixtures grows linearly with gameweeks × league-count,
   // so >1000 rows is a matter of time. See common-errors.md "PostgREST silent 1000-row cap".
+  // Slice 134: player_external_ids ebenfalls paginiert — >4500 Spieler × 2 sources = >9000 Rows,
+  //   unpaginiert gecapped auf 1000 → playersMapped-Count im Admin-UI falsch.
   const fixturesPaginated = (async (): Promise<{ data: Array<{ id: string; api_fixture_id: number | null }> }> => {
     const PAGE = 1000;
     let offset = 0;
@@ -368,19 +370,37 @@ export async function getMappingStatus(): Promise<MappingStatus> {
     return { data: allRows };
   })();
 
+  const playerExtIdsPaginated = (async (): Promise<{ data: Array<{ player_id: string }> }> => {
+    const PAGE = 1000;
+    let offset = 0;
+    const allRows: Array<{ player_id: string }> = [];
+    while (true) {
+      const { data, error } = await supabase
+        .from('player_external_ids')
+        .select('player_id')
+        .eq('source', 'api_football_squad')
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(`player_external_ids query failed (offset=${offset}): ${error.message}`);
+      if (!data || data.length === 0) break;
+      allRows.push(...(data as Array<{ player_id: string }>));
+      if (data.length < PAGE) break;
+      offset += PAGE;
+    }
+    return { data: allRows };
+  })();
+
   // Slice 087: Promise.all (not allSettled) + explicit .error checks — rejected propagates.
   // Prevents "0/0 mapped" data-liar when a DB query fails (silent-rejected in allSettled + null .error in per-query result).
   const [clubsRes, clubExtIdsRes, playersCountRes, playerExtIdsRes, fixturesRes] = await Promise.all([
     supabase.from('clubs').select('id'),
     supabase.from('club_external_ids').select('club_id').eq('source', 'api_football'),
     supabase.from('players').select('id', { count: 'exact', head: true }),
-    supabase.from('player_external_ids').select('player_id').eq('source', 'api_football_squad'),
+    playerExtIdsPaginated,
     fixturesPaginated,
   ]);
   if (clubsRes.error) throw new Error(`clubs query failed: ${clubsRes.error.message}`);
   if (clubExtIdsRes.error) throw new Error(`club_external_ids query failed: ${clubExtIdsRes.error.message}`);
   if (playersCountRes.error) throw new Error(`players count query failed: ${playersCountRes.error.message}`);
-  if (playerExtIdsRes.error) throw new Error(`player_external_ids query failed: ${playerExtIdsRes.error.message}`);
 
   const clubs = clubsRes.data ?? [];
   const clubExtIds = clubExtIdsRes.data ?? [];
@@ -428,15 +448,48 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
     }
 
     // 2. Build player API ID → our player ID lookup (via player_external_ids)
-    const [{ data: extIds }, { data: playerPositions }] = await Promise.all([
-      supabase
-        .from('player_external_ids')
-        .select('player_id, external_id')
-        .in('source', ['api_football_squad', 'api_football_fixture']),
-      supabase
-        .from('players')
-        .select('id, position'),
-    ]);
+    // Slice 134: beide Queries paginieren — unpaginiert silent-cap bei 1000:
+    //   player_external_ids hat >9000 Rows (2 sources × 4500+ Spieler),
+    //   players.select('id, position') hat 4500+ Rows ohne Filter.
+    //   Unpaginiert führt zu apiPlayerMap.size ≈ 1000 statt 4500+ → Scoring-Gap bei manuellem Import.
+    type ExtIdRow = { player_id: string; external_id: string };
+    type PlayerPosRow = { id: string; position: string };
+    const extIdsPromise: Promise<ExtIdRow[]> = (async () => {
+      const PAGE = 1000;
+      const rows: ExtIdRow[] = [];
+      let offset = 0;
+      while (true) {
+        const { data, error } = await supabase
+          .from('player_external_ids')
+          .select('player_id, external_id')
+          .in('source', ['api_football_squad', 'api_football_fixture'])
+          .range(offset, offset + PAGE - 1);
+        if (error) throw new Error(`player_external_ids query failed (offset=${offset}): ${error.message}`);
+        if (!data || data.length === 0) break;
+        rows.push(...(data as ExtIdRow[]));
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      return rows;
+    })();
+    const playerPositionsPromise: Promise<PlayerPosRow[]> = (async () => {
+      const PAGE = 1000;
+      const rows: PlayerPosRow[] = [];
+      let offset = 0;
+      while (true) {
+        const { data, error } = await supabase
+          .from('players')
+          .select('id, position')
+          .range(offset, offset + PAGE - 1);
+        if (error) throw new Error(`players position query failed (offset=${offset}): ${error.message}`);
+        if (!data || data.length === 0) break;
+        rows.push(...(data as PlayerPosRow[]));
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      return rows;
+    })();
+    const [extIds, playerPositions] = await Promise.all([extIdsPromise, playerPositionsPromise]);
 
     if (!extIds || extIds.length === 0) {
       result.errors.push('Keine gemappten Spieler');
@@ -444,17 +497,17 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
     }
 
     const posMap = new Map<string, string>();
-    for (const p of (playerPositions ?? [])) {
-      posMap.set(p.id as string, p.position as string);
+    for (const p of playerPositions) {
+      posMap.set(p.id, p.position);
     }
 
     const apiPlayerMap = new Map<number, { id: string; position: string }>();
     for (const ext of extIds) {
-      const numId = parseInt(ext.external_id as string, 10);
+      const numId = parseInt(ext.external_id, 10);
       if (isNaN(numId)) continue;
       apiPlayerMap.set(numId, {
-        id: ext.player_id as string,
-        position: posMap.get(ext.player_id as string) ?? 'MID',
+        id: ext.player_id,
+        position: posMap.get(ext.player_id) ?? 'MID',
       });
     }
 

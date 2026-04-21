@@ -1,0 +1,45 @@
+Slice 134 — DB-Truth Evidence für Silent-Cap-Risk
+
+Query (via mcp__supabase__execute_sql, project beScout-App skzjfhvgccaeplydsunz, 2026-04-22):
+
+  SELECT 'player_external_ids (api_football_squad + fixture)' AS scope,
+         COUNT(*) AS total_rows,
+         CASE WHEN COUNT(*) > 1000 THEN 'SILENT-CAP RISK (before fix)' ELSE 'safe' END
+  FROM player_external_ids WHERE source IN ('api_football_squad','api_football_fixture')
+  UNION ALL ... (3 weitere Scopes, siehe Slice 134 active.md)
+
+Result:
+
+  scope                                                               | total_rows | risk
+  --------------------------------------------------------------------+------------+-----------------------------------
+  player_external_ids (api_football_squad + fixture)                  |  5677      | SILENT-CAP RISK (before fix)
+  player_external_ids (api_football_squad only — getMappingStatus)    |  4346      | SILENT-CAP RISK (before fix)
+  players total (unfiltered — importGameweek.playerPositions)         |  4556      | SILENT-CAP RISK (before fix)
+  players per-league (max single-league via club_id IN)               |   756      | safe (but future-proof paginated)
+
+Interpretation pre-fix (Slice 134 Baseline):
+
+  * gameweek-sync/route.ts Phase-A extIdRes.data.length = min(5677, 1000) = 1000
+    → apiPlayerMap.size  ≈ 1000 statt 5677
+    → 4677 Spieler ohne api_football_id-Lookup → 0-Stats für Scoring
+
+  * footballData.ts getMappingStatus.playersMapped = min(4346, 1000) = 1000
+    → Admin-UI /bescout-admin/mapping zeigt "1000 von 4556 Spielern gemappt" (23%)
+    → Real-State: 4346 gemappt (95.4%). Admin trifft Entscheidungen auf Basis falscher Daten.
+
+  * footballData.ts importGameweek:
+    - player_external_ids query: extIds.length = min(5677, 1000) = 1000 → apiPlayerMap.size ≈ 1000
+    - players.select('id, position'): playerPositions.length = min(4556, 1000) = 1000
+    → 3556 Spieler ohne posMap-Eintrag (unbekannte Position) + 4677 Spieler unmapped
+    → Manueller Import wird >80% der player_stats-Rows skippen oder mit default-MID scoren.
+
+  * gameweek-sync players.in('club_id', allLeagueClubIds) scoped per-league = 756 max (heute safe).
+    → Paginated als Safety-Layer für Multi-Liga-Expansion und zukünftige Refactors
+      die den Scope auf alle Ligen erweitern könnten.
+
+Post-fix (Slice 134 Expected):
+
+  Alle 3 Queries laden full dataset via .range()-loop mit PAGE=1000.
+  Chunk-Count pro Cron-Run: 6 Chunks für extIds (5677/1000), 5 Chunks für players (4556/1000),
+  5 Chunks für playerExtIds in getMappingStatus (4346/1000).
+  Extra Roundtrip-Latenz: ~400-500ms pro Cron-Run (akzeptabel in 300s-Budget).

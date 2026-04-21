@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 134 | 2026-04-22 | P0 Silent-Fail 1000-Row-Cap Folge-Fixes (gameweek-sync Phase-A + footballData mapping/import)
+
+- **Stage-Chain:** SPEC → IMPACT (inline) → BUILD → PROVE → LOG
+- **Trigger:** Briefing 2026-04-22 Option A — Scope-Outs aus Slice 086/088 Reviewer: verbleibende non-paginated `.select()`/`.in()` Queries auf `player_external_ids` (>5677 Rows) und `players` (4556 Rows).
+- **Root-Cause:** PostgREST silent 1000-row cap auf:
+  - `gameweek-sync/route.ts` Phase-A mappings — `player_external_ids.in('source', [...])` + `players.in('club_id', allLeagueClubIds)` unpaginated → apiPlayerMap-Build sah nur 1000 von 5677 Spieler-Mappings → Scoring-Gap ~80%.
+  - `footballData.ts` `getMappingStatus` — `player_external_ids.eq('source', 'api_football_squad')` unpaginated → Admin-UI zeigt "1000 von 4556 gemappt" (23%) statt echter 4346 (95.4%).
+  - `footballData.ts` `importGameweek` — gleiche zwei Queries unpaginated → manueller Import scored mit default-MID + skippt 4677 Spieler.
+- **Files:**
+  - `src/app/api/cron/gameweek-sync/route.ts` — Phase-A `player_external_ids` + `players` je via `.range()`-while-loop IIFE vor Promise.all, explicit `.error`-throw pro Chunk. Type-annotated (`ExtIdRow`, `PlayerRow`) statt `any`-Casting (+84, -inline-destructure).
+  - `src/lib/services/footballData.ts` — `getMappingStatus`: `playerExtIdsPaginated` IIFE analog `fixturesPaginated`. `importGameweek`: beide Queries (`player_external_ids` + `players.select('id, position')`) paginiert (+85, -inline-destructure).
+  - `src/lib/services/__tests__/footballData.test.ts` — 2 neue Tests: "chunks player_external_ids via .range() when >1000 rows" (1000+567 Rows → playersMapped=1567) + "throws when chunk returns error" (+28).
+- **Proof:**
+  - `worklog/proofs/134-footballData-tests.txt` — 9/9 vitest grün (7 alt + 2 neu)
+  - `worklog/proofs/134-tsc.txt` — `tsc --noEmit` clean + full services-suite 998/998 grün
+  - `worklog/proofs/134-db-evidence.txt` — DB-Count via Supabase MCP: 5677 extIds + 4346 squad-only + 4556 players total, per-league-max 756 (heute safe)
+  - `worklog/proofs/134-grep-audit.txt` — 5 Stellen Slice 134, 4 Folge-P1 in admin routes dokumentiert (sync-contracts, backfill-ratings, backfill-positions, transfermarkt-search-batch)
+- **Commit:** (pending)
+- **Notes:** Erweitert Slice 086/088/133-Pattern um die systematische Beseitigung der drei letzten unpaginated `.in('source', [api_football_squad,...])`-Stellen im Cron-kritischen Pfad. Admin-Routes mit gleichem Pattern als Folge-Slice out-of-scope (Beta-Launch-Non-Blocker). Per-league `players.in('club_id', allLeagueClubIds)` heute 756 max — paginiert als Safety-Layer für Multi-Liga-Expansion.
+
+---
+
 ## 133 | 2026-04-22 | /clubs player-count chunking + follow optimistic (Beta-Blocker)
 
 - **Stage-Chain:** SPEC → IMPACT → BUILD → PROVE → LOG

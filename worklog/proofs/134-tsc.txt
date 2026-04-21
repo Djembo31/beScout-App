@@ -1,0 +1,13 @@
+$ npx tsc --noEmit
+(no output)
+$ echo "exit=$?"
+exit=0
+
+Interpretation: TypeScript clean (0 errors, 0 warnings) nach Slice 134 Edits in
+- src/app/api/cron/gameweek-sync/route.ts  (Phase-A mappings paginated)
+- src/lib/services/footballData.ts         (getMappingStatus + importGameweek paginated)
+- src/lib/services/__tests__/footballData.test.ts (2 neue Chunking-Tests)
+
+Full vitest services suite (post-edit):
+  41 test files, 998 tests, 100% pass
+  (Output: siehe 134-footballData-tests.txt für fokussierten Sub-Run)

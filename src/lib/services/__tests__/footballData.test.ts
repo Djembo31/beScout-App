@@ -61,6 +61,34 @@ describe('getMappingStatus', () => {
     expect(result.clubsTotal).toBe(0);
     expect(result.fixturesMapped).toBe(0);
   });
+
+  it('chunks player_external_ids via .range() when >1000 rows (Slice 134)', async () => {
+    // Root cause this test guards: PostgREST silent 1000-row cap on
+    // player_external_ids (~9000 rows in prod) → playersMapped count was wrong
+    // in admin mapping UI. Fix: .range()-loop aggregates across chunks.
+    const chunk1 = Array.from({ length: 1000 }, (_, i) => ({ player_id: `p${i}` }));
+    const chunk2 = Array.from({ length: 567 }, (_, i) => ({ player_id: `p${1000 + i}` }));
+    mockTable('clubs', [{ id: 'c1' }]);
+    mockTable('club_external_ids', [{ club_id: 'c1' }]);
+    mockTable('players', null, null, 4556);
+    mockTable('player_external_ids', chunk1);
+    mockTable('player_external_ids', chunk2);
+    mockTable('fixtures', [{ id: 'f1', api_fixture_id: 1 }]);
+
+    const result = await getMappingStatus();
+    expect(result.playersMapped).toBe(1567);
+    expect(result.playersTotal).toBe(4556);
+  });
+
+  it('throws when a player_external_ids chunk returns an error (Slice 134)', async () => {
+    mockTable('clubs', [{ id: 'c1' }]);
+    mockTable('club_external_ids', [{ club_id: 'c1' }]);
+    mockTable('players', null, null, 10);
+    mockTable('player_external_ids', null, { message: 'chunk-boom' });
+    mockTable('fixtures', [{ id: 'f1', api_fixture_id: 1 }]);
+
+    await expect(getMappingStatus()).rejects.toThrow(/player_external_ids query failed.*chunk-boom/);
+  });
 });
 
 // ============================================

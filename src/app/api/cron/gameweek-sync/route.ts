@@ -591,22 +591,60 @@ async function syncLeague(
 
     // ---- 5. Load DB mappings ----
     // Fixtures + players scoped per-league via home_club_id / club_id IN allLeagueClubIds
+    // Slice 134: `player_external_ids` hat KEINEN league-Filter (~9000 Rows bei 2 sources × 4500+ Spieler)
+    //   → silent 1000-row-cap würde api_football_id-Map verfälschen → Spieler unmapped → 0-Stats für Scoring.
+    //   Fix via `.range()`-while-loop (gleicher Pattern wie Slice 086/088/133).
+    // `players.in('club_id', allLeagueClubIds)` ist heute per-league ~400-700 Rows (safe),
+    //   paginated aus Safety-Gründen: Multi-Liga-Expansion + bei Aufruf-Ändern kein Silent-Cap.
+    type ExtIdRow = { player_id: string; external_id: string };
+    type PlayerRow = { id: string; position: string; first_name: string; last_name: string; club_id: string; shirt_number: number | null };
+    const extIdsPaginated: Promise<ExtIdRow[]> = (async () => {
+      const PAGE = 1000;
+      const rows: ExtIdRow[] = [];
+      let offset = 0;
+      while (true) {
+        const { data, error } = await supabaseAdmin
+          .from('player_external_ids')
+          .select('player_id, external_id')
+          .in('source', ['api_football_squad', 'api_football_fixture'])
+          .range(offset, offset + PAGE - 1);
+        if (error) throw new Error(`player_external_ids query failed (offset=${offset}): ${error.message}`);
+        if (!data || data.length === 0) break;
+        rows.push(...(data as ExtIdRow[]));
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      return rows;
+    })();
+    const playersPaginated: Promise<PlayerRow[]> = (async () => {
+      const PAGE = 1000;
+      const rows: PlayerRow[] = [];
+      let offset = 0;
+      while (true) {
+        const { data, error } = await supabaseAdmin
+          .from('players')
+          .select('id, position, first_name, last_name, club_id, shirt_number')
+          .in('club_id', allLeagueClubIds)
+          .range(offset, offset + PAGE - 1);
+        if (error) throw new Error(`players-by-club query failed (offset=${offset}): ${error.message}`);
+        if (!data || data.length === 0) break;
+        rows.push(...(data as PlayerRow[]));
+        if (data.length < PAGE) break;
+        offset += PAGE;
+      }
+      return rows;
+    })();
+
     const { result: mappings } = await runStep('load_mappings', async () => {
-      const [fixtureRes, extIdRes, playerRes, clubExtRes] = await Promise.all([
+      const [fixtureRes, extIdsData, playersData, clubExtRes] = await Promise.all([
         supabaseAdmin
           .from('fixtures')
           .select('id, home_club_id, away_club_id, api_fixture_id')
           .eq('gameweek', activeGw)
           .in('home_club_id', allLeagueClubIds)
           .not('api_fixture_id', 'is', null),
-        supabaseAdmin
-          .from('player_external_ids')
-          .select('player_id, external_id')
-          .in('source', ['api_football_squad', 'api_football_fixture']),
-        supabaseAdmin
-          .from('players')
-          .select('id, position, first_name, last_name, club_id, shirt_number')
-          .in('club_id', allLeagueClubIds),
+        extIdsPaginated,
+        playersPaginated,
         supabaseAdmin
           .from('club_external_ids')
           .select('club_id, external_id')
@@ -616,27 +654,27 @@ async function syncLeague(
 
       if (!fixtureRes.data?.length)
         throw new Error(`No mapped fixtures for ${leagueShort} GW${activeGw}`);
-      if (!extIdRes.data?.length) throw new Error('No mapped players');
+      if (!extIdsData.length) throw new Error('No mapped players');
 
       // Build player position lookup
       const posMap = new Map<string, string>();
-      for (const p of playerRes.data ?? []) {
-        posMap.set(p.id as string, p.position as string);
+      for (const p of playersData) {
+        posMap.set(p.id, p.position);
       }
 
       // Build club players map for name matching: clubId → players[]
       type ClubPlayerInfo = { id: string; first_name: string; last_name: string; position: string; shirt_number: number | null };
       const clubPlayersMap = new Map<string, ClubPlayerInfo[]>();
-      for (const p of playerRes.data ?? []) {
-        const cid = p.club_id as string;
+      for (const p of playersData) {
+        const cid = p.club_id;
         if (!cid) continue;
         const arr = clubPlayersMap.get(cid) ?? [];
         arr.push({
-          id: p.id as string,
-          first_name: p.first_name as string,
-          last_name: p.last_name as string,
-          position: p.position as string,
-          shirt_number: (p.shirt_number as number | null) ?? null,
+          id: p.id,
+          first_name: p.first_name,
+          last_name: p.last_name,
+          position: p.position,
+          shirt_number: p.shirt_number ?? null,
         });
         clubPlayersMap.set(cid, arr);
       }
@@ -660,12 +698,12 @@ async function syncLeague(
         }>,
         playerMap: (() => {
           const m = new Map<number, { id: string; position: string }>();
-          for (const ext of extIdRes.data) {
-            const numId = parseInt(ext.external_id as string, 10);
+          for (const ext of extIdsData) {
+            const numId = parseInt(ext.external_id, 10);
             if (isNaN(numId)) continue;
             m.set(numId, {
-              id: ext.player_id as string,
-              position: posMap.get(ext.player_id as string) ?? 'MID',
+              id: ext.player_id,
+              position: posMap.get(ext.player_id) ?? 'MID',
             });
           }
           return m;

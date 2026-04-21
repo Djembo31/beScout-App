@@ -1,0 +1,67 @@
+Slice 134 — Grep-Audit für player_external_ids + players unpaginated .select()
+
+Command:
+  grep -rn "from('player_external_ids')" src/ --include='*.ts'
+  grep -rn "from('players').select" src/ --include='*.ts' | grep -v 'count:'
+
+Findings 2026-04-22 post-fix:
+
+(1) FIXED IN SLICE 134 — drei P0-Stellen mit .range()-while-loop:
+
+  * src/app/api/cron/gameweek-sync/route.ts:607  [Phase-A mappings]
+      .from('player_external_ids').select('player_id, external_id')
+        .in('source', ['api_football_squad','api_football_fixture'])
+        .range(offset, offset + PAGE - 1)
+      ── within (async () => {...})() IIFE, throw on error, break on <PAGE.
+
+  * src/app/api/cron/gameweek-sync/route.ts:629  [Phase-A mappings]
+      .from('players').select('id, position, first_name, last_name, club_id, shirt_number')
+        .in('club_id', allLeagueClubIds)
+        .range(offset, offset + PAGE - 1)
+      ── heute 756 max/league, paginiert als Safety-Layer.
+
+  * src/lib/services/footballData.ts:379  [getMappingStatus]
+      .from('player_external_ids').select('player_id').eq('source', 'api_football_squad')
+        .range(offset, offset + PAGE - 1)
+
+  * src/lib/services/footballData.ts:463  [importGameweek]
+      .from('player_external_ids').select('player_id, external_id')
+        .in('source', ['api_football_squad','api_football_fixture'])
+        .range(offset, offset + PAGE - 1)
+
+  * src/lib/services/footballData.ts:482  [importGameweek]
+      .from('players').select('id, position')
+        .range(offset, offset + PAGE - 1)
+
+(2) SAFE — kein Silent-Cap-Risiko (Insert/Upsert/single/count/small-scope):
+
+  * src/app/api/cron/gameweek-sync/route.ts:1241  .upsert(...)         [write, kein SELECT-cap]
+  * src/app/api/cron/transfermarkt-search-batch/route.ts:163  .insert(...)
+  * src/app/api/cron/sync-transfermarkt-batch/route.ts:62   .select(...).order(...).range(...)  [bereits paginated]
+
+(3) OUT-OF-SCOPE FOLGE-P0/P1 (Admin-only, manual-trigger, NICHT in Slice 134):
+
+  * src/app/api/admin/sync-contracts/route.ts:94
+      .from('player_external_ids').select('player_id, external_id')
+        .in('source', ['api_football_squad','api_football_fixture'])
+      → ~5677 Rows, unpaginated → silent cap. Admin manuell-trigger, kein Cron.
+      → Action: separater Slice 135 oder Folge-Fix (P1, kein Beta-Blocker).
+
+  * src/app/api/admin/backfill-ratings/route.ts:52-55
+      .from('player_external_ids').select('player_id, external_id')
+        .in('source', ['api_football_squad','api_football_fixture'])
+      → gleiche Klasse, Admin-tool.
+
+  * src/app/api/admin/backfill-positions/route.ts:46-49
+      .from('player_external_ids').select('player_id, external_id')
+        .in('source', ['api_football_squad','api_football_fixture'])
+      → gleiche Klasse, Admin-tool.
+
+  * src/app/api/cron/transfermarkt-search-batch/route.ts:82-85
+      .from('player_external_ids').select('player_id').eq('source', 'transfermarkt')
+      → TM-Mapping, könnte bei Wachstum gecapped werden.
+      → Check Post-Slice-134: wie viele TM-mapped Rows? Query folgt in Folge-Slice.
+
+Summary:
+  Slice 134 closes 5 Silent-Cap-Stellen in 2 Files (gameweek-sync Phase-A + footballData 2 Methoden).
+  Folge-Backlog: 4 weitere Stellen in admin routes + transfermarkt-search-batch — P1, separater Slice.
