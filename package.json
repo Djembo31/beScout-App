@@ -24,6 +24,7 @@
     "audit:silent-fail": "npx tsx scripts/silent-fail-audit.ts",
     "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check",
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
+    "beta:metrics": "node scripts/beta-metrics.mjs",
     "prepare": "husky"
   },
   "dependencies": {
