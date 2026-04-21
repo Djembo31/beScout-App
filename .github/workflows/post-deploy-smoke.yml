@@ -1,0 +1,70 @@
+name: Post-Deploy Smoke
+on:
+  deployment_status:
+
+jobs:
+  smoke:
+    # Only run when Vercel reports success on Production
+    if: >
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium --with-deps
+      - name: Run Smoke Suite against deployed URL
+        id: smoke
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ github.event.deployment_status.target_url }}
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: pnpm exec playwright test --project=smoke --reporter=list
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report-${{ github.event.deployment.sha }}
+          path: playwright-report/
+          retention-days: 14
+      - name: Create Issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployUrl = context.payload.deployment_status.target_url;
+            const sha = context.payload.deployment.sha.substring(0, 7);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Beta Smoke failed on ${sha} (${deployUrl})`,
+              body: [
+                `**Deploy:** ${deployUrl}`,
+                `**Commit:** ${context.payload.deployment.sha}`,
+                `**GitHub Actions run:** ${runUrl}`,
+                ``,
+                `One of the 10 smoke flows failed. Check the Playwright report artifact on the run for details.`,
+                ``,
+                `**Flows:**`,
+                `1. /home unauth loads`,
+                `2. Login with QA account`,
+                `3. /market loads`,
+                `4. Market-Card interactive`,
+                `5. /manager Hub`,
+                `6. /player/[id] detail`,
+                `7. /fantasy/spieltag`,
+                `8. /community`,
+                `9. /missions`,
+                `10. /transactions`,
+              ].join('\n'),
+              labels: ['beta-blocker', 'smoke-fail'],
+            });

@@ -1,0 +1,38 @@
+Beta Smoke Suite — First Live Run
+Target: https://bescout.net
+Date: 2026-04-21
+Runner: local (Windows Git Bash, pnpm 10.29.2)
+
+$ PLAYWRIGHT_BASE_URL=https://bescout.net npx playwright test --project=smoke --reporter=list
+
+Running 1 test using 1 worker
+
+  ok 1 [smoke] › e2e/beta-smoke.spec.ts:35:7 › Beta Smoke Suite › 10 critical flows — bescout.net post-deploy check (10.6s)
+
+  1 passed (13.0s)
+
+---
+
+All 10 flows green:
+1. /home (unauth) loads without 5xx
+2. Login with jarvis-qa@bescout.net → redirect away from /login
+3. /market loads (authenticated)
+4. Player-Detail via click on market card → /player/[id]
+5. /manager Hub loads
+6. /fantasy loads
+7. /community loads
+8. /missions loads
+9. /transactions loads
+10. /founding (Founding Pass) loads
+
+Iteration history during Phase 2 Task #6:
+- Run 1: failed at step 3 /market (too-specific selector `getByRole('button', { name: /Kader/i })`)
+- Run 2: failed at step 5 /kader (global 180s timeout due to waitForApp accumulation)
+- Run 3: failed at step 5 /kader (route does not exist — "Mein Kader" is a tab on /market)
+- Run 4: PASS (route fixed /kader → /manager)
+
+Lessons captured:
+- Smoke suite must use generic selectors (main/role=main), not page-specific
+- test.setTimeout(300_000) required for 10-step suites against Prod
+- Lightweight navigate helper (no full hydration wait) keeps runtime ≤ 15s total
+- Pre-smoke: verify routes exist against src/app structure, not from memory

@@ -35,6 +35,12 @@ export default defineConfig({
       testMatch: /auth\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // --- Smoke suite (own login, no pre-loaded storageState, runs against Prod) ---
+    {
+      name: 'smoke',
+      testMatch: /beta-smoke\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // --- Authenticated tests (fan) ---
     {
       name: 'authenticated',
