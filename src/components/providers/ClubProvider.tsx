@@ -128,9 +128,21 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     ssSetClub(club);
   }, []);
 
-  // Ref for activeClub to avoid re-creating toggleFollow on every club switch
+  // Refs mirror latest state so toggleFollow stays stable across re-renders.
+  // Without this, each setFollowedClubs() rebuilt the callback mid-mutation,
+  // letting parallel clicks on different clubs race and overwrite each other.
   const activeClubRef = useRef(activeClub);
   activeClubRef.current = activeClub;
+  const followedClubsRef = useRef(followedClubs);
+  followedClubsRef.current = followedClubs;
+  const primaryClubRef = useRef(primaryClub);
+  primaryClubRef.current = primaryClub;
+
+  // Mutex per clubId: silent-discards re-entry while an earlier toggle is in-flight.
+  // Also used to defer reconcile-from-server until the last outstanding toggle resolves —
+  // otherwise getUserFollowedClubs from an earlier call would overwrite an optimistic
+  // state from a later call on a different club.
+  const inflightRef = useRef<Set<string>>(new Set());
 
   const isFollowing = useCallback((clubId: string) => {
     return followedClubs.some(c => c.id === clubId);
@@ -142,8 +154,11 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     clubData?: DbClub,
   ) => {
     if (!user) return;
-    const prevFollowed = followedClubs;
-    const prevPrimary = primaryClub;
+    if (inflightRef.current.has(clubId)) return;
+    inflightRef.current.add(clubId);
+
+    const prevFollowed = followedClubsRef.current;
+    const prevPrimary = primaryClubRef.current;
     const prevActive = activeClubRef.current;
     const currently = prevFollowed.some(c => c.id === clubId);
 
@@ -169,11 +184,16 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await toggleFollowClub(user.id, clubId, clubName, !currently);
-      // Reconcile with server truth (primary-ordering, full row shape).
-      const followed = await getUserFollowedClubs(user.id);
-      setFollowedClubs(followed);
-      setPrimaryClub(followed[0] ?? null);
+      // Only the last outstanding toggle reconciles from server. Earlier calls
+      // skipping reconcile avoids overwriting other in-flight toggles' optimistic state.
+      inflightRef.current.delete(clubId);
+      if (inflightRef.current.size === 0) {
+        const followed = await getUserFollowedClubs(user.id);
+        setFollowedClubs(followed);
+        setPrimaryClub(followed[0] ?? null);
+      }
     } catch (err) {
+      inflightRef.current.delete(clubId);
       // Revert on error — leave the caller to surface a toast.
       setFollowedClubs(prevFollowed);
       setPrimaryClub(prevPrimary);
@@ -183,7 +203,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       }
       throw err;
     }
-  }, [user, followedClubs, primaryClub]);
+  }, [user]);
 
   const refreshClubs = useCallback(async () => {
     if (!user) return;

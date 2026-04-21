@@ -1,0 +1,37 @@
+Slice 138 — Proof: ClubProvider Race-Condition-Fix
+
+## npx tsc --noEmit
+exit=0
+
+## npx vitest run src/components/providers/__tests__/ClubProvider.test.tsx
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+
+### Neue Tests (Slice 138)
+- silently discards re-click on same club while in-flight
+  → toggleFollowClub wird genau 1× aufgerufen bei 3 Klicks auf gleichen Club
+  → Reconcile feuert nach DB-Resolve
+- parallel toggles on different clubs do not overwrite each other
+  → Club A + Club B parallel: beide optimistic sichtbar
+  → Resolve A: kein Reconcile (B noch in-flight) → UI behält beide
+  → Resolve B: Reconcile aus getUserFollowedClubs → Server-Truth (c1,c2)
+
+### Bestehende Tests (Regression-Check, grün)
+- renders children
+- starts loading, then finishes when no user
+- loads clubs when user is available
+- sets active club via setActiveClub
+- useClub returns context value outside provider
+- toggleFollow optimistically adds clubData before DB resolve (Slice 133)
+- toggleFollow reverts optimistic add when DB call throws (Slice 133)
+
+## Fix-Summary
+
+ClubProvider.tsx:
+1. `followedClubsRef` + `primaryClubRef` → toggleFollow liest aus Refs, bleibt stable (deps nur [user])
+   Vorher: [user, followedClubs, primaryClub] → Callback wurde bei jedem setFollowedClubs neu gebaut
+2. `inflightRef: Set<string>` → Mutex pro clubId
+   Re-click auf clubId-in-progress wird silent discarded
+3. Reconcile (getUserFollowedClubs) nur wenn `inflight.size === 0` am Ende des Calls
+   Vermeidet dass ein früherer Call den Optimistic-State eines späteren überschreibt

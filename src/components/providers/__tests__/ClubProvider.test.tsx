@@ -185,4 +185,87 @@ describe('ClubProvider', () => {
     }, { timeout: 5000 });
     expect(screen.getByTestId('names').textContent).toBe('');
   });
+
+  // ============================================
+  // Slice 138 — Race-Safe Parallel Toggles
+  // ============================================
+  function ParallelTestbed() {
+    const { followedClubs, toggleFollow } = useClub();
+    return (
+      <div>
+        <span data-testid="count">{followedClubs.length}</span>
+        <span data-testid="ids">{followedClubs.map(c => c.id).sort().join(',')}</span>
+        <button onClick={() => toggleFollow('c1', 'Club A', clubA as any).catch(() => {})}>follow-a</button>
+        <button onClick={() => toggleFollow('c2', 'Club B', clubB as any).catch(() => {})}>follow-b</button>
+      </div>
+    );
+  }
+
+  it('silently discards re-click on same club while in-flight (Slice 138)', async () => {
+    mockUseUser.mockReturnValue({ user: stableUser });
+    mockGetUserFollowedClubs.mockResolvedValueOnce([]);       // initial load
+    mockGetUserPrimaryClub.mockResolvedValue(null);
+    let resolveToggle: ((v: unknown) => void) | undefined;
+    mockToggleFollowClub.mockImplementationOnce(() => new Promise(r => { resolveToggle = r; }));
+    mockGetUserFollowedClubs.mockResolvedValueOnce([clubA]);  // reconcile
+    const user = userEvent.setup();
+
+    render(<ClubProvider><ParallelTestbed /></ClubProvider>);
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('0'), { timeout: 5000 });
+
+    // First click starts DB call (hanging), second click must be discarded silently.
+    await user.click(screen.getByText('follow-a'));
+    await user.click(screen.getByText('follow-a'));
+    await user.click(screen.getByText('follow-a'));
+
+    expect(mockToggleFollowClub).toHaveBeenCalledTimes(1);
+
+    // Resolve the hanging DB call and verify reconcile fires once.
+    resolveToggle?.(undefined);
+    await waitFor(() => {
+      expect(screen.getByTestId('count').textContent).toBe('1');
+    }, { timeout: 5000 });
+  });
+
+  it('parallel toggles on different clubs do not overwrite each other (Slice 138)', async () => {
+    mockUseUser.mockReturnValue({ user: stableUser });
+    mockGetUserFollowedClubs.mockResolvedValueOnce([]); // initial load
+
+    // Both toggleFollowClub calls hang until we resolve them.
+    let resolveA: ((v: unknown) => void) | undefined;
+    let resolveB: ((v: unknown) => void) | undefined;
+    mockToggleFollowClub.mockImplementationOnce(() => new Promise(r => { resolveA = r; }));
+    mockToggleFollowClub.mockImplementationOnce(() => new Promise(r => { resolveB = r; }));
+    // Final reconcile returns both clubs as followed.
+    mockGetUserFollowedClubs.mockResolvedValueOnce([clubA, clubB]);
+    mockGetUserPrimaryClub.mockResolvedValue(null);
+
+    const user = userEvent.setup();
+    render(<ClubProvider><ParallelTestbed /></ClubProvider>);
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('0'), { timeout: 5000 });
+
+    // Fire both toggles while DB calls are still hanging.
+    await user.click(screen.getByText('follow-a'));
+    await user.click(screen.getByText('follow-b'));
+
+    // Optimistic state must show both immediately.
+    expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
+
+    // Resolve A first — this should NOT trigger a reconcile (B still in-flight).
+    resolveA?.(undefined);
+    await Promise.resolve();
+    // Still both present (no overwrite).
+    expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
+    // getUserFollowedClubs was only called once (initial load), no reconcile yet.
+    expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(1);
+
+    // Resolve B — last in-flight, triggers reconcile.
+    resolveB?.(undefined);
+    await waitFor(() => {
+      expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(2);
+    }, { timeout: 5000 });
+    await waitFor(() => {
+      expect(screen.getByTestId('ids').textContent).toBe('c1,c2');
+    }, { timeout: 5000 });
+  });
 });
