@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 136 | 2026-04-22 | Playwright als explicit devDependency (XS)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (inline) → BUILD → PROVE → LOG
+- **Trigger:** Kanban-Item "Playwright package.json direct-dep" (P2, Slice 079 tech-debt).
+- **Root-Cause:** 25+ Files in `e2e/` + 1 in `scripts/` importieren direkt `'playwright'`, aber Package ist nur transitiv via `@playwright/test` verfügbar. Funktioniert, aber brittle bei Tree-Shake oder pnpm-strict-mode.
+- **Files:**
+  - `package.json` — `playwright@1.58.2` in devDependencies (match zu `@playwright/test@1.58.2`)
+  - `pnpm-lock.yaml` — lockfile updated (+3 lines)
+- **Proof:** tsc clean + `pnpm ls playwright` zeigt v1.58.2 direct + Vercel-build unverändert (tsconfig excludes `scripts` + `e2e` schon).
+- **Commit:** (pending)
+- **Notes:** Minimaler XS-Slice. Gleichzeitig: kein build-risk, da `tsconfig` `scripts/` + `e2e/` bereits excludet (Slice 079). Klare Hygiene-Verbesserung.
+
+---
+
 ## 135 | 2026-04-22 | Silent-Cap Admin-Routes Cleanup (Folge-Fix aus 134)
 
 - **Stage-Chain:** SPEC → IMPACT (inline) → BUILD → PROVE → LOG

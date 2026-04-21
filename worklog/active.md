@@ -9,6 +9,6 @@ impact: —
 proof: —
 ```
 
-## Zuletzt: Slice 135 (2026-04-22) — Silent-Cap Admin-Routes Cleanup
+## Zuletzt: Slice 136 (2026-04-22) — Playwright als explicit devDependency (XS)
 
-Siehe `worklog/log.md` für Details. Domain-complete für `player_external_ids` Silent-Cap-Klasse in `src/app/api/**` (Slice 134 + 135 zusammen).
+Siehe `worklog/log.md` für Details. Session heute: 3 Code-Slices (134, 135, 136) + 4 Kanban-Stale-Cleanups (referencePrice, Paid-Fantasy, Paid-Mystery-Box, api-football Name-Norm).
