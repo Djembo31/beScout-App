@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144c | 2026-04-22 | last_squad_check vor transfer-skip ziehen (XS)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, 1-File Script) → BUILD → REVIEW (PASS mit 1 NITPICK fixed) → PROVE → LOG
+- **Trigger:** 144b-Review Finding #3 — Integrity-Math 2841 matched - 225 transfer = 2616 populated bestaetigte dass transfer-detected Players fuer `last_squad_check` early-continued werden.
+- **Scope:** `scripts/tm-squad-scrape-local.ts` Z.205-229 umstrukturiert. Transfer-detected + !--allow-transfers committet jetzt single-field `UPDATE {last_squad_check: now}` + continue. Dry-run eigener Log-Pfad.
+- **Review:** `worklog/reviews/144c-review.md` — Verdict PASS. 1 NITPICK log-wording pre-Commit fixed, 2 OBSERVATION Scope-Out (empirischer dry-run braucht TM-Access; null-club-id-Positive-Nebeneffekt).
+- **Proof:** `worklog/proofs/144c-logic-proof.txt` — tsc clean + git diff + 4-Pfade-Walkthrough + Baseline-Math.
+- **Math-Invariant (naechster Full-Run):** `last_squad_check_populated == matched` (nicht hart 2841 wg. Kader-Drift).
+- **Commit:** `9dde7a43`
+
+---
+
 ## 147 | 2026-04-22 | /ship Skill + worklog/README Update auf 6-Stages (XS)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, doc-only) → BUILD → REVIEW (skipped, trivial template) → PROVE → LOG
