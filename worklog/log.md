@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 148 | 2026-04-22 | /clubs Discovery GW-Consistency via played_at ordering (S)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, 1-Zeile service order) → BUILD → REVIEW (PASS Self-Review) → PROVE → LOG
+- **Trigger:** Backlog B2 (Anil-Observation heute: /clubs GW-Inkonsistenz + Gençlerbirliği falsches Logo).
+- **Fix-Scope:** `getNextFixturesByClub` (fixtures.ts:471) order by `played_at ASC NULLS LAST` + `gameweek ASC` tiebreaker statt nur `gameweek ASC`. Gençlerbirliği-Logo Follow-up (Anil-Input pending).
+- **Impact:** PL distinct-GWs 4 → 3 (verschobenes Mai-22-Spiel wird nicht mehr als "GW 31 next" angezeigt obwohl playedAt weit in Zukunft). 6/7 Ligen unverändert, 0 Regressions.
+- **Tests:** 38/38 grün in `fixtures.test.ts` (Mocks unabhängig von order-change).
+- **Review:** `worklog/reviews/148-review.md` — PASS, 2 INFO (Gençlerbirliği deferred, LL 5-GW-Spread = real data).
+- **Proof:** `worklog/proofs/148-db-check.txt` — Fair Pre/Post-Comparison aller 7 Ligen.
+- **Commit:** `30b5c66e`
+- **Follow-up Backlog:** Gençlerbirliği Logo (`api_football_id=997` zeigt lt. Anil falsches Wappen — braucht korrekte API-ID oder alternative URL).
+
+---
+
 ## 144h | 2026-04-22 | Batch-Rescrape 6 remaining leagues (XS data-refresh)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, Script-Batch, kein Code-Change, Beta-Freeze) → BUILD (=6 Script-Runs) → REVIEW (PASS Self-Review) → PROVE → LOG
