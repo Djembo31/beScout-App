@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 144e
+stage: LOG
+spec: worklog/specs/144e-wer-cluster-null-club-id-audit.md
+impact: skipped (DB-Audit + 8-row UPDATE, keine Service-/RPC-Consumer)
+proof: worklog/proofs/144e-audit.txt
+review: worklog/reviews/144e-review.md
 ```
 
 ## Zuletzt

@@ -1,0 +1,153 @@
+=== Slice 144e Audit + Fix — 2026-04-22 ===
+
+## Summary
+
+144b Slice fand im Werder-Cluster "19 transfer-detected mit DB=null". Audit zeigte:
+Review-Wording war ungenau — echte Zahl ist 8 null-club-id Players in 144b-Scan
+(7 Werder + 1 Everton). Globaler Scope: 119 null-club-id Players total.
+
+Fix-Scope: 8 Players mit klarer 144b-Squad-Evidence (aktueller TM-Squad, stale/
+verified mv_source) via UPDATE auf korrekten Club gesetzt. 4 weitere TM-mapped
+ohne Scan-Evidence als Backlog 144g. 107 Orphans ohne TM-Mapping als eigener
+Scope 144h (out-of-scope 144e).
+
+## Pre-Fix Baseline (nach Slice 144b)
+
+SELECT COUNT(*) FROM players WHERE club_id IS NULL: 119
+- has_tm_mapping: 12
+- no_tm_mapping: 107 (Orphan-Inserts vom sync-players-daily ohne TM-Match)
+- mv_source breakdown: stale=12 / verified=1 / unknown=106 / api=0 / manual=0
+- matches=0 AND last_appearance_gw=0: 119 (alle ohne DB-Aktivität)
+
+## 144b-Scan-Evidence (8 Players)
+
+Aus `worklog/proofs/144b-full-run.log` grep "DB=null":
+
+| TM ID | Name | Pre-Fix | Post-Fix |
+|-------|------|---------|----------|
+| 620295 | Backhaus, Mio | club_id=null, stale, MV=12M, contract=2022-07-12 | Werder Bremen |
+| 621802 | Deman, Olivier | club_id=null, stale, MV=3M, contract=2023-08-31 | Werder Bremen |
+| 334221 | Pieper, Amos | club_id=null, stale, MV=4M, contract=2022-07-01 | Werder Bremen |
+| 1045986 | Schmetgens, Mick | club_id=null, stale, MV=0.7M, contract=2025-12-10 | Werder Bremen |
+| 162434 | Stark, Niklas | club_id=null, stale, MV=3.5M, contract=2022-07-01 | Werder Bremen |
+| 405385 | Sugawara, Yukinari | club_id=null, stale, MV=7.5M, contract=2025-08-26 | Werder Bremen |
+| 263361 | Wöber, Maximilian | club_id=null, stale, MV=3M, contract=2025-07-04 | Werder Bremen |
+| 711544 | O'Brien, Jake | club_id=null, verified, MV=18M, contract=2028-06-30 | Everton |
+
+## UPDATE-Transaction
+
+BEGIN;
+
+UPDATE public.players
+SET club_id = '99bcdc61-2ac6-4318-ad31-31118ea6f6b5'::uuid,  -- Werder
+    last_squad_check = NOW()
+WHERE id IN (7× Werder UUIDs);
+-- 7 rows updated
+
+UPDATE public.players
+SET club_id = '6ba4dac2-d2aa-4c56-89df-e99224de7625'::uuid,  -- Everton
+    last_squad_check = NOW()
+WHERE id = 'O'Brien UUID';
+-- 1 row updated
+
+COMMIT;
+
+Post-fix verify returned all 8 rows with correct club_name + last_squad_check
+set to 2026-04-22 13:10:21.149715+00.
+
+## Post-Fix Baseline
+
+SELECT COUNT(*) FROM players WHERE club_id IS NULL: 111 (−8)
+- has_tm_mapping: 4 (war 12)
+- no_tm_mapping: 107 (unveraendert, eigener Scope)
+- Delta: −8 exakt wie erwartet
+
+## Trigger / FK Safety
+
+- FK `players_club_id_fkey → clubs(id)` — beide Ziel-UUIDs existieren (Werder + Everton vorab verifiziert)
+- Trigger `trg_recalc_floor_on_trade` hat `IF NEW.last_price IS DISTINCT FROM OLD.last_price` Guard — UPDATE auf club_id triggert nicht
+- Trigger `players_updated_at` → safe (nur timestamp)
+- Trigger `watchlist_price_alert` AFTER UPDATE → fires, aber nur relevant bei Preisaenderungen; kein Price-Change hier
+- Keine CHECK-Constraint-Verletzungen (club_id ist nullable, kein CHECK)
+
+## mv_source Policy
+
+Die 8 gefixten Players behalten `mv_source='transfermarkt_stale'` (7/8) bzw.
+`'transfermarkt_verified'` (1/8). MV nicht ueberschrieben — respektiert Slice 081
+stale-Guard. Re-Scrape wird via `scripts/tm-rescrape-stale.ts` spaeter frische
+Daten pullen, Club-Link bleibt korrekt dabei.
+
+## 144c-Sideeffect
+
+Slice 144c (just committed a25c0a56 + 9dde7a43) sorgte dafuer dass zukuenftige
+Scrape-Runs den `last_squad_check` auch bei transfer-skip setzen — d.h. falls
+weitere 81d-Reste wie diese 8 entstehen, werden sie bei naechstem Scrape als
+transfer-pending geflagged mit Timestamp. Das 144e-Manual-Fix ist somit Bug-
+Klasse-spezifisch, naechste Runs loesen sich natuerlich ueber --allow-transfers.
+
+## Backlog erzeugt
+
+- **144g XS:** 4 weitere TM-mapped null-club-id Players auditieren:
+  - Agu, Felix (TM 393512, stale, Werder-Verdacht da TM-ID vorhanden)
+  - Friedl, Marco (TM 156990, stale)
+  - Grüll, Marco (TM 391766, stale)
+  - Malatini, Julián (TM 830108, stale)
+  Warum nicht in 144b-Scan: koennten inzwischen zu TM-Clubs ausserhalb unserer 7
+  Leagues transferred sein, oder parser-edge-case, oder retired. Dedicated
+  TM-profile-lookup per TM-ID noetig.
+
+- **144h M:** 107 Orphan-Players ohne TM-mapping auditieren:
+  - Quelle unklar — evtl. sync-players-daily Inserts ohne Club-Match
+  - Wenn matches=0 AND last_appearance_gw=0 fuer alle 107: safe zu DELETEn
+    oder zu retired markieren (Slice 081 pattern)
+  - Braucht eigene Spec mit DELETE-Strategy + RLS-Check
+
+## Runs
+
+- 2026-04-22 13:10 UTC: UPDATE 8 players (Werder + Everton)
+- Verify query returned all 8 with correct state
+- Global count: 119 → 111
+
+## Post-Review Verify (Reviewer Finding Response)
+
+### Finding #1 Verify — matches/last_appearance_gw fuer die 8 Players post-Fix
+
+Query: `SELECT first_name, last_name, matches, last_appearance_gw, club_id IS NOT NULL FROM players WHERE id IN (8 UUIDs)`
+
+Result: alle 8 haben `matches=0 AND last_appearance_gw=0 AND has_club=true`.
+Bedeutung: State ist identisch zu pre-fix bis auf has_club. Fix hat NICHT verschlechtert,
+nur Club-Link hergestellt. Die Players sind Squad-Registered (TM-Verified) aber nie
+in API-Football Gameweek-Sync aufgetaucht. Typisch fuer: neu im Squad, oder sync-
+players-daily-Inserts ohne historische GW-Daten. **Kein Regression, Backlog 144f
+loest das.**
+
+### Finding #2 Verify — `trg_player_reference_price` existiert nicht
+
+Query: `SELECT trigger_name FROM information_schema.triggers WHERE event_object_table='players'`
+
+Result: Nur 3 Trigger — `players_updated_at`, `trg_recalc_floor_on_trade`,
+`watchlist_price_alert`. Kein `trg_player_reference_price`. **Reviewer-Finding
+basiert auf nicht-existentem Trigger — NOT_APPLICABLE, keine Aktion.**
+
+## Erweiterte Backlog-Kandidaten (aus 144e Review)
+
+- **144f XS (PRIORITAET):** Re-Scrape der 8 gefixten Player-IDs via
+  `scripts/tm-rescrape-stale.ts` — User koennte sonst 1-2 Tage stale MV/Contract
+  im Marktplatz sehen. Re-Scrape aktualisiert MV + Contract + mv_source → verified.
+
+- **144g XS:** TM-Profile-Lookup fuer 4 weitere TM-mapped null-club-id
+  (Agu/Friedl/Gruell/Malatini) per direct TM-ID-Query (nicht ueber Squad-Page).
+
+- **144h M:** 107 Orphans ohne TM-Mapping auditieren + DELETE- oder
+  Retired-Strategy. Wahrscheinlich sync-players-daily-Insert-Bug-Rest.
+
+## Review-Empfehlung
+
+Operation ist kleines Data-Cleanup mit klarer Evidenz (144b-Squad-Scrape + DB-State).
+Reviewer-Verdict: **PASS mit 2 documented Concerns** (Finding #2 widerlegt, #1+#3
+als Backlog 144f adressiert).
+
+1. UPDATE reversibel? JA
+2. FK/Trigger-Safety dokumentiert? JA (inkl. verified falschen `trg_player_reference_price`)
+3. Stale-Guard respektiert? JA (kein MV-Overwrite)
+4. Delta (119 → 111) stimmt mit 8 Fixes? JA, exakt
