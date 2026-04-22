@@ -1,0 +1,38 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+=== TM Club-ID Discovery (Slice 141) ===
+league=Süper Lig rate=500ms dry-run=true only-unmapped=true players-per-club=5
+
+Loaded 18 clubs to discover TM-IDs for.
+
+[1/18] ✓ SL BES (DRY) — via Ozcan: tmClubId=114 slug="besiktas-jk" name="Besiktas Jk"
+[2/18] ✓ SL KOC (DRY) — via Oğuz: tmClubId=120 slug="kocaelispor" name="Kocaelispor"
+[3/18] ✓ SL FEN (DRY) — via Brown: tmClubId=36 slug="fenerbahce" name="Fenerbahce"
+[4/18] ✓ SL GOZ (DRY) — via Dennis: tmClubId=1467 slug="goztepe" name="Goztepe"
+[5/18] ✓ SL GAZ (DRY) — via Sanuç: tmClubId=2832 slug="gaziantep-fk" name="Gaziantep Fk"
+[6/18]   SL IST · try Türüç → parsed="Konyaspor" NOT matching "Başakşehir"
+[6/18] ✓ SL IST (DRY) — via Crespo da Silva: tmClubId=6890 slug="basaksehir-fk" name="Basaksehir Fk"
+[7/18] ✓ SL GAL (DRY) — via Kutucu: tmClubId=141 slug="galatasaray" name="Galatasaray"
+[8/18]   SL ALA · try Memik → parsed="Alanyaspor U19" (alanyaspor-u19) is youth/reserve, skip
+[8/18] ✓ SL ALA (DRY) — via Özdemir: tmClubId=11282 slug="alanyaspor" name="Alanyaspor"
+[9/18]   SL KAY · try Kocaman → parsed="Sakaryaspor" NOT matching "Kayserispor"
+[9/18] ✓ SL KAY (DRY) — via Özbek: tmClubId=3205 slug="kayserispor" name="Kayserispor"
+[10/18] ✓ SL KAR (DRY) — via Sousa Esgaio: tmClubId=6646 slug="fatih-karagumruk" name="Fatih Karagumruk"
+[11/18] ✓ SL KON (DRY) — via Buğa: tmClubId=2293 slug="konyaspor" name="Konyaspor"
+[12/18] ✓ SL GEN (DRY) — via Koïta: tmClubId=820 slug="genclerbirligi-ankara" name="Genclerbirligi Ankara"
+[13/18]   SL TRA · try Gürpüz → parsed="Genclerbirligi Ankara" NOT matching "Trabzonspor"
+[13/18] ✓ SL TRA (DRY) — via Fjørtoft Løvik: tmClubId=449 slug="trabzonspor" name="Trabzonspor"
+[14/18] ✓ SL KAS (DRY) — via Ben Ouanes: tmClubId=10484 slug="kasimpasa" name="Kasimpasa"
+[15/18] ✓ SL ANT (DRY) — via Dzhikiya: tmClubId=589 slug="antalyaspor" name="Antalyaspor"
+[16/18] ✓ SL RIZ (DRY) — via Orak: tmClubId=126 slug="caykur-rizespor" name="Caykur Rizespor"
+[17/18]   SL EYU · try Thiam → parsed="Corum Fk" NOT matching "Eyüpspor"
+[17/18] ✓ SL EYU (DRY) — via Altunbaş: tmClubId=7160 slug="eyupspor" name="Eyupspor"
+[18/18] ✓ SL SAM (DRY) — via Yavru: tmClubId=152 slug="samsunspor" name="Samsunspor"
+
+=== Result ===
+duration:        75.8s
+candidates:      18
+mapped:          18 (dry-run)
+skip_mismatch:   0  (parsed club did not match DB club name)
+skip_exhausted:  0  (no TM-mapped players or all failed)
+errored:         0

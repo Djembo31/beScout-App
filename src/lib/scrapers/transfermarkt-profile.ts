@@ -107,53 +107,77 @@ export function parseNationality(html: string): string | null {
 
 /** Parse TM-Club-ID des aktuellen Vereins aus Spieler-Profil-HTML.
  *
- *  TM-Profil hat im Data-Header-Block einen Link zum aktuell aktiven Verein:
- *    <a href="/galatasaray/startseite/verein/141" title="Galatasaray">...</a>
+ *  TM-Profil hat im Data-Header einen eindeutig markierten Link zum
+ *  aktuell aktiven Verein:
+ *    <a href="/besiktas-jk/startseite/verein/114" class="data-header__box__club-link">
  *
- *  Wichtig: Nur den ERSTEN `/startseite/verein/` Link im Header nehmen —
- *  weiter unten im Profil sind Jugendvereine / frühere Vereine / Leih-Vereine
- *  gelistet, die wir NICHT wollen.
+ *  Strategie:
+ *   1. **Primary-Anker**: `class="data-header__box__club-link"` — eindeutig
+ *      der "aktueller Verein" Link, unabhängig von Position im HTML.
+ *   2. **Fallback**: `<a ... title="<clubname>" href="...startseite/verein/<id>"...>Clubname</a>`
+ *      im INFO-TABELLE-Block (Zeile ~1000). Title-Attribut bevorzugt.
+ *   3. **Letzter Fallback**: First `/startseite/verein/` link — strictly gated
+ *      auf Match VOR dem "Weitere Vereine:" Marker oder vor 70k-char-Limit.
  *
- *  Strategie: Suche im ersten 10k-Char-Fenster (Data-Header-Block) nach dem
- *  ersten passenden Link. Ergänze optional `title="..."` als ClubName.
- *
- *  Edge: Vereinsloser Spieler → kein solcher Link im Header → return null.
- *  Caller muss dann fuzzy-matchen mit Club-Name (Guard gegen False-Positive
- *  bei historischen Verein-Links).
+ *  Edge: Vereinsloser Spieler → kein data-header__box__club-link → return null.
+ *  Caller muss dann fuzzy-matchen mit Club-Name (Guard gegen False-Positive).
  *
  *  Return:
- *    - tmClubId: number (positive integer, aus URL-Pfad)
+ *    - tmClubId: number
  *    - clubName: string (aus title-Attribut wenn vorhanden, sonst slug-Capitalize)
- *    - slug: string (z.B. "galatasaray", für Squad-URL-Konstruktion in B3)
- *    - null wenn kein Link im Header
+ *    - slug: string (z.B. "besiktas-jk", für Squad-URL-Konstruktion in B3)
+ *    - null wenn kein Link gefunden
  */
 export function parseCurrentClubTmId(
   html: string,
 ): { tmClubId: number; clubName: string; slug: string } | null {
-  // Nur Data-Header-Block (erste 10k Zeichen) → schützt vor "Weitere Vereine"-Footer.
-  const head = html.slice(0, 10_000);
+  const slugToName = (slug: string): string =>
+    slug
+      .split('-')
+      .map((w) => (w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+      .join(' ');
 
-  // Match: href="/<slug>/startseite/verein/<id>" + optional title="..." im selben Tag
-  const match = head.match(
+  const build = (
+    slug: string,
+    tmClubId: number,
+    clubNameRaw: string | undefined,
+  ): { tmClubId: number; clubName: string; slug: string } | null => {
+    if (!Number.isFinite(tmClubId) || tmClubId <= 0) return null;
+    const clubName = clubNameRaw && clubNameRaw.trim().length > 0 ? clubNameRaw.trim() : slugToName(slug);
+    return { tmClubId, clubName, slug };
+  };
+
+  // Primary: data-header__box__club-link class anchor (eindeutig)
+  //   <a href="/besiktas-jk/startseite/verein/114" class="data-header__box__club-link">
+  const primary = html.match(
+    /href="\/([a-z0-9-]+)\/startseite\/verein\/(\d+)"[^>]*class="[^"]*data-header__box__club-link[^"]*"/,
+  );
+  if (primary) {
+    return build(primary[1], parseInt(primary[2], 10), undefined);
+  }
+
+  // Fallback 1: title-attributed info-table link
+  //   <a title="Besiktas JK" href="/besiktas-istanbul/startseite/verein/114">Besiktas</a>
+  const withTitle = html.match(
+    /<a\s+title="([^"]+)"\s+href="\/([a-z0-9-]+)\/startseite\/verein\/(\d+)"/,
+  );
+  if (withTitle) {
+    return build(withTitle[2], parseInt(withTitle[3], 10), withTitle[1]);
+  }
+
+  // Fallback 2: first /startseite/verein/ link BEFORE "Weitere Vereine" footer marker.
+  // Footer heißt in TM-DE: "Weitere Stationen" oder "Karriere" oder "Leihen" Sektion.
+  const footerIdx = html.search(/Weitere Stationen|Leihvereine|Karriereverlauf/i);
+  const scope = footerIdx > 0 ? html.slice(0, footerIdx) : html.slice(0, 70_000);
+  const lastResort = scope.match(
     /href="\/([a-z0-9-]+)\/startseite\/verein\/(\d+)"([^>]*)/,
   );
-  if (!match) return null;
+  if (lastResort) {
+    const titleMatch = lastResort[3].match(/title="([^"]+)"/);
+    return build(lastResort[1], parseInt(lastResort[2], 10), titleMatch?.[1]);
+  }
 
-  const slug = match[1];
-  const tmClubId = parseInt(match[2], 10);
-  if (!Number.isFinite(tmClubId) || tmClubId <= 0) return null;
-
-  // Club-Name aus title-Attribut wenn vorhanden, sonst aus Slug abgeleitet
-  const titleMatch = match[3].match(/title="([^"]+)"/);
-  const titleName = titleMatch?.[1]?.trim();
-  const clubName = titleName && titleName.length > 0
-    ? titleName
-    : slug
-        .split('-')
-        .map((w) => (w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
-        .join(' ');
-
-  return { tmClubId, clubName, slug };
+  return null;
 }
 
 /** Parse Trikotnummer aus Transfermarkt Profil-HTML.

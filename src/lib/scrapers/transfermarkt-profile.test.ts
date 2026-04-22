@@ -173,7 +173,7 @@ const CLUB_HEADER_NO_TITLE = `<div class="data-header">
 const CLUB_HEADER_VEREINSLOS = `<div class="data-header">
   <span class="data-header__club-info">Vereinslos seit 30.06.2026</span>
 </div>
-<p>Weitere Vereine:</p>
+<h2>Karriereverlauf</h2>
 <a href="/old-club/startseite/verein/99999">Old Club</a>`;
 
 const CLUB_HEADER_EMPTY = `<html><body><p>no header block</p></body></html>`;
@@ -208,16 +208,10 @@ describe('parseCurrentClubTmId', () => {
     });
   });
 
-  it('ignores "Weitere Vereine" links beyond 10k char window (returns null for header-less vereinslos)', () => {
-    // Vereinsloser Spieler: kein /startseite/verein/ im Header, nur im Weitere-Vereine-Bereich.
-    // Weil unser 10k-Fenster den Header inkludiert aber hier keinen aktuellen Club enthält,
-    // darf dieser Fall in unserem kurzen Fixture auch kein Match liefern — wir simulieren, dass
-    // der Old-Club-Link im Fixture-Text NACH dem fiktiven 10k-Schnitt liegt.
-    const paddedHtml = CLUB_HEADER_VEREINSLOS.replace(
-      'Weitere Vereine:',
-      ' '.repeat(10_500) + 'Weitere Vereine:',
-    );
-    expect(parseCurrentClubTmId(paddedHtml)).toBeNull();
+  it('returns null for vereinslos player: only history links past "Karriereverlauf" marker', () => {
+    // Vereinsloser Spieler: kein `data-header__box__club-link`, kein `title=... href=.../verein/`.
+    // Letzter Fallback matcht nur VOR dem Karriereverlauf-Marker, also nichts.
+    expect(parseCurrentClubTmId(CLUB_HEADER_VEREINSLOS)).toBeNull();
   });
 
   it('returns null when HTML has no /startseite/verein/ link at all', () => {

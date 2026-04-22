@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 141b | 2026-04-22 | TM-Club-ID-Discovery Script-Run + Parser-Hotfixes (S)
+
+- **Stage-Chain:** BUILD (hotfix) → PROOF → LOG
+- **Trigger:** Slice 141 Dry-Run ergab 0/18 mapped — Parser-Bug + Fuzzy-Match-Edge-Cases.
+- **Parser-Hotfix:** 10k-cutoff-Strategie scheiterte (TM-HTML hat header-club-link erst bei Zeile 993 / >50kb). Ersetzt durch Multi-Strategy: Primary `class="data-header__box__club-link"` anchor, Fallback 1 `title="..." href=".../verein/..."` attribute, Fallback 2 scope-limited via Footer-Marker ("Karriereverlauf"/"Leihvereine"/"Weitere Stationen").
+- **Script-Hotfix:** U19/Reserves/B-Team slug-reject (`-u\d+$|-reserves$|-ii$|-b$`), `--players-per-club` default 3→5 (Fenerbahçe hat historische Current-Clubs bei Top-3-Spielern, 5er-Pool trifft aktive).
+- **Test-Update:** Vereinslos-Fixture nutzt "Karriereverlauf"-Marker (reality-based), nicht das fiktive "Weitere Vereine". 27/27 grün.
+- **Full-Run:** 134 Clubs × 500ms × Ø 3-Player-Try ≈ 428s Gesamtdauer. 127 mapped, 7 skip_mismatch (DE-EN Name-Drift: AC Mailand↔AC Milan, SSC Neapel↔Napoli, AC Florenz↔Fiorentina, FC Turin↔Torino, Amed SK↔Amedspor), 2 UPSERT-errors (Script-Log-Gap maskiert welche TM-ID fuzzy-matched wurde).
+- **Manual-Fill:** 7 unmapped Clubs via curl gegen TM verifiziert + SQL-INSERT. Alle 7 TM-IDs publicly sichtbar: DOR=16, BAR=131, MIL=5, FIO=430, NAP=6195, TOR=416, AMD=12382.
+- **Final-State:** 134/134 Clubs mapped (100%). B3 Pre-Condition erfüllt.
+- **Files:** `src/lib/scrapers/transfermarkt-profile.ts`, `transfermarkt-profile.test.ts`, `scripts/tm-club-id-discovery.ts`
+- **Proof:** `worklog/proofs/141b-script-run.txt` + `141b-script-run.log` + 3 Dry-Run-Logs (v1/v2/v3 als Evolution-Evidence)
+- **Follow-up Backlog:** 141c Script-Log-Enhancement (match-event vor UPSERT), 141d DE-EN-Dictionary-Fuzzy-Fallback.
+- **Commit:** _siehe git log_
+
+---
+
 ## 142 | 2026-04-22 | Skip Reconcile on Unfollow-Success (XS)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (skipped) → BUILD → PROOF → LOG

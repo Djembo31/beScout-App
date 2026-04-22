@@ -1,0 +1,69 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+=== TM Club-ID Discovery (Slice 141) ===
+league=Süper Lig rate=500ms dry-run=true only-unmapped=true players-per-club=3
+
+Loaded 18 clubs to discover TM-IDs for.
+
+[1/18]   SL BES · try Pagda (tm=1254162) → no club in header
+[1/18]   SL BES · try Topçu (tm=531332) → no club in header
+[1/18]   SL BES · try Şahin (tm=1304045) → no club in header
+[2/18]   SL KOC · try Wieteska (tm=208172) → no club in header
+[2/18]   SL KOC · try Ozyar (tm=1303365) → no club in header
+[2/18]   SL KOC · try Serbest (tm=158118) → no club in header
+[3/18]   SL FEN · try Ünder (tm=341647) → no club in header
+[3/18]   SL FEN · try Amrabat (tm=287579) → no club in header
+[3/18]   SL FEN · try Džeko (tm=28396) → no club in header
+[4/18]   SL GOZ · try Godói Santos (tm=681814) → no club in header
+[4/18]   SL GOZ · try Yavorov Krastev (tm=486814) → no club in header
+[4/18]   SL GOZ · try Lis (tm=345437) → no club in header
+[5/18]   SL GAZ · try Gidado (tm=1209519) → no club in header
+[5/18]   SL GAZ · try Ndiaye (tm=1133743) → no club in header
+[5/18]   SL GAZ · try Cihan (tm=583970) → no club in header
+[6/18]   SL IST · try Brnić (tm=432752) → no club in header
+[6/18]   SL IST · try Bulut (tm=152733) → no club in header
+[6/18]   SL IST · try Özcan (tm=249952) → no club in header
+[7/18]   SL GAL · try Ayhan (tm=119031) → no club in header
+[7/18]   SL GAL · try Boey (tm=475413) → no club in header
+[7/18]   SL GAL · try Elmalı (tm=616894) → no club in header
+[8/18]   SL ALA · try Elia Lina (tm=423678) → no club in header
+[8/18]   SL ALA · try Aksoy (tm=338794) → no club in header
+[8/18]   SL ALA · try Simão Muanza (tm=666551) → no club in header
+[9/18]   SL KAY · try Celik (tm=1355040) → no club in header
+[9/18]   SL KAY · try Cihan (tm=1303968) → no club in header
+[9/18]   SL KAY · try Kabukci (tm=1383479) → no club in header
+[10/18]   SL KAR · try Ersoy (tm=859924) → no club in header
+[10/18]   SL KAR · try Warren Babicka (tm=916920) → no club in header
+[10/18]   SL KAR · try Çankaya (tm=315208) → no club in header
+[11/18]   SL KON · try Nagalo (tm=800976) → no club in header
+[11/18]   SL KON · try Jevtović (tm=256000) → no club in header
+[11/18]   SL KON · try Güngördü (tm=388359) → no club in header
+[12/18]   SL GEN · try Akkan (tm=223025) → no club in header
+[12/18]   SL GEN · try Demir (tm=714612) → no club in header
+[12/18]   SL GEN · try Kiskanc (tm=1438143) → no club in header
+[13/18]   SL TRA · try Baniya (tm=394872) → no club in header
+[13/18]   SL TRA · try Başkan (tm=1070028) → no club in header
+[13/18]   SL TRA · try Colak (tm=1152080) → no club in header
+[14/18]   SL KAS · try Kanatsızkuş (tm=330876) → no club in header
+[14/18]   SL KAS · try Owusu Frimpong (tm=364244) → no club in header
+[14/18]   SL KAS · try Kol (tm=477938) → no club in header
+[15/18]   SL ANT · try Safouri (tm=204116) → no club in header
+[15/18]   SL ANT · try Vural (tm=52281) → no club in header
+[15/18]   SL ANT · try Cuesta Díaz (tm=176936) → no club in header
+[16/18]   SL RIZ · try Olawoyin (tm=672597) → no club in header
+[16/18]   SL RIZ · try Fofana (tm=418651) → no club in header
+[16/18]   SL RIZ · try Ayan (tm=1351512) → no club in header
+[17/18]   SL EYU · try de Freitas Monteiro (tm=283166) → no club in header
+[17/18]   SL EYU · try Ülvan (tm=708111) → no club in header
+[17/18]   SL EYU · try Bozok (tm=259025) → no club in header
+[18/18]   SL SAM · try Makoumbou (tm=460651) → no club in header
+[18/18]   SL SAM · try Ndiaye (tm=480705) → no club in header
+[18/18]   SL SAM · try Atoen (tm=1435403) → no club in header
+
+=== Result ===
+duration:        183.5s
+candidates:      18
+mapped:          0 (dry-run)
+skip_mismatch:   18  (parsed club did not match DB club name)
+skip_exhausted:  0  (no TM-mapped players or all failed)
+errored:         0

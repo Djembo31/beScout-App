@@ -166,6 +166,15 @@ async function fetchProfileHtml(page: Page, tmPlayerId: string): Promise<string>
   return page.content();
 }
 
+/**
+ * Reject youth/reserve/B-team slugs — these haben ihre eigene TM-ID aber sind
+ * NICHT was B3 für die Squad-Page braucht (wir wollen Pro-Mannschaft).
+ * Pattern: "-u17", "-u19", "-u21", "-u23", "-reserves", "-ii" (Roman-2 = B-Team)
+ */
+function isYouthOrReserveSlug(slug: string): boolean {
+  return /-u\d+$|-reserves$|-ii$|-b$/i.test(slug);
+}
+
 function fuzzyMatch(parsedName: string, clubName: string, clubShort: string | null): boolean {
   const np = normalizeName(parsedName);
   const nc = normalizeName(clubName);
@@ -256,6 +265,14 @@ async function main(): Promise<void> {
 
         if (!parsed) {
           console.log(`${prefix}   ${label} · try ${p.lastName} (tm=${p.tmId}) → no club in header`);
+          continue;
+        }
+
+        // Reject youth/reserve clubs — B3 braucht Pro-Mannschaft, nicht U19/U21/Reserves.
+        if (isYouthOrReserveSlug(parsed.slug)) {
+          console.log(
+            `${prefix}   ${label} · try ${p.lastName} → parsed="${parsed.clubName}" (${parsed.slug}) is youth/reserve, skip`,
+          );
           continue;
         }
 
