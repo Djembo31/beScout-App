@@ -588,6 +588,52 @@ Regel ist verallgemeinerbar auf alle Shell-Hooks die User-Commands parsen, nicht
 
 ---
 
+## D16 — ARCHITECTURE: Scraper-null-Policy — always write null statt old-value keep
+
+**Datum:** 2026-04-22
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Wenn ein Scraper-Parser `null` returnt (Source-Feld fehlt im externen HTML), MUSS der DB-Write den alten Wert mit `null` überschreiben — nicht belassen. Policy für alle `scripts/tm-*` und ähnliche Scraper:
+
+```ts
+// FALSCH (data-liar):
+if (contract !== null) updates.contract_end = contract;
+
+// RICHTIG (honest):
+updates.contract_end = contract; // null = Source has no current value
+```
+
+### Begründung
+
+Slice 144f hatte die alte Policy: `tm-rescrape-stale.ts` setzte `mv_source='transfermarkt_verified'` nach erfolgreichem Scrape, schrieb aber `contract_end` nur bei parser-success. Bei 3 Werder-Players (Lynen/Pieper/Stark) hatte TM-Profile **0 "Vertrag bis"**-Occurrences → parser returnt null → alte DB-Werte aus 2022-2023 blieben → UI zeigte "Vertrag bis 2022-07-01" trotz `verified`-Flag.
+
+Debug-Evidence (`tmp/144g-contract-debug.ts`): Parser ist funktional korrekt. Die 3 Spieler haben im TM-Profil-HTML tatsächlich kein aktuelles Contract-Ende. `null` ist semantisch ehrlich — alte historische Importe (pre-Slice 144f) zu belassen erzeugt **permanente Data-Liar-Akkumulation**, die nur durch manuelle Fixes heilt.
+
+INV-38 (contract_end < cutoff AND mv_source != stale) wurde durch 144f aktiv verletzt bei diesen 3 Playern (verified + 2022-07-01). Nach 144g-Fix: null-values sind vom IS-NOT-NULL-Filter implizit ausgeschlossen → Invariant heilt automatisch.
+
+### Auswirkungen
+
+- **Code:** `scripts/tm-rescrape-stale.ts:271` Line-Change (Slice 144g commit `a487a93b`). Consumer-Chain 12x null-safe verifiziert (calcContractMonths returns 0, PerformanceTab gated via `>0`).
+- **Prozess:** Bei jedem neuen Scraper/Parser-Consumer die DB-Write macht: `null`-als-valid-Output vom Source einplanen, nie "keep old" als Default.
+- **Pattern → common-errors.md Section 9:** "Scraper null-Policy — always write null on missing source field. Keep-old = permanent data-liar."
+- **Tests:** DB-Invariants (INV-38) dienen als Regression-Detector wenn Policy wieder bricht.
+
+### Alternativen erwogen
+
+- **Conservative-Mode als default ("keep old, set verified"):** Verworfen — erzeugt stille Datenlügen, die nur manuell heilen. Bei 3 Players schon user-sichtbar falsch.
+- **Separate `contract_source` Column analog `mv_source`:** Verworfen — Migration-Overhead, und Policy "null = missing" ist genau diese Information kompakter.
+- **Parser-Tweak (versuche andere Patterns wenn primary fehlt):** Verworfen — Parser ist korrekt, die 3 Players haben wirklich kein "Vertrag bis" in TM. Mehr Pattern würde false-positives einbringen.
+
+### Re-Visit-Trigger
+
+- Wenn ein neuer Scraper-Konsument auftaucht der absichtlich "keep old" Policy braucht (z.B. Multi-Source-Merge mit TM als Tertiärquelle): dann Opt-out-Flag einbauen und D16-Policy bleibt Default.
+- Wenn parser-unsafe für bestimmte Feld-Typen (z.B. numerische 0 vs null-Verwirrung): Entry erweitern um Feld-Typ-Distinction.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

@@ -1,10 +1,10 @@
 ---
 name: BeScout Backlog (Dependency-Sortiert)
-description: Konsolidierte Liste aller offenen Arbeiten außerhalb aktiver Slices, topologisch sortiert nach Abhängigkeiten. Ersetzt die 3-Optionen-Auswahl aus next-session-briefing-2026-04-23.md.
+description: Konsolidierte Liste aller offenen Arbeiten außerhalb aktiver Slices, topologisch sortiert nach Abhängigkeiten.
 type: project
 ---
 
-**Stand:** 2026-04-22 (2. Session) — Post Slice 140b/141/141b/142/143/144/144b/145 + TM-Mapping 134/134, Follow-Fix live, Reviewer-Gate live.
+**Stand:** 2026-04-22 (3. Session) — Post Slices 144d/f/g/h/148, A0-Ghost-Elim, 9 Commits gepusht. 277 stale → 188 stale (davon 153 ohne TM-Mapping). B2 live (played_at-ordering). B6/B8/B9/B10/B11 alle done.
 **Regel:** Items in Layer N können erst nach Abschluss von Layer N-1 starten. Innerhalb Layer N ist Reihenfolge frei (parallele Bearbeitung möglich).
 
 ---
@@ -15,10 +15,12 @@ type: project
 |---|------|--------|-----|
 | A1 | 3 Beta-Tester organisieren (1 TR-sprachig, 1 Non-Football, 1 Power-User) | `memory/beta-testplan.md` | 1-2 Tage extern |
 | A2 | 1 Deutsch-Türke für TR-Locale-Review (Strings ready) | `qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt` | 30 min extern |
+| A3 | Notion-Kanban-Scope — Slice 144/144d/f/g/h/148 nach "Erledigt" draggen (MCP-Integration hat keinen Page-Scope, Anil manuell) | SessionStart-Hook | 2 min |
+| A4 | Gençlerbirliği Logo: korrekte api_football_id oder alternative Logo-URL liefern | Slice 148 Follow-up | 5 min (Recherche) |
 
 > **Note:** A0 (Supabase `sb_secret_vT7ae…` revoke) wurde am 2026-04-22 abgeschlossen und ist nicht mehr offen.
 
-**Blockt:** Layer 3 (Beta-Launch-Gate).
+**Blockt:** Layer 3 (Beta-Launch-Gate) hängt an A1+A2.
 **Parallel machbar zu:** alles in Layer 1 + 2.
 
 ---
@@ -27,23 +29,27 @@ type: project
 
 | # | Item | Prio | Aufwand | Quelle |
 |---|------|------|---------|--------|
-| B0 | **Gold-Standard 95% CSV-Workflow** — 134 unknown-Spieler via CSV-Import-UI füllen | P0 | 3-4h Anil-manual | `next-session-briefing-2026-04-23.md` Option A |
+| B0 | **Gold-Standard 95% CSV-Workflow** — 544 unknown-Spieler via CSV-Import-UI füllen (inkl. 153 TM-unmapped-stale aus 144h-Scope-Out) | P0 | 3-4h Anil-manual | `next-session-briefing-2026-04-23.md` Option A |
 | B1 | **Sync-Players-Daily Re-Contamination Monitoring** — Post-sync Hook in `src/app/api/cron/sync-players-daily/route.ts` (detektiert neue Cross-Club-Kontamination INV-39) | P2 | 1-2h | Kanban |
-| B2 | **Clubs-Discovery Bug + UX:** GW-Inkonsistenz + Gegner-Wappen vor Kürzel | P1 | 1h | **NEU 2026-04-22 (Anil)** |
+| ~~B2~~ | ~~Clubs-Discovery Bug + UX: GW-Inkonsistenz~~ | ✅ DONE | Slice 148 (played_at-ordering, commit `30b5c66e`). Gençlerbirliği Logo = A4 offen. |
 | ~~B3~~ | ~~TM-Squad-Page Scraper Spec~~ | ✅ DONE | Slice 144 + 144b (134/134 Full-Run, 2841 matched, 22 shirt-drift) |
 | ~~B4~~ | ~~sync-fixtures Cron-Lag Root-Cause~~ | ✅ DONE | Slice 140 (gameweek-sync Phase-B-Guard DB-Truth) |
 | ~~B5~~ | ~~ClubProvider Reconcile Read-After-Write-Race~~ | ✅ DONE | Slice 139 + 142 (skip-reconcile on BOTH paths) |
-| B6 | **Squad-Transfer-Apply** (225 pending Transfers live machen) | P1 | 10 min (Anil-gatekept `--allow-transfers` run) | Slice 144b Full-Run |
-| B7 | **Follower-Count Cache-Propagation** (silent-fail + setQueryData) | ✅ DONE | Slice 143 |
-| B8 | **144c XS:** last_squad_check auch für transfer-detected players | P2 | 20 min | Slice 144b Review-Follow-up |
-| B9 | **144e XS:** WER-Cluster null-club-id audit (19 players) | P2 | 30 min | Slice 144b Review-Follow-up |
-| B10 | **146 XS:** merge-wildmatch anchoring in ship-*-gate.sh | P2 | 20 min | Slice 145 Review-Follow-up (common-errors.md Section 9) |
-| B11 | **147 XS:** /ship new Skill-Template review:-Key initialisieren | P2 | 10 min | Slice 145 Review-Follow-up |
+| ~~B6~~ | ~~Squad-Transfer-Apply (225 pending)~~ | ✅ DONE | Slice 144d (217 transfers, 8 bereits via 144e resolved, commit `b8b23594`) |
+| ~~B7~~ | ~~Follower-Count Cache-Propagation~~ | ✅ DONE | Slice 143 |
+| ~~B8~~ | ~~last_squad_check for transfer-detected~~ | ✅ DONE | Slice 144c |
+| ~~B9~~ | ~~WER-Cluster null-club-id audit~~ | ✅ DONE | Slice 144e (8 players reunited) |
+| ~~B10~~ | ~~merge-wildmatch anchoring in ship-*-gate.sh~~ | ✅ DONE | Slice 146 |
+| ~~B11~~ | ~~/ship new Skill-Template review:-Key~~ | ✅ DONE | Slice 147 |
 
-**Abhängigkeiten intern:**
-- ~~B3 (Scraper) liefert HTML-Fixtures → L2-C1 Parser-Regression-Tests~~ — done, fixtures in `src/lib/scrapers/transfermarkt-squad.test.ts`.
-- B0 (CSV-Workflow) weiterhin nötig für MV-stale-Spieler (TM-Squad-Page liefert MV, aber stale-guard aktiviert sich oft und überschreibt nicht). Hybrid: Squad-Scraper für shirt+position, CSV für MV-Refresh.
-- B6 (Transfer-Apply) hat 225 pending → 1× `--allow-transfers` Run applied alle. Hat keinen Dependency, aber: nach Anwendung werden `club_id`s aktualisiert, evtl. Orderbook-Referenzen prüfen falls Trading aktiv auf bewegten Spielern.
+**Neu heute (Follow-ups aus 144-Cluster):**
+
+| # | Item | Prio | Aufwand | Quelle |
+|---|------|------|---------|--------|
+| B12 | **107 Orphans null-club-id Investigation** — Players mit `club_id IS NULL` ohne TM-mapping, matches=0, last_appearance_gw=0. DELETE- vs Retired-Strategy | P2 | M (1-2h) | Slice 144e Scope-Out |
+| B13 | **4 TM-mapped Orphans Direct-Profile-Lookup** — Agu, Friedl, Grüll, Malatini (null-club-id + TM-mapping), nicht in 144b Squad-Scan gefunden | P3 | XS (30 min) | Slice 144e Finding |
+| B14 | **LL Parse-Fail Investigation** — 3 La Liga Players parse-failed in Slice 144h (alle 3 TM-mapped, 0 verified). Potenziell spezielle URL-Struktur oder CF-Block | P3 | S (1h) | Slice 144h Stats |
+| B15 | **153 TM-unmapped stale Players Discovery-Slice** — TM-Search + Name-Match + Shirt-Check (analog 141b für Clubs) | P2 | M (3-4h) | Slice 144h Scope-Out |
 
 ---
 
@@ -51,13 +57,13 @@ type: project
 
 | # | Item | Depends on | Aufwand | Quelle |
 |---|------|-----------|---------|--------|
-| C0 | **Gold-Badge im Admin-UI** (Data-Quality-Dashboard — Gold-Status pro Liga visuell) | B0 oder B3 ≥ 95% | M (4-6h) | Kanban |
+| C0 | **Gold-Badge im Admin-UI** (Data-Quality-Dashboard — Gold-Status pro Liga visuell) | B0 oder B15 ≥ 95% | M (4-6h) | Kanban |
 | C1 | **Parser-Regression-Tests** (HTML-Fixtures in `tests/fixtures/transfermarkt/`) | B3 liefert Fixtures | M (3-4h) | Kanban |
-| C2 | **Multi-Account-Testing Hook/Gate (F1)** — Scope-Klärung zuerst | Anil-Entscheidung Pre-Commit vs CI | 1-2h nach Klärung | `next-session-briefing-2026-04-23.md` Option B + Kanban |
+| C2 | **Multi-Account-Testing Hook/Gate (F1)** — Scope-Klärung zuerst | Anil-Entscheidung Pre-Commit vs CI | 1-2h nach Klärung | Kanban |
 
 ---
 
-## Layer 3 — Post-Beta-Launch (blockiert durch A0+A1+A2 + Beta-Exit-Kriterien grün)
+## Layer 3 — Post-Beta-Launch (blockiert durch A1+A2 + Beta-Exit-Kriterien grün)
 
 | # | Item | Aufwand | Quelle |
 |---|------|---------|--------|
@@ -93,18 +99,21 @@ Quelle: `memory/project_missing_revenue_streams.md`
 
 ## Empfohlene Reihenfolge für die nächste Arbeitsphase
 
-1. **Jetzt (Anil parallel):** A1/A2 Tester-Outreach starten + sync-fixtures-future Admin-Route triggern für Cleanup der 4 stale Süper-Lig-Fixtures (A0 erledigt 2026-04-22)
-2. **Jetzt (Claude):** B0 (Gold-Standard 95% CSV) ODER B3 (TM-Scraper-Spec) je nach Anil-Präferenz
-3. **Post-B3:** C1 (Parser-Regression-Tests) im gleichen Slice mit-shippen
-4. **Wenn A0-A2 grün:** Phase 3b Beta-Tester-Calls → Beta-Exit-Bewertung → Go-Live oder Extend
+1. **Jetzt (Anil parallel):** A1/A2 Tester-Outreach starten + A4 Gençlerbirliği-Logo-URL liefern + A3 Kanban-Manual-Drag
+2. **Jetzt (Claude):** B0 (Gold-Standard CSV) ODER B15 (Discovery-Slice für 153 unmapped) je nach Anil-Präferenz
+3. **Post-B0/B15:** C0 (Gold-Badge Admin-UI) wenn ≥95%-Ziel erreicht
+4. **Wenn A1+A2 grün:** Phase 3b Beta-Tester-Calls → Beta-Exit-Bewertung
 
-## Session 2026-04-22 Abschluss
+## Session 2026-04-22 Abschluss (3 Sessions total)
 
-**Durchgeführt:**
-- B2 → Slice 137: /clubs GW-Filter + Opponent-Logo (commits `0eaf4b34` + `a26802b7`)
-- Anil-Report: Follow flaky → Slice 138: Race-Mutex (commits `d6f2d40d` + `9e67ebe8`)
-- B5 → Slice 139: skip reconcile on follow-success (commit `8dea725b`)
-- B4 → Slice 140: gameweek-sync Phase-B-Guard DB-Truth (commit `d57533a1`)
-- memory/backlog.md neu (5-Layer dependency-sortiert, commit `5ee176ec`)
-- 3 neue Decisions: D10 (Backlog-Layer), D11 (Reconcile-Trust-Model), D12 (Cron-DB-Truth-Guard)
-- 2 neue Patterns in common-errors.md (pgBouncer read-after-write + Cron-API-vs-DB-Guard)
+**Session 1 (früh, 7 Commits):** Slices 137/138/139/140 + memory/backlog.md neu (5-Layer)
+**Session 2 (nachmittag, 8 Commits):** Slices 141/141b/142/143/144/144b/145 + Reviewer-Hook live
+**Session 3 (spät-nachmittag, 10 Commits):** Slices 146/147/144c/144e + D15 + common-errors optimize
+**Session 4 (abend, 9 Commits):** A0-Ghost-Elim + Slices 144d/f/g/h/148 + D16 + Scraper-null-Policy
+
+**Gesamt heute:** 34 Slices/Commits, 4 Decisions (D13-D16), 3+ neue Patterns in common-errors.md. Data-Hygiene massiv verbessert:
+- null_club_id: 119 → 111 (144e, 8 resolved)
+- club_id UPDATEs: 217 transfers applied (144d)
+- stale_total: 324 → 188 (-42%) durch 144f+144g+144h
+- TFF1 Gold-Standard erreicht (nur 3 non-mapped remain)
+- /clubs Discovery GW-Konsistenz fix (148)

@@ -451,6 +451,15 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - Slug kann driften (Rebrand), ID bleibt stabil über Jahre.
 - Pattern: `/href="\/([a-z0-9-]+)\/startseite\/verein\/(\d+)"/` liefert slug + ID; Slug ist decorative, ID ist canonical.
 
+### Scraper null-Policy: always write null statt old-value keep (Slice 144g — D16)
+- Parser returnt `null` wenn Source-Feld fehlt. Policy MUSS sein: write `null` to DB, nicht alten Wert belassen.
+- Anti-Pattern: `if (contract !== null) updates.contract_end = contract` — bei null keep-old = data-liar. UI zeigt alte 2022-Werte trotz `mv_source=verified`.
+- Fix-Pattern: `updates.contract_end = contract` — always write, `null` = honest "source has no current value".
+- Evidenz Slice 144g: 3 WER-Players (Lynen/Pieper/Stark) hatten 0 "Vertrag bis" in TM-Profil → parser null korrekt → old-keep-policy liess 2022-07-01 in DB. Fix setzt NULL, UI (`calcContractMonths → 0`, `PerformanceTab > 0` gated) behandelt null transparent.
+- INV-38 heilt automatisch (filters IS NULL out).
+- Regel: Für ALLE scraper-consumers die DB-Write machen: null-return from parser = null-Write to DB, nicht keep-old. Opt-out via explicit flag dokumentieren wenn conservative-mode irgendwo gewollt.
+- Audit: `grep -rn "if.*!==.*null.*updates\." scripts/` — jede Zeile als Data-Liar-Suspect prüfen.
+
 ---
 
 ## 10. React Query + Supabase Cache
