@@ -6,7 +6,7 @@ import type { Player, DbIpo } from '@/types';
 import { placeSellOrder, cancelOrder } from '@/lib/services/trading';
 import { useBuyFromMarket, useBuyFromIpo } from '@/features/market/mutations/trading';
 import { invalidateTradeQueries } from '@/lib/queries';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { useToast } from '@/components/providers/ToastProvider';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 

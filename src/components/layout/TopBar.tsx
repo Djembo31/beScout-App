@@ -8,7 +8,7 @@ import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquareP
 import { cn } from '@/lib/utils';
 import { useNumTick } from '@/lib/hooks/useNumTick';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';

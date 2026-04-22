@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ErrorState, Card } from '@/components/ui';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout, cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';

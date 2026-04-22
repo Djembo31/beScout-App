@@ -43,9 +43,21 @@ vi.mock('@/lib/queries', () => ({
   invalidateTradeQueries: vi.fn(),
 }));
 
-// ── WalletProvider mock ──
-vi.mock('@/components/providers/WalletProvider', () => ({
-  useWallet: () => ({ balanceCents: 500000 }),
+// ── useWallet hook mock (Slice 152b — ersetzt WalletProvider-Mock) ──
+vi.mock('@/lib/hooks/useWallet', () => ({
+  useWallet: () => ({
+    balanceCents: 500000,
+    lockedBalanceCents: 0,
+    isLoading: false,
+    isFetching: false,
+    dataUpdatedAt: Date.now(),
+    error: null,
+  }),
+  useIsBalanceFresh: () => true,
+  setWalletBalance: vi.fn(),
+  setWalletLockedBalance: vi.fn(),
+  invalidateWallet: vi.fn(),
+  removeWalletFromCache: vi.fn(),
 }));
 
 // ── next-intl mock (key passthrough) ──

@@ -21,7 +21,7 @@ import { NAV_MAIN, NAV_MORE, NAV_ADMIN } from '@/lib/nav';
 import { signOut } from '@/lib/services/auth';
 import { useUser, useRoles } from '@/components/providers/AuthProvider';
 import { formatScout } from '@/lib/services/wallet';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { useClub } from '@/components/providers/ClubProvider';
 import { ClubSwitcher } from './ClubSwitcher';
 import { useUserTickets } from '@/lib/queries/tickets';

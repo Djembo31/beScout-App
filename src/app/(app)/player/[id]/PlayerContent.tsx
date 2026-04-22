@@ -8,7 +8,7 @@ import { Button, ErrorState, TabBar, ErrorBoundary } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { useToast } from '@/components/providers/ToastProvider';
 
 import {

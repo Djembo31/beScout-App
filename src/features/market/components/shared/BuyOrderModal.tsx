@@ -9,7 +9,7 @@ import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet, useIsBalanceFresh } from '@/lib/hooks/useWallet';
 import { usePlaceBuyOrder } from '@/lib/mutations/trading';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { Player } from '@/types';
@@ -26,7 +26,8 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
   const te = useTranslations('errors');
   const tp = useTranslations('playerDetail');
   const { user } = useUser();
-  const { balanceCents, lockedBalanceCents, isBalanceFresh } = useWallet();
+  const { balanceCents, lockedBalanceCents } = useWallet();
+  const isBalanceFresh = useIsBalanceFresh();
 
   const [qty, setQty] = useState(1);
   const [priceBsd, setPriceBsd] = useState('');

@@ -8,7 +8,7 @@ import { Modal, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useIsBalanceFresh } from '@/lib/hooks/useWallet';
 import type { Player, DbIpo, PublicOrder } from '@/types';
 import {
   TradingToasts,
@@ -57,7 +57,7 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
   onBuy: (qty: number) => void;
 }) {
   const t = useTranslations('playerDetail');
-  const { isBalanceFresh } = useWallet();
+  const isBalanceFresh = useIsBalanceFresh();
   const [qty, setQty] = useState(1);
   const clampedQty = maxQty > 0 ? Math.min(qty, maxQty) : qty;
   const totalBsd = priceBsd * clampedQty;

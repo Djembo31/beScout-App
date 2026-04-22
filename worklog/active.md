@@ -2,12 +2,12 @@
 
 ```
 status: active
-slice: 152a
+slice: 152b
 stage: BUILD
-spec: worklog/specs/152-wallet-provider-to-query.md (Gesamt-Slice 152)
-impact: skipped (Foundation-only — neuer Hook + Tests, keine Consumer-Migration)
-proof: worklog/proofs/152-usewallet-tests.txt
-review: worklog/reviews/152a-review.md
+spec: worklog/specs/152-wallet-provider-to-query.md
+impact: skipped (Welle 1 = 10 Read-only Consumer Import-Swap + 2 Test-Mock-Swap, kein Behavior-Change)
+proof: worklog/proofs/152b-welle1-vitest.txt
+review: worklog/reviews/152b-review.md
 ```
 
 ## Slice-152 Sub-Struktur

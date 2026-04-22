@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 import { TabPanel, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { MarketTab } from '@/features/market/store/marketStore';
 import { useMarketData } from '@/features/market/hooks/useMarketData';

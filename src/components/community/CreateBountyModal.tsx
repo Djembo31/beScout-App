@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Target, Coins } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { formatScout } from '@/lib/services/wallet';
 import { useTranslations } from 'next-intl';
 

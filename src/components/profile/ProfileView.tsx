@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Loader2, ArrowRight } from 'lucide-react';
 import { Card, ErrorState } from '@/components/ui';
 
-import { useWallet } from '@/components/providers/WalletProvider';
+import { useWallet } from '@/lib/hooks/useWallet';
 import { formatScout } from '@/lib/services/wallet';
 import { ScoutCard } from '@/components/profile/ScoutCard';
 import FollowListModal from '@/components/profile/FollowListModal';

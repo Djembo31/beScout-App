@@ -13,8 +13,20 @@ vi.mock('@/components/providers/AuthProvider', () => {
   const stableUser = { id: 'viewer-1' };
   return { useUser: () => ({ user: stableUser }) };
 });
-vi.mock('@/components/providers/WalletProvider', () => ({
-  useWallet: () => ({ balanceCents: 100000 }),
+vi.mock('@/lib/hooks/useWallet', () => ({
+  useWallet: () => ({
+    balanceCents: 100000,
+    lockedBalanceCents: 0,
+    isLoading: false,
+    isFetching: false,
+    dataUpdatedAt: Date.now(),
+    error: null,
+  }),
+  useIsBalanceFresh: () => true,
+  setWalletBalance: vi.fn(),
+  setWalletLockedBalance: vi.fn(),
+  invalidateWallet: vi.fn(),
+  removeWalletFromCache: vi.fn(),
 }));
 vi.mock('@/components/providers/ToastProvider', () => ({
   useToast: () => ({ addToast: mockAddToast }),
