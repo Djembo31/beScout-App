@@ -323,6 +323,21 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - **Audit-Query vor Money-RPC-Migration:** `SELECT pg_get_functiondef('rpc_name'::regproc);` → Body auf Pre-Check + Early-Return pruefen.
 - **Anwendbar auf:** subscribe_to_club (DONE 151c.2), renew_club_subscription, buy_player_dpc, openMysteryBox, liquidate_player. Slice 152+ jede einzelne pruefen.
 
+### useCountUp auf volatile Server-Daten (Slice 151b-RESET — D20 Klasse D)
+- `useCountUp(serverData, durationMs)` animiert jedes Re-Render mit neuer Zahl. Auf React-Query-Daten die zwischen Optimistic-Update + Stale-Refetch + Real-Refetch hopsen entstehen 2-3 sichtbare Animations-Zyklen.
+- **Symptom:** Anil-Report Club-Follow "zeigt mal 0, mal 4 Scouts, blinzelt". Hero und StatsBar animierten parallel mit unterschiedlichen Start-Punkten → Desync zwischen 2 Anzeigen desselben Werts auf demselben Screen.
+- **Fix:** `useDeferredValue` davorschalten — React throttlet Zwischenwerte und commit-en nur den letzten stable Wert.
+  ```ts
+  // Schlecht — animiert jeden Optimistic-Stale-Real-Wechsel:
+  const count = useCountUp(followerCount, 600);
+
+  // Gut — React deferred-rendert, nur 1 Animation:
+  const stable = useDeferredValue(followerCount);
+  const count = useCountUp(stable, 600);
+  ```
+- **Anwendbar auf:** alle `useCountUp`-Call-Sites mit Query-Cache-gespeisten Inputs. Heute angewendet in `ClubHero.tsx` (Slice 151b-RESET) + `ClubStatsBar.tsx`. Audit-Command: `grep -rn 'useCountUp(' src/ | grep -v useDeferredValue`.
+- **Alternative bei reinen UI-Updates:** `useCountUp` ganz weglassen (Animation ist Dekoration, Data-Correctness ist Pflicht).
+
 ### Component-Prop Silent-Fallback (Slice 149b — D17)
 - Components mit `prop?: T | null` + Fallback-Branch der schlechte-UX liefert: Caller-Sites koennen prop weglassen **ohne TSC-Error**, User sieht silent-degraded UI.
 - Beispiel: `PlayerPhoto(imageUrl?)` rendert Photo wenn imageUrl, sonst Initialen-Circle. 7 Call-Sites korrekt, 3 vergessen → 30% silent-fail auf Club-Page-Sections (IPO, Trending, Rankings).
