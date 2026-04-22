@@ -1,14 +1,23 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 152a
+stage: BUILD
+spec: worklog/specs/152-wallet-provider-to-query.md (Gesamt-Slice 152)
+impact: skipped (Foundation-only — neuer Hook + Tests, keine Consumer-Migration)
+proof: worklog/proofs/152-usewallet-tests.txt
+review: worklog/reviews/152a-review.md
 ```
+
+## Slice-152 Sub-Struktur
+
+Slice 152 (WalletProvider → useWallet Query) wird in 4 Sub-Slices gebaut fuer saubere Rollback-Punkte und Reviewer-Gated Money-Path-Wellen:
+
+- **152a (now, BUILD):** Foundation — `useWallet` Hook + `useIsBalanceFresh` + 3 Helpers + 13 TDD-Tests. Keine Consumer-Migration. Self-Review.
+- **152b (next):** Welle 1 — 10 read-only Consumer migrieren (`balanceCents` read). Self-Review (triviale Substitution).
+- **152c:** Welle 2 — 5 Mutation-Consumer (`setBalanceCents`/`refreshBalance` → `setWalletBalance`/`invalidateWallet`). **Reviewer-Agent pflicht** (Money-Path Behavior-Change).
+- **152d:** Welle 3 — `WalletProvider` loeschen + 5 Test-Files migrieren + `AuthProvider.signOut` → `removeWalletFromCache`. **Reviewer-Agent pflicht** (Cross-Cutting).
 
 ## Zuletzt
 
