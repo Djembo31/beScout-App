@@ -1,20 +1,37 @@
 # Active Slice
 
 ```
-status: active
-slice: 150
-stage: LOG
-spec: inline (audit-only, no code-change)
-impact: skipped (read-only analysis)
-proof: worklog/proofs/150-mutation-audit.md
-review: skipped (audit-deliverable self-reviewed)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
-- **Slice 149b** (2026-04-23) — PlayerPhoto imageUrl prop fehlte (XS, PASS) — 3 Components gefixt nach User-Screenshot. Commit `92e7e6ff`.
-- **Slice 149** (2026-04-23) — Club-Page Deep-Dive (M, PASS) — 7 Issues gelöst. Commit `be3aea1b`.
-- **Slice 148b** (2026-04-22) — Gençlerbirliği Logo Fix (XS, Wikipedia crest) — commit `8f3accbd`.
-- **Slice 148** (2026-04-22) — /clubs GW-Consistency fix (S, PASS) — commit `30b5c66e`.
+- **Slice 151d** (2026-04-23) — ESLint-Rule + Pattern D18 + Audit-Script (Phase 1 Complete). Commit `016bcb74`.
+- **Slice 151c+151c.2** (2026-04-23) — MembershipSection Money-Path + RPC-Idempotency-Hardening. Commit `a76ddc62`.
+- **Slice 151b** (2026-04-23) — useClubActions Follow-Button Migration (Pilot 1). Commit `789c0816`.
+- **Slice 151a** (2026-04-23) — useSafeMutation Primitive. Commit `a840beb8`.
+- **Slice 150** (2026-04-23) — Mutation Race-Audit. Commit `2aa36564`.
 
-Naechstes: idle. User-Verify-Refresh von bescout.net/club/galatasaray empfohlen nach ~2 min (Vercel-Deploy).
+## Phase 1 Mutation-Hardening — COMPLETE
+
+- Primitive gebaut: `useSafeMutation` mit synchronous pending-guard + Sentry + Auto-Toast
+- 2 Piloten migriert: useClubActions (Follow) + MembershipSection (Subscribe)
+- 1 Server-Hardening: subscribe_to_club RPC 60s-Idempotency-Window (live)
+- Pattern D18 + Money-RPC Idempotency-Subsection in common-errors.md
+- Audit-Script + ESLint-Rule als Defense gegen neue Regressions
+
+## Phase 2 Next — Money-Tier-1 (CEO-delegated per Anil)
+
+Top-Candidates:
+- Slice 152: AdminFoundingPassesTab (Kill-Switch-Money)
+- Slice 153: AdminWithdrawalTab (Club-Withdrawal)
+- Slice 154: OffersTab + useOffersState (Buy/Sell Offers)
+- Slice 155: BuyModal / PlayerTrading (Scout-Card-Trading)
+
+Session idle. Bereit fuer Phase 2 oder neuer Direktive.

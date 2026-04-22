@@ -11,6 +11,65 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 151d | 2026-04-23 | ESLint-Rule + Pattern D18 + Audit-Script (Phase 1 Complete)
+
+- **Stage-Chain:** SPEC (inline) → BUILD → REVIEW (self) → PROVE → LOG
+- **Added:** common-errors.md D18 Pattern + Money-RPC Idempotency Subsection; scripts/audit-mutation-race.sh; npm-scripts audit:mutation-race + :check; .eslintrc.json no-restricted-syntax Rule gegen async onClick.
+- **Baseline:** 246 setLoading matches, 19 race-safe (+3 durch Piloten), 0 suspicious, 20 pre-guarded.
+- **Commit:** `016bcb74`
+- **Next:** Slice 152+ Money-Tier Migrations (AdminFoundingPassesTab, WithdrawalTab, Offers).
+
+---
+
+## 151c + 151c.2 | 2026-04-23 | MembershipSection Money-Path + RPC-Idempotency (Pilot 2)
+
+- **Stage-Chain:** SPEC (150-audit.md) → BUILD → REVIEW (Reviewer-Agent) → PROVE → LOG
+- **Scope L:** MembershipSection → useSafeMutation + subscribe_to_club RPC-Hardening.
+- **Money-Path-BLOCKER gefixt:** RPC dedukzierte Wallet UNCONDITIONAL vor ON CONFLICT. Network-Retry → 2x Deduct moeglich. Fix: 60s-Idempotency-Window vor Wallet-Deduction.
+- **Migration live:** 20260423190000_slice_151c2_subscribe_idempotency.sql via mcp__supabase__apply_migration.
+- **Reviewer findings (7):** #1 HIGH (RPC-idempotency) + #2 HIGH (cache-fallback) FIXED inline. #3-#7 Backlog.
+- **Tests:** 5 neue MembershipSection-Tests. TSC clean.
+- **Beta-Launch:** READY (3-Tester-safe gegen doppelte Abbuchung).
+- **Commit:** `a76ddc62`
+
+---
+
+## 151b | 2026-04-23 | useClubActions Follow-Button Migration (Pilot 1)
+
+- **Stage-Chain:** SPEC → BUILD → REVIEW (Reviewer-Agent) → PROVE → LOG
+- **Scope M:** Follow-Button (Data-Integrity Tier) → useSafeMutation + onMutate-snapshot-Rollback.
+- **Reviewer findings (5):** #1 HIGH (Slice 143 Regression invalidate→setQueryData) + #5 NIT FIXED inline. #2-#4 Backlog.
+- **Breaking:** handleFollow type () => Promise<void> → () => void — Consumer (ClubContent) unaffected.
+- **Tests:** 9/9 green inkl. rapid-click-3x Regression-Guard.
+- **Commit:** `789c0816`
+
+---
+
+## 151a | 2026-04-23 | useSafeMutation Primitive (Phase 1 Foundation)
+
+- **Stage-Chain:** SPEC (150-audit.md) → BUILD → REVIEW (Reviewer-Agent) → PROVE → LOG
+- **Scope M:** Neuer shared Hook src/lib/hooks/useSafeMutation.ts. Wrapper um React Query v5 useMutation mit:
+  - safeTrigger() short-circuit bei isPending (synchronous via MutationObserver)
+  - errorToast (auto Toast bei Error)
+  - errorTag + logSilentCatch (Sentry fuer Money-Path Observability)
+- **Reviewer findings (10):** 4 MEDIUM + 5 LOW + 1 NIT — alle inline gefixt vor Commit. Generic-Order an React Query v5 angepasst, useCallback-Stabilisierung, Sentry-Integration, Type-Cast.
+- **Tests:** 11/11 green. TSC clean.
+- **Commit:** `a840beb8`
+
+---
+
+## 150 | 2026-04-23 | Mutation Race-Audit (Audit-Deliverable)
+
+- **Stage-Chain:** SPEC (inline) → BUILD (=Audit) → PROVE (=Report) → LOG
+- **Trigger:** User-Report "Follow-Button loest mehrfach aus" (Slice 149b-Nachgang).
+- **Scope:** Systemischer Audit aller Mutation-Handler in React-Components.
+- **Findings:** 63 Files mit setLoading/setPending Pattern, nur 4 mit useMutation. 8 Money-kritisch (CEO-Scope), 18 Data-Integrity, 9 Auth, 28 UI-only.
+- **Deliverable:** `worklog/proofs/150-mutation-audit.md` — Risk-Tier-Kategorisierung + 5-Phasen-Migrationsplan + `useSafeMutation` Hook-Signature.
+- **Anil-Direktive:** "Vollkommen dir, Plan anlegen, lückenlos, professioneller Stand wie Konkurrenten."
+- **Commit:** `2aa36564`
+
+---
+
 ## 149d | 2026-04-23 | Cron-Gap-Close (fixtures-future + transfers, XS)
 
 - **Stage-Chain:** Inline-XS follow-up auf 149c-Audit-Finding
