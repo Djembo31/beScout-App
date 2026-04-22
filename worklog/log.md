@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 149b | 2026-04-23 | PlayerPhoto imageUrl prop fehlte (XS follow-up)
+
+- **Stage-Chain:** SPEC (inline XS) → IMPACT (skipped, 3-line prop-pass) → BUILD → REVIEW (self, XS trivial) → PROVE → LOG
+- **Trigger:** Anil-Screenshot zeigte /club/galatasaray IPO + Trending-Spieler ohne Photos, trotz Slice-149-Verify-Screenshot.
+- **Root Cause:** 3 Call-Sites haben `<PlayerPhoto />` ohne `imageUrl`-Prop → Silent-Fallback auf Initialen-Circle (kein TSC-Error, optional prop).
+- **Files:** ActiveOffersSection.tsx:56, SquadPreviewSection.tsx:67, PlayerRankings.tsx:129 (+ Type + SELECT).
+- **Lesson-Pattern** für `.claude/rules/common-errors.md`: Component-Props die optional sind ohne Type-Error aber mit schlechter Fallback-UX = Silent-Fail-Pattern. Audit via `grep '<ComponentName'` gegen prop-coverage.
+- **Proof:** `worklog/proofs/149b-fix-verify.txt` (tsc clean + 3 Call-Sites grep). Visual-Verify pending User-Refresh nach Deploy.
+- **Review:** `worklog/reviews/149b-review.md` (PASS, self-review XS trivial).
+- **Commit:** `92e7e6ff`.
+
+---
+
 ## 149 | 2026-04-23 | Club-Page Deep-Dive (M, PASS)
 
 - **Stage-Chain:** SPEC → IMPACT → BUILD → REVIEW (REWORK→PASS nach 4 MEDIUM-Inline-Fixes) → PROVE (Playwright 393/1280/TR) → LOG

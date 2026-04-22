@@ -297,6 +297,13 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - `I`.toLowerCase() = `i̇` (NICHT `i`) → NFD + strip diacritics + `ı→i`.
 - SQL: `translate(lower(name), 'şçğıöüİŞÇĞÖÜ', 'scgiouISCGOU')`.
 
+### Component-Prop Silent-Fallback (Slice 149b — D17)
+- Components mit `prop?: T | null` + Fallback-Branch der schlechte-UX liefert: Caller-Sites koennen prop weglassen **ohne TSC-Error**, User sieht silent-degraded UI.
+- Beispiel: `PlayerPhoto(imageUrl?)` rendert Photo wenn imageUrl, sonst Initialen-Circle. 7 Call-Sites korrekt, 3 vergessen → 30% silent-fail auf Club-Page-Sections (IPO, Trending, Rankings).
+- Symptom: User-Screenshot zeigt Initialen, aber DB hat Photos + Primary-Claude-Playwright-Proof auf anderer Section zeigt Photos korrekt → Inkonsistenz verdeckt durch Sub-Section-Unterschiede.
+- Detect-Audit: `grep '<ComponentName' src/` → Zeile-fuer-Zeile prop-Coverage checken. Falls >3 Call-Sites: separate Coverage-Test-Fixture oder required-prop-Variant erstellen.
+- Prevention-Pattern: Wenn Fallback-Branch schlecht genug UX hat um User-Reports auszuloesen, mach prop **required** und erfordere Caller-Seite `imageUrl={x ?? null}` explicit — TSC-Check erzwingt bewusste Entscheidung.
+
 ---
 
 ## 7. Build / Deploy
