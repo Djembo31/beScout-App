@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 153a | 2026-04-23 | trading.ts Ferrari-Refactor (4 Market-Mutation-Hooks)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: Hook-Layer-Refactor, keine DB/RPC/Service-Change, API rueckwaertskompatibel, 3 Consumer gegrept ok) → BUILD → REVIEW (Reviewer-Agent PASS, 4 NITs) → PROVE → LOG
+- **Scope M:** 2 Files Core (`src/features/market/mutations/trading.ts` refactor 211 Zeilen, `__tests__/trading.test.ts` neu 20→22 Tests) + Spec + Review + 3 Proofs.
+- **Ferrari-Pattern:** raw `useMutation` → `useSafeMutation` + `onMutate` Snapshot + `onError` Rollback (inkl Phantom-removeQueries bei undefined-snapshot) + `onSettled` pgBouncer-safe `invalidateWallet` + `errorTag` je Hook (market.buy/ipoBuy/placeBuyOrder/cancelBuyOrder).
+- **P2.2 Konvention:** Singleton `@/lib/queryClient` → `useQueryClient()` in allen 4 Hooks.
+- **Design-Decisions dokumentiert (File-Header):** errorToast weggelassen (Consumer rendert inline-Error, Doppel-Toast vermieden). Optimistic-Scope eng auf deterministische Felder (holdings-qty, ipo-purchased). PlaceOrder/CancelOrder ohne Optimistic (Escrow server-transaktional).
+- **Reviewer:** PASS mit 4 NITs. Finding #1 (Phantom-Optimistic bei undefined-snapshot) inline gefixt — `removeQueries` statt `setQueryData` wenn kein prev-Snapshot. 2 neue Tests decken das ab.
+- **API-Kompatibilitaet:** 3 Consumer (useTradeActions, BuyOrderModal, BuyOrdersSection) + Re-Export src/lib/mutations/trading.ts unveraendert.
+- **Tests:** 22/22 trading.test.ts grün + 2907/2912 Gesamt (4 Failures = pre-existing DB-Invariant-Drifts INV-35/38/39/40, nicht Slice-153a-verursacht).
+- **Proof:** worklog/proofs/153a-{trading-vitest.txt, errorTag-audit.txt, ferrari-diff.txt}
+- **Review:** worklog/reviews/153a-review.md
+- **Commit:** `9d417e68`
+- **Next:** Welle 153b — `components/player/detail/hooks/usePlayerTrading.ts` (7 Handlers, 350 Zeilen, groesserer Scope mit Rollback-Logik pro Handler).
+
+---
+
 ## 151b-RESET | 2026-04-23 | Club-Follow State-Sync (Provider Shrink, Query-Cache SoT)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: client-side refactor) → BUILD → REVIEW (Reviewer-Agent) → PROVE → LOG
