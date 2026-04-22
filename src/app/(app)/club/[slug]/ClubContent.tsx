@@ -22,12 +22,14 @@ import { PlayerIdentity } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
+import { useClubStanding } from '@/lib/queries/misc';
 import { cn } from '@/lib/utils';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { formatTimeAgo } from '@/components/community/PostCard';
 import { ClubHero } from '@/components/club/ClubHero';
 import { ClubStatsBar } from '@/components/club/ClubStatsBar';
+import { ClubStandingCard } from '@/components/club/ClubStandingCard';
 import { ActiveOffersSection } from '@/components/club/sections/ActiveOffersSection';
 import { SquadPreviewSection } from '@/components/club/sections/SquadPreviewSection';
 import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
@@ -127,6 +129,16 @@ export default function ClubContent({ slug }: { slug: string }) {
     fanRanking, fanRankingLoading, clubPrestige,
   } = data;
 
+  // Slice 149: League-Standings (Tabellenplatz).
+  // Pass undefined clubId when unauthenticated — RLS blocks anon so query would fail + 5min invalid-cache.
+  const { data: clubStanding } = useClubStanding(user ? clubId : undefined);
+
+  // Slice 149 Fix #4: standing.form (from API-Football standings) has canonical priority
+  // over formResults (derived from fixtures). Prevents two-row-form-drift.
+  const effectiveFormResults: ('W' | 'D' | 'L')[] = clubStanding?.form
+    ? clubStanding.form.split('').slice(-5).filter((c): c is 'W' | 'D' | 'L' => c === 'W' || c === 'D' || c === 'L')
+    : formResults;
+
   // ── Loading / Error Guards ──
   if (authLoading || loading) return <ClubSkeleton />;
 
@@ -164,7 +176,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         totalVolume24h={totalVolume24h}
         totalDpcFloat={totalDpcFloat}
         avgPerf={avgPerf}
-        formResults={formResults}
+        formResults={effectiveFormResults}
         clubIpos={clubIpos}
         clubFixtures={clubFixtures}
         clubId={clubId}
@@ -224,7 +236,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         buyablePlayers={clubIpos.length}
         totalDpcFloat={totalDpcFloat}
         avgPerf={avgPerf}
-        formResults={formResults}
+        formResults={effectiveFormResults}
         prestigeTier={clubPrestige?.tier}
       />
 
@@ -237,7 +249,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           followerCount={followerCount}
           playerCount={players.length}
           clubColor={clubColor}
-          formResults={formResults}
+          formResults={effectiveFormResults}
           prestigeTier={clubPrestige?.tier}
         />
       </div>
@@ -281,6 +293,13 @@ export default function ClubContent({ slug }: { slug: string }) {
           <RevealSection>
             {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} club={club} />}
           </RevealSection>
+
+          {/* Tabellenplatz (Slice 149) — nur wenn Standings-Daten existieren */}
+          {clubStanding && (
+            <RevealSection delay={25}>
+              <ClubStandingCard standing={clubStanding} clubColor={clubColor} />
+            </RevealSection>
+          )}
 
           {/* Dein Spieler-Bestand */}
           {userClubDpc > 0 && (

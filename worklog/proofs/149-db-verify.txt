@@ -1,0 +1,42 @@
+Slice 149 — DB-Verify fuer Galatasaray (2026-04-23)
+
+Query: SELECT aus clubs + club_followers + ipos + players + league_standings
+WHERE c.slug='galatasaray'
+
+Ergebnis:
+{
+  "club":                 "Galatasaray",
+  "scouts_fans":           2,
+  "buyable_erstverkauf":   36,
+  "total_players":         36,
+  "karten_im_umlauf":      3600,
+  "rank":                  1,
+  "points":                68,
+  "form":                  "DWLWW"
+}
+
+Verifizierung der 7 Issues:
+
+Issue 1 (Scouts 0 falsch): scouts_fans=2 in DB.
+  → Wenn UI nach Deploy immer noch 0 zeigt: Frontend-Cache oder Auth-Kontext-Problem.
+  → Label ist jetzt "Fans" (DE) / "Taraftar" (TR) statt "Scouts".
+
+Issue 2 (24 vol Label): Label "Handel 24h" / "24s İşlem" live.
+
+Issue 3 (spielerkaufbar): buyable_erstverkauf=36 (alle Spieler im Erstverkauf).
+  → Label "Im Erstverkauf" / "Kulüp Satışı'nda" live.
+
+Issue 4 (EC/DPC Float): karten_im_umlauf=3600.
+  → Label "Karten im Umlauf" / "Dolaşımdaki Kartlar" live.
+
+Issue 5 (Form-Overflow): Layout-Fix — 3 stats Row 1, Form+Prestige Row 2.
+
+Issue 6 (Tabellenplatz): rank=1, points=68, form=DWLWW
+  → Neue ClubStandingCard rendert die Daten ueber Form-Pills.
+
+Issue 7 (PlayerDisplay Bilder): 36/36 haben image_url (media.api-sports.io).
+  → CSP erlaubt Domain. Next.config remotePatterns enthaelt Domain.
+  → Wenn User keine Bilder sieht: Browser-Cache oder User nicht logged-in (PublicClubView-Variante).
+  → Playwright-Screenshot nach Deploy bestaetigt tatsaechlichen Render-State.
+
+Daten waren BEREITS in der DB vor Slice 149 — Slice 149 hat die UI-Integration gebaut.

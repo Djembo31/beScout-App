@@ -100,6 +100,57 @@ export async function getClubPrestige(clubId: string): Promise<ClubPrestige> {
 }
 
 // ============================================
+// Club League Standing (Slice 149)
+// ============================================
+
+export type ClubStanding = {
+  rank: number;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalsDiff: number;
+  points: number;
+  /** Last-5 form string, e.g. "WWDLW" — NULL if not scraped yet */
+  form: string | null;
+  season: number;
+};
+
+/**
+ * Aktuelle Liga-Tabellenposition eines Clubs (neueste Saison).
+ * Daten kommen vom API-Football /standings Cron (Slice 074).
+ * RLS: authenticated SELECT qual=true (public league data).
+ */
+export async function getClubStanding(clubId: string): Promise<ClubStanding | null> {
+  const { data, error } = await supabase
+    .from('league_standings')
+    .select('rank, played, won, drawn, lost, goals_for, goals_against, goals_diff, points, form, season')
+    .eq('club_id', clubId)
+    .order('season', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+
+  return {
+    rank: data.rank,
+    played: data.played,
+    won: data.won,
+    drawn: data.drawn,
+    lost: data.lost,
+    goalsFor: data.goals_for,
+    goalsAgainst: data.goals_against,
+    goalsDiff: data.goals_diff,
+    points: data.points,
+    form: data.form ?? null,
+    season: data.season,
+  };
+}
+
+// ============================================
 // Club Follower / Follow
 // ============================================
 

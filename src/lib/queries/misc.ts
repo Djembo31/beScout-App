@@ -7,7 +7,7 @@ import { getWatcherCount } from '@/lib/services/watchlist';
 import { getLeaderboard } from '@/lib/services/social';
 import { getPosts } from '@/lib/services/posts';
 import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
-import { getClubBySlug } from '@/lib/services/club';
+import { getClubBySlug, getClubStanding } from '@/lib/services/club';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import { getPlayerGameweekScores, getPlayerMatchTimeline } from '@/lib/services/scoring';
 import { getPbtForPlayer } from '@/lib/services/pbt';
@@ -134,6 +134,19 @@ export function useClubSubscription(userId: string | undefined, clubId: string |
     queryFn: () => getMySubscription(userId!, clubId!),
     enabled: !!userId && !!clubId,
     staleTime: TWO_MIN,
+  });
+}
+
+/**
+ * Slice 149 — Liga-Tabellenposition fuer Club-Info-Kachel.
+ * Standings werden taeglich via Cron aktualisiert → FIVE_MIN stale.
+ */
+export function useClubStanding(clubId: string | undefined) {
+  return useQuery({
+    queryKey: qk.clubs.standing(clubId!),
+    queryFn: () => getClubStanding(clubId!),
+    enabled: !!clubId,
+    staleTime: FIVE_MIN,
   });
 }
 

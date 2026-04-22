@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mockSupabase, mockTable, mockRpc, resetMocks } from '@/test/mocks/supabase';
-
 import {
   getClubBySlug, getClubById, getAllClubs, getClubAdminFor,
   getClubPrestige, getClubFollowerCount, isUserFollowingClub,
@@ -10,7 +9,7 @@ import {
   removeClubAdmin, getActiveGameweek, getLeagueActiveGameweek,
   setActiveGameweek, updateCommunityGuidelines, getClubFantasySettings,
   updateClubFantasySettings, getClubBalance, getClubWithdrawals,
-  requestClubWithdrawal,
+  requestClubWithdrawal, getClubStanding,
 } from '../club';
 
 beforeEach(() => { resetMocks(); vi.clearAllMocks(); });
@@ -121,6 +120,40 @@ describe('getClubFollowerCount', () => {
   it('throws on error (Slice 143 — no more silent return 0)', async () => {
     mockTable('club_followers', null, { message: 'transient network' });
     await expect(getClubFollowerCount('c1')).rejects.toThrow('transient network');
+  });
+});
+
+// Slice 149: League Standings
+describe('getClubStanding', () => {
+  it('returns current standing', async () => {
+    mockTable('league_standings', {
+      rank: 1, played: 29, won: 21, drawn: 5, lost: 3,
+      goals_for: 67, goals_against: 22, goals_diff: 45,
+      points: 68, form: 'DWLWW', season: 2025,
+    });
+    const result = await getClubStanding('c1');
+    expect(result).toEqual({
+      rank: 1, played: 29, won: 21, drawn: 5, lost: 3,
+      goalsFor: 67, goalsAgainst: 22, goalsDiff: 45,
+      points: 68, form: 'DWLWW', season: 2025,
+    });
+  });
+  it('returns null when no standing exists', async () => {
+    mockTable('league_standings', null);
+    expect(await getClubStanding('c1')).toBeNull();
+  });
+  it('handles null form gracefully', async () => {
+    mockTable('league_standings', {
+      rank: 5, played: 10, won: 4, drawn: 2, lost: 4,
+      goals_for: 15, goals_against: 14, goals_diff: 1,
+      points: 14, form: null, season: 2025,
+    });
+    const result = await getClubStanding('c1');
+    expect(result?.form).toBeNull();
+  });
+  it('throws on DB error', async () => {
+    mockTable('league_standings', null, { message: 'db err' });
+    await expect(getClubStanding('c1')).rejects.toThrow('db err');
   });
 });
 

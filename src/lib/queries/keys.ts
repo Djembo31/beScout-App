@@ -191,6 +191,7 @@ export const qk = {
     recentTrades: (cid: string) => ['clubs', 'recentTrades', cid] as const,
     subscription: (uid: string, cid: string) => ['clubs', 'subscription', uid, cid] as const,
     votedIds: (uid: string) => ['clubs', 'votedIds', uid] as const,
+    standing: (cid: string) => ['clubs', 'standing', cid] as const,
   },
 
   // ── PBT ──

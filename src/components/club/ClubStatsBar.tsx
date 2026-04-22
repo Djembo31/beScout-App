@@ -75,53 +75,57 @@ export function ClubStatsBar({
         </Card>
       </div>
 
-      {/* Secondary stats + Form — compact row */}
+      {/* Row 1: Secondary stats — always 3 equal columns */}
       <div className="flex items-center gap-3">
         {secondary.map((stat, i) => (
-          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-surface-base border border-divider rounded-xl">
+          <div key={i} className="flex-1 min-w-0 flex items-center gap-2 p-2.5 bg-surface-base border border-divider rounded-xl">
             <stat.icon className="size-4 text-white/30 flex-shrink-0" />
             <div className="min-w-0">
-              <div className="font-mono font-bold tabular-nums text-sm text-white/80">{stat.value}</div>
-              <div className="text-[10px] text-white/30">{stat.label}</div>
+              <div className="font-mono font-bold tabular-nums text-sm text-white/80 truncate">{stat.value}</div>
+              <div className="text-[10px] text-white/30 truncate">{stat.label}</div>
             </div>
           </div>
         ))}
-        {/* Form streak */}
-        {formResults.length > 0 && (
-          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-divider rounded-xl">
-            <div className="flex items-center gap-1">
-              {formResults.map((r, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'size-6 rounded-full flex items-center justify-center text-[9px] font-black ring-1 ring-white/10',
-                    r === 'W' && 'bg-green-500 text-black',
-                    r === 'D' && 'bg-yellow-500 text-black',
-                    r === 'L' && 'bg-red-500 text-white',
-                  )}
-                >
-                  {r === 'W' ? 'S' : r === 'D' ? 'U' : 'N'}
-                </div>
-              ))}
-            </div>
-            <div className="text-[10px] text-white/30 hidden md:block">Form</div>
-          </div>
-        )}
-        {/* Prestige Badge */}
-        {prestigeTier && (() => {
-          const cfg = PRESTIGE_CONFIG[prestigeTier];
-          const Icon = cfg.icon;
-          return (
-            <div className={cn('flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border border-divider', cfg.bg)}>
-              <Icon className={cn('size-4', cfg.color)} />
-              <div className="min-w-0">
-                <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>
-                <div className="text-[10px] text-white/30">{t('prestige')}</div>
+      </div>
+
+      {/* Row 2: Form + Prestige (own row so Form-pills have breathing room on 393px) */}
+      {(formResults.length > 0 || prestigeTier) && (
+        <div className="flex items-center gap-3">
+          {formResults.length > 0 && (
+            <div className="flex-1 min-w-0 flex items-center gap-2 p-2.5 bg-surface-base border border-divider rounded-xl">
+              <span className="text-[10px] text-white/30 flex-shrink-0">{t('form')}</span>
+              <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+                {formResults.map((r, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'size-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-black ring-1 ring-white/10',
+                      r === 'W' && 'bg-green-500 text-black',
+                      r === 'D' && 'bg-yellow-500 text-black',
+                      r === 'L' && 'bg-red-500 text-white',
+                    )}
+                  >
+                    {r === 'W' ? 'S' : r === 'D' ? 'U' : 'N'}
+                  </div>
+                ))}
               </div>
             </div>
-          );
-        })()}
-      </div>
+          )}
+          {prestigeTier && (() => {
+            const cfg = PRESTIGE_CONFIG[prestigeTier];
+            const Icon = cfg.icon;
+            return (
+              <div className={cn('flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border border-divider', cfg.bg)}>
+                <Icon className={cn('size-4', cfg.color)} />
+                <div className="min-w-0">
+                  <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>
+                  <div className="text-[10px] text-white/30">{t('prestige')}</div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 }
