@@ -1,19 +1,19 @@
 # Active Slice
 
 ```
-status: active
-slice: 146
-stage: LOG
-spec: worklog/specs/146-proof-gate-merge-anchor-heredoc-fix.md
-impact: skipped (3 Hook-Files, keine Consumer)
-proof: worklog/proofs/146-hook-test.txt
-review: worklog/reviews/146-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 146** (2026-04-22) — Proof-Gate + Review-Gate Token-Anchor Hardening (XS+, PASS nach Rework).
 - **Slice 145** (2026-04-22) — Reviewer-Hook strict-block + REVIEW Stage (S, PASS).
 - **Slice 144b** (2026-04-22) — TM-Squad-Scraper Full-Run: 134 clubs, 2841 matched, 22 shirt-drift, 225 transfer-pending (XS proof-only, PASS).
-- **Slice 144** (2026-04-22) — B3 TM-Squad-Page-Scraper (M, PASS).
 
-Nächstes: Anil-Decision (--allow-transfers? / Backlog-Items 144c/144e/146/147?).
+Nächstes: Slice 147 (ship-Template `review:` key), dann 144c + 144e.

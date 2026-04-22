@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 146 | 2026-04-22 | Proof-Gate + Review-Gate Token-Anchor Hardening (XS+)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, Hook-only) → BUILD → REVIEW (CONCERNS → Rework → PASS) → PROVE → LOG
+- **Trigger:** Backlog aus 145-Review Finding #1 (merge-wildcard promiskuös). Waehrend BUILD + Review 4 weitere Bugs derselben Klasse entdeckt → Scope-Expansion.
+- **Scope final (3 Files, 7 Issues):**
+  - `ship-proof-gate.sh` + `ship-cto-review-gate.sh`: `*"merge"*` / `*"--amend"*` / `*"git commit"*` substring-matches auf command-token-anchor (`"git merge"|"git merge "*`, quoted-strip vor --amend-check). Heredoc-Exempt aus proof-gate entfernt (war Backdoor, symmetrisch zu 145-review-gate). `\b` aus grep-MSG-Pattern raus (war broken bei JSON-escaped heredoc — `\n` → Literal `n` ist word-char, blockt `\b`; review-gate aus Slice 145 war dadurch fuer ALLE heredoc-Commits silent bypassed). Emergency-Slice: review-gate emittet jetzt warn-Message wie proof-gate.
+  - `ship-spec-gate.sh`: Whitelist `BUILD|PROVE|LOG` → `BUILD|REVIEW|PROVE|LOG` (Slice 145 Drift).
+  - `.claude/rules/common-errors.md` Section 8: 3 Patterns aktualisiert (token-anchor statt substring, heredoc-Backdoor als gefixt, NEU: `\b`-JSON-bug).
+- **Review:** `worklog/reviews/146-review.md` — Initial-Dispatch CONCERNS (Findings #1+2 MEDIUM: `*" --merge "*` / `*"git merge "*` matched Text in Messages). Rework direkt in 146 statt 146b-Nachzug. Final PASS.
+- **Proof:** `worklog/proofs/146-hook-test.txt` — 21 Cases, 0 FAIL:
+  - 11 Exempt-Cases (real merge, --amend, docs, chore heredoc, feature/fixation non-match, --amend+heredoc, bash-test-scripts mit `git commit` substring als Regression-Guard)
+  - 10 Block-Cases (inline + heredoc feat/fix, commit-msg mit "git merge" / "--amend" als text, heredoc-body mit "git merge workflow")
+- **Live-Dogfood:** Commit dieses Slice selbst ging beide Gates durch (Proof + Review existieren, kein false-exempt).
+- **Key Takeaway:** Cold-Context-Reviewer-Agent hat 2 MEDIUM-Findings aus derselben Bug-Klasse gefunden die Primary-Claude in Slice 145 verpasste. Die REVIEW-Stage aus 145 rechtfertigt sich selbst auf Anhieb.
+- **Commit:** `a25c0a56`
+- **Backlog-Follow-ups:** 147 (ship-Skill-Template) weiter offen. 144c + 144e nachfolgend.
+
+---
+
 ## 145 | 2026-04-22 | Reviewer-Hook strict-block + REVIEW Stage in SHIP-Loop (S)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (grep hooks) → BUILD → REVIEW → PROVE → LOG
