@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144e | 2026-04-22 | WER-Cluster null-club-id 8 Players reunited (XS data-fix)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, DB-only) → BUILD (=UPDATE) → REVIEW (PASS mit 2 Concerns) → PROVE → LOG
+- **Trigger:** 144b-Review Finding #1 flagged "19 transfer-detected mit DB=null (WER-Cluster)".
+- **Audit ergab:** echte Zahl 8 (Wording-Drift — 19 war Gesamt transfer-detected). Globaler null-club-id Scope: 119 Players, davon 12 TM-mapped, 107 Orphans.
+- **Fix-Scope:** 8 Players mit klarer 144b-Squad-Evidence (7 Werder Bremen + 1 Everton) via direkt-DB-UPDATE mit `mcp__supabase__execute_sql`. Kein Code-Change.
+- **Safety:** FK verifiziert, Trigger-Guards respektiert, mv_source stale-Guard honoriert (keine MV-Overwrites).
+- **Delta:** players WHERE club_id IS NULL: 119 → 111 (exakt −8).
+- **Review:** `worklog/reviews/144e-review.md` — PASS mit 2 Concerns:
+  - #1 MEDIUM: alle 8 Players weiter matches=0 (squad-registered aber nicht in GW-sync) → Backlog 144f/g
+  - #2 LOW: Reviewer nannte inexistenten Trigger — NOT_APPLICABLE verified
+  - #3 LOW: stale MV/Contract 2-4 Jahre alt → Backlog 144f Re-Scrape-Priorität
+  - #4 NITPICK: Wording-Drift-Learning
+- **Proof:** `worklog/proofs/144e-audit.txt` — Pre-Fix, Evidence-Tabelle, UPDATE-Transaction, Post-Fix-Verify, FK/Trigger-Safety, Backlog-Kandidaten.
+- **Commit:** `390fcfc1`
+- **Backlog erzeugt:**
+  - 144f XS (PRIO): Re-Scrape der 8 gefixten TM-IDs
+  - 144g XS: 4 weitere TM-mapped null-club-id (Agu/Friedl/Grüll/Malatini)
+  - 144h M: 107 Orphans ohne TM-Mapping
+
+---
+
 ## 144c | 2026-04-22 | last_squad_check vor transfer-skip ziehen (XS)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, 1-File Script) → BUILD → REVIEW (PASS mit 1 NITPICK fixed) → PROVE → LOG
