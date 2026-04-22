@@ -205,9 +205,28 @@ async function processClub(
     if (existing.club_id !== club.clubId) {
       stats.players_transfer_detected++;
       if (!allowTransfers) {
-        console.log(
-          `  ⟷ transfer-detected ${existing.last_name} ${e.tmPlayerId}: DB=${existing.club_id} → TM=${club.clubId} (skip; use --allow-transfers)`,
-        );
+        // Slice 144c: TM kennt den Player noch (nur in anderem Club) —
+        // last_squad_check muss gesetzt werden, sonst erscheint der Spieler
+        // spaeter als "nie gescraped" fuer Retired-Detection. Andere Fields
+        // (shirt/mv/club_id) NICHT ueberschreiben — das waere Transfer-Apply
+        // durch die Hintertuer.
+        if (dryRun) {
+          console.log(
+            `  ⟷ transfer-detected ${existing.last_name} ${e.tmPlayerId}: DB=${existing.club_id} → TM=${club.clubId} (dry: would set last_squad_check only)`,
+          );
+          continue;
+        }
+        const { error: transferSkipError } = await supabase
+          .from('players')
+          .update({ last_squad_check: now })
+          .eq('id', existing.id);
+        if (transferSkipError) {
+          console.log(`  ! UPDATE ${existing.last_name} (last_squad_check): ${transferSkipError.message}`);
+        } else {
+          console.log(
+            `  ⟷ transfer-detected ${existing.last_name} ${e.tmPlayerId}: DB=${existing.club_id} → TM=${club.clubId} (metadata skipped; last_squad_check set; use --allow-transfers fuer Full-Apply)`,
+          );
+        }
         continue;
       }
       stats.players_transfer_applied++;

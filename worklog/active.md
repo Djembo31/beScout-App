@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 144c
+stage: LOG
+spec: worklog/specs/144c-last-squad-check-before-transfer-skip.md
+impact: skipped (1-File Script-Edit, keine Service-/RPC-Consumer)
+proof: worklog/proofs/144c-logic-proof.txt
+review: worklog/reviews/144c-review.md
 ```
 
 ## Zuletzt
