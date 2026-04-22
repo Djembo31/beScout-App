@@ -74,6 +74,7 @@ vi.mock('@/lib/services/players', () => ({
 // ============================================
 
 import { useOffersState } from '../useOffersState';
+import { queryClient } from '@/lib/queryClient';
 
 // ============================================
 // Fixtures
@@ -160,7 +161,8 @@ describe('useOffersState', () => {
     expect(mockAcceptOffer).toHaveBeenCalledWith('u1', 'offer-1');
     expect(mockAddToast).toHaveBeenCalledWith('offerAccepted', 'success');
     // Slice 152c: invalidateWallet(queryClient) ersetzt refreshBalance().
-    expect(mockInvalidateWallet).toHaveBeenCalled();
+    // Slice 153 Carry-over: Argument-Check gegen QueryClient-Instance-Drift.
+    expect(mockInvalidateWallet).toHaveBeenCalledWith(queryClient);
     expect(mockInvalidateTradeQueries).toHaveBeenCalledWith('p-1', 'u1');
   });
 
