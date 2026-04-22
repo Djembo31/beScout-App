@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 146
+stage: LOG
+spec: worklog/specs/146-proof-gate-merge-anchor-heredoc-fix.md
+impact: skipped (3 Hook-Files, keine Consumer)
+proof: worklog/proofs/146-hook-test.txt
+review: worklog/reviews/146-review.md
 ```
 
 ## Zuletzt

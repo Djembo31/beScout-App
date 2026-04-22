@@ -394,16 +394,26 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - `grep -oP` mit `\K` scheitert silent (Locale: "supports only unibyte and UTF-8"). Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'`.
 - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` → Fallback Main-Repo-Path oder Task gut verpacken.
 
-### Shell case-statement wildcard promiskuös (Slice 145)
-- `case "$COMMAND" in *"merge"*) exit 0 ;; esac` in hooks matched **jede** Commit-Message mit "merge" drin (z.B. `fix(api): prevent merge conflict`) und skipped den Hook komplett.
-- Fix: `*"git merge "*|*" --merge "*) exit 0 ;;` — exakt auf `git merge` command-token oder `--merge` flag anchorn.
-- Regel: Shell-case-patterns auf COMMAND-Strings MÜSSEN auf konkrete Tokens anchorn, nicht wild substringen. Besonders bei security-/flow-relevanten Gates.
-- Audit: `grep -rn 'case.*in.*\*"' .claude/hooks/`
+### Shell case-statement wildcard promiskuös (Slice 145 + 146)
+- `case "$COMMAND" in *"merge"*) exit 0 ;; esac` matched **jede** Commit-Message mit "merge" drin und skipped den Hook. Same-Klasse: `*"--amend"*`, `*"git commit"*` (letzteres false-triggert bash test-scripts die Fixture-Strings wie `git commit -m "fix(x)"` enthalten).
+- Regel: Shell-case-patterns auf COMMAND-Strings MÜSSEN command-token-anchorn, nicht substring-matchen:
+  - Start-of-command: `"git merge"|"git merge "*)` (nicht `*"git merge "*`)
+  - Flag in unquoted command: erst `UNQUOTED=$(echo "$CMD" | sed 's/"[^"]*"//g; s/'\''[^'\'']*'\''//g')`, dann `case "$UNQUOTED" in *"--amend"*)` — strippt quoted message-Inhalte raus, damit `git commit -m "docs: add --amend help"` nicht false-exempt.
+- Fix in Slice 146: Alle 3 Stellen (merge-anchor + --amend-quoted-strip + git-commit-outer-anchor) in `ship-proof-gate.sh` + `ship-cto-review-gate.sh`. 21-Case Test-Suite als Regression-Guard (`worklog/proofs/146-hook-test.txt`).
+- Audit: `grep -rn 'case.*in.*\*"' .claude/hooks/` — jede Zeile gegen "könnte COMMAND-Message selbst den Token enthalten?" pruefen.
 
-### Heredoc-Backdoor in Commit-Gates (Slice 145)
-- `ship-proof-gate.sh` hatte bewusst: `case "$COMMAND" in *"<<"*) exit 0 ;; esac` — "user knows what they do". In Praxis umgeht jeder heredoc-Commit (95%-Variante) den Gate komplett.
+### Heredoc-Backdoor in Commit-Gates (Slice 145 + 146)
+- `ship-proof-gate.sh` hatte: `case "$COMMAND" in *"<<"*) exit 0 ;; esac` — "user knows what they do". In Praxis umgeht jeder heredoc-Commit (95%-Variante bei multi-line messages) den Gate komplett.
 - Anti-Pattern: "Hook exempt bei komplex aussehendem input" — das ist die Commit-Variante die am meisten Review braucht.
-- Fix in review-gate: Heredoc-Exempt entfernt, MSG-Extraktion über grep + sed-Fallback funktioniert beide Wege. proof-gate: Backlog 146.
+- Fix in beiden Gates: Heredoc-Exempt entfernt. MSG-Extraktion via `grep -oE "(feat|fix|refactor)[(:]..."` auf dem ganzen COMMAND-String fängt heredoc-Messages auch (Claude's JSON-stdin hat den feat/fix/refactor-Token im heredoc-Body erreichbar).
+
+### grep `\b` Word-Boundary broken bei JSON-escaped Heredoc (Slice 146)
+- PreToolUse-Hooks kriegen JSON wie `{"command":"git commit -m \"$(cat <<EOF\nfeat(x): msg\nEOF\n)\""}`. Die `\n` bleiben in bash als Literal `\` + `n` (2 chars), nicht als echte newlines.
+- Heredoc-Body zeigt dann als `...\nfeat(x)...` — der Char vor `feat` ist das Literal `n` = word-char → `\b` matched NICHT.
+- Folge Slice 145: `grep -oE "\b(feat|fix|refactor)[(:]"` in review-gate fand NIE die heredoc-Messages → Hook exit 0 silent → effektiver Bypass für ALLE heredoc-Commits.
+- Fix (Slice 146): `\b` entfernen, `[(:]`-Suffix reicht als Word-Boundary-Ersatz (prevents `feature`/`fixation` Matches). Alternative bei PCRE: `[^a-zA-Z_]`-Lookbehind.
+- Audit: `grep -rn '\\b(feat\|fix\|refactor)' .claude/hooks/` — jede Stelle auf JSON-Context pruefen.
+- Regel: Bei Shell-Hooks die JSON-Stdin parsen: `\b` ist unreliable weil escaped `\n` word-char-Kontext erzeugt. Suffix-Anker oder explizite Char-Class statt `\b`.
 
 ---
 

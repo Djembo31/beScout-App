@@ -1,0 +1,99 @@
+=== Slice 146 Hook Test — 2026-04-22 (v5, command-token-anchor) ===
+
+Fixes applied after 146-review.md Finding #1+2 + self-discovered outer-check bug:
+  1. '*"merge"*' → '"git merge"|"git merge "*' (Finding #1+2 from review)
+  2. '*"--amend"*' → quoted-strip then '*"--amend"*' (Finding #1+2 extension)
+  3. '*"git commit"*' → '"git commit"|"git commit "*' (self-discovered: test-scripts false-triggered)
+  4. Heredoc-Exempt removed from proof-gate (was Backdoor per common-errors.md)
+  5. '\b(feat|fix|refactor)' → '(feat|fix|refactor)' (\b broken on JSON-escaped heredoc)
+  6. REVIEW stage added to spec-gate whitelist (Slice 145 drift)
+  7. review-gate emergency-warn symmetric to proof-gate (Finding #3)
+
+
+### A1 exempt: git merge main (proof) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### A2 exempt: git merge main (review) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### D1 exempt: --amend flag (proof) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### D2 exempt: --amend flag (review) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### E1 exempt: docs (proof) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### E2 exempt: docs (review) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### F1 exempt: chore heredoc (proof) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### G exempt: feature != feat (proof) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### K1 exempt: --amend + heredoc (proof) ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### L1 exempt: bash script with 'git commit' substring ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### L2 exempt: bash script with 'git commit' substring ###
+Exit:     0 (expected 0)
+RESULT:   PASS
+
+### B1 block: inline fix(api) 'merge conflict' ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### B2 block: inline fix(api) 'merge conflict' ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### C1 block: heredoc feat ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### C2 block: heredoc feat ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### H1 block: msg 'document git merge' ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### H2 block: msg 'document git merge' ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### I1 block: msg 'document --amend' ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### I2 block: msg 'document --amend' ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### J1 block: heredoc feat with 'git merge' body ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+### J2 block: heredoc feat with 'git merge' body ###
+Exit:     2 (expected 2)
+RESULT:   PASS
+
+=== active.md restored ===
+proof: worklog/proofs/146-hook-test.txt
+review: pending (scope-expansion: \b-regex-Backdoor entdeckt, nicht mehr trivial)

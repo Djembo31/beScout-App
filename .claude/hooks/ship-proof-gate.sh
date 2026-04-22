@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-# SHIP-Loop: Block `git commit` with feat(/fix( message if active slice has no proof.
-# Exempt: emergency slices, merge commits, non-feat/fix messages.
+# SHIP-Loop: Block `git commit` with feat(/fix(/refactor( message if active slice has no proof.
+#
+# Exempt:
+#   - emergency slices (slice: emergency-<timestamp>)
+#   - amend + real merge commits (git merge <ref>, --merge flag)
+#   - non-feat/fix/refactor messages (docs/chore/style/test/session)
+#
+# IMPORTANT: Heredoc commits (`-m "$(cat <<EOF ... EOF)"`) are NOT exempt anymore.
+# Prior heredoc-exempt was a documented backdoor (Slice 146, symmetric to 145).
 
 set -u
 
@@ -14,27 +21,42 @@ fi
 
 [ -z "$COMMAND" ] && exit 0
 
-# Only act on git commit commands
+# Only act on commands that START with `git commit` (command-token-anchor,
+# not substring) — otherwise bash test-scripts containing fixture strings like
+# `git commit -m \"fix(x): y\"` would false-trigger the hook.
 case "$COMMAND" in
-    *"git commit"*) ;;
+    "git commit"|"git commit "*) ;;
     *) exit 0 ;;
 esac
 
-# Skip merge commits / rebase
+# Skip real merge commands + amend commits.
+# Use command-token anchoring (start of command for `git merge`, unquoted
+# substring for `--amend`) instead of raw substring match — otherwise commit
+# messages containing "git merge" or "--amend" as text would false-exempt.
 case "$COMMAND" in
+    "git merge"|"git merge "*) exit 0 ;;
+esac
+
+# Strip all quoted string content before checking for --amend flag.
+# This prevents false-exempt on `git commit -m "docs: add --amend help"`.
+UNQUOTED_CMD="$(echo "$COMMAND" | sed 's/"[^"]*"//g' | sed "s/'[^']*'//g")"
+case "$UNQUOTED_CMD" in
     *"--amend"*) exit 0 ;;
-    *"merge"*)   exit 0 ;;
 esac
 
-# Extract commit message (look for -m "..." pattern)
-MSG="$(echo "$COMMAND" | sed -n 's/.*-m[[:space:]]*[\"'\'']\([^\"'\'']*\).*/\1/p' | head -1)"
+# Detect commit message prefix — handles both inline `-m "feat(..."` and
+# heredoc `-m "$(cat <<EOF ... feat(...: ... EOF )"` patterns.
+# Strategy: grep the whole COMMAND string for the first feat|fix|refactor token
+# followed by `(` (scope) or `:` (no scope).
+# No `\b` anchor: JSON-escaped heredoc bodies look like `\\nfeat(...` where the
+# char before `feat` is the word-char `n`, which blocks `\b`. The `[(:]` suffix
+# still prevents false positives on words like `feature` or `fixation`.
+MSG="$(echo "$COMMAND" | grep -oE "(feat|fix|refactor)[(:][^[:space:]]*" | head -1)"
 
-# Also check for heredoc pattern
-case "$COMMAND" in
-    *"<<"*)
-        # heredoc — skip, user knows what they do
-        exit 0 ;;
-esac
+# Fallback: inline -m "..." extraction (for cases without matching prefix-anchor)
+if [ -z "$MSG" ]; then
+    MSG="$(echo "$COMMAND" | sed -n 's/.*-m[[:space:]]*[\"'\'']\([^\"'\'']*\).*/\1/p' | head -1)"
+fi
 
 [ -z "$MSG" ] && exit 0
 

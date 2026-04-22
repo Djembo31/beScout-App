@@ -66,9 +66,10 @@ if [ "$STATUS" = "idle" ] || [ -z "$STATUS" ] || [ "$STAGE" = "—" ] || [ -z "$
     exit 2
 fi
 
-# Stage must be BUILD (or later) to allow code edits
+# Stage must be BUILD (or later) to allow code edits.
+# REVIEW stage added in Slice 145 — Healer-Agent fixes during REVIEW need edit rights.
 case "$STAGE" in
-    BUILD|PROVE|LOG) exit 0 ;;
+    BUILD|REVIEW|PROVE|LOG) exit 0 ;;
     PICK|SPEC|IMPACT)
         echo "SHIP-GATE: Edit auf kritischem Pfad blockiert." >&2
         echo "  File: $FILE_PATH" >&2
