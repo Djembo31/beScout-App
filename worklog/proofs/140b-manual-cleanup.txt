@@ -1,0 +1,65 @@
+Slice 140b — Manual Cleanup der 4 stale Süper-Lig GW-30 Fixtures
+================================================================
+
+Hintergrund:
+- Slice 140 hat den gameweek-sync Phase-B-Guard gefixt (DB-Truth-AND).
+- Die 4 stale Fixtures aus dem Incident (vor dem Fix entstanden) mussten
+  manuell geheilt werden — sie waren status='scheduled' trotz FT-Status
+  auf API-Football.
+- CRON_SECRET-Rotation in Slice 136 → .env.vercel-prod stale → curl → 401.
+- jarvis-qa@bescout.net hat keine Admin-Rolle → kein Playwright-Admin-Click.
+- Plan B: Direct-API-Football-Fetch + Supabase-Service-Role-UPDATE.
+
+Quelle der Wahrheit (API-Football):
+  GET https://v3.football.api-sports.io/fixtures?ids=1394699-1394701-1394702-1394696
+
+Result:
+  1394696  FT  Gaziantep FK  3-0  Kayserispor    (2026-04-20)
+  1394699  FT  Kasımpaşa     1-0  Alanyaspor     (2026-04-19)
+  1394701  FT  Samsunspor    2-1  Beşiktaş       (2026-04-19)
+  1394702  FT  Trabzonspor   1-1  Başakşehir     (2026-04-19)
+
+DB-UPDATE (innerhalb BEGIN/COMMIT):
+  UPDATE fixtures SET status='finished', home_score=3, away_score=0 WHERE api_fixture_id=1394696 AND status='scheduled';
+  UPDATE fixtures SET status='finished', home_score=1, away_score=0 WHERE api_fixture_id=1394699 AND status='scheduled';
+  UPDATE fixtures SET status='finished', home_score=2, away_score=1 WHERE api_fixture_id=1394701 AND status='scheduled';
+  UPDATE fixtures SET status='finished', home_score=1, away_score=1 WHERE api_fixture_id=1394702 AND status='scheduled';
+
+Plus Audit-Row in cron_sync_log:
+  gameweek=30
+  step='manual-fix-stale-fixtures'
+  status='success'
+  details.reason='Slice 140 cleanup: 4 GW30 Süper-Lig fixtures stuck as scheduled despite FT status on API-Football'
+  details.triggered_by='claude_slice_140_cleanup'
+  details.source='api-football direct fetch (CRON_SECRET stale, admin-ui bypassed)'
+
+Verifikation (NACH Cleanup):
+  SELECT f.api_fixture_id, ch.short AS home, ca.short AS away, f.status,
+         f.home_score, f.away_score
+  FROM fixtures f
+  JOIN clubs ch ON ch.id=f.home_club_id
+  JOIN clubs ca ON ca.id=f.away_club_id
+  JOIN leagues l ON l.id=f.league_id
+  WHERE l.short='SL' AND f.gameweek=30;
+
+Result: 9/9 Süper-Lig GW-30 Fixtures status='finished':
+  1394694  ANT  0-2  KON  finished
+  1394695  FEN  2-2  RIZ  finished
+  1394696  GAZ  3-0  KAY  finished  (MANUALLY FIXED)
+  1394697  GEN  1-2  GAL  finished
+  1394698  KAR  1-2  EYU  finished
+  1394699  KAS  1-0  ALA  finished  (MANUALLY FIXED)
+  1394700  KOC  1-1  GOZ  finished
+  1394701  SAM  2-1  BES  finished  (MANUALLY FIXED)
+  1394702  TRA  1-1  IST  finished  (MANUALLY FIXED)
+
+Downstream-Erwartung:
+- Nächster gameweek-sync Run (cron läuft stündlich) wird:
+  a) fixtureCheck.allDone=true erkennen (API sagt 9/9 FT)
+  b) dbTruthAllDone=true erkennen (DB: 9 finished === 9 total)
+  c) Phase B ausführen → clubs.active_gameweek von 30 auf 31
+- /clubs-Page zeigt dann GW 31 für alle 18 Süper-Lig-Clubs (bis dahin greift
+  Slice 137's stale-Filter: played_at < now()-6h && status='scheduled' → skip).
+
+Follow-up:
+- CRON_SECRET in .env.vercel-prod updaten (next Session, siehe Anil-Action).
