@@ -1,0 +1,44 @@
+# Slice 153a — Ferrari-Refactor Structural Evidence
+
+## Pre-refactor git stat
+ src/features/market/mutations/trading.ts | 211 +++++++++++++++++++++++++------
+ 1 file changed, 172 insertions(+), 39 deletions(-)
+
+## Hook-by-Hook Structure (grep)
+
+### useSafeMutation calls (replaces raw useMutation):
+7:import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+18: * - `useSafeMutation` (Slice 151a Primitive) — synchroner Pending-Guard
+28: * per-call `onError`-Callback. Toast von useSafeMutation + inline-Error
+56:  return useSafeMutation<
+115:  return useSafeMutation<
+181:  return useSafeMutation<
+213:  return useSafeMutation<
+
+### useQueryClient() (replaces Singleton, P2.2):
+19: * - `useQueryClient()` statt Singleton (P2.2-Konvention, Slice 160 codifiziert)
+54:  const qc = useQueryClient();
+113:  const qc = useQueryClient();
+179:  const qc = useQueryClient();
+211:  const qc = useQueryClient();
+
+### onMutate snapshot+optimistic:
+67:    onMutate: async ({ userId, playerId, quantity }) => {
+126:    onMutate: async ({ userId, playerId, ipoId, quantity }) => {
+
+### onError rollback:
+77:    onError: (_err, { userId, playerId }, ctx) => {
+139:    onError: (_err, { userId, playerId, ipoId }, ctx) => {
+
+### onSettled pgBouncer-safe invalidateWallet (152c HIGH-1):
+23: * - `onSettled` pgBouncer-safe `invalidateWallet` (Slice 152c HIGH-1)
+100:    onSettled: () => {
+167:    onSettled: () => {
+198:    onSettled: () => {
+227:    onSettled: () => {
+
+### errorTag (Sentry observability):
+104:    errorTag: 'market.buy',
+170:    errorTag: 'market.ipoBuy',
+202:    errorTag: 'market.placeBuyOrder',
+231:    errorTag: 'market.cancelBuyOrder',

@@ -1,0 +1,5 @@
+24: * - `errorTag` fuer Sentry-Observability
+104:    errorTag: 'market.buy',
+170:    errorTag: 'market.ipoBuy',
+202:    errorTag: 'market.placeBuyOrder',
+231:    errorTag: 'market.cancelBuyOrder',
