@@ -1,0 +1,72 @@
+Slice 140 — Proof: gameweek-sync Phase-B-Guard DB-Truth
+
+## Root-Cause Evidence (via cron_sync_log)
+
+Query:
+SELECT created_at, gameweek, step, status, details_preview
+FROM cron_sync_log
+WHERE step = 'no_past_fixtures' AND details::text ILIKE '%SL%'
+ORDER BY created_at DESC LIMIT 3;
+
+Results (2026-04-21 12:00-13:00 UTC):
+- gameweek=31, step=no_past_fixtures, status=skipped, league=SL, reason="No fixtures past kickoff yet"
+- gameweek=31 (wiederholt, 30-min-intervals)
+
+→ Süper-Lig activeGw war bereits 31, obwohl GW 30 nicht komplett. Nur möglich
+  wenn Phase B (advance_gameweek) bei nicht-vollständiger GW gelaufen ist.
+
+## DB-State (Slice 137 bereits dokumentiert)
+
+SELECT gameweek, status, COUNT(*) FROM fixtures f
+JOIN clubs c ON c.id=f.home_club_id AND c.league ILIKE '%süper%'
+WHERE gameweek = 30 GROUP BY gameweek, status;
+
+gameweek | status    | count
+---------+-----------+------
+      30 | finished  |     5
+      30 | scheduled |     4   ← played_at 30-60h in Vergangenheit, aber "scheduled"
+
+## Fix Analysis
+
+Zeile 585 (vor Fix):
+  allFixturesDone = fixtureCheck.allDone
+  wobei fixtureCheck.allDone = (API.total > 0 && API.total === API.finished)
+
+Problem: Wenn API-Football nur 5 statt 9 Fixtures für GW 30 Süper Lig zurückgab
+(4 postponed/nicht eingereicht), dann:
+  API.total=5, API.finished=5 → allDone=true
+  DB.total=9, DB.finished=5 → 4 bleiben scheduled
+
+Dennoch: Phase B führte `advance_gameweek` auf nextGw aus → 4 GW-30 Fixtures
+sind seitdem unerreichbar.
+
+## Fix (Zeile 766+)
+
+Neue Guard nach Step 5b:
+  const totalDbFixtures = mappings.fixtures.length;
+  const postPhaseAFinishedCount = dbFinishedIds.size + newlyFinishedFixtures.length;
+  const dbTruthAllDone = totalDbFixtures > 0 && postPhaseAFinishedCount >= totalDbFixtures;
+  allFixturesDone = allFixturesDone && dbTruthAllDone;
+
+Plus: Wenn API.allDone=true und DB.allDone=false → logStep 'phase_b_blocked_db_mismatch'
+    für Monitoring (admin sieht cron_sync_log und kann sync-fixtures-future manuell triggern).
+
+## TSC
+npx tsc --noEmit
+exit=0
+
+## Kein neuer Test
+
+gameweek-sync hat kein bestehendes Test-File (Integration-test-scope mit vielen
+External Dependencies: Supabase Admin, API-Football, RPC). Diese XS-Änderung ist
+eine 5-Zeilen-AND-Guard — ein Test würde mehr Mock-Infrastruktur als Production-Code
+erfordern. Die Logik wird manuell durch nächsten Cron-Run gegen Live-API validiert.
+
+## Cleanup der 4 existierenden stale Fixtures (Anil-Task)
+
+Option A: `sync-fixtures-future` manuell triggern (Admin-Route, CRON_SECRET Bearer)
+  → pullt komplette Saison-Fixtures aus API-Football, updated played_at + status
+Option B: Direct SQL `UPDATE fixtures SET status='finished' WHERE ...` wenn nachweislich gespielt
+
+Slice 137's Service-Layer-Filter (`played_at > 6h in Vergangenheit`) versteckt diese
+4 Fixtures bereits vor der UI — kein User-sichtbarer Impact. Cleanup ist nice-to-have.

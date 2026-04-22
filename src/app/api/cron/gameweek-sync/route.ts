@@ -765,6 +765,26 @@ async function syncLeague(
       !dbFinishedIds.has(f.id) && finishedApiFixtureIds.has(f.api_fixture_id)
     );
 
+    // Slice 140: Override API-based allFixturesDone with DB-truth. API-Football
+    // can return fewer fixtures than DB has (postponed matches dropped silently),
+    // causing `total === finished` in API to be true while DB still has scheduled
+    // rows. Phase B must only run when EVERY DB fixture for this league+GW is
+    // accounted for (already-finished ∪ about-to-finish).
+    const totalDbFixtures = mappings.fixtures.length;
+    const postPhaseAFinishedCount = dbFinishedIds.size + newlyFinishedFixtures.length;
+    const dbTruthAllDone = totalDbFixtures > 0 && postPhaseAFinishedCount >= totalDbFixtures;
+    if (allFixturesDone && !dbTruthAllDone) {
+      await logStep(activeGw, 'phase_b_blocked_db_mismatch', 'skipped', {
+        apiTotal: fixtureCheck.total,
+        apiFinished: fixtureCheck.finished,
+        dbTotal: totalDbFixtures,
+        dbFinished: dbFinishedIds.size,
+        willFinish: newlyFinishedFixtures.length,
+        staleCount: totalDbFixtures - postPhaseAFinishedCount,
+      });
+    }
+    allFixturesDone = allFixturesDone && dbTruthAllDone;
+
     if (newlyFinishedFixtures.length === 0 && !allFixturesDone) {
       // No new fixtures to process and GW not complete — skip gracefully
       await logStep(activeGw, 'no_new_fixtures', 'skipped', { alreadyFinished: dbFinishedIds.size, total: mappings.fixtures.length });

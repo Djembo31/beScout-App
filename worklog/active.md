@@ -9,9 +9,10 @@ impact: —
 proof: —
 ```
 
-## Zuletzt: Slice 139 (2026-04-22) — Reconcile Read-After-Write-Fix (XS)
+## Zuletzt: Slice 140 (2026-04-22) — gameweek-sync Phase-B-Guard DB-Truth (XS)
 
-Follow-Pfad skippt Reconcile (Optimistic-State ist deterministisch, kein pgBouncer-Race-Risk).
-Unfollow-Pfad behält Reconcile (Primary-Promotion zu unbekanntem Next-Club).
+`allFixturesDone` durfte nur API-Response-Count trauen — jetzt zusätzlich DB-Truth-Check.
+Verhindert Zukünftige stale-scheduled-Leaks wenn API-Football weniger Fixtures
+zurückgibt als DB hat. Phase B läuft künftig nur bei echter GW-Completion.
 
-Proof: `worklog/proofs/139-skip-reconcile.txt` (11 Tests grün, 2 neu, 1 Slice 138 Test angepasst).
+Proof: `worklog/proofs/140-phase-b-db-truth.txt` (Log-Evidenz + Fix-Analyse).
