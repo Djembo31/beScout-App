@@ -365,3 +365,46 @@ try { await applyClubReferral(uid) } catch (e) { console.error(e) /* continue */
 ```
 **Audit:** `grep -rn 'const { data } = await supabase' src/lib/services/` → ohne error-Destructuring = unsichtbarer Fehler.
 **Warum:** 117 Fixes in 61 Services (2026-04-13). `return null` = React Query cached Fehler als leere Daten.
+
+### 26. Data-Fix-Audit-Pattern (Direct-DB-UPDATE via MCP)
+**Wann:** Kleiner Data-Cleanup (5-20 Rows) mit klarer Evidenz, kein Code-Change, ohne Migration-File-Overhead.
+**Wie:** 7-Phasen-Audit-Trail in `worklog/proofs/<slice>-audit.txt` (Template aus Slice 144e):
+```
+1. Pre-Fix-Baseline: COUNT + Breakdown-Queries (nach mv_source, nach mapping-state, etc.)
+2. Evidence-Tabelle: jeder Row Pre-State vs erwartetem Post-State (markdown-Tabelle)
+3. UPDATE-Transaction mit BEGIN/COMMIT + RETURNING
+4. Post-Fix-Verify: gleiche Query wie Baseline + Delta-Math ("119 null → 111 null = −8 exakt")
+5. FK/Trigger-Safety: alle BEFORE UPDATE triggers dokumentieren, IS-DISTINCT-Guards checken
+6. Related-Policy-Respect (z.B. mv_source stale-Guard: kein MV-Overwrite)
+7. Backlog-Abgrenzung: was bleibt out-of-scope und warum (neue Slices erzeugen)
+```
+**Pre-UPDATE-Checks:**
+```sql
+-- FK + Constraints kennen
+SELECT conname, pg_get_constraintdef(oid)
+FROM pg_constraint WHERE conrelid = 'public.<table>'::regclass;
+
+-- Trigger-Guards verstehen
+SELECT trigger_name, action_timing
+FROM information_schema.triggers
+WHERE event_object_table = '<table>';
+```
+**Warum:** Reversibel (z.B. null → X → null), keine Migration-File-Overhead für <20 Rows, aber vollständiger Audit-Trail für Reviewer-Agent. Slice 144e 8-Row-Fix ist Referenz-Template.
+**Commit-Prefix:** `fix(data):` damit Proof- + Review-Gates firen (Disziplin statt Schleichweg).
+
+### 27. Signal-Only-UPDATE (hart-kodierte Feld-Auswahl)
+**Wann:** Side-Effect-Route die NUR einen Timestamp/Heartbeat setzen soll, andere Fields nicht tangieren darf.
+**Wie:** Hart-kodiertes Objekt-Literal mit exakt dem einen Feld — kein spread, kein merge:
+```typescript
+// Transfer-detected ohne --allow-transfers: signalisiert "TM kennt Player noch",
+// darf aber club_id/shirt/MV NICHT überschreiben (= Transfer-Apply durch Hintertuer)
+await supabase.from('players')
+  .update({ last_squad_check: now })  // Nur 1 Feld, hart-kodiert
+  .eq('id', existing.id);
+continue;  // kein Fall-through zum Multi-Field-UPDATE
+
+// FALSCH:
+const updates = { last_squad_check: now, ...anderes };  // spread öffnet Hintertuer
+```
+**Warum:** Signal-Writes müssen VOR Early-Exit-Gates in Sammel-Loops stehen — sonst silent data-loss. Slice 144c Integrity-Math: 2841 matched − 225 early-continue = 2616 populated → 225 Players unsichtbar für Retired-Detection.
+**Kontext:** Slice 144c (tm-squad-scraper early-continue vor last_squad_check-Write).

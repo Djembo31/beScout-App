@@ -539,6 +539,55 @@ Pre-Condition (Slice 141b): `club_external_ids(source='transfermarkt')` für all
 
 ---
 
+## D15 — PROCESS: Shell-case auf COMMAND-Strings MUSS command-token-anchorn
+
+**Datum:** 2026-04-22
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Jedes `case "$COMMAND" in *"<token>"*)`-Pattern in `.claude/hooks/` (oder generell PreToolUse-Hooks die JSON-Command-Strings parsen) MUSS:
+
+- Start-of-Command anchorn (z.B. `"git merge"|"git merge "*)`) statt Substring-Match.
+- Bei Flag-Check (`--amend`, `--force`, `-i`): quoted-Content erst strippen (`UNQUOTED=$(sed 's/"[^"]*"//g; s/'\''[^'\'']*'\''//g')`), dann Substring-Match auf UNQUOTED.
+- Keine `*"<english-word>"*` Patterns weil Commit-Messages das Wort als Text enthalten können.
+
+Zusätzlich: `grep -oE` in Hook-MSG-Extraktion darf KEIN `\b`-word-anchor nutzen, weil JSON-escaped Heredoc (`\nfeat(...`) ein Literal `n` vor `feat` hat — word-char blockiert `\b`. Stattdessen `[(:]`-Suffix oder `[^a-zA-Z_]`-Lookbehind.
+
+### Begründung
+
+Slice 146 Cold-Context-Review fand 4 Bugs derselben Klasse in 2 Gate-Hooks:
+
+1. `*"merge"*` matched `fix(api): prevent merge conflict` → false-exempt
+2. `*"--amend"*` matched `fix(docs): add --amend help` → false-exempt
+3. `*"git commit"*` matched bash-test-scripts mit Fixture-Strings → false-trigger
+4. `\b(feat|fix|refactor)` failed bei JSON-escaped Heredoc → review-gate-Backdoor für alle Heredoc-Commits silent exempt
+
+Primary-Claude hatte in Slice 145 die ersten beiden Patterns als "trivial copy" klassifiziert und den `\b`-Bug komplett verpasst — Reviewer-Agent fand es, weil Cold-Context keinen Tunnel-Vision-Bias hatte. Das validiert D13 (REVIEW als Pflicht) empirisch beim ersten Live-Test.
+
+Regel ist verallgemeinerbar auf alle Shell-Hooks die User-Commands parsen, nicht nur Commit-Gates.
+
+### Auswirkungen
+
+- **Code:** `.claude/hooks/ship-proof-gate.sh`, `.claude/hooks/ship-cto-review-gate.sh` in Slice 146 gefixt. Audit-Kandidaten: alle anderen `.claude/hooks/*.sh` die `case "$COMMAND"` nutzen.
+- **Prozess:** Bei jedem neuen Hook der PreToolUse.Bash parst: dieses D15-Muster Pflicht in Code-Review-Checklist.
+- **Test-Coverage:** Hook-Test-Suites müssen "message-contains-token-as-text"-Regression-Cases abdecken (siehe `worklog/proofs/146-hook-test.txt` Case B/H/I/L als Template).
+- **Team:** Eintrag in `.claude/rules/common-errors.md` Section 8 als "Shell case-statement wildcard promiskuös" (erweitert) + neuer Entry "grep `\b` broken bei JSON-escaped Heredoc".
+
+### Alternativen erwogen
+
+- **Rein auf Convention verlassen (kein Gate-Hardening):** Verworfen — Slice 145 hat gezeigt dass der Backdoor aktiv genutzt wurde (heredoc-Commits umgingen review-gate silent).
+- **Full JSON-Parser in Shell (jq):** Verworfen — Windows Git Bash hat jq nicht garantiert, sed/grep reicht mit korrekten Pattern-Anchors.
+- **Hook in Node/Python rewriten:** Verworfen — Performance-Overhead bei jedem PreToolUse-Event, Bash-Hooks bleiben Standard im Codebase.
+
+### Re-Visit-Trigger
+
+- Wenn weiterer Bug derselben Klasse auftaucht (Hook exempt durch Command-Substring-Match): sofort auditieren. Pattern ist bekannt und fixable.
+- Wenn neue Gate-Hook-Kategorien hinzukommen (z.B. spec-gate auf nicht-Bash Tools): Regel verallgemeinern.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
