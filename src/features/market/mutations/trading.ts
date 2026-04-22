@@ -3,13 +3,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { buyFromMarket, placeBuyOrder, cancelBuyOrder } from '@/lib/services/trading';
 import { buyFromIpo } from '@/lib/services/ipo';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { setWalletBalance, invalidateWallet } from '@/lib/hooks/useWallet';
 import { invalidateTradeQueries } from '@/lib/queries/invalidation';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 
 export function useBuyFromMarket() {
-  const { setBalanceCents, refreshBalance } = useWallet();
   return useMutation({
     mutationFn: async ({ userId, playerId, quantity }: { userId: string; playerId: string; quantity: number }) => {
       const result = await buyFromMarket(userId, playerId, quantity);
@@ -17,8 +16,9 @@ export function useBuyFromMarket() {
       return result;
     },
     onSuccess: (result, { playerId, userId }) => {
-      if (result.new_balance != null) setBalanceCents(result.new_balance);
-      refreshBalance();
+      // Deterministic write from server response — must run BEFORE invalidate
+      // (pgBouncer Read-After-Write, common-errors.md §2 + useWallet.ts:200).
+      if (result.new_balance != null) setWalletBalance(queryClient, userId, result.new_balance);
       invalidateTradeQueries(playerId, userId);
       // Force-refetch the full holdings list even if no observer is mounted
       // on Market. Otherwise navigating to /manager?tab=kader briefly shows
@@ -26,11 +26,15 @@ export function useBuyFromMarket() {
       queryClient.refetchQueries({ queryKey: qk.holdings.byUser(userId), type: 'all' });
       queryClient.invalidateQueries({ queryKey: qk.offers.incoming(userId) });
     },
+    onSettled: () => {
+      // Wallet-invalidate nach Commit-Fenster (pgBouncer-safe) — Slice 152c
+      // Review HIGH-1: verhindert Stale-Refetch-Race mit setWalletBalance.
+      invalidateWallet(queryClient);
+    },
   });
 }
 
 export function useBuyFromIpo() {
-  const { setBalanceCents, refreshBalance } = useWallet();
   return useMutation({
     mutationFn: async ({ userId, ipoId, playerId, quantity }: { userId: string; ipoId: string; playerId: string; quantity: number }) => {
       const result = await buyFromIpo(userId, ipoId, quantity, playerId);
@@ -38,8 +42,9 @@ export function useBuyFromIpo() {
       return result;
     },
     onSuccess: (result, { playerId, userId }) => {
-      if (result.new_balance != null) setBalanceCents(result.new_balance);
-      refreshBalance();
+      // Deterministic write from server response — must run BEFORE invalidate
+      // (pgBouncer Read-After-Write, common-errors.md §2 + useWallet.ts:200).
+      if (result.new_balance != null) setWalletBalance(queryClient, userId, result.new_balance);
       invalidateTradeQueries(playerId, userId);
       // FIX (XC-04): force-refetch holdings even if no observer is mounted so
       // Manager Kader (navigated-to after IPO-buy) sees the new player
@@ -49,11 +54,13 @@ export function useBuyFromIpo() {
       queryClient.invalidateQueries({ queryKey: qk.ipos.announced });
       queryClient.invalidateQueries({ queryKey: qk.ipos.recentlyEnded });
     },
+    onSettled: () => {
+      invalidateWallet(queryClient);
+    },
   });
 }
 
 export function usePlaceBuyOrder() {
-  const { refreshBalance } = useWallet();
   return useMutation({
     mutationFn: async ({ userId, playerId, quantity, maxPriceCents }: {
       userId: string; playerId: string; quantity: number; maxPriceCents: number;
@@ -66,15 +73,16 @@ export function usePlaceBuyOrder() {
       return result;
     },
     onSuccess: (_result, { playerId, userId }) => {
-      refreshBalance();
       invalidateTradeQueries(playerId, userId);
       queryClient.invalidateQueries({ queryKey: qk.orders.all });
+    },
+    onSettled: () => {
+      invalidateWallet(queryClient);
     },
   });
 }
 
 export function useCancelBuyOrder() {
-  const { refreshBalance } = useWallet();
   return useMutation({
     mutationFn: async ({ userId, orderId }: { userId: string; orderId: string }) => {
       const result = await cancelBuyOrder(userId, orderId);
@@ -82,9 +90,11 @@ export function useCancelBuyOrder() {
       return result;
     },
     onSuccess: (_result, { userId }) => {
-      refreshBalance();
       invalidateTradeQueries('', userId);
       queryClient.invalidateQueries({ queryKey: qk.orders.all });
+    },
+    onSettled: () => {
+      invalidateWallet(queryClient);
     },
   });
 }

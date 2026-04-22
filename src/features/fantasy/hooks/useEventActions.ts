@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { setWalletBalance } from '@/lib/hooks/useWallet';
 import { useFantasyStore } from '../store/fantasyStore';
 import { lockEventEntry, unlockEventEntry } from '../services/events.mutations';
 import { submitLineup as submitLineupService } from '../services/lineups.mutations';
@@ -25,7 +25,6 @@ import type { FantasyEvent, LineupPlayer } from '../types';
 export function useEventActions(clubId: string) {
   const { user } = useUser();
   const { addToast } = useToast();
-  const { setBalanceCents } = useWallet();
   const { closeEvent } = useFantasyStore();
   const t = useTranslations('fantasy');
   const te = useTranslations('errors');
@@ -86,8 +85,8 @@ export function useEventActions(clubId: string) {
       }
 
       // Update wallet balance if returned (skip 0 -- free events return 0 instead of actual balance)
-      if (result.balanceAfter != null && result.balanceAfter > 0) {
-        setBalanceCents(result.balanceAfter);
+      if (user && result.balanceAfter != null && result.balanceAfter > 0) {
+        setWalletBalance(queryClient, user.id, result.balanceAfter);
       }
 
       // INSTANT cache update -- UI reacts immediately
@@ -129,7 +128,7 @@ export function useEventActions(clubId: string) {
     } finally {
       setJoiningEventId(null);
     }
-  }, [user, addToast, setBalanceCents, t, te]);
+  }, [user, addToast, t, te]);
 
   // ── Submit Lineup (no payment -- user must already be entered) ──
   const submitLineup = useCallback(async (
@@ -227,8 +226,8 @@ export function useEventActions(clubId: string) {
       }
 
       // Update wallet balance if returned
-      if (result.balanceAfter != null) {
-        setBalanceCents(result.balanceAfter);
+      if (user && result.balanceAfter != null) {
+        setWalletBalance(queryClient, user.id, result.balanceAfter);
       }
 
       // INSTANT cache update -- UI reacts immediately
@@ -266,7 +265,7 @@ export function useEventActions(clubId: string) {
     } finally {
       setLeavingEventId(null);
     }
-  }, [user, setBalanceCents, addToast, closeEvent, t, te]);
+  }, [user, addToast, closeEvent, t, te]);
 
   return {
     joinEvent,

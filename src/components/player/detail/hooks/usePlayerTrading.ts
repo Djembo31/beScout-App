@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { setWalletBalance, invalidateWallet } from '@/lib/hooks/useWallet';
 import { useToast } from '@/components/providers/ToastProvider';
 import { buyFromMarket, buyFromOrder, placeSellOrder, cancelOrder } from '@/lib/services/trading';
 import { buyFromIpo } from '@/lib/services/ipo';
@@ -32,7 +32,6 @@ export function usePlayerTrading({
   activeIpo, allSellOrders, holdingQty, balanceCents,
   userIpoPurchased,
 }: UsePlayerTradingParams) {
-  const { setBalanceCents, refreshBalance } = useWallet();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
   const t = useTranslations('player');
@@ -175,16 +174,24 @@ export function usePlayerTrading({
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
         setBuySuccess(t('buySuccess', { quantity, price: priceBsd }));
-        setBalanceCents(result.new_balance ?? balanceCents ?? 0);
+        // Deterministic write only when server actually returned a new balance
+        // — no stale-balance-fallback (152c Review MEDIUM-3).
+        if (userId && result.new_balance != null) setWalletBalance(queryClient, userId, result.new_balance);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
         optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
         invalidateAfterTrade(playerId, userId);
-        refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(resolveErrorMessage(err)); }
-    finally { buyingRef.current = false; setBuying(false); }
-  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, resolveErrorMessage]);
+    finally {
+      buyingRef.current = false;
+      setBuying(false);
+      // pgBouncer-safe invalidate (152c Review HIGH-2): nach onSettled-Analogon
+      // im finally-Block, nach Commit-Fenster. Verhindert Stale-Refetch-Race
+      // mit setWalletBalance aus dem try-Branch.
+      invalidateWallet(queryClient);
+    }
+  }, [userId, player, playerId, invalidateAfterTrade, optimisticallyAddHolding, queryClient, t, resolveErrorMessage]);
 
   const handleBuy = useCallback((quantity: number, orderId?: string) => {
     if (!userId || !player || player.isLiquidated) return;
@@ -205,22 +212,28 @@ export function usePlayerTrading({
       if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
-        setBalanceCents(result.new_balance ?? balanceCents ?? 0);
+        // Deterministic write only when server actually returned a new balance
+        // — no stale-balance-fallback (152c Review MEDIUM-3).
+        if (userId && result.new_balance != null) setWalletBalance(queryClient, userId, result.new_balance);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
         optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
         if (result.user_total_purchased != null) {
           queryClient.setQueryData(['ipos', 'purchases', userId, activeIpo.id], result.user_total_purchased);
         }
         invalidateAfterTrade(playerId, userId);
-        refreshBalance();
         setBuySuccess(t('ipoBuySuccess', { quantity, price: priceBsd }));
         addToast(t('ipoBuySuccess', { quantity, price: priceBsd }), 'success');
         // Modal close is handled by BuyModal's own success-state timer
         // so the user sees the "In deinem Kader" confirmation.
       }
     } catch (err) { setBuyError(resolveErrorMessage(err)); }
-    finally { ipoBuyingRef.current = false; setIpoBuying(false); }
-  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, addToast, invalidateAfterTrade, optimisticallyAddHolding, queryClient, refreshBalance, t, resolveErrorMessage]);
+    finally {
+      ipoBuyingRef.current = false;
+      setIpoBuying(false);
+      // pgBouncer-safe invalidate (152c Review HIGH-2).
+      invalidateWallet(queryClient);
+    }
+  }, [userId, activeIpo, playerId, addToast, invalidateAfterTrade, optimisticallyAddHolding, queryClient, t, resolveErrorMessage]);
 
   const handleSell = useCallback(async (quantity: number, priceCents: number) => {
     if (!userId || player?.isLiquidated || sellingRef.current) return;

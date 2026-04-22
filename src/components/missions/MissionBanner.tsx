@@ -5,7 +5,7 @@ import { Target, Calendar, Check, ChevronDown, Gift, Clock, Shield, Loader2, Ale
 import { useLocale, useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { setWalletBalance } from '@/lib/hooks/useWallet';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { getUserMissions, claimMissionReward, resolveMissionTitle } from '@/lib/services/missions';
 import { centsToBsd } from '@/lib/services/players';
@@ -33,7 +33,6 @@ function getDaysUntilEnd(endStr: string): number {
 
 export default function MissionBanner() {
   const { user } = useUser();
-  const { setBalanceCents } = useWallet();
   const { data: followedClubs = [] } = useFollowedClubs();
   const tm = useTranslations('missions');
   const te = useTranslations('errors');
@@ -88,7 +87,7 @@ export default function MissionBanner() {
         setMissions(prev => prev.map(m =>
           m.id === missionId ? { ...m, status: 'claimed', claimed_at: new Date().toISOString() } : m
         ));
-        if (result.new_balance != null) setBalanceCents(result.new_balance);
+        if (result.new_balance != null) setWalletBalance(queryClient, user.id, result.new_balance);
         // FIX-05 (J7F-07): tickets badge in TopBar was stale until reload because
         // creditTickets is fire-and-forget (~1-2s lag) and React Query never
         // knew about the change. Invalidate after a short delay so the credit
@@ -110,7 +109,7 @@ export default function MissionBanner() {
     } finally {
       setClaiming(null);
     }
-  }, [user, claiming, setBalanceCents, te]);
+  }, [user, claiming, te]);
 
   // Total unclaimed rewards — must be before early return (hooks rules)
   const unclaimedReward = useMemo(() => {

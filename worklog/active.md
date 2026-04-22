@@ -2,12 +2,12 @@
 
 ```
 status: active
-slice: 152b
+slice: 152c
 stage: BUILD
 spec: worklog/specs/152-wallet-provider-to-query.md
-impact: skipped (Welle 1 = 10 Read-only Consumer Import-Swap + 2 Test-Mock-Swap, kein Behavior-Change)
-proof: worklog/proofs/152b-welle1-vitest.txt
-review: worklog/reviews/152b-review.md
+impact: skipped (Welle 2 = 6 Mutation-Consumer Minimal-Swap, Ferrari-Struktur in Slice 153)
+proof: worklog/proofs/152c-welle2-vitest.txt
+review: worklog/reviews/152c-review.md
 ```
 
 ## Slice-152 Sub-Struktur

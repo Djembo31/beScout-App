@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useErrorToast } from '@/lib/hooks/useErrorToast';
-import { useWallet } from '@/components/providers/WalletProvider';
+import { invalidateWallet } from '@/lib/hooks/useWallet';
+import { queryClient } from '@/lib/queryClient';
 import {
   getIncomingOffers, getOutgoingOffers, getOpenBids, getOfferHistory,
   acceptOffer, rejectOffer, counterOffer, cancelOffer,
@@ -17,7 +18,6 @@ export function useOffersState() {
   const { user } = useUser();
   const { addToast } = useToast();
   const { showError } = useErrorToast();
-  const { refreshBalance } = useWallet();
   const [subTab, setSubTab] = useState<SubTab>('incoming');
   const [offers, setOffers] = useState<OfferWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export function useOffersState() {
         addToast('offerAccepted', 'success');
         const offer = offers.find(o => o.id === offerId);
         if (offer) {
-          refreshBalance();
+          invalidateWallet(queryClient);
           invalidateTradeQueries(offer.player_id, uid);
         }
         loadOffers();
@@ -70,7 +70,7 @@ export function useOffersState() {
     } finally {
       setActionId(null);
     }
-  }, [uid, actionId, offers, addToast, showError, refreshBalance, loadOffers]);
+  }, [uid, actionId, offers, addToast, showError, loadOffers]);
 
   const handleReject = useCallback(async (offerId: string) => {
     if (!uid || actionId) return;

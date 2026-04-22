@@ -7,7 +7,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 const mockAddToast = vi.fn();
 const mockShowError = vi.fn();
-const mockRefreshBalance = vi.fn().mockResolvedValue(undefined);
+const mockInvalidateWallet = vi.fn().mockResolvedValue(undefined);
 const mockInvalidateTradeQueries = vi.fn();
 
 vi.mock('@/components/providers/AuthProvider', () => ({
@@ -22,8 +22,23 @@ vi.mock('@/lib/hooks/useErrorToast', () => ({
   useErrorToast: () => ({ showError: mockShowError }),
 }));
 
-vi.mock('@/components/providers/WalletProvider', () => ({
-  useWallet: () => ({ refreshBalance: mockRefreshBalance }),
+// Slice 152c — Mock useWallet-Hook statt altem WalletProvider.
+// Wichtig: `invalidateWallet` ist ein freier Helper (nicht Hook), wird
+// beim Module-Load aufgelöst — muss im vi.mock-Factory sein.
+vi.mock('@/lib/hooks/useWallet', () => ({
+  invalidateWallet: (...a: unknown[]) => mockInvalidateWallet(...a),
+  setWalletBalance: vi.fn(),
+  setWalletLockedBalance: vi.fn(),
+  removeWalletFromCache: vi.fn(),
+  useWallet: () => ({
+    balanceCents: null,
+    lockedBalanceCents: null,
+    isLoading: false,
+    isFetching: false,
+    dataUpdatedAt: 0,
+    error: null,
+  }),
+  useIsBalanceFresh: () => false,
 }));
 
 vi.mock('@/lib/queries', () => ({
@@ -91,7 +106,7 @@ describe('useOffersState', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetIncoming.mockResolvedValue([]);
-    mockRefreshBalance.mockResolvedValue(undefined);
+    mockInvalidateWallet.mockResolvedValue(undefined);
   });
 
   // ── Initial State ──
@@ -144,7 +159,8 @@ describe('useOffersState', () => {
     await act(async () => { await result.current.handleAccept('offer-1'); });
     expect(mockAcceptOffer).toHaveBeenCalledWith('u1', 'offer-1');
     expect(mockAddToast).toHaveBeenCalledWith('offerAccepted', 'success');
-    expect(mockRefreshBalance).toHaveBeenCalled();
+    // Slice 152c: invalidateWallet(queryClient) ersetzt refreshBalance().
+    expect(mockInvalidateWallet).toHaveBeenCalled();
     expect(mockInvalidateTradeQueries).toHaveBeenCalledWith('p-1', 'u1');
   });
 
