@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Crown, Check } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
 import { Card, Button } from '@/components/ui';
 import { TIER_CONFIG, subscribeTo } from '@/lib/services/clubSubscriptions';
-import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
+import type { SubscribeResult, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { useClubSubscription } from '@/lib/queries/misc';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 
 const TIERS: SubscriptionTier[] = ['bronze', 'silber', 'gold'];
 
@@ -19,33 +22,67 @@ type Props = {
   onSubscribed: () => void;
 };
 
+/**
+ * Slice 151c — Money-Path Pilot-Migration zu useSafeMutation.
+ *
+ * Vorher (Slice 150 Audit Tier-1-Money): `handleSubscribe` OHNE Pending-Guard —
+ * rapid-clicks konnten 2 parallele subscribeTo-Calls triggern → potenziell
+ * doppelte Wallet-Abbuchung (RPC-level idempotency nicht verifiziert).
+ *
+ * Nachher: useSafeMutation mit synchron-gepruefter isPending + errorTag fuer
+ * Sentry-Observability. Nach Success deterministic setQueryData (Slice 143
+ * pattern) auf `qk.clubs.subscription` + invalidate auf `qk.wallet.all` (da
+ * Balance server-truth nach RPC).
+ *
+ * Defense-in-depth: Client-guard (useSafeMutation) + Server-guard (RPC-level
+ * idempotency im `subscribe_to_club` RPC — sollte idempotent sein, wir trust
+ * aber nicht blind).
+ */
 export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: Props) {
   const t = useTranslations('club');
   const ts = useTranslations('subscription');
   const { addToast } = useToast();
   const { data: subscription } = useClubSubscription(userId, clubId);
-  const [subscribing, setSubscribing] = useState<SubscriptionTier | null>(null);
 
   const activeTier = subscription?.status === 'active' ? subscription.tier : null;
   const activeTierIndex = activeTier ? TIERS.indexOf(activeTier) : -1;
 
-  const handleSubscribe = async (tier: SubscriptionTier) => {
-    if (!userId) return;
-    setSubscribing(tier);
-    try {
-      const result = await subscribeTo(userId, clubId, tier);
-      if (result.success) {
-        addToast(t('subscribeSuccess'), 'success');
-        onSubscribed();
-      } else {
+  const subscribeMut = useSafeMutation<SubscribeResult, Error, SubscriptionTier>({
+    mutationFn: (tier) => subscribeTo(userId!, clubId, tier),
+    onSuccess: (result) => {
+      if (!result.success) {
+        // Service returned {success: false} without throwing — still a failure
         addToast(t('subscribeFailed'), 'error');
+        return;
       }
-    } catch {
-      addToast(t('subscribeFailed'), 'error');
-    } finally {
-      setSubscribing(null);
-    }
-  };
+      addToast(t('subscribeSuccess'), 'success');
+      // Money-Path: invalidate both subscription + wallet — both are server-truth
+      // after the RPC (subscription has 11 columns incl. timestamps that cannot
+      // be deterministically reconstructed client-side). Slice 143's setQueryData
+      // pattern fits +/-1 counters, not subscription-row-inserts.
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(userId, clubId) });
+      }
+      queryClient.invalidateQueries({ queryKey: qk.wallet.all });
+      onSubscribed();
+    },
+    errorToast: t('subscribeFailed'),
+    errorTag: 'membership.subscribe',
+  });
+
+  const handleSubscribe = useCallback(
+    (tier: SubscriptionTier) => {
+      if (!userId) return;
+      subscribeMut.safeTrigger(tier);
+    },
+    [userId, subscribeMut],
+  );
+
+  // `variables` holds the in-flight tier for per-button loading indicator.
+  // Generic inference makes the cast unnecessary (TVariables = SubscriptionTier).
+  const subscribingTier: SubscriptionTier | null = subscribeMut.isPending
+    ? subscribeMut.variables ?? null
+    : null;
 
   return (
     <section className="space-y-4">
@@ -108,8 +145,8 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
                     variant={tier === 'gold' ? 'gold' : 'outline'}
                     size="sm"
                     fullWidth
-                    loading={subscribing === tier}
-                    disabled={subscribing !== null || !userId || isDowngrade}
+                    loading={subscribingTier === tier}
+                    disabled={subscribeMut.isPending || !userId || isDowngrade}
                     onClick={() => handleSubscribe(tier)}
                     style={tier !== 'gold' ? { borderColor: clubColor, color: clubColor } : undefined}
                   >
