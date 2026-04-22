@@ -21,7 +21,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **WER-9 Full Success:** 9/9 mv_source flipped stale → verified. 6 Contracts frisch (Backhaus/Deman/Schmetgens/Stage/Sugawara/Wöber auf 2026-2029), 3 bleiben 2022-2023 (Lynen/Pieper/Stark — TM zeigt historical, Finding #1 → Follow-up via 144/144b Squad-Scraper).
 - **Review:** `worklog/reviews/144f-review.md` — PASS mit 1 MEDIUM-Finding (historical-contract bei 3 WER, Parser-Drift-Observation), 2 LOW/INFO.
 - **Proof:** `worklog/proofs/144f-run.txt` (Script-Output) + `worklog/proofs/144f-verify.txt` (DB Pre/Post + WER-9 Sample).
-- **Commit:** (pending)
+- **Commit:** `80688883`
 - **Backlog-Effekt:** Risk-Watch 144e #3 (stale MV/Contract) für WER resolved. 3 historical-contracts verbleiben als follow-up Kandidat (144f-followup oder re-scrape via Squad-Scraper).
 - **Scope-Out dokumentiert:** 252 weitere stale in 6 anderen Ligen (BL2/SL/LL/PL/SA/TFF1) — separate Slices moeglich (~20-30 min total).
 
