@@ -67,5 +67,11 @@ export interface ClubActionsResult {
   isFollowing: boolean;
   followerCount: number;
   followLoading: boolean;
-  handleFollow: () => Promise<void>;
+  /**
+   * Slice 151b — Type changed from `() => Promise<void>` to `() => void`.
+   * handleFollow is now backed by useSafeMutation's safeTrigger — fire-and-forget
+   * with internal pending-guard. Callers that `await handleFollow()` will still
+   * compile (await on void resolves immediately) but have no observable effect.
+   */
+  handleFollow: () => void;
 }
