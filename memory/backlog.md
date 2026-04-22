@@ -4,7 +4,7 @@ description: Konsolidierte Liste aller offenen Arbeiten außerhalb aktiver Slice
 type: project
 ---
 
-**Stand:** 2026-04-22 nach Session-End + Push Slice 134/135/136 live.
+**Stand:** 2026-04-22 (2. Session) — Post Slice 140b/141/141b/142/143/144/144b/145 + TM-Mapping 134/134, Follow-Fix live, Reviewer-Gate live.
 **Regel:** Items in Layer N können erst nach Abschluss von Layer N-1 starten. Innerhalb Layer N ist Reihenfolge frei (parallele Bearbeitung möglich).
 
 ---
@@ -29,13 +29,20 @@ type: project
 | B0 | **Gold-Standard 95% CSV-Workflow** — 134 unknown-Spieler via CSV-Import-UI füllen | P0 | 3-4h Anil-manual | `next-session-briefing-2026-04-23.md` Option A |
 | B1 | **Sync-Players-Daily Re-Contamination Monitoring** — Post-sync Hook in `src/app/api/cron/sync-players-daily/route.ts` (detektiert neue Cross-Club-Kontamination INV-39) | P2 | 1-2h | Kanban |
 | B2 | **Clubs-Discovery Bug + UX:** GW-Inkonsistenz + Gegner-Wappen vor Kürzel | P1 | 1h | **NEU 2026-04-22 (Anil)** |
-| B3 | **TM-Squad-Page Scraper Spec** — 140 Clubs × 1 Request statt ~500 Search-Requests | P2 | 2-3h (Spec+Build) | `next-session-briefing-2026-04-23.md` Option C |
+| ~~B3~~ | ~~TM-Squad-Page Scraper Spec~~ | ✅ DONE | Slice 144 + 144b (134/134 Full-Run, 2841 matched, 22 shirt-drift) |
 | ~~B4~~ | ~~sync-fixtures Cron-Lag Root-Cause~~ | ✅ DONE | Slice 140 (gameweek-sync Phase-B-Guard DB-Truth) |
-| ~~B5~~ | ~~ClubProvider Reconcile Read-After-Write-Race~~ | ✅ DONE | Slice 139 (skip-reconcile on follow-success) |
+| ~~B5~~ | ~~ClubProvider Reconcile Read-After-Write-Race~~ | ✅ DONE | Slice 139 + 142 (skip-reconcile on BOTH paths) |
+| B6 | **Squad-Transfer-Apply** (225 pending Transfers live machen) | P1 | 10 min (Anil-gatekept `--allow-transfers` run) | Slice 144b Full-Run |
+| B7 | **Follower-Count Cache-Propagation** (silent-fail + setQueryData) | ✅ DONE | Slice 143 |
+| B8 | **144c XS:** last_squad_check auch für transfer-detected players | P2 | 20 min | Slice 144b Review-Follow-up |
+| B9 | **144e XS:** WER-Cluster null-club-id audit (19 players) | P2 | 30 min | Slice 144b Review-Follow-up |
+| B10 | **146 XS:** merge-wildmatch anchoring in ship-*-gate.sh | P2 | 20 min | Slice 145 Review-Follow-up (common-errors.md Section 9) |
+| B11 | **147 XS:** /ship new Skill-Template review:-Key initialisieren | P2 | 10 min | Slice 145 Review-Follow-up |
 
 **Abhängigkeiten intern:**
-- B3 (Scraper) liefert HTML-Fixtures mit → ermöglicht L2-E1 (Parser-Regression-Tests) zusammen zu shippen
-- B0 (CSV-Workflow) + B3 (TM-Scraper) sind Alternativen zum gleichen Ziel (Gold-Standard) — eines reicht, beides besser
+- ~~B3 (Scraper) liefert HTML-Fixtures → L2-C1 Parser-Regression-Tests~~ — done, fixtures in `src/lib/scrapers/transfermarkt-squad.test.ts`.
+- B0 (CSV-Workflow) weiterhin nötig für MV-stale-Spieler (TM-Squad-Page liefert MV, aber stale-guard aktiviert sich oft und überschreibt nicht). Hybrid: Squad-Scraper für shirt+position, CSV für MV-Refresh.
+- B6 (Transfer-Apply) hat 225 pending → 1× `--allow-transfers` Run applied alle. Hat keinen Dependency, aber: nach Anwendung werden `club_id`s aktualisiert, evtl. Orderbook-Referenzen prüfen falls Trading aktiv auf bewegten Spielern.
 
 ---
 

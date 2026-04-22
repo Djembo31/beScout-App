@@ -4,7 +4,7 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 
 # Common Errors
 
-Stand: 2026-04-22 · Konsolidiert aus Slices 001-086.
+Stand: 2026-04-22 · Konsolidiert aus Slices 001-145.
 DB-Columns + CHECK Constraints: siehe `database.md`.
 
 ---
@@ -433,6 +433,78 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - `grep -oP` mit `\K` scheitert silent (Locale: "supports only unibyte and UTF-8").
 - Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'`.
 - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` → Fallback Main-Repo-Path oder Task gut verpacken.
+
+### Shell case-statement wildcard promiskuös (Slice 145)
+- `case "$COMMAND" in *"merge"*) exit 0 ;; esac` in `ship-proof-gate.sh` + `ship-cto-review-gate.sh` matched **jede** Commit-Message mit dem Wort "merge" darin (z.B. `fix(api): prevent merge conflict`, `feat(clubs): merge follower-count cache`) und skipped den Hook komplett.
+- Root: `*"merge"*` ist case-pattern-wild, ohne Wort-Grenzen oder Token-Anchor.
+- Fix: `case "$COMMAND" in *"git merge "*|*" --merge "*) exit 0 ;;` — exakt auf `git merge` command-token oder `--merge` flag anchorn.
+- Regel: Shell-case-patterns auf COMMAND-Strings MÜSSEN auf konkrete Tokens anchorn, nicht wild substringen. Besonders bei security-/flow-relevanten Gates.
+- Audit: `grep -rn 'case.*in.*\*"' .claude/hooks/` → alle wild-matches prüfen.
+
+### Heredoc-Backdoor in Commit-Gates (Slice 145)
+- `ship-proof-gate.sh` hatte bewusst: `case "$COMMAND" in *"<<"*) exit 0 ;; esac` — "user knows what they do".
+- In Praxis: Jeder heredoc-Commit (die 95%-Variante wenn Claude multi-line messages schreibt) umgeht den Gate komplett.
+- Anti-Pattern: "Hook exempt bei komplex aussehendem input" — das ist die Commit-Variante die am meisten Review braucht.
+- Fix in review-gate (Slice 145): Heredoc-Exempt ENTFERNT, MSG-Extraktion über grep + sed-Fallback funktioniert beide Wege.
+- Beobachtung: proof-gate hat den Backdoor noch. Backlog 146 fixt.
+
+---
+
+## 10. Scraper-Parser (extern HTML)
+
+### Nested-tr + non-greedy regex → mid-row cutoff (Slice 144)
+- TM Squad-Page rendert pro Zeile nested `<table class="inline-table">` mit eigenen `<tr>`s für Player-Photo + Name + Position.
+- Regex `/<tr class="(?:odd|even)">([\s\S]*?)<\/tr>/g` mit non-greedy `[\s\S]*?` stoppt am ERSTEN inneren `</tr>` (= Ende der inline-table-row), nicht am äußeren squad-row-`</tr>`.
+- Symptom: Shirt + Name + Position gematched (kommen früh), MV + Nationality verloren (kommen nach inline-table-close).
+- Fix: tr-depth-counter state machine — zähle `<tr` vs `</tr` bis depth=0:
+  ```ts
+  const step = /<tr[\s>]|<\/tr>/g;
+  step.lastIndex = start;
+  let depth = 1;
+  while ((m = step.exec(html)) !== null) {
+    if (m[0] === '</tr>') { depth--; if (depth === 0) { cursor = m.index; break; } }
+    else depth++;
+  }
+  ```
+- Regel: Bei nested-Element-Parsing (HTML-Rows, JSON-Objects, XML-Nodes) IMMER depth-counter statt non-greedy regex. Non-greedy reicht nur wenn kein Nesting möglich ist.
+
+### HTML-Attribut-Order-Sensitivity (Slice 144 nat-img)
+- TM rendert `<img src="..." title="Türkei" alt="Türkei" class="flaggenrahmen" />` — title VOR class.
+- Regex `/class="flaggenrahmen[^"]*"[^>]*title="([^"]+)"/` matched NUR wenn class vor title steht → 0% coverage.
+- Fix: 2-step extraction. Match zuerst das ganze Tag via class-anchor (`<img[^>]*class="[^"]*flaggenrahmen[^"]*"[^>]*\/?>`), dann extrahiere title innerhalb.
+- Regel: Bei HTML-Attribute-Matching NIEMALS auf Attribute-Reihenfolge verlassen. Entweder Lookaround (Perl-PCRE) oder 2-step-Extract.
+
+### DE-EN Name-Drift in Fuzzy-Match (Slice 141b Italien-Cluster)
+- TM zeigt deutsche Club-Namen: "AC Mailand" (statt AC Milan), "SSC Neapel" (statt Napoli), "AC Florenz" (statt Fiorentina), "FC Turin" (statt Torino), "Amed SK" (statt Amedspor).
+- Fuzzy-Match via Token-Overlap scheitert bei fremdsprachigen Umbenennungen ohne Token-Gemeinsamkeit.
+- Fix-Patterns:
+  1. Manuell-Fill für bekannte Drift-Cases (Slice 141b INSERT für 7 Clubs).
+  2. Multi-Language-Dictionary als 3rd Fuzzy-Fallback (Backlog 141d).
+  3. TM-Slug als sekundäre Signal-Quelle (z.B. `fc-bayern-muenchen` → bekannter Slug → Club-Name egal).
+- Regel: Externe Scraper auf lokalisierten Websites brauchen Locale-Drift-Handling. TM-DE unterscheidet sich von TM-EN in Club-Namen für ~30% der non-DE-Clubs.
+
+### URL-based Canonical-ID statt Fuzzy-Match (Slice 141b)
+- Wenn externe Quelle eine stabile URL-Pfad-ID hat (z.B. `/startseite/verein/<id>`), nutze die ID als Primary-Key statt Club-Name-Fuzzy-Match.
+- Slice 141b: Slug "galatasaray" + ID 141 → aus `/galatasaray/startseite/verein/141`. Der Slug kann driften (Rebrand), die ID bleibt stabil über Jahre.
+- Pattern: Regex `/href="\/([a-z0-9-]+)\/startseite\/verein\/(\d+)"/` liefert slug + ID; Slug ist decorative, ID ist canonical.
+
+---
+
+## 11. React Query + Supabase Cache
+
+### setQueryData statt invalidateQueries bei deterministic optimistic (Slice 143)
+- Nach `toggleFollow` war nur `qk.social.followerCount(userId)` invalidated. `qk.clubs.followers(clubId)` und `qk.clubs.isFollowing(uid, cid)` drifted bis 2min stale-cycle oder Page-Refresh.
+- Fix: `queryClient.setQueryData(key, (prev) => prev ± 1)` — deterministic, kein Refetch-Roundtrip.
+- Regel: Bei deterministischer Mutation (follow/unfollow, +/- 1) → `setQueryData`. Bei indeterministic (server generated uuid, complex state) → `invalidateQueries`.
+- Warum: `setQueryData` schafft instant-Propagation an ALLE Consumer des Query-Keys. `invalidateQueries` ist async + verursacht Netzwerk-Roundtrip.
+- Pattern:
+  ```ts
+  const delta = wasFollowing ? -1 : 1;
+  queryClient.setQueryData<number>(qk.clubs.followers(clubId), (prev) =>
+    prev === undefined ? prev : Math.max(0, prev + delta),
+  );
+  queryClient.setQueryData<boolean>(qk.clubs.isFollowing(uid, clubId), !wasFollowing);
+  ```
 
 ---
 
