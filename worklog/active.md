@@ -7,14 +7,13 @@ stage: —
 spec: —
 impact: —
 proof: —
+review: —
 ```
 
-## Zuletzt: Slice 144 (2026-04-22) — B3 TM-Squad-Page-Scraper (M)
+## Zuletzt
 
-Squad-Page-Scraper implementiert + lokal getestet. Dry-Run auf Süper-Lig
-zeigt 18/18 Clubs, 366 matched players, 28 transfer-detected, 52 unknown.
-BUILD + PROOF komplett, Full-Run wartet auf Anil (`--allow-transfers` y/n).
+- **Slice 145** (2026-04-22) — Reviewer-Hook strict-block + REVIEW Stage (S, PASS).
+- **Slice 144b** (2026-04-22) — TM-Squad-Scraper Full-Run: 134 clubs, 2841 matched, 22 shirt-drift, 225 transfer-pending (XS proof-only, PASS).
+- **Slice 144** (2026-04-22) — B3 TM-Squad-Page-Scraper (M, PASS).
 
-**Next:** Anil triggered entweder
-- `npx tsx scripts/tm-squad-scrape-local.ts` (shirt-drift fix, kein Transfer-Apply)
-- `npx tsx scripts/tm-squad-scrape-local.ts --allow-transfers` (28 Transfers live)
+Nächstes: Anil-Decision (--allow-transfers? / Backlog-Items 144c/144e/146/147?).

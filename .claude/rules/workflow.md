@@ -1,17 +1,19 @@
 # BeScout Workflow — der SHIP-Loop
 
-**Eine Aufgabe. Fuenf Stufen pro Slice. Plus DISTILL am Session-Ende.**
+**Eine Aufgabe. Sechs Stufen pro Slice. Plus DISTILL am Session-Ende.**
 
 ## Der Loop
 
 ```
-TASK  →  SPEC  →  IMPACT  →  BUILD  →  PROVE  →  LOG  →  next
-                                                         │
-                                          (Session-End)  ▼
-                                                      DISTILL → memory/decisions.md
+TASK  →  SPEC  →  IMPACT  →  BUILD  →  REVIEW  →  PROVE  →  LOG  →  next
+                                                                    │
+                                                     (Session-End)  ▼
+                                                                 DISTILL → memory/decisions.md
 ```
 
-Jeder Slice durchlaeuft alle 5 Stufen. Was nicht zutrifft wird explizit als `skipped (Grund)` markiert — nicht weggelassen.
+Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `skipped (Grund)` markiert — nicht weggelassen.
+
+**REVIEW** ist Pflicht nach BUILD bei feat/fix/refactor-Slices. Cold-Context-Reviewer-Agent fängt Blindspots die Primary-Claude nicht sieht (Self-Assessment-Gap 2026-04-22). Hook `ship-cto-review-gate` blockt Commits ohne `worklog/reviews/<slice>-review.md`.
 
 **DISTILL** ist kein Slice-Stage, sondern ein **Session-End-Protokoll** — siehe Section am Ende.
 
@@ -74,6 +76,32 @@ Jeder Slice durchlaeuft alle 5 Stufen. Was nicht zutrifft wird explizit als `ski
 
 **Gate:** tsc clean + Tests gruen.
 
+### 3b. REVIEW — Cold-Context-Agent prueft
+
+**Artefakt:** `worklog/reviews/NNN-review.md`
+
+**Pflicht** bei feat/fix/refactor-Slices ab S-Groesse. Ausnahme XS wenn triviale Pattern-Wiederholung und active.md `review: skipped (Grund)`.
+
+**Dispatch-Template:**
+```
+Agent({
+  subagent_type: "reviewer",
+  description: "Review Slice NNN",
+  prompt: "Lies worklog/specs/NNN-*.md und git diff fuer Slice NNN.
+           Pruefe gegen .claude/rules/common-errors.md, memory/patterns.md,
+           business.md. Read-only.
+
+           Schreibe nach worklog/reviews/NNN-review.md:
+           - verdict: PASS | REWORK | FAIL
+           - findings: [{severity, location, issue, fix}]
+           - time-spent: <minutes>"
+})
+```
+
+**Gate:** Review-File exists + verdict != FAIL. REWORK → Healer-Agent fixt vor Commit.
+
+**Hook:** `ship-cto-review-gate` blockt `feat(/fix(/refactor(`-Commits ohne Review-File.
+
 ### 4. PROVE — Beweise dass es funktioniert
 
 **Artefakt:** `worklog/proofs/NNN-title.*`
@@ -102,8 +130,9 @@ Jeder Slice durchlaeuft alle 5 Stufen. Was nicht zutrifft wird explizit als `ski
 
 ```
 ## NNN | YYYY-MM-DD | Titel
-- Stage-Chain: SPEC → IMPACT → BUILD → PROVE → LOG
+- Stage-Chain: SPEC → IMPACT → BUILD → REVIEW → PROVE → LOG
 - Files: <git diff --stat summary>
+- Review: worklog/reviews/NNN-review.md
 - Proof: worklog/proofs/NNN-xxx.png
 - Commit: <hash>
 - Notes: (optional, 1-2 Saetze)
@@ -125,6 +154,7 @@ Jeder Slice durchlaeuft alle 5 Stufen. Was nicht zutrifft wird explizit als `ski
 | `ship-status-gate.sh` | UserPromptSubmit mit "fertig\|status\|stand" | Injiziert git log + active.md |
 | `ship-no-audit-slice.sh` | Stop | Markiert Audit-only Slices (kein git diff) als `invalid` |
 | `ship-meta-plan-block.sh` | PreToolUse Write auf `memory/project_*.md` | Blockt neue Meta-Plaene |
+| `ship-cto-review-gate.sh` | PreToolUse Bash `git commit` | Blockt `feat(/fix(/refactor(`-Commits ohne `worklog/reviews/<slice>-review.md` |
 
 ## Rollenverteilung
 

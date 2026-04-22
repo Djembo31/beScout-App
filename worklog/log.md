@@ -11,6 +11,40 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 145 | 2026-04-22 | Reviewer-Hook strict-block + REVIEW Stage in SHIP-Loop (S)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (grep hooks) → BUILD → REVIEW → PROVE → LOG
+- **Trigger:** Session-Self-Assessment 2026-04-22 — Reviewer-Agent wurde in 5 Slices nie dispatched; bestehender Hook `ship-cto-review-gate` war tot (checkte `status="active"` — dieser Wert existiert nie im SHIP-Loop). Anil-Entscheidung: Gap #1 der Selbsteinschätzung schließen.
+- **Scope:** Hook rewrite (warn→block), REVIEW als 3b-Stage in `workflow.md`, `worklog/reviews/` dir.
+- **Files:**
+  - `.claude/hooks/ship-cto-review-gate.sh` (rewrite 111 Zeilen) — strict-block auf feat/fix/refactor-Commits ohne `worklog/reviews/<slice>-review.md`. Heredoc-Exempt entfernt (war Backdoor in proof-gate). Emergency-Slices + idle-state + non-code-Commits exempt.
+  - `.claude/rules/workflow.md` — Loop 5→6 Stufen, REVIEW-Stage-Block mit Dispatch-Template, Gates-Tabelle + LOG-Template updated.
+  - `worklog/reviews/` (neue Directory).
+- **Review:** Dogfood — `worklog/reviews/145-review.md` durch reviewer-Agent selbst erstellt (cold-context). Verdict PASS mit 3 doc-drift-NITPICKs die vor Commit gefixt wurden.
+- **Proof:** Dogfood-Proof ist `worklog/reviews/145-review.md` existence + Hook-Behavior-Test:
+  - Idle-state commit → exit 0 ✓
+  - Active-slice + feat-msg + no-review → exit 2 (blockt) ✓
+  - Active-slice + feat-msg + review-file → exit 0 (passt) ✓
+- **Bekannte known-bypasses:** `*"merge"*` wildmatch promiskuös (konsistent mit proof-gate Bug), `--amend`-Exempt, `-F file`-commit ohne `-m`. Backlog 146 adressiert.
+- **Follow-up Backlog:**
+  - 146 XS: `*"merge"*` → `*"git merge "*` anchoring in beiden Gates (symmetrisch).
+  - 147 XS: `/ship new`-Skill-Template um `review:` Key erweitern.
+- **Commit:** _siehe git log_
+
+---
+
+## 144b | 2026-04-22 | TM-Squad-Scraper Full-Run 134 Clubs (XS proof-only)
+
+- **Stage-Chain:** BUILD (Slice 144) → REVIEW → PROVE → LOG
+- **Scope:** Full-Run von Slice 144 Squad-Scraper auf alle 134 Clubs (kein `--allow-transfers`).
+- **Result:** 134/134 clubs, 0 errors, 768.9s runtime, 2841 matched, 22 shirt-drift updates, 0 MV-updates (stale-guard), 225 transfer-detected (skipped), 295 unknown TM-players (Insert-Pfad bei sync-players-daily).
+- **DB-State:** `last_squad_check` für 2616 players populated (57.4%). Integrity-Math `2841−225=2616` exakt (transfer-detected bekommen kein Squad-Check-Update wegen early-continue im Script).
+- **Review:** `worklog/reviews/144b-review.md` — Verdict PASS. 2 NITPICK-Follow-ups (144c, 144e) im Backlog.
+- **Proof:** `worklog/proofs/144b-full-run.log` + `144b-db-verify.txt`
+- **Commit:** _siehe git log_
+
+---
+
 ## 144 | 2026-04-22 | B3 TM-Squad-Page-Scraper BUILD + Dry-Run (M)
 
 - **Stage-Chain:** SPEC → IMPACT → BUILD → PROOF → LOG (Full-Run pending Anil)

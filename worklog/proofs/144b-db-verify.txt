@@ -1,0 +1,33 @@
+Slice 144b — Full-Run DB-Verify (post-run)
+===========================================
+
+Query nach Full-Run (2026-04-22 ~14:00):
+  SELECT COUNT(*), COUNT(last_squad_check), COUNT(shirt_number) FROM players;
+
+Result:
+  total_players:       4556
+  with_squad_check:    2616  (57.4% nach diesem Run)
+  with_shirt:          4534  (99.5%, unverändert — war bereits sync-players-daily-gut)
+
+Integrity-Check: 2841 matched - 225 transfer-detected (skip) = 2616 ✓
+  Transfer-detected Spieler bekommen KEIN last_squad_check Update weil
+  der Loop early-continues bei cross-club. Das ist by-design (nur
+  tatsächlich aktive Squad-Mitglieder im jeweiligen Club bekommen Signal).
+  Follow-up: evtl. auch transfer-detected Players last_squad_check setzen
+  (Beobachtung: "wir haben ihn in TM-Squad gesehen, nur in anderem Club").
+
+Shirt-Drift Updates: 22 (Squad-Page sagt aktuelle Nummer, DB hat alte)
+MV-Updates:          0   (Slice-081 stale-guard protected 324 stale,
+                          Rest hatte bereits aktuelle MVs via sync-players-daily)
+
+Transfer-Detected (225):
+  Echte pending Squad-Changes — Players in TM-Squad-X aber DB-club=Y.
+  Next-Step-Optionen:
+  A) Full-Run mit --allow-transfers → alle 225 club_id-Moves live (riskant)
+  B) Selektiv: Only apply transfers wo TM-Squad-Club in unserem 134-Set
+     (ausschließen Transfers in externe Clubs wie 3. Liga, Youth-Systems)
+  C) Admin-UI Approval-Flow (Slice 144d follow-up backlog)
+
+Unknown (295): TM-Players nicht im player_external_ids gemapped. Diese
+sind neue Squad-Members seit letztem sync-players-daily. Nicht dieser
+Scraper's Job — sync-players-daily (API-Football) importiert Neue.

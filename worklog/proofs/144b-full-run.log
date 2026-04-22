@@ -1,0 +1,676 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+=== TM Squad Scraper (Slice 144) ===
+league=(all) rate=2000ms dry-run=false allow-transfers=false
+
+Loaded 134 clubs with TM-mapping.
+
+Loading existing transfermarkt-mapped players...
+Loaded 3922 TM-mapped players from DB.
+
+[BL1 HEI] 22 squad entries
+  ⟷ transfer-detected Ramaj 448705: DB=54e28ab4-f925-4324-8791-6f8d9321e80a → TM=7431cdee-8277-474f-bc6e-a2dbdc9eb2d6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Behrens 829838: DB=72a81990-dea7-46f9-aedb-b11822be207f → TM=7431cdee-8277-474f-bc6e-a2dbdc9eb2d6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Stergiou 507345: DB=79e9c5d1-f59b-4b71-b006-7ff2a0e9a37e → TM=7431cdee-8277-474f-bc6e-a2dbdc9eb2d6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ibrahimović 744728: DB=5ac47993-2b66-4eec-8ed0-c69981fc0a07 → TM=7431cdee-8277-474f-bc6e-a2dbdc9eb2d6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Conteh 530298: DB=c49c412f-6d01-4aef-b158-9a004af33259 → TM=7431cdee-8277-474f-bc6e-a2dbdc9eb2d6 (skip; use --allow-transfers)
+[BL1 KOL] 25 squad entries
+  ? unknown tm-player 890532 "Fayssal Harchaoui" — insert via sync-players-daily
+  ⟷ transfer-detected Chávez 1009441: DB=5ac47993-2b66-4eec-8ed0-c69981fc0a07 → TM=39f77b7c-31eb-4929-866f-1129531934eb (skip; use --allow-transfers)
+  ⟷ transfer-detected Kamiński 407098: DB=bb2e5794-080e-414f-8131-df4382787b1b → TM=39f77b7c-31eb-4929-866f-1129531934eb (skip; use --allow-transfers)
+[BL1 HOF] 25 squad entries
+  ⟷ transfer-detected Engelns 1116191: DB=ee4b9c9d-7041-43bc-892c-86ac70da3bf2 → TM=72a81990-dea7-46f9-aedb-b11822be207f (skip; use --allow-transfers)
+  ? unknown tm-player 685484 "Luka Duric" — insert via sync-players-daily
+  ? unknown tm-player 930998 "Yannick Eduardo" — insert via sync-players-daily
+[BL1 BAY] 23 squad entries
+  ⟷ transfer-detected Fernandez 664708: DB=5ac47993-2b66-4eec-8ed0-c69981fc0a07 → TM=9db3fc5a-35e6-400a-8cc9-2db7dda610af (skip; use --allow-transfers)
+[BL1 BAY] 17 squad entries
+  ⟷ transfer-detected Diaz 480692: DB=2cefcda3-c55e-495a-bb37-29b6b53d9485 → TM=5ac47993-2b66-4eec-8ed0-c69981fc0a07 (skip; use --allow-transfers)
+[BL1 DOR] 22 squad entries
+  ? unknown tm-player 193004 "Waldemar Anton" — insert via sync-players-daily
+[BL1 MOE] 26 squad entries
+  ⟷ transfer-detected Takai 671108: DB=13ea0792-ffdb-4cbd-92a1-a918bd3157e5 → TM=65977ea9-deb5-49c8-826a-976ea9ef0cd1 (skip; use --allow-transfers)
+  ? unknown tm-player 724104 "Fabio Chiarodia" — insert via sync-players-daily
+  ⟷ transfer-detected Engelhardt 405670: DB=ae1ef6ae-c655-48e1-9315-42e0054af8d8 → TM=65977ea9-deb5-49c8-826a-976ea9ef0cd1 (skip; use --allow-transfers)
+  ⟷ transfer-detected Reyna 504215: DB=54e28ab4-f925-4324-8791-6f8d9321e80a → TM=65977ea9-deb5-49c8-826a-976ea9ef0cd1 (skip; use --allow-transfers)
+  ⟷ transfer-detected Sarco 1000675: DB=9db3fc5a-35e6-400a-8cc9-2db7dda610af → TM=65977ea9-deb5-49c8-826a-976ea9ef0cd1 (skip; use --allow-transfers)
+[BL1 EIN] 22 squad entries
+  ? unknown tm-player 1079622 "Amil Siljevic" — insert via sync-players-daily
+  ? unknown tm-player 585959 "Arnaud Kalimuendo" — insert via sync-players-daily
+  ⟷ transfer-detected Ebnoutalib 692368: DB=a59e74c3-460d-43ad-867a-8040c1e1a3fc → TM=461a999b-36c1-49e5-881d-321924c64b24 (skip; use --allow-transfers)
+[BL1 AUG] 27 squad entries
+  ⟷ transfer-detected Largura Chaves 875332: DB=72a81990-dea7-46f9-aedb-b11822be207f → TM=8d5dcaee-5fcc-4c89-8bad-d30beececb54 (skip; use --allow-transfers)
+  ? unknown tm-player 730486 "Mahmut Kücüksahin" — insert via sync-players-daily
+  ? unknown tm-player 507341 "Fabian Rieder" — insert via sync-players-daily
+  ⟷ transfer-detected Ogundu 1309324: DB=eb43fb36-4ed4-4679-b094-fc78fd3ac6fb → TM=8d5dcaee-5fcc-4c89-8bad-d30beececb54 (skip; use --allow-transfers)
+  ? unknown tm-player 675565 "Thomas Kastanaras" — insert via sync-players-daily
+[BL1 PAU] 26 squad entries
+  ? unknown tm-player 527597 "Simon Spari" — insert via sync-players-daily
+  ? unknown tm-player 1003534 "Marwin Schmitz" — insert via sync-players-daily
+  ? unknown tm-player 1152232 "Nick Schmidt" — insert via sync-players-daily
+[BL1 MAI] 24 squad entries
+  ? unknown tm-player 934317 "Maxim Dal" — insert via sync-players-daily
+  ? unknown tm-player 470815 "Niklas Tauer" — insert via sync-players-daily
+[BL1 HAM] 22 squad entries
+  ⟷ transfer-detected Ferreira Vieira 537598: DB=8b1fe92e-a952-44f5-8dc1-5502adbb7fa3 → TM=1995de16-e703-4e5f-a46a-cd1376b2b791 (skip; use --allow-transfers)
+  ? unknown tm-player 503866 "Albert Grønbaek" — insert via sync-players-daily
+  ? unknown tm-player 910582 "Omar Megeed" — insert via sync-players-daily
+  ? unknown tm-player 1058520 "Otto Stange" — insert via sync-players-daily
+[BL1 LEI] 24 squad entries
+  ? unknown tm-player 1279157 "Benno Kaltefleiter" — insert via sync-players-daily
+  ⟷ transfer-detected Gruda 700106: DB=815c1c40-df01-4bcd-938c-12fb25dbcb8d → TM=89e39c99-59dc-4466-9524-cc92a2a1370b (skip; use --allow-transfers)
+  ? unknown tm-player 763948 "Ayodele Thomas" — insert via sync-players-daily
+  ? unknown tm-player 1380977 "Samba Konaté" — insert via sync-players-daily
+[BL1 FRE] 22 squad entries
+  ? unknown tm-player 272587 "Daniel-Kofi Kyereh" — insert via sync-players-daily
+[BL1 UNI] 23 squad entries
+  ? unknown tm-player 161057 "Carl Klaus" — insert via sync-players-daily
+[BL1 STU] 26 squad entries
+  ? unknown tm-player 971663 "Jeremy Arévalo" — insert via sync-players-daily
+[BL1 WOL] 23 squad entries
+  ⟷ transfer-detected Belocian 919515: DB=9db3fc5a-35e6-400a-8cc9-2db7dda610af → TM=bb2e5794-080e-414f-8131-df4382787b1b (skip; use --allow-transfers)
+  ? unknown tm-player 369674 "Joakim Maehle" — insert via sync-players-daily
+  ⟷ transfer-detected Pejčinović 819636: DB=e048464c-bf75-420c-be3d-4b7418cc0e1b → TM=bb2e5794-080e-414f-8131-df4382787b1b (skip; use --allow-transfers)
+[BL1 WER] 20 squad entries
+  ⟷ transfer-detected Backhaus 620295: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Coulibaly 1084638: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Pieper 334221: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Stark 162434: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Wöber 263361: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Schmetgens 1045986: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Deman 621802: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Schmidt 449597: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Sugawara 405385: DB=null → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Lynen 338668: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Stage 289835: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Schmid 346853: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Puertas 449592: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Covic 1114155: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Mbangula 654991: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Njinmah 596153: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Milosevic 943795: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Boniface 656681: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Musah 1042472: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 (skip; use --allow-transfers)
+[BL2 KAI] 24 squad entries
+  ? unknown tm-player 924125 "Fabian Heck" — insert via sync-players-daily
+  ? unknown tm-player 416809 "Daniel Hanslik" — insert via sync-players-daily
+[BL2 MAG] 25 squad entries
+  ⟷ transfer-detected Geschwill 471890: DB=c4af3679-687f-453e-8995-1b3a8bee6612 → TM=05cb07aa-d03e-45b5-915a-a088b5fad715 (skip; use --allow-transfers)
+  ? unknown tm-player 19483 "Tobias Müller" — insert via sync-players-daily
+  ? unknown tm-player 119120 "Robert Leipertz" — insert via sync-players-daily
+  ? unknown tm-player 812987 "Nick Meier" — insert via sync-players-daily
+  ? unknown tm-player 1035852 "Magnus Baars" — insert via sync-players-daily
+  ? unknown tm-player 498171 "Alexander Ahl-Holmström" — insert via sync-players-daily
+  ⟷ transfer-detected Tachie 390460: DB=2b150655-48e7-4ed8-baa6-c729d031ee35 → TM=05cb07aa-d03e-45b5-915a-a088b5fad715 (skip; use --allow-transfers)
+  ? unknown tm-player 390084 "Aleksa Marusic" — insert via sync-players-daily
+[BL2 NUR] 28 squad entries
+  ? unknown tm-player 1116267 "Kristian Mandic" — insert via sync-players-daily
+  ⟷ transfer-detected Buchmann 744729: DB=5ac47993-2b66-4eec-8ed0-c69981fc0a07 → TM=3cc0f6d4-9b55-47d6-b038-efc4dc3ba9a4 (skip; use --allow-transfers)
+  ? unknown tm-player 959294 "Eryk Grzywacz" — insert via sync-players-daily
+  ? unknown tm-player 937952 "Javier Fernández" — insert via sync-players-daily
+  ⟷ transfer-detected Grimaldi 69392: DB=ee4b9c9d-7041-43bc-892c-86ac70da3bf2 → TM=3cc0f6d4-9b55-47d6-b038-efc4dc3ba9a4 (skip; use --allow-transfers)
+  ? unknown tm-player 1185190 "Tino Kusanovic" — insert via sync-players-daily
+[BL2 ARM] 25 squad entries
+  ? unknown tm-player 1047410 "Justin Lukas" — insert via sync-players-daily
+  ? unknown tm-player 1259900 "Eyyüb Yasar" — insert via sync-players-daily
+  ? unknown tm-player 605242 "Monju Momuluh" — insert via sync-players-daily
+  ? unknown tm-player 400644 "Jeredy Hilterman" — insert via sync-players-daily
+[BL2 DRE] 24 squad entries
+  ? unknown tm-player 426685 "Tim Schreiber" — insert via sync-players-daily
+  ? unknown tm-player 150080 "Daniel Mesenhöler" — insert via sync-players-daily
+  ? unknown tm-player 921485 "Friedrich Müller" — insert via sync-players-daily
+  ? unknown tm-player 329360 "Claudio Kammerknecht" — insert via sync-players-daily
+  ? unknown tm-player 227078 "Lukas Boeder" — insert via sync-players-daily
+  ? unknown tm-player 379114 "Lars Bünning" — insert via sync-players-daily
+  ? unknown tm-player 296188 "Alexander Rossipal" — insert via sync-players-daily
+  ? unknown tm-player 383354 "Sascha Risch" — insert via sync-players-daily
+  ? unknown tm-player 406762 "Konrad Faber" — insert via sync-players-daily
+  ? unknown tm-player 169295 "Jan-Hendrik Marx" — insert via sync-players-daily
+  ⟷ transfer-detected Wagner 690429: DB=c4af3679-687f-453e-8995-1b3a8bee6612 → TM=a53aff19-f555-4ae0-9851-8caa6b1e1a2e (skip; use --allow-transfers)
+  ? unknown tm-player 296372 "Luca Herrmann" — insert via sync-players-daily
+  ? unknown tm-player 205544 "Niklas Hauptmann" — insert via sync-players-daily
+  ? unknown tm-player 532784 "Nils Fröling" — insert via sync-players-daily
+  ⟷ transfer-detected Bobzien 658116: DB=3791cdc8-aa96-4488-a0b7-29d4009c5aa1 → TM=a53aff19-f555-4ae0-9851-8caa6b1e1a2e (skip; use --allow-transfers)
+  ? unknown tm-player 453324 "Jakob Lemmer" — insert via sync-players-daily
+  ⟷ transfer-detected Çeka 390661: DB=a59e74c3-460d-43ad-867a-8040c1e1a3fc → TM=a53aff19-f555-4ae0-9851-8caa6b1e1a2e (skip; use --allow-transfers)
+  ? unknown tm-player 324851 "Christoph Daferner" — insert via sync-players-daily
+  ⟷ transfer-detected Vermeij 273054: DB=e048464c-bf75-420c-be3d-4b7418cc0e1b → TM=a53aff19-f555-4ae0-9851-8caa6b1e1a2e (skip; use --allow-transfers)
+[BL2 BRA] 24 squad entries
+  ? unknown tm-player 691071 "Marko Rajkovacic" — insert via sync-players-daily
+  ⟷ transfer-detected Alidou 456492: DB=2b150655-48e7-4ed8-baa6-c729d031ee35 → TM=c49c412f-6d01-4aef-b158-9a004af33259 (skip; use --allow-transfers)
+[BL2 SCH] 25 squad entries
+  ? unknown tm-player 1188989 "Dylan Leonard" — insert via sync-players-daily
+  ? unknown tm-player 697740 "Soufiane El-Faouzi" — insert via sync-players-daily
+  ? unknown tm-player 929992 "Zaid Tchibara" — insert via sync-players-daily
+  ? unknown tm-player 357310 "Christian Gomis" — insert via sync-players-daily
+[BL2 DUS] 19 squad entries
+  ? unknown tm-player 946037 "Elias Egouli" — insert via sync-players-daily
+  ? unknown tm-player 314245 "Emmanuel Iyoha" — insert via sync-players-daily
+  ? unknown tm-player 897401 "Karim Affo" — insert via sync-players-daily
+  ⟷ transfer-detected Ljubičić 838236: DB=bbd54175-453f-482f-a3d4-f13d75a2b546 → TM=e048464c-bf75-420c-be3d-4b7418cc0e1b (skip; use --allow-transfers)
+[BL2 HAN] 26 squad entries
+  ? unknown tm-player 521474 "Brooklyn Ezeh" — insert via sync-players-daily
+  ? unknown tm-player 422721 "Stefán Teitur Thórdarson" — insert via sync-players-daily
+  ? unknown tm-player 1465501 "Mwisho Mhango" — insert via sync-players-daily
+  ⟷ transfer-detected Weißhaupt 392163: DB=29787971-86c2-44f4-80bc-e083542ebc06 → TM=e2e07b8e-e0ee-4105-a7f6-6b97b6a7170b (skip; use --allow-transfers)
+  ? unknown tm-player 1201298 "Taycan Kurt" — insert via sync-players-daily
+  ? unknown tm-player 457728 "Mustapha Bundu" — insert via sync-players-daily
+[BL2 HER] 28 squad entries
+  ? unknown tm-player 124732 "John Brooks" — insert via sync-players-daily
+  ? unknown tm-player 1067659 "Boris Mamuzah Lum" — insert via sync-players-daily
+  ? unknown tm-player 344600 "Michaël Cuisance" — insert via sync-players-daily
+  ⟷ transfer-detected Krattenmacher 829316: DB=5ac47993-2b66-4eec-8ed0-c69981fc0a07 → TM=96344b75-920a-445a-a9cd-d2c8dd2c7ebf (skip; use --allow-transfers)
+  ⟷ transfer-detected Kownacki 208167: DB=99bcdc61-2ac6-4318-ad31-31118ea6f6b5 → TM=96344b75-920a-445a-a9cd-d2c8dd2c7ebf (skip; use --allow-transfers)
+[BL2 HOL] 24 squad entries
+  ? unknown tm-player 939807 "Lio Rothenhagen" — insert via sync-players-daily
+  ? unknown tm-player 883902 "Tyler Doğan" — insert via sync-players-daily
+[BL2 KAR] 26 squad entries
+  ? unknown tm-player 897426 "Paul Scholl" — insert via sync-players-daily
+  ? unknown tm-player 798542 "Niclas Dühring" — insert via sync-players-daily
+  ? unknown tm-player 1163673 "Danyal Zor" — insert via sync-players-daily
+  ? unknown tm-player 927017 "Efe-Kaan Sihlaroglu" — insert via sync-players-daily
+[BL2 PRE] 25 squad entries
+  ⟷ transfer-detected Heuer 369888: DB=2b150655-48e7-4ed8-baa6-c729d031ee35 → TM=613a093a-40f0-4280-bc9b-196bf0162a19 (skip; use --allow-transfers)
+  ⟷ transfer-detected Raschl 384745: DB=2b150655-48e7-4ed8-baa6-c729d031ee35 → TM=613a093a-40f0-4280-bc9b-196bf0162a19 (skip; use --allow-transfers)
+  ? unknown tm-player 606114 "Marvin Benjamins" — insert via sync-players-daily
+[BL2 PAD] 22 squad entries
+  ? unknown tm-player 922363 "Anton Bäuerle" — insert via sync-players-daily
+  ? unknown tm-player 949389 "Niklas Mohr" — insert via sync-players-daily
+[BL2 GRE] 26 squad entries
+  ⟷ transfer-detected Elvedi 322506: DB=2b150655-48e7-4ed8-baa6-c729d031ee35 → TM=fab32e4f-af20-4a23-a082-02200ff2fd4e (skip; use --allow-transfers)
+  ? unknown tm-player 1024556 "David Abrangao" — insert via sync-players-daily
+  ? unknown tm-player 356640 "Paul Will" — insert via sync-players-daily
+  ? unknown tm-player 959932 "Keyan Varela" — insert via sync-players-daily
+[BL2 DAR] 23 squad entries
+  ? unknown tm-player 146693 "Alexander Brunst" — insert via sync-players-daily
+  ⟷ transfer-detected Richter 279009: DB=3791cdc8-aa96-4488-a0b7-29d4009c5aa1 → TM=cd59651c-bac9-46e0-8393-d81bd7334ca9 (skip; use --allow-transfers)
+[BL2 ELV] 24 squad entries
+  ? unknown tm-player 806007 "Luis Seifert" — insert via sync-players-daily
+  ? unknown tm-player 821442 "Daniel Pantschenko" — insert via sync-players-daily
+  ? unknown tm-player 1031774 "Jarzinho Malanga" — insert via sync-players-daily
+  ? unknown tm-player 910538 "Raif Adam" — insert via sync-players-daily
+  ? unknown tm-player 974894 "David Mokwa" — insert via sync-players-daily
+[BL2 BOC] 22 squad entries
+  ? unknown tm-player 84938 "Timo Horn" — insert via sync-players-daily
+  ? unknown tm-player 190289 "Gerrit Holtmann" — insert via sync-players-daily
+[LL ALA] 21 squad entries
+  ? unknown tm-player 54217 "Raúl Fernández" — insert via sync-players-daily
+  ? unknown tm-player 1124136 "Ángel Pérez" — insert via sync-players-daily
+  ? unknown tm-player 302371 "Toni Martínez" — insert via sync-players-daily
+  ? unknown tm-player 935232 "Aitor Mañas" — insert via sync-players-daily
+[LL BIL] 26 squad entries
+  ? unknown tm-player 834483 "Álex Padilla" — insert via sync-players-daily
+  ? unknown tm-player 524000 "Dani Vivian" — insert via sync-players-daily
+  ? unknown tm-player 834485 "Unai Egiluz" — insert via sync-players-daily
+  ? unknown tm-player 1312698 "Selton Sánchez" — insert via sync-players-daily
+  ? unknown tm-player 709187 "Nico Williams" — insert via sync-players-daily
+  ? unknown tm-player 338425 "Álex Berenguer" — insert via sync-players-daily
+  ? unknown tm-player 668183 "Nico Serrano" — insert via sync-players-daily
+  ? unknown tm-player 563137 "Robert Navarro" — insert via sync-players-daily
+  ? unknown tm-player 1054934 "Maroan Sannadi" — insert via sync-players-daily
+[LL MAD] 20 squad entries
+  ? unknown tm-player 689505 "Johnny Cardoso" — insert via sync-players-daily
+  ? unknown tm-player 961297 "Rodrigo Mendoza" — insert via sync-players-daily
+  ⟷ transfer-detected González 486031: DB=7562c4a5-37f5-4c60-82fa-c37d72046bf6 → TM=723e2cb7-d79c-4ebf-97a8-9bd8b9860931 (skip; use --allow-transfers)
+  ? unknown tm-player 406040 "Ademola Lookman" — insert via sync-players-daily
+[LL BAR] 20 squad entries
+  ? unknown tm-player 636703 "Fermín López" — insert via sync-players-daily
+  ⟷ transfer-detected Rashford 258923: DB=143584f4-f062-426c-8c60-cbada377ee8b → TM=f521e9f2-df3c-4468-ad6c-903974c04777 (skip; use --allow-transfers)
+[LL CEL] 26 squad entries
+  ? unknown tm-player 541621 "Marc Vidal" — insert via sync-players-daily
+[LL ELC] 25 squad entries
+  ? unknown tm-player 283170 "Iñaki Peña" — insert via sync-players-daily
+  ? unknown tm-player 501418 "Adrià Pedrosa" — insert via sync-players-daily
+  ? unknown tm-player 937955 "Héctor Fort" — insert via sync-players-daily
+  ? unknown tm-player 361254 "Rafa Mir" — insert via sync-players-daily
+  ? unknown tm-player 198008 "André Silva" — insert via sync-players-daily
+[LL ESP] 22 squad entries
+  ⟷ transfer-detected Dmitrovic 94308: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Riedel 692070: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Calero 357884: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Rubio 583510: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Cabrera 102423: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Romero 709372: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Salinas 819590: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Sánchez 705813: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Zárate 625651: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Lozano 412045: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Expósito 506248: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Terrats 783396: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Milla 225593: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Dolan 647435: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Ngonge 358032: DB=467ebf17-219d-4cf6-9536-d580915e4f49 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Carreras 628498: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected Roca 834744: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+  ⟷ transfer-detected García 93936: DB=f521e9f2-df3c-4468-ad6c-903974c04777 → TM=099cf1e2-d558-43e8-9d18-d37027ae49bd (skip; use --allow-transfers)
+[LL GET] 23 squad entries
+  ? unknown tm-player 1164331 "Ismael Bekhoucha" — insert via sync-players-daily
+[LL GIR] 21 squad entries
+  ⟷ transfer-detected Rincón Lumbreras 834487: DB=bbb95db1-841d-4e5f-aa2a-77c2b3bdb5e1 → TM=c199d761-5c60-46a1-89cd-d06c1b092cda (skip; use --allow-transfers)
+  ? unknown tm-player 423444 "Fran Beltrán" — insert via sync-players-daily
+  ? unknown tm-player 974251 "Lass Kourouma" — insert via sync-players-daily
+  ⟷ transfer-detected Echeverri 994536: DB=9db3fc5a-35e6-400a-8cc9-2db7dda610af → TM=c199d761-5c60-46a1-89cd-d06c1b092cda (skip; use --allow-transfers)
+[LL LEV] 26 squad entries
+  ? unknown tm-player 921345 "Tay Abed" — insert via sync-players-daily
+  ? unknown tm-player 632741 "Iker Losada" — insert via sync-players-daily
+[LL MAL] 22 squad entries
+  ? unknown tm-player 262939 "Johan Mojica" — insert via sync-players-daily
+[LL OSA] 21 squad entries
+[LL OVI] 24 squad entries
+  ? unknown tm-player 326416 "Dani Calvo" — insert via sync-players-daily
+[LL RAY] 26 squad entries
+  ? unknown tm-player 127108 "Florian Lejeune" — insert via sync-players-daily
+  ? unknown tm-player 311044 "Alfonso Espino" — insert via sync-players-daily
+  ? unknown tm-player 525578 "Pathé Ciss" — insert via sync-players-daily
+  ? unknown tm-player 618813 "Carlos Martín" — insert via sync-players-daily
+  ? unknown tm-player 709969 "Ilias Akhomach" — insert via sync-players-daily
+[LL BET] 25 squad entries
+  ⟷ transfer-detected Amrabat 287579: DB=4b4ba664-5c83-47b7-9031-dd3d40f1f271 → TM=9d1951c7-9bdc-4e31-a2e2-aab43cb602c8 (skip; use --allow-transfers)
+  ? unknown tm-player 459463 "Cucho Hernández" — insert via sync-players-daily
+[LL REA] 24 squad entries
+  ? unknown tm-player 1055220 "Fran González" — insert via sync-players-daily
+[LL RSO] 23 squad entries
+  ? unknown tm-player 229804 "Aritz Elustondo" — insert via sync-players-daily
+[LL SEV] 25 squad entries
+  ⟷ transfer-detected Mendy 395234: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=55ceb146-7de1-40a6-bcb0-eed39d34567e (skip; use --allow-transfers)
+  ? unknown tm-player 1064105 "Miguel Sierra" — insert via sync-players-daily
+  ⟷ transfer-detected Sanchez 40433: DB=bbb95db1-841d-4e5f-aa2a-77c2b3bdb5e1 → TM=55ceb146-7de1-40a6-bcb0-eed39d34567e (skip; use --allow-transfers)
+[LL VAL] 20 squad entries
+  ⟷ transfer-detected Núñez Gestoso 338285: DB=9a807eab-528d-430e-9e7a-17761104d6b9 → TM=7872b955-da21-4c36-bdd5-060031083303 (skip; use --allow-transfers)
+  ⟷ transfer-detected Rodríguez 342385: DB=57e7c822-95d8-477d-b787-96716d9cb3ae → TM=7872b955-da21-4c36-bdd5-060031083303 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ramazani 518644: DB=9e16e752-65b6-4fb5-80df-5110cb99708e → TM=7872b955-da21-4c36-bdd5-060031083303 (skip; use --allow-transfers)
+  ? unknown tm-player 355861 "Arnaut Danjuma" — insert via sync-players-daily
+  ⟷ transfer-detected Beltrán 628366: DB=74667350-9c98-4cc9-bc6e-ce8cd36bf810 → TM=7872b955-da21-4c36-bdd5-060031083303 (skip; use --allow-transfers)
+  ? unknown tm-player 337715 "Umar Sadiq" — insert via sync-players-daily
+[LL VIL] 25 squad entries
+  ? unknown tm-player 341713 "Diego Conde" — insert via sync-players-daily
+  ? unknown tm-player 805714 "Renato Veiga" — insert via sync-players-daily
+  ? unknown tm-player 953901 "Santiago Mouriño" — insert via sync-players-daily
+  ? unknown tm-player 1453066 "Carlos Macià" — insert via sync-players-daily
+  ? unknown tm-player 357628 "Alfon González" — insert via sync-players-daily
+[PL ARS] 23 squad entries
+  ? unknown tm-player 659813 "Piero Hincapié" — insert via sync-players-daily
+  ? unknown tm-player 148367 "Christian Nørgaard" — insert via sync-players-daily
+  ⟷ transfer-detected Eze 479999: DB=9e47646e-7588-437e-8657-1880f7ec8409 → TM=8b1fe92e-a952-44f5-8dc1-5502adbb7fa3 (skip; use --allow-transfers)
+[PL AST] 22 squad entries
+  ? unknown tm-player 321247 "Emiliano Buendía" — insert via sync-players-daily
+  ? unknown tm-player 331726 "Tammy Abraham" — insert via sync-players-daily
+[PL BOU] 23 squad entries
+  ? unknown tm-player 741257 "Álex Jiménez" — insert via sync-players-daily
+  ⟷ transfer-detected Adli 532776: DB=9db3fc5a-35e6-400a-8cc9-2db7dda610af → TM=868bd66b-4740-4df5-86f8-fa4ebeb0d7d2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Gannon Doak 719673: DB=c83ee47f-65fa-4601-9acf-c8b5ace89b40 → TM=868bd66b-4740-4df5-86f8-fa4ebeb0d7d2 (skip; use --allow-transfers)
+[PL BRE] 18 squad entries
+  ? unknown tm-player 328658 "Kristoffer Ajer" — insert via sync-players-daily
+  ⟷ transfer-detected Nelson 340325: DB=8b1fe92e-a952-44f5-8dc1-5502adbb7fa3 → TM=2ffa2a7d-d5be-4b43-b798-47c8d67b57fc (skip; use --allow-transfers)
+  ⟷ transfer-detected Ouattara 823231: DB=868bd66b-4740-4df5-86f8-fa4ebeb0d7d2 → TM=2ffa2a7d-d5be-4b43-b798-47c8d67b57fc (skip; use --allow-transfers)
+[PL BRI] 22 squad entries
+  ? unknown tm-player 667287 "Yasin Ayari" — insert via sync-players-daily
+  ? unknown tm-player 82873 "Pascal Groß" — insert via sync-players-daily
+  ? unknown tm-player 1012534 "Yankuba Minteh" — insert via sync-players-daily
+[PL BUR] 24 squad entries
+[PL CHE] 23 squad entries
+  ? unknown tm-player 403151 "Robert Sánchez" — insert via sync-players-daily
+  ? unknown tm-player 503765 "James Hillson" — insert via sync-players-daily
+  ? unknown tm-player 258878 "Tosin Adarabioyo" — insert via sync-players-daily
+  ? unknown tm-player 463603 "Benoît Badiashile" — insert via sync-players-daily
+  ? unknown tm-player 811779 "Alejandro Garnacho" — insert via sync-players-daily
+  ? unknown tm-player 938158 "Marc Guiu" — insert via sync-players-daily
+[PL CRY] 23 squad entries
+[PL EVE] 23 squad entries
+  ? unknown tm-player 938146 "Adam Aznou" — insert via sync-players-daily
+  ⟷ transfer-detected O'Brien 711544: DB=null → TM=6ba4dac2-d2aa-4c56-89df-e99224de7625 (skip; use --allow-transfers)
+  ? unknown tm-player 748319 "Carlos Alcaraz" — insert via sync-players-daily
+  ⟷ transfer-detected Röhl 608832: DB=29787971-86c2-44f4-80bc-e083542ebc06 → TM=6ba4dac2-d2aa-4c56-89df-e99224de7625 (skip; use --allow-transfers)
+  ⟷ transfer-detected George 936874: DB=c33facdc-0573-4f79-9542-47703e690514 → TM=6ba4dac2-d2aa-4c56-89df-e99224de7625 (skip; use --allow-transfers)
+[PL FUL] 21 squad entries
+  ⟷ transfer-detected Chukwueze 401922: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=8d7d88eb-ac27-4ffb-983f-2c8b69be9d11 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kusi-Asare 1069512: DB=5ac47993-2b66-4eec-8ed0-c69981fc0a07 → TM=8d7d88eb-ac27-4ffb-983f-2c8b69be9d11 (skip; use --allow-transfers)
+[PL LEE] 23 squad entries
+  ? unknown tm-player 194386 "Alex Cairns" — insert via sync-players-daily
+  ⟷ transfer-detected Bornauw 338629: DB=bb2e5794-080e-414f-8131-df4382787b1b → TM=9e16e752-65b6-4fb5-80df-5110cb99708e (skip; use --allow-transfers)
+  ? unknown tm-player 381753 "Ilia Gruev" — insert via sync-players-daily
+  ? unknown tm-player 883539 "Charlie Crew" — insert via sync-players-daily
+  ⟷ transfer-detected Buonanotte 983989: DB=c33facdc-0573-4f79-9542-47703e690514 → TM=9e16e752-65b6-4fb5-80df-5110cb99708e (skip; use --allow-transfers)
+  ⟷ transfer-detected Okafor 346890: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=9e16e752-65b6-4fb5-80df-5110cb99708e (skip; use --allow-transfers)
+[PL LIV] 21 squad entries
+  ⟷ transfer-detected Frimpong 484547: DB=9db3fc5a-35e6-400a-8cc9-2db7dda610af → TM=c83ee47f-65fa-4601-9acf-c8b5ace89b40 (skip; use --allow-transfers)
+  ⟷ transfer-detected Jones 433188: DB=9c42b907-ed22-4e2c-a228-cacb50cdf755 → TM=c83ee47f-65fa-4601-9acf-c8b5ace89b40 (skip; use --allow-transfers)
+  ⟷ transfer-detected Wirtz 598577: DB=9db3fc5a-35e6-400a-8cc9-2db7dda610af → TM=c83ee47f-65fa-4601-9acf-c8b5ace89b40 (skip; use --allow-transfers)
+  ? unknown tm-player 148455 "Mohamed Salah" — insert via sync-players-daily
+[PL MCI] 24 squad entries
+  ⟷ transfer-detected Guéhi 392757: DB=9e47646e-7588-437e-8657-1880f7ec8409 → TM=a990a598-e925-404c-a2bb-cf1e10300c7f (skip; use --allow-transfers)
+  ⟷ transfer-detected Reijnders 460939: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=a990a598-e925-404c-a2bb-cf1e10300c7f (skip; use --allow-transfers)
+  ⟷ transfer-detected Semenyo 583255: DB=868bd66b-4740-4df5-86f8-fa4ebeb0d7d2 → TM=a990a598-e925-404c-a2bb-cf1e10300c7f (skip; use --allow-transfers)
+[PL MUN] 19 squad entries
+[PL NEW] 23 squad entries
+  ? unknown tm-player 142389 "Mark Gillespie" — insert via sync-players-daily
+  ? unknown tm-player 520624 "Bruno Guimarães" — insert via sync-players-daily
+  ⟷ transfer-detected Woltemade 455661: DB=79e9c5d1-f59b-4b71-b006-7ff2a0e9a37e → TM=0e7ff6bd-98e3-4af2-bcf7-1b1f6cd6b780 (skip; use --allow-transfers)
+[PL NOT] 24 squad entries
+  ⟷ transfer-detected Lucca 572265: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=944188d2-c8bc-425b-91bb-44430219633f (skip; use --allow-transfers)
+[PL SUN] 23 squad entries
+  ⟷ transfer-detected Mandava 240692: DB=723e2cb7-d79c-4ebf-97a8-9bd8b9860931 → TM=9c42b907-ed22-4e2c-a228-cacb50cdf755 (skip; use --allow-transfers)
+[PL TOT] 22 squad entries
+  ? unknown tm-player 257455 "João Palhinha" — insert via sync-players-daily
+  ? unknown tm-player 801734 "Mathys Tel" — insert via sync-players-daily
+[PL WES] 22 squad entries
+  ? unknown tm-player 386047 "Axel Disasi" — insert via sync-players-daily
+  ? unknown tm-player 204103 "Adama Traoré" — insert via sync-players-daily
+  ? unknown tm-player 817665 "Pablo" — insert via sync-players-daily
+[PL WOL] 19 squad entries
+  ? unknown tm-player 249994 "José Sá" — insert via sync-players-daily
+  ? unknown tm-player 438001 "Santiago Bueno" — insert via sync-players-daily
+  ? unknown tm-player 1193867 "Pedro Lima" — insert via sync-players-daily
+  ? unknown tm-player 800176 "André" — insert via sync-players-daily
+  ? unknown tm-player 735570 "João Gomes" — insert via sync-players-daily
+  ? unknown tm-player 1230661 "Mateus Mané" — insert via sync-players-daily
+  ? unknown tm-player 392770 "Angel Gomes" — insert via sync-players-daily
+  ? unknown tm-player 1060740 "Enso González" — insert via sync-players-daily
+[SA MIL] 22 squad entries
+  ? unknown tm-player 349599 "Pervis Estupiñán" — insert via sync-players-daily
+  ? unknown tm-player 182913 "Adrien Rabiot" — insert via sync-players-daily
+  ? unknown tm-player 357164 "Rafael Leão" — insert via sync-players-daily
+[SA ROM] 23 squad entries
+  ? unknown tm-player 281769 "Mario Hermoso" — insert via sync-players-daily
+  ⟷ transfer-detected Koné 624690: DB=65977ea9-deb5-49c8-826a-976ea9ef0cd1 → TM=eb73a684-48f1-4f9f-a081-09ddc8287964 (skip; use --allow-transfers)
+  ? unknown tm-player 713644 "Bryan Zaragoza" — insert via sync-players-daily
+  ⟷ transfer-detected Venturino 1061820: DB=84f3f06f-58ca-4dff-a821-9dbb560391b3 → TM=eb73a684-48f1-4f9f-a081-09ddc8287964 (skip; use --allow-transfers)
+  ⟷ transfer-detected Malen 326029: DB=54e28ab4-f925-4324-8791-6f8d9321e80a → TM=eb73a684-48f1-4f9f-a081-09ddc8287964 (skip; use --allow-transfers)
+[SA ATA] 22 squad entries
+  ? unknown tm-player 644771 "Odilon Kossounou" — insert via sync-players-daily
+  ? unknown tm-player 503991 "Yunus Musah" — insert via sync-players-daily
+[SA BOL] 20 squad entries
+  ? unknown tm-player 247377 "Kevin Bonifazi" — insert via sync-players-daily
+  ? unknown tm-player 537602 "João Mário" — insert via sync-players-daily
+  ⟷ transfer-detected Pobega 392538: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=6dfb1ace-7f30-4192-a7d1-effb7feda1ec (skip; use --allow-transfers)
+[SA CAG] 23 squad entries
+  ? unknown tm-player 982267 "Ibrahim Sulemana" — insert via sync-players-daily
+  ⟷ transfer-detected Folorunsho 377042: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=b16e5efb-70b9-4ebb-8b49-0745b2216c50 (skip; use --allow-transfers)
+  ? unknown tm-player 1099924 "Yael Trepy" — insert via sync-players-daily
+[SA COM] 23 squad entries
+  ? unknown tm-player 1259706 "Henrique Menke" — insert via sync-players-daily
+  ? unknown tm-player 948278 "Jacobo Ramón" — insert via sync-players-daily
+  ? unknown tm-player 329145 "Diego Carlos" — insert via sync-players-daily
+  ? unknown tm-player 128223 "Álvaro Morata" — insert via sync-players-daily
+[SA CRE] 22 squad entries
+  ? unknown tm-player 256339 "Emil Audero" — insert via sync-players-daily
+  ⟷ transfer-detected Terracciano 631007: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=1334b450-8123-45a7-88a5-94d947db5d32 (skip; use --allow-transfers)
+  ⟷ transfer-detected Luperto 278531: DB=b16e5efb-70b9-4ebb-8b49-0745b2216c50 → TM=1334b450-8123-45a7-88a5-94d947db5d32 (skip; use --allow-transfers)
+  ⟷ transfer-detected Bondo 659516: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=1334b450-8123-45a7-88a5-94d947db5d32 (skip; use --allow-transfers)
+  ⟷ transfer-detected Payero 555820: DB=77ed014f-0eab-4ffc-9872-7c2bce398775 → TM=1334b450-8123-45a7-88a5-94d947db5d32 (skip; use --allow-transfers)
+  ⟷ transfer-detected Maleh 324377: DB=928e4fdc-642f-492a-807a-4acffb5e542e → TM=1334b450-8123-45a7-88a5-94d947db5d32 (skip; use --allow-transfers)
+  ⟷ transfer-detected Zerbin 433584: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=1334b450-8123-45a7-88a5-94d947db5d32 (skip; use --allow-transfers)
+  ? unknown tm-player 67556 "Milan Djuric" — insert via sync-players-daily
+[SA FIO] 24 squad entries
+  ⟷ transfer-detected Rugani 162959: DB=7562c4a5-37f5-4c60-82fa-c37d72046bf6 → TM=74667350-9c98-4cc9-bc6e-ce8cd36bf810 (skip; use --allow-transfers)
+  ? unknown tm-player 1012731 "Luis Balbo" — insert via sync-players-daily
+  ? unknown tm-player 401529 "Dodô" — insert via sync-players-daily
+  ⟷ transfer-detected Brescianini 459128: DB=74f45f91-ddd9-4001-84e2-34c50ca5b21d → TM=74667350-9c98-4cc9-bc6e-ce8cd36bf810 (skip; use --allow-transfers)
+  ⟷ transfer-detected Fabbian 633668: DB=6dfb1ace-7f30-4192-a7d1-effb7feda1ec → TM=74667350-9c98-4cc9-bc6e-ce8cd36bf810 (skip; use --allow-transfers)
+  ? unknown tm-player 305947 "Albert Gudmundsson" — insert via sync-players-daily
+[SA GEN] 22 squad entries
+  ? unknown tm-player 656441 "Jean Onana" — insert via sync-players-daily
+  ? unknown tm-player 1082774 "Amorim" — insert via sync-players-daily
+  ⟷ transfer-detected Colombo 487843: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=84f3f06f-58ca-4dff-a821-9dbb560391b3 (skip; use --allow-transfers)
+  ? unknown tm-player 586853 "Vitinha" — insert via sync-players-daily
+[SA VER] 23 squad entries
+  ? unknown tm-player 1355285 "Arthur Borghi" — insert via sync-players-daily
+  ⟷ transfer-detected Nelsson 422951: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=9a807eab-528d-430e-9e7a-17761104d6b9 (skip; use --allow-transfers)
+  ? unknown tm-player 170481 "Jean-Daniel Akpa Akpro" — insert via sync-players-daily
+  ⟷ transfer-detected Orban 1018259: DB=72a81990-dea7-46f9-aedb-b11822be207f → TM=9a807eab-528d-430e-9e7a-17761104d6b9 (skip; use --allow-transfers)
+[SA INT] 21 squad entries
+  ? unknown tm-player 55735 "Henrikh Mkhitaryan" — insert via sync-players-daily
+[SA JUV] 19 squad entries
+[SA LAZ] 23 squad entries
+  ⟷ transfer-detected Cataldi 199733: DB=74667350-9c98-4cc9-bc6e-ce8cd36bf810 → TM=bff52f54-d8d8-4c2b-8fcd-037b5c57ca85 (skip; use --allow-transfers)
+  ⟷ transfer-detected Maldini 539134: DB=74f45f91-ddd9-4001-84e2-34c50ca5b21d → TM=bff52f54-d8d8-4c2b-8fcd-037b5c57ca85 (skip; use --allow-transfers)
+[SA LEC] 22 squad entries
+  ⟷ transfer-detected Siebert 604113: DB=e048464c-bf75-420c-be3d-4b7418cc0e1b → TM=928e4fdc-642f-492a-807a-4acffb5e542e (skip; use --allow-transfers)
+  ? unknown tm-player 649490 "Konan N’Dri" — insert via sync-players-daily
+  ⟷ transfer-detected Camarda 1058368: DB=2ce22951-40d7-47de-9f2c-44c7b12e2851 → TM=928e4fdc-642f-492a-807a-4acffb5e542e (skip; use --allow-transfers)
+  ⟷ transfer-detected Cheddira 521407: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=928e4fdc-642f-492a-807a-4acffb5e542e (skip; use --allow-transfers)
+[SA NAP] 23 squad entries
+  ? unknown tm-player 250683 "Nikita Contini" — insert via sync-players-daily
+  ? unknown tm-player 1195798 "Mathias Ferrante" — insert via sync-players-daily
+  ? unknown tm-player 121985 "Juan Jesus" — insert via sync-players-daily
+  ? unknown tm-player 525299 "Miguel Gutiérrez" — insert via sync-players-daily
+  ? unknown tm-player 376514 "Mathías Olivera" — insert via sync-players-daily
+  ? unknown tm-player 354361 "Frank Anguissa" — insert via sync-players-daily
+  ? unknown tm-player 830365 "Alisson Santos" — insert via sync-players-daily
+  ? unknown tm-player 610442 "Rasmus Højlund" — insert via sync-players-daily
+  ? unknown tm-player 1005165 "Giovane" — insert via sync-players-daily
+[SA PAR] 22 squad entries
+  ⟷ transfer-detected Nicolussi Caviglia 430280: DB=74667350-9c98-4cc9-bc6e-ce8cd36bf810 → TM=88c1f08c-5efb-4dc9-b5e4-7f9e39a2bf56 (skip; use --allow-transfers)
+  ? unknown tm-player 856530 "Mateo Pellegrino" — insert via sync-players-daily
+[SA PIS] 26 squad entries
+  ? unknown tm-player 99523 "Nícolas" — insert via sync-players-daily
+  ? unknown tm-player 15452 "Raúl Albiol" — insert via sync-players-daily
+  ⟷ transfer-detected Akinsanmiro 969192: DB=44961dde-70c6-4d89-b0cb-3eadea3f0f1c → TM=33be9d7f-d9ac-407f-9886-839e2f5b4194 (skip; use --allow-transfers)
+  ⟷ transfer-detected Aebischer 237658: DB=6dfb1ace-7f30-4192-a7d1-effb7feda1ec → TM=33be9d7f-d9ac-407f-9886-839e2f5b4194 (skip; use --allow-transfers)
+  ⟷ transfer-detected Iling-Junior 581672: DB=e2ac3ace-ecb1-4f0d-8f3e-2be0d9e1ad7d → TM=33be9d7f-d9ac-407f-9886-839e2f5b4194 (skip; use --allow-transfers)
+[SA SAS] 23 squad entries
+  ? unknown tm-player 1082581 "Pedro Felipe" — insert via sync-players-daily
+  ⟷ transfer-detected Walukiewicz 345458: DB=467ebf17-219d-4cf6-9536-d580915e4f49 → TM=08d769d4-3bb0-4fad-a038-7707599c553e (skip; use --allow-transfers)
+  ⟷ transfer-detected Vranckx 503881: DB=bb2e5794-080e-414f-8131-df4382787b1b → TM=08d769d4-3bb0-4fad-a038-7707599c553e (skip; use --allow-transfers)
+  ⟷ transfer-detected Nzola 354814: DB=74667350-9c98-4cc9-bc6e-ce8cd36bf810 → TM=08d769d4-3bb0-4fad-a038-7707599c553e (skip; use --allow-transfers)
+[SA TOR] 28 squad entries
+  ? unknown tm-player 492319 "Franco Israel" — insert via sync-players-daily
+  ? unknown tm-player 942103 "Lapo Siviero" — insert via sync-players-daily
+  ? unknown tm-player 588426 "Saúl Coco" — insert via sync-players-daily
+  ⟷ transfer-detected Marianucci 814446: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=467ebf17-219d-4cf6-9536-d580915e4f49 (skip; use --allow-transfers)
+  ? unknown tm-player 249730 "Guillermo Maripán" — insert via sync-players-daily
+  ⟷ transfer-detected Ebosse 342877: DB=9a807eab-528d-430e-9e7a-17761104d6b9 → TM=467ebf17-219d-4cf6-9536-d580915e4f49 (skip; use --allow-transfers)
+  ? unknown tm-player 646747 "Rafa Obrador" — insert via sync-players-daily
+  ⟷ transfer-detected Nkounkou 591193: DB=461a999b-36c1-49e5-881d-321924c64b24 → TM=467ebf17-219d-4cf6-9536-d580915e4f49 (skip; use --allow-transfers)
+  ? unknown tm-player 583404 "Marcus Pedersen" — insert via sync-players-daily
+  ? unknown tm-player 157507 "Adrien Tamèze" — insert via sync-players-daily
+  ? unknown tm-player 934527 "Alieu Njie" — insert via sync-players-daily
+  ? unknown tm-player 928900 "Zanos Savva" — insert via sync-players-daily
+  ? unknown tm-player 282388 "Giovanni Simeone" — insert via sync-players-daily
+[SA UDI] 21 squad entries
+  ⟷ transfer-detected Zaniolo 392085: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=77ed014f-0eab-4ffc-9872-7c2bce398775 (skip; use --allow-transfers)
+[SL ALA] 23 squad entries
+  ? unknown tm-player 67886 "Paulo Victor" — insert via sync-players-daily
+  ? unknown tm-player 836336 "Nuno Lima" — insert via sync-players-daily
+  ? unknown tm-player 700305 "Buluthan Bulut" — insert via sync-players-daily
+[SL ANT] 26 squad entries
+  ? unknown tm-player 1076670 "Ensar Buğra Tivsiz" — insert via sync-players-daily
+[SL IST] 25 squad entries
+  ? unknown tm-player 1057178 "Luca Stancic" — insert via sync-players-daily
+  ? unknown tm-player 312678 "Léo Duarte" — insert via sync-players-daily
+  ? unknown tm-player 1001554 "Berkay Aslan" — insert via sync-players-daily
+  ? unknown tm-player 358166 "Eldor Shomurodov" — insert via sync-players-daily
+  ? unknown tm-player 306166 "Nuno Da Costa" — insert via sync-players-daily
+[SL BES] 23 squad entries
+  ? unknown tm-player 495722 "Devis Vásquez" — insert via sync-players-daily
+  ? unknown tm-player 683895 "Emmanuel Agbadou" — insert via sync-players-daily
+  ⟷ transfer-detected Bulut 810100: DB=522043ff-3adf-4bb6-8222-45bc370e0312 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ⟷ transfer-detected Sazdagi 257785: DB=1414aff7-5297-4e00-8110-f2c431dca9e5 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ⟷ transfer-detected Asllani 543771: DB=467ebf17-219d-4cf6-9536-d580915e4f49 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ? unknown tm-player 900938 "Junior Olaitan" — insert via sync-players-daily
+  ⟷ transfer-detected Touré 649016: DB=74f45f91-ddd9-4001-84e2-34c50ca5b21d → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ? unknown tm-player 663244 "Jota Silva" — insert via sync-players-daily
+  ⟷ transfer-detected Černý 242063: DB=bb2e5794-080e-414f-8131-df4382787b1b → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ünder 341647: DB=4b4ba664-5c83-47b7-9031-dd3d40f1f271 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+[SL EYU] 21 squad entries
+  ⟷ transfer-detected Yılmaz 727077: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=a0613d4b-0197-4212-8709-b72ced3ec018 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ozyurt 710051: DB=eb43fb36-4ed4-4679-b094-fc78fd3ac6fb → TM=a0613d4b-0197-4212-8709-b72ced3ec018 (skip; use --allow-transfers)
+  ? unknown tm-player 1175508 "Arda Yavuz" — insert via sync-players-daily
+  ? unknown tm-player 1414670 "Ismaila Manga" — insert via sync-players-daily
+  ? unknown tm-player 1414677 "Abdou Khadre Sy" — insert via sync-players-daily
+[SL KAR] 25 squad entries
+  ? unknown tm-player 1223507 "Berke Can Evli" — insert via sync-players-daily
+  ⟷ transfer-detected Özcan 249952: DB=e17cbb7e-72a9-4cfa-b3d3-a4e777463375 → TM=65109bb5-d9b5-4e3d-8ee5-b09dd07f3398 (skip; use --allow-transfers)
+  ? unknown tm-player 642869 "Tuğbey Akgün" — insert via sync-players-daily
+  ? unknown tm-player 456449 "Serginho" — insert via sync-players-daily
+  ? unknown tm-player 1498276 "Ahmed Traore" — insert via sync-players-daily
+[SL FEN] 21 squad entries
+  ? unknown tm-player 465830 "Mattéo Guendouzi" — insert via sync-players-daily
+  ? unknown tm-player 191614 "Fred" — insert via sync-players-daily
+  ? unknown tm-player 258626 "Talisca" — insert via sync-players-daily
+  ⟷ transfer-detected Musaba 511401: DB=5692a375-096e-489e-b518-ce84e95caeda → TM=4b4ba664-5c83-47b7-9031-dd3d40f1f271 (skip; use --allow-transfers)
+[SL GAL] 24 squad entries
+  ? unknown tm-player 318077 "Lucas Torreira" — insert via sync-players-daily
+  ? unknown tm-player 553469 "Gabriel Sara" — insert via sync-players-daily
+  ⟷ transfer-detected Lang 339332: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd (skip; use --allow-transfers)
+  ? unknown tm-player 1070983 "Armando Güner" — insert via sync-players-daily
+[SL GAZ] 22 squad entries
+  ⟷ transfer-detected Mujakić 380919: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=07959b85-3723-40c6-a208-4a0dc0fd3c74 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kabasakal 275683: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=07959b85-3723-40c6-a208-4a0dc0fd3c74 (skip; use --allow-transfers)
+  ? unknown tm-player 1261143 "Ali Osman Kalın" — insert via sync-players-daily
+  ⟷ transfer-detected Drăguş 405399: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=07959b85-3723-40c6-a208-4a0dc0fd3c74 (skip; use --allow-transfers)
+[SL GEN] 27 squad entries
+  ? unknown tm-player 527026 "Ricardo Velho" — insert via sync-players-daily
+  ? unknown tm-player 323876 "Thalisson" — insert via sync-players-daily
+  ? unknown tm-player 1168398 "Umut İslamoğlu" — insert via sync-players-daily
+  ? unknown tm-player 1417530 "Hamza Aydar" — insert via sync-players-daily
+  ? unknown tm-player 934617 "Emirhan Ünal" — insert via sync-players-daily
+  ⟷ transfer-detected Gürpüz 655912: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=cb174221-b3da-46a8-98e4-6d448a0973ae (skip; use --allow-transfers)
+  ? unknown tm-player 530851 "Franco Tongya" — insert via sync-players-daily
+  ⟷ transfer-detected Varešanović 433105: DB=76a86d37-d1f7-45cd-8ca8-dc6345fc2ade → TM=cb174221-b3da-46a8-98e4-6d448a0973ae (skip; use --allow-transfers)
+  ⟷ transfer-detected Çanak 743376: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=cb174221-b3da-46a8-98e4-6d448a0973ae (skip; use --allow-transfers)
+  ? unknown tm-player 364405 "Adama Traoré" — insert via sync-players-daily
+  ? unknown tm-player 157501 "M'Baye Niang" — insert via sync-players-daily
+  ? unknown tm-player 1437503 "Ayaz Özcan" — insert via sync-players-daily
+[SL GOZ] 20 squad entries
+  ⟷ transfer-detected Öztürk 1014342: DB=1414aff7-5297-4e00-8110-f2c431dca9e5 → TM=f22b148f-6a91-4dfe-839e-f25b97ea6e42 (skip; use --allow-transfers)
+  ? unknown tm-player 647787 "Malcom Bokele" — insert via sync-players-daily
+  ? unknown tm-player 1076671 "Ege Yıldırım" — insert via sync-players-daily
+[SL KAS] 30 squad entries
+  ? unknown tm-player 1314014 "Ahmet Taha Dağbaşı" — insert via sync-players-daily
+  ⟷ transfer-detected Demirbay 125858: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=a22493b6-0818-4d40-9076-fe3ea0455eac (skip; use --allow-transfers)
+  ⟷ transfer-detected Aydin 605110: DB=5692a375-096e-489e-b518-ce84e95caeda → TM=a22493b6-0818-4d40-9076-fe3ea0455eac (skip; use --allow-transfers)
+  ? unknown tm-player 203655 "Cafú" — insert via sync-players-daily
+[SL KAY] 26 squad entries
+  ⟷ transfer-detected Bénes 243188: DB=bbd54175-453f-482f-a3d4-f13d75a2b546 → TM=1414aff7-5297-4e00-8110-f2c431dca9e5 (skip; use --allow-transfers)
+  ? unknown tm-player 182711 "Carlos Mané" — insert via sync-players-daily
+[SL KOC] 19 squad entries
+  ⟷ transfer-detected Smolčić 571299: DB=461a999b-36c1-49e5-881d-321924c64b24 → TM=5ae2ca18-c8f1-4324-908d-0af9775e8abe (skip; use --allow-transfers)
+  ? unknown tm-player 1439190 "Deniz Ceylan" — insert via sync-players-daily
+  ? unknown tm-player 748807 "Joseph Nonge" — insert via sync-players-daily
+  ? unknown tm-player 451353 "Rigoberto Rivas" — insert via sync-players-daily
+  ? unknown tm-player 367195 "Dan Agyei" — insert via sync-players-daily
+[SL KON] 22 squad entries
+  ⟷ transfer-detected Baniya 394872: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Boşluk 801693: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kutlu 469787: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Olaigbe 565406: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Türüç 216662: DB=e17cbb7e-72a9-4cfa-b3d3-a4e777463375 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+[SL RIZ] 18 squad entries
+  ? unknown tm-player 719672 "Adedire Mebude" — insert via sync-players-daily
+  ⟷ transfer-detected Dervişoğlu 465606: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=76a86d37-d1f7-45cd-8ca8-dc6345fc2ade (skip; use --allow-transfers)
+[SL SAM] 24 squad entries
+  ? unknown tm-player 1457367 "Ali Badra Diabaté" — insert via sync-players-daily
+  ? unknown tm-player 345577 "Carlo Holse" — insert via sync-players-daily
+[SL TRA] 22 squad entries
+  ? unknown tm-player 234509 "André Onana" — insert via sync-players-daily
+  ? unknown tm-player 1243013 "Arda Öztürk" — insert via sync-players-daily
+  ? unknown tm-player 1072017 "Wagner Pina" — insert via sync-players-daily
+  ? unknown tm-player 1209829 "Onuralp Çakıroğlu" — insert via sync-players-daily
+[TFF1 ADM] 14 squad entries
+  ? unknown tm-player 1477858 "Oktay Çimen" — insert via sync-players-daily
+  ? unknown tm-player 1509712 "Muhammed Yasin Erdoğan" — insert via sync-players-daily
+  ? unknown tm-player 1515353 "Ege Acımış" — insert via sync-players-daily
+  ? unknown tm-player 1445402 "Seyfi Efe Irga" — insert via sync-players-daily
+  ? unknown tm-player 1399717 "Mehmet Ayhan Yastı" — insert via sync-players-daily
+  ? unknown tm-player 1493781 "Toprak Bayar" — insert via sync-players-daily
+  ? unknown tm-player 1509714 "Muhammed Enes Gül" — insert via sync-players-daily
+  ? unknown tm-player 1509717 "Yunus Kaan Gündoğdu" — insert via sync-players-daily
+  ? unknown tm-player 1509716 "Kayra Deniz Özbay" — insert via sync-players-daily
+  ? unknown tm-player 1512617 "Mustafa Bozkurt" — insert via sync-players-daily
+  ? unknown tm-player 1368342 "Efe Şölen" — insert via sync-players-daily
+[TFF1 AMD] 23 squad entries
+  ⟷ transfer-detected Damlu 341649: DB=ce6820b8-7c24-4007-adbe-8446edaf5f85 → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Syrota 505463: DB=5ae2ca18-c8f1-4324-908d-0af9775e8abe → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Serbest 158118: DB=5ae2ca18-c8f1-4324-908d-0af9775e8abe → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Matur 566572: DB=4ed03e4b-b000-4508-90b0-21d5e8763efd → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Müjde 815014: DB=a22493b6-0818-4d40-9076-fe3ea0455eac → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Üstündag 445623: DB=a22493b6-0818-4d40-9076-fe3ea0455eac → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Afena-Gyan 872380: DB=1334b450-8123-45a7-88a5-94d947db5d32 → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+  ⟷ transfer-detected Minchev Dimitrov 587688: DB=b3421683-c3fa-47eb-8517-f63b7adc3278 → TM=d4052a70-3878-492c-981c-11bd77f5edc6 (skip; use --allow-transfers)
+[TFF1 BAN] 24 squad entries
+  ? unknown tm-player 1071058 "Yiğit Zorluer" — insert via sync-players-daily
+  ? unknown tm-player 341646 "Kerim Alıcı" — insert via sync-players-daily
+  ⟷ transfer-detected Parmak 276337: DB=4ed03e4b-b000-4508-90b0-21d5e8763efd → TM=d28884c9-d7d8-454b-ae8d-29f511424e52 (skip; use --allow-transfers)
+  ? unknown tm-player 1350345 "Atalay Atcı" — insert via sync-players-daily
+  ? unknown tm-player 352898 "João Amaral" — insert via sync-players-daily
+  ⟷ transfer-detected Akyazı 1047598: DB=f99d71c2-4097-433a-a7e2-046b79ce4bb2 → TM=d28884c9-d7d8-454b-ae8d-29f511424e52 (skip; use --allow-transfers)
+  ⟷ transfer-detected Fall 289713: DB=a22493b6-0818-4d40-9076-fe3ea0455eac → TM=d28884c9-d7d8-454b-ae8d-29f511424e52 (skip; use --allow-transfers)
+  ? unknown tm-player 1401867 "Amidou Badji" — insert via sync-players-daily
+[TFF1 BOD] 29 squad entries
+  ⟷ transfer-detected Yılmaz 393217: DB=4c7e4a62-f93e-4002-8e70-5325604b0a71 → TM=b3421683-c3fa-47eb-8517-f63b7adc3278 (skip; use --allow-transfers)
+  ⟷ transfer-detected Arkutcu 1047591: DB=4b4ba664-5c83-47b7-9031-dd3d40f1f271 → TM=b3421683-c3fa-47eb-8517-f63b7adc3278 (skip; use --allow-transfers)
+[TFF1 BOL] 28 squad entries
+  ⟷ transfer-detected Öztonga 553839: DB=5ae2ca18-c8f1-4324-908d-0af9775e8abe → TM=ca7f19f5-c6df-4e23-bfe0-cfa7722cff2d (skip; use --allow-transfers)
+  ⟷ transfer-detected Akkan 419375: DB=9fece621-3554-4e1b-b155-f72b2f9657a5 → TM=ca7f19f5-c6df-4e23-bfe0-cfa7722cff2d (skip; use --allow-transfers)
+  ? unknown tm-player 966396 "Mert Apat" — insert via sync-players-daily
+  ⟷ transfer-detected Üresin 1008031: DB=f99d71c2-4097-433a-a7e2-046b79ce4bb2 → TM=ca7f19f5-c6df-4e23-bfe0-cfa7722cff2d (skip; use --allow-transfers)
+  ⟷ transfer-detected Usluoğlu 981928: DB=eb43fb36-4ed4-4679-b094-fc78fd3ac6fb → TM=ca7f19f5-c6df-4e23-bfe0-cfa7722cff2d (skip; use --allow-transfers)
+[TFF1 ÇOR] 22 squad entries
+  ⟷ transfer-detected Osmanoğlu 74040: DB=cb174221-b3da-46a8-98e4-6d448a0973ae → TM=58b76d7d-e0fe-4b1b-b026-3204258f2e7b (skip; use --allow-transfers)
+  ⟷ transfer-detected Ildız 226169: DB=f22b148f-6a91-4dfe-839e-f25b97ea6e42 → TM=58b76d7d-e0fe-4b1b-b026-3204258f2e7b (skip; use --allow-transfers)
+  ⟷ transfer-detected Aleksić 48119: DB=f99d71c2-4097-433a-a7e2-046b79ce4bb2 → TM=58b76d7d-e0fe-4b1b-b026-3204258f2e7b (skip; use --allow-transfers)
+  ⟷ transfer-detected Gürler 98512: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=58b76d7d-e0fe-4b1b-b026-3204258f2e7b (skip; use --allow-transfers)
+  ⟷ transfer-detected Thiam 163053: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=58b76d7d-e0fe-4b1b-b026-3204258f2e7b (skip; use --allow-transfers)
+[TFF1 ERZ] 25 squad entries
+[TFF1 ERK] 23 squad entries
+  ⟷ transfer-detected Okyar 381172: DB=cb174221-b3da-46a8-98e4-6d448a0973ae → TM=66bfc6e4-3bd8-4788-a668-02715f4ea9b5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Beyaz 588020: DB=e17cbb7e-72a9-4cfa-b3d3-a4e777463375 → TM=66bfc6e4-3bd8-4788-a668-02715f4ea9b5 (skip; use --allow-transfers)
+[TFF1 HAT] 30 squad entries
+[TFF1 IGD] 24 squad entries
+  ⟷ transfer-detected Çankaya 315208: DB=65109bb5-d9b5-4e3d-8ee5-b09dd07f3398 → TM=fc8163d5-5d62-45c2-9b10-5e7b896305db (skip; use --allow-transfers)
+  ⟷ transfer-detected Yalçın 124422: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=fc8163d5-5d62-45c2-9b10-5e7b896305db (skip; use --allow-transfers)
+  ⟷ transfer-detected Vural 52281: DB=4c7e4a62-f93e-4002-8e70-5325604b0a71 → TM=fc8163d5-5d62-45c2-9b10-5e7b896305db (skip; use --allow-transfers)
+  ⟷ transfer-detected Doh 1294653: DB=65109bb5-d9b5-4e3d-8ee5-b09dd07f3398 → TM=fc8163d5-5d62-45c2-9b10-5e7b896305db (skip; use --allow-transfers)
+[TFF1 İST] 34 squad entries
+  ⟷ transfer-detected Tuncer 1304033: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=84c09600-7844-4be9-85a2-dc8097ceab22 (skip; use --allow-transfers)
+  ⟷ transfer-detected Mert 183233: DB=b2c4a9f1-1848-4504-98ce-ba73a39b2d80 → TM=84c09600-7844-4be9-85a2-dc8097ceab22 (skip; use --allow-transfers)
+  ? unknown tm-player 1175928 "Eren Arda Şan" — insert via sync-players-daily
+[TFF1 KEÇ] 23 squad entries
+  ⟷ transfer-detected Yılmaz 795523: DB=d4052a70-3878-492c-981c-11bd77f5edc6 → TM=40ccd992-345a-4be9-98b1-680a96dcd6d8 (skip; use --allow-transfers)
+[TFF1 MAN] 25 squad entries
+  ? unknown tm-player 1460564 "Oğuzhan Yurtdaş" — insert via sync-players-daily
+[TFF1 PEN] 22 squad entries
+[TFF1 SAK] 28 squad entries
+  ⟷ transfer-detected Dadakdeniz 330824: DB=4c7e4a62-f93e-4002-8e70-5325604b0a71 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kocaman 889613: DB=1414aff7-5297-4e00-8110-f2c431dca9e5 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Bekaroğlu 293903: DB=fc8163d5-5d62-45c2-9b10-5e7b896305db → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Teixeira 520491: DB=f22b148f-6a91-4dfe-839e-f25b97ea6e42 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Cihan 583970: DB=07959b85-3723-40c6-a208-4a0dc0fd3c74 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Karatas 1243050: DB=4b4ba664-5c83-47b7-9031-dd3d40f1f271 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Demir 282615: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Yıldırım 993407: DB=4c7e4a62-f93e-4002-8e70-5325604b0a71 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+  ⟷ transfer-detected Bostan 697917: DB=f99d71c2-4097-433a-a7e2-046b79ce4bb2 → TM=2bf30014-db88-4567-9885-9da215e3a0d4 (skip; use --allow-transfers)
+[TFF1 SAR] 23 squad entries
+  ⟷ transfer-detected Bayram 920138: DB=eb43fb36-4ed4-4679-b094-fc78fd3ac6fb → TM=b2c4a9f1-1848-4504-98ce-ba73a39b2d80 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kulašin 672052: DB=07959b85-3723-40c6-a208-4a0dc0fd3c74 → TM=b2c4a9f1-1848-4504-98ce-ba73a39b2d80 (skip; use --allow-transfers)
+[TFF1 SER] 30 squad entries
+  ⟷ transfer-detected Demir 646948: DB=4ed03e4b-b000-4508-90b0-21d5e8763efd → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Cavlan 136550: DB=fc8163d5-5d62-45c2-9b10-5e7b896305db → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ibrahimoglu 724050: DB=f99d71c2-4097-433a-a7e2-046b79ce4bb2 → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Tunalı 672852: DB=5ae2ca18-c8f1-4324-908d-0af9775e8abe → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Nalepa 333374: DB=cb174221-b3da-46a8-98e4-6d448a0973ae → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Özcan 209736: DB=84c09600-7844-4be9-85a2-dc8097ceab22 → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+  ⟷ transfer-detected Koç 168161: DB=b2c4a9f1-1848-4504-98ce-ba73a39b2d80 → TM=9fece621-3554-4e1b-b155-f72b2f9657a5 (skip; use --allow-transfers)
+[TFF1 SİV] 24 squad entries
+  ⟷ transfer-detected Akkan 223025: DB=cb174221-b3da-46a8-98e4-6d448a0973ae → TM=def4fe6e-d592-4b4b-88d7-128cde54f968 (skip; use --allow-transfers)
+  ⟷ transfer-detected Avramovski 193289: DB=fc8163d5-5d62-45c2-9b10-5e7b896305db → TM=def4fe6e-d592-4b4b-88d7-128cde54f968 (skip; use --allow-transfers)
+  ⟷ transfer-detected Okoronkwo 987700: DB=4ed03e4b-b000-4508-90b0-21d5e8763efd → TM=def4fe6e-d592-4b4b-88d7-128cde54f968 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ethemi 538566: DB=fc8163d5-5d62-45c2-9b10-5e7b896305db → TM=def4fe6e-d592-4b4b-88d7-128cde54f968 (skip; use --allow-transfers)
+[TFF1 ÜMR] 25 squad entries
+[TFF1 VAN] 24 squad entries
+  ⟷ transfer-detected Uysal 137610: DB=b2c4a9f1-1848-4504-98ce-ba73a39b2d80 → TM=ce6820b8-7c24-4007-adbe-8446edaf5f85 (skip; use --allow-transfers)
+  ⟷ transfer-detected Jevšenak 708192: DB=33be9d7f-d9ac-407f-9886-839e2f5b4194 → TM=ce6820b8-7c24-4007-adbe-8446edaf5f85 (skip; use --allow-transfers)
+  ⟷ transfer-detected Demirol 571085: DB=65109bb5-d9b5-4e3d-8ee5-b09dd07f3398 → TM=ce6820b8-7c24-4007-adbe-8446edaf5f85 (skip; use --allow-transfers)
+
+=== Result ===
+duration:                   768.9s
+clubs_processed:            134 / 134
+clubs_empty_squad:          0
+clubs_errored:              0
+players_matched:            2841
+players_updated_shirt:      22
+players_updated_mv:         0
+players_transfer_detected:  225
+players_transfer_applied:   0 (dry/off)
+players_unknown:            295
