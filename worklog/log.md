@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 147 | 2026-04-22 | /ship Skill + worklog/README Update auf 6-Stages (XS)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, doc-only) → BUILD → REVIEW (skipped, trivial template) → PROVE → LOG
+- **Trigger:** Backlog aus 145-Review Finding #6. SKILL.md + README standen noch auf 5-Stage Workflow, erwaehnten weder `review:`-Key noch `reviews/`-Directory.
+- **Scope:**
+  - `.claude/skills/ship/SKILL.md` — Frontmatter description 5→6-Stufen, active.md-Template-Block ergaenzt, `/ship review` Kommando-Abschnitt hinzugefuegt.
+  - `worklog/README.md` — Directory-Tabelle + audits/ + reviews/, Step 5 `/ship review`, Gates-Tabelle mit ship-cto-review-gate.
+- **Review:** skipped (Grund: trivialer doc-only template text, keine Call-Sites, keine Logik-Aenderung).
+- **Proof:** `worklog/proofs/147-doc-verify.txt` — 6 ACs per grep (alle PASS, live Skill-Metadaten cross-verified).
+- **Commit:** `c8b4b5e4`
+
+---
+
 ## 146 | 2026-04-22 | Proof-Gate + Review-Gate Token-Anchor Hardening (XS+)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, Hook-only) → BUILD → REVIEW (CONCERNS → Rework → PASS) → PROVE → LOG
