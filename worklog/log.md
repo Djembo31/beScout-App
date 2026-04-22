@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144 | 2026-04-22 | B3 TM-Squad-Page-Scraper BUILD + Dry-Run (M)
+
+- **Stage-Chain:** SPEC → IMPACT → BUILD → PROOF → LOG (Full-Run pending Anil)
+- **Scope-Decision:** Leihspieler zählen als Squad-Member des Leih-Clubs (Anil 2026-04-22 Option A).
+- **Migration:** `players.last_squad_check TIMESTAMPTZ NULLABLE` — Signal für retired/loan-out-detection.
+- **Parser `parseSquadTable(html)`:** Extrahiert alle `<tr class="odd|even">` mit `rn_nummer`-Cell via tr-depth-counter (non-greedy regex scheitert an nested `<table class="inline-table">`). Pro Row: tmPlayerId + tmSlug + displayName + shirtNumber + position (title-attr) + nationality (flaggenrahmen-img 2-step, order-agnostic) + marketValueEur ("15,00 Mio. €" → 15_000_000). Real-Test Galatasaray 24/24 auf alle 4 Felder.
+- **Script `scripts/tm-squad-scrape-local.ts`:** Playwright chromium, Rate-Limit 2000ms default, `--dry-run` + `--league` + `--allow-transfers` Flags. Für matched players: UPDATE shirt + MV (wenn mv_source ≠ 'transfermarkt_stale') + last_squad_check. Cross-club detection: Players in TM-Squad-X aber DB-club=Y → skip oder apply je nach Flag. Unbekannte TM-Player → log, Insert-Pfad liegt bei sync-players-daily.
+- **Dry-Run Süper-Lig (70.5s):** 18/18 clubs, 366 matched, 28 transfer-detected (pending Full-Run), 52 unknown (neu in TM). 2 Shirt-Updates pending, 0 MV-Updates (stale-guard + bereits aktuelle MVs).
+- **Files:** `src/lib/scrapers/transfermarkt-squad.ts` (+squad.test.ts, 8 tests grün), `scripts/tm-squad-scrape-local.ts`, Migration `20260422130000_players_last_squad_check`
+- **Proof:** `worklog/proofs/144-squad-parser-vitest.txt` + `144-dry-run-sl.log` + `144-db-verify.txt`
+- **Pending:** Full-Run (mit/ohne `--allow-transfers`) — Anil-Entscheidung.
+- **Commit:** _siehe git log_
+
+---
+
 ## 143 | 2026-04-22 | Follower-Count Integrity (Silent-Fail + Cache-Propagation) (XS)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (grep) → BUILD → PROOF → LOG

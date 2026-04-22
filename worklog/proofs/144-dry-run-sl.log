@@ -1,0 +1,122 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+=== TM Squad Scraper (Slice 144) ===
+league=Süper Lig rate=2000ms dry-run=true allow-transfers=false
+
+Loaded 18 clubs with TM-mapping.
+
+Loading existing transfermarkt-mapped players...
+Loaded 3922 TM-mapped players from DB.
+
+[SL ALA] 23 squad entries
+  ? unknown tm-player 67886 "Paulo Victor" — insert via sync-players-daily
+  ? unknown tm-player 836336 "Nuno Lima" — insert via sync-players-daily
+  ? unknown tm-player 700305 "Buluthan Bulut" — insert via sync-players-daily
+[SL ANT] 26 squad entries
+  ? unknown tm-player 1076670 "Ensar Buğra Tivsiz" — insert via sync-players-daily
+[SL IST] 25 squad entries
+  ? unknown tm-player 1057178 "Luca Stancic" — insert via sync-players-daily
+  ? unknown tm-player 312678 "Léo Duarte" — insert via sync-players-daily
+  ? unknown tm-player 1001554 "Berkay Aslan" — insert via sync-players-daily
+  ? unknown tm-player 358166 "Eldor Shomurodov" — insert via sync-players-daily
+  ? unknown tm-player 306166 "Nuno Da Costa" — insert via sync-players-daily
+[SL BES] 23 squad entries
+  ? unknown tm-player 495722 "Devis Vásquez" — insert via sync-players-daily
+  (dry) Bilgin #80dc739c would update shirt_number
+  ? unknown tm-player 683895 "Emmanuel Agbadou" — insert via sync-players-daily
+  ⟷ transfer-detected Bulut 810100: DB=522043ff-3adf-4bb6-8222-45bc370e0312 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ⟷ transfer-detected Sazdagi 257785: DB=1414aff7-5297-4e00-8110-f2c431dca9e5 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ⟷ transfer-detected Asllani 543771: DB=467ebf17-219d-4cf6-9536-d580915e4f49 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ? unknown tm-player 900938 "Junior Olaitan" — insert via sync-players-daily
+  ⟷ transfer-detected Touré 649016: DB=74f45f91-ddd9-4001-84e2-34c50ca5b21d → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ? unknown tm-player 663244 "Jota Silva" — insert via sync-players-daily
+  ⟷ transfer-detected Černý 242063: DB=bb2e5794-080e-414f-8131-df4382787b1b → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ünder 341647: DB=4b4ba664-5c83-47b7-9031-dd3d40f1f271 → TM=8ac5d523-668f-45e1-86b7-4be72267b336 (skip; use --allow-transfers)
+[SL EYU] 21 squad entries
+  ⟷ transfer-detected Yılmaz 727077: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=a0613d4b-0197-4212-8709-b72ced3ec018 (skip; use --allow-transfers)
+  ⟷ transfer-detected Ozyurt 710051: DB=eb43fb36-4ed4-4679-b094-fc78fd3ac6fb → TM=a0613d4b-0197-4212-8709-b72ced3ec018 (skip; use --allow-transfers)
+  ? unknown tm-player 1175508 "Arda Yavuz" — insert via sync-players-daily
+  ? unknown tm-player 1414670 "Ismaila Manga" — insert via sync-players-daily
+  ? unknown tm-player 1414677 "Abdou Khadre Sy" — insert via sync-players-daily
+[SL KAR] 25 squad entries
+  ? unknown tm-player 1223507 "Berke Can Evli" — insert via sync-players-daily
+  ⟷ transfer-detected Özcan 249952: DB=e17cbb7e-72a9-4cfa-b3d3-a4e777463375 → TM=65109bb5-d9b5-4e3d-8ee5-b09dd07f3398 (skip; use --allow-transfers)
+  ? unknown tm-player 642869 "Tuğbey Akgün" — insert via sync-players-daily
+  ? unknown tm-player 456449 "Serginho" — insert via sync-players-daily
+  ? unknown tm-player 1498276 "Ahmed Traore" — insert via sync-players-daily
+[SL FEN] 21 squad entries
+  ? unknown tm-player 465830 "Mattéo Guendouzi" — insert via sync-players-daily
+  ? unknown tm-player 191614 "Fred" — insert via sync-players-daily
+  ? unknown tm-player 258626 "Talisca" — insert via sync-players-daily
+  ⟷ transfer-detected Musaba 511401: DB=5692a375-096e-489e-b518-ce84e95caeda → TM=4b4ba664-5c83-47b7-9031-dd3d40f1f271 (skip; use --allow-transfers)
+[SL GAL] 24 squad entries
+  ? unknown tm-player 318077 "Lucas Torreira" — insert via sync-players-daily
+  ? unknown tm-player 553469 "Gabriel Sara" — insert via sync-players-daily
+  ⟷ transfer-detected Lang 339332: DB=94f8e60c-ab70-4f37-a2da-a7b106cff93a → TM=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd (skip; use --allow-transfers)
+  ? unknown tm-player 1070983 "Armando Güner" — insert via sync-players-daily
+[SL GAZ] 22 squad entries
+  ⟷ transfer-detected Mujakić 380919: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=07959b85-3723-40c6-a208-4a0dc0fd3c74 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kabasakal 275683: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=07959b85-3723-40c6-a208-4a0dc0fd3c74 (skip; use --allow-transfers)
+  ? unknown tm-player 1261143 "Ali Osman Kalın" — insert via sync-players-daily
+  ⟷ transfer-detected Drăguş 405399: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=07959b85-3723-40c6-a208-4a0dc0fd3c74 (skip; use --allow-transfers)
+[SL GEN] 27 squad entries
+  ? unknown tm-player 527026 "Ricardo Velho" — insert via sync-players-daily
+  ? unknown tm-player 323876 "Thalisson" — insert via sync-players-daily
+  ? unknown tm-player 1168398 "Umut İslamoğlu" — insert via sync-players-daily
+  ? unknown tm-player 1417530 "Hamza Aydar" — insert via sync-players-daily
+  ? unknown tm-player 934617 "Emirhan Ünal" — insert via sync-players-daily
+  ⟷ transfer-detected Gürpüz 655912: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=cb174221-b3da-46a8-98e4-6d448a0973ae (skip; use --allow-transfers)
+  ? unknown tm-player 530851 "Franco Tongya" — insert via sync-players-daily
+  ⟷ transfer-detected Varešanović 433105: DB=76a86d37-d1f7-45cd-8ca8-dc6345fc2ade → TM=cb174221-b3da-46a8-98e4-6d448a0973ae (skip; use --allow-transfers)
+  ⟷ transfer-detected Çanak 743376: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=cb174221-b3da-46a8-98e4-6d448a0973ae (skip; use --allow-transfers)
+  ? unknown tm-player 364405 "Adama Traoré" — insert via sync-players-daily
+  ? unknown tm-player 157501 "M'Baye Niang" — insert via sync-players-daily
+  ? unknown tm-player 1437503 "Ayaz Özcan" — insert via sync-players-daily
+[SL GOZ] 20 squad entries
+  ⟷ transfer-detected Öztürk 1014342: DB=1414aff7-5297-4e00-8110-f2c431dca9e5 → TM=f22b148f-6a91-4dfe-839e-f25b97ea6e42 (skip; use --allow-transfers)
+  ? unknown tm-player 647787 "Malcom Bokele" — insert via sync-players-daily
+  ? unknown tm-player 1076671 "Ege Yıldırım" — insert via sync-players-daily
+  (dry) Yavorov Krastev #1d2a344e would update shirt_number
+[SL KAS] 30 squad entries
+  ? unknown tm-player 1314014 "Ahmet Taha Dağbaşı" — insert via sync-players-daily
+  ⟷ transfer-detected Demirbay 125858: DB=a0613d4b-0197-4212-8709-b72ced3ec018 → TM=a22493b6-0818-4d40-9076-fe3ea0455eac (skip; use --allow-transfers)
+  ⟷ transfer-detected Aydin 605110: DB=5692a375-096e-489e-b518-ce84e95caeda → TM=a22493b6-0818-4d40-9076-fe3ea0455eac (skip; use --allow-transfers)
+  ? unknown tm-player 203655 "Cafú" — insert via sync-players-daily
+[SL KAY] 26 squad entries
+  ⟷ transfer-detected Bénes 243188: DB=bbd54175-453f-482f-a3d4-f13d75a2b546 → TM=1414aff7-5297-4e00-8110-f2c431dca9e5 (skip; use --allow-transfers)
+  ? unknown tm-player 182711 "Carlos Mané" — insert via sync-players-daily
+[SL KOC] 19 squad entries
+  ⟷ transfer-detected Smolčić 571299: DB=461a999b-36c1-49e5-881d-321924c64b24 → TM=5ae2ca18-c8f1-4324-908d-0af9775e8abe (skip; use --allow-transfers)
+  ? unknown tm-player 1439190 "Deniz Ceylan" — insert via sync-players-daily
+  ? unknown tm-player 748807 "Joseph Nonge" — insert via sync-players-daily
+  ? unknown tm-player 451353 "Rigoberto Rivas" — insert via sync-players-daily
+  ? unknown tm-player 367195 "Dan Agyei" — insert via sync-players-daily
+[SL KON] 22 squad entries
+  ⟷ transfer-detected Baniya 394872: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Boşluk 801693: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Kutlu 469787: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Olaigbe 565406: DB=c71793f5-c7a5-4fd0-bda0-1e5f432464a6 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+  ⟷ transfer-detected Türüç 216662: DB=e17cbb7e-72a9-4cfa-b3d3-a4e777463375 → TM=f99d71c2-4097-433a-a7e2-046b79ce4bb2 (skip; use --allow-transfers)
+[SL RIZ] 18 squad entries
+  ? unknown tm-player 719672 "Adedire Mebude" — insert via sync-players-daily
+  ⟷ transfer-detected Dervişoğlu 465606: DB=6bfe7d27-dfef-46c6-89b3-293f2eb84ecd → TM=76a86d37-d1f7-45cd-8ca8-dc6345fc2ade (skip; use --allow-transfers)
+[SL SAM] 24 squad entries
+  ? unknown tm-player 1457367 "Ali Badra Diabaté" — insert via sync-players-daily
+  ? unknown tm-player 345577 "Carlo Holse" — insert via sync-players-daily
+[SL TRA] 22 squad entries
+  ? unknown tm-player 234509 "André Onana" — insert via sync-players-daily
+  ? unknown tm-player 1243013 "Arda Öztürk" — insert via sync-players-daily
+  ? unknown tm-player 1072017 "Wagner Pina" — insert via sync-players-daily
+  ? unknown tm-player 1209829 "Onuralp Çakıroğlu" — insert via sync-players-daily
+
+=== Result ===
+duration:                   70.5s
+clubs_processed:            18 / 18
+clubs_empty_squad:          0
+clubs_errored:              0
+players_matched:            366
+players_updated_shirt:      2 (dry)
+players_updated_mv:         0 (dry)
+players_transfer_detected:  28
+players_transfer_applied:   0 (dry/off)
+players_unknown:            52

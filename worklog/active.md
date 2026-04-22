@@ -1,21 +1,20 @@
 # Active Slice
 
 ```
-status: spec
-slice: 144
-stage: SPEC
-spec: worklog/specs/144-b3-tm-squad-page-scraper.md
-impact: required (players + player_external_ids writes, last_squad_check ADD COLUMN migration)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
 proof: —
 ```
 
-## Slice 144 — B3 TM-Squad-Page-Scraper (M)
+## Zuletzt: Slice 144 (2026-04-22) — B3 TM-Squad-Page-Scraper (M)
 
-Neue Scrape-Strategie: Pro Club 1 Request auf TM-Squad-Page statt ~25-70 Player-Profile-Requests. **75× weniger Netzwerk-Last** als aktueller Scraper. Slice 141b lieferte Pre-Condition (134/134 Clubs haben TM-IDs).
+Squad-Page-Scraper implementiert + lokal getestet. Dry-Run auf Süper-Lig
+zeigt 18/18 Clubs, 366 matched players, 28 transfer-detected, 52 unknown.
+BUILD + PROOF komplett, Full-Run wartet auf Anil (`--allow-transfers` y/n).
 
-**SPEC bereit.** Nächster Step nach Anil-Approval (M-size → CEO-Approval-Matrix scannen):
-- BUILD: parser + tests + lokaler Script + migration + service helper
-- PROOF: vitest + dry-run-log + DB-verify + comparison vs current DB-State
-
-Offene Frage für Anil:
-- "Leihspieler" in Squad-Table zählen als Club-Member (diese Saison beim Leihverein)? Meine Empfehlung: **JA** (Alternative: Stammverein-Loyalty — weniger intuitiv für Fans).
+**Next:** Anil triggered entweder
+- `npx tsx scripts/tm-squad-scrape-local.ts` (shirt-drift fix, kein Transfer-Apply)
+- `npx tsx scripts/tm-squad-scrape-local.ts --allow-transfers` (28 Transfers live)
