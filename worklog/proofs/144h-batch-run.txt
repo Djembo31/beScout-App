@@ -1,0 +1,204 @@
+=== LEAGUE: 2. Bundesliga ===
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=2. Bundesliga limit=200 rate=2500ms dry=false headless=true
+
+Loaded 70 stale players with TM-mapping.
+
+[1/70] ✓ Mika Haas [1. FC Kaiserslautern] €3M → €3M
+[2/70] ✓ Nicolai Rapp [Karlsruher SC] €1M → €1M
+[3/70] ✓ Florian Kleinhansl [1. FC Kaiserslautern] €1M → €1M
+[4/70] ✓ Marvin Schulz [Preußen Münster] €1M → €1M
+[5/70] ✓ Mattes Hansen [SC Paderborn 07] €3M → €3M
+[6/70] ✓ Laurin Curda [SC Paderborn 07] €2M → €2M
+[7/70] ✓ Mikkel Kirkeskov Andersen [Preußen Münster] €0M → €0M
+[8/70] ✓ Niko Koulis [Preußen Münster] €0M → €0M
+[9/70] ✓ Herbert Bockhorn [1. FC Magdeburg] €0M → €0M
+[10/70] ✓ Leon Schneider [Arminia Bielefeld] €1M → €1M
+[11/70] ✓ Leon Reid Robinson [1. FC Kaiserslautern] €1M → €1M
+[12/70] ✓ Julian Krahl [1. FC Kaiserslautern] €1M → €1M
+[13/70] ✓ Robin Himmelmann [Karlsruher SC] €0M → €0M
+[14/70] ✓ Kenny Prince Nebil Hussein Redondo [1. FC Kaiserslautern] €0M → €0M
+[15/70] ✓ Felix Götze [SC Paderborn 07] €2M → €2M
+[16/70] ✓ Falko Michel [1. FC Magdeburg] €1M → €1M
+[17/70] ✓ Rafael Pinto Pedrosa [Karlsruher SC] €5M → €5M
+[18/70] ✓ Joshua Mees [Preußen Münster] €1M → €1M
+[19/70] ✓ Ruben Müller [SC Paderborn 07] €1M → €1M
+[20/70] ✓ Aleksandar Vukotić [SV Darmstadt 98] €1M → €1M
+[21/70] ✓ Barış Fahri Atik [1. FC Magdeburg] €1M → €1M
+[22/70] ✓ Daniel Heber [1. FC Magdeburg] €1M → €1M
+[23/70] ✓ Tim-Henry Handwerker [Arminia Bielefeld] €1M → €1M
+[24/70] ✓ Markus Schubert [SC Paderborn 07] €1M → €1M
+[25/70] ✓ Dariusz Stalmach [1. FC Magdeburg] €1M → €1M
+[26/70] ✓ Tim Janisch [1. FC Nürnberg] €1M → €1M
+[27/70] ✓ Meiko Wäschenbach [Karlsruher SC] €0M → €0M
+[28/70] ✓ Noah Kruth [1. FC Magdeburg] €0M → €0M
+[29/70] ∅ Müller — MV parse failed, stays stale
+[30/70] ✓ Jonas Thomas Kersken [Arminia Bielefeld] €1M → €1M
+[31/70] ✓ Matondo-Merveille Papela [SV Darmstadt 98] €1M → €1M
+[32/70] ✓ Eldin Džogović [1. FC Magdeburg] €0M → €0M
+[33/70] ✓ Marcel Beifus [Karlsruher SC] €2M → €2M
+[34/70] ✓ Robert Kampa [1. FC Magdeburg] €0M → €0M
+[35/70] ✓ Samuel Loric [1. FC Magdeburg] €1M → €1M
+[36/70] ✓ Marcel Engelhardt [Holstein Kiel] €0M → €0M
+[37/70] ✓ Morten Jens Behrens [Preußen Münster] €0M → €0M
+[38/70] ✓ Tarek Chahed [1. FC Magdeburg] €0M → €0M
+[39/70] ✓ Matthias Bader [SV Darmstadt 98] €1M → €1M
+[40/70] ✓ Luca Marseiler [SV Darmstadt 98] €1M → €1M
+[41/70] ✓ Killian Corredor [SV Darmstadt 98] €3M → €3M
+[42/70] ✓ Fabian Holland [SV Darmstadt 98] €0M → €0M | contract: 2015-07-05 → 2026-06-30
+[43/70] ✓ Ali-Eren Ersungur [Karlsruher SC] €0M → €0M
+[44/70] ✓ Charalambos Makridis [Preußen Münster] €0M → €0M
+[45/70] ✓ Tom Baack [1. FC Nürnberg] €1M → €1M
+[46/70] ✓ Florian Pruhs [SC Paderborn 07] €0M → €0M
+[47/70] ✓ Yosuke Furukawa [SV Darmstadt 98] €1M → €1M
+[48/70] ✓ Marcel Franke [Karlsruher SC] €1M → €1M
+[49/70] ✓ Dominik Reimann [1. FC Magdeburg] €1M → €1M
+[50/70] ✓ Phil Harres [Holstein Kiel] €2M → €2M
+[51/70] ✓ Niklas Niehoff [Holstein Kiel] €1M → €1M
+[52/70] ✓ Luca Bolay [Preußen Münster] €1M → €1M
+[53/70] ✓ Yassine Bouchama [Preußen Münster] €1M → €1M
+[54/70] ✓ Marcel Schuhen [SV Darmstadt 98] €1M → €1M
+[55/70] ✓ Christoph Kobald [Karlsruher SC] €1M → €1M
+[56/70] ✓ Lasse Rosenboom [Holstein Kiel] €1M → €1M
+[57/70] ✓ Kai Klefisch [SV Darmstadt 98] €2M → €2M
+[58/70] ✓ Sergio López Galache [SV Darmstadt 98] €1M → €1M
+[59/70] ✓ Marian Kirsch [Preußen Münster] €0M → €0M
+[60/70] ✓ Fabio Gruber [1. FC Nürnberg] €2M → €2M
+[61/70] ✓ Joel Grodowski [Arminia Bielefeld] €1M → €1M
+[62/70] ✓ Lilian Niclas Egloff [Karlsruher SC] €2M → €2M
+[63/70] ✓ Tjark Lasse Scheller [SC Paderborn 07] €2M → €2M
+[64/70] ✓ Alexander Nollenberger [1. FC Magdeburg] €1M → €1M
+[65/70] ✓ Marcel Benger [Preußen Münster] €1M → €1M
+[66/70] ✓ Jano ter Horst [Preußen Münster] €1M → €1M
+[67/70] ✓ Fabian Schleusener [Karlsruher SC] €0M → €0M
+[68/70] ✓ Sebastian Reinhard Klaas [SC Paderborn 07] €1M → €1M
+[69/70] ✓ Mika Baur [SC Paderborn 07] €4M → €4M
+[70/70] ✓ Dženis Burnić [Karlsruher SC] €1M → €1M
+
+=== Result ===
+duration:         257.3s
+verified:         69
+  mv changed:     0
+  contract new:   1
+parse_failed:     1 (remain stale)
+errored:          0
+
+2. Bundesliga coverage: verified=466, stale remaining=50
+
+=== LEAGUE: Süper Lig ===
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=Süper Lig limit=200 rate=2500ms dry=false headless=true
+
+Loaded 4 stale players with TM-mapping.
+
+[1/4] ✓ Berkay Topdemir [Antalyaspor] €0M → €0M
+[2/4] ✓ Cihan Akgun [Galatasaray] €0M → €0M
+[3/4] ✓ Arda Yilmaz [Galatasaray] €26M → €0M | contract: 2021-07-10 → 2028-06-30
+[4/4] ✓ Hasan Yakub İlçin [Antalyaspor] €0M → €0M
+
+=== Result ===
+duration:         11.8s
+verified:         4
+  mv changed:     1
+  contract new:   1
+parse_failed:     0 (remain stale)
+errored:          0
+
+Süper Lig coverage: verified=447, stale remaining=30
+
+=== LEAGUE: La Liga ===
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=La Liga limit=200 rate=2500ms dry=false headless=true
+
+Loaded 3 stale players with TM-mapping.
+
+[1/3] ∅ López Martín — MV parse failed, stays stale
+[2/3] ∅ El Abdellaoui — MV parse failed, stays stale
+[3/3] ∅ Espino — MV parse failed, stays stale
+
+=== Result ===
+duration:         7.9s
+verified:         0
+  mv changed:     0
+  contract new:   0
+parse_failed:     3 (remain stale)
+errored:          0
+
+La Liga coverage: verified=594, stale remaining=34
+
+=== LEAGUE: Premier League ===
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=Premier League limit=200 rate=2500ms dry=false headless=true
+
+Loaded 3 stale players with TM-mapping.
+
+[1/3] ✓ Diego Alexander Gómez Amarilla [Brighton] €25M → €25M
+[2/3] ✓ Harvey Davies [Liverpool] €1M → €1M
+[3/3] ✓ Rodrigo Bentancur Colmán [Tottenham] €22M → €22M
+
+=== Result ===
+duration:         8.6s
+verified:         3
+  mv changed:     0
+  contract new:   0
+parse_failed:     0 (remain stale)
+errored:          0
+
+Premier League coverage: verified=551, stale remaining=27
+
+=== LEAGUE: Serie A ===
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=Serie A limit=200 rate=2500ms dry=false headless=true
+
+Loaded 3 stale players with TM-mapping.
+
+[1/3] ✓ Alieu Eybi Njie [Torino] €0M → €0M
+[2/3] ✓ Junior Ajayi [Hellas Verona] €0M → €0M
+[3/3] ∅ Hamlet Mkhitaryan — MV parse failed, stays stale
+
+=== Result ===
+duration:         8.9s
+verified:         2
+  mv changed:     0
+  contract new:   0
+parse_failed:     1 (remain stale)
+errored:          0
+
+Serie A coverage: verified=583, stale remaining=24
+
+=== LEAGUE: TFF 1. Lig ===
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=TFF 1. Lig limit=200 rate=2500ms dry=false headless=true
+
+Loaded 6 stale players with TM-mapping.
+
+[1/6] ✓ Enes Yiğit [Erzurumspor FK] €0M → €0M | contract: 2023-07-01 → 2028-06-30
+[2/6] ✓ Ali Arda Yildiz [Adana Demirspor] €0M → €0M
+[3/6] ✓ Şerefhan Sağlık [Erzurumspor FK] €0M → €0M | contract: 2025-02-11 → 2028-06-30
+[4/6] ✓ Arda Türken [Sakaryaspor] €0M → €0M | contract: 2024-08-05 → 2026-06-30
+[5/6] ✓ Mahmut Akan [Keçiörengücü] €0M → €0M | contract: 2024-08-07 → 2026-06-30
+[6/6] ✓ Deniz Aksoy [Hatayspor] €0M → €0M
+
+=== Result ===
+duration:         18.5s
+verified:         6
+  mv changed:     4
+  contract new:   4
+parse_failed:     0 (remain stale)
+errored:          0
+
+TFF 1. Lig coverage: verified=656, stale remaining=3
+
+EXIT=0

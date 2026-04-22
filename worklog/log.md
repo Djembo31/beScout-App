@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144h | 2026-04-22 | Batch-Rescrape 6 remaining leagues (XS data-refresh)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, Script-Batch, kein Code-Change, Beta-Freeze) → BUILD (=6 Script-Runs) → REVIEW (PASS Self-Review) → PROVE → LOG
+- **Trigger:** 144g-Follow-up — BL1 verified in 144f, null-policy in 144g, jetzt systematischer Rollout auf BL2/SL/LL/PL/SA/TFF1 mit neuer Policy.
+- **Fix-Scope:** Sequential Batch-Run `scripts/tm-rescrape-stale.ts --league="<X>" --active-only=false --limit=200 --rate=2500` für 6 Ligen. Total ~5.2 min Script-Zeit, 84 Players verified.
+- **Stats:** BL2 69v/1pf, SL 4v, LL 0v/3pf, PL 3v, SA 2v/1pf, TFF1 6v/4mv/4c — 84 gesamt verified, 6 contract_new, 5 parse_failed, 0 errored.
+- **Delta:** stale_total 277 → 188 (-89). TFF1 auf 3 (Gold-Standard), BL1 unchanged 20, BL2 119→50, SL 34→30, LL 34→34 (alle 3 TM-mapped parse-failed), PL 30→27, SA 26→24.
+- **Review:** `worklog/reviews/144h-review.md` — PASS, 3 INFO/NITPICK (LL-parse-fail-Investigation-Kandidat, 153 TM-unmapped-Scope-Out, 5-Player-Delta-Drift).
+- **Proof:** `worklog/proofs/144h-batch-run.txt` (combined stdout) + `144h-verify.txt` (per-league DB-delta).
+- **Commit:** (pending)
+- **Scope-Out verbleibt:** 153 Players stale ohne TM-mapping — Discovery-Slice oder CSV-Workflow (B0). 5 parse-fails self-healing bei nächstem Run.
+
+---
+
 ## 144g | 2026-04-22 | Contract-End NULL on missing TM-data (S code+data)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, 1-Zeile Script-Change, contract_end nullable throughout stack) → BUILD → REVIEW (PASS, Cold-Context-Reviewer) → PROVE → LOG

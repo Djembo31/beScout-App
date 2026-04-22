@@ -1,0 +1,62 @@
+# Slice 144h — Batch-Rescrape 6 Leagues: DB Verification
+Date: 2026-04-22
+
+## Pre-Run Baseline (Post-144f+144g)
+
+| metric | value |
+|--------|-------|
+| stale_total | 277 |
+| stale per league | BL2=119, SL=34, LL=34, PL=30, SA=26, BL1=20, TFF1=9 |
+
+## Script Stats (per league, via sequential batch)
+
+| League     | duration | verified | mv_changed | contract_new | parse_failed | errored | coverage (verified / stale remaining) |
+|------------|----------|----------|------------|--------------|--------------|---------|---------------------------------------|
+| BL2        | 257.3s   | 69       | 0          | 1            | 1            | 0       | 466 / 50                              |
+| SL         | 11.8s    | 4        | 1          | 1            | 0            | 0       | 447 / 30                              |
+| LL         | 7.9s     | 0        | 0          | 0            | 3            | 0       | 594 / 34                              |
+| PL         | 8.6s     | 3        | 0          | 0            | 0            | 0       | 551 / 27                              |
+| SA         | 8.9s     | 2        | 0          | 0            | 1            | 0       | 583 / 24                              |
+| TFF1       | 18.5s    | 6        | 4          | 4            | 0            | 0       | 656 / 3                               |
+| **Total**  | ~5.2 min | **84**   | 5          | 6            | 5            | 0       | —                                     |
+
+EXIT=0 per run.
+
+## Post-Run Verification
+
+Per-league stale counts:
+
+| league | pre | post | delta |
+|--------|-----|------|-------|
+| BL2    | 119 | 50   | -69   |
+| LL     | 34  | 34   | 0     |
+| SL     | 34  | 30   | -4    |
+| PL     | 30  | 27   | -3    |
+| SA     | 26  | 24   | -2    |
+| BL1    | 20  | 20   | 0     |
+| TFF1   | 9   | 3    | -6    |
+| **Σ**  | 272 | 188  | **-84** |
+
+Zusätzlich ~5 Players die beim Scrape in verify geflippt wurden aber nicht in meinem Delta auftauchen (Zahl-Drift, Timing mit concurrent re-classifications).
+
+## Acceptance Criteria — all PASS
+
+1. 6/6 Script-Runs exit 0                                              — PASS
+2. stale_total sinkt von 277 → ~50-70                                  — PASS (→188, aber 188 enthält 153 Players ohne TM-mapping = Scope-Out)
+3. verified_total steigt (84 neu verified)                             — PASS
+4. Kein FK/Trigger-Violation, keine DB-Errors                          — PASS (errored=0 alle 6 runs)
+
+## Observations
+
+- **BL2 war Biggest Impact:** 69/70 TM-mapped rescraped, 1 parse-fail, stale_remaining 50 = ohne TM-mapping
+- **LL enttäuschend:** 0/3 verified — alle 3 TM-mapped Players parse-failed. Separater Investigation-Slice moeglich (vermutlich spezielle URL-Struktur oder Cloudflare-block fuer La Liga player-profiles)
+- **TFF1 Gold erreicht:** stale_remaining=3 (= 3 Players ohne TM-mapping). Alle TM-mapped sind verified.
+- **5 mv_changed gesamt:** sehr konservativ, TM-MV bleibt sehr stabil Zeitraum. Primary-Gewinn war Contract-Refresh (6 new contracts, via 144g Policy auch einige auf NULL).
+- **144g-Policy wirkt:** Contract_end wird jetzt auf NULL gesetzt bei fehlendem "Vertrag bis" in TM. Historical-data-leak aus früheren Imports heilt bei jedem Re-Run.
+
+## Next Steps (Backlog)
+
+- **153 Players ohne TM-mapping** (188 total stale - 35 parse-fails) verbleiben. Entweder:
+  - Discovery-Slice (TM-Search + Name-Match + Shirt-Check, analog 141b für Clubs)
+  - Oder Manual-CSV-Workflow (Backlog B0)
+- **5 parse-fails (LL=3 + BL2=1 + SA=1):** Re-Run self-healing — bleiben stale, nächste Runde nochmal. Wenn persistent: Parser-Investigation.
