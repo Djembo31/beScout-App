@@ -22,7 +22,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **Sample-Verify:** 6 Random-Samples aus 3 Clubs (SAK, SER, VAN) gegen Script-Log — 6/6 TM-Truth match.
 - **Review:** `worklog/reviews/144d-review.md` — PASS (Primary-Self-Review analog 144c-Pattern, XS Script-Run, kein Code-Change).
 - **Proof:** `worklog/proofs/144d-run.txt` (Script-Output) + `worklog/proofs/144d-verify.txt` (DB Pre/Post + Sample + Timestamp-Semantik).
-- **Commit:** (pending)
+- **Commit:** `b8b23594`
 - **Side-Effect dokumentiert:** `last_squad_check` nutzt single batch-scoped NOW() (alle 2841 Rows = 14:19:46 UTC). By-design, nicht-Bug.
 - **Backlog-Effekt:** B6 done. Backlog 144f (Re-Scrape 8 WER-stale) bleibt, 144g (4 TM-mapped orphans) + 144h (107 Orphans) unchanged.
 
