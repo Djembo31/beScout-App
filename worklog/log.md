@@ -11,6 +11,58 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 140 | 2026-04-22 | gameweek-sync Phase-B-Guard DB-Truth (XS)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (inline) → BUILD → PROOF → LOG
+- **Trigger:** B4 aus memory/backlog.md — 4 Süper-Lig GW-30-Fixtures blieben `status='scheduled'` trotz played_at 30-60h in Vergangenheit.
+- **Root-Cause (via cron_sync_log):** `allFixturesDone` (Zeile 585) vertraut `fixtureCheck.allDone = API.total === API.finished`. Wenn API-Football weniger Fixtures zurückgibt als DB hat (postponed silent dropped), wird API-allDone=true obwohl DB unvollständig → Phase B advanced Clubs auf nextGw → stale Fixtures unerreichbar.
+- **Fix:** 5-Zeilen-AND-Guard nach Step 5b — `allFixturesDone = allFixturesDone && dbTruthAllDone`, wobei `dbTruthAllDone = (dbFinishedIds.size + newlyFinishedFixtures.length >= totalDbFixtures)`. Plus `logStep 'phase_b_blocked_db_mismatch'` für Monitoring.
+- **Files:** `src/app/api/cron/gameweek-sync/route.ts`
+- **Proof:** `worklog/proofs/140-phase-b-db-truth.txt` (cron_sync_log evidence + fix analysis).
+- **Commit:** `d57533a1`
+- **Notes:** Scope-Out: Cleanup der 4 existierenden stale Fixtures = Anil-Task (sync-fixtures-future admin-route ODER SQL). Slice 137's UI-Filter versteckt sie bereits.
+
+---
+
+## 139 | 2026-04-22 | Skip Reconcile on Follow-Success (XS)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT → BUILD → PROOF → LOG
+- **Trigger:** B5 aus Slice 138 Live-Test entdeckt.
+- **Root-Cause:** `getUserFollowedClubs` direkt nach erfolgreichem `upsert()` liefert neuen Row manchmal nicht zurück → `setFollowedClubs(server-truth)` überschreibt Optimistic-Add → UI reverted sichtbar. Wahrscheinlich Supabase pgBouncer transaction-pooling read-after-write transient.
+- **Fix:** Conditional Reconcile — Follow-Path (currently=false) SKIPPT Reconcile, Unfollow-Path (currently=true) BEHÄLT Reconcile (wg. Primary-Promotion zu unpredictable next-club).
+- **Files:** `src/components/providers/ClubProvider.tsx` (1 Conditional), `src/components/providers/__tests__/ClubProvider.test.tsx` (+2 Tests, beforeEach mockReset-Fix).
+- **Proof:** `worklog/proofs/139-skip-reconcile.txt` (11/11 Tests grün).
+- **Commit:** `8dea725b`
+- **Notes:** Ein Slice-138-Test musste angepasst werden (follow-path reconciled nie mehr). beforeEach bekam `mockReset()` für leaky `mockResolvedValueOnce`-Queues.
+
+---
+
+## 138 | 2026-04-22 | ClubProvider Follow Race-Mutex (XS)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT → BUILD → PROOF → LOG
+- **Trigger:** User-Report "Follow reagiert mehrmals, States überschreiben sich, flaky".
+- **Root-Causes (2):** (1) `toggleFollow` useCallback-Deps `[user, followedClubs, primaryClub]` → Callback wurde bei jedem setFollowedClubs neu gebaut → inkonsistentes State-Reading zwischen Click-Events. (2) Kein Mutex pro clubId → Parallel-Clicks auf verschiedene Clubs racen, Reconcile des früheren Calls überschreibt Optimistic des späteren.
+- **Fix:** `followedClubsRef` + `primaryClubRef` + `activeClubRef` → toggleFollow liest aus Refs, Deps nur `[user]` → stable. `inflightRef: Set<string>` → Re-Click auf in-flight-clubId wird silent discarded. Reconcile nur wenn `inflight.size === 0` am Ende.
+- **Files:** `src/components/providers/ClubProvider.tsx`, `src/components/providers/__tests__/ClubProvider.test.tsx` (+2 Tests).
+- **Proof:** `worklog/proofs/138-race-mutex.txt` (9/9 Tests) + `worklog/proofs/138-post-deploy-live.txt` (Live-Rapid-Fire verifiziert, plus B5-Entdeckung).
+- **Commits:** `d6f2d40d` (fix) + `9e67ebe8` (proof+B5).
+- **Notes:** Live-Rapid-Fire-Test zeigte: Button wird nach 1. Click disabled, Clicks 2+3 blockiert. Separate Anomaly entdeckt (B5 → Slice 139).
+
+---
+
+## 137 | 2026-04-22 | Clubs-Discovery Stale-GW-Filter + Opponent-Logo (S)
+
+- **Stage-Chain:** SPEC → IMPACT (inline) → BUILD → PROOF → LOG
+- **Bug:** `/clubs` zeigte Süper-Lig-Clubs inkonsistente Next-GW (30 vs 31), obwohl GW 30 real komplett gespielt. 8/18 Clubs zeigten 30, 10/18 zeigten 31.
+- **Root-Cause:** `getNextFixturesByClub()` filtert auf `status='scheduled'`, vertraut blind dass scheduled+played_at-in-past nicht vorkommt. DB-Truth: 4 GW-30 Süper-Lig-Fixtures hatten played_at 30-60h in Vergangenheit aber waren noch scheduled (Sync-Lag, siehe Slice 140 für Root-Cause).
+- **Fix (Service):** Post-Filter — scheduled Fixtures mit `played_at < now() - 6h` werden übersprungen. `played_at IS NULL` bleibt durchgelassen.
+- **Feature:** `NextFixtureInfo.opponentLogoUrl` neu (nullable). UI rendert 14px Logo vor `vs {short}` via next/image.
+- **Files:** `src/features/fantasy/services/fixtures.ts`, `src/app/(app)/clubs/page.tsx`, `src/lib/services/__tests__/fixtures.test.ts`.
+- **Proofs:** `worklog/proofs/137-db-truth.txt` (SQL-Evidenz der 4 stale Fixtures: GAZ-KAY, KAS-ALA, SAM-BES, TRA-IST) + `137-tsc-vitest.txt` (29/29 Tests) + `137-post-deploy-live.txt` (DOM-Verify: 18/18 Clubs GW 31 + Logos).
+- **Commits:** `0eaf4b34` (fix) + `a26802b7` (proof).
+
+---
+
 ## 136 | 2026-04-22 | Playwright als explicit devDependency (XS)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (inline) → BUILD → PROVE → LOG

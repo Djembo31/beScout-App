@@ -81,6 +81,23 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - Script akzeptiert Flag `--mv-source=unknown` aber intern `if (fresh.mv_source !== 'transfermarkt_stale') skip` hart-codiert → silent skip trotz 1240 Kandidaten.
 - Fix: Flag-Wert in Variable, ALLE Hart-Code-Referenzen ersetzen (nicht nur die Haupt-Filter-Zeile).
 
+### Cron-Guard API-Response-Count vs DB-Count (Slice 140)
+- **Klasse:** Silent-Data-Lost — externe API liefert weniger Rows als DB hat, Cron verwendet API-Count als Completion-Guard → bricht zu früh ab → DB-Rows bleiben unerreichbar.
+- **Konkret Slice 140:** `gameweek-sync` hatte `allFixturesDone = (API.total === API.finished)`. API-Football dropped 4 von 9 Süper-Lig-Fixtures für GW 30 (postponed silent) → `allDone=true` obwohl DB noch 4 scheduled hatte → Phase B advanced Clubs zu nextGw → kein späterer Run würde GW 30 nochmal anschauen → 4 Fixtures mit `played_at` 30-60h in Vergangenheit blieben `status='scheduled'`.
+- **Detect:**
+  - Logs: `cron_sync_log` hat Einträge `step='no_past_fixtures', reason='No fixtures past kickoff yet'` für `activeGw=N`, obwohl DB noch ungelöste GW-N-1-Rows hat.
+  - Query: `SELECT COUNT(*) FROM <table> WHERE status='<expected>' AND <timestamp> < NOW() - INTERVAL '24 hours'` — jede nicht-triviale Anzahl ist verdächtig.
+- **Fix-Pattern:** Guard-Condition mit DB-Truth-AND:
+  ```ts
+  const totalDbRows = ...; // from pre-query
+  const nowDoneCount = alreadyDone.size + newlyDone.length;
+  const dbTruthAllDone = totalDbRows > 0 && nowDoneCount >= totalDbRows;
+  allDone = apiAllDone && dbTruthAllDone;  // beide müssen true sein
+  ```
+  Plus: `logStep 'phase_X_blocked_db_mismatch'` bei Divergenz für Monitoring.
+- **Stuck-Case:** Wenn externe API die fehlenden Rows NIE zurückliefert, bleibt Guard hängen → admin-Intervention nötig (z.B. manuelle Cleanup-Route). Besser als still forward-advance mit halbfertigen Daten.
+- **Regel:** Externe API-Response-Count IST KEIN Proxy für DB-Completion. Guards müssen DB-Truth einbeziehen. Gilt für: gameweek-sync, sync-transfers, sync-standings, jeden Cron der "alle X sind fertig"-Semantik basiert auf externer Quelle.
+
 ### Promise.allSettled ohne Observability (Slice 088)
 - `Promise.allSettled` + `r.status === 'fulfilled' ? r.value.data : []` ist graceful-degrade-by-design, aber rejected results sind komplett unsichtbar → Data-Liar im UI (z.B. "0/0 mapped").
 - Zwei Fix-Patterns je nach Absicht:
@@ -129,6 +146,15 @@ DB-Columns + CHECK Constraints: siehe `database.md`.
 - `maxDuration = 300` ist Hard-Limit für HTTP-Trigger. Cron-Schedule darf länger laufen (bis 900s Pro).
 - Implication: Sync-Routes mit per-Row-DB-Ops timeouten bei 1000+ rows. Zwingend Batch-Pattern: 1× pre-query `.in(all_ids)` + chunked `Promise.all` (20-50 parallel).
 - Messung Slice 075: sync-injuries 60s→28s, sync-players-daily 300s→17s.
+
+### pgBouncer Read-After-Write Transient (Slice 139)
+- Direkter `.select()` nach `.upsert()` oder `.insert()` liefert den neuen Row **manchmal nicht** zurück. Single-Node Postgres garantiert zwar read-your-write im gleichen Connection, aber Supabase nutzt pgBouncer transaction-pooling — verschiedene Queries landen auf verschiedenen Connections, und der Read kann vor dem Commit-Visible-Window sein.
+- Symptom Slice 138 Live-Test: User klickt Follow → Optimistic fügt Club hinzu → upsert-DB-Write OK → unmittelbarer `getUserFollowedClubs` returnt den neuen Row NICHT → `setFollowedClubs(server-truth)` überschreibt Optimistic → UI reverted sichtbar. Nach Page-Refresh ist alles korrekt (spätere Reads sehen den Commit).
+- Fix-Strategien:
+  - **Skip reconcile-on-success** wenn Optimistic-State deterministisch ist (wir wissen genau was hinzukam/rausging). Slice 139 Pattern in `ClubProvider.toggleFollow`: Follow-Path skipt Reconcile, Unfollow-Path behält (wg. Primary-Promotion zu unpredictable next-club).
+  - **Reconcile-Delay 100-300ms** wenn Server-State wirklich gebraucht wird (z.B. für derived fields die nur Server kennt).
+  - **Merge statt Replace** — Optimistic als Ground-Truth, Server-Result als Patch drüberlegen.
+- Regel: Nach `setX(optimistic)` + DB-Write: NICHT blind `setX(server-read)`. Entweder skippen, verzögern oder mergen.
 
 ---
 

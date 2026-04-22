@@ -30,8 +30,8 @@ type: project
 | B1 | **Sync-Players-Daily Re-Contamination Monitoring** — Post-sync Hook in `src/app/api/cron/sync-players-daily/route.ts` (detektiert neue Cross-Club-Kontamination INV-39) | P2 | 1-2h | Kanban |
 | B2 | **Clubs-Discovery Bug + UX:** GW-Inkonsistenz + Gegner-Wappen vor Kürzel | P1 | 1h | **NEU 2026-04-22 (Anil)** |
 | B3 | **TM-Squad-Page Scraper Spec** — 140 Clubs × 1 Request statt ~500 Search-Requests | P2 | 2-3h (Spec+Build) | `next-session-briefing-2026-04-23.md` Option C |
-| B4 | **sync-fixtures Cron-Lag Root-Cause** — 4 GW-30 Süper-Lig-Fixtures haben `status='scheduled'` trotz `played_at` 30-60h in Vergangenheit. Vercel Hobby-Cron-Limit (max 2) oder API-Football-Lag? | P1 | 1-2h | Slice 137 scope-out |
-| B5 | **ClubProvider Reconcile Read-After-Write-Race** — `getUserFollowedClubs` direkt nach `upsert` liefert neuen Row manchmal nicht (Supabase pgBouncer transaction-pooling?). Folge: Optimistic-Add wird durch stale Reconcile überschrieben, UI reverted sichtbar. Workaround: Reconcile 100-300ms delay ODER `clubData`-Merge statt blind-replace. | P1 | 2h | Slice 138 Live-Test entdeckt |
+| ~~B4~~ | ~~sync-fixtures Cron-Lag Root-Cause~~ | ✅ DONE | Slice 140 (gameweek-sync Phase-B-Guard DB-Truth) |
+| ~~B5~~ | ~~ClubProvider Reconcile Read-After-Write-Race~~ | ✅ DONE | Slice 139 (skip-reconcile on follow-success) |
 
 **Abhängigkeiten intern:**
 - B3 (Scraper) liefert HTML-Fixtures mit → ermöglicht L2-E1 (Parser-Regression-Tests) zusammen zu shippen
@@ -85,8 +85,18 @@ Quelle: `memory/project_missing_revenue_streams.md`
 
 ## Empfohlene Reihenfolge für die nächste Arbeitsphase
 
-1. **Jetzt (Anil parallel):** A0 Supabase-Key-Revoke + A1/A2 Tester-Outreach starten
-2. **Jetzt (Claude):** B2 Clubs-Discovery Bug+UX — isolierter 1h-Slice, klarer User-Value
-3. **Danach:** Entweder B0 (Anil-manual CSV) ODER B3 (TM-Scraper-Spec) je nach Anil-Präferenz
-4. **Post-B3:** C1 (Parser-Regression-Tests) im gleichen Slice mit-shippen
-5. **Wenn A0-A2 grün:** Phase 3b Beta-Tester-Calls → Beta-Exit-Bewertung → Go-Live oder Extend
+1. **Jetzt (Anil parallel):** A0 Supabase-Key-Revoke + A1/A2 Tester-Outreach starten + sync-fixtures-future Admin-Route triggern für Cleanup der 4 stale Süper-Lig-Fixtures
+2. **Jetzt (Claude):** B0 (Gold-Standard 95% CSV) ODER B3 (TM-Scraper-Spec) je nach Anil-Präferenz
+3. **Post-B3:** C1 (Parser-Regression-Tests) im gleichen Slice mit-shippen
+4. **Wenn A0-A2 grün:** Phase 3b Beta-Tester-Calls → Beta-Exit-Bewertung → Go-Live oder Extend
+
+## Session 2026-04-22 Abschluss
+
+**Durchgeführt:**
+- B2 → Slice 137: /clubs GW-Filter + Opponent-Logo (commits `0eaf4b34` + `a26802b7`)
+- Anil-Report: Follow flaky → Slice 138: Race-Mutex (commits `d6f2d40d` + `9e67ebe8`)
+- B5 → Slice 139: skip reconcile on follow-success (commit `8dea725b`)
+- B4 → Slice 140: gameweek-sync Phase-B-Guard DB-Truth (commit `d57533a1`)
+- memory/backlog.md neu (5-Layer dependency-sortiert, commit `5ee176ec`)
+- 3 neue Decisions: D10 (Backlog-Layer), D11 (Reconcile-Trust-Model), D12 (Cron-DB-Truth-Guard)
+- 2 neue Patterns in common-errors.md (pgBouncer read-after-write + Cron-API-vs-DB-Guard)
