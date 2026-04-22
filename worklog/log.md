@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **Delta:** stale_total 277 → 188 (-89). TFF1 auf 3 (Gold-Standard), BL1 unchanged 20, BL2 119→50, SL 34→30, LL 34→34 (alle 3 TM-mapped parse-failed), PL 30→27, SA 26→24.
 - **Review:** `worklog/reviews/144h-review.md` — PASS, 3 INFO/NITPICK (LL-parse-fail-Investigation-Kandidat, 153 TM-unmapped-Scope-Out, 5-Player-Delta-Drift).
 - **Proof:** `worklog/proofs/144h-batch-run.txt` (combined stdout) + `144h-verify.txt` (per-league DB-delta).
-- **Commit:** (pending)
+- **Commit:** `f0e038a1`
 - **Scope-Out verbleibt:** 153 Players stale ohne TM-mapping — Discovery-Slice oder CSV-Workflow (B0). 5 parse-fails self-healing bei nächstem Run.
 
 ---
