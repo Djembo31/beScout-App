@@ -26,7 +26,7 @@ Session 2026-04-22 (2. Session dieses Tages) hat 8 Code-Commits geliefert: Slice
 
 ### Infrastructure
 - CRON_SECRET aktuell (Anil 2026-04-22 aktualisiert)
-- Supabase alter sb_secret_vT7ae… noch aktiv in Dashboard (Revoken empfohlen, noch offen)
+- Supabase alter sb_secret_vT7ae… revoked am 2026-04-22, nur neuer sb_secret aktiv
 - Vercel Deploy auf HEAD `6c26fb9e` + pending `1d396aaa` (Slice 144)
 
 ---
@@ -117,11 +117,12 @@ Output stark (8 Commits, echte Data, Tests, Proofs), aber 10 Discipline-Gaps:
 
 | # | Task | Aufwand |
 |---|------|---------|
-| ~~A0~~ | ~~Supabase sb_secret_vT7ae… revoken~~ | 5 min (empfohlen diese Woche) |
 | A1 | 3 Beta-Tester organisieren | extern |
 | A2 | Deutsch-Türke für TR-Locale-Review | extern |
 | A3 | Decision: Squad Transfer-Apply `--allow-transfers`? | 5 min |
 | A4 | Decision: Visual-QA-Hook jetzt oder später? | 5 min |
+
+> **Note:** A0 (Supabase `sb_secret_vT7ae…` revoke) wurde am 2026-04-22 abgeschlossen und ist nicht mehr offen.
 
 ---
 

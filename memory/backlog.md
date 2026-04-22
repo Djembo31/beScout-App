@@ -13,9 +13,10 @@ type: project
 
 | # | Item | Quelle | ETA |
 |---|------|--------|-----|
-| A0 | Alten `sb_secret_vT7ae...` in Supabase Dashboard revoken (neuer seit 2026-04-21 live-proven) | Session-Handoff | 5 min |
 | A1 | 3 Beta-Tester organisieren (1 TR-sprachig, 1 Non-Football, 1 Power-User) | `memory/beta-testplan.md` | 1-2 Tage extern |
 | A2 | 1 Deutsch-Türke für TR-Locale-Review (Strings ready) | `qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt` | 30 min extern |
+
+> **Note:** A0 (Supabase `sb_secret_vT7ae…` revoke) wurde am 2026-04-22 abgeschlossen und ist nicht mehr offen.
 
 **Blockt:** Layer 3 (Beta-Launch-Gate).
 **Parallel machbar zu:** alles in Layer 1 + 2.
@@ -92,7 +93,7 @@ Quelle: `memory/project_missing_revenue_streams.md`
 
 ## Empfohlene Reihenfolge für die nächste Arbeitsphase
 
-1. **Jetzt (Anil parallel):** A0 Supabase-Key-Revoke + A1/A2 Tester-Outreach starten + sync-fixtures-future Admin-Route triggern für Cleanup der 4 stale Süper-Lig-Fixtures
+1. **Jetzt (Anil parallel):** A1/A2 Tester-Outreach starten + sync-fixtures-future Admin-Route triggern für Cleanup der 4 stale Süper-Lig-Fixtures (A0 erledigt 2026-04-22)
 2. **Jetzt (Claude):** B0 (Gold-Standard 95% CSV) ODER B3 (TM-Scraper-Spec) je nach Anil-Präferenz
 3. **Post-B3:** C1 (Parser-Regression-Tests) im gleichen Slice mit-shippen
 4. **Wenn A0-A2 grün:** Phase 3b Beta-Tester-Calls → Beta-Exit-Bewertung → Go-Live oder Extend

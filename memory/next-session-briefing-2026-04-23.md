@@ -112,11 +112,12 @@ Slices 137/138/139/140 + 2 Proofs + 1 Docs. Siehe ältere Version dieses Briefin
 
 | # | Task | Aufwand | Status |
 |---|------|---------|--------|
-| A0 | Alten `sb_secret_vT7ae…` in Supabase Dashboard revoken | 5 min | offen (seit Session 2026-04-21) |
 | A1 | 3 Beta-Tester organisieren (1 TR, 1 Non-Football) | extern | offen |
 | A2 | Deutsch-Türke für TR-Locale-Review | extern | offen |
 | A3 | Kanban: TM-Squad-Scraper + Parser-Regression-Tests nach "Erledigt" (2 Drag-Drops) | 2 min | offen (Notion-MCP-Integration-Debug abgebrochen) |
 | A4 | Entscheidung `--allow-transfers` (225 pending) — 1 Zeile y/n | 1 min | offen seit 144b |
+
+> **Note:** A0 (Supabase `sb_secret_vT7ae…` revoke) wurde am 2026-04-22 abgeschlossen und ist nicht mehr offen.
 
 ## Risiko-Watch
 
