@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 151b-RESET | 2026-04-23 | Club-Follow State-Sync (Provider Shrink, Query-Cache SoT)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: client-side refactor) → BUILD → REVIEW (Reviewer-Agent) → PROVE → LOG
+- **Scope L:** 19 Files (+390, -746) netto -356 LOC. 3 Anti-Pattern-Klassen aus state-sync-architecture-2026-04-23.md adressiert (A Dual-State-Drift, C Zwei-Provider, D Animation auf volatile Daten).
+- **Key changes:** 3 neue Hooks (useFollowedClubs / usePrimaryClub / useToggleFollowClub mit useSafeMutation + onMutate/onError/onSettled auf 3 Keys). ClubProvider 255→128 LOC, useClubActions 98→48 LOC. 7 Consumer migriert. ClubHero + ClubStatsBar useDeferredValue.
+- **Reviewer:** PASS mit 2 MEDIUM + 3 LOW. Findings #1 (useCallback deps), #5 (stale test mocks FantasyContent+MissionBanner), #6 (QA-regex double-escape) inline gefixt.
+- **Bonus-Cleanup:** ClubContent.test.tsx + useHomeData.test.ts hatten pre-existing Slice 149 Mock-Schuld (useClubStanding nicht gemockt) — mitgefixt.
+- **Files:** 27 changed (mit proofs + spec + review). New: useFollowedClubs.ts, usePrimaryClub.ts, useToggleFollowClub.ts, qa-151b-RESET-follow-sync.ts.
+- **Proof:** worklog/proofs/151b-RESET-tsc-vitest.txt (134/134 green), state-audit.txt (0 leftover uses). Playwright post-deploy.
+- **Review:** worklog/reviews/151b-RESET-review.md
+- **Commit:** `04b4492f`
+- **Next:** Phase 2 Money-Tier Slices 152-155 (WalletProvider, usePlayerTrading, MembershipSection extend, TipButton).
+
+---
+
 ## 151d | 2026-04-23 | ESLint-Rule + Pattern D18 + Audit-Script (Phase 1 Complete)
 
 - **Stage-Chain:** SPEC (inline) → BUILD → REVIEW (self) → PROVE → LOG
