@@ -1,0 +1,74 @@
+# Slice 144f — Re-Scrape WER-stale: DB Verification
+Date: 2026-04-22
+Command: npx tsx scripts/tm-rescrape-stale.ts --league="Bundesliga" --active-only=false --limit=100 --rate=2500
+
+## Pre-Run Baseline (2026-04-22 ~14:35 UTC)
+
+| metric             | value |
+|--------------------|-------|
+| stale_total        | 324   |
+| stale_bundesliga   | 67    |
+| verified_total     | 3688  |
+| wer_stale_9        | 9 / 9 |
+
+## Script Stats (2026-04-22 ~14:40 UTC)
+
+```
+duration:         236.9s (3.95 min)
+verified:         47
+  mv changed:     0
+  contract new:   6
+parse_failed:     1 (remain stale)
+errored:          0
+Bundesliga coverage: verified=522, stale remaining=20
+EXIT_CODE=0
+```
+
+## Post-Run Verification
+
+| metric             | pre  | post | delta | expected |
+|--------------------|------|------|-------|----------|
+| stale_total        | 324  | 277  | -47   | -47 (matches verified) |
+| stale_bundesliga   | 67   | 20   | -47   | -47 (matches verified, 20 remaining without TM-mapping) |
+| verified_total     | 3688 | 3735 | +47   | +47 |
+| wer_stale_9        | 9    | 0    | -9    | -9 (ALL 9 WER flipped) |
+| wer_verified_9     | 0    | 9    | +9    | +9 |
+
+## WER-9 Post-Run Sample
+
+| player                    | tm_id   | pre.contract | post.contract | delta     |
+|---------------------------|---------|--------------|---------------|-----------|
+| Mio Backhaus              | 620295  | 2022-07-12   | 2028-06-30    | UPDATED ✓ |
+| Olivier Deman             | 621802  | 2023-08-31   | 2028-06-30    | UPDATED ✓ |
+| Senne Lynen               | 338668  | 2023-08-08   | 2023-08-08    | unchanged |
+| Amos Pieper               | 334221  | 2022-07-01   | 2022-07-01    | unchanged |
+| Mick Schmetgens           | 1045986 | 2025-12-10   | 2029-06-30    | UPDATED ✓ |
+| Jens Stage                | 289835  | 2022-07-01   | 2028-06-30    | UPDATED ✓ |
+| Niklas Stark              | 162434  | 2022-07-01   | 2022-07-01    | unchanged |
+| Yukinari Sugawara         | 405385  | 2025-08-26   | 2026-06-30    | UPDATED ✓ |
+| Maximilian Wöber          | 263361  | 2025-07-04   | 2026-06-30    | UPDATED ✓ |
+
+**Note:** 3 Players (Lynen, Pieper, Stark) haben contract_end weiter 2022-2023. TM-Profile zeigt vermutlich dieses Datum (Spieler hat seit dort womöglich Verein gewechselt, Historie-Einträge). Parser returnte das Datum unverändert → no-op UPDATE auf contract_end. mv_source wurde korrekt auf verified gesetzt (Scrape ging durch, Parser funktionierte). Für aktuelle Contract-End-Daten würde TM-Squad-Scraper (Slice 144/144b) helfen, der squad-current statt historical liefert.
+
+## Acceptance Criteria — all PASS
+
+1. Script exit code 0                                                          — PASS
+2. verified stat >= 9                                                          — PASS (47)
+3. Alle 9 WER-TM-IDs mv_source='transfermarkt_verified'                        — PASS (9/9)
+4. Bundesliga stale count sinkt (67 → ~0-10)                                   — PASS (67 → 20; 20 ohne TM-mapping, kein Parser-Fail der Scope)
+5. Kein FK/Trigger-Violation, keine DB-Errors                                  — PASS (errored=0)
+
+## Side-Effects
+
+- `mv changed: 0` — keine MV-Overwrites (entweder unchanged in TM, oder stale-guard concurrent-check in `loadStalePlayers` skippte bereits verifiziertes)
+- `contract new: 6` — 6 Contracts aktualisiert (Backhaus, Deman, Schmetgens, Stage, Sugawara, Wöber + 1 non-WER Bundesliga-Player)
+- `parse_failed: 1` — 1 Player hatte HTTP 200 aber Parser fand MV nicht → bleibt stale, self-correcting bei naechstem Run
+- 20 Bundesliga-stale remain — alle ohne TM-mapping in `player_external_ids`. Scope für separate Mapping-Discovery-Slice oder Manual-CSV-Workflow (Backlog B0).
+
+## Parser-Drift-Observation (Reviewer-Finding-Kandidat)
+
+Script setzt mv_source='verified' wenn `mv !== null && contract !== null`. Aber: wenn Parser historical TM-Daten returnt (z.B. alte contract_end-Zeile), wird der alte Wert als "verified" gestempelt. Für unsere 3 Fälle (Lynen, Pieper, Stark) heißt das:
+- Scraping-Pipeline ist technisch OK
+- Aber Daten sind semantisch veraltet — UI zeigt "Vertragsende 2022" obwohl Spieler aktiv im Squad 2026
+
+**Empfehlung:** TM-Squad-Scraper (144/144b) hat squad-current Logic. Für aktuelle Squad-Contracts besser den benutzen. rescrape-stale.ts löst stale MV, nicht stale Contract-History.

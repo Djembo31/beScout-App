@@ -1,0 +1,66 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=Bundesliga limit=100 rate=2500ms dry=false headless=true
+
+Loaded 48 stale players with TM-mapping.
+
+[1/48] ✓ Lars Ritzka [FC St. Pauli] €1M → €1M
+[2/48] ✓ Mio Backhaus [Werder Bremen] €12M → €12M | contract: 2022-07-12 → 2028-06-30
+[3/48] ✓ Jannik Thomas Robatsch [FC St. Pauli] €1M → €1M
+[4/48] ✓ David Nemeth [FC St. Pauli] €3M → €3M
+[5/48] ✓ Yukinari Sugawara [Werder Bremen] €8M → €8M | contract: 2025-08-26 → 2026-06-30
+[6/48] ✓ Maximilian Marcus Philipp [SC Freiburg] €1M → €1M
+[7/48] ✓ Amos Pieper [Werder Bremen] €4M → €4M
+[8/48] ✓ Niklas Stark [Werder Bremen] €4M → €4M
+[9/48] ✓ Jordy Makengo Basambundu [SC Freiburg] €6M → €6M
+[10/48] ✓ David Preu [Union Berlin] €0M → €0M
+[11/48] ✓ Lukas Kübler [SC Freiburg] €2M → €2M
+[12/48] ✓ Robert Faxe Skov [Union Berlin] €3M → €3M
+[13/48] ✓ Yannick Gerhardt [VfL Wolfsburg] €2M → €2M
+[14/48] ✓ Nikola Vasilj [FC St. Pauli] €5M → €5M
+[15/48] ✓ Hauke Finn Wahl [FC St. Pauli] €2M → €2M
+[16/48] ✓ Lucas Höler [SC Freiburg] €3M → €3M
+[17/48] ✓ Florian Lorenz Müller [SC Freiburg] €1M → €1M
+[18/48] ✓ Jae-Sung Lee [FSV Mainz 05] €2M → €2M
+[19/48] ✓ Tom Alexander Rothe [Union Berlin] €10M → €10M
+[20/48] ✓ Aljoscha Kemlein [Union Berlin] €12M → €12M
+[21/48] ✓ Nicolas Höfler [SC Freiburg] €1M → €1M
+[22/48] ✓ Ben Alexander Voll [FC St. Pauli] €1M → €1M
+[23/48] ✓ Patrick Osterhage [SC Freiburg] €12M → €12M
+[24/48] ✓ Connor Isaac Metcalfe [FC St. Pauli] €2M → €2M
+[25/48] ✓ Tim Skarke [Union Berlin] €2M → €2M
+[26/48] ✓ Josip Juranović [Union Berlin] €3M → €3M
+[27/48] ✓ Philipp Lienhart [SC Freiburg] €12M → €12M
+[28/48] ✓ Jannik Huth [SC Freiburg] €0M → €0M
+[29/48] ✓ Livan Burcu [Union Berlin] €4M → €4M
+[30/48] ∅ Klaus — MV parse failed, stays stale
+[31/48] ✓ Emmanouil Saliakas [FC St. Pauli] €3M → €3M
+[32/48] ✓ Jackson Alexander Irvine [FC St. Pauli] €2M → €2M
+[33/48] ✓ Olivier Deman [Werder Bremen] €3M → €3M | contract: 2023-08-31 → 2028-06-30
+[34/48] ✓ Jens Stage [Werder Bremen] €14M → €14M | contract: 2022-07-01 → 2028-06-30
+[35/48] ✓ Bruno Ifechukwu Ogbus [SC Freiburg] €10M → €10M
+[36/48] ✓ Mick Schmetgens [Werder Bremen] €1M → €1M | contract: 2025-12-10 → 2029-06-30
+[37/48] ✓ Maximilian Wöber [Werder Bremen] €3M → €3M | contract: 2025-07-04 → 2026-06-30
+[38/48] ✓ Senne Lynen [Werder Bremen] €10M → €10M
+[39/48] ✓ Lúkas Petersson [1899 Hoffenheim] €1M → €1M
+[40/48] ✓ Abdoulie Ceesay [FC St. Pauli] €1M → €1M
+[41/48] ✓ Phillipp Mwene [FSV Mainz 05] €2M → €2M
+[42/48] ✓ Finley Stevens [FC St. Pauli] €1M → €1M
+[43/48] ✓ Maximilian Eggestein [SC Freiburg] €10M → €10M
+[44/48] ✓ Maximilian Rosenfelder [SC Freiburg] €6M → €6M
+[45/48] ✓ Leopold Querfeld [Union Berlin] €18M → €18M
+[46/48] ✓ Linton Maina [1. FC Köln] €3M → €3M
+[47/48] ✓ Christian Günter [SC Freiburg] €2M → €2M
+[48/48] ✓ Frederik Riis Rønnow [Union Berlin] €3M → €3M
+
+=== Result ===
+duration:         236.9s
+verified:         47
+  mv changed:     0
+  contract new:   6
+parse_failed:     1 (remain stale)
+errored:          0
+
+Bundesliga coverage: verified=522, stale remaining=20
+EXIT_CODE=0

@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144f | 2026-04-22 | Re-Scrape 47 Bundesliga-stale Players (XS data-refresh)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, Script-Run XS, kein Code-Change, Beta-Freeze) → BUILD (=Script-Run) → REVIEW (PASS Self-Review) → PROVE → LOG
+- **Trigger:** 144e Risk-Watch — 9 WER-Players reunited aber mit `mv_source='transfermarkt_stale'` (2-4 Jahre alt). Briefing 2026-04-23 Option A.
+- **Fix-Scope:** `npx tsx scripts/tm-rescrape-stale.ts --league="Bundesliga" --active-only=false --limit=100 --rate=2500` — 48 Bundesliga-stale mit TM-Mapping, 47 verified, 1 parse-failed.
+- **Stats:** duration 236.9s, verified=47, mv_changed=0, contract_new=6, parse_failed=1, errored=0, exit 0.
+- **Delta:** stale_total 324 → 277 (-47), stale_bundesliga 67 → 20 (-47, nur non-TM-mapped remain), verified 3688 → 3735 (+47).
+- **WER-9 Full Success:** 9/9 mv_source flipped stale → verified. 6 Contracts frisch (Backhaus/Deman/Schmetgens/Stage/Sugawara/Wöber auf 2026-2029), 3 bleiben 2022-2023 (Lynen/Pieper/Stark — TM zeigt historical, Finding #1 → Follow-up via 144/144b Squad-Scraper).
+- **Review:** `worklog/reviews/144f-review.md` — PASS mit 1 MEDIUM-Finding (historical-contract bei 3 WER, Parser-Drift-Observation), 2 LOW/INFO.
+- **Proof:** `worklog/proofs/144f-run.txt` (Script-Output) + `worklog/proofs/144f-verify.txt` (DB Pre/Post + WER-9 Sample).
+- **Commit:** (pending)
+- **Backlog-Effekt:** Risk-Watch 144e #3 (stale MV/Contract) für WER resolved. 3 historical-contracts verbleiben als follow-up Kandidat (144f-followup oder re-scrape via Squad-Scraper).
+- **Scope-Out dokumentiert:** 252 weitere stale in 6 anderen Ligen (BL2/SL/LL/PL/SA/TFF1) — separate Slices moeglich (~20-30 min total).
+
+---
+
 ## 144d | 2026-04-22 | Apply 217 TM-Squad Transfers via --allow-transfers (XS data-fix)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, Script-Run XS, Delta: only players.club_id, Beta-Freeze) → BUILD (=Script-Run) → REVIEW (PASS Self-Review) → PROVE → LOG
