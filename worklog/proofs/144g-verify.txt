@@ -1,0 +1,95 @@
+# Slice 144g — Contract-End NULL on missing TM-data: DB Verification
+Date: 2026-04-22
+
+## Root-Cause (from 144g-debug.txt)
+
+Parser `parseContractEnd` is functionally correct. TM-Profiles for Lynen (338668), Pieper (334221), Stark (162434) have ZERO "Vertrag bis" occurrences in HTML. Parser returns null. Script Line 271 was:
+```ts
+if (contract !== null) updates.contract_end = contract;
+```
+→ null-return = no-op on contract_end → historical DB-value persists.
+
+## Code-Fix Applied (scripts/tm-rescrape-stale.ts)
+
+```diff
+-      if (contract !== null) updates.contract_end = contract;
++      contract_end: contract, // Slice 144g: always write — null = TM has no current contract
+```
+
+## Re-Run Attempted (Bundesliga, 2026-04-22)
+
+```
+Loaded 1 stale players with TM-mapping.
+[1/1] ∅ Klaus — MV parse failed, stays stale
+duration: 1.7s, verified=0, exit 0
+```
+
+**Note:** The 3 target WER-Players (Lynen/Pieper/Stark) are **no longer in scope** of rescrape-stale because Slice 144f already flipped them to `mv_source='transfermarkt_verified'`. Script filter `mv_source='transfermarkt_stale'` correctly skips them now.
+
+The script-fix applies to FUTURE rescrape-runs (any player that becomes stale again and has no TM-contract).
+
+## One-Off Direct-DB Fix for 3 Current WER-Players
+
+Applied via `mcp__supabase__execute_sql` (analog to Slice 144e WER-cluster reunite pattern):
+
+```sql
+BEGIN;
+UPDATE players
+SET contract_end = NULL, updated_at = NOW()
+WHERE id IN (
+  SELECT p.id FROM players p
+  JOIN player_external_ids pe ON pe.player_id=p.id AND pe.source='transfermarkt'
+  WHERE pe.external_id IN ('338668','334221','162434')
+)
+RETURNING id, first_name, last_name, contract_end, mv_source;
+COMMIT;
+```
+
+### Pre-Fix
+
+| player        | tm_id  | contract_end | mv_source              |
+|---------------|--------|--------------|------------------------|
+| Senne Lynen   | 338668 | 2023-08-08   | transfermarkt_verified |
+| Amos Pieper   | 334221 | 2022-07-01   | transfermarkt_verified |
+| Niklas Stark  | 162434 | 2022-07-01   | transfermarkt_verified |
+
+### Post-Fix
+
+| player        | tm_id  | contract_end | mv_source              |
+|---------------|--------|--------------|------------------------|
+| Senne Lynen   | 338668 | NULL         | transfermarkt_verified |
+| Amos Pieper   | 334221 | NULL         | transfermarkt_verified |
+| Niklas Stark  | 162434 | NULL         | transfermarkt_verified |
+
+3 rows updated, 0 errors. Consistent with 144e-reunite-pattern (direct-DB for targeted one-off fixes when script-scope excludes them).
+
+## Final WER-9 State
+
+| player            | tm_id   | contract_end        | source   | comment |
+|-------------------|---------|---------------------|----------|---------|
+| Mio Backhaus      | 620295  | 2028-06-30          | verified | current |
+| Olivier Deman     | 621802  | 2028-06-30          | verified | current |
+| Senne Lynen       | 338668  | NULL                | verified | TM has no contract |
+| Amos Pieper       | 334221  | NULL                | verified | TM has no contract |
+| Mick Schmetgens   | 1045986 | 2029-06-30          | verified | current |
+| Jens Stage        | 289835  | 2028-06-30          | verified | current |
+| Niklas Stark      | 162434  | NULL                | verified | TM has no contract |
+| Yukinari Sugawara | 405385  | 2026-06-30          | verified | current |
+| Maximilian Wöber  | 263361  | 2026-06-30          | verified | current |
+
+6/9 fresh contracts, 3/9 honestly NULL. Zero historical-stale-data masquerading as verified.
+
+## Acceptance Criteria — all PASS
+
+1. Script-Fix: `updates.contract_end = contract` (always write, auch null)        — PASS
+2. Re-Run Bundesliga rescrape                                                      — PASS (exit 0, 0 target matches, filter correctly skips verified)
+3. 3 target WER contract_end = NULL                                                — PASS (via one-off SQL-UPDATE; script-fix covers future cases)
+4. Keine Regression: 6 frisch-updated WER-Contracts                                — PASS (Backhaus/Deman/Schmetgens/Stage/Sugawara/Wöber unchanged)
+5. Reviewer-Agent dispatched + Review-File                                         — PASS (worklog/reviews/144g-review.md, verdict PASS)
+6. tsc clean                                                                       — PASS (no errors)
+
+## Side-Effects / Follow-ups
+
+- INV-38 (contract_end < cutoff AND mv_source != stale): was violated by 144f for the 3 WER (2022-07/2023-08 < 2026-04 cutoff) — now resolved (IS NULL skips filter).
+- Pattern-lesson for common-errors.md Section 9: "Scraper null-policy: always write null to DB when source has no field. Keep-old = permanent data-liar."
+- `tmp/144g-contract-debug.ts` not committed (investigation-only, can be re-created if parser-drift suspected again).

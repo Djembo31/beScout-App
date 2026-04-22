@@ -1,0 +1,19 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+=== TM Re-Scrape Stale (Slice 082) ===
+league=Bundesliga limit=100 rate=2500ms dry=false headless=true
+
+Loaded 1 stale players with TM-mapping.
+
+[1/1] ∅ Klaus — MV parse failed, stays stale
+
+=== Result ===
+duration:         1.7s
+verified:         0
+  mv changed:     0
+  contract new:   0
+parse_failed:     1 (remain stale)
+errored:          0
+
+Bundesliga coverage: verified=522, stale remaining=20
+EXIT_CODE=0

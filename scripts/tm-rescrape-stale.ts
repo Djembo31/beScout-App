@@ -266,9 +266,9 @@ async function main(): Promise<void> {
       const updates: Record<string, unknown> = {
         market_value_eur: mv,
         mv_source: 'transfermarkt_verified',
+        contract_end: contract, // Slice 144g: always write — null = TM has no current contract, don't keep historical stale
         updated_at: new Date().toISOString(),
       };
-      if (contract !== null) updates.contract_end = contract;
 
       if (mv !== p.current_mv) mvChanged++;
       if (contract !== null && contract !== p.current_contract) contractChanged++;

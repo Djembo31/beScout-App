@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144g | 2026-04-22 | Contract-End NULL on missing TM-data (S code+data)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, 1-Zeile Script-Change, contract_end nullable throughout stack) → BUILD → REVIEW (PASS, Cold-Context-Reviewer) → PROVE → LOG
+- **Trigger:** 144f-Review Finding #1 — 3 WER-Players (Lynen/Pieper/Stark) hatten `mv_source=verified` aber historical `contract_end=2022-2023`. Semantic-Mismatch.
+- **Root-Cause (Debug-Evidence `tmp/144g-contract-debug.ts`):** TM-Profile für diese 3 haben 0 "Vertrag bis"-Occurrences. Parser `parseContractEnd` returnt null (korrekt). Script-Line 271 `if (contract !== null) updates.contract_end = contract` skipte das Update → alte DB-Werte blieben.
+- **Fix (1 Zeile):** `scripts/tm-rescrape-stale.ts:271` — `contract_end: contract` (always write, auch null). Semantic: null = TM hat kein current contract, don't keep historical stale.
+- **Re-Run Limitation:** Die 3 WER sind in 144f bereits auf `mv_source=verified` geflipped, werden vom stale-filter nicht mehr gepickt. Script-fix greift für zukünftige stale-Cycles.
+- **One-Off Direct-DB Fix:** 3-Zeilen BEGIN/UPDATE/COMMIT via `mcp__supabase__execute_sql` analog 144e-Pattern. Alle 3 auf `contract_end=NULL`.
+- **Review:** `worklog/reviews/144g-review.md` — PASS, 0 Findings. Cold-Context-Reviewer-Agent validierte Consumer-Chain null-safe (12 Consumers, alle null-tolerant: calcContractMonths returns 0, PerformanceTab gated via `>0`, etc.) und INV-38 wird grüner (3 false-positives aus 144f resolved).
+- **Proof:** `worklog/proofs/144g-debug.txt` (parser-evidence) + `144g-rerun.txt` (script-rerun exit 0) + `144g-verify.txt` (Pre/Post SQL + Final WER-9 State).
+- **Commit:** (pending)
+- **Final WER-9:** 6 frische Contracts (Backhaus/Deman/Schmetgens/Stage/Sugawara/Wöber 2026-2029), 3 honestly NULL (Lynen/Pieper/Stark).
+- **Learnings für common-errors.md Section 9:** Scraper-null-Policy — "always write null" statt "keep-old" verhindert permanent Data-Liar-Akkumulation.
+
+---
+
 ## 144f | 2026-04-22 | Re-Scrape 47 Bundesliga-stale Players (XS data-refresh)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, Script-Run XS, kein Code-Change, Beta-Freeze) → BUILD (=Script-Run) → REVIEW (PASS Self-Review) → PROVE → LOG

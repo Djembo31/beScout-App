@@ -1,0 +1,31 @@
+# Slice 144g — Contract Parser Debug Output (pre-fix)
+Date: 2026-04-22
+Script: tmp/144g-contract-debug.ts (Playwright, local IP, TM-Profile fetch)
+
+=== Senne Lynen (TM 338668) — DB contract=2023-08-08 ===
+parseContractEnd returned: null
+"Vertrag bis + date" occurrences: 0
+
+=== Amos Pieper (TM 334221) — DB contract=2022-07-01 ===
+parseContractEnd returned: null
+"Vertrag bis + date" occurrences: 0
+
+=== Niklas Stark (TM 162434) — DB contract=2022-07-01 ===
+parseContractEnd returned: null
+"Vertrag bis + date" occurrences: 0
+
+=== Mio Backhaus (control, updated) (TM 620295) — DB contract=2028-06-30 ===
+parseContractEnd returned: 2028-06-30
+"Vertrag bis + date" occurrences: 2
+  [0] 2028-06-30
+      context: ... <span class="data-header__label">Vertrag bis: <span class="data-header__content">30.06.2028</span></span> ...
+  [1] 2028-06-30
+      context: ...info-table__content info-table__content--regular">Vertrag bis:</span> <span class="info-table__content info-table__content--bold">30.06.2028</span> ...
+
+## Conclusion
+
+Parser is functionally correct. TM-Profiles for Lynen/Pieper/Stark simply do NOT show a "Vertrag bis" field (0 occurrences in HTML). Parser returns null as expected.
+
+Root-cause of historical-contract in DB: Script Line 271 `if (contract !== null) updates.contract_end = contract` keeps the old DB-value (imported years ago via sync-players-daily or initial seed) when parser returns null.
+
+Fix: Always write `contract_end = contract` (including null). Null signals "TM does not have current contract info" — semantically honest, no historical stale data persisting.
