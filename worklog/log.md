@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 153b | 2026-04-23 | usePlayerTrading Ferrari-Refactor (7 Handler, Player-Detail)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: Hook-Layer-Refactor, API 1:1 kompatibel, 1 Consumer PlayerContent.tsx) → BUILD → REVIEW (REWORK→PASS nach 5 inline-Fixes) → PROVE → LOG
+- **Scope L:** 2 Files (`usePlayerTrading.ts` komplett-rewrite 418 insertions/181 deletions, `__tests__/usePlayerTrading.test.ts` neu 39 Tests) + Spec (Welle B) + Review + 2 Proofs.
+- **Ferrari-Decomposition:** Monster-Hook (350 Zeilen, 7 async Handler, 3 useRef-Mutexe, 6 manuell-States) zerlegt in **6 interne useSafeMutation-Instanzen** (buyMut, ipoBuyMut, sellMut, cancelMut, createOfferMut, acceptBidMut) + 1 fire-and-forget Helper (handleShareTrade).
+- **Eliminiert:** useRef-Mutexe · manuelle setBuying/setIpoBuying/setSelling · manuelle setBuyError/setSellError · redundante local-state-Guards fuer Mutation-Race-Protection.
+- **Hinzugefuegt:** onMutate Snapshot+Optimistic (holdings-qty + ipo-purchased) · onError Rollback mit Phantom-Rollback (removeQueries bei undefined-snapshot) · onSuccess Server-Truth + optimisticallyAddHolding splice · onSettled pgBouncer-safe invalidateWallet (152c HIGH-1) · errorTag je Mutation + fire-and-forget + i18n-resolver (8 Tags) · logSilentCatch im handleShareTrade (ce.md §5).
+- **Review-Fixes (REWORK → PASS):** HIGH-1 silent-catch in handleShareTrade · MED-2 cancelMut.error aus buyError raus + addToast im onError · MED-3 setShared zu openBuyModal verschoben · MED-4 handleAcceptBid mut.isPending Guard · MED-5 handleCancelOrder gleich · LOW-7 sellMut.reset in openSellModal · NIT-11+12 Cleanups.
+- **API-Kompatibilitaet:** PlayerContent.tsx (einziger Consumer, 30+ destrukturierte Properties) unangetastet.
+- **Tests:** 39/39 grün (inkl. 6 neue nach Review-Fixes fuer Cancel-Race, buyError-Isolation, Share-logSilentCatch, openBuyModal shared-reset, cancel-error-toast, share-no-op). 410/410 in src/components/player/ + src/features/market/ + src/app/.
+- **Proof:** worklog/proofs/153b-{usePlayerTrading-vitest.txt, ferrari-diff.txt}
+- **Review:** worklog/reviews/153b-review.md
+- **Commit:** `565e2c1b`
+- **Next:** Phase 3 UX-Hotspots continues: 156 (Events+FantasyStore) → 157 (Watchlist) → 158 (Community Votes). P2.3 balance_after=null carry-over bei 156.
+
+---
+
 ## 153a | 2026-04-23 | trading.ts Ferrari-Refactor (4 Market-Mutation-Hooks)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Hook-Layer-Refactor, keine DB/RPC/Service-Change, API rueckwaertskompatibel, 3 Consumer gegrept ok) → BUILD → REVIEW (Reviewer-Agent PASS, 4 NITs) → PROVE → LOG
