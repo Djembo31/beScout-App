@@ -5,7 +5,8 @@
  * API-Response hat `league.standings` = Array von Arrays (wegen Group-Tournaments).
  * Für uns meist 1 Group pro League (normale Liga). Upsert via (league, club, season) UNIQUE.
  *
- * MANUAL-ONLY wegen Hobby-Plan. Admin triggert wöchentlich.
+ * Slice 149c: Daily cron `0 2 * * *` in vercel.json (Pro-Plan, 7 crons ok).
+ * Vorher MANUAL-ONLY — aber niemand triggert manuell → Daten wurden stale (4 Tage).
  *
  * Auth: CRON_SECRET Bearer.
  */

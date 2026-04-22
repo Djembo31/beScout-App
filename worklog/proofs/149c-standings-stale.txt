@@ -1,0 +1,38 @@
+Slice 149c — Standings stale, kein daily cron (2026-04-23)
+
+User-Report: Gala hat aktuell 71 Punkte, UI zeigt 68.
+
+Diagnose:
+SELECT name, points, updated_at, NOW() - updated_at AS age
+FROM league_standings ls JOIN clubs c ON c.id=ls.club_id
+WHERE c.league='Süper Lig' ORDER BY rank;
+
+Ergebnis (Ausschnitt):
+- Galatasaray: rank=1, points=68, played=29, form=DWLWW, updated_at=2026-04-18 12:27, age=4 days 4h
+- Fenerbahçe: points=67, played=30 (ein Spiel mehr!) — also hat Gala Match nachzuholen
+- Alle 18 Süper-Lig-Clubs: updated_at innerhalb 2 Sekunden → Cron lief EINMAL am 18.04, nie wieder
+
+Root Cause:
+1. vercel.json crons hatte sync-standings NICHT enthalten (6 crons: gameweek-sync, close-expired-bounties, sync-players-daily, sync-transfermarkt-batch, transfermarkt-search-batch, sync-injuries — nur sync-standings fehlte)
+2. Route src/app/api/cron/sync-standings/route.ts war als "MANUAL-ONLY wegen Hobby-Plan" dokumentiert — aber niemand triggert manuell
+3. Vercel-Projekt ist Pro-Plan (6 Crons bereits aktiv, also Limit nicht das Problem)
+
+Fix (Slice 149c):
+1. vercel.json erweitert: `{ "path": "/api/cron/sync-standings", "schedule": "0 2 * * *" }` (täglich 02:00 UTC)
+2. Route-Header-Kommentar aktualisiert — nicht mehr manual-only
+3. Admin-UI Trigger-Button bleibt als Sofort-Refresh verfügbar (TRIGGERABLE_CRONS whitelist inkludiert sync-standings bereits)
+
+Post-Deploy:
+- Nächster automatischer Run: morgen 2026-04-24 02:00 UTC
+- Sofort-Refresh: /bescout-admin (Trigger-Cron-Button) oder curl mit aktuellem CRON_SECRET
+
+Verify-Query nach Sync:
+SELECT name, points, played, updated_at FROM league_standings ls
+JOIN clubs c ON c.id=ls.club_id WHERE c.slug='galatasaray';
+→ erwartet: points=71, played=30 (nach Gala-Sieg)
+
+Knowledge-Pattern (common-errors.md): Cron-Gap-Audit
+Manually-triggered crons entwickeln Drift wenn niemand triggert. Alle route.ts Files unter src/app/api/cron/* MUESSEN entweder in vercel.json oder explizit dokumentiert als "nur on-demand" mit klarem Owner. Audit-Befehl:
+  ls src/app/api/cron/ | while read d; do
+    grep -q "\"path\": \"/api/cron/$d\"" vercel.json || echo "MISSING CRON: $d"
+  done

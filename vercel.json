@@ -12,7 +12,8 @@
     { "path": "/api/cron/sync-players-daily", "schedule": "0 3 * * 1" },
     { "path": "/api/cron/sync-transfermarkt-batch", "schedule": "0 4 1 1,5,9 *" },
     { "path": "/api/cron/transfermarkt-search-batch", "schedule": "30 2 * * *" },
-    { "path": "/api/cron/sync-injuries", "schedule": "0 12 * * *" }
+    { "path": "/api/cron/sync-injuries", "schedule": "0 12 * * *" },
+    { "path": "/api/cron/sync-standings", "schedule": "0 2 * * *" }
   ],
   "headers": [
     {
