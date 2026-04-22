@@ -3,11 +3,11 @@
 ```
 status: active
 slice: 153b
-stage: SPEC
+stage: LOG
 spec: worklog/specs/153-player-trading-ferrari-refactor.md (Welle B, Zeile 63-78)
-impact: pending
-proof: pending
-review: pending
+impact: skipped (Hook-Layer-Refactor, API 1:1 kompatibel — 1 Consumer PlayerContent.tsx)
+proof: worklog/proofs/153b-usePlayerTrading-vitest.txt + 153b-ferrari-diff.txt
+review: worklog/reviews/153b-review.md (REWORK→PASS nach 5 inline-Fixes: HIGH-1 + MED-2+3+4+5 + LOW-7 + NIT-11+12)
 ```
 
 ## Zuletzt

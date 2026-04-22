@@ -1,20 +1,63 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { setWalletBalance, invalidateWallet } from '@/lib/hooks/useWallet';
 import { useToast } from '@/components/providers/ToastProvider';
-import { buyFromMarket, buyFromOrder, placeSellOrder, cancelOrder } from '@/lib/services/trading';
+import {
+  buyFromMarket, buyFromOrder, placeSellOrder, cancelOrder,
+} from '@/lib/services/trading';
 import { buyFromIpo } from '@/lib/services/ipo';
 import { createOffer as createOfferAction, acceptOffer } from '@/lib/services/offers';
 import { createPost } from '@/lib/services/posts';
 import { formatScout } from '@/lib/services/wallet';
-import { invalidateTradeQueries, invalidatePlayerDetailQueries } from '@/lib/queries/invalidation';
+import {
+  invalidateTradeQueries, invalidatePlayerDetailQueries,
+} from '@/lib/queries/invalidation';
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { logSilentCatch } from '@/lib/observability/silentRejects';
 import type { Player, DbIpo, PublicOrder } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
+
+/**
+ * Slice 153b — Ferrari-Refactor usePlayerTrading (Player-Detail-Page).
+ *
+ * Ausgangslage (bis Slice 152d): 350-Zeilen Hook mit 7 async Handlern,
+ * useRef-Mutexen (buyingRef/ipoBuyingRef/sellingRef), manuellen
+ * setBuying/setIpoBuying/setSelling-States, manueller setBuyError/sellError,
+ * manueller Optimistic ohne Rollback.
+ *
+ * Ferrari-Blueprint: `src/lib/hooks/useToggleFollowClub.ts` + 153a
+ * `src/features/market/mutations/trading.ts`.
+ *
+ * Aenderungen:
+ * - 6 interne `useSafeMutation`-Instanzen (buyMut, ipoBuyMut, sellMut,
+ *   cancelMut, createOfferMut, acceptBidMut). `handleShareTrade` bleibt
+ *   regular async (nicht Data-Mutation, Fire-and-forget Post-Creation).
+ * - `useRef`-Mutexe geloescht — `safeTrigger` short-circuitet synchron.
+ * - Manuelles `setBuying/setIpoBuying/setSelling` entfernt — abgeleitet von
+ *   `mutation.isPending`. `offerLoading` ebenso.
+ * - Manuelles `setBuyError/setSellError` entfernt — abgeleitet von
+ *   `mutation.error` via `resolveErrorMessage`.
+ * - Optimistic in `onMutate` mit Phantom-Rollback-Pattern (Slice 153a
+ *   Review Finding #1): `removeQueries` bei undefined-Snapshot.
+ * - `onSettled` pgBouncer-safe `invalidateWallet` (Slice 152c HIGH-1).
+ * - `errorTag` je Money-Mutation (player.buy / player.ipoBuy / player.sell /
+ *   player.cancelOrder / player.createOffer / player.acceptBid).
+ *
+ * Public-API 1:1 kompatibel zu Vorgaenger — `PlayerContent.tsx` unveraendert.
+ *
+ * **Bewusst behalten:**
+ * - `cancellingId` / `acceptingBidId` als useState (trackt WELCHE id pending
+ *   ist, nicht das boolean-isPending — Consumer filtert pro-Row).
+ * - `buySuccess` / `shared` / Modal-States als useState (UI-Flow, nicht
+ *   Mutation-Status).
+ * - `optimisticallyAddHolding` Helper (splice in Liste, mehr als qty-Scalar).
+ * - `resolveErrorMessage` Helper (i18n-Key-to-String).
+ */
 
 interface UsePlayerTradingParams {
   playerId: string;
@@ -27,29 +70,22 @@ interface UsePlayerTradingParams {
   userIpoPurchased: number;
 }
 
+type BuyContext = { prevHoldingQty: number | undefined };
+type IpoBuyContext = {
+  prevHoldingQty: number | undefined;
+  prevUserPurchased: number | undefined;
+};
+
 export function usePlayerTrading({
-  playerId, player, userId,
-  activeIpo, allSellOrders, holdingQty, balanceCents,
-  userIpoPurchased,
+  playerId, player, userId, activeIpo, allSellOrders,
 }: UsePlayerTradingParams) {
   const { addToast } = useToast();
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   const t = useTranslations('player');
   const tc = useTranslations('common');
   const te = useTranslations('errors');
 
-  // ─── Refs for synchronous double-submit guard ─
-  const buyingRef = useRef(false);
-  const ipoBuyingRef = useRef(false);
-  const sellingRef = useRef(false);
-
-  // ─── State ──────────────────────────────────
-  const [buying, setBuying] = useState(false);
-  const [ipoBuying, setIpoBuying] = useState(false);
-  const [selling, setSelling] = useState(false);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [buyError, setBuyError] = useState<string | null>(null);
-  const [sellError, setSellError] = useState<string | null>(null);
+  // ─── UI / Flow State ──────────────────────────
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
   const [pendingBuyQty, setPendingBuyQty] = useState<number | null>(null);
@@ -59,36 +95,48 @@ export function usePlayerTrading({
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [offerPrice, setOfferPrice] = useState('');
   const [offerMessage, setOfferMessage] = useState('');
-  const [offerLoading, setOfferLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
 
-  // ─── Derived ────────────────────────────────
+  // ─── Derived ───────────────────────────────────
   const userOrders = useMemo(
     () => allSellOrders.filter(o => o.is_own),
     [allSellOrders]
   );
 
-  const isIPO = activeIpo !== null && activeIpo !== undefined && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
+  const isIPO = activeIpo != null && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
 
-  // ─── Invalidation ──────────────────────────
+  // ─── i18n-Key Resolver ─────────────────────────
+  // Services throw i18n keys like 'insufficientBalance' — raw keys must never
+  // leak into UI (see common-errors.md: i18n-Key-Leak via Service-Errors).
+  const resolveErrorMessage = useCallback((raw: unknown): string => {
+    const key = mapErrorToKey(normalizeError(raw));
+    try {
+      return te(key);
+    } catch (err) {
+      // Missing-i18n-key — never let silent swallow hide the drift.
+      // Review 153b Finding #12 / common-errors.md §1.
+      logSilentCatch('player.resolveErrorMessage', err);
+      return tc('unknownError');
+    }
+  }, [te, tc]);
+
+  // ─── Invalidation Helper ────────────────────────
   const invalidateAfterTrade = useCallback((pid: string, uid?: string) => {
     invalidateTradeQueries(pid, uid);
     invalidatePlayerDetailQueries(pid, uid);
-    queryClient.invalidateQueries({ queryKey: qk.offers.bids(pid) });
-    // Force-refetch the full holdings list even if no observer is mounted
-    // on the player detail page. Otherwise the cache stays stale until the
-    // user navigates to /market and waits for the background refetch.
+    qc.invalidateQueries({ queryKey: qk.offers.bids(pid) });
+    // Force-refetch full holdings list even when no observer on this page.
+    // Otherwise /market / /manager?tab=kader stays stale until staleTime.
     if (uid) {
-      queryClient.refetchQueries({ queryKey: qk.holdings.byUser(uid), type: 'all' });
+      qc.refetchQueries({ queryKey: qk.holdings.byUser(uid), type: 'all' });
     }
-  }, [queryClient]);
+  }, [qc]);
 
   // ─── Optimistic holdings-list patch ─────────
   // After a successful buy, immediately splice the new/updated holding into
   // the full qk.holdings.byUser(uid) cache so the Bestand tab shows the
-  // player instantly. The background refetch triggered by invalidation
-  // confirms/corrects the state. Prevents the "did I actually buy it?"
-  // confidence gap reported by users after IPO/market buys.
+  // player instantly. Prevents the "did I actually buy it?" confidence gap.
   const optimisticallyAddHolding = useCallback((
     uid: string,
     quantity: number,
@@ -114,7 +162,7 @@ export function usePlayerTrading({
       age: player.age,
       image_url: player.imageUrl ?? null,
     };
-    queryClient.setQueryData<HoldingWithPlayer[] | undefined>(
+    qc.setQueryData<HoldingWithPlayer[] | undefined>(
       qk.holdings.byUser(uid),
       (old) => {
         if (!old) return old;
@@ -141,60 +189,285 @@ export function usePlayerTrading({
         return [synth, ...old];
       }
     );
-  }, [player, playerId, queryClient]);
+  }, [player, playerId, qc]);
 
-  // ─── Handlers ──────────────────────────────
+  // ─── Optimistic holdings-qty Helper (scalar, with phantom-rollback) ──
+  const optimisticHoldingsQtyBegin = useCallback(
+    async (uid: string, quantity: number): Promise<BuyContext> => {
+      const key = ['holdings', 'qty', uid, playerId] as const;
+      await qc.cancelQueries({ queryKey: key });
+      const prevHoldingQty = qc.getQueryData<number>(key);
+      qc.setQueryData<number | undefined>(key, (old) => (old ?? 0) + quantity);
+      return { prevHoldingQty };
+    },
+    [qc, playerId],
+  );
 
-  // Resolve raw service/RPC errors (or i18n-keys) into translated strings.
-  // Mirrors features/market/hooks/useTradeActions.ts:107-117. Without this,
-  // result.error from RPC ("Keine SCs zum Verkaufen", "Verdaechtiges
-  // Handelsmuster erkannt", etc.) leaks into the UI literally and TR users
-  // see DE-strings (see common-errors.md: i18n-Key-Leak).
-  const resolveErrorMessage = useCallback((raw: unknown): string => {
-    const key = mapErrorToKey(normalizeError(raw));
-    try {
-      return te(key);
-    } catch {
-      return tc('unknownError');
-    }
-  }, [te, tc]);
+  const optimisticHoldingsQtyRollback = useCallback(
+    (uid: string, ctx: BuyContext | undefined) => {
+      const key = ['holdings', 'qty', uid, playerId] as const;
+      if (ctx && ctx.prevHoldingQty !== undefined) {
+        qc.setQueryData(key, ctx.prevHoldingQty);
+      } else {
+        qc.removeQueries({ queryKey: key });
+      }
+    },
+    [qc, playerId],
+  );
 
-  const executeBuy = useCallback(async (quantity: number, orderId?: string | null) => {
-    if (!userId || !player || buyingRef.current) return;
-    buyingRef.current = true;
-    setPendingBuyQty(null);
-    setPendingBuyOrderId(null);
-    setBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
-    try {
-      // If a specific order was selected, buy from that order; otherwise buy from cheapest (market)
+  // ═══════════════════════════════════════════════
+  // MUTATION 1: Buy (Market + Order-Path)
+  // ═══════════════════════════════════════════════
+  const buyMut = useSafeMutation<
+    Awaited<ReturnType<typeof buyFromMarket>>,
+    Error,
+    { quantity: number; orderId?: string | null },
+    BuyContext
+  >({
+    mutationFn: async ({ quantity, orderId }) => {
+      if (!userId) throw new Error('no_user');
       const result = orderId
         ? await buyFromOrder(userId, orderId, quantity, playerId)
         : await buyFromMarket(userId, playerId, quantity);
-      if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
-      else {
-        const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
-        setBuySuccess(t('buySuccess', { quantity, price: priceBsd }));
-        // Deterministic write only when server actually returned a new balance
-        // — no stale-balance-fallback (152c Review MEDIUM-3).
-        if (userId && result.new_balance != null) setWalletBalance(queryClient, userId, result.new_balance);
-        queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
-        optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
-        invalidateAfterTrade(playerId, userId);
-        setTimeout(() => setBuySuccess(null), 5000);
+      if (!result.success) throw new Error(result.error || 'generic');
+      return result;
+    },
+    onMutate: async ({ quantity }) => {
+      if (!userId) return { prevHoldingQty: undefined };
+      // Reset residual success state from prior attempt. `shared` belongs to
+      // buySuccess-lifecycle and is reset in `openBuyModal` (Review 153b #3).
+      setBuySuccess(null);
+      return await optimisticHoldingsQtyBegin(userId, quantity);
+    },
+    onError: (_err, _vars, ctx) => {
+      if (!userId) return;
+      optimisticHoldingsQtyRollback(userId, ctx);
+    },
+    onSuccess: (result, { quantity }) => {
+      if (!userId) return;
+      const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
+      setBuySuccess(t('buySuccess', { quantity, price: priceBsd }));
+      if (result.new_balance != null) setWalletBalance(qc, userId, result.new_balance);
+      optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
+      invalidateAfterTrade(playerId, userId);
+      setTimeout(() => setBuySuccess(null), 5000);
+    },
+    onSettled: () => {
+      // pgBouncer-safe wallet invalidate (152c HIGH-1).
+      invalidateWallet(qc);
+    },
+    errorTag: 'player.buy',
+  });
+
+  // ═══════════════════════════════════════════════
+  // MUTATION 2: IPO-Buy
+  // ═══════════════════════════════════════════════
+  const ipoBuyMut = useSafeMutation<
+    Awaited<ReturnType<typeof buyFromIpo>>,
+    Error,
+    { quantity: number },
+    IpoBuyContext
+  >({
+    mutationFn: async ({ quantity }) => {
+      if (!userId) throw new Error('no_user');
+      if (!activeIpo) throw new Error('generic');
+      const result = await buyFromIpo(userId, activeIpo.id, quantity, playerId);
+      if (!result.success) throw new Error(result.error || 'generic');
+      return result;
+    },
+    onMutate: async ({ quantity }) => {
+      if (!userId || !activeIpo) return { prevHoldingQty: undefined, prevUserPurchased: undefined };
+      setBuySuccess(null);
+      const qtyKey = ['holdings', 'qty', userId, playerId] as const;
+      const purchasedKey = ['ipos', 'purchases', userId, activeIpo.id] as const;
+      await Promise.all([
+        qc.cancelQueries({ queryKey: qtyKey }),
+        qc.cancelQueries({ queryKey: purchasedKey }),
+      ]);
+      const prevHoldingQty = qc.getQueryData<number>(qtyKey);
+      const prevUserPurchased = qc.getQueryData<number>(purchasedKey);
+      qc.setQueryData<number | undefined>(qtyKey, (old) => (old ?? 0) + quantity);
+      qc.setQueryData<number | undefined>(purchasedKey, (old) => (old ?? 0) + quantity);
+      return { prevHoldingQty, prevUserPurchased };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (!userId || !activeIpo) return;
+      const qtyKey = ['holdings', 'qty', userId, playerId] as const;
+      const purchasedKey = ['ipos', 'purchases', userId, activeIpo.id] as const;
+      if (ctx && ctx.prevHoldingQty !== undefined) {
+        qc.setQueryData(qtyKey, ctx.prevHoldingQty);
+      } else {
+        qc.removeQueries({ queryKey: qtyKey });
       }
-    } catch (err) { setBuyError(resolveErrorMessage(err)); }
-    finally {
-      buyingRef.current = false;
-      setBuying(false);
-      // pgBouncer-safe invalidate (152c Review HIGH-2): nach onSettled-Analogon
-      // im finally-Block, nach Commit-Fenster. Verhindert Stale-Refetch-Race
-      // mit setWalletBalance aus dem try-Branch.
-      invalidateWallet(queryClient);
-    }
-  }, [userId, player, playerId, invalidateAfterTrade, optimisticallyAddHolding, queryClient, t, resolveErrorMessage]);
+      if (ctx && ctx.prevUserPurchased !== undefined) {
+        qc.setQueryData(purchasedKey, ctx.prevUserPurchased);
+      } else {
+        qc.removeQueries({ queryKey: purchasedKey });
+      }
+    },
+    onSuccess: (result, { quantity }) => {
+      if (!userId || !activeIpo) return;
+      const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
+      if (result.new_balance != null) setWalletBalance(qc, userId, result.new_balance);
+      optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
+      if (result.user_total_purchased != null) {
+        qc.setQueryData(['ipos', 'purchases', userId, activeIpo.id], result.user_total_purchased);
+      }
+      invalidateAfterTrade(playerId, userId);
+      setBuySuccess(t('ipoBuySuccess', { quantity, price: priceBsd }));
+      addToast(t('ipoBuySuccess', { quantity, price: priceBsd }), 'success');
+    },
+    onSettled: () => {
+      invalidateWallet(qc);
+    },
+    errorTag: 'player.ipoBuy',
+  });
+
+  // ═══════════════════════════════════════════════
+  // MUTATION 3: Sell
+  // ═══════════════════════════════════════════════
+  const sellMut = useSafeMutation<
+    Awaited<ReturnType<typeof placeSellOrder>>,
+    Error,
+    { quantity: number; priceCents: number }
+  >({
+    mutationFn: async ({ quantity, priceCents }) => {
+      if (!userId) throw new Error('no_user');
+      const result = await placeSellOrder(userId, playerId, quantity, priceCents);
+      if (!result.success) throw new Error(result.error || 'generic');
+      return result;
+    },
+    onSuccess: (_result, { quantity, priceCents }) => {
+      if (!userId) return;
+      setBuySuccess(t('listSuccess', { quantity, price: formatScout(priceCents) }));
+      invalidateAfterTrade(playerId, userId);
+      setSellModalOpen(false);
+      setTimeout(() => setBuySuccess(null), 5000);
+    },
+    onSettled: () => {
+      invalidateWallet(qc);
+    },
+    errorTag: 'player.sell',
+  });
+
+  // ═══════════════════════════════════════════════
+  // MUTATION 4: Cancel-Order
+  // ═══════════════════════════════════════════════
+  const cancelMut = useSafeMutation<
+    Awaited<ReturnType<typeof cancelOrder>>,
+    Error,
+    { orderId: string }
+  >({
+    mutationFn: async ({ orderId }) => {
+      if (!userId) throw new Error('no_user');
+      const result = await cancelOrder(userId, orderId);
+      if (!result.success) throw new Error(result.error || 'generic');
+      return result;
+    },
+    onSuccess: (_result, { orderId }) => {
+      if (!userId) return;
+      setBuySuccess(t('orderCancelled'));
+      qc.setQueryData(qk.orders.byPlayer(playerId), (old: PublicOrder[] | undefined) =>
+        (old ?? []).filter(o => o.id !== orderId),
+      );
+      invalidateAfterTrade(playerId, userId);
+      setTimeout(() => setBuySuccess(null), 5000);
+    },
+    onError: (err) => {
+      // Cancel fails (e.g. already-filled race). Consumer (SellModal/
+      // HoldingsSection) hat keinen inline-error-Slot fuer Cancel —
+      // Toast ist die einzige UI-Feedback-Oberflaeche. Review 153b #2.
+      addToast(resolveErrorMessage(err), 'error');
+    },
+    onSettled: () => {
+      setCancellingId(null);
+      invalidateWallet(qc);
+    },
+    errorTag: 'player.cancelOrder',
+  });
+
+  // ═══════════════════════════════════════════════
+  // MUTATION 5: Create-Offer
+  // ═══════════════════════════════════════════════
+  const createOfferMut = useSafeMutation<
+    Awaited<ReturnType<typeof createOfferAction>>,
+    Error,
+    { priceCents: number; message?: string }
+  >({
+    mutationFn: async ({ priceCents, message }) => {
+      if (!userId) throw new Error('no_user');
+      const result = await createOfferAction({
+        senderId: userId, playerId, side: 'buy',
+        priceCents, quantity: 1, message,
+      });
+      if (!result.success) throw new Error(result.error || 'generic');
+      return result;
+    },
+    onSuccess: () => {
+      addToast(t('buyOfferCreated'), 'success');
+      setShowOfferModal(false);
+      setOfferPrice('');
+      setOfferMessage('');
+      qc.invalidateQueries({ queryKey: qk.offers.bids(playerId) });
+    },
+    onError: (err) => {
+      addToast(resolveErrorMessage(err), 'error');
+    },
+    errorTag: 'player.createOffer',
+  });
+
+  // ═══════════════════════════════════════════════
+  // MUTATION 6: Accept-Bid
+  // ═══════════════════════════════════════════════
+  const acceptBidMut = useSafeMutation<
+    Awaited<ReturnType<typeof acceptOffer>>,
+    Error,
+    { offerId: string }
+  >({
+    mutationFn: async ({ offerId }) => {
+      if (!userId) throw new Error('no_user');
+      const result = await acceptOffer(userId, offerId);
+      if (!result.success) throw new Error(result.error || 'generic');
+      return result;
+    },
+    onSuccess: () => {
+      if (!userId) return;
+      addToast(t('offerAccepted'), 'success');
+      invalidateAfterTrade(playerId, userId);
+    },
+    onError: (err) => {
+      addToast(resolveErrorMessage(err), 'error');
+    },
+    onSettled: () => {
+      setAcceptingBidId(null);
+    },
+    errorTag: 'player.acceptBid',
+  });
+
+  // ─── Derived Error-States (i18n-resolved) ──────
+  // buyError deckt NUR Buy + IPO-Buy ab (beide landen in BuyModal's inline-
+  // error). Cancel-Error hat eigenen Toast-Pfad (Review 153b #2).
+  const buyError = (() => {
+    if (buyMut.isError && buyMut.error) return resolveErrorMessage(buyMut.error);
+    if (ipoBuyMut.isError && ipoBuyMut.error) return resolveErrorMessage(ipoBuyMut.error);
+    return null;
+  })();
+  const sellError = sellMut.isError && sellMut.error ? resolveErrorMessage(sellMut.error) : null;
+
+  // ─── Handler Wrappers (preserve public API) ────
+
+  const executeBuy = useCallback((quantity: number, orderId?: string | null) => {
+    if (!userId || !player) return;
+    buyMut.safeTrigger({ quantity, orderId });
+    setPendingBuyQty(null);
+    setPendingBuyOrderId(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, player, buyMut.safeTrigger]);
 
   const handleBuy = useCallback((quantity: number, orderId?: string) => {
     if (!userId || !player || player.isLiquidated) return;
+    // Two-phase: if user has own sell-orders → ask for confirmation before
+    // buying (might be buying against own order).
     if (userOrders.length > 0) {
       setPendingBuyQty(quantity);
       setPendingBuyOrderId(orderId ?? null);
@@ -203,137 +476,101 @@ export function usePlayerTrading({
     executeBuy(quantity, orderId);
   }, [userId, player, userOrders, executeBuy]);
 
-  const handleIpoBuy = useCallback(async (quantity: number) => {
-    if (!userId || !activeIpo || ipoBuyingRef.current) return;
-    ipoBuyingRef.current = true;
-    setIpoBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
-    try {
-      const result = await buyFromIpo(userId, activeIpo.id, quantity, playerId);
-      if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
-      else {
-        const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
-        // Deterministic write only when server actually returned a new balance
-        // — no stale-balance-fallback (152c Review MEDIUM-3).
-        if (userId && result.new_balance != null) setWalletBalance(queryClient, userId, result.new_balance);
-        queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
-        optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
-        if (result.user_total_purchased != null) {
-          queryClient.setQueryData(['ipos', 'purchases', userId, activeIpo.id], result.user_total_purchased);
-        }
-        invalidateAfterTrade(playerId, userId);
-        setBuySuccess(t('ipoBuySuccess', { quantity, price: priceBsd }));
-        addToast(t('ipoBuySuccess', { quantity, price: priceBsd }), 'success');
-        // Modal close is handled by BuyModal's own success-state timer
-        // so the user sees the "In deinem Kader" confirmation.
-      }
-    } catch (err) { setBuyError(resolveErrorMessage(err)); }
-    finally {
-      ipoBuyingRef.current = false;
-      setIpoBuying(false);
-      // pgBouncer-safe invalidate (152c Review HIGH-2).
-      invalidateWallet(queryClient);
-    }
-  }, [userId, activeIpo, playerId, addToast, invalidateAfterTrade, optimisticallyAddHolding, queryClient, t, resolveErrorMessage]);
+  const handleIpoBuy = useCallback((quantity: number) => {
+    if (!userId || !activeIpo) return;
+    ipoBuyMut.safeTrigger({ quantity });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, activeIpo, ipoBuyMut.safeTrigger]);
 
-  const handleSell = useCallback(async (quantity: number, priceCents: number) => {
-    if (!userId || player?.isLiquidated || sellingRef.current) return;
-    sellingRef.current = true;
-    setSelling(true); setSellError(null); setBuySuccess(null); setShared(false);
-    try {
-      const result = await placeSellOrder(userId, playerId, quantity, priceCents);
-      if (!result.success) { setSellError(resolveErrorMessage(result.error ?? 'generic')); }
-      else {
-        setBuySuccess(t('listSuccess', { quantity, price: formatScout(priceCents) }));
-        invalidateAfterTrade(playerId, userId);
-        setSellModalOpen(false);
-        setTimeout(() => setBuySuccess(null), 5000);
-      }
-    } catch (err) { setSellError(resolveErrorMessage(err)); }
-    finally { sellingRef.current = false; setSelling(false); }
-  }, [userId, player, playerId, invalidateAfterTrade, t, resolveErrorMessage]);
+  const handleSell = useCallback((quantity: number, priceCents: number) => {
+    if (!userId || player?.isLiquidated) return;
+    sellMut.safeTrigger({ quantity, priceCents });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, player, sellMut.safeTrigger]);
 
-  const handleCancelOrder = useCallback(async (orderId: string) => {
-    if (!userId) return;
-    setCancellingId(orderId); setBuyError(null);
-    try {
-      const result = await cancelOrder(userId, orderId);
-      if (!result.success) { setBuyError(resolveErrorMessage(result.error ?? 'generic')); }
-      else {
-        setBuySuccess(t('orderCancelled'));
-        queryClient.setQueryData(qk.orders.byPlayer(playerId), (old: PublicOrder[] | undefined) =>
-          (old ?? []).filter(o => o.id !== orderId)
-        );
-        invalidateAfterTrade(playerId, userId);
-        setTimeout(() => setBuySuccess(null), 5000);
-      }
-    } catch (err) { setBuyError(resolveErrorMessage(err)); }
-    finally { setCancellingId(null); }
-  }, [userId, playerId, invalidateAfterTrade, queryClient, t, resolveErrorMessage]);
+  const handleCancelOrder = useCallback((orderId: string) => {
+    // mut.isPending is the authoritative guard (Review 153b #5). Without it,
+    // 2× rapid-cancel on different orders would: trigger #1, setCancellingId
+    // to #2 (stale), then on settled clear to null — UI shows neither.
+    if (!userId || cancelMut.isPending) return;
+    setCancellingId(orderId);
+    cancelMut.safeTrigger({ orderId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, cancelMut.isPending, cancelMut.safeTrigger]);
 
-  const handleCreateOffer = useCallback(async () => {
+  const handleCreateOffer = useCallback(() => {
     if (!userId || !offerPrice) return;
     const priceCents = Math.round(parseFloat(offerPrice) * 100);
     if (priceCents <= 0) { addToast(t('invalidPrice'), 'error'); return; }
-    setOfferLoading(true);
-    try {
-      const result = await createOfferAction({
-        senderId: userId, playerId, side: 'buy', priceCents, quantity: 1,
-        message: offerMessage.trim() || undefined,
-      });
-      if (result.success) {
-        addToast(t('buyOfferCreated'), 'success');
-        setShowOfferModal(false); setOfferPrice(''); setOfferMessage('');
-        queryClient.invalidateQueries({ queryKey: qk.offers.bids(playerId) });
-      } else { addToast(resolveErrorMessage(result.error ?? 'generic'), 'error'); }
-    } catch (e) { addToast(resolveErrorMessage(e), 'error'); }
-    finally { setOfferLoading(false); }
-  }, [userId, offerPrice, offerMessage, playerId, addToast, queryClient, t, resolveErrorMessage]);
+    createOfferMut.safeTrigger({ priceCents, message: offerMessage.trim() || undefined });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, offerPrice, offerMessage, addToast, t, createOfferMut.safeTrigger]);
 
-  const handleAcceptBid = useCallback(async (offerId: string) => {
-    if (!userId || acceptingBidId) return;
+  const handleAcceptBid = useCallback((offerId: string) => {
+    // mut.isPending authoritative guard (Review 153b #4). Local `acceptingBidId`
+    // is async setState — not reliable as guard against rapid-fire calls.
+    if (!userId || acceptBidMut.isPending) return;
     setAcceptingBidId(offerId);
-    try {
-      const result = await acceptOffer(userId, offerId);
-      if (result.success) {
-        addToast(t('offerAccepted'), 'success');
-        invalidateAfterTrade(playerId, userId);
-      } else { addToast(resolveErrorMessage(result.error ?? 'generic'), 'error'); }
-    } catch (e) { addToast(resolveErrorMessage(e), 'error'); }
-    finally { setAcceptingBidId(null); }
-  }, [userId, acceptingBidId, playerId, addToast, invalidateAfterTrade, t, resolveErrorMessage]);
+    acceptBidMut.safeTrigger({ offerId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, acceptBidMut.isPending, acceptBidMut.safeTrigger]);
 
   const handleShareTrade = useCallback(async () => {
     if (!userId || !player || shared) return;
     try {
-      await createPost(userId, playerId, player.club, `Ich habe gerade ${player.first} ${player.last} Scout Cards gekauft! ${player.pos === 'ATT' ? '\u26BD' : player.pos === 'GK' ? '\uD83E\uDDE4' : '\uD83C\uDFC3'} #Trading`, [player.last.toLowerCase(), player.club.toLowerCase()], 'Trading');
+      await createPost(
+        userId, playerId, player.club,
+        `Ich habe gerade ${player.first} ${player.last} Scout Cards gekauft! ${player.pos === 'ATT' ? '⚽' : player.pos === 'GK' ? '🧤' : '🏃'} #Trading`,
+        [player.last.toLowerCase(), player.club.toLowerCase()],
+        'Trading',
+      );
       setShared(true);
       addToast(t('sharedToCommunity'), 'success');
-    } catch { addToast(t('shareFailed'), 'error'); }
+    } catch (err) {
+      // Fire-and-forget: post-creation is graceful-degrade, but silent-swallow
+      // hides infra drift (RLS, schema). Review 153b #1 — trading.md § "NIEMALS
+      // leere .catch(() => {})" + common-errors.md §1 / §5.
+      logSilentCatch('player.shareTrade', err);
+      addToast(t('shareFailed'), 'error');
+    }
   }, [userId, player, shared, playerId, addToast, t]);
 
+  // ─── Modal Handlers ────────────────────────────
   const openBuyModal = useCallback(() => {
-    // Fresh open: clear residual success/error state so the BuyModal
-    // success-state effect only fires for a NEW buy. Without this,
-    // re-opening the modal within the 5s buySuccess setTimeout window
-    // would immediately auto-close with the previous purchase's
-    // confirmation — a phantom success.
+    // Fresh open: clear residual success/shared/error state so BuyModal's
+    // success-state effect only fires for a NEW buy. Without this, re-opening
+    // within the 5s buySuccess setTimeout window auto-closes with the previous
+    // confirmation. `shared` also reset here (Review 153b #3).
     setBuySuccess(null);
-    setBuyError(null);
+    setShared(false);
+    buyMut.reset();
+    ipoBuyMut.reset();
     setBuyModalOpen(true);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buyMut.reset, ipoBuyMut.reset]);
   const closeBuyModal = useCallback(() => setBuyModalOpen(false), []);
-  const openSellModal = useCallback(() => setSellModalOpen(true), []);
+  const openSellModal = useCallback(() => {
+    // Reset stale sellError from prior failed-attempt (Review 153b #7).
+    sellMut.reset();
+    setSellModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sellMut.reset]);
   const closeSellModal = useCallback(() => setSellModalOpen(false), []);
   const openOfferModal = useCallback(() => { setBuyModalOpen(false); setShowOfferModal(true); }, []);
   const closeOfferModal = useCallback(() => setShowOfferModal(false), []);
   const cancelPendingBuy = useCallback(() => { setPendingBuyQty(null); setPendingBuyOrderId(null); }, []);
 
   return {
-    // State
-    buying, ipoBuying, selling, cancellingId,
+    // State (derived or local)
+    buying: buyMut.isPending,
+    ipoBuying: ipoBuyMut.isPending,
+    selling: sellMut.isPending,
+    cancellingId,
     buyError, sellError, buySuccess, shared,
-    pendingBuyQty, pendingBuyOrderId, buyModalOpen, sellModalOpen,
-    showOfferModal, offerPrice, offerMessage, offerLoading,
+    pendingBuyQty, pendingBuyOrderId,
+    buyModalOpen, sellModalOpen, showOfferModal,
+    offerPrice, offerMessage,
+    offerLoading: createOfferMut.isPending,
     acceptingBidId,
     // Setters
     setOfferPrice, setOfferMessage,

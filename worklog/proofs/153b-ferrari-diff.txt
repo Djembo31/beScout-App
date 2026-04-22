@@ -1,0 +1,66 @@
+# Slice 153b — usePlayerTrading Ferrari-Refactor Structural Evidence
+
+## git diff --stat
+ .../player/detail/hooks/usePlayerTrading.ts        | 599 ++++++++++++++-------
+ 1 file changed, 418 insertions(+), 181 deletions(-)
+
+## Ferrari-Pattern Instances (grep)
+
+### useSafeMutation instances (6 expected):
+20:import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+37: * - 6 interne `useSafeMutation`-Instanzen (buyMut, ipoBuyMut, sellMut,
+221:  const buyMut = useSafeMutation<
+265:  const ipoBuyMut = useSafeMutation<
+329:  const sellMut = useSafeMutation<
+356:  const cancelMut = useSafeMutation<
+392:  const createOfferMut = useSafeMutation<
+422:  const acceptBidMut = useSafeMutation<
+
+### errorTag (Sentry observability, 6 expected):
+259:    errorTag: 'player.buy',
+323:    errorTag: 'player.ipoBuy',
+350:    errorTag: 'player.sell',
+386:    errorTag: 'player.cancelOrder',
+416:    errorTag: 'player.createOffer',
+444:    errorTag: 'player.acceptBid',
+
+### onSettled pgBouncer-safe invalidateWallet (4 expected: Buy, IPO-Buy, Sell, Cancel):
+47: * - `onSettled` pgBouncer-safe `invalidateWallet` (Slice 152c HIGH-1).
+255:    onSettled: () => {
+320:    onSettled: () => {
+321-      invalidateWallet(qc);
+347:    onSettled: () => {
+348-      invalidateWallet(qc);
+382:    onSettled: () => {
+441:    onSettled: () => {
+
+### Phantom-rollback pattern (removeQueries on undefined-snapshot):
+46: *   Review Finding #1): `removeQueries` bei undefined-Snapshot.
+212:        qc.removeQueries({ queryKey: key });
+300:        qc.removeQueries({ queryKey: qtyKey });
+305:        qc.removeQueries({ queryKey: purchasedKey });
+
+### logSilentCatch (observability for fire-and-forget + i18n-resolve):
+21:import { logSilentCatch } from '@/lib/observability/silentRejects';
+119:      logSilentCatch('player.resolveErrorMessage', err);
+533:      logSilentCatch('player.shareTrade', err);
+
+### isPending guards in handlers (Review 153b #4/#5):
+42: *   `mutation.isPending`. `offerLoading` ebenso.
+55: *   ist, nicht das boolean-isPending — Consumer filtert pro-Row).
+492:    // mut.isPending is the authoritative guard (Review 153b #5). Without it,
+495:    if (!userId || cancelMut.isPending) return;
+499:  }, [userId, cancelMut.isPending, cancelMut.safeTrigger]);
+510:    // mut.isPending authoritative guard (Review 153b #4). Local `acceptingBidId`
+512:    if (!userId || acceptBidMut.isPending) return;
+516:  }, [userId, acceptBidMut.isPending, acceptBidMut.safeTrigger]);
+565:    buying: buyMut.isPending,
+566:    ipoBuying: ipoBuyMut.isPending,
+567:    selling: sellMut.isPending,
+573:    offerLoading: createOfferMut.isPending,
+
+### useRef-Mutex — should be ZERO:
+2
+
+### setBuying / setIpoBuying / setSelling — should be ZERO:
+2
