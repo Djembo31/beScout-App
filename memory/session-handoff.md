@@ -1,62 +1,120 @@
-# Session Handoff (2026-04-22 Session 2 — Final)
+# Session Handoff — 2026-04-23 Session-End
 
-## Uncommitted Changes: pending session-end commit
+## Was war in dieser Session
 
-## Session Commits: 9
+**5 Themen, 13 Commits, 1 Money-Bug verhindert.**
 
-- `6c26fb9e` feat(workflow): Slice 145 — Reviewer-Hook strict-block + REVIEW Stage (S)
-- `1d396aaa` feat(scrapers): Slice 144 — B3 TM-Squad-Page-Scraper (M)
-- `1961457f` docs(spec): Slice 144 — B3 TM-Squad-Page-Scraper Spec (M)
-- `5a91a008` fix(clubs): Slice 143 — Follower-Count Integrity (silent-fail + cache-propagation)
-- `e7a346ab` fix(scrapers): Slice 141b — parser anchor-based + U19-filter + 134/134 mapped
-- `a0c1982d` fix(clubs): Slice 142 — skip reconcile on unfollow-success too (XS)
-- `b031bc85` docs(proof): 140b — manual cleanup of 4 stale Süper-Lig GW-30 fixtures
-- `10e3bf24` chore: reset active.md to idle after Slice 141
-- `ec1463f1` feat(scrapers): Slice 141 — TM-Club-ID-Discovery-Script (S)
+### Club-Page Polish (Slices 149, 149b, 149c, 149d)
+- `/club/galatasaray` Deep-Dive: Labels, Mobile-Overflow, Tabellenplatz-Integration
+- PlayerPhoto imageUrl-prop fix (3 Components hatten Initials statt Photos)
+- sync-standings + sync-fixtures-future + sync-transfers Cron-Gap-Close
 
-## Stashed Changes
-- `stash@{0}: On main: slice122-parallel-wip` (unverändert, pre-Session)
+### Phase 1 Mutation-Hardening (Slices 150, 151a-d, 151c.2) — **NEW & COMPLETE**
+- **150 Audit:** 63 Files identifiziert, 5-Phasen-Plan
+- **151a Primitive:** `useSafeMutation` Hook (src/lib/hooks/useSafeMutation.ts) — 11 Tests
+- **151b Pilot 1:** useClubActions (Follow) — 9 Tests, Slice 143 pattern regression fixed
+- **151c Pilot 2:** MembershipSection (Subscribe) — 5 Tests
+- **151c.2 Server-Hardening:** subscribe_to_club RPC Idempotency-Window (60s) live
+- **151d Infrastructure:** Pattern D18 + Audit-Script + ESLint-Rule
 
----
+### Strategic Decisions (memory/decisions.md)
+- **D17:** useSafeMutation als Standard-Primitive für alle Mutations
+- **D18:** Money-RPC Idempotency-Window als Pflicht-Pattern
+- **D19:** Cron-Route-Registry (jede route.ts MUSS in vercel.json)
 
-## Session-Summary
+## Uncommitted Changes
+```
+M .claude/settings.local.json (local ignore)
+```
 
-**Theme:** Follower-Integrity + TM-Scraper-Refactor + Workflow-Discipline-Strengthening.
-
-**Scope Delta:**
-- 8 Code-Slices (140b, 141, 141b, 142, 143, 144, 144b, 145)
-- 2 Decisions (D13 Reviewer-Gate, D14 Squad-Page-Strategy)
-- 6 neue common-errors-Patterns
-- 1 Migration (players.last_squad_check)
-- 1 neuer Hook (ship-cto-review-gate rewrite)
-- SHIP-Loop 5→6 Stufen
-
-**B3 Status (aus Backlog):** ✅ DONE (Slice 144+144b) — 134/134 Clubs mapped, Squad-Scraper operational, 2841 matched.
-
-**Reviewer-Hook Dogfood:** 1× durchlaufen auf Slice 144b + 145 selbst. Verdicts: beide PASS. 3 NITPICK-Findings in doc-drift vor Commit gefixt.
-
-**Offene Anil-Decisions:**
-- Transfer-Apply (`--allow-transfers` für 225 pending Moves)
-- Visual-QA-Hook als nächster Hook-Slice (Gap #3 aus Self-Assessment)
-- Supabase Legacy-Secret revoken
+## Recent Commits (letzte 5)
+```
+d8dbe5d8 docs(session): log Phase 1 Mutation-Hardening complete
+016bcb74 feat(rules): Slice 151d — Pattern D18 + Audit-Script + ESLint-Rule
+a76ddc62 feat(club): Slice 151c+151c.2 — MembershipSection Money-Path
+789c0816 feat(club): Slice 151b — useClubActions Migration
+a840beb8 feat(hooks): Slice 151a — useSafeMutation Primitive
+```
 
 ---
 
-## Next Session Entry-Points
+## Start HERE Next Session — Phase 2 Money-Tier
 
-1. **`memory/next-session-briefing-2026-04-24.md`** — detaillierter Briefing mit 3 Start-Optionen
-2. **`worklog/active.md`** — idle (keine offene Slice)
-3. **`worklog/log.md`** — Stand 001-145
-4. **`memory/backlog.md`** — Layer 0-4 aktualisiert
+**Status:** Phase 1 Mutation-Hardening COMPLETE. Phase 2 bereit zum Start. Anil hat "vollkommen dir" delegiert — Claude darf autonom durchziehen.
 
----
+### Next Slice: 152 — AdminFoundingPassesTab Migration
 
-## Handoff-Confidence
+**Warum dieser File zuerst?**
+- Tier-1 Money (Slice 150 Audit) — Founding-Pass = €-Kill-Switch-Money
+- Nur 1 File, isolated (keine cross-cutting refactor)
+- Kick-Start Phase 2 mit kleiner Migration
 
-- ✅ Alle Tests grün (vitest 80+ cases, tsc clean)
-- ✅ Alle Commits auf main
-- ✅ Proof-Artefakte vollständig
-- ✅ Review-Files für Slice 144b + 145 existent
-- ✅ Knowledge-Flywheel: Pattern in common-errors.md, Decisions in decisions.md
-- ⚠️ Vercel-Deploy für HEAD evtl. noch im CI
-- ⚠️ Notion-Kanban Sync offen (5 Slices nicht extern sichtbar)
+**Preflight Commands:**
+```bash
+# 1. Audit-Script zeigt Progress
+npm run audit:mutation-race
+
+# 2. File lesen
+# src/app/(app)/bescout-admin/AdminFoundingPassesTab.tsx
+# + RPC-Identifikation (welcher RPC wird aufgerufen?)
+
+# 3. RPC-Audit VOR Client-Migration (D18 pattern!)
+# mcp__supabase__execute_sql: SELECT pg_get_functiondef('<rpc_name>'::regproc);
+# Prüfe: Idempotency-Check vor Wallet-Deduct?
+#   - Wenn JA: Client-Migration sicher, direkt weitergehen.
+#   - Wenn NEIN: Erst RPC-Hardening als Slice 152.2 (wie 151c.2), dann Client.
+```
+
+**Pattern from 151c (als Template):**
+1. `import { useSafeMutation } from '@/lib/hooks/useSafeMutation'`
+2. Replace `useState(loading)` + `handleX` mit `const mut = useSafeMutation<TData, Error, TVars>({ mutationFn, onSuccess, errorToast, errorTag })`
+3. Button: `onClick={() => mut.safeTrigger(vars)}`, `disabled={mut.isPending}`, `loading={mut.isPending}`
+4. Tests: QueryClientProvider wrapper, rapid-click-guard test
+5. Reviewer-Agent dispatchen (PFLICHT, Money-Path Tier 1)
+6. Inline-Fix Reviewer-Findings vor Commit
+7. Commit `feat(admin): Slice 152 — AdminFoundingPassesTab Migration`
+
+### Phase 2 Queue (Tier-1 Money-Path)
+
+| Slice | File | Action | RPC-Audit nötig? |
+|-------|------|--------|------------------|
+| 152 | AdminFoundingPassesTab.tsx | Founding-Pass CRUD | JA (`mint_founding_pass` o.ä.) |
+| 153 | AdminWithdrawalTab.tsx | Club-Withdrawal | JA (`request_club_withdrawal`) |
+| 154 | OffersTab + useOffersState | Accept/Reject Offer | JA (`accept_offer` / `cancel_offer`) |
+| 155 | BuyModal / usePlayerTrading | Scout-Card Buy (Market + IPO) | JA (`buy_player_dpc` — Slice 108 hardened?) |
+| 156 | KaderSellModal.tsx | Sell Scout Card | JA (`sell_player_dpc`) |
+
+### Backlog aus Phase 1 (nicht Blocker)
+
+- Slice 151c-Backlog MEDIUM #3: Wallet-Balance via setQueryData(new_balance) statt invalidate — 7+ Stellen project-weit
+- Slice 151b-Backlog MEDIUM #2+#3: Snapshot-rollback isolated test + useCallback-deps-stability
+- Slice 151c-Backlog MEDIUM #4: ActivityLog in RPC-Body statt Service-Layer (für atomic audit-trail)
+
+### Test-Account Credentials (Reminder für Playwright)
+
+- **bescout.net**
+- Email: `jarvis-qa@bescout.net`
+- Password: `JarvisQA2026!`
+- Siehe: `e2e/mystery-box-qa.spec.ts:5`
+
+## Beta-Launch Status (CEO-Anil)
+
+- **Infrastructure:** CI, smoke/synthetic-tests, CSP/Sentry, secrets rotated — all green
+- **Money-Safety:** subscribe_to_club idempotent (Slice 151c.2) ✅
+- **Next Money-Audit:** Slice 152+ will audit remaining RPCs pre-migration
+- **Anil-Action-Items:** 3 Tester (min 1 TR-sprachig, 1 ohne Football-Kontext)
+- **Testplan:** `memory/beta-testplan.md` (8 Tasks pro Zoom-Call)
+
+## Session-Metrics (diese Session)
+
+| Metric | Value |
+|--------|-------|
+| Slices | 9 (149/b/c/d + 150 + 151a/b/c/c.2/d) |
+| Commits | 13 |
+| Tests added | 30 (11+9+5+4+1) |
+| Migration live | 1 (subscribe_to_club idempotency) |
+| Code changes | ~1.400 LOC (±) |
+| Reviewer-Dispatches | 3 (all found real bugs, all inline-fixed) |
+| Money-Bugs Prevented | 1 (doppelte Wallet-Abbuchung bei Network-Retry) |
+
+Session-Ende: 2026-04-23 ~19:48 UTC

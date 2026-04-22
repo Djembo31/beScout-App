@@ -634,6 +634,124 @@ INV-38 (contract_end < cutoff AND mv_source != stale) wurde durch 144f aktiv ver
 
 ---
 
+## D17 — ARCHITECTURE: useSafeMutation als Standard-Primitive für alle Mutations
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Alle neuen Mutation-Handler (feature oder migration) MUESSEN `useSafeMutation` aus `src/lib/hooks/useSafeMutation.ts` nutzen, nicht `useState(loading)` + `async handleX`. Kein `useRef`-Mutex-Custom-Build — useSafeMutation wraps React Query v5 useMutation mit synchronem Pending-Guard via `safeTrigger(variables)` + Auto-Toast via `errorToast` + Sentry via `errorTag`.
+
+### Begründung
+
+Slice 150 Audit (User-Report Slice 149 "Follow-Button loest mehrfach aus"): 63 React-Components hatten das `setState(loading)`-Pattern, nur 4 nutzten `useMutation`. React-setState ist async — Race-Window zwischen `if (loading) return` und `setLoading(true)`. Pragmatisch + projekt-konsistent ist ein shared Primitive der React Query's `isPending` (synchron im Observer) ausnutzt plus Toast-Integration einheitlich macht.
+
+Primitive in Slice 151a etabliert, 2 Piloten in 151b (useClubActions / Follow) + 151c (MembershipSection / Subscribe) migriert — beide race-safe, 20 neue Tests green.
+
+### Auswirkungen
+
+- **Code:** `src/lib/hooks/useSafeMutation.ts` ist canonical. Generic-Order matched React Query v5: `<TData, TError, TVariables, TContext>`. Intersection-type (nicht interface-extends) weil `UseMutationResult` in v5 discriminated-union ist.
+- **Prozess:** Neue Mutations → useSafeMutation. Legacy-Migration via Slice-per-File. ESLint-Rule `no-restricted-syntax` (warn) gegen `onClick={async ...}`. Audit-Script `npm run audit:mutation-race` zeigt migration-candidates + prueft Baseline.
+- **Pattern → common-errors.md D18:** "React setState Race in Mutation-Handler" mit Migration-Plan-Reference.
+
+### Alternativen erwogen
+
+- **`useRef`-Mutex pro Component custom:** Verworfen — inkonsistent, dupliziert in jeder Stelle, keine Toast-Integration, keine Sentry-Integration.
+- **`<AsyncButton>` Component:** Verworfen als Primary-Pattern — Hook-Level ist flexibler (andere Call-Sites als Button), Component-Wrapper als Phase-6-Option fuer legacy-safe-spot-migration.
+- **Direkter useMutation ohne Wrapper:** Verworfen — jede Call-Site wuerde Toast + Sentry + safeTrigger neu bauen. Shared Primitive macht das einmal zentral.
+
+### Re-Visit-Trigger
+
+- Bei React Query v6 Upgrade: Generic-Order + MutationObserver-Interna neu verifizieren.
+- Wenn `<AsyncButton>` Component-Wrapper-Pattern sich als besser erweist (empirisch nach Slice 152-160): Primitive bleibt, Component als zusaetzliche Layer.
+
+---
+
+## D18 — ARCHITECTURE: Money-RPC Idempotency-Window als Pflicht-Pattern
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Jeder Money-RPC der Wallet-Deduct + Domain-INSERT kombiniert MUSS einen Idempotency-Pre-Check mit kurzem Window (typisch 60 Sekunden) VOR der Wallet-Deduction haben. Client-Guard (useSafeMutation safeTrigger) ist Defense-in-Depth — **nicht authoritativ**. Server-side Network-Retry umgeht den Client-Guard.
+
+### Begründung
+
+Slice 151c.2 Reviewer-Agent identifizierte echten Money-Path-BLOCKER in `subscribe_to_club` RPC: Wallet-Deduction passierte UNCONDITIONAL vor `ON CONFLICT`-Check auf `club_subscriptions`. Szenario: Call #1 (T+0) Balance 1M → -50K → 950K. Call #2 (T+1, network-retry bei Mobile-Switch) Balance 950K → -50K → 900K. Subscription-Row via ON CONFLICT saved von Duplicate, aber **Wallet 2x deducted für 1 Subscription** — direkter Geld-Verlust bei 3-Tester-Beta realistisch (Mobile-Netzwerk).
+
+Fix-Pattern in `20260423190000_slice_151c2_subscribe_idempotency.sql` live deployed:
+```sql
+IF FOUND THEN
+  IF v_existing.tier = p_tier AND v_existing.started_at > NOW() - INTERVAL '60 seconds' THEN
+    RETURN jsonb_build_object('success', true, 'idempotent_retry', true, ...);
+  END IF;
+  -- tier-change / older: Upgrade/Downgrade-Flow
+END IF;
+```
+
+### Auswirkungen
+
+- **Migration-Standard:** Jede neue Money-RPC-Migration ab Slice 151c.2 hat Pre-Check-Early-Return.
+- **Audit vor Migration:** `SELECT pg_get_functiondef('rpc_name'::regproc);` VOR useSafeMutation-Migration. Ohne Server-Hardening ist Client-Migration nur halbe Wahrheit.
+- **Betroffene RPCs (Audit pending):** `subscribe_to_club` (DONE 151c.2), `renew_club_subscription`, `buy_player_dpc`, `open_mystery_box`, `liquidate_player`, `withdraw_club_balance`, `createOffer`/`acceptOffer`. Slice 152+ jede einzeln pruefen.
+- **Pattern → common-errors.md:** Subsection unter D18 — "Money-RPC Idempotency-Window".
+
+### Alternativen erwogen
+
+- **UNIQUE-Constraint + ON CONFLICT DO NOTHING als Idempotency-Quelle:** Verworfen als alleinige Strategie — Wallet-Deduction passiert trotzdem vor ON CONFLICT check in current subscribe_to_club. Muss mit Pre-Check kombiniert werden.
+- **Idempotency-Key Pattern (client-generated UUID):** Verworfen fuer Slice 151c.2 — substantieller Refactor (API-change + DB-column), nicht Beta-Launch-ready. Kandidat fuer Phase 6 Production-Hardening.
+- **Client-only Guard reicht:** Verworfen — Browser-Retry (fetch auto-retry bei Network-Timeout) + Mobile-Switch umgehen jeden Client-Guard. Defense-in-Depth Pflicht.
+
+### Re-Visit-Trigger
+
+- Wenn 60s-Window zu kurz fuer Legitimate-Retry-Scenarios (e.g. offline-queue bei Mobile): auf 120s oder 300s erhoehen, abhaengig von Business-Context.
+- Bei Scale (>1000 subscriptions/Tag): Idempotency-Key-Pattern bauen (cleaner, performance-aware). Dann D18 → 📦 Superseded.
+
+---
+
+## D19 — PROCESS: Cron-Route-Registry (jede route.ts MUSS in vercel.json)
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** "MANUAL-ONLY wegen Hobby-Plan"-Pattern aus pre-2026-04 (Projekt ist Pro-Plan)
+
+### Entscheidung
+
+Jede `src/app/api/cron/*/route.ts` MUSS entweder (a) in `vercel.json.crons` mit explicit schedule ODER (b) als `MANUAL-ONLY` dokumentiert mit Klaus-Owner + Dokumentation warum nicht automatisch. "Existiert in trigger-cron-whitelist aber nicht in vercel.json" ist stille Daten-Drift-Quelle.
+
+### Begründung
+
+Slice 149c (Anil-Report "Gala hat 71 Punkte, UI zeigt 68"): `sync-standings` existierte als Route + Admin-Trigger-Whitelist aber war seit 2026-03 nicht in vercel.json crons. Niemand triggerte manuell → league_standings 4 Tage stale. Slice 149d Follow-up: `sync-fixtures-future` (6 Tage stale, 294 rows) + `sync-transfers` (NIE gesynced, 0 rows) hatten dasselbe Problem. Alle 3 routes hatten Header-Kommentar "MANUAL-ONLY wegen Hobby-Plan" — aber Projekt ist laengst Pro (6 Crons aktiv bereits).
+
+Audit-Command (7 Zeilen Shell):
+```bash
+ls src/app/api/cron/ | while read d; do
+  grep -q "\"path\": \"/api/cron/$d\"" vercel.json || echo "MISSING: $d"
+done
+```
+
+### Auswirkungen
+
+- **vercel.json:** jetzt 9 crons (alle src/app/api/cron-Routes registriert).
+- **Schedule-Layout konfliktfrei:** 1,2,3,4,5,6,12 Uhr-Slots (Stand Slice 149d). Rate-aware: transfers weekly (134 API-Calls), rest daily.
+- **Route.ts-Convention:** Header-Kommentar MUSS Schedule nennen ODER explicit "MANUAL-ONLY mit Begruendung" flaggen.
+- **CI-Gate-Kandidat:** Audit-Command als Pre-Commit-Hook oder GH-Actions Check.
+
+### Alternativen erwogen
+
+- **MANUAL-ONLY als Default:** Verworfen — erzeugt Drift ohne Owner-Warning.
+- **Automatisches Cron-Scheduling via File-Naming-Convention:** Verworfen — vercel.json ist Vercel-Canonical, Sync-Layer waere Redundanz.
+
+### Re-Visit-Trigger
+
+- Wenn Cron-Slots knapp werden (Vercel Pro hat 40 cron/day limit): Schedule-Optimierung + weekly-Consolidation.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
