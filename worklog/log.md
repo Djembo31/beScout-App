@@ -21,7 +21,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **One-Off Direct-DB Fix:** 3-Zeilen BEGIN/UPDATE/COMMIT via `mcp__supabase__execute_sql` analog 144e-Pattern. Alle 3 auf `contract_end=NULL`.
 - **Review:** `worklog/reviews/144g-review.md` — PASS, 0 Findings. Cold-Context-Reviewer-Agent validierte Consumer-Chain null-safe (12 Consumers, alle null-tolerant: calcContractMonths returns 0, PerformanceTab gated via `>0`, etc.) und INV-38 wird grüner (3 false-positives aus 144f resolved).
 - **Proof:** `worklog/proofs/144g-debug.txt` (parser-evidence) + `144g-rerun.txt` (script-rerun exit 0) + `144g-verify.txt` (Pre/Post SQL + Final WER-9 State).
-- **Commit:** (pending)
+- **Commit:** `a487a93b`
 - **Final WER-9:** 6 frische Contracts (Backhaus/Deman/Schmetgens/Stage/Sugawara/Wöber 2026-2029), 3 honestly NULL (Lynen/Pieper/Stark).
 - **Learnings für common-errors.md Section 9:** Scraper-null-Policy — "always write null" statt "keep-old" verhindert permanent Data-Liar-Akkumulation.
 
