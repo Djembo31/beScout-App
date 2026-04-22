@@ -64,7 +64,8 @@
       "mcp__sentry__search_events",
       "mcp__supabase__get_organization",
       "mcp__supabase__get_project",
-      "mcp__vercel__get_project"
+      "mcp__vercel__get_project",
+      "mcp__notion__notion-get-users"
     ]
   },
   "enableAllProjectMcpServers": true,
