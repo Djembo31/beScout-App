@@ -459,7 +459,12 @@ export type NextFixtureInfo = {
 
 const STALE_SCHEDULED_GRACE_MS = 6 * 60 * 60 * 1000;
 
-/** Get next scheduled fixture for each club. Ignores stale-scheduled rows (played_at more than 6h in the past) to survive sync-lag. */
+/** Get next scheduled fixture for each club. Ignores stale-scheduled rows (played_at more than 6h in the past) to survive sync-lag.
+ *
+ * Slice 148: Order by played_at ASC (time-truth) not gameweek ASC (number-truth). Prevents
+ * inconsistency where a rescheduled fixture with low gameweek but far-future played_at
+ * displaces the actual next upcoming fixture. Gameweek as tiebreaker when played_at ties.
+ */
 export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureInfo>> {
   const { data, error } = await supabase
     .from('fixtures')
@@ -469,6 +474,7 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
       away_club:clubs!fixtures_away_club_id_fkey(name, short, logo_url)
     `)
     .eq('status', 'scheduled')
+    .order('played_at', { ascending: true, nullsFirst: false })
     .order('gameweek', { ascending: true });
 
   if (error) throw new Error(error.message);
