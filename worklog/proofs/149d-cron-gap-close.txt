@@ -1,0 +1,48 @@
+Slice 149d — Close remaining cron-gaps (2026-04-23)
+
+Trigger: User-Confirmation auf Slice 149c Audit-Finding (2 weitere MISSING crons).
+
+Audit-Command (from common-errors.md pattern):
+  ls src/app/api/cron/ | while read d; do
+    grep -q "\"path\": \"/api/cron/$d\"" vercel.json || echo "MISSING: $d"
+  done
+
+Pre-Fix MISSING: sync-fixtures-future + sync-transfers
+
+Data-Staleness:
+SELECT 'fixtures future', COUNT(*), MAX(created_at), NOW()-MAX(created_at) FROM fixtures
+  WHERE status='scheduled' AND played_at > NOW()
+UNION ALL
+SELECT 'player_transfers', COUNT(*), MAX(created_at), NOW()-MAX(created_at) FROM player_transfers;
+
+Ergebnis:
+- fixtures future: 294 rows, last_created 2026-04-15 (6 Tage 21h alt)
+  → Spielverlegungen seit dem nicht reflektiert
+- player_transfers: 0 rows (NIE gesynced)
+  → Tabelle leer trotz existierender Route seit Slice 072
+
+Fix:
+1. vercel.json +2 cron entries:
+   - sync-fixtures-future "0 4 * * *" (täglich 04:00 UTC, nach standings/players-daily)
+   - sync-transfers "0 1 * * 1" (Montag 01:00 UTC, wöchentlich — 134 API-Calls sind sparsam genug weekly)
+2. Beide route.ts header-kommentare aktualisiert (nicht mehr manual-only)
+
+Cron-Slot-Layout (nach 149c+d):
+  0 1 * * 1   sync-transfers (Montag weekly)
+  30 2 * * *   transfermarkt-search-batch
+  0 2 * * *    sync-standings
+  0 3 * * 1    sync-players-daily (Montag)
+  0 4 1 1,5,9* sync-transfermarkt-batch (quartal)
+  0 4 * * *    sync-fixtures-future
+  0 5 * * *    close-expired-bounties
+  0 6 * * *    gameweek-sync
+  0 12 * * *   sync-injuries
+
+Keine Overlap-Konflikte, kein API-Rate-Storm.
+
+Post-Deploy verify:
+- fixtures-future: morgen 04:00 UTC sollte age < 24h sein
+- player_transfers: Montag 01:00 UTC erster Run — MUSS manuell getriggert werden falls User früher Transfers sehen will
+
+Audit-Command post-fix:
+  ls src/app/api/cron/ → alle 9 Directories in vercel.json enthalten

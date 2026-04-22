@@ -5,8 +5,9 @@
  * Upserts transfer-history in player_transfers table + updates players.club_id
  * when destination team is one of our DB-mapped clubs.
  *
- * MANUAL-ONLY (kein vercel.json-Entry) — Hobby-Plan 2-Cron-Limit.
- * Admin triggert via AdminDataSyncTab nach Transferfenster-Ende.
+ * Slice 149d: Weekly cron `0 1 * * 1` (Montag 01:00 UTC) in vercel.json.
+ * Wöchentlich reicht — Transfers ändern sich langsam, 134 API-Calls/run (rate-sparsam).
+ * Admin kann via AdminDataSyncTab on-demand triggern bei Transferfenster-Events.
  *
  * Auth: CRON_SECRET Bearer.
  */

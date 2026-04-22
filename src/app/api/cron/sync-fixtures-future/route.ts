@@ -4,10 +4,8 @@
  * Iteriert 7 active leagues (~7 calls total). Upserts via api_fixture_id UNIQUE.
  * Inserts neue Fixtures + updates played_at/status/scores (Spielverlegung etc.).
  *
- * MANUAL-ONLY wegen Hobby-Plan-2-Cron-Limit. Admin triggert bei:
- * - Neue Saison (alle 380 Fixtures × 7 Ligen = 2660 Rows)
- * - Mid-season Liga-Backfill
- * - Verdacht auf Spielverlegung
+ * Slice 149d: Daily cron `0 4 * * *` in vercel.json (Pro-Plan).
+ * Faengt Spielverlegungen, neue Rounds, Score-Updates. ~7 API-Calls/run.
  *
  * Auth: CRON_SECRET Bearer.
  */
