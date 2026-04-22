@@ -18,7 +18,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **Fix-Scope:** `UPDATE clubs SET logo_url = '<wikipedia-crest-url>' WHERE id = 'cb174221-...'` via `mcp__supabase__execute_sql`. CSP + Next-Image bereits whitelisted für `upload.wikimedia.org`.
 - **Sample-Check:** Wikipedia-Description "Hittite Sun disk + black field + red crescent + 1923" matcht Gençlerbirliği's offizielle Identität (rot-schwarz Ankara 1923).
 - **Proof:** `worklog/proofs/148b-genclerbirligi-logo.txt` — Pre/Post URL + CSP-Verify.
-- **Commit:** (pending)
+- **Commit:** `8f3accbd`
 - **Scope-Out:** `club_external_ids(source='api_football', external_id='997')` unchanged — unbekannt welches Team api-sports wirklich als 997 hat, separater Discovery-Slice bei Bedarf.
 
 ---
