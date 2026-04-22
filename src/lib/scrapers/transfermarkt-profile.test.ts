@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarketValue, parseContractEnd, parseNationality } from './transfermarkt-profile';
+import {
+  parseMarketValue,
+  parseContractEnd,
+  parseNationality,
+  parseCurrentClubTmId,
+} from './transfermarkt-profile';
 
 // Regression-fixtures — real HTML snippets scraped from transfermarkt.de on 2026-04-20.
 // Source: scripts/tm-parser-sanity.ts — saved to tmp/tm-sanity/.
@@ -147,5 +152,88 @@ describe('parseNationality', () => {
   it('prefers itemprop over info-table when both present', () => {
     const both = NATIONALITY_ITEMPROP_HTML + NATIONALITY_INFOTABLE_HTML;
     expect(parseNationality(both)).toBe('Nigeria');
+  });
+});
+
+// Fixtures für parseCurrentClubTmId (Slice 141 — TM-Club-ID-Discovery)
+const CLUB_HEADER_GS = `<div class="data-header__info-box">
+  <span class="data-header__club">
+    <a href="/galatasaray/startseite/verein/141" title="Galatasaray">
+      <img src="https://tmssl.akamaized.net/images/wappen/head/141.png" class="dataBild" />
+    </a>
+  </span>
+</div>`;
+
+const CLUB_HEADER_NO_TITLE = `<div class="data-header">
+  <a href="/sakaryaspor/startseite/verein/27552">
+    <img src="/logo.png" />
+  </a>
+</div>`;
+
+const CLUB_HEADER_VEREINSLOS = `<div class="data-header">
+  <span class="data-header__club-info">Vereinslos seit 30.06.2026</span>
+</div>
+<p>Weitere Vereine:</p>
+<a href="/old-club/startseite/verein/99999">Old Club</a>`;
+
+const CLUB_HEADER_EMPTY = `<html><body><p>no header block</p></body></html>`;
+
+const CLUB_HEADER_LEIH = `<div class="data-header__info-box">
+  <span class="data-header__club">
+    <a href="/werder-bremen/startseite/verein/86" title="Werder Bremen">
+      <img src="/86.png" />
+    </a>
+  </span>
+  <span class="data-header__parent-club">Stammverein:
+    <a href="/fc-bayern-muenchen/startseite/verein/27" title="FC Bayern München">Bayern</a>
+  </span>
+</div>`;
+
+describe('parseCurrentClubTmId', () => {
+  it('parses header link with title attribute (Galatasaray)', () => {
+    const result = parseCurrentClubTmId(CLUB_HEADER_GS);
+    expect(result).toEqual({
+      tmClubId: 141,
+      clubName: 'Galatasaray',
+      slug: 'galatasaray',
+    });
+  });
+
+  it('falls back to slug-derived name when title is missing', () => {
+    const result = parseCurrentClubTmId(CLUB_HEADER_NO_TITLE);
+    expect(result).toEqual({
+      tmClubId: 27552,
+      clubName: 'Sakaryaspor',
+      slug: 'sakaryaspor',
+    });
+  });
+
+  it('ignores "Weitere Vereine" links beyond 10k char window (returns null for header-less vereinslos)', () => {
+    // Vereinsloser Spieler: kein /startseite/verein/ im Header, nur im Weitere-Vereine-Bereich.
+    // Weil unser 10k-Fenster den Header inkludiert aber hier keinen aktuellen Club enthält,
+    // darf dieser Fall in unserem kurzen Fixture auch kein Match liefern — wir simulieren, dass
+    // der Old-Club-Link im Fixture-Text NACH dem fiktiven 10k-Schnitt liegt.
+    const paddedHtml = CLUB_HEADER_VEREINSLOS.replace(
+      'Weitere Vereine:',
+      ' '.repeat(10_500) + 'Weitere Vereine:',
+    );
+    expect(parseCurrentClubTmId(paddedHtml)).toBeNull();
+  });
+
+  it('returns null when HTML has no /startseite/verein/ link at all', () => {
+    expect(parseCurrentClubTmId(CLUB_HEADER_EMPTY)).toBeNull();
+  });
+
+  it('returns first club link (current, not Stammverein) for loan players', () => {
+    const result = parseCurrentClubTmId(CLUB_HEADER_LEIH);
+    expect(result).toEqual({
+      tmClubId: 86,
+      clubName: 'Werder Bremen',
+      slug: 'werder-bremen',
+    });
+  });
+
+  it('returns null for empty html', () => {
+    expect(parseCurrentClubTmId('')).toBeNull();
   });
 });

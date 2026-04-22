@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 141 | 2026-04-22 | TM-Club-ID-Discovery-Script (S)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROOF → LOG
+- **Trigger:** Backlog B3 (TM-Squad-Page-Scraper) braucht `club_external_ids(source='transfermarkt')` für alle 134 Clubs — DB-Audit zeigt 0 Rows. Vercel-Cloudflare-Block verhindert Server-Side-Discovery.
+- **Scope:** Lokal-ausführbarer Playwright-Script leitet TM-Club-IDs aus bestehenden Player-TM-Mappings ab. Pro Club werden bis zu 3 Player-Profile gescraped, `current_club_tm_id` geparst, fuzzy-matched vs DB-Club-Name, UPSERT.
+- **Pre-Condition-Analyse:** 134 Clubs / 134 mit ≥1 TM-Player → 100% Upper-Bound für Discovery.
+- **Files:**
+  - `src/lib/scrapers/transfermarkt-profile.ts` (+`parseCurrentClubTmId`, 51 LOC)
+  - `src/lib/scrapers/transfermarkt-profile.test.ts` (+6 Tests für Header/No-Title/Vereinslos/Leih/Empty)
+  - `scripts/tm-club-id-discovery.ts` (neu, 287 LOC)
+  - `worklog/specs/141-tm-club-id-discovery-script.md`
+- **Proof:**
+  - `worklog/proofs/141-vitest.txt` (27/27 grün)
+  - `worklog/proofs/141-db-baseline.txt` (134 / 0 / 134)
+  - `worklog/proofs/141-runbook.txt` (Anil-Runbook für Script-Run)
+- **Pending:** Script-Run durch Anil lokal (`npx tsx scripts/tm-club-id-discovery.ts`) → separater Proof-Commit `141b-script-run.txt`. Danach B3 unblockiert.
+- **Commit:** _siehe git log_
+
+---
+
 ## 140 | 2026-04-22 | gameweek-sync Phase-B-Guard DB-Truth (XS)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (inline) → BUILD → PROOF → LOG

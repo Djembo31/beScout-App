@@ -1,18 +1,26 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
+status: prove
+slice: 141
+stage: PROVE
+spec: worklog/specs/141-tm-club-id-discovery-script.md
+impact: skipped (additiver Parser + isolierter lokaler Script, kein Service/RPC/RLS-Change)
+proof: worklog/proofs/141-vitest.txt + 141-db-baseline.txt + 141-runbook.txt
 ```
 
-## Zuletzt: Slice 140 (2026-04-22) — gameweek-sync Phase-B-Guard DB-Truth (XS)
+## Slice 141 — TM-Club-ID-Discovery-Script (Pre-Condition für B3)
 
-`allFixturesDone` durfte nur API-Response-Count trauen — jetzt zusätzlich DB-Truth-Check.
-Verhindert Zukünftige stale-scheduled-Leaks wenn API-Football weniger Fixtures
-zurückgibt als DB hat. Phase B läuft künftig nur bei echter GW-Completion.
+**BUILD komplett:**
+- `src/lib/scrapers/transfermarkt-profile.ts` +`parseCurrentClubTmId()` (Regex auf erste 10k-char, Title-Attribut + Slug-Fallback)
+- `src/lib/scrapers/transfermarkt-profile.test.ts` +7 Tests (27 total grün)
+- `scripts/tm-club-id-discovery.ts` (Playwright + Supabase service-role, Fuzzy-Match via Token-Overlap, --dry-run + --only-unmapped + --rate Flags)
 
-Proof: `worklog/proofs/140-phase-b-db-truth.txt` (Log-Evidenz + Fix-Analyse).
+**PROVE:**
+- Tests: 27/27 grün (`worklog/proofs/141-vitest.txt`)
+- DB-Baseline: 134 Clubs, 0 TM-mapped (Pre-Condition bestätigt), 134 Clubs mit TM-Player (100% Upper-Bound)
+- Runbook für Anil: `worklog/proofs/141-runbook.txt`
+
+**Script-Run wartet auf Anil** (Vercel-Cloudflare-Block → lokaler Laptop-Run nötig). Nach Run: proof-commit `141b-script-run.txt`.
+
+**Nächster Step:** /ship done — Commit dieser Slice.

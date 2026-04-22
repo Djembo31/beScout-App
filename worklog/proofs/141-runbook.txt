@@ -1,0 +1,57 @@
+Slice 141 — Script-Runbook für Anil
+====================================
+
+Vorbereitung (einmalig):
+  .env.local muss enthalten:
+    - NEXT_PUBLIC_SUPABASE_URL
+    - SUPABASE_SERVICE_ROLE_KEY
+  Playwright-Chromium installiert: `npx playwright install chromium` falls nicht da.
+
+Empfohlener erster Run (dry-run, 1 Liga für Smoke-Test):
+
+  npx tsx scripts/tm-club-id-discovery.ts --league="Süper Lig" --dry-run
+
+  Erwartung: 18 Clubs iteriert, je Club max 3 TM-Player probiert, Log pro Verein
+  "✓ matched" oder "skip_mismatch". KEINE DB-Writes.
+
+Full-Run (schreibt club_external_ids):
+
+  npx tsx scripts/tm-club-id-discovery.ts
+
+  Dauer: ~134 Clubs × ~500ms + 30-60s Chromium-Overhead ≈ 2-3 Minuten.
+  Output: `mapped: NNN`, `skip_mismatch: N`, `skip_exhausted: N`, `errored: N`.
+
+Verifikation nach Run:
+
+  -- in Supabase SQL Editor oder via MCP:
+  SELECT
+    COUNT(*) AS tm_mapped,
+    134 - COUNT(*) AS still_missing
+  FROM club_external_ids
+  WHERE source='transfermarkt';
+
+  -- Ziel: tm_mapped ≥ 130, still_missing ≤ 4
+
+  -- Weiter drilldown für unmapped:
+  SELECT c.name, l.short
+  FROM clubs c
+  JOIN leagues l ON l.id = c.league_id
+  LEFT JOIN club_external_ids cei ON cei.club_id = c.id AND cei.source='transfermarkt'
+  WHERE cei.id IS NULL
+  ORDER BY l.short, c.name;
+
+Troubleshooting:
+
+- "FATAL: rate-limited-429" → Script abort. Warten 1h, --rate=1500 setzen, re-run.
+- skip_mismatch > 5 → Script-Log inspizieren. Meist: "Eintracht Frankfurt" vs
+  DB "Eintracht Frankfurt am Main" – fuzzy-match sollte greifen, aber Edge-Cases
+  möglich. Manuell nachpflegen via:
+    INSERT INTO club_external_ids (club_id, source, external_id)
+    SELECT id, 'transfermarkt', '<TM-ID>' FROM clubs WHERE name='<DB-Name>';
+- skip_exhausted für spezifischen Club → Player dieses Clubs scheinen alle
+  vereinslos/retired zu sein. Manuell mappen via TM-Browse + obiger INSERT.
+
+Nach erfolgreichem Run:
+
+  1. `git add worklog/proofs/141b-script-run.txt` (Script-Output pastet)
+  2. B3 kann starten (TM-Squad-Page-Scraper Spec)

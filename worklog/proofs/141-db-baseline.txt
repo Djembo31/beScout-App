@@ -1,0 +1,33 @@
+Slice 141 — DB Baseline vor Script-Run
+=========================================
+
+Query (2026-04-22):
+
+  SELECT
+    (SELECT COUNT(*) FROM clubs) AS total_clubs,
+    (SELECT COUNT(*) FROM club_external_ids WHERE source='api_football') AS af_mapped,
+    (SELECT COUNT(*) FROM club_external_ids WHERE source='transfermarkt') AS tm_mapped,
+    (SELECT COUNT(DISTINCT p.club_id)
+       FROM players p
+       JOIN player_external_ids pei ON pei.player_id = p.id AND pei.source='transfermarkt')
+      AS clubs_with_tm_mapped_players;
+
+Result:
+  total_clubs                      = 134
+  af_mapped (api_football)         = 134  (100%)
+  tm_mapped (transfermarkt)        =   0  (0%  — Pre-Condition für B3)
+  clubs_with_tm_mapped_players     = 134  (100% — Discovery-Upper-Bound)
+
+Interpretation:
+- Jeder Club hat ≥ 1 Player mit player_external_ids.source='transfermarkt' — Discovery
+  kann theoretisch alle 134 Clubs mappen, wenn parse/match durchgeht.
+- Aktuelle Slice 141 liefert Parser + Script; der Run selbst wartet auf Anils
+  lokale Ausführung (Vercel-Cloudflare-Block umgehen).
+
+Expected Script-Output nach Anil's Run:
+  tm_mapped ≥ 130
+  skip_mismatch < 5  (False-Positive-Guard greift)
+  skip_exhausted = 0 (alle Clubs haben TM-Player)
+
+Acceptance-Criterion AC-5 ist erst NACH Script-Run verifizierbar — separater
+Proof-Commit `141b-script-run.txt` folgt wenn Anil den Script gestartet hat.

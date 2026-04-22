@@ -105,6 +105,57 @@ export function parseNationality(html: string): string | null {
   return null;
 }
 
+/** Parse TM-Club-ID des aktuellen Vereins aus Spieler-Profil-HTML.
+ *
+ *  TM-Profil hat im Data-Header-Block einen Link zum aktuell aktiven Verein:
+ *    <a href="/galatasaray/startseite/verein/141" title="Galatasaray">...</a>
+ *
+ *  Wichtig: Nur den ERSTEN `/startseite/verein/` Link im Header nehmen —
+ *  weiter unten im Profil sind Jugendvereine / frühere Vereine / Leih-Vereine
+ *  gelistet, die wir NICHT wollen.
+ *
+ *  Strategie: Suche im ersten 10k-Char-Fenster (Data-Header-Block) nach dem
+ *  ersten passenden Link. Ergänze optional `title="..."` als ClubName.
+ *
+ *  Edge: Vereinsloser Spieler → kein solcher Link im Header → return null.
+ *  Caller muss dann fuzzy-matchen mit Club-Name (Guard gegen False-Positive
+ *  bei historischen Verein-Links).
+ *
+ *  Return:
+ *    - tmClubId: number (positive integer, aus URL-Pfad)
+ *    - clubName: string (aus title-Attribut wenn vorhanden, sonst slug-Capitalize)
+ *    - slug: string (z.B. "galatasaray", für Squad-URL-Konstruktion in B3)
+ *    - null wenn kein Link im Header
+ */
+export function parseCurrentClubTmId(
+  html: string,
+): { tmClubId: number; clubName: string; slug: string } | null {
+  // Nur Data-Header-Block (erste 10k Zeichen) → schützt vor "Weitere Vereine"-Footer.
+  const head = html.slice(0, 10_000);
+
+  // Match: href="/<slug>/startseite/verein/<id>" + optional title="..." im selben Tag
+  const match = head.match(
+    /href="\/([a-z0-9-]+)\/startseite\/verein\/(\d+)"([^>]*)/,
+  );
+  if (!match) return null;
+
+  const slug = match[1];
+  const tmClubId = parseInt(match[2], 10);
+  if (!Number.isFinite(tmClubId) || tmClubId <= 0) return null;
+
+  // Club-Name aus title-Attribut wenn vorhanden, sonst aus Slug abgeleitet
+  const titleMatch = match[3].match(/title="([^"]+)"/);
+  const titleName = titleMatch?.[1]?.trim();
+  const clubName = titleName && titleName.length > 0
+    ? titleName
+    : slug
+        .split('-')
+        .map((w) => (w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+        .join(' ');
+
+  return { tmClubId, clubName, slug };
+}
+
 /** Parse Trikotnummer aus Transfermarkt Profil-HTML.
  *  TM zeigt Trikotnummer oft im Header-Bereich: <span class="data-header__shirt-number">9</span>
  *  Alternative HTMLs:
