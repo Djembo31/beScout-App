@@ -2,12 +2,12 @@
 
 ```
 status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+slice: 149b
+stage: LOG
+spec: inline (XS follow-up to 149)
+impact: skipped (3-line prop-pass fix)
+proof: worklog/proofs/149b-fix-verify.txt
+review: skipped (XS trivial fix, inline by Primary-Claude)
 ```
 
 ## Zuletzt

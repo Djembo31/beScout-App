@@ -1,0 +1,35 @@
+Slice 149b — PlayerPhoto imageUrl prop missing (User-reported, 2026-04-23)
+
+Trigger: User-Screenshot von /club/galatasaray zeigt "Jetzt verfügbar" (IPO) + "Trending Spieler" (SquadPreview)
+mit nur Initialen statt Photos. Primary-Claude's Playwright-Proof in Slice 149 hatte den Spieler-Tab
+geprueft (wo PlayerDisplay verwendet wird) aber nicht die /Uebersicht-Sections.
+
+Root Cause: 3 Components rufen <PlayerPhoto> ohne imageUrl-Prop auf → Fallback zu Initialen-Circle.
+
+Fixed Call-Sites:
+1. src/components/club/sections/ActiveOffersSection.tsx:56
+   Vorher: <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={32} />
+   Nachher: <PlayerPhoto imageUrl={player.imageUrl} first=... />
+
+2. src/components/club/sections/SquadPreviewSection.tsx:67
+   Vorher: <PlayerPhoto first=... size={48} />
+   Nachher: <PlayerPhoto imageUrl={player.imageUrl} first=... size={48} />
+
+3. src/components/rankings/PlayerRankings.tsx:129
+   Vorher: <PlayerPhoto first={player.first_name} ... />
+   Nachher: <PlayerPhoto imageUrl={player.image_url} first=... />
+   Plus: type PlayerRankEntry.image_url (string | null) + SELECT-Clause inkluiert image_url.
+
+Verify:
+- tsc --noEmit: clean
+- Grep src/ nach "<PlayerPhoto" — alle 3 Stellen mit imageUrl gefixt
+- PlayerPhoto signature (player/index.tsx:164) — imageUrl?: string | null OK
+
+Lesson (post-mortem addition für common-errors.md):
+Component-Props koennen silent falsch sein wenn der Default-Branch schlechte UX zeigt.
+PlayerPhoto hat 2 Branches: imageUrl → <Image>, fallback → Initialen. Wenn Caller imageUrl
+nicht uebergibt, sieht man Initialen — kein TSC-Error (optional prop), kein Runtime-Error.
+Cold-Context-Screenshot-QA auf mehreren Sections ist Pflicht, nicht nur auf Main-List-Components.
+
+User-Review im naechsten Proof (manueller Refresh): Erwartung = 6 IPO-Karten + 5 Trending-Karten
+mit echten Photos statt CA/YA/EA/YA/KA Initials.

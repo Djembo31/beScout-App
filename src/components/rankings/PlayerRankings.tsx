@@ -24,6 +24,7 @@ type PlayerRankEntry = {
   volume_24h: number;
   price_change_24h: number;
   club_id: string | null;
+  image_url: string | null;
 };
 
 const SORT_TABS: { key: SortMode; labelKey: string }[] = [
@@ -50,7 +51,7 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
     queryFn: async () => {
       const { data, error } = await supabase
         .from('players')
-        .select('id, first_name, last_name, position, floor_price, volume_24h, price_change_24h, club_id')
+        .select('id, first_name, last_name, position, floor_price, volume_24h, price_change_24h, club_id, image_url')
         .eq('is_liquidated', false)
         .gt('floor_price', 0)
         .order(orderCol, { ascending: false })
@@ -126,7 +127,7 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
               )}>
                 {i + 1}
               </span>
-              <PlayerPhoto first={player.first_name} last={player.last_name} pos={player.position} size={28} />
+              <PlayerPhoto imageUrl={player.image_url} first={player.first_name} last={player.last_name} pos={player.position} size={28} />
               <div className="flex-1 min-w-0">
                 <span className="text-[13px] font-bold text-white truncate block group-hover:text-gold transition-colors">
                   {player.first_name} {player.last_name}

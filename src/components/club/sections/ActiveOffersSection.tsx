@@ -53,7 +53,7 @@ export function ActiveOffersSection({ ipos, players, clubColor }: Props) {
               )}
             >
               <div className="flex items-center gap-2.5 mb-2.5">
-                <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={32} />
+                <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={32} />
                 <div className="min-w-0">
                   <div className="font-bold text-xs truncate">{player.first} {player.last}</div>
                   <div className="text-[10px] text-white/40">{player.pos}</div>

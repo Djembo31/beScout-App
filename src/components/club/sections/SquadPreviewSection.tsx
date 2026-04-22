@@ -64,7 +64,7 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
               )}
             >
               <div className="flex flex-col items-center text-center gap-2">
-                <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={48} />
+                <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={48} />
                 <div className="w-full min-w-0">
                   <div className="text-sm font-bold truncate">{player.last}</div>
                   <div className="text-[10px] text-white/40">
