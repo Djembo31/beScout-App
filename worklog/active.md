@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 150
+stage: LOG
+spec: inline (audit-only, no code-change)
+impact: skipped (read-only analysis)
+proof: worklog/proofs/150-mutation-audit.md
+review: skipped (audit-deliverable self-reviewed)
 ```
 
 ## Zuletzt
