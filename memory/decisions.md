@@ -752,6 +752,199 @@ done
 
 ---
 
+## D20 — ARCHITECTURE: Query-Cache ist Single-Source-of-Truth fuer Server-Daten, Provider NUR fuer UI-State
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Server-Daten (Wallet-Balance, Follower-Listen, Holdings, etc.) werden ausschliesslich via React-Query-Cache verwaltet. Provider-Komponenten (React-Context) sind reserviert fuer **UI-State** (activeClub, modal-open, selected-tab) — niemals fuer Server-Daten als Duplikat.
+
+Konkret eliminiert:
+- **ClubProvider.followedClubs/primaryClub/isFollowing/toggleFollow** → `useFollowedClubs` + `usePrimaryClub` + `useToggleFollowClub` (151b-RESET, commit 04b4492f)
+- **WalletProvider komplett** → `useWallet` + 4 Helpers `setWalletBalance/setWalletLockedBalance/invalidateWallet/removeWalletFromCache` (152a-d, commits 753e8f83 / 0e10fe12 / a59a7209 / 78c7f409)
+
+ClubProvider verbleibt mit `activeClub/setActiveClub/loading` — reiner UI-State. Kein anderer Provider hat noch Server-Daten-Spiegel.
+
+### Begruendung
+
+State-Sync-Audit 2026-04-23 (commit f0cfbc6b) identifizierte 5 Anti-Pattern-Klassen auf 18 Features. Klasse A (Dual-State-Drift) und Klasse C (Zwei-Provider) machten zusammen 40% der Findings aus und waren direkte Ursache fuer Anil's User-Report "Follow-Button zeigt mal 0, mal 4 Scouts, wackelt, nicht synchron".
+
+Single-Source-of-Truth eliminiert die Drift-Klasse systematisch:
+- Optimistic-Update via `setQueryData` ist atomar, jeder Consumer sieht exakt denselben Wert.
+- Kein `useState`-Spiegel der mit `useQuery` divergieren kann.
+- Cross-Consumer-Sync (Sidebar + Button + Hero auf derselben Page) funktioniert ohne Sync-Logik.
+
+### Auswirkungen
+
+- **Code:** 465 LOC netto entfernt (207 LOC WalletProvider + 207 LOC dessen Test + ClubProvider-Shrink 127 LOC). Ersetzt durch ~220 LOC neue Query-Hooks.
+- **Prozess:** Neue Pattern-Regel in `.claude/rules/` — "Kein Provider fuer Server-Daten". ESLint D18b (Slice 160 Backlog) soll `useState` parallel zu `useQuery`-Key als Error flaggen.
+- **Team:** Slice 153-158 wenden dieselbe Regel auf `useProfileData` (Follower/Following), `usePlayerTrading` (15 useStates), `useEventActions` (parallel-state) an.
+
+### Alternativen erwogen
+
+- **Provider behalten + Query-Sync-Bridge:** Verworfen — Dual-Ownership bleibt, jeder Mutation-Pfad muss beide Layer updaten. Gleiche Drift-Klasse, nur mit mehr Code.
+- **Zustand-Store als Alternative zu React-Query:** Verworfen — beScout nutzt React-Query bereits durchgaengig. Zweiter Store waere erneut Dual-Ownership.
+- **Provider-First wie Sorare (beobachtet):** Verworfen — Sorare hat auch inzwischen auf React-Query migriert. Peer-Confirm fuer die Richtung.
+
+### Re-Visit-Trigger
+
+- Wenn React Query v6 das Cache-Modell grundsaetzlich aendert.
+- Wenn ein UI-State (z.B. aktiver Tab) Server-Persistenz braucht → dann nur fuer diesen Fall, nicht als globales Re-Einfuehren von Server-Providern.
+
+---
+
+## D21 — ARCHITECTURE: Ferrari-Blueprint-Pattern fuer alle Mutations (pgBouncer-safe onSuccess/onSettled-Split)
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Jede Mutation in beScout folgt **exakt** diesem Muster (Referenz-Implementation: `src/lib/hooks/useToggleFollowClub.ts` aus Slice 151b-RESET):
+
+```ts
+const mut = useSafeMutation<TData, Error, TVars, RollbackContext>({
+  mutationFn: async (vars) => { /* RPC-Call */ },
+  onMutate: async (vars) => {
+    await Promise.all([ /* cancelQueries × n */ ]);
+    const ctx = { /* snapshot × n */ };
+    /* setQueryData optimistic × n */
+    return ctx;
+  },
+  onError: (_err, vars, ctx) => { /* rollback aus ctx */ },
+  onSuccess: (result) => {
+    /* setQueryData(deterministic-server-response) */
+    /* NICHT invalidateQueries hier! */
+  },
+  onSettled: () => {
+    /* invalidateQueries NUR fuer non-deterministic Keys */
+  },
+  errorToast: t('...'),
+  errorTag: 'domain.action',
+});
+```
+
+**Kritisch:** `invalidateQueries` im `onSettled`, nicht `onSuccess`. Gruende: pgBouncer-Read-After-Write-Transient (Slice 139) — wenn `setQueryData` und `invalidateQueries` im selben Microtask laufen, ueberschreibt der Invalidate-Refetch den deterministischen Write mit Stale-Row.
+
+### Begruendung
+
+Slice 152c Reviewer-Agent (Commit a59a7209) fand genau dieses Anti-Pattern 2× als HIGH-Finding in meiner initialen Migration: `invalidateWallet(queryClient)` stand im `onSuccess` direkt nach `setWalletBalance`. Ich hatte das pgBouncer-Pattern in `useWallet.ts:200` selbst dokumentiert und trotzdem falsch migriert. Cold-Context-Review fing die Blaupause↔Impl-Diskrepanz.
+
+Zwei Referenz-Implementationen existieren jetzt:
+- **`useToggleFollowClub`** — Single-Mutation mit 3-Key-Cascade (isFollowing + follower-count + followed-list), `onSettled` invalidate nur fuer non-deterministic `followedByUser`.
+- **`useWallet` + Helpers** — Cross-Mutation-Shared-State-Pattern. Trading-Hooks nutzen `setWalletBalance(qc, uid, result.new_balance)` im `onSuccess` und `invalidateWallet(qc)` im `onSettled`.
+
+### Auswirkungen
+
+- **Code:** 151b-RESET + 152c setzen den Standard. Slice 153 (usePlayerTrading Ferrari-Refactor) + 156-158 muessen dieses Pattern anwenden.
+- **Prozess:** Reviewer-Agent-Briefing bei Money-Path-Slices enthaelt explizit "Jede Abweichung zu useToggleFollowClub/useWallet ist ein Finding".
+- **Team:** Pattern wird Slice 160 (Norm-Codification) in `.claude/rules/mutations.md` einziehen + ESLint-Rule + `scripts/audit-mutation-pattern.sh`.
+
+### Alternativen erwogen
+
+- **Alles in onSuccess:** Verworfen — 152c-Review fand genau dieses Anti-Pattern als HIGH. pgBouncer-Race ist real.
+- **Kein Optimistic (nur invalidate nach Success):** Verworfen — UI wartet Round-Trip, "mal 0, mal 4 scouts"-Symptom (User-Report 2026-04-23) kehrt zurueck.
+- **setQueryData nur, kein invalidate:** Verworfen — non-deterministic Felder (Server-timestamps, DENSE_RANK promote-primary-Logik) drifted ohne Reconcile-Roundtrip.
+
+### Re-Visit-Trigger
+
+- Bei React Query v6-Migration: Pattern gegen neue API pruefen.
+- Bei Supabase-Connection-Pool-Wechsel (von pgBouncer auf Supavisor): Pattern evaluieren — Commit-Fenster-Timing kann anders sein.
+
+---
+
+## D22 — PROCESS: Sub-Slice-Gating fuer Provider-Elimination (Foundation → Read → Mutation → Delete)
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Provider-Eliminationen (aktuell: WalletProvider 152a-d, zukuenftig: ggf. andere) werden in **4 Sub-Slices** gebaut:
+
+- **Sub-a — Foundation:** Neuer Query-Hook + Helpers + TDD-Tests. Keine Consumer-Aenderung. **Self-Review reicht.** Rollback-trivial.
+- **Sub-b — Welle 1 Read-only Consumer:** Import-Swap, keine Behavior-Aenderung. **Self-Review reicht.**
+- **Sub-c — Welle 2 Mutation-Consumer:** API-Swap (alte Provider-Methoden → neue Helper). **Reviewer-Agent pflicht** (Money-Path-Behavior-Change).
+- **Sub-d — Welle 3 Provider-Delete + Test-Mocks:** Provider-File entfernen, Tree schrumpfen, Test-Mock-Pfade migrieren, AuthProvider-signOut-Check. **Reviewer-Agent pflicht** (Cross-Cutting).
+
+### Begruendung
+
+Slice 152 haette als Big-Bang-Commit 22 non-test + 5 test Files in einem Rutsch aendern muessen. Problem:
+1. **Review-Kosten:** Reviewer-Agent muss 20+ verschiedene Aenderungs-Patterns in einem Diff beurteilen → Findings gehen unter.
+2. **Rollback-Kosten:** Ein Bug irgendwo → kompletter `git revert` zerstoert auch die sauberen 18 Files.
+3. **Deploy-Risiko:** Money-Path-Bug betrifft alle Trading-Flows gleichzeitig → keine partial-Rollback-Option.
+
+Evidenz aus 152c:
+- Reviewer-Agent fand 2 HIGH + 1 MEDIUM **genau weil** der Diff nur auf Mutation-Handlern fokussiert war.
+- Fix war in 5 Minuten moeglich und wurde inline vor Commit gemacht.
+- Big-Bang-Variante haette entweder die Findings verloren oder den Fix-Zyklus ueber 20+ Files treiben muessen.
+
+### Auswirkungen
+
+- **Code:** Slice 152 hat 4 Commits (753e8f83 / 0e10fe12 / a59a7209 / 78c7f409) statt 1.
+- **Prozess:** Pattern ist Backlog-Referenz fuer zukuenftige Provider-Eliminationen. Reviewer-Agent-Gate-Regel: pflicht bei Mutation-Sub-Slice (c) + Cross-Cutting-Sub-Slice (d).
+- **Team:** Spec-Template fuer Provider-Elimination sollte diese 4-Wellen-Struktur enthalten (Slice 160 Backlog).
+
+### Alternativen erwogen
+
+- **Big-Bang-Commit:** Verworfen (siehe Begruendung oben).
+- **2 Sub-Slices (Hook+Consumer als 1, Delete+Tests als 1):** Verworfen — Read-Consumer-Migration (10 Files, triviale Substitution) und Mutation-Consumer-Migration (6 Files, Behavior-Change) haben unterschiedliches Review-Risiko. Zusammenfassen waere falsches Gleichbehandeln.
+- **Parallel-Agent-Dispatch:** Akzeptabel fuer Sub-b (Read-only-Substitution), verworfen fuer Sub-c+d (Money-Path braucht sequenzielle Reviewer-Ketten).
+
+### Re-Visit-Trigger
+
+- Bei naechster Provider-Elimination (z.B. Zustand-Store-Migration falls relevant): Pattern anwenden + Retro ob 4 Wellen die richtige Granularitaet sind.
+
+---
+
+## D23 — PROCESS: Ferrari-API-Swap und Ferrari-Struktur-Upgrade in getrennten Slices
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Wenn ein Consumer von der alten zur neuen Ferrari-Mutation-API migriert, wird **zwei-stufig** refactored:
+
+1. **Stufe 1 — API-Swap (Minimal):** Nur Methoden-Namen-Mapping. `setBalanceCents(x)` → `setWalletBalance(qc, uid, x)`. `refreshBalance()` → `invalidateWallet(qc)`. Keine strukturelle Aenderung. Behavior unchanged.
+2. **Stufe 2 — Struktur-Upgrade (Ferrari):** Raw `useMutation` + useRef-Mutex → `useSafeMutation` + `onMutate` + `onError` + `errorToast` + `errorTag`. Echter Optimistic-Update mit Rollback.
+
+Beide Stufen = separate Slices, separate Reviewer-Agent-Gates.
+
+### Begruendung
+
+Slice 152c fasste urspruenglich "alles in einem Rutsch" an (`usePlayerTrading` 15 useStates + 3 useRef-Mutex auf `useSafeMutation` migrieren). Das waere 2-3 Stunden Arbeit und fuer den Reviewer-Agent nicht mehr handhabbar (5 Handler × 4 Lifecycle-Callbacks = 20 Struktur-Aenderungen parallel zum API-Swap).
+
+Entscheidung: Minimal-Swap fuer 152c (30 Min, klar scope'd). Struktur-Upgrade in separatem Slice 153. Vorteile:
+- **Review-Fokus:** 152c = "jeder `setBalanceCents` → `setWalletBalance`"-Pattern. Mechanisch pruefbar.
+- **Rollback-Kosten:** Wenn Struktur-Upgrade einen Handler falsch migriert (z.B. Missing-Optimistic), ist Money-Path broken. Minimal-Swap hat 0 Behavior-Change-Risiko.
+- **Eigenstaendige Begruendung:** Slice 153 hat `usePlayerTrading 15 useStates → 3` als eigenen Value, nicht als Nebeneffekt.
+
+### Auswirkungen
+
+- **Code:** Slice 152c committed als API-Swap (a59a7209). Slice 153 als Nachfolger fuer Struktur-Upgrade geplant.
+- **Prozess:** Reviewer-Agent-Briefing fuer "Welle 2"-Slices enthaelt explizit "Struktur-Upgrade ist scope-out, nur API-Swap pruefen". Das verhindert Reviewer-Findings wie "warum kein onMutate?" bei API-Swap-Slices.
+- **Team:** Spec-Template fuer Consumer-Migration dokumentiert die 2-Stufen-Trennung.
+
+### Alternativen erwogen
+
+- **Alles in einem Slice (Ferrari-extended):** Verworfen — 2-3 Stunden, Review unhandhabbar, hoeheres Rollback-Risiko.
+- **API-Swap skippen, direkt Struktur-Upgrade:** Verworfen — alter Provider-Export kann nicht parallel zum neuen Hook existieren ohne Runtime-Crash. API-Swap-Zwischenschritt ist noetig fuer sauberen Provider-Delete in Welle 3.
+- **Kein Struktur-Upgrade, nur API-Swap permanent:** Verworfen — raw useMutation ohne onMutate/onError bleibt Nicht-Ferrari. Eventual-Migration auf Ferrari-Blueprint (D21) ist Pflicht.
+
+### Re-Visit-Trigger
+
+- Slice 153 DONE: Retro ob 2-Stufen-Trennung tatsaechlich schneller/sicherer war als Big-Bang-Alternative.
+- Falls `usePlayerTrading` Ferrari-Refactor Probleme bringt: Pattern evaluieren.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

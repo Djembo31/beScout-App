@@ -1,51 +1,50 @@
 # Active Slice
 
 ```
-status: active
-slice: 152d
-stage: BUILD
-spec: worklog/specs/152-wallet-provider-to-query.md
-impact: skipped (Welle 3 = Provider-Delete + 4 Test-Mock-Migrations, Cross-Cutting)
-proof: worklog/proofs/152d-welle3-vitest.txt
-review: worklog/reviews/152d-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
-
-## Phase 2 Money-Cleanup — KOMPLETT nach 152d
-
-- 152a Foundation — commit `753e8f83`
-- 152b Welle 1 Read-only × 10 — commit `0e10fe12`
-- 152c Welle 2 Mutation × 6 (Reviewer-PASS nach HIGH-Fixes) — commit `a59a7209`
-- 152d Welle 3 Provider-Delete (Reviewer-PASS, 1 NIT inline gefixt) — pending commit
-
-**Next:** Slice 153 — usePlayerTrading + trading.ts Ferrari-Refactor (useSafeMutation + onMutate/onError).
-
-## Slice-152 Sub-Struktur
-
-Slice 152 (WalletProvider → useWallet Query) wird in 4 Sub-Slices gebaut fuer saubere Rollback-Punkte und Reviewer-Gated Money-Path-Wellen:
-
-- **152a (now, BUILD):** Foundation — `useWallet` Hook + `useIsBalanceFresh` + 3 Helpers + 13 TDD-Tests. Keine Consumer-Migration. Self-Review.
-- **152b (next):** Welle 1 — 10 read-only Consumer migrieren (`balanceCents` read). Self-Review (triviale Substitution).
-- **152c:** Welle 2 — 5 Mutation-Consumer (`setBalanceCents`/`refreshBalance` → `setWalletBalance`/`invalidateWallet`). **Reviewer-Agent pflicht** (Money-Path Behavior-Change).
-- **152d:** Welle 3 — `WalletProvider` loeschen + 5 Test-Files migrieren + `AuthProvider.signOut` → `removeWalletFromCache`. **Reviewer-Agent pflicht** (Cross-Cutting).
 
 ## Zuletzt
 
-- **Slice 151b-RESET** (2026-04-23) — Club-Follow State-Sync: ClubProvider shrunk (255→128 LOC), 3 neue Query-Hooks, 7 Consumer migriert. Audit-Klassen A+C+D adressiert. Commit `04b4492f`.
-- **Slice 151d** (2026-04-23) — ESLint-Rule + Pattern D18 + Audit-Script (Phase 1 Complete). Commit `016bcb74`.
-- **Slice 151c+151c.2** (2026-04-23) — MembershipSection Money-Path + RPC-Idempotency-Hardening. Commit `a76ddc62`.
-- **Slice 151b** (2026-04-23) — useClubActions Follow-Button Migration (Pilot 1, von 151b-RESET erweitert). Commit `789c0816`.
-- **Slice 151a** (2026-04-23) — useSafeMutation Primitive. Commit `a840beb8`.
+- **Slice 152d** (2026-04-23) — WalletProvider Elimination, Phase 2 COMPLETE. Reviewer-PASS + 1 NIT inline gefixt. Commit `78c7f409`.
+- **Slice 152c** (2026-04-23) — Welle 2 Mutation-Consumer (Money-Path). Reviewer-REWORK (2 HIGH + 1 MEDIUM pgBouncer-Violation) → Fixes → PASS. Commit `a59a7209`.
+- **Slice 152b** (2026-04-23) — Welle 1 Read-only Wallet-Consumer (10 Files + 2 Test-Mock-Fixes). Commit `0e10fe12`.
+- **Slice 152a** (2026-04-23) — useWallet Query-Hook + 4 Helpers + 13 TDD-Tests. Commit `753e8f83`.
+- **Slice 151b-RESET** (2026-04-23) — Club-Follow State-Sync. Ferrari-Blueprint etabliert. Commit `04b4492f`.
 
-## Phase 1 + Phase 2a DONE
+## Phase-Status nach dieser Session
 
-Mutation-Hardening Phase 1 (151a-d + 151c.2) + State-Sync 151b-RESET abgeschlossen.
+| Phase | Status | Commits |
+|-------|--------|---------|
+| Phase 1 Mutation-Hardening | ✅ Komplett | 151a-d + 151c.2 |
+| Phase 1.5 ClubProvider-RESET | ✅ Komplett | 151b-RESET (`04b4492f`) |
+| **Phase 2 Money-Cleanup** | ✅ **Komplett** | 152a-d (`753e8f83` / `0e10fe12` / `a59a7209` / `78c7f409`) |
+| Phase 3 UX-Hotspots | 🟡 Pending | Slice 153 (usePlayerTrading Ferrari-Refactor) → 156 (Events+FantasyStore) → 157 (Watchlist) → 158 (Community Votes) |
+| Phase 4 Rest + Norm | ⏳ Spaeter | Slice 159 (Profile), 160 (Norm-Codification `.claude/rules/mutations.md` + ESLint D18b) |
 
-## Phase 2 Next — Money-Tier (Slices 152-155)
+## Session-Artefakte
 
-Nach Option Z (User-Entscheidung):
-- **Slice 152:** WalletProvider.balanceCents → useWallet Query (207 LOC → ~40 LOC, Audit Klasse A+C)
-- **Slice 153:** usePlayerTrading refactor — useSafeMutation fuer Buy/Sell/Offers, optimisticallyAddHolding in onMutate
-- **Slice 154:** MembershipSection Optimistic (aktuell kein optimistic nur Invalidate — Audit Tier 1 #2)
-- **Slice 155:** useTradeActions + TipButton Audit-Tier 1 Klasse E
+- **Audit:** `worklog/audits/state-sync-architecture-2026-04-23.md` — 5 Anti-Pattern-Klassen, 18 Features (Commit `f0cfbc6b`)
+- **Spec:** `worklog/specs/152-wallet-provider-to-query.md` — 4-Wellen-Plan, 22 Files kartografiert
+- **Reviews:** `worklog/reviews/152a-review.md` / `152b-review.md` / `152c-review.md` / `152d-review.md`
+- **Proofs:** `worklog/proofs/152-usewallet-tests.txt` / `152b-welle1-vitest.txt` / `152c-welle2-vitest.txt` / `152d-welle3-vitest.txt` + 5 Playwright-Screenshots (`152-*.png`) + Smoke-Report (`152-money-path-report.md`)
+- **Decisions:** D20-D23 in `memory/decisions.md` — Query-Cache-SoT / Ferrari-Blueprint-Pattern / Sub-Slice-Gating / API-Swap-vs-Struktur-Upgrade-Trennung
 
-Danach Stop fuer Beta-Test-Runde. Phase 3+ (UX-Hotspots: Events, Watchlist, Votes, Profile) post-Beta.
+## Nahtlos-Naechste-Session
+
+**Start-Punkt:** Slice 153 — `usePlayerTrading` + `features/market/mutations/trading.ts` Ferrari-Refactor (raw `useMutation` → `useSafeMutation` + `onMutate` + `onError` + `errorToast` + `errorTag`).
+
+**Blueprint:** `src/lib/hooks/useToggleFollowClub.ts` (Mutation-Pattern) + `src/lib/hooks/useWallet.ts` (Cross-Mutation-Shared-State-Pattern mit pgBouncer-safe onSuccess/onSettled-Split).
+
+**Reviewer-Agent-Briefing:** "Jede Abweichung zu useToggleFollowClub/useWallet ist ein Finding. Money-Path — Cold-Context-Review pflicht."
+
+**152c-Backlog-Carry-over** (Slice 153 oder 158):
+- useOffersState.test.ts: `toHaveBeenCalledWith(queryClient)` statt `toHaveBeenCalled()`
+- Konventions-Entscheidung: globaler Singleton `@/lib/queryClient` vs Hook-scoped `useQueryClient()` (trading.ts nutzt Singleton, usePlayerTrading nutzt Hook-scoped)
+- RPC-Shape `balanceAfter=null` statt `=0` in events.mutations bei Free-Events
