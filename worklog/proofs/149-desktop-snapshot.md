@@ -1,0 +1,283 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - link "Zum Inhalt springen" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - complementary "Sidebar-Navigation" [ref=e5]:
+      - link "BeScout BeScout" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "BeScout" [ref=e9]
+        - img "BeScout" [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e14]:
+          - img [ref=e16]
+          - generic [ref=e18]:
+            - generic [ref=e19]: Guthaben
+            - generic [ref=e20]: 7.221 CR
+        - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e21]:
+          - img [ref=e22]
+          - generic [ref=e24]: "346"
+          - generic [ref=e25]: Tickets
+      - button "Adana Demirspor TFF 1. Lig" [ref=e202] [cursor=pointer]:
+        - generic [ref=e204]:
+          - generic [ref=e205]: Adana Demirspor
+          - generic [ref=e206]: TFF 1. Lig
+        - img [ref=e207]
+      - navigation "Hauptnavigation" [ref=e28]:
+        - generic [ref=e29]:
+          - link "Home" [ref=e30] [cursor=pointer]:
+            - /url: /
+            - img [ref=e31]
+            - generic [ref=e34]: Home
+          - link "Manager" [ref=e35] [cursor=pointer]:
+            - /url: /manager
+            - img [ref=e36]
+            - generic [ref=e39]: Manager
+          - link "Marktplatz" [ref=e40] [cursor=pointer]:
+            - /url: /market
+            - img [ref=e41]
+            - generic [ref=e44]: Marktplatz
+          - link "Spieltag" [ref=e45] [cursor=pointer]:
+            - /url: /fantasy
+            - img [ref=e46]
+            - generic [ref=e52]: Spieltag
+          - link "Rankings" [ref=e53] [cursor=pointer]:
+            - /url: /rankings
+            - img [ref=e54]
+            - generic [ref=e56]: Rankings
+          - link "Missionen" [ref=e57] [cursor=pointer]:
+            - /url: /missions
+            - img [ref=e58]
+            - generic [ref=e62]: Missionen
+          - link "Inventar" [ref=e63] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e64]
+            - generic [ref=e68]: Inventar
+          - link "Club" [ref=e69] [cursor=pointer]:
+            - /url: /clubs
+            - img [ref=e70]
+            - generic [ref=e74]: Club
+          - link "Community" [ref=e75] [cursor=pointer]:
+            - /url: /community
+            - img [ref=e76]
+            - generic [ref=e79]: Community
+        - generic [ref=e81]: Mehr
+        - generic [ref=e82]:
+          - link "Transaktionen" [ref=e83] [cursor=pointer]:
+            - /url: /transactions
+            - img [ref=e84]
+            - generic [ref=e87]: Transaktionen
+          - link "Founding Pass" [ref=e88] [cursor=pointer]:
+            - /url: /founding
+            - img [ref=e89]
+            - generic [ref=e91]: Founding Pass
+          - link "Airdrop" [ref=e92] [cursor=pointer]:
+            - /url: /airdrop
+            - img [ref=e93]
+            - generic [ref=e98]: Airdrop
+      - generic [ref=e99]:
+        - button "Wunsch einreichen" [ref=e100] [cursor=pointer]:
+          - img [ref=e101]
+          - generic [ref=e103]: Wunsch einreichen
+        - link "Einstellungen" [ref=e104] [cursor=pointer]:
+          - /url: /profile/settings
+          - img [ref=e105]
+          - generic [ref=e108]: Einstellungen
+        - button "Abmelden" [ref=e109] [cursor=pointer]:
+          - img [ref=e110]
+          - generic [ref=e113]: Abmelden
+      - button "Sidebar einklappen" [ref=e114] [cursor=pointer]:
+        - img [ref=e115]
+    - generic [ref=e117]:
+      - banner [ref=e118]:
+        - generic [ref=e119]:
+          - button "Suche... ⌘ K" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+            - generic [ref=e125]: Suche...
+            - generic [ref=e126]:
+              - generic [ref=e127]: ⌘
+              - text: K
+          - generic [ref=e128]:
+            - generic [ref=e129]:
+              - img [ref=e130]
+              - generic [ref=e132]: 7.220,77
+            - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e133]:
+              - img [ref=e134]
+              - generic [ref=e136]: "346"
+            - button "Push aktivieren" [ref=e137] [cursor=pointer]:
+              - img [ref=e138]
+            - button "Benachrichtigungen" [ref=e144] [cursor=pointer]:
+              - img [ref=e145]
+              - generic [ref=e209]: "9"
+            - button "Feedback senden" [ref=e148] [cursor=pointer]:
+              - img [ref=e149]
+            - button "Glossar" [ref=e151] [cursor=pointer]:
+              - img [ref=e152]
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - generic [ref=e157]: Jarvis QA
+                - generic [ref=e158]: Free
+              - link "Mein Profil" [ref=e159] [cursor=pointer]:
+                - /url: /profile
+                - generic [ref=e161]: J
+      - main [ref=e162]:
+        - generic [ref=e210]:
+          - generic [ref=e211]:
+            - link "Alle Vereine" [ref=e212] [cursor=pointer]:
+              - /url: /clubs
+              - img [ref=e213]
+              - text: Alle Vereine
+            - link "ADM" [ref=e215] [cursor=pointer]:
+              - /url: /club/adana-demirspor
+          - generic [ref=e216]:
+            - img "Ali Sami Yen Spor Kompleksi RAMS Park" [ref=e218]
+            - generic [ref=e223]:
+              - generic [ref=e224]:
+                - img "Galatasaray" [ref=e227]
+                - generic [ref=e228]
+              - generic [ref=e243]:
+                - generic [ref=e244]
+                - generic [ref=e248]
+                - generic [ref=e252]
+                - generic [ref=e256]
+                - button "Folgen" [ref=e260] [cursor=pointer]
+            - generic [ref=e266]:
+              - generic [ref=e267]:
+                - img [ref=e268]
+                - generic [ref=e271]
+              - generic [ref=e275]:
+                - img [ref=e276]
+                - generic [ref=e279]
+              - generic [ref=e283]:
+                - img [ref=e284]
+                - generic [ref=e289]
+              - generic [ref=e293]:
+                - generic [ref=e294]
+                - generic [ref=e300]: Form
+              - generic [ref=e302]:
+                - img [ref=e303]
+                - generic [ref=e305]: Starter
+          - tablist [ref=e308]:
+            - tab "Übersicht" [selected] [ref=e309] [cursor=pointer]:
+              - generic [ref=e310]: Übersicht
+            - tab "Spieler" [ref=e311] [cursor=pointer]:
+              - generic [ref=e312]: Spieler
+            - tab "Spielplan" [ref=e313] [cursor=pointer]:
+              - generic [ref=e314]: Spielplan
+          - generic [ref=e315]:
+            - generic [ref=e317]:
+              - generic [ref=e318]: Nächste Begegnung — Spieltag 31In 5 Tagen
+              - generic [ref=e319]:
+                - generic [ref=e320]
+                - generic [ref=e324]
+                - generic [ref=e329]: Fenerbahçe
+            - generic [ref=e331]:
+              - generic [ref=e332]:
+                - img [ref=e333]
+                - heading "Tabellenplatz" [level=2] [ref=e339]
+              - generic [ref=e340]:
+                - generic [ref=e341]
+                - generic [ref=e344]
+              - generic [ref=e347]:
+                - generic [ref=e348]
+                - generic [ref=e351]
+                - generic [ref=e354]
+              - generic [ref=e361]:
+                - generic [ref=e362]: Saisonform
+                - generic [ref=e363]
+            - generic [ref=e370]:
+              - generic [ref=e371]:
+                - generic [ref=e372]
+                - generic [ref=e377]: "9"
+              - generic [ref=e378]:
+                - link "NY N. Ogulcan Yancel MID 10.000 23d 0 / 100 0%" [ref=e379] [cursor=pointer]:
+                  - /url: /player/ddfaa809-da07-4593-9284-b0a1a0c585cd
+                - link "AY Ada Yuzgec ATT 10.000 23d 0 / 100 0%" [ref=e394] [cursor=pointer]:
+                  - /url: /player/febee4cb-aa12-42bd-89e9-866ef795e153
+                - link "MB Metehan Baltacı DEF 10.000 23d 0 / 100 0%" [ref=e409] [cursor=pointer]:
+                  - /url: /player/f6fd3709-a8ee-4e81-9a99-bc3ad77a4e1a
+                - link "EA Ege Arac MID 10.000 23d 0 / 100 0%" [ref=e424] [cursor=pointer]:
+                  - /url: /player/bcc25293-f816-468b-91ef-6e555584d907
+                - link "YK Yusuf Kahraman DEF 10.000 23d 0 / 100 0%" [ref=e439] [cursor=pointer]:
+                  - /url: /player/4bf2cf50-435a-42d4-88ab-77e64531c8c4
+                - link "ÁM Álvaro Borja Morata Martín ATT 10.000 23d 0 / 100 0%" [ref=e454] [cursor=pointer]:
+                  - /url: /player/d938b4f3-7663-4c50-a7fe-420f6aad968b
+                - link "FK Furkan Koçak ATT 10.000 23d 0 / 100 0%" [ref=e469] [cursor=pointer]:
+                  - /url: /player/c4f33c79-5380-45e9-a24b-f1c5b75c8e46
+                - link "YA Yáser Esnéider Asprilla Martínez MID 1.400.000 23d 0 / 100 0%" [ref=e484] [cursor=pointer]:
+                  - /url: /player/8cfb38f4-f072-45e4-b079-f994586e5d7d
+                - link "KA Kaan Ayhan DEF 200.000 23d 0 / 100 0%" [ref=e499] [cursor=pointer]:
+                  - /url: /player/31375d61-0b9a-46b5-966b-bc4acb4ff535
+            - generic [ref=e515]:
+              - generic [ref=e516]:
+                - generic [ref=e517]
+                - button "Alle anzeigen" [ref=e522] [cursor=pointer]
+              - generic [ref=e527]:
+                - generic [ref=e528]: Dein Kader
+                - generic [ref=e529]: 0 / 33
+              - generic [ref=e531]:
+                - link "CA Akgun MID · 18.000 0.0%" [ref=e532] [cursor=pointer]:
+                  - /url: /player/468a7779-4856-4c14-b2f9-42c513009448
+                - link "YA Akgün ATT · 18.000 0.0%" [ref=e543] [cursor=pointer]:
+                  - /url: /player/6c8340a2-72b9-43dd-93b3-da6b297710ea
+                - link "EA Arac MID · 100 0.0%" [ref=e554] [cursor=pointer]:
+                  - /url: /player/bcc25293-f816-468b-91ef-6e555584d907
+                - link "YA Asprilla Martínez MID · 14.000 0.0%" [ref=e565] [cursor=pointer]:
+                  - /url: /player/8cfb38f4-f072-45e4-b079-f994586e5d7d
+                - link "KA Ayhan DEF · 2.000 0.0%" [ref=e576] [cursor=pointer]:
+                  - /url: /player/31375d61-0b9a-46b5-966b-bc4acb4ff535
+            - generic [ref=e588]:
+              - generic [ref=e589]:
+                - img [ref=e590]
+                - heading "Mitmachen" [level=2] [ref=e594]
+              - generic [ref=e595]:
+                - heading "Dein Scout-Profil" [level=3] [ref=e596]
+                - generic [ref=e597]
+            - generic [ref=e608]:
+              - generic [ref=e609]:
+                - generic [ref=e610]
+                - link "Alle anzeigen" [ref=e614] [cursor=pointer]:
+                  - /url: /fantasy
+              - generic [ref=e615]:
+                - link "OFFEN GW 31 Rising Stars SL GRATIS | 0 CR 0 / 50" [ref=e616] [cursor=pointer]:
+                  - /url: /fantasy
+                - link "OFFEN GW 31 Süper Lig Meisterschaft GRATIS | 0 CR 0 / 100" [ref=e634] [cursor=pointer]:
+                  - /url: /fantasy
+                - link "OFFEN GW 31 Süper Lig Arena Cup GRATIS | 0 CR 0 / 150" [ref=e652] [cursor=pointer]:
+                  - /url: /fantasy
+            - generic [ref=e671]:
+              - generic [ref=e672]:
+                - img [ref=e673]
+                - heading "Club-Mitgliedschaft" [level=2] [ref=e675]
+              - generic [ref=e676]:
+                - generic [ref=e679]
+                - generic [ref=e701]
+                - generic [ref=e727]
+            - generic [ref=e752]:
+              - generic [ref=e753]:
+                - img [ref=e754]
+                - generic [ref=e760]: Fan-Rang
+              - paragraph [ref=e761]: Noch kein Fan-Rang — werde aktiv bei deinem Club!
+              - link "Jetzt ein Fantasy Event spielen" [ref=e762] [cursor=pointer]:
+                - /url: /fantasy
+                - text: Jetzt ein Fantasy Event spielen
+                - img [ref=e763]
+            - generic [ref=e766]:
+              - generic [ref=e767]:
+                - img [ref=e768]
+                - heading "Letzte Ergebnisse" [level=2] [ref=e770]
+              - generic [ref=e771]:
+                - generic [ref=e772]
+                - generic [ref=e779]
+                - generic [ref=e786]
+                - generic [ref=e793]
+                - generic [ref=e800]
+            - generic [ref=e808]:
+              - generic [ref=e809]:
+                - img [ref=e810]
+                - heading "Club Info" [level=2] [ref=e814]
+              - generic [ref=e815]:
+                - generic [ref=e816]
+                - generic [ref=e819]
+                - generic [ref=e822]
+                - generic [ref=e825]

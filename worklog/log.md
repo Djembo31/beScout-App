@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 149 | 2026-04-23 | Club-Page Deep-Dive (M, PASS)
+
+- **Stage-Chain:** SPEC → IMPACT → BUILD → REVIEW (REWORK→PASS nach 4 MEDIUM-Inline-Fixes) → PROVE (Playwright 393/1280/TR) → LOG
+- **Trigger:** Anil-Audit /club/galatasaray — 7 Issues: unklare Labels (Scouts/24h Vol/spielerkaufbar/Float), Mobile-Overflow Form, fehlender Tabellenplatz, "keine Bilder" Verdacht.
+- **Scope (L):** 11 files modified + 5 new.
+  - i18n DE+TR: Scouts→Fans/Taraftar, 24h Vol→Handel 24h/24s İşlem, Spieler kaufbar→Im Erstverkauf/Kulüp Satışı'nda, Scout Card Float→Karten im Umlauf/Dolaşımdaki Kartlar (CEO approved 1B/2A/3A/4A).
+  - `ClubStatsBar.tsx`: Mobile-Layout-Split (Form+Prestige auf 2. Row) — 393px overflow behoben.
+  - Standings-Feature (NEW): `getClubStanding()` service + `useClubStanding()` hook + `ClubStandingCard` component + Integration in `ClubContent`. Datenquelle: `league_standings` Tabelle (Slice 074).
+  - 4 neue vitest-Tests für `getClubStanding` (happy/null/form-null/error).
+- **Inline-Fixes nach Reviewer-REWORK:**
+  1. i18n Split-Label statt `.replace()` hack (Medium)
+  2. Doppelte Punkt-Anzeige entfernt (Medium)
+  3. `useClubStanding` nach `if (!user)` guard platziert — RLS-Auth-Leak-Prevention (Medium)
+  4. `standing.form` canonical über `formResults` (Spec-Edge-Case Line 92) — 2-Quellen-Drift eliminiert (Medium)
+- **Issue 7 Verdict:** Photos waren nie broken — 36/36 image_url in DB, CSP + remotePatterns OK. Spieler-Tab-Screenshot zeigt 33 Karten mit Photos, FIFA Carbon+Gold Design. User-Eindruck war Browser-Cache.
+- **Files:** messages/{de,tr}.json · ClubStatsBar · ClubStandingCard (NEW) · ClubContent · club.ts · club.test.ts · keys.ts · misc.ts · worklog/{specs,impact,reviews,proofs}/149-*.
+- **Review:** `worklog/reviews/149-review.md` (PASS nach Inline-Fix)
+- **Proof:**
+  - `worklog/proofs/149-test.txt` — 65/65 vitest passing
+  - `worklog/proofs/149-db-verify.txt` — DB-Verify (rank=1, points=68, scouts=2, buyable=36, dpc_float=3600, form=DWLWW)
+  - `worklog/proofs/149-galatasaray-mobile-393.png` — iPhone 16 Mobile full-page
+  - `worklog/proofs/149-galatasaray-desktop-1280.png` — Desktop full-page mit Tabellenplatz
+  - `worklog/proofs/149-galatasaray-tr-locale.png` — TR-locale Puan Durumu + alle Labels
+  - `worklog/proofs/149-galatasaray-spieler-tab.png` — 33 Spielerkarten mit Photos (Issue 7)
+- **Commit:** `be3aea1b` (code+proofs) + `TBD` (visual proofs+log)
+- **Notes:** Tabellenplatz-Kachel war "Hidden Gem" — Daten lagen seit Slice 074 ungenutzt in DB. Reviewer-Agent hat 4 Medium-Bugs gefangen die Primary-Claude nicht gesehen hat → Cold-Context-Review-Pflicht bestätigt D13-Entscheidung.
+
+---
+
 ## 148b | 2026-04-22 | Gençlerbirliği Logo Fix (XS data-fix)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (skipped, 1-row UPDATE) → BUILD (=UPDATE) → REVIEW (skipped, trivial data-fix) → PROVE → LOG

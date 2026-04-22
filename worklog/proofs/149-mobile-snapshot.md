@@ -1,0 +1,375 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e123]
+  - link "Zum Inhalt springen" [ref=e124] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e126]:
+    - banner [ref=e127]:
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - link "BeScout" [ref=e130] [cursor=pointer]:
+            - /url: /
+            - img "BeScout" [ref=e132]
+          - button "Menü öffnen" [ref=e133] [cursor=pointer]:
+            - img [ref=e134]
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - generic [ref=e139]: 7.220,77
+          - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e140]:
+            - img [ref=e141]
+            - generic [ref=e143]: "346"
+          - button "Suche..." [ref=e144] [cursor=pointer]:
+            - img [ref=e145]
+          - button "Benachrichtigungen" [ref=e149] [cursor=pointer]:
+            - img [ref=e150]
+            - generic [ref=e153]: "9"
+          - link "Mein Profil" [ref=e155] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e157]: J
+    - main [ref=e158]:
+      - generic [ref=e159]:
+        - generic [ref=e160]:
+          - link "Alle Vereine" [ref=e161] [cursor=pointer]:
+            - /url: /clubs
+            - img [ref=e162]
+            - text: Alle Vereine
+          - link "ADM" [ref=e164] [cursor=pointer]:
+            - /url: /club/adana-demirspor
+        - generic [ref=e165]:
+          - img "Ali Sami Yen Spor Kompleksi RAMS Park" [ref=e167]
+          - generic [ref=e172]:
+            - generic [ref=e173]:
+              - img "Galatasaray" [ref=e176]
+              - generic [ref=e177]:
+                - heading "GALATASARAY" [level=1] [ref=e179]
+                - generic [ref=e180]
+            - generic [ref=e192]:
+              - generic [ref=e193]:
+                - generic [ref=e194]: "3"
+                - generic [ref=e195]: Fans
+              - generic [ref=e197]:
+                - generic [ref=e198]: "0"
+                - generic [ref=e199]: Handel 24h
+              - generic [ref=e201]:
+                - generic [ref=e202]: "33"
+                - generic [ref=e203]: Spieler
+              - generic [ref=e205]:
+                - generic [ref=e206]: "9"
+                - generic [ref=e207]: Im Erstverkauf
+            - button "Folgen" [ref=e209] [cursor=pointer]
+        - generic [ref=e211]:
+          - generic [ref=e212]:
+            - generic [ref=e213]:
+              - generic [ref=e214]:
+                - img [ref=e215]
+                - generic [ref=e219]: Fans
+              - generic [ref=e220]: "3"
+            - generic [ref=e221]:
+              - generic [ref=e222]:
+                - img [ref=e223]
+                - generic [ref=e225]: Handel 24h
+              - generic [ref=e226]: 0Credits
+          - generic [ref=e227]:
+            - generic [ref=e228]:
+              - img [ref=e229]
+              - generic [ref=e232]:
+                - generic [ref=e233]: "3.300"
+                - generic [ref=e234]: Karten im Umlauf
+            - generic [ref=e235]:
+              - img [ref=e236]
+              - generic [ref=e239]:
+                - generic [ref=e240]: "40.2"
+                - generic [ref=e241]: Ø Perf L5
+            - generic [ref=e242]:
+              - img [ref=e243]
+              - generic [ref=e248]:
+                - generic [ref=e249]: "33"
+                - generic [ref=e250]: Spieler
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - generic [ref=e253]: Form
+              - generic [ref=e254]:
+                - generic [ref=e255]: U
+                - generic [ref=e256]: S
+                - generic [ref=e257]: "N"
+                - generic [ref=e258]: S
+                - generic [ref=e259]: S
+            - generic [ref=e260]:
+              - img [ref=e261]
+              - generic [ref=e263]:
+                - generic [ref=e264]: Starter
+                - generic [ref=e265]: Prestige
+        - tablist [ref=e268]:
+          - tab "Übersicht" [selected] [ref=e269] [cursor=pointer]:
+            - generic [ref=e270]: Übersicht
+          - tab "Spieler" [ref=e271] [cursor=pointer]:
+            - generic [ref=e272]: Spieler
+          - tab "Spielplan" [ref=e273] [cursor=pointer]:
+            - generic [ref=e274]: Spielplan
+        - generic [ref=e275]:
+          - generic [ref=e277]:
+            - generic [ref=e278]: Nächste Begegnung — Spieltag 31In 5 Tagen
+            - generic [ref=e279]:
+              - generic [ref=e280]:
+                - img "Galatasaray" [ref=e282]
+                - generic [ref=e283]: GAL
+              - generic [ref=e284]:
+                - generic [ref=e285]: HEIM
+                - generic [ref=e286]: VS
+              - generic [ref=e289]: Fenerbahçe
+          - generic [ref=e291]:
+            - generic [ref=e292]:
+              - img [ref=e293]
+              - heading "Tabellenplatz" [level=2] [ref=e299]
+            - generic [ref=e300]:
+              - generic [ref=e301]:
+                - generic [ref=e302]: "1."
+                - generic [ref=e303]: Tabellenplatz
+              - generic [ref=e304]:
+                - generic [ref=e305]: "68"
+                - generic [ref=e306]: Pkt
+            - generic [ref=e307]:
+              - generic [ref=e308]:
+                - generic [ref=e309]: "29"
+                - generic [ref=e310]: Spiele
+              - generic [ref=e311]:
+                - generic [ref=e312]: 21–5–3
+                - generic [ref=e313]: S · U · N
+              - generic [ref=e314]:
+                - generic [ref=e315]
+                - generic [ref=e320]: "+45"
+            - generic [ref=e321]:
+              - generic [ref=e322]: Saisonform
+              - generic [ref=e323]:
+                - generic [ref=e324]: U
+                - generic [ref=e325]: S
+                - generic [ref=e326]: "N"
+                - generic [ref=e327]: S
+                - generic [ref=e328]: S
+          - generic [ref=e330]:
+            - generic [ref=e331]:
+              - generic [ref=e332]:
+                - img [ref=e333]
+                - heading "Jetzt verfügbar" [level=2] [ref=e336]
+              - generic [ref=e337]: "9"
+            - generic [ref=e338]:
+              - link "NY N. Ogulcan Yancel MID 10.000 23d 0 / 100 0%" [ref=e339] [cursor=pointer]:
+                - /url: /player/ddfaa809-da07-4593-9284-b0a1a0c585cd
+                - generic [ref=e340]
+                - generic [ref=e346]
+                - generic [ref=e351]
+              - link "AY Ada Yuzgec ATT 10.000 23d 0 / 100 0%" [ref=e354] [cursor=pointer]:
+                - /url: /player/febee4cb-aa12-42bd-89e9-866ef795e153
+                - generic [ref=e355]
+                - generic [ref=e361]
+                - generic [ref=e366]
+              - link "MB Metehan Baltacı DEF 10.000 23d 0 / 100 0%" [ref=e369] [cursor=pointer]:
+                - /url: /player/f6fd3709-a8ee-4e81-9a99-bc3ad77a4e1a
+                - generic [ref=e370]
+                - generic [ref=e376]
+                - generic [ref=e381]
+              - link "EA Ege Arac MID 10.000 23d 0 / 100 0%" [ref=e384] [cursor=pointer]:
+                - /url: /player/bcc25293-f816-468b-91ef-6e555584d907
+                - generic [ref=e385]
+                - generic [ref=e391]
+                - generic [ref=e396]
+              - link "YK Yusuf Kahraman DEF 10.000 23d 0 / 100 0%" [ref=e399] [cursor=pointer]:
+                - /url: /player/4bf2cf50-435a-42d4-88ab-77e64531c8c4
+                - generic [ref=e400]
+                - generic [ref=e406]
+                - generic [ref=e411]
+              - link "ÁM Álvaro Borja Morata Martín ATT 10.000 23d 0 / 100 0%" [ref=e414] [cursor=pointer]:
+                - /url: /player/d938b4f3-7663-4c50-a7fe-420f6aad968b
+                - generic [ref=e415]
+                - generic [ref=e421]
+                - generic [ref=e426]
+              - link "FK Furkan Koçak ATT 10.000 23d 0 / 100 0%" [ref=e429] [cursor=pointer]:
+                - /url: /player/c4f33c79-5380-45e9-a24b-f1c5b75c8e46
+                - generic [ref=e430]
+                - generic [ref=e436]
+                - generic [ref=e441]
+              - link "YA Yáser Esnéider Asprilla Martínez MID 1.400.000 23d 0 / 100 0%" [ref=e444] [cursor=pointer]:
+                - /url: /player/8cfb38f4-f072-45e4-b079-f994586e5d7d
+                - generic [ref=e445]
+                - generic [ref=e451]
+                - generic [ref=e456]
+              - link "KA Kaan Ayhan DEF 200.000 23d 0 / 100 0%" [ref=e459] [cursor=pointer]:
+                - /url: /player/31375d61-0b9a-46b5-966b-bc4acb4ff535
+                - generic [ref=e460]
+                - generic [ref=e466]
+                - generic [ref=e471]
+          - generic [ref=e475]:
+            - generic [ref=e476]:
+              - generic [ref=e477]:
+                - img [ref=e478]
+                - heading "Trending Spieler" [level=2] [ref=e481]
+              - button "Alle anzeigen" [ref=e482] [cursor=pointer]:
+                - text: Alle anzeigen
+                - img [ref=e483]
+            - generic [ref=e487]:
+              - generic [ref=e488]: Dein Kader
+              - generic [ref=e489]: 0 / 33
+            - generic [ref=e491]:
+              - link "CA Akgun MID · 18.000 0.0%" [ref=e492] [cursor=pointer]:
+                - /url: /player/468a7779-4856-4c14-b2f9-42c513009448
+                - generic [ref=e493]
+              - link "YA Akgün ATT · 18.000 0.0%" [ref=e503] [cursor=pointer]:
+                - /url: /player/6c8340a2-72b9-43dd-93b3-da6b297710ea
+                - generic [ref=e504]
+              - link "EA Arac MID · 100 0.0%" [ref=e514] [cursor=pointer]:
+                - /url: /player/bcc25293-f816-468b-91ef-6e555584d907
+                - generic [ref=e515]
+              - link "YA Asprilla Martínez MID · 14.000 0.0%" [ref=e525] [cursor=pointer]:
+                - /url: /player/8cfb38f4-f072-45e4-b079-f994586e5d7d
+                - generic [ref=e526]
+              - link "KA Ayhan DEF · 2.000 0.0%" [ref=e536] [cursor=pointer]:
+                - /url: /player/31375d61-0b9a-46b5-966b-bc4acb4ff535
+                - generic [ref=e537]
+          - generic [ref=e548]:
+            - generic [ref=e549]:
+              - img [ref=e550]
+              - heading "Mitmachen" [level=2] [ref=e554]
+            - generic [ref=e555]:
+              - heading "Dein Scout-Profil" [level=3] [ref=e556]
+              - generic [ref=e557]:
+                - generic [ref=e558]
+                - generic [ref=e561]
+                - generic [ref=e564]
+          - generic [ref=e568]:
+            - generic [ref=e569]:
+              - generic [ref=e570]:
+                - img [ref=e571]
+                - heading "Events & Wettbewerbe" [level=2] [ref=e573]
+              - link "Alle anzeigen" [ref=e574] [cursor=pointer]:
+                - /url: /fantasy
+            - generic [ref=e575]:
+              - link "OFFEN GW 31 Rising Stars SL GRATIS | 0 CR 0 / 50" [ref=e576] [cursor=pointer]:
+                - /url: /fantasy
+                - generic [ref=e577]
+                - generic [ref=e580]: Rising Stars SL
+                - generic [ref=e581]
+                - generic [ref=e585]
+              - link "OFFEN GW 31 Süper Lig Meisterschaft GRATIS | 0 CR 0 / 100" [ref=e594] [cursor=pointer]:
+                - /url: /fantasy
+                - generic [ref=e595]
+                - generic [ref=e598]: Süper Lig Meisterschaft
+                - generic [ref=e599]
+                - generic [ref=e603]
+              - link "OFFEN GW 31 Süper Lig Arena Cup GRATIS | 0 CR 0 / 150" [ref=e612] [cursor=pointer]:
+                - /url: /fantasy
+                - generic [ref=e613]
+                - generic [ref=e616]: Süper Lig Arena Cup
+                - generic [ref=e617]
+                - generic [ref=e621]
+          - generic [ref=e631]:
+            - generic [ref=e632]:
+              - img [ref=e633]
+              - heading "Club-Mitgliedschaft" [level=2] [ref=e635]
+            - generic [ref=e636]:
+              - generic [ref=e639]:
+                - generic [ref=e640]
+                - list [ref=e644]
+                - button "Bronze abonnieren" [ref=e658] [cursor=pointer]
+              - generic [ref=e661]:
+                - generic [ref=e662]
+                - list [ref=e666]
+                - button "Silber abonnieren" [ref=e684] [cursor=pointer]
+              - generic [ref=e687]:
+                - generic [ref=e688]
+                - list [ref=e692]
+                - button "Gold abonnieren" [ref=e710] [cursor=pointer]
+          - generic [ref=e712]:
+            - generic [ref=e713]:
+              - img [ref=e714]
+              - generic [ref=e720]: Fan-Rang
+            - paragraph [ref=e721]: Noch kein Fan-Rang — werde aktiv bei deinem Club!
+            - link "Jetzt ein Fantasy Event spielen" [ref=e722] [cursor=pointer]:
+              - /url: /fantasy
+              - text: Jetzt ein Fantasy Event spielen
+              - img [ref=e723]
+          - generic [ref=e726]:
+            - generic [ref=e727]:
+              - img [ref=e728]
+              - heading "Letzte Ergebnisse" [level=2] [ref=e730]
+            - generic [ref=e731]:
+              - generic [ref=e732]:
+                - generic [ref=e733]: GW 30
+                - generic [ref=e735]: A
+                - generic [ref=e736]: Gençlerbirliği S.K.
+                - generic [ref=e737]: 1 - 2
+                - generic [ref=e738]: S
+              - generic [ref=e739]:
+                - generic [ref=e740]: GW 29
+                - generic [ref=e742]: H
+                - generic [ref=e743]: Kocaelispor
+                - generic [ref=e744]: 1 - 1
+                - generic [ref=e745]: U
+              - generic [ref=e746]:
+                - generic [ref=e747]: GW 28
+                - generic [ref=e749]: A
+                - generic [ref=e750]: Trabzonspor
+                - generic [ref=e751]: 2 - 1
+                - generic [ref=e752]: "N"
+              - generic [ref=e753]:
+                - generic [ref=e754]: GW 27
+                - generic [ref=e756]: A
+                - generic [ref=e757]: Göztepe
+                - generic [ref=e758]: 1 - 3
+                - generic [ref=e759]: S
+              - generic [ref=e760]:
+                - generic [ref=e761]: GW 26
+                - generic [ref=e763]: H
+                - generic [ref=e764]: Başakşehir
+                - generic [ref=e765]: 3 - 0
+                - generic [ref=e766]: S
+          - generic [ref=e768]:
+            - generic [ref=e769]:
+              - img [ref=e770]
+              - heading "Club Info" [level=2] [ref=e774]
+            - generic [ref=e775]:
+              - generic [ref=e776]:
+                - generic [ref=e777]: Stadion
+                - generic [ref=e778]: Ali Sami Yen Spor Kompleksi RAMS Park
+              - generic [ref=e779]:
+                - generic [ref=e780]: Stadt
+                - generic [ref=e781]: İstanbul
+              - generic [ref=e782]:
+                - generic [ref=e783]: Liga
+                - generic [ref=e784]: Süper Lig
+              - generic [ref=e785]:
+                - generic [ref=e786]: Spieler
+                - generic [ref=e787]: "33"
+  - navigation "Hauptnavigation" [ref=e788]:
+    - generic [ref=e789]:
+      - link "Home" [ref=e790] [cursor=pointer]:
+        - /url: /
+        - img [ref=e791]
+        - generic [ref=e794]: Home
+      - link "Spieltag" [ref=e795] [cursor=pointer]:
+        - /url: /fantasy
+        - img [ref=e796]
+        - generic [ref=e802]: Spieltag
+      - link "Manager" [ref=e803] [cursor=pointer]:
+        - /url: /manager
+        - img [ref=e804]
+        - generic [ref=e807]: Manager
+      - link "Markt" [ref=e808] [cursor=pointer]:
+        - /url: /market
+        - img [ref=e809]
+        - generic [ref=e812]: Markt
+      - link "Rankings" [ref=e813] [cursor=pointer]:
+        - /url: /rankings
+        - img [ref=e814]
+        - generic [ref=e816]: Rankings
+      - link "Missionen" [ref=e817] [cursor=pointer]:
+        - /url: /missions
+        - img [ref=e818]
+        - generic [ref=e822]: Missionen
+      - link "Inventar" [ref=e823] [cursor=pointer]:
+        - /url: /inventory
+        - img [ref=e824]
+        - generic [ref=e828]: Inventar
+      - link "Community" [ref=e829] [cursor=pointer]:
+        - /url: /community
+        - img [ref=e830]
+        - generic [ref=e833]: Community
