@@ -1,0 +1,29 @@
+=== Slice 147 Doc-Verify — 2026-04-22 ===
+
+AC1: SKILL.md description says '6-Stufen'
+1
+PASS
+PASS (no 5-Stufen reference)
+
+AC2: SKILL.md has explicit active.md template with review: key
+**active.md-Template (SSOT-Form):**
+```
+1
+PASS
+
+AC3: SKILL.md has /ship review section
+74:4. **Nach BUILD** → `/ship review`.
+76:### `/ship review` — Cold-Context-Agent prueft (Stage 3b)
+
+AC4: README.md directory table includes reviews/
+| `reviews/` | Cold-Context-Reviewer-Output `NNN-review.md`. Verdict PASS/REWORK/FAIL + Findings. |
+5. `/ship review` — reviewer-Agent Cold-Context-Check in `reviews/NNN-review.md`. Pflicht bei feat/fix/refactor ab S. Bei REWORK: healer-Agent fixt, Review neu.
+
+AC5: README.md gates table includes ship-cto-review-gate
+| `ship-cto-review-gate.sh` | Blockt `git commit -m "fix(...\|feat(...\|refactor(..."` ohne `worklog/reviews/<slice>-review.md` (ausser Emergency / skipped) |
+
+AC6: README.md steps include /ship review
+5. `/ship review` — reviewer-Agent Cold-Context-Check in `reviews/NNN-review.md`. Pflicht bei feat/fix/refactor ab S. Bei REWORK: healer-Agent fixt, Review neu.
+
+=== Cross-verify: live skill metadata ===
+description: Der einzige Master-Workflow fuer BeScout. Fuehrt durch 6-Stufen-Loop (SPEC → IMPACT → BUILD → REVIEW → PROVE → LOG) mit architektonischen Gates. Nutze bei JEDER Code-Aenderung ausser Trivial-Typos. Ersetzt /spec + /deliver als Orchestrator und zwingt Qualitaet statt Audit-Theater.

@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 147
+stage: LOG
+spec: worklog/specs/147-ship-skill-template-review-stage.md
+impact: skipped (doc-only, keine Consumer)
+proof: worklog/proofs/147-doc-verify.txt
+review: skipped (template text, trivial — keine Logik)
 ```
 
 ## Zuletzt

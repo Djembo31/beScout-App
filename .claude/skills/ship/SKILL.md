@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Der einzige Master-Workflow fuer BeScout. Fuehrt durch 5-Stufen-Loop (SPEC → IMPACT → BUILD → PROVE → LOG) mit architektonischen Gates. Nutze bei JEDER Code-Aenderung ausser Trivial-Typos. Ersetzt /spec + /deliver als Orchestrator und zwingt Qualitaet statt Audit-Theater.
+description: Der einzige Master-Workflow fuer BeScout. Fuehrt durch 6-Stufen-Loop (SPEC → IMPACT → BUILD → REVIEW → PROVE → LOG) mit architektonischen Gates. Nutze bei JEDER Code-Aenderung ausser Trivial-Typos. Ersetzt /spec + /deliver als Orchestrator und zwingt Qualitaet statt Audit-Theater.
 ---
 
 # /ship — BeScout Master Workflow
@@ -20,8 +20,35 @@ Was ich dann tue:
 2. **Zaehle die naechste Slice-ID** aus `worklog/specs/` (z.B. `001`, `002`).
 3. **Generiere Spec-Entwurf** in `worklog/specs/NNN-title.md` mit Pflicht-Sektionen (Ziel, Files, ACs, Edge Cases, Proof-Plan, Scope-Out).
 4. **Klassifiziere Slice-Groesse** (XS/S/M/L) und **CEO-Scope** (gemaess `memory/ceo-approval-matrix.md`).
-5. **Setze `active.md`** auf `status: spec, stage: SPEC`.
+5. **Setze `active.md`** per Template (siehe unten) auf `status: active, stage: SPEC`.
 6. **Frage Anil** (wenn CEO-Scope ODER Slice-Groesse ≥ M).
+
+**active.md-Template (SSOT-Form):**
+```
+# Active Slice
+
+` ` `
+status: active
+slice: <NNN>
+stage: SPEC
+spec: worklog/specs/<NNN>-<title>.md
+impact: pending
+proof: pending
+review: pending
+` ` `
+
+## Zuletzt
+
+- **Slice <N-1>** (<date>) — <title> (<size>, <verdict>).
+- ...
+
+Nächstes: <what's queued or "—">.
+```
+
+Beim Fortschreiten im Loop werden Keys gesetzt:
+- `impact: skipped (Grund)` wenn nicht anwendbar, sonst Pfad.
+- `review: skipped (Grund)` nur bei XS + trivialer Pattern-Wiederholung, sonst Pfad.
+- `proof:` MUSS am Ende auf echte Datei zeigen (Proof-Gate prueft).
 
 ### `/ship impact` — Impact-Analyse starten
 
@@ -44,9 +71,35 @@ Wenn nicht noetig: `active.md` auf `impact: skipped (Grund)`, direkt `stage: BUI
    - backend-Agent fuer DB/RPC/Service
    - frontend-Agent fuer UI
    - test-writer fuer Tests aus Spec
-4. **Nach BUILD**:
-   - reviewer-Agent (PFLICHT, auch bei scheinbar "identischem Pattern")
-   - Reviewer-Findings → healer-Agent
+4. **Nach BUILD** → `/ship review`.
+
+### `/ship review` — Cold-Context-Agent prueft (Stage 3b)
+
+Pflicht bei feat/fix/refactor-Slices ab S-Groesse. XS-Ausnahme nur bei trivialer
+Pattern-Wiederholung, dann `review: skipped (Grund)` in `active.md`.
+
+1. **reviewer-Agent dispatchen** — Prompt:
+   ```
+   Agent({
+     subagent_type: "reviewer",
+     description: "Review Slice NNN",
+     prompt: "Lies worklog/specs/NNN-*.md und git diff fuer Slice NNN.
+              Pruefe gegen .claude/rules/common-errors.md, memory/patterns.md,
+              business.md. Read-only.
+
+              Schreibe nach worklog/reviews/NNN-review.md:
+              - verdict: PASS | REWORK | FAIL
+              - findings: [{severity, location, issue, fix}]
+              - positive-section fuer das was gut ist
+              - time-spent"
+   })
+   ```
+2. **Review-File pruefen** — Gate `ship-cto-review-gate` blockt Commits ohne.
+3. **Findings adressieren**:
+   - REWORK → zurueck zu `/ship build` mit Healer-Agent
+   - CONCERNS → MEDIUM+ inline fixen, LOW/NITPICK als Backlog dokumentieren
+   - PASS → weiter zu `/ship prove`
+4. **Setze `active.md`** auf `review: worklog/reviews/NNN-review.md, stage: PROVE`.
 
 ### `/ship prove` — Proof erzeugen
 
