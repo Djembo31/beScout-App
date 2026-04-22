@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 149d | 2026-04-23 | Cron-Gap-Close (fixtures-future + transfers, XS)
+
+- **Stage-Chain:** Inline-XS follow-up auf 149c-Audit-Finding
+- **Trigger:** 149c Audit zeigte 2 weitere MISSING crons. User OK auf follow-up.
+- **Root Cause:** fixtures-future 6 Tage stale (294 rows), player_transfers 0 rows (NIE gesynced). Beide Routes existierten seit Slice 072/073 als "MANUAL-ONLY Hobby-Plan" dokumentiert — Projekt ist Pro, Limit war nie aktiv.
+- **Fix:** vercel.json +2 crons (fixtures daily 04:00, transfers Montag 01:00). Rate-aware: transfers weekly weil 134 API-Calls.
+- **Post-Audit:** alle 9 src/app/api/cron/* Routes jetzt in vercel.json registriert.
+- **Proof:** `worklog/proofs/149d-cron-gap-close.txt`
+- **Commit:** `TBD`
+
+---
+
+## 149c | 2026-04-23 | sync-standings daily cron (XS)
+
+- **Trigger:** Anil-Report "Gala hat 71, UI zeigt 68"
+- **Root Cause:** league_standings 4 Tage stale. Route existiert, aber NICHT in vercel.json crons. Header-Kommentar sagte "MANUAL-ONLY Hobby-Plan" — aber Projekt ist Pro.
+- **Fix:** vercel.json +1 cron `0 2 * * *` daily + route-header update.
+- **Audit-Finding:** sync-fixtures-future + sync-transfers auch MISSING → Follow-up in 149d.
+- **Knowledge-Pattern:** Cron-Gap-Audit (`ls src/app/api/cron/` vs vercel.json grep) — common-errors.md Kandidat.
+- **Proof:** `worklog/proofs/149c-standings-stale.txt`
+- **Commit:** `a24b6b02`
+
+---
+
 ## 149b | 2026-04-23 | PlayerPhoto imageUrl prop fehlte (XS follow-up)
 
 - **Stage-Chain:** SPEC (inline XS) → IMPACT (skipped, 3-line prop-pass) → BUILD → REVIEW (self, XS trivial) → PROVE → LOG
