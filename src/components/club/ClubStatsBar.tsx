@@ -1,5 +1,6 @@
 'use client';
 
+import { useDeferredValue } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Users2, BarChart3, Briefcase, TrendingUp, Users,
@@ -41,8 +42,12 @@ export function ClubStatsBar({
 }: ClubStatsBarProps) {
   const t = useTranslations('club');
 
-  const scoutsCount = useCountUp(followerCount, 600);
-  const volumeCount = useCountUp(totalVolume24h, 800, 0);
+  // Slice 151b-RESET: deferred-Value throttlet Follower-Count-Swaps waehrend
+  // Mutation (siehe ClubHero.tsx).
+  const deferredFollowerCount = useDeferredValue(followerCount);
+  const deferredVolume = useDeferredValue(totalVolume24h);
+  const scoutsCount = useCountUp(deferredFollowerCount, 600);
+  const volumeCount = useCountUp(deferredVolume, 800, 0);
 
   const secondary = [
     { label: t('dpcFloat'), value: totalDpcFloat.toLocaleString(), icon: Briefcase },

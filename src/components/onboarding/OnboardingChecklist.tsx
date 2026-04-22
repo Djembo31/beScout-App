@@ -6,7 +6,7 @@ import { Rocket, CheckCircle2, Circle, ChevronRight, X, Zap, Trophy, UserPlus, M
 import { cn } from '@/lib/utils';
 import { Confetti } from '@/components/ui/Confetti';
 import { useHoldings, useJoinedEventIds, usePosts, useHasAnyPrediction } from '@/lib/queries';
-import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useTranslations } from 'next-intl';
 
 // ── Storage Keys ──
@@ -37,7 +37,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   // ── Data queries (deduplicated via React Query) ──
   const { data: holdings = [] } = useHoldings(userId);
   const { data: joinedEventIds = [] } = useJoinedEventIds(userId);
-  const { followedClubs } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
   const { data: userPosts = [] } = usePosts({ userId, limit: 1 });
   const { data: hasPrediction = false } = useHasAnyPrediction(userId);
 

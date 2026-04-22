@@ -38,15 +38,13 @@ vi.mock('@/components/providers/ToastProvider', () => ({
   }),
 }));
 
+// Slice 151b-RESET: ClubProvider surface trimmed to activeClub + setActiveClub + loading.
+// Removed legacy mock fields (followedClubs / primaryClub / isFollowing / toggleFollow /
+// refreshClubs) — Provider no longer exports them.
 vi.mock('@/components/providers/ClubProvider', () => ({
   useClub: () => ({
     activeClub: { id: 'club-1', name: 'Test Club' },
-    followedClubs: [],
-    primaryClub: null,
     setActiveClub: vi.fn(),
-    isFollowing: () => false,
-    toggleFollow: vi.fn(),
-    refreshClubs: vi.fn(),
     loading: false,
   }),
 }));

@@ -188,6 +188,7 @@ export const qk = {
     bySlug: (slug: string, uid?: string) => ['clubs', slug, uid] as const,
     followers: (cid: string) => ['clubs', 'followers', cid] as const,
     isFollowing: (uid: string, cid: string) => ['clubs', 'isFollowing', uid, cid] as const,
+    followedByUser: (uid: string) => ['clubs', 'followedByUser', uid] as const,
     recentTrades: (cid: string) => ['clubs', 'recentTrades', cid] as const,
     subscription: (uid: string, cid: string) => ['clubs', 'subscription', uid, cid] as const,
     votedIds: (uid: string) => ['clubs', 'votedIds', uid] as const,

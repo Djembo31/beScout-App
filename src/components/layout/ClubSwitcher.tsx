@@ -6,11 +6,13 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Search, Compass } from 'lucide-react';
 import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { cn } from '@/lib/utils';
 
 export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapsed: boolean }) {
   const t = useTranslations('common');
-  const { activeClub, followedClubs, setActiveClub, loading } = useClub();
+  const { activeClub, setActiveClub, loading } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

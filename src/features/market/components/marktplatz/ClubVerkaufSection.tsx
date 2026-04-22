@@ -6,7 +6,7 @@ import { ShoppingCart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
 import { EmptyState, Modal } from '@/components/ui';
 import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
-import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import { applyFilters } from '../shared/MarketFilters';
 import EndingSoonStrip from './EndingSoonStrip';
@@ -52,7 +52,7 @@ export default function ClubVerkaufSection({
   players, activeIpos, announcedIpos, endedIpos, playerMap, onIpoBuy, buyingId, hasHoldings,
 }: ClubVerkaufSectionProps) {
   const t = useTranslations('market');
-  const { followedClubs } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
   const store = useMarketStore();
   const {
     selectedLeague,

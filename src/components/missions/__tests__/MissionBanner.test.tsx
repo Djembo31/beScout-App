@@ -7,7 +7,10 @@ vi.mock('lucide-react', () => { const S = () => null; return { Target: S, Calend
 vi.mock('@/lib/utils', () => ({ cn: (...c: unknown[]) => c.filter(Boolean).join(' '), fmtScout: (n: number) => String(n) }));
 vi.mock('@/components/providers/AuthProvider', () => { const u = { id: 'u1' }; return { useUser: () => ({ user: u }) }; });
 vi.mock('@/components/providers/WalletProvider', () => ({ useWallet: () => ({ setBalanceCents: vi.fn() }) }));
-vi.mock('@/components/providers/ClubProvider', () => ({ useClub: () => ({ followedClubs: [] }) }));
+// Slice 151b-RESET: MissionBanner now reads followedClubs via useFollowedClubs hook.
+// Keep ClubProvider mock as no-op for any stray imports; mock useFollowedClubs directly.
+vi.mock('@/components/providers/ClubProvider', () => ({ useClub: () => ({ activeClub: null, setActiveClub: () => {}, loading: false }) }));
+vi.mock('@/lib/hooks/useFollowedClubs', () => ({ useFollowedClubs: () => ({ data: [], isLoading: false, isFetching: false, error: null }) }));
 vi.mock('@/lib/services/players', () => ({ centsToBsd: (n: number) => n / 100 }));
 
 const mockGetMissions = vi.fn();

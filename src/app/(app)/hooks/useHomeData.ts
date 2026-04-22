@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { centsToBsd } from '@/lib/services/players';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import {
@@ -26,7 +26,7 @@ import type { DpcHolding, Pos } from '@/types';
 export function useHomeData() {
   const { user, profile, loading } = useUser();
   const { addToast } = useToast();
-  const { followedClubs } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
   const name = profile?.display_name || displayName(user);
   const firstName = name.split(' ')[0];
   const uid = user?.id;

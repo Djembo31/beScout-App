@@ -195,12 +195,19 @@ vi.mock('@/lib/queries/keys', () => ({
       bySlug: vi.fn(),
       isFollowing: vi.fn(),
       followers: vi.fn(),
+      followedByUser: vi.fn(() => ['clubs', 'followedByUser', 'mock']),
       subscription: vi.fn(),
     },
     players: {
       byClub: vi.fn(),
     },
   },
+}));
+
+// Slice 151b-RESET: ClubContent migrated from useClub().followedClubs to
+// useFollowedClubs() — mock the hook directly so tests don't pull React Query.
+vi.mock('@/lib/hooks/useFollowedClubs', () => ({
+  useFollowedClubs: () => ({ data: [], isLoading: false, isFetching: false, error: null }),
 }));
 
 // ============================================
@@ -226,8 +233,13 @@ const mockUsePlayersByClub = vi.fn();
 const mockUseClubFollowerCount = vi.fn();
 const mockUseIsFollowingClub = vi.fn();
 
+const mockUseClubStanding = vi.fn();
 vi.mock('@/lib/queries/misc', () => ({
   useClubBySlug: (...args: unknown[]) => mockUseClubBySlug(...args),
+  // Slice 149 added useClubStanding to ClubContent.tsx but the test mock was
+  // never updated — pre-existing failure that surfaced when Slice 151b-RESET
+  // removed the earlier useClub() crash that was masking it.
+  useClubStanding: (...args: unknown[]) => mockUseClubStanding(...args),
 }));
 
 vi.mock('@/lib/queries/players', () => ({
@@ -290,6 +302,7 @@ function setDefaultHookReturns() {
   mockUseEvents.mockReturnValue({ data: [] });
   mockUseClubRecentTrades.mockReturnValue({ data: [] });
   mockUseFanRanking.mockReturnValue({ data: null, isLoading: false });
+  mockUseClubStanding.mockReturnValue({ data: null });
 }
 
 // ============================================

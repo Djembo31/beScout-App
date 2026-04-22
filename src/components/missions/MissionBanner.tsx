@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { getUserMissions, claimMissionReward, resolveMissionTitle } from '@/lib/services/missions';
 import { centsToBsd } from '@/lib/services/players';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
@@ -34,7 +34,7 @@ function getDaysUntilEnd(endStr: string): number {
 export default function MissionBanner() {
   const { user } = useUser();
   const { setBalanceCents } = useWallet();
-  const { followedClubs } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
   const tm = useTranslations('missions');
   const te = useTranslations('errors');
   const [missions, setMissions] = useState<UserMissionWithDef[]>([]);

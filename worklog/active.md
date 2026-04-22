@@ -1,37 +1,34 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 151b-RESET
+stage: PROVE
+spec: worklog/specs/151b-RESET-club-follow-state-sync.md
+impact: skipped (client-side refactor, 12 Consumer in Spec kartografiert)
+proof: worklog/proofs/151b-RESET-tsc-vitest.txt
+review: worklog/reviews/151b-RESET-review.md (PASS, 2 MEDIUM + 3 LOW — #1/#5/#6 fixed, #2/#3/#4 deferred)
 ```
 
 ## Zuletzt
 
 - **Slice 151d** (2026-04-23) — ESLint-Rule + Pattern D18 + Audit-Script (Phase 1 Complete). Commit `016bcb74`.
 - **Slice 151c+151c.2** (2026-04-23) — MembershipSection Money-Path + RPC-Idempotency-Hardening. Commit `a76ddc62`.
-- **Slice 151b** (2026-04-23) — useClubActions Follow-Button Migration (Pilot 1). Commit `789c0816`.
+- **Slice 151b** (2026-04-23) — useClubActions Follow-Button Migration (Pilot 1). Commit `789c0816`. **→ wird durch 151b-RESET erweitert.**
 - **Slice 151a** (2026-04-23) — useSafeMutation Primitive. Commit `a840beb8`.
 - **Slice 150** (2026-04-23) — Mutation Race-Audit. Commit `2aa36564`.
 
-## Phase 1 Mutation-Hardening — COMPLETE
+## Slice 151b-RESET — Club-Follow State-Sync
 
-- Primitive gebaut: `useSafeMutation` mit synchronous pending-guard + Sentry + Auto-Toast
-- 2 Piloten migriert: useClubActions (Follow) + MembershipSection (Subscribe)
-- 1 Server-Hardening: subscribe_to_club RPC 60s-Idempotency-Window (live)
-- Pattern D18 + Money-RPC Idempotency-Subsection in common-errors.md
-- Audit-Script + ESLint-Rule als Defense gegen neue Regressions
+**Trigger:** User-Report "0 vs 4 Scouts, blinzelt, Unfollow/Follow syncht nicht". Audit Commit `f0cfbc6b` identifizierte 3 Anti-Pattern-Klassen.
 
-## Phase 2 Next — Money-Tier-1 (CEO-delegated per Anil)
+**Approach (Option Z, CEO-approved):**
+- ClubProvider.followedClubs / primaryClub / isFollowing / toggleFollow **entfernen** (Server-Daten)
+- Neue Query-Hooks: useFollowedClubs / usePrimaryClub / useToggleFollowClub (useSafeMutation)
+- useClubActions auf reines Query-Cache-Pattern (localFollowing/localFollowerDelta raus)
+- useCountUp in ClubHero + ClubStatsBar via useDeferredValue stabilisieren
+- 12 Consumer migrieren
 
-Top-Candidates:
-- Slice 152: AdminFoundingPassesTab (Kill-Switch-Money)
-- Slice 153: AdminWithdrawalTab (Club-Withdrawal)
-- Slice 154: OffersTab + useOffersState (Buy/Sell Offers)
-- Slice 155: BuyModal / PlayerTrading (Scout-Card-Trading)
+**Size:** L (14 non-test + 3 test Files, cross-domain: Provider + Layout + Pages + Hooks)
 
-Session idle. Bereit fuer Phase 2 oder neuer Direktive.
+Nächstes: Stage BUILD direkt nach Spec-Approval (kein DB/RPC → IMPACT: skipped — nur client-side Refactor, Consumer via Grep bereits kartografiert in Spec).

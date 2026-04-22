@@ -21,7 +21,7 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 import { PlayerIdentity } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useClubStanding } from '@/lib/queries/misc';
 import { cn } from '@/lib/utils';
 import { queryClient } from '@/lib/queryClient';
@@ -90,7 +90,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   const userId = user?.id;
   const t = useTranslations('club');
   const tcom = useTranslations('community');
-  const { followedClubs } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
 
   // ── Local UI State ──
   const [tab, setTab] = useState<ClubTab>('uebersicht');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -60,9 +60,16 @@ export function ClubHero({
     club.stadium_image_url || `/stadiums/${club.slug}.jpg`
   );
 
-  const scoutsCount = useCountUp(followerCount, 600);
-  const volumeCount = useCountUp(totalVolume24h, 800, 0);
-  const playerCountUp = useCountUp(playerCount, 500);
+  // Slice 151b-RESET: useDeferredValue throttlet Zwischenwerte waehrend
+  // Follow/Unfollow Mutation — ohne Deferred animiert useCountUp jede
+  // optimistic-then-real-Swap-Zwischenstufe (Audit Klasse D). Mit Deferred
+  // rendert React nur den zuletzt committed Wert, einziger Animations-Lauf.
+  const deferredFollowerCount = useDeferredValue(followerCount);
+  const deferredVolume = useDeferredValue(totalVolume24h);
+  const deferredPlayerCount = useDeferredValue(playerCount);
+  const scoutsCount = useCountUp(deferredFollowerCount, 600);
+  const volumeCount = useCountUp(deferredVolume, 800, 0);
+  const playerCountUp = useCountUp(deferredPlayerCount, 500);
   const { containerRef: parallaxRef, offset: parallaxOffset } = useParallax(0.35);
 
   return (

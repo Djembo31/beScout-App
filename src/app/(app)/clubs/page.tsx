@@ -9,6 +9,8 @@ import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCa
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
+import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
+import { useToggleFollowClub } from '@/lib/hooks/useToggleFollowClub';
 import { getClubsWithStats } from '@/lib/services/club';
 import { getNextFixturesByClub } from '@/lib/services/fixtures';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
@@ -20,7 +22,11 @@ type ClubWithStats = DbClub & { follower_count: number; player_count: number };
 
 export default function ClubsDiscoveryPage() {
   const { user } = useUser();
-  const { isFollowing, toggleFollow, activeClub, setActiveClub } = useClub();
+  const { activeClub, setActiveClub } = useClub();
+  const { data: followedClubs = [] } = useFollowedClubs();
+  const { toggleAsync } = useToggleFollowClub();
+  const followedIds = useMemo(() => new Set(followedClubs.map((c) => c.id)), [followedClubs]);
+  const isFollowing = useCallback((clubId: string) => followedIds.has(clubId), [followedIds]);
   const t = useTranslations('clubs');
   const [clubs, setClubs] = useState<ClubWithStats[]>([]);
   const [nextFixtures, setNextFixtures] = useState<Map<string, NextFixtureInfo>>(new Map());
@@ -98,21 +104,19 @@ export default function ClubsDiscoveryPage() {
     setTogglingId(club.id);
     const wasFollowing = isFollowing(club.id);
 
-    // Optimistic follower-count bump on the card — matches the provider's
-    // optimistic update of `followedClubs`, so the whole card + "Deine Vereine"
-    // section feel instant.
+    // Optimistic follower-count bump auf der Discovery-Karte. Die
+    // followedClubs-Liste + isFollowing + Follower-Count-Caches werden von
+    // useToggleFollowClub.onMutate deterministisch geupdated; hier nur der
+    // page-lokale `ClubWithStats.follower_count` auf der Scroll-Liste.
     setClubs(prev => prev.map(c => {
       if (c.id !== club.id) return c;
       return { ...c, follower_count: c.follower_count + (wasFollowing ? -1 : 1) };
     }));
 
     try {
-      // Pass `club` as clubData so provider can optimistic-add without awaiting
-      // the post-DB refetch.
-      await toggleFollow(club.id, club.name, club);
+      await toggleAsync({ club, follow: !wasFollowing });
     } catch (err) {
       console.error('[Clubs] Toggle follow failed:', err);
-      // Revert card follower_count on error.
       setClubs(prev => prev.map(c => {
         if (c.id !== club.id) return c;
         return { ...c, follower_count: c.follower_count + (wasFollowing ? 1 : -1) };

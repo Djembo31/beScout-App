@@ -1,0 +1,26 @@
+=== State-Sync Audit: Remaining legacy API usage ===
+Date: 2026-04-22T19:57:24Z
+
+--- grep for .followedClubs / useClub().isFollowing / useClub().toggleFollow / useClub().primaryClub ---
+src/components/club/hooks/useClubActions.ts:13: * (local + `isFollowingData` prop + `ClubProvider.followedClubs`) konnten
+src/lib/retentionEngine.ts:162:      completed: stats.followedClubs > 0,
+src/lib/retentionEngine.ts:253:          followedClubs: params.followedClubs,
+
+--- Above is EXPECTED to only show comments + unrelated matches ---
+
+=== New hooks ===
+-rw-r--r-- 1 Anil 197121 1350 Apr 22 21:33 src/lib/hooks/useFollowedClubs.ts
+-rw-r--r-- 1 Anil 197121  924 Apr 22 21:33 src/lib/hooks/usePrimaryClub.ts
+-rw-r--r-- 1 Anil 197121 4947 Apr 22 21:39 src/lib/hooks/useToggleFollowClub.ts
+
+=== ClubProvider surface (grep export/type) ===
+type ClubContextValue = {
+  activeClub: DbClub | null;
+  setActiveClub: (club: DbClub) => void;
+  loading: boolean;
+  activeClub: null,
+  setActiveClub: () => {},
+  loading: true,
+  const [activeClub, setActiveClubState] = useState<DbClub | null>(null);
+      setActiveClubState(null);
+    setActiveClubState(next);

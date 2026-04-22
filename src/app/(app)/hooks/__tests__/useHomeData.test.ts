@@ -69,8 +69,20 @@ vi.mock('@/components/providers/ToastProvider', () => ({
   useToast: () => ({ addToast: mockAddToast }),
 }));
 
+// Slice 151b-RESET: useHomeData migrated from useClub().followedClubs to
+// useFollowedClubs() — keep the legacy ClubProvider mock as no-op for any other
+// stray imports, and add a useFollowedClubs mock returning the same fixture.
 vi.mock('@/components/providers/ClubProvider', () => ({
-  useClub: () => ({ followedClubs: ['club-1'] }),
+  useClub: () => ({ activeClub: null, setActiveClub: () => {}, loading: false }),
+}));
+
+vi.mock('@/lib/hooks/useFollowedClubs', () => ({
+  useFollowedClubs: () => ({
+    data: [{ id: 'club-1', name: 'Club 1', slug: 'club-1' }],
+    isLoading: false,
+    isFetching: false,
+    error: null,
+  }),
 }));
 
 // ============================================
@@ -493,8 +505,12 @@ describe('useHomeData', () => {
 
   // ── Followed Clubs ──
 
-  it('returns followed clubs from provider', () => {
+  it('returns followed clubs from useFollowedClubs hook', () => {
+    // Slice 151b-RESET: useHomeData now reads from useFollowedClubs query-cache
+    // hook (not ClubProvider). Mock returns DbClub[] objects, not bare ID strings.
     const { result } = renderHook(() => useHomeData());
-    expect(result.current.followedClubs).toEqual(['club-1']);
+    expect(result.current.followedClubs).toEqual([
+      { id: 'club-1', name: 'Club 1', slug: 'club-1' },
+    ]);
   });
 });
