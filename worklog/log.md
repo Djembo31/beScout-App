@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 143 | 2026-04-22 | Follower-Count Integrity (Silent-Fail + Cache-Propagation) (XS)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (grep) → BUILD → PROOF → LOG
+- **Trigger:** Anil-Direktive "Anzahl der Fans bei jedem Club vernünftig durchgereicht" — entscheidend für Clubs.
+- **Audits:**
+  1. `getClubFollowerCount` Silent-Fail: `if (error) { console.error(); return 0; }` — React Query cached 0 als success, Club-Hero zeigt bei transient network errors dauerhaft "0 Fans". Pattern aus `.claude/rules/common-errors.md` Service-Error-Swallowing.
+  2. Cache-Propagation fehlt: `toggleFollow` invalidierte `qk.social.followerCount(userId)` (user's total), aber NICHT `qk.clubs.followers(clubId)` (Club-Hero) und NICHT `qk.clubs.isFollowing(uid, cid)` — Stale-Count bis Page-Refresh in 2 Consumer-Stellen.
+  3. Präventiv-Backlog: `getClubsWithStats .in(134 ids)` ist nahe URL-Limit (~6kB / Supabase 14kB cap). Bei Expansion auf 300+ Clubs (B3 + EU) wird Silent-Cap aktiv — Slice 144 folgt.
+- **Fix:**
+  - `getClubFollowerCount` throws jetzt auf error → React Query retriest 3x backoff statt stale-0-cache.
+  - `ClubProvider.toggleFollow` nach success: `queryClient.setQueryData(qk.clubs.followers(clubId), prev +/- 1)` + `setQueryData(qk.clubs.isFollowing(uid, cid), !currently)`. Instant-Propagation ohne Refetch-Roundtrip (deterministisch ±1).
+- **Files:** `src/lib/services/club.ts` (3 Zeilen), `src/components/providers/ClubProvider.tsx` (Import + 4 Zeilen), `src/lib/services/__tests__/club.test.ts` (Test invertiert zu Regression-Guard)
+- **Proof:** `worklog/proofs/143-vitest.txt` (72/72 grün)
+- **Follow-up Backlog:** Slice 144 — getClubsWithStats chunking bei >100 clubIds (URL-Limit-prevention).
+- **Commit:** _siehe git log_
+
+---
+
 ## 141b | 2026-04-22 | TM-Club-ID-Discovery Script-Run + Parser-Hotfixes (S)
 
 - **Stage-Chain:** BUILD (hotfix) → PROOF → LOG

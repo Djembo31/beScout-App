@@ -5,6 +5,8 @@ import { useUser } from './AuthProvider';
 import { initClubCache } from '@/lib/clubs';
 import { initLeagueCache } from '@/lib/leagues';
 import { getUserFollowedClubs, toggleFollowClub } from '@/lib/services/club';
+import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import type { DbClub } from '@/types';
 
 // ============================================
@@ -197,6 +199,15 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       // Cross-tab drift is handled by the Mount-effect reload, not by post-toggle
       // reconcile.
       inflightRef.current.delete(clubId);
+
+      // Slice 143 — propagate follow-state to dependent query caches so every
+      // consumer (club-hero Fan-Count, Community-Header, Admin-Analytics) sees
+      // the same number without requiring a page refresh.
+      const delta = currently ? -1 : 1;
+      queryClient.setQueryData<number>(qk.clubs.followers(clubId), (prev) =>
+        prev === undefined ? prev : Math.max(0, prev + delta),
+      );
+      queryClient.setQueryData<boolean>(qk.clubs.isFollowing(user.id, clubId), !currently);
     } catch (err) {
       inflightRef.current.delete(clubId);
       // Revert on error — leave the caller to surface a toast.

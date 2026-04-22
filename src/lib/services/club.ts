@@ -110,7 +110,9 @@ export async function getClubFollowerCount(clubId: string): Promise<number> {
     .select('id', { count: 'exact', head: true })
     .eq('club_id', clubId);
 
-  if (error) { console.error('[Club] getClubFollowerCount failed:', error); return 0; }
+  // Throw — React Query retries (3x backoff). Silent `return 0` cached fake-success
+  // kept club-page showing "0 Fans" forever on transient network errors (Slice 143).
+  if (error) throw new Error(error.message);
   return count ?? 0;
 }
 

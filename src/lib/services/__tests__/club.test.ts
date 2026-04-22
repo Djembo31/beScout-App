@@ -118,9 +118,9 @@ describe('getClubFollowerCount', () => {
     mockTable('club_followers', null, null, 42);
     expect(await getClubFollowerCount('c1')).toBe(42);
   });
-  it('returns 0 on error', async () => {
-    mockTable('club_followers', null, { message: 'err' });
-    expect(await getClubFollowerCount('c1')).toBe(0);
+  it('throws on error (Slice 143 — no more silent return 0)', async () => {
+    mockTable('club_followers', null, { message: 'transient network' });
+    await expect(getClubFollowerCount('c1')).rejects.toThrow('transient network');
   });
 });
 
