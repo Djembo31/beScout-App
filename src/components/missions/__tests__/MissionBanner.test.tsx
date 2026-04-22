@@ -6,7 +6,22 @@ import { renderWithProviders } from '@/test/renderWithProviders';
 vi.mock('lucide-react', () => { const S = () => null; return { Target: S, Calendar: S, Check: S, ChevronDown: S, Gift: S, Clock: S, Shield: S }; });
 vi.mock('@/lib/utils', () => ({ cn: (...c: unknown[]) => c.filter(Boolean).join(' '), fmtScout: (n: number) => String(n) }));
 vi.mock('@/components/providers/AuthProvider', () => { const u = { id: 'u1' }; return { useUser: () => ({ user: u }) }; });
-vi.mock('@/components/providers/WalletProvider', () => ({ useWallet: () => ({ setBalanceCents: vi.fn() }) }));
+// Slice 152d: WalletProvider entfernt — useWallet-Hook + Helpers via Query-Cache.
+vi.mock('@/lib/hooks/useWallet', () => ({
+  useWallet: () => ({
+    balanceCents: null,
+    lockedBalanceCents: null,
+    isLoading: false,
+    isFetching: false,
+    dataUpdatedAt: 0,
+    error: null,
+  }),
+  useIsBalanceFresh: () => false,
+  setWalletBalance: vi.fn(),
+  setWalletLockedBalance: vi.fn(),
+  invalidateWallet: vi.fn(),
+  removeWalletFromCache: vi.fn(),
+}));
 // Slice 151b-RESET: MissionBanner now reads followedClubs via useFollowedClubs hook.
 // Keep ClubProvider mock as no-op for any stray imports; mock useFollowedClubs directly.
 vi.mock('@/components/providers/ClubProvider', () => ({ useClub: () => ({ activeClub: null, setActiveClub: () => {}, loading: false }) }));

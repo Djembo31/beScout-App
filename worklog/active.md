@@ -2,13 +2,22 @@
 
 ```
 status: active
-slice: 152c
+slice: 152d
 stage: BUILD
 spec: worklog/specs/152-wallet-provider-to-query.md
-impact: skipped (Welle 2 = 6 Mutation-Consumer Minimal-Swap, Ferrari-Struktur in Slice 153)
-proof: worklog/proofs/152c-welle2-vitest.txt
-review: worklog/reviews/152c-review.md
+impact: skipped (Welle 3 = Provider-Delete + 4 Test-Mock-Migrations, Cross-Cutting)
+proof: worklog/proofs/152d-welle3-vitest.txt
+review: worklog/reviews/152d-review.md
 ```
+
+## Phase 2 Money-Cleanup — KOMPLETT nach 152d
+
+- 152a Foundation — commit `753e8f83`
+- 152b Welle 1 Read-only × 10 — commit `0e10fe12`
+- 152c Welle 2 Mutation × 6 (Reviewer-PASS nach HIGH-Fixes) — commit `a59a7209`
+- 152d Welle 3 Provider-Delete (Reviewer-PASS, 1 NIT inline gefixt) — pending commit
+
+**Next:** Slice 153 — usePlayerTrading + trading.ts Ferrari-Refactor (useSafeMutation + onMutate/onError).
 
 ## Slice-152 Sub-Struktur
 

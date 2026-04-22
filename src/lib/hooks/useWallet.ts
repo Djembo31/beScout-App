@@ -22,7 +22,11 @@
  * - Mutation-Optimistic: `setWalletBalance(qc, uid, result.new_balance)` im onSuccess
  *   (ersetzt das alte `setBalanceCents` des Providers; deterministisch aus RPC-Response)
  * - Mutation-Reconcile: `invalidateWallet(qc)` im onSettled (ersetzt `refreshBalance()`)
- * - Logout: `removeWalletFromCache(qc)` im signOut-Handler (verhindert Cross-User-Leak)
+ * - Logout: `removeWalletFromCache(qc)` exportiert fuer explizite Multi-Account-
+ *   Switch-Flows + Tests. **Nicht im signOut-Handler aufgerufen**, weil
+ *   `AuthProvider.clearUserState` bereits `queryClient.clear()` macht
+ *   (AuthProvider.tsx:283) — wiped alle Caches inkl. Wallet. Parallel-Call
+ *   waere redundant.
  *
  * # Freshness-Semantik
  *
@@ -206,14 +210,24 @@ export function invalidateWallet(queryClient: QueryClient): Promise<void> {
 }
 
 /**
- * Entfernt Wallet-Cache komplett. Nutzung im signOut-Handler (AuthProvider)
- * — verhindert Cross-User-Balance-Leak bei Account-Switch.
+ * Entfernt Wallet-Cache komplett (removeQueries auf `['wallet']` prefix).
+ *
+ * **NICHT** im Standard-signOut-Flow aufgerufen — `AuthProvider.clearUserState`
+ * (AuthProvider.tsx:283) ruft bereits `queryClient.clear()`, was alle Caches
+ * inklusive Wallet wiped. Ein expliziter `removeWalletFromCache`-Call waere
+ * redundant.
+ *
+ * Exportiert fuer:
+ * - **Multi-Account-Switch-Flows** (falls beScout je Multi-Account supportet)
+ * - **Tests** die gezielt nur Wallet-Cache wipen wollen ohne globalem Clear
+ * - **Emergency-Invalidation** bei Datenkorruption
  *
  * @example
  * ```ts
- * // AuthProvider signOut:
- * await supabase.auth.signOut();
+ * // Standard signOut: nicht noetig (queryClient.clear deckt ab).
+ * // Multi-Account-Switch:
  * removeWalletFromCache(queryClient);
+ * await loadNewUserWallet();
  * ```
  */
 export function removeWalletFromCache(queryClient: QueryClient): void {

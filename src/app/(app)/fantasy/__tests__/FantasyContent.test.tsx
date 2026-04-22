@@ -23,13 +23,21 @@ vi.mock('@/components/providers/AuthProvider', () => ({
   }),
 }));
 
-vi.mock('@/components/providers/WalletProvider', () => ({
+// Slice 152d: WalletProvider entfernt — useWallet-Hook via Query-Cache.
+vi.mock('@/lib/hooks/useWallet', () => ({
   useWallet: () => ({
     balanceCents: 100000,
     lockedBalanceCents: 0,
-    setBalanceCents: vi.fn(),
-    refreshBalance: vi.fn(),
+    isLoading: false,
+    isFetching: false,
+    dataUpdatedAt: Date.now(),
+    error: null,
   }),
+  useIsBalanceFresh: () => true,
+  setWalletBalance: vi.fn(),
+  setWalletLockedBalance: vi.fn(),
+  invalidateWallet: vi.fn(),
+  removeWalletFromCache: vi.fn(),
 }));
 
 vi.mock('@/components/providers/ToastProvider', () => ({

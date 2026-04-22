@@ -18,9 +18,8 @@ vi.mock('../ClubProvider', () => ({
   ClubProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="club-provider">{children}</div>,
 }));
 
-vi.mock('../WalletProvider', () => ({
-  WalletProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="wallet-provider">{children}</div>,
-}));
+// Slice 152d: WalletProvider entfernt — Wallet via useWallet Query-Hook.
+// Kein Mock fuer WalletProvider mehr noetig.
 
 vi.mock('../ToastProvider', () => ({
   ToastProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="toast-provider">{children}</div>,
@@ -62,14 +61,16 @@ describe('Providers', () => {
     expect(qp.contains(ap)).toBe(true);
   });
 
-  it('renders ClubProvider and WalletProvider when user is logged in', () => {
+  it('renders ClubProvider when user is logged in (Slice 152d: WalletProvider removed)', () => {
     render(
       <Providers>
         <div>App</div>
       </Providers>,
     );
     expect(screen.getByTestId('club-provider')).toBeInTheDocument();
-    expect(screen.getByTestId('wallet-provider')).toBeInTheDocument();
+    // wallet-provider testid no longer exists — useWallet Query-Hook
+    // is consumed directly by components (see src/lib/hooks/useWallet.ts).
+    expect(screen.queryByTestId('wallet-provider')).not.toBeInTheDocument();
   });
 
   it('renders ToastProvider', () => {
