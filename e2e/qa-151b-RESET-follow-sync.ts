@@ -59,8 +59,26 @@ async function main() {
   await page.waitForTimeout(3000);
 
   // ── Pre-state ──
-  const followButton = page.locator('button', { hasText: /Folgen|Entfolgen/ }).first();
-  await followButton.waitFor({ state: 'visible', timeout: 10_000 });
+  // Button-Wording (Slice 149): Follow-State verwendet `t('follow')`/`t('subscribed')`:
+  //   not-following: "Folgen" / TR "Takip et"
+  //   following:     "Abonniert" / TR "Abone" (kein Entfolgen-Label, Toggle via same Button)
+  // ClubHero rendert Desktop+Mobile-Variante parallel im DOM. Wir bevorzugen
+  // den sichtbaren via getByRole-Filter mit visible-state.
+  const followButton = page
+    .getByRole('button', { name: /^(Folgen|Abonniert|Takip et|Abone)$/ })
+    .filter({ visible: true })
+    .first();
+  try {
+    await followButton.waitFor({ state: 'visible', timeout: 15_000 });
+  } catch (err) {
+    // Diagnose-Dump bei Timeout
+    const html = await page.content();
+    const diagPath = path.join(outDir, '151b-RESET-diag-nobutton.html');
+    fs.writeFileSync(diagPath, html, 'utf-8');
+    await page.screenshot({ path: path.join(outDir, '151b-RESET-diag-nobutton.png'), fullPage: true });
+    console.error(`[151b-RESET] Follow-Button nicht gefunden. Diag: ${diagPath}`);
+    throw err;
+  }
   const preLabel = (await followButton.innerText()).trim();
   const scoutsCountPre = await readScoutsCount(page);
   console.log(`[151b-RESET] PRE: button="${preLabel}" scouts=${scoutsCountPre}`);
@@ -70,7 +88,7 @@ async function main() {
   console.log('[151b-RESET] Toggle 1...');
   await followButton.click();
   // wait for the count to settle (animation done) — useDeferredValue + useCountUp 600ms
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(5000);
   const midLabel = (await followButton.innerText()).trim();
   const scoutsCountMid = await readScoutsCount(page);
   console.log(`[151b-RESET] AFTER TOGGLE 1: button="${midLabel}" scouts=${scoutsCountMid}`);
@@ -79,7 +97,7 @@ async function main() {
   // ── Toggle 2 (back to original) ──
   console.log('[151b-RESET] Toggle 2 (revert)...');
   await followButton.click();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(5000);
   const finalLabel = (await followButton.innerText()).trim();
   const scoutsCountFinal = await readScoutsCount(page);
   console.log(`[151b-RESET] AFTER TOGGLE 2: button="${finalLabel}" scouts=${scoutsCountFinal}`);
@@ -134,23 +152,30 @@ async function main() {
 }
 
 async function readScoutsCount(page: import('playwright').Page): Promise<number> {
-  // The Hero und StatsBar render the scouts-count next to a Users2 icon plus
-  // the label "Scouts". Capture the first numeric value following the label.
-  const txt = await page
-    .locator('text=/Scouts/i')
-    .first()
-    .evaluate((el) => {
-      // Find nearest sibling number — walk up & look for tabular-nums span.
-      let parent: HTMLElement | null = el as HTMLElement;
-      for (let i = 0; i < 4 && parent; i += 1) {
-        const m = parent.textContent?.match(/(\d{1,6}(?:[.,]\d+)?)/);
-        if (m) return m[1];
-        parent = parent.parentElement;
+  // Slice 149: Label wurde von "Scouts" zu "Fans" umbenannt (CEO-Entscheidung 1B).
+  // ClubHero (mobile+desktop) + ClubStatsBar rendern den Count neben einem
+  // Users2-Icon mit Label "Fans". Wir greifen den tabular-nums span im selben
+  // container-Scope wie das Label.
+  return await page
+    .evaluate(() => {
+      const labels = Array.from(document.querySelectorAll('span, div')).filter(
+        (el) => /^Fans$/i.test((el.textContent ?? '').trim()),
+      );
+      for (const label of labels) {
+        // Parent-Container enthaelt icon + label + separaten count-span.
+        let parent = label.parentElement;
+        for (let depth = 0; depth < 4 && parent; depth += 1) {
+          const countEl = parent.querySelector<HTMLElement>('.tabular-nums, .font-mono.tabular-nums');
+          if (countEl && countEl !== label) {
+            const m = (countEl.textContent ?? '').trim().match(/^(\d{1,6})$/);
+            if (m) return Number(m[1]);
+          }
+          parent = parent.parentElement;
+        }
       }
-      return '';
+      return 0;
     })
-    .catch(() => '');
-  return Number(txt.replace(/[^0-9]/g, '')) || 0;
+    .catch(() => 0);
 }
 
 main().catch((err) => {
