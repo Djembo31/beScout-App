@@ -1,0 +1,41 @@
+Slice 151d — Audit-Baseline + ESLint-Rule Proof (2026-04-23)
+
+## npm run audit:mutation-race (initial baseline)
+
+Pattern counts (src/ only, excludes __tests__):
+  setLoading/setPending state declarations: 246 matches
+  Race-safe (useSafeMutation/useMutation):  19 matches
+  Suspicious (inline async onClick):        0
+  Pre-guarded (if-loading-return):          20 matches
+
+Baseline written: .audit-mutation-race-baseline
+
+## ESLint-Rule: no-restricted-syntax (async onClick)
+
+Selector matched JSXAttribute[name.name='onClick'] > JSXExpressionContainer > ArrowFunctionExpression[async=true].
+next lint result: 0 matches from this rule (kein async onClick im Codebase).
+
+Warnings aus existing Code sind pre-existing (next/image Empfehlungen, react-hooks/exhaustive-deps) — keine 151d-Regression.
+
+## Common-Errors.md Pattern D18 + Money-RPC Idempotency
+
+Hinzugefuegt:
+- Pattern D18: "React setState Race in Mutation-Handler"
+- Subsection: "Money-RPC Idempotency-Window"
+- Audit-Command: npm run audit:mutation-race
+
+## CI-Gate-Kandidat
+
+`npm run audit:mutation-race:check` exit 1 wenn Suspicious-Count gestiegen gegen Baseline.
+Kann spaeter als GitHub Actions CI-Gate hinzugefuegt werden.
+
+## Migration-Candidates (Next Up Money-Path Tier-1)
+
+Identifiziert via heuristic grep auf src/:
+  - src/app/(app)/bescout-admin/AdminFoundingPassesTab.tsx
+  - src/app/(app)/founding/page.tsx
+  - src/components/admin/AdminWithdrawalTab.tsx
+  - src/features/market/components/portfolio/OffersTab.tsx
+  - src/features/market/components/portfolio/useOffersState.ts
+
+Slice 152+ kann diese einzeln migrieren (CEO-Scope pro File).

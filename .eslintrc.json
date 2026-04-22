@@ -1,3 +1,12 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "JSXAttribute[name.name='onClick'] > JSXExpressionContainer > ArrowFunctionExpression[async=true]",
+        "message": "Slice 150/151 Mutation Hardening: async onClick is race-prone. Use useSafeMutation from @/lib/hooks/useSafeMutation + safeTrigger(variables). See worklog/proofs/150-mutation-audit.md + common-errors.md D18."
+      }
+    ]
+  }
 }

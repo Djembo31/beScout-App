@@ -297,6 +297,32 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - `I`.toLowerCase() = `i̇` (NICHT `i`) → NFD + strip diacritics + `ı→i`.
 - SQL: `translate(lower(name), 'şçğıöüİŞÇĞÖÜ', 'scgiouISCGOU')`.
 
+### React setState Race in Mutation-Handler (Slice 149 / 150 / 151 — D18)
+- `async handleX() { if (loading) return; setLoading(true); try { await fn(); } finally { setLoading(false); } }` ist race-prone. React setState ist async — zwischen `if`-Check und setState koennen 2 Clicks in derselben Render-Frame beide passieren → 2 parallele DB-Writes.
+- **Symptom:** Follow-Button zeigt kurz +2 Delta; Wallet wird doppelt abgebucht bei Network-Retry; UI-Wackeln nach optimistic-update.
+- Slice 150 Audit zaehlte 63 Files mit dem Pattern; nur 4 nutzen `useMutation` (race-safe).
+- **Fix:** `useSafeMutation` aus `src/lib/hooks/useSafeMutation.ts`. `safeTrigger(variables)` hat synchronen `isPending`-Guard via React Query v5 MutationObserver. Auto-Toast bei Error (`errorToast`) + Sentry-Breadcrumb (`errorTag`).
+- **Migration-Plan:** `worklog/proofs/150-mutation-audit.md` — 5 Phasen, Money-Path zuerst (Tier-1, CEO-Scope), dann Data-Integrity (Tier-2), dann Auth (Tier-3).
+- **Piloten:** useClubActions (151b), MembershipSection (151c).
+- **Audit-Command:** `npm run audit:mutation-race` (scripts/audit-mutation-race.sh) — CI-Gate kandidat.
+
+### Money-RPC Idempotency-Window (Slice 151c.2 — D18 Subsection)
+- Money-RPCs die Wallet-Deduct + Domain-INSERT kombinieren: Pre-Check fuer existing-state mit kurzem Window (60s) VOR Wallet-Deduction.
+- Client-Guard (useSafeMutation safeTrigger) ist Defense-in-Depth — **NICHT authoritative**. Server-side network-retry (Mobile-Switch, 3G-Timeout) umgeht den Client-Guard.
+- **Symptom (Slice 151c.2):** subscribe_to_club deductete Wallet UNCONDITIONAL vor `ON CONFLICT`-Check. Call #1: 1M → 950K. Call #2 (network-retry): 950K → 900K. Subscription-Row via ON CONFLICT OK, aber 2x Wallet-Deduct.
+- **Fix-Pattern:**
+  ```sql
+  IF FOUND THEN
+    IF v_existing.tier = p_tier AND v_existing.started_at > NOW() - INTERVAL '60 seconds' THEN
+      RETURN jsonb_build_object('success', true, 'idempotent_retry', true, ...);
+    END IF;
+    -- tier-change / older: cancel + new (Upgrade/Downgrade-Flow)
+  END IF;
+  -- Wallet-Deduction nur nach Idempotency-Check
+  ```
+- **Audit-Query vor Money-RPC-Migration:** `SELECT pg_get_functiondef('rpc_name'::regproc);` → Body auf Pre-Check + Early-Return pruefen.
+- **Anwendbar auf:** subscribe_to_club (DONE 151c.2), renew_club_subscription, buy_player_dpc, openMysteryBox, liquidate_player. Slice 152+ jede einzelne pruefen.
+
 ### Component-Prop Silent-Fallback (Slice 149b — D17)
 - Components mit `prop?: T | null` + Fallback-Branch der schlechte-UX liefert: Caller-Sites koennen prop weglassen **ohne TSC-Error**, User sieht silent-degraded UI.
 - Beispiel: `PlayerPhoto(imageUrl?)` rendert Photo wenn imageUrl, sonst Initialen-Circle. 7 Call-Sites korrekt, 3 vergessen → 30% silent-fail auf Club-Page-Sections (IPO, Trending, Rankings).

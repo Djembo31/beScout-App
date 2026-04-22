@@ -23,6 +23,8 @@
     "audit:rpc-security": "node scripts/audit/rpc-security.js",
     "audit:silent-fail": "npx tsx scripts/silent-fail-audit.ts",
     "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check",
+    "audit:mutation-race": "bash scripts/audit-mutation-race.sh",
+    "audit:mutation-race:check": "bash scripts/audit-mutation-race.sh --strict",
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
     "beta:metrics": "node scripts/beta-metrics.mjs",
     "prepare": "husky"
