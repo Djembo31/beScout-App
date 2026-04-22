@@ -1,0 +1,669 @@
+[dotenv@17.3.1] injecting env (12) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+
+=== TM Squad Scraper (Slice 144) ===
+league=(all) rate=2000ms dry-run=false allow-transfers=true
+
+Loaded 134 clubs with TM-mapping.
+
+Loading existing transfermarkt-mapped players...
+Loaded 3922 TM-mapped players from DB.
+
+[BL1 HEI] 22 squad entries
+  ⟷ transfer-applied Ramaj 448705: → HEI
+  ⟷ transfer-applied Behrens 829838: → HEI
+  ⟷ transfer-applied Stergiou 507345: → HEI
+  ⟷ transfer-applied Ibrahimović 744728: → HEI
+  ⟷ transfer-applied Conteh 530298: → HEI
+[BL1 KOL] 25 squad entries
+  ? unknown tm-player 890532 "Fayssal Harchaoui" — insert via sync-players-daily
+  ⟷ transfer-applied Chávez 1009441: → KOL
+  ⟷ transfer-applied Kamiński 407098: → KOL
+[BL1 HOF] 25 squad entries
+  ⟷ transfer-applied Engelns 1116191: → HOF
+  ? unknown tm-player 685484 "Luka Duric" — insert via sync-players-daily
+  ? unknown tm-player 930998 "Yannick Eduardo" — insert via sync-players-daily
+[BL1 BAY] 23 squad entries
+  ⟷ transfer-applied Fernandez 664708: → BAY
+[BL1 BAY] 17 squad entries
+  ⟷ transfer-applied Diaz 480692: → BAY
+[BL1 DOR] 22 squad entries
+  ? unknown tm-player 193004 "Waldemar Anton" — insert via sync-players-daily
+[BL1 MOE] 26 squad entries
+  ⟷ transfer-applied Takai 671108: → MOE
+  ? unknown tm-player 724104 "Fabio Chiarodia" — insert via sync-players-daily
+  ⟷ transfer-applied Engelhardt 405670: → MOE
+  ⟷ transfer-applied Reyna 504215: → MOE
+  ⟷ transfer-applied Sarco 1000675: → MOE
+[BL1 EIN] 22 squad entries
+  ? unknown tm-player 1079622 "Amil Siljevic" — insert via sync-players-daily
+  ? unknown tm-player 585959 "Arnaud Kalimuendo" — insert via sync-players-daily
+  ⟷ transfer-applied Ebnoutalib 692368: → EIN
+[BL1 AUG] 27 squad entries
+  ⟷ transfer-applied Largura Chaves 875332: → AUG
+  ? unknown tm-player 730486 "Mahmut Kücüksahin" — insert via sync-players-daily
+  ? unknown tm-player 507341 "Fabian Rieder" — insert via sync-players-daily
+  ⟷ transfer-applied Ogundu 1309324: → AUG
+  ? unknown tm-player 675565 "Thomas Kastanaras" — insert via sync-players-daily
+[BL1 PAU] 26 squad entries
+  ? unknown tm-player 527597 "Simon Spari" — insert via sync-players-daily
+  ? unknown tm-player 1003534 "Marwin Schmitz" — insert via sync-players-daily
+  ? unknown tm-player 1152232 "Nick Schmidt" — insert via sync-players-daily
+[BL1 MAI] 24 squad entries
+  ? unknown tm-player 934317 "Maxim Dal" — insert via sync-players-daily
+  ? unknown tm-player 470815 "Niklas Tauer" — insert via sync-players-daily
+[BL1 HAM] 22 squad entries
+  ⟷ transfer-applied Ferreira Vieira 537598: → HAM
+  ? unknown tm-player 503866 "Albert Grønbaek" — insert via sync-players-daily
+  ? unknown tm-player 910582 "Omar Megeed" — insert via sync-players-daily
+  ? unknown tm-player 1058520 "Otto Stange" — insert via sync-players-daily
+[BL1 LEI] 24 squad entries
+  ? unknown tm-player 1279157 "Benno Kaltefleiter" — insert via sync-players-daily
+  ⟷ transfer-applied Gruda 700106: → LEI
+  ? unknown tm-player 763948 "Ayodele Thomas" — insert via sync-players-daily
+  ? unknown tm-player 1380977 "Samba Konaté" — insert via sync-players-daily
+[BL1 FRE] 22 squad entries
+  ? unknown tm-player 272587 "Daniel-Kofi Kyereh" — insert via sync-players-daily
+[BL1 UNI] 23 squad entries
+  ? unknown tm-player 161057 "Carl Klaus" — insert via sync-players-daily
+[BL1 STU] 26 squad entries
+  ? unknown tm-player 971663 "Jeremy Arévalo" — insert via sync-players-daily
+[BL1 WOL] 23 squad entries
+  ⟷ transfer-applied Belocian 919515: → WOL
+  ? unknown tm-player 369674 "Joakim Maehle" — insert via sync-players-daily
+  ⟷ transfer-applied Pejčinović 819636: → WOL
+[BL1 WER] 20 squad entries
+  ⟷ transfer-applied Coulibaly 1084638: → WER
+  ⟷ transfer-applied Schmidt 449597: → WER
+  ⟷ transfer-applied Lynen 338668: → WER
+  ⟷ transfer-applied Stage 289835: → WER
+  ⟷ transfer-applied Schmid 346853: → WER
+  ⟷ transfer-applied Puertas 449592: → WER
+  ⟷ transfer-applied Covic 1114155: → WER
+  ⟷ transfer-applied Mbangula 654991: → WER
+  ⟷ transfer-applied Njinmah 596153: → WER
+  ⟷ transfer-applied Milosevic 943795: → WER
+  ⟷ transfer-applied Boniface 656681: → WER
+  ⟷ transfer-applied Musah 1042472: → WER
+[BL2 KAI] 24 squad entries
+  ? unknown tm-player 924125 "Fabian Heck" — insert via sync-players-daily
+  ? unknown tm-player 416809 "Daniel Hanslik" — insert via sync-players-daily
+[BL2 MAG] 25 squad entries
+  ⟷ transfer-applied Geschwill 471890: → MAG
+  ? unknown tm-player 19483 "Tobias Müller" — insert via sync-players-daily
+  ? unknown tm-player 119120 "Robert Leipertz" — insert via sync-players-daily
+  ? unknown tm-player 812987 "Nick Meier" — insert via sync-players-daily
+  ? unknown tm-player 1035852 "Magnus Baars" — insert via sync-players-daily
+  ? unknown tm-player 498171 "Alexander Ahl-Holmström" — insert via sync-players-daily
+  ⟷ transfer-applied Tachie 390460: → MAG
+  ? unknown tm-player 390084 "Aleksa Marusic" — insert via sync-players-daily
+[BL2 NUR] 28 squad entries
+  ? unknown tm-player 1116267 "Kristian Mandic" — insert via sync-players-daily
+  ⟷ transfer-applied Buchmann 744729: → NUR
+  ? unknown tm-player 959294 "Eryk Grzywacz" — insert via sync-players-daily
+  ? unknown tm-player 937952 "Javier Fernández" — insert via sync-players-daily
+  ⟷ transfer-applied Grimaldi 69392: → NUR
+  ? unknown tm-player 1185190 "Tino Kusanovic" — insert via sync-players-daily
+[BL2 ARM] 25 squad entries
+  ? unknown tm-player 1047410 "Justin Lukas" — insert via sync-players-daily
+  ? unknown tm-player 1259900 "Eyyüb Yasar" — insert via sync-players-daily
+  ? unknown tm-player 605242 "Monju Momuluh" — insert via sync-players-daily
+  ? unknown tm-player 400644 "Jeredy Hilterman" — insert via sync-players-daily
+[BL2 DRE] 24 squad entries
+  ? unknown tm-player 426685 "Tim Schreiber" — insert via sync-players-daily
+  ? unknown tm-player 150080 "Daniel Mesenhöler" — insert via sync-players-daily
+  ? unknown tm-player 921485 "Friedrich Müller" — insert via sync-players-daily
+  ? unknown tm-player 329360 "Claudio Kammerknecht" — insert via sync-players-daily
+  ? unknown tm-player 227078 "Lukas Boeder" — insert via sync-players-daily
+  ? unknown tm-player 379114 "Lars Bünning" — insert via sync-players-daily
+  ? unknown tm-player 296188 "Alexander Rossipal" — insert via sync-players-daily
+  ? unknown tm-player 383354 "Sascha Risch" — insert via sync-players-daily
+  ? unknown tm-player 406762 "Konrad Faber" — insert via sync-players-daily
+  ? unknown tm-player 169295 "Jan-Hendrik Marx" — insert via sync-players-daily
+  ⟷ transfer-applied Wagner 690429: → DRE
+  ? unknown tm-player 296372 "Luca Herrmann" — insert via sync-players-daily
+  ? unknown tm-player 205544 "Niklas Hauptmann" — insert via sync-players-daily
+  ? unknown tm-player 532784 "Nils Fröling" — insert via sync-players-daily
+  ⟷ transfer-applied Bobzien 658116: → DRE
+  ? unknown tm-player 453324 "Jakob Lemmer" — insert via sync-players-daily
+  ⟷ transfer-applied Çeka 390661: → DRE
+  ? unknown tm-player 324851 "Christoph Daferner" — insert via sync-players-daily
+  ⟷ transfer-applied Vermeij 273054: → DRE
+[BL2 BRA] 24 squad entries
+  ? unknown tm-player 691071 "Marko Rajkovacic" — insert via sync-players-daily
+  ⟷ transfer-applied Alidou 456492: → BRA
+[BL2 SCH] 25 squad entries
+  ? unknown tm-player 1188989 "Dylan Leonard" — insert via sync-players-daily
+  ? unknown tm-player 697740 "Soufiane El-Faouzi" — insert via sync-players-daily
+  ? unknown tm-player 929992 "Zaid Tchibara" — insert via sync-players-daily
+  ? unknown tm-player 357310 "Christian Gomis" — insert via sync-players-daily
+[BL2 DUS] 19 squad entries
+  ? unknown tm-player 946037 "Elias Egouli" — insert via sync-players-daily
+  ? unknown tm-player 314245 "Emmanuel Iyoha" — insert via sync-players-daily
+  ? unknown tm-player 897401 "Karim Affo" — insert via sync-players-daily
+  ⟷ transfer-applied Ljubičić 838236: → DUS
+[BL2 HAN] 26 squad entries
+  ? unknown tm-player 521474 "Brooklyn Ezeh" — insert via sync-players-daily
+  ? unknown tm-player 422721 "Stefán Teitur Thórdarson" — insert via sync-players-daily
+  ? unknown tm-player 1465501 "Mwisho Mhango" — insert via sync-players-daily
+  ⟷ transfer-applied Weißhaupt 392163: → HAN
+  ? unknown tm-player 1201298 "Taycan Kurt" — insert via sync-players-daily
+  ? unknown tm-player 457728 "Mustapha Bundu" — insert via sync-players-daily
+[BL2 HER] 28 squad entries
+  ? unknown tm-player 124732 "John Brooks" — insert via sync-players-daily
+  ? unknown tm-player 1067659 "Boris Mamuzah Lum" — insert via sync-players-daily
+  ? unknown tm-player 344600 "Michaël Cuisance" — insert via sync-players-daily
+  ⟷ transfer-applied Krattenmacher 829316: → HER
+  ⟷ transfer-applied Kownacki 208167: → HER
+[BL2 HOL] 24 squad entries
+  ? unknown tm-player 939807 "Lio Rothenhagen" — insert via sync-players-daily
+  ? unknown tm-player 883902 "Tyler Doğan" — insert via sync-players-daily
+[BL2 KAR] 26 squad entries
+  ? unknown tm-player 897426 "Paul Scholl" — insert via sync-players-daily
+  ? unknown tm-player 798542 "Niclas Dühring" — insert via sync-players-daily
+  ? unknown tm-player 1163673 "Danyal Zor" — insert via sync-players-daily
+  ? unknown tm-player 927017 "Efe-Kaan Sihlaroglu" — insert via sync-players-daily
+[BL2 PRE] 25 squad entries
+  ⟷ transfer-applied Heuer 369888: → PRE
+  ⟷ transfer-applied Raschl 384745: → PRE
+  ? unknown tm-player 606114 "Marvin Benjamins" — insert via sync-players-daily
+[BL2 PAD] 22 squad entries
+  ? unknown tm-player 922363 "Anton Bäuerle" — insert via sync-players-daily
+  ? unknown tm-player 949389 "Niklas Mohr" — insert via sync-players-daily
+[BL2 GRE] 26 squad entries
+  ⟷ transfer-applied Elvedi 322506: → GRE
+  ? unknown tm-player 1024556 "David Abrangao" — insert via sync-players-daily
+  ? unknown tm-player 356640 "Paul Will" — insert via sync-players-daily
+  ? unknown tm-player 959932 "Keyan Varela" — insert via sync-players-daily
+[BL2 DAR] 23 squad entries
+  ? unknown tm-player 146693 "Alexander Brunst" — insert via sync-players-daily
+  ⟷ transfer-applied Richter 279009: → DAR
+[BL2 ELV] 24 squad entries
+  ? unknown tm-player 806007 "Luis Seifert" — insert via sync-players-daily
+  ? unknown tm-player 821442 "Daniel Pantschenko" — insert via sync-players-daily
+  ? unknown tm-player 1031774 "Jarzinho Malanga" — insert via sync-players-daily
+  ? unknown tm-player 910538 "Raif Adam" — insert via sync-players-daily
+  ? unknown tm-player 974894 "David Mokwa" — insert via sync-players-daily
+[BL2 BOC] 22 squad entries
+  ? unknown tm-player 84938 "Timo Horn" — insert via sync-players-daily
+  ? unknown tm-player 190289 "Gerrit Holtmann" — insert via sync-players-daily
+[LL ALA] 21 squad entries
+  ? unknown tm-player 54217 "Raúl Fernández" — insert via sync-players-daily
+  ? unknown tm-player 1124136 "Ángel Pérez" — insert via sync-players-daily
+  ? unknown tm-player 302371 "Toni Martínez" — insert via sync-players-daily
+  ? unknown tm-player 935232 "Aitor Mañas" — insert via sync-players-daily
+[LL BIL] 26 squad entries
+  ? unknown tm-player 834483 "Álex Padilla" — insert via sync-players-daily
+  ? unknown tm-player 524000 "Dani Vivian" — insert via sync-players-daily
+  ? unknown tm-player 834485 "Unai Egiluz" — insert via sync-players-daily
+  ? unknown tm-player 1312698 "Selton Sánchez" — insert via sync-players-daily
+  ? unknown tm-player 709187 "Nico Williams" — insert via sync-players-daily
+  ? unknown tm-player 338425 "Álex Berenguer" — insert via sync-players-daily
+  ? unknown tm-player 668183 "Nico Serrano" — insert via sync-players-daily
+  ? unknown tm-player 563137 "Robert Navarro" — insert via sync-players-daily
+  ? unknown tm-player 1054934 "Maroan Sannadi" — insert via sync-players-daily
+[LL MAD] 20 squad entries
+  ? unknown tm-player 689505 "Johnny Cardoso" — insert via sync-players-daily
+  ? unknown tm-player 961297 "Rodrigo Mendoza" — insert via sync-players-daily
+  ? unknown tm-player 406040 "Ademola Lookman" — insert via sync-players-daily
+  ⟷ transfer-applied González 486031: → MAD
+[LL BAR] 20 squad entries
+  ? unknown tm-player 636703 "Fermín López" — insert via sync-players-daily
+  ⟷ transfer-applied Rashford 258923: → BAR
+[LL CEL] 26 squad entries
+  ? unknown tm-player 541621 "Marc Vidal" — insert via sync-players-daily
+[LL ELC] 25 squad entries
+  ? unknown tm-player 283170 "Iñaki Peña" — insert via sync-players-daily
+  ? unknown tm-player 501418 "Adrià Pedrosa" — insert via sync-players-daily
+  ? unknown tm-player 937955 "Héctor Fort" — insert via sync-players-daily
+  ? unknown tm-player 361254 "Rafa Mir" — insert via sync-players-daily
+  ? unknown tm-player 198008 "André Silva" — insert via sync-players-daily
+[LL ESP] 22 squad entries
+  ⟷ transfer-applied Dmitrovic 94308: → ESP
+  ⟷ transfer-applied Riedel 692070: → ESP
+  ⟷ transfer-applied Calero 357884: → ESP
+  ⟷ transfer-applied Rubio 583510: → ESP
+  ⟷ transfer-applied Cabrera 102423: → ESP
+  ⟷ transfer-applied Romero 709372: → ESP
+  ⟷ transfer-applied Salinas 819590: → ESP
+  ⟷ transfer-applied Sánchez 705813: → ESP
+  ⟷ transfer-applied Zárate 625651: → ESP
+  ⟷ transfer-applied Lozano 412045: → ESP
+  ⟷ transfer-applied Expósito 506248: → ESP
+  ⟷ transfer-applied Terrats 783396: → ESP
+  ⟷ transfer-applied Milla 225593: → ESP
+  ⟷ transfer-applied Dolan 647435: → ESP
+  ⟷ transfer-applied Ngonge 358032: → ESP
+  ⟷ transfer-applied Carreras 628498: → ESP
+  ⟷ transfer-applied Roca 834744: → ESP
+  ⟷ transfer-applied García 93936: → ESP
+[LL GET] 23 squad entries
+  ? unknown tm-player 1164331 "Ismael Bekhoucha" — insert via sync-players-daily
+[LL GIR] 21 squad entries
+  ⟷ transfer-applied Rincón Lumbreras 834487: → GIR
+  ? unknown tm-player 423444 "Fran Beltrán" — insert via sync-players-daily
+  ? unknown tm-player 974251 "Lass Kourouma" — insert via sync-players-daily
+  ⟷ transfer-applied Echeverri 994536: → GIR
+[LL LEV] 26 squad entries
+  ? unknown tm-player 921345 "Tay Abed" — insert via sync-players-daily
+  ? unknown tm-player 632741 "Iker Losada" — insert via sync-players-daily
+[LL MAL] 22 squad entries
+  ? unknown tm-player 262939 "Johan Mojica" — insert via sync-players-daily
+[LL OSA] 21 squad entries
+[LL OVI] 24 squad entries
+  ? unknown tm-player 326416 "Dani Calvo" — insert via sync-players-daily
+[LL RAY] 26 squad entries
+  ? unknown tm-player 127108 "Florian Lejeune" — insert via sync-players-daily
+  ? unknown tm-player 311044 "Alfonso Espino" — insert via sync-players-daily
+  ? unknown tm-player 525578 "Pathé Ciss" — insert via sync-players-daily
+  ? unknown tm-player 618813 "Carlos Martín" — insert via sync-players-daily
+  ? unknown tm-player 709969 "Ilias Akhomach" — insert via sync-players-daily
+[LL BET] 25 squad entries
+  ⟷ transfer-applied Amrabat 287579: → BET
+  ? unknown tm-player 459463 "Cucho Hernández" — insert via sync-players-daily
+[LL REA] 24 squad entries
+  ? unknown tm-player 1055220 "Fran González" — insert via sync-players-daily
+[LL RSO] 23 squad entries
+  ? unknown tm-player 229804 "Aritz Elustondo" — insert via sync-players-daily
+[LL SEV] 25 squad entries
+  ⟷ transfer-applied Mendy 395234: → SEV
+  ? unknown tm-player 1064105 "Miguel Sierra" — insert via sync-players-daily
+  ⟷ transfer-applied Sanchez 40433: → SEV
+[LL VAL] 20 squad entries
+  ⟷ transfer-applied Núñez Gestoso 338285: → VAL
+  ⟷ transfer-applied Rodríguez 342385: → VAL
+  ⟷ transfer-applied Ramazani 518644: → VAL
+  ? unknown tm-player 355861 "Arnaut Danjuma" — insert via sync-players-daily
+  ⟷ transfer-applied Beltrán 628366: → VAL
+  ? unknown tm-player 337715 "Umar Sadiq" — insert via sync-players-daily
+[LL VIL] 25 squad entries
+  ? unknown tm-player 341713 "Diego Conde" — insert via sync-players-daily
+  ? unknown tm-player 805714 "Renato Veiga" — insert via sync-players-daily
+  ? unknown tm-player 953901 "Santiago Mouriño" — insert via sync-players-daily
+  ? unknown tm-player 1453066 "Carlos Macià" — insert via sync-players-daily
+  ? unknown tm-player 357628 "Alfon González" — insert via sync-players-daily
+[PL ARS] 23 squad entries
+  ? unknown tm-player 659813 "Piero Hincapié" — insert via sync-players-daily
+  ? unknown tm-player 148367 "Christian Nørgaard" — insert via sync-players-daily
+  ⟷ transfer-applied Eze 479999: → ARS
+[PL AST] 22 squad entries
+  ? unknown tm-player 321247 "Emiliano Buendía" — insert via sync-players-daily
+  ? unknown tm-player 331726 "Tammy Abraham" — insert via sync-players-daily
+[PL BOU] 23 squad entries
+  ? unknown tm-player 741257 "Álex Jiménez" — insert via sync-players-daily
+  ⟷ transfer-applied Adli 532776: → BOU
+  ⟷ transfer-applied Gannon Doak 719673: → BOU
+[PL BRE] 18 squad entries
+  ? unknown tm-player 328658 "Kristoffer Ajer" — insert via sync-players-daily
+  ⟷ transfer-applied Nelson 340325: → BRE
+  ⟷ transfer-applied Ouattara 823231: → BRE
+[PL BRI] 22 squad entries
+  ? unknown tm-player 667287 "Yasin Ayari" — insert via sync-players-daily
+  ? unknown tm-player 82873 "Pascal Groß" — insert via sync-players-daily
+  ? unknown tm-player 1012534 "Yankuba Minteh" — insert via sync-players-daily
+[PL BUR] 24 squad entries
+[PL CHE] 23 squad entries
+  ? unknown tm-player 403151 "Robert Sánchez" — insert via sync-players-daily
+  ? unknown tm-player 503765 "James Hillson" — insert via sync-players-daily
+  ? unknown tm-player 258878 "Tosin Adarabioyo" — insert via sync-players-daily
+  ? unknown tm-player 463603 "Benoît Badiashile" — insert via sync-players-daily
+  ? unknown tm-player 811779 "Alejandro Garnacho" — insert via sync-players-daily
+  ? unknown tm-player 938158 "Marc Guiu" — insert via sync-players-daily
+[PL CRY] 23 squad entries
+[PL EVE] 23 squad entries
+  ? unknown tm-player 938146 "Adam Aznou" — insert via sync-players-daily
+  ? unknown tm-player 748319 "Carlos Alcaraz" — insert via sync-players-daily
+  ⟷ transfer-applied Röhl 608832: → EVE
+  ⟷ transfer-applied George 936874: → EVE
+[PL FUL] 21 squad entries
+  ⟷ transfer-applied Chukwueze 401922: → FUL
+  ⟷ transfer-applied Kusi-Asare 1069512: → FUL
+[PL LEE] 23 squad entries
+  ? unknown tm-player 194386 "Alex Cairns" — insert via sync-players-daily
+  ⟷ transfer-applied Bornauw 338629: → LEE
+  ? unknown tm-player 381753 "Ilia Gruev" — insert via sync-players-daily
+  ? unknown tm-player 883539 "Charlie Crew" — insert via sync-players-daily
+  ⟷ transfer-applied Buonanotte 983989: → LEE
+  ⟷ transfer-applied Okafor 346890: → LEE
+[PL LIV] 21 squad entries
+  ⟷ transfer-applied Frimpong 484547: → LIV
+  ⟷ transfer-applied Jones 433188: → LIV
+  ⟷ transfer-applied Wirtz 598577: → LIV
+  ? unknown tm-player 148455 "Mohamed Salah" — insert via sync-players-daily
+[PL MCI] 24 squad entries
+  ⟷ transfer-applied Guéhi 392757: → MCI
+  ⟷ transfer-applied Reijnders 460939: → MCI
+  ⟷ transfer-applied Semenyo 583255: → MCI
+[PL MUN] 19 squad entries
+[PL NEW] 23 squad entries
+  ? unknown tm-player 142389 "Mark Gillespie" — insert via sync-players-daily
+  ? unknown tm-player 520624 "Bruno Guimarães" — insert via sync-players-daily
+  ⟷ transfer-applied Woltemade 455661: → NEW
+[PL NOT] 24 squad entries
+  ⟷ transfer-applied Lucca 572265: → NOT
+[PL SUN] 23 squad entries
+  ⟷ transfer-applied Mandava 240692: → SUN
+[PL TOT] 22 squad entries
+  ? unknown tm-player 257455 "João Palhinha" — insert via sync-players-daily
+  ? unknown tm-player 801734 "Mathys Tel" — insert via sync-players-daily
+[PL WES] 22 squad entries
+  ? unknown tm-player 386047 "Axel Disasi" — insert via sync-players-daily
+  ? unknown tm-player 204103 "Adama Traoré" — insert via sync-players-daily
+  ? unknown tm-player 817665 "Pablo" — insert via sync-players-daily
+[PL WOL] 19 squad entries
+  ? unknown tm-player 249994 "José Sá" — insert via sync-players-daily
+  ? unknown tm-player 438001 "Santiago Bueno" — insert via sync-players-daily
+  ? unknown tm-player 1193867 "Pedro Lima" — insert via sync-players-daily
+  ? unknown tm-player 800176 "André" — insert via sync-players-daily
+  ? unknown tm-player 735570 "João Gomes" — insert via sync-players-daily
+  ? unknown tm-player 1230661 "Mateus Mané" — insert via sync-players-daily
+  ? unknown tm-player 392770 "Angel Gomes" — insert via sync-players-daily
+  ? unknown tm-player 1060740 "Enso González" — insert via sync-players-daily
+[SA MIL] 22 squad entries
+  ? unknown tm-player 349599 "Pervis Estupiñán" — insert via sync-players-daily
+  ? unknown tm-player 182913 "Adrien Rabiot" — insert via sync-players-daily
+  ? unknown tm-player 357164 "Rafael Leão" — insert via sync-players-daily
+[SA ROM] 23 squad entries
+  ? unknown tm-player 281769 "Mario Hermoso" — insert via sync-players-daily
+  ⟷ transfer-applied Koné 624690: → ROM
+  ? unknown tm-player 713644 "Bryan Zaragoza" — insert via sync-players-daily
+  ⟷ transfer-applied Venturino 1061820: → ROM
+  ⟷ transfer-applied Malen 326029: → ROM
+[SA ATA] 22 squad entries
+  ? unknown tm-player 644771 "Odilon Kossounou" — insert via sync-players-daily
+  ? unknown tm-player 503991 "Yunus Musah" — insert via sync-players-daily
+[SA BOL] 20 squad entries
+  ? unknown tm-player 247377 "Kevin Bonifazi" — insert via sync-players-daily
+  ? unknown tm-player 537602 "João Mário" — insert via sync-players-daily
+  ⟷ transfer-applied Pobega 392538: → BOL
+[SA CAG] 23 squad entries
+  ? unknown tm-player 982267 "Ibrahim Sulemana" — insert via sync-players-daily
+  ⟷ transfer-applied Folorunsho 377042: → CAG
+  ? unknown tm-player 1099924 "Yael Trepy" — insert via sync-players-daily
+[SA COM] 23 squad entries
+  ? unknown tm-player 1259706 "Henrique Menke" — insert via sync-players-daily
+  ? unknown tm-player 948278 "Jacobo Ramón" — insert via sync-players-daily
+  ? unknown tm-player 329145 "Diego Carlos" — insert via sync-players-daily
+  ? unknown tm-player 128223 "Álvaro Morata" — insert via sync-players-daily
+[SA CRE] 22 squad entries
+  ? unknown tm-player 256339 "Emil Audero" — insert via sync-players-daily
+  ⟷ transfer-applied Terracciano 631007: → CRE
+  ⟷ transfer-applied Luperto 278531: → CRE
+  ⟷ transfer-applied Bondo 659516: → CRE
+  ⟷ transfer-applied Payero 555820: → CRE
+  ⟷ transfer-applied Maleh 324377: → CRE
+  ⟷ transfer-applied Zerbin 433584: → CRE
+  ? unknown tm-player 67556 "Milan Djuric" — insert via sync-players-daily
+[SA FIO] 24 squad entries
+  ⟷ transfer-applied Rugani 162959: → FIO
+  ? unknown tm-player 1012731 "Luis Balbo" — insert via sync-players-daily
+  ? unknown tm-player 401529 "Dodô" — insert via sync-players-daily
+  ⟷ transfer-applied Brescianini 459128: → FIO
+  ⟷ transfer-applied Fabbian 633668: → FIO
+  ? unknown tm-player 305947 "Albert Gudmundsson" — insert via sync-players-daily
+[SA GEN] 22 squad entries
+  ? unknown tm-player 656441 "Jean Onana" — insert via sync-players-daily
+  ? unknown tm-player 1082774 "Amorim" — insert via sync-players-daily
+  ⟷ transfer-applied Colombo 487843: → GEN
+  ? unknown tm-player 586853 "Vitinha" — insert via sync-players-daily
+[SA VER] 23 squad entries
+  ? unknown tm-player 1355285 "Arthur Borghi" — insert via sync-players-daily
+  ⟷ transfer-applied Nelsson 422951: → VER
+  ? unknown tm-player 170481 "Jean-Daniel Akpa Akpro" — insert via sync-players-daily
+  ⟷ transfer-applied Orban 1018259: → VER
+[SA INT] 21 squad entries
+  ? unknown tm-player 55735 "Henrikh Mkhitaryan" — insert via sync-players-daily
+[SA JUV] 19 squad entries
+[SA LAZ] 23 squad entries
+  ⟷ transfer-applied Cataldi 199733: → LAZ
+  ⟷ transfer-applied Maldini 539134: → LAZ
+[SA LEC] 22 squad entries
+  ⟷ transfer-applied Siebert 604113: → LEC
+  ? unknown tm-player 649490 "Konan N’Dri" — insert via sync-players-daily
+  ⟷ transfer-applied Camarda 1058368: → LEC
+  ⟷ transfer-applied Cheddira 521407: → LEC
+[SA NAP] 23 squad entries
+  ? unknown tm-player 250683 "Nikita Contini" — insert via sync-players-daily
+  ? unknown tm-player 1195798 "Mathias Ferrante" — insert via sync-players-daily
+  ? unknown tm-player 121985 "Juan Jesus" — insert via sync-players-daily
+  ? unknown tm-player 525299 "Miguel Gutiérrez" — insert via sync-players-daily
+  ? unknown tm-player 376514 "Mathías Olivera" — insert via sync-players-daily
+  ? unknown tm-player 354361 "Frank Anguissa" — insert via sync-players-daily
+  ? unknown tm-player 830365 "Alisson Santos" — insert via sync-players-daily
+  ? unknown tm-player 610442 "Rasmus Højlund" — insert via sync-players-daily
+  ? unknown tm-player 1005165 "Giovane" — insert via sync-players-daily
+[SA PAR] 22 squad entries
+  ⟷ transfer-applied Nicolussi Caviglia 430280: → PAR
+  ? unknown tm-player 856530 "Mateo Pellegrino" — insert via sync-players-daily
+[SA PIS] 26 squad entries
+  ? unknown tm-player 99523 "Nícolas" — insert via sync-players-daily
+  ? unknown tm-player 15452 "Raúl Albiol" — insert via sync-players-daily
+  ⟷ transfer-applied Akinsanmiro 969192: → PIS
+  ⟷ transfer-applied Aebischer 237658: → PIS
+  ⟷ transfer-applied Iling-Junior 581672: → PIS
+[SA SAS] 23 squad entries
+  ? unknown tm-player 1082581 "Pedro Felipe" — insert via sync-players-daily
+  ⟷ transfer-applied Walukiewicz 345458: → SAS
+  ⟷ transfer-applied Vranckx 503881: → SAS
+  ⟷ transfer-applied Nzola 354814: → SAS
+[SA TOR] 28 squad entries
+  ? unknown tm-player 492319 "Franco Israel" — insert via sync-players-daily
+  ? unknown tm-player 942103 "Lapo Siviero" — insert via sync-players-daily
+  ? unknown tm-player 588426 "Saúl Coco" — insert via sync-players-daily
+  ⟷ transfer-applied Marianucci 814446: → TOR
+  ? unknown tm-player 249730 "Guillermo Maripán" — insert via sync-players-daily
+  ⟷ transfer-applied Ebosse 342877: → TOR
+  ? unknown tm-player 646747 "Rafa Obrador" — insert via sync-players-daily
+  ⟷ transfer-applied Nkounkou 591193: → TOR
+  ? unknown tm-player 583404 "Marcus Pedersen" — insert via sync-players-daily
+  ? unknown tm-player 157507 "Adrien Tamèze" — insert via sync-players-daily
+  ? unknown tm-player 934527 "Alieu Njie" — insert via sync-players-daily
+  ? unknown tm-player 928900 "Zanos Savva" — insert via sync-players-daily
+  ? unknown tm-player 282388 "Giovanni Simeone" — insert via sync-players-daily
+[SA UDI] 21 squad entries
+  ⟷ transfer-applied Zaniolo 392085: → UDI
+[SL ALA] 23 squad entries
+  ? unknown tm-player 67886 "Paulo Victor" — insert via sync-players-daily
+  ? unknown tm-player 836336 "Nuno Lima" — insert via sync-players-daily
+  ? unknown tm-player 700305 "Buluthan Bulut" — insert via sync-players-daily
+[SL ANT] 26 squad entries
+  ? unknown tm-player 1076670 "Ensar Buğra Tivsiz" — insert via sync-players-daily
+[SL IST] 25 squad entries
+  ? unknown tm-player 1057178 "Luca Stancic" — insert via sync-players-daily
+  ? unknown tm-player 312678 "Léo Duarte" — insert via sync-players-daily
+  ? unknown tm-player 1001554 "Berkay Aslan" — insert via sync-players-daily
+  ? unknown tm-player 358166 "Eldor Shomurodov" — insert via sync-players-daily
+  ? unknown tm-player 306166 "Nuno Da Costa" — insert via sync-players-daily
+[SL BES] 23 squad entries
+  ? unknown tm-player 495722 "Devis Vásquez" — insert via sync-players-daily
+  ? unknown tm-player 683895 "Emmanuel Agbadou" — insert via sync-players-daily
+  ⟷ transfer-applied Bulut 810100: → BES
+  ⟷ transfer-applied Sazdagi 257785: → BES
+  ⟷ transfer-applied Asllani 543771: → BES
+  ? unknown tm-player 900938 "Junior Olaitan" — insert via sync-players-daily
+  ⟷ transfer-applied Touré 649016: → BES
+  ? unknown tm-player 663244 "Jota Silva" — insert via sync-players-daily
+  ⟷ transfer-applied Černý 242063: → BES
+  ⟷ transfer-applied Ünder 341647: → BES
+[SL EYU] 21 squad entries
+  ⟷ transfer-applied Yılmaz 727077: → EYU
+  ⟷ transfer-applied Ozyurt 710051: → EYU
+  ? unknown tm-player 1175508 "Arda Yavuz" — insert via sync-players-daily
+  ? unknown tm-player 1414670 "Ismaila Manga" — insert via sync-players-daily
+  ? unknown tm-player 1414677 "Abdou Khadre Sy" — insert via sync-players-daily
+[SL KAR] 25 squad entries
+  ? unknown tm-player 1223507 "Berke Can Evli" — insert via sync-players-daily
+  ⟷ transfer-applied Özcan 249952: → KAR
+  ? unknown tm-player 642869 "Tuğbey Akgün" — insert via sync-players-daily
+  ? unknown tm-player 456449 "Serginho" — insert via sync-players-daily
+  ? unknown tm-player 1498276 "Ahmed Traore" — insert via sync-players-daily
+[SL FEN] 21 squad entries
+  ? unknown tm-player 465830 "Mattéo Guendouzi" — insert via sync-players-daily
+  ? unknown tm-player 191614 "Fred" — insert via sync-players-daily
+  ? unknown tm-player 258626 "Talisca" — insert via sync-players-daily
+  ⟷ transfer-applied Musaba 511401: → FEN
+[SL GAL] 24 squad entries
+  ? unknown tm-player 318077 "Lucas Torreira" — insert via sync-players-daily
+  ? unknown tm-player 553469 "Gabriel Sara" — insert via sync-players-daily
+  ⟷ transfer-applied Lang 339332: → GAL
+  ? unknown tm-player 1070983 "Armando Güner" — insert via sync-players-daily
+[SL GAZ] 22 squad entries
+  ⟷ transfer-applied Mujakić 380919: → GAZ
+  ⟷ transfer-applied Kabasakal 275683: → GAZ
+  ? unknown tm-player 1261143 "Ali Osman Kalın" — insert via sync-players-daily
+  ⟷ transfer-applied Drăguş 405399: → GAZ
+[SL GEN] 27 squad entries
+  ? unknown tm-player 527026 "Ricardo Velho" — insert via sync-players-daily
+  ? unknown tm-player 323876 "Thalisson" — insert via sync-players-daily
+  ? unknown tm-player 1168398 "Umut İslamoğlu" — insert via sync-players-daily
+  ? unknown tm-player 1417530 "Hamza Aydar" — insert via sync-players-daily
+  ? unknown tm-player 934617 "Emirhan Ünal" — insert via sync-players-daily
+  ⟷ transfer-applied Gürpüz 655912: → GEN
+  ? unknown tm-player 530851 "Franco Tongya" — insert via sync-players-daily
+  ⟷ transfer-applied Varešanović 433105: → GEN
+  ⟷ transfer-applied Çanak 743376: → GEN
+  ? unknown tm-player 364405 "Adama Traoré" — insert via sync-players-daily
+  ? unknown tm-player 157501 "M'Baye Niang" — insert via sync-players-daily
+  ? unknown tm-player 1437503 "Ayaz Özcan" — insert via sync-players-daily
+[SL GOZ] 20 squad entries
+  ⟷ transfer-applied Öztürk 1014342: → GOZ
+  ? unknown tm-player 647787 "Malcom Bokele" — insert via sync-players-daily
+  ? unknown tm-player 1076671 "Ege Yıldırım" — insert via sync-players-daily
+[SL KAS] 30 squad entries
+  ? unknown tm-player 1314014 "Ahmet Taha Dağbaşı" — insert via sync-players-daily
+  ⟷ transfer-applied Demirbay 125858: → KAS
+  ⟷ transfer-applied Aydin 605110: → KAS
+  ? unknown tm-player 203655 "Cafú" — insert via sync-players-daily
+[SL KAY] 26 squad entries
+  ⟷ transfer-applied Bénes 243188: → KAY
+  ? unknown tm-player 182711 "Carlos Mané" — insert via sync-players-daily
+[SL KOC] 19 squad entries
+  ⟷ transfer-applied Smolčić 571299: → KOC
+  ? unknown tm-player 1439190 "Deniz Ceylan" — insert via sync-players-daily
+  ? unknown tm-player 748807 "Joseph Nonge" — insert via sync-players-daily
+  ? unknown tm-player 451353 "Rigoberto Rivas" — insert via sync-players-daily
+  ? unknown tm-player 367195 "Dan Agyei" — insert via sync-players-daily
+[SL KON] 22 squad entries
+  ⟷ transfer-applied Baniya 394872: → KON
+  ⟷ transfer-applied Boşluk 801693: → KON
+  ⟷ transfer-applied Kutlu 469787: → KON
+  ⟷ transfer-applied Olaigbe 565406: → KON
+  ⟷ transfer-applied Türüç 216662: → KON
+[SL RIZ] 18 squad entries
+  ? unknown tm-player 719672 "Adedire Mebude" — insert via sync-players-daily
+  ⟷ transfer-applied Dervişoğlu 465606: → RIZ
+[SL SAM] 24 squad entries
+  ? unknown tm-player 1457367 "Ali Badra Diabaté" — insert via sync-players-daily
+  ? unknown tm-player 345577 "Carlo Holse" — insert via sync-players-daily
+[SL TRA] 22 squad entries
+  ? unknown tm-player 234509 "André Onana" — insert via sync-players-daily
+  ? unknown tm-player 1243013 "Arda Öztürk" — insert via sync-players-daily
+  ? unknown tm-player 1072017 "Wagner Pina" — insert via sync-players-daily
+  ? unknown tm-player 1209829 "Onuralp Çakıroğlu" — insert via sync-players-daily
+[TFF1 ADM] 14 squad entries
+  ? unknown tm-player 1477858 "Oktay Çimen" — insert via sync-players-daily
+  ? unknown tm-player 1509712 "Muhammed Yasin Erdoğan" — insert via sync-players-daily
+  ? unknown tm-player 1515353 "Ege Acımış" — insert via sync-players-daily
+  ? unknown tm-player 1445402 "Seyfi Efe Irga" — insert via sync-players-daily
+  ? unknown tm-player 1399717 "Mehmet Ayhan Yastı" — insert via sync-players-daily
+  ? unknown tm-player 1493781 "Toprak Bayar" — insert via sync-players-daily
+  ? unknown tm-player 1509714 "Muhammed Enes Gül" — insert via sync-players-daily
+  ? unknown tm-player 1509717 "Yunus Kaan Gündoğdu" — insert via sync-players-daily
+  ? unknown tm-player 1509716 "Kayra Deniz Özbay" — insert via sync-players-daily
+  ? unknown tm-player 1512617 "Mustafa Bozkurt" — insert via sync-players-daily
+  ? unknown tm-player 1368342 "Efe Şölen" — insert via sync-players-daily
+[TFF1 AMD] 23 squad entries
+  ⟷ transfer-applied Damlu 341649: → AMD
+  ⟷ transfer-applied Syrota 505463: → AMD
+  ⟷ transfer-applied Serbest 158118: → AMD
+  ⟷ transfer-applied Matur 566572: → AMD
+  ⟷ transfer-applied Müjde 815014: → AMD
+  ⟷ transfer-applied Üstündag 445623: → AMD
+  ⟷ transfer-applied Afena-Gyan 872380: → AMD
+  ⟷ transfer-applied Minchev Dimitrov 587688: → AMD
+[TFF1 BAN] 24 squad entries
+  ? unknown tm-player 1071058 "Yiğit Zorluer" — insert via sync-players-daily
+  ? unknown tm-player 341646 "Kerim Alıcı" — insert via sync-players-daily
+  ⟷ transfer-applied Parmak 276337: → BAN
+  ? unknown tm-player 1350345 "Atalay Atcı" — insert via sync-players-daily
+  ? unknown tm-player 352898 "João Amaral" — insert via sync-players-daily
+  ⟷ transfer-applied Akyazı 1047598: → BAN
+  ⟷ transfer-applied Fall 289713: → BAN
+  ? unknown tm-player 1401867 "Amidou Badji" — insert via sync-players-daily
+[TFF1 BOD] 29 squad entries
+  ⟷ transfer-applied Yılmaz 393217: → BOD
+  ⟷ transfer-applied Arkutcu 1047591: → BOD
+[TFF1 BOL] 28 squad entries
+  ⟷ transfer-applied Öztonga 553839: → BOL
+  ⟷ transfer-applied Akkan 419375: → BOL
+  ? unknown tm-player 966396 "Mert Apat" — insert via sync-players-daily
+  ⟷ transfer-applied Üresin 1008031: → BOL
+  ⟷ transfer-applied Usluoğlu 981928: → BOL
+[TFF1 ÇOR] 22 squad entries
+  ⟷ transfer-applied Osmanoğlu 74040: → ÇOR
+  ⟷ transfer-applied Ildız 226169: → ÇOR
+  ⟷ transfer-applied Aleksić 48119: → ÇOR
+  ⟷ transfer-applied Gürler 98512: → ÇOR
+  ⟷ transfer-applied Thiam 163053: → ÇOR
+[TFF1 ERZ] 25 squad entries
+[TFF1 ERK] 23 squad entries
+  ⟷ transfer-applied Okyar 381172: → ERK
+  ⟷ transfer-applied Beyaz 588020: → ERK
+[TFF1 HAT] 30 squad entries
+[TFF1 IGD] 24 squad entries
+  ⟷ transfer-applied Çankaya 315208: → IGD
+  ⟷ transfer-applied Yalçın 124422: → IGD
+  ⟷ transfer-applied Vural 52281: → IGD
+  ⟷ transfer-applied Doh 1294653: → IGD
+[TFF1 İST] 34 squad entries
+  ⟷ transfer-applied Tuncer 1304033: → İST
+  ⟷ transfer-applied Mert 183233: → İST
+  ? unknown tm-player 1175928 "Eren Arda Şan" — insert via sync-players-daily
+[TFF1 KEÇ] 23 squad entries
+  ⟷ transfer-applied Yılmaz 795523: → KEÇ
+[TFF1 MAN] 25 squad entries
+  ? unknown tm-player 1460564 "Oğuzhan Yurtdaş" — insert via sync-players-daily
+[TFF1 PEN] 22 squad entries
+[TFF1 SAK] 28 squad entries
+  ⟷ transfer-applied Dadakdeniz 330824: → SAK
+  ⟷ transfer-applied Kocaman 889613: → SAK
+  ⟷ transfer-applied Bekaroğlu 293903: → SAK
+  ⟷ transfer-applied Teixeira 520491: → SAK
+  ⟷ transfer-applied Cihan 583970: → SAK
+  ⟷ transfer-applied Karatas 1243050: → SAK
+  ⟷ transfer-applied Demir 282615: → SAK
+  ⟷ transfer-applied Yıldırım 993407: → SAK
+  ⟷ transfer-applied Bostan 697917: → SAK
+[TFF1 SAR] 23 squad entries
+  ⟷ transfer-applied Bayram 920138: → SAR
+  ⟷ transfer-applied Kulašin 672052: → SAR
+[TFF1 SER] 30 squad entries
+  ⟷ transfer-applied Demir 646948: → SER
+  ⟷ transfer-applied Cavlan 136550: → SER
+  ⟷ transfer-applied Ibrahimoglu 724050: → SER
+  ⟷ transfer-applied Tunalı 672852: → SER
+  ⟷ transfer-applied Nalepa 333374: → SER
+  ⟷ transfer-applied Özcan 209736: → SER
+  ⟷ transfer-applied Koç 168161: → SER
+[TFF1 SİV] 24 squad entries
+  ⟷ transfer-applied Akkan 223025: → SİV
+  ⟷ transfer-applied Avramovski 193289: → SİV
+  ⟷ transfer-applied Okoronkwo 987700: → SİV
+  ⟷ transfer-applied Ethemi 538566: → SİV
+[TFF1 ÜMR] 25 squad entries
+[TFF1 VAN] 24 squad entries
+  ⟷ transfer-applied Uysal 137610: → VAN
+  ⟷ transfer-applied Jevšenak 708192: → VAN
+  ⟷ transfer-applied Demirol 571085: → VAN
+
+=== Result ===
+duration:                   675.2s
+clubs_processed:            134 / 134
+clubs_empty_squad:          0
+clubs_errored:              0
+players_matched:            2841
+players_updated_shirt:      69
+players_updated_mv:         0
+players_transfer_detected:  217
+players_transfer_applied:   217
+players_unknown:            295
+EXIT_CODE=0

@@ -1,0 +1,81 @@
+# Slice 144d — Apply TM-Squad Transfers: DB Verification
+Date: 2026-04-22
+Command: npx tsx scripts/tm-squad-scrape-local.ts --allow-transfers --rate=2000
+
+## Pre-Run Baseline (2026-04-22 ~16:15 local / 14:15 UTC)
+
+| metric                 | value |
+|------------------------|-------|
+| players_total          | 4556  |
+| null_club_id           | 111   |
+| with_last_squad_check  | 2624  |
+| mv_source_verified     | 3688  |
+| mv_source_stale        | 324   |
+
+## Script Stats (2026-04-22 ~16:27 local / 14:27 UTC)
+
+```
+duration:                   675.2s (11.25 min)
+clubs_processed:            134 / 134
+clubs_empty_squad:          0
+clubs_errored:              0
+players_matched:            2841
+players_updated_shirt:      69
+players_updated_mv:         0   (stale-guard active, expected)
+players_transfer_detected:  217
+players_transfer_applied:   217
+players_unknown:            295
+EXIT_CODE=0
+```
+
+Note: detected=applied=217 (not 225 as forecast). 8 transfer-cases from yesterday's full-run were already resolved in Slice 144e (WER-cluster null-club-id reunite). Organic reduction, not a bug.
+
+## Post-Run Verification (2026-04-22 14:32 UTC)
+
+| metric                 | pre  | post | delta | expected |
+|------------------------|------|------|-------|----------|
+| players_total          | 4556 | 4556 | 0     | unchanged |
+| null_club_id           | 111  | 111  | 0     | unchanged (no new orphans) |
+| with_last_squad_check  | 2624 | 2841 | +217  | +217 (matches players_matched) |
+| mv_source_verified     | 3688 | 3688 | 0     | unchanged (no MV-overwrite, stale-guard correct) |
+| mv_source_stale        | 324  | 324  | 0     | unchanged |
+
+## Timestamp Semantics
+
+- `last_squad_check` type: `timestamp with time zone`
+- All 2841 matched rows share identical `last_squad_check = 2026-04-22 14:19:46.502 UTC`
+- Script uses single `NOW()` evaluation at batch-start (scoped to run)
+- `updates_last_hour = 2841` ✓ (correctly reflects batch-scope)
+
+## Sample-Verify (6 transfer-applied players, Script-Log → DB)
+
+| player                   | tm_id   | script-log target | DB club_short | DB club_name             | match |
+|--------------------------|---------|-------------------|---------------|--------------------------|-------|
+| Mirza Cihan              | 583970  | SAK               | SAK           | Sakaryaspor              | ✓     |
+| Cengiz Demir             | 646948  | SER               | SER           | Serik Belediyespor       | ✓     |
+| Ruan Gregório Teixeira   | 520491  | SAK               | SAK           | Sakaryaspor              | ✓     |
+| Mesut Can Tunalı         | 672852  | SER               | SER           | Serik Belediyespor       | ✓     |
+| Muhammed Alperen Uysal   | 137610  | VAN               | VAN           | Van Spor FK              | ✓     |
+| Engin Poyraz E. Yıldırım | 993407  | SAK               | SAK           | Sakaryaspor              | ✓     |
+
+6/6 match, 0 drift. TM-Squad-Truth successfully applied to DB.
+
+## Acceptance Criteria — all PASS
+
+1. Script exit code 0                                                          — PASS
+2. players_transfer_applied > 0                                                — PASS (217)
+3. null_club_id unchanged or lower (no new orphans)                            — PASS (111 → 111)
+4. Sample of 3+ transfer-applied player_ids: club_id matches TM-Truth          — PASS (6/6)
+5. No FK-Violations or DB-Errors in script-log                                 — PASS (clubs_errored=0)
+
+## Side-Effects Verified
+
+- `mv_source_verified` / `mv_source_stale` counts unchanged → stale-guard respected (no MV overwrites)
+- `players_updated_shirt: 69` → shirt-number drift corrected for 69 matched players (safe secondary-fix)
+- `players_updated_mv: 0` → 0 MV-overwrites attempted (stale-flag policy INV-36+37+38 respected)
+- `null_club_id: 111` unchanged → zero false-positive transfer to non-existent club_id
+- 295 `players_unknown` remain → Insert-Path via sync-players-daily not yet TM-mapped (= Backlog 144h scope, unchanged)
+
+## No Rollback Needed
+
+All ACs pass. 217 transfers applied per TM-Squad-Page ground truth. Reversible via DB-snapshot if later false-positive discovered.

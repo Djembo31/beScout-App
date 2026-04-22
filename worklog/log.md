@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 144d | 2026-04-22 | Apply 217 TM-Squad Transfers via --allow-transfers (XS data-fix)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped, Script-Run XS, Delta: only players.club_id, Beta-Freeze) → BUILD (=Script-Run) → REVIEW (PASS Self-Review) → PROVE → LOG
+- **Trigger:** Backlog B6 (225 pending transfers aus 144b Full-Run) + CEO-Approval (Anil y/n=y, 2026-04-22).
+- **Fix-Scope:** `npx tsx scripts/tm-squad-scrape-local.ts --allow-transfers --rate=2000` — 134/134 Clubs, 2841 matched, 217 `players.club_id` UPDATEs. Kein Code-Change.
+- **Stats:** duration 675.2s, clubs_errored=0, players_updated_shirt=69, players_updated_mv=0 (stale-guard), players_unknown=295, exit 0.
+- **Delta:** with_last_squad_check 2624 → 2841 (+217 exakt). null_club_id 111 (unchanged). mv_source_verified/stale unchanged (keine MV-Overwrites).
+- **Discrepancy-Note:** forecasted 225, applied 217. Delta 8 bereits in Slice 144e (WER-Cluster) resolved — organische Reduktion, kein Bug.
+- **Sample-Verify:** 6 Random-Samples aus 3 Clubs (SAK, SER, VAN) gegen Script-Log — 6/6 TM-Truth match.
+- **Review:** `worklog/reviews/144d-review.md` — PASS (Primary-Self-Review analog 144c-Pattern, XS Script-Run, kein Code-Change).
+- **Proof:** `worklog/proofs/144d-run.txt` (Script-Output) + `worklog/proofs/144d-verify.txt` (DB Pre/Post + Sample + Timestamp-Semantik).
+- **Commit:** (pending)
+- **Side-Effect dokumentiert:** `last_squad_check` nutzt single batch-scoped NOW() (alle 2841 Rows = 14:19:46 UTC). By-design, nicht-Bug.
+- **Backlog-Effekt:** B6 done. Backlog 144f (Re-Scrape 8 WER-stale) bleibt, 144g (4 TM-mapped orphans) + 144h (107 Orphans) unchanged.
+
+---
+
 ## 144e | 2026-04-22 | WER-Cluster null-club-id 8 Players reunited (XS data-fix)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, DB-only) → BUILD (=UPDATE) → REVIEW (PASS mit 2 Concerns) → PROVE → LOG
