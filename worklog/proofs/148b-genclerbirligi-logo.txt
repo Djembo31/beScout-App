@@ -1,0 +1,65 @@
+# Slice 148b — Gençlerbirliği Logo Fix (XS data-fix)
+Date: 2026-04-22
+
+## Trigger
+
+Anil observation: DB `logo_url = https://media.api-sports.io/football/teams/997.png` zeigt falsches Wappen für Gençlerbirliği S.K.
+
+## Root-Cause Hypothesis
+
+api-football team 997 shows a crest that does NOT match Gençlerbirliği's official club colors (black field + red crescent + Hittite sun + 1923 text on white outer ring). Likely api-sports team 997 is a different Turkish club or api-sports has wrong image for this ID.
+
+## Source (Anil)
+
+Anil provided: https://genclerbirligi.org.tr/haberler/kis-donemi-2-futbol-okullari-kayitlari-devam-ediyor-25-aralik-2025 (official club website). Direct fetch blocked (403), fell back to Wikipedia canonical crest.
+
+## Fix
+
+```sql
+UPDATE clubs
+SET logo_url = 'https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Gen%C3%A7lerbirli%C4%9Fi_S.K._crest.svg/250px-Gen%C3%A7lerbirli%C4%9Fi_S.K._crest.svg.png',
+    updated_at = NOW()
+WHERE id = 'cb174221-b3da-46a8-98e4-6d448a0973ae';
+```
+
+1 row affected.
+
+## CSP / Next-Image Whitelist Verified
+
+- `vercel.json` img-src includes `https://upload.wikimedia.org`  ✓
+- `next.config.mjs:29` hostname `upload.wikimedia.org`  ✓
+
+## Pre-Fix
+
+| field | value |
+|-------|-------|
+| id | cb174221-b3da-46a8-98e4-6d448a0973ae |
+| short | GEN |
+| name | Gençlerbirliği S.K. |
+| logo_url | https://media.api-sports.io/football/teams/997.png |
+
+## Post-Fix
+
+| field | value |
+|-------|-------|
+| id | cb174221-b3da-46a8-98e4-6d448a0973ae |
+| short | GEN |
+| name | Gençlerbirliği S.K. |
+| logo_url | https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Gençlerbirliği_S.K._crest.svg/250px-Gençlerbirliği_S.K._crest.svg.png |
+
+## Wikipedia Description Cross-Check
+
+"The crest features the Hittite Sun disk above a central football on a black field, edged by a red crescent, with the club name and founding year '1923' displayed on a white outer ring."
+
+Matches Gençlerbirliği's official identity (rot-schwarz, Ankara, est. 1923).
+
+## Scope-Out
+
+- `club_external_ids(source='api_football', external_id='997')` wurde NICHT geändert — wir wissen nicht welcher Club team 997 wirklich ist bei api-sports. Falls für Fixture-Sync relevant, separater Discovery-Slice (ggf. mit WebFetch auf v3.football.api-sports.io/teams?id=997 via API-Key).
+- Logo-URL ist Wikipedia thumbnail 250px — für Display (size-8 = 32px, size-3.5 = 14px) ausreichend. Bei höherem Bedarf: `/500px-` oder Original-SVG.
+
+## Acceptance
+
+1. DB UPDATE 1 row returned                                 — PASS
+2. New URL on CSP-allowlisted domain (wikimedia)            — PASS
+3. New logo matches Gençlerbirliği's official identity      — PASS (Wikipedia crest)

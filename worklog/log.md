@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 148b | 2026-04-22 | Gençlerbirliği Logo Fix (XS data-fix)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (skipped, 1-row UPDATE) → BUILD (=UPDATE) → REVIEW (skipped, trivial data-fix) → PROVE → LOG
+- **Trigger:** Anil-Observation heute — api-sports team 997 zeigt falsches Wappen. Quelle: genclerbirligi.org.tr (direct 403 blocked, fallback Wikipedia).
+- **Fix-Scope:** `UPDATE clubs SET logo_url = '<wikipedia-crest-url>' WHERE id = 'cb174221-...'` via `mcp__supabase__execute_sql`. CSP + Next-Image bereits whitelisted für `upload.wikimedia.org`.
+- **Sample-Check:** Wikipedia-Description "Hittite Sun disk + black field + red crescent + 1923" matcht Gençlerbirliği's offizielle Identität (rot-schwarz Ankara 1923).
+- **Proof:** `worklog/proofs/148b-genclerbirligi-logo.txt` — Pre/Post URL + CSP-Verify.
+- **Commit:** (pending)
+- **Scope-Out:** `club_external_ids(source='api_football', external_id='997')` unchanged — unbekannt welches Team api-sports wirklich als 997 hat, separater Discovery-Slice bei Bedarf.
+
+---
+
 ## 148 | 2026-04-22 | /clubs Discovery GW-Consistency via played_at ordering (S)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped, 1-Zeile service order) → BUILD → REVIEW (PASS Self-Review) → PROVE → LOG
