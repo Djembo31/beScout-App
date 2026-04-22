@@ -284,14 +284,12 @@ describe('ClubProvider', () => {
     expect(screen.getByTestId('names').textContent).toBe('Club A');
   });
 
-  it('reconciles after unfollow success (Slice 139 — needed for primary-promotion)', async () => {
+  it('skips reconcile after unfollow success (Slice 142 — optimistic is ground-truth)', async () => {
     mockUseUser.mockReturnValue({ user: stableUser });
     // Initial load: user follows both clubs, A is primary.
     mockGetUserFollowedClubs.mockResolvedValueOnce([clubA, clubB]);
     mockGetUserPrimaryClub.mockResolvedValue(clubA);
     mockToggleFollowClub.mockResolvedValue(undefined);
-    // After unfollowing A, server promotes B to primary and reconcile returns [clubB].
-    mockGetUserFollowedClubs.mockResolvedValueOnce([clubB]);
 
     const user = userEvent.setup();
     render(<ClubProvider><FollowTestbed /></ClubProvider>);
@@ -300,8 +298,13 @@ describe('ClubProvider', () => {
     // FollowTestbed's button toggles c1 — currently=true → unfollow path.
     await user.click(screen.getByText('follow'));
 
-    // Reconcile fires after unfollow (initial load + post-unfollow = 2 calls).
-    await waitFor(() => expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(2), { timeout: 5000 });
+    // State arrives from optimistic filter ([clubA, clubB] → [clubB]), not reconcile.
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('1'), { timeout: 5000 });
     await waitFor(() => expect(screen.getByTestId('names').textContent).toBe('Club B'), { timeout: 5000 });
+
+    // Only the initial load — no post-unfollow reconcile.
+    // Regression guard: if reconcile is re-enabled, a pgBouncer read-after-write
+    // transient empty response would wipe followedClubs entirely (Slice 142 bug).
+    expect(mockGetUserFollowedClubs).toHaveBeenCalledTimes(1);
   });
 });

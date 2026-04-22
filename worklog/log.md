@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 142 | 2026-04-22 | Skip Reconcile on Unfollow-Success (XS)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (skipped) → BUILD → PROOF → LOG
+- **Trigger:** User-Report "wenn ich mehreren Clubs folge und einem entfolge, entfolge ich auch den anderen — Kacheln in 'Deine Vereine' verschwinden komplett".
+- **Root-Cause:** Slice 139 fixte Follow-Path gegen pgBouncer read-after-write transient, behielt Unfollow-Path aber mit Begründung "Primary-Promotion unpredictable". Tatsächlich ist `optimisticFollowed[0]` deterministisch der nächste Primary — Server macht exakt dasselbe. Der Unfollow-Service macht 3 sequentielle Writes (DELETE + promote next + profile UPDATE) die über verschiedene pgBouncer-Connections streuen; direkter `getUserFollowedClubs` danach kann transient leere Liste returnen → `setFollowedClubs([])` wipes alle Kacheln.
+- **Fix:** ClubProvider.toggleFollow entfernt den Reconcile-Block auf Unfollow-Path. Optimistic = ground-truth. Cross-Tab-Drift wird durch Mount-effect reload beim nächsten Page-Wechsel aufgeholt.
+- **Files:** `src/components/providers/ClubProvider.tsx` (1 Block entfernt), `__tests__/ClubProvider.test.tsx` (Unfollow-Test invertiert zu Regression-Guard)
+- **Proof:** `worklog/proofs/142-vitest.txt` (11/11 grün)
+- **Commit:** _siehe git log_
+
+---
+
 ## 141 | 2026-04-22 | TM-Club-ID-Discovery-Script (S)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROOF → LOG

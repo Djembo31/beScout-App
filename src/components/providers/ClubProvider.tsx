@@ -184,22 +184,19 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await toggleFollowClub(user.id, clubId, clubName, !currently);
-      // Reconcile strategy (Slice 139):
-      //  - Follow: skip reconcile. The optimistic state already knows exactly what
-      //    was added (clubData). Reading back via getUserFollowedClubs can hit a
-      //    pgBouncer read-after-write transient and silently drop the just-inserted
-      //    row → optimistic gets overwritten → UI flickers back.
-      //  - Unfollow: reconcile needed. toggleFollowClub transfers the primary flag
-      //    server-side to an unpredictable next club; only the server knows the new
-      //    primary ordering.
-      // In both cases only the last outstanding toggle reconciles (avoids a stale
-      // earlier reconcile overwriting another in-flight toggle's optimistic state).
+      // Reconcile strategy (Slice 139 + 142):
+      // Skip reconcile on BOTH paths. Optimistic state is deterministic ground-truth:
+      //  - Follow: optimisticFollowed knows the added clubData; server-echo would
+      //    only risk a pgBouncer read-after-write transient wipe (Slice 139).
+      //  - Unfollow: optimisticFollowed[0] is the next primary — Server promotes
+      //    exactly that same club in toggleFollowClub's promote-next-primary step,
+      //    so reconcile would return the same rows we already set. On the sad path
+      //    the 3 sequential writes (DELETE + promote + profile update) spread across
+      //    different pgBouncer connections; an immediate read can transient-return
+      //    a smaller-than-expected followed list → all follow tiles vanish (Slice 142).
+      // Cross-tab drift is handled by the Mount-effect reload, not by post-toggle
+      // reconcile.
       inflightRef.current.delete(clubId);
-      if (currently && inflightRef.current.size === 0) {
-        const followed = await getUserFollowedClubs(user.id);
-        setFollowedClubs(followed);
-        setPrimaryClub(followed[0] ?? null);
-      }
     } catch (err) {
       inflightRef.current.delete(clubId);
       // Revert on error — leave the caller to surface a toast.
