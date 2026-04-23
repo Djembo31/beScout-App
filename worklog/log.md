@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 156 | 2026-04-23 | Event+Lineup Ferrari-Refactor + P2.3 Migration (Phase 3 Welle 1)
+
+- **Stage-Chain:** SPEC → IMPACT → BUILD → REVIEW (FAIL v1 → REWORK → PASS v2) → PROVE → LOG
+- **Scope L:** 5 Files — 1 Migration (CREATE OR REPLACE beider Event-Entry-RPCs) + `events.mutations.ts` Service-Cast + `useEventActions.ts` Komplett-Rewrite + `__tests__/useEventActions.test.ts` (25 Tests neu) + common-errors.md Section 2 Entry. Spec/Impact/Review/Proofs als Artefakte.
+- **Ferrari-Refactor** (analog 153a/b): 3 Handler `joinEvent/leaveEvent/submitLineup` → je eine `useSafeMutation`-Instanz intern (joinMut/leaveMut/submitLineupMut). Wrapper-Methoden erhalten `async → Promise<void>` API fuer Kompat mit `useLineupSave.await onJoin(...)`. `useQueryClient()` statt Singleton (P2.2), Snapshot+Optimistic auf `qk.events.joinedIds` + `qk.events.all` (join: add+increment; leave: filter+decrement), Phantom-Rollback-Fix bei undefined-snapshot via `removeQueries`, `onSettled: invalidateWallet(qc)` pgBouncer-safe (152c), `errorTag: fantasy.joinEvent/leaveEvent/submitLineup` fuer Sentry.
+- **P2.3 Migration (`rpc_lock_event_entry` + `rpc_unlock_event_entry`):** 3 Zeilen-Delta — 2x `v_balance_after := 0 → NULL` bei Free-Events (ticket-free + scout-free Branch) + `COALESCE(v_balance_after, 0) → v_balance_after` im unlock-RETURN. Consumer-Check im Client: `!= null` statt `> 0`-Heuristik. **Bug-Fix-Effekt**: Leave mit `amount_locked=0` setzte Wallet-Cache bisher faelschlich auf 0; jetzt null → Client skippt setWalletBalance.
+- **v1 Review FAIL — Massen-Regression:** v1-Migration war CREATE OR REPLACE vom Original-Body (20260321) abgeleitet und ueberschrieb 3 zwischengeschaltete Patches: Auth-Guard (Slice 005 J4-Exploit-Fix), min_subscription_tier-Gate (20260325_event_fee_from_config), min_tier-Gamification-Gate (20260417000000), event_fee_config-Lookup + fee_split Shape `{platform, beneficiary, prize_pool}`, holding_locks-Cleanup (20260325_sc_blocking_rpcs). 5 HIGH-Findings.
+- **v2 Fix:** Migration als 1:1-Kopie von 20260417000000 (lock) + 20260325_sc_blocking_rpcs (unlock) neu geschrieben, NUR 3-Zeilen-Delta. Post-Apply-Audit via `pg_get_functiondef` gegen 10 ILIKE-Claims (F1 auth-guard, F2 subscription, F3 tier, F4 fee-config, F4b+F4c fee-split Shape, F5 holding_locks, S156 lock-NULL, S156 unlock-raw, S156 no-coalesce) alle TRUE.
+- **Finding #7 Fix:** `not_entered`-Error im `leaveMut.mutationFn` als stale-cache-Success-Path behandelt (User-Intent "weg aus Event" ist bei Server bereits erfuellt) → return `{ ok: true, balanceAfter: null }` statt throw → onSuccess laeuft → Optimistic filter-out bleibt, kein Error-Toast. Neuer Test verifiziert.
+- **Knowledge-Capture:** common-errors.md Section 2 neue Regel "CREATE OR REPLACE FUNCTION — PATCH-AUDIT PFLICHT vor Body-Rewrite" mit Audit-Kommando + Migration-Header-Template + Post-Apply-Audit-Query. Hook-Idee `ship-migration-rewrite-gate` als Backlog.
+- **Tests:** 25/25 (Hook neu) + 159 Regression (fantasy + event-entries + lineups + FantasyContent) = **184/184 gruen**. tsc clean.
+- **Artefakte:**
+  - Spec: `worklog/specs/156-event-lineup-ferrari.md`
+  - Impact: `worklog/impact/156-event-lineup-ferrari.md`
+  - Review: `worklog/reviews/156-review.md` (FAIL v1 → PASS v2 mit Findings-History)
+  - Proofs: `worklog/proofs/156-vitest-useEventActions.txt` (25 + 184 tests), `worklog/proofs/156-rpc-shape.txt` (10/10 DB-Checks grün)
+
 ## 153b | 2026-04-23 | usePlayerTrading Ferrari-Refactor (7 Handler, Player-Detail)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Hook-Layer-Refactor, API 1:1 kompatibel, 1 Consumer PlayerContent.tsx) → BUILD → REVIEW (REWORK→PASS nach 5 inline-Fixes) → PROVE → LOG

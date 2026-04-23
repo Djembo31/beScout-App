@@ -357,7 +357,11 @@ export async function bulkUpdateStatus(
 export type LockEventEntryResult = {
   ok: boolean;
   currency?: 'tickets' | 'scout';
-  balanceAfter?: number;
+  /**
+   * Wallet/Tickets balance nach dem Lock. `null` = Free-Event, Balance unveraendert.
+   * Undefined = Error-Response ohne Balance-Info. Slice 156.
+   */
+  balanceAfter?: number | null;
   alreadyEntered?: boolean;
   error?: 'insufficient_tickets' | 'insufficient_balance' | 'event_full' | 'event_not_open' | 'scout_events_disabled' | string;
   have?: number;
@@ -367,7 +371,11 @@ export type LockEventEntryResult = {
 export type UnlockEventEntryResult = {
   ok: boolean;
   currency?: 'tickets' | 'scout';
-  balanceAfter?: number;
+  /**
+   * Wallet/Tickets balance nach dem Unlock. `null` = kein Refund noetig
+   * (amount_locked=0). Undefined = Error-Response. Slice 156.
+   */
+  balanceAfter?: number | null;
   error?: 'event_locked' | string;
 };
 
@@ -406,7 +414,8 @@ export async function lockEventEntry(eventId: string): Promise<LockEventEntryRes
   return {
     ok: (result.ok as boolean) ?? false,
     currency: result.currency as LockEventEntryResult['currency'],
-    balanceAfter: result.balance_after as number | undefined,
+    // Slice 156: RPC returnt NULL bei Free-Events — unterscheide von undefined (error-response).
+    balanceAfter: result.balance_after as number | null | undefined,
     alreadyEntered: result.already_entered as boolean | undefined,
     error: result.error as string | undefined,
     have: result.have as number | undefined,
@@ -435,7 +444,8 @@ export async function unlockEventEntry(eventId: string): Promise<UnlockEventEntr
   return {
     ok: (result.ok as boolean) ?? false,
     currency: result.currency as UnlockEventEntryResult['currency'],
-    balanceAfter: result.balance_after as number | undefined,
+    // Slice 156: RPC returnt NULL wenn amount_locked=0 — Consumer-Check `!= null`.
+    balanceAfter: result.balance_after as number | null | undefined,
     error: result.error as string | undefined,
   };
 }

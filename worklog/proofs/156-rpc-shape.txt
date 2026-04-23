@@ -1,0 +1,76 @@
+Slice 156 — RPC Shape & Guards Proof (v2, post-FAIL-Fix)
+=========================================================
+
+## 1) Baseline-Guards PRESERVED + Slice-156-Delta APPLIED
+
+SQL (via mcp__supabase__execute_sql):
+
+WITH lock_def AS (SELECT pg_get_functiondef('public.rpc_lock_event_entry(uuid,uuid)'::regprocedure) AS body),
+     unlock_def AS (SELECT pg_get_functiondef('public.rpc_unlock_event_entry(uuid,uuid)'::regprocedure) AS body)
+SELECT
+  (SELECT body ILIKE '%auth_uid_mismatch%' FROM lock_def)             AS F1_auth_guard,
+  (SELECT body ILIKE '%subscription_required%' FROM lock_def)         AS F2_subscription_gate,
+  (SELECT body ILIKE '%tier_required%' FROM lock_def)                 AS F3_tier_gate,
+  (SELECT body ILIKE '%event_fee_config%' FROM lock_def)              AS F4_fee_config_lookup,
+  (SELECT body ILIKE '%''beneficiary'', v_fee_beneficiary%' FROM lock_def) AS F4b_fee_shape_beneficiary,
+  (SELECT body ILIKE '%''prize_pool'', v_prize_amount%' FROM lock_def)     AS F4c_fee_shape_prize_pool,
+  (SELECT body ILIKE '%DELETE FROM public.holding_locks%' FROM unlock_def) AS F5_holding_locks_cleanup,
+  (SELECT body ILIKE '%v_balance_after := NULL%' FROM lock_def)       AS S156_lock_null,
+  (SELECT body ILIKE '%''balance_after'', v_balance_after)%' FROM unlock_def) AS S156_unlock_returns_raw,
+  NOT (SELECT body ILIKE '%COALESCE(v_balance_after, 0)%' FROM unlock_def) AS S156_unlock_no_coalesce_return;
+
+Result (alle 10 TRUE):
+
+| Check                                   | Result |
+|-----------------------------------------|--------|
+| F1_auth_guard (Slice 005)              | TRUE   |
+| F2_subscription_gate (20260325)        | TRUE   |
+| F3_tier_gate (20260417000000)          | TRUE   |
+| F4_fee_config_lookup (20260325)        | TRUE   |
+| F4b_fee_shape_beneficiary              | TRUE   |
+| F4c_fee_shape_prize_pool               | TRUE   |
+| F5_holding_locks_cleanup (20260325)    | TRUE   |
+| S156_lock_null (NEW)                   | TRUE   |
+| S156_unlock_returns_raw (NEW)          | TRUE   |
+| S156_unlock_no_coalesce_return (NEW)   | TRUE   |
+
+**Interpretation:**
+- v1 Findings #1-#5 (HIGH): alle Baselines wieder preserved.
+- v2 Slice-156-Delta: `balance_after := NULL` bei Free-Event + `COALESCE(v_balance_after, 0)` im RETURN entfernt.
+
+
+## 2) Grant-Stability
+
+SQL:
+SELECT proname, proacl::text AS acl, prosecdef
+FROM pg_proc
+WHERE proname IN ('rpc_lock_event_entry','rpc_unlock_event_entry','lock_event_entry','unlock_event_entry')
+ORDER BY proname;
+
+Result:
+[
+  {"proname":"lock_event_entry",       "acl":"{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}", "prosecdef":true},
+  {"proname":"rpc_lock_event_entry",   "acl":"{postgres=X/postgres,service_role=X/postgres}",                          "prosecdef":true},
+  {"proname":"rpc_unlock_event_entry", "acl":"{postgres=X/postgres,service_role=X/postgres}",                          "prosecdef":true},
+  {"proname":"unlock_event_entry",     "acl":"{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}", "prosecdef":true}
+]
+
+**Interpretation:**
+- Wrapper (lock_event_entry/unlock_event_entry): GRANT authenticated ✓
+- Internal RPCs: REVOKE authenticated, nur service_role + postgres ✓
+- Security-Contract unveraendert.
+
+
+## Acceptance Criteria A1 + A2:
+- A1 (`rpc_lock_event_entry` balance_after=NULL bei Free-Event):         PASS
+- A2 (`rpc_unlock_event_entry` balance_after=NULL bei amount_locked=0):  PASS (via v_balance_after bleibt NULL wenn nicht gesetzt + COALESCE entfernt)
+
+
+## Post-FAIL-Fix Zusammenfassung:
+v1 Migration war `CREATE OR REPLACE` vom Original-Body (20260321) abgeleitet — ueberschrieb 3 zwischengeschaltete Patches (auth-guard, subscription-gate, fee-config, holding_locks).
+v2 Migration ist 1:1-Kopie von 20260417000000 (lock) + 20260325_sc_blocking_rpcs (unlock) mit NUR 3 Zeilen-Delta:
+  1. rpc_lock ticket-free-branch:  `v_balance_after := 0` → `v_balance_after := NULL`
+  2. rpc_lock scout-free-branch:   `v_balance_after := 0` → `v_balance_after := NULL`
+  3. rpc_unlock RETURN:            `COALESCE(v_balance_after, 0)` → `v_balance_after`
+
+Client-Code (useEventActions.ts, events.mutations.ts) blieb unveraendert (nur Finding #7 not_entered-Fix in mutationFn).

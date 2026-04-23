@@ -105,6 +105,26 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 
 ## 2. Supabase / Postgres
 
+### CREATE OR REPLACE FUNCTION — PATCH-AUDIT PFLICHT vor Body-Rewrite (Slice 156 FAIL-Review)
+- Beim Body-Rewrite einer SECURITY DEFINER RPC: erst ALLE Vorgaenger-Migrations greppen, neuester Body = current DB-State. **Nicht vom ersten Create ableiten.**
+- Audit: `grep -rn "CREATE OR REPLACE FUNCTION public\\.<name>" supabase/migrations/` + zeitlich sortieren → letzter File ist Baseline.
+- Gefahr: Silent-Revert aller Patches zwischen Original-Create und aktuellem Stand. Slice 156 v1 hatte in einem `CREATE OR REPLACE` die folgenden dazwischen-Patches ueberschrieben:
+  - auth.uid()-Guard (Slice 005 J4-Live-Exploit-Fix)
+  - `min_subscription_tier`-Gate (20260325_event_fee_from_config)
+  - `min_tier`-Gamification-Gate (20260417000000)
+  - `event_fee_config`-Lookup + fee_split Shape `{platform, beneficiary, prize_pool}`
+  - `holding_locks`-Cleanup im unlock (20260325_sc_blocking_rpcs)
+- Bei SECURITY DEFINER RPCs ist Scope oft defense-in-depth — Guards in einer Schicht weg wird nur in Prod sichtbar.
+- Migration-Header-Template:
+  ```
+  -- Source-of-truth: <last-CREATE-OR-REPLACE-of-this-fn>.sql
+  -- Applied patches ueber dem Baseline:
+  --   - <file1> — <change-summary>
+  --   - <file2> — <change-summary>
+  -- This migration: nur diff-related Aenderungen. Alles andere ist 1:1-Kopie.
+  ```
+- Post-Apply-Audit: `pg_get_functiondef('public.<name>(args)'::regprocedure) ILIKE '%<expected-guard>%'` fuer jedes preserved Feature.
+
 ### ON CONFLICT validiert CHECK gegen INSERT-Tuple-Defaults (Slice 075c)
 - `INSERT ... ON CONFLICT DO UPDATE` validiert CHECK gegen die INSERT-Tuple-Defaults **bevor** es den UPDATE-Pfad nimmt. `.upsert()` erbt das.
 - Symptom: existierende Rows schlagen fehl wenn Tuple-Defaults den Constraint verletzen (Slice 075: 4074/5019 Payloads errored mit `dpc_total=10000` default vs `max_supply=300` CHECK).

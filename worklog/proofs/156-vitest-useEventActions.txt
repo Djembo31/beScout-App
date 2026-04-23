@@ -1,0 +1,81 @@
+Slice 156 — Vitest + TSC Proof (v2, post-FAIL-Fix)
+==================================================
+
+1) useEventActions test-suite
+-----------------------------
+$ npx vitest run src/features/fantasy/hooks/__tests__/useEventActions.test.ts
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Duration  3.65s
+
+Alle 25 Tests gruen:
+
+describe('useEventActions.joinEvent (Ferrari-Refactor)')
+  - calls lockEventEntry and runs success-path on happy outcome
+  - optimistically adds eventId to joinedIds and increments events.all
+  - rolls back optimistic joinedIds + events.all on server error
+  - removes phantom-optimistic when no prev snapshot exists (Finding #1 fix)
+  - Slice 156: skips setWalletBalance when balanceAfter is null (Free-Event)
+  - Slice 156: calls setWalletBalance with 0 when truly deducted-to-zero
+  - already_entered: cache-update runs, no toast, no setWalletBalance
+  - invalidates wallet in onSettled (success + error)
+  - tags error with "fantasy.joinEvent" for Sentry
+  - short-circuits on rapid-click (isPending guard)
+  - pre-check: status=ended → Toast, no RPC call
+  - pre-check: event_full client-side → Toast, no RPC call
+
+describe('useEventActions.leaveEvent (Ferrari-Refactor)')
+  - calls unlockEventEntry and updates wallet on success
+  - optimistically filters eventId from joinedIds and decrements events.all
+  - rolls back on event_locked error + shows eventLockedError toast
+  - Slice 156: skips setWalletBalance when balanceAfter is null (amount_locked=0)
+  - invalidates wallet in onSettled (pgBouncer-safe)
+  - tags error with "fantasy.leaveEvent"
+  - Finding #7: not_entered treats as success-path (stale cache, User-Intent already met)
+  - leavingEventId tracks in-flight leave via mutation.variables
+
+describe('useEventActions.submitLineup (Ferrari-Refactor)')
+  - calls submitLineupService and closes modal on success
+  - routes insufficient_sc error to specific Toast
+  - routes lineup_save_failed error to specific Toast (no raw i18n-key leak)
+  - tags error with "fantasy.submitLineup"
+  - short-circuits on rapid submit (isPending guard)
+
+
+2) Regression-Suite (fantasy + adjacent)
+----------------------------------------
+$ npx vitest run src/features/fantasy src/lib/services/__tests__/event-entries.test.ts src/lib/services/__tests__/lineups.test.ts "src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx"
+
+ Test Files  7 passed (7)
+      Tests  184 passed (184)
+   Duration  11.84s
+
+- src/features/fantasy/* (alle Hook + Service + Store Tests)
+- src/features/fantasy/services/__tests__/fixtures.test.ts
+- src/features/fantasy/services/__tests__/lineups.test.ts
+- src/features/fantasy/services/__tests__/predictions.test.ts
+- src/features/fantasy/hooks/__tests__/useEventActions.test.ts (NEW, 25)
+- src/lib/services/__tests__/event-entries.test.ts
+- src/lib/services/__tests__/lineups.test.ts
+- src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx
+
+
+3) TSC
+------
+$ npx tsc --noEmit
+TSC_EXIT: 0  (clean)
+
+
+Acceptance Criteria Status:
+---------------------------
+A3  useSafeMutation safeTrigger race-safe via isPending-guard  PASS
+A4  Optimistic join + Snapshot + Rollback                      PASS
+A5  Optimistic leave analog                                    PASS
+A6  submitLineup race-safe                                     PASS
+A7  onSettled invalidateWallet                                 PASS
+A8  Consumer-API unveraendert (FantasyContent + AufstellenTab) PASS
+A9  useLineupSave.onJoin Callback unveraendert                 PASS
+A10 Tests gruen (25 + 159 regression)                          PASS
+A11 tsc clean                                                  PASS
+A12 errorTag gesetzt                                           PASS
