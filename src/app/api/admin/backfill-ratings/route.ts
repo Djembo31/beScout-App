@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, type ApiFixturePlayerResponse } from '@/lib/footballApi';
 import { parseBody } from '@/lib/validation/parseBody';
 import { BackfillGameweekSchema } from '@/lib/schemas/backfillGameweek.schema';
 import { isValidationError } from '@/lib/errors';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 /**
  * Admin API: Backfill real API-Football ratings for completed gameweeks.
@@ -18,7 +19,7 @@ import { isValidationError } from '@/lib/errors';
  * Also reports unmapped API-Football players (for completeness check).
  */
 
-export async function POST(req: NextRequest) {
+export const POST = withLogger('admin.backfill-ratings', async (req) => {
   // Auth guard
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
@@ -229,4 +230,4 @@ export async function POST(req: NextRequest) {
     syncResults,
     perfRecalc: perfData,
   });
-}
+});

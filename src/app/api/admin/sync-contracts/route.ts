@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, getLeagueId, getCurrentSeason } from '@/lib/footballApi';
 import { parseBody } from '@/lib/validation/parseBody';
 import { SyncContractsSchema } from '@/lib/schemas/syncContracts.schema';
 import { isValidationError } from '@/lib/errors';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 /**
  * Admin API: Sync contract end dates from API-Football /players/profiles endpoint.
@@ -47,7 +48,7 @@ type PlayerResponse = {
   }>;
 };
 
-export async function POST(req: NextRequest) {
+export const POST = withLogger('admin.sync-contracts', async (req, { log }) => {
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -262,10 +263,10 @@ export async function POST(req: NextRequest) {
       preview: updates.slice(0, 20),
     });
   } catch (err) {
-    console.error('[sync-contracts] Error:', err);
+    log.error({ err }, '[sync-contracts] error');
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
   }
-}
+});
 
 /** Parse various contract date formats to ISO date string (YYYY-MM-DD) */
 function parseContractDate(raw: string): string | null {

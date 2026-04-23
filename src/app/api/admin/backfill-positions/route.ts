@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, mapPosition, type ApiFixturePlayerResponse } from '@/lib/footballApi';
 import { parseBody } from '@/lib/validation/parseBody';
 import { BackfillGameweekSchema } from '@/lib/schemas/backfillGameweek.schema';
 import { isValidationError } from '@/lib/errors';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 /**
  * Admin API: Backfill match_position from API-Football for completed gameweeks.
@@ -16,7 +17,7 @@ import { isValidationError } from '@/lib/errors';
  * API-Football Plus: 100 calls/day → max ~10 GWs/day.
  */
 
-export async function POST(req: NextRequest) {
+export const POST = withLogger('admin.backfill-positions', async (req) => {
   // Auth guard
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
@@ -162,4 +163,4 @@ export async function POST(req: NextRequest) {
     totalApiCalls,
     gameweeks: gwResults,
   });
-}
+});

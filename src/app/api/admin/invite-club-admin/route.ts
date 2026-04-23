@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import { parseBody } from '@/lib/validation/parseBody';
 import { InviteClubAdminSchema } from '@/lib/schemas/inviteClubAdmin.schema';
 import { isValidationError } from '@/lib/errors';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-export async function POST(req: NextRequest) {
+export const POST = withLogger('admin.invite-club-admin', async (req) => {
   // 1. Verify service role key is configured
   if (!serviceRoleKey) {
     return NextResponse.json(
@@ -176,4 +177,4 @@ export async function POST(req: NextRequest) {
     messageKey: 'invited',
     params: { email, role, club: club.name },
   });
-}
+});

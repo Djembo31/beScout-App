@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 177b | 2026-04-24 | withLogger-Integration fuer Admin-Routes (177 AC5-Completion)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: route-wrapper migration) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** 4 Admin-Routes auf `withLogger` aus Slice 175 gewrapped. Trivial pattern-repetition.
+- **Routes:** `admin.invite-club-admin`, `admin.backfill-ratings`, `admin.backfill-positions`, `admin.sync-contracts` (dotted route-strings konsistent zu Slice 175 `cron.*`).
+- **Impact:** Unhandled errors → withLogger.catch → `captureError` (Slice 176) mit `tags.route` + `requestId`. Strukturierte Pino-Logs fuer `request.start` + `request.end` + latency. `x-request-id` Header fuer distributed-tracing.
+- **ValidationError bleibt explicit:** `isValidationError(err) → return 400` intern, niemals throw → withLogger-auto-catch. AC5-Completion aus Slice 177.
+- **sync-contracts:** `console.error` → `log.error({err}, ...)` via destructured `log`-Param aus withLogger-Context.
+- **Tests:** Keine neuen — withLogger hat volle Coverage aus Slice 175 (`apiLogger.test.ts`). 57/57 observability+schemas+validation gruen, tsc clean.
+- **Proof:** `worklog/proofs/177b-withlogger.txt` — tsc + 4 withLogger-grep + 4 distinct route-strings + 0 console.error + vitest.
+- **Review:** `worklog/reviews/177b-review.md` — PASS, Self-Review fuer XS-Pattern-Repetition.
+- **Foundation fuer Slice 175b:** 19 API-Routes auf withLogger batch-migrieren (Follow-up aus Slice 175).
+
+---
+
 ## 177 | 2026-04-24 | Zod + Pilot-Schemas (Sorare/Socios Tier B1 Foundation)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: new modules + 4 admin-route upgrades) → BUILD → PROVE → REVIEW → LOG
