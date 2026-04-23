@@ -24,7 +24,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **Files:**
   - `memory/patterns.md`
   - `.claude/rules/common-errors.md`
-- **Commit:** pending
+- **Commit:** `f56d302d`
 
 ---
 
