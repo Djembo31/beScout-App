@@ -2,10 +2,10 @@
 
 ```
 status: in_progress
-slice: 180
+slice: 185
 stage: BUILD
-spec: worklog/specs/180-service-shape-consolidation-community.md
-impact: skipped (service-shape migration, community-domain only)
+spec: worklog/specs/185-commitlint-lintstaged.md
+impact: skipped (tooling setup)
 proof: —
 review: —
 ```

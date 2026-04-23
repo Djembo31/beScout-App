@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 185 | 2026-04-24 | commitlint + lint-staged (Tier D5)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Tooling-Setup. commit-msg-Hook fuer conventional-commits + formal lint-staged statt custom bash-grep.
+- **Installed (3 devDeps):** @commitlint/cli 20.5.0, @commitlint/config-conventional 20.5.0, lint-staged 16.4.0
+- **Files:**
+  - NEU `commitlint.config.js` — extends conventional + BeScout-relaxed rules (`subject-case: [0]` fuer Mixed-case "Slice NNN —" Titles, `header-max-length: 120`)
+  - NEU `.lintstagedrc.json` — ESLint + auto-fix auf staged `*.{ts,tsx,js,jsx,mjs}`
+  - NEU `.husky/commit-msg` — npx commitlint --edit $1
+  - UPGRADE `.husky/pre-commit` — custom bash-grep durch `npx lint-staged` ersetzt, tsc bleibt
+- **Smoke:** invalid-commit ("random garbage") blocked mit 2 errors, valid-commit ("feat(test): Slice 185 smoke") exit 0.
+- **Proof:** `worklog/proofs/185-commitlint.txt`. Review: `worklog/reviews/185-review.md` (PASS).
+- **Follow-Slice 185b:** size-limit / bundle-budget (pro-Page-Budget-Definition braucht eigene Deliberation + Baseline-Messung).
+
+---
+
 ## 180 | 2026-04-24 | Service-Shape Consolidation Pilot — INV-25 Fix (Tier B2)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

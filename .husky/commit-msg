@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# BeScout commit-msg hook (Slice 185) — conventional-commits enforcement
+# Blocks non-conforming commit messages early, before they enter history.
+npx --no -- commitlint --edit "$1"

@@ -1,0 +1,23 @@
+=== pnpm ls commitlint lint-staged ===
+Legend: production dependency, optional only, dev only
+
+bescout-app@0.1.0 C:\bescout-app (PRIVATE)
+
+devDependencies:
+@commitlint/cli 20.5.0
+@commitlint/config-conventional 20.5.0
+lint-staged 16.4.0
+
+=== commitlint SMOKE-tests ===
+INVALID (exp: reject):
+ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
+
+VALID (exp: pass):
+exit=0
+
+=== Config Files ===
+-rwxr-xr-x 1 Anil 197121 204 Apr 24 00:18 .husky/commit-msg
+-rwxr-xr-x 1 Anil 197121 438 Apr 24 00:19 .husky/pre-commit
+-rw-r--r-- 1 Anil 197121  88 Apr 24 00:18 .lintstagedrc.json
+-rw-r--r-- 1 Anil 197121 919 Apr 24 00:19 commitlint.config.js
