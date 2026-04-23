@@ -10,8 +10,9 @@ proof: —
 review: —
 ```
 
-## Session 2026-04-23 — 14 Slices committed
+## Session 2026-04-23 + 2026-04-24 — 15 Slices committed
 
+- **170** Singleton→useQueryClient Migration (Konvention-Cleanup, 9 useCallback-deps-Fix M1) → `7d69553a`
 - **169** Session-End DISTILL (D25+D26 PROCESS-Decisions) → `b668eae7`
 - **168** RPC-Shape-Konsistenz-Regel (database.md) → `2d5bea82`
 - **167** Knowledge-Capture aus 166 (patterns.md #28 + common-errors.md §8) → `f56d302d`
@@ -40,6 +41,7 @@ Plus: Knowledge-Capture (common-errors.md §5 Vote-Toggle FIXED, patterns.md #28
 | Phase 4 Tier-2 Data-Integrity | Non-Admin ✅ 8/8 (159 + 160 + 161 + 162 + 163). Admin-Space (10 Files) pending |
 | Phase 5 Admin-Tier-1 | pending (WithdrawalTab + FoundingPassesTab) |
 | Phase 6 Codification | ✅ Komplett (patterns.md #28 + decisions.md D24 + common-errors §5) |
+| Phase 7 Konvention-Cleanup | ✅ Slice 170 (3 Ferrari-Erben + M1 deps-Fix). 11 weitere Singleton-Kandidaten pending (Slice 170b optional) |
 
 ## Tier-Status
 
@@ -48,30 +50,26 @@ Plus: Knowledge-Capture (common-errors.md §5 Vote-Toggle FIXED, patterns.md #28
 **Tier-2 Data-Integrity Non-Admin: 8/8 ✅ komplett.** Offen: 10× Admin-Space (AdminVotesTab, AdminBountiesTab, AdminModerationTab, AdminFansTab, AdminSponsorTab, InviteClubAdminModal, AddAdminModal, useAdminEventsActions, useClubEventsActions, useAdminPlayersState) — nur wenn Admin-Flows demnächst getestet werden.
 AirdropScoreCard aus Tier-2-Scope raus (display-only, kein user-Claim, Audit stale).
 
-## Nahtlos-Naechste-Session — Slice 170 Kandidaten
-
-### Option A: Mini-Cleanup Singleton → useQueryClient (161+162) — XS, ~30min
-- `useCommunityActions.ts` + `LeaguesSection.tsx` + `MissionBanner.tsx` migrieren auf Hook-Variante.
-- Konvention-Konsistenz nach Slice 164 Codification + D25-Flywheel-Reinforcement.
+## Nahtlos-Naechste-Session — Slice 171 Kandidaten
 
 ### Option B: Admin-Tier-1 Kill-Switch (2 Files) — M, ~2h (CEO-Approval)
 - `AdminWithdrawalTab.tsx` (Process club withdrawal — Money)
 - `AdminFoundingPassesTab.tsx` (FP Create/Revoke — Kill-Switch)
 - Money-Path + Admin-Scope. CEO-Approval vor Build pflicht.
 
-### Option C: Admin-Tier-2 Space (10 Files) — L, mehrere Sessions
-- AdminVotesTab, AdminBountiesTab, AdminModerationTab, AdminFansTab, AdminSponsorTab, InviteClubAdminModal, useAdminEventsActions, useClubEventsActions, useAdminPlayersState.
-- Ferrari-Blueprint + preventClose in einem Aufwasch pro Modal (Slice 166 hat AddAdminModal bereits).
-- Nur wenn Admin-Flows demnächst getestet werden.
-
 ### Option D: RPC-Shape-Audit (aus D25/D168 Backlog) — S, ~1h
 - Audit bestehender `json_build_object`-RPCs ohne success-flag (Slice 168 Regel).
 - Migration-Plan pro kritische RPC (Consumer-Impact-Analyse).
 - Separater Ferrari-Slice pro migrierter RPC.
 
+### Option C: Admin-Tier-2 Space (10 Files) — L, mehrere Sessions
+- AdminVotesTab, AdminBountiesTab, AdminModerationTab, AdminFansTab, AdminSponsorTab, InviteClubAdminModal, useAdminEventsActions, useClubEventsActions, useAdminPlayersState.
+- Ferrari-Blueprint + preventClose in einem Aufwasch pro Modal (Slice 166 hat AddAdminModal bereits).
+- Nur wenn Admin-Flows demnächst getestet werden.
+
 ### Empfehlung Start-Punkt
 
-**A → B → D.** Option A ist XS-Konsistenz-Aufräumung, schliesst Konvention-Drift aus 161+162. Option B ist Money+Admin mit CEO-Approval. Option D ist Cross-Service-Audit mit Migrations-Potenzial.
+**B → D.** Option B ist Money+Admin mit CEO-Approval. Option D ist Cross-Service-Audit mit Migrations-Potenzial.
 
 ## Backlog (nicht-Slice-Arbeit)
 
@@ -79,9 +77,11 @@ AirdropScoreCard aus Tier-2-Scope raus (display-only, kein user-Claim, Audit sta
 - useOffersState `offer.find()` pre-compute als mutation-variable (aus 157 Review)
 - 10× Admin-Space Files (AdminVotesTab, AdminBountiesTab, ...) — nur wenn Admin-Flows demnaechst getestet werden.
 - `aria-label` auf PostReplies Vote-Buttons (aus 159 Review "out-of-scope")
-- Modal `preventClose={mut.isPending}` auf LeaguesSection CreateLeagueModal + JoinLeagueModal (Slice 161 NIT #2)
-- Konvention `useQueryClient()` Hook vs Singleton — patterns.md #28 explizit erweitern ODER 161b-Cleanup (Slice 161 NIT #1)
-- Service `votePost` silent-cast hardening (Slice 160 Finding #2)
+- Modal `preventClose={mut.isPending}` auf LeaguesSection CreateLeagueModal + JoinLeagueModal (Slice 161 NIT #2) — DONE via Slice 166 preventClose-Sweep?
+- Service `votePost` silent-cast hardening (Slice 160 Finding #2) — DONE Slice 165
+- Singleton-Audit andere Files (Slice 170b) — 11 Component-Kandidaten (ClubContent, MembershipSection, WatchlistView, MarketContent, useGameweek, useWatchlistActions, + 6 pages). Bei Bedarf.
+- `tErrors` missing-dep Warnings in useCommunityActions.ts (Z.222, 262, 281, 297, 313) — pre-existing vor Slice 170, Nit-Fix fuer Slice 171 oder separat. Runtime-Impact Null (tErrors stable via useTranslations).
+- `vi.hoisted`-Pattern nach `.claude/rules/testing.md` als 5. "useSafeMutation Test-Patterns" (Reviewer-Empfehlung Slice 170 N3).
 
 ## Key-References
 

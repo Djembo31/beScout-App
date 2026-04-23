@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 170 | 2026-04-24 | Singleton → useQueryClient Migration (Konvention-Cleanup)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: Component-interner Refactor, identische Runtime-Semantik) → BUILD → REVIEW → PROVE → LOG
+- **Scope XS:** 3 Production-Files + 1 Test-File. Schliesst Konvention-Drift aus Slice 161 + 162 Ferrari-Erbe (Singleton-Import geerbt, patterns.md #28 seit Slice 164 sagt Hook-Variante ist Default).
+- **Production-Migration:**
+  - `useCommunityActions.ts` (Hook-Body via `useQueryClient()`, 16 `queryClient`-Usages)
+  - `LeaguesSection.tsx` (3 Components: CreateLeagueModal + JoinLeagueModal + LeagueCard — je 1 `useQueryClient()`-Call)
+  - `MissionBanner.tsx` (MissionBanner-Body via `useQueryClient()`, 4 Usages inkl. `setWalletBalance(queryClient, ...)` Helper-Arg)
+- **Test-Migration:** `useCommunityActions.test.ts` — `vi.hoisted(mockQc)`-Pattern + partial `@tanstack/react-query` Mock fuer shared reference zwischen `@/lib/queryClient` und `useQueryClient()`. Initial-Fail `Cannot access 'mockQc' before initialization` → Fix via `vi.hoisted`.
+- **M1-Fix (aus Reviewer HIGH→MEDIUM):** 9 useCallbacks in useCommunityActions.ts haben nun `queryClient` in deps-array (Z.116, 133, 155, 178, 243, 297, 313, 325, 361) — Konvention-Konsistenz mit Sister-Hook `usePlayerCommunity.ts` (etabliertes exhaustive-deps-Pattern). Runtime-Impact Null.
+- **Artefakte:**
+  - Spec: `worklog/specs/170-singleton-to-use-queryclient.md`
+  - Review: `worklog/reviews/170-review.md` (PASS, M1 MEDIUM im Build gefixt, 3 NITs dokumentiert, Scope-Gap-Check 11 Kandidaten fuer Slice 170b)
+  - Proof tsc: `worklog/proofs/170-tsc.txt` (clean)
+  - Proof vitest: `worklog/proofs/170-vitest.txt` (76/76 across 3 suites)
+  - Proof grep: `worklog/proofs/170-grep.txt` (0 Singleton-Imports in 3 Zielfiles, 5 useQueryClient()-Calls)
+- **Files:** `src/components/community/hooks/useCommunityActions.ts`, `src/components/community/hooks/__tests__/useCommunityActions.test.ts`, `src/components/fantasy/LeaguesSection.tsx`, `src/components/missions/MissionBanner.tsx` (+5 worklog artefacts)
+- **Commit:** `7d69553a`
+- **Notes:** Scope-Out (~15 weitere Singleton-Usages: ClubContent, MembershipSection, WatchlistView, MarketContent, useGameweek, useWatchlistActions, + 6 pages) bleibt bewusst unveraendert — Kandidat fuer separaten Slice 170b. 5 pre-existing `tErrors` exhaustive-deps warnings in useCommunityActions (Z.222, 262, 281, 297, 313) — nicht durch Slice 170 eingefuehrt, als Nit-Fix fuer spaeter dokumentiert.
+
+---
+
 ## 169 | 2026-04-23 | Session-End DISTILL (D25 + D26)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG
