@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 173
-stage: LOG
-spec: worklog/specs/173-rpc-shape-audit.md
-impact: skipped (read-only Audit, kein Code-Change)
-proof: worklog/audits/173-rpc-shape-report.md
-review: skipped (Audit-Slice, self-review — Report ist primary artifact)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 + 2026-04-24 — 17 Slices committed
+## Session 2026-04-23 + 2026-04-24 — 18 Slices committed
 
+- **173** RPC-Shape-Audit (131 RPCs, 0 DRIFT — Bug-Klasse systemweit geschlossen) → `1ad3af2c`
 - **172** Singleton 170b Sweep (11 Component/Hook-Files, 9 useCallback-deps) → `adbca6fa`
 - **171** Knowledge-Capture aus Slice 170 (common-errors.md §5 + testing.md §5 Pattern) → `8992ae0a`
 - **170** Singleton→useQueryClient Migration (Konvention-Cleanup, 9 useCallback-deps-Fix M1) → `7d69553a`

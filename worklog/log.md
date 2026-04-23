@@ -11,6 +11,31 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 173 | 2026-04-24 | RPC-Shape-Audit (Discriminated-Union-Regel aus Slice 168)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: read-only) → BUILD → REVIEW (skipped Audit-Slice) → PROVE → LOG
+- **Scope S:** Systematischer Audit aller 131 public-Schema RPCs mit `json`/`jsonb` Return. Read-only.
+- **Methodik:** DB-Introspection via `pg_proc` + `pg_get_functiondef()` gegen Production (skzjfhvgccaeplydsunz). Plus grep-Consumer-Verify fuer DRIFT-Kandidaten.
+- **Ergebnis:**
+  - 65 CONFORM (success:true + success:false)
+  - 22 LEGIT_RAISE_ONLY (Errors via RAISE)
+  - 37 LEGIT_NO_FLAG (Read-Aggregation)
+  - 4 LEGIT_INTERNAL (cron/admin, 0 Client-Consumer)
+  - 3 HYBRID-RAISE (cast_vote, liquidate_player, sync_fixture_scores — LEGIT-Pattern wie vote_post post-165)
+  - **0 echte DRIFT**
+- **Bug-Klasse-Status:** Silent-Cast wie votePost pre-165 ist systemweit geschlossen nach Slice 165 (Service-Fix) + Slice 168 (Regel-Codification).
+- **False-Positive-Rate meiner naiven SQL-Query:** 7/7 = 100%. Alle "DRIFT"-Kandidaten waren bei naehere Inspection LEGIT-Hybrid oder LEGIT-Internal.
+- **Empfehlungen (optional, LOW-Prio):**
+  1. database.md erweitern um RAISE-EXCEPTION als expliziten 2. Pattern-Teil
+  2. Audit alle ~6 Monate wiederholen oder nach +10 neuen RPCs
+- **Artefakte:**
+  - Spec: `worklog/specs/173-rpc-shape-audit.md`
+  - Report: `worklog/audits/173-rpc-shape-report.md` (primary artifact, 140 Zeilen)
+  - Proof tsc: `worklog/proofs/173-tsc.txt` (clean)
+- **Commit:** `1ad3af2c`
+
+---
+
 ## 172 | 2026-04-24 | Singleton 170b Sweep (11 Component/Hook-Files)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Component-interner Refactor, identische Runtime-Semantik) → BUILD → REVIEW → PROVE → LOG
