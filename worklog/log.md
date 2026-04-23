@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 168 | 2026-04-23 | RPC-Shape-Konsistenz-Regel (database.md)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG
+- **Scope XS:** 1 Markdown-File erweitert. Codifiziert Slice 165 Reviewer-Learning.
+- **database.md "RPC Regeln":** Neuer Sub-Abschnitt "Return-Shape: Discriminated Union Pflicht"
+  - Regel: Success-Path IMMER `{success: true, ...data}`, Error-Path IMMER `{success: false, error}`
+  - Anti-Pattern-Beispiel (vote_post pre-165)
+  - Audit-Command für bestehende inkonsistente RPCs
+  - Service-Wrapper-Pattern für neue Consumer (throw-on-!success)
+  - Cross-Ref zu common-errors.md §1 "Silent-Cast ohne Discriminator-Check"
+- **Zweck:** Schliesst Knowledge-Flywheel für Slice 165 Bug-Klasse — zukünftige RPCs vermeiden die Vulnerability.
+- **Artefakte:**
+  - Spec: `worklog/specs/168-rpc-shape-regel.md`
+  - Proof: `worklog/proofs/168-rpc-shape-regel.txt` (tsc clean)
+- **Files:** `.claude/rules/database.md`
+- **Commit:** pending
+
+---
+
 ## 167 | 2026-04-23 | Knowledge-Capture aus Slice 166 Learnings
 
 - **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG

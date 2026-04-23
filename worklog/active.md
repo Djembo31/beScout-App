@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 168
+stage: LOG
+spec: worklog/specs/168-rpc-shape-regel.md
+impact: skipped (docs-only)
+proof: worklog/proofs/168-rpc-shape-regel.txt
+review: skipped (docs-only, self-review)
 ```
 
 ## Session 2026-04-23 — 12 Slices committed

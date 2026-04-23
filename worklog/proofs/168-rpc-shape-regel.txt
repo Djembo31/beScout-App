@@ -1,0 +1,45 @@
+Slice 168 — RPC-Shape-Konsistenz-Regel PROOF
+==========================================
+Date: 2026-04-23
+Type: Docs (codifiziert Slice 165 Learning)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── Was codifiziert ───
+
+.claude/rules/database.md "RPC Regeln" erweitert um neuen Sub-Abschnitt:
+  "Return-Shape: Discriminated Union Pflicht (Slice 168, aus 165 Learning)"
+
+Regel:
+  - Success-Path IMMER {success: true, ...data}
+  - Error-Path IMMER {success: false, error: '...'}
+  - Anti-Pattern-Beispiel (vote_post pre-165) vs Richtig
+
+Plus:
+  - Audit-Command für bestehende RPCs ohne success-flag
+  - Service-Wrapper-Pattern für neue RPCs (throw-on-!success)
+  - Cross-Ref zu common-errors.md §1 "Silent-Cast ohne Discriminator-Check"
+
+─── git diff --stat ───
+ .claude/rules/database.md | +30 lines (RPC Return-Shape-Regel)
+ + new: worklog/specs/168-rpc-shape-regel.md
+ + new: worklog/proofs/168-rpc-shape-regel.txt
+
+─── Slice 165 → 168 Knowledge-Flywheel ───
+
+Slice 165 Service-Fix (Pre-Cast-Guard) + common-errors.md §1 Entry
+    ↓
+Slice 168 Database-Regel + cross-ref = Knowledge-Flywheel geschlossen für diese Bug-Klasse
+    ↓
+Zukünftige RPCs folgen discriminated-union-pattern, neue Slice-165-Klasse-Vulnerability
+vermeiden.
+
+─── Review ───
+Self-Review (docs-only slice, keine Code-Änderung).
+
+─── Backlog ───
+- Actual RPC-Migrations zur Konsistenz (vote_post + andere mit inkonsistenter Shape):
+  Consumer-Impact-Analyse nötig. Separater Slice wenn gewünscht.

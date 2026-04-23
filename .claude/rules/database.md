@@ -36,6 +36,38 @@ paths:
 - Gamification: 13 DB-Triggers — Client ruft NICHT direkt auf
 - E2E Test PFLICHT: (1) Daten VOR Call, (2) RPC ausfuehren, (3) NACH Call verifizieren, (4) Zero-Sum pruefen
 
+### Return-Shape: Discriminated Union Pflicht (Slice 168, aus 165 Learning)
+Jede RPC die `json_build_object` returnt MUSS konsistent-discriminated sein:
+- **Success-Path IMMER `{success: true, ...data}`** — explizit, nicht durch Feld-Existenz impliziert.
+- **Error-Path IMMER `{success: false, error: '<i18n-key oder msg>'}`** — gleiche Shape-Klasse.
+
+```sql
+-- RICHTIG:
+RETURN json_build_object('success', true, 'upvotes', v_up, 'downvotes', v_down);
+RETURN json_build_object('success', false, 'error', 'Ungueltiger vote_type');
+
+-- FALSCH (vote_post Pre-Slice-165):
+RETURN json_build_object('upvotes', v_up, 'downvotes', v_down);  -- ← kein success-flag!
+-- Service-Cast `data as {upvotes, downvotes}` lügt bei Error-Body → undefined → UI-NaN.
+```
+
+**Warum:** Service-Seite kann `if (!data.success) throw new Error(data.error)` einheitlich anwenden. Ohne `success`-flag muss Service auf Feld-Existenz prüfen (fragil, TypeScript-Cast lügt). Siehe common-errors.md §1 "Silent-Cast ohne Discriminator-Check".
+
+**Audit bestehender RPCs (optional migrieren — Consumer-Impact beachten):**
+```bash
+# Find RPCs without success-flag in Success-Path
+grep -rn "json_build_object" supabase/migrations/ | grep -v "'success'" | grep -v "success," | head
+```
+
+**Service-Wrapper-Pattern für neue RPCs:**
+```ts
+const { data, error } = await supabase.rpc('fn_name', {...});
+if (error) throw new Error(error.message);
+const result = data as { success: boolean; error?: string; /* +domain fields */ };
+if (!result.success) throw new Error(result.error ?? 'rpc_failed');
+return result;  // TS weiss: result.success === true, data-fields sind present
+```
+
 ## Column Quick-Reference
 - `players`: `first_name`/`last_name` (NICHT `name`), `shirt_number` (NICHT `ticket_number`)
 - `wallets`: PK=`user_id` (KEIN `id`, KEIN `currency`)
