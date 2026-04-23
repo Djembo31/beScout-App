@@ -945,6 +945,46 @@ Entscheidung: Minimal-Swap fuer 152c (30 Min, klar scope'd). Struktur-Upgrade in
 
 ---
 
+## D24 — PROCESS: Ferrari-Blueprint-Retro nach 6 Slices (Pattern-Codification COMPLETE)
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+Nach 6 konsekutiven Ferrari-Slices (153a/b, 156, 157, 158, 159 — total 19 Mutations refactored) ist das Pattern stabil. Kodifizierung komplett abgeschlossen:
+
+- `memory/patterns.md` #28 — Ferrari-Blueprint als Standalone-Pattern mit Blueprint-Referenzen + Scope-Entscheidungen.
+- `.claude/rules/common-errors.md` §5 D18 — Piloten-Liste + Stand-per-2026-04-23-Status + patterns.md-Crossref.
+- `memory/decisions.md` D21 (ARCHITECTURE) + D22/D23 (PROCESS) bleiben autoritativ fuer "warum" und "wie-im-Detail".
+
+### Begruendung
+
+Reviewer-Agent-Feedback (Slice 159 NIT #1 "mut.mutate vs safeTrigger Blueprint-Stil-Drift") zeigte, dass Pattern **gelernt** aber nicht mehr **reflektiert** werden muss. Codification in `memory/patterns.md` macht es einem frischen Agent (oder Cold-Start-Claude) schneller erschliessbar als D21 (Decision-History) allein. Trennung:
+
+- **decisions.md**: WARUM (Genesis, Abwaegung, Alternativen) — historisch-kontextuell.
+- **patterns.md**: WAS/WIE (Copy-Paste-Template, Scope-Entscheidungen) — operational.
+- **common-errors.md §5**: WANN/WO-ANGEWANDT (Pilot-Liste, Stand-per-Datum) — discoverability bei Bug-Suche.
+
+### Auswirkungen
+
+- **Fuer Claude:** Bei neuer Mutation-Arbeit zuerst `patterns.md #28` lesen (Copy-Paste-Ready). Falls Historie wichtig: D21 nachschlagen.
+- **Fuer Reviewer-Agent:** Briefing kann "gegen patterns.md #28 pruefen" schreiben — klare Rubrik.
+- **Open Work (Slice 160+):** Nur noch 2 Admin-Tier-1 (WithdrawalTab, FoundingPassesTab) + 3 Tier-2 (LeaguesSection, AirdropScoreCard, MissionBanner) + 10× Admin-Space. Pattern-Stabilitaet heisst Slice-Groesse kann zurueck auf S/XS (30-45 min pro Datei).
+
+### Alternativen erwogen
+
+- **Nur in decisions.md belassen:** Verworfen — ein neuer Agent muesste durch die ganze D21/D22/D23-Historie lesen, bevor Code kopiert werden kann. Patterns.md fuehrt direkt zum Template.
+- **Separate .claude/rules/ferrari.md Datei:** Verworfen — patterns.md ist der etablierte Ort fuer operational-Templates. Rule-Files sind fuer "thou shalt not". Ferrari ist Affirmativ.
+- **Jetzt codifizieren vs nach Slice 160/161 warten:** Codification jetzt — wir koennen den Kontext in der aktuellen Session noch frisch einfuegen. Warten heisst Risiko dass nuances vergessen werden.
+
+### Re-Visit-Trigger
+
+- Nach Slice 165: Pattern-Stabilitaet nochmal pruefen. Falls neue Scope-Entscheidung auftaucht (z.B. Streaming-Mutations, Supabase-Realtime-Integration), patterns.md #28 nachziehen.
+- Falls ein Reviewer-NIT dreimal dasselbe bemaengelt (z.B. "Optimistic-Scope zu eng"): Decision-Entry dazu machen statt patterns.md mit Ausnahmen zuzumuellen.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

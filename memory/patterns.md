@@ -392,6 +392,72 @@ WHERE event_object_table = '<table>';
 **Warum:** Reversibel (z.B. null → X → null), keine Migration-File-Overhead für <20 Rows, aber vollständiger Audit-Trail für Reviewer-Agent. Slice 144e 8-Row-Fix ist Referenz-Template.
 **Commit-Prefix:** `fix(data):` damit Proof- + Review-Gates firen (Disziplin statt Schleichweg).
 
+### 28. Ferrari-Blueprint (Mutation-Pattern, Slices 151a → 159)
+**Wann:** JEDE neue client-side Mutation — Money-Path, Data-Integrity, Auth. Ersetzt Anti-Pattern A (`if (loading) return; setLoading(true)`) und B (kein Guard).
+**Wie:** `useSafeMutation` mit strukturiertem Lifecycle:
+```typescript
+const mut = useSafeMutation<TData, Error, TVariables, TContext>({
+  mutationFn: async (vars) => {
+    const result = await service(vars);
+    if (!result.success) throw new Error(result.error ?? 'generic');
+    return result;
+  },
+  onMutate: async (vars) => {
+    // Snapshot + Optimistic — nur deterministische Felder (cross-user = skip).
+    const key = qk.x(uid);
+    await qc.cancelQueries({ queryKey: key });
+    const prev = qc.getQueryData<T>(key);
+    qc.setQueryData(key, (old) => derive(old, vars));
+    return { prev };
+  },
+  onError: (err, vars, ctx) => {
+    // Phantom-Rollback-Fix: wenn snapshot undefined war, removeQueries (nicht setQueryData(undefined)).
+    if (ctx?.prev !== undefined) qc.setQueryData(key, ctx.prev);
+    else qc.removeQueries({ queryKey: key });
+    // Optional: Toast-Routing, showError(err), consumer-specific error-mapping.
+  },
+  onSuccess: (result, vars) => {
+    // Server-Truth: setWalletBalance, invalidateTradeQueries, etc.
+    if (result.new_balance != null) setWalletBalance(qc, uid, result.new_balance);
+    qc.invalidateQueries({ queryKey: qk.x(uid) });
+  },
+  onSettled: () => {
+    // pgBouncer Read-After-Write: Wallet nach commit-window invalidaten.
+    invalidateWallet(qc);
+  },
+  errorTag: 'domain.action',  // Sentry-Breadcrumb via logSilentCatch
+});
+
+// Consumer:
+<Button onClick={() => mut.safeTrigger(vars)} disabled={mut.isPending} />
+```
+**Warum:**
+- **Race-Safety:** `safeTrigger` liest synchron `mut.isPending` aus MutationObserver — rapid-click short-circuitet im selben Render-Frame. Keine stale-closure-race.
+- **pgBouncer-Safety:** `onSettled invalidateWallet(qc)` triggert Refetch NACH Commit-Window (Slice 152c HIGH-1).
+- **Observability:** `errorTag` → `logSilentCatch` → Sentry-Breadcrumb. Money-Path MUSS gesetzt sein.
+- **Phantom-Rollback-Fix (153a Finding #1):** Bei undefined-Snapshot (keine cache-row vorher) muss `removeQueries` statt `setQueryData(undefined)` — sonst bleibt optimistic-Wert im Cache.
+- **Consumer-Kompat:** Wrapper-Methoden koennen `async => Promise<void>` bleiben via `try { await mut.mutateAsync(...) } catch {}` (156 useLineupSave-Pattern). Oder direkt `mut.safeTrigger(...)` bei fire-and-forget UI (159).
+
+**Blueprint-Referenzen (Money-Path):**
+- `src/features/market/mutations/trading.ts` (153a) — 4 Hooks, Optimistic auf holdings-qty
+- `src/components/player/detail/hooks/usePlayerTrading.ts` (153b) — 7 Handler
+- `src/features/fantasy/hooks/useEventActions.ts` (156) — 3 Handler, kein Optimistic, RPC-Migration P2.3
+- `src/features/market/components/portfolio/useOffersState.ts` (157) — 4 Handler, cross-user-transfer
+- `src/features/manager/components/kader/KaderSellModal.tsx` (158) — 2 Handler, thin-wrapper-Modal
+
+**Blueprint-Referenzen (Data-Integrity):**
+- `src/components/community/ReportModal.tsx` (159) — 1 Handler
+- `src/components/community/PostReplies.tsx` (159) — 3 Handler, per-Row pending via `mut.variables.replyId`
+- `src/components/fan-wishes/FanWishModal.tsx` (159) — 1 Handler
+
+**Scope-Entscheidungen:**
+- **Kein Optimistic** bei cross-user-transfer (P2P-Offers, Event-Entry) — server-truth via invalidate reicht.
+- **setError/setSuccess-Clear** im Wrapper VOR `mutateAsync` nur wenn kein `onMutate`-Snapshot (158 KaderSellModal). Sonst gehoert der Clear in onMutate.
+- **invalidateWallet defensive** bei allen Money-Path-adjacent Handlern (auch reject/cancel/leave), auch wenn Current-User-Wallet nicht touched — 1 extra Refetch akzeptabel vs Race-Gap.
+
+**Decision-Reference:** `memory/decisions.md` D21 (ARCHITECTURE).
+**Error-Class-Reference:** `.claude/rules/common-errors.md` §5 D18 (React setState Race).
+
 ### 27. Signal-Only-UPDATE (hart-kodierte Feld-Auswahl)
 **Wann:** Side-Effect-Route die NUR einen Timestamp/Heartbeat setzen soll, andere Fields nicht tangieren darf.
 **Wie:** Hart-kodiertes Objekt-Literal mit exakt dem einen Feld — kein spread, kein merge:
