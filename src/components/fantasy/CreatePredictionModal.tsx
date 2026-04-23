@@ -2,15 +2,19 @@
 
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
+import { useQueryClient } from '@tanstack/react-query';
 import { Target, ChevronRight, ChevronLeft, User, Loader2 } from 'lucide-react';
 import { Modal, Button, Card } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { getClub } from '@/lib/clubs';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { usePredictionFixtures, useCreatePrediction } from '@/lib/queries/predictions';
+import { usePredictionFixtures } from '@/lib/queries/predictions';
+import { createPrediction, getPlayersForFixture } from '@/lib/services/predictions';
+import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
-import type { PredictionFixture } from '@/lib/services/predictions';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import type { PredictionFixture, CreatePredictionParams } from '@/lib/services/predictions';
 import type { PredictionType, MatchCondition, PlayerCondition, PredictionCondition } from '@/types';
 
 interface CreatePredictionModalProps {
@@ -37,11 +41,13 @@ const PLAYER_CONDITIONS: { key: PlayerCondition; options: string[] }[] = [
   { key: 'player_minutes', options: ['over_60', 'sub', 'bench'] },
 ];
 
+type FixturePlayer = { id: string; first_name: string; last_name: string; position: string; club?: string; image_url?: string | null };
+
 export function CreatePredictionModal({ open, onClose, gameweek, userId, currentCount }: CreatePredictionModalProps) {
   const t = useTranslations('predictions');
   const tErrors = useTranslations('errors');
+  const queryClient = useQueryClient();
   const { data: fixtures = [] } = usePredictionFixtures(gameweek);
-  const createMutation = useCreatePrediction(userId, gameweek);
 
   const [step, setStep] = useState<Step>('fixture');
   const [selectedFixture, setSelectedFixture] = useState<PredictionFixture | null>(null);
@@ -52,8 +58,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
   const [playerSearch, setPlayerSearch] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState('');
-  const [players, setPlayers] = useState<{ id: string; first_name: string; last_name: string; position: string; club?: string; image_url?: string | null }[]>([]);
-  const [loadingPlayers, setLoadingPlayers] = useState(false);
+  const [players, setPlayers] = useState<FixturePlayer[]>([]);
   const [error, setError] = useState('');
 
   // Score preview
@@ -64,6 +69,46 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
     const wrong = +(-6 * (confidence / 100) * difficulty).toFixed(1);
     return { correct, wrong };
   }, [confidence, selectedCondition, selectedValue]);
+
+  // Slice 163 Ferrari-Blueprint: useSafeMutation ersetzt D17-Pattern in beiden Handlern.
+  // Mutation 1: Lade Fixture-Spieler (wenn User auf "Spieler"-Tab wechselt).
+  const playersForFixtureMut = useSafeMutation<
+    FixturePlayer[],
+    Error,
+    { homeClubId: string; awayClubId: string }
+  >({
+    mutationFn: ({ homeClubId, awayClubId }) => getPlayersForFixture(homeClubId, awayClubId),
+    onSuccess: (result) => setPlayers(result),
+    onError: () => setPlayers([]),
+    errorTag: 'predictions.playersForFixture',
+  });
+
+  const loadingPlayers = playersForFixtureMut.isPending;
+
+  // Mutation 2: Prediction erstellen.
+  const createPredictionMut = useSafeMutation<
+    Awaited<ReturnType<typeof createPrediction>>,
+    Error,
+    CreatePredictionParams
+  >({
+    mutationFn: async (params) => {
+      const result = await createPrediction(params);
+      if (!result.ok) throw new Error(result.error ?? 'generic_error');
+      return result;
+    },
+    onSuccess: () => {
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: qk.predictions.byUserGw(userId, gameweek) });
+        queryClient.invalidateQueries({ queryKey: qk.predictions.countGw(userId, gameweek) });
+        queryClient.invalidateQueries({ queryKey: qk.predictions.stats(userId) });
+      }
+      handleClose();
+    },
+    onError: (err) => {
+      setError(tErrors(mapErrorToKey(normalizeError(err))));
+    },
+    errorTag: 'predictions.create',
+  });
 
   const reset = () => {
     setStep('fixture');
@@ -89,19 +134,13 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
     setStep('condition');
   };
 
-  const handlePlayerTypeSelect = async () => {
-    if (!selectedFixture || loadingPlayers) return;
+  const handlePlayerTypeSelect = () => {
+    if (!selectedFixture) return;
     setPredType('player');
-    setLoadingPlayers(true);
-    try {
-      const { getPlayersForFixture } = await import('@/lib/services/predictions');
-      const result = await getPlayersForFixture(selectedFixture.homeClubId, selectedFixture.awayClubId);
-      setPlayers(result);
-    } catch (err) {
-      console.error('[Predictions] Player load failed:', err);
-      setPlayers([]);
-    }
-    setLoadingPlayers(false);
+    playersForFixtureMut.safeTrigger({
+      homeClubId: selectedFixture.homeClubId,
+      awayClubId: selectedFixture.awayClubId,
+    });
   };
 
   const filteredPlayers = useMemo(() => {
@@ -112,29 +151,17 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
     ).slice(0, 20);
   }, [players, playerSearch]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!selectedFixture || !selectedCondition || !selectedValue) return;
     setError('');
-
-    try {
-      const result = await createMutation.mutateAsync({
-        fixtureId: selectedFixture.id,
-        type: predType,
-        playerId: predType === 'player' ? selectedPlayerId ?? undefined : undefined,
-        condition: selectedCondition,
-        value: selectedValue,
-        confidence,
-      });
-
-      if (result.ok) {
-        handleClose();
-      } else {
-        // i18n-Key-Leak-Schutz (B-06, Slice 009): map raw RPC string → errors-namespace key.
-        setError(result.error ? tErrors(mapErrorToKey(result.error)) : t('genericError'));
-      }
-    } catch (err) {
-      setError(tErrors(mapErrorToKey(normalizeError(err))));
-    }
+    createPredictionMut.safeTrigger({
+      fixtureId: selectedFixture.id,
+      type: predType,
+      playerId: predType === 'player' ? selectedPlayerId ?? undefined : undefined,
+      condition: selectedCondition,
+      value: selectedValue,
+      confidence,
+    });
   };
 
   const conditions = predType === 'match' ? MATCH_CONDITIONS : PLAYER_CONDITIONS;
@@ -166,9 +193,9 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
             <Button
               className="flex-1"
               onClick={handleSubmit}
-              disabled={createMutation.isPending}
+              disabled={createPredictionMut.isPending}
             >
-              {createMutation.isPending ? (
+              {createPredictionMut.isPending ? (
                 <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
               ) : (
                 t('submit')

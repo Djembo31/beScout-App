@@ -4,10 +4,17 @@ import { screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { CreatePredictionModal } from '../CreatePredictionModal';
 
+// Slice 163: lucide-react mock expanded (AlertCircle/CheckCircle2/Info/X) because
+// useSafeMutation now pulls in ToastProvider transitively at module-load.
 vi.mock('lucide-react', () => {
   const Stub = () => null;
-  return { Target: Stub, ChevronRight: Stub, ChevronLeft: Stub, User: Stub, Loader2: Stub };
+  return { Target: Stub, ChevronRight: Stub, ChevronLeft: Stub, User: Stub, Loader2: Stub, AlertCircle: Stub, CheckCircle2: Stub, Info: Stub, X: Stub };
 });
+// Stub ToastProvider (useSafeMutation's useToast dependency).
+vi.mock('@/components/providers/ToastProvider', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
 }));
@@ -22,9 +29,13 @@ vi.mock('@/components/player', () => ({
   PlayerIdentity: () => null,
 }));
 vi.mock('@/lib/clubs', () => ({ getClub: () => null }));
+// Slice 163: useCreatePrediction hook removed — component uses useSafeMutation directly.
 vi.mock('@/lib/queries/predictions', () => ({
   usePredictionFixtures: () => ({ data: [] }),
-  useCreatePrediction: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+vi.mock('@/lib/services/predictions', () => ({
+  createPrediction: vi.fn(() => Promise.resolve({ ok: true, id: 'pred-1' })),
+  getPlayersForFixture: vi.fn(() => Promise.resolve([])),
 }));
 vi.mock('@/lib/supabaseClient', () => ({
   supabase: { from: () => ({ select: () => ({ data: [], error: null }) }) },

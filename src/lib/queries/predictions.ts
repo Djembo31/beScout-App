@@ -1,18 +1,19 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import {
   getPredictions,
   getPredictionCount,
   getPredictionStats,
   getFixturesForPrediction,
-  createPrediction,
   hasAnyPrediction,
-  type CreatePredictionParams,
 } from '@/lib/services/predictions';
 
 const FIVE_MIN = 5 * 60 * 1000;
+
+// Slice 163: `useCreatePrediction`-Hook entfernt — CreatePredictionModal nutzt
+// useSafeMutation direkt (Ferrari-Blueprint #28, D18 Race-Class Closure).
 
 /** Own predictions for a gameweek (pending + resolved) */
 export function usePredictions(userId: string | undefined, gameweek: number) {
@@ -64,18 +65,3 @@ export function usePredictionFixtures(gameweek: number) {
   });
 }
 
-/** Mutation: create a new prediction */
-export function useCreatePrediction(userId: string | undefined, gameweek: number) {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (params: CreatePredictionParams) => createPrediction(params),
-    onSuccess: () => {
-      if (userId) {
-        qc.invalidateQueries({ queryKey: qk.predictions.byUserGw(userId, gameweek) });
-        qc.invalidateQueries({ queryKey: qk.predictions.countGw(userId, gameweek) });
-        qc.invalidateQueries({ queryKey: qk.predictions.stats(userId) });
-      }
-    },
-  });
-}

@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 163 | 2026-04-23 | CreatePredictionModal Ferrari (Tier-2 Non-Admin 8/8)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped refactor) → BUILD → REVIEW (PASS) → PROVE → LOG
+- **Scope S:** 2 Handler in CreatePredictionModal auf Ferrari-Blueprint #28. Plus: `useCreatePrediction` Hook entfernt (nur 1 Consumer).
+- **Handler:**
+  - `handleSubmit` → `createPredictionMut` (errorTag `predictions.create`, onSuccess invalidate+close, onError setError via mapErrorToKey)
+  - `handlePlayerTypeSelect` → `playersForFixtureMut` (errorTag `predictions.playersForFixture`, D17-setLoadingPlayers ersetzt durch mut.isPending)
+- **Hook-Entfernung:** `useCreatePrediction` aus `lib/queries/predictions.ts` + `lib/queries/index.ts` deexportiert. Mutation-Logic zieht in Component.
+- **Test-Mock-Expansion:** Slice 161+162 Pattern fortgesetzt — lucide-react (AlertCircle/CheckCircle2/Info/X) + ToastProvider stub + services mock. Plus: neu `@/lib/services/predictions` mock weil Component jetzt statisch importiert (nicht mehr dynamic).
+- **Regression-Audit:** `grep -rnE "setLoadingPlayers|mutateAsync\(|useCreatePrediction"` auf betroffene Files → 0 Code-Hits (1 Doku-Kommentar).
+- **Tier-2 Data-Integrity: 7/8 → 8/8 Non-Admin komplett.** Nur noch 10× Admin-Space offen.
+- **Artefakte:**
+  - Spec: `worklog/specs/163-create-prediction-modal-ferrari.md`
+  - Review: `worklog/reviews/163-review.md`
+  - Proof: `worklog/proofs/163-create-prediction-ferrari.txt`
+- **Files:**
+  - `src/components/fantasy/CreatePredictionModal.tsx`
+  - `src/components/fantasy/__tests__/CreatePredictionModal.test.tsx`
+  - `src/lib/queries/predictions.ts`
+  - `src/lib/queries/index.ts`
+- **Commit:** pending
+
+---
+
 ## 162 | 2026-04-23 | Community Vote-Handler Ferrari (D18 Race-Class Closure)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped refactor) → BUILD → REVIEW (PASS nach in-slice Fix #1+#2) → PROVE → LOG

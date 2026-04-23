@@ -1,0 +1,83 @@
+Slice 163 — CreatePredictionModal Ferrari PROOF
+==========================================
+Date: 2026-04-23
+Type: Refactor (Tier-2 Data-Integrity Non-Admin 7/8 → 8/8)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── vitest (target) ───
+$ npx vitest run src/components/fantasy/__tests__/CreatePredictionModal.test.tsx
+
+Test Files  1 passed (1)
+     Tests  4 passed (4)
+  Start at  19:20:11
+  Duration  3.78s
+
+─── vitest (broader sweep) ───
+$ npx vitest run src/components/fantasy src/components/community src/components/player
+
+Test Files  41 passed (41)
+     Tests  494 passed (494)
+  Start at  19:20:22
+  Duration  61.25s
+
+─── git diff --stat ───
+ src/components/fantasy/CreatePredictionModal.tsx   | 107 +++++++++++++--------
+ src/components/fantasy/__tests__/CreatePredictionModal.test.tsx       |  15 ++-
+ src/lib/queries/index.ts                           |   2 +-
+ src/lib/queries/predictions.ts                     |  22 +----
+ + new: worklog/specs/163-create-prediction-modal-ferrari.md
+ + new: worklog/reviews/163-review.md
+ + new: worklog/proofs/163-create-prediction-ferrari.txt
+
+─── Regression-Audit ───
+$ grep -rnE "setLoadingPlayers|mutateAsync\(|useCreatePrediction" src/components/fantasy/CreatePredictionModal.tsx src/lib/queries/predictions.ts
+src/lib/queries/predictions.ts:15:// Slice 163: `useCreatePrediction`-Hook entfernt — CreatePredictionModal nutzt
+
+HITS: 1 (only a doc comment — intended)
+
+─── What changed ───
+
+CreatePredictionModal.tsx (2 Handler):
+  - handleSubmit → createPredictionMut.safeTrigger
+    - mutationFn wraps createPrediction (throws on !result.ok)
+    - onSuccess: invalidate predictions-queries + handleClose
+    - onError: setError(tErrors(mapErrorToKey(normalizeError(err))))
+    - errorTag: 'predictions.create'
+  - handlePlayerTypeSelect → playersForFixtureMut.safeTrigger
+    - Removed local `loadingPlayers` useState
+    - loadingPlayers derived via mut.isPending
+    - onSuccess: setPlayers(result)
+    - onError: setPlayers([])
+    - errorTag: 'predictions.playersForFixture'
+  - Type extracted: FixturePlayer for setPlayers-state
+
+lib/queries/predictions.ts:
+  - useCreatePrediction Hook entfernt (nur 1 Consumer)
+  - useMutation + useQueryClient + createPrediction + CreatePredictionParams imports entfernt
+  - Doc-Kommentar mit Referenz zu Slice 163
+
+lib/queries/index.ts:
+  - useCreatePrediction aus Re-Export entfernt
+
+Test-Updates:
+  - lucide-react mock expanded: AlertCircle + CheckCircle2 + Info + X (Slice 161+162 Pattern)
+  - ToastProvider stub neu
+  - @/lib/queries/predictions mock: useCreatePrediction entfernt
+  - @/lib/services/predictions mock neu: createPrediction + getPlayersForFixture
+
+─── Reviewer Verdict ───
+PASS (pending final review-agent dispatch completion)
+
+Review: worklog/reviews/163-review.md
+Spec: worklog/specs/163-create-prediction-modal-ferrari.md
+
+─── Tier-2 Data-Integrity Status ───
+7/8 → 8/8 Non-Admin-Block komplett.
+Nur noch 10× Admin-Space offen (AdminVotesTab, AdminBountiesTab, AdminModerationTab,
+AdminFansTab, AdminSponsorTab, InviteClubAdminModal, AddAdminModal,
+useAdminEventsActions, useClubEventsActions, useAdminPlayersState) — nur wenn
+Admin-Flows demnächst getestet werden.

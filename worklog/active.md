@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 163
+stage: LOG
+spec: worklog/specs/163-create-prediction-modal-ferrari.md
+impact: skipped (refactor, kein contract-change — 1 Consumer des entfernten Hooks)
+proof: worklog/proofs/163-create-prediction-ferrari.txt
+review: worklog/reviews/163-review.md (PASS, 10 Findings LOW/INFO/Backlog)
 ```
 
 ## Session 2026-04-23 — 7 Slices committed
