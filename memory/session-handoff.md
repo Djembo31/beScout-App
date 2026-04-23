@@ -11,3 +11,9 @@
 - af1c16c0 refactor(market): Slice 157 — useOffersState Ferrari-Pattern (4 Handler)
 - 93f51274 feat(fantasy): Slice 156 — Event+Lineup Ferrari-Refactor + P2.3 Migration
 
+
+## ⚠ CRASH RECOVERY (20260423-161243)
+Session crashed. State at crash time:
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260423-161243.diff`
