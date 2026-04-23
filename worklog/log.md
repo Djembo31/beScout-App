@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 180 | 2026-04-24 | Service-Shape Consolidation Pilot — INV-25 Fix (Tier B2)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS (narrowed during Build):** `posts.ts` INV-25-Fix als Pilot-Demonstration.
+- **Fix:** `throw new Error('vote_post_failed')` → `throw new ConflictError('vote_post_failed', 'post_vote')` + `throw new UnexpectedError(...)` fuer null-guard. Zusaetzlich Kommentar umformuliert (regex matched vorher literal-Pattern in docstring).
+- **INV-25 pre-existing failure gruen:** `error-keys-coverage.test.ts` 2/2 statt 1 failed. Seit Slice 159 aktiv, nie geflackert vorher.
+- **Consumer-safe:** ConflictError+UnexpectedError sind Error-Subclasses — `err.message`-Pattern in useCommunityActions.ts weiterhin kompatibel. 72/72 tests gruen.
+- **DEFERRED zu 180b:** votes.ts castVote Shape-Cleanup + adminDeletePost/Toggle throw-Migration (brauchen Consumer-Impact-Analyse: useCommunityActions + AdminModerationTab).
+- **Proof:** `worklog/proofs/180-service-shape.txt`. Review: `worklog/reviews/180-review.md` (PASS).
+- **Pattern etabliert:** Service-throw-Literal-Keys migration = 3 Steps: (1) `throw new DomainError(...)`, (2) Kommentar-Umformulierung fuer INV-25-Regex-Prevention, (3) Consumer-Smoke-Test.
+
+---
+
 ## 175c | 2026-04-24 | apiLogger.test.ts Direct Unit-Coverage
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: test-only) → BUILD → PROVE → REVIEW (self) → LOG

@@ -2,10 +2,10 @@
 
 ```
 status: in_progress
-slice: 175c
+slice: 180
 stage: BUILD
-spec: worklog/specs/175c-apilogger-tests.md
-impact: skipped (test-only)
+spec: worklog/specs/180-service-shape-consolidation-community.md
+impact: skipped (service-shape migration, community-domain only)
 proof: —
 review: —
 ```
