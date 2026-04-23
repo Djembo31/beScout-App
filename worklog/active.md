@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 173
+stage: BUILD
+spec: worklog/specs/173-rpc-shape-audit.md
+impact: skipped (read-only Audit, kein Code-Change)
+proof: pending
+review: skipped (Audit-Slice, self-review — Report ist primary artifact)
 ```
 
 ## Session 2026-04-23 + 2026-04-24 — 17 Slices committed
