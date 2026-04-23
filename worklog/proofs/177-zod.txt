@@ -1,0 +1,52 @@
+=== pnpm ls zod ===
+
+bescout-app@0.1.0 C:\bescout-app (PRIVATE)
+
+dependencies:
+zod 4.3.6
+
+=== tsc --noEmit ===
+(clean, no output)
+
+=== Schema + Validation Tests ===
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 23:28:10
+[2m   Duration [22m 5.44s[2m (transform 247ms, setup 1.30s, import 573ms, tests 81ms, environment 8.17s)[22m
+
+
+=== Pre-existing Failures (UNRELATED zu 177) ===
+  - 4× DB-Invariants (INV-35/38/39/40): Data-Quality-Checks gegen Live-DB
+  - 1× INV-25 Service-Throw-Key: posts.ts 'vote_post_failed' not in KNOWN_KEYS
+  → Pre-existing vor 177, nicht durch diesen Slice verursacht
+
+=== git diff --stat ===
+ memory/session-handoff.md                     | 128 ++++----------------------
+ package.json                                  |   1 +
+ pnpm-lock.yaml                                |   8 ++
+ src/app/api/admin/backfill-positions/route.ts |  33 ++++---
+ src/app/api/admin/backfill-ratings/route.ts   |  34 +++----
+ src/app/api/admin/invite-club-admin/route.ts  |  32 ++++---
+ src/app/api/admin/sync-contracts/route.ts     |  30 ++++--
+ worklog/active.md                             |  10 +-
+ 8 files changed, 108 insertions(+), 168 deletions(-)
+
+=== 4 migrierte Routes ===
+src/app/api/admin/backfill-positions/route.ts
+src/app/api/admin/backfill-ratings/route.ts
+src/app/api/admin/invite-club-admin/route.ts
+src/app/api/admin/sync-contracts/route.ts
+
+=== Beispiel-Inputs (Schema-Rejection) ===
+  InviteClubAdminSchema:
+    input { email: 'nope', role: 'superadmin' } → reject
+    input { email: 'ADMIN@X.com', clubId: <uuid>, role: 'owner' } → accept (lowercased)
+  BackfillGameweekSchema:
+    input { gameweek: 0 } → reject (min 1)
+    input { gameweek: 39 } → reject (max 38)
+    input { gameweek: '1-5' } → accept (expanded to [1,2,3,4,5])
+    input { gameweek: '5-1' } → reject (inverted range)
+  SyncContractsSchema:
+    input {} → accept (default dryRun=false)
+    input { dryRun: 'yes' } → reject (non-boolean)

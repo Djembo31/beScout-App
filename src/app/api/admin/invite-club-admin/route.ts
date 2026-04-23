@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
+import { parseBody } from '@/lib/validation/parseBody';
+import { InviteClubAdminSchema } from '@/lib/schemas/inviteClubAdmin.schema';
+import { isValidationError } from '@/lib/errors';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -42,22 +45,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, errorKey: 'noPermission' }, { status: 403 });
   }
 
-  // 3. Parse request body
-  let body: { email: string; clubId: string; role: string };
+  // 3. Parse + validate request body (Slice 177 — Zod)
+  let email: string;
+  let clubId: string;
+  let role: 'owner' | 'admin' | 'editor';
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ success: false, errorKey: 'invalidRequest' }, { status: 400 });
-  }
-
-  const { email, clubId, role } = body;
-  if (!email || !clubId || !role) {
-    return NextResponse.json({ success: false, errorKey: 'emailClubRoleRequired' }, { status: 400 });
-  }
-
-  const validRoles = ['owner', 'admin', 'editor'];
-  if (!validRoles.includes(role)) {
-    return NextResponse.json({ success: false, errorKey: 'invalidRole', params: { roles: validRoles.join(', ') } }, { status: 400 });
+    const parsed = await parseBody(req, InviteClubAdminSchema);
+    ({ email, clubId, role } = parsed);
+  } catch (err) {
+    if (isValidationError(err)) {
+      return NextResponse.json(
+        { success: false, errorKey: 'invalidRequest', field: err.field, message: err.message },
+        { status: 400 },
+      );
+    }
+    throw err;
   }
 
   // 4. Use service role client for admin operations

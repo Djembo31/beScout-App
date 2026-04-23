@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 177 | 2026-04-24 | Zod + Pilot-Schemas (Sorare/Socios Tier B1 Foundation)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: new modules + 4 admin-route upgrades) → BUILD → PROVE → REVIEW → LOG
+- **Scope S:** Runtime-Validation-Foundation via Zod. Money-Path: Nein (nur Admin-Routes, CEO-Scope korrekt ausgeschlossen).
+- **Dependency:** `zod@4.3.6` als regular-dep (nicht dev). Server-only bundle (~14kB gzipped), kein Client-Impact.
+- **Schemas (3 Files, DRY):**
+  - `src/lib/schemas/inviteClubAdmin.schema.ts` — email trim+lowercase + UUID + role-enum (owner/admin/editor)
+  - `src/lib/schemas/backfillGameweek.schema.ts` — shared fuer backfill-ratings + backfill-positions. Akzeptiert number | numeric-string | "1-5"-Range, normalisiert zu `{gameweeks: number[]}`. Rejected: gw=0/39, inverted range, non-numeric
+  - `src/lib/schemas/syncContracts.schema.ts` — optional dryRun, default false
+- **Helper:** `src/lib/validation/parseBody.ts` — `parseBody(req, schema)` wirft `ValidationError` (Slice 174) mit `field` + `message` + Zod-Error als `cause`. `firstIssue()` extrahiert field-path + message aus ZodError.
+- **4 Routes migriert:** invite-club-admin, backfill-ratings, backfill-positions, sync-contracts. Cast-Pattern `(err as { field? })` durch `isValidationError`-Guard aus @/lib/errors ersetzt (Review-Finding #2 in-slice resolved).
+- **Tests:** 25/25 gruen (6 InviteClub + 10 BackfillGW + 4 SyncContracts + 5 parseBody).
+- **Proof:** `worklog/proofs/177-zod.txt` — pnpm ls zod + tsc + vitest + Beispiel-Inputs/Outputs + git-diff-stat.
+- **Review:** `worklog/reviews/177-review.md` — PASS, Finding #2 (isValidationError-Guard) IN-SLICE resolved.
+- **Follow-Slice 177b:** withLogger-Integration fuer 4 Admin-Routes (AC5-Completion). Dann ValidationError automatisch via Sentry captured.
+- **Offene LOW-Findings:** sync-contracts invalid_json-Test + BackfillGameweek JSDoc + Zod-v5-Migration-Audit + Modal-Regex-Harmonization + XSS/Unicode-Edge-Tests + double-default syncContracts. Alle als post-Beta-Batch.
+- **Pre-existing Test-Failures (UNRELATED zu 177):** 4 DB-Invariants (INV-35/38/39/40, Live-DB-Quality-Checks) + 1 INV-25 (posts.ts 'vote_post_failed' nicht in KNOWN_KEYS). Nicht durch 177 verursacht.
+- **Knowledge-Capture-Kandidaten:** (a) common-errors.md Pattern "Type-Guard narrow auf DomainError-Subclass". (b) common-errors.md "Zod v4 deprecated string-chains". (c) patterns.md "Validation-Stack Admin-Routes".
+
+---
+
 ## 176d | 2026-04-24 | Error-Boundaries Batch-Migration auf captureError
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: UI-boundaries, no backend) → BUILD → PROVE → REVIEW → LOG

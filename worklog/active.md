@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 177
+stage: LOG
+spec: worklog/specs/177-zod-pilot-schemas.md
+impact: skipped (new modules + 4 admin-route upgrades)
+proof: worklog/proofs/177-zod.txt
+review: worklog/reviews/177-review.md (PASS, Finding #2 in-slice resolved, Finding #1 withLogger-Integration als 177b)
 ```
 
 ## Offene Follow-up-Kandidaten

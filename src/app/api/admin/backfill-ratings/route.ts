@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, type ApiFixturePlayerResponse } from '@/lib/footballApi';
+import { parseBody } from '@/lib/validation/parseBody';
+import { BackfillGameweekSchema } from '@/lib/schemas/backfillGameweek.schema';
+import { isValidationError } from '@/lib/errors';
 
 /**
  * Admin API: Backfill real API-Football ratings for completed gameweeks.
@@ -15,7 +18,7 @@ import { apiFetch, type ApiFixturePlayerResponse } from '@/lib/footballApi';
  * Also reports unmapped API-Football players (for completeness check).
  */
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   // Auth guard
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
@@ -28,22 +31,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'API_FOOTBALL_KEY not configured' }, { status: 500 });
   }
 
-  const body = await req.json().catch(() => ({}));
-  const gwInput = body.gameweek;
-  if (!gwInput) {
-    return NextResponse.json({ error: 'gameweek required (number or "1-5" range)' }, { status: 400 });
-  }
-
-  // Parse gameweek(s)
-  const gameweeks: number[] = [];
-  if (typeof gwInput === 'string' && gwInput.includes('-')) {
-    const [start, end] = gwInput.split('-').map(Number);
-    if (isNaN(start) || isNaN(end) || end - start > 38) {
-      return NextResponse.json({ error: 'Invalid range (max 38 gameweeks)' }, { status: 400 });
+  // Slice 177: Zod-Schema parses + expands single-gw or "1-5"-range
+  let gameweeks: number[];
+  try {
+    const parsed = await parseBody(req, BackfillGameweekSchema);
+    gameweeks = parsed.gameweeks;
+  } catch (err) {
+    if (isValidationError(err)) {
+      return NextResponse.json(
+        { error: 'gameweek required (number 1-38 or "1-5" range)', field: err.field, message: err.message },
+        { status: 400 },
+      );
     }
-    for (let i = start; i <= end; i++) gameweeks.push(i);
-  } else {
-    gameweeks.push(Number(gwInput));
+    throw err;
   }
 
 

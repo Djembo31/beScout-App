@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, getLeagueId, getCurrentSeason } from '@/lib/footballApi';
+import { parseBody } from '@/lib/validation/parseBody';
+import { SyncContractsSchema } from '@/lib/schemas/syncContracts.schema';
+import { isValidationError } from '@/lib/errors';
 
 /**
  * Admin API: Sync contract end dates from API-Football /players/profiles endpoint.
@@ -44,7 +47,7 @@ type PlayerResponse = {
   }>;
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -56,11 +59,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'API_FOOTBALL_KEY not set' }, { status: 500 });
   }
 
-  let dryRun = false;
+  // Slice 177: Zod schema — dryRun defaults to false, empty body is allowed
+  let dryRun: boolean;
   try {
-    const body = await req.json().catch(() => ({}));
-    dryRun = body?.dryRun === true;
-  } catch { /* empty body is fine */ }
+    const parsed = await parseBody(req, SyncContractsSchema);
+    dryRun = parsed.dryRun;
+  } catch (err) {
+    if (isValidationError(err)) {
+      // invalid_json is OK here — empty body was legacy, default to false
+      if (err.message === 'invalid_json') {
+        dryRun = false;
+      } else {
+        return NextResponse.json(
+          { error: 'invalid body', field: err.field, message: err.message },
+          { status: 400 },
+        );
+      }
+    } else {
+      throw err;
+    }
+  }
 
 
   try {
