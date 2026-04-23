@@ -31,7 +31,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/components/fantasy/__tests__/CreatePredictionModal.test.tsx`
   - `src/lib/queries/predictions.ts`
   - `src/lib/queries/index.ts`
-- **Commit:** pending
+- **Commit:** `c9823114`
 
 ---
 
