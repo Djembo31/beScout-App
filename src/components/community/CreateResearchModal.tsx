@@ -157,6 +157,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
       open={open}
       title={isScouting ? tr('newScoutingReport') : tr('newResearchReport')}
       onClose={onClose}
+      preventClose={loading}
       footer={
         <div className="space-y-2">
           {!canSubmit && (tried || title.length > 0 || preview.length > 0 || content.length > 0) && (

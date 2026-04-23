@@ -27,6 +27,7 @@ export default function OfferModal({
       onClose={onClose}
       title={t('offer.title')}
       subtitle={t('offer.subtitle')}
+      preventClose={offerLoading}
       footer={
         <div>
           <div className="flex gap-2">

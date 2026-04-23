@@ -166,6 +166,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
         open={modalOpen}
         title={isScouting ? tb('submitScoutingEval') : tb('submitSolution')}
         onClose={() => { setModalOpen(false); setTried(false); }}
+        preventClose={submitting === bounty.id}
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
           <div className="text-sm text-white/50 mb-2">

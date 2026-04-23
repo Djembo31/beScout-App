@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 166
+stage: LOG
+spec: worklog/specs/166-modal-preventclose-sweep.md
+impact: skipped (13 Modals, preventClose-Prop-Add, keine API-Change)
+proof: worklog/proofs/166-modal-preventclose-sweep.txt
+review: worklog/reviews/166-review.md (PASS nach in-slice Scope-Gap-Fixes, 46% Reviewer-ROI)
 ```
 
 ## Session 2026-04-23 — 10 Slices committed

@@ -123,6 +123,7 @@ export default function CreatePostModal({
       open={open}
       title={t('newPost')}
       onClose={onClose}
+      preventClose={loading}
       footer={
         <div className="space-y-2">
           {!canSubmit && content.length > 0 && (

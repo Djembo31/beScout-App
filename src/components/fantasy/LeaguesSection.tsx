@@ -52,7 +52,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('createTitle')}>
+    <Modal open={open} onClose={onClose} title={t('createTitle')} preventClose={createMut.isPending}>
       <div className="space-y-4">
         <div>
           <label htmlFor="createLeagueName" className="text-sm text-white/60 mb-1 block">{t('nameLabel')}</label>
@@ -123,7 +123,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('joinTitle')}>
+    <Modal open={open} onClose={onClose} title={t('joinTitle')} preventClose={joinMut.isPending}>
       <div className="space-y-4">
         <div>
           <label htmlFor="joinLeagueCode" className="text-sm text-white/60 mb-1 block">{t('codeLabel')}</label>

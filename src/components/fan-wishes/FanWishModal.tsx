@@ -79,7 +79,7 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('title')}>
+    <Modal open={open} onClose={onClose} title={t('title')} preventClose={wishMut.isPending}>
       <div className="space-y-4">
         {/* Tabs */}
         <div className="flex gap-1 bg-white/[0.03] rounded-xl p-1">

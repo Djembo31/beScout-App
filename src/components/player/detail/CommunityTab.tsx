@@ -310,7 +310,7 @@ function CommunityTabInner({
       )}
 
       {/* ── Create Player Take Modal ── */}
-      <Modal open={showCreatePost} title={t('statementAbout', { name: playerName })} onClose={() => setShowCreatePost(false)}>
+      <Modal open={showCreatePost} title={t('statementAbout', { name: playerName })} onClose={() => setShowCreatePost(false)} preventClose={postLoading}>
         <div className="space-y-4">
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('category')}</label>
@@ -346,7 +346,7 @@ function CommunityTabInner({
       </Modal>
 
       {/* ── Create Transfer Rumor Modal ── */}
-      <Modal open={showCreateRumor} title={t('rumorAbout', { name: playerName })} onClose={() => setShowCreateRumor(false)}>
+      <Modal open={showCreateRumor} title={t('rumorAbout', { name: playerName })} onClose={() => setShowCreateRumor(false)} preventClose={postLoading}>
         <div className="space-y-4">
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('typeLabel')}</label>

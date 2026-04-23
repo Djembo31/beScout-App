@@ -11,6 +11,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 166 | 2026-04-23 | Modal preventClose Sweep (13 Modals, 46% Reviewer-ROI)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (CONCERNS → PASS nach in-slice Scope-Gap-Fixes) → PROVE → LOG
+- **Scope M:** Original 7 Target-Modals (aus 161 NIT + 163 Finding + weitere Grep-Audit) + 6 Reviewer-entdeckte Scope-Gap-Modals (embedded in Sub-Components).
+- **Scope-Gap-Entdeckung:** Reviewer fand 6 embedded Modals die primary Top-Level-Grep-Audit verpasst hat — 46% der Fixes.
+- **13 Modals gefixt:**
+  - Fantasy (3): LeaguesSection Create+Join + CreatePredictionModal
+  - Community (5): CreatePost + CreateBounty + CreateResearch + **ReportModal** + **BountyCard.SubmitModal**
+  - Player-Detail (3): **OfferModal** (Money-Pfad) + CommunityTab.CreatePost + CommunityTab.CreateRumor
+  - Fan-Wishes (1): **FanWishModal**
+  - Admin (1): AddAdminModal
+- **Slice 159 Blueprint-Gap geschlossen:** ReportModal + FanWishModal hatten Ferrari-Blueprint (`mut.isPending`) aber ohne preventClose. Jetzt konsistent.
+- **OfferModal Money-Pfad-Fix (HIGH-Prio):** In-slice gelandet statt 166b abgespalten.
+- **Pattern:** `preventClose={<mut.isPending>}` je nach Mutation-Quelle (internal useSafeMutation oder parent-loading-Prop).
+- **Artefakte:**
+  - Spec: `worklog/specs/166-modal-preventclose-sweep.md`
+  - Review: `worklog/reviews/166-review.md` (PASS, 46% Reviewer-ROI)
+  - Proof: `worklog/proofs/166-modal-preventclose-sweep.txt` (tsc clean, vitest 640/640)
+- **Files (9):** CreatePostModal, CreateBountyModal, CreateResearchModal, ReportModal, BountyCard, LeaguesSection, CreatePredictionModal, CommunityTab (player), OfferModal, FanWishModal, AddAdminModal
+- **Commit:** pending
+
+---
+
 ## 165 | 2026-04-23 | votePost Service Silent-Cast Hardening
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (PASS, 1 NITPICK in-slice fixed) → PROVE → LOG

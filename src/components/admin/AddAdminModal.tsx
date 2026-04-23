@@ -82,7 +82,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
   const editorBadge = getRoleBadge('editor');
 
   return (
-    <Modal open={open} onClose={handleClose} title={t('addTeamMember')}>
+    <Modal open={open} onClose={handleClose} title={t('addTeamMember')} preventClose={saving}>
       <div className="space-y-4 p-4 md:p-6">
         {/* Handle search */}
         <div>

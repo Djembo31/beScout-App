@@ -171,6 +171,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
       open={open}
       onClose={handleClose}
       title={t('create')}
+      preventClose={createPredictionMut.isPending}
       footer={
         step === 'condition' ? (
           <div className="flex gap-2">

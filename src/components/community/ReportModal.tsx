@@ -73,6 +73,7 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
       title={t('reportTitle')}
       onClose={onClose}
       size="sm"
+      preventClose={reportMut.isPending}
       footer={
         <Button
           variant="gold"

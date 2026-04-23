@@ -63,6 +63,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
       open={open}
       title={t('createBounty.title')}
       onClose={onClose}
+      preventClose={loading}
       footer={
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-1.5 text-xs text-white/40">
