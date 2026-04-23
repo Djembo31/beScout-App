@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
+import { withLogger } from '@/lib/observability/apiLogger';
 import {
   apiFetch,
   getCurrentSeason,
@@ -112,7 +113,7 @@ type LeagueSyncResult = {
 // GET /api/cron/gameweek-sync
 // ============================================
 
-export async function GET(request: Request) {
+export const GET = withLogger('cron.gameweek-sync', async (request) => {
   const runStart = Date.now();
   const globalSteps: StepResult[] = [];
 
@@ -330,7 +331,7 @@ export async function GET(request: Request) {
       { status: 500 },
     );
   }
-}
+});
 
 // ============================================
 // syncLeague(league) — Per-League Pipeline

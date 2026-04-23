@@ -1,0 +1,55 @@
+=== tsc --noEmit ===
+(clean, no output)
+
+=== Routes WITH withLogger (should be 19) ===
+19
+
+=== Routes WITHOUT withLogger (should be 0) ===
+(if no output above = clean)
+
+=== Distinct route-strings ===
+  admin.backfill-positions
+  admin.backfill-ratings
+  admin.invite-club-admin
+  admin.players-csv.export
+  admin.players-csv.import
+  admin.sync-contracts
+  cron.close-expired-bounties
+  cron.gameweek-sync
+  cron.sync-fixtures-future
+  cron.sync-injuries
+  cron.sync-players-daily
+  cron.sync-standings
+  cron.sync-transfermarkt-batch
+  cron.sync-transfers
+  cron.transfermarkt-search-batch
+  public.events
+  public.players
+  public.push
+
+=== Observability Tests ===
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m57 passed[39m[22m[90m (57)[39m
+[2m   Start at [22m 23:53:57
+[2m   Duration [22m 7.97s[2m (transform 288ms, setup 2.33s, import 818ms, tests 117ms, environment 13.62s)[22m
+
+
+=== git diff --stat ===
+ memory/session-handoff.md                          | 128 +++------------------
+ src/app/api/admin/players-csv/export/route.ts      |   7 +-
+ src/app/api/admin/players-csv/import/route.ts      |   7 +-
+ src/app/api/admin/trigger-cron/[name]/route.ts     |  15 +--
+ src/app/api/cron/close-expired-bounties/route.ts   |   5 +-
+ src/app/api/cron/gameweek-sync/route.ts            |   5 +-
+ src/app/api/cron/sync-fixtures-future/route.ts     |   5 +-
+ src/app/api/cron/sync-injuries/route.ts            |   5 +-
+ src/app/api/cron/sync-players-daily/route.ts       |   5 +-
+ src/app/api/cron/sync-standings/route.ts           |   5 +-
+ src/app/api/cron/sync-transfermarkt-batch/route.ts |   5 +-
+ src/app/api/cron/sync-transfers/route.ts           |   5 +-
+ .../api/cron/transfermarkt-search-batch/route.ts   |   5 +-
+ src/app/api/events/route.ts                        |   5 +-
+ src/app/api/players/route.ts                       |   7 +-
+ src/app/api/push/route.ts                          |   7 +-
+ worklog/active.md                                  |  10 +-
+ 17 files changed, 77 insertions(+), 154 deletions(-)

@@ -11,8 +11,9 @@
  * Auth: Session-Cookie + platform_admins.role IN ('superadmin', 'admin').
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
@@ -26,11 +27,10 @@ const TRIGGERABLE_CRONS = new Set([
   'sync-standings',
 ]);
 
-export async function POST(
-  req: NextRequest,
-  context: { params: Promise<{ name: string }> },
-): Promise<NextResponse> {
-  const { name } = await context.params;
+export const POST = withLogger<Promise<{ name: string }>>(
+  'admin.trigger-cron',
+  async (req, { params }): Promise<NextResponse> => {
+    const { name } = await (params as Promise<{ name: string }>);
 
   // ---- 1. Whitelist check ----
   if (!TRIGGERABLE_CRONS.has(name)) {
@@ -137,7 +137,8 @@ export async function POST(
     },
     { status: cronResponse.ok ? 200 : cronResponse.status },
   );
-}
+  },
+);
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

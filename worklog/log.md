@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 175b | 2026-04-24 | withLogger-Batch-Migration aller verbleibenden API-Routes
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: route-wrapper) → BUILD → PROVE → REVIEW → LOG
+- **Scope S:** 15 Files wrapped. Nach 175b sind **alle 19** API-Routes unter withLogger (Foundation fuer Dashboards/Alerts via route-tag).
+- **Migriert (15):** 9 cron (close-expired-bounties, gameweek-sync [1738 Zeilen!], sync-fixtures-future, sync-injuries, sync-players-daily, sync-standings, sync-transfermarkt-batch, sync-transfers, transfermarkt-search-batch) + 3 admin (players-csv/export, players-csv/import, trigger-cron/[name]) + 3 public (events, players, push).
+- **Pattern:** `export async function GET(req) { ... }` → `export const GET = withLogger('<namespace>.<route>', async (req) => { ... });`. Closing `}` → `});`.
+- **Sonderfall Dynamic Route:** `admin/trigger-cron/[name]` mit Generic `withLogger<Promise<{name:string}>>('admin.trigger-cron', async (req, { params }) => { const { name } = await params!; ... })`. Next.js 15 async-params-ready.
+- **Sonderfall gameweek-sync (1738 Zeilen):** GET endet Z.334, syncLeague helper ab Z.340. Initial falsch 1738 gewrappt, dann korrigiert. tsc clean verified.
+- **Runtime-Config unveraendert:** `runtime/dynamic/maxDuration` hinter Handler unberuehrt. Konform mit Slice 069 "keine named-exports in route.ts".
+- **console.error Preserved:** 18 Calls in 11 Files intakt. Migration zu `log.error` bleibt Scope-Out (zu varianzreich).
+- **Route-Strings (19 distinct):**
+  - admin.* (6): backfill-positions, backfill-ratings, invite-club-admin, players-csv.export, players-csv.import, sync-contracts, trigger-cron
+  - cron.* (9): close-expired-bounties, gameweek-sync, sync-fixtures-future, sync-injuries, sync-players-daily, sync-standings, sync-transfermarkt-batch, sync-transfers, transfermarkt-search-batch
+  - public.* (3): events, players, push
+- **Tests:** 57/57 observability-tests gruen. withLogger-Coverage ist indirekt (logger/silentRejects/captureError decken kerns ab). Follow-Up: 175c fuer direkte apiLogger.test.ts.
+- **Proof:** `worklog/proofs/175b-withlogger-batch.txt` — tsc + 19 withLogger-count + 19 distinct route-strings + 0 files ohne + 57/57 tests.
+- **Review:** `worklog/reviews/175b-review.md` — PASS, 4 LOW non-blocker (trigger-cron null-safe params, cosmetic indentation, withLogger test-gap, next-build-vs-tsc prevention-pattern).
+- **Knowledge-Capture-Kandidaten:** (a) Pattern "Next.js Route-Handler Wrapping mit Generic-Params" in memory/patterns.md. (b) `.claude/rules/common-errors.md` §7 Addendum "tsc-clean ist KEIN Proof fuer Route-Handler-Types".
+
+---
+
 ## 177b | 2026-04-24 | withLogger-Integration fuer Admin-Routes (177 AC5-Completion)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: route-wrapper migration) → BUILD → PROVE → REVIEW (self) → LOG

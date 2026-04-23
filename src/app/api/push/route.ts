@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { sendPushToUser, type PushPayload } from '@/lib/services/pushSender';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -15,7 +16,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
  * (e.g., trade notification to seller) since the caller is already authenticated
  * and the notification was already inserted into the DB via RLS-protected insert.
  */
-export async function POST(request: NextRequest) {
+export const POST = withLogger('public.push', async (request) => {
   try {
     // Auth check: verify caller is the target user
     const supabase = createServerClient(
@@ -61,4 +62,4 @@ export async function POST(request: NextRequest) {
     console.error('[API/Push] Request error:', err);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
-}
+});

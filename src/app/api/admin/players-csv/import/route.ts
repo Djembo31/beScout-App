@@ -10,9 +10,10 @@
  * Auth: session + platform_admins.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const UPDATE_BATCH_SIZE = 50;
@@ -32,7 +33,7 @@ type InputRow = {
   contract_end: string | null;
 };
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export const POST = withLogger('admin.players-csv.import', async (req): Promise<NextResponse> => {
   // Auth
   const supabaseAuth = createServerClient(
     supabaseUrl,
@@ -163,7 +164,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     validation_errors: errors.slice(0, 20),
     update_error_sample: updateErrorSample,
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

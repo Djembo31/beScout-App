@@ -8,9 +8,10 @@
  * Auth: session + platform_admins.role IN ('superadmin', 'admin').
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
@@ -24,7 +25,7 @@ function csvEscape(v: string | number | null | undefined): string {
   return s;
 }
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export const GET = withLogger('admin.players-csv.export', async (req): Promise<NextResponse> => {
   // Auth
   const supabaseAuth = createServerClient(
     supabaseUrl,
@@ -96,7 +97,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       'Content-Disposition': `attachment; filename="players-${date}.csv"`,
     },
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

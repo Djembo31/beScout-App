@@ -14,6 +14,7 @@
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { withLogger } from '@/lib/observability/apiLogger';
 import {
   normalizeName,
   parseSearchResults,
@@ -42,7 +43,7 @@ type PlayerToSearch = {
   club_short: string | null;
 };
 
-export async function GET(request: Request): Promise<NextResponse> {
+export const GET = withLogger('cron.transfermarkt-search-batch', async (request): Promise<NextResponse> => {
   const runStart = Date.now();
 
   const cronSecret = process.env.CRON_SECRET;
@@ -237,7 +238,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       ...(debug ? { debug_trace: debugTrace, threshold_used: threshold } : {}),
     },
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

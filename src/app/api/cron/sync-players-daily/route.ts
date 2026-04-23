@@ -18,6 +18,7 @@
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { withLogger } from '@/lib/observability/apiLogger';
 import { apiFetch, getCurrentSeason, mapPosition } from '@/lib/footballApi';
 
 type ApiPlayersResponse = {
@@ -101,7 +102,7 @@ async function fetchClubPlayers(
   return collected;
 }
 
-export async function GET(request: Request): Promise<NextResponse> {
+export const GET = withLogger('cron.sync-players-daily', async (request): Promise<NextResponse> => {
   const runStart = Date.now();
 
   const cronSecret = process.env.CRON_SECRET;
@@ -321,7 +322,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       error_sample: stats.errors.slice(0, 5),
     },
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

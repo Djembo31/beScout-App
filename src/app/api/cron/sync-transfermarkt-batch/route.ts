@@ -18,6 +18,7 @@
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { withLogger } from '@/lib/observability/apiLogger';
 import { parseMarketValue, parseContractEnd } from '@/lib/scrapers/transfermarkt-profile';
 
 const TM_RATE_LIMIT_MS = 3000;
@@ -41,7 +42,7 @@ type PlayerMapping = {
 // Parser-Helpers: src/lib/scrapers/transfermarkt-profile.ts
 // (Slice 069: extracted for Next-Route-Handler-Type-Compat)
 
-export async function GET(request: Request): Promise<NextResponse> {
+export const GET = withLogger('cron.sync-transfermarkt-batch', async (request): Promise<NextResponse> => {
   const runStart = Date.now();
 
   const cronSecret = process.env.CRON_SECRET;
@@ -188,7 +189,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       error_sample: errors.slice(0, 5),
     },
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

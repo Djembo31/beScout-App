@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { PLAYER_SELECT_COLS } from '@/lib/services/players';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 // Server-side in-memory cache
 let playersCache: { data: unknown[]; expiresAt: number } | null = null;
@@ -8,7 +9,7 @@ const moversCache = new Map<number, { data: unknown[]; expiresAt: number }>();
 
 const FIVE_MIN = 5 * 60 * 1000;
 
-export async function GET(req: NextRequest) {
+export const GET = withLogger('public.players', async (req) => {
   const movers = req.nextUrl.searchParams.get('movers');
   const limit = parseInt(req.nextUrl.searchParams.get('limit') || '5', 10);
 
@@ -67,4 +68,4 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(all, {
     headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
   });
-}
+});

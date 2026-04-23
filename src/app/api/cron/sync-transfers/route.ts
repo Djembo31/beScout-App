@@ -15,6 +15,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, getCurrentSeason } from '@/lib/footballApi';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 type ApiTransferResponse = {
   response: Array<{
@@ -56,7 +57,7 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function GET(request: Request): Promise<NextResponse> {
+export const GET = withLogger('cron.sync-transfers', async (request): Promise<NextResponse> => {
   const runStart = Date.now();
 
   // ---- 1. Auth ----
@@ -262,7 +263,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       error_sample: stats.errors.slice(0, 5),
     },
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

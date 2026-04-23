@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 // Server-side in-memory cache
 let eventsCache: { data: unknown[]; expiresAt: number } | null = null;
 
 const ONE_MIN = 60 * 1000;
 
-export async function GET(request: Request) {
+export const GET = withLogger('public.events', async (request) => {
   const { searchParams } = new URL(request.url);
   const bust = searchParams.get('bust');
 
@@ -29,4 +30,4 @@ export async function GET(request: Request) {
   return NextResponse.json(data, {
     headers: { 'Cache-Control': 'private, no-cache' },
   });
-}
+});

@@ -18,6 +18,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, getCurrentSeason } from '@/lib/footballApi';
+import { withLogger } from '@/lib/observability/apiLogger';
 
 type ApiInjuryResponse = {
   response: Array<{
@@ -63,7 +64,7 @@ function mapStatus(type: string, reason: string | null): 'injured' | 'suspended'
   return 'injured';
 }
 
-export async function GET(request: Request): Promise<NextResponse> {
+export const GET = withLogger('cron.sync-injuries', async (request): Promise<NextResponse> => {
   const runStart = Date.now();
 
   const cronSecret = process.env.CRON_SECRET;
@@ -287,7 +288,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       error_sample: stats.errors.slice(0, 5),
     },
   });
-}
+});
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
