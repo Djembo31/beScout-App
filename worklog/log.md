@@ -26,7 +26,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - Spec: `worklog/specs/168-rpc-shape-regel.md`
   - Proof: `worklog/proofs/168-rpc-shape-regel.txt` (tsc clean)
 - **Files:** `.claude/rules/database.md`
-- **Commit:** pending
+- **Commit:** `2d5bea82`
 
 ---
 
