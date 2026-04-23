@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 177b
-stage: LOG
-spec: worklog/specs/177b-withlogger-admin-routes.md
-impact: skipped (route-wrapper migration)
-proof: worklog/proofs/177b-withlogger.txt
-review: worklog/reviews/177b-review.md (PASS, Self-Review XS-Pattern-Repetition)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Offene Follow-up-Kandidaten
