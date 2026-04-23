@@ -119,6 +119,10 @@ function extractDomainContext(err: unknown): Record<string, unknown> {
  * Flatten an arbitrary `cause` value into a serialisable, Sentry-friendly
  * shape. Preserves Postgres driver fields (`code`, `detail`, `constraint`)
  * without leaking stack-traces or cycles.
+ *
+ * Slice 176c: Postgres `detail` field is redacted for PII-bearing columns
+ * (email, phone, handle, ...) — the 23505/23503 format `Key (col)=(val)`
+ * would otherwise leak user-entered values into Sentry-extra.
  */
 function serializeCause(cause: unknown): Record<string, unknown> {
   if (cause instanceof Error) {
@@ -131,7 +135,7 @@ function serializeCause(cause: unknown): Record<string, unknown> {
       out.code = rec.code;
     }
     if (typeof rec.status === 'number') out.status = rec.status;
-    if (typeof rec.detail === 'string') out.detail = rec.detail;
+    if (typeof rec.detail === 'string') out.detail = redactPgDetail(rec.detail);
     if (typeof rec.constraint === 'string') out.constraint = rec.constraint;
     return out;
   }
@@ -144,4 +148,49 @@ function serializeCause(cause: unknown): Record<string, unknown> {
     }
   }
   return { value: String(cause) };
+}
+
+/**
+ * Columns whose values MUST be redacted in Postgres `detail`-strings.
+ * Matched case-insensitively against the column-name captured from
+ * `Key (col)=(val)` patterns in 23505 / 23503 errors.
+ */
+const PII_REDACT_COLUMNS = new Set([
+  'email',
+  'phone',
+  'phone_number',
+  'handle',
+  'username',
+  'first_name',
+  'last_name',
+  'full_name',
+  'password',
+  // Invite-tokens & secrets — not RFC-4973-PII but user-bound secrets that
+  // must not leak between accounts via Sentry-UI.
+  'referral_code',
+  'api_key',
+  'session_token',
+  'device_token',
+]);
+
+/**
+ * Redact user-entered values from Postgres `detail` strings.
+ *
+ * Postgres 23505/23503 emit `Key (col)=(val) already exists.` — when the
+ * column is PII-bearing (email, phone, handle, ...), `val` is user input
+ * and MUST NOT land in Sentry.
+ *
+ * Non-matching detail-strings pass through untouched.
+ */
+function redactPgDetail(detail: string): string {
+  return detail.replace(
+    /Key \(([^)]+)\)=\(([^)]*)\)/g,
+    (match, col: string, _val: string) => {
+      const normalised = col.trim().toLowerCase();
+      if (PII_REDACT_COLUMNS.has(normalised)) {
+        return `Key (${col})=([REDACTED])`;
+      }
+      return match;
+    },
+  );
 }

@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 176c
+stage: LOG
+spec: worklog/specs/176c-pii-redact-pg-detail.md
+impact: skipped (internal observability-module)
+proof: worklog/proofs/176c-pii-redact.txt
+review: worklog/reviews/176c-review.md (PASS, Finding #1 in-slice resolved, composite-key LOW als Follow-up)
 ```
 
 ## Fokus

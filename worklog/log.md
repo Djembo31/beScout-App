@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 176c | 2026-04-24 | PII-Redact Postgres Detail-Field (Tier D2 PII-Fix)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: internal observability-module) → BUILD → PROVE → REVIEW → LOG
+- **Scope XS:** Schliesst Finding #2 aus `176b-review.md` + in-slice Finding #1 aus eigenem Review.
+- **Fix:** Postgres 23505/23503 emit `Key (<col>)=(<val>)` im detail-Field. Bei sensitive col-names (email, phone, handle, first_name, last_name, referral_code, ...) wurden User-eingegebene Werte + Invite-Token-Secrets an Sentry geleakt.
+- **Implementation:** Neue `redactPgDetail(detail)` Helper mit 13-Spalten Whitelist-Set (`PII_REDACT_COLUMNS`). Pattern-Match `Key (<col>)=(<val>)` non-backtracking (`[^)]+`), case-insensitive (`toLowerCase().trim()`). `serializeCause` ruft `redactPgDetail` vor `out.detail`-Assign.
+- **Whitelist-Kategorien:** (a) RFC-4973-PII: email, phone, phone_number, handle, username, first_name, last_name, full_name, password. (b) User-bound Secrets: referral_code, api_key, session_token, device_token.
+- **Decision:** Closer-to-source statt Sentry `beforeSend`-Hook. Besser testbar + wirkt auch fuer zukuenftige Pino-Logs via gleichem `serializeCause`-Pfad.
+- **Tests:** 7 neue Tests (PII-redact + non-sensitive-kept + case-insens + multi-match + free-text-untouched + referral_code + mixed-sensitive). Total 32/32 gruen.
+- **Proof:** `worklog/proofs/176c-pii-redact.txt` — vitest + tsc + 4 redact-Beispiel-Inputs/Outputs.
+- **Review:** `worklog/reviews/176c-review.md` — PASS, Finding #1 (`referral_code` fehlt) IN-SLICE resolved. Ein offener LOW (composite-uniques `Key (col1, col2)=(...)`) als dokumentierter Follow-up nur wenn BeScout-Schema composite-PII-unique einfuehrt.
+
+---
+
 ## 176b | 2026-04-24 | captureError Follow-ups (Tier D2 Finish)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: internal module + 1 boundary + doc) → BUILD → PROVE → REVIEW → LOG

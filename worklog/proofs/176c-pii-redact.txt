@@ -1,0 +1,32 @@
+=== vitest src/lib/observability/ ===
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m32 passed[39m[22m[90m (32)[39m
+[2m   Start at [22m 22:51:11
+[2m   Duration [22m 3.21s[2m (transform 289ms, setup 1.16s, import 417ms, tests 52ms, environment 6.52s)[22m
+
+
+=== tsc --noEmit ===
+(clean, no output)
+
+=== git diff --stat (unstaged) ===
+ memory/session-handoff.md                          | 128 +++------------------
+ .../observability/__tests__/captureError.test.ts   |  85 ++++++++++++++
+ src/lib/observability/captureError.ts              |  51 +++++++-
+ worklog/active.md                                  |  12 +-
+ 4 files changed, 159 insertions(+), 117 deletions(-)
+
+=== PII redact examples ===
+  INPUT : Key (email)=(user@example.com) already exists.
+  OUTPUT: Key (email)=([REDACTED]) already exists.
+
+  INPUT : Key (slug)=(fc-bayern) already exists.
+  OUTPUT: Key (slug)=(fc-bayern) already exists.  (unchanged)
+
+  INPUT : Key (referral_code)=(ABC123XYZ) already exists.
+  OUTPUT: Key (referral_code)=([REDACTED]) already exists.
+
+  INPUT : Key (slug)=(fc-bayern), Key (email)=(a@b.com).
+  OUTPUT: Key (slug)=(fc-bayern), Key (email)=([REDACTED]).

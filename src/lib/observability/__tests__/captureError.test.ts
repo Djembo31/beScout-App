@@ -145,6 +145,91 @@ describe('captureError (slice 176)', () => {
       cause: { message: 'raw string reason' },
     });
   });
+
+  it('redacts PII value in Postgres detail for sensitive column (slice 176c)', () => {
+    const pgErr = Object.assign(new Error('duplicate key'), {
+      code: '23505',
+      detail: 'Key (email)=(user@example.com) already exists.',
+      constraint: 'users_email_key',
+    });
+    captureError(new ConflictError('dup email', 'user', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe('Key (email)=([REDACTED]) already exists.');
+  });
+
+  it('preserves detail value for non-sensitive column (slice 176c)', () => {
+    const pgErr = Object.assign(new Error('duplicate key'), {
+      code: '23505',
+      detail: 'Key (slug)=(fc-bayern) already exists.',
+      constraint: 'clubs_slug_key',
+    });
+    captureError(new ConflictError('dup slug', 'club', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe('Key (slug)=(fc-bayern) already exists.');
+  });
+
+  it('redacts case-insensitively (slice 176c)', () => {
+    const pgErr = Object.assign(new Error('dup'), {
+      code: '23505',
+      detail: 'Key (EMAIL)=(user@x.com) already exists.',
+    });
+    captureError(new ConflictError('dup', 'user', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe('Key (EMAIL)=([REDACTED]) already exists.');
+  });
+
+  it('redacts multiple sensitive columns in same detail (slice 176c)', () => {
+    const pgErr = Object.assign(new Error('multi-unique'), {
+      code: '23505',
+      detail: 'Key (email)=(a@b.com), Key (phone)=(+49123).',
+    });
+    captureError(new ConflictError('multi', 'user', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe(
+      'Key (email)=([REDACTED]), Key (phone)=([REDACTED]).',
+    );
+  });
+
+  it('redacts referral_code (user-bound secret, slice 176c Finding #1)', () => {
+    const pgErr = Object.assign(new Error('dup'), {
+      code: '23505',
+      detail: 'Key (referral_code)=(ABC123XYZ) already exists.',
+    });
+    captureError(new ConflictError('dup referral', 'profile', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe(
+      'Key (referral_code)=([REDACTED]) already exists.',
+    );
+  });
+
+  it('keeps non-sensitive when mixed with sensitive (slice 176c)', () => {
+    const pgErr = Object.assign(new Error('mixed'), {
+      code: '23505',
+      detail: 'Key (slug)=(fc-bayern), Key (email)=(a@b.com).',
+    });
+    captureError(new ConflictError('mixed', 'x', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe(
+      'Key (slug)=(fc-bayern), Key (email)=([REDACTED]).',
+    );
+  });
+
+  it('leaves free-text detail untouched (slice 176c)', () => {
+    const pgErr = Object.assign(new Error('gen'), {
+      code: '42P01',
+      detail: 'relation "foo" does not exist',
+    });
+    captureError(new ConflictError('missing', 'table', pgErr));
+    const [, options] = lastExceptionCall();
+    const cause = (options.extra as { cause?: { detail?: string } }).cause;
+    expect(cause?.detail).toBe('relation "foo" does not exist');
+  });
 });
 
 describe('captureMessage (slice 176)', () => {
