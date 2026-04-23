@@ -1,0 +1,69 @@
+Slice 169 — Session-End DISTILL PROOF
+==========================================
+Date: 2026-04-23
+Type: Docs (Session-End-Pflicht, workflow.md DISTILL-Protokoll)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── Was extrahiert ───
+
+memory/decisions.md 2 neue PROCESS-Entries vor "Template für neue Entries":
+
+**D25 — Knowledge-Flywheel als Slice-Chain-Pattern**
+  Session-Evidence (Slices 160-168):
+  - Slice 159 Ferrari-Batch → 164 Codification (patterns.md + testing.md)
+  - Slice 166 Modal-Sweep → 167 Codification (patterns.md + common-errors.md §8)
+  - Slice 165 Silent-Cast → 168 Codification (database.md)
+  Regel: Bug-Fix produziert Reviewer-Findings → separates XS-docs-only Codification-Slice,
+  nicht in-same-slice (scope-creep) und nicht Backlog-only (vergessen).
+  Commit-Log zeigt Flywheel via fix(...)→docs(codification):... Chain.
+
+**D26 — Reviewer-Agent als Scope-Gap-Catcher**
+  Session-Evidence (Slice 166):
+  - Primary Top-Level-Grep fand 7/13 Modals (54% scope)
+  - Reviewer-Agent fand zusätzliche 6/13 (46% ROI) via embedded-Component-Cross-Ref
+  - Ohne Reviewer: 6 Safety-Fixes inkl. Money-Pfad OfferModal übersehen
+  Regel: Bei Sweep-/Pattern-Migration-Slices expliziter Reviewer-Prompt zur Spec-Audit-Verifikation.
+  common-errors.md §8 codifiziert das Grep-Pattern (Slice 167).
+  Slice-Size-Buffer: Sweep-Slices +20-30% für Scope-Gap-Fixes einplanen.
+
+─── Slice 169 ist Session-End-Pflicht ───
+
+workflow.md DISTILL-Protokoll:
+"Chat-Ausarbeitungen nicht verloren gehen lassen. Strategic Decisions,
+Architektur-Alternativen und Process-Erfindungen werden am Session-Ende
+in memory/decisions.md extrahiert."
+
+Session 2026-04-23 hat 9 Slices (160-168) produziert. 3 Codification-Slices + 2 PROCESS-Decisions
+(D25+D26) sind Session-Learnings auf Meta-Ebene. Explizit codified bevor Chat-History weg.
+
+─── git diff --stat ───
+ memory/decisions.md | +90 lines (D25 + D26)
+ + new: worklog/specs/169-session-distill.md
+ + new: worklog/proofs/169-session-distill.txt
+
+─── Review ───
+Self-Review (docs-only slice, keine Code-Änderung).
+Template-Einhaltung verifiziert: Entscheidung + Begründung + Auswirkungen + Alternativen + Re-Visit-Trigger.
+
+─── Session 2026-04-23 Gesamt-Bilanz ───
+
+10 Slices + 9 Hygiene-Commits = 19 Commits in fortlaufender Session.
+
+Slices:
+- 160 Vote-Toggle Bug + Side-Effect-Guard (fix)
+- 161 LeaguesSection + MissionBanner Ferrari (refactor tier2)
+- 162 Vote-Handler Ferrari D18 Closure (refactor tier2)
+- 163 CreatePredictionModal Ferrari — Non-Admin 8/8 (refactor tier2)
+- 164 Konvention-Codification #1 (docs codification)
+- 165 votePost Silent-Cast Hardening (fix)
+- 166 Modal preventClose Sweep 13 Modals (refactor ux)
+- 167 Knowledge-Capture aus 166 (docs codification)
+- 168 RPC-Shape-Regel database.md (docs codification)
+- 169 Session-End DISTILL (docs session-distill)
+
+Knowledge-Flywheel explizit geschlossen:
+Bug-Fix → Reviewer-Learning → Codification-Slice → decisions.md-Entry

@@ -985,6 +985,98 @@ Reviewer-Agent-Feedback (Slice 159 NIT #1 "mut.mutate vs safeTrigger Blueprint-S
 
 ---
 
+## D25 — PROCESS: Knowledge-Flywheel als Slice-Chain-Pattern
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Wenn ein Bug-Fix/Refactor-Slice einen Reviewer-Finding produziert, das eine neue Pattern/Konvention codifiziert, wird die Codification in einem **separaten nachfolgenden Slice** (XS, docs-only) umgesetzt — nicht in-same-slice, nicht Backlog-only.
+
+Session-Evidence 2026-04-23 (9 Slices):
+- Slice 159 Ferrari-Batch → Slice 164 Pattern-Konvention-Codification (patterns.md #28 + testing.md useSafeMutation-Test-Patterns)
+- Slice 166 Modal-Sweep → Slice 167 Grep-Audit-Scope-Gap-Pattern (common-errors.md §8) + Modal-preventClose-Konvention (patterns.md #28)
+- Slice 165 Silent-Cast-Hardening → Slice 168 RPC-Shape-Discriminated-Union-Regel (database.md)
+
+### Begründung
+
+**In-same-slice-Codification** = Scope-Creep. Codification braucht eigene Spec/Review-Disziplin; mit Bug-Fix vermischt wird Proof-Artefakt unklar.
+
+**Backlog-only** = Vergessen. Session 2026-04-23 hatte 3 Reviewer-Findings die codification-wert waren. Wenn nicht in separate Slices umgesetzt, wären sie nach 1-2 Sessions verloren.
+
+**Separate XS-Slice pro Codification** hält:
+- Bug-Fix-Slice fokussiert auf tatsächlichen Fix (keine doc-sweeps).
+- Codification-Slice klar als docs-only (kein Code-Risk, XS-Größe).
+- Knowledge-Flywheel explizit sichtbar im Commit-Log (`fix(...)` → `docs(codification): ...`).
+
+### Auswirkungen
+
+- **Prozess:** Nach jedem PASS-mit-Learnings-Review entscheiden ob Codification separater Slice (XS, 15-45min) oder Backlog. Faustregel: Wenn der gleiche Learning in 2+ Slices schon aufgetaucht ist → unbedingt codifizieren.
+- **Commit-Log:** Flywheel-Pattern sichtbar via `refactor(X) → docs(codification)` Chain.
+- **Claude als CTO:** Beim Review-Verdict "PASS mit Learnings" explizit fragen: "Codification-Slice jetzt oder Backlog?" — nicht implizit in Backlog werfen.
+
+### Alternativen erwogen
+
+- **In-same-slice-Codification:** Verworfen — vermischt Scope, Proof-Artefakt schwammig, Commit-Log-Intent unklar.
+- **Nur Backlog-Eintrag in active.md:** Verworfen — Session-Evidence zeigt dass 3/3 relevante Learnings in dieser Session codifiziert wurden weil Separater Slice explizit angeboten wurde. Backlog-only-Wahrscheinlichkeit für Vergessen hoch.
+- **Alle Learnings in 1 Batch-Codification-Slice am Ende:** Verworfen — Codification-Slice wird dann zu groß (z.B. M oder L), verliert XS-Disziplin. Plus: Einzeln codifizierte Patterns sind einfacher cross-referenziert.
+
+### Re-Visit-Trigger
+
+- Falls 2 Codification-Slices in Folge unbeantwortete Reviewer-Findings produzieren: Meta-Pattern prüfen ob Spec-Audit-Methodik angepasst werden muss (siehe D26).
+- Falls Codification-Slice-Aufwand >60 min wird: Scope zu groß, in 2 Slices splitten.
+
+---
+
+## D26 — PROCESS: Reviewer-Agent als Scope-Gap-Catcher etabliert
+
+**Datum:** 2026-04-23
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Cold-Context-Reviewer-Agent wird bei **Sweep-/Pattern-Migration-Slices** explizit als zweite Audit-Iteration eingesetzt — mit Auftrag, Spec-behauptete "Scope komplett"-Claims gegen eigenen Grep-Pattern zu verifizieren.
+
+Session-Evidence (Slice 166 Modal-preventClose-Sweep):
+- Primary Top-Level-Grep fand 7/13 Modals (Spec-Scope)
+- Reviewer-Agent fand zusätzliche 6/13 (46% ROI) via embedded-Component-Cross-Ref
+- Ohne Reviewer wären 6 Safety-Fixes inkl. 1 Money-Pfad (OfferModal) übersehen worden
+
+### Begründung
+
+**Primary-Claude Audit-Pattern hat Blind-Spot** bei embedded Sub-Components:
+- `grep "<Modal" src/components/` listet Files, aber Cards/Tabs mit eingebetteten Modals werden übersehen wenn der Scan auf Top-Level-Container fokussiert.
+- Cross-Ref mit Mutation-State-Pattern (Cards mit `loading`/`isPending`/`submitting`) fehlt.
+
+**Cold-Context-Reviewer** hat strukturellen Vorteil:
+- Kein Anker an bereits gesehenem Scope.
+- Liest Spec mit Skeptiker-Brille "welche Modals hat Primary verpasst?"
+- Kann eigenen Grep-Pattern erfinden (recursive + cross-ref).
+
+**Nicht für jedes Slice pflicht** — nur bei Sweep-Patterns mit "alle X mit Y finden"-Scope.
+
+### Auswirkungen
+
+- **Prozess:** Bei Sweep-Slices (Pattern-Migration, Dead-Code-Entfernung, API-Consumer-Updates) expliziter Reviewer-Prompt: "Prüfe ob Spec-Audit alle Targets gefunden hat — nutze eigenen Grep-Pattern als Cross-Ref."
+- **common-errors.md §8** codifiziert das "Grep-Audit-Scope-Gap"-Pattern (Slice 167 Codification) — Audit-Command-Template dort.
+- **Slice-Size-Kalkulation:** Sweep-Slices sollten +20-30% Buffer für Scope-Gap-Fixes nach Reviewer einplanen. Slice 166 plante 7 Fixes, lieferte 13.
+
+### Alternativen erwogen
+
+- **Immer Reviewer bei jedem Slice:** Verworfen — ROI ist bei Single-Feature-Slice niedrig (Primary hat dort klaren Scope). Bei Sweep-Slices ist ROI 46% (Slice 166 Evidence).
+- **Primary macht zweiten Grep-Pass selbst:** Verworfen — Anchoring-Bias. Primary hat bereits mentales Modell vom Scope, sieht nur was reinpasst. Cold-Context-Second-Iteration ist strukturell besser.
+- **Reviewer nur retrospektiv (nach Commit):** Verworfen — Scope-Gaps müssen in-slice gefixt werden (sonst separates 166b-Slice nötig). Pre-Commit-Review ist der richtige Gate.
+
+### Re-Visit-Trigger
+
+- Falls Reviewer-ROI bei Sweep-Slices unter 10% fällt: Primary-Audit-Methodik ist besser geworden, Reviewer-Iteration optional.
+- Falls Reviewer-ROI über 60% bei 3+ Slices: Primary-Audit-Methodik ist schlechter geworden, Audit-Template-Review nötig.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

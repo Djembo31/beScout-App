@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 169 | 2026-04-23 | Session-End DISTILL (D25 + D26)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG
+- **Scope XS:** 2 PROCESS-Decisions extrahiert aus Session 2026-04-23 (Slices 160-168).
+- **D25 — Knowledge-Flywheel als Slice-Chain-Pattern:** Bug-Fix-Slice produziert Reviewer-Findings → separates XS-Codification-Slice. Session-Evidence: 3 Codification-Slices (164/167/168) aus 3 Fix/Refactor-Slices (159/166/165).
+- **D26 — Reviewer-Agent als Scope-Gap-Catcher:** Bei Sweep-Slices expliziter Reviewer-Prompt zur Scope-Verifikation. Slice 166 Evidence: 46% ROI (6/13 Fixes).
+- **Zweck:** Session-End-Pflicht laut workflow.md DISTILL-Protokoll. Chat-History geht verloren, decisions.md bleibt.
+- **Artefakte:**
+  - Spec: `worklog/specs/169-session-distill.md`
+  - Proof: `worklog/proofs/169-session-distill.txt` (tsc clean)
+- **Files:** `memory/decisions.md`
+- **Commit:** pending
+
+---
+
 ## 168 | 2026-04-23 | RPC-Shape-Konsistenz-Regel (database.md)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG

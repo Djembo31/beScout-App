@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 169
+stage: LOG
+spec: worklog/specs/169-session-distill.md
+impact: skipped (docs-only)
+proof: worklog/proofs/169-session-distill.txt
+review: skipped (docs-only, self-review)
 ```
 
 ## Session 2026-04-23 — 13 Slices committed
