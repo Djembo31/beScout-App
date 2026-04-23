@@ -31,7 +31,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - **Files:**
   - `src/lib/services/posts.ts`
   - `.claude/rules/common-errors.md`
-- **Commit:** pending
+- **Commit:** `a441e540`
 
 ---
 

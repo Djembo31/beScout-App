@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 165
-stage: LOG
-spec: worklog/specs/165-silent-cast-hardening.md
-impact: skipped (1 Service, keine Breaking-API-Change)
-proof: worklog/proofs/165-silent-cast-hardening.txt
-review: worklog/reviews/165-review.md (PASS nach in-slice NITPICK Fix)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 — 9 Slices committed
+## Session 2026-04-23 — 10 Slices committed
 
+- **165** votePost Silent-Cast Hardening → `a441e540`
 - **164** Konvention-Codification (patterns.md #28 + testing.md) → `fee8db16`
 - **163** CreatePredictionModal Ferrari (Non-Admin 8/8) → `c9823114`
 - **162** Vote-Handler Ferrari (D18 Race-Class Closure, 3 Handler) → `f64a4ee2`
@@ -43,36 +44,35 @@ Plus: Knowledge-Capture (common-errors.md §5 Vote-Toggle FIXED, patterns.md #28
 **Tier-2 Data-Integrity Non-Admin: 8/8 ✅ komplett.** Offen: 10× Admin-Space (AdminVotesTab, AdminBountiesTab, AdminModerationTab, AdminFansTab, AdminSponsorTab, InviteClubAdminModal, AddAdminModal, useAdminEventsActions, useClubEventsActions, useAdminPlayersState) — nur wenn Admin-Flows demnächst getestet werden.
 AirdropScoreCard aus Tier-2-Scope raus (display-only, kein user-Claim, Audit stale).
 
-## Nahtlos-Naechste-Session — Slice 165 Kandidaten
+## Nahtlos-Naechste-Session — Slice 166 Kandidaten
 
-### Option A: Service-Hardening (Silent-Fail-Audit) — S, ~1h
-- `votePost` Service silent-cast hardening (Slice 160 Finding #2): `if (data?.success === false) throw` VOR cast.
-- Cross-Service-Audit für gleichen Pattern: `data as { ... }` ohne Discriminator-Check. Kandidaten: `createPrediction` (ok/error), andere RPC-Services mit boolean-discriminator.
-- Silent-Fail-Klasse in common-errors.md §1.
+### Option A: Modal preventClose Sweep — M, ~2h
+- LeaguesSection (CreateLeagueModal + JoinLeagueModal) — Slice 161 NIT #2
+- CreatePredictionModal — Slice 163 Finding #1
+- Modal-Audit: `grep -rn "<Modal" src/ | grep -v preventClose`
+- common-errors.md §5 J2+J3 Pattern konsistent applizieren.
 
 ### Option B: Admin-Tier-1 Kill-Switch (2 Files) — M, ~2h (CEO-Approval)
 - `AdminWithdrawalTab.tsx` (Process club withdrawal — Money)
 - `AdminFoundingPassesTab.tsx` (FP Create/Revoke — Kill-Switch)
 - Money-Path + Admin-Scope. CEO-Approval vor Build pflicht.
 
-### Option C: Modal preventClose Sweep — M, ~2h
-- LeaguesSection (CreateLeagueModal + JoinLeagueModal) — Slice 161 NIT #2
-- CreatePredictionModal — Slice 163 Finding #1
-- Weitere Modal-Audit: `grep -rn "<Modal" src/ | grep -v preventClose`
-- common-errors.md §5 J2+J3 Pattern konsistent applizieren.
+### Option C: RPC-Shape-Konsistenz-Regel (database.md) — XS, ~30min
+- Slice 165 Reviewer-Learning: "Jede RPC mit json_build_object MUSS {success: true, ...} im Success-Path setzen" — in database.md codifizieren.
+- Audit-Command für bestehende RPCs mit inkonsistenter Shape.
+- Verhindert RPC-Drift wie `vote_post` (Success-Path ohne success-flag).
 
 ### Option D: Mini-Cleanup Singleton → useQueryClient (161+162) — XS, ~30min
-- `useCommunityActions.ts` (162 Code-Pfad) + `LeaguesSection.tsx` + `MissionBanner.tsx` (161) migrieren auf Hook-Variante.
+- `useCommunityActions.ts` + `LeaguesSection.tsx` + `MissionBanner.tsx` migrieren auf Hook-Variante.
 - Konvention-Konsistenz nach Slice 164 Codification.
 
 ### Option E: Admin-Tier-2 Space (10 Files) — L, mehrere Sessions
-- AdminVotesTab, AdminBountiesTab, AdminModerationTab, etc.
+- AdminVotesTab, AdminBountiesTab, etc.
 - Ferrari-Blueprint-Apply, 1-2 Files pro Slice.
-- Nur wenn Admin-Flows demnächst getestet werden.
 
 ### Empfehlung Start-Punkt
 
-**A → C → B.** Option A adressiert Slice 160 Finding #2 (latent Silent-Cast-Risiko). Option C sweepen alle Modals mit preventClose (2 akkumulierte NITs). Option B ist Money+Admin — mehr Care, CEO-Approval.
+**A → C → B.** Option A sweepen akkumulierte Modal-preventClose NITs (Slice 161+163). Option C codifiziert Slice 165 Learning für RPC-Design. Option B ist Money+Admin mit CEO-Approval.
 
 ## Backlog (nicht-Slice-Arbeit)
 
