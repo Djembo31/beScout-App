@@ -36,7 +36,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/components/fantasy/EventCommunityTab.tsx`
   - `src/components/fantasy/__tests__/EventCommunityTab.test.tsx`
   - `src/components/community/hooks/__tests__/useCommunityActions.test.ts`
-- **Commit:** pending
+- **Commit:** `f64a4ee2`
 
 ---
 
