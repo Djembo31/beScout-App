@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Crown, Check } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
@@ -10,7 +11,6 @@ import type { SubscribeResult, SubscriptionTier } from '@/lib/services/clubSubsc
 import { useClubSubscription } from '@/lib/queries/misc';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 
 const TIERS: SubscriptionTier[] = ['bronze', 'silber', 'gold'];
@@ -42,6 +42,7 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
   const t = useTranslations('club');
   const ts = useTranslations('subscription');
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const { data: subscription } = useClubSubscription(userId, clubId);
 
   const activeTier = subscription?.status === 'active' ? subscription.tier : null;

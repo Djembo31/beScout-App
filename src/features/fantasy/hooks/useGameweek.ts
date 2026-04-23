@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLeagueActiveGameweek } from '../queries/events';
 import { getGameweekStatuses } from '../services/fixtures';
 import { useFantasyStore } from '../store/fantasyStore';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import type { FantasyEvent } from '../types';
 
@@ -15,6 +14,7 @@ import type { FantasyEvent } from '../types';
  */
 export function useGameweek(gwEvents: FantasyEvent[] = []) {
   const { selectedGameweek, setSelectedGameweek, setCurrentGw } = useFantasyStore();
+  const queryClient = useQueryClient();
   const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek();
 
   // Sync selectedGameweek with league activeGw on first load
@@ -35,7 +35,7 @@ export function useGameweek(gwEvents: FantasyEvent[] = []) {
     };
     window.addEventListener('pageshow', handlePageShow);
     return () => window.removeEventListener('pageshow', handlePageShow);
-  }, [setSelectedGameweek]);
+  }, [setSelectedGameweek, queryClient]);
 
   const currentGw = selectedGameweek ?? activeGw ?? 1;
 

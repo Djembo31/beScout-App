@@ -15,7 +15,7 @@ import {
   Gift, Ticket, Package,
 } from 'lucide-react';
 import { qk } from '@/lib/queries';
-import { queryClient } from '@/lib/queryClient';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
@@ -69,6 +69,7 @@ import { useHomeData } from './hooks/useHomeData';
 
 export default function HomePage() {
   const { balanceCents } = useWallet();
+  const queryClient = useQueryClient();
   const t = useTranslations('home');
   const tLegal = useTranslations('legal');
 

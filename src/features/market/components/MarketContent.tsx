@@ -13,7 +13,7 @@ import type { MarketTab } from '@/features/market/store/marketStore';
 import { useMarketData } from '@/features/market/hooks/useMarketData';
 import { useTradeActions } from '@/features/market/hooks/useTradeActions';
 import { useWatchlistActions } from '@/features/market/hooks/useWatchlistActions';
-import { queryClient } from '@/lib/queryClient';
+import { useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
 import { GeoGate } from '@/components/geo/GeoGate';
 import { useRecentScores } from '@/lib/queries/managerData';
@@ -71,6 +71,7 @@ export default function MarketContent() {
   const wallet = useWallet();
   const balanceCents = wallet.balanceCents ?? 0;
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const t = useTranslations('market');
   const tc = useTranslations('common');
 

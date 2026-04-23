@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Target, Flame, Sparkles } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -17,7 +18,6 @@ import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { getUserAchievements } from '@/lib/services/social';
 import { qk } from '@/lib/queries';
-import { queryClient } from '@/lib/queryClient';
 import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits';
 import { getStreakMilestone } from '@/lib/retentionEngine';
 import { MissionDisclaimer } from '@/components/legal/MissionDisclaimer';
@@ -49,6 +49,7 @@ const AchievementsSection = dynamic(() => import('@/components/missions/Achievem
 export default function MissionsPage() {
   const { user, loading } = useUser();
   const uid = user?.id;
+  const queryClient = useQueryClient();
   const t = useTranslations('missions');
   // Streak-Benefit Labels live in the `common` namespace (streakTickets,
   // streakFantasy, streakElo, streakMysteryBox, streakMysteryDiscount).
@@ -113,7 +114,7 @@ export default function MissionsPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [uid]);
+  }, [uid, queryClient]);
 
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
     if (!uid) return null;
@@ -154,7 +155,7 @@ export default function MissionsPage() {
       equipment_name_tr?: string;
       equipment_position?: string;
     };
-  }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
+  }, [uid, streakBenefits.mysteryBoxTicketDiscount, queryClient]);
 
   if (loading) {
     return (

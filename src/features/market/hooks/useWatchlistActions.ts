@@ -1,11 +1,11 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { addToWatchlist, removeFromWatchlist, migrateLocalWatchlist } from '@/lib/services/watchlist';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
 import { useToast } from '@/components/providers/ToastProvider';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 
 export function useWatchlistActions(
@@ -13,6 +13,7 @@ export function useWatchlistActions(
   watchlistMap: Record<string, boolean>,
 ) {
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const t = useTranslations('market');
 
   // ── Optimistic toggle ──
@@ -46,7 +47,7 @@ export function useWatchlistActions(
         // Always reconcile with DB so opt-${id} is replaced by real row.
         queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(userId) });
       });
-  }, [userId, watchlistMap, addToast, t]);
+  }, [userId, watchlistMap, addToast, queryClient, t]);
 
   // ── One-time localStorage migration ──
   useEffect(() => {
@@ -58,7 +59,7 @@ export function useWatchlistActions(
         if (count > 0) queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(userId) });
       })
       .catch(err => console.error('[Market] Watchlist migration failed:', err));
-  }, [userId]);
+  }, [userId, queryClient]);
 
   return { toggleWatch };
 }

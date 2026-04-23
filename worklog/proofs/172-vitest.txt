@@ -1,0 +1,21 @@
+$ npx vitest run \
+    src/components/club/sections/__tests__/MembershipSection.test.tsx \
+    src/features/market/components/marktplatz/__tests__/WatchlistView.test.tsx \
+    src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx \
+    src/app/(app)/hooks/__tests__/useHomeData.test.ts
+
+ Test Files  4 passed (4)
+      Tests  46 passed (46)
+   Duration  7.86s
+
+Breakdown:
+- MembershipSection: 5/5 (Slice 151c Money-Path Tests — rapid-click guard, race-safety, error handling)
+- WatchlistView: grün (keine direkten queryClient-Assertions, nutzt renderWithProviders)
+- ClubContent: grün
+- useHomeData: 27/27 (Alle Dashboard-Aggregation, Streak, Mystery-Box-Handler)
+
+Initial fails 2 beim ersten Run (MembershipSection + useHomeData), behoben via vi.hoisted + partial @tanstack mock:
+- MembershipSection: mockQc shared zwischen @/lib/queryClient (legacy-import) und useQueryClient-Hook
+- useHomeData: useQueryClient stub hinzugefügt (Test nutzt renderHook ohne Provider)
+
+Nach Fix: 4/4 Test-Suites, 46/46 Tests grün.

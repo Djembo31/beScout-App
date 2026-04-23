@@ -23,8 +23,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const mockSubscribeTo = vi.fn();
 const mockAddToast = vi.fn();
 const mockLogSilentCatch = vi.fn();
-const mockSetQueryData = vi.fn();
-const mockInvalidateQueries = vi.fn();
+
+// Slice 172: Production-Code nutzt jetzt useQueryClient() Hook (statt Singleton-Import).
+// Shared mockQc via vi.hoisted, damit Test-Assertions auf beiden Pfaden funktionieren
+// (siehe .claude/rules/testing.md §5 "vi.hoisted fuer shared-mock-reference").
+const { mockQc, mockSetQueryData, mockInvalidateQueries } = vi.hoisted(() => {
+  const mockSetQueryData = vi.fn();
+  const mockInvalidateQueries = vi.fn();
+  return {
+    mockQc: {
+      setQueryData: (...args: unknown[]) => mockSetQueryData(...args),
+      invalidateQueries: (...args: unknown[]) => mockInvalidateQueries(...args),
+    },
+    mockSetQueryData,
+    mockInvalidateQueries,
+  };
+});
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -52,12 +66,12 @@ vi.mock('@/lib/observability/silentRejects', () => ({
   logSilentCatch: (tag: string, err: unknown) => mockLogSilentCatch(tag, err),
 }));
 
-vi.mock('@/lib/queryClient', () => ({
-  queryClient: {
-    setQueryData: (...args: unknown[]) => mockSetQueryData(...args),
-    invalidateQueries: (...args: unknown[]) => mockInvalidateQueries(...args),
-  },
-}));
+vi.mock('@/lib/queryClient', () => ({ queryClient: mockQc }));
+
+vi.mock('@tanstack/react-query', async () => {
+  const actual = await vi.importActual<typeof import('@tanstack/react-query')>('@tanstack/react-query');
+  return { ...actual, useQueryClient: () => mockQc };
+});
 
 // next/image / links not used in this section, skip mock
 

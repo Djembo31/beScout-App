@@ -1,0 +1,23 @@
+$ npx tsc --noEmit
+(exit 0, no output)
+
+Slice 172 — 11 Files migrated Singleton → useQueryClient() Hook:
+
+Production:
+1. src/components/club/sections/MembershipSection.tsx (MembershipSection-Body Z.45)
+2. src/features/market/hooks/useWatchlistActions.ts (Hook-Body Z.16, useCallback+useEffect deps)
+3. src/features/market/components/marktplatz/WatchlistView.tsx (WatchlistView-Body Z.140, 2 useCallbacks)
+4. src/features/market/components/MarketContent.tsx (MarketContent-Body Z.74, Inline-Arrow)
+5. src/features/fantasy/hooks/useGameweek.ts (Hook-Body Z.17, useEffect deps)
+6. src/app/(app)/hooks/useHomeData.ts (Hook-Body Z.29, handleOpenMysteryBox deps)
+7. src/app/(app)/club/[slug]/ClubContent.tsx (Component-Body Z.91, 2 Inline-Arrows)
+8. src/app/(app)/community/page.tsx (Component-Body Z.75, Inline-Arrow)
+9. src/app/(app)/founding/page.tsx (Component-Body Z.75)
+10. src/app/(app)/missions/page.tsx (Component-Body Z.52, 2 useCallbacks)
+11. src/app/(app)/page.tsx (Component-Body Z.72, Inline-Arrow)
+
+Tests adjusted (vi.hoisted pattern):
+- src/components/club/sections/__tests__/MembershipSection.test.tsx
+- src/app/(app)/hooks/__tests__/useHomeData.test.ts
+
+Full tsc --noEmit clean nach allen Edits.

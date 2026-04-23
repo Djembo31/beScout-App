@@ -24,7 +24,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useClubStanding } from '@/lib/queries/misc';
 import { cn } from '@/lib/utils';
-import { queryClient } from '@/lib/queryClient';
+import { useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
 import { formatTimeAgo } from '@/components/community/PostCard';
 import { ClubHero } from '@/components/club/ClubHero';
@@ -88,6 +88,7 @@ const TABS: { id: ClubTab; label: string }[] = [
 export default function ClubContent({ slug }: { slug: string }) {
   const { user, loading: authLoading } = useUser();
   const userId = user?.id;
+  const queryClient = useQueryClient();
   const t = useTranslations('club');
   const tcom = useTranslations('community');
   const { data: followedClubs = [] } = useFollowedClubs();

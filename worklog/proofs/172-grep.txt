@@ -1,0 +1,35 @@
+=== Singleton-Imports in 11 Slice-172-Zielfiles (erwartet: 0) ===
+
+(0 Treffer — clean)
+
+=== useQueryClient()-Hook-Calls (erwartet: 11) ===
+
+src/components/club/sections/MembershipSection.tsx:45     (MembershipSection)
+src/features/market/hooks/useWatchlistActions.ts:16       (useWatchlistActions Hook)
+src/features/market/components/marktplatz/WatchlistView.tsx:140  (WatchlistView)
+src/features/market/components/MarketContent.tsx:74       (MarketContent)
+src/features/fantasy/hooks/useGameweek.ts:17              (useGameweek Hook)
+src/app/(app)/hooks/useHomeData.ts:29                     (useHomeData Hook)
+src/app/(app)/club/[slug]/ClubContent.tsx:91              (ClubContent)
+src/app/(app)/community/page.tsx:75                       (CommunityPage)
+src/app/(app)/founding/page.tsx:75                        (FoundingPassPage)
+src/app/(app)/missions/page.tsx:52                        (MissionsPage)
+src/app/(app)/page.tsx:72                                 (HomePage)
+
+Total: 11/11 Hook-Calls exakt platziert (1 pro File).
+
+=== Verbleibende Singleton-Imports im Codebase (erwartet: Legitim-only) ===
+
+Audit: grep -rn "from '@/lib/queryClient'" src/ --include="*.ts" --include="*.tsx" | grep -v __tests__
+
+Legitim-only (Provider + Utility-Module):
+- src/components/providers/QueryProvider.tsx (initialisiert Singleton)
+- src/components/providers/AuthProvider.tsx (nutzt Singleton als Provider-Arg)
+- src/lib/queries/invalidation.ts (Utility-Module, kein Component-Body)
+- src/lib/queries/homeDashboard.ts (Utility-Module)
+- src/lib/queries/marketDashboard.ts (Utility-Module)
+- src/features/fantasy/queries/invalidation.ts (Utility-Module)
+
+Slice 170 + 172 zusammen: 14 Component/Hook-Files migriert. Restliche Singleton-Usages sind in Utility-Modulen wo useQueryClient() nicht anwendbar ist (kein Component-/Hook-Body).
+
+Konvention-Drift aus Slice 161/162 + weitere Files vollstaendig geschlossen.

@@ -5,6 +5,23 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 // Mocks — Query hooks
 // ============================================
 
+// Slice 172: useHomeData migrated from Singleton queryClient to useQueryClient() hook.
+// Tests use renderHook without Provider — mock useQueryClient to return stable shared instance
+// (analog Slice 170 Pattern 5 in .claude/rules/testing.md).
+const { mockQc } = vi.hoisted(() => ({
+  mockQc: {
+    invalidateQueries: vi.fn(() => Promise.resolve()),
+    setQueryData: vi.fn(),
+    getQueryData: vi.fn(() => undefined),
+    cancelQueries: vi.fn(() => Promise.resolve()),
+  },
+}));
+
+vi.mock('@tanstack/react-query', async () => {
+  const actual = await vi.importActual<typeof import('@tanstack/react-query')>('@tanstack/react-query');
+  return { ...actual, useQueryClient: () => mockQc };
+});
+
 const mockUsePlayers = vi.fn();
 const mockUseEvents = vi.fn();
 const mockUseTrendingPlayers = vi.fn();
@@ -109,10 +126,6 @@ vi.mock('@/lib/services/mysteryBox', () => ({
 vi.mock('@/lib/queries/mysteryBox', () => ({
   useHasFreeBoxToday: () => ({ hasFreeBoxToday: true, isLoading: false }),
   useMysteryBoxHistory: () => ({ data: [], isLoading: false }),
-}));
-
-vi.mock('@/lib/queryClient', () => ({
-  queryClient: { invalidateQueries: vi.fn() },
 }));
 
 vi.mock('@/lib/retentionEngine', () => ({

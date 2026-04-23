@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Star, StarOff, Loader2, ArrowUpDown, Bell } from 'lucide-react';
 import type { Player } from '@/types';
 import { cn, fmtScout } from '@/lib/utils';
@@ -14,7 +15,6 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { PlayerPhoto, getL5Color, getL5Bg, PositionBadge } from '@/components/player';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 
 // ============================================
@@ -137,6 +137,7 @@ function ThresholdPopover({
 export default function WatchlistView({ players, watchlistEntries }: WatchlistViewProps) {
   const { user } = useUser();
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const t = useTranslations('market');
 
   const [sortBy, setSortBy] = useState<SortKey>('name');
@@ -191,7 +192,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
     } finally {
       setRemovingId(null);
     }
-  }, [user, addToast, t]);
+  }, [user, addToast, queryClient, t]);
 
   // Update alert threshold with optimistic update
   const handleThresholdChange = useCallback(async (playerId: string, pct: number) => {
@@ -212,7 +213,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
       queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(uid) });
       addToast(t('watchlistError'), 'error');
     }
-  }, [user, addToast, t]);
+  }, [user, addToast, queryClient, t]);
 
   // Sort options
   const sortOptions: { key: SortKey; label: string }[] = [

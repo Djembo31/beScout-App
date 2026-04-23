@@ -3,13 +3,13 @@
 import { useReducer } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Users, MessageCircle } from 'lucide-react';
 import { Skeleton, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import CommunityHero from '@/components/community/CommunityHero';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
@@ -72,6 +72,7 @@ export default function CommunityPage() {
   const { user, profile } = useUser();
   const { activeClub } = useClub();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const t = useTranslations('community');
   const tt = useTranslations('tips');
   const uid = user?.id;

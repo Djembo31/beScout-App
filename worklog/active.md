@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 172
+stage: LOG
+spec: worklog/specs/172-singleton-170b-sweep.md
+impact: skipped (Component-interner Refactor, identische Runtime-Semantik, 11 Files)
+proof: worklog/proofs/172-vitest.txt
+review: worklog/reviews/172-review.md (PASS, N1 NIT in-slice gefixt)
 ```
 
 ## Session 2026-04-23 + 2026-04-24 — 16 Slices committed

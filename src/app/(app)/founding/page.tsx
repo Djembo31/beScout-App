@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Ticket, Search, Zap, Crown, Check, Loader2, ShieldCheck } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import {
   FOUNDING_PASS_TIERS,
@@ -72,6 +72,7 @@ const TIER_VISUALS: Record<FoundingPassTier, TierVisual> = {
 export default function FoundingPassPage() {
   const { user, loading: authLoading } = useUser();
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const t = useTranslations('founding');
 
   // State — all hooks BEFORE any early returns

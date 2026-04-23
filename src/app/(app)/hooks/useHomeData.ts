@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
@@ -11,7 +12,6 @@ import {
   useHomeDashboard,
   qk,
 } from '@/lib/queries';
-import { queryClient } from '@/lib/queryClient';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useLoginStreak } from '@/lib/queries/streaks';
@@ -26,6 +26,7 @@ import type { DpcHolding, Pos } from '@/types';
 export function useHomeData() {
   const { user, profile, loading } = useUser();
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const { data: followedClubs = [] } = useFollowedClubs();
   const name = profile?.display_name || displayName(user);
   const firstName = name.split(' ')[0];
@@ -236,7 +237,7 @@ export function useHomeData() {
       equipment_position: result.equipmentPosition,
       cosmetic_key: result.cosmeticKey,
     } satisfies import('@/types').MysteryBoxResult;
-  }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
+  }, [uid, streakBenefits.mysteryBoxTicketDiscount, queryClient]);
 
   return {
     // Auth
