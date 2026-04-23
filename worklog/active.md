@@ -1,11 +1,11 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
+status: in_progress
+slice: 175c
+stage: BUILD
+spec: worklog/specs/175c-apilogger-tests.md
+impact: skipped (test-only)
 proof: —
 review: —
 ```

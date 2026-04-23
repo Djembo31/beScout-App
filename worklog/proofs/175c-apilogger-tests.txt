@@ -1,0 +1,9 @@
+=== tsc --noEmit ===
+(clean)
+
+=== vitest src/lib/observability/ ===
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m40 passed[39m[22m[90m (40)[39m
+[2m   Start at [22m 00:10:09
+[2m   Duration [22m 4.97s[2m (transform 364ms, setup 1.27s, import 536ms, tests 64ms, environment 7.52s)[22m
+

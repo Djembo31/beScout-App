@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 175c | 2026-04-24 | apiLogger.test.ts Direct Unit-Coverage
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: test-only) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Schliesst Test-Gap aus 175b-Finding #3. withLogger hatte nur indirekte Coverage via logger/silentRejects/captureError-Tests.
+- **NEU:** `src/lib/observability/__tests__/apiLogger.test.ts` — 8 Tests: request.start/end/error-Logs + x-request-id (inbound reuse + outbound header) + captureError-Integration + params-passthrough fuer dynamic routes.
+- **Patterns:** `vi.hoisted()` fuer mock-sharing (testing.md §5) + closure-spy statt `vi.fn().mock.calls`-Cast.
+- **Tests total:** 40/40 observability gruen (4 Test-Files). tsc clean.
+- **Proof:** `worklog/proofs/175c-apilogger-tests.txt`. Review: `worklog/reviews/175c-review.md` (PASS).
+
+---
+
 ## 175b | 2026-04-24 | withLogger-Batch-Migration aller verbleibenden API-Routes
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: route-wrapper) → BUILD → PROVE → REVIEW → LOG
