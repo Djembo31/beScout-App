@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 175
-stage: LOG
-spec: worklog/specs/175-pino-structured-logger.md
-impact: skipped (neue Module, Pilot-Migration deferred Slice 175b)
-proof: worklog/proofs/175-pino.txt
-review: worklog/reviews/175-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Fokus
