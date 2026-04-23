@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 169
-stage: LOG
-spec: worklog/specs/169-session-distill.md
-impact: skipped (docs-only)
-proof: worklog/proofs/169-session-distill.txt
-review: skipped (docs-only, self-review)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 — 13 Slices committed
+## Session 2026-04-23 — 14 Slices committed
 
+- **169** Session-End DISTILL (D25+D26 PROCESS-Decisions) → `b668eae7`
 - **168** RPC-Shape-Konsistenz-Regel (database.md) → `2d5bea82`
 - **167** Knowledge-Capture aus 166 (patterns.md #28 + common-errors.md §8) → `f56d302d`
 - **166** Modal preventClose Sweep (13 Modals, 46% Reviewer-ROI) → `e615b387`
@@ -47,11 +48,11 @@ Plus: Knowledge-Capture (common-errors.md §5 Vote-Toggle FIXED, patterns.md #28
 **Tier-2 Data-Integrity Non-Admin: 8/8 ✅ komplett.** Offen: 10× Admin-Space (AdminVotesTab, AdminBountiesTab, AdminModerationTab, AdminFansTab, AdminSponsorTab, InviteClubAdminModal, AddAdminModal, useAdminEventsActions, useClubEventsActions, useAdminPlayersState) — nur wenn Admin-Flows demnächst getestet werden.
 AirdropScoreCard aus Tier-2-Scope raus (display-only, kein user-Claim, Audit stale).
 
-## Nahtlos-Naechste-Session — Slice 169 Kandidaten
+## Nahtlos-Naechste-Session — Slice 170 Kandidaten
 
 ### Option A: Mini-Cleanup Singleton → useQueryClient (161+162) — XS, ~30min
 - `useCommunityActions.ts` + `LeaguesSection.tsx` + `MissionBanner.tsx` migrieren auf Hook-Variante.
-- Konvention-Konsistenz nach Slice 164 Codification.
+- Konvention-Konsistenz nach Slice 164 Codification + D25-Flywheel-Reinforcement.
 
 ### Option B: Admin-Tier-1 Kill-Switch (2 Files) — M, ~2h (CEO-Approval)
 - `AdminWithdrawalTab.tsx` (Process club withdrawal — Money)
@@ -63,14 +64,14 @@ AirdropScoreCard aus Tier-2-Scope raus (display-only, kein user-Claim, Audit sta
 - Ferrari-Blueprint + preventClose in einem Aufwasch pro Modal (Slice 166 hat AddAdminModal bereits).
 - Nur wenn Admin-Flows demnächst getestet werden.
 
-### Option D: Session-End-DISTILL — XS, ~15min
-- 8 Slices in Session 2026-04-23 (160-168). Wichtige Strategic/Process-Decisions in `memory/decisions.md` extrahieren.
-- Pflicht laut workflow.md am Session-Ende.
-- Kandidaten aus Session: Knowledge-Flywheel-Pattern (Slice-zu-Slice-Codification), Reviewer-Scope-Gap-Audit-Methodik, preventClose als Blueprint-Teil.
+### Option D: RPC-Shape-Audit (aus D25/D168 Backlog) — S, ~1h
+- Audit bestehender `json_build_object`-RPCs ohne success-flag (Slice 168 Regel).
+- Migration-Plan pro kritische RPC (Consumer-Impact-Analyse).
+- Separater Ferrari-Slice pro migrierter RPC.
 
 ### Empfehlung Start-Punkt
 
-**D → A → B.** Option D ist Pflicht laut workflow.md (Session-End) und schliesst die 8-Slice-Welle. Option A ist XS-Konsistenz-Aufräumung. Option B ist Money+Admin (mehr Care, CEO-Approval).
+**A → B → D.** Option A ist XS-Konsistenz-Aufräumung, schliesst Konvention-Drift aus 161+162. Option B ist Money+Admin mit CEO-Approval. Option D ist Cross-Service-Audit mit Migrations-Potenzial.
 
 ## Backlog (nicht-Slice-Arbeit)
 

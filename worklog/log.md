@@ -22,7 +22,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - Spec: `worklog/specs/169-session-distill.md`
   - Proof: `worklog/proofs/169-session-distill.txt` (tsc clean)
 - **Files:** `memory/decisions.md`
-- **Commit:** pending
+- **Commit:** `b668eae7`
 
 ---
 
