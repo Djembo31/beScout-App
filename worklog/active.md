@@ -2,12 +2,12 @@
 
 ```
 status: in_progress
-slice: 174
+slice: 175
 stage: LOG
-spec: worklog/specs/174-error-classes-foundation.md
-impact: skipped (neue Module, keine Consumer)
-proof: worklog/proofs/174-errors.txt
-review: worklog/reviews/174-review.md (self-review, Foundation-exempt, PASS)
+spec: worklog/specs/175-pino-structured-logger.md
+impact: skipped (neue Module, Pilot-Migration deferred Slice 175b)
+proof: worklog/proofs/175-pino.txt
+review: worklog/reviews/175-review.md
 ```
 
 ## Fokus

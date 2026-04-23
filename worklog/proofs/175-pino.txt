@@ -1,0 +1,45 @@
+Slice 175 — Pino Structured-Logger Foundation
+==============================================
+
+## tsc --noEmit
+
+Clean (no output).
+
+## vitest run src/lib/observability/__tests__/logger.test.ts
+
+Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  2.07s
+
+## Files erstellt
+
+- src/lib/observability/logger.ts (68 Zeilen) — Pino-Instance mit:
+  - Dev: pino-pretty (colorized, HH:MM:ss.l time)
+  - Prod: raw JSON (Vercel-ingest-ready)
+  - Redact: password, token, authorization, apiKey, bearer, serviceRoleKey,
+    headers.authorization, headers.cookie, req.headers.* (9 paths)
+  - Base: { app: 'bescout', env: VERCEL_ENV|NODE_ENV|local }
+  - Serializers: err/error via pino.stdSerializers.err
+
+- src/lib/observability/apiLogger.ts (97 Zeilen) — withLogger(route, handler):
+  - Auto RequestID (crypto.randomUUID)
+  - Start-log (url, method) + End-log (status, latencyMs)
+  - Error-catch: toDomainError → log + Sentry.captureException → re-throw
+  - Response `x-request-id` header set for distributed tracing
+  - Helper jsonResponse(data, {requestId}) for consistent headers
+
+- src/lib/observability/__tests__/logger.test.ts — 4 smoke tests:
+  - pino-compatible interface (info/error/warn/debug/child)
+  - createChildLogger returns child-pino
+  - Level threshold info=30, error=50 (pino-standard)
+  - redact paths declared (smoke)
+
+## Dependencies added
+
+- pino 10.3.1 (production)
+- pino-pretty 13.1.3 (dev)
+
+## Follow-Up (Slice 175b)
+
+Migration der 19 API-Routes von `console.log/error` → `withLogger` + `logger`.
+Ausgelagert um Foundation-Scope sauber zu halten.

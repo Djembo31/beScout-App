@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 175 | 2026-04-24 | Pino Structured-Logger Foundation (Sorare/Socios Tier D1)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: neue Module) → BUILD → REVIEW (self, PASS) → PROVE → LOG
+- **Scope S:** 3 neue Files (`src/lib/observability/logger.ts`, `apiLogger.ts`, `__tests__/logger.test.ts`) + 2 Dependencies (pino 10.3.1, pino-pretty 13.1.3 dev).
+- **Foundation:** Pino-Instance mit Dev/Prod-Modes (pino-pretty dev, raw JSON prod), 9 Redact-Paths (password/token/authorization/apiKey/bearer/cookie), base `{app, env}` fuer Multi-Deploy-Filter, pino-stdSerializers fuer `err`-Objekte.
+- **Route-Wrapper:** `withLogger(route, handler)` mit Auto-RequestID (crypto.randomUUID), Start+End-Logs mit Latenz, unhandled-error-catch → `toDomainError` aus Slice 174 → `logger.error` + `Sentry.captureException` + re-throw. Response `x-request-id` Header fuer Distributed-Tracing.
+- **Key-Decision:** Logger ist pino-Instance direkt (nicht eigener Wrapper) — bewahrt pino-API (`.child()`, `levels.values`, `stdSerializers`) fuer zukuenftige Migration zu AsyncLocalStorage-basiertem Context. Child-binding via `createChildLogger({requestId, route})`.
+- **Professional-Standard:** Heute 14 `console.log/error` in API-Routes (nicht queryable). Nach Slice 175b (Batch-Migration) werden alle Logs JSON mit `{level, time, requestId, route, latencyMs, ...}` → Vercel-ingest → Datadog/Axiom filterable.
+- **Proof:** `worklog/proofs/175-pino.txt` — 4/4 passing, tsc clean.
+- **Review:** `worklog/reviews/175-review.md` — PASS (Foundation, 0 findings).
+- **Follow-Up:** Slice 175b — 19 API-Routes Batch-Migration zu `withLogger` + `logger`.
+
+---
+
 ## 174 | 2026-04-24 | Error-Classes Foundation (Sorare/Socios-Audit Tier A3)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: neue Module, keine Consumer) → BUILD → REVIEW (self-review, Foundation-exempt, PASS) → PROVE → LOG
