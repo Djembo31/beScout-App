@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
+import { captureError } from '@/lib/observability/captureError';
 
 export default function CompareError({
   error,
@@ -15,7 +16,10 @@ export default function CompareError({
   const tc = useTranslations('common');
 
   useEffect(() => {
-    console.error('Compare error:', error);
+    captureError(error, {
+      feature: 'compare-error-boundary',
+      extra: error.digest ? { digest: error.digest } : undefined,
+    });
   }, [error]);
 
   return (

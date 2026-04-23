@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 176d | 2026-04-24 | Error-Boundaries Batch-Migration auf captureError
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: UI-boundaries, no backend) → BUILD → PROVE → REVIEW → LOG
+- **Scope S:** 15 Route-Level (`src/app/**/error.tsx`) + 1 class-based (`src/components/ui/ErrorBoundary.tsx`) + 6 Call-Sites (FantasyContent 3×, PlayerContent 3×). Total 22 Files.
+- **Route-Level:** 15 `useEffect` auf `captureError(error, { feature: '<slug>-error-boundary', extra: error.digest ? { digest } : undefined })` migriert. 15 distinct feature-Tags (kebab-case). Sonderfall `(app)/error.tsx`: Stale-Code-Recovery + TypeError-Branch intakt, captureError VOR recovery (Sentry-Flush vor Page-Reload).
+- **Class-Level (in-slice Scope-Gap-Resolution):** `ErrorBoundary` class bekam neuen optionalen `feature?: string` Prop (Default `component-error-boundary`). `componentDidCatch` ruft `captureError` mit `errorInfo.componentStack` als extra (React-spezifischer Debug-Wert). 6 Call-Sites: `fantasy-event-detail-modal`, `fantasy-create-event-modal`, `fantasy-event-summary-modal`, `player-buy-modal`, `player-sell-modal`, `player-offer-modal`.
+- **Gesamt:** 21 distinct feature-Tags ermöglichen Sentry-UI-Cohort-Alerts post-Beta.
+- **Tests:** 39 observability-Tests + 20 FantasyContent/PlayerContent/ErrorBoundary-Tests = 59/59 gruen. tsc clean.
+- **Proof:** `worklog/proofs/176d-boundaries.txt` — tsc + grep-counts + 6 Call-Site-Feature-Tags + Vitest-Outputs.
+- **Review:** `worklog/reviews/176d-review.md` — PASS, Finding #1 (Scope-Gap class-based) IN-SLICE resolved. Ein offener LOW-Doc-Drift (`.claude/rules/common-errors.md` Pattern-Addendum "Error-Boundary-Migration 2 Scopes") als separater Doc-Commit-Kandidat.
+- **Knowledge-Flywheel-Kandidaten:** (a) common-errors.md Section 8 Pattern "2-Scopes-Boundary-Migration". (b) patterns.md "Next.js error.tsx Boundary-Instrumentation" mit captureError-VOR-Recovery-Regel.
+
+---
+
 ## 176c | 2026-04-24 | PII-Redact Postgres Detail-Field (Tier D2 PII-Fix)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: internal observability-module) → BUILD → PROVE → REVIEW → LOG

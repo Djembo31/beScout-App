@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
+import { captureError } from '@/lib/observability/captureError';
 
 const RECOVERY_KEY = 'bescout-error-recovery';
 
@@ -42,7 +43,10 @@ export default function AppError({
   const t = useTranslations('common');
 
   useEffect(() => {
-    console.error('App error:', error);
+    captureError(error, {
+      feature: 'app-error-boundary',
+      extra: error.digest ? { digest: error.digest } : undefined,
+    });
 
     // Auto-recover from stale chunk errors (TypeError during render)
     if (error instanceof TypeError) {

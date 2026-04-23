@@ -309,7 +309,7 @@ export default function FantasyContent() {
       )}
 
       {/* EVENT DETAIL MODAL */}
-      <ErrorBoundary>
+      <ErrorBoundary feature="fantasy-event-detail-modal">
         <EventDetailModal
           event={selectedEvent}
           isOpen={!!selectedEvent}
@@ -324,7 +324,7 @@ export default function FantasyContent() {
       </ErrorBoundary>
 
       {/* CREATE EVENT MODAL */}
-      <ErrorBoundary>
+      <ErrorBoundary feature="fantasy-create-event-modal">
         <CreateEventModal
           isOpen={store.showCreateModal}
           onClose={store.closeCreateModal}
@@ -334,7 +334,7 @@ export default function FantasyContent() {
 
       {/* POST-EVENT SUMMARY MODAL */}
       {summaryEvent && (
-        <ErrorBoundary>
+        <ErrorBoundary feature="fantasy-event-summary-modal">
           <EventSummaryModal
             event={summaryEvent}
             leaderboard={summaryLeaderboard}

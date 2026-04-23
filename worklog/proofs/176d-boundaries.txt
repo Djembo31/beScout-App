@@ -1,0 +1,38 @@
+=== tsc --noEmit ===
+(clean, no output)
+
+=== Route-level (error.tsx) Migration ===
+captureError-import count in src/app/**/error.tsx:
+15
+(expected: 15)
+
+console.error in src/app/**/error.tsx:
+0
+(expected: 0)
+
+=== Class-level (src/components/ui/ErrorBoundary.tsx) Migration ===
+console.error count:
+0
+captureError import:
+2
+
+=== ErrorBoundary feature-Props in Call-Sites ===
+src/app/(app)/fantasy/FantasyContent.tsx:312:      <ErrorBoundary feature="fantasy-event-detail-modal">
+src/app/(app)/fantasy/FantasyContent.tsx:327:      <ErrorBoundary feature="fantasy-create-event-modal">
+src/app/(app)/fantasy/FantasyContent.tsx:337:        <ErrorBoundary feature="fantasy-event-summary-modal">
+src/app/(app)/player/[id]/PlayerContent.tsx:265:      <ErrorBoundary feature="player-buy-modal">
+src/app/(app)/player/[id]/PlayerContent.tsx:293:      <ErrorBoundary feature="player-sell-modal">
+src/app/(app)/player/[id]/PlayerContent.tsx:312:      <ErrorBoundary feature="player-offer-modal">
+
+=== Tests ===
+vitest src/lib/observability/ + src/components/ui/__tests__/ErrorBoundary.test.tsx:
+[2m      Tests [22m [1m[32m39 passed[39m[22m[90m (39)[39m
+[2m   Start at [22m 23:05:19
+[2m   Duration [22m 5.19s[2m (transform 233ms, setup 1.25s, import 2.02s, tests 164ms, environment 7.73s)[22m
+
+
+vitest FantasyContent + PlayerContent:
+[2m      Tests [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 23:05:27
+[2m   Duration [22m 3.95s[2m (transform 768ms, setup 547ms, import 2.29s, tests 717ms, environment 3.29s)[22m
+

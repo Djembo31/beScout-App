@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
+import { captureError } from '@/lib/observability/captureError';
 
 export default function ClubAdminError({
   error,
@@ -15,7 +16,10 @@ export default function ClubAdminError({
   const tc = useTranslations('common');
 
   useEffect(() => {
-    console.error('Club admin error:', error);
+    captureError(error, {
+      feature: 'club-admin-error-boundary',
+      extra: error.digest ? { digest: error.digest } : undefined,
+    });
   }, [error]);
 
   return (

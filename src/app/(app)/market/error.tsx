@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
+import { captureError } from '@/lib/observability/captureError';
 
 export default function MarketError({
   error,
@@ -16,7 +17,10 @@ export default function MarketError({
   const tc = useTranslations('common');
 
   useEffect(() => {
-    console.error('Market error:', error);
+    captureError(error, {
+      feature: 'market-error-boundary',
+      extra: error.digest ? { digest: error.digest } : undefined,
+    });
   }, [error]);
 
   return (

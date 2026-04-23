@@ -262,7 +262,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       </div>
 
       {/* Trading Modals — wrapped in ErrorBoundary */}
-      <ErrorBoundary>
+      <ErrorBoundary feature="player-buy-modal">
         <BuyModal
           open={trading.buyModalOpen}
           onClose={trading.closeBuyModal}
@@ -290,7 +290,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         />
       </ErrorBoundary>
 
-      <ErrorBoundary>
+      <ErrorBoundary feature="player-sell-modal">
         <SellModal
           open={trading.sellModalOpen}
           onClose={trading.closeSellModal}
@@ -309,7 +309,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         />
       </ErrorBoundary>
 
-      <ErrorBoundary>
+      <ErrorBoundary feature="player-offer-modal">
         <OfferModal
           open={trading.showOfferModal}
           onClose={trading.closeOfferModal}

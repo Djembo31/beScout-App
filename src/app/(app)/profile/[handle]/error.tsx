@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
+import { captureError } from '@/lib/observability/captureError';
 
 export default function PublicProfileError({
   error,
@@ -15,7 +16,10 @@ export default function PublicProfileError({
   const tc = useTranslations('common');
 
   useEffect(() => {
-    console.error('Public profile error:', error);
+    captureError(error, {
+      feature: 'public-profile-error-boundary',
+      extra: error.digest ? { digest: error.digest } : undefined,
+    });
   }, [error]);
 
   return (

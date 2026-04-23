@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { captureError } from '@/lib/observability/captureError';
 
 export default function AuthError({
   error,
@@ -15,7 +16,10 @@ export default function AuthError({
   const tc = useTranslations('common');
 
   useEffect(() => {
-    console.error('Auth error:', error);
+    captureError(error, {
+      feature: 'auth-error-boundary',
+      extra: error.digest ? { digest: error.digest } : undefined,
+    });
   }, [error]);
 
   return (

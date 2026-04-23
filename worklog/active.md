@@ -2,12 +2,12 @@
 
 ```
 status: in_progress
-slice: 176c
+slice: 176d
 stage: LOG
-spec: worklog/specs/176c-pii-redact-pg-detail.md
-impact: skipped (internal observability-module)
-proof: worklog/proofs/176c-pii-redact.txt
-review: worklog/reviews/176c-review.md (PASS, Finding #1 in-slice resolved, composite-key LOW als Follow-up)
+spec: worklog/specs/176d-error-boundaries-capture-error.md
+impact: skipped (UI-boundaries, no backend consumer)
+proof: worklog/proofs/176d-boundaries.txt
+review: worklog/reviews/176d-review.md (PASS, Finding #1 class-based ErrorBoundary in-slice resolved)
 ```
 
 ## Fokus

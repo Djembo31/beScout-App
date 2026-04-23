@@ -2,12 +2,19 @@
 
 import React, { Component } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { captureError } from '@/lib/observability/captureError';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
   errorMessage?: string;
   retryLabel?: string;
+  /**
+   * Stable Sentry cohort tag. Defaults to `component-error-boundary`.
+   * Pass a specific value (e.g. `fantasy-event-modal`) to group errors
+   * by call-site in Sentry-UI.
+   */
+  feature?: string;
 }
 
 interface ErrorBoundaryState {
@@ -26,7 +33,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('[ErrorBoundary] Caught error:', error, errorInfo);
+    captureError(error, {
+      feature: this.props.feature ?? 'component-error-boundary',
+      extra: { componentStack: errorInfo.componentStack },
+    });
   }
 
   render() {
