@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 165
+stage: LOG
+spec: worklog/specs/165-silent-cast-hardening.md
+impact: skipped (1 Service, keine Breaking-API-Change)
+proof: worklog/proofs/165-silent-cast-hardening.txt
+review: worklog/reviews/165-review.md (PASS nach in-slice NITPICK Fix)
 ```
 
 ## Session 2026-04-23 — 9 Slices committed

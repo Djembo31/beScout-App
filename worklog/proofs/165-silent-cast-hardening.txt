@@ -1,0 +1,76 @@
+Slice 165 — votePost Silent-Cast Hardening PROOF
+==========================================
+Date: 2026-04-23
+Type: Bug-Hardening (Slice 160 Finding #2 MEDIUM latent)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── vitest ───
+$ npx vitest run src/components/community src/components/fantasy src/components/player
+
+Test Files  41 passed (41)
+     Tests  494 passed (494)
+  Start at  19:46:29
+  Duration  60.08s
+
+─── git diff --stat ───
+ .claude/rules/common-errors.md   | +19 lines (§1 Silent-Cast Entry)
+ src/lib/services/posts.ts        | +13 lines (votePost Guard + comment)
+ + new: worklog/specs/165-silent-cast-hardening.md
+ + new: worklog/reviews/165-review.md
+ + new: worklog/proofs/165-silent-cast-hardening.txt
+
+─── Was geändert ───
+
+src/lib/services/posts.ts (votePost, Line ~322-337):
+  - Null-Guard: `if (!data || typeof data !== 'object') throw new Error('vote_post_failed')`
+    (Defense-in-Depth, auch wenn RPC-Body json_build_object immer returnt)
+  - Pre-Cast-Guard: `if (result.success === false || typeof result.upvotes !== 'number') throw`
+    (schützt gegen Error-Body {success:false, error} + unerwartetes Shape)
+  - Return: `{upvotes: result.upvotes, downvotes: result.downvotes ?? 0}`
+  - Comment erklärt inkonsistente RPC-Return-Shape (Success ohne success:true flag vs Error mit success:false)
+
+.claude/rules/common-errors.md §1:
+  - Neuer Entry "Silent-Cast ohne Discriminator-Check (Slice 165, aus 160 Finding #2)"
+  - Beschreibt Symptom, Kritische Variante, Fix-Pattern
+  - Audit-Tabelle: 8 Services analysiert, nur votePost vulnerable
+  - Audit-Command für künftige Regression-Checks
+  - "Schlimmster Fall"-Narrative (React Query cached undefined als success, kein Retry)
+
+─── Audit-Ergebnis (8 Services mit `return data as {...}`) ───
+
+| Service | Shape | Status |
+|---------|-------|--------|
+| posts.votePost | {upvotes, downvotes} | VULNERABLE (gefixt in 165) |
+| posts.adminTogglePin | {success, is_pinned?, error?} | OK (success discriminator) |
+| adRevenueShare | {success, ...} | OK |
+| creatorFund | {success, ...} | OK |
+| platformAdmin | {success, ...} | OK |
+| votes.castVote | {success, total_votes, cost} | OK |
+| fixtures.syncFixtures | {success, synced_count} | OK |
+| referral.getInviter | {id, handle, display_name} | GREY (null-path explicit, kein silent-fall) |
+
+─── Consumer-Chain-Analyse ───
+
+Alle 3 votePost-Consumer (via Slice 160+162) nutzen useSafeMutation + errorTag:
+- useCommunityActions (errorTag community.votePost) — addToast + snapshot-rollback
+- PostReplies.voteReplyMut (errorTag community.replyVote) — Sentry-only
+- EventCommunityTab.voteMut (errorTag eventCommunity.vote) — Sentry-only
+
+Regression-Risk: NULL. Pre-Slice-165 war silent-fail → NaN-rendering. Post-165 wirft Service
+→ onError greift. Kein Consumer behandelte undefined-Fall vorher, also keiner wird
+durch throw schlechter gestellt.
+
+─── Reviewer Verdict ───
+PASS (NITPICK Edge Case #3 null-data in-slice gefixt)
+
+Review: worklog/reviews/165-review.md
+Spec: worklog/specs/165-silent-cast-hardening.md
+
+─── Backlog (aus Reviewer-Learning) ───
+- database.md Regel: RPCs die json_build_object returnen MÜSSEN {success: true, ...}
+  im Success-Path setzen ODER in rules/ vermerken dass Discriminator Feld-Existenz ist.
+  Würde zukünftige RPC-Drift dieser Klasse verhindern.

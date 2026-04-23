@@ -24,6 +24,25 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - Skip: `req.json().catch(() => ({}))` body-parse-Fallbacks sind legitim.
 - Audit: `grep -rn '\.catch(() =>' src/ | grep -v __tests__ | grep -v logSilentCatch | grep -v 'json().catch'`
 
+### Silent-Cast ohne Discriminator-Check (Slice 165, aus 160 Finding #2)
+- `return data as { upvotes: number; ... }` direkt nach `supabase.rpc()` ohne Prüfung ob RPC-Body Error-Shape hat.
+- **Symptom:** RPC returnt `{success: false, error: '...'}` (PostgREST-Level kein Error, nur HTTP 200 mit Error-JSON). TypeScript-Cast lügt: Felder (`upvotes`, `downvotes`) sind `undefined`. UI setzt `setReplies(...upvotes: undefined)` → NaN-Rendering, kein Error-Toast.
+- **Kritischste Variante:** RPC mit inkonsistenter Return-Shape — Success-Path `{upvotes, downvotes}` (kein `success: true` flag), Error-Path `{success: false, error}`. Discriminator ist effektiv das Vorhandensein von Success-Fields.
+- **Fix-Pattern:**
+  ```ts
+  const result = data as { upvotes?: number; downvotes?: number; success?: boolean; error?: string };
+  if (result.success === false || typeof result.upvotes !== 'number') {
+    throw new Error(result.error ?? 'rpc_failed');
+  }
+  return { upvotes: result.upvotes, downvotes: result.downvotes ?? 0 };
+  ```
+- **Audit 2026-04-23:** 8 Services mit `return data as {...}` Cast. 7 haben `success: boolean` im Cast-Type (Caller-Pflicht zu prüfen — OK-Grey-Zone). 1 ohne Discriminator: **`votePost`** (gefixt Slice 165). `referral.getInviter` ist explicit-null-path, kein Silent-Fall.
+- **Regel:** RPC-Services mit discriminated Union-Return MÜSSEN Pre-Cast-Guard haben. Audit-Command:
+  ```bash
+  grep -B2 "return data as" src/lib/services/**/*.ts | grep -v "if.*success\|if.*!data\|if.*error\b"
+  ```
+- **Schlimmster Fall:** Client-Caller `const result = await votePost(...); setState(result.upvotes)` mit undefined-set → UI rendert NaN oder leer. Kein React Query Retry weil kein thrown Error. User clickt retry → Symptom persistent.
+
 ### `.in()` Chunking + Upstream-Query auch prüfen (Slice 082 + 086)
 - `.in('col', ids)` mit >100 UUIDs liefert `data=undefined` + `error=undefined` (URL-Limit ~14KB). MUSS in 100er-Chunks split + explicit error-check.
 - Bei Chunk-Fix **Loader-Query** prüfen: ist die id-Liste aus `.select().in()` mit >1000 rows? → Loader hat 1000-Cap, gleicher Silent-Fail.

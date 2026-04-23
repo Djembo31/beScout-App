@@ -321,7 +321,20 @@ export async function votePost(
   }
   // Gamification (analyst score, airdrop refresh) handled by DB trigger trg_fn_post_vote_gamification
   // DB-Trigger reads row-delta (INSERT/UPDATE/DELETE) — robust vs. client-intent, no spam exploit there.
-  return data as { upvotes: number; downvotes: number };
+  //
+  // Slice 165 Silent-Cast-Hardening: RPC `vote_post` hat inkonsistente Return-Shape —
+  // Success-Path: `{upvotes, downvotes}` (kein `success: true` flag!)
+  // Error-Path: `{success: false, error: '...'}`
+  // Pre-Cast-Guard wirft wenn RPC-Error kam, statt silent-cast auf undefined-Felder.
+  // Null-Guard davor: data kann theoretisch null sein (defense-in-depth, auch wenn RPC-Body immer json_build_object nutzt).
+  if (!data || typeof data !== 'object') {
+    throw new Error('vote_post_failed');
+  }
+  const result = data as { upvotes?: number; downvotes?: number; success?: boolean; error?: string };
+  if (result.success === false || typeof result.upvotes !== 'number') {
+    throw new Error(result.error ?? 'vote_post_failed');
+  }
+  return { upvotes: result.upvotes, downvotes: result.downvotes ?? 0 };
 }
 
 export async function getUserPostVotes(

@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 165 | 2026-04-23 | votePost Service Silent-Cast Hardening
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (PASS, 1 NITPICK in-slice fixed) → PROVE → LOG
+- **Scope S:** 2 Files — votePost Service + common-errors.md §1 Audit-Entry.
+- **Fix:** Pre-Cast-Guard in `votePost` — schützt vor `{success: false, error}` Error-Shape. Plus Null-Guard (Defense-in-Depth, auch wenn RPC-Body nie null returnt).
+- **Context:** Slice 160 Finding #2 MEDIUM latent. RPC `vote_post` hat inkonsistente Return-Shape (Success `{upvotes, downvotes}` ohne `success: true`, Error `{success: false, error}`). Cast lügt silent bei Error-Body → undefined upvotes → UI rendert NaN ohne Error-Toast.
+- **Audit Cross-Service (8 Services mit `return data as {...}`):**
+  - VULNERABLE: votePost (gefixt)
+  - OK (success-discriminator): adminTogglePin, adRevenueShare, creatorFund, platformAdmin, castVote, syncFixtures
+  - GREY (explicit-null-path): referral.getInviter
+- **Consumer-Chain-Analyse:** Alle 3 Consumer nutzen useSafeMutation+errorTag (via Slice 162/160). Regression-Risk NULL — kein Consumer behandelte undefined-Fall vorher.
+- **Knowledge-Capture:** common-errors.md §1 neuer Entry "Silent-Cast ohne Discriminator-Check" mit Symptom + Fix-Pattern + Audit-Tabelle + Audit-Command + Narrative.
+- **Backlog aus Learning:** database.md Regel "RPCs die json_build_object returnen MÜSSEN {success: true, ...} im Success-Path" — würde RPC-Drift dieser Klasse verhindern.
+- **Artefakte:**
+  - Spec: `worklog/specs/165-silent-cast-hardening.md`
+  - Review: `worklog/reviews/165-review.md` (PASS)
+  - Proof: `worklog/proofs/165-silent-cast-hardening.txt`
+- **Files:**
+  - `src/lib/services/posts.ts`
+  - `.claude/rules/common-errors.md`
+- **Commit:** pending
+
+---
+
 ## 164 | 2026-04-23 | Konvention-Codification (patterns.md #28 + testing.md)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review im Proof) → PROVE → LOG
