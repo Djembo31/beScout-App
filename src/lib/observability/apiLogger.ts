@@ -18,8 +18,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import * as Sentry from '@sentry/nextjs';
 import { logger, type Logger } from './logger';
+import { captureError } from './captureError';
 import { toDomainError } from '@/lib/errors';
 
 export type LoggerContext = {
@@ -92,9 +92,7 @@ export function withLogger<TParams = unknown>(
         'request.error',
       );
 
-      Sentry.captureException(domainErr, {
-        tags: { route, requestId, code: domainErr.code },
-      });
+      captureError(domainErr, { route, requestId });
 
       // Re-throw so Next.js produces 500. Consumer can choose to return 4xx via
       // normal returns — only unhandled exceptions land here.

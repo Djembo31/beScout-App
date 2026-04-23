@@ -1,13 +1,14 @@
-import * as Sentry from '@sentry/nextjs';
+import { captureError } from './captureError';
 
 /**
  * Logs rejected entries of a Promise.allSettled result to console (dev) + Sentry (prod).
  *
+ * Slice 176: Delegates to unified captureError wrapper — inherits DomainError-code
+ * tag-extraction + normalization via toDomainError (174).
+ *
  * Usage after a Promise.allSettled where graceful-degrade is intended:
  *   const results = await Promise.allSettled([q1, q2, q3]);
  *   logSilentRejects('myModule.myFunction', results);
- *   const [r1, r2, r3] = results;
- *   ...
  *
  * Does NOT change fulfilled/rejected routing — pure observation.
  * Sentry.captureException is no-op in dev (enabled: production only in sentry.*.config.ts).
@@ -19,13 +20,12 @@ export function logSilentRejects(
   for (let idx = 0; idx < results.length; idx++) {
     const r = results[idx];
     if (r.status !== 'rejected') continue;
-    const err = r.reason instanceof Error ? r.reason : new Error(String(r.reason));
     if (process.env.NODE_ENV !== 'production') {
       console.error(`[silentReject] ${label}[${idx}]:`, r.reason);
     }
-    Sentry.captureException(err, {
-      tags: { silentReject: 'true', label },
-      extra: { index: idx, totalResults: results.length },
+    captureError(r.reason, {
+      feature: 'silentReject',
+      extra: { label, index: idx, totalResults: results.length },
     });
   }
 }
@@ -33,6 +33,8 @@ export function logSilentRejects(
 /**
  * Logs a caught error to console (dev) + Sentry (prod) while keeping graceful-degrade
  * behavior intact. Use in `.catch()` handlers where a fallback value is returned.
+ *
+ * Slice 176: Delegates to unified captureError wrapper.
  *
  * Usage:
  *   getClubBySlug(slug, userId).catch((err) => {
@@ -47,12 +49,11 @@ export function logSilentCatch(
   err: unknown,
   context?: Record<string, unknown>
 ): void {
-  const errObj = err instanceof Error ? err : new Error(String(err));
   if (process.env.NODE_ENV !== 'production') {
     console.error(`[silentCatch] ${label}:`, err);
   }
-  Sentry.captureException(errObj, {
-    tags: { silentCatch: 'true', label },
-    extra: context ?? {},
+  captureError(err, {
+    feature: 'silentCatch',
+    extra: { label, ...(context ?? {}) },
   });
 }

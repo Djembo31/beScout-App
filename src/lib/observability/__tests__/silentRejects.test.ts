@@ -31,7 +31,7 @@ describe('logSilentRejects', () => {
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
-  it('captures one rejected (Error instance) with index + label tag', () => {
+  it('captures one rejected (Error instance) with feature-tag + label/index in extra', () => {
     const err = new Error('boom');
     const results: PromiseSettledResult<number>[] = [
       { status: 'fulfilled', value: 1 },
@@ -41,10 +41,16 @@ describe('logSilentRejects', () => {
     logSilentRejects('test.oneFail', results);
     expect(captureExceptionMock).toHaveBeenCalledTimes(1);
     const [capturedErr, ctx] = captureExceptionMock.mock.calls[0];
-    expect(capturedErr).toBe(err);
-    expect(ctx).toEqual({
-      tags: { silentReject: 'true', label: 'test.oneFail' },
-      extra: { index: 1, totalResults: 3 },
+    // Slice 176: captureError normalises via toDomainError → DomainError wrapper
+    expect((capturedErr as Error).message).toBe('boom');
+    expect(ctx.tags).toMatchObject({
+      feature: 'silentReject',
+      code: 'unexpected',
+    });
+    expect(ctx.extra).toMatchObject({
+      label: 'test.oneFail',
+      index: 1,
+      totalResults: 3,
     });
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       '[silentReject] test.oneFail[1]:',
@@ -64,9 +70,9 @@ describe('logSilentRejects', () => {
     expect(captureExceptionMock).toHaveBeenCalledTimes(2);
     const call0 = captureExceptionMock.mock.calls[0];
     const call1 = captureExceptionMock.mock.calls[1];
-    expect(call0[0]).toBe(err1);
+    expect((call0[0] as Error).message).toBe('fail-0');
     expect(call0[1].extra.index).toBe(0);
-    expect(call1[0]).toBe(err2);
+    expect((call1[0] as Error).message).toBe('fail-2');
     expect(call1[1].extra.index).toBe(2);
   });
 
@@ -90,16 +96,18 @@ describe('logSilentCatch', () => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('captures Error instance with label tag', () => {
+  it('captures Error instance with feature-tag + label in extra', () => {
     const err = new Error('boom');
     logSilentCatch('test.catch', err);
     expect(captureExceptionMock).toHaveBeenCalledTimes(1);
     const [capturedErr, ctx] = captureExceptionMock.mock.calls[0];
-    expect(capturedErr).toBe(err);
-    expect(ctx).toEqual({
-      tags: { silentCatch: 'true', label: 'test.catch' },
-      extra: {},
+    // Slice 176: captureError normalises via toDomainError
+    expect((capturedErr as Error).message).toBe('boom');
+    expect(ctx.tags).toMatchObject({
+      feature: 'silentCatch',
+      code: 'unexpected',
     });
+    expect(ctx.extra).toMatchObject({ label: 'test.catch' });
     expect(consoleErrorSpy).toHaveBeenCalledWith('[silentCatch] test.catch:', err);
   });
 
@@ -116,7 +124,14 @@ describe('logSilentCatch', () => {
     logSilentCatch('test.ctx', err, { userId: 'u-1', slug: 'bvb' });
     expect(captureExceptionMock).toHaveBeenCalledTimes(1);
     const [, ctx] = captureExceptionMock.mock.calls[0];
-    expect(ctx.extra).toEqual({ userId: 'u-1', slug: 'bvb' });
-    expect(ctx.tags).toEqual({ silentCatch: 'true', label: 'test.ctx' });
+    expect(ctx.extra).toMatchObject({
+      label: 'test.ctx',
+      userId: 'u-1',
+      slug: 'bvb',
+    });
+    expect(ctx.tags).toMatchObject({
+      feature: 'silentCatch',
+      code: 'unexpected',
+    });
   });
 });

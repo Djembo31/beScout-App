@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 176 | 2026-04-24 | Sentry captureError Wrapper (Sorare/Socios Tier D2)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: internal observability-module) → BUILD → PROVE → REVIEW → LOG
+- **Scope XS:** 1 neuer Wrapper + 1 Test-File NEU, 3 Files UPGRADE. Pure TS, Money-Path: Nein.
+- **NEU:** `src/lib/observability/captureError.ts` — unified `captureError(err, ctx?)` + `captureMessage(msg, level, ctx?)`. Extrahiert DomainError.code automatisch als `tags.code`, normalisiert unknown-err via `toDomainError` (Slice 174), merged Context-Tags (feature, route, slice, requestId), attached user.id + extractable DomainError-Felder als extra.
+- **NEU:** `src/lib/observability/__tests__/captureError.test.ts` — 10 Tests (8 captureError + 2 captureMessage), alle gruen.
+- **UPGRADE:** `silentRejects.ts` + `apiLogger.ts` — delegieren an captureError statt direkt `Sentry.captureException`. Shape-Shift: `label` wandert von `tags` (high-cardinality) in `extra`, `feature` wird stabiler Cohort-Tag.
+- **UPGRADE:** `silentRejects.test.ts` — Assertions auf neue Shape angepasst (feature-Tag + label in extra).
+- **Tag-Konsistenz-Gewinn:** Jedes Sentry-Event hat jetzt automatisch `tags.code` (aus DomainError oder `unexpected`). Filterbar in Sentry-UI, saved-searches nach Code-Klasse moeglich.
+- **Proof:** `worklog/proofs/176-capture.txt` — 22/22 Tests passing, tsc clean.
+- **Review:** `worklog/reviews/176-review.md` — PASS, 2 LOW-Findings (cause-Extraktion + Doc-Drift pattern_observability_stack.md Z.65) → Follow-Slice 176b.
+- **Follow-Up:** Slice 176b — global-error.tsx Migration (1-Line HIGH-Impact) + extractDomainContext um DomainError.cause erweitern + Doc-Update.
+
+---
+
 ## 175 | 2026-04-24 | Pino Structured-Logger Foundation (Sorare/Socios Tier D1)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: neue Module) → BUILD → REVIEW (self, PASS) → PROVE → LOG
