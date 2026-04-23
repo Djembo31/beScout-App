@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { Trophy, Users, Copy, Plus, LogIn, LogOut, Crown, Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, Button, Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useMyLeagues, useLeagueLeaderboard } from '@/lib/queries/fantasyLeagues';
 import { createLeague, joinLeague, leaveLeague } from '@/lib/services/fantasyLeagues';
-import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { useTranslations } from 'next-intl';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
@@ -22,6 +22,7 @@ const RANK_MEDALS: Record<number, string> = { 1: '\uD83E\uDD47', 2: '\uD83E\uDD4
 function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addToast } = useToast();
   const t = useTranslations('leagues');
+  const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [maxMembers, setMaxMembers] = useState('20');
 
@@ -94,6 +95,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
 function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addToast } = useToast();
   const t = useTranslations('leagues');
+  const queryClient = useQueryClient();
   const [code, setCode] = useState('');
 
   const joinMut = useSafeMutation<
@@ -151,6 +153,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
 function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: string }) {
   const { addToast } = useToast();
   const t = useTranslations('leagues');
+  const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const { data: leaderboard = [], isLoading } = useLeagueLeaderboard(expanded ? league.id : undefined);
 

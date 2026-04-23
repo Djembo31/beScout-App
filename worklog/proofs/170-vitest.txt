@@ -1,0 +1,36 @@
+$ npx vitest run src/components/community/hooks/__tests__/useCommunityActions.test.ts
+ Test Files  1 passed (1)
+      Tests  72 passed (72)
+   Duration  4.42s
+
+$ npx vitest run src/components/fantasy/__tests__/LeaguesSection.test.tsx
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Duration  3.70s
+
+$ npx vitest run src/components/missions/__tests__/MissionBanner.test.tsx
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Duration  3.74s
+
+Summary: 76/76 tests passing across 3 suites — all Ferrari-Blueprint-Tests für
+useCommunityActions (13 Handler, 72 Tests incl. edge-cases + regressions) +
+LeaguesSection (render + createUI) + MissionBanner (render + getMissions-mount-call).
+
+Note: useCommunityActions.test.ts failed initially with "Cannot access 'mockQc'
+before initialization" because vi.mock factories are hoisted but plain const is not.
+Fix: const { mockQc } = vi.hoisted(() => ({ mockQc: {...} })). Standard vitest
+pattern — documented for future test-migrations where useQueryClient mock needs
+shared reference with @/lib/queryClient mock.
+
+=== POST-M1-FIX RE-RUN (Reviewer HIGH→MEDIUM resolved) ===
+
+$ npx vitest run [all 3 suites]
+ Test Files  3 passed (3)
+      Tests  76 passed (76)
+   Duration  6.24s
+
+M1-Fix: 9 useCallbacks in useCommunityActions.ts haben jetzt `queryClient` im deps-array
+(Z.116, 133, 155, 178, 243, 297, 313, 325, 361) — analog zum Sister-Hook `usePlayerCommunity.ts`.
+Zero Behavior-Change, alle Tests bleiben grün. M1-Fix adressiert `react-hooks/exhaustive-deps`
+Konvention-Drift (siehe Slice 170 Review Z.M1).

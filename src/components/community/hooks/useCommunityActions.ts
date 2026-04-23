@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/providers/ToastProvider';
 import { createPost, uploadPostImage, votePost, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { createResearchPost, unlockResearch, rateResearch } from '@/lib/services/research';
@@ -7,7 +8,6 @@ import { submitBountyResponse, createUserBounty } from '@/lib/services/bounties'
 import { castVote } from '@/lib/services/votes';
 import { castCommunityPollVote, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { qk, invalidateResearchQueries } from '@/lib/queries';
-import { queryClient } from '@/lib/queryClient';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { PostWithAuthor, PostType } from '@/types';
@@ -32,6 +32,7 @@ export function useCommunityActions({
   const { addToast } = useToast();
   const t = useTranslations('community');
   const tErrors = useTranslations('errors');
+  const queryClient = useQueryClient();
 
   // Slice 162 Ferrari-Blueprint: useSafeMutation ersetzt raw async (D18 Race-Class).
   // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off detected via oldVote === voteType
@@ -112,7 +113,7 @@ export function useCommunityActions({
       console.error('[Community] Delete post failed:', err);
       addToast(t('deleteError'), 'error');
     }
-  }, [userId, addToast, t]);
+  }, [userId, addToast, queryClient, t]);
 
   const handleAdminDeletePost = useCallback(async (postId: string) => {
     if (!userId) return;
@@ -129,7 +130,7 @@ export function useCommunityActions({
       // Slice 051: i18n-Key-Leak-Schutz — err.message kann raw-key sein
       addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     }
-  }, [userId, addToast, t, tErrors]);
+  }, [userId, addToast, queryClient, t, tErrors]);
 
   const handleTogglePin = useCallback(async (postId: string, pinned: boolean) => {
     if (!userId) return;
@@ -151,7 +152,7 @@ export function useCommunityActions({
       // Slice 051: i18n-Key-Leak-Schutz
       addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     }
-  }, [userId, addToast, scopeClubId, t, tErrors]);
+  }, [userId, addToast, queryClient, scopeClubId, t, tErrors]);
 
   const handleCreatePost = useCallback(async (
     playerId: string | null, content: string, tags: string[], category: string,
@@ -174,7 +175,7 @@ export function useCommunityActions({
     } finally {
       dispatch({ type: 'SET_POST_LOADING', value: false });
     }
-  }, [userId, state.clubName, state.clubId, addToast, t, dispatch]);
+  }, [userId, state.clubName, state.clubId, addToast, queryClient, t, dispatch]);
 
   const handleCreateResearch = useCallback(async (params: {
     playerId: string | null;
@@ -239,7 +240,7 @@ export function useCommunityActions({
     } finally {
       dispatch({ type: 'SET_BOUNTY_SUBMITTING', value: null });
     }
-  }, [userId, addToast, t, dispatch]);
+  }, [userId, addToast, queryClient, t, dispatch]);
 
   const handleUnlockResearch = useCallback(async (postId: string) => {
     if (!userId) return;
@@ -293,7 +294,7 @@ export function useCommunityActions({
     } finally {
       dispatch({ type: 'SET_VOTING_ID', value: null });
     }
-  }, [userId, addToast, t, dispatch, setUserVotedIds]);
+  }, [userId, addToast, queryClient, t, dispatch, setUserVotedIds]);
 
   const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
     if (!userId) return;
@@ -309,7 +310,7 @@ export function useCommunityActions({
     } finally {
       dispatch({ type: 'SET_POLL_VOTING_ID', value: null });
     }
-  }, [userId, addToast, t, dispatch, setUserPollVotedIds]);
+  }, [userId, addToast, queryClient, t, dispatch, setUserPollVotedIds]);
 
   const handleCancelPoll = useCallback(async (pollId: string) => {
     if (!userId) return;
@@ -321,7 +322,7 @@ export function useCommunityActions({
       // Slice 051: i18n-Key-Leak-Schutz
       addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
     }
-  }, [userId, addToast, t]);
+  }, [userId, addToast, queryClient, t, tErrors]);
 
   const handleCreateBounty = useCallback(async (params: {
     title: string;
@@ -357,7 +358,7 @@ export function useCommunityActions({
     } finally {
       dispatch({ type: 'SET_BOUNTY_CREATING', value: false });
     }
-  }, [userId, state.clubId, state.clubName, addToast, t, tErrors, dispatch]);
+  }, [userId, state.clubId, state.clubName, addToast, queryClient, t, tErrors, dispatch]);
 
   return {
     handleVotePost,

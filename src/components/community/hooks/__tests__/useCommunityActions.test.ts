@@ -40,17 +40,25 @@ vi.mock('@/lib/services/communityPolls', () => ({
   cancelCommunityPoll: vi.fn(() => Promise.resolve()),
 }));
 
-const mockInvalidateQueries = vi.fn(() => Promise.resolve());
-const mockSetQueryData = vi.fn();
-
-vi.mock('@/lib/queryClient', () => ({
-  queryClient: {
+// Slice 170: Hook ruft `useQueryClient()` aus @tanstack/react-query auf statt Singleton-Import.
+// Shared `mockQc` via vi.hoisted damit beide Import-Pfade (Test-Import + Hook-Runtime-Call)
+// auf dieselbe Mock-Instanz zeigen. vi.mock-Factorys werden hoisted, plain const nicht —
+// ohne vi.hoisted scheitert der Access mit "Cannot access 'mockQc' before initialization".
+const { mockQc } = vi.hoisted(() => ({
+  mockQc: {
     invalidateQueries: vi.fn(() => Promise.resolve()),
     setQueryData: vi.fn(),
     getQueryData: vi.fn(() => undefined),
     cancelQueries: vi.fn(() => Promise.resolve()),
   },
 }));
+
+vi.mock('@/lib/queryClient', () => ({ queryClient: mockQc }));
+
+vi.mock('@tanstack/react-query', async () => {
+  const actual = await vi.importActual<typeof import('@tanstack/react-query')>('@tanstack/react-query');
+  return { ...actual, useQueryClient: () => mockQc };
+});
 
 vi.mock('@/lib/queries', () => ({
   qk: {

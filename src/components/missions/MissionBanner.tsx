@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Target, Calendar, Check, ChevronDown, Gift, Clock, Shield, Loader2, AlertCircle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { setWalletBalance } from '@/lib/hooks/useWallet';
@@ -13,7 +14,6 @@ import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 // Direct import from keys (NOT '@/lib/queries' barrel) to keep the test setup
 // from pulling the whole supabase-coupled query graph (MissionBanner.test.tsx).
 import { qk } from '@/lib/queries/keys';
-import { queryClient } from '@/lib/queryClient';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { UserMissionWithDef, MissionType } from '@/types';
 
@@ -37,6 +37,7 @@ export default function MissionBanner() {
   const { data: followedClubs = [] } = useFollowedClubs();
   const tm = useTranslations('missions');
   const te = useTranslations('errors');
+  const queryClient = useQueryClient();
   const [missions, setMissions] = useState<UserMissionWithDef[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null); // FIX-17 (J7F-14)

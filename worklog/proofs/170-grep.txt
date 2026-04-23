@@ -1,0 +1,55 @@
+=== Singleton-Import in den 3 Slice-170-Zielfiles (erwartet: 0 Treffer) ===
+(0 Treffer — clean)
+
+=== useQueryClient-Imports + Hook-Calls in den 3 Files (erwartet: 2 Import-Statements + 5 Hook-Calls) ===
+
+src/components/community/hooks/useCommunityActions.ts:3
+  import { useQueryClient } from '@tanstack/react-query';
+src/components/community/hooks/useCommunityActions.ts:35
+  const queryClient = useQueryClient();        # Hook-Body
+
+src/components/fantasy/LeaguesSection.tsx:5
+  import { useQueryClient } from '@tanstack/react-query';
+src/components/fantasy/LeaguesSection.tsx:25
+  const queryClient = useQueryClient();        # CreateLeagueModal
+src/components/fantasy/LeaguesSection.tsx:98
+  const queryClient = useQueryClient();        # JoinLeagueModal
+src/components/fantasy/LeaguesSection.tsx:156
+  const queryClient = useQueryClient();        # LeagueCard
+
+src/components/missions/MissionBanner.tsx:6
+  import { useQueryClient } from '@tanstack/react-query';
+src/components/missions/MissionBanner.tsx:40
+  const queryClient = useQueryClient();        # MissionBanner-Body
+
+Total: 3 Import-Statements + 5 Hook-Calls (exakt geplant).
+
+=== Out-of-Scope — Singleton-Imports im uebrigen Codebase (separater Slice) ===
+
+Legitim (QueryProvider initialisiert das Singleton):
+- src/components/providers/QueryProvider.tsx
+- src/components/providers/AuthProvider.tsx
+
+Other Files (scope-out fuer Slice 170, Kandidat fuer Slice 170b):
+- src/app/(app)/club/[slug]/ClubContent.tsx
+- src/app/(app)/community/page.tsx
+- src/app/(app)/founding/page.tsx
+- src/app/(app)/hooks/useHomeData.ts
+- src/app/(app)/missions/page.tsx
+- src/app/(app)/page.tsx
+- src/components/club/sections/MembershipSection.tsx
+- src/features/fantasy/hooks/useGameweek.ts
+- src/features/fantasy/queries/invalidation.ts
+- src/features/market/components/MarketContent.tsx
+- src/features/market/components/marktplatz/WatchlistView.tsx
+- src/features/market/hooks/useWatchlistActions.ts
+- src/lib/queries/homeDashboard.ts
+- src/lib/queries/invalidation.ts
+- src/lib/queries/marketDashboard.ts
+(plus weitere — nicht erschoepfend)
+
+Diese bleiben bewusst ausserhalb von Slice 170. Die Spec fokussiert nur die
+3 Ferrari-Migrations-Erben aus Slice 161 + 162. Separater Audit-Slice bei
+Bedarf — aber viele davon sind in Files die das Singleton als Helper-Utility
+benutzen (`src/lib/queries/invalidation.ts`) wo Hook-Variante NICHT moeglich ist
+(keine React-Komponente). Dort ist Singleton-Nutzung per se ok.

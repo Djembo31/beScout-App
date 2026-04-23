@@ -1,0 +1,8 @@
+$ npx tsc --noEmit
+(exit 0, no output)
+
+Full-Project TypeScript-Check clean nach Slice 170 Edits:
+- src/components/community/hooks/useCommunityActions.ts (useQueryClient imported, hook-call in body, 16 queryClient-usages resolved via hook-local const)
+- src/components/fantasy/LeaguesSection.tsx (3 Components each with own useQueryClient call)
+- src/components/missions/MissionBanner.tsx (useQueryClient in MissionBanner main body)
+- src/components/community/hooks/__tests__/useCommunityActions.test.ts (vi.hoisted mockQc + partial @tanstack mock)
