@@ -3,10 +3,10 @@
 ```
 status: active
 slice: 173
-stage: BUILD
+stage: LOG
 spec: worklog/specs/173-rpc-shape-audit.md
 impact: skipped (read-only Audit, kein Code-Change)
-proof: pending
+proof: worklog/audits/173-rpc-shape-report.md
 review: skipped (Audit-Slice, self-review — Report ist primary artifact)
 ```
 

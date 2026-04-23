@@ -1,0 +1,10 @@
+$ npx tsc --noEmit
+(exit 0, no output — docs-only Audit-Slice)
+
+Slice 173 ist read-only (Audit-Only Slice). Keine Code-Edits, nur:
+- worklog/audits/173-rpc-shape-report.md (primary artifact)
+- worklog/specs/173-rpc-shape-audit.md
+- worklog/active.md (stage update)
+- worklog/log.md (nach commit)
+
+Kein Impact auf TypeScript-Compile.
