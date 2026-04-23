@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Tag, Loader2, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { SellModalCore } from '@/components/trading/SellModalCore';
 import { TRADE_FEE_PCT } from '@/lib/constants';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { invalidateWallet } from '@/lib/hooks/useWallet';
 import type { KaderPlayer } from './KaderPlayerRow';
 
 interface KaderSellModalProps {
@@ -21,56 +24,115 @@ interface KaderSellModalProps {
 /**
  * Kader/Bestand Sell Modal — thin wrapper around SellModalCore.
  *
+ * Slice 158 Ferrari-Refactor (analog 156 + 157):
+ * - 2x `useSafeMutation` intern (sellMut, cancelMut).
+ * - Synchroner Pending-Guard (Slice 151a Primitive) — rapid-click short-circuit.
+ * - `useQueryClient()` statt Singleton (P2.2-Konvention).
+ * - `onSettled: invalidateWallet(qc)` defensive (sell/cancel touchen Escrow).
+ * - `errorTag`: `market.kaderSell` / `market.kaderCancelOrder` (Sentry-Observability).
+ * - Callback-API (`onSell`/`onCancelOrder`) unveraendert — Parents (KaderTab, BestandView)
+ *   kompilieren byte-identisch.
+ *
  * Adds kader-context UI:
  *   - Inline "My Listings" strip with cancel + net preview + expiry
  *   - Incoming Offers preview with link to /market?tab=angebote
  *   - Locked SC info pill
  *
  * Core owns: form, fee breakdown, preventClose, disclaimer, error/success rendering.
- * Adapts (playerId, qty, price) → Promise<{success, error}> signature into
- * the Core's (qty, price) → Promise<void> via closure + local state.
  */
 export default function KaderSellModal({ item, open, onClose, onSell, onCancelOrder }: KaderSellModalProps) {
   const t = useTranslations('market');
-  const [selling, setSelling] = useState(false);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  if (!item) return null;
-
-  const handleSubmit = async (qty: number, priceCents: number) => {
-    setSelling(true);
-    setError(null);
-    setSuccess(null);
-    const result = await onSell(item.player.id, qty, priceCents);
-    if (result.success) {
+  // ── Sell Mutation ──────────────────────────────────────────
+  const sellMut = useSafeMutation<
+    { success: boolean; error?: string },
+    Error,
+    { playerId: string; qty: number; priceCents: number }
+  >({
+    mutationFn: async ({ playerId, qty, priceCents }) => {
+      const result = await onSell(playerId, qty, priceCents);
+      if (!result.success) throw new Error(result.error || 'sellError');
+      return result;
+    },
+    onSuccess: (_result, { qty, priceCents }) => {
       setSuccess(t('sellListSuccess', { qty, price: fmtScout(priceCents / 100) }));
       setTimeout(() => setSuccess(null), 4000);
-    } else {
-      setError(result.error || t('sellError'));
-    }
-    setSelling(false);
-  };
+    },
+    onError: (err) => {
+      setError(err.message || t('sellError'));
+    },
+    onSettled: () => {
+      // Escrow/floor-price changes server-side — refresh wallet-cache post-commit.
+      invalidateWallet(qc);
+    },
+    errorTag: 'market.kaderSell',
+  });
 
-  const handleCancel = async (orderId: string) => {
-    setCancellingId(orderId);
-    setError(null);
-    setSuccess(null);
-    try {
+  // ── Cancel Order Mutation ──────────────────────────────────
+  const cancelMut = useSafeMutation<
+    { success: boolean; error?: string },
+    Error,
+    { orderId: string }
+  >({
+    mutationFn: async ({ orderId }) => {
       const result = await onCancelOrder(orderId);
-      if (!result.success) {
-        setError(result.error || t('cancelFailed'));
-      } else {
-        setSuccess(t('sellCancelSuccess'));
-        setTimeout(() => setSuccess(null), 3000);
-      }
-    } finally {
-      setCancellingId(null);
-    }
-  };
+      if (!result.success) throw new Error(result.error || 'cancelFailed');
+      return result;
+    },
+    onSuccess: () => {
+      setSuccess(t('sellCancelSuccess'));
+      setTimeout(() => setSuccess(null), 3000);
+    },
+    onError: (err) => {
+      setError(err.message || t('cancelFailed'));
+    },
+    onSettled: () => {
+      // cancel unlocks sell-order quantity from holdings → wallet-available delta possible.
+      invalidateWallet(qc);
+    },
+    errorTag: 'market.kaderCancelOrder',
+  });
 
-  const subtitle = `${item.player.first} ${item.player.last} \u00B7 ${item.player.club}`; // middle-dot
+  // ── Wrapper-Methoden — Consumer-API Kompat ─────────────────
+  const handleSubmit = useCallback(
+    async (qty: number, priceCents: number) => {
+      if (!item) return;
+      if (sellMut.isPending) return;
+      setError(null);
+      setSuccess(null);
+      try {
+        await sellMut.mutateAsync({ playerId: item.player.id, qty, priceCents });
+      } catch {
+        // onError handled.
+      }
+    },
+    [sellMut, item],
+  );
+
+  const handleCancel = useCallback(
+    async (orderId: string) => {
+      if (cancelMut.isPending) return;
+      setError(null);
+      setSuccess(null);
+      try {
+        await cancelMut.mutateAsync({ orderId });
+      } catch {
+        // onError handled.
+      }
+    },
+    [cancelMut],
+  );
+
+  if (!item) return null;
+
+  // Derived state from mutations.
+  const selling = sellMut.isPending;
+  const cancellingId = cancelMut.isPending ? cancelMut.variables?.orderId ?? null : null;
+
+  const subtitle = `${item.player.first} ${item.player.last} · ${item.player.club}`; // middle-dot
 
   // My Listings (inline) + Incoming Offers + Locked info — rendered before the form
   const beforeForm = (

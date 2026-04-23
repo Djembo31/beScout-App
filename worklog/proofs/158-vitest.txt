@@ -1,0 +1,56 @@
+Slice 158 — Vitest + TSC Proof
+===============================
+
+1) KaderSellModal test-suite
+-----------------------------
+$ npx vitest run src/features/manager/components/kader/__tests__/KaderSellModal.test.tsx
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Duration  3.57s
+
+13/13 gruen:
+  - returns null when item is null
+  - handleSubmit calls onSell with correct args
+  - selling prop = sellMut.isPending during submission
+  - error prop filled when onSell returns failure
+  - success prop filled after successful sell (contains formatted args)
+  - handleCancel calls onCancelOrder with orderId
+  - cancellingId prop = order-id during cancel in-flight
+  - onSettled invalidateWallet on sell success
+  - onSettled invalidateWallet on sell error
+  - onSettled invalidateWallet on cancel
+  - errorTag market.kaderSell routed to logSilentCatch on failure
+  - errorTag market.kaderCancelOrder routed to logSilentCatch on failure
+  - error/success cleared when new sell starts
+
+
+2) Manager-Regression
+---------------------
+$ npx vitest run src/features/manager
+
+ Test Files  3 passed (3)
+      Tests  39 passed (39)
+   Duration  4.19s
+
+
+3) TSC
+------
+$ npx tsc --noEmit
+EXIT: 0 (clean)
+
+
+Acceptance Criteria Status:
+---------------------------
+A1  sellMut errorTag market.kaderSell                       PASS
+A2  cancelMut errorTag market.kaderCancelOrder              PASS
+A3  onSettled invalidateWallet bei beiden Mutations         PASS
+A4  Consumer-API byte-identisch                             PASS (KaderTab + BestandView)
+A5  selling = sellMut.isPending                             PASS
+A6  cancellingId derived von cancelMut.variables            PASS
+A7  error/success cleared vor mutateAsync                   PASS
+A8  Rapid-Click Guard via mut.isPending                     PASS
+A9  Tests gruen + tsc clean                                 PASS
+
+
+Reviewer-Verdict: PASS (9 min, 0 Findings)

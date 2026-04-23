@@ -11,6 +11,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 158 | 2026-04-23 | KaderSellModal Ferrari-Refactor (Phase 3 Welle 3)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: UI-Wrapper, callback-signature byte-identisch, 2 Parents KaderTab + BestandView) → BUILD → REVIEW (PASS 9 min, 0 Findings) → PROVE → LOG
+- **Scope S:** 2 Files — `KaderSellModal.tsx` Refactor (kompakt, 2x useSafeMutation intern) + `__tests__/KaderSellModal.test.tsx` NEU (13 Tests). Spec + Review + Proof als Artefakte.
+- **Ferrari-Refactor** (analog 156 + 157): 2 Handler (handleSubmit/handleCancel) → `sellMut`/`cancelMut`. `useQueryClient()` statt kein-qc vorher. `errorTag: market.kaderSell` / `market.kaderCancelOrder`. `onSettled: invalidateWallet(qc)` defensive bei beiden.
+- **Key-Changes:**
+  - Anti-Pattern-B eliminiert: `handleSubmit` hatte KEINEN `if (selling) return` Guard → race auf multi-click → 2× Listing. Jetzt synchroner `sellMut.isPending`-Check.
+  - `selling` = `sellMut.isPending`, `cancellingId` = `cancelMut.variables?.orderId ?? null` (derived)
+  - Wrapper-Methoden `async => Promise<void>` mit swallowed throw (onError handhabt error/success state)
+  - `setError(null); setSuccess(null)` im Wrapper vor mutateAsync (kein onMutate weil kein Optimistic-Snapshot)
+- **Consumer-API byte-identisch:** `{ item, open, onClose, onSell, onCancelOrder }` unveraendert. KaderTab.tsx:473 + BestandView.tsx:399 kompilieren unchanged. Kein anderer Call-Site.
+- **Money-Path Defense-in-Depth:** Modal-seitige Guards sind client-defensive, auch wenn Parent-Callbacks authoritativ bleiben (place_sell_order / cancel_order RPCs). Reviewer-Bestaetigung: "verhindert double-listing in derselben Render-Frame".
+- **Reviewer-Kommentare:**
+  - `err.message` safety verifiziert via `useTradeActions.ts:116-138` upstream `resolveErrorMessage` → kein raw-key-Leak.
+  - setTimeout/setSuccess auto-dismiss: codebase-Precedent (6 Call-Sites), React 18 swallows warning, OK.
+  - Mock-pass-through SellModalCore ist richtige Test-Granularitaet (Integration gedeckt durch bestehende SellModalCore-Tests).
+- **Tests:** 13/13 grün (null-item, sell-args, selling-prop, error/success-prop, cancel-args, cancellingId, 3× invalidateWallet, 2× errorTag, error-clear). Manager-Regression 39/39 grün. tsc clean.
+- **Phase 3 UX-Hotspots COMPLETE** — Welle 1 (153 market+player), Welle 2 (156 fantasy+events), Welle 3 (157 offers + 158 kader-sell). 7/9 Tier-1 Money-Path-Files gefertigt.
+- **Artefakte:**
+  - Spec: `worklog/specs/158-KaderSellModal-ferrari.md`
+  - Review: `worklog/reviews/158-review.md` (PASS, 0 Findings)
+  - Proof: `worklog/proofs/158-vitest.txt`
+
 ## 157 | 2026-04-23 | useOffersState Ferrari-Refactor (Phase 3 Welle 2)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Hook-Layer-Refactor, keine DB/RPC-Change, 1 Consumer OffersTab.tsx) → BUILD → REVIEW (PASS mit 5 NITs, alle non-blocking) → PROVE → LOG
