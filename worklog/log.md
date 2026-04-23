@@ -29,8 +29,8 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - Spec: `worklog/specs/166-modal-preventclose-sweep.md`
   - Review: `worklog/reviews/166-review.md` (PASS, 46% Reviewer-ROI)
   - Proof: `worklog/proofs/166-modal-preventclose-sweep.txt` (tsc clean, vitest 640/640)
-- **Files (9):** CreatePostModal, CreateBountyModal, CreateResearchModal, ReportModal, BountyCard, LeaguesSection, CreatePredictionModal, CommunityTab (player), OfferModal, FanWishModal, AddAdminModal
-- **Commit:** pending
+- **Files (11):** CreatePostModal, CreateBountyModal, CreateResearchModal, ReportModal, BountyCard, LeaguesSection, CreatePredictionModal, CommunityTab (player), OfferModal, FanWishModal, AddAdminModal
+- **Commit:** `e615b387`
 
 ---
 

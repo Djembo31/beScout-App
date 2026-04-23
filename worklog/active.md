@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 166
-stage: LOG
-spec: worklog/specs/166-modal-preventclose-sweep.md
-impact: skipped (13 Modals, preventClose-Prop-Add, keine API-Change)
-proof: worklog/proofs/166-modal-preventclose-sweep.txt
-review: worklog/reviews/166-review.md (PASS nach in-slice Scope-Gap-Fixes, 46% Reviewer-ROI)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 — 10 Slices committed
+## Session 2026-04-23 — 11 Slices committed
 
+- **166** Modal preventClose Sweep (13 Modals, 46% Reviewer-ROI) → `e615b387`
 - **165** votePost Silent-Cast Hardening → `a441e540`
 - **164** Konvention-Codification (patterns.md #28 + testing.md) → `fee8db16`
 - **163** CreatePredictionModal Ferrari (Non-Admin 8/8) → `c9823114`
@@ -44,35 +45,34 @@ Plus: Knowledge-Capture (common-errors.md §5 Vote-Toggle FIXED, patterns.md #28
 **Tier-2 Data-Integrity Non-Admin: 8/8 ✅ komplett.** Offen: 10× Admin-Space (AdminVotesTab, AdminBountiesTab, AdminModerationTab, AdminFansTab, AdminSponsorTab, InviteClubAdminModal, AddAdminModal, useAdminEventsActions, useClubEventsActions, useAdminPlayersState) — nur wenn Admin-Flows demnächst getestet werden.
 AirdropScoreCard aus Tier-2-Scope raus (display-only, kein user-Claim, Audit stale).
 
-## Nahtlos-Naechste-Session — Slice 166 Kandidaten
+## Nahtlos-Naechste-Session — Slice 167 Kandidaten
 
-### Option A: Modal preventClose Sweep — M, ~2h
-- LeaguesSection (CreateLeagueModal + JoinLeagueModal) — Slice 161 NIT #2
-- CreatePredictionModal — Slice 163 Finding #1
-- Modal-Audit: `grep -rn "<Modal" src/ | grep -v preventClose`
-- common-errors.md §5 J2+J3 Pattern konsistent applizieren.
+### Option A: Knowledge-Capture aus Slice 166 Learnings — XS, ~45min
+- `memory/patterns.md` #28 erweitern: "Bei Modal-gescopten Mutations: preventClose={mut.isPending} ist Teil des Ferrari-Patterns" (Slice 159 Blueprint-Gap-Learning).
+- `.claude/rules/common-errors.md` §7 neuer Entry "Grep-Audit-Scope-Gap": Top-Level-Grep verpasst embedded Sub-Component-Modals (46% ROI in Slice 166). Bessere Audit-Pattern.
+- Konvention-Codification aus 2 Session-Slices (164 bereits codified, 166 jetzt).
 
-### Option B: Admin-Tier-1 Kill-Switch (2 Files) — M, ~2h (CEO-Approval)
+### Option B: RPC-Shape-Konsistenz-Regel (database.md) — XS, ~30min
+- Slice 165 Reviewer-Learning: RPC-Success-Path MUSS `{success: true, ...}` flag setzen.
+- Audit-Command für bestehende inkonsistente RPCs.
+- Verhindert Drift wie `vote_post`.
+
+### Option C: Admin-Tier-1 Kill-Switch (2 Files) — M, ~2h (CEO-Approval)
 - `AdminWithdrawalTab.tsx` (Process club withdrawal — Money)
 - `AdminFoundingPassesTab.tsx` (FP Create/Revoke — Kill-Switch)
 - Money-Path + Admin-Scope. CEO-Approval vor Build pflicht.
-
-### Option C: RPC-Shape-Konsistenz-Regel (database.md) — XS, ~30min
-- Slice 165 Reviewer-Learning: "Jede RPC mit json_build_object MUSS {success: true, ...} im Success-Path setzen" — in database.md codifizieren.
-- Audit-Command für bestehende RPCs mit inkonsistenter Shape.
-- Verhindert RPC-Drift wie `vote_post` (Success-Path ohne success-flag).
 
 ### Option D: Mini-Cleanup Singleton → useQueryClient (161+162) — XS, ~30min
 - `useCommunityActions.ts` + `LeaguesSection.tsx` + `MissionBanner.tsx` migrieren auf Hook-Variante.
 - Konvention-Konsistenz nach Slice 164 Codification.
 
 ### Option E: Admin-Tier-2 Space (10 Files) — L, mehrere Sessions
-- AdminVotesTab, AdminBountiesTab, etc.
-- Ferrari-Blueprint-Apply, 1-2 Files pro Slice.
+- AdminVotesTab, AdminBountiesTab, AdminModerationTab, etc.
+- Ferrari-Blueprint + preventClose in einem Aufwasch pro Modal.
 
 ### Empfehlung Start-Punkt
 
-**A → C → B.** Option A sweepen akkumulierte Modal-preventClose NITs (Slice 161+163). Option C codifiziert Slice 165 Learning für RPC-Design. Option B ist Money+Admin mit CEO-Approval.
+**A → B → D.** Option A codifiziert Slice 166 Learnings (Grep-Scope-Gap + Blueprint-preventClose-Pattern) — verhindert künftige Blindspots. Option B codifiziert Slice 165 Learning. Option D ist kleine Konsistenz-Aufräumung.
 
 ## Backlog (nicht-Slice-Arbeit)
 
