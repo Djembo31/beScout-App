@@ -12,10 +12,10 @@ review: —
 
 ## Zuletzt (Session 2026-04-23)
 
-- **Slice 156** (2026-04-23) — Event+Lineup Ferrari + P2.3 Migration. REVIEW FAIL v1 → PASS v2 nach Baseline-Rewrite. 25 Tests neu, 184 total grün. Knowledge-Capture: common-errors §2 CREATE OR REPLACE Patch-Audit.
-- **Slice 153b** (2026-04-23) — usePlayerTrading Ferrari (7 Handler). Commit `565e2c1b`.
-- **Slice 153a** (2026-04-23) — trading.ts Ferrari (4 Mutation-Hooks). Commit `9d417e68`.
-- **Slice 152d** (2026-04-23) — WalletProvider Elimination, Phase 2 COMPLETE.
+- **Slice 157** (2026-04-23) — useOffersState Ferrari. PASS mit 5 NITs. 25+147 Tests grün. Commit pending.
+- **Slice 156** (2026-04-23) — Event+Lineup Ferrari + P2.3 Migration. FAIL v1 → PASS v2. Commit `93f51274`.
+- **Slice 153b** (2026-04-23) — usePlayerTrading Ferrari. Commit `565e2c1b`.
+- **Slice 153a** (2026-04-23) — trading.ts Ferrari. Commit `9d417e68`.
 
 ## Phase-Status
 
@@ -24,27 +24,35 @@ review: —
 | Phase 1 Mutation-Hardening | Komplett (151a-d + 151c.2) |
 | Phase 1.5 ClubProvider-RESET | Komplett (151b-RESET) |
 | Phase 2 Money-Cleanup | Komplett (152a-d) |
-| **Phase 3 UX-Hotspots** | In progress (**153 ✅**, **156 ✅**, 157 → 158 pending) |
-| Phase 4 Rest + Norm | Spaeter (159 Profile, 160 Codification) |
+| **Phase 3 UX-Hotspots** | In progress (153 ✅, 156 ✅, **157 ✅**, 158 pending) |
+| Phase 4 Rest + Norm | Spaeter (160 Codification) |
+
+## Tier-1 Money-Path Status (aus 150-mutation-audit.md)
+
+| File | Slice | Status |
+|------|-------|--------|
+| MembershipSection (subscribe) | 151c/c.2 | ✅ |
+| BuyModal (via usePlayerTrading) | 153b | ✅ |
+| usePlayerTrading (7 handler) | 153b | ✅ |
+| trading.ts (4 mutation hooks) | 153a | ✅ |
+| useEventActions (join/leave/submitLineup) | 156 | ✅ |
+| **useOffersState (accept/reject/counter/cancel)** | **157** | **✅** |
+| KaderSellModal | — | 🔴 offen |
+| AdminWithdrawalTab | — | 🔴 offen (Admin-scope) |
+| AdminFoundingPassesTab | — | 🔴 offen (Kill-Switch-scope) |
 
 ## Nahtlos-Naechste-Session
 
-**Start-Punkt:** Slice 157 — naechste UX-Hotspot-Welle.
+**Slice 158 Kandidaten:**
+1. **KaderSellModal** — Tier-1 Money, einzelner Modal, ~1-2h.
+2. **Batch Tier-2 Data-Integrity** (useClubActions toggleFollowClub + ReportModal + PostReplies + FanWishModal + CreatePredictionModal) — 5 Files, ~3h.
+3. **Admin-Tier-1** (AdminWithdrawalTab + AdminFoundingPassesTab) — Kill-Switch-scope, admin-only.
 
-**Mögliche Kandidaten (aus 150-mutation-audit.md Tier 1-2):**
-- `useClubCreate` / `useClubDelete` Mutations
-- `useOfferActions` (P2P-Offers make/accept/reject)
-- `useFollowUser` / `useUnfollowUser` (analog useToggleFollowClub)
+CEO-Approval-Anfrage beim Start von 158.
 
-**Vorher pruefen:** `worklog/proofs/150-mutation-audit.md` → Top-Priority-Kandidaten nach Money-Path + User-Impact.
+## Backlog (NITs aus 157 Review)
 
-## Carry-Over
-
-- ⏸ Slice 157 Scope-Entscheidung (Anil-CEO)
-- ⏸ Slice 160 Codification: `useQueryClient()`-Konvention + Ferrari-Blueprint als CLAUDE.md-Rule
-
-## Lessons (Slice 156 Post-Mortem)
-
-- **CREATE OR REPLACE FUNCTION** auf SECURITY DEFINER RPC = **Patch-Audit Pflicht** (alle Vorgaenger-Migrations greppen, letzter File = Baseline). Codifiziert in common-errors.md §2.
-- **Migration-Header-Template**: "Source-of-truth: <baseline-file>" + "Applied patches: ..." + "Diff-Intent (nur N Zeilen)".
-- **Post-Apply-Audit**: `pg_get_functiondef ILIKE '%<guard>%'` fuer jedes preserved Feature als Quick-Check.
+- Comment-Refinement useOffersState.ts:127-128 (reject-invalidate-reason)
+- Audit `showError(err.message || err)` → `showError(err)` über alle Call-Sites
+- pre-compute `playerId` aus offer als mutation-variable (robust gegen Tab-switch mid-flight)
+- Ternary-style `actionId`-Derivation analog 156 Blueprint

@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useErrorToast } from '@/lib/hooks/useErrorToast';
 import { invalidateWallet } from '@/lib/hooks/useWallet';
-import { queryClient } from '@/lib/queryClient';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import {
   getIncomingOffers, getOutgoingOffers, getOpenBids, getOfferHistory,
   acceptOffer, rejectOffer, counterOffer, cancelOffer,
@@ -12,20 +13,45 @@ import { centsToBsd } from '@/lib/services/players';
 import { invalidateTradeQueries } from '@/lib/queries';
 import type { OfferWithDetails } from '@/types';
 
+/**
+ * Slice 157 — Ferrari-Refactor (analog trading.ts 153a + useEventActions 156).
+ *
+ * 4 Handler als useSafeMutation:
+ * - `acceptMut`  → acceptOffer   (Money-Path: atomic trade + wallet-deduct)
+ * - `rejectMut`  → rejectOffer   (no-money, data-only)
+ * - `counterMut` → counterOffer  (Money-Path: re-escrow bei counter-bid)
+ * - `cancelMut`  → cancelOffer   (Money-Path: unlock escrow bei outgoing)
+ *
+ * Blueprint: `src/features/market/mutations/trading.ts` (153a).
+ * - `useSafeMutation` synchroner Pending-Guard (Slice 151a Primitive).
+ * - `useQueryClient()` statt Singleton (P2.2-Konvention, Slice 160 codifiziert).
+ * - Kein Optimistic-Update (cross-user-transfer zu komplex fuer deterministische
+ *   local-cache-update; server-truth via `loadOffers()` reicht).
+ * - `onSettled: invalidateWallet(qc)` bei allen 4 Mutations (pgBouncer-safe).
+ * - `errorTag`: Sentry-Observability `market.offerAccept/Reject/Counter/Cancel`.
+ *
+ * Consumer-API unveraendert: `{ actionId, countering, handleAccept,
+ * handleReject, handleCounter, handleCancel, ... }`. `actionId` + `countering`
+ * derived aus mutation.isPending + mutation.variables.
+ *
+ * Wrapper-Methoden bleiben async + void-return (kein throw nach aussen) —
+ * `onError` handhabt Toast/Show-Error, Wrapper schluckt throw aus mutateAsync.
+ */
+
 export type SubTab = 'incoming' | 'outgoing' | 'open' | 'history';
 
 export function useOffersState() {
   const { user } = useUser();
   const { addToast } = useToast();
   const { showError } = useErrorToast();
+  const qc = useQueryClient();
+
   const [subTab, setSubTab] = useState<SubTab>('incoming');
   const [offers, setOffers] = useState<OfferWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [counterModal, setCounterModal] = useState<OfferWithDetails | null>(null);
   const [counterPrice, setCounterPrice] = useState('');
-  const [actionId, setActionId] = useState<string | null>(null);
-  const [countering, setCountering] = useState(false);
 
   const uid = user?.id;
 
@@ -49,86 +75,173 @@ export function useOffersState() {
 
   useEffect(() => { loadOffers(); }, [loadOffers]);
 
-  const handleAccept = useCallback(async (offerId: string) => {
-    if (!uid || actionId) return;
-    setActionId(offerId);
-    try {
+  // ── Accept Offer ──────────────────────────────────────────
+  const acceptMut = useSafeMutation<
+    Awaited<ReturnType<typeof acceptOffer>>,
+    Error,
+    { offerId: string }
+  >({
+    mutationFn: async ({ offerId }) => {
+      if (!uid) throw new Error('notAuthenticated');
       const result = await acceptOffer(uid, offerId);
-      if (result.success) {
-        addToast('offerAccepted', 'success');
-        const offer = offers.find(o => o.id === offerId);
-        if (offer) {
-          invalidateWallet(queryClient);
-          invalidateTradeQueries(offer.player_id, uid);
-        }
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
-      }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setActionId(null);
-    }
-  }, [uid, actionId, offers, addToast, showError, loadOffers]);
+      if (!result.success) throw new Error(result.error ?? 'generic');
+      return result;
+    },
+    onSuccess: (_result, { offerId }) => {
+      if (!uid) return;
+      addToast('offerAccepted', 'success');
+      const offer = offers.find((o) => o.id === offerId);
+      if (offer) invalidateTradeQueries(offer.player_id, uid);
+      loadOffers();
+    },
+    onError: (err) => {
+      showError(err.message || err);
+    },
+    onSettled: () => {
+      // pgBouncer-safe Wallet-Invalidate — acceptOffer deducted Buyer's wallet.
+      invalidateWallet(qc);
+    },
+    errorTag: 'market.offerAccept',
+  });
 
-  const handleReject = useCallback(async (offerId: string) => {
-    if (!uid || actionId) return;
-    setActionId(offerId);
-    try {
+  // ── Reject Offer ──────────────────────────────────────────
+  const rejectMut = useSafeMutation<
+    Awaited<ReturnType<typeof rejectOffer>>,
+    Error,
+    { offerId: string }
+  >({
+    mutationFn: async ({ offerId }) => {
+      if (!uid) throw new Error('notAuthenticated');
       const result = await rejectOffer(uid, offerId);
-      if (result.success) {
-        addToast('offerRejected', 'success');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
+      if (!result.success) throw new Error(result.error ?? 'generic');
+      return result;
+    },
+    onSuccess: () => {
+      addToast('offerRejected', 'success');
+      loadOffers();
+    },
+    onError: (err) => {
+      showError(err.message || err);
+    },
+    onSettled: () => {
+      // rejectOffer selbst moves kein Geld, aber Sender-side-escrow release
+      // kann impliziert sein (je nach Offer-Typ). Defensive invalidate.
+      invalidateWallet(qc);
+    },
+    errorTag: 'market.offerReject',
+  });
+
+  // ── Counter Offer ─────────────────────────────────────────
+  const counterMut = useSafeMutation<
+    Awaited<ReturnType<typeof counterOffer>>,
+    Error,
+    { offerId: string; priceCents: number }
+  >({
+    mutationFn: async ({ offerId, priceCents }) => {
+      if (!uid) throw new Error('notAuthenticated');
+      const result = await counterOffer(uid, offerId, priceCents);
+      if (!result.success) throw new Error(result.error ?? 'generic');
+      return result;
+    },
+    onSuccess: () => {
+      addToast('counterCreated', 'success');
+      setCounterModal(null);
+      setCounterPrice('');
+      loadOffers();
+    },
+    onError: (err) => {
+      showError(err.message || err);
+    },
+    onSettled: () => {
+      // counter creates new offer + may lock escrow on buy-side → refresh wallet.
+      invalidateWallet(qc);
+    },
+    errorTag: 'market.offerCounter',
+  });
+
+  // ── Cancel Offer ──────────────────────────────────────────
+  const cancelMut = useSafeMutation<
+    Awaited<ReturnType<typeof cancelOffer>>,
+    Error,
+    { offerId: string }
+  >({
+    mutationFn: async ({ offerId }) => {
+      if (!uid) throw new Error('notAuthenticated');
+      const result = await cancelOffer(uid, offerId);
+      if (!result.success) throw new Error(result.error ?? 'generic');
+      return result;
+    },
+    onSuccess: () => {
+      addToast('offerCancelled', 'success');
+      loadOffers();
+    },
+    onError: (err) => {
+      showError(err.message || err);
+    },
+    onSettled: () => {
+      // cancel unlocks outgoing-offer escrow → wallet available-balance changes.
+      invalidateWallet(qc);
+    },
+    errorTag: 'market.offerCancel',
+  });
+
+  // ────────────────────────────────────────────────────────────
+  // Wrapper-Methoden — Consumer-API Kompat (async + void return).
+  // ────────────────────────────────────────────────────────────
+
+  const handleAccept = useCallback(
+    async (offerId: string) => {
+      if (!uid) return;
+      if (acceptMut.isPending) return;
+      try {
+        await acceptMut.mutateAsync({ offerId });
+      } catch {
+        // onError handled.
       }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setActionId(null);
-    }
-  }, [uid, actionId, addToast, showError, loadOffers]);
+    },
+    [acceptMut, uid],
+  );
+
+  const handleReject = useCallback(
+    async (offerId: string) => {
+      if (!uid) return;
+      if (rejectMut.isPending) return;
+      try {
+        await rejectMut.mutateAsync({ offerId });
+      } catch {
+        // onError handled.
+      }
+    },
+    [rejectMut, uid],
+  );
 
   const handleCounter = useCallback(async () => {
-    if (!uid || !counterModal || !counterPrice || countering) return;
+    if (!uid || !counterModal || !counterPrice) return;
+    if (counterMut.isPending) return;
     const priceCents = Math.round(parseFloat(counterPrice) * 100);
-    if (priceCents <= 0) { addToast('invalidPrice', 'error'); return; }
-    setCountering(true);
-    try {
-      const result = await counterOffer(uid, counterModal.id, priceCents);
-      if (result.success) {
-        addToast('counterCreated', 'success');
-        setCounterModal(null);
-        setCounterPrice('');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
-      }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setCountering(false);
+    if (priceCents <= 0) {
+      addToast('invalidPrice', 'error');
+      return;
     }
-  }, [uid, counterModal, counterPrice, countering, addToast, showError, loadOffers]);
+    try {
+      await counterMut.mutateAsync({ offerId: counterModal.id, priceCents });
+    } catch {
+      // onError handled.
+    }
+  }, [counterMut, uid, counterModal, counterPrice, addToast]);
 
-  const handleCancel = useCallback(async (offerId: string) => {
-    if (!uid || actionId) return;
-    setActionId(offerId);
-    try {
-      const result = await cancelOffer(uid, offerId);
-      if (result.success) {
-        addToast('offerCancelled', 'success');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
+  const handleCancel = useCallback(
+    async (offerId: string) => {
+      if (!uid) return;
+      if (cancelMut.isPending) return;
+      try {
+        await cancelMut.mutateAsync({ offerId });
+      } catch {
+        // onError handled.
       }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setActionId(null);
-    }
-  }, [uid, actionId, addToast, showError, loadOffers]);
+    },
+    [cancelMut, uid],
+  );
 
   const openCounterModal = useCallback((offer: OfferWithDetails) => {
     setCounterModal(offer);
@@ -139,6 +252,15 @@ export function useOffersState() {
     setCounterModal(null);
     setCounterPrice('');
   }, []);
+
+  // Derived: actionId = offerId der gerade pendenden accept/reject/cancel
+  // Mutation. countering = counterMut.isPending.
+  const actionId =
+    (acceptMut.isPending && acceptMut.variables?.offerId) ||
+    (rejectMut.isPending && rejectMut.variables?.offerId) ||
+    (cancelMut.isPending && cancelMut.variables?.offerId) ||
+    null;
+  const countering = counterMut.isPending;
 
   return {
     uid, subTab, setSubTab,

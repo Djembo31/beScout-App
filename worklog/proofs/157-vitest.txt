@@ -1,0 +1,64 @@
+Slice 157 — Vitest + TSC Proof
+===============================
+
+1) useOffersState test-suite
+----------------------------
+$ npx vitest run src/features/market/components/portfolio/__tests__/useOffersState.test.ts
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Duration  5.83s
+
+25/25 gruen:
+- 12 Pre-Ferrari Tests auf QueryClientProvider-wrapper migriert:
+  - starts with incoming tab and loads offers
+  - loads outgoing/open/history on tab switch (3)
+  - handleAccept calls service and reloads
+  - handleAccept shows error on failure
+  - handleReject calls service
+  - handleCancel calls service
+  - opens and closes counter modal
+  - handleCounter calls service with correct price
+  - handleCounter blocks priceCents <= 0 with invalidPrice toast
+  - toggles create modal
+  - exposes uid
+- 13 neue Ferrari-Assertions (Slice 157):
+  - onSettled invalidateWallet on handleAccept (success)
+  - onSettled invalidateWallet on handleAccept (error)
+  - onSettled invalidateWallet on handleReject
+  - onSettled invalidateWallet on handleCancel
+  - onSettled invalidateWallet on handleCounter
+  - errorTag market.offerAccept routed to logSilentCatch
+  - errorTag market.offerReject routed to logSilentCatch
+  - errorTag market.offerCounter routed to logSilentCatch
+  - errorTag market.offerCancel routed to logSilentCatch
+  - actionId tracks in-flight handleAccept via mutation.variables
+  - exposes actionId while accept is in-flight (UI-gate)
+  - countering tracks in-flight handleCounter
+
+
+2) Market-Regression
+--------------------
+$ npx vitest run src/features/market
+
+ Test Files  10 passed (10)
+      Tests  147 passed (147)
+   Duration  24.28s
+
+
+3) TSC
+------
+$ npx tsc --noEmit
+EXIT: 0 (clean)
+
+
+Acceptance Criteria Status:
+---------------------------
+A1  4x useSafeMutation mit errorTag                            PASS (market.offerAccept/Reject/Counter/Cancel)
+A2  onSettled invalidateWallet bei allen 4 Mutations           PASS
+A3  Consumer-API byte-identisch (18 Properties)                PASS
+A4  actionId derived aus accept/reject/cancel mut              PASS
+A5  countering derived aus counterMut.isPending                PASS
+A6  Rapid-Click Guard via mut.isPending                        PASS
+A7  useQueryClient() statt Singleton                           PASS
+A8  Tests gruen + tsc clean                                    PASS

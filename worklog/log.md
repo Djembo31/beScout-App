@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 157 | 2026-04-23 | useOffersState Ferrari-Refactor (Phase 3 Welle 2)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: Hook-Layer-Refactor, keine DB/RPC-Change, 1 Consumer OffersTab.tsx) → BUILD → REVIEW (PASS mit 5 NITs, alle non-blocking) → PROVE → LOG
+- **Scope M:** 2 Files — `useOffersState.ts` Komplett-Rewrite (4x useSafeMutation intern) + `__tests__/useOffersState.test.ts` Migration auf QueryClientProvider + 13 neue Ferrari-Assertions. Spec + Review + Proof als Artefakte.
+- **Ferrari-Refactor** (analog 153a + 156): 4 Handler (accept/reject/counter/cancel) → je eine `useSafeMutation`-Instanz. Consumer-API byte-identisch (18 Properties: `{ actionId, countering, handleAccept, handleReject, handleCounter, handleCancel, openCounterModal, closeCounterModal, ...tabState, ...modalState }`). `actionId` derived aus `acceptMut|rejectMut|cancelMut.isPending + .variables?.offerId`, `countering` aus `counterMut.isPending`.
+- **Key-Changes:**
+  - `useQueryClient()` statt Singleton `@/lib/queryClient` (P2.2-Konvention, Slice 160 codifiziert)
+  - `errorTag` je Mutation: `market.offerAccept/Reject/Counter/Cancel` (Sentry-Observability wie 151c-Standard)
+  - `onSettled: invalidateWallet(qc)` bei ALLEN 4 Mutations (pgBouncer-safe, Slice 152c HIGH-1 Pattern, defensive auch bei reject wg. cross-user-escrow)
+  - Wrapper-Methoden bleiben `async => Promise<void>` (OffersTab-Kompat), swallowed throw (onError handhabt alles)
+  - **Kein Optimistic-Update** (bewusste Entscheidung, Spec Edge-Case #4): cross-user-transfer delta client-seitig nicht deterministisch; server-truth via `loadOffers()` refetch reicht. Konsistent mit 153a `cancelBuyOrder`.
+- **Race-Guard:** User-Report-Trigger (Slice 149 Follow-Button) abgedeckt. Anti-Pattern A (`if (actionId) return; setActionId(offerId)` mit stale-closure-race) vollständig ersetzt durch synchronen `mut.isPending` (React Query v5 MutationObserver).
+- **Tests:** 25/25 grün (12 migriert + 13 neu). Market-Regression 147/147 grün. tsc clean.
+- **Reviewer-Verdict:** PASS. 5 NITs als Backlog (Kommentar-Präzisierung, `showError(err)` vs `showError(err.message || err)` Codebase-Audit, `offers.find()`-Closure pre-compute, cosmetic ternary-style).
+- **Artefakte:**
+  - Spec: `worklog/specs/157-useOffersState-ferrari.md`
+  - Review: `worklog/reviews/157-review.md` (PASS + NITs)
+  - Proof: `worklog/proofs/157-vitest.txt` (25 + 147 Tests, tsc clean)
+
 ## 156 | 2026-04-23 | Event+Lineup Ferrari-Refactor + P2.3 Migration (Phase 3 Welle 1)
 
 - **Stage-Chain:** SPEC → IMPACT → BUILD → REVIEW (FAIL v1 → REWORK → PASS v2) → PROVE → LOG
