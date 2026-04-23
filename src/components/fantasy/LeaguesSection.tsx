@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Trophy, Users, Copy, Plus, LogIn, LogOut, Crown, Medal, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Trophy, Users, Copy, Plus, LogIn, LogOut, Crown, Loader2 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -10,6 +10,7 @@ import { createLeague, joinLeague, leaveLeague } from '@/lib/services/fantasyLea
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { useTranslations } from 'next-intl';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { DbFantasyLeague } from '@/types';
 
 const RANK_MEDALS: Record<number, string> = { 1: '\uD83E\uDD47', 2: '\uD83E\uDD48', 3: '\uD83E\uDD49' };
@@ -23,26 +24,31 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
   const t = useTranslations('leagues');
   const [name, setName] = useState('');
   const [maxMembers, setMaxMembers] = useState('20');
-  const [loading, setLoading] = useState(false);
 
-  const handleCreate = async () => {
-    if (!name.trim() || loading) return;
-    setLoading(true);
-    try {
-      const result = await createLeague(name.trim(), parseInt(maxMembers) || 20);
-      if (result.success) {
-        addToast(t('created'), 'success');
-        queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
-        onClose();
-        setName('');
-      } else {
-        addToast(result.error ?? t('unknownError'), 'error');
-      }
-    } catch (e) {
-      addToast(e instanceof Error ? e.message : t('unknownError'), 'error');
-    } finally {
-      setLoading(false);
-    }
+  const createMut = useSafeMutation<
+    Awaited<ReturnType<typeof createLeague>>,
+    Error,
+    { name: string; maxMembers: number }
+  >({
+    mutationFn: async ({ name, maxMembers }) => {
+      const result = await createLeague(name, maxMembers);
+      if (!result.success) throw new Error(result.error ?? t('unknownError'));
+      return result;
+    },
+    onSuccess: () => {
+      addToast(t('created'), 'success');
+      queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
+      onClose();
+      setName('');
+    },
+    onError: (err) => addToast(err.message || t('unknownError'), 'error'),
+    errorTag: 'leagues.create',
+  });
+
+  const handleCreate = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    createMut.safeTrigger({ name: trimmed, maxMembers: parseInt(maxMembers) || 20 });
   };
 
   return (
@@ -73,8 +79,8 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
             className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-gold/30"
           />
         </div>
-        <Button onClick={handleCreate} disabled={!name.trim() || loading} className="w-full min-h-[44px]">
-          {loading ? <><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> {t('creating')}</> : t('create')}
+        <Button onClick={handleCreate} disabled={!name.trim() || createMut.isPending} className="w-full min-h-[44px]">
+          {createMut.isPending ? <><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> {t('creating')}</> : t('create')}
         </Button>
       </div>
     </Modal>
@@ -89,26 +95,31 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
   const { addToast } = useToast();
   const t = useTranslations('leagues');
   const [code, setCode] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleJoin = async () => {
-    if (!code.trim() || loading) return;
-    setLoading(true);
-    try {
-      const result = await joinLeague(code.trim());
-      if (result.success) {
-        addToast(`${t('joined')}: ${result.leagueName}`, 'success');
-        queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
-        onClose();
-        setCode('');
-      } else {
-        addToast(result.error ?? t('unknownError'), 'error');
-      }
-    } catch (e) {
-      addToast(e instanceof Error ? e.message : t('unknownError'), 'error');
-    } finally {
-      setLoading(false);
-    }
+  const joinMut = useSafeMutation<
+    Awaited<ReturnType<typeof joinLeague>>,
+    Error,
+    { code: string }
+  >({
+    mutationFn: async ({ code }) => {
+      const result = await joinLeague(code);
+      if (!result.success) throw new Error(result.error ?? t('unknownError'));
+      return result;
+    },
+    onSuccess: (result) => {
+      addToast(`${t('joined')}: ${result.leagueName}`, 'success');
+      queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
+      onClose();
+      setCode('');
+    },
+    onError: (err) => addToast(err.message || t('unknownError'), 'error'),
+    errorTag: 'leagues.join',
+  });
+
+  const handleJoin = () => {
+    const trimmed = code.trim();
+    if (!trimmed) return;
+    joinMut.safeTrigger({ code: trimmed });
   };
 
   return (
@@ -125,8 +136,8 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
             className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
-        <Button onClick={handleJoin} disabled={!code.trim() || loading} className="w-full min-h-[44px]">
-          {loading ? <><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> {t('joining')}</> : t('join')}
+        <Button onClick={handleJoin} disabled={!code.trim() || joinMut.isPending} className="w-full min-h-[44px]">
+          {joinMut.isPending ? <><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> {t('joining')}</> : t('join')}
         </Button>
       </div>
     </Modal>
@@ -141,30 +152,35 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
   const { addToast } = useToast();
   const t = useTranslations('leagues');
   const [expanded, setExpanded] = useState(false);
-  const [leavingId, setLeavingId] = useState<string | null>(null);
   const { data: leaderboard = [], isLoading } = useLeagueLeaderboard(expanded ? league.id : undefined);
 
   const isCreator = league.created_by === userId;
+
+  const leaveMut = useSafeMutation<
+    Awaited<ReturnType<typeof leaveLeague>>,
+    Error,
+    { leagueId: string }
+  >({
+    mutationFn: async ({ leagueId }) => {
+      const result = await leaveLeague(leagueId);
+      if (!result.success) throw new Error(result.error ?? t('unknownError'));
+      return result;
+    },
+    onSuccess: () => {
+      addToast(t('left'), 'success');
+      queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
+    },
+    onError: (err) => addToast(err.message || t('unknownError'), 'error'),
+    errorTag: 'leagues.leave',
+  });
 
   const handleCopy = () => {
     navigator.clipboard.writeText(league.invite_code).then(() => addToast(t('codeCopied'), 'success'));
   };
 
-  const handleLeave = async () => {
-    if (leavingId) return;
+  const handleLeave = () => {
     if (!confirm(t('leaveConfirm'))) return;
-    setLeavingId(league.id);
-    try {
-      const result = await leaveLeague(league.id);
-      if (result.success) {
-        addToast(t('left'), 'success');
-        queryClient.invalidateQueries({ queryKey: qk.fantasyLeagues.all });
-      } else {
-        addToast(result.error ?? t('unknownError'), 'error');
-      }
-    } finally {
-      setLeavingId(null);
-    }
+    leaveMut.safeTrigger({ leagueId: league.id });
   };
 
   return (
@@ -195,11 +211,11 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
             {!isCreator && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleLeave(); }}
-                disabled={leavingId === league.id}
+                disabled={leaveMut.isPending}
                 className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors active:scale-[0.95] text-red-400 disabled:opacity-50"
                 aria-label={t('leave')}
               >
-                {leavingId === league.id ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <LogOut className="size-3.5" aria-hidden="true" />}
+                {leaveMut.isPending ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <LogOut className="size-3.5" aria-hidden="true" />}
               </button>
             )}
           </div>

@@ -1,14 +1,16 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 161
+stage: LOG
+spec: worklog/specs/161-tier2-ferrari-leagues-missions.md
+impact: skipped (refactor, kein DB/RPC/Service-contract change, nur client mutation pattern)
+proof: worklog/proofs/161-tier2-ferrari.txt
+review: worklog/reviews/161-review.md (PASS, 5 NITs Backlog)
 ```
+
+Scope: LeaguesSection (3 handler) + MissionBanner (1 handler) auf Ferrari-Blueprint. AirdropScoreCard fällt raus (display-only, keine Mutation — Audit-Liste war stale).
 
 ## Session 2026-04-23 — 5 Slices committed
 

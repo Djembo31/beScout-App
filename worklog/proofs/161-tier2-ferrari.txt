@@ -1,0 +1,74 @@
+Slice 161 — Tier-2 Ferrari Batch PROOF
+==========================================
+Date: 2026-04-23
+Type: Refactor (Mutation-Hardening, D17 → Ferrari-Blueprint #28)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+TSC_EXIT: 0
+
+─── vitest ───
+$ npx vitest run src/components/fantasy src/components/missions src/components/community
+
+Test Files  27 passed (27)
+     Tests  319 passed (319)
+  Start at  17:39:35
+  Duration  54.14s
+
+(Scoped: src/components/fantasy/__tests__/LeaguesSection.test.tsx + src/components/missions/__tests__/MissionBanner.test.tsx = 4/4 passed before broader sweep.)
+
+─── git diff --stat ───
+ src/components/fantasy/LeaguesSection.tsx          | 138 ++++++++++++---------
+ src/components/missions/MissionBanner.tsx          |  76 +++++++-----
+ src/components/missions/__tests__/MissionBanner.test.tsx |   9 +-
+ worklog/active.md                                  |  16 +--
+ + new: worklog/specs/161-tier2-ferrari-leagues-missions.md
+ + new: worklog/reviews/161-review.md
+ + new: worklog/proofs/161-tier2-ferrari.txt
+
+─── Regression-Audit ───
+$ grep -rnE "if.*\.loading.*return|if.*leavingId|setClaiming" src/components/fantasy/LeaguesSection.tsx src/components/missions/MissionBanner.tsx
+src/components/missions/MissionBanner.tsx:80:  // Slice 161 Ferrari-Blueprint: useSafeMutation ersetzt D17-Pattern `if (claiming) return; setClaiming(id)`.
+
+HITS: 1 (only a comment — intended documentation of the removed pattern)
+
+─── What changed ───
+LeaguesSection.tsx (3 Handler):
+  - CreateLeagueModal.handleCreate → createMut useSafeMutation (errorTag 'leagues.create')
+    - mutationFn: createLeague wrapped, throws on !success
+    - onSuccess: toast + invalidate + onClose + setName('')
+    - onError: toast with err.message || unknownError
+    - Button disabled={createMut.isPending} + Loader2 on isPending
+  - JoinLeagueModal.handleJoin → joinMut useSafeMutation (errorTag 'leagues.join')
+    - mutationFn: joinLeague wrapped
+    - onSuccess: toast with result.leagueName + invalidate + onClose + setCode('')
+  - LeagueCard.handleLeave → leaveMut useSafeMutation (errorTag 'leagues.leave')
+    - confirm() dialog pre-safeTrigger
+    - isPending ersetzt leavingId === league.id
+    - Removed local `leavingId` useState
+
+MissionBanner.tsx (1 Handler, per-Row):
+  - handleClaim → claimMut useSafeMutation (errorTag 'missions.claim')
+    - mutationFn: claimMissionReward wrapped, throws on !success
+    - onSuccess: setMissions + setWalletBalance (if new_balance) + delayed invalidate tickets/wallet/notifications
+    - onError: setClaimError(te(mapErrorToKey(normalizeError(err))))
+  - claiming state derived: `claimMut.isPending ? claimMut.variables?.missionId ?? null : null`
+    (Per-Row pattern analog PostReplies.voteReplyMut Slice 159)
+  - Removed local `claiming` useState
+
+MissionBanner.test.tsx:
+  - lucide-react mock expanded: AlertCircle, CheckCircle2, Info, Loader2, X
+    (Needed because useSafeMutation pulls in ToastProvider transitively)
+  - Added ToastProvider stub (vi.mock with useToast: () => ({addToast: vi.fn()}))
+
+─── Reviewer Verdict ───
+PASS (5 NITs, all non-blocking):
+  - NIT#1: Singleton queryClient vs useQueryClient() hook convention drift → Backlog
+  - NIT#2: Modal preventClose={mut.isPending} → explicitly out-of-scope per Spec Edge-Case #4
+  - NIT#3: `err.message || fallback` redundancy in LeaguesSection onError → Backlog
+  - INFO#4: useCallback dep optimization no-op (claimMut new object per render) → expected per Blueprint
+  - INFO#5: No onMutate/Optimistic in MissionBanner → correct (non-deterministic reward)
+
+Review: worklog/reviews/161-review.md
+Spec: worklog/specs/161-tier2-ferrari-leagues-missions.md

@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 161 | 2026-04-23 | Tier-2 Ferrari Batch (LeaguesSection + MissionBanner)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped refactor) → BUILD → REVIEW (PASS, 5 NITs Backlog) → PROVE → LOG
+- **Scope M → S+:** 4 Handler in 2 Files vom D17-Anti-Pattern auf Ferrari-Blueprint #28 (`useSafeMutation` + `safeTrigger`). Copy-Paste aus Slice 159 (PostReplies per-Row + FanWishModal single).
+- **Scope-Revision:** active.md listete 3 Files (LeaguesSection + AirdropScoreCard + MissionBanner). AirdropScoreCard ist display-only (kein user-getriggerter Claim — UI "coming soon"). Fällt raus. Audit-Liste `worklog/proofs/150-mutation-audit.md` war stale.
+- **Handlers:**
+  - `LeaguesSection.CreateLeagueModal.handleCreate` → `createMut` errorTag `leagues.create`
+  - `LeaguesSection.JoinLeagueModal.handleJoin` → `joinMut` errorTag `leagues.join`
+  - `LeagueCard.handleLeave` → `leaveMut` errorTag `leagues.leave`, confirm() bleibt pre-safeTrigger
+  - `MissionBanner.handleClaim` → `claimMut` errorTag `missions.claim`, per-Row pending via `claimMut.variables?.missionId` (analog 159 PostReplies)
+- **Test-Fix:** `MissionBanner.test.tsx` Mock-Expansion (`lucide-react`: AlertCircle + CheckCircle2 + Info + Loader2 + X) + ToastProvider-stub — wegen transitive-Import via useSafeMutation. Pattern etabliert in 19+ anderen Test-Files.
+- **Regression-Audit:** `grep -rn "if.*loading.*return|if.*leavingId|setClaiming"` auf beide Files → 1 Hit (nur Kommentar-Zeile als intended Doku).
+- **Tier-2-Status:** 5/8 → 6/8 done. Offen: 10× Admin-Space Files (nur wenn Admin-Flows getestet werden).
+- **Reviewer NITs (alle Backlog):**
+  - Singleton `queryClient` vs `useQueryClient()` Hook — Konvention-Drift mit Slice 157/156 (Backlog: patterns.md #28 explizit codifizieren oder 161b-Mini-Cleanup)
+  - Modal `preventClose={mut.isPending}` out-of-scope (Spec Edge-Case #4)
+  - `err.message || fallback` Redundanz in LeaguesSection onError
+- **Artefakte:**
+  - Spec: `worklog/specs/161-tier2-ferrari-leagues-missions.md`
+  - Review: `worklog/reviews/161-review.md` (PASS)
+  - Proof: `worklog/proofs/161-tier2-ferrari.txt`
+- **Files:**
+  - `src/components/fantasy/LeaguesSection.tsx`
+  - `src/components/missions/MissionBanner.tsx`
+  - `src/components/missions/__tests__/MissionBanner.test.tsx`
+- **Commit:** pending
+
+---
+
 ## 160 | 2026-04-23 | Vote-Toggle Batch-Fix (Community Bug-Class + Side-Effect-Guard)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped UI-only) → BUILD → REVIEW (CONCERNS → fixed in-slice) → PROVE → LOG

@@ -3,7 +3,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
-vi.mock('lucide-react', () => { const S = () => null; return { Target: S, Calendar: S, Check: S, ChevronDown: S, Gift: S, Clock: S, Shield: S }; });
+// Slice 161: mock expanded to include AlertCircle (MissionBanner error-state) + Loader2 + Info + CheckCircle2
+// because useSafeMutation pulls in ToastProvider transitively, which uses AlertCircle/CheckCircle2/Info at module-load.
+vi.mock('lucide-react', () => { const S = () => null; return { Target: S, Calendar: S, Check: S, ChevronDown: S, Gift: S, Clock: S, Shield: S, Loader2: S, AlertCircle: S, CheckCircle2: S, Info: S, X: S }; });
+// Stub ToastProvider so useSafeMutation's useToast() call resolves without pulling real module.
+vi.mock('@/components/providers/ToastProvider', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 vi.mock('@/lib/utils', () => ({ cn: (...c: unknown[]) => c.filter(Boolean).join(' '), fmtScout: (n: number) => String(n) }));
 vi.mock('@/components/providers/AuthProvider', () => { const u = { id: 'u1' }; return { useUser: () => ({ user: u }) }; });
 // Slice 152d: WalletProvider entfernt — useWallet-Hook + Helpers via Query-Cache.

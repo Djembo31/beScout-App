@@ -14,6 +14,7 @@ import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 // from pulling the whole supabase-coupled query graph (MissionBanner.test.tsx).
 import { qk } from '@/lib/queries/keys';
 import { queryClient } from '@/lib/queryClient';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { UserMissionWithDef, MissionType } from '@/types';
 
 function getTimeUntilMidnight(): string {
@@ -39,7 +40,6 @@ export default function MissionBanner() {
   const [missions, setMissions] = useState<UserMissionWithDef[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null); // FIX-17 (J7F-14)
-  const [claiming, setClaiming] = useState<string | null>(null);
   const [claimError, setClaimError] = useState<string | null>(null); // FIX-03 (J7F-06)
   const [expanded, setExpanded] = useState(false);
 
@@ -77,39 +77,53 @@ export default function MissionBanner() {
     return () => { cancelled = true; };
   }, [user, te]);
 
-  const handleClaim = useCallback(async (missionId: string) => {
-    if (!user || claiming) return;
-    setClaimError(null);
-    setClaiming(missionId);
-    try {
+  // Slice 161 Ferrari-Blueprint: useSafeMutation ersetzt D17-Pattern `if (claiming) return; setClaiming(id)`.
+  // Per-Row claiming via `mut.variables?.missionId` (analog Slice 159 PostReplies.voteReplyMut).
+  const claimMut = useSafeMutation<
+    Awaited<ReturnType<typeof claimMissionReward>>,
+    Error,
+    { missionId: string }
+  >({
+    mutationFn: async ({ missionId }) => {
+      if (!user) throw new Error('generic_error');
       const result = await claimMissionReward(user.id, missionId);
-      if (result.success) {
-        setMissions(prev => prev.map(m =>
-          m.id === missionId ? { ...m, status: 'claimed', claimed_at: new Date().toISOString() } : m
-        ));
-        if (result.new_balance != null) setWalletBalance(queryClient, user.id, result.new_balance);
-        // FIX-05 (J7F-07): tickets badge in TopBar was stale until reload because
-        // creditTickets is fire-and-forget (~1-2s lag) and React Query never
-        // knew about the change. Invalidate after a short delay so the credit
-        // RPC has time to commit.
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-          queryClient.invalidateQueries({ queryKey: qk.wallet.all });
-          queryClient.invalidateQueries({ queryKey: qk.notifications.unread(user.id) });
-        }, 1500);
-      } else if (result.error) {
-        // FIX-03 (J7F-06): service returns i18n KEY in `result.error`.
-        setClaimError(te(result.error));
-      }
-    } catch (err) {
-      // FIX-03 (J7F-06): unexpected throw still surfaces something.
+      // Service returns `{success: false, error: '<i18n-key>'}` — surface via throw so onError maps it.
+      if (!result.success) throw new Error(result.error ?? 'generic_error');
+      return result;
+    },
+    onSuccess: (result, { missionId }) => {
+      setMissions(prev => prev.map(m =>
+        m.id === missionId ? { ...m, status: 'claimed', claimed_at: new Date().toISOString() } : m
+      ));
+      if (result.new_balance != null && user) setWalletBalance(queryClient, user.id, result.new_balance);
+      // FIX-05 (J7F-07): tickets badge in TopBar was stale until reload because
+      // creditTickets is fire-and-forget (~1-2s lag) and React Query never
+      // knew about the change. Invalidate after a short delay so the credit
+      // RPC has time to commit.
+      if (!user) return;
+      const uid = user.id;
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
+        queryClient.invalidateQueries({ queryKey: qk.notifications.unread(uid) });
+      }, 1500);
+    },
+    onError: (err) => {
+      // FIX-03 (J7F-06): service error-key oder unexpected throw → i18n-resolve.
       const key = mapErrorToKey(normalizeError(err));
       setClaimError(te(key));
-      console.error('[MissionBanner] claim failed:', err);
-    } finally {
-      setClaiming(null);
-    }
-  }, [user, claiming, te]);
+    },
+    errorTag: 'missions.claim',
+  });
+
+  // Per-Row derived state — replaces legacy `claiming: string | null`.
+  const claiming = claimMut.isPending ? claimMut.variables?.missionId ?? null : null;
+
+  const handleClaim = useCallback((missionId: string) => {
+    if (!user) return;
+    setClaimError(null);
+    claimMut.safeTrigger({ missionId });
+  }, [user, claimMut]);
 
   // Total unclaimed rewards — must be before early return (hooks rules)
   const unclaimedReward = useMemo(() => {
