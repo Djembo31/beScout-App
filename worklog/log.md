@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 179 | 2026-04-24 | Transactions Append-Only (Tier A2, Money-Critical)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: defense-in-depth DB-invariant) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS DB-migration:** Money-Path enforcement — CLAUDE.md-Regel "Trades/Transactions append-only" von Doku zu DB-Invariant.
+- **CEO-Scope:** per User explicit grant "voller Zugriff" in Autonomous-Marathon-Session.
+- **Migration:** `supabase/migrations/20260424000000_transactions_append_only.sql` + live-applied via mcp__supabase__apply_migration (migration_name `transactions_append_only_slice_179`).
+- **Enforcement (defense-in-depth):**
+  1. `REVOKE UPDATE, DELETE ON public.transactions FROM anon, authenticated`
+  2. BEFORE UPDATE OR DELETE Trigger `transactions_append_only_guard` → RAISE EXCEPTION
+- **Opt-In Bypass:** `SET LOCAL bescout.allow_transactions_mutation = 'true'` — Trigger checkt GUC vor Exception.
+- **Pre-Audit:** Keine SECURITY-DEFINER-RPCs machen UPDATE/DELETE auf transactions. Nur 2 historische one-time-backfills.
+- **Post-Apply Live-Verify:**
+  - `pg_trigger`: guard aktiv (tgtype 27 = BEFORE+ROW+UPDATE+DELETE)
+  - `pg_policies`: SELECT-only
+  - Negative-Test: UPDATE ohne GUC wird geblockt
+  - Positive-Test: SET LOCAL GUC erlaubt UPDATE
+- **Knowledge-Capture:** `.claude/rules/common-errors.md` Section 2 Entry mit GUC-opt-in-Pattern.
+- **Proof:** `worklog/proofs/179-transactions-append-only.txt`. Review: `worklog/reviews/179-review.md` (PASS).
+
+---
+
 ## 185 | 2026-04-24 | commitlint + lint-staged (Tier D5)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

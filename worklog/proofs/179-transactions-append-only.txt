@@ -1,0 +1,18 @@
+=== Migration applied ===
+20260424000000_transactions_append_only.sql → Live DB (skzjfhvgccaeplydsunz)
+
+=== pg_trigger (should show guard) ===
+[{"tgname":"transactions_append_only_guard","tgtype":27}]
+tgtype 27 = BEFORE + ROW + UPDATE + DELETE
+
+=== pg_policies (SELECT-only, kein UPDATE/DELETE policy) ===
+[{"policyname":"transactions_select_own","cmd":"SELECT","roles_list":"{public}"}]
+
+=== Negative-Test: UPDATE ohne GUC blocked ===
+PASS: UPDATE blocked mit 'transactions is append-only (slice 179)'
+
+=== Positive-Test: SET LOCAL GUC erlaubt UPDATE ===
+PASS: Opt-in GUC bypass works
+
+=== tsc --noEmit ===
+(clean)

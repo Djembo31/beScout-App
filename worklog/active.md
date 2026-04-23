@@ -2,10 +2,10 @@
 
 ```
 status: in_progress
-slice: 185
+slice: 179
 stage: BUILD
-spec: worklog/specs/185-commitlint-lintstaged.md
-impact: skipped (tooling setup)
+spec: worklog/specs/179-transactions-append-only.md
+impact: skipped (defense-in-depth DB-invariant, no runtime impact)
 proof: —
 review: —
 ```

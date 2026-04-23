@@ -144,6 +144,22 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
   ```
 - Post-Apply-Audit: `pg_get_functiondef('public.<name>(args)'::regprocedure) ILIKE '%<expected-guard>%'` fuer jedes preserved Feature.
 
+### Transactions Append-Only — hart enforced (Slice 179, Tier A2)
+
+- `transactions` ist DB-invariant append-only. UPDATE + DELETE geblockt auf 2 Ebenen:
+  1. `REVOKE UPDATE, DELETE FROM anon, authenticated` — Client-Rollen haben kein DML-Privileg.
+  2. BEFORE UPDATE OR DELETE Trigger `transactions_append_only_guard` raises exception — blockt auch SECURITY DEFINER RPCs.
+- **Opt-In Bypass fuer legitimierte Bulk-Migrations:**
+  ```sql
+  BEGIN;
+  SET LOCAL bescout.allow_transactions_mutation = 'true';
+  UPDATE public.transactions SET type = 'new_type' WHERE type = 'old_type';
+  COMMIT;
+  ```
+  Der Trigger checkt `current_setting('bescout.allow_transactions_mutation', true)` vor dem RAISE EXCEPTION. SET LOCAL gilt nur fuer die Transaction.
+- **Bei Admin-Refund-Flow (nicht in V1, aber zukuenftig):** RPC setzt GUC vor UPDATE + audit-entry.
+- **Pattern uebertragbar:** Gleicher Trigger+Opt-in-GUC-Pattern fuer andere immutable-log-tables (`trades`, `activity_log`, `audit_log`).
+
 ### ON CONFLICT validiert CHECK gegen INSERT-Tuple-Defaults (Slice 075c)
 - `INSERT ... ON CONFLICT DO UPDATE` validiert CHECK gegen die INSERT-Tuple-Defaults **bevor** es den UPDATE-Pfad nimmt. `.upsert()` erbt das.
 - Symptom: existierende Rows schlagen fehl wenn Tuple-Defaults den Constraint verletzen (Slice 075: 4074/5019 Payloads errored mit `dpc_total=10000` default vs `max_supply=300` CHECK).
