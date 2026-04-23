@@ -36,7 +36,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - `src/components/fantasy/LeaguesSection.tsx`
   - `src/components/missions/MissionBanner.tsx`
   - `src/components/missions/__tests__/MissionBanner.test.tsx`
-- **Commit:** pending
+- **Commit:** `8aff65fa`
 
 ---
 
