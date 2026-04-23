@@ -9,6 +9,7 @@ import { castCommunityPollVote, cancelCommunityPoll } from '@/lib/services/commu
 import { qk, invalidateResearchQueries } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { PostWithAuthor, PostType } from '@/types';
 
 import type { CommunityState, CommunityAction } from './types';
@@ -32,48 +33,75 @@ export function useCommunityActions({
   const t = useTranslations('community');
   const tErrors = useTranslations('errors');
 
-  // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off detected via prevVote === voteType
-  // (RPC auto-DELETEs on same-vote). Optimistic: isToggleOff → clear myPostVotes; otherwise set.
-  const handleVotePost = useCallback(async (postId: string, voteType: 1 | -1) => {
-    if (!userId) return;
-    const prevVotes = new Map(myPostVotes);
-    const oldVote = myPostVotes.get(postId) ?? 0;
-    const isToggleOff = oldVote === voteType;
-
-    queryClient.setQueryData<PostWithAuthor[]>(
-      qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
-      (prev) => prev?.map(p => {
-        if (p.id !== postId) return p;
-        let up = p.upvotes, down = p.downvotes;
-        if (oldVote === 1) up--;
-        if (oldVote === -1) down--;
-        if (!isToggleOff && voteType === 1) up++;
-        if (!isToggleOff && voteType === -1) down++;
-        return { ...p, upvotes: up, downvotes: down };
-      }),
-    );
-    setMyPostVotes(prev => {
-      const next = new Map(prev);
-      if (isToggleOff) next.delete(postId);
-      else next.set(postId, voteType);
-      return next;
-    });
-
-    try {
-      const result = await votePost(userId, postId, voteType, isToggleOff);
+  // Slice 162 Ferrari-Blueprint: useSafeMutation ersetzt raw async (D18 Race-Class).
+  // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off detected via oldVote === voteType
+  // (RPC auto-DELETEs on same-vote). Optimistic delta in onMutate with full snapshot rollback.
+  const votePostMut = useSafeMutation<
+    Awaited<ReturnType<typeof votePost>>,
+    Error,
+    { postId: string; voteType: 1 | -1; isToggleOff: boolean; oldVote: number },
+    { prevVotes: Map<string, number>; prevPosts: PostWithAuthor[] | undefined }
+  >({
+    mutationFn: async ({ postId, voteType, isToggleOff }) => {
+      if (!userId) throw new Error('auth_required');
+      return votePost(userId, postId, voteType, isToggleOff);
+    },
+    onMutate: async ({ postId, voteType, isToggleOff, oldVote }) => {
+      const postsKey = qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>);
+      // Blueprint-Pflicht (patterns.md #28 Z.409): cancel in-flight refetches,
+      // sonst clobbert Background-Refetch den Optimistic-State vor onSuccess.
+      await queryClient.cancelQueries({ queryKey: postsKey });
+      const prevVotes = new Map(myPostVotes);
+      const prevPosts = queryClient.getQueryData<PostWithAuthor[]>(postsKey);
+      queryClient.setQueryData<PostWithAuthor[]>(
+        postsKey,
+        (prev) => prev?.map(p => {
+          if (p.id !== postId) return p;
+          let up = p.upvotes, down = p.downvotes;
+          if (oldVote === 1) up--;
+          if (oldVote === -1) down--;
+          if (!isToggleOff && voteType === 1) up++;
+          if (!isToggleOff && voteType === -1) down++;
+          return { ...p, upvotes: up, downvotes: down };
+        }),
+      );
+      setMyPostVotes(prev => {
+        const next = new Map(prev);
+        if (isToggleOff) next.delete(postId);
+        else next.set(postId, voteType);
+        return next;
+      });
+      return { prevVotes, prevPosts };
+    },
+    onSuccess: (result, { postId }) => {
       queryClient.setQueryData<PostWithAuthor[]>(
         qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
         (prev) => prev?.map(p =>
           p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
         ),
       );
-    } catch (err) {
-      console.error('[Community] Vote post failed:', err);
+    },
+    onError: (_err, _vars, ctx) => {
       addToast(t('voteError'), 'error');
-      setMyPostVotes(prevVotes);
-      queryClient.invalidateQueries({ queryKey: qk.posts.all });
-    }
-  }, [userId, myPostVotes, scopeClubId, addToast, t, setMyPostVotes]);
+      if (ctx?.prevVotes) setMyPostVotes(ctx.prevVotes);
+      // Full snapshot-restore statt invalidate — verhindert "wrong number" flicker
+      // auf slow-connection zwischen onError und invalidate-refetch-complete.
+      if (ctx?.prevPosts !== undefined) {
+        queryClient.setQueryData(
+          qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
+          ctx.prevPosts,
+        );
+      }
+    },
+    errorTag: 'community.votePost',
+  });
+
+  const handleVotePost = useCallback((postId: string, voteType: 1 | -1) => {
+    if (!userId) return;
+    const oldVote = myPostVotes.get(postId) ?? 0;
+    const isToggleOff = oldVote === voteType;
+    votePostMut.safeTrigger({ postId, voteType, isToggleOff, oldVote });
+  }, [userId, myPostVotes, votePostMut]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
     if (!userId) return;

@@ -4,10 +4,17 @@ import { waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import EventCommunityTab from '../EventCommunityTab';
 
+// Slice 162: mock expanded with AlertCircle/CheckCircle2/Info/X because useSafeMutation
+// pulls in ToastProvider transitively which uses those icons at module-load.
 vi.mock('lucide-react', () => {
   const Stub = () => null;
-  return { MessageCircle: Stub, Send: Stub, ArrowUp: Stub, ArrowDown: Stub, Loader2: Stub, Clock: Stub, Trophy: Stub, Play: Stub, Sparkles: Stub, Trash2: Stub };
+  return { MessageCircle: Stub, Send: Stub, ArrowUp: Stub, ArrowDown: Stub, Loader2: Stub, Clock: Stub, Trophy: Stub, Play: Stub, Sparkles: Stub, Trash2: Stub, AlertCircle: Stub, CheckCircle2: Stub, Info: Stub, X: Stub };
 });
+// Stub ToastProvider so useSafeMutation's useToast() resolves without loading the real module.
+vi.mock('@/components/providers/ToastProvider', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
 }));

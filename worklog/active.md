@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 162
+stage: LOG
+spec: worklog/specs/162-community-vote-handlers-ferrari.md
+impact: skipped (refactor, kein contract-change — Service-Signatur wie Slice 160)
+proof: worklog/proofs/162-vote-handlers-ferrari.txt
+review: worklog/reviews/162-review.md (PASS nach in-slice Finding #1+#2 Fixes)
 ```
 
 ## Session 2026-04-23 — 6 Slices committed

@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 162 | 2026-04-23 | Community Vote-Handler Ferrari (D18 Race-Class Closure)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped refactor) → BUILD → REVIEW (PASS nach in-slice Fix #1+#2) → PROVE → LOG
+- **Scope M:** 3 Handler in 3 Files auf Ferrari-Blueprint #28 — schliesst Vote-Handler-Block nach Slice 160 Finding #5.
+- **Handlers:**
+  - `useCommunityActions.handleVotePost` → `votePostMut` (Optimistic + full snapshot rollback, errorTag `community.votePost`)
+  - `usePlayerCommunity.handleVotePlayerPost` → `votePostMut` (kein Optimistic, errorTag `player.votePost`)
+  - `EventCommunityTab.handleVote` → `voteMut` (kein Optimistic, errorTag `eventCommunity.vote`)
+- **Reviewer in-slice Fixes:**
+  - Finding #1 MEDIUM: `cancelQueries` Blueprint-Pflicht im onMutate (Z.409) fehlte → await queryClient.cancelQueries eingezogen
+  - Finding #2 LOW: Partial Optimistic-Rollback → prevPosts snapshot via getQueryData + full onError-restore
+- **Test-Migration:** 7 Tests in useCommunityActions.test.ts von `await handleX(...)` auf `act() + waitFor()` pattern umgebaut (Handler jetzt sync, Mutation läuft async im Observer). Mock erweitert: cancelQueries + getQueryData.
+- **Test-Mock-Expansion:** EventCommunityTab.test.tsx — lucide-react (+4 icons) + ToastProvider-stub (Slice 161 Pattern).
+- **Regression-Audit:** `grep -rnE "await votePost\(" src/components/ | grep -v __tests__` → 0 hits (alle in mutationFn-Bodies).
+- **Tier-2 Data-Integrity: 6/8 → 7/8.** Nur noch CreatePredictionModal + 10× Admin-Space offen.
+- **Artefakte:**
+  - Spec: `worklog/specs/162-community-vote-handlers-ferrari.md`
+  - Review: `worklog/reviews/162-review.md` (PASS)
+  - Proof: `worklog/proofs/162-vote-handlers-ferrari.txt` (tsc clean, vitest 494/494)
+- **Files:**
+  - `src/components/community/hooks/useCommunityActions.ts`
+  - `src/components/player/detail/hooks/usePlayerCommunity.ts`
+  - `src/components/fantasy/EventCommunityTab.tsx`
+  - `src/components/fantasy/__tests__/EventCommunityTab.test.tsx`
+  - `src/components/community/hooks/__tests__/useCommunityActions.test.ts`
+- **Commit:** pending
+
+---
+
 ## 161 | 2026-04-23 | Tier-2 Ferrari Batch (LeaguesSection + MissionBanner)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped refactor) → BUILD → REVIEW (PASS, 5 NITs Backlog) → PROVE → LOG

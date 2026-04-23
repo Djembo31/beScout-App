@@ -12,6 +12,7 @@ import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getPosts, createPost, votePost, deletePost, getUserPostVotes } from '@/lib/services/posts';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { PostWithAuthor } from '@/types';
 import type { EventStatus } from './types';
 
@@ -127,13 +128,18 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
     }
   };
 
-  // Vote — RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off uses same-vote path.
-  const handleVote = async (postId: string, voteType: 1 | -1) => {
-    if (!user) return;
-    const prevVote = myVotes.get(postId);
-    const isToggleOff = prevVote === voteType;
-    try {
-      const result = await votePost(user.id, postId, voteType, isToggleOff);
+  // Slice 162 Ferrari-Blueprint: useSafeMutation ersetzt raw async (D18 Race-Class).
+  // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off uses same-vote path.
+  const voteMut = useSafeMutation<
+    Awaited<ReturnType<typeof votePost>>,
+    Error,
+    { postId: string; voteType: 1 | -1; isToggleOff: boolean }
+  >({
+    mutationFn: async ({ postId, voteType, isToggleOff }) => {
+      if (!user) throw new Error('auth_required');
+      return votePost(user.id, postId, voteType, isToggleOff);
+    },
+    onSuccess: (result, { postId, voteType, isToggleOff }) => {
       setPosts(prev => prev.map(p =>
         p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
       ));
@@ -143,9 +149,15 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
         else next.set(postId, voteType);
         return next;
       });
-    } catch (err) {
-      console.error('[EventCommunity] Vote failed:', err);
-    }
+    },
+    errorTag: 'eventCommunity.vote',
+  });
+
+  const handleVote = (postId: string, voteType: 1 | -1) => {
+    if (!user) return;
+    const prevVote = myVotes.get(postId);
+    const isToggleOff = prevVote === voteType;
+    voteMut.safeTrigger({ postId, voteType, isToggleOff });
   };
 
   // Delete own post

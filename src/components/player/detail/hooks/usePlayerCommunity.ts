@@ -7,6 +7,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { createPost, votePost, getUserPostVotes, deletePost } from '@/lib/services/posts';
 import { unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
 import { qk } from '@/lib/queries/keys';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { PostWithAuthor } from '@/types';
 
 interface UsePlayerCommunityParams {
@@ -56,13 +57,18 @@ export function usePlayerCommunity({
     finally { setPostLoading(false); }
   }, [userId, playerClub, playerId, addToast, queryClient, t]);
 
+  // Slice 162 Ferrari-Blueprint: useSafeMutation ersetzt raw async (D18 Race-Class).
   // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off via same-vote → RPC DELETE path.
-  const handleVotePlayerPost = useCallback(async (postId: string, voteType: 1 | -1) => {
-    if (!userId) return;
-    const prevVote = myPostVotes.get(postId);
-    const isToggleOff = prevVote === voteType;
-    try {
-      const result = await votePost(userId, postId, voteType, isToggleOff);
+  const votePostMut = useSafeMutation<
+    Awaited<ReturnType<typeof votePost>>,
+    Error,
+    { postId: string; voteType: 1 | -1; isToggleOff: boolean }
+  >({
+    mutationFn: async ({ postId, voteType, isToggleOff }) => {
+      if (!userId) throw new Error('auth_required');
+      return votePost(userId, postId, voteType, isToggleOff);
+    },
+    onSuccess: (result, { postId, voteType, isToggleOff }) => {
       queryClient.setQueryData(qk.posts.list({ playerId, limit: 30 } as Record<string, unknown>), (old: PostWithAuthor[] | undefined) =>
         (old ?? []).map(p => p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p)
       );
@@ -72,8 +78,16 @@ export function usePlayerCommunity({
         else next.set(postId, voteType);
         return next;
       });
-    } catch (err) { console.error('[Player] Vote post failed:', err); }
-  }, [userId, playerId, queryClient, myPostVotes]);
+    },
+    errorTag: 'player.votePost',
+  });
+
+  const handleVotePlayerPost = useCallback((postId: string, voteType: 1 | -1) => {
+    if (!userId) return;
+    const prevVote = myPostVotes.get(postId);
+    const isToggleOff = prevVote === voteType;
+    votePostMut.safeTrigger({ postId, voteType, isToggleOff });
+  }, [userId, myPostVotes, votePostMut]);
 
   const handleDeletePlayerPost = useCallback(async (postId: string) => {
     if (!userId) return;

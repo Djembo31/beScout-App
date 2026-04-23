@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
@@ -47,6 +47,8 @@ vi.mock('@/lib/queryClient', () => ({
   queryClient: {
     invalidateQueries: vi.fn(() => Promise.resolve()),
     setQueryData: vi.fn(),
+    getQueryData: vi.fn(() => undefined),
+    cancelQueries: vi.fn(() => Promise.resolve()),
   },
 }));
 
@@ -199,6 +201,8 @@ describe('useCommunityActions', () => {
   // ------------------------------------------
 
   describe('handleVotePost', () => {
+    // Slice 162 Note: handleVotePost ist jetzt synchron (safeTrigger), Mutation läuft im
+    // Observer-Loop asynchron. Tests müssen `waitFor` nutzen statt direct-expect nach act().
     it('calls votePost with userId, postId, voteType, and isToggleOff=false for a fresh vote', async () => {
       const params = createDefaultParams();
       const { result } = renderHook(
@@ -206,12 +210,14 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      await act(async () => {
-        await result.current.handleVotePost(POST_ID, 1);
+      act(() => {
+        result.current.handleVotePost(POST_ID, 1);
       });
 
       // Slice 160: 4. Arg isToggleOff = false (no prev vote)
-      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1, false);
+      await waitFor(() =>
+        expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1, false),
+      );
     });
 
     it('sets optimistic vote in myPostVotes before service call', async () => {
@@ -222,12 +228,12 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      await act(async () => {
-        await result.current.handleVotePost(POST_ID, 1);
+      act(() => {
+        result.current.handleVotePost(POST_ID, 1);
       });
 
-      // setMyPostVotes should have been called (optimistic update)
-      expect(setMyPostVotes).toHaveBeenCalled();
+      // setMyPostVotes should have been called (optimistic update in onMutate)
+      await waitFor(() => expect(setMyPostVotes).toHaveBeenCalled());
     });
 
     it('supports downvote (voteType = -1) per DB constraint (SMALLINT 1/-1)', async () => {
@@ -237,11 +243,13 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      await act(async () => {
-        await result.current.handleVotePost(POST_ID, -1);
+      act(() => {
+        result.current.handleVotePost(POST_ID, -1);
       });
 
-      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, -1, false);
+      await waitFor(() =>
+        expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, -1, false),
+      );
     });
 
     it('rolls back optimistic update on service error', async () => {
@@ -253,12 +261,14 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      await act(async () => {
-        await result.current.handleVotePost(POST_ID, 1);
+      act(() => {
+        result.current.handleVotePost(POST_ID, 1);
       });
 
-      // Should have been called at least twice: once for optimistic, once for rollback
-      expect(setMyPostVotes.mock.calls.length).toBeGreaterThanOrEqual(2);
+      // Should have been called at least twice: once for optimistic (onMutate), once for rollback (onError)
+      await waitFor(() =>
+        expect(setMyPostVotes.mock.calls.length).toBeGreaterThanOrEqual(2),
+      );
     });
 
     it('does nothing when userId is undefined', async () => {
@@ -283,14 +293,16 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      await act(async () => {
+      act(() => {
         // Slice 160: client sends same voteType again; handler computes isToggleOff.
-        await result.current.handleVotePost(POST_ID, 1);
+        result.current.handleVotePost(POST_ID, 1);
       });
 
       // isToggleOff=true signals the service to skip mission/notification side-effects
       // (prevents upvote↔unvote-spam exploit). Server-side RPC auto-DELETEs via same-vote branch.
-      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1, true);
+      await waitFor(() =>
+        expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1, true),
+      );
     });
   });
 
@@ -1479,11 +1491,12 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      await act(async () => {
-        await result.current.handleVotePost(POST_ID, 1);
+      act(() => {
+        result.current.handleVotePost(POST_ID, 1);
       });
 
       // Verify the voteType argument is a number, not a boolean
+      await waitFor(() => expect(votePost).toHaveBeenCalled());
       const callArgs = vi.mocked(votePost).mock.calls[0];
       expect(typeof callArgs[2]).toBe('number');
       expect(callArgs[2]).toBe(1);
@@ -1521,15 +1534,13 @@ describe('useCommunityActions', () => {
         { wrapper: createWrapper() },
       );
 
-      // Fire two votes concurrently
-      await act(async () => {
-        await Promise.all([
-          result.current.handleVotePost('post-1', 1),
-          result.current.handleVotePost('post-2', -1),
-        ]);
+      // Fire two votes concurrently (different postIds — verschiedene mutation-calls).
+      act(() => {
+        result.current.handleVotePost('post-1', 1);
+        result.current.handleVotePost('post-2', -1);
       });
 
-      expect(votePost).toHaveBeenCalledTimes(2);
+      await waitFor(() => expect(votePost).toHaveBeenCalledTimes(2));
       expect(votePost).toHaveBeenCalledWith(USER_ID, 'post-1', 1, false);
       expect(votePost).toHaveBeenCalledWith(USER_ID, 'post-2', -1, false);
     });

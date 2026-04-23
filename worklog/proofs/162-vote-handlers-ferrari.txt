@@ -1,0 +1,72 @@
+Slice 162 — Community Vote-Handler Ferrari-Migration PROOF
+==========================================
+Date: 2026-04-23
+Type: Refactor (D18 Race-Class Closure für Vote-Domain)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── vitest ───
+$ npx vitest run src/components/community src/components/fantasy src/components/player
+
+Test Files  41 passed (41)
+     Tests  494 passed (494)
+  Start at  19:01:30
+  Duration  61.74s
+
+─── git diff --stat ───
+ src/components/community/hooks/useCommunityActions.ts         | 98 ++++++++++++++--------
+ src/components/community/hooks/__tests__/useCommunityActions.test.ts    | 65 ++++++++------
+ src/components/fantasy/EventCommunityTab.tsx       | 32 ++++---
+ src/components/fantasy/__tests__/EventCommunityTab.test.tsx   |  9 +-
+ src/components/player/detail/hooks/usePlayerCommunity.ts      | 30 +++++--
+ worklog/active.md                                  | 14 ++--
+ + new: worklog/specs/162-community-vote-handlers-ferrari.md
+ + new: worklog/reviews/162-review.md
+ + new: worklog/proofs/162-vote-handlers-ferrari.txt
+
+─── Regression-Audit ───
+$ grep -rnE "await votePost\(" src/components/ | grep -v __tests__
+(no hits)
+
+All raw async votePost() calls migrated to useSafeMutation.mutationFn bodies.
+
+─── What changed ───
+
+useCommunityActions.ts (komplexester Handler mit Optimistic):
+  - handleVotePost() → votePostMut useSafeMutation
+  - onMutate: cancelQueries + getQueryData snapshot (prevPosts + prevVotes) + optimistic delta
+  - onSuccess: server-truth setQueryData
+  - onError: FULL snapshot-rollback (beide Seiten via ctx) + toast
+  - errorTag: 'community.votePost'
+  - Reviewer Finding #1 (cancelQueries-Gap) + #2 (partial rollback) in-slice gefixt
+
+usePlayerCommunity.ts (kein Optimistic):
+  - handleVotePlayerPost() → votePostMut useSafeMutation
+  - onSuccess: setQueryData + setMyPostVotes (post-success semantic)
+  - errorTag: 'player.votePost'
+
+EventCommunityTab.tsx (inline, kein Optimistic):
+  - handleVote() → voteMut useSafeMutation
+  - onSuccess: setPosts + setMyVotes (post-success semantic)
+  - errorTag: 'eventCommunity.vote'
+
+Test-Updates:
+  - useCommunityActions.test.ts: 7 tests auf act()+waitFor pattern umgebaut (handler synchronous
+    now, mutation runs async in observer). Plus queryClient mock expanded: cancelQueries, getQueryData.
+  - EventCommunityTab.test.tsx: lucide-react mock + ToastProvider stub (Slice 161 pattern).
+
+─── Reviewer Verdict ───
+PASS (nach in-slice Finding #1 + #2 Fixes)
+
+Review: worklog/reviews/162-review.md
+Spec: worklog/specs/162-community-vote-handlers-ferrari.md
+
+─── Backlog (aus Review) ───
+- LOW #3: patterns.md #28 Scope-Note "Optimistic nur bei shared-cache + deterministic delta"
+- LOW #4: errorToast in usePlayerCommunity + EventCommunityTab (parity zu useCommunityActions)
+- NIT #5: Singleton queryClient vs useQueryClient() hook (Slice 161 NIT #1 same drift)
+- NIT #6: queryClient.setQueryData Type-Generic in usePlayerCommunity
+- Tier-2 Data-Integrity: 7/8 done
