@@ -4,8 +4,8 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 
 # Common Errors
 
-Stand: 2026-04-22 · Konsolidiert aus Slices 001-145.
-Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `performance.md` (Query-Limits).
+Stand: 2026-04-23 · Konsolidiert aus Slices 001-159.
+Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `performance.md` (Query-Limits) · `memory/patterns.md` (#28 Ferrari-Blueprint).
 
 ---
 
@@ -298,6 +298,14 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - Spieler-Anzeigen → Link zu `/player/[id]` (Ausnahme: Picker-UIs).
 - `<button>` NICHT in `<Link>` wrappen (invalid HTML) → `href` Prop oder Wrapper-Komponente.
 
+### Vote-Toggle Client-Intent vs RPC-Constraint (Slice 159 Review Finding)
+- Client sendet `voteType=0` fuer Toggle-Off (z.B. `handleVote(replyId, myVote === 1 ? 0 : 1)`), aber `vote_post` RPC (Migration `20260404192000`) hat CHECK `p_vote_type IN (1,-1)` → 0 rejected mit "Ungueltiger vote_type".
+- **Symptom:** User clickt denselben Upvote nochmal → erwartet Toggle-Off → stattdessen Error-Toast. UI-Intent vs DB-Contract drift.
+- **RPC-seitiger Toggle-Pfad:** `vote_post` hat internal DELETE-Branch wenn `p_vote_type = v_existing.vote_type` (same vote → remove). Client muss **same vote_type** senden, nicht 0.
+- **Fix-Strategie:** Entweder (a) Client: `handleVote(reply.id, myVote === 1 ? 1 : -1)` — same-vote triggert DELETE-Pfad; oder (b) RPC: CHECK erweitern auf `IN (0, 1, -1)` + 0-branch = DELETE. Option (a) ist preferred (keine Migration).
+- **Betroffene Files (2026-04-23):** `src/components/community/PostReplies.tsx:171/188` (Slice 159 erhaltene Legacy-Behavior, out-of-scope-Dokumentation).
+- **Audit:** `grep -rn "votePost.*, 0\|voteType === [01] ? 0 :" src/` → alle 0-Send-Call-Sites finden.
+
 ---
 
 ## 6. i18n / Locale
@@ -324,6 +332,8 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - **Fix:** `useSafeMutation` aus `src/lib/hooks/useSafeMutation.ts`. `safeTrigger(variables)` hat synchronen `isPending`-Guard via React Query v5 MutationObserver. Auto-Toast bei Error (`errorToast`) + Sentry-Breadcrumb (`errorTag`).
 - **Migration-Plan:** `worklog/proofs/150-mutation-audit.md` — 5 Phasen, Money-Path zuerst (Tier-1, CEO-Scope), dann Data-Integrity (Tier-2), dann Auth (Tier-3).
 - **Piloten:** useClubActions (151b), MembershipSection (151c).
+- **Stand 2026-04-23:** Tier-1 Money-Path 7/9 done — trading.ts (153a), usePlayerTrading (153b), useEventActions (156), useOffersState (157), KaderSellModal (158). Tier-2 Data-Integrity 4/8 done — ReportModal/PostReplies/FanWishModal (159). Offen: AdminWithdrawalTab + AdminFoundingPassesTab, plus LeaguesSection + AirdropScoreCard + MissionBanner.
+- **Blueprint-Referenz:** `memory/patterns.md` #28 (Ferrari-Blueprint) — vollstaendige Struktur incl. onMutate/Rollback/onSettled.
 - **Audit-Command:** `npm run audit:mutation-race` (scripts/audit-mutation-race.sh) — CI-Gate kandidat.
 
 ### Money-RPC Idempotency-Window (Slice 151c.2 — D18 Subsection)
