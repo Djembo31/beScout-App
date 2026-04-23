@@ -5,6 +5,7 @@ import {
   InsufficientFundsError,
   RateLimitError,
   NotFoundError,
+  ConflictError,
 } from '@/lib/errors';
 import { captureError, captureMessage } from '../captureError';
 
@@ -105,6 +106,44 @@ describe('captureError (slice 176)', () => {
     captureError(new ValidationError('x'));
     const [, options] = lastExceptionCall();
     expect(options.level).toBe('error');
+  });
+
+  it('extracts cause from wrapped Postgres-error (slice 176b)', () => {
+    const pgErr = Object.assign(new Error('duplicate key value'), {
+      code: '23505',
+      detail: 'Key (slug)=(x) already exists.',
+      constraint: 'clubs_slug_key',
+    });
+    const err = new ConflictError('dup club', 'club', pgErr);
+    captureError(err);
+
+    const [, options] = lastExceptionCall();
+    expect(options.tags).toMatchObject({ code: 'conflict' });
+    expect(options.extra).toMatchObject({
+      entity: 'club',
+      cause: {
+        name: 'Error',
+        message: 'duplicate key value',
+        code: '23505',
+        detail: 'Key (slug)=(x) already exists.',
+        constraint: 'clubs_slug_key',
+      },
+    });
+  });
+
+  it('omits cause when DomainError has none (slice 176b)', () => {
+    captureError(new ValidationError('bad', 'email'));
+    const [, options] = lastExceptionCall();
+    expect(options.extra).not.toHaveProperty('cause');
+  });
+
+  it('serialises string cause (slice 176b)', () => {
+    const err = new ConflictError('dup', 'user', 'raw string reason');
+    captureError(err);
+    const [, options] = lastExceptionCall();
+    expect(options.extra).toMatchObject({
+      cause: { message: 'raw string reason' },
+    });
   });
 });
 

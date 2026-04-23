@@ -11,6 +11,19 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 176b | 2026-04-24 | captureError Follow-ups (Tier D2 Finish)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: internal module + 1 boundary + doc) → BUILD → PROVE → REVIEW → LOG
+- **Scope XS:** Schliesst beide LOW-Findings aus `176-review.md`.
+- **1) global-error.tsx Migration:** `Sentry.captureException(error)` → `captureError(error, { feature: 'global-error-boundary', extra: digest })`. Top-Level React-Error-Boundary bekommt konsistente Tag-Shape + code-Tag via toDomainError.
+- **2) extractDomainContext + cause:** Neue `serializeCause(cause)` Helper extrahiert Error-instance whitelist-shape `{ name, message, code?, status?, detail?, constraint? }` (Postgres-driver-freundlich) bzw String/Object/Primitive-fallbacks mit try/catch gegen JSON-cycles. Bei `ConflictError(msg, entity, pgErr)` landet jetzt der Original-PG-Error-Code (23505) + detail/constraint in Sentry-extra.
+- **3) pattern_observability_stack.md Z.63-70:** Tag-Shape-Doc aktualisiert (feature-Tag + code-Tag + label-in-extra + Shape-Change-Notice fuer eventuelle Saved-Searches).
+- **Test-Erweiterung:** 3 neue Tests (Postgres-cause-extract / no-cause-omit / string-cause). Total 25/25 gruen.
+- **Proof:** `worklog/proofs/176b-followups.txt` — vitest + tsc + git-diff-stat.
+- **Review:** `worklog/reviews/176b-review.md` — PASS, 2 LOW (object-path whitelist-doc + Postgres-detail-PII-risk) + 2 NIT. Finding #2 (PII-redact 23505-detail) als optionaler Micro-Slice vor Beta-Live vermerkt.
+
+---
+
 ## 176 | 2026-04-24 | Sentry captureError Wrapper (Sorare/Socios Tier D2)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: internal observability-module) → BUILD → PROVE → REVIEW → LOG

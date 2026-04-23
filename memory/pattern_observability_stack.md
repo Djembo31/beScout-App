@@ -62,8 +62,12 @@ export function logSilentCatch(
 
 Beide:
 - **Dev**: `console.error` mit `[silentReject]`/`[silentCatch]` prefix
-- **Prod**: `Sentry.captureException` mit tag `silentReject:true`/`silentCatch:true` + label + extra (index/totalResults oder context)
-- Non-Error reasons in `new Error(String(reason))` gewrappt
+- **Prod**: delegieren an `captureError(err, { feature, extra })` aus `src/lib/observability/captureError.ts` (Slice 176). Sentry-Shape:
+  - `tags.feature = 'silentReject' | 'silentCatch'` (stabiler Cohort-Tag)
+  - `tags.code` aus DomainError (Slice 174) oder `'unexpected'` bei unknown
+  - `extra = { label, index?, totalResults?, ...callerCtx }` (label wandert von tags → extra, weil high-cardinality)
+- Non-Error reasons via `toDomainError` in DomainError gewrappt
+- **Shape-Change-Notice (Slice 176):** vorher `tags: { silentReject: 'true', label: 'x' }`. Sentry-Saved-Searches die auf `silentReject:true` filtern muessen umgestellt werden auf `feature:silentReject`.
 
 ## Audit-Tool
 

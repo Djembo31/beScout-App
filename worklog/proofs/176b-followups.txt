@@ -1,0 +1,22 @@
+=== vitest src/lib/observability/ ===
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 22:37:29
+[2m   Duration [22m 3.00s[2m (transform 282ms, setup 1.07s, import 355ms, tests 48ms, environment 6.20s)[22m
+
+
+=== tsc --noEmit ===
+(clean, no output)
+
+=== git diff --stat (unstaged) ===
+ memory/pattern_observability_stack.md              |   8 +-
+ memory/session-handoff.md                          | 137 ++++-----------------
+ src/app/global-error.tsx                           |   7 +-
+ .../observability/__tests__/captureError.test.ts   |  39 ++++++
+ src/lib/observability/captureError.ts              |  39 +++++-
+ worklog/active.md                                  |  12 +-
+ 6 files changed, 121 insertions(+), 121 deletions(-)

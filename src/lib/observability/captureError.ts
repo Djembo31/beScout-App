@@ -90,6 +90,9 @@ export function captureMessage(
 /**
  * Extract per-class fields from DomainError subclasses as extra-context.
  * Without this, Sentry would only see `name + message + stack`.
+ *
+ * Slice 176b: `cause` added — preserves Postgres error-code/diagnostic when a
+ * DomainError wraps a native driver error (e.g. ConflictError wrapping a 23505).
  */
 function extractDomainContext(err: unknown): Record<string, unknown> {
   if (!isDomainError(err)) return {};
@@ -97,7 +100,6 @@ function extractDomainContext(err: unknown): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const rec = err as unknown as Record<string, unknown>;
 
-  // Common structured fields across subclasses:
   if (typeof rec.field === 'string') out.field = rec.field;
   if (typeof rec.entity === 'string') out.entity = rec.entity;
   if (typeof rec.id === 'string') out.id = rec.id;
@@ -106,5 +108,40 @@ function extractDomainContext(err: unknown): Record<string, unknown> {
   if (typeof rec.availableCents === 'number') out.availableCents = rec.availableCents;
   if (typeof rec.deltaCents === 'number') out.deltaCents = rec.deltaCents;
 
+  if (rec.cause !== undefined && rec.cause !== null) {
+    out.cause = serializeCause(rec.cause);
+  }
+
   return out;
+}
+
+/**
+ * Flatten an arbitrary `cause` value into a serialisable, Sentry-friendly
+ * shape. Preserves Postgres driver fields (`code`, `detail`, `constraint`)
+ * without leaking stack-traces or cycles.
+ */
+function serializeCause(cause: unknown): Record<string, unknown> {
+  if (cause instanceof Error) {
+    const rec = cause as unknown as Record<string, unknown>;
+    const out: Record<string, unknown> = {
+      name: cause.name,
+      message: cause.message,
+    };
+    if (typeof rec.code === 'string' || typeof rec.code === 'number') {
+      out.code = rec.code;
+    }
+    if (typeof rec.status === 'number') out.status = rec.status;
+    if (typeof rec.detail === 'string') out.detail = rec.detail;
+    if (typeof rec.constraint === 'string') out.constraint = rec.constraint;
+    return out;
+  }
+  if (typeof cause === 'string') return { message: cause };
+  if (typeof cause === 'object') {
+    try {
+      return JSON.parse(JSON.stringify(cause));
+    } catch {
+      return { message: '[unserialisable cause]' };
+    }
+  }
+  return { value: String(cause) };
 }
