@@ -1,0 +1,58 @@
+Slice 159 — Vitest + TSC Proof
+===============================
+
+1) Slice-159 test-suites (3 Files)
+-----------------------------------
+$ npx vitest run src/components/community/__tests__/ReportModal.test.tsx \
+                 src/components/community/__tests__/PostReplies.test.tsx \
+                 src/components/fan-wishes/__tests__/FanWishModal.test.tsx
+
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Duration  4.62s
+
+Breakdown:
+  ReportModal.test.tsx: 4 tests
+    - calls reportContent on submit
+    - error path shows toast with errors-namespace resolved key
+    - errorTag community.report routed to logSilentCatch
+    - submit button disabled during in-flight (isPending guard)
+  PostReplies.test.tsx: 6 tests
+    - createReplyMut: handleSubmit calls createReply service
+    - voteReplyMut: handleVote calls votePost with voteType
+    - errorTag community.replySubmit on create failure
+    - errorTag community.replyDelete on delete failure (NEW, post-review-fix)
+    - errorTag community.replyVote on vote failure
+    - vote button disabled during in-flight (per-row via variables.replyId)
+  FanWishModal.test.tsx: 4 tests
+    - calls submitFanWish with club-wish vars on submit
+    - onError shows errors-namespace toast (not raw key)
+    - errorTag fanWish.submit routed to logSilentCatch
+    - submit button disabled during in-flight (isPending guard)
+
+
+2) Community + FanWishes Regression
+------------------------------------
+$ npx vitest run src/components/community src/components/fan-wishes
+
+ Test Files  11 passed (11)
+      Tests  182 passed (182)
+   Duration  24.46s
+
+
+3) TSC
+------
+$ npx tsc --noEmit
+EXIT: 0 (clean)
+
+
+Acceptance Criteria:
+A1 5x useSafeMutation + errorTag                     PASS
+A2 Rapid-Click Guard via safeTrigger                 PASS
+A3 Component-API unveraendert                        PASS
+A4 i18n-Key-Leak-Schutz erhalten                     PASS
+A5 Tests gruen + tsc clean                           PASS (14 neu + 168 regression)
+
+
+Reviewer-Verdict: PASS (~25 min)
+Post-Review-Fixes: 2 NITs (mutate→safeTrigger Drop-in, +1 Test fuer replyDelete errorTag)

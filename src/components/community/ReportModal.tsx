@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Modal, Button } from '@/components/ui';
 import { reportContent } from '@/lib/services/contentReports';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { ReportTargetType } from '@/types';
 
@@ -30,31 +31,40 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
   const { addToast } = useToast();
   const [selectedReason, setSelectedReason] = useState('');
   const [customReason, setCustomReason] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   const reason = selectedReason === 'other' ? customReason : selectedReason;
-  const canSubmit = reason.length >= 5 && !submitting;
 
-  async function handleSubmit() {
-    if (!canSubmit) return;
-    setSubmitting(true);
-    try {
-      const result = await reportContent(targetType, targetId, reason);
-      if (result.success) {
-        addToast(t('reportSubmitted'), 'success');
-        onClose();
-        setSelectedReason('');
-        setCustomReason('');
-      } else {
-        // Slice 051: Service-Error kann i18n-key sein
-        addToast(result.error ? tErrors(mapErrorToKey(result.error)) : t('reportError'), 'error');
-      }
-    } catch (err) {
-      // Slice 051: i18n-Key-Leak-Schutz
+  // Slice 159 Ferrari: useSafeMutation mit synchronem isPending-Guard + errorTag.
+  const reportMut = useSafeMutation<
+    { success: boolean; error?: string },
+    Error,
+    { targetType: ReportTargetType; targetId: string; reason: string }
+  >({
+    mutationFn: async (vars) => {
+      const result = await reportContent(vars.targetType, vars.targetId, vars.reason);
+      if (!result.success) throw new Error(result.error || 'reportError');
+      return result;
+    },
+    onSuccess: () => {
+      addToast(t('reportSubmitted'), 'success');
+      onClose();
+      setSelectedReason('');
+      setCustomReason('');
+    },
+    onError: (err) => {
+      // i18n-Key-Leak-Schutz (Slice 051): err.message ist ggf. Raw-Key
       addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    },
+    errorTag: 'community.report',
+  });
+
+  const canSubmit = reason.length >= 5 && !reportMut.isPending;
+
+  function handleSubmit() {
+    if (!canSubmit) return;
+    // Ferrari-Blueprint-Konsistenz (156/157/158): safeTrigger statt raw mutate —
+    // synchroner isPending-Check im Primitive, keine doppelte Guard-Logik noetig.
+    reportMut.safeTrigger({ targetType, targetId, reason });
   }
 
   return (
@@ -71,7 +81,7 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
           disabled={!canSubmit}
           className="w-full"
         >
-          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
+          {reportMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flag className="w-4 h-4" />}
           {t('reportSubmitBtn')}
         </Button>
       }

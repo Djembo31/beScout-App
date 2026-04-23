@@ -5,6 +5,7 @@ import { ArrowUp, ArrowDown, Trash2, Loader2, Send, BadgeCheck, MessageSquare } 
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { getReplies, createReply, deletePost, votePost, getUserPostVotes } from '@/lib/services/posts';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
 import type { PostWithAuthor } from '@/types';
 
 import { formatTimeAgo } from '@/lib/utils';
@@ -15,6 +16,16 @@ type Props = {
   onRepliesCountChange: (postId: string, delta: number) => void;
 };
 
+/**
+ * Slice 159 Ferrari: 3 Mutations als useSafeMutation.
+ * - createReplyMut (handleSubmit): erstellt Reply.
+ * - deleteReplyMut (handleDelete): loescht Reply.
+ * - voteReplyMut (handleVote): +1/-1/0 auf Reply, pro-Row via variables.replyId.
+ *
+ * `submitting` = createReplyMut.isPending. `votingId` = voteReplyMut.variables?.replyId
+ * wenn isPending. Ersetzt Legacy `setSubmitting(true)` / `setVotingId(replyId)` Anti-
+ * Patterns mit synchronem MutationObserver-isPending.
+ */
 export default function PostReplies({ postId, userId, onRepliesCountChange }: Props) {
   const tc = useTranslations('community');
   const locale = useLocale();
@@ -22,10 +33,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
   const [replies, setReplies] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [myVotes, setMyVotes] = useState<Map<string, number>>(new Map());
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [votingId, setVotingId] = useState<string | null>(null);
 
   const loadReplies = useCallback(async () => {
     try {
@@ -46,36 +55,49 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
     loadReplies();
   }, [loadReplies]);
 
-  const handleSubmit = async () => {
-    if (!replyText.trim() || submitting) return;
-    setSubmitting(true);
-    try {
-      await createReply(userId, postId, replyText.trim());
+  // ── Create Reply ──────────────────────────────────────────
+  const createReplyMut = useSafeMutation<
+    void,
+    Error,
+    { text: string }
+  >({
+    mutationFn: async ({ text }) => {
+      await createReply(userId, postId, text);
+    },
+    onSuccess: async () => {
       setReplyText('');
       onRepliesCountChange(postId, 1);
       await loadReplies();
-    } catch (err) {
-      console.error('[PostReplies] Submit reply failed:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    },
+    errorTag: 'community.replySubmit',
+  });
 
-  const handleDelete = async (replyId: string) => {
-    try {
+  // ── Delete Reply ──────────────────────────────────────────
+  const deleteReplyMut = useSafeMutation<
+    void,
+    Error,
+    { replyId: string }
+  >({
+    mutationFn: async ({ replyId }) => {
       await deletePost(userId, replyId);
+    },
+    onSuccess: (_result, { replyId }) => {
       setReplies(prev => prev.filter(r => r.id !== replyId));
       onRepliesCountChange(postId, -1);
-    } catch (err) {
-      console.error('[PostReplies] Delete reply failed:', err);
-    }
-  };
+    },
+    errorTag: 'community.replyDelete',
+  });
 
-  const handleVote = async (replyId: string, voteType: number) => {
-    if (votingId) return;
-    setVotingId(replyId);
-    try {
-      const result = await votePost(userId, replyId, voteType);
+  // ── Vote Reply ────────────────────────────────────────────
+  const voteReplyMut = useSafeMutation<
+    { upvotes: number; downvotes: number },
+    Error,
+    { replyId: string; voteType: number }
+  >({
+    mutationFn: async ({ replyId, voteType }) => {
+      return votePost(userId, replyId, voteType);
+    },
+    onSuccess: (result, { replyId, voteType }) => {
       setReplies(prev => prev.map(r =>
         r.id === replyId ? { ...r, upvotes: result.upvotes, downvotes: result.downvotes } : r
       ));
@@ -85,11 +107,28 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
         else next.set(replyId, voteType);
         return next;
       });
-    } catch (err) {
-      console.error('[PostReplies] Vote failed:', err);
-    } finally {
-      setVotingId(null);
-    }
+    },
+    errorTag: 'community.replyVote',
+  });
+
+  // Derived state — replaces legacy setSubmitting / setVotingId.
+  const submitting = createReplyMut.isPending;
+  const votingId = voteReplyMut.isPending ? voteReplyMut.variables?.replyId ?? null : null;
+
+  // Ferrari-Blueprint-Konsistenz (156/157/158): safeTrigger statt raw mutate,
+  // synchroner isPending-Guard ist in useSafeMutation-Primitive.
+  const handleSubmit = () => {
+    const text = replyText.trim();
+    if (!text) return;
+    createReplyMut.safeTrigger({ text });
+  };
+
+  const handleDelete = (replyId: string) => {
+    deleteReplyMut.safeTrigger({ replyId });
+  };
+
+  const handleVote = (replyId: string, voteType: number) => {
+    voteReplyMut.safeTrigger({ replyId, voteType });
   };
 
   return (

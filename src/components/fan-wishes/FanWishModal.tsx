@@ -9,6 +9,8 @@ import { submitFanWish } from '@/lib/services/fanWishes';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
+import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 
 interface FanWishModalProps {
   open: boolean;
@@ -20,6 +22,7 @@ interface FanWishModalProps {
 
 export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubName = '', defaultPlayerName = '' }: FanWishModalProps) {
   const t = useTranslations('fanWishes');
+  const tErrors = useTranslations('errors');
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
@@ -28,36 +31,51 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
   const [clubName, setClubName] = useState(defaultClubName);
   const [leagueName, setLeagueName] = useState('');
   const [note, setNote] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
-  const canSubmit = tab === 'player'
-    ? playerName.trim().length >= 2
-    : clubName.trim().length >= 2;
-
-  const handleSubmit = async () => {
-    if (!canSubmit || submitting) return;
-    setSubmitting(true);
-    try {
-      const result = await submitFanWish({
-        wishType: tab,
-        playerName: tab === 'player' ? playerName.trim() : undefined,
-        clubName: clubName.trim() || undefined,
-        leagueName: leagueName.trim() || undefined,
-        note: note.trim() || undefined,
-      });
-      if (result.success) {
-        addToast(t('success'), 'success');
-        queryClient.invalidateQueries({ queryKey: qk.fanWishes.mine() });
-        onClose();
-        setPlayerName(''); setClubName(''); setLeagueName(''); setNote('');
-      } else {
-        addToast(result.error ?? 'Error', 'error');
-      }
-    } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Error', 'error');
-    } finally {
-      setSubmitting(false);
+  // Slice 159 Ferrari: useSafeMutation + synchroner isPending-Guard + errorTag.
+  const wishMut = useSafeMutation<
+    { success: boolean; error?: string },
+    Error,
+    {
+      wishType: 'player' | 'club';
+      playerName?: string;
+      clubName?: string;
+      leagueName?: string;
+      note?: string;
     }
+  >({
+    mutationFn: async (vars) => {
+      const result = await submitFanWish(vars);
+      if (!result.success) throw new Error(result.error || 'wishError');
+      return result;
+    },
+    onSuccess: () => {
+      addToast(t('success'), 'success');
+      queryClient.invalidateQueries({ queryKey: qk.fanWishes.mine() });
+      onClose();
+      setPlayerName(''); setClubName(''); setLeagueName(''); setNote('');
+    },
+    onError: (err) => {
+      // i18n-Key-Leak-Schutz: err.message ggf. raw-key.
+      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
+    },
+    errorTag: 'fanWish.submit',
+  });
+
+  const canSubmit = (tab === 'player'
+    ? playerName.trim().length >= 2
+    : clubName.trim().length >= 2) && !wishMut.isPending;
+
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    // Ferrari-Blueprint-Konsistenz (156/157/158): safeTrigger mit synchronem isPending-Check.
+    wishMut.safeTrigger({
+      wishType: tab,
+      playerName: tab === 'player' ? playerName.trim() : undefined,
+      clubName: clubName.trim() || undefined,
+      leagueName: leagueName.trim() || undefined,
+      note: note.trim() || undefined,
+    });
   };
 
   return (
@@ -134,8 +152,8 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
         </div>
 
         {/* Submit */}
-        <Button onClick={handleSubmit} disabled={!canSubmit || submitting} className="w-full">
-          {submitting
+        <Button onClick={handleSubmit} disabled={!canSubmit} className="w-full">
+          {wishMut.isPending
             ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
             : <><Sparkles className="size-4" aria-hidden="true" /> {t('submit')}</>
           }

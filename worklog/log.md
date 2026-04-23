@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 159 | 2026-04-23 | Tier-2 Data-Integrity Batch (Phase 4 Start)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (PASS nach 2 NIT-inline-Fixes) → PROVE → LOG
+- **Scope M:** 6 Files — 3 Refactors (ReportModal, PostReplies, FanWishModal) + 3 neue Test-Files. 5 Mutations total, kein Money-Path.
+- **Ferrari-Refactor** (analog 156/157/158): 5 Handler auf `useSafeMutation` mit `errorTag`. `mut.safeTrigger(vars)` (Blueprint-Konsistenz statt raw `mutate` — Reviewer NIT #1).
+  - ReportModal: `community.report`
+  - PostReplies: `community.replySubmit`, `community.replyDelete`, `community.replyVote`
+  - FanWishModal: `fanWish.submit`
+- **PostReplies**: `submitting` = createReplyMut.isPending, `votingId` = voteReplyMut.variables?.replyId (per-Row). Legacy `setSubmitting`/`setVotingId` Anti-Pattern A komplett ersetzt.
+- **Tests:** 14 neu (4 + 6 + 4). Reviewer-Coverage-Gap (replyDelete errorTag) nachgetragen.
+- **Regression:** community + fan-wishes 182/182 grün. tsc clean.
+- **Pre-existing Bug dokumentiert (out-of-scope):** `PostReplies.handleVote(replyId, 0)` sendet voteType=0 für Toggle-Off, aber `vote_post` RPC constraint `p_vote_type IN (1,-1)`. Client-Intent vs DB-Contract drift — Kandidat für separaten Slice + common-errors.md-Eintrag.
+- **Artefakte:**
+  - Spec: `worklog/specs/159-tier2-batch-ferrari.md`
+  - Review: `worklog/reviews/159-review.md` (PASS, NITs inline gefixt)
+  - Proof: `worklog/proofs/159-vitest.txt`
+
 ## 158 | 2026-04-23 | KaderSellModal Ferrari-Refactor (Phase 3 Welle 3)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: UI-Wrapper, callback-signature byte-identisch, 2 Parents KaderTab + BestandView) → BUILD → REVIEW (PASS 9 min, 0 Findings) → PROVE → LOG
