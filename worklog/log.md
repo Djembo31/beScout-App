@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 174 | 2026-04-24 | Error-Classes Foundation (Sorare/Socios-Audit Tier A3)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: neue Module, keine Consumer) → BUILD → REVIEW (self-review, Foundation-exempt, PASS) → PROVE → LOG
+- **Scope S:** 2 neue Files — `src/lib/errors/index.ts` (140 Zeilen) + `__tests__/errors.test.ts` (180 Zeilen, 28 Tests).
+- **Foundation:** 7 Error-Klassen in Hierarchie `Error → DomainError (abstract) → {Validation, Permission, RateLimit, InsufficientFunds, NotFound, Conflict, Unexpected}`. Jede Klasse mit `code: ErrorCode`, strukturierten Feldern (retryAfterMs, requiredCents+availableCents+deltaCents, field, entity, id, cause). 7 Type-Guards `isXError`. Normalizer `toDomainError(unknown)` mit 13 distinct Heuristiken (Postgres 23xxx Codes, HTTP-Status, RAISE-EXCEPTION-Patterns aus unseren SECURITY DEFINER RPCs).
+- **Key-Decision:** `DomainError` ist abstract (zwingt Subklasse), `Object.setPrototypeOf` fuer korrekte `instanceof`-Checks nach TS→JS transpile. `cause` durchgereicht fuer Sentry-Context.
+- **Professional-Standard:** Consumers koennen typed errors per type-guard unterscheiden (Top-Up-CTA bei InsufficientFunds, Retry-Timer bei RateLimit, Refetch-Retry bei Conflict). Heute: 0 custom Error-Klassen im Code, alle Services werfen `new Error('i18n.key')` raw.
+- **Kontext:** Sorare/Socios-Audit identifizierte 5 Tier-A/B Blocker. Slice 174 = Tier A3 Foundation. Nachfolge-Slices:
+  - 175 Pino Structured-Logging
+  - 176 Sentry-Wrapper captureError
+  - 177 Zod + Pilot-Schemas
+  - 178 Idempotency Infrastructure (Money-CEO)
+  - 179 Transactions Append-Only (Money-CEO)
+  - 180 Service-Shape Consolidation (15 Files auf typed throw)
+- **Proof:** `worklog/proofs/174-errors.txt` — 28/28 passing, tsc clean.
+- **Review:** `worklog/reviews/174-review.md` — PASS (Foundation-Slice, 0 findings, Follow-Up fuer B2-Integration).
+- **Follow-Up (nicht Slice-Blocker):** Sentry-Capture-Wrapper sollte automatisch `tags.code = err.code` setzen wenn `isDomainError(err)`. UI-ToastProvider kann type-guard-switched CTAs rendern.
+
+---
+
 ## 173 | 2026-04-24 | RPC-Shape-Audit (Discriminated-Union-Regel aus Slice 168)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: read-only) → BUILD → REVIEW (skipped Audit-Slice) → PROVE → LOG

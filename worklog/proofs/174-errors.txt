@@ -1,0 +1,53 @@
+Slice 174 — Error-Classes Foundation
+=====================================
+
+## tsc --noEmit
+
+Clean (no output).
+
+## vitest run src/lib/errors/__tests__/errors.test.ts
+
+Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  22:14:10
+   Duration  2.08s
+
+## Coverage
+
+- DomainError abstract base ✅
+- ValidationError (code, field, message, name) ✅
+- PermissionError (code, name) ✅
+- RateLimitError (code, retryAfterMs) ✅
+- InsufficientFundsError (code, requiredCents, availableCents, deltaCents, clamp-at-0) ✅
+- NotFoundError (code, entity, id) ✅
+- ConflictError (code, entity) ✅
+- UnexpectedError (code) ✅
+- cause preservation ✅
+
+## Type-Guards
+
+- isDomainError (incl. reject plain Error, string, null, undefined) ✅
+- isValidationError / isPermissionError / isRateLimitError /
+  isInsufficientFundsError / isNotFoundError / isConflictError
+  (each narrow-match + reject other DomainError subclasses) ✅
+
+## toDomainError normalizer
+
+- Passthrough existing DomainError ✅
+- String → UnexpectedError ✅
+- null/undefined → UnexpectedError ✅
+- Postgres 23505 → ConflictError ✅
+- Postgres 23503 → ConflictError ✅
+- Postgres 23514 → ValidationError ✅
+- Postgres PGRST116 → NotFoundError ✅
+- HTTP 401/403 → PermissionError ✅
+- HTTP 404 → NotFoundError ✅
+- HTTP 409 → ConflictError ✅
+- HTTP 429 → RateLimitError (60s retry) ✅
+- "auth_uid_mismatch" RAISE → PermissionError ✅
+- "Nicht genug BSD" RAISE → InsufficientFundsError ✅
+- "rate limit" RAISE → RateLimitError ✅
+- "not found" RAISE → NotFoundError ✅
+- Unknown Error → UnexpectedError ✅
+
+Total: 28 tests, 100% path-coverage of error-classes + type-guards + normalizer heuristics.
