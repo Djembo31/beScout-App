@@ -37,3 +37,91 @@ globs: ["src/**/*.test.ts", "src/**/*.test.tsx", "tests/**/*"]
 - Deep-Link Tab-Params NIE raten — immer Component-Source pruefen fuer den echten URL-Param-Namen
 - qa-visual Agent hat KEINE Playwright MCP Tools — nutze `npx tsx e2e/qa-*.ts` mit `@playwright/test` chromium API. Template: `e2e/screenshot-home.ts`
 - jarvis-qa Password: `e2e/mystery-box-qa.spec.ts:5` (nicht in .env.local)
+
+## useSafeMutation Test-Patterns (codifiziert Slice 164, aus 159/161/162/163)
+
+Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).
+
+### 1. Mock-Expansion-Template
+
+`useSafeMutation` importiert `@/components/providers/ToastProvider` (fuer `logSilentCatch` + Toast-Breadcrumb). ToastProvider zieht lucide-react Icons (`AlertCircle`, `CheckCircle2`, `Info`, `X`) — diese muessen im Test-Mock stehen **oder** ToastProvider selbst gestubbt werden.
+
+Template fuer Component-Tests:
+```typescript
+// lucide-react: Alle im Component + AlertCircle/CheckCircle2/Info/X fuer transitive ToastProvider.
+vi.mock('lucide-react', () => {
+  const S = () => null;
+  return {
+    // ...component-specific icons
+    Target: S, ChevronDown: S, Loader2: S,
+    // Required for useSafeMutation → ToastProvider transitive import:
+    AlertCircle: S, CheckCircle2: S, Info: S, X: S,
+  };
+});
+
+// ToastProvider-Stub: Minimal-noop um Module-Load-Cascade abzubrechen.
+vi.mock('@/components/providers/ToastProvider', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+  ToastProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+```
+
+### 2. Handler-Testing-Pattern (act + waitFor)
+
+Nach Ferrari-Migration ist der Handler **synchron**. Die Mutation laeuft **async im MutationObserver**. `await handleX(...)` wartet auf `undefined`, nicht auf Mutation-Completion.
+
+Anti-Pattern (broken):
+```typescript
+await act(async () => {
+  await result.current.handleVotePost(POST_ID, 1);  // returns void, no Mutation-await
+});
+expect(votePost).toHaveBeenCalledWith(...);  // FAILS — mutation noch nicht gefeuert
+```
+
+Pattern (korrekt):
+```typescript
+act(() => {
+  result.current.handleVotePost(POST_ID, 1);  // sync fire-and-forget
+});
+await waitFor(() =>
+  expect(votePost).toHaveBeenCalledWith(...)  // wartet auf Observer-Completion
+);
+```
+
+### 3. queryClient Mock-Expansion fuer Optimistic-Mutations
+
+Optimistic-Mutations rufen `cancelQueries` + `getQueryData` im `onMutate` (Blueprint-Pflicht, Race-Gap). Test-Mock muss diese Methods enthalten:
+
+```typescript
+vi.mock('@/lib/queryClient', () => ({
+  queryClient: {
+    invalidateQueries: vi.fn(() => Promise.resolve()),
+    setQueryData: vi.fn(),
+    getQueryData: vi.fn(() => undefined),       // fuer Snapshot-Rollback
+    cancelQueries: vi.fn(() => Promise.resolve()),  // fuer Blueprint onMutate
+  },
+}));
+```
+
+### 4. Service-Mock-Pattern
+
+Bei Hook-Entfernung (wie Slice 163 `useCreatePrediction`): Component importiert Service direkt. Test-Mock muss `@/lib/services/X` mocken (nicht mehr `@/lib/queries/X`):
+
+```typescript
+// Vorher (Hook-basiert):
+vi.mock('@/lib/queries/predictions', () => ({
+  useCreatePrediction: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+
+// Nachher (Service-direkt):
+vi.mock('@/lib/services/predictions', () => ({
+  createPrediction: vi.fn(() => Promise.resolve({ ok: true, id: 'pred-1' })),
+  getPlayersForFixture: vi.fn(() => Promise.resolve([])),
+}));
+```
+
+### Referenzen
+- `src/components/missions/__tests__/MissionBanner.test.tsx` (Slice 161) — erstes Mock-Expansion-Beispiel
+- `src/components/fantasy/__tests__/EventCommunityTab.test.tsx` (Slice 162) — Vote-Handler Test-Migration
+- `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 162) — act+waitFor Pattern auf 7 Tests angewandt + queryClient mock expanded
+- `src/components/fantasy/__tests__/CreatePredictionModal.test.tsx` (Slice 163) — Service-direkt-Mock-Pattern

@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 164 | 2026-04-23 | Konvention-Codification (patterns.md #28 + testing.md)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review im Proof) → PROVE → LOG
+- **Scope XS:** 2 Markdown-Files erweitert. Konvention-Codification aus 5 Session-Slices (159/161/162/163).
+- **patterns.md #28:**
+  - Blueprint-Referenzen erweitert um 160-163
+  - Neuer Abschnitt "Konventionen" mit 4 expliziten Regeln: `useQueryClient` > Singleton, Multi-Mutations = distinct Instanzen, Forward-Ref Closure-Safe, synchrone Handler-Signatur
+- **testing.md:**
+  - Neuer Abschnitt "useSafeMutation Test-Patterns" mit 4 Template-Blöcken (Mock-Expansion + act+waitFor + queryClient-Optimistic-Mock + Service-Mock-bei-Hook-Removal)
+  - Referenzen zu 4 Test-Files
+- **Zweck:** Verhindert weitere NIT-Drifts in zukünftigen Ferrari-Slices.
+- **Artefakte:**
+  - Spec: `worklog/specs/164-convention-codification.md`
+  - Proof: `worklog/proofs/164-convention-codification.txt`
+- **Files:**
+  - `memory/patterns.md`
+  - `.claude/rules/testing.md`
+- **Commit:** pending
+
+---
+
 ## 163 | 2026-04-23 | CreatePredictionModal Ferrari (Tier-2 Non-Admin 8/8)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped refactor) → BUILD → REVIEW (PASS) → PROVE → LOG

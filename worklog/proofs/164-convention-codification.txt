@@ -1,0 +1,54 @@
+Slice 164 — Konvention-Codification PROOF
+==========================================
+Date: 2026-04-23
+Type: Docs (codifiziert wiederkehrende Learnings aus Slices 159-163)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── git diff --stat ───
+ .claude/rules/testing.md                           | +84 lines (useSafeMutation Test-Patterns Abschnitt)
+ memory/patterns.md                                 | +30 lines (Konventionen + Blueprint-Refs 160-163)
+ + new: worklog/specs/164-convention-codification.md
+ + new: worklog/proofs/164-convention-codification.txt
+
+─── Was codifiziert wurde ───
+
+patterns.md #28 Erweiterungen:
+  - Blueprint-Referenzen erweitert um:
+    - Slice 160 (Bug-Class-Fix: votePost isToggleOff-Guard)
+    - Slice 161 (LeaguesSection + MissionBanner)
+    - Slice 162 (Vote-Handler D18 Closure, 3 Handler)
+    - Slice 163 (CreatePredictionModal Multi-Mutation)
+  - Neuer Abschnitt "Konventionen (Session 2026-04-23)":
+    1. useQueryClient() Hook > Singleton queryClient (default für neue Slices)
+    2. Multi-Mutations = distinct useSafeMutation-Instanzen (scope-distinct errorTag)
+    3. Forward-Ref handleClose/reset im onSuccess = Closure-Safe (JS-Scoping at-call-time)
+    4. Consumer-Handler-Signatur synchron (act+waitFor in Tests)
+  - Cross-Ref zu testing.md Abschnitt
+
+testing.md Erweiterungen (neuer Abschnitt "useSafeMutation Test-Patterns"):
+  1. Mock-Expansion-Template (lucide-react + ToastProvider stubs, copy-paste-bereit)
+  2. Handler-Testing-Pattern (act + waitFor statt await handleX)
+  3. queryClient Mock-Expansion für Optimistic-Mutations (cancelQueries + getQueryData)
+  4. Service-Mock-Pattern (bei Hook-Entfernung wie Slice 163)
+  - Referenzen zu 4 Test-Files (MissionBanner, EventCommunityTab, useCommunityActions, CreatePredictionModal)
+
+─── Wiederkehrende Findings die jetzt codifiziert sind ───
+
+| Finding | Slice-Origin | Vorher | Jetzt |
+|---------|--------------|--------|-------|
+| Singleton vs Hook queryClient | 161 NIT + 162 NIT | Drift in 3 Slices | Regel in patterns.md #28 |
+| Test-Mock-Expansion useSafeMutation | 159/161/162/163 | 4× in Folge erforderlich | Template in testing.md |
+| act + waitFor Pattern | 162 Test-Migration (7 Tests) | Ad-hoc Lösung | Template in testing.md |
+| Multi-Mutations im Component | 163 Learning | Nicht dokumentiert | Regel in patterns.md #28 |
+| Forward-Ref handleClose Safety | 163 Stability Review | Unklar | Bestätigt in patterns.md #28 |
+
+─── Scope-Out ───
+- Mini-Cleanup 161+162 (Singleton → useQueryClient): Separater Slice 164b wenn gewünscht.
+- patterns.md Pattern #29+: Nur #28 erweitert, keine neue Kategorie.
+
+─── Review ───
+Self-Review (docs-only Slice). Keine Code-Änderungen, nur Markdown-Dokumentation.

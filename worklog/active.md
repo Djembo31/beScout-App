@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 164
+stage: LOG
+spec: worklog/specs/164-convention-codification.md
+impact: skipped (docs-only)
+proof: worklog/proofs/164-convention-codification.txt
+review: skipped (docs-only slice, self-review im Proof-Artefakt)
 ```
 
 ## Session 2026-04-23 — 8 Slices committed

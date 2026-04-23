@@ -449,14 +449,38 @@ const mut = useSafeMutation<TData, Error, TVariables, TContext>({
 - `src/components/community/ReportModal.tsx` (159) — 1 Handler
 - `src/components/community/PostReplies.tsx` (159) — 3 Handler, per-Row pending via `mut.variables.replyId`
 - `src/components/fan-wishes/FanWishModal.tsx` (159) — 1 Handler
+- `src/components/community/hooks/useCommunityActions.ts` (162) — Vote-Handler mit Optimistic + full snapshot rollback (prevPosts + prevVotes)
+- `src/components/player/detail/hooks/usePlayerCommunity.ts` (162) — Vote-Handler ohne Optimistic
+- `src/components/fantasy/EventCommunityTab.tsx` (162) — inline Vote-Handler
+- `src/components/fantasy/LeaguesSection.tsx` (161) — 3 Mutation-Modals (create/join/leave)
+- `src/components/missions/MissionBanner.tsx` (161) — per-Row claim via `mut.variables.missionId`
+- `src/components/fantasy/CreatePredictionModal.tsx` (163) — 2 Mutations im selben Component (create + loadPlayers)
+
+**Blueprint-Referenzen (Bug-Class-Fix):**
+- `src/lib/services/posts.ts` (160) — Service-Side-Effect-Guard via `isToggleOff`-Param (Mission/Notification/Activity-Log skip bei Toggle-Off, verhindert Upvote-Unvote-Exploit)
 
 **Scope-Entscheidungen:**
 - **Kein Optimistic** bei cross-user-transfer (P2P-Offers, Event-Entry) — server-truth via invalidate reicht.
 - **setError/setSuccess-Clear** im Wrapper VOR `mutateAsync` nur wenn kein `onMutate`-Snapshot (158 KaderSellModal). Sonst gehoert der Clear in onMutate.
 - **invalidateWallet defensive** bei allen Money-Path-adjacent Handlern (auch reject/cancel/leave), auch wenn Current-User-Wallet nicht touched — 1 extra Refetch akzeptabel vs Race-Gap.
 
+**Konventionen (Session 2026-04-23 codifiziert, Slices 159-163):**
+
+- **`useQueryClient()` Hook > Singleton `queryClient`.**
+  Grund: Testbarkeit (Test-Mock ohne File-Level-Singleton-Patch), konsistente Hook-API im Component, zukünftige React-19-Kompatibilität. Singleton `queryClient` aus `@/lib/queryClient` ist **nicht** verboten (same instance via QueryProvider, funktional identisch), aber Hook-Variante ist Default für neue Slices. Slice 161+162 haben Singleton geerbt — separater Cleanup-Slice kann migrieren. Slice 163 wählt Hook als Ankerpunkt.
+
+- **Multi-Mutations im selben Component = distinct `useSafeMutation`-Instanzen.**
+  Grund: Scope-distinct `errorTag` pro Mutation (Sentry-Breadcrumb-Identifizierung), per-Mutation `isPending`, kein conditional-switch in mutationFn. Beispiel: `CreatePredictionModal` hat `createPredictionMut` + `playersForFixtureMut` (Slice 163). Anti-Pattern: 1 Mutation mit internem `if (mode === 'create') ... else ...`.
+
+- **Forward-Ref `handleClose`/`reset` im onSuccess ist Closure-Safe.**
+  Grund: JS-Closure-Scoping resolvt at-call-time. Der `onSuccess`-Callback feuert erst bei Mutation-Success (async nach RPC), zu dem Zeitpunkt ist der `const handleClose` im Function-Scope bereits definiert. Kein Temporal-Dead-Zone-Problem (nur bei `let` oder hoisted-functions). Slice 163 Bestätigung. Lesbarkeit > Semantik: `handleClose`/`reset` können optional vor den Mutations platziert werden, ist aber nicht zwingend.
+
+- **Consumer-Handler-Signatur ist synchron.**
+  `const handleX = (vars) => void mut.safeTrigger(vars)` — nicht `async`. Die Mutation läuft async im MutationObserver. Tests müssen `act() + waitFor()` statt `await handleX(...)` nutzen. Slice 162 Test-Migration (7 Tests umgebaut).
+
 **Decision-Reference:** `memory/decisions.md` D21 (ARCHITECTURE).
 **Error-Class-Reference:** `.claude/rules/common-errors.md` §5 D18 (React setState Race).
+**Test-Pattern-Reference:** `.claude/rules/testing.md` Abschnitt "useSafeMutation Test-Patterns".
 
 ### 27. Signal-Only-UPDATE (hart-kodierte Feld-Auswahl)
 **Wann:** Side-Effect-Route die NUR einen Timestamp/Heartbeat setzen soll, andere Fields nicht tangieren darf.
