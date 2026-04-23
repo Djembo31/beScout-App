@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 172
-stage: LOG
-spec: worklog/specs/172-singleton-170b-sweep.md
-impact: skipped (Component-interner Refactor, identische Runtime-Semantik, 11 Files)
-proof: worklog/proofs/172-vitest.txt
-review: worklog/reviews/172-review.md (PASS, N1 NIT in-slice gefixt)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 + 2026-04-24 — 16 Slices committed
+## Session 2026-04-23 + 2026-04-24 — 17 Slices committed
 
+- **172** Singleton 170b Sweep (11 Component/Hook-Files, 9 useCallback-deps) → `adbca6fa`
 - **171** Knowledge-Capture aus Slice 170 (common-errors.md §5 + testing.md §5 Pattern) → `8992ae0a`
 - **170** Singleton→useQueryClient Migration (Konvention-Cleanup, 9 useCallback-deps-Fix M1) → `7d69553a`
 - **169** Session-End DISTILL (D25+D26 PROCESS-Decisions) → `b668eae7`
@@ -42,7 +43,7 @@ Plus: Knowledge-Capture (common-errors.md §5 Vote-Toggle FIXED, patterns.md #28
 | Phase 4 Tier-2 Data-Integrity | Non-Admin ✅ 8/8 (159 + 160 + 161 + 162 + 163). Admin-Space (10 Files) pending |
 | Phase 5 Admin-Tier-1 | pending (WithdrawalTab + FoundingPassesTab) |
 | Phase 6 Codification | ✅ Komplett (patterns.md #28 + decisions.md D24 + common-errors §5) |
-| Phase 7 Konvention-Cleanup | ✅ Slice 170 (3 Ferrari-Erben + M1 deps-Fix). 11 weitere Singleton-Kandidaten pending (Slice 170b optional) |
+| Phase 7 Konvention-Cleanup | ✅ Komplett (Slice 170+171+172 — 14 Files migriert + codifiziert). Restliche Singleton-Usages nur Provider+Utility (strukturell nicht-migrierbar) |
 
 ## Tier-Status
 

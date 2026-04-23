@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 172 | 2026-04-24 | Singleton 170b Sweep (11 Component/Hook-Files)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: Component-interner Refactor, identische Runtime-Semantik) → BUILD → REVIEW → PROVE → LOG
+- **Scope S:** 11 Production-Files + 2 Test-Files. Nachfolge-Sweep zu Slice 170/171. Schliesst Backlog "Singleton-Audit andere Files".
+- **Production-Migration (11):** MembershipSection, useWatchlistActions, WatchlistView, MarketContent, useGameweek, useHomeData, ClubContent, community/page, founding/page, missions/page, (app)/page — alle auf `useQueryClient()` Hook-Variante.
+- **Exhaustive-Deps-Konsistenz:** 9 useCallback/useEffect deps-arrays um `queryClient` erweitert (common-errors.md §5 Slice-170-Learning).
+- **Test-Fixes:** MembershipSection.test.tsx + useHomeData.test.ts via `vi.hoisted`-Pattern (testing.md §5 Pattern 5). Initial 2 Fails → gefixt.
+- **Reviewer-Verdict:** PASS mit 1 LOW NIT (Dead-Code-Mock in useHomeData.test.ts) — im Slice gefixt.
+- **Scope-Discipline:** Keine Over-Migration. Legitime Singleton-Usages (2 Provider + 4 Utility-Module) bleiben unveraendert.
+- **Artefakte:**
+  - Spec: `worklog/specs/172-singleton-170b-sweep.md`
+  - Review: `worklog/reviews/172-review.md` (PASS)
+  - Proof tsc: `worklog/proofs/172-tsc.txt` (clean)
+  - Proof vitest: `worklog/proofs/172-vitest.txt` (46/46 across 4 suites)
+  - Proof grep: `worklog/proofs/172-grep.txt` (0 Singleton-Imports, 11 Hook-Calls)
+- **Files:** 13 (11 Production + 2 Test) geaendert. Zusammen mit Slice 170: 14 Component/Hook-Files komplett migriert.
+- **Commit:** `adbca6fa`
+- **Notes:** Phase 7 Konvention-Cleanup ist mit diesem Slice komplett geschlossen.
+
+---
+
 ## 171 | 2026-04-24 | Knowledge-Capture aus Slice 170 Learnings
 
 - **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG
