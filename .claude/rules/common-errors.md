@@ -298,13 +298,13 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - Spieler-Anzeigen → Link zu `/player/[id]` (Ausnahme: Picker-UIs).
 - `<button>` NICHT in `<Link>` wrappen (invalid HTML) → `href` Prop oder Wrapper-Komponente.
 
-### Vote-Toggle Client-Intent vs RPC-Constraint (Slice 159 Review Finding)
-- Client sendet `voteType=0` fuer Toggle-Off (z.B. `handleVote(replyId, myVote === 1 ? 0 : 1)`), aber `vote_post` RPC (Migration `20260404192000`) hat CHECK `p_vote_type IN (1,-1)` → 0 rejected mit "Ungueltiger vote_type".
-- **Symptom:** User clickt denselben Upvote nochmal → erwartet Toggle-Off → stattdessen Error-Toast. UI-Intent vs DB-Contract drift.
+### Vote-Toggle Client-Intent vs RPC-Constraint (Slice 159 Finding → Slice 160 FIXED)
+- Client sendet `voteType=0` fuer Toggle-Off (z.B. `handleVote(replyId, myVote === 1 ? 0 : 1)`), aber `vote_post` RPC (Migration `20260404192000`) hat Guard `p_vote_type NOT IN (1,-1) → json_build_object('success', false, 'error', ...)`. Kein HTTP-Error, kein throw — Service castet `data as { upvotes: number }` silent auf `undefined` → UI-State-Breakage (keine Error-Toast, Vote haengt, Refresh zeigt Vote wieder da).
 - **RPC-seitiger Toggle-Pfad:** `vote_post` hat internal DELETE-Branch wenn `p_vote_type = v_existing.vote_type` (same vote → remove). Client muss **same vote_type** senden, nicht 0.
-- **Fix-Strategie:** Entweder (a) Client: `handleVote(reply.id, myVote === 1 ? 1 : -1)` — same-vote triggert DELETE-Pfad; oder (b) RPC: CHECK erweitern auf `IN (0, 1, -1)` + 0-branch = DELETE. Option (a) ist preferred (keine Migration).
-- **Betroffene Files (2026-04-23):** `src/components/community/PostReplies.tsx:171/188` (Slice 159 erhaltene Legacy-Behavior, out-of-scope-Dokumentation).
-- **Audit:** `grep -rn "votePost.*, 0\|voteType === [01] ? 0 :" src/` → alle 0-Send-Call-Sites finden.
+- **Fix-Pattern (Slice 160, angewendet auf 4 Files):** UI sendet immer `1` oder `-1`. Handler liest lokalen State `prevVote = myVotes.get(postId)`, ermittelt `isToggleOff = prevVote === voteType`, updated State entsprechend (`isToggleOff ? myVotes.delete : myVotes.set`).
+- **Fixed Files (2026-04-23):** `PostReplies.tsx` · `PostCard.tsx` · `CommunityFeedTab.tsx` (Prop-Type) · `useCommunityActions.ts` · `CommunityTab.tsx` (player detail) · `usePlayerCommunity.ts` · `EventCommunityTab.tsx`. Handler-Signaturen alle auf `voteType: 1 | -1`.
+- **Silent-Type-Cast-Risiko:** Service `votePost` castet `data as { upvotes: number; downvotes: number }` ohne Shape-Check — bei RPC-Error-Response (`{success:false, error:"..."}`) returnt das undefined-Felder. Separater Silent-Fail-Audit-Kandidat: Error-JSON in Service erkennen und throwen.
+- **Audit:** `grep -rnE "voteType === (0|1|-1) \? 0" src/` → Regression-Guard fuer 0-Send-Pattern (post-160 sollte 0 Treffer zurueckgeben).
 
 ---
 

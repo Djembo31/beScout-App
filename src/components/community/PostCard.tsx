@@ -43,7 +43,7 @@ interface PostCardProps {
   post: PostWithAuthor;
   myVote: number | undefined;
   ownedPlayerIds: Set<string>;
-  onVote: (postId: string, voteType: number) => void;
+  onVote: (postId: string, voteType: 1 | -1) => void;
   onDelete: (postId: string) => void;
   isOwn: boolean;
   userId: string;
@@ -103,7 +103,7 @@ export default function PostCard({
         {/* Vote Buttons */}
         <div className="flex flex-col items-center gap-0.5">
           <button
-            onClick={() => onVote(post.id, myVote === 1 ? 0 : 1)}
+            onClick={() => onVote(post.id, 1)}
             aria-label={myVote === 1 ? tc('removeUpvote') : tc('upvoteLabel')}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors active:scale-[0.97]',
@@ -122,7 +122,7 @@ export default function PostCard({
             {netScore}
           </span>
           <button
-            onClick={() => onVote(post.id, myVote === -1 ? 0 : -1)}
+            onClick={() => onVote(post.id, -1)}
             aria-label={myVote === -1 ? tc('removeDownvote') : tc('downvoteLabel')}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors active:scale-[0.97]',

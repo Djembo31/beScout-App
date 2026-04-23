@@ -89,21 +89,24 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
   });
 
   // ── Vote Reply ────────────────────────────────────────────
+  // RPC `vote_post` rejects vote_type NOT IN (1,-1) → client must never send 0.
+  // Toggle-off is detected via prevVote === voteType; RPC auto-DELETEs (same-vote path).
   const voteReplyMut = useSafeMutation<
     { upvotes: number; downvotes: number },
     Error,
-    { replyId: string; voteType: number }
+    { replyId: string; voteType: 1 | -1; prevVote: number | undefined }
   >({
-    mutationFn: async ({ replyId, voteType }) => {
-      return votePost(userId, replyId, voteType);
+    mutationFn: async ({ replyId, voteType, prevVote }) => {
+      const isToggleOff = prevVote === voteType;
+      return votePost(userId, replyId, voteType, isToggleOff);
     },
-    onSuccess: (result, { replyId, voteType }) => {
+    onSuccess: (result, { replyId, voteType, prevVote }) => {
       setReplies(prev => prev.map(r =>
         r.id === replyId ? { ...r, upvotes: result.upvotes, downvotes: result.downvotes } : r
       ));
       setMyVotes(prev => {
         const next = new Map(prev);
-        if (voteType === 0) next.delete(replyId);
+        if (prevVote === voteType) next.delete(replyId);
         else next.set(replyId, voteType);
         return next;
       });
@@ -127,8 +130,9 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
     deleteReplyMut.safeTrigger({ replyId });
   };
 
-  const handleVote = (replyId: string, voteType: number) => {
-    voteReplyMut.safeTrigger({ replyId, voteType });
+  const handleVote = (replyId: string, voteType: 1 | -1) => {
+    const prevVote = myVotes.get(replyId);
+    voteReplyMut.safeTrigger({ replyId, voteType, prevVote });
   };
 
   return (
@@ -168,7 +172,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                     {/* Actions */}
                     <div className="flex items-center gap-3 text-xs text-white/40">
                       <button
-                        onClick={() => handleVote(reply.id, myVote === 1 ? 0 : 1)}
+                        onClick={() => handleVote(reply.id, 1)}
                         disabled={votingId === reply.id}
                         className={cn(
                           'flex items-center gap-0.5 transition-colors',
@@ -185,7 +189,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                         {netScore}
                       </span>
                       <button
-                        onClick={() => handleVote(reply.id, myVote === -1 ? 0 : -1)}
+                        onClick={() => handleVote(reply.id, -1)}
                         disabled={votingId === reply.id}
                         className={cn(
                           'flex items-center gap-0.5 transition-colors',

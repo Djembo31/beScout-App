@@ -56,21 +56,24 @@ export function usePlayerCommunity({
     finally { setPostLoading(false); }
   }, [userId, playerClub, playerId, addToast, queryClient, t]);
 
-  const handleVotePlayerPost = useCallback(async (postId: string, voteType: number) => {
+  // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off via same-vote → RPC DELETE path.
+  const handleVotePlayerPost = useCallback(async (postId: string, voteType: 1 | -1) => {
     if (!userId) return;
+    const prevVote = myPostVotes.get(postId);
+    const isToggleOff = prevVote === voteType;
     try {
-      const result = await votePost(userId, postId, voteType);
+      const result = await votePost(userId, postId, voteType, isToggleOff);
       queryClient.setQueryData(qk.posts.list({ playerId, limit: 30 } as Record<string, unknown>), (old: PostWithAuthor[] | undefined) =>
         (old ?? []).map(p => p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p)
       );
       setMyPostVotes(prev => {
         const next = new Map(prev);
-        if (voteType === 0) next.delete(postId);
+        if (isToggleOff) next.delete(postId);
         else next.set(postId, voteType);
         return next;
       });
     } catch (err) { console.error('[Player] Vote post failed:', err); }
-  }, [userId, playerId, queryClient]);
+  }, [userId, playerId, queryClient, myPostVotes]);
 
   const handleDeletePlayerPost = useCallback(async (postId: string) => {
     if (!userId) return;

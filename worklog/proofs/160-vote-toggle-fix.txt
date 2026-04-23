@@ -1,0 +1,68 @@
+Slice 160 — Vote-Toggle Batch-Fix PROOF
+==========================================
+Date: 2026-04-23
+Type: Bug-Class Fix (Client-Intent vs RPC-Constraint + Side-Effect-Regression Guard)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+TSC_EXIT: 0
+
+─── vitest ───
+$ npx vitest run src/components/community/ src/lib/services/posts
+
+Test Files  10 passed (10)
+     Tests  179 passed (179)
+  Start at  17:25:22
+  Duration  19.02s
+
+─── git diff --stat ───
+ .claude/rules/common-errors.md                     | 12 +--
+ src/components/community/CommunityFeedTab.tsx      |  2 +-
+ src/components/community/PostCard.tsx              |  6 +-
+ src/components/community/PostReplies.tsx           | 22 +++--
+ src/components/community/__tests__/PostReplies.test.tsx       |  3 +-
+ src/components/community/hooks/__tests__/useCommunityActions.test.ts | 20 +++--
+ src/components/community/hooks/useCommunityActions.ts         | 13 +--
+ src/components/fantasy/EventCommunityTab.tsx       | 14 ++--
+ src/components/player/detail/CommunityTab.tsx      |  6 +-
+ src/components/player/detail/hooks/usePlayerCommunity.ts      | 11 ++-
+ src/lib/services/posts.ts                          | 34 ++++++--
+ worklog/active.md                                  | 96 ++++------------------
+ (plus new: worklog/reviews/160-review.md, worklog/specs/160-vote-toggle-fix.md)
+
+─── What changed ───
+UI-Call-Sites (8 buttons in 4 files): send 1 or -1 (never 0)
+  - PostReplies.tsx         Line 171, 188
+  - PostCard.tsx            Line 106, 125
+  - CommunityTab.tsx        Line 128, 133 (player detail)
+  - EventCommunityTab.tsx   Line 247, 263
+
+Handler-Logic (4 locations):
+  - PostReplies.voteReplyMut     — variables incl. prevVote, isToggleOff in mutationFn
+  - useCommunityActions          — handleVotePost: prevVote/isToggleOff, optimistic-delta guarded
+  - usePlayerCommunity           — handleVotePlayerPost: prevVote/isToggleOff
+  - EventCommunityTab.handleVote — prevVote/isToggleOff
+
+Service-Side-Effect Guard (Reviewer Finding #1 HIGH — Side-Effect-Regression):
+  - src/lib/services/posts.ts: votePost(userId, postId, voteType: 1|-1, isToggleOff=false)
+  - Mission-Tracking skipped when isToggleOff (prevents upvote↔unvote-spam exploit)
+  - Notification skipped when isToggleOff (prevents notification-spam)
+  - Activity-Log skipped when isToggleOff (prevents log-spam)
+
+Type-Narrowing:
+  - onVote / onVotePost props: (voteType: 1 | -1) (PostCard, CommunityFeedTab, CommunityTab)
+  - handleVotePost / handleVotePlayerPost / handleVote: (voteType: 1 | -1)
+
+Test-Updates (Reviewer Finding #4):
+  - useCommunityActions.test.ts: toHaveBeenCalledWith(..., 1, false) / (..., 1, true)
+  - PostReplies.test.tsx: toHaveBeenCalledWith(..., 1, false)
+  - Test descriptions/comments updated to reflect new semantics
+
+Knowledge-Capture (Reviewer Finding #3):
+  - common-errors.md §5 "Vote-Toggle" Entry updated from "Legacy-Behavior out-of-scope"
+    to "FIXED in Slice 160" with positive fix-pattern + regression-guard audit command.
+
+─── Regression-Audit-Command ───
+$ grep -rnE "voteType === (0|1|-1) \\? 0" src/
+(expected: 0 hits after Slice 160)

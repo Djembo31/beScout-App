@@ -127,17 +127,19 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
     }
   };
 
-  // Vote
-  const handleVote = async (postId: string, voteType: number) => {
+  // Vote — RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off uses same-vote path.
+  const handleVote = async (postId: string, voteType: 1 | -1) => {
     if (!user) return;
+    const prevVote = myVotes.get(postId);
+    const isToggleOff = prevVote === voteType;
     try {
-      const result = await votePost(user.id, postId, voteType);
+      const result = await votePost(user.id, postId, voteType, isToggleOff);
       setPosts(prev => prev.map(p =>
         p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
       ));
       setMyVotes(prev => {
         const next = new Map(prev);
-        if (voteType === 0) next.delete(postId);
+        if (isToggleOff) next.delete(postId);
         else next.set(postId, voteType);
         return next;
       });
@@ -244,7 +246,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   {/* Votes */}
                   <div className="flex flex-col items-center gap-0.5 pt-0.5">
                     <button
-                      onClick={() => handleVote(post.id, myVote === 1 ? 0 : 1)}
+                      onClick={() => handleVote(post.id, 1)}
                       aria-label={tc('upvoteLabel')}
                       className={cn(
                         'p-1 rounded transition-colors',
@@ -260,7 +262,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                       {netScore}
                     </span>
                     <button
-                      onClick={() => handleVote(post.id, myVote === -1 ? 0 : -1)}
+                      onClick={() => handleVote(post.id, -1)}
                       aria-label={tc('downvoteLabel')}
                       className={cn(
                         'p-1 rounded transition-colors',

@@ -199,7 +199,7 @@ describe('useCommunityActions', () => {
   // ------------------------------------------
 
   describe('handleVotePost', () => {
-    it('calls votePost with correct userId, postId, and voteType', async () => {
+    it('calls votePost with userId, postId, voteType, and isToggleOff=false for a fresh vote', async () => {
       const params = createDefaultParams();
       const { result } = renderHook(
         () => useCommunityActions(params),
@@ -210,7 +210,8 @@ describe('useCommunityActions', () => {
         await result.current.handleVotePost(POST_ID, 1);
       });
 
-      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1);
+      // Slice 160: 4. Arg isToggleOff = false (no prev vote)
+      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1, false);
     });
 
     it('sets optimistic vote in myPostVotes before service call', async () => {
@@ -240,7 +241,7 @@ describe('useCommunityActions', () => {
         await result.current.handleVotePost(POST_ID, -1);
       });
 
-      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, -1);
+      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, -1, false);
     });
 
     it('rolls back optimistic update on service error', async () => {
@@ -274,7 +275,7 @@ describe('useCommunityActions', () => {
       expect(votePost).not.toHaveBeenCalled();
     });
 
-    it('toggles off vote when clicking same voteType again (toggle to 0)', async () => {
+    it('toggles off by sending same voteType again with isToggleOff=true (RPC DELETE-branch)', async () => {
       const existingVotes = new Map<string, number>([[POST_ID, 1]]);
       const params = createDefaultParams({ myPostVotes: existingVotes });
       const { result } = renderHook(
@@ -283,12 +284,13 @@ describe('useCommunityActions', () => {
       );
 
       await act(async () => {
-        // Voting with same type should toggle it off (pass 0 or remove)
+        // Slice 160: client sends same voteType again; handler computes isToggleOff.
         await result.current.handleVotePost(POST_ID, 1);
       });
 
-      // Service should still be called (server handles toggle)
-      expect(votePost).toHaveBeenCalled();
+      // isToggleOff=true signals the service to skip mission/notification side-effects
+      // (prevents upvote↔unvote-spam exploit). Server-side RPC auto-DELETEs via same-vote branch.
+      expect(votePost).toHaveBeenCalledWith(USER_ID, POST_ID, 1, true);
     });
   });
 
@@ -1528,8 +1530,8 @@ describe('useCommunityActions', () => {
       });
 
       expect(votePost).toHaveBeenCalledTimes(2);
-      expect(votePost).toHaveBeenCalledWith(USER_ID, 'post-1', 1);
-      expect(votePost).toHaveBeenCalledWith(USER_ID, 'post-2', -1);
+      expect(votePost).toHaveBeenCalledWith(USER_ID, 'post-1', 1, false);
+      expect(votePost).toHaveBeenCalledWith(USER_ID, 'post-2', -1, false);
     });
 
     it('empty string userId is treated as truthy (unlike undefined)', async () => {

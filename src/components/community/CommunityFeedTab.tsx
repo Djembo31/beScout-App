@@ -42,7 +42,7 @@ interface CommunityFeedTabProps {
   followingIds: Set<string>;
   userId: string;
   isFollowingTab: boolean;
-  onVote: (postId: string, voteType: number) => void;
+  onVote: (postId: string, voteType: 1 | -1) => void;
   onDelete: (postId: string) => void;
   onCreatePost: () => void;
   onSwitchToLeaderboard: () => void;

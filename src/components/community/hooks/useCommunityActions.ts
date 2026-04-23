@@ -32,10 +32,13 @@ export function useCommunityActions({
   const t = useTranslations('community');
   const tErrors = useTranslations('errors');
 
-  const handleVotePost = useCallback(async (postId: string, voteType: number) => {
+  // RPC `vote_post` rejects vote_type NOT IN (1,-1); toggle-off detected via prevVote === voteType
+  // (RPC auto-DELETEs on same-vote). Optimistic: isToggleOff → clear myPostVotes; otherwise set.
+  const handleVotePost = useCallback(async (postId: string, voteType: 1 | -1) => {
     if (!userId) return;
     const prevVotes = new Map(myPostVotes);
     const oldVote = myPostVotes.get(postId) ?? 0;
+    const isToggleOff = oldVote === voteType;
 
     queryClient.setQueryData<PostWithAuthor[]>(
       qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
@@ -44,20 +47,20 @@ export function useCommunityActions({
         let up = p.upvotes, down = p.downvotes;
         if (oldVote === 1) up--;
         if (oldVote === -1) down--;
-        if (voteType === 1) up++;
-        if (voteType === -1) down++;
+        if (!isToggleOff && voteType === 1) up++;
+        if (!isToggleOff && voteType === -1) down++;
         return { ...p, upvotes: up, downvotes: down };
       }),
     );
     setMyPostVotes(prev => {
       const next = new Map(prev);
-      if (voteType === 0) next.delete(postId);
+      if (isToggleOff) next.delete(postId);
       else next.set(postId, voteType);
       return next;
     });
 
     try {
-      const result = await votePost(userId, postId, voteType);
+      const result = await votePost(userId, postId, voteType, isToggleOff);
       queryClient.setQueryData<PostWithAuthor[]>(
         qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
         (prev) => prev?.map(p =>

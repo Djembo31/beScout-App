@@ -271,10 +271,23 @@ export async function deletePost(userId: string, postId: string): Promise<void> 
   }).catch(err => console.error('[Posts] Delete activity log failed:', err));
 }
 
+/**
+ * Vote on a post (upvote/downvote/toggle-off).
+ *
+ * RPC `vote_post` (migration 20260404192000) accepts only `p_vote_type IN (1,-1)`.
+ * Toggle-off uses same-vote DELETE-branch: caller sends the SAME value again.
+ *
+ * @param voteType   1 (upvote) or -1 (downvote). Client never sends 0 (Slice 160).
+ * @param isToggleOff True if this call removes the user's existing same-type vote
+ *                    (i.e. prevVote === voteType). When true, side-effects
+ *                    (mission progress, notification, activity log) are SKIPPED
+ *                    to prevent exploit (upvote↔unvote spam for unlimited progress).
+ */
 export async function votePost(
   userId: string,
   postId: string,
-  voteType: number
+  voteType: 1 | -1,
+  isToggleOff: boolean = false,
 ): Promise<{ upvotes: number; downvotes: number }> {
   const { data, error } = await supabase.rpc('vote_post', {
     p_user_id: userId,
@@ -282,18 +295,20 @@ export async function votePost(
     p_vote_type: voteType,
   });
   if (error) throw new Error(error.message);
-  // Mission tracking (only for upvotes)
-  if (voteType === 1) {
+  // Mission tracking: only on NEW upvote (not toggle-off) → prevents spam-exploit
+  if (voteType === 1 && !isToggleOff) {
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['upvote_post', 'community_activity']);
     }).catch(err => console.error('[Posts] Mission tracking failed:', err));
   }
-  // Activity log
-  import('@/lib/services/activityLog').then(({ logActivity }) => {
-    logActivity(userId, 'post_vote', 'community', { postId, voteType });
-  }).catch(err => console.error('[Posts] Vote activity log failed:', err));
-  // Notification to post author on upvote (fire-and-forget)
-  if (voteType === 1) {
+  // Activity log: skip toggle-off to avoid log-spam on rapid clicks
+  if (!isToggleOff) {
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'post_vote', 'community', { postId, voteType });
+    }).catch(err => console.error('[Posts] Vote activity log failed:', err));
+  }
+  // Notification to post author: only on NEW upvote → prevents notification-spam
+  if (voteType === 1 && !isToggleOff) {
     (async () => {
       try {
         const { data: post } = await supabase.from('posts').select('user_id').eq('id', postId).maybeSingle();
@@ -305,6 +320,7 @@ export async function votePost(
     })();
   }
   // Gamification (analyst score, airdrop refresh) handled by DB trigger trg_fn_post_vote_gamification
+  // DB-Trigger reads row-delta (INSERT/UPDATE/DELETE) — robust vs. client-intent, no spam exploit there.
   return data as { upvotes: number; downvotes: number };
 }
 

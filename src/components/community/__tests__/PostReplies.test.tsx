@@ -121,7 +121,8 @@ describe('PostReplies (Ferrari-Refactor)', () => {
       fireEvent.click(upvoteBtn);
     });
 
-    expect(mockVotePost).toHaveBeenCalledWith('u2', 'reply-1', 1);
+    // Slice 160: 4. Arg isToggleOff = false (no prev vote in the fixture).
+    expect(mockVotePost).toHaveBeenCalledWith('u2', 'reply-1', 1, false);
   });
 
   it('errorTag community.replySubmit on create failure', async () => {

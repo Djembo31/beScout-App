@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 160 | 2026-04-23 | Vote-Toggle Batch-Fix (Community Bug-Class + Side-Effect-Guard)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped UI-only) → BUILD → REVIEW (CONCERNS → fixed in-slice) → PROVE → LOG
+- **Scope S → expanded S+:** Dokumentierter Bug in `PostReplies.tsx:171/188` per Grep auf 4 Files mit 8 Call-Sites ausgeweitet. Batch analog Slice 159.
+- **Bug-Klasse:** Client sendete `voteType=0` für Toggle-Off, RPC `vote_post` (Migration `20260404192000`) rejected mit Guard `p_vote_type NOT IN (1,-1)` → Service silent-cast → UI-State-Breakage (upvotes=undefined, kein Error-Toast). RPC hat korrekten DELETE-Pfad bei same-vote (Line 320-323) — Client muss gleichen 1/-1 nochmal senden.
+- **Fix-Pattern (7 Stellen uniform):**
+  - UI sendet immer `1` oder `-1` (nie `0`).
+  - Handler liest `prevVote = myVotes.get(postId)`, berechnet `isToggleOff = prevVote === voteType`.
+  - Handler-Signaturen + Props narrowed auf `voteType: 1 | -1`.
+- **Reviewer Finding #1 HIGH (Side-Effect-Regression) — in-slice gefixt:**
+  - Pre-Fix schickte Toggle-Off `0` → Service-Guards `if (voteType === 1)` false → Missions/Notifications feuerten NICHT.
+  - Post-Fix schickt Toggle-Off `1` → Guards true → **Mission-Exploit + Notification-Spam bei Upvote↔Unvote-Loop**.
+  - Mitigation: `votePost(userId, postId, voteType: 1|-1, isToggleOff=false)`. Mission-Tracking + Notification + Activity-Log skip bei `isToggleOff`.
+- **Files:**
+  - UI-Call-Sites: `PostReplies.tsx` · `PostCard.tsx` · `CommunityTab.tsx` (player) · `EventCommunityTab.tsx`
+  - Handler: `useCommunityActions.ts` · `usePlayerCommunity.ts` · `EventCommunityTab.tsx` (inline) · `PostReplies.tsx` (voteReplyMut)
+  - Prop-Type: `CommunityFeedTab.tsx`
+  - Service: `posts.ts` (votePost + isToggleOff-Guard)
+  - Tests: `useCommunityActions.test.ts` (3 assertions) · `PostReplies.test.tsx` (1 assertion)
+  - Rules: `common-errors.md §5` — Entry "Legacy-Behavior" → "FIXED in Slice 160" mit positivem Pattern + Regression-Audit-Command
+- **Proof:**
+  - Spec: `worklog/specs/160-vote-toggle-fix.md`
+  - Review: `worklog/reviews/160-review.md` (CONCERNS → Finding #1 in-slice resolved; #3/#4 in-slice fixed; #2/#5/#6/#7 Tier-2-Roadmap)
+  - Proof: `worklog/proofs/160-vote-toggle-fix.txt` (tsc clean, vitest 179/179, regression-audit 0 hits)
+- **Commit:** pending
+- **Notes:** Skeleton ohne Migration durchgezogen. Reviewer-Agent-Dispatch hat HIGH-Finding frueh gefangen und Mission-Exploit-Regression verhindert — Cold-Context-Review ROI.
+
+---
+
 ## 159 | 2026-04-23 | Tier-2 Data-Integrity Batch (Phase 4 Start)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (PASS nach 2 NIT-inline-Fixes) → PROVE → LOG
