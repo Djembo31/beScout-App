@@ -35,7 +35,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
   - Spec: `worklog/specs/160-vote-toggle-fix.md`
   - Review: `worklog/reviews/160-review.md` (CONCERNS → Finding #1 in-slice resolved; #3/#4 in-slice fixed; #2/#5/#6/#7 Tier-2-Roadmap)
   - Proof: `worklog/proofs/160-vote-toggle-fix.txt` (tsc clean, vitest 179/179, regression-audit 0 hits)
-- **Commit:** pending
+- **Commit:** `046501dc`
 - **Notes:** Skeleton ohne Migration durchgezogen. Reviewer-Agent-Dispatch hat HIGH-Finding frueh gefangen und Mission-Exploit-Regression verhindert — Cold-Context-Review ROI.
 
 ---

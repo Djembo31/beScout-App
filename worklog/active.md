@@ -1,18 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 160
-stage: LOG
-spec: worklog/specs/160-vote-toggle-fix.md
-impact: skipped (UI-only client fix + service side-effect guard, kein DB/migration)
-proof: worklog/proofs/160-vote-toggle-fix.txt
-review: worklog/reviews/160-review.md (CONCERNS → Finding #1 HIGH in-slice resolved)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 — Slice 160 ready to commit (5 Slices committed total)
+## Session 2026-04-23 — 5 Slices committed
 
-- **160** Vote-Toggle Batch + Side-Effect-Guard (4 Files UI + 4 Handler + Service + 2 Tests) → pending commit
+- **160** Vote-Toggle Batch + Side-Effect-Guard (4 Files UI + 4 Handler + Service + 2 Tests) → `046501dc`
 - **159** Tier-2 Batch (ReportModal + PostReplies + FanWishModal) → `a54f5f1c`
 - **158** KaderSellModal Ferrari → `29b2580a`
 - **157** useOffersState Ferrari → `af1c16c0`
