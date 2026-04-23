@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178 | 2026-04-24 | Idempotency Foundation (Tier A1, Money-Critical)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope S DB-migration:** Generic Idempotency-Infrastructure. Complement zu Slice 179 (append-only) — beides bilden Money-Defense-in-Depth.
+- **CEO-Scope:** per User explicit grant "voller Zugriff" in Autonomous-Marathon-Session.
+- **Migration:** `supabase/migrations/20260424010000_idempotency_foundation.sql` live-applied via mcp__supabase__apply_migration.
+- **Schema:** `request_dedup_keys(user_id, dedup_key, response JSONB, status, expires_at)` PK composite. CHECK status IN ('pending','completed','failed'). expires-index.
+- **Helper:** `check_or_reserve_dedup_key(p_user_id, p_dedup_key, p_ttl_seconds)` SECURITY DEFINER returnt `(is_new, existing_response)`. ON CONFLICT DO NOTHING + GET DIAGNOSTICS ROW_COUNT.
+- **Security:** auth.uid()-Guard (Slice 005), SET search_path, REVOKE anon/public + GRANT authenticated (AR-44 template), SELECT-own-rows RLS policy.
+- **Smoke-Test:** first-call `is_new=TRUE`, retry-call `is_new=FALSE`.
+- **NICHT in scope — separate Slices:**
+  - 178a: Pilot-Integration in `buy_player_sc`
+  - 178b: Cleanup-Cron fuer expired entries
+  - 178c: `subscribe_to_club` inline-window → generic-pattern migration
+  - 178d: Client-side idempotency-key-generation in useSafeMutation
+- **Proof:** `worklog/proofs/178-idempotency-foundation.txt`. Review: `worklog/reviews/178-review.md` (PASS).
+
+---
+
 ## 179 | 2026-04-24 | Transactions Append-Only (Tier A2, Money-Critical)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: defense-in-depth DB-invariant) → BUILD → PROVE → REVIEW (self) → LOG

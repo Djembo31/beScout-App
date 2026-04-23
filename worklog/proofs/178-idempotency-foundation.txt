@@ -1,0 +1,24 @@
+=== Slice 178 Idempotency Foundation — Live Verify ===
+
+=== Schema-Check ===
+has_table: 1 ✅ (request_dedup_keys)
+has_function: 1 ✅ (check_or_reserve_dedup_key)
+policy_count: 1 ✅ (request_dedup_keys_select_own)
+index_count: 2 ✅ (PK + idx_expires)
+
+=== Smoke-Test ===
+First call: is_new=TRUE, cached=NULL ✅
+Second call (retry): is_new=FALSE ✅
+PASS: Idempotency foundation works
+
+=== Migration applied ===
+20260424010000_idempotency_foundation.sql → Live DB (skzjfhvgccaeplydsunz)
+mcp__supabase__apply_migration success=true
+
+=== Integration TODO (separate Slices) ===
+  178a: Pilot in buy_player_sc RPC
+  178b: Cleanup-Cron fuer expired entries
+  178c: subscribe_to_club migration von inline auf generic
+
+=== tsc --noEmit ===
+(clean)
