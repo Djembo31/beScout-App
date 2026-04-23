@@ -4,8 +4,24 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 
 # Common Errors
 
-Stand: 2026-04-23 · Konsolidiert aus Slices 001-159.
+Stand: 2026-04-24 · Konsolidiert aus Slices 001-180.
 Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `performance.md` (Query-Limits) · `memory/patterns.md` (#28 Ferrari-Blueprint).
+
+## Inhalt (schnell-navigation)
+
+1. **Silent Fails** (die stillsten Bugs) — L12
+2. **Supabase / Postgres** (RLS, Triggers, Migrations, Transactions Append-Only) — L125
+3. **RPC Design** (Anti-Patterns, Return-Shape, Formula-Drift) — L203
+4. **Auth / Security** (RLS-Policies, SECURITY DEFINER Guards, Public-Wrapper) — L246
+5. **Frontend** (React, TypeScript, CSS, Modal-Pattern) — L292
+6. **i18n / Locale** (Error-Keys, setState-Race, useCountUp, Singleton-Migration) — L346
+7. **Build / Deploy** (Next.js Route-Handler, ESLint, Vercel-Env, tsconfig) — L436
+8. **Cross-Cutting / Operational** (Grep-Scope-Gap, Data-Contract-Changes, Shell-Hooks) — L463
+9. **Scraper-Parser** (externe HTML, nested-tr, DE-EN-Drift, null-Policy) — L575
+10. **React Query + Supabase Cache** (setQueryData vs invalidateQueries) — L620
+11. **Beta-Launch-Ops** (CSP, Sensitive-Flag-Bug, Playwright, Two-Lockfile-Drift) — L638
+
+> **Size-Note (2026-04-24):** Diese Datei ist bei ~700 Zeilen / 55 KB. Geplanter Follow-up-Slice: Split in `errors-db.md` / `errors-frontend.md` / `errors-infra.md` / `errors-scraper.md`. Bis dahin bleibt diese Konsolidierung gueltig — alle Patterns one-file-searchable.
 
 ---
 

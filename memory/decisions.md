@@ -1030,6 +1030,66 @@ Session-Evidence 2026-04-23 (9 Slices):
 
 ---
 
+## D27 — ARCHITECTURE: Idempotency-Infrastructure generisch statt per-RPC inline
+
+- **Datum:** 2026-04-24
+- **Status:** Aktiv (Foundation live seit Slice 178)
+- **Kontext:** Slice 151c.2 hatte inline-60s-Idempotency-Window in `subscribe_to_club`. Pattern-bekannt aus common-errors.md §2 "Money-RPC Idempotency-Window". Sorare/Socios-Audit Tier A1: systemweit absichern.
+- **Entscheidung:** Generische `request_dedup_keys(user_id, dedup_key, response JSONB)` Tabelle + SECURITY DEFINER Helper `check_or_reserve_dedup_key(p_user_id, p_dedup_key, p_ttl_seconds)`. Response-Caching erlaubt idempotent retry-replay mit cached data.
+- **Begruendung:** Ad-hoc per-RPC-Implementation bei 5+ Money-RPCs (subscribe_to_club, buy_player_sc, liquidate_player, openMysteryBox, create_offer) = 5× duplicated logic = 5× drift-risk. Generisch als Foundation standardisiert das Pattern.
+- **Auswirkungen:** Zukuenftige Money-RPCs erhalten `p_idempotency_key TEXT` Parameter + 3-Line-Integration. Slice 178a ist Pilot, 178c migriert existing inline.
+- **Alternativen erwogen:**
+  - **Postgres `advisory_lock`**: Verworfen weil nur während Transaction aktiv (nicht retry-safe nach commit).
+  - **Redis-Cache**: Verworfen weil Supabase-only (no Redis in stack).
+  - **Client-side dedup**: Verworfen weil Network-retry (Mobile-switch) umgeht Client-Guard (Slice 151c.2 Lehre).
+- **Re-Visit-Trigger:** Bei >50 RPCs im Money-Path oder wenn per-RPC-cleanup nicht mehr via Cron machbar.
+
+---
+
+## D28 — ARCHITECTURE: DB-Invariants via Trigger + Opt-In GUC fuer legitimierte Bulk-Migrations
+
+- **Datum:** 2026-04-24
+- **Status:** Aktiv (etabliert Slice 179, applicable auf andere immutable-log-tables)
+- **Kontext:** CLAUDE.md-Regel "Trades/Transactions append-only" war nur Doku, nicht enforced. Slice 179 setzt als DB-Invariant: `REVOKE UPDATE, DELETE` von anon/authenticated + BEFORE-Trigger raising exception.
+- **Entscheidung:** Trigger pruefen `current_setting('bescout.allow_transactions_mutation', true) = 'true'` → Bypass. Legitimierte Bulk-Migrations setzen `SET LOCAL <guc>` innerhalb Transaction. SET LOCAL = Transaction-scope, nicht Session-scope.
+- **Begruendung:** REVOKE allein reicht nicht (SECURITY DEFINER RPCs laufen als postgres). Trigger = defense-in-depth. GUC-Opt-in-Pattern erlaubt legitimierte one-time-backfills ohne Trigger-temporaer-disable/re-enable (zu risky).
+- **Auswirkungen:** Pattern uebertragbar auf `trades`, `activity_log`, `audit_log`, zukuenftige `holdings_history` etc. Migration-Template:
+  ```sql
+  BEGIN;
+  SET LOCAL bescout.allow_<table>_mutation = 'true';
+  UPDATE public.<table> SET ...;
+  COMMIT;
+  ```
+- **Alternativen erwogen:**
+  - **Temporär Trigger DROP/re-CREATE**: Verworfen (zu risky, race-window).
+  - **Service_role bypass auto**: Verworfen (RPCs nutzen SECURITY DEFINER = postgres, würde Guard komplett durchlöchern).
+  - **Audit-Tabelle statt Append-Only**: Verworfen (erhöht Complexity, Append-Only ist simpler).
+- **Re-Visit-Trigger:** Bei echtem Refund-Flow (nicht in V1 geplant).
+
+---
+
+## D29 — PROCESS: Autonomous-Marathon-Session mit CEO-Explicit-Grant
+
+- **Datum:** 2026-04-24
+- **Status:** Trial (1 Session durchgefuehrt, 14 Slices)
+- **Kontext:** Tier-Plan Slices 174-185 (Sorare/Socios-Audit) enthielt Money-Path-Slices (178, 179). Per CEO-Approval-Matrix: Money = CEO approved vor Code. User-Prompt "voller Zugriff! komm zurück wenn du durch bist" = explicit session-scoped approval.
+- **Entscheidung:** Autonomous-Marathon zulaessig bei explicit session-scoped grant. Claude arbeitet Tier-Plan ab mit:
+  - Scope-narrowing bei zu grossen Slices (z.B. 180 → nur INV-25-Fix statt alle 33 Services)
+  - Self-Review statt Reviewer-Agent bei XS-Slices mit trivialer Pattern-Wiederholung (175c, 185, 179, 178)
+  - Reviewer-Agent Pflicht bei S/M-Slices mit Consumer-Impact (175b, 176d, 177)
+  - Live-DB-Migrations via mcp__supabase__apply_migration + Post-Apply-Verify
+  - Pragmatic Follow-Slice-Markierung statt Scope-Creep (e.g. 178a/b/c/d, 180b)
+- **Begruendung:** CEO-Approval-Matrix ist per-Action-Scoped, nicht per-Slice. "Voller Zugriff" = Session-Scope = explicit. Ohne Marathon-Option würde Tier-Plan-Completion über viele Sessions streuen (context-loss, repetitive setup).
+- **Auswirkungen:**
+  - Next-Session-Handoff kann Marathon-Outcome in 1 active.md Summary lesen (kein 14× Slice-by-Slice catch-up)
+  - Pattern fuer zukuenftige Tier-Plan-Abarbeitungen wenn Scope vorher klar (Foundation-Tiers, nicht Feature-Tiers)
+- **Alternativen erwogen:**
+  - **Slice-by-Slice CEO-approval**: Verworfen weil User explicit "komm zurueck wenn du durch bist" gesagt hat = full-marathon-intent.
+  - **Only-non-money Marathon**: Verworfen weil 178+179 kernstuecke des Audits sind, ohne die der Tier-Plan unvollstaendig.
+- **Re-Visit-Trigger:** Wenn post-Marathon-Review Quality-Issues findet die durch Slice-by-Slice-Pause gefangen worden waeren.
+
+---
+
 ## D26 — PROCESS: Reviewer-Agent als Scope-Gap-Catcher etabliert
 
 **Datum:** 2026-04-23

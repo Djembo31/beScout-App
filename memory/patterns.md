@@ -506,3 +506,17 @@ const updates = { last_squad_check: now, ...anderes };  // spread öffnet Hinter
 ```
 **Warum:** Signal-Writes müssen VOR Early-Exit-Gates in Sammel-Loops stehen — sonst silent data-loss. Slice 144c Integrity-Math: 2841 matched − 225 early-continue = 2616 populated → 225 Players unsichtbar für Retired-Detection.
 **Kontext:** Slice 144c (tm-squad-scraper early-continue vor last_squad_check-Write).
+
+### 28. Function-Wrap: Find-Handler-End-First (Slice 175b Lesson)
+**Wann:** Bei Wrap eines existing top-level Handler-Exports (z.B. `export async function GET(req)` → `withLogger('route', async (req) => {...})`) in grosser File mit Helper-Functions.
+**Wie:**
+1. Finde Handler-Start: `grep -n "^export (async )?function GET\|^export const GET" <file>`
+2. **Finde Handler-ENDE explizit** — nicht das File-Ende:
+   ```bash
+   grep -nE "^(export |async function |function |const |type |interface )" <file>
+   ```
+   Die Zeile VOR der naechsten Top-Level-Declaration ist das Handler-Closing-`}`.
+3. Erst dann: 3 Edits parallel (Import + Signatur-Ersetzung + Closing-brace an **richtiger** Stelle).
+**Warum:** Gross-Files haben helper-Functions nach dem Handler. Closing-`}` am File-Ende ist nicht-Handler-end sondern helper-closing. Ohne Find-End-First: falsch-gewrappter Handler + tsc-error "' expected".
+**Evidenz Slice 175b:** gameweek-sync GET endet Zeile 334 (`}`), File-Ende Zeile 1738 ist syncLeague-helper-Close. Initial wrap at 1738 → tsc-break. Re-correct auf Zeile 334.
+**Kontext:** Slice 175b (withLogger-Batch 15 API-Routes, 1738-Zeilen gameweek-sync gefangen).

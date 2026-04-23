@@ -102,6 +102,8 @@ Agent({
 
 **Hook:** `ship-cto-review-gate` blockt `feat(/fix(/refactor(`-Commits ohne Review-File.
 
+**Wichtig (Session 2026-04-24-Lehre):** Reviewer-Agent ist READ-ONLY (Tools: Read/Grep/Glob). Der Agent liefert den Review-Markdown als Text-Output zurueck. **Primary-Claude MUSS die Review-Datei `worklog/reviews/NNN-review.md` via Write-Tool persistieren** — kopiert den Markdown aus der Agent-Response. Der `ship-cto-review-gate`-Hook pruft File-Existence, nicht Content. Primary-Claude kann auch eigene Self-Reviews schreiben bei XS-Slices mit Pattern-Wiederholung (active.md `review: self-review (Grund)`).
+
 ### 4. PROVE — Beweise dass es funktioniert
 
 **Artefakt:** `worklog/proofs/NNN-title.*`
