@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 175b
-stage: LOG
-spec: worklog/specs/175b-withlogger-all-api-routes.md
-impact: skipped (route-wrapper migration)
-proof: worklog/proofs/175b-withlogger-batch.txt
-review: worklog/reviews/175b-review.md (PASS, 4 LOW non-blocker)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Offene Follow-up-Kandidaten
