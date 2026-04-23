@@ -478,6 +478,14 @@ const mut = useSafeMutation<TData, Error, TVariables, TContext>({
 - **Consumer-Handler-Signatur ist synchron.**
   `const handleX = (vars) => void mut.safeTrigger(vars)` — nicht `async`. Die Mutation läuft async im MutationObserver. Tests müssen `act() + waitFor()` statt `await handleX(...)` nutzen. Slice 162 Test-Migration (7 Tests umgebaut).
 
+- **Modal-gescopte Mutation → `preventClose` Pflicht.**
+  Wenn ein Modal eine Mutation owned (intern oder via Parent-Prop), MUSS `<Modal preventClose={<mut>.isPending}>` gesetzt sein. Sonst schliesst ESC/Backdrop-Click das Modal mid-Mutation — die Mutation läuft weiter im Background, `onSuccess` setzt State auf weg-gecleartes Modal, UI-Desync.
+  - Für intern-useSafeMutation: `preventClose={createMut.isPending}` etc.
+  - Für Parent-controlled loading prop: `preventClose={loading}` (parent garantiert RPC-only-pending).
+  - Für Per-Row pending: `preventClose={submitting === bounty.id}` oder analog.
+  - **Anti-Pattern (Slice 159 Blueprint-Gap):** ReportModal + FanWishModal hatten `useSafeMutation` mit `mut.isPending` am Button aber **ohne preventClose** am Modal. In Slice 166 nachgezogen (13-Modal-Sweep).
+  - Siehe auch `common-errors.md §5 "Modal preventClose Pattern"` (J2+J3) + `common-errors.md §8 "Grep-Audit-Scope-Gap"` (Audit-Methodik).
+
 **Decision-Reference:** `memory/decisions.md` D21 (ARCHITECTURE).
 **Error-Class-Reference:** `.claude/rules/common-errors.md` §5 D18 (React setState Race).
 **Test-Pattern-Reference:** `.claude/rules/testing.md` Abschnitt "useSafeMutation Test-Patterns".

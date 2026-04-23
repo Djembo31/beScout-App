@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 167 | 2026-04-23 | Knowledge-Capture aus Slice 166 Learnings
+
+- **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG
+- **Scope XS:** 2 Markdown-Files erweitert mit 2 codifizierten Patterns aus Slice 166.
+- **patterns.md #28:** Neuer Konvention-Punkt "Modal-gescopte Mutation → preventClose Pflicht" mit 3 Sub-Patterns (intern-useSafeMutation / Parent-loading / Per-Row pending) + Anti-Pattern-Referenz (Slice 159 Blueprint-Gap).
+- **common-errors.md §8:** Neuer Entry "Grep-Audit-Scope-Gap bei Sub-Component-Scan (Slice 166)" mit Symptom + Evidence (46% ROI) + Fix-Pattern (recursive Grep + Cross-Ref) + Relevanz für verwandte Audit-Typen.
+- **Zweck:** Verhindert künftige Blind-Spots bei Pattern-Migration und Modal-Audits.
+- **Artefakte:**
+  - Spec: `worklog/specs/167-knowledge-capture-166.md`
+  - Proof: `worklog/proofs/167-knowledge-capture-166.txt` (tsc clean)
+- **Files:**
+  - `memory/patterns.md`
+  - `.claude/rules/common-errors.md`
+- **Commit:** pending
+
+---
+
 ## 166 | 2026-04-23 | Modal preventClose Sweep (13 Modals, 46% Reviewer-ROI)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (CONCERNS → PASS nach in-slice Scope-Gap-Fixes) → PROVE → LOG

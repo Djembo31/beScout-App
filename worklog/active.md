@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 167
+stage: LOG
+spec: worklog/specs/167-knowledge-capture-166.md
+impact: skipped (docs-only)
+proof: worklog/proofs/167-knowledge-capture-166.txt
+review: skipped (docs-only slice, self-review im Proof)
 ```
 
 ## Session 2026-04-23 — 11 Slices committed

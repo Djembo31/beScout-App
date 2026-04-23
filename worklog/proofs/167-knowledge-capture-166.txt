@@ -1,0 +1,48 @@
+Slice 167 — Knowledge-Capture aus 166 Learnings PROOF
+==========================================
+Date: 2026-04-23
+Type: Docs (codifiziert Learnings aus Slice 166)
+
+─── tsc ───
+$ npx tsc --noEmit
+(no errors)
+EXIT: 0
+
+─── Was codifiziert ───
+
+memory/patterns.md #28 neuer Konvention-Punkt:
+  "Modal-gescopte Mutation → preventClose Pflicht"
+  - Intern-useSafeMutation: preventClose={createMut.isPending}
+  - Parent-loading Prop: preventClose={loading}
+  - Per-Row pending: preventClose={submitting === bounty.id}
+  - Anti-Pattern-Beispiel: Slice 159 ReportModal+FanWishModal (mut.isPending ohne preventClose)
+  - Cross-Ref zu common-errors.md §5 J2+J3 + §8 Grep-Audit
+
+.claude/rules/common-errors.md §8 neuer Entry:
+  "Grep-Audit-Scope-Gap bei Sub-Component-Scan (Slice 166)"
+  - Symptom: Top-Level-Grep verpasst embedded Modals in Cards/Tabs
+  - Evidence: 6/13 Fixes in Slice 166 (46%) waren embedded Sub-Component-Modals
+  - Fix-Pattern: recursive Grep + Cross-Ref mit Mutation-State-Pattern
+  - Regel: Reviewer als Scope-Gap-Catcher einsetzen
+  - Relevanz: Modal-Sweep, Dead-Code, API-Consumer-Updates, Pattern-Migrations
+
+─── Slice 166 Learnings in diesem Slice codifiziert ───
+
+| Learning | Origin | Codified in |
+|----------|--------|-------------|
+| preventClose als Ferrari-Konvention | Slice 159 Gap + 166 Sweep | patterns.md #28 |
+| Grep-Audit-Scope-Gap Pattern | Slice 166 Reviewer 46% ROI | common-errors.md §8 |
+
+─── git diff --stat ───
+ .claude/rules/common-errors.md | +24 lines (§8 Cross-Cutting)
+ memory/patterns.md             | +8 lines (#28 Konvention)
+ + new: worklog/specs/167-knowledge-capture-166.md
+ + new: worklog/proofs/167-knowledge-capture-166.txt
+
+─── Review ───
+Self-Review (docs-only slice, keine Code-Änderung).
+Patterns sind aus Slice 166 + PASS-Review direkt übernommen.
+
+─── Backlog (nicht in diesem Slice) ───
+- Option B: RPC-Shape-Konsistenz-Regel in database.md (aus Slice 165 Finding)
+- Option D: Mini-Cleanup Singleton→useQueryClient (Slice 161+162 NIT)

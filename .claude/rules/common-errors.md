@@ -425,6 +425,27 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 
 ## 8. Cross-Cutting / Operational
 
+### Grep-Audit-Scope-Gap bei Sub-Component-Scan (Slice 166)
+- Top-Level-Grep (`grep "<Modal" src/components/`) findet nur direkt in Top-Level-Component-Files — verpasst **embedded Modals in Sub-Components** (Cards, Tabs, Dialog-Containers).
+- **Slice 166 Evidence:** Primary Scope-Audit fand 7 Modal-Targets. Reviewer-Scope-Gap-Audit fand **zusätzliche 6 embedded Modals** (46% der Fixes):
+  - `OfferModal.tsx` (HIGH-Prio Money-Pfad, P2P)
+  - `BountyCard.SubmitModal` (embedded in Card)
+  - `CommunityTab.CreatePost` + `CommunityTab.CreateRumor` (embedded in Tab)
+  - `ReportModal` + `FanWishModal` (Top-Level aber Slice-159-Blueprint-Gap)
+- **Fix-Pattern (besserer Audit):**
+  ```bash
+  # Step 1: ALLE Modal-Usages (egal wie tief verschachtelt)
+  grep -rn "<Modal" src/ | grep -v "preventClose\|__tests__" | awk -F: '{print $1}' | sort -u
+  # Step 2: Cross-Ref mit mutation-state-Pattern
+  grep -rn "isPending\|loading:\|saving\|submitting\|posting" <found-files>
+  ```
+- **Regel:** Wenn Scope-Basis-Pattern ist "alle X mit Y-Attribut finden", dann:
+  - Full-recursive-Grep, nicht top-level-only.
+  - Cross-Ref mit Zweit-Pattern (Mutation-State, Loading-Prop, State-Variable) um echte Targets von Noise zu trennen.
+  - Reviewer-Agent als Scope-Gap-Catcher einsetzen — Spec-behauptete "Audit komplett"-Claims sind Audit-blind-spot-Kandidaten.
+- **Relevant für:** Modal-preventClose Sweep, Dead-Code-Entfernung, API-Consumer-Updates, Pattern-Migration-Scans (z.B. "alle useState-Loading auf useSafeMutation migrieren").
+- **Cross-Ref:** `memory/patterns.md` #28 Konvention "Modal-gescopte Mutation → preventClose Pflicht" — wurde in Slice 166 systematisch angewendet nach Reviewer-Gap-Catch.
+
 ### dynamic() rettet nur wenn KEIN anderer Pfad eager lädt (Slice 121)
 - Symptom: `const { fn } = await import('module')` in queryFn eingebaut, Modul bleibt trotzdem im Initial-Bundle.
 - Root cause: Webpack erstellt Lazy-Chunk, aber wenn **irgendein anderer Codepfad** denselben Modul eager importiert, bleibt Modul-Code in beiden Chunks.
