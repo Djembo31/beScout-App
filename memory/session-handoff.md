@@ -1,70 +1,68 @@
-# Session Handoff (2026-04-24 Slice 170 Abschluss)
+# Session Handoff (2026-04-24 Slice 171 Abschluss)
 
-## Status: SLICE 170 DONE — NAHTLOS-FORTSETZUNG MOEGLICH
+## Status: SLICE 171 DONE — AUTOPILOT CONTINUING
 
-**Active Slice:** idle (bereit für Slice 171)
-**Working Tree:** clean nach hygiene-commit
+**Active Slice:** idle (bereit für Slice 172 E — Singleton 170b)
+**Working Tree:** clean
 **Branch:** main
-**Session-Scope-Heute:** 1 Code-Slice (170) + 1 Hygiene-Commit
+**Session-Scope-Heute:** 2 Slices (170 + 171) + Autopilot in Richtung 172 → 173 → Notion-Sync
 
 ---
 
-## Slice 170 Bilanz — Singleton → useQueryClient Migration
+## Slice 170-171 Bilanz
 
 | # | Typ | Scope | Commit |
 |---|-----|-------|--------|
-| 170 | refactor(ux) | Konvention-Cleanup 3 Files + Test-Migration + M1 deps-Fix | `7d69553a` |
+| 170 | refactor(ux) | Singleton→useQueryClient (3 Files) + M1 deps-Fix | `7d69553a` |
+| 171 | docs(codification) | Knowledge-Capture common-errors.md + testing.md | `8992ae0a` |
 
-**Kernergebnis:**
-- 3 Ferrari-Erben (useCommunityActions + LeaguesSection + MissionBanner) migriert auf `useQueryClient()` Hook-Variante
-- Test-Migration mit `vi.hoisted(mockQc)` + partial `@tanstack/react-query` Mock
-- M1-Fix (Reviewer-Finding): 9 useCallbacks haben nun `queryClient` in deps-array
-- 76/76 Tests grün, tsc clean, 0 Singleton-Imports in Ziel-Files
-
-**Phase 7 Konvention-Cleanup:** ✅ für die 3 Slice-170-Ferrari-Erben. 11 weitere Component-Kandidaten als Backlog fuer Slice 170b.
+**Knowledge-Flywheel 170→171:** D25-Pattern bestätigt (Fix-Slice → separates Codification-Slice).
 
 ---
 
-## Nahtlos-Start-Punkt für Slice 171
+## Autopilot-Plan Fortsetzung
 
-### Empfehlung: **B → D**
+### Slice 172 (E) — Singleton 170b, 11 weitere Files (S, ~1.5h)
 
-### Option B: Admin-Tier-1 Kill-Switch — M, ~2h (CEO-Approval)
-- `src/components/admin/AdminWithdrawalTab.tsx` (Process club withdrawal — Money)
-- `src/components/admin/AdminFoundingPassesTab.tsx` (FP Create/Revoke — Kill-Switch)
-- **CEO-Approval pflicht** vor Build (Money + Kill-Switch-Scope).
+11 Component-Kandidaten aus Slice 170 Scope-Gap-Check:
+- `src/components/club/sections/MembershipSection.tsx` (Slice 151c D18-Pilot)
+- `src/features/market/hooks/useWatchlistActions.ts`
+- `src/features/market/components/marktplatz/WatchlistView.tsx`
+- `src/features/market/components/MarketContent.tsx`
+- `src/features/fantasy/hooks/useGameweek.ts`
+- `src/app/(app)/club/[slug]/ClubContent.tsx`
+- `src/app/(app)/community/page.tsx`
+- `src/app/(app)/founding/page.tsx`
+- `src/app/(app)/missions/page.tsx`
+- `src/app/(app)/page.tsx`
+- `src/app/(app)/hooks/useHomeData.ts` (Utility mit Hook-Call? Pruefen)
 
-### Option D: RPC-Shape-Audit — S, ~1h (aus Slice 168 Regel)
-- Audit aller bestehenden `json_build_object`-RPCs ohne success-flag.
-- Migrationen-Plan pro kritische RPC mit Consumer-Impact-Analyse.
-- Separater Ferrari-Slice pro migrierter RPC wenn Consumer anpassen.
+Audit-Pattern (aus common-errors.md §5 Slice 170 Learning):
+1. Imports migrieren
+2. `useQueryClient()`-Hook-Call
+3. **queryClient in useCallback-deps** (exhaustive-deps-Trap!)
+4. Tests bei Bedarf via `vi.hoisted`-Pattern (testing.md §5)
 
-### Option E (neu nach Slice 170): Slice 170b Singleton-Audit 11 Files — S, ~1.5h
-- `ClubContent.tsx`, `MembershipSection.tsx`, `WatchlistView.tsx`, `MarketContent.tsx`, `useGameweek.ts`, `useWatchlistActions.ts` + 6 page-files migrieren.
-- Gleiche Konvention-Cleanup-Methode wie Slice 170.
-- Nur Component-Files (Utility/Page-Files mit legitimer Singleton-Nutzung bleiben).
+Nach jedem File: tsc + betroffene Tests. Nach ganzem Batch: reviewer-agent.
 
-### Option F (Codification aus Slice 170): Knowledge-Capture — XS, ~15min
-- common-errors.md §5: neue Sub-Section "Singleton→useQueryClient() Migration — exhaustive-deps-Trap" (aus Slice 170 Review Learning-Kandidat 1)
-- testing.md: 5. Pattern "vi.hoisted für shared-mock-reference" (aus Slice 170 Review N3)
+### Slice 173 (D) — RPC-Shape-Audit (S, ~1h)
 
-## Key References — IMMER ZUERST LESEN bei Slice 171-Start
+Audit aller `json_build_object`-RPCs ohne success-flag (Slice 168 Regel). Consumer-Impact-Analyse pro RPC.
 
-1. `worklog/active.md` — Slice-171-Kandidaten + Phase-Status + Backlog
-2. `worklog/log.md` — Slice 170 ganz oben, Session-Context
-3. `memory/decisions.md` D25+D26 — Session-Meta-Learnings aus Session 2026-04-23
-4. `memory/patterns.md` #28 — Ferrari-Blueprint + Konventionen (aktuell, inkl. Hook > Singleton)
-5. `worklog/reviews/170-review.md` — M1-Finding + Scope-Gap-Check (11 Kandidaten fuer 170b)
+### Notion Kanban Sync
 
-## Unfinished Business — NONE
+Slice 169 + 170 + 171 in Notion Kanban als "Erledigt" markieren (SessionStart-Hook-Reminder).
 
-Slice 170 hat:
-- Spec-File in `worklog/specs/170-singleton-to-use-queryclient.md`
-- Review-File in `worklog/reviews/170-review.md` (PASS mit M1 im Build gefixt)
-- 3 Proof-Artefakte in `worklog/proofs/170-*.txt`
-- Commit-Hash im log.md
-- Clean active.md
+### Session-End DISTILL
 
-## Pre-existing Findings (nicht durch Slice 170 eingefuehrt)
+Wenn neue Decisions aus der Autopilot-Session entstehen → `memory/decisions.md`.
 
-- 5× `tErrors` missing-dep Warnings in useCommunityActions.ts (Z.222, 262, 281, 297, 313) — pre-existing, Runtime-Impact Null, Nit-Fix fuer spaetere Session (kombinierbar mit Knowledge-Capture Option F).
+## Key-References
+
+- Slice 170 Review: `worklog/reviews/170-review.md` (Scope-Gap-Check 11 Kandidaten)
+- Audit-Template: `.claude/rules/common-errors.md` §5 "Singleton→useQueryClient() Migration"
+- Test-Pattern: `.claude/rules/testing.md` §5 "vi.hoisted"
+
+## Pre-existing Findings (Carry-Over)
+
+- 5× `tErrors` missing-dep Warnings in useCommunityActions.ts (Z.222, 262, 281, 297, 313) — pre-existing vor Slice 170, Nit-Fix-Kandidat.

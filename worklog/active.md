@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 171
-stage: LOG
-spec: worklog/specs/171-knowledge-capture-170.md
-impact: skipped (docs-only, keine Code-Pfade)
-proof: worklog/proofs/171-tsc.txt
-review: skipped (XS docs-only, self-review gem. workflow.md Ausnahme)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-23 + 2026-04-24 — 15 Slices committed
+## Session 2026-04-23 + 2026-04-24 — 16 Slices committed
 
+- **171** Knowledge-Capture aus Slice 170 (common-errors.md §5 + testing.md §5 Pattern) → `8992ae0a`
 - **170** Singleton→useQueryClient Migration (Konvention-Cleanup, 9 useCallback-deps-Fix M1) → `7d69553a`
 - **169** Session-End DISTILL (D25+D26 PROCESS-Decisions) → `b668eae7`
 - **168** RPC-Shape-Konsistenz-Regel (database.md) → `2d5bea82`

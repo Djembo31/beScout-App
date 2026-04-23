@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 171 | 2026-04-24 | Knowledge-Capture aus Slice 170 Learnings
+
+- **Stage-Chain:** SPEC → IMPACT (skipped docs-only) → BUILD → REVIEW (skipped, self-review) → PROVE → LOG
+- **Scope XS:** 2 Markdown-Files erweitert — Flywheel-Schliesser nach Slice 170 (D25-Pattern: separates XS-Codification-Slice fuer Reviewer-Learnings).
+- **common-errors.md §5:** Neuer Entry "Singleton→useQueryClient() Migration — exhaustive-deps-Trap (Slice 170)". Regel: queryClient MUSS nach Hook-Migration in useCallback/useMemo/useEffect deps. Runtime-Impact meist Null (stable instance), aber Konvention-Drift. Audit-Template fuer zukuenftige Hook-Migrationen (Slice-170b-Ready).
+- **testing.md Pattern 5:** "vi.hoisted für shared-mock-reference zwischen zwei Mocks (Slice 170)". Fix fuer "Cannot access before initialization" Hoisting-Bug. Shared `mockQc` zwischen `@/lib/queryClient`-Mock und `@tanstack/react-query.useQueryClient`-Mock erhaelt bestehende Test-Assertions ohne Umbau.
+- **Zweck:** Schliesst Knowledge-Flywheel für Slice 170 Bug-Klasse — zukünftige Singleton→Hook-Migrationen vermeiden die Konvention-Drift + vi.hoisted-Pattern ist dokumentiert.
+- **Artefakte:**
+  - Spec: `worklog/specs/171-knowledge-capture-170.md`
+  - Proof tsc: `worklog/proofs/171-tsc.txt` (docs-only safety)
+  - Proof sections: `worklog/proofs/171-sections.txt` (Placement-Verify)
+- **Files:** `.claude/rules/common-errors.md`, `.claude/rules/testing.md`
+- **Commit:** `8992ae0a`
+
+---
+
 ## 170 | 2026-04-24 | Singleton → useQueryClient Migration (Konvention-Cleanup)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Component-interner Refactor, identische Runtime-Semantik) → BUILD → REVIEW → PROVE → LOG
