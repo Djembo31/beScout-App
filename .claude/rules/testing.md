@@ -120,8 +120,51 @@ vi.mock('@/lib/services/predictions', () => ({
 }));
 ```
 
+### 5. vi.hoisted für shared-mock-reference zwischen zwei Mocks (Slice 170)
+
+Wenn Production-Code `useQueryClient()` aus `@tanstack/react-query` aufruft, aber Tests weiterhin `import { queryClient } from '@/lib/queryClient'` fuer Assertions nutzen, muessen **beide Import-Pfade dieselbe Mock-Instance** liefern. Plain `const mockQc = {...}` scheitert mit:
+
+```
+ReferenceError: Cannot access 'mockQc' before initialization
+```
+
+**Grund:** `vi.mock`-Factories werden an den Anfang der Datei hoisted, plain `const` nicht. Factory kann Variable nicht lesen.
+
+**Fix-Pattern:**
+
+```typescript
+// vi.hoisted hoisted das Object zusammen mit vi.mock an den Anfang:
+const { mockQc } = vi.hoisted(() => ({
+  mockQc: {
+    invalidateQueries: vi.fn(() => Promise.resolve()),
+    setQueryData: vi.fn(),
+    getQueryData: vi.fn(() => undefined),
+    cancelQueries: vi.fn(() => Promise.resolve()),
+  },
+}));
+
+// Singleton-Import-Pfad (Test-Assertions-Backward-Compat):
+vi.mock('@/lib/queryClient', () => ({ queryClient: mockQc }));
+
+// Hook-Pfad (Runtime-Call aus useQueryClient()):
+vi.mock('@tanstack/react-query', async () => {
+  const actual = await vi.importActual<typeof import('@tanstack/react-query')>('@tanstack/react-query');
+  return { ...actual, useQueryClient: () => mockQc };
+});
+
+// Tests können unveraendert bleiben:
+expect(queryClient.invalidateQueries).toHaveBeenCalled();
+// Funktional identisch zu:
+expect(mockQc.invalidateQueries).toHaveBeenCalled();
+```
+
+**Anwendbar auf:** Tests wo Production-Code von Singleton-Import auf `useQueryClient()`-Hook migriert wurde (Slice 170). Erhaelt Assertions ohne Umbau-Aufwand.
+
+**Alternative (sauberer, mehr Aufwand):** Entferne `@/lib/queryClient`-Mock, nutze `mockQc` direkt in Tests. Bei grossen Test-Files mit vielen Assertions ist die `vi.hoisted`-Variante pragmatischer.
+
 ### Referenzen
 - `src/components/missions/__tests__/MissionBanner.test.tsx` (Slice 161) — erstes Mock-Expansion-Beispiel
 - `src/components/fantasy/__tests__/EventCommunityTab.test.tsx` (Slice 162) — Vote-Handler Test-Migration
 - `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 162) — act+waitFor Pattern auf 7 Tests angewandt + queryClient mock expanded
 - `src/components/fantasy/__tests__/CreatePredictionModal.test.tsx` (Slice 163) — Service-direkt-Mock-Pattern
+- `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 170) — vi.hoisted-Pattern fuer shared mock-reference (Pattern 5)

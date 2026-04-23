@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 171
+stage: LOG
+spec: worklog/specs/171-knowledge-capture-170.md
+impact: skipped (docs-only, keine Code-Pfade)
+proof: worklog/proofs/171-tsc.txt
+review: skipped (XS docs-only, self-review gem. workflow.md Ausnahme)
 ```
 
 ## Session 2026-04-23 + 2026-04-24 — 15 Slices committed

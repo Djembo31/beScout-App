@@ -394,6 +394,27 @@ Querverweise: `database.md` (Columns, CHECK) · `business.md` (Compliance) · `p
 - Detect-Audit: `grep '<ComponentName' src/` → Zeile-fuer-Zeile prop-Coverage checken. Falls >3 Call-Sites: separate Coverage-Test-Fixture oder required-prop-Variant erstellen.
 - Prevention-Pattern: Wenn Fallback-Branch schlecht genug UX hat um User-Reports auszuloesen, mach prop **required** und erfordere Caller-Seite `imageUrl={x ?? null}` explicit — TSC-Check erzwingt bewusste Entscheidung.
 
+### Singleton→useQueryClient() Migration — exhaustive-deps-Trap (Slice 170 → codifiziert Slice 171)
+- Vor Migration: `import { queryClient } from '@/lib/queryClient'` ist ein **Module-Import** — exhaustive-deps Rule exempt, weil Module-Level-Bindings nie in deps-arrays gehoeren.
+- Nach Migration: `const queryClient = useQueryClient()` ist ein **Hook-lokales Binding** — MUSS in allen `useCallback`/`useMemo`/`useEffect` deps-arrays die `queryClient.*` im Body lesen.
+- **Runtime-Impact meist Null:** `useQueryClient()` returnt die gleiche stable Instance solange der `QueryClientProvider` sich nicht aendert (React Query v5 Garantie). ABER Konvention-Drift zum etablierten Pattern + ESLint-warn bei strict.
+- **Symptom wenn vergessen:** `eslint-plugin-react-hooks` warnt `React Hook useCallback has a missing dependency: 'queryClient'`. CI bricht nicht (Rule ist warn, nicht error bei `next/core-web-vitals`), aber Konvention-Konsistenz zum Sister-Hook `usePlayerCommunity.ts` (etablierte Referenz) fehlt.
+- **Slice 170 Evidence:** 9 useCallbacks in `useCommunityActions.ts` (Z.116, 133, 155, 178, 243, 297, 313, 325, 361) brauchten `queryClient` in deps nach Hook-Migration. Sister-Hook `usePlayerCommunity.ts` (Z.58, 98, 110, 122) hat das Pattern bereits richtig.
+- **Audit-Command (post-Migration):**
+  ```bash
+  grep -n "queryClient\." <file> | while read L; do
+    line=$(echo "$L" | cut -d: -f1)
+    # Finde enclosing useCallback und pruefe deps-array
+    awk -v ln=$line 'NR<=ln && /useCallback/{start=NR} END{print start}' <file>
+  done
+  ```
+- **Audit-Pattern vor Slice-170b (weitere Singleton-Kandidaten):** Bei jeder Singleton→Hook-Migration:
+  1. Imports: `useQueryClient` ergaenzen, Singleton-Import entfernen.
+  2. Hook-Call `const queryClient = useQueryClient();` in Component-/Hook-Body vor erstem Use.
+  3. **MANDATORY:** jede `useCallback`/`useMemo`/`useEffect` die `queryClient.*` im Body liest um `queryClient` in deps erweitern.
+  4. Test-File: `vi.hoisted(mockQc)` + partial `@tanstack/react-query` Mock (siehe testing.md §5).
+- **Cross-Ref:** `memory/patterns.md` #28 Konvention "useQueryClient() Hook > Singleton queryClient" + `.claude/rules/testing.md` "useSafeMutation Test-Patterns" Pattern 5.
+
 ---
 
 ## 7. Build / Deploy

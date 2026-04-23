@@ -1,0 +1,17 @@
+=== common-errors.md §5 new entry (erwartet: Zeile nach "Component-Prop Silent-Fallback (Slice 149b — D17)") ===
+
+397:### Singleton→useQueryClient() Migration — exhaustive-deps-Trap (Slice 170 → codifiziert Slice 171)
+
+=== testing.md "useSafeMutation Test-Patterns" new Pattern 5 + Ref ===
+
+123:### 5. vi.hoisted für shared-mock-reference zwischen zwei Mocks (Slice 170)
+170:- `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 170) — vi.hoisted-Pattern fuer shared mock-reference (Pattern 5)
+
+Placement:
+- common-errors.md §5 — Entry nach Slice-149b-Entry, vor §7-Header → korrekt in "Frontend"-Section.
+- testing.md — Pattern 5 nach Pattern 4 "Service-Mock-Pattern", vor "Referenzen"-Section → korrekte Reihenfolge.
+
+Beide Entries:
+- Symptom + Regel + Fix-Pattern vollstaendig
+- Cross-Ref auf jeweils das andere File
+- Slice-Referenz (170) + Codification-Slice (171)

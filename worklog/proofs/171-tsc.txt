@@ -1,0 +1,8 @@
+$ npx tsc --noEmit
+(exit 0, no output — docs-only safety verified)
+
+Slice 171 Files:
+- .claude/rules/common-errors.md (§5: +22 lines, "Singleton→useQueryClient() Migration — exhaustive-deps-Trap")
+- .claude/rules/testing.md ("useSafeMutation Test-Patterns": +43 lines, Pattern 5 "vi.hoisted für shared-mock-reference")
+
+Docs-only changes — keine TypeScript-Auswirkung erwartet, tsc clean bestaetigt.
