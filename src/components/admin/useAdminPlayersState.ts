@@ -4,6 +4,7 @@ import { getPlayersByClubId, dbToPlayers, centsToBsd, bsdToCents, createPlayer }
 import { getIposByClubId, createIpo, updateIpoStatus } from '@/lib/services/ipo';
 import { getPbtForPlayer } from '@/lib/services/pbt';
 import { setSuccessFeeCap, liquidatePlayer } from '@/lib/services/liquidation';
+import { newIdempotencyKey } from '@/lib/idempotency';
 import { canPerformAction } from '@/lib/adminRoles';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { ClubWithAdmin, Player, DbIpo } from '@/types';
@@ -208,7 +209,14 @@ export function useAdminPlayersState(club: ClubWithAdmin, t: TranslatorFn, te: T
     setIpoError(null);
     try {
       const tvEur = parseInt(liqTransferValue) || 0;
-      const result = await liquidatePlayer(user.id, liqModalPlayer.id, tvEur);
+      // Slice 178f: irreversible-action — per-attempt idempotency-key. Retry
+      // nach network-glitch gibt cached response zurueck (kein double-payout).
+      const result = await liquidatePlayer(
+        user.id,
+        liqModalPlayer.id,
+        tvEur,
+        newIdempotencyKey('admin.liquidate'),
+      );
       if (!result.success) {
         setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('liquidationError'));
         setLiqModalPlayer(null);

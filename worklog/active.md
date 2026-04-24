@@ -1,36 +1,27 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 178f
+stage: LOG
+spec: worklog/specs/178f-call-site-migration.md
+impact: skipped (client call-site migration, no domain-impact)
+proof: worklog/proofs/178f-call-site-migration.txt
+review: self-review (pattern-repetition sweep)
 ```
 
-## Priority-1-Marathon 2026-04-24 — KOMPLETT
+## Priority-1-Marathon 2026-04-24 — KOMPLETT + Call-Site-Sweep
 
 | Slice | Scope | Status |
 |-------|-------|--------|
 | 178b | dedup-keys Cleanup-Cron | ✅ |
-| 178c | subscribe_to_club Idempotency | ✅ |
-| 178e-a | buy_from_order Idempotency | ✅ |
-| 178e-b | place_sell_order Idempotency | ✅ |
-| 178e-c | place_buy_order Idempotency | ✅ |
-| 178e-d | liquidate_player Idempotency | ✅ |
-| 178e-e | open_mystery_box_v2 Idempotency | ✅ |
-| 178d | useSafeIdempotentMutation + Auto-Key | ✅ |
+| 178c | subscribe_to_club Idempotency (RPC) | ✅ |
+| 178e-a..e | 4 Money-RPCs Integration | ✅ |
+| 178d | useSafeIdempotentMutation primitive | ✅ |
+| **178f** | **6 Call-Sites migriert — Auto-Key live** | **✅** |
 
-**7 Money-RPCs integriert** (incl. 178a aus voriger Marathon-Phase: buy_player_sc). **8 Slices live** in dieser Priority-1-Session.
-
-## Open Follow-ups (post-Marathon)
-
-| Prio | Scope |
-|------|-------|
-| MED | Migration Call-Sites auf useSafeIdempotentMutation (pro Feature 1 XS-Slice): Trading, Subscribe, MysteryBox, Liquidate |
-| MED | Radix UI-Primitives (181) — Design-Deliberation |
-| MED | React Hook Form + Zod (182) |
-| LOW | 185b Bundle-Budget — next build Baseline |
-| LOW | common-errors.md "Money-RPC Idempotency Blueprint" Pattern-Addendum |
+**Money-Defense-in-Depth jetzt End-to-End aktiv:**
+- DB-layer (179 append-only + 178 foundation)
+- Server-RPC (178a/c/e-a..e)
+- Client-primitive (178d)
+- Call-Sites (178f) — 6 Money-Hooks schicken Auto-Key mit.

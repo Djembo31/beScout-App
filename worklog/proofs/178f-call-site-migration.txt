@@ -1,0 +1,38 @@
+Slice 178f — Call-Site-Migration Proof
+========================================
+
+Files touched (8 source + 3 test):
+- src/features/market/mutations/trading.ts
+- src/components/player/detail/hooks/usePlayerTrading.ts
+- src/components/club/sections/MembershipSection.tsx
+- src/app/(app)/hooks/useHomeData.ts
+- src/app/(app)/missions/page.tsx
+- src/components/admin/useAdminPlayersState.ts
+- src/features/market/mutations/__tests__/trading.test.ts (assertions)
+- src/components/player/detail/hooks/__tests__/usePlayerTrading.test.ts (assertions)
+- src/components/club/sections/__tests__/MembershipSection.test.tsx (assertions)
+
+Namespaces:
+- market.buy, market.placeBuyOrder
+- player.buy, player.sell
+- membership.subscribe
+- mb.open
+- admin.liquidate
+
+Key-Pattern:
+- Hook-based (useSafeIdempotentMutation): auto-managed lifecycle,
+  key persist waehrend in-flight+retry, reset on onSuccess+onError.
+- Plain-async (direct newIdempotencyKey call): per-invocation key.
+
+Tests:
+  npx tsc --noEmit                                         clean
+  vitest trading.test.ts                                   22/22
+  vitest usePlayerTrading.test.ts                          39/39
+  vitest MembershipSection.test.tsx                        5/5
+  vitest liquidation.test.ts                               16/16
+  vitest smallServices.test.ts                             38/38
+  --------------------------------------------------------
+  Total                                                    120/120
+
+Scope-Out:
+- buyFromIpo, cancelBuyOrder, cancelOrder — nicht in Slice-178 RPC-Integration-Scope.

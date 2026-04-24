@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178f | 2026-04-24 | Call-Site-Migration auf Auto-Key (Tier A1, Client)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope S:** 6 Money-Path Call-Sites migriert auf useSafeIdempotentMutation bzw. plain newIdempotencyKey().
+- **Call-Sites:** useBuyFromMarket, usePlaceBuyOrder, usePlayerTrading (buyMut/sellMut), MembershipSection, useHomeData.handleOpenMysteryBox, missions/page.handleOpenMysteryBox, useAdminPlayersState.handleLiquidate.
+- **Namespaces:** market.buy, market.placeBuyOrder, player.buy, player.sell, membership.subscribe, mb.open, admin.liquidate.
+- **Patterns:** Hook-based fuer useSafeMutation-Migrationen, plain-async + newIdempotencyKey() fuer async-handler.
+- **Test-Assertions:** alle 3 Test-Files auf `expect.stringMatching(/^namespace:/)` umgestellt.
+- **Proof:** worklog/proofs/178f-call-site-migration.txt. 120/120 tests pass (5 suites).
+
+---
+
 ## 178d | 2026-04-24 | useSafeIdempotentMutation + Auto-Key (Tier A1, Client)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

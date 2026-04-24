@@ -18,6 +18,7 @@ import {
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { useSafeIdempotentMutation } from '@/lib/hooks/useSafeIdempotentMutation';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
 import type { Player, DbIpo, PublicOrder } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
@@ -218,17 +219,18 @@ export function usePlayerTrading({
   // ═══════════════════════════════════════════════
   // MUTATION 1: Buy (Market + Order-Path)
   // ═══════════════════════════════════════════════
-  const buyMut = useSafeMutation<
+  const buyMut = useSafeIdempotentMutation<
     Awaited<ReturnType<typeof buyFromMarket>>,
     Error,
     { quantity: number; orderId?: string | null },
     BuyContext
   >({
-    mutationFn: async ({ quantity, orderId }) => {
+    idempotencyNamespace: 'player.buy',
+    mutationFn: async ({ quantity, orderId }, idempotencyKey) => {
       if (!userId) throw new Error('no_user');
       const result = orderId
-        ? await buyFromOrder(userId, orderId, quantity, playerId)
-        : await buyFromMarket(userId, playerId, quantity);
+        ? await buyFromOrder(userId, orderId, quantity, playerId, idempotencyKey)
+        : await buyFromMarket(userId, playerId, quantity, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
@@ -326,14 +328,15 @@ export function usePlayerTrading({
   // ═══════════════════════════════════════════════
   // MUTATION 3: Sell
   // ═══════════════════════════════════════════════
-  const sellMut = useSafeMutation<
+  const sellMut = useSafeIdempotentMutation<
     Awaited<ReturnType<typeof placeSellOrder>>,
     Error,
     { quantity: number; priceCents: number }
   >({
-    mutationFn: async ({ quantity, priceCents }) => {
+    idempotencyNamespace: 'player.sell',
+    mutationFn: async ({ quantity, priceCents }, idempotencyKey) => {
       if (!userId) throw new Error('no_user');
-      const result = await placeSellOrder(userId, playerId, quantity, priceCents);
+      const result = await placeSellOrder(userId, playerId, quantity, priceCents, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },

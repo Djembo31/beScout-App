@@ -132,7 +132,7 @@ describe('MembershipSection — Slice 151c Money-Path Migration', () => {
     act(() => bronzeBtn.click());
 
     await waitFor(() =>
-      expect(mockSubscribeTo).toHaveBeenCalledWith('u-1', 'club-1', 'bronze'),
+      expect(mockSubscribeTo).toHaveBeenCalledWith('u-1', 'club-1', 'bronze', expect.stringMatching(/^membership\.subscribe:/)),
     );
   });
 

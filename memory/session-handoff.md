@@ -1,18 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-24 12:22)
+# Session Handoff — Auto (2026-04-24 13:02)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 1 Files
 ```
- M .claude/hooks/session-handoff-auto.sh
  M memory/session-handoff.md
 ```
 
-## Session Commits: 3
-- 0de90fe4 docs(session): Restore session-handoff 2026-04-24 mit 178a-Kontext
-- 7bd678af docs(hygiene): Slice 178a abschluss — active.md idle
-- 8ae38e42 feat(security): Slice 178a — buy_player_sc Idempotency-Integration (Tier A1, Money)
+## Session Commits: 10
+- 0a34c054 docs(hygiene): Priority-1-Marathon abschluss — active.md idle
+- 96e78375 feat(security): Slice 178d — useSafeIdempotentMutation + Auto-Key Generation (Tier A1, Client)
+- 8f7cfa4f feat(security): Slice 178e-e — open_mystery_box_v2 Idempotency-Integration (Tier A1, Money)
+- 66daafa5 feat(security): Slice 178e-d — liquidate_player Idempotency-Integration (Tier A1, Money, Admin)
+- 0402b60b feat(security): Slice 178e-c — place_buy_order Idempotency-Integration (Tier A1, Money)
+- 7be39f14 feat(security): Slice 178e-b — place_sell_order Idempotency-Integration (Tier A1)
+- 83cf5f46 feat(security): Slice 178e-a — buy_from_order Idempotency-Integration (Tier A1, Money)
+- 30d4d998 feat(security): Slice 178c — subscribe_to_club Idempotency-Konsolidierung (Tier A1, Money)
+- 3e6fdef5 feat(security): Slice 178b — dedup-keys Cleanup-Cron (Tier A1)
+- 5c74e7c1 chore(hooks): session-handoff merge-statt-overwrite via awk state-machine
 
 <!-- auto:handoff-end -->
 

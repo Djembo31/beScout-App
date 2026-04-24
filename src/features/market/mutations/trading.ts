@@ -5,6 +5,7 @@ import { buyFromMarket, placeBuyOrder, cancelBuyOrder } from '@/lib/services/tra
 import { buyFromIpo } from '@/lib/services/ipo';
 import { setWalletBalance, invalidateWallet } from '@/lib/hooks/useWallet';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { useSafeIdempotentMutation } from '@/lib/hooks/useSafeIdempotentMutation';
 import { invalidateTradeQueries } from '@/lib/queries/invalidation';
 import { qk } from '@/lib/queries/keys';
 
@@ -53,14 +54,15 @@ type IpoBuyContext = {
 export function useBuyFromMarket() {
   const qc = useQueryClient();
 
-  return useSafeMutation<
+  return useSafeIdempotentMutation<
     Awaited<ReturnType<typeof buyFromMarket>>,
     Error,
     { userId: string; playerId: string; quantity: number },
     BuyContext
   >({
-    mutationFn: async ({ userId, playerId, quantity }) => {
-      const result = await buyFromMarket(userId, playerId, quantity);
+    idempotencyNamespace: 'market.buy',
+    mutationFn: async ({ userId, playerId, quantity }, idempotencyKey) => {
+      const result = await buyFromMarket(userId, playerId, quantity, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
@@ -178,16 +180,17 @@ export function useBuyFromIpo() {
 export function usePlaceBuyOrder() {
   const qc = useQueryClient();
 
-  return useSafeMutation<
+  return useSafeIdempotentMutation<
     Awaited<ReturnType<typeof placeBuyOrder>>,
     Error,
     { userId: string; playerId: string; quantity: number; maxPriceCents: number }
   >({
-    mutationFn: async ({ userId, playerId, quantity, maxPriceCents }) => {
+    idempotencyNamespace: 'market.placeBuyOrder',
+    mutationFn: async ({ userId, playerId, quantity, maxPriceCents }, idempotencyKey) => {
       // Service throws i18n keys directly (see placeBuyOrder JSDoc).
       // Safety-net: if result.success === false slips through, re-throw the
       // (already-key'd) error rather than a raw DE-string.
-      const result = await placeBuyOrder(userId, playerId, quantity, maxPriceCents);
+      const result = await placeBuyOrder(userId, playerId, quantity, maxPriceCents, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },

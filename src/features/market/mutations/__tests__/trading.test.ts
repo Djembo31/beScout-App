@@ -109,7 +109,7 @@ describe('useBuyFromMarket (Ferrari-Refactor)', () => {
     await act(async () => { result.current.mutate(vars); });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(buyFromMarketMock).toHaveBeenCalledWith('u1', 'p1', 3);
+    expect(buyFromMarketMock).toHaveBeenCalledWith('u1', 'p1', 3, expect.stringMatching(/^market\.buy:/));
     expect(setWalletBalanceMock).toHaveBeenCalledWith(qc, 'u1', 420000);
     expect(invalidateTradeQueriesMock).toHaveBeenCalledWith('p1', 'u1');
   });
@@ -312,7 +312,7 @@ describe('usePlaceBuyOrder (Ferrari-Refactor)', () => {
     await act(async () => { result.current.mutate(vars); });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(placeBuyOrderMock).toHaveBeenCalledWith('u1', 'p1', 1, 50000);
+    expect(placeBuyOrderMock).toHaveBeenCalledWith('u1', 'p1', 1, 50000, expect.stringMatching(/^market\.placeBuyOrder:/));
     expect(invalidateTradeQueriesMock).toHaveBeenCalledWith('p1', 'u1');
   });
 

@@ -16,6 +16,7 @@ import { useUserStats } from '@/lib/queries';
 import { useLoginStreak } from '@/lib/queries/streaks';
 import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
+import { newIdempotencyKey } from '@/lib/idempotency';
 import { getUserAchievements } from '@/lib/services/social';
 import { qk } from '@/lib/queries';
 import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits';
@@ -118,7 +119,8 @@ export default function MissionsPage() {
 
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
     if (!uid) return null;
-    const result = await openMysteryBox(free);
+    // Slice 178f: per-attempt idempotency-key — network-retry safe.
+    const result = await openMysteryBox(free, newIdempotencyKey('mb.open'));
     if (!result.ok) {
       throw new Error(result.error ?? 'Unknown error');
     }

@@ -10,7 +10,7 @@ import { TIER_CONFIG, subscribeTo } from '@/lib/services/clubSubscriptions';
 import type { SubscribeResult, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { useClubSubscription } from '@/lib/queries/misc';
 import { useToast } from '@/components/providers/ToastProvider';
-import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { useSafeIdempotentMutation } from '@/lib/hooks/useSafeIdempotentMutation';
 import { qk } from '@/lib/queries/keys';
 
 const TIERS: SubscriptionTier[] = ['bronze', 'silber', 'gold'];
@@ -48,8 +48,9 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
   const activeTier = subscription?.status === 'active' ? subscription.tier : null;
   const activeTierIndex = activeTier ? TIERS.indexOf(activeTier) : -1;
 
-  const subscribeMut = useSafeMutation<SubscribeResult, Error, SubscriptionTier>({
-    mutationFn: (tier) => subscribeTo(userId!, clubId, tier),
+  const subscribeMut = useSafeIdempotentMutation<SubscribeResult, Error, SubscriptionTier>({
+    idempotencyNamespace: 'membership.subscribe',
+    mutationFn: (tier, idempotencyKey) => subscribeTo(userId!, clubId, tier, idempotencyKey),
     onSuccess: (result) => {
       if (!result.success) {
         // Service returned {success: false} without throwing — still a failure

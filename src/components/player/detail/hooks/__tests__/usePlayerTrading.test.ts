@@ -165,7 +165,7 @@ describe('usePlayerTrading — Buy', () => {
     act(() => { result.current.executeBuy(2); });
     await waitFor(() => expect(result.current.buying).toBe(false));
 
-    expect(buyFromMarketMock).toHaveBeenCalledWith('u1', 'p1', 2);
+    expect(buyFromMarketMock).toHaveBeenCalledWith('u1', 'p1', 2, expect.stringMatching(/^player\.buy:/));
     expect(setWalletBalanceMock).toHaveBeenCalledWith(qc, 'u1', 400_000);
   });
 
@@ -177,7 +177,7 @@ describe('usePlayerTrading — Buy', () => {
     act(() => { result.current.executeBuy(1, 'order-123'); });
     await waitFor(() => expect(result.current.buying).toBe(false));
 
-    expect(buyFromOrderMock).toHaveBeenCalledWith('u1', 'order-123', 1, 'p1');
+    expect(buyFromOrderMock).toHaveBeenCalledWith('u1', 'order-123', 1, 'p1', expect.stringMatching(/^player\.buy:/));
     expect(buyFromMarketMock).not.toHaveBeenCalled();
   });
 
@@ -366,7 +366,7 @@ describe('usePlayerTrading — Sell', () => {
     act(() => { result.current.handleSell(1, 50_000); });
     await waitFor(() => expect(result.current.selling).toBe(false));
 
-    expect(placeSellOrderMock).toHaveBeenCalledWith('u1', 'p1', 1, 50_000);
+    expect(placeSellOrderMock).toHaveBeenCalledWith('u1', 'p1', 1, 50_000, expect.stringMatching(/^player\.sell:/));
     expect(result.current.sellModalOpen).toBe(false);
   });
 

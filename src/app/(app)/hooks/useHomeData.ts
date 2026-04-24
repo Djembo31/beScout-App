@@ -16,6 +16,7 @@ import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useLoginStreak } from '@/lib/queries/streaks';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
+import { newIdempotencyKey } from '@/lib/idempotency';
 import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
@@ -196,7 +197,9 @@ export function useHomeData() {
   // ── Actions ──
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
     if (!uid) return null;
-    const result = await openMysteryBox(free);
+    // Slice 178f: per-attempt idempotency-key. Network-retry via ConfirmDialog
+    // kommt mit same key zurueck → RPC returnt cached response, keine double-deduct.
+    const result = await openMysteryBox(free, newIdempotencyKey('mb.open'));
     if (!result.ok) {
       // Surface the real RPC error — the modal catches and displays it.
       throw new Error(result.error ?? 'Unknown error');
