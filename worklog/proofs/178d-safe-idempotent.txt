@@ -1,0 +1,29 @@
+Slice 178d — Client-Side Auto-Key Proof
+========================================
+
+1. Files created:
+   - src/lib/idempotency.ts (25 L) — newIdempotencyKey(namespace?)
+   - src/lib/hooks/useSafeIdempotentMutation.ts (98 L) — Composition hook
+   - src/lib/__tests__/idempotency.test.ts (30 L) — 5 tests
+
+2. Tests:
+   - returns a non-empty string
+   - returns unique keys across 100 calls (Set.size === 100)
+   - prefixes namespace when provided (starts with 'trade.buy:')
+   - omits prefix when no namespace (no ':')
+   - namespace keys still unique across 100 calls
+
+3. tsc --noEmit clean.
+
+4. Key-Lifecycle verified by design:
+   - safeTrigger → keyRef.current null → generate → pass to mutationFn(vars, key)
+   - React Query retries same mutate call → same keyRef.current
+   - onSuccess → reset keyRef.current = null
+   - onError → reset keyRef.current = null
+
+5. Fallback-branch: ohne crypto.randomUUID() wird Date+Math.random composite erzeugt
+   (legacy runtimes, edge-cases). Dev-env-check: typeof crypto !== 'undefined' &&
+   'randomUUID' in crypto.
+
+6. Scope-Out: Migration existierender Call-Sites auf useSafeIdempotentMutation
+   kommt pro Feature als eigener XS-Follow-up-Slice.

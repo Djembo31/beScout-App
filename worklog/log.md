@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178d | 2026-04-24 | useSafeIdempotentMutation + Auto-Key (Tier A1, Client)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope S:** Client-side idempotency-key-lifecycle. Composition ueber useSafeMutation.
+- **Files:** `src/lib/idempotency.ts` (25 L), `src/lib/hooks/useSafeIdempotentMutation.ts` (98 L), `src/lib/__tests__/idempotency.test.ts` (30 L).
+- **Key-Lifecycle:** persist waehrend in-flight+retry, reset auf onSuccess + onError.
+- **Fallback:** crypto.randomUUID() preferred, Date+Math.random composite als fallback.
+- **Pattern:** `mutationFn: (vars, key) => service(uid, ..., key)` — Service passes key to RPC.
+- **Proof:** worklog/proofs/178d-safe-idempotent.txt. 5/5 idempotency tests pass.
+
+---
+
 ## 178e-e | 2026-04-24 | open_mystery_box_v2 Idempotency-Integration (Tier A1, Money)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
