@@ -2168,4 +2168,58 @@ describe('DB Invariants', () => {
       `Same-Club Player-Duplicates gefunden:\n  ${dupes.slice(0, 20).join('\n  ')}`
     ).toHaveLength(0);
   }, 30_000);
+
+  // ─────────────────────────────────────────────────────
+  // INV-41: Ghost-Prevention Trigger installed (Slice 189)
+  // DB-Level guard that prevents INV-39 + INV-40 ghost-row creation
+  // at INSERT-time. Bypass: SET LOCAL bescout.allow_player_ghost_insert = 'true'.
+  // ─────────────────────────────────────────────────────
+  it('INV-41: prevent_player_ghost_insert trigger rejects same-club duplicate INSERT', async () => {
+    // Behavioral test: trigger existence verified implicitly by INSERT rejection.
+    // Pick a known active player for synthetic ghost attempt.
+    const { data: victim, error: vErr } = await sb
+      .from('players')
+      .select('first_name, last_name, club_id')
+      .not('club_id', 'is', null)
+      .gt('last_appearance_gw', 0)
+      .not('first_name', 'is', null)
+      .not('last_name', 'is', null)
+      .limit(1)
+      .maybeSingle();
+
+    expect(vErr).toBeNull();
+    expect(victim, 'need at least one active player for trigger test').not.toBeNull();
+    if (!victim) return;
+
+    // Attempt same-club duplicate insert — should fail with unique_violation
+    const { error: insErr } = await sb.from('players').insert({
+      first_name: victim.first_name,
+      last_name: victim.last_name,
+      club: 'TriggerTest189',
+      club_id: victim.club_id,
+      position: 'MID',
+      shirt_number: 99,
+      age: 25,
+      nationality: 'TR',
+      market_value_eur: 0,
+      ipo_price: 500,
+      floor_price: 500,
+      dpc_total: 0,
+      dpc_available: 0,
+      status: 'fit',
+    });
+
+    expect(insErr, 'trigger should reject same-club duplicate').not.toBeNull();
+    expect(
+      insErr?.message ?? '',
+      `trigger rejected but with unexpected error message: ${insErr?.message}`,
+    ).toMatch(/ghost_same_club|ghost_cross_club|unique_violation|duplicate/i);
+
+    // Defensive cleanup: in case the row slipped through (should never happen if trigger works)
+    await sb
+      .from('players')
+      .delete()
+      .eq('club', 'TriggerTest189')
+      .eq('shirt_number', 99);
+  }, 30_000);
 });

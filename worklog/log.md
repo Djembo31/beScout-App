@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 189 | 2026-04-24 | Ghost-Prevention Player-Insert-Trigger
+
+- **Stage-Chain:** SPEC → IMPACT (inline in Spec) → BUILD → REVIEW (self, D35 — 2. Iteration D28 Pattern) → PROVE → LOG
+- **Scope S:** DB-Trigger + Test-Regression, kein Code-Pfad-Change.
+- **Ziel:** DB-Level BEFORE-INSERT-Trigger verhindert INV-39 (Cross-Club-Contamination) + INV-40 (Same-Club-Duplicates) bei Entstehung. Fängt ALLE Insert-Pfade (Scripts, zukünftige Crons, manuelle SQL).
+- **Files:**
+  - `supabase/migrations/20260424200000_slice_189_ghost_prevention_trigger.sql` (NEU, 60 L)
+  - `src/lib/__tests__/db-invariants.test.ts` (+50 L INV-41 regression)
+  - `worklog/specs/189-ghost-prevention-player-insert-trigger.md`
+  - `worklog/proofs/189-ghost-prevention.md` (SQL-Output + vitest-Output + 4/4 behavioral tests)
+  - `worklog/reviews/189-review.md` (self, PASS, 3 NITs non-blocking)
+- **Migration:** live applied via `mcp__supabase__apply_migration` auf `skzjfhvgccaeplydsunz` (beScout-App Prod).
+- **Pattern:** Trigger-Function + GUC-Escape (`bescout.allow_player_ghost_insert`) analog D28 (Slice 179 transactions_append_only).
+- **Tests:**
+  - 4/4 behavioral SQL-Tests PASS (same-club dup reject, cross-club contam reject, positive unique, GUC-bypass)
+  - 39/39 vitest (db-invariants) PASS (INV-41 neu)
+  - tsc clean
+- **Ghost-Source-Analyse:** Cron `sync-players-daily` skipped new players — Ghost-Quelle sind manuelle Scripts (`verify-squads.mjs --fix`, `enrich-from-transfermarkt.mjs`, `rebuild-ban-squad.mjs`). DB-Trigger-Approach catches alle Pfade einmalig statt per-script-Guard.
+- **Edge-Cases handled:** Namesvetter (beide inaktiv, OK), NULL-Felder (skip, andere Constraints), Türkisches Unicode (lower() + trim()), UPDATE nicht blockiert (Transfers).
+- **Commit:** pending
+- **Open Follow-ups:** GUC-Bypass-Audit-Log (nice-to-have), D39-DISTILL-Kandidat (Trigger+GUC als generalisiertes Pattern).
+
+---
+
 ## 188 | 2026-04-24 | CTO-Setup-Upgrade (Meta-Sprint, 7 Items aus Deep-Dive)
 
 - **Stage-Chain:** SPEC (inline, active.md) → IMPACT skipped (tooling-only) → BUILD → REVIEW (self per D35) → PROVE → LOG
