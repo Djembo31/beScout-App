@@ -1,98 +1,125 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-24 15:58)
+# Session Handoff — Auto (2026-04-24 16:56)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 2 Files
 ```
- M .claude/rules/business.md
- M docs/VISION.md
+ M .claude/settings.local.json
  M memory/session-handoff.md
-?? docs/strategy-2026-04-24.md
 ```
 
 ## Session Commits: 10
+- 11df77e2 docs(agents): gtm-writer + SKILL.md — GTM-Infrastruktur-Gap schliessen
+- 8018a18e docs(hygiene): Slice 181e1+e2 abschluss — active.md idle
+- bd6bf756 refactor(ui): Slice 181e2 — Modal→Dialog migration Batch 4b (Player-Detail Trading, 4 Files)
+- 5f807704 refactor(ui): Slice 181e1 — Modal→Dialog migration Batch 4a (Marktplatz/Orderbook, 4 Files)
+- 9a34f4e2 docs(strategy): Strategie-Memo + Asset-Klasse-Positionierung + Scope-Korrektur
+- aed313aa docs(handoff): Session 2026-04-24 close — 181e-Spec + D35 + Rich-Handoff
 - e81a6410 docs(hygiene): Slice 181d Eintrag in log.md + active.md idle (post-commit nachgezogen)
 - 5eb4d30d refactor(ui): Slice 181d — Modal→Dialog migration Batch 3 (Fantasy/Gamification, 12 Files)
 - 9e2d5b47 refactor(ui): Slice 181c — Modal→Dialog migration Batch 2 (Community/Help/Sonstige, 13 Files)
 - 6a6c7f9c refactor(ui): Slice 181b — Modal→Dialog migration Batch 1 (Admin Pages, 11 Files)
-- 3ea70fe1 feat(ui): Slice 181 — Radix UI-Primitives Foundation (Dialog + AlertDialog + DropdownMenu)
-- a7ee3f27 docs(hygiene): Session 2026-04-24 close — active.md idle
-- a005619f docs(rules): Slice 186 — common-errors.md split + DISTILL D30-D33 + session handoff
-- 8a3ec599 docs(hygiene): Slice 185b abschluss — active.md idle
-- 484768c8 feat(build): Slice 185b — Bundle-Budget-Gate (Tier D5)
-- 5878f221 docs(hygiene): Call-Site-Sweep abschluss — active.md idle
-
-## Pending Agent Work: 1 Worktrees
-- **agent-a0ad4a83** (worktree-agent-a0ad4a83):  15 files changed, 2168 insertions(+), 26 deletions(-)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Rich Handoff — 2026-04-24 Session 2 (Radix-Migration-Marathon)
+# Rich Handoff — 2026-04-24 Session 3 (Strategy + GTM-Infrastruktur)
 
-## Was diese Session brachte (5 Slices, 38 Modal-Sites migriert)
+## Was diese Session brachte
 
-| Slice | Commit | Scope | Verdict |
-|-------|--------|-------|---------|
-| **181** | `3ea70fe1` | Radix Foundation: Dialog + AlertDialog + DropdownMenu Wrappers + 2 Pilots + Test-Helper + 181b plan | REWORK→PASS (Cold-Context-Reviewer + Self-Healer) |
-| **181b** | `6a6c7f9c` | Modal→Dialog Admin (11 Files) | PASS (Self-Review) |
-| **181c** | `9e2d5b47` | Modal→Dialog Community/Help (13 Files) | PASS (Self-Review) |
-| **181d** | `5eb4d30d` | Modal→Dialog Fantasy/Gamification (12 Files) | PASS (Self-Review) |
-| Hygiene | `e81a6410` | Slice 181d log/active nachgezogen | — |
+Diese Session hat **KEIN Code-Slice** produziert, sondern zwei fundamentale strategische Verankerungen:
 
-**Kumulativ:** 38 von 47 Modal-Sites migriert. 5 Test-Cascade-Updates (Modal-Mock → Dialog-Mock) per Slice. Alle Slices: tsc clean, vitest gruen, Bundle alle 51 Routes within budget.
+| Commit | Scope | Output |
+|--------|-------|--------|
+| `9a34f4e2` | docs(strategy) — Strategie-Memo + Asset-Klasse-Positionierung | `docs/strategy-2026-04-24.md` (580 L) + VISION.md +3 Sektionen + business.md Asset-Klasse-Wording |
+| `11df77e2` | docs(agents) — gtm-writer + SKILL.md | `.claude/agents/gtm-writer.md` + `.claude/skills/gtm-writer/` |
 
-## Decisions dokumentiert (memory/decisions.md)
+Parallele Session 2 (Radix-Migration) ist abgeschlossen — Commits 5f807704 + bd6bf756 + 8018a18e (Slice 181e1 + 181e2 + Hygiene).
 
-- **D34** Radix UI als Headless-Foundation (Dialog/AlertDialog/DropdownMenu), Drop-in API + Compound API + Mobile-Bottom-Sheet-Fallback
-- **D35** Mechanical-Pattern-Slices duerfen Self-Review nutzen nach 2+ erfolgreichen Pattern-Iterations (verhindert Reviewer-Overhead bei Drop-in-Migrations)
+## Kern-Reframings (muessen Session 4 bekannt sein)
 
-## LEARNINGS (errors-frontend.md)
+1. **Scout Cards = neue Asset-Klasse** zwischen Aktien und Crypto. Positioniert in `docs/strategy-2026-04-24.md` Teil 1-3. Produkt-Wahrheit = Equity-artig, Marketing-Pflicht = Utility-Register.
+2. **FM-Community (20M+ global) ist primaerer Beachhead** — nicht „Fußball-Fans generell". Launch-Hook: „Football Manager, aber real."
+3. **Sakaryaspor-First ist obsolet.** War Finanzierungs-Idee, Plattform ist fertig → Trigger weg. Neu: Bundesliga-Mittelfeld + Sueper-Lig-Top 6 als Default-Targets. Siehe verschaerftes `feedback_scope_all_leagues_launch_ready.md` (User-Memory, Verschaerfung 2026-04-24).
+4. **Setup-Review-Verdict:** Code 8.5/10, Produkt-Klarheit 8.5/10, Market 9.0/10, Execution-Risk 7/10. Bottleneck ist NICHT mehr Engineering — es ist GTM-Execution (Anil musste sich ergaenzen lassen).
 
-- **Tailwind data-* Variants nur auf Tailwind-Utilities**: `anim-*` muessen in `@layer utilities` sein, sonst kein Variant-Output. Verifiziert via `grep "data-state=open" .next/static/css/*.css`.
+## Neue Infrastruktur (live)
+
+- **`gtm-writer` Agent** — verfuegbar via Agent-Tool (`subagent_type: "gtm-writer"`). Tools: Read/Write/Edit/Grep/Glob (kein Bash). Loads strategy-memo + business.md automatisch.
+- **`gtm-writer` Skill** — Deliverable-Templates fuer Landing-Page, Reddit-Post, Cold-Email, Twitter, Discord-Seeding. 4-Filter-Gate (Zielgruppe / Compliance / Scope / Conversion).
+- **CLAUDE.md Agent-Liste** um gtm-writer ergaenzt.
+
+## Anils Commitment (CEO, aus Session-End)
+
+Anil hat zugesagt den Setup-Review-Rat zu befolgen. Die wichtigste Action die er selbst tun muss (keine Delegation moeglich):
+
+**P1 — Diese Woche: 3 Beta-Tester anrufen + Zoom-Calls terminieren**
+
+Aus MEMORY.md: „Anil-Action-Items: 3 Tester (Familie/Freunde) kontaktieren, min. 1 tuerkisch-sprachig, min. 1 ohne Fußball-Kontext." Diese Action steht seit Phase-3b-Plan. **Ohne diese Calls kein echtes Produkt-Feedback, kein User-Quote fuer Pitch-Deck, kein Momentum.**
 
 ## Nahtloser Start fuer naechste Session
 
-**Aktive Arbeit:** active.md idle. **Nächster Slice: 181e Trading/Money (HIGH risk).**
+### Wichtig: erster Lesezug in Session 4
 
-Vollstaendige Spec liegt vor: `worklog/specs/181e-trading-modal-migration.md`
+1. `docs/strategy-2026-04-24.md` TL;DR (erste 20 Zeilen) — Strategie-Ground-Truth
+2. `memory/feedback_scope_all_leagues_launch_ready.md` (User-Memory) — Scope-Direktive
+3. Dieses Handoff-File — Kontext wo wir stehen
 
-**Erste Action naechste Session:**
+### Was Session 4 liefern sollte (Empfehlung, nicht Pflicht)
 
-1. Read `worklog/specs/181e-trading-modal-migration.md` (komplett, 60 Zeilen — Site-Liste + Pflicht-Pattern + Risiken)
-2. Set active.md auf 181e1 BUILD (4 Files: BuyConfirmModal, BuyOrderModal, ClubVerkaufSection, OffersTab)
-3. **Pre-Migration qa-visual Baseline** gegen bescout.net:
-   - Login `jarvis-qa@bescout.net` (PW in `e2e/mystery-box-qa.spec.ts:5`)
-   - 4 Modals oeffnen + Screenshot 393px + 1280px → `worklog/proofs/181e1-baseline-*.png`
-4. Code-Migration Drop-in (gleicher Mechanismus wie 181b/c/d, etabliert)
-5. tsc + vitest + bundle gruen
-6. Commit + Push + Vercel-Deploy
-7. Post-Deploy Smoke gegen bescout.net (Buy + Sell + Cancel + Network-Throttle ESC-Test)
-8. Visual-Diff Pre/Post → bei keinem Drift: PASS, sonst REWORK
-9. Repeat fuer 181e2 (4 Files: SellModalCore, BuyModal, OfferModal, LimitOrderModal)
+| Option | Was | Dauer | Wer |
+|--------|-----|-------|-----|
+| **A (empfohlen)** | Erster GTM-Output: Landing-Page-Copy fuer FM-Community via `gtm-writer` Agent | 15-30 min | Agent-Dispatch |
+| B | Reddit-Post-Entwurf fuer r/footballmanagergames (AMA-Format) via gtm-writer | 15-20 min | Agent-Dispatch |
+| C | Cold-Email-Template fuer Club-Outreach (Bundesliga-Mittelfeld) via gtm-writer | 10-15 min | Agent-Dispatch |
+| D | 60-Sek-Video-Script fuer Launch-Kampagne | 10 min | Solo-Claude |
 
-**Trading-Pflicht (CLAUDE.md `Geld/Trading/Security | SELBST machen`):**
-- KEIN Agent-Dispatch fuer 181e (Money-Path)
-- qa-visual Pre/Post-Screenshots Pflicht
-- preventClose-mid-Mutation mit Network-Throttle Pflicht
-- bescout.net Smoke (Buy + Sell + Place-Order + Cancel) Pflicht
+**Option A ist Default** wenn Anil ohne weitere Anweisung startet. Das ist das unmittelbar naechste Artefakt um Landing-Page zu bauen.
 
-## Open Follow-ups nach 181e
+### Agent-Dispatch-Template fuer Session 4
+
+```
+Agent({
+  subagent_type: "gtm-writer",
+  description: "Landing-Page FM-Community",
+  prompt: "Baue Landing-Page-Copy fuer die FM-Community-Launch-Kampagne.
+           Zielgruppe: r/footballmanagergames (450K) + Football-Manager-Twitter.
+           Hook: 'Football Manager, aber real.'
+           Deliverable: Hero + 3 Sektionen + 3 FAQ + Deploy-Guide.
+           Output: copy-paste-ready Markdown-Draft + A/B-Varianten + Risiken.
+           Context: Read docs/strategy-2026-04-24.md TL;DR + Teil 4 + Teil 7."
+})
+```
+
+### NICHT starten in Session 4 ohne Ruecksprache
+
+- Kein weiteres Code-Slice (Radix 181f/g/h Cleanup optional, aber nicht prioritaer)
+- Kein Club-Kontakt ohne Landing-Page + Pitch-Material
+- Keine neue Strategie-Iteration — Memo ist stable
+
+## Open Follow-ups (Setup-Review Top 5)
+
+| Prio | Action | Owner |
+|------|--------|-------|
+| **P1** | 3 Beta-Tester anrufen, Zoom-Calls terminieren | Anil (Mensch-Aktion, nicht delegierbar) |
+| **P2** | Erste Landing-Page-Copy via gtm-writer produzieren | Claude + Anil Review |
+| **P3** | Metriken-Dashboard `/admin/metrics` (Wait-List / Social-Reach / Active-Users) | Eigener Slice (2 Slices Work) |
+| **P4** | „Code-freier Tag" ins Ritual (1×/Woche) — GTM/Community-Outreach | Anil (Selbstdisziplin) |
+| **P5** | Externen Sparring-Partner finden (Indie-Hacker + Ex-Football-Profi) | Anil (Network-Arbeit) |
+
+## Open Follow-ups aus Session 2 (Radix-Migration, niedrigere Prioritaet)
 
 | Prio | Scope |
 |------|-------|
-| HIGH | **181e1 + 181e2** Trading/Money Migration (8 Files, Money-Path) |
 | MED | **181f** EventDetailModal kombinierter Modal+ConfirmDialog → Dialog+AlertDialog (1 File) |
 | MED | **181g** JoinConfirmDialog Custom-Dialog Refactor → AlertDialog (1 File) |
-| MED | **181h** Cleanup — alte Modal+ConfirmDialog Components entfernen aus `src/components/ui/index.tsx` + `ConfirmDialog.tsx` |
-| LOW | buyFromIpo Idempotency-Integration (falls gewuenscht) |
+| MED | **181h** Cleanup — alte Modal+ConfirmDialog Components aus `src/components/ui/index.tsx` entfernen |
+| LOW | buyFromIpo Idempotency-Integration |
 | LOW | 185c per-chunk size-limit fuer grosse Libs |
 | LOW | 180b Service-Shape votes/adminDeletePost/adminTogglePin |
-| LOW | Error-Boundary 2-Scopes Pattern (176d) |
-| LOW | pattern_observability_stack.md Addendum (176d) |
-| LOW | Notion-Action: Slice 181/181b/c/d → "Erledigt" markieren in Kanban |
+| LOW | Notion-Action: Slice 181/181b/c/d/e1/e2 → „Erledigt" markieren in Kanban |
 
 ## Bekannte vorher-bestehende Failures (NICHT Slice-181x-related)
 
