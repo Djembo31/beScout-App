@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 178d
-stage: LOG
-spec: worklog/specs/178d-safe-idempotent-mutation.md
-impact: skipped (client-primitive, no domain impact)
-proof: worklog/proofs/178d-safe-idempotent.txt
-review: self-review
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Priority-1-Marathon 2026-04-24 — KOMPLETT
@@ -23,7 +23,7 @@ review: self-review
 | 178e-e | open_mystery_box_v2 Idempotency | ✅ |
 | 178d | useSafeIdempotentMutation + Auto-Key | ✅ |
 
-**7 Money-RPCs integriert** (incl. 178a aus voriger Marathon-Phase: buy_player_sc). **8 Slices live** in dieser Session.
+**7 Money-RPCs integriert** (incl. 178a aus voriger Marathon-Phase: buy_player_sc). **8 Slices live** in dieser Priority-1-Session.
 
 ## Open Follow-ups (post-Marathon)
 
