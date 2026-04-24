@@ -20,7 +20,7 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Send, Loader2, CheckCircle2, XCircle, Lock } from 'lucide-react';
-import { Modal, Card, Button } from '@/components/ui';
+import { Dialog, Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { TRADE_FEE_PCT } from '@/lib/constants';
@@ -128,7 +128,7 @@ export function SellModalCore({
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
       title={title}
@@ -294,7 +294,7 @@ export function SellModalCore({
         {/* Context-specific post-form slot (Active Listings, etc.) */}
         {afterFormSlot}
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 

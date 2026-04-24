@@ -22,7 +22,7 @@ vi.mock('@/lib/utils', () => ({
 vi.mock('@/lib/constants', () => ({ TRADE_FEE_PCT: 6 }));
 
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title, subtitle, footer, preventClose }: {
+  Dialog: ({ open, children, title, subtitle, footer, preventClose }: {
     open: boolean;
     children: React.ReactNode;
     title?: string;

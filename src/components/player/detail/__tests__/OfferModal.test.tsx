@@ -5,7 +5,7 @@ import { renderWithProviders } from '@/test/renderWithProviders';
 import OfferModal from '../OfferModal';
 
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title, footer }: { open: boolean; children: React.ReactNode; title?: string; footer?: React.ReactNode }) =>
+  Dialog: ({ open, children, title, footer }: { open: boolean; children: React.ReactNode; title?: string; footer?: React.ReactNode }) =>
     open ? <div data-testid="modal"><div data-testid="title">{title}</div>{children}{footer}</div> : null,
   Button: ({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) => (
     <button onClick={onClick} disabled={!!disabled}>{children}</button>

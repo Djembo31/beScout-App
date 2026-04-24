@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181e2 | 2026-04-24 | Modal→Dialog Migration Batch 4b — Player-Detail Trading (4 Files)
+
+- **Stage-Chain:** SPEC (181e-trading-modal-migration) → IMPACT skipped (mechanical, Money-UI only) → BUILD (self) → REVIEW (self per D35) → PROVE → LOG
+- **Scope M:** 4 Files, 4 JSX-Sites, 3 Test-Mocks. Money-Path preventClose intakt (BuyModal/SellModalCore/OfferModal aktiv, LimitOrderModal Placeholder).
+- **Files (PROD):** trading/SellModalCore.tsx, player/detail/{BuyModal,OfferModal,LimitOrderModal}.tsx
+- **Files (TESTS):** trading/__tests__/SellModalCore.test.tsx, player/detail/__tests__/SellModal.test.tsx, player/detail/__tests__/OfferModal.test.tsx
+- **Proof:** worklog/proofs/181e2-tsc-vitest-bundle.txt — 160/160 Tests gruen, tsc clean, /market 375kB + /player 407kB both within budget
+- **Review:** worklog/reviews/181e2-review.md (PASS, Self-Review per D35)
+- **Commit:** pending
+- **Naechstes:** Post-Deploy Smoke gegen bescout.net (Buy + Sell + Place-Order + ESC-Throttle) fuer 181e1+e2 kombiniert. Danach 181f/g/h Cleanup.
+
 ## 181e1 | 2026-04-24 | Modal→Dialog Migration Batch 4a — Marktplatz/Orderbook (4 Files)
 
 - **Stage-Chain:** SPEC (181e-trading-modal-migration) → IMPACT skipped (mechanical, Money-UI only, kein RPC/DB) → BUILD (self) → REVIEW (self per D35) → PROVE → LOG

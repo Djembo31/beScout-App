@@ -16,7 +16,7 @@ vi.mock('@/lib/services/players', () => ({ centsToBsd: (n: number) => n / 100 })
 vi.mock('@/lib/services/wallet', () => ({ formatScout: (n: number) => `${n} CR` }));
 vi.mock('@/lib/constants', () => ({ TRADE_FEE_PCT: 6 }));
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title }: { open: boolean; children: React.ReactNode; title?: string }) =>
+  Dialog: ({ open, children, title }: { open: boolean; children: React.ReactNode; title?: string }) =>
     open ? <div data-testid="modal" data-title={title}>{children}</div> : null,
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Button: ({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) =>

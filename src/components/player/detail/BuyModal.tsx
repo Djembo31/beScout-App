@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Lock, Zap, ShoppingCart, Target, Loader2, Send, CheckCircle2, ArrowRight } from 'lucide-react';
-import { Modal, Button, Countdown } from '@/components/ui';
+import { Dialog, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
@@ -185,7 +185,7 @@ export default function BuyModal({
     : 0;
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
       title={t('buyDpc')}
@@ -382,6 +382,6 @@ export default function BuyModal({
             </>
           )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

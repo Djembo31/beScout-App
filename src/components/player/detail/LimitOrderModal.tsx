@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Clock, Bell } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 
 interface LimitOrderModalProps {
@@ -38,7 +38,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
     // die Pending-Flag umgestellt werden (analog BuyModal/SellModal), damit
     // ESC/Backdrop-Klick waehrend einer Geld-Mutation nicht den State verliert.
     // TODO preventClose={mutationInFlight} wenn Feature live ist.
-    <Modal open={open} onClose={handleClose} title={t('limitOrderTitle')} preventClose={false}>
+    <Dialog open={open} onClose={handleClose} title={t('limitOrderTitle')} preventClose={false}>
       <div className="space-y-4 p-1">
         {submitted ? (
           <div className="py-8 text-center space-y-3">
@@ -130,6 +130,6 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
           </>
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

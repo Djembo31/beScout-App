@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 interface OfferModalProps {
@@ -22,7 +22,7 @@ export default function OfferModal({
   const t = useTranslations('player');
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
       title={t('offer.title')}
@@ -62,6 +62,6 @@ export default function OfferModal({
           />
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

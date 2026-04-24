@@ -1,0 +1,54 @@
+Slice 181e2 — Modal→Dialog Migration Batch 4b (Player-Detail Trading, 4 Files)
+Datum: 2026-04-24
+
+## Files Migriert
+
+1. src/components/trading/SellModalCore.tsx (1 Modal-Site)
+2. src/components/player/detail/BuyModal.tsx (1 Modal-Site)
+3. src/components/player/detail/OfferModal.tsx (1 Modal-Site)
+4. src/components/player/detail/LimitOrderModal.tsx (1 Modal-Site)
+
+Gesamt: 4 Modal→Dialog JSX-Sites, 4 Import-Renames.
+
+## Test-Mocks Updated (3)
+
+- src/components/trading/__tests__/SellModalCore.test.tsx (`Modal:` → `Dialog:`)
+- src/components/player/detail/__tests__/SellModal.test.tsx (`Modal:` → `Dialog:` — SellModal ist Thin-Wrapper um SellModalCore, mockt beide transitiv)
+- src/components/player/detail/__tests__/OfferModal.test.tsx (`Modal:` → `Dialog:`)
+
+## Verification
+
+### 1. tsc --noEmit
+clean (no output = no errors)
+
+### 2. vitest (components/trading + components/player/detail)
+Test Files  15 passed (15)
+Tests       160 passed (160)
+Duration    21.78s
+
+### 3. pnpm run size (bundle-budget gate)
+/market        375.0kB   385kB   -10.0kB ✓
+/player/[id]   407.0kB   415kB    -8.0kB ✓
+All 51 routes within budget.
+
+## Pattern
+
+Drop-in-Migration, identisch wie 181b/c/d/e1 (42× validiert Gesamt):
+- `import { Modal }` → `import { Dialog }`
+- `<Modal ...props>` → `<Dialog ...props>` (Props 1:1, preventClose intakt)
+- `</Modal>` → `</Dialog>`
+- Test-Mock: `Modal:` → `Dialog:`
+
+## Money-Path Integrität
+
+- BuyModal: preventClose={buying || ipoBuying} — aktiver Mid-RPC-Guard via useSafeIdempotentMutation (Slice 178d) intakt
+- SellModalCore: preventClose={busy} — aktiver Mid-RPC-Guard für sell_player_sc + place_sell_order
+- OfferModal: preventClose={offerLoading} — aktiver Mid-RPC-Guard für create_offer Escrow
+- LimitOrderModal: preventClose={false} (Feature ist noch Placeholder, TODO-Kommentar fordert Umstellung bei Live-Mutation)
+
+Wrapper bietet triple-Defense: onOpenChange gated + onPointerDownOutside preventDefault + onEscapeKeyDown preventDefault.
+
+## Total 181e (e1 + e2)
+
+8 Files migriert, 10 JSX-Sites. 47 Sites aus 181b/c/d/e jetzt alle auf Radix-Dialog.
+Offen: 181f (EventDetailModal combined Modal+ConfirmDialog), 181g (JoinConfirmDialog Custom), 181h (Cleanup alte Modal/ConfirmDialog Components).
