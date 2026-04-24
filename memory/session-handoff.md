@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-24 16:56)
+# Session Handoff — Auto (2026-04-24 18:25)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,161 +10,146 @@
 ```
 
 ## Session Commits: 10
-- 11df77e2 docs(agents): gtm-writer + SKILL.md — GTM-Infrastruktur-Gap schliessen
-- 8018a18e docs(hygiene): Slice 181e1+e2 abschluss — active.md idle
-- bd6bf756 refactor(ui): Slice 181e2 — Modal→Dialog migration Batch 4b (Player-Detail Trading, 4 Files)
-- 5f807704 refactor(ui): Slice 181e1 — Modal→Dialog migration Batch 4a (Marktplatz/Orderbook, 4 Files)
-- 9a34f4e2 docs(strategy): Strategie-Memo + Asset-Klasse-Positionierung + Scope-Korrektur
-- aed313aa docs(handoff): Session 2026-04-24 close — 181e-Spec + D35 + Rich-Handoff
-- e81a6410 docs(hygiene): Slice 181d Eintrag in log.md + active.md idle (post-commit nachgezogen)
-- 5eb4d30d refactor(ui): Slice 181d — Modal→Dialog migration Batch 3 (Fantasy/Gamification, 12 Files)
-- 9e2d5b47 refactor(ui): Slice 181c — Modal→Dialog migration Batch 2 (Community/Help/Sonstige, 13 Files)
-- 6a6c7f9c refactor(ui): Slice 181b — Modal→Dialog migration Batch 1 (Admin Pages, 11 Files)
+- 3f8bd077 docs(sprint): Update current-sprint.md mit Session 2026-04-24 Stand
+- 95adb3df docs(hygiene): Slice 187b abschluss — active.md idle + log.md
+- de0dc691 fix(cron): Slice 187b — expire-orders cron route + vercel.json registry
+- c9ff88fb docs(hygiene): Slice 187 abschluss — active.md idle
+- 048a0d6c docs(proof): Slice 187 — DB-Invariant-Cleanup (5 pre-existing failures → 0)
+- 5c5839e4 docs(hygiene): Slice 181f+h abschluss — active.md idle
+- bade6aa0 refactor(ui): Slice 181f+h — EventDetailModal Migration + Modal/ConfirmDialog Cleanup
+- 583af8be docs(proof): Slice 181e Post-Deploy Smoke gegen bescout.net — PASS
+- cfee1b32 docs(handoff): Session 3 2026-04-24 close — Strategy + GTM-Infra + Setup-Review
+- 157f5c9c fix(infra): dedup-cleanup cron daily statt hourly — Hobby-Tier-Workaround
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Rich Handoff — 2026-04-24 Session 3 (Strategy + GTM-Infrastruktur)
+# Rich Handoff — 2026-04-24 Session 4 (Radix-Migration Finale + Infra-Fix + DB-Cleanup)
 
 ## Was diese Session brachte
 
-Diese Session hat **KEIN Code-Slice** produziert, sondern zwei fundamentale strategische Verankerungen:
+8 Slices + 3 Hygiene-Commits. Drei parallele Bereiche: **UI-Migration**, **Infra-Blocker-Fix**, **Data-Integrity**.
 
-| Commit | Scope | Output |
-|--------|-------|--------|
-| `9a34f4e2` | docs(strategy) — Strategie-Memo + Asset-Klasse-Positionierung | `docs/strategy-2026-04-24.md` (580 L) + VISION.md +3 Sektionen + business.md Asset-Klasse-Wording |
-| `11df77e2` | docs(agents) — gtm-writer + SKILL.md | `.claude/agents/gtm-writer.md` + `.claude/skills/gtm-writer/` |
+| Commit | Slice | Scope |
+|--------|-------|-------|
+| `5f807704` | **181e1** | Radix Marktplatz/Orderbook (4 Files, 6 JSX-Sites) |
+| `bd6bf756` | **181e2** | Radix Player-Detail Trading (4 Files, 4 JSX-Sites) |
+| `8018a18e` | hygiene | Slice 181e idle |
+| `157f5c9c` | **Infra-Fix** | `vercel.json` dedup-cleanup hourly → daily (Hobby-Tier-Workaround) |
+| `583af8be` | **181e-smoke** | Post-Deploy Smoke gegen bescout.net (4 Dialog-Varianten PASS) |
+| `bade6aa0` | **181f+h** | EventDetailModal Migration + Modal/ConfirmDialog komplett-Cleanup |
+| `5c5839e4` | hygiene | Slice 181f+h idle |
+| `048a0d6c` | **187** | DB-Invariant-Cleanup (5 pre-existing Failures → 0) |
+| `c9ff88fb` | hygiene | Slice 187 idle |
+| `de0dc691` | **187b** | expire-orders Cron-Route + vercel.json Registry |
+| `95adb3df` | hygiene | Slice 187b idle + log.md |
+| `3f8bd077` | docs | current-sprint.md Update |
 
-Parallele Session 2 (Radix-Migration) ist abgeschlossen — Commits 5f807704 + bd6bf756 + 8018a18e (Slice 181e1 + 181e2 + Hygiene).
+## Kern-Erkenntnisse (für nächste Session wichtig)
 
-## Kern-Reframings (muessen Session 4 bekannt sein)
+### 1. Vercel-Hobby-Tier-Gap gefunden (D36)
 
-1. **Scout Cards = neue Asset-Klasse** zwischen Aktien und Crypto. Positioniert in `docs/strategy-2026-04-24.md` Teil 1-3. Produkt-Wahrheit = Equity-artig, Marketing-Pflicht = Utility-Register.
-2. **FM-Community (20M+ global) ist primaerer Beachhead** — nicht „Fußball-Fans generell". Launch-Hook: „Football Manager, aber real."
-3. **Sakaryaspor-First ist obsolet.** War Finanzierungs-Idee, Plattform ist fertig → Trigger weg. Neu: Bundesliga-Mittelfeld + Sueper-Lig-Top 6 als Default-Targets. Siehe verschaerftes `feedback_scope_all_leagues_launch_ready.md` (User-Memory, Verschaerfung 2026-04-24).
-4. **Setup-Review-Verdict:** Code 8.5/10, Produkt-Klarheit 8.5/10, Market 9.0/10, Execution-Risk 7/10. Bottleneck ist NICHT mehr Engineering — es ist GTM-Execution (Anil musste sich ergaenzen lassen).
+Auto-Deploy war **17 Commits silent blockiert** seit 15:41 UTC. `dedup-cleanup` hourly-cron wird von Hobby abgelehnt, aber Vercel schickt keine Notification. GitHub-push → Webhook → Build → Silent-Fail.
 
-## Neue Infrastruktur (live)
+**Workaround live:** 2 crons daily (dedup-cleanup 03:15, expire-orders 05:30). TODO: zurück auf hourly sobald Pro-Plan aktiv.
 
-- **`gtm-writer` Agent** — verfuegbar via Agent-Tool (`subagent_type: "gtm-writer"`). Tools: Read/Write/Edit/Grep/Glob (kein Bash). Loads strategy-memo + business.md automatisch.
-- **`gtm-writer` Skill** — Deliverable-Templates fuer Landing-Page, Reddit-Post, Cold-Email, Twitter, Discord-Seeding. 4-Filter-Gate (Zielgruppe / Compliance / Scope / Conversion).
-- **CLAUDE.md Agent-Liste** um gtm-writer ergaenzt.
+**Neues Post-Push-Protokoll (D36 codified):** Nach `git push` immer `mcp__vercel__list_deployments` checken ob Commit-SHA in der Liste ist. Fehlt: `vercel deploy --prod --yes` foreground laufen — zeigt die echte Fehlermeldung.
 
-## Anils Commitment (CEO, aus Session-End)
+### 2. Radix-Migration vollständig (46 + 3 Sites)
 
-Anil hat zugesagt den Setup-Review-Rat zu befolgen. Die wichtigste Action die er selbst tun muss (keine Delegation moeglich):
+Custom-`Modal` und `ConfirmDialog` sind **deleted** aus `@/components/ui/`. Einzige SoT: Radix-Wrapper. -130 LOC im UI-Module. Pattern 46× validiert ohne Production-Bug.
 
-**P1 — Diese Woche: 3 Beta-Tester anrufen + Zoom-Calls terminieren**
+**Gap-Catch-Lesson:** 181h Cleanup fand via Re-Audit-Grep 2 Files (Manager/Kader + Manager/Aufstellen) die der Primary-Plan übersehen hatte. Ohne Re-Audit hätte Cleanup den Build gebrochen. → D37 codified: Re-Audit-Grep Pflicht vor Component-Deletion.
 
-Aus MEMORY.md: „Anil-Action-Items: 3 Tester (Familie/Freunde) kontaktieren, min. 1 tuerkisch-sprachig, min. 1 ohne Fußball-Kontext." Diese Action steht seit Phase-3b-Plan. **Ohne diese Calls kein echtes Produkt-Feedback, kein User-Quote fuer Pitch-Deck, kein Momentum.**
+### 3. DB-Cleanup ohne Code-Commit (D38)
 
-## Nahtloser Start fuer naechste Session
+Slice 187 hat 5 Invariants gefixt (INV-35/38/39/40 + SM-ORD-04) **ohne Code-Änderungen**. Nur Supabase MCP SQL-Queries + 1 RPC-Call (`expire_pending_orders`). Proof: worklog/proofs/187-db-invariant-cleanup.md.
 
-### Wichtig: erster Lesezug in Session 4
+**158 buy-order Escrows** wurden durch RPC korrekt released (locked_balance → balance + transactions-audit-log + recalc_floor_price). Money-Path-Integrität intakt.
 
-1. `docs/strategy-2026-04-24.md` TL;DR (erste 20 Zeilen) — Strategie-Ground-Truth
-2. `memory/feedback_scope_all_leagues_launch_ready.md` (User-Memory) — Scope-Direktive
-3. Dieses Handoff-File — Kontext wo wir stehen
+### 4. Test-Status verbessert
 
-### Was Session 4 liefern sollte (Empfehlung, nicht Pflicht)
+- **Vor Session:** 3117/3128 (5 rote Tests: 4 DB-Invariants + 1 SM-ORD-04)
+- **Nach Session:** 3122+/3128 — 44/44 in db-invariants.test.ts + order-lifecycle.test.ts (war 39/44)
+- Build grün, Bundle alle 51 Routes within Budget
 
-| Option | Was | Dauer | Wer |
+## Session 3 Context (noch relevant für Session 5+)
+
+Session 3 (2026-04-24 early) war Strategy + GTM-Infra (KEIN Code-Slice):
+- `docs/strategy-2026-04-24.md` (580 L) — Strategie-Ground-Truth
+- VISION.md + business.md +Asset-Klasse-Positionierung
+- **`gtm-writer`** Agent + Skill (noch unbenutzt, Session 5-Kandidat)
+
+Aus Session 3 übernommen, **nicht erledigt**:
+- **P1 Anil-Action:** 3 Beta-Tester anrufen + Zoom-Calls terminieren (Mensch-Task, nicht delegierbar)
+- **P2 Landing-Page-Copy** via gtm-writer — wartet auf Anil-Trigger
+
+## Nahtloser Start für nächste Session
+
+### Erster Lesezug in Session 5
+
+1. Dieses Handoff-File (bist du gerade)
+2. `memory/decisions.md` D34-D38 (Radix + Self-Review + Hobby-Protokoll + Re-Audit + MCP-Data-Cleanup)
+3. `worklog/log.md` Top 8 Einträge (Session 4 Slices)
+4. `.claude/rules/errors-infra.md` Vercel Hobby-Tier-Section (neu)
+
+### Optionen für Session 5
+
+| Option | Was | Dauer | Typ |
 |--------|-----|-------|-----|
-| **A (empfohlen)** | Erster GTM-Output: Landing-Page-Copy fuer FM-Community via `gtm-writer` Agent | 15-30 min | Agent-Dispatch |
-| B | Reddit-Post-Entwurf fuer r/footballmanagergames (AMA-Format) via gtm-writer | 15-20 min | Agent-Dispatch |
-| C | Cold-Email-Template fuer Club-Outreach (Bundesliga-Mittelfeld) via gtm-writer | 10-15 min | Agent-Dispatch |
-| D | 60-Sek-Video-Script fuer Launch-Kampagne | 10 min | Solo-Claude |
+| **A** | GTM-Output via gtm-writer Agent (Landing-Page, Reddit-Post, Cold-Email) | 30-60 min | Content-Work |
+| **B** | Ghost-Prevention in `sync-players-daily` (INV-39/40 Recurrence-Prevention) | 30-60 min | Scraper-Fix |
+| **C** | INV-35 Regression-Guard (Admin-UI Logo-URL Validation) | 20 min | Frontend |
+| **D** | CI-Check Cron-Route-Registry-Audit (automated gap-detection) | 15 min | Tooling |
+| **E** | 181g JoinConfirmDialog Custom-DOM → Radix-Dialog-Refactor | 30 min | UI-Polish |
+| **F** | Vercel-Pro-Restore-Check + Crons zurück auf hourly (falls Anil Plan klärt) | 5 min | CEO-dependent |
 
-**Option A ist Default** wenn Anil ohne weitere Anweisung startet. Das ist das unmittelbar naechste Artefakt um Landing-Page zu bauen.
+**Empfehlung:** A (GTM) wenn Anil marketing-fokussiert ist, sonst B (Ghost-Prevention) weil es Root-Cause der recurring INV-39/40 fixt.
 
-### Agent-Dispatch-Template fuer Session 4
+### NICHT starten in Session 5 ohne Rücksprache
 
-```
-Agent({
-  subagent_type: "gtm-writer",
-  description: "Landing-Page FM-Community",
-  prompt: "Baue Landing-Page-Copy fuer die FM-Community-Launch-Kampagne.
-           Zielgruppe: r/footballmanagergames (450K) + Football-Manager-Twitter.
-           Hook: 'Football Manager, aber real.'
-           Deliverable: Hero + 3 Sektionen + 3 FAQ + Deploy-Guide.
-           Output: copy-paste-ready Markdown-Draft + A/B-Varianten + Risiken.
-           Context: Read docs/strategy-2026-04-24.md TL;DR + Teil 4 + Teil 7."
-})
-```
+- Keine neue Migration ohne `mcp__supabase__apply_migration` (registry drift)
+- Kein Radix-Revert — Custom-Modal ist deleted, kein Zurück
+- Kein `git push` ohne Post-Push-Vercel-Deploy-Check (D36-Protokoll)
 
-### NICHT starten in Session 4 ohne Ruecksprache
+## Open Follow-ups
 
-- Kein weiteres Code-Slice (Radix 181f/g/h Cleanup optional, aber nicht prioritaer)
-- Kein Club-Kontakt ohne Landing-Page + Pitch-Material
-- Keine neue Strategie-Iteration — Memo ist stable
-
-## Open Follow-ups (Setup-Review Top 5)
-
-| Prio | Action | Owner |
-|------|--------|-------|
-| **P1** | 3 Beta-Tester anrufen, Zoom-Calls terminieren | Anil (Mensch-Aktion, nicht delegierbar) |
-| **P2** | Erste Landing-Page-Copy via gtm-writer produzieren | Claude + Anil Review |
-| **P3** | Metriken-Dashboard `/admin/metrics` (Wait-List / Social-Reach / Active-Users) | Eigener Slice (2 Slices Work) |
-| **P4** | „Code-freier Tag" ins Ritual (1×/Woche) — GTM/Community-Outreach | Anil (Selbstdisziplin) |
-| **P5** | Externen Sparring-Partner finden (Indie-Hacker + Ex-Football-Profi) | Anil (Network-Arbeit) |
-
-## Open Follow-ups aus Session 2 (Radix-Migration, niedrigere Prioritaet)
-
-| Prio | Scope |
-|------|-------|
-| MED | **181f** EventDetailModal kombinierter Modal+ConfirmDialog → Dialog+AlertDialog (1 File) |
-| MED | **181g** JoinConfirmDialog Custom-Dialog Refactor → AlertDialog (1 File) |
-| MED | **181h** Cleanup — alte Modal+ConfirmDialog Components aus `src/components/ui/index.tsx` entfernen |
-| LOW | buyFromIpo Idempotency-Integration |
-| LOW | 185c per-chunk size-limit fuer grosse Libs |
-| LOW | 180b Service-Shape votes/adminDeletePost/adminTogglePin |
-| LOW | Notion-Action: Slice 181/181b/c/d/e1/e2 → „Erledigt" markieren in Kanban |
-
-## Bekannte vorher-bestehende Failures (NICHT Slice-181x-related)
-
-- `db-invariants.test.ts`: 4 Failures (INV-35/38/39/40) — Live-DB-Data-Integrity-Issues:
-  - INV-35: Club-Logos sind aus einer Single-Source (api-sports canonical)
-  - INV-38: kein unflagged Player mit contract_end > 12 Monate in der Vergangenheit
-  - INV-39: keine Cross-Club-Contamination Ghost-Rows
-  - INV-40: keine Same-Club Player-Duplicates
-- Eigener Tier-A Slice empfohlen (Daten-Issues, nicht Code-Issues). Nicht-blocker fuer 181e.
+| Prio | Scope | Owner | Session |
+|------|-------|-------|---------|
+| **P1** | 3 Beta-Tester anrufen + Zoom-Calls | Anil (Mensch-Task) | ASAP |
+| **P2** | Vercel-Plan-Entscheidung: Hobby (bewusst) vs Pro-Upgrade | Anil (CEO) | Vor nächstem hourly-Cron-Bedarf |
+| **P3** | Landing-Page-Copy via gtm-writer | Claude + Anil Review | Session 5-A |
+| **P4** | Ghost-Prevention sync-players-daily | Claude Solo | Session 5-B oder später |
+| **P5** | Metriken-Dashboard /admin/metrics | Eigener 2-Slice-Scope | Post-Beta-Launch |
 
 ## CI / Pipeline-Status
 
-- Branch-Protection: 3 required status checks bypassed bei push (Owner-Berechtigung)
-- Build-Job: `next build` + `pnpm run size` Gate — beide gruen lokal
-- Pre-commit: commitlint + lint-staged aktiv
-- ship-cto-review-gate: aktiv, prueft File-Existence in worklog/reviews/
-- ship-proof-gate: aktiv, prueft Proof-Artifact bei feat(/fix(-Commits
-
-## Wrapper-API-Reminder (fuer 181e Migrations)
-
-```tsx
-// Drop-in Migration: import-rename + JSX-rename
-import { Modal, Button } from '@/components/ui'  →  import { Dialog, Button } from '@/components/ui'
-<Modal open={...} title={...} preventClose={...} onClose={...} ...>  →  <Dialog ... />
-
-// Test-Mock-Update (vi.mock @/components/ui):
-Modal: ({ open, children, title, onClose }) => ...  →  Dialog: ({ open, children, title, onClose }) => ...
-```
-
-Wrapper-Source: `src/components/ui/Dialog.tsx`. preventClose-Pattern intakt.
+- `main` = `3f8bd077` (HEAD, pushed)
+- Build: ✓ (51 Routes within Bundle-Budget)
+- Tests: 44/44 db-invariants + order-lifecycle grün (vor Session 39/44)
+- Vercel Auto-Deploy: funktional nach Hobby-Workaround, letzter Build `dpl_6mCNXaoDcqk7...` READY
+- Pre-Commit-Hooks: commitlint + lint-staged + tsc + ship-cto-review-gate + ship-proof-gate alle aktiv
 
 ## Worktree-Status
 
-- main = einziger Worktree (e81a6410)
-- agent-a0ad4a83 entfernt nach Merge
+- main = einziger Worktree
+- Keine offenen Agent-Worktrees
 
-## CEO-Scope-Reminder
+## CEO-Scope-Reminder (Session 5 Vorbereitung)
 
-- 181e Trading betrifft Money-Path-UI aber kein RPC/Wording-Change → kein CEO-Approval noetig
-- Visual-Regression-Risk = CEO-Scope-naehe → qa-visual + bescout.net-Smoke Pflicht (siehe 181e Spec AC-5+6+7)
+- **Vercel-Plan-Entscheidung:** Hobby-Tier aktuell aktiv. Wenn Anil Pro wieder abonniert → 2 crons zurück auf optimaler Schedule (dedup-cleanup hourly, expire-orders hourly).
+- **Money-Path-Guard:** Session 187b expire-orders-cron läuft ab morgen 05:30 UTC. Erste Verifikation: Vercel-Log Eintrag `{ok:true, expired:0}` erwartet.
+- **Beta-Launch:** Wartet auf 3 echte Tester (Anil-organisiert). Kein weiteres Code-Blocker.
 
-## Time-Budget-Annahme naechste Session
+## Time-Budget-Annahme nächste Session
 
-- 181e1 (4 Files + Pre/Post-QA): ~30-45 min
-- 181e2 (4 Files + Pre/Post-QA): ~30-45 min
-- 181f + 181g + 181h Cleanup: ~30 min
-- **Total Radix-Migration komplett**: ~90-120 min in einer fokussierten Session
+- Option A (GTM via Agent): 30-60 min — Agent-Dispatch + Review + optional Iteration
+- Option B (Ghost-Prevention): 30-60 min — Pre-Insert-Guard in sync-players-daily + Tests
+- Option C (Admin-UI Regex): 20 min
+- Option D (Cron-Registry CI-Check): 15 min
+- Option E (181g Refactor): 30 min
+- Option F (Vercel-Pro-Restore): 5 min + Plan-Klärung
+
+**Kombi-Session möglich:** B + D (Data-Integrity-Fokus) ~75 min ODER A + F (GTM-Launch-Fokus) ~65 min.
 

@@ -29,6 +29,22 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `perfo
 - KEIN `createClient()` auf Module-Level → Lazy-Init via Proxy/Getter, sonst crasht Vercel Build.
 - CSP `img-src`: Domains aus DB ableiten (`SELECT DISTINCT substring(image_url FROM '^https?://[^/]+')`), nicht raten.
 
+### Vercel Hobby-Tier Silent-Build-Fail bei hourly Crons (Slice 187 + D36)
+- **Symptom:** Auto-Deploy funktioniert nicht mehr nach Plan-Downgrade (Billing-Lapse, manuelle Änderung). GitHub push → Webhook → Vercel startet build → build failed silent mit `Hobby accounts are limited to daily cron jobs. This cron expression (0 * * * *) would run more than once per day. Upgrade to the Pro plan to unlock all Cron Jobs features on Vercel.`
+- **Kein UI-Notification:** Vercel-Dashboard zeigt failed builds, aber keine E-Mail/Slack-Alert. `mcp__vercel__list_deployments` zeigt NEUESTE Deployment-Entries, nicht den erwarteten neuen Commit — **nur ein abwesender Build** als Signal.
+- **Detection (D36-Protokoll):** Nach `git push origin main` innerhalb 2-3 min via `mcp__vercel__list_deployments` verifizieren dass Commit-SHA in der Liste ist. Wenn NICHT: `vercel deploy --prod --yes` foreground laufen lassen um die echte Fehlermeldung zu sehen.
+- **Fix-Varianten:**
+  - Temporär: Offending cron-schedule auf daily reduzieren (`0 * * * *` → `0 3 * * *` oder ähnlich). `vercel deploy --prod --yes` triggert sofort.
+  - Permanent: Vercel-Plan auf Pro upgraden (40 Crons, hourly+). Falls intentional auf Hobby → alle `* * * * *`-patterns mit stern-stern-stern-star abschaffen, nur daily oder weniger.
+- **Vercel-Hobby-Limits (Stand 2026-04):** Max 2 Crons, 1×/Tag. Pro: 40 Crons, hourly+, 300s maxDuration.
+- **Prevention:** Pre-Push-Check `grep '"0 \*' vercel.json` — wenn hourly-Entry und Plan unsicher: erst Plan prüfen.
+- **Audit-Command:**
+  ```bash
+  # Sucht potentiell-Hobby-brechende Cron-Schedules
+  grep -oE '"schedule":\s*"[^"]+"' vercel.json | grep -E '\* \* \* \*|(\*|\*/1|0) \*'
+  ```
+- **Referenz-Incident:** 2026-04-24 — 17 Commits silent blockiert 4+ Stunden (Slice 181/b/c/d/e1/e2 + 185b + 186 + Strategy-Memo nicht live). Fix-Zeit nach Discovery: 2 min. Discovery-Zeit ohne Protokoll: 30 min (MCP-Rumsucherei). D36 dokumentiert das Post-Push-Health-Check-Protokoll.
+
 ### Bundle-Budget-Gate (Slice 185b)
 - `bundle-budget.json` definiert thresholds pro Route + shared-bundle.
 - `pnpm run size` oder CI-Gate in `.github/workflows/ci.yml` build-Job.

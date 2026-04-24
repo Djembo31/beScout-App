@@ -1382,6 +1382,135 @@ Bedingungen:
 
 ---
 
+## D36 — PROCESS: Vercel-Deploy-Health-Check nach Push (Silent-Build-Fail-Detection)
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Nach jedem `git push origin main` muss innerhalb 3 Minuten via `mcp__vercel__list_deployments` verifiziert werden, dass der neueste Commit als Deployment listet. Wenn Vercel-List die letzten Commits NICHT enthält: **Silent-Build-Fail vermuten** und SOFORT `vercel deploy --prod --yes` foreground laufen lassen, um den echten Fehler zu sehen.
+
+Trigger-Bedingung:
+- Eine komplette Session (8+ Commits, 4+ Stunden) ohne Auto-Deploy-Output auf Vercel → Plan-Downgrade oder Webhook-Drop vermuten
+- Auto-Deploys funktionieren laut Vercel-MCP seit X Stunden nicht → NICHT weiter pushen bis Ursache gefunden
+
+### Begründung
+
+In Session 2026-04-24 waren **17 Commits silent blockiert** seit 15:41 UTC weil `dedup-cleanup` cron `0 * * * *` (hourly) auf Hobby-Tier rejected wurde. Jede `git push` hat den Webhook getriggert, Vercel hat Build started, der Build validiert `vercel.json`, Fail mit Message „Hobby accounts are limited to daily cron jobs" — aber **keine Notification irgendwo**. GitHub Action sah Commit, Vercel-Dashboard hatte failed-builds, aber nichts hat eskaliert.
+
+Fix-Zeit nach Discovery: 2 min (cron-Schedule auf daily, manual deploy). **Discovery-Zeit ohne Protokoll: 30 min** (MCP-Rumsucherei, API-Call, Log-Inspektion). Health-Check nach Push hätte das sofort gefangen.
+
+### Auswirkungen
+
+- **Post-Push-Protokoll:** Neue Routine — nach `git push` immer `mcp__vercel__list_deployments` mit `since: <push-timestamp>` checken. Wenn 0 Results nach 2-3 min: `vercel deploy --prod --yes` manuell triggern um die echte Fehlermeldung zu sehen.
+- **Rules-Update:** `.claude/rules/errors-infra.md` kriegt Vercel-Hobby-Cron-Pattern (parallel zu dieser Decision).
+- **CI-Gate möglich (Optional Slice):** GHA-Workflow der post-push-deploy-status nach 5 min überwacht und failed bei MISSING-Deploy.
+
+### Alternativen erwogen
+
+- **Manuelle Vercel-Dashboard-Check:** Verworfen — unreliable, nicht in Claude's Loop.
+- **GHA-Webhook `deployment_status` watch (existiert bereits für Smoke):** Verworfen als alleinige Lösung — triggered nur bei `success`-events, nicht bei silent-fail WITH NO DEPLOYMENT CREATED at all.
+- **Vercel-Pro-Plan immer zahlen:** CEO-Entscheidung — auch mit Pro können Webhooks droppen (Slice 140 cron-gaps als Präzedenzfall).
+
+### Re-Visit-Trigger
+- Falls Vercel je ein Notification-System für build-config-rejections einführt (z.B. E-Mail bei Hobby-Plan-Limit-Breach) → Protokoll vereinfachen.
+- Falls CI-Gate implementiert ist (GHA watcher) → manuelles Probing optional.
+
+---
+
+## D37 — PROCESS: Re-Audit-Grep vor Component-Deletion-Slices (Cleanup-Gap-Catch)
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Bevor ein Component, Hook, Type, Service oder UI-Primitive aus `src/` gelöscht wird, ist ein finaler Re-Audit-Grep über alle Import-Pfade Pflicht. Das gilt auch wenn der Primary-Plan explizit alle bekannten Call-Sites auflistet — weil Cleanup-Slices oft 46× validiertes Pattern wiederholen und man daher dazu neigt die Restliste als komplett zu betrachten.
+
+Template-Grep:
+```bash
+grep -rn "import.*\b<Component>\b.*from ['\"]@/<path>" src/
+# Erwartung: 0 matches VOR Deletion
+```
+
+Wenn Treffer > 0: **Stop, diese Files zuerst migrieren**, Deletion-Slice pausieren. Wenn Deletion-Slice trotzdem läuft → Build-bruch garantiert.
+
+### Begründung
+
+Slice 181h (Modal + ConfirmDialog Cleanup):
+- Primary-Plan: nur EventDetailModal (181f) + fine
+- Re-Audit-Grep: fand **2 zusätzliche Files** (PlayerDetailModal.tsx Manager + EventSelector.tsx Manager-Aufstellen) die nicht im Plan standen
+- Ohne Re-Audit: `Modal` aus index.tsx removen → diese 2 Files hätten `import { Modal } from '@/components/ui'` → Build-Error auf Prod
+
+Pattern-Referenz: `errors-infra.md` Slice 166 (Grep-Audit-Scope-Gap bei Sub-Component-Scan — 46% zusätzliche Files gefunden durch Gap-Audit).
+
+### Auswirkungen
+
+- **Post-Migration, Pre-Deletion Audit:** Standard-Step in Cleanup-Slices. Findings in Slice-Proof dokumentieren („Re-Audit Gap-Catch: N zusätzliche Files migriert bevor Deletion").
+- **Spec-Template für Cleanup-Slices:** Expliziter Re-Audit-Step in Stage-Chain vor BUILD (oder am BUILD-Ende).
+- **Applies auch für:** Hook-Removal, Type-Removal, Service-Removal, Feature-Flag-Removal.
+
+### Alternativen erwogen
+
+- **Primary-Plan exhaustive machen:** Verworfen — Cleanup-Slices leben von „46× validiert, trivial" Velocity-Erwartung. Exhaustive-Planning macht jeden Cleanup zum L-Scope.
+- **Deletion ohne Audit (Trust the Plan):** Verworfen — 181h Szenario zeigt: 22% Gap-Catch-Rate reicht zum Build-Bruch.
+- **Reviewer-Agent exklusiv:** Verworfen — Reviewer kann Re-Audit machen aber Cold-Context hat weniger Signal als einfacher Grep.
+
+### Re-Visit-Trigger
+- Falls grep-basierter Re-Audit je einen Silent-Miss hat (z.B. dynamic-imports, barrel-re-exports) → Audit-Tool upgraden (ts-morph, ripgrep-JSON mit AST).
+
+---
+
+## D38 — ARCHITECTURE: Data-Cleanup via Supabase MCP statt Migration fuer non-schema-changes
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Für Data-Integrity-Cleanups (Invariant-Repair, Ghost-Row-Orphaning, Stale-Flag-Update, Order-Expiration), die **nur Live-DB-State ändern ohne Schema-Change**, nutzen wir direkt `mcp__supabase__execute_sql` statt Migration-File zu schreiben.
+
+Regeln:
+- **Schema-Change (DDL, neue Tabellen, neue RPCs):** Migration Pflicht (`mcp__supabase__apply_migration`).
+- **Data-Change (UPDATE, DELETE auf existing rows):** MCP-Execute in Slice-Proof dokumentieren, kein Migration-File.
+- **Money-Path Data-Change:** Nur via existierende SECURITY DEFINER RPC (z.B. `expire_pending_orders`) — niemals raw UPDATE auf `wallets`, `transactions`, `orders`.
+- **Proof-Pflicht:** Jede Query (Before-Count, UPDATE, After-Count) in `worklog/proofs/<slice>.md` verbatim + 0-Violations Verify + vitest RED→GREEN.
+
+### Begründung
+
+Slice 187 (5 pre-existing Invariants → 0):
+- 0 Code-Änderungen im Repo
+- 5 gezielte UPDATEs via MCP + 1 RPC-Call
+- Verify via Live-DB-Count + vitest 44/44 grün
+- Proof + Review dokumentiert (reproducible via Queries)
+
+Migration hätte 5 separate Files erfordert, keine davon würde nach erstmaligem Apply je wieder laufen (idempotent trivial weil UPDATE mit Filter). File-Noise + Registry-Drift-Risiko ohne Nutzen.
+
+Gegenargument: „Migration als Audit-Trail". Counter: Git-Log + Proof-File sind Audit-Trail genug, MCP-Calls sind loggenbar via Supabase-Edge-Logs.
+
+### Auswirkungen
+
+- **Slice-Classification:** Data-Cleanup-Slices bekommen Stage-Chain SPEC → IMPACT `skipped (data-only)` → BUILD (DB-State-Change via MCP) → REVIEW → PROVE → LOG.
+- **Proof-Template:** Before-Counts + SQL-Queries + After-Counts + vitest.
+- **Money-Path-Guard:** `UPDATE wallets|transactions|orders` niemals raw — immer RPC. Pre-Commit-Grep möglich als CI-Check.
+- **Recurring Data-Issues:** Falls ein Invariant-Violation regelmäßig auftritt → ursprünglicher Bug (z.B. sync-players-daily Ghost-Prevention) muss als Code-Fix gemacht werden, Cleanup-Slice ist nur Symptom-Behandlung.
+
+### Alternativen erwogen
+
+- **Migration pro Data-Cleanup:** Verworfen — File-Noise, Registry-Entries für Einmal-Aktionen, kein Re-Run-Wert.
+- **Direct-SQL-Editor (Supabase-Dashboard):** Verworfen — nicht in Claude's Workflow, kein Audit-Trail im Repo.
+- **Admin-UI-Buttons für Cleanups:** Verworfen — Over-Engineering, CEO könnte versehentlich Money-Path-Daten touchen.
+
+### Re-Visit-Trigger
+- Falls Data-Cleanups sich wiederholen (gleicher Invariant 2+ mal in 30 Tagen gebrochen) → Code-Fix für Root-Cause Pflicht, Cleanup-Protokoll dokumentiert es als Symptom-Indicator.
+- Falls Supabase MCP je entfernt wird → Fallback auf Migration-Files.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
