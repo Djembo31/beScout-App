@@ -16,7 +16,8 @@
     { "path": "/api/cron/sync-standings", "schedule": "0 2 * * *" },
     { "path": "/api/cron/sync-fixtures-future", "schedule": "0 4 * * *" },
     { "path": "/api/cron/sync-transfers", "schedule": "0 1 * * 1" },
-    { "path": "/api/cron/dedup-cleanup", "schedule": "15 3 * * *" }
+    { "path": "/api/cron/dedup-cleanup", "schedule": "15 3 * * *" },
+    { "path": "/api/cron/expire-orders", "schedule": "30 5 * * *" }
   ],
   "headers": [
     {

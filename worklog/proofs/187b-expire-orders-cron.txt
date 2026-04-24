@@ -1,0 +1,78 @@
+Slice 187b — expire-orders Cron-Route + vercel.json Registry
+Datum: 2026-04-24
+
+## Root-Cause (aus Slice 187)
+
+158 stale open/partial orders mit expires_at < now() wurden nicht automatisch cancelled.
+Grund: Cron-Route `expire-orders` existierte NICHT. RPC `expire_pending_orders()`
+war live (SECURITY DEFINER, RELEASE-escrow + transaction-log + recalc_floor_price),
+aber nur manuell via Supabase SQL-Editor aufrufbar.
+
+Audit-Command:
+```bash
+find src/app/api/cron -type d
+# → zeigt KEINE expire-orders directory, aber 9 andere cron routes
+```
+
+## Fix
+
+### 1. Cron-Route angelegt
+
+src/app/api/cron/expire-orders/route.ts (GET):
+- Bearer-Auth via CRON_SECRET env-var
+- supabaseAdmin.rpc('expire_pending_orders')
+- Returns { ok: true, expired: <count> }
+- Wrapped in withLogger('cron.expire-orders') (Sentry + pino structured logs)
+
+Template kopiert aus src/app/api/cron/close-expired-bounties/route.ts (gleiche Auth-
++ Log-Pattern).
+
+### 2. vercel.json Cron-Entry
+
+```diff
+  { "path": "/api/cron/dedup-cleanup", "schedule": "15 3 * * *" },
++ { "path": "/api/cron/expire-orders", "schedule": "30 5 * * *" }
+```
+
+Schedule: 05:30 UTC daily (Hobby-Tier Limit aus 157f5c9c).
+TODO: Auf `0 * * * *` (hourly) umstellen sobald Vercel-Plan Pro aktiv.
+
+Slot-Rationale:
+- 05:00 close-expired-bounties
+- 05:30 expire-orders ← neu
+- 06:00 gameweek-sync
+
+Kein Conflict mit bestehenden Slots, sequenziell ausgelegt damit ein Cron-Run
+den naechsten nicht ueberholt.
+
+## Verify
+
+### tsc
+clean (0 errors)
+
+### Cron-Registry-Audit
+```bash
+# Alle 9 prev + 1 neue cron-routes sind in vercel.json registriert
+grep -oE '"/api/cron/[^"]+"' vercel.json | wc -l
+# → 10 entries
+```
+
+### Expected Behavior (nach Deploy)
+Morgen 05:30 UTC:
+- Cron-Run triggert /api/cron/expire-orders
+- Vercel-Log: `{"ok":true,"expired":N}` (N wahrscheinlich 0, da 187 bereits
+  cleant)
+- Folgende Tage: N = Anzahl der am Vortag expired-aber-open Orders
+
+## Regression-Prevention
+
+Pattern D19 (Cron-Route-Registry) aus 149c bestaetigt: Jede `src/app/api/cron/*/route.ts`
+MUSS in vercel.json eingetragen sein, sonst silent gap.
+
+Audit-Command (empfohlen als CI-Check in separatem Slice):
+```bash
+comm -23 \
+  <(find src/app/api/cron -mindepth 1 -maxdepth 1 -type d | sed 's|.*/||' | sort) \
+  <(grep -oE '"/api/cron/([^"]+)"' vercel.json | sed 's|"/api/cron/||;s|"$||' | sort)
+# Gibt Cron-Dirs ohne vercel.json-Entry aus
+```
