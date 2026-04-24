@@ -1,19 +1,19 @@
 # Active Slice
 
 ```
-status: active
-slice: 181d
-stage: BUILD
-spec: worklog/specs/181b-radix-migration-plan.md (Batch 181d section)
-impact: skipped (Pattern aus 181/181b/181c etabliert)
-proof: pending
-review: pending
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 181d** (2026-04-24) — Modal→Dialog Fantasy/Gamification (12 Files) (L, PASS).
 - **Slice 181c** (2026-04-24) — Modal→Dialog Community/Help (13 Files) (L, PASS).
 - **Slice 181b** (2026-04-24) — Modal→Dialog Admin (11 Files) (L, PASS).
-- **Slice 181** (2026-04-24) — Radix UI-Primitives Foundation (L, REWORK→PASS).
 
-Naechstes nach 181d: 181e Trading/Money (HIGH — eigener Slice mit Smoke-Suite).
+Naechstes: **181e Trading/Money (8 Files, HIGH risk)** — eigener Slice mit qa-visual Pre-Migration-Baseline + preventClose Smoke-Test gegen bescout.net. Sub-Slice-Split empfohlen (4 Files / Sub-Slice).

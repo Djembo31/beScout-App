@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181d | 2026-04-24 | Modal→Dialog Migration Batch 3 — Fantasy/Gamification (12 Files)
+
+- **Stage-Chain:** SPEC (181b plan) → IMPACT skipped → BUILD (self) → REVIEW (self) → PROVE → LOG
+- **Scope L:** 12 Drop-in Migrations. **MEDIUM-Risk-Sites:** MysteryBoxModal preventClose during open_mystery_box_v2 RPC, AchievementUnlockModal mit Confetti.
+- **Files (PROD):** fantasy/{CreateEventModal,CreatePredictionModal,EventSummaryModal,SpieltagTab,ErgebnisseTab,LeaguesSection}.tsx, fantasy/spieltag/FixtureDetailModal.tsx, gamification/{MysteryBoxModal,AchievementUnlockModal,EquipmentPicker}.tsx, inventory/EquipmentDetailModal.tsx, onboarding/WelcomeBonusModal.tsx
+- **Files (TESTS):** 6 Mock-Renames (CreatePredictionModal, SpieltagTab, AchievementUnlockModal, MysteryBoxModal, LeaguesSection, FixtureDetailModal)
+- **Proof:** worklog/proofs/181d-tests-bundle.txt — 6/6 vitest gruen, 51/51 tests, bundle alle 51 Routes within budget, tsc clean
+- **Commit:** 5eb4d30d
+- **Naechstes:** 181e Trading/Money (HIGH risk).
+
 ## 181c | 2026-04-24 | Modal→Dialog Migration Batch 2 — Community/Help/Sonstige (13 Files)
 
 - **Stage-Chain:** SPEC (181b plan) → IMPACT skipped → BUILD (self, mechanical) → REVIEW (self) → PROVE → LOG
