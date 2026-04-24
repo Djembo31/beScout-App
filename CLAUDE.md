@@ -99,7 +99,7 @@ Next.js 14 App Router | TypeScript strict | Tailwind (Dark Mode) | Supabase (PG 
 
 ## Agents (via Agent-Tool)
 
-backend, frontend, reviewer (PFLICHT nach Impl), healer, test-writer, impact-analyst, qa-visual, business, autodream, Explore (read-only Research), Plan (Architektur)
+backend, frontend, reviewer (PFLICHT nach Impl), healer, test-writer, impact-analyst, qa-visual, business, autodream, gtm-writer (GTM-Content: Landing, Reddit, Cold-Mail, Pitch), Explore (read-only Research), Plan (Architektur)
 
 **Default seit Slice 085 (2026-04-21):** Bei **3+ Files cross-domain** → Parallel-Dispatch (backend + frontend + test-writer parallel in Worktrees). Serial-Claude nur bei <3 Files oder Money/Trading. Siehe `/parallel-dispatch` Skill.
 
