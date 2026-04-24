@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useDraft } from '@/lib/hooks/useDraft';
 import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
@@ -153,7 +153,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
   }, [open]);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={isScouting ? tr('newScoutingReport') : tr('newResearchReport')}
       onClose={onClose}
@@ -428,6 +428,6 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
         </div>
 
       </div>
-    </Modal>
+    </Dialog>
   );
 }

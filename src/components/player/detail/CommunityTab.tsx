@@ -7,7 +7,7 @@ import {
   FileText, ChevronRight, Plus, MessageSquare, ArrowUp, ArrowDown,
   Trash2, BadgeCheck, Send, CheckCircle2, Radio, Filter,
 } from 'lucide-react';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import ResearchCard from '@/components/community/ResearchCard';
 import { POST_CATEGORIES, formatTimeAgo } from '@/components/community/PostCard';
@@ -310,7 +310,7 @@ function CommunityTabInner({
       )}
 
       {/* ── Create Player Take Modal ── */}
-      <Modal open={showCreatePost} title={t('statementAbout', { name: playerName })} onClose={() => setShowCreatePost(false)} preventClose={postLoading}>
+      <Dialog open={showCreatePost} title={t('statementAbout', { name: playerName })} onClose={() => setShowCreatePost(false)} preventClose={postLoading}>
         <div className="space-y-4">
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('category')}</label>
@@ -343,10 +343,10 @@ function CommunityTabInner({
           </div>
           <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitPost}>{t('post')}</Button>
         </div>
-      </Modal>
+      </Dialog>
 
       {/* ── Create Transfer Rumor Modal ── */}
-      <Modal open={showCreateRumor} title={t('rumorAbout', { name: playerName })} onClose={() => setShowCreateRumor(false)} preventClose={postLoading}>
+      <Dialog open={showCreateRumor} title={t('rumorAbout', { name: playerName })} onClose={() => setShowCreateRumor(false)} preventClose={postLoading}>
         <div className="space-y-4">
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('typeLabel')}</label>
@@ -385,7 +385,7 @@ function CommunityTabInner({
           </div>
           <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitRumor}>{t('postRumor')}</Button>
         </div>
-      </Modal>
+      </Dialog>
     </div>
   );
 }

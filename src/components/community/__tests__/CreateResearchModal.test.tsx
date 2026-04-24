@@ -10,7 +10,7 @@ import type { Pos } from '@/types';
 // ============================================
 
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title, footer, onClose }: any) =>
+  Dialog: ({ open, children, title, footer, onClose }: any) =>
     open ? (
       <div data-testid="modal">
         <div data-testid="modal-title">{title}</div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { User, Check, X, Loader2, Globe, AlertTriangle, Camera, Bell, BellRing, ArrowLeftRight, Send, Trophy, UserPlus, Target, Gift, ArrowLeft } from 'lucide-react';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
@@ -486,14 +486,14 @@ export default function ProfileSettingsPage() {
         </Button>
       </Card>
 
-      <Modal open={showDeleteModal} title={t('deleteTitle')} onClose={() => setShowDeleteModal(false)}>
+      <Dialog open={showDeleteModal} title={t('deleteTitle')} onClose={() => setShowDeleteModal(false)}>
         <p className="text-sm text-white/60 text-pretty mb-6">
           {t('deleteMessage')}
         </p>
         <Button variant="outline" fullWidth onClick={() => setShowDeleteModal(false)}>
           {t('understood')}
         </Button>
-      </Modal>
+      </Dialog>
     </div>
   );
 }

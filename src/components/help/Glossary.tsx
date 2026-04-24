@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -61,7 +61,7 @@ export function Glossary({ open, onClose }: GlossaryProps) {
   }, [filtered]);
 
   return (
-    <Modal open={open} onClose={onClose} title={t('title')} size="sm">
+    <Dialog open={open} onClose={onClose} title={t('title')} size="sm">
       {/* Search input */}
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/40" />
@@ -112,6 +112,6 @@ export function Glossary({ open, onClose }: GlossaryProps) {
           </div>
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

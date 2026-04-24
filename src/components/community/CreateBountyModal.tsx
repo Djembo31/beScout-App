@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Target, Coins } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { formatScout } from '@/lib/services/wallet';
@@ -59,7 +59,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={t('createBounty.title')}
       onClose={onClose}
@@ -173,6 +173,6 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
           </div>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

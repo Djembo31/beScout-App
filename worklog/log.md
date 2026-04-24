@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181c | 2026-04-24 | Modal→Dialog Migration Batch 2 — Community/Help/Sonstige (13 Files)
+
+- **Stage-Chain:** SPEC (181b plan) → IMPACT skipped → BUILD (self, mechanical) → REVIEW (self) → PROVE → LOG
+- **Scope L:** 13 Drop-in Migrations. Pattern aus 181/181b bestaetigt. 5 Test-Mocks (Modal: → Dialog:) updated.
+- **Files (PROD):**
+  - `src/components/community/{CreatePostModal,CreateBountyModal,CreateResearchModal,BountyCard}.tsx`
+  - `src/components/player/detail/{CommunityTab,GameweekScoreBar}.tsx`
+  - `src/app/(app)/founding/page.tsx`, `src/app/(app)/profile/settings/page.tsx`
+  - `src/components/profile/FollowListModal.tsx`, `src/components/fan-wishes/FanWishModal.tsx`, `src/components/layout/FeedbackModal.tsx`
+  - `src/components/help/{ShortcutsModal,Glossary}.tsx`
+- **Files (TESTS):** CreatePostModal, CreateResearchModal, FanWishModal, ShortcutsModal, CommunityTab — 5 Mock-Renames `Modal:` → `Dialog:`
+- **Spec:** `worklog/specs/181b-radix-migration-plan.md` (Batch 181c section)
+- **Review:** self (Pattern-Wiederholung)
+- **Proof:** `worklog/proofs/181c-tests-bundle.txt` — 5/5 vitest gruen, 37/37 tests, bundle alle 51 Routes within budget, tsc clean
+- **Commit:** TBD
+- **Naechstes (181d):** Fantasy + Gamification (12 Files, MEDIUM risk — MysteryBoxModal hat preventClose).
+
 ## 181b | 2026-04-24 | Modal→Dialog Migration Batch 1 — Admin Pages (11 Files)
 
 - **Stage-Chain:** SPEC (181b plan inherited) → IMPACT (skipped: pattern from 181 etabliert) → BUILD (self, mechanical drop-in) → REVIEW (self: pure import-rename, kein Logic-Change) → PROVE → LOG

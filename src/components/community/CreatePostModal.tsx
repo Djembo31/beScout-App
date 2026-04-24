@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Camera, X as XIcon, Loader2 } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useDraft } from '@/lib/hooks/useDraft';
 import { POST_CATEGORIES } from '@/components/community/PostCard';
@@ -119,7 +119,7 @@ export default function CreatePostModal({
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={t('newPost')}
       onClose={onClose}
@@ -314,6 +314,6 @@ export default function CreatePostModal({
         </div>
 
       </div>
-    </Modal>
+    </Dialog>
   );
 }

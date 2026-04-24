@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { Ticket, Search, Zap, Crown, Check, Loader2, ShieldCheck } from 'lucide-react';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Button, Dialog } from '@/components/ui';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -192,7 +192,7 @@ export default function FoundingPassPage() {
       </p>
 
       {/* Confirmation modal */}
-      <Modal
+      <Dialog
         open={!!confirmTier}
         title={t('confirmTitle')}
         onClose={() => { if (!purchasing) setConfirmTier(null); }}
@@ -233,7 +233,7 @@ export default function FoundingPassPage() {
             </p>
           </div>
         )}
-      </Modal>
+      </Dialog>
     </div>
   );
 }

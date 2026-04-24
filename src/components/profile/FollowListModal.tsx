@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getFollowerList, getFollowingList, isFollowing, followUser, unfollowUser, type ProfileSummary } from '@/lib/services/social';
 import { getRang } from '@/lib/gamification';
@@ -88,7 +88,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
   };
 
   return (
-    <Modal open={true} onClose={onClose} title={mode === 'followers' ? tp('followers') : tp('followingTitle')}>
+    <Dialog open={true} onClose={onClose} title={mode === 'followers' ? tp('followers') : tp('followingTitle')}>
       {loading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />
@@ -152,6 +152,6 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
           })}
         </div>
       )}
-    </Modal>
+    </Dialog>
   );
 }

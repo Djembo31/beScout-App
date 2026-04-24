@@ -35,7 +35,7 @@ vi.mock('next-intl', () => ({
 }));
 
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
+  Dialog: ({ open, children }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
     open ? React.createElement('div', { 'data-testid': 'modal' }, children) : null,
   Button: ({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean; className?: string }) =>
     React.createElement('button', { onClick, disabled, 'data-testid': 'submit-btn' }, children),

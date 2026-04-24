@@ -1,0 +1,61 @@
+=== Slice 181c — vitest 181c-related tests (after mock-update) ===
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m37 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 15:46:18
+[2m   Duration [22m 7.41s[2m (transform 672ms, setup 1.54s, import 3.78s, tests 2.48s, environment 10.25s)[22m
+
+
+=== Bundle ===
+/rankings                                   324.0kB   330kB   -6.0kB ✓
+/transactions                               251.0kB   350kB  -99.0kB ✓
+/welcome                                    286.0kB   295kB   -9.0kB ✓
+
+✓ All routes within budget.
+
+=== git diff --stat ===
+warning: in the working copy of 'docs/VISION.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'memory/session-handoff.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/(app)/founding/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/(app)/profile/settings/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/community/BountyCard.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/community/CreatePostModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/community/CreateResearchModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/community/__tests__/CreatePostModal.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/community/__tests__/CreateResearchModal.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/fan-wishes/FanWishModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/fan-wishes/__tests__/FanWishModal.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/help/Glossary.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/help/ShortcutsModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/help/__tests__/ShortcutsModal.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/layout/FeedbackModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/CommunityTab.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/GameweekScoreBar.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/__tests__/CommunityTab.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/profile/FollowListModal.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/active.md', LF will be replaced by CRLF the next time Git touches it
+ .claude/rules/business.md                          |  70 +++++++++++++
+ docs/VISION.md                                     | 109 +++++++++++++++++++++
+ memory/session-handoff.md                          |  45 ++++++++-
+ src/app/(app)/founding/page.tsx                    |   6 +-
+ src/app/(app)/profile/settings/page.tsx            |   6 +-
+ src/components/community/BountyCard.tsx            |   6 +-
+ src/components/community/CreateBountyModal.tsx     |   6 +-
+ src/components/community/CreatePostModal.tsx       |   6 +-
+ src/components/community/CreateResearchModal.tsx   |   6 +-
+ .../community/__tests__/CreatePostModal.test.tsx   |   2 +-
+ .../__tests__/CreateResearchModal.test.tsx         |   2 +-
+ src/components/fan-wishes/FanWishModal.tsx         |   6 +-
+ .../fan-wishes/__tests__/FanWishModal.test.tsx     |   2 +-
+ src/components/help/Glossary.tsx                   |   6 +-
+ src/components/help/ShortcutsModal.tsx             |   6 +-
+ .../help/__tests__/ShortcutsModal.test.tsx         |   2 +-
+ src/components/layout/FeedbackModal.tsx            |   6 +-
+ src/components/player/detail/CommunityTab.tsx      |  10 +-
+ src/components/player/detail/GameweekScoreBar.tsx  |   6 +-
+ .../player/detail/__tests__/CommunityTab.test.tsx  |   2 +-
+ src/components/profile/FollowListModal.tsx         |   6 +-
+ worklog/active.md                                  |  19 ++--
+ 22 files changed, 276 insertions(+), 59 deletions(-)

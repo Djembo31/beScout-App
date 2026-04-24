@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 interface ShortcutsModalProps {
@@ -37,7 +37,7 @@ export default function ShortcutsModal({ open, onClose }: ShortcutsModalProps) {
   ];
 
   return (
-    <Modal open={open} title={t('title')} onClose={onClose}>
+    <Dialog open={open} title={t('title')} onClose={onClose}>
       <div className="space-y-5">
         {groups.map(group => (
           <div key={group.title}>
@@ -70,6 +70,6 @@ export default function ShortcutsModal({ open, onClose }: ShortcutsModalProps) {
           {t('hint')}
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

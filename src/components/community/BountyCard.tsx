@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Target, Clock, Users, Coins, CheckCircle, Lock, Telescope } from 'lucide-react';
-import { Card, Chip, Button, Modal } from '@/components/ui';
+import { Card, Chip, Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
@@ -162,7 +162,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
       </Card>
 
       {/* Submit Modal */}
-      <Modal
+      <Dialog
         open={modalOpen}
         title={isScouting ? tb('submitScoutingEval') : tb('submitSolution')}
         onClose={() => { setModalOpen(false); setTried(false); }}
@@ -219,7 +219,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             {tb('submit')}
           </Button>
         </div>
-      </Modal>
+      </Dialog>
     </>
   );
 }

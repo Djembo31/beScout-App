@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Bug, Lightbulb, HelpCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { submitFeedback } from '@/lib/services/feedback';
@@ -56,7 +56,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
   }
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={tf('title')}
       onClose={onClose}
@@ -112,6 +112,6 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
         </span>
       </div>
 
-    </Modal>
+    </Dialog>
   );
 }

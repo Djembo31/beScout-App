@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Star, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, Modal } from '@/components/ui';
+import { Card, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 
@@ -134,7 +134,7 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
       </Card>
 
       {/* Tap-to-expand detail modal */}
-      <Modal
+      <Dialog
         open={!!selectedGw}
         title={selectedGw ? `${t('gwDetail')} ${selectedGw.gameweek}` : ''}
         onClose={() => setSelectedGw(null)}
@@ -162,7 +162,7 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
             </div>
           </div>
         )}
-      </Modal>
+      </Dialog>
     </>
   );
 }

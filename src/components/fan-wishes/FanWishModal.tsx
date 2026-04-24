@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { submitFanWish } from '@/lib/services/fanWishes';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -79,7 +79,7 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('title')} preventClose={wishMut.isPending}>
+    <Dialog open={open} onClose={onClose} title={t('title')} preventClose={wishMut.isPending}>
       <div className="space-y-4">
         {/* Tabs */}
         <div className="flex gap-1 bg-white/[0.03] rounded-xl p-1">
@@ -159,6 +159,6 @@ export function FanWishModal({ open, onClose, defaultTab = 'club', defaultClubNa
           }
         </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }
