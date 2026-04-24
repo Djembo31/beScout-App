@@ -11,6 +11,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 187 | 2026-04-24 | DB-Invariant-Cleanup (5 Pre-existing Failures → 0)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT skipped (data-only, no code) → BUILD (DB-State-Change via Supabase MCP) → REVIEW (self) → PROVE → LOG
+- **Scope S (Data-Cleanup):** Keine Code-Änderung, nur Live-DB-State via MCP.
+- **Fixed:**
+  - INV-35 Club-Logo Single-Source: 1 → 0 (Gençlerbirliği S.K. Wikimedia → api-sports canonical)
+  - INV-38 Orphan-Stale-Contracts: 37 → 0 (mv_source='transfermarkt_stale' auf players mit contract_end < -12 Monate)
+  - INV-39 Cross-Club-Contamination Ghost-Rows: 5 → 0 (club_id=NULL auf apps=0 Doppelgänger)
+  - INV-40 Same-Club Player-Duplicates: 9 → 0 (superset-fix von INV-39, inkl. Doppelgänger mit unterschiedlichem contract_end)
+  - SM-ORD-04 Expired-Open Orders: 158 → 0 (expire_pending_orders RPC, Lock-Release + Transaction-Log + recalc_floor_price)
+- **Money-Safety:** 158 buy-order cancels haben korrekt locked_balance released + transactions-audit-log + floor-price recalc
+- **Files geändert:** 0 (nur worklog/proofs + worklog/reviews + worklog/log + worklog/active)
+- **Proof:** worklog/proofs/187-db-invariant-cleanup.md (Queries + Baseline/Post-Counts + vitest 44/44 grün)
+- **Review:** worklog/reviews/187-review.md (PASS, data-cleanup + test-verified)
+- **Commit:** pending
+- **Open Follow-Ups:** Monitoring expire_pending_orders-Cron-Reliability, INV-35 regression-guard (Admin-UI validation), Ghost-Prevention in sync-players-daily.
+
 ## 181f+h | 2026-04-24 | EventDetailModal Migration + Modal/ConfirmDialog Cleanup
 
 - **Stage-Chain:** SPEC (181e-spec §181f) → IMPACT (Re-Audit Grep, Gap-Catch) → BUILD → REVIEW (self per D35) → PROVE → LOG
