@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Target, Clock, Users, Loader2, Eye, CheckCircle, XCircle, X, AlertTriangle, Telescope } from 'lucide-react';
-import { Card, Button, Chip, Modal } from '@/components/ui';
+import { Card, Button, Chip, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { formatScout } from '@/lib/services/wallet';
@@ -258,7 +258,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* Create Bounty Modal */}
-      <Modal open={createOpen} title={t('newBounty')} onClose={() => setCreateOpen(false)}>
+      <Dialog open={createOpen} title={t('newBounty')} onClose={() => setCreateOpen(false)}>
         <div className="space-y-4">
           {/* Type Toggle */}
           <div>
@@ -372,10 +372,10 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             {t('createBounty')}
           </Button>
         </div>
-      </Modal>
+      </Dialog>
 
       {/* Submissions Modal */}
-      <Modal
+      <Dialog
         open={!!viewBountyId}
         title={viewBounty ? t('submissionsTitle', { title: viewBounty.title }) : t('submissionsHeading')}
         onClose={() => { setViewBountyId(null); setSubmissions([]); }}
@@ -416,10 +416,10 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             ))}
           </div>
         )}
-      </Modal>
+      </Dialog>
 
       {/* Review Modal */}
-      <Modal
+      <Dialog
         open={!!reviewSub}
         title={t('reviewTitle')}
         onClose={() => { setReviewSub(null); setFeedback(''); }}
@@ -470,7 +470,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
         )}
-      </Modal>
+      </Dialog>
     </div>
   );
 }

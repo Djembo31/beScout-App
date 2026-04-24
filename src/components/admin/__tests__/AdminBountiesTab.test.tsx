@@ -72,7 +72,7 @@ vi.mock('@/components/ui', () => ({
       {children as React.ReactNode}
     </span>
   ),
-  Modal: ({
+  Dialog: ({
     open,
     title,
     children,

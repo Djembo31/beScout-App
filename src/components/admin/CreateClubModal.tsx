@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Loader2 } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { createClub } from '@/lib/services/platformAdmin';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getAllLeaguesCached, getCountryName, type CountryLocale } from '@/lib/leagues';
@@ -90,7 +90,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={t('createClubTitle')}
       subtitle={t('createClubSubtitle')}
@@ -206,6 +206,6 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
           </select>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

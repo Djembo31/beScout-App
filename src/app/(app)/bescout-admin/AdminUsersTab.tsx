@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Search, Loader2 } from 'lucide-react';
-import { Button, Modal } from '@/components/ui';
+import { Button, Dialog } from '@/components/ui';
 import { RegionBadge } from '@/components/ui/RegionBadge';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout } from '@/lib/utils';
@@ -125,7 +125,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
       )}
 
       {adjustModal && (
-        <Modal open={true} onClose={() => setAdjustModal(null)} title={t('walletCorrection', { handle: adjustModal.handle })}>
+        <Dialog open={true} onClose={() => setAdjustModal(null)} title={t('walletCorrection', { handle: adjustModal.handle })}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
               {t('currentBalance')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(adjustModal.balance))} CR</span>
@@ -178,7 +178,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
               {adjusting ? t('adjusting') : t('adjustWallet')}
             </Button>
           </div>
-        </Modal>
+        </Dialog>
       )}
     </div>
   );

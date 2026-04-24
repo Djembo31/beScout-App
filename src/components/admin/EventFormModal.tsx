@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { bsdToCents } from '@/lib/services/players';
 import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
@@ -94,7 +94,7 @@ export function EventFormModal({
   const disabledCls = 'disabled:opacity-40 disabled:cursor-not-allowed';
 
   return (
-    <Modal open={open} title={title} onClose={onClose} size={size === 'default' ? 'md' : 'lg'}>
+    <Dialog open={open} title={title} onClose={onClose} size={size === 'default' ? 'md' : 'lg'}>
       <div className="space-y-4 p-4 md:p-6">
         {/* Name */}
         <div>
@@ -471,6 +471,6 @@ export function EventFormModal({
           {submitLabel}
         </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

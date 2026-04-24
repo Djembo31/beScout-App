@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Edit2, Loader2, ImageIcon, ToggleLeft, ToggleRight, Eye, MousePointerClick, TrendingUp, DollarSign } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, Button, Chip, Modal, StatCard } from '@/components/ui';
+import { Card, Button, Chip, Dialog, StatCard } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getAllSponsors, createSponsor, updateSponsor, deleteSponsor } from '@/lib/services/sponsors';
 import { useSponsorStats } from '@/lib/queries';
@@ -251,7 +251,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
       )}
 
       {/* Create / Edit Modal */}
-      <Modal open={modalOpen} title={editId ? t('editSponsor') : t('newSponsorTitle')} onClose={() => setModalOpen(false)}>
+      <Dialog open={modalOpen} title={editId ? t('editSponsor') : t('newSponsorTitle')} onClose={() => setModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div>
             <label htmlFor="sponsor-name" className="block text-sm font-bold text-white/70 mb-1">{t('nameLabel')}</label>
@@ -351,7 +351,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             {saving ? t('saving') : editId ? t('update') : t('create')}
           </Button>
         </div>
-      </Modal>
+      </Dialog>
     </div>
   );
 }

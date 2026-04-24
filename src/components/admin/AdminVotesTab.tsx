@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Plus, Users, Clock } from 'lucide-react';
-import { Card, Button, Chip, Modal } from '@/components/ui';
+import { Card, Button, Chip, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getAllVotes, createVote } from '@/lib/services/votes';
@@ -124,7 +124,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
         </div>
       )}
 
-      <Modal open={modalOpen} title={t('newVote')} onClose={() => setModalOpen(false)}>
+      <Dialog open={modalOpen} title={t('newVote')} onClose={() => setModalOpen(false)}>
         <div className="space-y-4">
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('questionLabel')}</label>
@@ -151,7 +151,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>{t('createVote')}</Button>
         </div>
-      </Modal>
+      </Dialog>
     </div>
   );
 }

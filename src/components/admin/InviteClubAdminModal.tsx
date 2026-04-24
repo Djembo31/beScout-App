@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 
 interface InviteClubAdminModalProps {
@@ -65,7 +65,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
   };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={t('inviteTitle')}
       subtitle={t('inviteSubtitle', { club: clubName })}
@@ -129,6 +129,6 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
           {t('inviteInfo')}
         </p>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

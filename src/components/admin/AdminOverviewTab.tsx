@@ -5,7 +5,7 @@ import { DollarSign, Users2, TrendingUp, Trophy, Flame, Crown, Share2, Copy, Che
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Card, Skeleton, Button, Modal } from '@/components/ui';
+import { Card, Skeleton, Button, Dialog } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { getClubDashboardStats, getClubFollowerCount } from '@/lib/services/club';
 import { getClubSubscribers } from '@/lib/services/clubSubscriptions';
@@ -183,7 +183,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* News Modal */}
-      <Modal open={newsOpen} onClose={() => setNewsOpen(false)} title={t('publishNews')}>
+      <Dialog open={newsOpen} onClose={() => setNewsOpen(false)} title={t('publishNews')}>
         <div className="space-y-4">
           <textarea
             value={newsContent}
@@ -222,7 +222,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
         </div>
-      </Modal>
+      </Dialog>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Fans */}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Plus, Play, XCircle, Package, Loader2, Shield, Flame, AlertTriangle, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Card, Button, Chip, Modal } from '@/components/ui';
+import { Card, Button, Chip, Dialog } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
@@ -214,7 +214,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       </div>
 
       {/* Success Fee Cap Modal */}
-      <Modal open={!!s.capModalPlayer} title={t('successFeeCap')} onClose={() => s.setCapModalPlayer(null)}>
+      <Dialog open={!!s.capModalPlayer} title={t('successFeeCap')} onClose={() => s.setCapModalPlayer(null)}>
         {s.capModalPlayer && (
           <div className="space-y-4 p-4 md:p-6">
             <div className="text-sm text-white/60">
@@ -245,10 +245,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </Button>
           </div>
         )}
-      </Modal>
+      </Dialog>
 
       {/* Liquidation Confirmation Modal */}
-      <Modal open={!!s.liqModalPlayer} title={t('liquidatePlayerTitle')} onClose={s.closeLiquidationModal}>
+      <Dialog open={!!s.liqModalPlayer} title={t('liquidatePlayerTitle')} onClose={s.closeLiquidationModal}>
         {s.liqModalPlayer && !s.liqResult && (() => {
           const tvEur = parseInt(s.liqTransferValue) || 0;
           const tier = getSuccessFeeTier(tvEur);
@@ -367,10 +367,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </Button>
           </div>
         )}
-      </Modal>
+      </Dialog>
 
       {/* Create IPO Modal */}
-      <Modal open={s.ipoModalOpen} title={t('newIpo')} onClose={() => s.setIpoModalOpen(false)}>
+      <Dialog open={s.ipoModalOpen} title={t('newIpo')} onClose={() => s.setIpoModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('playerLabel')}</label>
@@ -445,10 +445,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             {s.ipoLoading ? t('creating') : t('newIpo')}
           </Button>
         </div>
-      </Modal>
+      </Dialog>
 
       {/* Create Player Modal */}
-      <Modal open={s.createModalOpen} title={t('createPlayer')} onClose={() => s.setCreateModalOpen(false)}>
+      <Dialog open={s.createModalOpen} title={t('createPlayer')} onClose={() => s.setCreateModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -502,7 +502,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             {s.createLoading ? t('creating') : t('createPlayer')}
           </Button>
         </div>
-      </Modal>
+      </Dialog>
     </div>
   );
 }

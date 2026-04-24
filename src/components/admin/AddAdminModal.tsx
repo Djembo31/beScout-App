@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { UserPlus, Loader2, Search, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { getProfileByHandle } from '@/lib/services/profiles';
 import { addClubAdmin } from '@/lib/services/club';
 import { getRoleBadge } from '@/lib/adminRoles';
@@ -82,7 +82,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
   const editorBadge = getRoleBadge('editor');
 
   return (
-    <Modal open={open} onClose={handleClose} title={t('addTeamMember')} preventClose={saving}>
+    <Dialog open={open} onClose={handleClose} title={t('addTeamMember')} preventClose={saving}>
       <div className="space-y-4 p-4 md:p-6">
         {/* Handle search */}
         <div>
@@ -181,6 +181,6 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
           </div>
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

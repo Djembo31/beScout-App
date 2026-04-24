@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Plus, Trophy, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useClubChallenges, useCreateChallenge } from '@/lib/queries/clubChallenges';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -136,7 +136,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* Create Modal */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={t('challengeCreate')}>
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={t('challengeCreate')}>
         <div className="space-y-4">
           {/* Title */}
           <div>
@@ -241,7 +241,7 @@ export default function FanChallengesTab({ club }: { club: ClubWithAdmin }) {
             </Button>
           </div>
         </div>
-      </Modal>
+      </Dialog>
     </div>
   );
 }

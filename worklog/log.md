@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181b | 2026-04-24 | Modal→Dialog Migration Batch 1 — Admin Pages (11 Files)
+
+- **Stage-Chain:** SPEC (181b plan inherited) → IMPACT (skipped: pattern from 181 etabliert) → BUILD (self, mechanical drop-in) → REVIEW (self: pure import-rename, kein Logic-Change) → PROVE → LOG
+- **Scope L:** 11 Admin-Files Modal→Dialog Drop-in. Pattern bestaetigt: Import-Rename + JSX-Rename (`<Modal` → `<Dialog`, `</Modal>` → `</Dialog>`) + Test-Mock-Update (`Modal:` → `Dialog:` factory). Keine Props-Aenderungen.
+- **Files (17 changed, drop-in only):**
+  - PROD: `src/components/admin/{AddAdminModal,CreateClubModal,EventFormModal,InviteClubAdminModal,AdminBountiesTab,AdminPlayersTab,AdminOverviewTab,AdminVotesTab,FanChallengesTab}.tsx`
+  - PROD: `src/app/(app)/bescout-admin/{AdminUsersTab,AdminSponsorsTab}.tsx`
+  - TESTS: 6 Test-Mocks renamed `Modal:` → `Dialog:` (AdminEventsTab, AdminBountiesTab, AdminPlayersTab, AdminOverviewTab, FanChallengesTab, AdminUsersTab)
+- **Spec:** `worklog/specs/181b-radix-migration-plan.md` (Batch 181b section)
+- **Impact:** skipped (Pattern 181 etabliert, Drop-in)
+- **Review:** self (Pattern-Wiederholung 14 `<Modal>`-Occurrences mechanically renamed, kein Behavior-Change)
+- **Proof:** `worklog/proofs/181b-tests-bundle.txt`
+  - tsc clean
+  - Admin-Tests: 11/11 files, 159/159 tests gruen
+  - Bundle: alle 51 Routes within budget
+  - Full vitest: 209/210 files, 3123/3128 tests gruen — **4 Failures vorher-bestehend in `db-invariants.test.ts`** (INV-35/38/39/40, Live-DB-Data-Integrity, **NICHT** Slice-181b-related)
+- **Commit:** TBD
+- **Naechstes (181c):** Community + Help + Sonstige (11 Files, low-medium risk).
+
 ## 181 | 2026-04-24 | Radix UI-Primitives Foundation (Dialog + AlertDialog + DropdownMenu)
 
 - **Stage-Chain:** SPEC → IMPACT → BUILD (frontend-Agent in Worktree) → REVIEW (reviewer-Agent cold-context) → HEALER (self) → PROVE → LOG
