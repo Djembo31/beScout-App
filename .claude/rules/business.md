@@ -62,6 +62,76 @@ grep -iE "Marktwert steigt|piyasa değeri artınca|başarıya ortak|am Erfolg be
 ```
 Treffer → prüfen: Ist es in User-Kontext? → Neutralisieren nach Tabelle oben.
 
+## Asset-Klasse-Positionierung — Wording-Drahtseilakt (Stand 2026-04-24)
+
+**Kategorie-Innovation:** Scout Cards sind strukturell Equity-analog auf Spieler-Trajektorie (siehe `docs/VISION.md` Sektion „Kategorie-Innovation"). Das ist der Produkt-Vorteil. **Genau deshalb ist die rechtliche Sprache der wichtigste Compliance-Drahtseilakt.**
+
+### Doppel-Register (intern vs. user-facing)
+
+| Im Kopf (Produkt-Wahrheit) | Im Wort (Marketing-Pflicht) |
+|---|---|
+| Scout Cards = Equity-artiger Asset | Scout Cards = digitale Sammelkarte mit Trading-Utility |
+| Fan investiert in Spieler | Fan sammelt + handelt Platform-Credits |
+| Club verkauft Anteile am Talent | Club gibt Sammelkarten mit Utility aus |
+| Rendite bei Erfolg | Utility-Credits durch aktive Teilnahme |
+| Marktplatz für Fußball-Asset-Klasse | Marktplatz für Sammelkarten + Scout-Reports |
+
+Beide Register dürfen in der Produkt-Erfahrung gleichzeitig wirken. **Nur das Utility-Register darf geschrieben stehen.** Investor-Pitches + interne Strategie-Dokumente dürfen das Asset-Register nutzen — Plattform-Text niemals.
+
+### Erweitertes Verbots-Register (Session 2026-04-24 Strategic Discussion)
+
+Ergänzend zum Kapitalmarkt-Glossar oben. Diese Begriffe sind aus strategischen Gesprächen entstanden (Asset-Klasse-Framing) und dürfen user-facing niemals verwendet werden:
+
+| Verboten (user-facing) | Stattdessen DE | Stattdessen TR | Begruendung |
+|------------------------|----------------|----------------|-------------|
+| Investiere in Spieler/Talente | Unterstütze Talente, Entdecke früh | Yetenekleri destekle, Erken keşfet | Investment-Framing = Securities-Signal |
+| Investiere in BeScout | Sammle Scout Cards | Scout Card topla | Plattform-Investment-Framing |
+| Rendite, Profit, Gewinn (Subst.) | Belohnung, Upside, Scout-Gewinn | Ödül, kazanç-yok: sadece skor | Finanzinstrument-Sprache |
+| Dividende, Ausschüttung | PBT-Auszahlung, Community-Reward | PBT ödemesi, Topluluk ödülü | Securities-Dividende |
+| Asset-Klasse, Anteile, Shares | — (nur Investor-Pitch) | — | Kapitalmarkt-Vokabular |
+| Handle smart, Invest clever | Scoute gezielt, Sammle mit Weitblick | Akıllıca scout ol | Spekulationsstrategie |
+| Verdiene Geld (als Marketing-Hook) | Deine Leidenschaft zahlt sich aus | Tutkun karşılığını buluyor | Transaktional vs. Aspirational |
+
+### Meme-Coin-Sprache — komplett verboten
+
+Auch wenn marketing-wirksam: Meme-Coin-Vokabular triggert Spekulations-Framing → SPK/BaFin-Red-Flag **und** zerstört die Creator-Economy-Positionierung (Zielgruppe wird abgestoßen).
+
+- Verboten: „to the moon", „diamond hands", „HODL", „ape in", „degen", „bagholder"
+- Verboten: „x10", „x100", „moonshot"
+- Verboten: „FOMO" (als CTA), „send it", „pump"
+
+Grund: BeScout zielt auf Football-Manager-Community (primärer Beachhead) — diese Zielgruppe identifiziert sich NICHT mit Crypto-Kultur, sondern mit Scout-Professionalität. Meme-Coin-Sprache kostet uns beide Seiten.
+
+### Zielgruppen-differenziertes Wording
+
+**FM-Community** (primärer Beachhead, siehe VISION.md):
+- OK: „Dein FM-Wissen wird belohnt", „Scoute real, nicht nur im Game"
+- NICHT OK: „Dein FM-Wissen wird dein Investment", „Verdiene an jungen Talenten"
+
+**Creator-Economy** (Tertiär-Zielgruppe):
+- OK: „Monetarisiere deine Reichweite", „Bau dir eine Audience auf BeScout"
+- NICHT OK: „Generiere passives Einkommen", „Aufbau eines Revenue-Streams"
+
+**Club-B2B-Pitch** (Maria-Persona, Admin-Kontext):
+- OK: „Neue Revenue-Streams für euren Club", „Fan-Monetarisierung auf Engagement-Basis"
+- Admin-UI: „IPO" bleibt (Code-intern)
+- Fan-UI: „Erstverkauf" / „Kulüp Satışı" pflicht
+
+### Erweiterter CI-Guard (post-Beta empfohlen)
+
+```bash
+# Invest-Framing in User-Strings
+grep -iE "\binvestier|rendite|dividende|anteil|\bshare\b|\bprofit\b|\byield\b|asset[- ]klasse" messages/*.json \
+  | grep -v "scout-gewinn-animation\|technologie-gewinn"
+
+# Meme-Coin-Framing
+grep -iE "moonshot|hodl|diamond hands|degen|\bape\b|to the moon|bagholder" messages/*.json
+
+# Transaktionales Marketing-Framing
+grep -iE "verdiene geld|passives einkommen|generiere revenue" messages/*.json
+```
+Treffer → Kontext prüfen (User-facing?) → Neutralisieren nach Tabellen oben.
+
 ## Geofencing-Tiers
 | Tier | Laender | Zugang |
 |------|---------|--------|

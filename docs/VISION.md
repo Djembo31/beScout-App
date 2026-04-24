@@ -53,6 +53,40 @@ Twitter-Poll: "Bester Spieler?"           →   Bezahlte Poll (BSD)
 
 ---
 
+## Die Kategorie-Innovation: Scout Cards als neue Asset-Klasse
+
+BeScout schafft das erste retail-zugängliche, leidenschafts-gedeckte Investment-Analogon für Fußball-Talent. Heute existiert kein Weg für den informierten Fan, in junge Talente zu investieren — nur Club-Eigentümer, Agenturen und geschlossene Funds (Red Bird, Elliot, etc.) haben Zugang. Der Fan mit 20 Jahren FIFA-Erfahrung, Football-Manager-Sessions bis 3 Uhr morgens und Auge für Talent? Null Zugang, null Upside.
+
+### Positionierung zwischen Aktien und Crypto
+
+|  | Aktien | Meme-Coins | Sorare NFT | **Scout Cards** |
+|---|---|---|---|---|
+| Asset-Backing | Firma | Nichts | Collectible | **Spieler (messbar)** |
+| Wissens-Edge | Institutionell dominiert | Null | Minimal (Stats public) | **Massiv (Community > Stats)** |
+| Leidenschafts-Bindung | Neutral | Ironisch | Sammler | **Fan-Identität** |
+| Crash-Outcome | Depot-Verlust | Totalverlust + Scham | Card wertlos | **Erinnerung + Scout-Score bleiben** |
+| Wissens-Kapitalisierung | Nein | Nein | Schwach | **Ja — baut verifiziertes CV auf** |
+
+**Für Clubs** fühlt sich ein IPO an wie Anteilsausgabe ohne Verwässerung: upfront Kapital + fortlaufende Trading-Fees + Fan-Bindung ohne Abgabe echten Eigentums.
+
+**Für Fans** fühlt sich der Kauf an wie Investment in junge Talente — mit echtem Wissens-Edge durch Community-Intelligence (Users mit Vor-Ort-Kenntnis schreiben Reports, die andere kaufen).
+
+**Für die Plattform** entsteht ein Marktplatz wo Leidenschaft, Wissen und Kapital zum ersten Mal zusammenfließen.
+
+Die Produkt-Erfahrung ist equity-analog. Die rechtliche Sprache bleibt utility-compliant (Phase 1 CASP-exempt). Siehe `.claude/rules/business.md` Sektion "Asset-Klasse-Positionierung" für das Wording-Regelwerk.
+
+### Der Meme-Coin-Insight
+
+Retail kauft monatlich Milliarden in Coins ohne Fundamental (Dogecoin, Shiba, Pepecoin). User verstehen nichts, verlieren meist, kommen wieder — wegen Story + FOMO + Community-Dopamin. BeScout bietet die gleiche psychologische Dynamik mit drei Upgrades:
+
+1. Sie kaufen etwas, das sie **verstehen** (Fußball — ihr jahrelanges Hobby).
+2. Sie haben tatsächlich einen Edge (ihr Wissen wird zur tradbaren Intelligenz).
+3. Das Crash-Szenario ist nicht Totalverlust — Identität, Scout-Score, Community-Status bleiben.
+
+**Crypto-Dynamik mit Fußball-Semantik und realem Asset-Backing — diese Kombination existiert nirgendwo sonst.**
+
+---
+
 ## Plattform-Modell
 
 ```
@@ -238,6 +272,52 @@ MEHR FANS kommen → Flywheel dreht sich schneller
 
 ---
 
+## Zielgruppe: Der Dream-Scout (Primär-Hypothese ab 2026-04-24)
+
+Nicht „Fußball-Fans generell" — zu diffus, zu niedrige Konversion. Die scharfe Zielgruppe sind Menschen, die **bereits scouten (aus Leidenschaft), aber kein Monetarisierungs-Outlet haben.**
+
+### Pre-existing Demand Pools (weltweit)
+
+| Gruppe | Größe global | Aktuelles Outlet | Monetarisierung heute |
+|--------|--------------|------------------|----------------------|
+| Football Manager Spieler | 20M+ | Game (Single-Player) | Null |
+| FIFA Career Mode | 50M+ | Game | Null |
+| Football Twitter / FBref-Community | 5M+ | Tweets, Substack | Kaum |
+| Scouted / Tifo / Athletic-Reader | 3M+ | Konsum | Null |
+| Ex-Amateur-Spieler & Jugendtrainer | 500K DACH+TR | Nichts | Null |
+| Football-Data-Nerds (StatsBomb, Opta) | 100K | Medium-Artikel | Kaum |
+| Crypto-Football-Degen | 1M+ | Sorare | Zero-Sum |
+
+**~80M+ Menschen weltweit scouten bereits aus Leidenschaft — ohne Belohnungs-Mechanik.**
+
+### Primärer Beachhead: Football Manager-Community
+
+Erfüllt alle Eigenschaften die BeScout braucht:
+- 10-30h/Woche Scout-Aktivität (Sessions bis 3 Uhr morgens sind normal)
+- Kennt brasilianische/argentinische Talente besser als durchschnittlicher Bundesliga-Scout
+- Bewiesene Zahlungsbereitschaft (€40/Jahr für FM + Add-ons + Data-Updates)
+- Erreichbar über klare Hubs: r/footballmanagergames (450K Members), FM-Twitter, Tifo-Discord
+- **Sie investieren bereits ihre Leidenschaft — ihnen fehlt nur der Upside-Kanal.**
+
+Launch-Hook: „BeScout — Football Manager, aber real. Dein Scout-Wissen zahlt sich endlich aus."
+
+### Sekundär: Club-Anchored Fans
+
+Regionale Liga-Communities (Sakaryaspor-Diaspora, Bundesliga-Kernfans, EU-Top-5-Subreddits). Retention über Identität/Zugehörigkeit, nicht über Hobby-Scouting. Monetarisierung niedriger pro Kopf (€100-150/Jahr), aber skalierbar über Club-Partnerschaften.
+
+### Tertiär: Creator Economy
+
+YouTube/Twitch/Substack-Creators mit bestehender Reichweite. BeScout-Profil als Revenue-Amplifier — 10-100× Hebel gegenüber reiner YouTube-Ad-Revenue (€200/Monat → €2-5K/Monat Potenzial durch Premium-Reports, Club-Abos, Club-Partnerships).
+
+### GTM-Sequenz
+
+1. **Monat 1-2:** 500 aktive Football-Manager-Spieler onboarden via Reddit/Twitter/Discord-Seeding
+2. **Monat 2-3:** 10-20 Proto-Scouts produzieren erste öffentliche Reports → Social-Proof-Content
+3. **Monat 3-4:** Ein User landet ersten €100 Profit → Organic Viral-Story
+4. **Monat 4-6:** Erster Club-Deal mit bestehender User-Basis als Verhandlungshebel
+
+---
+
 ## Ziel-Markt (Stand 2026-04-21, siehe `memory/decisions.md` D1)
 
 - **Beta (2026-04):** Invite-Only, 10-20 Pilot-Fans, alle 7 Ligen launch-ready
@@ -246,3 +326,32 @@ MEHR FANS kommen → Flywheel dreht sich schneller
 - **Post-Beta Club-Deal:** Direktes Targeting größerer Clubs (Bundesliga, Süper Lig, EU-Top-5) — Sakaryaspor/TFF1 nicht mehr Pilot-exklusiv
 
 **Historisch (pre-2026-04):** Sakaryaspor war initialer Hook und Vertriebs-Testfall. Produkt-Scope ist seitdem deutlich erweitert — Pilot-Exklusivität wurde aufgehoben weil Produktstand für größere Clubs reicht.
+
+---
+
+## Warum jetzt (Timing-These, 2026-04-24)
+
+Die Kategorie ist erst seit 2024 realistisch machbar. Wer früher startete, stieß an rechtliche oder Infrastruktur-Grenzen.
+
+1. **MiCA/CASP-Framework existiert** — Phase-1/3-Split (Utility-Credits → Cash-out nach Lizenz) ist sauber rechtlich machbar seit 2024. Vor 2024 wäre das Modell nicht Compliance-fähig gewesen.
+2. **Football Manager ist reif** — 20M+ globaler Pool, stabil wachsend, Zielgruppe demographisch erschlossen.
+3. **Creator Economy normalisiert** — Substack/Patreon/OnlyFans haben „Fan bezahlt Creator direkt" zur Massenmarkt-Akzeptanz gebracht (war 2018 noch Nische).
+4. **Stripe-Infrastruktur** — €1-€10 Mikro-Transaktionen global ohne Integrations-Friktion.
+5. **Sorare hat die Zielgruppe vorgewärmt** — „Fußball-Scouting + Money" ist als Konzept emotional akzeptiert, Kategorie existiert im Kopf der Zielgruppe.
+6. **Post-NFT-Desillusion** — Zielgruppe ist bereit für „echtes Asset-Backing" statt „Collectible-Spekulation". Zeit für die ernste Version.
+
+---
+
+## Strukturelle Differenzierung (warum BeScout Club-Win-Fan-Win-Plattform-Win strukturell ist)
+
+| Dimension | Socios | Sorare | **BeScout** |
+|-----------|--------|--------|-------------|
+| Club-Revenue-Quellen | 1 (Token-Lizenz) | 1 (NFT-Lizenz) | **7** (IPO, Trading, Votes, Events, Abos, Bounties, Daten) |
+| Club-Kontrolle | Keine (Chiliz besitzt Token) | Keine (Sorare besitzt Marktplatz) | **Voll** (Club erstellt IPOs, Votes, Bounties selbst) |
+| Fan-Input als Asset | Nur Voting-Theater | Kein Input | **Echter Crowdsourced-Value** (Reports, Scouting) |
+| Talent-Pipeline | Nein | Nein | **Ja** (Fan → Scout → Club-Mitarbeiter) |
+| Retention-Treiber | Token-Preis (volatil) | Card-Wert (volatil) | **Identität + Karriere** (LinkedIn-Level) |
+| Regulatorisches Risiko | Hoch (Token = potenziell Security) | Mittel (NFT-Ambiguität) | **Niedrig** (Utility-Credits, Phase 1 CASP-safe) |
+| Bei Marktcrash | -90%, Club-Ruf beschädigt | -80%, Sammler frustriert | **Identität bleibt wertvoll, auch bei 0€ Credits** |
+
+Die anderen Plattformen haben strukturelle Zero-Sum-Elemente (Sorare: Trader gewinnen, Sammler verlieren). BeScout ist Positive-Sum durch Wissen-Asset-Aufbau — jeder Aktivitäts-Minute baut die eigene Reputation.
