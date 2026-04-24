@@ -57,6 +57,12 @@ export default defineConfig({
         storageState: path.join(authDir, 'fan.json'),
       },
     },
+    // --- Autonomous Walkthrough Crawler (own login, no pre-loaded auth state, daily audit) ---
+    {
+      name: 'walkthrough',
+      testMatch: /full-walkthrough\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] }, // No storageState — crawler logs in itself
+    },
     // --- Bot Simulation (own login, no pre-loaded auth state) ---
     {
       name: 'bots',
