@@ -1,0 +1,179 @@
+========================================================================
+Slice 178a — buy_player_sc Idempotency-Integration — Proof Artifacts
+========================================================================
+Applied: 2026-04-24 via mcp__supabase__apply_migration
+Migration: supabase/migrations/20260424020000_slice_178a_buy_player_sc_idempotency.sql
+
+
+1. POST-APPLY SIGNATURE VERIFY
+========================================================================
+Query:
+  SELECT proname, pronargs, pg_get_function_identity_arguments(oid), pg_get_function_result(oid)
+  FROM pg_proc
+  WHERE proname = 'buy_player_sc' AND pronamespace = 'public'::regnamespace;
+
+Result:
+  proname         : buy_player_sc
+  pronargs        : 4
+  args            : p_user_id uuid, p_player_id uuid, p_quantity integer, p_idempotency_key text
+  returns         : json
+
+Check: alte 3-arg-Signatur wurde via DROP FUNCTION IF EXISTS entfernt. Nur
+4-arg-Version existiert in pg_proc. Keine Signatur-Ambiguitaet.
+
+
+2. GRANT VERIFY (AR-44 Pattern)
+========================================================================
+Query:
+  SELECT grantee, privilege_type
+  FROM information_schema.routine_privileges
+  WHERE routine_name = 'buy_player_sc' AND specific_schema = 'public'
+  ORDER BY grantee;
+
+Result:
+  grantee         | privilege_type
+  ----------------+----------------
+  authenticated   | EXECUTE
+  postgres        | EXECUTE
+  service_role    | EXECUTE
+
+Check: KEIN anon, KEIN PUBLIC. REVOKE+GRANT-Pattern korrekt angewendet.
+
+
+3. FOUNDATION-PROOF: check_or_reserve_dedup_key two-call sequence
+========================================================================
+Step 3a: First reservation (fresh key)
+  SELECT is_new, existing_response
+  FROM public.check_or_reserve_dedup_key(
+    '535bbcaf-f33c-4c66-8861-b15cbff2e136'::uuid,
+    'proof-178a-001',
+    300
+  );
+
+  Result:
+    is_new           : true
+    existing_response: NULL
+
+Step 3b: Simulate RPC completion (what buy_player_sc does at line 182-187)
+  UPDATE public.request_dedup_keys
+  SET response = jsonb_build_object(
+      'success', true,
+      'trade_id', '00000000-0000-0000-0000-000000000001',
+      'total_cost', 100000,
+      'new_balance', 9900000,
+      'quantity', 1,
+      'source', 'order'
+    ),
+    status = 'completed'
+  WHERE user_id = '535bbcaf-f33c-4c66-8861-b15cbff2e136'
+    AND dedup_key = 'proof-178a-001'
+  RETURNING user_id, dedup_key, status, response, expires_at;
+
+  Result:
+    status     : completed
+    response   : {"source":"order","success":true,"quantity":1,"trade_id":"00000000-0000-0000-0000-000000000001","total_cost":100000,"new_balance":9900000}
+    expires_at : 2026-04-24 09:56:02.908779+00
+
+Step 3c: Replay-call with same key — is_new=false + cached response
+  SELECT is_new, existing_response
+  FROM public.check_or_reserve_dedup_key(
+    '535bbcaf-f33c-4c66-8861-b15cbff2e136'::uuid,
+    'proof-178a-001',
+    300
+  );
+
+  Result:
+    is_new           : false
+    existing_response: {"source":"order","success":true,"quantity":1,"trade_id":"00000000-0000-0000-0000-000000000001","total_cost":100000,"new_balance":9900000}
+
+Check: Mechanism verified end-to-end. ON CONFLICT DO NOTHING + conditional
+SELECT returns either fresh reservation (is_new=true, cached=NULL) or
+stored response (is_new=false, cached=<last completion>).
+
+Cleanup:
+  DELETE FROM public.request_dedup_keys WHERE dedup_key = 'proof-178a-001';
+
+
+4. INTEGRATION-PROOF: RPC-Body enthaelt alle 4 Idempotency-Bloecke
+========================================================================
+Query: pg_get_functiondef('public.buy_player_sc(uuid,uuid,integer,text)'::regprocedure)
+       mit Regex-Inspection.
+
+Result:
+  has_early_check      : YES  (calls check_or_reserve_dedup_key at line ~86)
+  has_completion_update: YES  (UPDATE request_dedup_keys at line ~183)
+  has_replay_return    : YES  (returns v_dedup_cached::JSON on replay)
+  has_pending_guard    : YES  (idempotency_pending if cached=NULL)
+
+Check: alle 4 Slice-178a-Integration-Bloecke sind in der live-deployed RPC
+nachweisbar — keiner wurde durch Merge-Fehler geschluckt.
+
+
+5. PRESERVED-GUARDS-AUDIT: Slice-034-Baseline komplett erhalten
+========================================================================
+Query: Regex-Inspection auf pg_get_functiondef(buy_player_sc).
+
+Result:
+  auth_guard           : YES  (auth_uid_mismatch exception)
+  qty_validation       : YES  (invalidQuantity / maxQuantityExceeded guards)
+  liquidation_check    : YES  (is_liquidated gate)
+  club_admin_guard     : YES  (is_club_admin_for_player blocked)
+  advisory_lock        : YES  (pg_advisory_xact_lock)
+  trade_rate_limit     : YES  (Max 20 Trades/24h tier-aware)
+  circular_guard       : YES  (Verdaechtiges Handelsmuster, 2x in 7 days)
+  pbt_credit           : YES  (credit_pbt treasury call)
+  floor_recalc         : YES  (recalc_floor_price side-effect)
+  trans_type_correct   : YES  (trade_buy + trade_sell — Slice 034 fix)
+  club_fee_treasury    : YES  (clubs.treasury_balance_cents update)
+  subscription_discount: YES  (abo_discount_gold_bps + tier-branches)
+
+Check: 12/12 preserved-Guards erkannt. Kein Silent-Revert wie in
+common-errors.md §2 dokumentiert (SECURITY DEFINER patch-audit).
+
+
+6. TYPESCRIPT CHECK
+========================================================================
+Command: npx tsc --noEmit
+Result: (no output — clean)
+
+
+7. VITEST CHECK (trading-related suites)
+========================================================================
+Command:
+  npx vitest run \
+    src/lib/services/__tests__/trading.test.ts \
+    src/features/market/mutations/__tests__/trading.test.ts \
+    src/components/player/detail/hooks/__tests__/usePlayerTrading.test.ts
+
+Result:
+  Test Files  3 passed (3)
+  Tests       130 passed (130)
+  Duration    5.91s
+
+Check: backward-compat confirmed — alle 130 bestehenden trading-Tests mit
+3-arg-Call-Signatur passen weiterhin, weil Service-Layer `idempotencyKey`
+optional ist und auf NULL faellt.
+
+
+8. SCOPE-OUT-REMINDER (was NICHT in 178a bewiesen wird)
+========================================================================
+- End-to-End money-flow-test mit echter Wallet-Balance-Aenderung:
+  service_role kann buy_player_sc nicht aufrufen (auth.uid()-guard blockt).
+  Client-JWT-based E2E-Test kommt in 178d, wenn useSafeMutation den
+  idempotency-key auto-generiert.
+
+- Der pending-Edge-Case (crashed mid-transaction): ist durch das
+  json_build_object 'idempotency_pending' error-return abgedeckt.
+  Client sollte nach <1s retry with gleichem key (Standard-Retry-Policy).
+
+- Expiry-Cleanup-Cron: Slice 178b. Bis dahin bleibt alter dedup-key +300s
+  aktiv; deterministisches Verhalten trotzdem konservativ-korrekt.
+
+
+9. FILES
+========================================================================
+- supabase/migrations/20260424020000_slice_178a_buy_player_sc_idempotency.sql  (208 L)
+- src/lib/services/trading.ts                                                  (edit: +5 -2)
+- worklog/specs/178a-buy_player_sc_idempotency.md                              (spec)
+- worklog/reviews/178a-review.md                                               (self-review)
+- worklog/proofs/178a-replay.txt                                               (this file)

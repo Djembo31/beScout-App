@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178a | 2026-04-24 | buy_player_sc Idempotency-Integration (Tier A1, Money-Critical)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: single-RPC integration via DEFAULT-NULL parameter) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Erste Money-RPC-Integration der Slice-178-Foundation. `buy_player_sc` nutzt generic `check_or_reserve_dedup_key` statt inline-60s wie 151c.2.
+- **CEO-Scope:** per User explicit grant "voller Zugriff" in Autonomous-Marathon-Session.
+- **Migration:** `supabase/migrations/20260424020000_slice_178a_buy_player_sc_idempotency.sql` live-applied via mcp__supabase__apply_migration.
+- **Signature:** `(uuid, uuid, integer) → (uuid, uuid, integer, text DEFAULT NULL)`. Alte 3-arg-Version via `DROP FUNCTION IF EXISTS` entfernt.
+- **Backward-Compat:** DEFAULT NULL — alle 130 bestehenden trading-Tests gruen ohne Code-Change. Service-Layer-Parameter `idempotencyKey?: string` optional.
+- **Baseline:** Slice 034 (`20260417160000_buy_player_sc_transactions_type_fix.sql`). Patch-Audit: keine Patches zwischen 034 und 178a. 12/12 preserved-Guards verifiziert (auth_guard, qty_validation, liquidation_check, club_admin_guard, advisory_lock, trade_rate_limit, circular_guard, pbt_credit, floor_recalc, trans_type_correct, club_fee_treasury, subscription_discount).
+- **Files:**
+  - `supabase/migrations/20260424020000_slice_178a_buy_player_sc_idempotency.sql` (208 L, NEU)
+  - `src/lib/services/trading.ts` (edit: +5 -2, optional idempotencyKey arg)
+  - `worklog/specs/178a-buy_player_sc_idempotency.md` (Spec)
+  - `worklog/reviews/178a-review.md` (Self-Review, PASS)
+  - `worklog/proofs/178a-replay.txt` (Proof, 9 sections)
+- **Review:** `worklog/reviews/178a-review.md` — Self-Review (XS Pattern-Wiederholung von Slice 178 + 151c.2). Verdict PASS.
+- **Proof:** `worklog/proofs/178a-replay.txt` —
+  1. pronargs=4, args match
+  2. Grants: authenticated + postgres + service_role (kein anon)
+  3. Foundation-Proof (is_new=TRUE → UPDATE → is_new=FALSE mit cached)
+  4. Integration-Regex-Audit (4/4 Idempotency-Bloecke drin)
+  5. Preserved-Guards-Audit (12/12)
+  6. tsc --noEmit clean
+  7. vitest 130/130 pass (3 trading suites)
+- **Commit:** (wird nach Commit ergaenzt)
+- **Next-Follow-ups:** 178b Cleanup-Cron · 178c subscribe_to_club Generic-Migration · 178d useSafeMutation auto-dedup-key. Weitere Money-RPCs via Pattern-Wiederholung.
+
+---
+
 ## 178 | 2026-04-24 | Idempotency Foundation (Tier A1, Money-Critical)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

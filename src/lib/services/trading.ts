@@ -76,11 +76,17 @@ type TradeResult = {
 // Trading Operations (via RPC → atomic)
 // ============================================
 
-/** Smart Buy: kauft vom guenstigsten Sell-Order oder System-Pool */
+/** Smart Buy: kauft vom guenstigsten Sell-Order oder System-Pool.
+ *
+ *  Slice 178a: optionaler `idempotencyKey` verhindert Double-Spend bei
+ *  Network-Retry (300s-Window via request_dedup_keys). NULL/undefined =
+ *  unveraenderter Pfad. Client-side auto-generation kommt in 178d via
+ *  useSafeMutation. */
 export async function buyFromMarket(
   userId: string,
   playerId: string,
-  quantity: number
+  quantity: number,
+  idempotencyKey?: string,
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
   if (quantity > 300) throw new Error('maxQuantityExceeded');
@@ -97,6 +103,7 @@ export async function buyFromMarket(
     p_user_id: userId,
     p_player_id: playerId,
     p_quantity: quantity,
+    p_idempotency_key: idempotencyKey ?? null,
   });
 
   if (error) throw new Error(mapRpcError(error.message));
