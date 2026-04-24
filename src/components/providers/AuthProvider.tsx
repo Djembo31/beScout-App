@@ -160,8 +160,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     // Try primary RPC
+    // Slice 193: timeout reduced 10s → 3s. Live-Network-Trace shows the RPC
+    // typically returns in ~150ms (server-time) — anything > 3s is almost
+    // certainly a stalled fetch (Vercel cold-start, Supabase pool, network).
+    // Faster fallback minimizes the window where queries fire with stale auth.
     try {
-      const authState = await withTimeout(getAuthState(userId), 10000);
+      const authState = await withTimeout(getAuthState(userId), 3000);
       applyAuthState(authState);
       if (!_isRefresh) setProfileLoading(false);
       return;
