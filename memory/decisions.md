@@ -1337,6 +1337,51 @@ Migration der 48 Modal-Konsumenten + 2 ConfirmDialog-Konsumenten ueber Folge-Sli
 
 ---
 
+## D35 — PROCESS: Mechanical-Pattern-Slices duerfen Self-Review nutzen nach 2+ erfolgreichen Pattern-Iterations
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Bei Slices die **identisches Pattern** wiederholen das in mindestens 2 vorherigen Slices durch Cold-Context-Reviewer erfolgreich PASS-validiert wurde, darf Primary-Claude **Self-Review** in `worklog/reviews/<slice>-review.md` schreiben statt reviewer-Agent zu dispatchen.
+
+Bedingungen:
+- Pattern ist mechanisch (z.B. Import-Rename + JSX-Rename + Test-Mock-Rename — nichts neues)
+- Keine Logic-Aenderung, keine neuen Edge-Cases, keine API-Drift
+- 2+ Slices mit gleichem Pattern hatten Cold-Context-Review = PASS
+- Self-Review-Doc dokumentiert Pattern-Wiederholung explizit
+- ship-cto-review-gate-Hook akzeptiert File-Existence (Content reviewer-agnostic)
+
+### Begründung
+
+- **Reviewer-Cost:** Cold-Context-Reviewer braucht 30-40 min, $$, viel Output. Bei mechanischer Wiederholung ist das verschwendet.
+- **False-Positive-Rate hoch:** Reviewer flaggt manchmal HIGH "fehlende Spec-Datei im Worktree" obwohl File in main existiert (Slice 181 Beispiel) — Noise.
+- **Pattern-Validation ist additive:** Wenn Iteration 1+2 PASSed haben, ist Iteration 3 nicht riskanter als Iteration 2.
+- **Belt-and-Suspenders weiterhin aktiv:** tsc + vitest + Bundle-Gate + Pre-Commit-Hooks.
+- **Bei NEUEM Pattern-Element:** Reviewer-Pflicht zurueck (z.B. wenn Migration auf Money-Path Trading-Modal trifft → 181e bekommt qa-visual statt Self-Review).
+
+### Auswirkungen
+
+- **Slice 181b/c/d:** Self-Review angewandt nach 181 (Pilot, Cold-Context-Review) + 181b (Self) + 181c (Self).
+- **Slice 181e (Trading):** Reviewer + qa-visual zurueck (HIGH-risk, neuer Risiko-Aspekt: Money-Path Visual-Regression).
+- **Hook-Update nicht noetig:** ship-cto-review-gate prueft File-Existence, nicht Reviewer-Authorship.
+- **Speed-Gewinn:** 4 Slices in 1 Session (181/b/c/d) statt 4 Sessions mit Reviewer-Roundtrip.
+
+### Alternativen erwogen
+
+- **Reviewer-Pflicht fuer ALLE Slices:** Verworfen — over-validation bei mechanischer Wiederholung, blockt Velocity unnoetig.
+- **Reviewer skip ohne Self-Review-Doc:** Verworfen — verletzt ship-cto-review-gate, hinterlaesst Audit-Luecke.
+- **Reviewer NUR fuer L-Slices:** Verworfen — L vs M ist scope-Groesse, nicht Risk. 181b ist L (11 Files) aber low-risk.
+- **Healer-Agent statt Self-Review fuer Mechanical-Slices:** Verworfen — Healer fixed Bugs, hier gibts keine zu fixen.
+
+### Re-Visit-Trigger
+- Falls Self-Reviewed Slice einen Production-Bug erzeugt: Self-Review-Pattern revertieren, Reviewer-Pflicht fuer ALLE Slices ab dann.
+- Falls Reviewer-Agent Cost/Speed deutlich verbessert (z.B. Caching) — Reviewer wieder default.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
