@@ -1,16 +1,16 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 186
-stage: LOG
+status: idle
+slice: —
+stage: —
 spec: —
-impact: skipped (rules-doc split, no runtime change)
-proof: worklog/log.md#186
-review: self-review
+impact: —
+proof: —
+review: —
 ```
 
-## Session 2026-04-24 FINAL STATE — clean close
+## Session 2026-04-24 FINAL — clean close
 
 - **Idempotency-Foundation** (178 + 178a-f): 8 Money-RPCs + Client-Hook + 6 Call-Sites — End-to-End
 - **Bundle-Budget** (185b): Baseline + CI-Gate
