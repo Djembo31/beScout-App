@@ -1,0 +1,11 @@
+Slice 178e-d — liquidate_player Idempotency Proof
+===================================================
+
+1. Baseline: live pg_get_functiondef. IRREVERSIBEL (is_liquidated=TRUE).
+2. Applied via mcp__supabase__apply_migration.
+3. Signature: (uuid, uuid, integer) → (uuid, uuid, integer, text DEFAULT NULL).
+   Old 3-arg DROPped. p_transfer_value_eur DEFAULT 0 erhalten.
+4. Service: liquidatePlayer(..., idempotencyKey?) backward-compat.
+5. Critical: retry ohne Idempotency waere payout-Verdopplung bevor
+   is_liquidated-guard greift (mehrere Wallet-UPDATEs + liquidation_payouts INSERTs).
+6. tsc clean + 16/16 liquidation tests pass.

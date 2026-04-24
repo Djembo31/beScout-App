@@ -2,12 +2,12 @@
 
 ```
 status: in_progress
-slice: 178e-c
+slice: 178e-d
 stage: LOG
 spec: —
 impact: skipped
-proof: worklog/proofs/178e-c-place_buy.txt
+proof: worklog/proofs/178e-d-liquidate.txt
 review: self-review
 ```
 
-Marathon: 178b+c+e-a+e-b+e-c done → 178e-d (liquidate_player) next.
+Marathon: 178b+c+e-a+b+c+d done → 178e-e (openMysteryBox) next.

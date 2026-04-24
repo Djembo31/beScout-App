@@ -90,6 +90,7 @@ describe('liquidatePlayer', () => {
       p_admin_id: 'admin-1',
       p_player_id: 'player-1',
       p_transfer_value_eur: 500000,
+      p_idempotency_key: null,
     });
   });
 
@@ -109,6 +110,7 @@ describe('liquidatePlayer', () => {
       p_admin_id: 'admin-1',
       p_player_id: 'player-1',
       p_transfer_value_eur: 0,
+      p_idempotency_key: null,
     });
   });
 

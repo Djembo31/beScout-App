@@ -29,6 +29,7 @@ export async function liquidatePlayer(
   adminId: string,
   playerId: string,
   transferValueEur?: number,
+  idempotencyKey?: string,
 ): Promise<{
   success: boolean;
   holder_count?: number;
@@ -43,6 +44,7 @@ export async function liquidatePlayer(
     p_admin_id: adminId,
     p_player_id: playerId,
     p_transfer_value_eur: transferValueEur ?? 0,
+    p_idempotency_key: idempotencyKey ?? null,
   });
   if (error) return { success: false, error: mapRpcError(error.message) };
 

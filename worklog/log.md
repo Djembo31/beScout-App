@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178e-d | 2026-04-24 | liquidate_player Idempotency-Integration (Tier A1, Money, Admin)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Pattern-Wiederholung. IRREVERSIBEL (is_liquidated=TRUE).
+- **Critical:** retry ohne Idempotency = payout-Verdopplung + duplicate liquidation_payouts.
+- **Signature:** (uuid, uuid, integer DEFAULT 0) → +text DEFAULT NULL. Old 3-arg DROPped.
+- **Service:** `liquidatePlayer(..., idempotencyKey?)`.
+- **Proof:** worklog/proofs/178e-d-liquidate.txt. 16/16 liquidation tests pass.
+
+---
+
 ## 178e-c | 2026-04-24 | place_buy_order Idempotency-Integration (Tier A1, Money)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
