@@ -1293,6 +1293,50 @@ Alle Files unter 30 KB (Soft-Ziel < 40 KB, Optimal ~30 KB).
 
 ---
 
+## D34 — ARCHITECTURE: Radix UI als Headless-Foundation fuer Dialog/AlertDialog/DropdownMenu
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv (Slice 181)
+**Supersedes:** Custom-`Modal` + `ConfirmDialog` (bleiben coexistent bis Slice 181h Cleanup)
+
+### Entscheidung
+
+`@radix-ui/react-dialog`, `@radix-ui/react-alert-dialog`, `@radix-ui/react-dropdown-menu` als Foundation einfuehren. Drei Wrapper in `src/components/ui/`:
+
+- **Dialog.tsx** — Drop-in API zu altem Modal (1:1 Props)
+- **AlertDialog.tsx** — Drop-in API zu altem ConfirmDialog (1:1 Props)
+- **DropdownMenu.tsx** — Compound API (Radix-idiomatisch, kein Vorgaenger im Code)
+
+Migration der 48 Modal-Konsumenten + 2 ConfirmDialog-Konsumenten ueber Folge-Slices 181b-h (siehe `worklog/specs/181b-radix-migration-plan.md`).
+
+### Begründung
+
+- **A11y aus der Box:** Korrekte ARIA-Roles (dialog, alertdialog, menu), robust focus-trap (react-focus-scope), focus-restore aufs Trigger-Element, Screen-Reader-Announcements via DialogTitle.
+- **Code-Reduktion:** Custom-Modal hatte ~150 LoC fuer ESC + scroll-lock + focus-trap manuell. Radix loest das + bessere Edge-Cases.
+- **Industry-Standard:** Radix ist de-facto-Standard fuer Headless-UI in Next.js-Projekten. Onboarding neuer Devs einfacher.
+- **Drop-in API minimiert Migration-Risiko:** Folge-Slices sind Import-Renames, nicht Strukturaenderungen.
+
+### Auswirkungen
+
+- **Bundle:** Per-Route +14-21 kB (NICHT shared chunk wie initial vermutet — Webpack tree-shaket Radix in Pilot-Sites lokal). Bundle-Budget per-Route +25 kB Headroom dokumentiert.
+- **Tests:** `src/test-utils/radix-mocks.ts` als shared factory-mock-helper. 48 Folge-Migrations nutzen es konsistent.
+- **Animations:** Erforderte Tailwind-Fix (`@layer utilities` Wrap fuer `anim-*`-Klassen, sonst keine `data-[state=open]:`-Variants generiert) — siehe errors-frontend.md Pattern.
+- **Pattern-Asymmetrie AlertDialog Action:** Bewusst plain `<Button>` statt `RadixAlert.Action` weil Action implizit closed → race mit async onConfirm. Cancel via `RadixAlert.Cancel asChild` ist OK weil Cancel = sofort-close.
+
+### Alternativen erwogen
+
+- **Custom-Modal weiter ausbauen:** Verworfen — A11y ist hard-to-get-right manuell, Code-Maintenance hoch.
+- **Radix Themes (vorgefertigte styled Components):** Verworfen — loest unser Design-Token-System auf, Inkompatibel mit BeScout-Dark-Mode-Theming.
+- **Headless UI (Tailwind Labs):** Verworfen — kleinerer Featureset, keine AlertDialog/DropdownMenu Primitives.
+- **Big-Bang-Migration aller 48 Sites in 181:** Verworfen — Risk zu hoch (Money-Path-Modals dabei). Pilot + gradual rollout via 181b-h.
+
+### Re-Visit-Trigger
+- Falls Bundle-Impact pro Route ueber 30 kB steigt nach 181e Trading-Migration: Optimization-Slice (selektives Lazy-Import von Radix-Internals).
+- Falls Radix v2 Breaking-Changes bringt: Migration-Window planen.
+- Falls 5+ neue Primitives nach 181 hinzugefuegt werden (Tooltip, Popover, Select, Tabs, Toast): zentrale Theming-Schicht (z.B. shadcn-style Theme-File) statt per-Wrapper-Styling.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

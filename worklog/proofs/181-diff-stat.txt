@@ -1,0 +1,20 @@
+=== Slice 181 — git diff --stat ===
+warning: in the working copy of 'memory/session-handoff.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/active.md', LF will be replaced by CRLF the next time Git touches it
+ bundle-budget.json                                 |  36 +-
+ memory/session-handoff.md                          |  30 +-
+ package.json                                       |   3 +
+ pnpm-lock.yaml                                     | 720 +++++++++++++++++++++
+ src/app/globals.css                                |  16 +-
+ src/components/community/ReportModal.tsx           |   6 +-
+ .../community/__tests__/ReportModal.test.tsx       |   5 +-
+ src/components/ui/index.tsx                        |   7 +
+ .../components/aufstellen/AufstellenTab.tsx        |   6 +-
+ worklog/active.md                                  |  24 +-
+ 10 files changed, 806 insertions(+), 47 deletions(-)
+
+=== Slice 181 — Animation CSS verify (data-state=open generated) ===
+.next/static/css/07bbb1966f982c50.css:data-state=open]{animation:dropdown-in .15s ease-out
+.next/static/css/07bbb1966f982c50.css:data-state=open]{animation:fade-in .2s ease-out
+.next/static/css/07bbb1966f982c50.css:data-state=open]{animation:modal-in .2s ease-out
+.next/static/css/07bbb1966f982c50.css:data-state=open]{animation:slide-up .25s cubic-bezier(.32,.72,0,1)

@@ -11,6 +11,31 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181 | 2026-04-24 | Radix UI-Primitives Foundation (Dialog + AlertDialog + DropdownMenu)
+
+- **Stage-Chain:** SPEC → IMPACT → BUILD (frontend-Agent in Worktree) → REVIEW (reviewer-Agent cold-context) → HEALER (self) → PROVE → LOG
+- **Scope L:** 3 Wrapper + Test-Helper + 2 Pilots + Bundle-Budget + 181b Migration-Plan. Coexistent mit altem Modal/ConfirmDialog (Cleanup in 181h).
+- **Files (15 changed, 2162 insertions):**
+  - NEW: `src/components/ui/Dialog.tsx` (181 L) · `AlertDialog.tsx` (140 L) · `DropdownMenu.tsx` (236 L)
+  - NEW: `src/components/ui/__tests__/{Dialog,AlertDialog,DropdownMenu}.test.tsx` (24 tests)
+  - NEW: `src/test-utils/radix-mocks.ts` (264 L) — shared factory mocks fuer 48 Folge-Migrationen
+  - NEW: `worklog/specs/181b-radix-migration-plan.md` (Site-Liste + Batches + Risk-Tier)
+  - MOD: `package.json` + `pnpm-lock.yaml` (+3 Radix deps), `bundle-budget.json` (+25kB per-route Headroom)
+  - MOD: `src/components/ui/index.tsx` (re-exports), `src/app/globals.css` (anim-* in @layer utilities — fix fuer data-[state=open]: Tailwind-Variants)
+  - PILOT 1: `src/components/community/ReportModal.tsx` (Modal → Dialog)
+  - PILOT 2: `src/features/manager/components/aufstellen/AufstellenTab.tsx` (ConfirmDialog → AlertDialog)
+- **Spec:** `worklog/specs/181-radix-ui-primitives-foundation.md`
+- **Impact:** `worklog/impact/181-radix-foundation.md`
+- **Review:** `worklog/reviews/181-review.md` (REWORK → PASS nach Healer-Pass: useId-collision-Fix + Tailwind-Animation-Variant-Fix)
+- **Proof:** `worklog/proofs/181-tests.txt` (24/24 vitest gruen, tsc clean) · `181-bundle-size.txt` (alle 51 Routes within budget) · `181-diff-stat.txt` (data-state=open Animation-Rules verified in CSS-Output)
+- **Commit:** TBD
+- **Decisions:** D34 Radix Foundation (ARCHITECTURE)
+- **LEARNINGS:**
+  - errors-frontend.md: Tailwind `data-*` Variants funktionieren nur auf Tailwind-Utilities — `anim-*` muessen in `@layer utilities` wrapped sein, sonst keine Variant-Output
+  - Per-Route vs Shared Bundling: Webpack tree-shaket Radix in einzelne Pilot-Sites lokal, nicht in shared chunk (vs. urspruenglicher Prediction)
+  - AlertDialog Action-Asymmetrie: plain `<Button>` statt `RadixAlert.Action` weil Action implizit closed → race mit async onConfirm
+- **Naechstes (181b-h):** Modal→Dialog Migration in Batches Admin (11) → Community/Help (11) → Fantasy/Gamification (12) → Trading/Money (8 mit Smoke-Suite). Plus 181g JoinConfirmDialog Refactor + 181h Cleanup.
+
 ## 186 | 2026-04-24 | common-errors.md Split + DISTILL + Handoff (Tier D Hygiene)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: rules-doc split) → BUILD → PROVE → REVIEW (self) → LOG

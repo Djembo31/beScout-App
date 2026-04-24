@@ -354,6 +354,13 @@ export { LeagueBadge } from './LeagueBadge';
 export { CountryBar } from './CountryBar';
 export { LeagueBar } from './LeagueBarShared';
 export { ConfirmDialog } from './ConfirmDialog';
+// Slice 181 — Radix-basierte Wrappers (coexistent mit altem Modal/ConfirmDialog).
+export { Dialog } from './Dialog';
+export type { DialogProps } from './Dialog';
+export { AlertDialog } from './AlertDialog';
+export type { AlertDialogProps } from './AlertDialog';
+export { DropdownMenu } from './DropdownMenu';
+export type { DropdownMenuItemProps, DropdownMenuContentProps } from './DropdownMenu';
 
 export function ErrorState({
   message,

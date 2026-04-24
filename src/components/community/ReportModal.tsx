@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Flag, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { reportContent } from '@/lib/services/contentReports';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
@@ -68,7 +68,7 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
   }
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={t('reportTitle')}
       onClose={onClose}
@@ -113,6 +113,6 @@ export default function ReportModal({ open, onClose, targetType, targetId }: Rep
           />
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

@@ -15,7 +15,7 @@ import { useFixtureDeadlines } from '@/features/fantasy/hooks/useFixtureDeadline
 import { useEventActions } from '@/features/fantasy/hooks/useEventActions';
 import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
 import type { LineupPlayer } from '@/features/fantasy/types';
-import { ConfirmDialog } from '@/components/ui';
+import { AlertDialog } from '@/components/ui';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import EventSelector from './EventSelector';
 import EquipmentShortcut from '../EquipmentShortcut';
@@ -378,8 +378,8 @@ export default function AufstellenTab() {
         onViewResults={() => { /* no results modal in manager */ }}
       />
 
-      {/* Confirm-Dialog ersetzt native confirm() fuer Leave-Event (Mobile-UX). */}
-      <ConfirmDialog
+      {/* Slice 181: AlertDialog (Radix) ersetzt ConfirmDialog — drop-in API. */}
+      <AlertDialog
         open={leaveConfirmOpen}
         title={tFantasy('leaveBtn')}
         message={tFantasy('confirmLeaveMsg', { name: effectiveEvent.name })}

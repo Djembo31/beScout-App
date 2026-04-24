@@ -28,6 +28,23 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - `flex-1` auf Tabs → iPhone overflow → `flex-shrink-0`.
 - Dynamic Tailwind NIEMALS: `border-[${var}]/40` → JIT scannt nur statische Strings. Nutze `style={{ borderColor: hex }}` + statische Class.
 
+### Tailwind data-* Variants nur auf Tailwind-Utilities (Slice 181)
+- `data-[state=open]:anim-modal` in className **wirkt nicht**, wenn `anim-modal` plain CSS class in `globals.css` ist (nicht in `@layer utilities`).
+- Tailwind generiert die Variant-Selectoren nur fuer **bekannte Utilities**. Plain global-CSS-Klassen sind nicht bekannt → keine Output-Rule, keine Animation.
+- Symptom: Radix-Wrapper rendert, aber Open/Close-Animation fehlt komplett. Visual-Regression vs. ehemalige direkte `anim-modal`-Klasse.
+- Fix-Pattern:
+  ```css
+  /* Slice 181 — anim-* in @layer utilities, damit Tailwind data-state Variants generiert */
+  @layer utilities {
+    .anim-modal { animation: modal-in 0.2s ease-out; }
+    .anim-bottom-sheet { animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+    .anim-fade { animation: fade-in 0.2s ease-out; }
+    .anim-dropdown { animation: dropdown-in 0.15s ease-out; }
+  }
+  ```
+- Verify: `grep -oE "data-state=open[^{]{0,80}\\{[^}]{0,80}" .next/static/css/*.css` — sollte 4 Animation-Rules zeigen post-build.
+- Gilt analog fuer `data-[state=closed]:`, `data-[disabled]:`, `aria-[expanded=true]:` etc.
+
 ### Multi-League Props-Propagation (J3 + J4)
 - Neues optional Field auf Type (z.B. `leagueShort?`) → nur 2/8 Render-Call-Sites bedient. TSC/Tests merken nichts (optional = kein Error).
 - Visual-QA im Pilot (1 Liga) uebersieht's, Fehler erst im Multi-League-Betrieb.

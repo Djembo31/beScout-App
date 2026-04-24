@@ -10,10 +10,10 @@ proof: —
 review: —
 ```
 
-## Session 2026-04-24 FINAL — clean close
+## Zuletzt
 
-- **Idempotency-Foundation** (178 + 178a-f): 8 Money-RPCs + Client-Hook + 6 Call-Sites — End-to-End
-- **Bundle-Budget** (185b): Baseline + CI-Gate
-- **Hygiene** (186): common-errors.md Split + DISTILL D30-D33 + Rich-Handoff
+- **Slice 181** (2026-04-24) — Radix UI-Primitives Foundation (Dialog + AlertDialog + DropdownMenu) (L, REWORK→PASS).
+- **Slice 186** (2026-04-24) — common-errors.md Split + DISTILL D30-D33 + Handoff (M, PASS).
+- **Slice 185b** (2026-04-24) — Bundle-Budget-Gate (Tier D5) (S, PASS).
 
-Naechste Session: UI-Foundation-Deliberation (181 Radix empfohlen) — siehe `memory/session-handoff.md`.
+Naechstes: 181b Modal→Dialog Migration (Admin-Batch, 11 Files, low risk) ODER pause + DropdownMenu-Use-Case identifizieren.

@@ -111,12 +111,16 @@ body {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
-.anim-modal { animation: modal-in 0.2s ease-out; }
-.anim-bottom-sheet { animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
-.anim-fade { animation: fade-in 0.2s ease-out; }
-.anim-tab-fade { animation: fade-in 150ms ease-out; }
-.anim-slide-left { animation: slide-in-left 0.25s ease-out; }
-.anim-dropdown { animation: dropdown-in 0.15s ease-out; }
+/* Slice 181 — anim-* in @layer utilities, damit Tailwind data-[state=open]: Variants
+   fuer Radix-Wrapper (Dialog/AlertDialog/DropdownMenu) generieren kann. */
+@layer utilities {
+  .anim-modal { animation: modal-in 0.2s ease-out; }
+  .anim-bottom-sheet { animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+  .anim-fade { animation: fade-in 0.2s ease-out; }
+  .anim-tab-fade { animation: fade-in 150ms ease-out; }
+  .anim-slide-left { animation: slide-in-left 0.25s ease-out; }
+  .anim-dropdown { animation: dropdown-in 0.15s ease-out; }
+}
 
 /* Notification dropdown enter/exit */
 @keyframes notif-slide-down { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }

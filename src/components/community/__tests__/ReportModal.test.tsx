@@ -33,9 +33,10 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-// Modal stub — renders footer + children when open.
+// Slice 181: ReportModal nutzt jetzt Dialog (Radix-Wrapper) statt Modal.
+// Stub Dialog statt Modal — gleiche Render-Semantik (footer+children when open).
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, footer, children }: { open: boolean; footer: React.ReactNode; children: React.ReactNode; title?: string; onClose?: () => void; size?: string }) =>
+  Dialog: ({ open, footer, children }: { open: boolean; footer: React.ReactNode; children: React.ReactNode; title?: string; onClose?: () => void; size?: string; preventClose?: boolean }) =>
     open ? React.createElement('div', { 'data-testid': 'modal' },
       children,
       React.createElement('div', { 'data-testid': 'footer' }, footer),
