@@ -27,6 +27,7 @@
     "audit:mutation-race:check": "bash scripts/audit-mutation-race.sh --strict",
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
     "beta:metrics": "node scripts/beta-metrics.mjs",
+    "size": "npx tsx scripts/check-bundle-size.ts",
     "prepare": "husky"
   },
   "dependencies": {

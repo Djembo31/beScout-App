@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 185b | 2026-04-24 | Bundle-Budget-Gate (Tier D5)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope S:** Baseline-Snapshot + CI-Gate gegen bundle-size-regression.
+- **Files:** `bundle-budget.json`, `scripts/check-bundle-size.ts`, `package.json` script `size`, `.github/workflows/ci.yml` — build-Job erweitert.
+- **Baseline (2026-04-24):** Shared 162 kB / budget 170. 51 routes tracked, 0 violations. Largest: /club/[slug]/admin 387, /bescout-admin 379, /player/[id] 378.
+- **Budget-Headroom:** ~10-15 kB pro tracked Route. Shared strikter (8 kB) weil platform-weit.
+- **CI:** build-Job tee-t output, zweiter step cat + tsx → exit 1 bei regression.
+- **Proof:** worklog/proofs/185b-bundle-baseline.txt. 51/51 routes innerhalb budget. tsc clean.
+
+---
+
 ## 178f | 2026-04-24 | Call-Site-Migration auf Auto-Key (Tier A1, Client)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

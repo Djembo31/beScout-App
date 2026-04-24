@@ -1,0 +1,28 @@
+{
+  "_comment": "Slice 185b — Bundle-Budget. first_load_kb = max allowed 'First Load JS' pro Route in KB. shared_kb = max fuer First Load JS shared by all. Baseline 2026-04-24. Siehe scripts/check-bundle-size.ts.",
+  "baseline_date": "2026-04-24",
+  "shared_kb": 170,
+  "routes": {
+    "/": 370,
+    "/airdrop": 340,
+    "/bescout-admin": 395,
+    "/club/[slug]": 375,
+    "/club/[slug]/admin": 400,
+    "/clubs": 305,
+    "/community": 375,
+    "/compare": 295,
+    "/fantasy": 195,
+    "/founding": 300,
+    "/inventory": 265,
+    "/login": 285,
+    "/market": 360,
+    "/missions": 350,
+    "/onboarding": 290,
+    "/pitch": 200,
+    "/player/[id]": 390,
+    "/profile/settings": 295,
+    "/rankings": 305,
+    "/welcome": 270,
+    "_default": 350
+  }
+}

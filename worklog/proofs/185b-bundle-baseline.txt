@@ -1,0 +1,70 @@
+Slice 185b — Bundle-Budget Baseline Proof
+============================================
+Date: 2026-04-24
+Build-Runtime: Next.js 14.2.35 production build via `pnpm run build`
+
+=== pnpm run size (full output) ===
+
+Bundle-Budget check (51 routes, shared 162.0 kB)
+
+Route                                     First Load  Budget  Delta
+──────────────────────────────────────────────────────────────────────────
+(shared First Load JS)                      162.0kB   170kB    8.0kB ✓
+/                                           358.0kB   370kB  -12.0kB ✓
+/_not-found                                 163.0kB   350kB  -187.0kB ✓
+/agb                                        184.0kB   350kB  -166.0kB ✓
+/airdrop                                    332.0kB   340kB   -8.0kB ✓
+/api/admin/backfill-positions                 0.0kB   350kB  -350.0kB ✓
+/api/admin/backfill-ratings                   0.0kB   350kB  -350.0kB ✓
+/api/admin/invite-club-admin                  0.0kB   350kB  -350.0kB ✓
+/api/admin/players-csv/export                 0.0kB   350kB  -350.0kB ✓
+/api/admin/players-csv/import                 0.0kB   350kB  -350.0kB ✓
+/api/admin/sync-contracts                     0.0kB   350kB  -350.0kB ✓
+/api/admin/trigger-cron/[name]                0.0kB   350kB  -350.0kB ✓
+/api/cron/close-expired-bounties              0.0kB   350kB  -350.0kB ✓
+/api/cron/dedup-cleanup                       0.0kB   350kB  -350.0kB ✓
+/api/cron/gameweek-sync                       0.0kB   350kB  -350.0kB ✓
+/api/cron/sync-fixtures-future                0.0kB   350kB  -350.0kB ✓
+/api/cron/sync-injuries                       0.0kB   350kB  -350.0kB ✓
+/api/cron/sync-players-daily                  0.0kB   350kB  -350.0kB ✓
+/api/cron/sync-standings                      0.0kB   350kB  -350.0kB ✓
+/api/cron/sync-transfermarkt-batch            0.0kB   350kB  -350.0kB ✓
+/api/cron/sync-transfers                      0.0kB   350kB  -350.0kB ✓
+/api/cron/transfermarkt-search-batch          0.0kB   350kB  -350.0kB ✓
+/api/events                                   0.0kB   350kB  -350.0kB ✓
+/api/players                                  0.0kB   350kB  -350.0kB ✓
+/api/push                                     0.0kB   350kB  -350.0kB ✓
+/auth/callback                              231.0kB   350kB  -119.0kB ✓
+/bescout-admin                              379.0kB   395kB  -16.0kB ✓
+/blocked                                    163.0kB   350kB  -187.0kB ✓
+/club                                       162.0kB   350kB  -188.0kB ✓
+/club/[slug]                                362.0kB   375kB  -13.0kB ✓
+/club/[slug]/admin                          387.0kB   400kB  -13.0kB ✓
+/clubs                                      293.0kB   305kB  -12.0kB ✓
+/community                                  364.0kB   375kB  -11.0kB ✓
+/compare                                    281.0kB   295kB  -14.0kB ✓
+/datenschutz                                184.0kB   350kB  -166.0kB ✓
+/fantasy                                    180.0kB   195kB  -15.0kB ✓
+/founding                                   286.0kB   300kB  -14.0kB ✓
+/impressum                                  184.0kB   350kB  -166.0kB ✓
+/inventory                                  253.0kB   265kB  -12.0kB ✓
+/login                                      273.0kB   285kB  -12.0kB ✓
+/manager                                    164.0kB   350kB  -186.0kB ✓
+/market                                     346.0kB   360kB  -14.0kB ✓
+/missions                                   339.0kB   350kB  -11.0kB ✓
+/onboarding                                 275.0kB   290kB  -15.0kB ✓
+/pitch                                      188.0kB   200kB  -12.0kB ✓
+/player/[id]                                378.0kB   390kB  -12.0kB ✓
+/profile                                    319.0kB   350kB  -31.0kB ✓
+/profile/[handle]                           319.0kB   350kB  -31.0kB ✓
+/profile/settings                           280.0kB   295kB  -15.0kB ✓
+/rankings                                   294.0kB   305kB  -11.0kB ✓
+/transactions                               251.0kB   350kB  -99.0kB ✓
+/welcome                                    257.0kB   270kB  -13.0kB ✓
+
+✓ All routes within budget.
+
+=== CI Gate ===
+.github/workflows/ci.yml build-Job hat jetzt 2 steps:
+1. next build | tee build-output.txt
+2. cat build-output.txt | npx tsx scripts/check-bundle-size.ts → exit 1 bei regression

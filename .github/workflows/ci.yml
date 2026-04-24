@@ -34,11 +34,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec next build
+      - name: next build (with bundle-output capture)
+        run: pnpm exec next build | tee build-output.txt
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+      - name: Bundle-Budget check (Slice 185b)
+        run: cat build-output.txt | npx tsx scripts/check-bundle-size.ts
 
   test:
     runs-on: ubuntu-latest
