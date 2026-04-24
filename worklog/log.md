@@ -11,6 +11,32 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 192 | 2026-04-24 | Holdings NULL-Player Defensive Guard + Type-Truth-Fix
+
+- **Stage-Chain:** SPEC (inline, active.md) → IMPACT (initially skipped, REWORK by reviewer Finding #1) → BUILD → REVIEW (Cold-Reviewer-Agent: REWORK with 7 findings) → REWORK → PROVE → LOG
+- **Trigger:** Anil-Screenshot 2026-04-24 zeigte Manager → Aufstellen-Tab mit Spieler-Rows als `#0 MID vs LEI 0 CR 1/1 SC 0S 0T 0A` (alle Felder = Mapper-Defaults wenn `h.player === null`).
+- **Root-Cause (zwei Layer):**
+  1. Auth-Race: PostgREST nested-select returns NULL fuer player wenn Token nicht hydrated. AuthProvider Console: `get_auth_state RPC > 10s timeout`.
+  2. Type-Lie seit Slice 122: `get_market_user_dashboard` RPC liefert DbHolding-shape, aber TS-Cast war `HoldingWithPlayer[]`. Mit Slice-192 Mapper-Throw waere `/market → /fantasy/aufstellen` Hard-Crash gewesen.
+- **Files:**
+  - `src/lib/services/wallet.ts` (Layer 2: Filter + logSilentCatch + all-ghost-throw)
+  - `src/features/fantasy/mappers/holdingMapper.ts` (Layer 3: i18n-key throw + Sentry-log)
+  - `src/lib/services/marketDashboard.ts` (Layer 1: Type-Truth `DbHolding[]`)
+  - `src/lib/queries/marketDashboard.ts` (Prime-Skip mit JSDoc)
+  - `src/lib/queries/enriched.ts` + 3 Component-Files (Type narrowing zu `DbHolding[]`)
+  - `src/lib/errorMessages.ts` (+ ghost_holding_row + holdings_ghost_all KNOWN_KEYS)
+  - `messages/{de,tr}.json` (+ 2 i18n-Strings je locale)
+  - `src/features/fantasy/mappers/__tests__/holdingMapper.test.ts` (NEU, 4 Tests)
+  - `src/lib/services/__tests__/getHoldings-ghost-filter.test.ts` (NEU, 4 Tests)
+- **Test-Status:** 8/8 mapper+service gruen, tsc clean
+- **Reviewer-Verdict:** REWORK initially → all CRITICAL+MEDIUM Findings addressed (#1+#3+#4+#5 fixed; #2/#6/#7 Backlog)
+- **Proof:** `worklog/proofs/192-holdings-null-player-guard.md`
+- **Review:** `worklog/reviews/192-review.md`
+- **Commit:** `50d777ff`
+- **Open Follow-ups:** AuthProvider-Perf-Slice (`/optimize` get_auth_state Timeout > 10s), HomeDashboard filter-helper, Hook-catch in useFantasyHoldings
+
+---
+
 ## 191 | 2026-04-24 | Hygiene-Kombi + Audit Bilder/Scouting/Form
 
 - **Stage-Chain:** SPEC (inline, active.md) → IMPACT skipped (doc + single-component) → BUILD → REVIEW (self per D35) → PROVE → LOG
