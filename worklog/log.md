@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 187b | 2026-04-24 | expire-orders Cron-Route + vercel.json Registry
+
+- **Stage-Chain:** SPEC (inline, 187-followup) → IMPACT skipped (neue route.ts, keine existing code touched) → BUILD → REVIEW (self) → PROVE → LOG
+- **Scope XS:** 1 neue Route-File (template-copy) + 1 vercel.json Zeile.
+- **Root-Cause:** Aus Slice 187 — 158 stale open orders waren NICHT durch verpassten Cron-Run entstanden, sondern weil *keine* `expire-orders` Cron-Route existierte. RPC war live, aber nur manuell auslöserbar.
+- **Files:** src/app/api/cron/expire-orders/route.ts (NEU), vercel.json (+1 entry `30 5 * * *`)
+- **Pattern D19:** Cron-Route-Registry confirmed — route.ts MUSS in vercel.json, sonst silent gap.
+- **Post-Deploy Behavior:** Morgen 05:30 UTC erster Auto-Run. Log-Format `{ok:true, expired:N}`.
+- **Proof:** worklog/proofs/187b-expire-orders-cron.txt
+- **Commit:** pending
+- **TODO:** Cron-Schedule auf hourly (`0 * * * *`) umstellen sobald Vercel-Plan Pro aktiv (zusammen mit 157f5c9c dedup-cleanup TODO).
+
 ## 187 | 2026-04-24 | DB-Invariant-Cleanup (5 Pre-existing Failures → 0)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT skipped (data-only, no code) → BUILD (DB-State-Change via Supabase MCP) → REVIEW (self) → PROVE → LOG
