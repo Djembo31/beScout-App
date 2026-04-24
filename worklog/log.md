@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178e-c | 2026-04-24 | place_buy_order Idempotency-Integration (Tier A1, Money)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Pattern-Wiederholung. Escrow-Lock-Path (wallets.locked_balance).
+- **Critical:** retry ohne Idempotency wuerde Funds doppelt locken.
+- **Signature:** +text DEFAULT NULL. Old 4-arg DROPped.
+- **Proof:** worklog/proofs/178e-c-place_buy.txt. 69/69 trading-service pass.
+
+---
+
 ## 178e-b | 2026-04-24 | place_sell_order Idempotency-Integration (Tier A1)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

@@ -1,0 +1,11 @@
+Slice 178e-c — place_buy_order Idempotency Proof
+==================================================
+
+1. Baseline: live pg_get_functiondef. Escrow-Lock-Path.
+2. Applied via mcp__supabase__apply_migration.
+3. Signature: (uuid, uuid, integer, bigint) → (uuid, uuid, integer, bigint, text DEFAULT NULL).
+   Old 4-arg DROPped.
+4. Service: placeBuyOrder(..., idempotencyKey?) backward-compat.
+5. Critical: retry without idempotency would double-lock funds via
+   UPDATE wallets SET locked_balance = locked_balance + v_total_cost.
+6. tsc clean + 69/69 trading-service tests pass.
