@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 193 | 2026-04-25 | AuthProvider-Perf + Auth-Race-Gate (Slice 192 Root-Cause)
+
+- **Stage-Chain:** SPEC (inline /optimize) → IMPACT skipped (1 Service + 1 Hook, keine API-Aenderung) → BUILD → REVIEW (self per D35) → PROVE → LOG
+- **Trigger:** Slice 192 Root-Cause-Fix. Console-Warnings live verifiziert mit Network-Trace: get_auth_state RPC liefert in 154ms (schnell!), aber Browser-Cold-Start-Race bei JWT-Hydration triggert silent-NULL nested-select.
+- **Diagnose:** Live-Chrome-DevTools-MCP zeigt Server-Time 154ms get_auth_state + 54ms holdings — beide schnell. Cold-Console-Warnings kamen von **Race**, nicht RPC-Slowness. Indexes alle PK-Lookups verifiziert.
+- **Fix (3 Layer):**
+  - Layer 1: `useHoldings` gating `enabled: !!userId && !profileLoading` (eliminiert Race-Window)
+  - Layer 2: `getAuthState` Timeout 10s → 3s (faster fallback)
+  - Layer 3: Slice-192 Defenses bleiben aktiv (Backup-Layer)
+- **Files:**
+  - `src/lib/queries/holdings.ts` (Auth-Gate via useUser-Hook)
+  - `src/components/providers/AuthProvider.tsx` (Timeout-Reduce)
+  - `worklog/proofs/193-auth-state-perf.md`
+  - `worklog/reviews/193-review.md`
+- **Test-Status:** tsc clean, Slice 192 8/8 Tests gruen
+- **Proof:** `worklog/proofs/193-auth-state-perf.md`
+- **Commit:** `b2bf040b`
+- **Review:** self per D35 (1-Field-Gate + 1-Konstante, kein neuer Code-Pfad)
+- **Open Follow-ups:** Vercel Pro Restore (Infra), Holdings-RPC-Migration (langfristig)
+
+---
+
 ## 192 | 2026-04-24 | Holdings NULL-Player Defensive Guard + Type-Truth-Fix
 
 - **Stage-Chain:** SPEC (inline, active.md) → IMPACT (initially skipped, REWORK by reviewer Finding #1) → BUILD → REVIEW (Cold-Reviewer-Agent: REWORK with 7 findings) → REWORK → PROVE → LOG
