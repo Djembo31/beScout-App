@@ -3,7 +3,15 @@
 ## Status
 - **Branch main** — 15 Tier-Slices live (178a ergaenzt), alle Tests gruen, tsc clean, commitlint-konform.
 - **active.md idle.** Tier-Plan 174-185 bei 15/15.
-- **Live DB (Supabase skzjfhvgccaeplydsunz):** Slice 178a geaenderte `buy_player_sc` mit 4-arg-Signature + DEFAULT NULL idempotency-key. 3-arg-Version entfernt.
+- **Live DB (Supabase skzjfhvgccaeplydsunz):** `buy_player_sc` mit 4-arg-Signature + DEFAULT NULL idempotency-key. 3-arg-Version entfernt.
+
+## Letzte Commits
+
+- `7bd678af` docs(hygiene): Slice 178a abschluss — active.md idle
+- `8ae38e42` feat(security): Slice 178a — buy_player_sc Idempotency-Integration (Tier A1, Money)
+- `1db78b67` docs(session): 2026-04-24 Marathon DISTILL + Workflow-Optimierungen
+- `2d10789e` docs(hygiene): Slice 178 abschluss + Session 2026-04-24 Marathon-Report
+- `0ef0480c` feat(security): Slice 178 — Idempotency Foundation (Tier A1, Money)
 
 ## Diese Session (2026-04-24 nachmittag)
 
@@ -32,7 +40,7 @@
 ## Next-Session Priority-Queue
 
 ### Priority 1 — Money-Defense-in-Depth-Loop weiter schliessen (178a Pattern replizieren)
-- **178b** Cleanup-Cron (`vercel.json` + route `/api/cron/dedup-cleanup`, expires_at < NOW() DELETE)
+- **178b** Cleanup-Cron (`vercel.json` + route `/api/cron/dedup-cleanup`, `expires_at < NOW()` DELETE)
 - **178c** Migration `subscribe_to_club` inline-60s-idempotency → generic pattern (Konsolidierung)
 - **178d** Client-side idempotency-key generation in `useSafeMutation` (crypto.randomUUID)
 - **178e** Weitere Money-RPCs via 178a-Pattern:
