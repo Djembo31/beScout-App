@@ -158,7 +158,7 @@ describe('subscribeTo', () => {
     expect(result.success).toBe(true);
     expect(result.subscription_id).toBe('sub-1');
     expect(mockSupabase.rpc).toHaveBeenCalledWith('subscribe_to_club', {
-      p_user_id: 'u1', p_club_id: 'c1', p_tier: 'gold',
+      p_user_id: 'u1', p_club_id: 'c1', p_tier: 'gold', p_idempotency_key: null,
     });
   });
 

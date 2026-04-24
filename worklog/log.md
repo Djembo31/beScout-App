@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178c | 2026-04-24 | subscribe_to_club Idempotency-Konsolidierung (Tier A1, Money)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: single-RPC + backward-compat) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** inline-60s-idempotency → generic check_or_reserve_dedup_key. Backward-compat via DEFAULT NULL + Fallback-inline-60s fuer Key-NULL-Callers.
+- **Baseline:** 20260423190000_slice_151c2_subscribe_idempotency.sql (keine Patches zwischen 151c.2 und 178c).
+- **Signature:** `(uuid, uuid, text) → (uuid, uuid, text, text DEFAULT NULL)`. Alte 3-arg-Version DROPped.
+- **Proof:** worklog/proofs/178c-subscribe.txt. Vitest 27/27 pass.
+
+---
+
 ## 178b | 2026-04-24 | dedup-keys Cleanup-Cron (Tier A1, Hygiene)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: hygiene-cron, no domain-impact) → BUILD → PROVE → REVIEW (self) → LOG

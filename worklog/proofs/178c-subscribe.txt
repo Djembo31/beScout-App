@@ -1,0 +1,36 @@
+Slice 178c — subscribe_to_club Idempotency-Integration Proof
+==============================================================
+
+1. Baseline-Audit:
+   Letzter CREATE OR REPLACE: 20260423190000_slice_151c2_subscribe_idempotency.sql
+   Keine Patches zwischen 151c.2 und 178c. 1:1-Kopie als Basis.
+
+2. Migration applied via mcp__supabase__apply_migration.
+
+3. pg_proc verify:
+   proname   : subscribe_to_club
+   pronargs  : 4
+   args      : p_user_id uuid, p_club_id uuid, p_tier text, p_idempotency_key text
+   Alte 3-arg Signatur via DROP FUNCTION IF EXISTS entfernt.
+
+4. Body-Regex-Audit (3 Integration-Bloecke):
+   - check_or_reserve_dedup_key call (pre-DB-write, NACH tier-validation)
+   - UPDATE request_dedup_keys SET response=v_result, status='completed'
+   - v_dedup_cached::JSON replay path
+   - Inline-60s-Fallback bleibt (nur aktiv wenn p_idempotency_key IS NULL)
+
+5. Preserved Guards (151c.2 Baseline):
+   - auth_uid_mismatch exception
+   - tier validation case-when
+   - Wallet FOR UPDATE + available-balance-check
+   - ON CONFLICT upgrade/downgrade
+   - transactions.type='subscription' append
+
+6. Service-Layer-Update:
+   src/lib/services/clubSubscriptions.ts — subscribeTo(userId, clubId, tier, idempotencyKey?)
+   Backward-compat: existing callers ohne 4. arg → null → inline-60s-branch aktiv.
+
+7. Tests:
+   - tsc --noEmit clean
+   - clubSubscriptions.test.ts updated: assert p_idempotency_key: null
+   - 27/27 tests pass

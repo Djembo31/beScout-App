@@ -97,16 +97,23 @@ export async function getMySubscription(userId: string, clubId: string): Promise
   return data as ClubSubscription;
 }
 
-/** Subscribe to a club */
+/** Subscribe to a club.
+ *
+ *  Slice 178c: optional `idempotencyKey` aktiviert Slice-178 generic
+ *  Idempotency (300s-Window). Ohne Key gilt der inline-60s-started_at-Fallback
+ *  aus Slice 151c.2 weiter. Client-side auto-generation kommt in 178d via
+ *  useSafeMutation. */
 export async function subscribeTo(
   userId: string,
   clubId: string,
-  tier: SubscriptionTier
+  tier: SubscriptionTier,
+  idempotencyKey?: string,
 ): Promise<SubscribeResult> {
   const { data, error } = await supabase.rpc('subscribe_to_club', {
     p_user_id: userId,
     p_club_id: clubId,
     p_tier: tier,
+    p_idempotency_key: idempotencyKey ?? null,
   });
 
   if (error) throw new Error(error.message);
