@@ -1,0 +1,30 @@
+Slice 178b — Cleanup-Cron Proof
+================================
+
+1. Route created: src/app/api/cron/dedup-cleanup/route.ts (31 L)
+   - withLogger('cron.dedup-cleanup')
+   - CRON_SECRET Bearer-auth (401 without)
+   - SUPABASE_SERVICE_ROLE_KEY check (500 without)
+   - supabaseAdmin.from('request_dedup_keys').delete({ count: 'exact' }).lt('expires_at', NOW())
+   - Returns { ok: true, deleted: count }
+
+2. vercel.json crons[] +1:
+   - { "path": "/api/cron/dedup-cleanup", "schedule": "0 * * * *" }
+   - Hourly at minute 0.
+
+3. SQL-Simulation (production DB):
+   Setup: 3 rows inserted (jarvis-qa user)
+     - proof-178b-expired-1 (expires -2h)
+     - proof-178b-expired-2 (expires -10min)
+     - proof-178b-fresh     (expires +5min)
+
+   DELETE WHERE expires_at < NOW() AND dedup_key LIKE 'proof-178b-%':
+     deleted_count: 2
+     deleted_keys:  ['proof-178b-expired-1', 'proof-178b-expired-2']
+
+   Post-delete verify:
+     remaining proof-rows: 1 (proof-178b-fresh)
+
+   Cleanup fixture: DELETE all proof-rows. Remaining: 0.
+
+4. tsc --noEmit: clean (no output)

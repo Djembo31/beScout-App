@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178b | 2026-04-24 | dedup-keys Cleanup-Cron (Tier A1, Hygiene)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: hygiene-cron, no domain-impact) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** stuendlicher Cron loescht expired rows aus `request_dedup_keys`.
+- **Files:** `src/app/api/cron/dedup-cleanup/route.ts` (31 L) + `vercel.json` crons[] +1.
+- **Schedule:** `0 * * * *` (hourly at :00). 300s TTL + max 60min cron-lag = ~6min worst-case expiry-lag.
+- **Proof:** SQL-Simulation auf Prod-DB. 3 rows seeded, 2 expired/1 fresh. Post-DELETE: 2 deleted, 1 remaining. Cleanup fixture durchgefuehrt.
+
+---
+
 ## 178a | 2026-04-24 | buy_player_sc Idempotency-Integration (Tier A1, Money-Critical)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: single-RPC integration via DEFAULT-NULL parameter) → BUILD → PROVE → REVIEW (self) → LOG
