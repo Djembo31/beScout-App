@@ -520,3 +520,77 @@ const updates = { last_squad_check: now, ...anderes };  // spread öffnet Hinter
 **Warum:** Gross-Files haben helper-Functions nach dem Handler. Closing-`}` am File-Ende ist nicht-Handler-end sondern helper-closing. Ohne Find-End-First: falsch-gewrappter Handler + tsc-error "' expected".
 **Evidenz Slice 175b:** gameweek-sync GET endet Zeile 334 (`}`), File-Ende Zeile 1738 ist syncLeague-helper-Close. Initial wrap at 1738 → tsc-break. Re-correct auf Zeile 334.
 **Kontext:** Slice 175b (withLogger-Batch 15 API-Routes, 1738-Zeilen gameweek-sync gefangen).
+
+### 29. Trigger+GUC-Invariant-Enforcement (Slice 179+189, codifiziert D39)
+
+**Wann:** DB-Level Invariant, die von mehreren unabhaengigen Code-Pfaden (Scripts, Crons, RPCs, manuelle SQL via MCP) potenziell verletzt werden kann. Bulk-Migrations sollen kontrolliert bypassbar sein. Reine Code-Guards oder CHECK-Constraints reichen nicht (siehe D39 Alternativen).
+
+**Wie:**
+
+```sql
+-- 1. Trigger-Function mit 3 Phasen:
+CREATE OR REPLACE FUNCTION public.prevent_<invariant_violation>()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  -- Phase 1: Escape-Hatch (bulk-imports, migrations)
+  IF current_setting('bescout.allow_<feature>', true) = 'true' THEN
+    RETURN NEW;
+  END IF;
+
+  -- Phase 2: NULL-Guards — skip wenn Daten incomplete (kein Fehler, kein Block)
+  IF NEW.critical_field IS NULL THEN RETURN NEW; END IF;
+
+  -- Phase 3: Invariant-Check mit RAISE EXCEPTION
+  IF <violation_condition> THEN
+    RAISE EXCEPTION '<invariant_key>: <human msg>'
+      USING ERRCODE = 'unique_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+-- 2. Trigger-Registration:
+DROP TRIGGER IF EXISTS <trigger_name> ON public.<table>;
+CREATE TRIGGER <trigger_name>
+  BEFORE <INSERT|UPDATE|DELETE> ON public.<table>
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_<invariant_violation>();
+
+-- 3. COMMENT mit Bypass-Dokumentation (Pflicht):
+COMMENT ON FUNCTION public.prevent_<invariant_violation>() IS
+  'Slice <N>: <purpose>. Bypass: SET LOCAL bescout.allow_<feature> = true.';
+```
+
+**Bulk-Import-Bypass:**
+```sql
+BEGIN;
+SET LOCAL bescout.allow_<feature> = 'true';
+-- ... legitimate bulk-work (CSV-Import, manuelle Data-Migration) ...
+COMMIT;
+```
+
+**Warum GUC statt Trigger-DROP:** `SET LOCAL` ist transaction-scoped + thread-safe ohne DDL-Overhead. Temp-DROP + Re-CREATE oeffnet Race-Window fuer concurrent Writes.
+
+**Warum BEFORE statt AFTER:** BEFORE-Row-Trigger blockt Insert/Update PRE-Write — keine Rollback-Kosten, keine partial Writes bei Cascade.
+
+**Test-Suite (4 Pflicht-Cases):**
+1. Same-class violation raises expected Error.
+2. Cross-class violation raises expected Error (falls Invariant cross-row ist).
+3. Positive-Case (legitimer Insert/Update) durchlaeuft ohne Error.
+4. GUC-Bypass durchlaeuft Violations ohne Error.
+
+**Empirische Evidenz (2 Iterationen):**
+| Slice | Invariant | Trigger-Typ | GUC-Namespace |
+|-------|-----------|-------------|---------------|
+| 179 (D28) | transactions append-only | BEFORE UPDATE/DELETE | `bescout.allow_transactions_mutation` |
+| 189 (heute) | players ghost-row-prevention (INV-39/40) | BEFORE INSERT | `bescout.allow_player_ghost_insert` |
+
+Pattern reproduziert: stable, fast (BEFORE-Row-Trigger mit EXISTS-Subquery), kein Race-Risk, copy-paste-template bewaehrt.
+
+**Kandidaten fuer weitere Anwendung:** `trades` (append-only analog transactions), `activity_log` (append-only), `holdings_history` (bei Einfuehrung), `audit_log` (bei Einfuehrung).
+
+**Decision-Reference:** `memory/decisions.md` D39 (ARCHITECTURE, 2026-04-24).
+**Error-Class-Reference:** `.claude/rules/errors-db.md` Section "Transactions Append-Only" + "Ghost-Prevention Trigger" (Slice 189).

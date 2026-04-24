@@ -97,6 +97,19 @@ Next.js 14 App Router | TypeScript strict | Tailwind (Dark Mode) | Supabase (PG 
 | `.claude/rules/performance.md` | Query Limits, Bundle |
 | `.claude/rules/testing.md` | Vitest + Playwright |
 
+## Superpowers-Override (Slice 191, 2026-04-24)
+
+Die Superpowers-Plugin-Skills (`brainstorming`, `writing-plans`, `using-superpowers`) haben **zu aggressive Auto-Trigger** ("1% chance" / "any conversation"). Fuer BeScout ist der kanonische Master-Workflow **SHIP-Loop** (`.claude/rules/workflow.md`), nicht das Superpowers-Trio.
+
+**Regeln fuer diese Codebase:**
+- **`superpowers:brainstorming`**: NUR invoken wenn Anil explizit "brainstorm", "ueberlegen" oder "neue Idee" sagt. NICHT auto bei Feature-Requests — `/spec` ist der richtige Einstieg.
+- **`superpowers:writing-plans`**: Superseded durch `/spec` + `/ship new`. Nur bei expliziter User-Anfrage.
+- **`superpowers:using-superpowers`**: Informational. Nicht blocken fuer "clarifying questions" oder Status-Abfragen.
+- **`superpowers:verification-before-completion`**: Deckungsgleich mit SHIP PROVE-Stage. Nicht doppelt invoken.
+- **`superpowers:test-driven-development`**: Deckungsgleich mit test-writer-Agent + testing.md. Nicht doppelt.
+
+**Begruendung:** Superpowers sind external-plugin-default (generic dev-context). BeScout hat eigenen Prozess (SHIP-Loop, 6 Stufen, Hooks erzwingen Qualitaet). Doppel-Invokation bringt Overhead ohne Mehrwert.
+
 ## Agents (via Agent-Tool)
 
 backend, frontend, reviewer (PFLICHT nach Impl), healer, test-writer, impact-analyst, qa-visual, business, autodream, gtm-writer (GTM-Content: Landing, Reddit, Cold-Mail, Pitch), Explore (read-only Research), Plan (Architektur)

@@ -376,20 +376,32 @@ type AdminWithProfile = DbClubAdmin & { handle: string; display_name: string | n
 // ============================================
 // Slice 067: Club-Assets Section (Stadium-Image + Logo Override)
 // ============================================
+// INV-35 Regression-Guard (Slice 191, 2026-04-24): Logo-URL MUSS aus api-sports canonical
+// Source kommen. Verhindert manuelle Wikimedia/andere Imports die Invariant brechen.
+const CANONICAL_LOGO_PREFIX = 'https://media.api-sports.io/';
+
 function ClubAssetsSection({ club, userId }: { club: ClubWithAdmin; userId: string }) {
   const { addToast } = useToast();
   const [stadiumUrl, setStadiumUrl] = useState(club.stadium_image_url ?? '');
   const [logoUrl, setLogoUrl] = useState(club.logo_url ?? '');
   const [saving, setSaving] = useState(false);
 
+  const trimmedLogo = logoUrl.trim();
+  const isLogoValid = trimmedLogo === '' || trimmedLogo.startsWith(CANONICAL_LOGO_PREFIX);
+
   const handleSave = useCallback(async () => {
+    const finalLogo = logoUrl.trim();
+    if (finalLogo !== '' && !finalLogo.startsWith(CANONICAL_LOGO_PREFIX)) {
+      addToast(`Logo-URL muss mit ${CANONICAL_LOGO_PREFIX} beginnen (INV-35)`, 'error');
+      return;
+    }
     setSaving(true);
     try {
       const result = await updateClubAssets({
         adminId: userId,
         clubId: club.id,
         stadiumImageUrl: stadiumUrl.trim() || '',  // empty string = explicit clear
-        logoUrl: logoUrl.trim(),
+        logoUrl: finalLogo,
       });
       if (result.success) {
         addToast('Assets aktualisiert', 'success');
@@ -444,17 +456,31 @@ function ClubAssetsSection({ club, userId }: { club: ClubWithAdmin; userId: stri
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
             placeholder="https://media.api-sports.io/football/teams/..."
-            className="w-full px-3 py-2 bg-white/5 rounded-lg border border-white/10 text-sm focus:border-sky-500/50 focus:outline-none"
+            aria-invalid={!isLogoValid}
+            className={cn(
+              'w-full px-3 py-2 bg-white/5 rounded-lg border text-sm focus:outline-none',
+              isLogoValid
+                ? 'border-white/10 focus:border-sky-500/50'
+                : 'border-rose-500/60 focus:border-rose-500/80',
+            )}
             style={{ fontSize: '16px' }}
           />
-          <p className="text-xs text-white/40 mt-1">
-            Muss mit https:// beginnen. Aktuelle Quelle: {(club.logo_url || '').split('/')[2] || '—'}
-          </p>
+          {isLogoValid ? (
+            <p className="text-xs text-white/40 mt-1">
+              Muss mit <code>{CANONICAL_LOGO_PREFIX}</code> beginnen (INV-35 canonical Source).
+              Aktuelle Quelle: {(club.logo_url || '').split('/')[2] || '—'}
+            </p>
+          ) : (
+            <p className="text-xs text-rose-400 mt-1" role="alert">
+              INV-35: Logo-URL muss mit <code>{CANONICAL_LOGO_PREFIX}</code> beginnen.
+              Andere Quellen (Wikimedia, lokal) sind nicht erlaubt.
+            </p>
+          )}
         </div>
 
         <Button
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || !isLogoValid}
           className="min-h-[44px]"
         >
           {saving ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}

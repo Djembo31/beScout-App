@@ -4328,6 +4328,8 @@
     "tradesCountPlural": "{count} İşlem",
     "tradesLoading": "İşlemler yükleniyor...",
     "noTrades": "Bu oyuncu için henüz işlem yok",
+    "emptyScoutConsensus": "Bu oyuncu için henüz scout raporu yok",
+    "writeFirstReport": "İlk Scout Raporu'nu yaz",
     "justNow": "az önce",
     "minutesAgo": "{min}dk önce",
     "hoursAgo": "{hours}sa önce",

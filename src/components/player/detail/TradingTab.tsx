@@ -329,8 +329,19 @@ function TradingTabInner({
       )}
 
       {/* ── 8. Scout Consensus ── */}
-      {playerResearch.length > 0 && (
+      {playerResearch.length > 0 ? (
         <ScoutConsensus research={playerResearch} />
+      ) : (
+        <Card className="p-4 text-center">
+          <MessageSquare className="size-6 mx-auto mb-2 text-white/20" aria-hidden="true" />
+          <div className="text-sm text-white/50">{t('emptyScoutConsensus')}</div>
+          <Link
+            href="/community"
+            className="inline-flex items-center gap-1 mt-2 text-xs text-gold hover:underline"
+          >
+            {t('writeFirstReport')} <ArrowRight className="size-3" aria-hidden="true" />
+          </Link>
+        </Card>
       )}
 
       {/* ── 9. Trade History (collapsed, show 5, expand for all) ── */}

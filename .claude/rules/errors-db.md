@@ -15,18 +15,51 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `datab
 - Migration-Header: `-- Source-of-truth: <last-CREATE>.sql` + explizite `Applied patches`-Liste.
 - Post-Apply: `pg_get_functiondef() ILIKE '%<expected-guard>%'` pro preserved Feature.
 
+### Trigger+GUC-Invariant-Enforcement — generalisiert (D39, 2026-04-24)
+
+Standard-Pattern fuer alle DB-Level Data-Integrity-Invariants, wo mehrere Code-Pfade die Invariant verletzen koennten (Scripts, Crons, RPCs, MCP-SQL). Code-Guards sind fragil, CHECK kann keine cross-row-Bedingungen, RLS ist wrong-layer.
+
+**Template:**
+```sql
+CREATE OR REPLACE FUNCTION public.prevent_<X>() RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  -- 1. Escape-Hatch
+  IF current_setting('bescout.allow_<feature>', true) = 'true' THEN RETURN NEW; END IF;
+  -- 2. NULL-Guards
+  IF NEW.critical_field IS NULL THEN RETURN NEW; END IF;
+  -- 3. Invariant-Check
+  IF <violation> THEN RAISE EXCEPTION '<key>: <msg>' USING ERRCODE = 'unique_violation'; END IF;
+  RETURN NEW;
+END; $$;
+
+CREATE TRIGGER <name> BEFORE <OP> ON public.<table>
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_<X>();
+
+COMMENT ON FUNCTION public.prevent_<X>() IS
+  'Slice <N>: <purpose>. Bypass: SET LOCAL bescout.allow_<feature> = true.';
+```
+
+**Bulk-Bypass:** `BEGIN; SET LOCAL bescout.allow_<feature> = 'true'; ...; COMMIT;`
+
+**Applied:**
+- Slice 179: `transactions` append-only (BEFORE UPDATE/DELETE). GUC `bescout.allow_transactions_mutation`.
+- Slice 189: `players` ghost-prevention INV-39/40 (BEFORE INSERT). GUC `bescout.allow_player_ghost_insert`.
+
+**Kandidaten:** `trades` (append-only), `activity_log`, `holdings_history`, `audit_log`.
+
+**Vollstaendige Diskussion + Alternativen:** `memory/decisions.md` D39. Pattern-Template: `memory/patterns.md` #29.
+
 ### Transactions Append-Only — enforced (Slice 179, Tier A2)
 - `transactions` ist append-only. 2-Layer:
   1. `REVOKE UPDATE, DELETE FROM anon, authenticated` — Client-Rollen blockiert.
   2. BEFORE UPDATE/DELETE Trigger `transactions_append_only_guard` raises — blockt auch SECURITY DEFINER.
-- Opt-In Bypass fuer Bulk-Migrations:
-  ```sql
-  BEGIN;
-  SET LOCAL bescout.allow_transactions_mutation = 'true';
-  UPDATE public.transactions SET type = 'new' WHERE type = 'old';
-  COMMIT;
-  ```
-- Pattern uebertragbar: gleiche Trigger+GUC fuer `trades`, `activity_log`, `audit_log`.
+- Opt-In Bypass (siehe generalisiertes Pattern oben): `SET LOCAL bescout.allow_transactions_mutation = 'true'`.
+
+### Ghost-Prevention Player-Insert-Trigger (Slice 189)
+- `players` BEFORE INSERT-Trigger `prevent_player_ghost_insert` erzwingt INV-39 (Cross-Club-Contamination: same first+last+contract_end mit anderem club_id) + INV-40 (Same-Club-Duplicates: exakter Name+Club-Match).
+- Faengt ALLE Insert-Pfade: Scripts, Crons, manuelle SQL via MCP.
+- GUC-Bypass fuer legitime Bulk-Imports: `SET LOCAL bescout.allow_player_ghost_insert = 'true'`.
+- Referenz-Migration: `supabase/migrations/20260424200000_slice_189_ghost_prevention_trigger.sql`. Test: `src/lib/__tests__/db-invariants.test.ts` INV-39/40.
 
 ### Money-RPC Idempotency-Blueprint (Slice 178a-f — codifiziert 2026-04-24)
 Generic `request_dedup_keys` Foundation (Slice 178) + Integration in 7 Money-RPCs (178a/c/e-a..e).

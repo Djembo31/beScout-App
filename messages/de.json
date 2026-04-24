@@ -4328,6 +4328,8 @@
     "tradesCountPlural": "{count} Deals",
     "tradesLoading": "Deals laden...",
     "noTrades": "Noch keine Deals für diesen Spieler",
+    "emptyScoutConsensus": "Noch keine Scout-Berichte für diesen Spieler",
+    "writeFirstReport": "Ersten Scout Report schreiben",
     "justNow": "gerade eben",
     "minutesAgo": "vor {min}m",
     "hoursAgo": "vor {hours}h",

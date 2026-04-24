@@ -79,7 +79,7 @@ Kein `npx next dev` noetig. Config erkennt PLAYWRIGHT_BASE_URL und skippt webSer
 |-------|-------|-------|-----------|-------|
 | backend | Sonnet 4.6 | beScout-backend | worktree | DB, RPCs, Services |
 | frontend | Sonnet 4.6 | beScout-frontend | worktree | UI, Components, i18n |
-| reviewer | Opus 4.6 | cto-review | read-only | Code Review |
+| reviewer | Opus 4.6 | — | read-only | Code Review (Agent, nicht Skill — Skill superseded 2026-04-24) |
 | business | Sonnet 4.6 | beScout-business | read-only | Compliance |
 | healer | Sonnet 4.6 | — | main | Fix Build/Test Errors |
 | test-writer | Sonnet 4.6 | — | worktree | Tests from Spec |
@@ -190,12 +190,12 @@ Jede Session macht das Team schlauer. LEARNINGS.md wachsen mit ECHTEN Bugs.
 | `/beScout-frontend` | UI, Components, Hooks, i18n |
 | `/beScout-business` | Compliance, Wording, Legal |
 
-### Workflow (3)
+### Workflow (1)
 | Skill | Trigger |
 |-------|---------|
-| `/deliver` | Feature implementieren (4 Quality Gates) |
-| `/cto-review` | Code Review nach Implementation |
 | `/impact` | VOR DB/RPC/Service-Aenderungen |
+
+(`/deliver` + `/cto-review` superseded 2026-04-24 — ersetzt durch `/ship` + reviewer-Agent)
 
 ### Spec + Planung (1 — PFLICHT)
 | Skill | Trigger |
@@ -210,12 +210,13 @@ Jede Session macht das Team schlauer. LEARNINGS.md wachsen mit ECHTEN Bugs.
 | `/metrics` | Session-Metriken anzeigen |
 | `/promote-rule` | Pending Rules >3 oder >7 Tage |
 
-### Meta (3)
+### Meta (2)
 | Skill | Trigger |
 |-------|---------|
 | `/improve` | Alle 10 Sessions |
 | `/competing-hypotheses` | 3x gescheiterter Fix |
-| `/eval-skill [name]` | Skill testen |
+
+(`/eval-skill` superseded 2026-04-24 — kein realer Use-Case, Eval-Kosten > Self-Fix-Kosten)
 
 ### Superpowers (extern, 4)
 | Skill | Trigger |
