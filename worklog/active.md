@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 178a
-stage: LOG
-spec: worklog/specs/178a-buy_player_sc_idempotency.md
-impact: skipped (single-RPC integration, same contract via DEFAULT-NULL parameter)
-proof: worklog/proofs/178a-replay.txt
-review: worklog/reviews/178a-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Tier-Plan Fortschritt (Slices 174-185, Stand 2026-04-24)
