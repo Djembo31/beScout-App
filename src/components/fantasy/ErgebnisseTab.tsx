@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Trophy, BarChart3, Clock, Landmark, ChartNoAxesCombined,
 } from 'lucide-react';
-import { Card, Modal } from '@/components/ui';
+import { Card, Dialog } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { usePredictions } from '@/lib/queries/predictions';
 import { useHoldings } from '@/lib/queries/holdings';
@@ -211,12 +211,12 @@ export function ErgebnisseTab({
       </div>
 
       {/* Leagues Modal */}
-      <Modal open={showLeagues} onClose={() => setShowLeagues(false)} title={tf('leagues')} size="lg">
+      <Dialog open={showLeagues} onClose={() => setShowLeagues(false)} title={tf('leagues')} size="lg">
         <LeaguesSection mode="full" />
-      </Modal>
+      </Dialog>
 
       {/* Season Stats Modal */}
-      <Modal open={showSeason} onClose={() => setShowSeason(false)} title={tf('ergebnisse.seasonStats')} size="lg">
+      <Dialog open={showSeason} onClose={() => setShowSeason(false)} title={tf('ergebnisse.seasonStats')} size="lg">
         <HistoryTab
           participations={participations}
           userDisplayName={userDisplayName}
@@ -231,7 +231,7 @@ export function ErgebnisseTab({
           avgRank={avgRank}
           userId={userId}
         />
-      </Modal>
+      </Dialog>
     </div>
   );
 }

@@ -13,7 +13,7 @@ vi.mock('@/lib/utils', () => ({
 vi.mock('@/components/ui', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Button: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => <button onClick={onClick}>{children}</button>,
-  Modal: ({ open, children }: { open: boolean; children: React.ReactNode }) => open ? <div data-testid="modal">{children}</div> : null,
+  Dialog: ({ open, children }: { open: boolean; children: React.ReactNode }) => open ? <div data-testid="modal">{children}</div> : null,
 }));
 vi.mock('@/components/providers/AuthProvider', () => {
   const stableUser = { id: 'u1' };

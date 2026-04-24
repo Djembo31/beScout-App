@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Coins, ArrowRight } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { Confetti } from '@/components/ui/Confetti';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { useTranslations } from 'next-intl';
@@ -55,7 +55,7 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
   return (
     <>
       <Confetti active={true} />
-      <Modal open={visible} onClose={dismiss} title={t('welcomeTitle')} size="sm">
+      <Dialog open={visible} onClose={dismiss} title={t('welcomeTitle')} size="sm">
         <div className="text-center space-y-4">
           {/* Gold glow icon */}
           <div className="mx-auto mb-4 size-16 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center shadow-glow-gold">
@@ -92,7 +92,7 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
 
           <TradingDisclaimer variant="inline" className="mt-4" />
         </div>
-      </Modal>
+      </Dialog>
     </>
   );
 }

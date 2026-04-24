@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Trophy, Users, Copy, Plus, LogIn, LogOut, Crown, Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Button, Dialog } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useMyLeagues, useLeagueLeaderboard } from '@/lib/queries/fantasyLeagues';
@@ -53,7 +53,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('createTitle')} preventClose={createMut.isPending}>
+    <Dialog open={open} onClose={onClose} title={t('createTitle')} preventClose={createMut.isPending}>
       <div className="space-y-4">
         <div>
           <label htmlFor="createLeagueName" className="text-sm text-white/60 mb-1 block">{t('nameLabel')}</label>
@@ -84,7 +84,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
           {createMut.isPending ? <><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> {t('creating')}</> : t('create')}
         </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 
@@ -125,7 +125,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('joinTitle')} preventClose={joinMut.isPending}>
+    <Dialog open={open} onClose={onClose} title={t('joinTitle')} preventClose={joinMut.isPending}>
       <div className="space-y-4">
         <div>
           <label htmlFor="joinLeagueCode" className="text-sm text-white/60 mb-1 block">{t('codeLabel')}</label>
@@ -142,7 +142,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
           {joinMut.isPending ? <><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> {t('joining')}</> : t('join')}
         </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 

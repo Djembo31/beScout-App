@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Trophy, Users } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { FantasyEvent } from './types';
@@ -40,7 +40,7 @@ export default function EventSummaryModal({
   const top3 = leaderboard.slice(0, 3);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
       title={t('summary.title')}
@@ -108,6 +108,6 @@ export default function EventSummaryModal({
           </Link>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

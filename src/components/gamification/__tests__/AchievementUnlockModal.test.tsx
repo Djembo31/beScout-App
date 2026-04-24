@@ -12,7 +12,7 @@ vi.mock('next/link', () => ({
   ),
 }));
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
+  Dialog: ({ open, children, title, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
     open ? <div data-testid="modal" data-title={title}>{children}<button data-testid="modal-close" onClick={onClose}>x</button></div> : null,
 }));
 vi.mock('@/components/ui/Confetti', () => ({

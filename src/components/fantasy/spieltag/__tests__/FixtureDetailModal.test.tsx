@@ -32,7 +32,7 @@ vi.mock('@/lib/clubs', () => ({
 // Mocks — UI components (stubs)
 // ============================================
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
+  Dialog: ({ open, children, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
     open ? (
       <div data-testid="modal">
         <button data-testid="modal-close" onClick={onClose}>close</button>

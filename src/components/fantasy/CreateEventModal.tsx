@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Button, Modal } from '@/components/ui';
+import { Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
 import type { FantasyEvent, EventMode, LineupFormat } from './types';
@@ -63,7 +63,7 @@ export const CreateEventModal = ({
   const prizePool = PAID_FANTASY_ENABLED ? (buyIn * maxParticipants - creatorFee) : 0;
 
   return (
-    <Modal
+    <Dialog
       open={isOpen}
       title={t('createEventTitle')}
       onClose={onClose}
@@ -219,6 +219,6 @@ export const CreateEventModal = ({
         )}
 
       </div>
-    </Modal>
+    </Dialog>
   );
 };

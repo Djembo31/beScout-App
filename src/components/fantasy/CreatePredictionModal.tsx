@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
 import { Target, ChevronRight, ChevronLeft, User, Loader2 } from 'lucide-react';
-import { Modal, Button, Card } from '@/components/ui';
+import { Dialog, Button, Card } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { getClub } from '@/lib/clubs';
 import { cn } from '@/lib/utils';
@@ -167,7 +167,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
   const conditions = predType === 'match' ? MATCH_CONDITIONS : PLAYER_CONDITIONS;
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={handleClose}
       title={t('create')}
@@ -406,7 +406,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
           </div>
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 

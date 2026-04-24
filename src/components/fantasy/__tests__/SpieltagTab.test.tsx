@@ -86,7 +86,7 @@ vi.mock('@/components/ui', () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div data-testid="card" className={className}>{children}</div>
   ),
-  Modal: ({ open, children, title }: { open: boolean; children: React.ReactNode; title?: string }) =>
+  Dialog: ({ open, children, title }: { open: boolean; children: React.ReactNode; title?: string }) =>
     open ? <div data-testid="modal" data-title={title}>{children}</div> : null,
 }));
 

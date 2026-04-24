@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Flame, Shield, Eye, Crown, Banana, Swords } from 'lucide-react';
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { EQUIPMENT_POSITION_COLORS } from '@/components/gamification/rarityConfig';
 import {
@@ -92,7 +92,7 @@ export default function EquipmentDetailModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={displayName} size="sm">
+    <Dialog open={open} onClose={onClose} title={displayName} size="sm">
       <div className="p-4 space-y-5">
         {/* ── Hero: Big Icon + Multiplier ── */}
         <div className="flex items-center gap-4">
@@ -203,6 +203,6 @@ export default function EquipmentDetailModal({
           {t('equipmentDetailManagerHint')}
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

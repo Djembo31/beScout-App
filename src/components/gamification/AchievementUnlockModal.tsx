@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { Confetti } from '@/components/ui/Confetti';
 import { useTranslations } from 'next-intl';
 import type { AchievementDef } from '@/lib/achievements';
@@ -28,7 +28,7 @@ export default function AchievementUnlockModal({
   return (
     <>
       <Confetti active={open} />
-      <Modal open={open} onClose={onClose} title={t('unlocked')}>
+      <Dialog open={open} onClose={onClose} title={t('unlocked')}>
         <div className="text-center py-4">
           {/* Icon */}
           <div className="text-6xl mb-4 anim-scale-pop">{achievement.icon}</div>
@@ -61,7 +61,7 @@ export default function AchievementUnlockModal({
             </Link>
           </div>
         </div>
-      </Modal>
+      </Dialog>
     </>
   );
 }

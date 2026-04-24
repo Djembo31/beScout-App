@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Loader2, ChevronRight } from 'lucide-react';
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { getFixturePlayerStats, getFixtureSubstitutions, getFloorPricesForPlayers } from '@/lib/services/fixtures';
@@ -487,7 +487,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
   return (
-    <Modal open={isOpen} title="" onClose={onClose} size="lg" mobileFullScreen>
+    <Dialog open={isOpen} title="" onClose={onClose} size="lg" mobileFullScreen>
       {/* Score Header — premium glassmorphism */}
       <div
         className="relative overflow-hidden"
@@ -656,6 +656,6 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
           )}
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

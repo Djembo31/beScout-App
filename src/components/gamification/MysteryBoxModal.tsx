@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Gift, Ticket, Sparkles, AlertCircle, Coins, Swords, Package } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import type { MysteryBoxResult, MysteryBoxRarity } from '@/types';
@@ -256,7 +256,7 @@ export default function MysteryBoxModal({
   const rarityConf = result ? RARITY_CONFIG[result.rarity] : null;
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={handleClose}
       title={t('mysteryBox')}
@@ -446,7 +446,7 @@ export default function MysteryBoxModal({
           </>
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 

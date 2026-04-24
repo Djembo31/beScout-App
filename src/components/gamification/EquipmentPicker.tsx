@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Flame, Shield, Eye, Crown, Banana, Swords } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import type { DbUserEquipment, DbEquipmentDefinition, EquipmentPosition } from '@/types';
@@ -122,7 +122,7 @@ export default function EquipmentPicker({
   const multiplierLabels: Record<number, string> = { 1: '×1.05', 2: '×1.10', 3: '×1.15', 4: '×1.25' };
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={onClose}
       title={t('equipmentPickerTitle')}
@@ -225,6 +225,6 @@ export default function EquipmentPicker({
           </div>
         )}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

@@ -5,7 +5,7 @@ import {
   Trophy, Calendar, Play, ArrowRight, ChevronDown, Loader2, Target,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Card, Modal } from '@/components/ui';
+import { Card, Dialog } from '@/components/ui';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { useTranslations } from 'next-intl';
 import { getFixturesByGameweek } from '@/lib/services/fixtures';
@@ -321,7 +321,7 @@ export function SpieltagTab({
       )}
 
       {/* MODALS */}
-      <Modal open={showConfirm} title={ts('startGameweekBtn')} onClose={() => setShowConfirm(false)}>
+      <Dialog open={showConfirm} title={ts('startGameweekBtn')} onClose={() => setShowConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
             {ts('finalizeDesc', { gw: gameweek })}
@@ -355,9 +355,9 @@ export function SpieltagTab({
             </button>
           </div>
         </div>
-      </Modal>
+      </Dialog>
 
-      <Modal open={showFinalizeConfirm} title={ts('finalizeTitle')} onClose={() => setShowFinalizeConfirm(false)}>
+      <Dialog open={showFinalizeConfirm} title={ts('finalizeTitle')} onClose={() => setShowFinalizeConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
             {ts('finalizeDesc', { gw: gameweek })}
@@ -394,7 +394,7 @@ export function SpieltagTab({
             </button>
           </div>
         </div>
-      </Modal>
+      </Dialog>
 
       <FixtureDetailModal
         fixture={selectedFixture}

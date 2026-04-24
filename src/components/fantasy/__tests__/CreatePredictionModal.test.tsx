@@ -19,7 +19,7 @@ vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
 }));
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title }: { open: boolean; children: React.ReactNode; title?: string }) =>
+  Dialog: ({ open, children, title }: { open: boolean; children: React.ReactNode; title?: string }) =>
     open ? <div data-testid="modal" data-title={title}>{children}</div> : null,
   Button: ({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) =>
     <button onClick={onClick} disabled={!!disabled}>{children}</button>,
