@@ -1,0 +1,16 @@
+Slice 178e-a — buy_from_order Idempotency-Integration Proof
+=============================================================
+
+1. Baseline: pg_get_functiondef (live). 10 referencing files (0319/0331/0414/0417)
+   hatten KEINE CREATE OR REPLACE fuer buy_from_order — alle nur Referenzen.
+
+2. Applied via mcp__supabase__apply_migration.
+
+3. Signature: (uuid, uuid, integer, text DEFAULT NULL). Old 3-arg DROPped.
+
+4. Integration-Bloecke: check_or_reserve_dedup_key early-check + v_result-JSON
+   + UPDATE request_dedup_keys post-INSERTs.
+
+5. Service-layer buyFromOrder(buyerId, orderId, quantity, playerId, idempotencyKey?).
+
+6. tsc clean + vitest 130/130 pass (3 suites).

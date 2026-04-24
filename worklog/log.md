@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178e-a | 2026-04-24 | buy_from_order Idempotency-Integration (Tier A1, Money)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Pattern-Wiederholung von 178a auf P2P buy-from-sell-order.
+- **Baseline:** live pg_get_functiondef (10 referencing files, 0 CREATE OR REPLACE zwischen 0314 und 0424).
+- **Signature:** (uuid, uuid, integer) → (uuid, uuid, integer, text DEFAULT NULL). Old 3-arg DROPped.
+- **Service:** `buyFromOrder(buyerId, orderId, quantity, playerId, idempotencyKey?)`.
+- **Proof:** worklog/proofs/178e-a-buy_from_order.txt. 130/130 trading-tests pass.
+
+---
+
 ## 178c | 2026-04-24 | subscribe_to_club Idempotency-Konsolidierung (Tier A1, Money)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: single-RPC + backward-compat) → BUILD → PROVE → REVIEW (self) → LOG
