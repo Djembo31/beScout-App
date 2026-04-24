@@ -1,27 +1,29 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 178f
-stage: LOG
-spec: worklog/specs/178f-call-site-migration.md
-impact: skipped (client call-site migration, no domain-impact)
-proof: worklog/proofs/178f-call-site-migration.txt
-review: self-review (pattern-repetition sweep)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Priority-1-Marathon 2026-04-24 — KOMPLETT + Call-Site-Sweep
 
-| Slice | Scope | Status |
-|-------|-------|--------|
-| 178b | dedup-keys Cleanup-Cron | ✅ |
-| 178c | subscribe_to_club Idempotency (RPC) | ✅ |
-| 178e-a..e | 4 Money-RPCs Integration | ✅ |
-| 178d | useSafeIdempotentMutation primitive | ✅ |
-| **178f** | **6 Call-Sites migriert — Auto-Key live** | **✅** |
-
-**Money-Defense-in-Depth jetzt End-to-End aktiv:**
+**Money-Defense-in-Depth End-to-End aktiv:**
 - DB-layer (179 append-only + 178 foundation)
-- Server-RPC (178a/c/e-a..e)
-- Client-primitive (178d)
-- Call-Sites (178f) — 6 Money-Hooks schicken Auto-Key mit.
+- Server-RPC (178a/c/e-a..e) — 8 Money-RPCs
+- Client-primitive (178d useSafeIdempotentMutation)
+- Call-Sites (178f) — 6 Money-Hooks schicken Auto-Key mit
+
+## Offene Follow-ups
+
+| Prio | Scope |
+|------|-------|
+| MED | Radix UI-Primitives (181) — Design-Deliberation |
+| MED | React Hook Form + Zod (182) |
+| LOW | 185b Bundle-Budget — next build Baseline |
+| LOW | common-errors.md "Money-RPC Idempotency Blueprint" Pattern-Addendum |
+| LOW | buyFromIpo Idempotency-Integration (falls zukuenftig gewuenscht) |
