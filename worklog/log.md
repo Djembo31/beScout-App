@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 188 | 2026-04-24 | CTO-Setup-Upgrade (Meta-Sprint, 7 Items aus Deep-Dive)
+
+- **Stage-Chain:** SPEC (inline, active.md) → IMPACT skipped (tooling-only) → BUILD → REVIEW (self per D35) → PROVE → LOG
+- **Scope M:** 7 Tooling-Items aus Deep-Dive-Analyse Session 5 (Skill-Nutzungs-Audit identifizierte 16% aktive Quote → mit Hook-Aktivierung 36% erreichbar).
+- **Items:**
+  1. **Skill-Auslastungs-Audit** (`worklog/proofs/188-skill-audit.md`) — 4/25 aktiv, 3 Superseded-Kandidaten (`/deliver`, `/cto-review`, `/eval-skill`), 5 Reserve mit Trigger-Gap.
+  2. **memory/failures.md** (neu, 9.8 KB) — Domain-gruppierte Quick-Lookup-Tabelle (Session/DB/FE/INF/SC/Money-Failures), "3-typical-Fehler"-Section.
+  3. **ship-stage-timer.sh** — PostToolUse-Hook loggt Stage-Transitions in `worklog/metrics/stages.jsonl` als JSONL. Data-Source für künftiges `/metrics`-Skill.
+  4. **ship-parallel-dispatch-gate.sh** — PreToolUse-Warn bei ≥3 Files cross-domain (backend+frontend) in BUILD. Session-once Flag (8h TTL).
+  5. **ship-ceo-scope-gate.sh** — Spec-Content-Scan nach Money/Legal/QA-Keywords → empfiehlt `plan-ceo-review` / `plan-legal-review` / `plan-qa-review`.
+  6. **ship-task-enforcement.sh** — Reminder pro Slice wenn ≥3 Files in `src/**` geändert ohne TaskList.
+  7. **post-push-deploy-watchdog.yml** (GHA) — 5-min-Watchdog post-push: Vercel-API-Check für commit SHA. Fehlt → Auto-Issue mit D36-Recovery-Protokoll.
+- **Files:** `worklog/proofs/188-skill-audit.md` · `memory/failures.md` · `memory/MEMORY.md` (Index-Link) · `.claude/hooks/ship-stage-timer.sh` · `.claude/hooks/ship-parallel-dispatch-gate.sh` · `.claude/hooks/ship-ceo-scope-gate.sh` · `.claude/hooks/ship-task-enforcement.sh` · `.claude/settings.json` (4 Hook-Registrations) · `.github/workflows/post-push-deploy-watchdog.yml`
+- **Proof:** `worklog/proofs/188-cto-setup-upgrade.md` (Full-Task-Breakdown + AC)
+- **Review:** `worklog/reviews/188-review.md` (self, D35 mechanical-pattern, 3 NITs non-blocking)
+- **Commit:** pending
+- **Open Follow-Ups:** Hygiene-Slice (Skill-Deletions), Superpowers-Taming, Metrics-Dashboard nach 5+ Slices, Points 8+9 aus Deep-Dive (postponed).
+
+---
+
 ## 187b | 2026-04-24 | expire-orders Cron-Route + vercel.json Registry
 
 - **Stage-Chain:** SPEC (inline, 187-followup) → IMPACT skipped (neue route.ts, keine existing code touched) → BUILD → REVIEW (self) → PROVE → LOG

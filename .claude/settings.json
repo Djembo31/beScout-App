@@ -26,6 +26,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-post-service.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-stage-timer.sh"
           }
         ]
       }
@@ -62,6 +66,18 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-meta-plan-block.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-parallel-dispatch-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-ceo-scope-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-task-enforcement.sh"
           }
         ]
       }
