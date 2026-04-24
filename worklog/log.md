@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181e1 | 2026-04-24 | Modal→Dialog Migration Batch 4a — Marktplatz/Orderbook (4 Files)
+
+- **Stage-Chain:** SPEC (181e-trading-modal-migration) → IMPACT skipped (mechanical, Money-UI only, kein RPC/DB) → BUILD (self) → REVIEW (self per D35) → PROVE → LOG
+- **Scope M:** 4 Files, 6 JSX-Sites, 1 Test-Mock. HIGH-Risk wegen Money-Path-UI — Pattern 38× validiert via 181b/c/d.
+- **Files (PROD):** market/shared/{BuyConfirmModal,BuyOrderModal}.tsx, market/marktplatz/ClubVerkaufSection.tsx, market/portfolio/OffersTab.tsx (2 Sites)
+- **Files (TESTS):** market/portfolio/__tests__/OffersTab.test.tsx
+- **Proof:** worklog/proofs/181e1-tsc-vitest-bundle.txt — 147/147 Market-Tests gruen, tsc clean, bundle /market 375kB (Budget 385kB)
+- **Review:** worklog/reviews/181e1-review.md (PASS, Self-Review per D35 mechanical-pattern)
+- **Commit:** pending
+- **Naechstes:** 181e2 Player-Detail Trading (4 Files: SellModalCore, BuyModal, OfferModal, LimitOrderModal).
+- **Offen:** Post-Deploy Smoke gegen bescout.net (Buy/Place-Order + ESC-Throttle) — laeuft nach Push/Vercel-Deploy.
+
 ## 181d | 2026-04-24 | Modal→Dialog Migration Batch 3 — Fantasy/Gamification (12 Files)
 
 - **Stage-Chain:** SPEC (181b plan) → IMPACT skipped → BUILD (self) → REVIEW (self) → PROVE → LOG

@@ -7,7 +7,7 @@ import {
   Check, X, RotateCcw, MessageSquare,
   Search, Plus, Loader2,
 } from 'lucide-react';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Button, Dialog } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { PlayerIdentity } from '@/components/player';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -255,7 +255,7 @@ function CreateOfferModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={t('newOffer')}>
+    <Dialog open={open} onClose={onClose} title={t('newOffer')}>
       <div className="space-y-4">
         {!selectedPlayer ? (
           <div>
@@ -371,7 +371,7 @@ function CreateOfferModal({
           {loading ? t('creating') : t('createOffer')}
         </Button>
       </div>
-    </Modal>
+    </Dialog>
   );
 }
 
@@ -472,7 +472,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
       )}
 
       {state.counterModal && (
-        <Modal open={true} onClose={state.closeCounterModal} title={t('counterOffer')}>
+        <Dialog open={true} onClose={state.closeCounterModal} title={t('counterOffer')}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
               {t('originalPrice')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(state.counterModal.price))} CR</span> — {state.counterModal.player_first_name} {state.counterModal.player_last_name}
@@ -491,7 +491,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
               {state.countering ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('sending')}</> : t('sendCounter')}
             </Button>
           </div>
-        </Modal>
+        </Dialog>
       )}
     </div>
   );

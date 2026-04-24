@@ -1,0 +1,50 @@
+Slice 181e1 — Modal→Dialog Migration Batch 4a (Marktplatz/Orderbook, 4 Files)
+Datum: 2026-04-24
+
+## Files Migriert
+
+1. src/features/market/components/shared/BuyConfirmModal.tsx (2 Modal-Sites: empty-state + main)
+2. src/features/market/components/shared/BuyOrderModal.tsx (1 Modal-Site)
+3. src/features/market/components/marktplatz/ClubVerkaufSection.tsx (1 Modal-Site)
+4. src/features/market/components/portfolio/OffersTab.tsx (2 Modal-Sites: CreateOfferModal + CounterOffer)
+
+Gesamt: 6 Modal→Dialog JSX-Sites, 4 Import-Renames.
+
+## Test-Mock Updated
+
+- src/features/market/components/portfolio/__tests__/OffersTab.test.tsx
+  - Modal: -> Dialog:
+
+## Verification
+
+### 1. tsc --noEmit
+clean (no output = no errors)
+
+### 2. vitest (target test file)
+Test Files  1 passed (1)
+Tests       3 passed (3)
+Duration    4.76s
+
+### 3. vitest (entire market feature tree)
+Test Files  10 passed (10)
+Tests       147 passed (147)
+Duration    15.95s
+
+### 4. pnpm run size (bundle-budget gate)
+/market   375.0kB   385kB   -10.0kB ✓
+All 51 routes within budget.
+
+## Pattern
+
+Drop-in-Migration, identisch wie 181b/c/d (38× validiert):
+- `import { Modal }` → `import { Dialog }`
+- `<Modal ...props>` → `<Dialog ...props>` (Props 1:1, keine API-Drift)
+- `</Modal>` → `</Dialog>`
+- Test-Mock: `Modal:` → `Dialog:`
+
+## Risk-Assessment
+
+- Money-Path UI, KEIN RPC/DB-Change.
+- preventClose-Pattern bleibt intakt via Wrapper-triple-Defense.
+- Mid-Mutation-Idempotency nicht betroffen (useSafeIdempotentMutation läuft unabhängig vom Modal-Wrapper).
+- Post-Deploy Smoke gegen bescout.net erforderlich (Acceptance Criterion 6+7).

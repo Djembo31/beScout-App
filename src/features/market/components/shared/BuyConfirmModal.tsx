@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
@@ -80,7 +80,7 @@ export default function BuyConfirmModal({
   // Empty state: nothing available to buy
   if (priceCents <= 0 || maxQty <= 0) {
     return (
-      <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
+      <Dialog open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
         <div className="py-8 text-center space-y-3">
           <AlertCircle className="size-8 mx-auto text-white/20" aria-hidden="true" />
           <p className="text-sm text-white/50">
@@ -92,12 +92,12 @@ export default function BuyConfirmModal({
             {tp('cancelAction', { defaultMessage: 'Abbrechen' })}
           </Button>
         </div>
-      </Modal>
+      </Dialog>
     );
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
+    <Dialog open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
       <div className="space-y-4">
         {/* Player identity */}
         <div className="flex items-center gap-3 bg-surface-subtle border border-white/[0.08] rounded-xl p-3">
@@ -268,6 +268,6 @@ export default function BuyConfirmModal({
           </Button>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

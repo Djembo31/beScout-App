@@ -3,7 +3,7 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
-import { EmptyState, Modal } from '@/components/ui';
+import { EmptyState, Dialog } from '@/components/ui';
 import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
@@ -305,7 +305,7 @@ export default function ClubVerkaufSection({
         const expandedAgg = clubAggregates.find(a => a.clubName === clubVerkaufExpandedClub);
         if (!expandedAgg) return null;
         return (
-          <Modal
+          <Dialog
             open={true}
             title={expandedAgg.club.name}
             subtitle={`${expandedAgg.players.length} Scout Cards ${isBuyable ? t('available', { defaultMessage: 'verfügbar' }) : ''}`}
@@ -320,7 +320,7 @@ export default function ClubVerkaufSection({
               buyingId={isBuyable ? buyingId : null}
               onClose={() => setClubVerkaufExpandedClub(null)}
             />
-          </Modal>
+          </Dialog>
         );
       })()}
     </div>

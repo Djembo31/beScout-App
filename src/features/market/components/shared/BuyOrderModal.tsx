@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Loader2, AlertCircle, Info, ShoppingCart } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { fmtScout, cn } from '@/lib/utils';
@@ -100,7 +100,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
   const subtitle = `${player.first} ${player.last} · ${player.club}`;
 
   return (
-    <Modal
+    <Dialog
       open={open}
       title={t('buyOrder')}
       subtitle={subtitle}
@@ -261,6 +261,6 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
         {/* Compliance: TradingDisclaimer (MiCA/CASP-Gate vor Geld-Transaktion) */}
         <TradingDisclaimer variant="inline" />
       </div>
-    </Modal>
+    </Dialog>
   );
 }
