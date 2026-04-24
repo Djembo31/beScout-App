@@ -159,7 +159,8 @@ export async function placeSellOrder(
   userId: string,
   playerId: string,
   quantity: number,
-  priceCents: number
+  priceCents: number,
+  idempotencyKey?: string,
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
   if (quantity > 300) throw new Error('maxQuantityExceeded');
@@ -186,6 +187,7 @@ export async function placeSellOrder(
     p_player_id: playerId,
     p_quantity: quantity,
     p_price: priceCents,
+    p_idempotency_key: idempotencyKey ?? null,
   });
 
   if (error) throw new Error(mapRpcError(error.message));

@@ -1,0 +1,9 @@
+Slice 178e-b — place_sell_order Idempotency Proof
+===================================================
+
+1. Baseline: live pg_get_functiondef. No money-move (creates open sell-order).
+2. Applied via mcp__supabase__apply_migration.
+3. Signature: (uuid, uuid, integer, bigint) → (uuid, uuid, integer, bigint, text DEFAULT NULL).
+   Old 4-arg DROPped.
+4. Service: placeSellOrder(..., idempotencyKey?) backward-compat.
+5. tsc clean + 130/130 trading-tests pass.

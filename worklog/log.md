@@ -11,6 +11,17 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178e-b | 2026-04-24 | place_sell_order Idempotency-Integration (Tier A1)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Pattern-Wiederholung. No-money-move RPC (creates open sell-order).
+- **Baseline:** live pg_get_functiondef.
+- **Signature:** (uuid, uuid, integer, bigint) → (uuid, uuid, integer, bigint, text DEFAULT NULL).
+- **Service:** `placeSellOrder(..., idempotencyKey?)`.
+- **Proof:** worklog/proofs/178e-b-place_sell.txt. 130/130 pass.
+
+---
+
 ## 178e-a | 2026-04-24 | buy_from_order Idempotency-Integration (Tier A1, Money)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

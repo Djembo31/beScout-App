@@ -2,12 +2,12 @@
 
 ```
 status: in_progress
-slice: 178e-a
+slice: 178e-b
 stage: LOG
-spec: worklog/specs/178e-a-buy_from_order.md
+spec: —
 impact: skipped
-proof: worklog/proofs/178e-a-buy_from_order.txt
-review: self-review (XS pattern-repetition)
+proof: worklog/proofs/178e-b-place_sell.txt
+review: self-review
 ```
 
-Priority-1-Marathon: 178b+c+e-a done → 178e-b (place_sell_order) next.
+Marathon: 178b+c+e-a+e-b done → 178e-c (place_buy_order) next.
