@@ -1,0 +1,18 @@
+Slice 178e-e — open_mystery_box_v2 Idempotency Proof
+======================================================
+
+1. Baseline: live pg_get_functiondef. Aktive RPC-Version ist v2.
+   RPC liest auth.uid() direkt (kein p_user_id-Parameter).
+   Return-Shape 'ok' statt 'success' — beibehalten.
+
+2. Applied via mcp__supabase__apply_migration.
+
+3. Signature: (boolean DEFAULT false) → (boolean DEFAULT false, text DEFAULT NULL).
+   Old 1-arg DROPped.
+
+4. Critical: retry wuerde 2× tickets deducted + 2× reward granted
+   (tickets/bcredits/equipment/cosmetic) + 2× mystery_box_results row.
+
+5. Service: openMysteryBox(free?, idempotencyKey?) backward-compat.
+
+6. tsc clean + 38/38 small-services tests pass.

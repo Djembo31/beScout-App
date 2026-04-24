@@ -11,6 +11,18 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 178e-e | 2026-04-24 | open_mystery_box_v2 Idempotency-Integration (Tier A1, Money)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope XS:** Pattern-Wiederholung. MB-Open = ticket-deduct + random reward-grant.
+- **Return-Shape:** 'ok' statt 'success' (MB-spezifisch, beibehalten).
+- **Critical:** retry wuerde 2× tickets deducted + 2× reward granted.
+- **Signature:** (boolean DEFAULT false) → +text DEFAULT NULL.
+- **Service:** `openMysteryBox(free?, idempotencyKey?)`.
+- **Proof:** worklog/proofs/178e-e-mystery_box.txt. 38/38 small-services tests pass.
+
+---
+
 ## 178e-d | 2026-04-24 | liquidate_player Idempotency-Integration (Tier A1, Money, Admin)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

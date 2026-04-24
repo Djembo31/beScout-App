@@ -158,13 +158,13 @@ describe('openMysteryBox', () => {
     expect(result.ok).toBe(true);
     expect(result.rarity).toBe('rare');
     expect(result.cosmeticKey).toBe('gold_frame');
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: false });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: false, p_idempotency_key: null });
   });
 
   it('passes free flag', async () => {
     mockRpc('open_mystery_box_v2', { ok: true, rarity: 'common', rewardType: 'tickets', ticketsAmount: 5 });
     await openMysteryBox(true);
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: true });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('open_mystery_box_v2', { p_free: true, p_idempotency_key: null });
   });
 
   it('returns error on RPC failure', async () => {

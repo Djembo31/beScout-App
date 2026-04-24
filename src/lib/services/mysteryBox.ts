@@ -21,8 +21,12 @@ export interface MysteryBoxDropRatesResponse {
   total_weight: number;
 }
 
-/** Open a mystery box (costs 15 tickets, or free if p_free = true) */
-export async function openMysteryBox(free = false): Promise<{
+/** Open a mystery box (costs 15 tickets, or free if p_free = true).
+ *
+ *  Slice 178e-e: optional `idempotencyKey` aktiviert Slice-178 generic
+ *  Idempotency (300s-Window). Verhindert double-deduct + double-grant auf
+ *  Network-Retry. Client-side auto-generation: 178d via useSafeMutation. */
+export async function openMysteryBox(free = false, idempotencyKey?: string): Promise<{
   ok: boolean;
   rarity?: MysteryBoxRarity;
   rewardType?: MysteryBoxRewardType;
@@ -38,6 +42,7 @@ export async function openMysteryBox(free = false): Promise<{
 }> {
   const { data, error } = await supabase.rpc('open_mystery_box_v2', {
     p_free: free,
+    p_idempotency_key: idempotencyKey ?? null,
   });
 
   if (error) {
