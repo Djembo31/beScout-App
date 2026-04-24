@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 190 | 2026-04-24 | CI-Check Cron-Route-Registry-Audit
+
+- **Stage-Chain:** SPEC (inline, active.md) → IMPACT skipped (tooling-only) → BUILD → REVIEW (self, D35 trivial tooling) → PROVE → LOG
+- **Scope XS:** Verhindert Slice 187b-Typ Silent-Gap (route.ts ohne vercel.json-Entry = Cron nie getriggert).
+- **Files:**
+  - `scripts/check-cron-registry.ts` (NEU, 75 L) — symmetric diff route/registry
+  - `package.json` (+1 script `"cron:audit"`)
+  - `.github/workflows/ci.yml` (+1 step in lint-job: `pnpm run cron:audit`)
+- **Tests:** Positive (11=11 exit 0) + Negative (synthetic ghost route → exit 1 mit fix-template)
+- **CI-Integration:** lint-job vor `next build` (fail-fast bei Gap)
+- **Proof:** `worklog/proofs/190-cron-registry-audit.md`
+- **Review:** `worklog/reviews/190-review.md` (self, PASS, 3 NITs non-blocking)
+- **Commit:** pending
+
+---
+
 ## 189 | 2026-04-24 | Ghost-Prevention Player-Insert-Trigger
 
 - **Stage-Chain:** SPEC → IMPACT (inline in Spec) → BUILD → REVIEW (self, D35 — 2. Iteration D28 Pattern) → PROVE → LOG

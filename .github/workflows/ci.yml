@@ -21,6 +21,7 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run type-check
       - run: pnpm run audit:silent-fail:check
+      - run: pnpm run cron:audit
 
   build:
     runs-on: ubuntu-latest

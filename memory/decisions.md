@@ -1511,6 +1511,111 @@ Gegenargument: „Migration als Audit-Trail". Counter: Git-Log + Proof-File sind
 
 ---
 
+## D39 — ARCHITECTURE: Trigger+GUC-Pattern als Standard für DB-Level Data-Integrity-Invariants
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** — (generalisiert D28 über append-only hinaus)
+
+### Entscheidung
+
+Das **Trigger-Function + GUC-Escape-Pattern** (etabliert in D28 für `transactions` append-only) ist ab sofort **Standard für alle DB-Level Data-Integrity-Invariants**, bei denen:
+
+1. Die Invariant-Verletzung sonst durch mehrere Code-Pfade unabhängig eingeführt werden könnte (Scripts, Crons, RPCs, manuelle SQL)
+2. Eine reine Code-Guard-Lösung fragil wäre (neue Call-Sites = neue Gap-Kandidaten)
+3. Legitime Bulk-Imports/Migrations trotzdem möglich sein müssen
+
+**Template:**
+
+```sql
+CREATE OR REPLACE FUNCTION public.prevent_<invariant_violation>()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  -- 1. Escape-Hatch (D28-Pattern)
+  IF current_setting('bescout.allow_<feature>', true) = 'true' THEN
+    RETURN NEW;
+  END IF;
+
+  -- 2. NULL-Guards: skip if data incomplete
+  IF NEW.critical_field IS NULL THEN RETURN NEW; END IF;
+
+  -- 3. Invariant-Check(s) mit RAISE EXCEPTION
+  IF <violation_condition> THEN
+    RAISE EXCEPTION '<invariant_key>: <human msg>'
+      USING ERRCODE = 'unique_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS <trigger_name> ON public.<table>;
+CREATE TRIGGER <trigger_name>
+  BEFORE <INSERT|UPDATE|DELETE> ON public.<table>
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_<invariant_violation>();
+
+COMMENT ON FUNCTION public.prevent_<invariant_violation>() IS
+  'Slice <N>: <purpose>. Bypass: SET LOCAL bescout.allow_<feature> = true.';
+```
+
+**Bulk-Import-Bypass (Session-Pattern):**
+
+```sql
+BEGIN;
+SET LOCAL bescout.allow_<feature> = 'true';
+-- ... legitimate bulk-work ...
+COMMIT;
+```
+
+### Begründung
+
+**Empirische Validierung (2 Iterationen):**
+
+| Slice | Invariant | Trigger | GUC |
+|-------|-----------|---------|-----|
+| 179 (D28) | transactions append-only | BEFORE UPDATE/DELETE | `bescout.allow_transactions_mutation` |
+| 189 (heute) | players ghost-row-prevention | BEFORE INSERT | `bescout.allow_player_ghost_insert` |
+
+Beide Trigger verhalten sich stabil, erwischen alle Insert/Update/Delete-Pfade, und erlauben kontrollierten Bypass für Bulk-Migrations. Pattern ist reproduzierbar genug für Copy-Paste-Template.
+
+**Warum kein reines Code-Guard:**
+
+Code-Guards (z.B. Pre-Check in Service-Layer) hätten diese strukturelle Schwäche:
+- Neue Call-Site entstanden = neue Gap (siehe Slice 189 Ghost-Quellen: 3 verschiedene manuelle Scripts)
+- Raw SQL via MCP oder psql umgeht Code-Guards komplett
+- Tests müssten für jeden Call-Site neu durchlaufen werden
+
+**Warum GUC statt Trigger-DROP für Bulk-Imports:**
+
+D28-Analyse: Temporäres Trigger-DROP + Re-CREATE öffnet Race-Window für andere concurrent Writes. GUC (`SET LOCAL`) ist transaction-scoped und thread-safe ohne DDL-Overhead.
+
+### Auswirkungen
+
+- **Code:** Pattern-Referenz in `.claude/rules/errors-db.md` + `memory/patterns.md` dokumentieren (Follow-up-XS-Slice).
+- **Prozess:** Bei künftigen Data-Integrity-Anforderungen zuerst fragen: "Kann das via Trigger+GUC abgebildet werden?" bevor Code-Guards überlegt werden.
+- **Migration-Template:** REVOKE/GRANT nicht nötig für Trigger-Functions (per database.md Ausnahme). Dafür: COMMENT ON FUNCTION pflicht.
+- **Test-Pattern:** 4-Test-Suite etabliert (same-class violation, cross-class violation, positive-case, GUC-bypass).
+- **Bekannte Kandidaten:** `trades` (append-only analog transactions), `activity_log` (append-only), künftige `holdings_history`, `audit_log` — alle geeignet für Trigger+GUC.
+
+### Alternativen erwogen
+
+- **Pure CHECK-Constraints:** Verworfen — CHECK kann nicht auf andere Rows (SELECT EXISTS) referenzieren, nur auf eigene Tuple-Fields. Cross-Row-Invariants brauchen Trigger.
+- **DEFERRABLE CONSTRAINTS + DEFERRED check:** Verworfen — komplex, schlechter UX bei Fehler (Error erst bei COMMIT), keine Escape-Hatch.
+- **RLS-Policies mit custom check-functions:** Verworfen — RLS prüft wer zugreifen darf, nicht welche Daten-Konstellationen legitim sind. Wrong layer.
+- **Application-Layer-Guards in Service-Functions:** Verworfen — siehe Begründung oben. Gap-Risk hoch.
+- **Materialized Views mit UNIQUE INDEX:** Verworfen — refresh-latency, kein Pre-Insert-Block, Performance-Overhead.
+
+### Re-Visit-Trigger
+
+- Wenn 3+ Slices denselben GUC-Namespace nutzen müssen: Namensraum-Convention dokumentieren (z.B. `bescout.allow_<domain>_<op>`).
+- Wenn Trigger-Performance je Bottleneck wird (unlikely bei BEFORE-Row-Triggern mit EXISTS-Subqueries): Partial-Index zur Beschleunigung.
+- Wenn GUC-Audit-Log gewünscht: separater Slice (optional Follow-up aus Slice 189 Review).
+
+---
+
 ## Template für neue Entries
 
 ```markdown

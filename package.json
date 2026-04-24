@@ -28,6 +28,7 @@
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
     "beta:metrics": "node scripts/beta-metrics.mjs",
     "size": "npx tsx scripts/check-bundle-size.ts",
+    "cron:audit": "npx tsx scripts/check-cron-registry.ts",
     "prepare": "husky"
   },
   "dependencies": {
