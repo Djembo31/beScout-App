@@ -11,6 +11,37 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 191 | 2026-04-24 | Hygiene-Kombi + Audit Bilder/Scouting/Form
+
+- **Stage-Chain:** SPEC (inline, active.md) → IMPACT skipped (doc + single-component) → BUILD → REVIEW (self per D35) → PROVE → LOG
+- **Scope XS-Kombi:** 5 parallele Arbeiten in einem Slice (kein Money-Path)
+- **Tasks:**
+  - **H** — D39 Trigger+GUC-Pattern gespiegelt (memory/patterns.md #29 + .claude/rules/errors-db.md)
+  - **G** — Superseded Skills geloescht (/deliver + /cto-review + /eval-skill) + workflow-reference.md
+  - **C** — INV-35 Admin-UI Regression-Guard (AdminSettingsTab.tsx Logo-URL-Regex)
+  - **I** — Superpowers Auto-Invocation eingegrenzt (CLAUDE.md Override-Section)
+  - **AUDIT** — Bilder/Scouting/Form: DB-Evidenz + TradingTab Empty-State + i18n-keys
+- **Files:**
+  - `memory/patterns.md` (+ Pattern #29)
+  - `.claude/rules/errors-db.md` (Trigger+GUC-Section generalisiert)
+  - `.claude/rules/workflow-reference.md` (3 Table-Entries bereinigt)
+  - `.claude/skills/{deliver,cto-review,eval-skill}/` (DELETED)
+  - `CLAUDE.md` (+ Superpowers-Override Section)
+  - `src/components/admin/AdminSettingsTab.tsx` (+ INV-35 Regex-Guard)
+  - `src/components/player/detail/TradingTab.tsx` (+ Scout-Consensus Empty-State)
+  - `messages/{de,tr}.json` (+ emptyScoutConsensus + writeFirstReport)
+  - `worklog/proofs/191-hygiene-audit.md` (NEU, vollstaendiger Audit mit DB-Evidenz)
+- **Audit-Befunde:**
+  - Bilder: 97.2% DB-Coverage (4310/4436). Config OK. Anil-Visual-Eindruck kann 2.8%-Luecke sein
+  - Scouting: research_posts = 0 rows → UX-Gap gefixt (TradingTab Empty-State)
+  - Form/L5: 84.3% Coverage, 16% Drift (TFF 1. Lig + Süper Lig ~83%)
+- **Proof:** `worklog/proofs/191-hygiene-audit.md`
+- **Commit:** `9eb3f35e`
+- **Review:** self per D35 (trivial hygiene + doc + single-component guard)
+- **Open Follow-ups:** Research-Bot-Seed (Anil-Entscheidung), L5-Drift-Audit (post-Beta), Vercel-Pro-Restore (CEO)
+
+---
+
 ## 190 | 2026-04-24 | CI-Check Cron-Route-Registry-Audit
 
 - **Stage-Chain:** SPEC (inline, active.md) → IMPACT skipped (tooling-only) → BUILD → REVIEW (self, D35 trivial tooling) → PROVE → LOG
