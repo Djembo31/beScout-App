@@ -1,28 +1,19 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
+status: in_progress
+slice: 186
+stage: LOG
 spec: —
-impact: —
-proof: —
-review: —
+impact: skipped (rules-doc split, no runtime change)
+proof: worklog/log.md#186
+review: self-review
 ```
 
-## Session 2026-04-24 — Summary
+## Session 2026-04-24 FINAL STATE — clean close
 
-- **Idempotency-Foundation** (178 + 178a-f): 8 Money-RPCs + Client-Hook + 6 Call-Sites — End-to-End aktiv
+- **Idempotency-Foundation** (178 + 178a-f): 8 Money-RPCs + Client-Hook + 6 Call-Sites — End-to-End
 - **Bundle-Budget** (185b): Baseline + CI-Gate
+- **Hygiene** (186): common-errors.md Split + DISTILL D30-D33 + Rich-Handoff
 
-## Offene Follow-ups
-
-| Prio | Scope |
-|------|-------|
-| MED | 181 Radix UI-Primitives — Design-Deliberation |
-| MED | 182 React Hook Form + Zod — Form-Pattern-Scope |
-| MED | 183 Design Tokens (CSS vars) — Token-Inventory |
-| MED | 184 Motion Design — Animation-Guidelines |
-| LOW | common-errors.md "Money-RPC Idempotency Blueprint" Pattern-Addendum |
-| LOW | buyFromIpo Idempotency-Integration (falls zukuenftig gewuenscht) |
-| LOW | 185c per-chunk size-limit fuer grosse Libraries (country-flag-icons etc.) |
+Naechste Session: UI-Foundation-Deliberation (181 Radix empfohlen) — siehe `memory/session-handoff.md`.

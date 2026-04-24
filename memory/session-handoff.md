@@ -1,103 +1,102 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-24 13:02)
+# Session Handoff — Auto (placeholder)
 
-> Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
-
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
-
-## Session Commits: 10
-- 0a34c054 docs(hygiene): Priority-1-Marathon abschluss — active.md idle
-- 96e78375 feat(security): Slice 178d — useSafeIdempotentMutation + Auto-Key Generation (Tier A1, Client)
-- 8f7cfa4f feat(security): Slice 178e-e — open_mystery_box_v2 Idempotency-Integration (Tier A1, Money)
-- 66daafa5 feat(security): Slice 178e-d — liquidate_player Idempotency-Integration (Tier A1, Money, Admin)
-- 0402b60b feat(security): Slice 178e-c — place_buy_order Idempotency-Integration (Tier A1, Money)
-- 7be39f14 feat(security): Slice 178e-b — place_sell_order Idempotency-Integration (Tier A1)
-- 83cf5f46 feat(security): Slice 178e-a — buy_from_order Idempotency-Integration (Tier A1, Money)
-- 30d4d998 feat(security): Slice 178c — subscribe_to_club Idempotency-Konsolidierung (Tier A1, Money)
-- 3e6fdef5 feat(security): Slice 178b — dedup-keys Cleanup-Cron (Tier A1)
-- 5c74e7c1 chore(hooks): session-handoff merge-statt-overwrite via awk state-machine
+Wird beim naechsten Stop-Hook-Lauf gefuellt.
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Rich Handoff — 2026-04-24 Autonomous-Marathon + 178a Integration
+# Rich Handoff — 2026-04-24 Abschluss
 
 ## Status
-- **Branch main** — 15 Tier-Slices live (178a ergaenzt), alle Tests gruen, tsc clean, commitlint-konform.
-- **active.md idle.** Tier-Plan 174-185 bei 15/15.
-- **Live DB (Supabase skzjfhvgccaeplydsunz):** `buy_player_sc` mit 4-arg-Signature + DEFAULT NULL idempotency-key. 3-arg-Version entfernt.
+- **Branch main** clean bis auf erwartete auto-Drift.
+- **active.md idle.** 25 Slices in Session 2026-04-24 gesamt (incl. Idempotency-Pipeline 178a-f + 185b Bundle + 186 common-errors Split).
+- **Live DB (Supabase skzjfhvgccaeplydsunz):** 7 Money-RPCs mit `p_idempotency_key TEXT DEFAULT NULL` Signatur live. Alte Signaturen DROPped.
 
-## Slice 178a — buy_player_sc Idempotency-Integration (Tier A1, Money-Critical)
+## Was diese Session brachte
 
-- **Autonomer CEO-Grant:** "gebe vollen zugriff, ueberspringe dangerous questions".
-- **Scope XS:** Erste Money-RPC-Integration der Slice-178-Foundation. Pilot-Demonstration fuer 178c-e Pattern-Wiederholung.
-- **Baseline:** Slice 034 (`20260417160000_buy_player_sc_transactions_type_fix.sql`). Patch-Audit: keine Zwischen-Patches.
-- **Integration-Bloecke:**
-  1. Parameter `p_idempotency_key TEXT DEFAULT NULL` (backward-compat).
-  2. Early-check via `check_or_reserve_dedup_key` NACH auth-guard + qty-validation, VOR DB-writes.
-  3. JSON-variable v_result statt inline-RETURN, damit Completion-UPDATE vor RETURN passieren kann.
-  4. UPDATE `request_dedup_keys SET response=v_result::JSONB, status='completed'`.
-- **Preserved (12/12):** auth_guard, qty_validation, liquidation_check, club_admin_guard, advisory_lock, trade_rate_limit, circular_guard, pbt_credit, floor_recalc, trans_type_correct, club_fee_treasury, subscription_discount.
-- **REVOKE/GRANT renewed (AR-44).** Alte 3-arg-Signatur via DROP FUNCTION entfernt.
-- **Files:** Migration (208 L) + trading.ts edit (+5 -2) + Spec + Self-Review + Proof.
-- **Proof (`worklog/proofs/178a-replay.txt`):** 9 Abschnitte — Signature, Grants, Foundation-2-call-Sequence, Integration-Regex-Audit, Preserved-Guards-Audit, tsc clean, vitest 130/130 pass.
+### Phase 1 — Priority-1-Marathon (178b-f)
+Money-Defense-in-Depth End-to-End aktiv:
+- **Server:** 178 Foundation + 7 Money-RPCs integriert (178a buy_player_sc, 178c subscribe, 178e-a buy_from_order, 178e-b place_sell_order, 178e-c place_buy_order, 178e-d liquidate_player, 178e-e open_mystery_box_v2) + 178b Cleanup-Cron (hourly).
+- **Client:** 178d `useSafeIdempotentMutation` + `newIdempotencyKey()`. 178f migriert 6 Money-Hooks (market.buy, market.placeBuyOrder, player.buy, player.sell, membership.subscribe, mb.open, admin.liquidate).
+- **Scope-Out:** buyFromIpo + cancelBuyOrder + cancelOrder nicht integriert (kein Retry-Double-Spend-Risk bei IPO; Cancels sind idempotent-by-nature).
 
-## Gesamte 2026-04-24 Marathon-Session: 15 Slices live
+### Phase 2 — Bundle-Budget (185b)
+- `bundle-budget.json` mit thresholds (162 kB shared baseline, 10-15 kB Headroom pro tracked Route, 51 Routes total).
+- `scripts/check-bundle-size.ts` parst `next build` output, CI-Gate im build-Job.
+- `pnpm run size` als lokaler Command.
 
-**Tier A Money:** 178 Idempotency Foundation + 178a buy_player_sc Integration + 179 Transactions Append-Only
-**Tier B Architecture:** 177 Zod + parseBody + 177b withLogger Admin + 180 Service-Shape Pilot
-**Tier D Observability:** 175/175b/175c Pino + 176/176b/176c/176d Sentry+PII+Boundaries
-**Tier D Tooling:** 185 commitlint + lint-staged
+### Phase 3 — Hygiene (186)
+- `memory/session-handoff.md` Hook rebuilt mit awk-state-machine Merge (Marker `<!-- auto:handoff-start/-end -->`). Rich-Content bleibt ab jetzt persistent.
+- `.claude/rules/common-errors.md` von 55 KB auf **6 KB Navigator + Silent-Fails** reduziert. Rest verteilt auf:
+  - `errors-db.md` (11 KB) — DB + RPCs + Auth + Cache
+  - `errors-frontend.md` (7 KB) — React/TS/CSS + i18n
+  - `errors-infra.md` (11 KB) — Build/Deploy + Bundle + Hooks + Beta-Ops
+  - `errors-scraper.md` (6 KB) — TM + API-Football + HTML-Parsing
 
-## Next-Session Priority-Queue
+### Decisions dokumentiert (memory/decisions.md)
+- **D30** useSafeIdempotentMutation als Money-Path Standard-Primitive
+- **D31** Auto-generated Files mit Merge-Markern (Hook-Fix)
+- **D32** Bundle-Budget-Gate in CI
+- **D33** common-errors.md Split in Domain-Files
 
-### Priority 1 — Money-Defense-in-Depth-Loop weiter schliessen (178a Pattern replizieren)
-- **178b** Cleanup-Cron (`vercel.json` + route `/api/cron/dedup-cleanup`, `expires_at < NOW()` DELETE)
-- **178c** Migration `subscribe_to_club` inline-60s-idempotency → generic pattern (Konsolidierung)
-- **178d** Client-side idempotency-key generation in `useSafeMutation` (crypto.randomUUID)
-- **178e** Weitere Money-RPCs via 178a-Pattern:
-  - `buy_from_order` (P2P buy, Slice 021 RLS-tightened)
-  - `place_sell_order` (Slice 019)
-  - `place_buy_order` (Slice 020)
-  - `liquidate_player` (Slice 108 linear formula)
-  - `openMysteryBox` (Slice J5 AR-42)
-  - `subscribe_to_club` (fuer 178c migration-target)
+## Nahtloser Start fuer naechste Session
 
-### Priority 2 — UI-Foundation (braucht Design-Deliberation)
-- **181** Radix UI-Primitives (Dialog, Dropdown, Tabs)
-- **182** React Hook Form + Zod-Integration
-- **183** Design Tokens (CSS Custom Properties)
-- **184** Motion Design (shared animation-library)
+**Offene Entscheidung:** User will fuer naechste Session ein UI-Foundation-Thema. Optionen:
 
-### Priority 3 — Open Cleanup
-- **180b** Service-Shape votes/adminDeletePost/adminTogglePin
-- **185b** Bundle-Budget (size-limit, `next build` Baseline)
-- **common-errors.md Split** in errors-db/errors-frontend/errors-infra/errors-scraper
+| # | Scope | Design-Entscheid noetig |
+|---|-------|-------------------------|
+| 181 | Radix UI-Primitives | Welche Primitives zuerst? Dialog/Popover/DropdownMenu/Tooltip/AlertDialog. Migration-Reihenfolge: Modal→Dialog, ConfirmDialog→AlertDialog. |
+| 182 | React Hook Form + Zod | Welche Forms migrieren? Auth, Club-Admin-Settings, Create-Event? Zod-Schema-Konvention. |
+| 183 | Design Tokens (CSS vars) | Welche Farben/Spacing/Radius als Custom Properties? Naming-Convention. |
+| 184 | Motion Design | Timing-Curves, reduced-motion-Strategy, shared animation-library. |
 
-### Priority LOW — Doc-Addendas (Sammel-Commit)
-- common-errors.md "Error-Boundary 2-Scopes" Pattern (176d)
-- pattern_observability_stack.md "Next.js Boundary-Instrumentation" (176d)
-- serializeCause object-path Doku (176b)
-- Composite-unique Regex-Edge (176c)
-- trigger-cron params null-safe + prettier format (175b)
-- common-errors.md "Money-RPC Idempotency-Integration Blueprint" (178a Pattern — siehe 178a-review.md)
+**Ich empfehle 181 Radix** — groesster User-Impact (Accessibility + Keyboard-Nav), und die Pattern-Migration (Modal → Dialog etc.) ist mechanisch nach Entscheidung. Radix-Dialog + AlertDialog + DropdownMenu als erste drei Primitives waere pragmatischer Scope.
+
+## Open Follow-ups (weiterhin offen)
+
+| Prio | Scope |
+|------|-------|
+| MED | 181/182/183/184 UI-Foundation (siehe oben) |
+| LOW | buyFromIpo Idempotency-Integration (falls gewuenscht) |
+| LOW | 185c per-chunk size-limit fuer grosse Libs (country-flag-icons, lucide-react) |
+| LOW | 185b2 Bundle-Budget-Thresholds tighten nach Optimierungs-Slices |
+| LOW | 180b Service-Shape votes/adminDeletePost/adminTogglePin |
+| LOW | Error-Boundary 2-Scopes Pattern (176d, noch in Queue) |
+| LOW | pattern_observability_stack.md Addendum (176d) |
 
 ## Live-DB-Stand (Supabase project skzjfhvgccaeplydsunz)
 
+Idempotency-Infrastructure:
 - **Table:** `public.request_dedup_keys(user_id, dedup_key, response JSONB, status, created_at, expires_at)` — PK composite, Index on expires_at, RLS select-own.
-- **RPC:** `public.check_or_reserve_dedup_key(UUID, TEXT, INT) → (is_new BOOLEAN, existing_response JSONB)` SECURITY DEFINER.
-- **RPC (Slice 178a):** `public.buy_player_sc(UUID, UUID, INT, TEXT DEFAULT NULL) → JSON` — 4-arg-Signature, alte 3-arg entfernt.
-- **Trigger (Slice 179):** `transactions_append_only_guard` BEFORE UPDATE/DELETE ON transactions → RAISE EXCEPTION (mit GUC-Opt-In-Bypass).
-- **Revokes (Slice 179):** UPDATE + DELETE FROM anon, authenticated.
+- **Helper:** `public.check_or_reserve_dedup_key(UUID, TEXT, INT) → (is_new, existing_response)` SECURITY DEFINER.
+- **Cleanup-Cron:** `/api/cron/dedup-cleanup` hourly via Vercel Cron.
 
-## Notion-Action (post-commit)
-- Slice 178 + 179 → „Erledigt" markieren.
-- Slice 178a → Kanban-Eintrag als „Erledigt".
+Money-RPCs (alle 4-arg, old signatures DROPped):
+- `buy_player_sc(UUID, UUID, INT, TEXT DEFAULT NULL)`
+- `buy_from_order(UUID, UUID, INT, TEXT DEFAULT NULL)`
+- `place_sell_order(UUID, UUID, INT, BIGINT, TEXT DEFAULT NULL)`
+- `place_buy_order(UUID, UUID, INT, BIGINT, TEXT DEFAULT NULL)`
+- `subscribe_to_club(UUID, UUID, TEXT, TEXT DEFAULT NULL)`
+- `liquidate_player(UUID, UUID, INT DEFAULT 0, TEXT DEFAULT NULL)`
+- `open_mystery_box_v2(BOOLEAN DEFAULT false, TEXT DEFAULT NULL)`
+
+Append-Only-Guard (Slice 179):
+- Trigger `transactions_append_only_guard` BEFORE UPDATE/DELETE → RAISE EXCEPTION (mit GUC-Opt-In-Bypass via `SET LOCAL bescout.allow_transactions_mutation`).
+- `REVOKE UPDATE, DELETE FROM anon, authenticated`.
+
+## CI / Pipeline
+
+- **Build-Job:** `next build | tee build-output.txt` → `cat | npx tsx scripts/check-bundle-size.ts` → exit 1 bei Regression.
+- **Pre-commit:** commitlint + lint-staged aktiv.
+- **Baseline:** 162 kB shared / 51 routes / 0 violations.
+
+## Notion-Action (wenn noch nicht gemacht)
+- Slice 178/178a/178b/178c/178d/178e-a..e/178f/185b/186 → „Erledigt" markieren.
+- Kanban: neuer Item fuer 181 Radix-Scope-Deliberation erstellen wenn UI-Foundation-Thema naechstes ist.
 
 ## CEO-Scope-Reminder
-- Money-RPCs immer CEO-Scope, aber Session-Grant "voller Zugriff" bleibt bis naechste Session-Boundary.
-- 178e (weitere Money-RPCs) sollte pro RPC eigenes XS-Slice sein, kein Marathon.
+- Voriger CEO-Grant "voller Zugriff" war session-scoped. Naechste Session startet fresh.
+- Money-RPCs bleiben CEO-Scope per-default.
+- 181-184 UI-Foundation sind **nicht** CEO-Scope — Claude darf Design-Entscheidungen mit Begruendung selbst treffen, solange keine user-facing Text-/Money-/Compliance-Flows betroffen sind.

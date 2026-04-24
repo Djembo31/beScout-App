@@ -11,6 +11,16 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 186 | 2026-04-24 | common-errors.md Split + DISTILL + Handoff (Tier D Hygiene)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: rules-doc split) → BUILD → PROVE → REVIEW (self) → LOG
+- **Scope S:** `common-errors.md` 55 KB / 720 Zeilen → **6 KB Navigator + Silent-Fails**. Rest verteilt auf 4 Domain-Splits.
+- **Neue Files:** `errors-db.md` (11 KB) · `errors-frontend.md` (7 KB) · `errors-infra.md` (11 KB) · `errors-scraper.md` (6 KB).
+- **Decisions:** D30 (useSafeIdempotentMutation Standard-Primitive) · D31 (Merge-Markers fuer Auto-Files) · D32 (Bundle-Budget-Gate CI) · D33 (common-errors Split).
+- **Handoff-Rewrite:** Rich-Content in `memory/session-handoff.md` fuer naechste Session nahtlos aktualisiert. UI-Foundation (181-184) als empfohlener Scope mit Design-Entscheid-Matrix.
+
+---
+
 ## 185b | 2026-04-24 | Bundle-Budget-Gate (Tier D5)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → PROVE → REVIEW (self) → LOG

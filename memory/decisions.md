@@ -1137,6 +1137,162 @@ Session-Evidence (Slice 166 Modal-preventClose-Sweep):
 
 ---
 
+## D30 — ARCHITECTURE: useSafeIdempotentMutation als Money-Path Standard-Primitive
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** Extends D17 (useSafeMutation) fuer Money-Path-Subset
+
+### Entscheidung
+
+Money-Path-Mutations nutzen **`useSafeIdempotentMutation`** (Composition ueber `useSafeMutation`) mit `idempotencyNamespace` + `mutationFn: (vars, key) => service(..., key)`. Plain-async-Handler (fire-and-forget) nutzen `newIdempotencyKey('namespace')` inline.
+
+Rollout in Session 2026-04-24: 6 Money-Path Call-Sites (useBuyFromMarket, usePlaceBuyOrder, usePlayerTrading buy/sell, MembershipSection, useHomeData.openMB, missions/page.openMB, useAdminPlayersState.liquidate) + 8 Server-RPCs (178a/c/e-a..e).
+
+### Begründung
+
+- **D27 (generic Idempotency-Infrastructure)** lieferte Server-Side Foundation — ohne Client-Side Auto-Key bleibt Wert ungenutzt.
+- Hook-Composition gewinnt gegen optional-flag-Sprawl im Base-Hook.
+- Auto-managed key-lifecycle (persist waehrend in-flight+retry, reset on onSuccess+onError) ist komplex genug um nicht per-caller copy-pastable zu sein.
+- Plain-async-Pfad (`newIdempotencyKey()` direkt) bleibt fuer Callers ohne React-Query-Mutation (z.B. openMysteryBox handler, handleLiquidate).
+
+### Auswirkungen
+
+- **Code:** neu `src/lib/idempotency.ts` + `src/lib/hooks/useSafeIdempotentMutation.ts`. Rules-Referenz in `errors-db.md` Money-RPC Idempotency-Blueprint.
+- **Tests:** Call-Site-Test-Assertions erweitert um `expect.stringMatching(/^namespace:/)` fuer key-pass-through.
+- **Pattern-Replikation:** Weitere Money-RPC-Integrationen (buyFromIpo, cancelBuyOrder, cancelOrder falls gewuenscht) folgen demselben Pattern.
+
+### Alternativen erwogen
+
+- **Per-Caller `useRef<string>`-Management:** Verworfen — zu viel Disziplin-Last auf Consumers, key-lifecycle-Bugs wahrscheinlich.
+- **Integriert in `useSafeMutation`:** Verworfen — nicht alle Mutations brauchen Idempotency (pure Reads, Client-State-only). Flag-Sprawl.
+- **Key-Generation im Service-Layer:** Verworfen — Service-Layer weiss nicht ob Mutation `isRetry` vs. fresh-attempt. Hook hat besseren Lifecycle-Kontext.
+
+### Re-Visit-Trigger
+- Falls >3 Money-RPCs ohne Idempotency-Integration in Prod driften: Namespacing-Convention pruefen.
+- Falls Client-Side-Key-Collision beobachtet wird: UUID-Fallback vs. crypto.randomUUID-Availability pruefen.
+
+---
+
+## D31 — PROCESS: Auto-generated Files mit Merge-Markern (nie komplett ueberschreiben)
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** Session-Handoff-Hook-Verhalten pre-2026-04-24 (komplettes Overwrite)
+
+### Entscheidung
+
+Hooks die auto-generierte Files pflegen (konkret: `memory/session-handoff.md`, aber Pattern-generell) nutzen **Marker-Block-Merge** statt Full-File-Write:
+
+```
+<!-- auto:handoff-start -->
+... auto content ...
+<!-- auto:handoff-end -->
+
+... manual rich content (untouched) ...
+```
+
+awk state-machine (`before → in_block → after`) ersetzt nur den Block zwischen Markern. Migration-Path fuer Bestandsdateien ohne Marker: Auto-Block oben einfuegen, existierender Content darunter.
+
+### Begründung
+
+Historisches Problem (pre-2026-04-24): Session-Handoff-Hook ueberschrieb bei jedem Stop-Event die ganze Datei. Rich-Content (Priority-Queue, DB-Stand, Next-Session-Briefing) war nach jeder Session weg. In Session 2026-04-24 **3× manuell wiederhergestellt** bevor Root-Cause-Fix.
+
+### Auswirkungen
+
+- **`.claude/hooks/session-handoff-auto.sh`** umgebaut (Slice session-handoff-merge-Commit).
+- **`errors-infra.md`** dokumentiert Pattern fuer kuenftige Hooks.
+- Anwendbar auf: Crash-Recovery-Hook (wenn er auch in gleiche Datei schreibt), zukuenftige Auto-Status-Hooks.
+
+### Alternativen erwogen
+
+- **Separate Auto-Datei (`session-handoff.auto.md`):** Verworfen — Doppelpflege, `MEMORY.md`-Index muesste beide referenzieren.
+- **Hook skippt wenn Datei bereits Content hat:** Verworfen — verliert Auto-Status-Updates bei aktivem Handoff.
+- **Header-Zeile als Marker (`# Auto-Handoff-Only`):** Verworfen — fragile, User koennte Header unbewusst editieren.
+
+### Re-Visit-Trigger
+- Falls Marker-Format mit User-Tooling konfligiert (Obsidian-Rendering, Markdown-Lint): alternative Markers (z.B. Special-Comment-Style) erwaegen.
+
+---
+
+## D32 — PROCESS: Bundle-Budget-Gate in CI (Size-Regression-Prevention)
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+`bundle-budget.json` definiert thresholds pro Route + shared-bundle. `scripts/check-bundle-size.ts` parst `next build`-Output, exit 1 bei jeder Route ueber Budget oder shared > threshold. CI-Gate im build-Job (`.github/workflows/ci.yml`): `next build | tee build-output.txt` + `cat | npx tsx scripts/check-bundle-size.ts`.
+
+Baseline 2026-04-24: 162 kB shared, 51 routes tracked, ~10-15 kB Headroom pro critical Route (`/player/[id]` 378/390, `/market` 346/360, `/community` 364/375, etc.).
+
+### Begründung
+
+Bundle-Size-Regressions sind **silent**: `next build` warnt nicht bei +20 kB auf einer Route. Entdeckt wurde nur durch manuelle Bundle-Analyzer-Inspektion nach User-Reports ueber Langsamkeit (historisch: `country-flag-icons` namespace 235 kB, Slice 120).
+
+CI-Gate verhindert Regression vor Merge statt retrospektiv nach Prod-Deploy. Budget-Headroom (~10-15 kB) erlaubt kleine Schwankungen, grosse Spruenge bleiben sichtbar.
+
+### Auswirkungen
+
+- **Neu:** `bundle-budget.json`, `scripts/check-bundle-size.ts`, `pnpm run size` script.
+- **CI:** build-Job hat zwei Steps: `next build | tee` + size-check.
+- **Budget-Updates:** nur mit Justification (neuer Feature, Performance-Tradeoff). Anil-Review fuer >+20 kB-Updates.
+- **`errors-infra.md`** dokumentiert Gate.
+
+### Alternativen erwogen
+
+- **size-limit mit @size-limit/file:** Verworfen — Next.js-Chunks haben dynamische Namen, statische File-Target-Liste bricht bei jedem Chunk-Hash-Change.
+- **Manueller Bundle-Analyzer-Run vor Merge:** Verworfen — zu disziplinabhaengig, wird vergessen.
+- **Nur shared-bundle-Check, keine per-route-Budgets:** Verworfen — route-level Regressions (z.B. /player/[id] +50 kB durch neuen heavy-chart) waeren unsichtbar.
+
+### Re-Visit-Trigger
+- Falls CI-Gate >2× pro Monat gruene PRs falsch-blockt: Budget-Headroom erhoehen oder per-slice-opt-out-Mechanismus erwaegen.
+- Falls Bundle-Size systematisch waechst trotz Gate: Per-Chunk-size-limit (Slice 185c) oder bundle-analyzer-artifact-Upload erwaegen.
+
+---
+
+## D33 — PROCESS: common-errors.md Split in Domain-Files (40 KB Regel)
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** Single-File `common-errors.md` (55 KB, 720 Zeilen)
+
+### Entscheidung
+
+`.claude/rules/common-errors.md` wird auf **~6 KB Navigator + Section 1 Silent-Fails** reduziert. Domain-spezifische Patterns in:
+
+- `errors-db.md` (~11 KB) — Supabase/Postgres, RPC-Design, Auth/Security, React-Query+Cache
+- `errors-frontend.md` (~7 KB) — React/TS/CSS, Modal-Pattern, i18n/Locale
+- `errors-infra.md` (~11 KB) — Build/Deploy, Bundle, Hooks, Beta-Launch-Ops
+- `errors-scraper.md` (~6 KB) — Transfermarkt, API-Football, HTML-Parsing
+
+Alle Files unter 30 KB (Soft-Ziel < 40 KB, Optimal ~30 KB).
+
+### Begründung
+
+- **Context-Efficiency:** CLAUDE.md laedt rules/ autoloaded. Bei 55 KB Single-File frisst common-errors jede Session unnoetige Tokens.
+- **Skip-Rate bei grossen Files:** User-Behavior — lange Rules werden seltener gescrollt, wichtige Patterns verloren im Middle.
+- **Domain-Splits reflektieren Use-Case:** DB-Arbeit braucht DB-Patterns, Frontend-Arbeit Frontend-Patterns. Autoload-alle bleibt, Navigator macht Scope klar.
+- **Silent-Fails bleiben im Hauptfile:** cross-cutting relevant (trifft DB+Frontend+Scraper), wichtigste Bug-Klasse.
+
+### Auswirkungen
+
+- **Autoload-Impact:** Alle 4 neuen Files werden autoloaded (rules/**/*.md). Gesamt-Content aehnlich, verteilt.
+- **Navigation:** Devs + Claude finden Pattern via Navigator-Table in common-errors.md. Querverweise zwischen Splits via relative Pfade.
+- **Maintenance:** Neuer Pattern → direkt in richtige Domain-Datei. "Silent-Fails" bleiben Ankerpunkt fuer cross-cutting.
+
+### Alternativen erwogen
+
+- **Aggressive Inline-Pruning (55→30 KB im Single-File):** Verworfen — wichtiges Know-how geht verloren, Maintenance-Load bleibt auf einem File.
+- **Split nach Slice-ID-Ranges:** Verworfen — Slice-Historie ist nicht Search-Intent. User sucht "wie fixe ich RPC-Silent-Fail", nicht "was war Slice 160".
+- **Markdown-Sections als Multi-File mit automatischem Merge:** Verworfen — Over-engineering, Plain-Splits funktionieren.
+
+### Re-Visit-Trigger
+- Falls eines der Splits >25 KB erreicht: weiter splitten (z.B. errors-db.md → errors-db-core.md + errors-db-auth.md).
+- Falls common-errors.md Navigator-Section stale wird (2+ Pattern in falscher Datei): Renovation-Slice.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
