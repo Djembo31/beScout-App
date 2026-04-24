@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { X, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import React from 'react';
+import { AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
@@ -104,128 +104,6 @@ export function Chip({ children, className = '' }: { children: React.ReactNode; 
     <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-elevated border border-white/[0.12] text-white/80', className)}>
       {children}
     </span>
-  );
-}
-
-// ============================================
-// MODAL
-// ============================================
-
-export interface ModalProps {
-  open: boolean;
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-  /** Sticky footer for action buttons — always visible at the bottom */
-  footer?: React.ReactNode;
-  onClose: () => void;
-  /** Prevent closing via backdrop click or ESC (e.g. during form submission) */
-  preventClose?: boolean;
-  /** Modal size: sm=384px, md=576px (default), lg=768px, full=100% */
-  size?: 'sm' | 'md' | 'lg' | 'full';
-  /** Full-screen on mobile instead of bottom sheet — for data-rich content like match results */
-  mobileFullScreen?: boolean;
-}
-
-const modalMaxW = {
-  sm: 'md:max-w-sm',
-  md: 'md:max-w-xl',
-  lg: 'md:max-w-3xl',
-  full: 'md:max-w-[calc(100vw-2rem)]',
-};
-
-export function Modal({ open, title, subtitle, children, footer, onClose, preventClose, size = 'md', mobileFullScreen }: ModalProps) {
-  const tcModal = useTranslations('common');
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  // ESC key closes modal
-  useEffect(() => {
-    if (!open) return;
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape' && !preventClose) onClose();
-    }
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [open, onClose, preventClose]);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (!open) return;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, [open]);
-
-  // Focus trap
-  useEffect(() => {
-    if (!open || !dialogRef.current) return;
-    const dialog = dialogRef.current;
-    const focusable = dialog.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length > 0) focusable[0].focus();
-
-    function handleTab(e: KeyboardEvent) {
-      if (e.key !== 'Tab' || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener('keydown', handleTab);
-    return () => document.removeEventListener('keydown', handleTab);
-  }, [open]);
-
-  if (!open) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-end md:items-center md:justify-center md:p-4 anim-fade"
-      onClick={(e) => { if (!preventClose && e.target === e.currentTarget) onClose(); }}
-    >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        className={cn(
-          'w-full bg-surface-modal border border-white/[0.12] shadow-card-lg overflow-hidden flex flex-col',
-          mobileFullScreen
-            ? 'h-[100dvh] max-h-[100dvh] md:h-auto md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal'
-            : 'rounded-t-3xl max-h-[90vh] anim-bottom-sheet md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal',
-          modalMaxW[size],
-        )}
-      >
-        {/* Swipe handle — mobile only, hidden in full-screen mode */}
-        {!mobileFullScreen && (
-          <div className="flex justify-center pt-2 pb-1 md:hidden flex-shrink-0">
-            <div className="w-10 h-1 bg-white/20 rounded-full" />
-          </div>
-        )}
-        {/* Header — fixed, never scrolls */}
-        <div className="px-4 py-3 md:p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
-          <div className="min-w-0 flex-1">
-            {subtitle && <div className="text-xs text-white/50">{subtitle}</div>}
-            <div id="modal-title" className="text-base md:text-lg font-black truncate">{title}</div>
-          </div>
-          <button onClick={onClose} className="p-2 min-w-[44px] min-h-[44px] rounded-xl hover:bg-surface-base hover:scale-110 active:scale-95 transition-transform flex-shrink-0 ml-2 flex items-center justify-center" aria-label={tcModal('closeLabel')}>
-            <X className="size-5 text-white/70" />
-          </button>
-        </div>
-        {/* Body — scrollable */}
-        <div className={cn('flex-1 overflow-y-auto min-h-0 px-4 py-4 md:p-5', !footer && 'pb-6 safe-bottom')}>{children}</div>
-        {/* Footer — sticky, always visible */}
-        {footer && (
-          <div className="flex-shrink-0 border-t border-divider bg-[#0b0b0b] px-4 py-3 safe-bottom md:px-5 md:py-4">
-            {footer}
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -353,8 +231,8 @@ export { CosmeticTitle } from './CosmeticTitle';
 export { LeagueBadge } from './LeagueBadge';
 export { CountryBar } from './CountryBar';
 export { LeagueBar } from './LeagueBarShared';
-export { ConfirmDialog } from './ConfirmDialog';
-// Slice 181 — Radix-basierte Wrappers (coexistent mit altem Modal/ConfirmDialog).
+// Slice 181h — Modal + ConfirmDialog entfernt. Radix-Dialog/AlertDialog sind
+// jetzt einzige SoT fuer Modal-UX (42+ Site-Migration komplett in 181/b/c/d/e/f).
 export { Dialog } from './Dialog';
 export type { DialogProps } from './Dialog';
 export { AlertDialog } from './AlertDialog';

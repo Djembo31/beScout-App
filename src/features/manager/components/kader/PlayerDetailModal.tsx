@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Users, Tag } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Dialog, Button } from '@/components/ui';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
 import { useManagerStore } from '../../store/managerStore';
 import { useManagerData } from '../../hooks/useManagerData';
@@ -75,7 +75,7 @@ export default function PlayerDetailModal() {
   ];
 
   return (
-    <Modal
+    <Dialog
       open={!!playerId}
       onClose={handleClose}
       title={`${player.first} ${player.last}`}
@@ -123,6 +123,6 @@ export default function PlayerDetailModal() {
           </Button>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

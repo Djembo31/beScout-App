@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { ChevronDown, Calendar, Trophy, Users, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Modal } from '@/components/ui';
+import { Dialog } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { formatCountdown } from '@/features/fantasy/helpers';
 import { useManagerStore } from '../../store/managerStore';
@@ -161,7 +161,7 @@ export default function EventSelector() {
         <ChevronDown className="size-4 text-white/40 flex-shrink-0" aria-hidden="true" />
       </button>
 
-      <Modal
+      <Dialog
         open={open}
         onClose={() => setOpen(false)}
         title={t('selectEvent')}
@@ -177,7 +177,7 @@ export default function EventSelector() {
             />
           ))}
         </div>
-      </Modal>
+      </Dialog>
     </>
   );
 }

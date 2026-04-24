@@ -1,0 +1,80 @@
+Slice 181f + 181h — EventDetailModal Migration + Modal/ConfirmDialog Cleanup
+Datum: 2026-04-24
+
+## 181f — EventDetailModal + Manager-Rest-Consumers
+
+### Files Migriert
+
+1. src/components/fantasy/EventDetailModal.tsx
+   - Modal → Dialog (1 site)
+   - ConfirmDialog → AlertDialog (2 sites)
+2. src/features/manager/components/kader/PlayerDetailModal.tsx
+   - Modal → Dialog (1 site) — erfasst durch Re-Audit-Grep
+3. src/features/manager/components/aufstellen/EventSelector.tsx
+   - Modal → Dialog (1 site) — erfasst durch Re-Audit-Grep
+
+### Test-Mock Update
+
+- src/components/fantasy/__tests__/EventDetailModal.test.tsx
+  - `Modal:` → `Dialog:`
+  - `ConfirmDialog:` → `AlertDialog:`
+
+## 181h — Modal + ConfirmDialog Cleanup
+
+### Removed
+
+- src/components/ui/ConfirmDialog.tsx (DELETED, 100% unused nach 181f)
+- src/components/ui/index.tsx: `ModalProps` interface, `modalMaxW` const, `Modal` function (~100 LOC)
+- src/components/ui/index.tsx: `export { ConfirmDialog }` statement
+- Unused imports: `useEffect`, `useRef` (React), `X` (lucide-react)
+
+### Pre-Cleanup Re-Audit
+
+```
+grep -rn "import.*\b(Modal|ConfirmDialog)\b.*from ['\"]@/components/ui" src/
+→ No matches found
+```
+
+Zero Consumer. Cleanup risk-free.
+
+## Verification
+
+### 1. tsc --noEmit
+clean
+
+### 2. vitest full suite
+Test Files  208 passed (210) — 2 failed (DB-Invariant + Order-Lifecycle, pre-existing, not slice-related)
+Tests       3122 passed (3128) — 5 failed (INV-35/38/39/40 + SM-ORD-04, pre-existing)
+Duration    265.88s
+
+Die 5 Failures sind pre-existing Data-Integrity-Issues (siehe memory/session-handoff.md
+"Bekannte vorher-bestehende Failures"). KEINE neuen Failures durch 181f/h.
+
+### 3. Fantasy + Manager-betroffene Tests (delta vor Full-Run)
+Test Files  18 passed (18)
+Tests       172 passed (172)
+
+### 4. EventDetailModal Test (Ziel-Update)
+Test Files  1 passed (1)
+Tests       14 passed (14)
+
+### 5. pnpm run size
+- /market        374kB / 385kB  ✓ (-1kB vs 181e)
+- /player/[id]   407kB / 415kB  ✓
+- /fantasy       180kB / 195kB  ✓
+- /manager       164kB / 350kB  ✓
+- /community     392kB / 400kB  ✓
+- /rankings      323kB / 330kB  ✓ (-1kB vs 181e)
+All 51 routes within budget.
+
+## Pattern-Summary
+
+Total Radix-Migration nach 181/b/c/d/e1/e2/f:
+- **46 JSX-Sites** migriert von Custom-Modal zu Radix-Dialog
+- **3 AlertDialog-Sites** aus ConfirmDialog
+- **10 Test-Mock-Files** aktualisiert
+- **Cleanup 181h:** Alte Primitives entfernt, einzige SoT ist jetzt `@radix-ui/react-dialog` + `@radix-ui/react-alert-dialog`
+
+## Out-of-Scope (Backlog)
+
+- **181g JoinConfirmDialog:** Custom-DOM Component (`src/features/fantasy/components/event-detail/JoinConfirmDialog.tsx`), nutzt kein `Modal`/`ConfirmDialog` aus `@/components/ui`. Refactor auf Radix-Dialog optional (Focus-Trap-Win), kein Cleanup-Blocker. Backlog.

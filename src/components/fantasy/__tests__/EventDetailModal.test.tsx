@@ -83,7 +83,7 @@ vi.mock('@/components/providers/ToastProvider', () => ({
 }));
 
 vi.mock('@/components/ui', () => ({
-  Modal: ({ open, children, title, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
+  Dialog: ({ open, children, title, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
     open ? <div data-testid="modal" data-title={title}><button data-testid="modal-close" onClick={onClose}>close</button>{children}</div> : null,
   Button: ({ children, onClick, disabled, ...rest }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean; [k: string]: unknown }) => (
     <button data-testid="button" onClick={onClick} disabled={!!disabled} data-variant={rest.variant}>{children}</button>
@@ -94,8 +94,8 @@ vi.mock('@/components/ui', () => ({
   EventScopeBadge: ({ scope }: { scope: string }) => (
     <span data-testid="event-scope-badge">{scope}</span>
   ),
-  // Added for J4 FIX-02/03: native confirm() replaced with ConfirmDialog
-  ConfirmDialog: ({ open, title, onConfirm, onCancel }: { open: boolean; title: string; onConfirm: () => void; onCancel: () => void }) =>
+  // Slice 181f: Modal→Dialog + ConfirmDialog→AlertDialog migration (Radix wrapper)
+  AlertDialog: ({ open, title, onConfirm, onCancel }: { open: boolean; title: string; onConfirm: () => void; onCancel: () => void }) =>
     open ? (
       <div data-testid="confirm-dialog" data-title={title}>
         <button data-testid="confirm-confirm" onClick={onConfirm}>confirm</button>

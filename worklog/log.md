@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181f+h | 2026-04-24 | EventDetailModal Migration + Modal/ConfirmDialog Cleanup
+
+- **Stage-Chain:** SPEC (181e-spec §181f) → IMPACT (Re-Audit Grep, Gap-Catch) → BUILD → REVIEW (self per D35) → PROVE → LOG
+- **Scope M:** 3 Prod-Files + 1 Test-Mock + Cleanup (Modal-deletion + ConfirmDialog-file-delete + import-cleanup)
+- **181f Files:** fantasy/EventDetailModal.tsx (Modal→Dialog + 2× ConfirmDialog→AlertDialog), manager/kader/PlayerDetailModal.tsx (Modal→Dialog), manager/aufstellen/EventSelector.tsx (Modal→Dialog)
+- **181f Test:** fantasy/__tests__/EventDetailModal.test.tsx (`Modal:` → `Dialog:`, `ConfirmDialog:` → `AlertDialog:`)
+- **181h Cleanup:** src/components/ui/index.tsx (~100 LOC Modal-function + ModalProps-interface + modalMaxW + useEffect/useRef/X-imports entfernt), src/components/ui/ConfirmDialog.tsx DELETED, `export { ConfirmDialog }` entfernt
+- **Gap-Catch:** Re-Audit via `grep import Modal|ConfirmDialog from @/components/ui` entdeckte 2 Manager-Files die Primary-Plan fehlten → ohne diese wäre 181h Cleanup Build-breaking gewesen (Pattern aus errors-infra.md Slice 166 bestätigt).
+- **Total Radix-Migration:** 46 Dialog-Sites + 3 AlertDialog-Sites migriert, Custom-Modal/ConfirmDialog komplett aus `@/components/ui/` entfernt. Einzige SoT: `@radix-ui/react-dialog` + `@radix-ui/react-alert-dialog`.
+- **Proof:** worklog/proofs/181f-h-tsc-vitest-bundle.txt — 3122/3128 vitest gruen (5 failures pre-existing DB-Invariants, nicht Slice-related), Bundle /market -1kB /rankings -1kB
+- **Review:** worklog/reviews/181f+h-review.md (PASS)
+- **Commit:** pending
+- **Backlog:** 181g JoinConfirmDialog Custom-Refactor auf Radix (nicht Cleanup-Blocker, kein @/components/ui-Import).
+
 ## 181e-smoke | 2026-04-24 | Post-Deploy Smoke (181e1+e2) + Hobby-Tier-Workaround
 
 - **Stage-Chain:** SPEC (inline, smoke-plan in 181e-Spec) → BUILD skipped → PROVE → LOG

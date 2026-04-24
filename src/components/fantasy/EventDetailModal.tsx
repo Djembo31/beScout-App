@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, ConfirmDialog } from '@/components/ui';
+import { Dialog, AlertDialog } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getEventParticipants, getEventParticipantCount } from '@/lib/services/lineups';
@@ -222,7 +222,7 @@ export const EventDetailModal = ({
   };
 
   return (
-    <Modal
+    <Dialog
       open={isOpen}
       onClose={onClose}
       title={event.name}
@@ -369,7 +369,7 @@ export const EventDetailModal = ({
         />
 
         {/* Confirm-Dialogs (ersetzen native confirm()) */}
-        <ConfirmDialog
+        <AlertDialog
           open={resetConfirmOpen}
           title={t('resetBtn')}
           message={t('confirmResetMsg')}
@@ -380,7 +380,7 @@ export const EventDetailModal = ({
           confirming={resetting}
           confirmVariant="danger"
         />
-        <ConfirmDialog
+        <AlertDialog
           open={leaveConfirmOpen}
           title={t('leaveBtn')}
           message={t('confirmLeaveMsg', { name: event.name })}
@@ -392,6 +392,6 @@ export const EventDetailModal = ({
           confirmVariant="danger"
         />
 
-    </Modal>
+    </Dialog>
   );
 };
