@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 181e-smoke | 2026-04-24 | Post-Deploy Smoke (181e1+e2) + Hobby-Tier-Workaround
+
+- **Stage-Chain:** SPEC (inline, smoke-plan in 181e-Spec) → BUILD skipped → PROVE → LOG
+- **Root-Cause-Fund (Hobby-Tier):** Vercel auto-deploy schlug seit 15:41 UTC silent fehl — `dedup-cleanup` cron (`0 * * * *`) ist Pro-only. 17 Commits nicht deployed (181/b/c/d/e1/e2 + 185b + 186 + Strategy-Memo).
+- **Fix:** `vercel.json` dedup-cleanup auf daily `15 3 * * *` (Impact: TTL 24h statt 1h, Idempotency-Window 5min daher unkritisch; TODO zurueck auf hourly sobald Vercel-Plan Pro aktiv).
+- **Manual Deploy:** `vercel deploy --prod --yes` → `dpl_HbSKfjgXLzXmhbw6EeR1VSvZpGoy` READY → Aliased www.bescout.net.
+- **Post-Deploy-Smoke (Playwright, jarvis-qa, 393x852):**
+  - ClubVerkaufSection Dialog (181e1) ✓
+  - BuyModal Dialog (181e2) ✓
+  - OfferModal Dialog (181e2) ✓
+  - SellModalCore Dialog (181e2) ✓
+  - 0 Console-Errors, `[data-state="open"][role="dialog"]` korrekt, ESC schliesst
+- **Proof:** worklog/proofs/181e-post-deploy-smoke.md + 4 Screenshots (181e-smoke-01..04-*.png)
+- **Commit (infra):** 157f5c9c fix(infra) vercel.json Hobby-Tier-Workaround
+- **Verdict:** PASS. Radix-Migration 8/8 Files live.
+
 ## 181e2 | 2026-04-24 | Modal→Dialog Migration Batch 4b — Player-Detail Trading (4 Files)
 
 - **Stage-Chain:** SPEC (181e-trading-modal-migration) → IMPACT skipped (mechanical, Money-UI only) → BUILD (self) → REVIEW (self per D35) → PROVE → LOG
