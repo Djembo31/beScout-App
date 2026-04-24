@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { DbWallet, DbHolding, DbHoldingLock, DbTransaction } from '@/types';
 import { mapRpcError } from '@/lib/services/trading';
+import { logSilentCatch } from '@/lib/observability/silentRejects';
 
 export type HoldingWithPlayer = DbHolding & {
   player: {
@@ -67,7 +68,35 @@ export async function getHoldings(userId: string): Promise<HoldingWithPlayer[]> 
     .order('quantity', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as HoldingWithPlayer[];
+
+  // Slice 192 defensive guard: PostgREST nested-select can silently return
+  // player=null when auth-token isn't fully hydrated (race-condition with
+  // AuthProvider load-fallback). Without this filter, the UI rendered
+  // "ghost rows" with #0/empty-name/MID-default — the visible bug Anil saw
+  // 2026-04-24. Filter ghost-rows out + Sentry-breadcrumb via logSilentCatch
+  // (consistent with observability stack — see memory/pattern_observability_stack.md).
+  //
+  // All-ghost-edge-case: if EVERY holding has null-player (rows.length > 0),
+  // throw instead of returning empty. Empty-array rendering looks identical
+  // to a New-User-State which is wrong + traps the user. Throwing triggers
+  // React-Query retry — auth-race usually resolves within 1-2s.
+  const rows = (data ?? []) as HoldingWithPlayer[];
+  const ghosts = rows.filter((h) => h.player == null);
+  if (ghosts.length > 0) {
+    const ghostIds = ghosts.map((g) => g.player_id).join(',');
+    logSilentCatch(
+      'getHoldings.ghostRows',
+      new Error(`${ghosts.length}/${rows.length} holdings have NULL player`),
+      { userId, ghostPlayerIds: ghostIds, totalRows: rows.length },
+    );
+    if (rows.length > 0 && ghosts.length === rows.length) {
+      // Every row is a ghost — throw to trigger React-Query retry instead of
+      // showing user a misleading empty kader.
+      throw new Error('holdings_ghost_all');
+    }
+    return rows.filter((h) => h.player != null);
+  }
+  return rows;
 }
 
 /** Anzahl DPCs die ein User von einem Spieler hat */

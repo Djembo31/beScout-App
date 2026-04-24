@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
-import type { Player } from '@/types';
-import type { HoldingWithPlayer } from '@/lib/services/wallet';
+import type { Player, DbHolding } from '@/types';
 
 /* -------------------------------------------------- */
 /*  Types                                              */
@@ -12,7 +11,9 @@ import type { HoldingWithPlayer } from '@/lib/services/wallet';
 
 interface MarktTabProps {
   player: Player;
-  holdings: HoldingWithPlayer[];
+  // Slice 192: DbHolding-shape (no nested player) — only player_id + quantity
+  // are read; per-player data is already in `player` prop.
+  holdings: DbHolding[];
   getFloor: (p: Player) => number;
 }
 

@@ -54,14 +54,21 @@ export function useMarketUserDashboard(userId: string | undefined) {
 }
 
 /**
- * Prime the 4 underlying query caches with enriched data from the dashboard.
+ * Prime the 3 underlying query caches with enriched data from the dashboard.
  * Runs synchronously inside queryFn so downstream hooks hit warm cache immediately.
+ *
+ * Slice 192: `qk.holdings.byUser(userId)` is INTENTIONALLY NOT primed here.
+ * `getMarketUserDashboard` returns `DbHolding[]` (no nested `player`), but
+ * `qk.holdings.byUser` expects `HoldingWithPlayer[]`. Priming with the wrong
+ * shape would crash `dbHoldingToUserDpcHolding` mapper on `/market → /fantasy`
+ * navigation. `useHoldings()` runs its own query against `getHoldings()`
+ * (PostgREST nested-select) to fetch the player-joined shape.
  *
  * Note: `qk.offers.openBids` is pre-filtered to the user's owned players
  * (matches getOpenBids({ ownedByUserId }) branch). Same shape.
  */
 export function primeMarketDashboardCaches(userId: string, dash: EnrichedMarketDashboard): void {
-  queryClient.setQueryData(qk.holdings.byUser(userId), dash.holdings);
+  // INTENTIONALLY skipping qk.holdings.byUser — see JSDoc above (Slice 192)
   queryClient.setQueryData(qk.watchlist.byUser(userId), dash.watchlist);
   queryClient.setQueryData(qk.offers.incoming(userId), dash.incoming_offers);
   queryClient.setQueryData(qk.offers.openBids, dash.open_bids);

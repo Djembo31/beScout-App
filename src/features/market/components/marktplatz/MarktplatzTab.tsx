@@ -9,10 +9,9 @@ import { SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { KaufenSubTab } from '@/features/market/store/marketStore';
-import type { Player, DbIpo, PublicOrder } from '@/types';
+import type { Player, DbIpo, DbHolding, PublicOrder } from '@/types';
 import type { TrendingPlayer } from '@/lib/services/trading';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
-import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import type { OfferWithDetails } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import NewUserTip from '@/components/onboarding/NewUserTip';
@@ -47,7 +46,9 @@ type Props = {
   trending: TrendingPlayer[];
   recentOrders: PublicOrder[];
   buyOrders: PublicOrder[];
-  holdings: HoldingWithPlayer[];
+  // Slice 192: DbHolding-shape (no nested player); used only for ownership
+  // counts via player_id, not for display.
+  holdings: DbHolding[];
   watchlistEntries: WatchlistEntry[];
   incomingOffers: OfferWithDetails[];
   balanceCents: number;

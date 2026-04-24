@@ -2,8 +2,7 @@
 
 import { useMemo } from 'react';
 import { usePlayers } from './players';
-import type { Player, PublicOrder } from '@/types';
-import type { HoldingWithPlayer } from '@/lib/services/wallet';
+import type { Player, PublicOrder, DbHolding } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
 
 /**
@@ -12,10 +11,15 @@ import { centsToBsd } from '@/lib/services/players';
  * useHoldings/useAllOpenOrders-Calls — useMarketData bekommt holdings vom
  * get_market_user_dashboard RPC und orders via useAllOpenOrders parallel).
  * O(n) via Maps.
+ *
+ * Slice 192 type-fix: Accepts `DbHolding[]` (no nested `player` required) —
+ * function only reads `player_id` + `quantity`. Previously typed as
+ * `HoldingWithPlayer[]` which was a lie because `getMarketUserDashboard`
+ * RPC returns DbHolding-shape. See `worklog/reviews/192-review.md` Finding #1.
  */
 export function useEnrichedPlayers(
   userId: string | undefined,
-  holdings: HoldingWithPlayer[],
+  holdings: DbHolding[],
   orders: PublicOrder[],
 ) {
   const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
@@ -31,7 +35,7 @@ export function useEnrichedPlayers(
 /** Pure enrichment function — testable outside React */
 export function enrichPlayersWithData(
   players: Player[],
-  holdings: HoldingWithPlayer[],
+  holdings: DbHolding[],
   orders: PublicOrder[],
 ): Player[] {
   // Build lookup maps — O(n)

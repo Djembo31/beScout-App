@@ -3487,7 +3487,9 @@
     "positionMismatch": "Donanım oyuncu pozisyonuna uymuyor.",
     "lineupLocked": "Kadro kilitli — artık değişiklik yapılamaz.",
     "noEquipmentOnSlot": "Bu slotta donanım yok.",
-    "equipmentSaveFailed": "{count, plural, =1 {1 donanım kaydedilemedi.} other {# donanım slotu kaydedilemedi.}} Lütfen kadronu tekrar kaydet."
+    "equipmentSaveFailed": "{count, plural, =1 {1 donanım kaydedilemedi.} other {# donanım slotu kaydedilemedi.}} Lütfen kadronu tekrar kaydet.",
+    "ghost_holding_row": "Bir oyuncu kaydı yüklenemedi. Sayfayı yeniden yükle.",
+    "holdings_ghost_all": "Oyuncu verileri yükleniyor — bir an bekle."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",

@@ -31,6 +31,8 @@ const KNOWN_KEYS = new Set([
   // J11 Healer (FIX-07) — Equipment RPC error strings
   'equipmentNotAvailable', 'lineupNotFound', 'slotEmpty', 'positionMismatch',
   'lineupLocked', 'noEquipmentOnSlot', 'equipmentSaveFailed',
+  // Slice 192 — Holdings ghost-row defensive guards
+  'ghost_holding_row', 'holdings_ghost_all',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [

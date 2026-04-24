@@ -7,8 +7,7 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
-import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
-import type { HoldingWithPlayer } from '@/lib/services/wallet';
+import type { Player, Pos, DbIpo, DbHolding, OfferWithDetails } from '@/types';
 import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
 import { useHoldingLocks } from '@/lib/queries/events';
 import { useManagerStore } from '@/features/manager/store/managerStore';
@@ -34,7 +33,9 @@ import EquipmentShortcut from '../EquipmentShortcut';
 
 interface KaderTabProps {
   players: Player[];
-  holdings: HoldingWithPlayer[];
+  // Slice 192: DbHolding (no nested player) — Tab uses player_id + quantity
+  // + avg_buy_price; player data resolved via separate `playerMap` lookup.
+  holdings: DbHolding[];
   ipoList: DbIpo[];
   userId: string | undefined;
   incomingOffers: OfferWithDetails[];
