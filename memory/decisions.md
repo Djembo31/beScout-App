@@ -1616,6 +1616,190 @@ D28-Analyse: Temporäres Trigger-DROP + Re-CREATE öffnet Race-Window für ander
 
 ---
 
+## D40 — PROCESS: Live-Verify mit Chrome-DevTools-MCP statt Hypothesen-Debugging
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+Bei Bug-Reports mit visuellem Symptom (Anil-Screenshots, "X funktioniert nicht") ist die **erste** Aktion **Chrome-DevTools-MCP-Live-Inspection**, nicht Hypothesen-Bildung aus Code-Reading.
+
+### Begründung (Slice 192-Lehre)
+
+Bei Slice 192 hatte ich initial Auth-Race als Hypothese aus Console-Warnings (`get_auth_state RPC slow > 10s timeout`). Live-Network-Trace via Chrome-DevTools-MCP zeigte: RPC liefert in 154ms server-time. **Hypothese widerlegt nach 30 Sekunden Live-Inspection** statt 30 min Code-Lesung.
+
+Konkrete Signale die Live-Inspection liefert:
+- `x-envoy-upstream-service-time` = echte RPC-Performance (Server-Side)
+- DOM-Pattern-Match (z.B. `#0 MID 0 CR 1/1 SC 0S 0T 0A` = 7-feldige Mapper-Default-Signature)
+- Network-Request-Sequenz (parallel vs sequenziell)
+- Console-Errors mit Stack-Trace
+- Render-State (was tatsächlich im DOM steht)
+
+### Auswirkungen
+
+- **Workflow:** Bei Bug-Reports zuerst `chrome-devtools-mcp` aufrufen, navigieren, snapshot, list_console_messages, get_network_request — VOR Code-Reading
+- **Reviewer-Briefings:** Reviewer-Agent-Prompts erwähnen explizit "lies Live-Network-Trace falls vorhanden"
+- **Bug-Pattern-Codification:** Symptom-zu-Code-Backtrack-Tabellen in `common-errors.md` (Slice 192-Tabelle als Vorlage)
+
+### Alternativen erwogen
+
+- **Sentry Issue-Stream:** Nur post-mortem, kein Live-State.
+- **Playwright-Screenshot-only:** Zeigt nur Pixel, nicht DOM-Struktur, Network, Console.
+- **Code-Hypothese + Spec-Reading:** Long-cycle, fehleranfällig (siehe Slice 192 erste Hypothese).
+
+---
+
+## D41 — ARCHITECTURE: Defense-in-Depth-Pattern für Silent-Fails (4-Layer-Standard)
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+Bei Silent-Fail-Klassen (Mapper-Defaults überdecken NULL, RPC-Cast lügt, Race-Conditions) ist **Defense-in-Depth mit 4 Layern Pflicht-Standard**, nicht single-point-fix.
+
+**Template:**
+
+```
+Layer 1: Type-Truth         — Service-Type matched RPC-Return-Shape (kein lügender Cast)
+Layer 2: Service-Filter     — Service filtert kaputte Daten + logSilentCatch
+Layer 3: Mapper-Throw       — Mapper wirft i18n-key statt silent-default
+Layer 4: Tests              — Unit-Tests für jeden Layer-Branch
+```
+
+### Begründung (Slice 192 + 193)
+
+Slice 192 zeigt das Pattern: Symptom (Ghost-Rows) entstand durch **3 sich überdeckende Silent-Fails**:
+1. Mapper applizierte Defaults bei `h.player == null`
+2. Service akzeptierte data-array ohne Validation
+3. Type-Cast `as HoldingWithPlayer[]` log über RPC-Shape
+
+Single-Layer-Fix (z.B. nur Mapper-Throw) hätte CRITICAL Cache-Priming-Pfad gecrasht (Reviewer Finding #1). Erst 4-Layer-Defense + Auth-Gate (Slice 193) eliminiert die Klasse vollständig.
+
+### Auswirkungen
+
+- **Code:** Pattern dokumentiert in `memory/patterns.md` (Pattern-Reference + Slice-192/193-Beispiel)
+- **Review-Checkliste:** Reviewer-Agent prüft bei Silent-Fail-Fixes: sind alle 4 Layer gebaut?
+- **Service-Layer-Convention:** Bei jeder neuen RPC-konsumierenden Service-Function: Type-Truth + Filter + Throw-on-Invalid + Tests pflicht (Refactor existing services as we touch them)
+
+### Alternativen erwogen
+
+- **Single-Layer (Mapper-Throw only):** Verworfen — Reviewer Finding #1 zeigt Hard-Crash-Risk wenn andere Cache-Pfade unbeobachtet bleiben.
+- **Validation-Library (zod, yup):** Verworfen — Performance-Overhead bei jedem Hot-Path-Call. Manueller Discriminator-Check ist schlank.
+- **Sentry-Sampling-only:** Verworfen — Catches symptom, not cause. Defense-in-Depth verhindert Symptom überhaupt.
+
+### Re-Visit-Trigger
+
+Wenn nach 5+ Slice-Anwendungen ein 5. oder 6. Layer sich wiederholt einschleicht (z.B. "Hook-Catch in useFantasyHoldings"): Pattern auf 5-Layer erweitern.
+
+---
+
+## D42 — PROCESS: Reviewer-Agent Critical-Findings sind Pre-Merge-Pflicht
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+**Supersedes:** Implizite Praxis "PASS oder REWORK ohne Verbindlichkeit"
+
+### Entscheidung
+
+Reviewer-Agent-Output mit **CRITICAL-Severity-Finding** blockiert Merge. Primary-Claude muss Finding fixen + Review-File aktualisieren mit Status `addressed`, **vor** Commit.
+
+### Begründung (Slice 192 Beispiel)
+
+Reviewer-Agent fand **Finding #1 CRITICAL** — `primeMarketDashboardCaches` schreibt `DbHolding[]` (ohne nested `player`) in `qk.holdings.byUser` Cache. Mit Slice-192 Mapper-Throw wäre `/market → /fantasy/aufstellen` Hard-Crash gewesen. Wäre dieser Finding unaddressed gemerged worden, hätte das den User-facing Bug von "Geister-Rows" zu "Whitescreen" eskaliert.
+
+**Empirisch:** Reviewer-Agent (Cold-Context Opus 4.6) findet pro Slice 1-3 CRITICAL/HIGH-Findings die Primary-Claude in 6-50% der Fälle übersehen hat. Pre-Merge-Pflicht macht das Audit-System zur **echten Qualitätsgate**, nicht Audit-Theater.
+
+### Auswirkungen
+
+- **Hook:** `ship-cto-review-gate.sh` blockt feat/fix/refactor-Commits ohne `worklog/reviews/<slice>-review.md` (bereits aktiv)
+- **Workflow-Erweiterung:** Review-File muss bei CRITICAL/HIGH-Findings expliziten "Status: addressed" pro Finding-Item haben (oder explicit "Skipped: <reason>" bei LOW)
+- **Self-Review (D35) bleibt erlaubt** für trivial Hygiene + Pattern-Wiederholung — aber NICHT bei Money-Path/Cross-Domain/Auth-Layer
+
+### Alternativen erwogen
+
+- **CONCERNS-Status statt REWORK:** Verworfen — verwischt Verbindlichkeit. PASS|REWORK|FAIL drei-stufig ist klar.
+- **Reviewer-Agent als CI-Gate (GitHub Action):** Verworfen — Cost (jede PR triggert Opus-Run). Pre-Commit-Hook reicht.
+- **Manueller Reviewer (Anil) statt Agent:** Verworfen — Anil-Bandbreite ist begrenzt, Agent ist 24/7.
+
+---
+
+## D43 — ARCHITECTURE: Type-Truth-Audit-Pflicht bei RPC-konsumierenden Services
+
+**Datum:** 2026-04-24
+**Status:** ✅ Aktiv
+
+### Entscheidung
+
+Jede TypeScript-Service-Function die `supabase.rpc(...)` aufruft MUSS ihren Return-Type gegen den **echten** RPC-Body verifizieren via `pg_get_functiondef('public.fn_name(args)'::regprocedure)`. Kein blinder `as XYZ[]` Cast.
+
+### Begründung (Slice 192 + Reviewer Finding #1)
+
+`getMarketUserDashboard` returnte `DbHolding[]` (kein JOIN auf players in RPC-Body), aber TS-Cast war `as HoldingWithPlayer[]`. Lie-Cast war seit 2026-04-21 (Slice 122) unbemerkt — funktionierte nur weil **kein Consumer den nested `player`-Feld gelesen hatte**. Slice-192 Mapper-Throw deckte die Lie auf — hätte Hard-Crash auf `/market → /fantasy` produziert.
+
+**Empirisch:** Bei Audit der existierenden `as ...[]` Casts in `src/lib/services/` finde wir mit hoher Wahrscheinlichkeit weitere latente Lies (besonders bei aggregierten Dashboard-RPCs).
+
+### Auswirkungen
+
+- **Code:** Audit-Skript `scripts/audit-rpc-type-truth.ts` (TODO Backlog) — automatischer Vergleich `as XYZ[]` casts vs `pg_get_functiondef` shape
+- **Service-Layer-Convention:** Neue RPC-Service-Function MUSS einen Type definieren der **exakt** das RPC-Return-JSON matched. Bei Discrepancy: Type ist Wahrheit, Cast wird gefixt
+- **Migration-Header-Pflicht:** Jede neue Migration mit `RETURNS jsonb` macht Return-Shape-Doku in Top-Comment (Sample-JSON)
+
+### Alternativen erwogen
+
+- **Auto-generated Types via supabase-cli:** Verworfen — generiert nur für Tabellen, nicht für jsonb-RPC-Return-Shapes.
+- **Runtime Schema-Validation (zod):** Verworfen — Performance-Hit auf Hot-Path. Type-Truth at compile-time reicht.
+- **Manueller Audit pre-merge:** Verworfen — fehleranfällig. Skript-basierter Audit ist Pflicht.
+
+### Re-Visit-Trigger
+
+Wenn `scripts/audit-rpc-type-truth.ts` mehr als 3 latente Lies findet bei initialem Run: dedizierter Sweep-Slice (analog Slice 081 Cleanup-Sweep).
+
+---
+
+## D44 — PROCESS: Remote-Agent für autonomes Over-Night-Design (neue Modalität)
+
+**Datum:** 2026-04-25
+**Status:** ⚠️ Trial (1. Anwendung läuft 2026-04-25 00:35 Berlin)
+
+### Entscheidung
+
+Für **Multi-Day-Spec-Aufgaben** (Architektur-Design, Plan-Doc-Schreiben, Skeleton-Implementation) wird Remote-Agent via `claude.ai/code/routines` als **Over-Night-Workstream** genutzt — Anil schläft, Agent arbeitet, morgen früh PR zum Review.
+
+### Begründung
+
+Lokaler Claude (mein Channel) ist Anils tägliche Bandbreite — limitiert. Remote-Agent ist parallele Bandbreite für:
+- Multi-File-Design-Docs (200-500 Zeilen, viel Kontext lesen)
+- Skeleton-Implementations (additiv, wenig Risiko)
+- Audit-Sweeps (read-only Analyse)
+
+**Konkrete Anwendung:** `trig_01YPzqQgFtgjqij1x5uitJpf` (Walkthrough-Crawler-Design 2026-04-25 00:35 Berlin).
+
+### Auswirkungen
+
+- **Workflow:** Bei Multi-Day-Tasks via `/schedule` Skill — One-shot mit run_once_at
+- **Prompt-Quality:** Self-contained, alle Pflicht-Reads explizit, Acceptance-Criteria messbar (siehe Walkthrough-Crawler-Prompt als Vorlage)
+- **CEO-Approval-Pattern:** Agent liefert PR mit Open-Questions (5-10 Stück) → Anil reviewt morgens → entscheidet pro Frage → ich (lokaler) baue Phase 2 nach Approval
+
+### Alternativen erwogen
+
+- **Cron-basierter Recurring-Agent:** Funktioniert für Routine-Audits, nicht für Multi-Day-Design.
+- **Anil-Solo nachts:** Verworfen — Burnout-Risk, Anil braucht Schlaf.
+- **Lokaler Claude über Nacht:** Geht nicht (Mac-Schlaf, Token-Limit).
+
+### Re-Visit-Trigger
+
+Nach 5 Anwendungen Retro: Wie oft Agent-PR sofort gemergt? Wie oft REWORK? Pattern-Erfolgsrate dokumentieren.
+
+### Risiken
+
+- **Update-Race:** Wenn Schedule schon gefeuert ist (run_once_fired), kann Prompt nicht mehr geändert werden. **Konkret heute passiert:** Walkthrough-Crawler-Update kam 23min zu spät → erste PR hat nur Stufe-1, Stufe-2+3 muss als zweiter Slice nachgezogen werden. Gelernt: Zeit-Buffer >5min einplanen, oder Schedule erst nach komplettem Briefing erstellen.
+- **Spec-Missverständnis im PR:** Agent baut falsches → PR-Close ohne Merge, kein Schaden.
+- **Repo-Permissions:** Erfordert GitHub-App Install (Slice-internal-Setup, einmalig).
+
+---
+
 ## Template für neue Entries
 
 ```markdown

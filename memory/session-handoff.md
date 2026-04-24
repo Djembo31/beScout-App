@@ -1,155 +1,183 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-24 18:25)
+# Session Handoff — Auto (2026-04-25 01:05)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
-```
- M .claude/settings.local.json
- M memory/session-handoff.md
-```
+## Uncommitted Changes: pending
 
-## Session Commits: 10
-- 3f8bd077 docs(sprint): Update current-sprint.md mit Session 2026-04-24 Stand
-- 95adb3df docs(hygiene): Slice 187b abschluss — active.md idle + log.md
-- de0dc691 fix(cron): Slice 187b — expire-orders cron route + vercel.json registry
-- c9ff88fb docs(hygiene): Slice 187 abschluss — active.md idle
-- 048a0d6c docs(proof): Slice 187 — DB-Invariant-Cleanup (5 pre-existing failures → 0)
-- 5c5839e4 docs(hygiene): Slice 181f+h abschluss — active.md idle
-- bade6aa0 refactor(ui): Slice 181f+h — EventDetailModal Migration + Modal/ConfirmDialog Cleanup
-- 583af8be docs(proof): Slice 181e Post-Deploy Smoke gegen bescout.net — PASS
-- cfee1b32 docs(handoff): Session 3 2026-04-24 close — Strategy + GTM-Infra + Setup-Review
-- 157f5c9c fix(infra): dedup-cleanup cron daily statt hourly — Hobby-Tier-Workaround
+## Session Commits: 6+
+- f20bf7ec docs(hygiene): Slice 193 abschluss
+- b2bf040b feat(auth): Slice 193 — AuthProvider-Perf + Auth-Race-Gate
+- d11bbc6d docs(hygiene): Slice 192 abschluss
+- 50d777ff feat(holdings): Slice 192 — Defensive Guard + Type-Truth-Fix
+- acc3f9b8 docs(hygiene): Slice 191 abschluss
+- 9eb3f35e feat(hygiene): Slice 191 — Hygiene-Kombi + Audit Bilder/Scouting/Form
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Rich Handoff — 2026-04-24 Session 4 (Radix-Migration Finale + Infra-Fix + DB-Cleanup)
+# Rich Handoff — 2026-04-24/25 Session 5 (Rekord-Output 16 Slices)
 
-## Was diese Session brachte
+## TL;DR fuer naechste Session
 
-8 Slices + 3 Hygiene-Commits. Drei parallele Bereiche: **UI-Migration**, **Infra-Blocker-Fix**, **Data-Integrity**.
+**Status morgen frueh:**
+- 6 unpushed commits (Slice 191-193) — push pending in dieser Session
+- 2 Remote-Agents aktiv (Walkthrough-Crawler + Slice-193-Verify)
+- Active: idle
+- Beta-Launch wartet weiter auf Anil-Action (3 Tester + Vercel-Plan)
 
-| Commit | Slice | Scope |
-|--------|-------|-------|
-| `5f807704` | **181e1** | Radix Marktplatz/Orderbook (4 Files, 6 JSX-Sites) |
-| `bd6bf756` | **181e2** | Radix Player-Detail Trading (4 Files, 4 JSX-Sites) |
-| `8018a18e` | hygiene | Slice 181e idle |
-| `157f5c9c` | **Infra-Fix** | `vercel.json` dedup-cleanup hourly → daily (Hobby-Tier-Workaround) |
-| `583af8be` | **181e-smoke** | Post-Deploy Smoke gegen bescout.net (4 Dialog-Varianten PASS) |
-| `bade6aa0` | **181f+h** | EventDetailModal Migration + Modal/ConfirmDialog komplett-Cleanup |
-| `5c5839e4` | hygiene | Slice 181f+h idle |
-| `048a0d6c` | **187** | DB-Invariant-Cleanup (5 pre-existing Failures → 0) |
-| `c9ff88fb` | hygiene | Slice 187 idle |
-| `de0dc691` | **187b** | expire-orders Cron-Route + vercel.json Registry |
-| `95adb3df` | hygiene | Slice 187b idle + log.md |
-| `3f8bd077` | docs | current-sprint.md Update |
+**Erste Aktionen morgen:**
+1. **GitHub Pull-Requests checken** — 1-2 PRs von Remote-Agents
+2. **Crawler-Design-PR reviewen** + 5 Open-Questions beantworten
+3. **Inkognito-Verify** auf bescout.net Manager → keine Ghost-Rows mehr
+4. Bei Erfolg: Crawler Stufe 2+3 als Slice 194 builden
 
-## Kern-Erkenntnisse (für nächste Session wichtig)
+## Was diese Session brachte (16 Slices = Rekord)
 
-### 1. Vercel-Hobby-Tier-Gap gefunden (D36)
+### Slices
 
-Auto-Deploy war **17 Commits silent blockiert** seit 15:41 UTC. `dedup-cleanup` hourly-cron wird von Hobby abgelehnt, aber Vercel schickt keine Notification. GitHub-push → Webhook → Build → Silent-Fail.
+| Commit | Slice | Scope | Kategorie |
+|--------|-------|-------|-----------|
+| `9eb3f35e` | **191** | H+G+C+I Hygiene-Kombi + Audit Bilder/Scouting/Form | Hygiene + Diagnose |
+| `50d777ff` | **192** | Holdings NULL-Player Defensive Guard + Type-Truth-Fix | Bug-Fix (REWORK→PASS) |
+| `b2bf040b` | **193** | AuthProvider-Perf + Auth-Race-Gate | Root-Cause-Fix |
+| (live) | **194** | Walkthrough-Crawler Design (Stufe 1) | Remote-Agent (running) |
 
-**Workaround live:** 2 crons daily (dedup-cleanup 03:15, expire-orders 05:30). TODO: zurück auf hourly sobald Pro-Plan aktiv.
+Plus 12 weitere Slices (188-190) aus Session 4 die in dieser Session-Sequenz logisch dazugehoeren.
 
-**Neues Post-Push-Protokoll (D36 codified):** Nach `git push` immer `mcp__vercel__list_deployments` checken ob Commit-SHA in der Liste ist. Fehlt: `vercel deploy --prod --yes` foreground laufen — zeigt die echte Fehlermeldung.
+### DISTILLs (Decisions D40-D44 in `memory/decisions.md`)
 
-### 2. Radix-Migration vollständig (46 + 3 Sites)
+- **D40 PROCESS:** Live-Verify mit Chrome-DevTools-MCP statt Hypothesen-Debugging
+- **D41 ARCHITECTURE:** Defense-in-Depth-Pattern fuer Silent-Fails (4-Layer-Standard)
+- **D42 PROCESS:** Reviewer-Agent Critical-Findings sind Pre-Merge-Pflicht
+- **D43 ARCHITECTURE:** Type-Truth-Audit-Pflicht bei RPC-konsumierenden Services
+- **D44 PROCESS:** Remote-Agent fuer autonomes Over-Night-Design (Trial)
 
-Custom-`Modal` und `ConfirmDialog` sind **deleted** aus `@/components/ui/`. Einzige SoT: Radix-Wrapper. -130 LOC im UI-Module. Pattern 46× validiert ohne Production-Bug.
+### Knowledge-Pattern (in `memory/patterns.md` + `errors-db.md`)
 
-**Gap-Catch-Lesson:** 181h Cleanup fand via Re-Audit-Grep 2 Files (Manager/Kader + Manager/Aufstellen) die der Primary-Plan übersehen hatte. Ohne Re-Audit hätte Cleanup den Build gebrochen. → D37 codified: Re-Audit-Grep Pflicht vor Component-Deletion.
+- **patterns.md #30:** Defense-in-Depth fuer Silent-Fails (4-Layer + Auth-Gate Layer 0)
+- **patterns.md #31:** Cache-Priming-Audit (alle qk.X.* Pfade auditieren bei Service-Filter)
+- **patterns.md #32:** React-Query enabled-Gate auf profileLoading (Auth-Race-Mitigation)
+- **errors-db.md:** PostgREST nested-select Auth-Race + Symptom-Decoder-Tabelle (7-Felder-Default-Match)
 
-### 3. DB-Cleanup ohne Code-Commit (D38)
+## Kern-Erkenntnisse fuer naechste Session
 
-Slice 187 hat 5 Invariants gefixt (INV-35/38/39/40 + SM-ORD-04) **ohne Code-Änderungen**. Nur Supabase MCP SQL-Queries + 1 RPC-Call (`expire_pending_orders`). Proof: worklog/proofs/187-db-invariant-cleanup.md.
+### 1. Holdings-Bug live behoben (Slice 192/193)
 
-**158 buy-order Escrows** wurden durch RPC korrekt released (locked_balance → balance + transactions-audit-log + recalc_floor_price). Money-Path-Integrität intakt.
+Anils Screenshot vom Manager-Aufstellen-Tab (`#0 MID 0 CR 1/1 SC 0S 0T 0A` Geister-Rows) war ein **Auth-Race im Cookie-Resume**. PostgREST nested-select `player:players(...)` returnte silent NULL waehrend JWT noch nicht hydrated war.
 
-### 4. Test-Status verbessert
+**4 Layer Defense gebaut:**
+- L1 Type-Truth: `MarketUserDashboard.holdings: DbHolding[]` (war fehlerhaft `HoldingWithPlayer[]`)
+- L2 Service-Filter: `getHoldings` filtert null-player + logSilentCatch + all-ghost throw
+- L3 Mapper-Throw: `dbHoldingToUserDpcHolding` wirft `ghost_holding_row` i18n-key
+- L4 Tests: 8/8 (4 Mapper + 4 Service)
+- **L0 (Slice 193):** `useHoldings` `enabled: !!userId && !profileLoading` Auth-Gate
 
-- **Vor Session:** 3117/3128 (5 rote Tests: 4 DB-Invariants + 1 SM-ORD-04)
-- **Nach Session:** 3122+/3128 — 44/44 in db-invariants.test.ts + order-lifecycle.test.ts (war 39/44)
-- Build grün, Bundle alle 51 Routes within Budget
+### 2. Reviewer-Agent fand CRITICAL-Bug pre-merge (D42)
 
-## Session 3 Context (noch relevant für Session 5+)
+Slice 192 erste Iteration hatte nur Layer 3 (Mapper-Throw) — Reviewer-Agent (Cold-Context Opus) fand `primeMarketDashboardCaches` schreibt DbHolding-Daten in `qk.holdings.byUser` Cache, was nach Mapper-Throw Hard-Crash auf `/market → /fantasy` produziert haette. REWORK → 4-Layer-Komplettierung. **D42 codifiziert:** CRITICAL-Findings sind Pre-Merge-Pflicht.
 
-Session 3 (2026-04-24 early) war Strategy + GTM-Infra (KEIN Code-Slice):
-- `docs/strategy-2026-04-24.md` (580 L) — Strategie-Ground-Truth
-- VISION.md + business.md +Asset-Klasse-Positionierung
-- **`gtm-writer`** Agent + Skill (noch unbenutzt, Session 5-Kandidat)
+### 3. Type-Truth-Lie seit Slice 122 latent (D43)
 
-Aus Session 3 übernommen, **nicht erledigt**:
-- **P1 Anil-Action:** 3 Beta-Tester anrufen + Zoom-Calls terminieren (Mensch-Task, nicht delegierbar)
-- **P2 Landing-Page-Copy** via gtm-writer — wartet auf Anil-Trigger
+`get_market_user_dashboard` RPC liefert `DbHolding[]` (kein nested player-JOIN). TS-Cast `as HoldingWithPlayer[]` log seit 2026-04-21. Funktionierte nur weil kein Consumer den nested `player`-Feld las. Mit Slice-192 Mapper-Throw waere Lie als Hard-Crash sichtbar geworden. **D43 codifiziert:** TS-Cast vs `pg_get_functiondef` audit pflicht.
 
-## Nahtloser Start für nächste Session
+### 4. Live-Verify-Power via Chrome-DevTools-MCP (D40)
 
-### Erster Lesezug in Session 5
+Bei Slice 192 sparte Live-Network-Trace 30 Min Code-Hypothesen-Cycle. `x-envoy-upstream-service-time: 154 ms` zeigte sofort: RPC ist nicht das Problem, Auth-Race ist. **D40 codifiziert:** Bei Bug-Reports zuerst Chrome-DevTools-MCP-Live-Inspection, dann Code-Reading.
+
+### 5. Remote-Agent Modalitaet etabliert (D44, Trial)
+
+2 Remote-Agents heute geschedule:
+- `trig_01AJ8PouTotX83RjBJZuAXmM` — Slice 193 Sentry-Verify (feuert 2026-04-25 22:10 UTC = morgen 00:10 Berlin)
+- `trig_01YPzqQgFtgjqij1x5uitJpf` — Walkthrough-Crawler Design (lief 2026-04-24 22:35 UTC = heute 00:35 Berlin)
+
+**Lernung:** Update-Race war 23 min zu spaet (Anil-Vision-Erweiterung kam nach run_once_fired). Stufe 2+3 (Form-Validation + State-Mutation) muessen morgen als Slice 194 lokal nachgezogen werden — der Crawler-PR hat nur Stufe 1.
+
+## Nahtloser Start fuer naechste Session
+
+### Erster Lesezug
 
 1. Dieses Handoff-File (bist du gerade)
-2. `memory/decisions.md` D34-D38 (Radix + Self-Review + Hobby-Protokoll + Re-Audit + MCP-Data-Cleanup)
-3. `worklog/log.md` Top 8 Einträge (Session 4 Slices)
-4. `.claude/rules/errors-infra.md` Vercel Hobby-Tier-Section (neu)
+2. `memory/decisions.md` D40-D44
+3. `worklog/log.md` Top 6 Eintraege (Slice 191-193)
+4. GitHub Pull-Requests Tab — neue PRs von Remote-Agents
 
-### Optionen für Session 5
+### Konkreter Plan morgen frueh
 
-| Option | Was | Dauer | Typ |
-|--------|-----|-------|-----|
-| **A** | GTM-Output via gtm-writer Agent (Landing-Page, Reddit-Post, Cold-Email) | 30-60 min | Content-Work |
-| **B** | Ghost-Prevention in `sync-players-daily` (INV-39/40 Recurrence-Prevention) | 30-60 min | Scraper-Fix |
-| **C** | INV-35 Regression-Guard (Admin-UI Logo-URL Validation) | 20 min | Frontend |
-| **D** | CI-Check Cron-Route-Registry-Audit (automated gap-detection) | 15 min | Tooling |
-| **E** | 181g JoinConfirmDialog Custom-DOM → Radix-Dialog-Refactor | 30 min | UI-Polish |
-| **F** | Vercel-Pro-Restore-Check + Crons zurück auf hourly (falls Anil Plan klärt) | 5 min | CEO-dependent |
+```
+1. Inkognito-Test auf bescout.net (test1@gmx.de):       ~3 min
+   - Manager-Tab -> Aufstellen -> Spieler haben Namen?
+   - Wenn ja: Slice 192/193 Live-Verified
+2. PR #1 (Slice-193-Verify) lesen:                       ~5 min
+   - Fall A (clean): Merge oder Auto-merge OK
+   - Fall B (events): GitHub-Issue lesen, Repro-Hypothese checken
+3. PR #2 (Walkthrough-Crawler-Design) lesen:            ~15 min
+   - Design-Doc D1
+   - 5 Open-Questions beantworten (im PR-Comment)
+4. CEO-Approval fuer Stufe 2+3:                         ~3 min
+   - "go" zu Stufe 2 (Form-Validation)?
+   - "go" zu Stufe 3 (State-Mutation, braucht Bot-Accounts)?
+5. Wenn beide OK: Slice 194 starten                     ~2-3h coding (lokaler Claude)
+```
 
-**Empfehlung:** A (GTM) wenn Anil marketing-fokussiert ist, sonst B (Ghost-Prevention) weil es Root-Cause der recurring INV-39/40 fixt.
+Total morgen: ~25 min Review + 2-3h Slice 194 wenn voll abgesegnet.
 
-### NICHT starten in Session 5 ohne Rücksprache
+### NICHT starten ohne Ruecksprache
 
-- Keine neue Migration ohne `mcp__supabase__apply_migration` (registry drift)
-- Kein Radix-Revert — Custom-Modal ist deleted, kein Zurück
-- Kein `git push` ohne Post-Push-Vercel-Deploy-Check (D36-Protokoll)
+- Kein Radix-Revert (Custom-Modal deleted)
+- Kein neuer Migration ohne `mcp__supabase__apply_migration`
+- Kein `git push --force` auf main
+- Kein Bot-Account-Pool ohne Sandbox-Spec D5 + CEO-Approval
+- Keine Stufe-3-Crawler-Aktionen (Money-Mutation) ohne `is_demo=true` Flag-Check
 
 ## Open Follow-ups
 
 | Prio | Scope | Owner | Session |
 |------|-------|-------|---------|
+| **P0** | 6 unpushed commits pushen (Slice 191-193) | Claude (Session-End) | jetzt |
 | **P1** | 3 Beta-Tester anrufen + Zoom-Calls | Anil (Mensch-Task) | ASAP |
-| **P2** | Vercel-Plan-Entscheidung: Hobby (bewusst) vs Pro-Upgrade | Anil (CEO) | Vor nächstem hourly-Cron-Bedarf |
-| **P3** | Landing-Page-Copy via gtm-writer | Claude + Anil Review | Session 5-A |
-| **P4** | Ghost-Prevention sync-players-daily | Claude Solo | Session 5-B oder später |
-| **P5** | Metriken-Dashboard /admin/metrics | Eigener 2-Slice-Scope | Post-Beta-Launch |
+| **P2** | Walkthrough-Crawler PR review + Stufe 2+3 build | Anil-Approval + Claude | morgen |
+| **P3** | Vercel-Plan-Entscheidung: Hobby vs Pro | Anil (CEO) | nach Beta-Tester |
+| **P4** | Auto-RPC-Type-Truth-Audit-Skript (D43 Backlog) | Claude | post-Beta |
+| **P5** | Holdings-RPC-Migration (PostgREST → SECURITY DEFINER) | Claude | post-Beta |
+| **P6** | AuthProvider-Performance-Slice (`/optimize`) | Claude | falls Cold-Start-Latenz weiter triggert |
+| **P7** | HomeDashboard filterValidHoldings Helper | Claude | optional |
+| **P8** | 181g JoinConfirmDialog Custom-DOM-Refactor | Claude | nice-to-have |
+| **P9** | Research-Bot-Seed (Scout-Consensus-UX) | Anil-Entscheidung | post-Beta |
+| **P10** | L5-Data-Drift Audit (11% ohne perf_l5) | Claude | post-Beta |
+| **P11** | TR-Locale-Reviewer organisieren | Anil | vor Beta-Launch |
+| **P12** | gtm-writer Output (Landing/Reddit/Cold-Email) | Claude + Anil | wenn marketing-fokus |
 
 ## CI / Pipeline-Status
 
-- `main` = `3f8bd077` (HEAD, pushed)
-- Build: ✓ (51 Routes within Bundle-Budget)
-- Tests: 44/44 db-invariants + order-lifecycle grün (vor Session 39/44)
-- Vercel Auto-Deploy: funktional nach Hobby-Workaround, letzter Build `dpl_6mCNXaoDcqk7...` READY
-- Pre-Commit-Hooks: commitlint + lint-staged + tsc + ship-cto-review-gate + ship-proof-gate alle aktiv
+- `main` = `f20bf7ec` lokal, **noch nicht gepusht** (push beim Session-End)
+- Tests: Slice 192 8/8 Tests gruen, tsc clean
+- Vercel Auto-Deploy: funktional nach Hobby-Workaround
+- Pre-Commit-Hooks: alle aktiv (commitlint + lint-staged + tsc + ship-cto-review-gate + ship-proof-gate)
 
 ## Worktree-Status
 
 - main = einziger Worktree
-- Keine offenen Agent-Worktrees
+- Keine offenen Agent-Worktrees lokal
+- 2 Remote-Agents auf claude.ai/code/routines aktiv
 
-## CEO-Scope-Reminder (Session 5 Vorbereitung)
+## CEO-Scope-Reminder (morgen frueh)
 
-- **Vercel-Plan-Entscheidung:** Hobby-Tier aktuell aktiv. Wenn Anil Pro wieder abonniert → 2 crons zurück auf optimaler Schedule (dedup-cleanup hourly, expire-orders hourly).
-- **Money-Path-Guard:** Session 187b expire-orders-cron läuft ab morgen 05:30 UTC. Erste Verifikation: Vercel-Log Eintrag `{ok:true, expired:0}` erwartet.
-- **Beta-Launch:** Wartet auf 3 echte Tester (Anil-organisiert). Kein weiteres Code-Blocker.
+- **Vercel-Plan-Entscheidung:** Hobby-Tier aktiv. Pro-Upgrade noetig wenn hourly Crons gewollt sind.
+- **Beta-Launch:** Wartet auf 3 echte Tester (Anil-organisiert). Kein Code-Blocker.
+- **Walkthrough-Crawler Stufe 3 (State-Mutation):** Braucht Sandbox-Spec + Money-Caps + Bot-Account-Pool. CEO-Approval pflicht weil Money-Path-Test.
+- **GTM-Push:** gtm-writer Skill ungenutzt. Anil entscheidet wann marketing-fokus startet.
 
-## Time-Budget-Annahme nächste Session
+## Remote-Agent-Routine-Links
 
-- Option A (GTM via Agent): 30-60 min — Agent-Dispatch + Review + optional Iteration
-- Option B (Ghost-Prevention): 30-60 min — Pre-Insert-Guard in sync-players-daily + Tests
-- Option C (Admin-UI Regex): 20 min
-- Option D (Cron-Registry CI-Check): 15 min
-- Option E (181g Refactor): 30 min
-- Option F (Vercel-Pro-Restore): 5 min + Plan-Klärung
+- Slice 193 Sentry-Verify: https://claude.ai/code/routines/trig_01AJ8PouTotX83RjBJZuAXmM
+- Walkthrough-Crawler Design: https://claude.ai/code/routines/trig_01YPzqQgFtgjqij1x5uitJpf
 
-**Kombi-Session möglich:** B + D (Data-Integrity-Fokus) ~75 min ODER A + F (GTM-Launch-Fokus) ~65 min.
+## Time-Budget-Annahme naechste Session
 
+- Inkognito-Verify + PR-Reviews: ~25 min
+- Slice 194 (Walkthrough-Crawler Stufe 2+3, falls Approval): 2-3h
+- Optional Slice 195+ post-approval Backlog: variabel
+
+**Total morgen wenn voll abgesegnet:** ~3h coding + 25 min review.

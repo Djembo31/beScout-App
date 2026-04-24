@@ -594,3 +594,122 @@ Pattern reproduziert: stable, fast (BEFORE-Row-Trigger mit EXISTS-Subquery), kei
 
 **Decision-Reference:** `memory/decisions.md` D39 (ARCHITECTURE, 2026-04-24).
 **Error-Class-Reference:** `.claude/rules/errors-db.md` Section "Transactions Append-Only" + "Ghost-Prevention Trigger" (Slice 189).
+
+### 30. Defense-in-Depth fuer Silent-Fails (4-Layer-Standard, Slice 192/193, codifiziert D41)
+
+**Wann:** Silent-Fail-Klasse wo eine Datenpfad-Komponente NULL/leer/falsch produziert und downstream Defaults stille Geister-Daten schaffen. Single-point-Fix ist nicht ausreichend.
+
+**Wie (4 Pflicht-Layer):**
+
+```
+Layer 1: Type-Truth         — Service-Type matched RPC-Return-Shape (kein luegender Cast)
+Layer 2: Service-Filter     — Service filtert kaputte Daten + logSilentCatch
+Layer 3: Mapper-Throw       — Mapper wirft i18n-key statt silent-default
+Layer 4: Tests              — Unit-Tests fuer jeden Layer-Branch
+```
+
+**Empirische Anwendung (Slice 192 Holdings-NULL-Player):**
+
+| Layer | Code | Effekt |
+|-------|------|--------|
+| 1 | `MarketUserDashboard.holdings: DbHolding[]` (war fehlerhaft `HoldingWithPlayer[]`) | Type sagt Wahrheit ueber RPC-Shape |
+| 2 | `getHoldings` filter `player == null` + `logSilentCatch` + all-ghost throw | Service liefert NIE kaputte Daten downstream |
+| 3 | `dbHoldingToUserDpcHolding` throws `ghost_holding_row` bei null-player | Mapper-Bypass laesst keine Ghost-Defaults durch |
+| 4 | `holdingMapper.test.ts` (4 Tests) + `getHoldings-ghost-filter.test.ts` (4 Tests) | Regression-Schutz |
+
+Plus **Layer 0 (Slice 193 Erweiterung):** Auth-Gate auf `useHoldings` (`enabled: !!userId && !profileLoading`) verhindert das Race-Window ueberhaupt.
+
+**Anti-Pattern (Slice 192 erste Iteration):** Nur Layer 3 (Mapper-Throw) ohne Layer 1 (Type-Truth). Reviewer-Agent flagged CRITICAL — Cache-Priming-Pfade von OTHER RPCs schreiben in gleichen Cache-Key, Mapper crashed dort sobald getriggert. Single-Layer-Fix wandelte UX-Krankheit in Hard-Crash.
+
+**Test-Coverage-Pflicht:**
+- 1 Test pro Layer-Branch
+- Edge-Case: alle Daten kaputt (z.B. all-ghost) muss separater Code-Path sein (throw vs filter)
+- Mock-Pattern: `vi.mock('@/lib/observability/silentRejects')` mit `vi.fn()` damit Layer-2/3-logSilentCatch-calls assertable sind
+
+**Decision-Reference:** `memory/decisions.md` D41 (ARCHITECTURE, 2026-04-24).
+**Error-Class-Reference:** `.claude/rules/errors-db.md` "PostgREST nested-select Auth-Race" (Slice 192/193).
+**Test-Pattern-Reference:** `src/features/fantasy/mappers/__tests__/holdingMapper.test.ts`.
+
+### 31. Cache-Priming-Audit (Slice 192 Reviewer-Finding #1, codifiziert D43)
+
+**Wann:** Service X bekommt Filter/Validation-Logic. Bevor du commitest: ALLE Cache-Priming-Pfade audieren die in den gleichen `qk.X.*` Cache-Key schreiben.
+
+**Wie:**
+
+```bash
+# Find all priming-paths for a query-key
+grep -rn "queryClient.setQueryData(qk\.<key>" src/lib/queries/
+
+# Audit each priming source: liefert es die gleiche Daten-Shape wie das Service?
+# Wenn nicht: Type-Truth-Mismatch -> Mapper crashed sobald downstream getriggert.
+```
+
+**Empirische Anwendung (Slice 192):**
+- Service `getHoldings` (PostgREST) liefert `HoldingWithPlayer[]` mit nested player-JOIN
+- RPC `get_market_user_dashboard` liefert `DbHolding[]` ohne JOIN, **aber TS-Cast log** mit `as HoldingWithPlayer[]`
+- `primeMarketDashboardCaches` schrieb DbHolding-Daten in `qk.holdings.byUser` Cache
+- Mit Slice-192 Mapper-Throw waere `/market -> /fantasy/aufstellen` Hard-Crash gewesen
+- Reviewer-Agent (Cold-Context) flagged das als CRITICAL Finding — wurde im REWORK gefixt
+
+**Fix-Pattern (Option C — empfohlen):**
+- Type-Truth: Cache-Priming-Path-Type aendern auf echte RPC-Shape
+- Wenn Type-Mismatch: NICHT in Cache primen, lass Service eigenen Query laufen
+- Doku in JSDoc: "INTENTIONALLY NOT primed — RPC liefert kein nested player-Object"
+
+**Audit-Template (zukuenftiger Sweep):**
+```ts
+// Pflicht-Hook fuer alle prime*Caches Funktionen:
+// 1. Was ist die Shape des Source (RPC return)?
+// 2. Was ist die Shape des Target (qk-key consumer)?
+// 3. Match? Wenn nein: skip prime, lass Service eigenen Query laufen.
+```
+
+**Anti-Pattern:** Blindes `as XYZ[]` Cast in Service ohne `pg_get_functiondef`-Verify. Lie-Cast bleibt latent bis ein neuer Mapper-Throw die Lie aufdeckt.
+
+**Decision-Reference:** `memory/decisions.md` D43 (ARCHITECTURE, 2026-04-24).
+**Slice-Reference:** Slice 192 Reviewer-Output `worklog/reviews/192-review.md` Finding #1.
+
+### 32. React-Query enabled-Gate auf profileLoading (Slice 193, Auth-Race-Mitigation)
+
+**Wann:** Query nutzt PostgREST nested-select via Cookie-Auth. Cold-Start-Race kann silent NULL fuer nested rows liefern.
+
+**Wie:**
+
+```ts
+// Anti-pattern (race-condition window):
+export function useHoldings(userId: string | undefined) {
+  return useQuery({
+    queryKey: qk.holdings.byUser(userId!),
+    queryFn: () => getHoldings(userId!),
+    enabled: !!userId,  // <-- feuert bei Cookie-Resume-in-Progress
+    ...
+  });
+}
+
+// Pattern (Slice 193 — gates auf vollstaendige Auth-Hydration):
+export function useHoldings(userId: string | undefined) {
+  const { profileLoading } = useUser();
+  return useQuery({
+    queryKey: qk.holdings.byUser(userId!),
+    queryFn: () => getHoldings(userId!),
+    enabled: !!userId && !profileLoading,  // <-- wartet auf Profile-Load
+    ...
+  });
+}
+```
+
+**Effekt:** Holdings-Query feuert erst wenn AuthProvider Profile-Load abgeschlossen hat. JWT ist garantiert hydrated. Eliminiert Race-Window komplett (~50-200ms zusaetzliche Initial-Load-Latenz, akzeptabel).
+
+**Begruendung:** `cachedUser` aus sessionStorage triggert `setUser(u)` sofort, was `useHoldings(userId)` queryFn fired BEVOR `loadProfile(u.id)` Cookie-Token vollstaendig restored hat. PostgREST nested-select scheitert silent in dieser Window.
+
+**Anwendbarkeit:** ALLE Hooks die PostgREST nested-select via Cookie-Auth nutzen. Pattern uebertragbar auf:
+- `useWatchlist(userId)` (selektiert player-nested-Daten)
+- Andere user-scoped queries die nested PostgREST-JOINs machen
+
+**Performance-Impact:** Initial-Load +50-200ms (warten auf get_auth_state). Akzeptabel weil:
+- Slice-193 Timeout reduziert auf 3s (war 10s)
+- 3-Query-Fallback robust (Promise.allSettled, max 8s)
+- Auth-Race-Symptom (Geister-Rows) ist gravierender als 200ms Latenz
+
+**Decision-Reference:** `memory/decisions.md` D40 (PROCESS Live-Verify) + D41 (Defense-in-Depth).
+**Slice-Reference:** Slice 193 Proof `worklog/proofs/193-auth-state-perf.md`.

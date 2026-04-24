@@ -55,6 +55,41 @@ COMMENT ON FUNCTION public.prevent_<X>() IS
   2. BEFORE UPDATE/DELETE Trigger `transactions_append_only_guard` raises — blockt auch SECURITY DEFINER.
 - Opt-In Bypass (siehe generalisiertes Pattern oben): `SET LOCAL bescout.allow_transactions_mutation = 'true'`.
 
+### PostgREST nested-select Auth-Race (Slice 192/193)
+
+PostgREST `parent.column, child:other_table(...)` gibt **silent NULL** für nested rows zurueck wenn JWT nicht final hydrated ist (Cookie-Resume-in-Progress). Service akzeptiert data-array, downstream Mapper appliziert Defaults — User sieht "Geister-Rows".
+
+**Symptom-Decoder-Tabelle (Slice 192 — Manager Aufstellen-Tab):**
+
+| Sichtbar im UI | Mapper-Default wenn `h.player == null` |
+|----------------|-------------------------------------------|
+| `#0` (Trikot) | `ticket: h.player?.shirt_number ?? 0` |
+| `MID` (Position) | `pos: h.player?.position ?? 'MID'` |
+| (leerer Name) | `first/last: h.player?.first_name ?? ''` |
+| (leerer Kreis) | `imageUrl: h.player?.image_url ?? null` |
+| `0 CR` (Floor) | `floorPrice: h.player?.floor_price ?? 0` |
+| `0S 0T 0A` (Stats) | `matches/goals/assists: ?? 0` |
+
+→ 7 Felder gleichzeitig auf Default-Wert = **eindeutige Signatur** fuer NULL-nested-Player. Symptom-zu-Code-Backtrack ohne Repro moeglich.
+
+**Detection:**
+```sql
+-- Verify DB hat volle Daten (RLS deckt das ab)
+SELECT COUNT(*) FILTER (WHERE p.first_name IS NULL OR p.image_url IS NULL)
+FROM holdings h JOIN players p ON p.id = h.player_id WHERE h.user_id = '<uid>';
+-- Wenn 0: Bug ist Frontend Auth-Race, nicht DB.
+```
+
+**Mitigation (Slice 192/193 Defense-in-Depth):**
+1. **Type-Truth:** RPC-Return-Shape vs TS-Cast verifizieren (`pg_get_functiondef`). `MarketUserDashboard.holdings: DbHolding[]` (kein nested player, RPC liefert keine).
+2. **Service-Filter:** `getHoldings` filtert `player == null` rows + `logSilentCatch` + all-ghost throw.
+3. **Mapper-Throw:** `dbHoldingToUserDpcHolding` wirft `ghost_holding_row` i18n-key bei null-player.
+4. **Auth-Gate:** `useHoldings` `enabled: !!userId && !profileLoading` (gates query auf vollstaendige Profile-Hydration).
+
+**Live-Verify:** Chrome-DevTools-MCP `get_network_request` → `x-envoy-upstream-service-time` Header zeigt RPC-Server-Time. Wenn Server-Time <500ms aber Browser-Side Timeout: Race, nicht Slow-RPC.
+
+**Referenz:** Slice 192 Proof `worklog/proofs/192-holdings-null-player-guard.md`, Slice 193 Proof `worklog/proofs/193-auth-state-perf.md`. Decision: `memory/decisions.md` D40-D43.
+
 ### Ghost-Prevention Player-Insert-Trigger (Slice 189)
 - `players` BEFORE INSERT-Trigger `prevent_player_ghost_insert` erzwingt INV-39 (Cross-Club-Contamination: same first+last+contract_end mit anderem club_id) + INV-40 (Same-Club-Duplicates: exakter Name+Club-Match).
 - Faengt ALLE Insert-Pfade: Scripts, Crons, manuelle SQL via MCP.
