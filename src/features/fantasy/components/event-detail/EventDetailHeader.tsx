@@ -28,8 +28,24 @@ export function EventDetailHeader({ event, isScored, resetting, onReset }: Event
   const statusStyle = getStatusStyle(event.status);
   const typeStyle = getTypeStyle(event.type);
 
+  // Slice 198b F-12: Sticky-Countdown — bleibt waehrend scroll im Modal-Body visible.
+  // Nutzt position:sticky relativ zum Dialog-Body (overflow-y-auto). Top-Bar mit
+  // backdrop-blur ueberlagert content. `-mx-4 md:-mx-5` gleicht Dialog-Body-Padding aus,
+  // sodass die sticky-Bar den vollen Modal-Width einnimmt.
+  const countdownLabel = event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime, t('countdownStarted'));
+  const showCountdown = event.status !== 'ended';
+
   return (
     <>
+      {/* Slice 198b F-12: Sticky Countdown Bar (Top-Bar, FPL-Style) */}
+      {showCountdown && (
+        <div className="sticky top-0 z-10 -mx-4 md:-mx-5 -mt-4 md:-mt-5 mb-3 px-4 md:px-5 py-2 bg-bg-main/95 backdrop-blur-xl border-b border-white/[0.06] flex items-center gap-2 text-sm">
+          <Clock aria-hidden="true" className="size-4 text-gold flex-shrink-0" />
+          <span className="text-white/50 text-xs uppercase font-bold tracking-wide">{t('deadlineLabel')}</span>
+          <span className="font-mono tabular-nums font-bold text-white ml-auto">{countdownLabel}</span>
+        </div>
+      )}
+
       {/* Status Badges + Meta */}
       <div className="flex items-center flex-wrap gap-2 mb-3">
         {isScored ? (
@@ -72,7 +88,10 @@ export function EventDetailHeader({ event, isScored, resetting, onReset }: Event
       </div>
       <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
         <span className="flex items-center gap-1"><Users aria-hidden="true" className="size-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-        <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
+        {/* Slice 198b F-12: Countdown moved to sticky-bar above; show "ended"-state inline only when non-sticky. */}
+        {event.status === 'ended' && (
+          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{t('ended')}</span>
+        )}
         {(event.ticketCost ?? 0) > 0 && (
           <span className="flex items-center gap-1.5 text-[12px] text-amber-400/70 font-medium">
             <span aria-hidden="true">&#127915;</span>

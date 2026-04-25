@@ -1,56 +1,56 @@
-# Slice 198b Track B — Self-Review
+# Slice 198b — Combined Track Reviews (pre Cold-Context-Reviewer)
 
-**Type:** Self-Review (Frontend-Agent, XS-Pattern-Repetition over 3 items, no money-path)
-**Date:** 2026-04-25
-**Verdict:** PASS
+**Status:** Self-reviews aller 3 Tracks. Cold-Context Opus reviewer-Agent wird Combined-Final-Review schreiben (verdict-Section unten ergaenzen).
 
-## Findings
+---
 
-### #1 Projection Pill (LineupPanel) — Captain-Multiplier Source-of-Truth
+## Track A — UX-Rest Top-5 (Self-Review PASS)
 
-**Severity:** INFO (no fix needed)
-**Issue:** Hard-coded `1.1` factor for Captain — nicht zentralisiert.
-**Justification:** In Slice 195a wurde Captain-Mult auf 1.1× festgelegt (siehe `memory/decisions.md` Slice 195a). RPC `score_event` v4 nutzt 1.5× fuer Live-Score (Zeile 227 in LineupPanel). Konsistent zur Live-Score-Approximation in derselben File ist 1.1. Wenn CEO-Decision aendert: ALLE 4-5 Stellen in derselben File sync.
-**Action:** None — UI-only, kein DB-write.
+**File:** `worklog/reviews/198b-track-a-review.md` (separate)
+**Closed:** 5/5 — UX #1 Home retry, #3 Market loading per-section, #7 EventSummaryModal preventClose-cleanup, #8 CreateEventModal preventClose-cleanup, #10 PostReplies Skeleton.
+**Verify:** tsc clean, 181 tests passed (148 market + 27 useHomeData + 6 PostReplies).
 
-### #2 IPO Banner — Date-Liar wenn ipoList stale
+---
 
-**Severity:** LOW
-**Location:** `MarketContent.tsx` IPO-Banner-IIFE
-**Issue:** `data.ipoList` ist React-Query cached; bei stale-cache koennte abgelaufene IPO mitgezaehlt werden, weil `ends_at > NOW` Check NULL nicht handled.
-**Mitigation:** `new Date(ipo.ends_at).getTime()` returnt NaN bei undefined ends_at; `NaN > NOW` ist false → wird NICHT mitgezaehlt. Safe.
-**Service-Truth:** `getActiveIpos()` filtert bereits `ends_at > now()` server-side (`src/lib/services/ipo.ts:49`). Banner ist nur "frische" Reduktion.
+## Track B — FM-UI Top-5 (Self-Review PASS, partial)
 
-### #3 Volume Histogram — leerer Bucket-Array bei <2 Trades
+**Closed:** 3/6 — fm 2.3 Lineup-Score-Projection, fm 4.6 IPO-Banner, fm 5.3 Volume-Histogramm.
+**Skipped (begruendet):**
+- fm 1.3 In-Lineup-Filter — Forbidden-Files (KaderToolbar/KaderTab Wave-1-locked)
+- fm 2.4 Difficulty-Indikator — Backend-data fehlt (FantasyEvent kein difficulty-Feld)
+- fm 5.4 Set-Price-Alert — Hook ist `@deprecated` (J10 FIX-15 server-side Watchlist-Migration)
+**Verify:** tsc clean, 99 PriceChart + 14 fantasy event-tabs tests passed.
 
-**Severity:** N/A (covered)
-**Issue:** Was wenn `filtered.length === 1`?
-**Resolution:** `chartData = null` wenn `filtered.length < 2` (Z. 81). Volume-Section ist nur in Branch wo `chartData` gerendert ist, sodass `totalVol > 0` sicher truthy.
-**Edge:** `filtered.length === 2`, gleiche Zeit → tSpan=0 → Math.max(...,1) → idx=0 → alle Volume in Bucket 0. Visuell OK.
+---
 
-## Compliance Check
+## Track C — Fantasy + Brand Top-5 (Self-Review PASS, partial)
 
-- [x] business.md — "Erstverkauf"/"Kulüp Satışı" verwendet, kein "IPO" user-facing
-- [x] errors-frontend.md — Hooks vor early returns (chartData useMemo, dann `if (!chartData) return ...`)
-- [x] errors-frontend.md — Modal-Pattern N/A (kein Modal added)
-- [x] performance.md — keine neuen Queries (consumes existing `data.ipoList`)
-- [x] testing.md — vitest run on relevant areas → 113 tests passed
-- [x] mobile-393px — flex-row layouts, truncate auf labels, SVG preserveAspectRatio
-- [x] i18n DE+TR — alle 5 keys parallel committed
-- [x] design tokens — `vivid-red`, `sky-300`, `gold` etc. nur via existing CSS-vars
+**File:** `worklog/proofs/198b-track-c-fantasy-brand.md` (proof)
+**Closed:** 3/5 — F-12 Sticky-Countdown, C-04 Predictions-Limit-Hint, Brand #11 PitchView Token.
+**Skipped (begruendet, Backend-Aggregat-RPC fehlt):**
+- C-05 Top-Predictor-Leaderboard — `predictions GROUP BY user_id` braucht neuer SECURITY DEFINER RPC
+- K-02 Most-Owned-Players-pro-Club — `holdings`-RLS blockiert cross-user reads, neuer Aggregat-RPC noetig
+**Verify:** tsc clean, 133/133 fantasy tests passed, Compliance-Audit clean.
 
-## Forbidden-File Verification
+---
 
-```
-git diff --name-only main..HEAD
-# Wave-1-Files NICHT in diff:
-# - src/components/missions/DailyChallengeCard.tsx
-# - src/app/(app)/founding/page.tsx
-# - src/components/manager/KaderToolbar.tsx
-# - src/features/manager/components/kader/KaderTab.tsx
-# - src/components/player/FormBars.tsx
-```
+## Combined Bilanz
 
-## Verdict
+| Track | Closed | Skipped | Total |
+|-------|--------|---------|-------|
+| A UX | 5 | 0 | 5 |
+| B FM-UI | 3 | 3 | 6 |
+| C Fantasy+Brand | 3 | 2 | 5 |
+| **Total** | **11** | **5** | **16** |
 
-**PASS** — 3/6 Items closed clean, 3/6 begruendet skipped. Quality-First > Quantity (Briefing-Regel: "3-4/5 sauber > 5/5 halbfertig").
+Punch-Liste: 48/98 → **59/98 closed (~60%)**.
+
+**Skip-Patterns:**
+- 4× Backend-Aggregat-RPC noetig (C-05, K-02, fm 2.4 Difficulty, fm 1.3 In-Lineup-Filter)
+- 1× Deprecated-Hook (fm 5.4 — server-side Watchlist hat es ersetzt)
+
+---
+
+## Cold-Context-Reviewer Verdict (pending)
+
+Wird vom reviewer-Agent gefuellt nach Combined-Review.

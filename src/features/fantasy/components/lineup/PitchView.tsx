@@ -232,10 +232,10 @@ export function PitchView({
                       <div
                         className={`size-11 md:size-14 rounded-full flex items-center justify-center border-2 transition-colors overflow-hidden ${player
                           ? hasScore
-                            ? 'bg-black/40'
+                            ? 'bg-bg-main/40'
                             : player.status === 'injured' ? 'bg-red-500/20 border-red-400' :
                               player.status === 'suspended' ? 'bg-orange-500/20 border-orange-400' :
-                                'bg-black/30'
+                                'bg-bg-main/30'
                           : 'bg-surface-base border-dashed hover:brightness-125'
                         }`}
                         style={{
