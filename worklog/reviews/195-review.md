@@ -170,3 +170,61 @@ Cold-Reviewer-Agent (Opus) Pflicht fuer:
 ### Verdict 195b: PASS
 
 Sub-Slice 195b kann mergen. Cold-Reviewer-Agent (Opus) optional aber nicht pflicht — Pattern ist 195a-Wiederholung mit neuer Constraint-Validation.
+
+---
+
+## Slice 195c Self-Review-Erweiterung (D35)
+
+### Spec-Coverage Update
+- [x] **AC 7**: Event `max_per_club=3` Lineup mit 4 ManCity → error `max_per_club_exceeded` ✅
+- [x] **AC 8**: Event `max_per_club=NULL` → keine Constraint ✅
+- [x] **Service-Layer:** `createEvent` Parameter erweitert (`maxPerClub?: number | null`)
+- [ ] **UI-Field** in EventFormModal — Backlog 195c-UI (Pattern aus salaryCap, ~30 Min)
+
+### Findings 195c
+
+#### Atomic Migration (errors-db.md Rule)
+✅ **Single apply_migration:** ALTER TABLE + CREATE OR REPLACE FUNCTION + REVOKE/GRANT atomic
+
+#### CREATE OR REPLACE PATCH-AUDIT
+✅ **Source-of-truth:** Live-Body via `pg_get_functiondef` gelesen (rpc_save_lineup hat keine Migration-File-Referenz, lebte in baseline_fantasy + Patches)
+
+✅ **Preserved Logic:** Auth-Match, event_status, event_locks, must_enter_first, formation-validation, slot-count-check, captain-slot-validation, wildcard-validation, duplicate-player, SC-ownership, salary_cap, holding_locks, wildcard-spend/refund
+
+✅ **Added Logic:** v_max_per_club_used DECLARE + Constraint-Check post-formation/duplicate, pre-SC-ownership
+
+#### AR-44 Compliance (database.md PFLICHT)
+✅ REVOKE/GRANT-Block in Migration-File von Anfang an
+
+#### Money-Path
+✅ **No Money-Move:** Constraint blockt Submit, aber kein Wallet/Score-Effect direct. Indirekt: User kann nicht im Event teilnehmen mit Pep-Roulette → muss anderen Lineup bauen.
+
+✅ **Backward-Compat:** Existing events haben `max_per_club = NULL` → keine Verhaltens-Aenderung
+
+#### Edge Cases (5 verified)
+1. NULL = unlimited ✅
+2. max=3 + 4 vom selben → blocked ✅
+3. max=0 → CHECK-Constraint blockt ✅
+4. Mixed clubs → MAX(cnt) per club_id ✅
+5. Wildcard-Slots zaehlen mit ✅
+
+#### Test-Gap
+⚠️ **Unit-Test fuer Constraint-Validation fehlt** — kommt mit 195d Lineup-Test-Suite (beide Pfade haengen am rpc_save_lineup)
+
+### Severity-Grouping 195c
+
+- **CRITICAL:** 0
+- **HIGH:** 0
+- **MEDIUM:** 1 — UI-Field fehlt (Admin kann Constraint nur via SQL setzen — Backlog 195c-UI)
+- **LOW:** 1 — Test-Gap (mitigated in 195d)
+
+### Positive 195c
+- Atomic Migration (Schema + RPC + AR-44)
+- Backend voll funktional ohne UI-Block
+- Bots koennen Constraint testen ohne Frontend-Wartezeit
+- 5 Edge-Cases im Proof dokumentiert
+- max_per_club=NULL als Multi-Liga-Default (FPL-incompatible aber BeScout-spezifisch sinnvoll)
+
+### Verdict 195c: PASS
+
+Sub-Slice 195c kann mergen. UI-Field als 195c-UI Backlog-Item (Pattern-Wiederholung aus salaryCap).

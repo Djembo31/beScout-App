@@ -30,6 +30,8 @@ export async function createEvent(params: {
   minScPerSlot?: number;
   wildcardsAllowed?: boolean;
   maxWildcardsPerLineup?: number;
+  /** Slice 195c: Max Spieler pro Verein im Lineup. NULL/undefined = unlimited (Multi-Liga). */
+  maxPerClub?: number | null;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
   isLigaEvent?: boolean;
@@ -64,6 +66,7 @@ export async function createEvent(params: {
       min_sc_per_slot: params.minScPerSlot ?? 1,
       wildcards_allowed: params.wildcardsAllowed ?? false,
       max_wildcards_per_lineup: params.maxWildcardsPerLineup ?? 0,
+      max_per_club: params.maxPerClub ?? null,
       reward_structure: params.rewardStructure ?? null,
       is_liga_event: params.isLigaEvent ?? false,
       status: 'registering',
