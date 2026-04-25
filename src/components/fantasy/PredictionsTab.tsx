@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Target, Plus, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
+import { Target, Plus, CheckCircle, XCircle, BarChart3, Flame } from 'lucide-react';
 import { Card, Button, Skeleton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { usePredictions, usePredictionCount } from '@/lib/queries/predictions';
+import { usePredictions, usePredictionCount, usePredictionStats } from '@/lib/queries/predictions';
 import { PredictionCard } from './PredictionCard';
 import { CreatePredictionModal } from './CreatePredictionModal';
 
@@ -18,6 +18,8 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
   const t = useTranslations('predictions');
   const { data: predictions = [], isLoading } = usePredictions(userId, gameweek);
   const { data: count = 0 } = usePredictionCount(userId, gameweek);
+  // Slice 198d C-01: Streak-Anzeige (current consecutive correct).
+  const { data: stats } = usePredictionStats(userId);
   const [showModal, setShowModal] = useState(false);
 
   const pendingPredictions = useMemo(() =>
@@ -51,7 +53,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Target className="size-5 text-gold" aria-hidden="true" />
           <h3 className="font-black">{t('myPredictions')}</h3>
           <span className={cn(
@@ -60,6 +62,16 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
           )}>
             {count}/5
           </span>
+          {/* Slice 198d C-01: Current-Streak Badge — Engagement-Treiber, Compliance-clean (kein "Sieg"/"gewinn"). */}
+          {stats && stats.currentStreak >= 2 && (
+            <span
+              className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full text-amber-400 bg-amber-400/10"
+              title={t('streakTooltip', { count: stats.currentStreak })}
+            >
+              <Flame className="size-3" aria-hidden="true" />
+              {t('streakBadge', { count: stats.currentStreak })}
+            </span>
+          )}
         </div>
         <Button
           size="sm"

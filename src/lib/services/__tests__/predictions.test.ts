@@ -255,7 +255,7 @@ describe('getPredictionStats', () => {
   it('returns zeros on empty data', async () => {
     mockTable('predictions', []);
     const stats = await getPredictionStats('u1');
-    expect(stats).toEqual({ total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, totalPoints: 0 });
+    expect(stats).toEqual({ total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, currentStreak: 0, totalPoints: 0 });
   });
 
   it('throws on DB error', async () => {
