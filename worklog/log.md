@@ -11,6 +11,72 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 198 | 2026-04-25 | Polish-Sweep Wave 1 (4-Track parallel-dispatch)
+
+L-Slice via 4 parallele Worktree-Frontend-Agents. Punch-Liste: 32/98 → **48/98 closed (~49%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/198-polish-sweep.md) → IMPACT inline → BUILD (4 Tracks parallel) → REVIEW (reviewer-Agent verdict PASS, 2 findings beide fixed) → PROVE (tsc clean + 16/16 PredictionsTab vitest) → LOG
+
+### Tracks
+
+**Track A — Brand-Drift-Rest 4/5 closed** (commit `cbc2df92`)
+- airdrop #15: diamond inline-Hex `#B9F2FF` → `tier-diamond` Token (tailwind.config + airdrop/page)
+- airdrop #16: Rocket Header `text-purple-400` → `text-gold` (Header-Convention)
+- profile #17: raw `<button>` → `<Button variant="ghost" size="sm">` Component
+- club #18: segmented-icon-toggle a11y-hardened (`role="group"`, `aria-pressed`, `aria-label`) statt Button-Component (Layout-Risk dokumentiert)
+- SKIP brand #1: Quick-Action-Pills inline-tokens (per-action color intentional, CEO/Designer-call)
+
+**Track B — UX-States Top-5 closed** (commit `07c6b490`)
+- ux #19: Settings Notif-Prefs/Push silent console.error → `addToast(te(mapErrorToKey(...)))`
+- ux #11: DailyChallengeCard "Erneut versuchen"-Retry-Hint
+- ux #14: founding `loadData(silent=true)` post-purchase + optimistic counts.byTier-update (kein Money-Path geaendert)
+- ux #6: KaderTab BulkSell `anim-bottom-sheet` + 44×44 touch + close-X disabled-during-mutation
+- ux #22: compare Empty-Slot `min-w-[44px]` + `aria-label` + `aria-hidden` Icon + `active:scale-[0.97]`
+
+**Track C — FM-Mechanics-Rest 3/5 closed** (commit `795d6311`)
+- fm 5.1 P1: FormBars Match-by-Match Hover-Tooltip (Mobile-Tap + Desktop-Hover, custom popover ohne Radix)
+- fm 1.4 P2: Quick-In-Lineup-Action in KaderPlayerRow (reuses `setPendingLineupPlayerId+setActiveTab`)
+- fm 3.1 P2: HistorieTab Avg-Rank/Best-Rank-Card (2 weitere StatPills via managerData query)
+- SKIP fm 4.4: Sort-by-Trade-Volume-7d (column missing — Slice 199 DB-Migration noetig)
+- SKIP fm 4.5: Bulk-Buy `/market` (Money-Path-Adjacent + Modal-Flow zu komplex fuer Track-C-Scope)
+
+**Track D — Fantasy-Rest 4/5 closed** (commit `1b033f82`)
+- fantasy C-01 P1: Streak-Anzeige Predictions (Badge im PredictionsTab Header, lokaler currentStreak)
+- fantasy C-02 P1: Difficulty-Pill in CreatePredictionModal Confirm-Step (3-Sterne-Pill konsistent)
+- fantasy R-04 P2: Tier-Promotion-CTA in SelfRankCard (`getNextRang` Helper + Score-Diff)
+- fantasy F-13 P2: Mini-SVG-Sparkline + Δ in FantasyPlayerRow (`perfL5 - perfL15` Trend, kein external Lib)
+- SKIP fantasy C-03: Aggregate-Hint "%-tippte-gleich" (kein Backend-Aggregat-RPC)
+
+### Heal-Cycle (post-merge + post-review)
+
+- `0c5564c0` — FormBars TS narrow (`entry.gameweek != null` statt `gwLabel`-truthy fuer t-arg-type) + PredictionsTab `usePredictionStats`-Mock
+- `1f34d911` — `manager.quickLineupAction` i18n-Key DE+TR (Reviewer-Find), Mock-Signatur Rest-Args (TSC strict)
+
+### Files
+- 16 Findings closed, 4 begruendet skipped, 0 FAIL
+- Total Files: 17 modified + 4 new (3 journals + 1 review)
+- ~250 LOC additions cross-track
+
+### Review
+- `worklog/reviews/198-review.md` — verdict **PASS** by Cold-Context Opus reviewer-Agent
+- 2 Findings: i18n-key + Mock-Sig — beide fixed inline
+- Time-spent: 18 min
+
+### Proof
+- `worklog/proofs/198a-track-a-brand.txt` (Track A diff-stat)
+- tsc clean post-heal
+- 16/16 PredictionsTab vitest pass post-Mock-fix
+
+### Commits
+- `cbc2df92` Track A | `07c6b490` Track B | `795d6311` Track C | `1b033f82` Track D
+- `0c47f941` `3e3bdef8` `658a9593` Merge-Commits
+- `0c5564c0` `1f34d911` Heal-Commits
+
+### Notes
+3 von 4 Tracks hatten Worktree-Awareness-Trap (Agent edited main-Pfad). Pattern-codify-Kandidat fuer frontend-LEARNINGS.md. Wave 2 nimmt 4 Skip-Findings + restliche P2/P3 mit (~30 Items, Slice 198b/199).
+
+---
+
 ## 197d | 2026-04-25 | MV-Trend systemisch (Phase-A FM 1.2 + 4.1)
 
 L-Slice via parallel-dispatch backend + frontend. Punch-Liste: 30/98 → **32/98 closed (~33%)**.

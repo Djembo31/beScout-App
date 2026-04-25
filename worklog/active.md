@@ -1,18 +1,22 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 198
-stage: PROVE
-spec: worklog/specs/198-polish-sweep.md
-impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
-proof: worklog/proofs/198a-track-a-brand.txt + tsc clean + 16/16 vitest PredictionsTab
-review: worklog/reviews/198-review.md (verdict PASS, 2 findings fixed)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 198 — Polish-Sweep Wave 1 (4-Track parallel-dispatch)
+## Zuletzt
 
-Ziel Wave 1: 32/98 → ~62/98 closed (~30 Findings).
+- **Slice 198** (2026-04-25) — Polish-Sweep Wave 1 (L, 4-Track parallel-dispatch). 16/20 closed, 4 begruendet skipped. Punch-Liste 32/98 → 48/98 closed (~49%). Review PASS, 2 findings inline gefixt.
+
+## Slice 198 — Polish-Sweep Wave 1 (DONE)
+
+Punch-Liste: 32/98 → **48/98 closed (~49%)**.
 
 - **Track A** — Brand-Rest 5 Items (airdrop diamond + rocket, raw-button refactors profile/club, Quick-Action-Pills extract)
 - **Track B** — UX-States Top-5 (#19 Settings-Toast, #11 DailyChallenge-Retry, #14 founding-optimistic, #6 KaderTab-BulkSell-Bar, #22 compare-Touch-Targets)

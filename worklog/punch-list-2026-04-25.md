@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-25 nach Slice 197d (+2 closed)
+**Stand:** 2026-04-25 nach Slice 198 (+16 closed)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **32 closed (≈32.7%)**
+**Total:** 98 Findings · davon **48 closed (≈49%)**
 
 ## Status-Legende
 
@@ -18,11 +18,23 @@
 
 | Domain | Total | done | wont-fix | in-progress | open | deferred |
 |---|---|---|---|---|---|---|
-| Brand-Coherence | 18 | 7 | 0 | 0 | 11 | 0 |
-| UX-States | 27 | 8 | 0 | 0 | 19 | 0 |
-| FM-Mechanics | 26 | 7 | 0 | 0 | 19 | 0 |
-| Fantasy-Scoring | 27 | 10 | 1 | 0 | 16 | 0 |
-| **TOTAL** | **98** | **32** | **1** | **0** | **65** | **0** |
+| Brand-Coherence | 18 | 11 | 0 | 0 | 7 | 0 |
+| UX-States | 27 | 13 | 0 | 0 | 14 | 0 |
+| FM-Mechanics | 26 | 10 | 0 | 0 | 16 | 0 |
+| Fantasy-Scoring | 27 | 14 | 1 | 0 | 12 | 0 |
+| **TOTAL** | **98** | **48** | **1** | **0** | **49** | **0** |
+
+**Slice 198 closed (+16):**
+- Track A Brand 4: airdrop #15 (tier-diamond Token), #16 (Rocket gold Header), #17 (profile Button-Component), #18 (club segmented-toggle a11y).
+- Track B UX 5: #19 (Settings i18n-Toast), #11 (DailyChallenge Retry), #14 (founding optimistic), #6 (KaderTab BulkSell-Bar), #22 (compare Touch-Targets).
+- Track C FM 3: 5.1 (FormBars Tooltip), 1.4 (Quick-In-Lineup), 3.1 (Avg/Best-Rank Card).
+- Track D Fantasy 4: C-01 (Streak), C-02 (Difficulty visible), R-04 (Tier-Promotion-CTA), F-13 (Form-Sparkline+Δ).
+
+**Slice 198 skipped (deferred Wave 2):**
+- Brand #1 (Quick-Action-Pills extract — Component-Library-Decision)
+- FM 4.4 (Sort-by-Volume — column missing, Slice 199 DB-Migration noetig)
+- FM 4.5 (Bulk-Buy — Money-Path-complexity, eigene Slice noetig)
+- Fantasy C-03 (Aggregate-Hint — kein Backend-Aggregat-RPC)
 
 **Slice 197c closed (+1):** F-02 Formationen 3-5-2/4-5-1/5-3-2/5-4-1 (RPC-Patch + Frontend-Constants).
 **Slice 197d closed (+2):** fm 1.2 MV-Trend rising/falling (Kader+Market+Watchlist) + fm 4.1 MV-Trend-Filter rising/falling/stable in MarketFilters (DB-Migration + Cron + Frontend).
