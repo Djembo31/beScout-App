@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ChevronDown, Calendar, Trophy, Users, Clock } from 'lucide-react';
+import { ChevronDown, Calendar, Trophy, Users, Clock, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Dialog } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { formatCountdown } from '@/features/fantasy/helpers';
 import { useManagerStore } from '../../store/managerStore';
 import { useOpenEvents, pickDefaultEvent } from '../../queries/eventQueries';
+import { useEventDifficultyScore } from '@/features/fantasy/queries/events';
 import type { FantasyEvent } from '@/features/fantasy/types';
 
 // Status → fantasy-i18n-key (AR-7 TR-Locale fix: LIVE/REG/LATE etc.
@@ -38,6 +39,45 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// Slice 199 fm 2.4 — Event-Difficulty-Indikator (3-Star pill).
+const DIFFICULTY_STYLE: Record<string, { bg: string; text: string; stars: number }> = {
+  easy: { bg: 'bg-emerald-500/15', text: 'text-emerald-300', stars: 1 },
+  medium: { bg: 'bg-amber-500/15', text: 'text-amber-300', stars: 2 },
+  hard: { bg: 'bg-rose-500/15', text: 'text-rose-300', stars: 3 },
+};
+
+function DifficultyBadge({ eventId }: { eventId: string }) {
+  const tf = useTranslations('fantasy');
+  const { data: score } = useEventDifficultyScore(eventId);
+  if (!score) return null;
+  const style = DIFFICULTY_STYLE[score.difficulty_tier] ?? DIFFICULTY_STYLE.medium;
+  const tierLabelKey = `difficulty_${score.difficulty_tier}`;
+  const tooltipText = tf('difficultyTooltip', {
+    avg: fmtScout(score.avg_ipo_price_cents),
+    clubs: score.participant_clubs_count,
+  });
+  return (
+    <span
+      title={tooltipText}
+      aria-label={tooltipText}
+      className={cn(
+        'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase',
+        style.bg,
+        style.text,
+      )}
+    >
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Star
+          key={i}
+          className={cn('size-2.5', i < style.stars ? 'fill-current' : 'opacity-30')}
+          aria-hidden="true"
+        />
+      ))}
+      <span className="ml-0.5">{tf(tierLabelKey)}</span>
+    </span>
+  );
+}
+
 function EventRow({ event, selected, onSelect }: {
   event: FantasyEvent;
   selected: boolean;
@@ -54,14 +94,15 @@ function EventRow({ event, selected, onSelect }: {
         selected ? 'bg-gold/[0.08] border-l-2 border-l-gold' : 'hover:bg-white/[0.04] border-l-2 border-l-transparent',
       )}
     >
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2 mb-1 flex-wrap">
         <StatusBadge status={event.status} />
+        <DifficultyBadge eventId={event.id} />
         {event.gameweek != null && (
           <span className="text-[10px] font-mono tabular-nums text-white/40">
             GW {event.gameweek}
           </span>
         )}
-        <span className="text-sm font-bold text-white truncate flex-1">{event.name}</span>
+        <span className="text-sm font-bold text-white truncate flex-1 min-w-0">{event.name}</span>
         {event.isJoined && (
           <span className="text-[9px] font-bold text-emerald-400 uppercase">{tf('joined')}</span>
         )}
@@ -143,9 +184,10 @@ export default function EventSelector() {
         {selectedEvent ? (
           <>
             <div className="flex-1 min-w-0 text-left">
-              <div className="flex items-center gap-2 mb-0.5">
+              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                 <StatusBadge status={selectedEvent.status} />
-                <span className="text-sm font-bold text-white truncate">{selectedEvent.name}</span>
+                <DifficultyBadge eventId={selectedEvent.id} />
+                <span className="text-sm font-bold text-white truncate min-w-0">{selectedEvent.name}</span>
               </div>
               <div className="text-[10px] text-white/40 font-mono tabular-nums">
                 {selectedEvent.gameweek != null ? `GW ${selectedEvent.gameweek} · ` : ''}

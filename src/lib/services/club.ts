@@ -812,18 +812,10 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
 }
 
 // ============================================
-// Slice 199 — Most-Owned Players per Club (Aggregate-RPC)
+// Slice 199 K-02 — Most-Owned Players per Club (anonymized aggregate)
 // ============================================
 
-/**
- * Most-owned scout cards per club (anonymized aggregate).
- *
- * SECURITY DEFINER RPC — bypasses holdings RLS but only projects aggregate
- * counts (NEVER user_id). Sorted by holders_count DESC.
- *
- * Empty club / NULL club_id / club without holdings → [].
- */
-export type MostOwnedPlayer = {
+export type MostOwnedPlayerRow = {
   player_id: string;
   first_name: string;
   last_name: string;
@@ -834,14 +826,24 @@ export type MostOwnedPlayer = {
   rank: number;
 };
 
+/**
+ * Slice 199 K-02 — Top-N Spieler eines Clubs nach Anzahl Holder (anonymized).
+ * SECURITY DEFINER RPC bypassed RLS (holdings cross-user-aggregate);
+ * Output: keine user_ids, nur Counts.
+ */
 export async function getMostOwnedPlayersPerClub(
   clubId: string,
   limit = 5,
-): Promise<MostOwnedPlayer[]> {
+): Promise<MostOwnedPlayerRow[]> {
   const { data, error } = await supabase.rpc('get_most_owned_players_per_club', {
     p_club_id: clubId,
     p_limit: limit,
   });
   if (error) throw new Error(error.message);
-  return (data as MostOwnedPlayer[] | null) ?? [];
+  if (!data) return [];
+  if (!Array.isArray(data)) return [];
+  return (data as MostOwnedPlayerRow[]).filter(
+    (r): r is MostOwnedPlayerRow =>
+      typeof r?.player_id === 'string' && typeof r?.holders_count === 'number',
+  );
 }

@@ -149,28 +149,23 @@ export async function getAllEventsAdmin(filters?: {
 }
 
 // ============================================
-// Slice 199 — Event-Difficulty-Score (Aggregate-RPC)
+// Slice 199 fm 2.4 — Event-Difficulty-Score
 // ============================================
 
-/**
- * Difficulty-Score eines Events (basierend auf avg ipo_price der Club-Spieler).
- *
- * Heuristik (RPC-internal):
- *   avg <= 100k cents     → easy   (0.30)
- *   100k < avg <= 500k    → medium (0.60)
- *   avg >  500k           → hard   (0.85)
- *
- * Bei Event ohne club_id → returns null (RPC liefert {success: false,
- * error: 'event_not_clubbed'}). Wirft fuer event_not_found.
- */
+export type EventDifficultyTier = 'easy' | 'medium' | 'hard';
+
 export type EventDifficultyScore = {
   event_id: string;
-  difficulty_score: number;
-  difficulty_tier: 'easy' | 'medium' | 'hard';
+  difficulty_score: number; // 0..1
+  difficulty_tier: EventDifficultyTier;
   avg_ipo_price_cents: number;
   participant_clubs_count: number;
 };
 
+/**
+ * Slice 199 fm 2.4 — Event-Difficulty-Score (avg IPO + participant clubs).
+ * Aggregate von ipo_price der eligible Clubs des Events. Public-safe.
+ */
 export async function getEventDifficultyScore(
   eventId: string,
 ): Promise<EventDifficultyScore | null> {
@@ -178,25 +173,10 @@ export async function getEventDifficultyScore(
     p_event_id: eventId,
   });
   if (error) throw new Error(error.message);
-
-  // Discriminated-union error-shape (Slice 168 pattern).
-  // Pre-cast guard prevents Silent-Cast bugs (errors-db.md Silent-Cast).
-  const result = data as
-    | { success?: false; error?: string }
-    | EventDifficultyScore
-    | null;
-
-  if (result === null) return null;
-
-  if ('success' in result && result.success === false) {
-    if (result.error === 'event_not_clubbed') return null;
-    throw new Error(result.error ?? 'event_difficulty_failed');
-  }
-
-  // Type-guard: shape must match EventDifficultyScore now.
-  const ok = result as EventDifficultyScore;
-  if (typeof ok.difficulty_score !== 'number' || !ok.difficulty_tier) {
-    throw new Error('event_difficulty_invalid_shape');
-  }
-  return ok;
+  if (!data) return null;
+  // RPC returns single JSONB object (not array) per Spec.
+  if (Array.isArray(data) ? data.length === 0 : false) return null;
+  const row = (Array.isArray(data) ? data[0] : data) as EventDifficultyScore | null;
+  if (!row || typeof row.event_id !== 'string') return null;
+  return row;
 }

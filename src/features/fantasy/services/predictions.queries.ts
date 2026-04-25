@@ -209,6 +209,39 @@ export async function getPlayersForFixture(
   return data;
 }
 
+/**
+ * Slice 199 C-05 — Top-Predictor Leaderboard (anonymized).
+ * Backend RPC `get_top_predictors_leaderboard(p_limit INT)` returns JSONB array
+ * with `{user_id, handle, display_name, tier, predictions_total,
+ * predictions_correct, hit_rate_pct, rank}`. Public-safe (handle only, no PII).
+ * Min 5 graded predictions required (HAVING-clause server-side).
+ */
+export type TopPredictorRow = {
+  user_id: string;
+  handle: string;
+  display_name: string | null;
+  tier: string;
+  predictions_total: number;
+  predictions_correct: number;
+  hit_rate_pct: number;
+  rank: number;
+};
+
+export async function getTopPredictorsLeaderboard(limit = 10): Promise<TopPredictorRow[]> {
+  const { data, error } = await supabase.rpc('get_top_predictors_leaderboard', {
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) return [];
+  // RPC returns JSONB array directly. Backend public-safe — no success/error discriminator
+  // for read-only aggregate queries (Slice 095 pattern).
+  if (!Array.isArray(data)) return [];
+  return (data as TopPredictorRow[]).filter(
+    (r): r is TopPredictorRow =>
+      typeof r?.user_id === 'string' && typeof r?.hit_rate_pct === 'number',
+  );
+}
+
 // ── Internal helpers ──
 
 function mapPrediction(row: Record<string, unknown>): Prediction {

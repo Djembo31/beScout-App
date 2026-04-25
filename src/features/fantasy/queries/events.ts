@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry, getScoutEventsEnabled } from '@/features/fantasy/services/events.queries';
+import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry, getScoutEventsEnabled, getEventDifficultyScore } from '@/features/fantasy/services/events.queries';
 import { getPlayerEventUsage } from '@/features/fantasy/services/lineups.queries';
 import { getUserHoldingLocks } from '@/lib/services/wallet';
 import { getWildcardBalance } from '@/features/fantasy/services/wildcards';
@@ -115,4 +115,17 @@ export function useScoutEventsEnabled(): boolean {
     staleTime: FIVE_MIN,
   });
   return data ?? false;
+}
+
+/**
+ * Slice 199 fm 2.4 — Event-Difficulty-Score (avg IPO + clubs).
+ * Public-safe; cached lange (Aggregate change selten).
+ */
+export function useEventDifficultyScore(eventId: string | undefined) {
+  return useQuery({
+    queryKey: qk.events.difficulty(eventId!),
+    queryFn: () => getEventDifficultyScore(eventId!),
+    enabled: !!eventId,
+    staleTime: FIVE_MIN,
+  });
 }

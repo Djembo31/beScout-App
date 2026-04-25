@@ -8,6 +8,7 @@ import {
   getPredictionStats,
   getFixturesForPrediction,
   hasAnyPrediction,
+  getTopPredictorsLeaderboard,
 } from '@/lib/services/predictions';
 
 const FIVE_MIN = 5 * 60 * 1000;
@@ -61,6 +62,18 @@ export function usePredictionFixtures(gameweek: number) {
     queryKey: qk.predictions.fixtures(gameweek),
     queryFn: () => getFixturesForPrediction(gameweek),
     enabled: gameweek > 0,
+    staleTime: FIVE_MIN,
+  });
+}
+
+/**
+ * Slice 199 C-05 — Top-Predictor Leaderboard (anonymized aggregate).
+ * Public-safe: Backend RPC returns handle/tier only. Static-cacheable.
+ */
+export function useTopPredictorsLeaderboard(limit = 10) {
+  return useQuery({
+    queryKey: qk.predictions.topPredictors(limit),
+    queryFn: () => getTopPredictorsLeaderboard(limit),
     staleTime: FIVE_MIN,
   });
 }
