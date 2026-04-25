@@ -27,6 +27,14 @@ paths:
 - NIEMALS `console.error` ohne `throw` bei DB-Writes → silent failure = unsichtbarer Bug
 - Wenn Service `.from('table').insert/delete()` macht UND Tabelle RLS hat → Policy MUSS existieren
 
+### RLS-Pattern: Cron-Only Table (Slice 197d, 2026-04-25)
+- Fuer Tabellen die NUR von Crons + service_role gelesen/geschrieben werden (Snapshots, Audit-History, Metric-Buffer): `ENABLE RLS + 0 Policies` ist sauberes Pattern.
+- service_role bypassed RLS automatisch (cron + admin SQL gehen durch).
+- Authenticated/anon SELECT liefert **leeres Set** (kein 403, kein Error) — self-documenting "kein Frontend-Zugriff geplant".
+- Bei spaeterer Frontend-Integration: Policy hinzufuegen (nicht "RLS disablen").
+- Beispiel: `players_mv_history` (Slice 197d) — Daily-Cron schreibt MV-Snapshots, kein User-Read.
+- **Nicht als "fehlende Policy" mismarken** — bewusstes Design-Pattern.
+
 ## RPC Regeln
 - Parameter IMMER aus DB verifizieren (`pg_get_functiondef`)
 - `::TEXT` auf UUID: NIEMALS beim INSERT (5x gleicher Bug in Session 93)

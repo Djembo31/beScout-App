@@ -1,24 +1,123 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-25 15:34)
+# Session Handoff — Auto (2026-04-25 19:20)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
  M .claude/settings.local.json
  M memory/session-handoff.md
 ?? .claude/state/
+?? worklog/audits/silent-fail-2026-04-25.md
 ```
 
-## Session Commits: 6
+## Session Commits: 9
+- c20d1d16 feat(197d): MV-Trend systemisch (Phase-A FM 1.2 + 4.1)
+- 947d469b feat(197c): Formationen 3-5-2/4-5-1/5-3-2/5-4-1 (Phase-A F-02)
+- 74b5272c feat(197): Wave 1 — FM-Mechanics-Fundament 3 Sub-Slices (a/b/e)
+- b40178f5 feat(195e+195c-UI): Differentials-RPC + Captain-Pick-Rate + EventForm max_per_club
+- 42857532 feat(196): Cross-Cutting P1-Sweep — 16 Findings closed (Track A+B+C parallel)
+- 3a1ce3df feat(fantasy): Slice 195d — Bench + Auto-Sub (parallel-dispatch L)
+- 687500c9 chore(bots+ops): Slice 195 Bot-Loop-Wrapper + nahtloser Handoff
 - 51303125 feat(fantasy): Slice 195c — Event max_per_club Constraint (Backend)
 - ef77476c feat(fantasy): Slice 195b — Boost-Chip Rename + Captain-only-Constraint + AR-44 Hardening
-- b05b5800 feat(fantasy): Slice 195a — Captain-Multiplier 1.1x default, Boost-Chip 1.25x
-- 4b5a2c38 fix(compliance): Sieger/Siege → Erfolge/Top-Platzierung in messages/de.json
-- 98c6b046 chore(qa): Phase A Beta-Readiness Audit + 5 Spezialist-Agents + 4 Skills
-- d6abd9d4 chore(bots): Slice 194 — Bot-Suite Refresh + reference_price Patch
 
 <!-- auto:handoff-end -->
+
+---
+
+# Resume-Anker (2026-04-25 autonomous run, post-/clear restartable)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — aktueller Slice-State
+2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, 6 closed, Slice-Pipeline
+3. Diese Datei (Resume-Anker, weiter unten)
+4. `worklog/log.md` Top 5 Eintraege
+5. `git status --short` + `git log --oneline -10`
+
+## Aktueller Stand (Session-End 2026-04-25 — autonomous run komplett)
+
+**Phase B Polish-Sweep groesster Anteil geschafft. 7 Slices committed+pushed heute. 32/98 closed (~33%). Ready fuer /clear.**
+
+### Pipeline-Status (alle gepusht)
+
+| Slice | Commit | Findings closed |
+|---|---|---|
+| 195a-c (prior) | (3 prior) | 4 P0 (Captain-Mult, Boost-Chip, max_per_club) |
+| 195d Bench + Auto-Sub | 3a1ce3df | +1 P0 (F-03 Bench/Auto-Sub) |
+| 196 Cross-Cutting P1 | 42857532 | +16 (Brand 7 + UX 8 + FM 1) |
+| 195e + 195c-UI | b40178f5 | +5 (F-07, F-11, fm 2.1, fm 2.2 + F-06 UI) |
+| 197 Wave 1 (a/b/e) | 74b5272c | +3 P1 (fm 1.1, F-08, K-01) |
+| 197c Formationen | 947d469b | +1 P0 (F-02) |
+| 197d MV-Trend | c20d1d16 | +2 P1 (fm 1.2, fm 4.1) |
+| **TOTAL** | — | **32/98 closed (~33%)** |
+
+### Phase-A-Findings-Status
+
+- **6 P0 alle gelöst:** 4 fixed (F-02/F-03/F-04/F-05/F-06) + 1 wont-fix CEO-Decision (F-01 Vice-Captain)
+- **34 P1** total — 12 fixed (~35%)
+- **41 P2** — 0 fixed
+- **17 P3** — 0 fixed
+
+### Was läuft im Hintergrund
+
+- **Bot-Loop** persistent (re-start 17:45 UTC). 4h auto-stop. Bash Background-Process via run_in_background:true.
+
+### Naechste Session — Slice 198 Polish-Sweep dispatchen
+
+**Slice 198 ist der grosse Polish-Sweep** der ~50 P2/P3 Findings schliesst:
+
+- **Brand P2 (8 Stellen):** PlayerIPOCard yellow rest, FormTab/StatsTab restliche, JoinConfirmDialog/PlayerPicker rest
+- **UX P2 (13 Stellen):** isError-Branches restliche Sections, preventClose-TODOs Re-Audit, Loader2-Migration Rest
+- **FM-Mechanics P2 (11 Stellen):** Trade-Volume-7d Sort, Trending Hot/Rising/Faller Pills, Holders-Distribution-Bar, Bulk-Buy /market, FormBars Hover-Tooltip
+- **Fantasy P2 (8 Stellen):** Sticky-Countdown, Form-Trend Sparkline, Predictions-Streak, Difficulty-Visibility, Aggregate-Hints, Top-Predictors, Tier-Promotion-CTA, Most-Owned
+
+Strategie: Slice 198 als Multi-Track parallel-dispatch (5-6 Tracks à ~10 Items, ~2-3 Tage).
+
+### Bei /clear oder Token-Limit
+
+1. Lese `worklog/active.md` (idle, naechste Aktion = 198)
+2. Lese `worklog/punch-list-2026-04-25.md` (32/98 closed, Pipeline)
+3. Lese `worklog/log.md` Top 7 Eintraege (alle Slices heute)
+4. `git status --short` + `git log --oneline -10`
+5. Check `git worktree list` (sollte nur main sein, alle cleaned)
+
+### Knowledge-Flywheel-Status (heute durchgezogen)
+
+- ✅ `errors-frontend.md` — Pattern "Hardcoded German addToast/Error-Strings" (Slice 196)
+- ✅ `errors-db.md` — PL/pgSQL Loop-Var Shadowing + Stale State (Slice 195d)
+- ✅ `database.md` — RLS-Pattern Cron-Only Table (Slice 197d)
+- ✅ `patterns.md #33` — Generic Filter-Helper mit Value-Extractor (Slice 197a + 197d)
+- Drafts-Folder leer (alle promoted)
+
+### Vercel-Cron-Status
+
+Aktuell 12 Crons in vercel.json, ALLE daily-Patterns. Hobby-Plan-kompatibel.
+- Slice 197d neuer Eintrag `45 3 * * *` daily — kein Risk.
+
+### CEO-Approval-Anker
+
+- Alle 7 heute committed Slices: kein Money-Path, alle CTO-scope oder pre-approved
+- Slice 198 wird auch CTO-scope sein (Polish-Sweep ohne Schema-Migration)
+- Slice 195f Backlog (Auto-Sub Audit Trail) — siehe 195d-Review M2
+- Slice 197 Backlogs:
+  - 197b m1: CountdownLabel React.memo'd (nach Beta-PostHog-Daten)
+  - 197d M2/M3: MarketFilters env-mock + iconColor-toter-Branch (Slice 198)
+
+### Was zu wissen ist beim Resume
+
+- Bot-Loop nicht stoppen
+- Knowledge-Flywheel: alle promoted, keine Drafts pending
+- Worktree-Agent-Stalls: 197c Backend stalled bei 600s. Pattern: Kleine RPC-Patches → CTO direkt
+- Phase C Persona-Walk nach Slice 198 oder Phase B abgeschlossen (Anil-Decision)
+- 50-Findings-Schwelle: bei Slice 198 Wave erreichbar (~50 closed = ~80/98)
+
+### Anil-Action-Items (Mensch-only)
+
+- 3 Beta-Tester organisieren (1 TR, 1 FM-Power, 1 Casual)
+- Vercel-Plan-Decision (Hobby vs Pro) — aktuell Hobby reicht
+- TR-Locale-Reviewer organisieren
+- Beta-Test-Briefing fuer 197d MV-Trend: "Trends werden ab 2026-05-02 sichtbar (7d-old-data nötig)"
 
 ---
 
@@ -186,3 +285,39 @@ Total morgen: ~25 min Review + 2-3h Slice 194 wenn voll abgesegnet.
 - Optional Slice 195+ post-approval Backlog: variabel
 
 **Total morgen wenn voll abgesegnet:** ~3h coding + 25 min review.
+
+## ⚠ CRASH RECOVERY (20260425-181543)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260425-181543.diff)
+```
+ M .claude/settings.local.json
+ M memory/session-handoff.md
+ M worklog/active.md
+?? .claude/state/
+?? worklog/audits/silent-fail-2026-04-25.md
+```
+
+- Worktree **agent-a13ebc79df332bc0e**:  1 file changed, 15 insertions(+), 1 deletion(-)
+
+→ 1 worktrees had pending work at crash time
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260425-181543.diff`
+
+## ⚠ CRASH RECOVERY (20260425-182530)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260425-182530.diff)
+```
+ M .claude/settings.local.json
+ M memory/session-handoff.md
+ M worklog/active.md
+?? .claude/state/
+?? worklog/audits/silent-fail-2026-04-25.md
+```
+
+- Worktree **agent-a13ebc79df332bc0e**:  1 file changed, 15 insertions(+), 1 deletion(-)
+
+→ 1 worktrees had pending work at crash time
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260425-182530.diff`

@@ -713,3 +713,43 @@ export function useHoldings(userId: string | undefined) {
 
 **Decision-Reference:** `memory/decisions.md` D40 (PROCESS Live-Verify) + D41 (Defense-in-Depth).
 **Slice-Reference:** Slice 193 Proof `worklog/proofs/193-auth-state-perf.md`.
+
+### 33. Generic Filter-Helper mit Value-Extractor statt Type-Constraint (Slice 197a + 197d)
+
+**Problem:** Filter-Helper soll auf 3+ Item-Shapes laufen (Player.perf.l5, KaderPlayer.player.perf.l5, etc.). Type-Constraint `T extends { perfL5?: number }` zwingt alle Caller in das gleiche Schema, oft mit Adapter-Hacks. Bei parallel-dispatch backend+frontend mit shared Types: tsc-Race wenn Frontend ein Field referenziert das Backend gleichzeitig hinzufuegt.
+
+**Pattern:** Generic-Helper mit Value-Extractor-Lambda als 3. Param.
+
+```ts
+export type FormL5Threshold = 0 | 45 | 55 | 65;
+
+export function applyFormL5Filter<T>(
+  items: T[],
+  threshold: FormL5Threshold,
+  getValue: (item: T) => number | null | undefined,
+): T[] {
+  if (threshold === 0) return items;
+  return items.filter(item => (getValue(item) ?? 0) >= threshold);
+}
+
+// Caller bestimmen wie sie an den Wert kommen — kein Type-Magic, kein Adapter:
+applyFormL5Filter(holdings, formL5, h => h.player.perf.l5);
+applyFormL5Filter(players, formL5, p => p.perf.l5);
+applyFormL5Filter(watchlistItems, formL5, item => item.perfL5);
+```
+
+**Anwendung:**
+- Slice 197a: `formL5Filter` mit 3 Konsumenten (MarketFilters, KaderTab, WatchlistView)
+- Slice 197d: `mvTrendFilter` analog
+
+**Vorteile:**
+- Kein Type-Constraint = keine Type-Magic in Caller-Sites
+- Cross-Track-Type-Race komplett umgangen — Helper kennt Player-Type nicht, nur den extrahierten Value
+- `getValue` ist required Param (nicht optional) → Anti-Silent-Fallback per `errors-frontend.md`
+- Helper isoliert testbar (197d: 11/11 Tests ohne Backend-Dependency)
+
+**Cross-Track-Bridge-Spezialfall:** Wenn Backend gleichzeitig DbX-Type erweitert + Mapper extended, kann Frontend den Helper sofort schreiben (mit `getValue: item => (item as PlayerWithX).x`). Nach Backend-Merge: Cleanup-Pflicht (Augment-Type weg, Cast simplifizieren). Wird sonst Code-Smell.
+
+**Anti-Pattern:** `applyFilter<T extends { perfL5?: number }>(items, threshold)` — zwingt alle Caller in identisches Type-Schema. Schmerzhaft bei nested data-shapes (Holdings hat player.perf.l5, nicht direct).
+
+**Slice-Reference:** Slice 197a Form-L5-Filter universal + Slice 197d MV-Trend-Filter.
