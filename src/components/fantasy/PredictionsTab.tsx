@@ -56,10 +56,13 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
         <div className="flex items-center gap-2 flex-wrap">
           <Target className="size-5 text-gold" aria-hidden="true" />
           <h3 className="font-black">{t('myPredictions')}</h3>
-          <span className={cn(
-            'text-xs font-bold px-2 py-0.5 rounded-full',
-            limitReached ? 'text-red-400 bg-red-400/10' : 'text-white/40 bg-surface-base'
-          )}>
+          <span
+            className={cn(
+              'text-xs font-bold px-2 py-0.5 rounded-full',
+              limitReached ? 'text-red-400 bg-red-400/10' : 'text-white/40 bg-surface-base'
+            )}
+            title={t('limitHint')}
+          >
             {count}/5
           </span>
           {/* Slice 198d C-01: Current-Streak Badge — Engagement-Treiber, Compliance-clean (kein "Sieg"/"gewinn"). */}
@@ -82,6 +85,9 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
           {limitReached ? t('limitReached') : t('create')}
         </Button>
       </div>
+
+      {/* Slice 198b C-04: Limit-Begründung im UI (compliance-clean, kein "gewinn") */}
+      <p className="text-xs text-white/50 text-pretty">{t('limitHint')}</p>
 
       {/* Pending predictions */}
       {pendingPredictions.length > 0 && (
