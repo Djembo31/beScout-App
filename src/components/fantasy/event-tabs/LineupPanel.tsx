@@ -243,6 +243,43 @@ export default function LineupPanel({
           </span>
         </div>
       )}
+      {/* Slice 198b fm 2.3 — Lineup-Score-Projection Pill (pre-game / building phase).
+          Sum perfL5 of slot players + 1.1× Captain Multiplier (Slice 195a).
+          Nur sichtbar wenn nicht scored, nicht running, mindestens 1 Spieler im Lineup. */}
+      {!isScored && event.status !== 'running' && selectedPlayers.length > 0 && (() => {
+        let projection = 0;
+        let countedSlots = 0;
+        formationSlots.forEach(slot => {
+          const player = getSelectedPlayer(slot.slot);
+          if (!player) return;
+          const isCpt = captainSlot === slotDbKeys[slot.slot];
+          // perfL5 ist 0-100 normalisiert; Captain-Multiplier 1.1 (siehe Slice 195a).
+          const perfL5 = player.perfL5 ?? 0;
+          projection += isCpt ? Math.round(perfL5 * 1.1) : perfL5;
+          countedSlots++;
+        });
+        if (countedSlots === 0) return null;
+        const isPartial = countedSlots < formationSlots.length;
+        return (
+          <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-sky-500/10 border border-sky-500/20">
+            <div className="flex items-center gap-2 min-w-0">
+              <BarChart3 aria-hidden="true" className="size-4 text-sky-400 flex-shrink-0" />
+              <span className="text-xs font-bold text-sky-300 uppercase truncate">
+                {t('projectionLabel')}
+              </span>
+              {isPartial && (
+                <span className="text-[10px] text-sky-400/60 font-mono tabular-nums flex-shrink-0">
+                  ({countedSlots}/{formationSlots.length})
+                </span>
+              )}
+            </div>
+            <div className="text-sm font-mono font-black text-sky-200 tabular-nums">
+              {projection} <span className="text-[10px] text-sky-400/70">{t('ptsShort')}</span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Formation Selector + Presets Bar */}
       <div className="flex items-center gap-2 flex-wrap">
         <select

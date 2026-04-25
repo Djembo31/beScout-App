@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 198b-track-B
+stage: PROVE
+spec: worklog/specs/198-polish-sweep.md
+impact: skipped (UI-only, no DB/Service)
+proof: worklog/proofs/198b-track-B-fm-ui-top5.md
+review: worklog/reviews/198b-track-B-review.md (self-review — XS-pattern repetition, no money-path)
 ```
 
 ## Zuletzt

@@ -71,6 +71,12 @@ function PriceChartInner({ trades, ipoPrice, className = '' }: PriceChartProps) 
   const chartW = W - padX - 10;
   const chartH = H - padY * 2;
 
+  // Volume histogram (Slice 198b fm 5.3) — small bar-chart unter dem Linien-Chart.
+  // Custom-SVG (kein external Lib), buckets nach Trade-Anzahl.
+  const VOL_H = 40;
+  const VOL_PAD_TOP = 8;
+  const BUCKET_COUNT = 12;
+
   const chartData = useMemo(() => {
     if (filtered.length < 2) return null;
     const prices = filtered.map(t => centsToBsd(t.price as number));
@@ -96,7 +102,24 @@ function PriceChartInner({ trades, ipoPrice, className = '' }: PriceChartProps) 
       ? padY + (1 - (ipoBsd - min) / rangeVal) * chartH
       : null;
 
-    return { prices, dates, min, rangeVal, pts, linePath, areaPath, up, change, changePct, yLabels, ipoY };
+    // Volume buckets: divide time range into BUCKET_COUNT buckets, sum quantities.
+    // Null-Guard: trade.quantity can be 0 oder undefined fuer alte Datensaetze (?? 0).
+    const tStart = dates[0].getTime();
+    const tEnd = dates[dates.length - 1].getTime();
+    const tSpan = Math.max(tEnd - tStart, 1);
+    const buckets = new Array(BUCKET_COUNT).fill(0);
+    filtered.forEach((trade, i) => {
+      const t = dates[i].getTime();
+      const idx = Math.min(BUCKET_COUNT - 1, Math.max(0, Math.floor(((t - tStart) / tSpan) * BUCKET_COUNT)));
+      buckets[idx] += trade.quantity ?? 0;
+    });
+    const maxVol = Math.max(...buckets, 1);
+    const totalVol = buckets.reduce((a, b) => a + b, 0);
+
+    return {
+      prices, dates, min, rangeVal, pts, linePath, areaPath, up, change, changePct, yLabels, ipoY,
+      buckets, maxVol, totalVol,
+    };
   }, [filtered, ipoPrice, padX, padY, chartW, chartH]);
 
   const handlePointer = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
@@ -141,7 +164,7 @@ function PriceChartInner({ trades, ipoPrice, className = '' }: PriceChartProps) 
     );
   }
 
-  const { prices, dates, min: minPrice, rangeVal, pts, linePath, areaPath, up, change, changePct, yLabels, ipoY } = chartData;
+  const { prices, dates, min: minPrice, rangeVal, pts, linePath, areaPath, up, change, changePct, yLabels, ipoY, buckets, maxVol, totalVol } = chartData;
 
   const dateFmt = (d: Date) =>
     d.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: 'short' });
@@ -225,6 +248,46 @@ function PriceChartInner({ trades, ipoPrice, className = '' }: PriceChartProps) 
           </>
         )}
       </svg>
+
+      {/* Slice 198b fm 5.3 — Volume Histogram unter Linien-Chart.
+          Custom-SVG, keine external Lib. Buckets sammeln Trade-Quantities ueber Zeit. */}
+      {totalVol > 0 && (
+        <div className="mt-1" aria-label={t('volumeHistogramLabel')}>
+          <svg
+            viewBox={`0 0 ${W} ${VOL_H}`}
+            className="w-full h-auto"
+            preserveAspectRatio="none"
+            role="img"
+            aria-hidden="true"
+          >
+            {buckets.map((vol, i) => {
+              if (vol <= 0) return null;
+              const bucketW = chartW / BUCKET_COUNT;
+              const barW = Math.max(2, bucketW * 0.7);
+              const barX = padX + i * bucketW + (bucketW - barW) / 2;
+              const barH = ((VOL_H - VOL_PAD_TOP) * vol) / maxVol;
+              const barY = VOL_H - barH;
+              return (
+                <rect
+                  key={i}
+                  x={barX}
+                  y={barY}
+                  width={barW}
+                  height={barH}
+                  fill={up ? 'var(--vivid-green)' : 'var(--vivid-red)'}
+                  opacity={0.35}
+                  rx={1}
+                />
+              );
+            })}
+          </svg>
+          <div className="flex items-center justify-between text-[9px] text-white/30 mt-0.5 px-1 font-mono tabular-nums">
+            <span>{t('volumeLabel')}</span>
+            <span>{totalVol} SC</span>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between text-[10px] text-white/30 mt-1 px-1">
         <span>{dateFmt(dates[0])}</span>
         {dates.length > 2 && (
