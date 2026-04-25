@@ -10,11 +10,16 @@ proof: —
 review: —
 ```
 
-## Naechste Aktion
+## Naechste Aktion (post-/clear, frischer Kopf)
 
-**Slice 197d — MV-Trend systemisch** (~1.5 Tage, parallel-dispatch backend + frontend). DB-Migration + Cron + PerfPills + Filter. **Achtung Vercel-Plan-Risk:** Cron-Schedule daily — kompatibel mit Hobby-Plan.
+**Slice 198 SPEC ist ready** in `worklog/specs/198-polish-sweep.md`. 4-Track Multi-Dispatch geplant (~30 Findings closed in Wave 1):
 
-Optional davor: **Slice 198 Polish-Sweep** Multi-Track (kleinere P2/P3, no-DB).
+- **Track A** — Brand-Rest 5 Items (airdrop diamond/rocket, raw-button refactors, Quick-Action-Pills extract). Wave-1-Briefing ist im SPEC. Track A wurde gecanceled vor /clear — fresh-start dispatch.
+- **Track B** — UX-States-Rest Top-5 (#19 Toast + #11 Retry + #14 optimistic + #6 Bar + #22 Touch-Targets)
+- **Track C** — FM-Rest Top-5 (5.1 FormBars Tooltip + 4.4 Sort by Volume + 4.5 Bulk-Buy + 1.4 Quick-In-Lineup + 3.1 Avg-Rank Card)
+- **Track D** — Fantasy-Rest Top-5 (C-01 Streak + C-02 Difficulty + C-03 Aggregate-Hint + R-04 Tier-Promotion + F-13 Form-Sparkline)
+
+Erwartung Wave 1: 32/98 → ~62/98 closed.
 
 ## Naechste Aktion
 
