@@ -518,6 +518,62 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
   return result;
 }
 
+/** Slice 197e — Get next N scheduled fixtures for a single club (home or away).
+ *
+ * Used by ClubFixturesStrip on /club/[slug] to display 5-GW-Forward FDR (closes
+ * FM-Audit K-01). Same stale-skip logic as getNextFixturesByClub: ignores rows
+ * with played_at >6h in the past to survive sync-lag.
+ *
+ * Order: played_at ASC, gameweek ASC tiebreaker (Slice 148 time-truth pattern).
+ */
+export async function getNextFixturesForClub(
+  clubId: string,
+  count = 5,
+): Promise<NextFixtureInfo[]> {
+  const { data, error } = await supabase
+    .from('fixtures')
+    .select(`
+      gameweek, home_club_id, away_club_id, played_at,
+      home_club:clubs!fixtures_home_club_id_fkey(name, short, logo_url),
+      away_club:clubs!fixtures_away_club_id_fkey(name, short, logo_url)
+    `)
+    .eq('status', 'scheduled')
+    .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+    .order('played_at', { ascending: true, nullsFirst: false })
+    .order('gameweek', { ascending: true })
+    .limit(Math.max(1, count) * 2); // safety-margin: skipped stale rows
+
+  if (error) throw new Error(error.message);
+  if (!data) return [];
+
+  const staleCutoffMs = Date.now() - STALE_SCHEDULED_GRACE_MS;
+  const result: NextFixtureInfo[] = [];
+
+  for (const row of data) {
+    if (result.length >= count) break;
+
+    const playedAt = row.played_at as string | null;
+    if (playedAt && new Date(playedAt).getTime() < staleCutoffMs) continue;
+
+    const home = row.home_club as unknown as { name: string; short: string; logo_url: string | null } | null;
+    const away = row.away_club as unknown as { name: string; short: string; logo_url: string | null } | null;
+    const homeClubId = row.home_club_id as string;
+    const isHome = homeClubId === clubId;
+    const opponent = isHome ? away : home;
+
+    result.push({
+      opponentName: opponent?.name ?? '',
+      opponentShort: opponent?.short ?? '',
+      opponentLogoUrl: opponent?.logo_url ?? null,
+      isHome,
+      gameweek: row.gameweek as number,
+      playedAt,
+    });
+  }
+
+  return result;
+}
+
 // ============================================
 // Simulation
 // ============================================

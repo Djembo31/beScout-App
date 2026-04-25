@@ -12,7 +12,7 @@ import type { Pos, SynergyDetail } from '@/types';
 import { fmtScout } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import type { FantasyEvent, UserDpcHolding } from '@/components/fantasy/types';
-import { getScoreColor } from '@/components/fantasy/helpers';
+import { getScoreColor } from '@/features/fantasy/helpers';
 
 export interface ScoreBreakdownProps {
   event: FantasyEvent;

@@ -47,6 +47,10 @@ vi.mock('@/components/club/sections/SquadPreviewSection', () => ({
   SquadPreviewSection: () => <div data-testid="squad-preview-section" />,
 }));
 
+vi.mock('@/components/club/sections/ClubFixturesStrip', () => ({
+  ClubFixturesStrip: () => <div data-testid="club-fixtures-strip" />,
+}));
+
 vi.mock('@/components/club/sections/MitmachenSection', () => ({
   MitmachenSection: () => <div data-testid="mitmachen-section" />,
 }));

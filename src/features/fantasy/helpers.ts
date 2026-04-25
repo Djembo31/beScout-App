@@ -62,15 +62,22 @@ export const getPosAccentColor = (pos: string): string => {
   return '#ffffff20';
 };
 
+// Slice 197b — Countdown-Granularitaet bis Sekunden in letzter Stunde
+// (FPL-Pattern: Last-Minute-Druck = Engagement-Treiber).
+// Caller, die Sekunden-Aktualisierung wollen, MUESSEN ueber `useCountdownTick`
+// re-rendern; sonst tickt nur die Minute weiter.
 export const formatCountdown = (timestamp: number, startedLabel = 'Gestartet') => {
   const diff = timestamp - Date.now();
   if (diff <= 0) return startedLabel;
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
   const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
   if (days > 0) return `${days}d ${hours}h`;
   if (hours > 0) return `${hours}h ${mins}m`;
-  return `${mins}m`;
+  // < 1 hour: include seconds for last-minute-druck
+  if (mins > 0) return `${mins}m ${secs}s`;
+  return `${secs}s`;
 };
 
 export const getFormResult = (rank: number, total: number): { color: string; label: string } => {

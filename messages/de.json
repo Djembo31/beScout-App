@@ -2292,6 +2292,12 @@
     "posDEF": "Verteidiger",
     "posMID": "Mittelfeld",
     "posATT": "Angriff",
+    "next5Fixtures": "Nächste 5 Spiele",
+    "fdr": {
+      "easy": "Leicht",
+      "med": "Mittel",
+      "hard": "Schwer"
+    },
     "nextMatch": "Nächste Begegnung — Spieltag {gw}",
     "inOneDay": "Morgen",
     "inDays": "In {days} Tagen",

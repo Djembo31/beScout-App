@@ -8,11 +8,9 @@ import { InfoTooltip } from '@/components/ui';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import type { Pos, Player } from '@/types';
 import type { SortOption } from '@/lib/stores/marketStore';
+import { FORM_L5_VALUES, getFormL5Label } from '@/lib/filters/formL5Filter';
 
 const POSITIONS: Pos[] = ['GK', 'DEF', 'MID', 'ATT'];
-
-const L5_VALUES = [0, 45, 55, 65] as const;
-const L5_LABELS = ['sortAll', '45+', '55+', '65+'] as const;
 
 const SORT_KEYS: { value: SortOption; labelKey: string; fallback: string }[] = [
   { value: 'l5', labelKey: 'literal', fallback: 'L5 Score' },
@@ -160,20 +158,23 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
           <div>
             <div className="text-[10px] text-white/40 font-semibold mb-1.5 inline-flex items-center gap-0.5">{t('l5Performance', { defaultMessage: 'L5 Performance' })} <InfoTooltip text={t('l5Tooltip')} /></div>
             <div className="flex gap-1.5">
-              {L5_VALUES.map((v, i) => (
-                <button
-                  key={v}
-                  onClick={() => setFilterMinL5(v)}
-                  className={cn(
-                    'px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[32px]',
-                    filterMinL5 === v
-                      ? 'bg-white/15 text-white'
-                      : 'text-white/40 hover:text-white/60'
-                  )}
-                >
-                  {i === 0 ? t('sortAll', { defaultMessage: 'Alle' }) : L5_LABELS[i]}
-                </button>
-              ))}
+              {FORM_L5_VALUES.map(v => {
+                const label = getFormL5Label(v);
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setFilterMinL5(v)}
+                    className={cn(
+                      'px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[32px]',
+                      filterMinL5 === v
+                        ? 'bg-white/15 text-white'
+                        : 'text-white/40 hover:text-white/60'
+                    )}
+                  >
+                    {label === 'all' ? t('sortAll', { defaultMessage: 'Alle' }) : label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

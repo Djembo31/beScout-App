@@ -1,0 +1,46 @@
+Slice 197e — ClubFixturesStrip — Proof
+
+Date: 2026-04-25
+
+# TypeScript Check
+$ npx tsc --noEmit
+EXIT: 0  (clean — no errors)
+
+# Vitest — Service Tests (existing getNextFixturesByClub coverage)
+$ npx vitest run src/lib/services/__tests__/fixtures.test.ts
+Test Files  1 passed (1)
+     Tests  29 passed (29)
+  Duration  2.69s
+
+# Vitest — ClubContent integration test (verifies no regression)
+$ npx vitest run src/app/\(app\)/club/\[slug\]/__tests__/ClubContent.test.tsx
+Test Files  1 passed (1)
+     Tests  12 passed (12)
+  Duration  4.73s
+
+# Files Changed
+src/features/fantasy/services/fixtures.ts          | +56 lines (new fn)
+src/lib/queries/fixtures.ts                        | +11 lines (new hook)
+src/lib/queries/keys.ts                            |  +1 line (qk.fixtures.nextForClub)
+src/components/club/sections/ClubFixturesStrip.tsx | NEW 116 lines
+src/app/(app)/club/[slug]/ClubContent.tsx          |  +8 lines (integration)
+src/app/(app)/club/[slug]/__tests__/...            |  +4 lines (test mock)
+messages/de.json                                   |  +6 keys
+messages/tr.json                                   |  +6 keys
+worklog/active.md                                  |  +6/-6 (status)
+
+# Pre-existing failures NOT caused by this slice
+- src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx (baseline-broken, verified via git stash)
+- src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx (baseline-broken)
+
+# Acceptance Criteria (Slice 197e)
+[x] 5-GW-Forward FDR-Strip rendered above Squad-Preview-Section
+[x] Color-coded easy/med/hard mit emerald/status-doubtful/rose
+[x] Mobile 393px fit (5 pills × w-14 = 280px + gaps = 312px)
+[x] i18n DE+TR symmetrisch (next5Fixtures + fdr.*)
+[x] Service-Layer eingehalten (Component → Hook → Service → Supabase)
+[x] FDR-Heuristik identisch zu FDRBadge.getFDR (single source)
+[x] Edge-Case: 0 fixtures → return null (kein leeres Strip)
+[x] Edge-Case: opponent_short missing → '?' fallback statt crash
+[x] Loading-Skeleton vor Empty-Guard
+[x] aria-label localized

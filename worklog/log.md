@@ -11,6 +11,52 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 197 Wave 1 | 2026-04-25 | FM-Mechanics-Fundament Sub-Slices a/b/e
+
+3 Sub-Slices via parallel-dispatch in 3 Worktrees gleichzeitig. Punch-Liste: 26/98 → **29/98 closed (≈29.5%)**.
+
+### 197a — Form-L5-Filter universal (Phase-A FM 1.1)
+- **Files:** NEW `src/lib/filters/formL5Filter.ts` (generic value-extractor pattern) + 12-test-file
+- **Modified:** MarketFilters refactor zu shared helper, KaderToolbar/KaderTab/WatchlistView mit Pill-Group + per-page state
+- **Smart-Move:** Spec-Signatur `T extends { perfL5?: ... }` zu `getValue: (item) => number | null | undefined` Value-Extractor migriert (bewusste Spec-Verbesserung). KaderToolbar Props REQUIRED (Anti-Silent-Fallback per errors-frontend.md)
+- **Verdict:** PASS
+- **Closed:** fm 1.1
+
+### 197b — Countdown-Sekunden in letzter Stunde (Phase-A F-08)
+- **Files:** NEW `src/features/fantasy/hooks/useCountdownTick.ts` (adaptive-cadence: 60s>1h, 1s<1h)
+- **Modified:** `formatCountdown` Output-Erweiterung backward-compat (4 weitere Caller bekommen Sekunden bei Frozen-State automatisch); EventDetailHeader mit Hook
+- **Verdict:** CONCERNS (M1 helper-import-Drift) → PASS nach inline-Healing (4 Files migriert von `@/components/fantasy/helpers` Re-Export-Bridge auf canonical `@/features/fantasy/helpers`)
+- **Backlog:** m1 1s-Tick re-rendert ganzen Subtree (CountdownLabel als React.memo'd Sub-Component nach Beta-PostHog-Daten)
+- **Closed:** F-08
+
+### 197e — ClubFixturesStrip (Phase-A K-01)
+- **Files:** NEW `src/components/club/sections/ClubFixturesStrip.tsx` (5-Pill horizontal strip mit color-coded Easy/Med/Hard FDR)
+- **Modified:** `getNextFixturesForClub(clubId, count=5)` additive (statt Extension von `getNextFixturesByClub`), useClubNextFixtures Hook, ClubContent Integration, 6 i18n-Keys DE+TR
+- **Smart-Move:** Additive Service-Function statt Extension — Cardinality-Diff (Map<clubId,T> für 3 existing-Konsumenten vs T[] für 1 neuer)
+- **Verdict:** PASS
+- **Closed:** K-01
+
+### Aufrufpfad-Audit (D43): alle 3 Sub-Slices linear, single-consumer-chains. Aufrufpfad-Coverage 100%.
+
+### Knowledge-Flywheel — Promote-Worthy
+- 197a: Generic Filter-Helper mit Value-Extractor (statt Type-Constraint) → patterns.md
+- 197b: Backward-compat über Output-Erweiterung statt Signature-Change → patterns.md PROCESS
+- 197b: Adaptive-Cadence-Hook (generalisierbar auf Order-Expiry, Auction-End) → patterns.md
+- 197e: Additive Service-Function vs Extension bei Cardinality-Diff → Learning-Draft
+
+### Pipeline weiter
+- **197 Wave 2:** 197c Formationen (3-5-2/4-5-1/5-3-2/5-4-1, RPC-Patch erforderlich) + 197d MV-Trend systemisch (1.5 Tage, DB-Migration + Cron)
+- **198** Polish-Sweep grosser Rest (~50 P2/P3)
+- **Phase C Persona-Walk** nach 197 komplett
+
+### Bot-Loop
+Run #1+#2 done (164 trades). Crash bei run #2 wegen Unix-`&` nicht-persistent. Re-started 17:45 UTC mit Bash-Tool `run_in_background:true` (persistent). Läuft 4h.
+
+### Commits
+- 197 Wave 1: (folgt mit diesem Eintrag)
+
+---
+
 ## 196 + 195e + 195c-UI | 2026-04-25 | Cross-Cutting P1-Sweep + Differentials + Admin-Form
 
 Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 closed (≈26.5%)**.

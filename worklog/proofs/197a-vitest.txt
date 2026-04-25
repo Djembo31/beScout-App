@@ -1,0 +1,22 @@
+$ npx vitest run src/lib/filters/__tests__/formL5Filter.test.ts
+
+ RUN  v4.1.0 C:/bescout-app/.claude/worktrees/agent-ae1de5243c08dee85
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  17:50:24
+   Duration  2.27s
+
+EXIT: 0
+
+All 12 tests cover:
+- FORM_L5_VALUES stable order [0, 45, 55, 65]
+- isFormL5Threshold type-guard accept/reject
+- applyFormL5Filter at threshold 0 / 45 / 55 / 65
+- null/undefined treated as 0 (excluded for any threshold > 0)
+- non-mutation invariant
+- different value-extractor shapes (Player.perf.l5 nested access)
+- getFormL5Label "all" sentinel + "{n}+"
+
+Pre-existing MarketFilters.test.ts failure (env-vars not loaded for module-import; test never ran)
+verified as not-a-regression via stash + run on baseline (HEAD before changes).

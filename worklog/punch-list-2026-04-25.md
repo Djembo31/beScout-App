@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-25 nach Slice 195e + 195c-UI (+4 closed, +1 UI-Komplettierung)
+**Stand:** 2026-04-25 nach Slice 197 Wave 1 (+3 closed)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **26 closed (≈26.5%)**
+**Total:** 98 Findings · davon **29 closed (≈29.5%)**
 
 ## Status-Legende
 
@@ -20,9 +20,14 @@
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 7 | 0 | 0 | 11 | 0 |
 | UX-States | 27 | 8 | 0 | 0 | 19 | 0 |
-| FM-Mechanics | 26 | 3 | 0 | 0 | 23 | 0 |
-| Fantasy-Scoring | 27 | 8 | 1 | 0 | 18 | 0 |
-| **TOTAL** | **98** | **26** | **1** | **0** | **71** | **0** |
+| FM-Mechanics | 26 | 5 | 0 | 0 | 21 | 0 |
+| Fantasy-Scoring | 27 | 9 | 1 | 0 | 17 | 0 |
+| **TOTAL** | **98** | **29** | **1** | **0** | **68** | **0** |
+
+**Slice 197 Wave 1 closed (+3):**
+- fm 1.1 Form-L5-Filter universal (197a) — 3 Pages (market/manager-kader/watchlist)
+- F-08 Countdown-Sekunden in letzter Stunde (197b) — adaptive-cadence Hook
+- K-01 5-GW-FDR-Strip auf Club-Page (197e) — 5 color-coded Pills
 
 **Slice 196 closed (+16):** brand 3-6, 8-10, 14 + ux 4, 5, 9, 13, 15, 16, 17, 18 + fm 9.1.
 **Slice 195e closed (+4):** F-07 Differentials, F-11 Captain-Pick-Rate Lineup-Page, fm 2.1 Captain-Pick-Rate Slot-Picker, fm 2.2 Differential-% Player-Picker.

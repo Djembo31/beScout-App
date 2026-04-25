@@ -225,6 +225,7 @@ export const qk = {
     nextByClub: ['fixtures', 'nextByClub'] as const,
     next: ['fixtures', 'next'] as const,
     byClub: (cid: string) => ['fixtures', 'club', cid] as const,
+    nextForClub: (cid: string, count: number) => ['fixtures', 'nextForClub', cid, count] as const,
   },
 
   // ── Sponsors ──

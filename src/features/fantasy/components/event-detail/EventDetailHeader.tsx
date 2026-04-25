@@ -9,7 +9,8 @@ import { Chip, EventTypeBadge } from '@/components/ui';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { useTranslations, useLocale } from 'next-intl';
 import type { FantasyEvent } from '@/components/fantasy/types';
-import { getStatusStyle, getTypeStyle, formatCountdown } from '@/components/fantasy/helpers';
+import { getStatusStyle, getTypeStyle, formatCountdown } from '@/features/fantasy/helpers';
+import { useCountdownTick } from '@/features/fantasy/hooks/useCountdownTick';
 
 export interface EventDetailHeaderProps {
   event: FantasyEvent;
@@ -21,6 +22,9 @@ export interface EventDetailHeaderProps {
 export function EventDetailHeader({ event, isScored, resetting, onReset }: EventDetailHeaderProps) {
   const t = useTranslations('fantasy');
   const locale = useLocale();
+  // Slice 197b: trigger re-render so Countdown ticks (1s in last hour, else 60s).
+  // Hooks vor early returns, deadline = event.lockTime.
+  useCountdownTick(event.lockTime);
   const statusStyle = getStatusStyle(event.status);
   const typeStyle = getTypeStyle(event.type);
 

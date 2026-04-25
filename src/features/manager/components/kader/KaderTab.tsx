@@ -26,6 +26,7 @@ import KaderToolbar from './KaderToolbar';
 import KaderClubGroup from './KaderClubGroup';
 import { useTranslations, useLocale } from 'next-intl';
 import EquipmentShortcut from '../EquipmentShortcut';
+import { applyFormL5Filter, type FormL5Threshold } from '@/lib/filters/formL5Filter';
 
 // ============================================
 // TYPES
@@ -105,6 +106,8 @@ export default function KaderTab({
   const [posFilter, setPosFilter] = useState<Set<Pos>>(new Set());
   const [clubFilter, setClubFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  // Slice 197a — per-page Form-L5 state (Power-User-Standard, kein globaler Store).
+  const [formL5, setFormL5] = useState<FormL5Threshold>(0);
   const [sortByMap, setSortByMap] = useState<Partial<Record<KaderLens, string>>>({});
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -265,8 +268,10 @@ export default function KaderTab({
     }
     if (posFilter.size > 0) result = result.filter(item => posFilter.has(item.player.pos));
     if (clubFilter) result = result.filter(item => item.player.club === clubFilter);
+    // Slice 197a — Form-L5 universal filter.
+    result = applyFormL5Filter(result, formL5, item => item.player.perf.l5);
     return sortItems(result, sortBy, minutesMap);
-  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, sortBy, minutesMap]);
+  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, formL5, sortBy, minutesMap]);
 
   // Club-grouped data
   const clubGroups = useMemo(() => {
@@ -382,6 +387,8 @@ export default function KaderTab({
         onGroupByClubChange={setGroupByClub}
         showFilters={showFilters}
         onShowFiltersChange={setShowFilters}
+        formL5={formL5}
+        onFormL5Change={setFormL5}
       />
 
       {/* Result Count + Bulk Mode Toggle */}
@@ -416,7 +423,7 @@ export default function KaderTab({
           />
         ) : (
           <EmptyState icon={<Package />} title={t('bestandFilterEmpty')} description={t('bestandFilterEmptyDesc')}
-            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); }}} />
+            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); setFormL5(0); }}} />
         )
       )}
 

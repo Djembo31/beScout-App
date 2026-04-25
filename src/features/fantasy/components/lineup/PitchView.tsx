@@ -15,7 +15,7 @@ import type { Pos, SynergyDetail } from '@/types';
 import { cn } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import type { FantasyEvent, UserDpcHolding } from '@/components/fantasy/types';
-import { getScoreColor, getPosAccentColor } from '@/components/fantasy/helpers';
+import { getScoreColor, getPosAccentColor } from '@/features/fantasy/helpers';
 
 export interface PitchViewProps {
   event: FantasyEvent;

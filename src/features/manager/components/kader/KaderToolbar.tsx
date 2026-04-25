@@ -9,6 +9,7 @@ import { LENS_OPTIONS, LENS_SORTS } from './kaderHelpers';
 import type { KaderLens } from './kaderHelpers';
 import type { Pos } from '@/types';
 import { useTranslations } from 'next-intl';
+import { FORM_L5_VALUES, getFormL5Label, type FormL5Threshold } from '@/lib/filters/formL5Filter';
 
 interface KaderToolbarProps {
   lens: KaderLens;
@@ -26,6 +27,9 @@ interface KaderToolbarProps {
   onGroupByClubChange: (v: boolean) => void;
   showFilters: boolean;
   onShowFiltersChange: (v: boolean) => void;
+  /** Slice 197a — Form-L5 threshold (per-page state, see formL5Filter helper). */
+  formL5: FormL5Threshold;
+  onFormL5Change: (v: FormL5Threshold) => void;
 }
 
 export default function KaderToolbar({
@@ -37,7 +41,9 @@ export default function KaderToolbar({
   availableClubs,
   groupByClub, onGroupByClubChange,
   showFilters, onShowFiltersChange,
+  formL5, onFormL5Change,
 }: KaderToolbarProps) {
+  const tCommon = useTranslations('common');
   const t = useTranslations('market');
 
   const lensOptions = LENS_OPTIONS.map(opt => ({
@@ -50,7 +56,7 @@ export default function KaderToolbar({
     label: t(opt.labelKey),
   }));
 
-  const hasActiveFilters = posFilter.size > 0 || !!clubFilter;
+  const hasActiveFilters = posFilter.size > 0 || !!clubFilter || formL5 > 0;
 
   return (
     <div className="space-y-2">
@@ -105,7 +111,7 @@ export default function KaderToolbar({
           <Filter className="w-3.5 h-3.5" aria-hidden="true" />
           {hasActiveFilters && (
             <span className="px-1.5 py-0.5 bg-gold text-black text-[10px] font-black rounded-full">
-              {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0)}
+              {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0) + (formL5 > 0 ? 1 : 0)}
             </span>
           )}
         </button>
@@ -113,25 +119,56 @@ export default function KaderToolbar({
 
       {/* Filters Row */}
       {showFilters && (
-        <div className="flex items-center gap-2 flex-wrap anim-dropdown">
-          <PosFilter multi selected={posFilter} onChange={onTogglePos} />
-          <select
-            value={clubFilter}
-            onChange={(e) => onClubFilterChange(e.target.value)}
-            aria-label={t('clubFilterAria')}
-            className="px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg text-[10px] text-white/60 focus:outline-none"
-          >
-            <option value="">{t('allClubs')}</option>
-            {availableClubs.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          {hasActiveFilters && (
-            <button
-              onClick={() => { onClubFilterChange(''); }}
-              className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1 ml-auto"
+        <div className="space-y-2 anim-dropdown">
+          <div className="flex items-center gap-2 flex-wrap">
+            <PosFilter multi selected={posFilter} onChange={onTogglePos} />
+            <select
+              value={clubFilter}
+              onChange={(e) => onClubFilterChange(e.target.value)}
+              aria-label={t('clubFilterAria')}
+              className="px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg text-[10px] text-white/60 focus:outline-none"
             >
-              <X className="w-3 h-3" />{t('resetFilters')}
-            </button>
-          )}
+              <option value="">{t('allClubs')}</option>
+              {availableClubs.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {hasActiveFilters && (
+              <button
+                onClick={() => { onClubFilterChange(''); onFormL5Change(0); }}
+                className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1 ml-auto"
+              >
+                <X className="w-3 h-3" />{t('resetFilters')}
+              </button>
+            )}
+          </div>
+
+          {/* Slice 197a — Form L5 pills (per-page state). */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] text-white/40 font-semibold shrink-0">{t('minPerformance')}</span>
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide flex-shrink-0">
+              {FORM_L5_VALUES.map(val => {
+                const label = getFormL5Label(val);
+                const text = label === 'all' ? tCommon('all') : label;
+                const active = formL5 === val;
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => onFormL5Change(val)}
+                    aria-pressed={active}
+                    aria-label={t('l5FilterLabel', { value: text })}
+                    className={cn(
+                      'px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-bold transition-colors flex-shrink-0 tabular-nums',
+                      active
+                        ? 'bg-gold text-black'
+                        : 'bg-surface-base text-white/70 hover:bg-white/10',
+                    )}
+                  >
+                    {text}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -32,6 +32,7 @@ import { ClubStatsBar } from '@/components/club/ClubStatsBar';
 import { ClubStandingCard } from '@/components/club/ClubStandingCard';
 import { ActiveOffersSection } from '@/components/club/sections/ActiveOffersSection';
 import { SquadPreviewSection } from '@/components/club/sections/SquadPreviewSection';
+import { ClubFixturesStrip } from '@/components/club/sections/ClubFixturesStrip';
 import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
 import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection';
 import { MembershipSection } from '@/components/club/sections/MembershipSection';
@@ -326,6 +327,13 @@ export default function ClubContent({ slug }: { slug: string }) {
           <RevealSection delay={100}>
             <ActiveOffersSection ipos={clubIpos} players={players} clubColor={clubColor} />
           </RevealSection>
+
+          {/* Slice 197e — 5-GW-Forward FDR-Strip (Wildcard-Timing-Helper) */}
+          {clubId && (
+            <RevealSection delay={125}>
+              <ClubFixturesStrip clubId={clubId} count={5} />
+            </RevealSection>
+          )}
 
           {/* Trending Spieler + Collection Progress */}
           <RevealSection delay={150}>

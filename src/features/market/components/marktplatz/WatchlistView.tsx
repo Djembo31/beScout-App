@@ -16,6 +16,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { PlayerPhoto, getL5Color, getL5Bg, PositionBadge } from '@/components/player';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { qk } from '@/lib/queries/keys';
+import { FORM_L5_VALUES, getFormL5Label, applyFormL5Filter, type FormL5Threshold } from '@/lib/filters/formL5Filter';
 
 // ============================================
 // TYPES
@@ -139,9 +140,12 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
   const { addToast } = useToast();
   const queryClient = useQueryClient();
   const t = useTranslations('market');
+  const tCommon = useTranslations('common');
 
   const [sortBy, setSortBy] = useState<SortKey>('name');
   const [removingId, setRemovingId] = useState<string | null>(null);
+  // Slice 197a — per-page Form-L5 state (Power-User-Standard, kein globaler Store).
+  const [formL5, setFormL5] = useState<FormL5Threshold>(0);
 
   // Map playerId -> threshold for quick lookup
   const thresholdMap = useMemo(() => {
@@ -155,7 +159,9 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
   // Build watchlist player list with sort
   const watchlistPlayers = useMemo(() => {
     const watchedIds = new Set(watchlistEntries.map(e => e.playerId));
-    const filtered = players.filter(p => watchedIds.has(p.id));
+    let filtered = players.filter(p => watchedIds.has(p.id));
+    // Slice 197a — Form-L5 universal filter (per-page state).
+    filtered = applyFormL5Filter(filtered, formL5, p => p.perf.l5);
 
     return filtered.sort((a, b) => {
       switch (sortBy) {
@@ -170,7 +176,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
           return `${a.last} ${a.first}`.localeCompare(`${b.last} ${b.first}`);
       }
     });
-  }, [players, watchlistEntries, sortBy]);
+  }, [players, watchlistEntries, sortBy, formL5]);
 
   // Optimistic remove from watchlist
   const handleRemove = useCallback(async (playerId: string) => {
@@ -267,6 +273,35 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
               {opt.label}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Slice 197a — Form L5 pill group (per-page state). */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[10px] text-white/40 font-semibold shrink-0">{t('minPerformance')}</span>
+        <div className="flex gap-1 overflow-x-auto scrollbar-hide flex-shrink-0">
+          {FORM_L5_VALUES.map(val => {
+            const label = getFormL5Label(val);
+            const text = label === 'all' ? tCommon('all') : label;
+            const active = formL5 === val;
+            return (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setFormL5(val)}
+                aria-pressed={active}
+                aria-label={t('l5FilterLabel', { value: text })}
+                className={cn(
+                  'px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-bold transition-colors flex-shrink-0 tabular-nums',
+                  active
+                    ? 'bg-gold text-black'
+                    : 'bg-surface-base text-white/70 hover:bg-white/10',
+                )}
+              >
+                {text}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -1,0 +1,12 @@
+$ npx tsc --noEmit
+EXIT: 0
+
+(no output — clean)
+
+Slice 197a — Form-L5-Filter universal helper + integration
+- src/lib/filters/formL5Filter.ts (new)
+- src/lib/filters/__tests__/formL5Filter.test.ts (new)
+- src/features/market/components/shared/MarketFilters.tsx (refactored to shared helper)
+- src/features/manager/components/kader/KaderToolbar.tsx (added Form-L5 pills + props)
+- src/features/manager/components/kader/KaderTab.tsx (per-page state + filter pipeline)
+- src/features/market/components/marktplatz/WatchlistView.tsx (per-page state + pills + filter pipeline)

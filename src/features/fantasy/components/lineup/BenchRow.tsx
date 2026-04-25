@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import type { Pos } from '@/types';
 import type { UserDpcHolding } from '@/components/fantasy/types';
 import type { BenchSlotKey } from '../../store/lineupStore';
-import { getPosAccentColor } from '@/components/fantasy/helpers';
+import { getPosAccentColor } from '@/features/fantasy/helpers';
 
 export interface BenchRowProps {
   /** Read-only mode — kein Click/Edit. */
