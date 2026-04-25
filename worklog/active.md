@@ -3,11 +3,11 @@
 ```
 status: building
 slice: 199
-stage: BUILD
-spec: worklog/specs/199-backend-aggregate-rpcs.md (CTO-briefing inline)
+stage: PROVE
+spec: worklog/specs/199-backend-aggregate-rpcs.md
 impact: skipped (3× neue read-only Aggregat-RPCs, keine Schema-Changes, keine Consumers)
-proof: pending (vitest + SELECT pg_get_functiondef + REVOKE-listing)
-review: pending
+proof: worklog/proofs/199-backend-aggregate-rpcs.txt
+review: pending (Reviewer-Agent post-merge)
 ```
 
 ## Zuletzt
