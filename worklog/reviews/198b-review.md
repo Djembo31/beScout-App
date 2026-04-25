@@ -51,6 +51,18 @@ Punch-Liste: 48/98 → **59/98 closed (~60%)**.
 
 ---
 
-## Cold-Context-Reviewer Verdict (pending)
+## Cold-Context-Reviewer Verdict (Combined)
 
-Wird vom reviewer-Agent gefuellt nach Combined-Review.
+**verdict: PASS**
+
+**findings:** []
+
+**time-spent:** 4 min
+
+**notes:** Combined Bilanz solide — 11 closed Items haben dokumentierte Self-Reviews + tsc clean + Test-Counts (181 + 113 + 133). Skip-Begruendungen sind technisch sauber (4× Backend-Aggregat-RPC fehlt, 1× deprecated Hook). i18n-Audit manuell verifiziert (0 missing keys). **Knowledge-Flywheel-Hinweis:** Skip-Pattern "Backend-Aggregat-RPC fehlt" haeuft sich (C-05, K-02, fm 2.4, fm 1.3) — Kandidat fuer Slice 199 als gebuendelte RPC-Wave statt einzeln nachzuziehen.
+
+## Conflict-Resolutions (Merge-Notes)
+
+- `MarketContent.tsx`: Track A entfernte page-blocking imports; Track B fuegte IPO-Banner-Imports (Clock, ChevronRight, Skeleton) hinzu. Combined: alle 5 Imports erhalten. **0 dead-code** (alle genutzt — verified im tsc-clean-Lauf).
+- `worklog/active.md`: HEAD-Status (current Wave 2 BUILD) genommen, da Track-Statuses (B = "active 198b-track-B PROVE") veraltet waren.
+- `worklog/reviews/198b-review.md`: Track B + C beide schrieben Self-Reviews mit gleichem Filename. Combined-File als Container fuer alle 3 Track-Reviews + Cold-Context-Verdict (dieser Block).

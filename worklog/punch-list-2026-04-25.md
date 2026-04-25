@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-25 nach Slice 198 (+16 closed)
+**Stand:** 2026-04-25 nach Slice 198b (+11 closed)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **48 closed (≈49%)**
+**Total:** 98 Findings · davon **59 closed (≈60%)**
 
 ## Status-Legende
 
@@ -18,11 +18,23 @@
 
 | Domain | Total | done | wont-fix | in-progress | open | deferred |
 |---|---|---|---|---|---|---|
-| Brand-Coherence | 18 | 11 | 0 | 0 | 7 | 0 |
-| UX-States | 27 | 13 | 0 | 0 | 14 | 0 |
-| FM-Mechanics | 26 | 10 | 0 | 0 | 16 | 0 |
-| Fantasy-Scoring | 27 | 14 | 1 | 0 | 12 | 0 |
-| **TOTAL** | **98** | **48** | **1** | **0** | **49** | **0** |
+| Brand-Coherence | 18 | 12 | 0 | 0 | 6 | 0 |
+| UX-States | 27 | 18 | 0 | 0 | 9 | 0 |
+| FM-Mechanics | 26 | 13 | 0 | 0 | 13 | 0 |
+| Fantasy-Scoring | 27 | 16 | 1 | 0 | 10 | 0 |
+| **TOTAL** | **98** | **59** | **1** | **0** | **38** | **0** |
+
+**Slice 198b closed (+11):**
+- Track A UX 5: #1 (Home retry-all), #3 (Market section-loading), #7 (EventSummaryModal preventClose), #8 (CreateEventModal preventClose), #10 (PostReplies Skeleton)
+- Track B FM-UI 3: 2.3 (Lineup-Score-Projection), 4.6 (Cross-Tab IPO-Banner), 5.3 (Volume-Histogramm)
+- Track C Fantasy+Brand 3: F-12 (Sticky-Countdown), C-04 (Predictions-Limit-Hint), brand #11 (PitchView bg-bg-main Token)
+
+**Slice 198b skipped (deferred Slice 199 Backend-Aggregat-RPC-Wave):**
+- C-05 (Top-Predictor-Leaderboard — neuer SECURITY DEFINER RPC)
+- K-02 (Most-Owned-Players-pro-Club — neuer Aggregat-RPC)
+- fm 2.4 (Event-Difficulty-Indikator — Backend-Field fehlt)
+- fm 1.3 (In-Lineup-Filter — Forbidden-Files Wave 1)
+- fm 5.4 (Set-Price-Alert — `@deprecated` zugunsten server-side Watchlist)
 
 **Slice 198 closed (+16):**
 - Track A Brand 4: airdrop #15 (tier-diamond Token), #16 (Rocket gold Header), #17 (profile Button-Component), #18 (club segmented-toggle a11y).

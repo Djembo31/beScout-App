@@ -11,6 +11,72 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 198b | 2026-04-25 | Polish-Sweep Wave 2 (3-Track parallel-dispatch)
+
+L-Slice via 3 parallele Worktree-Frontend-Agents mit Worktree-Awareness-Briefing (patterns.md #34 lessons learned aus Wave 1). Punch-Liste: 48/98 → **59/98 closed (~60%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/198b-polish-sweep-wave2.md) → IMPACT inline → BUILD (3 Tracks parallel) → REVIEW (Cold-Context-Reviewer verdict PASS, 0 findings) → PROVE (tsc clean + 181+113+133 vitest pass + i18n-Audit 0 missing keys) → LOG
+
+### Tracks
+
+**Track A — UX-Rest 5/5 closed** (commit `1ffae6d6`)
+- ux #1 P3: Home ErrorState onRetry refetcht alle parallel queries (players/events/trending/ipos/homeDashboard)
+- ux #3 P3: Market page-blocking `playersLoading` entfernt — Header+Tabs rendern frueh, Tab-Content hat section-scoped Skeleton
+- ux #7 P2: EventSummaryModal preventClose-TODO bereinigt (read-only, keine Mutation)
+- ux #8 P2: CreateEventModal preventClose-TODO bereinigt (sync handler)
+- ux #10 P3: PostReplies Loader2 → 2× Skeleton h-12 mit role="status"/aria-busy/aria-live
+
+**Track B — FM-UI 3/6 closed** (commit `d48a13e3`)
+- fm 2.3 P2: LineupPanel Score-Projection Pill (perfL5 sum + 1.1× Captain-Multiplier)
+- fm 4.6 P3: Cross-Sub-Tab IPOs-Ending-Soon Banner (<24h, click → marktplatz, ICU plural)
+- fm 5.3 P3: Volume-Histogramm unter PriceChart (12 Buckets, custom-SVG, kein external Lib)
+- SKIP fm 1.3: In-Lineup-Filter (KaderToolbar/KaderTab Wave-1 Forbidden-Files)
+- SKIP fm 2.4: Difficulty-Indikator (FantasyEvent kein difficulty-Feld — Backend-data-dependent)
+- SKIP fm 5.4: Set-Price-Alert (Hook ist `@deprecated` — server-side Watchlist hat ersetzt)
+
+**Track C — Fantasy + Brand 3/5 closed** (commit `dfe19614`)
+- fantasy F-12 P2: Sticky-Countdown EventDetailHeader (`position: sticky, top: 0`, backdrop-blur, FPL-Style, hide bei `status==='ended'`)
+- fantasy C-04 P2: Predictions-Limit-Hint compliant ("Max. 5 Tipps pro Spieltag — Qualität über Quantität" / "Haftada max. 5 tahmin — sayıdan çok kalite önemli")
+- brand #11 P3: PitchView Z235+238 `bg-black/40+30` → `bg-bg-main/40+30` Token-Migration
+- SKIP fantasy C-05: Top-Predictor-Leaderboard (`predictions GROUP BY user_id` braucht neuer SECURITY DEFINER RPC)
+- SKIP fantasy K-02: Most-Owned-Players-pro-Club (`holdings`-RLS blockiert cross-user reads, neuer Aggregat-RPC noetig)
+
+### Conflict-Resolutions (Merge)
+
+- `MarketContent.tsx`: Track A+B beide angefasst — combined imports (alle 5: X, Clock, ChevronRight, Skeleton, SkeletonCard) erhalten. tsc-clean verifiziert, 0 dead imports.
+- `worklog/active.md`: HEAD-state genommen, Tracks hatten driftende Status-Bloecke.
+- `worklog/reviews/198b-review.md`: Combined-File als Container fuer alle 3 Track-Self-Reviews + Cold-Context-Verdict.
+
+### Worktree-Awareness-Briefing (patterns.md #34) — wirksam!
+
+0/3 Tracks zeigten Worktree-Trap (Wave 1: 50% Trap-Rate). Briefing-Template als feature ueberprueft.
+
+### Files
+- 11 Findings closed, 5 begruendet skipped, 0 FAIL
+- Total: 13 modified Files + 6 new (3 journals + 3 proofs/reviews)
+
+### Review
+- `worklog/reviews/198b-review.md` — Combined-Review verdict **PASS** by Cold-Context Opus reviewer-Agent
+- 0 Findings, Time-spent: 4 min
+- Knowledge-Hinweis: 4× Skip-Pattern "Backend-Aggregat-RPC fehlt" → Slice 199 als gebuendelte RPC-Wave (C-05, K-02, fm 2.4, fm 1.3)
+
+### Proof
+- `worklog/proofs/198b-track-a-ux-rest.txt` (5/5)
+- `worklog/proofs/198b-track-B-fm-ui-top5.md` (3/6)
+- `worklog/proofs/198b-track-c-fantasy-brand.md` (3/5)
+- tsc clean post-Merge
+- vitest: 181 (Track A bereiche) + 113 (Track B PriceChart+events) + 133 (Track C fantasy) = 427 tests green
+
+### Commits
+- `1ffae6d6` Track A | `d48a13e3` Track B | `dfe19614` Track C
+- `bfbed82c` `632dbfff` `cd137728` Merge-Commits
+- (post-LOG hash) docs(198b): LOG + push
+
+### Notes
+Wave 2 hat strukturell von Wave 1 gelernt — Worktree-Awareness-Briefing hat 50%→0% Trap-Rate gebracht. Reviewer-Verdict zeigt: Wave 2 hat keine Findings (vs Wave 1 mit 2 Heal-Findings). Skip-Disziplin auf Backend-Aggregat = sauber, eigene Slice 199 koerdiniert.
+
+---
+
 ## 198 | 2026-04-25 | Polish-Sweep Wave 1 (4-Track parallel-dispatch)
 
 L-Slice via 4 parallele Worktree-Frontend-Agents. Punch-Liste: 32/98 → **48/98 closed (~49%)**.

@@ -1,24 +1,30 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 198b
-stage: BUILD
-spec: worklog/specs/198b-polish-sweep-wave2.md
-impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
-proof: worklog/proofs/198b-track-a-ux-rest.txt + 198b-track-B-fm-ui-top5.md + 198b-track-c-fantasy-brand.md
-review: worklog/reviews/198b-review.md (pending combined)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 198b — Polish-Sweep Wave 2 (3-Track parallel-dispatch)
+## Zuletzt
 
-Ziel: 12-15 risikoarme P2/P3 Findings closen. 48/98 → ~60-63/98 (~62%).
+- **Slice 198b** (2026-04-25) — Polish-Sweep Wave 2 (L, 3-Track parallel-dispatch). 11 closed, 5 begruendet skipped (4× Backend-Aggregat-RPC, 1× deprecated Hook). Punch-Liste 48/98 → 59/98 closed (~60%). Reviewer PASS, 0 findings. Worktree-Awareness-Briefing 0% Trap-Rate (vs Wave 1: 50%).
+- **Slice 198** (2026-04-25) — Polish-Sweep Wave 1 (L, 4-Track parallel-dispatch). 16 closed, 4 begruendet skipped. Reviewer PASS, 2 findings inline gefixt.
 
-- **Track A** UX-Rest (#1 ErrorState-Retry, #3 Market-Loading, #7+8 preventClose Modal-Audit, #10 PostReplies Skeleton, #12 Missions Auth-Loading)
-- **Track B** FM-UI Read-only (1.3 In-Lineup-Filter, 2.3 Lineup-Score-Projection, 2.4 Difficulty-Indikator, 4.6 Cross-Tab IPO-Banner, 5.3 Volume-Histogramm)
-- **Track C** Fantasy + Brand (F-12 Sticky-Countdown, C-04 Limit-Begruendung, C-05 Top-Predictor, K-02 Most-Owned, Brand #11 PitchView Token)
+## Slice 199 (Backlog — Backend-Aggregat-RPC-Wave)
 
-Worktree-Awareness-Briefing in jedem Track aktiv (patterns.md #34).
+4× Skips aus 198b zeigen klares Pattern: gebuendelte RPC-Wave als eigene Backend-Slice:
+- **C-05** Top-Predictor Leaderboard (predictions GROUP BY user_id, RLS-bypass via SECURITY DEFINER)
+- **K-02** Most-Owned Players pro Club (holdings GROUP BY player_id, club-scoped)
+- **fm 2.4** Event-Difficulty-Score (events.avg_ipo_price aus Club-Membership)
+- **fm 1.3** In-Lineup-Filter Aggregat (manager.lineup-membership pro player)
+- **fm 4.4** Sort-by-Trade-Volume-7d (players.trades_volume_7d Column-Migration aus 198 Track C)
+
+Plus DB-Migration `players.trades_volume_7d` aus Slice 198 Track C.
 
 ## Zuletzt
 
