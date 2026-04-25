@@ -92,9 +92,20 @@ export default function HomePage() {
 
   // ── Guards ──
   if (playersError && players.length === 0) {
+    // Retry: alle parallel-geladenen Home-Queries refetchen, nicht nur players.
+    // Slice 198b-A — Audit ux #1 P3: ErrorState onRetry-Scope inkonsistent.
+    const handleRetry = () => {
+      queryClient.refetchQueries({ queryKey: qk.players.all });
+      queryClient.refetchQueries({ queryKey: qk.events.all });
+      queryClient.refetchQueries({ queryKey: qk.trending.top(5) });
+      queryClient.refetchQueries({ queryKey: qk.ipos.active });
+      if (uid) {
+        queryClient.refetchQueries({ queryKey: qk.homeDashboard.byUser(uid) });
+      }
+    };
     return (
       <div className="max-w-[1200px] mx-auto py-12">
-        <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
+        <ErrorState onRetry={handleRetry} />
       </div>
     );
   }
