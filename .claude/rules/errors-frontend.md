@@ -99,6 +99,21 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - Nach JEDEM swallow→throw-Refactor ALLE gleichartigen Consumer-Pfade greppen.
 - Audit: `grep -n 'throw new Error' src/lib/services/` → Keys vs. `setError(err.message)`.
 
+### Missing i18n-Key bei neuer CTA-Component (Slice 198, Reviewer-Find)
+- Neuer Button/Toggle/CTA mit `tNamespace('newKey', { defaultMessage: '...' })` — `defaultMessage` ist next-intl-Fallback. Component rendert "korrekt", aber **TR-User sieht DE-defaultMessage-String** (Locale-Mix-Bug). Kein TSC-Error, keine Console-Warning.
+- Fix: Nach JEDEM neuen `t('namespace.key')` in einer Component IMMER beide Locales bedienen.
+- Audit (post-Implementation pflicht):
+  ```bash
+  grep -oE "t[A-Za-z]*\\(\\s*['\"]([a-zA-Z]+\\.[a-zA-Z]+)" src/components/<new>.tsx \
+    | sed -E "s/.*['\"]//; s/['\"].*//" \
+    | sort -u \
+    | while read key; do
+        grep -q "\"${key#*.}\"" messages/de.json messages/tr.json || echo "MISSING: $key"
+      done
+  ```
+- Reference: Slice 198 Track C `KaderPlayerRow.tsx:301` — `manager.quickLineupAction` fehlte in beiden Locales. Reviewer-Agent caught Post-Build (Slice 198 Heal).
+- Beziehung zu i18n-Key-Leak: gleiche Bug-Klasse, andere Achse (Leak = Service-Error-Path, hier = Component-Render-Path).
+
 ### Hardcoded German addToast/Error-Strings (Slice 196 Track B)
 - User-facing components mit `addToast('Ein Fehler ist aufgetreten', 'error')` oder `addToast('Speichern fehlgeschlagen', 'success')` umgehen i18n und brechen TR-Locale komplett (TR-User sieht DE-Text).
 - Identische Klasse zu i18n-Key-Leak oben, nur Toast-Pfad statt setError.

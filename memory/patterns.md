@@ -753,3 +753,35 @@ applyFormL5Filter(watchlistItems, formL5, item => item.perfL5);
 **Anti-Pattern:** `applyFilter<T extends { perfL5?: number }>(items, threshold)` — zwingt alle Caller in identisches Type-Schema. Schmerzhaft bei nested data-shapes (Holdings hat player.perf.l5, nicht direct).
 
 **Slice-Reference:** Slice 197a Form-L5-Filter universal + Slice 197d MV-Trend-Filter.
+
+---
+
+### 34. Worktree-Awareness-Trap bei Worktree-Frontend-Agents (Slice 198, 3/4 Tracks betroffen)
+
+**Symptom:** Frontend-Agent in `agent-XXX`-Worktree edited via absolute path `C:\bescout-app\src\...` (= main-Pfad), nicht via Worktree-Pfad `C:\bescout-app\.claude\worktrees\agent-XXX\src\...`. Agent's `git status` (im Worktree) zeigt clean — Edits sind im main-Repo. Beim Merge-Versuch: Worktree-Branch hat keine Commits, main hat unstaged-Edits.
+
+**Root-Cause:** Agents nutzen Read/Edit/Write mit absoluten Pfaden. Worktree-CWD ist gesetzt, aber wenn Path-Parameter dem main-Repo-Layout folgt (`C:\bescout-app\src\X.tsx`), landen Edits dort.
+
+**Folgen:**
+- Worktree-Branch leer, kein clean Merge moeglich
+- Main-Repo dirty mit Edits aus N parallel-Tracks (Race-Risk)
+- `git checkout` in main (zur Bereinigung) propagiert via Windows-Junction auch zur Worktree → Edits verloren
+
+**Fix-Pattern bei Discovery:**
+1. Verify: `diff main-Pfad worktree-Pfad` — wenn Files identisch + main dirty → Trap aufgetreten.
+2. Pragmatisch: Re-apply die Edits direkt in main (Track A Slice 198 Approach). Worktree-Branch bleibt leer.
+3. Alternative wenn Track noch nicht durchgelaufen: Re-Edit in Worktree-Pfad explizit + commit dort.
+
+**Prevention (Briefing-Update):**
+```
+Im Agent-Briefing IMMER beilegen:
+"WICHTIG: Du arbeitest in einem Worktree. Dein CWD ist
+C:\bescout-app\.claude\worktrees\agent-XXX. Alle Edits MUESSEN
+Pfade unter diesem Verzeichnis verwenden (oder relative Pfade).
+NIEMALS C:\bescout-app\src\... als absoluter Pfad — das ist
+main-Repo, nicht dein Worktree."
+```
+
+**Empirie Slice 198:** Track A (Brand) — 100% Trap, Re-Apply via main. Track B — clean (worktree-relative). Track C — partial Trap. Track D — clean Working-Tree-Edits aber kein commit (anderes Symptom: Stream-Watchdog-Stop). Trap-Rate: 50% bei Frontend-Agent-Worktree-Dispatch.
+
+**Slice-Reference:** Slice 198 Track A Heal-Cycle.
