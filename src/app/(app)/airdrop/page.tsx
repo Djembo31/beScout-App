@@ -52,7 +52,7 @@ export default function AirdropPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-black text-balance flex items-center gap-2">
-            <Rocket className="size-6 text-purple-400" aria-hidden="true" />
+            <Rocket className="size-6 text-gold" aria-hidden="true" />
             {t('title')}
           </h1>
           <p className="text-xs text-white/40 mt-0.5 text-pretty">{t('subtitle')}</p>
@@ -75,7 +75,7 @@ export default function AirdropPage() {
             <div className="text-[10px] text-white/40">Gold Tier</div>
           </div>
           <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
-            <div className="text-lg font-mono font-black tabular-nums" style={{ color: '#B9F2FF' }}>{stats.tier_distribution.diamond}</div>
+            <div className="text-lg font-mono font-black tabular-nums text-tier-diamond">{stats.tier_distribution.diamond}</div>
             <div className="text-[10px] text-white/40">Diamond Tier</div>
           </div>
         </div>

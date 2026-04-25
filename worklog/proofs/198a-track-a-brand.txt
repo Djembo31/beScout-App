@@ -1,0 +1,12 @@
+## Track A Proof
+
+ messages/de.json                          |  1 +
+ messages/tr.json                          |  1 +
+ src/app/(app)/airdrop/page.tsx            |  4 ++--
+ src/app/(app)/club/[slug]/ClubContent.tsx | 15 ++++++++++-----
+ src/app/(app)/profile/[handle]/page.tsx   | 10 ++++++----
+ tailwind.config.ts                        |  1 +
+ 6 files changed, 21 insertions(+), 11 deletions(-)
+
+## tsc
+exit 0 (clean)

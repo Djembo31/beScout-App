@@ -6,7 +6,7 @@ slice: 198
 stage: BUILD
 spec: worklog/specs/198-polish-sweep.md
 impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
-proof: pending
+proof: worklog/proofs/198a-track-a-brand.txt (Track A) + pending Tracks B/C/D
 review: pending
 ```
 

@@ -527,20 +527,25 @@ export default function ClubContent({ slug }: { slug: string }) {
                   active={sortBy}
                   onChange={(id) => setSortBy(id as SpielerSort)}
                 />
-                <div className="flex-shrink-0 flex items-center gap-0.5 bg-surface-subtle rounded-lg p-0.5 border border-divider">
+                {/* Slice 198 Track A #18: a11y-hardened segmented icon-toggle (Button-Component wuerde min-h-[44px] erzwingen + Layout sprengen) */}
+                <div role="group" aria-label={t('squadViewToggle')} className="flex-shrink-0 flex items-center gap-0.5 bg-surface-subtle rounded-lg p-0.5 border border-divider">
                   <button
+                    type="button"
                     onClick={() => setSquadView('cards')}
+                    aria-pressed={squadView === 'cards'}
+                    aria-label={t('viewCards')}
                     className={cn('p-1.5 rounded-md transition-colors', squadView === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
-                    title={t('viewCards')}
                   >
-                    <LayoutGrid className="size-3.5" />
+                    <LayoutGrid className="size-3.5" aria-hidden="true" />
                   </button>
                   <button
+                    type="button"
                     onClick={() => setSquadView('compact')}
+                    aria-pressed={squadView === 'compact'}
+                    aria-label={t('viewRows')}
                     className={cn('p-1.5 rounded-md transition-colors', squadView === 'compact' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
-                    title={t('viewRows')}
                   >
-                    <List className="size-3.5" />
+                    <List className="size-3.5" aria-hidden="true" />
                   </button>
                 </div>
               </div>

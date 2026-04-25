@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Skeleton, SkeletonCard } from '@/components/ui';
+import { Skeleton, SkeletonCard, Button } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getProfileByHandle } from '@/lib/services/profiles';
@@ -81,12 +81,14 @@ function PublicProfileContent() {
       <div className="max-w-[1400px] mx-auto text-center py-20">
         <div className="text-4xl font-black tabular-nums mb-4 text-white/20">404</div>
         <div className="text-white/50 mb-4">{t('profileNotFound', { handle })}</div>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => router.push('/profile')}
-          className="text-gold hover:underline text-sm min-h-[44px]"
+          className="text-gold"
         >
           {t('backToOwnProfile')}
-        </button>
+        </Button>
       </div>
     );
   }
