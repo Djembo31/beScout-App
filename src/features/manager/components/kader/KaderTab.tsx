@@ -460,16 +460,20 @@ export default function KaderTab({
         )
       )}
 
-      {/* Bulk Sell Bar */}
+      {/* Bulk Sell Bar — Slice 198 Track B #6: slide-up entry animation for
+          consistency with other sticky-action bars; clear-selection button
+          gets a 44×44 touch target; close-button is disabled during bulk
+          mutation so the user cannot orphan the in-flight RPC chain. */}
       {bulkMode && selectedIds.size > 0 && (
-        <div className="sticky bottom-20 md:bottom-4 z-30 mx-auto max-w-md">
+        <div className="sticky bottom-20 md:bottom-4 z-30 mx-auto max-w-md anim-bottom-sheet">
           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-surface-popover border border-gold/20 shadow-2xl">
             <span className="text-sm font-bold flex-1">
               {t('bestandBulkSelected', { count: selectedIds.size })}
             </span>
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-surface-base transition-colors"
+              disabled={bulkSelling}
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-white/30 hover:text-white/60 hover:bg-surface-base transition-colors disabled:opacity-50"
               aria-label={t('bestandBulkClearSelection')}
             >
               <X className="size-4" />
@@ -477,9 +481,9 @@ export default function KaderTab({
             <button
               onClick={handleBulkSell}
               disabled={bulkSelling}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gold text-black text-sm font-bold hover:bg-gold/90 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 min-h-[44px] rounded-xl bg-gold text-black text-sm font-bold hover:bg-gold/90 active:scale-[0.97] transition-colors disabled:opacity-50"
             >
-              {bulkSelling ? <Loader2 className="size-4 animate-spin" /> : <Tag className="size-4" />}
+              {bulkSelling ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : <Tag className="size-4" />}
               {t('bestandBulkSellAll')}
             </button>
           </div>

@@ -178,11 +178,15 @@ export default function ComparePage() {
                   </div>
                 </Card>
               ) : (
+                // Slice 198 Track B #22: explicit min-w-[44px] + min-h-[44px] on
+                // top of min-h-[120px] makes the iOS HIG 44px touch-target contract
+                // formally satisfied (and surfaced in code-search audits).
                 <button
                   onClick={() => { setActiveSlot(idx); setSearch(''); }}
-                  className="w-full p-3 border border-dashed border-white/20 rounded-2xl hover:border-white/40 transition-colors flex flex-col items-center justify-center gap-2 min-h-[120px]"
+                  aria-label={t('playerSlot', { idx: idx + 1 })}
+                  className="w-full p-3 border border-dashed border-white/20 rounded-2xl hover:border-white/40 active:scale-[0.97] transition-colors flex flex-col items-center justify-center gap-2 min-h-[120px] min-w-[44px]"
                 >
-                  <Search className="size-5 text-white/30" />
+                  <Search className="size-5 text-white/30" aria-hidden="true" />
                   <span className="text-xs text-white/30">{t('playerSlot', { idx: idx + 1 })}</span>
                 </button>
               )}
