@@ -12,6 +12,12 @@ review: —
 
 ## Naechste Aktion
 
+**Slice 197d — MV-Trend systemisch** (~1.5 Tage, parallel-dispatch backend + frontend). DB-Migration + Cron + PerfPills + Filter. **Achtung Vercel-Plan-Risk:** Cron-Schedule daily — kompatibel mit Hobby-Plan.
+
+Optional davor: **Slice 198 Polish-Sweep** Multi-Track (kleinere P2/P3, no-DB).
+
+## Naechste Aktion
+
 **Slice 197 — FM-Mechanics-Fundament** (5 Sub-Slices, ~2-3 Tage). SPEC ready: `worklog/specs/197-fm-mechanics-fundament.md`.
 
 Schliesst 6 P1-Findings: fm 1.1 (Form-L5-Filter universal), fm 1.2/4.1 (MV-Trend), F-02 (Formationen 3-5-2/4-5-1/5-3-2/5-4-1), F-08 (Countdown-Sekunden), K-01 (5-GW-FDR-Strip).

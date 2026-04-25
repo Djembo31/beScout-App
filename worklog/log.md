@@ -11,6 +11,28 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 197c | 2026-04-25 | Formationen 3-5-2/4-5-1/5-3-2/5-4-1 (Phase-A F-02)
+
+XS-Slice, manuell vom CTO ausgefuehrt nach Worktree-Agent-Stall (stream watchdog 600s timeout).
+
+**Stage-Chain:** SPEC (197 master) → IMPACT inline → BUILD (manuell, Live-DB-Body via pg_get_functiondef + Migration patch) → REVIEW (self per workflow.md D35 trivial-pattern-Wiederholung) → PROVE (DB-Verify pg_proc-Comment + tsc clean) → LOG
+
+**Files:**
+- `supabase/migrations/20260425190000_slice_197c_formations_extended.sql` (NEW, ~190 Zeilen, applied LIVE via mcp__supabase__apply_migration)
+- `src/features/fantasy/constants.ts` (FORMATIONS_11ER um 4 neue Formationen erweitert: 1-3-5-2, 1-4-5-1, 1-5-3-2, 1-5-4-1)
+
+**Body-Source-of-Truth:** Live-DB-Body via pg_get_functiondef BEFORE patch verifiziert (matches 195d Migration). Patch nur formation-Liste, Body sonst identisch — D43 Type-Truth-Pflicht, D156 PATCH-AUDIT-Pflicht eingehalten.
+
+**Closed:** Phase-A Fantasy F-02 (P0 → CEO-approved, in Master-Spec gelistet)
+
+**Worktree-Agent-Stall-Lehre:** Worktree-Agent (a13ebc79) blieb 600s ohne Progress, stream watchdog killed. Backend-RPC-Patch ist manuell vom CTO machbar und schneller (Live-Body-Read + manueller Migration-Build). Bei kleinen Migration-Patches (besonders bei vorhandener Live-DB-Reference) → CTO statt Agent.
+
+**Pipeline weiter:**
+- Slice 197d MV-Trend systemisch (1.5 Tage, parallel-dispatch backend + frontend)
+- Slice 198 Polish-Sweep (Rest)
+
+---
+
 ## 197 Wave 1 | 2026-04-25 | FM-Mechanics-Fundament Sub-Slices a/b/e
 
 3 Sub-Slices via parallel-dispatch in 3 Worktrees gleichzeitig. Punch-Liste: 26/98 → **29/98 closed (≈29.5%)**.

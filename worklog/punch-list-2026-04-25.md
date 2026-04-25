@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-25 nach Slice 197 Wave 1 (+3 closed)
+**Stand:** 2026-04-25 nach Slice 197c (+1 closed)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **29 closed (≈29.5%)**
+**Total:** 98 Findings · davon **30 closed (≈30.6%)**
 
 ## Status-Legende
 
@@ -21,8 +21,10 @@
 | Brand-Coherence | 18 | 7 | 0 | 0 | 11 | 0 |
 | UX-States | 27 | 8 | 0 | 0 | 19 | 0 |
 | FM-Mechanics | 26 | 5 | 0 | 0 | 21 | 0 |
-| Fantasy-Scoring | 27 | 9 | 1 | 0 | 17 | 0 |
-| **TOTAL** | **98** | **29** | **1** | **0** | **68** | **0** |
+| Fantasy-Scoring | 27 | 10 | 1 | 0 | 16 | 0 |
+| **TOTAL** | **98** | **30** | **1** | **0** | **67** | **0** |
+
+**Slice 197c closed (+1):** F-02 Formationen 3-5-2/4-5-1/5-3-2/5-4-1 (RPC-Patch + Frontend-Constants).
 
 **Slice 197 Wave 1 closed (+3):**
 - fm 1.1 Form-L5-Filter universal (197a) — 3 Pages (market/manager-kader/watchlist)

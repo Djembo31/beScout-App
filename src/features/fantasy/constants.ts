@@ -29,6 +29,39 @@ export const FORMATIONS_11ER: FormationDef[] = [
       { pos: 'ATT', count: 3 },
     ]
   },
+  // Slice 197c (2026-04-25): +4 neue Formationen — FPL-Standard fuer Fixture-spezifische Strategien
+  {
+    id: '1-3-5-2', name: '3-5-2', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 3 },
+      { pos: 'MID', count: 5 },
+      { pos: 'ATT', count: 2 },
+    ]
+  },
+  {
+    id: '1-4-5-1', name: '4-5-1', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 4 },
+      { pos: 'MID', count: 5 },
+      { pos: 'ATT', count: 1 },
+    ]
+  },
+  {
+    id: '1-5-3-2', name: '5-3-2', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 5 },
+      { pos: 'MID', count: 3 },
+      { pos: 'ATT', count: 2 },
+    ]
+  },
+  {
+    id: '1-5-4-1', name: '5-4-1', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 5 },
+      { pos: 'MID', count: 4 },
+      { pos: 'ATT', count: 1 },
+    ]
+  },
 ];
 
 export const FORMATIONS_7ER: FormationDef[] = [
