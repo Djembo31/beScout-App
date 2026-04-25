@@ -1,17 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-25 01:05)
+# Session Handoff — Auto (2026-04-25 15:34)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: pending
+## Uncommitted Changes: 3 Files
+```
+ M .claude/settings.local.json
+ M memory/session-handoff.md
+?? .claude/state/
+```
 
-## Session Commits: 6+
-- f20bf7ec docs(hygiene): Slice 193 abschluss
-- b2bf040b feat(auth): Slice 193 — AuthProvider-Perf + Auth-Race-Gate
-- d11bbc6d docs(hygiene): Slice 192 abschluss
-- 50d777ff feat(holdings): Slice 192 — Defensive Guard + Type-Truth-Fix
-- acc3f9b8 docs(hygiene): Slice 191 abschluss
-- 9eb3f35e feat(hygiene): Slice 191 — Hygiene-Kombi + Audit Bilder/Scouting/Form
+## Session Commits: 6
+- 51303125 feat(fantasy): Slice 195c — Event max_per_club Constraint (Backend)
+- ef77476c feat(fantasy): Slice 195b — Boost-Chip Rename + Captain-only-Constraint + AR-44 Hardening
+- b05b5800 feat(fantasy): Slice 195a — Captain-Multiplier 1.1x default, Boost-Chip 1.25x
+- 4b5a2c38 fix(compliance): Sieger/Siege → Erfolge/Top-Platzierung in messages/de.json
+- 98c6b046 chore(qa): Phase A Beta-Readiness Audit + 5 Spezialist-Agents + 4 Skills
+- d6abd9d4 chore(bots): Slice 194 — Bot-Suite Refresh + reference_price Patch
 
 <!-- auto:handoff-end -->
 
