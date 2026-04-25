@@ -6,8 +6,8 @@ slice: 198b
 stage: BUILD
 spec: worklog/specs/198b-polish-sweep-wave2.md
 impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
-proof: pending
-review: pending
+proof: worklog/proofs/198b-track-a-ux-rest.txt + 198b-track-B-fm-ui-top5.md (Track C pending)
+review: worklog/reviews/198b-track-a-review.md + 198b-track-B-review.md (combined-review post-merge)
 ```
 
 ## Slice 198b — Polish-Sweep Wave 2 (3-Track parallel-dispatch)

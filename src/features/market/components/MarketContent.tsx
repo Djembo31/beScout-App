@@ -3,8 +3,8 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { X } from 'lucide-react';
-import { TabPanel, ErrorState, SkeletonCard } from '@/components/ui';
+import { X, Clock, ChevronRight } from 'lucide-react';
+import { TabPanel, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/lib/hooks/useWallet';
@@ -141,6 +141,39 @@ export default function MarketContent() {
 
       {/* Header */}
       <MarketHeader balanceCents={balanceCents} />
+
+      {/* Slice 198b fm 4.6 — Cross-Sub-Tab IPOs-ending-soon Banner.
+          Sichtbar wenn IPOs in <24h enden UND User nicht schon auf marktplatz Tab.
+          Click navigiert zu marktplatz Tab. */}
+      {(() => {
+        if (tab === 'marktplatz') return null;
+        const NOW = Date.now();
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const endingSoonCount = data.ipoList.filter(ipo => {
+          const endsAtMs = new Date(ipo.ends_at).getTime();
+          return endsAtMs > NOW && endsAtMs - NOW < ONE_DAY_MS;
+        }).length;
+        if (endingSoonCount === 0) return null;
+        return (
+          <button
+            type="button"
+            onClick={() => setTab('marktplatz')}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-vivid-red/10 border border-vivid-red/20 hover:bg-vivid-red/15 transition-colors text-left active:scale-[0.99] min-h-[56px]"
+            aria-label={t('iposEndingSoonAria', { count: endingSoonCount })}
+          >
+            <Clock aria-hidden="true" className="size-5 text-vivid-red flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-vivid-red">
+                {t('iposEndingSoonBanner', { count: endingSoonCount })}
+              </div>
+              <div className="text-xs text-vivid-red/70">
+                {t('iposEndingSoonHint')}
+              </div>
+            </div>
+            <ChevronRight aria-hidden="true" className="size-4 text-vivid-red/60 flex-shrink-0" />
+          </button>
+        );
+      })()}
 
       {/* Main Tabs */}
       <div
