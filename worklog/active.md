@@ -1,14 +1,22 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 199
+stage: BUILD
+spec: worklog/specs/199-backend-aggregate-rpcs.md
+impact: inline (3 read-only RPCs, kein Money-Path-Write, kein Cron, kein Schema-Change)
+proof: pending
+review: pending
 ```
+
+## Slice 199 — Backend-Aggregat-RPC-Wave (parallel-dispatch backend+frontend)
+
+3 SECURITY DEFINER read-only Aggregat-RPCs + 1 frontend-only Filter, 4 UI-Consumers. Schliesst 4 Findings aus 198+198b Backlog.
+
+- **Backend** 3 Migrations: `get_top_predictors_leaderboard`, `get_most_owned_players_per_club`, `get_event_difficulty_score`
+- **Frontend** 4 UI-Consumers + fm 1.3 In-Lineup-Filter
+- DEFER fm 4.4 (Column-Migration) zu Slice 200
 
 ## Zuletzt
 
