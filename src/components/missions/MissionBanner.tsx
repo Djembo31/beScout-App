@@ -32,6 +32,26 @@ function getDaysUntilEnd(endStr: string): number {
   return Math.max(0, Math.ceil(ms / 86400000));
 }
 
+// Slice 200a FM-7.2: Weekly-Reset-Countdown — Tage bei >24h, sonst Stunden+Minuten.
+function getTimeUntilEnd(endStr: string): string {
+  const ms = new Date(endStr).getTime() - Date.now();
+  if (ms <= 0) return '0';
+  const days = Math.floor(ms / 86400000);
+  if (days >= 1) return `${days}d`;
+  const hours = Math.floor(ms / 3600000);
+  const mins = Math.floor((ms % 3600000) / 60000);
+  return `${hours}h ${mins}m`;
+}
+
+// Slice 200a FM-7.1: Filter-Modus.
+type MissionFilter = 'all' | 'active' | 'completed';
+
+function applyFilter(missions: UserMissionWithDef[], filter: MissionFilter): UserMissionWithDef[] {
+  if (filter === 'all') return missions;
+  if (filter === 'active') return missions.filter(m => m.status === 'active');
+  return missions.filter(m => m.status === 'completed' || m.status === 'claimed');
+}
+
 export default function MissionBanner() {
   const { user } = useUser();
   const { data: followedClubs = [] } = useFollowedClubs();
@@ -43,6 +63,8 @@ export default function MissionBanner() {
   const [loadError, setLoadError] = useState<string | null>(null); // FIX-17 (J7F-14)
   const [claimError, setClaimError] = useState<string | null>(null); // FIX-03 (J7F-06)
   const [expanded, setExpanded] = useState(false);
+  // Slice 200a FM-7.1: in-session Filter (kein localStorage).
+  const [filter, setFilter] = useState<MissionFilter>('all');
 
   const clubNameMap = useMemo(() => {
     const m = new Map<string, string>();
@@ -211,6 +233,21 @@ export default function MissionBanner() {
   const dailyUnclaimed = dailyMissions.filter(m => m.status === 'active' || m.status === 'completed');
   const allDone = totalCompleted === missions.length;
 
+  // Slice 200a FM-7.1: Filter anwenden auf Sections — leere Sections nach Filter werden ausgeblendet.
+  const filteredDaily = applyFilter(dailyMissions, filter);
+  const filteredWeekly = applyFilter(weeklyMissions, filter);
+  const filteredClubGroups = clubGroups
+    .map(g => ({ ...g, missions: applyFilter(g.missions, filter) }))
+    .filter(g => g.missions.length > 0);
+  const filteredEmpty =
+    filter !== 'all' &&
+    filteredDaily.length === 0 &&
+    filteredWeekly.length === 0 &&
+    filteredClubGroups.length === 0;
+
+  // Slice 200a FM-7.2: Weekly-Reset-Endpunkt fuer Header-Countdown.
+  const weeklyPeriodEnd = weeklyMissions[0]?.period_end ?? null;
+
   return (
     <div className="bg-gold/[0.04] border border-gold/15 rounded-2xl overflow-hidden">
       {/* Header — always visible */}
@@ -246,6 +283,13 @@ export default function MissionBanner() {
                   {getTimeUntilMidnight()}
                 </span>
               )}
+              {/* Slice 200a FM-7.2: Weekly-Reset-Countdown sichtbar im Header. */}
+              {weeklyPeriodEnd && (
+                <span className="flex items-center gap-0.5 text-purple-400/60">
+                  <Calendar className="size-2.5" aria-hidden="true" />
+                  {getTimeUntilEnd(weeklyPeriodEnd)}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -263,12 +307,42 @@ export default function MissionBanner() {
       {/* Expanded content */}
       {expanded && (
         <div className="px-4 pb-4 space-y-4">
+          {/* Slice 200a FM-7.1: Filter Toggle (3-Way: All | Active | Completed) */}
+          <div role="tablist" aria-label={tm('title')} className="flex items-center gap-1.5 bg-white/[0.03] rounded-xl p-1">
+            {(['all', 'active', 'completed'] as const).map((f) => {
+              const labelKey = f === 'all' ? 'filterAll' : f === 'active' ? 'filterActive' : 'filterCompleted';
+              const isActive = filter === f;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setFilter(f)}
+                  className={cn(
+                    'flex-1 min-h-[32px] px-3 text-[11px] font-bold rounded-lg transition-colors',
+                    isActive ? 'bg-gold text-black' : 'text-white/60 hover:text-white/80',
+                  )}
+                >
+                  {tm(labelKey)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Slice 200a FM-7.1: Empty-State wenn Filter alle versteckt. */}
+          {filteredEmpty && (
+            <div className="text-center py-6 text-xs text-white/50">
+              {tm('noMissionsForFilter')}
+            </div>
+          )}
+
           {/* Global Daily Missions */}
-          {dailyMissions.length > 0 && (
+          {filteredDaily.length > 0 && (
             <MissionSection
               type="daily"
-              missions={dailyMissions}
-              completedCount={dailyMissions.filter(m => m.status === 'completed' || m.status === 'claimed').length}
+              missions={filteredDaily}
+              completedCount={filteredDaily.filter(m => m.status === 'completed' || m.status === 'claimed').length}
               claiming={claiming}
               onClaim={handleClaim}
               tm={tm}
@@ -276,11 +350,11 @@ export default function MissionBanner() {
           )}
 
           {/* Global Weekly Missions */}
-          {weeklyMissions.length > 0 && (
+          {filteredWeekly.length > 0 && (
             <MissionSection
               type="weekly"
-              missions={weeklyMissions}
-              completedCount={weeklyMissions.filter(m => m.status === 'completed' || m.status === 'claimed').length}
+              missions={filteredWeekly}
+              completedCount={filteredWeekly.filter(m => m.status === 'completed' || m.status === 'claimed').length}
               claiming={claiming}
               onClaim={handleClaim}
               tm={tm}
@@ -288,7 +362,7 @@ export default function MissionBanner() {
           )}
 
           {/* Club-specific Missions */}
-          {clubGroups.map(({ clubId, clubName, missions: clubMissions }) => (
+          {filteredClubGroups.map(({ clubId, clubName, missions: clubMissions }) => (
             <div key={clubId}>
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="size-3.5 text-amber-400" />

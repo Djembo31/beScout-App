@@ -3788,7 +3788,11 @@
     "mysteryBoxSection": "Mystery Box",
     "noMissions": "Keine aktiven Missionen",
     "tipTitle": "Tägliche Belohnungen",
-    "tipDesc": "Erledige Missionen, halte deinen Login-Streak und öffne Mystery Boxes für Tickets und Cosmetics."
+    "tipDesc": "Erledige Missionen, halte deinen Login-Streak und öffne Mystery Boxes für Tickets und Cosmetics.",
+    "filterAll": "Alle",
+    "filterActive": "Aktiv",
+    "filterCompleted": "Erledigt",
+    "noMissionsForFilter": "Keine Missionen in dieser Ansicht"
   },
   "spieltag": {
     "label": "Spieltag",
@@ -5065,6 +5069,7 @@
     "equipmentSortLabel": "Sortierung",
     "equipmentSortRankDesc": "Rang absteigend",
     "equipmentSortRankAsc": "Rang aufsteigend",
+    "equipmentSortEffectDesc": "Effekt-Stärke",
     "equipmentSortRecent": "Neueste zuerst",
     "equipmentMissingSlot": "Noch nicht erhalten",
     "equipmentActiveEmpty": "Keine aktiven Items in dieser Ansicht.",

@@ -1,108 +1,36 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 200a
+stage: LOG
+spec: worklog/specs/200a-wave3-polish-sweep.md
+impact: skipped (kein Schema/RPC/Service, pure Frontend)
+proof: worklog/proofs/200a-tsc-vitest.txt
+review: worklog/reviews/200a-review.md
 ```
 
 ## Zuletzt
 
-- **Slice 199** (2026-04-25) — Backend-Aggregat-RPC-Wave (L, parallel BE+FE). 4 Findings closed (C-05, K-02, fm 2.4, fm 1.3). 3 SECURITY DEFINER RPCs LIVE + 4 UI-Consumers. Reviewer PASS, 2 inline-fixed. 20/20 RPC-Tests grün. Punch-Liste 59/98 → 63/98 closed (~64%).
+- **Slice 200a** (2026-04-26) — Wave 3 Polish-Sweep (S, single-track sequenziell). 4 Findings closed (FM 7.1 Filter, FM 7.2 Weekly-Countdown, FM 8.1 Effect-Sort, FM 9.2 Urgency-Color) + 1 already-fixed-marker (UX 2). Reviewer REWORK→PASS post-Heal (Audit-Stale Duplicate-useEffect entfernt). Punch-Liste 63/98 → 67/98 closed (~68%).
+- **Slice 199** (2026-04-25) — Backend-Aggregat-RPC-Wave (L, parallel BE+FE). 4 Findings closed (C-05, K-02, fm 2.4, fm 1.3). 3 SECURITY DEFINER RPCs LIVE + 4 UI-Consumers. Reviewer PASS, 2 inline-fixed. 20/20 RPC-Tests grün.
 - **Slice 198b** (2026-04-25) — Polish-Sweep Wave 2. 11 closed, 5 begruendet skipped. Reviewer PASS.
 - **Slice 198** (2026-04-25) — Polish-Sweep Wave 1. 16 closed, 4 begruendet skipped. Reviewer PASS.
 
-## Slice 200 (Backlog — fm 4.4 + Wave 3 Polish)
-
-- **Slice 200**: fm 4.4 `players.trades_volume_7d` Column-Migration + Aggregations-Strategie (kein-Cron-Variant: Trigger oder Materialized View) + Frontend Sort-Pill
-- **Wave 3 Polish-Sweep**: Restposten ~30 P2/P3 (Brand 6 + UX 9 + FM 12 + Fantasy 9)
-- **Holdings-RPC-Migration** (PostgREST → SECURITY DEFINER, post-Beta)
-- **L5-Data-Drift Audit** (11% ohne perf_l5)
-
-## Slice 199 (DONE — siehe log.md)
-
-4× Skips aus 198b zeigen klares Pattern: gebuendelte RPC-Wave als eigene Backend-Slice:
-- **C-05** Top-Predictor Leaderboard (predictions GROUP BY user_id, RLS-bypass via SECURITY DEFINER)
-- **K-02** Most-Owned Players pro Club (holdings GROUP BY player_id, club-scoped)
-- **fm 2.4** Event-Difficulty-Score (events.avg_ipo_price aus Club-Membership)
-- **fm 1.3** In-Lineup-Filter Aggregat (manager.lineup-membership pro player)
-- **fm 4.4** Sort-by-Trade-Volume-7d (players.trades_volume_7d Column-Migration aus 198 Track C)
-
-Plus DB-Migration `players.trades_volume_7d` aus Slice 198 Track C.
-
-## Zuletzt
-
-- **Slice 198** (2026-04-25) — Polish-Sweep Wave 1 (L, 4-Track parallel-dispatch). 16/20 closed, 4 begruendet skipped. Punch-Liste 32/98 → 48/98 closed (~49%). Review PASS, 2 findings inline gefixt.
-
-## Slice 198 — Polish-Sweep Wave 1 (DONE)
-
-Punch-Liste: 32/98 → **48/98 closed (~49%)**.
-
-- **Track A** — Brand-Rest 5 Items (airdrop diamond + rocket, raw-button refactors profile/club, Quick-Action-Pills extract)
-- **Track B** — UX-States Top-5 (#19 Settings-Toast, #11 DailyChallenge-Retry, #14 founding-optimistic, #6 KaderTab-BulkSell-Bar, #22 compare-Touch-Targets)
-- **Track C** — FM-Rest Top-5 (5.1 FormBars Hover-Tooltip, 4.4 Sort by Volume, 4.5 Bulk-Buy /market, 1.4 Quick-In-Lineup, 3.1 Avg-Rank Stat-Card)
-- **Track D** — Fantasy Top-5 (C-01 Streak, C-02 Difficulty, C-03 Aggregate-Hint, R-04 Tier-Promotion, F-13 Form-Sparkline)
-
-Forbidden-File-Locks:
-- `src/app/(app)/market/MarketFilters.tsx` → Track C exklusiv (Sort by Volume)
-- `src/components/manager/KaderToolbar.tsx` → Track C exklusiv (In-Lineup-Filter)
-- `src/app/(app)/founding/page.tsx` → Track B exklusiv (#14 optimistic)
-
-## Naechste Aktion
-
-**Slice 197 — FM-Mechanics-Fundament** (5 Sub-Slices, ~2-3 Tage). SPEC ready: `worklog/specs/197-fm-mechanics-fundament.md`.
-
-Schliesst 6 P1-Findings: fm 1.1 (Form-L5-Filter universal), fm 1.2/4.1 (MV-Trend), F-02 (Formationen 3-5-2/4-5-1/5-3-2/5-4-1), F-08 (Countdown-Sekunden), K-01 (5-GW-FDR-Strip).
-
-Build-Order rest:
-- 195e (4 Std) Differentials-RPC + Player-Card-Badge
-- 195c-UI (30 Min) EventFormModal max_per_club Number-Input
-- 195f (Backlog, Auto-Sub Audit Trail UI — siehe 195d-Review M2)
-
-Alle in `worklog/specs/195-fantasy-mechanics-overhaul.md` spezifiziert.
-
-## Phase A Audit + Master-Bericht
-
-`worklog/audits/2026-04-25/MASTER.md` — 98 Findings, **6 P0 alle in Fantasy-Domain**, Money-Pfade clean. Trading/Market/Profile/Community sind tester-ready, Fantasy-Lineup braucht 195d.
-
-## Bot-Pool
-
-50 Bots (44 aktiv, 6 Login-Rate-Limit), Pool ~4M $SCOUT. Live-Test 2026-04-25 `--smart 50`: **284 Trades, 0 Bugs**.
-
-Manuell startbar:
-```bash
-npx tsx e2e/bots/ai/run-loop.ts            # 15 bots / 30 min / 8h auto-stop
-npx tsx e2e/bots/ai/run-loop.ts 25 20 12   # custom
-```
-
-## Zuletzt
-
-- **Slice 195d** (2026-04-25) — Bench + Auto-Sub (L, parallel-dispatch, CONCERNS→Healed→PASS)
-- **Slice 195c** (2026-04-25) — Event max_per_club Backend (S, PASS)
-- **Slice 195b** (2026-04-25) — Boost-Chip Rename + AR-44 Hardening (S, PASS)
-- **Slice 195a** (2026-04-25) — Captain-Multiplier 1.1× (XS, PASS)
-- **Slice 193** (2026-04-25) — AuthProvider-Perf + Auth-Race-Gate (S, PASS)
-
-**Session 2026-04-25 Total:** 5 Slices, 1 Phase-A-Audit, 1 Major-Slice (195d) parallel via 3 Agents + Reviewer + Healer.
-
 ## Backlog (priorisiert)
 
-- **195e** Differentials-RPC + Player-Card-Badge (4 Std)
-- **195c-UI** EventFormModal max_per_club (30 Min, Pattern aus salaryCap)
-- **195f** Auto-Sub Audit Trail UI (subs_applied JSONB + Slot-Badge "SUB", siehe 195d-Review M2)
-- **MV-Trend systemisch** (Slice 197, FM-Audit P1, Comunio-Standard)
-- **Form-L5-Filter universalisieren** (Slice 197, FM-Audit P1)
+- **Slice 200**: fm 4.4 `players.trades_volume_7d` Column-Migration + Aggregations-Strategie (Trigger vs Materialized View vs Cron) + Frontend Sort-Pill — Schema-Change auf existing Table → CEO-scope (3 Optionen)
+- **Slice 201**: Backend-Slice fuer FM-6.1 (Per-Trade-Player-Link) + FM-4.3 (Holders-Distribution) + M-01 (Mission-Hints kontextabhaengig) — neue RPCs/Definitions
+- **Wave 4 Polish-Rest**: Restposten ~25 P2/P3 (Brand 6 + UX 8 + FM 5 + Fantasy 8). Frontend-only, low-risk, CTO-scope.
 - **Holdings-RPC-Migration** (PostgREST → SECURITY DEFINER, post-Beta)
 - **L5-Data-Drift Audit** (11% ohne perf_l5)
-- **TR-Locale-Reviewer** organisieren
+- **TR-Locale-Reviewer** organisieren (Anil-Action)
 
 ## Anil-Action-Items
 
 - **3 Beta-Tester anrufen** (Familie/Freunde, min 1 TR)
 - **Vercel-Plan-Entscheidung** (Hobby vs Pro)
 - **TR-Locale-Reviewer organisieren**
-- **Inkognito-Verify** auf bescout.net Manager → keine Ghost-Rows mehr (Slice 192/193)
+- **Slice 200 Aggregations-Strategie-Approval** (3 Optionen: Trigger / MV / Cron)
+- **Inkognito-Verify** auf bescout.net Manager → keine Ghost-Rows mehr
+- **TR-Wording-Review Slice 200a:** "Tümü / Aktif / Tamamlandı / Bu görünümde görev yok / Etki Gücü" — kurz checken bei nächster Session

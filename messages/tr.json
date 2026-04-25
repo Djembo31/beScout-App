@@ -3781,7 +3781,11 @@
     "mysteryBoxSection": "Gizem Kutusu",
     "noMissions": "Aktif görev yok",
     "tipTitle": "Günlük Ödüller",
-    "tipDesc": "Görevleri tamamla, giriş serisini sürdür ve Gizem Kutuları aç."
+    "tipDesc": "Görevleri tamamla, giriş serisini sürdür ve Gizem Kutuları aç.",
+    "filterAll": "Tümü",
+    "filterActive": "Aktif",
+    "filterCompleted": "Tamamlandı",
+    "noMissionsForFilter": "Bu görünümde görev yok"
   },
   "spieltag": {
     "label": "Maç Haftası",
@@ -5058,6 +5062,7 @@
     "equipmentSortLabel": "Sıralama",
     "equipmentSortRankDesc": "Rank azalan",
     "equipmentSortRankAsc": "Rank artan",
+    "equipmentSortEffectDesc": "Etki Gücü",
     "equipmentSortRecent": "En yeni önce",
     "equipmentMissingSlot": "Henüz alınmadı",
     "equipmentActiveEmpty": "Bu görünümde aktif parça yok.",

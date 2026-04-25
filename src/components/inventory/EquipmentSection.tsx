@@ -48,7 +48,8 @@ function getEquipmentIcon(iconName: string | null): React.ComponentType<{ classN
 // ============================================
 type ViewMode = 'all' | 'active' | 'consumed';
 type PositionFilter = 'all' | EquipmentPosition;
-type SortMode = 'rank_desc' | 'rank_asc' | 'recent';
+// Slice 200a FM-8.1: 'effect_desc' sortiert nach Rank-Multiplier (Effekt-Staerke).
+type SortMode = 'rank_desc' | 'rank_asc' | 'recent' | 'effect_desc';
 
 // ============================================
 // Helpers
@@ -100,7 +101,12 @@ function groupConsumed(
   return Array.from(map.values());
 }
 
-function sortGroups(groups: GroupEntry[], sort: SortMode, locale: string): GroupEntry[] {
+function sortGroups(
+  groups: GroupEntry[],
+  sort: SortMode,
+  locale: string,
+  multiplierByRank: Map<number, number>,
+): GroupEntry[] {
   const out = [...groups];
   const nameOf = (g: GroupEntry) => resolveEquipmentName(g.def, locale);
   // FIX-12: localeCompare nutzt locale-Param fuer korrekte TR-Unicode-Order (ş/ç/ğ/ı/ö/ü).
@@ -116,6 +122,14 @@ function sortGroups(groups: GroupEntry[], sort: SortMode, locale: string): Group
         const aTs = [...a.items].sort((x, y) => y.acquired_at.localeCompare(x.acquired_at))[0]?.acquired_at ?? '';
         const bTs = [...b.items].sort((x, y) => y.acquired_at.localeCompare(x.acquired_at))[0]?.acquired_at ?? '';
         return bTs.localeCompare(aTs);
+      });
+      break;
+    case 'effect_desc':
+      // Slice 200a FM-8.1: Effekt-Staerke = rank.multiplier desc; bei Tie rank desc, dann Name.
+      out.sort((a, b) => {
+        const am = multiplierByRank.get(a.rank) ?? a.rank;
+        const bm = multiplierByRank.get(b.rank) ?? b.rank;
+        return bm - am || b.rank - a.rank || nameOf(a).localeCompare(nameOf(b), locale);
       });
       break;
   }
@@ -173,6 +187,14 @@ export default function EquipmentSection() {
     return [1, 2, 3, 4];
   }, [ranks]);
 
+  // Slice 200a FM-8.1: Map Rank → Multiplier fuer effect-magnitude sort.
+  // Fallback bei leerer ranks-Tabelle: nutzt rank-Wert direkt (rank_desc-equivalent).
+  const multiplierByRank = useMemo(() => {
+    const m = new Map<number, number>();
+    for (const r of ranks) m.set(r.rank, r.multiplier);
+    return m;
+  }, [ranks]);
+
   // ── Stats (derived from active inventory) ──
   const stats = useMemo(() => {
     const active = invActive.filter(eq => !eq.consumed_at);
@@ -199,14 +221,14 @@ export default function EquipmentSection() {
   const activeGroups = useMemo(() => {
     const g = groupActive(invActive, definitions);
     const filtered = posFilter === 'all' ? g : g.filter(entry => entry.def.position === posFilter);
-    return sortGroups(filtered, sort, locale);
-  }, [invActive, definitions, posFilter, sort, locale]);
+    return sortGroups(filtered, sort, locale, multiplierByRank);
+  }, [invActive, definitions, posFilter, sort, locale, multiplierByRank]);
 
   const consumedGroups = useMemo(() => {
     const g = groupConsumed(invAll, definitions);
     const filtered = posFilter === 'all' ? g : g.filter(entry => entry.def.position === posFilter);
-    return sortGroups(filtered, sort, locale);
-  }, [invAll, definitions, posFilter, sort, locale]);
+    return sortGroups(filtered, sort, locale, multiplierByRank);
+  }, [invAll, definitions, posFilter, sort, locale, multiplierByRank]);
 
   // ── Matrix entries for "Alle" mode: every definition × every rank ──
   type MatrixEntry = {
@@ -383,6 +405,7 @@ export default function EquipmentSection() {
             >
               <option value="rank_desc" className="bg-[#0a0a0a]">{t('equipmentSortRankDesc')}</option>
               <option value="rank_asc" className="bg-[#0a0a0a]">{t('equipmentSortRankAsc')}</option>
+              <option value="effect_desc" className="bg-[#0a0a0a]">{t('equipmentSortEffectDesc')}</option>
               <option value="recent" className="bg-[#0a0a0a]">{t('equipmentSortRecent')}</option>
             </select>
           </label>

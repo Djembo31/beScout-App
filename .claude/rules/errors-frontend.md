@@ -114,6 +114,17 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - Reference: Slice 198 Track C `KaderPlayerRow.tsx:301` — `manager.quickLineupAction` fehlte in beiden Locales. Reviewer-Agent caught Post-Build (Slice 198 Heal).
 - Beziehung zu i18n-Key-Leak: gleiche Bug-Klasse, andere Achse (Leak = Service-Error-Path, hier = Component-Render-Path).
 
+### Polish-Audit Pre-Existing-Code-Drift (Slice 200a, Reviewer-Find)
+- Punch-List-Item klassifiziert "X fehlt", aber Code im **consumed Hook/Service** des Components löst es bereits. Polish-Audit greppt nur Component-File, verpasst Hook-source.
+- Symptom: Implementer fügt neuen useEffect/State hinzu → **Duplicate** zu pre-existing Logic. Beide feuern parallel auf gleichen Trigger. Cleanup-Order undefiniert. tsc + Tests bleiben grün → Bug erst durch Cold-Context-Reviewer entdeckt.
+- Reference (Slice 200a): UX-#2 Audit-Item "Buy-Error-Banner auto-dismiss fehlt" — pre-existing 5s setTimeout in `useTradeActions.ts:63-69` seit Slice 161. Neuer useEffect in `MarketContent.tsx:82-92` war Audit-Stale → vom Reviewer-Agent gefangen.
+- **Detection-Pflicht VOR "fehlt"-Klassifikation:**
+  ```bash
+  grep -rn "<spec-pattern>" src/features/<domain>/hooks/ src/features/<domain>/services/ src/lib/hooks/
+  ```
+- Prevention: Bei Polish-Sweeps ab Slice 198+ vor Implementation per `grep` über consumed-hook-source verifizieren. Reviewer-Agent als Backup-Catcher pflicht.
+- Beziehung zu Service-Duplicate (D46): gleiche Bug-Klasse "Audit/Spec-Drift verdeckt pre-existing Code", andere Achse (D46 = parallele BE+FE-Worktrees, hier = Audit-Stale aus Punch-List).
+
 ### Service-Duplicate bei parallelem BE+FE-Dispatch (Slice 199, Reviewer-Find — D46)
 - BE-Agent + FE-Agent in parallelen Worktrees implementieren denselben Service unabhängig (z.B. `getTopPredictorsLeaderboard` in `src/lib/services/leaderboards.ts` UND `src/features/fantasy/services/predictions.queries.ts`).
 - Symptom: FE-Hook nutzt FE-Variante → BE's Service-File ist **orphan production-code** (kein Import). TSC clean, keine Errors. Drift-Risk: Wenn Schema-Änderung, müssen beide synchronisiert werden.

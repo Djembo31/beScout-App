@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-25 nach Slice 199 (+4 closed)
+**Stand:** 2026-04-26 nach Slice 200a (+4 closed + 1 already-fixed-marker)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **63 closed (≈64%)**
+**Total:** 98 Findings · davon **67 closed (≈68%)**
 
 ## Status-Legende
 
@@ -19,10 +19,17 @@
 | Domain | Total | done | wont-fix | in-progress | open | deferred |
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 12 | 0 | 0 | 6 | 0 |
-| UX-States | 27 | 18 | 0 | 0 | 9 | 0 |
-| FM-Mechanics | 26 | 15 | 0 | 0 | 11 | 0 |
+| UX-States | 27 | 19 | 0 | 0 | 8 | 0 |
+| FM-Mechanics | 26 | 19 | 0 | 0 | 7 | 0 |
 | Fantasy-Scoring | 27 | 18 | 1 | 0 | 8 | 0 |
-| **TOTAL** | **98** | **63** | **1** | **0** | **34** | **0** |
+| **TOTAL** | **98** | **67** | **1** | **0** | **30** | **0** |
+
+**Slice 200a closed (+4 + 1 already-fixed-marker):** Wave 3 Polish-Sweep (Frontend-only, single-track sequenziell).
+- FM 7.1 MissionBanner Filter Toggle (All|Active|Completed)
+- FM 7.2 Weekly-Mission Reset-Countdown im Header
+- FM 8.1 Inventory Sort by Effect-Magnitude (multiplierByRank)
+- FM 9.2 Founding TierCard Urgency-Color (text-orange-400 bei <10% verfügbar)
+- UX 2 already-fixed via pre-existing useTradeActions.ts:63-69 (Slice 161+) — Reviewer-Agent fing Audit-Stale Duplicate pre-merge
 
 **Slice 199 closed (+4):** Backend-Aggregat-RPC-Wave (parallel BE+FE).
 - C-05 Top-Predictor-Leaderboard (RPC + UI)
@@ -142,7 +149,7 @@
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| 2 | open | ux.md | Buy-Error-Banner ohne auto-dismiss | Slice 198 |
+| 2 | done | ux.md | Buy-Error-Banner ohne auto-dismiss | already-fixed via useTradeActions.ts:63-69 (Slice 161+); Slice 200a Reviewer-Marker ✓ |
 | 6 | open | ux.md | KaderTab BulkSell Bar persistence | Slice 198 |
 | 7 | open | ux.md | EventSummaryModal preventClose TODO | watch (re-audit nach jedem async-Refactor) |
 | 8 | open | ux.md | CreateEventModal preventClose TODO | watch |
@@ -197,10 +204,10 @@
 | 5.2 | open | fm.md | Differential-Sentiment ScoutConsensus | Slice 198 |
 | 6.1 | open | fm.md | Per-Trade-Player-Link Transactions | Slice 198 |
 | 6.2 | open | fm.md | Trend-Sparkline-Mini-Chart Aggregation | Slice 198 |
-| 7.1 | open | fm.md | MissionBanner Active/Completed-Filter | Slice 198 |
-| 7.2 | open | fm.md | Weekly-Mission Reset-Countdown | Slice 198 |
-| 8.1 | open | fm.md | Inventory Sort by Effect-Magnitude | Slice 198 |
-| 9.2 | open | fm.md | Founding „Last X left at Tier" Urgency-Color | Slice 198 |
+| 7.1 | done | fm.md | MissionBanner Active/Completed-Filter | Slice 200a ✓ |
+| 7.2 | done | fm.md | Weekly-Mission Reset-Countdown | Slice 200a ✓ |
+| 8.1 | done | fm.md | Inventory Sort by Effect-Magnitude | Slice 200a ✓ |
+| 9.2 | done | fm.md | Founding „Last X left at Tier" Urgency-Color | Slice 200a ✓ |
 | 9.3 | open | fm.md | Founding Per-Tier-Vergleichstabelle | Slice 198 |
 | 10.2 | open | fm.md | Airdrop Personal-Score-History | Slice 198 |
 | 10.3 | open | fm.md | Airdrop Friends-Filter | Slice 198 |

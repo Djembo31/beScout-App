@@ -309,6 +309,8 @@ function TierCard({
   const disabled = userHasPass || soldOut || !loggedIn;
   const tierProgressPct = limit > 0 ? Math.min((soldCount / limit) * 100, 100) : 0;
   const tierLabel = t('tierCounter', { count: fmtScout(soldCount), limit: fmtScout(limit) });
+  // Slice 200a FM-9.2: Urgency-Color bei <10% verfuegbar (nicht sold-out).
+  const urgencyLow = !soldOut && limit > 0 && (limit - soldCount) / limit < 0.1;
 
   return (
     <div className={cn(
@@ -405,7 +407,12 @@ function TierCard({
           />
         </div>
         <div className="text-center">
-          <span className="text-xs text-white/40 font-mono tabular-nums">
+          <span
+            className={cn(
+              'text-xs font-mono tabular-nums',
+              urgencyLow ? 'text-orange-400 font-bold' : 'text-white/40',
+            )}
+          >
             {tierLabel}
           </span>
         </div>

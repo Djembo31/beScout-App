@@ -1,0 +1,49 @@
+Slice 200a — Wave 3 Polish-Sweep (4 items closed + 1 already-fixed)
+Date: 2026-04-26
+Branch: main
+
+=== tsc clean (post-Heal) ===
+$ npx tsc --noEmit
+(no output — exit 0)
+
+=== Vitest MissionBanner ===
+$ npx vitest run src/components/missions/__tests__/MissionBanner.test.tsx
+RUN  v4.1.0 C:/bescout-app
+
+Test Files  1 passed (1)
+     Tests  2 passed (2)
+  Start at  01:38:35
+  Duration  3.82s
+
+=== i18n-Verify (5 neue Keys, beide Locales) ===
+filterAll: de.json 4× / tr.json 4× ✓ (mehrere namespaces, keine Kollision)
+filterActive: de.json 1× / tr.json 1× ✓
+filterCompleted: de.json 1× / tr.json 1× ✓
+noMissionsForFilter: de.json 1× / tr.json 1× ✓
+equipmentSortEffectDesc: de.json 1× / tr.json 1× ✓
+
+=== Reviewer-Agent verdict ===
+Initial: REWORK (1 CRITICAL — UX-2 Duplicate-useEffect)
+Heal: Duplicate gelöscht aus MarketContent.tsx:82-92
+Final: PASS
+
+=== git diff --stat (post-Heal) ===
+.claude/settings.local.json                      |  16 +++-
+memory/session-handoff.md                        |   7 +-
+messages/de.json                                 |   7 +-
+messages/tr.json                                 |   7 +-
+src/app/(app)/founding/page.tsx                  |   9 +-
+src/components/inventory/EquipmentSection.tsx    |  35 +++++--
+src/components/missions/MissionBanner.tsx        |  88 ++++++++++++++++--
+worklog/active.md                                | 112 +++++------------------
+9 files changed (MarketContent.tsx removed from diff after Heal)
+
+=== Items closed ===
+1. FM-7.1 MissionBanner Filter All|Active|Completed (i18n DE+TR)
+2. FM-7.2 Weekly-Mission Reset-Countdown (Header, Calendar-Icon)
+3. FM-8.1 Inventory Sort by Effect-Magnitude (multiplierByRank)
+4. FM-9.2 Founding TierCard Urgency-Color (text-orange-400 + font-bold bei <10% verfügbar)
++ UX-2 marked already-fixed (pre-existing useTradeActions.ts:63-69)
+
+=== Punch-Liste-Update ===
+63/98 → 67/98 closed (~68%) — 4 newly-closed + 1 already-fixed-marker

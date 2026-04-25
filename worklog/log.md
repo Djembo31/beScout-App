@@ -11,6 +11,50 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 200a | 2026-04-26 | Wave 3 Polish-Sweep (Frontend-only, single-track)
+
+S-Slice sequenziell durch lokal Claude. 4 Frontend-only Items closed + 1 Audit-Stale-Marker. Punch-Liste: 63/98 → **67/98 closed (~68%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/200a-wave3-polish-sweep.md) → IMPACT skipped (kein Schema/RPC/Service) → BUILD → REVIEW (verdict REWORK→PASS post-Heal) → PROVE → LOG
+
+### Items closed (4)
+
+- **FM-7.1** MissionBanner Filter Toggle `All | Active | Completed` — `useState<MissionFilter>` + `applyFilter()` helper + Section-leveling + Empty-State `noMissionsForFilter`. 4 i18n-Keys DE+TR.
+- **FM-7.2** Weekly-Mission Reset-Countdown im Header — neuer `getTimeUntilEnd()` helper (Tage bei >24h, Stunden+Minuten <24h). Calendar-Icon + purple-400/60.
+- **FM-8.1** Inventory Sort by Effect-Magnitude — neuer `SortMode = 'effect_desc'` + `multiplierByRank: Map<rank, multiplier>` Lookup. Tie-Breaker rank-desc → name-localeCompare. Fallback bei leerer ranks-Tabelle: rank-Wert als multiplier (degradiert zu rank_desc-equivalent).
+- **FM-9.2** Founding TierCard Urgency-Color — `text-orange-400 font-bold` bei `(limit-soldCount)/limit < 0.1 && !soldOut`. `cn`-conditional, kein inline-style.
+
+### Items already-fixed-marker (1)
+
+- **UX-2** Buy-Error-Banner auto-dismiss — Reviewer-Agent fand pre-existing `useEffect` in `src/features/market/hooks/useTradeActions.ts:63-69` (5s setTimeout + clearTimeout cleanup, seit Slice 161+). Mein neuer Duplicate-useEffect in `MarketContent.tsx:82-92` war Audit-Stale → gelöscht.
+
+### Knowledge-Capture
+
+- **errors-frontend.md neue Section "Polish-Audit Pre-Existing-Code-Drift"** — Anti-Pattern: Punch-List-Item klassifiziert "fehlt", aber Code im consumed-Hook löst es bereits. Detection-Pflicht: Vor Polish-Implementation `grep -rn` über consumed-hook-source der betroffenen Component.
+- **Pattern für patterns.md (Erweiterung #34 Worktree-Awareness):** Bei Polish-Sweeps ab Slice 198+ Reviewer-Pflicht "ist X bereits implementiert?" via grep, BEVOR Spec-Klasse "fehlt" akzeptiert wird.
+
+### Files modified
+
+```
+messages/de.json                                 |   7 +-
+messages/tr.json                                 |   7 +-
+src/app/(app)/founding/page.tsx                  |   9 +-
+src/components/inventory/EquipmentSection.tsx    |  35 +++++--
+src/components/missions/MissionBanner.tsx        |  88 ++++++++++++++++--
+```
+
+### Proof
+- `worklog/proofs/200a-tsc-vitest.txt` — tsc clean + MissionBanner.test.tsx 2/2 grün + i18n-keys verifiziert
+- Reviewer: `worklog/reviews/200a-review.md` (verdict PASS post-Heal)
+
+### Commit
+TBD (this commit)
+
+### Notes
+Single-Track sequenziell statt Multi-Track gewählt (5 Items in 4 Files, Multi-Track-Overhead nicht gerechtfertigt). Reviewer-Agent fing Audit-Stale CRITICAL pre-merge — 22min Review verhinderte Duplicate-useEffect in production.
+
+---
+
 ## 199 | 2026-04-25 | Backend-Aggregat-RPC-Wave (parallel BE+FE)
 
 L-Slice via parallel-dispatch backend + frontend in 2 Worktrees. Schliesst 4 Findings aus 198+198b Backlog. Punch-Liste: 59/98 → **63/98 closed (~64%)**.
