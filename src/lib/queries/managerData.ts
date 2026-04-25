@@ -1,5 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRecentPlayerMinutes, getRecentPlayerScores, getNextFixturesByClub } from '@/lib/services/fixtures';
+import {
+  getRecentPlayerMinutes,
+  getRecentPlayerScores,
+  getRecentScoreGameweeks,
+  getNextFixturesByClub,
+} from '@/lib/services/fixtures';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
 import { qk } from './keys';
 
@@ -17,6 +22,17 @@ export function useRecentScores() {
   return useQuery({
     queryKey: qk.fixtures.recentScores,
     queryFn: getRecentPlayerScores,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/** Slice 198 fm 5.1 — 5 most recent scored gameweeks (oldest→newest, aligned with FormBars).
+ *  Cheap query (limit 1, single row) — used to label FormBars tooltips with GW number.
+ *  Returns empty array when no scored gameweeks exist yet. */
+export function useRecentScoreGameweeks() {
+  return useQuery({
+    queryKey: qk.fixtures.recentScoreGameweeks,
+    queryFn: getRecentScoreGameweeks,
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -222,6 +222,8 @@ export const qk = {
   fixtures: {
     recentMinutes: ['fixtures', 'recentMinutes'] as const,
     recentScores: ['fixtures', 'recentScores'] as const,
+    /** Slice 198 fm 5.1 — 5 most recent scored gameweeks (oldest→newest), used by FormBars tooltip. */
+    recentScoreGameweeks: ['fixtures', 'recentScoreGameweeks'] as const,
     nextByClub: ['fixtures', 'nextByClub'] as const,
     next: ['fixtures', 'next'] as const,
     byClub: (cid: string) => ['fixtures', 'club', cid] as const,
