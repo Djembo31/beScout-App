@@ -2,13 +2,16 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { X, SlidersHorizontal } from 'lucide-react';
+import { X, SlidersHorizontal, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InfoTooltip } from '@/components/ui';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import type { Pos, Player } from '@/types';
 import type { SortOption } from '@/lib/stores/marketStore';
 import { FORM_L5_VALUES, getFormL5Label } from '@/lib/filters/formL5Filter';
+import { MV_TREND_VALUES, applyMvTrendFilter, type MvTrend } from '@/lib/filters/mvTrendFilter';
+
+// Slice 197d (post-merge): Player.mvTrend7d offiziell im Player-Type. Augment-Type entfernt.
 
 const POSITIONS: Pos[] = ['GK', 'DEF', 'MID', 'ATT'];
 
@@ -27,7 +30,7 @@ const CONTRACT_LABELS = ['sortAll', '< 6M', '< 12M'] as const;
 
 // Shared filter logic
 export function applyFilters(players: Player[], store: ReturnType<typeof useMarketStore.getState>): Player[] {
-  return players.filter(p => {
+  const filtered = players.filter(p => {
     if (store.filterPos.size > 0 && !store.filterPos.has(p.pos)) return false;
     if (store.filterMinL5 > 0 && p.perf.l5 < store.filterMinL5) return false;
     if (store.filterMinGoals > 0 && p.stats.goals < store.filterMinGoals) return false;
@@ -37,6 +40,8 @@ export function applyFilters(players: Player[], store: ReturnType<typeof useMark
     if (store.filterOnlyFit && p.status !== 'fit') return false;
     return true;
   });
+  // Slice 197d — MV-Trend universal filter (NULL-items excluded when filter active).
+  return applyMvTrendFilter(filtered, store.filterMvTrend, p => p.mvTrend7d ?? null);
 }
 
 export function applySorting(players: Player[], sortBy: SortOption, getFloor?: (p: Player) => number): Player[] {
@@ -63,6 +68,7 @@ export function getActiveFilterCount(store: ReturnType<typeof useMarketStore.get
   if (store.filterMinMatches > 0) count++;
   if (store.filterContractMax > 0) count++;
   if (store.filterOnlyFit) count++;
+  if (store.filterMvTrend !== 'all') count++;
   if (store.filterPriceMin > 0) count++;
   if (store.filterPriceMax > 0) count++;
   if (store.filterMinSellers > 0) count++;
@@ -76,6 +82,8 @@ interface MarketFiltersProps {
 
 export default function MarketFilters({ showTransferFilters }: MarketFiltersProps) {
   const t = useTranslations('market');
+  const tMv = useTranslations('mvTrend');
+  const tCommon = useTranslations('common');
   const {
     filterPos, toggleFilterPos,
     filterMinL5, setFilterMinL5,
@@ -84,6 +92,7 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
     filterMinMatches, setFilterMinMatches,
     filterContractMax, setFilterContractMax,
     filterOnlyFit, setFilterOnlyFit,
+    filterMvTrend, setFilterMvTrend,
     filterPriceMin, setFilterPriceMin,
     filterPriceMax, setFilterPriceMax,
     filterBestDeals, setFilterBestDeals,
@@ -258,6 +267,45 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
               />
               <span className="text-[10px] text-white/50 font-semibold">{t('onlyFit', { defaultMessage: 'Nur Fit' })}</span>
             </label>
+          </div>
+
+          {/* Slice 197d — MV-Trend pills */}
+          <div>
+            <div className="text-[10px] text-white/40 font-semibold mb-1.5">{tMv('label')}</div>
+            <div className="flex gap-1.5 flex-wrap">
+              {MV_TREND_VALUES.map(val => {
+                const active = filterMvTrend === val;
+                const text = val === 'all' ? tCommon('all') : tMv(val);
+                const Icon =
+                  val === 'rising' ? TrendingUp : val === 'falling' ? TrendingDown : val === 'stable' ? Minus : null;
+                const iconColor =
+                  active
+                    ? 'text-white'
+                    : val === 'rising'
+                      ? 'text-emerald-300'
+                      : val === 'falling'
+                        ? 'text-rose-300'
+                        : 'text-white/40';
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setFilterMvTrend(val)}
+                    aria-pressed={active}
+                    aria-label={tMv('filterLabel', { value: text })}
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[32px]',
+                      active
+                        ? 'bg-white/15 text-white'
+                        : 'text-white/40 hover:text-white/60',
+                    )}
+                  >
+                    {Icon && <Icon className={cn('w-3 h-3', iconColor)} aria-hidden="true" />}
+                    <span>{text}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Transferliste-only filters */}

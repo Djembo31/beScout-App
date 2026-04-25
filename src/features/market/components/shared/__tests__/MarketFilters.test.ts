@@ -52,6 +52,7 @@ describe('applyFilters', () => {
     filterMinMatches: 0,
     filterContractMax: 0,
     filterOnlyFit: false,
+    filterMvTrend: 'all' as const,
     filterPriceMin: 0,
     filterPriceMax: 0,
     filterMinSellers: 0,
@@ -160,6 +161,7 @@ describe('getActiveFilterCount', () => {
       filterPos: new Set<Pos>(),
       filterMinL5: 0, filterMinGoals: 0, filterMinAssists: 0,
       filterMinMatches: 0, filterContractMax: 0, filterOnlyFit: false,
+      filterMvTrend: 'all' as const,
       filterPriceMin: 0, filterPriceMax: 0, filterMinSellers: 0, filterBestDeals: false,
     };
     expect(getActiveFilterCount(store as any)).toBe(0);
@@ -170,6 +172,7 @@ describe('getActiveFilterCount', () => {
       filterPos: new Set<Pos>(['ATT']),
       filterMinL5: 0, filterMinGoals: 0, filterMinAssists: 0,
       filterMinMatches: 0, filterContractMax: 0, filterOnlyFit: false,
+      filterMvTrend: 'all' as const,
       filterPriceMin: 0, filterPriceMax: 0, filterMinSellers: 0, filterBestDeals: false,
     };
     expect(getActiveFilterCount(store as any)).toBe(1);
@@ -180,8 +183,20 @@ describe('getActiveFilterCount', () => {
       filterPos: new Set<Pos>(['ATT', 'MID']),
       filterMinL5: 50, filterMinGoals: 3, filterMinAssists: 0,
       filterMinMatches: 0, filterContractMax: 12, filterOnlyFit: true,
+      filterMvTrend: 'all' as const,
       filterPriceMin: 0, filterPriceMax: 0, filterMinSellers: 0, filterBestDeals: false,
     };
     expect(getActiveFilterCount(store as any)).toBe(5);
+  });
+
+  it('counts mvTrend when not "all"', () => {
+    const store = {
+      filterPos: new Set<Pos>(),
+      filterMinL5: 0, filterMinGoals: 0, filterMinAssists: 0,
+      filterMinMatches: 0, filterContractMax: 0, filterOnlyFit: false,
+      filterMvTrend: 'rising' as const,
+      filterPriceMin: 0, filterPriceMax: 0, filterMinSellers: 0, filterBestDeals: false,
+    };
+    expect(getActiveFilterCount(store as any)).toBe(1);
   });
 });

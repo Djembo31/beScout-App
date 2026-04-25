@@ -86,6 +86,13 @@
     "loadError": "Veriler yüklenemedi.",
     "tryAgain": "Tekrar dene"
   },
+  "mvTrend": {
+    "label": "Piyasa Değeri Trendi",
+    "rising": "Yükseliş",
+    "stable": "Sabit",
+    "falling": "Düşüş",
+    "filterLabel": "Piyasa Değeri Trendi Filtresi {value}"
+  },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
     "welcome": "Hoş geldin",

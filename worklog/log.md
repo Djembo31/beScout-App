@@ -11,6 +11,52 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 197d | 2026-04-25 | MV-Trend systemisch (Phase-A FM 1.2 + 4.1)
+
+L-Slice via parallel-dispatch backend + frontend. Punch-Liste: 30/98 → **32/98 closed (~33%)**.
+
+### Backend
+- Migration `20260425200000_slice_197d_mv_trend.sql` — APPLIED LIVE
+  - `ALTER players ADD mv_trend_7d` + CHECK rising/stable/falling/null
+  - NEW `players_mv_history(player_id, date, mv_eur)` + idx_date
+  - RLS enabled + 0 policies (cron-only Pattern, service_role bypass)
+  - RPC `cron_snapshot_and_calc_mv_trends()` SECURITY DEFINER STABLE
+    (5% threshold, idempotent ON CONFLICT, history-cleanup >30d)
+  - AR-44 REVOKE/GRANT
+- NEW Cron-Route `src/app/api/cron/calculate-mv-trends/route.ts`
+- vercel.json: neuer Cron `45 3 * * *` daily (Hobby-kompatibel D36)
+- DbPlayer.mv_trend_7d Type-Erweiterung
+- Initial Backfill: 4556 players snapshotted, 0 trends (ab Tag 8 verfügbar)
+
+### Frontend
+- NEW `src/lib/filters/mvTrendFilter.ts` (generic value-extractor, 11/11 tests)
+- PerfPills MV-Pfeil (TrendingUp/Down/Minus + i18n aria-label)
+- KaderToolbar + MarketFilters MV-Trend-Pill-Group [all/rising/stable/falling]
+- KaderTab + MarketFilters per-page bzw store-state Filter-Pipeline
+- KaderPlayerRow MV-Pfeil neben Form-Pfeil
+- 5 i18n-Keys DE+TR symmetrisch (mvTrend.label/rising/stable/falling/filterLabel)
+
+### CTO-Mapper-Fix (Cross-Track-Bridge-Resolution)
+- `Player.mvTrend7d` als First-Class field in src/types/index.ts:86
+- `dbToPlayer` mapped `mv_trend_7d → mvTrend7d`
+- 3 Augment-Type `PlayerWithMvTrend` Hacks proaktiv entfernt (M1 healed)
+
+### Reviewer-Verdict
+- Backend: PASS
+- Frontend: CONCERNS → PASS (M1 inline gehealt vor Reviewer-Output)
+- Type-Truth-Audit (D43): 6/6 Layer aligned
+- Aufrufpfad-Audit: 4 Konsumenten linear, single-consumer-chains
+- Vercel Cron Hobby-kompatibel verifiziert
+
+### Knowledge-Flywheel — Promote-Worthy
+- RLS-cron-only Table-Pattern → database.md
+- Cross-Track-Type-Race Workflow-Pattern → patterns.md (mit Cleanup-Pflicht)
+
+### Commits
+197d: (folgt mit diesem Eintrag)
+
+---
+
 ## 197c | 2026-04-25 | Formationen 3-5-2/4-5-1/5-3-2/5-4-1 (Phase-A F-02)
 
 XS-Slice, manuell vom CTO ausgefuehrt nach Worktree-Agent-Stall (stream watchdog 600s timeout).

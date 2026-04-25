@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { getL5Color } from '@/components/player';
 import type { PlayerStatus } from '@/types';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
+import type { MvTrend } from '@/lib/filters/mvTrendFilter';
 
 // ============================================
 // LENS TYPES + CONFIG
@@ -118,15 +119,48 @@ export function MinutesBar({ minutes }: { minutes: number[] }) {
 // PERF TREND
 // ============================================
 
-export function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: string }) {
+export function PerfPills({
+  l5,
+  l15,
+  trend,
+  mvTrend,
+}: {
+  l5: number;
+  l15: number;
+  trend: string;
+  /** Slice 197d — optional MV-Trend (rising/stable/falling) over 7d. Hidden when null/undefined. */
+  mvTrend?: MvTrend | null;
+}) {
+  const t = useTranslations('mvTrend');
   const TrendIcon = trend === 'UP' ? TrendingUp : trend === 'DOWN' ? TrendingDown : Minus;
   const trendColor = trend === 'UP' ? 'text-green-500' : trend === 'DOWN' ? 'text-red-400' : 'text-white/40';
+
+  const MvIcon = mvTrend === 'rising' ? TrendingUp : mvTrend === 'falling' ? TrendingDown : Minus;
+  const mvColor =
+    mvTrend === 'rising'
+      ? 'text-emerald-300 bg-emerald-500/10'
+      : mvTrend === 'falling'
+        ? 'text-rose-300 bg-rose-500/10'
+        : 'text-white/40 bg-white/[0.04]';
 
   return (
     <div className="flex items-center gap-1.5">
       <span className={cn('text-[10px] font-mono font-black', getL5Color(l5))}>L5 {l5}</span>
       <span className="text-[10px] font-mono text-white/40">L15 {l15}</span>
-      <TrendIcon className={cn('w-3 h-3', trendColor)} />
+      <TrendIcon className={cn('w-3 h-3', trendColor)} aria-hidden="true" />
+      {mvTrend && (
+        <span
+          className={cn(
+            'inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-bold tabular-nums',
+            mvColor,
+          )}
+          aria-label={t(mvTrend)}
+          title={t(mvTrend)}
+        >
+          <MvIcon className="w-2.5 h-2.5" aria-hidden="true" />
+          <span>MV</span>
+        </span>
+      )}
     </div>
   );
 }

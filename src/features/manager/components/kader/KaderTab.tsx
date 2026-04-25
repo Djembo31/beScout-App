@@ -27,6 +27,9 @@ import KaderClubGroup from './KaderClubGroup';
 import { useTranslations, useLocale } from 'next-intl';
 import EquipmentShortcut from '../EquipmentShortcut';
 import { applyFormL5Filter, type FormL5Threshold } from '@/lib/filters/formL5Filter';
+import { applyMvTrendFilter, type MvTrendValue } from '@/lib/filters/mvTrendFilter';
+
+// Slice 197d (post-merge): Player.mvTrend7d ist offiziell im Player-Type, kein Augment-Cast mehr.
 
 // ============================================
 // TYPES
@@ -108,6 +111,8 @@ export default function KaderTab({
   const [showFilters, setShowFilters] = useState(false);
   // Slice 197a — per-page Form-L5 state (Power-User-Standard, kein globaler Store).
   const [formL5, setFormL5] = useState<FormL5Threshold>(0);
+  // Slice 197d — per-page MV-Trend filter state (default: 'all', also Power-User-Standard).
+  const [mvTrend, setMvTrend] = useState<MvTrendValue>('all');
   const [sortByMap, setSortByMap] = useState<Partial<Record<KaderLens, string>>>({});
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -270,8 +275,10 @@ export default function KaderTab({
     if (clubFilter) result = result.filter(item => item.player.club === clubFilter);
     // Slice 197a — Form-L5 universal filter.
     result = applyFormL5Filter(result, formL5, item => item.player.perf.l5);
+    // Slice 197d — MV-Trend universal filter.
+    result = applyMvTrendFilter(result, mvTrend, item => item.player.mvTrend7d ?? null);
     return sortItems(result, sortBy, minutesMap);
-  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, formL5, sortBy, minutesMap]);
+  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, formL5, mvTrend, sortBy, minutesMap]);
 
   // Club-grouped data
   const clubGroups = useMemo(() => {
@@ -389,6 +396,8 @@ export default function KaderTab({
         onShowFiltersChange={setShowFilters}
         formL5={formL5}
         onFormL5Change={setFormL5}
+        mvTrend={mvTrend}
+        onMvTrendChange={setMvTrend}
       />
 
       {/* Result Count + Bulk Mode Toggle */}
@@ -423,7 +432,7 @@ export default function KaderTab({
           />
         ) : (
           <EmptyState icon={<Package />} title={t('bestandFilterEmpty')} description={t('bestandFilterEmptyDesc')}
-            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); setFormL5(0); }}} />
+            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); setFormL5(0); setMvTrend('all'); }}} />
         )
       )}
 

@@ -19,6 +19,9 @@ import type { KaderLens } from './kaderHelpers';
 import type { Player } from '@/types';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 
+// Slice 197d (post-merge): Player.mvTrend7d ist im offiziellen Player-Type (src/types/index.ts:86).
+// Augment-Type wurde nach Backend-Merge obsolet — Casts entfernt.
+
 // ============================================
 // TYPES
 // ============================================
@@ -68,7 +71,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: KaderPlayer; mi
     <>
       {/* Desktop columns */}
       <div className="hidden md:flex items-center gap-3 shrink-0">
-        <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
+        <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} mvTrend={p.mvTrend7d ?? null} />
         <span className="text-[10px] font-mono text-white/50 tabular-nums">
           {p.stats.matches}<span className="text-white/40">{t('statMatchesAbbr')}</span>{' '}
           {p.stats.goals}<span className="text-white/40">{t('statGoalsAbbr')}</span>{' '}
@@ -80,7 +83,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: KaderPlayer; mi
       </div>
       {/* Mobile row 2 */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5">
-        <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
+        <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} mvTrend={p.mvTrend7d ?? null} />
         <span className="text-[10px] font-mono text-white/50 tabular-nums">
           {p.stats.matches}<span className="text-white/40">{t('statMatchesAbbr')}</span>{' '}
           {p.stats.goals}<span className="text-white/40">{t('statGoalsAbbr')}</span>{' '}

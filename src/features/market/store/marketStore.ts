@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Pos } from '@/types';
+import type { MvTrendValue } from '@/lib/filters/mvTrendFilter';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
@@ -22,6 +23,8 @@ interface MarketState {
   filterMinMatches: number;
   filterContractMax: number;   // 0=all, 6, 12 months
   filterOnlyFit: boolean;
+  /** Slice 197d — MV-Trend filter (all/rising/stable/falling). */
+  filterMvTrend: MvTrendValue;
   // Transferliste-only
   filterPriceMin: number;
   filterPriceMax: number;
@@ -53,6 +56,7 @@ interface MarketState {
   setFilterMinMatches: (v: number) => void;
   setFilterContractMax: (v: number) => void;
   setFilterOnlyFit: (v: boolean) => void;
+  setFilterMvTrend: (v: MvTrendValue) => void;
   setFilterPriceMin: (v: number) => void;
   setFilterPriceMax: (v: number) => void;
   setFilterMinSellers: (v: number) => void;
@@ -83,6 +87,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   filterMinMatches: 0,
   filterContractMax: 0,
   filterOnlyFit: false,
+  filterMvTrend: 'all' as MvTrendValue,
   filterPriceMin: 0,
   filterPriceMax: 0,
   filterMinSellers: 0,
@@ -111,6 +116,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setFilterMinMatches: (v) => set({ filterMinMatches: v }),
   setFilterContractMax: (v) => set({ filterContractMax: v }),
   setFilterOnlyFit: (v) => set({ filterOnlyFit: v }),
+  setFilterMvTrend: (v) => set({ filterMvTrend: v }),
   setFilterPriceMin: (v) => set({ filterPriceMin: v }),
   setFilterPriceMax: (v) => set({ filterPriceMax: v }),
   setFilterMinSellers: (v) => set({ filterMinSellers: v }),
@@ -130,6 +136,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
     filterMinMatches: 0,
     filterContractMax: 0,
     filterOnlyFit: false,
+    filterMvTrend: 'all' as MvTrendValue,
     filterPriceMin: 0,
     filterPriceMax: 0,
     filterMinSellers: 0,

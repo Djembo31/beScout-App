@@ -86,6 +86,13 @@
     "loadError": "Daten konnten nicht geladen werden.",
     "tryAgain": "Nochmal versuchen"
   },
+  "mvTrend": {
+    "label": "Marktwert-Trend",
+    "rising": "Steigend",
+    "stable": "Stabil",
+    "falling": "Fallend",
+    "filterLabel": "Marktwert-Trend Filter {value}"
+  },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
     "welcome": "Willkommen",

@@ -185,6 +185,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     listings: [], // Wird spaeter aus Orders befuellt
     topOwners: [], // Wird spaeter befuellt
     marketValue: db.market_value_eur || undefined,
+    mvTrend7d: db.mv_trend_7d ?? null,
     imageUrl: db.image_url ?? null,
     successFeeCap: db.success_fee_cap_cents != null ? centsToBsd(db.success_fee_cap_cents) : undefined,
     lastAppearanceGw: db.last_appearance_gw ?? 0,

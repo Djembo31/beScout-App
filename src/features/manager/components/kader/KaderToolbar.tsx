@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Filter, X, Layers, ArrowUpDown } from 'lucide-react';
+import { Filter, X, Layers, ArrowUpDown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { SearchInput, PosFilter } from '@/components/ui';
 import { SortPills } from '@/components/ui/SortPills';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import type { KaderLens } from './kaderHelpers';
 import type { Pos } from '@/types';
 import { useTranslations } from 'next-intl';
 import { FORM_L5_VALUES, getFormL5Label, type FormL5Threshold } from '@/lib/filters/formL5Filter';
+import { MV_TREND_VALUES, type MvTrendValue } from '@/lib/filters/mvTrendFilter';
 
 interface KaderToolbarProps {
   lens: KaderLens;
@@ -30,6 +31,9 @@ interface KaderToolbarProps {
   /** Slice 197a — Form-L5 threshold (per-page state, see formL5Filter helper). */
   formL5: FormL5Threshold;
   onFormL5Change: (v: FormL5Threshold) => void;
+  /** Slice 197d — MV-Trend filter (per-page state, see mvTrendFilter helper). */
+  mvTrend: MvTrendValue;
+  onMvTrendChange: (v: MvTrendValue) => void;
 }
 
 export default function KaderToolbar({
@@ -42,9 +46,11 @@ export default function KaderToolbar({
   groupByClub, onGroupByClubChange,
   showFilters, onShowFiltersChange,
   formL5, onFormL5Change,
+  mvTrend, onMvTrendChange,
 }: KaderToolbarProps) {
   const tCommon = useTranslations('common');
   const t = useTranslations('market');
+  const tMv = useTranslations('mvTrend');
 
   const lensOptions = LENS_OPTIONS.map(opt => ({
     id: opt.id,
@@ -56,7 +62,7 @@ export default function KaderToolbar({
     label: t(opt.labelKey),
   }));
 
-  const hasActiveFilters = posFilter.size > 0 || !!clubFilter || formL5 > 0;
+  const hasActiveFilters = posFilter.size > 0 || !!clubFilter || formL5 > 0 || mvTrend !== 'all';
 
   return (
     <div className="space-y-2">
@@ -111,7 +117,7 @@ export default function KaderToolbar({
           <Filter className="w-3.5 h-3.5" aria-hidden="true" />
           {hasActiveFilters && (
             <span className="px-1.5 py-0.5 bg-gold text-black text-[10px] font-black rounded-full">
-              {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0) + (formL5 > 0 ? 1 : 0)}
+              {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0) + (formL5 > 0 ? 1 : 0) + (mvTrend !== 'all' ? 1 : 0)}
             </span>
           )}
         </button>
@@ -133,7 +139,7 @@ export default function KaderToolbar({
             </select>
             {hasActiveFilters && (
               <button
-                onClick={() => { onClubFilterChange(''); onFormL5Change(0); }}
+                onClick={() => { onClubFilterChange(''); onFormL5Change(0); onMvTrendChange('all'); }}
                 className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1 ml-auto"
               >
                 <X className="w-3 h-3" />{t('resetFilters')}
@@ -164,6 +170,45 @@ export default function KaderToolbar({
                     )}
                   >
                     {text}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Slice 197d — MV-Trend pills (per-page state). */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] text-white/40 font-semibold shrink-0">{tMv('label')}</span>
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide flex-shrink-0">
+              {MV_TREND_VALUES.map(val => {
+                const active = mvTrend === val;
+                const text = val === 'all' ? tCommon('all') : tMv(val);
+                const Icon =
+                  val === 'rising' ? TrendingUp : val === 'falling' ? TrendingDown : val === 'stable' ? Minus : null;
+                const iconColor =
+                  active
+                    ? 'text-black'
+                    : val === 'rising'
+                      ? 'text-emerald-300'
+                      : val === 'falling'
+                        ? 'text-rose-300'
+                        : 'text-white/40';
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => onMvTrendChange(val)}
+                    aria-pressed={active}
+                    aria-label={tMv('filterLabel', { value: text })}
+                    className={cn(
+                      'inline-flex items-center gap-1 px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-bold transition-colors flex-shrink-0',
+                      active
+                        ? 'bg-gold text-black'
+                        : 'bg-surface-base text-white/70 hover:bg-white/10',
+                    )}
+                  >
+                    {Icon && <Icon className={cn('w-3 h-3', iconColor)} aria-hidden="true" />}
+                    <span>{text}</span>
                   </button>
                 );
               })}
