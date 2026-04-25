@@ -1,0 +1,80 @@
+Slice 198b Track A — UX-Rest Top-5 Proof
+==========================================
+Date: 2026-04-25
+Agent: frontend (Worktree agent-a1b9ad8ae72f49fa6)
+
+## Acceptance — 5 Findings closed
+
+### #1 Home ErrorState onRetry inkonsistent (P3)
+File: src/app/(app)/page.tsx
+- BEFORE: onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })}
+- AFTER:  handleRetry refetcht alle parallel queries: players, events, trending(5),
+          ipos.active, homeDashboard(uid).
+Verify: git diff src/app/\(app\)/page.tsx → 5 refetchQueries-Calls in handleRetry.
+
+### #3 Market playersLoading blockt parallele Sections (P3)
+File: src/features/market/components/MarketContent.tsx
+- BEFORE: `if (data.playersLoading) return <MarketSkeleton />` — Page-blocking.
+- AFTER:  Header + Tabs rendern frueh; Tab-Content zeigt `[8x SkeletonCard]`-Section.
+- Cleanup: ungenutzte MarketSkeleton-Funktion + Skeleton-Import entfernt.
+Verify: Header (Briefcase + balance) + Tab-Buttons sichtbar waehrend Initial-Loading.
+
+### #7 EventSummaryModal preventClose-TODO Re-Audit (P2)
+File: src/components/fantasy/EventSummaryModal.tsx
+- BEFORE: TODO(J4 FIX-02) Multi-Line-Kommentar fordert preventClose={claiming} bei
+          zukuenftiger async-Mutation.
+- AFTER:  Comment vereinfacht — read-only Display dauerhaft synchron, preventClose
+          bewusst false. Pointer auf zukuenftigen Refactor erhalten.
+
+### #8 CreateEventModal preventClose-TODO Re-Audit (P2)
+File: src/components/fantasy/CreateEventModal.tsx
+- BEFORE: TODO(J4 FIX-02) Multi-Line-Kommentar mit BuyConfirmModal-Verweis.
+- AFTER:  Comment auf 2-Zeilen reduziert. onCreate sync, Phase-4-Paid-Fantasy-Hint
+          erhalten als Re-Visit-Trigger.
+
+### #10 PostReplies Loader2 → Skeleton (P3)
+File: src/components/community/PostReplies.tsx
+- BEFORE: `<Loader2 className="animate-spin" />` als Reply-Loading-State.
+- AFTER:  2× Skeleton h-12 mit role="status" + aria-busy + aria-live="polite".
+- Konsistent mit ui-components.md "Loading: Skeleton Screens (nicht Spinner)".
+
+## TypeScript Verify
+
+$ npx tsc --noEmit
+(clean — no output)
+
+## Vitest Verify
+
+$ NEXT_PUBLIC_SUPABASE_URL=... npx vitest run src/components/community/__tests__/PostReplies.test.tsx
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+
+$ NEXT_PUBLIC_SUPABASE_URL=... npx vitest run src/features/market
+ Test Files  10 passed (10)
+      Tests  148 passed (148)
+
+$ NEXT_PUBLIC_SUPABASE_URL=... npx vitest run src/app/(app)/hooks/__tests__/useHomeData.test.ts
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+
+## i18n
+
+Keine neuen Keys. Alle Aenderungen reuse bestehende t()-Calls oder reine
+Layout/Comment-Aenderungen. DE+TR-Coverage unveraendert.
+
+## Mobile 393px
+
+- Home Retry: ErrorState component unchanged, layout identisch (max-w-[1200px] py-12).
+- Market Header+Tabs rendern frueh — flex-overflow-x-auto bleibt erhalten.
+- PostReplies Skeleton: 2× h-12 = ~96px — passt in mobile-context (bottom of inline
+  reply-thread, ml-10).
+- Modal-Comments: kein Visual-Change.
+
+## Forbidden Files Check
+
+Geprueft: keine Aenderung an
+- src/components/missions/DailyChallengeCard.tsx
+- src/app/(app)/founding/page.tsx
+- src/components/manager/KaderToolbar.tsx
+- src/features/manager/components/kader/KaderTab.tsx
+- src/components/player/FormBars.tsx

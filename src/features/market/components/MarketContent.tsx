@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
-import { TabPanel, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
+import { TabPanel, ErrorState, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/lib/hooks/useWallet';
@@ -47,24 +47,6 @@ const TAB_ALIAS: Record<string, MarketTab> = {
   scouting: 'marktplatz', kaufen: 'marktplatz',
 };
 const VALID_TABS = new Set<string>(TAB_IDS);
-
-// ── Skeleton ──
-function MarketSkeleton() {
-  return (
-    <div className="max-w-[1400px] mx-auto space-y-5">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-9 w-44 rounded-xl" />
-      </div>
-      <Skeleton className="h-[52px] rounded-2xl" />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-        {[...Array(8)].map((_, i) => (
-          <SkeletonCard key={i} className="h-64" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function MarketContent() {
   const { user } = useUser();
@@ -114,8 +96,9 @@ export default function MarketContent() {
     if (p) trade.setBuyOrderPlayer(p);
   }, [data.playerMap, trade]);
 
-  // ── Loading / Error ──
-  if (data.playersLoading) return <MarketSkeleton />;
+  // ── Error Guard (Loading wird Section-scoped unten gehandhabt) ──
+  // Slice 198b-A — Audit ux #3 P3: `playersLoading` blockte komplette Page.
+  // Header + Tabs rendern immer; Tab-Inhalte zeigen Section-scoped Skeleton.
   if (data.playersError && data.players.length === 0) {
     return (
       <div className="max-w-[1400px] mx-auto py-12">
@@ -192,46 +175,58 @@ export default function MarketContent() {
       {/* Contextual Mission Hints */}
       <MissionHintList context="trading" />
 
-      {/* Portfolio Tab */}
-      <TabPanel id="portfolio" activeTab={tab}>
-        <PortfolioTab
-          players={data.players}
-          mySquadPlayers={data.mySquadPlayers}
-          holdings={data.holdings}
-          floorMap={data.floorMap}
-          recentOrders={data.recentOrders}
-          buyOrders={data.buyOrders}
-          scoresMap={scoresMap}
-          lockedMap={lockedMap}
-          onSell={trade.handleSell}
-          onCancelOrder={trade.handleCancelOrder}
-          incomingOffers={data.incomingOffers}
-          openBids={data.openBids}
-        />
-      </TabPanel>
+      {/* Tab-Content: Section-scoped Loading-Skeleton bis players geladen sind.
+          Slice 198b-A — Audit ux #3 P3: page-blocking removed, header+tabs rendern frueh. */}
+      {data.playersLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {[...Array(8)].map((_, i) => (
+            <SkeletonCard key={i} className="h-64" />
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Portfolio Tab */}
+          <TabPanel id="portfolio" activeTab={tab}>
+            <PortfolioTab
+              players={data.players}
+              mySquadPlayers={data.mySquadPlayers}
+              holdings={data.holdings}
+              floorMap={data.floorMap}
+              recentOrders={data.recentOrders}
+              buyOrders={data.buyOrders}
+              scoresMap={scoresMap}
+              lockedMap={lockedMap}
+              onSell={trade.handleSell}
+              onCancelOrder={trade.handleCancelOrder}
+              incomingOffers={data.incomingOffers}
+              openBids={data.openBids}
+            />
+          </TabPanel>
 
-      {/* Marktplatz Tab */}
-      <TabPanel id="marktplatz" activeTab={tab}>
-        <MarktplatzTab
-          players={data.players}
-          playerMap={data.playerMap}
-          floorMap={data.floorMap}
-          watchlistEntries={data.watchlistEntries}
-          ipoList={data.ipoList}
-          announcedIpos={data.announcedIpos}
-          endedIpos={data.endedIpos}
-          trending={data.trending}
-          recentOrders={data.recentOrders}
-          buyOrders={data.buyOrders}
-          holdings={data.holdings}
-          incomingOffers={data.incomingOffers}
-          balanceCents={balanceCents}
-          buyingId={trade.buyingId}
-          onBuy={trade.handleBuy}
-          onIpoBuy={trade.handleIpoBuy}
-          onCreateBuyOrder={FEATURE_BUY_ORDERS ? handleCreateBuyOrder : undefined}
-        />
-      </TabPanel>
+          {/* Marktplatz Tab */}
+          <TabPanel id="marktplatz" activeTab={tab}>
+            <MarktplatzTab
+              players={data.players}
+              playerMap={data.playerMap}
+              floorMap={data.floorMap}
+              watchlistEntries={data.watchlistEntries}
+              ipoList={data.ipoList}
+              announcedIpos={data.announcedIpos}
+              endedIpos={data.endedIpos}
+              trending={data.trending}
+              recentOrders={data.recentOrders}
+              buyOrders={data.buyOrders}
+              holdings={data.holdings}
+              incomingOffers={data.incomingOffers}
+              balanceCents={balanceCents}
+              buyingId={trade.buyingId}
+              onBuy={trade.handleBuy}
+              onIpoBuy={trade.handleIpoBuy}
+              onCreateBuyOrder={FEATURE_BUY_ORDERS ? handleCreateBuyOrder : undefined}
+            />
+          </TabPanel>
+        </>
+      )}
 
       {/* Buy Confirmation Modal */}
       {trade.pendingBuy && (() => {

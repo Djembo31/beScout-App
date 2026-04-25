@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { getReplies, createReply, deletePost, votePost, getUserPostVotes } from '@/lib/services/posts';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
+import { Skeleton } from '@/components/ui';
 import type { PostWithAuthor } from '@/types';
 
 import { formatTimeAgo } from '@/lib/utils';
@@ -138,8 +139,10 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
   return (
     <div className="ml-10 border-t border-divider pt-3 mt-2">
       {loading ? (
-        <div className="flex justify-center py-3">
-          <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />
+        // Slice 198b-A — Audit ux #10 P3: Loader2 → Skeleton (ui-components.md Standard).
+        <div className="space-y-2 py-1" role="status" aria-busy="true" aria-live="polite">
+          <Skeleton className="h-12 rounded-lg" />
+          <Skeleton className="h-12 rounded-lg" />
         </div>
       ) : (
         <>

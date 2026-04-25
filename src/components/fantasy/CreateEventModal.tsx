@@ -67,10 +67,8 @@ export const CreateEventModal = ({
       open={isOpen}
       title={t('createEventTitle')}
       onClose={onClose}
-      // TODO(J4 FIX-02): CreateEventModal hat aktuell keinen async Pending-State
-      // (onCreate ist synchroner Parent-Call). preventClose={false} ist bewusst gesetzt.
-      // Sobald Event-Creation zu einer async Mutation wird (Phase 4 Paid-Fantasy),
-      // hier `preventClose={creating}` nachruesten — analog BuyConfirmModal Pattern.
+      // Slice 198b-A — onCreate ist synchroner Parent-Call, kein Pending-State.
+      // Sobald Phase-4 Paid-Fantasy live: `preventClose={creating}` nachruesten.
       preventClose={false}
       footer={
         <div className="flex items-center gap-3">

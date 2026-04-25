@@ -44,9 +44,8 @@ export default function EventSummaryModal({
       open={open}
       onClose={onClose}
       title={t('summary.title')}
-      // TODO(J4 FIX-02): EventSummaryModal zeigt read-only Results (keine Mutation).
-      // preventClose={false} bewusst. Sobald Reward-Claim als async Mutation hier
-      // eingebaut wird, `preventClose={claiming}` nachruesten.
+      // Slice 198b-A — read-only Results, kein async-Pending. preventClose nicht noetig.
+      // Bei zukuenftigem async Reward-Claim: `preventClose={claiming}` nachruesten.
       preventClose={false}
     >
       <div className="space-y-5 py-2">
