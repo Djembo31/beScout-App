@@ -147,3 +147,36 @@ export async function getAllEventsAdmin(filters?: {
   if (error) throw new Error(error.message);
   return (data ?? []) as unknown as DbEvent[];
 }
+
+// ============================================
+// Slice 199 fm 2.4 — Event-Difficulty-Score
+// ============================================
+
+export type EventDifficultyTier = 'easy' | 'medium' | 'hard';
+
+export type EventDifficultyScore = {
+  event_id: string;
+  difficulty_score: number; // 0..1
+  difficulty_tier: EventDifficultyTier;
+  avg_ipo_price_cents: number;
+  participant_clubs_count: number;
+};
+
+/**
+ * Slice 199 fm 2.4 — Event-Difficulty-Score (avg IPO + participant clubs).
+ * Aggregate von ipo_price der eligible Clubs des Events. Public-safe.
+ */
+export async function getEventDifficultyScore(
+  eventId: string,
+): Promise<EventDifficultyScore | null> {
+  const { data, error } = await supabase.rpc('get_event_difficulty_score', {
+    p_event_id: eventId,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  // RPC returns single JSONB object (not array) per Spec.
+  if (Array.isArray(data) ? data.length === 0 : false) return null;
+  const row = (Array.isArray(data) ? data[0] : data) as EventDifficultyScore | null;
+  if (!row || typeof row.event_id !== 'string') return null;
+  return row;
+}

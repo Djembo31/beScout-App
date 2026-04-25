@@ -24,6 +24,7 @@ import { KaderPlayerRow } from './KaderPlayerRow';
 import type { KaderPlayer } from './KaderPlayerRow';
 import KaderSellModal from './KaderSellModal';
 import KaderToolbar from './KaderToolbar';
+import type { InLineupFilter } from './KaderToolbar';
 import KaderClubGroup from './KaderClubGroup';
 import { useTranslations, useLocale } from 'next-intl';
 import EquipmentShortcut from '../EquipmentShortcut';
@@ -116,6 +117,8 @@ export default function KaderTab({
   const [formL5, setFormL5] = useState<FormL5Threshold>(0);
   // Slice 197d — per-page MV-Trend filter state (default: 'all', also Power-User-Standard).
   const [mvTrend, setMvTrend] = useState<MvTrendValue>('all');
+  // Slice 199 fm 1.3 — per-page In-Lineup filter (default: 'all'; disabled when no active event).
+  const [inLineup, setInLineup] = useState<InLineupFilter>('all');
   const [sortByMap, setSortByMap] = useState<Partial<Record<KaderLens, string>>>({});
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -294,8 +297,15 @@ export default function KaderTab({
     result = applyFormL5Filter(result, formL5, item => item.player.perf.l5);
     // Slice 197d — MV-Trend universal filter.
     result = applyMvTrendFilter(result, mvTrend, item => item.player.mvTrend7d ?? null);
+    // Slice 199 fm 1.3 — In-Lineup filter (only when lineup-data verfuegbar).
+    if (inLineup !== 'all' && eventUsageMap) {
+      result = result.filter(item => {
+        const isIn = eventUsageMap.has(item.player.id);
+        return inLineup === 'in' ? isIn : !isIn;
+      });
+    }
     return sortItems(result, sortBy, minutesMap);
-  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, formL5, mvTrend, sortBy, minutesMap]);
+  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, formL5, mvTrend, inLineup, eventUsageMap, sortBy, minutesMap]);
 
   // Club-grouped data
   const clubGroups = useMemo(() => {
@@ -417,6 +427,9 @@ export default function KaderTab({
         onFormL5Change={setFormL5}
         mvTrend={mvTrend}
         onMvTrendChange={setMvTrend}
+        inLineup={inLineup}
+        onInLineupChange={setInLineup}
+        inLineupAvailable={!!eventUsageMap && eventUsageMap.size > 0}
       />
 
       {/* Result Count + Bulk Mode Toggle */}
@@ -451,7 +464,7 @@ export default function KaderTab({
           />
         ) : (
           <EmptyState icon={<Package />} title={t('bestandFilterEmpty')} description={t('bestandFilterEmptyDesc')}
-            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); setFormL5(0); setMvTrend('all'); }}} />
+            action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); setKaderCountry(''); setFormL5(0); setMvTrend('all'); setInLineup('all'); }}} />
         )
       )}
 

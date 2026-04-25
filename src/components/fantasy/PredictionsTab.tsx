@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Target, Plus, CheckCircle, XCircle, BarChart3, Flame } from 'lucide-react';
+import { Target, Plus, CheckCircle, XCircle, BarChart3, Flame, Trophy } from 'lucide-react';
 import { Card, Button, Skeleton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { usePredictions, usePredictionCount, usePredictionStats } from '@/lib/queries/predictions';
+import {
+  usePredictions,
+  usePredictionCount,
+  usePredictionStats,
+  useTopPredictorsLeaderboard,
+} from '@/lib/queries/predictions';
 import { PredictionCard } from './PredictionCard';
 import { CreatePredictionModal } from './CreatePredictionModal';
 
@@ -136,6 +141,9 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
         </div>
       )}
 
+      {/* Slice 199 C-05 — Top-Predictor Leaderboard (anonymized aggregate). */}
+      <TopPredictorsSection />
+
       {/* Create Modal */}
       <CreatePredictionModal
         open={showModal}
@@ -145,5 +153,77 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
         currentCount={count}
       />
     </div>
+  );
+}
+
+// ============================================
+// Slice 199 C-05 — Top Predictors Section
+// ============================================
+
+function TopPredictorsSection() {
+  const t = useTranslations('predictions');
+  const { data: leaders = [], isLoading } = useTopPredictorsLeaderboard(10);
+
+  if (isLoading) {
+    return <Skeleton className="h-40 rounded-xl" />;
+  }
+
+  if (leaders.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Trophy className="size-4 text-gold" aria-hidden="true" />
+        <h3 className="font-black text-sm">{t('topPredictorsTitle')}</h3>
+        <span className="text-[10px] text-white/40 font-mono tabular-nums">
+          {t('topPredictorsHint')}
+        </span>
+      </div>
+      <ol className="space-y-1.5">
+        {leaders.map((row) => (
+          <li
+            key={row.user_id}
+            className="flex items-center gap-3 px-2 py-1.5 rounded-lg bg-surface-base"
+          >
+            <span
+              className={cn(
+                'flex-shrink-0 size-6 rounded-full text-[10px] font-black flex items-center justify-center tabular-nums',
+                row.rank === 1
+                  ? 'bg-gold text-black'
+                  : row.rank === 2
+                    ? 'bg-white/20 text-white'
+                    : row.rank === 3
+                      ? 'bg-amber-700/40 text-amber-200'
+                      : 'bg-surface-elevated text-white/60',
+              )}
+            >
+              {row.rank}
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-bold truncate">
+                  {row.display_name || row.handle}
+                </span>
+                {row.tier && (
+                  <span className="text-[9px] uppercase font-bold text-white/40">
+                    {row.tier}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0 font-mono tabular-nums text-xs">
+              <span className="text-emerald-400 font-bold">
+                {row.hit_rate_pct}%
+              </span>
+              <span className="text-white/40">
+                {t('topPredictorsVolume', { count: row.predictions_total })}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Card>
   );
 }

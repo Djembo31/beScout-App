@@ -12,6 +12,10 @@ import { useTranslations } from 'next-intl';
 import { FORM_L5_VALUES, getFormL5Label, type FormL5Threshold } from '@/lib/filters/formL5Filter';
 import { MV_TREND_VALUES, type MvTrendValue } from '@/lib/filters/mvTrendFilter';
 
+// Slice 199 fm 1.3 — In-Lineup-Filter values.
+export type InLineupFilter = 'all' | 'in' | 'out';
+export const IN_LINEUP_VALUES: readonly InLineupFilter[] = ['all', 'in', 'out'] as const;
+
 interface KaderToolbarProps {
   lens: KaderLens;
   onLensChange: (lens: KaderLens) => void;
@@ -34,6 +38,11 @@ interface KaderToolbarProps {
   /** Slice 197d — MV-Trend filter (per-page state, see mvTrendFilter helper). */
   mvTrend: MvTrendValue;
   onMvTrendChange: (v: MvTrendValue) => void;
+  /** Slice 199 fm 1.3 — In-Lineup filter (frontend-only, derived from useLineupForEvent). */
+  inLineup: InLineupFilter;
+  onInLineupChange: (v: InLineupFilter) => void;
+  /** Slice 199 fm 1.3 — true wenn lineup-data verfuegbar (kein active event → disabled). */
+  inLineupAvailable: boolean;
 }
 
 export default function KaderToolbar({
@@ -47,10 +56,12 @@ export default function KaderToolbar({
   showFilters, onShowFiltersChange,
   formL5, onFormL5Change,
   mvTrend, onMvTrendChange,
+  inLineup, onInLineupChange, inLineupAvailable,
 }: KaderToolbarProps) {
   const tCommon = useTranslations('common');
   const t = useTranslations('market');
   const tMv = useTranslations('mvTrend');
+  const tManager = useTranslations('manager');
 
   const lensOptions = LENS_OPTIONS.map(opt => ({
     id: opt.id,
@@ -62,7 +73,8 @@ export default function KaderToolbar({
     label: t(opt.labelKey),
   }));
 
-  const hasActiveFilters = posFilter.size > 0 || !!clubFilter || formL5 > 0 || mvTrend !== 'all';
+  const hasActiveFilters =
+    posFilter.size > 0 || !!clubFilter || formL5 > 0 || mvTrend !== 'all' || inLineup !== 'all';
 
   return (
     <div className="space-y-2">
@@ -117,7 +129,7 @@ export default function KaderToolbar({
           <Filter className="w-3.5 h-3.5" aria-hidden="true" />
           {hasActiveFilters && (
             <span className="px-1.5 py-0.5 bg-gold text-black text-[10px] font-black rounded-full">
-              {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0) + (formL5 > 0 ? 1 : 0) + (mvTrend !== 'all' ? 1 : 0)}
+              {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0) + (formL5 > 0 ? 1 : 0) + (mvTrend !== 'all' ? 1 : 0) + (inLineup !== 'all' ? 1 : 0)}
             </span>
           )}
         </button>
@@ -139,7 +151,7 @@ export default function KaderToolbar({
             </select>
             {hasActiveFilters && (
               <button
-                onClick={() => { onClubFilterChange(''); onFormL5Change(0); onMvTrendChange('all'); }}
+                onClick={() => { onClubFilterChange(''); onFormL5Change(0); onMvTrendChange('all'); onInLineupChange('all'); }}
                 className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1 ml-auto"
               >
                 <X className="w-3 h-3" />{t('resetFilters')}
@@ -209,6 +221,44 @@ export default function KaderToolbar({
                   >
                     {Icon && <Icon className={cn('w-3 h-3', iconColor)} aria-hidden="true" />}
                     <span>{text}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Slice 199 fm 1.3 — In-Lineup pills (frontend-only, derived from active event lineup). */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] text-white/40 font-semibold shrink-0">
+              {tManager('inLineupFilterLabel')}
+            </span>
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide flex-shrink-0">
+              {IN_LINEUP_VALUES.map(val => {
+                const active = inLineup === val;
+                const text =
+                  val === 'all'
+                    ? tCommon('all')
+                    : val === 'in'
+                      ? tManager('inLineupFilterIn')
+                      : tManager('inLineupFilterOut');
+                const disabled = !inLineupAvailable && val !== 'all';
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => !disabled && onInLineupChange(val)}
+                    disabled={disabled}
+                    aria-pressed={active}
+                    aria-label={tManager('inLineupFilterAria', { value: text })}
+                    className={cn(
+                      'px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-bold transition-colors flex-shrink-0',
+                      active
+                        ? 'bg-gold text-black'
+                        : 'bg-surface-base text-white/70 hover:bg-white/10',
+                      disabled && 'opacity-40 cursor-not-allowed',
+                    )}
+                  >
+                    {text}
                   </button>
                 );
               })}

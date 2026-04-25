@@ -810,3 +810,40 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
     engagementByType,
   };
 }
+
+// ============================================
+// Slice 199 K-02 — Most-Owned Players per Club (anonymized aggregate)
+// ============================================
+
+export type MostOwnedPlayerRow = {
+  player_id: string;
+  first_name: string;
+  last_name: string;
+  shirt_number: number | null;
+  position: string;
+  image_url: string | null;
+  holders_count: number;
+  rank: number;
+};
+
+/**
+ * Slice 199 K-02 — Top-N Spieler eines Clubs nach Anzahl Holder (anonymized).
+ * SECURITY DEFINER RPC bypassed RLS (holdings cross-user-aggregate);
+ * Output: keine user_ids, nur Counts.
+ */
+export async function getMostOwnedPlayersPerClub(
+  clubId: string,
+  limit = 5,
+): Promise<MostOwnedPlayerRow[]> {
+  const { data, error } = await supabase.rpc('get_most_owned_players_per_club', {
+    p_club_id: clubId,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) return [];
+  if (!Array.isArray(data)) return [];
+  return (data as MostOwnedPlayerRow[]).filter(
+    (r): r is MostOwnedPlayerRow =>
+      typeof r?.player_id === 'string' && typeof r?.holders_count === 'number',
+  );
+}

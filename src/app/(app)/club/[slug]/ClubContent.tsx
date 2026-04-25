@@ -32,6 +32,7 @@ import { ClubStatsBar } from '@/components/club/ClubStatsBar';
 import { ClubStandingCard } from '@/components/club/ClubStandingCard';
 import { ActiveOffersSection } from '@/components/club/sections/ActiveOffersSection';
 import { SquadPreviewSection } from '@/components/club/sections/SquadPreviewSection';
+import { MostOwnedSection } from '@/components/club/sections/MostOwnedSection';
 import { ClubFixturesStrip } from '@/components/club/sections/ClubFixturesStrip';
 import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
 import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection';
@@ -339,6 +340,13 @@ export default function ClubContent({ slug }: { slug: string }) {
           <RevealSection delay={150}>
             <SquadPreviewSection players={players} ownedPlayerIds={ownedPlayerIds} clubColor={clubColor} onViewAll={() => setTab('spieler')} />
           </RevealSection>
+
+          {/* Slice 199 K-02 — Beliebteste Spieler (Most-Owned, anonymized) */}
+          {clubId && (
+            <RevealSection delay={175}>
+              <MostOwnedSection clubId={clubId} clubColor={clubColor} />
+            </RevealSection>
+          )}
 
           {showFeatureShowcase ? (
             <RevealSection delay={200}>
