@@ -1,0 +1,102 @@
+Slice 199 — Backend-Aggregat-RPC-Wave Proof
+============================================
+Date: 2026-04-25 (worktree-agent-a51bad5908a5cb028)
+
+## Files Created
+
+Migrations (3 — pending Apply via mcp__supabase__apply_migration):
+- supabase/migrations/20260425220000_slice_199_top_predictors.sql
+- supabase/migrations/20260425220100_slice_199_most_owned_per_club.sql
+- supabase/migrations/20260425220200_slice_199_event_difficulty.sql
+
+Services:
+- src/lib/services/leaderboards.ts (NEW: getTopPredictorsLeaderboard)
+- src/lib/services/club.ts (APPEND: getMostOwnedPlayersPerClub)
+- src/features/fantasy/services/events.queries.ts (APPEND: getEventDifficultyScore)
+
+Query-Keys:
+- src/lib/queries/keys.ts: qk.leaderboards.topPredictors, qk.clubs.mostOwned, qk.events.difficultyScore
+
+Tests:
+- src/lib/services/__tests__/leaderboards.test.ts (NEW)
+- src/lib/services/__tests__/club-most-owned.test.ts (NEW)
+- src/lib/services/__tests__/events-difficulty.test.ts (NEW)
+
+## tsc Result
+$ npx tsc --noEmit
+(no output — clean)
+
+## vitest Pre-Apply Result (mit kopierter .env.local)
+$ npx vitest run src/lib/services/__tests__/leaderboards.test.ts \
+                src/lib/services/__tests__/club-most-owned.test.ts \
+                src/lib/services/__tests__/events-difficulty.test.ts
+
+ Test Files  3 failed (3)
+      Tests  9 failed | 11 passed (20)
+
+Failures sind alle TDD-Pattern: PostgREST PGRST202 "Could not find the function
+public.get_top_predictors_leaderboard(p_limit) in the schema cache" — RPCs
+existieren noch nicht, weil Migrationen nicht appliziert sind. Diese Failures
+loesen sich auf, sobald Migrations live appliziert werden (analog Slice 195e
+differentials.test.ts).
+
+11 PASS Tests sind:
+- Service-Wrapper Module-Loader-Smoke (3× E1/F1 — typeof === function)
+- Body-Probe Soft-Skip (kein exec_sql_readonly verfügbar → return)
+- REVOKE/GRANT Soft-Skip (kein exec_sql_readonly verfügbar → return)
+- empty_club_uuid → [] (RPC error returned consistently)
+- NULL p_club_id → handled
+
+## Vollstaendige Test-Suite (Sanity Check)
+$ npx vitest run src/lib/services/__tests__/
+ Test Files  3 failed | 45 passed (48)
+      Tests  9 failed | 1045 passed | 13 todo (1067)
+
+Andere Service-Tests sind unbeeintraechtigt (45/48 PASS).
+
+## Migrations zum Apply (Parent-CTO via MCP)
+
+```
+mcp__supabase__apply_migration({
+  project_id: '<from .env.local NEXT_PUBLIC_SUPABASE_URL Subdomain>',
+  name: 'slice_199_top_predictors',
+  query: 'cat supabase/migrations/20260425220000_slice_199_top_predictors.sql'
+})
+mcp__supabase__apply_migration({
+  project_id: '<id>',
+  name: 'slice_199_most_owned_per_club',
+  query: 'cat supabase/migrations/20260425220100_slice_199_most_owned_per_club.sql'
+})
+mcp__supabase__apply_migration({
+  project_id: '<id>',
+  name: 'slice_199_event_difficulty',
+  query: 'cat supabase/migrations/20260425220200_slice_199_event_difficulty.sql'
+})
+```
+
+## Post-Apply Verification (Parent-CTO)
+
+1. pg_get_functiondef:
+   SELECT pg_get_functiondef('public.get_top_predictors_leaderboard(int)'::regprocedure);
+   SELECT pg_get_functiondef('public.get_most_owned_players_per_club(uuid,int)'::regprocedure);
+   SELECT pg_get_functiondef('public.get_event_difficulty_score(uuid)'::regprocedure);
+
+2. Privileges:
+   SELECT grantee, privilege_type FROM information_schema.routine_privileges
+   WHERE routine_name LIKE 'get_top_predictors%' OR routine_name LIKE 'get_most_owned%'
+      OR routine_name LIKE 'get_event_difficulty%';
+
+   Erwartung: nur authenticated + service_role haben EXECUTE.
+
+3. Smoke:
+   SELECT public.get_top_predictors_leaderboard(10);  -- returns [] or array of <=10 entries
+   SELECT public.get_most_owned_players_per_club('00000000-0000-0000-0000-000000000000'::uuid, 5);
+   -- returns []
+   SELECT public.get_event_difficulty_score('00000000-0000-0000-0000-000000000000'::uuid);
+   -- returns {success: false, error: 'event_not_found'}
+
+4. Re-run Tests:
+   npx vitest run src/lib/services/__tests__/leaderboards.test.ts \
+                  src/lib/services/__tests__/club-most-owned.test.ts \
+                  src/lib/services/__tests__/events-difficulty.test.ts
+   Erwartung: 20+ Tests / 0 fail.
