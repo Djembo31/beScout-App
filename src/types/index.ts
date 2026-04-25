@@ -2172,4 +2172,5 @@ export type DbUserEquipment = {
 // Kept for DB compatibility (chip_usages table still exists)
 // ============================================
 
-export type ChipType = 'triple_captain' | 'synergy_surge' | 'second_chance' | 'wildcard';
+// Slice 195b (2026-04-25): triple_captain → captain_boost (BeScout-eigene Multiplier)
+export type ChipType = 'captain_boost' | 'synergy_surge' | 'second_chance' | 'wildcard';

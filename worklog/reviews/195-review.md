@@ -103,10 +103,70 @@ D35 erlaubt Self-Review fuer XS-Slices mit Pattern-Wiederholung. Slice 195a pass
 
 ## Recommendation
 
-**MERGE Slice 195a.**
+**MERGE Slice 195a + 195b.**
 
 Cold-Reviewer-Agent (Opus) Pflicht fuer:
-- 195b (Boost-Chip Rename + Captain-only Validation — Schema + RPC)
 - 195d (Bench + Auto-Sub — komplexe Logic + UI)
 
 195c (max_per_club Schema) + 195e (Differentials-RPC) reichen Self-Review wenn Pattern klar.
+
+---
+
+## Slice 195b Self-Review-Erweiterung (D35)
+
+### Spec-Coverage Update
+- [x] **AC 3**: Boost-Chip Validation Captain-only — applied + verified live (`captain_required` error)
+- [x] **AC 4**: DB-Enum-Rename `triple_captain` → `captain_boost` — applied (1 row migrated, 0 old remaining)
+- [x] **TS-Type aktualisiert**: `src/types/index.ts:2175` ChipType union
+
+### Findings 195b (gegen common-errors.md + database.md)
+
+#### Atomic Migration (errors-db.md Rule)
+✅ **Single apply_migration call:** DDL (DROP + UPDATE + RECREATE constraint) + 2 RPC-Updates atomic. Kein Zwischenzustand mit broken score_event vs renamed enum.
+
+#### CREATE OR REPLACE PATCH-AUDIT
+✅ **Source-of-truth:** `20260425130000_slice_195a` (von mir 195a applied) — Body identisch, nur 1 String 'triple_captain' → 'captain_boost' geändert.
+
+✅ **Preserved Patches:** Alle aus 195a (auth.uid()-Guard, scored_at, 0-Lineup-Branch, perf_l5-Update, etc.).
+
+#### AR-44 REVOKE/GRANT (database.md PFLICHT)
+⚠️ **Lücke 195a entdeckt + nachgeholt:** REVOKE/GRANT-Block fehlte in 195a Migration-File. Live war OK (Postgres CREATE OR REPLACE preserved existing privileges), aber Greenfield-DB-Reset hätte unsichere defaults gehabt.
+
+✅ **Fix:** 
+- Live-Apply Hardening-Migration (`slice_195ab_revoke_grant_v2`)
+- Nachträgliches REVOKE/GRANT in 195a Migration-File hinzugefügt
+- 195b Migration-File hat REVOKE/GRANT von Anfang an
+
+✅ **Lesson learned:** AR-44-Audit beim Self-Review explizit prüfen (war in D35-Pattern nicht enthalten — empfohlene Erweiterung).
+
+#### Captain-only-Validation Edge Cases
+✅ **3 Cases korrekt gehandled:**
+1. Chip-Activation vor Lineup-Setting → erlaubt (FPL-Standard)
+2. Lineup ohne Captain + Activation → reject `captain_required`
+3. Lineup mit Captain + Activation → erlaubt
+
+⚠️ **Edge Case 4 nicht gehandled:** User aktiviert Chip mit Captain → später submit_lineup ohne Captain. Chip wird verbraucht ohne Effekt. Optional in 195d submit_lineup-RPC zu blocken. Dokumentiert.
+
+#### Money-Path
+✅ **Keine Logic-Änderung:** chip_type-String-Match nur. Multiplier-Werte aus 195a unverändert.
+
+#### Test-Gap
+⚠️ **Unit-Tests fehlen** für activate_chip Captain-only-Validation. Kommt mit 195d (Bench + Auto-Sub Test-Suite — beide Pfade hängen am submit_lineup).
+
+### Severity-Grouping 195b
+
+- **CRITICAL:** 0
+- **HIGH:** 0  
+- **MEDIUM:** 1 — AR-44-Lücke in 195a nachgeholt (live-state war OK, file-state nicht)
+- **LOW:** 1 — Edge-Case 4 (Chip ohne Captain submit) nicht geblockt; FPL-Standard
+
+### Positive 195b
+- Atomic 1-Migration für DDL + 2 RPC-Updates
+- AR-44-Lücke proaktiv gefunden + nachgeholt
+- Captain-only-Validation klar dokumentiert mit Edge-Case-Tabelle
+- TS-Type-Drift verhindert (src/types/index.ts mit-aktualisiert)
+- Rename ist atomisch (1 Row migrated, 0 old remaining)
+
+### Verdict 195b: PASS
+
+Sub-Slice 195b kann mergen. Cold-Reviewer-Agent (Opus) optional aber nicht pflicht — Pattern ist 195a-Wiederholung mit neuer Constraint-Validation.
