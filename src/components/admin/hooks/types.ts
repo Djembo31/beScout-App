@@ -13,6 +13,7 @@ export type EventFormState = {
   eventTier: 'arena' | 'club' | 'user';
   minSubTier: string;
   salaryCap: string;
+  maxPerClub: string;                      // Slice 195c: Max Spieler pro Verein (FPL-Style). '' = unlimited.
   minScPerSlot: string;                    // Platform only
   wildcardsAllowed: boolean;               // Platform only
   maxWildcards: string;                    // Platform only
@@ -53,6 +54,7 @@ export const INITIAL_FORM_STATE: EventFormState = {
   eventTier: 'arena',
   minSubTier: '',
   salaryCap: '',
+  maxPerClub: '',
   minScPerSlot: '1',
   wildcardsAllowed: false,
   maxWildcards: '0',

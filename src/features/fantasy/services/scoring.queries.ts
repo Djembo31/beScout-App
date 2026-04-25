@@ -299,6 +299,56 @@ export async function getSeasonLeaderboard(limit = 50): Promise<SeasonLeaderboar
 }
 
 // ============================================
+// Slice 195e — Captain-Distribution + Player-Pick-Rates
+// ============================================
+
+export type EventCaptainPick = {
+  player_id: string;
+  count: number;
+  pct: number;
+};
+
+export type EventPlayerPickRate = {
+  player_id: string;
+  count: number;
+  pct: number;
+};
+
+/**
+ * Anonymized captain-pick-distribution per event.
+ * Returns array of {player_id, count, pct} sorted by count DESC.
+ * Empty event (0 lineups with captain) → [].
+ *
+ * Anonymization: RPC SECURITY DEFINER — projektierter Output, kein user_id.
+ */
+export async function getEventCaptainDistribution(
+  eventId: string,
+): Promise<EventCaptainPick[]> {
+  const { data, error } = await supabase.rpc('get_event_captain_distribution', {
+    p_event_id: eventId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as EventCaptainPick[] | null) ?? [];
+}
+
+/**
+ * Anonymized player-pick-rate per event (aggregates ueber 12 starting-slots).
+ * Returns array of {player_id, count, pct} sorted by count DESC.
+ * Empty event → [].
+ *
+ * Bench-Spieler werden NICHT mitgezaehlt (nur starting-slots).
+ */
+export async function getEventPlayerPickRates(
+  eventId: string,
+): Promise<EventPlayerPickRate[]> {
+  const { data, error } = await supabase.rpc('get_event_player_pick_rates', {
+    p_event_id: eventId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as EventPlayerPickRate[] | null) ?? [];
+}
+
+// ============================================
 // Batch Form Scores (Fantasy Picker)
 // ============================================
 

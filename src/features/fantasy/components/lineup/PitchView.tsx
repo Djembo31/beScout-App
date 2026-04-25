@@ -36,6 +36,8 @@ export interface PitchViewProps {
   onRemovePlayer: (slot: number) => void;
   onCaptainToggle: (slotDbKey: string, isCaptain: boolean) => void;
   onWildcardToggle?: (slotKey: string) => void;
+  /** Slice 195e: Map<player_id, pct> — Captain pick-rate fuer alle Lineups dieses Events. */
+  captainPctMap?: Map<string, number>;
 }
 
 export function PitchView({
@@ -57,6 +59,7 @@ export function PitchView({
   onRemovePlayer,
   onCaptainToggle,
   onWildcardToggle,
+  captainPctMap,
 }: PitchViewProps) {
   const t = useTranslations('fantasy');
   const tsp = useTranslations('sponsor');
@@ -67,7 +70,7 @@ export function PitchView({
       case 'fit': return { icon: '\u{1F7E2}', label: t('statusFit'), color: 'text-green-500' };
       case 'injured': return { icon: '\u{1F534}', label: t('statusInjured'), color: 'text-red-400' };
       case 'suspended': return { icon: '\u26D4', label: t('statusSuspended'), color: 'text-orange-400' };
-      case 'doubtful': return { icon: '\u{1F7E1}', label: t('statusDoubtful'), color: 'text-status-doubtful' };
+      case 'doubtful': return { icon: '\u{1F7E1}', label: t('statusDoubtful'), color: 'text-yellow-400' };
       default: return { icon: '\u{1F7E2}', label: t('statusFit'), color: 'text-white/50' };
     }
   };
@@ -178,6 +181,17 @@ export function PitchView({
                           <Crown aria-hidden="true" className="size-3 text-black" />
                         </div>
                       )}
+                      {/* Slice 195e: Captain Pick-Rate Badge (under crown).
+                          Edge: pct < 1 → hide ("0%" verwirrt User mit small sample-size). */}
+                      {player && isCaptain && !hasScore && captainPctMap && (() => {
+                        const pct = captainPctMap.get(player.id);
+                        if (pct === undefined || pct < 1) return null;
+                        return (
+                          <div className="absolute top-3 -left-2 z-30 px-1 py-0.5 rounded bg-black/60 text-[9px] font-mono tabular-nums text-white/70 shadow-lg">
+                            {pct}%
+                          </div>
+                        );
+                      })()}
                       {/* Captain x1.5 badge (scored view) */}
                       {player && hasScore && isCaptain && (
                         <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-gold/90 text-xs font-black text-black shadow-lg">&times;1.5</div>

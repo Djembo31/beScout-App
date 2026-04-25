@@ -30,6 +30,8 @@ export interface PlayerPickerProps {
   getAvailablePlayersForPosition: (position: string, isWildcardSlot?: boolean) => UserDpcHolding[];
   onSelectPlayer: (playerId: string, position: string, slot: number) => void;
   onClose: () => void;
+  /** Slice 195e: Map<player_id, pct> — wie viel Prozent aller Lineups in diesem Event den Spieler aufgestellt haben. */
+  pickRateMap?: Map<string, number>;
 }
 
 export function PlayerPicker({
@@ -44,6 +46,7 @@ export function PlayerPicker({
   getAvailablePlayersForPosition,
   onSelectPlayer,
   onClose,
+  pickRateMap,
 }: PlayerPickerProps) {
   const t = useTranslations('fantasy');
 
@@ -163,7 +166,7 @@ export function PlayerPicker({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-bg-main/60 z-[60] animate-in fade-in duration-200" onClick={handleClose} />
+      <div className="fixed inset-0 bg-black/60 z-[60] animate-in fade-in duration-200" onClick={handleClose} />
       {/* Mobile: bottom sheet | Desktop: centered modal */}
       <div className="fixed inset-x-0 bottom-0 z-[60] bg-bg-main flex flex-col max-h-[85dvh] rounded-t-3xl border-t border-white/10 shadow-2xl animate-in slide-in-from-bottom duration-300 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:bottom-auto">
         {/* Swipe handle (mobile) */}
@@ -239,15 +242,24 @@ export function PlayerPicker({
             <div className="divide-y divide-white/[0.04]">
               {availablePlayers.map(player => {
                 const props = getRowProps(player);
+                // Slice 195e: Pick-Rate Badge oben-rechts (overlay). pct < 1 → hide.
+                const pickPct = pickRateMap?.get(player.id);
+                const showPct = pickPct !== undefined && pickPct >= 1;
                 return (
-                  <FantasyPlayerRow
-                    key={player.id}
-                    {...props}
-                    onClick={() => {
-                      onSelectPlayer(player.id, position, slot);
-                      handleClose();
-                    }}
-                  />
+                  <div key={player.id} className="relative">
+                    <FantasyPlayerRow
+                      {...props}
+                      onClick={() => {
+                        onSelectPlayer(player.id, position, slot);
+                        handleClose();
+                      }}
+                    />
+                    {showPct && (
+                      <div className="absolute top-1 right-1 z-10 px-1.5 py-0.5 rounded bg-white/[0.06] text-[10px] font-mono tabular-nums text-white/60 pointer-events-none">
+                        {pickPct}%
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

@@ -428,22 +428,24 @@ describe('ALLOWED_TRANSITIONS', () => {
 // EDITABLE_FIELDS
 // ============================================
 describe('EDITABLE_FIELDS', () => {
-  it('upcoming has all 22 fields', () => {
-    expect(EDITABLE_FIELDS.upcoming).toHaveLength(22);
+  it('upcoming has all 23 fields', () => {
+    expect(EDITABLE_FIELDS.upcoming).toHaveLength(23);
     expect(EDITABLE_FIELDS.upcoming).toContain('name');
     expect(EDITABLE_FIELDS.upcoming).toContain('entry_fee');
     expect(EDITABLE_FIELDS.upcoming).toContain('ticket_cost');
     expect(EDITABLE_FIELDS.upcoming).toContain('currency');
     expect(EDITABLE_FIELDS.upcoming).toContain('salary_cap');
+    expect(EDITABLE_FIELDS.upcoming).toContain('max_per_club');
     expect(EDITABLE_FIELDS.upcoming).toContain('reward_structure');
     expect(EDITABLE_FIELDS.upcoming).toContain('is_liga_event');
   });
 
-  it('registering has 21 fields (no currency)', () => {
-    expect(EDITABLE_FIELDS.registering).toHaveLength(21);
+  it('registering has 22 fields (no currency)', () => {
+    expect(EDITABLE_FIELDS.registering).toHaveLength(22);
     expect(EDITABLE_FIELDS.registering).toContain('name');
     expect(EDITABLE_FIELDS.registering).toContain('entry_fee');
     expect(EDITABLE_FIELDS.registering).toContain('ticket_cost');
+    expect(EDITABLE_FIELDS.registering).toContain('max_per_club');
     expect(EDITABLE_FIELDS.registering).toContain('is_liga_event');
     expect(EDITABLE_FIELDS.registering).not.toContain('currency');
   });

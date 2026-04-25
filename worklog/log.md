@@ -11,6 +11,64 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 196 + 195e + 195c-UI | 2026-04-25 | Cross-Cutting P1-Sweep + Differentials + Admin-Form
+
+Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 closed (≈26.5%)**.
+
+### Slice 196 — Cross-Cutting P1-Sweep (3-Track parallel-dispatch)
+- **Stage-Chain:** SPEC (Punch-Liste-Row) → IMPACT inline → BUILD (3 Tracks parallel: Brand-Drift / UX-Patterns / Loader2→Skeleton+Founding-Bar) → REVIEW (CONCERNS, MAJOR-1 healed inline) → PROVE (tsc + 372/373 vitest) → LOG
+- **Closed (16 Findings):** Brand 3-6, 8-10, 14 (7) + UX 4, 5, 9, 13, 15, 16, 17, 18 (8) + FM 9.1 Founding Progress-Bar (1)
+- **Files:** 30 source + tailwind.config.ts (status-doubtful Token #F59E0B) + errors-frontend.md (Pattern "Hardcoded German addToast")
+- **Manual-Conflict:** founding/page.tsx Track B i18n + Track C Skeleton+Progress-Bar surgical merged
+- **Commit:** `42857532` pushed
+
+### Slice 195e — Differentials-RPC + Captain-Pick-Rate (parallel-dispatch backend+frontend+test-writer)
+- **Stage-Chain:** SPEC (specs/195e-differentials-rpc.md) → IMPACT inline → BUILD (3 Worktrees) → REVIEW (PASS, kein REWORK) → PROVE (vitest 8/10 + 2 todo + Migration LIVE) → LOG
+- **Closed (4 Findings):** F-07 Differentials, F-11 Captain-Pick-Rate Lineup, fm 2.1 Captain-Slot-Picker, fm 2.2 Differential-% Player-Picker
+- **Files:**
+  - `supabase/migrations/20260425180000_slice_195e_differentials_rpcs.sql` — 2 SECURITY DEFINER RPCs (`get_event_captain_distribution`, `get_event_player_pick_rates`), STABLE, AR-44, anonymized output (kein user_id/handle/display_name), Empty-Event `[]`
+  - Service-Layer + React-Query-Hooks (staleTime 60s)
+  - PitchView Captain-Crown-Badge + PlayerPicker Card-Badge (pct < 1 hide-Heuristik)
+  - 10 Tests (8 active + 2 it.todo für D-Section bootstrap)
+- **Aufrufpfad-Coverage:** RPC → Service → Hook → LineupBuilder → 2 Render-Sites = 100% linear
+
+### Slice 195c-UI — EventForm max_per_club Number-Input
+- **Stage-Chain:** SPEC (195 master + UI-Hot-Fix-Komplettierung) → IMPACT inline → BUILD (single frontend) → REVIEW (PASS) → PROVE (145/145 admin+events-v2 tests) → LOG
+- **Closed (1 Finding):** F-06 UI-Komplettierung (Backend war 195c, UI ist 195c-UI)
+- **Files:** DbEvent Type + EventFormState + EventFormModal Render + Platform-Admin + Club-Admin + EDITABLE_FIELDS + i18n DE+TR (admin.maxPerClub*)
+- **Type-Truth-Issue:** 195c-UI Worktree war pre-195d → DbLineup Bench-Felder versehentlich überschrieben → surgical-restore (5 Felder zurück), Reviewer-grün
+
+### Knowledge-Flywheel
+- `errors-frontend.md` Pattern "Hardcoded German addToast/Error-Strings" (Slice 196 Track B)
+- Empfehlungen Reviewer 195e+195c-UI für post-Commit:
+  - CLAUDE.md Import-Map queryKeys-Path
+  - patterns.md "Public-Safe Aggregate-RPC" Pattern
+  - errors-infra.md Worktree-MCP-blind Note
+
+### Bot-Loop parallel
+- 15 Bots / 30min interval / 4h auto-stop
+- Run #1+#2 done = **164 trades**, 0 Bugs
+
+### Phase-A-Audit-Status nach diesen 3 Slices
+| Domain | Total | done | offen |
+|---|---|---|---|
+| Brand | 18 | 7 | 11 |
+| UX | 27 | 8 | 19 |
+| FM | 26 | 3 | 23 |
+| Fantasy | 27 | 8 | 18 (+1 wont-fix) |
+| **Total** | **98** | **26** | **71** |
+
+### Pipeline weiter
+- **Slice 197** SPEC ready (FM-Mechanics-Fundament, 6 P1-Findings, 5 Sub-Slices, ~2-3 Tage)
+- **Slice 198** Polish-Sweep grosser Rest (~50 P2/P3)
+- **Phase C Persona-Walk** nach 197
+
+### Commits
+- 196: `42857532` (pushed)
+- 195e + 195c-UI: (folgt mit diesem Eintrag)
+
+---
+
 ## 195d | 2026-04-25 | Bench + Auto-Sub (Fantasy Mechanics Overhaul Sub-Slice)
 
 - **Stage-Chain:** SPEC (worklog/specs/195-fantasy-mechanics-overhaul.md) → IMPACT (inline) → BUILD (parallel-dispatch backend + frontend + test-writer in 3 Worktrees) → REVIEW (cold-context reviewer-agent: CONCERNS, 2 MAJOR + 6 MINOR) → REWORK (healer-agent: N4 Touch-Targets + N3 JSDoc + 3 Tests as it.todo) → PROVE → LOG

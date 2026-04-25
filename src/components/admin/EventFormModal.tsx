@@ -31,6 +31,9 @@ export interface EventFormLabels {
   salaryCap: string;
   salaryCapPlaceholder: string;
   salaryCapHint?: string;
+  maxPerClub: string;          // Slice 195c: FPL-Style Max-Spieler-pro-Verein
+  maxPerClubPlaceholder: string;
+  maxPerClubHint?: string;
   minScPerSlot?: string;     // Platform-only
   wildcardsAllowed?: string; // Platform-only
   maxWildcards?: string;     // Platform-only
@@ -210,6 +213,29 @@ export function EventFormModal({
           />
           {L.salaryCapHint && form.salaryCap && (
             <p className="mt-1 text-[10px] text-white/40">{L.salaryCapHint}</p>
+          )}
+        </div>
+
+        {/* Max Spieler pro Verein (Slice 195c — FPL-Style) */}
+        <div>
+          <label htmlFor="formMaxPerClub" className="block text-sm font-bold text-white/70 mb-1">
+            {L.maxPerClub}
+          </label>
+          <input
+            id="formMaxPerClub"
+            type="number"
+            inputMode="numeric"
+            min="1"
+            max="11"
+            value={form.maxPerClub}
+            onChange={(e) => setField('maxPerClub', e.target.value)}
+            placeholder={L.maxPerClubPlaceholder}
+            disabled={isFieldDisabled('max_per_club')}
+            aria-label={L.maxPerClub}
+            className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+          />
+          {L.maxPerClubHint && (
+            <p className="mt-1 text-[10px] text-white/40">{L.maxPerClubHint}</p>
           )}
         </div>
 

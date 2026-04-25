@@ -374,6 +374,11 @@ export const qk = {
     userHistory: (uid: string | undefined) => ['fantasy', 'userHistory', uid] as const,
     lineupSnapshot: (eventId: string, uid: string | undefined) =>
       ['fantasy', 'lineupSnapshot', eventId, uid] as const,
+    // Slice 195e — Differentials + Captain-Pick-Rate (anonymized aggregates)
+    captainDistribution: (eventId: string | null) =>
+      ['fantasy', 'captainDistribution', eventId] as const,
+    pickRates: (eventId: string | null) =>
+      ['fantasy', 'pickRates', eventId] as const,
   },
 
   // ── Fantasy Leagues ──

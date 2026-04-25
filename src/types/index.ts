@@ -717,6 +717,8 @@ export type DbEvent = {
   min_tier?: string | null;
   min_subscription_tier?: string | null;
   salary_cap?: number | null;
+  /** Slice 195c: Max Spieler pro Verein im Lineup. NULL = unlimited (Multi-Liga-Events). */
+  max_per_club?: number | null;
   reward_structure?: RewardTier[] | null;
   scope: EventScope;
   lineup_size: 7 | 11;

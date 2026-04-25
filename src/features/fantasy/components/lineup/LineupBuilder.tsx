@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { Pos, SynergyDetail } from '@/types';
 import type { FantasyEvent, LineupPlayer, UserDpcHolding } from '@/components/fantasy/types';
 import type { FormationDef } from '@/components/fantasy/constants';
-import { useBatchFormScores, useNextFixtures } from '@/lib/queries/fantasyPicker';
+import { useBatchFormScores, useNextFixtures, useEventCaptainDistribution, useEventPlayerPickRates } from '@/lib/queries/fantasyPicker';
 import { getClubAvgL5 } from '@/components/fantasy/FDRBadge';
 import { getClub } from '@/lib/clubs';
 import { usePlayers } from '@/lib/queries/players';
@@ -140,6 +140,23 @@ export function LineupBuilder({
   const { data: nextFixturesMap } = useNextFixtures(!isReadOnly);
   const { data: allPlayers = [] } = usePlayers(!isReadOnly);
 
+  // Slice 195e: Differential-% + Captain-Pick-Rate.
+  // Hooks gated on !isReadOnly (post-event ist Aggregat irrelevant fuer Editing).
+  const { data: captainDist = [] } = useEventCaptainDistribution(event.id, !isReadOnly);
+  const { data: pickRates = [] } = useEventPlayerPickRates(event.id, !isReadOnly);
+
+  const captainPctMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const c of captainDist) m.set(c.player_id, c.pct);
+    return m;
+  }, [captainDist]);
+
+  const pickRateMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of pickRates) m.set(p.player_id, p.pct);
+    return m;
+  }, [pickRates]);
+
   // Available clubs for filter (from holdings)
   const availableClubsList = useMemo(() => {
     const clubShorts = Array.from(new Set(effectiveHoldings.map(h => h.club)));
@@ -257,6 +274,7 @@ export function LineupBuilder({
         onRemovePlayer={onRemovePlayer}
         onCaptainToggle={(slotDbKey, isCaptain) => setCaptainSlot(isCaptain ? null : slotDbKey)}
         onWildcardToggle={onToggleWildcard}
+        captainPctMap={captainPctMap}
       />
 
       {/* Score Breakdown (scored/progressive) */}
@@ -310,6 +328,7 @@ export function LineupBuilder({
           getAvailablePlayersForPosition={getAvailablePlayersForPosition}
           onSelectPlayer={onSelectPlayer}
           onClose={() => setShowPlayerPicker(null)}
+          pickRateMap={pickRateMap}
         />
       )}
     </div>

@@ -45,6 +45,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     // NO tierUser — Club admin only has Arena + Club
     minSub: t('minSubLabel'), minSubNone: t('allNoSub'), minSubBronze: t('tierBronzePlus'), minSubSilber: t('tierSilberPlus'), minSubGold: t('onlyGold'),
     salaryCap: t('salaryCapLabel'), salaryCapPlaceholder: t('salaryCapPlaceholder'), salaryCapHint: t('salaryCapHint'),
+    maxPerClub: t('maxPerClubLabel'), maxPerClubPlaceholder: t('maxPerClubPlaceholder'), maxPerClubHint: t('maxPerClubHint'),
     // NO minScPerSlot — Club admin doesn't have this
     // NO wildcardsAllowed — Club admin doesn't have this
     gameweek: t('gameweekFormLabel'), gameweekPlaceholder: t('gameweekPlaceholder'), maxEntries: t('maxParticipants'),

@@ -1,18 +1,20 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 196 — Cross-Cutting P1-Sweep
-stage: BUILD
-spec: worklog/punch-list-2026-04-25.md (Slice 196 row)
-impact: inline (cross-cutting fixes, kein Money-Path, keine RPC, keine RLS)
-proof: pending
-review: pending
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Naechste Aktion
 
-**Slice 195e — Differentials-RPC + Player-Card-Badge** (~4 Std) ist der naechste Schritt.
+**Slice 197 — FM-Mechanics-Fundament** (5 Sub-Slices, ~2-3 Tage). SPEC ready: `worklog/specs/197-fm-mechanics-fundament.md`.
+
+Schliesst 6 P1-Findings: fm 1.1 (Form-L5-Filter universal), fm 1.2/4.1 (MV-Trend), F-02 (Formationen 3-5-2/4-5-1/5-3-2/5-4-1), F-08 (Countdown-Sekunden), K-01 (5-GW-FDR-Strip).
 
 Build-Order rest:
 - 195e (4 Std) Differentials-RPC + Player-Card-Badge
