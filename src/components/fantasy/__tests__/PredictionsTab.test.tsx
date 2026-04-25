@@ -9,10 +9,12 @@ import { PredictionsTab } from '../PredictionsTab';
 // ============================================
 const mockUsePredictions = vi.fn();
 const mockUsePredictionCount = vi.fn();
+const mockUsePredictionStats = vi.fn(() => ({ data: undefined }));
 
 vi.mock('@/lib/queries/predictions', () => ({
   usePredictions: (...args: unknown[]) => mockUsePredictions(...args),
   usePredictionCount: (...args: unknown[]) => mockUsePredictionCount(...args),
+  usePredictionStats: (...args: unknown[]) => mockUsePredictionStats(...args),
 }));
 
 // Mock child components to isolate unit

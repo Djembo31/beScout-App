@@ -73,7 +73,7 @@ export default function FormBars({ entries, className, showTooltip = false }: Fo
           const gwLabel = entry.gameweek != null ? t('gw', { gw: entry.gameweek }) : '';
           if (isPlayed) {
             // GW {n} · {score} pts (or just score if no gw).
-            tooltipText = gwLabel
+            tooltipText = entry.gameweek != null
               ? t('played', { gw: entry.gameweek, score: Math.round(entry.score) })
               : `${Math.round(entry.score)}`;
           } else {
