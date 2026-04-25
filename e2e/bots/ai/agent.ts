@@ -148,35 +148,18 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
     }
   }
 
-  // ── COMMUNITY PHASE ──
-  if (Math.random() < bot.postProbability && actionCount < MAX_ACTIONS) {
-    const content = generatePostContent(bot, updatedHoldings, allPlayers);
-    if (content) {
-      const topHolding = updatedHoldings[0];
-      const result = await actions.createPost(
-        client, userId, content.text,
-        topHolding?.player_id ?? null,
-        topHolding?.player.club ?? null,
-        content.tags, content.category
-      );
-      actionCount++;
-      if (result.success) {
-        journal.post('community', `Post erstellt: "${content.text.slice(0, 60)}..."`);
-      } else {
-        journal.error('community', `Post fehlgeschlagen: ${result.error}`);
-      }
-    }
+  // ── COMMUNITY PHASE ── DISABLED (Slice 194 BETA-FREEZE-PARTIAL)
+  // Bot-Templates sind hart auf DE — TR-User saehen DE-Posts in Community-Feed.
+  // Trading + Events + Lineups bleiben aktiv (deren Output ist nicht user-sichtbar als Locale-Mix).
+  // Re-enable nach Bilingual-Templates (post-Beta, ~3h Arbeit).
+  // Begruendung: e2e/bots/ai/BETA-FREEZE.md
+  if (false && Math.random() < bot.postProbability && actionCount < MAX_ACTIONS) {
+    journal.observe('community', 'Post-Phase disabled (BETA-FREEZE-PARTIAL)');
   }
 
-  // Vote on posts
-  if (Math.random() < bot.voteProbability && posts.length > 0 && actionCount < MAX_ACTIONS) {
-    const randomPost = posts[Math.floor(Math.random() * posts.length)];
-    if (randomPost.user_id !== userId) {
-      const vote = Math.random() > 0.2 ? 1 : -1;
-      await actions.votePost(client, userId, randomPost.id, vote as 1 | -1);
-      actionCount++;
-      journal.action('community', `Post ${vote === 1 ? 'upvoted' : 'downvoted'}`);
-    }
+  // Vote-Phase ebenfalls disabled — Bot-Votes auf Human-Posts wirken kuenstlich
+  if (false && Math.random() < bot.voteProbability && posts.length > 0 && actionCount < MAX_ACTIONS) {
+    journal.observe('community', 'Vote-Phase disabled (BETA-FREEZE-PARTIAL)');
   }
 
   // ── FANTASY PHASE ──
@@ -300,15 +283,18 @@ function selectTargets(bot: AiBotConfig, players: MarketPlayer[], holdings: Hold
       break;
 
     case 'undervalued':
+      // Slice 195: reference_price column wurde nie aus DB-Schema migriert,
+      // wir nutzen ipo_price als Reference (initialer fairer Verkaufspreis).
+      // Sniper sucht Spieler unter 95% IPO-Preis.
       candidates = candidates
         .filter(p => {
           const price = p.floor_price ?? p.ipo_price ?? 0;
-          const ref = p.reference_price ?? 0;
+          const ref = p.ipo_price ?? 0;
           return ref > 0 && price > 0 && price < ref * 0.95;
         })
         .sort((a, b) => {
-          const ratioA = (a.floor_price ?? a.ipo_price ?? 0) / (a.reference_price ?? 1);
-          const ratioB = (b.floor_price ?? b.ipo_price ?? 0) / (b.reference_price ?? 1);
+          const ratioA = (a.floor_price ?? a.ipo_price ?? 0) / (a.ipo_price ?? 1);
+          const ratioB = (b.floor_price ?? b.ipo_price ?? 0) / (b.ipo_price ?? 1);
           return ratioA - ratioB;
         });
       break;

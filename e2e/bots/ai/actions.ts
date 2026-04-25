@@ -11,7 +11,6 @@ export interface MarketPlayer {
   club_id: string;
   floor_price: number | null;
   last_price: number | null;
-  reference_price: number | null;
   ipo_price: number | null;
   perf_l5: number | null;
   perf_l15: number | null;
@@ -60,7 +59,7 @@ export async function getHoldings(sb: SupabaseClient, userId: string): Promise<H
   const { data } = await sb.from('holdings')
     .select(`player_id, quantity, avg_buy_price, players!inner(
       id, first_name, last_name, position, club, club_id,
-      floor_price, last_price, reference_price, ipo_price,
+      floor_price, last_price, ipo_price,
       perf_l5, perf_l15, dpc_available, dpc_total, is_liquidated,
       volume_24h, price_change_24h
     )`)
@@ -78,7 +77,7 @@ export async function getHoldings(sb: SupabaseClient, userId: string): Promise<H
 export async function getMarketPlayers(sb: SupabaseClient, limit = 50): Promise<MarketPlayer[]> {
   const { data } = await sb.from('players')
     .select(`id, first_name, last_name, position, club, club_id,
-      floor_price, last_price, reference_price, ipo_price,
+      floor_price, last_price, ipo_price,
       perf_l5, perf_l15, dpc_available, dpc_total, is_liquidated,
       volume_24h, price_change_24h`)
     .eq('is_liquidated', false)
