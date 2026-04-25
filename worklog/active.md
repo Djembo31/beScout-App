@@ -1,14 +1,24 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 198b
+stage: BUILD
+spec: worklog/specs/198b-polish-sweep-wave2.md
+impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
+proof: pending
+review: pending
 ```
+
+## Slice 198b — Polish-Sweep Wave 2 (3-Track parallel-dispatch)
+
+Ziel: 12-15 risikoarme P2/P3 Findings closen. 48/98 → ~60-63/98 (~62%).
+
+- **Track A** UX-Rest (#1 ErrorState-Retry, #3 Market-Loading, #7+8 preventClose Modal-Audit, #10 PostReplies Skeleton, #12 Missions Auth-Loading)
+- **Track B** FM-UI Read-only (1.3 In-Lineup-Filter, 2.3 Lineup-Score-Projection, 2.4 Difficulty-Indikator, 4.6 Cross-Tab IPO-Banner, 5.3 Volume-Histogramm)
+- **Track C** Fantasy + Brand (F-12 Sticky-Countdown, C-04 Limit-Begruendung, C-05 Top-Predictor, K-02 Most-Owned, Brand #11 PitchView Token)
+
+Worktree-Awareness-Briefing in jedem Track aktiv (patterns.md #34).
 
 ## Zuletzt
 
