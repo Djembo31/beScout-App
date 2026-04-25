@@ -1,25 +1,28 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 198
+stage: BUILD
+spec: worklog/specs/198-polish-sweep.md
+impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
+proof: pending
+review: pending
 ```
 
-## Naechste Aktion (post-/clear, frischer Kopf)
+## Slice 198 — Polish-Sweep Wave 1 (4-Track parallel-dispatch)
 
-**Slice 198 SPEC ist ready** in `worklog/specs/198-polish-sweep.md`. 4-Track Multi-Dispatch geplant (~30 Findings closed in Wave 1):
+Ziel Wave 1: 32/98 → ~62/98 closed (~30 Findings).
 
-- **Track A** — Brand-Rest 5 Items (airdrop diamond/rocket, raw-button refactors, Quick-Action-Pills extract). Wave-1-Briefing ist im SPEC. Track A wurde gecanceled vor /clear — fresh-start dispatch.
-- **Track B** — UX-States-Rest Top-5 (#19 Toast + #11 Retry + #14 optimistic + #6 Bar + #22 Touch-Targets)
-- **Track C** — FM-Rest Top-5 (5.1 FormBars Tooltip + 4.4 Sort by Volume + 4.5 Bulk-Buy + 1.4 Quick-In-Lineup + 3.1 Avg-Rank Card)
-- **Track D** — Fantasy-Rest Top-5 (C-01 Streak + C-02 Difficulty + C-03 Aggregate-Hint + R-04 Tier-Promotion + F-13 Form-Sparkline)
+- **Track A** — Brand-Rest 5 Items (airdrop diamond + rocket, raw-button refactors profile/club, Quick-Action-Pills extract)
+- **Track B** — UX-States Top-5 (#19 Settings-Toast, #11 DailyChallenge-Retry, #14 founding-optimistic, #6 KaderTab-BulkSell-Bar, #22 compare-Touch-Targets)
+- **Track C** — FM-Rest Top-5 (5.1 FormBars Hover-Tooltip, 4.4 Sort by Volume, 4.5 Bulk-Buy /market, 1.4 Quick-In-Lineup, 3.1 Avg-Rank Stat-Card)
+- **Track D** — Fantasy Top-5 (C-01 Streak, C-02 Difficulty, C-03 Aggregate-Hint, R-04 Tier-Promotion, F-13 Form-Sparkline)
 
-Erwartung Wave 1: 32/98 → ~62/98 closed.
+Forbidden-File-Locks:
+- `src/app/(app)/market/MarketFilters.tsx` → Track C exklusiv (Sort by Volume)
+- `src/components/manager/KaderToolbar.tsx` → Track C exklusiv (In-Lineup-Filter)
+- `src/app/(app)/founding/page.tsx` → Track B exklusiv (#14 optimistic)
 
 ## Naechste Aktion
 
