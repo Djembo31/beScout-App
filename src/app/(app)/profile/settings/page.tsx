@@ -6,6 +6,7 @@ import { User, Check, X, Loader2, Globe, AlertTriangle, Camera, Bell, BellRing, 
 import { Card, Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useToast } from '@/components/providers/ToastProvider';
 import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { getAllClubsCached } from '@/lib/clubs';
 import { uploadAvatar } from '@/lib/services/avatars';
@@ -21,6 +22,7 @@ export default function ProfileSettingsPage() {
   const { user, profile, loading, refreshProfile } = useUser();
   const t = useTranslations('profile');
   const te = useTranslations('errors');
+  const { addToast } = useToast();
 
   const [handle, setHandle] = useState('');
   const [handleStatus, setHandleStatus] = useState<HandleStatus>('idle');
@@ -68,8 +70,11 @@ export default function ProfileSettingsPage() {
         rewards: prefs.rewards,
       });
       setNotifPrefsLoaded(true);
-    }).catch((err) => console.error('[Settings] Notification prefs failed:', err));
-  }, [user]);
+    }).catch((err) => {
+      console.error('[Settings] Notification prefs failed:', err);
+      addToast(te(mapErrorToKey(normalizeError(err))), 'error');
+    });
+  }, [user, addToast, te]);
 
   // Push notification state
   useEffect(() => {
@@ -94,10 +99,11 @@ export default function ProfileSettingsPage() {
       }
     } catch (err) {
       console.error('[Settings] Push toggle failed:', err);
+      addToast(te(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       setPushLoading(false);
     }
-  }, [user, pushEnabled]);
+  }, [user, pushEnabled, addToast, te]);
 
   const toggleNotifPref = useCallback((key: NotificationCategory) => {
     if (!user) return;
@@ -105,13 +111,14 @@ export default function ProfileSettingsPage() {
       const updated = { ...prev, [key]: !prev[key] };
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
-        updateNotificationPreferences(user.id, updated).catch((err) =>
-          console.error('[Settings] Save notif prefs failed:', err)
-        );
+        updateNotificationPreferences(user.id, updated).catch((err) => {
+          console.error('[Settings] Save notif prefs failed:', err);
+          addToast(te(mapErrorToKey(normalizeError(err))), 'error');
+        });
       }, 500);
       return updated;
     });
-  }, [user]);
+  }, [user, addToast, te]);
 
   useEffect(() => {
     if (!handle || handle === profile?.handle) {

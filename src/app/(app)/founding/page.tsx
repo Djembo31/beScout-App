@@ -84,9 +84,13 @@ export default function FoundingPassPage() {
   const [confirmTier, setConfirmTier] = useState<FoundingPassTierDef | null>(null);
   const [purchasing, setPurchasing] = useState(false);
 
-  // Load counts + user pass
-  const loadData = useCallback(async () => {
-    setLoadingData(true);
+  // Load counts + user pass.
+  // Slice 198 Track B #14: silent-mode skips the page-level skeleton flicker on
+  // post-purchase reconcile — optimistic counts have already been applied locally
+  // (see handlePurchase below) so the server-fetch is purely a reconcile in the
+  // background. No money-logic change.
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) setLoadingData(true);
     try {
       const countsPromise = getFoundingPassCounts();
       const passPromise = user ? getHighestPass(user.id) : Promise.resolve(null);
@@ -96,7 +100,7 @@ export default function FoundingPassPage() {
     } catch (err) {
       console.error('[FoundingPass] loadData error:', err);
     } finally {
-      setLoadingData(false);
+      if (!silent) setLoadingData(false);
     }
   }, [user]);
 
@@ -121,8 +125,16 @@ export default function FoundingPassPage() {
         queryClient.invalidateQueries({ queryKey: qk.foundingPasses.list(uid) });
         queryClient.invalidateQueries({ queryKey: qk.wallet.all });
         setConfirmTier(null);
-        // Reload data to show updated state
-        await loadData();
+        // Slice 198 Track B #14 — Optimistic local counts update so the UI feels
+        // smooth (no page-level skeleton flicker between purchase confirmation and
+        // server-truth fetch). userPass is left to the silent reconcile below
+        // (server-truth has fields like pass_number that we cannot guess locally).
+        setCounts((prev) => prev ? {
+          total: prev.total + 1,
+          byTier: { ...prev.byTier, [tier]: (prev.byTier[tier] ?? 0) + 1 },
+        } : prev);
+        // Reconcile in the background without the skeleton flicker.
+        await loadData(true);
       } else {
         addToast(result.error ? te(mapErrorToKey(result.error)) : te('generic'), 'error');
       }

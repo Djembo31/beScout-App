@@ -211,11 +211,21 @@ export default function DailyChallengeCard({
         </div>
       )}
 
-      {/* Error State */}
+      {/* Error State + Retry-Hint (Slice 198 Track B #11) */}
       {error && (
-        <div className="mt-3 flex items-center gap-1.5">
-          <AlertCircle className="size-3.5 text-red-400 flex-shrink-0" />
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <AlertCircle className="size-3.5 text-red-400 flex-shrink-0" />
+            <p className="text-red-400 text-sm truncate">{error}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setError(null); setSelectedIdx(null); }}
+            disabled={isSubmitting}
+            className="flex-shrink-0 min-h-[32px] px-3 rounded-lg text-xs font-bold text-gold hover:bg-gold/10 active:scale-[0.97] transition-colors disabled:opacity-50"
+          >
+            {tc('retry')}
+          </button>
         </div>
       )}
 
