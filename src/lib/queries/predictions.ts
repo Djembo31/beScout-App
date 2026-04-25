@@ -8,8 +8,8 @@ import {
   getPredictionStats,
   getFixturesForPrediction,
   hasAnyPrediction,
-  getTopPredictorsLeaderboard,
 } from '@/lib/services/predictions';
+import { getTopPredictorsLeaderboard } from '@/lib/services/leaderboards';
 
 const FIVE_MIN = 5 * 60 * 1000;
 

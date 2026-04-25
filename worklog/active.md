@@ -1,29 +1,29 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 199
-stage: BUILD
-spec: worklog/specs/199-backend-aggregate-rpcs.md
-impact: inline (3 read-only RPCs, kein Money-Path-Write, kein Cron, kein Schema-Change)
-proof: pending
-review: pending
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
-
-## Slice 199 — Backend-Aggregat-RPC-Wave (parallel-dispatch backend+frontend)
-
-3 SECURITY DEFINER read-only Aggregat-RPCs + 1 frontend-only Filter, 4 UI-Consumers. Schliesst 4 Findings aus 198+198b Backlog.
-
-- **Backend** 3 Migrations: `get_top_predictors_leaderboard`, `get_most_owned_players_per_club`, `get_event_difficulty_score`
-- **Frontend** 4 UI-Consumers + fm 1.3 In-Lineup-Filter
-- DEFER fm 4.4 (Column-Migration) zu Slice 200
 
 ## Zuletzt
 
-- **Slice 198b** (2026-04-25) — Polish-Sweep Wave 2 (L, 3-Track parallel-dispatch). 11 closed, 5 begruendet skipped (4× Backend-Aggregat-RPC, 1× deprecated Hook). Punch-Liste 48/98 → 59/98 closed (~60%). Reviewer PASS, 0 findings. Worktree-Awareness-Briefing 0% Trap-Rate (vs Wave 1: 50%).
-- **Slice 198** (2026-04-25) — Polish-Sweep Wave 1 (L, 4-Track parallel-dispatch). 16 closed, 4 begruendet skipped. Reviewer PASS, 2 findings inline gefixt.
+- **Slice 199** (2026-04-25) — Backend-Aggregat-RPC-Wave (L, parallel BE+FE). 4 Findings closed (C-05, K-02, fm 2.4, fm 1.3). 3 SECURITY DEFINER RPCs LIVE + 4 UI-Consumers. Reviewer PASS, 2 inline-fixed. 20/20 RPC-Tests grün. Punch-Liste 59/98 → 63/98 closed (~64%).
+- **Slice 198b** (2026-04-25) — Polish-Sweep Wave 2. 11 closed, 5 begruendet skipped. Reviewer PASS.
+- **Slice 198** (2026-04-25) — Polish-Sweep Wave 1. 16 closed, 4 begruendet skipped. Reviewer PASS.
 
-## Slice 199 (Backlog — Backend-Aggregat-RPC-Wave)
+## Slice 200 (Backlog — fm 4.4 + Wave 3 Polish)
+
+- **Slice 200**: fm 4.4 `players.trades_volume_7d` Column-Migration + Aggregations-Strategie (kein-Cron-Variant: Trigger oder Materialized View) + Frontend Sort-Pill
+- **Wave 3 Polish-Sweep**: Restposten ~30 P2/P3 (Brand 6 + UX 9 + FM 12 + Fantasy 9)
+- **Holdings-RPC-Migration** (PostgREST → SECURITY DEFINER, post-Beta)
+- **L5-Data-Drift Audit** (11% ohne perf_l5)
+
+## Slice 199 (DONE — siehe log.md)
 
 4× Skips aus 198b zeigen klares Pattern: gebuendelte RPC-Wave als eigene Backend-Slice:
 - **C-05** Top-Predictor Leaderboard (predictions GROUP BY user_id, RLS-bypass via SECURITY DEFINER)

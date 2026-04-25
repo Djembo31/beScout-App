@@ -11,6 +11,69 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 199 | 2026-04-25 | Backend-Aggregat-RPC-Wave (parallel BE+FE)
+
+L-Slice via parallel-dispatch backend + frontend in 2 Worktrees. Schliesst 4 Findings aus 198+198b Backlog. Punch-Liste: 59/98 → **63/98 closed (~64%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/199-backend-aggregate-rpcs.md) → IMPACT inline → BUILD (BE+FE parallel) → REVIEW (Cold-Context-Reviewer verdict PASS, 2 findings inline-fixed) → PROVE (3 Migrations LIVE applied + 20/20 RPC-Tests grün + tsc clean) → LOG
+
+### Backend (commit `8dfef96d`)
+3 SECURITY DEFINER STABLE RPCs + Service-Layer + Tests (LIVE applied via mcp__supabase__apply_migration):
+- **C-05** `get_top_predictors_leaderboard(p_limit INT)` — predictions GROUP BY user_id (HAVING ≥5 graded), JOINs profiles + user_founding_passes für tier-derivation. Anonymized JSONB array.
+- **K-02** `get_most_owned_players_per_club(p_club_id UUID, p_limit INT)` — holdings GROUP BY player_id COUNT DISTINCT user_id, club-scoped. Anonymized output (kein user_id).
+- **fm 2.4** `get_event_difficulty_score(p_event_id UUID)` — avg ipo_price aller club-Spieler → 3-Tier-Heuristik (easy <100k cents, medium ≤500k, hard >500k). Discriminated-union error-shape.
+
+### Frontend (commit `c81xxxxx`)
+4 UI-Consumers + fm 1.3 In-Lineup-Filter (frontend-only):
+- **C-05**: PredictionsTab Top-Predictor-Leaderboard Section (compact Liste mit Rank/Handle/Tier/Hit-Rate%)
+- **K-02**: ClubContent + new MostOwnedSection.tsx (Top-5 Card mit holders_count Pills)
+- **fm 2.4**: EventSelector Difficulty-Pill (3-Tier Stars)
+- **fm 1.3**: KaderToolbar + KaderTab In-Lineup-Filter (Pill-Group analog FormL5/MV-Trend, frontend-only via existing `useLineupForEvent`)
+
+### Schema-Drift-Annahmen (dokumentiert)
+
+- `profiles.tier` existiert NICHT → tier abgeleitet aus `user_founding_passes.tier` (highest priority: founder > pro > scout > fan, NULL → 'fan').
+- `events.eligible_clubs[]` existiert NICHT → nur `events.club_id` (single-club). `participant_clubs_count` ist konstant 1.
+
+### Conflict-Resolutions (Merge)
+
+- `worklog/active.md` + `worklog/specs/199-backend-aggregate-rpcs.md`: HEAD bevorzugt
+- `events.queries.ts` + `keys.ts` + `club.ts`: `git checkout --theirs` (FE-Variante = comprehensive)
+
+### Heal-Cycle (Reviewer-Find post-merge)
+
+- **Service-Duplicate**: BE+FE haben parallel `getTopPredictorsLeaderboard` implementiert. FE-Hook nutzte FE-Duplicate, BE's `leaderboards.ts` war orphan (Drift-Risk). FIX: Duplicate aus `predictions.queries.ts:212-243` entfernt, hook in `predictions.ts` re-routed auf `@/lib/services/leaderboards` (canonical).
+
+### Files
+- 4 Findings closed
+- Total: 3 Migration-Files + 16 FE-Files + 14 BE-Files (modified+added) + 4 docs (review/proof/journal/spec)
+- ~1700 LOC additions (Backend ~600, Frontend ~530, Tests ~660)
+
+### Review
+- `worklog/reviews/199-review.md` — verdict **PASS** by Cold-Context Opus reviewer-Agent
+- 2 Findings (MEDIUM Service-Duplicate fixed, LOW Migration-File-Existenz verified)
+- Time-spent: 18 min
+- Knowledge-Hinweis: parallele Backend+Frontend-Dispatch braucht vorab-Service-Schnittstelle-Spec im Briefing
+
+### Proof
+- `worklog/proofs/199-backend-aggregate-rpcs.txt`
+- 3 RPCs LIVE-verified via `pg_proc` (prosecdef=true, provolatile=s)
+- 20/20 RPC-Tests pass (9 leaderboards + 6 most-owned + 5 events-difficulty)
+- tsc clean post-heal
+
+### Commits
+- `8dfef96d` Backend RPCs+Service+Tests
+- `13dc6b69` Backend active.md PROVE
+- `ed4f3209` Backend learnings
+- `c81xxxxx` Frontend 4 UI-Consumers (16 files)
+- `43ed0253` Merge BE | `1051b866` Merge FE
+- `(post-LOG hash)` docs(199): heal Service-Duplicate + LOG + push
+
+### Notes
+3. erfolgreicher parallel-dispatch in Folge mit 0% Worktree-Trap-Rate (patterns.md #34). Schema-Drift-Annahmen sauber dokumentiert in Migration-Headers + Service-Comments. Slice 200 ist offen (fm 4.4 Sort-by-Volume mit Column-Migration + Aggregations-Strategie ohne neuen Cron).
+
+---
+
 ## 198b | 2026-04-25 | Polish-Sweep Wave 2 (3-Track parallel-dispatch)
 
 L-Slice via 3 parallele Worktree-Frontend-Agents mit Worktree-Awareness-Briefing (patterns.md #34 lessons learned aus Wave 1). Punch-Liste: 48/98 → **59/98 closed (~60%)**.

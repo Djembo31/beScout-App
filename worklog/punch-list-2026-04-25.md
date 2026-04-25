@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-25 nach Slice 198b (+11 closed)
+**Stand:** 2026-04-25 nach Slice 199 (+4 closed)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **59 closed (≈60%)**
+**Total:** 98 Findings · davon **63 closed (≈64%)**
 
 ## Status-Legende
 
@@ -20,9 +20,15 @@
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 12 | 0 | 0 | 6 | 0 |
 | UX-States | 27 | 18 | 0 | 0 | 9 | 0 |
-| FM-Mechanics | 26 | 13 | 0 | 0 | 13 | 0 |
-| Fantasy-Scoring | 27 | 16 | 1 | 0 | 10 | 0 |
-| **TOTAL** | **98** | **59** | **1** | **0** | **38** | **0** |
+| FM-Mechanics | 26 | 15 | 0 | 0 | 11 | 0 |
+| Fantasy-Scoring | 27 | 18 | 1 | 0 | 8 | 0 |
+| **TOTAL** | **98** | **63** | **1** | **0** | **34** | **0** |
+
+**Slice 199 closed (+4):** Backend-Aggregat-RPC-Wave (parallel BE+FE).
+- C-05 Top-Predictor-Leaderboard (RPC + UI)
+- K-02 Most-Owned-Players-pro-Club (RPC + UI)
+- fm 2.4 Event-Difficulty-Indikator (RPC + UI)
+- fm 1.3 In-Lineup-Filter (Frontend-only via existing lineup-data)
 
 **Slice 198b closed (+11):**
 - Track A UX 5: #1 (Home retry-all), #3 (Market section-loading), #7 (EventSummaryModal preventClose), #8 (CreateEventModal preventClose), #10 (PostReplies Skeleton)
