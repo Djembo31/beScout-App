@@ -396,6 +396,22 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
   return result;
 }
 
+/** Slice 198 fm 5.1 — Returns the 5 most recent scored gameweeks (oldest→newest, aligned with FormBars order).
+ *  Used by FormBars tooltip to label each bar with its actual GW number. */
+export async function getRecentScoreGameweeks(): Promise<number[]> {
+  const { data: latest, error } = await supabase
+    .from('player_gameweek_scores')
+    .select('gameweek')
+    .gt('score', 0)
+    .order('gameweek', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!latest) return [];
+  const maxGw = latest.gameweek as number;
+  return Array.from({ length: 5 }, (_, i) => maxGw - 4 + i); // oldest→newest
+}
+
 /** Recent gameweek scores per player (last 5 completed GWs) — batch query for all players.
  *  Returns Map<playerId, [newest, ..., oldest]> with null for GWs the player didn't play.
  *  Always 5 entries per player, aligned to the 5 most recent scored GWs. */

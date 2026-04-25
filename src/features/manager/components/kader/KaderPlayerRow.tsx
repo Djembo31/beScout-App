@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
-  TrendingUp, TrendingDown, Minus, DollarSign, Shield, Check as CheckIcon,
+  TrendingUp, TrendingDown, Minus, DollarSign, Shield, Check as CheckIcon, ListPlus,
 } from 'lucide-react';
 import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
@@ -49,9 +49,13 @@ interface KaderPlayerRowProps {
   lens: KaderLens;
   minutes?: number[];
   scores?: (number | null)[];
+  /** Slice 198 fm 5.1 — Gameweeks aligned with `scores` (oldest→newest) for tooltip context. */
+  gameweeks?: number[];
   nextFixture?: NextFixtureInfo;
   inLineup: boolean;
   onSellClick: (playerId: string) => void;
+  /** Slice 198 fm 1.4 — Quick-In-Lineup action (Kader-Row → Aufstellen). */
+  onQuickLineupClick?: (playerId: string) => void;
   /** Bulk-select mode */
   isSelected?: boolean;
   onToggleSelect?: (playerId: string) => void;
@@ -203,13 +207,16 @@ function VertragCols({ item }: { item: KaderPlayer }) {
 // MAIN ROW
 // ============================================
 
-function KaderPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineup, onSellClick, isSelected, onToggleSelect, onRowClick }: KaderPlayerRowProps) {
+function KaderPlayerRowInner({ item, lens, minutes, scores, gameweeks, nextFixture, inLineup, onSellClick, onQuickLineupClick, isSelected, onToggleSelect, onRowClick }: KaderPlayerRowProps) {
   const t = useTranslations('market');
+  const tManager = useTranslations('manager');
   const p = item.player;
   const tint = posTintColors[p.pos];
-  const formEntries = (scores ?? []).map(s => ({
+  // Slice 198 fm 5.1 — Map scores → entries with optional GW-context for tooltip.
+  const formEntries = (scores ?? []).map((s, i) => ({
     score: s ?? 0,
     status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+    gameweek: gameweeks?.[i] ?? null,
   }));
 
   return (
@@ -257,7 +264,7 @@ function KaderPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineu
             <PositionBadge pos={p.pos} size="sm" />
             {inLineup && <Shield className="size-3 text-green-500 shrink-0" aria-hidden="true" />}
             <div className="ml-auto flex items-center gap-2 shrink-0">
-              <FormBars entries={formEntries} />
+              <FormBars entries={formEntries} showTooltip />
               <div
                 className="size-7 rounded-full flex items-center justify-center border-[1.5px]"
                 style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
@@ -276,8 +283,8 @@ function KaderPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineu
           {lens === 'vertrag' && <VertragCols item={item} />}
         </div>
 
-        {/* Right: Value + Sell Button */}
-        <div className="shrink-0 flex items-center gap-2 self-center">
+        {/* Right: Value + Quick-Lineup + Sell Buttons */}
+        <div className="shrink-0 flex items-center gap-1.5 self-center">
           {lens === 'performance' && (
             <div className="text-right hidden sm:block">
               <div className="text-xs font-mono font-bold tabular-nums text-gold">{fmtScout(item.valueBsd * item.quantity)}</div>
@@ -285,6 +292,17 @@ function KaderPlayerRowInner({ item, lens, minutes, scores, nextFixture, inLineu
                 {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
               </div>
             </div>
+          )}
+          {/* Slice 198 fm 1.4 — Quick-In-Lineup action: Row → Aufstellen-Tab pre-pick (1 click). */}
+          {onQuickLineupClick && !inLineup && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onQuickLineupClick(p.id); }}
+              className="p-2 rounded-lg bg-surface-base border border-white/10 text-white/40 hover:text-emerald-400 hover:border-emerald-400/20 hover:bg-emerald-400/5 transition-colors"
+              aria-label={tManager('quickLineupAction', { defaultMessage: 'Ins Lineup übernehmen' })}
+              title={tManager('quickLineupAction', { defaultMessage: 'Ins Lineup übernehmen' })}
+            >
+              <ListPlus className="size-3.5" aria-hidden="true" />
+            </button>
           )}
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(p.id); }}

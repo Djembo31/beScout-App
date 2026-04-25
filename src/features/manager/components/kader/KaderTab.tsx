@@ -8,7 +8,8 @@ import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import type { Player, Pos, DbIpo, DbHolding, OfferWithDetails } from '@/types';
-import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
+import { useRecentMinutes, useRecentScores, useRecentScoreGameweeks, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useHoldingLocks } from '@/lib/queries/events';
 import { useManagerStore } from '@/features/manager/store/managerStore';
 import dynamic from 'next/dynamic';
@@ -99,6 +100,8 @@ export default function KaderTab({
   const expandedClubs = useManagerStore(s => s.expandedClubs);
   const toggleClubExpand = useManagerStore(s => s.toggleClubExpand);
   const setKaderDetailPlayerId = useManagerStore(s => s.setKaderDetailPlayerId);
+  const setActiveTab = useManagerStore(s => s.setActiveTab);
+  const setPendingLineupPlayerId = useManagerStore(s => s.setPendingLineupPlayerId);
   const kaderCountry = useManagerStore(s => s.kaderCountry);
   const setKaderCountry = useManagerStore(s => s.setKaderCountry);
   const kaderLeague = useManagerStore(s => s.kaderLeague);
@@ -142,9 +145,23 @@ export default function KaderTab({
   // Manager Data Hooks
   const { data: minutesMap } = useRecentMinutes();
   const { data: scoresMap } = useRecentScores();
+  // Slice 198 fm 5.1 — GW labels for FormBars tooltip (5 gameweeks oldest→newest).
+  const { data: recentGameweeks } = useRecentScoreGameweeks();
   const { data: nextFixturesMap } = useNextFixtures();
   const { data: eventUsageMap } = usePlayerEventUsage(userId);
   const { data: lockedScMap } = useHoldingLocks(userId);
+
+  // Slice 198 fm 1.4 — Quick-In-Lineup handler (Row → Aufstellen pre-pick, 1 click).
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const handleQuickLineup = useCallback((playerId: string) => {
+    setPendingLineupPlayerId(playerId);
+    setActiveTab('aufstellen');
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'aufstellen');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [setPendingLineupPlayerId, setActiveTab, searchParams, router, pathname]);
 
   // Build bestand data
   const bestandItems = useMemo(() => {
@@ -311,9 +328,11 @@ export default function KaderTab({
       lens={lens}
       minutes={minutesMap?.get(item.player.id)}
       scores={scoresMap?.get(item.player.id)}
+      gameweeks={recentGameweeks}
       nextFixture={nextFixturesMap?.get(item.player.clubId ?? '')}
       inLineup={eventUsageMap?.has(item.player.id) ?? false}
       onSellClick={setSellPlayerId}
+      onQuickLineupClick={bulkMode ? undefined : handleQuickLineup}
       isSelected={bulkMode ? selectedIds.has(item.player.id) : undefined}
       onToggleSelect={bulkMode ? toggleSelect : undefined}
       onRowClick={bulkMode ? undefined : setKaderDetailPlayerId}

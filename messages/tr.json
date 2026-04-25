@@ -93,6 +93,14 @@
     "falling": "Düşüş",
     "filterLabel": "Piyasa Değeri Trendi Filtresi {value}"
   },
+  "formBars": {
+    "ariaLabel": "Son 5 maç formu",
+    "ariaBar": "Maç {idx}",
+    "gw": "MH {gw}",
+    "played": "MH {gw} · {score} puan",
+    "bench": "Yedek",
+    "notInSquad": "Kadroda değil"
+  },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
     "welcome": "Hoş geldin",
