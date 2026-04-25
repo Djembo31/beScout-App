@@ -810,3 +810,38 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
     engagementByType,
   };
 }
+
+// ============================================
+// Slice 199 — Most-Owned Players per Club (Aggregate-RPC)
+// ============================================
+
+/**
+ * Most-owned scout cards per club (anonymized aggregate).
+ *
+ * SECURITY DEFINER RPC — bypasses holdings RLS but only projects aggregate
+ * counts (NEVER user_id). Sorted by holders_count DESC.
+ *
+ * Empty club / NULL club_id / club without holdings → [].
+ */
+export type MostOwnedPlayer = {
+  player_id: string;
+  first_name: string;
+  last_name: string;
+  shirt_number: number | null;
+  position: string;
+  image_url: string | null;
+  holders_count: number;
+  rank: number;
+};
+
+export async function getMostOwnedPlayersPerClub(
+  clubId: string,
+  limit = 5,
+): Promise<MostOwnedPlayer[]> {
+  const { data, error } = await supabase.rpc('get_most_owned_players_per_club', {
+    p_club_id: clubId,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  return (data as MostOwnedPlayer[] | null) ?? [];
+}

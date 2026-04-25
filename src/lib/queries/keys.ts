@@ -46,6 +46,8 @@ export const qk = {
     wildcardBalance: (uid: string) => ['events', 'wildcardBalance', uid] as const,
     activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
     leagueGw: ['events', 'leagueGw'] as const,
+    // Slice 199 — event-difficulty score (avg ipo_price-based heuristic)
+    difficultyScore: (eventId: string) => ['events', 'difficultyScore', eventId] as const,
   },
 
   // ── Platform Settings ──
@@ -92,6 +94,11 @@ export const qk = {
   // ── Leaderboard ──
   leaderboard: {
     top: (n: number) => ['leaderboard', n] as const,
+  },
+
+  // ── Leaderboards (Slice 199 — read-only aggregate-RPCs) ──
+  leaderboards: {
+    topPredictors: (limit: number) => ['leaderboards', 'topPredictors', limit] as const,
   },
 
   // ── Trades ──
@@ -193,6 +200,8 @@ export const qk = {
     subscription: (uid: string, cid: string) => ['clubs', 'subscription', uid, cid] as const,
     votedIds: (uid: string) => ['clubs', 'votedIds', uid] as const,
     standing: (cid: string) => ['clubs', 'standing', cid] as const,
+    // Slice 199 — anonymized most-owned aggregate (holders count, no user_id)
+    mostOwned: (cid: string, limit: number) => ['clubs', 'mostOwned', cid, limit] as const,
   },
 
   // ── PBT ──

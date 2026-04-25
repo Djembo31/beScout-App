@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: building
+slice: 199
+stage: BUILD
+spec: worklog/specs/199-backend-aggregate-rpcs.md (CTO-briefing inline)
+impact: skipped (3× neue read-only Aggregat-RPCs, keine Schema-Changes, keine Consumers)
+proof: pending (vitest + SELECT pg_get_functiondef + REVOKE-listing)
+review: pending
 ```
 
 ## Zuletzt
