@@ -1800,6 +1800,119 @@ Nach 5 Anwendungen Retro: Wie oft Agent-PR sofort gemergt? Wie oft REWORK? Patte
 
 ---
 
+## D45 — PROCESS: Worktree-Awareness-Briefing als Pflicht-Block für Worktree-Agent-Dispatch
+
+**Datum:** 2026-04-25
+**Status:** ✅ Aktiv (empirisch validiert über 5 Tracks)
+
+### Entscheidung
+
+Jeder Frontend/Backend-Agent-Prompt mit `isolation: "worktree"` MUSS am Anfang des Briefings den Worktree-Awareness-Block enthalten:
+
+```
+**WICHTIG (Worktree-Awareness, patterns.md #34):** Du arbeitest in einem Worktree.
+Dein CWD ist `C:\bescout-app\.claude\worktrees\agent-XXX`. Edits MUESSEN Pfade
+unter diesem Verzeichnis verwenden — relative Pfade (`src/components/...`)
+oder worktree-prefixed absolute. NIEMALS `C:\bescout-app\src\...` als
+absoluter Pfad — das ist main-Repo, nicht dein Worktree.
+```
+
+### Begründung
+
+Empirische Daten 2026-04-25:
+- **Slice 198 Wave 1** (4 Tracks ohne Briefing): 50% Trap-Rate (3/4 Tracks edited via main-Pfad → Worktree-Junction-Drift, Re-Apply-Heal nötig)
+- **Slice 198b Wave 2** (3 Tracks mit Briefing): 0% Trap-Rate
+- **Slice 199** (BE+FE mit Briefing): 0% Trap-Rate
+
+Über 5 Tracks mit Briefing: 0/5 Trap. Pattern wirkt scharf.
+
+### Auswirkungen
+
+- **Prozess:** Briefing-Template-Pflicht in jedem worktree-Agent-Dispatch.
+- **Code:** Pattern dokumentiert in `memory/patterns.md` #34.
+- **Reviewer:** Bei Reviewer-Briefings explizit Trap-Rate als KPI tracken.
+
+### Alternativen erwogen
+
+- **Worktree-CWD-Hook in Settings:** Vercel-Hobby-Limit-analog hard-block. Verworfen — Hooks haben kein Tool-Pre-Context.
+- **Path-Sanitizing in Edit-Tool:** Zu invasiv, breaks legitime cross-worktree Operations.
+- **Agent-Definition-Update:** Subagent-System-Prompts editieren — verworfen weil global, nicht worktree-spezifisch.
+
+### Re-Visit-Trigger
+
+Wenn nach 10 Slices >0% Trap-Rate → Pattern verschärfen (Hard-Block via Hook).
+
+---
+
+## D46 — PROCESS: Service-Schnittstelle vorab spezifizieren bei parallelem BE+FE-Dispatch
+
+**Datum:** 2026-04-25
+**Status:** ✅ Aktiv (Reviewer-Find Slice 199)
+
+### Entscheidung
+
+Bei parallel-dispatch von Backend-Agent + Frontend-Agent in separaten Worktrees MUSS das SPEC vor Dispatch den **kanonischen Service-File-Pfad** plus **exakte Function-Signatur + Type-Definition** festlegen — nicht "BE legt an + FE importiert irgendwo".
+
+### Begründung
+
+Slice 199 Reviewer-Find: BE-Agent + FE-Agent haben parallel `getTopPredictorsLeaderboard` implementiert — BE in `src/lib/services/leaderboards.ts` (canonical), FE in `src/features/fantasy/services/predictions.queries.ts` (duplicate). FE-Hook nutzte FE-Variante → BE's Service war orphan production-code (Drift-Risk).
+
+Heal-Cycle: FE-Duplicate entfernt, Hook-Import auf BE-Pfad re-routed. Vermeidbar gewesen mit klarer Vorab-Spec.
+
+### Auswirkungen
+
+- **SPEC-Template:** Bei Cross-Domain-Slices Sektion "Service-Schnittstelle" pflicht:
+  - Canonical Service-File-Pfad (z.B. `src/lib/services/leaderboards.ts`)
+  - Exact Function-Signatur (`async function X(args): Promise<T>`)
+  - Return-Type-Definition (auch wenn nur skeleton — beide Agents nutzen exakt diese Type)
+- **BE-Briefing:** "Du legst Service in `<canonical-path>` an mit Signature `<sig>`"
+- **FE-Briefing:** "Du importierst aus `<canonical-path>`. Falls noch nicht da, schreibe inline-Type-Stub mit Backend-Signatur"
+
+### Alternativen erwogen
+
+- **Sequential dispatch BE → FE:** Zu langsam für L-Slices.
+- **Beide Agents schreiben Spec-First:** Doppelte Arbeit, Drift-Risk dort.
+- **Reviewer-Pflicht-Catch:** Funktioniert (Slice 199 caught), aber Prevention > Detection.
+
+### Re-Visit-Trigger
+
+Bei nächster parallelem Dispatch: bewusst mit Service-Spec arbeiten + tracken ob Drift auftritt.
+
+---
+
+## D47 — PROCESS: Skip-Pattern-Bündelung — gebündelte Wave-Slice statt Einzel-Nachzügler
+
+**Datum:** 2026-04-25
+**Status:** ✅ Aktiv (Slice 199 als Erfolgs-Beispiel)
+
+### Entscheidung
+
+Wenn 3+ Slices innerhalb kurzer Zeit den gleichen Skip-Grund nennen ("Backend-Aggregat-RPC fehlt", "Column X muss erst migriert werden", "neuer Cron nötig"), wird daraus eine **gebündelte Wave-Slice** statt 3 Einzel-Nachzügler über die Zeit verteilt.
+
+### Begründung
+
+Slice 198 Track C skipped fm 4.4 + 4.5 wegen Backend. Slice 198b Track C skipped C-05 + K-02 wegen Backend-Aggregat-RPC. Track B skipped fm 2.4 wegen Schema-Annahmen. Reviewer Slice 198b: "Skip-Pattern 'Backend-Aggregat-RPC fehlt' häuft sich (C-05, K-02, fm 2.4, fm 1.3) — Kandidat für Slice 199 als gebündelte RPC-Wave statt einzeln nachzuziehen."
+
+→ Slice 199 = 3 RPCs + 4 UI-Consumers in 1 parallel-dispatch. Effizienz: 4 Findings in 1 Slice statt 4 Slices.
+
+### Auswirkungen
+
+- **Reviewer-Pflicht:** Bei Skip-Findings Pattern-Match prüfen (gleicher Grund über Track/Slice-Grenzen?). Wenn ja → in `notes` als Slice-Kandidat dokumentieren.
+- **CTO-Pflicht:** Skip-Backlog scannen vor neuem Slice — wenn Pattern-Cluster >3 → bündeln.
+- **Punch-Liste-Format:** Skip-Reason explizit machen, nicht nur "deferred". Macht Pattern-Cluster sichtbar.
+
+### Alternativen erwogen
+
+- **Slice-pro-Finding:** Sauber pro Item, aber 4× Setup-Overhead (Spec/Impact/Reviewer/Push) statt 1×.
+- **Catch-all "tech-debt"-Slice:** Zu unspezifisch, kein klarer Acceptance-Criterion.
+- **Backlog-Decay:** Skip-Items "vergessen" — verworfen, würde Beta-Readiness gefährden.
+
+### Re-Visit-Trigger
+
+Nach 3 Wave-Slices Retro: Schließrate (Closed/Total) gegen Einzel-Slices vergleichen. Wenn Wave nicht effizienter → Pattern aufgeben.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

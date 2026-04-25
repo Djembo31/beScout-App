@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-25 19:20)
+# Session Handoff — Auto (2026-04-26 00:56)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -11,46 +11,97 @@
 ?? worklog/audits/silent-fail-2026-04-25.md
 ```
 
-## Session Commits: 9
-- c20d1d16 feat(197d): MV-Trend systemisch (Phase-A FM 1.2 + 4.1)
-- 947d469b feat(197c): Formationen 3-5-2/4-5-1/5-3-2/5-4-1 (Phase-A F-02)
-- 74b5272c feat(197): Wave 1 — FM-Mechanics-Fundament 3 Sub-Slices (a/b/e)
-- b40178f5 feat(195e+195c-UI): Differentials-RPC + Captain-Pick-Rate + EventForm max_per_club
-- 42857532 feat(196): Cross-Cutting P1-Sweep — 16 Findings closed (Track A+B+C parallel)
-- 3a1ce3df feat(fantasy): Slice 195d — Bench + Auto-Sub (parallel-dispatch L)
-- 687500c9 chore(bots+ops): Slice 195 Bot-Loop-Wrapper + nahtloser Handoff
-- 51303125 feat(fantasy): Slice 195c — Event max_per_club Constraint (Backend)
-- ef77476c feat(fantasy): Slice 195b — Boost-Chip Rename + Captain-only-Constraint + AR-44 Hardening
+## Session Commits: 10
+- 132e1bcd feat(199): heal Service-Duplicate + LOG + Reviewer PASS — punch-list 59->63/98 (~64%)
+- 1051b866 Merge branch 'worktree-agent-a32f714344d5ed9a3'
+- 43ed0253 Merge branch 'worktree-agent-a51bad5908a5cb028'
+- 257bc242 feat(199-frontend): 4 UI-Consumers + fm 1.3 In-Lineup-Filter
+- 13dc6b69 feat(199-backend): 3 SECURITY DEFINER aggregate-RPCs + service-layer
+- 8dfef96d feat(199-backend): 3 read-only Aggregat-RPCs + Service-Layer + Tests
+- 8e579a51 chore(199): SPEC + activate Slice 199 BUILD-stage (3 RPCs + 4 UI-Consumers)
+- 0edf1c3e docs(198b): LOG + Reviewer-Verdict PASS + active idle + punch-list 48->59/98 (~60%)
+- cd137728 Merge branch 'worktree-agent-ab49be2c93d17b1f1'
+- 632dbfff Merge branch 'worktree-agent-aef43e9a16fa0902b'
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Resume-Anker (2026-04-25 autonomous run, post-/clear restartable)
+# Resume-Anker (2026-04-26 autonomous run #2 — komplett durch)
 
 **Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
-1. `worklog/active.md` — aktueller Slice-State
-2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, 6 closed, Slice-Pipeline
-3. Diese Datei (Resume-Anker, weiter unten)
-4. `worklog/log.md` Top 5 Eintraege
+1. `worklog/active.md` — aktueller Slice-State (idle)
+2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, 63 closed (~64%)
+3. Diese Datei (Resume-Anker)
+4. `worklog/log.md` Top 5 Eintraege (199, 198b, 198, 197d, 197c)
 5. `git status --short` + `git log --oneline -10`
 
-## Aktueller Stand (Session-End 2026-04-25 — autonomous run komplett)
+## Session-End 2026-04-26 — autonomous run #2 komplett
 
-**Phase B Polish-Sweep groesster Anteil geschafft. 7 Slices committed+pushed heute. 32/98 closed (~33%). Ready fuer /clear.**
+**3 Major Slices durchgezogen + Hygiene + DISTILL. 8 Slices total heute (195a-d, 196, 197a/b/c/d/e, 198, 198b, 199), 63/98 closed (~64%). Punch-Liste sauber dokumentiert. Ready für /clear.**
 
 ### Pipeline-Status (alle gepusht)
 
 | Slice | Commit | Findings closed |
 |---|---|---|
-| 195a-c (prior) | (3 prior) | 4 P0 (Captain-Mult, Boost-Chip, max_per_club) |
-| 195d Bench + Auto-Sub | 3a1ce3df | +1 P0 (F-03 Bench/Auto-Sub) |
+| 195a-d (prior) | (4 prior) | 5 P0 (Captain/Boost/max_per_club/Bench+Auto-Sub) |
 | 196 Cross-Cutting P1 | 42857532 | +16 (Brand 7 + UX 8 + FM 1) |
-| 195e + 195c-UI | b40178f5 | +5 (F-07, F-11, fm 2.1, fm 2.2 + F-06 UI) |
+| 195e + 195c-UI | b40178f5 | +5 (F-07/F-11/fm 2.1/2.2 + F-06 UI) |
 | 197 Wave 1 (a/b/e) | 74b5272c | +3 P1 (fm 1.1, F-08, K-01) |
 | 197c Formationen | 947d469b | +1 P0 (F-02) |
 | 197d MV-Trend | c20d1d16 | +2 P1 (fm 1.2, fm 4.1) |
-| **TOTAL** | — | **32/98 closed (~33%)** |
+| **198 Polish-Sweep Wave 1** | cbc2df92+heal | **+16** (Brand+UX+FM+Fantasy 4-Track) |
+| **198b Polish-Sweep Wave 2** | 0edf1c3e | **+11** (UX+FM+Fantasy 3-Track) |
+| **199 Backend-Aggregat-RPCs** | 132e1bcd | **+4** (C-05+K-02+fm 2.4+fm 1.3) |
+| **TOTAL Session 2026-04-25/26** | — | **63/98 closed (~64%)** |
+
+### Knowledge-Compilation (DISTILL Slice 198/199)
+
+- **D45 PROCESS:** Worktree-Awareness-Briefing als Pflicht-Block (50%→0% Trap-Rate über 5 Tracks empirisch validiert)
+- **D46 PROCESS:** Service-Schnittstelle vorab spezifizieren bei parallelem BE+FE-Dispatch (Slice 199 Reviewer-Find)
+- **D47 PROCESS:** Skip-Pattern-Bündelung — gebündelte Wave-Slice (Slice 199 als Erfolgs-Beispiel)
+
+### Pattern-Codify
+
+- `errors-frontend.md` neue Section "Service-Duplicate bei parallelem BE+FE-Dispatch"
+- `errors-frontend.md` (Slice 198) neue Section "Missing i18n-Key bei neuer CTA-Component"
+- `patterns.md #34` "Worktree-Awareness-Trap" (Slice 198 codifiziert)
+
+### Audit-Status
+
+- **silent-fail-audit 2026-04-26:** 194 findings (94 HIGH, 102 MEDIUM)
+- HIGH 93→92 (gesunken — kein CI-Block)
+- Baseline updated `.audit-baseline.json`
+- Bot-Loop persistent im Hintergrund (re-start 17:45 UTC, 4h auto-stop)
+
+### Naechste Session — Slice 200 (CEO-Approval pending)
+
+**Slice 200** = fm 4.4 `players.trades_volume_7d` Column-Migration + Aggregations-Strategie:
+- Schema-Change auf existing `players` table → CEO-Scope (ceo-approval-matrix)
+- Aggregations-Strategie-Decision pending: Trigger vs Materialized-View vs neuer Cron (Vercel-Hobby-Limit)
+- Plus Frontend Sort-Pill in MarketFilters
+
+**Wave 3 Polish-Sweep** (~30 P2/P3 Restposten — Brand 6, UX 9, FM 11, Fantasy 9). Kein Backend, low-risk. CTO-scope.
+
+### Bei /clear oder Token-Limit Resume
+
+1. `worklog/active.md` (idle, Slice 200 + Wave 3 als Backlog dokumentiert)
+2. `worklog/punch-list-2026-04-25.md` (63/98 closed, Pipeline + Skip-Reasons)
+3. `worklog/log.md` Top 5 Eintraege
+4. `git log --oneline -15` — 132e1bcd Slice 199 Heal+LOG ist HEAD
+5. `git worktree list` (sollte nur main sein)
+
+### Anil-Action-Items (Mensch-only)
+
+- 3 Beta-Tester organisieren (1 TR, 1 FM-Power, 1 Casual)
+- Vercel-Plan-Decision (Hobby vs Pro) — aktuell Hobby reicht
+- TR-Locale-Reviewer organisieren
+- **Slice 200 Aggregations-Strategie-Approval** (3 Optionen)
+- Inkognito-Verify auf bescout.net Manager → keine Ghost-Rows (Slice 192/193 + neue 199 Top-Predictor/Most-Owned/Difficulty-UI testen)
+
+### Vercel-Cron-Status
+
+12 Crons in vercel.json, alle daily. Kein neuer Cron diese Session (Hobby-kompatibel).
 
 ### Phase-A-Findings-Status
 

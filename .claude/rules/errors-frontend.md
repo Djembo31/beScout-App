@@ -114,6 +114,14 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - Reference: Slice 198 Track C `KaderPlayerRow.tsx:301` — `manager.quickLineupAction` fehlte in beiden Locales. Reviewer-Agent caught Post-Build (Slice 198 Heal).
 - Beziehung zu i18n-Key-Leak: gleiche Bug-Klasse, andere Achse (Leak = Service-Error-Path, hier = Component-Render-Path).
 
+### Service-Duplicate bei parallelem BE+FE-Dispatch (Slice 199, Reviewer-Find — D46)
+- BE-Agent + FE-Agent in parallelen Worktrees implementieren denselben Service unabhängig (z.B. `getTopPredictorsLeaderboard` in `src/lib/services/leaderboards.ts` UND `src/features/fantasy/services/predictions.queries.ts`).
+- Symptom: FE-Hook nutzt FE-Variante → BE's Service-File ist **orphan production-code** (kein Import). TSC clean, keine Errors. Drift-Risk: Wenn Schema-Änderung, müssen beide synchronisiert werden.
+- Detection (post-merge): `grep -rn "import.*from.*'<be-service-path>'" src/` — wenn 0 Results: orphan.
+- Fix-Pattern (Slice 199): canonical Service-File behalten, Duplicate löschen, Hook-Import re-routen.
+- Prevention (D46): SPEC-Sektion "Service-Schnittstelle" pflicht bei Cross-Domain-Slices — kanonischer File-Pfad + exakte Signatur vorab spezifizieren.
+- Reviewer-Pflicht: Bei Cross-Domain-Slices `grep` für duplicate exports im post-merge-Diff.
+
 ### Hardcoded German addToast/Error-Strings (Slice 196 Track B)
 - User-facing components mit `addToast('Ein Fehler ist aufgetreten', 'error')` oder `addToast('Speichern fehlgeschlagen', 'success')` umgehen i18n und brechen TR-Locale komplett (TR-User sieht DE-Text).
 - Identische Klasse zu i18n-Key-Leak oben, nur Toast-Pfad statt setError.
