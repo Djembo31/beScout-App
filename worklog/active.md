@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 200a
-stage: LOG
-spec: worklog/specs/200a-wave3-polish-sweep.md
-impact: skipped (kein Schema/RPC/Service, pure Frontend)
-proof: worklog/proofs/200a-tsc-vitest.txt
-review: worklog/reviews/200a-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
