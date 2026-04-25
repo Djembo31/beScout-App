@@ -15,6 +15,7 @@ const config: Config = {
         "vivid-green": "#00E676",
         "vivid-red": "#FF3B69",
         "bg-main": "#0a0a0a",
+        "status-doubtful": "#F59E0B", // Slice 196 — status-doubtful Token (replaces tailwind yellow-400/500)
         surface: {
           minimal: "rgba(255,255,255,0.02)",
           subtle: "rgba(255,255,255,0.03)",

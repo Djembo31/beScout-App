@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Card, CosmeticAvatar } from '@/components/ui';
+import { Card, CosmeticAvatar, ErrorState } from '@/components/ui';
 import { RangScorePill } from '@/components/ui/RangBadge';
 import { useFriendsLeaderboard } from '@/lib/queries/gamification';
 import { getMedianScore } from '@/lib/services/scoutScores';
@@ -14,7 +14,7 @@ export function FriendsLeaderboard() {
   const { user } = useUser();
   const t = useTranslations('rankings');
 
-  const { data: entries = [], isLoading } = useFriendsLeaderboard(user?.id);
+  const { data: entries = [], isLoading, isError, refetch } = useFriendsLeaderboard(user?.id);
 
   return (
     <Card className="p-5">
@@ -27,6 +27,8 @@ export function FriendsLeaderboard() {
         <div className="flex justify-center py-6">
           <Loader2 className="size-5 animate-spin text-white/30" />
         </div>
+      ) : isError ? (
+        <ErrorState onRetry={() => refetch()} />
       ) : entries.length === 0 ? (
         <p className="text-white/40 text-sm text-center py-6">{t('noFriends')}</p>
       ) : (

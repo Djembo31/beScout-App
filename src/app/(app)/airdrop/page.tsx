@@ -71,7 +71,7 @@ export default function AirdropPage() {
             <div className="text-[10px] text-white/40">{t('avgScore')}</div>
           </div>
           <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
-            <div className="text-lg font-mono font-black tabular-nums" style={{ color: '#FFD700' }}>{stats.tier_distribution.gold}</div>
+            <div className="text-lg font-mono font-black tabular-nums text-gold">{stats.tier_distribution.gold}</div>
             <div className="text-[10px] text-white/40">Gold Tier</div>
           </div>
           <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">

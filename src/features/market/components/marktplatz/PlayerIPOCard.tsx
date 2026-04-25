@@ -149,7 +149,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] font-bold',
               player.status === 'injured' && 'bg-red-500/10 border-red-500/20 text-red-300',
               player.status === 'suspended' && 'bg-purple-500/10 border-purple-500/20 text-purple-300',
-              player.status === 'doubtful' && 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300',
+              player.status === 'doubtful' && 'bg-status-doubtful/10 border-status-doubtful/20 text-status-doubtful',
             )}>
               {player.status === 'injured' && tp('injured', { defaultMessage: 'Verletzt' })}
               {player.status === 'suspended' && tp('suspended', { defaultMessage: 'Gesperrt' })}

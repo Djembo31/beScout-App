@@ -13,7 +13,7 @@ import {
   Package,
   ArrowRight,
 } from 'lucide-react';
-import { Card, EmptyState } from '@/components/ui';
+import { Card, EmptyState, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMysteryBoxHistory } from '@/lib/queries/mysteryBox';
@@ -90,7 +90,7 @@ export default function MysteryBoxHistorySection() {
 
   const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
-  const { data: history = [], isLoading } = useMysteryBoxHistory(uid, HISTORY_LIMIT);
+  const { data: history = [], isLoading, isError, refetch } = useMysteryBoxHistory(uid, HISTORY_LIMIT);
   // FIX-02: Equipment-Definitions für Key→Name-Lookup in History-Eintraegen.
   // 5min staleTime (static config), kein Loading-Guard noetig — fallback auf Key.
   const { data: equipmentDefs = [] } = useEquipmentDefinitions();
@@ -103,6 +103,10 @@ export default function MysteryBoxHistorySection() {
         <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
       </div>
     );
+  }
+
+  if (isError) {
+    return <ErrorState onRetry={() => refetch()} />;
   }
 
   if (history.length === 0) {

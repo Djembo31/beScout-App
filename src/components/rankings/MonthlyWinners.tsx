@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Card, CosmeticAvatar } from '@/components/ui';
+import { Card, CosmeticAvatar, ErrorState } from '@/components/ui';
 import { useMonthlyLigaWinners } from '@/lib/queries/gamification';
 import { fmtScout } from '@/lib/utils';
 import { Loader2, Crown, Medal, Info } from 'lucide-react';
@@ -20,7 +20,7 @@ export function MonthlyWinners() {
   const t = useTranslations('rankings');
   const locale = useLocale();
 
-  const { data: winners = [], isLoading } = useMonthlyLigaWinners();
+  const { data: winners = [], isLoading, isError, refetch } = useMonthlyLigaWinners();
 
   // Group winners by month
   const byMonth = new Map<string, typeof winners>();
@@ -47,6 +47,8 @@ export function MonthlyWinners() {
         <div className="flex justify-center py-6">
           <Loader2 className="size-5 animate-spin text-white/30" />
         </div>
+      ) : isError ? (
+        <ErrorState onRetry={() => refetch()} />
       ) : months.length === 0 ? (
         <div className="text-center py-6">
           <Medal className="size-8 text-white/20 mx-auto mb-2" />

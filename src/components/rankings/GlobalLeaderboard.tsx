@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui';
+import { Card, ErrorState } from '@/components/ui';
 import { RangScorePill } from '@/components/ui/RangBadge';
 import { CosmeticAvatar } from '@/components/ui';
 import { qk } from '@/lib/queries/keys';
@@ -24,7 +24,7 @@ export function GlobalLeaderboard() {
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const [activeDim, setActiveDim] = useState<DimTab>('overall');
 
-  const { data: entries = [], isLoading } = useQuery({
+  const { data: entries = [], isLoading, isError, refetch } = useQuery({
     queryKey: qk.gamification.leaderboardByDim(activeDim, 100),
     queryFn: () => getScoutLeaderboard(activeDim === 'overall' ? 'overall' : activeDim, 100),
     staleTime: 5 * 60 * 1000,
@@ -59,6 +59,8 @@ export function GlobalLeaderboard() {
         <div className="flex justify-center py-8">
           <Loader2 className="size-5 animate-spin text-white/30" />
         </div>
+      ) : isError ? (
+        <ErrorState onRetry={() => refetch()} />
       ) : entries.length === 0 ? (
         <p className="text-white/40 text-sm text-center py-6">{t('noData')}</p>
       ) : (

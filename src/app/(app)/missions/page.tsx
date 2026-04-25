@@ -4,9 +4,23 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { Target, Flame, Sparkles } from 'lucide-react';
-import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import NewUserTip from '@/components/onboarding/NewUserTip';
+import { Skeleton } from '@/components/ui';
+
+// Page-level loading skeleton (auth-hydration phase).
+const MissionsPageSkeleton = () => (
+  <div className="max-w-[800px] mx-auto px-4 py-6 space-y-6">
+    <div>
+      <Skeleton className="h-6 w-40 mb-2" />
+      <Skeleton className="h-4 w-72" />
+    </div>
+    <Skeleton className="h-12 rounded-xl" />
+    <Skeleton className="h-40 rounded-2xl" />
+    <Skeleton className="h-32 rounded-2xl" />
+    <Skeleton className="h-48 rounded-2xl" />
+  </div>
+);
 
 import { useUser } from '@/components/providers/AuthProvider';
 import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
@@ -160,11 +174,7 @@ export default function MissionsPage() {
   }, [uid, streakBenefits.mysteryBoxTicketDiscount, queryClient]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-24">
-        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" />
-      </div>
-    );
+    return <MissionsPageSkeleton />;
   }
 
   return (

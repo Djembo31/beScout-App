@@ -3,11 +3,13 @@
 import { Suspense, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, Users, Briefcase, History } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
-import { SkeletonCard } from '@/components/ui';
+import { SkeletonCard, ErrorState } from '@/components/ui';
+import { qk } from '@/lib/queries/keys';
 import { useManagerData } from '../hooks/useManagerData';
 import { useManagerStore, type ManagerTab } from '../store/managerStore';
 import { useTradeActions } from '@/features/market/hooks/useTradeActions';
@@ -40,6 +42,7 @@ function ManagerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, loading: userLoading } = useUser();
+  const queryClient = useQueryClient();
 
   const storeActiveTab = useManagerStore((s) => s.activeTab);
   const setActiveTab = useManagerStore((s) => s.setActiveTab);
@@ -49,7 +52,7 @@ function ManagerInner() {
   const activeTab: ManagerTab = isValidTab(tabParam) ? tabParam : storeActiveTab;
 
   const {
-    players, mySquadPlayers, healthCounts, playersLoading,
+    players, mySquadPlayers, healthCounts, playersLoading, playersError,
     holdings, ipoList, incomingOffers,
   } = useManagerData(user?.id);
 
@@ -83,6 +86,14 @@ function ManagerInner() {
     return (
       <div className="text-center py-24 text-white/40 text-sm">
         {t('notSignedIn')}
+      </div>
+    );
+  }
+
+  if (playersError) {
+    return (
+      <div className="max-w-[1100px] mx-auto px-4 py-12">
+        <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
       </div>
     );
   }

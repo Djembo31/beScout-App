@@ -88,7 +88,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
   };
 
   return (
-    <Dialog open={true} onClose={onClose} title={mode === 'followers' ? tp('followers') : tp('followingTitle')}>
+    <Dialog open={true} onClose={onClose} preventClose={!!toggling} title={mode === 'followers' ? tp('followers') : tp('followingTitle')}>
       {loading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />

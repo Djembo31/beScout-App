@@ -16,14 +16,14 @@ interface StatsTabProps {
 
 const STATUS_DOT: Record<string, string> = {
   fit: 'bg-green-400',
-  doubtful: 'bg-yellow-400',
+  doubtful: 'bg-status-doubtful',
   injured: 'bg-red-400',
   suspended: 'bg-purple-400',
 };
 
 const STATUS_TEXT: Record<string, string> = {
   fit: 'text-green-300',
-  doubtful: 'text-yellow-300',
+  doubtful: 'text-status-doubtful',
   injured: 'text-red-300',
   suspended: 'text-purple-300',
 };

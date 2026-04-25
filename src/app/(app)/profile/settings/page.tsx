@@ -10,6 +10,7 @@ import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/servic
 import { getAllClubsCached } from '@/lib/clubs';
 import { uploadAvatar } from '@/lib/services/avatars';
 import { getNotificationPreferences, updateNotificationPreferences, NOTIFICATION_CATEGORIES } from '@/lib/services/notifications';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { NotificationCategory } from '@/types';
@@ -19,6 +20,7 @@ type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'u
 export default function ProfileSettingsPage() {
   const { user, profile, loading, refreshProfile } = useUser();
   const t = useTranslations('profile');
+  const te = useTranslations('errors');
 
   const [handle, setHandle] = useState('');
   const [handleStatus, setHandleStatus] = useState<HandleStatus>('idle');
@@ -146,11 +148,12 @@ export default function ProfileSettingsPage() {
       await refreshProfile();
       setProfileMsg({ type: 'success', text: t('saved') });
     } catch (err) {
-      setProfileMsg({ type: 'error', text: err instanceof Error ? err.message : t('saveFailed') });
+      const key = mapErrorToKey(normalizeError(err));
+      setProfileMsg({ type: 'error', text: te(key) });
     } finally {
       setSavingProfile(false);
     }
-  }, [user, handle, displayNameVal, bio, favoriteClub, profile?.handle, canSaveProfile, refreshProfile, t]);
+  }, [user, handle, displayNameVal, bio, favoriteClub, profile?.handle, canSaveProfile, refreshProfile, t, te]);
 
   const handleSaveAccount = useCallback(async () => {
     if (!user) return;
@@ -163,11 +166,12 @@ export default function ProfileSettingsPage() {
       setAccountMsg({ type: 'success', text: t('settingsSaved') });
       window.location.reload();
     } catch (err) {
-      setAccountMsg({ type: 'error', text: err instanceof Error ? err.message : t('saveFailed') });
+      const key = mapErrorToKey(normalizeError(err));
+      setAccountMsg({ type: 'error', text: te(key) });
     } finally {
       setSavingAccount(false);
     }
-  }, [user, language, refreshProfile, t]);
+  }, [user, language, refreshProfile, t, te]);
 
   const handleAvatarUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

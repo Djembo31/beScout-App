@@ -3,9 +3,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { Loader2 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
+import { SkeletonCard } from '@/components/ui';
 import { useManagerStore } from '../../store/managerStore';
 import { useOpenEvents, pickDefaultEvent } from '../../queries/eventQueries';
 import { useLineupBuilder } from '@/features/fantasy/hooks/useLineupBuilder';
@@ -227,12 +227,6 @@ export default function AufstellenTab() {
     captainSlot: lb.captainSlot,
     wildcardSlots: lb.wildcardSlots,
     equipmentMap: lb.equipmentMap,
-    // Slice 195d — Bench + Auto-Sub
-    benchGk: lb.benchGk,
-    benchO1: lb.benchO1,
-    benchO2: lb.benchO2,
-    benchO3: lb.benchO3,
-    benchOrder: lb.benchOrder,
     onJoin: joinEvent,
     onSubmitLineup: submitLineup,
   });
@@ -266,8 +260,10 @@ export default function AufstellenTab() {
   // ==================== Loading + empty states ====================
   if (eventsLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
+      <div className="space-y-3">
+        <SkeletonCard className="h-16" />
+        <SkeletonCard className="h-32" />
+        <SkeletonCard className="h-32" />
       </div>
     );
   }
@@ -345,12 +341,6 @@ export default function AufstellenTab() {
         onToggleWildcard={lb.onToggleWildcard}
         equipmentMap={lb.equipmentMap}
         onEquipmentTap={lb.handleEquipmentTap}
-        /* Slice 195d — Bench + Auto-Sub */
-        benchOrder={lb.benchOrder}
-        getBenchPlayer={lb.getBenchPlayer}
-        getAvailablePlayersForBench={lb.getAvailablePlayersForBench}
-        onSetBenchSlot={lb.handleSetBenchSlot}
-        onMoveBenchOrder={lb.handleMoveBenchOrder}
       />
 
       {/* Equipment Picker Modal */}

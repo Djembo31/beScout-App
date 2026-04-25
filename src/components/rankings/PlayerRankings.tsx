@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui';
+import { Card, ErrorState } from '@/components/ui';
 import { PlayerPhoto } from '@/components/player';
 import { supabase } from '@/lib/supabaseClient';
 import { fmtScout } from '@/lib/utils';
@@ -46,7 +46,7 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
 
   const orderCol = sort === 'floor' ? 'floor_price' : sort === 'volume' ? 'volume_24h' : 'price_change_24h';
 
-  const { data: allPlayers = [], isLoading } = useQuery({
+  const { data: allPlayers = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['rankings', 'players', sort],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -111,6 +111,8 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
         <div className="flex justify-center py-6">
           <Loader2 className="size-5 animate-spin text-white/30" />
         </div>
+      ) : isError ? (
+        <ErrorState onRetry={() => refetch()} />
       ) : players.length === 0 ? (
         <p className="text-white/40 text-sm text-center py-6">{t('noData')}</p>
       ) : (

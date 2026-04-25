@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui';
+import { Card, ErrorState } from '@/components/ui';
 import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
 import { RadarChart } from '@/components/profile/RadarChart';
 import { useScoutScores, useCurrentLigaSeason } from '@/lib/queries/gamification';
@@ -16,7 +16,7 @@ export function SelfRankCard() {
   const locale = useLocale();
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
-  const { data: scores, isLoading: scoresLoading } = useScoutScores(user?.id);
+  const { data: scores, isLoading: scoresLoading, isError: scoresError, refetch: refetchScores } = useScoutScores(user?.id);
   const { data: season } = useCurrentLigaSeason();
 
   if (scoresLoading) {
@@ -25,6 +25,10 @@ export function SelfRankCard() {
         <Loader2 className="size-5 animate-spin text-white/30" />
       </Card>
     );
+  }
+
+  if (scoresError) {
+    return <ErrorState onRetry={() => refetchScores()} />;
   }
 
   if (!scores) {

@@ -11,6 +11,7 @@ import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart
 import type { RadarDataSet } from '@/components/player/RadarChart';
 import { centsToBsd } from '@/lib/services/players';
 import { useRawPlayers } from '@/lib/queries/players';
+import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout, cn } from '@/lib/utils';
 import type { DbPlayer, Pos } from '@/types';
 
@@ -22,6 +23,7 @@ export default function ComparePage() {
   const { data: allPlayers = [], isLoading, isError, refetch } = useRawPlayers();
   const t = useTranslations('compare');
   const tp = useTranslations('player');
+  const { addToast } = useToast();
   const radarLabels = {
     goals: tp('statGoals'), assists: tp('statAssists'), cleanSheets: tp('statCS'),
     matches: tp('statMatches'), perfL5: tp('statL5'), perfL15: tp('statL15'),
@@ -76,7 +78,7 @@ export default function ComparePage() {
   const handleShare = () => {
     const params = selectedIds.map((id, i) => `p${i + 1}=${id}`).join('&');
     const url = `${window.location.origin}/compare?${params}`;
-    navigator.clipboard.writeText(url).then(() => alert(t('linkCopied'))).catch(err => console.error('[Compare] Clipboard write failed:', err));
+    navigator.clipboard.writeText(url).then(() => addToast(t('linkCopied'), 'success')).catch(err => console.error('[Compare] Clipboard write failed:', err));
   };
 
   // Build radar datasets

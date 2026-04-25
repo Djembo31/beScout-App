@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Sparkles, Loader2, Frame, Type, Flame, Award, Wand2 } from 'lucide-react';
-import { Card, EmptyState } from '@/components/ui';
+import { Card, EmptyState, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useUserCosmetics } from '@/lib/queries/cosmetics';
@@ -46,7 +46,7 @@ export default function CosmeticsSection() {
   const { user } = useUser();
   const uid = user?.id;
 
-  const { data: cosmetics = [], isLoading } = useUserCosmetics(uid);
+  const { data: cosmetics = [], isLoading, isError, refetch } = useUserCosmetics(uid);
 
   // Group by category (type), preserve TYPE_ORDER ordering
   const grouped = useMemo(() => {
@@ -73,6 +73,10 @@ export default function CosmeticsSection() {
         <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
       </div>
     );
+  }
+
+  if (isError) {
+    return <ErrorState onRetry={() => refetch()} />;
   }
 
   if (grouped.length === 0) {

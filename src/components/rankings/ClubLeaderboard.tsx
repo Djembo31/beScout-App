@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Card, CosmeticAvatar } from '@/components/ui';
+import { Card, CosmeticAvatar, ErrorState } from '@/components/ui';
 import { RangScorePill } from '@/components/ui/RangBadge';
 import { useClubLeaderboard } from '@/lib/queries/gamification';
 import { getMedianScore } from '@/lib/services/scoutScores';
@@ -16,7 +16,7 @@ export function ClubLeaderboard() {
   const { activeClub } = useClub();
   const t = useTranslations('rankings');
 
-  const { data: entries = [], isLoading } = useClubLeaderboard(activeClub?.id);
+  const { data: entries = [], isLoading, isError, refetch } = useClubLeaderboard(activeClub?.id);
 
   return (
     <Card className="p-5">
@@ -34,6 +34,8 @@ export function ClubLeaderboard() {
         <div className="flex justify-center py-6">
           <Loader2 className="size-5 animate-spin text-white/30" />
         </div>
+      ) : isError ? (
+        <ErrorState onRetry={() => refetch()} />
       ) : entries.length === 0 ? (
         <p className="text-white/40 text-sm text-center py-6">{t('noData')}</p>
       ) : (

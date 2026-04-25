@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { Card, EmptyState } from '@/components/ui';
+import { Card, EmptyState, ErrorState } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWildcardBalance } from '@/lib/queries/events';
 
@@ -16,7 +16,7 @@ export default function WildcardsSection() {
   const { user } = useUser();
   const uid = user?.id;
 
-  const { data: balance = 0, isLoading } = useWildcardBalance(uid);
+  const { data: balance = 0, isLoading, isError, refetch } = useWildcardBalance(uid);
 
   if (isLoading) {
     return (
@@ -24,6 +24,10 @@ export default function WildcardsSection() {
         <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
       </div>
     );
+  }
+
+  if (isError) {
+    return <ErrorState onRetry={() => refetch()} />;
   }
 
   if (balance <= 0) {

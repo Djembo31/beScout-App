@@ -47,7 +47,7 @@ const EventDetailModal = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-bg-main/70 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" />
           <span className="text-sm text-white/50">...</span>

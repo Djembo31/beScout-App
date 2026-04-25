@@ -154,7 +154,7 @@ function FormBadge({ scores }: { scores: number[] }) {
     color = 'text-emerald-400 bg-emerald-400/10';
   } else if (sd <= 20) {
     label = t('formFluctuating');
-    color = 'text-yellow-400 bg-yellow-400/10';
+    color = 'text-status-doubtful bg-status-doubtful/10';
   } else {
     label = t('formVolatile');
     color = 'text-red-400 bg-red-400/10';

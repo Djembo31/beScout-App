@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { Card, CosmeticAvatar } from '@/components/ui';
+import { Card, CosmeticAvatar, ErrorState } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getUserFantasyHistory } from '@/features/fantasy/services/lineups.queries';
 import { getEventLeaderboard } from '@/features/fantasy/services/scoring.queries';
@@ -18,7 +18,7 @@ export function LastEventResults() {
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
   // Step 1: Get the user's last scored event
-  const { data: history, isLoading: historyLoading } = useQuery({
+  const { data: history, isLoading: historyLoading, isError: historyError, refetch: refetchHistory } = useQuery({
     queryKey: ['rankings', 'lastEvent', user?.id],
     queryFn: () => getUserFantasyHistory(user!.id, 1),
     enabled: !!user?.id,
@@ -28,7 +28,7 @@ export function LastEventResults() {
   const lastEvent = history?.[0];
 
   // Step 2: Get the leaderboard for that event
-  const { data: leaderboard = [], isLoading: lbLoading } = useQuery({
+  const { data: leaderboard = [], isLoading: lbLoading, isError: lbError, refetch: refetchLb } = useQuery({
     queryKey: ['rankings', 'eventLeaderboard', lastEvent?.eventId],
     queryFn: () => getEventLeaderboard(lastEvent!.eventId),
     enabled: !!lastEvent?.eventId,
@@ -36,6 +36,11 @@ export function LastEventResults() {
   });
 
   const isLoading = historyLoading || (!!lastEvent && lbLoading);
+  const isError = historyError || lbError;
+  const handleRetry = () => {
+    if (historyError) refetchHistory();
+    if (lbError) refetchLb();
+  };
 
   return (
     <Card className="p-5">
@@ -48,6 +53,8 @@ export function LastEventResults() {
         <div className="flex justify-center py-6">
           <Loader2 className="size-5 animate-spin text-white/30" />
         </div>
+      ) : isError ? (
+        <ErrorState onRetry={handleRetry} />
       ) : !lastEvent ? (
         <div className="text-center py-6">
           <Swords className="size-8 text-white/20 mx-auto mb-2" />

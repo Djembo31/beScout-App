@@ -66,7 +66,7 @@ export const STATUS_CONFIG: Record<PlayerStatus, { labelKey: string; shortKey: s
   fit: { labelKey: 'status_fit', shortKey: 'statusFitShort', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500', icon: Heart },
   injured: { labelKey: 'status_injured', shortKey: 'statusInjuredShort', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', icon: AlertTriangle },
   suspended: { labelKey: 'status_suspended', shortKey: 'statusSuspendedShort', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400', icon: AlertTriangle },
-  doubtful: { labelKey: 'status_doubtful', shortKey: 'statusDoubtfulShort', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
+  doubtful: { labelKey: 'status_doubtful', shortKey: 'statusDoubtfulShort', bg: 'bg-status-doubtful/10', border: 'border-status-doubtful/20', text: 'text-status-doubtful', icon: HelpCircle },
 };
 
 export function StatusPill({ status }: { status: PlayerStatus }) {
@@ -90,7 +90,7 @@ export function MinutesPill({ minutes }: { minutes: number[] | undefined }) {
     return <span className="text-[10px] text-white/30 font-mono">&mdash;&apos;</span>;
   }
   const avg = Math.round(minutes.reduce((s, m) => s + m, 0) / minutes.length);
-  const color = avg >= 75 ? 'text-green-500' : avg >= 45 ? 'text-yellow-400' : 'text-red-400';
+  const color = avg >= 75 ? 'text-green-500' : avg >= 45 ? 'text-status-doubtful' : 'text-red-400';
   return (
     <span className={cn('text-[10px] font-mono font-bold', color)}>
       &empty;{avg}&apos;

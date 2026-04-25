@@ -99,6 +99,21 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - Nach JEDEM swallow→throw-Refactor ALLE gleichartigen Consumer-Pfade greppen.
 - Audit: `grep -n 'throw new Error' src/lib/services/` → Keys vs. `setError(err.message)`.
 
+### Hardcoded German addToast/Error-Strings (Slice 196 Track B)
+- User-facing components mit `addToast('Ein Fehler ist aufgetreten', 'error')` oder `addToast('Speichern fehlgeschlagen', 'success')` umgehen i18n und brechen TR-Locale komplett (TR-User sieht DE-Text).
+- Identische Klasse zu i18n-Key-Leak oben, nur Toast-Pfad statt setError.
+- Audit-CI-Detector: `grep -rn "addToast\\('[A-Z]" src/ | grep -v "bescout-admin\\|__tests__"`
+  - bescout-admin/* exempt: Admin-UI darf hardcoded DE bleiben (CEO-Decision).
+  - __tests__/* exempt: Test-Strings.
+- Fix-Pattern:
+  ```ts
+  const te = useTranslations('errors');
+  catch (err) {
+    addToast(te(mapErrorToKey(normalizeError(err))), 'error');
+  }
+  ```
+- Reference: Slice 196 Track B fixed founding/page.tsx + profile/settings/page.tsx + compare/page.tsx.
+
 ### Error-Messages nie dynamische Werte (J3 Triple-Red-Flag)
 - `throw new Error(\`Price exceeds maximum (${X} $SCOUT)\`)` hat 3 Probleme: DE/EN-Mix + $SCOUT-Ticker user-facing + dynamischer Wert.
 - Dynamic gehoert in Pre-Submit-Hints, nicht Post-Error.

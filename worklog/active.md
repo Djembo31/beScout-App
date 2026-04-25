@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 196 — Cross-Cutting P1-Sweep
+stage: BUILD
+spec: worklog/punch-list-2026-04-25.md (Slice 196 row)
+impact: inline (cross-cutting fixes, kein Money-Path, keine RPC, keine RLS)
+proof: pending
+review: pending
 ```
 
 ## Naechste Aktion

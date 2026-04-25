@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
-import { Ticket, Search, Zap, Crown, Check, Loader2, ShieldCheck } from 'lucide-react';
-import { Card, Button, Dialog } from '@/components/ui';
+import { Ticket, Search, Zap, Crown, Check, ShieldCheck } from 'lucide-react';
+import { Card, Button, Dialog, Skeleton } from '@/components/ui';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -18,6 +18,7 @@ import {
 import type { FoundingPassTierDef } from '@/lib/foundingPasses';
 import { grantFoundingPass, getHighestPass, getFoundingPassCounts } from '@/lib/services/foundingPasses';
 import { centsToBsd } from '@/lib/services/players';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { FoundingPassTier, DbUserFoundingPass } from '@/types';
 
 // ============================================
@@ -74,6 +75,7 @@ export default function FoundingPassPage() {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
   const t = useTranslations('founding');
+  const te = useTranslations('errors');
 
   // State — all hooks BEFORE any early returns
   const [counts, setCounts] = useState<{ total: number; byTier: Record<FoundingPassTier, number> } | null>(null);
@@ -122,11 +124,11 @@ export default function FoundingPassPage() {
         // Reload data to show updated state
         await loadData();
       } else {
-        addToast(result.error ?? 'Error', 'error');
+        addToast(result.error ? te(mapErrorToKey(result.error)) : te('generic'), 'error');
       }
     } catch (err) {
       console.error('[FoundingPass] purchase error:', err);
-      addToast('Ein Fehler ist aufgetreten', 'error');
+      addToast(te(mapErrorToKey(normalizeError(err))), 'error');
     } finally {
       setPurchasing(false);
     }
@@ -135,13 +137,25 @@ export default function FoundingPassPage() {
   // Loading state
   if (authLoading || loadingData) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="size-8 animate-spin text-gold motion-reduce:animate-none" />
+      <div className="max-w-6xl mx-auto px-4 py-6 md:py-10 space-y-8">
+        <div className="text-center space-y-3">
+          <Skeleton className="h-8 w-64 mx-auto" />
+          <Skeleton className="h-4 w-96 max-w-full mx-auto" />
+          <Skeleton className="h-3 w-full max-w-md mx-auto rounded-full" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-96 rounded-2xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
   const totalSold = counts?.total ?? 0;
+  const totalProgressPct = FOUNDING_PASS_TOTAL_LIMIT > 0
+    ? Math.min((totalSold / FOUNDING_PASS_TOTAL_LIMIT) * 100, 100)
+    : 0;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-10">
@@ -149,10 +163,25 @@ export default function FoundingPassPage() {
       <div className="text-center mb-8 md:mb-12">
         <h1 className="text-2xl md:text-4xl font-black text-white mb-2">{t('title')}</h1>
         <p className="text-sm md:text-base text-white/60 max-w-lg mx-auto mb-4">{t('subtitle')}</p>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-subtle border border-white/10">
-          <span className="text-sm font-mono tabular-nums text-white/80">
+
+        {/* Total Sales Progress Bar — sichtbarer Conversion-Hebel */}
+        <div className="max-w-md mx-auto">
+          <div
+            role="progressbar"
+            aria-valuenow={Math.round(totalProgressPct)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={t('totalCounter', { count: fmtScout(totalSold), total: fmtScout(FOUNDING_PASS_TOTAL_LIMIT) })}
+            className="h-2 bg-white/[0.06] rounded-full overflow-hidden"
+          >
+            <div
+              className="h-full bg-gradient-to-r from-[#FFE44D] to-[#E6B800] rounded-full transition-colors"
+              style={{ width: `${totalProgressPct}%` }}
+            />
+          </div>
+          <div className="mt-2 text-sm font-mono tabular-nums text-white/70">
             {t('totalCounter', { count: fmtScout(totalSold), total: fmtScout(FOUNDING_PASS_TOTAL_LIMIT) })}
-          </span>
+          </div>
         </div>
       </div>
 
@@ -266,6 +295,8 @@ function TierCard({
   const isPopular = tierDef.tier === 'pro';
   const soldOut = soldCount >= limit;
   const disabled = userHasPass || soldOut || !loggedIn;
+  const tierProgressPct = limit > 0 ? Math.min((soldCount / limit) * 100, 100) : 0;
+  const tierLabel = t('tierCounter', { count: fmtScout(soldCount), limit: fmtScout(limit) });
 
   return (
     <div className={cn(
@@ -343,11 +374,29 @@ function TierCard({
               : t('buyButton')}
       </Button>
 
-      {/* Tier counter */}
-      <div className="mt-3 text-center">
-        <span className="text-xs text-white/40 font-mono tabular-nums">
-          {t('tierCounter', { count: fmtScout(soldCount), limit: fmtScout(limit) })}
-        </span>
+      {/* Tier progress bar + counter */}
+      <div className="mt-3 space-y-1">
+        <div
+          role="progressbar"
+          aria-valuenow={Math.round(tierProgressPct)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={tierLabel}
+          className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
+        >
+          <div
+            className={cn(
+              'h-full rounded-full transition-colors',
+              soldOut ? 'bg-red-400' : tierProgressPct >= 80 ? 'bg-amber-400' : 'bg-gold',
+            )}
+            style={{ width: `${tierProgressPct}%` }}
+          />
+        </div>
+        <div className="text-center">
+          <span className="text-xs text-white/40 font-mono tabular-nums">
+            {tierLabel}
+          </span>
+        </div>
       </div>
     </div>
   );

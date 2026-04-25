@@ -3,11 +3,30 @@
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { Package, Loader2, Swords, Sparkles, Gift } from 'lucide-react';
+import { Package, Swords, Sparkles, Gift } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
+import { Skeleton } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
+
+// ============================================
+// Page-level skeleton (header + tabs + tab content)
+// ============================================
+const InventoryPageSkeleton = () => (
+  <div className="max-w-[1000px] mx-auto px-4 py-6 space-y-6">
+    <div>
+      <Skeleton className="h-6 w-40 mb-2" />
+      <Skeleton className="h-4 w-72" />
+    </div>
+    <div className="flex gap-2">
+      {[...Array(4)].map((_, i) => (
+        <Skeleton key={i} className="h-10 w-24 rounded-xl shrink-0" />
+      ))}
+    </div>
+    <Skeleton className="h-64 rounded-2xl" />
+  </div>
+);
 
 // ============================================
 // Dynamic imports — heavy sections lazy-loaded
@@ -97,11 +116,7 @@ function InventoryContent() {
   );
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-24">
-        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
-      </div>
-    );
+    return <InventoryPageSkeleton />;
   }
 
   if (!user) {
@@ -148,13 +163,7 @@ function InventoryContent() {
 // ============================================
 export default function InventoryPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-24">
-          <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
-        </div>
-      }
-    >
+    <Suspense fallback={<InventoryPageSkeleton />}>
       <InventoryContent />
     </Suspense>
   );
