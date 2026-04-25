@@ -276,6 +276,7 @@ describe('getPredictionStats', () => {
       wrong: 0,
       accuracy: 0,
       bestStreak: 0,
+      currentStreak: 0,
       totalPoints: 0,
     });
   });

@@ -918,7 +918,8 @@
     "entryCost": "Giriş ücreti",
     "scoutEventsNotAvailable": "Credits etkinlikler şu anda kullanılamıyor.",
     "liveUpdating": "Sıralama canlı güncelleniyor",
-    "eventLockedError": "Etkinlik zaten kilitli — artık ayrılamazsınız"
+    "eventLockedError": "Etkinlik zaten kilitli — artık ayrılamazsınız",
+    "formTrendTooltip": "Form trendi: sezon ortalamasına göre {delta}"
   },
   "predictions": {
     "title": "Tahminler",
@@ -984,7 +985,14 @@
     "cardLabel": "Kart",
     "cleanSheetLabel": "Gol Yemeden",
     "minutesLabel": "≥60 Dk",
-    "goalsLabel": "Gol"
+    "goalsLabel": "Gol",
+    "streakBadge": "Üst üste {count}",
+    "streakTooltip": "Mevcut seri: üst üste {count} doğru tahmin",
+    "difficultyTitle": "Zorluk",
+    "difficultyEasy": "Kolay (favori belli)",
+    "difficultyMedium": "Orta",
+    "difficultyHard": "Zor (dengeli maç)",
+    "difficultyHint": "Zorluk maç dengesine göre otomatik hesaplanır — zor tahminler daha çok puan verir."
   },
   "leagues": {
     "title": "Liglerim",
@@ -2957,7 +2965,8 @@
     "sortFloor": "Taban Fiyat",
     "sortVolume": "24s Hacim",
     "sortChange": "24s Değişim",
-    "rewardPendingTooltip": "Ödül sezon sonunda ödenecek"
+    "rewardPendingTooltip": "Ödül sezon sonunda ödenecek",
+    "tierPromotion": "{nextTier} için {points} puan kaldı"
   },
   "gamification": {
     "rang": {

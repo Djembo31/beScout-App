@@ -7,12 +7,14 @@ import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
 import { RadarChart } from '@/components/profile/RadarChart';
 import { useScoutScores, useCurrentLigaSeason } from '@/lib/queries/gamification';
 import { useUser } from '@/components/providers/AuthProvider';
-import { Loader2, TrendingUp } from 'lucide-react';
+import { Loader2, TrendingUp, ChevronUp } from 'lucide-react';
 import type { DimensionScores } from '@/lib/gamification';
+import { getMedianScore, getNextRang, getPointsToNextRang, getRang } from '@/lib/gamification';
 
 export function SelfRankCard() {
   const { user } = useUser();
   const t = useTranslations('rankings');
+  const tRang = useTranslations('gamification.rang');
   const locale = useLocale();
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
@@ -54,6 +56,16 @@ export function SelfRankCard() {
 
   // Season progress (months since start)
   const seasonProgress = getSeasonProgress(season?.start_date, season?.end_date);
+
+  // Slice 198d R-04: Tier-Promotion-CTA — zeige "noch X Punkte bis [naechster Rang]".
+  // Compliance-clean (kein "gewinne", "Sieg") — neutrale Promotion-Sprache.
+  const medianScore = getMedianScore(dimScores);
+  const currentRang = getRang(medianScore);
+  const nextRang = getNextRang(medianScore);
+  const pointsToNext = getPointsToNextRang(medianScore);
+  const tierProgressPct = currentRang.maxScore !== null
+    ? Math.min(100, Math.max(0, ((medianScore - currentRang.minScore) / (currentRang.maxScore + 1 - currentRang.minScore)) * 100))
+    : 100;
 
   return (
     <Card className="p-5">
@@ -108,6 +120,32 @@ export function SelfRankCard() {
                   className="h-full rounded-full bg-gold/60 transition-[width]"
                   style={{ width: `${seasonProgress}%` }}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* Slice 198d R-04: Tier-Promotion-CTA — neutral, kein "gewinne"/"Sieg"-Vokabel.
+               Versteckt bei Top-Tier (Legendaer). */}
+          {nextRang && pointsToNext > 0 && (
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
+              <div className="flex items-center gap-2 mb-1.5">
+                <ChevronUp className={cn('size-4 shrink-0', nextRang.color)} aria-hidden="true" />
+                <span className="text-xs text-white/60 flex-1">
+                  {t('tierPromotion', {
+                    points: pointsToNext.toLocaleString(numLocale),
+                    nextTier: tRang(nextRang.i18nKey),
+                  })}
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                <div
+                  className={cn('h-full rounded-full transition-[width]', nextRang.bgColor)}
+                  style={{ width: `${tierProgressPct}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[10px] font-mono text-white/30">{currentRang.fullName}</span>
+                <span className={cn('text-[10px] font-mono font-bold', nextRang.color)}>{tRang(nextRang.i18nKey)}</span>
               </div>
             </div>
           )}

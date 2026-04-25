@@ -185,6 +185,27 @@ export function getMedianScore(scores: DimensionScores): number {
   return sorted[1];
 }
 
+/**
+ * Slice 198d R-04: Hole den naechsten Rang fuer Tier-Promotion-CTA.
+ * Returns null wenn bereits Top-Tier (Legendaer).
+ */
+export function getNextRang(score: number): Rang | null {
+  const current = getRang(score);
+  if (current.maxScore === null) return null; // Legendaer ist Top
+  // Naechster Rang beginnt bei maxScore + 1.
+  return getRang(current.maxScore + 1);
+}
+
+/**
+ * Slice 198d R-04: Punkte bis zum naechsten Rang.
+ * Returns 0 wenn bereits Top-Tier.
+ */
+export function getPointsToNextRang(score: number): number {
+  const current = getRang(score);
+  if (current.maxScore === null) return 0;
+  return Math.max(0, current.maxScore + 1 - score);
+}
+
 /** Check if a score change caused a rang change */
 export function didRangChange(scoreBefore: number, scoreAfter: number): { changed: boolean; direction: 'up' | 'down' | null; rangBefore: Rang; rangAfter: Rang } {
   const rangBefore = getRang(scoreBefore);

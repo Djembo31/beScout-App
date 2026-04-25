@@ -918,7 +918,8 @@
     "entryCost": "Eintrittskosten",
     "scoutEventsNotAvailable": "Credits Events sind derzeit nicht verfügbar.",
     "liveUpdating": "Rangliste wird live aktualisiert",
-    "eventLockedError": "Event ist bereits gesperrt — kein Verlassen mehr möglich"
+    "eventLockedError": "Event ist bereits gesperrt — kein Verlassen mehr möglich",
+    "formTrendTooltip": "Form-Trend: {delta} ggü. Saisonschnitt"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -984,7 +985,14 @@
     "cardLabel": "Karte",
     "cleanSheetLabel": "Weiße Weste",
     "minutesLabel": "≥60 Min",
-    "goalsLabel": "Tore"
+    "goalsLabel": "Tore",
+    "streakBadge": "{count} in Folge",
+    "streakTooltip": "Aktuelle Serie: {count} richtige Tipps in Folge",
+    "difficultyTitle": "Schwierigkeit",
+    "difficultyEasy": "Leicht (Favorit klar)",
+    "difficultyMedium": "Mittel",
+    "difficultyHard": "Schwer (offenes Spiel)",
+    "difficultyHint": "Schwierigkeit wird automatisch nach Match-Konstellation berechnet — schwere Tipps geben mehr Punkte."
   },
   "leagues": {
     "title": "Meine Ligen",
@@ -2957,7 +2965,8 @@
     "sortFloor": "Floor Price",
     "sortVolume": "24h Volumen",
     "sortChange": "24h Change",
-    "rewardPendingTooltip": "Belohnung wird nach Saisonende ausgezahlt"
+    "rewardPendingTooltip": "Belohnung wird nach Saisonende ausgezahlt",
+    "tierPromotion": "Noch {points} Punkte bis {nextTier}"
   },
   "gamification": {
     "rang": {

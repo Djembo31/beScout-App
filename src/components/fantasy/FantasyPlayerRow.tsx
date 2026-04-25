@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/positionColors';
@@ -70,6 +71,14 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
   const clubData = getClub(player.club);
   const opponentClub = nextFixture ? getClub(nextFixture.opponentShort) : null;
 
+  // Slice 198d F-13: Form-Trend Δ — perfL5 (current 5) vs perfL15 (season L15 baseline).
+  // Pattern wie LineupPanel.tsx:882. Wenn beide >0, zeige Δ als +/- Prozent.
+  const formDelta = (player.perfL15 ?? 0) > 0 ? player.perfL5 - player.perfL15 : 0;
+  const formDeltaPct = (player.perfL15 ?? 0) > 0
+    ? Math.round((formDelta / player.perfL15) * 100)
+    : 0;
+  const showFormTrend = (player.perfL15 ?? 0) > 0 && Math.abs(formDeltaPct) >= 3;
+
   return (
     <button
       type="button"
@@ -100,6 +109,28 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
             </span>
             <div className="ml-auto flex items-center gap-2 shrink-0">
               <FormBars entries={formEntries} />
+              {/* Slice 198d F-13: Form-Trend Δ-Pill (current L5 vs L15 baseline). Compliance-clean. */}
+              {showFormTrend && (
+                <span
+                  className={cn(
+                    'flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold tabular-nums',
+                    formDeltaPct > 0 ? 'text-emerald-400 bg-emerald-400/10'
+                      : formDeltaPct < 0 ? 'text-rose-400 bg-rose-400/10'
+                      : 'text-white/40 bg-white/[0.04]'
+                  )}
+                  title={t('formTrendTooltip', { delta: formDeltaPct > 0 ? `+${formDeltaPct}%` : `${formDeltaPct}%` })}
+                  aria-label={t('formTrendTooltip', { delta: formDeltaPct > 0 ? `+${formDeltaPct}%` : `${formDeltaPct}%` })}
+                >
+                  {formDeltaPct > 0 ? (
+                    <TrendingUp className="size-2.5" aria-hidden="true" />
+                  ) : formDeltaPct < 0 ? (
+                    <TrendingDown className="size-2.5" aria-hidden="true" />
+                  ) : (
+                    <Minus className="size-2.5" aria-hidden="true" />
+                  )}
+                  {formDeltaPct > 0 ? `+${formDeltaPct}` : formDeltaPct}
+                </span>
+              )}
               <div
                 className="size-8 rounded-full flex items-center justify-center border-[1.5px]"
                 style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}

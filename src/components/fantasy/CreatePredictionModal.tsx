@@ -402,6 +402,35 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
               </div>
             )}
 
+            {/* Slice 198d C-02: Difficulty-Legend visible — User sieht Reward-Ratio vor Submit. */}
+            <div className="rounded-lg bg-surface-subtle border border-divider p-3 space-y-1.5">
+              <p className="text-xs font-semibold text-white/60">{t('difficultyTitle')}</p>
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="flex items-center gap-1.5">
+                  <span className="px-1.5 py-0.5 rounded-full font-bold text-emerald-400 bg-emerald-400/10">★</span>
+                  <span className="text-white/50">{t('difficultyEasy')}</span>
+                </span>
+                <span className="text-white/30 font-mono">×0.5</span>
+              </div>
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="flex items-center gap-1.5">
+                  <span className="px-1.5 py-0.5 rounded-full font-bold text-white/40 bg-surface-base">★★</span>
+                  <span className="text-white/50">{t('difficultyMedium')}</span>
+                </span>
+                <span className="text-white/30 font-mono">×1.0</span>
+              </div>
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="flex items-center gap-1.5">
+                  <span className="px-1.5 py-0.5 rounded-full font-bold text-red-400 bg-red-400/10">★★★</span>
+                  <span className="text-white/50">{t('difficultyHard')}</span>
+                </span>
+                <span className="text-white/30 font-mono">×1.5</span>
+              </div>
+              <p className="text-[10px] text-white/30 pt-1 border-t border-divider mt-1">
+                {t('difficultyHint')}
+              </p>
+            </div>
+
             {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
           </div>
         )}

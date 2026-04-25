@@ -37,6 +37,8 @@ export type PredictionStats = {
   wrong: number;
   accuracy: number;
   bestStreak: number;
+  /** Current streak: consecutive correct since last wrong (Slice 198d C-01). */
+  currentStreak: number;
   totalPoints: number;
 };
 
@@ -122,31 +124,34 @@ export async function getPredictionStats(userId: string): Promise<PredictionStat
 
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) {
-    return { total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, totalPoints: 0 };
+    return { total: 0, correct: 0, wrong: 0, accuracy: 0, bestStreak: 0, currentStreak: 0, totalPoints: 0 };
   }
 
   let correct = 0;
   let wrong = 0;
-  let currentStreak = 0;
+  let runningStreak = 0;
   let bestStreak = 0;
   let totalPoints = 0;
-
+  // Slice 198d C-01: currentStreak = trailing consecutive correct count from latest backwards.
+  // Data is ORDER BY resolved_at ASC — runningStreak at end == currentStreak (resets on wrong).
   for (const row of data) {
     if (row.status === 'correct') {
       correct++;
-      currentStreak++;
-      if (currentStreak > bestStreak) bestStreak = currentStreak;
+      runningStreak++;
+      if (runningStreak > bestStreak) bestStreak = runningStreak;
     } else {
       wrong++;
-      currentStreak = 0;
+      runningStreak = 0;
     }
     totalPoints += Number(row.points_awarded ?? 0);
   }
 
   const total = correct + wrong;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+  // currentStreak: trailing run from latest. With ASC order, runningStreak after loop is exactly that.
+  const currentStreak = runningStreak;
 
-  return { total, correct, wrong, accuracy, bestStreak, totalPoints };
+  return { total, correct, wrong, accuracy, bestStreak, currentStreak, totalPoints };
 }
 
 /** Get fixtures available for predictions (scheduled, not started) */
