@@ -3,11 +3,11 @@
 ```
 status: in-progress
 slice: 198
-stage: BUILD
+stage: PROVE
 spec: worklog/specs/198-polish-sweep.md
 impact: inline (kein DB-Schema, kein Money-Path, kein Cron)
-proof: worklog/proofs/198a-track-a-brand.txt (Track A) + pending Tracks B/C/D
-review: pending
+proof: worklog/proofs/198a-track-a-brand.txt + tsc clean + 16/16 vitest PredictionsTab
+review: worklog/reviews/198-review.md (verdict PASS, 2 findings fixed)
 ```
 
 ## Slice 198 — Polish-Sweep Wave 1 (4-Track parallel-dispatch)

@@ -9,7 +9,7 @@ import { PredictionsTab } from '../PredictionsTab';
 // ============================================
 const mockUsePredictions = vi.fn();
 const mockUsePredictionCount = vi.fn();
-const mockUsePredictionStats = vi.fn(() => ({ data: undefined }));
+const mockUsePredictionStats = vi.fn((..._args: unknown[]) => ({ data: undefined }));
 
 vi.mock('@/lib/queries/predictions', () => ({
   usePredictions: (...args: unknown[]) => mockUsePredictions(...args),

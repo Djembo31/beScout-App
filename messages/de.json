@@ -1049,6 +1049,7 @@
   "manager": {
     "title": "Manager",
     "teamCenterTitle": "Manager · Dein Team-Center",
+    "quickLineupAction": "Ins Lineup übernehmen",
     "tabAufstellen": "Aufstellen",
     "tabKader": "Kader",
     "tabHistorie": "Historie",
