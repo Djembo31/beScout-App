@@ -9,6 +9,16 @@ import type { Pos } from '@/types';
 import type { FantasyEvent, LineupPlayer, UserDpcHolding, LineupPreset } from '../types';
 import type { FormationDef } from '../constants';
 import type { PickerSortKey } from '@/components/fantasy/PickerSortFilter';
+import type { BenchSlotKey } from '@/features/fantasy/store/lineupStore';
+
+/**
+ * Slice 195d — Picker-Mode:
+ *  - `starter` = normaler Picker, fuellt selectedPlayers per slot
+ *  - `bench-gk` / `bench-outfield` = fuellt bench-slot (fixed kind)
+ */
+export type PickerMode =
+  | { kind: 'starter'; position: string; slot: number }
+  | { kind: 'bench-gk' | 'bench-outfield'; benchKind: BenchSlotKey };
 
 interface UseLineupPanelStateProps {
   event: FantasyEvent;
@@ -23,18 +33,26 @@ interface UseLineupPanelStateProps {
   onApplyPreset: (formation: string, lineup: LineupPlayer[]) => void;
   onSelectPlayer: (playerId: string, position: string, slot: number) => void;
   wildcardSlots?: Set<string>;
+  // Slice 195d — Bench-Picker
+  onSelectBench?: (kind: BenchSlotKey, playerId: string) => void;
 }
 
 export function useLineupPanelState({
   event, selectedPlayers, effectiveHoldings, ownedPlayerIds,
   isPlayerLocked, formationSlots, slotDbKeys, selectedFormation,
   availableFormations, onApplyPreset, onSelectPlayer, wildcardSlots,
+  onSelectBench,
 }: UseLineupPanelStateProps) {
   const isFullyLocked = event.status === 'ended';
   const isReadOnly = isFullyLocked;
 
   // ── Picker State ──
-  const [showPlayerPicker, setShowPlayerPicker] = useState<{ position: string; slot: number } | null>(null);
+  // Slice 195d: showPlayerPicker erweitert um Bench-Picker-Mode (PickerMode-Discriminated-Union).
+  const [pickerMode, setPickerMode] = useState<PickerMode | null>(null);
+  // Backwards-compat: legacy showPlayerPicker fuer Starter-Slots (kind === 'starter').
+  const showPlayerPicker = pickerMode && pickerMode.kind === 'starter'
+    ? { position: pickerMode.position, slot: pickerMode.slot }
+    : null;
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSort, setPickerSort] = useState<PickerSortKey>('l5');
   const [clubFilter, setClubFilter] = useState<string[]>([]);
@@ -172,23 +190,35 @@ export function useLineupPanelState({
 
   // ── Picker Actions ──
   const openPicker = useCallback((position: string, slot: number) => {
-    setShowPlayerPicker({ position, slot });
+    setPickerMode({ kind: 'starter', position, slot });
+    setPickerSearch('');
+    setClubFilter([]);
+  }, []);
+
+  /** Slice 195d — Bench-Picker oeffnen (GK oder Outfield). */
+  const openBenchPicker = useCallback((benchKind: BenchSlotKey) => {
+    const kind = benchKind === 'bench_gk' ? 'bench-gk' : 'bench-outfield';
+    setPickerMode({ kind, benchKind });
     setPickerSearch('');
     setClubFilter([]);
   }, []);
 
   const closePicker = useCallback(() => {
-    setShowPlayerPicker(null);
+    setPickerMode(null);
     setPickerSearch('');
     setClubFilter([]);
   }, []);
 
   const selectPlayerFromPicker = useCallback((playerId: string) => {
-    if (!showPlayerPicker) return;
-    onSelectPlayer(playerId, showPlayerPicker.position, showPlayerPicker.slot);
-    setShowPlayerPicker(null);
+    if (!pickerMode) return;
+    if (pickerMode.kind === 'starter') {
+      onSelectPlayer(playerId, pickerMode.position, pickerMode.slot);
+    } else if (onSelectBench) {
+      onSelectBench(pickerMode.benchKind, playerId);
+    }
+    setPickerMode(null);
     setPickerSearch('');
-  }, [showPlayerPicker, onSelectPlayer]);
+  }, [pickerMode, onSelectPlayer, onSelectBench]);
 
   return {
     // Flags
@@ -207,5 +237,7 @@ export function useLineupPanelState({
     // Actions
     savePreset, applyPreset, deletePreset,
     openPicker, closePicker, selectPlayerFromPicker,
+    // Slice 195d — Bench
+    pickerMode, openBenchPicker,
   };
 }

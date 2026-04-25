@@ -5,7 +5,14 @@ import type { DbLineup } from '@/types';
 // Lineup Mutations
 // ============================================
 
-/** Lineup erstellen oder aktualisieren — uses SECURITY DEFINER RPC to bypass RLS */
+/**
+ * Lineup erstellen oder aktualisieren — uses SECURITY DEFINER RPC to bypass RLS.
+ *
+ * Slice 195d: Bench + Auto-Sub.
+ *  - `benchGk` = GK-Bench (NULL = leer)
+ *  - `benchO1`/`O2`/`O3` = Outfield-Bench (DEF/MID/ATT, NULL = leer)
+ *  - `benchOrder` = 1-basierte Sub-Priority (Default `[1,2,3]`)
+ */
 export async function submitLineup(params: {
   eventId: string;
   userId: string;
@@ -13,6 +20,11 @@ export async function submitLineup(params: {
   slots: Record<string, string | null>;
   captainSlot?: string | null;
   wildcardSlots?: string[];
+  benchGk?: string | null;
+  benchO1?: string | null;
+  benchO2?: string | null;
+  benchO3?: string | null;
+  benchOrder?: number[];
 }): Promise<DbLineup> {
   const { data: rpcResult, error: rpcError } = await supabase.rpc('save_lineup', {
     p_event_id: params.eventId,
@@ -31,6 +43,12 @@ export async function submitLineup(params: {
     p_slot_att: params.slots['att'] ?? null,
     p_slot_att2: params.slots['att2'] ?? null,
     p_slot_att3: params.slots['att3'] ?? null,
+    // Slice 195d — Bench + Auto-Sub
+    p_bench_gk: params.benchGk ?? null,
+    p_bench_o1: params.benchO1 ?? null,
+    p_bench_o2: params.benchO2 ?? null,
+    p_bench_o3: params.benchO3 ?? null,
+    p_bench_order: params.benchOrder ?? [1, 2, 3],
   });
 
   if (rpcError) {

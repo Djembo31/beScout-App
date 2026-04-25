@@ -28,6 +28,8 @@ import EquipmentBadge from '@/components/gamification/EquipmentBadge';
 import type { EquipmentType } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
 import { useLineupPanelState } from './useLineupPanelState';
+import { BenchRow } from '@/features/fantasy/components/lineup/BenchRow';
+import type { BenchSlotKey } from '@/features/fantasy/store/lineupStore';
 
 export interface LineupPanelProps {
   event: FantasyEvent;
@@ -80,6 +82,12 @@ export interface LineupPanelProps {
   // Equipment
   equipmentMap?: Record<string, { id: string; key: string; rank: number; position: string }>;
   onEquipmentTap?: (slotKey: string, playerPosition: string, playerName: string) => void;
+  // Bench (Slice 195d)
+  benchOrder?: number[];
+  getBenchPlayer?: (kind: BenchSlotKey) => UserDpcHolding | null;
+  getAvailablePlayersForBench?: (kind: BenchSlotKey) => UserDpcHolding[];
+  onSetBenchSlot?: (kind: BenchSlotKey, playerId: string | null) => void;
+  onMoveBenchOrder?: (fromIdx: number, toIdx: number) => void;
 }
 
 export default function LineupPanel({
@@ -119,6 +127,11 @@ export default function LineupPanel({
   onToggleWildcard,
   equipmentMap,
   onEquipmentTap,
+  benchOrder,
+  getBenchPlayer,
+  getAvailablePlayersForBench,
+  onSetBenchSlot,
+  onMoveBenchOrder,
 }: LineupPanelProps) {
   const t = useTranslations('fantasy');
   const tsp = useTranslations('sponsor');
@@ -128,6 +141,7 @@ export default function LineupPanel({
     event, selectedPlayers, effectiveHoldings, ownedPlayerIds,
     isPlayerLocked, formationSlots, slotDbKeys, selectedFormation,
     availableFormations, onApplyPreset, onSelectPlayer, wildcardSlots,
+    onSelectBench: (kind, playerId) => onSetBenchSlot?.(kind, playerId),
   });
 
   // Destructure for backward compat in JSX
@@ -141,6 +155,7 @@ export default function LineupPanel({
     formScoresMap, nextFixturesMap, allPlayers,
     getRowProps, savePreset, applyPreset, deletePreset,
     openPicker, closePicker, selectPlayerFromPicker,
+    pickerMode, openBenchPicker,
   } = st;
 
 
@@ -520,6 +535,18 @@ export default function LineupPanel({
           </div>
         </div>
 
+        {/* Bench Row (Slice 195d \u2014 Auto-Sub) */}
+        {getBenchPlayer && benchOrder && onSetBenchSlot && onMoveBenchOrder && (
+          <BenchRow
+            isReadOnly={isReadOnly}
+            getBenchPlayer={getBenchPlayer}
+            benchOrder={benchOrder}
+            onSelectBenchSlot={(kind) => openBenchPicker(kind)}
+            onRemoveBenchSlot={(kind) => onSetBenchSlot(kind, null)}
+            onMoveBenchOrder={onMoveBenchOrder}
+          />
+        )}
+
         {/* Sponsor Banner Bottom (Bandenwerbung unten) */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-2 flex items-center justify-between border-t border-white/10">
           <div className="flex items-center gap-2 px-3 py-1 bg-surface-subtle rounded-lg border border-divider">
@@ -805,11 +832,33 @@ export default function LineupPanel({
       </div>}
 
       {/* Player Picker Modal -- Enhanced with Search, Sort, Filter, Intelligence Strip */}
-      {showPlayerPicker && (() => {
+      {/* Slice 195d: pickerMode statt showPlayerPicker (umfasst starter + bench-gk + bench-outfield) */}
+      {pickerMode && (() => {
         const POS_LABEL: Record<string, string> = { GK: t('posGK'), DEF: t('posDEF'), MID: t('posMID'), ATT: t('posATT') };
-        const pickerSlotDbKey = slotDbKeys[showPlayerPicker.slot];
-        const isPickerWildcard = wildcardSlots?.has(pickerSlotDbKey) ?? false;
-        let availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position, isPickerWildcard);
+        // Derive title + base availability based on pickerMode kind
+        let availablePlayers: UserDpcHolding[];
+        let pickerTitle: string;
+        let pickerPositionForBadge: string;
+        if (pickerMode.kind === 'starter') {
+          const pickerSlotDbKey = slotDbKeys[pickerMode.slot];
+          const isPickerWildcard = wildcardSlots?.has(pickerSlotDbKey) ?? false;
+          availablePlayers = getAvailablePlayersForPosition(pickerMode.position, isPickerWildcard);
+          pickerTitle = t('selectPos', { pos: POS_LABEL[pickerMode.position] || pickerMode.position });
+          pickerPositionForBadge = pickerMode.position;
+        } else {
+          // Bench picker: use bench-aware filter from useLineupBuilder
+          availablePlayers = getAvailablePlayersForBench
+            ? getAvailablePlayersForBench(pickerMode.benchKind)
+            : [];
+          if (pickerMode.kind === 'bench-gk') {
+            pickerTitle = t('benchPickerTitleGk');
+            pickerPositionForBadge = 'GK';
+          } else {
+            // Outfield: position-Badge "DEF" als Default-Visual (alle 3 Positionen erlaubt)
+            pickerTitle = t('benchPickerTitleOutfield');
+            pickerPositionForBadge = 'DEF';
+          }
+        }
         // Apply local search filter
         if (pickerSearch) {
           const q = pickerSearch.toLowerCase();
@@ -857,7 +906,7 @@ export default function LineupPanel({
                   </button>
                   <div className="flex-1">
                     <h3 className="font-black text-base">
-                      {t('selectPos', { pos: POS_LABEL[showPlayerPicker.position] || showPlayerPicker.position })}
+                      {pickerTitle}
                     </h3>
                     <div className="text-xs text-white/40">{t('availableCount', { count: availablePlayers.length })}</div>
                   </div>
@@ -896,9 +945,9 @@ export default function LineupPanel({
               <div className="flex-1 overflow-y-auto overscroll-contain">
                 {availablePlayers.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 px-6">
-                    <PositionBadge pos={showPlayerPicker.position as Pos} size="lg" />
+                    <PositionBadge pos={pickerPositionForBadge as Pos} size="lg" />
                     <div className="text-sm text-white/30 mt-3 text-center">
-                      {t('noPosAvailable', { pos: POS_LABEL[showPlayerPicker.position] || t('playersLabel') })}
+                      {t('noPosAvailable', { pos: POS_LABEL[pickerPositionForBadge] || t('playersLabel') })}
                     </div>
                     <Link
                       href="/market?tab=kaufen"

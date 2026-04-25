@@ -97,6 +97,8 @@ Fantasy-Spieltag-Mechanik tester-ready machen. **BeScout-eigene Multiplier** (ni
 - ❌ Wildcard / Free-Hit / Bench-Boost neue Chips (Phase 2)
 - ❌ Live-Scoring 60s → 30s (Slice 197/198)
 - ❌ Re-Score bei abgesagten Spielen (Slice 198+)
+- ❌ **Auto-Sub Audit Trail** (Slice 195f Backlog) — `subs_applied JSONB` an `score_event`-Return + UI-Sub-Indicator-Badge auf Slot-Card. 195d-Review (CONCERNS, Finding M2) hat festgestellt: Aktuelles UI zeigt finalen Slot-Score, aber User/Tester kann nicht erkennen ob Original-Spieler oder Auto-Sub-Bench-Spieler. Quick-Add ~30 LOC RPC + 10 LOC UI; Spec spezifiziert nicht required, daher Backlog. Bei Beta-Test-Calls aktiv erklaeren: "Wenn ein Stammspieler nicht spielt, springt automatisch ein Bench-Spieler ein."
+- ❌ **NULL-pgs.score Score-Inflation Audit** (195d-Review M1) — wenn `player_gameweek_scores` keine Row hat aber Spieler `minutes_played > 0` (Race oder noch-nicht-importiert), defaultet `score_event` auf 40. Spec-Klarheit + Test-Case fehlen. Beta-Test mit echten GW-Daten zeigen ob relevant. Falls Inflation: NULL→0 statt NULL→40.
 
 ## Sub-Slice Reihenfolge (Build-Order)
 

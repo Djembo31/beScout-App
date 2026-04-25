@@ -24,6 +24,12 @@ type UseLineupSaveOpts = {
   captainSlot: string | null;
   wildcardSlots: Set<string>;
   equipmentMap: Record<string, EquipmentSlotState>;
+  // Slice 195d — Bench + Auto-Sub
+  benchGk?: string | null;
+  benchO1?: string | null;
+  benchO2?: string | null;
+  benchO3?: string | null;
+  benchOrder?: number[];
   // ── Action handlers from caller ──
   onJoin: (event: FantasyEvent) => void | Promise<void>;
   onSubmitLineup: (
@@ -32,6 +38,13 @@ type UseLineupSaveOpts = {
     formation: string,
     captainSlot: string | null,
     wildcardSlots?: string[],
+    bench?: {
+      benchGk?: string | null;
+      benchO1?: string | null;
+      benchO2?: string | null;
+      benchO3?: string | null;
+      benchOrder?: number[];
+    },
   ) => void | Promise<void>;
   /** Optional callback fired after successful join (before submit). */
   onAfterJoin?: () => void;
@@ -62,6 +75,7 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
   const {
     event, userId, isLineupComplete, reqCheck,
     selectedPlayers, selectedFormation, captainSlot, wildcardSlots, equipmentMap,
+    benchGk, benchO1, benchO2, benchO3, benchOrder,
     onJoin, onSubmitLineup, onAfterJoin,
   } = opts;
 
@@ -89,6 +103,13 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
         selectedFormation,
         captainSlot,
         Array.from(wildcardSlots),
+        {
+          benchGk: benchGk ?? null,
+          benchO1: benchO1 ?? null,
+          benchO2: benchO2 ?? null,
+          benchO3: benchO3 ?? null,
+          benchOrder: benchOrder ?? [1, 2, 3],
+        },
       );
 
       // Persist equipment assignments after lineup save (best-effort).
@@ -119,6 +140,7 @@ export function useLineupSave(opts: UseLineupSaveOpts): UseLineupSaveReturn {
   }, [
     event, userId, isLineupComplete, reqCheck,
     selectedPlayers, selectedFormation, captainSlot, wildcardSlots, equipmentMap,
+    benchGk, benchO1, benchO2, benchO3, benchOrder,
     onJoin, onSubmitLineup, onAfterJoin,
     tFantasy, te, queryClient, addToast,
   ]);

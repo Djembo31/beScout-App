@@ -11,6 +11,39 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 195d | 2026-04-25 | Bench + Auto-Sub (Fantasy Mechanics Overhaul Sub-Slice)
+
+- **Stage-Chain:** SPEC (worklog/specs/195-fantasy-mechanics-overhaul.md) → IMPACT (inline) → BUILD (parallel-dispatch backend + frontend + test-writer in 3 Worktrees) → REVIEW (cold-context reviewer-agent: CONCERNS, 2 MAJOR + 6 MINOR) → REWORK (healer-agent: N4 Touch-Targets + N3 JSDoc + 3 Tests as it.todo) → PROVE → LOG
+- **Trigger:** Phase-A Audit fantasy-scoring-expert P0 Finding F-02 "Kein Bench / Auto-Sub". CEO-approved 2026-04-25.
+- **Files:**
+  - `supabase/migrations/20260425170000_slice_195d_bench_autosub.sql` (969 L, applied via mcp_apply_migration in 3 splits: schema+rpc+wrapper, score_event, drop-old-sig)
+  - `src/types/index.ts` — DbLineup +5 fields (bench_gk, bench_o1..o3, bench_order)
+  - `src/features/fantasy/services/lineups.mutations.ts` — submitLineup +5 bench params
+  - `src/features/fantasy/components/lineup/BenchRow.tsx` (NEW, mobile-first, 44px touch-targets)
+  - `src/features/fantasy/components/lineup/index.ts`
+  - `src/features/fantasy/hooks/useLineupBuilder.ts` (+93 L bench-state)
+  - `src/features/fantasy/hooks/useLineupSave.ts` (+22 L bench-payload)
+  - `src/features/fantasy/hooks/useEventActions.ts` (+33 L)
+  - `src/features/fantasy/store/lineupStore.ts` (+88 L benchOrder permutation state)
+  - `src/components/fantasy/EventDetailModal.tsx` + `event-tabs/LineupPanel.tsx` + `event-tabs/useLineupPanelState.ts`
+  - `src/features/manager/components/aufstellen/AufstellenTab.tsx`
+  - `src/lib/errorMessages.ts` (+5 bench_* keys)
+  - `messages/de.json` + `messages/tr.json` (+18 jeweils, alle bench_* keys symmetrisch)
+  - `src/lib/services/__tests__/lineup-bench-validation.test.ts` (NEW, 10 tests, all pass)
+  - `src/lib/services/__tests__/lineup-auto-sub.test.ts` (NEW, 7 pass + 11 todo)
+  - `.claude/rules/errors-db.md` (+2 PL/pgSQL Patterns: Loop-Var Shadowing + Stale State)
+  - `worklog/reviews/195d-review.md` (Reviewer-Output)
+  - `worklog/specs/195-fantasy-mechanics-overhaul.md` (+2 Scope-Out: 195f Audit Trail + NULL-pgs Audit)
+- **DB-Verify (post-apply):** `SELECT bench_gk, bench_o1..3, bench_order FROM lineups LIMIT 1` → no error. `pg_proc`-Count: save_lineup=1 (21 args) + rpc_save_lineup=1 (22 args, alte 17-arg-Sig dropped). score_event Body enthaelt `Slice 195d`-Comment.
+- **Tests:** vitest 7/7 ausführbare Tests grün, 11 it.todo (3 davon migriert von failed wegen Test-Bugs/Spec-Gaps, 8 ursprünglich für Test-Event-Bootstrap).
+- **Review:** worklog/reviews/195d-review.md — verdict CONCERNS (= PASS mit nicht-blockierenden MINOR), 0 CRITICAL, 2 MAJOR (UX-Gaps, kein Korrektheits-Bug), 6 MINOR (Healer fixed N3+N4).
+- **Knowledge-Flywheel:** 2 PL/pgSQL Patterns aus Backend-Agent-Learning-Drafts in `.claude/rules/errors-db.md` promoted. Drafts geloescht.
+- **Notes:** CEO-Decisions (1.1× Captain, 1.25× Boost, Bench=Insurance ohne SC-Lock, Position-strict Auto-Sub, no-overlap-mit-Starter, holdings-required) alle implementiert. Aufrufpfad-Audit (Slice 192-Lehre) komplett: 100% Coverage. Type-Truth (D43) alle 6 Layer aligned.
+- **Backlog generated:** 195f Auto-Sub Audit Trail UI (M2 finding), NULL-pgs Score-Inflation Audit (M1 finding).
+- **Commit:** (folgt)
+
+---
+
 ## 193 | 2026-04-25 | AuthProvider-Perf + Auth-Race-Gate (Slice 192 Root-Cause)
 
 - **Stage-Chain:** SPEC (inline /optimize) → IMPACT skipped (1 Service + 1 Hook, keine API-Aenderung) → BUILD → REVIEW (self per D35) → PROVE → LOG

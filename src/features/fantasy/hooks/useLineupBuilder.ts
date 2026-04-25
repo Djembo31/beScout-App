@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { calculateSynergyPreview } from '@/types';
-import { useLineupStore } from '../store/lineupStore';
+import { useLineupStore, type BenchSlotKey } from '../store/lineupStore';
 import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys } from '../constants';
 import { getLineup } from '@/lib/services/lineups';
 import { getProgressiveScores } from '@/lib/services/scoring';
@@ -55,6 +55,12 @@ export function useLineupBuilder({
   const selectedFormation = useLineupStore((s) => s.selectedFormation);
   const captainSlot = useLineupStore((s) => s.captainSlot);
   const wildcardSlots = useLineupStore((s) => s.wildcardSlots);
+  // Bench (Slice 195d)
+  const benchGk = useLineupStore((s) => s.benchGk);
+  const benchO1 = useLineupStore((s) => s.benchO1);
+  const benchO2 = useLineupStore((s) => s.benchO2);
+  const benchO3 = useLineupStore((s) => s.benchO3);
+  const benchOrder = useLineupStore((s) => s.benchOrder);
   const storeSelectPlayer = useLineupStore((s) => s.selectPlayer);
   const storeRemovePlayer = useLineupStore((s) => s.removePlayer);
   const storeSetFormation = useLineupStore((s) => s.setFormation);
@@ -62,6 +68,8 @@ export function useLineupBuilder({
   const storeToggleWildcard = useLineupStore((s) => s.toggleWildcard);
   const storeResetLineup = useLineupStore((s) => s.resetLineup);
   const storeLoadFromDb = useLineupStore((s) => s.loadFromDb);
+  const storeSetBenchSlot = useLineupStore((s) => s.setBenchSlot);
+  const storeMoveBenchOrder = useLineupStore((s) => s.moveBenchOrder);
 
   // ==================== Local scoring state ====================
   const [slotScores, setSlotScores] = useState<Record<string, number> | null>(null);
@@ -247,6 +255,66 @@ export function useLineupBuilder({
     [selectedPlayers, effectiveHoldings, isPlayerLocked, event?.scope, event?.clubId],
   );
 
+  // ==================== Bench helpers (Slice 195d) ====================
+  /**
+   * Bench-Slot Available-Players: filter holdings nach slot-kind (GK vs Outfield)
+   * UND exclude alle Spieler die bereits in Starter-11 oder anderem Bench-Slot.
+   */
+  const getAvailablePlayersForBench = useCallback(
+    (kind: BenchSlotKey) => {
+      const isGkSlot = kind === 'bench_gk';
+      const validPosTokens = isGkSlot
+        ? ['GK']
+        : ['DEF', 'CB', 'LB', 'RB', 'MID', 'CM', 'CDM', 'CAM', 'LM', 'RM', 'ATT', 'FW', 'ST', 'CF', 'LW', 'RW'];
+
+      // Alle bereits verwendeten IDs (Starter + andere Bench-Slots)
+      const usedIds = new Set<string>(selectedPlayers.map((p) => p.playerId));
+      if (kind !== 'bench_gk' && benchGk) usedIds.add(benchGk);
+      if (kind !== 'bench_o1' && benchO1) usedIds.add(benchO1);
+      if (kind !== 'bench_o2' && benchO2) usedIds.add(benchO2);
+      if (kind !== 'bench_o3' && benchO3) usedIds.add(benchO3);
+
+      const isClubScoped = event?.scope === 'club' && event?.clubId;
+      const players = effectiveHoldings.filter(
+        (h) =>
+          validPosTokens.some((vp) => h.pos.toUpperCase().includes(vp)) &&
+          !usedIds.has(h.id) &&
+          !h.isLocked &&
+          !isPlayerLocked(h.id) &&
+          (!isClubScoped || h.clubId === event.clubId),
+      );
+      return [...players].sort((a, b) => b.perfL5 - a.perfL5);
+    },
+    [selectedPlayers, effectiveHoldings, isPlayerLocked, event?.scope, event?.clubId, benchGk, benchO1, benchO2, benchO3],
+  );
+
+  const getBenchPlayer = useCallback(
+    (kind: BenchSlotKey): UserDpcHolding | null => {
+      const id =
+        kind === 'bench_gk' ? benchGk
+        : kind === 'bench_o1' ? benchO1
+        : kind === 'bench_o2' ? benchO2
+        : benchO3;
+      if (!id) return null;
+      return effectiveHoldings.find((h) => h.id === id) ?? null;
+    },
+    [effectiveHoldings, benchGk, benchO1, benchO2, benchO3],
+  );
+
+  const handleSetBenchSlot = useCallback(
+    (kind: BenchSlotKey, playerId: string | null) => {
+      storeSetBenchSlot(kind, playerId);
+    },
+    [storeSetBenchSlot],
+  );
+
+  const handleMoveBenchOrder = useCallback(
+    (fromIdx: number, toIdx: number) => {
+      storeMoveBenchOrder(fromIdx, toIdx);
+    },
+    [storeMoveBenchOrder],
+  );
+
   // ==================== Derived ====================
   const isLineupComplete = selectedPlayers.length === formationSlots.length;
 
@@ -318,7 +386,17 @@ export function useLineupBuilder({
               }
             });
 
-            storeLoadFromDb(finalLineup, savedFormation, dbLineup.captain_slot ?? null);
+            // Slice 195d — Bench-Felder aus DB rehydrieren (default [1,2,3] order falls null)
+            const dbBenchOrder = Array.isArray(dbLineup.bench_order) && dbLineup.bench_order.length === 3
+              ? (dbLineup.bench_order as number[])
+              : [1, 2, 3];
+            storeLoadFromDb(finalLineup, savedFormation, dbLineup.captain_slot ?? null, {
+              benchGk: dbLineup.bench_gk ?? null,
+              benchO1: dbLineup.bench_o1 ?? null,
+              benchO2: dbLineup.bench_o2 ?? null,
+              benchO3: dbLineup.bench_o3 ?? null,
+              benchOrder: dbBenchOrder,
+            });
             setSlotScores(dbLineup.slot_scores ?? null);
             setMyTotalScore(dbLineup.total_score);
             setMyRank(dbLineup.rank);
@@ -519,5 +597,16 @@ export function useLineupBuilder({
     handleRemovePlayer,
     handleFormationChange,
     handleApplyPreset,
+
+    // ---- Bench (Slice 195d) ----
+    benchGk,
+    benchO1,
+    benchO2,
+    benchO3,
+    benchOrder,
+    getBenchPlayer,
+    getAvailablePlayersForBench,
+    handleSetBenchSlot,
+    handleMoveBenchOrder,
   };
 }

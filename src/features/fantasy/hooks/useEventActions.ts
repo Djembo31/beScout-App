@@ -76,6 +76,12 @@ type SubmitLineupVariables = {
   formation: string;
   captainSlot: string | null;
   wildcardSlots: string[];
+  // Slice 195d — Bench + Auto-Sub
+  benchGk?: string | null;
+  benchO1?: string | null;
+  benchO2?: string | null;
+  benchO3?: string | null;
+  benchOrder?: number[];
 };
 
 // ────────────────────────────────────────────────────────────
@@ -351,7 +357,7 @@ export function useEventActions(clubId: string) {
     Error,
     SubmitLineupVariables
   >({
-    mutationFn: async ({ event, lineup, formation, captainSlot, wildcardSlots }) => {
+    mutationFn: async ({ event, lineup, formation, captainSlot, wildcardSlots, benchGk, benchO1, benchO2, benchO3, benchOrder }) => {
       if (!user?.id) throw new Error('notAuthenticated');
       const formations = getFormationsForFormat(event.format);
       const resolvedFormation = formations.find((f) => f.id === formation) || formations[0];
@@ -369,6 +375,11 @@ export function useEventActions(clubId: string) {
         slots,
         captainSlot,
         wildcardSlots,
+        benchGk,
+        benchO1,
+        benchO2,
+        benchO3,
+        benchOrder,
       });
     },
     onError: (err, { event }) => {
@@ -397,6 +408,14 @@ export function useEventActions(clubId: string) {
           break;
         case 'lineup_save_failed':
           addToast(t('lineupSaveFailed'), 'error');
+          break;
+        // Slice 195d — Bench + Auto-Sub Validation Errors
+        case 'bench_gk_position_mismatch':
+        case 'bench_overlaps_starter':
+        case 'bench_not_in_holdings':
+        case 'bench_duplicate':
+        case 'invalid_bench_order':
+          addToast(te(msg), 'error');
           break;
         default:
           addToast(
@@ -481,6 +500,13 @@ export function useEventActions(clubId: string) {
       formation: string,
       captainSlot: string | null = null,
       wildcardSlots: string[] = [],
+      bench?: {
+        benchGk?: string | null;
+        benchO1?: string | null;
+        benchO2?: string | null;
+        benchO3?: string | null;
+        benchOrder?: number[];
+      },
     ) => {
       if (!user?.id) {
         addToast(t('errorGeneric', { error: te('notAuthenticated') }), 'error');
@@ -494,6 +520,11 @@ export function useEventActions(clubId: string) {
           formation,
           captainSlot,
           wildcardSlots,
+          benchGk: bench?.benchGk ?? null,
+          benchO1: bench?.benchO1 ?? null,
+          benchO2: bench?.benchO2 ?? null,
+          benchO3: bench?.benchO3 ?? null,
+          benchOrder: bench?.benchOrder ?? [1, 2, 3],
         });
       } catch {
         // onError handled.

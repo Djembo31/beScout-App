@@ -153,6 +153,27 @@ RETURN v_result;
 - Richtig: `SELECT x INTO v_x; IF COALESCE(v_x, 0) < y THEN ...` ODER `IF NOT FOUND`.
 - Audit: `grep 'SELECT COALESCE.*FROM.*WHERE' supabase/migrations/`
 
+### PL/pgSQL Loop-Variable Shadowing in Nested Loops (Slice 195d, 2026-04-25)
+- Nested `FOR v_i IN ... LOOP` mit gleichem Counter-Var-Namen ueberschreibt outer-Loop-Iter — bricht outer Iteration silent.
+- PL/pgSQL hat KEIN block-scoped Counter wie JS `let i`. `FOR var IN range`-Variante deklariert `var` implicit als INTEGER im current Block-Scope.
+- Fix: separate Variable per nested Loop. NIEMALS dieselbe FOR-counter-var in nested loops nutzen.
+- Beispiel `score_event` Slice 195d: outer `FOR v_i IN 1..12 LOOP` (slot-loop) + inner `FOR v_bench_loop IN 1..3 LOOP` (bench-order-loop). Inner muss eigenen Counter haben.
+- Audit: `grep -nE "FOR (v_i|i|j) IN.*LOOP" supabase/migrations/*.sql | sort -t: -k2 -n | uniq -f1 -c` — Migrations mit mehreren `FOR v_i IN`-Vorkommnissen sind Kandidaten.
+
+### PL/pgSQL Loop-Variable Stale State (Slice 195d, 2026-04-25)
+- DECLARE-Variablen sind **persistent** ueber Loop-Iterationen. Wenn Iter N einen Wert setzt und Iter N+1 die Setting-Branch nicht trifft (`IF v_player_id IS NOT NULL THEN ...`), traegt die Variable den Wert von Iter N rueber → STILLE False-Positive bei conditional Reads.
+- Fix-Pattern: Am LOOP-Top alle iter-spezifischen Variablen explicit zuruecksetzen:
+  ```sql
+  FOR v_i IN 1..N LOOP
+    v_did_sub := FALSE;
+    v_starter_minutes := 0;
+    v_sub_player_id := NULL;
+    -- ... iter-Logic
+  END LOOP;
+  ```
+- Regel: Alle Variablen, die innerhalb eines Loop-Bodys conditionally gesetzt werden, MUESSEN am Top jedes iteration-Cycles explizit resettet werden — nicht nur einmal vor dem Loop.
+- Audit: Bei Migration-Reviews mit nested IF-Branches in Loops: pruefen welche Variablen conditionally geschrieben werden, dann checken ob am Loop-Top reset passiert.
+
 ### Trigger-Guard BEFORE UPDATE (Slice 081)
 - BEFORE UPDATE auf money-Spalten kaskadiert auch bei flag-Spalten-Change → Trading-Block bei MV=0.
 - Jeder Trigger-Body braucht `IF NEW.<col> IS DISTINCT FROM OLD.<col> THEN ...`.

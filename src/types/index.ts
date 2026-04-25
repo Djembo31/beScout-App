@@ -760,6 +760,16 @@ export type DbLineup = {
   streak_bonus_pct: number;
   wildcard_slots: string[];
   equipment_map: Record<string, string> | null;
+  /**
+   * Slice 195d — Bench + Auto-Sub.
+   * 1 GK-Bench + 3 Outfield-Bench (DEF/MID/ATT). NULL = leerer Slot.
+   * `bench_order` ist 1-basierte Sub-Priority fuer outfield-bench (`[1,2,3]` default = O1,O2,O3 in dieser Reihenfolge).
+   */
+  bench_gk: string | null;
+  bench_o1: string | null;
+  bench_o2: string | null;
+  bench_o3: string | null;
+  bench_order: number[];
 };
 
 export type DbEventEntry = {

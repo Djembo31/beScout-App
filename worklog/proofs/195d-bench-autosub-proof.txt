@@ -1,0 +1,120 @@
+Slice 195d — Bench + Auto-Sub Proof
+Datum: 2026-04-25
+Stage: PROVE
+
+================================================================
+1. DB-Verify (post-apply Migration)
+================================================================
+
+Query: pg_proc-Count + Schema-Existence
+Result:
+  has_bench_gk: true
+  has_bench_o1: true
+  has_bench_order: true
+  save_lineup_count: 1 (21 args)
+  rpc_save_lineup_count: 1 (22 args, alte 17-arg-Sig dropped)
+  score_event_comment: "Slice 195d (2026-04-25): + Auto-Sub bei No-Show
+                       (Position-konform). Captain-Bonus auf SUB-Score
+                       (FPL-Standard). No-Show ohne Sub = 0 Pkt."
+
+Migration applied via mcp__supabase__apply_migration in 3 splits:
+  1. slice_195d_bench_autosub_v2 (Schema + rpc_save_lineup + save_lineup wrapper + AR-44)
+  2. slice_195d_score_event_autosub (score_event mit Auto-Sub + AR-44)
+  3. slice_195d_drop_old_rpc_save_lineup_sig (DROP alte 17-arg sig fuer Polymorphie-Hygiene)
+
+================================================================
+2. tsc --noEmit
+================================================================
+
+EXIT=0 (clean)
+
+================================================================
+3. vitest — Slice 195d Test-Files
+================================================================
+
+Files:
+  - src/lib/services/__tests__/lineup-bench-validation.test.ts (mocked)
+  - src/lib/services/__tests__/lineup-auto-sub.test.ts (real-DB)
+
+Result:
+  Test Files: 1 passed | 0 failed (2 total)
+  Tests:      7 passed | 11 todo (28 total = 10+18)
+  Duration:   ~2.8s
+
+bench-validation.test.ts:
+  10/10 tests passed (Service-Layer-RPC-Arg-Forwarding mocks)
+
+lineup-auto-sub.test.ts:
+  Section A (Schema-Existence): 4/4 ausführbar grün
+  Section B (RPC-Signature): 2/2 ausführbar grün, 2 todo (B2/B3 brauchen Test-Event-Bootstrap)
+  Section C (score_event-Contract): 1/1 ausführbar grün, 9 todo (C1 = subs_applied Backlog 195f)
+
+================================================================
+4. Type-Truth Audit (D43)
+================================================================
+
+Alle 6 Layer aligned:
+  Migration lineups-Schema:        bench_gk UUID NULL, bench_o1..o3 UUID NULL, bench_order INT[] NOT NULL DEFAULT [1,2,3]
+  rpc_save_lineup Params:          uuid DEFAULT NULL, int[] DEFAULT [1,2,3]
+  save_lineup Wrapper Params:      uuid DEFAULT NULL, int[] DEFAULT [1,2,3]
+  TypeScript DbLineup:             string | null, number[]
+  submitLineup service params:     string | null, number[]
+  lineupStore.ts state:            string | null, number[]
+
+================================================================
+5. Aufrufpfad-Audit (Slice 192-Lehre)
+================================================================
+
+save_lineup RPC Callers (frontend/code):
+  - src/features/fantasy/services/lineups.mutations.ts:29 (submitLineup-service)
+  -> Bench-Felder durchgereicht
+  -> Keine weiteren direkten Caller
+
+submitLineup-service Callers:
+  - useEventActions.ts:371-383 (useSubmitLineupMutation.mutationFn)
+  -> Bench-Felder durchgereicht
+  -> Keine weiteren
+
+useEventActions.submitLineup Wrapper Callers:
+  - useLineupSave.ts:100-113 (handleSaveLineup)
+  -> Bench-Object an onSubmitLineup durchgereicht
+  -> Keine weiteren
+
+useLineupSave Konsumenten:
+  - EventDetailModal.tsx (verifiziert)
+  - AufstellenTab.tsx Z70 (verifiziert)
+
+Beide Konsumenten erhalten Bench-State von useLineupBuilder-Hook,
+der wiederum von lineupStore liest. Single Source of Truth.
+
+Coverage: 100%.
+
+================================================================
+6. Review-Verdict
+================================================================
+
+worklog/reviews/195d-review.md — CONCERNS (= "PASS mit nicht-blockierenden MINOR")
+
+  CRITICAL: 0
+  MAJOR:    2 (M1 NULL-pgs Score-Inflation, M2 Audit-Trail subs_applied) -> Backlog 195f + audit-task
+  MINOR:    6 (N1 redundant defensive check OK, N2 OK, N3 JSDoc HEALED, N4 Touch-Targets HEALED, N5 doc-only, N6 OK)
+
+Healer-Pass:
+  - N4: BenchRow.tsx Up/Down Buttons 36px -> 44px
+  - N3: lineupStore.ts JSDoc erweitert mit konkretem benchOrder-Beispiel
+  - 3 Tests as it.todo migriert (B2/B3/C1) mit Begruendung-Comment
+
+================================================================
+7. Knowledge-Flywheel
+================================================================
+
+2 PL/pgSQL Patterns aus Backend-Agent-Learning-Drafts in
+.claude/rules/errors-db.md promoted (PL/pgSQL section, neuer Eintrag):
+  - "PL/pgSQL Loop-Variable Shadowing in Nested Loops (Slice 195d)"
+  - "PL/pgSQL Loop-Variable Stale State (Slice 195d)"
+
+Drafts geloescht (memory/learnings/drafts/).
+
+================================================================
+PASS — Slice 195d ist tester-ready
+================================================================

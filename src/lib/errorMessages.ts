@@ -33,6 +33,9 @@ const KNOWN_KEYS = new Set([
   'lineupLocked', 'noEquipmentOnSlot', 'equipmentSaveFailed',
   // Slice 192 — Holdings ghost-row defensive guards
   'ghost_holding_row', 'holdings_ghost_all',
+  // Slice 195d — Bench + Auto-Sub validation
+  'bench_gk_position_mismatch', 'bench_overlaps_starter', 'bench_not_in_holdings',
+  'bench_duplicate', 'invalid_bench_order',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [

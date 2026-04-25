@@ -116,6 +116,12 @@ export const EventDetailModal = ({
     captainSlot: lb.captainSlot,
     wildcardSlots: lb.wildcardSlots,
     equipmentMap: lb.equipmentMap,
+    // Slice 195d — Bench + Auto-Sub
+    benchGk: lb.benchGk,
+    benchO1: lb.benchO1,
+    benchO2: lb.benchO2,
+    benchO3: lb.benchO3,
+    benchOrder: lb.benchOrder,
     onJoin,
     onSubmitLineup,
     onAfterJoin: incrementParticipantCount,
@@ -304,6 +310,12 @@ export const EventDetailModal = ({
                 onToggleWildcard={lb.onToggleWildcard}
                 equipmentMap={lb.equipmentMap}
                 onEquipmentTap={lb.handleEquipmentTap}
+                /* Slice 195d — Bench + Auto-Sub */
+                benchOrder={lb.benchOrder}
+                getBenchPlayer={lb.getBenchPlayer}
+                getAvailablePlayersForBench={lb.getAvailablePlayersForBench}
+                onSetBenchSlot={lb.handleSetBenchSlot}
+                onMoveBenchOrder={lb.handleMoveBenchOrder}
               />
               {/* Equipment Picker Modal */}
               {lb.equipPickerSlot && (
