@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 208 (+1 closed FM 6.2 Trend-Sparkline-Mini-Chart)
+**Stand:** 2026-04-26 nach Slice 209 (Audit-Cleanup, 8 audit-stale-marker → done, 4 → wont-fix/watch)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **86 closed (≈88%)**
+**Total:** 98 Findings · davon **94 closed-or-not-actionable (≈96%)** · Detail-Tabelle = Single-Source-of-Truth, Aggregat-Tabelle hat akkumulierte pre-Slice-209-Drift (siehe Note unter Aggregat).
 
 ## Status-Legende
 
@@ -16,15 +16,20 @@
 
 ## Aggregat-Tabelle
 
-| Domain | Total | done | wont-fix | in-progress | open | deferred |
+| Domain | Total | done | wont-fix | watch | open | deferred |
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
-| UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
+| UX-States | 27 | 22 | 2 | 2 | 1 | 0 |
 | FM-Mechanics | 26 | 26 | 0 | 0 | 0 | 0 |
-| Fantasy-Scoring | 27 | 23 | 1 | 0 | 3 | 1 |
-| **TOTAL** | **98** | **86** | **3** | **0** | **9** | **1** |
+| Fantasy-Scoring | 27 | 26 | 1 | 0 | 0 | 0 |
+| **TOTAL** | **98** | **89** | **5** | **2** | **2** | **0** + 4 post-beta-deferred (F-14, C-06, R-05, M-02) |
 
-> Note: Detail-Tabelle hatte FM 6.2 als "open" trotz Aggregat 26/26 — Drift entstand vor Session 2026-04-26. Slice 208 schließt FM 6.2 substantiell (Code), Detail-Tabelle ist jetzt aligned. Aggregat-Tabelle bleibt 26/26 (war pre-208 audit-stale-aligned, jetzt code-aligned).
+> **Drift-Note (Slice 209):** Pre-Slice-209 Aggregat-Tabelle hatte akkumulierte Mathematik-Drift (z.B. UX 21/0/6 = 27, aber Detail-Tabelle zeigte mehr als 6 "open"-Marker, davon 5 already-fixed seit Slice 196/198). Slice 209 hat 8 audit-stale-marker → "done" korrigiert (F-02 Slice 197c, F-08 Slice 197, K-01 Slice 197e, UX 11/14/15/16/19 Slice 196/198), 2 → "wont-fix" (UX 6/22 — Audit selbst markiert "akzeptabel"), 2 → "watch" (UX 7/8 — preventClose-TODO bei künftigem async-Refactor). Aggregat oben ist Best-Estimate post-Cleanup. Detail-Tabellen unten sind die echte Source-of-Truth. Real-open-frontend-fixable: **UX 17 (airdrop isError)** + **Brand 1 (Quick-Action-Pills extraction P3)**. Real-open-Money-Path-CEO: **F-09 (BPS-Bonus)** + **UX 20 (MembershipSection Confirm)**. Post-Beta-deferred: **F-14, C-06, R-05, M-02**.
+
+**Slice 209 (Audit-Cleanup, no code-diff):** D48 audit-stale-catcher Pattern angewandt auf 12 punch-list-rows.
+- F-02/F-08/K-01 (Fantasy) + UX 11/14/15/16/19 verifiziert als already-fixed (5 → done).
+- UX 6/22 als wont-fix (Audit self-markiert "akzeptabel").
+- UX 7/8 als watch-status (preventClose-TODO bei async-Refactor).
 
 **Slice 208 closed (+1):** FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions (S-Slice frontend-only).
 - Neue `TrendSparkline`-Sub-Component in `TransactionsPageContent.tsx` mit per-Tag-Aggregation aus existing `filteredCredits` (kein Backend, kein neuer RPC). Mini-SVG (60px H, 400 viewBox) area+line mit color-coded green/red je Net-Trend, dashed Zero-Baseline bei mixed-sign data, vectorEffect="non-scaling-stroke", `preserveAspectRatio="none"` für full-width-stretch. `range='all'` cap auf 90 Tage. 10 Edge-Case-Tests via vi.useFakeTimers (deterministisch). Reviewer CONCERNS→PASS post-Heal (A11y: SVG `aria-hidden` entfernt + `aria-label` direkt aufs SVG, Pattern aus PriceChart.tsx). Spec-Drift dokumentiert: Linear-Path statt Catmull-Rom (60px H + 90-Bucket-Density visuell nicht differenzierbar).
@@ -127,7 +132,7 @@
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
 | F-01 | wont-fix | fantasy.md | Vice-Captain | CEO-Decision (Anil 2026-04-25): nicht bauen, bei 1.1× Captain-Mult zu kleiner Punkte-Verlust |
-| F-02 | open | fantasy.md | Nur 3 Formationen (4-3-3, 4-4-2, 3-4-3); fehlen 3-5-2, 4-5-1, 5-3-2, 5-4-1 | **OFFEN** — Slice 197 |
+| F-02 | done | fantasy.md | Nur 3 Formationen | Slice 197c ✓ (7 Formationen LIVE in `src/features/fantasy/constants.ts` — 4-3-3, 4-4-2, 3-4-3, 3-5-2, 4-5-1, 5-3-2, 5-4-1; D48 audit-stale-catcher) |
 | F-03 | done | fantasy.md | Bench + Auto-Sub | Slice 195d ✓ |
 | F-04 | done | fantasy.md | Captain-Multiplier 1.5× → 1.1× (CEO-eigene Mechanik) | Slice 195a ✓ |
 | F-05 | done | fantasy.md | Triple-Captain Chip Rename + 1.25× | Slice 195b ✓ |
@@ -138,14 +143,14 @@
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
 | F-07 | in-progress | fantasy.md | Differentials-% auf Spieler-Karten | Slice 195e |
-| F-08 | open | fantasy.md | Countdown-Granularität: Sekunden in letzter Stunde | Slice 197 |
+| F-08 | done | fantasy.md | Countdown-Granularität: Sekunden in letzter Stunde | Slice 197 ✓ (`formatCountdown` in `helpers.ts:69-81` zeigt `${mins}m ${secs}s` bei diff < 1h; D48 audit-stale-catcher) |
 | F-09 | open | fantasy.md | BPS-Bonus-System (Top-3 +3/+2/+1) | Slice 198 |
 | F-10 | done | fantasy.md | „Salary"-Konzept perfL5-basiert verwirrt User | Slice 200b ✓ (Tooltip) |
 | F-11 | in-progress | fantasy.md | Captain-Pick-Rate auf Event-Lineup | Slice 195e (gleiche RPC wie F-07) |
 | R-01 | done | fantasy.md | „Monats-Sieger" Wording-Compliance | Hot-Fix Commit `4b5a2c38` |
 | R-02 | done | fantasy.md | „Siege"/„Sieg" 6× user-facing | Hot-Fix Commit `4b5a2c38` |
 | R-03 | done | fantasy.md | Fantasy-only-Leaderboard (Manager-Score isoliert) | already-fixed via GlobalLeaderboard.tsx:19 'manager'-Tab; Slice 200b Marker (GW-Filter → Slice 201) |
-| K-01 | open | fantasy.md | 5-GW-Forward-FDR-Strip auf Club-Page | Slice 197 |
+| K-01 | done | fantasy.md | 5-GW-Forward-FDR-Strip auf Club-Page | Slice 197e ✓ (FDR-Strip live in `ClubContent.tsx:360`; D48 audit-stale-catcher) |
 
 ### P2 (8)
 
@@ -194,17 +199,17 @@
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
 | 2 | done | ux.md | Buy-Error-Banner ohne auto-dismiss | already-fixed via useTradeActions.ts:63-69 (Slice 161+); Slice 200a Reviewer-Marker ✓ |
-| 6 | open | ux.md | KaderTab BulkSell Bar persistence | Slice 198 |
-| 7 | open | ux.md | EventSummaryModal preventClose TODO | watch (re-audit nach jedem async-Refactor) |
-| 8 | open | ux.md | CreateEventModal preventClose TODO | watch |
-| 11 | open | ux.md | DailyChallengeCard kein Retry-Hint | Slice 198 |
-| 14 | open | ux.md | founding loadData immer loading=true bei Re-Fetch | Slice 198 |
-| 15 | open | ux.md | Inventory Sections kein isError-Branch (3/4) | Slice 196 |
-| 16 | open | ux.md | Rankings 7/7 kein isError-Branch | Slice 196 |
-| 17 | open | ux.md | Airdrop kein isError-Handling | Slice 196 |
-| 19 | open | ux.md | Settings Notif-Prefs/Push silent console.error | Slice 198 |
+| 6 | wont-fix | ux.md | KaderTab BulkSell Bar persistence | Audit selbst markiert "akzeptabel" (sticky-bottom Bar, kein Modal-Close-Schutz nötig); D48 audit-stale-catcher |
+| 7 | watch | ux.md | EventSummaryModal preventClose TODO | watch — re-audit nach jedem async-Refactor; aktuell sync OK |
+| 8 | watch | ux.md | CreateEventModal preventClose TODO | watch — aktuell sync OK; preventClose pflicht sobald onCreate async-mutation einbaut |
+| 11 | done | ux.md | DailyChallengeCard kein Retry-Hint | Slice 198 ✓ (Retry-Button in `DailyChallengeCard.tsx:221-228`; D48 audit-stale-catcher) |
+| 14 | done | ux.md | founding loadData immer loading=true bei Re-Fetch | Slice 198 ✓ (silent-mode Param + Optimistic-Counts in `founding/page.tsx:88-105`; D48 audit-stale-catcher) |
+| 15 | done | ux.md | Inventory Sections kein isError-Branch (3/4) | Slice 196 ✓ (alle 3 Inventory-Sections haben isError+refetch — `CosmeticsSection:78`, `WildcardsSection:29`, `MysteryBoxHistorySection:116`; D48 audit-stale-catcher) |
+| 16 | done | ux.md | Rankings 7/7 kein isError-Branch | Slice 196 ✓ (alle 7 Rankings-Components — Self/Player/LastEvent/Monthly/Club/Friends/Global — haben isError; D48 audit-stale-catcher) |
+| 17 | open | ux.md | Airdrop kein isError-Handling | Slice 210 (real-open, frontend-only, P2) |
+| 19 | done | ux.md | Settings Notif-Prefs/Push silent console.error | Slice 196 ✓ (3 Stellen `settings/page.tsx:75/102/116` haben `addToast(te(mapErrorToKey(...)))` Pattern; D48 audit-stale-catcher) |
 | 20 | open | ux.md | MembershipSection Subscribe ohne Confirm-Step | Slice 198 (Money-Risk) |
-| 22 | open | ux.md | compare Empty-Slot Touch-Targets | Slice 198 |
+| 22 | wont-fix | ux.md | compare Empty-Slot Touch-Targets | Audit selbst markiert "OK" (visuell ein großer Touch-Button, akzeptabel); D48 audit-stale-catcher |
 
 ### P3 (4)
 

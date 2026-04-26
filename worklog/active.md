@@ -12,6 +12,7 @@ review: —
 
 ## Zuletzt
 
+- **Slice 209** (2026-04-26) — Audit-Stale-Cleanup (docs-only, D48 catcher-pattern, 4. Iteration). 12 row-marker korrigiert: 8 → done (F-02/F-08/K-01 + UX 11/14/15/16/19 verified als already-fixed seit Slice 196/197/198), 2 → wont-fix (UX 6/22 — Audit selbst "akzeptabel"), 2 → watch (UX 7/8 preventClose-TODO). Aggregat-Tabelle re-stabilisiert mit Drift-Note. Real-actionable-without-CEO: nur **UX 17 (airdrop isError)** + **Brand 1 (P3 low-prio)**. Punch-List effektiv: 89 done + 5 wf + 2 watch + 2 real-open + 4 post-beta-deferred = 98.
 - **Slice 208** (2026-04-26) — FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions (S-Slice frontend-only). Neue `TrendSparkline`-Sub-Component mit per-Tag-Aggregation aus existing `filteredCredits`, range-reaktiv (7d/30d/90d/all mit 90-Bucket-Cap), color-coded green/red, dashed Zero-Baseline bei mixed-sign. 10 Edge-Case-Tests via vi.useFakeTimers. Reviewer CONCERNS→PASS post-Heal (A11y SVG aria-fix, PriceChart-Pattern). Spec-Drift dokumentiert (Linear statt Catmull-Rom — bei 60px H + 90-Density nicht differenzierbar). Punch-Liste 85 → 86/98 (~88%). Commit 0889075d.
 - **Slice 207** (2026-04-26) — Most-Owned Discovery Batch (K-02). M-Slice via Worktree-Agent (escaped — CTO konsolidiert) + 2 Migrations (v1→v2 Heal). Anonymized-Aggregate-RPC #4 der Pattern-#38-Series. Discovery `/clubs` zeigt pro ClubCard "🔥 X% besitzen Y. Müller" (FPL-Trust-Signal). Reviewer PASS (2 NITs nicht-blockierend). 11/11 vitest PASS. Punch-Liste 84 → 85/98 (~87%).
 - **Slice 205** (2026-04-26) — ScoutConsensus Reliability-Indicator (FM 5.2). XS-Slice. Tier-Badge low/medium/high im Header basierend auf qualifiziertem Report-Count (1-9/10-49/50+). D46-Reuse research-data, kein neuer Service. Self-Review (D35 Pattern-Wiederholung Slice 201b ConcentrationBar Tier-Color-Coding). FM-Mechanics 26/26 (100% closed). Punch-Liste 83 → 84/98 (~86%).
@@ -26,18 +27,25 @@ review: —
 
 ## Backlog (priorisiert)
 
-- **Slice 200**: fm 4.4 `players.trades_volume_7d` Column-Migration + Aggregations-Strategie (Trigger vs Materialized View vs Cron) + Frontend Sort-Pill — Schema-Change auf existing Table → CEO-scope (3 Optionen)
-- **Slice 201**: Backend-Slice fuer FM-6.1 (Per-Trade-Player-Link) + FM-4.3 (Holders-Distribution) + M-01 (Mission-Hints kontextabhaengig) — neue RPCs/Definitions
-- **K-03** Squad-Tab Fantasy-Pick-Rate — Backend-Aggregat-RPC (analog Slice 199 most-owned, kann mit existing-RPC-Reuse?).
-- **FM 5.2** Differential-Sentiment ScoutConsensus — Backend-RPC + UI-Indicator.
-- **FM 6.2** Trend-Sparkline-Mini-Chart Aggregation — Backend-Aggregat + Mini-Chart.
+**Real-actionable-frontend-only (CTO-scope, nächste empfohlene Slices):**
+- **UX 17** Airdrop kein isError-Handling — `airdrop/page.tsx:26-27` ergänzen (Pattern aus inventory/rankings). XS-S Slice.
+- **Brand 1 P3** Quick-Action-Pills Component-Extraction (Home `page.tsx:172`) — Polish-Refactor low-prio.
+
+**Backend-M-Slice (kein CEO needed, brauchen Time-Budget):**
 - **FM 10.2 + 10.3** Airdrop Personal-Score-History + Friends-Filter — Backend-Aggregate + Filter-UI.
-- **C-03/K-03** Aggregate-Hint + Squad Fantasy-Pick-Rate — Backend-Aggregat-RPC.
-- **UX 20** MembershipSection Subscribe ohne Confirm-Step — Money-Risk, CEO-Approval pflicht.
-- **F-09** BPS-Bonus-System — Scoring-RPC-Erweiterung, Money-Path, CEO-Approval pflicht.
-- **Holdings-RPC-Migration** (PostgREST → SECURITY DEFINER, post-Beta)
-- **L5-Data-Drift Audit** (11% ohne perf_l5)
-- **TR-Locale-Reviewer** organisieren (Anil-Action)
+
+**Money-Path CEO-Approval pflicht:**
+- **F-09** BPS-Bonus-System — Scoring-RPC-Erweiterung.
+- **UX 20** MembershipSection Subscribe ohne Confirm-Step — Money-Risk.
+
+**Watch-status (kein-action-jetzt, re-audit on async-Refactor):**
+- **UX 7** EventSummaryModal preventClose TODO
+- **UX 8** CreateEventModal preventClose TODO
+
+**Post-Beta-deferred:**
+- F-14 Formation-Presets per User-Liste · C-06 Polls Closed-Time-Display · R-05 „Why I lost"-Breakdown · M-02 Streak-basierte Mission · Holdings-RPC-Migration (PostgREST → SECURITY DEFINER) · L5-Data-Drift Audit (11% ohne perf_l5)
+
+**Anil-Action:** TR-Locale-Reviewer organisieren · 3 Beta-Tester organisieren · Vercel-Plan-Decision · Slice 200 Aggregations-Strategie-Approval (3 Optionen).
 
 ## Anil-Action-Items
 

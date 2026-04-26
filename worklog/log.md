@@ -11,6 +11,36 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 209 | 2026-04-26 | Audit-Stale-Cleanup (12 row-marker korrigiert, D48 catcher-pattern)
+
+- **Stage-Chain:** SPEC (inline, audit-cleanup analog Slice 206) → IMPACT (skipped) → BUILD (pure docs-Diff) → REVIEW (skipped: identische Pattern-Wiederholung Slice 206 D35) → PROVE → LOG
+- **Files:**
+  - `worklog/punch-list-2026-04-25.md` (12 row-marker korrigiert, Aggregat-Tabelle re-stabilisiert mit Drift-Note)
+- **Korrigierte Marker (12 total):**
+  - **8 → done (audit-stale verified als already-fixed):**
+    - F-02 → Slice 197c (7 Formationen LIVE in `src/features/fantasy/constants.ts`)
+    - F-08 → Slice 197 (`formatCountdown` zeigt `${mins}m ${secs}s` bei diff < 1h)
+    - K-01 → Slice 197e (5-GW-FDR-Strip live in `ClubContent.tsx:360`)
+    - UX 11 → Slice 198 (Retry-Button in `DailyChallengeCard.tsx:221-228`)
+    - UX 14 → Slice 198 (silent-mode Param + Optimistic-Counts in `founding/page.tsx:88-105`)
+    - UX 15 → Slice 196 (alle 3 Inventory-Sections haben isError)
+    - UX 16 → Slice 196 (alle 7 Rankings-Components haben isError)
+    - UX 19 → Slice 196 (3 Stellen `settings/page.tsx` haben `addToast(te(mapErrorToKey(...)))`)
+  - **2 → wont-fix (Audit selbst "akzeptabel"):**
+    - UX 6 (KaderTab BulkSell sticky-bottom Bar, kein Modal)
+    - UX 22 (compare Empty-Slot Touch-Targets visuell groß genug)
+  - **2 → watch (preventClose-TODO bei async-Refactor):**
+    - UX 7 (EventSummaryModal — aktuell sync OK)
+    - UX 8 (CreateEventModal — aktuell sync OK)
+- **Drift-Bekenntnis:** Pre-Slice-209 Aggregat-Tabelle hatte akkumulierte Mathematik-Drift (z.B. UX 21/0/6 = 27, aber Detail-Tabelle zeigte mehr als 6 "open"-Marker, davon 5 already-fixed seit Slice 196/198). Slice 209 dokumentiert die Drift transparent statt sie zu kaschieren — Detail-Tabelle ist jetzt Single-Source-of-Truth, Aggregat ist Best-Estimate.
+- **Real-open-Items nach Cleanup:** Frontend-only-fixable: **UX 17 (airdrop isError)** + **Brand 1 (Quick-Action-Pills extraction P3)**. Money-Path-CEO-pending: **F-09** + **UX 20**. Post-Beta-deferred: **F-14, C-06, R-05, M-02**.
+- **Proof:** Marker-Korrektur direkt in `punch-list-2026-04-25.md` verifizierbar (`git diff HEAD`)
+- **Commit:** (pending)
+- **Punch-List-Impact:** 86 → ~89 done + 5 wf + 2 watch + 2 real-open + 4 post-beta-deferred. Real-actionable-without-CEO = 2 Items (UX 17 + Brand 1).
+- **Pattern-Wiederholung:** D48 Reviewer-Agent als Audit-Stale-Catcher — diese Session jetzt 4. Iteration (Slice 200a UX-2, Slice 200b R-03, Slice 203 UX-12, Slice 206 7 fantasy-marker, Slice 209 12 mixed-marker). Pattern empirisch validiert (5 cold-context-Verifikationen in 4 Slices).
+
+---
+
 ## 208 | 2026-04-26 | FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: pure-frontend, single-File, existing data) → BUILD → REVIEW → PROVE → LOG
