@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 216
-stage: PROVE
-spec: worklog/specs/216-p1-wave-heal.md
-impact: skipped (3 frontend-only Files, kein DB/RPC/Service)
-proof: worklog/proofs/216-p1-wave-heal.txt
-review: worklog/reviews/216-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 216** (2026-04-26) — P1-Wave-Heal: FM-NEU-1 + UX-NEU-1 + K-RR-1 (M-Slice, 3 P1 → 0). PickRateBadge in compact-View, FeedbackModal preventClose, Floor-Preis title-Tooltip. Reviewer PASS (1 Visual-CONCERN Heal 1 + Test-Mock pre-existing-fail Slice 218 Backlog). 8/9 ACs grün. Phase-Tracker findings_open.P1: 3→0. last_signoff bleibt FAIL (Anil-Action: Tester-Liste + Onboarding-Doc fehlen). **Nächster Sign-Off-Trial-Run wird SOFT-NO-GO statt HARD-NO-GO produzieren.** Commit afe63300.
 - **Slice 217** (2026-04-26) — Sign-Off-Trial-Run trotz P1=3 (S-Verifikations-Slice). Anil-Direktive "3" = teste ob Auto-Beta-Ready-Foundation lügt. **Resultat: HARD-NO-GO bestätigt** — System produziert ehrliches NO-GO. Decision-Matrix: 2 ✅ + 4 ❓ + 2 ❌ (tester-list FEHLT, onboarding-doc FEHLT). Phase-Tracker auf D, last_signoff=FAIL. Hook ship-phase-gate jetzt warnt mit "Phase: D, Sign-Off: FAIL". 5/5 ACs grün. Self-Review D35. Commit a9122ea1.
 - **Slice 215** (2026-04-26) — Phase-C Re-Run mit Bash-First-Write + Manual-Completion (S-Slice). 2 Background-Agents (Persona-K + FM-Mechanics) re-dispatched mit Pattern v2 Skeleton-First. **Files persistent** ✓, **iteratives Append failed** ✗ — beide Agents schrieben nur Skeleton. Manual-Completion durch CTO appendierte 5 neue Findings: K-RR-1 P1 (Floor-Preis-Tooltip), K-RR-2 P2 (BuyConfirmModal Sentiment), FM-RR-1 P2 (Sparkline Hover), FM-RR-2/FM-RR-3 P3 (Watchlist-Page + Trending-Pills). Pipeline re-runned → 4 Stubs (3 P1 + 1 P2P3-Bundle). Phase-Tracker: P1=2→3 (K-RR-1 NEU). Workflow-Learning: Pattern v3 nötig für 216+. Commit 1231bcbe.
 - **Slice 214** (2026-04-26) — Auto-Beta-Ready Self-Healing-Loop (L-Meta-Process). Anil-Direktive "ich höre fertig aber dem ist nicht so". Foundation für autonomen Phase-A→B→C→D-Loop: `worklog/beta-phase.md` (Phase-Tracker SoT) + `ship-phase-gate.sh` (UserPromptSubmit-WARN bei Beta-Claim ohne Sign-Off) + `scripts/findings-to-slices.ts` (Pipeline mit Auto-AC-Skeleton) + `auto-beta-ready` Master-Skill. CLAUDE.md+workflow.md hard-Definition. **Live-Test:** 7 Background-Agents Phase-C-Re-Run dispatched, 5 Findings aggregiert, 3 Slice-Stubs auto-generiert (FM-NEU-1 Slice-204-Regression, UX-NEU-1 FeedbackModal preventClose, P2-Bundle TR+Fantasy). Reviewer CONCERNS→PASS post-Heal (3 HIGH + 2 MED inline-gefixt). 12/12 ACs grün. Phase=C, Sign-Off=never — Slice 214 nicht "fertig" laut neuem Standard, Slice 215+ heilt Phase-C-Findings. Commit 7af9a793.
