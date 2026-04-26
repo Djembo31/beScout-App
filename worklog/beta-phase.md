@@ -20,7 +20,7 @@ findings_open:
   P2: 4
   P3: 3
   incomplete_reruns: 0
-  test_mock_backlog: 1   # ClubContent.test.tsx: useLeagueActiveGameweek + useEventPlayerPickRates nicht gemockt seit Slice 204 — Slice 218+
+  test_mock_backlog: 0   # Slice 218 (2026-04-26) hat ClubContent.test.tsx-Mocks repariert — 12/12 pass
 aggregate_file: worklog/audits/2026-04-26/aggregate.md
 signoff_file: worklog/sign-off/2026-04-26-readiness.md
 gate: "kein 'Beta-fertig'/'launch-ready' bis last_signoff == PASS UND P0+P1 = 0"

@@ -276,13 +276,25 @@ vi.mock('@/lib/queries/ipos', () => ({
 }));
 
 const mockUseEvents = vi.fn();
-vi.mock('@/lib/queries/events', () => ({
+const mockUseLeagueActiveGameweek = vi.fn();
+vi.mock('@/features/fantasy/queries/events', () => ({
   useEvents: (...args: unknown[]) => mockUseEvents(...args),
+  useLeagueActiveGameweek: (...args: unknown[]) => mockUseLeagueActiveGameweek(...args),
+}));
+
+// Slice 218 (Test-Mock-Repair pre-existing-fail seit Slice 204):
+// useEventPlayerPickRates wird in ClubContent.tsx genutzt für Squad-Tab Pick-Rate-Map.
+// Default-mock: leeres Array (kein Event aktiv), ClubContent rendert dann ohne Pick-Rate-Badges.
+const mockUseEventPlayerPickRates = vi.fn();
+vi.mock('@/features/fantasy/queries/fantasyPicker', () => ({
+  useEventPlayerPickRates: (...args: unknown[]) => mockUseEventPlayerPickRates(...args),
 }));
 
 const mockUseClubRecentTrades = vi.fn();
+const mockUseMostOwnedPlayersPerClub = vi.fn();
 vi.mock('@/lib/queries/trades', () => ({
   useClubRecentTrades: (...args: unknown[]) => mockUseClubRecentTrades(...args),
+  useMostOwnedPlayersPerClub: (...args: unknown[]) => mockUseMostOwnedPlayersPerClub(...args),
 }));
 
 const mockUseFanRanking = vi.fn();
@@ -304,7 +316,10 @@ function setDefaultHookReturns() {
   mockUseClubPrestige.mockReturnValue({ data: null });
   mockUseActiveIpos.mockReturnValue({ data: [] });
   mockUseEvents.mockReturnValue({ data: [] });
+  mockUseLeagueActiveGameweek.mockReturnValue({ data: null });
+  mockUseEventPlayerPickRates.mockReturnValue({ data: null });
   mockUseClubRecentTrades.mockReturnValue({ data: [] });
+  mockUseMostOwnedPlayersPerClub.mockReturnValue({ data: [], isLoading: false });
   mockUseFanRanking.mockReturnValue({ data: null, isLoading: false });
   mockUseClubStanding.mockReturnValue({ data: null });
 }

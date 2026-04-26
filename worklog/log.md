@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 218 | 2026-04-26 | Test-Mock-Repair ClubContent.test.tsx (12 fails → 12 pass)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE (vitest 12/12) → LOG
+- **Größe:** XS (1 Test-File-Edit, Pattern-Wiederholung Slice 196 testing.md)
+- **Anil-Direktive:** "volle Entscheidungsgewalt, führe aus" — autonomer Slice
+- **Files:**
+  - `src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx` — EDIT
+- **Bug-Klasse:** Pre-existing seit Slice 204 — Test-Mocks fehlten für 3 Hooks die ClubContent.tsx in Squad-Tab nutzt
+- **Heals (3 Mocks ergänzt):**
+  - `useLeagueActiveGameweek` (aus `@/features/fantasy/queries/events`) — Mock-Path-Korrektur (war `@/lib/queries/events`)
+  - `useEventPlayerPickRates` (aus `@/features/fantasy/queries/fantasyPicker`) — komplett neu
+  - `useMostOwnedPlayersPerClub` (aus `@/lib/queries/trades`) — komplett neu, Default `{ data: [] }` weil Component `rows.length` aufruft (kein `?? []` fallback)
+- **Test-Resultat:** 12 fail → 12 pass (vor Heal: 12 fail mit `Cannot read properties of undefined/null`)
+- **Phase-Tracker-Update:** test_mock_backlog: 1 → 0
+- **Commit:** (pending)
+
+---
+
 ## 216 | 2026-04-26 | P1-Wave-Heal: FM-NEU-1 + UX-NEU-1 + K-RR-1 (3 P1 → 0)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
