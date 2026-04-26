@@ -1,0 +1,97 @@
+Slice 201b — Holders-Distribution-Mini-Bar (FM-4.3) Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean (post-heal F2)
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Migration LIVE applied
+================================================================
+$ mcp__supabase__apply_migration name=slice_201b_holders_concentration
+{"success":true}
+
+DDL applied:
+- CREATE OR REPLACE FUNCTION public.get_player_holders_concentration(uuid)
+  SECURITY DEFINER STABLE LANGUAGE plpgsql
+  Returns: jsonb {success, total_holders, total_supply, top_10_supply, top_10_pct}
+- AR-44 REVOKE/GRANT (PUBLIC + anon revoked, authenticated + service_role granted)
+- COMMENT ON FUNCTION
+- auth.uid() IS NULL Guard im Body
+
+================================================================
+3. RPC Live-Verify (auth-context-blocked → expected, MCP service_role)
+================================================================
+$ SELECT public.get_player_holders_concentration('05f7a1a2-...');
+{"error":"auth_required","success":false,...}  ← Guard greift bei auth.uid()=NULL
+
+PASS: Guard funktional. UI ist authenticated → bekommt success-response.
+
+================================================================
+4. Manuelle Aggregat-Verify (was RPC bei auth liefert)
+================================================================
+$ Manual aggregate für player 05f7a1a2-e70b-4327-accd-5f90f84d6f7e:
+{"total_holders":20, "total_supply":72, "top_10_supply":62, "top_10_pct":"86.1"}
+
+PASS: 20 holders, top-10 halten 86.1% (concentrated player → orange-warning UI).
+
+================================================================
+5. Frontend
+================================================================
+$ grep -nE "ConcentrationBar|getPlayerHoldersConcentration|usePlayerHoldersConcentration"
+src/components/market/ConcentrationBar.tsx (NEW, 95 LOC)
+src/lib/services/wallet.ts:170: export type PlayerHoldersConcentration
+src/lib/services/wallet.ts:178: export async function getPlayerHoldersConcentration
+src/lib/queries/misc.ts:71: export function usePlayerHoldersConcentration
+src/lib/queries/index.ts:15: usePlayerHoldersConcentration export
+src/features/market/components/marktplatz/TransferListSection.tsx:21: ConcentrationBar lazy-import
+src/features/market/components/marktplatz/TransferListSection.tsx:319: <ConcentrationBar playerId enabled variant="full" />
+
+PASS: Lazy-import (dynamic) + render nur bei isExpanded → kein N+1 für 100+ rows.
+
+================================================================
+6. i18n DE+TR symmetrisch (5 keys)
+================================================================
+$ grep -E "concentrationIntro|concentrationLabel|concentrationTitle|concentrationLoading|concentrationHolderCount" messages/de.json | wc -l
+5
+$ grep -E "concentrationIntro|concentrationLabel|concentrationTitle|concentrationLoading|concentrationHolderCount" messages/tr.json | wc -l
+5
+
+PASS: Beide Locales 5/5 keys.
+
+================================================================
+7. Reviewer-Verdict
+================================================================
+worklog/reviews/201b-review.md
+Verdict: PASS (3 cosmetic NITs, kein REWORK)
+- F1 NIT: logSilentCatch+throw triple-log (defensive OK, akzeptiert)
+- F2 NIT: defaultMessage cleanup → INLINE-GEHEALT (2 Stellen)
+- F3 NIT: Backslash-Komment-Stern war Display-Artefakt (kein Real-Issue)
+
+Pattern-Konsistenz vs get_player_holder_count Blueprint: 100%
++ Plus: Discriminated-Union Return-Shape > Blueprint (moderner)
+Money-Path: ✅ read-only, kein Wallet/Trade-Trigger
+D48: ✅ kein Pre-existing Concentration-Aggregate
+Time-spent: 8 min
+
+================================================================
+8. Files Modified
+================================================================
+$ git diff --stat HEAD
+supabase/migrations/20260426230000_slice_201b_holders_concentration.sql | 78 +++ (NEW)
+src/lib/services/wallet.ts                                              | 42 +++
+src/lib/queries/misc.ts                                                 | 18 +++
+src/lib/queries/index.ts                                                |  2 +-
+src/components/market/ConcentrationBar.tsx                              | 95 +++ (NEW)
+src/features/market/components/marktplatz/TransferListSection.tsx       | 12 +-
+messages/de.json                                                        |  5 +
+messages/tr.json                                                        |  5 +
+worklog/specs/201b-holders-concentration.md                             | 60 +++ (NEW)
+worklog/proofs/201b-tsc-mig.txt                                         | 95 +++ (NEW)
+worklog/reviews/201b-review.md                                          | 88 +++ (NEW)
+worklog/active.md                                                       | 14 +-
+
+Total: 8 source + 4 worklog (5 NEU)

@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 201a (+1 closed FM-6.1 Per-Trade-Player-Link)
+**Stand:** 2026-04-26 nach Slice 201b (+1 closed FM-4.3 Holders-Distribution-Mini-Bar)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **79 closed (≈81%)**
+**Total:** 98 Findings · davon **80 closed (≈82%)**
 
 ## Status-Legende
 
@@ -20,9 +20,12 @@
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
-| FM-Mechanics | 26 | 24 | 0 | 0 | 2 | 0 |
+| FM-Mechanics | 26 | 25 | 0 | 0 | 1 | 0 |
 | Fantasy-Scoring | 27 | 19 | 1 | 0 | 7 | 1 |
-| **TOTAL** | **98** | **79** | **3** | **0** | **16** | **1** |
+| **TOTAL** | **98** | **80** | **3** | **0** | **15** | **1** |
+
+**Slice 201b closed (+1):** Holders-Distribution-Mini-Bar (CTO unter voller Autonomie, M-Slice).
+- FM 4.3 TransferListSection — neue SECURITY DEFINER RPC `get_player_holders_concentration` + ConcentrationBar Mini-SVG mit Color-Coding (orange/amber/emerald). Lazy-Loaded in expanded-View (kein N+1). Pattern Slice 014 Blueprint, Reviewer PASS, F2 inline-gehealt.
 
 **Slice 201a closed (+1):** Per-Trade-Player-Link in Transactions (CTO unter voller Autonomie, S-Slice).
 - FM 6.1 TransactionsPageContent — klickbarer Player-Link bei trade_buy/trade_sell rows. Service `getTradePlayersByIds` + Hook `useTradePlayerMap` + Component-Erweiterung. Read-only enrichment, kein Money-Path. Self-Review (D35).
@@ -206,7 +209,7 @@
 | 2.2 | open | fm.md | Differential-% im Player-Picker | Slice 195e (mit F-07) |
 | 4.1 | open | fm.md | MV-Trend-Filter rising/falling/stable | Slice 197 |
 | 4.2 | open | fm.md | Trending Hot/Rising/Faller/IPO-Soon Pills | Slice 198 |
-| 4.3 | open | fm.md | Holders-Distribution-Mini-Bar in Row | Slice 198 |
+| 4.3 | done | fm.md | Holders-Distribution-Mini-Bar in Row | Slice 201b ✓ (RPC + ConcentrationBar lazy in expanded) |
 | 5.1 | open | fm.md | FormBars Match-by-Match Hover-Tooltip | Slice 198 |
 | 9.1 | open | fm.md | Founding Progress-Bar fehlt | Slice 196 (Quick-Win) |
 | 10.1 | done | fm.md | Airdrop „Brauche X Pkt für nächsten Tier"-CTA | Slice 200b ✓ |

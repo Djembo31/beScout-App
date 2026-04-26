@@ -11,6 +11,73 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 201b | 2026-04-26 | Holders-Distribution-Mini-Bar (FM-4.3)
+
+M-Slice manuell vom CTO unter voller Autonomie. Aggregat-RPC + Mini-SVG-Bar Lazy-Loaded in TransferList expanded-View. Pattern Blueprint `get_player_holder_count` (Slice 014). Punch-Liste: 79/98 → **80/98 closed (~82%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/201b-holders-concentration.md) → IMPACT skipped (additive RPC + UI, kein Money-Path, anonymized aggregate) → BUILD → REVIEW (Cold-Context-Reviewer verdict PASS, 3 cosmetic NITs, F2 inline-gehealt) → PROVE (Migration LIVE applied + DB-Aggregat-Verify + tsc clean) → LOG
+
+### Items closed (1)
+
+- **FM 4.3** TransferListSection Holders-Distribution-Mini-Bar — Mini-SVG-Bar zeigt Top-10-Holder-Anteil mit Color-Coding (orange ≥80% illiquid, amber ≥50% medium, emerald <50% liquid). Sorare-Standard fuer Liquid/Iliquid-Erkennung.
+
+### Backend (Pattern Slice 014 Blueprint)
+
+**Migration `20260426230000_slice_201b_holders_concentration.sql` (LIVE applied):**
+- RPC `get_player_holders_concentration(p_player_id UUID)` SECURITY DEFINER STABLE LANGUAGE plpgsql
+  - WITH per_user (SUM quantity per user_id) → top_10 (LIMIT 10) Aggregat
+  - Discriminated-Union Return-Shape `{success, total_holders, total_supply, top_10_supply, top_10_pct}`
+  - auth.uid() IS NULL → returnt `{success: false, error: 'auth_required', counts:0}`
+  - Anonymized — kein user_id, kein handle
+  - Bypass holdings-RLS (Slice 014 tightened RLS to own-rows)
+- AR-44 REVOKE/GRANT komplett
+
+**DB-Verify:** Manual aggregate fuer player 05f7a1a2: 20 holders, 72 supply, top-10 = 62 (86.1% concentrated → orange-warning).
+
+### Frontend
+
+- `src/lib/services/wallet.ts`: `PlayerHoldersConcentration` Type + `getPlayerHoldersConcentration()` Service mit discriminated-union check + logSilentCatch
+- `src/lib/queries/misc.ts`: `usePlayerHoldersConcentration(playerId, enabled)` Hook mit lazy-load gate (staleTime 5min)
+- `src/components/market/ConcentrationBar.tsx` NEU: Mini-SVG-Bar mit Color-Coding (orange/amber/emerald), ARIA progressbar, Skeleton-State, motion-reduce-friendly
+- `src/features/market/components/marktplatz/TransferListSection.tsx`: Lazy-Import + Render nur in `isExpanded`-Branch (kein N+1 für 100+ rows)
+- 5 i18n-Keys DE+TR symmetrisch (concentrationIntro/Label/Title/Loading/HolderCount mit ICU-Plural)
+
+### Reviewer-Verdict
+
+- Pattern-Konsistenz vs Blueprint: 100% + **Plus** (Discriminated-Union > Blueprint naked-return)
+- Money-Path: read-only, kein Wallet/Trade-Trigger
+- D48-Check: `get_player_holder_count` macht nur COUNT — kein Duplicate
+- F2 inline-gehealt (defaultMessage Cleanup an 2 Stellen)
+
+### Files modified
+
+```
+supabase/migrations/20260426230000_slice_201b_holders_concentration.sql | 78 +++ (NEW)
+src/lib/services/wallet.ts                                              | 42 +++
+src/lib/queries/misc.ts                                                 | 18 +++
+src/lib/queries/index.ts                                                |  2 +-
+src/components/market/ConcentrationBar.tsx                              | 95 +++ (NEW)
+src/features/market/components/marktplatz/TransferListSection.tsx       | 12 +-
+messages/de.json                                                        |  5 +
+messages/tr.json                                                        |  5 +
+worklog/specs/201b-holders-concentration.md                             | 60 +++ (NEW)
+worklog/proofs/201b-tsc-mig.txt                                         | 95 +++ (NEW)
+worklog/reviews/201b-review.md                                          | 88 +++ (NEW)
+```
+
+### Proof
+- `worklog/proofs/201b-tsc-mig.txt` — tsc clean + Migration LIVE + DB-Aggregat-Verify + RPC Auth-Guard verified
+- Reviewer: `worklog/reviews/201b-review.md` (verdict PASS)
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+CTO unter voller Autonomie — Anil-Approval explizit fuer 201b-Backlog-Item via Echo "1". Anonymized-Aggregate-RPC-Reihe waechst (jetzt 2 RPCs in Reihe) — Reviewer-Empfehlung: Pattern-Capture in patterns.md als "Anonymized RLS-Bypass Aggregate Series" Kandidat fuer naechste DISTILL.
+
+---
+
 ## 201a | 2026-04-26 | Per-Trade-Player-Link in Transactions (FM-6.1)
 
 S-Slice manuell vom CTO unter voller Autonomie. Read-only enrichment — Service + Hook + Component-Erweiterung. Punch-Liste: 78/98 → **79/98 closed (~81%)**.

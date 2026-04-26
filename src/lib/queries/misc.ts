@@ -2,7 +2,7 @@
 
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getTransactions, getHoldingQty, getPlayerHolderCount, getTradePlayersByIds } from '@/lib/services/wallet';
+import { getTransactions, getHoldingQty, getPlayerHolderCount, getTradePlayersByIds, getPlayerHoldersConcentration } from '@/lib/services/wallet';
 import { getWatcherCount } from '@/lib/services/watchlist';
 import { getLeaderboard } from '@/lib/services/social';
 import { getPosts } from '@/lib/services/posts';
@@ -67,6 +67,24 @@ export function useTradePlayerMap(tradeIds: string[], enabled = true) {
     queryFn: () => getTradePlayersByIds(tradeIds),
     enabled: enabled && tradeIds.length > 0,
     staleTime: FIVE_MIN, // Trade-Player-Mapping aendert sich nicht (trades append-only)
+  });
+}
+
+/**
+ * Slice 201b (FM-4.3): Top-10-Holders-Concentration per player.
+ * Lazy-load opt-in (enabled-Flag) damit nicht alle PlayerRows in TransferList
+ * eager-fetchen (N+1-Risiko). Caller setzt enabled=true z.B. bei Player-Detail
+ * oder bei Visible-On-Screen.
+ */
+export function usePlayerHoldersConcentration(
+  playerId: string | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ['players', 'holders-concentration', playerId!] as const,
+    queryFn: () => getPlayerHoldersConcentration(playerId!),
+    enabled: !!playerId && enabled,
+    staleTime: FIVE_MIN, // Holdings-Verteilung aendert sich langsam
   });
 }
 

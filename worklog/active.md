@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 201b
+stage: LOG
+spec: worklog/specs/201b-holders-concentration.md
+impact: skipped (additive RPC + UI, kein Money-Path, anonymized aggregate)
+proof: worklog/proofs/201b-tsc-mig.txt
+review: worklog/reviews/201b-review.md
 ```
 
 ## Zuletzt

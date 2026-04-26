@@ -17,6 +17,10 @@ import { centsToBsd } from '@/lib/services/players';
 import type { Player, PublicOrder } from '@/types';
 
 const OrderDepthView = dynamic(() => import('../shared/OrderDepthView'), { ssr: false });
+const ConcentrationBar = dynamic(
+  () => import('@/components/market/ConcentrationBar').then(m => m.ConcentrationBar),
+  { ssr: false },
+);
 
 interface TransferListSectionProps {
   players: Player[];
@@ -313,7 +317,12 @@ export default function TransferListSection({
 
                 {/* Order Depth View — expandable */}
                 {isExpanded && (
-                  <div className="border-t border-divider px-3">
+                  <div className="border-t border-divider px-3 py-2 space-y-2">
+                    {/* Slice 201b (FM-4.3): Holders-Concentration-Indikator */}
+                    <div className="flex items-center justify-between gap-2 text-[11px]">
+                      <span className="text-white/40">{t('concentrationIntro')}</span>
+                      <ConcentrationBar playerId={p.id} enabled variant="full" />
+                    </div>
                     <OrderDepthView playerId={p.id} />
                   </div>
                 )}

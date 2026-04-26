@@ -167,6 +167,49 @@ export async function getTransactions(userId: string, limit = 20, offset = 0): P
 }
 
 /**
+ * Slice 201b (FM-4.3): Holders-Distribution-Aggregate.
+ * Top-10-Holders-Concentration per player. Anonymized output via SECURITY
+ * DEFINER RPC `get_player_holders_concentration`. Sorare-Standard fuer
+ * Liquid/Iliquid-Erkennung (Floor-Price kann taeuschen wenn 1 Holder 80% haelt).
+ */
+export type PlayerHoldersConcentration = {
+  total_holders: number;
+  total_supply: number;
+  top_10_supply: number;
+  top_10_pct: number;
+};
+
+export async function getPlayerHoldersConcentration(
+  playerId: string,
+): Promise<PlayerHoldersConcentration> {
+  const { data, error } = await supabase.rpc('get_player_holders_concentration', {
+    p_player_id: playerId,
+  });
+  if (error) {
+    logSilentCatch('wallet.getPlayerHoldersConcentration', error);
+    throw new Error(error.message);
+  }
+  // Discriminated-Union check (Slice 165 pattern)
+  const result = data as {
+    success?: boolean;
+    error?: string;
+    total_holders?: number;
+    total_supply?: number;
+    top_10_supply?: number;
+    top_10_pct?: number;
+  };
+  if (!result || result.success !== true) {
+    throw new Error(result?.error ?? 'rpc_failed');
+  }
+  return {
+    total_holders: result.total_holders ?? 0,
+    total_supply: Number(result.total_supply ?? 0),
+    top_10_supply: Number(result.top_10_supply ?? 0),
+    top_10_pct: Number(result.top_10_pct ?? 0),
+  };
+}
+
+/**
  * Slice 201a (FM-6.1): Per-Trade-Player-Link enrichment.
  * Fuer eine Liste von trade-IDs (aus transactions.reference_id bei type='trade_buy'/'trade_sell')
  * wird die zugehoerige Player-Info geholt. Returnt Map<trade_id, PlayerInfo>.

@@ -12,7 +12,7 @@ export { useEnrichedPlayers, enrichPlayersWithData } from './enriched';
 export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds, useUserSocialStats } from './social';
 export { useEvents, useJoinedEventIds } from './events';
 export { useUserStats } from './stats';
-export { useTransactions, useInfiniteTransactions, useTradePlayerMap, useWildcardHistory, useLeaderboard, usePosts, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
+export { useTransactions, useInfiniteTransactions, useTradePlayerMap, usePlayerHoldersConcentration, useWildcardHistory, useLeaderboard, usePosts, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
 export { useActiveIpos } from './ipos';
 export { useTrendingPlayers } from './trending';
 export { useAllPriceHistories } from './priceHist';
