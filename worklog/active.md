@@ -1,17 +1,20 @@
 # Active Slice
 
 ```
-status: active
-slice: 220
-stage: PROVE
-spec: inline (XS Verifikations-Run, Pattern-Wiederholung Slice 215/217)
-impact: skipped (kein Code, nur tooling-checks)
-proof: worklog/proofs/220-verifies.txt
-review: self-review (D35 trivial Verifikations-Run)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 220** (2026-04-26) — Smoke + Sentry + PostHog Verifies (XS, Verifikations-Run). ✅ Smoke 10/10 GREEN gegen bescout.net (19.5s). ✅ PostHog connected (org "beScout", project 160677 prod). ✅ Sentry CSP+Lib+Config (EU-Endpoint). 🔴 **NEUER P1 FINDING:** POSTHOG-NEU-1 — PostHog 0 Events ingested (Instrumentation-Gap aus beta-exit-criteria.md:135). Sign-Off-Matrix: 2 ❓ → 0, 2 ❓ verbleibend (Page-Health-Score, Persona-Score numerisch). signoff_questionable: 4→2. P1: 0→1 (POSTHOG-NEU-1). Commit f6c019f2.
+- **Slice 219** (2026-04-26) — Onboarding-Doc + Tester-Recruitment-Templates DE+TR (S, Doku-Slice). 2 NEU Files in `memory/`: `beta-onboarding.md` + `beta-tester-recruitment-templates.md`. Anil-Mensch-Aktion reduziert von "schreibe Texte" auf "klick + verschicken". 6/6 ACs grün. Commit b516a5cd.
+- **Slice 218** (2026-04-26) — Test-Mock-Repair ClubContent.test.tsx (XS). 3 Mocks ergänzt (useLeagueActiveGameweek, useEventPlayerPickRates, useMostOwnedPlayersPerClub). 12 fail → 12 pass. Pre-existing seit Slice 204. Commit 756d2987.
 - **Slice 216** (2026-04-26) — P1-Wave-Heal: FM-NEU-1 + UX-NEU-1 + K-RR-1 (M-Slice, 3 P1 → 0). PickRateBadge in compact-View, FeedbackModal preventClose, Floor-Preis title-Tooltip. Reviewer PASS (1 Visual-CONCERN Heal 1 + Test-Mock pre-existing-fail Slice 218 Backlog). 8/9 ACs grün. Phase-Tracker findings_open.P1: 3→0. last_signoff bleibt FAIL (Anil-Action: Tester-Liste + Onboarding-Doc fehlen). **Nächster Sign-Off-Trial-Run wird SOFT-NO-GO statt HARD-NO-GO produzieren.** Commit afe63300.
 - **Slice 217** (2026-04-26) — Sign-Off-Trial-Run trotz P1=3 (S-Verifikations-Slice). Anil-Direktive "3" = teste ob Auto-Beta-Ready-Foundation lügt. **Resultat: HARD-NO-GO bestätigt** — System produziert ehrliches NO-GO. Decision-Matrix: 2 ✅ + 4 ❓ + 2 ❌ (tester-list FEHLT, onboarding-doc FEHLT). Phase-Tracker auf D, last_signoff=FAIL. Hook ship-phase-gate jetzt warnt mit "Phase: D, Sign-Off: FAIL". 5/5 ACs grün. Self-Review D35. Commit a9122ea1.
 - **Slice 215** (2026-04-26) — Phase-C Re-Run mit Bash-First-Write + Manual-Completion (S-Slice). 2 Background-Agents (Persona-K + FM-Mechanics) re-dispatched mit Pattern v2 Skeleton-First. **Files persistent** ✓, **iteratives Append failed** ✗ — beide Agents schrieben nur Skeleton. Manual-Completion durch CTO appendierte 5 neue Findings: K-RR-1 P1 (Floor-Preis-Tooltip), K-RR-2 P2 (BuyConfirmModal Sentiment), FM-RR-1 P2 (Sparkline Hover), FM-RR-2/FM-RR-3 P3 (Watchlist-Page + Trending-Pills). Pipeline re-runned → 4 Stubs (3 P1 + 1 P2P3-Bundle). Phase-Tracker: P1=2→3 (K-RR-1 NEU). Workflow-Learning: Pattern v3 nötig für 216+. Commit 1231bcbe.
@@ -35,11 +38,11 @@ review: self-review (D35 trivial Verifikations-Run)
 
 ## Backlog (priorisiert)
 
-**Phase-C Stubs nach Slice 215 Re-Run (alle in worklog/specs/214-derived-*.md):**
-- **Slice 216** Heal 3 P1 (Wave-Slice): FM-NEU-1 (PickRateBadge cards-only) + UX-NEU-1 (FeedbackModal preventClose) + K-RR-1 (Floor-Preis-Tooltip). Wenn alle 3 closed → P1=0 → Sign-Off-Gate öffnet.
-- **Slice 217** Phase-D Sign-Off-Trial (`/auto-beta-ready signoff`) — wird bei P1=0 PASS, sonst FAIL mit klarer Liste.
-- **Slice 218** P2-Bundle (5 Findings): TR event_winner + FPL 60min-Rule + FM-RR-1 Sparkline-Hover + K-RR-2 Sentiment-Erklärung + FM-RR-2 Watchlist-Standalone-Frage. Stub `214-derived-p2p3-bundle.md`.
-- **Slice 219+ Backlog:** P3-Polish, Briefing-Pattern v3 für Background-Agent-Iterativ-Append.
+**Backlog post-Slice-220 (Wave-2-Tooling + Phase-C-Heals):**
+- **Slice 222** POSTHOG-NEU-1 Heal — PostHog-Instrumentation: `track('login')`, `track('first_trade')`, `track('first_lineup')`, `track('first_post')` Events einbauen (~1h, beta-exit-criteria.md-Vorgabe). Closed P1=0.
+- **Slice 223** P2-Bundle Heal (5 Findings via `214-derived-p2p3-bundle.md`): TR event_winner + FPL 60min-Rule + FM-RR-1 Sparkline-Hover + K-RR-2 Sentiment-Erklärung + FM-RR-2 Watchlist-Standalone-Frage.
+- **Slice 224** Re-Run Sign-Off-Trial → erwarteter SOFT-NO-GO bei nur Tester-Liste pending.
+- **Slice 225+** P3-Polish, Mobile-Popover für Floor-Preis (K-RR-1 vollständigung), Briefing-Pattern v3 für Background-Agent-Iterativ-Append.
 
 **Wave 3+ — Workflow-Tooling-Backlog:**
 - Hook-Item-Count-Validation (Slice 212 Reviewer-Lücke)
