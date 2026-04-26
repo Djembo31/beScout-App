@@ -11,6 +11,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 220 | 2026-04-26 | Smoke + Sentry + PostHog Verifies (closet 2 ❓ in Sign-Off-Matrix, NEUER P1 Finding)
+
+- **Stage-Chain:** SPEC (inline) → IMPACT (skipped) → BUILD (3 Verifies) → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (Verifikations-Run, Pattern-Wiederholung Slice 217)
+- **Anil-Direktive:** "volle Entscheidungsgewalt, führe aus"
+- **3 Verifikations-Aktionen:**
+  1. **Smoke-Suite gegen bescout.net** (`PLAYWRIGHT_BASE_URL=https://bescout.net npx playwright test --project=smoke`) — ✅ GREEN, 10/10 critical flows passing in 19.5s
+  2. **PostHog connection** (`mcp__posthog__organization-get` + `projects-get` + `sdk-doctor-get`) — ✅ Connection live, project "Default project" id 160677 prod
+  3. **Sentry Code-Verify** (CSP-Domains in vercel.json + @sentry/nextjs imports + sentry.{edge,server}.config.ts existence) — ✅ EU-Endpoint konfiguriert
+- **Sign-Off-Matrix-Updates:**
+  - Kriterium "Smoke-Green: true" → ✅ (vorher ❓)
+  - Kriterium "Sentry+PH connected: true" → ✅ (vorher ❓)
+  - signoff_questionable: 4 → 2 (verbleibend: Per-Page-Health-Score, Persona-Score numerisch)
+- **🔴 NEUER P1 FINDING (POSTHOG-NEU-1):** PostHog connected ABER 0 Events ingested. `ingested_event: false`, `team_sdk_count: 0`, `completed_snippet_onboarding: false`. Bekannt als Gap aus `beta-exit-criteria.md:135` — die App hat PostHog-Library importiert, aber `track()`-Calls fehlen ODER PostHog-Init failed silent. Blockt B1 Activation + B2 First-Trade-Funnel der Beta-Exit-Kriterien.
+- **Phase-Tracker-Update:** P1: 0 → 1 (POSTHOG-NEU-1), signoff_questionable: 4 → 2.
+- **Sign-Off-Trial-Re-Run-Prognose post-Slice-220:** würde immer noch **SOFT-NO-GO** produzieren wegen 2 ❌ (Tester-Liste pending) + 1 P1 NEU + 2 ❓ verbleibend. Foundation tut was sie soll: ehrlich melden statt lügen.
+- **Proof:** `worklog/proofs/220-verifies.txt` (3/3 Verifies done, neuer Finding dokumentiert)
+- **Review:** self-review per D35 (Verifikations-Slice analog Slice 217)
+- **Wave-Backlog:** Slice 222 — POSTHOG-NEU-1 Heal (PostHog-Instrumentation: `login`, `first_trade`, `first_lineup`, `first_post` Events einbauen, ~1h Arbeit laut beta-exit-criteria.md)
+- **Commit:** (pending)
+
+---
+
 ## 219 | 2026-04-26 | Onboarding-Doc + Tester-Recruitment-Templates DE+TR
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
