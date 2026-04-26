@@ -10,18 +10,23 @@
 
 ```yaml
 phase: C
-last_phase_run: 2026-04-26T19:00
+last_phase_run: 2026-04-26T20:00 (Slice 215 Re-Run + Manual-Completion)
 last_signoff: never
 last_signoff_date: —
 last_signoff_verdict: —
 findings_open:
   P0: 0
-  P1: 2
-  P2: 2
-  P3: 1
-  incomplete_reruns: 2
+  P1: 3
+  P2: 4
+  P3: 3
+  incomplete_reruns: 0
 aggregate_file: worklog/audits/2026-04-26/aggregate.md
 gate: "kein 'Beta-fertig'/'launch-ready' bis last_signoff == PASS UND P0+P1 = 0"
+slice_stubs_pending:
+  - worklog/specs/214-derived-p1-fm-001.md   # FM-NEU-1 PickRateBadge cards-only
+  - worklog/specs/214-derived-p1-ux-002.md   # UX-NEU-1 FeedbackModal preventClose
+  - worklog/specs/214-derived-p1-k-003.md    # K-RR-1 Floor-Preis Tooltip
+  - worklog/specs/214-derived-p2p3-bundle.md # 5 P2/P3 mixed
 ```
 
 ## Phase-Definitionen

@@ -1,0 +1,35 @@
+Slice 215 — Phase-C Re-Run Self-Verification
+=============================================
+
+AC-01 persona-k-casual.md non-empty:
+34 worklog/audits/2026-04-26/persona-k-casual.md
+
+AC-02 fm-mechanics.md non-empty:
+34 worklog/audits/2026-04-26/fm-mechanics.md
+
+AC-03 Pipeline parsed beide Files:
+
+[findings-to-slices] Planned 4 Slice-Stubs:
+  214-derived-p1-fm-001.md (S, P1, domain=fm, 1 findings)
+  214-derived-p1-ux-002.md (S, P1, domain=ux, 1 findings)
+  214-derived-p1-k-003.md (S, P1, domain=k, 1 findings)
+  214-derived-p2p3-bundle.md (S, P2, domain=multi, 5 findings)
+
+[findings-to-slices] DRY-RUN — keine Files geschrieben.
+
+AC-04 aggregate.md updated mit Re-Run-Findings:
+3
+
+AC-05 phase-tracker findings_open updated:
+findings_open:
+  P0: 0
+  P1: 3
+  P2: 4
+  P3: 3
+  incomplete_reruns: 0
+aggregate_file: worklog/audits/2026-04-26/aggregate.md
+
+Slice 215 Workflow-Learning verified:
+- Pattern v2 (Skeleton-First): ✅ Files persistent
+- Iteratives Append: ❌ Beide Agents nur Skeleton, manual completion durch CTO
+- Empfehlung: Pattern v3 für Slice 216+

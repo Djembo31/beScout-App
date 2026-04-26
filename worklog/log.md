@@ -11,6 +11,36 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 215 | 2026-04-26 | Phase-C Re-Run mit Bash-First-Write Briefing (Persona-K + FM-Mechanics)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: Audit-Re-Run kein Code) → BUILD (2 Agents background) → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** S (Audit-Re-Run, kein Code-Change)
+- **Anil-Direktive:** "re run" (für 2 incomplete Audits aus Slice 214 Live-Test)
+- **Files:**
+  - `worklog/audits/2026-04-26/persona-k-casual.md` — NEU (Skeleton durch Agent, Findings durch Manual-Completion)
+  - `worklog/audits/2026-04-26/fm-mechanics.md` — NEU (Skeleton durch Agent, Findings durch Manual-Completion)
+  - `worklog/audits/2026-04-26/aggregate.md` — EDIT (5 neue Findings + Pattern-v2-Verdict)
+  - `worklog/beta-phase.md` — EDIT (findings_open: P1=2→3, P2=2→4, P3=1→3, incomplete_reruns=2→0; slice_stubs_pending mit 4 Pfaden)
+  - `worklog/specs/214-derived-*.md` — REGEN via Pipeline (4 Stubs statt 3)
+- **Briefing-Pattern v2 Verdict:**
+  - ✅ Skeleton-First erfolgreich: Beide Files persistent, KEINE 0-Zeilen-Verluste wie heute Morgen
+  - ❌ Iteratives Append fehlgeschlagen: Beide Agents schrieben NUR Skeleton, keine Findings-Appends während Investigation. Notifications zeigen Agents waren mid-investigation als Token-Budget aus
+  - **Workflow-Learning:** Pattern v3 nötig für Slice 216+ = "append SOFORT pro Finding, nicht batch'en am Ende". Manuelle CTO-Completion verlässlicher für offene Investigation.
+- **Manual-Completion durch CTO (~10 min):** 5 neue Findings appendiert (Notification-Snippets + Code-Read):
+  - **K-RR-1 P1:** Casual Floor-Preis-Tooltip-Lücke (Bounce-Risk)
+  - **K-RR-2 P2:** BuyConfirmModal Sentiment-Counts ohne Erklärung
+  - **FM-RR-1 P2:** /transactions Sparkline ohne Hover/Crosshair
+  - **FM-RR-2 P3:** /watchlist nur Tab, keine Standalone-Page (Audit-Stale-Frage)
+  - **FM-RR-3 P3:** Trending-Pills FM 4.2 nicht implementiert (Punch-List-Drift D48-Catcher)
+- **Pipeline Re-Run:** 4 Slice-Stubs auto-generiert (3 P1 + 1 P2P3-Bundle mit 5 Findings).
+- **Self-Review (D35 trivial-pattern):** Slice 215 ist Audit-Re-Run analog Slice 209 (audit-cleanup) — pure docs-Slice mit Workflow-Learning-Dokumentation. Kein Code, kein Reviewer-Agent-Dispatch nötig.
+- **Proof:** `worklog/proofs/215-rerun-audit.txt` (5/5 ACs grün)
+- **Phase-Tracker post-Slice-215:** Phase=C, Sign-Off=never, P1=3 (kann nicht "fertig"). Sign-Off-Gate bleibt zu.
+- **Real-actionable next:** Slice 216 = 3 P1-Heal-Stubs durchziehen (FM-NEU-1, UX-NEU-1, K-RR-1). Wenn alle 3 closed → P1=0 → Sign-Off-Trial möglich.
+- **Commit:** (pending)
+
+---
+
 ## 214 | 2026-04-26 | Auto-Beta-Ready Self-Healing-Loop (Phase-Tracker + Hook + Pipeline + Master-Skill)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG

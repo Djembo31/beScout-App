@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 215
+stage: PROVE
+spec: worklog/specs/215-phase-c-rerun.md
+impact: skipped (Audit-Re-Run, kein Code, nutzt existing tester-persona-walker + fm-mechanics-expert Agents)
+proof: worklog/proofs/215-rerun-audit.txt
+review: self-review (D35 — kein Code-Change, Slice 215 ist Audit-Re-Run mit Workflow-Learning-Doku, Pattern-Analog Slice 209 Audit-Cleanup)
 ```
 
 ## Zuletzt

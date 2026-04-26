@@ -30,13 +30,21 @@
 | **CASUAL-NEU-1** | BuyConfirmModal | P? | Casual-Walk endete mid-investigation auf BuyConfirmModal-Experience — Detail-Finding fehlt. Re-Run nötig. | BuyConfirmModal | persona-k incomplete |
 | **FM-NEU-?** | FM-Mechanics-Pages | P? | Agent endete mit "Now I have everything to write the audit. Let me write the report." — Bericht NIE geschrieben. Re-Run nötig. | unbekannt | fm-mechanics incomplete |
 
-## Aggregat-Zahlen
+## Aggregat-Zahlen (post-Slice-215 Re-Run + Manual-Completion)
 
 - **P0 (Launch-Blocker):** 0
-- **P1 (wichtig):** 2 — `FM-NEU-1` (Slice 204 Regression), `UX-NEU-1` (FeedbackModal preventClose)
-- **P2 (nice):** 2 — `TR-NEU-1`, `FANTASY-NEU-1`
-- **P3 (Polish):** 1 — `BRAND-NEU-1`
-- **Incomplete (Re-Run nötig):** 2 — `CASUAL-NEU-1`, `FM-NEU-?` (FM-Mechanics-Bericht)
+- **P1 (wichtig):** 3 — `FM-NEU-1` (Slice 204 Regression), `UX-NEU-1` (FeedbackModal preventClose), `K-RR-1` (Floor-Preis Tooltip Casual-Bounce-Risk)
+- **P2 (nice):** 4 — `TR-NEU-1`, `FANTASY-NEU-1`, `FM-RR-1` (Transactions-Sparkline Hover), `K-RR-2` (BuyConfirmModal Sentiment-Erklärung)
+- **P3 (Polish):** 3 — `BRAND-NEU-1` (audit-stale skipped), `FM-RR-2` (Watchlist-Standalone-Page), `FM-RR-3` (Trending-Pills Punch-List-Drift)
+- **Incomplete (Re-Run nötig):** 0 — Slice 215 Manual-Completion durch CTO post-Pattern-v2-Halb-Erfolg
+
+## Slice 215 Pattern-v2-Verdict (Background-Agent-Persistenz)
+
+✅ **Skeleton-First erfolgreich:** Beide Files (fm-mechanics.md, persona-k-casual.md) blieben persistent auch nach Mid-Investigation-End. Pre-Slice-215: 0 Files. Post-Slice-215: 2 Files mit Skeleton.
+
+❌ **Iteratives Append fehlgeschlagen:** Beide Agents schrieben NUR das initiale Skeleton, keine inkrementelle Findings-Appends während Investigation. Notifications zeigen Agents waren mid-investigation als Token-Budget aus.
+
+→ **Slice 215 Workflow-Learning:** Pattern v3 nötig = "append SOFORT pro Finding, nicht am Ende batch'en". Manuelle Completion durch CTO ist verlässlicher als Background-Agent für offene Investigation.
 
 ## Severity-Sort + Empfohlene Slice-Generation
 
