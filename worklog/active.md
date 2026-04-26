@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 207
-stage: LOG
-spec: worklog/specs/207-most-owned-discovery-batch.md
-impact: skipped (additive RPC — same anonymized-aggregate pattern as Slice 199, no schema-change, no money-path)
-proof: worklog/proofs/207-tsc.txt
-review: worklog/reviews/207-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
