@@ -154,6 +154,48 @@ export async function getPredictionStats(userId: string): Promise<PredictionStat
   return { total, correct, wrong, accuracy, bestStreak, currentStreak, totalPoints };
 }
 
+/**
+ * Slice 201d (C-03): Prediction-Consensus Aggregate.
+ * Returns anonymized distribution of predicted_value for a fixture+condition.
+ * Used in CreatePredictionModal to show "X% der Community tippte gleich" hint.
+ */
+export type PredictionConsensusEntry = {
+  value: string;
+  count: number;
+  pct: number;
+};
+
+export type PredictionConsensus = {
+  total_count: number;
+  distribution: PredictionConsensusEntry[];
+};
+
+export async function getPredictionConsensus(
+  fixtureId: string,
+  condition: string,
+  playerId?: string,
+): Promise<PredictionConsensus> {
+  const { data, error } = await supabase.rpc('get_prediction_consensus', {
+    p_fixture_id: fixtureId,
+    p_condition: condition,
+    p_player_id: playerId ?? null,
+  });
+  if (error) throw new Error(error.message);
+  const result = data as {
+    success?: boolean;
+    error?: string;
+    total_count?: number;
+    distribution?: PredictionConsensusEntry[];
+  };
+  if (!result || result.success !== true) {
+    throw new Error(result?.error ?? 'rpc_failed');
+  }
+  return {
+    total_count: result.total_count ?? 0,
+    distribution: Array.isArray(result.distribution) ? result.distribution : [],
+  };
+}
+
 /** Get fixtures available for predictions (scheduled, not started) */
 export async function getFixturesForPrediction(gameweek: number) {
   const { data, error } = await supabase

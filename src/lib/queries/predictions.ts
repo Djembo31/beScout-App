@@ -8,6 +8,7 @@ import {
   getPredictionStats,
   getFixturesForPrediction,
   hasAnyPrediction,
+  getPredictionConsensus,
 } from '@/lib/services/predictions';
 import { getTopPredictorsLeaderboard } from '@/lib/services/leaderboards';
 
@@ -75,6 +76,25 @@ export function useTopPredictorsLeaderboard(limit = 10) {
     queryKey: qk.predictions.topPredictors(limit),
     queryFn: () => getTopPredictorsLeaderboard(limit),
     staleTime: FIVE_MIN,
+  });
+}
+
+/**
+ * Slice 201d C-03 — Prediction-Consensus pro fixture+condition[+player].
+ * Anonymized aggregate, used in CreatePredictionModal fuer "X% tippte gleich"-Hint.
+ * staleTime 60s da Distribution sich aendert mit jeder neuen Submission.
+ */
+export function usePredictionConsensus(
+  fixtureId: string | undefined,
+  condition: string | undefined,
+  playerId?: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: qk.predictions.consensus(fixtureId ?? '', condition ?? '', playerId ?? null),
+    queryFn: () => getPredictionConsensus(fixtureId!, condition!, playerId),
+    enabled: enabled && !!fixtureId && !!condition,
+    staleTime: 60_000,
   });
 }
 

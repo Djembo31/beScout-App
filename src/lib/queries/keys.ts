@@ -308,6 +308,9 @@ export const qk = {
     hasAny: (uid: string) => ['predictions', 'stats', uid, 'any'] as const,
     /** Slice 199 C-05 — Top Predictor Leaderboard (anonymized, public). */
     topPredictors: (limit: number) => ['predictions', 'topPredictors', limit] as const,
+    /** Slice 201d C-03 — Prediction-Consensus per fixture+condition[+player]. */
+    consensus: (fixtureId: string, condition: string, playerId: string | null) =>
+      ['predictions', 'consensus', fixtureId, condition, playerId ?? 'no-player'] as const,
   },
 
   // ── Founding Passes ──

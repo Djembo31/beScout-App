@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { usePredictionFixtures } from '@/lib/queries/predictions';
 import { createPrediction, getPlayersForFixture } from '@/lib/services/predictions';
+import { PredictionConsensusHint } from './PredictionConsensusHint';
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
@@ -362,6 +363,17 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 {selectedCondition && getConditionLabel(selectedCondition, t)}: {selectedValue && selectedCondition && getValueLabel(selectedCondition, selectedValue, t)}
               </div>
             </Card>
+
+            {/* Slice 201d (C-03): Community-Consensus-Hint */}
+            {selectedFixture && selectedCondition && selectedValue && (
+              <PredictionConsensusHint
+                fixtureId={selectedFixture.id}
+                condition={selectedCondition}
+                playerId={predType === 'player' ? selectedPlayerId ?? undefined : undefined}
+                selectedValue={selectedValue}
+                getValueLabel={(c, v) => getValueLabel(c, v, t)}
+              />
+            )}
 
             {/* Confidence slider */}
             <div>

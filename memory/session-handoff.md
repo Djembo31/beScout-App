@@ -1,11 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 12:32)
+# Session Handoff — Auto (2026-04-26 12:43)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 2
+## Session Commits: 4
+- 1db549a1 chore(201c): active idle nach Slice 201c Commit
+- b333dd7f feat(201c): Fantasy-Context-Hints (M-01)
 - 1541b20a chore(201b): active idle nach Slice 201b Commit
 - 11da508d feat(201b): Holders-Distribution-Mini-Bar (FM-4.3)
 

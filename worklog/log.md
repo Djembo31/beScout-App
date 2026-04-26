@@ -11,6 +11,72 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 201d | 2026-04-26 | Prediction-Consensus-Hint (C-03)
+
+M-Slice manuell vom CTO unter voller Autonomie. Anonymized Aggregate-RPC + Distribution-Bar im CreatePredictionModal Step 'confirm'. Pattern Slice 199/201b (3. RPC der Anonymized-Aggregate-Series). Punch-Liste: 81/98 → **82/98 closed (~84%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/201d-prediction-consensus.md) → IMPACT skipped (additive RPC + UI, kein Money-Path) → BUILD → REVIEW self-review (D35 Pattern-Wiederholung Slice 199/201b) → PROVE → LOG
+
+### Items closed (1)
+
+- **C-03 (P1)** CreatePredictionModal Aggregate-Hint "X% der Community tippte gleich" — User sieht VOR Submit ob er mit Mehrheit (amber) oder differential (purple) tippt. Distribution-Bar Top-3 Values mit pct, Sparse-Disclaimer bei <5 predictions.
+
+### Backend (Pattern Slice 199/201b)
+
+**Migration `20260426240000_slice_201d_prediction_consensus.sql` (LIVE applied):**
+- RPC `get_prediction_consensus(p_fixture_id, p_condition, p_player_id?)` SECURITY DEFINER STABLE LANGUAGE plpgsql
+- Per-Value-Aggregat mit jsonb_agg ORDER BY count DESC
+- Discriminated-Union `{success, total_count, distribution: [{value, count, pct}]}`
+- auth.uid() IS NULL Guard
+- Anonymized — kein user_id, kein handle
+- AR-44 REVOKE/GRANT komplett
+
+**pg_proc verify:** sec_def=true, volatility=s ✓
+
+### Frontend
+
+- `predictions.queries.ts`: `PredictionConsensusEntry` + `PredictionConsensus` Types + `getPredictionConsensus()` Service mit discriminated-union check
+- `lib/queries/predictions.ts`: `usePredictionConsensus(fixtureId, condition, playerId?, enabled)` Hook (staleTime 60s)
+- `lib/queries/keys.ts`: `qk.predictions.consensus(...)` Key
+- `lib/queries/index.ts`: Barrel-Export
+- `PredictionConsensusHint.tsx` NEU (130 LOC): Top-3 Distribution-Bars mit Color-Coding (amber bei majority, purple bei differential), isMajority/isSparse-Detection, a11y skeleton-state
+- `CreatePredictionModal.tsx`: Render in Step 3 'confirm' wenn fixture+condition+value selected
+
+### Compliance-Check
+
+- "Du tippst mit der Mehrheit / differential" — neutral, keine Gewinn-/Profit-Sprache
+- TR "Çoğunlukla aynı tahmin / Differential tahmin" — keine MASAK-Trigger-Vokabeln
+- 4 i18n-Keys symmetrisch DE+TR
+
+### Files modified
+
+```
+supabase/migrations/20260426240000_slice_201d_prediction_consensus.sql  | 80 +++ (NEW)
+src/features/fantasy/services/predictions.queries.ts                    | 41 ++-
+src/lib/queries/keys.ts                                                 |  4 +-
+src/lib/queries/predictions.ts                                          | 21 ++-
+src/lib/queries/index.ts                                                |  2 +-
+src/components/fantasy/PredictionConsensusHint.tsx                      | 130 +++ (NEW)
+src/components/fantasy/CreatePredictionModal.tsx                        | 12 +-
+messages/de.json                                                        |  4 +
+messages/tr.json                                                        |  4 +
+worklog/specs/201d-prediction-consensus.md                              | 60 +++ (NEW)
+worklog/proofs/201d-tsc-mig.txt                                         | 100 +++ (NEW)
+```
+
+### Proof
+- `worklog/proofs/201d-tsc-mig.txt` — tsc clean + Migration LIVE + pg_proc verify + Hook/Component/i18n verifiziert
+- Self-Review per D35 (Pattern-Wiederholung Slice 199/201b, exakte Konsistenz)
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+CTO unter voller Autonomie. **3. RPC der Anonymized-Aggregate-Series** (199 Top-Predictor + 201b Holders-Concentration + 201d Prediction-Consensus). Pattern ist jetzt etabliert genug fuer Codify in patterns.md "Anonymized RLS-Bypass Aggregate" — Knowledge-Capture-Kandidat fuer Session-DISTILL. Kein Reviewer-Agent — exakte Pattern-Wiederholung mit selbst-durchgeführtem D48-Pre-existing-Code-Grep.
+
+---
+
 ## 201c | 2026-04-26 | Fantasy-Context-Hints (M-01)
 
 S-Slice manuell vom CTO unter voller Autonomie. State-derived Mission-Hints ohne DB-Query. Punch-Liste: 80/98 → **81/98 closed (~83%)**.

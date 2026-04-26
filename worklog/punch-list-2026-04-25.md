@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 201c (+1 closed M-01 Fantasy-Context-Hints)
+**Stand:** 2026-04-26 nach Slice 201d (+1 closed C-03 Prediction-Consensus-Hint)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **81 closed (≈83%)**
+**Total:** 98 Findings · davon **82 closed (≈84%)**
 
 ## Status-Legende
 
@@ -21,8 +21,11 @@
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
 | FM-Mechanics | 26 | 25 | 0 | 0 | 1 | 0 |
-| Fantasy-Scoring | 27 | 20 | 1 | 0 | 6 | 1 |
-| **TOTAL** | **98** | **81** | **3** | **0** | **14** | **1** |
+| Fantasy-Scoring | 27 | 21 | 1 | 0 | 5 | 1 |
+| **TOTAL** | **98** | **82** | **3** | **0** | **13** | **1** |
+
+**Slice 201d closed (+1):** Prediction-Consensus-Hint (CTO unter voller Autonomie, M-Slice).
+- C-03 CreatePredictionModal — neue SECURITY DEFINER RPC `get_prediction_consensus(fixture, condition, player?)` + PredictionConsensusHint-Component (Top-3 Distribution-Bars mit Color-Coding amber/purple, isMajority/isSparse-Detection). 3. RPC der Anonymized-Aggregate-Series (199 + 201b + 201d). Self-Review (D35 Pattern-Wiederholung).
 
 **Slice 201c closed (+1):** Fantasy-Context-Hints (CTO unter voller Autonomie, S-Slice).
 - M-01 MissionHintList — kontextabhaengige Hints "Stelle dein Lineup für GW X auf" + "Captain-Bonus sichern (1.1×)" via state-derived Hook ohne DB-Query. Pure deriver-Pattern, FantasyContextHint-Component (purple-Theme), backward-compatible MissionHintList-Erweiterung. Self-Review (D35).
@@ -138,7 +141,7 @@
 | F-13 | open | fantasy.md | Form-Rating Sparkline + Δ vs vorletzte 5 GWs | Slice 198 |
 | C-01 | open | fantasy.md | Streak-Anzeige Predictions | Slice 198 |
 | C-02 | open | fantasy.md | Difficulty-Slider invisible | Slice 198 |
-| C-03 | open | fantasy.md | Aggregate-Hint „X% tippte gleich" | Slice 198 |
+| C-03 | done | fantasy.md | Aggregate-Hint „X% tippte gleich" | Slice 201d ✓ (RPC + PredictionConsensusHint) |
 | C-04 | open | fantasy.md | Predictions-Limit 5/GW Begründung | Slice 198 |
 | C-05 | open | fantasy.md | Top-Predictor Leaderboard | Slice 198 |
 | R-04 | open | fantasy.md | Tier-Promotion-CTA | Slice 198 |

@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 201d
+stage: LOG
+spec: worklog/specs/201d-prediction-consensus.md
+impact: skipped (additive RPC + UI, kein Money-Path, anonymized aggregate)
+proof: worklog/proofs/201d-tsc-mig.txt
+review: self-review (D35 Pattern-Wiederholung Slice 199/201b)
 ```
 
 ## Zuletzt

@@ -1,0 +1,125 @@
+Slice 201d — Prediction-Consensus-Hint (C-03) Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Migration LIVE applied
+================================================================
+$ mcp__supabase__apply_migration name=slice_201d_prediction_consensus
+{"success":true}
+
+DDL applied:
+- CREATE OR REPLACE FUNCTION public.get_prediction_consensus(uuid, text, uuid)
+  SECURITY DEFINER STABLE LANGUAGE plpgsql
+  Returns: jsonb {success, total_count, distribution: [{value, count, pct}]}
+- AR-44 REVOKE/GRANT komplett (PUBLIC + anon revoked, authenticated + service_role granted)
+- COMMENT ON FUNCTION
+- auth.uid() IS NULL Guard im Body
+
+================================================================
+3. RPC pg_proc Verify
+================================================================
+$ SELECT proname, pg_get_function_identity_arguments(oid), prosecdef, provolatile
+  FROM pg_proc WHERE proname = 'get_prediction_consensus';
+{
+  "proname":"get_prediction_consensus",
+  "args":"p_fixture_id uuid, p_condition text, p_player_id uuid",
+  "sec_def":true,
+  "volatility":"s"
+}
+
+PASS: SECURITY DEFINER + STABLE verifiziert.
+
+================================================================
+4. DB-State (no predictions yet — Bot-Loop hat keine generiert)
+================================================================
+$ Top-Fixture Predictions Query → 0 rows
+RPC funktioniert trotzdem — returnt {success: true, total_count: 0, distribution: []}.
+Component rendert nothing bei 0 (early return verifiziert in Code).
+
+================================================================
+5. Service + Hook + qk-Key
+================================================================
+$ grep -nE "getPredictionConsensus|usePredictionConsensus|consensus:"
+src/features/fantasy/services/predictions.queries.ts:159: export type PredictionConsensusEntry
+src/features/fantasy/services/predictions.queries.ts:166: export type PredictionConsensus
+src/features/fantasy/services/predictions.queries.ts:171: export async function getPredictionConsensus
+src/lib/queries/keys.ts:312: consensus: (fixtureId, condition, playerId) => ['predictions', 'consensus', ...]
+src/lib/queries/predictions.ts:91: export function usePredictionConsensus(fixtureId, condition, playerId?, enabled = true)
+src/lib/queries/index.ts:31: usePredictionConsensus export
+
+PASS: Service via Barrel-Re-Export (lib/services/predictions.ts), Hook + qk-Key + Barrel-Export.
+
+================================================================
+6. Component + Integration
+================================================================
+src/components/fantasy/PredictionConsensusHint.tsx NEU (130 LOC)
+- usePredictionConsensus hook
+- Top-3 distribution bars
+- isMajority detection (selectedValue === top.value)
+- isSparse warning bei <5 predictions
+- a11y: role="status" + aria-busy bei Skeleton
+- Color: amber (majority) / purple (differential)
+
+CreatePredictionModal Integration (Step 3 'confirm'):
+$ grep -nE "PredictionConsensusHint" src/components/fantasy/CreatePredictionModal.tsx
+14: import { PredictionConsensusHint } from './PredictionConsensusHint';
+367-376: Render bei selectedFixture + selectedCondition + selectedValue
+
+PASS: Component lazy-rendered nur wenn alle 3 fixture/condition/value selected.
+
+================================================================
+7. i18n DE+TR symmetrisch (4 keys)
+================================================================
+$ grep -E "consensusTitle|consensusMajority|consensusDifferential|consensusSparse" messages/de.json | wc -l
+4
+$ grep -E "consensusTitle|consensusMajority|consensusDifferential|consensusSparse" messages/tr.json | wc -l
+4
+
+PASS: Beide Locales 4/4 keys.
+
+DE: "Community-Konsens" / "Du tippst mit der Mehrheit (X%)" / "Du tippst differential — nur Y% wählten gleich" / "Wenig Daten"
+TR: "Topluluk konsensüsü" / "Çoğunlukla aynı tahmin ediyorsun" / "Differential tahmin" / "Az veri"
+
+Compliance: Keine Investment/Securities-Sprache, keine Gewinn-Begriffe.
+
+================================================================
+8. Self-Review (D35 Pattern-Wiederholung Slice 199)
+================================================================
+- Anonymized aggregate-RPC analog Slice 199 + 201b (3. RPC in der Reihe)
+- Discriminated-Union Return-Shape ✓
+- AR-44 REVOKE/GRANT ✓
+- auth.uid() Guard ✓
+- Bypass predictions-RLS (own-pending-only RLS sonst, RPC liefert anonymized aggregat)
+- Money-Path: read-only auf predictions, kein Wallet/Score-Trigger
+- D48: kein Pre-existing Prediction-Aggregate-RPC (rpc_get_top_predictors_leaderboard ist user-leaderboard, nicht per-fixture-distribution)
+- Pattern-Konsistenz: 100% mit Slice 199/201b RPCs
+
+Reviewer-Agent skipped per D35 — exakte Pattern-Wiederholung Slice 199/201b
+Anonymized-Aggregate-RPC. Pattern bewährt, Pre-existing-Code-Grep
+selbst-durchgeführt, kein Money-Path.
+
+================================================================
+9. Files Modified
+================================================================
+$ git diff --stat HEAD
+supabase/migrations/20260426240000_slice_201d_prediction_consensus.sql  | 80 +++ (NEW)
+src/features/fantasy/services/predictions.queries.ts                    | 41 ++-
+src/lib/queries/keys.ts                                                 |  4 +-
+src/lib/queries/predictions.ts                                          | 21 ++-
+src/lib/queries/index.ts                                                |  2 +-
+src/components/fantasy/PredictionConsensusHint.tsx                      | 130 +++ (NEW)
+src/components/fantasy/CreatePredictionModal.tsx                        | 12 +-
+messages/de.json                                                        |  4 +
+messages/tr.json                                                        |  4 +
+worklog/specs/201d-prediction-consensus.md                              | 60 +++ (NEW)
+worklog/proofs/201d-tsc-mig.txt                                         | 100 +++ (NEW)
+worklog/active.md                                                       | 14 +-
+
+Total: 8 source + 4 worklog (4 NEU)
