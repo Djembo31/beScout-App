@@ -21,8 +21,11 @@
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
 | FM-Mechanics | 26 | 25 | 0 | 0 | 1 | 0 |
-| Fantasy-Scoring | 27 | 21 | 1 | 0 | 5 | 1 |
-| **TOTAL** | **98** | **82** | **3** | **0** | **13** | **1** |
+| Fantasy-Scoring | 27 | 22 | 1 | 0 | 4 | 1 |
+| **TOTAL** | **98** | **83** | **3** | **0** | **12** | **1** |
+
+**Slice 204 closed (+1):** Squad-Tab Fantasy-Pick-Rate (S-Slice, pure-frontend D46-Reuse).
+- K-03 ClubContent /club/[slug] Spieler-Tab Cards-View — PickRateBadge "🔥 NN%" wenn ≥5% der Manager den Spieler im aktiven Event picken. D46-Reuse `useEventPlayerPickRates` (Slice 195e RPC) — kein neuer RPC, kein duplicate Service. Reviewer-Agent CONCERNS→PASS post-Heal (Badge-Position `top-2 right-2` ueberlappte L5-Score → `bottom-2 right-2` Footer-Bereich, kein Info-Verdeckung). Compact-View intentional ausgespart (Layout zu eng).
 
 **Slice 201d closed (+1):** Prediction-Consensus-Hint (CTO unter voller Autonomie, M-Slice).
 - C-03 CreatePredictionModal — neue SECURITY DEFINER RPC `get_prediction_consensus(fixture, condition, player?)` + PredictionConsensusHint-Component (Top-3 Distribution-Bars mit Color-Coding amber/purple, isMajority/isSparse-Detection). 3. RPC der Anonymized-Aggregate-Series (199 + 201b + 201d). Self-Review (D35 Pattern-Wiederholung).
@@ -146,7 +149,7 @@
 | C-05 | open | fantasy.md | Top-Predictor Leaderboard | Slice 198 |
 | R-04 | open | fantasy.md | Tier-Promotion-CTA | Slice 198 |
 | K-02 | open | fantasy.md | Most-Owned Players pro Club | Slice 198 |
-| K-03 | open | fantasy.md | Squad-Tab Fantasy-Pick-Rate | Slice 198 |
+| K-03 | done | fantasy.md | Squad-Tab Fantasy-Pick-Rate | Slice 204 ✓ (PickRateBadge cards-view, D46 reuse Slice 195e RPC) |
 | M-01 | done | fantasy.md | Mission-Hints kontextabhängig | Slice 201c ✓ (state-derived FantasyContextHint) |
 
 ### P3 (4)

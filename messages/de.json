@@ -2488,7 +2488,11 @@
     "featureScoutDesc": "Analysiere Spieler, verdiene Credits",
     "featureMemberTitle": "Club-Mitgliedschaft",
     "featureMemberDesc": "Exklusive Vorteile für Fans",
-    "featureExplore": "Entdecken"
+    "featureExplore": "Entdecken",
+    "pickRate": {
+      "label": "{pct}%",
+      "ariaLabel": "{pct}% der Manager haben diesen Spieler gewählt"
+    }
   },
   "airdrop": {
     "title": "Credits Airdrop",

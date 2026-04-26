@@ -2481,7 +2481,11 @@
     "featureScoutDesc": "Oyuncuları analiz et, kredi topla",
     "featureMemberTitle": "Kulüp Üyeliği",
     "featureMemberDesc": "Taraftarlar için özel avantajlar",
-    "featureExplore": "Keşfet"
+    "featureExplore": "Keşfet",
+    "pickRate": {
+      "label": "%{pct}",
+      "ariaLabel": "Yöneticilerin %{pct}'i bu oyuncuyu seçti"
+    }
   },
   "airdrop": {
     "title": "Credits Airdrop",

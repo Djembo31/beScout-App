@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 204
+stage: LOG
+spec: worklog/specs/204-squad-pick-rate.md
+impact: skipped (pure frontend, no DB/RPC change, D46 reuse useEventPlayerPickRates)
+proof: worklog/proofs/204-tsc-clean-diff.txt
+review: worklog/reviews/204-review.md
 ```
 
 ## Zuletzt
 
+- **Slice 204** (2026-04-26) — Squad-Tab Fantasy-Pick-Rate (K-03). S-Slice. PickRateBadge auf /club/[slug] Spieler-Tab Cards-View, D46-Reuse `useEventPlayerPickRates` (Slice 195e RPC). Reviewer CONCERNS→PASS post-Heal (Badge-Position `top-2 right-2` ueberlappte L5-Score → `bottom-2 right-2` Footer-Bereich). Punch-Liste 82 → 83/98 (~85%).
 - **Slice 201d** (2026-04-26) — Prediction-Consensus-Hint (C-03). M-Slice CTO unter voller Autonomie. RPC `get_prediction_consensus` LIVE + PredictionConsensusHint mit Top-3 Distribution-Bars + Color-Coding amber/purple. 3. RPC der Anonymized-Aggregate-Series. Self-Review (D35). Punch-Liste 81 → 82/98 (~84%).
 - **Slice 201c** (2026-04-26) — Fantasy-Context-Hints (M-01). S-Slice. State-derived Hints via pure-deriver. Self-Review.
 - **Slice 201b** (2026-04-26) — Holders-Distribution-Mini-Bar (FM 4.3). M-Slice. Reviewer PASS.

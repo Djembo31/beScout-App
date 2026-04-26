@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -47,6 +47,9 @@ import FanRankBadge from '@/components/ui/FanRankBadge';
 import FanRankOverview from '@/components/gamification/FanRankOverview';
 import { ClubSkeleton } from '@/components/club/ClubSkeleton';
 import { SquadOverviewWidget } from '@/components/club/SquadOverviewWidget';
+import { PickRateBadge } from '@/components/club/PickRateBadge';
+import { useEvents, useLeagueActiveGameweek } from '@/features/fantasy/queries/events';
+import { useEventPlayerPickRates } from '@/features/fantasy/queries/fantasyPicker';
 import { FixtureRow, SeasonSummary, NextMatchCard, LastResultsCard } from '@/components/club/FixtureCards';
 import type { FixtureFilter } from '@/components/club/FixtureCards';
 import type { Pos, Fixture } from '@/types';
@@ -135,6 +138,31 @@ export default function ClubContent({ slug }: { slug: string }) {
   // Slice 149: League-Standings (Tabellenplatz).
   // Pass undefined clubId when unauthenticated — RLS blocks anon so query would fail + 5min invalid-cache.
   const { data: clubStanding } = useClubStanding(user ? clubId : undefined);
+
+  // Slice 204 (K-03) — Squad-Tab Fantasy-Pick-Rate Map.
+  // D46-Reuse: useEventPlayerPickRates aus Slice 195e (anonymized aggregate, RLS-bypass).
+  // Picks groesstes laufendes/oeffnendes League-Event fuer aktuelle GW; ohne Event = leere Map.
+  const { data: leagueGw } = useLeagueActiveGameweek();
+  const { data: allEvents = [] } = useEvents();
+  const currentEventId = useMemo<string | null>(() => {
+    if (!leagueGw) return null;
+    const eligible = allEvents.filter(
+      (e) =>
+        e.gameweek === leagueGw &&
+        (e.status === 'registering' || e.status === 'late-reg' || e.status === 'running'),
+    );
+    if (eligible.length === 0) return null;
+    eligible.sort((a, b) => (b.current_entries ?? 0) - (a.current_entries ?? 0));
+    return eligible[0].id;
+  }, [allEvents, leagueGw]);
+  const { data: pickRates } = useEventPlayerPickRates(currentEventId);
+  const pickRateMap = useMemo(() => {
+    const m = new Map<string, number>();
+    if (pickRates) {
+      for (const r of pickRates) m.set(r.player_id, r.pct);
+    }
+    return m;
+  }, [pickRates]);
 
   // Slice 149 Fix #4: standing.form (from API-Football standings) has canonical priority
   // over formResults (derived from fixtures). Prevents two-row-form-drift.
@@ -566,9 +594,15 @@ export default function ClubContent({ slug }: { slug: string }) {
           {/* Player display based on view mode */}
           {squadView === 'cards' ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {filteredPlayers.map((player) => (
-                <PlayerDisplay key={player.id} variant="card" player={player} showActions={false} />
-              ))}
+              {filteredPlayers.map((player) => {
+                const pickRate = pickRateMap.get(player.id);
+                return (
+                  <div key={player.id} className="relative">
+                    <PlayerDisplay variant="card" player={player} showActions={false} />
+                    {pickRate !== undefined && <PickRateBadge pct={pickRate} />}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="space-y-1">

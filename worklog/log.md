@@ -11,6 +11,52 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 204 | 2026-04-26 | Squad-Tab Fantasy-Pick-Rate (K-03)
+
+S-Slice. Pure-Frontend D46-Reuse von `useEventPlayerPickRates` (Slice 195e RPC). PickRateBadge auf `/club/[slug]` Spieler-Tab Cards-View. Punch-Liste: 82/98 → **83/98 closed (~85%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/204-squad-pick-rate.md) → IMPACT skipped (pure frontend, kein DB/RPC, D46) → BUILD → REVIEW reviewer-Agent CONCERNS→PASS post-Heal → PROVE → LOG
+
+### Items closed (1)
+
+- **K-03 (P2)** Squad-Tab Fantasy-Pick-Rate — User sieht in Cards-View pro Spieler "🔥 NN%" wenn ≥5% der Manager den Spieler im aktiven Event picken. Threshold-Filter, Compact-View intentional ausgespart.
+
+### Frontend
+
+- **NEW** `src/components/club/PickRateBadge.tsx` (~28 Zeilen) — Badge-Component bottom-2 right-2 (post-Heal, ueber BeScout-Footer-Bereich), text-amber-300, pointer-events-none, Threshold ≥5%.
+- **EDIT** `src/app/(app)/club/[slug]/ClubContent.tsx` — Imports + Hook-Block (useLeagueActiveGameweek + useEvents + currentEventId-useMemo + useEventPlayerPickRates + pickRateMap-useMemo) vor early returns. Cards-Map wrap-Pattern mit `<div className="relative">` + `<PickRateBadge />`.
+- **EDIT** `messages/de.json` — `club.pickRate.{label,ariaLabel}` (DE).
+- **EDIT** `messages/tr.json` — `club.pickRate.{label,ariaLabel}` (TR `%{pct}`).
+
+### Reviewer-Find (D48 Audit-Stale-Catcher)
+
+Reviewer-Agent Cold-Context (Opus, 22min) fand 1 HIGH: Badge-Position `top-2 right-2` ueberlappte L5-Score-Block (PlayerRow Card-Header rechts: Flag+L5+Watch). Heal: `bottom-2 right-2` (BeScout-Footer-Bereich, kein Info-Overlap). Verifiziert keine bestehende Pick-Rate-Implementierung im Squad-Tab (D48 audit-stale clear).
+
+### Files
+```
+ messages/de.json                          |  6 ++++-
+ messages/tr.json                          |  6 ++++-
+ src/app/(app)/club/[slug]/ClubContent.tsx | 42 ++++++++++++++++++++++++++++---
+ NEW src/components/club/PickRateBadge.tsx (~28)
+```
+
+### Proof
+- worklog/proofs/204-tsc-clean-diff.txt (tsc clean + diff-stat)
+- worklog/reviews/204-review.md (reviewer + heal-trail)
+
+### Commit
+(folgt im naechsten Schritt)
+
+### TR-Wording-Review pending
+- "%{pct}" → "%42" (Slice 200/201 TR-Konvention)
+- "Yöneticilerin %{pct}'i bu oyuncuyu seçti" (Possessiv-Suffix)
+
+### Knowledge-Capture (Pattern-Kandidat)
+
+Anonymized-Aggregate-Badge-Overlay = Slice 199 (MostOwned) + Slice 204 (PickRate) = 2/3 zum Pattern. Bei 3. Auftauchen → patterns.md "Anonymized-Aggregate Visual Hint". Reviewer empfiehlt zudem ui-components.md "Card Overlay Pattern" (bottom-right Default fuer Card-Overlays — top-right ist im PlayerRow besetzt).
+
+---
+
 ## 201d | 2026-04-26 | Prediction-Consensus-Hint (C-03)
 
 M-Slice manuell vom CTO unter voller Autonomie. Anonymized Aggregate-RPC + Distribution-Bar im CreatePredictionModal Step 'confirm'. Pattern Slice 199/201b (3. RPC der Anonymized-Aggregate-Series). Punch-Liste: 81/98 → **82/98 closed (~84%)**.

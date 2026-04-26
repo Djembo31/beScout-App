@@ -1,0 +1,35 @@
+PROOF Slice 204 — Squad-Tab Fantasy-Pick-Rate (K-03)
+Date: 2026-04-26T12:10:19Z
+
+## tsc Result
+$ npx tsc --noEmit
+tsc clean post-heal
+
+## git status --short (slice files)
+ M messages/de.json
+ M messages/tr.json
+ M src/app/(app)/club/[slug]/ClubContent.tsx
+?? src/components/club/PickRateBadge.tsx
+?? worklog/specs/204-squad-pick-rate.md
+?? worklog/reviews/204-review.md
+
+## git diff --stat (modified files)
+ messages/de.json                          |  6 ++++-
+ messages/tr.json                          |  6 ++++-
+ src/app/(app)/club/[slug]/ClubContent.tsx | 42 ++++++++++++++++++++++++++++---
+ 3 files changed, 48 insertions(+), 6 deletions(-)
+
+## New file lines
+src/components/club/PickRateBadge.tsx        ~28 lines
+worklog/specs/204-squad-pick-rate.md         ~47 lines
+worklog/reviews/204-review.md                ~70 lines
+
+## D46 Service-Reuse verified
+- useEventPlayerPickRates aus Slice 195e (src/features/fantasy/queries/fantasyPicker.ts:57)
+- Kein neuer RPC, kein duplicate Service.
+
+## Reviewer-Agent
+- Verdict pre-heal: CONCERNS (1 HIGH: badge-position overlap)
+- Verdict post-heal: PASS
+- Heal: top-2 right-2 → bottom-2 right-2 (Footer-Bereich, kein Info-Overlap)
+- Worklog: worklog/reviews/204-review.md
