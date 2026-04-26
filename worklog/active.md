@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 204
-stage: LOG
-spec: worklog/specs/204-squad-pick-rate.md
-impact: skipped (pure frontend, no DB/RPC change, D46 reuse useEventPlayerPickRates)
-proof: worklog/proofs/204-tsc-clean-diff.txt
-review: worklog/reviews/204-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
