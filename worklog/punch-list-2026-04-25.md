@@ -143,14 +143,14 @@
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| F-12 | open | fantasy.md | Sticky-Countdown statt nur Header | Slice 198 |
-| F-13 | open | fantasy.md | Form-Rating Sparkline + Δ vs vorletzte 5 GWs | Slice 198 |
-| C-01 | open | fantasy.md | Streak-Anzeige Predictions | Slice 198 |
-| C-02 | open | fantasy.md | Difficulty-Slider invisible | Slice 198 |
+| F-12 | done | fantasy.md | Sticky-Countdown statt nur Header | Slice 198b ✓ (Sticky Countdown Bar in EventDetailHeader, audit-stale-marker D48) |
+| F-13 | done | fantasy.md | Form-Rating Sparkline + Δ vs vorletzte 5 GWs | Slice 198d ✓ (Form-Trend Δ-Pill in FantasyPlayerRow perfL5 vs perfL15, audit-stale-marker D48) |
+| C-01 | done | fantasy.md | Streak-Anzeige Predictions | Slice 198d ✓ (Current-Streak Badge in PredictionsTab, audit-stale-marker D48) |
+| C-02 | done | fantasy.md | Difficulty-Slider invisible | Slice 198d ✓ (Difficulty-Legend in CreatePredictionModal Z.417, audit-stale-marker D48) |
 | C-03 | done | fantasy.md | Aggregate-Hint „X% tippte gleich" | Slice 201d ✓ (RPC + PredictionConsensusHint) |
-| C-04 | open | fantasy.md | Predictions-Limit 5/GW Begründung | Slice 198 |
-| C-05 | open | fantasy.md | Top-Predictor Leaderboard | Slice 198 |
-| R-04 | open | fantasy.md | Tier-Promotion-CTA | Slice 198 |
+| C-04 | done | fantasy.md | Predictions-Limit 5/GW Begründung | Slice 198b ✓ (limitHint paragraph in PredictionsTab Z.95, audit-stale-marker D48) |
+| C-05 | done | fantasy.md | Top-Predictor Leaderboard | Slice 199 ✓ (TopPredictorsSection in PredictionsTab Z.144, audit-stale-marker D48) |
+| R-04 | done | fantasy.md | Tier-Promotion-CTA | Slice 198d ✓ (TierPromotion in SelfRankCard Z.127, audit-stale-marker D48) |
 | K-02 | open | fantasy.md | Most-Owned Players pro Club | Slice 198 |
 | K-03 | done | fantasy.md | Squad-Tab Fantasy-Pick-Rate | Slice 204 ✓ (PickRateBadge cards-view, D46 reuse Slice 195e RPC) |
 | M-01 | done | fantasy.md | Mission-Hints kontextabhängig | Slice 201c ✓ (state-derived FantasyContextHint) |
