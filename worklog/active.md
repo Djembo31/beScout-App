@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 203
-stage: LOG
-spec: inline (XS-Slice — Brand 10 1-line Token-Migration gleiches Pattern wie Brand 8/9/11)
-impact: skipped (kein Schema/RPC/Service)
-proof: worklog/proofs/203-tsc-grep.txt
-review: self-review (D35 trivial-pattern-Wiederholung)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
