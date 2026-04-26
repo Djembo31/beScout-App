@@ -3,7 +3,7 @@
 import React from 'react';
 import {
   CheckCircle2, Play, Lock, Save, Eye,
-  Clock, Trophy, Loader2,
+  Clock, Trophy, Loader2, Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
@@ -73,7 +73,13 @@ export function EventDetailFooter({
           {salaryCap != null && selectedPlayersCount > 0 && (
             <div className="px-3 pt-2 md:px-5 md:pt-3">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-white/50">Budget</span>
+                {/* Slice 200b F-10: Salary-UX Tooltip — Info-Icon mit perfL5-Klarheit. */}
+                <span className="text-xs text-white/50 inline-flex items-center gap-1">
+                  {t('budgetLabel')}
+                  <span title={t('salaryHint')} className="cursor-help" aria-label={t('salaryHint')}>
+                    <Info className="size-3 text-white/30" aria-hidden="true" />
+                  </span>
+                </span>
                 <span className={cn('text-xs font-mono font-bold', overBudget ? 'text-red-400' : 'text-green-500')}>
                   {totalSalary} / {salaryCap}
                 </span>

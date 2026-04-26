@@ -1,0 +1,46 @@
+Slice 200b — Wave 4 Polish-Sweep (3 items closed + 1 already-fixed-marker)
+Date: 2026-04-26
+Branch: main
+
+=== tsc clean ===
+$ npx tsc --noEmit
+(no output — exit 0)
+
+=== Items closed (3) ===
+1. FM-10.1 Airdrop Tier-CTA mit Progress-Bar (text-orange/gold/diamond colors via TIER_STYLES)
+2. FM-8.3 MysteryBox History 30d-Filter Toggle (in-session useState, Empty-State)
+3. F-10 Salary-UX Tooltip via Info-Icon mit title-Attribut + aria-label
+
+=== Already-fixed-marker (1) ===
+R-03 Fantasy-only-Leaderboard via existing 'manager'-Tab in GlobalLeaderboard.tsx:19
+GW-Filter "Letzte GW/Saison" zusätzlich gewünscht aber Backend-needed → Slice 201 deferred
+
+=== i18n-Audit (8 neue Keys, beide Locales) ===
+airdrop.nextTierHint: de.json ✓ tr.json ✓
+airdrop.nextTierProgressLabel: de.json ✓ tr.json ✓
+inventory.historyRangeLabel: de.json ✓ tr.json ✓
+inventory.historyRangeAll: de.json ✓ tr.json ✓
+inventory.historyRangeLast30d: de.json ✓ tr.json ✓
+inventory.historyRangeEmpty: de.json ✓ tr.json ✓
+fantasy.budgetLabel: de.json ✓ tr.json ✓
+fantasy.salaryHint: de.json ✓ tr.json ✓
+
+=== Threshold-Konsistenz (FM-10.1) ===
+Component-Konstante `AIRDROP_TIER_THRESHOLDS = { bronze: 0, silber: 200, gold: 500, diamond: 1000 }`
+synchron zu supabase/migrations/20260417170000_refresh_airdrop_score_trigger_internal.sql:77
+
+=== Reviewer-Agent verdict ===
+PASS, 0 BLOCKERS
+- 3 LOW (touch-target-32px-pattern, mobile-tooltip-edge, keyboard-focus on title-span)
+- 4 INFO (defensive null-coalesce, IIFE-stilistisch, R-03-Spec-vs-Reality, salaryHint-EN/DE-mix)
+Alle akzeptiert als bekannte Polish-Trade-offs oder bestehende Patterns.
+
+=== git diff --stat ===
+messages/de.json                                          | 10 +++-
+messages/tr.json                                          | 10 +++-
+src/app/(app)/airdrop/page.tsx                            | 53 ++++++++++++++++++++++
+src/components/inventory/MysteryBoxHistorySection.tsx     | 41 ++++++++++++++++-
+src/features/fantasy/components/event-detail/EventDetailFooter.tsx | 10 +++-
+
+=== Punch-Liste-Update ===
+67/98 → 70/98 closed (~71%) — 3 newly-closed + 1 already-fixed-marker (R-03)

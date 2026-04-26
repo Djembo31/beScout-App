@@ -439,6 +439,8 @@
     "participation": "Katılım",
     "participationFee": "Katılım ücreti",
     "prize": "Ödül",
+    "budgetLabel": "Bütçe",
+    "salaryHint": "Salary, son 5 maçtaki forma (perfL5) dayanır.",
     "prizePool": "Ödül havuzu",
     "totalPrizes": "Toplam Ödüller",
     "participants": "Katılımcılar",
@@ -2502,6 +2504,8 @@
     "tierSilber": "Gümüş",
     "tierGold": "Altın",
     "tierDiamond": "Elmas",
+    "nextTierHint": "{tier} için {points} puan eksik",
+    "nextTierProgressLabel": "{tier} için ilerleme",
     "barScoutRang": "Scout Sıralaması",
     "barMastery": "Scout Card Ustalığı",
     "barActivity": "Aktivite",
@@ -5100,7 +5104,11 @@
     "historyRewardCosmeticNamed": "{name}",
     "historyTicketCost": "Maliyet: {cost} 🎟️",
     "historyTicketCostFree": "Ücretsiz",
-    "historyEquipmentCta": "Donanımıma git"
+    "historyEquipmentCta": "Donanımıma git",
+    "historyRangeLabel": "Dönem",
+    "historyRangeAll": "Tümü",
+    "historyRangeLast30d": "Son 30 gün",
+    "historyRangeEmpty": "Son 30 günde kutu açılmadı"
   },
   "meta": {
     "profile": "Profil",

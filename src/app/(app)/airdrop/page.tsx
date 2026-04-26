@@ -19,6 +19,28 @@ const TIER_STYLES: Record<AirdropTier, { color: string; bg: string; border: stri
   diamond: { color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
 };
 
+// Slice 200b FM-10.1: Airdrop Tier-Thresholds. Synchron zu
+// supabase/migrations/20260417170000_refresh_airdrop_score_trigger_internal.sql:77.
+const AIRDROP_TIER_THRESHOLDS: Record<AirdropTier, number> = {
+  bronze: 0, silber: 200, gold: 500, diamond: 1000,
+};
+const AIRDROP_TIER_ORDER: AirdropTier[] = ['bronze', 'silber', 'gold', 'diamond'];
+
+function getNextTierInfo(
+  score: number,
+  tier: AirdropTier,
+): { nextTier: AirdropTier; pointsToNext: number; progressPct: number } | null {
+  if (tier === 'diamond') return null;
+  const idx = AIRDROP_TIER_ORDER.indexOf(tier);
+  const nextTier = AIRDROP_TIER_ORDER[idx + 1];
+  const currentMin = AIRDROP_TIER_THRESHOLDS[tier];
+  const nextMin = AIRDROP_TIER_THRESHOLDS[nextTier];
+  const pointsToNext = Math.max(0, nextMin - score);
+  const range = nextMin - currentMin;
+  const progressPct = range > 0 ? Math.min(100, Math.max(0, ((score - currentMin) / range) * 100)) : 0;
+  return { nextTier, pointsToNext, progressPct };
+}
+
 export default function AirdropPage() {
   const { user } = useUser();
   const uid = user?.id;
@@ -120,6 +142,37 @@ export default function AirdropPage() {
           </div>
         </Card>
       )}
+
+      {/* Slice 200b FM-10.1: Tier-CTA — naechster Tier-Hint mit Progress-Bar (skip auf 'diamond') */}
+      {myEntry && (() => {
+        const next = getNextTierInfo(myEntry.total_score, myEntry.tier);
+        if (!next) return null;
+        return (
+          <Card className="p-4 bg-surface-minimal border-divider">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-white/70 font-medium">
+                {t('nextTierHint', { points: next.pointsToNext, tier: TIER_LABELS[next.nextTier] })}
+              </div>
+              <div className="text-xs font-mono tabular-nums text-white/40">
+                {Math.round(next.progressPct)}%
+              </div>
+            </div>
+            <div
+              role="progressbar"
+              aria-valuenow={Math.round(next.progressPct)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={t('nextTierProgressLabel', { tier: TIER_LABELS[next.nextTier] })}
+              className="h-2 bg-white/[0.06] rounded-full overflow-hidden"
+            >
+              <div
+                className="h-full rounded-full transition-colors"
+                style={{ width: `${next.progressPct}%`, backgroundColor: TIER_STYLES[next.nextTier].color }}
+              />
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Leaderboard */}
       <Card className="overflow-hidden">

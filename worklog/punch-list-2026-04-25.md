@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 200a (+4 closed + 1 already-fixed-marker)
+**Stand:** 2026-04-26 nach Slice 200b (+3 closed + 1 already-fixed-marker)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **67 closed (≈68%)**
+**Total:** 98 Findings · davon **70 closed (≈71%)**
 
 ## Status-Legende
 
@@ -20,9 +20,15 @@
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 12 | 0 | 0 | 6 | 0 |
 | UX-States | 27 | 19 | 0 | 0 | 8 | 0 |
-| FM-Mechanics | 26 | 19 | 0 | 0 | 7 | 0 |
-| Fantasy-Scoring | 27 | 18 | 1 | 0 | 8 | 0 |
-| **TOTAL** | **98** | **67** | **1** | **0** | **30** | **0** |
+| FM-Mechanics | 26 | 21 | 0 | 0 | 5 | 0 |
+| Fantasy-Scoring | 27 | 19 | 1 | 0 | 7 | 1 |
+| **TOTAL** | **98** | **71** | **1** | **0** | **26** | **0** |
+
+**Slice 200b closed (+3 + 1 already-fixed-marker):** Wave 4 Polish-Sweep (Frontend-only, single-track sequenziell).
+- FM 10.1 Airdrop Tier-CTA "Brauche X Pkt für nächsten Tier" mit Progress-Bar (Threshold-sync zu Migration)
+- FM 8.3 MysteryBox History Range-Filter (Alle | Letzte 30 Tage)
+- F-10 Salary-UX Info-Tooltip (perfL5-Klarheit)
+- R-03 already-fixed-marker via GlobalLeaderboard.tsx:19 'manager'-Tab — GW-Filter Slice 201 deferred
 
 **Slice 200a closed (+4 + 1 already-fixed-marker):** Wave 3 Polish-Sweep (Frontend-only, single-track sequenziell).
 - FM 7.1 MissionBanner Filter Toggle (All|Active|Completed)
@@ -96,11 +102,11 @@
 | F-07 | in-progress | fantasy.md | Differentials-% auf Spieler-Karten | Slice 195e |
 | F-08 | open | fantasy.md | Countdown-Granularität: Sekunden in letzter Stunde | Slice 197 |
 | F-09 | open | fantasy.md | BPS-Bonus-System (Top-3 +3/+2/+1) | Slice 198 |
-| F-10 | open | fantasy.md | „Salary"-Konzept perfL5-basiert verwirrt User | Slice 198 (UX-Klarheit) |
+| F-10 | done | fantasy.md | „Salary"-Konzept perfL5-basiert verwirrt User | Slice 200b ✓ (Tooltip) |
 | F-11 | in-progress | fantasy.md | Captain-Pick-Rate auf Event-Lineup | Slice 195e (gleiche RPC wie F-07) |
 | R-01 | done | fantasy.md | „Monats-Sieger" Wording-Compliance | Hot-Fix Commit `4b5a2c38` |
 | R-02 | done | fantasy.md | „Siege"/„Sieg" 6× user-facing | Hot-Fix Commit `4b5a2c38` |
-| R-03 | open | fantasy.md | Fantasy-only-Leaderboard (Manager-Score isoliert) | Slice 198 |
+| R-03 | done | fantasy.md | Fantasy-only-Leaderboard (Manager-Score isoliert) | already-fixed via GlobalLeaderboard.tsx:19 'manager'-Tab; Slice 200b Marker (GW-Filter → Slice 201) |
 | K-01 | open | fantasy.md | 5-GW-Forward-FDR-Strip auf Club-Page | Slice 197 |
 
 ### P2 (8)
@@ -188,7 +194,7 @@
 | 4.3 | open | fm.md | Holders-Distribution-Mini-Bar in Row | Slice 198 |
 | 5.1 | open | fm.md | FormBars Match-by-Match Hover-Tooltip | Slice 198 |
 | 9.1 | open | fm.md | Founding Progress-Bar fehlt | Slice 196 (Quick-Win) |
-| 10.1 | open | fm.md | Airdrop „Brauche X Pkt für nächsten Tier"-CTA | Slice 198 |
+| 10.1 | done | fm.md | Airdrop „Brauche X Pkt für nächsten Tier"-CTA | Slice 200b ✓ |
 
 ### P2 (11)
 
@@ -225,7 +231,7 @@
 | 6.3 | open | fm.md | Per-Player-P&L Top-5 Section | Post-Beta |
 | 7.3 | open | fm.md | Mission-Difficulty-Tag | Post-Beta |
 | 8.2 | open | fm.md | Bulk-Equip-Button Inventory | Post-Beta |
-| 8.3 | open | fm.md | MysteryBox History letzte-30d-Filter | Post-Beta |
+| 8.3 | done | fm.md | MysteryBox History letzte-30d-Filter | Slice 200b ✓ |
 | 10.4 | open | fm.md | Airdrop Pagination >100 | Post-Beta |
 
 ---

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import {
@@ -97,6 +97,14 @@ export default function MysteryBoxHistorySection() {
   // FIX-11: Zeige "Zu meinem Equipment"-CTA wenn der User mindestens 1 Equipment-Drop hat.
   const hasEquipmentDrop = history.some(entry => entry.reward_type === 'equipment');
 
+  // Slice 200b FM-8.3: Range-Filter (in-session State, kein localStorage).
+  const [rangeFilter, setRangeFilter] = useState<'all' | 'last30d'>('all');
+  const filteredHistory = useMemo(() => {
+    if (rangeFilter === 'all') return history;
+    const cutoff = Date.now() - 30 * 86400000;
+    return history.filter(entry => new Date(entry.opened_at).getTime() >= cutoff);
+  }, [history, rangeFilter]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -153,9 +161,37 @@ export default function MysteryBoxHistorySection() {
       {/* AR-47: Compliance-Disclaimer oberhalb der History-Liste */}
       <MysteryBoxDisclaimer variant="card" />
 
+      {/* Slice 200b FM-8.3: Range-Filter Toggle */}
+      <div role="tablist" aria-label={t('historyRangeLabel')} className="flex items-center gap-1.5 bg-white/[0.03] rounded-xl p-1">
+        {(['all', 'last30d'] as const).map((r) => {
+          const labelKey = r === 'all' ? 'historyRangeAll' : 'historyRangeLast30d';
+          const isActive = rangeFilter === r;
+          return (
+            <button
+              key={r}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setRangeFilter(r)}
+              className={cn(
+                'flex-1 min-h-[32px] px-3 text-[11px] font-bold rounded-lg transition-colors',
+                isActive ? 'bg-gold text-black' : 'text-white/60 hover:text-white/80',
+              )}
+            >
+              {t(labelKey)}
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredHistory.length === 0 ? (
+        <div className="text-center py-6 text-xs text-white/50">
+          {t('historyRangeEmpty')}
+        </div>
+      ) : (
       <Card className="p-0 overflow-hidden">
         <ul className="divide-y divide-white/[0.06]">
-          {history.map(entry => {
+          {filteredHistory.map(entry => {
             const rarityCfg = RARITY_CONFIG[entry.rarity];
             const RewardIcon = REWARD_ICONS[entry.reward_type] ?? Gift;
             // FIX-09: Date-Format locale-aware
@@ -213,6 +249,7 @@ export default function MysteryBoxHistorySection() {
           })}
         </ul>
       </Card>
+      )}
     </div>
   );
 }

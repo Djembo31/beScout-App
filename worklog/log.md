@@ -11,6 +11,49 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 200b | 2026-04-26 | Wave 4 Polish-Sweep (Frontend-only, single-track)
+
+S-Slice sequenziell durch lokal Claude. 3 Frontend-only Items closed + 1 already-fixed-marker. Punch-Liste: 67/98 → **70/98 closed (~71%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/200b-wave4-polish-sweep.md) → IMPACT skipped (kein Schema/RPC/Service) → BUILD → REVIEW (verdict PASS, alle Findings LOW/INFO) → PROVE → LOG
+
+### Items closed (3)
+
+- **FM-10.1** Airdrop „Brauche X Pkt für nächsten Tier"-CTA mit Progress-Bar — `getNextTierInfo()` helper + `AIRDROP_TIER_THRESHOLDS`-Konstante (sync zu Migration `20260417170000_refresh_airdrop_score_trigger_internal.sql:77`). Skip auf 'diamond'. role="progressbar" + aria-label.
+- **FM-8.3** MysteryBox History Range-Filter Toggle „Alle | Letzte 30 Tage" — in-session useState + useMemo-filtered + Empty-State. Filter erscheint nur wenn history.length > 0.
+- **F-10** Salary-UX Info-Icon mit `title`-Tooltip + aria-label im EventDetailFooter — i18n DE+TR „Salary basiert auf Form der letzten 5 Spiele (perfL5)" / „Salary, son 5 maçtaki forma (perfL5) dayanır". Replaced hardcoded `<span>Budget</span>`.
+
+### Items already-fixed-marker (1)
+
+- **R-03** Fantasy-only-Leaderboard — Reviewer-Agent fand pre-existing `'manager'`-Dimension-Tab in `src/components/rankings/GlobalLeaderboard.tsx:19` (existiert pre-Slice-200b). Audit-Anforderung „Manager-Score only" damit erfüllt. GW-Filter „Letzte GW/Saison" zusätzlich gewünscht aber Backend-needed → Slice 201 deferred.
+
+### Knowledge-Capture (Backlog)
+
+- **Threshold-Sync-Comment-Pattern:** Komponente referenziert Migration-File:Line in Code-Comment — Drift-Prevention (vgl. errors-db.md "Money-RPC Pricing-Formel Drift"). Kandidat für `memory/patterns.md`.
+- **Touch-Target-Polish-Drift Audit:** `min-h-[32px]` ist systematisch sub-44px (Tabs, Filter, Chips). Globaler Audit als eigene Compliance-Slice.
+
+### Files modified
+
+```
+messages/de.json                                                    | 10 +++-
+messages/tr.json                                                    | 10 +++-
+src/app/(app)/airdrop/page.tsx                                      | 53 ++++++++++++++++++++++
+src/components/inventory/MysteryBoxHistorySection.tsx               | 41 ++++++++++++++++-
+src/features/fantasy/components/event-detail/EventDetailFooter.tsx  | 10 +++-
+```
+
+### Proof
+- `worklog/proofs/200b-tsc.txt` — tsc clean + i18n-keys verified + threshold-sync verifiziert
+- Reviewer: `worklog/reviews/200b-review.md` (verdict PASS, 0 BLOCKERS)
+
+### Commit
+TBD (this commit)
+
+### Notes
+Single-Track-Sequenziell-Pattern wie 200a fortgesetzt. Pre-Existing-Code-Grep durchgängig angewandt (D45-Lesson aus 200a) — kein Duplicate-Risk. Reviewer-Agent fing R-03 als already-fixed-marker (analog UX-2 in 200a). Slice 200a + 200b together: 7 Items closed + 2 already-fixed-marker, 7/98 → 71/98 (~71%) Punch-Liste-Progress.
+
+---
+
 ## 200a | 2026-04-26 | Wave 3 Polish-Sweep (Frontend-only, single-track)
 
 S-Slice sequenziell durch lokal Claude. 4 Frontend-only Items closed + 1 Audit-Stale-Marker. Punch-Liste: 63/98 → **67/98 closed (~68%)**.

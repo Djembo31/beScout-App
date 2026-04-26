@@ -439,6 +439,8 @@
     "participation": "Teilnahme",
     "participationFee": "Teilnahmegebühr",
     "prize": "Reward",
+    "budgetLabel": "Budget",
+    "salaryHint": "Salary basiert auf Form der letzten 5 Spiele (perfL5).",
     "prizePool": "Rewards-Pool",
     "totalPrizes": "Total Rewards",
     "participants": "Teilnehmer",
@@ -2509,6 +2511,8 @@
     "tierSilber": "Silber",
     "tierGold": "Gold",
     "tierDiamond": "Diamond",
+    "nextTierHint": "Brauche {points} Pkt. für {tier}",
+    "nextTierProgressLabel": "Fortschritt zu {tier}",
     "barScoutRang": "Scout Rang",
     "barMastery": "Scout Card Mastery",
     "barActivity": "Aktivität",
@@ -5107,7 +5111,11 @@
     "historyRewardCosmeticNamed": "{name}",
     "historyTicketCost": "Kosten: {cost} 🎟️",
     "historyTicketCostFree": "Kostenlos",
-    "historyEquipmentCta": "Zu meinem Equipment"
+    "historyEquipmentCta": "Zu meinem Equipment",
+    "historyRangeLabel": "Zeitraum",
+    "historyRangeAll": "Alle",
+    "historyRangeLast30d": "Letzte 30 Tage",
+    "historyRangeEmpty": "In den letzten 30 Tagen keine Boxen geöffnet"
   },
   "meta": {
     "profile": "Profil",
