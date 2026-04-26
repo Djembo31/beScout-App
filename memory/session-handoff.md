@@ -1,17 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 01:44)
+# Session Handoff — Auto (2026-04-26 02:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
  M .claude/settings.local.json
- M memory/session-handoff.md
 ?? .claude/state/
 ?? worklog/audits/silent-fail-2026-04-25.md
 ```
 
 ## Session Commits: 10
+- d8c4c2bf docs(distill): D48 Reviewer-Agent als Audit-Stale-Catcher + Patterns #35+#36
+- db2d5c6d chore(200b): active idle nach Slice 200b Commit
+- ecf34c5f feat(200b): Wave 4 Polish-Sweep — 3 closed + 1 already-fixed-marker
 - 0ea24695 chore(200a): active idle nach Slice 200a Commit
 - d7c846b5 feat(200a): Wave 3 Polish-Sweep — 4 closed + 1 already-fixed-marker
 - d0ebb70e docs(distill): D45-D47 + Service-Duplicate Pattern + audit-baseline 2026-04-26
@@ -19,9 +21,6 @@
 - 1051b866 Merge branch 'worktree-agent-a32f714344d5ed9a3'
 - 43ed0253 Merge branch 'worktree-agent-a51bad5908a5cb028'
 - 257bc242 feat(199-frontend): 4 UI-Consumers + fm 1.3 In-Lineup-Filter
-- 13dc6b69 feat(199-backend): 3 SECURITY DEFINER aggregate-RPCs + service-layer
-- 8dfef96d feat(199-backend): 3 read-only Aggregat-RPCs + Service-Layer + Tests
-- 8e579a51 chore(199): SPEC + activate Slice 199 BUILD-stage (3 RPCs + 4 UI-Consumers)
 
 <!-- auto:handoff-end -->
 

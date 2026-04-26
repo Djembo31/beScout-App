@@ -65,7 +65,21 @@
       "mcp__supabase__get_organization",
       "mcp__supabase__get_project",
       "mcp__vercel__get_project",
-      "mcp__notion__notion-get-users"
+      "mcp__notion__notion-get-users",
+      "mcp__vercel__deploy_to_vercel",
+      "Bash(rm .claude/skills/deliver/SKILL.md)",
+      "Bash(rm .claude/skills/cto-review/SKILL.md)",
+      "Bash(rm .claude/skills/eval-skill/SKILL.md)",
+      "Bash(rmdir .claude/skills/eval-skill/cases)",
+      "Bash(rmdir .claude/skills/deliver .claude/skills/cto-review .claude/skills/eval-skill)",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__resize_page",
+      "mcp__chrome-devtools__get_network_request",
+      "Skill(schedule)",
+      "PowerShell(if \\(Test-Path \"C:\\\\bescout-app\\\\supabase\\\\migrations\\\\20260425170000_slice_195d_bench_autosub.sql\"\\) { \\(Get-Item \"C:\\\\bescout-app\\\\supabase\\\\migrations\\\\20260425170000_slice_195d_bench_autosub.sql\"\\).Length; \"EXISTS\" } else { \"MISSING\" })",
+      "PowerShell(Set-Location \"C:\\\\bescout-app\"; npx tsc --noEmit 2>&1 | Select-Object -Last 30; Write-Host \"EXIT=$LASTEXITCODE\")",
+      "PowerShell(Set-Location \"C:\\\\bescout-app\"; npx vitest run src/lib/services/__tests__/lineup-bench-validation.test.ts src/lib/services/__tests__/lineup-auto-sub.test.ts --no-coverage 2>&1 | Select-Object -Last 60; Write-Host \"EXIT=$LASTEXITCODE\")"
     ]
   },
   "enableAllProjectMcpServers": true,
