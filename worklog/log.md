@@ -11,6 +11,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 219 | 2026-04-26 | Onboarding-Doc + Tester-Recruitment-Templates DE+TR
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** S (Doku-Slice analog Slice 209/215, kein Code)
+- **Anil-Direktive:** "volle Entscheidungsgewalt" — autonomer Anil-Action-Enabler
+- **Files (2 NEU):**
+  - `memory/beta-onboarding.md` — DE+TR 1-Page für Tester (Was ist BeScout / Was sollst du testen / Wie meldest du Bugs)
+  - `memory/beta-tester-recruitment-templates.md` — Multi-Channel-Templates (DM/WhatsApp/Email × DE+TR), 3 Tester-Profile (A: Technik+FB, B: Casual, C: TR), Follow-Up-Templates, Anil-Action-Checkliste
+- **Wirkung:** 1 von 2 Anil-Action-Blockern erleichtert. Onboarding-Doc ist fertig zum copy-paste. Recruitment-Templates → Anil personalisiert (Name + Email + WhatsApp-Nr) und verschickt. **Anil's Mensch-Aktion reduziert von "schreibe komplette Texte" auf "klick + verschicken".**
+- **Compliance:** 0 echte business.md-Drifts (3 false-positives durch Substring-Match `kar` in Karten/kartları/kaptan — kein Asset-Klasse/Glücksspiel-Wording).
+- **Proof:** `worklog/proofs/219-onboarding-templates.txt` (6/6 ACs grün, 3 false-positives erklärt)
+- **Phase-Tracker-Update:** anil_action_blockers reduziert von "tester-list + onboarding-doc" auf "tester-list" (Onboarding-Doc Draft fertig, Anil finalisiert echte Email/Tel-Nr beim Versand)
+- **Anil-Action-Items (jetzt klar):**
+  - 3 Personen ausdenken (Profile A/B/C in Templates)
+  - Templates anpassen (`<NAME>`, Email, WhatsApp ersetzen)
+  - 3× DM/Email schicken
+  - `memory/beta-tester-list.md` schreiben (private, .gitignore-Pflicht)
+  - Login-Accounts auf bescout.net anlegen
+- **Pre-Mortem-#5 erfüllt:** Anil bekommt Templates fertig zum copy-paste (max 5 sec Anpassung pro Tester).
+- **Commit:** (pending)
+
+---
+
 ## 218 | 2026-04-26 | Test-Mock-Repair ClubContent.test.tsx (12 fails → 12 pass)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE (vitest 12/12) → LOG

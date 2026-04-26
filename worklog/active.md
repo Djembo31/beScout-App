@@ -2,12 +2,12 @@
 
 ```
 status: active
-slice: 218
+slice: 219
 stage: PROVE
-spec: inline (XS test-mock-repair, Pattern-Wiederholung Slice 196 testing.md)
-impact: skipped (1 Test-File-Edit, kein DB/RPC)
-proof: inline (vitest 12/12 PASS)
-review: self-review (D35 trivial-pattern Test-Mock-Repair)
+spec: worklog/specs/219-onboarding-recruitment-templates.md
+impact: skipped (2 NEU memory-Files, kein Code)
+proof: worklog/proofs/219-onboarding-templates.txt
+review: self-review (D35 — Doku-Slice analog Slice 209/215, kein Code-Change, Anil reviewt+finalisiert die Drafts)
 ```
 
 ## Zuletzt

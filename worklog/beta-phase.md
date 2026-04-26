@@ -30,8 +30,8 @@ slice_stubs_pending:
   - worklog/specs/214-derived-p1-k-003.md    # K-RR-1 Floor-Preis Tooltip
   - worklog/specs/214-derived-p2p3-bundle.md # 5 P2/P3 mixed
 anil_action_blockers:
-  - "memory/beta-tester-list.md erstellen (3 Tester, .gitignore-pflicht)"
-  - "memory/beta-onboarding.md erstellen (DE+TR 1-Page)"
+  - "memory/beta-tester-list.md erstellen (3 Tester, .gitignore-pflicht) — Recruitment-Templates jetzt fertig in memory/beta-tester-recruitment-templates.md (Slice 219)"
+  - "memory/beta-onboarding.md DRAFT fertig (Slice 219), Anil finalisiert echte Email/Tel-Nr beim Versand"
   - "TR-Native-Reviewer organisieren"
 ```
 

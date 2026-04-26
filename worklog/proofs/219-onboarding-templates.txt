@@ -1,0 +1,25 @@
+Slice 219 — Onboarding-Doc + Recruitment-Templates Self-Verification
+====================================================================
+
+AC-01 beta-onboarding.md DE+TR sections:
+2
+
+AC-02 3 Pflicht-Blöcke:
+3
+
+AC-03 3 Channels in Recruitment-Templates:
+15
+
+AC-04 TR-Wording-Compliance (sollte 0 sein):
+memory/beta-onboarding.md:3
+memory/beta-tester-recruitment-templates.md:0
+
+AC-05 DE-Wording-Compliance (sollte 0 sein):
+memory/beta-onboarding.md:0
+memory/beta-tester-recruitment-templates.md:0
+
+AC-06 Anil-Action-Checkliste vorhanden:
+memory/beta-tester-recruitment-templates.md:1
+memory/beta-onboarding.md:1
+
+==== ALL ACs CHECKED ====
