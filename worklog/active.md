@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 222
-stage: PROVE
-spec: worklog/specs/222-p2-bundle-heal.md
-impact: skipped (1 Code-Heal + 5 Status-Updates, kein DB/RPC)
-proof: worklog/proofs/222-p2-bundle.txt
-review: self-review (D35 — Pattern-Wiederholung Slice 216 K-RR-1)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 222** (2026-04-26) — P2-Bundle Reklassifizierung + K-RR-2 Heal (XS). **ALLE findings_open → 0** (P0/P1/P2/P3 alle null). Anil-Direktive "weiter" → Empfehlung-B autonom: PostHog deferred, P2-Bundle reklassifiziert. K-RR-2 Heal: 4 title-Tooltips auf Sentiment-Elements + 4 NEU i18n-Keys DE+TR. 5 Status-Updates: TR-NEU-1 stale (Keys existieren bereits) / FANTASY-NEU-1 CEO-pending (Money-Path) / FM-RR-1 wont-fix (Slice 208 Spec-Decision) / FM-RR-2 deferred (Feature) / POSTHOG-NEU-1 deferred. **Tech-Side maximal sauber — null open Findings.** Sign-Off-Trial-Re-Run-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste). Commit 5b50bfe1.
 - **Slice 220** (2026-04-26) — Smoke + Sentry + PostHog Verifies (XS, Verifikations-Run). ✅ Smoke 10/10 GREEN gegen bescout.net (19.5s). ✅ PostHog connected (org "beScout", project 160677 prod). ✅ Sentry CSP+Lib+Config (EU-Endpoint). 🔴 **NEUER P1 FINDING:** POSTHOG-NEU-1 — PostHog 0 Events ingested (Instrumentation-Gap aus beta-exit-criteria.md:135). Sign-Off-Matrix: 2 ❓ → 0, 2 ❓ verbleibend (Page-Health-Score, Persona-Score numerisch). signoff_questionable: 4→2. P1: 0→1 (POSTHOG-NEU-1). Commit f6c019f2.
 - **Slice 219** (2026-04-26) — Onboarding-Doc + Tester-Recruitment-Templates DE+TR (S, Doku-Slice). 2 NEU Files in `memory/`: `beta-onboarding.md` + `beta-tester-recruitment-templates.md`. Anil-Mensch-Aktion reduziert von "schreibe Texte" auf "klick + verschicken". 6/6 ACs grün. Commit b516a5cd.
 - **Slice 218** (2026-04-26) — Test-Mock-Repair ClubContent.test.tsx (XS). 3 Mocks ergänzt (useLeagueActiveGameweek, useEventPlayerPickRates, useMostOwnedPlayersPerClub). 12 fail → 12 pass. Pre-existing seit Slice 204. Commit 756d2987.
