@@ -9,11 +9,11 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: C
-last_phase_run: 2026-04-26T20:00 (Slice 215 Re-Run + Manual-Completion)
-last_signoff: never
-last_signoff_date: —
-last_signoff_verdict: —
+phase: D
+last_phase_run: 2026-04-26T20:30 (Slice 217 Sign-Off-Trial-Run)
+last_signoff: FAIL
+last_signoff_date: 2026-04-26
+last_signoff_verdict: "HARD-NO-GO Trial — 2 hard-FAIL Kriterien (tester-list + onboarding-doc), P1=3 kanten-PASS, 4 unverifizierbare ❓ (Page-Health-Score, Persona-Score, Smoke-heute, Sentry+PH heute)"
 findings_open:
   P0: 0
   P1: 3
@@ -21,12 +21,17 @@ findings_open:
   P3: 3
   incomplete_reruns: 0
 aggregate_file: worklog/audits/2026-04-26/aggregate.md
+signoff_file: worklog/sign-off/2026-04-26-readiness.md
 gate: "kein 'Beta-fertig'/'launch-ready' bis last_signoff == PASS UND P0+P1 = 0"
 slice_stubs_pending:
   - worklog/specs/214-derived-p1-fm-001.md   # FM-NEU-1 PickRateBadge cards-only
   - worklog/specs/214-derived-p1-ux-002.md   # UX-NEU-1 FeedbackModal preventClose
   - worklog/specs/214-derived-p1-k-003.md    # K-RR-1 Floor-Preis Tooltip
   - worklog/specs/214-derived-p2p3-bundle.md # 5 P2/P3 mixed
+anil_action_blockers:
+  - "memory/beta-tester-list.md erstellen (3 Tester, .gitignore-pflicht)"
+  - "memory/beta-onboarding.md erstellen (DE+TR 1-Page)"
+  - "TR-Native-Reviewer organisieren"
 ```
 
 ## Phase-Definitionen

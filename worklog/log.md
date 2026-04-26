@@ -11,6 +11,39 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 217 | 2026-04-26 | Sign-Off-Trial-Run trotz P1=3 — HARD-NO-GO bestätigt System-Funktion
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** S (Verifikations-Run, kein Code-Change)
+- **Anil-Direktive:** "3" (= "Sign-Off jetzt trotz P1=3" — Trial-Run Test ob Auto-Beta-Ready-Foundation lügt oder ehrlich NO-GO produziert)
+- **Files:**
+  - `worklog/sign-off/2026-04-26-readiness.md` — NEU. Sign-Off-Output gemäß /sign-off Skill-Schema
+  - `worklog/beta-phase.md` — EDIT. Phase=C→D, last_signoff=never→FAIL, last_signoff_verdict mit Begründung, anil_action_blockers-Liste neu
+- **Decision-Matrix-Resultat:** 2 ✅ + 4 ❓ + 2 ❌ = HARD-NO-GO
+  - ✅ P0=0
+  - ✅ P1=3 (kanten-PASS auf der Schwelle ≤3)
+  - ❌ tester-list (`memory/beta-tester-list.md`) FEHLT
+  - ❌ onboarding-doc (`memory/beta-onboarding.md`) FEHLT
+  - ❓ Page-Health-Score 0-50 nicht persistiert
+  - ❓ Persona-Score 0-10 nicht numerisch quantifiziert
+  - ❓ Smoke-Suite heute nicht gelaufen
+  - ❓ Sentry+PostHog Connection heute nicht via MCP verifiziert
+- **System-Verdict bestätigt:** Auto-Beta-Ready-Foundation (Slice 214) **funktioniert wie erwartet**. Trial produzierte HARD-NO-GO bei realem Stand. Hook ship-phase-gate.sh warnt jetzt mit "Phase: D, Sign-Off: FAIL" bei Beta-Launch-Claims. **System lügt nicht.**
+- **Real-Action für Anil (Mensch-only-Blocker):**
+  1. 3 Tester organisieren → `memory/beta-tester-list.md` schreiben (Credentials, .gitignore-pflicht)
+  2. `memory/beta-onboarding.md` schreiben (DE+TR 1-Page) — ich kann Draft liefern
+  3. TR-Native-Reviewer organisieren
+- **Real-Action für CTO (Tech-Blocker):**
+  1. Slice 216: P1=3 → P1=0 heilen (FM-NEU-1 + UX-NEU-1 + K-RR-1)
+  2. Beta-Smoke-Suite-Run gegen bescout.net + GH-Issue-Check
+  3. Sentry+PostHog-Connection-Verify via MCP
+- **Self-Review (D35):** Slice 217 ist Verifikations-Trial analog Slice 209 (audit-cleanup) und Slice 215 (audit-re-run). Kein Code-Change, pure Workflow-Verifikation. Foundation-Beweis durch Trial-Run.
+- **Proof:** `worklog/proofs/217-signoff-trial.txt` (5/5 ACs grün)
+- **Phase-Tracker-Update:** Phase auf D gewechselt (Sign-Off läuft jetzt), last_signoff=FAIL, anil_action_blockers explizit gelistet.
+- **Commit:** (pending)
+
+---
+
 ## 215 | 2026-04-26 | Phase-C Re-Run mit Bash-First-Write Briefing (Persona-K + FM-Mechanics)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Audit-Re-Run kein Code) → BUILD (2 Agents background) → REVIEW (self-review D35) → PROVE → LOG

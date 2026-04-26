@@ -1,0 +1,39 @@
+Slice 217 — Sign-Off-Trial-Run Self-Verification
+=================================================
+
+AC-01 readiness.md existiert + Schema vollständig:
+-rw-r--r-- 1 Anil 197121 5825 Apr 26 21:13 worklog/sign-off/2026-04-26-readiness.md
+Sektionen:
+## Verdict: **HARD-NO-GO**
+## Decision-Matrix (gegen `/sign-off` Skill-Schema)
+## Phase-Summaries (was schon da ist vs was fehlt)
+## Infrastruktur-Realität
+## Findings-Status (post-Slice-215 Re-Run)
+## Blocker für GO (in Reihenfolge)
+## Recommendation
+## System-Verdict (Slice 217 Trial-Hypothese)
+
+AC-02 Verdict NICHT GO:
+## Verdict: **HARD-NO-GO**
+
+AC-03 Decision-Matrix mit 8 Kriterien:
+8
+
+AC-04 Tracker last_signoff:
+last_signoff: FAIL
+last_signoff: PASS | FAIL
+last_signoff_verdict: "HARD-NO-GO Trial — 2 hard-FAIL Kriterien (tester-list + onboarding-doc), P1=3 kanten-PASS, 4 unverifizierbare ❓ (Page-Health-Score, Persona-Score, Smoke-heute, Sentry+PH heute)"
+last_signoff_verdict: "<short-reasoning>"
+
+AC-05 Hook smoke 'beta ready' (sollte WARN weil last_signoff=FAIL):
+SHIP-PHASE-GATE-WARN (Slice 214 D50 Wave 2):
+
+  Prompt-Phrase erkannt die Beta-Launch-Claim impliziert.
+  Aktueller Phase-Tracker-Stand widerspricht "fertig"-Behauptung:
+
+  Phase:           D
+  Letzter Run:     2026-04-26T20:30 (Slice 217 Sign-Off-Trial-Run)
+  Sign-Off:        FAIL
+Exit: 0
+
+==== ALL ACs CHECKED ====

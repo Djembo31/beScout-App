@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 217
+stage: PROVE
+spec: worklog/specs/217-signoff-trial-run.md
+impact: skipped (kein Code, nur Sign-Off-Verifikations-Run + Phase-Tracker-Update)
+proof: worklog/proofs/217-signoff-trial.txt
+review: self-review (D35 — Verifikations-Slice analog Slice 209/215, kein Code)
 ```
 
 ## Zuletzt
