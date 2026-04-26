@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 214
-stage: PROVE
-spec: worklog/specs/214-auto-beta-ready-loop.md
-impact: skipped (Master-Skill + Hook + Phase-Tracker + Pipeline-Script — kein DB/RPC/Service)
-proof: worklog/proofs/214-loop-audit.txt
-review: worklog/reviews/214-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 214** (2026-04-26) — Auto-Beta-Ready Self-Healing-Loop (L-Meta-Process). Anil-Direktive "ich höre fertig aber dem ist nicht so". Foundation für autonomen Phase-A→B→C→D-Loop: `worklog/beta-phase.md` (Phase-Tracker SoT) + `ship-phase-gate.sh` (UserPromptSubmit-WARN bei Beta-Claim ohne Sign-Off) + `scripts/findings-to-slices.ts` (Pipeline mit Auto-AC-Skeleton) + `auto-beta-ready` Master-Skill. CLAUDE.md+workflow.md hard-Definition. **Live-Test:** 7 Background-Agents Phase-C-Re-Run dispatched, 5 Findings aggregiert, 3 Slice-Stubs auto-generiert (FM-NEU-1 Slice-204-Regression, UX-NEU-1 FeedbackModal preventClose, P2-Bundle TR+Fantasy). Reviewer CONCERNS→PASS post-Heal (3 HIGH + 2 MED inline-gefixt). 12/12 ACs grün. Phase=C, Sign-Off=never — Slice 214 nicht "fertig" laut neuem Standard, Slice 215+ heilt Phase-C-Findings. Commit 7af9a793.
 - **Slice 213** (2026-04-26) — QuickActionPills Component-Extract (Brand 1 P3, S-Slice). Inline-Map-Block aus `src/app/(app)/page.tsx` extrahiert in self-contained Component `src/components/home/QuickActionPills.tsx` mit narrow TypeScript-Type für labelKey. 5 Lucide-Icons aus page.tsx-Imports bereinigt. Visual-Behavior 1:1 verifiziert. Reviewer PASS, keine REWORK. **Foundation Slice 211/212 live-verifiziert: ship-spec-quality-gate.sh silent bei konformer Spec während BUILD.** Spec ist Gold-Standard-Beispiel für 13-Sektionen-Format. Brand-Coherence 16/18 (~89%). Commit 795ea210.
 - **Slice 212** (2026-04-26) — Spec-Quality-Gate-Hook + /ship new Template-Reference (Wave 2 von Slice 211 D50, S-Slice). NEU `ship-spec-quality-gate.sh` WARN-Hook prüft Pre-BUILD Spec-Pflicht-Sektionen je Slice-Größe (XS=6, S/M=13, L=13+Pre-Mortem). Tolerant gegen Markdown-Stil-Drift, skipped meta-Files / idle / emergency / inline-Spec. WARN-only kein BLOCK (false-positive-safe wie Slice 211 Verdict-Hook). settings.json Hook-Registration. /ship Skill referenziert _TEMPLATE.md explizit. workflow.md Hook-Verweis. Reviewer PASS (1 LOW Backlog: tr-d-Pfade-mit-Spaces; 3 NITs; Lücke benannt: Hook prüft Sektion-EXISTENZ nicht Item-Counts → Slice 213). 10/10 ACs grün + 3-Hook-Chain-Smoke-Test post-Reviewer (alle silent + exit 0, kein Stack-Interference). Commit 399f4ffb.
 - **Slice 211** (2026-04-26) — Spec-Foundation-Uplift (L-Meta-Process). 4 neue /spec Pflicht-Sektionen 1.10-1.13 (Code-Reading-Liste, Pattern-References, Self-Verification Commands, Open-Questions). workflow.md SPEC-Stage komplett überarbeitet mit Slice-Größen-Tabelle (XS/S/M/L Mindest-Items). _TEMPLATE.md als Master-Spec-File. /parallel-dispatch um 3 Briefing-Blöcke erweitert (WORKTREE-PFLICHT absolute-paths-trap, PRE-REVIEW-MEMO, Service-Schnittstelle vorab). Hook ship-cto-review-gate Verdict-Schema-Enforcement WARN-only. 3 Pattern-Drafts aus Slice 207 promoted (Worktree-Isolation-Escape in common-errors.md §0, Migration-Heal v1→v2 in errors-db.md, Pre-Review-Memo Pattern #39). D50 in decisions.md (PROCESS, mit empirischer Evidence aus 6 zitierten Slices + Beziehung zu D45-D49). Reviewer PASS post-Heal (1 MEDIUM Spec-Tabelle-Drift inline-gefixt). 10/10 ACs grün. Commit e446c60a.
@@ -31,11 +32,19 @@ review: worklog/reviews/214-review.md
 
 ## Backlog (priorisiert)
 
-**Wave 2+ — Workflow-Tooling (Slice 213+, baut auf Slice 211/212 Foundation):**
-- **Hook-Item-Count-Validation** — Slice 212 Hook prüft heute nur Sektion-EXISTENZ. Erweiterung: Mindest 3/6/10 Items in Code-Reading-Liste je Slice-Größe (Reviewer-Lücke). S-M.
-- **Hard-BLOCK upgrade** — falls `spec: inline (...)` Bypass-Vektor missbraucht. S.
-- **`scripts/audit-stale-check.ts`** — automatisiert D48 Pattern (greppt "open"-Detail-Rows gegen current-code). S-M.
-- **`scripts/type-truth-audit.ts`** — automatisiert D43/D49 Pattern (`data as <Type>` vs `pg_get_functiondef`). S-M.
+**Wave 2+ — Phase-C-Heal (Slice 215+, aus Live-Audit-Run heute):**
+- **Slice 215** Heal P1-Findings: FM-NEU-1 (PickRateBadge in compact-view) + UX-NEU-1 (FeedbackModal preventClose). Spec-Stubs in `worklog/specs/214-derived-p1-fm-001.md` + `214-derived-p1-ux-002.md`.
+- **Slice 216** Re-Run incomplete Audits mit verbessertem Briefing-Pattern: Persona-K Casual (BuyConfirmModal-Walk vollständig) + FM-Mechanics-Expert (Voll-Audit).
+- **Slice 217** Phase-D Sign-Off-Trial-Run (`/auto-beta-ready signoff`).
+- **Slice 218** P2-Bundle (TR event_winner + FPL 60min-Rule). Stub `214-derived-p2p3-bundle.md`.
+
+**Wave 3+ — Workflow-Tooling-Backlog:**
+- Hook-Item-Count-Validation (Slice 212 Reviewer-Lücke)
+- Hard-BLOCK upgrade falls `spec: inline (...)` Bypass missbraucht
+- `scripts/audit-stale-check.ts` (D48 automatisiert)
+- `scripts/type-truth-audit.ts` (D43/D49 automatisiert)
+- Pipeline P2/P3 per-domain-bundle (Slice 214 Reviewer-Backlog)
+- Stop-Hook → Phase-Tracker-Update bei feat/fix-Commits
 
 **Real-actionable-frontend-only (CTO-scope):**
 - *Pool praktisch leer.* Brand 1 closed (Slice 213). Verbleibende Items sind Money-Path (CEO) oder Backend-M-Slices oder Post-Beta-deferred.
