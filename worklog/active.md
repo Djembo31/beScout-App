@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 222
+stage: PROVE
+spec: worklog/specs/222-p2-bundle-heal.md
+impact: skipped (1 Code-Heal + 5 Status-Updates, kein DB/RPC)
+proof: worklog/proofs/222-p2-bundle.txt
+review: self-review (D35 — Pattern-Wiederholung Slice 216 K-RR-1)
 ```
 
 ## Zuletzt

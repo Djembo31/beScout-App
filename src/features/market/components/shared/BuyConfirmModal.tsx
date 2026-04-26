@@ -118,21 +118,21 @@ export default function BuyConfirmModal({
           {isMarket ? t('transferListBadge') : t('clubSale', { defaultMessage: 'Club Verkauf' })}
         </div>
 
-        {/* Community Sentiment (Scout Reports) */}
+        {/* Community Sentiment (Scout Reports) — Slice 222 K-RR-2: title-Tooltips für Casual-Education */}
         {sentiment && sentiment.total > 0 && (
           <div className="flex items-center gap-2 text-[10px]">
-            <span className="text-white/40 font-semibold">{t('communityLabel', { defaultMessage: 'Community' })}:</span>
+            <span className="text-white/40 font-semibold" title={t('sentimentLabel')}>{t('communityLabel', { defaultMessage: 'Community' })}:</span>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-emerald-400">
+              <span className="flex items-center gap-1 text-emerald-400" title={t('sentimentBullish', { count: sentiment.bullish })}>
                 <TrendingUp className="size-3" aria-hidden="true" />
                 <span className="font-mono font-bold tabular-nums">{sentiment.bullish}</span>
               </span>
-              <span className="flex items-center gap-1 text-red-400">
+              <span className="flex items-center gap-1 text-red-400" title={t('sentimentBearish', { count: sentiment.bearish })}>
                 <TrendingDown className="size-3" aria-hidden="true" />
                 <span className="font-mono font-bold tabular-nums">{sentiment.bearish}</span>
               </span>
               {sentiment.neutral > 0 && (
-                <span className="flex items-center gap-1 text-white/40">
+                <span className="flex items-center gap-1 text-white/40" title={t('sentimentNeutral', { count: sentiment.neutral })}>
                   <Minus className="size-3" aria-hidden="true" />
                   <span className="font-mono font-bold tabular-nums">{sentiment.neutral}</span>
                 </span>

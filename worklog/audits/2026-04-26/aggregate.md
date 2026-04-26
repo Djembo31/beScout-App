@@ -30,13 +30,31 @@
 | **CASUAL-NEU-1** | BuyConfirmModal | P? | Casual-Walk endete mid-investigation auf BuyConfirmModal-Experience — Detail-Finding fehlt. Re-Run nötig. | BuyConfirmModal | persona-k incomplete |
 | **FM-NEU-?** | FM-Mechanics-Pages | P? | Agent endete mit "Now I have everything to write the audit. Let me write the report." — Bericht NIE geschrieben. Re-Run nötig. | unbekannt | fm-mechanics incomplete |
 
-## Aggregat-Zahlen (post-Slice-215 Re-Run + Manual-Completion)
+## Aggregat-Zahlen (post-Slice-222 Reklassifizierung)
 
 - **P0 (Launch-Blocker):** 0
-- **P1 (wichtig):** 3 — `FM-NEU-1` (Slice 204 Regression), `UX-NEU-1` (FeedbackModal preventClose), `K-RR-1` (Floor-Preis Tooltip Casual-Bounce-Risk)
-- **P2 (nice):** 4 — `TR-NEU-1`, `FANTASY-NEU-1`, `FM-RR-1` (Transactions-Sparkline Hover), `K-RR-2` (BuyConfirmModal Sentiment-Erklärung)
-- **P3 (Polish):** 3 — `BRAND-NEU-1` (audit-stale skipped), `FM-RR-2` (Watchlist-Standalone-Page), `FM-RR-3` (Trending-Pills Punch-List-Drift)
-- **Incomplete (Re-Run nötig):** 0 — Slice 215 Manual-Completion durch CTO post-Pattern-v2-Halb-Erfolg
+- **P1 (wichtig):** 0 (alle 3 Slice 216 closed) + POSTHOG-NEU-1 deferred (Slice 222 Anil-Option-B)
+- **P2 (nice):** Reklassifiziert in Slice 222:
+  - `TR-NEU-1` → **stale** (event_winner-Keys existieren bereits in messages/de.json:3088 + tr.json:3081, audit-Annahme war falsch)
+  - `FANTASY-NEU-1` → **CEO-pending** (FPL 60min-Rule = Money-Path Scoring-Algorithm-Change)
+  - `FM-RR-1` → **wont-fix** (Slice 208 Spec-Decision "kein Crosshair, bewusst einfacher als full Chart")
+  - `K-RR-2` → **closed** (Slice 222 title-Tooltips auf 4 Sentiment-Elements)
+- **P3 (Polish):** 3 (Status unverändert)
+  - `BRAND-NEU-1` audit-stale (BRAND-NEU-1 pre-existing pre-Slice-198)
+  - `FM-RR-2` deferred (Watchlist-Standalone-Page = Feature-Slice, kein Bug)
+  - `FM-RR-3` Punch-List-Drift FM 4.2 (audit-stale)
+- **Incomplete (Re-Run nötig):** 0
+
+### Slice 222 Reklassifizierungs-Updates (2026-04-26)
+
+| Finding | Slice 220 Status | Slice 222 Status | Begründung |
+|---------|-------------------|--------------------|------------|
+| TR-NEU-1 | P2 open | stale | Beide Keys existieren bereits in DE+TR — Persona-T-Walker-Fehler |
+| FANTASY-NEU-1 | P2 open | CEO-pending | Money-Path Scoring-Algorithm-Change |
+| FM-RR-1 | P2 open | wont-fix | Slice 208 Spec-Decision dokumentiert |
+| K-RR-2 | P2 open | closed via Slice 222 | title-Tooltips auf 4 Sentiment-Elements |
+| FM-RR-2 | P3 open | deferred | Watchlist-Standalone-Page = Feature-Request |
+| POSTHOG-NEU-1 | P1 open | deferred | Anil-Option-B (post-3-Tester-Beta wenn Skala) |
 
 ## Slice 215 Pattern-v2-Verdict (Background-Agent-Persistenz)
 

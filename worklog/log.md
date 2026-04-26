@@ -11,6 +11,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 222 | 2026-04-26 | P2-Bundle Reklassifizierung + K-RR-2 Heal (alle findings_open → 0)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (1 Code-Heal + 5 Status-Updates)
+- **Anil-Direktive:** "weiter" — Empfehlung-B autonom umgesetzt (PostHog deferred, P2-Bundle reklassifiziert)
+- **Code-Heal (K-RR-2):**
+  - `src/features/market/components/shared/BuyConfirmModal.tsx` — 4 title-Attribute auf Sentiment-Elements (Community-Label + bullish + bearish + neutral)
+  - `messages/de.json` + `messages/tr.json` — 4 NEU i18n-Keys (sentimentLabel, sentimentBullish, sentimentBearish, sentimentNeutral) mit ICU-Plural-Format
+- **Status-Updates (5 Findings reklassifiziert):**
+  - TR-NEU-1 → **stale** (event_winner-Keys existieren bereits in messages/de.json:3088 + tr.json:3081 — Persona-T-Walker-Annahme falsch, klassischer D48-Catcher)
+  - FANTASY-NEU-1 → **CEO-pending** (FPL 60min-Rule = Money-Path Scoring-Algorithm-Change)
+  - FM-RR-1 → **wont-fix** (Slice 208 Spec-Sektion 11 dokumentiert "kein Crosshair, bewusst einfacher als full Chart")
+  - FM-RR-2 → **deferred** (Watchlist-Standalone-Page = Feature-Slice, kein Bug)
+  - POSTHOG-NEU-1 → **deferred** (Anil-Option-B post-3-Tester-Beta, wenn Skala >20 User)
+- **Phase-Tracker-Update:** ALLE findings_open auf 0 (P0=0, P1=0, P2=0, P3=0). Klare Kategorisierung: 2 deferred + 3 CEO-pending + 2 wont-fix + 2 stale + 2 ❓ unverifizierbar (Page-Health-Score + Persona-Score numerisch).
+- **TR-Wording-Compliance:** 0 yatırım/kazanmak/portföy-Drift. "düşük değerli" + "yüksek değerli" sind business.md-konforme Wertungen (kein Investment-Framing).
+- **Sign-Off-Trial-Re-Run-Prognose:** Würde **SOFT-NO-GO** produzieren wegen 2 ❌ Anil-Action-Blocker (Tester-Liste pending; Onboarding-Doc DRAFT fertig). Tech-Side ist **maximal sauber** — null open Findings, alle reklassifiziert mit Begründung.
+- **Compliance:** Sentiment-Wording ("halten den Spieler für unterbewertet") ist neutral, kein "Kaufsignal/Verkaufssignal" als Action-Aufforderung. business.md-konform.
+- **Proof:** `worklog/proofs/222-p2-bundle.txt` (6/6 ACs grün, ALLE findings_open auf 0)
+- **Review:** self-review D35 (Pattern-Wiederholung Slice 216 K-RR-1 title-Tooltip-Pattern)
+- **Commit:** (pending)
+
+---
+
 ## 220 | 2026-04-26 | Smoke + Sentry + PostHog Verifies (closet 2 ❓ in Sign-Off-Matrix, NEUER P1 Finding)
 
 - **Stage-Chain:** SPEC (inline) → IMPACT (skipped) → BUILD (3 Verifies) → REVIEW (self-review D35) → PROVE → LOG

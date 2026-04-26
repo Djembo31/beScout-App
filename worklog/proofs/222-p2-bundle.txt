@@ -1,0 +1,32 @@
+Slice 222 — P2-Bundle Reklassifizierung + K-RR-2 Heal Self-Verification
+========================================================================
+
+AC-01 BuyConfirmModal title-Attribute (>=4):
+6
+
+AC-02 4 i18n-Keys × 2 Locales:
+4
+4
+
+AC-03 tsc:
+OK
+
+AC-04 TR-Wording (yatırım/kazanmak/portföy — keine):
+0
+(Pre-existing nullbase, NEU keine — verified)
+
+AC-05 aggregate.md Status-Updates:
+13
+
+AC-06 Phase-Tracker recount:
+findings_open:
+  P0: 0
+  P1: 0   # POSTHOG-NEU-1 deferred (Slice 222 Anil-Option-B post-3-Tester-Beta)
+  P2: 0   # Slice 222: TR-NEU-1 stale, FANTASY-NEU-1 CEO-pending, FM-RR-1 wont-fix, K-RR-2 closed
+  P3: 0   # alle 3 deferred/stale/wont-fix-klassifiziert
+  incomplete_reruns: 0
+  test_mock_backlog: 0
+  signoff_questionable: 2   # Page-Health-Score + Persona-Score numerisch
+  deferred:
+
+==== ALL ACs CHECKED ====

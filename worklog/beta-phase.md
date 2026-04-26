@@ -16,12 +16,25 @@ last_signoff_date: 2026-04-26
 last_signoff_verdict: "HARD-NO-GO (post-Slice-216 P1=0): noch 2 hard-FAIL Kriterien (tester-list + onboarding-doc), 4 unverifizierbare ❓. P1-Heals erledigt — nächster Re-Trial wird SOFT-NO-GO statt HARD-NO-GO produzieren."
 findings_open:
   P0: 0
-  P1: 1   # NEU Slice 220: POSTHOG-NEU-1 (0 Events ingested — Instrumentation-Gap)
-  P2: 4
-  P3: 3
+  P1: 0   # POSTHOG-NEU-1 deferred (Slice 222 Anil-Option-B post-3-Tester-Beta)
+  P2: 0   # Slice 222: TR-NEU-1 stale, FANTASY-NEU-1 CEO-pending, FM-RR-1 wont-fix, K-RR-2 closed
+  P3: 0   # alle 3 deferred/stale/wont-fix-klassifiziert
   incomplete_reruns: 0
   test_mock_backlog: 0
-  signoff_questionable: 2   # vorher 4: Page-Health-Score + Persona-Score numerisch (Smoke + Sentry+PH closed Slice 220)
+  signoff_questionable: 2   # Page-Health-Score + Persona-Score numerisch
+  deferred:
+    - POSTHOG-NEU-1 (post-3-Tester-Beta, wenn Skala >20 User)
+    - FM-RR-2 (Watchlist-Standalone-Page Feature)
+  ceo_pending:
+    - FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring-Change)
+    - F-09 BPS-Bonus (pre-existing CEO-pending)
+    - UX 20 MembershipSection Confirm (pre-existing CEO-pending)
+  wont_fix:
+    - FM-RR-1 (Slice 208 Spec-Decision: Sparkline ist Glance-Indicator, kein Detail-Tool)
+    - BRAND-NEU-1 (pre-existing pre-Slice-198, audit-stale)
+  stale:
+    - TR-NEU-1 (event_winner-Keys existieren bereits in DE+TR)
+    - FM-RR-3 (Trending-Pills Punch-List-Drift, audit-Annahme falsch)
 aggregate_file: worklog/audits/2026-04-26/aggregate.md
 signoff_file: worklog/sign-off/2026-04-26-readiness.md
 gate: "kein 'Beta-fertig'/'launch-ready' bis last_signoff == PASS UND P0+P1 = 0"
