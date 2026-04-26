@@ -785,3 +785,59 @@ main-Repo, nicht dein Worktree."
 **Empirie Slice 198:** Track A (Brand) — 100% Trap, Re-Apply via main. Track B — clean (worktree-relative). Track C — partial Trap. Track D — clean Working-Tree-Edits aber kein commit (anderes Symptom: Stream-Watchdog-Stop). Trap-Rate: 50% bei Frontend-Agent-Worktree-Dispatch.
 
 **Slice-Reference:** Slice 198 Track A Heal-Cycle.
+
+---
+
+### 35. Threshold-Konstante mit Migration-Source-Reference (Slice 200b, FM-10.1)
+
+**Kontext:** Wenn Frontend-Code Schwellenwerte (Tier-Thresholds, Score-Boundaries, Fee-Tiers, etc.) duplicate, die in einer DB-Migration definiert sind, wird die Konstante mit explicitem Comment auf Migration-File:Line referenziert.
+
+**Pattern:**
+```ts
+// Slice 200b FM-10.1: Airdrop Tier-Thresholds. Synchron zu
+// supabase/migrations/20260417170000_refresh_airdrop_score_trigger_internal.sql:77.
+const AIRDROP_TIER_THRESHOLDS: Record<AirdropTier, number> = {
+  bronze: 0, silber: 200, gold: 500, diamond: 1000,
+};
+```
+
+**Begruendung:**
+- DB-Migration ist Source-of-Truth fuer Tier-Threshold (DB-Trigger berechnet `tier` server-side).
+- Frontend-Konstante ist Spiegel-Wert fuer UI-CTAs ("Brauche X Pkt fuer next Tier").
+- Comment macht Drift-Risk explizit: bei Migration-Changes (`silber=300` z.B.) muss Frontend-Konstante mit-aktualisiert werden.
+- Vorbild: `errors-db.md` "Money-RPC Pricing-Formel Drift" Pattern (Slice 108).
+
+**Anwendung erweitert auf:**
+- Money-Tiers (bereits Slice 108 dokumentiert via test-invariant)
+- Score-Boundaries (Airdrop, Fan-Rang, Manager-Score)
+- Fee-Caps (CEO-approved values)
+- Mission-Threshold-Werte
+
+**Slice-Reference:** Slice 200b FM-10.1 (Airdrop tier-CTA).
+
+---
+
+### 36. Polish-Audit Pre-Existing-Code-Grep (Slice 200a + 200b, codifiziert D48)
+
+**Kontext:** Polish-Sweep-Items aus Punch-List klassifizieren "X fehlt", aber Code im consumed-Hook/parallel-Component löst es bereits. Wenn ohne Pre-Existing-Code-Grep implementiert wird → Duplicate in Production.
+
+**Pattern:**
+```bash
+# VOR jedem Polish-Item: 30-Sekunden-Sanity-Check
+grep -rn "<spec-pattern>" \
+  src/features/<domain>/hooks/ \
+  src/features/<domain>/services/ \
+  src/lib/hooks/ \
+  src/components/<domain>/ \
+  src/app/\(app\)/<domain>/
+```
+
+**Slice-Empirie:**
+- **Slice 200a UX-2:** Audit "Buy-Error-Banner auto-dismiss fehlt" — pre-existing 5s setTimeout in `useTradeActions.ts:63-69` seit Slice 161+. Ohne Reviewer-Agent waere Duplicate-useEffect in Production.
+- **Slice 200b R-03:** Audit "Manager-Score isoliert fehlt" — pre-existing `'manager'`-Dimension-Tab in `GlobalLeaderboard.tsx:19`. Reviewer-Agent dokumentierte als already-fixed-marker.
+- **Trefferquote:** 2 von 9 Polish-Items in Slice 200a+200b waren already-fixed = ~22% Audit-Stale-Rate.
+
+**Decision-Reference:** D48 "Reviewer-Agent als Audit-Stale-Catcher".
+**Beziehung:** D45 (Worktree-Awareness) + D46 (Service-Schnittstelle) + D48 = drei Pre-Implementation-Audits.
+
+**Codify:** `errors-frontend.md` "Polish-Audit Pre-Existing-Code-Drift" Pattern (Slice 200a).

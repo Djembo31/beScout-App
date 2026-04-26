@@ -1913,6 +1913,46 @@ Nach 3 Wave-Slices Retro: Schließrate (Closed/Total) gegen Einzel-Slices vergle
 
 ---
 
+## D48 — PROCESS: Reviewer-Agent als Audit-Stale-Catcher (Already-Fixed-Marker-Pattern)
+
+**Datum:** 2026-04-26
+**Status:** ✅ Aktiv (Slice 200a UX-2 + Slice 200b R-03 als 2 Erfolgs-Beispiele)
+
+### Entscheidung
+
+Bei Polish-Sweep-Slices aus Punch-List-Items: Reviewer-Agent ist Pflicht-Catcher für **Audit-Stale**-Bugs (Spec klassifiziert "X fehlt", aber Code im consumed-Hook/parallel-Component löst es bereits). Wenn Reviewer "already-fixed"-Pattern findet, wird das Item **nicht implementiert** sondern als "already-fixed-marker" in der Punch-Liste vermerkt.
+
+### Begründung
+
+Slice 200a (UX-2): Implementierte 5s setTimeout in `MarketContent.tsx:82-92`, aber pre-existing identisches Timer in `useTradeActions.ts:63-69` seit Slice 161. Reviewer fing CRITICAL pre-merge → Heal-Action: Duplicate gelöscht.
+
+Slice 200b (R-03): Spec sagt "Manager-Score isoliert fehlt", aber `GlobalLeaderboard.tsx:19` hat `'manager'`-Tab als Dimension-Filter pre-Slice. Reviewer-Agent dokumentierte als already-fixed-marker.
+
+Beide Cases: Audit aus 2026-04-25 wurde vor Hooks/Service-Layer-Implementation erstellt. Punch-Liste driftet 1-2 Wochen, Audit-Items sind Snapshot-in-Time. Polish-Sweep ohne Pre-Existing-Code-Grep produziert Duplicate-Code in Production.
+
+### Auswirkungen
+
+- **Reviewer-Pflicht (D42-Erweiterung):** Bei Polish-Sweep-Items "ist X bereits implementiert?" als ERSTER Check, BEFORE Spec-Klassifikation akzeptieren. Grep über consumed-hook-source + parallel-Components.
+- **Punch-Liste-Format:** Status-Werte erweitert um `already-fixed via <pre-existing-source>` als legitimen Done-Status.
+- **CTO-Pflicht:** Vor BUILD jedes Polish-Items: `grep -rn "<spec-pattern>" src/features/<domain>/hooks/ src/features/<domain>/services/ src/lib/hooks/ src/components/<domain>/` als 30-Sekunden-Sanity-Check.
+- **Pattern-Codify:** `errors-frontend.md` "Polish-Audit Pre-Existing-Code-Drift" (codifiziert in Slice 200a).
+
+### Alternativen erwogen
+
+- **Audit-Refresh vor jeder Slice:** Wäre teuer (jeden Audit komplett re-scannen). Verworfen — Reviewer-Agent ist günstiger.
+- **CI-Gate "Duplicate-Detection":** Static-Analysis schwer (verschiedene Patterns: useEffect, helper-fn, dimension-tab). Verworfen — zu false-positive-prone.
+- **Pre-Implementation-Pflicht-Audit:** Würde Single-Track verlangsamen. Reviewer-Agent ist Post-BUILD aber Pre-Merge — gleicher Effekt.
+
+### Re-Visit-Trigger
+
+Wenn 3 Polish-Sweeps in Folge ohne already-fixed-marker enden, Pattern aufgeben (Audit-Drift dann nicht mehr Hauptproblem). Aktuell 2/2 Slices haben einen Marker — Pattern aktiv.
+
+### Beziehung zu D42
+
+D42 (CRITICAL-Findings = Pre-Merge-Pflicht) deckt Code-Quality-Bugs. D48 ist spezialisiert auf Audit-Stale-Bugs in Polish-Sweeps. Beide Reviewer-Agent-Use-Cases.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

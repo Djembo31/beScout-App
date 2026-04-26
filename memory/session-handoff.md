@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 00:56)
+# Session Handoff — Auto (2026-04-26 01:44)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -12,6 +12,9 @@
 ```
 
 ## Session Commits: 10
+- 0ea24695 chore(200a): active idle nach Slice 200a Commit
+- d7c846b5 feat(200a): Wave 3 Polish-Sweep — 4 closed + 1 already-fixed-marker
+- d0ebb70e docs(distill): D45-D47 + Service-Duplicate Pattern + audit-baseline 2026-04-26
 - 132e1bcd feat(199): heal Service-Duplicate + LOG + Reviewer PASS — punch-list 59->63/98 (~64%)
 - 1051b866 Merge branch 'worktree-agent-a32f714344d5ed9a3'
 - 43ed0253 Merge branch 'worktree-agent-a51bad5908a5cb028'
@@ -19,26 +22,23 @@
 - 13dc6b69 feat(199-backend): 3 SECURITY DEFINER aggregate-RPCs + service-layer
 - 8dfef96d feat(199-backend): 3 read-only Aggregat-RPCs + Service-Layer + Tests
 - 8e579a51 chore(199): SPEC + activate Slice 199 BUILD-stage (3 RPCs + 4 UI-Consumers)
-- 0edf1c3e docs(198b): LOG + Reviewer-Verdict PASS + active idle + punch-list 48->59/98 (~60%)
-- cd137728 Merge branch 'worktree-agent-ab49be2c93d17b1f1'
-- 632dbfff Merge branch 'worktree-agent-aef43e9a16fa0902b'
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Resume-Anker (2026-04-26 autonomous run #2 — komplett durch)
+# Resume-Anker (2026-04-26 autonomous run #3 — komplett durch)
 
 **Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
 1. `worklog/active.md` — aktueller Slice-State (idle)
-2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, 63 closed (~64%)
+2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, **70 closed (~71%)**
 3. Diese Datei (Resume-Anker)
-4. `worklog/log.md` Top 5 Eintraege (199, 198b, 198, 197d, 197c)
+4. `worklog/log.md` Top 5 Eintraege (200b, 200a, 199, 198b, 198)
 5. `git status --short` + `git log --oneline -10`
 
-## Session-End 2026-04-26 — autonomous run #2 komplett
+## Session-End 2026-04-26 — autonomous run #3 komplett
 
-**3 Major Slices durchgezogen + Hygiene + DISTILL. 8 Slices total heute (195a-d, 196, 197a/b/c/d/e, 198, 198b, 199), 63/98 closed (~64%). Punch-Liste sauber dokumentiert. Ready für /clear.**
+**+2 Polish-Slices (200a + 200b) durchgezogen + DISTILL. 7 Items closed + 2 already-fixed-marker via Reviewer-Agent. Punch-Liste 63/98 → 70/98 closed (~71%). Ready für /clear.**
 
 ### Pipeline-Status (alle gepusht)
 
@@ -53,19 +53,25 @@
 | **198 Polish-Sweep Wave 1** | cbc2df92+heal | **+16** (Brand+UX+FM+Fantasy 4-Track) |
 | **198b Polish-Sweep Wave 2** | 0edf1c3e | **+11** (UX+FM+Fantasy 3-Track) |
 | **199 Backend-Aggregat-RPCs** | 132e1bcd | **+4** (C-05+K-02+fm 2.4+fm 1.3) |
-| **TOTAL Session 2026-04-25/26** | — | **63/98 closed (~64%)** |
+| **200a Wave 3 Polish-Sweep** | d7c846b5 | **+4 + 1 marker** (FM 7.1+7.2+8.1+9.2 / UX-2 already-fixed) |
+| **200b Wave 4 Polish-Sweep** | ecf34c5f | **+3 + 1 marker** (FM 10.1+8.3+F-10 / R-03 already-fixed) |
+| **TOTAL Session 2026-04-25/26** | — | **70/98 closed (~71%)** |
 
-### Knowledge-Compilation (DISTILL Slice 198/199)
+### Knowledge-Compilation (DISTILL Slice 198/199/200a/200b)
 
 - **D45 PROCESS:** Worktree-Awareness-Briefing als Pflicht-Block (50%→0% Trap-Rate über 5 Tracks empirisch validiert)
 - **D46 PROCESS:** Service-Schnittstelle vorab spezifizieren bei parallelem BE+FE-Dispatch (Slice 199 Reviewer-Find)
 - **D47 PROCESS:** Skip-Pattern-Bündelung — gebündelte Wave-Slice (Slice 199 als Erfolgs-Beispiel)
+- **D48 PROCESS (NEU 2026-04-26):** Reviewer-Agent als Audit-Stale-Catcher — already-fixed-marker-Pattern. 22% Audit-Stale-Rate empirisch (2 von 9 Polish-Items in 200a+200b)
 
 ### Pattern-Codify
 
-- `errors-frontend.md` neue Section "Service-Duplicate bei parallelem BE+FE-Dispatch"
-- `errors-frontend.md` (Slice 198) neue Section "Missing i18n-Key bei neuer CTA-Component"
+- `errors-frontend.md` "Service-Duplicate bei parallelem BE+FE-Dispatch" (Slice 199)
+- `errors-frontend.md` "Missing i18n-Key bei neuer CTA-Component" (Slice 198)
+- `errors-frontend.md` "Polish-Audit Pre-Existing-Code-Drift" (Slice 200a, **NEU**)
 - `patterns.md #34` "Worktree-Awareness-Trap" (Slice 198 codifiziert)
+- `patterns.md #35` "Threshold-Konstante mit Migration-Source-Reference" (Slice 200b, **NEU**)
+- `patterns.md #36` "Polish-Audit Pre-Existing-Code-Grep" (Slice 200a+200b, codifiziert D48, **NEU**)
 
 ### Audit-Status
 
@@ -74,22 +80,34 @@
 - Baseline updated `.audit-baseline.json`
 - Bot-Loop persistent im Hintergrund (re-start 17:45 UTC, 4h auto-stop)
 
-### Naechste Session — Slice 200 (CEO-Approval pending)
+### Naechste Session — Slice 200 + Slice 201 (beide CEO-relevant)
 
 **Slice 200** = fm 4.4 `players.trades_volume_7d` Column-Migration + Aggregations-Strategie:
 - Schema-Change auf existing `players` table → CEO-Scope (ceo-approval-matrix)
 - Aggregations-Strategie-Decision pending: Trigger vs Materialized-View vs neuer Cron (Vercel-Hobby-Limit)
 - Plus Frontend Sort-Pill in MarketFilters
 
-**Wave 3 Polish-Sweep** (~30 P2/P3 Restposten — Brand 6, UX 9, FM 11, Fantasy 9). Kein Backend, low-risk. CTO-scope.
+**Slice 201** = Backend-Wave fuer 4 Findings (gebuendelt nach D47 Pattern):
+- FM-6.1 Per-Trade-Player-Link (trades-join, transactions reference_id mapping)
+- FM-4.3 Holders-Distribution-Mini-Bar (Aggregat-Service oder existing player-fields)
+- M-01 Mission-Hints kontextabhaengig (DB-catalog-changes neue mission-definitions)
+- R-03 GW-Filter "Letzte GW/Saison" auf GlobalLeaderboard (per-GW-aggregation-RPC)
+
+**Wave 5 Polish-Restposten** ~26 P2/P3 (Brand 6 + UX 8 + FM 5 + Fantasy 7) — but viele needs Backend, fast erschoepft. Frontend-only-Pool fast leer.
 
 ### Bei /clear oder Token-Limit Resume
 
-1. `worklog/active.md` (idle, Slice 200 + Wave 3 als Backlog dokumentiert)
-2. `worklog/punch-list-2026-04-25.md` (63/98 closed, Pipeline + Skip-Reasons)
-3. `worklog/log.md` Top 5 Eintraege
-4. `git log --oneline -15` — 132e1bcd Slice 199 Heal+LOG ist HEAD
+1. `worklog/active.md` (idle, Slice 200 + 201 als Backlog dokumentiert)
+2. `worklog/punch-list-2026-04-25.md` (**70/98** closed, Pipeline + Skip-Reasons)
+3. `worklog/log.md` Top 7 Eintraege
+4. `git log --oneline -15` — `db2d5c6d` (chore active idle nach 200b) ist HEAD
 5. `git worktree list` (sollte nur main sein)
+
+### TR-Wording-Review (Anil-Pflicht vor Beta)
+
+Diese Session hat folgende TR-Strings hinzugefuegt — bitte vor Beta-Launch checken:
+- Slice 200a: `Tümü / Aktif / Tamamlandı / Bu görünümde görev yok / Etki Gücü`
+- Slice 200b: `{tier} için {points} puan eksik / {tier} için ilerleme / Dönem / Tümü / Son 30 gün / Son 30 günde kutu açılmadı / Bütçe / Salary, son 5 maçtaki forma (perfL5) dayanır`
 
 ### Anil-Action-Items (Mensch-only)
 
