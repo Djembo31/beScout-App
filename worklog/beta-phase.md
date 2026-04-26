@@ -10,16 +10,17 @@
 
 ```yaml
 phase: D
-last_phase_run: 2026-04-26T20:30 (Slice 217 Sign-Off-Trial-Run)
+last_phase_run: 2026-04-26T21:30 (Slice 216 P1-Wave-Heal completed)
 last_signoff: FAIL
 last_signoff_date: 2026-04-26
-last_signoff_verdict: "HARD-NO-GO Trial — 2 hard-FAIL Kriterien (tester-list + onboarding-doc), P1=3 kanten-PASS, 4 unverifizierbare ❓ (Page-Health-Score, Persona-Score, Smoke-heute, Sentry+PH heute)"
+last_signoff_verdict: "HARD-NO-GO (post-Slice-216 P1=0): noch 2 hard-FAIL Kriterien (tester-list + onboarding-doc), 4 unverifizierbare ❓. P1-Heals erledigt — nächster Re-Trial wird SOFT-NO-GO statt HARD-NO-GO produzieren."
 findings_open:
   P0: 0
-  P1: 3
+  P1: 0
   P2: 4
   P3: 3
   incomplete_reruns: 0
+  test_mock_backlog: 1   # ClubContent.test.tsx: useLeagueActiveGameweek + useEventPlayerPickRates nicht gemockt seit Slice 204 — Slice 218+
 aggregate_file: worklog/audits/2026-04-26/aggregate.md
 signoff_file: worklog/sign-off/2026-04-26-readiness.md
 gate: "kein 'Beta-fertig'/'launch-ready' bis last_signoff == PASS UND P0+P1 = 0"

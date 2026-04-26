@@ -11,6 +11,38 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 216 | 2026-04-26 | P1-Wave-Heal: FM-NEU-1 + UX-NEU-1 + K-RR-1 (3 P1 → 0)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
+- **Größe:** M (3 frontend-only Heals als Bundle)
+- **Anil-Direktive:** "ja" (= P1-Wave-Heal nach Slice 217 Sign-Off-Trial HARD-NO-GO mit P1=3-Schwelle)
+- **Files (3 Edits):**
+  - `src/app/(app)/club/[slug]/ClubContent.tsx:608-619` — Heal 1 FM-NEU-1: PickRateBadge in compact-View Branch ergänzt (analog cards-Branch). Pattern-Konsistenz strikt.
+  - `src/components/layout/FeedbackModal.tsx:63` — Heal 2 UX-NEU-1: `preventClose={loading}` zu Dialog-Props ergänzt. Erfüllt errors-frontend.md "Modal preventClose Pattern (J2 + J3)".
+  - `src/components/player/detail/CommunityValuation.tsx:110` — Heal 3 K-RR-1: `title={t('floorPriceTooltip')}` auf Floor-Preis-Label. i18n-Keys pre-existing in DE+TR (kein neuer Key).
+- **Reviewer (PASS, 12 min):**
+  - 1 CONCERN (Visual): Heal 1 PickRateBadge `absolute` Position in compact-View könnte mit existing-Elementen kollidieren — funktional korrekt, visuell ungetestet → Anil-Smoke-Test post-deploy pflicht.
+  - 1 INFO (acknowledged): Heal 3 native HTML `title` nicht auf iOS-Touch sichtbar — Mobile-Popover Slice 219+ Backlog.
+  - 1 INFO Cross-Cutting: ClubContent.test.tsx 12/12 fail (pre-existing seit Slice 204, Test-Mocks fehlen für `useLeagueActiveGameweek` + `useEventPlayerPickRates`). Git-stash-verifiziert — Slice 216 macht NICHTS schlimmer. Backlog Slice 218 Test-Mock-Repair.
+- **Spec-AC-Coverage:** 8/9 PASS (AC-05 pre-existing-fail markiert).
+- **Phase-Tracker-Update:** P1: 3 → 0, last_signoff bleibt FAIL (Tester-Liste + Onboarding-Doc fehlen — Anil-Action), test_mock_backlog: 1 vermerkt.
+- **Self-Verification (Pre-Implementation D50-Pflicht):** Dialog.tsx:7,22,48 verifiziert dass `preventClose`-Prop existiert. i18n `floorPriceTooltip` in DE+TR verifiziert. PickRateBadge-Position cards-vs-compact pre-Heal überlegt (Edge-Case 6 in Spec dokumentiert).
+- **Proof:** `worklog/proofs/216-p1-wave-heal.txt` (8/9 ACs grün)
+- **Foundation Slice 211/212/214 Live-Verifiziert:** Hook ship-spec-quality-gate silent während Slice 216 BUILD (conformer 13-Sektionen-Spec). Hook ship-phase-gate würde bei "Beta-fertig"-Claim weiter WARN feuern (last_signoff bleibt FAIL bis Tester-Liste + Onboarding-Doc da).
+- **Empirische Anwendbarkeit:** Slice 216 → P1=0 → nächster Sign-Off-Trial-Run wird **SOFT-NO-GO** statt HARD-NO-GO produzieren — exakt wie Slice 217 Trial-Empfehlung.
+- **Anil-Action-Items für nächsten Sign-Off-Trial-Run:**
+  1. 3 Beta-Tester organisieren → `memory/beta-tester-list.md` (private, .gitignore)
+  2. `memory/beta-onboarding.md` DE+TR (CTO kann Draft liefern)
+  3. Visual-Verify Heal 1 compact-View auf bescout.net post-deploy (potential Slice 219)
+- **Wave-Backlog post-216:**
+  - Slice 218: Test-Mock-Repair ClubContent.test.tsx
+  - Slice 219: Mobile-Popover für Floor-Preis-Tooltip (K-RR-1 Mobile-Vollständigung)
+  - Slice 220: P2-Bundle-Heal (5 Findings)
+  - Slice 221: Re-Run Sign-Off-Trial nach Anil-Mensch-Action
+- **Commit:** (pending)
+
+---
+
 ## 217 | 2026-04-26 | Sign-Off-Trial-Run trotz P1=3 — HARD-NO-GO bestätigt System-Funktion
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG

@@ -606,9 +606,15 @@ export default function ClubContent({ slug }: { slug: string }) {
             </div>
           ) : (
             <div className="space-y-1">
-              {filteredPlayers.map((player) => (
-                <PlayerDisplay key={player.id} variant="compact" player={player} showActions={false} />
-              ))}
+              {filteredPlayers.map((player) => {
+                const pickRate = pickRateMap.get(player.id);
+                return (
+                  <div key={player.id} className="relative">
+                    <PlayerDisplay variant="compact" player={player} showActions={false} />
+                    {pickRate !== undefined && <PickRateBadge pct={pickRate} />}
+                  </div>
+                );
+              })}
             </div>
           )}
 

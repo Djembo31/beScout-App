@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 216
+stage: PROVE
+spec: worklog/specs/216-p1-wave-heal.md
+impact: skipped (3 frontend-only Files, kein DB/RPC/Service)
+proof: worklog/proofs/216-p1-wave-heal.txt
+review: worklog/reviews/216-review.md
 ```
 
 ## Zuletzt

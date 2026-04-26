@@ -60,6 +60,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
       open={open}
       title={tf('title')}
       onClose={onClose}
+      preventClose={loading}
       footer={
         <Button
           variant="gold"

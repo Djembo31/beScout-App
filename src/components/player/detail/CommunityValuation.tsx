@@ -107,7 +107,7 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
-            <div className="text-[10px] text-white/40 mb-1">{t('floorPrice')}</div>
+            <div className="text-[10px] text-white/40 mb-1" title={t('floorPriceTooltip')}>{t('floorPrice')}</div>
             <div className="font-mono font-bold tabular-nums text-white/70">{fmtScout(centsToBsd(floorPriceCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">

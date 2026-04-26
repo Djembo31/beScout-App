@@ -1,0 +1,27 @@
+Slice 216 — P1-Wave-Heal Self-Verification
+===========================================
+
+AC-01 PickRateBadge in compact-View:
+1
+1
+Total PickRateBadge-Renders im File:
+3
+
+AC-02 FeedbackModal preventClose:
+      preventClose={loading}
+      footer={
+
+AC-03 Floor-Preis-Tooltip:
+            <div className="text-[10px] text-white/40 mb-1" title={t('floorPriceTooltip')}>{t('floorPrice')}</div>
+
+AC-04 tsc:
+OK
+
+AC-06 i18n keys (pre-existing):
+messages/de.json:1
+messages/tr.json:1
+
+AC-08 Hook live silent (Slice 216 BUILD, conformer Spec):
+Exit: 0
+
+==== Heals verifiziert ====
