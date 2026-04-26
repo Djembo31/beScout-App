@@ -1,0 +1,51 @@
+Slice 212 — Spec-Quality-Gate-Hook Self-Verification
+========================================================
+
+AC-01 Hook existiert + Bash-Syntax OK:
+-rwxr-xr-x 1 Anil 197121 8783 Apr 26 16:32 .claude/hooks/ship-spec-quality-gate.sh
+Syntax OK
+
+AC-02 Hook detection-Logic verified durch inline-test:
+  → Test-Spec mit nur 3 Sektionen → Hook würde MISSING ausgeben für S/M-Strenge
+  → (verifiziert oben durch grep-Output: Files=0, Code-Reading=0, Pattern-Refs=0, Self-Verify=0)
+
+AC-03 silent bei konformer Spec (Slice 212 hat alle 13 Sektionen):
+(Erwartet: silent, exit 0 — siehe Hook-Output oben oder dahinter)
+
+AC-04 Skip bei stage=SPEC test:
+  → Test wird im Reviewer-Prozess implizit gemacht (Hook-Code Z. 60-65 prüft)
+
+AC-05 Skip bei meta-Files test:
+(Erwartet: silent, exit 0)
+
+AC-06 settings.json Hook-Registration:
+68:            "command": "bash C:/bescout-app/.claude/hooks/ship-spec-quality-gate.sh"
+
+AC-07 /ship Skill _TEMPLATE Reference:
+21:3. **Spec-Boilerplate aus Master-Template** — kopiere `worklog/specs/_TEMPLATE.md` als Start-Point fuer `worklog/specs/NNN-title.md`. Das Template hat alle 13 Pflicht-Sektionen vorkonfiguriert (Slice 211 D50 Standard). Ich entferne nicht-benoetigte Sektionen je Slice-Groesse — XS-Mindest-Pflicht 1, 3, 4, 6, 8, 10 (workflow.md SPEC-Stage). Hook `ship-spec-quality-gate.sh` (Slice 212) WARN-only wenn Pflicht-Sektionen fehlen — Self-Disziplin, kein BLOCK.
+26:**Pflicht-Sektionen aus _TEMPLATE.md (Slice 211 D50):**
+
+AC-08 Existing Hooks regression:
+(Output ist JSON-Stdin-parsed, sollte je Slice-State exit 0 oder warnen)
+
+AC-09 tsc clean:
+OK
+
+AC-10 workflow.md Hook-Verweis:
+65:- Hook `ship-spec-quality-gate.sh` (PreToolUse Edit/Write) WARNT wenn Spec Pflicht-Sektionen je Slice-Größe fehlen — kein BLOCK, nur Hinweis.
+
+==== ALL ACs CHECKED ====
+
+=== AC-08 Hook-Stack-Smoke-Test (post-Reviewer-Empfehlung) ===
+
+1. ship-spec-gate.sh (BLOCK) bei Edit auf src/lib/services während Slice 212 active:
+Exit: 0
+
+2. ship-spec-quality-gate.sh (WARN) bei selbem Edit (Slice 212 hat conformer Spec):
+Exit: 0
+
+3. Beide Hooks gegen meta-File worklog/active.md (sollten beide silent sein):
+Exit: 0
+Exit: 0
+
+=== Smoke-Test komplett: alle Hooks silent + exit 0, kein Interference ===

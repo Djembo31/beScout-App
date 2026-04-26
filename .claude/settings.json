@@ -65,6 +65,10 @@
           },
           {
             "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-spec-quality-gate.sh"
+          },
+          {
+            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-meta-plan-block.sh"
           },
           {

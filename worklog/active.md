@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 212
+stage: PROVE
+spec: worklog/specs/212-spec-quality-gate-hook.md
+impact: skipped (1 neuer Hook, 1 settings.json-Edit, 1 Skill-Edit — kein DB/RPC/Service)
+proof: worklog/proofs/212-hook-audit.txt
+review: worklog/reviews/212-review.md
 ```
 
 ## Zuletzt

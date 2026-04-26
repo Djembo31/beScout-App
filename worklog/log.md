@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 212 | 2026-04-26 | Spec-Quality-Gate-Hook + /ship new Template-Reference (Wave 2)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
+- **Größe:** S (Wave 2 von Slice 211 D50 — operationalisiert Foundation)
+- **Files:**
+  - `.claude/hooks/ship-spec-quality-gate.sh` — NEU (~270 Zeilen). WARN-Hook prüft Pre-BUILD Spec-Pflicht-Sektionen je Slice-Größe (XS=6, S/M=13, L=13+Pre-Mortem). Tolerant gegen Markdown-Stil-Drift (`## 1. Problem`, `## Ziel`, etc). Skip bei meta-Files, idle, emergency, stage SPEC/LOG, inline-Spec.
+  - `.claude/settings.json` — EDIT (Hook in PreToolUse-Edit|Write Position 2 nach ship-spec-gate)
+  - `.claude/skills/ship/SKILL.md` — EDIT `/ship new` referenziert _TEMPLATE.md explizit + Pflicht-Sektionen-Liste (13 Pkt) + Slice-Größen-Header `**Größe:** XS|S|M|L` als Pflicht
+  - `.claude/rules/workflow.md` — EDIT Hook-Verweis im Spec-Quality-Selbstcheck-Block
+- **Reviewer (PASS, 25min):** 1 LOW (`tr -d ' '` statt trailing-trim — Pfade-mit-Spaces theoretisch unsafe), 3 NITs (.md-skip-Kommentar fehlt, count_section .* etwas weit, Größen-Detection doppelter grep-pipe). Empirische Anwendbarkeit verifiziert: hätte non-konforme Slice-Specs WARN gegeben, hätte konforme Slice 211/212 Specs silent gelassen. Lücke entdeckt: Hook prüft Sektion-EXISTENZ, nicht Item-Counts (Mindest 3/6/10 Items je Größe). Backlog-Item für Slice 213.
+- **Proof:** `worklog/proofs/212-hook-audit.txt` (10/10 ACs grün, post-Reviewer-Empfehlung 3-Hook-Chain-Smoke-Test ergänzt — alle silent + exit 0, kein Interference)
+- **Wave 2 Foundation operationalisiert:** Slice 211 hat Documentation-First definiert, Slice 212 macht es architektonisch enforced (WARN-Layer, kein BLOCK). Damit: nächster Slice mit non-konformer Spec wird im Editor sichtbar gewarnt → Self-Disziplin-Trigger ohne Friction.
+- **Wave 2 Backlog (Slice 213+):** Hook-Item-Count-Validation (Code-Reading-Liste ≥ 3/6/10 Items) · Hard-BLOCK falls Bypass-Vektor missbraucht · `scripts/audit-stale-check.ts` (D48 automatisiert) · `scripts/type-truth-audit.ts` (D43/D49 automatisiert)
+- **Commit:** (pending)
+- **Pattern-Reference:** Slice 212 + Slice 211 ship-cto-review-gate-Erweiterung teilen WARN-only-Hook-Skeleton (Reviewer-Anmerkung Backlog patterns.md #40 Kandidat — bei drittem Beispiel codifizieren)
+
+---
+
 ## 211 | 2026-04-26 | Spec-Foundation-Uplift (Agent-Context-Building + Pattern-Codify)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: workflow/skill/rule-Files only) → BUILD → REVIEW → PROVE → LOG

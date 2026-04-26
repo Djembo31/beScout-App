@@ -61,6 +61,11 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 - [ ] Open-Questions trennen Pflicht-Klärung von Autonom-Zone?
 - [ ] Money-Path/Wording? Compliance-Check + TR-Wording-Vorab in Spec?
 
+**Architektonisches Enforcement (Slice 212 Wave 2):**
+- Hook `ship-spec-quality-gate.sh` (PreToolUse Edit/Write) WARNT wenn Spec Pflicht-Sektionen je Slice-Größe fehlen — kein BLOCK, nur Hinweis.
+- Hook ist aktiv waehrend Stage in {BUILD, REVIEW, PROVE}. Skipped bei Stage SPEC (Spec wird gerade geschrieben), LOG, idle, emergency-Slice, sowie meta-File-Edits (worklog/, memory/, .claude/).
+- Slice-Größen-Header `**Größe:** XS|S|M|L` in der Spec ist pflicht damit Hook richtig pruefen kann. Default S wenn nicht detektiert.
+
 **Anti-Pattern (Slice 211 codifiziert):**
 - "Spec hat nur Ziel + Files + ACs" → Agent läuft blind in bekannte Fallen.
 - "Pattern-References = alle 38 aus patterns.md" → Noise, Agent ignoriert.

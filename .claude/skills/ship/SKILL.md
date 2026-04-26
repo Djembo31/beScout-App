@@ -18,10 +18,27 @@ description: Der einzige Master-Workflow fuer BeScout. Fuehrt durch 6-Stufen-Loo
 Was ich dann tue:
 1. **Lese `worklog/active.md`**. Wenn `status: idle` → weiter. Sonst: Warnung und frage ob ich den aktuellen pausieren oder schliessen soll.
 2. **Zaehle die naechste Slice-ID** aus `worklog/specs/` (z.B. `001`, `002`).
-3. **Generiere Spec-Entwurf** in `worklog/specs/NNN-title.md` mit Pflicht-Sektionen (Ziel, Files, ACs, Edge Cases, Proof-Plan, Scope-Out).
-4. **Klassifiziere Slice-Groesse** (XS/S/M/L) und **CEO-Scope** (gemaess `memory/ceo-approval-matrix.md`).
+3. **Spec-Boilerplate aus Master-Template** — kopiere `worklog/specs/_TEMPLATE.md` als Start-Point fuer `worklog/specs/NNN-title.md`. Das Template hat alle 13 Pflicht-Sektionen vorkonfiguriert (Slice 211 D50 Standard). Ich entferne nicht-benoetigte Sektionen je Slice-Groesse — XS-Mindest-Pflicht 1, 3, 4, 6, 8, 10 (workflow.md SPEC-Stage). Hook `ship-spec-quality-gate.sh` (Slice 212) WARN-only wenn Pflicht-Sektionen fehlen — Self-Disziplin, kein BLOCK.
+4. **Klassifiziere Slice-Groesse** (XS/S/M/L) und **CEO-Scope** (gemaess `memory/ceo-approval-matrix.md`). Slice-Groesse-Header `**Größe:** XS|S|M|L` ist Pflicht damit Hook richtig prueft.
 5. **Setze `active.md`** per Template (siehe unten) auf `status: active, stage: SPEC`.
 6. **Frage Anil** (wenn CEO-Scope ODER Slice-Groesse ≥ M).
+
+**Pflicht-Sektionen aus _TEMPLATE.md (Slice 211 D50):**
+1. Problem-Statement (mit Evidence: Audit-Item / Anil-Quote / Sentry-ID)
+2. Lösungs-Design
+3. Betroffene Files (Tabelle)
+4. **Code-Reading-Liste** — Files Pflicht VOR Code (Mindest XS=3, S/M=6, L=10)
+5. **Pattern-References** — relevante existing Patterns/Decisions/Errors mit IDs
+6. Acceptance Criteria (executable, mit VERIFY/EXPECTED/FAIL-IF)
+7. Edge Cases Table
+8. **Self-Verification Commands** — Audit-Cmds Agent kann selbst laufen lassen
+9. **Open-Questions** — Pflicht-Klaerung vs Autonom-Zone vs CEO-Zone
+10. Proof-Plan
+11. Scope-Out
+12. Stage-Chain (geplant)
+13. Pre-Mortem (Pflicht bei L, optional sonst)
+
+Plus optional Compliance-Check + TR-Wording-Vorab + Open Risiko (bei Money-Path / i18n).
 
 **active.md-Template (SSOT-Form):**
 ```
