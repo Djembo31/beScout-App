@@ -4314,7 +4314,11 @@
     "activate": "Etkinleştir",
     "setActiveTitle": "Aktif kulüp olarak ayarla",
     "yourClubs": "Kulüplerin",
-    "other": "Diğer"
+    "other": "Diğer",
+    "mostOwned": {
+      "label": "{name} oyuncusunda %{pct} koleksiyoncu",
+      "ariaLabel": "Yöneticilerin %{pct} kadarı {name} oyuncusunu topluyor"
+    }
   },
   "compare": {
     "title": "Oyuncu Karşılaştırma",

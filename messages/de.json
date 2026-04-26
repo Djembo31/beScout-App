@@ -4321,7 +4321,11 @@
     "activate": "Aktivieren",
     "setActiveTitle": "Als aktiven Club setzen",
     "yourClubs": "Deine Vereine",
-    "other": "Sonstige"
+    "other": "Sonstige",
+    "mostOwned": {
+      "label": "{pct}% besitzen {name}",
+      "ariaLabel": "{pct}% der Manager besitzen Spieler {name}"
+    }
   },
   "compare": {
     "title": "Spieler vergleichen",

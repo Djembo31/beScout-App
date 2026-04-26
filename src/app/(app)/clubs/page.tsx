@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
-import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar, Sparkles } from 'lucide-react';
+import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar, Sparkles, Flame } from 'lucide-react';
 import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -13,10 +13,14 @@ import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useToggleFollowClub } from '@/lib/hooks/useToggleFollowClub';
 import { getClubsWithStats } from '@/lib/services/club';
 import { getNextFixturesByClub } from '@/lib/services/fixtures';
+import { useMostOwnedPlayersPerClubBatch } from '@/lib/queries/trades';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 import type { DbClub } from '@/types';
 import { FanWishModal } from '@/components/fan-wishes/FanWishModal';
+
+// Slice 207 — Threshold consistent mit K-03 PickRateBadge (Slice 204).
+const MOST_OWNED_HINT_MIN_PCT = 5;
 
 type ClubWithStats = DbClub & { follower_count: number; player_count: number };
 
@@ -90,6 +94,12 @@ export default function ClubsDiscoveryPage() {
     if (filterCountry) return c.country === filterCountry;
     return true;
   });
+
+  // Slice 207 — Most-Owned Hint pro ClubCard. 1 Batch-RPC fuer alle filtered
+  // Clubs (statt N parallele RPCs). useMemo stabilisiert das Array damit der
+  // Hook-Key nicht jedes Render churnt.
+  const filteredClubIds = useMemo(() => filtered.map(c => c.id), [filtered]);
+  const { data: mostOwnedByClub } = useMostOwnedPlayersPerClubBatch(filteredClubIds, 1);
 
   // Group by league
   const grouped = new Map<string, ClubWithStats[]>();
@@ -313,6 +323,29 @@ export default function ClubsDiscoveryPage() {
                             />
                           )}
                           <span className="truncate">{nf.opponentShort || nf.opponentName}</span>
+                        </span>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Slice 207 — Most-Owned Hint (Top-1, anonymized aggregate). */}
+                  {(() => {
+                    const top = mostOwnedByClub?.get(club.id)?.[0];
+                    if (!top || top.holders_pct < MOST_OWNED_HINT_MIN_PCT) return null;
+                    const pct = Math.round(top.holders_pct);
+                    const initial = (top.first_name?.trim()?.[0] ?? '').toUpperCase();
+                    const lastName = (top.last_name ?? '').trim();
+                    const playerLabel = initial
+                      ? `${initial}. ${lastName}`.trim()
+                      : lastName || top.player_id.slice(0, 6);
+                    return (
+                      <div
+                        className="flex items-center gap-1.5 mt-2 px-2 py-1.5 bg-amber-400/5 border border-amber-400/20 rounded-lg text-xs text-amber-300 truncate"
+                        aria-label={t('mostOwned.ariaLabel', { pct, name: playerLabel })}
+                      >
+                        <Flame className="size-3 flex-shrink-0" aria-hidden="true" />
+                        <span className="truncate tabular-nums">
+                          {t('mostOwned.label', { pct, name: playerLabel })}
                         </span>
                       </div>
                     );

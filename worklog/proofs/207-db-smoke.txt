@@ -1,0 +1,69 @@
+Slice 207 — DB Smoke (POST-APPLY v2)
+Date: 2026-04-26T13:00:00Z
+RPC: public.get_most_owned_players_per_club_batch(UUID[], INT)
+Project: skzjfhvgccaeplydsunz
+
+============================================================================
+STATUS: APPLIED + VERIFIED via mcp__supabase__execute_sql.
+============================================================================
+
+## Smoke 1: Top-3 active clubs × Top-2 players (real data)
+
+WITH active_clubs AS (
+  SELECT p.club_id, COUNT(DISTINCT h.user_id) AS holders
+  FROM holdings h JOIN players p ON p.id = h.player_id
+  WHERE h.quantity > 0 AND p.club_id IS NOT NULL
+  GROUP BY p.club_id ORDER BY holders DESC LIMIT 3
+)
+SELECT public.get_most_owned_players_per_club_batch(
+  ARRAY(SELECT club_id FROM active_clubs)::UUID[], 2
+);
+
+RESULT: 6 rows (3 clubs × top 2 players each), partitioning verified:
+
+CLUB 4ed03e4b (25 managers):
+  rank=1 Aksu       7 holders → 28.00%
+  rank=2 Arslan     6 holders → 24.00%
+
+CLUB 9bb44e57 (34 managers):
+  rank=1 Akgün     10 holders → 29.41%
+  rank=2 Tozlu     10 holders → 29.41%  (tie-break by last_name asc)
+
+CLUB d28884c9 (26 managers):
+  rank=1 Tiren     20 holders → 76.92%
+  rank=2 Acar       7 holders → 26.92%
+
+GUARDS VERIFIED:
+✓ JSONB array shape correct
+✓ club_id partition: each club has rank starting at 1
+✓ NO user_id field projected (anonymized)
+✓ holders_pct = holders_count / total_managers_of_club * 100 (FPL semantic)
+✓ Output shape matches MostOwnedPlayerBatchRow type
+✓ p_limit=2 → max rank=2
+
+## Smoke 2: AR-44 Privileges (verified via test D1)
+
+SELECT grantee FROM information_schema.routine_privileges
+WHERE routine_name = 'get_most_owned_players_per_club_batch'
+  AND privilege_type = 'EXECUTE';
+
+RESULT (via vitest D1, 11/11 pass):
+✓ authenticated EXECUTE granted
+✓ service_role EXECUTE granted
+✓ anon NOT granted (REVOKE active)
+✓ PUBLIC NOT granted (REVOKE active)
+
+## Smoke 3: Body Anonymization (verified via test C1)
+
+pg_get_functiondef body inspection:
+✓ LANGUAGE plpgsql
+✓ SECURITY DEFINER
+✓ STABLE
+✓ jsonb_build_object(...) DOES NOT contain 'user_id'
+✓ PARTITION BY o.club_id
+✓ JOIN managers m ON m.club_id (pct calculation)
+
+## Apply-History
+- v1 applied 2026-04-26T~12:50Z (CTO test) — used max(holders_count) as denominator
+- v2 applied 2026-04-26T~12:55Z (CTO heal) — uses total_managers_of_club as denominator (FPL "X% besitzen Y", semantically correct)
+- Migration file in repo reflects v2 semantic (Agent's original spec).

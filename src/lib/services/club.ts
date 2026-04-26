@@ -847,3 +847,71 @@ export async function getMostOwnedPlayersPerClub(
       typeof r?.player_id === 'string' && typeof r?.holders_count === 'number',
   );
 }
+
+// ============================================
+// Slice 207 K-02 — Most-Owned Players per Club BATCH (anonymized aggregate)
+// ============================================
+
+/**
+ * Single row of the batch RPC result. Adds `club_id` (partition-key) and
+ * `holders_pct` (relative to total managers of that club) to the Slice 199 row.
+ */
+export type MostOwnedPlayerBatchRow = MostOwnedPlayerRow & {
+  club_id: string;
+  holders_pct: number;
+};
+
+/**
+ * Slice 207 K-02 — Batch Top-N Spieler PRO Club fuer N Clubs in 1 RPC-Call.
+ *
+ * Identisches Anonymized-Aggregate-Pattern wie Slice 199, nur Multi-Club-Eingabe
+ * + zusaetzlicher `holders_pct`-Wert (Anteil der Manager des Clubs).
+ *
+ * Returns Map<club_id, MostOwnedPlayerBatchRow[]> fuer einfache Konsumption
+ * im Frontend (per-Club-Lookup ohne Re-Iteration). Clubs ohne Holdings/Match
+ * fehlen im Map — der Caller MUSS Truthy-Check machen vor dem Render.
+ *
+ * Backwards-compat: `getMostOwnedPlayersPerClub` (Single-Club-RPC, Slice 199)
+ * bleibt unangetastet. Caller TransferList + MostOwnedSection nutzen weiterhin
+ * den Single-Variant.
+ *
+ * Edge Cases:
+ * - clubIds === [] → leere Map (RPC nicht aufgerufen waere unsauber, also
+ *   wir geben leeres Array an die DB; der Hook gated via `enabled`).
+ * - RPC-Error → throw (React Query retried).
+ * - Result row mit unerwartetem Shape → still gefiltert (defensive parsing).
+ */
+export async function getMostOwnedPlayersPerClubBatch(
+  clubIds: string[],
+  limit = 1,
+): Promise<Map<string, MostOwnedPlayerBatchRow[]>> {
+  const result = new Map<string, MostOwnedPlayerBatchRow[]>();
+  if (!Array.isArray(clubIds) || clubIds.length === 0) return result;
+
+  const { data, error } = await supabase.rpc('get_most_owned_players_per_club_batch', {
+    p_club_ids: clubIds,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) return result;
+  if (!Array.isArray(data)) return result;
+
+  const rows = (data as MostOwnedPlayerBatchRow[]).filter(
+    (r): r is MostOwnedPlayerBatchRow =>
+      typeof r?.club_id === 'string' &&
+      typeof r?.player_id === 'string' &&
+      typeof r?.holders_count === 'number' &&
+      typeof r?.holders_pct === 'number',
+  );
+
+  for (const row of rows) {
+    const existing = result.get(row.club_id);
+    if (existing) {
+      existing.push(row);
+    } else {
+      result.set(row.club_id, [row]);
+    }
+  }
+
+  return result;
+}

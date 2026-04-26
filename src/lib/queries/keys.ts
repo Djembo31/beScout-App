@@ -199,6 +199,9 @@ export const qk = {
     standing: (cid: string) => ['clubs', 'standing', cid] as const,
     /** Slice 199 K-02 — Most-Owned Players per Club (anonymized aggregate). */
     mostOwned: (cid: string, limit: number) => ['clubs', 'mostOwned', cid, limit] as const,
+    /** Slice 207 K-02 — Most-Owned Players per Club BATCH (anonymized aggregate, multi-club). */
+    mostOwnedBatch: (clubIdsKey: string, limit: number) =>
+      ['clubs', 'mostOwnedBatch', clubIdsKey, limit] as const,
   },
 
   // ── PBT ──

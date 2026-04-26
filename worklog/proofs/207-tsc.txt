@@ -1,0 +1,36 @@
+PROOF Slice 207 — Most-Owned Discovery Batch (K-02)
+Date: 2026-04-26T13:00:00Z (post-Apply, post-Heal duplicate-Service)
+
+## tsc Result
+$ npx tsc --noEmit
+(no output)
+EXIT CODE: 0
+
+## Files Modified
+ messages/de.json
+ messages/tr.json
+ src/app/(app)/clubs/page.tsx        (Hook + Render + Flame import + MOST_OWNED_HINT_MIN_PCT const)
+ src/lib/queries/keys.ts             (qk.clubs.mostOwnedBatch)
+ src/lib/queries/trades.ts           (useMostOwnedPlayersPerClubBatch hook)
+ src/lib/services/club.ts            (getMostOwnedPlayersPerClubBatch + MostOwnedPlayerBatchRow type)
+ worklog/active.md
+
+## New Files
+ supabase/migrations/20260426230100_slice_207_most_owned_per_club_batch.sql
+ src/lib/services/__tests__/club-most-owned-batch.test.ts (11 tests)
+ worklog/specs/207-most-owned-discovery-batch.md
+ worklog/reviews/207-pre-review.md
+ worklog/proofs/207-{tsc,vitest,db-smoke}.txt
+
+## CTO-Heal-Trail
+- Worktree-Agent (a9d79b) hat Files ins Main-Repo geschrieben (escaped Worktree).
+- Migration v1 (mein Versuch club-max-relative) fixed via v2 (FPL-Manager-pct, Agent's semantic).
+- Duplicate-Service-Definition (mein + Agent's) consolidated → Agent's (gründlicher).
+- Migration v2 LIVE via mcp__supabase__apply_migration.
+
+## D46 / D48 / Knowledge-Capture
+- D46 Service-Reuse: Single-Club RPC `get_most_owned_players_per_club` (Slice 199) UNANGETASTET.
+- Anonymized-Aggregate-Series: 4. RPC nach 199/201b/201d (Pattern #38).
+- Threshold 5%: konsistent mit K-03 PickRateBadge (Slice 204).
+- D40 (Live-Verify): RPC-Apply via mcp + smoke-test sofort verifiziert vor Service-Code-Edit.
+- LEARNING: Worktree-Agent ohne mcp-Tools = blocked, schreibt aber outside-of-worktree wenn paths nicht relativ.

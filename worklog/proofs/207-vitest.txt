@@ -1,0 +1,37 @@
+Slice 207 — vitest run (POST-MIGRATION-APPLY v2)
+Date: 2026-04-26T13:50:25Z
+File: src/lib/services/__tests__/club-most-owned-batch.test.ts
+
+============================================================================
+RESULT: 11/11 PASS
+============================================================================
+
+Test Files  1 passed (1)
+     Tests  11 passed (11)
+  Duration  4.36s (transform 187ms, setup 269ms, import 123ms, tests 3.68s, environment 0ms)
+
+DETAIL:
+ ✓ A1. exists (post-migration) — empty club array returns []           572ms
+ ✓ A2. NULL p_club_ids returns [] (defensive)                          217ms
+ ✓ A3. fake UUID array returns [] (no rows match)                      124ms
+ ✓ B1. returns plain top-level array, NOT discriminated-union          331ms
+ ✓ B2. partitioning — multi-club input keeps rank within each club     188ms
+ ✓ B3. p_limit caps at 10                                              156ms
+ ✓ C1. body has LANGUAGE plpgsql + SECURITY DEFINER + STABLE           787ms
+ ✓ D1. anon NOT granted; authenticated + service_role granted           84ms
+ ✓ E1. exports getMostOwnedPlayersPerClubBatch from club service      1190ms
+ ✓ E2. exports MostOwnedPlayerBatchRow type (compile-time check)         1ms
+ ✓ E3. empty clubIds array → empty Map (no RPC roundtrip)               0ms
+
+============================================================================
+GUARDS VERIFIED
+============================================================================
+- Existence (RPC discoverable post-migration via PostgREST) ✓
+- Empty/NULL inputs return [] (defensive)                   ✓
+- Multi-club partitioning + per-club rank starts at 1       ✓
+- p_limit cap 10 enforced                                   ✓
+- Body has SECURITY DEFINER + STABLE + plpgsql              ✓
+- Anonymization: jsonb_build_object NEVER projects user_id  ✓
+- AR-44: anon NOT granted, authenticated + service_role granted ✓
+- Service Wrapper export + type-shape + empty-input bypass  ✓
+- Single-Club RPC (Slice 199) UNANGETASTET (D46)            ✓

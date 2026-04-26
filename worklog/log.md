@@ -11,6 +11,116 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 207 | 2026-04-26 | Most-Owned Discovery Batch (K-02)
+
+M-Slice via Worktree-Agent + CTO-Heal. Backend-Migration (v1→v2) + Service + Hook + Frontend-Integration + 11 Tests. Anonymized-Aggregate-RPC #4 der Pattern-#38-Series. Reviewer PASS (2 NITs nicht-blockierend). Punch-Liste: 84/98 → **85/98 closed (~87%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/207-most-owned-discovery-batch.md) → IMPACT skipped (additive RPC) → BUILD (worktree+heal) → REVIEW reviewer-Agent PASS → PROVE → LOG
+
+### Items closed (1)
+
+- **K-02 (P2)** clubs/page.tsx Discovery — pro ClubCard Hint "🔥 X% besitzen Y. Müller" wenn Top-Holder ≥5% der Club-Manager. FPL-Trust-Signal-Pattern. Compact (truncate, mobile-fit). Compact-View (folger-cards) intentional ausgespart.
+
+### Backend (Anonymized-Aggregate-RPC-Series #4)
+
+- **NEW Migration** `supabase/migrations/20260426230100_slice_207_most_owned_per_club_batch.sql` — RPC `get_most_owned_players_per_club_batch(p_club_ids UUID[], p_limit INT DEFAULT 1)`.
+  - SECURITY DEFINER + STABLE + plpgsql + AR-44 REVOKE+GRANT.
+  - 3-CTE Pipeline: `managers` (total per club) + `owned` (per player) + `ranked` (PARTITION BY club_id, holders_pct = COUNT/total*100, ROW_NUMBER tiebreak last_name).
+  - Output: JSONB-Array `[{club_id, player_id, first_name, last_name, shirt_number, position, image_url, holders_count, holders_pct, rank}]`.
+  - Anonymized: NIE user_id im Output (Pattern Slice 095 + 199).
+  - p_limit cap 10 (Discovery-Density).
+  - Empty/NULL p_club_ids → []. CASE-Guard fuer total_managers=0.
+  - **CTO-Heal v1→v2:** v1 (CTO club-max-relative pct) → v2 (Agent's total_managers_of_club denominator, FPL-semantic "X% der Manager besitzen Y"). v2 LIVE.
+
+### Service + Hook (D46 Pattern)
+
+- **EDIT** `src/lib/services/club.ts` (NACH Single-Club-Variant):
+  - Type `MostOwnedPlayerBatchRow = MostOwnedPlayerRow & {club_id, holders_pct}`.
+  - `getMostOwnedPlayersPerClubBatch(clubIds, limit=1): Promise<Map<club_id, Row[]>>` — defensive parsing, RPC-not-called bei empty input.
+  - Single-Club Service `getMostOwnedPlayersPerClub` (Slice 199) UNANGETASTET (D46).
+- **EDIT** `src/lib/queries/trades.ts`:
+  - Hook `useMostOwnedPlayersPerClubBatch(clubIds, limit=1)`.
+  - Stable Cache-Key: `useMemo(() => Array.from(clubIds).sort().join(','), [clubIds])` — reorder-stable.
+  - staleTime 5min.
+- **EDIT** `src/lib/queries/keys.ts`: `qk.clubs.mostOwnedBatch(stableKey, limit)`.
+
+### Frontend (clubs/page.tsx)
+
+- **EDIT** `src/app/(app)/clubs/page.tsx`:
+  - Import `useMostOwnedPlayersPerClubBatch` + `Flame` (lucide-react).
+  - File-Konstante `MOST_OWNED_HINT_MIN_PCT = 5` mit Comment "consistent mit K-03 PickRateBadge Slice 204".
+  - Hook-Call am Component-Top mit `filteredClubIds = useMemo(() => filtered.map(c => c.id), [filtered])`.
+  - Per-ClubCard-Render: Map-Lookup + Threshold-Check + render `<div className="bg-amber-400/5 border-amber-400/20 ... truncate">`.
+  - Sitzt zwischen Next-Fixture-Block und Action-Buttons.
+- **EDIT** `messages/de.json`: `clubs.mostOwned.label` = `"{pct}% besitzen {name}"` + ariaLabel.
+- **EDIT** `messages/tr.json`: `clubs.mostOwned.label` = `"{name} oyuncusunda %{pct} koleksiyoncu"` + ariaLabel (TR-konventioneller %-Prefix, "koleksiyoncu" / "topluyor" — business.md compliant).
+
+### Tests (11/11 PASS post-Apply)
+
+- **NEW** `src/lib/services/__tests__/club-most-owned-batch.test.ts`:
+  - A1-A3: Existence + Empty/NULL/Fake-UUID handling
+  - B1-B3: Result-Shape + Anonymization (no user_id) + Partitioning per club + p_limit cap 10
+  - C1: Body Security (plpgsql + SECURITY DEFINER + STABLE + no user_id via pg_get_functiondef)
+  - D1: AR-44 Privileges (anon NOT granted, authenticated + service_role granted)
+  - E1-E3: Service-Wrapper + Backward-Compat Single-Club (D46) + Empty-Input-Bypass
+- DB-Smoke mit echten Daten: 3 Clubs × Top-2 Players, Pcts 28/29.41/76.92% korrekt partitioned.
+
+### CTO-Heal-Trail
+
+- Worktree-Agent (a9d79b) hat Files in Main-Repo geschrieben (escaped Worktree-Isolation). CTO konsolidiert.
+- Migration v1 (CTO erster Versuch club-max-relative) → v2 (Agent's total_managers_of_club denominator, FPL-semantic). v2 ist LIVE.
+- Service-Duplicate (CTO + Agent beide getMostOwnedPlayersPerClubBatch) → CTO loescht CTO-Variant, Agent's bleibt (gruendlicher inkl. defensive filter).
+- Reviewer-Agent verifiziert nach Heal: 12/12 Punch-List checks PASS, 2 NITs nicht-blockierend.
+
+### Files
+```
+ messages/de.json                                              | 4 +++-
+ messages/tr.json                                              | 4 +++-
+ src/app/(app)/clubs/page.tsx                                  | 35 ++++++++++-
+ src/lib/queries/keys.ts                                       | 4 +++-
+ src/lib/queries/trades.ts                                     | 32 ++++++++++-
+ src/lib/services/club.ts                                      | 70 ++++++++++++++++++
+ NEW src/lib/services/__tests__/club-most-owned-batch.test.ts (~322)
+ NEW supabase/migrations/20260426230100_slice_207_most_owned_per_club_batch.sql (~144)
+```
+
+### Proof
+- worklog/proofs/207-tsc.txt — tsc clean
+- worklog/proofs/207-vitest.txt — 11/11 PASS
+- worklog/proofs/207-db-smoke.txt — RPC v2 LIVE + 3-club smoke verifiziert
+- worklog/reviews/207-review.md — Reviewer PASS
+
+### Commit
+(folgt im naechsten Schritt)
+
+### TR-Wording-Review pending
+- "{name} oyuncusunda %{pct} koleksiyoncu"
+- "Yöneticilerin %{pct} kadarı {name} oyuncusunu topluyor"
+(business.md compliant: kein "yatırımcı"/"kazanmak"/"yatırım")
+
+### Knowledge-Capture (Reviewer empfohlen)
+
+1. **Worktree-Isolation-Escape Pattern (PROCESS, CRITICAL)** — Worktree-Agents muessen ABSOLUT relative Paths nutzen. Bei absolut-Pfaden escaped Files in Main-Repo. /parallel-dispatch Skill ergaenzen.
+2. **Pre-Review-Memo Pattern (PROCESS)** — Backend-Agent schreibt vor Reviewer-Dispatch ein Pre-Review-Memo mit Self-Audit gegen Punch-List. Reduziert Reviewer-Arbeit ~60%. workflow.md REVIEW-Stage Best-Practice.
+3. **Migration-Heal v1→v2 Same-Session (PROCESS)** — Wenn CTO-Migration semantisch falsch, v2-Migration drueber-schreiben (CREATE OR REPLACE) via apply_migration. db-smoke gegen v2 als Single-Source-of-Truth. errors-db.md Pattern.
+
+### Anonymized-Aggregate-RPC-Series Status
+
+| RPC | Slice | Caller |
+|---|---|---|
+| holdings (RLS-bypass via anonymization) | 014 | Pattern-Foundation |
+| event_captain_distribution / event_player_pick_rates | 195e | Differentials + PickRate |
+| top_predictors_leaderboard | 199 | PredictionsTab |
+| most_owned_players_per_club | 199 | TransferList + MostOwnedSection |
+| event_difficulty_score | 199 | EventSelector |
+| holders_concentration | 201b | TransferList |
+| prediction_consensus | 201d | CreatePredictionModal |
+| **most_owned_players_per_club_batch** | **207** | **clubs/page Discovery** |
+
+8 LIVE-RPCs der Series. Pattern #38 verstaerkt.
+
+---
+
 ## 205 | 2026-04-26 | ScoutConsensus Reliability-Indicator (FM 5.2)
 
 XS-Slice. Pure-frontend additive UI auf existing-data. Reliability-Tier-Badge low/medium/high im ScoutConsensus-Header. **FM-Mechanics-Domain jetzt 26/26 (100% closed).** Punch-Liste: 83/98 → **84/98 closed (~86%)**.

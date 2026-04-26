@@ -21,8 +21,11 @@
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
 | FM-Mechanics | 26 | 26 | 0 | 0 | 0 | 0 |
-| Fantasy-Scoring | 27 | 22 | 1 | 0 | 4 | 1 |
-| **TOTAL** | **98** | **84** | **3** | **0** | **11** | **1** |
+| Fantasy-Scoring | 27 | 23 | 1 | 0 | 3 | 1 |
+| **TOTAL** | **98** | **85** | **3** | **0** | **10** | **1** |
+
+**Slice 207 closed (+1):** Most-Owned Discovery Batch (M-Slice via Worktree-Agent + CTO-Heal).
+- K-02 clubs/page.tsx Discovery — pro ClubCard "🔥 X% besitzen Y. Müller" Trust-Signal-Hint wenn Top-Holder ≥5% der Club-Manager. Anonymized-Aggregate-RPC #4 der Pattern-#38-Series. Migration v1→v2 Heal (FPL-semantic total_managers_of_club denominator). Reviewer PASS, 11/11 vitest, db-smoke verifiziert. CTO-Heal-Trail dokumentiert (Worktree-Escape + Service-Duplicate-Cleanup + Migration-v2).
 
 **Slice 205 closed (+1):** ScoutConsensus Reliability-Indicator (XS-Slice, pure-frontend additive).
 - FM 5.2 ScoutConsensus.tsx Header-Badge "Niedrige/Mittlere/Solide Datenbasis" basierend auf qualifiziertem Report-Count (1-9/10-49/50+). D46-Reuse: kein neuer Service. Tier-Color-Coding identisch zu ConcentrationBar Pattern (Slice 201b). Self-Review (D35 Pattern-Wiederholung). FM-Mechanics jetzt 26/26 (100% closed).
@@ -151,7 +154,7 @@
 | C-04 | done | fantasy.md | Predictions-Limit 5/GW Begründung | Slice 198b ✓ (limitHint paragraph in PredictionsTab Z.95, audit-stale-marker D48) |
 | C-05 | done | fantasy.md | Top-Predictor Leaderboard | Slice 199 ✓ (TopPredictorsSection in PredictionsTab Z.144, audit-stale-marker D48) |
 | R-04 | done | fantasy.md | Tier-Promotion-CTA | Slice 198d ✓ (TierPromotion in SelfRankCard Z.127, audit-stale-marker D48) |
-| K-02 | open | fantasy.md | Most-Owned Players pro Club | Slice 198 |
+| K-02 | done | fantasy.md | Most-Owned Players pro Club | Slice 207 ✓ (Anonymized-Aggregate-RPC-Series #4, batch via clubs/page.tsx Discovery) |
 | K-03 | done | fantasy.md | Squad-Tab Fantasy-Pick-Rate | Slice 204 ✓ (PickRateBadge cards-view, D46 reuse Slice 195e RPC) |
 | M-01 | done | fantasy.md | Mission-Hints kontextabhängig | Slice 201c ✓ (state-derived FantasyContextHint) |
 
