@@ -11,6 +11,79 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 201a | 2026-04-26 | Per-Trade-Player-Link in Transactions (FM-6.1)
+
+S-Slice manuell vom CTO unter voller Autonomie. Read-only enrichment — Service + Hook + Component-Erweiterung. Punch-Liste: 78/98 → **79/98 closed (~81%)**.
+
+**Stage-Chain:** SPEC inline (S-Slice, isoliert) → IMPACT skipped (additive, kein Money-Path, read-only) → BUILD → REVIEW self-review (D35 isolated S-Slice, kein Money-Path) → PROVE → LOG
+
+### Items closed (1)
+
+- **FM 6.1** TransactionsPageContent Per-Trade-Player-Link — Tx-Description bei trade_buy/trade_sell zeigt jetzt klickbaren Player-Link unter Description, navigiert zu /player/[id]. Sorare-Standard fuer Activity-Page.
+
+### Architektur (S-Slice, kein Schema-Change)
+
+**Service-Layer (`src/lib/services/wallet.ts`):**
+- Neuer Type `TradePlayerInfo = {player_id, first_name, last_name, image_url}`
+- Neue Funktion `getTradePlayersByIds(tradeIds[]): Promise<Map<trade_id, TradePlayerInfo>>`
+  - PostgREST FK-Join `trades.players!inner(...)`
+  - 100er-Chunk-Pattern (errors-db.md PostgREST 400-URL-Limit)
+  - logSilentCatch + throw on error
+  - Returns Map fuer O(1)-Lookup im Frontend
+
+**React-Query (`src/lib/queries/misc.ts` + `keys.ts`):**
+- `useTradePlayerMap(tradeIds, enabled = true)` Hook
+- `qk.transactions.tradePlayers(tradeIds)` mit sort+join fuer stable queryKey
+- staleTime 5 min (trades append-only, mapping aendert sich nicht)
+
+**Component (`src/components/transactions/TransactionsPageContent.tsx`):**
+- `useMemo` derive `tradeIds` (Set+sort fuer stable refs)
+- `useTradePlayerMap(tradeIds)` lazy-load mapping
+- Conditional render: bei `(type === 'trade_buy' || type === 'trade_sell') && reference_id`
+- `<Link href="/player/[id]">` mit `text-gold/80 hover:text-gold` + truncate + a11y
+- aria-label `viewPlayer` mit ICU-{name}-Param
+
+**i18n (DE+TR symmetrisch):**
+- DE: "Spieler-Profil ansehen: {name}"
+- TR: "Oyuncu profilini gör: {name}"
+
+### DB-State Verify
+
+```
+trade_tx_count: 144 (Bot-Loop)
+distinct_trade_refs: 72 (jeder Trade hat 2 transactions: buyer + seller)
+distinct_players_via_join: 40
+```
+
+JOIN-Verify: alle 72 trades haben einen valid player (kein NULL).
+
+### Files modified
+
+```
+src/lib/services/wallet.ts                                              | 56 +++
+src/lib/queries/misc.ts                                                 | 23 ++-
+src/lib/queries/keys.ts                                                 |  2 +
+src/lib/queries/index.ts                                                |  2 +-
+src/components/transactions/TransactionsPageContent.tsx                 | 27 ++-
+messages/de.json                                                        |  1 +
+messages/tr.json                                                        |  1 +
+worklog/active.md                                                       | 14 +-
+worklog/proofs/201a-tsc-grep.txt                                        | 95 +++ (NEW)
+```
+
+### Proof
+- `worklog/proofs/201a-tsc-grep.txt` — tsc clean + Service-Layer + Hook + Component-Update + i18n DE+TR + DB-State 144 trade-tx
+- Self-Review per D35 (S-Slice isoliert, additive enrichment, kein Money-Path)
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+CTO unter voller Autonomie. Skipped Reviewer-Agent weil S-Slice klar isoliert + read-only enrichment. Pattern-konform: Chunk-Pattern (errors-db.md), stable queryKey (sort+join), i18n DE+TR symmetrisch (Slice 198 Pattern), a11y (aria-label mit Name-Param). Slice 201b (FM-4.3 Holders-Distribution-Aggregat-RPC) + Slice 201c (M-01 Mission-Hints kontextabhaengig) bleiben Backlog — beide brauchen RPC-Design + erweiterte Mission-System-Recherche, eigene Sessions wert.
+
+---
+
 ## 200 | 2026-04-26 | Trades-Volume-7d Backend + Sort-UI (FM-4.4)
 
 M-Slice manuell vom CTO unter voller Autonomie (vom Anil 2026-04-26 erteilt). Backend-Schema-Add + Cron + Frontend Sort-Pill. Pattern Blueprint Slice 197d MV-Trend exakt nachgezogen. Punch-Liste: 77/98 → **78/98 closed (~80%)**.

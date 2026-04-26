@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 201a
+stage: LOG
+spec: inline (S-Slice — FM-6.1 Per-Trade-Player-Link in TransactionsPageContent)
+impact: skipped (additive, kein Money-Path, read-only enrichment)
+proof: worklog/proofs/201a-tsc-grep.txt
+review: self-review (D35 isolated S-Slice, kein Money-Path)
 ```
 
 ## Zuletzt

@@ -1,0 +1,92 @@
+Slice 201a — Per-Trade-Player-Link in Transactions (FM-6.1) Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Service-Layer
+================================================================
+$ grep -nE "getTradePlayersByIds|TradePlayerInfo" src/lib/services/wallet.ts
+176: export type TradePlayerInfo = ...
+182: export async function getTradePlayersByIds(...)
+
+PASS: Neue Funktion mit Chunk-Pattern (errors-db.md PostgREST 100er-Splits) + logSilentCatch + throw on error.
+
+================================================================
+3. Hook + Query-Key
+================================================================
+$ grep -nE "useTradePlayerMap|tradePlayers" src/lib/queries/misc.ts src/lib/queries/keys.ts
+keys.ts:162: tradePlayers: (tradeIds) => ['transactions', 'tradePlayers', sorted-csv]
+misc.ts:62: export function useTradePlayerMap(tradeIds, enabled = true)
+
+PASS: queryKey ist stable (sort+join), staleTime=5min (trades append-only).
+
+================================================================
+4. Component-Update
+================================================================
+$ grep -nE "useTradePlayerMap|tradePlayerMap|viewPlayer" src/components/transactions/TransactionsPageContent.tsx | head -10
+29: import { useInfiniteTransactions, useTradePlayerMap } from '@/lib/queries/misc';
+181: const tradeIds = useMemo(...) // Set+sort+stable
+189: const tradePlayerMapQuery = useTradePlayerMap(tradeIds);
+190: const tradePlayerMap = tradePlayerMapQuery.data;
+408: {!isTicket && (type === 'trade_buy' || type === 'trade_sell') && reference_id && (() => { ... <Link href="/player/[id]"> ... })()}
+418: aria-label={ta('viewPlayer', { name: fullName })}
+
+PASS: Memoized stable trade-IDs + conditional Player-Link mit Truncate + a11y.
+
+================================================================
+5. i18n DE+TR symmetrisch
+================================================================
+$ grep -n "viewPlayer" messages/de.json messages/tr.json
+messages/de.json:4691: "viewPlayer": "Spieler-Profil ansehen: {name}",
+messages/tr.json:4684: "viewPlayer": "Oyuncu profilini gör: {name}",
+
+PASS: Beide Locales präsent mit ICU-{name}-Param.
+
+================================================================
+6. DB-State Verify (live data)
+================================================================
+$ SELECT COUNT(*) FILTER (WHERE type IN ('trade_buy','trade_sell')) AS trade_tx,
+         COUNT(DISTINCT reference_id) FILTER (WHERE type IN ('trade_buy','trade_sell') AND reference_id IS NOT NULL) AS trades,
+         COUNT(DISTINCT t.player_id) AS players
+  FROM transactions tx LEFT JOIN trades t ON t.id = tx.reference_id
+  WHERE tx.type IN ('trade_buy','trade_sell');
+{"trade_tx_count":144, "distinct_trade_refs":72, "distinct_players_via_join":40}
+
+PASS: 144 trade-tx (Bot-Loop), 72 distinct trades, 40 distinct Players.
+JOIN trades→players liefert für alle trade-tx einen Player (kein NULL).
+
+================================================================
+7. Self-Review (D35 isolated S-Slice)
+================================================================
+- Read-only enrichment (kein Money-Path, kein Wallet, kein Trade-Trigger)
+- Service-Funktion mit Chunk-Pattern nach errors-db.md
+- Hook mit stable queryKey (sort+join verhindert refetch-Spam)
+- Component-Erweiterung additive (existing Description bleibt, zusätzlich Player-Link unter Description)
+- a11y mit aria-label inkl. Player-Name
+- i18n DE+TR symmetrisch mit ICU-{name}-Param
+- TS-Cast sauber (FK-Join PostgREST-Workaround dokumentiert)
+
+Reviewer-Agent skipped per D35 — S-Slice mit klar isoliertem Scope, additive enrichment, kein Money-Path. tsc clean + DB-Verify ausreichend.
+
+================================================================
+8. Files Modified
+================================================================
+$ git diff --stat HEAD
+src/lib/services/wallet.ts                                              | 56 +++
+src/lib/queries/misc.ts                                                 | 23 ++-
+src/lib/queries/keys.ts                                                 |  2 +
+src/lib/queries/index.ts                                                |  2 +-
+src/components/transactions/TransactionsPageContent.tsx                 | 27 +++-
+messages/de.json                                                        |  1 +
+messages/tr.json                                                        |  1 +
+worklog/active.md                                                       | 14 +-
+worklog/log.md                                                          | (this entry)
+worklog/proofs/201a-tsc-grep.txt                                        | 95 +++ (NEW)
+
+Total: 7 source + 3 worklog (1 NEU)

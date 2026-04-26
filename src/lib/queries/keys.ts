@@ -158,6 +158,8 @@ export const qk = {
     byUser: (uid: string, n: number) => ['transactions', uid, n] as const,
     infinite: (uid: string, pageSize: number) => ['transactions', 'infinite', uid, pageSize] as const,
     all: ['transactions'] as const,
+    /** Slice 201a: Per-Trade-Player-Info-Map (FM-6.1). */
+    tradePlayers: (tradeIds: string[]) => ['transactions', 'tradePlayers', tradeIds.slice().sort().join(',')] as const,
   },
 
   // ── Price Histories ──

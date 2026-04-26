@@ -2,7 +2,7 @@
 
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getTransactions, getHoldingQty, getPlayerHolderCount } from '@/lib/services/wallet';
+import { getTransactions, getHoldingQty, getPlayerHolderCount, getTradePlayersByIds } from '@/lib/services/wallet';
 import { getWatcherCount } from '@/lib/services/watchlist';
 import { getLeaderboard } from '@/lib/services/social';
 import { getPosts } from '@/lib/services/posts';
@@ -49,6 +49,24 @@ export function useInfiniteTransactions(
       lastPage.length < pageSize ? undefined : allPages.length * pageSize,
     enabled: !!userId && enabled,
     staleTime: TWO_MIN,
+  });
+}
+
+/**
+ * Slice 201a (FM-6.1): Per-Trade-Player-Map fuer TransactionsPageContent.
+ * Liefert Map<trade_id, {player_id, first_name, last_name, image_url}> fuer alle
+ * trade_buy/trade_sell-Transactions damit Description klickbar (-> /player/[id])
+ * gerendert werden kann.
+ *
+ * tradeIds-Array MUSS stable referenced sein (sort + uniq) damit query nicht
+ * dauernd neu feuert. Caller useMemo um ids zu derivieren.
+ */
+export function useTradePlayerMap(tradeIds: string[], enabled = true) {
+  return useQuery({
+    queryKey: qk.transactions.tradePlayers(tradeIds),
+    queryFn: () => getTradePlayersByIds(tradeIds),
+    enabled: enabled && tradeIds.length > 0,
+    staleTime: FIVE_MIN, // Trade-Player-Mapping aendert sich nicht (trades append-only)
   });
 }
 

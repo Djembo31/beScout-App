@@ -26,7 +26,7 @@ function cleanDescription(desc: string): string {
     .replace(/Cents\/DPC/g, 'CR')
     .replace(/(\d+)\s*Cents\b/g, (_, cents) => `${(Number(cents) / 100).toLocaleString('de-DE')} CR`);
 }
-import { useInfiniteTransactions } from '@/lib/queries/misc';
+import { useInfiniteTransactions, useTradePlayerMap } from '@/lib/queries/misc';
 import { useInfiniteTicketTransactions } from '@/lib/queries/tickets';
 import {
   getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime,
@@ -173,6 +173,22 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
     }
     return rows;
   }, [allTicketTx, cutoff, filter, query]);
+
+  // Slice 201a (FM-6.1): Per-Trade-Player-Link enrichment.
+  // Sammele alle reference_ids von trade_buy/trade_sell-Transactions,
+  // lookup Player-Info via useTradePlayerMap. Sortierte+unique IDs damit
+  // queryKey stable und nicht dauernd refetcht.
+  const tradeIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const tx of allTx) {
+      if ((tx.type === 'trade_buy' || tx.type === 'trade_sell') && tx.reference_id) {
+        ids.add(tx.reference_id);
+      }
+    }
+    return Array.from(ids).sort();
+  }, [allTx]);
+  const tradePlayerMapQuery = useTradePlayerMap(tradeIds);
+  const tradePlayerMap = tradePlayerMapQuery.data;
 
   // Aggregations (credits only — tickets counted separately)
   const aggregations = useMemo(() => {
@@ -397,6 +413,23 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
                     <div className="text-sm font-medium leading-snug">
                       {tx.description ? cleanDescription(tx.description) : (isTicket ? tp(`ticketSource_${type}`) : ta(getActivityLabelKey(type)))}
                     </div>
+                    {/* Slice 201a (FM-6.1): Per-Trade-Player-Link bei trade_buy/trade_sell. */}
+                    {!isTicket && (type === 'trade_buy' || type === 'trade_sell') && (tx as DbTransaction).reference_id && (() => {
+                      const player = tradePlayerMap?.get((tx as DbTransaction).reference_id!);
+                      if (!player) return null;
+                      const fullName = [player.first_name, player.last_name].filter(Boolean).join(' ');
+                      if (!fullName) return null;
+                      return (
+                        <Link
+                          href={`/player/${player.player_id}`}
+                          className="inline-flex items-center gap-1 mt-0.5 text-[11px] text-gold/80 hover:text-gold transition-colors"
+                          aria-label={ta('viewPlayer', { name: fullName })}
+                        >
+                          <span aria-hidden="true">→</span>
+                          <span className="truncate">{fullName}</span>
+                        </Link>
+                      );
+                    })()}
                     <div className="text-[10px] text-white/30 mt-0.5 flex items-center gap-2">
                       <span>{formatDate(tx.created_at, dateLocale)}</span>
                       <span>·</span>

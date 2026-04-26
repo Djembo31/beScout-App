@@ -166,6 +166,62 @@ export async function getTransactions(userId: string, limit = 20, offset = 0): P
   return (data ?? []) as DbTransaction[];
 }
 
+/**
+ * Slice 201a (FM-6.1): Per-Trade-Player-Link enrichment.
+ * Fuer eine Liste von trade-IDs (aus transactions.reference_id bei type='trade_buy'/'trade_sell')
+ * wird die zugehoerige Player-Info geholt. Returnt Map<trade_id, PlayerInfo>.
+ *
+ * Wird im Frontend genutzt um Player-Name in Transaction-Row klickbar zu machen
+ * (Link zu /player/[id]). Read-only enrichment, kein Money-Path.
+ */
+export type TradePlayerInfo = {
+  player_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  image_url: string | null;
+};
+
+export async function getTradePlayersByIds(
+  tradeIds: string[],
+): Promise<Map<string, TradePlayerInfo>> {
+  if (tradeIds.length === 0) return new Map();
+
+  // Chunking via .in() — 100er Splits, errors-db.md PostgREST Pattern
+  const CHUNK = 100;
+  const result = new Map<string, TradePlayerInfo>();
+
+  for (let i = 0; i < tradeIds.length; i += CHUNK) {
+    const slice = tradeIds.slice(i, i + CHUNK);
+    const { data, error } = await supabase
+      .from('trades')
+      .select('id, player_id, players!inner(first_name, last_name, image_url)')
+      .in('id', slice);
+
+    if (error) {
+      logSilentCatch('wallet.getTradePlayersByIds', error);
+      throw new Error(error.message);
+    }
+
+    for (const row of data ?? []) {
+      // PostgREST FK-Join: players ist single object via !inner
+      const r = row as unknown as {
+        id: string;
+        player_id: string;
+        players: { first_name: string | null; last_name: string | null; image_url: string | null } | null;
+      };
+      if (!r.players) continue;
+      result.set(r.id, {
+        player_id: r.player_id,
+        first_name: r.players.first_name,
+        last_name: r.players.last_name,
+        image_url: r.players.image_url,
+      });
+    }
+  }
+
+  return result;
+}
+
 // ============================================
 // Balance Operations (atomare RPCs)
 // ============================================
