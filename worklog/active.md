@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 213
+stage: PROVE
+spec: worklog/specs/213-quick-action-pills-extract.md
+impact: skipped (1 NEU Component, 1 EDIT page.tsx — kein DB/RPC/Service)
+proof: worklog/proofs/213-extract-audit.txt
+review: worklog/reviews/213-review.md
 ```
 
 ## Zuletzt

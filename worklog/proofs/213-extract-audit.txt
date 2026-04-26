@@ -1,0 +1,28 @@
+Slice 213 — QuickActionPills Component-Extract Self-Verification
+===================================================================
+
+AC-01: Component-File existiert
+-rw-r--r-- 1 Anil 197121 2695 Apr 26 17:33 src/components/home/QuickActionPills.tsx
+
+AC-02: page.tsx hat keine inline qa-Keys mehr (sollte 0 sein)
+0
+
+AC-03: page.tsx importiert QuickActionPills (sollte 2 sein)
+3
+
+AC-04: tsc clean
+OK
+
+AC-07: i18n-Keys via t() in QuickActionPills (sollte 5 sein)
+6
+
+AC-08: Hook-Live-Test (Slice 213 BUILD, Spec konform — sollte silent sein)
+Exit: 0
+
+Pre-Existing-Code-Grep (D48 catcher):
+src/app/(app)/page.tsx:22:import QuickActionPills from '@/components/home/QuickActionPills';
+src/app/(app)/page.tsx:170:      {/* Slice 213 (Brand 1): Inline-Map-Block extracted nach QuickActionPills.tsx */}
+src/app/(app)/page.tsx:171:      {showQuickActions && <QuickActionPills />}
+src/components/home/QuickActionPills.tsx:75:export default function QuickActionPills() {
+
+==== ALL ACs CHECKED ====

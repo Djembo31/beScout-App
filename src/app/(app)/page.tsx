@@ -11,8 +11,7 @@ import { useTranslations } from 'next-intl';
 import {
   Clock, Trophy, Users, Rocket, Crown,
   Shield, Compass, Coins, TrendingUp, TrendingDown,
-  ShoppingCart, Swords, Target, MessageSquare,
-  Gift, Ticket, Package,
+  Gift, Ticket,
 } from 'lucide-react';
 import { qk } from '@/lib/queries';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,6 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
+import QuickActionPills from '@/components/home/QuickActionPills';
 import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
 import ScoutCardStats from '@/components/home/ScoutCardStats';
 import LastGameweekWidget from '@/components/home/LastGameweekWidget';
@@ -167,30 +167,8 @@ export default function HomePage() {
       )}
 
       {/* ── 1b. QUICK ACTIONS BAR ── */}
-      {showQuickActions && (
-        <nav aria-label={t('quickActions')} className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mt-3" style={{ WebkitOverflowScrolling: 'touch' }}>
-          {[
-            { href: '/market?tab=kaufen', icon: ShoppingCart, label: t('qaBuy'), color: 'text-gold', bg: 'bg-gold/10 border-gold/20', glow: 'rgba(255,215,0,0.25)' },
-            { href: '/fantasy', icon: Swords, label: t('qaFantasy'), color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-400/20', glow: 'rgba(168,85,247,0.25)' },
-            { href: '/missions', icon: Target, label: t('qaMissions'), color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-400/20', glow: 'rgba(245,158,11,0.25)' },
-            { href: '/inventory', icon: Package, label: t('qaInventory'), color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-400/20', glow: 'rgba(52,211,153,0.25)' },
-            { href: '/community', icon: MessageSquare, label: t('qaCommunity'), color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-400/20', glow: 'rgba(14,165,233,0.25)' },
-          ].map(({ href, icon: Icon, label, color, bg, glow }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-xl border shrink-0 shadow-card-sm',
-                'hover:scale-[1.03] active:scale-[0.97] transition-all',
-                bg,
-              )}
-            >
-              <Icon className={cn('size-5', color)} style={{ filter: `drop-shadow(0 0 6px ${glow})` }} />
-              <span className="text-[10px] font-bold text-white/60">{label}</span>
-            </Link>
-          ))}
-        </nav>
-      )}
+      {/* Slice 213 (Brand 1): Inline-Map-Block extracted nach QuickActionPills.tsx */}
+      {showQuickActions && <QuickActionPills />}
 
       {/* ── 1b. SPOTLIGHT ── */}
       {playersLoading ? (

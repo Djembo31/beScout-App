@@ -18,7 +18,7 @@
 
 | Domain | Total | done | wont-fix | watch | open | deferred |
 |---|---|---|---|---|---|---|
-| Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
+| Brand-Coherence | 18 | 16 | 2 | 0 | 0 | 0 |
 | UX-States | 27 | 22 | 2 | 2 | 1 | 0 |
 | FM-Mechanics | 26 | 26 | 0 | 0 | 0 | 0 |
 | Fantasy-Scoring | 27 | 26 | 1 | 0 | 0 | 0 |

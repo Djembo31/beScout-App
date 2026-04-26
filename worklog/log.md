@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 213 | 2026-04-26 | QuickActionPills Component-Extract (Brand 1 P3)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
+- **Größe:** S (CTO, P3 Polish-Refactor)
+- **Files:**
+  - `src/components/home/QuickActionPills.tsx` — NEU. Self-Contained Component mit `'use client'`, `useTranslations('home')` intern, Items-Const-Array mit narrow TypeScript-Type (`labelKey: 'qaBuy' | 'qaFantasy' | ...`).
+  - `src/app/(app)/page.tsx` — EDIT. 5 Lucide-Icons aus Imports entfernt (ShoppingCart, Swords, Target, MessageSquare, Package — exklusiv Quick-Actions). Inline-23-Zeilen-Map durch `<QuickActionPills />` ersetzt + Import.
+- **Reviewer (PASS, 14min):** keine REWORK-Findings, 4 NITs (negative-margin spacing-Kopplung, Spec-AC-Pattern-Schärfe, Default-Export-Konsistenz). Visual-Behavior 1:1 strikt verifiziert (5 Items × 6 Properties identisch). i18n in DE+TR bestätigt. CLAUDE.md "Premature abstraction" Check: NICHT premature (5 Items × 6 Props über Schwelle, page-spezifisch wie HomeSpotlight/HomeStoryHeader-Pattern).
+- **Proof:** `worklog/proofs/213-extract-audit.txt` — 9/9 ACs grün.
+- **Foundation Slice 211/212 Live-Verifiziert:** AC-08 Hook-Live-Test passed — `ship-spec-quality-gate.sh` silent bei konformer Spec während BUILD-Stage. **Erste reale BUILD-Stage seit Hook-Activation, Spec-Foundation operationalisiert wie geplant.**
+- **Spec-Konformität:** Alle 13 Pflicht-Sektionen vorhanden + ausgefüllt. Reviewer markierte Spec als **Gold-Standard-Beispiel** für 13-Sektionen-Format. Reference-Slice für künftige _TEMPLATE.md-Verlinkung.
+- **Punch-List-Impact:** Brand 1 → done. Brand-Coherence jetzt 16/18 (~89%, +1 done -1 open). **Real-actionable-frontend-only-Pool ist nun praktisch leer** — verbleibend nur Money-Path-CEO-pending (F-09, UX 20) + Backend-M-Slices (FM 10.2, 10.3) + Post-Beta-deferred (F-14, C-06, R-05, M-02).
+- **Commit:** (pending)
+
+---
+
 ## 212 | 2026-04-26 | Spec-Quality-Gate-Hook + /ship new Template-Reference (Wave 2)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
