@@ -1951,6 +1951,14 @@ Wenn 3 Polish-Sweeps in Folge ohne already-fixed-marker enden, Pattern aufgeben 
 
 D42 (CRITICAL-Findings = Pre-Merge-Pflicht) deckt Code-Quality-Bugs. D48 ist spezialisiert auf Audit-Stale-Bugs in Polish-Sweeps. Beide Reviewer-Agent-Use-Cases.
 
+### Update Slice 202 (2026-04-26): D48 produktiv-validiert
+
+3. Slice nach D48-Codification (Slice 202 FM-9.3 TierComparisonMatrix). Reviewer-Agent fuhr Pre-Existing-Code-Grep (`grep TierComparison|comparison.*tier|stripe.*matrix|TierMatrix|FeatureMatrix` ueber `src/`) — **NO duplicate gefunden**. Greenfield-Component, kein false-positive, kein Heal-Loop.
+
+**Lehre:** D48 funktioniert auch wenn Pre-Existing-Code-Grep zero matches ergibt — der Verifikations-Schritt selbst ist die Versicherung. Die Frage ist nicht "wo ist die Duplicate", sondern "wuerde ich erfahren wenn da eine waere?". Slice 202 hat das mit 14-min Reviewer-Cold-Context-Effort beantwortet.
+
+**Aktuelle Empirie:** 2/3 Slices mit already-fixed-marker (Slice 200a UX-2 + Slice 200b R-03), 1/3 ohne (Slice 202 — clean greenfield). Pattern bleibt aktiv weil 22% Trefferquote in den Polish-Slices reicht zum ROI.
+
 ---
 
 ## Template für neue Entries

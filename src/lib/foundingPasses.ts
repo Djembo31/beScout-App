@@ -19,6 +19,12 @@ export type FoundingPassTierDef = {
   bcreditsCents: number;
   bcreditsLabel: string;
   migrationBonusPct: number;
+  /**
+   * Slice 202 Whitelist-Sync-Pflicht: Bei neuem extra-key auch
+   * src/app/(app)/founding/TierComparisonMatrix.tsx (ALL_EXTRAS_ORDERED + ExtraKey-Type)
+   * + messages/de.json + messages/tr.json (founding.<key>) ergaenzen,
+   * sonst rendert die neue Feature-Row stillschweigend nicht in der Matrix.
+   */
   extras: string[];
   color: string;
   icon: string;

@@ -1,0 +1,72 @@
+Slice 203 — XS-Slice Mini-Polish + Audit-Stale-Korrektur Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Brand 10 — PlayerPicker bg-black/60 → bg-bg-main/60
+================================================================
+$ grep -n "bg-black\|bg-bg-main" src/features/fantasy/components/lineup/PlayerPicker.tsx | head -5
+169: <div className="fixed inset-0 bg-bg-main/60 z-[60] animate-in fade-in duration-200" onClick={handleClose} />
+171: <div className="fixed inset-x-0 bottom-0 z-[60] bg-bg-main flex flex-col ..."
+177: <div className="shrink-0 bg-bg-main border-b border-white/10">
+
+PASS: bg-black weg, bg-bg-main konsistent. Gleiches Pattern wie Brand 8 (FantasyContent), Brand 9 (JoinConfirmDialog), Brand 11 (PitchView) aus Slice 196/198b.
+
+================================================================
+3. UX 12 already-fixed — MissionsPageSkeleton verifiziert
+================================================================
+$ grep -nE "Loader2|Skeleton|MissionsPageSkeleton" src/app/\(app\)/missions/page.tsx | head -10
+9: import { Skeleton } from '@/components/ui';
+12: const MissionsPageSkeleton = () => (
+15: <Skeleton className="h-6 w-40 mb-2" />
+16: <Skeleton className="h-4 w-72" />
+18: <Skeleton className="h-12 rounded-xl" />
+19: <Skeleton className="h-40 rounded-2xl" />
+20: <Skeleton className="h-32 rounded-2xl" />
+21: <Skeleton className="h-48 rounded-2xl" />
+177: return <MissionsPageSkeleton />;
+
+PASS: Audit-Stale-Marker. Audit-Source sagte Z162 "Loader2 (40px-Spinner)" — existiert nicht mehr.
+Code hat vollständige MissionsPageSkeleton-Component (4 Skeleton-Bloecke) + Render in Auth-Loading-Branch.
+D48-Pre-Existing-Code-Grep produktiv applied.
+
+================================================================
+4. Self-Review (D35 trivial-pattern-Wiederholung)
+================================================================
+- Brand 10 ist 1-line Token-Migration mit bekanntem Pattern (Brand 8/9/11 prior).
+- bg-black/60 → bg-bg-main/60 einzige Aenderung.
+- Kein Schema, kein RPC, kein Service, kein Money-Path, kein i18n.
+- Reviewer-Pflicht skipped per workflow.md D35 "trivial-pattern-Wiederholung".
+- UX 12 audit-stale-marker dokumentiert.
+
+================================================================
+5. Punch-Liste-Status
+================================================================
+Slice 202 → 75/98 closed (~76%)
+Slice 203 → 77/98 closed (~79%)
+- +1 Brand 10 (Code)
+- +1 UX 12 (audit-stale-marker)
+- Aggregat Brand 15 done / 1 open / 2 wont-fix
+- Aggregat UX 21 done / 6 open / 0 wont-fix
+- Total 77 done / 18 open / 3 wont-fix / 1 deferred
+
+================================================================
+6. Files Modified
+================================================================
+$ git diff --stat HEAD
+src/features/fantasy/components/lineup/PlayerPicker.tsx              | 2 +-
+src/lib/foundingPasses.ts                                            | 6 +
+memory/patterns.md                                                   | 60 +++ (Pattern #37)
+memory/decisions.md                                                  | 8 + (D48-Update Note)
+worklog/punch-list-2026-04-25.md                                     | 22 +++--
+worklog/active.md                                                    | 14 +-
+worklog/log.md                                                       | (this entry)
+worklog/proofs/203-tsc-grep.txt                                      | 90 +++ (NEW)
+
+Total: 7 files (1 NEW)

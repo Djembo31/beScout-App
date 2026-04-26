@@ -841,3 +841,61 @@ grep -rn "<spec-pattern>" \
 **Beziehung:** D45 (Worktree-Awareness) + D46 (Service-Schnittstelle) + D48 = drei Pre-Implementation-Audits.
 
 **Codify:** `errors-frontend.md` "Polish-Audit Pre-Existing-Code-Drift" Pattern (Slice 200a).
+
+**Update Slice 202:** D48 ist im 1. produktiven Einsatz validiert. FM 9.3 TierComparisonMatrix-Implementation: Reviewer-Agent fuhr Pre-Existing-Code-Grep (`grep TierComparison|comparison.*tier|stripe.*matrix` ueber `src/`), ergab **NO duplicate** — kein false-positive, kein Heal-Loop. Die D48-Pflicht-Praxis funktioniert auch fuer greenfield-Components. Audit-Stale-Catcher braucht keine pre-existing matches um wertvoll zu sein — der Verifikations-Schritt ist die Versicherung.
+
+---
+
+### 37. Per-Tier Comparison Matrix mit ExtraKey-Union + Whitelist (Slice 202, FM-9.3)
+
+**Wann:** Wenn Tier-/Plan-/Subscription-Vergleichs-Tabelle gebraucht wird (Founding Pass, Sales-Pakete, $SCOUT-Pricing-Tiers, Equipment-Ranks).
+
+**Pattern:**
+
+```typescript
+// 1. Type-Union ueber alle moeglichen Feature-Keys
+type ExtraKey =
+  | 'founding.extraAccess'
+  | 'founding.extraBadge'
+  | 'founding.extraIpoEarly';
+
+// 2. Explizit-geordnete Whitelist (nicht dynamic-derived aus Tier-Defs)
+//    — fuer UX-konsistente Anzeige-Reihenfolge ueber alle Tiers
+const ALL_EXTRAS_ORDERED: ExtraKey[] = [
+  'founding.extraAccess',
+  'founding.extraBadge',
+  'founding.extraIpoEarly',
+];
+
+// 3. Stripe-Matrix mit ✓/✗ via includes()-Check
+{ALL_EXTRAS_ORDERED.map((extraKey) => (
+  <tr key={extraKey}>
+    <th scope="row" className="sticky left-0 bg-bg-main">
+      {t(extraKey.replace('founding.', '') as 'extraAccess')}
+    </th>
+    {TIERS.map((td) => (
+      <td key={td.tier}>
+        {td.extras.includes(extraKey) ? <Check /> : <span>—</span>}
+      </td>
+    ))}
+  </tr>
+))}
+```
+
+**Mobile-Pflicht:** `overflow-x-auto` + `min-w-[480px]` + `sticky left-0 z-10 bg-bg-main` auf Feature-Spalten-th's. Garantiert horizontal-scroll auf 393px mit lesbaren Feature-Namen.
+
+**Accessibility-Pflicht:** `scope="col"`/`"row"`/`"colgroup"` + `aria-label` auf ✓-Icon und em-dash-Fallback. Tabelle ist screen-reader-tauglich.
+
+**Schema-Drift-Caveat:** ExtraKey-Union + ALL_EXTRAS_ORDERED-Whitelist ist explicit-geordnet, nicht dynamic-derived. Wenn neuer Extra-Key in der Source (z.B. `foundingPasses.ts` `extras`-Array) hinzugefuegt wird, MUSS er auch in:
+1. ExtraKey Type-Union ergaenzt werden
+2. ALL_EXTRAS_ORDERED-Array hinzugefuegt werden
+3. DE+TR i18n-key vorhanden sein
+
+Sonst rendert die neue Feature-Row stillschweigend nicht in der Matrix. **Konvention:** Inline-Comment in `foundingPasses.ts` als Reminder ergaenzen.
+
+**Wiederverwendbar fuer:**
+- BeScout Sales-Pakete (Baslangic / Profesyonel / Sampiyon — siehe `business.md`)
+- Equipment-Rank-Vergleich (Mystery-Box-Outputs)
+- Membership-Tiers (post-Phase-3 Subscription-Modell)
+
+**Reference:** Slice 202 Implementation `src/app/(app)/founding/TierComparisonMatrix.tsx`. Reviewer-Cold-Context PASS, kein Duplicate via D48-Check.

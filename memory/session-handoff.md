@@ -1,16 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 02:21)
+# Session Handoff — Auto (2026-04-26 02:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
-```
- M .claude/settings.local.json
-?? .claude/state/
-?? worklog/audits/silent-fail-2026-04-25.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- 7a6de52a chore(202): active idle nach Slice 202 Commit
+- ab5d411c feat(202): Wave 5 Polish-Sweep — 3 Frontend-only Items + Punch-Liste-Sync
+- 05c8d5e5 chore(hygiene): commit handoff + audit + gitignore .claude/state/
 - d8c4c2bf docs(distill): D48 Reviewer-Agent als Audit-Stale-Catcher + Patterns #35+#36
 - db2d5c6d chore(200b): active idle nach Slice 200b Commit
 - ecf34c5f feat(200b): Wave 4 Polish-Sweep — 3 closed + 1 already-fixed-marker
@@ -18,9 +16,6 @@
 - d7c846b5 feat(200a): Wave 3 Polish-Sweep — 4 closed + 1 already-fixed-marker
 - d0ebb70e docs(distill): D45-D47 + Service-Duplicate Pattern + audit-baseline 2026-04-26
 - 132e1bcd feat(199): heal Service-Duplicate + LOG + Reviewer PASS — punch-list 59->63/98 (~64%)
-- 1051b866 Merge branch 'worktree-agent-a32f714344d5ed9a3'
-- 43ed0253 Merge branch 'worktree-agent-a51bad5908a5cb028'
-- 257bc242 feat(199-frontend): 4 UI-Consumers + fm 1.3 In-Lineup-Filter
 
 <!-- auto:handoff-end -->
 

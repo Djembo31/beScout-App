@@ -11,6 +11,53 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 203 | 2026-04-26 | XS-Mini-Polish + DISTILL Slice 202 (Brand 10 + UX 12 audit-stale)
+
+XS-Slice manuell vom CTO. 1 Frontend-Item closed (Brand 10) + 1 Audit-Stale-Marker (UX 12) + DISTILL Slice 202 (Pattern #37 + D48-Update + foundingPasses.ts inline-comment). Punch-Liste: 75/98 → **77/98 closed (~79%)**.
+
+**Stage-Chain:** SPEC inline (XS, trivial-pattern) → IMPACT skipped → BUILD → REVIEW self-review (D35 trivial-pattern-Wiederholung) → PROVE → LOG
+
+### Items closed (1)
+
+- **Brand 10** PlayerPicker bg-black/60 → bg-bg-main/60 (Z169). 1-line Token-Migration. Gleiches Pattern wie Brand 8/9/11 in Slice 196/198b.
+
+### Items already-fixed-marker (1)
+
+- **UX 12** Missions Auth-Loading Loader2 — pre-existing `MissionsPageSkeleton` Component (`missions/page.tsx:12-23` + render Z176-178). 4 Skeleton-Bloecke. Audit-Source sagte Z162 Loader2 — Code-Realitaet hat keine. Vermutlich vor Slice 196 closed (Page-Refactor). D48 4/4-Slice-Trefferquote (200a UX-2, 200b R-03, 203 UX-12 = 3 Audit-Stale + 199/202 = 0 Marker).
+
+### DISTILL Slice 202 (Knowledge-Compilation)
+
+- `memory/patterns.md` Pattern #37 "Per-Tier Comparison Matrix mit ExtraKey-Union + Whitelist" — wiederverwendbar fuer Sales-Pakete, Equipment-Ranks, Membership-Tiers. Schema-Drift-Caveat dokumentiert.
+- `memory/decisions.md` D48 Update-Note "Slice 202 produktiv-validiert" — D48 funktioniert auch wenn Pre-Existing-Code-Grep zero matches ergibt (Verifikations-Schritt selbst ist die Versicherung).
+- `src/lib/foundingPasses.ts` Inline-JSDoc-Comment fuer `extras` field — Whitelist-Sync-Pflicht-Reminder bei neuem Extra-Key (TierComparisonMatrix + i18n DE+TR).
+
+### Files modified
+
+```
+src/features/fantasy/components/lineup/PlayerPicker.tsx              | 2 +-
+src/lib/foundingPasses.ts                                            | 6 +
+memory/patterns.md                                                   | 60 +++
+memory/decisions.md                                                  | 8 +
+worklog/punch-list-2026-04-25.md                                     | 24 ++--
+worklog/active.md                                                    | 14 +-
+worklog/proofs/203-tsc-grep.txt                                      | 90 +++ (NEW)
+```
+
+### Proof
+- `worklog/proofs/203-tsc-grep.txt` — tsc clean + Brand 10 Token verifiziert + UX 12 audit-stale-grep
+- Self-Review per workflow.md D35 trivial-pattern-Wiederholung (gleiches Pattern wie Brand 8/9/11)
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+D48-Workflow zeigt: 3/5 Polish-Slices haben already-fixed-marker. Pattern bleibt aktiv (>20% Trefferquote = ROI gerechtfertigt). Frontend-only-Polish-Pool ist mit Slice 203 nahezu erschoepft — UX 20 verbleibt (Money-Risk → CEO-Approval Slice 201). Nächste Polish-Iterationen brauchen Backend-RPCs (Slice 200/201, beide CEO-pending).
+
+DISTILL als kombinierte Knowledge-Capture (3 Items) parallel zur Code-Aenderung — produktiver als separater DISTILL-Slice fuer kleine Pattern-Erweiterungen.
+
+---
+
 ## 202 | 2026-04-26 | Wave 5 Polish-Sweep (Frontend-only, single-track)
 
 S-Slice sequenziell durch lokal Claude. 3 Frontend-only Items closed + Punch-Liste-Status-Sync (Hygiene). Punch-Liste: 70/98 → **75/98 closed (~76%)** (inkl Audit-Stale-Korrektur UX 21).

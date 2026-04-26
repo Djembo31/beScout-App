@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 202 (+3 closed: Brand-2, Brand-12, FM-9.3)
+**Stand:** 2026-04-26 nach Slice 203 (+1 closed Brand-10 + UX-12 audit-stale-marker)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **73 closed (≈74%)**
+**Total:** 98 Findings · davon **77 closed (≈79%)**
 
 ## Status-Legende
 
@@ -18,11 +18,15 @@
 
 | Domain | Total | done | wont-fix | in-progress | open | deferred |
 |---|---|---|---|---|---|---|
-| Brand-Coherence | 18 | 14 | 2 | 0 | 2 | 0 |
-| UX-States | 27 | 20 | 0 | 0 | 7 | 0 |
+| Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
+| UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
 | FM-Mechanics | 26 | 22 | 0 | 0 | 4 | 0 |
 | Fantasy-Scoring | 27 | 19 | 1 | 0 | 7 | 1 |
-| **TOTAL** | **98** | **75** | **3** | **0** | **20** | **1** |
+| **TOTAL** | **98** | **77** | **3** | **0** | **18** | **1** |
+
+**Slice 203 closed (+1 + 1 already-fixed-marker):** XS-Slice Mini-Polish (1-line + audit-stale-Korrektur).
+- Brand 10 PlayerPicker bg-black/60 → bg-bg-main/60 (1-line, gleiches Pattern wie Brand 8/9/11)
+- UX 12 already-fixed via `MissionsPageSkeleton` (`missions/page.tsx:12-23 + render Z176-178`) — Audit-Stale-Trap, D48-Workflow zeigt: 23% Trefferquote in 4 Slices (200a UX-2, 200b R-03, 203 UX-12)
 
 **Slice 202 closed (+3):** Wave 5 Polish-Sweep (Frontend-only, single-track sequenziell).
 - Brand 12 PitchView text-yellow-400 → text-status-doubtful (Token-Migration)
@@ -173,14 +177,14 @@
 | 20 | open | ux.md | MembershipSection Subscribe ohne Confirm-Step | Slice 198 (Money-Risk) |
 | 22 | open | ux.md | compare Empty-Slot Touch-Targets | Slice 198 |
 
-### P3 (3)
+### P3 (4)
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| 1 | open | ux.md | Home ErrorState onRetry inkonsistent | Post-Beta |
-| 3 | open | ux.md | Market playersLoading blockt parallele Sections | Post-Beta |
-| 10 | open | ux.md | PostReplies Loader2 statt Skeleton | Post-Beta |
-| 12 | open | ux.md | Missions Auth-Loading Loader2 | Post-Beta |
+| 1 | done | ux.md | Home ErrorState onRetry inkonsistent | Slice 198b ✓ |
+| 3 | done | ux.md | Market playersLoading blockt parallele Sections | Slice 198b ✓ |
+| 10 | done | ux.md | PostReplies Loader2 statt Skeleton | Slice 198b ✓ |
+| 12 | done | ux.md | Missions Auth-Loading Loader2 | already-fixed via MissionsPageSkeleton (page.tsx:12-23 + render Z176-178); Slice 203 audit-stale-marker |
 
 ---
 
@@ -258,7 +262,7 @@
 | 5 | done | brand.md | kaderHelpers.tsx:93 yellow Performance-Mid-Tier | Slice 196 ✓ |
 | 6 | done | brand.md | FormTab.tsx:157 yellow Form-Indicator | Slice 196 ✓ |
 | 9 | done | brand.md | JoinConfirmDialog.tsx:40 bg-black/80 | Slice 196 ✓ |
-| 10 | open | brand.md | PlayerPicker.tsx:169 bg-black/60 (1-line fix, deferred Wave 6) | offen |
+| 10 | done | brand.md | PlayerPicker.tsx:169 bg-black/60 → bg-bg-main/60 | Slice 203 ✓ |
 | 14 | done | brand.md | airdrop:74 inline `style={{color:'#FFD700'}}` → `text-gold` | Slice 196 ✓ |
 | 18 | done | brand.md | club/[slug]:523,530 raw button + rounded-md | Slice 198 ✓ |
 
