@@ -216,8 +216,8 @@ export default function FantasyContent() {
         show={!joinedSet.size}
       />
 
-      {/* Contextual Mission Hints */}
-      <MissionHintList context="fantasy" />
+      {/* Contextual Mission Hints (Slice 201c: + state-derived Fantasy-Hints) */}
+      <MissionHintList context="fantasy" fantasyEvents={gwEvents} />
 
       {/* Scoring Rules */}
       <ScoringRules />

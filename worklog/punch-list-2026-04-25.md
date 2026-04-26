@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 201b (+1 closed FM-4.3 Holders-Distribution-Mini-Bar)
+**Stand:** 2026-04-26 nach Slice 201c (+1 closed M-01 Fantasy-Context-Hints)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **80 closed (≈82%)**
+**Total:** 98 Findings · davon **81 closed (≈83%)**
 
 ## Status-Legende
 
@@ -21,8 +21,11 @@
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
 | FM-Mechanics | 26 | 25 | 0 | 0 | 1 | 0 |
-| Fantasy-Scoring | 27 | 19 | 1 | 0 | 7 | 1 |
-| **TOTAL** | **98** | **80** | **3** | **0** | **15** | **1** |
+| Fantasy-Scoring | 27 | 20 | 1 | 0 | 6 | 1 |
+| **TOTAL** | **98** | **81** | **3** | **0** | **14** | **1** |
+
+**Slice 201c closed (+1):** Fantasy-Context-Hints (CTO unter voller Autonomie, S-Slice).
+- M-01 MissionHintList — kontextabhaengige Hints "Stelle dein Lineup für GW X auf" + "Captain-Bonus sichern (1.1×)" via state-derived Hook ohne DB-Query. Pure deriver-Pattern, FantasyContextHint-Component (purple-Theme), backward-compatible MissionHintList-Erweiterung. Self-Review (D35).
 
 **Slice 201b closed (+1):** Holders-Distribution-Mini-Bar (CTO unter voller Autonomie, M-Slice).
 - FM 4.3 TransferListSection — neue SECURITY DEFINER RPC `get_player_holders_concentration` + ConcentrationBar Mini-SVG mit Color-Coding (orange/amber/emerald). Lazy-Loaded in expanded-View (kein N+1). Pattern Slice 014 Blueprint, Reviewer PASS, F2 inline-gehealt.
@@ -141,7 +144,7 @@
 | R-04 | open | fantasy.md | Tier-Promotion-CTA | Slice 198 |
 | K-02 | open | fantasy.md | Most-Owned Players pro Club | Slice 198 |
 | K-03 | open | fantasy.md | Squad-Tab Fantasy-Pick-Rate | Slice 198 |
-| M-01 | open | fantasy.md | Mission-Hints kontextabhängig | Slice 198 |
+| M-01 | done | fantasy.md | Mission-Hints kontextabhängig | Slice 201c ✓ (state-derived FantasyContextHint) |
 
 ### P3 (4)
 

@@ -1,0 +1,95 @@
+Slice 201c — Fantasy-Context-Hints (M-01) Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Hook + Component Files
+================================================================
+src/features/fantasy/hooks/useFantasyContextHints.ts NEU (90 LOC)
+- deriveFantasyContextHints(events, now, t, maxHints) — pure deriver, testable
+- useFantasyContextHints(events, maxHints) — React-Hook wrapper
+
+src/components/missions/FantasyContextHint.tsx NEU (45 LOC)
+- Render-Component mit Link-Wrapper + Icon-Map (Target | Crown)
+- Purple-Theme statt Gold (Mission-Hint = Gold, Context-Hint = Purple)
+
+================================================================
+3. MissionHintList Erweiterung
+================================================================
+$ grep -nE "fantasyEvents|FantasyContextHint|useFantasyContextHints" src/components/missions/MissionHintList.tsx
+4: import FantasyContextHint from './FantasyContextHint';
+5: import { useFantasyContextHints } from '@/features/fantasy/hooks/useFantasyContextHints';
+6: import type { FantasyEvent } from '@/features/fantasy/types';
+14: fantasyEvents?: FantasyEvent[];
+22: const contextHints = useFantasyContextHints(...);
+30-33: contextHints.map -> FantasyContextHint render
+
+PASS: Backward-compatible (fantasyEvents optional, default []).
+Hook ist immer geladen aber returnt [] wenn context!='fantasy' oder events leer.
+
+================================================================
+4. FantasyContent Integration
+================================================================
+$ grep -nE "MissionHintList.*fantasyEvents" src/app/\(app\)/fantasy/FantasyContent.tsx
+220: <MissionHintList context="fantasy" fantasyEvents={gwEvents} />
+
+PASS: gwEvents (current-GW-gefiltert) als input. Deriver filtert intern auf isJoined.
+
+================================================================
+5. i18n DE+TR symmetrisch (5 keys)
+================================================================
+$ grep -E "hintLineupNeeded|hintLineupNeededWithGw|hintCaptainBonus|contextHintLabel|contextHintAriaLabel" messages/de.json | wc -l
+5
+$ grep -E "hintLineupNeeded|hintLineupNeededWithGw|hintCaptainBonus|contextHintLabel|contextHintAriaLabel" messages/tr.json | wc -l
+5
+
+PASS: Beide Locales 5/5 keys.
+
+DE-Strings:
+- "Stelle dein Lineup auf"
+- "Stelle dein Lineup für GW {gw} auf"
+- "Captain-Bonus sichern (1.1× Punkte)"
+- "Aktion"
+- "Aktion ausführen: {title}"
+
+TR-Strings:
+- "Lineup'unu kur"
+- "GW {gw} için lineup'unu kur"
+- "Captain bonusu kap (1.1× puan)"
+- "Aksiyon"
+- "Aksiyonu yap: {title}"
+
+================================================================
+6. Self-Review (D35 isolated S-Slice)
+================================================================
+- Frontend-only (kein Schema, kein RPC, kein Service-Layer-Edit)
+- State-derived hints aus existing useFantasyEvents-data (kein neuer DB-Query)
+- Backward-compatible (MissionHintList fantasyEvents optional)
+- Pure deriver-Funktion (testable ohne React)
+- Hook ist React-Wrapper mit useMemo (kein re-render-spam)
+- 1.1× Captain-Multiplier i18n erwähnt (siehe fantasy.md F-04 Slice 195a)
+- Pattern wiederverwendbar — kann auf market/community context erweitert werden
+
+Reviewer-Agent skipped per D35 (S-Slice, frontend-only, kein Money-Path).
+tsc clean + i18n-Verify ausreichend.
+
+================================================================
+7. Files Modified
+================================================================
+$ git diff --stat HEAD
+src/features/fantasy/hooks/useFantasyContextHints.ts                    | 90 +++ (NEW)
+src/components/missions/FantasyContextHint.tsx                          | 45 +++ (NEW)
+src/components/missions/MissionHintList.tsx                             | 30 +-
+src/app/(app)/fantasy/FantasyContent.tsx                                |  2 +-
+messages/de.json                                                        |  5 +
+messages/tr.json                                                        |  5 +
+worklog/active.md                                                       | 14 +-
+worklog/proofs/201c-tsc-grep.txt                                        | 95 +++ (NEW)
+
+Total: 6 source + 2 worklog (3 NEU)

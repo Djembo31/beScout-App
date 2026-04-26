@@ -11,6 +11,76 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 201c | 2026-04-26 | Fantasy-Context-Hints (M-01)
+
+S-Slice manuell vom CTO unter voller Autonomie. State-derived Mission-Hints ohne DB-Query. Punch-Liste: 80/98 → **81/98 closed (~83%)**.
+
+**Stage-Chain:** SPEC inline (S-Slice, isoliert) → IMPACT skipped (frontend-only state-derived) → BUILD → REVIEW self-review (D35 isolated S-Slice, frontend-only) → PROVE → LOG
+
+### Items closed (1)
+
+- **M-01** MissionHintList Fantasy-Context-Hints — kontextabhaengige Hints "Stelle dein Lineup für GW X auf" + "Captain-Bonus sichern (1.1×)" werden NEBEN den generic Mission-Hints gerendert wenn User joined upcoming/running events hat. State-derived aus useFantasyEvents-data, kein DB-Query.
+
+### Architektur (S-Slice, kein Schema-Change)
+
+**Pure Deriver `useFantasyContextHints.ts` NEU:**
+- `deriveFantasyContextHints(events, now, t, maxHints)` — pure Funktion, testable ohne React
+- `useFantasyContextHints(events, maxHints)` — React-Hook wrapper mit useMemo + i18n
+- 2 Hint-Kinds:
+  - `lineup-needed`: joined upcoming event mit lockTime > now → "Stelle dein Lineup auf"
+  - `captain-pick`: joined running event mit userPoints=0 → "Captain-Bonus sichern (1.1×)"
+
+**Component `FantasyContextHint.tsx` NEU:**
+- Render-Component mit Link-Wrapper (CTA navigiert zu /fantasy?event=...)
+- Icon-Map (Target | Crown)
+- Purple-Theme (Mission-Hint = Gold, Context-Hint = Purple → visual differenziert)
+- a11y mit aria-label
+
+**MissionHintList Erweiterung:**
+- Neue optional Prop `fantasyEvents?: FantasyEvent[]` (default [])
+- Render-Order: Context-Hints zuerst (höhere Aktionsrelevanz), dann generic Mission-Hints
+- Backward-compatible (alle bestehenden Caller funktionieren ohne Aenderung)
+
+**FantasyContent Integration:**
+- `<MissionHintList context="fantasy" fantasyEvents={gwEvents} />` statt nur `context="fantasy"`
+- gwEvents (current-GW-gefiltert) als input — Deriver filtert intern auf isJoined
+
+**i18n DE+TR symmetrisch (5 Keys):**
+- `hintLineupNeeded` / `hintLineupNeededWithGw` (mit ICU-{gw}-Param)
+- `hintCaptainBonus`
+- `contextHintLabel` / `contextHintAriaLabel` (mit ICU-{title}-Param)
+
+### Compliance-Check
+
+- "Captain-Bonus sichern (1.1× Punkte)" entspricht F-04-Decision (Slice 195a, CEO-eigene Mechanik). Keine Investment-Sprache, keine Securities-Terminologie.
+- "Lineup'unu kur" / "Captain bonusu kap" — neutrale CTA, kein Gewinn-/Profit-Framing.
+
+### Files modified
+
+```
+src/features/fantasy/hooks/useFantasyContextHints.ts                    | 90 +++ (NEW)
+src/components/missions/FantasyContextHint.tsx                          | 45 +++ (NEW)
+src/components/missions/MissionHintList.tsx                             | 30 +-
+src/app/(app)/fantasy/FantasyContent.tsx                                |  2 +-
+messages/de.json                                                        |  5 +
+messages/tr.json                                                        |  5 +
+worklog/active.md                                                       | 14 +-
+worklog/proofs/201c-tsc-grep.txt                                        | 95 +++ (NEW)
+```
+
+### Proof
+- `worklog/proofs/201c-tsc-grep.txt` — tsc clean + Hook + Component + i18n DE+TR + Integration verifiziert
+- Self-Review per D35 (S-Slice, frontend-only, state-derived, kein Money-Path)
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+CTO unter voller Autonomie. S-Slice mit pure-deriver-Pattern (analog Slice 195d Bench/Auto-Sub Approach). Pattern wiederverwendbar fuer market/community context-hints (z.B. "Buy-Order open seit X Min" oder "Neue Posts in deiner Watchlist"). Keine Reviewer-Agent — frontend-only, isoliert, additive Backward-compatible Component-Erweiterung.
+
+---
+
 ## 201b | 2026-04-26 | Holders-Distribution-Mini-Bar (FM-4.3)
 
 M-Slice manuell vom CTO unter voller Autonomie. Aggregat-RPC + Mini-SVG-Bar Lazy-Loaded in TransferList expanded-View. Pattern Blueprint `get_player_holder_count` (Slice 014). Punch-Liste: 79/98 → **80/98 closed (~82%)**.

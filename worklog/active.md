@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 201c
+stage: LOG
+spec: inline (S-Slice — M-01 Fantasy-Context-Hints derived aus existing State)
+impact: skipped (kein Schema/RPC, frontend-only state-derived)
+proof: worklog/proofs/201c-tsc-grep.txt
+review: self-review (D35 isolated S-Slice, frontend-only)
 ```
 
 ## Zuletzt
