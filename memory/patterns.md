@@ -899,3 +899,103 @@ Sonst rendert die neue Feature-Row stillschweigend nicht in der Matrix. **Konven
 - Membership-Tiers (post-Phase-3 Subscription-Modell)
 
 **Reference:** Slice 202 Implementation `src/app/(app)/founding/TierComparisonMatrix.tsx`. Reviewer-Cold-Context PASS, kein Duplicate via D48-Check.
+
+---
+
+### 38. Anonymized RLS-Bypass Aggregate-RPC Series (Slice 014 → 199 → 201b → 201d)
+
+**Wann:** UI braucht aggregierte Daten ueber alle User (Holders-Count, Top-Predictor-Liste, Distribution per Fixture, etc.) ABER:
+- RLS auf der Source-Tabelle ist tight (own-rows-only oder admin-only)
+- Cross-User-Reads sind privacy-sensitiv (kein user_id-Leak gewollt)
+- Frontend braucht aber den Aggregat-Wert (nicht die individuellen rows)
+
+**Anti-Pattern:** RLS lockern oder cross-user-Selects in Frontend. Beides zerschiesst Privacy.
+
+**Pattern (etabliert 2026-04 mit 4 RPCs LIVE):**
+
+```sql
+CREATE OR REPLACE FUNCTION public.get_<entity>_<aggregate>(<args>)
+RETURNS jsonb           -- discriminated-union Slice 168 Pattern
+LANGUAGE plpgsql        -- nicht sql, weil auth.uid() Guard + Variablen
+STABLE                  -- read-only
+SECURITY DEFINER        -- bypasses RLS
+SET search_path TO 'public', 'pg_catalog'
+AS $function$
+DECLARE
+  v_<aggregate> ...;
+BEGIN
+  -- 1. Auth-Guard (anon-Block)
+  IF auth.uid() IS NULL THEN
+    RETURN jsonb_build_object(
+      'success', false,
+      'error', 'auth_required',
+      <empty-aggregate-fields>
+    );
+  END IF;
+
+  -- 2. Aggregate (kein user_id im Output)
+  WITH aggregated AS (...)
+  SELECT ... INTO v_<aggregate>;
+
+  -- 3. Discriminated-union Return (Slice 168)
+  RETURN jsonb_build_object(
+    'success', true,
+    <aggregate-fields>
+  );
+END;
+$function$;
+
+COMMENT ON FUNCTION ... IS '<Slice-Ref>: <Purpose>. Anonymized aggregate, SECURITY DEFINER bypasses RLS.';
+
+-- 4. AR-44 REVOKE/GRANT
+REVOKE EXECUTE ON FUNCTION ... FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION ... FROM anon;
+GRANT  EXECUTE ON FUNCTION ... TO authenticated;
+GRANT  EXECUTE ON FUNCTION ... TO service_role;
+```
+
+**Service-Wrapper-Pflicht (Slice 168 Pattern):**
+```ts
+const { data, error } = await supabase.rpc('get_<entity>_<aggregate>', {...});
+if (error) throw new Error(error.message);
+const result = data as { success: boolean; error?: string; <fields> };
+if (!result.success) throw new Error(result.error ?? 'rpc_failed');
+return { ...result };  // narrow + return
+```
+
+**Live-Beispiele (Q2 2026):**
+
+| RPC | Slice | Use-Case | Output |
+|-----|-------|----------|--------|
+| `get_player_holder_count(player_id)` | 014 | Holder-Count per Player | INT (legacy, naked-return) |
+| `get_top_predictors_leaderboard(limit)` | 199 | Top-Predictor-Leaderboard | jsonb {success, leaderboard:[{handle,tier,hit_rate,total_points}]} |
+| `get_most_owned_players_per_club(club_id, limit)` | 199 | Most-Owned-Players | jsonb {success, players:[{player_id,holders_count}]} |
+| `get_event_difficulty_score(event_id)` | 199 | Event-Difficulty-Indicator | jsonb {success, difficulty_score, tier} |
+| `get_event_captain_distribution(event_id)` | 195e | Captain-Pick-Rate per Event | jsonb {success, distribution:[{captain_slot,pct}]} |
+| `get_event_player_pick_rates(event_id)` | 195e | Differential-% per Player | jsonb {success, picks:[{player_id,pct}]} |
+| `get_player_holders_concentration(player_id)` | 201b | Top-10 Holders-Concentration | jsonb {success, total_holders, total_supply, top_10_supply, top_10_pct} |
+| `get_prediction_consensus(fixture, condition, player?)` | 201d | Prediction-Distribution per Fixture | jsonb {success, total_count, distribution:[{value,count,pct}]} |
+
+**Privacy-Garantien (Anti-Pattern-Vermeidung):**
+- KEIN user_id im Output (auch nicht hashed)
+- Optional: `handle` + `tier` (semi-anonymous) — explizit Public-Identifier wenn UI das braucht
+- Bei <5 Predictions/Holdings: optional Sparse-Disclaimer im UI (nicht im RPC), aber Output-Schema bleibt gleich
+
+**Frontend-Lazy-Load-Pflicht:**
+- Bei Per-Row-Aggregat (z.B. Concentration-Bar fuer 100+ Player-Rows): `enabled`-Flag + opt-in pro Row (z.B. nur expanded-View)
+- Sonst: 100 RPC-Calls bei Render → DB-Last, Sentry-Spam
+
+**Discriminated-Union > naked-return:** Auch wenn Output nur 1 Skalar-Wert ist, jsonb-Discriminator gibt Service-Layer einheitlichen Cast-Path. `get_player_holder_count` ist Legacy (naked INT) — neue RPCs IMMER discriminated-union.
+
+**Reference:**
+- `errors-db.md` "Return-Shape: Discriminated Union Pflicht" (Slice 168)
+- `database.md` Migration-Workflow + AR-44
+- D43 Type-Truth-Audit-Pflicht
+- D48 Reviewer-Agent als Audit-Stale-Catcher
+
+**Kandidaten fuer naechste Aggregate-RPCs (Backlog 2026-04-26 Session-End):**
+- FM 5.2 Differential-Sentiment ScoutConsensus (research_post-Aggregat per Player)
+- FM 6.2 Trend-Sparkline-Mini-Chart (price_history-Aggregat per Player+Window)
+- FM 10.2 Airdrop Personal-Score-History (airdrop_scores-history per User+Period)
+- FM 10.3 Airdrop Friends-Filter (cross-user social-graph-restricted)
+- K-03 Squad-Tab Fantasy-Pick-Rate (lineups-Aggregat per Player+Event)

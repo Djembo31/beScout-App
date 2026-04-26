@@ -1,11 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 12:43)
+# Session Handoff — Auto (2026-04-26 13:20)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 4
+## Session Commits: 6
+- 7bc42fb9 chore(201d): active idle nach Slice 201d Commit
+- 7254a0bc feat(201d): Prediction-Consensus-Hint (C-03)
 - 1db549a1 chore(201c): active idle nach Slice 201c Commit
 - b333dd7f feat(201c): Fantasy-Context-Hints (M-01)
 - 1541b20a chore(201b): active idle nach Slice 201b Commit
@@ -15,14 +17,114 @@
 
 ---
 
-# Resume-Anker (2026-04-26 autonomous run #3 — komplett durch)
+# Resume-Anker (2026-04-26 autonomous run #4 — Rekord-Output 9 Slices + 2 DISTILL)
 
 **Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
-1. `worklog/active.md` — aktueller Slice-State (idle)
-2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, **70 closed (~71%)**
+1. `worklog/active.md` — aktueller Slice-State (idle, 82/98 closed)
+2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings, **82 closed (~84%)**
 3. Diese Datei (Resume-Anker)
-4. `worklog/log.md` Top 5 Eintraege (200b, 200a, 199, 198b, 198)
-5. `git status --short` + `git log --oneline -10`
+4. `worklog/log.md` Top 9 Eintraege (201d, 201c, 201b, 201a, 200, 203, 202, 200b, 200a)
+5. `git log --oneline -15` — `7bc42fb9` chore active idle nach 201d ist HEAD
+6. `git worktree list` (sollte nur main sein)
+
+## Session-End 2026-04-26 — autonomous run #4 komplett (Rekord)
+
+**9 Slices durchgezogen + 2 DISTILLs (D48 Update + D49 NEU) + Pattern #37 + Pattern #38 + 3 errors-frontend.md Patterns. Punch-Liste 70/98 → 82/98 closed (~84%, +12 in 1 Session).**
+
+### Pipeline-Status Slices 200-203 (alle gepusht)
+
+| Slice | Commit | Items closed |
+|---|---|---|
+| **202 Wave 5 Polish** | ab5d411c | +3 (Brand-12 PitchView, Brand-2 .gold-pulse-bg Utility, FM-9.3 TierComparisonMatrix) |
+| **203 XS-Mini-Polish + DISTILL Slice 202** | aca2f2c4 | +1 + 1 already-fixed-marker (Brand-10 PlayerPicker, UX-12 Audit-Stale) |
+| **200 Trades-Volume-7d Backend + Sort-UI** | 1e1568ff | +1 (FM-4.4) — Migration LIVE, 4556 Players init, **Bonus-Fix Slice 197d Latent-Bug** PLAYER_SELECT_COLS |
+| **201a Per-Trade-Player-Link** | ccdf48d5 | +1 (FM-6.1) — Service+Hook+UI |
+| **201b Holders-Distribution-Mini-Bar** | 11da508d | +1 (FM-4.3) — RPC + ConcentrationBar lazy |
+| **201c Fantasy-Context-Hints** | b333dd7f | +1 (M-01) — State-derived, kein DB-Query |
+| **201d Prediction-Consensus-Hint** | 7254a0bc | +1 (C-03) — 3. RPC der Anonymized-Aggregate-Series |
+
+### Knowledge-Compilation (DISTILLs Heute)
+
+- **D48 Update (Slice 202):** Reviewer-Agent funktioniert auch bei zero-duplicates (Verifikations-Schritt = Versicherung). Empirie 3/5 Polish-Slices haben already-fixed-marker.
+- **D49 NEU (Slice 200 Bonus-Discovery):** SELECT-COLS-Konstanten Sync-Pflicht mit DbType-Definitionen. Slice 197d MV-Trend war 1 Tag Latent-Production-Bug — `PLAYER_SELECT_COLS` fehlte `mv_trend_7d`.
+- **Pattern #37 NEU (Slice 202):** Per-Tier Comparison Matrix mit ExtraKey-Union + Whitelist (TierComparisonMatrix-Blueprint, wiederverwendbar fuer Sales-Pakete, Equipment-Ranks, Membership-Tiers).
+- **Pattern #38 NEU (Slice 014→199→201b→201d):** Anonymized RLS-Bypass Aggregate-RPC Series — etabliert mit 8 LIVE-RPCs, vollstaendiger Template + Privacy-Garantien + Frontend-Lazy-Load-Pflicht. Kandidaten fuer naechste Aggregate-RPCs aufgelistet.
+- **errors-frontend.md neu:** Pattern "PLAYER_SELECT_COLS Sync mit DbPlayer-Type" (Slice 200, aus 197d Latent-Bug).
+- **decisions.md D48 + D49** dokumentiert.
+
+### Anonymized-Aggregate-RPC-Series (3 NEUE LIVE in 1 Session)
+
+1. `get_player_holders_concentration(player_id)` (Slice 201b) — Sorare Liquid/Iliquid-Indicator
+2. `get_prediction_consensus(fixture, condition, player?)` (Slice 201d) — FPL-style "X% tippte gleich"
+3. (Plus existing 5 RPCs aus 014/195e/199 — siehe patterns.md #38 Tabelle)
+
+### Bonus-Discovery (D49 codifiziert)
+
+`PLAYER_SELECT_COLS` in `src/lib/services/players.ts` hatte `mv_trend_7d` NICHT vor Slice 200 — Slice 197d's Frontend-MV-Trend-Filter las das Feld nie aus DB → 1 Tag Latent-Production-Bug. Slice 200 fixt by-coincidence weil `trades_volume_7d` zur SELECT-Liste hinzugefuegt wurde und `mv_trend_7d` mit. Pattern in `errors-frontend.md` codifiziert + D49 in decisions.md.
+
+### Punch-Liste-Status
+
+| Domain | Total | done | wont-fix | open | deferred |
+|---|---|---|---|---|---|
+| Brand-Coherence | 18 | 15 | 2 | 1 | 0 |
+| UX-States | 27 | 21 | 0 | 6 | 0 |
+| FM-Mechanics | 26 | 25 | 0 | 1 | 0 |
+| Fantasy-Scoring | 27 | 21 | 1 | 5 | 1 |
+| **TOTAL** | **98** | **82** | **3** | **13** | **1** |
+
+### Verbleibende offene Items (alle Backend M-Slice oder Money-Path CEO)
+
+| Item | Aufwand | Block |
+|---|---|---|
+| FM 5.2 Differential-Sentiment ScoutConsensus | M-Backend (research_post-Aggregat) | none |
+| FM 6.2 Trend-Sparkline-Mini-Chart | M-Backend (price_history-Aggregat) | none |
+| FM 10.2 Airdrop Personal-Score-History | M-Backend | none |
+| FM 10.3 Airdrop Friends-Filter | M-Backend social-graph | none |
+| K-03 Squad-Tab Fantasy-Pick-Rate | M-Backend (analog Slice 199 most-owned) | none |
+| F-09 BPS-Bonus-System | **Money-Path** | **CEO-Approval** |
+| UX 20 MembershipSection Confirm | **Money-Path** | **CEO-Approval** |
+| Brand 1, 13 + Fantasy P3-Reste | XS niedrig-priorität | none |
+
+### Naechste Session — Empfehlungen
+
+- **K-03 Squad Fantasy-Pick-Rate** als naechster Slice empfohlen — analog Slice 199 most-owned, kann existing-RPC-Reuse pruefen (D46-Vermeidung). M-Slice ~1.5h.
+- **F-09 + UX 20** brauchen Anil-CEO-Approval (Money-Path: Scoring-Algorithm-Change + Subscribe-Confirm).
+
+### TR-Wording-Review (Anil-Pflicht vor Beta)
+
+Diese Session hat folgende TR-Strings hinzugefuegt — bitte vor Beta-Launch checken:
+
+- **Slice 200:** "Hacim 7g" (Volumen 7d sort)
+- **Slice 201a:** "Oyuncu profilini gör: {name}"
+- **Slice 201b:** "İlk 10 sahip oranı / İlk 10 sahip %{pct}'ini tutuyor / {count} sahip / Dağılım yükleniyor / ICU-plural sahip"
+- **Slice 201c:** "Lineup'unu kur / GW {gw} için lineup'unu kur / Captain bonusu kap (1.1× puan) / Aksiyon / Aksiyonu yap: {title}"
+- **Slice 201d:** "Topluluk konsensüsü ({count} tahmin) / Çoğunlukla aynı tahmin ediyorsun (%{pct}) / Differential tahmin — sadece %{pct} aynı seçti / Az veri: şimdiye kadar sadece {count} tahmin"
+- **Slice 202:** "Tier Karşılaştırması / Üst tier'da ne ekstra alıyorum? / Özellik / Fiyat / Kredi / Geçiş Bonusu / İşlem İndirimi / Limit / Ekstralar / Dahil / Dahil değil"
+
+### Anil-Action-Items (Mensch-only)
+
+- 3 Beta-Tester organisieren (1 TR, 1 FM-Power, 1 Casual)
+- Vercel-Plan-Decision (aktuell Pro live, 13 Crons)
+- TR-Locale-Reviewer organisieren
+- **F-09 BPS-Bonus + UX 20 MembershipSection Approval** — beide Money-Path
+- **Inkognito-Verify** auf bescout.net Manager (Slice 192/193 Holdings) + Transactions Player-Link (Slice 201a) + TransferList Concentration-Bar (Slice 201b expanded) + Predictions Consensus-Hint (Slice 201d)
+
+### Vercel-Cron-Status
+
+13 Crons in vercel.json, alle daily. Kein neuer Cron diese Session ausser Slice 200 `15 4 * * *` (Trade-Volume-7d). Pro-Plan aktiv (Hobby-Limit 2/Tag waere ueberschritten).
+
+### Was lief im Hintergrund
+
+- Bot-Loop letzter Sichtkontakt 2026-04-26 ~12:00, vermutlich seither auto-stopped (4h-Timer)
+
+### Bei /clear oder Token-Limit Resume
+
+1. `worklog/active.md` (idle, naechste Aktion = K-03 Squad Pick-Rate ODER FM 5.2/6.2/10.2/10.3 nach Anil-Wahl)
+2. `worklog/punch-list-2026-04-25.md` (**82/98** closed, Pipeline + Skip-Reasons)
+3. `worklog/log.md` Top 9 Eintraege
+4. `git log --oneline -15`
+5. `git worktree list` (sollte nur main sein)
+6. `memory/decisions.md` D48-D49 + `memory/patterns.md` #37-#38 NEU heute
 
 ## Session-End 2026-04-26 — autonomous run #3 komplett
 
