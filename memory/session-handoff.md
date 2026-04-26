@@ -1,21 +1,174 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 13:20)
+# Session Handoff — Auto (2026-04-26 15:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 6
+## Session Commits: 10
+- de38bfa1 chore(207): active idle nach Slice 207 Commit
+- 7cb58b22 feat(207): Most-Owned Discovery Batch (K-02)
+- 4497e690 docs(audit): 7 audit-stale-row-marker korrigiert (D48 catcher-pattern)
+- 318c6617 chore(205): active idle nach Slice 205 Commit
+- 65bbf3a7 feat(205): ScoutConsensus Reliability-Indicator (FM 5.2)
+- f95484dd chore(204): active idle nach Slice 204 Commit
+- 62b55816 feat(204): Squad-Tab Fantasy-Pick-Rate (K-03)
+- e88644b5 docs(distill): Pattern #38 Anonymized RLS-Bypass Aggregate-RPC Series + Session-End Handoff
 - 7bc42fb9 chore(201d): active idle nach Slice 201d Commit
 - 7254a0bc feat(201d): Prediction-Consensus-Hint (C-03)
-- 1db549a1 chore(201c): active idle nach Slice 201c Commit
-- b333dd7f feat(201c): Fantasy-Context-Hints (M-01)
-- 1541b20a chore(201b): active idle nach Slice 201b Commit
-- 11da508d feat(201b): Holders-Distribution-Mini-Bar (FM-4.3)
 
 <!-- auto:handoff-end -->
 
 ---
+
+# Resume-Anker (2026-04-26 Late-Continuation Session — 3 Slices + Audit-Cleanup)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — aktueller Slice-State (idle, **85/98 closed ~87%**)
+2. `worklog/punch-list-2026-04-25.md` — Master-Liste 98 Findings
+3. Diese Datei (Resume-Anker, Top-Block ist heute)
+4. `worklog/log.md` Top 4 Eintraege (207, 205, 204, 203)
+5. `git log --oneline -10` — `de38bfa1` chore active idle nach 207 ist HEAD
+6. `git worktree list` (sollte nur main sein, kein agent-Worktree mehr)
+
+## Session-End 2026-04-26 Late — 3 echte Slices + 1 Audit-Cleanup (CTO-only nach /clear)
+
+**Anil hat /clear gemacht und mit "weiter im handoff mit voller disziplin" gestartet. CTO hat 3 echte Slices durchgezogen + 1 Worktree-Heal + 1 Audit-Cleanup. Punch-Liste 82/98 → 85/98 (~87%).**
+
+### Pipeline-Status (alle 4 Commits gepusht)
+
+| Commit | Slice | Punch-List-Items | Pattern |
+|---|---|---|---|
+| `62b55816` feat | **204 K-03** Squad-Tab Pick-Rate | +1 (K-03) | D46-Reuse `useEventPlayerPickRates` (Slice 195e) |
+| `65bbf3a7` feat | **205 FM 5.2** ScoutConsensus Reliability | +1 (FM 5.2) | D46 reuse research-data, Tier-Color Pattern Slice 201b |
+| `4497e690` docs | **206 Audit-Cleanup** | +0 (7 Marker-Korrekturen) | D48-Pattern (F-12/F-13/C-01/C-02/C-04/C-05/R-04 stale-marked) |
+| `7cb58b22` feat | **207 K-02** Most-Owned Discovery Batch | +1 (K-02) | Anonymized-Aggregate-Series #4 Pattern #38 |
+
+### Slice 207 Highlights (Worktree-Heal-Story)
+
+**Worktree-Agent-Failure-Pattern** — 3 separate Probleme aufgefangen:
+1. Agent claimed completion, aber escaped Worktree-Isolation → schrieb Files in Main-Repo statt Worktree (absolut-Paths statt relative). CTO konsolidiert.
+2. Migration semantisch falsch v1 (CTO club-max-relative) → v2 (Agent's total_managers_of_club, FPL-semantic "X% der Manager besitzen Y") via apply_migration drueber-applied. v2 LIVE.
+3. Service-Duplicate (CTO + Agent beide getMostOwnedPlayersPerClubBatch) → CTO loescht eigene Variante, Agent's bleibt (gruendlicher inkl. defensive filter).
+
+**Reviewer PASS** post-Heal: 12/12 Punch-List checks, 2 NITs nicht-blockierend, 11/11 vitest, db-smoke real Pcts (Tiren 76.92%, Akgün/Tozlu 29.41%, Aksu 28%).
+
+### CRITICAL Knowledge-Capture-Drafts (Reviewer-empfohlen)
+
+3 NEUE Pattern-Drafts in `memory/learnings/drafts/` schreiben (TBD, vor Promote zu rules):
+
+1. **Worktree-Isolation-Escape (PROCESS, CRITICAL):** Worktree-Agents muessen ABSOLUT relative Paths nutzen. Bei absolut-Paths schreiben Files in Main-Repo ohne Merge-Konflikt. Bei parallel-dispatch (D46) doppelt gefaehrlich. Action: `/parallel-dispatch` Skill ergaenzen.
+
+2. **Pre-Review-Memo Pattern (PROCESS):** Agent schreibt vor Reviewer-Dispatch ein `worklog/reviews/<slice>-pre-review.md` mit Self-Audit gegen Punch-List + Audit-Commands + Open-Blocks. Reduziert Reviewer-Arbeit ~60%. Action: workflow.md REVIEW-Stage Best-Practice nach 2. Reproduktion.
+
+3. **Migration-Heal v1→v2 Same-Session (PROCESS):** Wenn CTO-Migration semantisch falsch, v2-Migration mit gleichem Filename (timestamp +5min) via `apply_migration` drueber-schreiben (CREATE OR REPLACE idempotent). DB-Smoke gegen v2 als Single-Source-of-Truth. Action: errors-db.md Pattern.
+
+### Anonymized-Aggregate-RPC-Series (jetzt 8 LIVE-RPCs)
+
+Pattern #38 in patterns.md verstaerkt:
+
+| RPC | Slice | Caller |
+|---|---|---|
+| Foundation (RLS-bypass) | 014 | — |
+| event_captain_distribution + event_player_pick_rates | 195e | Differentials |
+| top_predictors_leaderboard | 199 | PredictionsTab |
+| most_owned_players_per_club | 199 | TransferList + MostOwnedSection |
+| event_difficulty_score | 199 | EventSelector |
+| holders_concentration | 201b | TransferList |
+| prediction_consensus | 201d | CreatePredictionModal |
+| **most_owned_players_per_club_batch** | **207** | **clubs/page Discovery** |
+
+### Punch-Liste-Status (post-Slice-207 + Audit-Cleanup)
+
+| Domain | Total | done | wont-fix | open | deferred |
+|---|---|---|---|---|---|
+| Brand-Coherence | 18 | 15 | 2 | 1 | 0 |
+| UX-States | 27 | 21 | 0 | 6 | 0 |
+| FM-Mechanics | 26 | 26 | 0 | 0 | 0 |
+| Fantasy-Scoring | 27 | 23 | 1 | 3 | 1 |
+| **TOTAL** | **98** | **85** | **3** | **10** | **1** |
+
+**FM-Mechanics-Domain ist jetzt 26/26 = 100% closed.**
+
+### Verbleibende offene Items (10)
+
+| Item | Aufwand | Block |
+|---|---|---|
+| FM 6.2 Trend-Sparkline-Mini-Chart | M-Backend (price_history-Aggregat) | none |
+| FM 10.2 Airdrop Personal-Score-History | M-Backend | none |
+| FM 10.3 Airdrop Friends-Filter | M-Backend social-graph | none |
+| F-09 BPS-Bonus-System | **Money-Path** Scoring-Algorithm | **CEO** |
+| UX 20 MembershipSection Confirm | **Money-Path** Subscribe | **CEO** |
+| UX 6/7/8/11/14/19/22 (5 P1/P2 Reste) | XS bis M | none |
+| Brand 1, 13 (P3 Reste) | XS niedrig-Prio | none |
+
+### Naechste Session — Empfehlungen
+
+**EMPFOHLEN: FM 6.2 Trend-Sparkline-Mini-Chart als Self-Build (NICHT Worktree-Agent).**
+
+Begruendung:
+- Single-Domain (Backend price_history-Aggregat + 1 Frontend Mini-Chart Component)
+- Bewährter Pattern Slice 204/205 (Self-Build + Reviewer Cold-Context)
+- Slice 207 Worktree-Agent-Erfahrung zeigt: ohne mcp-Tools im Worktree = nur Halbprodukt + Heal-Overhead
+- Reviewer-Agent als Cold-Context-Check pflicht (D48 Audit-Stale-Catcher zahlte sich in 204 aus)
+
+**ALTERNATIVE Slice-Optionen (falls Anil priorisieren will):**
+- UX-Reste batch (UX 11/14/19) als Mini-Polish-Slice ~30min
+- F-09 oder UX 20 nach CEO-Approval (Money-Path)
+
+**NICHT empfohlen ohne Skill-Update:** Worktree-Agent fuer M-Backend bis `/parallel-dispatch` Skill ergaenzt ist mit "ABSOLUT relative Paths"-Briefing.
+
+### TR-Wording-Review (Anil-Pflicht vor Beta — neue diese Session)
+
+- **Slice 204 (K-03):** "%{pct}" / "Yöneticilerin %{pct}'i bu oyuncuyu seçti"
+- **Slice 205 (FM 5.2):** "Az veri / Orta veri / Sağlam veri" + "Güvenilirlik: {tier} ({count} rapor)"
+- **Slice 207 (K-02):** "{name} oyuncusunda %{pct} koleksiyoncu" / "Yöneticilerin %{pct} kadarı {name} oyuncusunu topluyor"
+
+Alle business.md-compliant ("koleksiyoncu" / "topluyor", kein "yatırımcı"/"kazanmak").
+
+### Anil-Action-Items (Mensch-only)
+
+- 3 Beta-Tester organisieren (1 TR, 1 FM-Power, 1 Casual)
+- Vercel-Plan-Decision (aktuell Pro live, 13 Crons)
+- TR-Locale-Reviewer organisieren
+- **F-09 BPS-Bonus + UX 20 MembershipSection Confirm** — beide Money-Path CEO-Approval
+- **Inkognito-Verify** auf bescout.net:
+  - Manager-Holdings (Slice 192/193)
+  - Transactions Player-Link (Slice 201a)
+  - TransferList Concentration-Bar (Slice 201b)
+  - Predictions Consensus-Hint (Slice 201d)
+  - **NEU Squad-Tab Pick-Rate (Slice 204) auf /club/<slug>**
+  - **NEU ScoutConsensus Reliability-Tier auf Player-Detail Trading-Tab (Slice 205)**
+  - **NEU Most-Owned Hint auf /clubs Discovery (Slice 207)**
+
+### Session-End Cleanup
+
+- worktree list: nur main (agent-a9d79b314a5c5a7e7 ref-pruned, dir bleibt physisch wegen file-locks aber kein worktree-eintrag)
+- HEAD: `de38bfa1` chore(207) active idle
+- Punch-Liste-Aggregat-Drift war pre-Session schon vorhanden (audit-stale-rows in Fantasy 21/27 vs row-markers ~14 done) — durch Slice 206 docs(audit) korrigiert.
+
+### Was nicht passiert ist (intentional)
+
+- KEINE neue Slices nach 207 (CTO-Empfehlung "STOP fuer saubere Arbeit" — Anil approved mit "1")
+- KEINE pattern.md-Updates (3 Drafts oben sind TBD fuer naechste Session)
+- KEINE workflow.md / parallel-dispatch.md Updates (nach 2. Reproduktion erst)
+- KEIN distill-Commit fuer diese Session — nicht noetig, alles in worklog/log.md + handoff dokumentiert
+
+### Bei /clear oder Token-Limit Resume-Pfad
+
+1. `worklog/active.md` (idle, naechste Aktion = FM 6.2 Self-Build)
+2. `worklog/punch-list-2026-04-25.md` (**85/98** closed, Pipeline)
+3. Diese Datei Top-Block (Resume-Anker)
+4. `worklog/log.md` Top 4 Eintraege (207, 205, 204, 203)
+5. `git log --oneline -10` — `de38bfa1` HEAD
+6. `git worktree list` (sollte nur main sein)
+
+---
+
+# Vorherige Sessions (archiviert)
 
 # Resume-Anker (2026-04-26 autonomous run #4 — Rekord-Output 9 Slices + 2 DISTILL)
 
