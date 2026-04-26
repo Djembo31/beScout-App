@@ -96,6 +96,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-context7-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-phase-gate.sh"
           }
         ]
       }

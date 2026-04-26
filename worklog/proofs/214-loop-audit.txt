@@ -1,0 +1,53 @@
+Slice 214 — Auto-Beta-Ready Loop Self-Verification
+====================================================
+
+AC-01 Phase-Tracker existiert:
+-rw-r--r-- 1 Anil 197121 2565 Apr 26 19:10 worklog/beta-phase.md
+
+AC-02 Hook syntax + executable:
+Syntax OK
+-rwxr-xr-x 1 Anil 197121 4309 Apr 26 19:07 .claude/hooks/ship-phase-gate.sh
+
+AC-03 Hook WARN bei beta+fertig:
+SHIP-PHASE-GATE-WARN (Slice 214 D50 Wave 2):
+
+  Prompt-Phrase erkannt die Beta-Launch-Claim impliziert.
+
+AC-04 Hook silent bei legitim:
+Exit: 0
+
+AC-05 Hook in settings.json (UserPromptSubmit):
+102:            "command": "bash C:/bescout-app/.claude/hooks/ship-phase-gate.sh"
+
+AC-06 Pipeline tsc:
+OK
+
+AC-07 Pipeline dry-run:
+  214-derived-p1-fm-001.md (S, P1, domain=fm, 1 findings)
+  214-derived-p1-ux-002.md (S, P1, domain=ux, 1 findings)
+  214-derived-p2p3-bundle.md (S, P2, domain=multi, 3 findings)
+
+[findings-to-slices] DRY-RUN — keine Files geschrieben.
+
+AC-08 Skill existiert:
+-rw-r--r-- 1 Anil 197121 5692 Apr 26 19:12 .claude/skills/auto-beta-ready/SKILL.md
+
+AC-09 CLAUDE.md Fertig-Definition:
+43:**Beta-READY (Slice 214 D50 Wave 2):**
+46:- READY = `last_signoff == PASS` UND `findings_open.P0 == 0` UND `findings_open.P1 ≤ akzeptabel`.
+
+AC-10 workflow.md Phase D:
+20:- Per-Release: `worklog/beta-phase.md` (phase A/B/C/D/READY + last_signoff + findings_open).
+21:- "Beta-fertig" / "launch-ready" sind nur erlaubt wenn `worklog/beta-phase.md.last_signoff == PASS`. Hook `ship-phase-gate.sh` warnt sonst.
+22:- Master-Orchestrator: `/auto-beta-ready` Skill.
+
+AC-11 Pipeline-Apply (Slice-Stubs generiert):
+worklog/specs/214-derived-p1-fm-001.md
+worklog/specs/214-derived-p1-ux-002.md
+worklog/specs/214-derived-p2p3-bundle.md
+
+AC-12 Existing Hooks regression:
+ship-spec-gate Exit: 0
+ship-spec-quality-gate Exit: 0
+
+==== ALL ACs CHECKED ====

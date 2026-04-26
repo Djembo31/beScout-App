@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 214
+stage: PROVE
+spec: worklog/specs/214-auto-beta-ready-loop.md
+impact: skipped (Master-Skill + Hook + Phase-Tracker + Pipeline-Script — kein DB/RPC/Service)
+proof: worklog/proofs/214-loop-audit.txt
+review: worklog/reviews/214-review.md
 ```
 
 ## Zuletzt

@@ -11,6 +11,41 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 214 | 2026-04-26 | Auto-Beta-Ready Self-Healing-Loop (Phase-Tracker + Hook + Pipeline + Master-Skill)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
+- **Größe:** L (Meta-Process, CEO-approved durch Anil-Direktive 2026-04-26)
+- **Anil-Direktive:** "ich höre jedesmal fertig, aber dem ist nicht so... das System soll sich selbst heilen, autonom"
+- **Files (5 NEU + 2 EDIT):**
+  - `worklog/beta-phase.md` — NEU. Phase-Tracker SoT (phase A/B/C/D/READY + last_signoff + findings_open).
+  - `.claude/hooks/ship-phase-gate.sh` — NEU. UserPromptSubmit-WARN-Hook bei "fertig"+"beta"-Match ohne Sign-Off-PASS. Whitelist-Filter für legitime "Slice fertig"-Statements.
+  - `.claude/settings.json` — EDIT. Hook in UserPromptSubmit-Block registriert.
+  - `scripts/findings-to-slices.ts` — NEU. Pipeline parsed Audit-Findings-Tabellen → generiert Slice-Stubs in worklog/specs/214-derived-*.md mit Auto-AC-Skeleton.
+  - `.claude/skills/auto-beta-ready/SKILL.md` — NEU. Master-Orchestrator-Skill mit Sub-Commands `start`, `status`, `signoff`.
+  - `CLAUDE.md` — EDIT. "Top Rules" Block "Beta-READY (Slice 214 D50 Wave 2)" mit Hard-Definition.
+  - `.claude/rules/workflow.md` — EDIT. Per-Release-Phase-Tracker-Verweis im SHIP-Loop-Header.
+- **Live-Test:** 7 Background-Agents (3 Persona-Walker + 4 Audit-Experts) gestartet parallel zu Slice-Implementation. Findings aus Notifications manuell aggregiert in `worklog/audits/2026-04-26/aggregate.md` (Background-Agent-Output-Persistenz-Lücke ehrlich dokumentiert — Workflow-Learning für Slice 215+).
+- **Pipeline-Output:** 7 Findings parsed (5 valid + 2 incomplete + 1 stale-skipped post-Heal) → 3 Slice-Stubs auto-generiert: `214-derived-p1-fm-001.md` (FM-NEU-1 Slice 204 Regression), `214-derived-p1-ux-002.md` (UX-NEU-1 FeedbackModal preventClose), `214-derived-p2p3-bundle.md` (TR + Fantasy P2 bundle).
+- **Reviewer (CONCERNS → PASS post-Heal):** 3 HIGH (Hook-Doku-Drift, Stub-Title `-1`, Stub-AC ohne Issue-Use), 2 MED (stale-Detection nur id, JSON greedy-`.*`), 4 LOW/INFO als Backlog. Alle ≥MED inline-gehealt. Empirische Anwendbarkeit verifiziert: hätte heute Morgen "Tech ready für Beta" geWARNT, hätte legitime "Slice 214 fertig committed" silent gelassen.
+- **Phase-C-Findings (Live-Stand):** P0=0, P1=2, P2=2, P3=1, incomplete-reruns=2.
+  - **FM-NEU-1 P1:** PickRateBadge nur in cards-View, NICHT in compact-View → Slice 204 Regression auf `ClubContent.tsx:602/610`.
+  - **UX-NEU-1 P1:** FeedbackModal preventClose missing.
+  - **TR-NEU-1 P2:** event_winnerDesc Drift in messages/tr.json.
+  - **FANTASY-NEU-1 P2:** FPL 60-min-Rule fehlt im Auto-Sub.
+  - **BRAND-NEU-1 P3:** Top-Movers Token-Drift (text-green-500/text-red-400) — pre-existing, audit-stale-skipped post-Heal.
+  - **Incomplete-Reruns:** Persona-K Casual (BuyConfirmModal-Walk mid-investigation) + FM-Mechanics-Bericht (Agent endete mit "Let me write the report" — nie geschrieben). → Slice 216 Re-Run pflicht mit verbessertem Briefing-Pattern.
+- **Proof:** `worklog/proofs/214-loop-audit.txt` (12/12 ACs grün + 3-Hook-Smoke-Test inkl. Multi-Field-JSON post-Heal).
+- **Wave-2-Foundation operationalisiert:** Slice 211 dokumentierte Spec-Standard, Slice 212 enforced via Hook, Slice 213 testete Foundation live. **Slice 214 erweitert auf Beta-Phase-Level** — Per-Release-Phase-Tracker + Hook + Skill-Master-Orchestrator. Self-Walking-the-Talk: Slice 214 selbst kann nicht "fertig" sein ohne `/auto-beta-ready signoff` PASS — Phase=C, Sign-Off=never, deshalb commit als feat-Slice mit klarem "Foundation done, Slice 215+ heilt Phase-C-Findings".
+- **Wave 2 Backlog (Slice 215+):**
+  - Heal Phase-C-Findings (3 generierte Stubs als Wave-Plan)
+  - Re-Run incomplete Persona-K + FM-Mechanics mit verbessertem Briefing-Pattern ("FIRST write file, THEN summarize")
+  - Phase-D Sign-Off-Trial-Run
+  - Hook schärfere Trigger ODER active.md-Stage-Sync
+  - Pipeline P2/P3 per-domain-bundle bei größeren Mengen
+- **Commit:** (pending)
+
+---
+
 ## 213 | 2026-04-26 | QuickActionPills Component-Extract (Brand 1 P3)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG

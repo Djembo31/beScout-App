@@ -15,6 +15,12 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 
 **REVIEW** ist Pflicht nach BUILD bei feat/fix/refactor-Slices. Cold-Context-Reviewer-Agent fängt Blindspots die Primary-Claude nicht sieht (Self-Assessment-Gap 2026-04-22). Hook `ship-cto-review-gate` blockt Commits ohne `worklog/reviews/<slice>-review.md`.
 
+**Beta-READY-Phase (Slice 214 D50 Wave 2):** SHIP-Loop ist Per-Slice. Beta-Launch-READY ist Per-Release. Beide haben separate Phase-Tracker:
+- Per-Slice: `worklog/active.md` (status/stage/spec/proof/review).
+- Per-Release: `worklog/beta-phase.md` (phase A/B/C/D/READY + last_signoff + findings_open).
+- "Beta-fertig" / "launch-ready" sind nur erlaubt wenn `worklog/beta-phase.md.last_signoff == PASS`. Hook `ship-phase-gate.sh` warnt sonst.
+- Master-Orchestrator: `/auto-beta-ready` Skill.
+
 **DISTILL** ist kein Slice-Stage, sondern ein **Session-End-Protokoll** — siehe Section am Ende.
 
 ## Stufen im Detail

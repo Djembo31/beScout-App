@@ -40,6 +40,14 @@ Next.js 14 App Router | TypeScript strict | Tailwind (Dark Mode) | Supabase (PG 
 
 ## Top Rules (Pre-Edit)
 
+**Beta-READY (Slice 214 D50 Wave 2):**
+- "Beta-fertig" / "launch-ready" / "go-live" sind Behauptungen, KEINE Wahrheiten.
+- Wahrheit liegt in `worklog/beta-phase.md` — Phase-Tracker ist Single-Source-of-Truth.
+- READY = `last_signoff == PASS` UND `findings_open.P0 == 0` UND `findings_open.P1 ≤ akzeptabel`.
+- Kein "fertig" sagen ohne `/auto-beta-ready signoff` PASS.
+- Hook `ship-phase-gate.sh` warnt automatisch bei "fertig"-Behauptung ohne PASS.
+- Phase-Tracker hat Phasen A (Audit) → B (Polish) → C (Persona-Walk) → D (Sign-Off) → READY.
+
 **RPC/Migration:**
 - NULL-in-Scalar: `COALESCE` auf Variable, nicht im Scalar-Subquery
 - CHECK constraints: Column-Werte gegen `database.md` verifizieren
