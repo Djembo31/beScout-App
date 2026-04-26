@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 205
-stage: LOG
-spec: worklog/specs/205-scout-consensus-reliability.md
-impact: skipped (pure frontend, additive UI on existing data, no new RPC)
-proof: worklog/proofs/205-tsc-clean-diff.txt
-review: worklog/reviews/205-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
