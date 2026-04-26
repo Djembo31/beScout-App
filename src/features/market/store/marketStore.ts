@@ -3,7 +3,8 @@ import type { Pos } from '@/types';
 import type { MvTrendValue } from '@/lib/filters/mvTrendFilter';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
-  | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
+  | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract'
+  | 'volume_desc';
 export type MarketTab = 'portfolio' | 'marktplatz';
 export type PortfolioSubTab = 'bestand' | 'angebote';
 export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending' | 'watchlist';

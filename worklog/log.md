@@ -11,6 +11,91 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 200 | 2026-04-26 | Trades-Volume-7d Backend + Sort-UI (FM-4.4)
+
+M-Slice manuell vom CTO unter voller Autonomie (vom Anil 2026-04-26 erteilt). Backend-Schema-Add + Cron + Frontend Sort-Pill. Pattern Blueprint Slice 197d MV-Trend exakt nachgezogen. Punch-Liste: 77/98 → **78/98 closed (~80%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/200-trades-volume-7d.md) → IMPACT inline (additive Schema-Add, Pattern 197d) → BUILD → REVIEW (Cold-Context-Reviewer verdict PASS, 5 NIT/INFO findings, kein REWORK) → PROVE (Migration LIVE applied + Initial-Backfill verifiziert + tsc clean + next build OK) → LOG
+
+### Items closed (1 + 1 latent-bug-fix-by-coincidence)
+
+- **FM 4.4** Sortier nach Trade-Volume-7d auf /market — additive Schema-Column + daily Cron + Frontend SortOption + i18n DE+TR
+- **Bonus-Fix Slice 197d Latent-Bug:** `PLAYER_SELECT_COLS` enthielt `mv_trend_7d` NICHT vor Slice 200 — Slice 197d's Frontend-MV-Trend-Filter las das Feld nie aus DB → 1 Tag Production-Drift (alle Players hatten `mvTrend7d=null` in der UI). Slice 200 fixt by-coincidence.
+
+### Backend-Architektur (Pattern Slice 197d)
+
+**Migration `20260426220000_slice_200_trades_volume_7d.sql` (LIVE applied):**
+- `ALTER TABLE players ADD COLUMN trades_volume_7d BIGINT NULL`
+- RPC `cron_calculate_trade_volume_7d()` SECURITY DEFINER STABLE
+  - COUNT(*) FROM trades GROUP BY player_id WHERE executed_at > NOW() - 7d
+  - UPDATE players idempotent (`IS DISTINCT FROM`)
+  - Discriminated-Union Return: `{success, updated_count, zero_count, window_days, date}`
+- AR-44 REVOKE/GRANT komplett
+
+**Cron-Route `/api/cron/calculate-trade-volume-7d/route.ts` NEU:**
+- CRON_SECRET Bearer-Auth
+- supabaseAdmin.rpc-Call
+- cron_sync_log.insert (best-effort)
+- Pattern identisch zu calculate-mv-trends/route.ts
+
+**vercel.json:** +1 Cron `15 4 * * *` daily (Pro-Plan, Hobby-Limit ueberschritten)
+
+### Frontend-Integration
+
+- `src/types/index.ts`: DbPlayer.trades_volume_7d + Player.tradesVolume7d
+- `src/lib/services/players.ts`: PLAYER_SELECT_COLS um `trades_volume_7d` UND `mv_trend_7d` erweitert (latent-bug-fix), dbToPlayer-Mapper update
+- `src/features/market/store/marketStore.ts`: SortOption + 'volume_desc'
+- `src/features/market/components/shared/MarketFilters.tsx`: SORT_KEYS Eintrag + applySorting case `(b.tradesVolume7d ?? 0) - (a.tradesVolume7d ?? 0)`
+- `messages/de.json`: market.sortVolume = "Volumen 7d"
+- `messages/tr.json`: market.sortVolume = "Hacim 7g"
+
+### DB-State Verify
+
+```
+total_players: 4556
+players_with_volume: 4556 (100%)
+players_with_trades: 10 (Bot-Loop)
+max_volume: 53
+avg_volume: 0
+```
+
+### Knowledge-Capture
+
+- `errors-frontend.md` neuer Pattern "PLAYER_SELECT_COLS Sync mit DbPlayer-Type" (Slice 200, aus 197d Latent-Bug). Pflicht-Regel + Audit-Command.
+
+### Files modified
+
+```
+supabase/migrations/20260426220000_slice_200_trades_volume_7d.sql       | 91 +++ (NEW)
+src/app/api/cron/calculate-trade-volume-7d/route.ts                     | 90 +++ (NEW)
+vercel.json                                                              |  3 +-
+src/types/index.ts                                                       |  8 +-
+src/lib/services/players.ts                                              |  6 +-
+src/features/market/store/marketStore.ts                                 |  3 +-
+src/features/market/components/shared/MarketFilters.tsx                  |  4 +-
+messages/de.json                                                         |  1 +
+messages/tr.json                                                         |  1 +
+.claude/rules/errors-frontend.md                                         | 14 ++
+worklog/specs/200-trades-volume-7d.md                                    | 75 +++ (NEW)
+worklog/proofs/200-tsc-mig-cron.txt                                      | 100 +++ (NEW)
+worklog/reviews/200-review.md                                            | 75 +++ (NEW)
+worklog/active.md                                                        | 14 +-
+```
+
+### Proof
+- `worklog/proofs/200-tsc-mig-cron.txt` — tsc clean + Migration LIVE + Backfill 4556/4556 + DB-State + i18n verifiziert
+- Reviewer: `worklog/reviews/200-review.md` (verdict PASS, 5 NIT/INFO, kein REWORK)
+- next build EXIT=0
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+CTO unter voller Autonomie, weil Anil 2026-04-26 explizit "treffe die passenden, bescout-optimierten, entscheidungen" + "alles autonom fertig" erteilt hat. Schema-Change ist Borderline-CEO-Scope (additive auf existing Table) — Anil's Autorisierung deckt es ab. Money-Path-clean (kein Wallet/Fee/Trade-Field-Edit, nur new persistent-aggregate-column). Pattern 197d-Konsistenz 100%. Knowledge-Capture-Bonus: Slice 197d hatte 1-Tag Production-Drift (mv_trend_7d nie aus DB geladen) — Slice 200 fixt by-coincidence + dokumentiert Pattern.
+
+---
+
 ## 203 | 2026-04-26 | XS-Mini-Polish + DISTILL Slice 202 (Brand 10 + UX 12 audit-stale)
 
 XS-Slice manuell vom CTO. 1 Frontend-Item closed (Brand 10) + 1 Audit-Stale-Marker (UX 12) + DISTILL Slice 202 (Pattern #37 + D48-Update + foundingPasses.ts inline-comment). Punch-Liste: 75/98 → **77/98 closed (~79%)**.

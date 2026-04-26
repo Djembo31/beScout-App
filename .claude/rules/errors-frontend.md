@@ -168,3 +168,15 @@ Historischer Pattern (Slice 151c.2 inline-60s) — jetzt via generic Slice 178a-
   const count = useCountUp(stable, 600);
   ```
 - Audit: `grep -rn 'useCountUp(' src/ | grep -v useDeferredValue`.
+
+### PLAYER_SELECT_COLS Sync mit DbPlayer-Type (Slice 200, aus 197d Production-Drift)
+- `src/lib/services/players.ts` exportiert `PLAYER_SELECT_COLS` Konstante mit explicit-listed columns für `.select()`-Calls. Diese Liste MUSS mit `DbPlayer`-Type in `src/types/index.ts` synchron sein.
+- Symptom (Slice 197d → 200 Discovery): `mv_trend_7d` Column in DB existing + DbPlayer-Type erweitert + dbToPlayer-Mapper liest `db.mv_trend_7d ?? null`, **aber PLAYER_SELECT_COLS nie aktualisiert** → PostgREST sendet die Spalte nicht zurück → mvTrend7d immer `null` für alle Players → Frontend MV-Trend-Filter rendert nie Pfeile, der ganze Slice 197d war 1 Tag latent broken in Production.
+- TS-Cast lügt (kein Compile-Error): Spread `...db` filtert nur was inkommt. NULL-Mapping verschleiert Bug.
+- **Pflicht-Regel:** Bei JEDEM `ALTER TABLE players ADD COLUMN <X>`:
+  1. DbPlayer-Type ergänzen
+  2. dbToPlayer-Mapper ergänzen
+  3. `PLAYER_SELECT_COLS` ergänzen ← oft vergessen
+  4. Frontend-Tests gegen echte DB-Response (kein Mock-only)
+- Audit: `grep -E "db\.[a-z_]+" src/lib/services/players.ts | sed 's/.*db\.//; s/[^a-z_].*//' | sort -u` → jeden Wert gegen PLAYER_SELECT_COLS-Liste pruefen.
+- Reference: Slice 200 Reviewer-Find Bonus-Observation. Pattern gilt analog für andere `*_SELECT_COLS`-Konstanten (CLUB_SELECT_COLS etc.).

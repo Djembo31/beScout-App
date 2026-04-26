@@ -1,0 +1,109 @@
+Slice 200 — Trades-Volume-7d Backend + Sort-UI Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Migration LIVE applied
+================================================================
+$ mcp__supabase__apply_migration name=slice_200_trades_volume_7d
+{"success":true}
+
+DDL applied:
+- ALTER TABLE players ADD COLUMN trades_volume_7d BIGINT NULL
+- CREATE OR REPLACE FUNCTION public.cron_calculate_trade_volume_7d()
+  SECURITY DEFINER STABLE LANGUAGE plpgsql
+  Returns: discriminated-union {success, updated_count, zero_count, window_days, date}
+- AR-44 REVOKE/GRANT (PUBLIC + anon + authenticated revoked)
+- COMMENT ON COLUMN + FUNCTION
+
+================================================================
+3. Initial Backfill via execute_sql
+================================================================
+$ SELECT public.cron_calculate_trade_volume_7d();
+{"date":"2026-04-26","success":true,"zero_count":4546,"window_days":7,"updated_count":4556}
+
+PASS: 4556 players initialisiert, 10 mit Trades in 7d (Bot-Loop), 4546 mit zero.
+
+================================================================
+4. DB-State Verify
+================================================================
+$ SELECT COUNT(*) AS total, COUNT(trades_volume_7d) AS with_value,
+         COUNT(*) FILTER (WHERE trades_volume_7d > 0) AS with_trades,
+         MAX(trades_volume_7d) AS max_vol, AVG(trades_volume_7d)::INTEGER AS avg_vol
+  FROM public.players;
+{"total_players":4556, "players_with_volume":4556, "players_with_trades":10, "max_volume":53, "avg_volume":0}
+
+PASS: Vollständige Initialisierung. Sort wird funktionieren — top 10 mit volume_desc kommen zuerst.
+
+================================================================
+5. Frontend
+================================================================
+$ grep -n "volume_desc\|sortVolume" src/features/market/components/shared/MarketFilters.tsx
+21: { value: 'volume_desc', labelKey: 'sortVolume', fallback: 'Volumen 7d' },
+52: case 'volume_desc': return (b.tradesVolume7d ?? 0) - (a.tradesVolume7d ?? 0);
+
+$ grep -n "volume_desc" src/features/market/store/marketStore.ts
+6: ... | 'volume_desc';
+
+$ grep -n "tradesVolume7d" src/types/index.ts src/lib/services/players.ts
+src/types/index.ts:90: tradesVolume7d?: number | null;
+src/types/index.ts:553: trades_volume_7d?: number | null;
+src/lib/services/players.ts:23: ... 'mv_trend_7d', 'trades_volume_7d', ...
+src/lib/services/players.ts:189: tradesVolume7d: db.trades_volume_7d ?? null,
+
+PASS: Sort-Option, Mapper, Type-Truth aligned.
+
+================================================================
+6. i18n DE+TR symmetrisch
+================================================================
+$ grep -n "sortVolume" messages/de.json messages/tr.json
+messages/de.json:1450: "sortVolume": "Volumen 7d",
+messages/tr.json:1446: "sortVolume": "Hacim 7g",
+
+PASS: Beide Locales präsent.
+
+================================================================
+7. Cron Route + vercel.json
+================================================================
+$ ls src/app/api/cron/calculate-trade-volume-7d/
+route.ts (NEW, 90 LOC, CRON_SECRET Bearer + supabaseAdmin.rpc + cron_sync_log)
+
+$ grep -n "calculate-trade-volume-7d" vercel.json
+22: { "path": "/api/cron/calculate-trade-volume-7d", "schedule": "15 4 * * *" }
+
+PASS: Cron daily 4:15 UTC. Hobby-kompatibel? Aktuell 13 Crons total — Pro-Plan aktiv (Hobby-Limit 2/Tag).
+
+================================================================
+8. PLAYER_SELECT_COLS Fix (Bonus, vorher mv_trend_7d auch fehlend)
+================================================================
+$ grep -A1 "PLAYER_SELECT_COLS = \[" src/lib/services/players.ts
+'status', 'market_value_eur', 'mv_trend_7d', 'trades_volume_7d',
+'success_fee_cap_cents', 'max_supply',
+
+PASS: PLAYER_SELECT_COLS hatte mv_trend_7d nicht (Bug aus Slice 197d, latent). Slice 200 hat beides ergänzt — ab nächstem Reload zeigt MV-Trend Pfeil korrekt für API-route-loaded Players.
+
+================================================================
+9. Files Modified
+================================================================
+$ git diff --stat HEAD
+supabase/migrations/20260426220000_slice_200_trades_volume_7d.sql       | 91 +++ (NEW)
+src/app/api/cron/calculate-trade-volume-7d/route.ts                     | 90 +++ (NEW)
+vercel.json                                                              | 3 +-
+src/types/index.ts                                                       | 8 +-
+src/lib/services/players.ts                                              | 6 +-
+src/features/market/store/marketStore.ts                                 | 3 +-
+src/features/market/components/shared/MarketFilters.tsx                  | 4 +-
+messages/de.json                                                         | 1 +
+messages/tr.json                                                         | 1 +
+worklog/specs/200-trades-volume-7d.md                                    | 75 +++ (NEW)
+worklog/proofs/200-tsc-mig-cron.txt                                      | 100 +++ (NEW)
+worklog/active.md                                                        | 14 +-
+worklog/log.md                                                           | (this entry)
+
+Total: 9 source + 4 worklog (3 NEU)

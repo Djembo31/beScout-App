@@ -1,11 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 02:47)
+# Session Handoff — Auto (2026-04-26 02:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 0f8d3c4e chore(203): active idle nach Slice 203 Commit
+- aca2f2c4 feat(203): XS-Mini-Polish + DISTILL Slice 202 — Brand 10 + UX 12 audit-stale
 - 7a6de52a chore(202): active idle nach Slice 202 Commit
 - ab5d411c feat(202): Wave 5 Polish-Sweep — 3 Frontend-only Items + Punch-Liste-Sync
 - 05c8d5e5 chore(hygiene): commit handoff + audit + gitignore .claude/state/
@@ -14,8 +16,6 @@
 - ecf34c5f feat(200b): Wave 4 Polish-Sweep — 3 closed + 1 already-fixed-marker
 - 0ea24695 chore(200a): active idle nach Slice 200a Commit
 - d7c846b5 feat(200a): Wave 3 Polish-Sweep — 4 closed + 1 already-fixed-marker
-- d0ebb70e docs(distill): D45-D47 + Service-Duplicate Pattern + audit-baseline 2026-04-26
-- 132e1bcd feat(199): heal Service-Duplicate + LOG + Reviewer PASS — punch-list 59->63/98 (~64%)
 
 <!-- auto:handoff-end -->
 

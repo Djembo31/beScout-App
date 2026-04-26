@@ -19,6 +19,7 @@ const SORT_KEYS: { value: SortOption; labelKey: string; fallback: string }[] = [
   { value: 'l5', labelKey: 'literal', fallback: 'L5 Score' },
   { value: 'floor_asc', labelKey: 'sortPriceAsc', fallback: 'Preis ↑' },
   { value: 'floor_desc', labelKey: 'sortPriceDesc', fallback: 'Preis ↓' },
+  { value: 'volume_desc', labelKey: 'sortVolume', fallback: 'Volumen 7d' },
   { value: 'goals', labelKey: 'sortGoals', fallback: 'Tore' },
   { value: 'assists', labelKey: 'sortAssists', fallback: 'Assists' },
   { value: 'matches', labelKey: 'sortMatches', fallback: 'Spiele' },
@@ -50,6 +51,7 @@ export function applySorting(players: Player[], sortBy: SortOption, getFloor?: (
       case 'l5': return b.perf.l5 - a.perf.l5;
       case 'floor_asc': return (getFloor?.(a) ?? 0) - (getFloor?.(b) ?? 0);
       case 'floor_desc': return (getFloor?.(b) ?? 0) - (getFloor?.(a) ?? 0);
+      case 'volume_desc': return (b.tradesVolume7d ?? 0) - (a.tradesVolume7d ?? 0);
       case 'goals': return b.stats.goals - a.stats.goals;
       case 'assists': return b.stats.assists - a.stats.assists;
       case 'matches': return b.stats.matches - a.stats.matches;

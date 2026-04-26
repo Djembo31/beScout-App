@@ -1,19 +1,20 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 200
+stage: LOG
+spec: worklog/specs/200-trades-volume-7d.md
+impact: skipped (additive Schema-Add, kein Money-Path, Pattern Slice 197d)
+proof: worklog/proofs/200-tsc-mig-cron.txt
+review: worklog/reviews/200-review.md
 ```
 
 ## Zuletzt
 
-- **Slice 203** (2026-04-26) — XS-Mini-Polish + DISTILL Slice 202 (Brand 10 + UX 12 audit-stale-marker + Pattern #37 + D48-Update + foundingPasses-Comment). Self-Review (D35 trivial-pattern). Punch-Liste 75/98 → 77/98 (~79%).
-- **Slice 202** (2026-04-26) — Wave 5 Polish-Sweep (S). 3 Items closed + Punch-Liste-Sync. Reviewer PASS (2 MINOR, F1 inline-gehealt). D48 1. produktive Bestätigung.
+- **Slice 200** (2026-04-26) — Trades-Volume-7d Backend + Sort-UI (FM 4.4). M-Slice unter voller Autonomie. Migration LIVE applied (4556 players initialized) + Cron + Frontend Sort-Pill. Reviewer PASS (5 NIT/INFO). Bonus-Fix: PLAYER_SELECT_COLS war pre-Slice-200 incomplete → Slice 197d MV-Trend war 1 Tag Production-Drift, by-coincidence-fixed. Punch-Liste 77 → 78/98 (~80%).
+- **Slice 203** (2026-04-26) — XS-Mini-Polish + DISTILL Slice 202. Self-Review.
+- **Slice 202** (2026-04-26) — Wave 5 Polish-Sweep (S). 3 Items closed. Reviewer PASS.
 - **Slice 200b** (2026-04-26) — Wave 4 Polish-Sweep. 3 closed + 1 already-fixed-marker. Reviewer PASS.
 - **Slice 200a** (2026-04-26) — Wave 3 Polish-Sweep. 4 closed + 1 already-fixed-marker. Reviewer REWORK→PASS post-Heal.
 - **Slice 199** (2026-04-25) — Backend-Aggregat-RPC-Wave. 4 closed. Reviewer PASS.

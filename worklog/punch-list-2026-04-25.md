@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 203 (+1 closed Brand-10 + UX-12 audit-stale-marker)
+**Stand:** 2026-04-26 nach Slice 200 (+1 closed FM-4.4 Trade-Volume-7d Sort)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **77 closed (≈79%)**
+**Total:** 98 Findings · davon **78 closed (≈80%)**
 
 ## Status-Legende
 
@@ -20,9 +20,12 @@
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
-| FM-Mechanics | 26 | 22 | 0 | 0 | 4 | 0 |
+| FM-Mechanics | 26 | 23 | 0 | 0 | 3 | 0 |
 | Fantasy-Scoring | 27 | 19 | 1 | 0 | 7 | 1 |
-| **TOTAL** | **98** | **77** | **3** | **0** | **18** | **1** |
+| **TOTAL** | **98** | **78** | **3** | **0** | **17** | **1** |
+
+**Slice 200 closed (+1):** Trades-Volume-7d Backend + Sort-UI (CTO unter voller Autonomie).
+- FM 4.4 Sortier nach Trade-Volume-7d auf /market — Schema-Add + daily Cron + Frontend Sort-Pill (Pattern Slice 197d). Bonus: PLAYER_SELECT_COLS-Latent-Bug aus Slice 197d by-coincidence gefixt (mv_trend_7d wurde nie aus DB geladen).
 
 **Slice 203 closed (+1 + 1 already-fixed-marker):** XS-Slice Mini-Polish (1-line + audit-stale-Korrektur).
 - Brand 10 PlayerPicker bg-black/60 → bg-bg-main/60 (1-line, gleiches Pattern wie Brand 8/9/11)
@@ -214,7 +217,7 @@
 | 2.3 | open | fm.md | Lineup-Score-Projection | Slice 198 |
 | 2.4 | open | fm.md | Event-Difficulty-Indikator im Selector | Slice 198 |
 | 3.1 | open | fm.md | HistorieTab Avg-Rank/Best-Rank-Card | Slice 198 |
-| 4.4 | open | fm.md | Sortier nach Trade-Volume-7d | Slice 198 |
+| 4.4 | done | fm.md | Sortier nach Trade-Volume-7d | Slice 200 ✓ (Schema-Add + Cron + Sort-Pill) |
 | 4.5 | open | fm.md | Multi-Select Bulk-Buy /market | Slice 198 |
 | 5.2 | open | fm.md | Differential-Sentiment ScoutConsensus | Slice 198 |
 | 6.1 | open | fm.md | Per-Trade-Player-Link Transactions | Slice 198 |

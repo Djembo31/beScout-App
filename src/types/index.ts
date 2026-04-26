@@ -85,6 +85,8 @@ export type Player = {
   isLiquidated?: boolean;
   /** Slice 197d: 7d MV-Trend (rising|stable|falling|null). Mapped from DbPlayer.mv_trend_7d via dbToPlayer. */
   mvTrend7d?: 'rising' | 'stable' | 'falling' | null;
+  /** Slice 200: 7d Trade-Volume (count). Mapped from DbPlayer.trades_volume_7d via dbToPlayer. */
+  tradesVolume7d?: number | null;
 };
 
 export type Listing = {
@@ -547,6 +549,9 @@ export type DbPlayer = {
   /** Slice 197d: 7d MV-Trend, calculated daily by cron_snapshot_and_calc_mv_trends().
    *  NULL = no 7d-old data yet (new player or first week post-launch). >5% threshold. */
   mv_trend_7d?: 'rising' | 'stable' | 'falling' | null;
+  /** Slice 200: 7d Trade-Volume (count of trades in last 7d), calculated daily by
+   *  cron_calculate_trade_volume_7d(). NULL = vor Initial-Cron, 0 = explicit zero (kein Trade in 7d). */
+  trades_volume_7d?: number | null;
   success_fee_cap_cents: number | null;
   max_supply?: number;
   contract_end?: string | null; // ISO date string e.g. "2026-06-30"
