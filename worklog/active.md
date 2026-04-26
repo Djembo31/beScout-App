@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 211
-stage: PROVE
-spec: worklog/specs/211-spec-foundation-uplift.md
-impact: skipped (workflow-files + skill-files + rule-files only — no DB/RPC/Service)
-proof: worklog/proofs/211-ac-audit.txt
-review: worklog/reviews/211-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 211** (2026-04-26) — Spec-Foundation-Uplift (L-Meta-Process). 4 neue /spec Pflicht-Sektionen 1.10-1.13 (Code-Reading-Liste, Pattern-References, Self-Verification Commands, Open-Questions). workflow.md SPEC-Stage komplett überarbeitet mit Slice-Größen-Tabelle (XS/S/M/L Mindest-Items). _TEMPLATE.md als Master-Spec-File. /parallel-dispatch um 3 Briefing-Blöcke erweitert (WORKTREE-PFLICHT absolute-paths-trap, PRE-REVIEW-MEMO, Service-Schnittstelle vorab). Hook ship-cto-review-gate Verdict-Schema-Enforcement WARN-only. 3 Pattern-Drafts aus Slice 207 promoted (Worktree-Isolation-Escape in common-errors.md §0, Migration-Heal v1→v2 in errors-db.md, Pre-Review-Memo Pattern #39). D50 in decisions.md (PROCESS, mit empirischer Evidence aus 6 zitierten Slices + Beziehung zu D45-D49). Reviewer PASS post-Heal (1 MEDIUM Spec-Tabelle-Drift inline-gefixt). 10/10 ACs grün. Commit e446c60a.
 - **Slice 210** (2026-04-26) — UX 17 Airdrop isError-Handling (XS-Slice, frontend-only, Pattern-Wiederholung). `useAirdropLeaderboard` + `useAirdropStats` mit `isError`+`refetch` destructured, 2 separate Error-Branches (Stats-Bar 3-way, Leaderboard-Card inner 4-way). myEntry+Tier-CTA suppressed bei Leaderboard-Error. Self-Review (D35 trivial-pattern Slice 196 inventory/rankings). tsc clean. Punch-Liste UX 17 → done.
 - **Slice 209** (2026-04-26) — Audit-Stale-Cleanup (docs-only, D48 catcher-pattern, 4. Iteration). 12 row-marker korrigiert: 8 → done (F-02/F-08/K-01 + UX 11/14/15/16/19 verified als already-fixed seit Slice 196/197/198), 2 → wont-fix (UX 6/22 — Audit selbst "akzeptabel"), 2 → watch (UX 7/8 preventClose-TODO). Aggregat-Tabelle re-stabilisiert mit Drift-Note. Real-actionable-without-CEO: nur **UX 17 (airdrop isError)** + **Brand 1 (P3 low-prio)**. Punch-List effektiv: 89 done + 5 wf + 2 watch + 2 real-open + 4 post-beta-deferred = 98.
 - **Slice 208** (2026-04-26) — FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions (S-Slice frontend-only). Neue `TrendSparkline`-Sub-Component mit per-Tag-Aggregation aus existing `filteredCredits`, range-reaktiv (7d/30d/90d/all mit 90-Bucket-Cap), color-coded green/red, dashed Zero-Baseline bei mixed-sign. 10 Edge-Case-Tests via vi.useFakeTimers. Reviewer CONCERNS→PASS post-Heal (A11y SVG aria-fix, PriceChart-Pattern). Spec-Drift dokumentiert (Linear statt Catmull-Rom — bei 60px H + 90-Density nicht differenzierbar). Punch-Liste 85 → 86/98 (~88%). Commit 0889075d.
@@ -28,8 +29,13 @@ review: worklog/reviews/211-review.md
 
 ## Backlog (priorisiert)
 
-**Real-actionable-frontend-only (CTO-scope, nächste empfohlene Slices):**
-- **UX 17** Airdrop kein isError-Handling — `airdrop/page.tsx:26-27` ergänzen (Pattern aus inventory/rankings). XS-S Slice.
+**Wave 2 — Workflow-Tooling (Slice 212+, baut auf Slice 211 Foundation):**
+- **`/ship new` Skill-Update** — Auto-Copy von `worklog/specs/_TEMPLATE.md` als Slice-Start-Spec. XS.
+- **`ship-spec-quality-gate.sh` Hook** — pre-BUILD prüft Spec-Pflicht-Sektionen je Slice-Größe. S-M.
+- **`scripts/audit-stale-check.ts`** — automatisiert D48 Pattern (greppt "open"-Detail-Rows gegen current-code). S-M.
+- **`scripts/type-truth-audit.ts`** — automatisiert D43/D49 Pattern (`data as <Type>` vs `pg_get_functiondef`). S-M.
+
+**Real-actionable-frontend-only (CTO-scope):**
 - **Brand 1 P3** Quick-Action-Pills Component-Extraction (Home `page.tsx:172`) — Polish-Refactor low-prio.
 
 **Backend-M-Slice (kein CEO needed, brauchen Time-Budget):**
