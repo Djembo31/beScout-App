@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 215
-stage: PROVE
-spec: worklog/specs/215-phase-c-rerun.md
-impact: skipped (Audit-Re-Run, kein Code, nutzt existing tester-persona-walker + fm-mechanics-expert Agents)
-proof: worklog/proofs/215-rerun-audit.txt
-review: self-review (D35 — kein Code-Change, Slice 215 ist Audit-Re-Run mit Workflow-Learning-Doku, Pattern-Analog Slice 209 Audit-Cleanup)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 215** (2026-04-26) — Phase-C Re-Run mit Bash-First-Write + Manual-Completion (S-Slice). 2 Background-Agents (Persona-K + FM-Mechanics) re-dispatched mit Pattern v2 Skeleton-First. **Files persistent** ✓, **iteratives Append failed** ✗ — beide Agents schrieben nur Skeleton. Manual-Completion durch CTO appendierte 5 neue Findings: K-RR-1 P1 (Floor-Preis-Tooltip), K-RR-2 P2 (BuyConfirmModal Sentiment), FM-RR-1 P2 (Sparkline Hover), FM-RR-2/FM-RR-3 P3 (Watchlist-Page + Trending-Pills). Pipeline re-runned → 4 Stubs (3 P1 + 1 P2P3-Bundle). Phase-Tracker: P1=2→3 (K-RR-1 NEU). Workflow-Learning: Pattern v3 nötig für 216+. Commit 1231bcbe.
 - **Slice 214** (2026-04-26) — Auto-Beta-Ready Self-Healing-Loop (L-Meta-Process). Anil-Direktive "ich höre fertig aber dem ist nicht so". Foundation für autonomen Phase-A→B→C→D-Loop: `worklog/beta-phase.md` (Phase-Tracker SoT) + `ship-phase-gate.sh` (UserPromptSubmit-WARN bei Beta-Claim ohne Sign-Off) + `scripts/findings-to-slices.ts` (Pipeline mit Auto-AC-Skeleton) + `auto-beta-ready` Master-Skill. CLAUDE.md+workflow.md hard-Definition. **Live-Test:** 7 Background-Agents Phase-C-Re-Run dispatched, 5 Findings aggregiert, 3 Slice-Stubs auto-generiert (FM-NEU-1 Slice-204-Regression, UX-NEU-1 FeedbackModal preventClose, P2-Bundle TR+Fantasy). Reviewer CONCERNS→PASS post-Heal (3 HIGH + 2 MED inline-gefixt). 12/12 ACs grün. Phase=C, Sign-Off=never — Slice 214 nicht "fertig" laut neuem Standard, Slice 215+ heilt Phase-C-Findings. Commit 7af9a793.
 - **Slice 213** (2026-04-26) — QuickActionPills Component-Extract (Brand 1 P3, S-Slice). Inline-Map-Block aus `src/app/(app)/page.tsx` extrahiert in self-contained Component `src/components/home/QuickActionPills.tsx` mit narrow TypeScript-Type für labelKey. 5 Lucide-Icons aus page.tsx-Imports bereinigt. Visual-Behavior 1:1 verifiziert. Reviewer PASS, keine REWORK. **Foundation Slice 211/212 live-verifiziert: ship-spec-quality-gate.sh silent bei konformer Spec während BUILD.** Spec ist Gold-Standard-Beispiel für 13-Sektionen-Format. Brand-Coherence 16/18 (~89%). Commit 795ea210.
 - **Slice 212** (2026-04-26) — Spec-Quality-Gate-Hook + /ship new Template-Reference (Wave 2 von Slice 211 D50, S-Slice). NEU `ship-spec-quality-gate.sh` WARN-Hook prüft Pre-BUILD Spec-Pflicht-Sektionen je Slice-Größe (XS=6, S/M=13, L=13+Pre-Mortem). Tolerant gegen Markdown-Stil-Drift, skipped meta-Files / idle / emergency / inline-Spec. WARN-only kein BLOCK (false-positive-safe wie Slice 211 Verdict-Hook). settings.json Hook-Registration. /ship Skill referenziert _TEMPLATE.md explizit. workflow.md Hook-Verweis. Reviewer PASS (1 LOW Backlog: tr-d-Pfade-mit-Spaces; 3 NITs; Lücke benannt: Hook prüft Sektion-EXISTENZ nicht Item-Counts → Slice 213). 10/10 ACs grün + 3-Hook-Chain-Smoke-Test post-Reviewer (alle silent + exit 0, kein Stack-Interference). Commit 399f4ffb.
@@ -32,11 +33,11 @@ review: self-review (D35 — kein Code-Change, Slice 215 ist Audit-Re-Run mit Wo
 
 ## Backlog (priorisiert)
 
-**Wave 2+ — Phase-C-Heal (Slice 215+, aus Live-Audit-Run heute):**
-- **Slice 215** Heal P1-Findings: FM-NEU-1 (PickRateBadge in compact-view) + UX-NEU-1 (FeedbackModal preventClose). Spec-Stubs in `worklog/specs/214-derived-p1-fm-001.md` + `214-derived-p1-ux-002.md`.
-- **Slice 216** Re-Run incomplete Audits mit verbessertem Briefing-Pattern: Persona-K Casual (BuyConfirmModal-Walk vollständig) + FM-Mechanics-Expert (Voll-Audit).
-- **Slice 217** Phase-D Sign-Off-Trial-Run (`/auto-beta-ready signoff`).
-- **Slice 218** P2-Bundle (TR event_winner + FPL 60min-Rule). Stub `214-derived-p2p3-bundle.md`.
+**Phase-C Stubs nach Slice 215 Re-Run (alle in worklog/specs/214-derived-*.md):**
+- **Slice 216** Heal 3 P1 (Wave-Slice): FM-NEU-1 (PickRateBadge cards-only) + UX-NEU-1 (FeedbackModal preventClose) + K-RR-1 (Floor-Preis-Tooltip). Wenn alle 3 closed → P1=0 → Sign-Off-Gate öffnet.
+- **Slice 217** Phase-D Sign-Off-Trial (`/auto-beta-ready signoff`) — wird bei P1=0 PASS, sonst FAIL mit klarer Liste.
+- **Slice 218** P2-Bundle (5 Findings): TR event_winner + FPL 60min-Rule + FM-RR-1 Sparkline-Hover + K-RR-2 Sentiment-Erklärung + FM-RR-2 Watchlist-Standalone-Frage. Stub `214-derived-p2p3-bundle.md`.
+- **Slice 219+ Backlog:** P3-Polish, Briefing-Pattern v3 für Background-Agent-Iterativ-Append.
 
 **Wave 3+ — Workflow-Tooling-Backlog:**
 - Hook-Item-Count-Validation (Slice 212 Reviewer-Lücke)
