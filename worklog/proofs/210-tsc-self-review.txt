@@ -1,0 +1,44 @@
+Slice 210 — UX 17 airdrop isError-Handling
+===========================================
+
+VERIFY 1: tsc --noEmit
+----------------------
+$ npx tsc --noEmit
+(no output — clean)
+
+VERIFY 2: Pattern-Wiederholung (D35 trivial-pattern Self-Review)
+----------------------------------------------------------------
+Inventory pattern (CosmeticsSection.tsx:78-80):
+  if (isError) {
+    return <ErrorState onRetry={() => refetch()} />;
+  }
+
+Airdrop application (page.tsx Slice 210):
+  - Hook destructure: { isError, refetch } added to useAirdropLeaderboard + useAirdropStats
+  - 2 separate Error-Branches (independent failure modes)
+    1. Stats-Bar block: 3-way (Error / Loaded / ComingSoon)
+    2. Leaderboard-Card inner: 4-way (Loading / Error / Empty / List)
+  - Suppressed bei Leaderboard-Error: myEntry-Highlight + Tier-CTA (data-derived)
+  - Static blocks (ComingSoon, HowToImprove, TradingDisclaimer) bleiben sichtbar
+
+VERIFY 3: ErrorState-Import vorhanden
+--------------------------------------
+$ grep "ErrorState" src/components/ui/index.ts
+export { default as ErrorState } from './ErrorState';
+✓ verified — Import-Pfad korrekt
+
+VERIFY 4: Pattern aus 3 inventory + 7 rankings + 4 community Components
+-----------------------------------------------------------------------
+Identische isError + refetch + ErrorState-Triple:
+  - src/components/inventory/CosmeticsSection.tsx:78-80
+  - src/components/inventory/WildcardsSection.tsx:29
+  - src/components/inventory/MysteryBoxHistorySection.tsx:116
+  - src/components/rankings/{Self,Player,LastEvent,Monthly,Club,Friends,Global}*.tsx (7 files)
+
+Slice 210 ist N+1-Anwendung des codifizierten Patterns. Trivial pattern reuse → D35
+Self-Review ausreichend, kein Reviewer-Agent dispatch.
+
+D35-Reference: workflow.md "Self-Review per workflow.md D35 trivial-pattern-Wiederholung"
+(Slice 203 PlayerPicker als Vorbild — gleiches Pattern gleicher Pattern-Klasse).
+
+VERDICT: PASS (Self-Review).

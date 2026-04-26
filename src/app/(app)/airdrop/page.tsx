@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Rocket, Trophy, ChevronLeft, TrendingUp, Users, Star } from 'lucide-react';
-import { Card, Skeleton } from '@/components/ui';
+import { Card, Skeleton, ErrorState } from '@/components/ui';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -45,8 +45,17 @@ export default function AirdropPage() {
   const { user } = useUser();
   const uid = user?.id;
 
-  const { data: leaderboard = [], isLoading } = useAirdropLeaderboard(100);
-  const { data: stats } = useAirdropStats();
+  const {
+    data: leaderboard = [],
+    isLoading,
+    isError: isLeaderboardError,
+    refetch: refetchLeaderboard,
+  } = useAirdropLeaderboard(100);
+  const {
+    data: stats,
+    isError: isStatsError,
+    refetch: refetchStats,
+  } = useAirdropStats();
   const t = useTranslations('airdrop');
 
   const TIER_LABELS: Record<AirdropTier, string> = {
@@ -81,8 +90,13 @@ export default function AirdropPage() {
         </div>
       </div>
 
-      {/* Stats Bar */}
-      {stats && stats.total_users > 0 ? (
+      {/* Slice 210 (UX 17): Stats-Bar-Block hat 3-way-State — Error / Loaded / ComingSoon.
+          Pattern: ErrorState ersetzt den Block bei isStatsError; sonst stats+>0 zeigt
+          Stats, sonst ComingSoon. Leaderboard hat eigenen Error-State unten (siehe
+          Card-innerer Block), MyEntry+TierCTA blenden sich aus bei isLeaderboardError. */}
+      {isStatsError ? (
+        <ErrorState onRetry={() => void refetchStats()} />
+      ) : stats && stats.total_users > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <div className="bg-surface-subtle border border-divider rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums text-white">{stats.total_users}</div>
@@ -109,8 +123,8 @@ export default function AirdropPage() {
         </Card>
       )}
 
-      {/* My Score Highlight */}
-      {myEntry && (
+      {/* My Score Highlight (suppress bei Leaderboard-Error — myEntry kommt aus leaderboard-Liste) */}
+      {!isLeaderboardError && myEntry && (
         <Card className="p-4 bg-purple-500/[0.06] border-purple-500/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -144,7 +158,7 @@ export default function AirdropPage() {
       )}
 
       {/* Slice 200b FM-10.1: Tier-CTA — naechster Tier-Hint mit Progress-Bar (skip auf 'diamond') */}
-      {myEntry && (() => {
+      {!isLeaderboardError && myEntry && (() => {
         const next = getNextTierInfo(myEntry.total_score, myEntry.tier);
         if (!next) return null;
         return (
@@ -187,6 +201,10 @@ export default function AirdropPage() {
         {isLoading ? (
           <div className="p-4 space-y-2">
             {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
+          </div>
+        ) : isLeaderboardError ? (
+          <div className="p-4">
+            <ErrorState onRetry={() => void refetchLeaderboard()} />
           </div>
         ) : leaderboard.length === 0 ? (
           <div className="text-center py-12 text-white/40">

@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 210 | 2026-04-26 | UX 17 Airdrop isError-Handling (frontend-only, Pattern-Wiederholung)
+
+- **Stage-Chain:** SPEC (inline, XS-Slice trivial-pattern) → IMPACT (skipped) → BUILD → REVIEW (self-review per D35) → PROVE → LOG
+- **Files:**
+  - `src/app/(app)/airdrop/page.tsx` (+22 Zeilen — `isError`+`refetch` destructured, 2 separate Error-Branches, Conditional-Suppress für myEntry+Tier-CTA bei Leaderboard-Error)
+- **Pattern-Wiederholung (D35):** identisch zu Slice 196 inventory (CosmeticsSection.tsx:78-80, WildcardsSection.tsx:29, MysteryBoxHistorySection.tsx:116) und Slice 196 rankings (alle 7 components). N+1-Anwendung des etablierten Patterns.
+- **Architektur-Entscheidung:** 2 separate Error-Branches statt 1 Page-Level — `useAirdropLeaderboard` und `useAirdropStats` können unabhängig failen. Stats-Error blendet nur Stats-Bar aus (zeigt ErrorState an Stats-Position), Leaderboard-Error blendet Leaderboard-Card-Inhalt aus (zeigt ErrorState in Leaderboard-Card). myEntry+Tier-CTA sind data-derived aus leaderboard → suppressed bei Leaderboard-Error. ComingSoon, HowToImprove, TradingDisclaimer bleiben sichtbar (statisch, kein RPC-Risk).
+- **Review:** self-review per D35 (trivial-pattern-Wiederholung, kein Reviewer-Agent dispatch)
+- **Proof:** `worklog/proofs/210-tsc-self-review.txt` (tsc clean + Pattern-Verify + 4 Reference-Components grep)
+- **Commit:** (pending)
+- **Punch-List-Impact:** UX 17 → done. Real-actionable-without-CEO post-Slice-210: nur **Brand 1 (P3 low-prio)**. Alle anderen open-Items sind Money-Path (CEO) oder watch oder post-beta-deferred.
+
+---
+
 ## 209 | 2026-04-26 | Audit-Stale-Cleanup (12 row-marker korrigiert, D48 catcher-pattern)
 
 - **Stage-Chain:** SPEC (inline, audit-cleanup analog Slice 206) → IMPACT (skipped) → BUILD (pure docs-Diff) → REVIEW (skipped: identische Pattern-Wiederholung Slice 206 D35) → PROVE → LOG

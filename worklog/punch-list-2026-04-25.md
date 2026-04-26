@@ -206,7 +206,7 @@
 | 14 | done | ux.md | founding loadData immer loading=true bei Re-Fetch | Slice 198 ✓ (silent-mode Param + Optimistic-Counts in `founding/page.tsx:88-105`; D48 audit-stale-catcher) |
 | 15 | done | ux.md | Inventory Sections kein isError-Branch (3/4) | Slice 196 ✓ (alle 3 Inventory-Sections haben isError+refetch — `CosmeticsSection:78`, `WildcardsSection:29`, `MysteryBoxHistorySection:116`; D48 audit-stale-catcher) |
 | 16 | done | ux.md | Rankings 7/7 kein isError-Branch | Slice 196 ✓ (alle 7 Rankings-Components — Self/Player/LastEvent/Monthly/Club/Friends/Global — haben isError; D48 audit-stale-catcher) |
-| 17 | open | ux.md | Airdrop kein isError-Handling | Slice 210 (real-open, frontend-only, P2) |
+| 17 | done | ux.md | Airdrop kein isError-Handling | Slice 210 ✓ (isError+refetch destructured aus useAirdropLeaderboard + useAirdropStats; 2 separate Error-Branches mit Pattern aus inventory/CosmeticsSection.tsx:78-80) |
 | 19 | done | ux.md | Settings Notif-Prefs/Push silent console.error | Slice 196 ✓ (3 Stellen `settings/page.tsx:75/102/116` haben `addToast(te(mapErrorToKey(...)))` Pattern; D48 audit-stale-catcher) |
 | 20 | open | ux.md | MembershipSection Subscribe ohne Confirm-Step | Slice 198 (Money-Risk) |
 | 22 | wont-fix | ux.md | compare Empty-Slot Touch-Targets | Audit selbst markiert "OK" (visuell ein großer Touch-Button, akzeptabel); D48 audit-stale-catcher |
