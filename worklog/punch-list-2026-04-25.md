@@ -20,9 +20,12 @@
 |---|---|---|---|---|---|---|
 | Brand-Coherence | 18 | 15 | 2 | 0 | 1 | 0 |
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
-| FM-Mechanics | 26 | 25 | 0 | 0 | 1 | 0 |
+| FM-Mechanics | 26 | 26 | 0 | 0 | 0 | 0 |
 | Fantasy-Scoring | 27 | 22 | 1 | 0 | 4 | 1 |
-| **TOTAL** | **98** | **83** | **3** | **0** | **12** | **1** |
+| **TOTAL** | **98** | **84** | **3** | **0** | **11** | **1** |
+
+**Slice 205 closed (+1):** ScoutConsensus Reliability-Indicator (XS-Slice, pure-frontend additive).
+- FM 5.2 ScoutConsensus.tsx Header-Badge "Niedrige/Mittlere/Solide Datenbasis" basierend auf qualifiziertem Report-Count (1-9/10-49/50+). D46-Reuse: kein neuer Service. Tier-Color-Coding identisch zu ConcentrationBar Pattern (Slice 201b). Self-Review (D35 Pattern-Wiederholung). FM-Mechanics jetzt 26/26 (100% closed).
 
 **Slice 204 closed (+1):** Squad-Tab Fantasy-Pick-Rate (S-Slice, pure-frontend D46-Reuse).
 - K-03 ClubContent /club/[slug] Spieler-Tab Cards-View — PickRateBadge "🔥 NN%" wenn ≥5% der Manager den Spieler im aktiven Event picken. D46-Reuse `useEventPlayerPickRates` (Slice 195e RPC) — kein neuer RPC, kein duplicate Service. Reviewer-Agent CONCERNS→PASS post-Heal (Badge-Position `top-2 right-2` ueberlappte L5-Score → `bottom-2 right-2` Footer-Bereich, kein Info-Verdeckung). Compact-View intentional ausgespart (Layout zu eng).
@@ -234,7 +237,7 @@
 | 3.1 | open | fm.md | HistorieTab Avg-Rank/Best-Rank-Card | Slice 198 |
 | 4.4 | done | fm.md | Sortier nach Trade-Volume-7d | Slice 200 ✓ (Schema-Add + Cron + Sort-Pill) |
 | 4.5 | open | fm.md | Multi-Select Bulk-Buy /market | Slice 198 |
-| 5.2 | open | fm.md | Differential-Sentiment ScoutConsensus | Slice 198 |
+| 5.2 | done | fm.md | Differential-Sentiment ScoutConsensus | Slice 205 ✓ (Reliability-Tier-Badge low/medium/high, D46 reuse research-data) |
 | 6.1 | done | fm.md | Per-Trade-Player-Link Transactions | Slice 201a ✓ (Service+Hook+UI) |
 | 6.2 | open | fm.md | Trend-Sparkline-Mini-Chart Aggregation | Slice 198 |
 | 7.1 | done | fm.md | MissionBanner Active/Completed-Filter | Slice 200a ✓ |

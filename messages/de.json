@@ -3481,7 +3481,13 @@
     "consensusBullish": "{count} Analysten bullish",
     "consensusBearish": "{count} Analysten bearish",
     "consensusNeutral": "Ausgeglichen",
-    "consensusTopAnalyst": "Top-Analyst: @{handle} ({hitRate}% Trefferquote)"
+    "consensusTopAnalyst": "Top-Analyst: @{handle} ({hitRate}% Trefferquote)",
+    "reliability": {
+      "low": "Wenig Daten",
+      "medium": "Mittlere Datenbasis",
+      "high": "Solide Datenbasis",
+      "ariaLabel": "Verlässlichkeit: {tier} ({count} Berichte)"
+    }
   },
   "achievement": {
     "unlocked": "Erfolg freigeschaltet!",

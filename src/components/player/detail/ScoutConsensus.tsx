@@ -16,6 +16,14 @@ const MIN_AVG_RATING = 4.0;
 const MIN_RATINGS_COUNT = 3;
 const MAX_AGE_DAYS = 60;
 
+/** Slice 205 — Reliability-Tier basierend auf qualifizierten Report-Count */
+type ReliabilityTier = 'low' | 'medium' | 'high';
+function reliabilityTier(total: number): ReliabilityTier {
+  if (total >= 50) return 'high';
+  if (total >= 10) return 'medium';
+  return 'low';
+}
+
 export default function ScoutConsensus({ research, className = '' }: ScoutConsensusProps) {
   const t = useTranslations('research');
 
@@ -61,14 +69,29 @@ export default function ScoutConsensus({ research, className = '' }: ScoutConsen
         ? 'text-red-400'
         : 'text-gold';
 
+  // Slice 205 (FM 5.2) — Reliability-Tier-Badge auf Header.
+  const tier = reliabilityTier(total);
+  const tierBadgeClass =
+    tier === 'high'
+      ? 'border-green-400/40 text-green-300 bg-green-500/10'
+      : tier === 'medium'
+        ? 'border-amber-400/40 text-amber-300 bg-amber-500/10'
+        : 'border-white/15 text-white/50 bg-white/5';
+
   return (
     <Card className={`overflow-hidden ${className}`}>
       <div className="bg-gradient-to-r from-violet-500/10 to-violet-500/5 border-b border-violet-500/20 p-4">
-        <div className="flex items-center gap-2">
-          <Award className="size-5 text-violet-300" aria-hidden="true" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <Award className="size-5 text-violet-300 shrink-0" aria-hidden="true" />
           <span className="font-black">{t('consensus')}</span>
-          <span className="text-xs text-white/40 ml-auto">
+          <span className="text-xs text-white/40 ml-auto tabular-nums">
             {t('consensusReports', { count: total })}
+          </span>
+          <span
+            className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wide ${tierBadgeClass}`}
+            aria-label={t('reliability.ariaLabel', { tier: t(`reliability.${tier}`), count: total })}
+          >
+            {t(`reliability.${tier}`)}
           </span>
         </div>
       </div>

@@ -3474,7 +3474,13 @@
     "consensusBullish": "{count} analist yükseliş",
     "consensusBearish": "{count} analist düşüş",
     "consensusNeutral": "Dengeli",
-    "consensusTopAnalyst": "En iyi analist: @{handle} (%{hitRate} isabet)"
+    "consensusTopAnalyst": "En iyi analist: @{handle} (%{hitRate} isabet)",
+    "reliability": {
+      "low": "Az veri",
+      "medium": "Orta veri",
+      "high": "Sağlam veri",
+      "ariaLabel": "Güvenilirlik: {tier} ({count} rapor)"
+    }
   },
   "achievement": {
     "unlocked": "Başarı açıldı!",

@@ -11,6 +11,49 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 205 | 2026-04-26 | ScoutConsensus Reliability-Indicator (FM 5.2)
+
+XS-Slice. Pure-frontend additive UI auf existing-data. Reliability-Tier-Badge low/medium/high im ScoutConsensus-Header. **FM-Mechanics-Domain jetzt 26/26 (100% closed).** Punch-Liste: 83/98 → **84/98 closed (~86%)**.
+
+**Stage-Chain:** SPEC (worklog/specs/205-scout-consensus-reliability.md) → IMPACT skipped (kein DB/RPC, additive UI) → BUILD → REVIEW self-review (D35 Pattern-Wiederholung von Slice 201b ConcentrationBar Tier-Color-Coding) → PROVE → LOG
+
+### Items closed (1)
+
+- **FM 5.2 (P2)** ScoutConsensus.tsx — Reliability-Tier-Badge im Header neben "X Reports". Tiers: 1-9 grau "Wenig Daten" / 10-49 amber "Mittlere Datenbasis" / 50+ green "Solide Datenbasis". User sieht jetzt Confidence-Score statt nur Bull/Bear-Ratio (FPL-Convention "200 Reports vs 12 Reports nicht gleich gewichtet").
+
+### Frontend
+
+- **EDIT** `src/components/player/detail/ScoutConsensus.tsx` — `reliabilityTier()` helper + Badge im Header (Award + Title + Reports + Badge mit `flex-wrap` + `shrink-0`).
+- **EDIT** `messages/de.json` + `messages/tr.json` — `research.reliability.{low,medium,high,ariaLabel}` (4 keys × 2 locales).
+
+### D46 Service-Reuse
+
+`ScoutConsensusProps.research: ResearchPostWithAuthor[]` existiert. Tier-Berechnung aus `consensus.total` (qualifiziert via existing MIN_AVG_RATING + MIN_RATINGS_COUNT + MAX_AGE_DAYS Filter). Kein neuer Service, kein neuer RPC.
+
+### Files
+```
+ messages/de.json                              | 7 +++++--
+ messages/tr.json                              | 7 +++++--
+ src/components/player/detail/ScoutConsensus.tsx | ~20 ++++++++++++++++++
+```
+
+### Proof
+- worklog/proofs/205-tsc-clean-diff.txt (tsc clean + diff-stat)
+- worklog/reviews/205-review.md (self-review D35)
+
+### Commit
+(folgt im naechsten Schritt)
+
+### TR-Wording-Review pending
+- "Az veri / Orta veri / Sağlam veri" (kurz, neutral)
+- "Güvenilirlik: {tier} ({count} rapor)" (Possessiv-Suffix korrekt)
+
+### Knowledge-Capture
+
+Tier-Color-Switch (gray/amber/green) ist 2/3 zum Pattern-Status. Slice 201b ConcentrationBar (orange/amber/emerald) + Slice 205 ScoutConsensus (gray/amber/green). Bei 3. Auftauchen → patterns.md "Tier-Quality Color-Coding".
+
+---
+
 ## 204 | 2026-04-26 | Squad-Tab Fantasy-Pick-Rate (K-03)
 
 S-Slice. Pure-Frontend D46-Reuse von `useEventPlayerPickRates` (Slice 195e RPC). PickRateBadge auf `/club/[slug]` Spieler-Tab Cards-View. Punch-Liste: 82/98 → **83/98 closed (~85%)**.

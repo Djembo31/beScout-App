@@ -1,0 +1,27 @@
+PROOF Slice 205 — ScoutConsensus Reliability-Indicator (FM 5.2)
+Date: 2026-04-26T12:25:00Z
+
+## tsc Result
+$ npx tsc --noEmit
+tsc clean Slice 205
+
+## git status --short (slice files)
+ M messages/de.json
+ M messages/tr.json
+ M src/components/player/detail/ScoutConsensus.tsx
+?? worklog/specs/205-scout-consensus-reliability.md
+?? worklog/reviews/205-review.md
+?? worklog/proofs/205-tsc-clean-diff.txt
+
+## D46 Service-Reuse verified
+- Daten aus existing ScoutConsensusProps.research: ResearchPostWithAuthor[]
+- Kein neuer Service, kein neuer RPC, keine Migration
+
+## Self-Review (D35 Pattern-Wiederholung)
+- Tier-Color-Switch identisch zu ConcentrationBar (Slice 201b)
+- Mobile-Layout via flex-wrap + shrink-0 verifiziert
+- i18n DE+TR komplett (4/4 keys)
+- Verdict: PASS
+
+## Punch-Liste-Impact
+- FM 5.2 done → 83/98 → 84/98 (~86%)
