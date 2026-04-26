@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 15:03)
+# Session Handoff — Auto (2026-04-26 15:46)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,20 +9,128 @@
 ```
 
 ## Session Commits: 10
+- af7df312 chore(210): active idle nach Slice 210 Commit
+- 36add578 feat(210): UX 17 airdrop isError-Handling (Pattern-Wiederholung Slice 196)
+- fa172d3c docs(audit): 12 audit-stale-row-marker korrigiert (D48 catcher-pattern, 4. iter)
+- 7b6c7b17 chore(208): active idle nach Slice 208 Commit
+- 0889075d feat(208): FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions
+- 0ff92f86 docs(handoff): Session-End 2026-04-26 Late — 3 Slices + Audit-Cleanup + Worktree-Heal-Lessons
 - de38bfa1 chore(207): active idle nach Slice 207 Commit
 - 7cb58b22 feat(207): Most-Owned Discovery Batch (K-02)
 - 4497e690 docs(audit): 7 audit-stale-row-marker korrigiert (D48 catcher-pattern)
 - 318c6617 chore(205): active idle nach Slice 205 Commit
-- 65bbf3a7 feat(205): ScoutConsensus Reliability-Indicator (FM 5.2)
-- f95484dd chore(204): active idle nach Slice 204 Commit
-- 62b55816 feat(204): Squad-Tab Fantasy-Pick-Rate (K-03)
-- e88644b5 docs(distill): Pattern #38 Anonymized RLS-Bypass Aggregate-RPC Series + Session-End Handoff
-- 7bc42fb9 chore(201d): active idle nach Slice 201d Commit
-- 7254a0bc feat(201d): Prediction-Consensus-Hint (C-03)
 
 <!-- auto:handoff-end -->
 
 ---
+
+# Resume-Anker (2026-04-26 Continuation 2 — 3 Slices + Audit-Stale-Cleanup + Strategie-Pause)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `af7df312`
+2. `worklog/punch-list-2026-04-25.md` — Detail-Tabelle ist SoT, Aggregat hat Drift-Note (siehe Slice 209)
+3. Diese Datei (Resume-Anker, Top-Block)
+4. `worklog/log.md` Top 3 (210, 209, 208)
+5. `git log --oneline -10` — `af7df312` ist HEAD
+
+## Session-End 2026-04-26 (3) — 3 weitere Slices + Strategie-Pause
+
+**Anil hat /clear + "weiter im Handoff" gestartet, dann nach 3 Slices Strategie-Pause: ehrliche Bewertung Ist-Zustand, Lücken, Game-Changer. Stand wird erst gesichert.**
+
+### Pipeline-Status (alle 5 Commits gepusht)
+
+| Commit | Slice | Findings | Pattern |
+|---|---|---|---|
+| `0889075d` feat | **208** FM 6.2 Trend-Sparkline auf /transactions | +1 (FM 6.2) | TrendSparkline + buildDailyBuckets Helper, 10 Edge-Tests vi.useFakeTimers; PriceChart-DNA |
+| `7b6c7b17` chore | active idle | — | — |
+| `fa172d3c` docs | **209 Audit-Stale-Cleanup** | 12 Marker-Korrekturen | D48 Pattern 4. Iteration; F-02/F-08/K-01 + UX 11/14/15/16/19 als done verified, UX 6/22 wont-fix, UX 7/8 watch |
+| `36add578` feat | **210** UX 17 airdrop isError-Handling | +1 (UX 17) | 2 separate Error-Branches Pattern-Wiederholung Slice 196 inventory/rankings; Self-Review D35 |
+| `af7df312` chore | active idle | — | — |
+
+### Slice 208 Highlights (FM 6.2 Trend-Sparkline)
+
+- Pure-frontend additive — `TrendSparkline`-Sub-Component in `TransactionsPageContent.tsx` rendert per-Tag Net-Aggregation aus existing `filteredCredits` (kein Backend, kein neuer RPC)
+- Lineare Polyline statt Catmull-Rom (Spec-Drift dokumentiert: bei 60px H + 90-Bucket-Density visuell nicht differenzierbar)
+- 10 Edge-Case-Tests via `vi.useFakeTimers()` für deterministisches Day-Boundary-Math (FIXED_NOW = `2026-04-26T14:00:00Z`)
+- Reviewer CONCERNS→PASS post-Heal: A11y-Issue gefangen — SVG hatte sowohl `role="img"` als auch `aria-hidden="true"` (Widerspruch). Pattern aus `PriceChart.tsx:218-219` exakt gespiegelt
+- Range-Reaktivität: 7d/30d/90d/all mit 90-Bucket-Cap. Color-Coded green/red je `lastNet >= firstNet`. Dashed Zero-Baseline bei mixed-sign data
+- TR-Wording business.md-konform: "Trend ({days} gün)" + "Günlük net" — kein kazanmak/yatırım/kar Drift
+- Files: 1 Component-Edit, 1 neuer Test (10 Tests), 2 i18n-Keys DE+TR. tsc clean.
+
+### Slice 209 Highlights (Audit-Stale-Cleanup, **wichtige Wahrheit**)
+
+**Anil's "wichtige Wahrheit"-Phrase bezieht sich auf das, was diese Cleanup aufgedeckt hat:** Pre-Slice-209 Punch-List hatte massive akkumulierte Audit-Stale-Drift. 8 Items waren als "open" markiert, obwohl sie längst gefixt waren (F-02 Slice 197c, F-08 Slice 197, K-01 Slice 197e, UX 11 Slice 198, UX 14 Slice 198, UX 15 Slice 196, UX 16 Slice 196, UX 19 Slice 196). 2 weitere waren vom Audit selbst als "akzeptabel" markiert aber als "open" gezählt (UX 6 sticky-bottom Bar, UX 22 Touch-Targets). 2 Items waren watch-Status (UX 7/8 preventClose-TODO) ohne klare Aggregat-Klassifikation.
+
+Aggregat-Tabelle hatte mathematisch inkonsistente Spalten-Summen (z.B. UX 27/21/0/6/0 = 27 ✓ aber Detail-Tabelle hatte mehr als 6 "open"-Marker, davon 5 already-fixed seit 198). Drift war systematisch.
+
+**Lehre:** Detail-Tabelle ist Single-Source-of-Truth, Aggregat-Tabelle hat Drift-Note. D48 Pattern jetzt 4. Iteration empirisch validiert (Slice 200a UX-2, 200b R-03, 203 UX-12, 206 7 fantasy-marker, 209 12 mixed-marker — 22% audit-stale-rate über mehrere Slices).
+
+### Slice 210 Highlights (UX 17 airdrop isError)
+
+- 2 separate Error-Branches statt 1 Page-Level — `useAirdropLeaderboard` und `useAirdropStats` können unabhängig failen
+- Stats-Bar-Block 3-way: Error / Loaded / ComingSoon
+- Leaderboard-Card inner 4-way: Loading / Error / Empty / List
+- Conditional-Suppress für myEntry+Tier-CTA bei Leaderboard-Error (data-derived)
+- Self-Review per D35 trivial-pattern-Wiederholung. Pattern aus 3 inventory + 7 rankings Components codifiziert.
+- Files: 1 Component-Edit (+22 Zeilen). tsc clean. Punch-List UX 17 → done.
+
+### Punch-Liste-Status (post-Slice-210, mit ehrlicher Drift-Bekenntnis)
+
+**Detail-Tabelle ist Source-of-Truth.** Aggregat ist Best-Estimate.
+
+| Status | Count | Items |
+|---|---|---|
+| done | ~89 | Alle Slices 195-210 + audit-stale-corrected |
+| wont-fix | 5 | Brand 13, F-01 Vice-Captain CEO-Decision, UX 6, UX 22 + 1 weiter |
+| watch | 2 | UX 7 + UX 8 preventClose-TODO bei künftigem async-Refactor |
+| **open (real-actionable)** | **2** | Brand 1 P3 (Polish-Refactor low-prio) + Backend-M-Slices FM 10.2/10.3 (social-graph) |
+| **CEO-Approval-pending** | **2** | F-09 BPS-Bonus + UX 20 MembershipSection Confirm |
+| post-beta-deferred | 4 | F-14, C-06, R-05, M-02 |
+
+**Verbleibend wirklich-fixable ohne Anil-Aktion: 1 Brand-1-P3-Polish-Refactor + 2 Backend-M-Slices.** Frontend-only-Pool ist quasi leer.
+
+### Anil-Action-Items (gesammelt diese Session)
+
+**Vor Beta-Verify:**
+- TR-Wording-Review Slice 208: `"Trend ({days} gün)"` + `"Günlük net"`
+- Inkognito-Verify auf bescout.net post-deploy:
+  - `/transactions` Mobile 360px → Sparkline mit Range-Filter durchschalten (7d/30d/90d/all)
+  - `/airdrop` Page-Level — bei RPC-Failure müsste ErrorState mit Retry erscheinen statt ewig-Loader
+  - **NEU diese Session: Slice 208 Sparkline + Slice 210 airdrop-Error-States**
+- Plus prior unverifiziert: Slice 192/193 Holdings, 201a Per-Trade-Player-Link, 201b Concentration-Bar, 201d Predictions Consensus, 204 Squad-Pick-Rate, 205 ScoutConsensus Reliability, 207 Most-Owned Discovery
+
+**Money-Path-CEO-Decisions:**
+- F-09 BPS-Bonus (Top-3 +3/+2/+1) — Scoring-Algorithm-Change
+- UX 20 MembershipSection Subscribe ohne Confirm-Step — Money-Risk
+
+**Mensch-only:**
+- 3 Beta-Tester organisieren (Familie/Freunde, min 1 TR)
+- Vercel-Plan-Decision (aktuell Pro live, 13 Crons)
+- TR-Locale-Reviewer organisieren
+
+### Was diese Session gelernt hat (Pattern-Codify-Backlog)
+
+3 Drafts aus Slice 207 noch nicht promoted (zur nächsten Session):
+1. **Worktree-Isolation-Escape (PROCESS, CRITICAL)** — Worktree-Agents müssen ABSOLUT relative Paths nutzen. Bei absolut-Paths schreiben Files in Main-Repo. Action: `/parallel-dispatch` Skill ergänzen.
+2. **Pre-Review-Memo Pattern (PROCESS)** — Agent schreibt vor Reviewer-Dispatch ein Self-Audit. Reduziert Reviewer-Arbeit ~60%. Action: workflow.md REVIEW-Stage Best-Practice.
+3. **Migration-Heal v1→v2 Same-Session (PROCESS)** — apply_migration drüber-schreiben mit gleichem Filename (timestamp +5min). DB-Smoke gegen v2 als SoT. Action: errors-db.md Pattern.
+
+Plus aus Slice 209 neu identifiziert:
+4. **Punch-List Aggregat-Math-Drift-Detector** — pre-Slice-Sanity-Check Script: greppt Detail-Markers gegen git-log + grep current-code. Wenn audit-row "open" + grep findet implementation → flag stale-candidate. Würde D48-Pattern 4. Iteration ersetzen durch automatisierte Detection.
+
+### Bei /clear oder Token-Limit Resume-Pfad
+
+1. `worklog/active.md` (idle, **af7df312** ist HEAD)
+2. `worklog/punch-list-2026-04-25.md` Detail-Tabelle = SoT
+3. Diese Datei Top-Block
+4. `worklog/log.md` Top 3 (210, 209, 208)
+5. `git log --oneline -10` — `af7df312` HEAD
+6. `git worktree list` (sollte nur main sein)
+7. **Strategie-Antwort:** Ich habe Anil eine ehrliche Bewertung von Ist-Zustand, Lücken, Quick-Wins, Game-Changer gegeben (siehe Chat-Last-Message). **Keine Slices weiter geplant** bis Anil entscheidet was als Quick-Win oder Game-Changer angegangen wird.
+
+---
+
+# Vorherige Sessions (archiviert)
 
 # Resume-Anker (2026-04-26 Late-Continuation Session — 3 Slices + Audit-Cleanup)
 
