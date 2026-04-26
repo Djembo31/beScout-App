@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 200
-stage: LOG
-spec: worklog/specs/200-trades-volume-7d.md
-impact: skipped (additive Schema-Add, kein Money-Path, Pattern Slice 197d)
-proof: worklog/proofs/200-tsc-mig-cron.txt
-review: worklog/reviews/200-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
