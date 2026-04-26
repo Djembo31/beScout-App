@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 202
-stage: LOG
-spec: worklog/specs/202-wave5-polish-sweep.md
-impact: skipped (kein Schema/RPC/Service, frontend-only)
-proof: worklog/proofs/202-tsc-grep-i18n.txt
-review: worklog/reviews/202-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
