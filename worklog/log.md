@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 208 | 2026-04-26 | FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: pure-frontend, single-File, existing data) → BUILD → REVIEW → PROVE → LOG
+- **Files:**
+  - `src/components/transactions/TransactionsPageContent.tsx` (+150 Zeilen, neue `TrendSparkline`-Sub-Component + `buildDailyBuckets`-Helper, embedded unter Aggregations-Grid)
+  - `src/components/transactions/__tests__/sparkline-buckets.test.ts` (NEU, 10 Edge-Case-Tests, vi.useFakeTimers für deterministisches Day-Boundary-Math)
+  - `messages/de.json` + `messages/tr.json` (2 neue Keys: `trendLabel`, `trendNet`)
+- **Review:** `worklog/reviews/208-review.md` — Verdict CONCERNS (1 MEDIUM A11y-Issue) → PASS post-Heal
+- **Heal:** SVG `aria-hidden="true"` entfernt, `aria-label` direkt aufs SVG (PriceChart-Pattern). Card-Wrapper aria-label entfernt (kein doppelter Label-Stack).
+- **Proof:** `worklog/proofs/208-vitest.txt` (10/10 Tests PASS), tsc clean
+- **Commit:** (pending)
+- **Punch-List-Impact:** FM 6.2 closed → 86/98 (~88%). FM-Mechanics 26/26 (bereits 100% closed seit Slice 205) — Slice 208 schließt die letzte FM-Punch-List-Lücke nicht in einer Domain, sondern erweitert /transactions Money-Flow-View um den fehlenden visuellen Trend-Indicator (FM 6.2 war als P2-Item in der fm-mechanics.md gelistet).
+- **Pattern-Reuse:** PriceChart-DNA (SVG-area+line, color-coded green/red, vectorEffect="non-scaling-stroke") — D35 Pattern-Wiederholung.
+- **Decision (Spec-Drift dokumentiert):** Lineare Polyline statt Catmull-Rom-Spline — bei 60px H und 90-Bucket-Density visuell nicht differenzierbar. Pragmatic-pick reduziert Code-Duplikation.
+- **Anil-Action:** TR-Wording-Review "Trend ({days} gün)" + "Günlük net" + Inkognito-Verify auf bescout.net `/transactions` post-deploy.
+- **Notes:** Backlog-NITs: (a) `Math.min/max(...spread)` → reduce-pattern bei größeren Arrays (mit 90-Cap aktuell harmlos), (b) `txDays`-Distinct-Check ggf in `buildDailyBuckets` ziehen, (c) `DbTransaction`-Cast-Lüge in Test-Fixture eliminieren via Helper.
+
+---
+
 ## 207 | 2026-04-26 | Most-Owned Discovery Batch (K-02)
 
 M-Slice via Worktree-Agent + CTO-Heal. Backend-Migration (v1→v2) + Service + Hook + Frontend-Integration + 11 Tests. Anonymized-Aggregate-RPC #4 der Pattern-#38-Series. Reviewer PASS (2 NITs nicht-blockierend). Punch-Liste: 84/98 → **85/98 closed (~87%)**.

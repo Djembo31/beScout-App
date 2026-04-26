@@ -5184,6 +5184,8 @@
     "net": "Netto",
     "emptyTitle": "Keine Transaktionen im gewählten Zeitraum",
     "emptyHint": "Ändere Filter oder Zeitraum um mehr zu sehen",
-    "showingCount": "{count, plural, =0 {Keine Einträge} =1 {1 Eintrag} other {# Einträge}}"
+    "showingCount": "{count, plural, =0 {Keine Einträge} =1 {1 Eintrag} other {# Einträge}}",
+    "trendLabel": "Trend ({days} Tage)",
+    "trendNet": "Netto pro Tag"
   }
 }

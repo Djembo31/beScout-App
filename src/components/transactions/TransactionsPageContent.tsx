@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import {
@@ -105,6 +105,154 @@ function formatDate(iso: string, locale: string): string {
     day: '2-digit', month: 'short', year: '2-digit',
   });
 }
+
+// ============================================
+// SPARKLINE (Slice 208 — FM 6.2)
+// ============================================
+// Per-day net aggregation aus filteredCredits, gerendered als Mini-SVG.
+// Pure-frontend additive — kein Backend, kein Service, kein Hook.
+
+const SPARKLINE_W = 400;
+const SPARKLINE_H = 60;
+const SPARKLINE_PAD_X = 4;
+const SPARKLINE_PAD_Y = 4;
+const SPARKLINE_ALL_CAP_DAYS = 90;
+
+function startOfDayMs(ms: number): number {
+  const d = new Date(ms);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+interface DailyBucket { day: number; net: number }
+
+/** Exported for unit tests (Slice 208). */
+export function buildDailyBuckets(credits: DbTransaction[], range: DateRange): DailyBucket[] {
+  if (credits.length === 0) return [];
+
+  const now = Date.now();
+  const endDay = startOfDayMs(now);
+
+  let startDay: number;
+  if (range === 'all') {
+    const oldestTxMs = credits.reduce((min, tx) => {
+      const ms = new Date(tx.created_at).getTime();
+      return ms < min ? ms : min;
+    }, now);
+    const cap = endDay - (SPARKLINE_ALL_CAP_DAYS - 1) * 86_400_000;
+    startDay = Math.max(startOfDayMs(oldestTxMs), cap);
+  } else {
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : 90;
+    startDay = endDay - (days - 1) * 86_400_000;
+  }
+
+  const dayCount = Math.floor((endDay - startDay) / 86_400_000) + 1;
+  if (dayCount < 2) return [];
+
+  const buckets = new Array<number>(dayCount).fill(0);
+  for (const tx of credits) {
+    const txDay = startOfDayMs(new Date(tx.created_at).getTime());
+    if (txDay < startDay || txDay > endDay) continue;
+    const idx = Math.floor((txDay - startDay) / 86_400_000);
+    buckets[idx] += tx.amount;
+  }
+  return buckets.map((net, day) => ({ day, net }));
+}
+
+interface TrendSparklineProps {
+  credits: DbTransaction[];
+  range: DateRange;
+}
+
+const TrendSparkline = memo(function TrendSparkline({ credits, range }: TrendSparklineProps) {
+  const t = useTranslations('transactions');
+
+  const data = useMemo(() => {
+    const buckets = buildDailyBuckets(credits, range);
+    if (buckets.length < 2) return null;
+
+    const txDays = new Set<number>();
+    for (const tx of credits) {
+      txDays.add(startOfDayMs(new Date(tx.created_at).getTime()));
+    }
+    if (txDays.size < 2) return null;
+
+    return buckets;
+  }, [credits, range]);
+
+  if (!data) return null;
+
+  const values = data.map((d) => d.net);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const span = maxVal - minVal || 1;
+
+  const chartW = SPARKLINE_W - SPARKLINE_PAD_X * 2;
+  const chartH = SPARKLINE_H - SPARKLINE_PAD_Y * 2;
+
+  const pts = data.map((d, i) => ({
+    x: SPARKLINE_PAD_X + (i * chartW) / (data.length - 1),
+    y: SPARKLINE_PAD_Y + (1 - (d.net - minVal) / span) * chartH,
+  }));
+
+  const linePath = pts
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+    .join(' ');
+  const lastX = pts[pts.length - 1].x.toFixed(2);
+  const firstX = pts[0].x.toFixed(2);
+  const baselineY = (SPARKLINE_PAD_Y + chartH).toFixed(2);
+  const areaPath = `${linePath} L${lastX},${baselineY} L${firstX},${baselineY} Z`;
+
+  const up = values[values.length - 1] >= values[0];
+  const lineColor = up ? 'var(--vivid-green)' : 'var(--vivid-red)';
+  const fillColor = up
+    ? 'color-mix(in srgb, var(--vivid-green) 15%, transparent)'
+    : 'color-mix(in srgb, var(--vivid-red) 15%, transparent)';
+
+  const zeroY = minVal < 0 && maxVal > 0
+    ? SPARKLINE_PAD_Y + (1 - (0 - minVal) / span) * chartH
+    : null;
+
+  return (
+    <Card className="p-3">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] text-white/40 uppercase font-bold tracking-wider">
+          {t('trendLabel', { days: data.length })}
+        </span>
+      </div>
+      <svg
+        viewBox={`0 0 ${SPARKLINE_W} ${SPARKLINE_H}`}
+        className="w-full h-auto"
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={`${t('trendNet')} — ${t('trendLabel', { days: data.length })}`}
+      >
+        {zeroY !== null && (
+          <line
+            x1={SPARKLINE_PAD_X}
+            y1={zeroY}
+            x2={SPARKLINE_W - SPARKLINE_PAD_X}
+            y2={zeroY}
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth="1"
+            strokeDasharray="2,2"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+        <path d={areaPath} fill={fillColor} />
+        <path
+          d={linePath}
+          fill="none"
+          stroke={lineColor}
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </Card>
+  );
+});
 
 // ============================================
 // COMPONENT
@@ -292,6 +440,9 @@ export default function TransactionsPageContent({ userId }: TransactionsPageCont
           </div>
         </Card>
       </div>
+
+      {/* ===== Trend Sparkline (Slice 208 — FM 6.2) ===== */}
+      <TrendSparkline credits={filteredCredits} range={range} />
 
       {/* ===== Controls: Range + Search + Export ===== */}
       <Card className="p-4 space-y-3">

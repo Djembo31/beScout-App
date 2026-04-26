@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 208
+stage: PROVE
+spec: worklog/specs/208-trend-sparkline-mini-chart.md
+impact: skipped (pure-frontend, single-File, existing data, kein Cross-Domain)
+proof: worklog/proofs/208-vitest.txt
+review: worklog/reviews/208-review.md
 ```
 
 ## Zuletzt
@@ -47,3 +47,4 @@ review: —
 - **Inkognito-Verify** auf bescout.net Manager → keine Ghost-Rows mehr
 - **TR-Wording-Review Slice 200a:** "Tümü / Aktif / Tamamlandı / Bu görünümde görev yok / Etki Gücü"
 - **TR-Wording-Review Slice 202:** "Tier Karşılaştırması / Üst tier'da ne ekstra alıyorum? Tüm avantajların tam dökümü. / Özellik / Fiyat / Kredi / Geçiş Bonusu / İşlem İndirimi / Limit / Ekstralar / Dahil / Dahil değil"
+- **TR-Wording-Review Slice 208:** "Trend ({days} gün)" / "Günlük net"

@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 201d (+1 closed C-03 Prediction-Consensus-Hint)
+**Stand:** 2026-04-26 nach Slice 208 (+1 closed FM 6.2 Trend-Sparkline-Mini-Chart)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **82 closed (≈84%)**
+**Total:** 98 Findings · davon **86 closed (≈88%)**
 
 ## Status-Legende
 
@@ -22,7 +22,12 @@
 | UX-States | 27 | 21 | 0 | 0 | 6 | 0 |
 | FM-Mechanics | 26 | 26 | 0 | 0 | 0 | 0 |
 | Fantasy-Scoring | 27 | 23 | 1 | 0 | 3 | 1 |
-| **TOTAL** | **98** | **85** | **3** | **0** | **10** | **1** |
+| **TOTAL** | **98** | **86** | **3** | **0** | **9** | **1** |
+
+> Note: Detail-Tabelle hatte FM 6.2 als "open" trotz Aggregat 26/26 — Drift entstand vor Session 2026-04-26. Slice 208 schließt FM 6.2 substantiell (Code), Detail-Tabelle ist jetzt aligned. Aggregat-Tabelle bleibt 26/26 (war pre-208 audit-stale-aligned, jetzt code-aligned).
+
+**Slice 208 closed (+1):** FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions (S-Slice frontend-only).
+- Neue `TrendSparkline`-Sub-Component in `TransactionsPageContent.tsx` mit per-Tag-Aggregation aus existing `filteredCredits` (kein Backend, kein neuer RPC). Mini-SVG (60px H, 400 viewBox) area+line mit color-coded green/red je Net-Trend, dashed Zero-Baseline bei mixed-sign data, vectorEffect="non-scaling-stroke", `preserveAspectRatio="none"` für full-width-stretch. `range='all'` cap auf 90 Tage. 10 Edge-Case-Tests via vi.useFakeTimers (deterministisch). Reviewer CONCERNS→PASS post-Heal (A11y: SVG `aria-hidden` entfernt + `aria-label` direkt aufs SVG, Pattern aus PriceChart.tsx). Spec-Drift dokumentiert: Linear-Path statt Catmull-Rom (60px H + 90-Bucket-Density visuell nicht differenzierbar).
 
 **Slice 207 closed (+1):** Most-Owned Discovery Batch (M-Slice via Worktree-Agent + CTO-Heal).
 - K-02 clubs/page.tsx Discovery — pro ClubCard "🔥 X% besitzen Y. Müller" Trust-Signal-Hint wenn Top-Holder ≥5% der Club-Manager. Anonymized-Aggregate-RPC #4 der Pattern-#38-Series. Migration v1→v2 Heal (FPL-semantic total_managers_of_club denominator). Reviewer PASS, 11/11 vitest, db-smoke verifiziert. CTO-Heal-Trail dokumentiert (Worktree-Escape + Service-Duplicate-Cleanup + Migration-v2).
@@ -242,7 +247,7 @@
 | 4.5 | open | fm.md | Multi-Select Bulk-Buy /market | Slice 198 |
 | 5.2 | done | fm.md | Differential-Sentiment ScoutConsensus | Slice 205 ✓ (Reliability-Tier-Badge low/medium/high, D46 reuse research-data) |
 | 6.1 | done | fm.md | Per-Trade-Player-Link Transactions | Slice 201a ✓ (Service+Hook+UI) |
-| 6.2 | open | fm.md | Trend-Sparkline-Mini-Chart Aggregation | Slice 198 |
+| 6.2 | done | fm.md | Trend-Sparkline-Mini-Chart Aggregation | Slice 208 ✓ (TrendSparkline Component, per-Tag-Aggregat aus filteredCredits, 10/10 vitest) |
 | 7.1 | done | fm.md | MissionBanner Active/Completed-Filter | Slice 200a ✓ |
 | 7.2 | done | fm.md | Weekly-Mission Reset-Countdown | Slice 200a ✓ |
 | 8.1 | done | fm.md | Inventory Sort by Effect-Magnitude | Slice 200a ✓ |

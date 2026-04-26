@@ -5177,6 +5177,8 @@
     "net": "Net",
     "emptyTitle": "Seçilen aralıkta işlem yok",
     "emptyHint": "Daha fazla görmek için filtreyi veya aralığı değiştirin",
-    "showingCount": "{count, plural, =0 {Kayıt yok} =1 {1 kayıt} other {# kayıt}}"
+    "showingCount": "{count, plural, =0 {Kayıt yok} =1 {1 kayıt} other {# kayıt}}",
+    "trendLabel": "Trend ({days} gün)",
+    "trendNet": "Günlük net"
   }
 }
