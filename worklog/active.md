@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 210
-stage: PROVE
-spec: inline (UX 17 — airdrop Page-Level isError-Branch ergänzen, Pattern aus inventory CosmeticsSection.tsx:78-80)
-impact: skipped (XS-Slice, single-File-Edit, kein Cross-Domain)
-proof: worklog/proofs/210-tsc-self-review.txt
-review: self-review (D35 trivial-pattern Wiederholung — inventory/rankings haben identisches isError+ErrorState+refetch Pattern)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
