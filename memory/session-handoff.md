@@ -1,28 +1,155 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-26 15:46)
+# Session Handoff — Auto (2026-04-26 22:39)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
+ M .claude/settings.local.json
  M memory/session-handoff.md
 ```
 
 ## Session Commits: 10
-- af7df312 chore(210): active idle nach Slice 210 Commit
-- 36add578 feat(210): UX 17 airdrop isError-Handling (Pattern-Wiederholung Slice 196)
-- fa172d3c docs(audit): 12 audit-stale-row-marker korrigiert (D48 catcher-pattern, 4. iter)
-- 7b6c7b17 chore(208): active idle nach Slice 208 Commit
-- 0889075d feat(208): FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions
-- 0ff92f86 docs(handoff): Session-End 2026-04-26 Late — 3 Slices + Audit-Cleanup + Worktree-Heal-Lessons
-- de38bfa1 chore(207): active idle nach Slice 207 Commit
-- 7cb58b22 feat(207): Most-Owned Discovery Batch (K-02)
-- 4497e690 docs(audit): 7 audit-stale-row-marker korrigiert (D48 catcher-pattern)
-- 318c6617 chore(205): active idle nach Slice 205 Commit
+- bb5e12cb chore(222): active idle nach Slice 222 — alle findings_open → 0
+- 5b50bfe1 feat(222): P2-Bundle Reklassifizierung + K-RR-2 Heal (alle findings_open → 0)
+- ca6dd81e chore(220): active idle nach Slice 218+219+220 Wave (autonom)
+- f6c019f2 chore(220): Smoke+Sentry+PostHog Verifies — 2 ❓ closed, 1 NEUER P1 Finding
+- b516a5cd docs(219): Onboarding-Doc + Tester-Recruitment-Templates DE+TR
+- 756d2987 fix(218): Test-Mock-Repair ClubContent.test.tsx (12 fails → 12 pass)
+- 85580c4e chore(216): active idle nach Slice 216 Commit
+- afe63300 feat(216): P1-Wave-Heal — FM-NEU-1 + UX-NEU-1 + K-RR-1 (3 P1 → 0)
+- e0175b2d chore(217): active idle nach Slice 217 Commit
+- a9122ea1 feat(217): Sign-Off-Trial-Run — HARD-NO-GO bestätigt System-Funktion
 
 <!-- auto:handoff-end -->
 
 ---
+
+# Resume-Anker (2026-04-26 — 14-Slice-Marathon + Self-Healing-Loop-Foundation)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `bb5e12cb`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL, **alle findings_open auf 0**
+3. `memory/current-sprint.md` — vollständiger Stand 2026-04-26 (Slice 208-222)
+4. Diese Datei (Resume-Anker, Top-Block)
+5. `git log --oneline -20` (14 Slices in einer Session)
+6. `worklog/log.md` Top 14 Eintraege (208 bis 222)
+
+## Session-End 2026-04-26 — 14 Slices in Folge, Tech-Side maximal sauber
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter im handoff" → Slice 208 FM 6.2 Trend-Sparkline
+2. "weiter" → 209 Audit-Stale-Cleanup
+3. "weiter" → 210 UX 17 airdrop isError
+4. **"mit der SPEC steht und fällt alles, agent soll nicht blind sein"** → Slice 211 Spec-Foundation-Uplift D50
+5. "weiter" → 212 Spec-Quality-Gate-Hook
+6. "A" → 213 QuickActionPills
+7. **"ich höre fertig aber dem ist nicht so, System soll sich selbst heilen, autonom"** → Slice 214 Auto-Beta-Ready Self-Healing-Loop
+8. "los" → 7 Background-Agents dispatched + Live-Test
+9. "re run" → Slice 215 Phase-C Re-Run
+10. "3" → Slice 217 Sign-Off-Trial-Run → HARD-NO-GO (System lügt nicht)
+11. "ja" → Slice 216 P1-Wave-Heal (3 P1 → 0)
+12. **"volle Entscheidungsgewalt, führe aus"** → Slice 218 Test-Mock-Repair, 219 Onboarding-Doc + Recruitment-Templates, 220 Smoke+Sentry+PostHog Verifies
+13. "weiter" → Slice 222 P2-Bundle Reklassifizierung (alle findings_open → 0)
+14. **"/done"** → Session-End
+
+## Pipeline-Status (alle 21 Commits gepusht)
+
+HEAD: `bb5e12cb chore(222): active idle nach Slice 222 — alle findings_open → 0`
+
+Wave 1 — Spec-Foundation:
+- 211 Spec-Foundation-Uplift D50 + 212 Spec-Quality-Gate-Hook + 213 QuickActionPills
+
+Wave 2 — Auto-Beta-Ready Self-Healing-Loop:
+- 214 Master-Foundation (Phase-Tracker + Hook + Pipeline + Skill)
+- 215 Phase-C Re-Run + 217 Sign-Off-Trial-Run + 216 P1-Wave-Heal
+
+Wave 3 — Anil-Action-Enabler + Verifies + Reklassifizierung:
+- 218 Test-Mock-Repair + 219 Onboarding-Doc-Recruitment + 220 Verifies + 222 P2-Bundle
+
+Pure Doku-Slices: 208 + 209 + 210
+
+**Build-Verifikation (Session-End):** ✅ `npx next build` → "Compiled successfully" exit 0. 38 Pages built.
+
+## Tech-Side ist FERTIG — null open Findings
+
+Phase-Tracker (`worklog/beta-phase.md`):
+```yaml
+phase: D
+last_signoff: FAIL (HARD-NO-GO Trial Slice 217)
+findings_open: P0=0, P1=0, P2=0, P3=0   # alle null
+deferred: 2 (POSTHOG-NEU-1, FM-RR-2 Watchlist-Feature)
+ceo_pending: 3 (FANTASY-NEU-1, F-09 BPS, UX 20 MembershipSection)
+wont_fix: 2 (FM-RR-1 Sparkline-Hover, BRAND-NEU-1 stale)
+stale: 2 (TR-NEU-1, FM-RR-3)
+signoff_questionable: 2 (Page-Health-Score, Persona-Score-numerisch)
+```
+
+## Zwischen heute und Beta-GO steht NUR noch
+
+**1 Anil-Mensch-Action:** 3 Tester organisieren mit fertigen Templates.
+
+```
+1. memory/beta-tester-recruitment-templates.md → 3 Personen, Templates anpassen
+2. 3× DM/Email schicken
+3. Bei Zusage: memory/beta-tester-list.md (private, .gitignore)
+4. memory/beta-onboarding.md TODO-Stellen ersetzen
+5. Zoom-Calls (~30min × 3)
+
+Erwartete Mensch-Zeit: 3-4h verteilt über 3-7 Tage.
+```
+
+## System-Foundation funktioniert (Slice 211-214)
+
+Live & autonom:
+- ✅ `ship-phase-gate.sh` UserPromptSubmit-Hook warnt bei "Beta-fertig"-Claims ohne Sign-Off-PASS
+- ✅ `ship-spec-quality-gate.sh` PreToolUse-Hook warnt bei Spec-Pflicht-Sektionen-Lücken
+- ✅ `ship-cto-review-gate.sh` Pre-Commit-Hook blockt feat/fix ohne Reviewer-File
+- ✅ `scripts/findings-to-slices.ts` Pipeline auto-generiert Slice-Stubs
+- ✅ `/auto-beta-ready` Skill orchestriert Phase A-D-Loop
+- ✅ Phase-Tracker als SoT, Hooks lesen davon
+
+**Trial-Run-Verdict (Slice 217):** System produziert ehrliches HARD-NO-GO bei realem Stand. **Foundation lügt nicht.**
+
+## Anil-Action vor Beta-Verify (gesammelt diese Session)
+
+**Mensch-only-Blocker (Anil):**
+- 3 Beta-Tester organisieren (Templates fertig, ~30min)
+- TR-Native-Reviewer organisieren
+- `memory/beta-tester-list.md` schreiben (private, .gitignore-Pflicht)
+- TR-Wording-Review der Slice 222 NEU-Keys: `sentimentLabel/Bullish/Bearish/Neutral` ("düşük değerli" / "yüksek değerli")
+
+**Money-Path-CEO-Decisions (Anil-only):**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring-Algorithm-Change)
+- F-09 BPS-Bonus (pre-existing Money-Path)
+- UX 20 MembershipSection Confirm (pre-existing Money-Risk)
+
+**Inkognito-Verify auf bescout.net post-deploy:**
+- Slice 216 Heals: PickRateBadge in compact-View (`/club/<slug>` Squad-Tab) + FeedbackModal preventClose + Floor-Preis-Tooltip
+- Slice 222 K-RR-2: BuyConfirmModal Sentiment-Tooltips
+- Slice 213: QuickActionPills Home-Page (visual unverändert, Refactor-Verifikation)
+
+## Backlog post-Beta (wenn Skala)
+
+- Slice 240+ PostHog-Instrumentation (track-Events für login/first_trade/first_lineup/first_post)
+- Slice 241+ Mobile-Touch-Tooltip für Floor-Preis (K-RR-1 Mobile-Vollständigung)
+- Slice 242+ Watchlist-Standalone-Page (Feature, kein Bug)
+- Briefing-Pattern v3 für Background-Agent-Iterativ-Append (Slice 215 Workflow-Learning)
+
+## Bei /clear oder Token-Limit Resume-Pfad
+
+1. `worklog/active.md` (idle, **bb5e12cb** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, alle findings_open auf 0)
+3. `memory/current-sprint.md` (vollständiger 2026-04-26 Stand)
+4. Diese Datei Top-Block
+5. `worklog/log.md` Top 14 Eintraege
+6. `git log --oneline -25`
+7. `git worktree list` (sollte nur main sein)
+8. **Nächster sinnvoller Slice:** Slice 224 Sign-Off-Trial-Re-Run wenn Anil 3 Tester organisiert hat → erwarteter SOFT-NO-GO (P1=0, nur Tester-Liste pending, nicht hard-FAIL).
+
+---
+
+# Vorherige Sessions (archiviert)
 
 # Resume-Anker (2026-04-26 Continuation 2 — 3 Slices + Audit-Stale-Cleanup + Strategie-Pause)
 

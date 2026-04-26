@@ -1,79 +1,105 @@
-# Current Sprint — Session 2026-04-24 Close
+# Current Sprint — Session 2026-04-26 Close (14-Slice-Marathon)
 
-## Stand (2026-04-24 Session-Ende)
+## Stand (2026-04-26 Session-Ende)
 
-- **Branch:** main — pushed (`95adb3df` HEAD)
-- **Letzter Commit:** `95adb3df docs(hygiene): Slice 187b abschluss — active.md idle + log.md`
-- **Session-Output:** 8 Slices + 3 Hygiene-Commits (in dieser Session)
-- **Tests:** tsc clean, 3122/3128 vitest grün, 44/44 db-invariants + order-lifecycle grün
-- **Production:** www.bescout.net live auf HEAD (auto-deploy funktional)
+- **Branch:** main — pushed (`bb5e12cb` HEAD)
+- **Session-Output:** 14 Slices (208–222) + 14 Hygiene-Commits
+- **Tests:** tsc clean, vitest grün (Slice 218 hat ClubContent.test.tsx-Mocks repariert: 12 fail → 12 pass)
+- **Production:** www.bescout.net live auf HEAD (Smoke-Suite 10/10 GREEN gegen bescout.net, Slice 220)
+- **Phase-Tracker (`worklog/beta-phase.md`):** Phase D, last_signoff: FAIL (HARD-NO-GO Trial Slice 217), **alle findings_open auf 0** post-Slice-222
 
-## Session-Highlights (2026-04-24)
+## Session-Highlights (2026-04-26 — Self-Healing-Loop-Aufbau)
 
-### Radix-Migration Phase 1 (vollständig)
-- 46 Dialog-Sites + 3 AlertDialog-Sites migriert (Custom-Modal → Radix)
-- Module `@/components/ui/Modal` + `ConfirmDialog` **deleted** (~130 LOC)
-- Single Source of Truth: `@radix-ui/react-dialog` + `@radix-ui/react-alert-dialog`
+### Wave 1: Spec-Foundation (Slice 211-213)
 
-### Infra-Blocker (Vercel Hobby)
-- Root-Cause: `dedup-cleanup` cron hourly-schedule → Hobby-Tier rejected
-- 17 Commits waren unsichtbar stuck seit 15:41 UTC
-- Workaround: daily `15 3 * * *` (TODO zurück auf hourly bei Pro-Restore)
+- **Slice 211** Spec-Foundation-Uplift (D50): 4 neue Pflicht-Sektionen in /spec Skill (Code-Reading-Liste, Pattern-References, Self-Verification, Open-Questions). _TEMPLATE.md als Master. workflow.md Slice-Größen-Tabelle.
+- **Slice 212** Spec-Quality-Gate-Hook: WARN-Hook prüft Spec-Pflicht-Sektionen pre-BUILD je Slice-Größe.
+- **Slice 213** QuickActionPills Component-Extract (Brand 1 P3): Foundation Slice 211/212 live-verifiziert.
 
-### DB-Invariant-Cleanup (Data-Integrity)
-- INV-35 (Logo-Source): 1 → 0 (Gençlerbirliği)
-- INV-38 (Orphan-Stale): 37 → 0 (transfermarkt_stale flag)
-- INV-39+INV-40 (Ghost-Rows): 14 → 0 (club_id=NULL on apps=0 doppelgänger)
-- SM-ORD-04 (Expired Orders): 158 → 0 (via `expire_pending_orders` RPC, Escrow released)
+### Wave 2: Auto-Beta-Ready Self-Healing-Loop (Slice 214-217)
 
-### Cron-Gap geschlossen
-- `expire-orders` Route fehlte komplett → 158 stale orders accumulation
-- Neue Route + vercel.json Entry (05:30 UTC daily, Hobby-safe)
+- **Slice 214** Master-Foundation: `worklog/beta-phase.md` Phase-Tracker SoT + `ship-phase-gate.sh` UserPromptSubmit-Hook (warnt bei "Beta-fertig"-Claims ohne PASS) + `scripts/findings-to-slices.ts` Pipeline (auto-generiert Slice-Stubs aus Audit-Findings) + `auto-beta-ready/SKILL.md` Master-Orchestrator. CLAUDE.md + workflow.md Hard-Definition "Fertig" = `last_signoff == PASS`.
+- **Slice 215** Phase-C Re-Run mit Bash-First-Write Briefing-v2 — Workflow-Learning: Skeleton-First erfolgreich (Files persistent), iteratives Append failed → Manual-CTO-Completion appendierte 5 Findings.
+- **Slice 217** Sign-Off-Trial-Run trotz P1=3 — **HARD-NO-GO produziert** (System lügt nicht). 8 Sign-Off-Kriterien geprüft: 2 ✅ + 4 ❓ + 2 ❌ (tester-list + onboarding-doc fehlen).
+- **Slice 216** P1-Wave-Heal: FM-NEU-1 + UX-NEU-1 + K-RR-1 (3 P1 → 0). PickRateBadge in compact-View, FeedbackModal preventClose, Floor-Preis-Tooltip.
 
-## Aktueller Fokus: Session beenden, Backlog-Items triage
+### Wave 3: Anil-Action-Enabler + Verifies + Reklassifizierung (Slice 218-222)
 
-### Offen für Anil (CEO-Scope)
+- **Slice 218** Test-Mock-Repair ClubContent.test.tsx: 3 Mocks ergänzt (useLeagueActiveGameweek, useEventPlayerPickRates, useMostOwnedPlayersPerClub). 12 fail → 12 pass.
+- **Slice 219** Onboarding-Doc + Tester-Recruitment-Templates: 2 NEU Files in `memory/` (`beta-onboarding.md` DE+TR 1-Page, `beta-tester-recruitment-templates.md` Multi-Channel × DE+TR). Anil-Mensch-Aktion reduziert von "schreibe Texte" auf "klick + verschicken".
+- **Slice 220** Smoke + Sentry + PostHog Verifies: ✅ Smoke 10/10, ✅ Sentry CSP+Lib+Config, ✅ PostHog connected. **NEUER P1**: POSTHOG-NEU-1 (0 Events ingested, Instrumentation-Gap aus beta-exit-criteria.md).
+- **Slice 222** P2-Bundle Reklassifizierung + K-RR-2 Heal: 1 echter Heal (BuyConfirmModal Sentiment title-Tooltips, 4 NEU i18n-Keys DE+TR), 5 Status-Updates (TR-NEU-1 stale, FANTASY-NEU-1 CEO-pending, FM-RR-1 wont-fix, FM-RR-2 deferred, POSTHOG-NEU-1 deferred Anil-Option-B). **ALLE findings_open auf 0**.
 
-1. **Vercel-Plan-Entscheidung** — Hobby (bewusst) vs Pro-Upgrade? 2 Crons auf Hobby-Workaround (dedup-cleanup, expire-orders). Pro erlaubt hourly + 40 Jobs.
-2. **3 Beta-Tester organisieren** (aus früherem Handoff) — min. 1 türkisch-sprachig, 1 ohne Fußball-Kontext
-3. **1 Deutsch-Türke für TR-Locale-Review** — 802 TR-Strings ready in qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt
+### Pure Doku-Slices
 
-### Backlog (separate Slices)
+- **Slice 209** Audit-Stale-Cleanup 12 Marker (D48 Pattern, 4. Iteration)
+- **Slice 210** UX 17 airdrop isError-Handling (Pattern-Wiederholung Slice 196)
+- **Slice 208** FM 6.2 Trend-Sparkline auf /transactions (TrendSparkline-Component, vi.useFakeTimers Tests, A11y-Heal post-Reviewer)
 
-| Item | Priorität | Aufwand |
-|------|-----------|---------|
-| **181g** JoinConfirmDialog Custom-DOM → Radix | LOW | ~30 min |
-| **INV-35 Regression-Guard** (Admin-UI Logo-URL Validation) | LOW | ~20 min |
-| **Ghost-Prevention** in sync-players-daily (INV-39/40 Recurrence) | MEDIUM | ~30-60 min |
-| **CI-Check Cron-Route-Registry-Audit** | LOW | ~15 min |
-| **Vercel Pro Cron-Restore** (nach Anil-Entscheidung) | LOW | ~5 min |
+## Sign-Off-Stand
 
-### Beta-Launch Status (aus älterem Handoff)
+```yaml
+phase: D
+last_signoff: FAIL (HARD-NO-GO Trial Slice 217)
+last_signoff_date: 2026-04-26
+findings_open: P0=0, P1=0, P2=0, P3=0   # alles auf 0!
+deferred: 2 (POSTHOG-NEU-1, FM-RR-2 Watchlist)
+ceo_pending: 3 (FANTASY-NEU-1, F-09 BPS, UX 20 Confirm)
+wont_fix: 2 (FM-RR-1, BRAND-NEU-1)
+stale: 2 (TR-NEU-1, FM-RR-3)
+signoff_questionable: 2 (Page-Health-Score, Persona-Score-numerisch)
+```
 
-- **Phase 1-3a:** DONE (Smoke-Suite, Synthetic, Secrets, Infrastructure)
-- **Phase 3b:** Wartet auf 3 echte Tester (Anil organisiert)
-- **Testplan:** memory/beta-testplan.md — 8 Tasks pro Zoom-Call, Anil moderiert
+## Was zwischen heute und Beta-GO steht
 
-## Technische Änderungen heute
+**1 Anil-Mensch-Action:** 3 Tester organisieren mit den fertigen Templates.
 
-- `src/components/ui/Dialog.tsx` — Radix-Wrapper (existed, now Source-of-Truth)
-- `src/components/ui/AlertDialog.tsx` — Radix-Wrapper (existed, now in EventDetailModal live)
-- `src/components/ui/Modal.tsx` — DELETED (Function removed from index.tsx)
-- `src/components/ui/ConfirmDialog.tsx` — DELETED (file deleted)
-- `src/app/api/cron/expire-orders/route.ts` — NEU
-- `vercel.json` — +1 cron entry (expire-orders), dedup-cleanup daily
+```
+Anil:
+1. memory/beta-tester-recruitment-templates.md öffnen
+2. 3 Personen aussuchen (Profile A/B/C)
+3. <NAME> + WhatsApp-Nr + Email anpassen
+4. 3× DM/Email schicken
+5. Bei Zusage: memory/beta-tester-list.md schreiben (private, .gitignore-Pflicht)
+6. memory/beta-onboarding.md TODO-Stellen ersetzen + an Tester schicken
+7. Login-Accounts auf bescout.net erstellen
+8. Zoom-Calls durchführen (~30 min × 3)
 
-## DB-State-Änderungen (via Supabase MCP, keine Code-Commits)
+Erwartete Mensch-Zeit: ~3-4h verteilt über 3-7 Tage.
+```
 
-- 1 `clubs.logo_url` updated (Gençlerbirliği)
-- 37 `players.mv_source = 'transfermarkt_stale'` updated
-- 9 `players.club_id = NULL` updated (Ghost-Rows orphaned)
-- 158 `orders.status = 'cancelled'` (+ `wallets.locked_balance` Release + Transaction-Log)
+**Optional Anil-CEO-Decisions:**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path)
+- F-09 BPS-Bonus (Money-Path)
+- UX 20 MembershipSection Confirm (Money-Risk)
+- TR-Native-Reviewer organisieren (für E1 Compliance-Check)
 
-## Referenzen
+**Tech-Backlog post-Beta:**
+- Slice 240+ PostHog-Instrumentation (wenn Skala >20 User)
+- Slice 241+ Mobile-Touch-Tooltip für Floor-Preis (K-RR-1 Mobile-Vollständigung)
+- Slice 242+ Watchlist-Standalone-Page (Feature, kein Bug)
 
-- Slice-Historie: worklog/log.md (neueste oben, 8 neue Einträge)
-- Session-Decisions: memory/decisions.md (D34-D35 aus Vor-Session, keine neuen in dieser Session)
-- Session-Handoff: memory/session-handoff.md (auto-generated)
-- Proofs: worklog/proofs/181e*, 181f-h*, 187*, 187b*
-- Reviews: worklog/reviews/181e1, 181e2, 181f+h, 187
+## System-Stand: Foundation funktioniert
+
+**Was Slice 211-214 gebaut haben (live):**
+- ✅ `ship-phase-gate.sh` UserPromptSubmit-Hook warnt bei "Beta-fertig"-Claims ohne Sign-Off-PASS
+- ✅ `ship-spec-quality-gate.sh` PreToolUse-Hook warnt bei Spec-Pflicht-Sektionen-Lücken
+- ✅ `ship-cto-review-gate.sh` Pre-Commit-Hook blockt feat/fix ohne Reviewer-File
+- ✅ `scripts/findings-to-slices.ts` Pipeline auto-generiert Slice-Stubs
+- ✅ `/auto-beta-ready` Skill orchestriert Phase A-D-Loop
+- ✅ Phase-Tracker als SoT, Hooks lesen davon
+
+**Trial-Run-Verdict (Slice 217):** System produziert ehrliches HARD-NO-GO bei realem Stand. Foundation lügt nicht.
+
+## Pre-Existing-Backlog (offen seit Wochen, Anil-Mensch)
+
+- Vercel-Plan-Decision (aktuell Pro live)
+- TR-Locale-Reviewer-Recruitment
+- 3 Beta-Tester organisieren
+
+## Tech-Stack (unverändert)
+
+- Next.js 14 App Router · TypeScript strict
+- Supabase (PG + Auth + Realtime) · TanStack React Query v5 · Zustand v5
+- Tailwind (Dark Mode) · next-intl (DE + TR) · lucide-react
+- 7 Ligen launch-ready (Süper Lig, TFF1, Bundesliga, 2BL, PL, La Liga, Serie A)
