@@ -1961,6 +1961,65 @@ D42 (CRITICAL-Findings = Pre-Merge-Pflicht) deckt Code-Quality-Bugs. D48 ist spe
 
 ---
 
+## D49 — ARCHITECTURE: SELECT-COLS-Konstanten Sync-Pflicht mit DbType-Definitionen
+
+**Datum:** 2026-04-26
+**Status:** ✅ Aktiv (durch Slice 200 Bonus-Discovery aus Slice 197d Latent-Bug)
+
+### Entscheidung
+
+`*_SELECT_COLS`-Konstanten in Service-Layern (z.B. `PLAYER_SELECT_COLS` in `src/lib/services/players.ts`) MUESSEN bei JEDEM `ALTER TABLE <X> ADD COLUMN <Y>` synchron mit:
+1. Db<X>-Type-Definition in `src/types/index.ts`
+2. dbTo<X>-Mapper-Funktion (auch im Service-Layer)
+3. SELECT-COLS-Konstante (oft vergessen — silent Production-Drift)
+4. Ggf. RPC-Return-Shapes (bei discriminated-union RPCs)
+
+**Pflicht-Audit nach JEDEM ADD COLUMN:**
+```bash
+# Alle db.X-Reads im Service-Layer enumerieren + gegen SELECT-COLS-Liste matchen
+grep -E "db\.[a-z_]+" src/lib/services/players.ts | sed 's/.*db\.//; s/[^a-z_].*//' | sort -u
+# Jeden Wert in PLAYER_SELECT_COLS suchen
+```
+
+### Begründung
+
+**Discovery (2026-04-26 Slice 200):** PLAYER_SELECT_COLS in `src/lib/services/players.ts` hatte `mv_trend_7d` NICHT, obwohl:
+- DbPlayer-Type erweitert (Slice 197d)
+- dbToPlayer-Mapper liest `db.mv_trend_7d ?? null` (Slice 197d)
+- Migration applied (Slice 197d)
+- Frontend MV-Trend-Filter implementiert (Slice 197d)
+
+→ PostgREST sendet die Spalte nicht zurueck → mvTrend7d immer `null` fuer alle 4556 Players in Production → MV-Trend-Pfeile in der UI rendern nie → 1 Tag (24h+) Latent-Bug, **niemand hat es bemerkt** weil:
+- TS-Cast `db.mv_trend_7d ?? null` luegt nicht (NULL ist valid)
+- `applyMvTrendFilter(items, value, p => p.mvTrend7d ?? null)` funktioniert auch mit allen-NULL
+- Frontend-Tests gegen Mock-only (kein Real-DB-Roundtrip)
+- Reviewer-Agent in 197d hat Service-Code nicht gesehen (Worktree-Isolation)
+
+Slice 200 fixt by-coincidence weil `trades_volume_7d` zur SELECT-Liste hinzugefuegt wurde und `mv_trend_7d` mit.
+
+### Auswirkungen
+
+- **Code:** `errors-frontend.md` neuer Pattern "PLAYER_SELECT_COLS Sync mit DbPlayer-Type" (Slice 200, codifiziert).
+- **Prozess:** Bei jedem ALTER TABLE players ADD COLUMN: 4-Punkt-Checklist (Type + Mapper + SELECT_COLS + Tests).
+- **Audit-Command** dokumentiert (grep `db.X`-Reads vs SELECT-COLS).
+- **Andere SELECT-COLS-Konstanten:** Pattern gilt analog fuer CLUB_SELECT_COLS, EVENT_SELECT_COLS, etc. — Audit-Command verallgemeinerbar.
+
+### Alternativen erwogen
+
+- **`select('*')` statt explicit-cols:** Wuerde Sync-Drift verhindern, aber alle Spalten holen ist Bandbreiten-Verschwendung (DbPlayer hat 30+ Felder, viele rare-used). Verworfen.
+- **Auto-generated SELECT-COLS aus DbType via TS-Macro:** Komplex, kein etablierter Tooling. Verworfen.
+- **CI-Gate "DbType vs SELECT-COLS Diff":** Implementierungs-Aufwand vs One-Time-Damage gerechnet — pragmatisch via Audit-Command + Pattern-Doc + Reviewer-Pflicht-Check loesbar. **Aktiv.**
+
+### Re-Visit-Trigger
+
+Wenn nochmal ein Latent-Bug dieser Klasse entsteht (SELECT-COLS-Drift) → CI-Gate-Implementierung priorisieren.
+
+### Beziehung zu D43
+
+D43 (Type-Truth-Audit-Pflicht bei RPC-konsumierenden Services) deckt RPC-vs-TS-Cast-Lies. D49 deckt SELECT-COLS-vs-DbType-Lies. Beide sind Latent-Production-Bug-Klassen die TS-Compiler nicht catched.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
