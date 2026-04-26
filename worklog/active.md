@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 208
-stage: PROVE
-spec: worklog/specs/208-trend-sparkline-mini-chart.md
-impact: skipped (pure-frontend, single-File, existing data, kein Cross-Domain)
-proof: worklog/proofs/208-vitest.txt
-review: worklog/reviews/208-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 208** (2026-04-26) — FM 6.2 Trend-Sparkline-Mini-Chart auf /transactions (S-Slice frontend-only). Neue `TrendSparkline`-Sub-Component mit per-Tag-Aggregation aus existing `filteredCredits`, range-reaktiv (7d/30d/90d/all mit 90-Bucket-Cap), color-coded green/red, dashed Zero-Baseline bei mixed-sign. 10 Edge-Case-Tests via vi.useFakeTimers. Reviewer CONCERNS→PASS post-Heal (A11y SVG aria-fix, PriceChart-Pattern). Spec-Drift dokumentiert (Linear statt Catmull-Rom — bei 60px H + 90-Density nicht differenzierbar). Punch-Liste 85 → 86/98 (~88%). Commit 0889075d.
 - **Slice 207** (2026-04-26) — Most-Owned Discovery Batch (K-02). M-Slice via Worktree-Agent (escaped — CTO konsolidiert) + 2 Migrations (v1→v2 Heal). Anonymized-Aggregate-RPC #4 der Pattern-#38-Series. Discovery `/clubs` zeigt pro ClubCard "🔥 X% besitzen Y. Müller" (FPL-Trust-Signal). Reviewer PASS (2 NITs nicht-blockierend). 11/11 vitest PASS. Punch-Liste 84 → 85/98 (~87%).
 - **Slice 205** (2026-04-26) — ScoutConsensus Reliability-Indicator (FM 5.2). XS-Slice. Tier-Badge low/medium/high im Header basierend auf qualifiziertem Report-Count (1-9/10-49/50+). D46-Reuse research-data, kein neuer Service. Self-Review (D35 Pattern-Wiederholung Slice 201b ConcentrationBar Tier-Color-Coding). FM-Mechanics 26/26 (100% closed). Punch-Liste 83 → 84/98 (~86%).
 - **Slice 204** (2026-04-26) — Squad-Tab Fantasy-Pick-Rate (K-03). S-Slice. PickRateBadge auf /club/[slug] Spieler-Tab Cards-View, D46-Reuse `useEventPlayerPickRates` (Slice 195e RPC). Reviewer CONCERNS→PASS post-Heal (Badge-Position `top-2 right-2` ueberlappte L5-Score → `bottom-2 right-2` Footer-Bereich). Punch-Liste 82 → 83/98 (~85%).
