@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 213
-stage: PROVE
-spec: worklog/specs/213-quick-action-pills-extract.md
-impact: skipped (1 NEU Component, 1 EDIT page.tsx — kein DB/RPC/Service)
-proof: worklog/proofs/213-extract-audit.txt
-review: worklog/reviews/213-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 213** (2026-04-26) — QuickActionPills Component-Extract (Brand 1 P3, S-Slice). Inline-Map-Block aus `src/app/(app)/page.tsx` extrahiert in self-contained Component `src/components/home/QuickActionPills.tsx` mit narrow TypeScript-Type für labelKey. 5 Lucide-Icons aus page.tsx-Imports bereinigt. Visual-Behavior 1:1 verifiziert. Reviewer PASS, keine REWORK. **Foundation Slice 211/212 live-verifiziert: ship-spec-quality-gate.sh silent bei konformer Spec während BUILD.** Spec ist Gold-Standard-Beispiel für 13-Sektionen-Format. Brand-Coherence 16/18 (~89%). Commit 795ea210.
 - **Slice 212** (2026-04-26) — Spec-Quality-Gate-Hook + /ship new Template-Reference (Wave 2 von Slice 211 D50, S-Slice). NEU `ship-spec-quality-gate.sh` WARN-Hook prüft Pre-BUILD Spec-Pflicht-Sektionen je Slice-Größe (XS=6, S/M=13, L=13+Pre-Mortem). Tolerant gegen Markdown-Stil-Drift, skipped meta-Files / idle / emergency / inline-Spec. WARN-only kein BLOCK (false-positive-safe wie Slice 211 Verdict-Hook). settings.json Hook-Registration. /ship Skill referenziert _TEMPLATE.md explizit. workflow.md Hook-Verweis. Reviewer PASS (1 LOW Backlog: tr-d-Pfade-mit-Spaces; 3 NITs; Lücke benannt: Hook prüft Sektion-EXISTENZ nicht Item-Counts → Slice 213). 10/10 ACs grün + 3-Hook-Chain-Smoke-Test post-Reviewer (alle silent + exit 0, kein Stack-Interference). Commit 399f4ffb.
 - **Slice 211** (2026-04-26) — Spec-Foundation-Uplift (L-Meta-Process). 4 neue /spec Pflicht-Sektionen 1.10-1.13 (Code-Reading-Liste, Pattern-References, Self-Verification Commands, Open-Questions). workflow.md SPEC-Stage komplett überarbeitet mit Slice-Größen-Tabelle (XS/S/M/L Mindest-Items). _TEMPLATE.md als Master-Spec-File. /parallel-dispatch um 3 Briefing-Blöcke erweitert (WORKTREE-PFLICHT absolute-paths-trap, PRE-REVIEW-MEMO, Service-Schnittstelle vorab). Hook ship-cto-review-gate Verdict-Schema-Enforcement WARN-only. 3 Pattern-Drafts aus Slice 207 promoted (Worktree-Isolation-Escape in common-errors.md §0, Migration-Heal v1→v2 in errors-db.md, Pre-Review-Memo Pattern #39). D50 in decisions.md (PROCESS, mit empirischer Evidence aus 6 zitierten Slices + Beziehung zu D45-D49). Reviewer PASS post-Heal (1 MEDIUM Spec-Tabelle-Drift inline-gefixt). 10/10 ACs grün. Commit e446c60a.
 - **Slice 210** (2026-04-26) — UX 17 Airdrop isError-Handling (XS-Slice, frontend-only, Pattern-Wiederholung). `useAirdropLeaderboard` + `useAirdropStats` mit `isError`+`refetch` destructured, 2 separate Error-Branches (Stats-Bar 3-way, Leaderboard-Card inner 4-way). myEntry+Tier-CTA suppressed bei Leaderboard-Error. Self-Review (D35 trivial-pattern Slice 196 inventory/rankings). tsc clean. Punch-Liste UX 17 → done.
@@ -37,7 +38,7 @@ review: worklog/reviews/213-review.md
 - **`scripts/type-truth-audit.ts`** — automatisiert D43/D49 Pattern (`data as <Type>` vs `pg_get_functiondef`). S-M.
 
 **Real-actionable-frontend-only (CTO-scope):**
-- **Brand 1 P3** Quick-Action-Pills Component-Extraction (Home `page.tsx:172`) — Polish-Refactor low-prio.
+- *Pool praktisch leer.* Brand 1 closed (Slice 213). Verbleibende Items sind Money-Path (CEO) oder Backend-M-Slices oder Post-Beta-deferred.
 
 **Backend-M-Slice (kein CEO needed, brauchen Time-Budget):**
 - **FM 10.2 + 10.3** Airdrop Personal-Score-History + Friends-Filter — Backend-Aggregate + Filter-UI.
