@@ -1,8 +1,8 @@
 # Master-Punch-Liste — Beta-Readiness 2026-04-25
 
-**Stand:** 2026-04-26 nach Slice 200b (+3 closed + 1 already-fixed-marker)
+**Stand:** 2026-04-26 nach Slice 202 (+3 closed: Brand-2, Brand-12, FM-9.3)
 **Quellen:** Phase-A-Audits in `worklog/audits/2026-04-25/{brand,ux,fm-mechanics,fantasy}.md`
-**Total:** 98 Findings · davon **70 closed (≈71%)**
+**Total:** 98 Findings · davon **73 closed (≈74%)**
 
 ## Status-Legende
 
@@ -18,11 +18,16 @@
 
 | Domain | Total | done | wont-fix | in-progress | open | deferred |
 |---|---|---|---|---|---|---|
-| Brand-Coherence | 18 | 12 | 0 | 0 | 6 | 0 |
-| UX-States | 27 | 19 | 0 | 0 | 8 | 0 |
-| FM-Mechanics | 26 | 21 | 0 | 0 | 5 | 0 |
+| Brand-Coherence | 18 | 14 | 2 | 0 | 2 | 0 |
+| UX-States | 27 | 20 | 0 | 0 | 7 | 0 |
+| FM-Mechanics | 26 | 22 | 0 | 0 | 4 | 0 |
 | Fantasy-Scoring | 27 | 19 | 1 | 0 | 7 | 1 |
-| **TOTAL** | **98** | **71** | **1** | **0** | **26** | **0** |
+| **TOTAL** | **98** | **75** | **3** | **0** | **20** | **1** |
+
+**Slice 202 closed (+3):** Wave 5 Polish-Sweep (Frontend-only, single-track sequenziell).
+- Brand 12 PitchView text-yellow-400 → text-status-doubtful (Token-Migration)
+- Brand 2 Gold-Pulse-Gradient als `.gold-pulse-bg` Utility (globals.css `@layer utilities`)
+- FM 9.3 Founding Per-Tier-Vergleichstabelle (NEW `TierComparisonMatrix.tsx`, Stripe-Matrix mit ✓/✗ + 5 Meta-Rows + 8 Extras-Rows, mobile sticky-left + overflow-x-auto, 11 i18n-keys DE+TR symmetrisch)
 
 **Slice 200b closed (+3 + 1 already-fixed-marker):** Wave 4 Polish-Sweep (Frontend-only, single-track sequenziell).
 - FM 10.1 Airdrop Tier-CTA "Brauche X Pkt für nächsten Tier" mit Progress-Bar (Threshold-sync zu Migration)
@@ -142,14 +147,14 @@
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| 4 | open | ux.md | Manager-Page kein ErrorBoundary | Slice 196 |
-| 5 | open | ux.md | AufstellenTab eventsLoading nur Loader2 → Skeleton | Slice 196 |
-| 9 | open | ux.md | FollowListModal kein preventClose während toggling | Slice 196 |
-| 13 | open | ux.md | founding/page.tsx i18n-Bug `addToast('Ein Fehler ist...')` ohne `t()` | Slice 196 |
-| 18 | open | ux.md | Settings-Page i18n-Key-Leak `setError(err.message)` 2× | Slice 196 |
-| 21 | open | ux.md | compare/page.tsx native `alert()` statt Toast | Slice 196 |
+| 4 | done | ux.md | Manager-Page kein ErrorBoundary | Slice 196 ✓ |
+| 5 | done | ux.md | AufstellenTab eventsLoading nur Loader2 → Skeleton | Slice 196 ✓ |
+| 9 | done | ux.md | FollowListModal kein preventClose während toggling | Slice 196 ✓ |
+| 13 | done | ux.md | founding/page.tsx i18n-Bug `addToast('Ein Fehler ist...')` ohne `t()` | Slice 196 ✓ |
+| 18 | done | ux.md | Settings-Page i18n-Key-Leak `setError(err.message)` 2× | Slice 196 ✓ |
+| 21 | done | ux.md | compare/page.tsx native `alert()` statt Toast | Slice 196 ✓ (verified Slice 202: addToast jetzt in Z81) |
 
-(P1-Findings 4 + 5 + 9 + 13 + 18 + 21 sind die hochpriorisierten Cross-Cutting-Items.)
+(P1-Findings 4 + 5 + 9 + 13 + 18 + 21 alle Slice 196 closed — Audit-Stale-Korrektur Slice 202.)
 
 ### P2 (13)
 
@@ -238,30 +243,36 @@
 
 ## Brand-Coherence — 18 Findings
 
-### P1 (3) — alle OFFEN
+### P1 (3) — alle CLOSED
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| 4 | open | brand.md | kaderHelpers.tsx:69 Tailwind-yellow Drift (Zentral, propagiert in 4 Stellen) | **Slice 196 (Top-1 Quick-Win)** |
-| 8 | open | brand.md | FantasyContent.tsx:50 Modal-Loading-Backdrop bg-black/70 → bg-bg-main/70 | Slice 196 |
+| 4 | done | brand.md | kaderHelpers.tsx:69 Tailwind-yellow Drift (Zentral, propagiert in 4 Stellen) | Slice 196 ✓ |
+| 8 | done | brand.md | FantasyContent.tsx:50 Modal-Loading-Backdrop bg-black/70 → bg-bg-main/70 | Slice 196 ✓ |
 
 ### P2 (9)
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| 3 | open | brand.md | PlayerIPOCard.tsx:152 yellow doubtful | Slice 196 |
-| 5 | open | brand.md | kaderHelpers.tsx:93 yellow Performance-Mid-Tier | Slice 196 |
-| 6 | open | brand.md | FormTab.tsx:157 yellow Form-Indicator | Slice 196 |
-| 9 | open | brand.md | JoinConfirmDialog.tsx:40 bg-black/80 | Slice 196 |
-| 10 | open | brand.md | PlayerPicker.tsx:166 bg-black/60 | Slice 196 |
-| 14 | open | brand.md | airdrop:74 inline `style={{color:'#FFD700'}}` → `text-gold` | Slice 196 |
-| 18 | open | brand.md | club/[slug]:523,530 raw button + rounded-md | Slice 198 |
+| 3 | done | brand.md | PlayerIPOCard.tsx:152 yellow doubtful | Slice 196 ✓ |
+| 5 | done | brand.md | kaderHelpers.tsx:93 yellow Performance-Mid-Tier | Slice 196 ✓ |
+| 6 | done | brand.md | FormTab.tsx:157 yellow Form-Indicator | Slice 196 ✓ |
+| 9 | done | brand.md | JoinConfirmDialog.tsx:40 bg-black/80 | Slice 196 ✓ |
+| 10 | open | brand.md | PlayerPicker.tsx:169 bg-black/60 (1-line fix, deferred Wave 6) | offen |
+| 14 | done | brand.md | airdrop:74 inline `style={{color:'#FFD700'}}` → `text-gold` | Slice 196 ✓ |
+| 18 | done | brand.md | club/[slug]:523,530 raw button + rounded-md | Slice 198 ✓ |
 
 ### P3 (6)
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| 1, 2, 7, 11, 12, 13, 15, 16, 17 | open | brand.md | Detail-Drifts | Post-Beta |
+| 1 | wont-fix | brand.md | Quick-Action-Pills inline-tokens | Slice 198 SKIP (CEO/Designer-call, per-action color intentional) |
+| 2 | done | brand.md | page.tsx:323 Gold-Pulse-Gradient | Slice 202 ✓ (`.gold-pulse-bg` Utility) |
+| 7 | done | brand.md | StatsTab.tsx:26 yellow doubtful | Slice 196 ✓ (text-status-doubtful Token) |
+| 11 | done | brand.md | PitchView Z221+224 bg-black/40+30 | Slice 198b ✓ (bg-bg-main Token) |
+| 12 | done | brand.md | PitchView Z70 yellow doubtful | Slice 202 ✓ (text-status-doubtful Token) |
+| 13 | wont-fix | brand.md | founding:279 bg-purple-500 solid Popular-Badge | Audit-OK (Popular-Badge soll sich abheben) |
+| 15, 16, 17 | done | brand.md | airdrop+profile Detail-Drifts | Slice 198 ✓ |
 
 ---
 

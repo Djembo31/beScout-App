@@ -70,7 +70,7 @@ export function PitchView({
       case 'fit': return { icon: '\u{1F7E2}', label: t('statusFit'), color: 'text-green-500' };
       case 'injured': return { icon: '\u{1F534}', label: t('statusInjured'), color: 'text-red-400' };
       case 'suspended': return { icon: '\u26D4', label: t('statusSuspended'), color: 'text-orange-400' };
-      case 'doubtful': return { icon: '\u{1F7E1}', label: t('statusDoubtful'), color: 'text-yellow-400' };
+      case 'doubtful': return { icon: '\u{1F7E1}', label: t('statusDoubtful'), color: 'text-status-doubtful' };
       default: return { icon: '\u{1F7E2}', label: t('statusFit'), color: 'text-white/50' };
     }
   };

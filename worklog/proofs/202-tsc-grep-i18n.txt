@@ -1,0 +1,95 @@
+Slice 202 — Wave 5 Polish-Sweep Proof
+Date: 2026-04-26
+Stage: PROVE
+
+================================================================
+1. tsc clean (post-heal F1 MINOR fix)
+================================================================
+$ npx tsc --noEmit
+EXIT=0
+
+================================================================
+2. Brand 12 — text-yellow-400 → text-status-doubtful
+================================================================
+$ grep -n "text-yellow" src/features/fantasy/components/lineup/PitchView.tsx
+EXIT=1 (no match)
+
+PASS: PitchView.tsx Z73 verifiziert ersetzt (`text-status-doubtful`).
+
+================================================================
+3. Brand 2 — Gold-Pulse-Gradient als CSS-Utility
+================================================================
+$ grep -rn "gold-pulse-bg" src/
+src/app/(app)/page.tsx:334:    <div className="absolute inset-0 gold-pulse-bg motion-safe:animate-pulse" />
+src/app/globals.css:124:  .gold-pulse-bg {
+
+$ grep -rn "from-gold/\[0.04\]" src/
+src/app/globals.css:123:  /* Slice 202 — Gold-Pulse-Gradient als Token (Brand-2 Audit). Mirror der inline ... */
+
+PASS: Inline-Gradient in page.tsx ersetzt durch `.gold-pulse-bg` Utility (in @layer utilities).
+Letzte Erwähnung in src/ ist nur der Doku-Comment in globals.css.
+
+================================================================
+4. FM 9.3 — TierComparisonMatrix Component
+================================================================
+NEU: src/app/(app)/founding/TierComparisonMatrix.tsx
+- 8 ExtraKey-Union mit ALL_EXTRAS_ORDERED-Whitelist
+- 5 Meta-Rows: Preis, Credits, Migration-Bonus, Fee-Discount, Limit
+- 8 Feature-Rows: Extras mit ✓/✗-Stripe-Matrix
+- mobile sticky-left-column + overflow-x-auto + min-w-[480px]
+- accessibility: scope="col"/"row"/"colgroup" + aria-labels für Check-Icon und em-dash
+
+Integration: src/app/(app)/founding/page.tsx
+- Import Z23
+- Render Z232 (zwischen TierCards-Grid und Disclaimer)
+
+================================================================
+5. i18n-Audit (DE+TR symmetrisch)
+================================================================
+$ grep -E "compare(Title|Subtitle|Feature|Price|Credits|MigrationBonus|FeeDiscount|Limit|Extras|Included|NotIncluded)" messages/de.json | wc -l
+11
+
+$ grep -E "compare(Title|Subtitle|Feature|Price|Credits|MigrationBonus|FeeDiscount|Limit|Extras|Included|NotIncluded)" messages/tr.json | wc -l
+11
+
+PASS: 11 neue Keys in beiden Locales symmetrisch.
+
+================================================================
+6. Reviewer-Verdict (Cold-Context Opus, D48-Audit-Stale-Catcher)
+================================================================
+worklog/reviews/202-review.md
+Verdict: PASS (with 2 MINOR findings, optional fixes)
+- F1 MINOR: doppelter useTranslations-Hook → INLINE GEHEALT (tCompare entfernt, alle Calls auf t() unifiziert)
+- F2 MINOR: Type-Cast `as 'extraAccess'` ist Lie → akzeptiert (Pattern-Konsistenz mit pre-existing page.tsx:371)
+- F3 INFO: bg-bg-main vs bg-surface-base sticky-Visual → post-deploy verifizieren
+
+D48-Check: NO duplicate (Audit-Stale-Catcher sauber, 1. produktive Bestätigung).
+i18n: 19 keys symmetrisch DE+TR.
+Token: text-status-doubtful + .gold-pulse-bg konsistent mit Slice 196 + Slice 181 Patterns.
+Time-spent: 14 min.
+
+================================================================
+7. Punch-Liste-Status-Sync (Hygiene-Item)
+================================================================
+- Slice 202 closed (+3): Brand 12, Brand 2, FM 9.3
+- Aggregat: 70/98 → 75/98 closed (~76%) inkl Audit-Stale-Korrektur UX 21
+- Brand 1 + Brand 13 als wont-fix markiert (CEO-deferred + Audit-OK)
+- UX 21 (compare alert) als done markiert (verified Slice 196 closed Code-Realität)
+
+================================================================
+8. Files Modified
+================================================================
+$ git diff --stat HEAD
+src/features/fantasy/components/lineup/PitchView.tsx        |  2 +-
+src/app/globals.css                                          |  4 +
+src/app/(app)/page.tsx                                       |  2 +-
+src/app/(app)/founding/TierComparisonMatrix.tsx              | 222 ++++++++++++ (NEW)
+src/app/(app)/founding/page.tsx                              |  4 +
+messages/de.json                                             | 11 ++
+messages/tr.json                                             | 11 ++
+worklog/punch-list-2026-04-25.md                             | 31 +++--
+worklog/specs/202-wave5-polish-sweep.md                      | 75 ++++++ (NEW)
+worklog/reviews/202-review.md                                | 145 ++++++ (NEW)
+worklog/active.md                                            | 14 +-
+
+Total: 11 files, ~530 LOC additions

@@ -5006,7 +5006,18 @@
     "extraDirectLine": "Direkter Draht zum Team",
     "extraFoundersWall": "Name auf der Founders Wall",
     "migrationBonus": "+{pct}% Migration Bonus",
-    "loginRequired": "Bitte melde dich an, um einen Founding Pass zu kaufen."
+    "loginRequired": "Bitte melde dich an, um einen Founding Pass zu kaufen.",
+    "compareTitle": "Tier-Vergleich",
+    "compareSubtitle": "Was bekomme ich extra im höheren Tier? Vollständige Übersicht aller Vorteile.",
+    "compareFeature": "Feature",
+    "comparePrice": "Preis",
+    "compareCredits": "Credits",
+    "compareMigrationBonus": "Migration Bonus",
+    "compareFeeDiscount": "Fee-Rabatt",
+    "compareLimit": "Limit",
+    "compareExtras": "Extras",
+    "compareIncluded": "Enthalten",
+    "compareNotIncluded": "Nicht enthalten"
   },
   "fanWishes": {
     "title": "Wunsch einreichen",

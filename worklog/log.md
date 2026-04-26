@@ -11,6 +11,66 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 202 | 2026-04-26 | Wave 5 Polish-Sweep (Frontend-only, single-track)
+
+S-Slice sequenziell durch lokal Claude. 3 Frontend-only Items closed + Punch-Liste-Status-Sync (Hygiene). Punch-Liste: 70/98 → **75/98 closed (~76%)** (inkl Audit-Stale-Korrektur UX 21).
+
+**Stage-Chain:** SPEC (worklog/specs/202-wave5-polish-sweep.md) → IMPACT skipped (kein Schema/RPC/Service) → BUILD → REVIEW (verdict PASS, 2 MINOR — F1 inline gehealt, F2 akzeptiert) → PROVE → LOG
+
+### Items closed (3)
+
+- **Brand-12** PitchView text-yellow-400 → text-status-doubtful Token-Migration (Slice 196 Token erfuellt, kein Drift). 1-line fix.
+- **Brand-2** Gold-Pulse-Gradient als `.gold-pulse-bg` CSS-Utility in `globals.css @layer utilities` (Slice 181 Pattern erfuellt, Tailwind-data-state-Variants funktionieren). Inline-Gradient in `page.tsx:334` ersetzt.
+- **FM-9.3** Founding Per-Tier-Vergleichstabelle — neue `TierComparisonMatrix.tsx` Component mit ExtraKey-Union + ALL_EXTRAS_ORDERED-Whitelist + 5 Meta-Rows (Preis/Credits/Migration/Fee/Limit) + 8 Feature-Rows (Extras mit ✓/✗-Stripe-Matrix). Mobile sticky-left + overflow-x. 11 i18n-Keys DE+TR symmetrisch (compareTitle/compareSubtitle/...). Position zwischen TierCards-Grid und Disclaimer auf `/founding`.
+
+### Punch-Liste-Status-Sync (Hygiene)
+
+- 5 P1 UX-Items (4, 5, 9, 13, 18) und UX 21 als verifiziert-closed-Slice-196 markiert (vorher stale "open").
+- 8 Brand-P2/P3 Items als verifiziert-closed durch Code-Grep markiert.
+- Brand 1 + Brand 13 als wont-fix klassifiziert (Audit-deferred + Audit-OK).
+- Brand 10 als wirklich offen markiert (PlayerPicker bg-black/60 Z169 noch da, deferred Wave 6).
+- Aggregat-Tabelle aktualisiert: Brand 14 done / 2 wont-fix / 2 open, UX 20 done / 7 open, Total 75 done / 3 wont-fix / 20 open / 1 deferred.
+
+### Reviewer-Heal (F1 MINOR inline)
+
+- `tCompare` Variable entfernt (doppelter `useTranslations('founding')`-Hook). Alle 9 Call-Sites auf `t()` unifiziert.
+- F2 MINOR (Type-Cast Pattern-Konsistenz mit pre-existing page.tsx:371) akzeptiert ohne Heal.
+- F3 INFO (Visual-Diff sticky-bg) post-deploy verifizierbar.
+
+### D48-Audit-Stale-Catcher Bestätigung
+
+Cold-Context-Reviewer-Agent hat Pre-Existing-Code-Grep für FM 9.3 ausgeführt (`grep TierComparison|comparison.*tier|stripe.*matrix`) — **NO duplicate gefunden**. Erstmals enforced ohne false-positive. D48-Workflow funktioniert produktiv.
+
+### Files modified
+
+```
+messages/de.json                                                          | 11 +-
+messages/tr.json                                                          | 11 +-
+src/app/(app)/founding/TierComparisonMatrix.tsx                           | 222 +++++++ (NEW)
+src/app/(app)/founding/page.tsx                                           |  4 +-
+src/app/(app)/page.tsx                                                    |  2 +-
+src/app/globals.css                                                       |  4 +-
+src/features/fantasy/components/lineup/PitchView.tsx                      |  2 +-
+worklog/punch-list-2026-04-25.md                                          | 31 ++-
+worklog/specs/202-wave5-polish-sweep.md                                   | 75 +++ (NEW)
+worklog/reviews/202-review.md                                             | 145 ++++ (NEW)
+worklog/proofs/202-tsc-grep-i18n.txt                                      |  85 +++ (NEW)
+worklog/active.md                                                         | 14 +-
+```
+
+### Proof
+- `worklog/proofs/202-tsc-grep-i18n.txt` — tsc clean (post-heal) + grep-Verify (text-yellow leer + i18n 11/11 keys DE+TR + .gold-pulse-bg utility verifiziert)
+- Reviewer: `worklog/reviews/202-review.md` (verdict PASS, 2 MINOR — F1 inline-gehealt)
+
+### Commit
+TBD (this commit)
+
+### Notes
+
+Single-Track-Sequenziell-Pattern wie 200a/200b fortgesetzt. D48-Workflow im 1. produktiven Einsatz validiert (Cold-Context-Reviewer findet zero duplicates, Audit-Stale-Trap vermieden). Punch-Liste-Hygiene-Sync war kritisch — viele "open"-Markierungen in der Master-Liste waren über die letzten 6 Slices stale gewesen, +5 done-Korrekturen ohne neue Code-Arbeit. Reviewer-Heal F1 (doppelter Hook) inline durchgezogen → kosmetische Code-Polish-Disziplin.
+
+---
+
 ## 200b | 2026-04-26 | Wave 4 Polish-Sweep (Frontend-only, single-track)
 
 S-Slice sequenziell durch lokal Claude. 3 Frontend-only Items closed + 1 already-fixed-marker. Punch-Liste: 67/98 → **70/98 closed (~71%)**.

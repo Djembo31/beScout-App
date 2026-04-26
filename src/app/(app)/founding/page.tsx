@@ -20,6 +20,7 @@ import { grantFoundingPass, getHighestPass, getFoundingPassCounts } from '@/lib/
 import { centsToBsd } from '@/lib/services/players';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { FoundingPassTier, DbUserFoundingPass } from '@/types';
+import { TierComparisonMatrix } from './TierComparisonMatrix';
 
 // ============================================
 // Tier visual config + fee discount mapping
@@ -226,6 +227,9 @@ export default function FoundingPassPage() {
           />
         ))}
       </div>
+
+      {/* Tier-Vergleichstabelle (Slice 202 — FM 9.3) */}
+      <TierComparisonMatrix />
 
       {/* Disclaimer */}
       <p className="text-xs text-white/40 text-center max-w-2xl mx-auto leading-relaxed">

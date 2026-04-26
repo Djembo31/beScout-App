@@ -4999,7 +4999,18 @@
     "extraDirectLine": "Ekiple doğrudan iletişim",
     "extraFoundersWall": "Founders Wall'da ismin",
     "migrationBonus": "+{pct}% Geçiş Bonusu",
-    "loginRequired": "Founding Pass satın almak için giriş yap."
+    "loginRequired": "Founding Pass satın almak için giriş yap.",
+    "compareTitle": "Tier Karşılaştırması",
+    "compareSubtitle": "Üst tier'da ne ekstra alıyorum? Tüm avantajların tam dökümü.",
+    "compareFeature": "Özellik",
+    "comparePrice": "Fiyat",
+    "compareCredits": "Kredi",
+    "compareMigrationBonus": "Geçiş Bonusu",
+    "compareFeeDiscount": "İşlem İndirimi",
+    "compareLimit": "Limit",
+    "compareExtras": "Ekstralar",
+    "compareIncluded": "Dahil",
+    "compareNotIncluded": "Dahil değil"
   },
   "fanWishes": {
     "title": "İstek Gönder",

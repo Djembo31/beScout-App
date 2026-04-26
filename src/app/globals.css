@@ -120,6 +120,10 @@ body {
   .anim-tab-fade { animation: fade-in 150ms ease-out; }
   .anim-slide-left { animation: slide-in-left 0.25s ease-out; }
   .anim-dropdown { animation: dropdown-in 0.15s ease-out; }
+  /* Slice 202 — Gold-Pulse-Gradient als Token (Brand-2 Audit). Mirror der inline `bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04]` Variante. */
+  .gold-pulse-bg {
+    background-image: linear-gradient(to right, rgba(255,215,0,0.04), rgba(255,215,0,0.10), rgba(255,215,0,0.04));
+  }
 }
 
 /* Notification dropdown enter/exit */

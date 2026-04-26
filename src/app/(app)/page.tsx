@@ -331,7 +331,7 @@ export default function HomePage() {
                     : 'border-purple-500/30 bg-purple-500/10'
                 )}>
                   {isEventLive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04] motion-safe:animate-pulse" />
+                    <div className="absolute inset-0 gold-pulse-bg motion-safe:animate-pulse" />
                   )}
                   <div className="relative p-4">
                     <div className="flex items-start justify-between gap-3">
