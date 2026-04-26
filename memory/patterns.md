@@ -999,3 +999,63 @@ return { ...result };  // narrow + return
 - FM 10.2 Airdrop Personal-Score-History (airdrop_scores-history per User+Period)
 - FM 10.3 Airdrop Friends-Filter (cross-user social-graph-restricted)
 - K-03 Squad-Tab Fantasy-Pick-Rate (lineups-Aggregat per Player+Event)
+
+---
+
+### 39. Pre-Review-Memo Pattern (Slice 207, codifiziert Slice 211 D50)
+
+**Wann:** Vor jedem Reviewer-Agent-Dispatch bei M/L-Slices oder parallel-Worktree-Slices.
+
+**Was:** Agent (oder Primary-Claude) schreibt **vor** Reviewer-Dispatch ein Self-Audit-Memo nach `worklog/reviews/<slice>-pre-review.md`. Reviewer-Agent kriegt das als zusätzliche Input-File.
+
+**Inhalt-Schema (~10-15 Zeilen):**
+
+```markdown
+# Pre-Review-Memo Slice <NNN>
+
+## AC-Self-Audit
+| AC | Status | Notiz |
+|----|--------|-------|
+| AC-01 | grün | tsc clean |
+| AC-02 | teils | Edge-Case 3 nicht getestet (out of scope) |
+| AC-03 | offen | Reviewer bitte bewerten ob ausreichend |
+
+## Edge-Case-Coverage
+- EC-1 null-input: getestet (sparkline-buckets.test.ts:35)
+- EC-2 single-day: getestet
+- EC-7 timezone-edge: NICHT getestet (test-runner-DST-issue, mitigation: vi.useFakeTimers)
+
+## Self-Verification-Output (audit-commands gelaufen)
+- `npx tsc --noEmit`: clean
+- `grep -rn "TrendSparkline" src/`: 1 Treffer (Caller in TransactionsPageContent.tsx:445)
+- `npx vitest run src/components/transactions`: 10/10 PASS
+
+## Open-Blocks (was Reviewer entscheiden sollte)
+- Catmull-Rom vs Linear Path: ich habe Linear gewählt (60px H + 90 buckets — visuell nicht differenzierbar). Spec-Drift dokumentiert. **Reviewer: ist das akzeptabel?**
+- Math.min/max(...spread): mit 90-Cap aktuell harmlos, errors-frontend.md sagt aber reduce-pattern. **Reviewer: NIT oder ignore?**
+
+## Bekannte Risiken
+- ~ — keine Production-Risks identifiziert
+- (oder: Race-Condition, Type-Truth-Drift, etc.)
+
+## Time-Spent
+~45 min Implementation + Tests + Self-Audit
+```
+
+**Wirkung:** Reviewer-Agent kann sich auf **Blindspots** konzentrieren statt komplettes Audit zu wiederholen. Reduziert Reviewer-Arbeit ~60% laut Slice 207-Erfahrung. Plus: Pre-Review-Memo ist self-Disziplin — der Agent muss SELBST Self-Audit laufen lassen, nicht nur Reviewer hoffen das er catched.
+
+**Anti-Pattern:**
+- Pre-Review-Memo "alles gruen" ohne Audit-Output → Performative agreement, kein Wert.
+- Pre-Review-Memo nach Implementation als Marketing → Reviewer durchschaut es, dispatch-Vertrauen sinkt.
+- Pre-Review-Memo bei XS-Slices mit trivial-Pattern → Overhead > Win, skippen.
+
+**Wann Pflicht?**
+- L-Slices mit parallel-Dispatch ≥ 3 Worktrees (Slice 198, 207 als Beispiele)
+- Money-Path-Slices (zusätzliche Schicht vor Reviewer-Cold-Context)
+- Slices mit Spec-Drift (z.B. Linear statt Catmull-Rom in Slice 208) — Pre-Review-Memo dokumentiert die Drift, Reviewer entscheidet
+
+**Optional:**
+- M-Slices mit single-Domain-Agent
+- S-Slices mit komplexer Logic (auch wenn 2-3 Files)
+
+**Reference:** Slice 207 Worktree-Heal-Story (3 Probleme aufeinander, Pre-Review-Memo hätte 2 von 3 vorne weg gefangen). Slice 208 Reviewer-CONCERNS A11y-Issue (Pre-Review-Memo hätte den SVG-aria-Konflikt zu spät gefangen, weil A11y-Audit kein Standard-Self-Verification-Command ist — aber zumindest Spec-Drift Catmull-Rom→Linear hätte darin gestanden).

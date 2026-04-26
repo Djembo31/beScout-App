@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 211
+stage: PROVE
+spec: worklog/specs/211-spec-foundation-uplift.md
+impact: skipped (workflow-files + skill-files + rule-files only — no DB/RPC/Service)
+proof: worklog/proofs/211-ac-audit.txt
+review: worklog/reviews/211-review.md
 ```
 
 ## Zuletzt

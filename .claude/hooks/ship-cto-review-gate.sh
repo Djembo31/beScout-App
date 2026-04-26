@@ -107,7 +107,7 @@ SHIP-REVIEW-GATE: Commit blockiert.
                   memory/patterns.md, business.md.
 
                   Schreibe nach worklog/reviews/${SLICE}-review.md:
-                  - verdict: PASS | REWORK | FAIL
+                  - verdict: PASS | REWORK | FAIL | CONCERNS
                   - findings: [{severity, location, issue, fix}]
 
                   Keine Code-Aenderungen, read-only."
@@ -121,6 +121,29 @@ SHIP-REVIEW-GATE: Commit blockiert.
   Hook-Quelle: .claude/hooks/ship-cto-review-gate.sh
 EOF
     exit 2
+fi
+
+# Slice 211 D50: Verdict-Schema-Enforcement (WARN, nicht BLOCK).
+# Reviewer-File existiert — pruefe ob ein Verdict-String drin steht.
+# Tolerant gegen Bold-Markdown-Variation: `**Verdict:**`, `Verdict:`, `## Verdict`.
+if ! grep -qiE "(\*\*)?[Vv]erdict(\*\*)?[[:space:]]*:[[:space:]]*(\*\*)?(PASS|REWORK|FAIL|CONCERNS)" "$REVIEW_FILE"; then
+    cat >&2 <<EOF
+SHIP-REVIEW-GATE: Verdict-Schema-WARNING (Commit erlaubt).
+  Active Slice:      $SLICE
+  Datei:             worklog/reviews/${SLICE}-review.md
+  Problem:           Kein Verdict-String erkannt (PASS|REWORK|FAIL|CONCERNS).
+
+  Sollte enthalten (Bold optional):
+    **Verdict:** PASS | REWORK | FAIL | CONCERNS
+
+  Slice 211 D50 — kein Block, nur Hinweis. Reviewer-Output ohne klares
+  Verdict ist nutzlos fuer Audit-Trail. Bei naechstem Reviewer-Dispatch
+  bitte Format einhalten.
+
+  Hook-Quelle: .claude/hooks/ship-cto-review-gate.sh
+EOF
+    # WARN, kein exit 2 — wir wollen nicht legitime Commits blockieren
+    # weil der Reviewer-Output minimal abweicht.
 fi
 
 exit 0

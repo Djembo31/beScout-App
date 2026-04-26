@@ -213,6 +213,92 @@ describe('[ServiceName]', () => {
 
 Pull from common-errors.md. At least 5 scenarios.
 
+### 1.10 Code-Reading-Liste (Slice 211 D50 — PFLICHT)
+
+**Der Agent ist intelligent, aber er weiß nicht WAS er lesen MUSS.** Diese Sektion ist der Kompass: liste die Files die Agent VOR Code lesen MUSS, mit konkreter Frage was zu prüfen ist.
+
+| File | Zweck | Zu prüfen |
+|------|-------|-----------|
+| `src/lib/services/<existing>.ts` | Existing Pattern-Source | Wie macht's der Vorgänger-Service? Welche Naming-Convention? |
+| `supabase/migrations/<latest>.sql` | DB-Schema-Wahrheit | Welche Columns? CHECK-Constraints? RLS-Policies? |
+| `worklog/specs/<vorbild>.md` | Reference-Spec gleicher Klasse | Welcher Pattern-Stil ist etabliert? |
+| `.claude/rules/<errors-X>.md` | Bekannte Fallen für DIESE Domain | Welche Pattern gilt für DIESEN Slice? |
+
+**Mindest-Items je Slice-Größe:**
+- XS: ≥ 3 Items (Pattern-Source + 1 Reference + 1 Rule)
+- S: ≥ 6 Items
+- M: ≥ 6 Items
+- L: ≥ 10 Items inkl. DB-Schema-Verify per `pg_get_functiondef('public.<rpc>'::regprocedure)`
+
+**Anti-Pattern:** "Code-Reading-Liste = `CLAUDE.md` und `workflow.md`". Das sind Globals die der Agent eh kennt. **Slice-spezifische Files sind Pflicht** — gerade die Files die der Agent IM SPEC zitiert oder verändert.
+
+### 1.11 Pattern-References (Slice 211 D50 — PFLICHT)
+
+Welche existing Patterns / Decisions / Common-Errors gelten für DIESEN Slice? Pointer mit IDs + 1-Satz-Begründung warum relevant.
+
+```
+- decisions.md D<n> — <Begründung 1 Satz>
+- patterns.md #<n> — <anzuwendendes Pattern>
+- errors-frontend.md "<Pattern-Title>" — <warum gilt hier>
+- business.md "<Compliance-Block>" — <Wording-Pflicht falls user-facing>
+- database.md "<Column-Block>" — <Schema-Wahrheit falls DB>
+```
+
+**Anti-Pattern:** Copy-paste aller 38 Patterns. Niemand liest das. Agent ignoriert.
+
+**Heuristik für Auswahl:**
+- Wenn Slice neue RPC/Service: relevant sind Money-Path-Patterns, RLS-Patterns, Idempotency-Blueprint
+- Wenn Slice neue UI-Component: relevant sind ui-components.md, Modal-Pattern, i18n-Pattern
+- Wenn Slice Schema-Migration: relevant sind Migration-Patch-Audit, Trigger-GUC, Type-Truth-Sync
+- Wenn Slice Money-Path: zusätzlich business.md (Wording) + decisions.md (Asset-Klasse-Drahtseilakt)
+
+### 1.12 Self-Verification Commands (Slice 211 D50 — PFLICHT)
+
+**Was kann der Agent (oder ich) selbst laufen lassen post-Implementation?**
+
+```bash
+# Pflicht jeder Slice:
+npx tsc --noEmit
+npx vitest run <related-test-file>
+
+# Slice-spezifisch — PFLICHT mindestens 1 Audit-Command der die Hauptchange verifiziert:
+grep -rn "<new-symbol>" src/                  # Konsumenten verifizieren
+sed -n '<line>,<line>p' <file>                # Spot-Check existing pattern
+mcp__supabase__execute_sql "SELECT ... LIMIT 5"  # DB-Smoke wenn Schema/RPC
+
+# Bei Money-Path zusätzlich PFLICHT:
+pg_get_functiondef('public.<rpc>'::regprocedure)  # RPC-Body verifizieren
+SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'
+SELECT count(*) FROM transactions WHERE user_id = '<test-uid>' AND created_at > NOW() - INTERVAL '5 min'
+```
+
+**Wirkung:** Agent kann selbst Self-Audit laufen lassen, schreibt das Output in Pre-Review-Memo (Sektion 1b in workflow.md). Reviewer fokussiert auf Blindspots.
+
+### 1.13 Open-Questions (Slice 211 D50 — PFLICHT)
+
+**Was MUSS der Agent klären bevor er Code schreibt? Was ist Autonom-Zone?**
+
+```
+Pflicht-Klärung (Agent fragt ZURÜCK bei Unklarheit, schreibt nicht blind):
+1. <Frage 1 mit Hintergrund>
+2. <Frage 2>
+
+Autonom-Zone (Agent entscheidet selbst):
+- Component-Struktur (Sub-Components, Inline-Helpers)
+- Naming-Details (sofern bekannte Patterns nicht verletzt)
+- Test-Strategie-Detail (welche Edge-Cases als separate Tests)
+- Refactoring-Tiefe (sofern in Spec-Scope)
+
+Nicht-Autonom-Zone (Anil-CEO-pflicht — Agent MUSS escalieren):
+- Money-Path-Decisions (Fee-Split, Tier-Pricing, Confirm-Step)
+- RLS-Policy-Änderungen
+- Wording-Drift (Asset-Klasse / Glücksspiel)
+- Neue Crons (Vercel-Plan-Limit, kostet Geld)
+- Schema-Breaking-Changes (column-rename, NOT-NULL-Add ohne Default)
+```
+
+**Wirkung:** Agent weiß WANN er fragen muss vs. WANN er liefert. Reduziert Reviewer-CEO-Backreferenz-Loops.
+
 ### SPEC GATE (Anil Approval — NO CODE before this passes)
 
 Present the spec to Anil. He approves or requests changes.
@@ -228,6 +314,10 @@ Checklist before presenting:
 - [ ] Error strategy covers every throwable error?
 - [ ] Test cases are concrete (not "write tests for X")?
 - [ ] Pre-mortem has 5+ scenarios?
+- [ ] **Code-Reading-Liste (1.10) populiert mit ≥ Mindest-Items je Slice-Größe?** (Slice 211 D50)
+- [ ] **Pattern-References (1.11) sind ECHT relevant — keine 38-Pattern-Copy-Paste?** (Slice 211 D50)
+- [ ] **Self-Verification-Commands (1.12) laufen wirklich (kein Typo, korrekte Pfade)?** (Slice 211 D50)
+- [ ] **Open-Questions (1.13) trennen Pflicht-Klärung von Autonom-Zone?** (Slice 211 D50)
 
 **THE SPEC IS THE CONTRACT. If it's not in the spec, it's not in the code.**
 

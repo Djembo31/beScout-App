@@ -2020,6 +2020,87 @@ D43 (Type-Truth-Audit-Pflicht bei RPC-konsumierenden Services) deckt RPC-vs-TS-C
 
 ---
 
+## D50 — PROCESS: Spec-Standard-Pflicht für Agent-Context-Building
+
+**Datum:** 2026-04-26
+**Status:** ✅ Aktiv (Slice 211 Spec-Foundation-Uplift)
+
+### Entscheidung
+
+Mit der SPEC steht und fällt jeder Slice. Der Agent ist intelligent, aber nicht hellsichtig. Eine Spec ohne Code-Reading-Liste, Pattern-References, Self-Verification-Commands und Open-Questions ist eine Wunschliste — der Agent improvisiert und verursacht Blindspots.
+
+`/spec` Skill ist um 4 neue Pflicht-Sektionen erweitert (1.10-1.13):
+- **1.10 Code-Reading-Liste** — Files die Agent VOR Implementation MUSS lesen, mit konkreter Frage was zu prüfen ist.
+- **1.11 Pattern-References** — relevante Patterns/Decisions/Common-Errors mit IDs (nicht copy-paste-aller-38, nur die ECHT relevanten).
+- **1.12 Self-Verification Commands** — Audit-Commands die Agent post-Implementation selbst laufen lassen kann.
+- **1.13 Open-Questions** — Pflicht-Klärung vs. Autonom-Zone vs. Nicht-Autonom-Zone (CEO).
+
+`workflow.md` SPEC-Stage erweitert um:
+- 13 Pflicht-Sektionen (1-13) mit Slice-Größen-spezifischen Mindest-Anforderungen.
+- XS-Slice: ≥ 3 Code-Reading-Items, ≥ 3 Edge-Cases, ≥ 3 ACs.
+- S/M-Slice: ≥ 6 Items je.
+- L-Slice: ≥ 10 Items + Pre-Mortem ≥ 5 Szenarien + Wave-Plan.
+- Pre-Review-Memo Pattern (Sektion 1b) — empfohlen bei M/L mit parallel-Dispatch.
+
+`worklog/specs/_TEMPLATE.md` ist Master-Template für jeden neuen Slice.
+
+`/parallel-dispatch` Skill erweitert um:
+- WORKTREE-PFLICHT-Block (absolute-Paths-Trap, `git status -s` Self-Check).
+- Pre-Review-Memo Pattern.
+- Service-Schnittstelle vorab spezifizieren (Pflicht bei BE+FE-Cross-Domain, Pattern aus D46).
+
+`ship-cto-review-gate` Hook erweitert um Verdict-Schema-Enforcement (WARN, nicht BLOCK — regex `\\**Verdict:\\** PASS|REWORK|FAIL|CONCERNS`).
+
+### Begründung
+
+**Anil's Direktive 2026-04-26:** "mit der SPEC steht und fällt alles, hier musst du gewissenhaft und detailliert sein, der agent soll nicht blind sein, er muss sich seinen context bei bedarf auf bauen, ihr seid doch alle intelligent, dann nutzt es auch aus".
+
+**Empirische Evidence dass Spec-Drift kostet:**
+- Slice 207: Worktree-Agent escapierte Isolation (3 Bugs aufeinander). Pattern jetzt in common-errors.md.
+- Slice 209: 12 audit-stale-row-marker korrigiert nach 4 Iterationen D48 Pattern. Spec-Sektion "Self-Verification" hätte audit-stale früher gefangen.
+- Slice 192/193: Type-Truth-Drift latent 1+ Tag. Spec-Sektion "Pattern-References" mit D43 hätte Mitigation-Layer früher erzwungen.
+- Slice 200: PLAYER_SELECT_COLS Latent-Bug. Spec-Sektion "Self-Verification" mit grep-audit hätte den Drift gefangen.
+- Slice 198: i18n-Key-Leak. Spec-Sektion "Self-Verification" mit i18n-grep hätte den Leak vor Reviewer gefangen.
+- Slice 199: Service-Duplicate. /parallel-dispatch hatte keine "Service-Schnittstelle vorab"-Block.
+
+**Anti-Pattern bisher (was D50 löst):**
+- "Spec hat nur Ziel + Files + ACs" → Agent läuft blind in bekannte Fallen.
+- XS/S-Slices mit inline-Spec ohne Pattern-References → Agent ignoriert codifizierte Lehren.
+- Reviewer-Agent muss komplettes Audit machen statt Blindspot-Catch → 60% redundant Arbeit.
+
+### Auswirkungen
+
+- **Workflow:** workflow.md SPEC-Stage komplett-überarbeitet, 13 Pflicht-Sektionen mit Slice-Größen-Tabelle.
+- **/spec Skill:** 4 neue Sektionen 1.10-1.13. SPEC-GATE-Checklist erweitert um 4 neue Bullets.
+- **/parallel-dispatch:** 3 neue Briefing-Blöcke (Worktree-Pflicht, Pre-Review-Memo, Service-Schnittstelle).
+- **/ship Skill:** referenziert _TEMPLATE.md für Spec-Start (Wave 2 Slice 212).
+- **Hook ship-cto-review-gate:** Verdict-Schema-Enforcement WARN.
+- **Patterns.md #39:** Pre-Review-Memo Pattern codifiziert.
+- **common-errors.md / errors-db.md:** Worktree-Isolation-Escape + Migration-Heal v1→v2 promoted aus Slice 207-Drafts.
+
+### Alternativen erwogen
+
+- **Hard-Block bei nicht-konformen Specs (ship-spec-quality-gate.sh Hook):** Würde Friction erhöhen, könnte legitime Quick-Fixes blockieren. **Verworfen für Slice 211 — Wave 2 Kandidat (Slice 212+).**
+- **Spec-Generator-Tool (auto-fillt Pflicht-Sektionen):** Komplex, redundant zu /spec Skill. **Verworfen.**
+- **Auto-Code-Reading-Liste via static-analysis:** ML-basiert, kein etablierter Tooling. **Verworfen.**
+- **Pattern-Reference-Auto-Linker (Github-Action checkt patterns.md-IDs):** Wave 2 Kandidat — erstmal Documentation-First, Tooling-Layer auf solider Foundation. **Aktiv für Wave 2.**
+
+### Re-Visit-Trigger
+
+- Wenn 5+ Slices nach 211 ihre Spec-Pflicht-Sektionen ignorieren → Hard-Block-Hook (Wave 2).
+- Wenn Reviewer-Agent öfter "Spec-Drift / Spec-Lücke" als Finding meldet → /spec Skill nochmal überarbeiten.
+- Wenn neue Bug-Klassen entstehen die durch bessere Spec hätten verhindert werden können → spezifische Sektion erweitern.
+
+### Beziehung zu D45-D49
+
+- **D45** (Worktree-Awareness-Briefing-Pflicht-Block) — wird durch D50 in /parallel-dispatch konkretisiert.
+- **D46** (Service-Schnittstelle vorab spezifizieren) — wird durch D50 in /parallel-dispatch operationalisiert.
+- **D47** (Skip-Pattern-Bündelung) — orthogonale Process-Decision, bleibt aktiv.
+- **D48** (Reviewer-Agent als Audit-Stale-Catcher) — wird durch D50 strukturell unterstützt (Self-Verification-Commands automatisieren D48 Pre-Check).
+- **D49** (SELECT-COLS-Sync-Pflicht) — wird durch D50 Sektion 1.12 (Self-Verification: grep db.X-Reads vs SELECT_COLS) operationalisiert.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

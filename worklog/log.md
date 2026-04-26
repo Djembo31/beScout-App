@@ -11,6 +11,32 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 211 | 2026-04-26 | Spec-Foundation-Uplift (Agent-Context-Building + Pattern-Codify)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: workflow/skill/rule-Files only) → BUILD → REVIEW → PROVE → LOG
+- **Anil-Direktive:** "mit der SPEC steht und fällt alles … der agent soll nicht blind sein, er muss sich seinen context bei bedarf auf bauen, ihr seid doch alle intelligent, dann nutzt es auch aus"
+- **Größe:** L (Meta-Process-Slice, CEO-approved direkt durch Direktive)
+- **Files (7 EDITs + 2 NEW):**
+  - `worklog/specs/_TEMPLATE.md` — NEU. Master-Spec-Template mit 13 Pflicht-Sektionen + XS/S/M/L Größen-Indizes.
+  - `worklog/specs/211-spec-foundation-uplift.md` — NEU. Diese Spec selbst als Demo aller Pflicht-Sektionen.
+  - `.claude/rules/workflow.md` — EDIT SPEC-Stage. 13 Pflicht-Sektionen + Slice-Größen-Tabelle (Mindest-Items je XS/S/M/L) + Spec-Quality-Selbstcheck + Section 1b Pre-Review-Memo Pattern.
+  - `.claude/skills/spec/SKILL.md` — EDIT 4 neue Sektionen 1.10-1.13 (Code-Reading-Liste, Pattern-References, Self-Verification Commands, Open-Questions). SPEC-GATE-Checklist erweitert.
+  - `.claude/skills/parallel-dispatch/SKILL.md` — EDIT 3 neue Briefing-Blöcke (WORKTREE-PFLICHT mit absolute-paths-trap, PRE-REVIEW-MEMO empfohlen, Service-Schnittstelle vorab Pflicht bei BE+FE).
+  - `.claude/hooks/ship-cto-review-gate.sh` — EDIT Verdict-Schema-Enforcement WARN-only (regex `**Verdict:** PASS|REWORK|FAIL|CONCERNS`, tolerant gegen Bold-Variation, kein BLOCK weil false-positive-Risk hoch).
+  - `.claude/rules/common-errors.md` — EDIT Sektion 0 NEU "Worktree-Isolation-Escape" (Slice 207 Draft 1 promoted, Cross-Cutting-Pattern mit Detection + Mitigation).
+  - `.claude/rules/errors-db.md` — EDIT "Migration-Heal v1→v2 Same-Session" (Slice 207 Draft 3 promoted, idempotent CREATE OR REPLACE Pattern + DB-Smoke-Verify).
+  - `memory/patterns.md` — EDIT Pattern #39 NEU "Pre-Review-Memo Pattern" (Slice 207 Draft 2 promoted, Schema + Wirkung + Anti-Patterns + Wann Pflicht/Optional).
+  - `memory/decisions.md` — EDIT D50 NEU "Spec-Standard-Pflicht für Agent-Context-Building" (PROCESS, mit empirischem Evidence aus 6 zitierten Slices + Beziehung zu D45-D49).
+- **Review:** `worklog/reviews/211-review.md` — Verdict **PASS** (1 MEDIUM Spec-Tabelle-Drift bei ship/SKILL.md → inline-gehealt zu "Wave 2"; 4 LOW/NIT als Backlog dokumentiert: Pattern-#28-Doppelnummerierung, XS-Pflicht-Klärung, Skill-Quick-Index für Wave 2, Multi-Line-Verdict-Pattern, Template-Skip-Comment, Scope-Out-Explizit für /ship new).
+- **Proof:** `worklog/proofs/211-ac-audit.txt` (10/10 ACs grün: Template, workflow.md, /spec 1.10-1.13, Hook-Regex, parallel-dispatch 3 Briefing-Blöcke, 3 Pattern-Promotions, D50, tsc clean, Hook-Smoke exit 0).
+- **Empirische Anwendbarkeit (Reviewer-Bestätigung):** Würde 3 von 4 referenzierten Slice-Bugs prospektiv verhindern (Slice 207 Worktree-Escape ✅, Slice 200 PLAYER_SELECT_COLS ✅, Slice 192/193 Type-Truth-Drift teil-mitigated). Nicht-frisch-implementierte-Service-Bugs brauchen separate periodische Audits.
+- **Commit:** (pending)
+- **Anti-Pattern-Sicherheit:** Hook ist WARN nicht BLOCK (false-positive-Schutz). Pre-Review-Memo ist OPT-IN (Friction-Mitigation). Pattern-References hat Anti-Pattern-Block ("kein Copy-paste aller 38"). Self-walking-the-talk: Spec 211 zitiert 6 Patterns, nicht 38.
+- **Wave 2 Backlog (Slice 212+):** ship-spec-quality-gate.sh Hook (Spec-Pflicht-Sektionen pre-BUILD), `/ship new` Auto-Copy von _TEMPLATE.md, scripts/audit-stale-check.ts (D48 automatisiert), scripts/type-truth-audit.ts (D43/D49 automatisiert).
+- **D50 Beziehung:** D50 verbindet D45 (Worktree-Awareness), D46 (Service-Schnittstelle), D47 (Skip-Bündelung), D48 (Audit-Stale-Catcher), D49 (SELECT-COLS-Sync) — operationalisiert sie strukturell.
+
+---
+
 ## 210 | 2026-04-26 | UX 17 Airdrop isError-Handling (frontend-only, Pattern-Wiederholung)
 
 - **Stage-Chain:** SPEC (inline, XS-Slice trivial-pattern) → IMPACT (skipped) → BUILD → REVIEW (self-review per D35) → PROVE → LOG

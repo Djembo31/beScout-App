@@ -21,6 +21,35 @@ Cross-Cutting: `database.md` (Columns, CHECK), `trading.md` (Money-Regeln), `bus
 
 ---
 
+## 0. Worktree-Isolation-Escape (Slice 207, codifiziert Slice 211)
+
+**Bug-Klasse:** Worktree-Agent claimt completion, aber escaped Worktree-Isolation → schreibt Files in Main-Repo statt eigenen Worktree. Silent-Fail: kein git-Konflikt, der Worktree bleibt leer, downstream-Merge findet "nichts" zu mergen, Anil glaubt Slice ist fertig aber nichts ist passiert.
+
+**Root-Cause:** Agent nutzt absolute Pfade (`C:/bescout-app/src/lib/...` oder `/home/anil/bescout-app/...`) statt relative (`src/lib/...`). Edit-Tool schreibt brav an absolut-Pfad — das ist Main-Repo, nicht Worktree.
+
+**Detection:**
+```bash
+# Im Worktree:
+cd <worktree-path>
+git status -s    # Erwartet: edits zeigen sich. Wenn empty:
+                 # → Agent hat in Main-Repo geschrieben, NICHT hier.
+
+# Im Main-Repo (parallel):
+git status -s    # Wenn unerwartete edits da sind, die der Agent claimt
+                 # gemacht zu haben → Beweis fuer Escape.
+```
+
+**Mitigation (3-Layer):**
+1. **Agent-Briefing-Pflicht** (siehe `.claude/skills/parallel-dispatch/SKILL.md` "WORKTREE-PFLICHT"-Block): "ALLE Files-Edits MIT RELATIVEN PFADEN. Vor 'fertig'-Claim: `cd <worktree-path> && git status -s` selbst laufen lassen."
+2. **Self-Verification-Command** in Spec Sektion 1.12: `git status -s` als pflicht Audit-Command bei Worktree-Slices.
+3. **Pre-Merge-Audit** (Primary-Claude): nach Agent-Completion `cd <worktree-path> && git diff --stat HEAD` laufen lassen. Empty diff = STOP, nicht mergen, Heal/Re-Dispatch.
+
+**Reference:** Slice 207 Worktree-Heal-Story (3 Probleme aufeinander). Pattern-Draft im Handoff dokumentiert, jetzt promoted.
+
+**Beziehung:** Cross-Cutting (trifft Backend/Frontend/Test-Writer-Agents gleichermaßen). Pattern Slice 211-D50 erweitert `/parallel-dispatch` Skill um Briefing-Block.
+
+---
+
 ## 1. Silent Fails (die stillsten Bugs)
 
 Diese Klasse bleibt hier, weil sie **cross-cutting** ist — trifft DB, Frontend, Scraper gleichermassen und ist der haeufigste Bug-Typ.

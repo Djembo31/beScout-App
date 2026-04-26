@@ -21,26 +21,66 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 
 ### 1. SPEC — Was soll gebaut werden?
 
-**Artefakt:** `worklog/specs/NNN-title.md`
+**Artefakt:** `worklog/specs/NNN-title.md` (kopiert von `worklog/specs/_TEMPLATE.md`).
 
-**Pflicht-Sektionen:**
-- **Ziel** (1 Satz user-sichtbares Verhalten)
-- **Betroffene Files** (geschaetzt, mit Begruendung)
-- **Acceptance Criteria** (3-7 Punkte, messbar, nicht-subjektiv)
-- **Edge Cases** (5-10: null, 0, error, offline, double-click, race condition, stale cache, RLS-unauth, i18n missing, ...)
-- **Proof-Plan** (welches Artefakt beweist dass es funktioniert)
-- **Scope-Out** (was ausdruecklich NICHT in diesem Slice)
+**Grundprinzip (Slice 211 D50):** Mit der SPEC steht und fällt alles. Der Agent ist intelligent, aber er ist nicht hellsichtig — die Spec liefert ihm nicht alles vorgekaut, sondern den **Kompass**: was muss er VOR Code lesen, welche Patterns gelten hier, welche Self-Verification-Commands sind relevant, was muss er klären bevor er coded. Eine Spec ohne Code-Reading-Liste ist eine Wunschliste — der Agent wird improvisieren und blindspots verursachen.
 
-**Gate:** CEO-Approval (wenn CEO-Scope laut `memory/ceo-approval-matrix.md`) ODER Claude setzt `S-Slice: true` fuer triviale Faelle.
+**Pflicht-Sektionen (alle Slice-Größen):**
 
-**Slice-Groessen:**
+1. **Problem-Statement** mit Evidence (Screenshot/Audit-Item-Nr/Anil-Quote/Sentry-ID)
+2. **Lösungs-Design** (was ändert sich + warum, kurz Architektur)
+3. **Betroffene Files** (geschätzt, mit Begründung)
+4. **Code-Reading-Liste (Pflicht VOR Implementation)** — File + Zweck + zu prüfende Frage
+5. **Pattern-References** — relevante existing Patterns/Decisions/Common-Errors mit IDs
+6. **Acceptance Criteria** (executable, nicht prosa)
+7. **Edge Cases Table** (systematisch enumerieren, nicht raten)
+8. **Self-Verification Commands** (was kann Agent/ich post-Implementation laufen lassen)
+9. **Open-Questions** (Pflicht-Klärung vs. Autonom-Zone für Agent)
+10. **Proof-Plan** (welches Artefakt beweist?)
+11. **Scope-Out** (was ist explizit NICHT drin)
+12. **Stage-Chain (geplant)** mit Skip-Begründungen
+13. **Pre-Mortem** (5+ Szenarien, bei L-Slice Pflicht)
 
-| Groesse | Kriterium | Spec-Tiefe |
-|---------|-----------|------------|
-| XS | 1 File, Pattern-bekannt | Mini-Spec (4-5 Zeilen), keine Approval noetig |
-| S | 2-3 Files, klar | Kurz-Spec, 5 min, CEO nickt ab |
-| M | 3-5 Files, eine Domain | Voll-Spec, CEO approved |
-| L | Cross-Domain oder Schema-Migration | Voll-Spec + Impact + Agents bauen, CEO approved |
+**Slice-Größen-spezifische Mindest-Anforderungen:**
+
+| Größe | Kriterium | Mindest-Pflicht-Sektionen | Code-Reading | Edge-Cases | ACs |
+|-------|-----------|---------------------------|--------------|------------|-----|
+| XS | 1 File, Pattern-bekannt | 1, 3, 4, 6, 8, 10 (6 von 13) | ≥ 3 Items (Pattern-Source + 1 Reference + 1 Rule) | ≥ 3 | ≥ 3 |
+| S | 2-3 Files, klar | 1-13 (alle), Pre-Mortem optional | ≥ 6 Items | ≥ 6 | ≥ 6 |
+| M | 3-5 Files, eine Domain | 1-13 (alle) | ≥ 6 Items | ≥ 8 | ≥ 8 |
+| L | Cross-Domain oder Schema-Migration | 1-13 + Wave-Plan + Pre-Mortem ≥ 5 | ≥ 10 Items inkl. DB-Schema-Verify per `pg_get_functiondef` | ≥ 10 | alle 11 Categorien |
+
+**Gate:** CEO-Approval (wenn CEO-Scope laut `memory/ceo-approval-matrix.md`) ODER Claude setzt `S-Slice: true` für triviale Fälle.
+
+**Spec-Quality-Selbstcheck vor Anil-Approval (Slice 211):**
+- [ ] Code-Reading-Liste hat ≥ Mindest-Items für Slice-Größe?
+- [ ] Pattern-References sind ECHT relevant (kein copy-paste-aller-38-Patterns)?
+- [ ] ACs sind executable mit konkretem VERIFY-Command, nicht prosa?
+- [ ] Edge-Cases enumerieren systematisch (null/0/empty/timeout/concurrent/stale)?
+- [ ] Self-Verification-Commands laufen wirklich (kein Typo, korrekte Pfade)?
+- [ ] Open-Questions trennen Pflicht-Klärung von Autonom-Zone?
+- [ ] Money-Path/Wording? Compliance-Check + TR-Wording-Vorab in Spec?
+
+**Anti-Pattern (Slice 211 codifiziert):**
+- "Spec hat nur Ziel + Files + ACs" → Agent läuft blind in bekannte Fallen.
+- "Pattern-References = alle 38 aus patterns.md" → Noise, Agent ignoriert.
+- "Self-Verification = `tsc clean`" → reicht nicht, braucht Slice-spezifisch grep/sql/screenshot.
+- "Open-Questions weglassen" → Agent autonomisiert über Money-Path-Decisions.
+
+### 1b. PRE-REVIEW-MEMO Pattern (Slice 211 D50, optional aber empfohlen)
+
+**Artefakt:** `worklog/reviews/NNN-pre-review.md` (vom Agent oder mir geschrieben VOR Reviewer-Dispatch).
+
+**Inhalt (~10-15 Zeilen):**
+- Self-Audit gegen die in Spec definierten ACs (welche grün, welche teils, welche nicht)
+- Self-Audit Edge-Cases (welche getestet, welche nicht)
+- Self-Verification-Commands gelaufen + Output-Snippet
+- Open-Blocks (was ich nicht klären konnte, wo Reviewer schauen muss)
+- Bekannte Risiken (z.B. "Ich habe Catmull-Rom durch Linear ersetzt — Spec-Drift, dokumentiert in active.md")
+
+**Wirkung:** Reduziert Reviewer-Arbeit ~60% laut Slice 207-Erfahrung — Reviewer kann sich auf Blindspots konzentrieren statt komplettes Audit zu wiederholen.
+
+**Wann Pflicht?** Bei L-Slices mit parallel-Dispatch ≥ 3 Worktrees. Bei XS/S optional.
 
 ### 2. IMPACT — Was wird mitbetroffen?
 

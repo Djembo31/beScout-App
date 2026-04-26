@@ -8,6 +8,41 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `datab
 
 ## Supabase / Postgres
 
+### Migration-Heal v1→v2 Same-Session (Slice 207, codifiziert Slice 211)
+
+Wenn eine in der gleichen Session applied Migration semantisch falsch ist (Reviewer findet Logic-Bug, DB-Smoke findet falsche Aggregation, Audit-Verify findet wrong Output), kann sie via `mcp__supabase__apply_migration` mit GLEICHEM Filename-Stem + nur Timestamp-Bump (+5 Minuten) drüber-appliziert werden.
+
+**Pattern:**
+```
+v1: 20260426150000_slice_207_most_owned_batch.sql
+    ↓ (Reviewer/DB-Smoke findet semantischen Bug)
+v2: 20260426150500_slice_207_most_owned_batch.sql  (+5 min)
+    CREATE OR REPLACE FUNCTION ... (idempotent body)
+```
+
+**Voraussetzungen:**
+- v1 verwendet `CREATE OR REPLACE FUNCTION` (idempotent — kein DROP nötig).
+- v2 hat gleichen Function-Namen + gleiche Signatur (sonst pg_proc-Ambiguity → DROP alte Signatur explizit).
+- Falls v1 Schema-Änderungen (CREATE TABLE/INDEX) hatte: v2 ist NICHT idempotent → DROP IF EXISTS + CREATE in v2.
+
+**DB-Smoke gegen v2 als Single-Source-of-Truth:**
+```sql
+-- Nach v2 apply:
+SELECT pg_get_functiondef('public.<rpc>(<args>)'::regprocedure);
+-- Verifizieren: Body matcht v2-Logic, nicht v1-Logic.
+
+-- Plus Functional-Smoke:
+SELECT * FROM public.<rpc>(<test-params>) LIMIT 5;
+-- Verifizieren: Output stimmt mit v2-Schema/Werten.
+```
+
+**Anti-Pattern:**
+- v2 mit gleichem Timestamp wie v1 → Migration-Tracker sieht nur 1 File, v2 wird nicht applied.
+- v2 ohne pg_get_functiondef-Verify → beide könnten geistert haben (siehe PATCH-AUDIT-Pflicht unten Slice 156).
+- v1 + v2 als 2 separate Slice-Entries im log.md → wirkt wie 2 Failures. Besser: 1 Slice-Entry mit "v1→v2 Heal" als sub-step im selben Eintrag.
+
+**Reference:** Slice 207 Most-Owned-Discovery-Batch v1 (CTO club-max-relative falsch) → v2 (Agent's total_managers_of_club, FPL-semantic "X% der Manager besitzen Y"). Pattern-Draft im Session-Handoff dokumentiert, jetzt promoted.
+
 ### CREATE OR REPLACE FUNCTION — PATCH-AUDIT PFLICHT (Slice 156 FAIL)
 - Beim Body-Rewrite einer SECURITY DEFINER RPC: ALLE Vorgaenger-Migrations greppen, neuester Body = current DB-State. **Nicht vom ersten Create ableiten.**
 - Audit: `grep -rn "CREATE OR REPLACE FUNCTION public\\.<name>" supabase/migrations/` + zeitlich sortieren → letzter File ist Baseline. **Oder besser**: `pg_get_functiondef('public.<name>(args)'::regprocedure)` als live-truth.

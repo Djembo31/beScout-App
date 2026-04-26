@@ -1,0 +1,40 @@
+Slice 211 — Spec-Foundation-Uplift Self-Verification
+=========================================================
+
+AC-01 Template existiert:
+-rw-r--r-- 1 Anil 197121 7857 Apr 26 16:10 worklog/specs/_TEMPLATE.md
+
+AC-02 workflow.md hat 4 neue Pflicht-Sektionen erwähnt (count of references):
+13
+
+AC-03 /spec hat 1.10-1.13 Sektionen:
+216:### 1.10 Code-Reading-Liste (Slice 211 D50 — PFLICHT)
+235:### 1.11 Pattern-References (Slice 211 D50 — PFLICHT)
+255:### 1.12 Self-Verification Commands (Slice 211 D50 — PFLICHT)
+277:### 1.13 Open-Questions (Slice 211 D50 — PFLICHT)
+
+AC-04 Hook hat Verdict-Schema-Enforcement:
+129:if ! grep -qiE "(\*\*)?[Vv]erdict(\*\*)?[[:space:]]*:[[:space:]]*(\*\*)?(PASS|REWORK|FAIL|CONCERNS)" "$REVIEW_FILE"; then
+134:  Problem:           Kein Verdict-String erkannt (PASS|REWORK|FAIL|CONCERNS).
+
+AC-05 parallel-dispatch hat 3 neue Briefing-Blöcke (case-insensitive):
+51:  - Absolut-Paths schreiben Files in das Main-Repo statt deinen Worktree
+56:PRE-REVIEW-MEMO (empfohlen bei M/L-Slices, Slice 211):
+57:  Schreibe nach Implementation in `worklog/reviews/NNN-pre-review.md`:
+75:## Service-Schnittstelle vorab spezifizieren (Slice 211 D46)
+
+AC-06 Pattern-Promotions in 3 Files:
+.claude/rules/common-errors.md
+.claude/rules/errors-db.md
+memory/patterns.md
+
+AC-07 D50 in decisions.md:
+2023:## D50 — PROCESS: Spec-Standard-Pflicht für Agent-Context-Building
+
+AC-08 tsc clean:
+OK (no output = clean)
+
+AC-09 Hook smoke (no input → exit 0):
+Exit-OK = 0
+
+==== ALL ACs VERIFIED ====

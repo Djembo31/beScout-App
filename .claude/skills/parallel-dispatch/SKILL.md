@@ -32,19 +32,35 @@ Agent(test-writer, worktree): "Spec NNN. Schreibe Tests AUS SPEC (ohne Code zu l
 Agent(reviewer, read-only): "Review alle 3 Worktrees gegen common-errors.md + business.md + patterns.md. Output PASS/REWORK."
 ```
 
-## Agent-Briefing Template (PFLICHT)
+## Agent-Briefing Template (PFLICHT — Slice 211 erweitert)
 
 ```
 KONTEXT: [Was Anil will + Business-Kontext + Slice-Nr]
-SPEC: worklog/specs/NNN-*.md (LIES ZUERST)
+SPEC: worklog/specs/NNN-*.md (LIES ZUERST — der Agent ist intelligent, aber nicht hellsichtig)
 ZIEL: [Konkretes Ergebnis, nicht Schritte]
-CONSTRAINTS: 
+CONSTRAINTS:
   - Mobile 393px PFLICHT
   - i18n DE + TR
-  - Pattern X nutzen (NICHT neu erfinden)
-DU ENTSCHEIDEST: [Component-Struktur, Naming, interne Helper]
-VERIFY: [tsc clean + vitest run <file> + Screenshot]
+  - Pattern X nutzen (NICHT neu erfinden — siehe Spec Sektion 1.11 Pattern-References)
+DU ENTSCHEIDEST: [Component-Struktur, Naming, interne Helper] (siehe Spec Sektion 1.13 Autonom-Zone)
+VERIFY: [tsc clean + vitest run <file> + Screenshot] (siehe Spec Sektion 1.12 Self-Verification)
 PRE-WORK: Lies deine SKILL.md + LEARNINGS.md. Check common-errors.md für bekannte Fallen.
+
+WORKTREE-PFLICHT (Slice 207-Lehre, codifiziert Slice 211):
+  - ALLE Files-Edits MIT RELATIVEN PFADEN (`src/lib/...` NICHT `C:/bescout-app/src/lib/...`)
+  - Absolut-Paths schreiben Files in das Main-Repo statt deinen Worktree
+    (silent-fail: kein git-Konflikt, dein Worktree bleibt leer, claimed completion irreführend)
+  - Vor "fertig"-Claim: `cd <worktree-path> && git status -s` selbst laufen lassen
+    Erwartet: deine Edits zeigen sich. Wenn empty → du hast in Main-Repo geschrieben → STOP, Anil informieren.
+
+PRE-REVIEW-MEMO (empfohlen bei M/L-Slices, Slice 211):
+  Schreibe nach Implementation in `worklog/reviews/NNN-pre-review.md`:
+  - AC-Self-Audit (welche grün, welche teils, welche nicht — keine Beschönigung)
+  - Edge-Case-Coverage (welche getestet, welche nicht)
+  - Self-Verification-Output (welche Audit-Commands gelaufen + 1-Zeilen-Output)
+  - Open-Blocks (was du nicht klären konntest, wo Reviewer schauen muss)
+  - Bekannte Risiken / Spec-Drifts (z.B. "Linear-Path statt Catmull-Rom — visuell nicht differenzierbar")
+  Reduziert Reviewer-Arbeit ~60% laut Slice 207.
 ```
 
 NIEMALS:
@@ -55,6 +71,30 @@ NIEMALS:
 IMMER:
 - Ziel + Constraints + Verify
 - Trust aber VERIFY (nach Agent: `git diff --stat` + ls changes)
+
+## Service-Schnittstelle vorab spezifizieren (Slice 211 D46)
+
+**PFLICHT bei BE+FE-Cross-Domain-Slices** — sonst entstehen Service-Duplicates (Slice 199 Reviewer-Find).
+
+In der Spec Sektion 1.10 "Code-Reading-Liste" (oder eigene Sub-Sektion 1.3a) MUSS stehen:
+
+```
+Service-Kontrakt:
+  Datei: src/lib/services/<canonical>.ts
+  Export: export async function getXxx(params: P): Promise<R>
+    P = { ... exakte Type-Shape ... }
+    R = { ... exakte Type-Shape ... }
+  Caller (FE-Hook): src/lib/queries/<related>.ts mit useQuery(qk.X.Y, () => getXxx(...))
+```
+
+Damit ist klar:
+- **BE-Agent** baut den Service unter dem CANONICAL-Pfad. Schreibt KEINE konkurrierende Version.
+- **FE-Agent** importiert von dem CANONICAL-Pfad. Erfindet KEINE eigene Service-Variante.
+- **Test-Writer** mockt den CANONICAL-Pfad. Schreibt Tests gegen die exakte Type-Shape.
+
+**Wenn vergessen:** Beide Agents bauen unabhängig "irgendeinen" Service → 1 wird orphan-production-code (kein Importer) → Slice 199-Klasse-Bug.
+
+**Reviewer-Pflicht** bei Cross-Domain: post-merge `grep -rn "import.*from.*'<be-service-path>'" src/` — wenn 0 Results: orphan, einer der Services muss gelöscht werden.
 
 ## Worktree-Naming-Konvention
 
