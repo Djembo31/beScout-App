@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { Dialog, Button } from '@/components/ui';
+import { Dialog, Button, InfoTooltip } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
@@ -118,21 +118,33 @@ export default function BuyConfirmModal({
           {isMarket ? t('transferListBadge') : t('clubSale', { defaultMessage: 'Club Verkauf' })}
         </div>
 
-        {/* Community Sentiment (Scout Reports) — Slice 222 K-RR-2: title-Tooltips für Casual-Education */}
+        {/* Community Sentiment (Scout Reports) — Slice 225: InfoTooltip-Pattern (Mobile-friendly + A11y, ersetzt title= aus Slice 222 K-RR-2) */}
         {sentiment && sentiment.total > 0 && (
           <div className="flex items-center gap-2 text-[10px]">
-            <span className="text-white/40 font-semibold" title={t('sentimentLabel')}>{t('communityLabel', { defaultMessage: 'Community' })}:</span>
+            <span className="inline-flex items-center gap-1">
+              <span className="text-white/40 font-semibold">{t('communityLabel', { defaultMessage: 'Community' })}:</span>
+              <InfoTooltip text={t('sentimentLabel')} />
+            </span>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-emerald-400" title={t('sentimentBullish', { count: sentiment.bullish })}>
+              <span
+                className="flex items-center gap-1 text-emerald-400"
+                aria-label={t('sentimentBullish', { count: sentiment.bullish })}
+              >
                 <TrendingUp className="size-3" aria-hidden="true" />
                 <span className="font-mono font-bold tabular-nums">{sentiment.bullish}</span>
               </span>
-              <span className="flex items-center gap-1 text-red-400" title={t('sentimentBearish', { count: sentiment.bearish })}>
+              <span
+                className="flex items-center gap-1 text-red-400"
+                aria-label={t('sentimentBearish', { count: sentiment.bearish })}
+              >
                 <TrendingDown className="size-3" aria-hidden="true" />
                 <span className="font-mono font-bold tabular-nums">{sentiment.bearish}</span>
               </span>
               {sentiment.neutral > 0 && (
-                <span className="flex items-center gap-1 text-white/40" title={t('sentimentNeutral', { count: sentiment.neutral })}>
+                <span
+                  className="flex items-center gap-1 text-white/40"
+                  aria-label={t('sentimentNeutral', { count: sentiment.neutral })}
+                >
                   <Minus className="size-3" aria-hidden="true" />
                   <span className="font-mono font-bold tabular-nums">{sentiment.neutral}</span>
                 </span>

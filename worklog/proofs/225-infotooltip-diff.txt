@@ -1,0 +1,43 @@
+═══ Slice 225 — InfoTooltip-Migration PROVE ═══
+Date: 2026-04-27T03:09:23+02:00
+
+## AC-3 [REGRESSION-TITLE-FREE] — Keine title= mehr
+BuyConfirmModal.tsx (sentiment-block):
+✅ 0 hits
+CommunityValuation.tsx (floor-price):
+✅ 0 hits
+
+## AC-4 [A11Y] aria-label on counter spans:
+131:                aria-label={t('sentimentBullish', { count: sentiment.bullish })}
+138:                aria-label={t('sentimentBearish', { count: sentiment.bearish })}
+146:                  aria-label={t('sentimentNeutral', { count: sentiment.neutral })}
+
+## AC-5 [REGRESSION-TSC] tsc clean: exit 0 ✓
+
+## AC-6 [PATTERN-DOC] ui-components.md Tooltip-Pattern-Block:
+55:## Tooltip-Pattern (Slice 225 — codifiziert nach Phase-A-Re-Audit 2026-04-27)
+65:│   ⇒ InfoTooltip (`@/components/ui` → `<InfoTooltip text="..." />`)
+74:**InfoTooltip-Eigenschaften** (`src/components/ui/index.tsx:184-216`):
+87:  <InfoTooltip text={t('sentimentLabel')} />
+91:// weil InfoTooltip daneben Education liefert)
+
+## AC-7 [INFOTOOLTIP-IMPORT] Component-Imports:
+src/features/market/components/shared/BuyConfirmModal.tsx:7:import { Dialog, Button, InfoTooltip } from '@/components/ui';
+src/components/player/detail/CommunityValuation.tsx:6:import { Card, Button, InfoTooltip } from '@/components/ui';
+
+## Diff Summary:
+ .claude/rules/ui-components.md                     | 62 ++++++++++++++++++++++
+ .../player/detail/CommunityValuation.tsx           |  8 ++-
+ .../market/components/shared/BuyConfirmModal.tsx   | 24 ++++++---
+ 3 files changed, 86 insertions(+), 8 deletions(-)
+
+## Visual-Verify-Plan (Anil post-deploy):
+1. /market öffnen, Card zum Buy auswählen, BuyConfirmModal öffnet
+2. Sentiment-Block sichtbar mit Counter (bullish/bearish/neutral)
+3. ?-Icon next zu 'Community:'-Label sichtbar
+4. Click ?-Icon → Popover oben mit sentimentLabel-Text
+5. Click outside → Popover schließt
+6. Mobile (393px iPhone 16): Tap ?-Icon = öffnet Popover (Hover-Frei)
+7. Player-Detail-Page öffnen, CommunityValuation-Card sichtbar
+8. Floor-Preis-Card hat ?-Icon next zu Floor-Preis-Label (3-Col-Grid intakt)
+9. Click ?-Icon → Popover mit floorPriceTooltip-Text

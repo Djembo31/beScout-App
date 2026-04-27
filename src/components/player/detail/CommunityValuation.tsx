@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Users, BarChart3, Send, CheckCircle2 } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, InfoTooltip } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getPlayerFairValue, getUserValuation, submitValuation } from '@/lib/services/valuations';
@@ -107,7 +107,11 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
-            <div className="text-[10px] text-white/40 mb-1" title={t('floorPriceTooltip')}>{t('floorPrice')}</div>
+            {/* Slice 225: InfoTooltip-Pattern (Mobile-friendly + A11y, ersetzt title= aus Slice 216 K-RR-1) */}
+            <div className="text-[10px] text-white/40 mb-1 inline-flex items-center justify-center gap-1">
+              <span>{t('floorPrice')}</span>
+              <InfoTooltip text={t('floorPriceTooltip')} />
+            </div>
             <div className="font-mono font-bold tabular-nums text-white/70">{fmtScout(centsToBsd(floorPriceCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">

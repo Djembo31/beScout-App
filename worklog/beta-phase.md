@@ -16,9 +16,9 @@ last_signoff_date: 2026-04-26
 last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1) im Slice-222-Diff. Tech-Side ist NICHT mehr 'maximal sauber' — Re-Audit-Wert war hoch."
 findings_open:
   P0: 0
-  P1: 1   # Slice 224 healed BUSINESS-NEU-1 + FM-NEU-2 → UX-NEU-2 verbleibt für Slice 225
-  P2: 3   # NEU 2026-04-27: FM-NEU-3, FM-NEU-4, UX-NEU-3
-  P3: 2   # Slice 224 healed BUSINESS-NEU-2 → FM-NEU-5, UX-NEU-4 verbleiben
+  P1: 0   # Slice 225 healed UX-NEU-2 → ALLE P1 NULL
+  P2: 2   # Slice 225 healed UX-NEU-3 → FM-NEU-3, FM-NEU-4 verbleiben (Re-Eval Slice 226+)
+  P3: 1   # Slice 225 healed UX-NEU-4 → FM-NEU-5 verbleibt (Re-Eval Slice 226+)
   incomplete_reruns: 0
   test_mock_backlog: 0
   signoff_questionable: 2   # Page-Health-Score + Persona-Score numerisch

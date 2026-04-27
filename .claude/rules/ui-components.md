@@ -52,6 +52,68 @@ paths:
 - `flex-shrink-0` (NIEMALS `flex-1`) + `overflow-x-auto` + `scrollbar-hide`
 - Max ~5 chars pro Tab-Label auf Mobile
 
+## Tooltip-Pattern (Slice 225 — codifiziert nach Phase-A-Re-Audit 2026-04-27)
+
+**Entscheidungs-Tree:**
+
+```
+Tooltip benoetigt?
+├─ Education / Edutorial (User muss verstehen WAS/WARUM)?
+│   → Mobile-Pflicht (393px-Touch hat KEIN Hover)
+│   → Discoverability (User muss wissen Tooltip existiert)
+│   → A11y Screen-Reader-Konform
+│   ⇒ InfoTooltip (`@/components/ui` → `<InfoTooltip text="..." />`)
+│
+└─ Trivialer Hint (Icon-Disambiguierung, collapsed-NavItem-Name)?
+    → Desktop-Hover reicht
+    → Discoverability nicht kritisch
+    → A11y via aria-label parallel
+    ⇒ HTML-native `title="..."`
+```
+
+**InfoTooltip-Eigenschaften** (`src/components/ui/index.tsx:184-216`):
+- Click-to-toggle (Mobile + Desktop)
+- `?`-Icon-Button mit aria-label + aria-expanded (A11y)
+- Click-outside-close via mousedown-Listener
+- `anim-dropdown` Animation
+- Popover-Content `w-[min(13rem,calc(100vw-2rem))]` viewport-clipped (Mobile-safe)
+
+**Pattern-Beispiele:**
+
+```tsx
+// Education-Tooltip (Mobile-pflicht, Discoverability) — Slice 225 Migration
+<span className="inline-flex items-center gap-1">
+  <span className="text-white/40 font-semibold">{t('communityLabel')}:</span>
+  <InfoTooltip text={t('sentimentLabel')} />
+</span>
+
+// Counter mit aria-label statt title= (kein visueller Tooltip noetig
+// weil InfoTooltip daneben Education liefert)
+<span aria-label={t('sentimentBullish', { count })}>
+  <TrendingUp aria-hidden="true" /> {bullish}
+</span>
+
+// Trivialer Hint (Icon-only Button, Desktop-Hover-OK)
+<button title={t('expandRow')} aria-label={t('expandRow')}>
+  <ChevronDown />
+</button>
+```
+
+**Anti-Pattern (verboten ab Slice 225 fuer Education-Tooltips):**
+- `<div title={t('floorPriceTooltip')}>{t('floorPrice')}</div>` — Mobile-User sieht das **nie**
+- `<span title={t('sentimentBullish')}>` — wenn Tooltip Education ist, Mobile-User sieht es **nie**
+
+**Migration-History (Pattern-Drift behoben):**
+- Slice 216 K-RR-1 (`CommunityValuation` Floor-Preis) — Slice 225 migriert
+- Slice 222 K-RR-2 (`BuyConfirmModal` Sentiment-Block) — Slice 225 migriert
+
+**Audit-CI-Detector (post-Beta empfohlen):**
+```bash
+# Education-Tooltip-Drift: title= mit Education-i18n-Key
+grep -rnE 'title=\{t\([^)]*Tooltip|title=\{t\([^)]*Label' src/components/ src/features/ \
+  | grep -v 'collapsed\|expand\|aria-label'
+```
+
 ## Animations (globals.css)
 - `anim-modal` (scale 0.95→1, 0.2s) — Modals
 - `anim-fade` (opacity 0→1, 0.2s) — Overlays, Badges

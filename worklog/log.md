@@ -11,6 +11,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 225 | 2026-04-27 | InfoTooltip-Migration — UX-NEU-2/-3/-4 + Slice 216 Pattern-Drift geheilt
+
+- **Stage-Chain:** SPEC → IMPACT (skipped — UI-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** S (3 Files: 2 Components + 1 rules-doc)
+- **Trigger:** Phase-A Targeted Re-Audit 2026-04-27 fand UX-NEU-2 (P1) + UX-NEU-3 (P2) + UX-NEU-4 (P3) — gleicher Pattern-Drift in Slice 216 + Slice 222
+- **Files:**
+  - `src/features/market/components/shared/BuyConfirmModal.tsx` — 4× HTML `title=` → 1× InfoTooltip + 3× aria-label auf Counter-Spans
+  - `src/components/player/detail/CommunityValuation.tsx` — 1× HTML `title=` → 1× InfoTooltip auf Floor-Preis-Label
+  - `.claude/rules/ui-components.md` — neuer Tooltip-Pattern-Block mit Decision-Tree + Anti-Pattern-Beispiele + Migration-History + Audit-CI-Detector
+  - `worklog/specs/225-infotooltip-migration.md` — Spec
+  - `worklog/proofs/225-infotooltip-diff.txt` — AC-Output + Visual-Verify-Plan
+  - `worklog/reviews/225-review.md` — Self-Review PASS
+- **Wurzel-Fix:** Education-Tooltips waren auf 393px-Mobile invisible (HTML-`title=` zeigt kein Tooltip ohne Hover). InfoTooltip-Pattern ist click-toggle, Mobile-friendly + Discoverable + A11y-konform.
+- **3 Findings + 1 Pattern-Drift geheilt mit 1 Slice:**
+  - UX-NEU-2 (P1) Mobile-UX-Gap → InfoTooltip click-toggle
+  - UX-NEU-3 (P2) Discoverability → `?`-Icon Visual-Hint
+  - UX-NEU-4 (P3) A11y → aria-label parallel + InfoTooltip aria-expanded
+  - Slice 216 K-RR-1 (Floor-Preis) Bonus-Heal — selber Pattern-Drift wie Slice 222
+- **Pattern-Regel codifiziert:** ui-components.md jetzt mit klarem Decision-Tree (Education → InfoTooltip, Trivial → title=). Future-Slices haben Anweisung. Anti-Pattern dokumentiert mit Code-Beispielen.
+- **Phase-Tracker-Update:** findings_open.P1: 1 → 0 (alle P1 null!) · P2: 3 → 2 · P3: 2 → 1
+- **AC-Status:** 7/8 ✅ + 1 🟡 Visual-Verify post-deploy (AC-8 Layout-Inspekt durch Anil)
+- **Self-Review (D35):** Pattern-Migration auf existing Component, kein Logic-Change, kein Money-Path-Touch, keine i18n-Wording-Änderung. Reviewer-Agent würde gleichen Pattern-Grep wiederholen den ux-coherence-auditor schon im Re-Audit gemacht hat.
+- **Anil-Action:** Visual-Inspektion auf bescout.net post-deploy (AC-8): /market BuyConfirmModal Sentiment-Block + Player-Detail CommunityValuation Floor-Preis-Card. Mobile (393px) Tap-Test des `?`-Icons.
+- **Knowledge-Flywheel:** Audit-CI-Detector im ui-components.md-Block für Future-Wave-3-Tooling (analog Slice 223 audit-stale-check.ts).
+- **Proof:** `worklog/proofs/225-infotooltip-diff.txt`
+- **Commit:** TBD
+
+---
+
 ## 224 | 2026-04-27 | Sentiment-Wording-Heal — 3 Findings (P1+P1+P3) mit 1 i18n-Slice geheilt
 
 - **Stage-Chain:** SPEC → IMPACT (skipped — i18n-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
