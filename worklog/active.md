@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 234
-stage: PROVE
-spec: worklog/specs/234-system-wiring-recovery.md
-impact: skipped (cross-cutting in Workflow/Hook/Script-Schicht, kein Service/RPC/DB)
-proof: worklog/proofs/234-wiring-recovery-smoke.txt
-review: worklog/reviews/234-review.md (Reviewer-Agent CONCERNS→PASS post-Heal)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 234** (2026-04-27) — System-Wiring Recovery + Drift-Prevention (L-Slice, D54). Anil-Direktive Plan-Mode + Ultrathink. 6 Phasen: HEAL (8 Hooks registriert + 1 archived + 1 deleted, capture-correction stdin-fix → Knowledge-Flywheel reaktiviert nach 19 Tagen Tot, GHA-Heal nightly-audit.yml, 14 stale Smoke-Issues triaged + Master-Tracker #25 erstellt) → PREVENT (scripts/wiring-check.ts NEU + ship-tool-wiring-gate.sh BLOCK-Hook) → ARCHITEKTUR (Slice-Type-Header pflicht, Layer-3 DoD-Hook) → KNOWLEDGE-RESTORE (capture-correction live verifiziert) → LIVE-VERIFY → CLOSE. Reviewer-Agent CONCERNS (11 Findings) → PASS post-Heal. F-04 UTF-8-tr-Bug LC_ALL=C.UTF-8 + dual-Pattern. F-08 [HIGH] Master-Tracker-Issue #25. Pattern-Familie D43→D46→D54 ("Existenz ≠ Verwendung") etabliert. 18 files, 1345 insertions, 102 deletions. Commit 68717459.
 - **Slice 233** (2026-04-27) — Nightly Audit Self-Improvement-Loop (S, GHA-Workflow). Erste autonome Schleife in BeScout. Verkabelt 8 Audit-Tools (war 1) + bescout.net-Smoke daily 03:00/04:00 UTC mit Auto-Issue-Pipeline. **Live-Run Verified:** Run #25011352539 erfolgreich getriggered. Audit-Job 43s SUCCESS, fand 4 echte Findings → Issue #22 erstellt (silent-fail/orphan/i18n/tr-strings). Smoke-Job 2:01min FAILURE → Issue #23 erstellt (beta-blocker bescout.net Player-Link-Timeout, identisch zu historischen #14-#21). Reviewer CONCERNS→PASS post-Heal: F-01 PIPESTATUS-Bug (`tee` masked exit-code → ${PIPESTATUS[0]}), F-02 Spec-Drift "7 vs 8". D53 Build-without-Wire-Verbot codifiziert + workflow.md Section 3a Definition-of-Done-Tabelle. Backlog: Slice 234 Issue-Dedupe + Slice 235 wiring-check.ts + Slice 236 ship-tool-wiring-gate.sh.
 - **Slice 232** (2026-04-27) — `spec: inline`/`skipped` Bypass Hard-BLOCK (XS, Hook-Refinement). Wave-3-Tooling Backlog komplett. Erste Hard-BLOCK-Erweiterung in `ship-spec-quality-gate.sh`. Detection nach `tr -d ' '`-Stripping: plain `inline`/`skipped` → BLOCK exit 2; mit `(reason)`-Klammer → silent. Backward-Compat erhalten (alle historischen `(Grund)`-Einträge bleiben silent). 5/5 Smokes PASS via Mock-active.md mit Backup/Restore. Self-Review D35.
 - **Slice 231** (2026-04-27) — Spec-Quality-Gate Item-Count-Validation (XS, frontend-tooling-only Hook-Refinement). Reviewer-Lücke aus Slice 212 nach 19 Slices geheilt. Hook ist jetzt 2-Layer: (1) Sektion-Existenz [Slice 212], (2) Item-Counts pro Größe [Slice 231 NEU] mit Mindest-Counts XS=3/S=6/M=6-8/L=10 für Code-Reading + Edge-Cases + ACs. 3 BUILD-Discoveries: UTF-8-`\b`-Bug bei `Größe` (Multi-Byte brach `\b`-Anchor in MSYS Git Bash → 2-Step Line-find/Extract), Tabellen-Header-Inflation (last_was_table_row Rollback bei Trenner-Sicht), AC-Code-Block-Pattern-Detection (`_TEMPLATE.md`-ACs sind in ```-Blocks → in_code-Branch zählt `^[A-Z][A-Z0-9]*[-_][0-9]+:`). Self-Review D35 (Pattern-Wiederholung Slice 212 + 223). 3/3 ACs PASS. Wave-3-Tooling-API erfüllt. Backward-Compat: Layer 1 unverändert.
