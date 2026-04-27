@@ -1878,6 +1878,43 @@ Heal-Cycle: FE-Duplicate entfernt, Hook-Import auf BE-Pfad re-routed. Vermeidbar
 
 Bei nächster parallelem Dispatch: bewusst mit Service-Spec arbeiten + tracken ob Drift auftritt.
 
+### Erweiterung Slice 227 (2026-04-27): Orphan-Production-Component auf Component-Achse
+
+**Pattern-Erweiterung:** D46 wurde original für **Service-Duplicate** definiert (parallele BE+FE-Worktrees implementieren denselben Service unabhängig → orphan production-code). Slice 227 erweitert das Pattern um die **Component-Achse**.
+
+**Discovery (2026-04-27 Visual-Check):**
+- `src/components/player/detail/CommunityValuation.tsx` — Component definiert, exported via Barrel-Index, **nirgends importiert** (`grep -rn "<CommunityValuation" src/` = 0 hits, nur Definition + Export)
+- Slice 216 K-RR-1 + Slice 225 InfoTooltip-Migration wurden auf das Component appliziert ohne Wirkung — User hat es nie gesehen
+- **Audit-Methodik-Bug:** Phase-A-Re-Audit hat das Component als "live + fixable" klassifiziert ohne import-trace zu prüfen
+
+**Detection-Pattern für Future-Slices:**
+```bash
+# Orphan-Component-Detection: alle exported Components ohne JSX-Verwendung finden
+for f in $(find src/components -name "*.tsx" -exec grep -l "^export default function" {} \;); do
+  name=$(basename $f .tsx)
+  count=$(grep -rn "<${name}[ />]" src/ --include="*.tsx" | grep -v "${name}.tsx:" | wc -l)
+  [ "$count" -eq 0 ] && echo "ORPHAN: $f"
+done
+```
+
+**Pflicht-Regel (Audit-Agents):**
+- Vor P1-Finding-Klassifikation auf Component-Code: import-trace mit `grep -rn "<ComponentName"` ausführen
+- Wenn 0 hits außer Definition: Component ist **orphan** → finding-Severity NICHT P1, sondern Code-Quality-P2
+- audit-aggregate.md muss "import-trace verified ✓" als Audit-Step listen
+
+**Future-Tooling (Wave-3-Backlog):**
+- `scripts/orphan-component-detector.ts` analog `audit-stale-check.ts` (Slice 223). Ergänzt CI-Gate gegen orphan accumulation.
+- Pre-Commit-Hook: bei `export default function` ohne Import in src/ → warn
+
+**Heal-Optionen für entdeckte Orphans:**
+- (A) Löschen — wenn keine Wire-Plan existiert
+- (B) Wiren — wenn klar ist auf welcher Page
+- (C) Defer mit `@experimental` JSDoc-Tag + Backlog-Eintrag — wenn Future-Wire-Plan offen ist
+
+Slice 227 hat Option C gewählt für CommunityValuation.
+
+**Cross-Reference:** Slice 207-Pattern "Worktree-Isolation-Escape" + Slice 199 "Service-Duplicate" + Slice 227 "Orphan-Component-Detection" sind alle Subklassen "Code-Existenz ≠ Code-Im-Render-Tree". Pattern-Familie: **Audit-Quality-Drift** — Audit fand Code aber Audit prüfte nicht Wirkung.
+
 ---
 
 ## D47 — PROCESS: Skip-Pattern-Bündelung — gebündelte Wave-Slice statt Einzel-Nachzügler

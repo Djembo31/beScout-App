@@ -11,6 +11,39 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 227 | 2026-04-27 | CommunityValuation @experimental + Audit-Methodik-Lehre (ORPHAN-NEU-1)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped — docs/comment-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (docs/comment-only)
+- **Trigger:** Visual-Check 2026-04-27 deckte ORPHAN-NEU-1 (P2) auf — `CommunityValuation` ist orphan production-code (exported via barrel-index, nirgends importiert). Slice 216 K-RR-1 + Slice 225 InfoTooltip-Migration wurden auf totes Component appliziert ohne User-Wirkung.
+- **Anil-Decision:** Option C — Defer mit `@experimental` JSDoc-Tag + Backlog. (Optionen waren: A=delete, B=wire, C=defer.)
+- **Files:**
+  - `src/components/player/detail/CommunityValuation.tsx` — JSDoc-Header mit `@experimental` + orphan-Erklärung + Wire-Plan-Hinweis + Audit-Methodik-Lehre
+  - `memory/decisions.md` — D46 erweitert um "Orphan-Production-Component-Detection" (neue Achse, war Service-only)
+  - `worklog/audits/2026-04-26/persona-k-casual.md` — K-RR-1 reklassifiziert als "fake-fix-orphan, Slice 227"
+  - `worklog/audits/2026-04-27/aggregate.md` — UX-NEU-2 Annotation: "Slice 216 K-RR-1 reklassifiziert"
+  - `worklog/beta-phase.md` — ORPHAN-NEU-1 als deferred + last_signoff_verdict aktualisiert
+  - `worklog/specs/227-orphan-defer-audit-methodik.md` (NEU)
+  - `worklog/proofs/227-orphan-defer-output.txt` (NEU)
+  - `worklog/reviews/227-review.md` (NEU, self-review PASS)
+- **Wurzel-Befund (Audit-Quality-Drift Pattern-Familie):**
+  - Slice 207 "Worktree-Isolation-Escape" — Code im falschen Worktree
+  - Slice 199 / D46 "Service-Duplicate" — Service zweimal, einer orphan
+  - Slice 227 (NEU) "Orphan-Production-Component" — Component nirgends gerendert
+  - Cross-cutting: "Code-Existenz ≠ Code-Im-Render-Tree"
+- **Audit-Methodik-Hardening (D46-Erweiterung):**
+  - Future audit-Agents: import-trace-Pflicht vor P1-Klassifikation
+  - Detection-Pattern dokumentiert (`grep -rn "<ComponentName"`)
+  - Wave-3-Tooling-Backlog: `scripts/orphan-component-detector.ts` analog Slice 223 audit-stale-check.ts
+- **Phase-Tracker-Update:** ORPHAN-NEU-1 als deferred (P2 → 0). Wire-Plan: bei Skala >20 active-scouts auf Player-Detail Community-Tab wiren, sonst Slice 230+ delete. Tech-Side bleibt maximal sauber, ALLE findings_open NULL.
+- **AC-Status:** 5/5 ✅ (HAPPY/PATTERN/REGRESSION/TRACKER/TSC)
+- **Self-Review (D35):** docs/comment-only Pattern analog Slice 209 (audit-stale-cleanup). Kein Render-Path-Change, kein Logic-Risk.
+- **Bonus-Beobachtung:** PlayerHero.tsx zeigt bereits "Floor · günstigstes Angebot" als Inline-Subtitle — entspricht ui-components.md Tooltip-Pattern "Trivial-Hint" (kein InfoTooltip nötig). Slice 216 K-RR-1 Original-Annahme "Floor-Preis braucht Tooltip" war falsch — Inline-Subtitle löst Education bereits.
+- **Proof:** `worklog/proofs/227-orphan-defer-output.txt`
+- **Commit:** TBD
+
+---
+
 ## 226 | 2026-04-27 | Sentiment-Bar 3-Segment (FM-NEU-4) + FM-NEU-3/5 Reklassifizierung — Re-Audit-Heal-Wave abgeschlossen
 
 - **Stage-Chain:** SPEC → IMPACT (skipped — UI-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG

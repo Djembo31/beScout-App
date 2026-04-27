@@ -1,0 +1,56 @@
+═══ Slice 227 — Orphan-Defer + Audit-Methodik-Lehre PROVE ═══
+Date: 2026-04-27T18:02:13+02:00
+
+## AC-1 [HAPPY] CommunityValuation @experimental JSDoc:
+'use client';
+
+/**
+ * @experimental — orphan production-code per Slice 227 (2026-04-27).
+ *
+ * Component is exported via `src/components/player/detail/index.ts:19` but
+ * NOT imported by any page or component (verified via grep). User never sees
+ * this. Anil-Decision Option C: defer with @experimental tag + backlog item.
+ *
+ * Slice 216 K-RR-1 (Floor-Preis title-Tooltip) and Slice 225 InfoTooltip-
+ * Migration were applied here but had no user-visible effect. See
+ * `worklog/proofs/visual-check-2026-04-27.md` for full discovery.
+ *
+ * Pattern: D46 erweitert (Orphan-Production-Component-Detection auf
+ * Component-Achse, analog zu Service-Duplicate auf Service-Achse).
+ *
+ * Wire-Plan: pending — wenn Player-Detail Community-Tab Aggregat-Daten
+ * (player_valuations) skaliert (>20 active scouts), Component auf Tab
+ * wiren. Bis dahin: dead code, behalten weil low cost + future-ready.
+ *
+ * Audit-Methodik-Lehre: Future audit-Agents müssen import-trace machen
+ * vor P1-Klassifikation (decisions.md D46 Sub-Section).
+ */
+
+## AC-2 [PATTERN] decisions.md D46 erweitert:
+Bei nächster parallelem Dispatch: bewusst mit Service-Spec arbeiten + tracken ob Drift auftritt.
+
+### Erweiterung Slice 227 (2026-04-27): Orphan-Production-Component auf Component-Achse
+
+**Pattern-Erweiterung:** D46 wurde original für **Service-Duplicate** definiert (parallele BE+FE-Worktrees implementieren denselben Service unabhängig → orphan production-code). Slice 227 erweitert das Pattern um die **Component-Achse**.
+
+**Discovery (2026-04-27 Visual-Check):**
+- `src/components/player/detail/CommunityValuation.tsx` — Component definiert, exported via Barrel-Index, **nirgends importiert** (`grep -rn "<CommunityValuation" src/` = 0 hits, nur Definition + Export)
+
+## AC-3 [REGRESSION] K-RR-1 reklassifiziert in 2 audit-files:
+worklog/audits/2026-04-26/persona-k-casual.md:1
+worklog/audits/2026-04-27/aggregate.md:1
+
+## AC-4 [TRACKER] ORPHAN-NEU-1 in beta-phase.md:
+last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1+3 P2+3 P3). Slices 224+225+226 healed 7/9; FM-NEU-3 deferred post-Beta + FM-NEU-5 wont-fix. Visual-Check 2026-04-27 fand ORPHAN-NEU-1 (CommunityValuation orphan production-code) → Slice 227 deferred mit @experimental JSDoc + D46-Pattern-Erweiterung. **Tech-Side wieder maximal sauber — null open Findings.** Sign-Off-Re-Trial-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste)."
+  P2: 0   # Slice 226 healed FM-NEU-4 → FM-NEU-3 deferred + ORPHAN-NEU-1 deferred (Slice 227)
+    - ORPHAN-NEU-1 (CommunityValuation orphan production-code — Slice 227 mit @experimental JSDoc markiert + decisions.md D46 erweitert. Wire-Plan-Decision: bei Skala >20 active-scouts auf Player-Detail Community-Tab wiren, sonst Slice 230+ delete)
+
+## AC-5 [TSC] exit 0 ✓
+
+## Diff Summary:
+ memory/decisions.md                                | 37 ++++++++++++++++++++++
+ .../player/detail/CommunityValuation.tsx           | 21 ++++++++++++
+ worklog/audits/2026-04-26/persona-k-casual.md      |  2 +-
+ worklog/audits/2026-04-27/aggregate.md             |  2 +-
+ worklog/beta-phase.md                              |  5 +--
+ 5 files changed, 63 insertions(+), 4 deletions(-)

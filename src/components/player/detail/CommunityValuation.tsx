@@ -1,5 +1,26 @@
 'use client';
 
+/**
+ * @experimental — orphan production-code per Slice 227 (2026-04-27).
+ *
+ * Component is exported via `src/components/player/detail/index.ts:19` but
+ * NOT imported by any page or component (verified via grep). User never sees
+ * this. Anil-Decision Option C: defer with @experimental tag + backlog item.
+ *
+ * Slice 216 K-RR-1 (Floor-Preis title-Tooltip) and Slice 225 InfoTooltip-
+ * Migration were applied here but had no user-visible effect. See
+ * `worklog/proofs/visual-check-2026-04-27.md` for full discovery.
+ *
+ * Pattern: D46 erweitert (Orphan-Production-Component-Detection auf
+ * Component-Achse, analog zu Service-Duplicate auf Service-Achse).
+ *
+ * Wire-Plan: pending — wenn Player-Detail Community-Tab Aggregat-Daten
+ * (player_valuations) skaliert (>20 active scouts), Component auf Tab
+ * wiren. Bis dahin: dead code, behalten weil low cost + future-ready.
+ *
+ * Audit-Methodik-Lehre: Future audit-Agents müssen import-trace machen
+ * vor P1-Klassifikation (decisions.md D46 Sub-Section).
+ */
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Users, BarChart3, Send, CheckCircle2 } from 'lucide-react';

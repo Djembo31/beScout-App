@@ -13,11 +13,11 @@ phase: D    # alle 9 Re-Audit-Findings closed/deferred/wont-fix, zurück zu Sign
 last_phase_run: 2026-04-27 (Targeted Phase-A Re-Audit BuyConfirmModal — 9 NEU Findings → 7 healed + 2 reklassifiziert)
 last_signoff: FAIL
 last_signoff_date: 2026-04-26
-last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1+3 P2+3 P3). Slices 224+225+226 healed 7/9 (alle P1 + 1 P2 + 2 P3); FM-NEU-3 deferred post-Beta + FM-NEU-5 wont-fix. **Tech-Side jetzt wieder maximal sauber — null open Findings.** Sign-Off-Re-Trial-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste)."
+last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1+3 P2+3 P3). Slices 224+225+226 healed 7/9; FM-NEU-3 deferred post-Beta + FM-NEU-5 wont-fix. Visual-Check 2026-04-27 fand ORPHAN-NEU-1 (CommunityValuation orphan production-code) → Slice 227 deferred mit @experimental JSDoc + D46-Pattern-Erweiterung. **Tech-Side wieder maximal sauber — null open Findings.** Sign-Off-Re-Trial-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste)."
 findings_open:
   P0: 0
   P1: 0   # Slice 225 healed UX-NEU-2 → ALLE P1 NULL
-  P2: 0   # Slice 226 healed FM-NEU-4 → FM-NEU-3 deferred (post-Beta) → ALLE P2 NULL/deferred
+  P2: 0   # Slice 226 healed FM-NEU-4 → FM-NEU-3 deferred + ORPHAN-NEU-1 deferred (Slice 227)
   P3: 0   # Slice 225 healed UX-NEU-4 → FM-NEU-5 wont-fix (User-Intent-Misalignment)
   incomplete_reruns: 0
   test_mock_backlog: 0
@@ -26,6 +26,7 @@ findings_open:
     - POSTHOG-NEU-1 (post-3-Tester-Beta, wenn Skala >20 User)
     - FM-RR-2 (Watchlist-Standalone-Page Feature)
     - FM-NEU-3 (Sentiment Reliability-Weighting — post-Beta wenn Skala >20 User; bei N<5 Testern null praktischer Effekt, Service-Erweiterung wäre M-Slice mit 0% Pre-Beta-ROI)
+    - ORPHAN-NEU-1 (CommunityValuation orphan production-code — Slice 227 mit @experimental JSDoc markiert + decisions.md D46 erweitert. Wire-Plan-Decision: bei Skala >20 active-scouts auf Player-Detail Community-Tab wiren, sonst Slice 230+ delete)
   ceo_pending:
     - FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring-Change)
     - F-09 BPS-Bonus (pre-existing CEO-pending)
