@@ -1,14 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 227
-stage: LOG
-spec: worklog/specs/227-orphan-defer-audit-methodik.md
-impact: skipped (docs/code-comment-only, kein RPC/Service/Schema/Render-Path)
-proof: worklog/proofs/227-orphan-defer-output.txt
-review: worklog/reviews/227-review.md (self-review D35 PASS)
-size: XS
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
