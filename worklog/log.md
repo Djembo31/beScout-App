@@ -11,6 +11,42 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 228 | 2026-04-27 | `scripts/orphan-component-detector.ts` — D46-Component-Achse automatisiert + 13 echte Orphans gefunden
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (scripts-only)
+- **Trigger:** Wave-3-Tooling — D46 Pattern aus Slice 227 operationalisieren
+- **Files:**
+  - `scripts/orphan-component-detector.ts` (NEU, ~280 Zeilen)
+  - `package.json` — npm-Script `audit:orphan`
+  - `worklog/audits/orphan-components-2026-04-27.md` (NEU, Tool-Output)
+  - `worklog/specs/228-orphan-component-detector.md` (NEU)
+  - `worklog/proofs/228-orphan-detector-output.txt` (NEU)
+  - `worklog/reviews/228-review.md` (NEU, self-review PASS)
+- **Algorithmus:**
+  1. Walk `src/components/` + `src/features/` für `*.tsx`
+  2. Skip Routing-Files (page/layout/error/loading/default/template/not-found/route/head)
+  3. Extrahiere `export default function ComponentName` Names
+  4. Grep `<ComponentName[\s/>]` mit Word-Boundary in `src/` (excl. self + tests separately)
+  5. Auch grep `dynamic(() => import('...ComponentName'))` für Lazy-Imports
+  6. Klassifiziere: unused / test-only / used
+  7. Markdown-Report mit D46-Heal-Options (delete / wire / defer)
+  8. Exit 0 bei 0 Hits, 1 sonst
+- **Bonus-Discovery — 13 echte Orphans im Codebase:**
+  - `CommunityValuation` (Slice 227 known)
+  - `DpcMasteryCard`, `GameweekScoreBar`, `LimitOrderModal`, `PlayerImagePlaceholder`, `TradeSuccessEffect` (Player-Detail)
+  - `HoldingsSection`, `IPOBuySection`, `TransferBuySection` (Player-Detail-Trading)
+  - `BuyOrderModal` ("aus Beta entfernt AR-11" — File-Leiche!)
+  - `FollowBtn`, `HomeSkeleton`, `ManagerOffersTab` (test-only)
+- **Knowledge-Flywheel:** D46 Pattern war 1× empirisch (Slice 227), jetzt 14× validiert. Cleanup-Slice 231+ entscheidet pro Component (delete/wire/defer).
+- **Aus-Scope (Slice 228 vs Cleanup):** Slice 228 baut nur das Tool. Cleanup der 13 Orphans ist separater Slice 231+ (Wave-3-Cleanup).
+- **AC-Status:** 6/6 ✅
+- **Self-Review (D35):** scripts-only Pattern Slice-223-Wiederholung
+- **Proof:** `worklog/proofs/228-orphan-detector-output.txt`
+- **Commit:** TBD
+
+---
+
 ## 227 | 2026-04-27 | CommunityValuation @experimental + Audit-Methodik-Lehre (ORPHAN-NEU-1)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped — docs/comment-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
