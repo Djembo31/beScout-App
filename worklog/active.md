@@ -1,14 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 225
-stage: LOG
-spec: worklog/specs/225-infotooltip-migration.md
-impact: skipped (UI-only, kein RPC/Service/Schema/Consumer-Cascade)
-proof: worklog/proofs/225-infotooltip-diff.txt
-review: worklog/reviews/225-review.md (self-review D35 PASS)
-size: S
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
