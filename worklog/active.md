@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 233
-stage: PROVE
-spec: worklog/specs/233-nightly-audit-self-improvement-loop.md
-impact: skipped (GHA-only, kein Cross-Cutting)
-proof: worklog/proofs/233-nightly-audit-smoke.txt
-review: worklog/reviews/233-review.md (Reviewer-Agent CONCERNS→PASS post-Heal)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 233** (2026-04-27) — Nightly Audit Self-Improvement-Loop (S, GHA-Workflow). Erste autonome Schleife in BeScout. Verkabelt 8 Audit-Tools (war 1) + bescout.net-Smoke daily 03:00/04:00 UTC mit Auto-Issue-Pipeline. **Live-Run Verified:** Run #25011352539 erfolgreich getriggered. Audit-Job 43s SUCCESS, fand 4 echte Findings → Issue #22 erstellt (silent-fail/orphan/i18n/tr-strings). Smoke-Job 2:01min FAILURE → Issue #23 erstellt (beta-blocker bescout.net Player-Link-Timeout, identisch zu historischen #14-#21). Reviewer CONCERNS→PASS post-Heal: F-01 PIPESTATUS-Bug (`tee` masked exit-code → ${PIPESTATUS[0]}), F-02 Spec-Drift "7 vs 8". D53 Build-without-Wire-Verbot codifiziert + workflow.md Section 3a Definition-of-Done-Tabelle. Backlog: Slice 234 Issue-Dedupe + Slice 235 wiring-check.ts + Slice 236 ship-tool-wiring-gate.sh.
 - **Slice 232** (2026-04-27) — `spec: inline`/`skipped` Bypass Hard-BLOCK (XS, Hook-Refinement). Wave-3-Tooling Backlog komplett. Erste Hard-BLOCK-Erweiterung in `ship-spec-quality-gate.sh`. Detection nach `tr -d ' '`-Stripping: plain `inline`/`skipped` → BLOCK exit 2; mit `(reason)`-Klammer → silent. Backward-Compat erhalten (alle historischen `(Grund)`-Einträge bleiben silent). 5/5 Smokes PASS via Mock-active.md mit Backup/Restore. Self-Review D35.
 - **Slice 231** (2026-04-27) — Spec-Quality-Gate Item-Count-Validation (XS, frontend-tooling-only Hook-Refinement). Reviewer-Lücke aus Slice 212 nach 19 Slices geheilt. Hook ist jetzt 2-Layer: (1) Sektion-Existenz [Slice 212], (2) Item-Counts pro Größe [Slice 231 NEU] mit Mindest-Counts XS=3/S=6/M=6-8/L=10 für Code-Reading + Edge-Cases + ACs. 3 BUILD-Discoveries: UTF-8-`\b`-Bug bei `Größe` (Multi-Byte brach `\b`-Anchor in MSYS Git Bash → 2-Step Line-find/Extract), Tabellen-Header-Inflation (last_was_table_row Rollback bei Trenner-Sicht), AC-Code-Block-Pattern-Detection (`_TEMPLATE.md`-ACs sind in ```-Blocks → in_code-Branch zählt `^[A-Z][A-Z0-9]*[-_][0-9]+:`). Self-Review D35 (Pattern-Wiederholung Slice 212 + 223). 3/3 ACs PASS. Wave-3-Tooling-API erfüllt. Backward-Compat: Layer 1 unverändert.
 - **Slice 223** (2026-04-27) — `scripts/audit-stale-check.ts` D48-Catcher automatisiert (XS, Wave-3-Tooling). Anil-Direktive "A". Pure-script-only, parst Punch-List Detail-Tabellen + greppt log.md mit clause-aware close-signal-Filter (`**Closed**` / `Slice N ✓` / `→ done` / `✓` / `LIVE` — nicht plain `done` wegen Aggregat-False-Positive). Iteration 26→14→3→2→0 candidates über 4 Filter-Refinements. **Bonus-Discovery:** Tool fand 2 echte D48-Drifts (F-07 + F-11 Slice 195e closed aber Status nie auf `done` updated — Slice 209 Cleanup hatte verpasst), inline-gefixt. Negative-Test mutate-then-revert demonstriert Exit-Code-Switch. 6/6 ACs grün. Self-Review D35. npm-Script `pnpm run audit:stale` live. D48 jetzt 6. Iteration empirisch validiert. Kein src/-Refactor, scripts-only.

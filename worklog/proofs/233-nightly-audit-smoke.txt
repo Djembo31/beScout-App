@@ -38,10 +38,45 @@ Output:  workflow_dispatch:       # Manual-Trigger ohne Wait-für-Cron
 Verdict: PASS
 
 --- AC-07 [LIVE-RUN] Manual-Dispatch nach Push triggert Workflow ---
-Status:  ⏳ PENDING — wird nach `git push origin main` + `gh workflow run nightly-audit.yml`
-         verifiziert. Output dieses Proof-Files wird nach Live-Run mit dem
-         `gh run view <run-id>`-Output ergänzt (Slice 233 follow-up doc-Commit).
-Pflicht: ja, AC-07 ist NACH Push-Pflicht-Verifikation.
+Status:  ✅ VERIFIED 2026-04-27 18:05 UTC
+Run-ID:  25011352539
+Command: gh workflow run nightly-audit.yml --ref main
+URL:     https://github.com/Djembo31/beScout-App/actions/runs/25011352539
+
+Audit-Job:
+  - Conclusion: success (43 sec total, 18:03:04 → 18:03:47)
+  - 8 Audit-Steps alle gelaufen
+  - 4 Tools fanden ECHTE Findings (continue-on-error: true funktional korrekt):
+    silent-fail, orphan, i18n, tr-strings
+  - Aggregate-Step "should_alert=true" → Auto-Issue erstellt
+  - Issue #22: "🔍 Nightly Audit 2026-04-27: silent-fail; orphan; i18n; tr-strings;"
+  - Labels: audit-finding, nightly-audit ✅
+
+Smoke-Job:
+  - Conclusion: failure (2:01 min total, 18:03:04 → 18:05:08)
+  - playwright install chromium SUCCESS
+  - Run Smoke Suite gegen bescout.net: TimeoutError locator('a[href*="/player/"]')
+  - Auto-Issue erstellt
+  - Issue #23: "🚨 Nightly Smoke 2026-04-27 fehlgeschlagen gegen bescout.net"
+  - Labels: beta-blocker, smoke-fail, nightly-audit ✅
+
+Verdict: PASS — Workflow funktioniert end-to-end.
+         Auto-Issue-Pipeline funktioniert (Issue #22 + #23 erstellt).
+         Smoke-Failure ist ECHTE Live-Drift (nicht Workflow-Bug) — bescout.net
+         hat einen Player-Link-Timeout. Existing Issue-Historie (#14-#21) zeigt
+         identisches Pattern seit 2026-04-26 — Loop deckt latente Drift auf.
+
+=== Slice 233 macht die unsichtbare Realität sichtbar ===
+
+VOR Slice 233:
+  - 8 Audit-Tools, 7 nirgendwo aufgerufen → 0 Findings sichtbar
+  - 8 historische Smoke-Failures #14-#21 seit 2026-04-26 → niemand triagierte
+
+NACH Slice 233 (1 Run, ~5 min):
+  - 4 Audit-Findings sichtbar (Issue #22 mit Sub-Sections pro Tool)
+  - 1 Smoke-Failure aktiv (Issue #23) — Mit Slice 234 Dedupe wird Spam vermieden
+
+Das ist der ECHTE Wert des Slices — nicht "Tool gebaut", sondern "Realität sichtbar gemacht".
 
 === Reviewer-Findings (heal-applied) ===
 
