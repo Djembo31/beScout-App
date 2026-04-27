@@ -1,13 +1,14 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 226
+stage: LOG
+spec: worklog/specs/226-sentiment-bar-3segment.md
+impact: skipped (UI-only Visual-Fix, kein RPC/Service/Schema)
+proof: worklog/proofs/226-3segment-bar.txt
+review: worklog/reviews/226-review.md (self-review D35 PASS)
+size: XS
 ```
 
 ## Zuletzt

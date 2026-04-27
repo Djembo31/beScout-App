@@ -9,22 +9,23 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: A    # Re-Audit triggered, neue Findings → Heal benötigt
-last_phase_run: 2026-04-27 (Targeted Phase-A Re-Audit BuyConfirmModal — 9 NEU Findings)
+phase: D    # alle 9 Re-Audit-Findings closed/deferred/wont-fix, zurück zu Sign-Off-Phase
+last_phase_run: 2026-04-27 (Targeted Phase-A Re-Audit BuyConfirmModal — 9 NEU Findings → 7 healed + 2 reklassifiziert)
 last_signoff: FAIL
 last_signoff_date: 2026-04-26
-last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1) im Slice-222-Diff. Tech-Side ist NICHT mehr 'maximal sauber' — Re-Audit-Wert war hoch."
+last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1+3 P2+3 P3). Slices 224+225+226 healed 7/9 (alle P1 + 1 P2 + 2 P3); FM-NEU-3 deferred post-Beta + FM-NEU-5 wont-fix. **Tech-Side jetzt wieder maximal sauber — null open Findings.** Sign-Off-Re-Trial-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste)."
 findings_open:
   P0: 0
   P1: 0   # Slice 225 healed UX-NEU-2 → ALLE P1 NULL
-  P2: 2   # Slice 225 healed UX-NEU-3 → FM-NEU-3, FM-NEU-4 verbleiben (Re-Eval Slice 226+)
-  P3: 1   # Slice 225 healed UX-NEU-4 → FM-NEU-5 verbleibt (Re-Eval Slice 226+)
+  P2: 0   # Slice 226 healed FM-NEU-4 → FM-NEU-3 deferred (post-Beta) → ALLE P2 NULL/deferred
+  P3: 0   # Slice 225 healed UX-NEU-4 → FM-NEU-5 wont-fix (User-Intent-Misalignment)
   incomplete_reruns: 0
   test_mock_backlog: 0
   signoff_questionable: 2   # Page-Health-Score + Persona-Score numerisch
   deferred:
     - POSTHOG-NEU-1 (post-3-Tester-Beta, wenn Skala >20 User)
     - FM-RR-2 (Watchlist-Standalone-Page Feature)
+    - FM-NEU-3 (Sentiment Reliability-Weighting — post-Beta wenn Skala >20 User; bei N<5 Testern null praktischer Effekt, Service-Erweiterung wäre M-Slice mit 0% Pre-Beta-ROI)
   ceo_pending:
     - FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring-Change)
     - F-09 BPS-Bonus (pre-existing CEO-pending)
@@ -32,6 +33,7 @@ findings_open:
   wont_fix:
     - FM-RR-1 (Slice 208 Spec-Decision: Sparkline ist Glance-Indicator, kein Detail-Tool)
     - BRAND-NEU-1 (pre-existing pre-Slice-198, audit-stale)
+    - FM-NEU-5 (Empty-State-Scout-CTA in BuyConfirmModal — User-Intent-Misalignment: Buy-Step ist nicht Scout-CTA-Ort, Player-Detail hat submitValuation-Flow bereits)
   stale:
     - TR-NEU-1 (event_winner-Keys existieren bereits in DE+TR)
     - FM-RR-3 (Trending-Pills Punch-List-Drift, audit-Annahme falsch)

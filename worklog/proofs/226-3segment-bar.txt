@@ -1,0 +1,31 @@
+═══ Slice 226 — Sentiment-Bar 3-Segment PROVE ═══
+Date: 2026-04-27T03:15:26+02:00
+
+## AC-1 [HAPPY] 3-Segment Bar:
+            {/* Sentiment bar — Slice 226 FM-NEU-4: 3-Segment (emerald/gray/red) statt 2-Segment damit Bar bei neutral-dominierten Profilen nicht lügt */}
+            {sentiment.total >= 2 && (
+              <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden flex">
+                <div className="h-full bg-emerald-500" style={{ width: `${(sentiment.bullish / sentiment.total) * 100}%` }} />
+                <div className="h-full bg-white/20" style={{ width: `${(sentiment.neutral / sentiment.total) * 100}%` }} />
+                <div className="h-full bg-red-500" style={{ width: `${(sentiment.bearish / sentiment.total) * 100}%` }} />
+              </div>
+            )}
+          </div>
+
+## AC-2 [VISUAL-PROPORTIONS] Width-Summe = 100%:
+  bullish-segment: width = (sentiment.bullish / sentiment.total) * 100%
+  neutral-segment: width = (sentiment.neutral / sentiment.total) * 100%
+  bearish-segment: width = (sentiment.bearish / sentiment.total) * 100%
+  Sum: (bullish + neutral + bearish) / total * 100% = 100% ✓
+
+## AC-3 [REGRESSION-TSC]: tsc exit 0 ✓
+
+## Diff Summary:
+ src/features/market/components/shared/BuyConfirmModal.tsx | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+## Visual-Verify-Plan (Anil post-deploy):
+1. /market öffnen, Player mit viel Neutral-Sentiment finden (bullish<bearish<neutral)
+2. Buy-Card öffnet BuyConfirmModal
+3. Sentiment-Bar zeigt jetzt 3 Segmente: emerald (links) + grau (mitte) + red (rechts)
+4. Bei (bullish=2, bearish=1, neutral=10) → ~15% grün + ~77% grau + ~8% rot

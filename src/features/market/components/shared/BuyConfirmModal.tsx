@@ -150,11 +150,12 @@ export default function BuyConfirmModal({
                 </span>
               )}
             </div>
-            {/* Sentiment bar */}
+            {/* Sentiment bar — Slice 226 FM-NEU-4: 3-Segment (emerald/gray/red) statt 2-Segment damit Bar bei neutral-dominierten Profilen nicht lügt */}
             {sentiment.total >= 2 && (
               <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden flex">
-                <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${(sentiment.bullish / sentiment.total) * 100}%` }} />
-                <div className="h-full bg-red-500 rounded-r-full" style={{ width: `${(sentiment.bearish / sentiment.total) * 100}%` }} />
+                <div className="h-full bg-emerald-500" style={{ width: `${(sentiment.bullish / sentiment.total) * 100}%` }} />
+                <div className="h-full bg-white/20" style={{ width: `${(sentiment.neutral / sentiment.total) * 100}%` }} />
+                <div className="h-full bg-red-500" style={{ width: `${(sentiment.bearish / sentiment.total) * 100}%` }} />
               </div>
             )}
           </div>

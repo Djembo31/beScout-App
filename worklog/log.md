@@ -11,6 +11,31 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 226 | 2026-04-27 | Sentiment-Bar 3-Segment (FM-NEU-4) + FM-NEU-3/5 Reklassifizierung — Re-Audit-Heal-Wave abgeschlossen
+
+- **Stage-Chain:** SPEC → IMPACT (skipped — UI-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (5-Lines Visual-Fix)
+- **Trigger:** Phase-A-Re-Audit FM-NEU-4 (P2): Sentiment-Bar visualisierte nur Bullish/Bearish, ignorierte Neutral → Visual-Lie bei neutral-dominierten Profilen
+- **Files:**
+  - `src/features/market/components/shared/BuyConfirmModal.tsx` — 2-Segment-Bar → 3-Segment (emerald + white/20 + red)
+  - `worklog/specs/226-sentiment-bar-3segment.md`
+  - `worklog/proofs/226-3segment-bar.txt`
+  - `worklog/reviews/226-review.md` (self-review PASS)
+- **Wurzel-Fix:** Stacked-Progress-Bar muss alle Categories visualisieren — sonst impliziert Layout falsche Verhältnisse. Bei `bullish=2, bearish=1, neutral=10` zeigt Bar jetzt ~15% grün + ~77% grau + ~8% rot statt 66/33 (irreführend).
+- **Reklassifizierungen (Re-Audit-Heal-Wave-Abschluss):**
+  - **FM-NEU-3 (P2) → deferred:** Sentiment-Reliability-Weighting wäre M-Slice (Service + SQL + Component), aber bei N<5 Testern null praktischer Effekt. Post-Beta sinnvoll wenn Skala >20 User mit mixed Reliability.
+  - **FM-NEU-5 (P3) → wont-fix:** Empty-State-Scout-CTA in BuyConfirmModal ist User-Intent-Misalignment — User im Buy-Confirm-Step will kaufen, nicht scouten. Player-Detail hat bereits submitValuation-Flow.
+- **Re-Audit-Heal-Wave-Bilanz:** 9 NEU Findings (Slice 222 Diff) → 7 healed (Slice 224+225+226) + 1 deferred + 1 wont-fix = 9/9 actioniert
+- **Phase-Tracker-Update:** findings_open ALLE 0 (P0=0, P1=0, P2=0, P3=0). Phase D wieder erreicht. last_signoff_verdict aktualisiert.
+- **AC-Status:** 4/4 ✅ (HAPPY/VISUAL-PROPORTIONS/REGRESSION-TSC + 1 Visual-Verify post-deploy)
+- **Self-Review (D35):** XS Visual-Fix-Pattern, kein Logic-Change, Pattern-Konsistenz mit ConcentrationBar (Slice 201b) + OrderbookSummary (Slice 014).
+- **Knowledge-Flywheel-Lehre:** Stacked-Progress-Bar muss alle Categories visualisieren — Future-Pattern-Doku in `ui-components.md` "Stacked-Bars"-Sektion empfohlen (Backlog).
+- **Anil-Action:** Visual-Verify post-deploy auf bescout.net /market mit neutral-dominantem Player im BuyConfirmModal — siehe `worklog/proofs/226-3segment-bar.txt` Visual-Plan.
+- **Proof:** `worklog/proofs/226-3segment-bar.txt`
+- **Commit:** TBD
+
+---
+
 ## 225 | 2026-04-27 | InfoTooltip-Migration — UX-NEU-2/-3/-4 + Slice 216 Pattern-Drift geheilt
 
 - **Stage-Chain:** SPEC → IMPACT (skipped — UI-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
