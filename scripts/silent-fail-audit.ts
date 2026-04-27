@@ -61,6 +61,15 @@ function scan(file: string, content: string): Finding[] {
   lines.forEach((line, idx) => {
     const n = idx + 1;
 
+    // Slice 237 D54: Comment-Skip-Heuristik. Lines die mit `//`, ` * ` (JSDoc body),
+    // ` *` allein, oder `/*` (block-comment open) starten sind keine echten Code-
+    // Findings. Skipt 3 false-positives in scripts/type-truth-audit.ts:12,132,140
+    // ohne echte Bugs zu verlieren (Block-Comments mit Code = dead-code, nicht
+    // Production-Risk). Pattern-Vorbild: Slice 229 D52 iterativ-tightenen.
+    if (/^\s*(\/\/|\*\s|\*$|\/\*)/.test(line)) {
+      return;
+    }
+
     // Pattern 1: .in() without chunking hint — skip short inline literal arrays (not UUID-list risk)
     if (/\.in\s*\(/.test(line) && !/CHUNK|batch|\.slice|chunk/i.test(line) && !rel.endsWith('.test.ts') && !rel.endsWith('.spec.ts')) {
       // Slice 090: context includes `.range(` / `.limit(` on adjacent lines (multi-line paging pattern).

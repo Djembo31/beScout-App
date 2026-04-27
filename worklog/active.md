@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 237
+stage: PROVE
+spec: worklog/specs/237-silent-fail-audit-comment-skip.md
+impact: skipped (Tool-only, kein Service/RPC)
+proof: worklog/proofs/237-silent-fail-smoke.txt
+review: worklog/reviews/237-review.md (self-review D35)
 ```
 
 ## Zuletzt
