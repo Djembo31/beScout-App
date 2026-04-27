@@ -1,0 +1,104 @@
+=== Slice 235 — i18n: 7 fehlende TR-Keys Smoke ===
+Datum:  2026-04-27
+Spec:   worklog/specs/235-i18n-tr-keys-manager-club.md (XS, Slice-Type=i18n)
+Trigger: Issue #22 Audit-Finding (Slice 234 nightly-audit Run #25018867677)
+
+Workflow-Test: erster Slice unter Slice-234 architektonischer Enforcement.
+Anil-Approval: Option B (Kadro + Sahip — existing-konsistent, neutral).
+
+------------------------------------------------------------
+AC-01 [HAPPY] 7 Keys in tr.json mit non-empty values
+------------------------------------------------------------
+
+manager.inLineupFilterLabel = "Kadro"
+manager.inLineupFilterIn = "Kadroda"
+manager.inLineupFilterOut = "Kadroda değil"
+manager.inLineupFilterAria = "Filtre: {value}"
+club.mostOwnedTitle = "En popüler oyuncular"
+club.mostOwnedHint = "Sahip sayısına göre ilk 5"
+club.mostOwnedHoldersTooltip = "{count} sahip"
+
+Verdict: PASS (7/7)
+
+------------------------------------------------------------
+AC-02 [REGRESSION] audit:i18n exit 0
+------------------------------------------------------------
+
+Pre-Slice-235:  ❌ i18n: 7 Keys in de.json fehlen in tr.json (Slice 234 Run #25018867677)
+Post-Slice-235: ✅ i18n-Coverage passed (4935 keys, DE↔TR Parität)
+
+Command: pnpm run audit:i18n
+Exit:    0
+
+Verdict: PASS
+
+------------------------------------------------------------
+AC-03 [HAPPY] Placeholder erhalten
+------------------------------------------------------------
+
+inLineupFilterAria  → "Filtre: {value}"   ✓ {value} erhalten
+mostOwnedHoldersTooltip → "{count} sahip" ✓ {count} erhalten
+
+Verdict: PASS
+
+------------------------------------------------------------
+AC-04 [COMPLIANCE] business.md-konform
+------------------------------------------------------------
+
+Verbots-Vokabel-grep:
+- yatırım (investment): kein Match in NEU Keys
+- kazan* (Glücksspiel): kein Match in NEU Keys
+- rendita / rendite: kein Match
+- trader (Securities-Identität): kein Match
+
+Konsistenz:
+- "Kadro" matcht existing tr.json (`home.portfolioRoster`, `home.myRoster`,
+  `formBars.notInSquad = "Kadroda değil"` — exakt identisch zum NEU
+  `manager.inLineupFilterOut`!)
+- "popüler" matcht existing (`home.trendingNow`, `community.feed.sortTrending`,
+  `founding.popular`)
+- "sahip" ist TR-Standard für Holder/Owner, neutral
+
+Verdict: PASS
+
+------------------------------------------------------------
+AC-05 [I18N] DE/TR strukturelle Parität
+------------------------------------------------------------
+
+Tool-Output:
+  ✅ i18n-Coverage passed (4935 keys, DE↔TR Parität)
+
+Verdict: PASS
+
+------------------------------------------------------------
+JSON-Validität
+------------------------------------------------------------
+
+node -e 'JSON.parse(...)' → tr.json: VALID
+
+------------------------------------------------------------
+Workflow-Hooks-Test (Slice 234 D54 Live)
+------------------------------------------------------------
+
+Active-Trigger: Slice 235 Slice-Type=i18n
+- ship-spec-quality-gate Layer 1 (Sektion-Existenz): silent ✓ (Spec hat alle Pflicht-Sektionen)
+- ship-spec-quality-gate Layer 2 (Item-Counts): silent ✓ (XS: Code-Reading ≥ 3, Edge-Cases ≥ 3, ACs ≥ 3 — alle erfüllt mit 4/3/5)
+- ship-spec-quality-gate Layer 3 (Slice-Type=i18n): silent ✓ (Spec hat "tr.json" + "de.json" + "next-intl" + "wording" Sektionen)
+- ship-tool-wiring-gate: nicht-relevant (kein neues Tool/Hook in Slice 235)
+- ship-spec-gate: silent ✓ (active.md Slice 235 gesetzt + spec-File existiert)
+- capture-correction.sh: queue NICHT erweitert ✓ (Anil sagte "b" — kein Korrektur-Keyword, korrekt-erwartet kein Trigger)
+
+------------------------------------------------------------
+SLICE 235 — DEFINITION-OF-DONE-CHECKLIST
+------------------------------------------------------------
+
+[x] 7 fehlende TR-Keys nachgereicht (AC-01)
+[x] audit:i18n exit 0 (AC-02)
+[x] Placeholder {count}+{value} erhalten (AC-03)
+[x] business.md-konform, kein verbotenes Vokabular (AC-04)
+[x] DE↔TR Parität (AC-05)
+[x] JSON valid
+[x] Anil-Approval (Option B Kadro+Sahip)
+[x] Workflow-Hooks alle silent (Layer-1+2+3 + Spec-Gate + Tool-Wiring)
+
+→ 5/5 ACs PASS. Slice 235 Workflow-Live-Test komplett.

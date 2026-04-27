@@ -1162,7 +1162,11 @@
     "sellPlayer": "Sat",
     "noPlayers": "Kadroda oyuncu yok",
     "goToMarket": "Pazar Yerine Git",
-    "navManager": "Menajer"
+    "navManager": "Menajer",
+    "inLineupFilterLabel": "Kadro",
+    "inLineupFilterIn": "Kadroda",
+    "inLineupFilterOut": "Kadroda değil",
+    "inLineupFilterAria": "Filtre: {value}"
   },
   "market": {
     "title": "Pazar Yeri",
@@ -2489,7 +2493,10 @@
     "pickRate": {
       "label": "%{pct}",
       "ariaLabel": "Yöneticilerin %{pct}'i bu oyuncuyu seçti"
-    }
+    },
+    "mostOwnedTitle": "En popüler oyuncular",
+    "mostOwnedHint": "Sahip sayısına göre ilk 5",
+    "mostOwnedHoldersTooltip": "{count} sahip"
   },
   "airdrop": {
     "title": "Credits Airdrop",

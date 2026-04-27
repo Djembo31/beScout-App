@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 235
+stage: PROVE
+spec: worklog/specs/235-i18n-tr-keys-manager-club.md
+impact: skipped (i18n-only, kein Service/RPC/Cross-Cutting)
+proof: worklog/proofs/235-tr-keys-smoke.txt
+review: self-review (D35 Pattern-Wiederholung Slice 196 i18n-Coverage-Heal)
 ```
 
 ## Zuletzt

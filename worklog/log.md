@@ -11,6 +11,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 235 | 2026-04-27 | i18n: 7 fehlende TR-Keys (manager.inLineupFilter* + club.mostOwned*)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: i18n-only) → BUILD → REVIEW (self-review D35 Pattern-Wiederholung Slice 196 Track B) → PROVE → LOG
+- **Größe:** XS · **Slice-Type:** i18n · **Scope:** CTO (TR-Wording → Anil-Approval)
+- **Trigger:** Issue #22 Audit-Finding (Slice 234 nightly-audit Run #25018867677). 7 Keys in de.json fehlten in tr.json.
+- **Anil-Approval:** Option B (Kadro + Sahip — existing-konsistent, neutral). Auto-Mode active.
+- **Files:**
+  - `messages/tr.json` (EDIT) — 7 Keys ergänzt: 4 unter `manager.*` + 3 unter `club.*`
+  - `worklog/specs/235-i18n-tr-keys-manager-club.md` (NEU)
+  - `worklog/proofs/235-tr-keys-smoke.txt` (NEU)
+  - `worklog/reviews/235-review.md` (NEU)
+  - `worklog/active.md`, `worklog/log.md` (Stage-Updates)
+- **Proof:** `worklog/proofs/235-tr-keys-smoke.txt` 5/5 ACs PASS (audit:i18n exit 0, "DE↔TR Parität 4935 keys")
+- **Review:** `worklog/reviews/235-review.md` Self-Review PASS (D35 Pattern-Wiederholung)
+- **Notes:**
+  - **Erster Workflow-Live-Test** unter Slice 234 D54-Enforcement. Alle Hooks silent (Layer-1/2/3 + ship-spec-gate + ship-tool-wiring-gate) — gewolltes Verhalten.
+  - "Kadroda değil" identisch zu existing `formBars.notInSquad` — Bonus-Konsistenz.
+  - **Knowledge-Capture:** Anil's Option-B etabliert "neutrale TR-Standardbegriffe" als Wording-Pattern-Pfad neben Slice-224-Familie. Future-i18n-Slices Anil pro Decision-Point fragen.
+
+---
+
 ## 234 | 2026-04-27 | System-Wiring Recovery + Drift-Prevention (L-Slice, D54)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: cross-cutting Workflow/Hook-Schicht ohne Service/RPC) → BUILD (Phasen 1-4) → REVIEW (Reviewer-Agent Cold-Context, L-Slice + neue Wiring-Klasse) → PROVE (Phase 5 Live-Verify) → LOG
