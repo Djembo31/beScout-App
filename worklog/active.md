@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 231
-stage: PROVE
-spec: worklog/specs/231-spec-quality-gate-item-counts.md
-impact: skipped (hook-only, kein cross-cutting)
-proof: worklog/proofs/231-hook-smoke.txt
-review: worklog/reviews/231-review.md (self-review D35)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
