@@ -1,13 +1,14 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 230
+stage: LOG
+spec: worklog/specs/230-stop-hook-phase-tracker-reminder.md
+impact: skipped (hook-only)
+proof: worklog/proofs/230-phase-tracker-reminder.txt
+review: worklog/reviews/230-review.md (self-review D35 PASS)
+size: XS
 ```
 
 ## Zuletzt

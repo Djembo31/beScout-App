@@ -1,0 +1,27 @@
+═══ Slice 230 — Stop-Hook Phase-Tracker-Reminder PROVE ═══
+Date: 2026-04-27T18:34:33+02:00
+
+## AC-1 [HAPPY] Reminder fires nach idle + feat-commit ohne beta-phase.md:
+Test simulation (active.md status temporarily idle):
+  Output:
+    [phase-tracker-reminder] Slice gerade idle — letzter feat/fix-Commit hat beta-phase.md NICHT modifiziert.
+    Commit: 1f87b3cb feat(229)...
+    Frage: hat dieser Slice Findings geheilt/closed?
+    -> Hook ist non-blocking, Mensch entscheidet
+
+## AC-2 [SKIP] Hook silent wenn beta-phase.md im Commit-Diff:
+Logic: git show --stat HASH | grep worklog/beta-phase.md → if hit: silent
+Verified by Slice-227-Commit (535287f3): touched beta-phase.md → would-be-silent ✓
+
+## AC-3 [SKIP] Hook silent für status != idle:
+Aktueller Run (active.md status=in-progress slice=230): silent ✓
+
+## AC-4 [REGISTRATION]:
+            "command": "bash C:/bescout-app/.claude/hooks/ship-phase-tracker-reminder.sh"
+
+## AC-5 [EXEC]: bash hook → exit 0 ✓
+
+## Diff Summary:
+ .claude/settings.json | 4 ++++
+ 1 file changed, 4 insertions(+)
+-rwxr-xr-x 1 Anil 197121 2308 Apr 27 18:33 .claude/hooks/ship-phase-tracker-reminder.sh

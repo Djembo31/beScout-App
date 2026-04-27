@@ -11,6 +11,36 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 230 | 2026-04-27 | Stop-Hook Phase-Tracker-Reminder (Slice 214 Reviewer-Backlog erfüllt)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (hook-only)
+- **Trigger:** Slice 214 Reviewer-Backlog "Stop-Hook → Phase-Tracker-Update bei feat/fix-Commits". Heal-Wave 224/225/226/227 hatte manuelle `sed`-Edits für `findings_open` Counter — fehleranfällig.
+- **Files:**
+  - `.claude/hooks/ship-phase-tracker-reminder.sh` (NEU, ~50 Zeilen)
+  - `.claude/settings.json` — Stop-Hook-Block erweitert
+  - `worklog/specs/230-stop-hook-phase-tracker-reminder.md` (NEU)
+  - `worklog/proofs/230-phase-tracker-reminder.txt` (NEU)
+  - `worklog/reviews/230-review.md` (NEU, self-review PASS)
+- **Pattern (Reminder, NICHT Auto-Update):**
+  - Auto-Update wäre fehleranfällig (welcher Finding genau geheilt? unklar aus Commit-Msg)
+  - Reminder-Trigger: Stop-Event + active.md status=idle + letzter feat/fix-Commit ohne beta-phase.md im Diff
+  - Skip-Conditions: in-progress slice, chore/docs/test-Commits, beta-phase.md bereits modifiziert
+  - Mensch entscheidet: Tooling/Docs-Slice ignoriert / Heal-Slice manuell updated
+- **Wave-3-Tooling Bilanz nach Slice 230:**
+  - **Slice 223** `audit-stale-check.ts` (D48 audit-stale-catcher)
+  - **Slice 228** `orphan-component-detector.ts` (D46 component-axis)
+  - **Slice 229** `type-truth-audit.ts` (D43 static pattern-detection)
+  - **Slice 230** `ship-phase-tracker-reminder.sh` (Phase-Tracker reminder)
+  - 4 Tools live, 4 Pattern-Klassen automatisiert
+- **Slice 214 Reviewer-Backlog:** dieser Item erfüllt. 2 verbleibende Items niedrige Prio (Hook-Item-Count-Validation, spec:inline-Hard-BLOCK).
+- **AC-Status:** 5/5 ✅
+- **Self-Review (D35):** hook-only Pattern Slice-kanban-sync-Wiederholung
+- **Proof:** `worklog/proofs/230-phase-tracker-reminder.txt`
+- **Commit:** TBD
+
+---
+
 ## 229 | 2026-04-27 | `scripts/type-truth-audit.ts` — D43/D49 Pattern-Detection (3 Bug-Klassen-Coverage)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
