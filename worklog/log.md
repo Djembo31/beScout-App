@@ -11,6 +11,44 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 223 | 2026-04-27 | `scripts/audit-stale-check.ts` — D48-Catcher automatisiert + 2 echte Drifts gefangen
+
+- **Stage-Chain:** SPEC → IMPACT (skipped — scripts-only, kein RPC/Service/Schema/Consumer) → BUILD → REVIEW (self-review D35 — XS scripts-only) → PROVE → LOG
+- **Größe:** XS (Wave-3-Tooling)
+- **Anil-Direktive:** "A" — Wave-3-Tooling-Pfad gewählt (höchster Multiplier-ROI)
+- **Files:**
+  - `scripts/audit-stale-check.ts` (NEU, ~245 Zeilen) — parst Punch-List Detail-Tabellen, greppt log.md, clause-aware Match mit close-signal-Filter
+  - `package.json` — neuer npm-Script `audit:stale`
+  - `worklog/punch-list-2026-04-25.md` — F-07 + F-11 Status-Update von `in-progress` → `done` (Bonus-Discovery vom Tool)
+  - `worklog/specs/223-audit-stale-check-script.md` — Spec
+  - `worklog/audits/audit-stale-2026-04-27.md` — generierter Report
+  - `worklog/proofs/223-audit-stale-output.txt` — Iteration-History + Final-Output + Negative-Test
+  - `worklog/active.md` → idle
+- **D48-Pattern-Operationalisierung:** 5× empirisch (Slice 200a/200b/203/206/209), jetzt 6. Iteration via Tool-Detection. Future-Slices nutzen `pnpm run audit:stale` als 30-Sekunden-Check statt 30-Minuten-Manual-Cleanup.
+- **Algorithmus:**
+  1. State-Machine parst H2-Domain-Headers (Brand-Coherence | UX-States | FM-Mechanics | Fantasy-Scoring)
+  2. Markdown-Tabellen-Rows mit status ∈ {open, in-progress} extrahieren
+  3. Domain-aware ID-Variants bilden (z.B. UX `4` → `UX 4|UX-4|ux 4|ux-4`; Fantasy `F-07` absolute)
+  4. Per ID grep log.md, **clause-aware Filter** (split per [.;—–]) damit `Brand 1 → done. ... F-09` nicht F-09 als closed flaggt
+  5. Tightened CLOSE_SIGNAL: `**Closed**` / `Slice N ✓` / `→ done` / `✓` / `LIVE` (nicht plain `done` — sonst Aggregat-False-Positive `UX 20 done / 7 open`)
+  6. Markdown-Report nach `worklog/audits/audit-stale-YYYY-MM-DD.md` + stdout-Summary
+  7. Exit 0 bei 0 Hits, 1 sonst (CI-gate-ready)
+- **Iteration-History (im Proof-File dokumentiert):** 26 → 14 → 3 → 2 → 0 candidates über 4 Filter-Refinements
+- **Bonus-Discovery:** Tool fand 2 echte D48-Drifts:
+  - F-07 (Differentials-% auf Spieler-Karten) — log.md L1431 "**Closed (4 Findings):** F-07 Differentials, F-11 Captain-Pick-Rate Lineup, fm 2.1, fm 2.2" (Slice 195e closed) aber Punch-List sagte `in-progress`
+  - F-11 (Captain-Pick-Rate auf Event-Lineup) — gleicher Slice 195e closed, Status-Update verpasst
+  - Slice 209 manueller Cleanup hatte beide übersehen → genau die Drift-Klasse die das Tool detektieren soll
+  - Inline-Fix: Status auf `done` mit Slice 195e ✓ Markierung
+- **Negative-Test:** mutate-then-revert via git stash demonstriert Exit-Code-Switch funktioniert (Pre-fix: 2 stale exit=1, Post-fix: 0 stale exit=0)
+- **AC-Status:** 6/6 ✅ (HAPPY/REGRESSION/DOMAIN-COVERAGE/ID-VARIANTS/MARKDOWN-REPORT/NPM-SCRIPT)
+- **Self-Review (D35):** Trivial-Pattern (script-only, kein Logik in src/, kein UI, kein Money-Path, kein i18n). Reviewer-Agent-Overhead > Catch-Probability. Pattern-Wiederholung Slice 209 (manueller Audit-Stale-Check, jetzt Tool-Variante).
+- **Knowledge-Flywheel:** D48 Pattern bereits in `memory/decisions.md` dokumentiert. Diese Slice operationalisiert es. Future Wave-3-Backlog: `scripts/type-truth-audit.ts` (D43/D49) gleicher Stil.
+- **Scope-Out:** kein automatisches CI-Gate-Trigger (Slice 224+ wenn Pattern stabil). Skript korrigiert NICHT die Punch-List automatisch (Mensch reviewt Detection-Output).
+- **Proof:** `worklog/proofs/223-audit-stale-output.txt`
+- **Commit:** TBD (next commit)
+
+---
+
 ## 222 | 2026-04-26 | P2-Bundle Reklassifizierung + K-RR-2 Heal (alle findings_open → 0)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG

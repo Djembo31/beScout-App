@@ -142,11 +142,11 @@
 
 | # | Status | Source | Issue | Slice |
 |---|---|---|---|---|
-| F-07 | in-progress | fantasy.md | Differentials-% auf Spieler-Karten | Slice 195e |
+| F-07 | done | fantasy.md | Differentials-% auf Spieler-Karten | Slice 195e ✓ (Closed in log.md L1431; D48 audit-stale-catcher Slice 223 detected — manuelle Status-Update verpasst) |
 | F-08 | done | fantasy.md | Countdown-Granularität: Sekunden in letzter Stunde | Slice 197 ✓ (`formatCountdown` in `helpers.ts:69-81` zeigt `${mins}m ${secs}s` bei diff < 1h; D48 audit-stale-catcher) |
 | F-09 | open | fantasy.md | BPS-Bonus-System (Top-3 +3/+2/+1) | Slice 198 |
 | F-10 | done | fantasy.md | „Salary"-Konzept perfL5-basiert verwirrt User | Slice 200b ✓ (Tooltip) |
-| F-11 | in-progress | fantasy.md | Captain-Pick-Rate auf Event-Lineup | Slice 195e (gleiche RPC wie F-07) |
+| F-11 | done | fantasy.md | Captain-Pick-Rate auf Event-Lineup | Slice 195e ✓ (gleiche RPC wie F-07; D48 audit-stale-catcher Slice 223 detected) |
 | R-01 | done | fantasy.md | „Monats-Sieger" Wording-Compliance | Hot-Fix Commit `4b5a2c38` |
 | R-02 | done | fantasy.md | „Siege"/„Sieg" 6× user-facing | Hot-Fix Commit `4b5a2c38` |
 | R-03 | done | fantasy.md | Fantasy-only-Leaderboard (Manager-Score isoliert) | already-fixed via GlobalLeaderboard.tsx:19 'manager'-Tab; Slice 200b Marker (GW-Filter → Slice 201) |

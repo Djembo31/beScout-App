@@ -1,0 +1,46 @@
+═══ Slice 223 — audit-stale-check.ts PROVE-Artefakt ═══
+Generated: 2026-04-27T02:21:21+02:00
+
+## Run 1 — Initial run gegen aktuelle Punch-List (BUILD output)
+
+Result: 26 stale-candidates (raw, conservative match — too many false-positives).
+Diagnosis: Match-Filter zu lax — flaggt jede ID-Erwähnung in log.md.
+
+## Run 2 — After CLOSE_SIGNAL filter
+
+Result: 14 stale-candidates.
+Diagnosis: Same-line close-signal filter besser, aber 'Brand 1 → done. ... F-09' multi-ID-Zeilen lecken.
+
+## Run 3 — After clause-aware filter
+
+Result: 3 stale-candidates.
+Diagnosis: Sub-clause-Splitting per [.;—–] entfernt cross-clause-leakage. UX 20 verbleibt false-positive (L980 Aggregat 'UX 20 done / 7 open' = 20 done UX-items).
+
+## Run 4 — After tightened CLOSE_SIGNAL (only **Closed**, ✓, → done, LIVE)
+
+Result: 2 stale-candidates — F-07 + F-11 in Fantasy-Scoring.
+
+Both real D48-Drifts:
+- F-07 'Differentials-% auf Spieler-Karten' — punch-list status: in-progress for Slice 195e
+- F-11 'Captain-Pick-Rate auf Event-Lineup' — punch-list status: in-progress for Slice 195e
+- log.md L1431: '**Closed (4 Findings):** F-07 Differentials, F-11 Captain-Pick-Rate Lineup, fm 2.1, fm 2.2'
+
+Conclusion: Slice 195e closed BOTH items but punch-list status was never updated. Slice 209 manual cleanup missed them.
+
+## Run 5 — After fixing F-07 + F-11 to status: done
+
+═══ Audit-Stale-Check ═══
+Items scanned: 112
+Active (open / in-progress): 33
+Stale-candidates: 0
+Domains processed: Fantasy-Scoring, UX-States, FM-Mechanics, Brand-Coherence
+Report: C:\bescout-app\worklog\audits\audit-stale-2026-04-27.md
+
+✅ No stale markers found. Punch-list is in sync.
+exit=0
+
+## Negative-Test (manuell stale-marker injecten + reverten)
+
+Pre-fix HEAD state (git stash → F-07 + F-11 in-progress): 2 stale candidates, exit=1 ✓
+Post-fix state (with edits restored): 0 stale candidates, exit=0 ✓
+Detection mechanism + exit-code switch works as designed.
