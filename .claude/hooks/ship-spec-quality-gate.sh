@@ -107,8 +107,12 @@ EOF
 fi
 
 # Slice-Größe detektieren aus Spec-Header `**Größe:** XS|S|M|L`
-# Tolerant gegen Bold-Markdown-Variation
-SLICE_SIZE="$(grep -oiE "(\*\*)?(Größe|Groesse|Size)(\*\*)?[[:space:]]*:[[:space:]]*(\*\*)?(XS|S|M|L)\b" "$SPEC_FILE" | head -1 | grep -oE "(XS|S|M|L)\b" | tail -1)"
+# Slice 231: 2-Step Detection (umgeht MSYS Git Bash UTF-8-`\b`-Bug bei `ö`):
+#   1. Finde erste Line mit Größe/Groesse/Size:
+#   2. Extrahiere XS/S/M/L\b aus dieser Line (head -1, kein tail — sonst
+#      matcht "Size: S" aus Edge-Case-Beispiel-Strings)
+SIZE_LINE="$(grep -im1 -E "(Größe|Groesse|Size)[[:space:]]*:" "$SPEC_FILE" 2>/dev/null | head -1)"
+SLICE_SIZE="$(echo "$SIZE_LINE" | grep -oE "(XS|S|M|L)\b" | head -1)"
 
 # Default zu S wenn nicht detektiert (mittlere Strenge)
 [ -z "$SLICE_SIZE" ] && SLICE_SIZE="S"
@@ -135,6 +139,62 @@ SLICE_SIZE="$(grep -oiE "(\*\*)?(Größe|Groesse|Size)(\*\*)?[[:space:]]*:[[:spa
 count_section() {
     # $1: regex pattern (case-insensitive)
     grep -ciE "^#{1,4}[[:space:]].*$1" "$SPEC_FILE" 2>/dev/null
+}
+
+# Slice 231: Zählt Items in einer Spec-Sektion (Bullets + Numbered + Tabellen-Rows).
+#
+# $1: lowercase-regex für Sektion-Header (z.B. "code.?reading|reading.?liste").
+# Output: Item-Count als Integer.
+#
+# Boundary:        Erste Header-Zeile, deren tolower($0) das Pattern matcht, ist Start.
+#                  Nächste `^#{1,4}[[:space:]]`-Zeile ist End. Bei Datei-Ende: Stop EOF.
+# Code-Block:      Innerhalb ` ``` ` werden NUR `^[A-Z]+[-_][0-9]+:`-Pattern (AC-01, EC_02)
+#                  gezählt — _TEMPLATE.md formatiert ACs als Code-Block, das ist Standard.
+# Tabellen-Header: Wird tentativ als Row gezählt; sieht der Folge-Trenner `|---|`,
+#                  rollback (count--). So bleibt nur die Daten-Row-Zahl.
+count_items() {
+    awk -v pat="$1" '
+    BEGIN { in_section=0; in_code=0; count=0; last_was_table_row=0 }
+    {
+        # Code-Block toggle (` ``` ` am Zeilen-Anfang)
+        if ($0 ~ /^[[:space:]]*```/) { in_code = !in_code; last_was_table_row=0; next }
+
+        # Innerhalb Code-Block: nur AC-NN/EC-NN-Pattern zählen
+        if (in_code) {
+            if (in_section && $0 ~ /^[[:space:]]*[A-Z][A-Z0-9]*[-_][0-9]+:/) count++
+            next
+        }
+
+        # Header-Detection (außerhalb Code-Block)
+        if ($0 ~ /^#{1,4}[[:space:]]/) {
+            if (in_section) exit
+            lower = tolower($0)
+            if (lower ~ pat) in_section=1
+            last_was_table_row=0
+            next
+        }
+
+        if (!in_section) next
+
+        # Tabellen-Trenner: rollback prev `^\|` (das war Header)
+        if ($0 ~ /^\|[[:space:]:|=-]+\|[[:space:]]*$/) {
+            if (last_was_table_row) count--
+            last_was_table_row=0
+            next
+        }
+
+        # Bullet: -, *, +
+        if ($0 ~ /^[[:space:]]*[-*+] /) { count++; last_was_table_row=0; next }
+        # Numbered: 1. 2. ...
+        if ($0 ~ /^[[:space:]]*[0-9]+\. /) { count++; last_was_table_row=0; next }
+        # Tabellen-Row (Header oder Daten — Trenner-Rollback korrigiert)
+        if ($0 ~ /^\|/) { count++; last_was_table_row=1; next }
+
+        # Andere Lines: reset state
+        last_was_table_row=0
+    }
+    END { print count+0 }
+    ' "$SPEC_FILE" 2>/dev/null
 }
 
 S_PROBLEM=$(count_section "(Problem.?Statement|Ziel|Problem)")
@@ -197,11 +257,9 @@ case "$SLICE_SIZE" in
         ;;
 esac
 
-# Wenn alles da → silent exit
-[ -z "$MISSING" ] && exit 0
-
-# Sonst WARN
-cat >&2 <<EOF
+# Wenn Sektionen fehlen → WARN (Sektion-Existenz Layer 1)
+if [ -n "$MISSING" ]; then
+    cat >&2 <<EOF
 SHIP-SPEC-QUALITY-WARN (Slice 212 D50 Wave 2):
   Active Slice:  $SLICE (stage: $STAGE, size: $SLICE_SIZE)
   Spec:          $SPEC_FILE_REL
@@ -218,6 +276,64 @@ SHIP-SPEC-QUALITY-WARN (Slice 212 D50 Wave 2):
 
   Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
 EOF
+    exit 0
+fi
 
-# WARN-only — kein BLOCK
+# === Slice 231: Item-Count-Validation (Layer 2) ===
+# Sektionen existieren, aber haben sie genug Items?
+# Mindest-Counts pro Slice-Größe (workflow.md D50):
+#   XS: Code-Reading ≥ 3, Edge-Cases ≥ 3, ACs ≥ 3
+#   S:  alle ≥ 6
+#   M:  Code-Reading ≥ 6, Edge-Cases ≥ 8, ACs ≥ 8
+#   L:  alle ≥ 10
+
+READING_COUNT=$(count_items "code.?reading|reading.?liste")
+EDGE_COUNT=$(count_items "edge.?case")
+AC_COUNT=$(count_items "acceptance.?criteria|ac.?liste|acceptance.?cri")
+
+# Defaults falls awk leer ausgibt
+READING_COUNT="${READING_COUNT:-0}"
+EDGE_COUNT="${EDGE_COUNT:-0}"
+AC_COUNT="${AC_COUNT:-0}"
+
+# Min-Counts je Größe
+case "$SLICE_SIZE" in
+    XS) MIN_READING=3; MIN_EDGE=3; MIN_AC=3 ;;
+    S)  MIN_READING=6; MIN_EDGE=6; MIN_AC=6 ;;
+    M)  MIN_READING=6; MIN_EDGE=8; MIN_AC=8 ;;
+    L)  MIN_READING=10; MIN_EDGE=10; MIN_AC=10 ;;
+    *)  MIN_READING=6; MIN_EDGE=6; MIN_AC=6 ;;
+esac
+
+INSUFFICIENT=""
+[ "$READING_COUNT" -lt "$MIN_READING" ] 2>/dev/null && \
+    INSUFFICIENT="$INSUFFICIENT Code-Reading-Liste:$READING_COUNT/$MIN_READING;"
+[ "$EDGE_COUNT" -lt "$MIN_EDGE" ] 2>/dev/null && \
+    INSUFFICIENT="$INSUFFICIENT Edge-Cases:$EDGE_COUNT/$MIN_EDGE;"
+[ "$AC_COUNT" -lt "$MIN_AC" ] 2>/dev/null && \
+    INSUFFICIENT="$INSUFFICIENT Acceptance-Criteria:$AC_COUNT/$MIN_AC;"
+
+# Wenn alles ok → silent exit
+[ -z "$INSUFFICIENT" ] && exit 0
+
+cat >&2 <<EOF
+SHIP-SPEC-QUALITY-WARN (Slice 231 — Item-Count-Layer):
+  Active Slice:  $SLICE (stage: $STAGE, size: $SLICE_SIZE)
+  Spec:          $SPEC_FILE_REL
+  Sektionen existieren — aber Item-Counts unter Mindest:
+    $INSUFFICIENT
+
+  Slice 211 D50 Standard:
+    XS: Code-Reading ≥ 3, Edge-Cases ≥ 3, ACs ≥ 3
+    S:  alle ≥ 6
+    M:  Code-Reading ≥ 6, Edge-Cases ≥ 8, ACs ≥ 8
+    L:  alle ≥ 10
+
+  Eine Spec mit Header-Sektion + 0 Items ist eine Wunschliste, nicht
+  ein Kompass — der Agent läuft blind in bekannte Fallen.
+
+  Diese Warnung blockt KEINEN commit. WARN-only, Self-Disziplin.
+  Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
+EOF
+
 exit 0

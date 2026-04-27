@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 231
+stage: PROVE
+spec: worklog/specs/231-spec-quality-gate-item-counts.md
+impact: skipped (hook-only, kein cross-cutting)
+proof: worklog/proofs/231-hook-smoke.txt
+review: worklog/reviews/231-review.md (self-review D35)
 ```
 
 ## Zuletzt
 
+- **Slice 231** (2026-04-27) — Spec-Quality-Gate Item-Count-Validation (XS, frontend-tooling-only Hook-Refinement). Reviewer-Lücke aus Slice 212 nach 19 Slices geheilt. Hook ist jetzt 2-Layer: (1) Sektion-Existenz [Slice 212], (2) Item-Counts pro Größe [Slice 231 NEU] mit Mindest-Counts XS=3/S=6/M=6-8/L=10 für Code-Reading + Edge-Cases + ACs. 3 BUILD-Discoveries: UTF-8-`\b`-Bug bei `Größe` (Multi-Byte brach `\b`-Anchor in MSYS Git Bash → 2-Step Line-find/Extract), Tabellen-Header-Inflation (last_was_table_row Rollback bei Trenner-Sicht), AC-Code-Block-Pattern-Detection (`_TEMPLATE.md`-ACs sind in ```-Blocks → in_code-Branch zählt `^[A-Z][A-Z0-9]*[-_][0-9]+:`). Self-Review D35 (Pattern-Wiederholung Slice 212 + 223). 3/3 ACs PASS. Wave-3-Tooling-API erfüllt. Backward-Compat: Layer 1 unverändert.
 - **Slice 223** (2026-04-27) — `scripts/audit-stale-check.ts` D48-Catcher automatisiert (XS, Wave-3-Tooling). Anil-Direktive "A". Pure-script-only, parst Punch-List Detail-Tabellen + greppt log.md mit clause-aware close-signal-Filter (`**Closed**` / `Slice N ✓` / `→ done` / `✓` / `LIVE` — nicht plain `done` wegen Aggregat-False-Positive). Iteration 26→14→3→2→0 candidates über 4 Filter-Refinements. **Bonus-Discovery:** Tool fand 2 echte D48-Drifts (F-07 + F-11 Slice 195e closed aber Status nie auf `done` updated — Slice 209 Cleanup hatte verpasst), inline-gefixt. Negative-Test mutate-then-revert demonstriert Exit-Code-Switch. 6/6 ACs grün. Self-Review D35. npm-Script `pnpm run audit:stale` live. D48 jetzt 6. Iteration empirisch validiert. Kein src/-Refactor, scripts-only.
 - **Slice 222** (2026-04-26) — P2-Bundle Reklassifizierung + K-RR-2 Heal (XS). **ALLE findings_open → 0** (P0/P1/P2/P3 alle null). Anil-Direktive "weiter" → Empfehlung-B autonom: PostHog deferred, P2-Bundle reklassifiziert. K-RR-2 Heal: 4 title-Tooltips auf Sentiment-Elements + 4 NEU i18n-Keys DE+TR. 5 Status-Updates: TR-NEU-1 stale (Keys existieren bereits) / FANTASY-NEU-1 CEO-pending (Money-Path) / FM-RR-1 wont-fix (Slice 208 Spec-Decision) / FM-RR-2 deferred (Feature) / POSTHOG-NEU-1 deferred. **Tech-Side maximal sauber — null open Findings.** Sign-Off-Trial-Re-Run-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste). Commit 5b50bfe1.
 - **Slice 220** (2026-04-26) — Smoke + Sentry + PostHog Verifies (XS, Verifikations-Run). ✅ Smoke 10/10 GREEN gegen bescout.net (19.5s). ✅ PostHog connected (org "beScout", project 160677 prod). ✅ Sentry CSP+Lib+Config (EU-Endpoint). 🔴 **NEUER P1 FINDING:** POSTHOG-NEU-1 — PostHog 0 Events ingested (Instrumentation-Gap aus beta-exit-criteria.md:135). Sign-Off-Matrix: 2 ❓ → 0, 2 ❓ verbleibend (Page-Health-Score, Persona-Score numerisch). signoff_questionable: 4→2. P1: 0→1 (POSTHOG-NEU-1). Commit f6c019f2.

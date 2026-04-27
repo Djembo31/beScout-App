@@ -1,0 +1,52 @@
+=== Slice 231 — Spec-Quality-Gate Item-Count-Validation Smoke ===
+Datum: 2026-04-27
+Hook:  .claude/hooks/ship-spec-quality-gate.sh
+Spec:  worklog/specs/231-spec-quality-gate-item-counts.md (XS)
+
+--- AC-01 [HAPPY] Konforme XS-Spec → silent ---
+Setup: active.md zeigt auf Slice 231 (Größe XS), Spec hat 5 Code-Reading-Items, 4 Edge-Cases, 3 ACs.
+Command: echo '{"file_path":"C:/bescout-app/src/dummy.ts"}' | bash .claude/hooks/ship-spec-quality-gate.sh
+Output: (silent, no stderr)
+Exit:   0
+Verdict: PASS — konforme Spec → Hook silent.
+
+--- AC-02 [REGRESSION] Mock-Spec mit 1 Item pro Sektion (XS Mindest 3) ---
+Setup: /tmp/spec-test/sparse.md mit `**Größe:** XS`, jede Pflicht-Sektion mit 1 Tabellen-Row bzw. 1 AC im Code-Block.
+Isoliertes Test der count_items() Funktion:
+
+  Sparse Mock (XS, expected: all 1/3):
+    Code-Reading: 1/3
+    Edge-Cases:   1/3
+    ACs:          1/3
+
+  Live Slice-231 Spec (XS, expected: all >=3):
+    Code-Reading: 5/3
+    Edge-Cases:   4/3
+    ACs:          3/3
+
+Verdict: PASS — Mock-Spec lieferte 1/3 (würde WARN feuern), Live-Spec lieferte 5/4/3 (silent).
+
+--- AC-03 [HAPPY] Mock-Spec aus Slice 231 Edge-Case-Bug-Repro ---
+Test: Header-Detection robust gegen UTF-8 `Größe`-Bug (MSYS Git Bash) via 2-Step-Detection.
+Output:
+  size: XS  (korrekt detektiert)
+
+Verdict: PASS — Größe-Detection funktioniert nach 2-Step-Refactor.
+
+--- Bash Syntax Check ---
+Command: bash -n .claude/hooks/ship-spec-quality-gate.sh
+Output:  SYNTAX OK
+Exit:    0
+
+--- Inkrementelle Discoveries beim Build ---
+1. UTF-8-`\b`-Bug: grep -oiE mit `\b` und `Größe` matched in MSYS nicht (multi-byte boundary).
+   Fix: 2-Step Line-find + extract.
+2. Tabellen-Header-Inflation: `^\|`-Match zählt Header. Fix: Trenner detected → rollback prev.
+3. AC-Code-Block-Skip: _TEMPLATE.md formatiert ACs in ```-Blocks.
+   Fix: in_code-Branch zählt `^[A-Z][A-Z0-9]*[-_][0-9]+:` (AC-NN/EC-NN).
+
+Alle 3 Discoveries sind dokumentiert in count_items()-Header-Comment + workflow.md-Pattern.
+
+=== Verdict ===
+ALLE 3 ACs PASS. Hook ist Production-Ready.
+WARN-only — kein BLOCK. Backward-Compatible (Sektion-Existenz-Layer 1 unverändert).

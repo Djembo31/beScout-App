@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 231 | 2026-04-27 | Spec-Quality-Gate Item-Count-Validation (Slice 212 Reviewer-Lücke geheilt)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: hook-only) → BUILD → REVIEW (self-review D35 Pattern-Wiederholung Slice 212+223) → PROVE → LOG
+- **Größe:** XS · **Scope:** CTO
+- **Files:**
+  - `.claude/hooks/ship-spec-quality-gate.sh` — `count_items()` awk-Funktion + Layer-2 Item-Count-Check
+  - `worklog/specs/231-spec-quality-gate-item-counts.md` (NEU)
+  - `worklog/proofs/231-hook-smoke.txt` (NEU)
+  - `worklog/reviews/231-review.md` (NEU)
+  - `worklog/active.md` (Stage-Updates)
+- **Proof:** `worklog/proofs/231-hook-smoke.txt` (3/3 ACs PASS, Negative-Test 1/3 vs Positive 5/4/3)
+- **Review:** `worklog/reviews/231-review.md` Self-Review PASS
+- **Notes:** Hook prüft jetzt zwei Layer:
+  - Layer 1 (Slice 212): Sektion-Existenz via Header-grep
+  - Layer 2 (Slice 231 NEU): Item-Counts pro Größe (XS=3, S=6, M=6/8, L=10) für Code-Reading + Edge-Cases + ACs
+  - 3 BUILD-Discoveries dokumentiert: UTF-8-`\b`-Bug bei `Größe` (2-Step-Detection-Fix), Tabellen-Header-Rollback, AC-Code-Block-Pattern-Detection.
+  - Wave-3-Tooling Standard-API erfüllt (WARN-only + Negative-Test). Backward-Compat: Layer 1 unverändert.
+
+---
+
 ## 230 | 2026-04-27 | Stop-Hook Phase-Tracker-Reminder (Slice 214 Reviewer-Backlog erfüllt)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
