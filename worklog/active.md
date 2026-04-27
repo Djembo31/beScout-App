@@ -1,14 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 228
-stage: LOG
-spec: worklog/specs/228-orphan-component-detector.md
-impact: skipped (scripts-only)
-proof: worklog/proofs/228-orphan-detector-output.txt
-review: worklog/reviews/228-review.md (self-review D35 PASS)
-size: XS
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
