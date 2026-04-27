@@ -383,4 +383,69 @@ SHIP-SPEC-QUALITY-WARN (Slice 231 — Item-Count-Layer):
   Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
 EOF
 
+# === Slice 234 D54: Layer-3 Slice-Type + Type-spezifische DoD-Sektion ===
+# Pflicht-Header `**Slice-Type:** UI|Service|Tool|Hook|GHA|Migration|i18n|Doc`.
+# Plus: Type-spezifische Pflicht-Sektion in Spec.
+
+# Detect Slice-Type aus Spec-Header (analog Größe-Detection mit 2-Step UTF-8-Safe-Pattern)
+SLICE_TYPE_LINE="$(grep -im1 -E "[Ss]lice.?[Tt]ype" "$SPEC_FILE" 2>/dev/null | head -1)"
+SLICE_TYPE="$(echo "$SLICE_TYPE_LINE" | grep -oiE "(UI|Service|Tool|Hook|GHA|Migration|i18n|Doc)\b" | head -1)"
+
+# Wenn kein Type-Header gesetzt → WARN (alle pre-Slice-234-Specs haben das nicht)
+if [ -z "$SLICE_TYPE" ]; then
+    cat >&2 <<EOF
+SHIP-SPEC-QUALITY-WARN (Slice 234 — Layer-3 Slice-Type):
+  Active Slice:  $SLICE (stage: $STAGE)
+  Spec:          $SPEC_FILE_REL
+  Problem:       Kein **Slice-Type:** Header gefunden.
+
+  Slice 234 D54 Standard:
+    **Slice-Type:** UI | Service | Tool | Hook | GHA | Migration | i18n | Doc
+
+  Type bestimmt Type-spezifische Definition-of-Done (workflow.md Section 3a).
+  Pre-Slice-234-Specs duerfen ohne Type bleiben (legacy).
+  Neue Specs ab Slice 234+: Type-Header pflicht.
+
+  Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
+EOF
+    exit 0
+fi
+
+# Type-spezifische Pflicht-Sektion-Patterns
+# (case-insensitive; Spec MUSS einen dieser Patterns enthalten)
+TYPE_REQUIRED_SECTION=""
+case "$(echo "$SLICE_TYPE" | tr '[:upper:]' '[:lower:]')" in
+    tool)     TYPE_REQUIRED_SECTION="(wiring|aufruf|trigger|verkabel)" ;;
+    hook)     TYPE_REQUIRED_SECTION="(settings\\.json|registr|trigger|event)" ;;
+    gha)      TYPE_REQUIRED_SECTION="(yaml|workflow|live.?run|cron|workflow_dispatch)" ;;
+    service)  TYPE_REQUIRED_SECTION="(rpc|service|hook|query|invalid)" ;;
+    migration) TYPE_REQUIRED_SECTION="(rls|policy|pg_get_functiondef|check.?constraint)" ;;
+    i18n)     TYPE_REQUIRED_SECTION="(de\\.json|tr\\.json|next-intl|wording)" ;;
+    *) TYPE_REQUIRED_SECTION="" ;;  # UI + Doc kein extra-check
+esac
+
+if [ -n "$TYPE_REQUIRED_SECTION" ]; then
+    if ! grep -qiE "$TYPE_REQUIRED_SECTION" "$SPEC_FILE" 2>/dev/null; then
+        cat >&2 <<EOF
+SHIP-SPEC-QUALITY-WARN (Slice 234 — Layer-3 Type-DoD):
+  Active Slice:  $SLICE (stage: $STAGE, size: $SLICE_SIZE, type: $SLICE_TYPE)
+  Spec:          $SPEC_FILE_REL
+  Problem:       Type-spezifische Pflicht-Sektion fehlt.
+
+  Slice-Type=$SLICE_TYPE erwartet Inhalt zu: $TYPE_REQUIRED_SECTION
+
+  Beispiele (workflow.md Section 3a Definition-of-Done):
+    Type=Tool    → Sektion mit "Wiring" / "Aufruf" / "Trigger"
+    Type=Hook    → Sektion mit "settings.json"-Entry
+    Type=GHA     → Sektion mit "YAML-Lint" + "Live-Run-AC"
+    Type=Service → Sektion mit "RPC" / "Hook-Aufrufer"
+    Type=Migration → Sektion mit "RLS" / "pg_get_functiondef"
+    Type=i18n    → Sektion mit "de.json" / "tr.json"
+
+  Diese Warnung blockt KEINEN commit. WARN-only, Self-Disziplin.
+  Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
+EOF
+    fi
+fi
+
 exit 0

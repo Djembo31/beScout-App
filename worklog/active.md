@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 234
+stage: PROVE
+spec: worklog/specs/234-system-wiring-recovery.md
+impact: skipped (cross-cutting in Workflow/Hook/Script-Schicht, kein Service/RPC/DB)
+proof: worklog/proofs/234-wiring-recovery-smoke.txt
+review: worklog/reviews/234-review.md (Reviewer-Agent CONCERNS→PASS post-Heal)
 ```
 
 ## Zuletzt

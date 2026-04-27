@@ -30,6 +30,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-stage-timer.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/track-file-changes.sh"
           }
         ]
       }
@@ -53,11 +57,15 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-cto-review-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-tool-wiring-gate.sh"
           }
         ]
       },
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
@@ -82,6 +90,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-task-enforcement.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/run_tests_on_change.sh"
           }
         ]
       }
@@ -100,6 +112,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-phase-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/capture-correction.sh"
           }
         ]
       }
@@ -110,6 +126,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/pre-compact-backup.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/inject-context-on-compact.sh"
           }
         ]
       }
@@ -132,6 +152,18 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-phase-tracker-reminder.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/pattern-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/quality-gate-v2.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/session-retro.sh"
           }
         ]
       }
@@ -158,6 +190,11 @@
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-kanban-sync.sh",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/morning-briefing.sh",
+            "timeout": 10
           }
         ]
       }

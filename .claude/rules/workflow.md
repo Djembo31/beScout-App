@@ -31,6 +31,8 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 
 **Grundprinzip (Slice 211 D50):** Mit der SPEC steht und fällt alles. Der Agent ist intelligent, aber er ist nicht hellsichtig — die Spec liefert ihm nicht alles vorgekaut, sondern den **Kompass**: was muss er VOR Code lesen, welche Patterns gelten hier, welche Self-Verification-Commands sind relevant, was muss er klären bevor er coded. Eine Spec ohne Code-Reading-Liste ist eine Wunschliste — der Agent wird improvisieren und blindspots verursachen.
 
+**Pflicht-Header (Slice 234 D54):** Spec-Header MUSS `**Slice-Type:** UI | Service | Tool | Hook | GHA | Migration | i18n | Doc` enthalten. Type bestimmt Type-spezifische Definition-of-Done (Section 3a unten). Hook `ship-spec-quality-gate.sh` Layer 3 prüft das WARN-only.
+
 **Pflicht-Sektionen (alle Slice-Größen):**
 
 1. **Problem-Statement** mit Evidence (Screenshot/Audit-Item-Nr/Anil-Quote/Sentry-ID)

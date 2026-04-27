@@ -11,6 +11,44 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 234 | 2026-04-27 | System-Wiring Recovery + Drift-Prevention (L-Slice, D54)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: cross-cutting Workflow/Hook-Schicht ohne Service/RPC) → BUILD (Phasen 1-4) → REVIEW (Reviewer-Agent Cold-Context, L-Slice + neue Wiring-Klasse) → PROVE (Phase 5 Live-Verify) → LOG
+- **Größe:** L · **Slice-Type:** Hook · **Scope:** CTO
+- **Trigger:** Anil-Frustration "warum nicht zu Ende programmieren". Slice 233 Wiring-Audit zeigte 11 orphan Hooks + 4 orphan Pipelines + 9 untriagte Issues.
+- **Plan:** `C:\Users\Anil\.claude\plans\linear-wibbling-crane.md` (Plan-Mode + Ultrathink genehmigt)
+- **Files Created:**
+  - `scripts/wiring-check.ts` (NEU, ~230 Zeilen) — Detection-Tool für Hook/Script/NPM-Drift mit KNOWN_ORPHANS-Allowlist
+  - `.claude/hooks/ship-tool-wiring-gate.sh` (NEU) — Pre-Commit BLOCK exit 2 bei real-drift
+  - `worklog/specs/234-system-wiring-recovery.md` (NEU)
+  - `worklog/proofs/234-wiring-recovery-smoke.txt` (NEU)
+  - `worklog/reviews/234-review.md` (NEU, Reviewer-Output)
+  - `.claude/hooks/archived/quality-gate.sh` (move from .claude/hooks/)
+- **Files Modified:**
+  - `.claude/settings.json` — 8 Hooks registriert + ship-tool-wiring-gate.sh
+  - `.claude/hooks/capture-correction.sh` — stdin-JSON-Parse-Fix (war env-var-Bug, hat seit 19 Tagen nichts gefangen)
+  - `.claude/hooks/ship-spec-quality-gate.sh` — Layer 3 Slice-Type + Type-spezifische DoD-Sektion-Detection
+  - `.github/workflows/nightly-audit.yml` — rpc-security env, tr-strings skip-graceful, Issue-Dedupe via title-match, audit:compliance + audit:wiring + findings-to-slices integriert
+  - `package.json` — audit:wiring + audit:wiring:check
+  - `worklog/specs/_TEMPLATE.md` — Slice-Type-Header pflicht
+  - `.claude/rules/workflow.md` — SPEC-Stage Slice-Type-Header-Pflicht-Notiz
+  - `memory/decisions.md` — D54 PROCESS dokumentiert
+- **Files Deleted:** `.claude/hooks/inject-learnings.sh` (selbstidentifiziert redundant zu morning-briefing)
+- **GitHub-Triage:** 14 OPEN smoke-fail-Issues (#1-#13, #14-#21, #23, #24) batch-closed mit Comment "deferred to Slice 235"
+- **Proof:** `worklog/proofs/234-wiring-recovery-smoke.txt` 9/11 Pre-Push-ACs PASS, AC-09+AC-11 post-Push
+- **Review:** `worklog/reviews/234-review.md` Reviewer-Agent
+- **Notes:**
+  - **Knowledge-Flywheel reaktiviert:** capture-correction war seit 19 Tagen tot (env-var-Bug + nicht registriert). Slice 234 fixt beides. queue.jsonl wächst jetzt.
+  - **Drift-Prevention architektonisch enforced:** ship-tool-wiring-gate.sh BLOCKt feat/fix/refactor-Commits bei real-drift. KNOWN_ORPHANS-Allowlist für intentional-manuelle Tools.
+  - **Type-System:** Spec-Slice-Type-Header macht Definition-of-Done maschinell prüfbar (D54 erweitert D53).
+  - **Daily Detection:** audit:wiring im nightly-audit.yml — Drift-Latenz von "19 Slices" (Slice 212→231) auf 24h.
+  - **Backlog post-Slice-234:**
+    - Slice 235: Smoke-Failure-Code-Fix (Player-Link locator timeout in beta-smoke.spec.ts:37)
+    - Slice 236: TM-Once-Off-Scripts cleanup (13 orphan TM-Scripts klassifizieren)
+    - Slice 237: Skill-Wiring-Erweiterung in wiring-check.ts (welche /skills sind never-invoked?)
+
+---
+
 ## 233 | 2026-04-27 | Nightly Audit Self-Improvement-Loop — erste autonome Schleife (D53)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: GHA-only) → BUILD → REVIEW (Reviewer-Agent CONCERNS→PASS post-Heal) → PROVE → LOG

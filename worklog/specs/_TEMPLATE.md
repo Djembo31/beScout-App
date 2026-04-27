@@ -1,8 +1,8 @@
 # Slice NNN — <Titel>
 
-**Status:** SPEC · **Größe:** XS | S | M | L · **Scope:** CTO | CEO-approved | CEO-pending · **Datum:** YYYY-MM-DD
+**Status:** SPEC · **Größe:** XS | S | M | L · **Slice-Type:** UI | Service | Tool | Hook | GHA | Migration | i18n | Doc · **Scope:** CTO | CEO-approved | CEO-pending · **Datum:** YYYY-MM-DD
 
-> Dies ist der **Master-Spec-Template** (Slice 211). Jeder Slice startet mit einer Kopie dieser Sektionen. Pflicht-Sektionen je nach Slice-Größe sind in `.claude/rules/workflow.md` SPEC-Stage definiert.
+> Dies ist der **Master-Spec-Template** (Slice 211, Slice-Type-Header in Slice 234 ergänzt). Jeder Slice startet mit einer Kopie dieser Sektionen. Pflicht-Sektionen je nach Slice-Größe sind in `.claude/rules/workflow.md` SPEC-Stage definiert. Definition-of-Done je Slice-Type ist in `workflow.md` Section 3a (Slice 233 D53 + Slice 234 D54).
 >
 > **XS-Mindest-Pflicht:** 1, 3, 4, 6, 8, 10 (6 Sektionen).
 > **S/M-Voll-Pflicht:** 1-13 (alle 13 Sektionen).

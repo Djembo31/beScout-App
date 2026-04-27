@@ -2250,6 +2250,77 @@ Wenn 3+ aufeinanderfolgende Sessions Tools NICHT laufen lassen: Pre-Commit-Hook-
 
 ---
 
+## D54 — PROCESS: Wiring-Drift-Recovery + Detection-Tooling (Build-without-Wire-Enforcement)
+
+**Datum:** 2026-04-27
+**Status:** ✅ Aktiv (Slice 234 codifiziert + Hook-Enforcement live)
+**Kategorie:** PROCESS
+**Erweitert:** D53 (Slice 233) — von Text-Regel auf Architektur-Enforcement promoted
+
+### Entscheidung
+
+D53 codifizierte "Build-without-Wire ist verboten" als Text-Regel in `workflow.md`. D54 erzwingt es **architektonisch**:
+
+1. **Detection:** `scripts/wiring-check.ts` scannt `.claude/hooks/`, `scripts/`, `package.json` cross-mit `settings.json` + GHA-Workflows + Vercel-Crons + Hooks. Findet Build-without-Wire-Drift sofort. KNOWN_ORPHANS-Allowlist für intentional-manuelle Tools.
+
+2. **Pre-Commit-Enforcement:** `.claude/hooks/ship-tool-wiring-gate.sh` blockt `feat(`/`fix(`/`refactor(`-Commits wenn `audit:wiring:check` real-drift findet. exit 2.
+
+3. **Daily Detection:** `audit:wiring` läuft täglich in `.github/workflows/nightly-audit.yml` als 9. Audit-Step. Auto-Issue bei neuen Drifts (24h Detection-Latenz).
+
+4. **Type-System:** Spec-Header `**Slice-Type:**` macht Definition-of-Done maschinen-prüfbar. Hook `ship-spec-quality-gate.sh` Layer 3 prüft Type-spezifische Pflicht-Sektion.
+
+### Begründung
+
+**Anil-Frustration 2026-04-27 (post-Slice-233):**
+> "ich verstehe nicht, warum wir nicht mal was zu ende programmmieren können... ich hatte tests gemacht und sollte laufen, wundert mich dass die verkabelung fehlt? wie kann ich dass in zukunft verhindern."
+
+**Empirische Evidence (Slice 234 BUILD-Audit):**
+- 11 orphan Hook-Files in `.claude/hooks/` (10 dokumentiert als live in CLAUDE.md/workflow-reference.md, 0 in settings.json)
+- **`capture-correction.sh` Single-Point-of-Failure:** orphan → `.claude/learnings-queue.jsonl` 0 bytes seit 19 Tagen → **Knowledge-Flywheel komplett tot**
+- 4 orphan Pipelines (`findings-to-slices.ts`, `audit:compliance`, `test:synthetic`, `test:e2e`)
+- 9 OPEN GitHub-Issues #14-#23 (Smoke-Failures seit 3 Tagen niemand triagiert)
+
+**Discovery beim BUILD:** capture-correction.sh war nicht nur orphan — er hatte einen Bug (las `CLAUDE_USER_PROMPT` env-var statt JSON-stdin). Selbst wenn registriert wäre er dead-code gewesen. Slice 234 fixt beides.
+
+### Auswirkungen
+
+- **Code (Slice 234):**
+  - `scripts/wiring-check.ts` (NEU, 230 Zeilen)
+  - `.claude/hooks/ship-tool-wiring-gate.sh` (NEU)
+  - 8 Hooks neu registriert in `.claude/settings.json`
+  - 1 Hook archived (`quality-gate.sh`), 1 deleted (`inject-learnings.sh`)
+  - `capture-correction.sh` stdin-fix (war env-var-based, nie gefeuert)
+  - GHA-Heal: rpc-security env, tr-strings skip-graceful, Issue-Dedupe, audit:compliance + audit:wiring + findings-to-slices integriert
+- **Prozess (workflow.md):**
+  - SPEC-Stage: Slice-Type-Header pflicht
+  - Section 3a Definition-of-Done-Tabelle wird Type-spezifisch erzwungen
+- **Recovery:**
+  - 9 Smoke-Issues #14-#23 closed (Slice 235 split für Code-Fix)
+  - Knowledge-Flywheel reaktiviert (capture-correction live, 3 Test-Korrekturen in queue)
+
+### Pattern-Familie etabliert
+
+D54 schließt die "Audit-Quality-Drift"-Pattern-Familie:
+- D43 (Slice 192/200): Type-Truth-Drift (Silent-Cast / nested-select)
+- D46 (Slice 207/227/228): Orphan-Component-Production-Code
+- **D54 (Slice 234): Build-without-Wire (Hooks/Scripts/NPM-Scripts)**
+- D48 (Slice 209/223): Audit-Stale-Drift (Punch-List)
+
+Cross-cutting: "Existenz ≠ Verwendung". Tool/Component/Audit kann existieren ohne im echten Workflow zu sein. Enforcement-Architektur (Hooks > Text-Regeln, D45) erzwingt Discipline.
+
+### Alternativen erwogen
+
+- **"Mehr Disziplin im /spec":** Verworfen (D45-Pattern). Disziplin-Versprechen brachen 19 Slices lang. Architektur-Enforcement durch Hooks ist robust.
+- **"Manuelles Quartals-Audit":** Verworfen — Detection-Latenz zu hoch (Drift wuchs in 12 Tagen auf 11 Hooks).
+- **"Larger Slices, weniger XS":** Verworfen — XS-Pattern ist eine Stärke. Problem ist nicht Größe, sondern Done-Cut.
+- **"WARN-only initial für ship-tool-wiring-gate":** Verworfen — D53 hatte schon WARN-Only-Phase (workflow.md), Drift wuchs trotzdem. Hard-BLOCK ab Slice 234.
+
+### Re-Visit-Trigger
+
+Wenn nach Slice 234+ in 2 Wochen 0 false-positives gemeldet: Pattern stabil. Wenn ≥ 3 false-positives: KNOWN_ORPHANS-Heuristik refinen + Pattern-Erweiterung. Wenn neue Wiring-Achse entdeckt (z.B. unverkabelter Skill-Trigger): erweitere wiring-check.ts.
+
+---
+
 ## D53 — PROCESS: Build-without-Wire ist verboten — Definition-of-Done je Slice-Type
 
 **Datum:** 2026-04-27

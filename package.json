@@ -28,6 +28,8 @@
     "audit:type-truth": "npx tsx scripts/type-truth-audit.ts",
     "audit:mutation-race": "bash scripts/audit-mutation-race.sh",
     "audit:mutation-race:check": "bash scripts/audit-mutation-race.sh --strict",
+    "audit:wiring": "npx tsx scripts/wiring-check.ts",
+    "audit:wiring:check": "npx tsx scripts/wiring-check.ts --check",
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
     "beta:metrics": "node scripts/beta-metrics.mjs",
     "size": "npx tsx scripts/check-bundle-size.ts",
