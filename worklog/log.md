@@ -11,6 +11,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 232 | 2026-04-27 | `spec: inline` Bypass Hard-BLOCK (Wave-3-Tooling Backlog komplett)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: hook-only) → BUILD → REVIEW (self-review D35 Pattern-Wiederholung Slice 212+231) → PROVE → LOG
+- **Größe:** XS · **Scope:** CTO
+- **Files:**
+  - `.claude/hooks/ship-spec-quality-gate.sh` — Skip-Block-Detection refined: plain `inline`/`skipped` → BLOCK exit 2
+  - `worklog/specs/232-spec-inline-bypass-block.md` (NEU)
+  - `worklog/proofs/232-hook-smoke.txt` (NEU, 5 Smokes mit Mock-active.md + Backup/Restore)
+  - `worklog/reviews/232-review.md` (NEU)
+  - `worklog/active.md` (Stage-Updates)
+- **Proof:** `worklog/proofs/232-hook-smoke.txt` (5 Smokes alle PASS: file-path silent, inline-plain BLOCK, inline-with-reason silent, skipped-plain BLOCK, skipped-with-reason silent)
+- **Review:** `worklog/reviews/232-review.md` Self-Review PASS
+- **Notes:**
+  - **ERSTE Hard-BLOCK-Erweiterung** in diesem Hook. Bypass-Convention "Begründungs-Klammer pflicht" war Text-Regel (de-facto), jetzt Hook-enforced.
+  - Detection: `tr -d ' '` strippt Spaces. `spec: inline` plain → `"inline"` exact-match → BLOCK. `spec: inline (Pattern-X)` → `"inline(Pattern-X)"` mit `("...")` sub-string → silent.
+  - Backward-Compat: alle existing legitimen Bypass-Werte (Slice 209/210/213-History mit `(Grund)`) bleiben silent.
+  - Wave-3-Tooling Backlog laut Slice 230 Handoff jetzt komplett (Slice 231 Item-Count + Slice 232 Bypass-BLOCK).
+
+---
+
 ## 231 | 2026-04-27 | Spec-Quality-Gate Item-Count-Validation (Slice 212 Reviewer-Lücke geheilt)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: hook-only) → BUILD → REVIEW (self-review D35 Pattern-Wiederholung Slice 212+223) → PROVE → LOG

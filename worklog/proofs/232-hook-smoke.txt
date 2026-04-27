@@ -1,0 +1,87 @@
+=== Slice 232 — `spec: inline` Bypass Hard-BLOCK Smoke ===
+Datum: 2026-04-27
+Hook:  .claude/hooks/ship-spec-quality-gate.sh
+Spec:  worklog/specs/232-spec-inline-bypass-block.md (XS)
+
+Backup-Strategie: cp worklog/active.md /tmp/spec-test/active-real.md
+Restore: cp zurück nach allen Smokes — verifiziert via head-12 active.md.
+
+--- AC-01 [HAPPY] Echter Spec-File-Pfad → kein BLOCK ---
+Setup:   active.md zeigt auf worklog/specs/232-...md
+Command: echo '{"file_path":"C:/bescout-app/src/dummy.ts"}' | bash .claude/hooks/ship-spec-quality-gate.sh
+Output:  (silent) — falls Layer 2 trifft, würde es WARN ausspucken (XS Mindest)
+Exit:    0
+Verdict: PASS — Spec-File-Path durchläuft normalen 2-Layer-Check.
+
+--- AC-02 [REGRESSION] spec: inline plain → Hard-BLOCK exit 2 ---
+Setup:   sed 's|^spec:.*|spec: inline|' active-real.md > active.md
+Command: same
+Output:
+  SHIP-SPEC-QUALITY-BLOCK (Slice 232):
+    Active Slice: 232 (stage: BUILD)
+    Spec-Wert:    "inline"
+    Plain "inline" ohne Begründungs-Klammer ist Bypass-Missbrauch.
+    [...]
+Exit:    2
+Verdict: PASS — Block message bytewise korrekt, exit 2 wird respected (Edit/Write blocked).
+
+--- AC-03 [HAPPY] spec: inline (Pattern-Wiederholung Slice 196) → silent ---
+Setup:   sed 's|^spec:.*|spec: inline (Pattern-Wiederholung Slice 196)|' active-real.md > active.md
+         (tr -d ' ' transformiert zu "inline(Pattern-WiederholungSlice196)")
+Command: same
+Output:  (silent)
+Exit:    0
+Verdict: PASS — Klammer-Detection legitim als Bypass anerkannt.
+
+--- AC-04 [REGRESSION] spec: skipped plain → BLOCK ---
+Setup:   sed 's|^spec:.*|spec: skipped|'
+Output:
+  SHIP-SPEC-QUALITY-BLOCK (Slice 232):
+    Active Slice: 232 (stage: BUILD)
+    Spec-Wert:    "skipped"
+    [...]
+Exit:    2
+Verdict: PASS — gleiche Detection-Klasse wie inline.
+
+--- AC-05 [HAPPY] spec: skipped (cosmetic XS) → silent ---
+Setup:   sed 's|^spec:.*|spec: skipped (cosmetic XS)|'
+Output:  (silent)
+Exit:    0
+Verdict: PASS
+
+--- Restore-Integrität ---
+Verify:  head -12 worklog/active.md zeigt korrekt
+  status: active
+  slice: 232
+  stage: BUILD
+  ...
+Verdict: PASS — kein Leak von Mock-Test in echten State.
+
+--- Bash Syntax Check ---
+Command: bash -n .claude/hooks/ship-spec-quality-gate.sh
+Output:  SYNTAX OK
+Exit:    0
+
+=== Detection-Logik (codifiziert) ===
+
+`tr -d ' '` strippt alle Spaces aus SPEC_FILE_REL:
+  spec: inline                       →  "inline"          → BLOCK
+  spec: inline (reason)              →  "inline(reason)"  → silent
+  spec: skipped                      →  "skipped"         → BLOCK
+  spec: skipped (cosmetic)           →  "skipped(cosmetic)" → silent
+  spec: worklog/specs/X.md           →  "worklog/specs/X.md" → 2-Layer-Check
+  spec: —                            →  "—"               → silent (idle)
+
+Case-Pattern:
+  inline|skipped              → BLOCK (plain)
+  inline*|skipped*            → check für (X)Y) sub-pattern, sonst BLOCK
+  *"("*")"*                   → bypass legitim, silent
+
+=== Verdict ===
+ALLE 5 ACs PASS. Hook ist Production-Ready.
+ERSTE Hard-BLOCK-Erweiterung in diesem File — Self-Disziplin-Anker
+gegen Bypass-Missbrauch ist jetzt architektonisch enforced.
+
+WARN-Layer (Slice 212+231) und Skip-Layer (Slice 232) sind orthogonal:
+  - Skip-Layer feuert ZUERST (case auf SPEC_FILE_REL)
+  - WARN-Layer feuert NUR bei worklog/specs/-Pfad

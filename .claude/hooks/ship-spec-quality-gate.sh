@@ -82,9 +82,56 @@ esac
 # Spec-File suchen via active.md `spec:` Zeile
 SPEC_FILE_REL="$(sed -n 's/^spec:[[:space:]]*\(.*\)$/\1/p' "$ACTIVE" | head -1 | tr -d ' ')"
 
-# Skip wenn spec ist "inline" oder leer
+# Slice 232: Bypass-Convention erzwingt Begründungs-Klammer.
+# `tr -d ' '` oben hat schon alle Spaces gestrippt, daher z.B.
+#   spec: inline (Pattern-Wiederholung)  →  $SPEC_FILE_REL = "inline(Pattern-Wiederholung)"
+#   spec: inline                         →  $SPEC_FILE_REL = "inline"  → BLOCK
 case "$SPEC_FILE_REL" in
-    ""|"—"|"-"|"inline"|"inline*"|"skipped*") exit 0 ;;
+    "")        exit 0 ;;       # Idle (schon oben gefangen, defensive)
+    "—"|"-")   exit 0 ;;       # Em-Dash idle marker
+    inline|skipped)
+        # Plain ohne Begründung → Hard-BLOCK
+        cat >&2 <<EOF
+SHIP-SPEC-QUALITY-BLOCK (Slice 232):
+  Active Slice: $SLICE (stage: $STAGE)
+  Spec-Wert:    "$SPEC_FILE_REL"
+
+  Plain "$SPEC_FILE_REL" ohne Begründungs-Klammer ist Bypass-Missbrauch.
+  Spec-Quality-Gate ist Self-Disziplin-Anker — Bypass dokumentieren WARUM:
+
+    spec: inline (Pattern-Wiederholung Slice X)
+    spec: inline (XS-Trivial-Wiederholung)
+    spec: skipped (cosmetic XS, S-Slice X)
+
+  ODER schreibe eine echte Spec-Datei: worklog/specs/<slice>-<title>.md
+  ODER aktiviere Notbremse: /ship emergency "<grund>"
+
+  Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
+EOF
+        exit 2
+        ;;
+    inline*|skipped*)
+        # Beginnt mit inline/skipped — Klammer-Check
+        case "$SPEC_FILE_REL" in
+            *"("*")"*) exit 0 ;;       # Klammer vorhanden → bypass legitim
+            *)
+                cat >&2 <<EOF
+SHIP-SPEC-QUALITY-BLOCK (Slice 232):
+  Active Slice: $SLICE (stage: $STAGE)
+  Spec-Wert:    "$SPEC_FILE_REL"
+
+  "$SPEC_FILE_REL" hat keine Begründungs-Klammer "(...)".
+  Bypass dokumentieren:
+
+    spec: inline (XS-Trivial Slice X)
+    spec: skipped (cosmetic)
+
+  Hook-Quelle: .claude/hooks/ship-spec-quality-gate.sh
+EOF
+                exit 2
+                ;;
+        esac
+        ;;
 esac
 
 # Skip wenn pattern nicht wie ein File-Pfad aussieht

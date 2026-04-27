@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 232
+stage: PROVE
+spec: worklog/specs/232-spec-inline-bypass-block.md
+impact: skipped (hook-only, kein cross-cutting)
+proof: worklog/proofs/232-hook-smoke.txt
+review: worklog/reviews/232-review.md (self-review D35)
 ```
 
 ## Zuletzt
