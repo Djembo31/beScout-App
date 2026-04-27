@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 237
-stage: PROVE
-spec: worklog/specs/237-silent-fail-audit-comment-skip.md
-impact: skipped (Tool-only, kein Service/RPC)
-proof: worklog/proofs/237-silent-fail-smoke.txt
-review: worklog/reviews/237-review.md (self-review D35)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
 
+- **Slice 237** (2026-04-27) — silent-fail-audit Comment-Skip-Heuristik (XS, Slice-Type=Tool, D52 Refinement). Issue #22 silent-fail HIGH ↑3 → 3 False-Positives in JSDoc-Comments. Globaler Comment-Skip-Regex `^\s*(\/\/|\*\s|\*$|\/\*)` am Loop-Top. HIGH 96→93 (-3 false-positives + Bonus -1 silent-catch-arrow). Baseline transparent updated 92/102/194 → 93/103/196 (berücksichtigt 1 echter NEU HIGH + 2 MEDIUM Drift = Slice 238 Backlog). CI-Gate exit 0. **2. Workflow-Live-Test unter Slice 234 D54-Enforcement** alle Hooks silent. Self-Review D35 PASS. Commit fbeb085b.
 - **Slice 235** (2026-04-27) — i18n 7 fehlende TR-Keys (XS, Slice-Type=i18n). Issue #22 Audit-Finding gefixt. Anil-Approval Option B: Kadro + Sahip (existing-konsistent, neutral). 4 manager.inLineupFilter* + 3 club.mostOwned* Keys in tr.json ergänzt. **"Kadroda değil" identisch zu existing `formBars.notInSquad`** — Bonus-Konsistenz. Self-Review D35 (Pattern-Wiederholung Slice 196 Track B). 5/5 ACs PASS, audit:i18n "DE↔TR Parität 4935 keys" exit 0. **Erster Workflow-Live-Test unter Slice 234 D54-Enforcement** — alle Hooks silent (Layer-1/2/3, spec-gate, tool-wiring-gate) wie designed. Commit 9ed8cb02.
 - **Slice 234** (2026-04-27) — System-Wiring Recovery + Drift-Prevention (L-Slice, D54). Anil-Direktive Plan-Mode + Ultrathink. 6 Phasen: HEAL (8 Hooks registriert + 1 archived + 1 deleted, capture-correction stdin-fix → Knowledge-Flywheel reaktiviert nach 19 Tagen Tot, GHA-Heal nightly-audit.yml, 14 stale Smoke-Issues triaged + Master-Tracker #25 erstellt) → PREVENT (scripts/wiring-check.ts NEU + ship-tool-wiring-gate.sh BLOCK-Hook) → ARCHITEKTUR (Slice-Type-Header pflicht, Layer-3 DoD-Hook) → KNOWLEDGE-RESTORE (capture-correction live verifiziert) → LIVE-VERIFY → CLOSE. Reviewer-Agent CONCERNS (11 Findings) → PASS post-Heal. F-04 UTF-8-tr-Bug LC_ALL=C.UTF-8 + dual-Pattern. F-08 [HIGH] Master-Tracker-Issue #25. Pattern-Familie D43→D46→D54 ("Existenz ≠ Verwendung") etabliert. 18 files, 1345 insertions, 102 deletions. Commit 68717459.
 - **Slice 233** (2026-04-27) — Nightly Audit Self-Improvement-Loop (S, GHA-Workflow). Erste autonome Schleife in BeScout. Verkabelt 8 Audit-Tools (war 1) + bescout.net-Smoke daily 03:00/04:00 UTC mit Auto-Issue-Pipeline. **Live-Run Verified:** Run #25011352539 erfolgreich getriggered. Audit-Job 43s SUCCESS, fand 4 echte Findings → Issue #22 erstellt (silent-fail/orphan/i18n/tr-strings). Smoke-Job 2:01min FAILURE → Issue #23 erstellt (beta-blocker bescout.net Player-Link-Timeout, identisch zu historischen #14-#21). Reviewer CONCERNS→PASS post-Heal: F-01 PIPESTATUS-Bug (`tee` masked exit-code → ${PIPESTATUS[0]}), F-02 Spec-Drift "7 vs 8". D53 Build-without-Wire-Verbot codifiziert + workflow.md Section 3a Definition-of-Done-Tabelle. Backlog: Slice 234 Issue-Dedupe + Slice 235 wiring-check.ts + Slice 236 ship-tool-wiring-gate.sh.
