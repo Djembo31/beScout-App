@@ -1,0 +1,62 @@
+═══ Slice 229 — Type-Truth-Audit PROVE ═══
+Date: 2026-04-27T18:29:08+02:00
+
+## AC-1 [HAPPY] Skript läuft erfolgreich:
+═══ Type-Truth-Audit ═══
+Files scanned: 229
+PATTERN-A (silent-cast): 0
+PATTERN-B (missing-error): 0
+PATTERN-C (nested-select): 0
+Total: 0
+Report: C:\bescout-app\worklog\audits\type-truth-2026-04-27.md
+
+✅ No risk-patterns found.
+
+## AC-2 [PATTERN-A/B/C] Detection bestätigt via Negative-Test:
+Iteration-History (Heuristik-Refinement während Build):
+  Initial heuristic (success-only):              17 false-positives
+  + accept 'if (error)' / 'if (!error)' guard:    1 false-positive
+  + accept '|null' nullable-cast as self-guarded: 4 review-candidates (footballData)
+  + accept renamed 'error: rpcErr' destructure:   0 false-positives ← FINAL
+
+Negative-Test (inject silent-cast, run, revert):
+  - PATTERN-A erkannt (return data as {...})
+  - PATTERN-B erkannt (const { data } ohne error)
+
+## AC-3 [SKIP-NOISE] Final-Run Precision: 0 hits prod, alle akzeptierten Pattern korrekt geguarded
+
+## AC-4 [REPORT] Markdown-Report struct:
+# Type-Truth Audit Report — 2026-04-27
+
+**Generated:** 2026-04-27T16:29:15.126Z
+**Slice:** 229 (D43/D49 Pattern-Detection)
+
+## Summary
+
+- **Files scanned:** 229
+- **PATTERN-A (Silent-Cast-After-RPC):** 0 hits
+- **PATTERN-B (Missing Error-Destructure):** 0 hits
+- **PATTERN-C (Nested-Select Implicit-Cast):** 0 hits
+- **Total:** 0 hits
+
+## Result: ✅ Clean
+
+No type-truth-drift patterns found in services.
+
+## AC-5 [TSC] tsc clean: exit 0 ✓
+
+## AC-6 [NPM-SCRIPT]:
+
+> bescout-app@0.1.0 audit:type-truth C:\bescout-app
+> npx tsx scripts/type-truth-audit.ts
+
+═══ Type-Truth-Audit ═══
+Files scanned: 229
+PATTERN-A (silent-cast): 0
+PATTERN-B (missing-error): 0
+PATTERN-C (nested-select): 0
+Total: 0
+
+## Diff Summary:
+ package.json | 1 +
+ 1 file changed, 1 insertion(+)

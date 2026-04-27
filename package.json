@@ -25,6 +25,7 @@
     "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check",
     "audit:stale": "npx tsx scripts/audit-stale-check.ts",
     "audit:orphan": "npx tsx scripts/orphan-component-detector.ts",
+    "audit:type-truth": "npx tsx scripts/type-truth-audit.ts",
     "audit:mutation-race": "bash scripts/audit-mutation-race.sh",
     "audit:mutation-race:check": "bash scripts/audit-mutation-race.sh --strict",
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",

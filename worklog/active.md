@@ -1,13 +1,14 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 229
+stage: LOG
+spec: worklog/specs/229-type-truth-audit.md
+impact: skipped (scripts-only)
+proof: worklog/proofs/229-type-truth-output.txt
+review: worklog/reviews/229-review.md (self-review D35 PASS)
+size: XS
 ```
 
 ## Zuletzt

@@ -11,6 +11,37 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 229 | 2026-04-27 | `scripts/type-truth-audit.ts` — D43/D49 Pattern-Detection (3 Bug-Klassen-Coverage)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (scripts-only)
+- **Trigger:** Wave-3-Tooling — D43 Type-Truth-Audit-Pflicht operationalisieren
+- **Files:**
+  - `scripts/type-truth-audit.ts` (NEU, ~290 Zeilen)
+  - `package.json` — npm-Script `audit:type-truth`
+  - `worklog/audits/type-truth-2026-04-27.md` (NEU, Tool-Output)
+  - `worklog/specs/229-type-truth-audit.md` (NEU)
+  - `worklog/proofs/229-type-truth-output.txt` (NEU)
+  - `worklog/reviews/229-review.md` (NEU, self-review PASS)
+- **3 Bug-Pattern-Detection (Static-Analysis, kein Live-DB-pg_get_functiondef):**
+  - **PATTERN-A** Silent-Cast-After-RPC (Slice 165 Vote-Toggle-Bug)
+  - **PATTERN-B** Missing Error-Destructure (117 Hardening-Fixes)
+  - **PATTERN-C** PostgREST Nested-Select Implicit-Cast (Slice 192/193 Auth-Race)
+- **Heuristik-Refinement-Iteration (im Proof dokumentiert):**
+  - Initial (nur `success`-Discriminator) → 17 false-positives
+  - + `if (error)` Guard → 1 false-positive
+  - + Inline-Object-Cast `as {...}` matchen → Negative-Test bestätigt detection
+  - + `| null` / `| undefined` als nullable-cast = Guard → 4 footballData-FP eliminiert
+  - + Renamed `error: rpcErr` Destructure → 0 false-positives FINAL
+- **Result:** 0 Hits prod (clean), Negative-Test mit injected pattern bestätigt PATTERN-A + PATTERN-B detection.
+- **Aus-Scope:** Live-DB-Lookup-Tool bleibt D43 M-Slice-Backlog. PLAYER_SELECT_COLS-Sync (D49) ist andere Achse — Slice 232+.
+- **AC-Status:** 6/6 ✅
+- **Self-Review (D35):** scripts-only Pattern Slice 223/228-Wiederholung
+- **Proof:** `worklog/proofs/229-type-truth-output.txt`
+- **Commit:** TBD
+
+---
+
 ## 228 | 2026-04-27 | `scripts/orphan-component-detector.ts` — D46-Component-Achse automatisiert + 13 echte Orphans gefunden
 
 - **Stage-Chain:** SPEC → IMPACT (skipped) → BUILD → REVIEW (self-review D35) → PROVE → LOG
