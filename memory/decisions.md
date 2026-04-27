@@ -2138,6 +2138,118 @@ Mit der SPEC steht und fällt jeder Slice. Der Agent ist intelligent, aber nicht
 
 ---
 
+## D51 — PROCESS: Targeted Phase-A-Re-Audit nach Money-Path-UI-Edits Pflicht
+
+**Datum:** 2026-04-27
+**Status:** ✅ Aktiv (Trial-bestätigt durch Slice 223-227 Wave)
+
+### Entscheidung
+
+Nach jeder UI-Edit auf Money-Path-Komponente (BuyConfirmModal, SellModal, Trade-related, Wallet-Display, Founding-Pass) muss ein **Targeted Phase-A-Re-Audit** mit mindestens 3 Audit-Agents (`business`, `ux-coherence-auditor`, plus Domain-Expert wie `fm-mechanics-expert`) auf den minimalen Diff durchgeführt werden — bevor die Slice als "fertig" gilt.
+
+### Begründung (Slice 222 → Re-Audit-Wave 224-227 Discovery)
+
+Slice 222 hatte 10-Lines-Diff (4 title-Tooltips auf BuyConfirmModal Sentiment-Block) + Self-Review D35. Anil-Anweisung "B (Targeted Re-Run)" triggerte 3 parallel-Agents auf den Diff. **Result: 9 echte NEU Findings (3 P1 + 3 P2 + 3 P3).**
+
+- **BUSINESS-NEU-1 (P1):** "unter-/überbewertet" + "düşük/yüksek değerli" = Securities-Valuation-Drift gegen `business.md` Asset-Klasse-Tabelle. Self-Review hat das NICHT erkannt — business-Domain ist außerhalb Code-Pattern-Scope.
+- **UX-NEU-2 (P1):** HTML-`title=` auf Mobile (393px) zeigt KEIN Tooltip — Casual-Education auf Hauptzielgerät 0%. Self-Review hat Pattern-Wiederholung mit Slice 216 gesehen, aber Mobile-Gap unsichtbar weil Code-Pattern stimmig.
+- **FM-NEU-2 (P1):** Tooltip-Wording im Money-Path triggert Spekulations-Action-Push (Casual). Domain-Expert-Linse fehlte im Self-Review.
+
+**Self-Review-D35-Limit:** Self-Review erkennt Code-Pattern-Konsistenz, NICHT:
+- Compliance-Domain (business-Drift, MASAK-Risk)
+- Mobile-UX-Limits (Hover-on-Touch)
+- Domain-Mechanik (FM-Power-User-Action-Bias auf Money-Path)
+
+**ROI-Bestätigung:** Re-Audit kostete ~10 min (3 parallele Agents), heilte 9 echte Findings. Ohne Re-Audit wären die Findings live geblieben bis Beta-Test → User-Schmerz.
+
+### Auswirkungen
+
+- **Code:** Keine direkte Code-Änderung. Process-Erweiterung der SHIP-Loop für Money-Path-Slices.
+- **Prozess:** SHIP-Loop Stage `REVIEW` für Money-Path-Slices erfordert min. 3-Agent-Targeted-Re-Audit, nicht nur Self-Review-D35.
+- **Team:** Future Money-Path-Slices: vor Commit `Agent({subagent_type: business})` + `Agent({subagent_type: ux-coherence-auditor})` + Domain-Agent.
+
+### Money-Path-Detection (welche Slices sind betroffen)
+
+Trigger-Kriterien (mindestens eines):
+- File-Pfad enthält `BuyConfirm`, `SellModal`, `Trade`, `Wallet`, `Founding`, `Liquidat`, `Order`, `Mystery`
+- i18n-Keys mit `price`, `fee`, `buy`, `sell`, `credit`, `cr`, `scout-card`, `dpc`
+- RPC-Aufruf in Service mit Money-Path-Funktion (`buy_player_*`, `place_*_order`, `liquidate_*`, `subscribe_*`)
+- User-facing Text ändert sich auf einer Page wo `TradingDisclaimer` rendered ist
+
+### Alternativen erwogen
+
+- **Self-Review-D35 mit erweiterten Kriterien:** Verworfen — Self-Review hat strukturell limitierte Domain-Sicht. Cold-Context-Agent-Linse ist Domain-spezifisch.
+- **Reviewer-Agent (allgemein):** Verworfen — Reviewer-Agent ist Code-Quality-fokussiert, nicht Domain-spezifisch (Compliance/Mobile-UX/FM-Mechanics). Targeted-Multi-Agent ist präziser.
+- **Visual-Test-Suite Pflicht:** Verworfen für Money-Path-i18n-Edits — Tests fangen funktionale Regression, nicht Wording-Drift oder Mobile-UX-Patterns.
+
+### Re-Visit-Trigger
+
+Wenn 3+ aufeinanderfolgende Money-Path-Slices 0 NEU-Findings via Targeted-Re-Audit produzieren: Re-Audit-Pflicht zu "stichprobenartig pro 5 Slices" relaxen.
+
+---
+
+## D52 — PROCESS: Wave-3-Tooling — Detection-Tool pro Bug-Klasse-Pattern
+
+**Datum:** 2026-04-27
+**Status:** ✅ Aktiv (Trio bestätigt: Slices 223 + 228 + 229 + 230)
+
+### Entscheidung
+
+Jede empirisch-wiederholte Bug-Klasse (>3× Iteration) wird in ein **Static-Analysis-Tool** unter `scripts/audit-*.ts` operationalisiert mit standardisierter API:
+- `npx tsx scripts/audit-<pattern>.ts` direkt ausführbar
+- `pnpm run audit:<pattern>` als npm-Script
+- Markdown-Report nach `worklog/audits/<pattern>-YYYY-MM-DD.md`
+- Exit 0 bei 0 Hits (CI-Gate-ready), 1 sonst
+- Heuristik-Iterativ tightenen bis Production-Code 0 Hits + Negative-Test-Detection bestätigt
+
+### Begründung (Wave-3-Tooling-Trio Slice 223 + 228 + 229 + 230)
+
+Bug-Klassen mit empirischer Iteration ≥4× verdienen Tool-Operationalisierung statt Manual-Audit:
+
+| Pattern (D-ID) | Empirische Iteration | Tool (Slice) |
+|----------------|----------------------|--------------|
+| D48 Audit-Stale-Catcher | 6× (Slice 200a/200b/203/206/209/223 — 22% Drift-Rate) | `audit:stale` (Slice 223) |
+| D46 Orphan-Production-Component | 14× (Slice 227 + Slice-228-Discovery 13 weitere) | `audit:orphan` (Slice 228) |
+| D43 Type-Truth-Drift | 3× (Slice 165/192/200) — Pattern-Familie | `audit:type-truth` (Slice 229) |
+| Phase-Tracker-Reminder (Slice 214 Backlog) | 4× manuelle sed-Edits in Heal-Wave 224-227 | `ship-phase-tracker-reminder.sh` (Slice 230) |
+
+**ROI:** Manueller Audit kostet 30-45 min pro Sweep. Tool-Run kostet 30 Sekunden. Bei 10+ Future-Slices ist Break-Even nach 2-3 Runs.
+
+**Heuristik-Refinement-Lehre (Slice 229):** Initial-Heuristik produzierte 17 false-positives. Iterative Erweiterung um Guard-Patterns (`if (error)`, `| null`-Cast, renamed `error: rpcErr`) reduzierte auf 0 Production-Code-Hits + Negative-Test-Detection bestätigt funktional. Pattern: **lieber zu locker starten, dann tightenen statt initial zu strikt** — sonst verliert man echte Bugs.
+
+### Auswirkungen
+
+- **Code:** 4 neue Tools/Hooks live in `scripts/` und `.claude/hooks/`. ~900 Zeilen Total. tsc-clean.
+- **Prozess:** Future-Slices die neue Bug-Klasse entdecken (>3× Iteration) → Tool-Slice analog erstellen.
+- **Team:** `pnpm run audit:*` als Pre-Commit-Empfehlung. CI-Integration als post-Beta-Item.
+
+### Pattern-Familie etabliert
+
+**Detection-Tool-Pattern-Template:**
+1. Walk relevant directories
+2. Pattern-Detection-Regex mit Iterativ-tightened Heuristik
+3. Group by pattern + heal-hint
+4. Markdown-Report mit Datums-Suffix
+5. Exit-Code-Switch
+6. Negative-Test (inject pattern → flag, revert → silent)
+
+**Backlog (post-Beta-deferred):**
+- `scripts/audit-rpc-type-truth-live.ts` — Live-DB-`pg_get_functiondef`-Lookup-Variante (D43 M-Slice)
+- `scripts/audit-i18n-key-leak.ts` — D-?? errors-frontend.md "i18n-Key-Leak via Service-Errors"
+- `scripts/audit-mutation-race.sh` — bereits existing als bash, ggf. nach `*.ts` migrieren für Konsistenz
+
+### Alternativen erwogen
+
+- **ESLint-Plugin-Custom-Rule:** Verworfen — Setup-Overhead hoch, Iteration langsam (lint-Plugin-Test-Cycle), TypeScript-AST-Parsing für Bug-Detection ist over-engineering bei Pattern-Detection-Use-Case.
+- **Pre-Commit-Hook-Trigger statt manueller Run:** Verworfen für Initial — false-positive-Risk während Heuristik-Refinement zu hoch (würde Commits blockieren). Post-Stabilisierung evtl. opt-in.
+- **CI-Job:** Verworfen für Initial — gleicher false-positive-Risk-Grund. Nach 2-3 Wochen Stabilität evtl. promote.
+
+### Re-Visit-Trigger
+
+Wenn 3+ aufeinanderfolgende Sessions Tools NICHT laufen lassen: Pre-Commit-Hook-Promotion erwägen. Wenn 1 false-positive-Heuristik-Drift gemeldet: lock-down + tightening-iteration analog Slice 229.
+
+---
+
 ## Template für neue Entries
 
 ```markdown
