@@ -129,8 +129,31 @@ grep -iE "moonshot|hodl|diamond hands|degen|\bape\b|to the moon|bagholder" messa
 
 # Transaktionales Marketing-Framing
 grep -iE "verdiene geld|passives einkommen|generiere revenue" messages/*.json
+
+# Securities-Valuation-Adjektive (Slice 224 — Phase-A-Re-Audit 2026-04-27)
+grep -iE "unter[- ]?bewertet|über[- ]?bewertet|düşük değerli|yüksek değerli" messages/*.json
+
+# Trading-Position-Vokabular (Slice 224)
+grep -iE "\bposition\b|\bpozisyon\b|long-?position|short-?position" messages/*.json \
+  | grep -v "Position(en)? auf|Spielposition|Position spielen"
 ```
 Treffer → Kontext prüfen (User-facing?) → Neutralisieren nach Tabellen oben.
+
+### Verbots-Erweiterung Slice 224 (Sentiment-Wording-Heal, Phase-A-Re-Audit 2026-04-27)
+
+Targeted Re-Audit auf BuyConfirmModal-Sentiment-Tooltips fand Securities-Valuation-Drift in Casual-Education-Wording. Folgende Begriffe sind ab Slice 224 explizit verboten user-facing:
+
+| Verboten (user-facing) | Stattdessen DE | Stattdessen TR | Begruendung |
+|------------------------|----------------|----------------|-------------|
+| unterbewertet / überbewertet | stark/schwach einschätzen, stark/schwach bewertet (kontextabhängig) | güçlü/zayıf bulmak | Securities-Under-/Overvaluation-Begriff. Suggeriert "wahrer Wert" + "Marktabweichung" → Rendite-Logik. |
+| düşük değerli / yüksek değerli | — | güçlü / zayıf | TR-Direktübersetzung von under-/overvalued. MASAK-Risiko, gleiche Wurzel wie DE. |
+| Position (Trading-Sinn, singular) | Einschätzung, Stimmung, Haltung | görüş, kanaat | Trading-Vokabular (long/short position). Driftet Trader-Identität — verboten analog zu Portfolio (Tabelle "Asset-Klasse-Positionierung"). |
+| pozisyon (Trading-Sinn) | — | görüş, kanaat | TR analog. |
+| Bewertung (im Sentiment-Kontext) | Einschätzung, Stimmung | görüş, değerlendirme bleibt OK in research-Domain | "Bewertung" + "Scout" zusammen → Asset-Klasse-Frame ("ein Scout bewertet einen Asset"). "Einschätzung" hält Talent-Späher-Identität. |
+
+**Anti-Pattern:** "X Scouts halten den Spieler für ..." — die Phrase impliziert Securities-Konsensus zu einem latenten "wahren Wert". Stattdessen "X Scouts schätzen den Spieler ... ein" / "X Scout oyuncuyu ... buluyor" → keine Wert-Asymmetrie-Suggestion.
+
+**Zielgruppen-Anker:** FM-Veteranen kennen "unter-/überbewertet" aus Comunio/Kicker — verstehen es korrekt im Equity-Frame. Casual-User nicht. Im Money-Path (Buy-Confirm) ist Education-Wording mit Securities-Begriffen ein Action-Push (Spekulation triggern). Daher Verbot auch wenn Kohärent mit FM-Sprache.
 
 ## Geofencing-Tiers
 | Tier | Laender | Zugang |

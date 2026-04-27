@@ -9,16 +9,16 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: D
-last_phase_run: 2026-04-26T21:30 (Slice 216 P1-Wave-Heal completed)
+phase: A    # Re-Audit triggered, neue Findings → Heal benötigt
+last_phase_run: 2026-04-27 (Targeted Phase-A Re-Audit BuyConfirmModal — 9 NEU Findings)
 last_signoff: FAIL
 last_signoff_date: 2026-04-26
-last_signoff_verdict: "HARD-NO-GO (post-Slice-216 P1=0): noch 2 hard-FAIL Kriterien (tester-list + onboarding-doc), 4 unverifizierbare ❓. P1-Heals erledigt — nächster Re-Trial wird SOFT-NO-GO statt HARD-NO-GO produzieren."
+last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1) im Slice-222-Diff. Tech-Side ist NICHT mehr 'maximal sauber' — Re-Audit-Wert war hoch."
 findings_open:
   P0: 0
-  P1: 0   # POSTHOG-NEU-1 deferred (Slice 222 Anil-Option-B post-3-Tester-Beta)
-  P2: 0   # Slice 222: TR-NEU-1 stale, FANTASY-NEU-1 CEO-pending, FM-RR-1 wont-fix, K-RR-2 closed
-  P3: 0   # alle 3 deferred/stale/wont-fix-klassifiziert
+  P1: 1   # Slice 224 healed BUSINESS-NEU-1 + FM-NEU-2 → UX-NEU-2 verbleibt für Slice 225
+  P2: 3   # NEU 2026-04-27: FM-NEU-3, FM-NEU-4, UX-NEU-3
+  P3: 2   # Slice 224 healed BUSINESS-NEU-2 → FM-NEU-5, UX-NEU-4 verbleiben
   incomplete_reruns: 0
   test_mock_backlog: 0
   signoff_questionable: 2   # Page-Health-Score + Persona-Score numerisch
@@ -35,16 +35,16 @@ findings_open:
   stale:
     - TR-NEU-1 (event_winner-Keys existieren bereits in DE+TR)
     - FM-RR-3 (Trending-Pills Punch-List-Drift, audit-Annahme falsch)
-aggregate_file: worklog/audits/2026-04-26/aggregate.md
+aggregate_file: worklog/audits/2026-04-27/aggregate.md
 signoff_file: worklog/sign-off/2026-04-26-readiness.md
 gate: "kein 'Beta-fertig'/'launch-ready' bis last_signoff == PASS UND P0+P1 = 0"
 slice_stubs_pending:
-  - worklog/specs/214-derived-p1-fm-001.md   # FM-NEU-1 PickRateBadge cards-only
-  - worklog/specs/214-derived-p1-ux-002.md   # UX-NEU-1 FeedbackModal preventClose
-  - worklog/specs/214-derived-p1-k-003.md    # K-RR-1 Floor-Preis Tooltip
-  - worklog/specs/214-derived-p2p3-bundle.md # 5 P2/P3 mixed
+  - "Slice 224: 5-Min-Wording-Heal — BUSINESS-NEU-1 + BUSINESS-NEU-2 (heilt FM-NEU-2 automatisch)"
+  - "Slice 225: InfoTooltip-Migration-Wave — UX-NEU-2 + UX-NEU-3 + UX-NEU-4 (BuyConfirmModal + MostOwnedSection Slice 216) + Pattern-Regel ui-components.md"
+  - "Slice 226: getPlayerSentimentCounts Reliability-Weighting — FM-NEU-3"
+  - "Slice 227: Sentiment-Bar 3-Segment + Empty-State-CTA — FM-NEU-4 + FM-NEU-5"
 anil_action_blockers:
-  - "memory/beta-tester-list.md erstellen (3 Tester, .gitignore-pflicht) — Recruitment-Templates jetzt fertig in memory/beta-tester-recruitment-templates.md (Slice 219)"
+  - "memory/beta-tester-list.md erstellen (3 Tester, .gitignore-pflicht) — Recruitment-Templates fertig in memory/beta-tester-recruitment-templates.md (Slice 219)"
   - "memory/beta-onboarding.md DRAFT fertig (Slice 219), Anil finalisiert echte Email/Tel-Nr beim Versand"
   - "TR-Native-Reviewer organisieren"
 ```

@@ -1,13 +1,14 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in-progress
+slice: 224
+stage: LOG
+spec: worklog/specs/224-sentiment-wording-heal.md
+impact: skipped (i18n-only, kein RPC/Service/Schema/Code-Path)
+proof: worklog/proofs/224-wording-diff.txt
+review: worklog/reviews/224-review.md (self-review D35 PASS)
+size: XS
 ```
 
 ## Zuletzt

@@ -1,0 +1,41 @@
+═══ Slice 224 — Sentiment-Wording-Heal PROVE ═══
+Date: 2026-04-27T03:00:40+02:00
+
+## AC-1 [HAPPY] — DE/TR neue Wording (sentiment* Keys)
+
+DE (messages/de.json:1426-1429):
+    "sentimentLabel": "Scout-Stimmung aus der Community: wie viele Scouts den Spieler stark oder schwach einschätzen.",
+    "sentimentBullish": "{count} Scouts schätzen den Spieler stark ein",
+    "sentimentBearish": "{count} Scouts schätzen den Spieler schwach ein",
+    "sentimentNeutral": "{count} Scouts unentschieden",
+
+TR (messages/tr.json:1422-1425):
+    "sentimentLabel": "Topluluktan Scout görüşleri: kaç Scout oyuncuyu güçlü veya zayıf buluyor.",
+    "sentimentBullish": "{count} Scout oyuncuyu güçlü buluyor",
+    "sentimentBearish": "{count} Scout oyuncuyu zayıf buluyor",
+    "sentimentNeutral": "{count} Scout kararsız",
+
+## AC-2 [I18N-DE] — 0 hits 'unter-/überbewertet'
+✅ 0 hits
+
+## AC-3 [I18N-TR] — 0 hits in sentiment-Block (Z1422-1425)
+✅ 0 hits in sentiment-Block
+
+## AC-4 [REGRESSION] — tsc clean + i18n-Keys-Symmetrie
+tsc:  (exit code in last run: 0)
+diff DE-keys vs TR-keys (sentiment*):
+✅ Symmetric
+
+## AC-5 [COMPLIANCE] — business.md Register-Update
+134:grep -iE "unter[- ]?bewertet|über[- ]?bewertet|düşük değerli|yüksek değerli" messages/*.json
+148:| unterbewertet / überbewertet | stark/schwach einschätzen, stark/schwach bewertet (kontextabhängig) | güçlü/zayıf bulmak | Securities-Under-/Overvaluation-Begriff. Suggeriert "wahrer Wert" + "Marktabweichung" → Rendite-Logik. |
+149:| düşük değerli / yüksek değerli | — | güçlü / zayıf | TR-Direktübersetzung von under-/overvalued. MASAK-Risiko, gleiche Wurzel wie DE. |
+156:**Zielgruppen-Anker:** FM-Veteranen kennen "unter-/überbewertet" aus Comunio/Kicker — verstehen es korrekt im Equity-Frame. Casual-User nicht. Im Money-Path (Buy-Confirm) ist Education-Wording mit Securities-Begriffen ein Action-Push (Spekulation triggern). Daher Verbot auch wenn Kohärent mit FM-Sprache.
+
+## AC-6 [PROVE-FUTURE] — CI-grep findet 0 user-facing hits
+
+## Diff Summary
+ .claude/rules/business.md | 23 +++++++++++++++++++++++
+ messages/de.json          |  8 ++++----
+ messages/tr.json          |  8 ++++----
+ 3 files changed, 31 insertions(+), 8 deletions(-)

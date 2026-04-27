@@ -11,6 +11,33 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 224 | 2026-04-27 | Sentiment-Wording-Heal — 3 Findings (P1+P1+P3) mit 1 i18n-Slice geheilt
+
+- **Stage-Chain:** SPEC → IMPACT (skipped — i18n-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- **Größe:** XS (Wording-only)
+- **Trigger:** Phase-A Targeted Re-Audit 2026-04-27 (3 Agents parallel) fand BUSINESS-NEU-1 (P1) + BUSINESS-NEU-2 (P3) + FM-NEU-2 (P1)
+- **Files:**
+  - `messages/de.json` — 4 sentiment-Keys (Z1426-1429): "stark/schwach einschätzen" + "unentschieden"
+  - `messages/tr.json` — 4 sentiment-Keys (Z1422-1425): "güçlü/zayıf buluyor" + "kararsız"
+  - `.claude/rules/business.md` — Verbots-Register erweitert: "unter-/überbewertet", "düşük/yüksek değerli", "Position/pozisyon (Trading-Sinn)" + CI-Guard-Block für Securities-Valuation + Trading-Position
+  - `worklog/specs/224-sentiment-wording-heal.md` — Spec
+  - `worklog/proofs/224-wording-diff.txt` — Proof
+  - `worklog/reviews/224-review.md` — Self-Review PASS
+- **Compliance-Wurzel-Fix:** Securities-Valuation-Drift ("unter-/überbewertet" → Asset-Klasse-Frame) eliminiert. TR-MASAK-Risk eliminiert. Casual-Education-Wording bleibt verständlich, ohne Spekulations-Action-Push im Money-Path.
+- **3 Findings geheilt mit 1 Slice (Wurzel-Fix):**
+  - BUSINESS-NEU-1 (P1) — DE+TR Securities-Valuation-Begriffe weg
+  - BUSINESS-NEU-2 (P3) — Position/pozisyon Trading-Vokabular weg
+  - FM-NEU-2 (P1) — Action-Bias automatisch geheilt (gleiche Wurzel)
+- **Phase-Tracker-Update:** findings_open.P1: 3 → 1 (UX-NEU-2 verbleibt für Slice 225). P3: 3 → 2.
+- **Knowledge-Flywheel-Lehre:** Targeted-Re-Audit auf Money-Path-i18n-Edits ist pflicht — Self-Review-D35 erkennt Asset-Klasse-Drift NICHT, weil das Compliance-Domain ist nicht Code-Pattern. business-Agent dispatch ~30s, deckt das ab. Eingearbeitet in `worklog/reviews/224-review.md`.
+- **Anil-Action:** TR-Native-Reviewer-Sign-Off für "güçlü/zayıf buluyor" und "kararsız" — getrackt via `worklog/beta-phase.md.anil_action_blockers`.
+- **AC-Status:** 6/6 ✅ (HAPPY/I18N-DE/I18N-TR/REGRESSION/COMPLIANCE/PROVE-FUTURE)
+- **Self-Review (D35):** Pattern-Wiederholung Slice 196 Track B + Slice 222 K-RR-2 (i18n-only). Compliance-Win mit minimaler Risiko-Surface.
+- **Proof:** `worklog/proofs/224-wording-diff.txt`
+- **Commit:** TBD
+
+---
+
 ## 223 | 2026-04-27 | `scripts/audit-stale-check.ts` — D48-Catcher automatisiert + 2 echte Drifts gefangen
 
 - **Stage-Chain:** SPEC → IMPACT (skipped — scripts-only, kein RPC/Service/Schema/Consumer) → BUILD → REVIEW (self-review D35 — XS scripts-only) → PROVE → LOG
