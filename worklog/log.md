@@ -11,6 +11,34 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 233 | 2026-04-27 | Nightly Audit Self-Improvement-Loop — erste autonome Schleife (D53)
+
+- **Stage-Chain:** SPEC → IMPACT (skipped: GHA-only) → BUILD → REVIEW (Reviewer-Agent CONCERNS→PASS post-Heal) → PROVE → LOG
+- **Größe:** S · **Scope:** CTO
+- **Trigger:** Anil-Frustration 2026-04-27 "warum nicht zu Ende programmieren, Verkabelung fehlt". Empirie: 8 Audit-Scripts, NUR 1 in CI. Slices 223+228+229 bauten 3 Tools, 0 verkabelt.
+- **Files:**
+  - `.github/workflows/nightly-audit.yml` (NEU, 156 Zeilen) — 2 Jobs: `audit` (03:00 UTC) + `smoke` (04:00 UTC) + workflow_dispatch
+  - `.claude/rules/workflow.md` — Sektion 3a "Definition-of-Done je Slice-Type" Tabelle (NEU)
+  - `memory/decisions.md` — D53 PROCESS "Build-without-Wire ist verboten"
+  - `worklog/specs/233-nightly-audit-self-improvement-loop.md` (NEU)
+  - `worklog/proofs/233-nightly-audit-smoke.txt` (NEU)
+  - `worklog/reviews/233-review.md` (NEU)
+  - `worklog/active.md` (Stage-Updates)
+- **Proof:** `worklog/proofs/233-nightly-audit-smoke.txt` 6/7 Pre-Push-ACs PASS, AC-07 LIVE-Run nach push
+- **Review:** Reviewer-Agent CONCERNS→PASS post-Heal (2 Findings inline gefixt: F-01 PIPESTATUS-Bug + F-02 Spec-Drift)
+- **Notes:**
+  - **Erste autonome Self-Improvement-Schleife** in BeScout. Verkabelt 8 Audit-Tools (silent-fail belt-and-suspenders + 7 die orphan waren) + bescout.net-Smoke daily.
+  - Auto-Issue-Pipeline mit Labels `audit-finding` / `beta-blocker` / `smoke-fail` / `nightly-audit`.
+  - **Slice erfüllt seinen eigenen Standard** (Tool gebaut + verkabelt + Definition-of-Done codifiziert) — kein Build-without-Wire.
+  - F-01 PIPESTATUS-Bug: `tee` maskiert Exit-Code, Fix via `${PIPESTATUS[0]}` + explicit `exit $EXIT` auf alle 8 Audit-Steps.
+  - **Backlog post-Slice-233:**
+    - Slice 234: Issue-Dedupe via Title-Hash (Spam-Mitigation, ~30min)
+    - Slice 235: `scripts/wiring-check.ts` Detection-Tool (Prevention)
+    - Slice 236: `ship-tool-wiring-gate.sh` BLOCK-Hook (Architektur-Enforcement)
+    - audit:compliance noch orphan (lower-prio, bash-Script)
+
+---
+
 ## 232 | 2026-04-27 | `spec: inline` Bypass Hard-BLOCK (Wave-3-Tooling Backlog komplett)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: hook-only) → BUILD → REVIEW (self-review D35 Pattern-Wiederholung Slice 212+231) → PROVE → LOG

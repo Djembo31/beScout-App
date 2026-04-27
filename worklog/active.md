@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 233
+stage: PROVE
+spec: worklog/specs/233-nightly-audit-self-improvement-loop.md
+impact: skipped (GHA-only, kein Cross-Cutting)
+proof: worklog/proofs/233-nightly-audit-smoke.txt
+review: worklog/reviews/233-review.md (Reviewer-Agent CONCERNS→PASS post-Heal)
 ```
 
 ## Zuletzt

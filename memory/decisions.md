@@ -2250,6 +2250,58 @@ Wenn 3+ aufeinanderfolgende Sessions Tools NICHT laufen lassen: Pre-Commit-Hook-
 
 ---
 
+## D53 — PROCESS: Build-without-Wire ist verboten — Definition-of-Done je Slice-Type
+
+**Datum:** 2026-04-27
+**Status:** ✅ Aktiv (Slice 233 codifiziert + Hook-Enforcement Slice 235+)
+**Kategorie:** PROCESS
+
+### Entscheidung
+
+Slice ist **nicht fertig** mit "Code geschrieben + Tests grün". Je nach Slice-Type ist das letzte 20% (Verkabelung) Pflicht-Teil des Slices, nicht Future-Slice. Workflow.md Sektion 3a ergaenzt um eine Slice-Type-Tabelle, die per Type definiert was "Done" heisst.
+
+### Begründung (Anil-Frustration 2026-04-27)
+
+> "ich verstehe nicht, warum wir nicht mal was zu ende programmmieren können, sondern nur halb fertig. ich hatte tests gemacht und sollte laufen, wundert mich dass die verkabelung fehlt? warum fehlt das, wie kann ich dass in zukunft verhindern, dass das passiert, dass enldich mal aufgaben zhu ende gearbeitet werden im vollen umfang"
+
+**Empirische Evidence beim Slice 233 BUILD:**
+- 8 Audit-Scripts in `package.json` ↔ NUR 1 in CI verkabelt (`audit:silent-fail:check`)
+- Slices 223 + 228 + 229 (audit:stale + orphan + type-truth) bauten 3 Tools binnen 24h, ZERO verkabelt
+- Slice 230 baute Stop-Hook-Reminder, korrekt verkabelt → das war die Ausnahme die Regel macht
+
+**Root-Cause-Pattern:** XS-Slices liefern "Tool gebaut → 5/5 Smokes PASS → done". Letztes 20% (Wiring) landet in Scope-Out mit Begruendung "→ Slice 233+", und Slice 233+ kommt nie. Spec hat ein "Scope-Out"-Feld aber keine "Wired-Verifikation". Hooks erzwingen Spec-Quality, Proof, Review — aber nicht Wiring.
+
+### Definition-of-Done je Slice-Type
+
+| Slice-Type | "Done" heisst |
+|-----------|---------------|
+| **UI-Component** | in 1+ Page-Render-Tree importiert · visual auf bescout.net post-Deploy · Mobile 393px verifiziert |
+| **Service / RPC** | in 1+ Hook/Query verwendet · vitest + tsc green · Idempotent wenn Money-Path |
+| **Tool / Script** | in `package.json` als pnpm-Script · aufgerufen in mind. 1 Trigger (GHA / Vercel-Cron / `.claude/hooks/` / post-commit-hook) · Failure-Handling definiert |
+| **Hook** | in `.claude/settings.json` registriert · Trigger korrekt · silent bei Standard, klare Message bei Edge-Case |
+| **GHA-Workflow** | YAML-Lint-clean · permissions explizit · Live-Run nach push verifiziert · Failure-Path erprobt |
+| **DB-Migration** | via `mcp__supabase__apply_migration` applied · `pg_get_functiondef`-Verify · RLS komplett |
+| **i18n-Strings** | DE + TR · business.md-konform · Anil-Pflicht-Review markiert |
+
+### Auswirkungen
+
+- **Code (Slice 233):** `nightly-audit.yml` GHA-Workflow verkabelt 7 Audit-Tools + bescout.net-Smoke daily 03:00/04:00 UTC. Recovery von 3 orphan-Tools.
+- **Prozess (workflow.md Section 3a):** Definition-of-Done-Tabelle live, jeder Slice-Author MUSS prüfen.
+- **Prevention (Slice 235+ pendiert):** `scripts/wiring-check.ts` automatisiert Detection. `ship-tool-wiring-gate.sh` BLOCK bei pre-commit fuer scripts/audit-*.ts ohne Trigger.
+- **Knowledge:** D46 (Orphan-Component-Achse) generalisiert auf "Orphan-Asset" — Components UND Scripts UND Hooks.
+
+### Alternativen erwogen
+
+- **"Disziplin-Versprechen":** Verworfen. Anil + ich haben uns 19 Slices lang geschworen, jedes Tool zu verkabeln. Ergebnis: 1/8. Disziplin braucht Architektur-Enforcement (D45 Hooks > Text-Regeln).
+- **"Larger Slices, weniger XS":** Verworfen. XS-Slices sind eine Stärke (Slice-pro-Stunde-Rhythmus). Problem ist nicht die Größe sondern der Done-Cut.
+- **"Reviewer-Pflicht-Audit pro Slice":** Verworfen. Reviewer-Cold-Context kann Wiring nicht prüfen ohne Definition-of-Done-Tabelle als Ground-Truth.
+
+### Re-Visit-Trigger
+
+Wenn nach Slice 235+ Wiring-Hook 4 Wochen lang 0 Treffer hat: Pattern stabil, kein weiteres Tightening. Wenn 3+ neue orphan-Tools in package.json: Hook ist insufficient, Pre-Push-Check als CI-Gate promoten.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

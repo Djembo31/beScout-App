@@ -1,0 +1,264 @@
+name: Nightly Audit
+
+# Slice 233 (2026-04-27): Erste autonome Self-Improvement-Schleife.
+# Verkabelt 7 Audit-Scripts + bescout.net-Smoke-Test in eine GHA-Cron-Pipeline
+# mit Auto-Issue-Creation. Adressiert Build-without-Wire-Pattern (8 Tools
+# gebaut, 1 verkabelt vor diesem Slice).
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # Audit-Job 03:00 UTC daily
+    - cron: '0 4 * * *'   # Smoke-Job  04:00 UTC daily
+  workflow_dispatch:       # Manual-Trigger ohne Wait-für-Cron
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  audit:
+    # Run on manual dispatch OR auf 03:00-Cron (nicht auf 04:00 das ist smoke)
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 3 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2  # Brauchen wir für audit:stale-Diff-Detection (worklog/audits/)
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Sequenzielle Audits — continue-on-error: true sammelt Failures statt
+      # früh zu brechen. Jeder Step hängt seinen Output an $GITHUB_STEP_SUMMARY.
+
+      # Slice 233 Reviewer-Fix: PIPESTATUS-Bug. `tee` maskiert Exit-Code.
+      # `${PIPESTATUS[0]}` extrahiert den ersten Pipe-Element-Exit (= pnpm),
+      # `exit $EXIT` propagiert ihn an `continue-on-error` damit `steps.X.outcome`
+      # korrekt failure/success ist.
+
+      - name: Audit silent-fail (strict-mode)
+        id: silent_fail
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:silent-fail:check 2>&1 | tee /tmp/silent-fail.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:silent-fail:check (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -50 /tmp/silent-fail.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit stale (D48-Catcher)
+        id: stale
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:stale 2>&1 | tee /tmp/stale.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:stale (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/stale.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit orphan (D46-Component-Achse)
+        id: orphan
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:orphan 2>&1 | tee /tmp/orphan.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:orphan (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/orphan.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit type-truth (D43)
+        id: type_truth
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:type-truth 2>&1 | tee /tmp/type-truth.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:type-truth (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/type-truth.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit mutation-race (strict-mode)
+        id: mutation_race
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:mutation-race:check 2>&1 | tee /tmp/mutation-race.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:mutation-race:check (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/mutation-race.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit i18n-coverage
+        id: i18n
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:i18n 2>&1 | tee /tmp/i18n.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:i18n (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/i18n.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit rpc-security
+        id: rpc_security
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:rpc-security 2>&1 | tee /tmp/rpc-security.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:rpc-security (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/rpc-security.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Audit tr-strings
+        id: tr_strings
+        shell: bash
+        continue-on-error: true
+        run: |
+          pnpm run audit:tr-strings 2>&1 | tee /tmp/tr-strings.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:tr-strings (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/tr-strings.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
+      - name: Detect new audit-reports (Diff-based Findings)
+        id: report_diff
+        run: |
+          # worklog/audits/ wird von Audit-Scripts beschrieben.
+          # Wenn neue Files seit fetch-depth=2 → Findings.
+          NEW_REPORTS=$(git status --short worklog/audits/ 2>/dev/null | wc -l)
+          echo "new_reports=$NEW_REPORTS" >> $GITHUB_OUTPUT
+          if [ "$NEW_REPORTS" -gt 0 ]; then
+            echo "## Neue Audit-Report-Files (worklog/audits/)" >> $GITHUB_STEP_SUMMARY
+            git status --short worklog/audits/ >> $GITHUB_STEP_SUMMARY || true
+          fi
+
+      - name: Aggregate failure-detection
+        id: aggregate
+        run: |
+          FAILURES=""
+          [ "${{ steps.silent_fail.outcome }}" = "failure" ] && FAILURES="$FAILURES silent-fail;"
+          [ "${{ steps.stale.outcome }}" = "failure" ] && FAILURES="$FAILURES stale;"
+          [ "${{ steps.orphan.outcome }}" = "failure" ] && FAILURES="$FAILURES orphan;"
+          [ "${{ steps.type_truth.outcome }}" = "failure" ] && FAILURES="$FAILURES type-truth;"
+          [ "${{ steps.mutation_race.outcome }}" = "failure" ] && FAILURES="$FAILURES mutation-race;"
+          [ "${{ steps.i18n.outcome }}" = "failure" ] && FAILURES="$FAILURES i18n;"
+          [ "${{ steps.rpc_security.outcome }}" = "failure" ] && FAILURES="$FAILURES rpc-security;"
+          [ "${{ steps.tr_strings.outcome }}" = "failure" ] && FAILURES="$FAILURES tr-strings;"
+          echo "failures=$FAILURES" >> $GITHUB_OUTPUT
+          if [ -n "$FAILURES" ] || [ "${{ steps.report_diff.outputs.new_reports }}" != "0" ]; then
+            echo "should_alert=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_alert=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Issue on findings
+        if: steps.aggregate.outputs.should_alert == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const failures = '${{ steps.aggregate.outputs.failures }}'.trim();
+            const newReports = '${{ steps.report_diff.outputs.new_reports }}';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const today = new Date().toISOString().split('T')[0];
+
+            const tools = ['silent-fail', 'stale', 'orphan', 'type-truth', 'mutation-race', 'i18n', 'rpc-security', 'tr-strings'];
+            const sections = tools.map(t => {
+              try {
+                const log = fs.readFileSync(`/tmp/${t}.log`, 'utf-8');
+                const tail = log.split('\n').slice(-30).join('\n');
+                return `### ${t}\n\n\`\`\`\n${tail}\n\`\`\`\n`;
+              } catch (e) { return ''; }
+            }).filter(Boolean).join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔍 Nightly Audit ${today}: ${failures || 'new reports'}`,
+              body: [
+                `**Run:** ${runUrl}`,
+                `**Failed Audits:** ${failures || '(none — but new audit-report files detected)'}`,
+                `**New Audit-Report-Files in worklog/audits/:** ${newReports}`,
+                ``,
+                `Slice 233 Self-Improvement-Loop entdeckte folgende Findings.`,
+                `Bei false-positive: Issue schließen + audit-Script anpassen.`,
+                `Bei echte Findings: Slice in worklog/specs/ planen, Findings closen.`,
+                ``,
+                `---`,
+                ``,
+                sections,
+              ].join('\n'),
+              labels: ['audit-finding', 'nightly-audit'],
+            });
+
+  smoke:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 4 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium --with-deps
+
+      - name: Run Smoke Suite against bescout.net
+        id: smoke
+        env:
+          PLAYWRIGHT_BASE_URL: https://bescout.net
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: pnpm exec playwright test --project=smoke --reporter=list
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-smoke-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Create Issue on smoke failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const today = new Date().toISOString().split('T')[0];
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Nightly Smoke ${today} fehlgeschlagen gegen bescout.net`,
+              body: [
+                `**Run:** ${runUrl}`,
+                `**Target:** https://bescout.net`,
+                ``,
+                `Eines der 10 Smoke-Flows hat fehlgeschlagen. Playwright-Report-Artifact am Run.`,
+                ``,
+                `Mögliche Ursachen:`,
+                `- Vercel-Outage / 503`,
+                `- Live-Drift im Code seit letztem Push`,
+                `- Test-Account locked oder Cookie-Drift`,
+                `- Selektor-Drift (Component-Refactor ohne Smoke-Update)`,
+                ``,
+                `Bei false-positive: 1× retry via "Re-run failed jobs" im GHA-UI.`,
+                `Bei persistent-Fail: Beta-Blocker, Issue weiter triagen.`,
+              ].join('\n'),
+              labels: ['beta-blocker', 'smoke-fail', 'nightly-audit'],
+            });

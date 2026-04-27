@@ -127,6 +127,27 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 
 **Gate:** tsc clean + Tests gruen.
 
+### 3a. Definition-of-Done je Slice-Type (Slice 233 D53)
+
+Slice ist **nicht fertig** mit "Code geschrieben + Tests grün". Je nach Type ist das letzte 20% (Verkabelung) Pflicht-Teil des Slices, nicht Future-Slice.
+
+| Slice-Type | "Done" heisst |
+|-----------|---------------|
+| **UI-Component** | ✅ in 1+ Page-Render-Tree importiert · ✅ visual auf bescout.net post-Deploy · ✅ Mobile 393px verifiziert |
+| **Service / RPC** | ✅ in 1+ Hook/Query verwendet · ✅ vitest + tsc green · ✅ Idempotent wenn Money-Path |
+| **Tool / Script** (`scripts/audit-*.ts`, `scripts/*.sh`) | ✅ in `package.json` als pnpm-Script · ✅ aufgerufen in mind. 1 Trigger (GHA-workflow ODER Vercel-Cron ODER `.claude/hooks/` ODER post-commit-hook) · ✅ Failure-Handling definiert (Auto-Issue / WARN / BLOCK) |
+| **Hook** (`.claude/hooks/*.sh`) | ✅ in `.claude/settings.json` registriert · ✅ Trigger (Pre/Post-Tool, Stop, SessionStart) korrekt · ✅ silent bei Standard-Fall, klare Message bei Edge-Case |
+| **GHA-Workflow** (`.github/workflows/*.yml`) | ✅ YAML-Lint-clean · ✅ permissions explizit · ✅ Live-Run nach push verifiziert · ✅ Failure-Path (Auto-Issue) erprobt |
+| **DB-Migration** | ✅ via `mcp__supabase__apply_migration` applied · ✅ `pg_get_functiondef`-Verify · ✅ RLS-Policies komplett (SELECT+INSERT+UPDATE+DELETE) |
+| **i18n-Strings** | ✅ DE + TR · ✅ business.md-konform · ✅ Anil-Pflicht-Review markiert |
+
+**Anti-Pattern (Build-without-Wire — Slice 233 D53):**
+> "Tool gebaut + Smokes PASS + Slice closed → Future-Slice 233+ verkabelt." Wenn ein Slice ein Tool baut und nicht verkabelt, ist Slice **nicht fertig** — egal wie grün die Smokes.
+
+**Beispiel (Recovery in Slice 233):** Slice 223 (audit:stale), 228 (audit:orphan), 229 (audit:type-truth) bauten 3 Tools, 0 verkabelt. Slice 233 holt Verkabelung in 1 GHA-Workflow nach. Kosten: 3 Tage Sichtbarkeits-Latenz.
+
+**Detection (Pre-Commit-Pflicht ab Slice 235+):** `scripts/wiring-check.ts` fängt orphan-Scripts wie der `orphan-component-detector.ts` orphan-Components fängt.
+
 ### 3b. REVIEW — Cold-Context-Agent prueft
 
 **Artefakt:** `worklog/reviews/NNN-review.md`
