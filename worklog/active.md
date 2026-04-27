@@ -1,14 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
-slice: 223
-stage: LOG
-spec: worklog/specs/223-audit-stale-check-script.md
-impact: skipped (scripts-only, kein RPC/Service/Schema/Consumer)
-proof: worklog/proofs/223-audit-stale-output.txt
-review: worklog/reviews/223-review.md (self-review D35 — XS scripts-only)
-size: XS
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
