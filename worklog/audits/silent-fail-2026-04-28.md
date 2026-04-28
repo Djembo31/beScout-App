@@ -1,8 +1,8 @@
 # Silent-Fail-Audit 2026-04-28
 
-- Files scanned: 1117
-- Total findings: 168
-- High severity: 76
+- Files scanned: 1109
+- Total findings: 169
+- High severity: 77
 - Medium severity: 92
 - Total risk: **HIGH**
 
@@ -11,6 +11,8 @@
 ## Pattern: in-without-chunking (99 findings)
 
 - `e2e/qa-realtime-feed.ts:81` [MEDIUM] — const { error } = await admin.from('activity_log').delete().in('id', ids);
+- `scripts/archived/2026-04-28-once-off/fix-bug-004.ts:61` [MEDIUM] — .in('gameweek', fullyScheduledGWs);
+- `scripts/archived/2026-04-28-once-off/fix-bug-004.ts:83` [MEDIUM] — .in('id', ids);
 - `scripts/backfill-complete-stats.mjs:552` [MEDIUM] — .in('fixture_id', gwFixtureIds);
 - `scripts/backfill-scoring-historical.mjs:417` [MEDIUM] — .in('club_id', clubIds);
 - `scripts/backfill-scoring-historical.mjs:634` [MEDIUM] — .in('short', TARGET_LEAGUE_SHORTS);
@@ -18,8 +20,6 @@
 - `scripts/backfill-tff-players.mjs:166` [MEDIUM] — .in('club_id', clubIds)
 - `scripts/backfill-tff-players.mjs:452` [MEDIUM] — .in('club_id', clubIds);
 - `scripts/beta-metrics.mjs:138` [MEDIUM] — : countTable('posts', q => q.in('user_id', botIds)),
-- `scripts/fix-bug-004.ts:61` [MEDIUM] — .in('gameweek', fullyScheduledGWs);
-- `scripts/fix-bug-004.ts:83` [MEDIUM] — .in('id', ids);
 - `scripts/fix-tff-logos.mjs:128` [MEDIUM] — .in('id', ids)
 - `scripts/fix-tff-logos.mjs:236` [MEDIUM] — .in('id', ids)
 - `scripts/import-ban-stats.mjs:81` [MEDIUM] — .in('fixture_id', (fixtures ?? []).map(f => f.id));
@@ -107,7 +107,7 @@
 - `src/lib/services/trading.ts:512` [MEDIUM] — if (error) return { success: false, error: mapRpcError(error.message) };
 - `src/lib/services/valuations.ts:87` [MEDIUM] — if (error) return { success: false, error: error.message };
 
-## Pattern: select-without-range-or-limit (16 findings)
+## Pattern: select-without-range-or-limit (17 findings)
 
 - `src/app/api/admin/sync-contracts/route.ts:133` [HIGH] — supabaseAdmin.from('clubs').select('id, name'),
 - `src/app/api/cron/sync-players-daily/route.ts:142` [HIGH] — const { data: clubs, error: clubErr } = await supabaseAdmin.from('clubs').select('id, name');
@@ -122,9 +122,10 @@
 - `src/lib/services/social.ts:127` [HIGH] — supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
 - `src/lib/services/social.ts:157` [HIGH] — supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
 - `src/lib/services/social.ts:158` [HIGH] — supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
-- `src/lib/__tests__/db-invariants.test.ts:71` [HIGH] — const { data: allClubs } = await sb.from('clubs').select('id, league_id');
-- `src/lib/__tests__/db-invariants.test.ts:134` [HIGH] — const { data: allClubs } = await sb.from('clubs').select('id, league_id');
-- `src/lib/__tests__/db-invariants.test.ts:1879` [HIGH] — const { data, error } = await sb.from('clubs').select('id, name, logo_url');
+- `src/lib/__tests__/db-invariants.test.ts:38` [HIGH] — const { data: bots, error: botErr } = await sb.from('profiles').select('id').like('handle', 'bot%');
+- `src/lib/__tests__/db-invariants.test.ts:81` [HIGH] — const { data: allClubs } = await sb.from('clubs').select('id, league_id');
+- `src/lib/__tests__/db-invariants.test.ts:144` [HIGH] — const { data: allClubs } = await sb.from('clubs').select('id, league_id');
+- `src/lib/__tests__/db-invariants.test.ts:1902` [HIGH] — const { data, error } = await sb.from('clubs').select('id, name, logo_url');
 
 ## Pattern: destructure-data-without-error (11 findings)
 
