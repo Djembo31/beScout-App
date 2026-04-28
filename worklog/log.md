@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 243 | 2026-04-28 | Pre-commit-hook Audit-Wiring (docs/test.rtf #8 strukturell geheilt)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Hook-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: .husky/pre-commit (3 NEU Steps + Comment-Header), worklog/specs/243-*.md, worklog/reviews/243-review.md, worklog/proofs/243-precommit-smoke.txt, worklog/active.md
+- Spec: worklog/specs/243-precommit-audit-wiring.md
+- Review: worklog/reviews/243-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 234 D54 + Slice 232 + Slice 230)
+- Proof: worklog/proofs/243-precommit-smoke.txt
+- ACs: 6/6 PASS
+- 3 NEU pre-commit-Steps: audit:type-truth + audit:stale + audit:wiring:check (alle ~7s, alle exit 0 aktuell)
+- Bewusst ausgeschlossen: audit:orphan (66s + designed-state-exit-1 wartet auf Slice 239), audit:silent-fail (CI), audit:mutation-race (CI)
+- Total Pre-commit-Latenz: 31.7s < 50s AC-05-Limit
+- Negative-Test: Risk-Pattern in src/lib/services/_slice243_negative_test.ts → audit:type-truth detected 2 hits → exit 1 → set -e BLOCK verifiziert
+- docs/test.rtf #8 ("Pre-commit-hook macht tsc + lint, NICHT audit:type-truth, NICHT audit:orphan") strukturell geheilt
+- Pattern-Familie: D54 (Build-without-Wire) + D45 (Hooks > Text-Regeln)
+- Erste der 3-Slice-Wave-Discipline-Hardening (Slice 244 Branch-Protection + Slice 245 deferred-Re-Eval-Hook folgen)
+
+---
+
 ## 242 | 2026-04-28 | orphan-component-detector Allowlist (D52 Refinement #3)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Tool-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG

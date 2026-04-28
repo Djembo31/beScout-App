@@ -1,0 +1,93 @@
+Slice 243 — Pre-commit-hook Audit-Wiring · Proof
+================================================
+Datum: 2026-04-28
+Slice-Type: Hook
+Stage-Chain: SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
+
+AC-01: 3 NEU Steps zwischen tsc und lint-staged
+================================================
+$ cat .husky/pre-commit
+... siehe File ...
+Steps in Reihenfolge:
+  1. tsc --noEmit
+  2. audit:type-truth     [NEU Slice 243]
+  3. audit:stale          [NEU Slice 243]
+  4. audit:wiring:check   [NEU Slice 243]
+  5. lint-staged
+✅ PASS
+
+AC-02: Echo-Banner-Prefix
+================================================
+$ grep "^echo" .husky/pre-commit
+echo "[pre-commit] tsc --noEmit..."
+echo "[pre-commit] audit:type-truth..."
+echo "[pre-commit] audit:stale..."
+echo "[pre-commit] audit:wiring:check..."
+echo "[pre-commit] lint-staged..."
+echo "[pre-commit] OK"
+✅ PASS — alle 6 echos haben "[pre-commit]"-prefix.
+
+AC-03 + AC-05: Smoke + Latenz
+================================================
+$ time bash .husky/pre-commit
+[pre-commit] tsc --noEmit...
+[pre-commit] audit:type-truth...
+> bescout-app@0.1.0 audit:type-truth
+> npx tsx scripts/type-truth-audit.ts
+═══ Type-Truth-Audit ═══
+Files scanned: 229
+PATTERN-A (silent-cast): 0
+PATTERN-B (missing-error): 0
+PATTERN-C (nested-select): 0
+Total: 0
+✅ All clear.
+[pre-commit] audit:stale...
+✅ No stale markers found. Punch-list is in sync.
+[pre-commit] audit:wiring:check...
+═══ Wiring-Check (Slice 234, D54) ═══
+Hooks scanned:        33
+Scripts scanned:      20
+Total orphans:        10
+Real drift:           0
+Known (allowlisted):  10
+✅ No drift orphans found. All tools wired.
+[pre-commit] lint-staged...
+[pre-commit] OK
+
+TOTAL: 31706ms / exit=0
+✅ AC-03 PASS — alle 5 Steps grün durch.
+✅ AC-05 PASS — 31.7s < 50s Limit.
+
+AC-04: Negative-Test
+================================================
+$ cat > src/lib/services/_slice243_negative_test.ts <<'EOF'
+import { supabase } from '@/lib/supabaseClient';
+export async function fakeRiskService(): Promise<{ count: number }> {
+  const { data } = await supabase.rpc('some_rpc');
+  return data as { count: number };
+}
+EOF
+
+$ pnpm run audit:type-truth
+═══ Type-Truth-Audit ═══
+Files scanned: 230
+PATTERN-A (silent-cast): 1
+PATTERN-B (missing-error): 1
+PATTERN-C (nested-select): 0
+Total: 2
+⚠️  2 hit(s) — manual review needed.
+ ELIFECYCLE  Command failed with exit code 1.
+
+✅ AC-04 PASS — Risk-Pattern detected, exit 1, pre-commit `set -e` würde BLOCKEN.
+$ rm src/lib/services/_slice243_negative_test.ts (cleanup)
+
+AC-06: Self-Documenting via echo-banner
+================================================
+✅ PASS — kein README/CLAUDE.md update; Hook-Comment-Block am File-Top dokumentiert
+   alle 5 Steps + warum audit:orphan/silent-fail/mutation-race ausgeschlossen sind.
+
+==================================================
+SUMMARY: 6/6 ACs PASS
+Slice 243 docs/test.rtf #8 strukturell geheilt: pre-commit-hook prüft jetzt
+3 schnelle Audits (D43 + D48 + D54). Anil kann nicht mehr lokal driften ohne
+30s-Latenz-Strafe — CI-Doppellayer (nightly-audit.yml) bleibt zusätzlich.
