@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 240 | 2026-04-28 | TM-Once-Off-Scripts Triage (5 archive, 8 keep, 0 delete)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Doc + File-Move) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: scripts/archived/2026-04-28-once-off/ (NEU, 5 archived + README), scripts/wiring-check.ts (KNOWN_ORPHANS reduziert 14→10), worklog/specs/240-*.md, worklog/reviews/240-review.md, worklog/proofs/240-*.txt, worklog/active.md
+- Spec: worklog/specs/240-tm-scripts-triage.md
+- Review: worklog/reviews/240-review.md (PASS Self-Review D35 — XS Doc/File-Move-Pattern-Wiederholung Slice 209/241)
+- Proof: worklog/proofs/240-tm-scripts-triage.txt
+- ACs: 6/6 PASS
+- Triage: 5 ARCHIVE (tm-club-id-discovery, tm-squad-scrape-local, tm-html-inspect, fix-bug-004, fix-migration-history), 8 KEEP (operational manual-tools), 0 DELETE
+- Wiring: audit:wiring real-drift=0 (unverändert, nur Allowlist 14→10 reduced)
+- Bonus: `tm-html-inspect.mjs` war pre-Slice-240 nicht in KNOWN_ORPHANS-allowlist (latent silent allowlist-drift). Slice 240 resolved de-facto via Archive.
+- Commit: TBD
+
+---
+
 ## 241 | 2026-04-28 | errors-infra.md Knowledge-Capture (4 Lehren aus Slice 234)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Doc-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG

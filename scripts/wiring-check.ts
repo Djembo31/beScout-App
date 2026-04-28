@@ -47,20 +47,18 @@ const CHECK_MODE = args.includes('--check');
  * Format: relative path from PROJECT_ROOT.
  */
 const KNOWN_ORPHANS: Record<string, string> = {
-  // TM-Scrape-Maintenance — manuelle Wellen, nicht CI-gated
-  'scripts/tm-rescrape-stale.ts': 'Manual maintenance — TM-Scrape-Wellen on demand',
-  'scripts/tm-club-id-discovery.ts': 'Once-off TM club-id mapping',
+  // TM-Operational manual-tools (Slice 240 Triage — kept) — Cloudflare-Workaround,
+  // recurring on demand, nicht CI-gated.
+  'scripts/tm-rescrape-stale.ts': 'Stale-TM-Data-Maintenance, recurring on demand',
   'scripts/tm-parser-sanity.ts': 'TM-Parser-Regression-Test, manuell on parser-edits',
-  'scripts/tm-parser-verify.ts': 'TM-Parser-Verification, manuell',
-  'scripts/tm-profile-local.ts': 'Local TM-Profile-Scrape, manuell',
-  'scripts/tm-search-local.ts': 'Local TM-Search-Test, manuell',
-  'scripts/tm-search-scrape-unknown.ts': 'TM-Unknown-Player-Recovery, manuell',
-  'scripts/tm-squad-scrape-local.ts': 'Local TM-Squad-Scrape-Test, manuell',
-  'scripts/enrich-nationality-tm.ts': 'Nationality-Backfill (Phase B), manuell on import',
-  'scripts/verify-nationality-coverage.ts': 'Nationality-Coverage-Audit, manuell',
-  // Once-Off-Fixes — Migration-Helpers
-  'scripts/fix-bug-004.ts': 'Once-off bug-fix script, archive after sync',
-  'scripts/fix-migration-history.sh': 'Once-off Supabase migration-history-repair',
+  'scripts/tm-parser-verify.ts': 'TM-Parser-Verification (offline pair zu sanity), manuell',
+  'scripts/tm-profile-local.ts': 'TM-Profile-Scraper (Cloudflare-Workaround), recurring',
+  'scripts/tm-search-local.ts': 'TM-Search (Cloudflare-Workaround), recurring',
+  'scripts/tm-search-scrape-unknown.ts': 'Unknown-Player-Recovery, recurring',
+  'scripts/enrich-nationality-tm.ts': 'Nationality-Backfill, manuell on Multi-League-Import',
+  'scripts/verify-nationality-coverage.ts': 'Nationality-Audit, manuell on demand',
+  // (Slice 240 archived: tm-club-id-discovery, tm-squad-scrape-local, tm-html-inspect,
+  //  fix-bug-004, fix-migration-history → scripts/archived/2026-04-28-once-off/)
   // (Slice 234 Reviewer-F-03 Heal: findings-to-slices.ts entfernt aus Allowlist —
   //  ist via nightly-audit.yml `npx tsx scripts/findings-to-slices.ts` gewired,
   //  Detection findet das via ghaContent.includes('findings-to-slices.ts'))

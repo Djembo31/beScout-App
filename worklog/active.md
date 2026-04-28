@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 240
+stage: BUILD
+spec: worklog/specs/240-tm-scripts-triage.md
+impact: skipped (Doc + File-Move only)
+proof: worklog/proofs/240-tm-scripts-triage.txt
+review: self-review (Pattern-Wiederholung Slice 209/241 Doc-Slice)
 ```
 
 ## Zuletzt

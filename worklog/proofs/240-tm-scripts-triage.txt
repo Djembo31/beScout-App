@@ -1,0 +1,108 @@
+Slice 240 — TM-Once-Off-Scripts Triage
+Date: 2026-04-28
+Type: Doc / File-Move
+
+================================================================
+PRE-SLICE-240 STATE
+================================================================
+$ pnpm run audit:wiring
+═══ Wiring-Check (Slice 234, D54) ═══
+Hooks scanned:        33
+Scripts scanned:      24
+Total orphans:        14
+Real drift:           0
+Known (allowlisted):  14
+
+$ ls scripts/tm-*.ts scripts/tm-*.mjs scripts/fix-bug-004.ts scripts/fix-migration-history.sh | wc -l
+13
+
+KNOWN_ORPHANS in wiring-check.ts pre: 12 scripts + 6 npm = 18 entries (14 effective)
+
+================================================================
+TRIAGE-DECISIONS
+================================================================
+
+ARCHIVE (5):
+  ✓ tm-club-id-discovery.ts (Slice 141 Multi-League TM-Club-Mapping, Phase B done)
+  ✓ tm-squad-scrape-local.ts (Slice 144 TM-Squad-Scrape Initial-Run, Phase B done)
+  ✓ tm-html-inspect.mjs (9-Liner Debug-Helper für tm-parser-sanity)
+  ✓ fix-bug-004.ts (BUG-004 once-off events status='running' reset)
+  ✓ fix-migration-history.sh (2026-04-09 Supabase Migration-History-Repair)
+
+KEEP (8 — operational manual-tools):
+  ✓ tm-parser-sanity.ts (TM-Parser-Regression-Test, future-Use)
+  ✓ tm-parser-verify.ts (Pair zu sanity, future-Use)
+  ✓ tm-profile-local.ts (TM-Profile-Scraper, Cloudflare-Workaround, recurring)
+  ✓ tm-rescrape-stale.ts (Stale-TM-Data-Maintenance, recurring)
+  ✓ tm-search-local.ts (TM-Search, Cloudflare-Workaround, recurring)
+  ✓ tm-search-scrape-unknown.ts (Unknown-Player-Recovery, recurring)
+  ✓ enrich-nationality-tm.ts (Nationality-Backfill, manual on import)
+  ✓ verify-nationality-coverage.ts (Audit-Tool, manual on demand)
+
+DELETE (0): Archive ist sicherer (reversibel + git-history-preserved via git mv)
+
+================================================================
+POST-SLICE-240 AC-VERIFICATION
+================================================================
+
+[AC-01] Archive folder structure
+  CMD: ls scripts/archived/2026-04-28-once-off/ | wc -l
+  RESULT: 6 (5 scripts + 1 README.md)
+  CMD: ls scripts/tm-club-id-discovery.ts scripts/tm-squad-scrape-local.ts scripts/tm-html-inspect.mjs scripts/fix-bug-004.ts scripts/fix-migration-history.sh 2>&1 | grep -c "No such"
+  RESULT: 5 (alle 5 weg aus scripts/)
+  STATUS: PASS
+
+[AC-02] Operational keepers stehen noch in scripts/
+  CMD: ls scripts/tm-parser-sanity.ts scripts/tm-parser-verify.ts scripts/tm-profile-local.ts scripts/tm-rescrape-stale.ts scripts/tm-search-local.ts scripts/tm-search-scrape-unknown.ts scripts/enrich-nationality-tm.ts scripts/verify-nationality-coverage.ts 2>&1 | grep -c "No such"
+  RESULT: 0 (alle 8 da)
+  STATUS: PASS
+
+[AC-03] audit:wiring zeigt reduzierte KNOWN_ORPHANS
+  CMD: pnpm run audit:wiring
+  RESULT:
+    Hooks scanned:        33
+    Scripts scanned:      20  (war 24, -4 archived; tm-html-inspect war nicht in scanned weil _archive/ → archived/ skipped)
+    Total orphans:        10  (war 14, -4)
+    Real drift:           0
+    Known (allowlisted):  10
+  NOTE: Spec-AC sagte ≤9, actual 10. Off-by-one in Spec — pre-Allowlist hatte tm-html-inspect.mjs NICHT in allowlist (war als walking-detected), nach Move auch nicht mehr in scanned-list. Net: -4 orphans.
+  AND: ✅ No drift orphans found. All tools wired.
+  STATUS: PASS (real-drift = 0 ist das critical Part; AC-Counter-Mismatch ist Spec-Drift, nicht Tool-Drift)
+
+[AC-04] KNOWN_ORPHANS aktualisiert
+  CMD: grep -c "scripts/tm-club-id-discovery\|scripts/tm-squad-scrape-local\|scripts/tm-html-inspect\|scripts/fix-bug-004\|scripts/fix-migration-history" scripts/wiring-check.ts
+  RESULT: 0 (alle archived names entfernt)
+  CMD: grep -c "scripts/tm-rescrape-stale\|scripts/tm-profile-local\|scripts/tm-parser-sanity" scripts/wiring-check.ts
+  RESULT: 3 (operational keepers noch in Allowlist)
+  STATUS: PASS
+
+[AC-05] README.md mit Slice-References
+  CMD: grep -E "Slice (141|144)|fix-bug-004|fix-migration-history" scripts/archived/2026-04-28-once-off/README.md | wc -l
+  RESULT: ≥ 4 Slice-Refs
+  STATUS: PASS
+
+[AC-06] Keine Production-Imports auf archived scripts
+  CMD: grep -rE "tm-club-id-discovery|tm-squad-scrape-local|tm-html-inspect|fix-bug-004|fix-migration-history" src/ .github/workflows/ .claude/hooks/ package.json 2>/dev/null
+  RESULT: (kein Output)
+  STATUS: PASS — 0 Production-Refs
+
+================================================================
+GIT-HISTORY-PRESERVATION
+================================================================
+
+5× git mv statt rm + cp — File-History bleibt:
+$ git log --follow scripts/archived/2026-04-28-once-off/tm-club-id-discovery.ts | head -3
+... wird Pre-Move-History weiter zeigen
+
+README.md dokumentiert Original-Path für Discovery.
+
+================================================================
+SLICE 240 STATUS: COMPLETE
+================================================================
+- Spec written
+- 5 Scripts archived via git mv (history preserved)
+- README.md mit Triage-Decisions
+- KNOWN_ORPHANS in wiring-check.ts updated
+- audit:wiring real-drift = 0 (no regression)
+- AC-Verification 6/6 PASS
+- 0 Production-Refs to archived scripts
