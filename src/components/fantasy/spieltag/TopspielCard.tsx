@@ -102,19 +102,42 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   );
 }
 
-/** Pick the top fixture: (1) user club match, (2) highest score, (3) first fixture */
-export function pickTopspiel(fixtures: Fixture[], userClubId?: string): Fixture | null {
+/** Pick the top fixture based on priority chain:
+ *  1. Sponsor club match (if sponsorClubId provided + fixture is in same league as leagueId)
+ *  2. User club match (if clubId provided)
+ *  3. Highest MV-sum proxy: fixture with most total goals (simulated/finished)
+ *  4. First fixture (fallback)
+ *
+ *  @param fixtures    - All fixtures for the gameweek (already league-filtered by caller)
+ *  @param clubId      - User's active club ID for home/away match priority
+ *  @param leagueId    - Optional: used to validate sponsor match is in the right league
+ *  @param sponsorClubId - Optional: sponsor club shown first when it has a fixture
+ */
+export function pickTopspiel(
+  fixtures: Fixture[],
+  clubId?: string | null,
+  leagueId?: string | null,
+  sponsorClubId?: string | null,
+): Fixture | null {
   if (fixtures.length === 0) return null;
 
-  // 1. User club match
-  if (userClubId) {
+  // 1. Sponsor match — highest priority when sponsor club plays in this league's fixtures
+  if (sponsorClubId) {
+    const sponsorMatch = fixtures.find(
+      f => f.home_club_id === sponsorClubId || f.away_club_id === sponsorClubId
+    );
+    if (sponsorMatch) return sponsorMatch;
+  }
+
+  // 2. User club match
+  if (clubId) {
     const clubMatch = fixtures.find(
-      f => f.home_club_id === userClubId || f.away_club_id === userClubId
+      f => f.home_club_id === clubId || f.away_club_id === clubId
     );
     if (clubMatch) return clubMatch;
   }
 
-  // 2. Highest total score
+  // 3. Highest total goals from scored fixtures (MV-sum proxy)
   const simulated = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished');
   if (simulated.length > 0) {
     return simulated.reduce((best, f) => {
@@ -124,6 +147,6 @@ export function pickTopspiel(fixtures: Fixture[], userClubId?: string): Fixture 
     });
   }
 
-  // 3. First fixture
+  // 4. First fixture (calendar order)
   return fixtures[0];
 }

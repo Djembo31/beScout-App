@@ -98,10 +98,15 @@ export async function createEvent(params: {
 /**
  * Clone events from currentGw to nextGw for a club.
  * Idempotent: skips if events for nextGw already exist. Guard: max GW 38.
+ *
+ * @param leagueId - Optional league filter passed to getFixturesByGameweek for
+ *   accurate timing derivation. When provided, only fixtures for this league are
+ *   used to compute startsAt/locksAt/endsAt. Backward-compatible (undefined = all leagues).
  */
 export async function createNextGameweekEvents(
   clubId: string,
-  currentGw: number
+  currentGw: number,
+  leagueId?: string | null
 ): Promise<{ created: number; skipped: boolean; error?: string }> {
   const nextGw = currentGw + 1;
   if (nextGw > 38) return { created: 0, skipped: true, error: 'Max GW 38 reached' };
@@ -129,8 +134,8 @@ export async function createNextGameweekEvents(
     return { created: 0, skipped: false, error: tplErr?.message ?? 'No events found to clone' };
   }
 
-  // Derive timing from fixture data for the next GW
-  const fixtures = await getFixturesByGameweek(nextGw);
+  // Derive timing from fixture data for the next GW (liga-scoped when leagueId is provided)
+  const fixtures = await getFixturesByGameweek(nextGw, leagueId ?? null);
   let startsAt: string;
   let locksAt: string;
   let endsAt: string;

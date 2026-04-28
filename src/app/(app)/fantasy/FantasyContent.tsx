@@ -135,9 +135,9 @@ export default function FantasyContent() {
     });
   }, [gwEvents, fantasyLeague, fantasyCountry]);
 
-  // ── Dashboard stats (for ErgebnisseTab) ──
+  // ── Dashboard stats (for ErgebnisseTab) — liga-scoped via filteredGwEvents ──
   const dashboardStats = useMemo(() => {
-    const scored = events.filter(e => e.isJoined && e.scoredAt && e.userPoints != null);
+    const scored = filteredGwEvents.filter(e => e.isJoined && e.scoredAt && e.userPoints != null);
     const eventsPlayed = scored.length;
     const seasonPoints = scored.reduce((sum, e) => sum + (e.userPoints ?? 0), 0);
     const ranks = scored.filter(e => e.userRank != null).map(e => e.userRank!);
@@ -164,7 +164,7 @@ export default function FantasyContent() {
     const avgRank = ranks.length > 0 ? Math.round(ranks.reduce((s, r) => s + r, 0) / ranks.length) : 0;
 
     return { eventsPlayed, seasonPoints, bestRank, totalRewardBsd, pastParticipations, wins, top10, avgPoints, avgRank };
-  }, [events]);
+  }, [filteredGwEvents]);
 
   // ── Callbacks ──
 
@@ -260,6 +260,7 @@ export default function FantasyContent() {
           gameweek={gw.currentGw}
           activeGameweek={gw.activeGw ?? 1}
           clubId={clubId}
+          leagueId={activeClub?.league_id ?? null}
           isAdmin={isAdmin}
           events={filteredGwEvents}
           userId={user.id}

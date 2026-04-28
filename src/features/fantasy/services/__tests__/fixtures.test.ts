@@ -135,6 +135,58 @@ describe('getFixturesByGameweek', () => {
 });
 
 // ============================================
+// getFixturesByGameweek — leagueId param (Slice 251 Wave 2 Track B)
+// ============================================
+
+describe('getFixturesByGameweek with leagueId', () => {
+  beforeEach(() => resetMocks());
+
+  it('should call without league filter when leagueId is undefined (backward compat)', async () => {
+    mockTable('fixtures', [makeFixtureRow()]);
+
+    const result = await getFixturesByGameweek(10, undefined);
+
+    expect(result).toHaveLength(1);
+    // eq('gameweek', 10) called — no league filter means full result set returned
+    expect(mockSupabase.from).toHaveBeenCalledWith('fixtures');
+  });
+
+  it('should call without league filter when leagueId is null', async () => {
+    mockTable('fixtures', [makeFixtureRow()]);
+
+    const result = await getFixturesByGameweek(10, null);
+
+    expect(result).toHaveLength(1);
+    expect(mockSupabase.from).toHaveBeenCalledWith('fixtures');
+  });
+
+  it('should apply league filter when leagueId is a non-empty string', async () => {
+    const leagueFixture = makeFixtureRow({ id: 'fix-league' });
+    mockTable('fixtures', [leagueFixture]);
+
+    const result = await getFixturesByGameweek(10, 'league-tff1-uuid');
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('fix-league');
+    expect(mockSupabase.from).toHaveBeenCalledWith('fixtures');
+  });
+
+  it('should return empty array when league has no fixtures for gameweek', async () => {
+    mockTable('fixtures', []);
+
+    const result = await getFixturesByGameweek(10, 'league-bundesliga-uuid');
+
+    expect(result).toEqual([]);
+  });
+
+  it('should throw on DB error with leagueId filter', async () => {
+    mockTable('fixtures', null, { message: 'league filter failed' });
+
+    await expect(getFixturesByGameweek(10, 'league-tff1-uuid')).rejects.toThrow('league filter failed');
+  });
+});
+
+// ============================================
 // getFixturesByClub
 // ============================================
 

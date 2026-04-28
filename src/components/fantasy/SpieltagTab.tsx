@@ -44,6 +44,8 @@ type SpieltagTabProps = {
   gameweek: number;
   activeGameweek: number;
   clubId: string;
+  /** Liga-filter: wenn gesetzt werden nur Fixtures dieser Liga geladen. */
+  leagueId?: string | null;
   isAdmin: boolean;
   events: FantasyEvent[];
   userId: string;
@@ -52,7 +54,7 @@ type SpieltagTabProps = {
 };
 
 export function SpieltagTab({
-  gameweek, activeGameweek, clubId, isAdmin, events, userId,
+  gameweek, activeGameweek, clubId, leagueId, isAdmin, events, userId,
   onSimulated, onTabChange,
 }: SpieltagTabProps) {
   const ts = useTranslations('spieltag');
@@ -74,11 +76,11 @@ export function SpieltagTab({
   }, []);
   const [selectedLeagueId, setSelectedLeagueId] = useState<string>(availableLeagues[0].id);
 
-  // Load fixtures for current GW
-  const loadFixtures = useCallback(async (gw: number) => {
+  // Load fixtures for current GW (league-scoped when leagueId is provided)
+  const loadFixtures = useCallback(async (gw: number, lgId?: string | null) => {
     setFixturesLoading(true);
     try {
-      const data = await getFixturesByGameweek(gw);
+      const data = await getFixturesByGameweek(gw, lgId ?? null);
       setFixtures(data);
     } catch {
       setFixtures([]);
@@ -87,8 +89,8 @@ export function SpieltagTab({
   }, []);
 
   useEffect(() => {
-    loadFixtures(gameweek);
-  }, [gameweek, loadFixtures]);
+    loadFixtures(gameweek, leagueId);
+  }, [gameweek, leagueId, loadFixtures]);
 
   // Check if API import is available for this gameweek
   useEffect(() => {
@@ -121,8 +123,11 @@ export function SpieltagTab({
     : gwEvents.length === 0 && fixtures.length === 0 ? 'empty'
     : 'open';
 
-  // Topspiel selection
-  const topspiel = useMemo(() => pickTopspiel(fixtures, clubId), [fixtures, clubId]);
+  // Topspiel selection (liga-scoped: sponsor > club > highest-score > first)
+  const topspiel = useMemo(
+    () => pickTopspiel(fixtures, clubId, leagueId),
+    [fixtures, clubId, leagueId]
+  );
   const otherFixtures = useMemo(() => {
     if (!topspiel) return fixtures;
     return fixtures.filter(f => f.id !== topspiel.id);
@@ -135,7 +140,7 @@ export function SpieltagTab({
     try {
       const result = await importProgressiveStats(clubId, gameweek, userId);
       if (result.fixturesImported > 0 || result.scoresSynced > 0) {
-        await loadFixtures(gameweek);
+        await loadFixtures(gameweek, leagueId);
       }
       setImportResult(ts('importResult', { fixtures: result.fixturesImported, scores: result.scoresSynced }));
       if (result.errors.length > 0) {
@@ -154,7 +159,7 @@ export function SpieltagTab({
     try {
       const result = await finalizeGameweek(clubId, gameweek, userId);
       if (result.eventsScored > 0) {
-        await loadFixtures(gameweek);
+        await loadFixtures(gameweek, leagueId);
         onSimulated();
       }
       if (result.errors.length > 0) {
@@ -171,7 +176,7 @@ export function SpieltagTab({
     try {
       const result = await simulateGameweekFlow(clubId, gameweek, userId);
       if (result.eventsScored > 0 || result.fixturesSimulated > 0) {
-        await loadFixtures(gameweek);
+        await loadFixtures(gameweek, leagueId);
         onSimulated();
       }
       if (result.errors.length > 0) {

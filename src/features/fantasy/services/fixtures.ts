@@ -5,17 +5,25 @@ import type { Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, S
 // Queries
 // ============================================
 
-/** Load all fixtures for a specific gameweek with club names */
-export async function getFixturesByGameweek(gw: number): Promise<Fixture[]> {
-  const { data, error } = await supabase
+/** Load all fixtures for a specific gameweek with club names.
+ *  @param leagueId - Optional league filter. When provided, only fixtures for
+ *  that league are returned. Omit (or pass undefined/null) for all leagues.
+ */
+export async function getFixturesByGameweek(gw: number, leagueId?: string | null): Promise<Fixture[]> {
+  let query = supabase
     .from('fixtures')
     .select(`
       *,
       home_club:clubs!fixtures_home_club_id_fkey(name, short, primary_color),
       away_club:clubs!fixtures_away_club_id_fkey(name, short, primary_color)
     `)
-    .eq('gameweek', gw)
-    .order('created_at');
+    .eq('gameweek', gw);
+
+  if (leagueId) {
+    query = query.eq('league_id', leagueId);
+  }
+
+  const { data, error } = await query.order('created_at');
 
   if (error) throw new Error(error.message);
   if (!data) return [];
