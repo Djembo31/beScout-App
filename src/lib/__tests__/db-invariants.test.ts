@@ -35,7 +35,9 @@ beforeAll(async () => {
   });
 
   // Slice 250: Lade Bot-User-IDs einmal fuer alle Tests
-  const { data: bots, error: botErr } = await sb.from('profiles').select('id').like('handle', 'bot%');
+  // .limit(1000) defensiv — Bot-Pool max ~50 (e2e/bots/ai/bot-generator.ts), aber
+  // PostgREST 1000-row cap explizit beruecksichtigen (silent-fail-audit Pattern).
+  const { data: bots, error: botErr } = await sb.from('profiles').select('id').like('handle', 'bot%').limit(1000);
   if (botErr) throw new Error(`Failed to load bot user_ids: ${botErr.message}`);
   botUserIds = new Set((bots ?? []).map((b) => b.id as string));
 });
