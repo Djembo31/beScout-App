@@ -1,19 +1,174 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-28 09:10)
+# Session Handoff — Auto (2026-04-28 13:36)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
  M .claude/settings.local.json
  M memory/session-handoff.md
 ?? docs/test.rtf
-?? worklog/audits/silent-fail-2026-04-27.md
 ```
+
+## Session Commits: 10
+- f412b396 chore(beta-phase): last_phase_run 2026-04-28 — Slice 238/240/241/242 + 5 GH-Issues batch-closed
+- 6d2fc61a chore(242): active idle nach Slice 242 — orphan-detector allowlist live (D52 #3)
+- 475854bd feat(242): orphan-component-detector Allowlist (D52 Refinement #3, D54)
+- 60611af5 chore(240): active idle nach Slice 240 — TM-Scripts archived (D54)
+- e1294307 docs(240): TM-Once-Off-Scripts Triage — 5 archive, 8 keep (D54 Allowlist-Cleanup)
+- f866d892 chore(241): active idle nach Slice 241 — Knowledge-Capture in errors-infra.md (D54)
+- a7198f5e docs(241): errors-infra.md Knowledge-Capture — 4 Lehren aus Slice 234 (D54)
+- 5d83839e chore(238): active idle nach Slice 238 — Audit-Heuristik tightened (D52 #2)
+- 630c15a6 feat(238): silent-fail-audit Chunked-Detection + Test-File-Skip (D52 Refinement #2)
+- 056dcfc0 docs(handoff): Pre-Clear Resume-Anker — 6 Slices Session 231/232/233/234/235/237
 
 <!-- auto:handoff-end -->
 
 ---
+
+# Resume-Anker (2026-04-28 — Tech-Cleanup-Session: 4 Slices D52-Refinement-Wave + GH-Issue-Cleanup, autonom)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `f412b396`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL (Anil-Action-Block, NICHT Tech), last_phase_run aktualisiert
+3. Diese Datei (Resume-Anker, Top-Block — DAS hier)
+4. `git log --oneline -10` (4 Slices = 9 commits diese Session + 1 chore-phase-tracker)
+5. `worklog/log.md` Top 4 Einträge (242 / 240 / 241 / 238)
+6. Dann ggf. älterer Resume-Anker (2026-04-27→28 unten)
+
+## Session-End 2026-04-28 — 4 Slices D52 Refinement-Wave + 7 GH-Issues batch-closed
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter im handoff, mit voller konzentration, fokus und eifer!" → Slice 238 (Triage echter Drift)
+2. "autonom weiter, bis du erschöpft bist" → Slices 241 + 240 + 242 + GH-Issue-Cleanup + Phase-Tracker
+3. "mache alle updates und sicherungen für den clear, wir machen dann nahtlos weiter" → DIESE Pre-Clear-Vorbereitung
+
+## 4 Slices — was diese Session erreicht hat
+
+**Slice 238** — silent-fail-audit Chunked-Detection + Test-File-Skip (XS, Tool, **D52 Refinement #2**). Triage echter Drift im baseline 93/103/196:
+- +1 HIGH `wallet.ts:241` war FALSE-POSITIVE: Code IST chunked (`CHUNK=100`, for-loop), Audit-Window (-2/+3) fand CHUNK-Statement 8 Zeilen oberhalb nicht.
+- +2 MEDIUM `__tests__/club-most-owned-batch.test.ts:64,286` waren Test-File-Mock-Pattern (Pattern 4 hatte keinen test-skip wie Pattern 1).
+- Fix: Pattern 1 lookback -2 → -10 + Pattern 4 test-file-skip analog Pattern 1/7/8.
+- Drift: -28 total / -17 HIGH / -11 MEDIUM. Bonus: ganze Klasse pre-existing for-loop-CHUNK-false-positives in src/lib/services/* die seit Slice 088+092 unsichtbar geflagged waren.
+- Baseline 196/93/103 → 168/76/92. CI-Gate exit 0. 7/7 ACs PASS. Commit 630c15a6.
+
+**Slice 241** — errors-infra.md Knowledge-Capture (XS, Doc, Knowledge-Flywheel-Pflicht). 4 Lehren aus Slice 234 review.md codifiziert:
+1. Spec-Drift-im-Drift-Heal-Anti-Pattern (D54-Slice hatte F-01/F-07 in eigener Spec)
+2. MSYS Git Bash `tr '[:upper:]' '[:lower:]'` ist NICHT UTF-8-aware → LC_ALL=C.UTF-8 + dual-Pattern
+3. Issue-Closing != Bug-Resolved → Master-Tracker für recurring Failure-Klassen (Issue #25)
+4. settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht (Cross-Cutting wie DB-Migration)
+- 1 Section erweitert (Shell/Hooks) + 3 NEU (Cross-Cutting/Operational). 6/6 ACs PASS. 9 Slice-234-Refs. Commit a7198f5e.
+
+**Slice 240** — TM-Once-Off-Scripts Triage (XS, Doc/File-Move, **D54 Allowlist-Cleanup**). 13 KNOWN_ORPHANS triagiert:
+- ARCHIVE (5): tm-club-id-discovery (S141 Phase-B done), tm-squad-scrape-local (S144 Phase-B done), tm-html-inspect (debug-helper), fix-bug-004 (BUG-004 done), fix-migration-history (Migration-Repair done) → `scripts/archived/2026-04-28-once-off/`
+- KEEP (8): operational manual-tools (tm-parser-sanity/verify, tm-profile-local, tm-rescrape-stale, tm-search-local, tm-search-scrape-unknown, enrich-nationality-tm, verify-nationality-coverage)
+- DELETE (0): Archive ist sicherer (git mv preserves history)
+- KNOWN_ORPHANS in wiring-check.ts: 14→10 entries. 0 Production-Refs auf archived. README.md mit Restore-Anleitung. 6/6 ACs PASS. Commit e1294307.
+- Bonus-Discovery: tm-html-inspect.mjs war pre-Slice-240 nicht in KNOWN_ORPHANS-allowlist (latent silent allowlist-drift) — resolved de-facto via Archive.
+
+**Slice 242** — orphan-component-detector Allowlist (XS, Tool, **D52 Refinement #3**). KNOWN_ORPHANS-Mechanism analog wiring-check.ts:
+- 4 entries: 3 test-only fixtures (FollowBtn, HomeSkeleton, ManagerOffersTab) + 1 deferred (CommunityValuation Slice 227 @experimental)
+- Stats erweitert: realDrift + knownAllowlisted parallel ausgegeben
+- Drift: 13 → 9 real-drift (50% Issue-Noise-Reduktion in nightly-audit-Pipeline)
+- 9 echte unused-Components weiter sichtbar — Slice 239 Anil-Wire-Plan-Wave kann sich auf 9 statt 13 fokussieren. 7/7 ACs PASS. Commit 475854bd.
+
+## GitHub-Issue-Cleanup (Master-Tracker-Pattern)
+
+**7 stale Issues batch-closed via Comment + Master-Tracker-Reference:**
+- #22 (Audit-Findings 2026-04-27): silent-fail GREEN, orphan REDUCED, i18n GREEN, tr-strings PENDING-ANIL
+- #26-29-31 (Smoke-Failures): gleiche Bug-Klasse wie #25 → Master-Tracker-Pattern
+- #30 (Audit-Findings 2026-04-28 orphan): superseded durch Slice 242 Allowlist
+
+**Nur Issue #25** (Master-Tracker bescout.net /market Player-Link Timeout) bleibt OPEN — designed-state.
+
+## Pipeline-Status (alle 10 Commits gepusht)
+
+HEAD: `f412b396 chore(beta-phase): last_phase_run 2026-04-28 — Slice 238/240/241/242 + 5 GH-Issues batch-closed`
+
+```
+f412b396 chore(beta-phase) last_phase_run 2026-04-28
+6d2fc61a chore(242) active idle
+475854bd feat(242) orphan-detector Allowlist (D52 #3)
+60611af5 chore(240) active idle
+e1294307 docs(240) TM-Scripts Triage 5 archive
+f866d892 chore(241) active idle
+a7198f5e docs(241) errors-infra Knowledge-Capture 4 Lehren
+5d83839e chore(238) active idle
+630c15a6 feat(238) silent-fail Chunked + Test-Skip (D52 #2)
+056dcfc0 docs(handoff) Pre-Clear VORHERIGE Session
+```
+
+## Cumulative Tech-Side-Stand post-Slice-242
+
+**Audit-Tools (5) gehärtet via D52-Pattern:**
+| Tool | Status | Drift |
+|------|--------|-------|
+| `silent-fail-audit` | GREEN | baseline 76 HIGH / 92 MEDIUM (war 93/103 vor Slice 238) |
+| `audit-stale-check` | GREEN | 0 stale-candidates (Slice 223 Foundation) |
+| `orphan-component-detector` | 9 real-drift | 4 allowlisted (Slice 242 NEU), 9 echte unused warten auf Slice 239 |
+| `type-truth-audit` | GREEN | 0 risk-patterns (Slice 229 Foundation) |
+| `wiring-check` | GREEN | 10 known-allowlisted, 0 real-drift (Slice 234 + 240) |
+
+**Knowledge-Flywheel:**
+- `errors-infra.md` 4 NEU Lehren codifiziert (Slice 241)
+- `decisions.md` D52 jetzt 6× live appliziert (Slice 223/229/237/238/240/242)
+- `.claude/learnings-queue.jsonl` aktiv (capture-correction live seit Slice 234)
+
+**Phase-Tracker:** `worklog/beta-phase.md` last_phase_run aktualisiert. Phase D, last_signoff FAIL. Findings_open: alle NULL.
+
+## Was bleibt — alles nicht-autonom (Anil/Mensch oder Live-Test)
+
+**Slice 239** — 9 echte unused-Components Wire-Plan-Wave:
+- DpcMasteryCard, GameweekScoreBar, LimitOrderModal, PlayerImagePlaceholder, TradeSuccessEffect (5 in player/detail/)
+- HoldingsSection, IPOBuySection, TransferBuySection (3 in player/detail/trading/)
+- BuyOrderModal (1 in features/market/components/shared/)
+- Pro Component: Anil entscheidet delete / wire / defer
+
+**Issue #25 Smoke-Code-Fix** (Player-Link-Timeout):
+- Browser-Auth-Fail / Selector-Drift / DB-Empty / Cold-Start
+- Braucht Live-Test gegen bescout.net (CTO kann nicht autonom)
+- M-Slice — könnte echter Beta-Blocker sein
+
+**Money-Path-CEO-Approvals:**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring)
+- F-09 BPS-Bonus (pre-existing)
+- UX 20 MembershipSection Confirm (pre-existing)
+
+**Anil-Mensch-Block (einziger Beta-READY-Blocker):**
+- 3 Beta-Tester organisieren (Templates fertig in `memory/beta-tester-recruitment-templates.md`)
+- TR-Native-Reviewer organisieren
+- `memory/beta-tester-list.md` schreiben (.gitignore-pflicht)
+- TR-Wording-Reviews: Slice 200a/202/208/224 Strings
+
+## Bei `/clear` Resume-Pfad
+
+1. `worklog/active.md` (idle, **f412b396** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, last_phase_run 2026-04-28, last_signoff FAIL — Anil-Action-Block)
+3. Diese Datei Top-Block (DIESER Resume-Anker)
+4. `worklog/log.md` Top 4 Einträge (242/240/241/238) + Top vorher (237/235/234/233/232/231)
+5. `git log --oneline -12` (10 Commits diese Session + 2 vorherige)
+6. `git worktree list` (sollte nur main sein)
+7. **Nächster sinnvoller Slice:** abhängig von Anil-Direktive — autonom-ROI ist erschöpft.
+   - Wenn "Slice 239" → Anil entscheidet pro Component delete/wire/defer (interaktiv)
+   - Wenn "Smoke-Triage" → Live-Test gegen bescout.net (Anil + ich gemeinsam)
+   - Wenn "Anil-Action" → 3 Tester organisieren (Mensch-Action)
+   - Wenn "neue Idee" → Brainstorming via /spec
+
+## D52-Pattern-Familie — 6× live appliziert
+
+D52 ("Wave-3-Tooling iterativ-tightenen, lieber locker starten + tighten"):
+- **Slice 223** audit-stale-check.ts (D48-Catcher) — Initial-Foundation
+- **Slice 229** type-truth-audit.ts — Iteration 17→0 false-positives
+- **Slice 237** silent-fail-audit Comment-Skip — 3 false-pos weg
+- **Slice 238** silent-fail-audit Chunked + Test-Skip — 28 false-pos weg ⭐ (größter Single-Fix)
+- **Slice 240** TM-Scripts KNOWN_ORPHANS-Triage — Allowlist-Cleanup
+- **Slice 242** orphan-component-detector Allowlist — Mechanism + 4 entries
+
+Tooling-Foundation ist gehärtet. Audit-Pipeline läuft jetzt mit minimal-Noise + maximal-Signal.
+
+---
+
+# Vorherige Sessions (archiviert)
 
 # Resume-Anker (2026-04-27→28 — System-Wiring-Session: 6 Slices, Self-Improvement-Loop + Drift-Prevention enforced + 2× Workflow-Live-Test)
 
