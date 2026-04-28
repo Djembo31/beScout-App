@@ -22,11 +22,15 @@ vi.mock('../AuthProvider', () => ({
 const mockInitClubCache = vi.fn();
 vi.mock('@/lib/clubs', () => ({
   initClubCache: () => mockInitClubCache(),
+  // Slice 251 Wave 3: useLeagueScope.hydrateFromCascade Stage 1 ruft getClub.
+  getClub: () => null,
 }));
 
 const mockInitLeagueCache = vi.fn();
 vi.mock('@/lib/leagues', () => ({
   initLeagueCache: () => mockInitLeagueCache(),
+  // Slice 251 Wave 3: useLeagueScope.hydrateFromCascade Stage 3 ruft getActiveLeagues.
+  getActiveLeagues: () => [],
 }));
 
 const mockGetUserFollowedClubs = vi.fn();
