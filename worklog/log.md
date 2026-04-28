@@ -21,7 +21,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - ACs: 6/6 PASS
 - Knowledge-Flywheel: workflow.md Section 5 ("Bug gefixt → Pattern in errors-* SOFORT") fulfilled
 - 4 Lehren aufgenommen: (1) Spec-Drift-im-Drift-Heal-Anti-Pattern, (2) MSYS Git Bash tr UTF-8-Bug, (3) Issue-Closing != Bug-Resolved, (4) settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht
-- Commit: TBD
+- Commit: a7198f5e
 
 ---
 

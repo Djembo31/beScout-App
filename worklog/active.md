@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 241
-stage: BUILD
-spec: worklog/specs/241-errors-infra-knowledge-capture.md
-impact: skipped (Doc-only)
-proof: worklog/proofs/241-errors-infra-knowledge-capture.txt
-review: self-review (Pattern-Wiederholung Slice 209/186 Doc-Slice)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
