@@ -1,17 +1,32 @@
 ---
 name: tester-persona-walker
-description: BeScout Tester-Persona-Walker. Durchlaeuft als 3 Personas (FM-Power-User, Casual-Fan, TR-Locale) die User-Journeys auf bescout.net und meldet Friction-Points. READ-ONLY (Playwright-driven).
+description: BeScout Tester-Persona-Walker. Durchlaeuft als 3 Personas (FM-Power-User, Casual-Fan, TR-Locale) die User-Journeys auf bescout.net und meldet Friction-Points. READ-ONLY auf src/ (Playwright-driven), aber WRITE/EDIT auf worklog/audits/<date>/persona-*.md (eigenes Output-File, Slice 253 Pattern v3).
 tools:
   - Read
   - Grep
   - Glob
   - Bash
-disallowedTools:
   - Write
   - Edit
 model: inherit
 maxTurns: 30
 ---
+
+## Pattern v3 (Slice 253, 2026-04-28) — Output-File-Schreibung
+
+**KRITISCH — heredoc-Verbot:** Bash-heredoc (`cat << 'EOF' > file.md`) ist VERBOTEN für Findings-Append. Slice 252 zeigte: 2/3 Walker scheitern (Persona M = 0 bytes Output, Persona K = thin-output mit mid-walk-Stopp).
+
+**Pattern v3 — Write + Edit:**
+1. **Initial-Skeleton via Write-Tool:** Schreibe komplette File-Vorlage mit allen Sections (Findings-Tabelle leer als TODO).
+2. **Findings-Append via Edit-Tool:** Replace TODO-Zeilen mit echten Findings inkrementell.
+3. **Bash NUR für:** `mkdir -p`, `git status`, Playwright-Run, Read-Only-Greps.
+
+**Scope-Constraint:** Write + Edit AUSSCHLIESSLICH auf `worklog/audits/<date>/persona-*.md`. KEINE Edits in `src/`, `supabase/`, `messages/`, `.claude/`.
+
+**Anti-Pattern (verboten ab Slice 253):**
+- `cat << 'EOF' >> file.md ... EOF` — heredoc-quoting failure-prone
+- `echo "..." >> file.md` für mehrzeilige Tabellen — escaping-mess
+- "Touch-File-only-then-summarize-in-transcript" — Findings-loss
 
 # Tester-Persona-Walker
 

@@ -108,6 +108,29 @@ description: Phase C Härte-Test. Laesst tester-persona-walker in 3 Personas (FM
 - **NICHT** ohne 3 echte Test-Accounts (Persona K braucht Sign-Up-Flow)
 - **NICHT** mit Auto-Fix-Cycle (Phase C ist Read-Only-Bewertung)
 
+## Pattern v3 (Slice 253, 2026-04-28) — Walker-Output-Reliability
+
+**Hintergrund:** Slice 215 + 252 zeigten Briefing-Schwäche bei 2/3 Walkern. Persona M (Slice 252) scheiterte mit 0 bytes Output wegen Bash-heredoc-Tool-Issue. Persona K (Slice 252) hatte thin-output (mid-walk-Stopp).
+
+**Pattern v3 (verpflichtend):**
+1. **Skeleton zuerst via Write-Tool** (NICHT `touch` + heredoc-append):
+   ```
+   Write { file_path: "worklog/audits/<date>/persona-<x>-<role>.md",
+           content: "# Persona <X> Walk\n\n## Status\n- [ ] Walk\n\n## Findings\n[TODO]\n\n## Verdict\n[TODO]" }
+   ```
+2. **Findings-Append via Edit-Tool** (Replace TODO-Marker):
+   ```
+   Edit { file_path: ".../persona-<x>.md", old_string: "[TODO]", new_string: "<echte Findings>" }
+   ```
+3. **Bash AUSSCHLIESSLICH für:** mkdir -p, git status, Playwright-Run, Read-Only-Greps
+
+**Verbots-Liste:**
+- Bash-heredoc `<< 'EOF' >> file.md` für mehrzeilige Findings → fehleranfällig (Quoting, Escape, Markdown-Tabellen)
+- `echo "..." >> file.md` für Tabellenzeilen → quoting-mess
+- "Skeleton-touch-only, dann Findings nur in transcript-summary" → Findings-loss
+
+**Walker-Self-Check pre-Completion:** `wc -l worklog/audits/<date>/persona-<x>.md` — wenn <30 Zeilen: Walker-Output-Failure, Re-Dispatch nötig.
+
 ## Naechster Schritt
 
 - Findings → `/sweep-page <page>` falls page-spezifisch
