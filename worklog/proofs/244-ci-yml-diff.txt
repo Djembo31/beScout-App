@@ -1,0 +1,76 @@
+Slice 244 — Branch-Protection erweitern · Phase 1 Proof
+=========================================================
+Datum: 2026-04-28
+Slice-Type: GHA
+Stage-Chain: SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG (Phase 1)
+
+AC-01 + AC-02: ci.yml audit-Job hinzugefügt
+=========================================================
+$ git diff .github/workflows/ci.yml | tail -25
++
++  # Slice 244 (2026-04-28): Audit-required-status-check fuer Branch-Protection.
++  # 3 schnelle Audits (D43 + D48 + D54) — gleicher Set wie pre-commit-hook (Slice 243)
++  # fuer Layer-Konsistenz. audit:orphan bewusst ausgeschlossen (66s + designed-exit-1).
++  # audit:silent-fail bleibt im lint-Job, audit:mutation-race in nightly-audit.
++  audit:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v6
++        with:
++          fetch-depth: 2 # audit:stale braucht log.md-History
++      - uses: pnpm/action-setup@v4
++        with:
++          version: 10.29.2
++      - uses: actions/setup-node@v6
++        with:
++          node-version: 22
++          cache: pnpm
++      - run: pnpm install --frozen-lockfile
++      - run: pnpm run audit:type-truth
++      - run: pnpm run audit:stale
++      - run: pnpm run audit:wiring:check
+
+✅ AC-01 PASS — pnpm-setup analog lint/build/test mit gleichem Boilerplate (checkout + action-setup + setup-node + install).
+✅ AC-02 PASS — 3 Steps in der Reihenfolge type-truth → stale → wiring:check (alphabetisch, von strikter zu lockerer).
+
+AC-03: ci.yml YAML-Lint
+=========================================================
+$ npx prettier --check .github/workflows/ci.yml
+[OK after prettier --write — formatted clean]
+$ npx prettier --check .github/workflows/ci.yml
+[Checking formatting... All matched files use Prettier code style!]
+✅ AC-03 PASS
+
+Lokaler Smoke: gleiche 3 Audits (Slice 243 dogfood)
+=========================================================
+$ time bash .husky/pre-commit  # läuft die 3 Audits + tsc + lint-staged
+[pre-commit] tsc --noEmit...
+[pre-commit] audit:type-truth... ✅ All clear (0/0/0)
+[pre-commit] audit:stale... ✅ No stale markers found
+[pre-commit] audit:wiring:check... ✅ No drift orphans found (0 real-drift, 10 known)
+[pre-commit] lint-staged...
+[pre-commit] OK
+TOTAL: 31706ms / exit=0
+
+✅ Audit-Tools laufen aktuell alle exit 0 — CI-audit-Job wird beim ersten Lauf grün starten.
+
+AC-04 + AC-05 + AC-06: Pending Phase 2
+=========================================================
+⏳ AC-04 PASS pending — Live-CI-Run nach Push erforderlich
+⏳ AC-05 PASS pending — `gh api PUT` nach AC-04
+⏳ AC-06 PASS pending — `gh api GET` Verify nach AC-05
+
+Phase-2-Sequenz (nach git push):
+  1. `gh run list --branch main --workflow CI --limit 3`
+  2. Wenn audit-Job exit 0:
+     `gh api -X PUT /repos/Djembo31/beScout-App/branches/main/protection \\`
+     `  -f required_status_checks.strict=true \\`
+     `  -F required_status_checks.contexts[]=lint \\`
+     `  -F required_status_checks.contexts[]=build \\`
+     `  -F required_status_checks.contexts[]=test \\`
+     `  -F required_status_checks.contexts[]=audit`
+  3. `gh api /repos/Djembo31/beScout-App/branches/main/protection | grep contexts`
+
+==================================================
+PHASE 1 SUMMARY: 3/6 ACs PASS — Push-Ready
+Phase 2 wartet auf Anil-Push-Erlaubnis + erste grüne CI-Run.

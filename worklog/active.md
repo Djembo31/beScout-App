@@ -1,11 +1,11 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
+status: in_progress
+slice: 244
+stage: BUILD
+spec: worklog/specs/244-branch-protection-audits.md
+impact: skipped (GHA-only, kein Cross-Domain)
 proof: —
 review: —
 ```

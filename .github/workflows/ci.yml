@@ -61,3 +61,25 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  # Slice 244 (2026-04-28): Audit-required-status-check fuer Branch-Protection.
+  # 3 schnelle Audits (D43 + D48 + D54) — gleicher Set wie pre-commit-hook (Slice 243)
+  # fuer Layer-Konsistenz. audit:orphan bewusst ausgeschlossen (66s + designed-exit-1).
+  # audit:silent-fail bleibt im lint-Job, audit:mutation-race in nightly-audit.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2 # audit:stale braucht log.md-History
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run audit:type-truth
+      - run: pnpm run audit:stale
+      - run: pnpm run audit:wiring:check
