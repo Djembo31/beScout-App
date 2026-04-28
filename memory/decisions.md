@@ -2499,6 +2499,62 @@ Wenn Phase-A-Investigation für künftige Drift-Discovery 90+ min dauert ohne Ro
 
 ---
 
+## D58 — PROCESS: Wave-Bridge-Cleanup-Pflicht in Multi-Wave-Slices
+
+**Datum:** 2026-04-29
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Bei Multi-Wave-L-Slices (z.B. Slice 251 mit Wave 1-6), wo eine frühere Wave Bridge-Code via Hook/Prop einführt (z.B. `useGameweek(gwEvents, activeClub?.league_id ?? null)` als Wave-1-Bridge), MUSS die Wave die den finalen Mechanismus implementiert (z.B. Wave 3 SSOT-Store) den Bridge-Code aktiv ersetzen — explicit grep auf Bridge-Pattern als Pflicht-Item in Spec-Code-Reading-Liste UND Pre-Review-Memo R-Liste.
+
+**Pflicht-Pattern in Spec-Sektion 1.4 (Migration Map):**
+- Tabellen-Spalte „Wave-X-Bridge?" für jeden migrierten Konsumenten
+- Pflicht-Edit-Item: „Bridge entfernen + auf neuen Mechanismus umstellen"
+
+**Pflicht in Pre-Review-Memo:**
+- Sektion „Migration-Surface beyond Konsumenten": prüfe Hooks + Queries + Services die migrierte Files nutzen, ob sie selbst Bridge-Code enthalten
+- Wenn ja: explicit-confirm dass Bridge ersetzt wurde ODER explicit-defer mit Begründung
+
+### Begründung
+
+Slice 251 Wave 3 Track C wurde initial vom frontend-Agent gebaut: Store + Header + 6+2-Page-Migration + R-02 Cascade-Caller. Reviewer-Agent (cold-context) F-01 P0 entdeckte: `useGameweek(gwEvents, activeClub?.league_id)` Wave-1-Bridge in `FantasyContent.tsx:87` blieb unverändert. **Folge:** Hauptmotivation des Slices („Header-Switch wirkt überall atomar") wäre nicht erfüllt — User wechselt Liga im Header → GW + max_gameweeks bleiben aus `activeClub.league_id` → Stale-GW.
+
+Reviewer-Quote: „Bridge bleibt forever-V1, der zentrale Switch-Use-Case wird nicht erfüllt. F-01 ist genau dieses Anti-Pattern."
+
+Briefing-Lehre: Mein Track-C-Briefing listete 6 Konsumenten + 2 D54-Sub-Components. Aber ich nannte den Bridge-Code in `FantasyContent.tsx:85-87` nicht explizit. Der Agent migrierte korrekt was er sah, übersah aber das semantisch-zentrale Bridge-Replacement.
+
+### Auswirkungen
+
+- **Code:** Slice 251 Wave 3 Heal-Pass F-01 (commit 687bcb91 + manueller Heal-Edit) — useGameweek-Bridge ersetzt durch `useLeagueScope(s => s.leagueId)` + Bonus SpieltagTab leagueId-prop.
+- **Prozess:**
+  - SHIP-Loop SPEC-Stage Sektion 1.4 Migration-Map muss bei Multi-Wave-L-Slices „Wave-X-Bridge?"-Spalte enthalten.
+  - SHIP-Loop Pre-Review-Memo (1b) muss „Migration-Surface beyond Konsumenten"-Sektion enthalten.
+  - Briefing-Template für Multi-Wave-Slices: explicit-listen aller Bridge-Pattern aus früheren Waves.
+- **Team:** CTO + Frontend/Backend-Agents
+
+### Alternativen erwogen
+
+- **Reviewer-Agent fängt das immer:** Verworfen — Reviewer ist letzte Falle, nicht erste. Pre-Build-Audit ist deutlich günstiger als Post-Build-Heal.
+- **Bridge-Code mit `// TODO: Wave X` markieren:** Verworfen — TODOs verrotten + werden nicht systematisch durchsucht. Spec-Sektion ist enforcement-architektur (D45 „Hooks > Text-Regeln").
+- **Tooling: Bridge-Pattern-Detector ähnlich D52 audit-tools:** Backlog-Würdig (z.B. `audit:bridge-debt`-Tool das `// Bridge:` Comments + Slice-N-Wave-X-Marker scannt + Slice-Tracker abgleicht). Nicht jetzt — erst sammeln ob diese Bridge-Klasse wiederholt auftritt.
+
+### Re-Visit-Trigger
+
+Wenn ein weiterer Multi-Wave-Slice eine Bridge-Cleanup-Lücke hat trotz D58-Process-Hardening: Tooling-Implementation `audit:bridge-debt`.
+
+### Pattern-Familie
+
+- **D43** Type-Truth-Drift („Existenz ≠ Verwendung" Type-Achse)
+- **D46** Service-Duplicate / Orphan-Component („Existenz ≠ Verwendung" Component-Achse)
+- **D54** Build-without-Wire („Existenz ≠ Verwendung" Tool/Hook-Achse)
+- **D58** Wave-Bridge-Cleanup („Existenz ≠ Verwendung" Time-Axis innerhalb Multi-Wave-Slice)
+
+Cross-cutting: Eine Code-Stelle die früher als „Bridge" / „Stub" / „Placeholder" / „TODO" markiert war, kann ohne explizit Cleanup-Schritt zur Permanent-Variante driften und das Final-Design verfälschen.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

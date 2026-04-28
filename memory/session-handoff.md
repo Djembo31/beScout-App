@@ -1,33 +1,101 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 00:43)
+# Session Handoff — Auto (2026-04-29 01:27)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
- M memory/working-memory.md
- M worklog/active.md
  M worklog/audits/audit-stale-2026-04-28.md
  M worklog/audits/type-truth-2026-04-28.md
- M worklog/impact/251-store-consumers.md
 ```
 
-## Session Commits: 7
+## Session Commits: 10
+- 5cb28200 fix(178f): INV-25 WHITELIST drift — rpc_no_response add + insufficient_wildcards remove
+- 66842611 fix(251): Wave 3 Test-Mock-Heal — ClubProvider.test.tsx
+- 55f52417 chore(251): Wave 3 PROVE + LOG — active idle + log entry + audit-timestamps
+- 687bcb91 feat(251): Wave 3 Track C — useLeagueScope-Store + Header + 6+2-Page-Migration + Cascade-Caller
 - f867cd44 chore(251): Wave 2 PROVE + LOG — active idle + log entry + proof artifact + Pre-Wave-3-Probe + Reviewer-Output
 - 62bbcb29 feat(251): Wave 2 Track B — Service-Layer Liga-Scope + 5 Tests
 - 91e60a44 fix(251): Track F Reviewer-Heal — 4 P0/P1 + 1 P2 fixes
 - 46df861d docs(251): Track F Pre-Review-Memo + Journal finalized
 - 7563761b feat(251): Wave 2 Track F — user_wildcards Composite-PK per-Liga + RPCs + Service
 - 4cef6b95 chore(251): active.md idle + audit-stamps post Wave 1 commit
-- 71f4efb2 feat(251): Wave 1 Track A — leagues.active_gameweek SSOT + Cron Dual-Write + Bridge [RECOVERY]
 
-## Pending Agent Work: 1 Worktrees
-- **agent-a3fb1dba8d104a9a8** (worktree-agent-a3fb1dba8d104a9a8):  10 files changed, 112 insertions(+), 146 deletions(-)
+## Stashed Changes
+- stash@{0}: On worktree-agent-a3fb1dba8d104a9a8: Wave-3-rebase-temp-stash
 
 <!-- auto:handoff-end -->
 
 ---
+
+## Slice 251 Spieltag Liga-Scope-Reform — Wave 3 LIVE (Session-Ende 2026-04-29 ~01:36)
+
+**Stand:** Wave 1 + Wave 2 + Wave 3 alle LIVE in main. HEAD `5cb28200`. Manual-Verify post-Deploy ist scheduled in **1 Stunde** als remote-agent.
+
+### Wave 3 Track C — was steht
+
+- **Commits (4):** `687bcb91` feat (Track C 18 files +1742/-152) → `55f52417` chore (PROVE+LOG) → `66842611` fix (ClubProvider Test-Mock-Heal) → `5cb28200` fix (INV-25 WHITELIST drift Wave-2-Track-F-Debt)
+- **NEU:** `src/features/shared/store/leagueScopeStore.ts` (209 lines, 17 Tests, versioned localStorage `bescout-league-scope-v1` + 3-Stage Cascade + Smart-Collapse + 5-Key Cache-Invalidate + EC-03 silent-reset) + `src/components/layout/LeagueScopeHeader.tsx` (103 lines, 5 Tests, Sticky/non-sticky-Wrapper)
+- **MIGRATE 8 Konsumenten:** FantasyContent + MarktplatzTab + ClubVerkaufSection + KaderTab + rankings/page + clubs/page (6 Briefing) + TransferListSection + TrendingSection (2 D54-driven)
+- **R-02 Heal:** ClubProvider.tsx +39 (Cascade-Caller useEffect mit 4 Guards + 9 deps)
+- **F-01/F-02 Heal post-Reviewer-REWORK:** useGameweek-Bridge `activeClub?.league_id` → `useLeagueScope(s => s.leagueId)` + dashboardStats `events.filter` → `filteredGwEvents.filter`
+- **Tests:** 22/22 store+header grün lokal; CI nach INV-25-Fix grün
+- **Wave-2-Drift-Audit:** Worktree-Base 4cef6b95 (vor Wave 2). Rebase auf main HEAD f867cd44 sauber (1 active.md-Konflikt + 1 Bonus-Edit SpieltagTab leagueId-prop von activeClub-bridge auf leagueScopeId)
+
+### Spec/Impact/Review/Proof
+
+- **Spec:** `worklog/specs/251-spieltag-liga-scope-reform.md`
+- **Impact:** `worklog/impact/251-store-consumers.md` (Annex 2026-04-29: 6 REPLACE + 2 CREATE D54 + 4 DELETE Wave 6 + Datentyp-Brücke leagueId/leagueName/countryCode)
+- **Pre-Review-Memo:** `worklog/reviews/251-wave-3-pre-review.md` (frontend-Agent Self-Audit)
+- **Review:** `worklog/reviews/251-wave-3-review.md` (cold-context reviewer-Agent: REWORK → PASS post-Heal F-01+F-02; Race-Condition-Audit + Wave-2-Drift-Audit + 7 Manual-Verify-Pflichten post-Deploy)
+- **Proof:** `worklog/proofs/251-wave-3-track-c.txt`
+- **Journal:** `memory/episodisch/journals/251-wave3-track-c-leaguescope-journal.md`
+
+### DISTILL — neue Decision (D58)
+
+`memory/decisions.md` D58: **Wave-Bridge-Cleanup-Pflicht in Multi-Wave-Slices** — bei Multi-Wave-L-Slices wo eine Wave Bridge-Code via Hook/Prop einführt, MUSS die nachfolgende Wave (die den finalen Mechanismus implementiert) den Bridge-Code aktiv ersetzen. Spec-Sektion 1.4 Migration-Map muss „Wave-X-Bridge?"-Spalte enthalten. Pre-Review-Memo muss „Migration-Surface beyond Konsumenten"-Sektion enthalten. Pattern-Familie D43→D46→D54→D58 („Existenz ≠ Verwendung", jetzt mit Time-Axis innerhalb Multi-Wave-Slice).
+
+### Routine: wave-3-live-verify (in 1h)
+
+Remote agent geschedult als one-shot, fires `2026-04-29T00:36:00Z` (~02:36 Berlin):
+- **ID:** `trig_01GpLLssvCemqUQCbEkLa5KC`
+- **URL:** https://claude.ai/code/routines/trig_01GpLLssvCemqUQCbEkLa5KC
+- **Aufgabe:** 7 Manual-Verify-Steps (V-1 Cascade-Stage-1, V-2 atomar Liga-Switch, V-3 async-Cycle BL=10/TFF1=8, V-4 Mobile 393px, V-5 Cross-Page-Persistence, V-6 anon→login Edge, V-7 single-league-auto-select) gegen bescout.net mit jarvis-qa-Login
+- **Output:** strukturierter Report `worklog/proofs/251-wave-3-postdeploy-verify.md`
+- **Branching:**
+  - All-PASS (oder PASS+SKIP-V-3) → automatisch Wave-6-Cleanup-PR draften (delete fantasyStore.fantasyCountry/fantasyLeague + marketStore.selected* + managerStore.kader* + LEAGUE_FALLBACK)
+  - 1+ FAIL → GH-Issue mit `wave-3-postdeploy-fail` Label öffnen
+
+### Bei `/clear` — Resume-Pfad
+
+1. `worklog/active.md` (idle, **5cb28200** HEAD) — Wave 3 KOMPLETT-Block oben
+2. `worklog/log.md` Top-Eintrag (251 Wave 3) + Slice 251 Wave 1+2-Einträge
+3. `memory/decisions.md` D58 (Wave-Bridge-Cleanup-Pflicht — Pattern-Familie D43/D46/D54/D58)
+4. Diese Datei (Resume-Anker)
+5. Routine-Status checken: `RemoteTrigger get trig_01GpLLssvCemqUQCbEkLa5KC` ODER ggf. `worklog/proofs/251-wave-3-postdeploy-verify.md` (falls Routine schon gelaufen)
+6. Falls Routine PASS: Wave-6-Cleanup-PR-Draft reviewen + mergen
+7. Falls Routine FAIL: GH-Issue triagieren, ggf. Slice 252+ Heal-Wave
+
+### Backlog post-Wave-3 (CTO-Tracking)
+
+- **i18n-Migration `errors.rpcNoResponse`:** Wave-2-Track-F-Debt aus INV-25-Heal — `rpc_no_response` als KNOWN_KEYS + DE/TR i18n-Key, dann WHITELIST-Eintrag entfernen.
+- **Wave 4 Track D + E:** SpieltagTab-Reform (LEAGUE_FALLBACK weg + selectedLeagueId-State weg + Sponsor-Match-Topspiel-Logic) + SaisonRangTab als 5. Fantasy-Tab.
+- **Wave 5 Track G:** PlayerPicker UX-Filter (CEO-Decision Variante B lenient mit Warning-Pill).
+- **Wave 6 Cleanup:** in der Routine in 1h auto-gedrafted falls Wave 3 PASS.
+- **F-03 Hydration-Mismatch monitor:** falls Anil oder Routine in Console mismatch-Warnings sieht → Zustand `persist`-middleware migrieren.
+- **F-05 anon→login Edge:** falls Routine-V-6 FAIL → ClubProvider-useEffect erweitern um anon→login-Trigger.
+
+### Was Wave 3 NICHT abdeckt (per Spec)
+
+Wave 3 ist Frontend-SSOT-Konsolidierung. Wave 4+ bringt:
+- Spieltag-UI-Reform (Track D)
+- SaisonRangTab (Track E)
+- PlayerPicker UX-Filter (Track G)
+- Wave-6-Cleanup (legacy Liga-Felder weg)
+
+---
+
+## Vorheriges (archiviert)
 
 ## Slice 251 Spieltag Liga-Scope-Reform — Wave 1 + Wave 2 LIVE
 
