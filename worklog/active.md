@@ -10,7 +10,9 @@ proof: —
 review: —
 ```
 
-## Slice 251 Wave 1 Track A KOMPLETT (Recovery): Migration applied, Code matcht DB-state, 92/92 Tests grün, Pattern Layer 4 promoted. Commit 71f4efb2. Wave 2 (Track B || Track F) in fresh session.
+## Slice 251 Wave 2 KOMPLETT: Track B Service-Layer + Track F Wildcards Composite-PK + 6 P0/P1 Heal applied. 49/49 Tests grün, tsc clean. 4 Commits in main (7563761b → 46df861d → 91e60a44 → 62bbcb29). Anil-Action: 3 Migrations applien (120000 + 120500 + 121000) vor Wave 3. Wave 3 (Track C — useLeagueScope-Store + 5-Page-Migration) in fresh session.
+
+## Slice 251 Wave 1 Track A KOMPLETT (Recovery): Migration applied, Code matcht DB-state, 92/92 Tests grün, Pattern Layer 4 promoted. Commit 71f4efb2.
 
 ## Zuletzt
 

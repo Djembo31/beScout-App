@@ -1,0 +1,105 @@
+Slice 251 Wave 2 (Track B + Track F) — Merge Verify
+====================================================
+
+Date: 2026-04-28
+HEAD post-merge: 62bbcb29
+Stage-Chain: SPEC ✓ → IMPACT ✓ → BUILD (Wave 2 in 2 Worktrees) → REVIEW (REWORK → HEAL → PASS) → MERGE → PROVE
+
+Commits (4 in main, linear):
+  7563761b feat(251): Wave 2 Track F — user_wildcards Composite-PK per-Liga + RPCs + Service
+  46df861d docs(251): Track F Pre-Review-Memo + Journal finalized
+  91e60a44 fix(251): Track F Reviewer-Heal — 4 P0/P1 + 1 P2 fixes
+  62bbcb29 feat(251): Wave 2 Track B — Service-Layer Liga-Scope + 5 Tests
+
+Reviewer Verdict: REWORK → 6 fixes applied (Healer 91e60a44) → PASS
+  Reviewer-File: worklog/reviews/251-wave-2-review.md
+  Pre-Review (B): worklog/reviews/251-wave-2-track-b-pre-review.md
+  Pre-Review (F): worklog/reviews/251-wave2-track-f-pre-review.md
+  Heal-Memo (F):  worklog/reviews/251-wave-2-track-f-heal.md (im Track-F-Heal-commit)
+
+Track B (Service-Layer Liga-Scope):
+  Files: 6 src + 1 pre-review-memo
+  Tests: 43/43 grün (5 NEU)
+  - getFixturesByGameweek(gw, leagueId?) — backward-compat
+  - pickTopspiel(fixtures, clubId?, leagueId?, sponsorClubId?) — Sponsor-Match-Priorität
+  - SpieltagTab + FantasyContent Bridge analog Wave 1
+  - dashboardStats events → filteredGwEvents (Liga-scoped Saison-Stats)
+
+Track F (Wildcards Composite-PK + RPCs):
+  Files: 13 (3 Migrations + 7 Code + 1 Test + 2 Memos)
+  Tests: 6/6 grün
+  - Migration 120000: user_wildcards (user_id) → (user_id, league_id) Composite-PK
+    + Backfill Cascade-Default-Liga (favorite_club.league_id → first active league)
+    + Modulo-Rest in Cascade-Default für balance + earned_total + spent_total (F#9 fix)
+  - Migration 120500: 3 RPCs (get/earn/spend_wildcards) + admin_grant_wildcards (F#1 rewrite)
+    + AR-44 REVOKE/GRANT + auth.uid()-Guard + invalid_league validation
+    + BEGIN/COMMIT atomicity (F#6 fix)
+  - Migration 121000: rpc_save_lineup mit invalid_event_no_league raise (F#4 fix)
+    + BEGIN/COMMIT atomicity (F#6 fix)
+  - wildcards.ts: orphan earnWildcards/spendWildcards deleted (F#3 fix)
+  - PATCH-AUDIT Header korrekt: Source-of-truth = 20260414200000 (AR-27, F#2 fix)
+  - Bonus: pre-existing CHECK-constraint-bug ('lineup_wildcard'/'lineup_wildcard_refund') gefixt
+    auf existing-erlaubte Werte ('lineup_spend', 'event_refund')
+
+Pre-Wave-3-Probe (AC-23 Output):
+  worklog/impact/251-store-consumers.md
+  - 27 Konsumenten klassifiziert
+  - 3 reads-Liga: yes (MarktplatzTab, ClubVerkaufSection, KaderTab)
+  - 23 reads-Liga: no
+  - 1 unclear (TradeSuccessCard)
+  - KRITISCHES FINDING: fantasyStore Liga-Felder UNUSED (0 Reads) — Wave 3 Track C kann LÖSCHEN
+
+Verify-Commands:
+  npx tsc --noEmit
+    → CLEAN (no output)
+
+  CI=true npx vitest run \
+    src/features/fantasy/services/__tests__/fixtures.test.ts \
+    src/features/fantasy/services/wildcards.test.ts
+    → Test Files  2 passed (2)
+    → Tests       49 passed (49)
+    → Duration    2.54s
+
+Spec-Coverage post-Merge:
+  AC-04 ✓ Wildcards pro-Liga (composite-PK + RPCs)
+  AC-09 ✓ earn_wildcards mit invalid_league raises
+  AC-22 ✓ Wave 1 Cron Dual-Write (geliefert in Wave 1)
+  AC-23 ✓ Pre-Wave-3-Audit (27 Konsumenten klassifiziert)
+  AC-24 ✓ Backfill-Sum-Smoke (Verify-SQL im Migration-Header)
+  EC-09/10/11 ✓ Edge-Cases (balance=0, Modulo-Rest, invalid_event_no_league)
+
+Anil-Action-PFLICHT vor Wave 3:
+  3 neue Migrations applien im Supabase-Dashboard SQL-Editor
+  (analog Wave 1 manual-apply):
+
+  1. supabase/migrations/20260428120000_user_wildcards_per_league.sql
+     — Composite-PK + Backfill (Cascade-Default-Liga via profile.favorite_club.league_id)
+  2. supabase/migrations/20260428120500_wildcards_rpcs_per_league.sql
+     — 4 RPCs: get_wildcard_balance, earn_wildcards, spend_wildcards, admin_grant_wildcards
+     (Composite-PK ON CONFLICT, AR-44, auth.uid()-Guard, invalid_league validation)
+  3. supabase/migrations/20260428121000_save_lineup_per_league.sql
+     — rpc_save_lineup mit p_league_id-Lookup + invalid_event_no_league raise
+
+  Verify-SQL pre-Apply (capture Sum):
+    SELECT user_id, SUM(balance), SUM(earned_total), SUM(spent_total)
+    FROM user_wildcards GROUP BY user_id;
+
+  Verify-SQL post-Apply 1 (Composite-PK):
+    SELECT a.attname FROM pg_index i
+      JOIN pg_attribute a ON a.attrelid=i.indrelid AND a.attnum=ANY(i.indkey)
+    WHERE i.indrelid='public.user_wildcards'::regclass AND i.indisprimary;
+    Expected: 2 rows (user_id, league_id)
+
+  Verify-SQL post-Apply 2 (Sum-Smoke AC-24):
+    SELECT user_id, SUM(balance), SUM(earned_total), SUM(spent_total)
+    FROM user_wildcards GROUP BY user_id;
+    Expected: identical to pre-Apply (Modulo-Rest in Cascade-Default-Liga)
+
+  Verify-SQL post-Apply 3 (RPC body):
+    SELECT pg_get_functiondef('public.earn_wildcards(uuid, int, text, uuid, uuid, text)'::regprocedure);
+    Expected: ILIKE '%auth.uid() IS NOT NULL%' AND ILIKE '%invalid_league%'
+
+Wave 3 (Track C — useLeagueScope-Store + 5-Page-Migration) wartet auf:
+  1. Anil applied 3 Migrations
+  2. Frische Session (Token-Budget)
+  3. Spec-Update: fantasyStore Liga-Felder LÖSCHEN (statt MIGRATE) per Pre-Wave-3-Probe-Finding

@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 251 Wave 2 | 2026-04-28 | Spieltag Liga-Scope-Reform — Track B (Service-Layer) ‖ Track F (Wildcards Composite-PK + RPCs) + Reviewer-Heal
+
+- Stage-Chain: SPEC ✓ (in 251 Wave 1) → IMPACT ✓ (in 251 Wave 1) → BUILD (Wave 2 in 2 Worktrees, parallel-dispatch backend×2 + Explore Pre-Wave-3-Probe) → REVIEW (REWORK Verdict mit 2 P0 + 4 P1 + 5 P2/P3 → Healer fixt 6 Issues) → MERGE (ff-only, linear) → PROVE → LOG
+- Commits (4): 7563761b feat (Track F initial) · 46df861d docs (Track F memo) · 91e60a44 fix (Track F Heal) · 62bbcb29 feat (Track B)
+- Files (Track B, 7): src/features/fantasy/services/fixtures.ts (+18/-5 — getFixturesByGameweek leagueId? backward-compat), src/components/fantasy/spieltag/TopspielCard.tsx (+37/-4 — pickTopspiel sponsorClubId? + 4-Fallback-Chain), src/components/fantasy/SpieltagTab.tsx (+27/-9 — leagueId prop + 3 loadFixtures-Calls), src/app/(app)/fantasy/FantasyContent.tsx (+7/-2 — Bridge + dashboardStats events → filteredGwEvents), src/features/fantasy/services/events.mutations.ts (+11/-2 — createNextGameweekEvents leagueId? backward-compat), src/features/fantasy/services/__tests__/fixtures.test.ts (+52 — 5 NEU Tests), worklog/reviews/251-wave-2-track-b-pre-review.md
+- Files (Track F, 13): supabase/migrations/20260428120000_user_wildcards_per_league.sql (175 — Composite-PK + Cascade-Default-Liga Backfill mit Modulo-Rest in balance/earned/spent), supabase/migrations/20260428120500_wildcards_rpcs_per_league.sql (365 — 4 RPCs: get/earn/spend/admin_grant_wildcards mit p_league_id + AR-44 + auth.uid() Guard + invalid_league + BEGIN/COMMIT), supabase/migrations/20260428121000_save_lineup_per_league.sql (431 — rpc_save_lineup mit p_league_id-Lookup + invalid_event_no_league raise + BEGIN/COMMIT + Bonus-Fix CHECK-constraint 'lineup_wildcard'→'lineup_spend'), src/features/fantasy/services/wildcards.ts (+91/-0 — orphan earnWildcards/spendWildcards deleted, adminGrantWildcards Composite-PK), src/features/fantasy/services/wildcards.test.ts (+118 NEU, 6 Tests), src/features/fantasy/queries/events.ts (+14/-2 — useWildcardBalance leagueId), src/features/fantasy/queries/invalidation.ts (+4/-2 — wildcardBalancePrefix), src/features/fantasy/hooks/useEventActions.ts (+3/-1 — Bridge), src/components/inventory/WildcardsSection.tsx (+5/-2 — Bridge), src/lib/queries/keys.ts (+8/-2 — wildcardBalance leagueId), src/types/index.ts (+1 — DbUserWildcard.league_id), worklog/journals/251-wave2-track-f-journal.md (+57 NEU), worklog/reviews/251-wave2-track-f-pre-review.md + 251-wave-2-track-f-heal.md
+- Files (Audit-Outputs): worklog/impact/251-store-consumers.md (Pre-Wave-3-Probe — 27 Konsumenten klassifiziert, fantasyStore Liga-Felder UNUSED), worklog/reviews/251-wave-2-review.md (Reviewer-Output)
+- Spec: worklog/specs/251-spieltag-liga-scope-reform.md
+- Impact: worklog/impact/251-spieltag-liga-scope.md
+- Review: worklog/reviews/251-wave-2-review.md (Verdict: REWORK → Healer 91e60a44 → PASS für Wave-3-Voraussetzungen)
+- Heal: 6 Issues gefixt (F#1 admin_grant_wildcards Composite-PK rewrite P0, F#2 PATCH-AUDIT Header Source-of-truth korrigiert P0, F#3 wildcards.ts orphan-Service deleted P1, F#4 invalid_event_no_league raise P1, F#6 BEGIN/COMMIT atomicity P1, F#9 earned/spent Modulo-Rest P2)
+- Proof: worklog/proofs/251-wave-2-merge-verify.txt (tsc clean + vitest 49/49 + Verify-SQL für Anil-Action)
+- Tests: 49/49 grün (43 fixtures + 6 wildcards), tsc --noEmit clean
+- Verdict: PASS-mit-Anil-Action (3 Migrations applien pflicht vor Wave 3)
+- Notes: Worktree-Filesystem-Share-Bug auf Windows MSYS entdeckt — Track-B-Worktree-Edits sind durchs filesystem auch im main-Repo-Working-Tree visible. ff-merge umgangen via direkter cd-Persistence + commit im Track-B-Branch + ff-only von main aus. Pre-Review-Memo-Pattern (Slice 211 D50) hat Reviewer-Workload um geschätzte 60% reduziert. Cold-Context-Reviewer fand 2 P0 die Pre-Review-Memos nicht hatten (admin_grant_wildcards Composite-PK-Bruch + PATCH-AUDIT Header). Pre-Wave-3-Probe (AC-23) fand kritischen Spec-Drift: fantasyStore.fantasyCountry/fantasyLeague sind UNUSED → Wave 3 Track C vereinfacht (statt MIGRATE → DELETE).
+
 ## 251 Wave 1 | 2026-04-28 | Spieltag Liga-Scope-Reform — Track A (Migration + Cron Dual-Write + Service-Rewrite + Bridge) [RECOVERY]
 
 - Stage-Chain: SPEC → IMPACT → BUILD (Worktree → Recovery in main) → REVIEW (preserved 2 Reviews) → PROVE → LOG
