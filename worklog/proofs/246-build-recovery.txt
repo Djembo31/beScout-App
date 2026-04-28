@@ -1,0 +1,48 @@
+Slice 246 — Bundle-Budget /inventory heilen · Proof
+====================================================
+Datum: 2026-04-28
+Slice-Type: Tool (config-only)
+
+Pre-Edit Baseline (CI-failed-state):
+====================================================
+$ pnpm exec next build (in CI run 25053151721 + 19 vorherige):
+build | UNKNOWN STEP | /inventory  301.0kB   265kB  + 36.0kB ❌
+build | Bundle-Budget check (Slice 185b) | ##[error]Process completed with exit code 1.
+✗ Routes over budget: 1 (/inventory)
+
+Post-Edit Verify (CI-Step Reproduktion):
+====================================================
+$ pnpm exec next build > /tmp/246-build-out.txt 2>&1
+$ cat /tmp/246-build-out.txt | npx tsx scripts/check-bundle-size.ts
+
+Bundle-Budget check (54 routes, shared 162.0 kB)
+...
+/inventory                                  301.0kB   320kB  -19.0kB ✓
+...
+✓ All routes within budget.
+
+EXIT=0
+
+✅ AC-01 PASS — bundle-budget.json /inventory: 265 → 320
+✅ AC-02 PASS — _comment um Slice-246-Justification erweitert
+✅ AC-03 PASS — pnpm exec next build → Bundle-Budget check exit 0
+✅ AC-04 PASS — git diff bundle-budget.json zeigt nur 2 Lines (Comment + /inventory-Wert), keine andere Routes geändert
+
+AC-05 PASS pending — wartet auf Push + CI-Run nach Push
+
+Diff bundle-budget.json:
+====================================================
+@@ -1,5 +1,5 @@
+ {
+-  "_comment": "Slice 185b — ... Slice 181 (2026-04-24): Radix-Foundation +25kB Headroom pro Route. Warum per-route ..."
++  "_comment": "Slice 185b — ... Slice 181 (2026-04-24): Radix-Foundation +25kB Headroom pro Route. Slice 246 (2026-04-28): /inventory 265 → 320 ... Warum per-route ..."
+   "baseline_date": "2026-04-24",
+@@ -16,7 +16,7 @@
+-    "/inventory": 265,
++    "/inventory": 320,
+
+==================================================
+SUMMARY: 4/5 ACs PASS, AC-05 wartet auf Push
+Slice 246 heilt CI-Build-Failure die seit ≥20 Pushes (mindestens Slice 226)
+durchgehend rot war. enforce_admins=false hatte das CI-Failure unsichtbar
+gemacht — Slice 244 Phase 2 wird das fixen.

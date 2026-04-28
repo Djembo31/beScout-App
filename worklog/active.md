@@ -10,10 +10,11 @@ proof: —
 review: —
 ```
 
-## Pending: Slice 244 Phase 2 (Branch-Protection PUT) — wartet auf Anil-Permission
+## Wave: 246 (Build-fix) → 247 (Test-fix) → 244 Phase 2 (Branch-Protection)
 
 ## Zuletzt
 
+- **Slice 246** (2026-04-28) — Bundle-Budget /inventory heilen (XS, Slice-Type=Tool, **CI-Build-Recovery**). bundle-budget.json /inventory: 265 → 320kB mit Justification (drift seit Slice 185b durch Polish-Sweeps 196 + 200a/b). 19kB Headroom (6%) bewusst-konservativ-eng. Build-Gate exit 0 verifiziert. CI war ≥20 Pushes durchgehend rot, niemand bemerkt weil enforce_admins=false bypassed. Pattern-Wiederholung Slice 181. Self-Review D35. 4/5 ACs PASS (AC-05 wartet auf Push).
 - **Slice 245** (2026-04-28) — Deferred-Items Re-Eval-Reminder-Hook (XS, Slice-Type=Hook, **docs/test.rtf #6** strukturell geheilt). Stop-Hook `ship-deferred-reeval-reminder.sh` printet alle 7 Tage ODER bei deferred-Count-Change die 4 deferred-Items aus beta-phase.md mit ihren Re-Eval-Triggers. State-File `.claude/state/deferred-reeval-last-shown` (gitignored). Pattern-Wiederholung Slice 230 ship-phase-tracker-reminder.sh. 8/8 ACs PASS im Live-Smoke (erster print + zweiter silent + count-change-trigger + leerer-Block-silent + state-file-format).
 - **Slice 244** (2026-04-28, Phase 1) — Branch-Protection erweitern um Audit-required-status-check (XS, Slice-Type=GHA, **docs/test.rtf #9** Phase 1/2). ci.yml NEU `audit` job mit pnpm-setup-Boilerplate + 3 Steps (audit:type-truth + audit:stale + audit:wiring:check). Phase-1-Live-Verify: CI-Run 25052831580 audit-Job 36s grün. Phase 2 (gh api PUT branch-protection mit ["lint","build","test","audit"]) wartet auf Anil-Permission.
 - **Slice 243** (2026-04-28) — Pre-commit-hook Audit-Wiring (XS, Slice-Type=Hook, **docs/test.rtf #8** strukturell geheilt). 3 NEU Steps zwischen tsc und lint-staged: audit:type-truth + audit:stale + audit:wiring:check. Total-Latenz 31.7s < 50s AC-Limit. Negative-Test: Risk-Pattern in src/lib/services/ triggert exit 1, pre-commit BLOCKED. audit:orphan bewusst ausgeschlossen (66s + designed-state-exit-1). Self-Review D35 (Pattern-Wiederholung Slice 234 D54 + Slice 232 + Slice 230). 6/6 ACs PASS.

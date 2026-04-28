@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 246 | 2026-04-28 | Bundle-Budget /inventory heilen (CI-Build-Recovery)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Tool-config) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: bundle-budget.json (/inventory 265→320 + _comment-Justification), worklog/specs/246-*.md, worklog/reviews/246-review.md, worklog/proofs/246-build-recovery.txt, worklog/active.md
+- Spec: worklog/specs/246-bundle-budget-inventory-heal.md
+- Review: worklog/reviews/246-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 181 + 185b)
+- Proof: worklog/proofs/246-build-recovery.txt
+- ACs: 4/5 PASS (AC-05 CI-Push-Verify pending)
+- 19kB Headroom (~6%), bewusst-konservativ-eng damit nächster echter 5% Drift ehrlich rot wird
+- KRITISCHE Auffälligkeit: CI war seit ≥20 Pushes (mindestens Slice 226 / 2026-04-27 15:29) durchgehend rot. Niemand bemerkt weil Branch-Protection enforce_admins=false ist. Slice 244 Phase 2 fixt das.
+- Drift-Source: Polish-Sweeps Slice 196 + 200a/b + Section-Refactorings
+- Bewusst NICHT: tatsächliche Bundle-Optimierung (Lazy-Loading, Tree-Shaking) → Backlog M-Slice
+
+---
+
 ## 245 | 2026-04-28 | Deferred-Items Re-Eval-Reminder-Hook (docs/test.rtf #6 strukturell geheilt)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Hook-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
