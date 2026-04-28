@@ -105,15 +105,23 @@ function extractThrownKeys(filePath: string): Array<{ key: string; line: number 
 // `msg === '<key>'` branches. Each entry MUST cite the handling consumer.
 // ─────────────────────────────────────────────────────────────
 const INV25_WHITELIST: Record<string, string> = {
-  // Fantasy-namespace — resolved by features/fantasy/hooks/useEventActions.ts:173
-  // via explicit `msg === 'insufficient_wildcards'` → t('insufficientWildcards')
-  // from the `fantasy` namespace (not `errors`).
-  insufficient_wildcards: 'useEventActions.ts:173 (fantasy namespace)',
+  // Slice 251 Wave 2 Track F: features/fantasy/services/wildcards.ts:78 throws
+  // 'rpc_no_response' wenn supabase.rpc() data=null returnt. Consumer-Pfad:
+  // useEventActions.ts catches Error.message via setError → mapErrorToKey
+  // mapped es defensiv auf 'generic'. Pflicht-Backlog post-Wave-3:
+  // i18n-Key `errors.rpcNoResponse` + KNOWN_KEYS-Eintrag in errorMessages.ts.
+  rpc_no_response: 'wildcards.ts:78 (Wave 2 Track F — pending i18n-key + KNOWN_KEYS migration)',
   // Note: `lineup_save_failed` is *not* thrown as a pure literal (the throw
   // is `throw new Error(result.error ?? 'lineup_save_failed')` in
   // features/fantasy/services/lineups.mutations.ts:44 — expression form) so
   // the audit regex does not see it. If that ever changes to a pure literal,
   // add it back here with the consumer-resolver reference (useEventActions.ts:183).
+  // Note: `insufficient_wildcards` was removed from WHITELIST 2026-04-29 (Slice
+  // 251 Wave 3 fix-push) because Wave 2 Track F's wildcards-RPCs no longer
+  // throw the literal — composite-PK schema returns discriminated-union
+  // `{success: false, error: 'wildcard_no_balance'}` instead. Consumer-handler
+  // in useEventActions.ts:394 case-statement remains as defensive fallback
+  // for legacy paths but the audit-regex no longer sees a literal-throw site.
 };
 
 // ─────────────────────────────────────────────────────────────
