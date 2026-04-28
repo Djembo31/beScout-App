@@ -16,8 +16,13 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 let sb: SupabaseClient;
+// Slice 250 (2026-04-28): Test-Bot-Filter fuer Money-Path-Invariants. Bot-Wallets
+// werden via e2e/bots/ai/refresh-wallets.ts (Slice 194) ohne ledger-tx
+// auf Budget gesetzt — designed Test-Setup, kein Production-Money-Bug.
+// INV-16/INV-33 muessen Bots aus Production-Audit ausschließen.
+let botUserIds: Set<string>;
 
-beforeAll(() => {
+beforeAll(async () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
@@ -28,6 +33,11 @@ beforeAll(() => {
   sb = createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
+  // Slice 250: Lade Bot-User-IDs einmal fuer alle Tests
+  const { data: bots, error: botErr } = await sb.from('profiles').select('id').like('handle', 'bot%');
+  if (botErr) throw new Error(`Failed to load bot user_ids: ${botErr.message}`);
+  botUserIds = new Set((bots ?? []).map((b) => b.id as string));
 });
 
 describe('DB Invariants', () => {
@@ -533,8 +543,14 @@ describe('DB Invariants', () => {
 
     const violations: string[] = [];
     let skippedNoTx = 0;
+    let skippedBots = 0;
 
     for (const wallet of wallets) {
+      // Slice 250: skip Bot-Wallets (refresh-wallets.ts setzt balance ohne tx-insert).
+      if (botUserIds.has(wallet.user_id)) {
+        skippedBots += 1;
+        continue;
+      }
       const latest = latestByUser.get(wallet.user_id);
       if (!latest) {
         skippedNoTx += 1;
@@ -551,7 +567,7 @@ describe('DB Invariants', () => {
     // Info-Log fuer Kontext (sichtbar wenn Test gruen)
     if (violations.length === 0) {
       console.log(
-        `[INV-16] checked ${wallets.length} wallets, ${latestByUser.size} with transactions, ${skippedNoTx} without (skipped), 0 violations`
+        `[INV-16] checked ${wallets.length} wallets, ${latestByUser.size} with transactions, ${skippedNoTx} without (skipped), ${skippedBots} bots (Slice 250), 0 violations`
       );
     }
 
@@ -770,6 +786,7 @@ describe('DB Invariants', () => {
       'club_external_ids',       // API-Football-Sync, server-role only
       'player_external_ids',     // API-Football-Sync, server-role only
       'mystery_box_config',      // server-only, Client ruft RPC
+      'players_mv_history',      // Slice 197d: Cron-only (calculate-mv-trends), server-role
     ]);
 
     const { data, error } = await sb.rpc('get_rls_policy_coverage');
@@ -1786,7 +1803,13 @@ describe('DB Invariants', () => {
     }
 
     const drifts: string[] = [];
+    let skippedBots = 0;
     for (const w of (wallets ?? []) as Array<{ user_id: string; balance: number | string }>) {
+      // Slice 250: skip Bot-Wallets (refresh-wallets.ts setzt balance ohne tx-insert).
+      if (botUserIds.has(w.user_id)) {
+        skippedBots += 1;
+        continue;
+      }
       const balance = BigInt(String(w.balance));
       const txSum = txSumByUser.get(w.user_id) ?? BigInt(0);
       const drift = balance - txSum;
@@ -1799,7 +1822,7 @@ describe('DB Invariants', () => {
 
     if (drifts.length === 0) {
       console.log(
-        `[INV-33] checked ${wallets?.length ?? 0} wallets, ${txSumByUser.size} users with tx history, 0 drift — ledger balanced`
+        `[INV-33] checked ${wallets?.length ?? 0} wallets, ${txSumByUser.size} users with tx history, ${skippedBots} bots (Slice 250), 0 drift — ledger balanced`
       );
     }
 

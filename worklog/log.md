@@ -11,6 +11,40 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 250 | 2026-04-28 | db-invariants Bot-Filter + INV-19 Whitelist (Test-Recovery)
+
+- Stage-Chain: SPEC → IMPACT (skipped: test-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: src/lib/__tests__/db-invariants.test.ts (4 Edits: beforeAll + INV-16 + INV-33 + INV-19), worklog/specs/250-*.md, worklog/reviews/250-review.md, worklog/proofs/250-db-invariants-recovery.txt, worklog/active.md
+- Spec: worklog/specs/250-db-invariants-bot-filter.md
+- Review: worklog/reviews/250-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 218 + 247)
+- Proof: worklog/proofs/250-db-invariants-recovery.txt
+- ACs: 5/6 PASS (AC-06 pre-push wartet, lokal grün verifiziert)
+- 36/3 → 39/39 Tests PASS lokal verifiziert
+- Bot-Filter: beforeAll lädt botUserIds Set einmal, INV-16/INV-33 skipt
+- INV-19 Whitelist: + 'players_mv_history' (Slice 197d Cron-only)
+- Pattern-Familie: Test-Mock-Repair (Slice 218 + 247)
+- Saubere Auflösung Slice 249 Phase B Discovery (Drift-Source = Test-Bots)
+
+---
+
+## 249 | 2026-04-28 | Wallet-Drift Investigation Phase A+B (kein Production-Bug, Test-Bots)
+
+- Stage-Chain: SPEC → IMPACT (skipped: read-only) → BUILD (Phase A read-only Investigation) → BUILD (Phase B Root-Cause-Search) → LOG
+- Files: worklog/specs/249-wallet-drift-investigation.md, worklog/proofs/249a-drift-investigation.md, worklog/active.md
+- Spec: worklog/specs/249-wallet-drift-investigation.md
+- Phase A: 44 wallets out-of-sync klassifiziert (4 Groups), Smoking-Gun User 86e7147a +6.68M cents zwischen 2026-03-25 und 2026-04-25 ohne Ledger
+- Phase B Discovery (CTO-Empfehlung Option D): **ALLE 44 sind TEST-BOTS** (handle LIKE 'bot%')
+  - 29 von 44 wallets.updated_at in 7-Sekunden-Fenster 2026-04-25 11:50:01-08 UTC
+  - Smoking-gun-Code: e2e/bots/ai/refresh-wallets.ts (Slice 194) setzt wallets.balance = bot.budget OHNE INSERT INTO transactions
+  - Designed Test-Setup für Trading-Simulations, kein Production-Money-Path-Bug
+- Phase C **obsolet** — Slice 250 ist die saubere Auflösung (Test-Filter)
+- ACs: Phase A 8/8 PASS, Phase B 5/5 PASS (Root-Cause gefunden)
+- Total absolute Drift: 1.62M $SCOUT in BOT-WALLETS (nicht Production)
+- Lehre: Pre-Push-Hook (Slice 248) kann auch erwartetes Test-State als "Drift" melden — Filter pflicht
+- Commit Phase A: 33241f74
+
+---
+
 ## 248 | 2026-04-28 | Pre-Push-Hook lokale Test-job-Simulation (Slice 244 Catch-22 geheilt)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Hook-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
