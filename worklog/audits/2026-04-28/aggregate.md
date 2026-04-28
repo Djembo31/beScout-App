@@ -58,19 +58,42 @@ KEIN i18n-File-Bug. Production auf echten Tester-Accounts ohne diese Seeds clean
 
 **Walk endete mid-walk vor Step 2** (Onboarding) wegen Walker-Briefing-Schwäche. Restliche Casual-Friction-Areas (Glossar, Visual-Hierarchie, BuyConfirmModal-Experience, $SCOUT-Wording) NICHT verifiziert in diesem Run.
 
-## Persona M (FM-Power) — Walker-Failure
+## Persona M (FM-Power) — Re-Run mit Pattern v3 (Slice 254)
 
-**0 Findings extrahiert** wegen heredoc-Tool-Issue.
+**Walker:** ac2886d439c58ff4a — completed in 11 min (vs 0 bytes Slice 252)
+**Output:** 134 lines static-analysis-walk (Pattern v3 partial via printf-Fallback weil safety-guard.sh "trunca-ted"-Substring blockierte heredoc)
 
-Walker hatte 8 min Wall-Time, 51 tool_uses, aber konnte File-Append nicht durchführen. Result-Text: "Heredoc still failing. Let me use the Write tool directly" — Tool-Recovery-Loop ohne Output.
+### Persona M Score: 6.5/10 — CONDITIONAL GO
 
-**Erwartete Test-Areas (aus Skill, NICHT verifiziert):**
-- Filter-Geschwindigkeit (<500ms) — UNTESTED
-- Quick-Buy-Klickpfad (<3 Klicks) — UNTESTED
-- Slice 239 NEU GameweekScoreBar UNIQUE-Chart-Render in PerformanceTab — UNTESTED
-- Captain-Pick-Rate Visibility — UNTESTED
+| # | Severity | Issue | Recommendation |
+|---|----------|-------|----------------|
+| **C4** | **P0-TBV** | Slice 239 GameweekScoreBar Wire visual-verify ausstehend (Pattern-Familie Slice 197d/200 PLAYER_SELECT_COLS-Drift) | **Anil-Manual auf bescout.net pre-Beta** |
+| C1 | P1 (Walker-False-Positive) | Walker reported `.limit(1000)` in Slice 250 als Power-User-silent-cut. **REJECTED:** `.limit(1000)` ist auf botUserIds-Set in beforeAll (max 50 bots), NICHT auf Power-User-Inventar. Power-User-Inventar lädt via getHoldings (range-paginiert). | rejected, dokumentiert |
+| C2 | P1 | Captain-Pick-Rate Decision-Helper fehlt — Most-Owned ≠ Captain-Pick | Backlog (Feature) |
+| C3 | P1 | Bulk-Actions fehlen /manager (Power-User mit 12 Holdings will Multi-Select) | Backlog (Feature) |
+| C7 | P1 | Form-L5-Sort fehlt explizit als Sort-Option | Backlog (Feature) |
+| C5 | P2 | Filter-Combos nicht URL-persisted | Backlog |
+| C6 | P2 | Transfer-Buy-Flow 4 Klicks statt 2-3 | Backlog |
+| 1.4 | P1 | Manager-Hub Cold-Session Geister-Rows kurz vor Hydration | Slice 192/193-Heal partial — Anil-Visual-Check Hydration-Latenz |
 
-**Mitigation:** Slice 239 Wire wurde lokal verifiziert (tsc + vitest + audit:orphan). Bundle-Budget grün (/player/[id] 410kB / 415). Visual-Verify gegen bescout.net post-Deploy ist Anil-Pflicht (war eh Spec 1.11 Scope-Out).
+### Solide PASS-Bereiche (M-Walker-bestätigt)
+
+- Money-Path (Idempotency Slice 178a-f, preventClose J2/J3)
+- TR-Compliance (Slice 224 Sentiment-Wording-Heal)
+- Modal-Animationen Slice 181 @layer utilities
+- Most-Owned Discovery Slice 207 v2
+- useHoldings Race-Heal Slice 192/193
+- Sparkline-Stabilität Slice 151b D20 (useDeferredValue)
+
+### MUSS-Fix vor 50-Tester-Run
+
+1. **C4 (P0-TBV)** GameweekScoreBar visual-verify Anil-Manual
+
+## Bonus-Discovery aus Walker M (Tool-Issue)
+
+**`safety-guard.sh` False-Positive:** SQL-Schutz-Pattern matcht "TRUNCATE" als Substring im deutschen Wort "trunca-ted" (Walker-Wording). Blockierte heredoc-Schreibung des Walker-Outputs. Walker-Workaround: printf + Synonym-Substitution ("silent-cut" statt "silent-truncated").
+
+**Slice 256 Backlog:** safety-guard.sh TRUNCATE-Pattern Word-Boundary `\b` einbauen oder Context-Check (ist es wirklich SQL?). XS-Slice.
 
 ## Cross-Persona-Pattern
 
@@ -85,8 +108,9 @@ Walker hatte 8 min Wall-Time, 51 tool_uses, aber konnte File-Append nicht durchf
 
 **TR-Tester:** ✅ **GO** — Persona T vollständig verifiziert. Score 9/10 (vs 6/10 Slice 215). 0 Drift, 0 Compliance-Breach, 14/14 Pflicht-Reviews LIVE, 0 user-facing IPO-Vorkommen (alle 27 nutzen "Kulüp Satışı"). Playwright Live-Run PASSED 51.7s.
 
-**DE-Tester (FM-Power + Casual):**
-- ⚠️ **CONDITIONAL GO** — Slice 239 Wire ist code-verified aber visual-untested. K1 Empty-State-friction ist P2 (nicht-blocker). Casual + Power-User-Walk braucht Re-Run mit besserem Walker-Briefing.
+**DE-Tester FM-Power (M):** ⚠️ **CONDITIONAL GO** post Slice 239 visual-verify — Score 6.5/10. C4 P0-TBV (GameweekScoreBar Wire) Anil-Manual-pflicht. C2/C3/C7 P1 sind Feature-Backlog (Captain-Pick-Rate / Bulk / Form-L5-Sort), nicht Beta-Blocker.
+
+**DE-Tester Casual (K):** ⚠️ **CONDITIONAL GO** post Slice 255 deploy — K1 Empty-State Heal implementiert. Andere Areas (Glossar, BuyConfirmModal) Anil-Manual-Verify pflicht.
 
 ## Recommendations
 

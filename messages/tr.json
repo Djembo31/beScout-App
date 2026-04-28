@@ -315,6 +315,8 @@
     "welcomeCommunity": "Topluluk",
     "portfolioRoster": "Kadro Değeri",
     "portfolioRosterTooltip": "Kadronuzdaki tüm Scout Card'ların toplam değeri, güncel piyasa fiyatına göre.",
+    "firstCardCta": "İlk Scout Card'ını al",
+    "firstCardCtaSub": "Marketplace'e git → Kulüp Satışları'nı keşfet",
     "balance": "Bakiye",
     "pnl": "Değer Gelişimi",
     "pnlTooltip": "Değer gelişimi — mevcut değer ile ortalama alış fiyatınız arasındaki fark.",

@@ -124,6 +124,22 @@ function HomeStoryHeaderInner({
             </p>
           )}
         </div>
+
+        {/* Slice 255 (2026-04-28) — K1 Empty-State CTA für 0-Holdings-User
+            (Persona-K-Finding aus Slice 252: "Kader-Wert 0 CR" ohne CTA war
+             Casual-User-Friction-Point P2). Nur wenn !loading + 0 Holdings. */}
+        {!loading && holdingsCount === 0 && (
+          <Link
+            href="/market"
+            className="mt-5 flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-gold/10 border border-gold/25 hover:bg-gold/15 transition-colors min-h-[44px]"
+          >
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gold">{t('firstCardCta')}</span>
+              <span className="text-[11px] text-white/55">{t('firstCardCtaSub')}</span>
+            </div>
+            <ArrowUpRight className="size-5 text-gold shrink-0" aria-hidden="true" />
+          </Link>
+        )}
       </div>
     </div>
   );
