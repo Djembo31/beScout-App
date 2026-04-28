@@ -21,7 +21,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - ACs: 7/7 PASS
 - Drift: -28 total / -17 HIGH / -11 MEDIUM (false-positives entfernt, 36+ echte HIGHs erhalten)
 - Bonus-Discovery: Slice fixt nicht nur die 1+2 explizit identifizierten Drifts, sondern eine ganze Klasse pre-existing for-loop-CHUNK-false-positives in src/lib/services/* die seit Slice 088+092 unsichtbar im Audit-Rauschen waren.
-- Commit: TBD
+- Commit: 630c15a6
 
 ---
 

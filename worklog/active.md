@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 238
-stage: BUILD
-spec: worklog/specs/238-silent-fail-audit-chunked-and-test-skip.md
-impact: skipped (Tool-only Heuristik-Refinement)
-proof: worklog/proofs/238-silent-fail-smoke.txt
-review: self-review (Pattern-Wiederholung Slice 237 + 229 D52)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Zuletzt
