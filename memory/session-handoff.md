@@ -1,27 +1,175 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-27 Pre-Clear)
+# Session Handoff — Auto (2026-04-28 09:10)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 4 Files
 ```
  M .claude/settings.local.json
  M memory/session-handoff.md
+?? docs/test.rtf
+?? worklog/audits/silent-fail-2026-04-27.md
 ```
-
-## Session Commits: 16 (Slices 223 → 230)
-- 7463600c chore(230): active idle nach Slice 230 — Wave-3-Tooling-Trio komplett (223+228+229+230)
-- 134d218b feat(230): Stop-Hook Phase-Tracker-Reminder (Slice 214 Reviewer-Backlog erfüllt)
-- 470fbe7c chore(229): active idle nach Slice 229 — type-truth-audit live, prod 0 hits
-- 1f87b3cb feat(229): scripts/type-truth-audit.ts — D43 Static-Pattern-Detection (3 Bug-Klassen)
-- 830f7d45 chore(228): active idle nach Slice 228 — orphan-detector live, 13 echte Orphans entdeckt
-- 338c5e1e feat(228): scripts/orphan-component-detector.ts — D46-Component-Achse automatisiert + 13 echte Orphans gefunden
-- 9b821308 chore(227): active idle nach Slice 227 — ORPHAN-NEU-1 deferred, ALLE findings_open NULL
-- 535287f3 feat(227): CommunityValuation @experimental + Audit-Methodik-Lehre (ORPHAN-NEU-1)
 
 <!-- auto:handoff-end -->
 
 ---
+
+# Resume-Anker (2026-04-27→28 — System-Wiring-Session: 6 Slices, Self-Improvement-Loop + Drift-Prevention enforced + 2× Workflow-Live-Test)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `88df306d`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL (Anil-Action-Block, NICHT Tech)
+3. Diese Datei (Resume-Anker, Top-Block — DAS hier)
+4. `git log --oneline -14` (6 Slices = 14 commits diese Session)
+5. `worklog/log.md` Top 6 Eintraege (231 → 237)
+6. `memory/decisions.md` D53 + D54 (NEU diese Session)
+7. `.claude/rules/workflow.md` Section 3a (Definition-of-Done je Slice-Type)
+
+## Session-End 2026-04-27→28 — 6 Slices, Workflow architektonisch enforced
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter nahtlos im handoff, mit voll diziplin und fokus"
+2. "2+3, danach 4" → Slices 231 + 232 (Wave-3-Tooling-Trio komplett)
+3. "haben wir noch gaps?" + GSD-Reference → Slice 233 Vorschlag akzeptiert
+4. "j" → Slice 233 Self-Improvement-Loop (D53)
+5. **"Plan-Mode + Ultrathink, vollständige Arbeit"** → Slice 234 L-Slice D54
+6. "wir starten mit 3 und testen dabei unseren neuen Workflow" → Slice 235 (i18n)
+7. "b" → Anil-Approval Option B (Kadro + Sahip Wording)
+8. "empfehlung" → Slice 237 Comment-Skip-Heuristik
+9. "bereite alles für einen clear vor" → Diese Pre-Clear-Vorbereitung
+
+## 6 Slices — was diese Session erreicht hat
+
+**Slice 231** — Spec-Quality-Gate Item-Count-Layer-2 (XS, Hook). Reviewer-Lücke aus Slice 212 nach 19 Slices geheilt. Layer 2 prüft Item-Counts pro Slice-Größe (XS=3, S=6, M=6/8, L=10) für Code-Reading + Edge-Cases + ACs. 3 BUILD-Discoveries: UTF-8 `\b`-Bug, Tabellen-Header-Rollback, AC-Code-Block-Pattern.
+
+**Slice 232** — `spec: inline`/`skipped` Bypass Hard-BLOCK (XS, Hook). Erste Hard-BLOCK-Erweiterung. Plain bypass ohne Begründungs-Klammer → BLOCK exit 2. Wave-3-Tooling-Backlog komplett.
+
+**Slice 233** — Nightly Audit Self-Improvement-Loop (S, GHA, **D53**). **Erste autonome Schleife** in BeScout. nightly-audit.yml mit 11 Audit-Steps + Smoke + Auto-Issue-Pipeline. Daily 03:00/04:00 UTC. Live-Run #25011352539 verified.
+
+**Slice 234** — System-Wiring Recovery + Drift-Prevention (L, Hook, **D54**, **Plan-Mode + Ultrathink**). 6 Phasen:
+- HEAL: 8 Hooks registriert (capture-correction, inject-context-on-compact, morning-briefing, pattern-check, quality-gate-v2, run_tests_on_change, session-retro, track-file-changes), 1 archived (quality-gate.sh), 1 deleted (inject-learnings.sh). **Knowledge-Flywheel war 19 Tage tot** (capture-correction.sh env-var-Bug + nicht registriert) → JETZT live, queue.jsonl wächst.
+- PREVENT: scripts/wiring-check.ts (NEU, 230 Zeilen) + ship-tool-wiring-gate.sh (NEU, BLOCK exit 2 bei orphan-Tool).
+- ARCHITEKTUR: Slice-Type-Header pflicht in _TEMPLATE.md + Layer-3 DoD-Hook.
+- LIVE-VERIFY: Run #25018867677, 11 Audit-Steps SUCCESS, Issue-Dedupe verified.
+- 14 stale Smoke-Issues batch-closed, Master-Tracker #25 erstellt.
+- Reviewer-Agent CONCERNS (11 Findings) → PASS post-Heal-Wave.
+
+**Slice 235** — i18n 7 fehlende TR-Keys (XS, **i18n**, **1. Workflow-Live-Test** unter D54-Enforcement). Anil-Approval Option B: Kadro + Sahip. "Kadroda değil" identisch zu existing `formBars.notInSquad` (Bonus-Konsistenz). Alle Hooks silent.
+
+**Slice 237** — silent-fail-audit Comment-Skip-Heuristik (XS, **Tool**, D52 Refinement, **2. Workflow-Live-Test**). Comment-Skip-Regex am Loop-Top fängt 3 false-positives in JSDoc-Comments (scripts/type-truth-audit.ts:12,132,140). Baseline 92→93 HIGH (transparent: 3 false-pos weg + 1 echter Drift dokumentiert).
+
+## Pipeline-Status (alle 14 Commits gepusht)
+
+HEAD: `88df306d chore(237): active idle nach Slice 237 — silent-fail Comment-Skip live`
+
+```
+88df306d chore(237) active idle
+fbeb085b feat(237) silent-fail Comment-Skip
+5b96108a chore(235) active idle
+9ed8cb02 feat(235) i18n TR-Keys
+be8d627c docs(234) proof AC-09 + Issue-Dedupe live-verified
+90070827 chore(234) active idle
+68717459 feat(234) System-Wiring L-Slice D54
+26df79ba chore(233) active idle
+e3ad904b feat(233) Nightly Audit Loop D53
+7ce44068 docs(handoff) Session-End 2026-04-27 — VORHERIGE Session
+```
+
+## System-Status: läuft autonom
+
+**Daily-Cron-Loop (Slice 233+234 D53+D54):**
+- 03:00 UTC: nightly-audit.yml → 11 Audit-Steps (silent-fail, stale, orphan, type-truth, mutation-race, i18n, rpc-security, tr-strings, **compliance**, **wiring**, **findings-to-slices Pipeline**)
+- 04:00 UTC: bescout.net Smoke-Test
+- Issue-Dedupe via gh listForRepo + Comment-Update (max 1 Issue/Tag)
+
+**13 Vercel-Crons** (Daten-Sync): gameweek-sync, sync-players-daily, sync-injuries, sync-standings, sync-fixtures-future, sync-transfers, calculate-mv-trends, calculate-trade-volume-7d, etc.
+
+**3 GHA-Workflows on-Event:** ci.yml (push), post-deploy-smoke.yml (deploy success), post-push-deploy-watchdog.yml (push, D36-Detection)
+
+**Pre-Commit-Hooks aktiv (alle architektonisch enforced):**
+- ship-spec-gate (BLOCK Edit ohne Slice)
+- ship-spec-quality-gate Layer 1+2+3 (WARN)
+- ship-spec-quality-gate Bypass-BLOCK (`spec: inline` plain)
+- ship-cto-review-gate (BLOCK feat ohne Reviewer-File)
+- ship-proof-gate (BLOCK feat ohne Proof)
+- **ship-tool-wiring-gate (BLOCK feat bei orphan-Tool)**
+
+**Knowledge-Flywheel reaktiviert:**
+- capture-correction.sh feuert auf UserPromptSubmit, fängt Korrekturen (Keywords: nein, falsch, stattdessen, hör auf, korrektur etc.) in `.claude/learnings-queue.jsonl`
+- queue.jsonl hat aktuell 4 Test-Korrekturen aus Slice 234 Build-Test
+- /reflect Skill kann jetzt Drafts erzeugen aus queue
+- /promote-rule Skill für Anil-Approval-Pipeline
+
+## Was steht offen — Backlog priorisiert
+
+**Tech-Backlog (CTO-autonom, sofort actionable):**
+- **Slice 238** — Triage echter Drift (+1 HIGH in-without-chunking + 2 MEDIUM error-check entstanden 2026-04-26→27, transparent in baseline 93/103)
+- **Slice 240** — TM-Once-Off-Scripts cleanup (13 orphan TM-Scripts klassifizieren: archive/delete/keep)
+- **Slice 241** — errors-infra.md Knowledge-Capture (4 Lehren aus Slice 234 Reviewer-Heal)
+
+**Tech-Backlog (braucht Anil-Decision):**
+- **Slice 239** — orphan 13 Components Wire-Plan (CommunityValuation, DpcMasteryCard, GameweekScoreBar, LimitOrderModal, etc.) — pro Component delete/wire/defer
+- **Smoke-Code-Fix** — Issue #25 Master-Tracker, Player-Link-Timeout `e2e/beta-smoke.spec.ts:37`. Mögliche Causes: Auth-Fail / Selector-Drift / DB-Empty. Could be echter Beta-Blocker.
+
+**Money-Path-CEO-Decisions (Anil-only):**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring)
+- F-09 BPS-Bonus (pre-existing CEO-pending)
+- UX 20 MembershipSection Confirm-Step
+
+**Anil-Mensch-Block (einziger Beta-READY-Blocker):**
+- 3 Beta-Tester organisieren (Templates fertig in `memory/beta-tester-recruitment-templates.md`)
+- TR-Native-Reviewer
+- `memory/beta-tester-list.md` schreiben (.gitignore-pflicht)
+
+## Bei `/clear` Resume-Pfad
+
+1. `worklog/active.md` (idle, **88df306d** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, last_signoff: FAIL — Anil-Action-Block, NICHT Tech)
+3. Diese Datei (Resume-Anker)
+4. `worklog/log.md` Top 6 Einträge (231/232/233/234/235/237)
+5. `memory/decisions.md` D53 + D54 (Build-without-Wire architektonisch enforced)
+6. `.claude/rules/workflow.md` Section 3a (Definition-of-Done je Slice-Type)
+7. `git worktree list` (sollte nur main sein)
+8. **Nächster sinnvoller Slice:** Anil-Direktive abhängig.
+   - Wenn "weiter" → Slice 238 (Triage echter Drift, XS, autonom)
+   - Wenn "Smoke-Triage" → Slice 235er Code-Fix (Issue #25, M-Slice, kann Beta-Blocker sein)
+   - Wenn Wire-Plan → Slice 239 (Anil entscheidet pro Component)
+
+## Workflow-Live-Test — was Slice 234 D54 in der Praxis macht
+
+**Beobachtung Slice 235 + 237:** alle Hooks silent wie designed.
+
+| Hook | Slice 235 (i18n) | Slice 237 (Tool) |
+|------|------------------|------------------|
+| Layer-1+2 (Sektionen + Items) | silent ✓ | silent ✓ |
+| Layer-3 (Slice-Type-DoD) | silent ✓ (Spec hat tr.json/de.json) | silent ✓ (Spec hat Wiring-Sektion) |
+| ship-tool-wiring-gate | nicht-relevant | silent ✓ (Edit auf existing Tool) |
+| ship-cto-review-gate | review-File ✓ | review-File ✓ |
+| ship-proof-gate | proof-File ✓ | proof-File ✓ |
+| capture-correction | kein Trigger ("b"-Antwort) | kein Trigger |
+
+**Verdict:** Workflow funktioniert. Discipline ist architektonisch enforced statt durch Memory.
+
+## Pattern-Familie etabliert
+
+**D43 → D46 → D54** ("Existenz ≠ Verwendung"):
+- D43 (Slice 192/200): Type-Truth-Drift — Silent-Cast / nested-select
+- D46 (Slice 207/227/228): Orphan-Component-Production-Code
+- **D54 (Slice 234): Build-without-Wire — Hooks/Scripts/NPM-Scripts**
+
+Cross-cutting: Tool/Component/Audit kann existieren ohne im echten Workflow zu sein. Enforcement-Architektur (D45 Hooks > Text-Regeln) erzwingt Discipline.
+
+## Bonus-Discoveries diese Session
+
+1. **capture-correction.sh hatte env-var-Bug** (las `CLAUDE_USER_PROMPT` statt JSON-stdin) — 19 Tage tot ohne dass jemand merkte. Slice 234 fixt + UTF-8-tolerant via LC_ALL=C.UTF-8 + dual-Pattern (Slice 234 Reviewer-F-04).
+2. **silent-fail-audit-Heuristik fängt eigene Audit-Tool-JSDoc** — Slice 237 globaler Comment-Skip löst es retro + future-proof.
+3. **Issue-Dedupe via gh listForRepo + title-startsWith** — Slice 234 implementiert + Run #25018867677 verified Comment-Update statt Duplicate.
+4. **Slice 234 hat 14 stale Smoke-Issues batch-closed** — aber Master-Tracker #25 sichtbar gehalten (Reviewer-F-08 HIGH-Concern adressiert: Issue-Closing != Bug-Resolved).
+
+---
+
+# Vorherige Sessions (archiviert)
 
 # Resume-Anker (2026-04-27 — 8-Slice-Marathon: Re-Audit-Heal-Wave + Wave-3-Tooling-Trio)
 
