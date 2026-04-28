@@ -1,29 +1,18 @@
 # Active Slice
 
 ```
-status: ready-to-merge
-slice: 251 Wave 3 Track C — useLeagueScope-Store + LeagueScopeHeader + 6+2-Page-Migration + Cascade-Caller (R-02 Heal)
-stage: PROVE
-spec: worklog/specs/251-spieltag-liga-scope-reform.md (1.3 Pillar 1, 1.4 CONS-5, AC-01/02/03/05/06/12/13/14/17/18 + EC-03/12/13/14)
-impact: worklog/impact/251-store-consumers.md (Annex 2026-04-29: 6 REPLACE + 2 CREATE D54 + 4 DELETE Wave 6 + Datentyp-Brücke)
-proof: worklog/proofs/251-wave-3-track-c.txt (tsc clean + 22/22 vitest + cleanup-greps)
-review: worklog/reviews/251-wave-3-review.md (REWORK → PASS post-Heal F-01+F-02 CTO self-heal)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 251 Wave 3 Track C — Status
+## Slice 251 Wave 3 Track C KOMPLETT: useLeagueScope-Store + LeagueScopeHeader + 6+2-Page-Migration + Cascade-Caller + R-02-Heal + F-01/F-02-Heal post-Reviewer-REWORK. 22/22 Tests grün, tsc clean. Commit 687bcb91 (18 files +1742/-152) auf main. Wave-2-Drift sauber gerebased — SpieltagTab leagueId-prop von activeClub-bridge auf leagueScopeId umgestellt. Manual-Verify post-Deploy: 7 Schritte in worklog/reviews/251-wave-3-review.md.
 
-- **BUILD complete** (frontend-Agent in Worktree): 13 Files + Pre-Review-Memo + Journal
-  - NEW: leagueScopeStore.ts (209 lines, 17 Tests) + LeagueScopeHeader.tsx (103 lines, 5 Tests)
-  - MODIFY 8 Konsumenten: FantasyContent + MarktplatzTab + ClubVerkaufSection + KaderTab + rankings/page + clubs/page + TransferListSection + TrendingSection (D54-driven Build-without-Wire)
-  - R-02 Heal: ClubProvider.tsx +39 (Cascade-Caller useEffect mit 4 Guards + 9 deps)
-- **REVIEW done** (Cold-Context reviewer-Agent): REWORK Verdict, 2 P0 (F-01 + F-02), 4 P1 (deferred V1), 7 P2 (Wave 6 Backlog), 10 PASS-Confirms
-- **HEAL done** (CTO self-heal Single-File FantasyContent.tsx):
-  - F-01: useGameweek-Bridge `activeClub?.league_id` → `useLeagueScope(s => s.leagueId)` (Wave-1-Bridge weg, AC-02/03 erfüllt)
-  - F-02: dashboardStats `events.filter` → `filteredGwEvents.filter` + deps (Wave 2 Pattern, eliminiert Rebase-Konflikt)
-  - Post-Rebase Heal: SpieltagTab leagueId-prop von `activeClub?.league_id` auf `leagueScopeId` (Wave 3 SSOT statt Wave-2-Bridge)
-- **Tests + tsc:** 22/22 vitest grün, tsc clean
-
-## Slice 251 Wave 2 KOMPLETT: Track B Service-Layer + Track F Wildcards Composite-PK + 6 P0/P1 Heal applied. 49/49 Tests grün, tsc clean. 4 Commits in main (7563761b → 46df861d → 91e60a44 → 62bbcb29). Anil-Action: 3 Migrations applien (120000 + 120500 + 121000) vor Wave 3.
+## Slice 251 Wave 2 KOMPLETT: Track B Service-Layer + Track F Wildcards Composite-PK + 6 P0/P1 Heal applied. 49/49 Tests grün, tsc clean. 4 Commits in main (7563761b → 46df861d → 91e60a44 → 62bbcb29). Anil-Action: 3 Migrations applien (120000 + 120500 + 121000) vor Wave 3. Wave 3 (Track C — useLeagueScope-Store + 5-Page-Migration) in fresh session.
 
 ## Slice 251 Wave 1 Track A KOMPLETT (Recovery): Migration applied, Code matcht DB-state, 92/92 Tests grün, Pattern Layer 4 promoted. Commit 71f4efb2.
 

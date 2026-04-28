@@ -1,99 +1,666 @@
-# Working Memory (pre-compaction 2026-04-07 00:56)
+# Working Memory (pre-compaction 2026-04-28 23:12)
 
 ## Sprint
-# Current Sprint — Jarvis Cortex v1
+# Current Sprint — Operation Beta Ready
 
-## Stand (2026-04-03, Session 282 — Manager Redesign)
-- **Tests:** tsc 0 Errors, 936 vitest green (39 Suites)
-- **Branch:** main
-- **Migrations:** 299
-- **Cortex:** v1 operational (5 Phasen, alle smoke-tested)
-- **Agents:** 9 definiert, SHARED-PREFIX v2 (Cortex-aware)
-- **Hooks:** 15 Scripts, alle sed-basiert (grep -oP Fix)
+## Stand (2026-04-14, CTO-Mode aktiviert)
+- **Tests:** tsc CLEAN
+- **Branch:** main (10 Commits seit letztem Sprint-Update)
+- **Migrations:** 61 lokal / 44 remote (Drift dokumentiert, kein Action)
+- **CI:** Build + Lint + Tests gruen (Live-DB Tests intentional skip in CI)
+- **CTO Tools live:** Sentry MCP scoped + Vercel CLI + GitHub gh + Supabase MCP + Playwright MCP
 
-## Erledigt (Session 281 — 2026-04-02)
-- Skynet Smoke Test: Frontend Agent + Reviewer Agent + Hooks + Learning Cycle
-- 4 Hooks gefixt (grep -oP→sed auf Windows)
-- Top3Cards + PredictionCard Player-Links
-- 55 alte Worktrees aufgeraeumt
-- Cortex v1 komplett: Memory-Layers, Morning Briefing, Compaction Shield, AutoDream v2, Agent Telepathy
-- MEMORY.md 190→108 Zeilen, cortex-index.md als Router
-- BES-109: template literal classNames → cn() Fix
+## Erledigt 2026-04-13/14 (Polish Sweep KOMPLETT + Vision-Reset)
 
-## Erledigt (Session 282 — 2026-04-03)
+### Polish Sweep — alle 29/29 Pages ✅ (Commit 27de0eb)
+- Phase 1 Critical Path: Home, Market, Fantasy, Player Detail, Profile, Inventory
+- Phase 2 Supporting: 12 Pages compliance-clean
+- Phase 3 Auth/Onboarding: 5 Pages
+- Phase 4 Admin: 2 Pages  
+- Phase 5 Legal: 4 Pages
+
+### Multi-League Expansion ✅ (Commit 8a5014d)
+- 7 europaeische Ligen, 134 Clubs, 4.263 Spieler
 
 ## Handoff
-# Session Handoff
-## Letzte Session: 2026-04-06 (Nachmittag/Abend)
+<!-- auto:handoff-start -->
+# Session Handoff — Auto (2026-04-28 23:05)
 
-## Was wurde gemacht
+> Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-### 1. Mystery Box Premium — Star Drops Upgrade (3 Commits)
-- MysteryBoxModal komplett neu: 5-State Machine (idle → anticipation → shake → burst → celebration)
-- Canvas Particle System + 6 CSS Keyframes + rarityConfig (5 Stufen: Common → Mythic)
-- Reward Pool erweitert: Tickets + Equipment + bCredits + Cosmetics (config-driven aus `mystery_box_config` DB-Tabelle)
-- Equipment-System deployed: 5 Typen (Feuerschuss ATT, Bananen Flanke MID, Eiserne Mauer DEF, Katzenauge GK, Kapitaen ALL) × 4 Raenge (R1 ×1.05 bis R4 ×1.25)
-- DB: equipment_definitions, equipment_ranks, user_equipment, mystery_box_config Tabellen + open_mystery_box_v2 RPC
-- Visuell getestet auf bescout.net (Mobile 390px + Desktop 1440px) — Box geoeffnet, Common +7 Tickets Reward angezeigt
-- Canvas-Bug gefixt (createRadialGradient negative radius)
+## Uncommitted Changes: 3 Files
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-04-28.md
+ M worklog/audits/type-truth-2026-04-28.md
+```
 
-### 2. Equipment Lineup Integration (1 Commit)
-- Equipment an Spieler im Lineup anlegbar via EquipmentPicker (Bottom Sheet)
-- EquipmentBadge auf Pitch-Slots zeigt Typ + Rang
-- Position-Matching im RPC (Feuerschuss nur ATT, Kapitaen ueberall)
-- score_event RPC erweitert: Equipment-Multiplikator nach Captain-Bonus
-- Equipment wird nach Event-Scoring consumed (einmalig)
-- DB: lineups.equipment_map JSONB, user_equipment.consumed_at, equip_to_slot + unequip_from_slot RPCs
-- NICHT visuell testbar — kein offenes Event (alle 100 "ended")
+## Session Commits: 2
+- 4cef6b95 chore(251): active.md idle + audit-stamps post Wave 1 commit
+- 71f4efb2 feat(251): Wave 1 Track A — leagues.active_gameweek SSOT + Cron Dual-Write + Bridge [RECOVERY]
 
-### 3. Legacy Chips Cleanup (1 Commit)
-- 707 Zeilen geloescht: ChipSelector, chips.ts, chips service, chips queries, chips tests
-- ChipType in types/index.ts behalten (DB-Compat fuer chip_usages in score_event)
+<!-- auto:handoff-end -->
 
-### 4. Specs geschrieben
-- `docs/plans/2026-04-06-mystery-box-premium-spec.md` — Vollstaendige Spec mit Pre-Mortem, Blast Radius, 8 ACs
-- `docs/plans/2026-04-06-equipment-lineup-spec.md` — Equipment Lineup Integration Spec
+---
 
-## Build
-- `tsc --noEmit`: CLEAN (0 Fehler)
-- Tests: 53/53 gruen (Service + Modal Tests)
-- CI: Build + Lint success, Test failure vorbestehend (ipo.test.ts Netzwerk-Error, EventDetailModal vorbestehend)
+## Slice 251 Spieltag Liga-Scope-Reform — IN-PROGRESS
 
-## Offen (naechste Sessions)
+**Stand Session-Ende 2026-04-28:** Wave 1 BUILD fertig, wartet auf Migration-Apply durch Anil + Merge.
 
-### PRIO 1 — Sprint-Features (Geld verdienen)
-1. **Manager Command Center** — einziges offenes Sprint-Feature, braucht /spec
-2. **Scout Missions UI** — Backend komplett (RPCs, Services, Hooks), UI fehlt. "Muss E2E rein"
-3. **Following Feed** — Hooks existieren. "Sicherstellen dass es 100% funzt"
-4. **Transactions History** — Hook existiert, UI fehlt. "Muss rein E2E"
+### Was steht
+- **Audit:** `worklog/audits/spieltag-liga-architektur-2026-04-28.md` (14 Findings, 6 P0)
+- **Spec:** `worklog/specs/251-spieltag-liga-scope-reform.md` (L-Slice, 7 Tracks, 13 Sektionen, 24 ACs, 16 Edge-Cases) — Anil-Approved
+- **Impact:** `worklog/impact/251-spieltag-liga-scope.md` (4 Refinements eingespielt: clubs/page als 5. Konsument, Wave 1 Backfill, Pre-Wave-3-Probe, Track F minimal Frontend)
+- **Worktree:** `.claude/worktrees/agent-aec73207c3b95a285` Branch `slice/251-wave-1-track-a` (15 Files, +190/-39, NICHT committed)
+- **Reviewer-Verdict:** PASS with CONCERNS · Bridge ✓ gefixt (FantasyContent.tsx:83) · Pattern-Promotion ✓ in common-errors.md §0 (4. Mitigation-Layer) · Review-File ✓ persistiert
+- **Tests:** 73+6+12 = 91 grün im Worktree, tsc clean
 
-### PRIO 2 — Kalibrierung + QA
-5. **Oekonomie-Session** — Mystery Box Drop-Raten in mystery_box_config kalibrieren (Benchmark-Recherche gemacht: Brawl Stars, Genshin, Clash Royale)
-6. **Visual QA Equipment Lineup** — Braucht offenes Event. QA-Account hat 7 Equipment Items. Testen sobald naechster Spieltag startet.
-7. **Visual QA Stadium Noir** — Home-Page gesehen (sah gut aus), detaillierte Section-by-Section QA noch ausstehend
+### CEO-Decisions (alle 4 approved)
+1. Liga-Default = `profile.favorite_club.league` Cascade
+2. Wildcards pro-Liga (Track F)
+3. Lineup-Eligibility Pre-Verify ergab P2 (UX-Falle, kein Money-Path-Bug) — Track G refit zu PlayerPicker-Filter Wave 5
+4. Topspiel = Sponsor-Match-Logic
 
-### PRIO 3 — Tech Debt
-8. **Migration History reparieren** — `supabase db push` hat Timestamp-Konflikte. Workaround: `supabase db query --linked -f migration.sql` funktioniert.
-9. **Vorbestehende Test-Failures fixen** — ipo.test.ts (Netzwerk), EventDetailModal.test.tsx (fehlende testids)
-10. **Equipment Inventar Screen** — Optional. User kann Equipment nur im Lineup-Picker sehen, kein eigener Inventar-Screen.
+### Anil-Action vor Wave-2-Start (PFLICHT)
+1. **Migration manuell applien** im Supabase-Dashboard SQL-Editor:
+   ```sql
+   UPDATE public.leagues l
+   SET active_gameweek = sub.min_gw
+   FROM (
+     SELECT league_id, MIN(active_gameweek) AS min_gw
+     FROM public.clubs
+     WHERE league_id IS NOT NULL AND active_gameweek IS NOT NULL
+     GROUP BY league_id
+   ) sub
+   WHERE l.id = sub.league_id
+     AND COALESCE(l.active_gameweek, -1) IS DISTINCT FROM sub.min_gw;
+   ```
+2. **Verify** (erwartet: 0 Rows):
+   ```sql
+   SELECT l.id, l.name, l.active_gameweek, MIN(c.active_gameweek)
+   FROM leagues l LEFT JOIN clubs c ON c.league_id = l.id
+   WHERE l.is_active = true GROUP BY l.id, l.name, l.active_gameweek
+   HAVING l.active_gameweek != MIN(c.active_gameweek)
+      AND MIN(c.active_gameweek) IS NOT NULL;
+   ```
+3. Anil sagt "applied" → Primary-Claude merged Worktree → main + Stage PROVE/LOG → Wave 2 starten (Track B ‖ Track F parallel in 2 neuen Worktrees)
 
-## QA Account
-- Email: jarvis-qa@bescout.net / Handle: jarvisqa
-- 7 Equipment Items zugewiesen (fire_shot R1+R2, iron_wall R3, banana_cross R1, cat_eye R2, captain R1+R4)
-- 18 Tickets, ~7.540 CR, 8 Holdings, Sakaryaspor-Fan, Bronze II
+### Nächste Session — Erste Action
+1. Diesen Handoff-Block lesen
+2. `worklog/active.md` lesen (slice 251, stage build-pending-apply)
+3. Anil fragen: "Migration applied?" — wenn ja: merge + Wave 2. Wenn nein: nur drüber sprechen.
+4. Wave 2 = Track B Service-Layer (`getFixturesByGameweek(gw, leagueId)` + Service-Tests) ‖ Track F Wildcards Composite-PK + RPCs (`get_wildcard_balance(uid, leagueId)` etc.)
+
+### Wave-2-Briefing-Skizze (für nächste Session)
+
+**Track B Backend-Agent (Worktree):**
+- `getFixturesByGameweek(gw)` → `(gw, leagueId?)` mit `.eq('league_id', leagueId)`
+- `pickTopspiel(fixtures, clubId)` → `(fixtures, clubId, leagueId, sponsorClubId?)` Sponsor-Match-Priorität
+- `dashboardStats` Update in FantasyContent (events → filteredGwEvents)
+- 3 Konsumenten: SpieltagTab.tsx:81, events.mutations.ts:133, fixtures.ts:316
+- Tests: fixtures.test.ts (5 Tests), events-v2.test.ts, lib-services-fixtures.test.ts
+- AC-22-Cross-Check: Cron Dual-Write läuft korrekt nach 1 GW-Cycle
+
+**Track F Backend-Agent (paralleler Worktree):**
+- Migration: `user_wildcards` PK von `(user_id)` → `(user_id, league_id)` Composite. ADD league_id NULLABLE → Backfill split per Cascade-Default-Liga (rest-handling) → ALTER PK
+- 3 RPCs: `get_wildcard_balance(p_user_id, p_league_id)`, `earn_wildcards(...,p_league_id)`, `spend_wildcards(...,p_league_id)`. AR-44 REVOKE-Block pflicht.
+- `rpc_save_lineup` Z.359+364: `event.club.league_id` reinholen + an spend/earn passen (CREATE OR REPLACE-Migration)
+- `refund_wildcards_on_leave(p_user_id, p_event_id)`: gleiche league-id Lookup
+- Frontend Read: `useWildcardBalance(uid, leagueId)` Hook erweitern + qk.events.wildcardBalance(uid) → (uid, leagueId)
+- AC-24 Backfill-Sum-Smoke: pre/post Sum-Diff = 0
+
+**Wave 2.5 Pre-Wave-3-Probe** (parallel zu Wave 2 als Read-Only-Audit-Task):
+- 26 Sub-Components in `src/features/<market|manager|fantasy>/` per grep auf Liga-Reads klassifizieren
+- Output: `worklog/impact/251-store-consumers.md` mit Annotation "Reads-Liga: yes/no/transient" pro File
+- Sonst Wave 3 Track C scope-creept
+
+### Token-Budget-Lehre Session 2026-04-28
+- Diese Session hat ~850k Tokens verbraucht (Audit + 3 Agents + Spec + Impact + Wave 1 BUILD + Reviewer + Bridge + Pattern-Promotion)
+- Wave 2 + 3 brauchen frischen Context — `/clear` vor Start, Handoff-Block oben dient als Restart-Punkt
+
+---
+
+# Resume-Anker (2026-04-28 — Tech-Cleanup-Session: 4 Slices D52-Refinement-Wave + GH-Issue-Cleanup, autonom)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `f412b396`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL (Anil-Action-Block, NICHT Tech), last_phase_run aktualisiert
+3. Diese Datei (Resume-Anker, Top-Block — DAS hier)
+4. `git log --oneline -10` (4 Slices = 9 commits diese Session + 1 chore-phase-tracker)
+5. `worklog/log.md` Top 4 Einträge (242 / 240 / 241 / 238)
+6. Dann ggf. älterer Resume-Anker (2026-04-27→28 unten)
+
+## Session-End 2026-04-28 — 4 Slices D52 Refinement-Wave + 7 GH-Issues batch-closed
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter im handoff, mit voller konzentration, fokus und eifer!" → Slice 238 (Triage echter Drift)
+2. "autonom weiter, bis du erschöpft bist" → Slices 241 + 240 + 242 + GH-Issue-Cleanup + Phase-Tracker
+3. "mache alle updates und sicherungen für den clear, wir machen dann nahtlos weiter" → DIESE Pre-Clear-Vorbereitung
+
+## 4 Slices — was diese Session erreicht hat
+
+**Slice 238** — silent-fail-audit Chunked-Detection + Test-File-Skip (XS, Tool, **D52 Refinement #2**). Triage echter Drift im baseline 93/103/196:
+- +1 HIGH `wallet.ts:241` war FALSE-POSITIVE: Code IST chunked (`CHUNK=100`, for-loop), Audit-Window (-2/+3) fand CHUNK-Statement 8 Zeilen oberhalb nicht.
+- +2 MEDIUM `__tests__/club-most-owned-batch.test.ts:64,286` waren Test-File-Mock-Pattern (Pattern 4 hatte keinen test-skip wie Pattern 1).
+- Fix: Pattern 1 lookback -2 → -10 + Pattern 4 test-file-skip analog Pattern 1/7/8.
+- Drift: -28 total / -17 HIGH / -11 MEDIUM. Bonus: ganze Klasse pre-existing for-loop-CHUNK-false-positives in src/lib/services/* die seit Slice 088+092 unsichtbar geflagged waren.
+- Baseline 196/93/103 → 168/76/92. CI-Gate exit 0. 7/7 ACs PASS. Commit 630c15a6.
+
+**Slice 241** — errors-infra.md Knowledge-Capture (XS, Doc, Knowledge-Flywheel-Pflicht). 4 Lehren aus Slice 234 review.md codifiziert:
+1. Spec-Drift-im-Drift-Heal-Anti-Pattern (D54-Slice hatte F-01/F-07 in eigener Spec)
+2. MSYS Git Bash `tr '[:upper:]' '[:lower:]'` ist NICHT UTF-8-aware → LC_ALL=C.UTF-8 + dual-Pattern
+3. Issue-Closing != Bug-Resolved → Master-Tracker für recurring Failure-Klassen (Issue #25)
+4. settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht (Cross-Cutting wie DB-Migration)
+- 1 Section erweitert (Shell/Hooks) + 3 NEU (Cross-Cutting/Operational). 6/6 ACs PASS. 9 Slice-234-Refs. Commit a7198f5e.
+
+**Slice 240** — TM-Once-Off-Scripts Triage (XS, Doc/File-Move, **D54 Allowlist-Cleanup**). 13 KNOWN_ORPHANS triagiert:
+- ARCHIVE (5): tm-club-id-discovery (S141 Phase-B done), tm-squad-scrape-local (S144 Phase-B done), tm-html-inspect (debug-helper), fix-bug-004 (BUG-004 done), fix-migration-history (Migration-Repair done) → `scripts/archived/2026-04-28-once-off/`
+- KEEP (8): operational manual-tools (tm-parser-sanity/verify, tm-profile-local, tm-rescrape-stale, tm-search-local, tm-search-scrape-unknown, enrich-nationality-tm, verify-nationality-coverage)
+- DELETE (0): Archive ist sicherer (git mv preserves history)
+- KNOWN_ORPHANS in wiring-check.ts: 14→10 entries. 0 Production-Refs auf archived. README.md mit Restore-Anleitung. 6/6 ACs PASS. Commit e1294307.
+- Bonus-Discovery: tm-html-inspect.mjs war pre-Slice-240 nicht in KNOWN_ORPHANS-allowlist (latent silent allowlist-drift) — resolved de-facto via Archive.
+
+**Slice 242** — orphan-component-detector Allowlist (XS, Tool, **D52 Refinement #3**). KNOWN_ORPHANS-Mechanism analog wiring-check.ts:
+- 4 entries: 3 test-only fixtures (FollowBtn, HomeSkeleton, ManagerOffersTab) + 1 deferred (CommunityValuation Slice 227 @experimental)
+- Stats erweitert: realDrift + knownAllowlisted parallel ausgegeben
+- Drift: 13 → 9 real-drift (50% Issue-Noise-Reduktion in nightly-audit-Pipeline)
+- 9 echte unused-Components weiter sichtbar — Slice 239 Anil-Wire-Plan-Wave kann sich auf 9 statt 13 fokussieren. 7/7 ACs PASS. Commit 475854bd.
+
+## GitHub-Issue-Cleanup (Master-Tracker-Pattern)
+
+**7 stale Issues batch-closed via Comment + Master-Tracker-Reference:**
+- #22 (Audit-Findings 2026-04-27): silent-fail GREEN, orphan REDUCED, i18n GREEN, tr-strings PENDING-ANIL
+- #26-29-31 (Smoke-Failures): gleiche Bug-Klasse wie #25 → Master-Tracker-Pattern
+- #30 (Audit-Findings 2026-04-28 orphan): superseded durch Slice 242 Allowlist
+
+**Nur Issue #25** (Master-Tracker bescout.net /market Player-Link Timeout) bleibt OPEN — designed-state.
+
+## Pipeline-Status (alle 10 Commits gepusht)
+
+HEAD: `f412b396 chore(beta-phase): last_phase_run 2026-04-28 — Slice 238/240/241/242 + 5 GH-Issues batch-closed`
+
+```
+f412b396 chore(beta-phase) last_phase_run 2026-04-28
+6d2fc61a chore(242) active idle
+475854bd feat(242) orphan-detector Allowlist (D52 #3)
+60611af5 chore(240) active idle
+e1294307 docs(240) TM-Scripts Triage 5 archive
+f866d892 chore(241) active idle
+a7198f5e docs(241) errors-infra Knowledge-Capture 4 Lehren
+5d83839e chore(238) active idle
+630c15a6 feat(238) silent-fail Chunked + Test-Skip (D52 #2)
+056dcfc0 docs(handoff) Pre-Clear VORHERIGE Session
+```
+
+## Cumulative Tech-Side-Stand post-Slice-242
+
+**Audit-Tools (5) gehärtet via D52-Pattern:**
+| Tool | Status | Drift |
+|------|--------|-------|
+| `silent-fail-audit` | GREEN | baseline 76 HIGH / 92 MEDIUM (war 93/103 vor Slice 238) |
+| `audit-stale-check` | GREEN | 0 stale-candidates (Slice 223 Foundation) |
+| `orphan-component-detector` | 9 real-drift | 4 allowlisted (Slice 242 NEU), 9 echte unused warten auf Slice 239 |
+| `type-truth-audit` | GREEN | 0 risk-patterns (Slice 229 Foundation) |
+| `wiring-check` | GREEN | 10 known-allowlisted, 0 real-drift (Slice 234 + 240) |
+
+**Knowledge-Flywheel:**
+- `errors-infra.md` 4 NEU Lehren codifiziert (Slice 241)
+- `decisions.md` D52 jetzt 6× live appliziert (Slice 223/229/237/238/240/242)
+- `.claude/learnings-queue.jsonl` aktiv (capture-correction live seit Slice 234)
+
+**Phase-Tracker:** `worklog/beta-phase.md` last_phase_run aktualisiert. Phase D, last_signoff FAIL. Findings_open: alle NULL.
+
+## Was bleibt — alles nicht-autonom (Anil/Mensch oder Live-Test)
+
+**Slice 239** — 9 echte unused-Components Wire-Plan-Wave:
+- DpcMasteryCard, GameweekScoreBar, LimitOrderModal, PlayerImagePlaceholder, TradeSuccessEffect (5 in player/detail/)
+- HoldingsSection, IPOBuySection, TransferBuySection (3 in player/detail/trading/)
+- BuyOrderModal (1 in features/market/components/shared/)
+- Pro Component: Anil entscheidet delete / wire / defer
+
+**Issue #25 Smoke-Code-Fix** (Player-Link-Timeout):
+- Browser-Auth-Fail / Selector-Drift / DB-Empty / Cold-Start
+- Braucht Live-Test gegen bescout.net (CTO kann nicht autonom)
+- M-Slice — könnte echter Beta-Blocker sein
+
+**Money-Path-CEO-Approvals:**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring)
+- F-09 BPS-Bonus (pre-existing)
+- UX 20 MembershipSection Confirm (pre-existing)
+
+**Anil-Mensch-Block (einziger Beta-READY-Blocker):**
+- 3 Beta-Tester organisieren (Templates fertig in `memory/beta-tester-recruitment-templates.md`)
+- TR-Native-Reviewer organisieren
+- `memory/beta-tester-list.md` schreiben (.gitignore-pflicht)
+- TR-Wording-Reviews: Slice 200a/202/208/224 Strings
+
+## Bei `/clear` Resume-Pfad
+
+1. `worklog/active.md` (idle, **f412b396** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, last_phase_run 2026-04-28, last_signoff FAIL — Anil-Action-Block)
+3. Diese Datei Top-Block (DIESER Resume-Anker)
+4. `worklog/log.md` Top 4 Einträge (242/240/241/238) + Top vorher (237/235/234/233/232/231)
+5. `git log --oneline -12` (10 Commits diese Session + 2 vorherige)
+6. `git worktree list` (sollte nur main sein)
+7. **Nächster sinnvoller Slice:** abhängig von Anil-Direktive — autonom-ROI ist erschöpft.
+   - Wenn "Slice 239" → Anil entscheidet pro Component delete/wire/defer (interaktiv)
+   - Wenn "Smoke-Triage" → Live-Test gegen bescout.net (Anil + ich gemeinsam)
+   - Wenn "Anil-Action" → 3 Tester organisieren (Mensch-Action)
+   - Wenn "neue Idee" → Brainstorming via /spec
+
+## D52-Pattern-Familie — 6× live appliziert
+
+D52 ("Wave-3-Tooling iterativ-tightenen, lieber locker starten + tighten"):
+- **Slice 223** audit-stale-check.ts (D48-Catcher) — Initial-Foundation
+- **Slice 229** type-truth-audit.ts — Iteration 17→0 false-positives
+- **Slice 237** silent-fail-audit Comment-Skip — 3 false-pos weg
+- **Slice 238** silent-fail-audit Chunked + Test-Skip — 28 false-pos weg ⭐ (größter Single-Fix)
+- **Slice 240** TM-Scripts KNOWN_ORPHANS-Triage — Allowlist-Cleanup
+- **Slice 242** orphan-component-detector Allowlist — Mechanism + 4 entries
+
+Tooling-Foundation ist gehärtet. Audit-Pipeline läuft jetzt mit minimal-Noise + maximal-Signal.
+
+---
+
+# Vorherige Sessions (archiviert)
+
+# Resume-Anker (2026-04-27→28 — System-Wiring-Session: 6 Slices, Self-Improvement-Loop + Drift-Prevention enforced + 2× Workflow-Live-Test)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `88df306d`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL (Anil-Action-Block, NICHT Tech)
+3. Diese Datei (Resume-Anker, Top-Block — DAS hier)
+4. `git log --oneline -14` (6 Slices = 14 commits diese Session)
+5. `worklog/log.md` Top 6 Eintraege (231 → 237)
+6. `memory/decisions.md` D53 + D54 (NEU diese Session)
+7. `.claude/rules/workflow.md` Section 3a (Definition-of-Done je Slice-Type)
+
+## Session-End 2026-04-27→28 — 6 Slices, Workflow architektonisch enforced
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter nahtlos im handoff, mit voll diziplin und fokus"
+2. "2+3, danach 4" → Slices 231 + 232 (Wave-3-Tooling-Trio komplett)
+3. "haben wir noch gaps?" + GSD-Reference → Slice 233 Vorschlag akzeptiert
+4. "j" → Slice 233 Self-Improvement-Loop (D53)
+5. **"Plan-Mode + Ultrathink, vollständige Arbeit"** → Slice 234 L-Slice D54
+6. "wir starten mit 3 und testen dabei unseren neuen Workflow" → Slice 235 (i18n)
+7. "b" → Anil-Approval Option B (Kadro + Sahip Wording)
+8. "empfehlung" → Slice 237 Comment-Skip-Heuristik
+9. "bereite alles für einen clear vor" → Diese Pre-Clear-Vorbereitung
+
+## 6 Slices — was diese Session erreicht hat
+
+**Slice 231** — Spec-Quality-Gate Item-Count-Layer-2 (XS, Hook). Reviewer-Lücke aus Slice 212 nach 19 Slices geheilt. Layer 2 prüft Item-Counts pro Slice-Größe (XS=3, S=6, M=6/8, L=10) für Code-Reading + Edge-Cases + ACs. 3 BUILD-Discoveries: UTF-8 `\b`-Bug, Tabellen-Header-Rollback, AC-Code-Block-Pattern.
+
+**Slice 232** — `spec: inline`/`skipped` Bypass Hard-BLOCK (XS, Hook). Erste Hard-BLOCK-Erweiterung. Plain bypass ohne Begründungs-Klammer → BLOCK exit 2. Wave-3-Tooling-Backlog komplett.
+
+**Slice 233** — Nightly Audit Self-Improvement-Loop (S, GHA, **D53**). **Erste autonome Schleife** in BeScout. nightly-audit.yml mit 11 Audit-Steps + Smoke + Auto-Issue-Pipeline. Daily 03:00/04:00 UTC. Live-Run #25011352539 verified.
+
+**Slice 234** — System-Wiring Recovery + Drift-Prevention (L, Hook, **D54**, **Plan-Mode + Ultrathink**). 6 Phasen:
+- HEAL: 8 Hooks registriert (capture-correction, inject-context-on-compact, morning-briefing, pattern-check, quality-gate-v2, run_tests_on_change, session-retro, track-file-changes), 1 archived (quality-gate.sh), 1 deleted (inject-learnings.sh). **Knowledge-Flywheel war 19 Tage tot** (capture-correction.sh env-var-Bug + nicht registriert) → JETZT live, queue.jsonl wächst.
+- PREVENT: scripts/wiring-check.ts (NEU, 230 Zeilen) + ship-tool-wiring-gate.sh (NEU, BLOCK exit 2 bei orphan-Tool).
+- ARCHITEKTUR: Slice-Type-Header pflicht in _TEMPLATE.md + Layer-3 DoD-Hook.
+- LIVE-VERIFY: Run #25018867677, 11 Audit-Steps SUCCESS, Issue-Dedupe verified.
+- 14 stale Smoke-Issues batch-closed, Master-Tracker #25 erstellt.
+- Reviewer-Agent CONCERNS (11 Findings) → PASS post-Heal-Wave.
+
+**Slice 235** — i18n 7 fehlende TR-Keys (XS, **i18n**, **1. Workflow-Live-Test** unter D54-Enforcement). Anil-Approval Option B: Kadro + Sahip. "Kadroda değil" identisch zu existing `formBars.notInSquad` (Bonus-Konsistenz). Alle Hooks silent.
+
+**Slice 237** — silent-fail-audit Comment-Skip-Heuristik (XS, **Tool**, D52 Refinement, **2. Workflow-Live-Test**). Comment-Skip-Regex am Loop-Top fängt 3 false-positives in JSDoc-Comments (scripts/type-truth-audit.ts:12,132,140). Baseline 92→93 HIGH (transparent: 3 false-pos weg + 1 echter Drift dokumentiert).
+
+## Pipeline-Status (alle 14 Commits gepusht)
+
+HEAD: `88df306d chore(237): active idle nach Slice 237 — silent-fail Comment-Skip live`
+
+```
+88df306d chore(237) active idle
+fbeb085b feat(237) silent-fail Comment-Skip
+5b96108a chore(235) active idle
+9ed8cb02 feat(235) i18n TR-Keys
+be8d627c docs(234) proof AC-09 + Issue-Dedupe live-verified
+90070827 chore(234) active idle
+68717459 feat(234) System-Wiring L-Slice D54
+26df79ba chore(233) active idle
+e3ad904b feat(233) Nightly Audit Loop D53
+7ce44068 docs(handoff) Session-End 2026-04-27 — VORHERIGE Session
+```
+
+## System-Status: läuft autonom
+
+**Daily-Cron-Loop (Slice 233+234 D53+D54):**
+- 03:00 UTC: nightly-audit.yml → 11 Audit-Steps (silent-fail, stale, orphan, type-truth, mutation-race, i18n, rpc-security, tr-strings, **compliance**, **wiring**, **findings-to-slices Pipeline**)
+- 04:00 UTC: bescout.net Smoke-Test
+- Issue-Dedupe via gh listForRepo + Comment-Update (max 1 Issue/Tag)
+
+**13 Vercel-Crons** (Daten-Sync): gameweek-sync, sync-players-daily, sync-injuries, sync-standings, sync-fixtures-future, sync-transfers, calculate-mv-trends, calculate-trade-volume-7d, etc.
+
+**3 GHA-Workflows on-Event:** ci.yml (push), post-deploy-smoke.yml (deploy success), post-push-deploy-watchdog.yml (push, D36-Detection)
+
+**Pre-Commit-Hooks aktiv (alle architektonisch enforced):**
+- ship-spec-gate (BLOCK Edit ohne Slice)
+- ship-spec-quality-gate Layer 1+2+3 (WARN)
+- ship-spec-quality-gate Bypass-BLOCK (`spec: inline` plain)
+- ship-cto-review-gate (BLOCK feat ohne Reviewer-File)
+- ship-proof-gate (BLOCK feat ohne Proof)
+- **ship-tool-wiring-gate (BLOCK feat bei orphan-Tool)**
+
+**Knowledge-Flywheel reaktiviert:**
+- capture-correction.sh feuert auf UserPromptSubmit, fängt Korrekturen (Keywords: nein, falsch, stattdessen, hör auf, korrektur etc.) in `.claude/learnings-queue.jsonl`
+- queue.jsonl hat aktuell 4 Test-Korrekturen aus Slice 234 Build-Test
+- /reflect Skill kann jetzt Drafts erzeugen aus queue
+- /promote-rule Skill für Anil-Approval-Pipeline
+
+## Was steht offen — Backlog priorisiert
+
+**Tech-Backlog (CTO-autonom, sofort actionable):**
+- **Slice 238** — Triage echter Drift (+1 HIGH in-without-chunking + 2 MEDIUM error-check entstanden 2026-04-26→27, transparent in baseline 93/103)
+- **Slice 240** — TM-Once-Off-Scripts cleanup (13 orphan TM-Scripts klassifizieren: archive/delete/keep)
+- **Slice 241** — errors-infra.md Knowledge-Capture (4 Lehren aus Slice 234 Reviewer-Heal)
+
+**Tech-Backlog (braucht Anil-Decision):**
+- **Slice 239** — orphan 13 Components Wire-Plan (CommunityValuation, DpcMasteryCard, GameweekScoreBar, LimitOrderModal, etc.) — pro Component delete/wire/defer
+- **Smoke-Code-Fix** — Issue #25 Master-Tracker, Player-Link-Timeout `e2e/beta-smoke.spec.ts:37`. Mögliche Causes: Auth-Fail / Selector-Drift / DB-Empty. Could be echter Beta-Blocker.
+
+**Money-Path-CEO-Decisions (Anil-only):**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring)
+- F-09 BPS-Bonus (pre-existing CEO-pending)
+- UX 20 MembershipSection Confirm-Step
+
+**Anil-Mensch-Block (einziger Beta-READY-Blocker):**
+- 3 Beta-Tester organisieren (Templates fertig in `memory/beta-tester-recruitment-templates.md`)
+- TR-Native-Reviewer
+- `memory/beta-tester-list.md` schreiben (.gitignore-pflicht)
+
+## Bei `/clear` Resume-Pfad
+
+1. `worklog/active.md` (idle, **88df306d** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, last_signoff: FAIL — Anil-Action-Block, NICHT Tech)
+3. Diese Datei (Resume-Anker)
+4. `worklog/log.md` Top 6 Einträge (231/232/233/234/235/237)
+5. `memory/decisions.md` D53 + D54 (Build-without-Wire architektonisch enforced)
+6. `.claude/rules/workflow.md` Section 3a (Definition-of-Done je Slice-Type)
+7. `git worktree list` (sollte nur main sein)
+8. **Nächster sinnvoller Slice:** Anil-Direktive abhängig.
+   - Wenn "weiter" → Slice 238 (Triage echter Drift, XS, autonom)
+   - Wenn "Smoke-Triage" → Slice 235er Code-Fix (Issue #25, M-Slice, kann Beta-Blocker sein)
+   - Wenn Wire-Plan → Slice 239 (Anil entscheidet pro Component)
+
+## Workflow-Live-Test — was Slice 234 D54 in der Praxis macht
+
+**Beobachtung Slice 235 + 237:** alle Hooks silent wie designed.
+
+| Hook | Slice 235 (i18n) | Slice 237 (Tool) |
+|------|------------------|------------------|
+| Layer-1+2 (Sektionen + Items) | silent ✓ | silent ✓ |
+| Layer-3 (Slice-Type-DoD) | silent ✓ (Spec hat tr.json/de.json) | silent ✓ (Spec hat Wiring-Sektion) |
+| ship-tool-wiring-gate | nicht-relevant | silent ✓ (Edit auf existing Tool) |
+| ship-cto-review-gate | review-File ✓ | review-File ✓ |
+| ship-proof-gate | proof-File ✓ | proof-File ✓ |
+| capture-correction | kein Trigger ("b"-Antwort) | kein Trigger |
+
+**Verdict:** Workflow funktioniert. Discipline ist architektonisch enforced statt durch Memory.
+
+## Pattern-Familie etabliert
+
+**D43 → D46 → D54** ("Existenz ≠ Verwendung"):
+- D43 (Slice 192/200): Type-Truth-Drift — Silent-Cast / nested-select
+- D46 (Slice 207/227/228): Orphan-Component-Production-Code
+- **D54 (Slice 234): Build-without-Wire — Hooks/Scripts/NPM-Scripts**
+
+Cross-cutting: Tool/Component/Audit kann existieren ohne im echten Workflow zu sein. Enforcement-Architektur (D45 Hooks > Text-Regeln) erzwingt Discipline.
+
+## Bonus-Discoveries diese Session
+
+1. **capture-correction.sh hatte env-var-Bug** (las `CLAUDE_USER_PROMPT` statt JSON-stdin) — 19 Tage tot ohne dass jemand merkte. Slice 234 fixt + UTF-8-tolerant via LC_ALL=C.UTF-8 + dual-Pattern (Slice 234 Reviewer-F-04).
+2. **silent-fail-audit-Heuristik fängt eigene Audit-Tool-JSDoc** — Slice 237 globaler Comment-Skip löst es retro + future-proof.
+3. **Issue-Dedupe via gh listForRepo + title-startsWith** — Slice 234 implementiert + Run #25018867677 verified Comment-Update statt Duplicate.
+4. **Slice 234 hat 14 stale Smoke-Issues batch-closed** — aber Master-Tracker #25 sichtbar gehalten (Reviewer-F-08 HIGH-Concern adressiert: Issue-Closing != Bug-Resolved).
+
+---
+
+# Vorherige Sessions (archiviert)
+
+# Resume-Anker (2026-04-27 — 8-Slice-Marathon: Re-Audit-Heal-Wave + Wave-3-Tooling-Trio)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `7463600c`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL, **alle findings_open NULL**
+3. Diese Datei (Resume-Anker, Top-Block)
+4. `git log --oneline -16` (8 Slices = 16 commits diese Session)
+5. `worklog/log.md` Top 8 Eintraege (223 bis 230)
+6. `memory/decisions.md` D51 + D52 (NEU 2026-04-27)
+
+## Session-End 2026-04-27 — 8 Slices in Folge, Tech-Side maximal sauber + Audit-Methodik gehärtet
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter im handoff" → Slice 223 D48-Catcher-Tool
+2. "A" → Slice 223 (CTO-Empfehlung Wave-3-Tooling)
+3. "B" → Targeted Phase-A-Re-Audit (3 Agents auf Slice-222-Diff)
+4. **"DU HAST DAS VOLLE KOMANDO; arbeite autonom"** → Slices 224 + 225 + 226 (Re-Audit-Heal-Wave)
+5. "C, den rest übernimmst du autonom" → Slice 227 CommunityValuation-Defer
+6. "übernehme das visual check" → Visual-Check + ORPHAN-NEU-1 Discovery
+7. "autonom weiter" → Slices 228 + 229 + 230 Wave-3-Tooling-Trio
+8. "bereite alles für einen clear bereit" → Pre-Clear-Vorbereitung (diese Datei)
+
+## Pipeline-Status (alle 16 Commits gepusht)
+
+HEAD: `7463600c chore(230): active idle nach Slice 230 — Wave-3-Tooling-Trio komplett (223+228+229+230)`
+
+**Wave 1 — Wave-3-Tooling-Foundation:**
+- 223 `audit-stale-check.ts` — D48-Catcher automatisiert + 2 echte Drifts gefangen (F-07/F-11 reklassifiziert)
+
+**Wave 2 — Re-Audit-Heal-Wave nach Targeted Phase-A-Re-Audit (9 NEU Findings → 7 healed + 1 deferred + 1 wont-fix):**
+- 224 Sentiment-Wording-Heal — 3 Findings (P1+P1+P3) Wurzel-Fix · business.md Verbots-Register erweitert
+- 225 InfoTooltip-Migration — UX-NEU-2/3/4 + Slice 216 Pattern-Drift geheilt · ui-components.md Tooltip-Pattern-Decision-Tree codifiziert
+- 226 Sentiment-Bar 3-Segment — FM-NEU-4 closed · FM-NEU-3 deferred (post-Beta) · FM-NEU-5 wont-fix
+- 227 CommunityValuation @experimental — ORPHAN-NEU-1 (Visual-Check Discovery) deferred + decisions.md D46 erweitert (Component-Achse)
+
+**Wave 3 — Wave-3-Tooling-Trio (CTO autonom, Anil-Direktive "autonom weiter"):**
+- 228 `orphan-component-detector.ts` — D46-Component-Achse automatisiert + 13 echte Orphans entdeckt
+- 229 `type-truth-audit.ts` — D43 Static-Pattern-Detection (3 Bug-Klassen)
+- 230 `ship-phase-tracker-reminder.sh` — Slice 214 Reviewer-Backlog erfüllt
+
+## Tech-Side ist FERTIG — null open Findings
+
+Phase-Tracker (`worklog/beta-phase.md`):
+```yaml
+phase: D
+last_signoff: FAIL (HARD-NO-GO Trial Slice 217 + last_signoff_verdict 2026-04-27 aktualisiert)
+last_phase_run: 2026-04-27 (Targeted Phase-A Re-Audit + Heal-Wave)
+findings_open: P0=0, P1=0, P2=0, P3=0   # ALLE NULL
+deferred: 4 (POSTHOG-NEU-1, FM-RR-2, FM-NEU-3, ORPHAN-NEU-1)
+ceo_pending: 3 (FANTASY-NEU-1, F-09 BPS, UX 20 MembershipSection)
+wont_fix: 3 (FM-RR-1, BRAND-NEU-1, FM-NEU-5)
+stale: 2 (TR-NEU-1, FM-RR-3)
+signoff_questionable: 2 (Page-Health-Score, Persona-Score-numerisch)
+```
+
+## Wave-3-Tooling — 4 Tools + 4 Patterns automatisiert
+
+| Tool | npm-Script | Pattern | Slice |
+|------|-----------|---------|-------|
+| `scripts/audit-stale-check.ts` | `audit:stale` | D48 Audit-Stale-Catcher | 223 |
+| `scripts/orphan-component-detector.ts` | `audit:orphan` | D46 Orphan-Component | 228 |
+| `scripts/type-truth-audit.ts` | `audit:type-truth` | D43 Silent-Cast / nested-select / missing-error | 229 |
+| `.claude/hooks/ship-phase-tracker-reminder.sh` | (Stop-Hook) | findings_open Counter-Update Reminder | 230 |
+
+## Neue Decisions in `memory/decisions.md` (DISTILL diese Session)
+
+- **D51** PROCESS: Targeted Phase-A-Re-Audit nach Money-Path-UI-Edits Pflicht
+  - Begründung: Slice 222 → Re-Audit-Wave produzierte 9 echte NEU Findings aus 10-Lines-Diff
+  - Self-Review-D35-Limit: erkennt Code-Pattern-Konsistenz, NICHT Compliance/Mobile-UX/Domain-Mechanik
+
+- **D52** PROCESS: Wave-3-Tooling — Detection-Tool pro Bug-Klasse-Pattern
+  - Standardisierte API: `audit:*` npm-script + Markdown-Report + Exit-Code-Switch + Negative-Test-Pflicht
+  - Heuristik-Refinement-Lehre: lieber locker starten + iterativ tightenen (Slice 229: 17→0 false-positives)
+
+## Knowledge-Flywheel — codifizierte Lehren
+
+1. **business.md Verbots-Register erweitert** (Slice 224)
+   - "unter-/überbewertet" + "düşük/yüksek değerli" + "Position/pozisyon" als Securities-Drift verboten
+   - CI-Guard-grep-Block ergänzt
+
+2. **ui-components.md Tooltip-Pattern-Decision-Tree** (Slice 225)
+   - Education → InfoTooltip (Mobile-friendly + A11y)
+   - Trivial-Hint → `title=` (Desktop-Hover-OK)
+   - Anti-Pattern dokumentiert + Migration-History (Slice 216 + 222)
+
+3. **decisions.md D46 erweitert um Component-Achse** (Slice 227)
+   - "Audit-Quality-Drift Pattern-Familie": Worktree-Escape + Service-Duplicate + Orphan-Component
+   - Cross-cutting: "Code-Existenz ≠ Code-Im-Render-Tree"
+   - Audit-Methodik-Hardening: import-trace-Pflicht vor P1-Klassifikation
+
+## Visual-Check Discovery — `CommunityValuation` orphan production-code
+
+- Visual-Check 2026-04-27 entdeckte: `CommunityValuation` exported via barrel-index, nirgends importiert
+- **Slice 216 K-RR-1 + Slice 225 InfoTooltip-Migration** wurden auf totes Component appliziert (User sah es nie)
+- **Anil-Decision Option C:** Defer mit `@experimental` JSDoc + Backlog-Eintrag
+- **Wire-Plan:** bei Skala >20 active-scouts auf Player-Detail Community-Tab wiren, sonst Slice 230+ delete
+- **Audit-Methodik-Bug:** Phase-A-Re-Audit hatte Component nicht import-trace-verified → falsche P1-Klassifikation
+- **Slice 228 `orphan-component-detector.ts` verhindert das in Future** (CI-gate-ready)
+
+## Bonus-Discovery: 13 echte Orphans im Codebase
+
+Slice 228 erstes Run zeigte:
+- `CommunityValuation` (Slice 227 known)
+- `DpcMasteryCard`, `GameweekScoreBar`, `LimitOrderModal`, `PlayerImagePlaceholder`, `TradeSuccessEffect`
+- `HoldingsSection`, `IPOBuySection`, `TransferBuySection`
+- `BuyOrderModal` ("aus Beta entfernt AR-11" — File-Leiche, sollte gelöscht werden)
+- `FollowBtn`, `HomeSkeleton`, `ManagerOffersTab` (test-only used)
+
+**Cleanup-Wave Slice 231+ pendiert** — jeder Component eigene Decision (delete/wire/defer). Nicht autonom, weil Wire-Plan-Dialog mit Anil pro Component möglich.
+
+## Zwischen heute und Beta-GO steht NUR noch
+
+**1 Anil-Mensch-Action:** 3 Tester organisieren mit fertigen Templates.
+
+```
+1. memory/beta-tester-recruitment-templates.md → 3 Personen, Templates anpassen
+2. 3× DM/Email schicken
+3. Bei Zusage: memory/beta-tester-list.md (private, .gitignore)
+4. memory/beta-onboarding.md TODO-Stellen ersetzen
+5. Zoom-Calls (~30min × 3)
+
+Erwartete Mensch-Zeit: 3-4h verteilt über 3-7 Tage.
+```
+
+## Anil-Action vor Beta-Verify (gesammelt diese Session + vorheriger)
+
+**Mensch-only-Blocker (Anil):**
+- 3 Beta-Tester organisieren (Templates fertig, ~30min)
+- TR-Native-Reviewer organisieren
+- `memory/beta-tester-list.md` schreiben (private, .gitignore-Pflicht)
+- TR-Wording-Review der Slice 224 NEU-Keys: `sentimentLabel/Bullish/Bearish/Neutral` ("güçlü/zayıf buluyor" / "kararsız")
+- Visual-Verify auf bescout.net post-deploy (Mobile 393px Tap-Test):
+  - `/market` BuyConfirmModal Sentiment-`?`-Icon
+  - Player-Detail CommunityValuation Floor-Preis-`?`-Icon (technisch deployed aber Component ist orphan — Verify zeigt nichts; Wire-Plan pending)
+
+**Money-Path-CEO-Decisions (Anil-only):**
+- FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring-Algorithm-Change)
+- F-09 BPS-Bonus (pre-existing Money-Path)
+- UX 20 MembershipSection Confirm (pre-existing Money-Risk)
+
+**Wire-Plan-Decisions (Anil entscheidet):**
+- 13 Orphan-Components aus Slice 228 — pro Component delete/wire/defer
+- `CommunityValuation` Wire-Plan: bei Skala >20 active-scouts oder löschen?
+
+## Backlog post-Beta (wenn Skala)
+
+- **Slice 231+ Orphan-Cleanup-Wave** (13 Components, jeweils delete/wire/defer Decision)
+- **Slice 240+ PostHog-Instrumentation** (track-Events für login/first_trade/first_lineup/first_post)
+- **Slice 241+ Mobile-Touch-Tooltip-Wave** (D46-Migration auf restliche `title=`-Stellen)
+- **Slice 242+ Watchlist-Standalone-Page** (Feature, kein Bug)
+- **FM 10.2/10.3** Airdrop Personal-Score-History + Friends-Filter (braucht Skala >5 Tester)
+- **Holdings-RPC-Migration** (PostgREST → SECURITY DEFINER, Performance)
+- **L5-Data-Drift Backfill** (11% Players ohne perf_l5)
+- **D43-M-Slice:** Live-DB-`pg_get_functiondef`-Type-Verify-Tool (analog Slice 229 Static-Variante)
+- **D49-Slice 232+:** PLAYER_SELECT_COLS-Sync-Audit-Tool
+
+## Wave-3-Tooling Backlog (CTO-autonom, niedrig prio)
+
+- Hook-Item-Count-Validation (`ship-spec-quality-gate.sh` prüft aktuell nur Sektion-Existenz, nicht ≥-counts)
+- `spec: inline` Bypass Hard-BLOCK (aktuell warn-only)
+
+## Bei /clear oder Token-Limit Resume-Pfad
+
+1. `worklog/active.md` (idle, **7463600c** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, alle findings_open NULL, last_signoff_verdict aktualisiert 2026-04-27)
+3. Diese Datei Top-Block
+4. `worklog/log.md` Top 8 Eintraege (223 → 230)
+5. `git log --oneline -16` zeigt komplette Session-Cascade
+6. `git worktree list` (sollte nur main sein)
+7. `memory/decisions.md` D51 + D52 (DISTILL 2026-04-27)
+8. **Nächster sinnvoller Slice:** abhängig von Anil-Direktive — autonom-ROI ist erschöpft, was übrig ist braucht entweder Anil (Money-Path, Wire-Plans) oder Skala (>20 User für Tools wie FM 10.2/10.3).
+
+## System-Foundation funktioniert (Slice 211-230 cumulative)
+
+Live & autonom:
+- ✅ `ship-phase-gate.sh` UserPromptSubmit-Hook warnt bei "Beta-fertig"-Claims ohne Sign-Off-PASS
+- ✅ `ship-spec-quality-gate.sh` PreToolUse-Hook warnt bei Spec-Pflicht-Sektionen-Lücken
+- ✅ `ship-cto-review-gate.sh` Pre-Commit-Hook blockt feat/fix ohne Reviewer-File
+- ✅ `ship-phase-tracker-reminder.sh` (Slice 230 NEU) Stop-Hook reminded findings_open Update
+- ✅ `scripts/audit-stale-check.ts` (Slice 223) audit-stale CI-gate
+- ✅ `scripts/orphan-component-detector.ts` (Slice 228) orphan CI-gate
+- ✅ `scripts/type-truth-audit.ts` (Slice 229) type-truth CI-gate
+- ✅ `scripts/findings-to-slices.ts` Pipeline auto-generiert Slice-Stubs
+- ✅ `/auto-beta-ready` Skill orchestriert Phase A-D-Loop
+- ✅ Phase-Tracker als SoT, Hooks lesen davon
+
+**Trial-Run-Verdict (Slice 217):** System produziert ehrliches HARD-NO-GO bei realem Stand. **Foundation lügt nicht.**
+
+---
+
+# Vorherige Sessions (archiviert)
+
+# Resume-Anker (2026-04-26 — 14-Slice-Marathon + Self-Healing-Loop-Foundation)
+
+**Wenn `/clear` oder Token-Limit:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `bb5e12cb`
+2. `worklog/beta-phase.md` — Phase D, last_signoff: FAIL, **alle findings_open auf 0**
+3. `memory/current-sprint.md` — vollständiger Stand 2026-04-26 (Slice 208-222)
+4. Diese Datei (Resume-Anker, Top-Block)
+5. `git log --oneline -20` (14 Slices in einer Session)
+6. `worklog/log.md` Top 14 Eintraege (208 bis 222)
+
+## Session-End 2026-04-26 — 14 Slices in Folge, Tech-Side maximal sauber
+
+**Anil-Direktive im Verlauf der Session:**
+1. "weiter im handoff" → Slice 208 FM 6.2 Trend-Sparkline
+2. "weiter" → 209 Audit-Stale-Cleanup
+3. "weiter" → 210 UX 17 airdrop isError
+4. **"mit der SPEC steht und fällt alles, agent soll nicht blind sein"** → Slice 211 Spec-Foundation-Uplift D50
+5. "weiter" → 212 Spec-Quality-Gate-Hook
+6. "A" → 213 QuickActionPills
+7. **"ich höre fertig aber dem ist nicht so, System soll sich selbst heilen, autonom"** → Slice 214 Auto-Beta-Ready Self-Healing-Loop
+8. "los" → 7 Background-Agents dispatched + Live-Test
+9. "re run" → Slice 215 Phase-C Re-Run
+10. "3" → Slice 217 Sign-Off-Trial-Run → HARD-NO-GO (System lügt nicht)
+11. "ja" → Slice 216 P1-Wave-Heal (3 P1 → 0)
+12. **"volle Entscheidungsgewalt, führe aus"** → Slice 218 Test-Mock-Repair, 219 Onboarding-Doc + Recruitment-Templates, 220 Smoke+Sentry+PostHog Verifies
+13. "weiter" → Slice 222 P2-Bundle Reklassifizierung (alle findings_open → 0)
+14. **"/done"** → Session-End
+
+(Detail siehe vorheriger Resume-Anker — durch Slice 223+ obsoleted)
 
 ## Files Changed This Session
-C:\\bescout-app\\memory\\errors.md
+C:\\bescout-app\\.claude\\worktrees\\agent-a22bcd03e4e95e780\\src\\app\\(app)\\fantasy\\FantasyContent.tsx
+C:\\bescout-app\\.claude\\worktrees\\agent-a22bcd03e4e95e780\\src\\components\\fantasy\\SpieltagTab.tsx
+C:\\bescout-app\\.claude\\worktrees\\agent-a22bcd03e4e95e780\\src\\components\\fantasy\\spieltag\\TopspielCard.tsx
+C:\\bescout-app\\.claude\\worktrees\\agent-a22bcd03e4e95e780\\src\\features\\fantasy\\services\\events.mutations.ts
+C:\\bescout-app\\.claude\\worktrees\\agent-a22bcd03e4e95e780\\src\\features\\fantasy\\services\\fixtures.ts
+C:\\bescout-app\\.claude\\worktrees\\agent-a8e42780461aa8f9b\\memory\\episodisch\\journals\\251-wave2-track-f-journal.md
+C:\\bescout-app\\.claude\\worktrees\\agent-a8e42780461aa8f9b\\supabase\\migrations\\20260428120000_user_wildcards_per_league.sql
+C:\\bescout-app\\.claude\\worktrees\\agent-a8e42780461aa8f9b\\supabase\\migrations\\20260428120500_wildcards_rpcs_per_league.sql
+C:\\bescout-app\\.claude\\worktrees\\agent-a8e42780461aa8f9b\\supabase\\migrations\\20260428121000_save_lineup_per_league.sql
 
 ## Git State
- M memory/episodisch/metriken/sessions.jsonl
- D memory/episodisch/sessions/retro-20260407-004028.md
- M memory/errors.md
+ M memory/session-handoff.md
  M memory/working-memory.md
-?? .claude/session-files.txt
-?? memory/episodisch/sessions/retro-20260407-005638.md
+ M worklog/audits/audit-stale-2026-04-28.md
+ M worklog/audits/type-truth-2026-04-28.md
+?? worklog/impact/251-store-consumers.md
 
 Last 3 commits:
-f7ae49c chore: housekeeping — config, memory consolidation, specs, QA snapshots
-32144af feat: Equipment planning on Manager Pitch — Wave 5
-52b211b feat: Manager Command Center — 4-zone layout with IntelPanel, SquadStrip, StatusBar
+4cef6b95 chore(251): active.md idle + audit-stamps post Wave 1 commit
+71f4efb2 feat(251): Wave 1 Track A — leagues.active_gameweek SSOT + Cron Dual-Write + Bridge [RECOVERY]
+b0a73e5d feat(254+255): Walker-Re-Run Pattern v3 + K1 Empty-State Heal

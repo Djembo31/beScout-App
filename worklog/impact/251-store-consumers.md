@@ -163,4 +163,106 @@
 
 ---
 
-**End of Report**
+## Wave-3-Annex (Pre-BUILD-Audit-Erweiterung, 2026-04-29)
+
+Probe Finding 1 + 3 (Fantasy-Page-Gap + Out-of-Scope-Pages) hier formell geschlossen via direkten Greps in `src/app/` und `src/components/`.
+
+### Korrektur Finding 1: fantasyStore IST verwendet — am App-Level
+
+**Probe-Behauptung:** `fantasyCountry/fantasyLeague` 0 Reads → DELETE-Strategie.
+
+**Korrektur:** `src/app/(app)/fantasy/FantasyContent.tsx` liest beide Felder aktiv.
+
+| File | Lines | Read-Type | Migration |
+|------|-------|-----------|-----------|
+| `src/app/(app)/fantasy/FantasyContent.tsx` | 98 | destructure `{ fantasyCountry, fantasyLeague, setFantasyCountry, setFantasyLeague }` | **REPLACE** |
+| `src/app/(app)/fantasy/FantasyContent.tsx` | 118-123 | useEffect: country-change → reset league | Smart-Collapse → in Store |
+| `src/app/(app)/fantasy/FantasyContent.tsx` | 127-136 | filteredGwEvents-Memo (Liga-Filter auf gwEvents) | bleibt — liest aus Store |
+| `src/app/(app)/fantasy/FantasyContent.tsx` | 233-241 | CountryBar + LeagueBar UI | wird LeagueScopeHeader |
+
+**Wave-6-Cleanup-Plan:** fantasyStore.fantasyCountry/fantasyLeague + setter werden REMOVED nachdem FantasyContent migriert ist. Nicht in Wave 3 löschen — Migration zuerst.
+
+### Out-of-Scope-Pages: rankings + clubs nutzen lokales useState (kein Store)
+
+| File | Liga-State | Pattern | Migration |
+|------|------------|---------|-----------|
+| `src/app/(app)/rankings/page.tsx` | `useState('')` filterCountry + filterLeague (L23-24) | Smart-Collapse `handleCountryChange` (L28-31) + CountryBar+LeagueBar (L43-48) + Props weiterreichen an `<PlayerRankings />` (L67) | **REPLACE** lokales State durch `useLeagueScope()` |
+| `src/app/(app)/clubs/page.tsx` | `useState('')` filterCountry + filterLeague (L43-44) | Smart-Collapse + Single-League-Auto-Select useEffect (L57-63) + CountryBar+LeagueBar (L159-170) + filtering-logic (L83-95) | **REPLACE** lokales State durch `useLeagueScope()` — Single-League-Auto-Select kann in Store-Helper |
+
+### TradeSuccessCard — SKIP confirmiert
+
+`src/features/market/components/shared/TradeSuccessCard.tsx` Line 8 importiert `useMarketStore`, aber Line 56 liest nur `setTab` (kein Liga-Field). → SKIP, **kein Migration-Item**.
+
+---
+
+## Migration-Inventar (final, post-Annex)
+
+### REPLACE (6 Konsumenten)
+
+| Stelle | Liga-State-Quelle | Ziel |
+|--------|-------------------|------|
+| `src/app/(app)/fantasy/FantasyContent.tsx` | `useFantasyStore` | `useLeagueScope()` |
+| `src/features/market/components/marktplatz/MarktplatzTab.tsx` | `useMarketStore` | `useLeagueScope()` |
+| `src/features/market/components/marktplatz/ClubVerkaufSection.tsx` | `useMarketStore` | `useLeagueScope()` |
+| `src/features/manager/components/kader/KaderTab.tsx` | `useManagerStore` | `useLeagueScope()` |
+| `src/app/(app)/rankings/page.tsx` | lokales `useState` | `useLeagueScope()` |
+| `src/app/(app)/clubs/page.tsx` | lokales `useState` | `useLeagueScope()` |
+
+### CREATE (2 Files)
+
+| Datei | Zweck |
+|-------|-------|
+| `src/features/shared/store/leagueScopeStore.ts` | Zustand-Store + localStorage + Cascade-Hydrate |
+| `src/components/layout/LeagueScopeHeader.tsx` | Sticky `top-0 z-30` UI (CountryBar + LeagueBar wieder verwendet) |
+
+### DELETE (Wave 6, NACH Wave 3 Migration grün)
+
+- `fantasyStore.fantasyCountry`, `fantasyLeague`, `setFantasyCountry`, `setFantasyLeague`
+- `marketStore.selectedCountry`, `selectedLeague`, `setSelectedCountry`, `setSelectedLeague`
+- `managerStore.kaderCountry`, `kaderLeague`, `setKaderCountry`, `setKaderLeague`
+- `LEAGUE_FALLBACK` Konstante (SpieltagTab.tsx:26-37)
+
+### Datentyp-Brücke
+
+Existing State nutzt `country: string` (Country-Code wie `'DE'`/`'TR'`) + `league: string` (League-Name wie `'Bundesliga'`/`'TFF 1. Lig'`). Spec-Solution-Pillar 1 spezifiziert `leagueId: UUID`. Store muss BEIDES bedienen:
+
+```typescript
+interface LeagueScopeState {
+  // Primary identifiers
+  leagueId: string | null;     // UUID aus leagues.id
+  // Derived (für legacy String-Filter)
+  leagueName: string;           // 'Bundesliga'
+  countryCode: string;          // 'DE'
+  // Setter-API
+  setLeagueScope: (l: { id: string; name: string; country: string }) => void;
+  setCountry: (code: string) => void;     // smart-collapse: leeret leagueId+leagueName
+  resetToDefault: () => void;
+}
+```
+
+Pages, die `c.league === filterLeague` filtern, lesen `leagueName`. Pages, die `league_id`-FK nutzen, lesen `leagueId`.
+
+### Cache-Invalidation auf setLeagueScope
+
+Per AC-13 + EC-13:
+
+```typescript
+queryClient.invalidateQueries({ queryKey: qk.events.leagueGw._def });
+queryClient.invalidateQueries({ queryKey: qk.fantasy.gwFixtureInfo._def });
+queryClient.invalidateQueries({ queryKey: qk.events.fixtures._def });
+queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance._def }); // Slice 251 Wave 2
+```
+
+(query-key paths via `@/lib/queries/keys` — Wave 3 Track C verifiziert exakte Pfade)
+
+### Cascade-Hydrate (3 Stufen)
+
+1. **profile.favorite_club_id** → `getClub(...).league_id` (via `@/lib/clubs`)
+2. **activeClub.league_id** (via `useClub()`)
+3. **getActiveLeagues()[0].id** (via `@/lib/leagues`, alphabetisch)
+
+Hydrate-Effect läuft im Store oder im LeagueScopeHeader-Provider. Skip-on-user-action (per EC-14).
+
+---
+
+**End of Annex**

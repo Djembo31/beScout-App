@@ -1,36 +1,106 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-28 21:23)
+# Session Handoff — Auto (2026-04-29 00:43)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 8 Files
+## Uncommitted Changes: 6 Files
 ```
- M .claude/settings.local.json
  M memory/session-handoff.md
+ M memory/working-memory.md
  M worklog/active.md
  M worklog/audits/audit-stale-2026-04-28.md
  M worklog/audits/type-truth-2026-04-28.md
-?? worklog/audits/spieltag-liga-architektur-2026-04-28.md
-?? worklog/impact/251-spieltag-liga-scope.md
-?? worklog/specs/251-spieltag-liga-scope-reform.md
+ M worklog/impact/251-store-consumers.md
 ```
 
-## Session Commits: 6
-- b0a73e5d feat(254+255): Walker-Re-Run Pattern v3 + K1 Empty-State Heal
-- 8ab3f1ad feat(253): Walker-Pattern v3 — Write/Edit statt Bash-heredoc
-- 8053ab13 feat(252): Phase-C Persona-Walker Re-Run pre-Beta — TR-GO, DE-CONDITIONAL
-- ec5754bd fix(250): silent-fail baseline-recovery — Bot-Filter .limit(1000) defensiv
-- 6c6f5894 docs(decisions): D55-D57 — 4-Layer Discipline + Pre-Verify-Cleanup + False-Alarm-Investigation
-- 1598d469 feat(239): orphan-cleanup-wave 8 DELETE + 1 WIRE (GameweekScoreBar)
+## Session Commits: 7
+- f867cd44 chore(251): Wave 2 PROVE + LOG — active idle + log entry + proof artifact + Pre-Wave-3-Probe + Reviewer-Output
+- 62bbcb29 feat(251): Wave 2 Track B — Service-Layer Liga-Scope + 5 Tests
+- 91e60a44 fix(251): Track F Reviewer-Heal — 4 P0/P1 + 1 P2 fixes
+- 46df861d docs(251): Track F Pre-Review-Memo + Journal finalized
+- 7563761b feat(251): Wave 2 Track F — user_wildcards Composite-PK per-Liga + RPCs + Service
+- 4cef6b95 chore(251): active.md idle + audit-stamps post Wave 1 commit
+- 71f4efb2 feat(251): Wave 1 Track A — leagues.active_gameweek SSOT + Cron Dual-Write + Bridge [RECOVERY]
 
 ## Pending Agent Work: 1 Worktrees
-- **agent-aec73207c3b95a285** (slice/251-wave-1-track-a):  1 file changed, 3 insertions(+), 1 deletion(-)
+- **agent-a3fb1dba8d104a9a8** (worktree-agent-a3fb1dba8d104a9a8):  10 files changed, 112 insertions(+), 146 deletions(-)
 
 <!-- auto:handoff-end -->
 
 ---
 
-## Slice 251 Spieltag Liga-Scope-Reform — IN-PROGRESS
+## Slice 251 Spieltag Liga-Scope-Reform — Wave 1 + Wave 2 LIVE
+
+**Stand Session-Ende 2026-04-28 (post-Wave-2):** Wave 1 + Wave 2 sind komplett live in main + Anil hat alle 4 Migrations applied (Wave 1: leagues.active_gameweek-Backfill + Wave 2: 3 wildcards-Migrations).
+
+### Was steht (Wave 1 + Wave 2 cumulative)
+- **Wave 1 Track A** (Cron + Service-SSOT): Commit `71f4efb2` + active.md idle `4cef6b95`. Migration `20260428175547_slice_251_leagues_active_gameweek_backfill.sql` applied.
+- **Wave 2 Track B** (Service-Layer Liga-Scope): Commit `62bbcb29`. 6 Code + 1 Pre-Review-Memo. 43/43 Tests grün.
+- **Wave 2 Track F** (Wildcards Composite-PK + 4 RPCs): Commits `7563761b` + `46df861d` + `91e60a44`. 13 Files. 6/6 Tests grün. 3 Migrations applied: `20260428120000`, `20260428120500`, `20260428121000`.
+- **Wave 2 chore**: Commit `f867cd44` (PROVE + LOG + Pre-Wave-3-Probe + Reviewer-Output).
+- **HEAD: f867cd44** auf origin/main.
+- **Tests:** tsc clean + vitest 49/49 (43 fixtures + 6 wildcards) post-merge.
+- **Reviewer:** REWORK → Healer 6 Fixes (2 P0 + 3 P1 + 1 P2) → PASS-mit-Anil-Action.
+
+### Nächste Session — Wave 3 Briefing
+
+**Wave 3 Track C** = useLeagueScope-Store + 5-Page-Migration (cross-domain L-Slice).
+
+**KRITISCH — Spec-Update vor BUILD:** Pre-Wave-3-Probe (`worklog/impact/251-store-consumers.md`) fand:
+- **fantasyStore.fantasyCountry/fantasyLeague sind UNUSED** (0 Reads im gesamten Code) → Wave 3 Track C kann LÖSCHEN statt MIGRATE
+- **3 echte Reads-Liga: yes** Konsumenten: `MarktplatzTab.tsx`, `ClubVerkaufSection.tsx`, `KaderTab.tsx`
+- **23 reads-Liga: no** (Feature-state-only, SKIP)
+- **1 unclear** (`TradeSuccessCard.tsx` — vor Wave 3 manuell verifizieren)
+- Spec 1.4 listet 5 Page-Konsumenten: `/fantasy`, `/market`, `/manager`, `/rankings`, `/clubs/page.tsx` — Pre-Wave-3-Probe deckte nur features/ ab, `/rankings` + `/clubs/page.tsx` als Pages out-of-scope für Probe → Wave 3 muss expliziten Audit dieser 2 zusätzlichen Pages tun.
+
+**Reviewer Wave-3-Voraussetzungen (aus `worklog/reviews/251-wave-2-review.md`):**
+1. ✅ Track F Migrations applied — Anil bestätigt
+2. ⚠ Empfohlene Verify-Smokes (manual-run im Supabase-Dashboard SQL-Editor):
+   ```sql
+   -- Composite-PK Verify
+   SELECT a.attname FROM pg_index i JOIN pg_attribute a
+     ON a.attrelid=i.indrelid AND a.attnum=ANY(i.indkey)
+   WHERE i.indrelid='public.user_wildcards'::regclass AND i.indisprimary;
+   -- Expected: 2 rows (user_id, league_id)
+
+   -- RPC-Body Verify
+   SELECT pg_get_functiondef('public.earn_wildcards(uuid,int,text,uuid,uuid,text)'::regprocedure)
+     ILIKE '%auth.uid() IS NOT NULL%' AND
+     pg_get_functiondef('public.earn_wildcards(uuid,int,text,uuid,uuid,text)'::regprocedure)
+     ILIKE '%invalid_league%';
+   -- Expected: TRUE
+   ```
+
+**Wave 3 Plan-Skizze:**
+- **NEU**: `src/features/shared/store/leagueScopeStore.ts` (Zustand mit localStorage-Persistence)
+- **NEU**: `src/components/layout/LeagueScopeHeader.tsx` (Sticky Header sticky top-0 z-30)
+- **MIGRATE**: 3 reads-Liga Konsumenten + 2 Pages (rankings, clubs/page.tsx)
+- **DELETE**: fantasyStore.fantasyCountry/fantasyLeague (UNUSED, Pre-Wave-3-Probe)
+- **DELETE**: marketStore.selectedCountry/selectedLeague + managerStore.kaderCountry/kaderLeague (REPLACE durch SSOT)
+- **Cascade**: profile.favorite_club_id → clubs.league_id → ggf. activeClub.league_id → first active league
+- **Cache-Invalidation**: setLeagueScope triggert invalidate von qk.events.leagueGw + qk.events.wildcardBalance + qk.fantasy.gwFixtureInfo
+
+**Worktree-Strategy für Wave 3:**
+- 1 Worktree für Track C (Frontend cross-page) — kein Backend-Konflikt
+- Optional: Track D (Spieltag-Reform) + Track E (SaisonRang-Tab) parallel als Wave 4, NICHT in Wave 3
+
+### Token-Budget-Lehre Wave 2
+- Diese Session (Wave 2 + Heal + Merge): ~750k-800k Tokens (Plan + 3 Agents + Reviewer + Healer + Merge + Push)
+- Wave 3 braucht frische Session — `/clear` empfohlen vor Start.
+
+### Bei `/clear` Resume-Pfad
+
+1. `worklog/active.md` (idle, **f867cd44** ist HEAD)
+2. `worklog/beta-phase.md` (Phase D, last_signoff: FAIL — Anil-Action-Block)
+3. Diese Datei (Resume-Anker, DAS hier — **Wave 3 Briefing-Block oben**)
+4. `worklog/log.md` Top 2 Einträge (251 Wave 2 + 251 Wave 1)
+5. `worklog/specs/251-spieltag-liga-scope-reform.md` (komplette Spec, vor allem 1.4 Migration-Map + Pillar 1-5)
+6. `worklog/impact/251-store-consumers.md` (Pre-Wave-3-Probe Findings — pflicht-Read vor Track C BUILD)
+7. `git log --oneline -8` (Wave 1 + Wave 2 = 6 commits)
+
+---
+
+## Vorheriger Stand (vor Wave 2 — archiviert)
 
 **Stand Session-Ende 2026-04-28:** Wave 1 BUILD fertig, wartet auf Migration-Apply durch Anil + Merge.
 

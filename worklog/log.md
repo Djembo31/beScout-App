@@ -9,6 +9,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 251 Wave 3 | 2026-04-29 | Spieltag Liga-Scope-Reform — Track C: useLeagueScope-Store + LeagueScopeHeader + 6+2-Page-Migration + Cascade-Caller
+
+- Stage-Chain: SPEC ✓ (in Wave 1) → IMPACT ✓ (Annex 2026-04-29 mit Wave-3-Probe-Lücke geschlossen für FantasyContent + rankings/page + clubs/page) → BUILD (Worktree, frontend-Agent + R-02-Heal Cascade-Caller) → REVIEW (Cold-Context reviewer-Agent: REWORK Verdict, 2 P0 + 4 P1 + 7 P2 + 10 PASS) → HEAL (CTO self-heal F-01 + F-02 in FantasyContent.tsx) → REBASE auf main HEAD f867cd44 (1 Konflikt in active.md + auto-merge FantasyContent + post-Rebase SpieltagTab leagueId-prop von activeClub auf leagueScopeId) → PROVE → LOG
+- Commit: 687bcb91 (18 files, +1742/-152)
+- Files (NEW 8): src/features/shared/store/leagueScopeStore.ts (209 lines, Zustand + localStorage v1 + 3-Stage Cascade + Smart-Collapse + 5-Key Invalidate + EC-03 silent-reset), src/components/layout/LeagueScopeHeader.tsx (103 lines, Sticky/non-sticky Wrapper + getLeague-Resolver), src/features/shared/store/__tests__/leagueScopeStore.test.ts (17 Tests), src/features/shared/store/__tests__/LeagueScopeHeader.test.tsx (5 Tests), worklog/proofs/251-wave-3-track-c.txt, worklog/reviews/251-wave-3-pre-review.md, worklog/reviews/251-wave-3-review.md, memory/episodisch/journals/251-wave3-track-c-leaguescope-journal.md
+- Files (MODIFY 9): src/components/providers/ClubProvider.tsx (+39 R-02 Heal Cascade-Caller useEffect 4 Guards 9 deps), src/app/(app)/fantasy/FantasyContent.tsx (-28 useLeagueScope + LeagueScopeHeader + F-01 Bridge-Heal + F-02 dashboardStats-Heal + leagueScopeId SpieltagTab), src/app/(app)/clubs/page.tsx (-8 useLeagueScope + LeagueScopeHeader + Single-League-Auto-Select schreibt jetzt Store), src/app/(app)/rankings/page.tsx (-8 useLeagueScope + LeagueScopeHeader), src/features/manager/components/kader/KaderTab.tsx (-3 useLeagueScope + LeagueScopeHeader), src/features/market/components/marktplatz/MarktplatzTab.tsx (-24 LeagueScopeHeader indirect), src/features/market/components/marktplatz/ClubVerkaufSection.tsx (+2), src/features/market/components/marktplatz/TransferListSection.tsx (+5 D54-driven), src/features/market/components/marktplatz/TrendingSection.tsx (+1 D54-driven)
+- Spec: worklog/specs/251-spieltag-liga-scope-reform.md (1.3 Pillar 1 + 1.4 CONS-5 + AC-01/02/03/05/06/12/13/14/17/18 + EC-03/12/13/14)
+- Impact: worklog/impact/251-store-consumers.md (Annex 2026-04-29: 6 REPLACE + 2 CREATE D54-driven + 4 DELETE Wave 6 + Datentyp-Brücke leagueId/leagueName/countryCode)
+- Pre-Review-Memo: worklog/reviews/251-wave-3-pre-review.md (Self-Audit ACs + 6 Open-Risks)
+- Review: worklog/reviews/251-wave-3-review.md (REWORK → PASS post-Heal F-01+F-02; Race-Condition-Audit + Wave-2-Drift-Audit + 7 Manual-Verify-Pflichten post-Deploy)
+- Proof: worklog/proofs/251-wave-3-track-c.txt (tsc clean + 22/22 vitest + Cleanup-Greps)
+- Notes: Reviewer-Verdict war REWORK weil F-01 (useGameweek-Bridge `activeClub?.league_id` → `useLeagueScope(s => s.leagueId)`) den zentralen Wave-3-Use-Case (atomic Header-Switch) bringen muss. F-02 (dashboardStats `events.filter` → `filteredGwEvents.filter`) eliminierte beim Heal automatisch den Wave-2-Rebase-Konflikt. Single-File-Heal in FantasyContent.tsx, alle Tests grün post-Heal. Manual-Verify post-Deploy: 7 Schritte (AC-01 Cascade-Stage-1, AC-02 atomar Liga-Switch, AC-03 async-Cycle, AC-12 Mobile 393px, EC-12 Cross-Page-Persistence, F-05 anon→login Edge, F-06 single-league-auto-select Network-Overhead).
+
+
+
 ---
 
 ## 251 Wave 2 | 2026-04-28 | Spieltag Liga-Scope-Reform — Track B (Service-Layer) ‖ Track F (Wildcards Composite-PK + RPCs) + Reviewer-Heal
