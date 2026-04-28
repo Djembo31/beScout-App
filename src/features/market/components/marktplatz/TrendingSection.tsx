@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Zap } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
-import { useMarketStore } from '@/features/market/store/marketStore';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import type { Player } from '@/types';
 import type { TrendingPlayer } from '@/lib/services/trading';
 import DiscoveryCard from '../shared/DiscoveryCard';
@@ -16,7 +16,8 @@ type Props = {
 
 export default function TrendingSection({ trending, playerMap }: Props) {
   const t = useTranslations('market');
-  const { selectedLeague } = useMarketStore();
+  // Slice 251 Wave 3 — Liga-Scope SSOT.
+  const selectedLeague = useLeagueScope((s) => s.leagueName);
 
   // Filter trending by global league selection
   const filtered = useMemo(() => {

@@ -1,0 +1,101 @@
+Slice 251 Wave 3 Track C — Proof
+=================================
+Date:       2026-04-29
+Branch:     worktree-agent-a3fb1dba8d104a9a8
+HEAD-base:  4cef6b95 (pre-Wave-2)
+Heal:       F-01 + F-02 in FantasyContent.tsx (CTO self-heal post-Reviewer-REWORK)
+
+vitest run src/features/shared/store/__tests__/
+==============================================
+ RUN  v4.1.0 C:/bescout-app/.claude/worktrees/agent-a3fb1dba8d104a9a8
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  00:54:38
+   Duration  5.60s
+
+Breakdown:
+- leagueScopeStore.test.ts: 17 Tests (cascade Stage 1/2/3, EC-01 zombie, EC-02 legacy,
+  EC-03 corrupted localStorage 3-Cases, EC-04 first-visit, EC-14 idempotency,
+  setCountry smart-collapse, setLeagueScope cache-invalidation 5x, resetToDefault,
+  initial-state, persistence)
+- LeagueScopeHeader.test.tsx: 5 Tests (render, click handlers, custom-countries-prop)
+
+tsc --noEmit
+============
+0 errors, 0 warnings (clean)
+
+Cleanup-Verify-Greps
+====================
+
+# Old Liga-State-Reads outside Store-Defs and Tests:
+$ grep -rn "fantasyCountry|fantasyLeague|selectedCountry|selectedLeague|kaderCountry|kaderLeague" \
+  src/app/ src/features/market/ src/features/manager/ \
+  | grep -v "store/.*Store.ts\|__tests__"
+(Expected empty after migration → 1 line: TransferListSection.tsx migration-comment, no code-read)
+
+# New Store-Wiring (useLeagueScope):
+$ grep -rn "useLeagueScope" src/
+13 results across 11 files (10 production + Store + 2 Tests):
+  - src/components/layout/LeagueScopeHeader.tsx
+  - src/components/providers/ClubProvider.tsx (Cascade-Caller R-02 Heal)
+  - src/app/(app)/fantasy/FantasyContent.tsx
+  - src/app/(app)/clubs/page.tsx
+  - src/app/(app)/rankings/page.tsx
+  - src/features/manager/components/kader/KaderTab.tsx
+  - src/features/market/components/marktplatz/MarktplatzTab.tsx
+  - src/features/market/components/marktplatz/ClubVerkaufSection.tsx
+  - src/features/market/components/marktplatz/TransferListSection.tsx
+  - src/features/market/components/marktplatz/TrendingSection.tsx
+  - src/features/shared/store/leagueScopeStore.ts (Store-Def)
+  - src/features/shared/store/__tests__/leagueScopeStore.test.ts
+  - src/features/shared/store/__tests__/LeagueScopeHeader.test.tsx
+
+Heal-Pass Detail (FantasyContent.tsx)
+=====================================
+
+F-01 (P0): Wave-1-Bridge → Wave-3-SSOT
+- Removed 3-line bridge comment + activeClub-bridge useGameweek-call
+- Added: const leagueScopeId = useLeagueScope((s) => s.leagueId);
+- useGameweek(gwEvents, leagueScopeId) — atomic Header-Switch effect
+
+F-02 (P0): dashboardStats events → filteredGwEvents (Wave 2 Pattern)
+- Z.133-134: scored-filter-source: events → filteredGwEvents
+- Z.161: useMemo deps: [events] → [filteredGwEvents]
+- Comment updated: "— liga-scoped via filteredGwEvents"
+- Worktree post-Heal == main HEAD-Form → Rebase-Konflikt eliminiert
+
+Bonus: Imports clean
+- Removed: useEffect (Smart-Collapse jetzt im Store)
+- Removed: getLeaguesByCountry (Smart-Collapse no-longer-needed)
+- Removed: CountryBar, LeagueBar (replaced by LeagueScopeHeader)
+- Added: LeagueScopeHeader from @/components/layout/LeagueScopeHeader
+
+Architecture Summary
+====================
+- Store: 209 lines (versioned localStorage `bescout-league-scope-v1` + 3-Stage Cascade
+  + Smart-Collapse + 5-Key Cache-Invalidate + EC-03 silent-reset)
+- Header: 103 lines (sticky/non-sticky + CountryBar + LeagueBar + getLeague-resolver)
+- ClubProvider Cascade-Caller: +39 lines (4 Guards + 9 deps)
+- 8 Konsumenten migriert (6 Briefing + 2 D54-driven Sub-Components)
+- 22 Tests (17 store + 5 header) green
+
+Wave-2-Drift-Audit (Reviewer-confirmed)
+========================================
+- FantasyContent.tsx 4-Hunk-Surface: 3 von 4 Hunks resolved durch Heal-Pass
+- 1 verbleibend: SpieltagTab leagueId-prop (Wave 2 added activeClub-bridge,
+  Worktree muss leagueScopeId nehmen) — post-Rebase Single-line-Edit
+- Andere Files (events.ts, useGameweek.ts, club.ts, wildcards.ts): kein Konflikt
+  (Worktree-Base 4cef6b95 hat bereits Wave-1-Stand)
+
+Manual-Verify-Pflichten (post-Deploy auf bescout.net)
+======================================================
+1. AC-01 Cascade Stage 1: jarvis-qa Login → /fantasy → favorite_club.league im Header
+2. AC-02 atomar Liga-Switch: Header BL→TFF1→BL → GW + max_gameweeks reagieren
+3. AC-03 async-Cycle: BL=10/TFF1=8 → Header zeigt distinct values
+4. AC-12 Mobile 393px: Sticky/non-sticky + scroll-x clean
+5. EC-12 Cross-Page: /market → /fantasy → /clubs alle persistent
+6. F-05 anon→login Edge: Logout → Login mit favorite_club → Header switched?
+7. F-06 single-league: /clubs → TR → 5×invalidate triggert?
+
+Status: PROVE complete, ready for merge into main

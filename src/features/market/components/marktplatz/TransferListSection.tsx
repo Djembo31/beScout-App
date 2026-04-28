@@ -11,6 +11,7 @@ import { InfoTooltip, EmptyState } from '@/components/ui';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import MarketFilters, { applyFilters, applySorting } from '../shared/MarketFilters';
 import { useMarketStore } from '@/lib/stores/marketStore';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { useRecentScores } from '@/lib/queries/managerData';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -49,6 +50,8 @@ export default function TransferListSection({
   useEffect(() => { hasRendered.current = true; }, []);
   const t = useTranslations('market');
   const store = useMarketStore();
+  // Slice 251 Wave 3 — Liga-Filter from global SSOT (replaces store.selectedLeague).
+  const selectedLeague = useLeagueScope((s) => s.leagueName);
   const { data: scoresMap } = useRecentScores();
 
   // Aggregate sell orders by player
@@ -81,9 +84,9 @@ export default function TransferListSection({
   const listingPlayers = useMemo(() => {
     let result = players.filter(p => listings.has(p.id));
 
-    // Global league filter from store
-    if (store.selectedLeague) {
-      result = result.filter(p => p.league === store.selectedLeague);
+    // Global league filter from useLeagueScope SSOT.
+    if (selectedLeague) {
+      result = result.filter(p => p.league === selectedLeague);
     }
 
     // Apply shared filters
@@ -131,7 +134,7 @@ export default function TransferListSection({
     });
 
     return result;
-  }, [players, listings, store, getFloor, showAffordable, balanceCents]);
+  }, [players, listings, store, selectedLeague, getFloor, showAffordable, balanceCents]);
 
   return (
     <div className="space-y-4">

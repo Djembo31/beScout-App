@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Trophy, Loader2 } from 'lucide-react';
-import { ErrorBoundary, CountryBar, LeagueBar } from '@/components/ui';
+import { ErrorBoundary } from '@/components/ui';
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { useUserTickets } from '@/lib/queries/tickets';
 import { getClub } from '@/lib/clubs';
-import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
+import { getCountries, type CountryLocale } from '@/lib/leagues';
 import { useIsClubAdmin } from '@/lib/queries/events';
 import type { FantasyEvent } from '@/components/fantasy';
 import { CreateEventModal, SpieltagTab } from '@/components/fantasy';
@@ -23,6 +24,7 @@ import type { HoldingWithPlayer } from '@/lib/services/wallet';
 
 // Feature module imports
 import { useFantasyStore } from '@/features/fantasy/store/fantasyStore';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { useGameweek } from '@/features/fantasy/hooks/useGameweek';
 import { useFantasyEvents } from '@/features/fantasy/hooks/useFantasyEvents';
 import { useFantasyHoldings } from '@/features/fantasy/hooks/useFantasyHoldings';
@@ -80,9 +82,12 @@ export default function FantasyContent() {
 
   // ── Feature hooks ──
   const { events, gwEvents, activeEvents, selectedEvent, joinedSet, isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useFantasyEvents(store.currentGw);
-  // Slice 251 Wave 1 Bridge: pass activeClub.league_id until Wave 3 (Track C, useLeagueScope) lands.
-  // Without this bridge, useGameweek would fetch with leagueId=null, query disabled, currentGw stuck at 1.
-  const gw = useGameweek(gwEvents, activeClub?.league_id ?? null);
+  // Slice 251 Wave 3 Track C — Liga-Scope SSOT (replaces Wave-1 activeClub.league_id Bridge).
+  // Header-Switch wirkt jetzt überall atomar: useGameweek/Fixtures refetchen via 5-Key-invalidate.
+  const leagueScopeId = useLeagueScope((s) => s.leagueId);
+  const fantasyCountry = useLeagueScope((s) => s.countryCode);
+  const fantasyLeague = useLeagueScope((s) => s.leagueName);
+  const gw = useGameweek(gwEvents, leagueScopeId);
   const { holdings } = useFantasyHoldings();
   const { joinEvent, leaveEvent, submitLineup: handleSubmitLineup } = useEventActions(clubId);
   const { fixtureDeadlines } = useFixtureDeadlines(gw.currentGw, activeEvents.length > 0);
@@ -93,9 +98,6 @@ export default function FantasyContent() {
 
   // Keep ticket balance cache warm
   useUserTickets(userId);
-
-  // ── Country + League filter ──
-  const { fantasyCountry, fantasyLeague, setFantasyCountry, setFantasyLeague } = store;
 
   // Derive countries that actually have events (from club -> country mapping)
   const eventCountries = useMemo(() => {
@@ -112,15 +114,6 @@ export default function FantasyContent() {
     if (eventCountryCodes.size === 0) return allCountries;
     return allCountries.filter(c => eventCountryCodes.has(c.code));
   }, [gwEvents, locale]);
-
-  // Smart auto-select: when country has only 1 league, auto-set league
-  useEffect(() => {
-    if (!fantasyCountry) return;
-    const countryLeagues = getLeaguesByCountry(fantasyCountry);
-    if (countryLeagues.length === 1) {
-      setFantasyLeague(countryLeagues[0].name);
-    }
-  }, [fantasyCountry, setFantasyLeague]);
 
   // Filter gwEvents by selected league
   const filteredGwEvents = useMemo(() => {
@@ -227,20 +220,9 @@ export default function FantasyContent() {
       {/* Compliance Disclaimer (AR-33 Journey #4) */}
       <FantasyDisclaimer variant="card" />
 
-      {/* COUNTRY + LEAGUE FILTER */}
-      <CountryBar
-        countries={eventCountries}
-        selected={fantasyCountry}
-        onSelect={setFantasyCountry}
-        className="mb-1"
-      />
-      <LeagueBar
-        selected={fantasyLeague}
-        onSelect={setFantasyLeague}
-        country={fantasyCountry || undefined}
-        size="sm"
-        className="mb-1"
-      />
+      {/* COUNTRY + LEAGUE FILTER (Slice 251 Wave 3 — global SSOT) */}
+      <LeagueScopeHeader countries={eventCountries} className="mb-1" nonSticky />
+
 
       {/* STICKY NAV */}
       <FantasyNav
@@ -260,7 +242,7 @@ export default function FantasyContent() {
           gameweek={gw.currentGw}
           activeGameweek={gw.activeGw ?? 1}
           clubId={clubId}
-          leagueId={activeClub?.league_id ?? null}
+          leagueId={leagueScopeId}
           isAdmin={isAdmin}
           events={filteredGwEvents}
           userId={user.id}

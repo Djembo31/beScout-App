@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Trophy } from 'lucide-react';
-import { CountryBar, LeagueBar } from '@/components/ui/index';
-import { getCountries, type CountryLocale } from '@/lib/leagues';
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import {
   SelfRankCard,
@@ -18,17 +17,10 @@ import {
 
 export default function RankingsPage() {
   const t = useTranslations('rankings');
-  const locale = useLocale() as CountryLocale;
 
-  const [filterCountry, setFilterCountry] = useState('');
-  const [filterLeague, setFilterLeague] = useState('');
-  const countries = useMemo(() => getCountries(locale), [locale]);
-
-  // When country changes, reset league (Smart Collapse)
-  const handleCountryChange = useCallback((country: string) => {
-    setFilterCountry(country);
-    setFilterLeague('');
-  }, []);
+  // Slice 251 Wave 3 — Liga-Scope SSOT (replaces local useState).
+  const filterCountry = useLeagueScope((s) => s.countryCode);
+  const filterLeague = useLeagueScope((s) => s.leagueName);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-6 space-y-6 pb-24 lg:pb-8">
@@ -38,15 +30,8 @@ export default function RankingsPage() {
         <h1 className="text-2xl font-black text-white">{t('title')}</h1>
       </div>
 
-      {/* Country + League Filter */}
-      <div className="space-y-2">
-        <CountryBar countries={countries} selected={filterCountry} onSelect={handleCountryChange} />
-        <LeagueBar
-          selected={filterLeague}
-          onSelect={setFilterLeague}
-          country={filterCountry || undefined}
-        />
-      </div>
+      {/* Country + League Filter (Slice 251 Wave 3 — global SSOT) */}
+      <LeagueScopeHeader leagueBarSize="md" nonSticky />
 
       {/* Self Rank */}
       <SelfRankCard />

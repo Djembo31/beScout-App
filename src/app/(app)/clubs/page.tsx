@@ -3,9 +3,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar, Sparkles, Flame } from 'lucide-react';
-import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
+import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -14,7 +16,7 @@ import { useToggleFollowClub } from '@/lib/hooks/useToggleFollowClub';
 import { getClubsWithStats } from '@/lib/services/club';
 import { getNextFixturesByClub } from '@/lib/services/fixtures';
 import { useMostOwnedPlayersPerClubBatch } from '@/lib/queries/trades';
-import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
+import { getLeaguesByCountry } from '@/lib/leagues';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 import type { DbClub } from '@/types';
 import { FanWishModal } from '@/components/fan-wishes/FanWishModal';
@@ -40,27 +42,22 @@ export default function ClubsDiscoveryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [wishOpen, setWishOpen] = useState(false);
-  const [filterCountry, setFilterCountry] = useState('');
-  const [filterLeague, setFilterLeague] = useState('');
+  // Slice 251 Wave 3 — Liga-Scope SSOT (replaces local useState filterCountry/filterLeague).
+  const filterCountry = useLeagueScope((s) => s.countryCode);
+  const filterLeague = useLeagueScope((s) => s.leagueName);
+  const setLeagueScope = useLeagueScope((s) => s.setLeagueScope);
   const tw = useTranslations('fanWishes');
-  const locale = useLocale() as CountryLocale;
 
-  const countries = useMemo(() => getCountries(locale), [locale]);
-
-  // When country changes, reset league (Smart Collapse)
-  const handleCountryChange = useCallback((country: string) => {
-    setFilterCountry(country);
-    setFilterLeague('');
-  }, []);
-
-  // Smart auto-select: when country has only 1 league, auto-set league
+  // Smart auto-select kept page-local (per Spec V1 — auto-select can move to
+  // store in V2). Without locale-side league lookup we resolve via library.
   useEffect(() => {
-    if (!filterCountry) return;
+    if (!filterCountry || filterLeague) return;
     const countryLeagues = getLeaguesByCountry(filterCountry);
     if (countryLeagues.length === 1) {
-      setFilterLeague(countryLeagues[0].name);
+      const single = countryLeagues[0];
+      setLeagueScope({ id: single.id, name: single.name, country: single.country });
     }
-  }, [filterCountry]);
+  }, [filterCountry, filterLeague, setLeagueScope]);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,20 +151,8 @@ export default function ClubsDiscoveryPage() {
         <p className="text-sm text-white/50 text-pretty">{t('discoverDesc')}</p>
       </div>
 
-      {/* Country + League Filter */}
-      <div className="space-y-2">
-        <CountryBar
-          countries={countries}
-          selected={filterCountry}
-          onSelect={handleCountryChange}
-        />
-        <LeagueBar
-          selected={filterLeague}
-          onSelect={setFilterLeague}
-          country={filterCountry || undefined}
-          size="sm"
-        />
-      </div>
+      {/* Country + League Filter (Slice 251 Wave 3 — global SSOT) */}
+      <LeagueScopeHeader nonSticky />
 
       {/* Search */}
       <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder={t('searchPlaceholder')} />

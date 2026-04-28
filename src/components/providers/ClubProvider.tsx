@@ -5,6 +5,7 @@ import { useUser } from './AuthProvider';
 import { initClubCache } from '@/lib/clubs';
 import { initLeagueCache } from '@/lib/leagues';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import type { DbClub } from '@/types';
 
 // ============================================
@@ -63,7 +64,7 @@ function ssSetClub(club: DbClub | null): void {
 // ============================================
 
 export function ClubProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useUser();
+  const { user, profile } = useUser();
   const userId = user?.id ?? null;
   const [activeClub, setActiveClubState] = useState<DbClub | null>(null);
   const [cachesReady, setCachesReady] = useState(false);
@@ -72,6 +73,12 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   // Followed-Clubs via Query-Cache. Provider ist Consumer, nicht Owner.
   // `useFollowedClubs` gated selbst via `enabled: !!userId`.
   const { data: followedClubs, isLoading: followedLoading } = useFollowedClubs();
+
+  // Slice 251 Wave 3 Track C — League-Scope cascade hydration (R-02 heal).
+  // hydrateFromCascade is idempotent: respects user-pick from localStorage,
+  // only fires once via internal `hydrated` flag.
+  const hydrateLeagueScope = useLeagueScope((s) => s.hydrateFromCascade);
+  const leagueScopeHydrated = useLeagueScope((s) => s.hydrated);
 
   // Init club+league lookup caches (sync lookups in `getClub()` / `getLeague()`).
   // Einmal pro Session ausreichend — Cache-Dedupe in den jeweiligen Services.
@@ -109,6 +116,36 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     if (next) ssSetClub(next);
     setHydrated(true);
   }, [userId, followedLoading, followedClubs]);
+
+  // Slice 251 Wave 3 Track C — fire LeagueScope cascade once caches+hydrate are ready.
+  // Cascade reads:
+  //   1. profile.favorite_club_id → getClub(...).league_id
+  //   2. activeClub.league_id (just-hydrated state above)
+  //   3. getActiveLeagues()[0] alphabetic
+  // Idempotent: store self-skips if user already has a persisted choice.
+  useEffect(() => {
+    if (!cachesReady) return;
+    if (!hydrated) return;          // wait for activeClub hydration
+    if (!userId) return;            // anon-user: cascade skipped, store stays default
+    if (leagueScopeHydrated) return; // already done
+
+    void hydrateLeagueScope({
+      profileFavoriteClubId: profile?.favorite_club_id ?? null,
+      activeClubLeagueId: activeClub?.league_id ?? null,
+      activeClubName: activeClub?.league ?? null,
+      activeClubCountry: activeClub?.country ?? null,
+    });
+  }, [
+    cachesReady,
+    hydrated,
+    userId,
+    leagueScopeHydrated,
+    profile?.favorite_club_id,
+    activeClub?.league_id,
+    activeClub?.league,
+    activeClub?.country,
+    hydrateLeagueScope,
+  ]);
 
   const setActiveClub = useCallback((club: DbClub) => {
     setActiveClubState(club);

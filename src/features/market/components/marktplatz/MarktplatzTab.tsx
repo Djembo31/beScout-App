@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Zap, Search, Send, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
-import { SkeletonCard, CountryBar, LeagueBar } from '@/components/ui';
-import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
+import { SkeletonCard } from '@/components/ui';
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
 import { useMarketStore } from '@/features/market/store/marketStore';
 import type { KaufenSubTab } from '@/features/market/store/marketStore';
 import type { Player, DbIpo, DbHolding, PublicOrder } from '@/types';
@@ -70,21 +70,11 @@ export default function MarktplatzTab({
   const tt = useTranslations('tips');
   const {
     kaufenSubTab, setKaufenSubTab, setTab, setPortfolioSubTab,
-    selectedCountry, setSelectedCountry, selectedLeague, setSelectedLeague,
   } = useMarketStore();
+  // Slice 251 Wave 3 — Liga-Scope SSOT (replaces marketStore.selectedCountry/selectedLeague).
+  // Other consumers in this tree (ClubVerkaufSection, TransferListSection, TrendingSection)
+  // also read from useLeagueScope after this migration.
   const [searchOpen, setSearchOpen] = useState(false);
-  const locale = useLocale() as CountryLocale;
-
-  const countries = useMemo(() => getCountries(locale), [locale]);
-
-  // Smart auto-select: when country has only 1 league, auto-set selectedLeague
-  useEffect(() => {
-    if (!selectedCountry) return;
-    const countryLeagues = getLeaguesByCountry(selectedCountry);
-    if (countryLeagues.length === 1) {
-      setSelectedLeague(countryLeagues[0].name);
-    }
-  }, [selectedCountry, setSelectedLeague]);
 
   const getFloor = (p: Player) => floorMap.get(p.id) ?? 0;
 
@@ -97,20 +87,8 @@ export default function MarktplatzTab({
 
   return (
     <>
-      {/* Country + League filter bars */}
-      <CountryBar
-        countries={countries}
-        selected={selectedCountry}
-        onSelect={setSelectedCountry}
-        className="mb-2"
-      />
-      <LeagueBar
-        selected={selectedLeague}
-        onSelect={setSelectedLeague}
-        country={selectedCountry || undefined}
-        size="sm"
-        className="mb-3"
-      />
+      {/* Country + League filter (Slice 251 Wave 3 — global SSOT) */}
+      <LeagueScopeHeader className="mb-3" nonSticky />
 
       {/* Sub-Tabs + Search toggle */}
       <div className="flex items-center gap-2 mb-4">

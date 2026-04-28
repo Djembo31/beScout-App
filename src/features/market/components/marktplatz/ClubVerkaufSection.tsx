@@ -8,6 +8,7 @@ import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useMarketStore } from '@/lib/stores/marketStore';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { applyFilters } from '../shared/MarketFilters';
 import EndingSoonStrip from './EndingSoonStrip';
 import ClubCard from './ClubCard';
@@ -55,10 +56,11 @@ export default function ClubVerkaufSection({
   const { data: followedClubs = [] } = useFollowedClubs();
   const store = useMarketStore();
   const {
-    selectedLeague,
     clubVerkaufExpandedClub, setClubVerkaufExpandedClub,
     ipoViewState, setIpoViewState,
   } = store;
+  // Slice 251 Wave 3 — Liga-Filter from global SSOT (replaces marketStore.selectedLeague).
+  const selectedLeague = useLeagueScope((s) => s.leagueName);
 
   const hasRendered = useRef(false);
   useEffect(() => { hasRendered.current = true; }, []);

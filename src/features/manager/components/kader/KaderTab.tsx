@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { Package, Tag, MessageSquare, ShoppingCart, CheckSquare, X, Loader2 } from 'lucide-react';
-import { EmptyState, CountryBar, LeagueBar } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -12,6 +13,7 @@ import { useRecentMinutes, useRecentScores, useRecentScoreGameweeks, useNextFixt
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useHoldingLocks } from '@/lib/queries/events';
 import { useManagerStore } from '@/features/manager/store/managerStore';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import dynamic from 'next/dynamic';
 // Slice 116 CLS-Fix: Skeleton mit fixed-height.
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
@@ -103,10 +105,10 @@ export default function KaderTab({
   const setKaderDetailPlayerId = useManagerStore(s => s.setKaderDetailPlayerId);
   const setActiveTab = useManagerStore(s => s.setActiveTab);
   const setPendingLineupPlayerId = useManagerStore(s => s.setPendingLineupPlayerId);
-  const kaderCountry = useManagerStore(s => s.kaderCountry);
-  const setKaderCountry = useManagerStore(s => s.setKaderCountry);
-  const kaderLeague = useManagerStore(s => s.kaderLeague);
-  const setKaderLeague = useManagerStore(s => s.setKaderLeague);
+  // Slice 251 Wave 3 — Liga-Scope SSOT (replaces managerStore.kaderCountry/kaderLeague).
+  const kaderCountry = useLeagueScope(s => s.countryCode);
+  const setKaderCountry = useLeagueScope(s => s.setCountry);
+  const kaderLeague = useLeagueScope(s => s.leagueName);
 
   // Local state
   const [query, setQuery] = useState('');
@@ -393,18 +395,8 @@ export default function KaderTab({
       {/* Equipment shortcut → /inventory?tab=equipment */}
       <EquipmentShortcut />
 
-      {/* Country + League Bars */}
-      <CountryBar
-        countries={kaderCountries}
-        selected={kaderCountry}
-        onSelect={setKaderCountry}
-      />
-      <LeagueBar
-        selected={smartLeague}
-        onSelect={setKaderLeague}
-        country={kaderCountry || undefined}
-        size="sm"
-      />
+      {/* Country + League Bars (Slice 251 Wave 3 — global SSOT) */}
+      <LeagueScopeHeader countries={kaderCountries} nonSticky />
 
       {/* Toolbar */}
       <KaderToolbar
