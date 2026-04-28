@@ -22,7 +22,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Triage: 5 ARCHIVE (tm-club-id-discovery, tm-squad-scrape-local, tm-html-inspect, fix-bug-004, fix-migration-history), 8 KEEP (operational manual-tools), 0 DELETE
 - Wiring: audit:wiring real-drift=0 (unverändert, nur Allowlist 14→10 reduced)
 - Bonus: `tm-html-inspect.mjs` war pre-Slice-240 nicht in KNOWN_ORPHANS-allowlist (latent silent allowlist-drift). Slice 240 resolved de-facto via Archive.
-- Commit: TBD
+- Commit: e1294307
 
 ---
 
