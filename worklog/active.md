@@ -1,17 +1,21 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 244
-stage: BUILD
-spec: worklog/specs/244-branch-protection-audits.md
-impact: skipped (GHA-only, kein Cross-Domain)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
 proof: —
 review: —
 ```
 
+## Pending: Slice 244 Phase 2 (Branch-Protection PUT) — wartet auf Anil-Permission
+
 ## Zuletzt
 
+- **Slice 245** (2026-04-28) — Deferred-Items Re-Eval-Reminder-Hook (XS, Slice-Type=Hook, **docs/test.rtf #6** strukturell geheilt). Stop-Hook `ship-deferred-reeval-reminder.sh` printet alle 7 Tage ODER bei deferred-Count-Change die 4 deferred-Items aus beta-phase.md mit ihren Re-Eval-Triggers. State-File `.claude/state/deferred-reeval-last-shown` (gitignored). Pattern-Wiederholung Slice 230 ship-phase-tracker-reminder.sh. 8/8 ACs PASS im Live-Smoke (erster print + zweiter silent + count-change-trigger + leerer-Block-silent + state-file-format).
+- **Slice 244** (2026-04-28, Phase 1) — Branch-Protection erweitern um Audit-required-status-check (XS, Slice-Type=GHA, **docs/test.rtf #9** Phase 1/2). ci.yml NEU `audit` job mit pnpm-setup-Boilerplate + 3 Steps (audit:type-truth + audit:stale + audit:wiring:check). Phase-1-Live-Verify: CI-Run 25052831580 audit-Job 36s grün. Phase 2 (gh api PUT branch-protection mit ["lint","build","test","audit"]) wartet auf Anil-Permission.
 - **Slice 243** (2026-04-28) — Pre-commit-hook Audit-Wiring (XS, Slice-Type=Hook, **docs/test.rtf #8** strukturell geheilt). 3 NEU Steps zwischen tsc und lint-staged: audit:type-truth + audit:stale + audit:wiring:check. Total-Latenz 31.7s < 50s AC-Limit. Negative-Test: Risk-Pattern in src/lib/services/ triggert exit 1, pre-commit BLOCKED. audit:orphan bewusst ausgeschlossen (66s + designed-state-exit-1). Self-Review D35 (Pattern-Wiederholung Slice 234 D54 + Slice 232 + Slice 230). 6/6 ACs PASS.
 - **Slice 238** (2026-04-28) — silent-fail-audit Chunked-Detection + Test-File-Skip (XS, Slice-Type=Tool, **D52 Refinement #2**). Triage echter Drift: +1 HIGH `wallet.ts:241` (false-pos chunked-Detection-Window zu klein) + 2 MEDIUM `__tests__/club-most-owned-batch.test.ts:64,286` (false-pos test-file). Pattern 1 Context-Window von -2 auf -10 + Pattern 4 Test-File-Skip.
 - **Slice 237** (2026-04-27) — silent-fail-audit Comment-Skip-Heuristik (XS, Slice-Type=Tool, D52 Refinement). Issue #22 silent-fail HIGH ↑3 → 3 False-Positives in JSDoc-Comments. Globaler Comment-Skip-Regex `^\s*(\/\/|\*\s|\*$|\/\*)` am Loop-Top. HIGH 96→93 (-3 false-positives + Bonus -1 silent-catch-arrow). Baseline transparent updated 92/102/194 → 93/103/196 (berücksichtigt 1 echter NEU HIGH + 2 MEDIUM Drift = Slice 238 Backlog). CI-Gate exit 0. **2. Workflow-Live-Test unter Slice 234 D54-Enforcement** alle Hooks silent. Self-Review D35 PASS. Commit fbeb085b.

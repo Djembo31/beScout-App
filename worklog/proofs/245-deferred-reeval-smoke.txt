@@ -1,0 +1,81 @@
+Slice 245 — Deferred-Items Re-Eval-Reminder · Proof
+====================================================
+Datum: 2026-04-28
+Slice-Type: Hook
+Stage-Chain: SPEC → IMPACT (skipped) → BUILD → REVIEW → PROVE → LOG
+
+AC-01: Hook-Datei existiert + executable
+====================================================
+$ ls -la .claude/hooks/ship-deferred-reeval-reminder.sh
+-rwxr-xr-x ... ship-deferred-reeval-reminder.sh
+✅ PASS
+
+AC-02: settings.json Stop-Hook-Registration
+====================================================
+$ grep -A1 "ship-deferred-reeval-reminder" .claude/settings.json
+"command": "bash C:/bescout-app/.claude/hooks/ship-deferred-reeval-reminder.sh"
+✅ PASS — registriert nach ship-phase-tracker-reminder, vor pattern-check.
+
+AC-03: Hook liest deferred-Items aus beta-phase.md
+====================================================
+$ rm -f .claude/state/deferred-reeval-last-shown
+$ bash .claude/hooks/ship-deferred-reeval-reminder.sh
+
+[deferred-reeval-reminder] 4 deferred-Items in worklog/beta-phase.md.
+   Bei jedem 7-Tage-Intervall ODER count-Change → diese Liste pruefen:
+
+    - POSTHOG-NEU-1 (post-3-Tester-Beta, wenn Skala >20 User)
+    - FM-RR-2 (Watchlist-Standalone-Page Feature)
+    - FM-NEU-3 (Sentiment Reliability-Weighting — post-Beta wenn Skala >20 User; bei N<5 Testern null praktischer Effekt, Service-Erweiterung wäre M-Slice mit 0% Pre-Beta-ROI)
+    - ORPHAN-NEU-1 (CommunityValuation orphan production-code — Slice 227 mit @experimental JSDoc markiert + decisions.md D46 erweitert. Wire-Plan-Decision: bei Skala >20 active-scouts auf Player-Detail Community-Tab wiren, sonst Slice 230+ delete)
+
+   Frage: Trigger-Bedingung erfuellt? (z.B. Skala >20 active-scouts erreicht)
+     → JA: deferred-Item nach reopen verschieben (P1/P2/P3) ODER closed
+     → NEIN: weiter deferred lassen, Hook reminded in 7 Tagen wieder
+   Hook-Quelle: .claude/hooks/ship-deferred-reeval-reminder.sh
+
+✅ PASS — alle 4 deferred-Items korrekt extrahiert + gerendert.
+
+AC-04: State-File-Mechanik
+====================================================
+$ cat .claude/state/deferred-reeval-last-shown
+1777379591
+4
+✅ PASS — 2 Zeilen: Unix-Timestamp + Items-Count.
+
+AC-05: Erster Run printet (siehe AC-03 oben) — ✅ PASS
+
+AC-06: Zweiter Run silent
+====================================================
+$ bash .claude/hooks/ship-deferred-reeval-reminder.sh
+(kein Output)
+✅ PASS — Cooldown-Mechanik funktioniert.
+
+Bonus: Count-Change-Trigger
+====================================================
+$ echo "1700000000" > .claude/state/deferred-reeval-last-shown
+$ echo "99" >> .claude/state/deferred-reeval-last-shown
+$ bash .claude/hooks/ship-deferred-reeval-reminder.sh
+[deferred-reeval-reminder] 4 deferred-Items in worklog/beta-phase.md.
+...
+✅ Count-Change (99 != 4) triggers force-print unabhängig vom Cooldown.
+
+AC-07: Leerer deferred-Block silent (simuliert)
+====================================================
+awk-Logik gegen temp-File ohne deferred-Items liefert COUNT=0.
+Hook hat Branch `[ "$ITEMS_COUNT" -eq 0 ] && exit 0`.
+✅ PASS — kein Output bei leerem Block.
+
+AC-08: .gitignore .claude/state/
+====================================================
+$ grep "^.claude/state" .gitignore
+.claude/state/
+✅ PASS — State-File wird nicht commited.
+
+==================================================
+SUMMARY: 8/8 ACs PASS
+Slice 245 docs/test.rtf #6 strukturell geheilt: Stop-Hook reminded
+alle 7 Tage ODER bei deferred-Count-Change. Findings-Garbage-Collection
+ist jetzt architektonisch enforced.
+
+Pattern-Familie: Slice 230 (Stop-Hook-Reminder) + D45 (Hooks > Text).

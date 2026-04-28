@@ -11,6 +11,40 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 245 | 2026-04-28 | Deferred-Items Re-Eval-Reminder-Hook (docs/test.rtf #6 strukturell geheilt)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Hook-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: .claude/hooks/ship-deferred-reeval-reminder.sh (NEU), .claude/settings.json (Stop-Hook-Registration), worklog/specs/245-*.md, worklog/reviews/245-review.md, worklog/proofs/245-deferred-reeval-smoke.txt, worklog/active.md
+- Spec: worklog/specs/245-deferred-reeval-reminder.md
+- Review: worklog/reviews/245-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 230 ship-phase-tracker-reminder.sh)
+- Proof: worklog/proofs/245-deferred-reeval-smoke.txt
+- ACs: 8/8 PASS
+- Trigger: Stop-Event, Cooldown 7 Tage ODER deferred-Count-Change
+- Iteration 1 (Reminder-only): Iteration 2 (Auto-Eval gegen DB/PostHog) → post-Beta
+- State-File `.claude/state/deferred-reeval-last-shown` (gitignored)
+- Robustness: set +e, exit 0 immer (kein Stop-Hook-Cascading-Break)
+- 4 aktuelle deferred-Items: POSTHOG-NEU-1, FM-RR-2, FM-NEU-3, ORPHAN-NEU-1 (alle "post-Beta wenn Skala >20")
+- Pattern-Familie: D45 (Hooks > Text-Regeln), Slice 230 Stop-Hook-Reminder-Pattern
+- Letzter Slice der 3-Slice-Discipline-Hardening-Wave (243 + 244 + 245)
+
+---
+
+## 244 | 2026-04-28 | Branch-Protection-Audit-Job — Phase 1/2 (docs/test.rtf #9)
+
+- Stage-Chain: SPEC → IMPACT (skipped: GHA-only) → BUILD → REVIEW (self-review D35) → PROVE (Phase-1-partial) → LOG
+- Files: .github/workflows/ci.yml (NEU audit-Job), worklog/specs/244-*.md, worklog/reviews/244-review.md, worklog/proofs/244-ci-yml-diff.txt, worklog/active.md
+- Spec: worklog/specs/244-branch-protection-audits.md
+- Review: worklog/reviews/244-review.md (PASS Phase 1, Self-Review D35 — Pattern-Wiederholung Slice 233 D53 + 243)
+- Proof: worklog/proofs/244-ci-yml-diff.txt (Phase 1) + Live-CI-Run 25052831580 audit-Job 36s grün
+- ACs Phase 1: 3/6 PASS (AC-01/02/03 ci.yml-Edit + Live-CI-Verify), Phase 2 (AC-04/05/06) wartet auf Anil-Permission für gh api PUT branch-protection
+- Audit-Job Steps: audit:type-truth + audit:stale + audit:wiring:check (gleicher Set wie pre-commit Slice 243 für Layer-Konsistenz)
+- audit:orphan bewusst ausgeschlossen (66s + designed-state-exit-1)
+- Phase 2 sequenz: Branch-Protection contexts +=["audit"] → 4 required status checks
+- Pattern-Familie: D54 (Build-without-Wire), D45 (Hooks > Text-Regeln)
+- Commit Phase 1: 0923fd3a
+
+---
+
 ## 243 | 2026-04-28 | Pre-commit-hook Audit-Wiring (docs/test.rtf #8 strukturell geheilt)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Hook-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
