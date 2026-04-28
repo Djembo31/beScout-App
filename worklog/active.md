@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 242
+stage: BUILD
+spec: worklog/specs/242-orphan-detector-allowlist.md
+impact: skipped (Tool-only)
+proof: worklog/proofs/242-orphan-detector-smoke.txt
+review: self-review (Pattern-Wiederholung Slice 238/240 Audit-Tool-Refinement)
 ```
 
 ## Zuletzt

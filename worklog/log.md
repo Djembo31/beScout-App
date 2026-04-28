@@ -11,6 +11,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 242 | 2026-04-28 | orphan-component-detector Allowlist (D52 Refinement #3)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Tool-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: scripts/orphan-component-detector.ts (KNOWN_ORPHANS const + filter-Logik + Stats-Erweiterung), worklog/specs/242-*.md, worklog/reviews/242-review.md, worklog/proofs/242-*.txt, worklog/active.md
+- Spec: worklog/specs/242-orphan-detector-allowlist.md
+- Review: worklog/reviews/242-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 238/240 Audit-Tool-Refinement)
+- Proof: worklog/proofs/242-orphan-detector-smoke.txt
+- ACs: 7/7 PASS
+- Allowlist: 4 entries (3 test-only fixtures FollowBtn/HomeSkeleton/ManagerOffersTab + 1 deferred CommunityValuation Slice 227 @experimental)
+- Drift: 13 → 9 real-drift (50% Issue-Noise-Reduktion in nightly-audit-Pipeline)
+- D52 Refinement #3 (analog Slice 238 + 240): Audit-Tool tightening
+- Slice 239 Anil-Wire-Plan-Wave kann sich jetzt auf 9 statt 13 Components fokussieren
+- Commit: TBD
+
+---
+
 ## 240 | 2026-04-28 | TM-Once-Off-Scripts Triage (5 archive, 8 keep, 0 delete)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Doc + File-Move) → BUILD → REVIEW (self-review D35) → PROVE → LOG

@@ -56,6 +56,25 @@ const ROUTING_FILE_BASENAMES = new Set([
  */
 const TEST_FILE_PATTERN = /\.test\.tsx?$|__tests__\//;
 
+/**
+ * KNOWN_ORPHANS — Allowlist von Components die intentionally NICHT in
+ * Production-JSX sind. Slice 242 D52 Refinement #3 (analog wiring-check.ts).
+ *
+ * Test-only Components: Used by Tests, kein Production-JSX (test-fixtures).
+ * Deferred Components: @experimental JSDoc oder Slice-Spec defer-Decision.
+ *
+ * Format: relative path from PROJECT_ROOT (forward-slashes).
+ */
+const KNOWN_ORPHANS: Record<string, string> = {
+  // Test-only fixtures (intentionally not used in production-JSX)
+  'src/components/community/FollowBtn.tsx': 'Test-only fixture (used by community-feed tests)',
+  'src/components/home/HomeSkeleton.tsx': 'Test-only fixture (loading-state test scaffold)',
+  'src/features/market/components/portfolio/OffersTab.tsx': 'Test-only fixture (manager-offers test scaffold)',
+  // Deferred mit @experimental JSDoc (Slice 227 ORPHAN-NEU-1)
+  'src/components/player/detail/CommunityValuation.tsx':
+    'Slice 227 @experimental — wire-Plan if scale >20 active-scouts, sonst delete (Slice 239 Wire-Plan-Wave)',
+};
+
 type ComponentDef = {
   /** Component-Name aus `export default function ComponentName` */
   name: string;
@@ -79,6 +98,8 @@ type Stats = {
   componentsScanned: number;
   orphansFound: number;
   testOnlyComponents: number;
+  knownAllowlisted: number;
+  realDrift: number;
 };
 
 /** Recursively walk dir and collect *.tsx files. */
@@ -221,13 +242,14 @@ function formatReport(orphans: OrphanFinding[], stats: Stats): string {
   lines.push(`# Orphan-Components Report — ${date}`);
   lines.push('');
   lines.push(`**Generated:** ${new Date().toISOString()}`);
-  lines.push(`**Slice:** 228 (D46-Component-Achse automatisiert)`);
+  lines.push(`**Slice:** 228 (D46-Component-Achse automatisiert) · 242 (Allowlist D52 #3)`);
   lines.push(`**Pattern-Source:** \`memory/decisions.md\` D46 "Erweiterung Slice 227"`);
   lines.push('');
   lines.push('## Summary');
   lines.push('');
   lines.push(`- **Components scanned:** ${stats.componentsScanned}`);
-  lines.push(`- **Orphans found:** ${stats.orphansFound}`);
+  lines.push(`- **Orphans found (real drift):** ${stats.realDrift}`);
+  lines.push(`- **Known (allowlisted):** ${stats.knownAllowlisted}`);
   lines.push(`- **Test-only used:** ${stats.testOnlyComponents}`);
   lines.push('');
 
@@ -271,13 +293,13 @@ function formatReport(orphans: OrphanFinding[], stats: Stats): string {
 
 function main(): void {
   const components = collectComponents();
-  const orphans: OrphanFinding[] = [];
+  const allOrphans: OrphanFinding[] = [];
   let testOnlyCount = 0;
 
   for (const component of components) {
     const usage = findUsages(component);
     if (usage.jsxHits === 0 && usage.lazyHits === 0) {
-      orphans.push({
+      allOrphans.push({
         component,
         jsxHits: 0,
         lazyHits: 0,
@@ -285,7 +307,7 @@ function main(): void {
       });
     } else if (usage.onlyInTests) {
       testOnlyCount++;
-      orphans.push({
+      allOrphans.push({
         component,
         jsxHits: usage.jsxHits,
         lazyHits: usage.lazyHits,
@@ -294,10 +316,23 @@ function main(): void {
     }
   }
 
+  // Slice 242: split allowlisted (known) vs. real-drift orphans
+  const knownAllowlisted: OrphanFinding[] = [];
+  const orphans: OrphanFinding[] = [];
+  for (const o of allOrphans) {
+    if (KNOWN_ORPHANS[o.component.relPath]) {
+      knownAllowlisted.push(o);
+    } else {
+      orphans.push(o);
+    }
+  }
+
   const stats: Stats = {
     componentsScanned: components.length,
     orphansFound: orphans.length,
     testOnlyComponents: testOnlyCount,
+    knownAllowlisted: knownAllowlisted.length,
+    realDrift: orphans.length,
   };
 
   // Write report
@@ -312,8 +347,10 @@ function main(): void {
   // Stdout summary
   console.log('═══ Orphan-Component-Detector ═══');
   console.log(`Components scanned: ${stats.componentsScanned}`);
-  console.log(`Orphans found: ${stats.orphansFound}`);
-  console.log(`Test-only used: ${stats.testOnlyComponents}`);
+  console.log(`Orphans found:         ${allOrphans.length}`);
+  console.log(`Real drift:            ${stats.realDrift}`);
+  console.log(`Known (allowlisted):   ${stats.knownAllowlisted}`);
+  console.log(`Test-only used:        ${stats.testOnlyComponents}`);
   console.log(`Report: ${reportPath}`);
   console.log('');
 
