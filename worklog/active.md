@@ -1,16 +1,16 @@
 # Active Slice
 
 ```
-status: wave-1-recovery
-slice: 251
-stage: BUILD
-spec: worklog/specs/251-spieltag-liga-scope-reform.md
-impact: worklog/impact/251-spieltag-liga-scope.md
-proof: worklog/proofs/251-wave-1-build.txt
-review: worklog/reviews/251-wave-1-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 251 Wave 1 Track A — RECOVERY: Re-implementation aus 2 erhaltenen Reviews + Migration-File. Build-edits aus uncommitted Worktree-state verloren bei git-checkout-side-effect Session-Transition. Migration in Supabase DB applied (irreversibel). DB-state ist Wave-1-Ziel, Code wird re-built um zu matchen.
+## Slice 251 Wave 1 Track A KOMPLETT (Recovery): Migration applied, Code matcht DB-state, 92/92 Tests grün, Pattern Layer 4 promoted. Commit 71f4efb2. Wave 2 (Track B || Track F) in fresh session.
 
 ## Zuletzt
 
