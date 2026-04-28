@@ -36,49 +36,6 @@ export async function getWildcardRecord(userId: string, leagueId: string): Promi
   return data as DbUserWildcard | null;
 }
 
-/** Earn wild cards (credits balance) */
-export async function earnWildcards(
-  userId: string,
-  amount: number,
-  source: DbWildcardTransaction['source'],
-  referenceId?: string,
-  description?: string,
-): Promise<number> {
-  const { data, error } = await supabase.rpc('earn_wildcards', {
-    p_user_id: userId,
-    p_amount: amount,
-    p_source: source,
-    p_reference_id: referenceId ?? null,
-    p_description: description ?? null,
-  });
-  if (error) throw new Error(error.message);
-  return data ?? 0;
-}
-
-/** Spend wild cards (debits balance) — throws 'insufficient_wildcards' if not enough */
-export async function spendWildcards(
-  userId: string,
-  amount: number,
-  source: DbWildcardTransaction['source'],
-  referenceId?: string,
-  description?: string,
-): Promise<number> {
-  const { data, error } = await supabase.rpc('spend_wildcards', {
-    p_user_id: userId,
-    p_amount: amount,
-    p_source: source,
-    p_reference_id: referenceId ?? null,
-    p_description: description ?? null,
-  });
-  if (error) {
-    if (error.message.includes('insufficient_wildcards')) {
-      throw new Error('insufficient_wildcards');
-    }
-    throw new Error(error.message);
-  }
-  return data ?? 0;
-}
-
 /** Get wild card transaction history */
 export async function getWildcardHistory(
   userId: string,
@@ -97,19 +54,28 @@ export async function getWildcardHistory(
   return (data ?? []) as DbWildcardTransaction[];
 }
 
-/** Admin: grant wild cards to a user */
+/**
+ * Admin: grant wild cards to a user for a specific league.
+ * Slice 251 Wave 2 Track F Heal: p_league_id pflicht nach Composite-PK-Migration.
+ * Discriminated-union return per Slice 168 pattern.
+ */
 export async function adminGrantWildcards(
   adminId: string,
   targetUserId: string,
   amount: number,
-  description = 'Admin grant',
-): Promise<number> {
+  leagueId: string,
+  description = 'admin_grant',
+): Promise<{ success: boolean; balance?: number; error?: string }> {
   const { data, error } = await supabase.rpc('admin_grant_wildcards', {
     p_admin_id: adminId,
     p_target_user_id: targetUserId,
     p_amount: amount,
+    p_league_id: leagueId,
     p_description: description,
   });
   if (error) throw new Error(error.message);
-  return data ?? 0;
+  const result = data as { success: boolean; balance?: number; error?: string } | null;
+  if (!result) throw new Error('rpc_no_response');
+  if (!result.success) throw new Error(result.error ?? 'admin_grant_failed');
+  return result;
 }

@@ -1,16 +1,27 @@
 -- =============================================================================
 -- Slice 251 Wave 2 Track F — Wildcard RPCs pro Liga
 --
--- Source-of-truth: supabase/migrations/20260326_wildcards.sql (original RPCs)
--- Applied patches: this migration replaces get_wildcard_balance, earn_wildcards,
---                  spend_wildcards with league-aware versions.
+-- Source-of-truth: supabase/migrations/20260414200000_security_wildcard_rpcs_guards.sql (AR-27 hardening)
+-- Applied patches (preserved):
+--   AR-27: auth.uid()-Guard mit IS NOT NULL AND IS DISTINCT FROM-Pattern
+--   AR-44: REVOKE EXECUTE FROM anon; GRANT EXECUTE TO authenticated
+--   admin_grant_wildcards: auth.uid()=p_admin_id Guard + top_role='Admin' Check
+--
+-- Verify-Smoke post-apply:
+--   SELECT pg_get_functiondef('public.earn_wildcards(uuid,int,text,uuid,uuid,text)'::regprocedure)
+--   ILIKE '%auth.uid() IS NOT NULL%' AND
+--   SELECT pg_get_functiondef('public.earn_wildcards(uuid,int,text,uuid,uuid,text)'::regprocedure)
+--   ILIKE '%invalid_league%';
+--   Expected: TRUE TRUE (auth-guard + league-validation preserved)
 --
 -- WICHTIG: NICHT via `mcp__supabase__apply_migration` ausfuehren —
 --          Anil appliziert manuell post-Merge.
 --
 -- PATCH-AUDIT (Slice 156 Pflicht):
--- Letzter CREATE OR REPLACE fuer betroffene Functions: 20260326_wildcards.sql
--- Kein neuerer Patch vorhanden. Baseline = 20260326_wildcards.sql-Body.
+-- Letzter CREATE OR REPLACE: 20260414200000_security_wildcard_rpcs_guards.sql (AR-27)
+-- Dieser File ersetzt: get_wildcard_balance, earn_wildcards, spend_wildcards,
+--   refund_wildcards_on_leave, admin_grant_wildcards mit league-aware Versionen.
+-- Preserve: alle Auth-Guards (IS NOT NULL + IS DISTINCT FROM), REVOKE/GRANT-Block.
 --
 -- Verify-SQL post-apply:
 --   SELECT pg_get_functiondef('public.get_wildcard_balance(uuid,uuid)'::regprocedure);
@@ -33,6 +44,8 @@
 --     AND routine_schema = 'public';
 --   -- Expected: authenticated = EXECUTE, anon/PUBLIC = nothing
 -- =============================================================================
+
+BEGIN;
 
 -- =============================================================================
 -- DROP old single-league signatures to avoid pg_proc Ambiguity (Slice 178, AR-44)
@@ -264,3 +277,89 @@ COMMENT ON FUNCTION public.refund_wildcards_on_leave(uuid, uuid) IS
 REVOKE EXECUTE ON FUNCTION public.refund_wildcards_on_leave(uuid, uuid) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.refund_wildcards_on_leave(uuid, uuid) FROM anon;
 GRANT EXECUTE ON FUNCTION public.refund_wildcards_on_leave(uuid, uuid) TO authenticated;
+
+-- =============================================================================
+-- RPC 5: admin_grant_wildcards — Composite-PK-aware rewrite (Fix #1, P0)
+--
+-- AR-27 baseline: admin_grant_wildcards(p_admin_id, p_target_user_id, p_amount, p_description)
+-- Problem: old ON CONFLICT (user_id) fails after Composite-PK migration to (user_id, league_id).
+-- Solution: new param p_league_id, ON CONFLICT (user_id, league_id).
+--
+-- Auth: auth.uid() MUSS mit p_admin_id matchen (AR-27 Guard).
+--       Role-Check: profiles.top_role = 'Admin' auf auth.uid() (analog AR-27).
+--
+-- PATCH-AUDIT: AR-27 baseline (20260414200000) hatte p_admin_id + p_target_user_id + p_amount + p_description.
+--   Neue Signatur ergänzt p_league_id. DROP alte Signaturen um pg_proc-Ambiguity zu vermeiden.
+-- =============================================================================
+
+-- DROP alte Signaturen (AR-27 + ältere Variante wenn vorhanden)
+DROP FUNCTION IF EXISTS public.admin_grant_wildcards(uuid, uuid, int, text);
+DROP FUNCTION IF EXISTS public.admin_grant_wildcards(uuid, int, text);
+
+CREATE OR REPLACE FUNCTION public.admin_grant_wildcards(
+  p_admin_id UUID,
+  p_target_user_id UUID,
+  p_amount INT,
+  p_league_id UUID,
+  p_description TEXT DEFAULT 'admin_grant'
+)
+RETURNS JSONB
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_role TEXT;
+  v_new_balance INT;
+BEGIN
+  -- AUTH GUARD (AR-27): auth.uid() MUSS mit p_admin_id matchen
+  -- IS NOT NULL skips service_role (Cron) where auth.uid() = NULL
+  IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_admin_id THEN
+    RAISE EXCEPTION 'auth_uid_mismatch' USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  -- ROLE GUARD: top_role auf auth.uid() (nicht p_admin_id) prüfen
+  -- Analog AR-27 AR-40: SELECT top_role FROM profiles WHERE id = auth.uid()
+  SELECT top_role INTO v_role FROM public.profiles WHERE id = auth.uid();
+  IF v_role IS DISTINCT FROM 'Admin' THEN
+    RAISE EXCEPTION 'admin_role_required' USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  -- Validate amount > 0
+  IF p_amount <= 0 THEN
+    RETURN jsonb_build_object('success', false, 'error', 'invalid_amount');
+  END IF;
+
+  -- Validate league exists (Spam-Vektor-Mitigation analog earn_wildcards)
+  IF NOT EXISTS (SELECT 1 FROM public.leagues WHERE id = p_league_id) THEN
+    RETURN jsonb_build_object('success', false, 'error', 'invalid_league');
+  END IF;
+
+  -- Composite-PK ON CONFLICT — Fix #1: correct conflict target after PK migration
+  -- AR-27 baseline used ON CONFLICT (user_id) which breaks after (user_id, league_id) PK
+  INSERT INTO public.user_wildcards (user_id, league_id, balance, earned_total, spent_total, updated_at)
+  VALUES (p_target_user_id, p_league_id, p_amount, p_amount, 0, now())
+  ON CONFLICT (user_id, league_id) DO UPDATE SET
+    balance = public.user_wildcards.balance + EXCLUDED.balance,
+    earned_total = public.user_wildcards.earned_total + EXCLUDED.earned_total,
+    updated_at = now();
+
+  -- SELECT INTO (KEIN Scalar-Subquery — errors-db.md NULL-in-Scalar-Subquery)
+  SELECT balance INTO v_new_balance
+  FROM public.user_wildcards
+  WHERE user_id = p_target_user_id AND league_id = p_league_id;
+
+  -- Log transaction (global wildcard_transactions — no league_id column)
+  INSERT INTO public.wildcard_transactions (user_id, amount, balance_after, source, reference_id, description)
+  VALUES (p_target_user_id, p_amount, COALESCE(v_new_balance, 0), 'admin_grant', NULL, COALESCE(p_description, 'admin_grant'));
+
+  RETURN jsonb_build_object('success', true, 'balance', COALESCE(v_new_balance, 0));
+END;
+$$;
+
+COMMENT ON FUNCTION public.admin_grant_wildcards(uuid, uuid, int, uuid, text) IS
+  'Slice 251 Wave 2 Track F: Composite-PK-aware admin_grant. p_league_id pflicht. Auth: auth.uid()=p_admin_id + top_role=Admin. Source-of-truth: 20260414200000_security_wildcard_rpcs_guards.sql (AR-27).';
+
+-- AR-44 REVOKE/GRANT
+REVOKE ALL ON FUNCTION public.admin_grant_wildcards(uuid, uuid, int, uuid, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_grant_wildcards(uuid, uuid, int, uuid, text) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_grant_wildcards(uuid, uuid, int, uuid, text) TO authenticated;
+
+COMMIT;

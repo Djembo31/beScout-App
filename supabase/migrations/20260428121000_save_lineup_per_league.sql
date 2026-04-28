@@ -23,6 +23,8 @@
 --   -- Call via save_lineup wrapper in app — if wildcard delta = 0, league lookup skipped.
 -- =============================================================================
 
+BEGIN;
+
 CREATE OR REPLACE FUNCTION public.rpc_save_lineup(
   p_event_id uuid,
   p_user_id uuid,
@@ -363,6 +365,16 @@ BEGIN
     FROM public.clubs c
     WHERE c.id = v_event.club_id;
 
+    -- Fix #4 (P1): Spec EC-11 + 1.7 Error #2 — RAISE when wildcard spend needed but no league context.
+    -- Silent-skip was a Free-Wildcard-Spam-Vector: spend never deducted when v_event_league_id IS NULL.
+    IF v_event_league_id IS NULL THEN
+      RETURN jsonb_build_object(
+        'ok', false,
+        'success', false,
+        'error', 'invalid_event_no_league'
+      );
+    END IF;
+
     -- Only spend/earn if we have a valid league context
     IF v_event_league_id IS NOT NULL THEN
       IF v_wildcard_delta > 0 THEN
@@ -415,3 +427,5 @@ GRANT EXECUTE ON FUNCTION public.rpc_save_lineup(
   uuid, uuid, uuid, uuid,
   uuid, uuid, uuid
 ) TO authenticated;
+
+COMMIT;

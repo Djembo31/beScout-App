@@ -85,8 +85,20 @@ balance_splits AS (
       ELSE
         FLOOR(uw.balance::numeric / lc.n)::int
     END AS final_balance,
-    FLOOR(uw.earned_total::numeric / lc.n)::int AS final_earned,
-    FLOOR(uw.spent_total::numeric / lc.n)::int AS final_spent
+    -- Fix #9 (P2): Modulo-Rest auch für earned_total/spent_total in Cascade-Default-Liga
+    -- Sum-Invariant: SUM(earned_total) post-Migration == pre-Migration per User
+    CASE
+      WHEN al.id = udl.default_league_id THEN
+        FLOOR(uw.earned_total::numeric / lc.n)::int + (uw.earned_total % lc.n::int)
+      ELSE
+        FLOOR(uw.earned_total::numeric / lc.n)::int
+    END AS final_earned,
+    CASE
+      WHEN al.id = udl.default_league_id THEN
+        FLOOR(uw.spent_total::numeric / lc.n)::int + (uw.spent_total % lc.n::int)
+      ELSE
+        FLOOR(uw.spent_total::numeric / lc.n)::int
+    END AS final_spent
   FROM public.user_wildcards uw
   CROSS JOIN active_leagues al
   CROSS JOIN league_count lc
