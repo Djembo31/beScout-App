@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 241 | 2026-04-28 | errors-infra.md Knowledge-Capture (4 Lehren aus Slice 234)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Doc-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: .claude/rules/errors-infra.md (4 Sections: 1 erweitert + 3 NEU), worklog/specs/241-*.md, worklog/reviews/241-review.md, worklog/proofs/241-*.txt, worklog/active.md
+- Spec: worklog/specs/241-errors-infra-knowledge-capture.md
+- Review: worklog/reviews/241-review.md (PASS Self-Review D35 — XS Doc-Pattern-Wiederholung Slice 209/186)
+- Proof: worklog/proofs/241-errors-infra-knowledge-capture.txt
+- ACs: 6/6 PASS
+- Knowledge-Flywheel: workflow.md Section 5 ("Bug gefixt → Pattern in errors-* SOFORT") fulfilled
+- 4 Lehren aufgenommen: (1) Spec-Drift-im-Drift-Heal-Anti-Pattern, (2) MSYS Git Bash tr UTF-8-Bug, (3) Issue-Closing != Bug-Resolved, (4) settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht
+- Commit: TBD
+
+---
+
 ## 238 | 2026-04-28 | silent-fail-audit Chunked-Detection + Test-File-Skip (D52 Refinement #2)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Tool-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG

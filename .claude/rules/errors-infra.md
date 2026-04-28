@@ -90,6 +90,11 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `perfo
 ### Shell / Hooks (Windows Git Bash)
 - `grep -oP` mit `\K` scheitert silent (Locale: "supports only unibyte and UTF-8"). Fix: `sed -n 's/.*"key"\s*:\s*"\([^"]*\)".*/\1/p'`.
 - Worktree-Agents haben KEINEN Zugriff auf `.claude/skills/` → Fallback Main-Repo-Path.
+- **`tr '[:upper:]' '[:lower:]'` ist NICHT UTF-8-aware** (Slice 234, F-04). MSYS Git Bash default-Locale-`tr` lowercasing scheitert silent bei Großbuchstaben mit Umlaut: `Hör auf` → `hör auf` ✗ (kein Lowercase wenn Locale-mismatch). Klassischer Fall: capture-correction.sh Hook scannt Korrekturen-Keywords case-insensitive — User schreibt "FALSCH" oder "Hör auf" → Hook fängt nicht.
+  - Fix-Pattern A: `LC_ALL=C.UTF-8`-Prefix vor `tr`-Call. `LC_ALL=C.UTF-8 tr '[:upper:]' '[:lower:]'` oder Block-Wrap: `LC_ALL=C.UTF-8 bash -c 'tr ...'`.
+  - Fix-Pattern B: Dual-Pattern für Großbuchstaben — sowohl lowercase-Pattern als auch UPPERCASE-Pattern parallel matchen. `grep -iE "...|FALSCH|HÖR AUF|KORREKTUR..."`.
+  - Empfehlung: Bei UTF-8-keywords beide kombinieren (LC_ALL + dual-Pattern für robustness).
+  - Audit: Bei jedem `tr '[:upper:]'` ohne `LC_ALL`-Prefix in `.claude/hooks/` oder `scripts/` → Risk.
 
 ### Shell case-statement wildcard promiskuoes (Slice 145 + 146)
 - `case "$COMMAND" in *"merge"*) exit 0 ;; esac` matched **jede** Commit-Message mit "merge" drin. Same-Klasse: `*"--amend"*`, `*"git commit"*`.
@@ -120,6 +125,37 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `perfo
   ```
 - Hook ersetzt nur Block zwischen Markern (awk state-machine `before → in_block → after`). Manuelle Erweiterungen unter Markern bleiben.
 - Migration fuer Bestandsdateien ohne Marker: Auto-Block oben einfuegen, existierender Content darunter (mit `---`-Separator).
+
+### Spec-Drift-im-Drift-Heal-Anti-Pattern (Slice 234)
+
+Wiederkehrendes Anti-Pattern: Slice der Spec-Drift heilen soll, hat selbst Spec-Drift in seiner eigenen Spec-Datei. Slice 234 ("Drift-Prevention via wiring-check + Layer-3-DoD") wurde von Reviewer-Agent mit 2 Spec-Drifts gemeldet (F-01 + F-07): "10 vs 11 orphan" + "Hook-Count-Drift". Ironie: Spec über Drift-Detection war selbst undetected drifted.
+
+- **Symptom:** L-Slice mit Meta-Process-Scope (Hook-Architektur, Process-Reform, Drift-Prevention). Spec-Tabellen oder Counts (z.B. "8 Hooks", "4 Files", "3 Phasen") in der Spec-Datei sind eingefroren während Implementation iteriert. Reviewer-Agent fängt es als CONCERNS.
+- **Root-Cause:** Drift-Heal-Slices sind iterativ — während BUILD entstehen NEUE Insights die Spec-Sektionen veralten lassen. Author-Confirmation-Bias: "Ich schreibe gerade Drift-Prevention, also kann meine Spec keinen Drift haben".
+- **Mitigation:** Bei L-Slices mit Meta-Process-Scope: post-BUILD vor REVIEW eine **Spec-Self-Audit-Pass** machen. Counts + Tabellen + Stage-Chain gegen aktuellen Code-Stand verifizieren. Reviewer-Agent ist letzte Falle, nicht erste.
+- **Beispiel-Heal:** Slice 234 F-01: "10 echte Drift + 1 false-positive Audit-Bug" statt "10 vs 11 orphan" — Präzisierung statt Re-Count.
+- **Beziehung:** D43 (Type-Truth-Drift), D46 (Orphan-Component-Drift), **D54 (Build-without-Wire-Drift)** — Pattern-Familie "Existenz ≠ Verwendung". Spec-Drift ist die Process-Achse.
+
+### Issue-Closing != Bug-Resolved (Slice 234)
+
+GitHub-Issue-Closing-Phasen verschleifen recurring Failure-Klassen wenn Bug nicht echt-resolved sondern nur "issue closed" wird. Slice 234 schloss 14 stale Smoke-Failure-Issues batch-mode. Ohne Master-Tracker wäre der Beta-Blocker (Player-Link-Timeout, identisch zu #14-#21) silent verschwunden — nächstes nightly-audit hätte erneut #26 erstellt.
+
+- **Symptom:** Issue-Liste ist "clean" aber underlying Failure-Klasse persistent. Auto-Issue-Pipelines (z.B. `nightly-audit.yml` Auto-Issue) erzeugen Duplicates.
+- **Anti-Pattern:** "GitHub Issue State = Bug-Resolution-State". Falsch wenn Issue-Closing aus operativen Gründen geschieht (Cleanup, Dedupe, Triage) ohne Code-Fix.
+- **Fix-Pattern:** Master-Tracker-Issue für recurring Failure-Klassen erstellen. Ein dedizierter Issue mit Label `tracker` oder `recurring` der NIE geschlossen wird bis Klasse selbst gefixt ist. Auto-Issue-Hooks dedup'n via title-prefix-check gegen Tracker.
+- **Implementation Slice 234:** Issue #25 als Master-Tracker für "Player-Link-Timeout in Smoke-Tests" erstellt. Auto-Issue-Pipeline checkt seitdem `gh issue list --search "Smoke-Failure"` → Comment-Update statt new-Issue.
+- **Audit:** Bei jeder Auto-Issue-Pipeline: gibt es ≥1 Master-Tracker pro Failure-Klasse? Wenn nicht → Risk.
+
+### settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht (Slice 234)
+
+`.claude/settings.json` Hook-Registry-Edits sind architektonische Änderungen die ähnlich wie DB-Migrations Cross-Cutting-Impact haben. Slice 234 registrierte 8 Hooks gleichzeitig — Reviewer F-11 markierte das als "IMPACT-Stage hätte gerechtfertigt sein sollen".
+
+- **Trigger-Schwelle:** ≥ 3 Hook-Registrierungen ODER 1 Hook-Removal/Replacement in einem Slice.
+- **Warum IMPACT-Pflicht:** Hooks sind cross-cutting (sie bombardieren ALLE PreToolUse / PostToolUse / Stop / SessionStart Trigger). Ein bugger Hook bricht Gesamt-Workflow für Tage (siehe capture-correction.sh 19-Tage-Ausfall).
+  - Risk-Klassen: (a) Hook-Order-Mismatches (PreToolUse-Reihenfolge undefined), (b) Hook-Trigger-Overlap (zwei Hooks lesen gleichen JSON-Stream und parsen falsch), (c) Performance-Regression (jeder Hook ~50-200ms × 30 Tool-Calls/Session).
+- **IMPACT-Sektion bei Hook-Edits:** Liste alle Hooks die gleichen Trigger-Event teilen + verifiziere keine Order-Dependency-Annahme + benchmark Trigger-Latency.
+- **Beziehung zu D45 (Hooks > Text-Regeln):** D45 ist Architektur-Win, dieser Pattern ist Process-Komplement. Beide gelten parallel.
+- **Audit:** `git log --oneline -- .claude/settings.json | head -20` sollte zeigen: alle Edits mit ≥3 Hook-Mods haben IMPACT-File. Pre-Slice-234 Backlog: erste 5 Edits ohne IMPACT-File → Slice 242+ Backfill möglich.
 
 ## Beta-Launch-Ops
 

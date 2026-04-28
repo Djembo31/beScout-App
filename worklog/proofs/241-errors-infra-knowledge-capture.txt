@@ -1,0 +1,84 @@
+Slice 241 — errors-infra.md Knowledge-Capture (4 Lehren aus Slice 234)
+Date: 2026-04-28
+Type: Doc-Slice (Knowledge-Flywheel)
+
+================================================================
+PRE-EDIT STATE
+================================================================
+$ grep -c "Slice 234" .claude/rules/errors-infra.md
+0
+$ grep -c "UTF-8-aware\|tr.*upper" .claude/rules/errors-infra.md
+0
+
+================================================================
+POST-EDIT AC-VERIFICATION
+================================================================
+
+[AC-01] UTF-8-tr-Bug in Shell/Hooks-Section dokumentiert
+  CMD: grep -c "tr.*upper.*lower\|LC_ALL=C.UTF-8\|UTF-8-aware" .claude/rules/errors-infra.md
+  RESULT: 2 (UTF-8-aware-Phrase + LC_ALL=C.UTF-8 + tr-Pattern)
+  STATUS: PASS
+
+[AC-02] Spec-Drift-im-Drift-Heal als Anti-Pattern
+  CMD: grep -c "Spec-Drift im\|Drift-Heal-Anti-Pattern" .claude/rules/errors-infra.md
+  RESULT: 1 (Section-Header "Spec-Drift-im-Drift-Heal-Anti-Pattern (Slice 234)")
+  STATUS: PASS
+
+[AC-03] Issue-Closing-vs-Bug-Resolved
+  CMD: grep -c "Issue-Closing\|Master-Tracker\|recurring Failure-Klasse" .claude/rules/errors-infra.md
+  RESULT: 6
+  STATUS: PASS
+
+[AC-04] settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht
+  CMD: grep -c "settings.json.*[Ii]mpact\|3 Hook\|3 Hook-Registrierungen" .claude/rules/errors-infra.md
+  RESULT: 4
+  STATUS: PASS
+
+[AC-05] Slice 234 referenziert ≥ 4×
+  CMD: grep -c "Slice 234" .claude/rules/errors-infra.md
+  RESULT: 9 (Slice-Marker in 4 Sections + inline-References)
+  STATUS: PASS
+
+[AC-06] Headers folgen Convention "### Title (Slice 234)"
+  CMD: grep -E "^### .*\(Slice 234\)" .claude/rules/errors-infra.md
+  RESULT:
+    ### Spec-Drift-im-Drift-Heal-Anti-Pattern (Slice 234)
+    ### Issue-Closing != Bug-Resolved (Slice 234)
+    ### settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht (Slice 234)
+  STATUS: PASS — 3 neue Sections (Lehre #2 ist Erweiterung-existing nicht NEU-section, by Spec design)
+
+================================================================
+KNOWLEDGE-FLYWHEEL VERIFICATION
+================================================================
+
+Slice 234 review.md:91-95 ("Knowledge-Capture für künftige Slices") wörtlich-zitiert:
+  1. Spec-Drift im Drift-Heal-Slice ist ein wiederkehrendes Anti-Pattern (D54 selbst hatte F-01/F-07)
+  2. MSYS Git Bash `tr '[:upper:]' '[:lower:]'` ist nicht UTF-8-aware — dual-Pattern oder LC_ALL=C.UTF-8 erforderlich
+  3. Issue-Closing != Bug-Resolved — Master-Tracker-Issues für recurring Failure-Klassen
+  4. settings.json-Edit > 3 Hooks sollte künftig IMPACT-Stage triggern
+
+Wörtlich-Capture in errors-infra.md:
+  ✓ Lehre #1 → "### Spec-Drift-im-Drift-Heal-Anti-Pattern (Slice 234)" mit Mitigation + Beispiel-Heal aus Slice 234 F-01
+  ✓ Lehre #2 → "### Shell / Hooks (Windows Git Bash)" extended mit Fix-Pattern A (LC_ALL) + Fix-Pattern B (dual-Pattern) + Audit
+  ✓ Lehre #3 → "### Issue-Closing != Bug-Resolved (Slice 234)" mit Anti-Pattern + Implementation-Reference (Issue #25)
+  ✓ Lehre #4 → "### settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht (Slice 234)" mit Trigger-Schwelle + Risk-Klassen + Beziehung zu D45
+
+================================================================
+CROSS-REFERENCE-CHECK
+================================================================
+
+Lehre #1 referenziert: D43, D46, D54 — Pattern-Familie "Existenz ≠ Verwendung", Spec-Drift ist Process-Achse
+Lehre #2 referenziert: capture-correction.sh 19-Tage-Ausfall (Slice 234) — empirische Evidence
+Lehre #3 referenziert: Issue #25 + nightly-audit.yml Auto-Issue-Pipeline — konkrete Implementation
+Lehre #4 referenziert: D45 (Hooks > Text-Regeln) — Process-Komplement zu Architektur-Win
+
+Alle 4 Lehren sind back-traceable zu Slice 234 Reviewer-File und zu existing decisions.md/patterns.md/codified rules.
+
+================================================================
+SLICE 241 STATUS: COMPLETE
+================================================================
+- Spec written
+- 4 Lehren in errors-infra.md aufgenommen
+- AC-Verification 6/6 PASS
+- Self-Review (D35) — Pattern-Wiederholung Slice 209/186 Doc-Slice
+- Knowledge-Flywheel-Pflicht (workflow.md Section 5) erfüllt
