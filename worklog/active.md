@@ -10,10 +10,11 @@ proof: —
 review: —
 ```
 
-## Wave: 246 (Build-fix) → 247 (Test-fix) → 244 Phase 2 (Branch-Protection)
+## Wave: 246 (Build) ✅ + 247 (Test) ✅ + 244 Phase 2 (BP-4-contexts) ✅ → Slice 248 NEU (Pre-Push-Hook) folgt
 
 ## Zuletzt
 
+- **Slice 244 Phase 2** (2026-04-28) — Branch-Protection PUT (XS, Slice-Type=GHA, **docs/test.rtf #9 partial-geheilt + Lehre**). 4 contexts erfolgreich, enforce_admins=true zeigte **Catch-22 mit Solo-Dev direct-push** (Push blockt bis CI grün, CI braucht Push) → Anil-Decision Option C: enforce_admins=false zurück + Slice 248 NEU mit pre-push-Hook. 5/6 ACs PASS. Voraussetzung-CI b447d197 alle 4 jobs grün — erstes komplett grünes CI seit Slice 226.
 - **Slice 247** (2026-04-28) — PredictionsTab.test.tsx Mock-Repair (XS, Slice-Type=Doc/Test, **CI-Test-Recovery**). vi.mock('@/lib/queries/predictions') ergänzt um `useTopPredictorsLeaderboard` (1 Zeile). Test-File mockte 3/4 Hooks aber vergaß den 4. — Pattern-Wiederholung Slice 218 (Test-Mock-Repair ClubContent.test.tsx). Lokal: 1/16 → 16/16 PASS. Self-Review D35. 3/4 ACs PASS (AC-04 wartet auf Push).
 - **Slice 246** (2026-04-28) — Bundle-Budget /inventory heilen (XS, Slice-Type=Tool, **CI-Build-Recovery**). bundle-budget.json /inventory: 265 → 320kB mit Justification (drift seit Slice 185b durch Polish-Sweeps 196 + 200a/b). 19kB Headroom (6%) bewusst-konservativ-eng. Build-Gate exit 0 verifiziert. CI war ≥20 Pushes durchgehend rot, niemand bemerkt weil enforce_admins=false bypassed. Pattern-Wiederholung Slice 181. Self-Review D35. 4/5 ACs PASS (AC-05 wartet auf Push).
 - **Slice 245** (2026-04-28) — Deferred-Items Re-Eval-Reminder-Hook (XS, Slice-Type=Hook, **docs/test.rtf #6** strukturell geheilt). Stop-Hook `ship-deferred-reeval-reminder.sh` printet alle 7 Tage ODER bei deferred-Count-Change die 4 deferred-Items aus beta-phase.md mit ihren Re-Eval-Triggers. State-File `.claude/state/deferred-reeval-last-shown` (gitignored). Pattern-Wiederholung Slice 230 ship-phase-tracker-reminder.sh. 8/8 ACs PASS im Live-Smoke (erster print + zweiter silent + count-change-trigger + leerer-Block-silent + state-file-format).

@@ -59,19 +59,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
-## 244 | 2026-04-28 | Branch-Protection-Audit-Job — Phase 1/2 (docs/test.rtf #9)
+## 244 | 2026-04-28 | Branch-Protection 4 contexts (docs/test.rtf #9 partial + Lehre)
 
-- Stage-Chain: SPEC → IMPACT (skipped: GHA-only) → BUILD → REVIEW (self-review D35) → PROVE (Phase-1-partial) → LOG
-- Files: .github/workflows/ci.yml (NEU audit-Job), worklog/specs/244-*.md, worklog/reviews/244-review.md, worklog/proofs/244-ci-yml-diff.txt, worklog/active.md
+- Stage-Chain: SPEC → IMPACT (skipped: GHA-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: .github/workflows/ci.yml (NEU audit-Job), worklog/specs/244-*.md, worklog/reviews/244-review.md (Phase 1+2+Lehre), worklog/proofs/244-ci-yml-diff.txt (Phase 1+2+Lehre), worklog/active.md
 - Spec: worklog/specs/244-branch-protection-audits.md
-- Review: worklog/reviews/244-review.md (PASS Phase 1, Self-Review D35 — Pattern-Wiederholung Slice 233 D53 + 243)
-- Proof: worklog/proofs/244-ci-yml-diff.txt (Phase 1) + Live-CI-Run 25052831580 audit-Job 36s grün
-- ACs Phase 1: 3/6 PASS (AC-01/02/03 ci.yml-Edit + Live-CI-Verify), Phase 2 (AC-04/05/06) wartet auf Anil-Permission für gh api PUT branch-protection
-- Audit-Job Steps: audit:type-truth + audit:stale + audit:wiring:check (gleicher Set wie pre-commit Slice 243 für Layer-Konsistenz)
-- audit:orphan bewusst ausgeschlossen (66s + designed-state-exit-1)
-- Phase 2 sequenz: Branch-Protection contexts +=["audit"] → 4 required status checks
+- Review: worklog/reviews/244-review.md (PASS-mit-Lehre Phase 1+2)
+- Proof: worklog/proofs/244-ci-yml-diff.txt + Live-CI-Run 25052831580 + 25054842277 alle 4 jobs grün
+- ACs: 5/6 PASS (AC-06 enforce_admins=true rolled-back wegen Catch-22)
+- Phase 1 (commit 0923fd3a): ci.yml NEU `audit` job mit 3 Steps (audit:type-truth + audit:stale + audit:wiring:check)
+- Phase 2: gh api PUT branch-protection → contexts=["lint","build","test","audit"]. enforce_admins=true PUT erfolgreich aber **eigener Phase-2-LOG-Push wurde rejected (Catch-22): "4 of 4 required status checks are expected"** — Solo-Dev direct-push ist nicht kompatibel mit enforce_admins=true bei strict=true. Anil-Decision Option C: enforce_admins=false zurück + Slice 248 NEU
+- Lehre: Branch-Protection mit required_status_checks + strict + enforce_admins ist für PR-Merge-Workflow designed, nicht für direct-push. CI startet erst NACH Push → Catch-22.
+- Slice 248 NEU (folgt): Pre-Push-Hook der lokal alle 4 Status-Checks simuliert (audit:type-truth + audit:stale + audit:wiring + tsc + vitest + bundle-budget) — echte Sicherheit ohne PR-Workflow-Friktion
+- audit:orphan bewusst ausgeschlossen (66s + designed-state-exit-1) — Backlog Slice 239
 - Pattern-Familie: D54 (Build-without-Wire), D45 (Hooks > Text-Regeln)
-- Commit Phase 1: 0923fd3a
 
 ---
 

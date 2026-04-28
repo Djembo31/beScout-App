@@ -74,3 +74,111 @@ Phase-2-Sequenz (nach git push):
 ==================================================
 PHASE 1 SUMMARY: 3/6 ACs PASS — Push-Ready
 Phase 2 wartet auf Anil-Push-Erlaubnis + erste grüne CI-Run.
+
+=========================================================
+PHASE 2 — 2026-04-28 nach Slice 246+247 Recovery
+=========================================================
+
+CI-Run b447d197 (nach Slice 246+247 Recovery):
+  status: completed
+  conclusion: success
+  jobs:
+    - audit: success ✅
+    - test:  success ✅
+    - build: success ✅
+    - lint:  success ✅
+
+Erstes komplett grünes CI seit ≥20 Pushes (mindestens Slice 226 / 2026-04-27).
+
+AC-04 PASS — Live-CI-Run nach Push: alle 4 jobs grün, audit-Job exit 0
+              (siehe Slice 246+247 Recovery).
+
+AC-05: gh api PUT branch-protection
+=========================================================
+$ gh api -X PUT repos/Djembo31/beScout-App/branches/main/protection \
+    --input /tmp/branch-protection.json
+
+Body:
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["lint", "build", "test", "audit"]
+  },
+  "enforce_admins": true,    <- Sicherheits-Loch geschlossen (Bonus)
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "required_linear_history": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+
+API-Response:
+✅ contexts updated: ["lint","build","test","audit"]
+✅ enforce_admins: enabled=true (war false)
+
+AC-05 PASS — Branch-Protection PUT erfolgreich.
+
+AC-06: gh api GET Verify
+=========================================================
+$ gh api repos/Djembo31/beScout-App/branches/main/protection
+"contexts":["lint","build","test","audit"]
+"enforce_admins":{"enabled":true}
+
+✅ AC-06 PASS — alle 4 contexts vorhanden, enforce_admins=true.
+
+==================================================
+PHASE 2 LIVE-LEHRE — Catch-22 entdeckt
+==================================================
+
+Direkt nach enforce_admins=true PUT:
+$ git push origin main
+remote: - 4 of 4 required status checks are expected.
+ ! [remote rejected]   main -> main (protected branch hook declined)
+
+ROOT-CAUSE: enforce_admins=true UND strict=true UND required_status_checks
+sind für PR-Merge-Workflow designed, NICHT für Solo-Dev direct-push:
+
+  - GitHub fordert dass NEUER tip-commit alle 4 grünen Status-Checks hat
+  - CI startet erst NACH Push (post-push-Event)
+  - Catch-22: Push blockiert bis CI grün, CI grün braucht Push.
+
+BeScout fährt aber direct-push (242 Slice-Historie). enforce_admins=true
+würde Workflow auf PR-für-alles zwingen — 10× Friktion pro Slice, Solo-Dev-
+Anti-Pattern.
+
+==================================================
+ANIL-DECISION: Option C
+==================================================
+
+enforce_admins=false zurück (Status-Quo-pre-Slice-244-Phase-2 für
+direct-push) ABER:
+
+  → Slice 248 NEU — Pre-Push-Hook der lokal alle 4 Status-Checks
+    simuliert (audit:type-truth + audit:stale + audit:wiring +
+    tsc + vitest + bundle-budget-check). Echte Sicherheit ohne
+    Workflow-Bremsung.
+
+Trade-Off: Pre-Push-Latenz ~60s (akzeptabel weil bewusst-vor-Push).
+Architektonische Lösung statt Convention.
+
+==================================================
+PHASE 2 FINAL: 5/6 ACs PASS — Slice 244 KOMPLETT (mit Lehre)
+==================================================
+
+✅ AC-01: ci.yml audit-Job pnpm-setup
+✅ AC-02: 3 Steps (type-truth + stale + wiring:check)
+✅ AC-03: ci.yml YAML-Lint-clean
+✅ AC-04: Live-CI audit-Job grün (Run 25052831580 + 25054842277)
+✅ AC-05: gh api PUT mit 4 contexts (LIVE-applied)
+⚠️ AC-06: enforce_admins=true rolled-back zu false weil Catch-22 →
+          Slice 248 holt nach mit pre-push-Hook (architektonisch besser)
+
+docs/test.rtf #9 — Status:
+  - "neue Audits sind nicht required" → ✅ GEHEILT (4 contexts)
+  - "Admin-Push-Bypass-Loch" → 🔄 PUNT zu Slice 248 (Pre-Push-Hook)
+
+Lehre für Future:
+  - Branch-Protection enforce_admins=true ist nicht direct-push-kompatibel
+  - Solo-Dev-Workflow braucht pre-push-Layer statt post-push-Gate
+  - Knowledge-Capture in errors-infra.md (Slice 248 oder follow-up Doc)
+
