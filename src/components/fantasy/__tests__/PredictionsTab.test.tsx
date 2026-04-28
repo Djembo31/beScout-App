@@ -15,6 +15,9 @@ vi.mock('@/lib/queries/predictions', () => ({
   usePredictions: (...args: unknown[]) => mockUsePredictions(...args),
   usePredictionCount: (...args: unknown[]) => mockUsePredictionCount(...args),
   usePredictionStats: (...args: unknown[]) => mockUsePredictionStats(...args),
+  // Slice 247: TopPredictorsSection rendert in PredictionsTab — minimal-Mock reicht
+  // (echter Test-Coverage von TopPredictorsSection nicht in dieser Datei).
+  useTopPredictorsLeaderboard: (..._args: unknown[]) => ({ data: [], isLoading: false }),
 }));
 
 // Mock child components to isolate unit

@@ -1,0 +1,44 @@
+Slice 247 — PredictionsTab.test.tsx Mock-Repair · Proof
+=========================================================
+Datum: 2026-04-28
+Slice-Type: Doc/Test (test-mock only)
+
+Pre-Edit Reproduktion (CI-failed-state):
+=========================================================
+$ pnpm exec vitest run src/components/fantasy/__tests__/PredictionsTab.test.tsx --no-coverage
+Error: [vitest] No "useTopPredictorsLeaderboard" export is defined on the
+"@/lib/queries/predictions" mock. Did you forget to return it from "vi.mock"?
+
+❯ TopPredictorsSection src/components/fantasy/PredictionsTab.tsx:165:45
+  const { data: leaders = [], isLoading } = useTopPredictorsLeaderboard(10);
+
+Test Files: 1 failed (1)
+     Tests: 15 failed | 1 passed (16)
+
+Post-Edit Verify:
+=========================================================
+$ pnpm exec vitest run src/components/fantasy/__tests__/PredictionsTab.test.tsx --no-coverage
+Test Files: 1 passed (1)
+     Tests: 16 passed (16)
+Duration: 5.60s
+
+✅ AC-01 PASS — vi.mock-Block enthält useTopPredictorsLeaderboard
+✅ AC-02 PASS — vitest exit 0
+✅ AC-03 PASS — 16/16 Tests pass (war 1/16 + 15 fail)
+AC-04 PASS pending — wartet auf Push + CI-Run
+
+Diff PredictionsTab.test.tsx:
+=========================================================
+@@ -16,6 +16,9 @@
+   usePredictions: (...args: unknown[]) => mockUsePredictions(...args),
+   usePredictionCount: (...args: unknown[]) => mockUsePredictionCount(...args),
+   usePredictionStats: (...args: unknown[]) => mockUsePredictionStats(...args),
++  // Slice 247: TopPredictorsSection rendert in PredictionsTab — minimal-Mock reicht
++  // (echter Test-Coverage von TopPredictorsSection nicht in dieser Datei).
++  useTopPredictorsLeaderboard: (..._args: unknown[]) => ({ data: [], isLoading: false }),
+ }));
+
+==================================================
+SUMMARY: 3/4 ACs PASS, AC-04 wartet auf Push
+Slice 247 heilt CI-Test-Failure die seit ≥20 Pushes durchgehend rot war.
+1-Zeilen-Mock-Add. Pattern-Wiederholung Slice 218 (Test-Mock-Repair ClubContent).

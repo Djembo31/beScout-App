@@ -11,6 +11,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 247 | 2026-04-28 | PredictionsTab.test.tsx Mock-Repair (CI-Test-Recovery)
+
+- Stage-Chain: SPEC → IMPACT (skipped: test-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: src/components/fantasy/__tests__/PredictionsTab.test.tsx (1 Zeile + Comment), worklog/specs/247-*.md, worklog/reviews/247-review.md, worklog/proofs/247-test-recovery.txt, worklog/active.md
+- Spec: worklog/specs/247-predictionstab-test-mock-repair.md
+- Review: worklog/reviews/247-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 218)
+- Proof: worklog/proofs/247-test-recovery.txt
+- ACs: 3/4 PASS (AC-04 CI-Push-Verify pending)
+- 1/16 → 16/16 Tests PASS lokal verifiziert
+- Bug: vi.mock('@/lib/queries/predictions') hatte nur 3 Hooks (usePredictions, usePredictionCount, usePredictionStats) — Hook `useTopPredictorsLeaderboard` (in PredictionsTab.tsx Zeile 12 importiert + Zeile 165 aufgerufen) fehlte. TopPredictorsSection rendert auf jedem Test-Mount → throw "No export defined on mock"
+- Pattern-Familie: Test-File-Sync-Drift (Slice 218 ClubContent identisch)
+- Mock returnt minimal-stub `{ data: [], isLoading: false }` — TopPredictorsSection-Coverage gehört in eigene Test-Datei (Backlog)
+
+---
+
 ## 246 | 2026-04-28 | Bundle-Budget /inventory heilen (CI-Build-Recovery)
 
 - Stage-Chain: SPEC → IMPACT (skipped: Tool-config) → BUILD → REVIEW (self-review D35) → PROVE → LOG
