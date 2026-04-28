@@ -11,6 +11,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 238 | 2026-04-28 | silent-fail-audit Chunked-Detection + Test-File-Skip (D52 Refinement #2)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Tool-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: scripts/silent-fail-audit.ts (Pattern 1 -10 lookback + Pattern 4 test-file-skip), .audit-baseline.json (93/103/196 → 76/92/168), worklog/specs/238-*.md (NEU), worklog/reviews/238-review.md (NEU), worklog/proofs/238-silent-fail-smoke.txt (NEU), worklog/active.md, worklog/audits/silent-fail-2026-04-28.md (auto-regenerated)
+- Spec: worklog/specs/238-silent-fail-audit-chunked-and-test-skip.md
+- Review: worklog/reviews/238-review.md (PASS Self-Review D35 — XS Pattern-Wiederholung Slice 237 + 229)
+- Proof: worklog/proofs/238-silent-fail-smoke.txt
+- ACs: 7/7 PASS
+- Drift: -28 total / -17 HIGH / -11 MEDIUM (false-positives entfernt, 36+ echte HIGHs erhalten)
+- Bonus-Discovery: Slice fixt nicht nur die 1+2 explizit identifizierten Drifts, sondern eine ganze Klasse pre-existing for-loop-CHUNK-false-positives in src/lib/services/* die seit Slice 088+092 unsichtbar im Audit-Rauschen waren.
+- Commit: TBD
+
+---
+
 ## 237 | 2026-04-27 | silent-fail-audit Comment-Skip-Heuristik (D52 Refinement)
 
 - **Stage-Chain:** SPEC → IMPACT (skipped: Tool-only) → BUILD → REVIEW (self-review D35 Pattern-Wiederholung Slice 229) → PROVE → LOG

@@ -73,7 +73,10 @@ function scan(file: string, content: string): Finding[] {
     // Pattern 1: .in() without chunking hint — skip short inline literal arrays (not UUID-list risk)
     if (/\.in\s*\(/.test(line) && !/CHUNK|batch|\.slice|chunk/i.test(line) && !rel.endsWith('.test.ts') && !rel.endsWith('.spec.ts')) {
       // Slice 090: context includes `.range(` / `.limit(` on adjacent lines (multi-line paging pattern).
-      const ctx = lines.slice(Math.max(0, idx - 2), Math.min(lines.length, idx + 3)).join(' ');
+      // Slice 238: lookback widened from -2 to -10 to detect for-loop CHUNK declarations
+      // that sit several lines above the .in() call (e.g. wallet.ts:241 has `const CHUNK = 100`
+      // 8 lines above the .in()). Acceptable false-negative-risk per D52 iterativ-tightenen.
+      const ctx = lines.slice(Math.max(0, idx - 10), Math.min(lines.length, idx + 3)).join(' ');
       const hasChunk = /CHUNK|chunk|batch|\.range\(|\.limit\(/i.test(ctx);
       // Short inline literal array: .in('col', ['a', 'b', 'c']) — value count ≤ 20 literals, closes on same line
       const shortLiteralArray = /\.in\s*\(\s*['"][^'"]+['"]\s*,\s*\[[^\]]{0,200}\]/.test(line);
@@ -104,7 +107,15 @@ function scan(file: string, content: string): Finding[] {
     }
 
     // Pattern 4: Error-swallow in services (if(error) without throw)
-    if (rel.includes('src/lib/services/') && /if\s*\(\s*error\s*\)/.test(line)) {
+    // Slice 238: skip test-files analog Pattern 1 — Test-Mocks haben oft `if (error) {}`
+    // als Setup-Pattern, das ist nicht Production-Risk. Klasse: club-most-owned-batch.test.ts:64,286
+    if (
+      rel.includes('src/lib/services/') &&
+      !rel.endsWith('.test.ts') &&
+      !rel.endsWith('.spec.ts') &&
+      !rel.includes('/__tests__/') &&
+      /if\s*\(\s*error\s*\)/.test(line)
+    ) {
       const block = lines.slice(idx, Math.min(lines.length, idx + 8)).join(' ');
       if (!/throw\s/.test(block) && !/return\s+(null|false|\[\]|\{\})/.test(block)) {
         findings.push({ file: rel, line: n, match: line.trim().slice(0, 120), pattern: 'error-check-without-throw-or-return', severity: 'MEDIUM' });

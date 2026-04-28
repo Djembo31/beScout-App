@@ -1,17 +1,18 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: in_progress
+slice: 238
+stage: BUILD
+spec: worklog/specs/238-silent-fail-audit-chunked-and-test-skip.md
+impact: skipped (Tool-only Heuristik-Refinement)
+proof: worklog/proofs/238-silent-fail-smoke.txt
+review: self-review (Pattern-Wiederholung Slice 237 + 229 D52)
 ```
 
 ## Zuletzt
 
+- **Slice 238** (2026-04-28) — silent-fail-audit Chunked-Detection + Test-File-Skip (XS, Slice-Type=Tool, **D52 Refinement #2**). Triage echter Drift: +1 HIGH `wallet.ts:241` (false-pos chunked-Detection-Window zu klein) + 2 MEDIUM `__tests__/club-most-owned-batch.test.ts:64,286` (false-pos test-file). Pattern 1 Context-Window von -2 auf -10 + Pattern 4 Test-File-Skip. **IN PROGRESS**.
 - **Slice 237** (2026-04-27) — silent-fail-audit Comment-Skip-Heuristik (XS, Slice-Type=Tool, D52 Refinement). Issue #22 silent-fail HIGH ↑3 → 3 False-Positives in JSDoc-Comments. Globaler Comment-Skip-Regex `^\s*(\/\/|\*\s|\*$|\/\*)` am Loop-Top. HIGH 96→93 (-3 false-positives + Bonus -1 silent-catch-arrow). Baseline transparent updated 92/102/194 → 93/103/196 (berücksichtigt 1 echter NEU HIGH + 2 MEDIUM Drift = Slice 238 Backlog). CI-Gate exit 0. **2. Workflow-Live-Test unter Slice 234 D54-Enforcement** alle Hooks silent. Self-Review D35 PASS. Commit fbeb085b.
 - **Slice 235** (2026-04-27) — i18n 7 fehlende TR-Keys (XS, Slice-Type=i18n). Issue #22 Audit-Finding gefixt. Anil-Approval Option B: Kadro + Sahip (existing-konsistent, neutral). 4 manager.inLineupFilter* + 3 club.mostOwned* Keys in tr.json ergänzt. **"Kadroda değil" identisch zu existing `formBars.notInSquad`** — Bonus-Konsistenz. Self-Review D35 (Pattern-Wiederholung Slice 196 Track B). 5/5 ACs PASS, audit:i18n "DE↔TR Parität 4935 keys" exit 0. **Erster Workflow-Live-Test unter Slice 234 D54-Enforcement** — alle Hooks silent (Layer-1/2/3, spec-gate, tool-wiring-gate) wie designed. Commit 9ed8cb02.
 - **Slice 234** (2026-04-27) — System-Wiring Recovery + Drift-Prevention (L-Slice, D54). Anil-Direktive Plan-Mode + Ultrathink. 6 Phasen: HEAL (8 Hooks registriert + 1 archived + 1 deleted, capture-correction stdin-fix → Knowledge-Flywheel reaktiviert nach 19 Tagen Tot, GHA-Heal nightly-audit.yml, 14 stale Smoke-Issues triaged + Master-Tracker #25 erstellt) → PREVENT (scripts/wiring-check.ts NEU + ship-tool-wiring-gate.sh BLOCK-Hook) → ARCHITEKTUR (Slice-Type-Header pflicht, Layer-3 DoD-Hook) → KNOWLEDGE-RESTORE (capture-correction live verifiziert) → LIVE-VERIFY → CLOSE. Reviewer-Agent CONCERNS (11 Findings) → PASS post-Heal. F-04 UTF-8-tr-Bug LC_ALL=C.UTF-8 + dual-Pattern. F-08 [HIGH] Master-Tracker-Issue #25. Pattern-Familie D43→D46→D54 ("Existenz ≠ Verwendung") etabliert. 18 files, 1345 insertions, 102 deletions. Commit 68717459.
