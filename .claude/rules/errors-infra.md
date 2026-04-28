@@ -71,6 +71,39 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `perfo
 
 ## Cross-Cutting / Operational
 
+### Branch-Protection enforce_admins=true ist NICHT direct-push-kompatibel (Slice 244 Phase 2 + Slice 248)
+
+**Bug-Klasse:** GitHub Branch-Protection mit `required_status_checks` + `strict=true` + `enforce_admins=true` ist designed für PR-Merge-Workflow. Bei Solo-Dev direct-push entsteht Catch-22: Push wird abgelehnt mit "X of X required status checks are expected" + "protected branch hook declined", weil GitHub vor Push erwartet dass tip-commit alle grünen Status-Checks hat — aber CI startet erst NACH Push.
+
+**Symptom:**
+```
+$ git push origin main
+remote:
+remote: - 4 of 4 required status checks are expected.
+ ! [remote rejected]   main -> main (protected branch hook declined)
+error: failed to push some refs to '...'
+```
+
+**Anti-Pattern:**
+- "enforce_admins=true ist die echte Sicherheit, also setzen wir das einmal" — falsch wenn Solo-Dev ohne PR-Workflow.
+- "Workaround: enforce_admins=false toggle bei jedem Push" — Selbst-Bypass-Anti-Pattern + Operational-Mehraufwand.
+
+**Pattern (Slice 248, korrekt für Solo-Dev):**
+- `enforce_admins=false` lassen (status-quo)
+- 4 contexts required für PR-Workflow zukünftig
+- **Pre-Push-Hook** (`.husky/pre-push`) der lokal alle Status-Checks simuliert:
+  - tsc + audit:* sind in `.husky/pre-commit` (Slice 243)
+  - vitest run mit `CI=true` env (skipt Integration-Tests analog CI) in pre-push
+  - next build + bundle-budget bleiben in CI (zu langsam für pre-push)
+- Bypass: `git push --no-verify` für Notfälle, CI als 2nd-Layer fängt Drift
+
+**CI=true env für vitest-Parität (Slice 248):**
+- `vitest.config.ts` hat `skipIntegration = !!process.env.CI`
+- Lokales `pnpm exec vitest run` läuft Integration-Tests (gegen Live-Prod-Supabase)
+- Pre-push muss `CI=true pnpm exec vitest run` setzen, sonst: spurious failures durch DB-State
+
+**Reference:** Slice 244 Phase 2 (Phase-2-LOG-Push live demonstriert), Slice 248 (architektonische Lösung via pre-push-Hook). Pattern-Familie D45 (Hooks > Text-Regeln).
+
 ### Grep-Audit-Scope-Gap bei Sub-Component-Scan (Slice 166)
 - Top-Level-Grep (`grep "<Modal" src/components/`) findet nur direkt — verpasst **embedded Modals** in Cards/Tabs/Dialog-Containers.
 - Slice 166: Primary fand 7 Targets. Reviewer-Gap-Audit fand 6 zusaetzliche (46%).

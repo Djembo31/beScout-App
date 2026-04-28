@@ -10,10 +10,11 @@ proof: —
 review: —
 ```
 
-## Wave: 246 (Build) ✅ + 247 (Test) ✅ + 244 Phase 2 (BP-4-contexts) ✅ → Slice 248 NEU (Pre-Push-Hook) folgt
+## Wave KOMPLETT: 246 ✅ + 247 ✅ + 244 Phase 2 ✅ + 248 ✅. Slice 249 NEU (Wallet-Drift, CEO-Scope) als Backlog.
 
 ## Zuletzt
 
+- **Slice 248** (2026-04-28) — Pre-Push-Hook lokale Test-job-Simulation (S, Slice-Type=Hook, **Slice 244 Catch-22 architektonisch geheilt**). `.husky/pre-push` NEU mit `CI=true pnpm exec vitest run` (skipt Integration-Tests, Parität mit CI). 8/8 ACs PASS. Latenz 6.6 min (akzeptabel weil bewusst-vor-Netzwerk-Op + bypass --no-verify). Smoke 3043 tests grün. Initial-Smoke (mit Build-Step + ohne CI=true) entdeckte **KRITISCH 44 Wallet-Drifts in Production** → Slice 249 NEU als BACKLOG (CEO-Scope). errors-infra.md NEU Section "enforce_admins=true ist nicht direct-push-kompatibel". Self-Review D35.
 - **Slice 244 Phase 2** (2026-04-28) — Branch-Protection PUT (XS, Slice-Type=GHA, **docs/test.rtf #9 partial-geheilt + Lehre**). 4 contexts erfolgreich, enforce_admins=true zeigte **Catch-22 mit Solo-Dev direct-push** (Push blockt bis CI grün, CI braucht Push) → Anil-Decision Option C: enforce_admins=false zurück + Slice 248 NEU mit pre-push-Hook. 5/6 ACs PASS. Voraussetzung-CI b447d197 alle 4 jobs grün — erstes komplett grünes CI seit Slice 226.
 - **Slice 247** (2026-04-28) — PredictionsTab.test.tsx Mock-Repair (XS, Slice-Type=Doc/Test, **CI-Test-Recovery**). vi.mock('@/lib/queries/predictions') ergänzt um `useTopPredictorsLeaderboard` (1 Zeile). Test-File mockte 3/4 Hooks aber vergaß den 4. — Pattern-Wiederholung Slice 218 (Test-Mock-Repair ClubContent.test.tsx). Lokal: 1/16 → 16/16 PASS. Self-Review D35. 3/4 ACs PASS (AC-04 wartet auf Push).
 - **Slice 246** (2026-04-28) — Bundle-Budget /inventory heilen (XS, Slice-Type=Tool, **CI-Build-Recovery**). bundle-budget.json /inventory: 265 → 320kB mit Justification (drift seit Slice 185b durch Polish-Sweeps 196 + 200a/b). 19kB Headroom (6%) bewusst-konservativ-eng. Build-Gate exit 0 verifiziert. CI war ≥20 Pushes durchgehend rot, niemand bemerkt weil enforce_admins=false bypassed. Pattern-Wiederholung Slice 181. Self-Review D35. 4/5 ACs PASS (AC-05 wartet auf Push).

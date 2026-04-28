@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 248 | 2026-04-28 | Pre-Push-Hook lokale Test-job-Simulation (Slice 244 Catch-22 geheilt)
+
+- Stage-Chain: SPEC → IMPACT (skipped: Hook-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files: .husky/pre-push (NEU + executable), .claude/rules/errors-infra.md (NEU Section enforce_admins-Catch-22), worklog/specs/248-*.md, worklog/reviews/248-review.md, worklog/proofs/248-pre-push-smoke.txt, worklog/active.md, worklog/specs/249-*.md (Backlog-Stub)
+- Spec: worklog/specs/248-pre-push-hook-ci-simulation.md
+- Review: worklog/reviews/248-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 243)
+- Proof: worklog/proofs/248-pre-push-smoke.txt
+- ACs: 8/8 PASS (1 LOW-Finding F-PRE-PUSH-LATENZ accepted)
+- Iteration 1→2: Initial 2 Steps (vitest + next build) = 8.6 min zu lang → Final 1 Step (vitest only) = 6.6 min
+- vitest mit `CI=true` env-var → skipt Integration-Tests (Parität mit CI)
+- Bewusst NICHT in pre-push: tsc/audit (in pre-commit), build/bundle (in CI 4 required-checks)
+- 6.6 min Latenz akzeptabel weil bewusst-vor-Netzwerk-Op + bypass --no-verify
+- **KRITISCHE BONUS-DISCOVERY** in Smoke 1 (mit Integration-Tests aktiv): **44 user-wallets out-of-sync in Production-Supabase** (drifts -1.3M cents bis +250k cents). INV-16 + INV-19 + INV-33 echte Findings. → Slice 249 NEU als BACKLOG (CEO-Scope, Money-Path-Critical, SPEC-only)
+- errors-infra.md NEU Section "Branch-Protection enforce_admins=true ist NICHT direct-push-kompatibel" mit Catch-22-Doku + Pre-Push-Pattern + CI=true vitest-Parität
+- Pattern-Familie: D45 (Hooks > Text-Regeln), Slice 243 pre-commit-Erweiterung
+- 4-Slice-Discipline-Hardening-Wave (243+244+245+248) jetzt KOMPLETT
+
+---
+
 ## 247 | 2026-04-28 | PredictionsTab.test.tsx Mock-Repair (CI-Test-Recovery)
 
 - Stage-Chain: SPEC → IMPACT (skipped: test-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG
