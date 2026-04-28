@@ -23,7 +23,7 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Drift: 13 → 9 real-drift (50% Issue-Noise-Reduktion in nightly-audit-Pipeline)
 - D52 Refinement #3 (analog Slice 238 + 240): Audit-Tool tightening
 - Slice 239 Anil-Wire-Plan-Wave kann sich jetzt auf 9 statt 13 Components fokussieren
-- Commit: TBD
+- Commit: 475854bd
 
 ---
 
