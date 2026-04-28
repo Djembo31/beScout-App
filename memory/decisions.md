@@ -2373,6 +2373,132 @@ Wenn nach Slice 235+ Wiring-Hook 4 Wochen lang 0 Treffer hat: Pattern stabil, ke
 
 ---
 
+## D55 — PROCESS: Discipline-Architektur 4-Layer (Pre-Commit + Pre-Push + CI + Nightly)
+
+**Datum:** 2026-04-28
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+BeScout-Quality-Gates sind 4-stufig nach Slice 243 + 244 + 248 + 233 etabliert:
+
+| Layer | Trigger | Latenz | Gates |
+|-------|---------|--------|-------|
+| **1. Pre-Commit** (Slice 243) | `git commit` lokal | ~32s | tsc + audit:type-truth + audit:stale + audit:wiring:check + lint-staged |
+| **2. Pre-Push** (Slice 248) | `git push` lokal | ~6 min | vitest run mit `CI=true` (skipt Integration) |
+| **3. CI on-push** (Slice 244 P1) | `git push origin main` | ~2-3 min | lint + audit + build + test (4 required-status-checks) |
+| **4. Nightly** (Slice 233) | täglich 03:00/04:00 UTC | ~5 min | 11 Audits + Smoke-Test + Auto-Issue-Pipeline |
+
+Branch-Protection: 4 contexts required, `enforce_admins: false` (pragmatisch für Solo-Dev direct-push).
+
+### Begründung
+
+Slice 226-245 (≥20 Push-Events) hatten durchgehend rote CI ohne dass jemand bemerkt — Audit-Run-without-Action Pattern (docs/test.rtf #8/#9). Anil's RTF-Brainstorm dokumentierte 12 Drift-Risiko-Punkte. 5 davon strukturell geheilt heute (Slice 245 #6, 243 #8, 244 #9, plus 246+247 als CI-Recovery).
+
+`enforce_admins: true` Catch-22 (Slice 244 Phase 2): Push blockiert bis CI grün, CI braucht Push. → Pre-Push-Hook als architektonische Lösung statt PR-Workflow für Solo-Dev (Slice 248).
+
+### Auswirkungen
+
+- **Code:** `.husky/pre-commit` + `.husky/pre-push` + `.github/workflows/ci.yml` + `.github/workflows/nightly-audit.yml`
+- **Prozess:** Jeder lokale Commit + Push hat jetzt mehrere Gates. `--no-verify` als bewusster Bypass. Knowledge-Capture in `errors-infra.md` für Future-Onboarding.
+- **Team:** CTO + Anil. Bei Multi-Dev: PR-Workflow + enforce_admins=true wäre angemessen.
+
+### Alternativen erwogen
+
+- **enforce_admins=true ohne Pre-Push-Hook:** Verworfen wegen Catch-22 (Slice 244 Phase 2 live demonstriert).
+- **PR-Workflow für alle Slices:** Verworfen wegen Solo-Dev-Anti-Pattern. 252 Slices Historie zeigt direct-push.
+- **Audit-Tools nur in CI:** Verworfen weil ≥20 silent CI-Failures gezeigt haben dass Detection ohne Pre-Commit-Reaction-Loop unwirksam ist.
+
+### Re-Visit-Trigger
+
+Wenn 6.6 min Pre-Push-Latenz dazu führt dass Anil häufig `--no-verify` nutzt: vitest-Worker-Parallelisierung (Slice 251+). Wenn ≥1 echter Multi-Dev: enforce_admins=true + PR-Workflow.
+
+---
+
+## D56 — PROCESS: Pre-Implementation-Replacement-Verification bei Cleanup-Slices Pflicht
+
+**Datum:** 2026-04-28
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Bei Bulk-Delete-Cleanup-Slices (Components, Scripts, RPCs, Tests) ist **Pre-Implementation-Replacement-Verification pflicht** vor Anil-Empfehlung. Schnelle "DELETE-OK"-Empfehlungen ohne Replacement-Check sind verboten.
+
+Pflicht-Checks pro Component-Kandidat:
+1. **Replacement-Component-Suche:** Existiert eine Component die das Feature abdeckt?
+2. **Wire-Lücke-Check:** Ist Feature semantisch abgedeckt oder UNIQUE-Visualization?
+3. **Feature-Flag-Status:** Ist Component disabled per FEATURE_X-Flag (= DEFER-Kandidat)?
+4. **Pattern-Anti-Pattern-Check:** Verstößt Component gegen `feedback_*.md` Memory-Items?
+5. **Caller-Site-Audit:** Wer importiert (oder importierte) den Component?
+
+### Begründung
+
+Slice 239 Anil-Direktive ("vergewissere dich davon, nicht das wir wichtige dinge übersehen") deckte 2/9 Wire-Lücken auf die meine erste Empfehlung übersehen hatte:
+- **GameweekScoreBar** schien obsolet (PerformanceTab existiert mit MatchTimeline+StatsBreakdown), aber Bar-Chart-Visualization mit Threshold-Lines war UNIQUE und nicht ersetzt
+- **HoldingsSection** schien obsolet (SellModal existiert), aber alternative Inline-Sell-UX
+
+Ohne Anil's "vergewissere dich"-Direktive hätten wir 1× UNIQUE-Feature unwiederbringlich gelöscht (Slice 239 GameweekScoreBar als WIRE umgesetzt).
+
+### Auswirkungen
+
+- **Code:** keine direkten Code-Änderungen, Process-Regel
+- **Prozess:** Bei Slice-Specs für Bulk-Delete: Spec-Sektion 1.4 Code-Reading-Liste muss explizit Replacement-Suche pro Kandidat enthalten. Slice 239 als Pattern-Vorbild.
+- **Team:** Future-Slices (252+ orphan-cleanup-waves)
+
+### Alternativen erwogen
+
+- **DELETE-First, Re-Add-Later:** Verworfen weil git-history nicht trivial wiederherstellbar bei umfangreichen Refactorings nach Delete.
+- **All-Pre-Verify-Skip wenn audit-Tool sagt "orphan":** Verworfen weil orphan-detector Code-Existenz prüft, nicht Feature-Coverage.
+
+### Re-Visit-Trigger
+
+Wenn future Bulk-Delete-Slice (252+) eine UNIQUE-Feature unwiederbringlich verliert trotz Pre-Verification: Process-Hardening (z.B. mandatory Reviewer-Agent vor Delete).
+
+---
+
+## D57 — PROCESS: False-Alarm-Investigation pflicht vor Money-Path-Reconcile
+
+**Datum:** 2026-04-28
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Bei Money-Path-Drift-Discoveries (Wallet-Drift, Transaction-Inkonsistenz, Balance-Mismatch) ist **Phase-A-Investigation read-only PFLICHT** vor jeder Reconcile-Empfehlung. Mögliche False-Alarm-Quellen müssen aktiv ausgeschlossen werden:
+
+1. **Test-Bot-Daten:** Filter `handle LIKE 'bot%'` aus Production-Audits
+2. **Test-Setup-Scripts:** Greppen `e2e/`, `scripts/seed-*.ts`, `scripts/refresh-*.ts` für direkte wallet/balance-Mutationen ohne ledger
+3. **Cron-Pattern:** Cron-Jobs wallet-touchen ohne transactions-Insert
+4. **Migration-Drift-Patches:** Slice-Backfills die einmal liefen
+5. **Bulk-Time-Window-Match:** wallets.updated_at clustering — wenn 100% in 7-Sek-Fenster: Bulk-Operation, nicht echter Drift
+
+Wenn alle 5 ausgeschlossen → Phase B Reconcile.
+
+### Begründung
+
+Slice 248 Pre-Push-Hook entdeckte 44 wallet-drifts in Production-Supabase mit Total ~1.62M $SCOUT. **Phase-A-Investigation (Slice 249 Phase B)** fand: ALLE 44 Wallets sind Test-Bots (`handle LIKE 'bot%'`), 29 in 7-Sekunden-Fenster updated, Smoking-Gun-Code: `e2e/bots/ai/refresh-wallets.ts` (designed Test-Setup).
+
+Ohne Phase-A wäre Reconcile-Migration für 1.62M $SCOUT angenommen, die de-facto unnötig + falsch wäre. False-Positive-Reconcile-Migrations sind Money-Path-Critical-Anti-Pattern (würde Test-Bot-State zur Production-Truth machen).
+
+### Auswirkungen
+
+- **Code:** `db-invariants.test.ts` Bot-Filter (Slice 250 als Recovery)
+- **Prozess:** Slice 249 als Pattern-Vorbild für Money-Path-Investigations. SHIP-Loop SPEC-Stage Sektion 1.4 Code-Reading-Liste muss bei Money-Path-Drifts diese 5 Checks enthalten.
+- **Team:** CTO + Anil
+
+### Alternativen erwogen
+
+- **Sofort Reconcile basierend auf Drift-Liste:** Verworfen weil False-Positives potenziell Money-Loss verursachen.
+- **Audit-Tool ausbauen damit es Bots filtert:** Komplementär zu D57 (Slice 250 macht das), aber nicht ersatz für Investigation-Process.
+
+### Re-Visit-Trigger
+
+Wenn Phase-A-Investigation für künftige Drift-Discovery 90+ min dauert ohne Root-Cause: Tooling-Gap, neuer Audit-Aspect (z.B. pg_audit aktivieren).
+
+---
+
 ## Template für neue Entries
 
 ```markdown
