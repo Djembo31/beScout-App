@@ -10,7 +10,7 @@ proof: —
 review: —
 ```
 
-## Wave KOMPLETT: 246 ✅ + 247 ✅ + 244 Phase 2 ✅ + 248 ✅. Slice 249 NEU (Wallet-Drift, CEO-Scope) als Backlog.
+## Slice 249 Phase A done. Phase B/C wartet auf CEO-Decision (siehe worklog/proofs/249a-drift-investigation.md).
 
 ## Zuletzt
 
