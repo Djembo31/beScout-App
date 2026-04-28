@@ -11,11 +11,14 @@ import type { FantasyEvent } from '../types';
 /**
  * Manages gameweek selection, sync with league active GW,
  * Safari bfcache recovery, and GW status derivation.
+ *
+ * Slice 251 Wave 1: leagueId is required to fetch the per-league active_gameweek.
+ * Pass null when no league is in scope yet (hook stays disabled, currentGw falls back to selected ?? 1).
  */
-export function useGameweek(gwEvents: FantasyEvent[] = []) {
+export function useGameweek(gwEvents: FantasyEvent[] = [], leagueId: string | null = null) {
   const { selectedGameweek, setSelectedGameweek, setCurrentGw } = useFantasyStore();
   const queryClient = useQueryClient();
-  const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek();
+  const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek(leagueId);
 
   // Sync selectedGameweek with league activeGw on first load
   useEffect(() => {
@@ -30,7 +33,8 @@ export function useGameweek(gwEvents: FantasyEvent[] = []) {
     const handlePageShow = (e: PageTransitionEvent) => {
       if (e.persisted) {
         setSelectedGameweek(null);
-        queryClient.invalidateQueries({ queryKey: qk.events.leagueGw });
+        // Slice 251 Wave 1: prefix-match invalidates ALL league variants.
+        queryClient.invalidateQueries({ queryKey: ['events', 'leagueGw'] });
       }
     };
     window.addEventListener('pageshow', handlePageShow);

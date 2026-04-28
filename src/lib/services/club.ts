@@ -582,17 +582,31 @@ export async function getActiveGameweek(clubId: string): Promise<number> {
   return (data.active_gameweek as number) ?? 1;
 }
 
-/** Get the league-wide active gameweek (MIN across all clubs).
- *  Works for EVERY user — no club membership required. */
-export async function getLeagueActiveGameweek(): Promise<number> {
+/** Get the active gameweek for a specific league.
+ *  Reads from leagues.active_gameweek (Single-Source-of-Truth per league).
+ *  Slice 251 Wave 1 Track A: rewrite from clubs MIN-aggregation. */
+export async function getLeagueActiveGameweek(leagueId: string | null): Promise<number> {
+  if (!leagueId) return 1;
   const { data, error } = await supabase
-    .from('clubs')
+    .from('leagues')
     .select('active_gameweek')
-    .order('active_gameweek', { ascending: true })
-    .limit(1)
+    .eq('id', leagueId)
     .maybeSingle();
-  if (error || !data) return 1;
-  return (data.active_gameweek as number) ?? 1;
+  if (error) throw new Error(error.message);
+  return (data?.active_gameweek as number | null | undefined) ?? 1;
+}
+
+/** Get the max gameweeks for a specific league (TFF1=34, BL=34, PL=38, etc.).
+ *  Slice 251 Wave 1 Track A: replaces hardcoded `<= 38` in callers. */
+export async function getLeagueMaxGameweeks(leagueId: string | null): Promise<number> {
+  if (!leagueId) return 38;
+  const { data, error } = await supabase
+    .from('leagues')
+    .select('max_gameweeks')
+    .eq('id', leagueId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data?.max_gameweeks as number | null | undefined) ?? 38;
 }
 
 /** Set the active gameweek for a club (admin only) */

@@ -142,7 +142,8 @@ export default function ClubContent({ slug }: { slug: string }) {
   // Slice 204 (K-03) — Squad-Tab Fantasy-Pick-Rate Map.
   // D46-Reuse: useEventPlayerPickRates aus Slice 195e (anonymized aggregate, RLS-bypass).
   // Picks groesstes laufendes/oeffnendes League-Event fuer aktuelle GW; ohne Event = leere Map.
-  const { data: leagueGw } = useLeagueActiveGameweek();
+  // Slice 251 Wave 1: pass club.league_id so we read leagues.active_gameweek per league (not clubs MIN).
+  const { data: leagueGw } = useLeagueActiveGameweek(club?.league_id ?? null);
   const { data: allEvents = [] } = useEvents();
   const currentEventId = useMemo<string | null>(() => {
     if (!leagueGw) return null;

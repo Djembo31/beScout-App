@@ -6,7 +6,7 @@ import {
   followClubsBatch, getUserFollowedClubs, getUserPrimaryClub,
   getClubsWithStats, getClubTradingFees, getClubRecentTrades,
   getClubDashboardStats, isClubAdmin, getClubAdmins, addClubAdmin,
-  removeClubAdmin, getActiveGameweek, getLeagueActiveGameweek,
+  removeClubAdmin, getActiveGameweek, getLeagueActiveGameweek, getLeagueMaxGameweeks,
   setActiveGameweek, updateCommunityGuidelines, getClubFantasySettings,
   updateClubFantasySettings, getClubBalance, getClubWithdrawals,
   requestClubWithdrawal, getClubStanding,
@@ -368,14 +368,51 @@ describe('getActiveGameweek', () => {
   });
 });
 
-describe('getLeagueActiveGameweek', () => {
-  it('returns min gameweek across clubs', async () => {
-    mockTable('clubs', { active_gameweek: 12 });
-    expect(await getLeagueActiveGameweek()).toBe(12);
+describe('getLeagueActiveGameweek (Slice 251 Wave 1)', () => {
+  it('reads from leagues table with leagueId', async () => {
+    mockTable('leagues', { active_gameweek: 10 });
+    expect(await getLeagueActiveGameweek('league-bl')).toBe(10);
   });
-  it('returns 1 on error', async () => {
-    mockTable('clubs', null, { message: 'err' });
-    expect(await getLeagueActiveGameweek()).toBe(1);
+  it('returns 1 fallback when leagueId is null', async () => {
+    expect(await getLeagueActiveGameweek(null)).toBe(1);
+  });
+  it('returns 1 fallback when leagues row not found', async () => {
+    mockTable('leagues', null);
+    expect(await getLeagueActiveGameweek('unknown-id')).toBe(1);
+  });
+  it('returns 1 fallback when active_gameweek is NULL', async () => {
+    mockTable('leagues', { active_gameweek: null });
+    expect(await getLeagueActiveGameweek('league-bl')).toBe(1);
+  });
+  it('throws when supabase errors', async () => {
+    mockTable('leagues', null, { message: 'rls_reject' });
+    await expect(getLeagueActiveGameweek('league-bl')).rejects.toThrow('rls_reject');
+  });
+});
+
+describe('getLeagueMaxGameweeks (Slice 251 Wave 1)', () => {
+  it('reads max_gameweeks from leagues with leagueId', async () => {
+    mockTable('leagues', { max_gameweeks: 34 });
+    expect(await getLeagueMaxGameweeks('league-tff1')).toBe(34);
+  });
+  it('returns 38 fallback when leagueId is null', async () => {
+    expect(await getLeagueMaxGameweeks(null)).toBe(38);
+  });
+  it('returns 38 fallback when leagues row not found', async () => {
+    mockTable('leagues', null);
+    expect(await getLeagueMaxGameweeks('unknown-id')).toBe(38);
+  });
+  it('returns 38 fallback when max_gameweeks is NULL', async () => {
+    mockTable('leagues', { max_gameweeks: null });
+    expect(await getLeagueMaxGameweeks('league-bl')).toBe(38);
+  });
+  it('returns 38 fallback when value is undefined', async () => {
+    mockTable('leagues', {});
+    expect(await getLeagueMaxGameweeks('league-bl')).toBe(38);
+  });
+  it('throws when supabase errors', async () => {
+    mockTable('leagues', null, { message: 'rls_reject' });
+    await expect(getLeagueMaxGameweeks('league-bl')).rejects.toThrow('rls_reject');
   });
 });
 

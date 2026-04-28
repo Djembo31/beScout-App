@@ -1,31 +1,109 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-28 17:29)
+# Session Handoff — Auto (2026-04-28 21:23)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 8 Files
 ```
  M .claude/settings.local.json
  M memory/session-handoff.md
- M worklog/audits/orphan-components-2026-04-28.md
-?? docs/test.rtf
-?? worklog/audits/audit-stale-2026-04-28.md
-?? worklog/audits/type-truth-2026-04-28.md
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-04-28.md
+ M worklog/audits/type-truth-2026-04-28.md
+?? worklog/audits/spieltag-liga-architektur-2026-04-28.md
+?? worklog/impact/251-spieltag-liga-scope.md
+?? worklog/specs/251-spieltag-liga-scope-reform.md
 ```
 
-## Session Commits: 10
-- 03453306 fix(250): db-invariants Bot-Filter + INV-19 Whitelist (Test-Recovery)
-- 33241f74 docs(249a): Phase A Wallet-Drift Investigation Findings
-- 0131ee34 feat(248): pre-push-Hook + 44 Wallet-Drift-Discovery + Slice 249 BACKLOG
-- 4cc31882 chore(244): Phase 2 KOMPLETT — Branch-Protection 4 contexts + Catch-22-Lehre
-- b447d197 fix(247): PredictionsTab.test.tsx Mock-Repair — CI-Test-Recovery
-- dabf0faa fix(246): bundle-budget /inventory 265→320kB — CI-Build-Recovery
-- 47ca629a feat(245): deferred-Items Re-Eval-Reminder-Hook (D54 #6 geheilt)
-- 0923fd3a feat(244): ci.yml NEU audit-Job — 3 schnelle Audits (D54 #9 Phase 1/2)
-- 94e1d248 feat(243): pre-commit-hook audit-wiring — 3 NEU Steps (D54 #8 geheilt)
-- 471a2e09 docs(handoff): Pre-Clear Resume-Anker — 4 Slices Session 238/240/241/242 (Tech-Cleanup)
+## Session Commits: 6
+- b0a73e5d feat(254+255): Walker-Re-Run Pattern v3 + K1 Empty-State Heal
+- 8ab3f1ad feat(253): Walker-Pattern v3 — Write/Edit statt Bash-heredoc
+- 8053ab13 feat(252): Phase-C Persona-Walker Re-Run pre-Beta — TR-GO, DE-CONDITIONAL
+- ec5754bd fix(250): silent-fail baseline-recovery — Bot-Filter .limit(1000) defensiv
+- 6c6f5894 docs(decisions): D55-D57 — 4-Layer Discipline + Pre-Verify-Cleanup + False-Alarm-Investigation
+- 1598d469 feat(239): orphan-cleanup-wave 8 DELETE + 1 WIRE (GameweekScoreBar)
+
+## Pending Agent Work: 1 Worktrees
+- **agent-aec73207c3b95a285** (slice/251-wave-1-track-a):  1 file changed, 3 insertions(+), 1 deletion(-)
 
 <!-- auto:handoff-end -->
+
+---
+
+## Slice 251 Spieltag Liga-Scope-Reform — IN-PROGRESS
+
+**Stand Session-Ende 2026-04-28:** Wave 1 BUILD fertig, wartet auf Migration-Apply durch Anil + Merge.
+
+### Was steht
+- **Audit:** `worklog/audits/spieltag-liga-architektur-2026-04-28.md` (14 Findings, 6 P0)
+- **Spec:** `worklog/specs/251-spieltag-liga-scope-reform.md` (L-Slice, 7 Tracks, 13 Sektionen, 24 ACs, 16 Edge-Cases) — Anil-Approved
+- **Impact:** `worklog/impact/251-spieltag-liga-scope.md` (4 Refinements eingespielt: clubs/page als 5. Konsument, Wave 1 Backfill, Pre-Wave-3-Probe, Track F minimal Frontend)
+- **Worktree:** `.claude/worktrees/agent-aec73207c3b95a285` Branch `slice/251-wave-1-track-a` (15 Files, +190/-39, NICHT committed)
+- **Reviewer-Verdict:** PASS with CONCERNS · Bridge ✓ gefixt (FantasyContent.tsx:83) · Pattern-Promotion ✓ in common-errors.md §0 (4. Mitigation-Layer) · Review-File ✓ persistiert
+- **Tests:** 73+6+12 = 91 grün im Worktree, tsc clean
+
+### CEO-Decisions (alle 4 approved)
+1. Liga-Default = `profile.favorite_club.league` Cascade
+2. Wildcards pro-Liga (Track F)
+3. Lineup-Eligibility Pre-Verify ergab P2 (UX-Falle, kein Money-Path-Bug) — Track G refit zu PlayerPicker-Filter Wave 5
+4. Topspiel = Sponsor-Match-Logic
+
+### Anil-Action vor Wave-2-Start (PFLICHT)
+1. **Migration manuell applien** im Supabase-Dashboard SQL-Editor:
+   ```sql
+   UPDATE public.leagues l
+   SET active_gameweek = sub.min_gw
+   FROM (
+     SELECT league_id, MIN(active_gameweek) AS min_gw
+     FROM public.clubs
+     WHERE league_id IS NOT NULL AND active_gameweek IS NOT NULL
+     GROUP BY league_id
+   ) sub
+   WHERE l.id = sub.league_id
+     AND COALESCE(l.active_gameweek, -1) IS DISTINCT FROM sub.min_gw;
+   ```
+2. **Verify** (erwartet: 0 Rows):
+   ```sql
+   SELECT l.id, l.name, l.active_gameweek, MIN(c.active_gameweek)
+   FROM leagues l LEFT JOIN clubs c ON c.league_id = l.id
+   WHERE l.is_active = true GROUP BY l.id, l.name, l.active_gameweek
+   HAVING l.active_gameweek != MIN(c.active_gameweek)
+      AND MIN(c.active_gameweek) IS NOT NULL;
+   ```
+3. Anil sagt "applied" → Primary-Claude merged Worktree → main + Stage PROVE/LOG → Wave 2 starten (Track B ‖ Track F parallel in 2 neuen Worktrees)
+
+### Nächste Session — Erste Action
+1. Diesen Handoff-Block lesen
+2. `worklog/active.md` lesen (slice 251, stage build-pending-apply)
+3. Anil fragen: "Migration applied?" — wenn ja: merge + Wave 2. Wenn nein: nur drüber sprechen.
+4. Wave 2 = Track B Service-Layer (`getFixturesByGameweek(gw, leagueId)` + Service-Tests) ‖ Track F Wildcards Composite-PK + RPCs (`get_wildcard_balance(uid, leagueId)` etc.)
+
+### Wave-2-Briefing-Skizze (für nächste Session)
+
+**Track B Backend-Agent (Worktree):**
+- `getFixturesByGameweek(gw)` → `(gw, leagueId?)` mit `.eq('league_id', leagueId)`
+- `pickTopspiel(fixtures, clubId)` → `(fixtures, clubId, leagueId, sponsorClubId?)` Sponsor-Match-Priorität
+- `dashboardStats` Update in FantasyContent (events → filteredGwEvents)
+- 3 Konsumenten: SpieltagTab.tsx:81, events.mutations.ts:133, fixtures.ts:316
+- Tests: fixtures.test.ts (5 Tests), events-v2.test.ts, lib-services-fixtures.test.ts
+- AC-22-Cross-Check: Cron Dual-Write läuft korrekt nach 1 GW-Cycle
+
+**Track F Backend-Agent (paralleler Worktree):**
+- Migration: `user_wildcards` PK von `(user_id)` → `(user_id, league_id)` Composite. ADD league_id NULLABLE → Backfill split per Cascade-Default-Liga (rest-handling) → ALTER PK
+- 3 RPCs: `get_wildcard_balance(p_user_id, p_league_id)`, `earn_wildcards(...,p_league_id)`, `spend_wildcards(...,p_league_id)`. AR-44 REVOKE-Block pflicht.
+- `rpc_save_lineup` Z.359+364: `event.club.league_id` reinholen + an spend/earn passen (CREATE OR REPLACE-Migration)
+- `refund_wildcards_on_leave(p_user_id, p_event_id)`: gleiche league-id Lookup
+- Frontend Read: `useWildcardBalance(uid, leagueId)` Hook erweitern + qk.events.wildcardBalance(uid) → (uid, leagueId)
+- AC-24 Backfill-Sum-Smoke: pre/post Sum-Diff = 0
+
+**Wave 2.5 Pre-Wave-3-Probe** (parallel zu Wave 2 als Read-Only-Audit-Task):
+- 26 Sub-Components in `src/features/<market|manager|fantasy>/` per grep auf Liga-Reads klassifizieren
+- Output: `worklog/impact/251-store-consumers.md` mit Annotation "Reads-Liga: yes/no/transient" pro File
+- Sonst Wave 3 Track C scope-creept
+
+### Token-Budget-Lehre Session 2026-04-28
+- Diese Session hat ~850k Tokens verbraucht (Audit + 3 Agents + Spec + Impact + Wave 1 BUILD + Reviewer + Bridge + Pattern-Promotion)
+- Wave 2 + 3 brauchen frischen Context — `/clear` vor Start, Handoff-Block oben dient als Restart-Punkt
 
 ---
 

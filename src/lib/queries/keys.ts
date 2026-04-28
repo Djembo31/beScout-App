@@ -45,7 +45,10 @@ export const qk = {
     holdingLocks: (uid: string) => ['events', 'holdingLocks', uid] as const,
     wildcardBalance: (uid: string) => ['events', 'wildcardBalance', uid] as const,
     activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
-    leagueGw: ['events', 'leagueGw'] as const,
+    /** Slice 251 Wave 1: function-form per leagueId. Prefix-match for invalidation: ['events', 'leagueGw']. */
+    leagueGw: (leagueId: string | null) => ['events', 'leagueGw', leagueId] as const,
+    /** Slice 251 Wave 1: max gameweeks per league (TFF1=34, BL=34, PL=38). */
+    leagueMaxGw: (leagueId: string | null) => ['events', 'leagueMaxGw', leagueId] as const,
     /** Slice 199 fm 2.4 — Event-Difficulty-Score (avg IPO + participant clubs). */
     difficulty: (eventId: string) => ['events', 'difficulty', eventId] as const,
   },

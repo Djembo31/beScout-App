@@ -6,7 +6,7 @@ import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry
 import { getPlayerEventUsage } from '@/features/fantasy/services/lineups.queries';
 import { getUserHoldingLocks } from '@/lib/services/wallet';
 import { getWildcardBalance } from '@/features/fantasy/services/wildcards';
-import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/services/club';
+import { getActiveGameweek, getLeagueActiveGameweek, getLeagueMaxGameweeks, isClubAdmin } from '@/lib/services/club';
 import type { DbEventEntry } from '@/types';
 
 const ONE_MIN = 60 * 1000;
@@ -68,11 +68,24 @@ export function useActiveGameweek(clubId: string | undefined) {
   });
 }
 
-/** League-wide active gameweek — no club dependency, works for ALL users */
-export function useLeagueActiveGameweek() {
+/** League-wide active gameweek — Slice 251 Wave 1: per-league via leagues.active_gameweek.
+ *  Reads SSOT from leagues table (rewrite from clubs MIN-aggregation). */
+export function useLeagueActiveGameweek(leagueId: string | null) {
   return useQuery({
-    queryKey: qk.events.leagueGw,
-    queryFn: getLeagueActiveGameweek,
+    queryKey: qk.events.leagueGw(leagueId),
+    queryFn: () => getLeagueActiveGameweek(leagueId),
+    enabled: !!leagueId,
+    staleTime: FIVE_MIN,
+    gcTime: 10 * 60 * 1000,
+  });
+}
+
+/** Slice 251 Wave 1: max gameweeks per league. Replaces hardcoded `<= 38`. */
+export function useLeagueMaxGameweeks(leagueId: string | null) {
+  return useQuery({
+    queryKey: qk.events.leagueMaxGw(leagueId),
+    queryFn: () => getLeagueMaxGameweeks(leagueId),
+    enabled: !!leagueId,
     staleTime: FIVE_MIN,
     gcTime: 10 * 60 * 1000,
   });

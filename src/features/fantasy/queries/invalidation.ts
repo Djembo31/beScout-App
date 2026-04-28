@@ -41,7 +41,8 @@ export async function invalidateAfterScoring(clubId?: string): Promise<void> {
  * user's joined event to disappear from the UI right after save.
  */
 async function invalidateFantasyQueriesCore(userId?: string, clubId?: string): Promise<void> {
-  queryClient.invalidateQueries({ queryKey: qk.events.leagueGw });
+  // Slice 251 Wave 1: leagueGw is now per-league (function-form key). Prefix-match invalidates all variants.
+  queryClient.invalidateQueries({ queryKey: ['events', 'leagueGw'] });
   if (clubId) queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
   const critical: Promise<void>[] = [queryClient.invalidateQueries({ queryKey: qk.events.all })];
   if (userId) {

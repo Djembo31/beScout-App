@@ -193,7 +193,14 @@ vi.mock('@/lib/queryClient', () => ({
 
 vi.mock('@/lib/queries/keys', () => ({
   qk: {
-    events: { leagueGw: ['events', 'leagueGw'], all: ['events'], joinedIds: (id: string) => ['events', 'joined', id], usage: (id: string) => ['events', 'usage', id] },
+    events: {
+      // Slice 251 Wave 1: leagueGw is now function-form (per-league).
+      leagueGw: (leagueId: string | null) => ['events', 'leagueGw', leagueId],
+      leagueMaxGw: (leagueId: string | null) => ['events', 'leagueMaxGw', leagueId],
+      all: ['events'],
+      joinedIds: (id: string) => ['events', 'joined', id],
+      usage: (id: string) => ['events', 'usage', id],
+    },
     tickets: { balance: (id: string) => ['tickets', 'balance', id] },
     holdings: { byUser: (id: string) => ['holdings', id] },
     clubAdmin: { check: (uid: string, cid: string) => ['clubAdmin', uid, cid] },

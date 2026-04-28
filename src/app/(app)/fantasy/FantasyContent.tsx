@@ -80,7 +80,9 @@ export default function FantasyContent() {
 
   // ── Feature hooks ──
   const { events, gwEvents, activeEvents, selectedEvent, joinedSet, isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useFantasyEvents(store.currentGw);
-  const gw = useGameweek(gwEvents);
+  // Slice 251 Wave 1 Bridge: pass activeClub.league_id until Wave 3 (Track C, useLeagueScope) lands.
+  // Without this bridge, useGameweek would fetch with leagueId=null, query disabled, currentGw stuck at 1.
+  const gw = useGameweek(gwEvents, activeClub?.league_id ?? null);
   const { holdings } = useFantasyHoldings();
   const { joinEvent, leaveEvent, submitLineup: handleSubmitLineup } = useEventActions(clubId);
   const { fixtureDeadlines } = useFixtureDeadlines(gw.currentGw, activeEvents.length > 0);

@@ -86,6 +86,8 @@ type ActiveLeague = {
   id: string;
   short: string;
   apiFootballId: number;
+  /** Slice 251 Wave 1: max gameweeks per league (TFF1=34, BL=34, PL=38). Fallback 38. */
+  maxGameweeks: number;
 };
 
 type LeagueSyncResult = {
@@ -239,7 +241,7 @@ export const GET = withLogger('cron.gameweek-sync', async (request) => {
       // 2) Fetch league metadata (only rows with api_football_id mapped)
       const { data: leagueRows, error: leagueErr } = await supabaseAdmin
         .from('leagues')
-        .select('id, short, api_football_id')
+        .select('id, short, api_football_id, max_gameweeks')
         .in('id', leagueIds)
         .not('api_football_id', 'is', null);
       if (leagueErr) throw new Error(leagueErr.message);
@@ -249,6 +251,8 @@ export const GET = withLogger('cron.gameweek-sync', async (request) => {
           id: l.id as string,
           short: l.short as string,
           apiFootballId: l.api_football_id as number,
+          // Slice 251 Wave 1: per-league cap (TFF1=34, BL=34, PL=38). Fallback 38 if NULL.
+          maxGameweeks: (l.max_gameweeks as number | null | undefined) ?? 38,
         }))
         // Sanity: ensure both fields are present
         .filter((l) => l.id && l.short && typeof l.apiFootballId === 'number');
@@ -1489,7 +1493,8 @@ async function syncLeague(
     await logStep(activeGw, 'dpc_of_week', dpcResult ? 'success' : 'error', dpcResult ?? { error: 'dpc_of_week failed' });
 
     // ---- 10. Clone events for next GW ----
-    if (nextGw <= 38) {
+    // Slice 251 Wave 1: per-league cap (was hardcoded 38). TFF1=34, BL=34, PL=38.
+    if (nextGw <= league.maxGameweeks) {
       await runStep('clone_events', async () => {
         for (const club of clubsToProcess) {
           // Idempotency check
@@ -1588,10 +1593,11 @@ async function syncLeague(
     }
 
     // ---- 11. Advance active_gameweek ----
-    // Direct UPDATE via supabaseAdmin (bypasses RLS, no auth.uid() needed)
-    // Guard: never advance beyond GW 38
-    if (nextGw <= 38) {
+    // Direct UPDATE via supabaseAdmin (bypasses RLS, no auth.uid() needed).
+    // Slice 251 Wave 1: per-league cap (was hardcoded 38) + Dual-Write to leagues SSOT.
+    if (nextGw <= league.maxGameweeks) {
       await runStep('advance_gameweek', async () => {
+        // Step 1: advance all clubs in this league (legacy source).
         for (const club of clubsToProcess) {
           const { error } = await supabaseAdmin
             .from('clubs')
@@ -1599,7 +1605,14 @@ async function syncLeague(
             .eq('id', club.id);
           if (error) throw new Error(`Club ${club.id}: ${error.message}`);
         }
-        return { from: activeGw, to: nextGw };
+        // Step 2: Slice 251 Wave 1 Dual-Write — also advance leagues.active_gameweek (SSOT).
+        // Atomar im selben runStep: beide oder beide-fail (throw).
+        const { error: leagueErr } = await supabaseAdmin
+          .from('leagues')
+          .update({ active_gameweek: nextGw })
+          .eq('id', league.id);
+        if (leagueErr) throw new Error(`League ${league.id}: ${leagueErr.message}`);
+        return { from: activeGw, to: nextGw, leagueId: league.id };
       });
     } else {
       steps.push({ step: 'advance_gameweek', status: 'skipped', duration_ms: 0 });

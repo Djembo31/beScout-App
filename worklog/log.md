@@ -11,6 +11,25 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 251 Wave 1 | 2026-04-28 | Spieltag Liga-Scope-Reform — Track A (Migration + Cron Dual-Write + Service-Rewrite + Bridge) [RECOVERY]
+
+- Stage-Chain: SPEC → IMPACT → BUILD (Worktree → Recovery in main) → REVIEW (preserved 2 Reviews) → PROVE → LOG
+- Files (EDIT 11): src/lib/services/club.ts (+30/-15 — getLeagueActiveGameweek rewrite + getLeagueMaxGameweeks NEU), src/lib/services/__tests__/club.test.ts (+51/-9 — 11 neue Tests), src/lib/queries/keys.ts (function-form leagueGw + leagueMaxGw NEU), src/features/fantasy/queries/events.ts (+23/-7 — Hook leagueId-Param + useLeagueMaxGameweeks NEU), src/features/fantasy/hooks/useGameweek.ts (+10/-3 — leagueId-Param), src/features/fantasy/queries/invalidation.ts (prefix-match), src/app/(app)/club/[slug]/ClubContent.tsx (leagueId pass), src/app/(app)/fantasy/FantasyContent.tsx (Bridge Z.85), src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx (qk-Mock function-form), src/app/api/cron/gameweek-sync/route.ts (+25/-7 — ActiveLeague.maxGameweeks + Loader + 2 Hardcode-Replaces + Dual-Write atomar), .claude/rules/common-errors.md (Pattern Layer 4 promoted)
+- Files (NEW): supabase/migrations/20260428175547_slice_251_leagues_active_gameweek_backfill.sql (42 lines, Backfill leagues.active_gameweek aus MIN(clubs.active_gameweek) per league_id, idempotent via IS DISTINCT FROM-Guard)
+- Spec: worklog/specs/251-spieltag-liga-scope-reform.md
+- Impact: worklog/impact/251-spieltag-liga-scope.md
+- Audit: worklog/audits/spieltag-liga-architektur-2026-04-28.md
+- Review: worklog/reviews/251-review.md (Index) + worklog/reviews/251-wave-1-review.md (Reviewer PASS with CONCERNS) + worklog/reviews/251-wave-1-pre-review.md (Backend-Agent self-audit)
+- Proof: worklog/proofs/251-wave-1-build.txt
+- Migration: applied manually by Anil in Supabase Dashboard SQL Editor (28-04-2026 ~21:00 CET, irreversibel)
+- ACs: 8/9 PASS (AC-31 Live-Verify post-merge via Cron-Run)
+- Tests: 92/92 PASS (74 club.test.ts + 6 FantasyContent + 12 ClubContent), tsc clean
+- **RECOVERY-Note:** Original Wave-1 BUILD im Worktree `slice/251-wave-1-track-a` ging in Session-Transition verloren (12 Code-Edits + 8 worklog-Files uncommitted, git-checkout-Side-Effect). Re-Implementation aus 2 erhaltenen Reviews + 1 Migration-File + Read-Tool-Cache (Spec/Impact/Audit). DB-Migration war bereits applied → Code matcht DB-State.
+- Pattern-Promotion: common-errors.md §0 Mitigation Layer 4 (Self-Recovery via patch-extract + checkout + apply). Codifiziert aus Backend-Agent Pre-Review-Memo + Recovery-Erfahrung in dieser Session.
+- Wave 2 (Track B Service Layer ‖ Track F Wildcards Composite-PK) startet in fresh session aus main HEAD post-merge.
+
+---
+
 ## 239 | 2026-04-28 | Orphan-Cleanup-Wave (8× DELETE + 1× WIRE GameweekScoreBar)
 
 - Stage-Chain: SPEC → IMPACT (skipped: no DB/RPC) → BUILD → REVIEW (self-review D35) → PROVE → LOG

@@ -39,12 +39,26 @@ git status -s    # Wenn unerwartete edits da sind, die der Agent claimt
                  # gemacht zu haben → Beweis fuer Escape.
 ```
 
-**Mitigation (3-Layer):**
+**Mitigation (4-Layer):**
 1. **Agent-Briefing-Pflicht** (siehe `.claude/skills/parallel-dispatch/SKILL.md` "WORKTREE-PFLICHT"-Block): "ALLE Files-Edits MIT RELATIVEN PFADEN. Vor 'fertig'-Claim: `cd <worktree-path> && git status -s` selbst laufen lassen."
 2. **Self-Verification-Command** in Spec Sektion 1.12: `git status -s` als pflicht Audit-Command bei Worktree-Slices.
 3. **Pre-Merge-Audit** (Primary-Claude): nach Agent-Completion `cd <worktree-path> && git diff --stat HEAD` laufen lassen. Empty diff = STOP, nicht mergen, Heal/Re-Dispatch.
+4. **Self-Recovery via patch-extract + checkout + apply** (Slice 251 Wave 1 — Agent-discovered):
+   Wenn Agent während BUILD merkt dass die Edits in main statt im Worktree gelandet sind:
+   ```bash
+   # In main-repo:
+   cd <main-repo-path>
+   git diff > /tmp/escape-recovery.patch    # save patches
+   git checkout -- <affected-paths>          # revert main to clean state
 
-**Reference:** Slice 207 Worktree-Heal-Story (3 Probleme aufeinander). Pattern-Draft im Handoff dokumentiert, jetzt promoted.
+   # Im Worktree:
+   cd <worktree-path>
+   git apply /tmp/escape-recovery.patch      # apply patches in correct location
+   git status -s                              # verify all edits now in worktree
+   ```
+   Funktioniert bei 1-Pass-Edits ohne Timing-Race. Bei mehreren ineinander verzahnten Edits: alle in einem patch sammeln, einmal apply.
+
+**Reference:** Slice 207 Worktree-Heal-Story (3 Probleme aufeinander) + Slice 251 Wave 1 Self-Recovery (Layer 4 codifiziert).
 
 **Beziehung:** Cross-Cutting (trifft Backend/Frontend/Test-Writer-Agents gleichermaßen). Pattern Slice 211-D50 erweitert `/parallel-dispatch` Skill um Briefing-Block.
 
