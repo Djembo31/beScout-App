@@ -13,11 +13,13 @@ import { getContractInfo } from '@/components/player/PlayerRow';
 import { cn, fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
 import type { MatchTimelineEntry } from '@/lib/services/scoring';
+import type { PlayerGameweekScore } from '@/features/fantasy/services/scoring.queries';
 import DPCSupplyRing from './DPCSupplyRing';
 import UpcomingFixtures from './UpcomingFixtures';
 import FantasyCTA from './FantasyCTA';
 import StatsBreakdown from './StatsBreakdown';
 import MatchTimeline from './MatchTimeline';
+import GameweekScoreBar from './GameweekScoreBar';
 
 interface PerformanceTabProps {
   player: Player;
@@ -27,6 +29,9 @@ interface PerformanceTabProps {
   matchTimeline: MatchTimelineEntry[];
   matchTimelineLoading?: boolean;
   percentiles?: Record<string, number>;
+  // Slice 239 (2026-04-28): GameweekScoreBar Wire — UNIQUE Bar-Chart-Visualization
+  // der per-GW Scores mit Threshold-Lines (65/100). Daten aus usePlayerDetailData.gwScores.
+  gwScores?: PlayerGameweekScore[];
 }
 
 const formatMarketValue = (value: number) => {
@@ -74,6 +79,7 @@ function CollapsibleHeader({
 function PerformanceTabInner({
   player, dpcAvailable, holdingQty, holderCount,
   matchTimeline, matchTimelineLoading, percentiles = {},
+  gwScores = [],
 }: PerformanceTabProps) {
   const t = useTranslations('playerDetail');
   const tp = useTranslations('player');
@@ -121,6 +127,11 @@ function PerformanceTabInner({
         posPercentile={posPercentile}
         loading={matchTimelineLoading}
       />
+
+      {/* ── 1b. Gameweek-Score Bar-Chart (Slice 239 Wire) ── */}
+      {/* Bar-Chart der per-GW Scores mit Threshold-Lines 65/100. */}
+      {/* Click auf Bar öffnet Detail-Modal pro Gameweek. */}
+      <GameweekScoreBar scores={gwScores} />
 
       {/* ── 2. Season Stats (compact 3-col grid) ── */}
       <Card className="p-4 md:p-6">

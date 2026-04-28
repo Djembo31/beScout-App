@@ -1,5 +1,4 @@
 export { default as TradingToasts } from './TradingToasts';
 export { default as BuyConfirmation } from './BuyConfirmation';
-export { default as IPOBuySection } from './IPOBuySection';
-export { default as TransferBuySection } from './TransferBuySection';
-export { default as HoldingsSection } from './HoldingsSection';
+// Slice 239 (2026-04-28): IPOBuySection/TransferBuySection/HoldingsSection
+// gelöscht — replaced by BuyModal (IPO+Transfer-flow konsolidiert) + SellModal.

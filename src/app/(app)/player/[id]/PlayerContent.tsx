@@ -237,6 +237,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             matchTimeline={data.matchTimelineData}
             matchTimelineLoading={data.matchTimelineLoading}
             percentiles={data.percentiles}
+            gwScores={data.gwScores}
           />
         )}
 

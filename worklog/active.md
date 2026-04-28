@@ -10,10 +10,11 @@ proof: —
 review: —
 ```
 
-## Slice 249 Phase B+250 KOMPLETT: Drift-Source = Test-Bots (nicht Production-Bug). INV-Filter live.
+## Slice 239 KOMPLETT: 996 lines orphan production-code gelöscht, GameweekScoreBar in PerformanceTab gewired.
 
 ## Zuletzt
 
+- **Slice 239** (2026-04-28) — Orphan-Cleanup-Wave (M, Slice-Type=UI). 8× DELETE (DpcMasteryCard, LimitOrderModal, PlayerImagePlaceholder, TradeSuccessEffect, HoldingsSection, IPOBuySection, TransferBuySection, BuyOrderModal — 996 lines total) + 1× WIRE (GameweekScoreBar in PerformanceTab nach MatchTimeline mit data.gwScores aus usePlayerDetailData). audit:orphan: 9 real-drift → 0. tsc clean. Vitest 3043/3043. Bundle-Budget grün (/player/[id] 410kB / 415 budget). Self-Review D35 (Pattern-Wiederholung Slice 240+242+228). Pre-Edit gründliche Replacement-Verifizierung pro Component.
 - **Slice 250** (2026-04-28) — db-invariants Bot-Filter + INV-19 Whitelist (XS, Slice-Type=Doc/Test). 3 Edits in db-invariants.test.ts: beforeAll lädt botUserIds + INV-16 skipt + INV-33 skipt + INV-19 Whitelist erweitert um players_mv_history. 39/39 Tests grün lokal (war 36/3 fail). Pattern-Wiederholung Slice 218 + 247. Self-Review D35.
 - **Slice 249 Phase B** (2026-04-28) — Wallet-Drift Root-Cause GEFUNDEN. Alle 44 Drifts sind TEST-BOTS (handle LIKE 'bot%'). Smoking-gun-Code: e2e/bots/ai/refresh-wallets.ts setzt wallets.balance ohne tx-insert (designed Test-Setup, Slice 194). 29 von 44 in 7-sekunden-Fenster 2026-04-25 11:50:01-08 UTC. KEIN Production-Money-Path-Bug. Slice 249 Phase C obsolet — Slice 250 ist die saubere Auflösung.
 - **Slice 248** (2026-04-28) — Pre-Push-Hook lokale Test-job-Simulation (S, Slice-Type=Hook, **Slice 244 Catch-22 architektonisch geheilt**). `.husky/pre-push` NEU mit `CI=true pnpm exec vitest run` (skipt Integration-Tests, Parität mit CI). 8/8 ACs PASS. Latenz 6.6 min (akzeptabel weil bewusst-vor-Netzwerk-Op + bypass --no-verify). Smoke 3043 tests grün. Initial-Smoke (mit Build-Step + ohne CI=true) entdeckte **KRITISCH 44 Wallet-Drifts in Production** → Slice 249 NEU als BACKLOG (CEO-Scope). errors-infra.md NEU Section "enforce_admins=true ist nicht direct-push-kompatibel". Self-Review D35.

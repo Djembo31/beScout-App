@@ -15,12 +15,12 @@ export { default as MobileTradingBar } from './MobileTradingBar';
 export { default as BuyModal } from './BuyModal';
 export { default as SellModal } from './SellModal';
 export { default as LiquidationAlert } from './LiquidationAlert';
-export { default as PlayerImagePlaceholder } from './PlayerImagePlaceholder';
+// Slice 239 (2026-04-28): PlayerImagePlaceholder/DpcMasteryCard/TradeSuccessEffect/
+// LimitOrderModal gelöscht — replaced by PlayerPhoto/YourPosition Mastery /
+// feedback_no_confetti / AR-23 deferred.
 export { default as CommunityValuation } from './CommunityValuation';
-export { default as DpcMasteryCard } from './DpcMasteryCard';
 export { default as TradingCardFrame } from './TradingCardFrame';
 export { default as OfferModal } from './OfferModal';
-export { default as TradeSuccessEffect } from './TradeSuccessEffect';
 export { default as TradingQuickStats } from './TradingQuickStats';
 export { default as YourPosition } from './YourPosition';
 export { default as UpcomingFixtures } from './UpcomingFixtures';

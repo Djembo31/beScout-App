@@ -79,7 +79,10 @@
       "Skill(schedule)",
       "PowerShell(if \\(Test-Path \"C:\\\\bescout-app\\\\supabase\\\\migrations\\\\20260425170000_slice_195d_bench_autosub.sql\"\\) { \\(Get-Item \"C:\\\\bescout-app\\\\supabase\\\\migrations\\\\20260425170000_slice_195d_bench_autosub.sql\"\\).Length; \"EXISTS\" } else { \"MISSING\" })",
       "PowerShell(Set-Location \"C:\\\\bescout-app\"; npx tsc --noEmit 2>&1 | Select-Object -Last 30; Write-Host \"EXIT=$LASTEXITCODE\")",
-      "PowerShell(Set-Location \"C:\\\\bescout-app\"; npx vitest run src/lib/services/__tests__/lineup-bench-validation.test.ts src/lib/services/__tests__/lineup-auto-sub.test.ts --no-coverage 2>&1 | Select-Object -Last 60; Write-Host \"EXIT=$LASTEXITCODE\")"
+      "PowerShell(Set-Location \"C:\\\\bescout-app\"; npx vitest run src/lib/services/__tests__/lineup-bench-validation.test.ts src/lib/services/__tests__/lineup-auto-sub.test.ts --no-coverage 2>&1 | Select-Object -Last 60; Write-Host \"EXIT=$LASTEXITCODE\")",
+      "mcp__posthog__organization-get",
+      "mcp__posthog__projects-get",
+      "mcp__posthog__sdk-doctor-get"
     ]
   },
   "enableAllProjectMcpServers": true,

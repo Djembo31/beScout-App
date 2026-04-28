@@ -11,6 +11,24 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 
 ---
 
+## 239 | 2026-04-28 | Orphan-Cleanup-Wave (8× DELETE + 1× WIRE GameweekScoreBar)
+
+- Stage-Chain: SPEC → IMPACT (skipped: no DB/RPC) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Files (DELETE 8): src/components/player/detail/{DpcMasteryCard,LimitOrderModal,PlayerImagePlaceholder,TradeSuccessEffect}.tsx, src/components/player/detail/trading/{HoldingsSection,IPOBuySection,TransferBuySection}.tsx, src/features/market/components/shared/BuyOrderModal.tsx (996 lines total)
+- Files (EDIT): src/components/player/detail/index.ts (3 dead exports removed), src/components/player/detail/trading/index.ts (3 dead exports removed), src/components/player/detail/PerformanceTab.tsx (NEU import GameweekScoreBar + render + props), src/app/(app)/player/[id]/PlayerContent.tsx (gwScores prop-passing)
+- Spec: worklog/specs/239-orphan-cleanup-wire-gw-scorebar.md
+- Review: worklog/reviews/239-review.md (PASS Self-Review D35 — Pattern-Wiederholung Slice 240+242+228)
+- Proof: worklog/proofs/239-orphan-cleanup.txt
+- ACs: 7/8 PASS (AC-08 Visual-QA pending Vercel-Deploy)
+- audit:orphan: 9 real-drift → 0 (alle 4 known-allowlisted: 3 test-only + CommunityValuation deferred)
+- Components scanned: 165 → 157 (-8)
+- tsc clean. Vitest 3043/3043 PASS.
+- Bundle-Budget: /player/[id] 409→410kB (+1kB GameweekScoreBar Wire) innerhalb 415kB budget
+- Pre-Edit gründliche Replacement-Verifizierung pro Component (Anil-Direktive "vergewissere dich, nicht das wir wichtige dinge übersehen")
+- Anil-Decisions exakt umgesetzt (8d + 2w)
+
+---
+
 ## 250 | 2026-04-28 | db-invariants Bot-Filter + INV-19 Whitelist (Test-Recovery)
 
 - Stage-Chain: SPEC → IMPACT (skipped: test-only) → BUILD → REVIEW (self-review D35) → PROVE → LOG

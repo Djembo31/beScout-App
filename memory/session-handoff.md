@@ -1,26 +1,29 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-28 13:36)
+# Session Handoff — Auto (2026-04-28 17:29)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 6 Files
 ```
  M .claude/settings.local.json
  M memory/session-handoff.md
+ M worklog/audits/orphan-components-2026-04-28.md
 ?? docs/test.rtf
+?? worklog/audits/audit-stale-2026-04-28.md
+?? worklog/audits/type-truth-2026-04-28.md
 ```
 
 ## Session Commits: 10
-- f412b396 chore(beta-phase): last_phase_run 2026-04-28 — Slice 238/240/241/242 + 5 GH-Issues batch-closed
-- 6d2fc61a chore(242): active idle nach Slice 242 — orphan-detector allowlist live (D52 #3)
-- 475854bd feat(242): orphan-component-detector Allowlist (D52 Refinement #3, D54)
-- 60611af5 chore(240): active idle nach Slice 240 — TM-Scripts archived (D54)
-- e1294307 docs(240): TM-Once-Off-Scripts Triage — 5 archive, 8 keep (D54 Allowlist-Cleanup)
-- f866d892 chore(241): active idle nach Slice 241 — Knowledge-Capture in errors-infra.md (D54)
-- a7198f5e docs(241): errors-infra.md Knowledge-Capture — 4 Lehren aus Slice 234 (D54)
-- 5d83839e chore(238): active idle nach Slice 238 — Audit-Heuristik tightened (D52 #2)
-- 630c15a6 feat(238): silent-fail-audit Chunked-Detection + Test-File-Skip (D52 Refinement #2)
-- 056dcfc0 docs(handoff): Pre-Clear Resume-Anker — 6 Slices Session 231/232/233/234/235/237
+- 03453306 fix(250): db-invariants Bot-Filter + INV-19 Whitelist (Test-Recovery)
+- 33241f74 docs(249a): Phase A Wallet-Drift Investigation Findings
+- 0131ee34 feat(248): pre-push-Hook + 44 Wallet-Drift-Discovery + Slice 249 BACKLOG
+- 4cc31882 chore(244): Phase 2 KOMPLETT — Branch-Protection 4 contexts + Catch-22-Lehre
+- b447d197 fix(247): PredictionsTab.test.tsx Mock-Repair — CI-Test-Recovery
+- dabf0faa fix(246): bundle-budget /inventory 265→320kB — CI-Build-Recovery
+- 47ca629a feat(245): deferred-Items Re-Eval-Reminder-Hook (D54 #6 geheilt)
+- 0923fd3a feat(244): ci.yml NEU audit-Job — 3 schnelle Audits (D54 #9 Phase 1/2)
+- 94e1d248 feat(243): pre-commit-hook audit-wiring — 3 NEU Steps (D54 #8 geheilt)
+- 471a2e09 docs(handoff): Pre-Clear Resume-Anker — 4 Slices Session 238/240/241/242 (Tech-Cleanup)
 
 <!-- auto:handoff-end -->
 
