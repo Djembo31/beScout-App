@@ -28,12 +28,30 @@
 
 ### Fortschritt
 - [x] Task 1: Journal erstellen + Code lesen
-- [ ] Task 2: Migration 1 — user_wildcards Composite-PK
-- [ ] Task 3: Migration 2 — 3 neue RPCs + rpc_save_lineup update
-- [ ] Task 4: Frontend Service + Hook + Keys update
-- [ ] Task 5: Tests
-- [ ] Task 6: tsc + vitest + git status verify
-- [ ] Task 7: Pre-Review-Memo
+- [x] Task 2: Migration 1 — user_wildcards Composite-PK (20260428120000)
+- [x] Task 3: Migration 2 — 3 neue RPCs + rpc_save_lineup update (20260428120500 + 20260428121000)
+- [x] Task 4: Frontend Service + Hook + Keys update (wildcards.ts + events.ts + keys.ts + WildcardsSection.tsx + invalidation.ts + useEventActions.ts + types/index.ts)
+- [x] Task 5: Tests (wildcards.test.ts — 6 tests, 6 PASS)
+- [x] Task 6: tsc + vitest + git status verify (all PASS, commit 7563761b)
+- [x] Task 7: Pre-Review-Memo (worklog/reviews/251-wave2-track-f-pre-review.md)
 
 ### Runden-Log
 Runde 1: Code Reading abgeschlossen. Alle Key-Findings oben. Starte Implementation.
+Runde 2: Alle 3 Migrations geschrieben (PK-Migration + RPCs + rpc_save_lineup).
+Runde 3: Frontend Layer komplett — types, keys, service, hook, consumers, tests.
+Runde 4: git stash pop nach versehentlichem stash (pre-existing test check). Alle Edits wiederhergestellt. tsc clean, 6/6 tests, commit PASS.
+
+### Tsc Output
+```
+npx tsc --noEmit → (no output = 0 errors)
+```
+
+### Test Output
+```
+Test Files  1 passed (1)
+      Tests  6 passed (6)
+```
+
+### Beweis-Pfad
+- Commit: 7563761b
+- Pre-Review-Memo: worklog/reviews/251-wave2-track-f-pre-review.md
