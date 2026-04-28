@@ -16,7 +16,10 @@ export default function WildcardsSection() {
   const { user } = useUser();
   const uid = user?.id;
 
-  const { data: balance = 0, isLoading, isError, refetch } = useWildcardBalance(uid);
+  // Slice 251 Wave 2 Track F: wildcard balance is now per-league.
+  // /inventory has no league context → leagueId=undefined → query disabled (balance stays 0).
+  // Full per-league balance is shown in FantasyContent lineup builder.
+  const { data: balance = 0, isLoading, isError, refetch } = useWildcardBalance(uid, undefined);
 
   if (isLoading) {
     return (

@@ -428,7 +428,8 @@ export function useEventActions(clubId: string) {
       if (!user?.id) return;
 
       try {
-        qc.invalidateQueries({ queryKey: qk.events.wildcardBalance(user.id) });
+        // Slice 251 Wave 2 Track F: prefix-match invalidates all league-variants for this user.
+        qc.invalidateQueries({ queryKey: qk.events.wildcardBalancePrefix(user.id) });
         await invalidateAfterLineupSave(user.id, clubId);
       } catch (err) {
         console.error('[Fantasy] Post-save cache invalidation failed:', err);

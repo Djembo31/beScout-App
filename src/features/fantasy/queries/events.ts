@@ -48,12 +48,16 @@ export function usePlayerEventUsage(userId: string | undefined) {
  */
 export { useHoldingLocks } from './holdingLocks';
 
-/** Wild card balance for lineup builder */
-export function useWildcardBalance(userId: string | undefined) {
+/**
+ * Wild card balance for lineup builder — per league.
+ * Slice 251 Wave 2 Track F: requires leagueId for Composite-PK lookup.
+ * enabled: !!userId && !!leagueId — query disabled when either missing.
+ */
+export function useWildcardBalance(userId: string | undefined, leagueId: string | undefined) {
   return useQuery({
-    queryKey: qk.events.wildcardBalance(userId!),
-    queryFn: () => getWildcardBalance(userId!),
-    enabled: !!userId,
+    queryKey: qk.events.wildcardBalance(userId!, leagueId!),
+    queryFn: () => getWildcardBalance(userId!, leagueId!),
+    enabled: !!userId && !!leagueId,
     staleTime: ONE_MIN,
   });
 }

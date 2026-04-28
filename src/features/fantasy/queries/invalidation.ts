@@ -23,7 +23,9 @@ export async function invalidateAfterLeave(userId: string): Promise<void> {
 
 /** After lineup saved */
 export async function invalidateAfterLineupSave(userId: string, clubId?: string): Promise<void> {
-  queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance(userId) });
+  // Slice 251 Wave 2 Track F: wildcardBalance is now per-league (composite key).
+  // Prefix-match busts ALL league variants for this user.
+  queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalancePrefix(userId) });
   await invalidateFantasyQueriesCore(userId, clubId);
 }
 

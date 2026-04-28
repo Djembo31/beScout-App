@@ -5,29 +5,34 @@ import type { DbUserWildcard, DbWildcardTransaction } from '@/types';
 // Wild Card Service
 // ============================================
 
-/** Get user's wild card balance (auto-inits if missing) */
-export async function getWildcardBalance(userId: string): Promise<number> {
+/**
+ * Get user's wildcard balance for a specific league.
+ * Slice 251 Wave 2 Track F: per-league Composite-PK.
+ * Discriminated-union check per errors-db.md §Silent-Cast (Slice 165).
+ */
+export async function getWildcardBalance(userId: string, leagueId: string): Promise<number> {
   const { data, error } = await supabase.rpc('get_wildcard_balance', {
     p_user_id: userId,
+    p_league_id: leagueId,
   });
-  if (error) {
-    console.error('[Wildcards] getBalance error:', error);
-    return 0;
-  }
-  return data ?? 0;
+  if (error) throw new Error(error.message);
+  // RPC returns INT directly (not discriminated union — simple read)
+  const balance = data as number | null;
+  return balance ?? 0;
 }
 
-/** Get full wild card record */
-export async function getWildcardRecord(userId: string): Promise<DbUserWildcard | null> {
+/**
+ * Get wildcard record for a specific (user, league) pair.
+ * Slice 251 Wave 2 Track F: Composite-PK (user_id, league_id).
+ */
+export async function getWildcardRecord(userId: string, leagueId: string): Promise<DbUserWildcard | null> {
   const { data, error } = await supabase
     .from('user_wildcards')
     .select('*')
     .eq('user_id', userId)
+    .eq('league_id', leagueId)
     .maybeSingle();
-  if (error) {
-    console.error('[Wildcards] getRecord error:', error);
-    return null;
-  }
+  if (error) throw new Error(error.message);
   return data as DbUserWildcard | null;
 }
 

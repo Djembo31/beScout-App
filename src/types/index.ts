@@ -592,6 +592,7 @@ export type DbHoldingLock = {
 
 export type DbUserWildcard = {
   user_id: string;
+  league_id: string;
   balance: number;
   earned_total: number;
   spent_total: number;

@@ -43,7 +43,13 @@ export const qk = {
     entry: (eventId: string, uid: string) => ['events', 'entry', eventId, uid] as const,
     usage: (uid: string) => ['events', 'usage', uid] as const,
     holdingLocks: (uid: string) => ['events', 'holdingLocks', uid] as const,
-    wildcardBalance: (uid: string) => ['events', 'wildcardBalance', uid] as const,
+    /**
+     * Slice 251 Wave 2 Track F: per-league wildcard balance.
+     * Full key: (uid, leagueId) — used by useWildcardBalance.
+     * Prefix key: (uid) only — used by invalidation to bust ALL leagues for a user.
+     */
+    wildcardBalance: (uid: string, leagueId: string) => ['events', 'wildcardBalance', uid, leagueId] as const,
+    wildcardBalancePrefix: (uid: string) => ['events', 'wildcardBalance', uid] as const,
     activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
     /** Slice 251 Wave 1: function-form per leagueId. Prefix-match for invalidation: ['events', 'leagueGw']. */
     leagueGw: (leagueId: string | null) => ['events', 'leagueGw', leagueId] as const,
