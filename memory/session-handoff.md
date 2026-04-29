@@ -1,32 +1,141 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 21:26)
+# Session Handoff — Auto (2026-04-29 22:51)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-04-29.md
  M worklog/audits/type-truth-2026-04-29.md
-?? supabase/migrations/20260429200000_slice_258_handle_new_user_trigger.sql
-?? supabase/migrations/20260429203000_slice_258_v2_drop_handle_new_user.sql
 ```
 
-## Session Commits: 8
+## Session Commits: 7
+- 37c78d28 fix(258): EMERGENCY P0 — Signup-Trigger-Bug (13-Tage-latenter Beta-Day-1-Block)
 - 3b87c5c7 chore(257): active.md → idle post-commit
 - 39d561ff feat(257): Hardening-Bundle (F-4 cron-health-aggregate + F-8 escapeRegex + D60-Hook)
 - 53ae69ad chore(256): active.md → idle post-commit
 - a73b0e1a feat(256): StalePipelineBanner — Cron-Health UI-Sentinel auf /fantasy + /market
 - 5599b659 chore(audits): re-run timestamps 16:57 — kein Inhaltsdrift
 - f46775da chore(handoff): Pre-Clear Resume-Anker + Slice 256 Backlog
-- d4c1c0a9 feat(255): Workflow-Hardening 4-Layer-Architektur (Anil-Direktive post-Slice-254)
-- 0451690b docs(254): LOG + Pattern-Promotion (3 patterns)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Resume-Anker (2026-04-29 18:55 UTC — Mega-Session: Wave 6 Cleanup + Slice 252-255 + Deep-Dive-Heal)
+# Resume-Anker MORGEN (2026-04-30) — Beta-Day-2 Continuation
+
+**HEAD `37c78d28`** post-Slice-258 EMERGENCY-Fix. Status: idle.
+
+**Bei `/clear` morgen früh — lese in dieser Reihenfolge:**
+1. `worklog/active.md` — `status: idle`
+2. Diese Datei (Resume-Anker oben)
+3. `git log --oneline -8` (heute 11 Commits)
+4. `worklog/log.md` Top 4 Einträge (256, 257, 258 + Pre-256-Stand)
+
+## Was heute passiert ist (3 Slices in 1 Tag)
+
+| Zeit | HEAD | Slice | Was |
+|---|---|---|---|
+| Vormittag | `a73b0e1a` | **256** | StalePipelineBanner Cron-Health UI-Sentinel — User-facing Detection-Communication. 3-Layer (Service+Hook+Banner) auf /fantasy + /market. 12 Tests. Pattern-Wiederholung MissionBanner Slice 161. |
+| Mittag | `39d561ff` | **257** | Hardening-Bundle — F-4 nightly-audit cron-health in aggregate + F-8 rotate-secret escapeRegex + D60-Hook ship-verify-completeness-gate.sh. Schließt Slice-256-Backlog. |
+| Abend | `37c78d28` | **258 EMERGENCY P0** | Signup-Bug 13-Tage-latent gefixt. Pesmerga signup blockiert mit FK-Violation 23503 (wallets→profiles). Root: Slice 002 fügte FK ohne Baseline-Trigger-Drop. v1 Auto-Profile-Trigger → v2 Heal (Drop für Wizard-Restore). |
+
+## Tester-State (für morgen wichtig)
+
+| Tester | Email | Profile-ID | Wallet | Onboarding | Notes |
+|---|---|---|---|---|---|
+| **Anil** | kemal_demirtas@gmx.de | `557d1145-3397-465e-8ea0-e2c602c0de6b` | **2M CR** ✓ | Done (alter Account seit Feb) | Voller Funktions-Tester |
+| **Pesmerga** | pesmerga@gmx.de | `ef2257c0-700e-4148-8d33-c7d1f2264d78` | **2M CR** ✓ | **SKIPPED** (durch v1-Trigger Profile auto-erstellt mit handle=`user_ef2257c0`) | display_name=NULL, favorite_club=NULL — soll via Settings nachholen. Anil-Decision Option A: belassen, kein Wizard-Re-Run. |
+| **3rd Tester** | (TBD) | — | — | Wartet auf Signup | Wizard läuft post-v2 KORREKT — bei seiner Anmeldung 2M CR per admin_adjustment-tx aufladen. |
+
+## Action-Items für morgen
+
+### Höchste Priorität
+1. **3rd Tester signup checken** — sobald angemeldet: 2M CR via SQL geben (Template unten)
+2. **Live-Behavior von Anil + Pesmerga checken** — sind Bugs aufgetaucht? Sentry quiet?
+3. **Pesmerga reminder** — Settings → display_name + favorite_club ergänzen
+
+### Open Backlog (aus Slice 257 LOG)
+4. **Live-Verify Slice 256 StalePipelineBanner** — Mock-Drift via Supabase-MCP (UPDATE leagues SET active_gameweek = X WHERE id = '<TFF1>'), Banner sichtbar prüfen, Dismiss-Persistence cross-Page
+5. **Reviewer-254-P2#1** — Optional Slice 258 wenn Anil das UX-Trade-Off (Manual-GW-Override-per-Liga-Memory) anders haben will
+
+### Optional Cleanup
+6. **handle_new_user_wallet() Function** ist orphan im Schema seit Slice 258 v2. Cleanup-Slice optional post-Beta (kein Effekt, nicht eilig).
+
+## SQL-Template: 3rd Tester 2M CR (für morgen)
+
+```sql
+-- Replace <UID> mit der auth.users.id des 3rd Testers (find via email):
+SELECT id FROM auth.users WHERE email = '<email>';
+
+-- Dann atomic UPDATE + transactions:
+BEGIN;
+UPDATE wallets SET balance = 200000000 WHERE user_id = '<UID>';
+INSERT INTO transactions (user_id, type, amount, description, balance_after)
+VALUES ('<UID>', 'admin_adjustment', 200000000 - <current_balance>,
+        'Beta-Tester Initial-Balance 2M CR (Anil-Direktive 2026-04-29)', 200000000);
+COMMIT;
+```
+
+## Kritische Befunde für Knowledge
+
+**Bug-Klasse-Pattern (errors-db.md Kandidat):**
+> "FK-Add ohne Baseline-Trigger-Drop" — Slice 002 fügte wallets→profiles FK hinzu (2026-04-16) aber ließ Supabase-Baseline-Default-Trigger `on_auth_user_created_wallet` aktiv. Trigger inserted Wallet aus auth.users → FK requires profile first → 23503 Signup-500. Latent 13 Tage weil 0 echte Real-Signups in dem Zeitraum (alle 124 existing profiles vor 2026-04-16). Erste Real-User-Signup-Versuche heute deckten Bug auf.
+
+**Lehre:** Bei FK-Adds auf zentralen User-Tables (wallets, profiles, holdings) MUSS man pre-existing Baseline-Trigger checken die Insertion-Order erzwingen. Audit-Command:
+```sql
+SELECT t.tgname, pg_get_triggerdef(t.oid) FROM pg_trigger t
+JOIN pg_class c ON c.oid = t.tgrelid
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname IN ('public', 'auth') AND NOT t.tgisinternal
+  AND c.relname IN ('users', '<targeted_table>');
+```
+
+Pattern-Promotion-Backlog (für Slice 259 oder spätere autodream-Konsolidierung):
+- common-errors.md "Silent Latent Bugs after FK-Add" Section
+- errors-db.md "Baseline-Trigger Drop Pflicht bei FK-Constraints"
+
+## Tech-Side-Status post-Day-1 Beta
+
+- **Beta-Phase-Tracker:** Phase D, last_signoff: FAIL (war Anil-Action-Block, jetzt aktiv durchläuft)
+- **Findings_open:** P0=0 (Slice 258 closed), P1=0, P2=0 (Live-Verify 256 backlog), P3=0
+- **Vercel:** Latest deploy `dpl_84Ktd6...` (HEAD 3b87c5c7 = Slice 257). Slice 258 ist DB-only, kein Vercel-Deploy nötig.
+- **Sentry Production:** 0 unresolved last 24h (vor Beta-Empfang gemessen).
+- **Cron-Health:** All 7 Ligen healthy. StalePipelineBanner silent für Tester.
+- **Audit-Pipeline:** 10 Tools daily nightly-audit (cron-health jetzt mit explicitem Auto-Issue-Title via Slice 257 F-4).
+
+## Bei Resume morgen — Erste-Action-Pfad
+
+```
+1. /clear (falls neue Session)
+2. Lese diesen Resume-Anker
+3. Frage Anil: "Hat sich der 3. Tester registriert?"
+4a. Wenn JA: SQL-Template oben → 2M CR aufladen → bestätigen
+4b. Wenn NEIN: warten auf Signal
+5. Frage Anil: "Sentry/Sessions checken oder direkt zu nächstem Slice?"
+6. Optional: Live-Verify 256 (Mock-Drift) ODER neuer Slice 259 (Pattern-Promotion + Cleanup-orphan-function)
+```
+
+## Knowledge-Status
+
+**Decisions** (memory/decisions.md):
+- D58 Wave-Bridge-Cleanup-Pflicht (Slice 251)
+- D59 BeScout-Character-Spec, kein FPL-Klon (Slice 253)
+- D60 Wave-Verify-Re-Switch-Pflicht (Slice 255)
+- (Optional D61 Kandidat morgen: "FK-Add ohne Baseline-Trigger-Drop" Bug-Klasse → memory/decisions.md PROCESS oder common-errors.md)
+
+**Patterns** (errors-frontend.md neu seit Session 2026-04-29):
+- "Liga/Context-Switch State-Reset via prevRef" (Slice 254)
+- "Cache-Invalidation: Root-Prefix vs enumerated Keys" (Slice 254)
+- "Filter-as-audience-choice vs Filter-as-result-filter" (Slice 254)
+
+**Hooks**:
+- 35 hooks insgesamt (war 34 vor heute)
+- NEU heute: `ship-verify-completeness-gate.sh` (Slice 257 D60-Implementation)
+
+---
+
+# Vor-Heute Resume-Anker (Slice 256-Backlog) — gestern abend nicht mehr aktuell
 
 **Bei `/clear`:** Lese in dieser Reihenfolge:
 1. `worklog/active.md` — `status: idle`, HEAD `d4c1c0a9`
