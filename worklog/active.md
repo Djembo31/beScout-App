@@ -10,6 +10,8 @@ proof: —
 review: —
 ```
 
+## Slice 258 KOMPLETT (P0 EMERGENCY): Beta-Day-1-Signup-Bug gefixt. 13-Tage-latenter Bug seit Slice 002 (2026-04-16 FK-Add ohne Baseline-Trigger-Drop). v1 Trigger-Auto-Profile-Create + v2 Heal (Drop für Wizard-Restore). Pesmerga signup live ✓. Anil + Pesmerga je 2M CR (200M cents) gutgeschrieben mit admin_adjustment-tx. 3rd Tester wartet — Wizard läuft post-v2 normal.
+
 ## Slice 257 KOMPLETT: Hardening-Bundle (F-4 + F-8 + D60-Hook). Schließt Slice-256-Backlog. T-A nightly-audit cron-health in aggregate + tools-array + exit-code-propagation. T-B escapeRegex-Helper in rotate-secret.ts (3 Treffer: 1 def + 2 calls). T-C ship-verify-completeness-gate.sh WARN-only Hook (130L, D45-Pattern Hook>Text). Self-Review D35 PASS. 4 Smoke-Tests (3 silent + 1 Mock-WARN). audit:wiring 35 hooks (was 34) + 0 drift.
 
 ## Slice 256 KOMPLETT: StalePipelineBanner Cron-Health UI-Sentinel. Layer 5 zur Slice-255 4-Layer-Architektur — User-facing-Communication. 3-Layer (Service anon-readable + TanStack-Hook 5min + Banner amber-card mit sessionStorage-Dismiss) auf /fantasy + /market gemounted. 12 NEU-Tests PASS, Full-Suite 3050/3050. Self-Review D35 (Pattern-Wiederholung MissionBanner Slice 161). business.md-konform DE+TR neutral. Hardening-Bundle (F-4 + F-8 + D60-Hook + Reviewer-254-P2#1) → Slice 257.

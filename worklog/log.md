@@ -9,6 +9,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 258 | 2026-04-29 | EMERGENCY P0 — Signup-Trigger-Fix (Beta-Empfang Day-1 Bug)
+
+- Stage-Chain: SPEC inline (Auth-Log Forensic) → IMPACT inline (DB-only) → BUILD v1 → PROVE-v1 (Pesmerga signup OK) → BUILD v2 (Onboarding-Wizard restoren) → PROVE-v2 (0 Trigger, Wizard-Path clean) → LOG
+- Slice-Type: Migration (DB-only, 2 Migrations applied via mcp__supabase__apply_migration)
+- Größe: XS (P0-Emergency)
+- Kontext: Anil hat 3 Beta-Tester organisiert für heute. Beim ersten echten Signup-Versuch (Pesmerga) → Database-Error. Auth-Log: 500 mit SQLSTATE 23503 wallets→profiles FK-Violation.
+- Root-Cause: 13-Tage-latenter Bug seit 2026-04-16. Slice 002 fügte FK wallets_user_id_profiles_fkey hinzu, aber niemand droppte den Baseline-Default-Trigger on_auth_user_created_wallet (Supabase-Template). Trigger inserted Wallet direkt aus auth.users → FK requires profile first → 23503 → 500.
+- Latent-Faktor: 124 existing profiles wurden alle vor 2026-04-16 erstellt. Erste echte Real-Signups nach FK-Add waren die Tester heute.
+- Fix v1 (worklog/proofs/258-signup-fix-verify.txt):
+  - Migration 20260429200000: DROP buggy Baseline-Trigger + NEW handle_new_user() Trigger der profile auto-erstellt mit handle='user_<8charUUID>'
+  - Pesmerga signup-Verify: SUCCESS, aber Onboarding-Wizard übersprungen
+- Fix v2 (Heal):
+  - Migration 20260429203000: DROP v1-Trigger + handle_new_user() function
+  - Final: 0 Trigger auf auth.users — Original-Design J1-03 wiederhergestellt
+  - Wizard /onboarding läuft normal: useRequireProfile redirected bei profile=null → handle/displayName/avatar/language → createProfile() → cascade init_user_wallet/tickets/scout_scores
+- Beta-Tester Initial-Balance (Anil-Direktive 2M CR each):
+  - Anil 1_000_000 → 200_000_000 cents ✓ (admin_adjustment +199M)
+  - Pesmerga 100_000 → 200_000_000 cents ✓ (admin_adjustment +199.9M)
+  - Beide mit transactions audit-trail
+- Files: 2 Migrations + worklog/proofs/258-signup-fix-verify.txt + worklog/active.md + worklog/log.md
+- Verify: 0 Trigger auf auth.users (verified via pg_trigger query), 2 Tester wallets bei 2M CR, Pesmerga-Profile state OK
+- Notes: Pesmerga-Profile bleibt (Anil Decision Option A). display_name + favorite_club setzt er via Settings später. Future Tester (3rd) sehen Wizard normal post-v2. handle_new_user_wallet() Function bleibt orphan im Schema — Cleanup-Slice optional post-Beta.
+
 ## 257 | 2026-04-29 | Hardening-Bundle (F-4 + F-8 + D60-Hook)
 
 - Stage-Chain: SPEC → IMPACT (skipped — 3 isolierte Tracks, kein src/ cross-cutting) → BUILD → REVIEW (self-review D35, Pattern-Wiederholung) → PROVE → LOG

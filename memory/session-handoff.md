@@ -1,25 +1,26 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 19:36)
+# Session Handoff — Auto (2026-04-29 21:26)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 5 Files
 ```
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-04-29.md
  M worklog/audits/type-truth-2026-04-29.md
+?? supabase/migrations/20260429200000_slice_258_handle_new_user_trigger.sql
+?? supabase/migrations/20260429203000_slice_258_v2_drop_handle_new_user.sql
 ```
 
-## Session Commits: 9
+## Session Commits: 8
+- 3b87c5c7 chore(257): active.md → idle post-commit
+- 39d561ff feat(257): Hardening-Bundle (F-4 cron-health-aggregate + F-8 escapeRegex + D60-Hook)
 - 53ae69ad chore(256): active.md → idle post-commit
 - a73b0e1a feat(256): StalePipelineBanner — Cron-Health UI-Sentinel auf /fantasy + /market
 - 5599b659 chore(audits): re-run timestamps 16:57 — kein Inhaltsdrift
 - f46775da chore(handoff): Pre-Clear Resume-Anker + Slice 256 Backlog
 - d4c1c0a9 feat(255): Workflow-Hardening 4-Layer-Architektur (Anil-Direktive post-Slice-254)
 - 0451690b docs(254): LOG + Pattern-Promotion (3 patterns)
-- 36679510 fix(254): Liga-Switch Race-Heal v2 — entferne Init-Effect (Live-Verify-Find)
-- e5c03e56 fix(254): Fantasy-Liga-Switch-Heal — useGameweek + invalidate-Prefix + eventCountries
-- d2326606 docs(253): Money-Path WONT-FIX (D59 BeScout-Character-Spec, kein FPL-Klon)
 
 <!-- auto:handoff-end -->
 

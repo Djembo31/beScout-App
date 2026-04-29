@@ -1,0 +1,59 @@
+=== Slice 258 — Signup-Fix Live-Verify ===
+Generated: 2026-04-29 (Beta-Empfang Session)
+
+Bug-Klasse (P0 Beta-Blocker):
+  Auth-Log /signup 500: "insert or update on table 'wallets' violates foreign key
+  constraint 'wallets_user_id_profiles_fkey' (SQLSTATE 23503)"
+  Latent seit 2026-04-16 (Slice 002 FK-Add). 13 Tage broken — entdeckt durch
+  ersten echten Beta-Tester-Signup-Versuch.
+
+Root-Cause:
+  Baseline-Default-Trigger on_auth_user_created_wallet (Supabase template) inserted
+  Wallet direkt aus auth.users — aber Slice 002 FK requires profile FIRST.
+  Kein Trigger erstellte profile. Original-Design seit J1-03 (2026-04-15):
+  Wizard /onboarding → createProfile() → cascade trg_init_user_wallet/tickets/scout_scores.
+  Bug: niemand hat den buggy Baseline-Trigger gedroppt als FK gefügt wurde.
+
+Fix v1 (zuerst):
+  Migration 20260429200000_slice_258_handle_new_user_trigger.sql
+  - DROP on_auth_user_created_wallet
+  - NEW handle_new_user() function + on_auth_user_created trigger ON auth.users
+    der profile auto-erstellt mit handle='user_<8charUUID>'
+
+  Pesmerga-Signup-Verify: SUCCESS (auth.users + profile + wallet + tickets cascade)
+  ABER: Onboarding-Wizard übersprungen weil useRequireProfile (AuthProvider:120)
+  redirected nur bei profile=null, und v1 hat profile bereits erstellt.
+
+Fix v2 (Heal):
+  Migration 20260429203000_slice_258_v2_drop_handle_new_user.sql
+  - DROP on_auth_user_created (v1-Trigger)
+  - DROP handle_new_user() function
+  - Final state: 0 Trigger auf auth.users (Original-Design wiederhergestellt)
+
+Verify post-v2:
+  SELECT t.tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+  JOIN pg_namespace n ON n.oid=c.relnamespace
+  WHERE n.nspname='auth' AND c.relname='users' AND NOT t.tgisinternal;
+  → [] (0 rows) ✓
+
+Zukünftige Signups (post-v2):
+  1. auth.users INSERT (kein Trigger)
+  2. Frontend useRequireProfile detected profile=null → redirect /onboarding
+  3. Wizard handle/displayName/avatar/language → createProfile()
+  4. profile-INSERT cascade-fires:
+     - trg_init_user_wallet → wallet(balance=0)
+     - trg_init_user_tickets → tickets row
+     - trg_create_scout_scores → scout_scores
+  5. Welcome-Bonus claimed via claim_welcome_bonus() RPC in app/(app)/layout.tsx:47
+
+Beta-Tester Initial-Balance (Anil-Direktive):
+  Anil (557d1145): 1_000_000 → 200_000_000 cents (2M CR) ✓
+  Pesmerga (ef2257c0): 100_000 → 200_000_000 cents (2M CR) ✓
+  Audit: transactions(type=admin_adjustment, balance_after=200000000) für beide
+
+Pesmerga Status:
+  Profile existiert (durch v1-Trigger), display_name=null/favorite_club=null.
+  Anil-Decision: Option A — bleibt so, Pesmerga setzt Settings später manuell.
+  Wizard nicht mehr sichtbar für ihn (kein redirect bei existing profile).
+
+Future Tester signup post-v2: Wizard läuft korrekt.
