@@ -1,0 +1,21 @@
+=== Slice 257 T-C D60-Hook Proof — Smoke-Tests ===
+Generated: 2026-04-29T20:14:20+02:00
+
+Hook-File:
+-rwxr-xr-x 1 Anil 197121 4933 Apr 29 20:12 .claude/hooks/ship-verify-completeness-gate.sh
+
+Settings.json registriert:
+67:            "command": "bash C:/bescout-app/.claude/hooks/ship-verify-completeness-gate.sh"
+
+=== Smoke Test 1: Slice 257 (Hardening-Bundle, no State-Switch keyword) → silent ===
+exit=0
+
+=== Smoke Test 2: idle slice → silent ===
+exit=0
+
+=== Smoke Test 3: chore commit (kein feat/fix) → silent ===
+exit=0
+
+=== Wiring-Audit erkennt Hook ===
+Hooks scanned:        35
+Real drift:           0

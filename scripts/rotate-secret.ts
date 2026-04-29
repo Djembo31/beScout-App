@@ -49,10 +49,18 @@ if (!keyName) {
 const ENV_LOCAL = path.resolve(process.cwd(), '.env.local');
 const ENV_VERCEL_FRESH = path.resolve(process.cwd(), '.env.vercel-prod-fresh');
 
+// Slice 257 F-8: defensive Regex-Meta-Char-Escape.
+// Pre-Heal: `new RegExp(\`^${key}...\`)` interpretierte Sonderzeichen (z.B. `.`, `[`)
+// im Key-Namen als Regex-Syntax — theoretischer DoS oder False-Match. Aktuell-genutzte
+// Keys (NEXT_PUBLIC_SUPABASE_URL etc.) sind safe, aber Hygiene-Pflicht.
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function readEnvVar(filePath: string, key: string): string | null {
   if (!existsSync(filePath)) return null;
   const content = readFileSync(filePath, 'utf-8');
-  const match = content.match(new RegExp(`^${key}\\s*=\\s*"?([^"\\n]*)"?`, 'm'));
+  const match = content.match(new RegExp(`^${escapeRegex(key)}\\s*=\\s*"?([^"\\n]*)"?`, 'm'));
   if (!match) return null;
   // Strip literal `\n` (Vercel-CLI-pull paste-Drift) + trailing whitespace.
   return match[1].replace(/\\n$/g, '').trim();
@@ -61,7 +69,7 @@ function readEnvVar(filePath: string, key: string): string | null {
 function writeEnvVar(filePath: string, key: string, value: string): void {
   const content = existsSync(filePath) ? readFileSync(filePath, 'utf-8') : '';
   const escaped = value.replace(/[\\$`]/g, '\\$&');
-  const lineRegex = new RegExp(`^${key}=.*$`, 'm');
+  const lineRegex = new RegExp(`^${escapeRegex(key)}=.*$`, 'm');
   let nextContent: string;
   if (lineRegex.test(content)) {
     nextContent = content.replace(lineRegex, `${key}="${escaped}"`);

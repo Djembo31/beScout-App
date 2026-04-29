@@ -9,6 +9,23 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 257 | 2026-04-29 | Hardening-Bundle (F-4 + F-8 + D60-Hook)
+
+- Stage-Chain: SPEC → IMPACT (skipped — 3 isolierte Tracks, kein src/ cross-cutting) → BUILD → REVIEW (self-review D35, Pattern-Wiederholung) → PROVE → LOG
+- Slice-Type: Tool+GHA+Hook (Multi-Type)
+- Größe: S (3 XS-Tracks gebündelt)
+- Anil-Direktive: "257" — kompakt aus Slice 256 Backlog
+- Tracks (3 unabhängig):
+  - **T-A F-4 (P2):** `.github/workflows/nightly-audit.yml` — cron_health-Step exit `$EXIT` statt hard `exit 0` (outcome=failure bei Findings) + Eintrag in FAILURES aggregate (line 234) + 'cron-health' in tools-Array (line 253). Auto-Issue-Title sagt jetzt "cron-health;" statt "(none — but new audit-report files detected)" wenn nur cron-health failed.
+  - **T-B F-8 (P3):** `scripts/rotate-secret.ts` — Helper `escapeRegex(s)` (MDN-Standard `[.*+?^${}()|[\]\\]`) + 2 Call-Sites updated (readEnvVar line 63, writeEnvVar line 72). Defensive gegen Regex-Meta-Char-Injection bei Key-Namen mit Sonderzeichen. Aktuelle Keys (NEXT_PUBLIC_SUPABASE_URL etc.) safe, pure Hygiene.
+  - **T-C D60-Hook (P3):** `.claude/hooks/ship-verify-completeness-gate.sh` (NEU 130L) — Pattern-Wiederholung ship-cto-review-gate. WARN-only auf PreToolUse Bash `git commit`. Detektiert State-Switch-Slice via Spec-Title-Keywords (Liga|Country|Tab|Locale|Theme|Switch|Toggle|Re-Switch). Greppt Proof-Files für 3 D60-Phasen ((fresh|Phase 1) + (forward|A→B|Phase 2) + (re-switch|B→A|Phase 3)). Listet fehlende Phasen explizit. Settings.json registriert.
+- Files (5 changed): .github/workflows/nightly-audit.yml +3/-1 + scripts/rotate-secret.ts +9/-2 + .claude/hooks/ship-verify-completeness-gate.sh (NEU 130L) + .claude/settings.json +4 + worklog/{specs,reviews,proofs}/257-*.md (NEU)
+- Spec: worklog/specs/257-hardening-bundle.md (S-Slice, 13/13 Sektionen + Pre-Mortem 5 Szenarien)
+- Review: worklog/reviews/257-self-review.md (PASS, D35)
+- Proofs: worklog/proofs/257-f4-aggregate-grep.txt + 257-f8-escape-grep.txt + 257-d60-hook-smoke.txt
+- Verify: tsc clean, audit:wiring:check 35 hooks (was 34) + 0 drift, audit:type-truth 0, 3 Smoke-Tests Hook silent (idle/non-feat/Slice-257-no-keyword) + 1 Mock-Test WARN (Slice-254-Liga-mock mit Phase 2 only → korrekte Warnung Phase 1+3 fehlen)
+- Notes: Schließt Slice 256 Backlog F-4 + F-8 + D60-Hook in einem kompakten Bundle. D60 (Slice 255) war Text-only, jetzt durch Hook architektonisch durchgesetzt (D45 "Hooks > Text-Regeln"-Pattern). Reviewer-254-P2#1 Manual-GW-Override bewusst out-of-scope (UX-Trade-Off, kein Bug).
+
 ## 256 | 2026-04-29 | StalePipelineBanner Cron-Health UI-Sentinel (Slice 255 Layer 5 — User-facing Communication)
 
 - Stage-Chain: SPEC → IMPACT (skipped — read-only Service, kein Schema/RLS, 2 isolierte Mount-Edits) → BUILD → REVIEW (self-review D35, Pattern-Wiederholung MissionBanner Slice 161) → PROVE → LOG

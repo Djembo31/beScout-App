@@ -1,0 +1,13 @@
+=== Slice 257 F-8 Proof — escapeRegex in rotate-secret.ts ===
+Generated: 2026-04-29T20:14:07+02:00
+
+1. escapeRegex Helper-Definition + Call-Sites (≥3):
+56:function escapeRegex(s: string): string {
+63:  const match = content.match(new RegExp(`^${escapeRegex(key)}\\s*=\\s*"?([^"\\n]*)"?`, 'm'));
+72:  const lineRegex = new RegExp(`^${escapeRegex(key)}=.*$`, 'm');
+
+2. Keine raw ${key} mehr in new RegExp:
+53:// Pre-Heal: `new RegExp(\`^${key}...\`)` interpretierte Sonderzeichen (z.B. `.`, `[`)
+
+3. Live-verify --verify Modus läuft sauber post-Edit:
+   (Manuell-Run als Anil-Action — Skript braucht echte .env.local + Vercel-Auth)

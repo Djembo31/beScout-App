@@ -181,9 +181,11 @@ jobs:
           EXIT=${PIPESTATUS[0]}
           echo "## audit:cron-health (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
           tail -30 /tmp/cron-health.log >> $GITHUB_STEP_SUMMARY
-          # WARN-only — cron-stale ist Anil-Action, nicht Code-Fix. Auto-Issue
-          # via "Detect new audit-reports"-Step pickt es up wenn HIGH-finding.
-          exit 0
+          # Slice 257 F-4: exit-Code propagieren statt hard-`exit 0`.
+          # continue-on-error:true verhindert Workflow-Abbruch, aber
+          # steps.cron_health.outcome=failure triggert Auto-Issue-Title
+          # explizit (statt im "new audit-reports"-Bucket zu verschwinden).
+          exit $EXIT
 
       - name: Findings → Slices Pipeline (Slice 214/234)
         id: findings_pipeline
@@ -229,6 +231,7 @@ jobs:
           [ "${{ steps.tr_strings.outcome }}" = "failure" ] && FAILURES="$FAILURES tr-strings;"
           [ "${{ steps.compliance.outcome }}" = "failure" ] && FAILURES="$FAILURES compliance;"
           [ "${{ steps.wiring.outcome }}" = "failure" ] && FAILURES="$FAILURES wiring;"
+          [ "${{ steps.cron_health.outcome }}" = "failure" ] && FAILURES="$FAILURES cron-health;"
           echo "failures=$FAILURES" >> $GITHUB_OUTPUT
           if [ -n "$FAILURES" ] || [ "${{ steps.report_diff.outputs.new_reports }}" != "0" ]; then
             echo "should_alert=true" >> $GITHUB_OUTPUT
@@ -247,7 +250,7 @@ jobs:
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const today = new Date().toISOString().split('T')[0];
 
-            const tools = ['silent-fail', 'stale', 'orphan', 'type-truth', 'mutation-race', 'i18n', 'rpc-security', 'tr-strings', 'compliance', 'wiring'];
+            const tools = ['silent-fail', 'stale', 'orphan', 'type-truth', 'mutation-race', 'i18n', 'rpc-security', 'tr-strings', 'compliance', 'wiring', 'cron-health'];
             const sections = tools.map(t => {
               try {
                 const log = fs.readFileSync(`/tmp/${t}.log`, 'utf-8');

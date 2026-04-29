@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 19:04)
+# Session Handoff — Auto (2026-04-29 19:36)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,14 +10,16 @@
  M worklog/audits/type-truth-2026-04-29.md
 ```
 
-## Session Commits: 7
+## Session Commits: 9
+- 53ae69ad chore(256): active.md → idle post-commit
+- a73b0e1a feat(256): StalePipelineBanner — Cron-Health UI-Sentinel auf /fantasy + /market
+- 5599b659 chore(audits): re-run timestamps 16:57 — kein Inhaltsdrift
 - f46775da chore(handoff): Pre-Clear Resume-Anker + Slice 256 Backlog
 - d4c1c0a9 feat(255): Workflow-Hardening 4-Layer-Architektur (Anil-Direktive post-Slice-254)
 - 0451690b docs(254): LOG + Pattern-Promotion (3 patterns)
 - 36679510 fix(254): Liga-Switch Race-Heal v2 — entferne Init-Effect (Live-Verify-Find)
 - e5c03e56 fix(254): Fantasy-Liga-Switch-Heal — useGameweek + invalidate-Prefix + eventCountries
 - d2326606 docs(253): Money-Path WONT-FIX (D59 BeScout-Character-Spec, kein FPL-Klon)
-- 78516af1 fix(smoke): Step-4 Robustness — Tab-Fallback + 25s Buffer (Issue #25 Master-Tracker)
 
 <!-- auto:handoff-end -->
 

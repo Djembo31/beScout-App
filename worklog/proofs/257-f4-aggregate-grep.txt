@@ -1,0 +1,16 @@
+=== Slice 257 F-4 Proof — cron-health in aggregate + tools ===
+Generated: 2026-04-29T20:13:58+02:00
+
+1. Aggregate-Step nimmt cron_health.outcome auf:
+169:      - name: Audit cron-health (Slice 255 — Cron-Pipeline-Reliability)
+180:          pnpm run audit:cron-health 2>&1 | tee /tmp/cron-health.log
+182:          echo "## audit:cron-health (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+183:          tail -30 /tmp/cron-health.log >> $GITHUB_STEP_SUMMARY
+186:          # steps.cron_health.outcome=failure triggert Auto-Issue-Title
+234:          [ "${{ steps.cron_health.outcome }}" = "failure" ] && FAILURES="$FAILURES cron-health;"
+253:            const tools = ['silent-fail', 'stale', 'orphan', 'type-truth', 'mutation-race', 'i18n', 'rpc-security', 'tr-strings', 'compliance', 'wiring', 'cron-health'];
+
+2. exit $EXIT (statt hard exit 0) damit outcome=failure bei Findings:
+43:      # `exit $EXIT` propagiert ihn an `continue-on-error` damit `steps.X.outcome`
+55:          exit $EXIT
+66:          exit $EXIT
