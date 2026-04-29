@@ -1,28 +1,106 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 17:58)
+# Session Handoff — Auto (2026-04-29 18:52)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
- M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-04-29.md
  M worklog/audits/type-truth-2026-04-29.md
-?? .env.vercel-prod-fresh
+ M worklog/audits/wiring-2026-04-29.md
 ```
 
-## Session Commits: 9
+## Session Commits: 8
+- d4c1c0a9 feat(255): Workflow-Hardening 4-Layer-Architektur (Anil-Direktive post-Slice-254)
+- 0451690b docs(254): LOG + Pattern-Promotion (3 patterns)
 - 36679510 fix(254): Liga-Switch Race-Heal v2 — entferne Init-Effect (Live-Verify-Find)
 - e5c03e56 fix(254): Fantasy-Liga-Switch-Heal — useGameweek + invalidate-Prefix + eventCountries
 - d2326606 docs(253): Money-Path WONT-FIX (D59 BeScout-Character-Spec, kein FPL-Klon)
 - 78516af1 fix(smoke): Step-4 Robustness — Tab-Fallback + 25s Buffer (Issue #25 Master-Tracker)
 - 0db320f2 chore(handoff): Stop-Hook Auto-Block-Refresh post-PR36-Merge
 - b8179270 chore(252): Wave 6 — REMOVE legacy Liga-State (fantasyStore + marketStore + managerStore + LEAGUE_FALLBACK) (#36)
-- d867d1f6 chore(252): active + handoff — Wave 3 Verify ALL-PASS + Slice 252 PR #36 offen
-- 7264dc25 docs(251): Wave 3 Post-Deploy Live-Verify ALL-PASS (7/7)
-- 2886d69a chore(handoff): Stop-Hook Auto-Block-Refresh post-Wave-3-LOG
 
 <!-- auto:handoff-end -->
+
+---
+
+# Resume-Anker (2026-04-29 18:55 UTC — Mega-Session: Wave 6 Cleanup + Slice 252-255 + Deep-Dive-Heal)
+
+**Bei `/clear`:** Lese in dieser Reihenfolge:
+1. `worklog/active.md` — `status: idle`, HEAD `d4c1c0a9`
+2. Diese Datei (Top-Block + Slice-256-Backlog unten)
+3. `git log --oneline -10` (8 commits diese Session)
+4. `worklog/log.md` Top 4 Einträge (255 / 254 / 253 / 252)
+5. `memory/decisions.md` D59 + D60 (NEU diese Session)
+6. `worklog/reviews/255-review.md` (Slice 256 Backlog-Items)
+
+## Was diese Session erreicht hat (chronologisch, ~6 Stunden)
+
+| Phase | HEAD | Slice | Was |
+|---|---|---|---|
+| Vormittag | `b8179270` | **252 PR #36 MERGED** | Wave 6 Cleanup — legacy Liga-State entfernt (fantasyStore + marketStore + managerStore + LEAGUE_FALLBACK) |
+| Vormittag | `78516af1` | Smoke-fix | Step-4 Tab-Fallback + 25s Buffer (Issue #25 Master-Tracker closed) |
+| Mittag | `d2326606` | **253** | Money-Path-CEO-Decisions WONT-FIX — D59 PRODUCT-Decision "BeScout-Character-Spezifikation, kein FPL-Klon" |
+| Nachmittag | `e5c03e56` + `36679510` | **254 v1+v2** | Fantasy-Deep-Dive 5-Layer-Kaskade + 3 Frontend-Heals (useGameweek + leagueScopeStore + FantasyContent) + v2-Heal Init-Effect entfernt nach Live-Verify Re-Switch-Bug |
+| Nachmittag | `0451690b` | 254 LOG | 3 Pattern-Promotions in errors-frontend.md |
+| Spätnachmittag | (operations) | Cron-Reanimation | Anil rotated Service-Role-Key (3-Iter-Drama wegen `\n`-suffix-Drift), Vercel auf Pro-Plan, gameweek-sync via curl: 37s Run, alle 7 Ligen advanced (TFF1 28→38 Saison-End, BL/SL/BL2 30→32, SA 33→35, LL 32→33) |
+| Abend | `d4c1c0a9` | **255** | Workflow-Hardening 4-Layer-Architektur (Detection / Operations / Process / Test-Infra) |
+
+## Slice 256 Backlog (Anil-Direktive: nahtlos weitermachen)
+
+Aus `worklog/reviews/255-review.md` Reviewer-Findings + Slice 255 Defered-Item:
+
+| Pri | Item | Source |
+|---|---|---|
+| **P2** | **StalePipelineBanner UI-Sentinel** auf /fantasy + /market — client-side Hook + RPC für Drift-Detection mit anon-key. Komplexität >30min, in Slice 255 defered. | Slice 255 Item 5 (defered) |
+| **P2** | **F-4 cron_health in aggregate-Detection-Step** — `nightly-audit.yml:215-234` aggregate-Step erweitern damit Auto-Issue-Title `cron-health` explizit nennt (statt im "new audit-report files"-Noise verschluckt). | Reviewer 255 F-4 |
+| **P3** | **F-8 keyName-Regex-Escape** in `rotate-secret.ts:55` — `key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')` vor RegExp-Construction. Defensive Code-Hygiene. | Reviewer 255 F-8 |
+| **P3** | **D60 Hook-Implementation** `ship-verify-completeness-gate.sh` — warnt wenn `worklog/proofs/<slice>-postdeploy-verify.md` für State-Switch-Slice nicht alle 3 Phasen (fresh / forward / re-switch) dokumentiert. | D60 Re-Visit-Trigger |
+| **P3** | **Reviewer 254 P2 #1 Manual-GW-Override-Concern** — User picks GW=15 in BL → Liga-Switch zu TR überschreibt manuelle Wahl. Bewusste UX-Trade-Off, aber: bei Liga-Switch B→A zurück gibt es kein "remember". Optional second useRef für tracking ob `selectedGameweek` von User manuell ODER auto gesetzt wurde. | Reviewer 254 P2 #1 |
+| Future | **`scripts/cron-health-check.ts` Severity-Tuning** post-Beta — wenn Beta 5+ Wochen läuft ohne False-Positives, drift>=2 von HIGH auf MEDIUM downgraden. | D52 Iteration |
+
+## Bei /clear Resume-Pfad
+
+```
+1. worklog/active.md → status: idle, HEAD d4c1c0a9
+2. Diese Datei → Resume-Anker oben + Slice-256-Backlog
+3. git log --oneline -10 (Session-Commits)
+4. worklog/reviews/255-review.md (Reviewer-Concerns für Slice 256)
+5. /ship new "Slice 256 Cron-Health-UI-Sentinel + Reviewer-Followups"
+   ODER pick einzeln je nach Lust:
+   - StalePipelineBanner (UI-fokus, ~1-2h)
+   - F-4 nightly-audit aggregate (Process-fokus, 15min)
+   - F-8 + D60-Hook (Hardening-Bundle, 30min)
+```
+
+## Tech-Side-Status post-Slice-255
+
+**Beta-Phase-Tracker `worklog/beta-phase.md`:**
+- phase: D
+- last_signoff: FAIL (Anil-Mensch-Action-Block, NICHT Tech)
+- findings_open: P0=0, P1=0, P2=0, P3=0
+- ceo_pending: 0 (Slice 253 D59 alle WONT-FIX)
+- wont_fix: 6 (FM-RR-1, BRAND-NEU-1, FM-NEU-5, FANTASY-NEU-1, F-09 BPS, UX-20 Membership)
+
+**Audit-Pipeline (10 Tools):**
+- silent-fail, stale, orphan, type-truth, mutation-race, i18n, compliance, wiring, **cron-health (NEU Slice 255)**, rpc-security
+- Daily 03:00/04:00 UTC im nightly-audit.yml
+
+**Pre-Push-Hook entblockt** post-Slice-255 — integrationGlobs erweitert um 6 Service-Test-Files die Live-Supabase brauchen (heute 22-Test-Fail-Episode).
+
+**4-Layer-Workflow-Hardening live:**
+1. **Detection:** audit:cron-health daily
+2. **Operations:** pnpm rotate-secret atomic-sync
+3. **Process:** D60 Re-Switch-Pflicht
+4. **Test-Infra:** integrationGlobs
+
+**Money-Path:** alle 3 ceo_pending → wont_fix per D59 (BeScout ist nicht FPL-Klon).
+
+## Anil-Mensch-Action (einziger Beta-READY-Blocker)
+
+- 3 Beta-Tester organisieren (Templates fertig in `memory/beta-tester-recruitment-templates.md`)
+- TR-Native-Reviewer organisieren
+- `memory/beta-tester-list.md` schreiben (.gitignore-Pflicht)
 
 ---
 
