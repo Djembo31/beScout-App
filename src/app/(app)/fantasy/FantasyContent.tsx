@@ -99,21 +99,12 @@ export default function FantasyContent() {
   // Keep ticket balance cache warm
   useUserTickets(userId);
 
-  // Derive countries that actually have events (from club -> country mapping)
-  const eventCountries = useMemo(() => {
-    const allCountries = getCountries(locale);
-    // Filter to only countries that have events in the current set
-    const eventCountryCodes = new Set<string>();
-    for (const e of gwEvents) {
-      if (e.clubId) {
-        const club = getClub(e.clubId);
-        if (club) eventCountryCodes.add(club.country);
-      }
-    }
-    // If no club-scoped events exist, show all countries
-    if (eventCountryCodes.size === 0) return allCountries;
-    return allCountries.filter(c => eventCountryCodes.has(c.code));
-  }, [gwEvents, locale]);
+  // Slice 254 Heal — show ALL active leagues' countries always, not only those
+  // with events in the current GW. Pre-Heal: filtered to {country | club_in_event}
+  // → CountryBar suppressed when only TR-events existed (length≤1). User cannot
+  // discover or switch to other leagues. Catch-22.
+  // Filter is audience-choice (which league am I watching?), not result-filter.
+  const eventCountries = useMemo(() => getCountries(locale), [locale]);
 
   // Filter gwEvents by selected league
   const filteredGwEvents = useMemo(() => {

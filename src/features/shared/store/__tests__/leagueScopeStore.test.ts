@@ -310,7 +310,11 @@ describe('useLeagueScope — setCountry smart-collapse', () => {
 });
 
 describe('useLeagueScope — setLeagueScope cache invalidation (EC-13 / AR-13)', () => {
-  it('invalidates 5 React-Query prefixes on setLeagueScope', async () => {
+  // Slice 254 Heal: switched from enumerating 5 sub-keys to 2 root-prefixes
+  // (`events` + `fantasy`). Reason: qk.events.all (used by useFantasyEvents) was
+  // un-invalidated → Liga-Switch left stale events in cache. Root-prefix is
+  // broader-but-correct (matches "everything Liga-aware refetches when Liga changes").
+  it('invalidates events + fantasy root-prefixes on setLeagueScope', async () => {
     const { useLeagueScope } = await loadStore();
 
     useLeagueScope.getState().setLeagueScope({
@@ -323,21 +327,12 @@ describe('useLeagueScope — setLeagueScope cache invalidation (EC-13 / AR-13)',
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockQc.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['events', 'leagueGw'],
+      queryKey: ['events'],
     });
     expect(mockQc.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['events', 'leagueMaxGw'],
+      queryKey: ['fantasy'],
     });
-    expect(mockQc.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['events', 'wildcardBalance'],
-    });
-    expect(mockQc.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['fantasy', 'gwFixtureInfo'],
-    });
-    expect(mockQc.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['fantasy', 'fixtureDeadlines'],
-    });
-    expect(mockQc.invalidateQueries).toHaveBeenCalledTimes(5);
+    expect(mockQc.invalidateQueries).toHaveBeenCalledTimes(2);
   });
 
   it('also invalidates on setCountry', async () => {
@@ -346,8 +341,7 @@ describe('useLeagueScope — setLeagueScope cache invalidation (EC-13 / AR-13)',
     useLeagueScope.getState().setCountry('TR');
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    // 5 distinct keys per call.
-    expect(mockQc.invalidateQueries).toHaveBeenCalledTimes(5);
+    expect(mockQc.invalidateQueries).toHaveBeenCalledTimes(2);
   });
 });
 

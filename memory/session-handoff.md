@@ -1,16 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 14:58)
+# Session Handoff — Auto (2026-04-29 16:13)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
+ M .claude/settings.local.json
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-04-29.md
  M worklog/audits/type-truth-2026-04-29.md
 ```
 
-## Session Commits: 3
+## Session Commits: 7
+- d2326606 docs(253): Money-Path WONT-FIX (D59 BeScout-Character-Spec, kein FPL-Klon)
+- 78516af1 fix(smoke): Step-4 Robustness — Tab-Fallback + 25s Buffer (Issue #25 Master-Tracker)
+- 0db320f2 chore(handoff): Stop-Hook Auto-Block-Refresh post-PR36-Merge
+- b8179270 chore(252): Wave 6 — REMOVE legacy Liga-State (fantasyStore + marketStore + managerStore + LEAGUE_FALLBACK) (#36)
 - d867d1f6 chore(252): active + handoff — Wave 3 Verify ALL-PASS + Slice 252 PR #36 offen
 - 7264dc25 docs(251): Wave 3 Post-Deploy Live-Verify ALL-PASS (7/7)
 - 2886d69a chore(handoff): Stop-Hook Auto-Block-Refresh post-Wave-3-LOG

@@ -84,7 +84,8 @@
       "mcp__posthog__projects-get",
       "mcp__posthog__sdk-doctor-get",
       "PowerShell(npm install *)",
-      "PowerShell(claude *)"
+      "PowerShell(claude *)",
+      "mcp__vercel__get_runtime_logs"
     ]
   },
   "enableAllProjectMcpServers": true,

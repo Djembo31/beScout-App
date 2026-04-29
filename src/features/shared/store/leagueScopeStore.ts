@@ -116,17 +116,18 @@ async function invalidateLeagueAwareQueries(): Promise<void> {
   try {
     const { queryClient } = await import('@/lib/queryClient');
     // Prefix-match: any key starting with these arrays gets invalidated.
-    // qk.events.leagueGw(leagueId) → ['events', 'leagueGw', <id>]
-    // qk.events.leagueMaxGw(leagueId) → ['events', 'leagueMaxGw', <id>]
-    // qk.events.wildcardBalance(uid) → ['events', 'wildcardBalance', <uid>]
-    // qk.fantasy.gwFixtureInfo(gw) → ['fantasy', 'gwFixtureInfo', <gw>]
-    // qk.fantasy.fixtureDeadlines(gw) → ['fantasy', 'fixtureDeadlines', <gw>]
+    // ['events'] → invalidates qk.events.all (used by useEvents in useFantasyEvents)
+    //   PLUS its sub-keys (leagueGw / leagueMaxGw / wildcardBalance / joinedIds / etc)
+    // ['fantasy'] → invalidates qk.fantasy.* (gwFixtureInfo / fixtureDeadlines / lineups / etc)
+    //
+    // Slice 254 Heal: previously enumerated 5 specific sub-keys; that left
+    // qk.events.all (the primary Events-Hook in useFantasyEvents) un-invalidated.
+    // Liga-Switch refetched leagueGw but stale-Events remained in cache → UI stuck.
+    // Switching to root-prefix-invalidate is broader-but-correct (matches the
+    // mental-model "everything Liga-aware refetches when Liga changes").
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['events', 'leagueGw'] }),
-      queryClient.invalidateQueries({ queryKey: ['events', 'leagueMaxGw'] }),
-      queryClient.invalidateQueries({ queryKey: ['events', 'wildcardBalance'] }),
-      queryClient.invalidateQueries({ queryKey: ['fantasy', 'gwFixtureInfo'] }),
-      queryClient.invalidateQueries({ queryKey: ['fantasy', 'fixtureDeadlines'] }),
+      queryClient.invalidateQueries({ queryKey: ['events'] }),
+      queryClient.invalidateQueries({ queryKey: ['fantasy'] }),
     ]);
   } catch (err) {
     logSilentCatch('leagueScopeStore.invalidate', err);

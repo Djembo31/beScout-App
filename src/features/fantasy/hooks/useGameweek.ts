@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLeagueActiveGameweek } from '../queries/events';
 import { getGameweekStatuses } from '../services/fixtures';
@@ -26,6 +26,18 @@ export function useGameweek(gwEvents: FantasyEvent[] = [], leagueId: string | nu
       setSelectedGameweek(activeGw);
     }
   }, [activeGw, selectedGameweek, setSelectedGameweek]);
+
+  // Slice 254 Heal: reset selectedGameweek when league changes so the next render
+  // picks up the new league's active_gameweek via the init-effect above. Without
+  // this, switching from league A (selectedGameweek=28) to league B keeps GW=28
+  // even though league B's active_gw is 30 — fantasy UI stays stuck on stale GW.
+  const prevLeagueIdRef = useRef<string | null>(leagueId);
+  useEffect(() => {
+    if (prevLeagueIdRef.current !== leagueId) {
+      prevLeagueIdRef.current = leagueId;
+      setSelectedGameweek(null);
+    }
+  }, [leagueId, setSelectedGameweek]);
 
   // Safari bfcache: page is restored from memory with stale JS state
   // -> reset selectedGameweek and refetch activeGw to get fresh data
