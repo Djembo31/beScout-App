@@ -5193,5 +5193,12 @@
     "showingCount": "{count, plural, =0 {Kayıt yok} =1 {1 kayıt} other {# kayıt}}",
     "trendLabel": "Trend ({days} gün)",
     "trendNet": "Günlük net"
+  },
+  "system": {
+    "stalePipeline": {
+      "title": "Veriler güncel olmayabilir",
+      "message": "Maç haftası verileri güncelleniyor — birkaç dakika sürebilir.",
+      "dismiss": "Kapat"
+    }
   }
 }

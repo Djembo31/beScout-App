@@ -408,6 +408,13 @@ vi.mock('next/dynamic', () => ({
   },
 }));
 
+// Slice 256: StalePipelineBanner ist neuer Sentinel auf /fantasy + /market.
+// In Tests stub-render null — Banner-Behavior wird in eigenem Test gedeckt.
+vi.mock('@/components/system/StalePipelineBanner', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 vi.mock('@/components/onboarding/NewUserTip', () => ({
   default: ({ show, tipKey, title }: { show: boolean; tipKey: string; title: string }) =>
     show ? <div data-testid="new-user-tip" data-tip-key={tipKey}>{title}</div> : null,

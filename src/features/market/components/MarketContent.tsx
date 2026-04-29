@@ -26,6 +26,7 @@ import dynamic from 'next/dynamic';
 import MarketHeader from './MarketHeader';
 import PortfolioTab from './portfolio/PortfolioTab';
 import MarktplatzTab from './marktplatz/MarktplatzTab';
+import StalePipelineBanner from '@/components/system/StalePipelineBanner';
 import { resolveBuyPriceCents } from './marketContent.priceCents';
 
 // Slice 116 CLS-Fix: Modals haben position:fixed → keine Layout-Shift. MissionHintList ist
@@ -110,6 +111,9 @@ export default function MarketContent() {
   return (
     <GeoGate feature="dpc_trading">
     <div className="max-w-[1400px] mx-auto space-y-5">
+      {/* Slice 256: Cron-Health UI-Sentinel — sichtbar wenn Vercel-Cron drift */}
+      <StalePipelineBanner />
+
       {/* Trade Success */}
       {(trade.buyIsSuccess || trade.ipoBuyIsSuccess) && trade.lastBoughtId && (() => {
         const player = data.playerMap.get(trade.lastBoughtId);

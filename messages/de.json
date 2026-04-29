@@ -5193,5 +5193,12 @@
     "showingCount": "{count, plural, =0 {Keine Einträge} =1 {1 Eintrag} other {# Einträge}}",
     "trendLabel": "Trend ({days} Tage)",
     "trendNet": "Netto pro Tag"
+  },
+  "system": {
+    "stalePipeline": {
+      "title": "Daten möglicherweise veraltet",
+      "message": "Wir aktualisieren gerade die Spielwoche-Daten — kann ein paar Minuten dauern.",
+      "dismiss": "Schließen"
+    }
   }
 }

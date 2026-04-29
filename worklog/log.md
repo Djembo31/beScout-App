@@ -9,6 +9,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 256 | 2026-04-29 | StalePipelineBanner Cron-Health UI-Sentinel (Slice 255 Layer 5 — User-facing Communication)
+
+- Stage-Chain: SPEC → IMPACT (skipped — read-only Service, kein Schema/RLS, 2 isolierte Mount-Edits) → BUILD → REVIEW (self-review D35, Pattern-Wiederholung MissionBanner Slice 161) → PROVE → LOG
+- Slice-Type: UI (Service + Hook + Component + 2 Mounts + i18n)
+- Größe: S
+- Anil-Direktive: "voller Entscheidungsgewalt, perfektion von bescout" — Slice-Wahl autonom = User-facing-Communication-Layer fehlt zu Slice 255 Detection-Layer
+- Architektur (3-Schicht):
+  - **Service** `src/lib/services/cronHealth.ts` (NEU 109L) — anon-readable Detection-Logic, mirrors `scripts/cron-health-check.ts` Layer 2 (allFinished+notAdvanced+drift>=2). Liest leagues+clubs+fixtures via anon-Supabase. Returns `{ healthy, drifts[] }`. Severity-Gate Phase-1 (drift>=2) + Graceful-Fail (try-catch returnt healthy bei Error).
+  - **Hook** `src/lib/queries/cronHealth.ts` (NEU 23L) — TanStack `useCronHealth` mit staleTime 5min, no-refetch-on-focus, retry 1. Query-Key `qk.system.cronHealth` (NEU Namespace).
+  - **Banner** `src/components/system/StalePipelineBanner.tsx` (NEU 79L) — Render-NULL bei healthy/dismissed/loading. Amber-style Card mit AlertTriangle-Icon + X-Dismiss. Per-Session-sessionStorage (`bescout-stale-pipeline-dismissed-v1`). SSR-safe (typeof-window-Guard).
+- Mounts: FantasyContent.tsx (über LeagueScopeHeader) + MarketContent.tsx (über MarketHeader). 2x +5L additiv.
+- i18n DE+TR: 3 Keys `system.stalePipeline.{title,message,dismiss}` — neutral, business.md-konform (kein Money/Securities/Glücksspiel-Vokabular).
+- Tests NEU: `cronHealth.test.ts` 7 Tests (graceful-fail, season-end-skip, pre-season-skip, partial-finished, drift-detect, severity-gate) + `StalePipelineBanner.test.tsx` 5 Tests (loading-null, healthy-null, drift-render, dismiss-click+sessionStorage, pre-existing-dismiss). 12/12 PASS.
+- Files (10 changed): src/lib/services/cronHealth.ts (NEU) + src/lib/services/__tests__/cronHealth.test.ts (NEU) + src/lib/queries/cronHealth.ts (NEU) + src/lib/queries/keys.ts +5 + src/components/system/StalePipelineBanner.tsx (NEU) + src/components/system/__tests__/StalePipelineBanner.test.tsx (NEU) + src/app/(app)/fantasy/FantasyContent.tsx +4 + src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx +7 (Mock-Stub) + src/features/market/components/MarketContent.tsx +5 + messages/{de,tr}.json +7
+- Spec: worklog/specs/256-stale-pipeline-banner.md (S-Slice, 13/13 Sektionen + Pre-Mortem 5 Szenarien)
+- Review: worklog/reviews/256-self-review.md (PASS, D35-Pattern-Wiederholung MissionBanner)
+- Proof: worklog/proofs/256-vitest.txt (12/12 Slice-256-Tests PASS) + Full-Vitest 3050/3050 PASS (304s)
+- Verify: tsc clean, audit:i18n 4940 keys DE↔TR PARITY, audit:type-truth 0, audit:wiring:check 0 drift, vitest full 3050/3050 PASS
+- Notes: Layer 5 zur Slice-255 4-Layer-Hardening-Architektur. Slice 255 baute Detection (audit:cron-health daily). Slice 256 verwandelt Detection in **User-facing-Honesty**: bei Cron-Drift sehen Beta-Tester ein subtiles Amber-Banner mit Erklärung statt silent-stale-Daten. Per-Session-Dismiss erlaubt User die Info wegzuklicken ohne Nag.
+
 ## 255 | 2026-04-29 | Workflow-Hardening (Anil-Direktive nach Slice 254 Deep-Dive — 4-Layer-Architektur)
 
 - Stage-Chain: SPEC inline (5-Item-Plan aus Slice 254 Bewertung) → BUILD (4 Items) → REVIEW (CONCERNS) → HEAL v2 (1 P1 + 2 P2 in selber Slice geheilt) → PROVE Live-Run → LOG

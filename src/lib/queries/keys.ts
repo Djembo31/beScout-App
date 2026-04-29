@@ -413,4 +413,9 @@ export const qk = {
     byUser: (uid: string | undefined) => ['fantasy-leagues', uid] as const,
     leaderboard: (leagueId: string | undefined) => ['fantasy-league-leaderboard', leagueId] as const,
   },
+
+  // ── System (Slice 256 — Cron-Health UI-Sentinel) ──
+  system: {
+    cronHealth: ['system', 'cronHealth'] as const,
+  },
 } as const;

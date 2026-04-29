@@ -1,14 +1,16 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 256
+stage: LOG
+spec: worklog/specs/256-stale-pipeline-banner.md
+impact: skipped
+proof: worklog/proofs/256-vitest.txt
+review: worklog/reviews/256-self-review.md
 ```
+
+## Slice 256 KOMPLETT: StalePipelineBanner Cron-Health UI-Sentinel. Layer 5 zur Slice-255 4-Layer-Architektur — User-facing-Communication. 3-Layer (Service anon-readable + TanStack-Hook 5min + Banner amber-card mit sessionStorage-Dismiss) auf /fantasy + /market gemounted. 12 NEU-Tests PASS, Full-Suite 3050/3050. Self-Review D35 (Pattern-Wiederholung MissionBanner Slice 161). business.md-konform DE+TR neutral. Hardening-Bundle (F-4 + F-8 + D60-Hook + Reviewer-254-P2#1) → Slice 257.
 
 ## Slice 255 KOMPLETT: Workflow-Hardening 4/5 Items + 1 Slice-256-Backlog. (1) ✅ Cron-Health-Monitor `audit:cron-health` D52-Pattern, post-Heal-v2 logisch-korrekte Drift-Detection (allFinished+notAdvanced) (2) ✅ Secret-Rotation-Sync `pnpm rotate-secret` atomar via spawnSync+stdin (no shell-injection) + Rollback-Path (3) ✅ Pre-Push integrationGlobs +6 Service-Test-Files (4) ⏳ Stale-Pipeline-Indicator-Banner → Slice 256 (5) ✅ D60 Wave-Verify-Standard Re-Switch-Flow Pflicht. Reviewer CONCERNS-mergeable: 1 P1 + 2 P2 in Slice selbst geheilt, 1 P2 + 4 P3 Slice-256-Backlog. Live-Verify cron-health 0 findings + rotate-secret --verify all-in-sync.
 

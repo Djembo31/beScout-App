@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { Trophy, Loader2 } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ui';
 import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
+import StalePipelineBanner from '@/components/system/StalePipelineBanner';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -186,6 +187,9 @@ export default function FantasyContent() {
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-4 md:space-y-5">
+      {/* Slice 256: Cron-Health UI-Sentinel — sichtbar wenn Vercel-Cron drift */}
+      <StalePipelineBanner />
+
       {/* HEADER */}
       <FantasyHeader
         activeCount={activeEvents.length}
