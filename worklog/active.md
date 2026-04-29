@@ -1,14 +1,16 @@
 # Active Slice
 
 ```
-status: active
-slice: 257
-stage: LOG
-spec: worklog/specs/257-hardening-bundle.md
-impact: skipped (3 isolierte Tracks Hardening, kein src/ cross-cutting)
-proof: worklog/proofs/257-d60-hook-smoke.txt
-review: worklog/reviews/257-self-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
+
+## Slice 257 KOMPLETT: Hardening-Bundle (F-4 + F-8 + D60-Hook). Schließt Slice-256-Backlog. T-A nightly-audit cron-health in aggregate + tools-array + exit-code-propagation. T-B escapeRegex-Helper in rotate-secret.ts (3 Treffer: 1 def + 2 calls). T-C ship-verify-completeness-gate.sh WARN-only Hook (130L, D45-Pattern Hook>Text). Self-Review D35 PASS. 4 Smoke-Tests (3 silent + 1 Mock-WARN). audit:wiring 35 hooks (was 34) + 0 drift.
 
 ## Slice 256 KOMPLETT: StalePipelineBanner Cron-Health UI-Sentinel. Layer 5 zur Slice-255 4-Layer-Architektur — User-facing-Communication. 3-Layer (Service anon-readable + TanStack-Hook 5min + Banner amber-card mit sessionStorage-Dismiss) auf /fantasy + /market gemounted. 12 NEU-Tests PASS, Full-Suite 3050/3050. Self-Review D35 (Pattern-Wiederholung MissionBanner Slice 161). business.md-konform DE+TR neutral. Hardening-Bundle (F-4 + F-8 + D60-Hook + Reviewer-254-P2#1) → Slice 257.
 
