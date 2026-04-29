@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 01:27)
+# Session Handoff — Auto (2026-04-29 01:46)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,6 +10,7 @@
 ```
 
 ## Session Commits: 10
+- e1d17f94 docs(decision): D58 — Wave-Bridge-Cleanup-Pflicht in Multi-Wave-Slices + Session-Handoff Wave 3 LIVE
 - 5cb28200 fix(178f): INV-25 WHITELIST drift — rpc_no_response add + insufficient_wildcards remove
 - 66842611 fix(251): Wave 3 Test-Mock-Heal — ClubProvider.test.tsx
 - 55f52417 chore(251): Wave 3 PROVE + LOG — active idle + log entry + audit-timestamps
@@ -19,10 +20,6 @@
 - 91e60a44 fix(251): Track F Reviewer-Heal — 4 P0/P1 + 1 P2 fixes
 - 46df861d docs(251): Track F Pre-Review-Memo + Journal finalized
 - 7563761b feat(251): Wave 2 Track F — user_wildcards Composite-PK per-Liga + RPCs + Service
-- 4cef6b95 chore(251): active.md idle + audit-stamps post Wave 1 commit
-
-## Stashed Changes
-- stash@{0}: On worktree-agent-a3fb1dba8d104a9a8: Wave-3-rebase-temp-stash
 
 <!-- auto:handoff-end -->
 
