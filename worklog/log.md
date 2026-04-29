@@ -9,6 +9,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 255 | 2026-04-29 | Workflow-Hardening (Anil-Direktive nach Slice 254 Deep-Dive — 4-Layer-Architektur)
+
+- Stage-Chain: SPEC inline (5-Item-Plan aus Slice 254 Bewertung) → BUILD (4 Items) → REVIEW (CONCERNS) → HEAL v2 (1 P1 + 2 P2 in selber Slice geheilt) → PROVE Live-Run → LOG
+- Slice-Type: Tool + GHA + Process-Doc
+- Anil-Direktive: "danach bauen wir unseren workflow so um, dass uns das nicht mehr passiert"
+- 4-Layer-Architektur:
+  - **Layer 1 Detection:** `scripts/cron-health-check.ts` (NEU) — D52-Pattern. Prüft cron_sync_log freshness + leagues.active_gameweek vs MAX(fixtures finished) drift. Heal-v2: Bedingung "ALLE Fixtures der active_gw finished UND active_gw nicht advanced" statt "any later GW finished" (Mid-Gameweek-False-Positive eliminiert). Live-Run: 0 findings.
+  - **Layer 2 Operations:** `scripts/rotate-secret.ts` (NEU) — Atomic-Sync über 3 Locations (Vercel + .env.local + audit-snapshot). 3 Modi (prompt / --sync-from=local / --verify). Heal-v2: spawnSync + stdin-pipe statt execSync(template-string) — keine Shell-Injection. Plus Rollback-Path: prevValue capture vor rm, bei add-FAIL → restore prevValue, bei rollback-FAIL → laute manual-Dashboard-Warning.
+  - **Layer 3 Process:** D60 in `memory/decisions.md` — Wave-Verify-Standard Re-Switch-Flow Pflicht (3 Phasen: fresh-init / A→B / B→A). Pattern-Familie D43→D46→D54→D58→D60. Hook-Kandidat `ship-verify-completeness-gate.sh` für Slice 256+.
+  - **Layer 4 Test-Infra:** `vitest.config.ts` integrationGlobs +6 Service-Test-Files (club-most-owned + club-most-owned-batch + differentials + events-difficulty + leaderboards + lineup-auto-sub) — Pre-Push entblockt bei revoked Service-Role-Key.
+- Plus: `.github/workflows/nightly-audit.yml` cron-health-step (Heal-v2: secrets.NEXT_PUBLIC_SUPABASE_URL consistent mit rpc-security-step), `package.json` 3 NEU scripts (audit:cron-health + :check + rotate-secret).
+- Defered Slice 256 (legitim, in active.md gelogged):
+  - StalePipelineBanner UI-Sentinel (Item 5 aus Plan, braucht client-side Hook + RPC für Drift-Detection mit anon-key, Komplexität >30min)
+  - F-4 cron_health in aggregate-Detection-Step erweitern (Auto-Issue-Body)
+  - F-8 keyName-Regex-Escape (defensive Code-Hygiene)
+- Reviewer-Verdict: CONCERNS (1 P1 + 3 P2 + 4 P3, mergeable). Heal-v2 in selber Slice: P1 (Shell-Injection in rotate-secret), P2#1 (Drift-Logik Mid-GW-False-Positive), P2#2 (Secret-Name-Inkonsistenz nightly-audit). 1 P2 + 4 P3 → Slice 256 Backlog.
+- Files: scripts/cron-health-check.ts (NEU 217L) + scripts/rotate-secret.ts (NEU 215L) + vitest.config.ts + .github/workflows/nightly-audit.yml + package.json + memory/decisions.md (D60) + worklog/reviews/255-review.md + worklog/active.md
+- Verify: tsc clean, vitest 143/143 fantasy + 3038/3038 full-suite (CI=true), live-run cron-health 0 findings, rotate-secret --verify all-in-sync
+- DISTILL: D60 Wave-Verify-Re-Switch-Pflicht — bei zukünftigen State-Switch-Slices (Liga, Country, Tab, User, Locale, Theme) MUSS Live-Verify alle 3 Phasen testen, nicht nur fresh+forward-switch.
+- Notes: Diese Slice schließt das Loch das Slice 254 Deep-Dive aufgedeckt hatte. Detection (audit:cron-health daily im nightly-audit) + Operations (rotate-secret atomic) + Process (D60) + Test-Infra (integrationGlobs) bilden zusammen die "damit das nicht mehr passiert"-Architektur.
+
 ## 254 | 2026-04-29 | Fantasy-Liga-Switch-Heal (Deep-Dive 5-Layer-Kaskade, 3 Frontend-Bugs)
 
 - Stage-Chain: SPEC inline (Deep-Dive-Bewertung) → IMPACT inline (FantasyContent + useGameweek + leagueScopeStore + 1 Test) → BUILD (3 Code-Fixes v1) → REVIEW (CONCERNS, mergeable) → PROVE-v1 LIVE-VERIFY (Re-Switch-Race entdeckt) → BUILD-v2 (init-Effect entfernt) → PROVE-v2 ALL-PASS → LOG

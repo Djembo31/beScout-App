@@ -10,6 +10,8 @@ proof: —
 review: —
 ```
 
+## Slice 255 KOMPLETT: Workflow-Hardening 4/5 Items + 1 Slice-256-Backlog. (1) ✅ Cron-Health-Monitor `audit:cron-health` D52-Pattern, post-Heal-v2 logisch-korrekte Drift-Detection (allFinished+notAdvanced) (2) ✅ Secret-Rotation-Sync `pnpm rotate-secret` atomar via spawnSync+stdin (no shell-injection) + Rollback-Path (3) ✅ Pre-Push integrationGlobs +6 Service-Test-Files (4) ⏳ Stale-Pipeline-Indicator-Banner → Slice 256 (5) ✅ D60 Wave-Verify-Standard Re-Switch-Flow Pflicht. Reviewer CONCERNS-mergeable: 1 P1 + 2 P2 in Slice selbst geheilt, 1 P2 + 4 P3 Slice-256-Backlog. Live-Verify cron-health 0 findings + rotate-secret --verify all-in-sync.
+
 ## Slice 254 KOMPLETT: Fantasy-Liga-Switch-Heal v2 — 3 Frontend-Bugs (Deep-Dive 5-Layer-Kaskade) + Operations-Heal (Cron reanimiert). Live-Verify ALL-PASS Re-Switch-Flow gegen bescout.net post-Deploy + post-Cron-Run. TFF1 GW=38 (war 28), CountryBar 6 Pillen (war 1), Topspiel "Sa 02.05. Kommend" (war "BEENDET"). Reviewer CONCERNS-mergeable. 3 Patterns promoted in errors-frontend.md.
 
 ## Slice 253 KOMPLETT: Money-Path-CEO-Decisions WONT-FIX (D59). 3 ceo_pending → wont_fix per Anil-Direktive "BeScout-Character-Spezifikation, kein FPL-Klon": FANTASY-NEU-1 + F-09 BPS-Bonus + UX-20 MembershipSection Confirm. Doc-only Slice (beta-phase.md + decisions.md D59 + log.md). Beta-Phase-Tech-Block weg, übrig: Anil-Mensch-Action Tester-Liste.

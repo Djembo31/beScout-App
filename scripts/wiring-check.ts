@@ -73,6 +73,8 @@ const KNOWN_ORPHANS: Record<string, string> = {
   'npm:test:smoke': 'Called via "pnpm exec playwright test --project=smoke" in nightly-audit.yml + post-deploy-smoke.yml (not via pnpm run)',
   'npm:test:synthetic': 'Manual synthetic-user-run, generates qa-screenshots/synthetic dump for tr-strings audit',
   'npm:audit:wiring:check': 'Called by ship-tool-wiring-gate.sh hook (Slice 234 Pre-Commit gate)',
+  'npm:audit:cron-health:check': 'Slice 255 strict-mode variant; nightly nutzt audit:cron-health (WARN-only). :check für künftige CI-blocking-Erweiterung wenn cron-stale = beta-blocker.',
+  'npm:rotate-secret': 'Slice 255 manual-tool für Secret-Rotation, manueller Trigger gewollt (3-Location-Sync).',
   'npm:audit': 'Aggregated audit-runner, not nightly',
 };
 

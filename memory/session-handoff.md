@@ -1,17 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 16:13)
+# Session Handoff — Auto (2026-04-29 17:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Uncommitted Changes: 4 Files
 ```
- M .claude/settings.local.json
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-04-29.md
  M worklog/audits/type-truth-2026-04-29.md
+?? .env.vercel-prod-fresh
 ```
 
-## Session Commits: 7
+## Session Commits: 9
+- 36679510 fix(254): Liga-Switch Race-Heal v2 — entferne Init-Effect (Live-Verify-Find)
+- e5c03e56 fix(254): Fantasy-Liga-Switch-Heal — useGameweek + invalidate-Prefix + eventCountries
 - d2326606 docs(253): Money-Path WONT-FIX (D59 BeScout-Character-Spec, kein FPL-Klon)
 - 78516af1 fix(smoke): Step-4 Robustness — Tab-Fallback + 25s Buffer (Issue #25 Master-Tracker)
 - 0db320f2 chore(handoff): Stop-Hook Auto-Block-Refresh post-PR36-Merge

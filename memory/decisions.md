@@ -2555,6 +2555,67 @@ Cross-cutting: Eine Code-Stelle die früher als „Bridge" / „Stub" / „Place
 
 ---
 
+## D60 — PROCESS: Wave-Verify-Standard — Re-Switch-Flow Pflicht bei State-Switch-Features
+
+**Datum:** 2026-04-29
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+Bei jedem Live-Verify eines Wave/Slice der **State-Switch** implementiert (Liga, Country, Tab, User, Locale, Theme), MUSS der Verify-Flow **alle 3 Phasen** testen:
+
+1. **Fresh-Init:** Page-Load mit cleared state → Default picks korrekt aus Cascade/Source-of-Truth
+2. **A→B Switch:** State von A zu B wechseln → atomar, kein Stuck-on-A-State
+3. **B→A Re-Switch:** Zurück von B zu A → atomar, kein Stuck-on-B-State (deckt prevRef-Bugs + Cache-Race)
+
+Phase 3 ist der **kritischste** Test. Pre-Slice-254 Live-Verify-Standards testeten nur Phase 1+2 (fresh + forward-switch) — Phase 3 deckte Slice 254 v1's Bug auf (init-Effect freezt State bei Re-Switch via stale-cached source-of-truth).
+
+### Begründung
+
+Anil-Direktive 2026-04-29 nach Slice 254 v1 Live-Verify gefunden den Re-Switch-Bug:
+> "danach bauen wir unseren workflow so um, dass uns das nicht mehr passiert"
+
+Slice 254 v1 hatte alle 3 Frontend-Heals deployed, lokale tsc + vitest grün, Reviewer CONCERNS-mergeable. **Erst Live-Verify Re-Switch-Flow** entdeckte den bleibenden Race-Condition (Init-Effect picks stale-cached activeGw → freezt selectedGameweek). Wenn Live-Verify nur fresh-Init + A→B getestet hätte, wäre v1 als done geloggt worden — Anil hätte den Bug 2-3 Tage später bei Beta-Tester-Feedback wiederentdeckt.
+
+Strukturell: State-Switch-Features haben drei verschiedene Code-Pfade die separat brechen können:
+- **Init-Pfad** (mount mit Default) — Cascade-Logic
+- **Forward-Switch-Pfad** (A→B) — invalidate-Logic, cache-refetch
+- **Re-Switch-Pfad** (B→A) — prevRef-Tracking, Reset-Logic, Cache-Race
+
+Tests die nur 2 Pfade decken **lassen den 3. unbedeckt** und bugs schlummern bis User-Feedback.
+
+### Auswirkungen
+
+- **Code:** `worklog/specs/_TEMPLATE.md` — Sektion "Self-Verification Commands" erweitert um Re-Switch-Pflicht-Schritt für State-Switch-Features.
+- **Code:** keine direkten Code-Aenderungen — Standard ist Process-Layer.
+- **Prozess (Verify-Pflicht):** zukünftige `worklog/proofs/<slice>-postdeploy-verify.md` MUSS bei State-Switch-Features die 3 Phasen explizit auflisten + Result pro Phase.
+- **Reviewer-Agent-Briefing:** zusätzliche Pflicht-Frage "Wurde Re-Switch-Flow im Live-Verify getestet?" — wenn nein → CONCERNS bis nachgeholt.
+- **Hook-Kandidat (Slice 256+):** `ship-verify-completeness-gate.sh` warnt wenn `worklog/proofs/<slice>-postdeploy-verify.md` für State-Switch-Slice nicht alle 3 Phasen dokumentiert.
+- **Team:** Anil (CEO-Direktive). CTO setzt um in Slice 254 Live-Verify nachträglich (heute geschehen) + alle zukünftigen Wave-Verifies.
+
+### Alternativen erwogen
+
+- **Nur Forward-Switch (A→B) testen:** Verworfen — Re-Switch-Bugs sind häufiger als Forward-Switch-Bugs (state-cleanup-Pfad ist komplexer als state-init-Pfad). Slice 254 ist genau dieses Pattern.
+- **Unit-Tests statt Live-Verify-Standard:** Verworfen — Race-Conditions zwischen React-Query-Cache + Effect-Order sind in JSDOM-Tests schwer reproduzierbar. Live-Browser hat reale Network-Latency die den Race triggert. Vitest grün ≠ Browser grün.
+- **Optional als "Best-Practice":** Verworfen — pre-Slice-254 war Re-Switch-Test bereits "Best-Practice" aber nicht enforced. Pflicht-Standard schließt die Lücke.
+
+### Re-Visit-Trigger
+
+Wenn nach 5 State-Switch-Slices unter D60 KEINEN Re-Switch-Bug aufdeckt: Standard kann auf "starkes Indiz" reduziert werden. Bis dahin Pflicht.
+
+### Pattern-Familie
+
+- **D43** Type-Truth-Drift („Existenz ≠ Verwendung" Type-Achse)
+- **D46** Service-Duplicate / Orphan-Component („Existenz ≠ Verwendung" Component-Achse)
+- **D54** Build-without-Wire („Existenz ≠ Verwendung" Tool/Hook-Achse)
+- **D58** Wave-Bridge-Cleanup („Existenz ≠ Verwendung" Time-Axis innerhalb Multi-Wave-Slice)
+- **D60** Wave-Verify-Re-Switch-Pflicht („Verify-Vollstaendigkeit" Process-Achse)
+
+Cross-cutting: Wenn ein Test/Verify nicht alle Code-Pfade deckt, kann der ungetestete Pfad ohne Detection driften. D60 schliesst diese Lücke explizit für State-Switch-Pfade.
+
+---
+
 ## D59 — PRODUCT: BeScout-Character-Spezifikation, kein FPL-Klon
 
 **Datum:** 2026-04-29

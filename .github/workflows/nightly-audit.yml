@@ -166,6 +166,25 @@ jobs:
           tail -30 /tmp/wiring.log >> $GITHUB_STEP_SUMMARY
           exit $EXIT
 
+      - name: Audit cron-health (Slice 255 — Cron-Pipeline-Reliability)
+        id: cron_health
+        shell: bash
+        continue-on-error: true
+        env:
+          # Slice 255 Heal (Reviewer F-3, P2) — Secret-Name harmonisiert mit
+          # rpc-security-step (line 118): NEXT_PUBLIC_SUPABASE_URL als GHA-secret.
+          # Pre-Heal: secrets.SUPABASE_URL → silent-skip wenn Secret nicht registered.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          pnpm run audit:cron-health 2>&1 | tee /tmp/cron-health.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:cron-health (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/cron-health.log >> $GITHUB_STEP_SUMMARY
+          # WARN-only — cron-stale ist Anil-Action, nicht Code-Fix. Auto-Issue
+          # via "Detect new audit-reports"-Step pickt es up wenn HIGH-finding.
+          exit 0
+
       - name: Findings → Slices Pipeline (Slice 214/234)
         id: findings_pipeline
         shell: bash

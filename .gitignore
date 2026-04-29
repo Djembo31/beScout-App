@@ -138,3 +138,5 @@ walkthrough/
 
 # Scraper debug HTML dumps (temporary, not committed)
 tmp/
+
+.env.vercel-prod-fresh
