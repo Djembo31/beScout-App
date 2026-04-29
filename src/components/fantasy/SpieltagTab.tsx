@@ -2,17 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Trophy, Calendar, Play, ArrowRight, ChevronDown, Loader2, Target,
+  Trophy, Calendar, Play, ArrowRight, Loader2, Target,
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, Dialog } from '@/components/ui';
-import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { useTranslations } from 'next-intl';
 import { getFixturesByGameweek } from '@/lib/services/fixtures';
 import { simulateGameweekFlow, importProgressiveStats, finalizeGameweek } from '@/lib/services/scoring';
 import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
-import { getActiveLeagues } from '@/lib/leagues';
-import type { Fixture, League } from '@/types';
+import type { Fixture } from '@/types';
 import type { FantasyEvent, FantasyTab } from './types';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
@@ -20,21 +18,6 @@ import { TopspielCard, pickTopspiel } from './spieltag';
 import { SpieltagPulse } from './spieltag/SpieltagPulse';
 import { SpieltagBrowser } from './spieltag/SpieltagBrowser';
 import { FixtureDetailModal } from './spieltag/FixtureDetailModal';
-
-// Static fallback for the edge case where the league cache isn't ready yet.
-// Once initLeagueCache() populates, getActiveLeagues() replaces this.
-const LEAGUE_FALLBACK: League = {
-  id: 'fallback-tff1',
-  name: 'TFF 1. Lig',
-  short: 'TFF',
-  country: 'TR',
-  season: '2025/26',
-  logoUrl: null,
-  apiFootballId: 204,
-  activeGameweek: 1,
-  maxGameweeks: 34,
-  isActive: true,
-};
 
 // ============================================
 // SpieltagTab (3-Zone Layout)
@@ -68,13 +51,6 @@ export function SpieltagTab({
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
   const [apiAvailable, setApiAvailable] = useState(false);
-  // Load leagues from cache (populated in root layout). Fallback keeps the
-  // selector from rendering empty on first paint.
-  const availableLeagues = useMemo<League[]>(() => {
-    const cached = getActiveLeagues();
-    return cached.length > 0 ? cached : [LEAGUE_FALLBACK];
-  }, []);
-  const [selectedLeagueId, setSelectedLeagueId] = useState<string>(availableLeagues[0].id);
 
   // Load fixtures for current GW (league-scoped when leagueId is provided)
   const loadFixtures = useCallback(async (gw: number, lgId?: string | null) => {
@@ -186,31 +162,12 @@ export function SpieltagTab({
     setSimulating(false);
   };
 
-  const activeLeague = availableLeagues.find(l => l.id === selectedLeagueId) ?? availableLeagues[0];
-  const hasMultipleLeagues = availableLeagues.length > 1;
-
   return (
     <div className="space-y-4">
-      {/* ADMIN ROW: League selector + action buttons */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="relative">
-          <button
-            className="flex items-center gap-2 px-3 py-2 min-h-[40px] bg-surface-subtle border border-white/[0.08] rounded-xl text-sm font-semibold hover:bg-white/[0.06] transition-colors"
-            aria-label={activeLeague.name}
-            disabled={!hasMultipleLeagues}
-          >
-            <LeagueBadge
-              logoUrl={activeLeague.logoUrl}
-              name={activeLeague.name}
-              short={activeLeague.short}
-              size="sm"
-            />
-            {hasMultipleLeagues && <ChevronDown aria-hidden="true" className="size-3.5 text-white/30" />}
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isAdmin && isCurrentGw && apiAvailable && gwEvents.length > 0 && !allEnded && (
+      {/* ADMIN ACTION ROW (Slice 251 Wave 6 — League-Selector entfernt, SSOT in LeagueScopeHeader) */}
+      {isAdmin && (
+        <div className="flex items-center justify-end gap-2">
+          {isCurrentGw && apiAvailable && gwEvents.length > 0 && !allEnded && (
             <button
               onClick={handleImport}
               disabled={importing}
@@ -220,7 +177,7 @@ export function SpieltagTab({
               {ts('importBtn', { count: finishedCount, total: fixtures.length })}
             </button>
           )}
-          {isAdmin && isCurrentGw && allFixturesFinished && !allEnded && gwEvents.length > 0 && (
+          {isCurrentGw && allFixturesFinished && !allEnded && gwEvents.length > 0 && (
             <button
               onClick={() => setShowFinalizeConfirm(true)}
               disabled={simulating}
@@ -230,7 +187,7 @@ export function SpieltagTab({
               {ts('finalizeBtn')}
             </button>
           )}
-          {isAdmin && isCurrentGw && !apiAvailable && gwStatus === 'open' && gwEvents.length > 0 && (
+          {isCurrentGw && !apiAvailable && gwStatus === 'open' && gwEvents.length > 0 && (
             <button
               onClick={() => setShowConfirm(true)}
               disabled={simulating}
@@ -240,11 +197,11 @@ export function SpieltagTab({
               {ts('startSimulation')}
             </button>
           )}
-          {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
+          {gwStatus === 'simulated' && isCurrentGw && (
             <span className="text-xs text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded-lg">{ts('gwSimulatedLabel')}</span>
           )}
         </div>
-      </div>
+      )}
 
       {/* Import Result Toast */}
       {importResult && (

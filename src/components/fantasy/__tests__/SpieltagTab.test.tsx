@@ -248,15 +248,8 @@ describe('SpieltagTab', () => {
     });
   });
 
-  // ------------------------------------------
-  // 6. League label "TFF 1. Lig"
-  // ------------------------------------------
-  it('shows league label "TFF 1. Lig"', () => {
-    mockGetFixturesByGameweek.mockReturnValue(new Promise(() => {}));
-    renderWithProviders(<SpieltagTab {...DEFAULT_PROPS} />);
-
-    expect(screen.getByText('TFF 1. Lig')).toBeInTheDocument();
-  });
+  // 6. Removed in Slice 252 Wave 6 — League-Selector-Badge wurde entfernt,
+  //    Liga-Anzeige liegt jetzt im globalen LeagueScopeHeader (eigene Test-File).
 
   // ------------------------------------------
   // 7. Prediction CTA visible when fixtures exist and gw not simulated

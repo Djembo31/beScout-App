@@ -1,11 +1,9 @@
 /**
  * League Scope Store — global SSOT for the active league filter across pages.
  *
- * Slice 251 Wave 3 Track C — replaces:
- *   - useFantasyStore.fantasyCountry / fantasyLeague
- *   - useMarketStore.selectedCountry / selectedLeague
- *   - useManagerStore.kaderCountry / kaderLeague
- *   - lokales useState in /rankings + /clubs
+ * Slice 251 Wave 3 Track C established this as SSOT, Wave 6 (Slice 252)
+ * removed the legacy duplicates from fantasyStore / marketStore / managerStore
+ * + lokales useState in /rankings + /clubs.
  *
  * Hydration cascade (1→2→3):
  *   1. profile.favorite_club_id → getClub(...).league_id
