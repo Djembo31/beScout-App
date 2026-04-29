@@ -10,6 +10,10 @@ proof: —
 review: —
 ```
 
+## Slice 252 Wave 6 Cleanup PR-PENDING: Branch `slice/251-wave-6-cleanup` Commit 807a993a (8 files +17/-99) push gh PR #36 https://github.com/Djembo31/beScout-App/pull/36. Wartet auf Anil-Review/Merge. Voraussetzung Wave 3 Live-Verify ALL-PASS (7/7) im Commit 7264dc25 dokumentiert. tsc clean + vitest 3084/3084 + pre-commit/pre-push alle grün.
+
+## Slice 251 Wave 3 Live-Verify ALL-PASS: 7/7 manuell verifiziert via Playwright MCP + Supabase MCP gegen bescout.net (Routine `wave-3-live-verify` ist gefeuert aber kein Output persistiert — Recovery durch Primary-Claude). Verify-Report worklog/proofs/251-wave-3-postdeploy-verify.md + 2 Mobile-Screenshots committed in 7264dc25.
+
 ## Slice 251 Wave 3 Track C KOMPLETT: useLeagueScope-Store + LeagueScopeHeader + 6+2-Page-Migration + Cascade-Caller + R-02-Heal + F-01/F-02-Heal post-Reviewer-REWORK. 22/22 Tests grün, tsc clean. Commit 687bcb91 (18 files +1742/-152) auf main. Wave-2-Drift sauber gerebased — SpieltagTab leagueId-prop von activeClub-bridge auf leagueScopeId umgestellt. Manual-Verify post-Deploy: 7 Schritte in worklog/reviews/251-wave-3-review.md.
 
 ## Slice 251 Wave 2 KOMPLETT: Track B Service-Layer + Track F Wildcards Composite-PK + 6 P0/P1 Heal applied. 49/49 Tests grün, tsc clean. 4 Commits in main (7563761b → 46df861d → 91e60a44 → 62bbcb29). Anil-Action: 3 Migrations applien (120000 + 120500 + 121000) vor Wave 3. Wave 3 (Track C — useLeagueScope-Store + 5-Page-Migration) in fresh session.

@@ -25,6 +25,58 @@
 
 ---
 
+## Session 2026-04-29 12:00-14:50 UTC — Wave 3 Live-Verify ALL-PASS + Slice 252 Wave 6 PR #36
+
+**Stand 2026-04-29 14:50 UTC:** Wave 3 Live-Verify komplett, Wave 6 Cleanup-PR offen.
+
+### Was diese Session ablief
+1. Routine `wave-3-live-verify` (trig_01GpLLssvCemqUQCbEkLa5KC) feuerte 00:36 UTC, lief 9 min, ended `run_once_fired` — **hat aber kein Output persistiert** (kein Verify-File, kein PR, kein Issue mit `wave-3-postdeploy-fail`-Label). Re-Trigger via `RemoteTrigger run` API zeigte Trigger-Config unverändert.
+2. **Manual Live-Verify durch Primary-Claude** via Playwright MCP + Supabase MCP gegen `bescout.net` (HEAD `e1d17f94`). Alle 7 V-Steps PASS. Report `worklog/proofs/251-wave-3-postdeploy-verify.md` + 2 Mobile-Screenshots committed in `7264dc25`.
+3. **Slice 252 Wave 6 Cleanup** (chore, post-Verify-Action laut Routine-Briefing): Branch `slice/251-wave-6-cleanup` mit 8 Files (+17/-99). PR #36 offen.
+
+### Verify-Results (alle PASS)
+- **V-1** Cascade Stage 1: TFF1 set per favorite_club, no Hydration-Mismatch
+- **V-2** Atomic Liga-Switch: BL→TFF1→BL atomar, Network-Refetch je Switch
+- **V-3** Async-Liga-Cycle: BL=GW30, TFF1=GW28 (natürliche DB-Daten), kein MIN-Aggregation-Drift
+- **V-4** Mobile 393px: 6 Country-Pills, min-h 44px, kein viewport overflow
+- **V-5** Cross-Page-Persistence: localStorage v1 hält über /market /fantasy /clubs /rankings
+- **V-6** anon→login Edge: Cascade-Caller R-02 setzt Liga sofort post-Login
+- **V-7** Single-League-Auto-Select: ES → La Liga atomar applied
+
+### Slice 252 Wave 6 PR #36 — was er deletet
+- `fantasyStore.fantasyCountry/.fantasyLeague` + Setter
+- `marketStore.selectedCountry/.selectedLeague` + Setter (clubVerkaufLeague KEEPS)
+- `managerStore.kaderCountry/.kaderLeague` + Setter
+- `SpieltagTab.tsx`: LEAGUE_FALLBACK + availableLeagues/selectedLeagueId/activeLeague/hasMultipleLeagues + dead Liga-Selector-Button + ADMIN-Row-Restructure
+- `SpieltagTab.test.tsx`: "TFF 1. Lig" Badge-Test entfernt
+- `leagueScopeStore.ts` JSDoc: References zu deleted Symbols neu formuliert
+
+### tsc + vitest (alle grün)
+- `npx tsc --noEmit` clean
+- `CI=true pnpm exec vitest run` 3084/3084 + 1 skip + 13 todo
+- Pre-commit-Hooks (audit:type-truth/stale/wiring): GREEN
+- Pre-push-Hook (full vitest 4:25 min): GREEN
+
+### Anil-Action-Items
+1. **PR #36 reviewen + mergen:** https://github.com/Djembo31/beScout-App/pull/36 — saubere chore-Commit, alle Tests grün
+2. **Post-Merge:** Smoke gegen bescout.net (Issue #25 Master-Tracker-Klasse separat)
+3. **Routine-Reliability untersuchen:** `wave-3-live-verify` hat output-loss, vor zukünftigen Routine-Trigger-Designs CTO-Backlog für Diagnose
+
+### CTO-Backlog post-Slice-252
+- **Routine-Output-Loss Investigation:** warum `wave-3-live-verify` (Run #1 + Run #2 retrigger) keinen Push/PR/Issue hinterließ — vermutlich kein Push-Permission oder mid-execution-Abbruch ohne Output. Wichtig für zukünftige Auto-Verify-Routines.
+- **Backlog vom Wave 3 Live-Verify Bonus-Findings:**
+  1. AuthProvider-Slow-Warning post-Login (pre-existing, kein Wave-3-Bug)
+  2. /fantasy `eventCountries` filtert dynamisch — UX-Counterintuitiv für End-User wenn Liga-Scope = TFF1 (DE-Bundesliga unsichtbar). Backlog UX-NEU für Wave 4+.
+
+### Bei `/clear` — Resume-Pfad
+1. `worklog/active.md` (idle, **HEAD nach Stash-Drop noch sauber**)
+2. `git log --oneline -5` zeigt: 7264dc25 (Verify-Proofs) + 2886d69a (Stop-Hook chore) + e1d17f94 (D58) + ...
+3. `gh pr view 36` für Slice 252 Status
+4. Wenn Anil "merge PR 36" sagt: `gh pr merge 36 --squash --auto` ODER manuell mit `gh pr merge 36 --squash`
+5. Nach Merge: localStorage `bescout-league-scope-v1` muss live weiter funktionieren (es ist nur DELETE von toten Stores, keine Behavior-Changes)
+
+---
+
 ## Slice 251 Spieltag Liga-Scope-Reform — Wave 3 LIVE (Session-Ende 2026-04-29 ~01:36)
 
 **Stand:** Wave 1 + Wave 2 + Wave 3 alle LIVE in main. HEAD `5cb28200`. Manual-Verify post-Deploy ist scheduled in **1 Stunde** als remote-agent.
