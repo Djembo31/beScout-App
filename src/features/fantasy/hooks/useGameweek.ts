@@ -20,17 +20,11 @@ export function useGameweek(gwEvents: FantasyEvent[] = [], leagueId: string | nu
   const queryClient = useQueryClient();
   const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek(leagueId);
 
-  // Sync selectedGameweek with league activeGw on first load
-  useEffect(() => {
-    if (activeGw && activeGw > 0 && selectedGameweek === null) {
-      setSelectedGameweek(activeGw);
-    }
-  }, [activeGw, selectedGameweek, setSelectedGameweek]);
-
-  // Slice 254 Heal: reset selectedGameweek when league changes so the next render
-  // picks up the new league's active_gameweek via the init-effect above. Without
-  // this, switching from league A (selectedGameweek=28) to league B keeps GW=28
-  // even though league B's active_gw is 30 — fantasy UI stays stuck on stale GW.
+  // Slice 254 Heal v2 — reset selectedGameweek when league changes so the next
+  // render picks up the new league's active_gameweek directly. Without this,
+  // switching from league A (selectedGameweek=A.activeGw) to league B keeps the
+  // pinned A-value even though B has a different active_gw — fantasy UI stays
+  // stuck on stale GW.
   const prevLeagueIdRef = useRef<string | null>(leagueId);
   useEffect(() => {
     if (prevLeagueIdRef.current !== leagueId) {
@@ -53,6 +47,18 @@ export function useGameweek(gwEvents: FantasyEvent[] = [], leagueId: string | nu
     return () => window.removeEventListener('pageshow', handlePageShow);
   }, [setSelectedGameweek, queryClient]);
 
+  // Slice 254 Heal v2 — currentGw semantics:
+  //   selectedGameweek = MANUAL user-override (set ONLY when user clicks GW-Selector)
+  //   activeGw = league's reality (server-truth, react-query-fetched)
+  //
+  // Pre-Heal had a third source — an init-effect that auto-set
+  // selectedGameweek=activeGw on mount. That froze the value across Liga-Switches
+  // because the init-effect re-fired with a stale cached activeGw before the new
+  // league's refetch settled, leaving selectedGameweek pinned at the prior value.
+  //
+  // Heal v2: removed the init-effect entirely. selectedGameweek now stays null
+  // until user manually picks a GW. Liga-Switch (above) clears manual pick.
+  // currentGw resolution: manual override wins over reality, both fall back to 1.
   const currentGw = selectedGameweek ?? activeGw ?? 1;
 
   // Keep store in sync
