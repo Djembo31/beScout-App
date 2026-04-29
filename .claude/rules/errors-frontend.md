@@ -23,6 +23,121 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - Heuristik: `Modal` + (`isPending|cancelling|selling|buying|submitting`) im gleichen File → nachruesten.
 - Audit: `grep -rn '<Modal' src/components/ | grep -v preventClose`
 
+### Liga/Context-Switch State-Reset via prevRef (Slice 254)
+
+**Bug-Klasse:** Hook hat per-context-Default (z.B. per-Liga `active_gameweek`). User kann Context wechseln (Liga-Switch). State der Context-A's-Default-Wert hält bleibt nach Switch zu Context-B haengen — UI stuck-on-stale.
+
+**Symptom:**
+- Switch von Liga A (activeGw=28) zu Liga B (activeGw=30)
+- UI zeigt weiterhin GW=28 obwohl B's Daten geladen wurden
+- React-Query refetcht korrekt, aber lokaler State `selectedGameweek=28` haengt fest
+
+**Root-Cause:** Init-useEffect setzt `selectedGameweek=activeGw` einmalig bei Mount. Bei Context-Switch laeuft Init-Effect nicht erneut weil Guard `selectedGameweek === null` faelscherlich falsch ist (=28 von vorher). Reset-useEffect ohne Init-Effect-Coordination loest Race aus: Reset setzt null, Init-Effect feuert mit stale-cached-activeGw, freezed wieder.
+
+**Fix-Pattern (Slice 254 v2):** Init-Effect ENTFERNEN. State ist NUR manual-override:
+```ts
+// 1. Reset bei Context-Wechsel
+const prevContextRef = useRef<string | null>(contextId);
+useEffect(() => {
+  if (prevContextRef.current !== contextId) {
+    prevContextRef.current = contextId;
+    setManualOverride(null);
+  }
+}, [contextId, setManualOverride]);
+
+// 2. currentValue: manual-override winning, sonst context-default
+const currentValue = manualOverride ?? contextDefault ?? fallback;
+```
+
+**KEIN init-useEffect** der `setManualOverride(contextDefault)` aufruft — der erzeugt den Pin-Effekt.
+
+**Anti-Pattern (verboten):**
+```ts
+// Setzt manualOverride auf contextDefault → freezt Wert ueber Context-Wechsel
+useEffect(() => {
+  if (contextDefault && manualOverride === null) {
+    setManualOverride(contextDefault);
+  }
+}, [contextDefault, manualOverride, setManualOverride]);
+```
+
+**Reference:** `src/features/fantasy/hooks/useGameweek.ts` Slice 254 Heal-v2.
+
+### Cache-Invalidation: Root-Prefix vs enumerated Keys (Slice 254)
+
+**Bug-Klasse:** Store oder Hook invalidet React-Query-Keys mit enumerated-Liste. Neuer Hook fuer dieselbe Domain wird hinzugefuegt, aber NICHT in der enumerated-Liste registriert. → silent stale-cache-Drift.
+
+**Beispiel:**
+```ts
+// Pre-Slice-254 leagueScopeStore — 5 enumerated Sub-Keys
+queryClient.invalidateQueries({ queryKey: ['events', 'leagueGw'] });
+queryClient.invalidateQueries({ queryKey: ['events', 'leagueMaxGw'] });
+queryClient.invalidateQueries({ queryKey: ['events', 'wildcardBalance'] });
+// ... aber qk.events.all (=['events','list']) UNGEFLAGGED
+// → Liga-Switch invalidiert nicht den primaeren Events-Hook
+```
+
+**Fix-Pattern: Root-Prefix-Match.** React-Query macht prefix-match — `queryKey: ['events']` invalidiert `['events', ...]` und alle children:
+```ts
+// Slice 254 Heal — robust gegen "neuer Hook unbeachtet"
+await Promise.all([
+  queryClient.invalidateQueries({ queryKey: ['events'] }),
+  queryClient.invalidateQueries({ queryKey: ['fantasy'] }),
+]);
+```
+
+**Tradeoff:** Root-Prefix invalidet auch nicht-context-aware Sub-Keys (z.B. `events.activeGw(clubId)` bei Liga-Switch). 5-10 unnoetige Refetches pro Switch. Dokumentieren als "broader-but-correct" — bei P95-Latency-Anstieg in Beta zurueck zu enumerated mit primaer-Hook ergaenzt.
+
+**Wann Root-Prefix wahlen:**
+- Domain-weiter State-Change (Liga-Switch, User-Switch, Locale-Switch)
+- "Alles X-aware muss refetchen wenn X aendert" Mental-Model
+- Drift-Risk hoch (mehrere Hooks, viele Konsumenten)
+
+**Wann enumerated wahlen:**
+- Sehr-spezifische State-Updates (z.B. einzelnes Feld)
+- Performance-kritische Pfade (Latency-budget knapp)
+- Konsumenten-Liste stabil und ueberschaubar
+
+**Reference:** `src/features/shared/store/leagueScopeStore.ts` Slice 254 Heal.
+
+### Filter-as-audience-choice vs Filter-as-result-filter (Slice 254)
+
+**Bug-Klasse:** UI-Filter-Komponente ist gleichzeitig **Discoverability-Mechanism** (User soll wissen, dass Optionen X/Y/Z existieren) UND **Result-Filter** (Filter aus dem Result-Set abgeleitet). Catch-22 entsteht: bei Result-Set-leer ist Filter unsichtbar → User kann nicht switchen.
+
+**Beispiel (FantasyContent.tsx pre-Slice-254):**
+```ts
+// FALSCH — Catch-22
+const eventCountries = useMemo(() => {
+  const eventCountryCodes = new Set<string>();
+  for (const e of gwEvents) {
+    if (e.clubId) eventCountryCodes.add(getClub(e.clubId)?.country);
+  }
+  if (eventCountryCodes.size === 0) return allCountries;
+  return allCountries.filter(c => eventCountryCodes.has(c.code));
+}, [gwEvents]);
+// Wenn aktuelle GW nur TR-Events hat → eventCountries = [TR]
+// CountryBar.tsx hat: `if (countries.length <= 1) return null` → CountryBar UNSICHTBAR
+// User sieht keine Pillen → kann nicht zu BL/ES/EN/IT switchen
+// Catch-22: Filter braucht Audience-Wahl, ist aber von Result abhaengig.
+```
+
+**Fix-Pattern:** Filter-Visibility ist **NIE** vom Result-Set abhaengig. Static-Source (z.B. `getCountries(locale)`) verwenden:
+```ts
+// Slice 254 Heal — Filter ist Audience-Choice
+const eventCountries = useMemo(() => getCountries(locale), [locale]);
+```
+
+**Wann Result-Filter erlaubt:**
+- User hat sich BEREITS innerhalb des Results bewegt (z.B. Position-Filter im Kader → Position-Pillen die der User hat machen Sinn).
+- Filter ist **Verfeinerung**, nicht **primaere Navigation**.
+
+**Wann Audience-Choice pflicht:**
+- Filter ist Top-Level-Navigation (Liga, Country, Sprache, Tab).
+- User muss **wissen** dass Optionen existieren (Discoverability).
+- Mobile-Pflicht: kein Hover-Discovery moeglich.
+
+**Reference:** `src/app/(app)/fantasy/FantasyContent.tsx` Slice 254 Heal.
+
 ### CSS / Tailwind Gotchas
 - `::after` / `::before` mit `position: absolute` → Eltern MUSS `relative`. `overflow: hidden` reicht NICHT als Containing Block.
 - `flex-1` auf Tabs → iPhone overflow → `flex-shrink-0`.

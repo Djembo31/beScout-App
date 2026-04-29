@@ -1,16 +1,16 @@
 # Active Slice
 
 ```
-status: in_progress
-slice: 254
-stage: BUILD
-spec: inline (Deep-Dive-Bewertung in Session-Chat 2026-04-29 — 4 Code-Fixes für Liga-Switch-Atomarität + Filter-Visibility + Stale-Pipeline-Sentinel; Pre-Mortem N/A für 4-File-Heal-Slice)
-impact: inline (FantasyContent.tsx + useGameweek.ts + leagueScopeStore.ts; Konsumenten leagueScopeStore: 6+2 Migrations aus Wave 3, Invalidate-Set-Erweiterung greift alle)
-proof: pending (Live-Verify Re-Switch-Flow gegen bescout.net + tsc + vitest)
-review: pending
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 254 IN PROGRESS: Fantasy-Liga-Switch-Heal — 3 Frontend-Bugs aus Deep-Dive-Bewertung. (1) useGameweek selectedGameweek-Reset bei leagueId-Change, (2) leagueScopeStore invalidate auf root-Prefix `['events']` + `['fantasy']` (qk.events.all war ungeflagged), (3) eventCountries → getCountries(locale) (catch-22 Filter-Logic raus). Stale-Pipeline-Indicator → Slice 255 Health-Monitor. Plus parallel: Vercel-Cron manuell triggern (Pro-Plan jetzt aktiv).
+## Slice 254 KOMPLETT: Fantasy-Liga-Switch-Heal v2 — 3 Frontend-Bugs (Deep-Dive 5-Layer-Kaskade) + Operations-Heal (Cron reanimiert). Live-Verify ALL-PASS Re-Switch-Flow gegen bescout.net post-Deploy + post-Cron-Run. TFF1 GW=38 (war 28), CountryBar 6 Pillen (war 1), Topspiel "Sa 02.05. Kommend" (war "BEENDET"). Reviewer CONCERNS-mergeable. 3 Patterns promoted in errors-frontend.md.
 
 ## Slice 253 KOMPLETT: Money-Path-CEO-Decisions WONT-FIX (D59). 3 ceo_pending → wont_fix per Anil-Direktive "BeScout-Character-Spezifikation, kein FPL-Klon": FANTASY-NEU-1 + F-09 BPS-Bonus + UX-20 MembershipSection Confirm. Doc-only Slice (beta-phase.md + decisions.md D59 + log.md). Beta-Phase-Tech-Block weg, übrig: Anil-Mensch-Action Tester-Liste.
 
