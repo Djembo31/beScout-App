@@ -61,8 +61,18 @@ test.describe('Beta Smoke Suite', () => {
     });
 
     await test.step('4. Player-Detail via Click auf Market-Card', async () => {
+      // Robustness (Slice 252+ heal): default-Tab "Mein Kader" zeigt nur User-Holdings.
+      // Bei Holdings-leer ODER cold-start-Race wartet RPC länger als 5s — switche
+      // auf "Marktplatz"-Tab (öffentliche IPO-Cards, immer vorhanden) als Fallback.
       const playerLink = page.locator('a[href*="/player/"]').first();
-      await expect(playerLink, 'no /player/ link on /market').toBeVisible({ timeout: 15_000 });
+      const earlyVisible = await playerLink.isVisible({ timeout: 5_000 }).catch(() => false);
+      if (!earlyVisible) {
+        const marktTab = page.getByRole('tab', { name: 'Marktplatz', exact: true });
+        if (await marktTab.isVisible({ timeout: 2_000 }).catch(() => false)) {
+          await marktTab.click();
+        }
+      }
+      await expect(playerLink, 'no /player/ link on /market').toBeVisible({ timeout: 25_000 });
       await playerLink.click();
       await page.waitForURL(/\/player\//, { timeout: 15_000 });
       await expect(page.locator('main, [role="main"]')).toBeVisible({ timeout: 15_000 });
