@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 256
-stage: LOG
-spec: worklog/specs/256-stale-pipeline-banner.md
-impact: skipped
-proof: worklog/proofs/256-vitest.txt
-review: worklog/reviews/256-self-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## Slice 256 KOMPLETT: StalePipelineBanner Cron-Health UI-Sentinel. Layer 5 zur Slice-255 4-Layer-Architektur — User-facing-Communication. 3-Layer (Service anon-readable + TanStack-Hook 5min + Banner amber-card mit sessionStorage-Dismiss) auf /fantasy + /market gemounted. 12 NEU-Tests PASS, Full-Suite 3050/3050. Self-Review D35 (Pattern-Wiederholung MissionBanner Slice 161). business.md-konform DE+TR neutral. Hardening-Bundle (F-4 + F-8 + D60-Hook + Reviewer-254-P2#1) → Slice 257.
