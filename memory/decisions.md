@@ -2555,6 +2555,62 @@ Cross-cutting: Eine Code-Stelle die früher als „Bridge" / „Stub" / „Place
 
 ---
 
+## D59 — PRODUCT: BeScout-Character-Spezifikation, kein FPL-Klon
+
+**Datum:** 2026-04-29
+**Status:** ✅ Aktiv
+**Supersedes:** —
+
+### Entscheidung
+
+BeScout baut **eigene Charakter-Spezifikation** — übernimmt nicht selektiv Features/Mechaniken von FPL (Fantasy Premier League), Comunio oder anderen Fantasy-Plattformen, nur weil Top-User dieser Plattformen es erwarten würden. **Wenn ein Audit-Finding Form „auf Plattform X gibt's Y, BeScout sollte das auch tun" hat, ist die Default-Klassifikation WONT-FIX**, nicht „CEO-pending".
+
+Konkret 2026-04-29 entschieden für 3 Money-Path-Pending-Items aus `worklog/audits/2026-04-25/fantasy.md` + `worklog/audits/2026-04-26/aggregate.md`:
+
+| Finding | Direktive | Begründung |
+|---------|-----------|--------|
+| **FANTASY-NEU-1** FPL 60-min-Rule + perfL5-vs-0-15-Mapping | WONT-FIX | BeScout-Score-Engine basiert bewusst auf perfL5 (40-150) statt FPL-direct (0-15). 60-min-Auto-Sub-Rule wird nicht übernommen — BeScout's `v_starter_minutes <= 0` ist eigene Spec. |
+| **F-09** BPS-Bonus-System (FPL Top-3 +3/+2/+1) | WONT-FIX | API-Football's `bonus`-Field bleibt ungenutzt. BeScout's perfL5-Engine ist eigener Wertungs-Mechanismus. |
+| **UX-20** MembershipSection Confirm-Step | WONT-FIX (mit Re-Visit) | Aktuell Platform-Credits-only in Phase 1 = akzeptabel. Re-Visit-Trigger: WENN echte Fiat-Subscription enabled wird. |
+
+### Begründung
+
+Anil-Direktive 2026-04-29:
+> „alles wont fix, wir wollen keinen klon von deren plattform schaffen, sondern bescout character spezifikation durchsetzen auf bauen!"
+
+Strategischer Kontext (siehe `docs/VISION.md` „Kategorie-Innovation" + `business.md` „Asset-Klasse-Positionierung"):
+- BeScout-Asset-Klasse ist Equity-analog auf Spieler-Trajektorie, nicht Casual-Fantasy-Sport. FPL-Mechaniken kommen aus anderer Domain.
+- Domain-Authenticity ist Differenzierung. „Wie FPL aber mit Trading" ist NICHT die Kategorie-Innovation — siehe Asset-Klasse-Doppel-Register (Equity-Wahrheit intern, Utility-Sprache extern).
+- Audit-Findings die BeScout am Vergleich zu Comunio/FPL/Sorare messen sind **Audit-Methodik-Drift** — die Vergleichs-Norm ist falsch.
+
+Dies setzt eine **Default-Direktive für zukünftige Audits**: bei Findings „BeScout fehlt Feature X von Plattform Y" → erste Frage ist „braucht BeScout-Spec das?", nicht „wieviel Aufwand für Implementation?". Wenn Spec es nicht braucht → WONT-FIX, nicht CEO-pending.
+
+### Auswirkungen
+
+- **Code:** keine (3× WONT-FIX, kein Code-Change)
+- **`worklog/beta-phase.md`:** ceo_pending → wont_fix für FANTASY-NEU-1, F-09, UX-20. ceo_pending = leeres Array.
+- **Prozess (Audit-Methodik):** zukünftige Audit-Agents (fantasy-scoring-expert, fm-mechanics-expert, persona-walker) bekommen Briefing-Erweiterung — Findings der Form „auf Plattform X gibt's Y" werden mit „Char-Spec-Check"-Tag versehen. Default-Empfehlung WONT-FIX, außer Char-Spec rechtfertigt explizit.
+- **Team:** Anil (CEO-Direktive). CTO setzt um in Slice 253 + zukünftigen Audits.
+- **Beta-Phase:** ceo_pending = 0 → letzter Tech-Block vor Sign-Off-Re-Trial weg (übrig: Anil-Mensch-Action „3 Tester organisieren").
+
+### Alternativen erwogen
+
+- **Pro Finding einzeln entscheiden:** Verworfen — strategische Direktive ist holistisch, nicht per-Finding. Default-Verschiebung verhindert wiederkehrende „auf Plattform X gibt's Y"-Audit-Drift in zukünftigen Phasen.
+- **DEFER post-Beta für FANTASY-NEU-1 + F-09:** Verworfen — DEFER hieße „später entscheiden", aber Spec-Decision ist „nicht-übernehmen, fertig". Klarheit > Optionalität.
+- **Tooltip-Erklärung „BeScout ist kein FPL-Klon" im UI:** Verworfen — Anil's Begründung „durchsetzen + aufbauen" implizit: nicht über Vergleich erklären, sondern eigene Kategorie etablieren.
+
+### Re-Visit-Trigger
+
+- **FANTASY-NEU-1 / F-09:** wenn Beta mit ≥20 echten Testern signifikante User-Confusion-Friction-Signale zeigt („Warum sind Scores 40-150 statt 0-15?", „Wo sind die Top-3-Bonus-Punkte?") — dann **Spec-Re-Eval**, nicht Implementation-Re-Eval. Spec entscheidet ob übernommen wird.
+- **UX-20:** wenn echte Fiat-Subscription enabled wird (Phase 3+ Licensing) → ConfirmDialog pflichtig nachholen analog BuyConfirmModal-Pattern.
+
+### Pattern-Familie
+
+- **D59** ist erste explizite **PRODUCT**-Direktive zur Char-Spec-vs-Plattform-Klon-Frage. Vorhergehende PRODUCT-Decisions (D1 7-Ligen-Scope, decision_pricing_asset_model, decision_dpc_to_scout_card) waren feature-spezifisch.
+- Komplementär zu `business.md` „Asset-Klasse-Positionierung" + „Erweitertes Verbots-Register" — beide schützen Differenzierung gegen unreflektiertes Mainstream-Mimicking.
+
+---
+
 ## Template für neue Entries
 
 ```markdown

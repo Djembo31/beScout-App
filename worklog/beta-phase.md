@@ -27,14 +27,14 @@ findings_open:
     - FM-RR-2 (Watchlist-Standalone-Page Feature)
     - FM-NEU-3 (Sentiment Reliability-Weighting — post-Beta wenn Skala >20 User; bei N<5 Testern null praktischer Effekt, Service-Erweiterung wäre M-Slice mit 0% Pre-Beta-ROI)
     - ORPHAN-NEU-1 (CommunityValuation orphan production-code — Slice 227 mit @experimental JSDoc markiert + decisions.md D46 erweitert. Wire-Plan-Decision: bei Skala >20 active-scouts auf Player-Detail Community-Tab wiren, sonst Slice 230+ delete)
-  ceo_pending:
-    - FANTASY-NEU-1 (FPL 60min-Rule, Money-Path Scoring-Change)
-    - F-09 BPS-Bonus (pre-existing CEO-pending)
-    - UX 20 MembershipSection Confirm (pre-existing CEO-pending)
+  ceo_pending: []   # Slice 253 (2026-04-29): alle 3 → wont-fix per Anil-Direktive D59 "BeScout-Character-Spezifikation, kein FPL-Klon"
   wont_fix:
     - FM-RR-1 (Slice 208 Spec-Decision: Sparkline ist Glance-Indicator, kein Detail-Tool)
     - BRAND-NEU-1 (pre-existing pre-Slice-198, audit-stale)
     - FM-NEU-5 (Empty-State-Scout-CTA in BuyConfirmModal — User-Intent-Misalignment: Buy-Step ist nicht Scout-CTA-Ort, Player-Detail hat submitValuation-Flow bereits)
+    - FANTASY-NEU-1 (Slice 253 / D59 — FPL 60min-Rule + perfL5-vs-0-15-Mapping bewusst NICHT übernommen. BeScout-Character-Spec, kein FPL-Klon. Top-FPL-Manager-Erwartung wird via Tooltip-Erklärung "BeScout-Score-Engine basiert auf perfL5" im Backlog-Tracker geparkt — wenn User-Confusion in Beta echte Friction zeigt, Spec-Decision re-evaluieren)
+    - F-09 BPS-Bonus (Slice 253 / D59 — FPL Top-3-Bonus-System nicht übernommen. BeScout's perfL5-Engine ist eigener Wertungs-Mechanismus. API-Football's bonus-Field bleibt ungenutzt)
+    - UX 20 MembershipSection Confirm (Slice 253 / D59 — strategische Entscheidung im Kontext der Character-Spec-Direktive. Re-Visit-Trigger: WENN echte Fiat-Subscription enabled wird, Confirm-Step pflichtig nachholen analog BuyConfirmModal-Pattern. Aktuell Platform-Credits-only in Phase 1 = akzeptabel)
   stale:
     - TR-NEU-1 (event_winner-Keys existieren bereits in DE+TR)
     - FM-RR-3 (Trending-Pills Punch-List-Drift, audit-Annahme falsch)

@@ -9,6 +9,21 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 253 | 2026-04-29 | Money-Path-CEO-Decisions WONT-FIX (D59 BeScout-Character-Spezifikation, kein FPL-Klon)
+
+- Stage-Chain: SPEC inline (3-Decision-Triage in Chat) → BUILD = doc-only (3 wont-fix Marker + D59 Decision-Entry) → PROVE = Anil-Direktive zitiert + dokumentiert → LOG
+- Slice-Type: Doc/Decision (kein Code-Change)
+- Anil-Direktive: „alles wont fix, wir wollen keinen klon von deren plattform schaffen, sondern bescout character spezifikation durchsetzen auf bauen!"
+- 3 Findings WONT-FIX:
+  - **FANTASY-NEU-1** (FPL 60-min-Auto-Sub-Rule + perfL5-vs-0-15-Mapping) — BeScout-Score-Engine ist eigene Spec, nicht FPL-Klon
+  - **F-09** BPS-Bonus-System (FPL Top-3 +3/+2/+1) — BeScout's perfL5-Engine hat eigenen Wertungs-Mechanismus
+  - **UX-20** MembershipSection Confirm-Step — Phase-1 Platform-Credits-only akzeptabel; Re-Visit wenn Fiat-Subscription enabled
+- Beta-Phase-Impact: ceo_pending 3→0, wont_fix 3→6. Letzter Tech-Block vor Sign-Off-Re-Trial weg (übrig: Anil-Mensch-Action Tester-Liste).
+- DISTILL: D59 PRODUCT-Decision in `memory/decisions.md` — etabliert Default-Direktive für zukünftige Audit-Findings: bei „auf Plattform X gibt's Y, BeScout sollte das auch tun" → erste Frage „braucht Char-Spec das?" nicht „wieviel Aufwand?". Pattern-Ergänzung zu Asset-Klasse-Positionierung in `business.md`.
+- Files: `worklog/beta-phase.md` (ceo_pending → wont_fix transitionen) + `memory/decisions.md` (D59) + `worklog/log.md` (dieser Eintrag) + `worklog/active.md`
+- Self-Review (D35): Pattern-Wiederholung Slice 222 (P2-Bundle-Reklassifizierung — gleiche Operation, anderer Scope). Kein Reviewer-Agent nötig.
+- Notes: keine Code-Änderungen, kein tsc/vitest-Run nötig (doc-only). DISTILL als Session-End-Protokoll bereits angewendet (D59-Entry).
+
 ## 251 Wave 3 | 2026-04-29 | Spieltag Liga-Scope-Reform — Track C: useLeagueScope-Store + LeagueScopeHeader + 6+2-Page-Migration + Cascade-Caller
 
 - Stage-Chain: SPEC ✓ (in Wave 1) → IMPACT ✓ (Annex 2026-04-29 mit Wave-3-Probe-Lücke geschlossen für FantasyContent + rankings/page + clubs/page) → BUILD (Worktree, frontend-Agent + R-02-Heal Cascade-Caller) → REVIEW (Cold-Context reviewer-Agent: REWORK Verdict, 2 P0 + 4 P1 + 7 P2 + 10 PASS) → HEAL (CTO self-heal F-01 + F-02 in FantasyContent.tsx) → REBASE auf main HEAD f867cd44 (1 Konflikt in active.md + auto-merge FantasyContent + post-Rebase SpieltagTab leagueId-prop von activeClub auf leagueScopeId) → PROVE → LOG

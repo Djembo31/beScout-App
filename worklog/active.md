@@ -10,7 +10,9 @@ proof: —
 review: —
 ```
 
-## Slice 252 Wave 6 Cleanup PR-PENDING: Branch `slice/251-wave-6-cleanup` Commit 807a993a (8 files +17/-99) push gh PR #36 https://github.com/Djembo31/beScout-App/pull/36. Wartet auf Anil-Review/Merge. Voraussetzung Wave 3 Live-Verify ALL-PASS (7/7) im Commit 7264dc25 dokumentiert. tsc clean + vitest 3084/3084 + pre-commit/pre-push alle grün.
+## Slice 253 KOMPLETT: Money-Path-CEO-Decisions WONT-FIX (D59). 3 ceo_pending → wont_fix per Anil-Direktive "BeScout-Character-Spezifikation, kein FPL-Klon": FANTASY-NEU-1 + F-09 BPS-Bonus + UX-20 MembershipSection Confirm. Doc-only Slice (beta-phase.md + decisions.md D59 + log.md). Beta-Phase-Tech-Block weg, übrig: Anil-Mensch-Action Tester-Liste.
+
+## Slice 252 Wave 6 Cleanup MERGED: PR #36 squash-merged in main als b8179270. 8 Files +17/-99. Voraussetzung Wave 3 Live-Verify ALL-PASS (7/7) erfüllt. Smoke-Suite seit Wave 3 LIVE 5 consecutive SUCCESS — Master-Tracker Issue #25 closed.
 
 ## Slice 251 Wave 3 Live-Verify ALL-PASS: 7/7 manuell verifiziert via Playwright MCP + Supabase MCP gegen bescout.net (Routine `wave-3-live-verify` ist gefeuert aber kein Output persistiert — Recovery durch Primary-Claude). Verify-Report worklog/proofs/251-wave-3-postdeploy-verify.md + 2 Mobile-Screenshots committed in 7264dc25.
 
