@@ -1,25 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 01:46)
+# Session Handoff — Auto (2026-04-29 14:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
- M worklog/audits/audit-stale-2026-04-28.md
- M worklog/audits/type-truth-2026-04-28.md
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-04-29.md
+ M worklog/audits/type-truth-2026-04-29.md
 ```
 
-## Session Commits: 10
-- e1d17f94 docs(decision): D58 — Wave-Bridge-Cleanup-Pflicht in Multi-Wave-Slices + Session-Handoff Wave 3 LIVE
-- 5cb28200 fix(178f): INV-25 WHITELIST drift — rpc_no_response add + insufficient_wildcards remove
-- 66842611 fix(251): Wave 3 Test-Mock-Heal — ClubProvider.test.tsx
-- 55f52417 chore(251): Wave 3 PROVE + LOG — active idle + log entry + audit-timestamps
-- 687bcb91 feat(251): Wave 3 Track C — useLeagueScope-Store + Header + 6+2-Page-Migration + Cascade-Caller
-- f867cd44 chore(251): Wave 2 PROVE + LOG — active idle + log entry + proof artifact + Pre-Wave-3-Probe + Reviewer-Output
-- 62bbcb29 feat(251): Wave 2 Track B — Service-Layer Liga-Scope + 5 Tests
-- 91e60a44 fix(251): Track F Reviewer-Heal — 4 P0/P1 + 1 P2 fixes
-- 46df861d docs(251): Track F Pre-Review-Memo + Journal finalized
-- 7563761b feat(251): Wave 2 Track F — user_wildcards Composite-PK per-Liga + RPCs + Service
+## Session Commits: 3
+- d867d1f6 chore(252): active + handoff — Wave 3 Verify ALL-PASS + Slice 252 PR #36 offen
+- 7264dc25 docs(251): Wave 3 Post-Deploy Live-Verify ALL-PASS (7/7)
+- 2886d69a chore(handoff): Stop-Hook Auto-Block-Refresh post-Wave-3-LOG
 
 <!-- auto:handoff-end -->
 
