@@ -1,0 +1,24 @@
+=== Slice 266 Verify-Output ===
+
+--- 1. tsc --noEmit (clean expected) ---
+tsc: PASS (exit 0)
+
+--- 2. vitest TopProgressBar (8/8 expected) ---
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+
+--- 3. Definition-of-Done (UI Slice-Type, workflow.md 3a) ---
+Component-Mount in (app)/layout.tsx:
+5:import { SideNav, TopBar, BottomNav, TopProgressBar } from '@/components/layout';
+89:      <TopProgressBar />
+
+Component-Export in barrel:
+4:export { TopProgressBar } from './TopProgressBar';
+
+--- 4. i18n Coverage DE+TR (Slice 198 Lehre) ---
+messages/de.json:276:    "appLoading": "App lädt...",
+messages/tr.json:276:    "appLoading": "Uygulama yükleniyor...",
+
+--- 5. Animation in @layer utilities (Slice 181 Pattern) ---
+115:@keyframes progress-shimmer {
+130:  .anim-progress-shimmer { animation: progress-shimmer 1.5s ease-in-out infinite; }

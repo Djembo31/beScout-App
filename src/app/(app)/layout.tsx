@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
-import { SideNav, TopBar, BottomNav } from '@/components/layout';
+import { SideNav, TopBar, BottomNav, TopProgressBar } from '@/components/layout';
 import { BackgroundEffects } from '@/components/layout/BackgroundEffects';
 import { AuthGuard } from '@/components/providers/AuthGuard';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -82,6 +82,11 @@ export default function AppLayout({
   return (
     <TourProvider>
       <DemoBanner />
+
+      {/* Slice 266 — Cold-Start UX-Bruecke. Slim 2px gold-Bar oben waehrend
+          kritische Hydration laeuft (Auth/Wallet/Tickets). User sieht
+          "es passiert was" statt zu denken App haengt → Refresh zu druecken. */}
+      <TopProgressBar />
 
       {/* Background Effects — Stadium Atmosphere (memo'd, renders once) */}
       <BackgroundEffects />

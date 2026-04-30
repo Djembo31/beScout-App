@@ -160,6 +160,14 @@ const eventCountries = useMemo(() => getCountries(locale), [locale]);
 - Verify: `grep -oE "data-state=open[^{]{0,80}\\{[^}]{0,80}" .next/static/css/*.css` — sollte 4 Animation-Rules zeigen post-build.
 - Gilt analog fuer `data-[state=closed]:`, `data-[disabled]:`, `aria-[expanded=true]:` etc.
 
+### Tailwind motion-reduce variant nur auf existierende Animation-Utilities (Slice 266)
+
+- `motion-reduce:animation-none` ist **KEINE** valide Tailwind-Utility — Tailwind kennt nur `animate-none`. JIT generiert keine CSS-Rule, die Class wird silent ignored.
+- Symptom (Slice 266 Reviewer-Find): Reduced-Motion-User bekommt globalen `@media (prefers-reduced-motion)` 0.01ms-Kollaps, Animation snapped in End-Position → Element ggf. ausserhalb Container/Viewport. Bar bleibt visuell tot, kein "es laedt"-Indikator.
+- Fix: `motion-reduce:animate-none` (korrekte Tailwind-Utility, 237 Vorkommen im Codebase pre-Slice-266).
+- **Stronger Pattern fuer animation-dependent UIs:** `motion-reduce:hidden` auf den animierten Streifen + zweites Element `hidden motion-reduce:block` als statische Fallback-Surface (siehe `TopProgressBar.tsx`). Verhindert dass das Element existent aber visuell tot ist.
+- Audit: `grep -rn "motion-reduce:animation-none" src/` sollte 0 Treffer haben. Bei `animate-*`-Utility-Verwendung pruefen ob Reduced-Motion-Fallback vorhanden ist (Aria-A11y-Pflicht).
+
 ### Multi-League Props-Propagation (J3 + J4)
 - Neues optional Field auf Type (z.B. `leagueShort?`) → nur 2/8 Render-Call-Sites bedient. TSC/Tests merken nichts (optional = kein Error).
 - Visual-QA im Pilot (1 Liga) uebersieht's, Fehler erst im Multi-League-Betrieb.

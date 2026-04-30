@@ -9,6 +9,20 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 266 | 2026-04-30 | Top-Progress-Bar Cold-Start UX-Brücke
+
+- Stage-Chain: SPEC → IMPACT skipped (neue Component, 0 Konsumenten, kein DB/RPC/Service) → BUILD → REVIEW (reviewer-Agent) → PROVE → LOG
+- Slice-Type: UI · Größe: S · Scope: CTO autonom
+- Trigger: Anil-Beta-Day-3-Quote post-Slice-264 Deploy: *"das funktioniert noch nich ganz, erst nach refresh kommen budget und rest. können wir nicht einen lade balken anzeigen, damit die user sehen was passiert?"* Smoking-Gun #3 (Slice 264) nur teil-gefixt — Cold-Start-Phase ist 5-15s lang ohne globalen Indikator → User refresht weil App scheint tot.
+- Lösung: Slim 2px gold-Gradient-Bar (NProgress-Style), fixed-positioned `top-0 inset-x-0 z-[60]`, sichtbar während `authLoading || (!!user && (profileLoading || walletLoading || ticketsLoading))`. Anti-Flicker via 200ms fade-out useEffect mit `clearTimeout` cleanup. Reduced-Motion: Streifen versteckt + statische gold/40 Surface als Fallback (Slice 266 Reviewer-Heal). Component vollständig isoliert (Slice-265-Lehre angewandt).
+- Files (8): NEU `src/components/layout/TopProgressBar.tsx` + Test (8/8 grün) · EDIT `src/components/layout/index.ts` (barrel) · EDIT `src/app/(app)/layout.tsx` (mount) · EDIT `src/app/globals.css` (`@keyframes progress-shimmer` + `.anim-progress-shimmer` in `@layer utilities`) · EDIT `messages/de.json` + `messages/tr.json` (`nav.appLoading`)
+- Knowledge: `errors-frontend.md` neue Section "Tailwind motion-reduce variant nur auf existierende Animation-Utilities" (Reviewer-Find: `motion-reduce:animation-none` ist nicht-existent in Tailwind, korrekt ist `motion-reduce:animate-none` ODER `motion-reduce:hidden` mit Static-Fallback)
+- Reviewer-Verdict: PASS (post-Heal). 1 MAJOR motion-reduce-Fix + 1 MINOR Token-Drift inline behoben. 1 MINOR DemoBanner-Overlay-Visual deferred → Anil's bescout.net Live-Verify post-Deploy. NIT #5-#8 nicht aufgegriffen.
+- Spec: `worklog/specs/266-top-progress-bar-cold-start.md`
+- Review: `worklog/reviews/266-review.md`
+- Proof: `worklog/proofs/266-verify.txt` (tsc clean + 8/8 vitest + Definition-of-Done verified)
+- Notes: UX-Brücke, NICHT Architektur-Fix. Provider-Cascade-Refactor (echter Smoking-Gun-#3-Fix) bleibt offen → Slice 267 (separat priorisierbar je nach Beta-Tester-Feedback). Slice 265 Post-Mortem → Slice 268 wenn nötig.
+
 ## 264 | 2026-04-30 | AuthGuard Architektur-Refactor — Smoking-Gun #3 fix
 
 - Stage-Chain: SPEC inline (Slice 263 follow-up) → IMPACT skipped (1 File AuthGuard.tsx + 1 Test) → BUILD → REVIEW (self-review D35) → PROVE → LOG
