@@ -2699,3 +2699,53 @@ Warum so? Wer hat entschieden? Welcher Input hat geführt?
 ### Re-Visit-Trigger (optional)
 Wann diese Entscheidung neu bewerten? (z.B. „bei >100 DAU", „post-Beta", „wenn KPI X unter Y")
 ```
+
+---
+## D61 — ARCHITECTURE: Service Worker Cache-Strategie ist nur-Static-Assets
+
+**Datum:** 2026-04-30 (Slice 259)
+**Status:** Aktiv
+**Category:** ARCHITECTURE
+
+### Entscheidung
+
+Der BeScout Service Worker (`public/sw.js`) cached **ausschließlich**:
+1. Static Assets aus `/_next/static/`, `/icons/`, `/logo.png`, `/schrift.png` (CDN-cached, JWT-irrelevant)
+2. Offline-Fallback-Page (`/offline.html`)
+
+Authenticated APIs (Supabase REST `/rest/v1/*`, alle anderen JWT-bearing Endpoints) werden **niemals** auf SW-Layer gecached. Pass-through to network — Browser HTTP-Cache + TanStack Query handhaben Caching auf den richtigen Layern mit JWT-Awareness.
+
+### Begründung
+
+Cache API ist URL-keyed. Authorization-Header (JWT) ist nicht Teil des Cache-Keys. Authenticated-API-Caching im SW erzeugt:
+1. **Cross-Auth-Pollution:** anon-Response nach Login weiter-serviert
+2. **Cross-User-Pollution-Risiko:** User A's Cache-Entry bei URL-Match an User B
+3. **Stale-on-First-Load-Symptom:** stale-while-revalidate-Cache returnt leere/alte Daten beim ersten Visit nach Login → User muss refreshen
+
+TanStack Query ist der korrekte Layer für authenticated-Daten-Caching (JWT-aware via Supabase-Client, per-user query-keys, auth-state-change-Invalidation).
+
+### Auswirkungen
+
+- ✅ Alle authenticated REST-Calls gehen direkt ans Netz (TanStack Query cached client-side)
+- ✅ SW-Update kostet 1 Reload bei existing Tabs (PWA-Standard via `skipWaiting + clients.claim`)
+- ✅ Cache-Migration via Cache-Name-Bump (`vN → vN+1`) + catch-all-Filter im activate-handler
+- ✅ Push-Notifications + Static-Assets unverändert
+- ⚠️ Verlust des theoretischen offline-Reads für REST-Daten (war eh nicht zuverlässig wegen JWT-Race) — TanStack Query offline-mode kann das später übernehmen
+
+### Alternativen erwogen
+
+- **Alt A (verworfen): JWT-keyed Cache** — Manual Cache-Key mit `userId+url` Prefix bauen. Komplex (Auth-Header-Parsing in fetch-handler, Token-Refresh-Handling, Logout-Eviction). Complexity-to-Benefit-Ratio schlecht: REST-Calls sind nicht LCP-blocking, Win marginal.
+- **Alt B (verworfen): Per-Request-Vary-Header** — Cache API supports nur explicit `cacheKeys` mit `ignoreSearch`-Optionen, kein nativer Header-Vary. Manual-Wrapping noch komplexer als Alt A.
+- **Alt C (verworfen): Whitelist nur unauthenticated REST-Endpoints** — Es gibt keine. ALLE Supabase-REST-Calls bei BeScout authenticated.
+- **Alt D (gewählt): Removal — pass-through to network** — Subtraktiv, low-risk, korrekt-by-default. TanStack Query ist explizit der für JWT-aware Caching designed Layer.
+
+### Re-Visit-Trigger
+
+- Wenn Offline-Mode-Pflicht für authenticated Daten kommt → TanStack Query `persistQueryClient` + IndexedDB persistence (nicht SW-Cache)
+- Wenn Bandwidth-Probleme bei Mobile → CDN-Layer (Vercel Edge), nicht Client-SW
+- Wenn andere WebApp BeScout-SW-Code als Template übernimmt → erst diese Decision lesen
+
+### Implementation
+
+`public/sw.js` (Slice 259 commit `d4583303`). Pattern in `memory/patterns.md` #40.
+

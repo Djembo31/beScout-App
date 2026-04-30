@@ -9,6 +9,40 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 259 | 2026-04-30 | EMERGENCY P0 — Service Worker Cache-Pollution Heal (Beta-Day-2)
+
+- Stage-Chain: SPEC → IMPACT skipped (1 File public/, kein src/lib/services, kein RPC, kein Schema) → BUILD → REVIEW (reviewer-agent PASS, 18 min, 2× P3 inline geheilt) → PROVE (alle 6 lokale ACs + AC-07 Live-Verify) → LOG
+- Slice-Type: Tool (Service Worker)
+- Größe: S (Anil-Direktive autonom, keine Reste)
+- Anil-Report (2026-04-30 Beta-Day-2): "Initial Load funktioniert schrott — jedes Mal Refresh nötig damit App lädt. Nach Refresh OK." 3rd Beta-Tester live momentarily.
+- Root-Cause-Deep-Dive identifizierte SW Supabase-REST stale-while-revalidate-Cache als Smoking-Gun #1 (von 7): Cache keyed by URL only, JWT NICHT Teil des Keys → anon-Responses serviert an logged-in User + Cross-User-Pollution-Risk. "Refresh fixt"-Symptom: 1. Load = stale cached, background-fetch füllt Cache, 2. Load = fresh.
+- Fix (subtraktiv, low-risk):
+  - Removed Supabase-REST stale-while-revalidate Block (sw.js:36-56)
+  - Bumped CACHE_NAME `bescout-v3` → `bescout-v4`
+  - Removed `API_CACHE_NAME` constant
+  - Activate-handler nun catch-all-filter `(k !== CACHE_NAME)` → evicts `bescout-api-v1` + alle prior `bescout-v*` automatisch bei existing clients
+  - Slice-Number + WHY-Doc-Comment am Top für Future-Maintenance
+- Bewahrt unverändert:
+  - Push-Notifications-Handler (push + notificationclick byte-identisch)
+  - Static-Asset-Cache (`_next/static`, icons, logo, schrift)
+  - Offline-Fallback (`/offline.html` navigation-handler)
+  - Network-First Navigation-Strategy
+- Files: `public/sw.js` (123 Zeilen, +25/-25 inkl. Doc-Comment-Erweiterung)
+- Live-Verify gegen `bescout.net` post-Deploy (Playwright MCP):
+  - Deployed sw.js: `bescout-v4`, 0 Supabase-REST-Caching-Refs ✓
+  - Browser nach Update + Reload: einziger Cache `bescout-v4`, `bescout-v3` + `bescout-api-v1` evicted ✓
+  - **1899 stale Supabase-REST-Responses → 0** ✓
+  - SW-Controller match deployed sw.js ✓
+- Reviewer Verdict: PASS (cold-context, 18 min). 2× P3-Nitpicks inline geheilt (catch-all-filter Comment-Präzisierung + defensive explicit return im fetch-handler). 1× P2 accept-as-designed (clients.claim-Race bei Tab-mid-deploy, 3-Tester-Risk akzeptabel).
+- Knowledge-Promotion (Knowledge-Flywheel):
+  - `memory/patterns.md` #40: Service Worker Cache-Strategie nur-Static-Assets
+  - `memory/decisions.md` D61: ARCHITECTURE — SW Cache-Strategy ist nur-Static-Assets
+- Spec: `worklog/specs/259-sw-cache-pollution-heal.md`
+- Proof: `worklog/proofs/259-ac-audit.txt` + `259-sw-pre-edit.txt` + `259-live-verify.md`
+- Review: `worklog/reviews/259-review.md`
+- Commit: `d4583303`
+- Notes: P1 (AuthProvider sessionStorage→localStorage + idle-Bonus) als Slice 260 nahtlos. P2 (TanStack persist + RSC auth-hydrate) post-Beta wegen RootLayout-Touch-Risk.
+
 ## 258 | 2026-04-29 | EMERGENCY P0 — Signup-Trigger-Fix (Beta-Empfang Day-1 Bug)
 
 - Stage-Chain: SPEC inline (Auth-Log Forensic) → IMPACT inline (DB-only) → BUILD v1 → PROVE-v1 (Pesmerga signup OK) → BUILD v2 (Onboarding-Wizard restoren) → PROVE-v2 (0 Trigger, Wizard-Path clean) → LOG

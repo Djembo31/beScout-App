@@ -1059,3 +1059,73 @@ return { ...result };  // narrow + return
 - S-Slices mit komplexer Logic (auch wenn 2-3 Files)
 
 **Reference:** Slice 207 Worktree-Heal-Story (3 Probleme aufeinander, Pre-Review-Memo hätte 2 von 3 vorne weg gefangen). Slice 208 Reviewer-CONCERNS A11y-Issue (Pre-Review-Memo hätte den SVG-aria-Konflikt zu spät gefangen, weil A11y-Audit kein Standard-Self-Verification-Command ist — aber zumindest Spec-Drift Catmull-Rom→Linear hätte darin gestanden).
+
+### 40. Service Worker Cache-Strategie: nur Static Assets, niemals authenticated APIs (Slice 259, 2026-04-30)
+
+**Wann:** Bei jedem PWA-Setup mit Service Worker, der für eine App mit User-Auth läuft.
+
+**Wie:**
+
+```js
+// public/sw.js
+const CACHE_NAME = 'app-vN';
+
+const STATIC_CACHE_PATTERNS = [
+  /\/_next\/static\//,
+  /\/icons\//,
+  // ... cdn-cached, public, JWT-irrelevant
+];
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
+  // Navigation: network-first, offline-fallback only
+  if (request.mode === 'navigate') { /* network-or-offline */ return; }
+
+  // Static assets: cache-first
+  if (STATIC_CACHE_PATTERNS.some((p) => p.test(request.url))) { /* cache-or-network-then-cache */ return; }
+
+  // ALLES ANDERE (incl. Supabase REST, andere authenticated APIs):
+  // pass through to network. Browser HTTP-cache + TanStack Query handle
+  // caching at the right layers (with JWT-awareness).
+  return;
+});
+
+// Activate-handler: catch-all-filter
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+```
+
+**Warum NICHT authenticated APIs cachen:**
+- Cache API keyed by URL only — Authorization-Header (JWT) ist NICHT Teil des Cache-Keys
+- Anon-Response wird nach Login weiter-serviert (User sieht leere Daten beim Erst-Load)
+- Cross-User-Pollution möglich: User A's `/rest/v1/wallets?user_id=eq.X` cached → bei User B serviert wenn URL match
+- Symptom-Decoder: User-Report "Refresh fixt App-Load" → SW serviert stale Anon-Response → background-fetch füllt Cache → 2. Load fresh
+- TanStack Query ist der richtige Layer (JWT-aware via Supabase-Client + per-user query-keys + auth-state-change-Invalidation)
+
+**Cache-Bump-Migration-Pattern (Standard bei Breaking-SW-Changes):**
+- `CACHE_NAME = 'app-vN' → 'app-vN+1'`
+- Activate-handler `keys.filter(k => k !== CACHE_NAME)` (catch-all, KEIN Whitelist) evicts ALLE legacy Caches reliably inkl. uncoupled API-Caches
+- `skipWaiting()` + `clients.claim()` für sofortigen Takeover (Update-Race kostet 1 Reload bei existing Tabs)
+
+**Detection von Cache-Pollution:**
+```js
+// In Chrome DevTools Console gegen Production:
+const cacheNames = await caches.keys();
+let suspicious = 0;
+for (const name of cacheNames) {
+  const cache = await caches.open(name);
+  const requests = await cache.keys();
+  suspicious += requests.filter(r => r.url.includes('supabase.co/rest/v1')).length;
+}
+console.log({cacheNames, cached_authenticated_requests: suspicious});
+// Wenn cached_authenticated_requests > 0: Cache-Pollution-Risiko
+```
+
+**Reference:** Slice 259 — Beta-Day-2 Service-Worker-Heal nach Anil-Bug-Report "Initial Load funktioniert schrott — jedes Mal Refresh nötig". 1899 stale Supabase-REST-Responses bei jedem Browser im Cache vor Heal. Decision D61.
