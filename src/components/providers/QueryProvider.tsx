@@ -106,7 +106,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
         queryClient,
         persister,
         maxAge: MAX_AGE_MS,
-        buster: 'v1',
+        buster: 'v2-slice267',
         dehydrateOptions: {
           shouldDehydrateQuery: (query) => {
             // Layer 1: only success queries (no in-flight, no errors)
@@ -126,6 +126,15 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             // caching for safety against future user-id leaks)
             const keyStr = JSON.stringify(query.queryKey);
             if (UUID_REGEX.test(keyStr)) return false;
+
+            // Layer 4 (Slice 267 EMERGENCY): Skip Map/Set-typed query data.
+            // JSON.stringify(new Map()) === '{}' — Maps cannot survive the
+            // persist round-trip. Without this filter, Map-returning services
+            // (getFixtureDeadlinesByGameweek, getRecentPlayerMinutes etc.)
+            // rehydrate as Plain-Objects, and consumer hooks like
+            // useFixtureDeadlines crash with "n.values is not a function".
+            const data = query.state.data;
+            if (data instanceof Map || data instanceof Set) return false;
 
             return true;
           },
