@@ -160,6 +160,56 @@ const eventCountries = useMemo(() => getCountries(locale), [locale]);
 - Verify: `grep -oE "data-state=open[^{]{0,80}\\{[^}]{0,80}" .next/static/css/*.css` — sollte 4 Animation-Rules zeigen post-build.
 - Gilt analog fuer `data-[state=closed]:`, `data-[disabled]:`, `aria-[expanded=true]:` etc.
 
+### Map/Set-typed React-Query-Data + Persist/SSR = stille Korruption (Slice 267)
+
+**Bug-Klasse:** Service-Layer returnt `Promise<Map<K, V>>` oder `Promise<Set<T>>`. Konsument ruft `useQuery({ queryFn: () => service() })` auf. Bei TanStack-Query mit `persistQueryClient` (Slice 261) ODER bei SSR-Hydrate via Next.js wird die Map/Set durch JSON.stringify gepresst — `JSON.stringify(new Map())` ergibt `"{}"`. Beim Rehydrate kommt ein **Plain-Object** zurück, nicht die Map. Konsumenten die `.values()` / `.size` / `.get()` / `.forEach()` aufrufen crashen mit:
+
+```
+TypeError: n.values is not a function (oder n.size, n.get, n.forEach)
+  at useMemo (...)
+  at <Hook> (...)
+```
+
+**Reichweite (Slice 267 Audit):** Mindestens 9 Services in BeScout returnten Map: `getFixtureDeadlinesByGameweek`, `getRecentPlayerMinutes`, `getRecentPlayerScores`, `getNextFixturesByClub`, `getFloorPricesForPlayers`, `getPlayerEventUsage`, `getActiveSubscriptionsByUsers`, `getMostOwnedPlayerBatch`, `getPlayerScores`. Konsumenten in fantasy/manager/market.
+
+**Symptom Anil-Live-Bug 2026-04-30:** "spieltag content und andere werden nicht angezeigt/geladen". Manager-Page Error-Boundary "Etwas ist schiefgelaufen", Spieltag leer, Home wirft TypeError 3× silent in Console.
+
+**Defense-in-Depth-Fix (3-Layer):**
+
+1. **Persist-Cache Layer-4-Filter** (`QueryProvider.tsx` `shouldDehydrateQuery`):
+```ts
+// Layer 4 (Slice 267): Map/Set niemals dehydrieren — JSON.stringify zerstoert sie.
+const data = query.state.data;
+if (data instanceof Map || data instanceof Set) return false;
+```
+
+2. **Defensive Map-Reconstruction im Konsument-Hook**:
+```ts
+const { data: rawData } = useQuery({...});
+const myMap = useMemo<Map<K, V>>(() => {
+  if (rawData instanceof Map) return rawData;
+  if (rawData && typeof rawData === 'object') {
+    return new Map(Object.entries(rawData)) as Map<K, V>;
+  }
+  return new Map<K, V>();
+}, [rawData]);
+```
+
+3. **Buster-Bump bei Persist-Schema-Changes** (`persistQueryClient` config):
+```ts
+buster: 'v2-slice267',  // war 'v1' — verwirft existierende korrupte caches
+```
+
+**Bessere Architektur (langfristig — Service-API-Refactor):** Services NICHT direkt Map returnen lassen. Stattdessen `Array<[K, V]>` returnen, Konsument konstruiert Map. Tuple-Arrays sind JSON-safe, Map-Konstruktion ist Konsument-Verantwortung.
+
+**Audit:**
+```bash
+grep -rnE "Promise<(Map|Set)<" src/lib/services/ src/features/*/services/
+grep -rnE "useQuery.*get(.*(Map|Set))" src/
+```
+
+**Beziehung zu D43 / errors-db.md "PostgREST nested-select Auth-Race":** Beide sind "Service-API gibt nicht das was Consumer erwartet" — DB-Layer NULL durch Auth-Race, hier Map durch Serialization. Beides hat Defense-in-Depth-Layered-Mitigation als Fix-Pattern.
+
 ### Multi-League Props-Propagation (J3 + J4)
 - Neues optional Field auf Type (z.B. `leagueShort?`) → nur 2/8 Render-Call-Sites bedient. TSC/Tests merken nichts (optional = kein Error).
 - Visual-QA im Pilot (1 Liga) uebersieht's, Fehler erst im Multi-League-Betrieb.

@@ -1,15 +1,25 @@
 # Active Slice
 
 ```
-status: active
-slice: 267
-stage: emergency
-spec: emergency-fix (Beta-Day-3 Anil-Live-Report Map-Persist-Crash)
-impact: skipped (2 Files, defensive Pattern)
-proof: emergency (tsc clean + 50/50 vitest grün — Console-Error-Match in Commit)
-review: self-review (Slice-261-Bug-Klasse, defensive Pattern, kein Money-Path)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 267 EMERGENCY — Map-Persist-Korruption Heal
+## Slice 267 KOMPLETT (S EMERGENCY): Map-Persist-Korruption Heal. 3-Layer-Fix (Persist-Filter + Defensive Reconstruction + Buster-Bump). Spieltag + Manager wieder funktional. Knowledge: `errors-frontend.md` "Map/Set-typed React-Query-Data Anti-Pattern" + `memory/feedback_root_cause_eifer.md` neuer Default-Standard. Commit `e53e7b22`.
 
-Spieltag + Manager broken durch Map-typed query-data via Persist-Cache zu `{}` korrumpiert. 4-Layer-Fix: Layer-4-Filter in Persist + Defensive Reconstruction in useFixtureDeadlines + Buster-Bump v1→v2-slice267 (verwirft existierende korrupte Caches automatisch).
+## Beta-Day-3 Status
+
+- **App stabil:** Slice 267 verifiziert via tsc + 50/50 vitest. Live deployed auf bescout.net.
+- **Beta-Tester unblocked:** Pesmerga + 3rd Tester (cloud) können testen sobald sie hard-refreshen.
+- **Cold-Start UX bleibt offen:** Wallet+Tickets erscheinen erst nach Refresh — UX-Bug, kein Crash. Ursache: Provider-Cascade sequentiell (Smoking-Gun #3 nur teil-gefixt durch Slice 264).
+
+## Backlog (Anil-Priorisierung)
+
+- **Option A (15-30 min):** Map-Audit — restliche 8 Map-returnende Services präventiv mit defensiver Reconstruction sichern (analog useFixtureDeadlines). Layer-4-Filter schützt sie schon, aber bei SSR-Hydrate-Race nicht. Defensive Härtung.
+- **Option B (Beta-Tester live):** App ist stabil, Pesmerga + 3rd Tester einladen, Sentry-Watch aufdrehen, Echtzeit-Feedback sammeln. Slice 267 Heal ist gut genug für Beta-Day-3.
+- **Option C (Slice 268 Provider-Cascade-Refactor):** Echter Cold-Start-Fix (Stagger queries / RSC Auth-Hydrate). 4-6h, Reviewer-Pflicht. Riskant ohne Tester-Feedback ob es überhaupt nötig ist.

@@ -9,6 +9,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 267 | 2026-04-30 | EMERGENCY P0 — Map-Persist-Korruption Heal (Spieltag + Manager broken)
+
+- Stage-Chain: emergency (Anil-Live-Bug-Triage) → BUILD (2 Files defensive) → REVIEW self (Slice-261-Klasse) → PROVE (tsc + 50/50 vitest + Console-Stack-Match) → LOG → Knowledge-Capture
+- Slice-Type: UI (Provider) + Hook · Größe: S · Scope: CTO emergency
+- Trigger: Anil-Beta-Day-3-Quote: "spieltag content und andere werden nicht angezigt/geladen!" + DevTools-Console: `TypeError: n.values is not a function` mit useMemo im Stack. Manager-Page Error-Boundary, Spieltag leer, Home 3× silent-Crash in Console.
+- Root-Cause: Service `getFixtureDeadlinesByGameweek` returnt `Promise<Map<string, FixtureDeadline>>`. Slice 261 Persist-Cache JSON.stringify't Map → `"{}"`. Rehydrate liefert Plain-Object. `.values()` crasht. Bug-Klasse betrifft 9 Services mit `Promise<Map<...>>`-Signatur.
+- Fix-3-Layer:
+  - **Layer 4 Persist-Filter** (`QueryProvider.tsx`): `shouldDehydrateQuery` skip wenn `data instanceof Map || Set`. Generisch für ALLE 9 Services.
+  - **Defensive Reconstruction** (`useFixtureDeadlines.ts`): `useMemo` reconstruiert Map aus Plain-Object via `new Map(Object.entries(rawData))`. Schützt User mit existierendem korrupten localStorage.
+  - **Buster-Bump** (`QueryProvider.tsx`): `'v1'` → `'v2-slice267'`. TanStack verwirft korrupten persisted-cache automatisch beim nächsten Visit.
+- Pre-Slice-267-Path: 2 falsche Reflex-Slices davor (265 localStorage-Mirror REVERTED, 266 NProgress-Bar REVERTED) — beide fixed Symptom statt Root-Cause.
+- Knowledge-Capture: `errors-frontend.md` neue Section "Map/Set-typed React-Query-Data + Persist/SSR = stille Korruption". `memory/feedback_root_cause_eifer.md` als neuer Default-Standard für Bug-Triage.
+- Files (3): `src/components/providers/QueryProvider.tsx` · `src/features/fantasy/hooks/useFixtureDeadlines.ts` · `worklog/active.md`.
+- Commit: `e53e7b22`. Vercel: deployed.
+- Notes: Bug existierte seit Slice 261 latent. Slice 266 (NProgress-Bar) hat das nicht verursacht — wurde dennoch revertet weil Slice 267 Bug-Klasse durch parallele Map-Konsumenten-Render von Slice 266 zusätzlich getarnt war.
+
 ## 264 | 2026-04-30 | AuthGuard Architektur-Refactor — Smoking-Gun #3 fix
 
 - Stage-Chain: SPEC inline (Slice 263 follow-up) → IMPACT skipped (1 File AuthGuard.tsx + 1 Test) → BUILD → REVIEW (self-review D35) → PROVE → LOG
