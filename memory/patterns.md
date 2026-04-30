@@ -1345,3 +1345,64 @@ export async function updateSession(request: NextRequest) {
 **Effekt:** Landing-Page TTFB für Anonymous Visitors um 50-300ms reduziert. Vor allem wirksam bei: GTM-Campaign-Traffic, Direct-URL-Hits, social-shared Links.
 
 **Reference:** Slice 262 — Middleware Public-Route-Bail-Out Beta-Day-2 Final-Final.
+
+### 45. Cold-Start UID-keyed Cache-Mirror Pattern (Slice 268, 2026-04-30)
+
+**Problem:** TanStack Query mit Persist-Cache (Pattern #43) deny-listet user-scoped Domains (wallet, tickets) → kein Persist-Hit beim Refresh → Mobile-Safari Auth-SDK-Warmup-Bottleneck (4-9s) führt zu sichtbarem Skeleton-Pulse für kritische User-Daten. User refresht weil App scheint tot.
+
+**Lösung:** Eigener UID-keyed localStorage-Mirror parallel zum Persist-Cache. Synchroner Read in `useMemo` als `placeholderData` → instant Render. Background-Refetch läuft IMMER (`staleTime: 0`).
+
+**3-Layer-Architektur:**
+
+```ts
+// 1. Helper-Module (DRY für mehrere Hooks):
+//    src/lib/utils/cachedQuery.ts
+export function readCached<T>(prefix: 'bs_wallet' | 'bs_tickets', uid: string): T | undefined;
+export function writeCached(prefix: 'bs_wallet' | 'bs_tickets', uid: string, data: unknown): void;
+export function clearCachedAllSlots(): void;  // für User-Switch + SIGNED_OUT
+
+// 2. Hook-Pattern:
+const placeholder = useMemo<T | undefined>(
+  () => (userId ? readCached<T>('bs_wallet', userId) : undefined),
+  [userId],
+);
+const query = useQuery({
+  queryKey: walletQueryKey(userId),
+  queryFn: async () => {
+    const data = await getWallet(userId);
+    if (data && userId) writeCached('bs_wallet', userId, data);
+    return data;
+  },
+  enabled: !!userId,
+  staleTime: 0,                  // Background-Refetch IMMER
+  placeholderData: placeholder,  // NICHT initialData!
+});
+
+// 3. AuthProvider clearCachedAllSlots SYNCHRON:
+//    (a) User-Switch-Detect-Block (vor setUser):
+if (cachedUserId && cachedUserId !== u.id) {
+  lsClear();
+  clearCachedAllSlots();  // VOR setUser, sonst sieht User-B kurz User-A's Werte
+  queryClient.clear();
+}
+//    (b) SIGNED_OUT clearUserState (synchron neben lsClear):
+lsClear();
+clearCachedAllSlots();  // SYNCHRON, NICHT in setTimeout
+setTimeout(() => queryClient.clear(), 0);
+```
+
+**Money-Path-Schutz:**
+TanStack v5 `placeholderData` setzt `dataUpdatedAt = 0` bis Real-Fetch resolved → `useIsBalanceFresh()` returnt `false` während placeholder rendert → BuyModal-Confirm-Button bleibt **disabled** bis Server-Truth da → Money-Action sicher gegated.
+
+**Anti-Patterns (Slice 265 Reverted-Lehre — verboten):**
+- ❌ `initialData` (markiert als data persistiert → dataUpdatedAt nicht 0 → Money-Path-Risk)
+- ❌ Single-slot Storage (`bs_wallet` ohne UID) — Cross-User-Pollution-Race
+- ❌ Touch von TopBar.tsx oder (app)/layout.tsx — Render-Tree-Risiken
+- ❌ `staleTime > 0` — refetch wird zu spät gefeuert
+- ❌ useState-Init-Read von localStorage — SSR-Hydration-Mismatch
+
+**Reviewer-VOR-BUILD-Stage:** Bei Re-Doing-Reverted-Slices (Slice 268 = Slice-265-Wiederholung) Reviewer-Agent VOR dem Coden, um Anti-Pattern-Vermeidung zu verifizieren. Spec-Reviewer fand 3 MINORs (AC-09, clearCachedAllSlots-Synchronicity, Edge-Cases) die in Spec eingearbeitet wurden bevor Code-Schreiben begann.
+
+**Coverage-Pflicht:** AC-03 (User-Switch) + AC-04 (SIGNED_OUT-Clear-Sync) MÜSSEN automatisierten Test haben — Cross-User-Pollution ist KRITISCHES Risk-Bucket. Spy-Order-Verify via `mockFn.mock.invocationCallOrder` für synchrone Reihenfolge.
+
+**Reference:** Slice 268 — Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right).

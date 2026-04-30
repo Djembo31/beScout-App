@@ -1,18 +1,38 @@
 'use client';
 
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { qk } from './keys';
 import { getUserTickets, getTicketTransactions } from '@/lib/services/tickets';
+import { readCached, writeCached } from '@/lib/utils/cachedQuery';
 
 const THIRTY_SEC = 30 * 1000;
 
-/** Fetch the user's ticket balance */
+type UserTicketsData = Awaited<ReturnType<typeof getUserTickets>>;
+
+/**
+ * Fetch the user's ticket balance.
+ *
+ * Slice 268: Cold-Start placeholderData aus UID-keyed localStorage-Slot.
+ * placeholderData (NICHT initialData) → dataUpdatedAt bleibt 0 bis Real-Fetch.
+ * staleTime: 0 stellt sicher dass Background-Refetch immer läuft.
+ */
 export function useUserTickets(userId: string | undefined, active = true) {
+  const placeholder = useMemo<UserTicketsData | undefined>(
+    () => (userId ? readCached<UserTicketsData>('bs_tickets', userId) : undefined),
+    [userId],
+  );
+
   return useQuery({
     queryKey: qk.tickets.balance(userId!),
-    queryFn: () => getUserTickets(userId!),
+    queryFn: async () => {
+      const data = await getUserTickets(userId!);
+      if (data && userId) writeCached('bs_tickets', userId, data);
+      return data;
+    },
     enabled: !!userId && active,
-    staleTime: THIRTY_SEC,
+    staleTime: 0,
+    placeholderData: placeholder,
   });
 }
 

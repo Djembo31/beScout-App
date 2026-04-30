@@ -160,6 +160,46 @@ const eventCountries = useMemo(() => getCountries(locale), [locale]);
 - Verify: `grep -oE "data-state=open[^{]{0,80}\\{[^}]{0,80}" .next/static/css/*.css` — sollte 4 Animation-Rules zeigen post-build.
 - Gilt analog fuer `data-[state=closed]:`, `data-[disabled]:`, `aria-[expanded=true]:` etc.
 
+### TanStack Query v5: `initialData` vs `placeholderData` für Cold-Start-Mirror (Slice 268)
+
+**Bug-Klasse:** Hook nutzt `initialData: cached` aus localStorage als Cold-Start-Optimierung. Slice 265 hat das gemacht und broke Page-Render. Root-Cause-Analyse zeigt: `initialData` markiert Wert als **persistiert data** mit `dataUpdatedAt = Date.now()` (oder via `initialDataUpdatedAt`-Override). Konsumenten die `dataUpdatedAt`-basiertes Freshness-Gating machen (z.B. `useIsBalanceFresh`) sehen "fresh-vor-fetch" → Money-Path-Bug. Plus: `enabled: !!userId` Race kann initialData mit User-A's Wallet bei User-B's Render zeigen wenn Single-Slot-Storage.
+
+**Decision-Tree:**
+
+| Anwendungsfall | Wähle |
+|----------------|-------|
+| Cold-Start Display-Cache + Money-Path-relevant | **`placeholderData`** (siehe Pattern #45) |
+| Cold-Start Display-Cache + nicht-Money | `placeholderData` (auch hier sicherer) |
+| Tab-zu-Tab-Daten-Übernahme im selben Mount | `keepPreviousData` (deprecated v5, ersetzt durch `placeholderData: keepPreviousData` Helper) |
+| Server-Side Pre-Fetch via Hydrate (RSC) | `dehydrate/HydrationBoundary` — KEIN initialData |
+
+**`placeholderData` Garantien (TanStack v5):**
+- `dataUpdatedAt = 0` bis erfolgreicher Fetch → Freshness-Hooks returnen false → Money-Path geschützt
+- NICHT als data persistiert — `query.data` ist placeholder, aber `query.status === 'pending'`
+- Refetch läuft normal (`staleTime: 0` empfohlen für Mirror-Pattern damit Background-Refetch immer feuert)
+
+**`initialData` Anti-Pattern für Mirror:**
+```ts
+// VERBOTEN für UID-keyed Mirror-Hooks:
+useQuery({
+  initialData: cached,
+  initialDataUpdatedAt: 0,  // markiert als 1970-stale, ABER als data persistiert
+  staleTime: 30_000,         // → wenn cache als initialData kommt, nutzt staleTime relativ zu 0 → trotzdem refetch...
+})
+// ABER: race-Window mit `enabled: !!userId` führt zu Cross-User-Pollution wenn cache single-slot
+```
+
+**Audit:**
+```bash
+# Mirror-Hooks die initialData nutzen (verdächtig):
+grep -rnE "initialData:" src/lib/hooks/ src/lib/queries/ src/features/*/hooks/
+
+# Hooks die localStorage in useState init lesen (SSR-Hydration-Bug):
+grep -rnE "useState\([^)]*localStorage" src/
+```
+
+**Reference:** Slice 265 (REVERTED Commit `d76007f8`) → Slice 268 (Slice-265-done-right mit placeholderData).
+
 ### Map/Set-typed React-Query-Data + Persist/SSR = stille Korruption (Slice 267)
 
 **Bug-Klasse:** Service-Layer returnt `Promise<Map<K, V>>` oder `Promise<Set<T>>`. Konsument ruft `useQuery({ queryFn: () => service() })` auf. Bei TanStack-Query mit `persistQueryClient` (Slice 261) ODER bei SSR-Hydrate via Next.js wird die Map/Set durch JSON.stringify gepresst — `JSON.stringify(new Map())` ergibt `"{}"`. Beim Rehydrate kommt ein **Plain-Object** zurück, nicht die Map. Konsumenten die `.values()` / `.size` / `.get()` / `.forEach()` aufrufen crashen mit:

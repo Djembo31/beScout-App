@@ -1,25 +1,29 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 268
+stage: LOG
+spec: worklog/specs/268-cold-start-cache-mirror.md
+impact: skipped (additiv 7 Files, kein DB/RPC, kein Cross-Domain)
+proof: worklog/proofs/268-verify.txt
+review: worklog/reviews/268-review.md (PASS-with-CONCERN inline-geheilt → PASS)
 ```
 
-## Slice 267 KOMPLETT (S EMERGENCY): Map-Persist-Korruption Heal. 3-Layer-Fix (Persist-Filter + Defensive Reconstruction + Buster-Bump). Spieltag + Manager wieder funktional. Knowledge: `errors-frontend.md` "Map/Set-typed React-Query-Data Anti-Pattern" + `memory/feedback_root_cause_eifer.md` neuer Default-Standard. Commit `e53e7b22`.
+## Slice 268 — Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right)
 
-## Beta-Day-3 Status
+**Spec-Reviewer-Verdict:** APPROVED-WITH-MINOR. 3 MINORs inline eingearbeitet:
+- AC-09 BuyModal-Freshness-Intact-Test (Money-Path)
+- AC-04 SIGNED_OUT clearCachedAllSlots synchron-Pflicht
+- Edge-Cases #11 + #12 (SIGNED_OUT→SIGNED_IN same frame, Hook unmount mid-fetch)
 
-- **App stabil:** Slice 267 verifiziert via tsc + 50/50 vitest. Live deployed auf bescout.net.
-- **Beta-Tester unblocked:** Pesmerga + 3rd Tester (cloud) können testen sobald sie hard-refreshen.
-- **Cold-Start UX bleibt offen:** Wallet+Tickets erscheinen erst nach Refresh — UX-Bug, kein Crash. Ursache: Provider-Cascade sequentiell (Smoking-Gun #3 nur teil-gefixt durch Slice 264).
+**Stage-Chain:** SPEC ✅ → IMPACT skipped → REVIEWER-vor-BUILD APPROVED-WITH-MINOR ✅ → BUILD (now) → REVIEWER POST-BUILD → PROVE (vitest + Anil-Live-Verify) → LOG.
 
-## Backlog (Anil-Priorisierung)
+**Slice-265 Anti-Patterns die in Spec verboten sind:**
+- KEIN `initialData`+`initialDataUpdatedAt:0` (markiert als fresh)
+- KEIN single-slot localStorage `bs_wallet` (UID-keyed pflicht)
+- KEIN Touch von TopBar.tsx oder (app)/layout.tsx
+- KEIN `staleTime > 0` (refetch muss immer laufen)
+- KEIN useState-Init-Read von localStorage
 
-- **Option A (15-30 min):** Map-Audit — restliche 8 Map-returnende Services präventiv mit defensiver Reconstruction sichern (analog useFixtureDeadlines). Layer-4-Filter schützt sie schon, aber bei SSR-Hydrate-Race nicht. Defensive Härtung.
-- **Option B (Beta-Tester live):** App ist stabil, Pesmerga + 3rd Tester einladen, Sentry-Watch aufdrehen, Echtzeit-Feedback sammeln. Slice 267 Heal ist gut genug für Beta-Day-3.
-- **Option C (Slice 268 Provider-Cascade-Refactor):** Echter Cold-Start-Fix (Stagger queries / RSC Auth-Hydrate). 4-6h, Reviewer-Pflicht. Riskant ohne Tester-Feedback ob es überhaupt nötig ist.
+**Pre-Mortem-Hauptrisiko:** User-Switch-Race (Reihenfolge clearCachedAllSlots VOR setUser pflicht). AC-03 testet das exakt.

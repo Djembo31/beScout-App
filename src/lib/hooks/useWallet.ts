@@ -49,20 +49,25 @@
  */
 
 import { useQuery, type QueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getWallet } from '@/lib/services/wallet';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
+import { readCached, writeCached } from '@/lib/utils/cachedQuery';
 import type { DbWallet } from '@/types';
 
 // Freshness window — balance fetched within the last 30s is considered safe
 // for Buy/Sell confirm actions. Matches the old WalletProvider constant.
 const FRESHNESS_WINDOW_MS = 30_000;
 
-// Default staleTime: gleich dem Freshness-Window. Tradeoff: Nach 30s gilt der
-// Cache als stale und wird bei Consumer-Mount oder Window-Focus refetched.
-// Trade-Mutations invalidieren via invalidateWallet explizit, unabhängig vom
-// staleTime.
-const WALLET_STALE_TIME_MS = 30_000;
+// Slice 268: staleTime: 0 (war 30_000) — bewusste Verhaltens-Aenderung damit
+// placeholderData (cached aus localStorage) IMMER vom Background-Refetch
+// ueberholt wird. dataUpdatedAt bleibt 0 bis Real-Data eintrifft -> useIsBalanceFresh
+// returnt false -> BuyModal-Confirm-Button disabled bis Server-Truth da. Money-
+// Path bleibt geschuetzt. Trade-off: ~1-2 zusaetzliche Wallet-RPCs pro Mobile-
+// Safari-Session-Switch (Window-Focus + Re-Mount triggern Refetch). Acceptable,
+// da Cold-Start-UX-Pain hoeher gewichtet ist (Slice 268 Spec Sektion 2).
+const WALLET_STALE_TIME_MS = 0;
 
 /**
  * User-scoped query key. `qk.wallet.all = ['wallet']` bleibt als Prefix-Matcher
@@ -103,11 +108,26 @@ export function useWallet(): UseWalletResult {
   const { user } = useUser();
   const userId = user?.id;
 
+  // Slice 268: Cold-Start placeholderData aus UID-keyed localStorage-Slot.
+  // Synchroner Read in useMemo (NICHT useState init — SSR-Hydration-Mismatch).
+  // placeholderData (NICHT initialData) → dataUpdatedAt bleibt 0 → useIsBalanceFresh
+  // returnt false → Money-Path geschützt bis Real-Fetch durchläuft.
+  const placeholder = useMemo<DbWallet | undefined>(
+    () => (userId ? readCached<DbWallet>('bs_wallet', userId) : undefined),
+    [userId],
+  );
+
   const query = useQuery<DbWallet | null, Error>({
     queryKey: userId ? walletQueryKey(userId) : ['wallet', 'no-user'] as const,
-    queryFn: () => getWallet(userId!),
+    queryFn: async () => {
+      const data = await getWallet(userId!);
+      // Slice 268: Mirror nach erfolgreichem Fetch (UID-keyed Slot).
+      if (data && userId) writeCached('bs_wallet', userId, data);
+      return data;
+    },
     enabled: !!userId,
     staleTime: WALLET_STALE_TIME_MS,
+    placeholderData: placeholder,
     // React-Query-Default `refetchOnWindowFocus: true` bleibt — Visibility-
     // Recovery identisch zum alten Provider-useEffect-Handler.
     // React-Query-Default 3 Retries mit exponential backoff — identisch zum

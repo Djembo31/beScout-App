@@ -2749,3 +2749,55 @@ TanStack Query ist der korrekte Layer für authenticated-Daten-Caching (JWT-awar
 
 `public/sw.js` (Slice 259 commit `d4583303`). Pattern in `memory/patterns.md` #40.
 
+## D62 — PROCESS: Reviewer-VOR-BUILD-Stage bei Re-Doing-Reverted-Slices
+
+**Datum:** 2026-04-30 · **Status:** Aktiv · **Slice:** 268
+
+### Entscheidung
+
+Bei jeder Slice die ein zuvor REVERTED-Slice wiederholt (gleiches Feature, neuer Versuch nach Lehrgeld), ist **Reviewer-Agent VOR BUILD** Pflicht-Stage — nicht nur POST-BUILD. Reviewer prüft die Spec, nicht den Code, und stellt sicher dass die Anti-Patterns aus dem REVERT in der Spec als **harte Constraints** eingebrannt sind.
+
+### Begründung
+
+**Empirisch (Slice 268):** Spec-Reviewer fand 3 MINORs (AC-09 Money-Path-Test fehlte, clearCachedAllSlots-Synchronicity-Detail unklar, Edge-Cases #11+#12 fehlten) bevor eine Zeile Code geschrieben wurde. Diese MINORs hätten bei POST-BUILD-Review Code-Rewrite ausgelöst (vermutlich 1-2h). VOR-BUILD: 15 min Spec-Edit.
+
+**Bug-Klasse:** Re-Doing-Reverted-Slices haben höhere Spec-Drift-Wahrscheinlichkeit weil:
+1. Author hat den Reverted-Code im Kopf → unbewusste Verzerrung der Lösung Richtung "wie es vorher war"
+2. Anti-Patterns sind individuell-klar, aber kollektiv schwer zu enumerieren ohne Cold-Context-Audit
+3. Money-Path-relevante Slices haben minimal-Toleranz für Spec-Schwächen
+
+### Auswirkungen
+
+**Stage-Chain neu für Re-Doing-Reverted-Slices:**
+
+```
+SPEC → IMPACT → REVIEWER-VOR-BUILD (NEU, Pflicht) → BUILD → REVIEWER-POST-BUILD (Slice 211 D50) → PROVE → LOG
+```
+
+**Trigger-Bedingung:** Slice in `worklog/log.md` mit Notes-Hinweis "Re-Doing Slice X" ODER Spec-Sektion 11 (Scope-Out) erwähnt explizit "Slice X war REVERTED, hier nochmal versuchen". Hook-Detection optional (post-Slice-268-Backlog).
+
+**Format Review-File:** `worklog/reviews/<NNN>-spec-review.md` (separater File neben `<NNN>-review.md` für POST-BUILD).
+
+**Reviewer-Briefing-Pflicht-Punkte:**
+1. Anti-Pattern-Vermeidungs-Liste aus Reverted-Slice (5 Punkte minimum) — alle in Spec verboten + grep-prüfbar?
+2. Money-Path-Schutz vorhanden (wenn Slice Money/Auth/Security berührt)?
+3. AC-Coverage für die exakte Bug-Klasse die Revert ausgelöst hat?
+4. Pre-Mortem ≥ 5 Szenarien mit Probability/Impact?
+
+### Alternativen erwogen
+
+**A. Spec-Quality-Self-Check als Hook:** Hook prüft Spec-Datei auf Pflicht-Sektionen pre-Edit-Lock. Slice 212 hat das als WARN-only implementiert — funktioniert für Standard-Slices, aber erkennt nicht "ist das eine Re-Doing-Reverted-Slice"-Kontext. **Verworfen** weil Spec-Inhalt-Qualität nicht Hook-prüfbar.
+
+**B. Nur POST-BUILD-Review wie immer:** Slice-265+266 hat das gemacht und beide wurden revertet. **Verworfen** durch empirischen Beweis.
+
+**C. Anil-Manuell-Review der Spec:** Funktioniert, aber Anil ist CEO nicht CTO — soll keine Spec-Quality-Audit-Last tragen. **Verworfen.**
+
+### Re-Visit-Trigger
+
+Wenn nach 5 Slices mit Reviewer-VOR-BUILD die Hit-Rate (gefundene-MINORs / Slices) < 30% ist, kann Pflicht zu OPT-IN reduziert werden. Bisher 1 von 1 Slice (Slice 268) hat 3 MINORs gefunden = 100% Hit-Rate.
+
+### Beziehung zu existing Patterns
+
+- **D43 (Auth-Hydration-Race):** Defense-in-Depth-Pattern — Reviewer-VOR-BUILD ist Process-Achse derselben Philosophie
+- **D54 (Build-without-Wire):** UI-Definition-of-Done — Reviewer-VOR-BUILD ist Spec-Quality-Definition-of-Done
+

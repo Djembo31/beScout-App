@@ -368,3 +368,98 @@ describe('removeWalletFromCache — Hard Wipe', () => {
     expect(client.getQueryData(walletQueryKey(OTHER_USER_ID))).toBeUndefined();
   });
 });
+
+// ============================================
+// Slice 268 — Cold-Start Cache-Mirror via placeholderData
+// ============================================
+describe('useWallet — Slice 268 placeholderData Cold-Start-Mirror', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  // AC-01: warm-cache mit lsSet vor Hook-Mount → placeholderData liefert
+  // sofort Wallet-Werte → balanceCents non-null bevor getWallet resolved.
+  it('reads UID-keyed localStorage as placeholderData on mount', async () => {
+    localStorage.setItem(
+      `bs_wallet_${USER_ID}`,
+      JSON.stringify(makeWallet({ balance: 99_000, locked_balance: 1_000 })),
+    );
+    // getWallet "hangt" für Test — wir prüfen dass Cache placeholderData liefert
+    let resolveFetch!: (v: DbWallet) => void;
+    getWalletMock.mockImplementation(() => new Promise<DbWallet>((res) => { resolveFetch = res; }));
+    const client = createClient();
+
+    const { result } = renderHook(() => useWallet(), { wrapper: createWrapper(client) });
+
+    // Während getWallet pending ist, sollte placeholderData rendern.
+    await waitFor(() => expect(result.current.balanceCents).toBe(99_000));
+    expect(result.current.lockedBalanceCents).toBe(1_000);
+
+    // AC-09: Money-Path-Schutz — dataUpdatedAt MUSS 0 sein während placeholderData,
+    // damit useIsBalanceFresh false returnt und BuyModal-Confirm disabled bleibt.
+    expect(result.current.dataUpdatedAt).toBe(0);
+
+    // Resolve fetch — Real-Data übernimmt
+    resolveFetch(makeWallet({ balance: 100_000, locked_balance: 5_000 }));
+    await waitFor(() => expect(result.current.balanceCents).toBe(100_000));
+    expect(result.current.dataUpdatedAt).toBeGreaterThan(0);
+  });
+
+  // AC-09: Während placeholderData rendert, MUSS useIsBalanceFresh false returnen
+  // (dataUpdatedAt=0 + isFetching=true) — BuyModal-Confirm bleibt disabled.
+  it('useIsBalanceFresh stays false while placeholderData renders (Money-Path-protection)', async () => {
+    localStorage.setItem(
+      `bs_wallet_${USER_ID}`,
+      JSON.stringify(makeWallet({ balance: 99_000 })),
+    );
+    let resolveFetch!: (v: DbWallet) => void;
+    getWalletMock.mockImplementation(() => new Promise<DbWallet>((res) => { resolveFetch = res; }));
+    const client = createClient();
+
+    const { result } = renderHook(() => ({ wallet: useWallet(), fresh: useIsBalanceFresh() }), {
+      wrapper: createWrapper(client),
+    });
+
+    // Initial: placeholderData rendert, fetch läuft, fresh muss false sein.
+    await waitFor(() => expect(result.current.wallet.balanceCents).toBe(99_000));
+    expect(result.current.fresh).toBe(false);
+
+    // Nach Resolve: dataUpdatedAt > 0 + isFetching false → fresh wird true.
+    resolveFetch(makeWallet({ balance: 100_000 }));
+    await waitFor(() => expect(result.current.fresh).toBe(true));
+  });
+
+  // UID-Isolation: User-A's lsSet darf nicht User-B's placeholder werden.
+  it('UID-keyed isolation: User-B sees no placeholder from User-A slot', async () => {
+    localStorage.setItem(
+      `bs_wallet_${USER_ID}`,
+      JSON.stringify(makeWallet({ balance: 99_999 })),
+    );
+    useUserMock.mockReturnValue({ user: { id: OTHER_USER_ID } });
+    let resolveFetch!: (v: DbWallet) => void;
+    getWalletMock.mockImplementation(() => new Promise<DbWallet>((res) => { resolveFetch = res; }));
+    const client = createClient();
+
+    const { result } = renderHook(() => useWallet(), { wrapper: createWrapper(client) });
+
+    // User-B hat kein eigener Slot → balanceCents bleibt null bis fetch resolved.
+    expect(result.current.balanceCents).toBeNull();
+    resolveFetch(makeWallet({ user_id: OTHER_USER_ID, balance: 5_000 }));
+    await waitFor(() => expect(result.current.balanceCents).toBe(5_000));
+  });
+
+  // Mirror-Write nach erfolgreichem Fetch: Slot wird befüllt für nächsten Mount.
+  it('writes wallet to UID-keyed slot after successful fetch', async () => {
+    getWalletMock.mockResolvedValue(makeWallet({ balance: 42_000 }));
+    const client = createClient();
+
+    renderHook(() => useWallet(), { wrapper: createWrapper(client) });
+
+    await waitFor(() => {
+      const stored = localStorage.getItem(`bs_wallet_${USER_ID}`);
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored!);
+      expect(parsed.balance).toBe(42_000);
+    });
+  });
+});

@@ -12,6 +12,7 @@ import * as Sentry from '@sentry/nextjs';
 import { withTimeout } from '@/lib/utils';
 import { queryClient } from '@/lib/queryClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
+import { clearCachedAllSlots } from '@/lib/utils/cachedQuery';
 import type { Profile, ClubAdminRole } from '@/types';
 
 // ============================================
@@ -302,6 +303,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setPlatformRole(null);
       setClubAdmin(null);
       lsClear();
+      // Slice 268: synchron neben lsClear — wallet/tickets UID-keyed Slots clearen.
+      // MUSS synchron sein (NICHT im setTimeout) damit SIGNED_OUT→SIGNED_IN-Same-Frame
+      // (User-B-Login direkt nach User-A-Logout) keinen Race-Window auf Slot-Daten hat.
+      clearCachedAllSlots();
 
       // Clear on any user-state loss (not just SIGNED_OUT) — prevents stale-cache
       // leak on re-login after silent token expire (Flow-Audit Flow 15).
@@ -332,6 +337,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             data: { from: cachedUserId.slice(0, 8), to: u.id.slice(0, 8) },
           });
           lsClear();
+          clearCachedAllSlots();  // Slice 268: synchron VOR setUser, sonst sieht User-B kurz User-A's wallet/tickets
           queryClient.clear();
         }
 

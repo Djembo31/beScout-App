@@ -9,6 +9,22 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 268 | 2026-04-30 | Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right)
+
+- Stage-Chain: SPEC → IMPACT skipped → REVIEWER-vor-BUILD APPROVED-WITH-MINOR → 3 MINORs inline eingearbeitet → BUILD → REVIEWER-POST-BUILD PASS-WITH-CONCERN → CONCERN inline geheilt → PROVE → LOG
+- Slice-Type: UI (Hook + Provider) · Größe: M · Scope: CTO autonom
+- Anil-Direktive: "C3 done right, sauber ohne Reste" — Cold-Start-Phase Wallet+Tickets erscheinen erst nach 4-9s (Mobile-Safari Auth-SDK-Warmup-Bottleneck), Slice 261 hat wallet+tickets als USER_SCOPED deny-listed → kein Persist-Hit beim Refresh.
+- Lösung (3-Layer): UID-keyed localStorage-Mirror (`bs_wallet_<uid>`, `bs_tickets_<uid>`) + `placeholderData` (NICHT initialData) + `staleTime: 0` damit Background-Refetch immer läuft + AuthProvider clearCachedAllSlots-Aufruf SYNCHRON neben lsClear bei SIGNED_OUT + User-Switch-Detect-Block.
+- Slice-265-Anti-Patterns kategorisch vermieden (5/5 grep-verified): kein `initialData`, kein single-slot, kein TopBar-Touch, kein (app)/layout-Touch, `staleTime: 0` auf beiden Hooks, useMemo statt useState-Init-Read.
+- Money-Path-Schutz verifiziert (AC-09 Vitest): `placeholderData` → `dataUpdatedAt=0` → `useIsBalanceFresh()` returnt false → BuyModal-Confirm-Button bleibt disabled bis Real-Data ankommt.
+- Process-Innovation: **Reviewer-VOR-BUILD-Stage** zum ersten Mal architektonisch durchgezogen (aus Slice-265+266-Lehre). Spec-Reviewer fand 3 MINORs (AC-09 fehlte, clearCachedAllSlots-Synchronicity-Detail, Edge-Cases #11+#12) — alle inline in Spec eingearbeitet bevor Code geschrieben wurde. Code-Reviewer-POST-BUILD fand zusätzliche CONCERN (fehlender AuthProvider-Test) — inline geheilt mit 5 neuen Tests, kein Follow-up-Slice.
+- Files (7): NEU `src/lib/utils/cachedQuery.ts` (Helper-Module) + Tests (12) · NEU `src/components/providers/__tests__/AuthProvider-slice268.test.tsx` (5 Tests AC-03/AC-04) · EDIT `src/lib/hooks/useWallet.ts` (placeholderData + onSuccess-write + staleTime: 0) + Tests (4 neue Slice-268 Tests) · EDIT `src/lib/queries/tickets.ts` · EDIT `src/components/providers/AuthProvider.tsx` (clearCachedAllSlots SYNCHRON an SIGNED_OUT + User-Switch).
+- Tests: 59/59 grün (12 cachedQuery + 17 useWallet + 5 AuthProvider-slice268 + intakt-bleibende AuthGuard/Providers/ToastProvider/ClubProvider).
+- Proof: `worklog/proofs/268-verify.txt` (tsc clean + 59/59 vitest + AC-08 0-lines-diff + Anti-Pattern-Verify).
+- Spec: `worklog/specs/268-cold-start-cache-mirror.md` (alle 13 Sektionen + Pre-Mortem 8 Szenarien + 3 MINORs inline).
+- Reviews: `worklog/reviews/268-spec-review.md` (Spec-Reviewer APPROVED-WITH-MINOR) + `worklog/reviews/268-review.md` (Code-Reviewer PASS-with-CONCERN-inline-geheilt).
+- Live-Verify-Pflicht (Anil post-Vercel-Deploy): siehe Spec Sektion 8 — 5-Step Mobile-Safari Inkognito Test (Login + Tab-Close + neuer Tab → instant Wallet+Tickets, User-Switch keine Cross-User-Leak, SIGNED_OUT clearCachedAllSlots-Verify, Sentry 30s 0 Errors).
+
 ## 267 | 2026-04-30 | EMERGENCY P0 — Map-Persist-Korruption Heal (Spieltag + Manager broken)
 
 - Stage-Chain: emergency (Anil-Live-Bug-Triage) → BUILD (2 Files defensive) → REVIEW self (Slice-261-Klasse) → PROVE (tsc + 50/50 vitest + Console-Stack-Match) → LOG → Knowledge-Capture
