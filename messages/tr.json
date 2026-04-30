@@ -289,6 +289,13 @@
     "transactions": "İşlemler"
   },
   "home": {
+    "gwBar": {
+      "label": "Hafta {n}",
+      "live": "Canlı",
+      "deadlinePassedFallback": "Kayıt sürüyor",
+      "skeletonAriaLabel": "Hafta durumu yükleniyor",
+      "linkAriaLabel": "Hafta'ya git"
+    },
     "greeting": "Tekrar hoş geldin",
     "greetingNight": "İyi geceler",
     "greetingMorning": "Günaydın",

@@ -1,0 +1,85 @@
+Slice 261 — Pre-Deploy Self-Verification Proof
+================================================
+Date: 2026-05-01
+Stage: BUILD complete, REVIEW PASS, ready for Commit
+Spec: worklog/specs/261-gameweek-status-bar.md (v2.1)
+
+# 1. tsc --noEmit
+$ npx tsc --noEmit; echo "EXIT=$?"
+EXIT=0
+✓ TypeScript strict clean
+
+# 2. i18n keys present in BOTH locales
+$ for k in "label" "live" "deadlinePassedFallback" "skeletonAriaLabel" "linkAriaLabel"; do
+    de=$(grep -c "\"$k\":" messages/de.json)
+    tr=$(grep -c "\"$k\":" messages/tr.json)
+    echo "  $k: DE=$de TR=$tr"
+  done
+  label: DE=5 TR=5         (5 = multiple "label" keys in different namespaces — present in home.gwBar)
+  live: DE=1 TR=1
+  deadlinePassedFallback: DE=1 TR=1
+  skeletonAriaLabel: DE=1 TR=1
+  linkAriaLabel: DE=1 TR=1
+✓ All 5 keys in both locales
+
+# 3. Spotlight Priority-2 Event-Branch removed (B=b Anil-Decision)
+$ grep -n "nextEvent\|Active Fantasy Event" src/components/home/HomeSpotlight.tsx
+14:// Slice 261 (B=b): nextEvent-prop entfernt (Event-Branch gone).
+75:// Slice 261 (B=b Anil-Decision): Priority-2 "Active Fantasy Event" entfernt.
+✓ Both matches are comment-only — no code-use of nextEvent or Event-Branch
+
+# 4. Stateless GameweekStatusBar (Slice 254 Pattern)
+$ grep -E "useState|useEffect" src/components/home/GameweekStatusBar.tsx
+(no output)
+✓ 0 useState, 0 useEffect — Liga-Pin-Risk eliminated
+
+# 5. addToast DE-Hardcoded Audit (Slice 196 Track B)
+$ grep -E "addToast\(['\"][A-ZÄÖÜ]" src/components/home/GameweekStatusBar.tsx
+(no output)
+✓ 0 hardcoded German toast strings — Bar is read-only render
+
+# 6. motion-reduce honored (P3-2)
+$ grep -c "motion-reduce" src/components/home/GameweekStatusBar.tsx
+3
+✓ 3x motion-reduce (gold-pulse-bg + animate-ping + animate-pulse all honored)
+
+# 7. Mapper leagueId-Patch live (P0-NEW-1 fix)
+$ grep -n "leagueId: clubLookup" src/features/fantasy/mappers/eventMapper.ts
+80:    leagueId: clubLookup?.league_id ?? undefined,
+✓ Single-Source for FantasyEvent.leagueId via clubLookup
+
+# 8. Code-Reviewer Verdict
+File: worklog/reviews/261-code-review.md
+Verdict: PASS
+- 0 P0
+- 0 P1
+- 2 P2 (P2-1 motion-safe:animate-pulse → FIXED inline; P2-2 mount-position drift to spec → no action, code is better)
+- 3 P3 (all positive observations)
+
+# 9. Pre-Review Iterations (D62 Pattern)
+- 1st-Pass: REWORK (4xP0 + 6xP1)
+  → P0-1 z-index TopBar conflict
+  → P0-2 event.league filter not existent
+  → P0-3 getTimeUntil not locale-aware
+  → P0-4 negative margins HomeStoryHeader
+  → 6x P1: Cold-Start-Skeleton, AC-09 realistic, multi-tab/bfcache, i18n-Audit, DE-Wording-Codebase, Pre-Existing-Drift
+  All 10 fixed in v2.
+
+- 2nd-Pass: CONCERNS (1xP0-NEW + 2xMinor)
+  → P0-NEW-1: useFantasyEvents-Mapper does not set leagueId today
+  → P1-NEW-2: AC-04 Format-Inconsistency (xh ym vs Xd Yh)
+  → P2-NEW-3: helpers.ts vs helpers.tsx
+  All 3 fixed in v2.1 (mapper-patch + AC clarification + cosmetic).
+
+# Post-Deploy PROVE (TODO after Anil push):
+- worklog/proofs/261-mobile-bar-visible.png  (393px Mobile-Safari, Süper-Lig user with active GW)
+- worklog/proofs/261-mobile-bar-empty.png    (393px New-User, Bar = null)
+- worklog/proofs/261-desktop-bar.png         (1280px Desktop)
+- worklog/proofs/261-spotlight-no-event.png  (Spotlight w/o Event-Card, B=b verify)
+- worklog/proofs/261-cold-start-skeleton.gif (DevTools 3G + Hard-Refresh, Skeleton 4-9s)
+- worklog/proofs/261-liga-switch.gif         (AC-09: Süper Lig → Bundesliga via /fantasy → zurück Home)
+
+================================================
+Pre-Deploy Self-Verification: 7/7 PASS
+Code-Review Verdict: PASS
+Commit-Ready: YES

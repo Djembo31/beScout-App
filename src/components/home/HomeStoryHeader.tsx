@@ -9,6 +9,7 @@ import { formatScout } from '@/lib/services/wallet';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { InfoTooltip } from '@/components/ui';
 import { getGreetingKey } from './helpers';
+import GameweekStatusBar from './GameweekStatusBar';
 import { useTranslations } from 'next-intl';
 import type { DbUserStats } from '@/types';
 
@@ -47,6 +48,9 @@ function HomeStoryHeaderInner({
       <div className="absolute inset-0 bg-hero-vignette pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-10">
+        {/* ━━━ LAYER 0 — GAMEWEEK STATUS BAR (Slice 261) ━━━ */}
+        <GameweekStatusBar />
+
         {/* ━━━ GREETING + BADGES ━━━ */}
         <div className="flex items-start justify-between">
           <div>

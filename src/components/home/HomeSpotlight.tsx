@@ -2,26 +2,24 @@
 
 import { memo } from 'react';
 import Link from 'next/link';
-import { Trophy, TrendingUp, Clock, Users } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { PlayerPhoto, PositionBadge, MiniSparkline } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { fmtScout, cn } from '@/lib/utils';
-import { centsToBsd } from '@/lib/services/players';
 import { useTranslations } from 'next-intl';
-import { getTimeUntil, formatPrize } from './helpers';
-import type { Player, DbEvent, Pos, DpcHolding } from '@/types';
+import type { Player, DpcHolding } from '@/types';
 import type { TrendingPlayer } from '@/lib/services/trading';
 
+// Slice 261 (B=b): nextEvent-prop entfernt (Event-Branch gone).
 interface HomeSpotlightProps {
   activeIPOs: Player[];
-  nextEvent: DbEvent | null;
   holdings: DpcHolding[];
   trendingPlayers: TrendingPlayer[];
   players: Player[];
 }
 
-function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, players }: HomeSpotlightProps) {
+function HomeSpotlightInner({ activeIPOs, holdings, trendingPlayers, players }: HomeSpotlightProps) {
   const t = useTranslations('home');
 
   // Priority 1: Live IPO
@@ -74,49 +72,11 @@ function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, 
     );
   }
 
-  // Priority 2: Active Fantasy Event
-  if (nextEvent) {
-    return (
-      <Link href="/fantasy" className="block">
-        <Card surface="hero" className="p-4 relative overflow-hidden shadow-card-elevated card-entrance" style={{ boxShadow: '0 0 24px rgba(168,85,247,0.15), 0 8px 32px rgba(0,0,0,0.6)' }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-purple-500/8 to-transparent" />
-          <div className="absolute -top-12 -right-12 size-32 rounded-full bg-purple-500 blur-3xl opacity-20" />
-          <div className="relative">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <Trophy className="size-4 text-purple-400" />
-                  <span className="text-[10px] font-black uppercase text-purple-400">{t('spotlightEvent')}</span>
-                </div>
-                <h3 className="text-base font-black truncate">{nextEvent.name}</h3>
-                <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
-                  <span className="flex items-center gap-1">
-                    <Users className="size-3.5" />
-                    {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="size-3" />
-                    {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
-                  </span>
-                </div>
-              </div>
-              {nextEvent.prize_pool > 0 && (
-                <div className="text-right shrink-0">
-                  <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
-                  <div className="text-xl font-black font-mono tabular-nums text-gold gold-glow">
-                    {formatPrize(centsToBsd(nextEvent.prize_pool))}
-                  </div>
-                  <div className="text-[10px] text-white/40">Credits</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </Card>
-      </Link>
-    );
-  }
+  // Slice 261 (B=b Anil-Decision): Priority-2 "Active Fantasy Event" entfernt.
+  // GameweekStatusBar (Layer 0 in HomeStoryHeader) ist jetzt prim\u00E4rer GW-Anker.
+  // Sidebar-NextEvent-Card in page.tsx bleibt (kein Scope hier).
 
-  // Priority 3: Top Mover from portfolio
+  // Priority 2: Top Mover from portfolio
   if (holdings.length > 0) {
     const best = [...holdings].sort((a, b) => b.change24h - a.change24h)[0];
     if (best && best.change24h !== 0) {

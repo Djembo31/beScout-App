@@ -289,6 +289,13 @@
     "transactions": "Transaktionen"
   },
   "home": {
+    "gwBar": {
+      "label": "Spieltag {n}",
+      "live": "Live",
+      "deadlinePassedFallback": "Anmeldung läuft",
+      "skeletonAriaLabel": "Spieltag-Status lädt",
+      "linkAriaLabel": "Zum Spieltag"
+    },
     "greeting": "Willkommen zurück",
     "greetingNight": "Gute Nacht",
     "greetingMorning": "Guten Morgen",

@@ -176,7 +176,6 @@ export default function HomePage() {
       ) : (
         <HomeSpotlight
           activeIPOs={activeIPOs}
-          nextEvent={nextEvent}
           holdings={holdings}
           trendingPlayers={trendingPlayers}
           players={players}
