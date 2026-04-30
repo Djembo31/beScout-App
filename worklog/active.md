@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 264
+stage: PROVE
+spec: inline (Slice 263 follow-up — Smoking-Gun #3)
+impact: skipped (1 File AuthGuard.tsx — Block-Removal, Components bereits null-safe)
+proof: worklog/proofs/264-ac-audit.txt
+review: self-review D35 (XS architectural-soft-fix)
 ```
 
-## Slice 263 KOMPLETT (P0 EMERGENCY): Mobile-Safari iPhone loadProfile-Timeout-Bump. 3rd Tester (cloud/f3267e0d) auf iOS 18.7 sah 13s+ Skeleton-Cascade. Fix: getAuthState 3s→10s, fallback 8s→15s, safety 5s→12s. Provider-Tests 25/25. Commit `e2405a93`. Slice 264 (AuthGuard architektonisch — Smoking-Gun #3) als Long-Term.
+## Slice 264 P0 (Beta-Day-2 final-fix): AuthGuard Architektur-Refactor — Smoking-Gun #3 endlich. AuthGuard blockierte children mit ContentSkeleton während `profileLoading=true` — User sieht 5-13s Wasserfall. Components nutzen profile bereits null-safe (audit: `profile?.favorite_club_id ?? null` etc.) → AuthGuard kann children rendern sobald `user` cached ist, profileLoading muss kein Block mehr sein. Slice 263's Timeout-Bump heilt Sentry-Cascade, Slice 264 heilt das User-Wahrnehmungs-Problem.

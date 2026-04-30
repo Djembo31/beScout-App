@@ -35,13 +35,18 @@ describe('AuthGuard', () => {
     expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
-  it('shows skeleton while profileLoading', () => {
+  // Slice 264 (2026-04-30) — Smoking-Gun #3 fix: AuthGuard renders children
+  // as soon as `user` is known, even while `profileLoading=true`. Profile-
+  // dependent components are null-safe (audit-verified) and handle their own
+  // loading state. This eliminates the 5-13s full-page skeleton on Mobile-
+  // Safari cold session-restore.
+  it('renders children while profileLoading (Slice 264)', () => {
     mockUseUser.mockReturnValue({ user: { id: 'u1' }, profile: null, loading: false, profileLoading: true });
     const { container } = render(
       <AuthGuard><div data-testid="protected">Secret</div></AuthGuard>,
     );
-    expect(screen.queryByTestId('protected')).not.toBeInTheDocument();
-    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
+    expect(screen.getByTestId('protected')).toBeInTheDocument();
+    expect(container.querySelector('.animate-pulse')).not.toBeInTheDocument();
     expect(mockReplace).not.toHaveBeenCalled();
   });
 

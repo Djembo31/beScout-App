@@ -35,11 +35,30 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, profile, loading, profileLoading, router]);
 
-  // Show skeleton while auth or profile is loading
-  if (loading || profileLoading) return <ContentSkeleton />;
+  // Slice 264 (2026-04-30) — Smoking-Gun #3 Sequential Loading-Cascade fix.
+  // Pre-264: `if (loading || profileLoading) return <ContentSkeleton />`
+  // blocked the entire page until BOTH user AND profile were loaded. On
+  // Mobile-Safari with cold session-restore + slow getAuthState (Slice 263)
+  // this stretched to 5-13s of full-page skeleton — what Anil called
+  // "Initial Load schrott".
+  //
+  // Post-264: only block on `loading` (auth-state truly unknown). Once we
+  // know `user` exists, render children. Profile-dependent components are
+  // already null-safe (audit-verified: `profile?.favorite_club_id ?? null`,
+  // `profile?.display_name || user?.email`, etc.) so they handle the
+  // profileLoading window gracefully — perceived render is now instant
+  // for returning users with cached `user`.
 
-  // Show skeleton while redirecting — prevents flash of blank content
-  if (!user || !profile) return <ContentSkeleton />;
+  // (1) Auth-state truly unknown → minimal skeleton (sub-second on cached)
+  if (loading) return <ContentSkeleton />;
+
+  // (2) Logged out → skeleton during /login redirect
+  if (!user) return <ContentSkeleton />;
+
+  // (3) Logged in but no profile AND not currently loading → skeleton
+  // during /onboarding redirect. profileLoading=true falls through to
+  // children — components null-safe-handle the in-flight profile state.
+  if (!profile && !profileLoading) return <ContentSkeleton />;
 
   return <>{children}</>;
 }

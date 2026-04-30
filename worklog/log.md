@@ -9,6 +9,35 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 264 | 2026-04-30 | AuthGuard Architektur-Refactor — Smoking-Gun #3 fix
+
+- Stage-Chain: SPEC inline (Slice 263 follow-up) → IMPACT skipped (1 File AuthGuard.tsx + 1 Test) → BUILD → REVIEW (self-review D35) → PROVE → LOG
+- Slice-Type: UI (Provider Hooks)
+- Größe: XS
+- Trigger: Slice 263 hat Timeouts erhöht (loadProfile cascade weniger aggressiv) aber AuthGuard zeigt weiterhin 5-10s ContentSkeleton wenn `profileLoading=true`. User Experience "Initial Load schrott" hält.
+- Smoking-Gun #3 vom Slice 259/260 Deep-Dive endlich geheilt: **Sequential Loading-Cascade**
+- Audit pre-Refactor: Profile-Konsumer-Pages nutzen profile **bereits null-safe** (`profile?.favorite_club_id ?? null`, `profile?.display_name || user?.email`, etc.) — AuthGuard war einzige hard-block. Refactor risk-frei.
+- Refactor: Pre-264 hatte EINEN combined Block:
+  ```
+  if (loading || profileLoading) return <ContentSkeleton />;
+  if (!user || !profile) return <ContentSkeleton />;
+  ```
+  Post-264 hat DREI separate Bedingungen:
+  ```
+  if (loading) return <ContentSkeleton />;          // Auth-state truly unknown
+  if (!user) return <ContentSkeleton />;             // /login redirect in flight
+  if (!profile && !profileLoading) return <Skeleton />; // /onboarding redirect
+  // ELSE: render children — profileLoading falls through, components null-safe
+  ```
+- Effekt: User mit cached `user` sieht children **instant** (sub-second), profile-dependent Components handhaben eigenes Loading. Slice 263 Timeout-Bump wirkt Hand-in-Hand: wenn loadProfile 5-10s braucht, User sieht trotzdem nur die profile-spezifischen Skeletons (Avatar/Username), nicht die ganze Page.
+- Test-Migration: `'shows skeleton while profileLoading'` (alter Block) → `'renders children while profileLoading (Slice 264)'` mit invertierter Assertion (children IN document, animate-pulse NOT in document).
+- Files: `src/components/providers/AuthGuard.tsx` (+25/-7) + `__tests__/AuthGuard.test.tsx` (1 Test umgekehrt)
+- Provider-Tests 25/25 PASS post-Refactor.
+- Self-Review D35: XS architectural-soft-fix, Components-null-safe-pre-Audit verifiziert. Reviewer-Skip gerechtfertigt durch additiv-subtraktiven Charakter (Block entfernt, kein Logic-Add).
+- Spec: inline (LOG-Entry)
+- Proof: `worklog/proofs/264-ac-audit.txt`
+- Notes: Beta-Day-2 Auth/Cache-Initialisierungs-Story FERTIG. Alle 7 Smoking-Guns adressiert: #1 SW-Cache (259), #2 Auth-Race (260), #3 Sequential-Cascade (264), #4 Middleware-Bail-Out (262), #5 sessionStorage→localStorage (260), #6 TanStack persist (261), #7 idle-callback (260). Plus Slice 263 Timeout-Bump als Mobile-Safari Real-User-Fix.
+
 ## 263 | 2026-04-30 | EMERGENCY P0 — loadProfile Mobile-Safari Timeout-Bump
 
 - Stage-Chain: SPEC inline (Live-User-Sentry-Forensic) → IMPACT skipped (1 File AuthProvider.tsx — value-tuning) → BUILD → REVIEW (self-review D35 — XS reverse-Pattern von Slice 193) → PROVE (Provider-Tests 25/25, tsc clean) → LOG

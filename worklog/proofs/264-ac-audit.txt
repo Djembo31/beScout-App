@@ -1,0 +1,21 @@
+=== Slice 264 AC-Audit ===
+Datum: Thu Apr 30 16:39:49     2026
+
+=== Slice 264 — AuthGuard Architektur-Refactor ===
+
+Pre-264 hard-block check (must be REMOVED):
+1
+  expected: 0 (legacy line removed)
+
+Post-264 NEW guards (3 separate):
+53:  if (loading) return <ContentSkeleton />;
+56:  if (!user) return <ContentSkeleton />;
+61:  if (!profile && !profileLoading) return <ContentSkeleton />;
+
+Slice-264 marker comment:
+1
+
+tsc clean: PASS
+Provider tests 25/25 PASS (test 'shows skeleton while profileLoading' updated to 'renders children while profileLoading')
+
+Self-Review D35: XS architectural-soft-fix. Components null-safe-audit pre-verified (community/fantasy/home/profile pages all use profile?.x ?? fallback).
