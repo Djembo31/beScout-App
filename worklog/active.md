@@ -1,21 +1,19 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 261
+stage: PROVE
+spec: worklog/specs/261-tanstack-persist-cache.md
+impact: skipped (3 Files, kein src/lib/services, kein RPC, kein Schema)
+proof: worklog/proofs/261-ac-audit.txt
+review: worklog/reviews/261-review.md (CONCERNS-mergeable → PASS post P1+P3 inline-Heal)
 ```
 
-## Slice 260 KOMPLETT (P1): Auth-Hydrate Hardening Beta-Day-2. AuthProvider+ClubProvider sessionStorage→localStorage (cross-tab warm cache). User-Switch-Detect-Block in onAuthStateChange (cachedUserId !== u.id → lsClear + queryClient.clear + Sentry-Breadcrumb GDPR-safe). Welcome-Bonus + ActivityLog in requestIdleCallback (off critical path). Reviewer PASS, P3#1 inline geheilt (TOKEN_REFRESHED-Guard), P3#2 accept-as-designed. Provider-Tests 25/25 grün. Knowledge promoted: patterns.md #41 + #42. Commit `5412ac43`. AC-08 Cross-Tab-Live-Verify post-Deploy.
-
-## Slice 259 KOMPLETT (P0 EMERGENCY): Service Worker Cache-Pollution Heal — Beta-Day-2 First-Load-Bug behoben. Live-Verify gegen bescout.net: **1899 stale Supabase-REST-Responses → 0**. Commit `d4583303`.
+## Slice 261 P2 (Beta-Day-2 Final): TanStack Query Persist-Cache. Anil-Direktive autonom + "Kapitel zuhaben". Smoking-Gun #6 vom Slice 259/260 Deep-Dive. persistQueryClient + createSyncStoragePersister mit localStorage Key `BESCOUT_QUERY_CACHE_v1`. Defensive 3-Layer Allowlist: USER_SCOPED-domain-deny + UUID-regex-deny + status-success-only. Cascading via Slice 260 queryClient.clear() bei User-Switch. Anil PARALLEL an Home → KEIN Touch an `src/app/layout.tsx` / `page.tsx` / `(app)/layout.tsx`. Slice 262 (Middleware Public-Route-Bail-Out) folgt nahtlos.
 
 ## Zuletzt
 
+- **Slice 260** (2026-04-30) — Auth-Hydrate Hardening (sessionStorage→localStorage + idle-callback)
+- **Slice 259** (2026-04-30) — EMERGENCY P0 SW Cache-Pollution Heal
 - **Slice 258** (2026-04-29) — EMERGENCY P0 Signup-Trigger-Bug 13-Tage-latent gefixt
-- **Slice 257** (2026-04-29) — Hardening-Bundle (F-4 + F-8 + D60-Hook)
-- **Slice 256** (2026-04-29) — StalePipelineBanner Cron-Health UI-Sentinel

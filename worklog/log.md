@@ -9,6 +9,38 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 261 | 2026-04-30 | TanStack Query Persist-Cache (P2, Beta-Day-2 Final)
+
+- Stage-Chain: SPEC → IMPACT skipped (3 Files, kein src/lib/services, kein RPC, kein Schema) → BUILD → REVIEW (reviewer-agent CONCERNS-mergeable, 32 min, P1 inline geheilt + P3 inline geheilt + 5 P2/P3 defer post-Beta) → PROVE (alle 9 ACs, Provider-Tests 25/25) → LOG
+- Slice-Type: UI (Provider Hooks)
+- Größe: S
+- Anil-Direktive: "saubere 100%tige Leistung, keine Reste, autonom, damit das Kapitel zuhaben"
+- Constraint: Anil parallel an Home-Page in anderem Terminal → KEIN Touch an `src/app/layout.tsx` / `page.tsx` / `(app)/layout.tsx`
+- Smoking-Gun #6 vom Slice 259/260 Deep-Dive geheilt: TanStack Query bisher ohne Persistence → kalt-start jeder Tab/Browser-Session
+- Implementation:
+  - `src/components/providers/QueryProvider.tsx`: NEW persist setup mit `persistQueryClient` (function-pattern, kein Children-Re-Mount-Risk via Provider-Stable)
+  - `src/lib/queryClient.ts`: gcTime 10min → 24h (matches persist maxAge upper bound — sonst gc'd queries werden nicht re-hydrated)
+  - `package.json`: + `@tanstack/react-query-persist-client` + `@tanstack/query-sync-storage-persister` + react-query bump 5.91.2 → 5.100.6 (peer-dep alignment)
+- Defense-in-Depth 3-Layer-Filter (`shouldDehydrateQuery`):
+  - Layer 1: status-success-only (no in-flight, no errors)
+  - Layer 2: 32 USER_SCOPED domains denied (28 qk-Factory + 4 inline-keyed: `home`/`streaks`/`wildcards`/`rankings`)
+  - Layer 3: UUID-regex deny (defensive — sacrifices public-aggregate-with-club-id for safety)
+- Cache-Lifecycle:
+  - localStorage Key: `BESCOUT_QUERY_CACHE_v1` (suffix-versioned)
+  - maxAge: 30 Min (public-data drift tolerance)
+  - buster: `'v1'` (für breaking-change inkrementieren)
+  - throttleTime: 1000ms (max 1× write/sec)
+- Cascading mit Slice 260 User-Switch-Detect: `queryClient.clear()` in AuthProvider feuert → persist subscribed via QueryCache events → localStorage cleared automatisch nach throttleTime (1s race-window mitigated durch Layer 1)
+- SSR-Safe: persist-Init nur in useEffect mit typeof-window-Guard, nicht Module-Top-Level
+- Reviewer P1 inline geheilt: 4 fehlende inline-keyed user-scope-Domains (`home`/`streaks`/`wildcards`/`rankings`) hinzugefügt + Audit-Command-Comment für Future-Maintenance (`grep -rn "queryKey:\\s*\\['" src/`)
+- Reviewer P3 inline geheilt: Sentry.captureException für persist-init-failures (Privacy-Mode/Quota-Exceeded Observability statt silent-degradation)
+- Reviewer Defer post-Beta: P2 Allowlist-Refactor / P2 gcTime-Reduktion (24h → 30min mit Sentry-Telemetrie) / P2 qk.posts/research user-id-in-object-Refactor / P3 DevTools tree-shake-Verify / P3 Test-Persist-Race-Cleanup
+- Files: `src/components/providers/QueryProvider.tsx` (143 Zeilen NEW), `src/lib/queryClient.ts` (6 Zeilen edit), `package.json` (3 deps), `pnpm-lock.yaml` (auto-update)
+- Spec: `worklog/specs/261-tanstack-persist-cache.md`
+- Proof: `worklog/proofs/261-ac-audit.txt`
+- Review: `worklog/reviews/261-review.md`
+- Notes: Slice 262 (Middleware Public-Route-Bail-Out) folgt nahtlos. AC-09 LIVE-VERIFY post-Deploy.
+
 ## 260 | 2026-04-30 | Auth-Hydrate Hardening (P1, Beta-Day-2)
 
 - Stage-Chain: SPEC → IMPACT skipped (3 Files src/components/providers + 1 src/app/(app)/layout, kein src/lib/services, kein RPC, kein Schema) → BUILD → REVIEW (reviewer-agent PASS, 18 min, 2× P3 — P3#1 inline geheilt, P3#2 accept-as-designed) → PROVE (alle 7 lokale ACs, Provider-Tests 25/25) → LOG
