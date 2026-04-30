@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-30 17:12)
+# Session Handoff — Auto (2026-04-30 21:51)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -11,25 +11,104 @@
  M worklog/audits/type-truth-2026-04-30.md
 ```
 
-## Session Commits: 10
-- f4dbcd33 Revert "feat(265): TopBar Wallet+Tickets Cold-Start localStorage-Mirror"
-- 24d9cf88 Revert "chore(265): active.md → idle post-LOG"
-- fcf1d6fc chore(265): active.md → idle post-LOG
-- d76007f8 feat(265): TopBar Wallet+Tickets Cold-Start localStorage-Mirror
-- 9bf141e4 chore(264): active.md → idle post-LOG
-- 9c972862 feat(264): AuthGuard Architektur-Refactor — Smoking-Gun #3 fix
-- 1e3177d8 chore(263): active.md → idle post-LOG
-- e2405a93 fix(263): EMERGENCY P0 — loadProfile Mobile-Safari Timeout-Bump
-- 2b5e8e4d feat(262): Middleware Public-Route-Bail-Out (P3, Beta-Day-2 Final-Final)
-- 145f4cc2 feat(261): TanStack Query Persist-Cache (P2, Beta-Day-2 Final)
+## Session Commits: 8
+- 2964c44c chore(268): active.md → idle post-LOG
+- 17d0c5b8 feat(268): Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right)
+- 60917621 docs(267): Knowledge-Capture + LOG + idle post-EMERGENCY-Heal
+- e53e7b22 fix(267): EMERGENCY P0 — Map-Persist-Korruption Heal (Spieltag + Manager broken)
+- 909bc9b4 Revert "feat(266): TopProgressBar Cold-Start UX-Bruecke (NProgress-Style Slim 2px Gold-Bar)"
+- 6a7c72e1 Revert "chore(266): active.md → idle post-LOG"
+- 9e6c5093 chore(266): active.md → idle post-LOG
+- 29842d26 feat(266): TopProgressBar Cold-Start UX-Bruecke (NProgress-Style Slim 2px Gold-Bar)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 Resume-Anker MORGEN (2026-05-01) — Beta-Day-3 / Architektur-Refactor
+# 🎯 Resume-Anker MORGEN (2026-05-01) — Beta-Day-3 Live + Cold-Start gefixt
 
-**HEAD `f4dbcd33`** post-Slice-265-Revert. Status: idle.
+**HEAD `8756b5dd`** post-Sentry-Auto-Resolve-Commit. Status: idle.
+
+## Session 2026-04-30 Abend Bilanz — Beta-Day-3 (5 Slices, 2 Reverts, 2 saubere Erfolge)
+
+| Slice | Status | Was |
+|---|---|---|
+| **265** P1 | ❌ REVERTED (vorherige Session) | TopBar Wallet+Tickets localStorage-Mirror — broke Page-Render |
+| **266** P1 | ❌ REVERTED diese Session | TopProgressBar NProgress-Style — broke Spieltag + Manager. Eigentliche Ursache war NICHT 266 sondern Slice 267 Map-Persist-Bug der parallel manifestierte. |
+| **267** P0 EMERGENCY | ✅ live | **Map-Persist-Korruption Heal** — Defense-in-Depth Layer 4 in QueryProvider.tsx (`data instanceof Map/Set` deny) + Defensive Reconstruction in useFixtureDeadlines + Buster-Bump v1→v2-slice267. 9 Services generisch geschützt. |
+| **268** M | ✅ live | **Cold-Start Cache-Mirror Wallet+Tickets** (Slice-265-done-right) — UID-keyed localStorage-Mirror mit `placeholderData` (NICHT initialData), `staleTime: 0`, AuthProvider clearCachedAllSlots SYNCHRON neben lsClear. 59/59 Tests grün. **Reviewer-VOR-BUILD-Stage zum ersten Mal architektonisch durchgezogen**. |
+
+## Was heute verstanden wurde
+
+**Slice 266 → Slice 267 → Slice 268 als Lehr-Sequenz:**
+
+1. **Slice 266 wurde fälschlich revertet als Bug-Quelle.** Echter Bug war Slice 267 (Map-Persist) — Manifestation parallel mit Slice 266 hat Verwirrung erzeugt. Ohne Anil's Wut-Trigger ("lös mir endlich dieses fucking Problem") wäre ich auf der Slice-266-Spur geblieben.
+
+2. **Anil's neuer Default-Standard etabliert** (`memory/feedback_root_cause_eifer.md`): root-cause-first, defense-in-depth, user-state-migration mit Buster-Bump, Pattern-Promotion ohne Aufforderung.
+
+3. **Reviewer-VOR-BUILD-Pattern (D62) etabliert.** Bei Re-Doing-Reverted-Slices Reviewer-Agent **VOR** Code prüft die Spec — Slice 268 hatte 3 MINORs gefunden bevor Code geschrieben (15 min Spec-Edit statt 1-2h Code-Rewrite).
+
+## Sentry-Status (post-Session)
+
+**Pre-Slice-268 Issues (Release `909bc9b4`):**
+- #11/#12/#13 (n.values is not a function, /manager) — **Auto-Resolved** via Commit `8756b5dd` Annotation. Slice 267 hat die Bug-Klasse generisch gefixt.
+- #14 Timeout auf `/` (78 events, 1 user = 3rd Tester `cloud` iPhone iOS 18.5) — Pre-Slice-268. **Sollte stark reduziert** durch Slice 268 placeholderData-Mirror (instant-render statt 10s-Wait). **WATCH:** Ob neue Events post-Slice-268-Deploy entstehen.
+- #10/#Z AbortError auf `/`, `/fantasy` — Mobile-Safari SDK-Quirks, `handled: yes` graceful-degraded.
+
+**Sentry-Sample-Rate = 0.01** (1%). Wenn morgen Beta-Tester live sollen, erwägen → 1.0 (100%) bumpen für Beta-Day-3.
+
+## Anil-Action-Items für morgen früh
+
+### Höchste Priorität
+1. **Live-Verify Slice 268** (5-Step Mobile-Safari Inkognito Test, siehe Spec Sektion 8):
+   - Cold-Start warm-cache → Wallet+Tickets INSTANT (<200ms)?
+   - Cold-Start no-cache → 4-9s Skeleton dann normal?
+   - User-Switch User-A→User-B → keine Cross-User-Leaks?
+   - SIGNED_OUT → bs_wallet_<uid>+bs_tickets_<uid> sofort entfernt?
+   - Sentry-Watch 30s → 0 neue Errors?
+
+2. **Wenn 1 PASS:** Pesmerga + 3rd Tester live einladen für Beta-Day-3 Echtzeit-Feedback.
+
+3. **Wenn 1 FAIL:** Sofort Console-Output + Screenshot + Sentry-Issue-ID sammeln (NICHT raten/reverten ohne Beweis — Slice-265+266-Lehre).
+
+### Optional
+4. **Sentry-Sample-Rate 0.01 → 1.0** in Vercel Env-Vars für Beta-Day-3 (mehr Visibility bei echten Tester-Sessions).
+5. **Issues #11/#12/#13 in Sentry-UI checken** — Sentry-Webhook sollte sie nach `8756b5dd` Deploy als resolved markieren. Wenn nicht: Issue-Status manuell setzen (3 Klicks).
+
+## Bei Resume morgen — Erste-Action-Pfad
+
+```
+1. /clear (falls neue Session)
+2. Lese diesen Resume-Anker
+3. Lese worklog/active.md (status: idle)
+4. git log --oneline -10 (heute 9 commits + 8756b5dd Sentry-Auto-Resolve)
+5. Anil-Frage: "Hast du Slice 268 Live-Verify gemacht? PASS oder FAIL?"
+6a. Bei PASS: Beta-Day-3 Tester live, Sentry-Sample-Rate-Bump erwägen, Real-Time-Feedback sammeln
+6b. Bei FAIL: Console+Sentry Beweis sammeln, root-cause-first triage (NICHT Slice 268 reverten ohne Diagnose)
+```
+
+# 📚 Lessons Learned aus Session 2026-04-30 Abend (für patterns.md / errors-frontend.md candidates — bereits drin)
+
+## Pattern #45 (patterns.md): Cold-Start UID-keyed Cache-Mirror
+- Helper-Module + Hook-Augmentation + AuthProvider-Sync (3-Layer)
+- placeholderData (NICHT initialData!) für Money-Path-Schutz
+- UID-keyed Slots gegen Cross-User-Pollution
+
+## Decision D62 (decisions.md): Reviewer-VOR-BUILD bei Re-Doing-Reverted-Slices
+- Empirisch: 100% Hit-Rate bei Slice 268 (3 MINORs gefunden)
+- Stage-Chain: SPEC → IMPACT → REVIEWER-VOR-BUILD → BUILD → REVIEWER-POST-BUILD → PROVE → LOG
+
+## errors-frontend.md neu: TanStack v5 initialData vs placeholderData Decision-Tree
+- `initialData` markiert als data persistiert, dataUpdatedAt = Date.now() → Money-Path-Risk
+- `placeholderData` rendert UI ohne data zu persistieren, dataUpdatedAt = 0 → Money-Path geschützt
+
+## errors-frontend.md (Slice 267): Map/Set-typed React-Query-Data + Persist/SSR
+- Service-Layer NIEMALS Map direkt returnen wenn Persist/SSR involviert
+- Defense-in-Depth Layer 4 in QueryProvider als generischer Schutz
+
+---
+
+# 📋 Vor-heute Resume-Anker (Beta-Day-2 Abend, 2026-04-30 vor dieser Session)
 
 **Anil-Direktive Session-Ende 2026-04-30:** "passt, wir setzen morgen bei b an!" — bezieht sich auf **Option B** aus der Audit-Empfehlung: **architektonischer Provider-Cascade-Refactor** (Smoking-Gun #3 ECHTER Fix).
 
