@@ -1,0 +1,20 @@
+=== Slice 263 EMERGENCY P0 AC-Audit ===
+Datum: Thu Apr 30 16:32:03     2026
+Trigger: 3rd Tester (f3267e0d 'cloud') auf iPhone Mobile Safari iOS 18.7
+Sentry-Issue: JAVASCRIPT-NEXTJS-T (3 events, 1 user, 5 min ago, release 2b5e8e4d)
+
+Timeouts bumped:
+30:// SSR-safety preserved: try/catch handles `typeof window === 'undefined'`
+183:      const authState = await withTimeout(getAuthState(userId), 10000);
+201:        withTimeout(getProfile(userId), 15000),
+368:        }, 3000);
+382:    // the SDK to fire INITIAL_SESSION on cold session-restore — a 5s safety
+386:    const safetyTimer = setTimeout(() => {
+391:    }, 12000);
+395:      clearTimeout(safetyTimer);
+
+tsc clean: PASS
+Provider tests 25/25: PASS
+
+Self-Review D35: XS Emergency value-tuning — Pattern-Wiederholung mit Slice 193
+(reverse-direction). Hot-path unverändert für non-timeout cases.

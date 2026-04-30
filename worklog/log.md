@@ -9,6 +9,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 263 | 2026-04-30 | EMERGENCY P0 — loadProfile Mobile-Safari Timeout-Bump
+
+- Stage-Chain: SPEC inline (Live-User-Sentry-Forensic) → IMPACT skipped (1 File AuthProvider.tsx — value-tuning) → BUILD → REVIEW (self-review D35 — XS reverse-Pattern von Slice 193) → PROVE (Provider-Tests 25/25, tsc clean) → LOG
+- Slice-Type: UI (Provider Hooks)
+- Größe: XS
+- Trigger: 3rd Tester (handle `cloud`, user-id `f3267e0d-149c-44e1-b621-7a40c1f91996`, signed-up 2026-04-30 08:34 UTC) testete auf iPhone Mobile Safari iOS 18.7 + sah 13s+ Skeleton-Cascade. Console: "loadProfile RPC slow Timeout" + "onAuthStateChange did not fire within 5s" + "Profile load failed after retry"
+- Sentry-Issue JAVASCRIPT-NEXTJS-T (release `2b5e8e4d`, Mobile Safari 26.3, iOS 18.7, Mainz DE)
+- Forensic: Sentry-Breadcrumbs zeigen 30+ erfolgreiche RPCs (login signed_in, get_user_tickets, record_login_streak, get_home_dashboard_v1, claim_welcome_bonus, etc. ALLE 200) — aber `get_auth_state` taucht NICHT in Breadcrumbs auf. Promise hängt SDK-intern bevor Request-Wire (Mobile-Safari-Initial-State Connection-Pool-Warmup-Race)
+- DB-Forensik: `EXPLAIN ANALYZE` profile-Query 0.153ms, 27 conns / 2 active / 0 idle-in-txn. DB ist nicht das Problem. PostgREST direkt: 100-200ms Latency. Network OK. Bug ist Mobile-Safari-spezifischer SDK-Connection-Pool-Issue
+- Slice 193 (10s → 3s) war zu aggressiv für Mobile-Safari: assumed server-time ~150ms, ignorierte iOS-SDK-warmup
+- Fix (3 Werte erhöht in AuthProvider.tsx):
+  - `withTimeout(getAuthState, 3000)` → `10000` (10s — covers Mobile-Safari worst-case)
+  - 3-query-fallback `8000` → `15000` (15s pro query, parallel via allSettled)
+  - safety-timer `5000` → `12000` (12s — kein silent anonymous-mark während legit Restore)
+- Self-Review D35: XS reverse-Pattern von Slice 193 (Original-Annahme war wrong, Mobile-Safari nicht im Test-Szenario). Hot-path unverändert für non-timeout cases. Reviewer-Skip gerechtfertigt durch additiv-Charakter (kein Logic-Change, nur Werte).
+- Files: `src/components/providers/AuthProvider.tsx` (3 numeric edits + WHY-comments)
+- Spec: inline (Sentry-Forensic dokumentiert in dieser LOG-Entry)
+- Proof: `worklog/proofs/263-ac-audit.txt`
+- Notes: AuthGuard-Architektur-Refactor (Smoking-Gun #3 Sequential Loading-Cascade) als **Slice 264** nahtlos — render children sobald `user` cached, profile-dependent sub-components handle eigenes Skeleton
+
 ## 262 | 2026-04-30 | Middleware Public-Route-Bail-Out (P3, Beta-Day-2 Final-Final)
 
 - Stage-Chain: SPEC → IMPACT skipped (1 File supabaseMiddleware.ts, kein RPC, kein Schema, additiv) → BUILD → REVIEW (self-review D35 — XS additiv-Pattern-Wiederholung mit Slice 259/260) → PROVE (alle 5 lokale ACs) → LOG

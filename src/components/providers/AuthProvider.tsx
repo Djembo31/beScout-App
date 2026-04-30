@@ -172,12 +172,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     // Try primary RPC
-    // Slice 193: timeout reduced 10s → 3s. Live-Network-Trace shows the RPC
-    // typically returns in ~150ms (server-time) — anything > 3s is almost
-    // certainly a stalled fetch (Vercel cold-start, Supabase pool, network).
-    // Faster fallback minimizes the window where queries fire with stale auth.
+    // Slice 263 (2026-04-30): timeout 3s → 10s. Slice 193's 3s assumed server-
+    // time ~150ms but ignored Mobile-Safari iOS Initial-State: post-login the
+    // Supabase JS SDK does internal session-restore + connection-pool warmup
+    // before the first RPC fires. iPhone Mobile Safari (Sentry: 3rd Tester
+    // f3267e0d, iOS 18.7) sees 4-9s real-world before RPC even hits the wire
+    // — a 3s timeout makes the cascade fire before the SDK is ready. 10s
+    // covers worst-case Mobile-Safari without making real failures hang.
     try {
-      const authState = await withTimeout(getAuthState(userId), 3000);
+      const authState = await withTimeout(getAuthState(userId), 10000);
       applyAuthState(authState);
       if (!_isRefresh) setProfileLoading(false);
       return;
@@ -190,11 +193,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Fallback: 3 separate queries
+    // Slice 263: bumped per-query timeout 8s → 15s for the same Mobile-Safari
+    // SDK-warmup reasoning. Fallback fires in parallel via Promise.allSettled,
+    // so total wall-clock is dominated by the slowest single query.
     try {
       const results = await Promise.allSettled([
-        withTimeout(getProfile(userId), 8000),
-        withTimeout(getPlatformAdminRole(userId), 8000),
-        withTimeout(getClubAdminFor(userId), 8000),
+        withTimeout(getProfile(userId), 15000),
+        withTimeout(getPlatformAdminRole(userId), 15000),
+        withTimeout(getClubAdminFor(userId), 15000),
       ]);
       logSilentRejects('AuthProvider.loadProfile', results);
       const [p, pRole, cAdmin] = results;
@@ -372,12 +378,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Safety net: if onAuthStateChange never fires (shouldn't happen, but
     // protects against Supabase SDK edge cases), stop the loading spinner.
+    // Slice 263: bumped 5s → 12s. iOS 18.7 Mobile Safari can take 4-8s for
+    // the SDK to fire INITIAL_SESSION on cold session-restore — a 5s safety
+    // would race with the legitimate event and silently mark the user
+    // anonymous mid-restore. 12s gives iOS enough headroom while still
+    // protecting against true SDK-hangs.
     const safetyTimer = setTimeout(() => {
       if (!initialDone) {
-        console.warn('[AuthProvider] onAuthStateChange did not fire within 5s — keeping cached data');
+        console.warn('[AuthProvider] onAuthStateChange did not fire within 12s — keeping cached data');
         setLoading(false);
       }
-    }, 5000);
+    }, 12000);
 
     return () => {
       subscription.unsubscribe();
