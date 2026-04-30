@@ -29,6 +29,26 @@ export async function updateSession(request: NextRequest) {
         });
     }
 
+    // Define public routes (login, auth callback, onboarding, blocked).
+    // Hoisted from below — used by both the bail-out (Slice 262) and the
+    // logged-out redirect logic further down.
+    const publicRoutes = ["/login", "/auth/callback", "/onboarding", "/welcome", "/club", "/pitch", "/blocked"];
+    const isPublicRoute = publicRoutes.some(route =>
+        pathname === route || pathname.startsWith(`${route}/`)
+    );
+
+    // Slice 262 — Middleware Public-Route-Bail-Out (Smoking-Gun #4).
+    // Skip the supabase.auth.getUser() round-trip (50-300ms TTFB) for true-
+    // anonymous visits to public routes. Logged-in users (auth-cookie present)
+    // still go through the full check so SSR-Auth-State stays consistent.
+    // Stable-since-2024 Supabase cookie naming: `sb-<project-ref>-auth-token`.
+    const hasAuthCookie = request.cookies.getAll().some(c =>
+        c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
+    );
+    if (isPublicRoute && !hasAuthCookie) {
+        return supabaseResponse;
+    }
+
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -61,11 +81,7 @@ export async function updateSession(request: NextRequest) {
         console.error('[Middleware] Session refresh failed:', err);
     }
 
-    // Define public routes (login, auth callback, onboarding, blocked)
-    const publicRoutes = ["/login", "/auth/callback", "/onboarding", "/welcome", "/club", "/pitch", "/blocked"];
-    const isPublicRoute = publicRoutes.some(route =>
-        pathname === route || pathname.startsWith(`${route}/`)
-    );
+    // (publicRoutes + isPublicRoute hoisted above — Slice 262 bail-out reuses)
 
     // If no user and trying to access a protected route, redirect to login
     if (!user && !isPublicRoute && !pathname.startsWith("/_next") && !pathname.startsWith("/api") && !pathname.startsWith("/static")) {

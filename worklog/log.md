@@ -9,6 +9,29 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 262 | 2026-04-30 | Middleware Public-Route-Bail-Out (P3, Beta-Day-2 Final-Final)
+
+- Stage-Chain: SPEC → IMPACT skipped (1 File supabaseMiddleware.ts, kein RPC, kein Schema, additiv) → BUILD → REVIEW (self-review D35 — XS additiv-Pattern-Wiederholung mit Slice 259/260) → PROVE (alle 5 lokale ACs) → LOG
+- Slice-Type: Service (Edge Middleware)
+- Größe: XS
+- Anil-Direktive: "saubere 100%tige Leistung, keine Reste, autonom, damit das Kapitel zuhaben"
+- Smoking-Gun #4 vom Slice 259/260 Deep-Dive geheilt: `supabaseMiddleware.ts` rief `supabase.auth.getUser()` auf JEDEM Request — auch für true-anonymous Visits auf public Routes. +50-300ms TTFB pro Request, am häufigsten beim Landing-Page-Hit (Anil's Home-Domain!)
+- Implementation:
+  - `src/lib/supabaseMiddleware.ts`: Bail-Out-Block ADD vor `createServerClient` — wenn `isPublicRoute && !hasAuthCookie` → return supabaseResponse (skip getUser RTT)
+  - `publicRoutes`-Liste hoisted zum Top (vorher unten lokal in Func) — wird von Bail-Out + bestehender redirect-Logic geteilt
+  - `hasAuthCookie`-Heuristic: `request.cookies.getAll().some(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))` — Standard-Supabase-Pattern stable since 2024
+- Trade-Off:
+  - True-Anon-Public-Visit (kein sb-cookie): 0× Supabase-RTT (war 1× = 50-300ms gespart)
+  - Logged-in-User auf Public-Route: weiterhin getUser (RT-Sync für SSR-Auth-State korrekt)
+  - Stale-but-present sb-cookie: weiterhin getUser (stale-vs-valid token verify)
+  - Protected route ohne Cookie: weiterhin getUser → null → redirect /welcome (existing)
+- Pattern-Konsistenz mit Slice 259/260: "skip-if-not-needed"-Pattern (SW-Cache REST skip + idle-callback off-critical-path)
+- Self-Review-Begründung (D35): XS additiv-only, hot-path unverändert für non-bail-out cases, additiv vor existing flow ist standardpattern, Reviewer-Skip rechtfertigt
+- Files: `src/lib/supabaseMiddleware.ts` (+21/-5 = 26 Zeilen)
+- Spec: `worklog/specs/262-middleware-public-bailout.md`
+- Proof: `worklog/proofs/262-ac-audit.txt`
+- Notes: AC-06 LIVE-VERIFY post-Deploy. Anil's parallel-Home-Arbeit profitiert direkt von TTFB-Win für /welcome (Landing-Page).
+
 ## 261 | 2026-04-30 | TanStack Query Persist-Cache (P2, Beta-Day-2 Final)
 
 - Stage-Chain: SPEC → IMPACT skipped (3 Files, kein src/lib/services, kein RPC, kein Schema) → BUILD → REVIEW (reviewer-agent CONCERNS-mergeable, 32 min, P1 inline geheilt + P3 inline geheilt + 5 P2/P3 defer post-Beta) → PROVE (alle 9 ACs, Provider-Tests 25/25) → LOG

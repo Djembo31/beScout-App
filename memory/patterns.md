@@ -1217,3 +1217,131 @@ useEffect(() => {
 **Idempotency-Pflicht:** Trigger-Function MUSS idempotent sein (z.B. via DB-PK-Constraint), weil idle-callback nicht gefeuert werden könnte vor Tab-close → next visit holt es nach.
 
 **Reference:** Slice 260 — `(app)/layout.tsx` Welcome-Bonus + ActivityLog migrated to idle-callback. Bonus-Claim ist via PK-Constraint idempotent (existing).
+
+### 43. TanStack Query Persist-Cache mit Defense-in-Depth-Filter (Slice 261, 2026-04-30)
+
+**Wann:** TanStack Query persistQueryClient setup für returning-user warm-cache, mit Cross-User-Pollution-Prevention.
+
+**Wie (Defense-in-Depth 3-Layer):**
+
+```ts
+'use client';
+import { useEffect } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import { queryClient } from '@/lib/queryClient';
+
+const LOCALSTORAGE_KEY = 'APP_QUERY_CACHE_v1';
+const MAX_AGE_MS = 30 * 60 * 1000;
+const THROTTLE_MS = 1000;
+
+// Layer 2: explicit user-scope domain DENY
+const USER_SCOPED_DOMAINS = new Set([
+  // qk-Factory domains (greppable)
+  'holdings', 'wallet', 'orders', /* ... */
+  // Inline-keyed domains (NOT in qk-Factory — Pflicht-Audit:
+  //   grep -rn "queryKey:\\s*\\['" src/ )
+  'home', 'streaks', 'wildcards', 'rankings',
+]);
+
+// Layer 3: UUID-regex DENY (defensive backup)
+const UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+export function QueryProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let unsubscribe: (() => void) | undefined;
+    try {
+      const persister = createSyncStoragePersister({
+        storage: window.localStorage,
+        key: LOCALSTORAGE_KEY,
+        throttleTime: THROTTLE_MS,
+      });
+      const [persistUnsubscribe] = persistQueryClient({
+        queryClient,
+        persister,
+        maxAge: MAX_AGE_MS,
+        buster: 'v1',
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) => {
+            // Layer 1: status-success-only (no in-flight, no errors)
+            if (query.state.status !== 'success') return false;
+            // Layer 2: skip user-scope domains
+            const firstKey = query.queryKey[0];
+            if (typeof firstKey === 'string' && USER_SCOPED_DOMAINS.has(firstKey)) return false;
+            // Layer 3: skip any key with UUID
+            if (UUID_REGEX.test(JSON.stringify(query.queryKey))) return false;
+            return true;
+          },
+        },
+      });
+      unsubscribe = persistUnsubscribe;
+    } catch (err) {
+      Sentry.captureException(err, { tags: { component: 'QueryProvider' } });
+    }
+    return () => unsubscribe?.();
+  }, []);
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+```
+
+**Pflicht-Audit beim Adding-Cache-Filter:**
+```bash
+# qk-Factory domains
+grep -E "^\s+[a-z]+:" src/lib/queries/keys.ts
+# PLUS inline-keyed domains (NICHT vergessen — Slice 261 Reviewer-Find)
+grep -rn "queryKey:\s*\['" src/ --include="*.tsx" --include="*.ts"
+```
+
+**Cascading mit User-Switch-Detect (Pattern #41):**
+- queryClient.clear() in AuthProvider feuert bei User-Switch
+- persist subscribed via QueryCache events → localStorage cleared automatisch nach throttleTime (1s)
+- 1s race-window mitigated durch Layer 1 (in-flight User-B queries nicht persisted)
+
+**Cache-Lifecycle-Tradeoff:**
+- gcTime 24h aligned mit persist maxAge — sonst gc'd queries nicht re-hydrated
+- Memory-Bloat-Risk: 24h × 50-100 queries × 5-50KB → bis 500MB worst-case Tab-stayer
+- Mitigation post-validation: gcTime auf 30min reduzieren (matches MAX_AGE_MS, persist restoraten trotzdem)
+
+**Reference:** Slice 261 — TanStack Query Persist-Cache Beta-Day-2 Final. Anil-Bug-Report kalt-start jeder Tab → instant warm cache.
+
+### 44. Edge-Middleware Public-Route-Bail-Out (Slice 262, 2026-04-30)
+
+**Wann:** Edge-Middleware mit Auth-Roundtrip auf jedem Request, public Pages für true-anon visitors langsam.
+
+**Wie:**
+
+```ts
+export async function updateSession(request: NextRequest) {
+    const pathname = request.nextUrl.pathname;
+    let supabaseResponse = NextResponse.next({ request });
+
+    // Cheap pre-checks: geo-tier + public-route detection
+    if (geoTier) supabaseResponse.cookies.set('app-geo-tier', geoTier, ...);
+    const publicRoutes = ['/login', '/welcome', '/onboarding', '/auth/callback'];
+    const isPublicRoute = publicRoutes.some(r => pathname === r || pathname.startsWith(`${r}/`));
+
+    // Bail-Out: skip Supabase Auth round-trip for true-anon public visits
+    // Stable Supabase cookie naming since 2024: sb-<project-ref>-auth-token
+    const hasAuthCookie = request.cookies.getAll().some(c =>
+      c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+    );
+    if (isPublicRoute && !hasAuthCookie) {
+      return supabaseResponse;  // 50-300ms TTFB saved
+    }
+
+    // Otherwise: full auth flow (createServerClient + getUser + admin-checks)
+    // ...
+}
+```
+
+**Wann Bail-Out greift:**
+- True-Anon visit zu Public-Route (kein sb-cookie): RT-skip ✓
+- Logged-In-User zu Public-Route (sb-cookie present): full RT (SSR-Auth-State)
+- Stale-Cookie + Public-Route: full RT (verify stale-vs-valid)
+- Protected-Route any state: full RT (existing redirect logic)
+
+**Effekt:** Landing-Page TTFB für Anonymous Visitors um 50-300ms reduziert. Vor allem wirksam bei: GTM-Campaign-Traffic, Direct-URL-Hits, social-shared Links.
+
+**Reference:** Slice 262 — Middleware Public-Route-Bail-Out Beta-Day-2 Final-Final.

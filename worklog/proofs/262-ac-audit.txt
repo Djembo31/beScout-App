@@ -1,0 +1,22 @@
+=== Slice 262 AC-Audit ===
+Datum: Thu Apr 30 13:36:08     2026
+
+AC-01 [PERF] Bail-Out present:        1 (expected ≥1) — PASS
+AC-02 [REGRESSION] publicRoutes intact:
+      if (GEOFENCING_ENABLED && geoTier === "blocked" && pathname !== "/blocked") {
+  PASS (single declaration, hoisted to top)
+AC-03 [REGRESSION] admin-protection intact:        2 refs (expected ≥2) — PASS
+AC-04 [REGRESSION] geo-tier cookie intact:         1 (expected 1) — PASS
+AC-05 [BUILD] tsc clean:                           PASS
+AC-06 [LIVE-VERIFY] post-deploy pending
+
+=== Self-Review (D35) ===
+Rationale: XS-Slice (1 file, additiv-only Bail-Out vor existing flow).
+Pattern-Wiederholung: 'skip-if-not-needed' wie Slice 259 (SW REST skip)
+und Slice 260 (idle-callback off-critical-path).
+Hot-path unverändert für non-bail-out cases (logged-in + protected).
+Reviewer-Skip rechtfertigt durch additiv-Charakter + Pattern-Konsistenz.
+
+=== Diff ===
+ src/lib/supabaseMiddleware.ts | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
