@@ -1,14 +1,25 @@
 # Active Slice
 
 ```
-status: active
-slice: 265
-stage: PROVE
-proof: worklog/proofs/265-ac-audit.txt
-spec: inline (Slice 264 follow-up — TopBar wallet/tickets cold-start)
-impact: skipped (3 Files: useWallet, useUserTickets, AuthProvider lsClear extension)
-proof: pending
-review: self-review D35 (XS additiv localStorage-cache mit Slice-260-User-Switch-Cascade)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 265 P1 (Beta-Day-2 follow-up): TopBar Wallet+Tickets cold-start localStorage-Cache. Anil-Re-Test post-263+264: "schon deutlich besser, aber beim kalt start home hat geladen, geld und tickets waren nicht geladen, konnte nicht klicken/navigieren". Symptom: Mobile-Safari Initial Query-Storm exhaustes Connection-Pool, wallet/tickets hängen in queue. Fix: lokal-cache letzte balance/ticket-count, useWallet+useUserTickets nutzen das als initialData → instant render bei reload, fetch in background. User-Switch-Detect (Slice 260) sweept beide caches mit lsClear()-Extension.
+## Slice 265 KOMPLETT (P1 follow-up): TopBar Wallet+Tickets Cold-Start localStorage-Mirror. Anil Re-Test-Symptom: kalt-start home lädt aber Wallet+Tickets leer + click frozen. Diagnose: Mobile-Safari Initial Query-Storm. Fix: per-user-keyed localStorage-Mirror (`bs_wallet_<uid>` / `bs_tickets_<uid>`) als initialData → instant render. lsClear-Cascade extended (Slice 260 User-Switch + SIGNED_OUT). Tests 49/49 PASS. Commit `d76007f8`.
+
+## Beta-Day-2 Iteration
+
+| Slice | Was | Anil-Trigger |
+|---|---|---|
+| 259 P0 | SW Cache-Pollution Heal | "Refresh nötig damit App lädt" |
+| 260 P1 | Auth-Hydrate Hardening | Smoking-Gun #5+#7 Härtung |
+| 261 P2 | TanStack Persist-Cache | Smoking-Gun #6 Härtung |
+| 262 P3 | Middleware Public-Bail-Out | Smoking-Gun #4 Härtung |
+| 263 P0 | loadProfile Mobile-Safari Timeout-Bump | 3rd Tester iOS 18.7 13s+ Skeleton |
+| 264 P0 | AuthGuard Architektur-Refactor | Smoking-Gun #3 — full-page-skeleton |
+| 265 P1 | Wallet+Tickets localStorage-Mirror | Anil Re-Test "Wallet leer bei kalt-start" |
