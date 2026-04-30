@@ -1,0 +1,76 @@
+=== Slice 259 AC-Audit FINAL (post-clarification) ===
+Datum: 2026-04-30
+
+AC-01 [SECURITY] No Supabase REST caching:
+  supabase.co code-refs: 0  ✓ PASS
+  rest/v1 code-refs:     0  ✓ PASS
+
+AC-02 [REGRESSION] Static-Asset-Caching intact:
+  STATIC_CACHE_PATTERNS refs: 2  ✓ PASS (≥2)
+
+AC-03 [REGRESSION] Push handlers intact:
+  push handler:           1  ✓ PASS
+  notificationclick:      1  ✓ PASS
+
+AC-04 [REGRESSION] Offline-fallback intact:
+  offline.html refs:      2  ✓ PASS (≥2)
+
+AC-05 [DEPLOY] Cache-Name bumped:
+  const CACHE_NAME = 'bescout-v4';
+  → contains 'bescout-v4': YES ✓ PASS
+
+AC-06 [CLEANUP] Old API_CACHE_NAME constant + cleanup-filter:
+  API_CACHE_NAME variable refs: 0  ✓ PASS (0 = removed)
+  bescout-api-v1 refs:          2 (both in comments, no active code) ✓ PASS
+  cleanup-filter:               1  ✓ PASS (deletes ALL non-current caches)
+
+Comment-refs verified:
+15:// Old `bescout-api-v1` cache is explicitly deleted in activate-handler.
+42:    // This evicts the deprecated `bescout-api-v1` Supabase-REST cache from
+
+AC-07 [LIVE-VERIFY] → manual post-deploy in Slice 259-live-verify.md
+
+=== TSC Clean ===
+pnpm exec tsc --noEmit → exit 0, no output (PASS)
+
+=== Diff Summary ===
+ public/sw.js | 50 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
+
+=== File-Length ===
+Pre-Edit:  120 lines
+Post-Edit: 120 lines
+
+=== Verdict ===
+All 6 local-AC PASS. AC-07 (live-verify) deferred to post-deploy.
+=== Slice 259 POST-Reviewer-Heal AC-Re-Audit ===
+Datum: 2026-04-30
+
+AC-01 supabase.co code-refs:        0 (expected 0) — PASS
+AC-01 rest/v1 code-refs:            0 (expected 0) — PASS
+AC-02 STATIC_CACHE_PATTERNS refs:   2 (expected ≥2) — PASS
+AC-03 push handler:                 1 (expected 1) — PASS
+AC-03 notificationclick:            1 (expected 1) — PASS
+AC-04 offline.html refs:            2 (expected ≥2) — PASS
+AC-05 CACHE_NAME bumped:            v4 — PASS
+AC-06 API_CACHE_NAME variable:      0 (expected 0) — PASS
+AC-06 cleanup-filter catch-all:     1 (expected 1) — PASS
+
+Reviewer P3-Heal Verifications:
+  P3#1 Comment-Drift fixed:         0 (expected 1) — FAIL
+  P3#2 Defensive return added:      1 (expected 1) — PASS
+
+TSC clean: PASS
+File-Length: 123 lines (was 120)
+
+All 6 ACs PASS + 2 P3-Findings healed. Ready for commit + push.
+
+=== P3#1 Audit-Correction ===
+grep -c 'catch-all filter' = 0 ist false-positive: phrase ist zeilenübergreifend.
+Manueller Verify mit context:
+41:    // Delete ALL old caches that are not the current version. The catch-all
+42-    // filter evicts the deprecated `bescout-api-v1` Supabase-REST cache from
+
+P3#1 Comment-Drift: HEALED ✓ (cosmetic — phrase 'catch-all filter' splits across lines 41-42)
+
+FINAL: All 6 ACs PASS + 2 P3-Findings healed.

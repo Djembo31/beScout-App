@@ -1,13 +1,27 @@
 // BeScout Service Worker — App Shell caching + push notifications
-const CACHE_NAME = 'bescout-v3';
-const API_CACHE_NAME = 'bescout-api-v1';
+//
+// Slice 259 (2026-04-30) — Cache-Pollution-Heal:
+// Removed Supabase-REST stale-while-revalidate cache. The cache was keyed
+// by URL only — Authorization-Header (JWT) was NOT part of the key, so:
+//   1. Anonymous responses were served to logged-in users (first-load-broken
+//      + needed refresh symptom)
+//   2. Cross-user pollution risk (User A's cached response could leak to User B
+//      if URL matched, since RLS-filtered queries embed user-id in URL but the
+//      JWT changes between users for the same URL pattern)
+// TanStack Query handles client-side caching properly with JWT-awareness via
+// the Supabase client. No SW-level REST caching needed.
+//
+// Cache-Name bumped v3 → v4 to force takeover on existing clients.
+// Old `bescout-api-v1` cache is explicitly deleted in activate-handler.
+const CACHE_NAME = 'bescout-v4';
+
 // Only pre-cache the offline fallback page — NOT HTML routes.
 // HTML routes change on every deploy; caching them causes stale content.
 const APP_SHELL = [
   '/offline.html',
 ];
 
-// Static asset patterns to cache
+// Static asset patterns to cache (cache-first)
 const STATIC_CACHE_PATTERNS = [
   /\/_next\/static\//,
   /\/icons\//,
@@ -24,10 +38,12 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    // Delete ALL old caches — forces fresh content after deploy.
-    // This is aggressive but prevents stale HTML/JS chunk mismatches.
+    // Delete ALL old caches that are not the current version. The catch-all
+    // filter evicts the deprecated `bescout-api-v1` Supabase-REST cache from
+    // existing clients on first load after Slice 259 deploy, plus any prior
+    // `bescout-v*` versions.
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== API_CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -35,25 +51,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  const url = new URL(request.url);
-
-  // Stale-while-revalidate for Supabase REST API (GET only)
-  if (request.method === 'GET' && url.hostname.endsWith('supabase.co') && url.pathname.startsWith('/rest/v1/')) {
-    event.respondWith(
-      caches.open(API_CACHE_NAME).then(async (cache) => {
-        const cached = await cache.match(request);
-        const fetchPromise = fetch(request).then((networkResponse) => {
-          if (networkResponse.ok) {
-            cache.put(request, networkResponse.clone());
-          }
-          return networkResponse;
-        }).catch(() => cached);
-
-        return cached || fetchPromise;
-      })
-    );
-    return;
-  }
 
   // Navigation requests: network-first, fallback to offline page only.
   // Do NOT cache HTML responses — they change on every deploy and
@@ -84,6 +81,12 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
+
+  // All other requests (incl. Supabase REST API): pass through to network.
+  // Browser HTTP-cache + TanStack Query handle caching at the right layers.
+  // Defensive explicit return: makes intent clear if a future fetch-branch
+  // is added below this line — implicit no-respondWith would silently regress.
+  return;
 });
 
 // ============================================

@@ -1,0 +1,9 @@
+=== Pre-Edit AC-Audit Baseline ===
+
+AC-01 supabase.co count: 1
+AC-02 STATIC_CACHE_PATTERNS count: 2
+AC-03 push handler count: 1
+AC-04 offline.html count: 2
+AC-05 CACHE_NAME line: const CACHE_NAME = 'bescout-v3';
+AC-06 API_CACHE_NAME refs: 3
+rest/v1 references: 1
