@@ -1,28 +1,114 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-29 22:51)
+# Session Handoff — Auto (2026-04-30 13:01)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
- M worklog/audits/audit-stale-2026-04-29.md
- M worklog/audits/type-truth-2026-04-29.md
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-04-30.md
+ M worklog/audits/type-truth-2026-04-30.md
 ```
 
-## Session Commits: 7
-- 37c78d28 fix(258): EMERGENCY P0 — Signup-Trigger-Bug (13-Tage-latenter Beta-Day-1-Block)
-- 3b87c5c7 chore(257): active.md → idle post-commit
-- 39d561ff feat(257): Hardening-Bundle (F-4 cron-health-aggregate + F-8 escapeRegex + D60-Hook)
-- 53ae69ad chore(256): active.md → idle post-commit
-- a73b0e1a feat(256): StalePipelineBanner — Cron-Health UI-Sentinel auf /fantasy + /market
-- 5599b659 chore(audits): re-run timestamps 16:57 — kein Inhaltsdrift
-- f46775da chore(handoff): Pre-Clear Resume-Anker + Slice 256 Backlog
+## Session Commits: 5
+- 42badf34 docs(260): Live-Verify Proof — Cross-Tab Code-Path Verification
+- 30ec7dd9 chore(260): active.md → idle post-LOG
+- 5412ac43 feat(260): Auth-Hydrate Hardening — Cross-Tab Cache + Idle-Callback (P1, Beta-Day-2)
+- c3305fd4 docs(259): LOG + Knowledge-Promotion + Live-Verify-Proof
+- d4583303 fix(259): EMERGENCY P0 — Service Worker Cache-Pollution Heal (Beta-Day-2)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Resume-Anker MORGEN (2026-04-30) — Beta-Day-2 Continuation
+# Resume-Anker MORGEN (2026-05-01) — Beta-Day-3 Continuation
+
+**HEAD `42badf34`** post-Slice-260 Live-Verify-Push. Status: idle.
+
+**Bei `/clear` morgen früh — lese in dieser Reihenfolge:**
+1. `worklog/active.md` — `status: idle`
+2. Diese Datei (Resume-Anker oben + Day-2 Summary unten)
+3. `git log --oneline -8` (heute 5 commits)
+4. `worklog/log.md` Top 2 Einträge (260, 259)
+
+## Was heute passiert ist (Beta-Day-2)
+
+| Zeit | HEAD | Slice | Was |
+|---|---|---|---|
+| Vormittag | `d4583303` + `c3305fd4` | **259 P0 EMERGENCY** | Anil-Report "Initial Load funktioniert schrott — Refresh nötig". Deep-Dive identifizierte SW Supabase-REST stale-while-revalidate-Cache als Smoking-Gun #1 (URL-keyed ohne JWT → cross-auth-pollution). Fix subtraktiv: REST-Cache raus, CACHE_NAME v3→v4, catch-all-filter. Live-Verify gegen bescout.net: **1899 stale Supabase-REST-Responses → 0**. |
+| Nachmittag | `5412ac43` + `30ec7dd9` + `42badf34` | **260 P1** | Auth-Hydrate Hardening (Smoking-Gun #5 + #7). AuthProvider+ClubProvider sessionStorage→localStorage (cross-tab warm cache). User-Switch-Detect-Block (Cross-User-Pollution-Schutz mit Sentry-Breadcrumb). Welcome-Bonus + ActivityLog in `requestIdleCallback`. Provider-Tests 25/25, Reviewer PASS. Live-Verify: AuthProvider-Chunk + Layout-Chunk haben Slice-260-Markers in deployed JS. |
+
+## Tester-State Update
+
+| Tester | Wallet | Status |
+|---|---|---|
+| **Anil** | 2M CR ✓ | Bekommt 1-time PWA-Update-Event next visit (skipWaiting + clients.claim für SW v4 + lsClear-falls-nötig). Danach permanent stabilisiert. |
+| **Pesmerga** | 2M CR ✓ | Same — 1-time-update next visit. Plus: display_name + favorite_club via Settings nachholen. |
+| **3rd Tester** | TBD | Frischer Account → baseline-clean experience direkt mit SW v4 + saubere localStorage. Bei Signup: 2M CR via SQL-Template (siehe unten). |
+
+## Action-Items für morgen
+
+### Höchste Priorität
+1. **3rd Tester signup checken** — falls heute angekommen, 2M CR via SQL geben (Template unten)
+2. **Live-Behavior Anil + Pesmerga** — Refresh-Bug weg? Sentry quiet?
+3. **Sentry-Health-Watch** — heute 0 unresolved errors letzte 2h verifiziert post-Deploy
+
+### Open Backlog (post-Beta nicht heute)
+4. **Slice 261 P2** — TanStack `persistQueryClient` mit localStorage + Server-Component RSC `get_auth_state` Auth-Hydrate. RootLayout-Touch → Beta-Day-3-Risk zu hoch ohne 24h Soak von Slice 259/260 zuerst.
+5. **Slice 262 P3** — Middleware Public-Route-Bail-Out + Admin-Checks aus Middleware in RSC-Layout. Edge-Function-Test-Aufwand, post-Beta.
+6. **Pattern-Promotion in errors-frontend.md** — die 3 patterns.md-Einträge (#40 SW-Cache-Strategie, #41 Cross-Tab-Cache, #42 idle-callback) könnten optional auch als errors-frontend.md/errors-pwa.md Detection-Patterns crossfiled werden. Optional cleanup.
+
+### Optional Cleanup (Day-2-Reste)
+7. **handle_new_user_wallet() Function** ist orphan im Schema seit Slice 258 v2 (von gestern). Cleanup-Slice optional.
+
+## SQL-Template: 3rd Tester 2M CR (für morgen)
+
+```sql
+-- Replace <UID> mit der auth.users.id des 3rd Testers (find via email):
+SELECT id FROM auth.users WHERE email = '<email>';
+
+-- Dann atomic UPDATE + transactions:
+BEGIN;
+UPDATE wallets SET balance = 200000000 WHERE user_id = '<UID>';
+INSERT INTO transactions (user_id, type, amount, description, balance_after)
+VALUES ('<UID>', 'admin_adjustment', 200000000 - <current_balance>,
+        'Beta-Tester Initial-Balance 2M CR (Anil-Direktive 2026-04-29)', 200000000);
+COMMIT;
+```
+
+## Kritische Befunde Beta-Day-2 für Knowledge
+
+**Bug-Klasse-Pattern:**
+> **Service Worker Cache muss JWT-aware sein oder authenticated-Endpoints überhaupt nicht cachen** (Slice 259):
+> Cache-API keyed by URL only. Cachen authenticated Endpoints (Supabase REST) → cross-auth-pollution + stale-on-first-load + cross-user-leak-Risiko. Symptom-Decoder: User-Report "Refresh fixt App-Load" → SW serviert stale Anon-Response → background-fetch füllt Cache → 2. Load fresh.
+
+**Promoted in:** memory/patterns.md #40, #41, #42 + memory/decisions.md D61.
+
+## Tech-Side-Status post-Day-2 Beta
+
+- **Beta-Phase-Tracker:** Phase D, last_signoff: FAIL (Anil-Mensch-Action-Block, NICHT Tech)
+- **Findings_open:** P0=0 (Slice 259 closed), P1=0 (Slice 260 closed), P2=0, P3=0
+- **Vercel:** 5 commits live in main (`d4583303 c3305fd4 5412ac43 30ec7dd9 42badf34`)
+- **Sentry Production:** 0 unresolved last 2h post-Deploy verified ✓
+- **Cron-Health:** All 7 Ligen healthy
+- **Audit-Pipeline:** 10 Tools daily nightly-audit
+- **Knowledge:** patterns.md +3 (#40/41/42) + decisions.md D61
+
+## Bei Resume morgen — Erste-Action-Pfad
+
+```
+1. /clear (falls neue Session)
+2. Lese diesen Resume-Anker
+3. Frage Anil: "Hat sich Refresh-Bug erledigt? Beta-Tester aktiv?"
+4. Optional Slice 261 P2 starten (TanStack persist) NUR wenn 24h Soak von 259/260 ohne Sentry-Drift
+5. Sonst: Beta-Tester-Watch-Mode + Reactive auf Anil-Direktive
+```
+
+---
+
+# Vor-Heute Resume-Anker (Beta-Day-1, 2026-04-29 abends)
+
+> Dieser Block dokumentiert was gestern Abend für heute geplant war — heute durchgeführt mit Slice 259+260.
 
 **HEAD `37c78d28`** post-Slice-258 EMERGENCY-Fix. Status: idle.
 
