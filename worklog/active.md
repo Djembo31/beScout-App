@@ -1,42 +1,35 @@
 # Active Slice
 
 ```
-status: active
-slice: 261
-stage: REVIEW PASS — ready for Commit+Push (P2-1 inline-gefixt, tsc clean re-verified)
-spec: worklog/specs/261-gameweek-status-bar.md (v2.1)
-impact: skipped (1 neue Component, 3 edits, 2 i18n, kein Service-Layer, kein Schema, kein Money-Path)
-proof: worklog/proofs/261-self-verification.txt
-review: Pre-Review-1st REWORK → v2 → Pre-Review-2nd CONCERNS → v2.1 → Code-Review POST-BUILD PASS (worklog/reviews/261-code-review.md, P2-1 fixed inline)
-anil-decisions: A=b (2d 4h beide Locales), B=b (Bar ersetzt Spotlight-Event, Sidebar bleibt), C=ja (TR Hafta 28)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 261 — Home Layer 0: Gameweek-Status-Bar
+## Slice 261 KOMPLETT (S, Phase 1 Identity-Foundation): Home Layer 0 Gameweek-Status-Bar
 
-**Phase 1 Identity-Foundation** des Home-Ultimate-Redesign-Plans (Anil-approved 2026-04-30, kontextueller Hero). Erste sichtbare Foundation: persistente GW-Awareness + Liga-Kontext + Deadline-Countdown above-the-fold. Größter Single-Win für FM-Power-User, 0 Compliance-Risk.
+Persistente GW-Awareness oberhalb Hero. Stateless-Component (Slice 254 Pattern), mountet innerhalb HomeStoryHeader-Edge-zu-Edge-Wrapper, non-sticky. D62-Pattern: 2 Spec-Iterationen (REWORK 4xP0+6xP1 → CONCERNS 1xP0-NEW Mapper-Drift) sparen mind. 1 BUILD-Revert. Anil-Decisions A=b · B=b · C=ja kompakt. Anil PROVE Mobile-Safari ✓ live auf bescout.net. Commit `3aae52c9`. Knowledge-Captures: D63 Home-Redesign-Plan + D64 Multi-Choice-Decisions + errors-frontend.md gold-pulse-bg.
 
-**Größe:** S (S-Voll-Pflicht 13 Sektionen Spec) · **Slice-Type:** UI
+## Phase 1 Identity-Foundation Pipeline (Anil-approved 2026-04-30 Plan)
 
-**Stage-Chain (geplant):**
-- SPEC ✓ (jetzt geschrieben, Anil-Approval pending)
-- Spec-Reviewer-VOR-BUILD (D62 Pattern aus Slice 268) — Cold-Context-Audit der Spec auf Anti-Patterns + Edge-Case-Completeness
-- IMPACT skipped (Begründung in Spec Sektion 12)
-- BUILD solo (kein parallel-dispatch nötig bei S-Size)
-- REVIEW Code-Reviewer-Agent (D13, post-BUILD)
-- PROVE Mobile-Screenshot bescout.net + AC-09 Liga-Switch-Demo + DE+TR-Verify
-- LOG
+| Slice | Status | Was |
+|---|---|---|
+| **261** | ✅ live (commit 3aae52c9) | GW-Status-Bar oberhalb Hero — diese Slice |
+| **262** | NEXT | Hero-Mode-Detection-Hook + Manager-Block-Component (für aktive GW) |
+| **263** | PENDING | Liga-Rang-Pill + Streak-Risk + Scout-Block-Component (Off-GW) |
 
-**Open-Questions die Anil VOR BUILD klären sollte:**
-1. Liga-Klick → `/fantasy` oder `/fantasy/spieltag` (Code-Reading klärt)
-2. DE-Wording: „Spieltag 28" vs „GW28" (Default: „Spieltag 28")
-3. **TR-Wording: „Hafta 28" vs alternative** (Anil-Pflicht, business.md-konform)
+## Phase 2-5 Backlog (post-Phase-1)
 
-**Scope-Out (Phase 2-5 Slices):**
-- Liga-Rang-Pill → Slice 263
-- Stadium-Photo-BG → Slice 270 Phase 5
-- Captain-Action-Required → Slice 264 Phase 2
-- Realtime-Status-Channel → Phase 3
-
-## Beta-Day-3 Status
-
-Slice 268 (Cold-Start Cache-Mirror Wallet+Tickets) live + 5-Step-Verify durch Anil bestanden 2026-05-01. Beta-Day-3 ready für 3rd Tester. Slice 261 ist Beta-Day-3+ Polish.
+| Phase | Slice | Was |
+|---|---|---|
+| 2 Action-Layer | 264 | ActionRequiredStack (Captain/Lineup/Wildcard) + Service `getPendingActions(userId)` |
+| 2 | 265 | Streak-Risk + Mission-Progress-Wiring (re-use existing Streak-Hook) |
+| 3 Live-Pulse | 266 | Multi-Slot-Pulse Refactor (HomeSpotlight Cascade auf 4 Priorities + Fallback-State statt null) |
+| 3 | 267 | Live-Score-Widget mit Realtime-Channel auf `player_gameweek_scores` |
+| 3 | 268 | `getPlayerPriceChanges7d` in TanStack-Cache |
+| 4 Discovery | 269 | Markt-Puls als 3-Tab-Section (Deine/Global/Trending) |
+| 5 Visual-Polish | 270-273 | Stadium-Asset-Pipeline + Action-Cards mit Photos + 3D-Mystery-Box-Render + MyClubs-Stadium-Cards |

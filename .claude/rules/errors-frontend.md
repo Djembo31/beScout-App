@@ -143,6 +143,32 @@ const eventCountries = useMemo(() => getCountries(locale), [locale]);
 - `flex-1` auf Tabs → iPhone overflow → `flex-shrink-0`.
 - Dynamic Tailwind NIEMALS: `border-[${var}]/40` → JIT scannt nur statische Strings. Nutze `style={{ borderColor: hex }}` + statische Class.
 
+### `gold-pulse-bg` ist statischer Gradient — Pulse braucht zusätzlich `motion-safe:animate-pulse` (Slice 261)
+
+**Bug-Klasse:** Klassenname `gold-pulse-bg` impliziert Animation, ist aber in `globals.css:124-126` nur `background-image: linear-gradient(...)` ohne `@keyframes`. Component-Author erwartet pulsierende Animation by name, sieht aber statischen Gold-Tint.
+
+**Symptom:** Component nutzt `className="... gold-pulse-bg motion-reduce:animate-none"` und erwartet Aufmerksamkeits-Pulse bei Urgent-States. Visueller Output ist statischer Gold-Hintergrund — kein Bewegungs-Cue.
+
+**Pattern-Source (working):** `src/components/home/HomeSpotlight.tsx:311` (NextEvent-Card) kombiniert beide Klassen:
+```tsx
+className={cn('gold-pulse-bg motion-safe:animate-pulse motion-reduce:animate-none', ...)}
+```
+- `gold-pulse-bg` liefert den Gold-Gradient als visuellen Underlayer
+- `motion-safe:animate-pulse` liefert die tatsächliche Pulse-Animation (Tailwind-built-in opacity-keyframes)
+- `motion-reduce:animate-none` honoriert prefers-reduced-motion
+
+**Fix-Pattern bei neuen Komponenten:** Wenn Pulse gewünscht, IMMER beide Klassen + reduce-honor:
+```tsx
+className={cn(
+  'gold-pulse-bg motion-safe:animate-pulse motion-reduce:animate-none',
+  isUrgent ? 'border-gold/30' : 'border-white/10',
+)}
+```
+
+**Reference:** Slice 261 P2-1-Drift gefangen vom Code-Reviewer post-BUILD, inline-gefixt vor Commit (`GameweekStatusBar.tsx:97`).
+
+**Audit:** `grep -rn "gold-pulse-bg" src/components/ | grep -v "animate-pulse" | head` — Treffer prüfen ob Pulse gewünscht ist (dann patchen) oder nur Gradient als visual-distinction (dann OK lassen).
+
 ### Tailwind data-* Variants nur auf Tailwind-Utilities (Slice 181)
 - `data-[state=open]:anim-modal` in className **wirkt nicht**, wenn `anim-modal` plain CSS class in `globals.css` ist (nicht in `@layer utilities`).
 - Tailwind generiert die Variant-Selectoren nur fuer **bekannte Utilities**. Plain global-CSS-Klassen sind nicht bekannt → keine Output-Rule, keine Animation.

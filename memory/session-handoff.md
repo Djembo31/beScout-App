@@ -1,31 +1,92 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-30 21:51)
+# Session Handoff — Auto (2026-05-01 01:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 5 Files
 ```
  M .claude/settings.local.json
  M memory/session-handoff.md
+ M worklog/active.md
  M worklog/audits/audit-stale-2026-04-30.md
  M worklog/audits/type-truth-2026-04-30.md
 ```
 
-## Session Commits: 8
+## Session Commits: 5
+- 3aae52c9 feat(261): Home Layer 0 — Gameweek-Status-Bar (Phase 1 Identity-Foundation)
+- 263fae9b chore(session-end): Beta-Day-3 Resume-Anker — 5 Slices (3 live, 2 reverted), Reviewer-VOR-BUILD-Pattern etabliert
+- 8756b5dd chore(sentry): mark Slice 267 + earlier issues as resolved
 - 2964c44c chore(268): active.md → idle post-LOG
 - 17d0c5b8 feat(268): Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right)
-- 60917621 docs(267): Knowledge-Capture + LOG + idle post-EMERGENCY-Heal
-- e53e7b22 fix(267): EMERGENCY P0 — Map-Persist-Korruption Heal (Spieltag + Manager broken)
-- 909bc9b4 Revert "feat(266): TopProgressBar Cold-Start UX-Bruecke (NProgress-Style Slim 2px Gold-Bar)"
-- 6a7c72e1 Revert "chore(266): active.md → idle post-LOG"
-- 9e6c5093 chore(266): active.md → idle post-LOG
-- 29842d26 feat(266): TopProgressBar Cold-Start UX-Bruecke (NProgress-Style Slim 2px Gold-Bar)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 Resume-Anker MORGEN (2026-05-01) — Beta-Day-3 Live + Cold-Start gefixt
+# 🎯 Resume-Anker NÄCHSTE SESSION (post-2026-05-01) — Phase 1 Identity-Foundation gestartet, Slice 261 LIVE
+
+**HEAD `3aae52c9` (+ `chore(session-end)` Folge-Commit)** Status: idle.
+
+## Session 2026-05-01 Bilanz — Beta-Day-3 Live + Home-Redesign Phase 1 Start
+
+| Slice | Status | Was |
+|---|---|---|
+| **268** M | ✅ live (Vortag) + Anil PROVE PASS heute | Cold-Start Cache-Mirror Wallet+Tickets — Mobile-Safari 5-Step-Verify ✓ |
+| **261** S | ✅ live (commit `3aae52c9`) | Home Layer 0 Gameweek-Status-Bar — Phase 1 Identity-Foundation startet |
+
+## Heute neu etabliert
+
+**D63 (decisions.md): Home-Ultimate-Redesign-Plan — 5-Phasen-Roadmap**
+- Vision: „BeScout-Identität in 5 Sekunden — Manager + Scout parallel above-the-fold"
+- ~13 Slices über 5 Phasen (261-273): Identity-Foundation → Action-Layer → Live-Pulse → Discovery → Visual-Polish (Bilder)
+- Kontextueller Hero: aktive GW = Manager-Block primär, Off-GW = Scout-Block primär, 0-Holdings = CTA-Block
+- Anil-approved 2026-04-30, Phase 1 startet Slice 261
+
+**D64 (decisions.md): Multi-Choice-Decisions Format — Spec-Iteration-Speedup**
+- Bei ≥ 2 offenen CEO-Decisions: kompakte Tabelle mit Optionen-Buchstaben + CTO-Empfehlung
+- Anil antwortet kompakt z.B. „A=b · B=a · C=ja"
+- Empirisch: Slice 261 Spec-Iteration brauchte 3 Decisions, alle in 1 Round-Trip statt 3
+- Anwendbar nur bei klar enumerierbaren Decisions, NICHT bei open-ended Strategy
+
+**Slice 261 Lehrstoff (D62 Pay-Off bestätigt):**
+- 2 Pre-Review-Iterationen haben mind. 1 BUILD-Revert + 1 Heal-Slice gespart
+- Cold-Context-Reviewer fand Spec-Faktenfehler die Author durch Habit-Blindspots übersah:
+  - TopBar `z-30` (Author dachte z-40+) → Bar muss non-sticky sein
+  - DbEvent hat nur `league_id` (Author dachte `league` String) → Filter-Pattern korrigiert
+  - `getTimeUntil` nicht locale-aware → ACs angepasst
+  - `eventMapper.ts` schreibt `leagueId` heute NICHT → 1-Zeilen-Patch hinzugefügt
+  - HomeStoryHeader `-mx-4 -mt-4` Edge-zu-Edge → Bar mountet INNERHALB Wrapper
+
+**errors-frontend.md neuer Eintrag:** `gold-pulse-bg` ist statischer Gradient, Pulse-Animation braucht zusätzlich `motion-safe:animate-pulse`. Pattern-Source: `HomeSpotlight.tsx:311` (NextEvent-Card kombiniert beide).
+
+## Anil-Action-Items für nächste Session
+
+### Höchste Priorität — Phase 1 fortsetzen
+1. **Slice 262 starten** — Hero-Mode-Detection-Hook + Manager-Block-Component (für aktive GW)
+   - Spec-Anchor: D63 Hero-State-Matrix (Manager primär bei aktive GW, Scout primär off-GW, CTA bei 0-Holdings)
+   - State-Source: `useHomeData()` Derived-Wert `heroMode: 'manager' | 'scout' | 'cta-new'`
+   - D62-Pflicht: Reviewer-VOR-BUILD weiterhin Standard
+2. **Slice 263 anschließen** — Liga-Rang-Pill + Streak-Risk + Scout-Block-Component (Off-GW)
+   - Brauche neuen Service `getLeagueRank(userId, leagueId)` (existiert heute nicht)
+
+### Wenn Phase 1 done
+3. **Phase 2 Action-Layer starten** — ActionRequiredStack vor Spotlight (Captain/Lineup/Wildcard)
+
+### Bei neuen Tester-Findings
+4. **Friction-Punkte als Healer-Slice triagieren** — root-cause-first (kein Symptom-Reflex), Defense-in-Depth-Pattern
+
+## Bei Resume — Erste-Action-Pfad
+
+```
+1. /clear (falls neue Session)
+2. Lese diesen Resume-Anker
+3. Lese worklog/active.md (status: idle)
+4. git log --oneline -5 (Commits dieser Session)
+5. Anil-Frage: „Slice 262 starten oder anderes Thema?"
+6. Bei „262": SHIP-Loop SPEC mit D63 Hero-State-Matrix + D62 Reviewer-VOR-BUILD
+```
+
+# 📋 Vor-heute Resume-Anker (Beta-Day-3 Vormittag, 2026-05-01)
 
 **HEAD `8756b5dd`** post-Sentry-Auto-Resolve-Commit. Status: idle.
 

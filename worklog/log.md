@@ -9,6 +9,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 261 | 2026-05-01 | Home Layer 0: Gameweek-Status-Bar (Phase 1 Identity-Foundation)
+
+- Stage-Chain: SPEC v1 → D62-Pre-Review-1st REWORK (4xP0+6xP1) → SPEC v2 (Anil-Decisions A=b · B=b · C=ja) → D62-Pre-Review-2nd CONCERNS (1xP0-NEW Mapper-Drift) → SPEC v2.1 (inline-fixed) → IMPACT skipped → BUILD → Code-Review POST-BUILD PASS (P2-1 motion-safe:animate-pulse inline-fixed) → PROVE Anil-Mobile-Safari ✓ → LOG
+- Slice-Type: UI (Component + Mount + i18n + Mapper-Patch) · Größe: S · Scope: CTO autonom (Home-Ultimate-Redesign-Plan Phase 1, Anil-approved 2026-04-30)
+- Anil-Direktive: „kontextueller Hero" — Phase 1 Identity-Foundation startet mit GW-Bar oberhalb Hero. Größter Single-Win für FM-Power-User, 0 Compliance-Risk.
+- Lösung: Stateless `<GameweekStatusBar />` mountet INNERHALB HomeStoryHeader-Edge-zu-Edge-Wrapper, non-sticky (TopBar bleibt drüber). Filter via `e.league_id || getClub-Fallback`. Skeleton-Reserve 44px bei `!hydrated` (kein Layout-Shift). gold-pulse-bg + motion-safe:animate-pulse + roter Countdown bei <6h-Deadline. LIVE-Badge bei `running`-Status. Klick → `/fantasy` mit `prefetch={false}`.
+- Anil-Decisions im Spec-Iteration-Flow:
+  - A=b: getTimeUntil hardcoded „2d 4h" beide Locales (FPL-Konvention statt eigener locale-aware-Formatter)
+  - B=b: Bar ersetzt HomeSpotlight Priority-2 Event-Branch (Spotlight = IPO/TopMover/Trending only). Sidebar-NextEvent-Card bleibt erhalten.
+  - C=ja: TR-Wording „Hafta 28" + „Canlı" + „Kayıt sürüyor" + „Hafta'ya git" approved (Codebase-konsistent zu existing tr.json `gameweekN`)
+- D62-Pattern Pay-Off: 2 Spec-Iterationen haben mind. 1 BUILD-Revert + 1 Heal-Slice gespart. Erkannte Spec-Faktenfehler vor BUILD: TopBar `z-30` (nicht z-40), DbEvent hat nur `league_id` (kein `league`), `getTimeUntil` nicht locale-aware, `eventMapper.ts` schreibt `leagueId` heute NICHT, HomeStoryHeader hat `-mx-4 -mt-4` (Edge-zu-Edge).
+- Files (6): NEU `src/components/home/GameweekStatusBar.tsx` (stateless 153 Z.) · EDIT `HomeStoryHeader.tsx` (Bar-Mount innerhalb Edge-zu-Edge-Wrapper) · EDIT `HomeSpotlight.tsx` (-50 Z., Priority-2-Event-Branch entfernt) · EDIT `page.tsx` (nextEvent-prop weg) · EDIT `eventMapper.ts` (1-Zeilen-Patch leagueId Single-Source) · EDIT `messages/de.json` + `tr.json` (5 home.gwBar.* Keys).
+- Verification: tsc clean · 7/7 Pre-Deploy-Self-Verification PASS · Code-Review PASS · Anil Mobile-Safari Live-Verify ✓
+- Proof: `worklog/proofs/261-self-verification.txt`
+- Spec: `worklog/specs/261-gameweek-status-bar.md` (v2.1, alle 13 Sektionen + Pre-Mortem 7 Szenarien + 11 ACs + 12 Edge-Cases)
+- Reviews: `worklog/reviews/261-pre-review.md` (REWORK) → `261-pre-review-v2.md` (CONCERNS) → `261-code-review.md` (PASS)
+- Commit: `3aae52c9`
+- Knowledge-Captures: D63 (PRODUCT — Home-Ultimate-Redesign-Plan), D64 (PROCESS — Multi-Choice-Decisions als Spec-Iteration-Speedup), errors-frontend.md (`gold-pulse-bg` ohne `motion-safe:animate-pulse` ist statisch).
+- Scope-Out (Phase 2-5 Pipeline): Liga-Rang-Pill → Slice 263 · Captain-ActionRequired → Slice 264 (Phase 2) · Stadium-Photo-BG → Slice 270 (Phase 5) · Sidebar-NextEvent-Card-Konsolidierung → später (Anil B=b).
+
 ## 268 | 2026-04-30 | Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right)
 
 - Stage-Chain: SPEC → IMPACT skipped → REVIEWER-vor-BUILD APPROVED-WITH-MINOR → 3 MINORs inline eingearbeitet → BUILD → REVIEWER-POST-BUILD PASS-WITH-CONCERN → CONCERN inline geheilt → PROVE → LOG

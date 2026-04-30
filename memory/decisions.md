@@ -2801,3 +2801,137 @@ Wenn nach 5 Slices mit Reviewer-VOR-BUILD die Hit-Rate (gefundene-MINORs / Slice
 - **D43 (Auth-Hydration-Race):** Defense-in-Depth-Pattern — Reviewer-VOR-BUILD ist Process-Achse derselben Philosophie
 - **D54 (Build-without-Wire):** UI-Definition-of-Done — Reviewer-VOR-BUILD ist Spec-Quality-Definition-of-Done
 
+---
+
+## D63 — PRODUCT: Home-Ultimate-Redesign-Plan (5-Phasen-Roadmap, kontextueller Hero)
+
+**Datum:** 2026-04-30 · **Status:** Aktiv · **Slice:** 261 (Phase 1 startet)
+
+### Entscheidung
+
+Home-Page wird in 5 Phasen kompletter umgebaut. Vision: „BeScout-Identität in 5 Sekunden — WER bin ich (Manager + Scout), WAS ist jetzt los (Live-Pulse), WAS muss ich tun (Action) — alles above-the-fold, ohne Wahl-Lähmung."
+
+**5 Phasen + ~13 Slices (261-273):**
+
+| Phase | Scope | Slices |
+|-------|-------|--------|
+| **1 Identity-Foundation** | GW-Awareness + Hero-Mode-Switch + Hero-Pills | 261 (GW-Bar) · 262 (Hero-Mode + Manager-Block) · 263 (Liga-Rang + Streak-Risk + Scout-Block) |
+| **2 Action-Layer** | ActionRequiredStack vor Spotlight | 264 (Captain/Lineup/Wildcard) · 265 (Streak-Risk + Mission-Progress) |
+| **3 Live-Pulse + Manager-Hub** | Multi-Slot-Pulse + Live-Score während GW | 266 (Spotlight-Refactor) · 267 (Live-Score Realtime) · 268 (Price-Changes Cache) |
+| **4 Discovery-Konsolidierung** | Markt-Puls als 3-Tab-Section | 269 |
+| **5 Visual-Polish (Bilder)** | Stadium-Asset-Pipeline + Player-Action-Shots + 3D-Mystery-Box | 270-273 |
+
+**Hero-Verhalten (kontextueller Hero, Anil-Decision 2026-04-30):**
+
+| Kontext | Primär (groß) | Sekundär (Pill) | Hero-Number |
+|---------|---------------|-----------------|-------------|
+| Aktive GW (Liga hat `events.status='running'\|'late-reg'`) | Manager-Block | Scout-Block | GW-Score + Liga-Rang |
+| Off-GW + Holdings | Scout-Block | Manager-Block | Portfolio-Wert + PnL% |
+| 0-Holdings + Off-GW | CTA-Block | — | „Erste Scout Card"-CTA |
+| 0-Holdings + Aktive GW | Manager-CTA | Scout-CTA klein | „Spieltag startet — stelle Lineup auf" |
+
+**Kontext-Switch-Source:** `useHomeData()` Derived-Wert `heroMode: 'manager' | 'scout' | 'cta-new'`.
+
+### Begründung
+
+**3-Persona-Audit (Game-Designer + Sports-App-Engineer + FM-Manager-Expert) hat decken folgende Gaps gefunden:**
+
+- FM-Power-User: Persistent GW-Bar fehlt, Liga-Rang fehlt, Live-Score während GW fehlt, Captain-Reminder fehlt
+- Game-Designer: Mystery-Box als Sidebar-#16 begraben, Streak-Risk fehlt, Daily-Mission-Progress fehlt, Spotlight-null tote Zone
+- Sports-App-Engineer: Realtime-Channel fehlt für Live-Status, `getPlayerPriceChanges7d` ohne TanStack-Cache
+
+**3 Cross-Persona-Top-Findings:**
+1. Mystery-Box ist begraben (Daily-Driver-Killer)
+2. Gameweek-Awareness fehlt komplett (FM-Identitäts-Bruch)
+3. `getPlayerPriceChanges7d` ohne Cache (Performance + Battery)
+
+### Auswirkungen
+
+**Implementations-Reihenfolge folgt Phasen** — keine Out-of-Order-Sprünge ohne CEO-Approval.
+
+**Compliance-Drahtseilakt eingehalten:**
+- Scout-Block-Wording „Kader-Wert · +5.4%" ist Equity-Register im Kopf, neutral im Wort (business.md Doppel-Register)
+- Holdings-Price-Alert formuliert als „MV-Trend-Indikator", nicht als Spekulations-Empfehlung
+- IPO-Card behält „Erstverkauf" / „Kulüp Satışı" durchgehend
+
+**Bilder-Strategie (Phase 5):**
+- 7 Liga-Stadium-BGs (`/stadiums/<liga>_hero.webp` + `_card.webp`) via SDXL Phase-1, Lizenz-Photos Phase-2, Eigene Photoshoots post-Beta
+- Player-Action-Shots-Fallback per Position (`/players/silhouette_<pos>.webp`)
+- 3D-Mystery-Box-Renders per Rarity (`/equipment/box_<rarity>.webp`)
+- Achievement-Badges + Tier-Badge-Glows (existing)
+
+### Alternativen erwogen
+
+**A. Tab-Switch Manager/Scout statt parallel:** Saubere mental-model-Separation, aber erfordert User-Action vor Identitäts-Sichtbarkeit. **Verworfen** weil Doppel-Register-Identität gerade BeScout-Innovation ist (siehe `business.md` Sektion „Asset-Klasse-Positionierung — Wording-Drahtseilakt").
+
+**B. Inkrementeller Refactor ohne Phasen-Plan:** Slice-by-Slice ohne übergeordnete Roadmap. **Verworfen** weil Cross-Phase-Dependencies (z.B. Phase 5 Stadium-Photos brauchen Phase 1-4 als Slot-Owner) sonst chaotisch landen.
+
+**C. Komplett-Rewrite von page.tsx:** Bigger-Bang aber Slice-265-266-Revert-Lehre zeigt: Multi-File-Big-Bangs sind Risk-Klasse. **Verworfen** zugunsten Slice-für-Slice mit D62-Reviewer-VOR-BUILD.
+
+### Re-Visit-Trigger
+
+- Beta-Day-3+ Tester-Findings könnten Phase-Reihenfolge ändern (z.B. Mystery-Box-Discoverability höher priorisieren als Phase 2)
+- Wenn Phase 1 Anil + Tester nicht überzeugt → Plan revisit nach Phase 2 (Action-Layer könnte mehr Wert bringen als Identity-Foundation)
+- Wenn Vercel-Deploy-Cost durch Phase-5-Bilder-Asset stark steigt → CDN-Strategy Re-Evaluation
+
+### Beziehung zu existing Patterns
+
+- **D59 (BeScout-Character-Spezifikation, kein FPL-Klon):** Home-Redesign macht BeScout-Character sichtbar (Doppel-Identität, Trading + Manager parallel) statt FPL-Klon (Manager-only)
+- **D54 (Build-without-Wire):** Phase 5 ist Asset-Pipeline → Asset-Files allein sind nicht Done, müssen in Component-Slot eingebunden sein
+- **D40-D43 (Auth-Hydration + Type-Truth):** Phase 1+2 nutzen useLeagueScope SSOT + Stateless-Components → keine neuen Auth-Race-Risiken
+
+---
+
+## D64 — PROCESS: Multi-Choice-Decisions als Spec-Iteration-Speedup
+
+**Datum:** 2026-05-01 · **Status:** Trial · **Slice:** 261
+
+### Entscheidung
+
+Bei Spec-Iterationen mit ≥ 2 offenen Anil-Decisions (CEO-Scope) **kompakt-Format mit Optionen-Buchstaben** anbieten statt freier Text-Frage. CTO präsentiert:
+
+```
+| # | Frage | Optionen | Empfehlung |
+|---|-------|----------|------------|
+| A | … | (a) X · (b) Y · (c) Z | b |
+| B | … | (a) X · (b) Y | a |
+| C | … | ja / anders | ja |
+```
+
+Anil antwortet kompakt z.B. „A=b · B=a · C=ja" oder einzeln „c" wenn nur 1 Decision noch offen.
+
+### Begründung
+
+**Empirisch (Slice 261):** Spec-Iteration brauchte 3 CEO-Decisions (A=b „2d 4h" beide Locales, B=b Bar ersetzt Spotlight-Event, C=ja TR „Hafta 28"). Anil tippt kurz (Codebase-Memory: „Spricht Deutsch, tippt kurz, will kurze Antworten"). Multi-Choice-Format reduzierte Decision-Round-Trip von 3× Frage-Antwort auf 1 strukturierte Antwort.
+
+**Reduziert Spec-Drift-Risk:** Wenn CEO frei antwortet, kann Subtilität verloren gehen. Multi-Choice mit CTO-Empfehlung gibt CEO „Default genehmigt" als pragmatischen Pfad ODER „andere Variante" mit klarer Differenzierung.
+
+### Anwendungs-Kriterien
+
+**Wann nutzen:**
+- ≥ 2 offene CEO-Decisions in einer Spec-Iteration
+- Decisions sind klar enumerierbar (nicht „was meinst du dazu?")
+- CTO hat eine begründete Empfehlung pro Decision (nicht „weiß ich nicht, du musst entscheiden")
+
+**Wann NICHT nutzen:**
+- Open-ended Strategy-Fragen (Markt, Zielgruppe, Pricing) → freier Text
+- Money-Path-Decisions (Fee-Splits, Compliance) → eigener Frage-Round-Trip mit Risiko-Erläuterung
+- Wenn nur 1 Decision offen → einzelne Frage reicht
+
+### Alternativen erwogen
+
+**A. Freier Text-Dialog wie bisher:** Funktioniert immer, aber bei 3+ Decisions wird's verschachtelt. **Nicht verworfen** — bleibt als Default für komplexe Strategie-Fragen.
+
+**B. Markdown-Checkbox-List für CEO:** „- [ ] Option A1 / [ ] A2 / [ ] A3" — schwer zu parsen wenn CEO in Chat antwortet. **Verworfen** weil Tabellen-Format kompakter.
+
+**C. Mündlich/Voice klären:** Außerhalb Chat-Loop → durchbricht Knowledge-Trail. **Verworfen.**
+
+### Re-Visit-Trigger
+
+Nach 5 weiteren Slices mit Multi-Choice-Format: Hit-Rate bewerten. Wenn Anil ≥ 80% des Mal CTO-Empfehlung approved (= „a · b · c" matched Empfehlung), zeigt das gute CTO-Empathie. Wenn < 50% → CTO bewertet falsch was Anil will, Format dann hinterfragen.
+
+### Beziehung zu existing Patterns
+
+- **D62 (Reviewer-VOR-BUILD):** D64 ist komplementär — Reviewer findet Tech-Spec-Drift, Multi-Choice-Format reduziert CEO-Decision-Drift
+- **`feedback_autonomous_loop.md`:** Nach Alignment autonom durchziehen — Multi-Choice ist genau der Alignment-Schritt
+
