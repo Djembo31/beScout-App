@@ -54,53 +54,6 @@ import { getWallet } from '@/lib/services/wallet';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
 import type { DbWallet } from '@/types';
 
-// ============================================
-// Slice 265 (2026-04-30) — Cold-Start localStorage Mirror
-// ============================================
-//
-// On Mobile-Safari cold-start, the initial query-storm exhausts the
-// connection-pool — wallet/tickets hang in queue, TopBar shows empty
-// values for 5-15s while user clicks frozen-feeling navigation.
-//
-// Fix: mirror balance + locked_balance to localStorage on every successful
-// fetch. Returning visits read it as `initialData` → TopBar shows last-
-// known value INSTANTLY while the real fetch runs in background.
-//
-// Cross-user-pollution safety:
-// - LS-Slot is keyed `bs_wallet_<userId>` so each user has their own slot
-// - User-Switch-Detect in AuthProvider (Slice 260) calls lsClear() which
-//   now sweeps ALL `bs_wallet_*` keys (extended in Slice 265)
-// - SIGNED_OUT path also calls lsClear() — wiped on logout
-//
-// Persist-Cache (Slice 261) excludes 'wallet' from USER_SCOPED_DOMAINS
-// already (Layer 3 UUID-regex catches the userId in queryKey). This LS-
-// Mirror is a separate, simpler mechanism that just caches the last-known
-// scalar value — no full query state, no buster, no maxAge needed.
-const LS_WALLET_PREFIX = 'bs_wallet_';
-
-function lsGetWallet(userId: string): { balance: number; locked_balance: number } | null {
-  try {
-    const raw = localStorage.getItem(`${LS_WALLET_PREFIX}${userId}`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (typeof parsed?.balance !== 'number') return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function lsSetWallet(userId: string, w: DbWallet): void {
-  try {
-    localStorage.setItem(
-      `${LS_WALLET_PREFIX}${userId}`,
-      JSON.stringify({ balance: w.balance, locked_balance: w.locked_balance }),
-    );
-  } catch (err) {
-    console.error('[useWallet] lsSetWallet quota exceeded:', err);
-  }
-}
-
 // Freshness window — balance fetched within the last 30s is considered safe
 // for Buy/Sell confirm actions. Matches the old WalletProvider constant.
 const FRESHNESS_WINDOW_MS = 30_000;
@@ -152,33 +105,7 @@ export function useWallet(): UseWalletResult {
 
   const query = useQuery<DbWallet | null, Error>({
     queryKey: userId ? walletQueryKey(userId) : ['wallet', 'no-user'] as const,
-    queryFn: async () => {
-      const w = await getWallet(userId!);
-      // Slice 265: mirror to localStorage so next cold-start has instant value
-      if (w && userId) lsSetWallet(userId, w);
-      return w;
-    },
-    // Slice 265: cold-start placeholder from localStorage. Fetch runs in
-    // background; UI shows last-known balance instantly instead of empty.
-    initialData: () => {
-      if (!userId) return undefined;
-      const cached = lsGetWallet(userId);
-      if (!cached) return undefined;
-      // Construct minimal DbWallet shape — balance + locked_balance is what
-      // TopBar/SideNav consume. Other fields can be missing; query-update
-      // via queryFn will fill them after fetch.
-      return {
-        user_id: userId,
-        balance: cached.balance,
-        locked_balance: cached.locked_balance,
-        created_at: '',
-        updated_at: '',
-      } as DbWallet;
-    },
-    // Mark cached data as stale so React Query refetches on mount.
-    // Without this, initialData would be treated as fresh and we'd skip
-    // the network refresh entirely.
-    initialDataUpdatedAt: 0,
+    queryFn: () => getWallet(userId!),
     enabled: !!userId,
     staleTime: WALLET_STALE_TIME_MS,
     // React-Query-Default `refetchOnWindowFocus: true` bleibt — Visibility-
