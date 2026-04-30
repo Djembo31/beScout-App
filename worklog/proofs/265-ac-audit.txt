@@ -1,0 +1,26 @@
+=== Slice 265 AC-Audit ===
+Datum: Thu Apr 30 16:52:03     2026
+
+=== Edits verifiziert ===
+useWallet.ts cold-start cache:        8
+useUserTickets cold-start cache:      8
+AuthProvider lsClear sweep extension: 2
+initialData hooks:                    src/lib/hooks/useWallet.ts:1
+src/lib/queries/tickets.ts:1
+initialDataUpdatedAt: 0:              src/lib/hooks/useWallet.ts:1
+src/lib/queries/tickets.ts:1
+
+tsc clean: PASS
+Tests 49/49 PASS (Provider 25 + hooks 24)
+
+Self-Review D35: XS additiv (kein Logic-Change am hot-path).
+Cross-User-Pollution-Mitigation:
+- Per-user-keyed (bs_wallet_<uid>, bs_tickets_<uid>)
+- Slice 260 User-Switch-Detect ruft lsClear() — extended um Wallet/Tickets sweep
+- SIGNED_OUT path triggert lsClear() — sweept beide caches
+
+=== Diff Summary ===
+ src/components/providers/AuthProvider.tsx | 12 +++++
+ src/lib/hooks/useWallet.ts                | 75 ++++++++++++++++++++++++++++++-
+ src/lib/queries/tickets.ts                | 48 +++++++++++++++++++-
+ 3 files changed, 133 insertions(+), 2 deletions(-)

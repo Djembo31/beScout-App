@@ -9,6 +9,32 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 265 | 2026-04-30 | TopBar Wallet+Tickets Cold-Start localStorage-Mirror
+
+- Stage-Chain: SPEC inline (Slice 264 follow-up — Real-User-Symptom) → IMPACT skipped (3 Files: useWallet, useUserTickets, AuthProvider lsClear extension) → BUILD → REVIEW (self-review D35) → PROVE (Tests 49/49) → LOG
+- Slice-Type: UI (Provider Hooks)
+- Größe: XS
+- Trigger: Anil Re-Test post-263+264: "schon deutlich besser, aber beim kalt start home hat geladen, geld und tickets waren nicht geladen, konnte auch nicht klicken bzw navigieren, musste wieder refreshen"
+- Diagnose: Mobile-Safari Initial Query-Storm exhaustes Connection-Pool. wallet/tickets hängen in queue → TopBar zeigt empty values → User-Wahrnehmung "frozen" weil Click-Navigation hinter wartenden RPCs queued
+- Fix: localStorage-Mirror für `wallet.balance + locked_balance` und `tickets.balance` per User-ID (`bs_wallet_<uid>` / `bs_tickets_<uid>`)
+  - `queryFn` schreibt nach erfolgreichem Fetch in localStorage
+  - `initialData` liest beim mount aus localStorage → instant render
+  - `initialDataUpdatedAt: 0` markiert als stale → React-Query refetcht in Background
+- Cross-User-Pollution-Mitigation:
+  - Per-user-keyed (UID im Key) — verschiedene User können nicht kollidieren
+  - Slice 260 User-Switch-Detect ruft `lsClear()` — **extended** um `bs_wallet_*` + `bs_tickets_*` sweep
+  - SIGNED_OUT path triggert ebenfalls `lsClear()` → wiped beim Logout
+- Layer-Composition mit existing Slices:
+  - Slice 261 TanStack persistQueryClient EXKLUDIERT 'wallet'/'tickets' aus USER_SCOPED → keine Cross-User-Persistierung im React-Query-Cache
+  - Slice 265 Mirror ist **separater Mechanismus** — nur scalar-Werte, simpler, per-user-keyed
+  - Keine Redundanz, keine Konflikte
+- Self-Review D35: XS additiv — kein Logic-Change am hot-path. Cross-User-Pollution-Mitigation 3-Layer (per-user-key + lsClear-cascade + SIGNED_OUT-cascade).
+- Files: `src/lib/hooks/useWallet.ts` (+75/-2) + `src/lib/queries/tickets.ts` (+48/-1) + `src/components/providers/AuthProvider.tsx` (+12 lines lsClear-extension)
+- Tests: 49/49 PASS (Provider 25 + hooks 24). tsc clean.
+- Spec: inline (LOG-Entry)
+- Proof: `worklog/proofs/265-ac-audit.txt`
+- Notes: Beta-Day-2 Real-User-Iteration #3. Pattern (Cold-Start localStorage-Mirror with User-Switch-Cascade) als zukünftige Pattern-Entry candidate.
+
 ## 264 | 2026-04-30 | AuthGuard Architektur-Refactor — Smoking-Gun #3 fix
 
 - Stage-Chain: SPEC inline (Slice 263 follow-up) → IMPACT skipped (1 File AuthGuard.tsx + 1 Test) → BUILD → REVIEW (self-review D35) → PROVE → LOG

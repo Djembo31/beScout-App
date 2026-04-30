@@ -56,6 +56,18 @@ function lsClear(): void {
     localStorage.removeItem(LS_PROFILE);
     localStorage.removeItem(LS_PLATFORM_ROLE);
     localStorage.removeItem(LS_CLUB_ADMIN);
+    // Slice 265: also sweep wallet/tickets cold-start mirrors so
+    // User-Switch-Detect + SIGNED_OUT cascade clears them too.
+    // Iterate keys (small list, < 5 in practice) and drop any that
+    // start with `bs_wallet_` or `bs_tickets_`.
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('bs_wallet_') || key.startsWith('bs_tickets_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
   } catch (err) { console.error('[AuthProvider] lsClear:', err); }
 }
 
