@@ -111,11 +111,6 @@ body {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
-/* Slice 266 — Cold-Start TopProgressBar shimmer (NProgress-Style indeterminate). */
-@keyframes progress-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(400%); }
-}
 /* Slice 181 — anim-* in @layer utilities, damit Tailwind data-[state=open]: Variants
    fuer Radix-Wrapper (Dialog/AlertDialog/DropdownMenu) generieren kann. */
 @layer utilities {
@@ -125,9 +120,6 @@ body {
   .anim-tab-fade { animation: fade-in 150ms ease-out; }
   .anim-slide-left { animation: slide-in-left 0.25s ease-out; }
   .anim-dropdown { animation: dropdown-in 0.15s ease-out; }
-  /* Slice 266 — TopProgressBar shimmer. Slice 181 Pattern: in @layer utilities
-     damit Tailwind data-state Variants generieren koennten + Tree-Shake-Sicherheit. */
-  .anim-progress-shimmer { animation: progress-shimmer 1.5s ease-in-out infinite; }
   /* Slice 202 — Gold-Pulse-Gradient als Token (Brand-2 Audit). Mirror der inline `bg-gradient-to-r from-gold/[0.04] via-gold/[0.10] to-gold/[0.04]` Variante. */
   .gold-pulse-bg {
     background-image: linear-gradient(to right, rgba(255,215,0,0.04), rgba(255,215,0,0.10), rgba(255,215,0,0.04));
