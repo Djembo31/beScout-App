@@ -1,27 +1,151 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-04-30 13:01)
+# Session Handoff — Auto (2026-04-30 17:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
+ M .claude/settings.local.json
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-04-30.md
  M worklog/audits/type-truth-2026-04-30.md
 ```
 
-## Session Commits: 5
-- 42badf34 docs(260): Live-Verify Proof — Cross-Tab Code-Path Verification
-- 30ec7dd9 chore(260): active.md → idle post-LOG
-- 5412ac43 feat(260): Auth-Hydrate Hardening — Cross-Tab Cache + Idle-Callback (P1, Beta-Day-2)
-- c3305fd4 docs(259): LOG + Knowledge-Promotion + Live-Verify-Proof
-- d4583303 fix(259): EMERGENCY P0 — Service Worker Cache-Pollution Heal (Beta-Day-2)
+## Session Commits: 10
+- f4dbcd33 Revert "feat(265): TopBar Wallet+Tickets Cold-Start localStorage-Mirror"
+- 24d9cf88 Revert "chore(265): active.md → idle post-LOG"
+- fcf1d6fc chore(265): active.md → idle post-LOG
+- d76007f8 feat(265): TopBar Wallet+Tickets Cold-Start localStorage-Mirror
+- 9bf141e4 chore(264): active.md → idle post-LOG
+- 9c972862 feat(264): AuthGuard Architektur-Refactor — Smoking-Gun #3 fix
+- 1e3177d8 chore(263): active.md → idle post-LOG
+- e2405a93 fix(263): EMERGENCY P0 — loadProfile Mobile-Safari Timeout-Bump
+- 2b5e8e4d feat(262): Middleware Public-Route-Bail-Out (P3, Beta-Day-2 Final-Final)
+- 145f4cc2 feat(261): TanStack Query Persist-Cache (P2, Beta-Day-2 Final)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# Resume-Anker MORGEN (2026-05-01) — Beta-Day-3 Continuation
+# 🎯 Resume-Anker MORGEN (2026-05-01) — Beta-Day-3 / Architektur-Refactor
+
+**HEAD `f4dbcd33`** post-Slice-265-Revert. Status: idle.
+
+**Anil-Direktive Session-Ende 2026-04-30:** "passt, wir setzen morgen bei b an!" — bezieht sich auf **Option B** aus der Audit-Empfehlung: **architektonischer Provider-Cascade-Refactor** (Smoking-Gun #3 ECHTER Fix).
+
+## Bei `/clear` morgen früh — lese in dieser Reihenfolge
+
+1. `worklog/active.md` — `status: idle`, HEAD `f4dbcd33`
+2. Diese Datei (Resume-Anker oben + System-Audit-Sektion unten)
+3. `git log --since="2026-04-30 00:00" --oneline` (16 commits heute, davon 2 reverts)
+4. `worklog/log.md` Top 6 Einträge (259→264, je full Stage-Chain)
+5. **Bug-Liste** (Sektion unten "Anil-gemeldete Symptome heute")
+
+## Was heute passiert ist (Beta-Day-2, 6 Slices + 1 Revert)
+
+| Slice | Status | Was |
+|---|---|---|
+| **259** P0 EMERGENCY | ✅ live | SW Cache-Pollution Heal — Smoking-Gun #1 (1899 stale → 0 verifiziert) |
+| **260** P1 | ✅ live | Auth-Hydrate Hardening — Smoking-Gun #5 + #7 (sessionStorage→localStorage + idle-callback) |
+| **261** P2 | ✅ live | TanStack Persist-Cache — Smoking-Gun #6 (3-Layer-Defense Allowlist) |
+| **262** P3 | ✅ live | Middleware Public-Route-Bail-Out — Smoking-Gun #4 |
+| **263** P0 | ✅ live | loadProfile Mobile-Safari Timeout-Bump (3s→10s, 8s→15s, 5s→12s) |
+| **264** P0 | ✅ live | AuthGuard Architektur-Refactor — Smoking-Gun #3 (TEIL-fix) |
+| **265** P1 | ❌ REVERTED | TopBar Wallet+Tickets Cold-Start Mirror — broke generelle Page-Render |
+
+## Anil-gemeldete Symptome heute (chronologisch)
+
+1. **Vormittag (vor 259):** "Initial Load funktioniert schrott — jedes Mal Refresh nötig damit App lädt. Nach Refresh OK." → Slice 259 SW-Heal
+2. **Nach 259+260 deploy:** "selbes schroot verhalten bei incognito fenster auf safari! 1 alle, 2 muss reload machen mehrmals, 3 skeleton" + Sentry-Console "loadProfile RPC slow Timeout" → Slice 263 Timeout-Bump + Slice 264 AuthGuard-Refactor
+3. **Nach 263+264 deploy:** "schon deutlich besser, aber beim kalt start home hat geladen, geld und tickets waren nicht geladen, konnte auch nicht klicken bzw navigieren, musste wieder refreshen, danach ging es"
+4. **Nach 265 deploy (BROKE):** "irgendwas ist schief gegangen, die seiten laden nicht mehr die contents, und nach dem ersten start kam Geld und Tickets nicht und ein refresh hat da nichts gebracht" → Slice 265 REVERT
+
+## Verbleibende Bugs (Beta-Day-3 Backlog)
+
+**Symptom #3 (post-264, vor 265-Revert):** Cold-Start zeigt Page sichtbar aber Wallet+Tickets leer + Click-Navigation queued. Wahrscheinliche Ursache: **Mobile-Safari Initial Query-Storm** — viele parallele queries beim Mount, Connection-Pool exhausted, kritische queries (wallet, tickets) hängen in queue. Kann nach 5-15s Refresh nötig.
+
+**Smoking-Gun #3 nur TEIL-gefixed:** Slice 264 hat AuthGuard-Block entfernt, aber **Provider-Cascade selbst** ist noch sequentiell:
+```
+AuthProvider → loadProfile (10s timeout) → setProfile/setPlatformRole/setClubAdmin (3 setStates)
+ClubProvider → wartet auf user → initClubCache + initLeagueCache (parallel) → followedClubs query → activeClub hydration → leagueScopeHydrated cascade
+```
+Alles **sequentiell statt parallel**.
+
+## 🎯 Option B — Morgen's Plan (Architektur-Refactor)
+
+**Slice 266 P0 — Provider-Cascade Parallelisieren** (~4-6h, Reviewer-Pflicht)
+
+**Konkrete Hypothese was zu fixen ist:**
+1. **`(app)/layout.tsx` Mount-Order**: Aktuell `<TourProvider><BackgroundEffects /><SideNav /><TopBar /><AuthGuard>{children}</AuthGuard></TourProvider>`. TopBar+SideNav sind außerhalb AuthGuard und feuern eigene Queries (useWallet, useUserTickets, useFollowedClubs, useNotifications) — alle gegated auf `user?.id`. Beim Mount: AuthProvider lädt user (10s), parallel feuern TopBar/SideNav-Queries sobald user da ist. Auf Mobile-Safari: Connection-Pool-Limit → queue.
+2. **Lösungsansatz A:** Stagger queries — kritische zuerst (wallet, holdings, profile), non-kritische in idle-callback (notifications, sponsors, equipment-defs, mystery-box-drop-rates).
+3. **Lösungsansatz B:** Server-Component RSC Auth-Hydrate — `get_auth_state` als Server-Action im RootLayout, dehydrate via `<HydrationBoundary>` → Client kriegt Profile sofort, kein 10s wait.
+4. **Lösungsansatz C:** Persist-Cache erweitert um wallet+tickets via SAFE Pattern (per-user-keyed mit User-Switch-Detect-Cascade — was Slice 265 versuchte aber broke). Slice-265-Bug muss FIRST diagnosed sein.
+
+**Empfohlener Sub-Plan:**
+- **Slice 265 Post-Mortem ZUERST** — was hat Slice 265 BROKEN? Browser-Console-Output von Anil's Test fehlt. Hypothesen:
+  - `initialData` + `initialDataUpdatedAt: 0` + `enabled: !!userId` + Key-Wechsel `['wallet', 'no-user']` → `['wallet', uid]` Race
+  - lsClear-Loop mit `localStorage.length` während Modifikation (sollte safe sein wegen `keysToRemove`-Array)
+  - Konflikt mit Slice 261 persist-cache (wallet ist USER_SCOPED denied)
+  - TypeScript-cast `as DbWallet` mit minimal-shape — runtime-OK aber TopBar-consumer könnte NumTick-loop triggern?
+- **Slice 266 Fokus:** Cold-Start-UX endgültig. Ansatz B (RSC Auth-Hydrate) ist sauberer als A (Stagger). Aber RootLayout-Touch-Risk wenn Anil parallel Home-Arbeiten macht.
+
+## System-Audit Findings (Open Risiken — defer post-Beta wenn nicht akut)
+
+1. **gcTime 24h** (Slice 261) — Memory-Bloat-Risk Tab-stayer, bis 500MB
+2. **localStorage-Bloat** (260+261) — Mobile-Safari ~5MB quota, kein monitor
+3. **User-Switch-Detect-Cascade** (260) — queryClient.clear() + persist-clear in 1s window
+4. **Provider-Cascade sequentiell** (#3 nur teilgelöst) — Slice 266
+5. **Test-Coverage-Gap** — kein Mobile-Safari-Simulation, keine Network-Stress-Tests
+
+## Tech-Side-Status
+
+- **Beta-Phase-Tracker:** Phase D, Anil-Mensch-Action-Block (3 Tester live, Tech-Block weg)
+- **Findings_open:** P0=0 (alle gefixt), P1=1 (kalt-start Wallet leer — Slice 266 Backlog), P2=4 (Audit-Findings open), P3=3
+- **Vercel:** HEAD `f4dbcd33` Live (post-Revert)
+- **Sentry Production:** 0 unresolved letzte 2h post-Revert verifiziert
+- **3rd Tester:** `cloud` (f3267e0d-149c) signed up 2026-04-30 08:34 UTC, has profile, signed-in iPhone Safari iOS 18.7
+
+## Bei Resume morgen — Erste-Action-Pfad
+
+```
+1. /clear (falls neue Session)
+2. Lese diesen Resume-Anker
+3. Frage Anil: "Wie war Slice-264-Stand bei euch im Test gestern Abend? Refresh-Bug erledigt? Welche Bugs noch sichtbar?"
+4. Slice 265 Post-Mortem (15-30 min):
+   a. git show d76007f8 (revert-source) anschauen
+   b. Hypothesen mit context7 TanStack-Query v5 verifizieren (initialData+enabled-Race)
+   c. Browser-Test in Safari mit Slice-265-Code-temporär-applied → DevTools Console
+5. Slice 266 SPEC schreiben: Provider-Cascade Refactor
+   - Ansatz wählen (A Stagger | B RSC-Hydrate | C Persist-Mirror-mit-Mitigations)
+   - CEO-Approval falls RSC Money-Path-betreffend
+6. SPEC → IMPACT → BUILD (Reviewer-Agent VORHER, nicht nachher diesmal!) → PROVE → LOG
+```
+
+# 📚 Lessons Learned aus Beta-Day-2 (für Wiki / patterns.md candidate)
+
+## Anti-Pattern: Quick-Fix-Cascade unter Live-User-Druck
+
+**Was passiert ist:** Anil-Bug-Report → Deep-Dive identifiziert 7 Smoking-Guns → 6 Slices in 6 Stunden → Slice 265 broke (1 revert).
+
+**Pattern:** Wenn Live-User auf Production testen und Reports kommen rein, ist der Reflex "schnell fix-forward". Aber: jeder Slice nach #4 hat exponentiell mehr Cross-Cutting-Risk weil vorherige Slices Architekturänderungen sind.
+
+**Lehre für die Zukunft:**
+1. **Erste 1-2 Slices** (P0 Emergency): fix-forward OK, akzeptiertes Risk
+2. **Slice 3+:** Reviewer-Agent **VORHER** in spec-stage, nicht nach. Plus Live-Verify-on-actual-Mobile.
+3. **Slice 5+:** STOP, audit, dann strategic refactor. Nicht weiter quick-fixes.
+4. **Live-User ≠ Test-Env:** Sentry-Sample-Rate aufdrehen für Beta. Behavior-Tests mit echtem mobile-emulation.
+
+## Pattern: Slice 265 Live-User-Bug-ohne-Diagnose
+
+**Was passiert ist:** Slice 265 implementiert localStorage-Mirror für wallet/tickets. Tests 49/49 grün. Pushed. Anil testet → "Seiten laden nicht mehr die contents". Revert ohne Diagnose-Daten (kein Console-Output, kein Screenshot, keine Stack-Trace).
+
+**Lehre:** Bei Live-User-Bug-Reports ZUERST Beweise sammeln (Console F12, Screenshot, optional Sentry-Event), DANN revert/fix. Das macht den Bug morgen findbar.
+
+**Konkret morgen:** Slice 265 Code in git show — manuell durchsehen, hypothesen-getestet auf Test-Page deployen (NICHT Production), Console-Output capturen, dann gezielt fix.
+
+---
+
+# 📋 Vor-Heute Resume-Anker (Beta-Day-1, 2026-04-29 abends)
 
 **HEAD `42badf34`** post-Slice-260 Live-Verify-Push. Status: idle.
 
