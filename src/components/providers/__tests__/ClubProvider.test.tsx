@@ -82,8 +82,8 @@ describe('ClubProvider (Slice 151b-RESET — shrunk to activeClub + loading)', (
     mockGetUserFollowedClubs.mockReset();
     mockInitClubCache.mockResolvedValue(undefined);
     mockInitLeagueCache.mockResolvedValue(undefined);
-    try { sessionStorage.clear(); } catch (err) {
-      console.error('[test] sessionStorage.clear failed:', err);
+    try { localStorage.clear(); } catch (err) {
+      console.error('[test] localStorage.clear failed:', err);
     }
   });
 
@@ -115,8 +115,8 @@ describe('ClubProvider (Slice 151b-RESET — shrunk to activeClub + loading)', (
     expect(screen.getByTestId('active').textContent).toBe('Club A');
   });
 
-  it('hydrates activeClub from sessionStorage when value still in followed list', async () => {
-    sessionStorage.setItem('bescout-active-club', JSON.stringify(clubB));
+  it('hydrates activeClub from localStorage when value still in followed list', async () => {
+    localStorage.setItem('bescout-active-club', JSON.stringify(clubB));
     mockUseUser.mockReturnValue({ user: stableUser });
     mockGetUserFollowedClubs.mockResolvedValue([clubA, clubB]);
     renderWithProviders(<ClubInspector />);
@@ -127,8 +127,8 @@ describe('ClubProvider (Slice 151b-RESET — shrunk to activeClub + loading)', (
     expect(screen.getByTestId('active').textContent).toBe('Club B');
   });
 
-  it('falls back to primary when sessionStorage value is not in followed list', async () => {
-    sessionStorage.setItem('bescout-active-club', JSON.stringify({ id: 'stale', name: 'Stale' }));
+  it('falls back to primary when localStorage value is not in followed list', async () => {
+    localStorage.setItem('bescout-active-club', JSON.stringify({ id: 'stale', name: 'Stale' }));
     mockUseUser.mockReturnValue({ user: stableUser });
     mockGetUserFollowedClubs.mockResolvedValue([clubA]);
     renderWithProviders(<ClubInspector />);
@@ -139,7 +139,7 @@ describe('ClubProvider (Slice 151b-RESET — shrunk to activeClub + loading)', (
     expect(screen.getByTestId('active').textContent).toBe('Club A');
   });
 
-  it('setActiveClub updates state + persists to sessionStorage', async () => {
+  it('setActiveClub updates state + persists to localStorage', async () => {
     mockUseUser.mockReturnValue({ user: stableUser });
     mockGetUserFollowedClubs.mockResolvedValue([clubA, clubB]);
     const user = userEvent.setup();
@@ -151,7 +151,7 @@ describe('ClubProvider (Slice 151b-RESET — shrunk to activeClub + loading)', (
 
     await user.click(screen.getByText('switch'));
     expect(screen.getByTestId('active').textContent).toBe('Club B');
-    expect(sessionStorage.getItem('bescout-active-club')).toContain('"id":"c2"');
+    expect(localStorage.getItem('bescout-active-club')).toContain('"id":"c2"');
   });
 
   it('useClub default value outside provider', () => {

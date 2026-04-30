@@ -1129,3 +1129,91 @@ console.log({cacheNames, cached_authenticated_requests: suspicious});
 ```
 
 **Reference:** Slice 259 — Beta-Day-2 Service-Worker-Heal nach Anil-Bug-Report "Initial Load funktioniert schrott — jedes Mal Refresh nötig". 1899 stale Supabase-REST-Responses bei jedem Browser im Cache vor Heal. Decision D61.
+
+### 41. Cross-Tab Cache Sync via localStorage with User-Switch-Detect (Slice 260, 2026-04-30)
+
+**Wann:** Auth-Provider-Cache Migration von sessionStorage zu localStorage für besseren first-paint UX.
+
+**Wie (vor → nach):**
+
+```ts
+// VOR (sessionStorage — tab-isolated, neuer Tab = kalt-start)
+function ssGet<T>(key: string): T | null {
+  try { return JSON.parse(sessionStorage.getItem(key) ?? 'null'); } catch { return null; }
+}
+
+// NACH (localStorage — cross-tab warm cache)
+function lsGet<T>(key: string): T | null {
+  try { return JSON.parse(localStorage.getItem(key) ?? 'null'); } catch { return null; }
+}
+
+// PFLICHT-Mitigation: User-Switch-Detect VOR setUser
+// (cross-user-pollution wenn SIGNED_OUT nicht gefeuert hat — z.B. tab-crash)
+supabase.auth.onAuthStateChange(async (event, session) => {
+  const u = session?.user ?? null;
+  if (u) {
+    const cachedUserId = lsGet<User>(LS_USER)?.id;
+    if (cachedUserId && cachedUserId !== u.id) {
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'user_switch_detected_cache_cleared',
+        level: 'info',
+        data: { from: cachedUserId.slice(0, 8), to: u.id.slice(0, 8) },  // GDPR-safe
+      });
+      lsClear();
+      queryClient.clear();
+    }
+    setUser(u);
+    lsSet(LS_USER, u);
+    // ...
+  }
+});
+```
+
+**Warum:**
+- sessionStorage tab-isoliert → returning user opens new tab → 1-3s skeleton on first load while auth round-trips
+- localStorage cross-tab shared → instant warm-cache render, no skeleton flash
+- Cross-User-Pollution-Risk neu (sessionStorage hatte ihn nicht): ohne SIGNED_OUT bleibt User A's cache, User B logt ein → User B sieht User A's Profile
+- User-Switch-Detect-Block + queryClient.clear() neutralisiert das
+
+**SSR-Pflicht:**
+- Storage-Reads NUR in useEffect (niemals useState-init — server hat kein localStorage)
+- try/catch um alle storage-Ops (Privacy-Mode, Quota-Exceeded)
+
+**Defense-in-Depth (zusätzlich):**
+- Sub-Provider (z.B. ClubProvider) sollten eigenen `storedStillValid`-Check haben (cached value muss Teil aktueller User-Daten sein, sonst ignorieren)
+- Sentry-Breadcrumbs mit truncated UUIDs für post-incident-debugging
+
+**Reference:** Slice 260 — Beta-Day-2 Auth-Hydrate-Hardening nach Slice 259 SW-Heal.
+
+### 42. requestIdleCallback für Non-Critical Mount-Effects (Slice 260, 2026-04-30)
+
+**Wann:** Welcome-Bonus, ActivityLog, analytics-pings, Telemetry — alles was zwar bei Mount triggert aber nicht render-critical ist.
+
+**Wie:**
+
+```ts
+useEffect(() => {
+  if (!user) return;
+  const trigger = () => {
+    // ... non-critical work
+  };
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    const idleId = window.requestIdleCallback(trigger, { timeout: 5000 });
+    return () => window.cancelIdleCallback?.(idleId);
+  }
+  // Fallback für Safari < 16.4
+  const timeoutId = setTimeout(trigger, 1000);
+  return () => clearTimeout(timeoutId);
+}, [user]);
+```
+
+**Warum:**
+- Mount-Effects competen mit first-paint-Queries auf Render-Race-Surface
+- requestIdleCallback feuert wenn Browser idle ist → off critical path
+- timeout: 5000ms forced-fire ensures eventual execution
+- Cleanup-functions für beide paths preventen leak bei Pathname-Change/Unmount
+
+**Idempotency-Pflicht:** Trigger-Function MUSS idempotent sein (z.B. via DB-PK-Constraint), weil idle-callback nicht gefeuert werden könnte vor Tab-close → next visit holt es nach.
+
+**Reference:** Slice 260 — `(app)/layout.tsx` Welcome-Bonus + ActivityLog migrated to idle-callback. Bonus-Claim ist via PK-Constraint idempotent (existing).

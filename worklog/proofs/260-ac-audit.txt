@@ -1,0 +1,59 @@
+=== Slice 260 AC-Audit ===
+Datum: Thu Apr 30 11:16:39     2026
+
+AC-01 sessionStorage-refs in AuthProvider:        0 (expected 0)
+AC-02 sessionStorage-refs in ClubProvider:        0 (expected 0)
+AC-03 User-Switch-Detect-Block:                   1 (expected 1)
+AC-06 requestIdleCallback in (app)/layout.tsx:    7 (expected 2)
+AC-07 try/catch in lsGet/lsSet (SSR-safe):        17 try/catch blocks
+
+Other sessionStorage in src/ (must NOT include providers):
+src/app/(app)/error.tsx:15:    if (sessionStorage.getItem(RECOVERY_KEY)) return false;
+src/app/(app)/error.tsx:16:    sessionStorage.setItem(RECOVERY_KEY, '1');
+src/components/system/StalePipelineBanner.tsx:10: * Render-Decision: NULL wenn healthy ODER dismissed (sessionStorage).
+src/components/system/StalePipelineBanner.tsx:15: * Per-Session-Dismiss (sessionStorage 'bescout-stale-pipeline-dismissed-v1'):
+src/components/system/StalePipelineBanner.tsx:30:    return window.sessionStorage.getItem(DISMISS_KEY) === '1';
+src/components/system/StalePipelineBanner.tsx:39:    window.sessionStorage.setItem(DISMISS_KEY, '1');
+src/components/system/StalePipelineBanner.tsx:41:    // sessionStorage unavailable (Privacy-Mode) — silent no-op, Banner stays open
+src/components/system/StalePipelineBanner.tsx:50:  // Re-sync dismissed state on mount in case sessionStorage was changed in another tab.
+src/lib/queries/holdings.ts:18: * `userId` is the cached user-id from sessionStorage (set early). The query
+src/lib/services/activityLog.ts:11:    let sid = sessionStorage.getItem('bs_session_id');
+
+=== TSC Build ===
+PASS
+
+=== Slice 260 AC-Audit (FINAL after comment-drift-heal) ===
+
+AC-06 clarification: grep counts STRING occurrences inkl. comments.
+Actual call-sites:
+40:      const idleId = window.requestIdleCallback(trigger, { timeout: 5000 });
+62:      const idleId = window.requestIdleCallback(trigger, { timeout: 5000 });
+
+= 2 actual call-sites (welcome-bonus + activity-log) ✓ PASS
+
+Other sessionStorage uses verified intentional:
+  - error.tsx RECOVERY_KEY: Per-Session intentional (avoids infinite-reload-loop, must die on tab-close)
+  - StalePipelineBanner DISMISS_KEY: Per-Session intentional (banner re-shows in new tab)
+  - activityLog bs_session_id: Per-Session intentional (analytics-session UUID per tab)
+  - holdings.ts: comment-drift fixed (now references localStorage)
+
+TSC: PASS
+
+=== Slice 260 POST-Reviewer P3#1 Heal Re-Audit ===
+P3#1 Heal: TOKEN_REFRESHED invalidate guard
+          // Invalidate so they refetch with the fresh token.
+          // Slice 260 P3#1 polish: skip if User-Switch-Detect already cleared
+          // the cache above (clear() + invalidate is redundant on empty cache).
+          if (!cachedUserId || cachedUserId === u.id) {
+            queryClient.invalidateQueries();
+
+All ACs final state:
+AC-01 sessionStorage in AuthProvider:        0 ✓
+AC-02 sessionStorage in ClubProvider:        0 ✓
+AC-03 User-Switch-Detect-Block:              1 ✓
+AC-04 Provider Tests: 25/25 PASS (lokal verifiziert)
+AC-05 tsc: PASS
+AC-06 requestIdleCallback call-sites: 2 ✓
+
+P3#1 (TOKEN_REFRESHED guard) HEALED ✓
+P3#2 (setTimeout-symmetry) accept-as-designed (loadProfile-await sequences renders)

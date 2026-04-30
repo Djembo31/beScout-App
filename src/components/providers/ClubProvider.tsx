@@ -33,29 +33,33 @@ const ClubContext = createContext<ClubContextValue>({
 });
 
 // ============================================
-// SessionStorage Helpers
+// LocalStorage Helpers
 // ============================================
+//
+// Slice 260: migrated from sessionStorage to localStorage for cross-tab
+// warm cache. Cross-user pollution is mitigated by the existing
+// `storedStillValid` check in the activeClub-hydrate effect (only honours
+// the cached club if it's in the *current* user's followed-clubs list).
+const LS_ACTIVE_CLUB = 'bescout-active-club';
 
-const SS_ACTIVE_CLUB = 'bescout-active-club';
-
-function ssGetClub(): DbClub | null {
+function lsGetClub(): DbClub | null {
   try {
-    const raw = sessionStorage.getItem(SS_ACTIVE_CLUB);
+    const raw = localStorage.getItem(LS_ACTIVE_CLUB);
     return raw ? (JSON.parse(raw) as DbClub) : null;
   } catch {
     return null;
   }
 }
 
-function ssSetClub(club: DbClub | null): void {
+function lsSetClub(club: DbClub | null): void {
   try {
     if (club) {
-      sessionStorage.setItem(SS_ACTIVE_CLUB, JSON.stringify(club));
+      localStorage.setItem(LS_ACTIVE_CLUB, JSON.stringify(club));
     } else {
-      sessionStorage.removeItem(SS_ACTIVE_CLUB);
+      localStorage.removeItem(LS_ACTIVE_CLUB);
     }
   } catch (err) {
-    console.error('[ClubProvider] ssSetClub quota exceeded:', err);
+    console.error('[ClubProvider] lsSetClub quota exceeded:', err);
   }
 }
 
@@ -95,9 +99,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return () => { cancelled = true; };
   }, []);
 
-  // activeClub hydrate nach initial Query-Load. sessionStorage-Wert wird nur
+  // activeClub hydrate nach initial Query-Load. localStorage-Wert wird nur
   // uebernommen wenn er in der aktuellen followedClubs-Liste enthalten ist
-  // (Cross-User-Session-Schutz).
+  // (Cross-User-Session-Schutz — kritisch jetzt da localStorage cross-tab
+  // shared ist, nicht mehr tab-isoliert wie sessionStorage vor Slice 260).
   useEffect(() => {
     if (!userId) {
       setActiveClubState(null);
@@ -107,13 +112,13 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     if (followedLoading) return;
 
     const followed = followedClubs ?? [];
-    const stored = ssGetClub();
+    const stored = lsGetClub();
     const storedStillValid = stored && followed.some((c) => c.id === stored.id);
     const primary = followed[0] ?? null;
     const next = storedStillValid ? stored : primary ?? followed[0] ?? null;
 
     setActiveClubState(next);
-    if (next) ssSetClub(next);
+    if (next) lsSetClub(next);
     setHydrated(true);
   }, [userId, followedLoading, followedClubs]);
 
@@ -149,7 +154,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
   const setActiveClub = useCallback((club: DbClub) => {
     setActiveClubState(club);
-    ssSetClub(club);
+    lsSetClub(club);
   }, []);
 
   const loading = !cachesReady || followedLoading || !hydrated;

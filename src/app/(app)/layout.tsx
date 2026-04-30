@@ -25,26 +25,45 @@ export default function AppLayout({
   const { user } = useUser();
   const logTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Activity log — debounced so it runs after render, not blocking navigation
+  // Activity log — Slice 260: deferred to requestIdleCallback so it doesn't
+  // compete with first-paint queries. setTimeout-fallback for browsers
+  // without requestIdleCallback (Safari < 16.4).
   useEffect(() => {
     if (!user) return;
     if (logTimer.current) clearTimeout(logTimer.current);
-    logTimer.current = setTimeout(() => {
+    const trigger = () => {
       import('@/lib/services/activityLog').then(({ logActivity }) => {
         logActivity(user.id, 'page_view', 'navigation', { path: pathname });
       }).catch(err => console.error('[AppLayout] Activity log failed:', err));
-    }, 1000);
+    };
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(trigger, { timeout: 5000 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+    logTimer.current = setTimeout(trigger, 1000);
     return () => {
       if (logTimer.current) clearTimeout(logTimer.current);
     };
   }, [pathname, user]);
 
-  // Welcome bonus — idempotent (PK constraint), safe to call on every auth
+  // Welcome bonus — idempotent (PK constraint), safe to call on every auth.
+  // Slice 260: deferred to requestIdleCallback (with setTimeout-fallback) so
+  // it doesn't add to first-paint render-race surface. Bonus-claim is itself
+  // idempotent; if idle-callback never fires before unload, next visit picks
+  // up where we left off (still safe).
   const bonusClaimed = useRef(false);
   useEffect(() => {
     if (!user || bonusClaimed.current) return;
     bonusClaimed.current = true;
-    claimWelcomeBonus().catch(err => console.error('[AppLayout] Welcome bonus claim failed:', err));
+    const trigger = () => {
+      claimWelcomeBonus().catch(err => console.error('[AppLayout] Welcome bonus claim failed:', err));
+    };
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(trigger, { timeout: 5000 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+    const timeoutId = setTimeout(trigger, 1000);
+    return () => clearTimeout(timeoutId);
   }, [user]);
 
   const handleMobileToggle = useCallback(() => {

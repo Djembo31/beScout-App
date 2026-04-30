@@ -9,6 +9,32 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 260 | 2026-04-30 | Auth-Hydrate Hardening (P1, Beta-Day-2)
+
+- Stage-Chain: SPEC → IMPACT skipped (3 Files src/components/providers + 1 src/app/(app)/layout, kein src/lib/services, kein RPC, kein Schema) → BUILD → REVIEW (reviewer-agent PASS, 18 min, 2× P3 — P3#1 inline geheilt, P3#2 accept-as-designed) → PROVE (alle 7 lokale ACs, Provider-Tests 25/25) → LOG
+- Slice-Type: UI (Provider Hooks)
+- Größe: S
+- Anil-Direktive: "saubere 100%tige Leistung, keine Reste, autonom"
+- Smoking-Gun #5 + #7 vom Slice 259 Deep-Dive geheilt:
+  - **#5 sessionStorage → localStorage** (cross-tab warm cache statt 1-3s Skeleton bei neuem Tab)
+  - **#7 Welcome-Bonus + ActivityLog in `requestIdleCallback`** mit setTimeout-Fallback (off critical path)
+- Cross-User-Pollution-Mitigation: User-Switch-Detect-Block in `onAuthStateChange` — wenn `cachedUserId !== u.id` → `lsClear() + queryClient.clear()` mit Sentry-Breadcrumb (GDPR-safe truncated UUIDs)
+- Helper-Migration:
+  - `AuthProvider`: `ssGet/ssSet/ssClear` → `lsGet/lsSet/lsClear`, `SS_*` → `LS_*` (key-strings unverändert für drift-freie Migration)
+  - `ClubProvider`: `ssGetClub/ssSetClub` → `lsGetClub/lsSetClub`, existing `storedStillValid`-Check bleibt (Defense-in-Depth)
+  - `holdings.ts`: Comment-drift fix (sessionStorage → localStorage in JSDoc)
+  - `ClubProvider.test.tsx`: Test-File-Migration in 4 Test-Fällen
+- Andere sessionStorage-Refs verifiziert intentional (NICHT migriert): `error.tsx` RECOVERY_KEY, `StalePipelineBanner` DISMISS_KEY, `activityLog` bs_session_id
+- SSR-Sicherheit bewahrt (try/catch, Reads nur in useEffect, typeof window-Guards)
+- Reviewer P3#1 inline geheilt: TOKEN_REFRESHED `queryClient.invalidateQueries()` mit `if (!cachedUserId || cachedUserId === u.id)` Guard (skip wenn User-Switch bereits cleared)
+- Reviewer P3#2 accept-as-designed: setTimeout-Symmetrie (loadProfile-await sequences renders, kein observed flicker)
+- Files: `src/components/providers/AuthProvider.tsx` (96 Zeilen), `ClubProvider.tsx` (33), `src/app/(app)/layout.tsx` (29), `src/lib/queries/holdings.ts` (5 comment-fix), `__tests__/ClubProvider.test.tsx` (16 test-migration)
+- Knowledge-Promotion: `memory/patterns.md` #41 (Cross-Tab Cache Sync mit User-Switch-Detect) + #42 (requestIdleCallback für Non-Critical Mount-Effects)
+- Spec: `worklog/specs/260-auth-hydrate-hardening.md`
+- Proof: `worklog/proofs/260-ac-audit.txt`
+- Review: `worklog/reviews/260-review.md`
+- Notes: AC-08 LIVE-VERIFY (Cross-Tab-Test gegen bescout.net) post-Deploy. P2 (TanStack persist + RSC auth-hydrate) post-Beta wegen RootLayout-Touch-Risk.
+
 ## 259 | 2026-04-30 | EMERGENCY P0 — Service Worker Cache-Pollution Heal (Beta-Day-2)
 
 - Stage-Chain: SPEC → IMPACT skipped (1 File public/, kein src/lib/services, kein RPC, kein Schema) → BUILD → REVIEW (reviewer-agent PASS, 18 min, 2× P3 inline geheilt) → PROVE (alle 6 lokale ACs + AC-07 Live-Verify) → LOG

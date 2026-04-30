@@ -15,8 +15,9 @@ import { useUser } from '@/components/providers/AuthProvider';
  * silently returned NULL for nested rows when JWT was not fully ready —
  * producing the Slice-192 ghost-row symptom Anil saw 2026-04-24.
  *
- * `userId` is the cached user-id from sessionStorage (set early). The query
- * waits ~50-200ms longer until `profileLoading=false`, eliminating the race.
+ * `userId` is the cached user-id from localStorage (set early; Slice 260
+ * migrated from sessionStorage for cross-tab warm cache). The query waits
+ * ~50-200ms longer until `profileLoading=false`, eliminating the race.
  */
 export function useHoldings(userId: string | undefined) {
   const { profileLoading } = useUser();

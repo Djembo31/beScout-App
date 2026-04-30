@@ -15,36 +15,48 @@ import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { Profile, ClubAdminRole } from '@/types';
 
 // ============================================
-// SessionStorage helpers
+// LocalStorage helpers
 // ============================================
+//
+// Slice 260 (2026-04-30) — migrated from sessionStorage to localStorage:
+// sessionStorage is tab-isolated → returning user opens a new tab and gets
+// 1-3s skeleton on first load while auth round-trips. localStorage is
+// shared across tabs/windows → returning user with prior session sees
+// instant warm-cache render (no skeleton flash).
+//
+// Cross-user-pollution risk is mitigated by the user-switch-detect block
+// in onAuthStateChange below (clears cache if cachedUserId !== session.user.id).
+//
+// SSR-safety preserved: try/catch handles `typeof window === 'undefined'`
+// during server-render, plus the existing rule "never read storage in
+// useState initializers — only in useEffect" (line ~133).
+const LS_USER = 'bs_user';
+const LS_PROFILE = 'bs_profile';
+const LS_PLATFORM_ROLE = 'bs_platform_role';
+const LS_CLUB_ADMIN = 'bs_club_admin';
 
-const SS_USER = 'bs_user';
-const SS_PROFILE = 'bs_profile';
-const SS_PLATFORM_ROLE = 'bs_platform_role';
-const SS_CLUB_ADMIN = 'bs_club_admin';
-
-function ssGet<T>(key: string): T | null {
+function lsGet<T>(key: string): T | null {
   try {
-    const raw = sessionStorage.getItem(key);
+    const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : null;
   } catch {
     return null;
   }
 }
 
-function ssSet(key: string, value: unknown): void {
+function lsSet(key: string, value: unknown): void {
   try {
-    sessionStorage.setItem(key, JSON.stringify(value));
-  } catch (err) { console.error('[AuthProvider] ssSet quota exceeded:', err); }
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) { console.error('[AuthProvider] lsSet quota exceeded:', err); }
 }
 
-function ssClear(): void {
+function lsClear(): void {
   try {
-    sessionStorage.removeItem(SS_USER);
-    sessionStorage.removeItem(SS_PROFILE);
-    sessionStorage.removeItem(SS_PLATFORM_ROLE);
-    sessionStorage.removeItem(SS_CLUB_ADMIN);
-  } catch (err) { console.error('[AuthProvider] ssClear:', err); }
+    localStorage.removeItem(LS_USER);
+    localStorage.removeItem(LS_PROFILE);
+    localStorage.removeItem(LS_PLATFORM_ROLE);
+    localStorage.removeItem(LS_CLUB_ADMIN);
+  } catch (err) { console.error('[AuthProvider] lsClear:', err); }
 }
 
 // ============================================
@@ -130,7 +142,7 @@ export function useRequireProfile() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // IMPORTANT: Never read sessionStorage in useState initializers — it doesn't
+  // IMPORTANT: Never read localStorage in useState initializers — it doesn't
   // exist during SSR, causing a hydration mismatch (server=loading, client=cached).
   // Instead, always start as loading and hydrate from cache in useEffect.
   const [user, setUser] = useState<User | null>(null);
@@ -146,17 +158,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const applyAuthState = (authState: { profile: Profile | null; platformRole: PlatformAdminRole | null; clubAdmin: ClubAdminInfo | null }) => {
       setProfile(authState.profile);
       if (authState.profile) {
-        ssSet(SS_PROFILE, authState.profile);
+        lsSet(LS_PROFILE, authState.profile);
         if (typeof document !== 'undefined' && authState.profile.language) {
           document.cookie = `bescout-locale=${authState.profile.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
         }
       }
 
       setPlatformRole(authState.platformRole);
-      if (authState.platformRole) ssSet(SS_PLATFORM_ROLE, authState.platformRole); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err) { console.error('[AuthProvider] removeItem platformRole:', err); }
+      if (authState.platformRole) lsSet(LS_PLATFORM_ROLE, authState.platformRole); else try { localStorage.removeItem(LS_PLATFORM_ROLE); } catch (err) { console.error('[AuthProvider] removeItem platformRole:', err); }
 
       setClubAdmin(authState.clubAdmin);
-      if (authState.clubAdmin) ssSet(SS_CLUB_ADMIN, authState.clubAdmin); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
+      if (authState.clubAdmin) lsSet(LS_CLUB_ADMIN, authState.clubAdmin); else try { localStorage.removeItem(LS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
     };
 
     // Try primary RPC
@@ -190,7 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (p.status === 'fulfilled') {
         setProfile(p.value);
         if (p.value) {
-          ssSet(SS_PROFILE, p.value);
+          lsSet(LS_PROFILE, p.value);
           if (typeof document !== 'undefined' && p.value.language) {
             document.cookie = `bescout-locale=${p.value.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
           }
@@ -199,11 +211,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const role = pRole.status === 'fulfilled' ? pRole.value : null;
       setPlatformRole(role);
-      if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err2) { console.error('[AuthProvider] removeItem platformRole:', err2); }
+      if (role) lsSet(LS_PLATFORM_ROLE, role); else try { localStorage.removeItem(LS_PLATFORM_ROLE); } catch (err2) { console.error('[AuthProvider] removeItem platformRole:', err2); }
 
       const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
       setClubAdmin(ca);
-      if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err2) { console.error('[AuthProvider] removeItem clubAdmin:', err2); }
+      if (ca) lsSet(LS_CLUB_ADMIN, ca); else try { localStorage.removeItem(LS_CLUB_ADMIN); } catch (err2) { console.error('[AuthProvider] removeItem clubAdmin:', err2); }
 
       // If profile query succeeded (even returning null = legit no profile), we're done
       if (p.status === 'fulfilled') {
@@ -234,12 +246,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, loadProfile]);
 
   useEffect(() => {
-    // Hydrate from sessionStorage (client-only) for instant UI.
+    // Hydrate from localStorage (client-only) for instant UI.
     // This runs after hydration so no server/client mismatch.
-    const cachedUser = ssGet<User>(SS_USER);
-    const cachedProfile = ssGet<Profile>(SS_PROFILE);
-    const cachedPlatformRole = ssGet<PlatformAdminRole>(SS_PLATFORM_ROLE);
-    const cachedClubAdmin = ssGet<ClubAdminInfo>(SS_CLUB_ADMIN);
+    // Slice 260: localStorage is tab-shared — returning users opening a new
+    // tab get the same warm-cache. Cross-user pollution is prevented by the
+    // user-switch-detect block below in onAuthStateChange.
+    const cachedUser = lsGet<User>(LS_USER);
+    const cachedProfile = lsGet<Profile>(LS_PROFILE);
+    const cachedPlatformRole = lsGet<PlatformAdminRole>(LS_PLATFORM_ROLE);
+    const cachedClubAdmin = lsGet<ClubAdminInfo>(LS_CLUB_ADMIN);
     if (cachedUser && cachedProfile) {
       setUser(cachedUser);
       setProfile(cachedProfile);
@@ -280,7 +295,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfileLoading(false);
       setPlatformRole(null);
       setClubAdmin(null);
-      ssClear();
+      lsClear();
 
       // Clear on any user-state loss (not just SIGNED_OUT) — prevents stale-cache
       // leak on re-login after silent token expire (Flow-Audit Flow 15).
@@ -297,14 +312,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
 
       if (u) {
+        // Slice 260: User-Switch-Detect — localStorage is tab-shared and
+        // persistent, so a different user could be cached here from a prior
+        // session that didn't fire SIGNED_OUT (tab-crash, force-quit). Before
+        // setting the new user, clear stale cache + query-data so we never
+        // render User-A's profile with User-B's session.
+        const cachedUserId = lsGet<User>(LS_USER)?.id;
+        if (cachedUserId && cachedUserId !== u.id) {
+          Sentry.addBreadcrumb({
+            category: 'auth',
+            message: 'user_switch_detected_cache_cleared',
+            level: 'info',
+            data: { from: cachedUserId.slice(0, 8), to: u.id.slice(0, 8) },
+          });
+          lsClear();
+          queryClient.clear();
+        }
+
         setUser(u);
-        ssSet(SS_USER, u);
+        lsSet(LS_USER, u);
         currentUserId = u.id;
         await loadProfile(u.id);
         if (event === 'TOKEN_REFRESHED') {
           // Queries may have fired with expired token during cache-hydrated UI.
           // Invalidate so they refetch with the fresh token.
-          queryClient.invalidateQueries();
+          // Slice 260 P3#1 polish: skip if User-Switch-Detect already cleared
+          // the cache above (clear() + invalidate is redundant on empty cache).
+          if (!cachedUserId || cachedUserId === u.id) {
+            queryClient.invalidateQueries();
+          }
         }
         if (event === 'SIGNED_IN') {
           // Slice 096: Sentry pseudonymous user-context (UUID only, GDPR-safe)
