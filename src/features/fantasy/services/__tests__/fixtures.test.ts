@@ -14,6 +14,8 @@ import {
   getFloorPricesForPlayers,
   simulateGameweek,
   syncFixtureScores,
+  // Slice 267 — Realtime-Live-Score
+  subscribeFixtureUpdates,
 } from '../fixtures';
 
 // ============================================
@@ -583,5 +585,177 @@ describe('syncFixtureScores', () => {
     expect(result.success).toBe(false);
     expect(result.synced_count).toBe(0);
     expect(result.error).toBe('sync failed');
+  });
+});
+
+// ============================================
+// subscribeFixtureUpdates — Slice 267 (Wave 3, Test-Writer-Agent)
+// ============================================
+//
+// Spec-Verweise:
+//   worklog/specs/267-realtime-live-score.md §2 Layer 3 (Service)
+//   worklog/impact/267-realtime-live-score.md §3 (canonical service)
+//
+// Erwartete Signatur (Spec):
+//   subscribeFixtureUpdates(
+//     leagueId: string,
+//     onUpdate: (row: DbFixture) => void,
+//     onStatus?: (status: string) => void,
+//   ): RealtimeChannel
+//
+// Pattern-Source: src/lib/queries/social.ts:46-84 (postgres_changes UPDATE-Subscription)
+// Channel-Topic per Spec IMPACT §5: `live-fixtures-${leagueId}`
+//
+// Tests muessen ERST FAILen ohne Implementation, dann gruen sein.
+
+describe('subscribeFixtureUpdates (Slice 267)', () => {
+  type Listener = (payload: { new: unknown }) => void;
+  type ChannelMock = {
+    on: ReturnType<typeof vi.fn>;
+    subscribe: ReturnType<typeof vi.fn>;
+    unsubscribe: ReturnType<typeof vi.fn>;
+    __testListener?: Listener;
+    __testStatusCb?: (status: string) => void;
+    __testTopic?: string;
+  };
+
+  let lastChannel: ChannelMock | null = null;
+
+  beforeEach(() => {
+    resetMocks();
+    lastChannel = null;
+
+    // Inject channel-Methode in mockSupabase (Slice 267 — Realtime-API)
+    // Pattern aus social.ts: supabase.channel(topic).on(...).subscribe(...)
+    (mockSupabase as unknown as { channel: ReturnType<typeof vi.fn> }).channel = vi.fn(
+      (topic: string): ChannelMock => {
+        const channel: ChannelMock = {
+          on: vi.fn(),
+          subscribe: vi.fn(),
+          unsubscribe: vi.fn(),
+          __testTopic: topic,
+        };
+        // .on(event, config, callback) returns channel for chaining
+        channel.on.mockImplementation(
+          (_event: string, _config: unknown, listener: Listener) => {
+            channel.__testListener = listener;
+            return channel;
+          },
+        );
+        // .subscribe(statusCallback) returns channel
+        channel.subscribe.mockImplementation((statusCb?: (status: string) => void) => {
+          channel.__testStatusCb = statusCb;
+          return channel;
+        });
+        lastChannel = channel;
+        return channel;
+      },
+    );
+  });
+
+  it('erstellt einen Channel mit Topic "live-fixtures-${leagueId}"', () => {
+    const onUpdate = vi.fn();
+    subscribeFixtureUpdates('league-de', onUpdate);
+
+    const channelFn = (mockSupabase as unknown as { channel: ReturnType<typeof vi.fn> }).channel;
+    expect(channelFn).toHaveBeenCalledTimes(1);
+    expect(channelFn).toHaveBeenCalledWith('live-fixtures-league-de');
+  });
+
+  it('registriert ein postgres_changes UPDATE-Listener auf table=fixtures', () => {
+    const onUpdate = vi.fn();
+    subscribeFixtureUpdates('league-de', onUpdate);
+
+    expect(lastChannel).not.toBeNull();
+    expect(lastChannel!.on).toHaveBeenCalledTimes(1);
+
+    const onCallArgs = lastChannel!.on.mock.calls[0];
+    expect(onCallArgs[0]).toBe('postgres_changes');
+
+    const config = onCallArgs[1] as Record<string, unknown>;
+    expect(config.event).toBe('UPDATE');
+    expect(config.schema).toBe('public');
+    expect(config.table).toBe('fixtures');
+    // Spec IMPACT §5: filter `league_id=eq.${leagueId}`
+    expect(config.filter).toBe('league_id=eq.league-de');
+  });
+
+  it('ruft onUpdate-Callback wenn ein UPDATE-Event ankommt', () => {
+    const onUpdate = vi.fn();
+    subscribeFixtureUpdates('league-de', onUpdate);
+
+    expect(lastChannel!.__testListener).toBeDefined();
+
+    // Simulate Realtime UPDATE event
+    const updatedRow = {
+      id: 'fix-1',
+      gameweek: 5,
+      home_club_id: 'c1',
+      away_club_id: 'c2',
+      home_score: 1,
+      away_score: 0,
+      status: 'live' as const,
+      league_id: 'league-de',
+      played_at: '2025-01-15T18:00:00Z',
+      created_at: '2025-01-01T00:00:00Z',
+      minute: 67,
+    };
+
+    lastChannel!.__testListener!({ new: updatedRow });
+
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'fix-1',
+      status: 'live',
+      home_score: 1,
+      away_score: 0,
+      minute: 67,
+    }));
+  });
+
+  it('ruft onStatus-Callback bei subscribe-Status', () => {
+    const onUpdate = vi.fn();
+    const onStatus = vi.fn();
+    subscribeFixtureUpdates('league-de', onUpdate, onStatus);
+
+    expect(lastChannel!.subscribe).toHaveBeenCalledTimes(1);
+    expect(lastChannel!.__testStatusCb).toBeDefined();
+
+    // Simulate SUBSCRIBED status
+    lastChannel!.__testStatusCb!('SUBSCRIBED');
+    expect(onStatus).toHaveBeenCalledWith('SUBSCRIBED');
+
+    // Simulate CHANNEL_ERROR status (Polling-Fallback Trigger, F-08)
+    lastChannel!.__testStatusCb!('CHANNEL_ERROR');
+    expect(onStatus).toHaveBeenCalledWith('CHANNEL_ERROR');
+
+    // Simulate TIMED_OUT
+    lastChannel!.__testStatusCb!('TIMED_OUT');
+    expect(onStatus).toHaveBeenCalledWith('TIMED_OUT');
+  });
+
+  it('returnt den Channel-Object (RealtimeChannel) fuer Cleanup', () => {
+    const onUpdate = vi.fn();
+    const result = subscribeFixtureUpdates('league-tr', onUpdate);
+
+    expect(result).toBe(lastChannel);
+    expect(result).toBeDefined();
+  });
+
+  it('verwendet leagueId fuer Topic + Filter — getrennte Liga-Subscriptions', () => {
+    subscribeFixtureUpdates('league-de', vi.fn());
+    const firstChannel = lastChannel;
+
+    subscribeFixtureUpdates('league-tr', vi.fn());
+    const secondChannel = lastChannel;
+
+    expect(firstChannel).not.toBe(secondChannel);
+    expect(firstChannel?.__testTopic).toBe('live-fixtures-league-de');
+    expect(secondChannel?.__testTopic).toBe('live-fixtures-league-tr');
+
+    const firstFilter = (firstChannel!.on.mock.calls[0][1] as { filter: string }).filter;
+    const secondFilter = (secondChannel!.on.mock.calls[0][1] as { filter: string }).filter;
+    expect(firstFilter).toBe('league_id=eq.league-de');
+    expect(secondFilter).toBe('league_id=eq.league-tr');
   });
 });

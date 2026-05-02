@@ -3,11 +3,19 @@
 ```
 status: active
 slice: 267
-stage: BUILD (Wave 1+2 parallel-Dispatch ready)
-spec: worklog/specs/267-realtime-live-score.md (v3, alle 8 Pre-Review-Patches eingearbeitet)
-impact: worklog/impact/267-realtime-live-score.md (v2, F-02+F-03+F-07 Patches)
-proof: pending
-review: worklog/reviews/267-pre-review.md (D62 PRE-Review CONCERNS → v3-Heal komplett)
+stage: PROVE (Wave 1+2+3 BUILD complete, Anil-Action-Items für DoD-Closure pending)
+spec: worklog/specs/267-realtime-live-score.md (v3)
+impact: worklog/impact/267-realtime-live-score.md (v2)
+review: worklog/reviews/267-review.md (CONCERNS — Code BUILD-konform, 11/18 ACs ✅, 6 ⏳ pending Migration/Runtime/Proof, 1 ⚠️ AC-16) + worklog/reviews/267-pre-review.md (D62 PRE-Review)
+tests: 64/64 vitest grün (FixtureCard 13 + useLiveFixtures + service-mock)
+proof: worklog/proofs/267-build-complete.txt (BUILD-Stage tsc + vitest 64/64 + 53/53 regression-clean)
+proof-pending: D54-Open-Items für PROVE-Stage:
+  1. Pre-Migration-Verify (F-NEW-01): SELECT COUNT(*) FROM fixtures WHERE league_id IS NULL → worklog/proofs/267-pre-migration-verify.txt
+  2. Migration apply (F-NEW-02): mcp__supabase__apply_migration → worklog/proofs/267-db-schema.txt
+  3. Cron-curl-Proof: post-Deploy curl → worklog/proofs/267-cron-execution.txt
+  4. Realtime-WS-Frame-Screenshot: Chrome DevTools → 267-realtime-ws-frame.png
+  5. UI-Playwright 393px: bescout.net/fantasy mit Live-Fixture → 267-spieltag-live-mobile.png
+  6. Modal-Screenshot: 267-modal-live.png
 ```
 
 ## Slice 267 — Realtime-Live-Score im Spieltag

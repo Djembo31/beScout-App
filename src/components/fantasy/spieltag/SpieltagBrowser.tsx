@@ -15,6 +15,14 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
   const ts = useTranslations('spieltag');
   const now = useMemo(() => new Date(), []);
 
+  // Slice 267 — Live-Bucket (status='live' separates from finished/pending/upcoming)
+  const live = useMemo(() =>
+    fixtures
+      .filter(f => f.status === 'live')
+      .sort((a, b) => new Date(b.played_at ?? 0).getTime() - new Date(a.played_at ?? 0).getTime()),
+    [fixtures]
+  );
+
   const finished = useMemo(() =>
     fixtures
       .filter(f => f.status === 'simulated' || f.status === 'finished')
@@ -24,19 +32,20 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
 
   const pendingResult = useMemo(() =>
     fixtures
-      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && f.played_at && new Date(f.played_at) < now)
+      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && f.status !== 'live' && f.played_at && new Date(f.played_at) < now)
       .sort((a, b) => new Date(b.played_at ?? 0).getTime() - new Date(a.played_at ?? 0).getTime()),
     [fixtures, now]
   );
 
   const upcoming = useMemo(() =>
     fixtures
-      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && (!f.played_at || new Date(f.played_at) >= now))
+      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && f.status !== 'live' && (!f.played_at || new Date(f.played_at) >= now))
       .sort((a, b) => new Date(a.played_at ?? '9999').getTime() - new Date(b.played_at ?? '9999').getTime()),
     [fixtures, now]
   );
 
   // Default collapsed when >4 finished matches to avoid dominating the view
+  const [showLive, setShowLive] = useState(true);
   const [showFinished, setShowFinished] = useState(finished.length <= 4);
   const [showPending, setShowPending] = useState(true);
   const [showUpcoming, setShowUpcoming] = useState(true);
@@ -45,6 +54,34 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
 
   return (
     <section className="space-y-3">
+      {/* Slice 267 — Live group (top-most, vivid-green pulse) */}
+      {live.length > 0 && (
+        <div>
+          <button
+            onClick={() => setShowLive(!showLive)}
+            aria-expanded={showLive}
+            aria-label={`${ts('browserLive')} (${live.length})`}
+            className="flex items-center gap-1.5 px-1 pb-1.5 w-full min-h-[44px] text-left hover:opacity-80 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 rounded-lg transition-colors"
+          >
+            <div className="size-1.5 rounded-full bg-vivid-green animate-pulse motion-reduce:animate-none" />
+            <span className="text-xs font-bold text-vivid-green uppercase tracking-wider">{ts('browserLive')}</span>
+            <span className="text-xs text-white/20 font-mono tabular-nums">{live.length}</span>
+            {showLive ? (
+              <ChevronUp className="size-3 text-white/20 ml-auto" aria-hidden="true" />
+            ) : (
+              <ChevronDown className="size-3 text-white/20 ml-auto" aria-hidden="true" />
+            )}
+          </button>
+          {showLive && (
+            <div className="space-y-2">
+              {live.map(f => (
+                <FixtureCard key={f.id} fixture={f} onSelect={() => onSelect(f)} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Finished group */}
       {finished.length > 0 && (
         <div>

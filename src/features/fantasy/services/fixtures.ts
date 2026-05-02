@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, SimulateResult } from '@/types';
+import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { DbFixture, Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, SimulateResult } from '@/types';
 
 // ============================================
 // Queries
@@ -43,6 +44,12 @@ export async function getFixturesByGameweek(gw: number, leagueId?: string | null
       home_formation: (row.home_formation as string | null) ?? null,
       away_formation: (row.away_formation as string | null) ?? null,
       created_at: row.created_at as string,
+      // Slice 267: Realtime-Live-Score Foundation. Both columns added by
+      // migration 20260503120000_slice_267_fixtures_realtime.sql.
+      // PostgREST select(*) picks them up automatically — no SELECT_COLS
+      // constant to keep in sync (see common-errors PLAYER_SELECT_COLS lesson).
+      minute: (row.minute as number | null | undefined) ?? null,
+      last_live_update_at: (row.last_live_update_at as string | null | undefined) ?? null,
       home_club_name: home?.name ?? '',
       home_club_short: home?.short ?? '',
       away_club_name: away?.name ?? '',
@@ -83,6 +90,9 @@ export async function getFixturesByClub(clubId: string): Promise<Fixture[]> {
       home_formation: (row.home_formation as string | null) ?? null,
       away_formation: (row.away_formation as string | null) ?? null,
       created_at: row.created_at as string,
+      // Slice 267: Realtime-Live-Score Foundation (see getFixturesByGameweek).
+      minute: (row.minute as number | null | undefined) ?? null,
+      last_live_update_at: (row.last_live_update_at as string | null | undefined) ?? null,
       home_club_name: home?.name ?? '',
       home_club_short: home?.short ?? '',
       away_club_name: away?.name ?? '',
@@ -647,4 +657,90 @@ export async function getFloorPricesForPlayers(playerIds: string[]): Promise<Map
     map.set(row.id, row.floor_price);
   }
   return map;
+}
+
+// ============================================
+// Slice 267 — Realtime Live-Score Subscription
+// ============================================
+
+/**
+ * Subscribe to real-time UPDATE events on `fixtures` for a single league.
+ *
+ * Pattern-Source: `src/lib/queries/social.ts:46-84` (existing `useFollowingFeed`
+ * with `postgres_changes` + Channel-cleanup-via-`removeChannel`).
+ *
+ * Returns the {@link RealtimeChannel} so the caller (`useLiveFixtures` hook)
+ * can register it for cleanup. AC-14 (no memory-leak): caller MUST invoke
+ * `supabase.removeChannel(channel)` from useEffect-return when the component
+ * unmounts or when the league changes.
+ *
+ * The `onStatus` callback is the F-08 Polling-Trigger hook: a status of
+ * `'CHANNEL_ERROR'` or `'TIMED_OUT'` signals the WS-Channel is degraded
+ * and the consumer should fall back to 60s-polling. `'CLOSED'` is normal
+ * teardown after `removeChannel`. We intentionally do NOT use
+ * `navigator.onLine` (detects WAN, not Channel-state).
+ *
+ * RLS-Note: `fixtures` is public-readable (sport-data, no PII), so all
+ * authenticated/anon clients receive UPDATE events. Filtering happens
+ * server-side via `filter: 'league_id=eq.{leagueId}'`. Pre-Migration
+ * `league_id IS NULL`-Verify is documented in IMPACT §12 / AC-16.
+ *
+ * @param leagueId - Supabase `leagues.id` UUID. Filters fixtures by
+ *   `league_id=eq.{leagueId}` server-side via PostgREST realtime filter.
+ * @param onUpdate - Invoked for every UPDATE event with the new fixture row.
+ *   Payload shape is `DbFixture` (matching foundation-Type, includes
+ *   `minute` + `last_live_update_at` after Slice 267 migration).
+ * @param onStatus - Optional. Invoked with channel-status transitions —
+ *   `'SUBSCRIBED'` (healthy), `'CHANNEL_ERROR'` / `'TIMED_OUT'` (degraded —
+ *   trigger polling-fallback), `'CLOSED'` (post-teardown).
+ * @returns The active RealtimeChannel. Caller is responsible for cleanup.
+ *
+ * @example
+ * useEffect(() => {
+ *   if (!leagueId) return;
+ *   const channel = subscribeFixtureUpdates(
+ *     leagueId,
+ *     (fix) => queryClient.setQueryData(qk.fixtures.live(leagueId), updaterFor(fix)),
+ *     (status) => { if (status === 'CHANNEL_ERROR') startPolling(); },
+ *   );
+ *   return () => { supabase.removeChannel(channel); };
+ * }, [leagueId]);
+ */
+export function subscribeFixtureUpdates(
+  leagueId: string,
+  onUpdate: (fixture: DbFixture) => void,
+  onStatus?: (status: 'SUBSCRIBED' | 'CHANNEL_ERROR' | 'TIMED_OUT' | 'CLOSED') => void,
+): RealtimeChannel {
+  const channel = supabase
+    .channel(`live-fixtures-${leagueId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'fixtures',
+        filter: `league_id=eq.${leagueId}`,
+      },
+      (payload) => {
+        const row = payload.new as DbFixture | null;
+        if (!row) return;
+        onUpdate(row);
+      },
+    )
+    .subscribe((status) => {
+      if (onStatus) {
+        // Supabase v2 status union covers more values, but we only forward
+        // the four documented states. Other states (e.g. 'JOINING') are
+        // intermediate and intentionally swallowed.
+        if (
+          status === 'SUBSCRIBED' ||
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          onStatus(status);
+        }
+      }
+    });
+  return channel;
 }

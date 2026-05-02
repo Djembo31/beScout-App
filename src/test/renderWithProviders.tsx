@@ -19,7 +19,12 @@ import { vi } from 'vitest';
 // Mock next-intl
 // ============================================
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
+    if (!params) return key;
+    // ICU-light: bei params returnen wir die joined values (z.B. t('minute', {minute: 67}) → "67").
+    // Reicht für display-text-checks in Tests; echte ICU-Interpolation ist Production-Concern.
+    return Object.values(params).map(String).join('');
+  },
   useLocale: () => 'de',
   useFormatter: () => ({
     number: (n: number) => String(n),

@@ -1,0 +1,92 @@
+# Slice 267 — BUILD-Complete Proof (Wave 1+2+3)
+
+Date: 2026-05-03
+HEAD: b0f2ba90 (Foundation) + uncommitted Wave 1+2+3 + Hook-Refactor
+
+## tsc clean
+
+```
+$ npx tsc --noEmit
+(no output, exit 0)
+```
+
+## vitest grün — Slice 267 Tests
+
+```
+$ pnpm exec vitest run \
+    src/features/fantasy/hooks/__tests__/useLiveFixtures.test.ts \
+    src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx \
+    src/features/fantasy/services/__tests__/fixtures.test.ts
+
+Test Files  3 passed (3)
+     Tests  64 passed (64)
+  Duration  3.70s
+```
+
+## vitest grün — Regression-Check renderWithProviders-Mock-Erweiterung
+
+Begründung: i18n-Mock in `src/test/renderWithProviders.tsx` wurde erweitert um ICU-Variable-Interpolation (params-aware). Verifiziert keine Regression bei 2 existing Konsumenten:
+
+```
+$ pnpm exec vitest run \
+    src/features/fantasy/hooks/__tests__/useEventActions.test.ts \
+    src/features/market/hooks/__tests__/useTradeActions.test.ts
+
+Test Files  2 passed (2)
+     Tests  53 passed (53)
+  Duration  3.85s
+```
+
+## File-Diff-Stat seit Foundation b0f2ba90
+
+```
+A  src/app/api/cron/live-score-sync/route.ts                              (+291)
+A  src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx         (+~280, 13 Tests)
+A  src/features/fantasy/hooks/__tests__/useLiveFixtures.test.ts           (+~225)
+A  src/features/fantasy/hooks/useLiveFixtures.ts                          (+~80, callback-pattern)
+A  supabase/migrations/20260503120000_slice_267_fixtures_realtime.sql     (+51)
+A  worklog/reviews/267-review.md                                          (+~210)
+M  src/components/fantasy/SpieltagTab.tsx                                 (+34, useLiveFixtures-Wire-Up + Polling-Fallback)
+M  src/components/fantasy/spieltag/FixtureCard.tsx                        (Live-Render-Branch + defensive null-strict)
+M  src/components/fantasy/spieltag/FixtureDetailModal.tsx                 (F-06 3-State-Header)
+M  src/components/fantasy/spieltag/SpieltagBrowser.tsx                    (Live-Bucket erste Section)
+M  src/components/fantasy/spieltag/helpers.ts                             (getStatusAccent('live'))
+M  src/features/fantasy/services/__tests__/fixtures.test.ts               (subscribeFixtureUpdates-Tests)
+M  src/features/fantasy/services/fixtures.ts                              (Mapper + subscribeFixtureUpdates)
+M  src/lib/footballApi.ts                                                 (ApiFixtureLive Type)
+M  src/lib/queries/keys.ts                                                (qk.fixtures.live)
+M  src/test/renderWithProviders.tsx                                       (i18n-ICU-Mock)
+M  vercel.json                                                            (Cron-Eintrag)
+```
+
+## D54 Definition-of-Done Status (per Layer)
+
+| Layer | Status |
+|-------|--------|
+| Migration-File written | ✅ |
+| Migration applied | ⏳ pending Anil/Primary-Claude (mcp__supabase__apply_migration) |
+| Service (subscribeFixtureUpdates) konsumiert in Hook | ✅ |
+| Cron registered in vercel.json | ✅ |
+| Cron curl-Proof post-Deploy | ⏳ pending |
+| UI-Components in Page-Render-Tree | ✅ (SpieltagTab → SpieltagBrowser/FixtureCard/FixtureDetailModal) |
+| Hook (useLiveFixtures) konsumiert in Component | ✅ (SpieltagTab) |
+| i18n DE+TR + business-konform | ✅ |
+| Type-Erweiterung tsc-clean | ✅ |
+| vitest grün | ✅ |
+
+## D54-Open Action-Items für PROVE-Stage / LOG-Closure
+
+1. **Pre-Migration-Verify (F-NEW-01):** `SELECT COUNT(*) FROM fixtures WHERE league_id IS NULL` → muss `0` sein, sonst Realtime-Filter `league_id=eq.X` schließt rows silent aus
+2. **Migration apply (F-NEW-02):** `mcp__supabase__apply_migration` mit Migration-File-Content
+3. **AC-Verify post-Apply:** `relreplident='f'` + publication-add + 2 neue Columns existieren
+4. **Cron-curl-Proof:** `curl -H "Authorization: Bearer $CRON_SECRET" https://bescout.net/api/cron/live-score-sync` post-Deploy
+5. **Realtime-WS-Frame:** Chrome DevTools Network-Tab WS-Filter auf `realtime.supabase.co`
+6. **Mobile-Playwright 393px:** Live-Fixture in Spieltag mit Live-Bucket + Card
+7. **Modal-Screenshot:** Click auf Live-FixtureCard → 3-State-Header
+
+## Reviewer-Verdict
+
+- **Pre-Review (D62):** CONCERNS, 8 Patches in v3 eingearbeitet, alle Code-Realität-konform
+- **Post-BUILD-Review:** CONCERNS, 11/18 ACs ✅ + 7 ⏳ pending Migration/Runtime/Proof, 6 MINOR-Findings (nicht-blockend)
+
+Slice ist BUILD-konform. Commit + Merge OK. PROVE-Stage offen für DoD-Closure.

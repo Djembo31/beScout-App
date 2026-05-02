@@ -18,6 +18,7 @@ import { TopspielCard, pickTopspiel } from './spieltag';
 import { SpieltagPulse } from './spieltag/SpieltagPulse';
 import { SpieltagBrowser } from './spieltag/SpieltagBrowser';
 import { FixtureDetailModal } from './spieltag/FixtureDetailModal';
+import { useLiveFixtures } from '@/features/fantasy/hooks/useLiveFixtures';
 
 // ============================================
 // SpieltagTab (3-Zone Layout)
@@ -67,6 +68,38 @@ export function SpieltagTab({
   useEffect(() => {
     loadFixtures(gameweek, leagueId);
   }, [gameweek, leagueId, loadFixtures]);
+
+  // Slice 267 — Realtime-Subscription auf fixtures-UPDATE für aktive Liga.
+  // Hook subscribes side-effect-only. onUpdate bridge zu local-fixtures-state:
+  // patcht matching row in-place (kein refetch nötig — payload ist deterministisch).
+  // Bei status='finished' triggern wir reload um Bucket-Resort sauber zu erzwingen
+  // (Live → Finished in SpieltagBrowser).
+  const { isPolling: liveChannelPolling } = useLiveFixtures(leagueId ?? undefined, {
+    onUpdate: (updatedRow) => {
+      setFixtures((prev) => {
+        const idx = prev.findIndex((f) => f.id === updatedRow.id);
+        if (idx === -1) return prev;
+        const next = [...prev];
+        next[idx] = { ...next[idx], ...updatedRow };
+        return next;
+      });
+      if (updatedRow.status === 'finished') {
+        // Status-Transition triggert kompletten Refetch für Bucket-Resort
+        // (Live-Bucket → Finished-Bucket in SpieltagBrowser).
+        loadFixtures(gameweek, leagueId);
+      }
+    },
+  });
+
+  // Polling-Fallback X1 (Spec §2, F-08): bei Channel-Error/Timeout/Close
+  // alle 60s manuell reload, bis Channel wieder SUBSCRIBED ist.
+  useEffect(() => {
+    if (!liveChannelPolling) return;
+    const interval = setInterval(() => {
+      loadFixtures(gameweek, leagueId);
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, [liveChannelPolling, gameweek, leagueId, loadFixtures]);
 
   // Check if API import is available for this gameweek
   useEffect(() => {
