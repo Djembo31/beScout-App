@@ -99,6 +99,27 @@ export type ApiFixtureResponse = {
   }>;
 };
 
+/**
+ * Slice 267 — API-Football Live-Fixtures response shape (`/fixtures?live=<league-ids-pipe>`).
+ *
+ * Critical: `status.elapsed` is the minute (NOT `time.minute`!) — see
+ * `.claude/rules/fantasy.md` API-Quirks. Returned even during HT/ET breaks
+ * (HT keeps elapsed=45, ET ramps from 90).
+ */
+export type ApiFixtureLive = {
+  fixture: {
+    id: number;
+    status: {
+      long: string;
+      short: string;
+      elapsed: number | null;
+    };
+  };
+  league: { id: number };
+  teams: { home: { id: number }; away: { id: number } };
+  goals: { home: number | null; away: number | null };
+};
+
 export type ApiFixturePlayerResponse = {
   response: Array<{
     team: { id: number; name: string };
