@@ -246,6 +246,8 @@ export const qk = {
     next: ['fixtures', 'next'] as const,
     byClub: (cid: string) => ['fixtures', 'club', cid] as const,
     nextForClub: (cid: string, count: number) => ['fixtures', 'nextForClub', cid, count] as const,
+    /** Slice 267 — Live-Fixtures realtime (Liga-Scope F2). Used by useLiveFixtures hook. */
+    live: (leagueId: string) => ['fixtures', 'live', leagueId] as const,
   },
 
   // ── Sponsors ──

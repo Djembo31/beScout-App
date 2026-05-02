@@ -28,7 +28,15 @@ export const getPosAccent = (pos: string): string => {
 /** Status accent classes for fixture/event status */
 export const getStatusAccent = (status: string) => {
   switch (status) {
-    case 'running': case 'live':
+    case 'live':
+      // Slice 267 — Live-Pulse-Variant (vivid-green + glow + animate-pulse-dot).
+      // motion-reduce honoring required by callers using the dot class.
+      return {
+        border: 'border-vivid-green/40',
+        glow: 'shadow-[0_0_16px_rgba(34,197,94,0.25)]',
+        dot: 'bg-vivid-green animate-pulse motion-reduce:animate-none',
+      };
+    case 'running':
       return { border: 'border-vivid-green/30', dot: 'bg-vivid-green', glow: 'status-live' };
     case 'simulated': case 'finished':
       return { border: 'border-gold/20', dot: 'bg-gold', glow: 'status-ended' };
