@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { getGreetingKey, SectionHeader, pickScopedEvent, ACTIVE_STATUSES } from '../helpers';
+import { getGreetingKey, SectionHeader, pickScopedEvent, pickNextScopedEvent, ACTIVE_STATUSES } from '../helpers';
 import type { DbEvent } from '@/types';
 
 vi.mock('@/lib/clubs', () => ({
@@ -132,5 +132,84 @@ describe('pickScopedEvent', () => {
 
   it('exports ACTIVE_STATUSES with registering, late-reg, running', () => {
     expect(ACTIVE_STATUSES).toEqual(['registering', 'late-reg', 'running']);
+  });
+});
+
+// Slice 263 — pickNextScopedEvent (future-only + non-ended/scoring)
+describe('pickNextScopedEvent', () => {
+  const mk = (overrides: Partial<DbEvent>): DbEvent => ({
+    id: 'evt-' + Math.random(),
+    name: 'Test',
+    type: 'bescout',
+    status: 'upcoming',
+    format: 'fantasy',
+    gameweek: 28,
+    entry_fee: 0,
+    prize_pool: 0,
+    max_entries: null,
+    current_entries: 0,
+    starts_at: new Date(Date.now() + 86400_000).toISOString(),  // tomorrow default
+    locks_at: new Date(Date.now() + 86400_000).toISOString(),
+    ends_at: new Date(Date.now() + 172800_000).toISOString(),
+    scored_at: null,
+    created_by: null,
+    club_id: null,
+    league_id: null,
+    sponsor_name: null,
+    ...overrides,
+  } as DbEvent);
+
+  it('returns null when no events match league', () => {
+    const result = pickNextScopedEvent([mk({ league_id: 'other-league' })], 'bundesliga');
+    expect(result).toBeNull();
+  });
+
+  it('returns next upcoming event matching league_id directly', () => {
+    const evt = mk({ league_id: 'bundesliga', status: 'upcoming' });
+    const result = pickNextScopedEvent([evt], 'bundesliga');
+    expect(result?.id).toBe(evt.id);
+  });
+
+  it('matches via club_id → getClub league_id fallback', () => {
+    const evt = mk({ league_id: null, club_id: 'club-bundesliga-a', status: 'upcoming' });
+    const result = pickNextScopedEvent([evt], 'bundesliga');
+    expect(result?.id).toBe(evt.id);
+  });
+
+  it('skips past events (starts_at <= now)', () => {
+    const result = pickNextScopedEvent(
+      [mk({ league_id: 'bundesliga', starts_at: new Date(Date.now() - 1000).toISOString() })],
+      'bundesliga',
+    );
+    expect(result).toBeNull();
+  });
+
+  it('skips events with status ended (Defense-in-Depth F-03)', () => {
+    const result = pickNextScopedEvent(
+      [mk({ league_id: 'bundesliga', status: 'ended', starts_at: new Date(Date.now() + 1000).toISOString() })],
+      'bundesliga',
+    );
+    expect(result).toBeNull();
+  });
+
+  it('skips events with status scoring (Defense-in-Depth F-03)', () => {
+    const result = pickNextScopedEvent(
+      [mk({ league_id: 'bundesliga', status: 'scoring', starts_at: new Date(Date.now() + 1000).toISOString() })],
+      'bundesliga',
+    );
+    expect(result).toBeNull();
+  });
+
+  it('picks earliest starts_at among multiple upcoming events', () => {
+    const earlier = mk({ league_id: 'bundesliga', status: 'upcoming', starts_at: new Date(Date.now() + 3600_000).toISOString() });
+    const later = mk({ league_id: 'bundesliga', status: 'upcoming', starts_at: new Date(Date.now() + 86400_000).toISOString() });
+    const result = pickNextScopedEvent([later, earlier], 'bundesliga');
+    expect(result?.id).toBe(earlier.id);
+  });
+
+  it('returns null when club_id resolves to different league', () => {
+    const evt = mk({ league_id: null, club_id: 'club-superlig-a', status: 'upcoming' });
+    const result = pickNextScopedEvent([evt], 'bundesliga');
+    expect(result).toBeNull();
   });
 });

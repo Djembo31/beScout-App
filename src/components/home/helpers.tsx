@@ -47,6 +47,31 @@ export function pickScopedEvent(events: DbEvent[], leagueId: string): DbEvent | 
   return candidates[0];
 }
 
+/**
+ * Slice 263 — Pick next upcoming event in scoped league for ManagerPill.
+ *
+ * Defense-in-Depth: filtert auf future-starts_at + Status NOT IN ('ended', 'scoring')
+ *   (Belt-and-suspenders gegen DB-Drift, theoretisch redundant zur starts_at-Future-Bedingung).
+ *
+ * Hero-Mode-Kontext: Wird nur in Scout-Mode konsumiert — d.h. scopedActiveEvent ist
+ *   bereits null (sonst waere heroMode='manager'). Verbleiben koennen nur upcoming/scoring/ended
+ *   Events in scoped Liga. Filter eliminiert past-starts_at (scoring/ended) → effective: upcoming-only.
+ */
+export function pickNextScopedEvent(events: DbEvent[], leagueId: string): DbEvent | null {
+  const now = Date.now();
+  const candidates = events.filter((e) => {
+    if (!e.starts_at) return false;
+    if (new Date(e.starts_at).getTime() <= now) return false;
+    if (e.status === 'ended' || e.status === 'scoring') return false;
+    if (e.league_id === leagueId) return true;
+    if (!e.club_id) return false;
+    return getClub(e.club_id)?.league_id === leagueId;
+  });
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
+  return candidates[0];
+}
+
 // ── Greeting ──
 
 export function getGreetingKey(): string {

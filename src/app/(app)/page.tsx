@@ -88,6 +88,8 @@ export default function HomePage() {
     followedClubs, highestPass,
     // Slice 262 — Hero-Mode + ManagerBlock inputs
     heroMode, gw, hasLineup, hasCaptain, captainName,
+    // Slice 263 — Doppel-Identität-Pills
+    nextScopedEvent,
   } = useHomeData();
 
   const isNewUser = holdings.length === 0;
@@ -138,6 +140,7 @@ export default function HomePage() {
         hasLineup={hasLineup}
         hasCaptain={hasCaptain}
         captainName={captainName}
+        nextScopedEvent={nextScopedEvent}
       />
 
       {/* Scout Cards — total + position breakdown.

@@ -1,17 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-02 14:22)
+# Session Handoff — Auto (2026-05-02 15:54)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 5 Files
 ```
+ M .claude/settings.local.json
  M memory/session-handoff.md
- M worklog/active.md
- M worklog/audits/audit-stale-2026-04-30.md
- M worklog/audits/type-truth-2026-04-30.md
-?? worklog/reviews/262-pre-review.md
-?? worklog/specs/262-hero-mode-detection-manager-block.md
+?? worklog/audits/audit-stale-2026-05-02.md
+?? worklog/audits/type-truth-2026-05-02.md
+?? worklog/audits/wiring-2026-05-02.md
 ```
+
+## Session Commits: 1
+- ee31a628 feat(262): Home Hero-Mode-Detection + ManagerBlock (Phase 1 Identity-Foundation)
 
 <!-- auto:handoff-end -->
 

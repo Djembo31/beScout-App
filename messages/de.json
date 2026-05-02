@@ -368,8 +368,6 @@
     "viewAllPosts": "Alle Beiträge anzeigen",
     "topScouts": "Top Scouts",
     "trader": "Sammler",
-    "manager": "Manager",
-    "scout": "Scout",
     "topTraders": "Top-Sammler",
     "sevenDays": "7 Tage",
     "trades": "Deals",
@@ -444,7 +442,13 @@
       "lineupSet": "Aufstellung gesetzt",
       "lineupCta": "Aufstellung wählen",
       "captainSet": "Kapitän: {name}",
-      "captainCta": "Kapitän wählen"
+      "captainCta": "Kapitän wählen",
+      "scoutPillLabel": "Kader"
+    },
+    "scoutHero": {
+      "managerPillGw": "Spieltag {n}",
+      "managerPillCountdown": "in {time}",
+      "managerPillLive": "läuft"
     }
   },
   "fantasy": {

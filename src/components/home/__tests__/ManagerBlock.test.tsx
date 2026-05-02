@@ -42,6 +42,7 @@ vi.mock('lucide-react', () => {
     Crown: Stub,
     AlertCircle: Stub,
     ArrowUpRight: Stub,
+    ChartLine: Stub,  // Slice 263 — ScoutPill icon
   };
 });
 
@@ -51,6 +52,7 @@ vi.mock('@/components/ui/TierBadge', () => ({
 
 vi.mock('@/lib/utils', () => ({
   cn: (...c: unknown[]) => c.filter(Boolean).join(' '),
+  fmtScout: (v: number) => v.toLocaleString('de-DE'),  // Slice 263 — used in ScoutPill
 }));
 
 const baseProps = {
@@ -63,6 +65,9 @@ const baseProps = {
   hasCaptain: false,
   captainName: null as string | null,
   holdingsCount: 5,
+  // Slice 263 — ScoutPill props
+  portfolioValue: 245000,
+  pnlPct: 5.4,
 };
 
 describe('ManagerBlock', () => {
@@ -150,5 +155,42 @@ describe('ManagerBlock', () => {
     const stats = { tier: 'GOLD' } as unknown as DbUserStats;
     render(<ManagerBlock {...baseProps} userStats={stats} />);
     expect(screen.getByTestId('tier-badge')).toBeInTheDocument();
+  });
+
+  // Slice 263 — ScoutPill Tests
+
+  // AC-03: ScoutPill sichtbar wenn holdingsCount > 0
+  it('shows ScoutPill when holdingsCount > 0', () => {
+    render(<ManagerBlock {...baseProps} holdingsCount={5} portfolioValue={245000} pnlPct={5.4} />);
+    expect(screen.getByText('home.manager.scoutPillLabel')).toBeInTheDocument();
+  });
+
+  // AC-04: ScoutPill hidden bei holdingsCount === 0
+  it('hides ScoutPill when holdingsCount === 0', () => {
+    render(<ManagerBlock {...baseProps} holdingsCount={0} portfolioValue={0} pnlPct={0} />);
+    expect(screen.queryByText('home.manager.scoutPillLabel')).not.toBeInTheDocument();
+  });
+
+  // AC-05: ScoutPill zeigt Label + Portfolio-CR + PnL%-mit-Vorzeichen
+  it('renders ScoutPill content: label + portfolio + signed PnL%', () => {
+    render(<ManagerBlock {...baseProps} holdingsCount={5} portfolioValue={245000} pnlPct={5.4} />);
+    expect(screen.getByText('home.manager.scoutPillLabel')).toBeInTheDocument();
+    expect(screen.getByText('245.000')).toBeInTheDocument();
+    expect(screen.getByText('+5.4%')).toBeInTheDocument();
+  });
+
+  // AC-05 negative PnL with red signed value
+  it('renders ScoutPill negative PnL with minus sign', () => {
+    render(<ManagerBlock {...baseProps} holdingsCount={5} portfolioValue={245000} pnlPct={-2.3} />);
+    expect(screen.getByText('-2.3%')).toBeInTheDocument();
+  });
+
+  // AC-06: ScoutPill Tap → Link /manager?tab=kader
+  it('ScoutPill links to /manager?tab=kader', () => {
+    render(<ManagerBlock {...baseProps} holdingsCount={5} portfolioValue={245000} pnlPct={5.4} />);
+    const scoutPillLink = screen
+      .getByText('home.manager.scoutPillLabel')
+      .closest('a');
+    expect(scoutPillLink).toHaveAttribute('href', '/manager?tab=kader');
   });
 });

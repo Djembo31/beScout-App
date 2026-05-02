@@ -16,10 +16,10 @@
 
 import { memo } from 'react';
 import Link from 'next/link';
-import { Flame, Shield, UserCheck, Crown, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { Flame, Shield, UserCheck, Crown, AlertCircle, ArrowUpRight, ChartLine } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TierBadge } from '@/components/ui/TierBadge';
-import { cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import type { DbUserStats } from '@/types';
 
 export interface ManagerBlockProps {
@@ -31,6 +31,10 @@ export interface ManagerBlockProps {
   hasLineup: boolean;
   hasCaptain: boolean;
   captainName: string | null;
+  // Slice 263 — ScoutPill Cross-Identity (re-add holdingsCount as Show-Gate after Slice-262 P2-2 removal)
+  portfolioValue: number;
+  pnlPct: number;
+  holdingsCount: number;
 }
 
 function ManagerBlockInner({
@@ -42,9 +46,13 @@ function ManagerBlockInner({
   hasLineup,
   hasCaptain,
   captainName,
+  portfolioValue,
+  pnlPct,
+  holdingsCount,
 }: ManagerBlockProps) {
   const t = useTranslations('home.manager');
   const tg = useTranslations('gamification');
+  const pnlPositive = pnlPct >= 0;
 
   return (
     <div>
@@ -126,6 +134,23 @@ function ManagerBlockInner({
               <span className="text-sm font-bold text-yellow-200">{t('captainCta')}</span>
             </Link>
           )
+        )}
+
+        {/* Slice 263 — ScoutPill (Cross-Identity Pill) — visible only when holdings > 0 */}
+        {holdingsCount > 0 && (
+          <Link
+            href="/manager?tab=kader"
+            prefetch={false}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-white/[0.06] transition-colors min-h-[44px]"
+          >
+            <ChartLine className="size-4 text-white/60 shrink-0" aria-hidden="true" />
+            <span className="text-xs font-semibold text-white/55 uppercase tracking-wide">{t('scoutPillLabel')}</span>
+            <span className="font-mono font-bold text-sm text-white tabular-nums">{fmtScout(portfolioValue)}</span>
+            <span className="text-white/30 text-xs">CR</span>
+            <span className={cn('font-mono font-bold text-sm tabular-nums', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')}>
+              {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
+            </span>
+          </Link>
         )}
       </div>
     </div>

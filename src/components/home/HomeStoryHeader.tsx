@@ -3,16 +3,16 @@
 import { useState, useEffect, memo } from 'react';
 import { useNumTick } from '@/lib/hooks/useNumTick';
 import Link from 'next/link';
-import { Flame, Shield, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
+import { Flame, Shield, ArrowUpRight, ArrowDownRight, Wallet, Calendar } from 'lucide-react';
 import { fmtScout, cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { InfoTooltip } from '@/components/ui';
-import { getGreetingKey } from './helpers';
+import { getGreetingKey, getTimeUntil } from './helpers';
 import GameweekStatusBar from './GameweekStatusBar';
 import ManagerBlock from './ManagerBlock';
 import { useTranslations } from 'next-intl';
-import type { DbUserStats } from '@/types';
+import type { DbEvent, DbUserStats } from '@/types';
 
 type HeroMode = 'manager' | 'scout' | 'cta-new';
 
@@ -34,12 +34,15 @@ interface HomeStoryHeaderProps {
   hasLineup: boolean;
   hasCaptain: boolean;
   captainName: string | null;
+  // Slice 263 — Doppel-Identität-Pills inputs
+  nextScopedEvent: DbEvent | null;
 }
 
 function HomeStoryHeaderInner({
   loading, firstName, streak, shieldsRemaining, userStats,
   portfolioValue, holdingsCount, pnl, pnlPct, storyMessage, balanceCents,
   heroMode, gw, hasLineup, hasCaptain, captainName,
+  nextScopedEvent,
 }: HomeStoryHeaderProps) {
   return (
     <div className="relative -mx-4 -mt-4 lg:-mx-6 lg:-mt-6 px-4 pt-6 pb-6 lg:px-6 lg:pt-8 lg:pb-8 bg-hero-stadium overflow-hidden">
@@ -61,6 +64,9 @@ function HomeStoryHeaderInner({
             hasLineup={hasLineup}
             hasCaptain={hasCaptain}
             captainName={captainName}
+            portfolioValue={portfolioValue}
+            pnlPct={pnlPct}
+            holdingsCount={holdingsCount}
           />
         ) : (
           <ScoutHero
@@ -75,6 +81,7 @@ function HomeStoryHeaderInner({
             pnlPct={pnlPct}
             storyMessage={storyMessage}
             balanceCents={balanceCents}
+            nextScopedEvent={nextScopedEvent}
           />
         )}
       </div>
@@ -97,20 +104,25 @@ type ScoutHeroProps = {
   pnlPct: number;
   storyMessage: { key: string; params: Record<string, string> } | null;
   balanceCents: number | null;
+  // Slice 263
+  nextScopedEvent: DbEvent | null;
 };
 
 function ScoutHero({
   loading, firstName, streak, shieldsRemaining, userStats,
   portfolioValue, holdingsCount, pnl, pnlPct, storyMessage, balanceCents,
+  nextScopedEvent,
 }: ScoutHeroProps) {
   const portfolioTick = useNumTick(portfolioValue);
   const t = useTranslations('home');
+  const tScoutHero = useTranslations('home.scoutHero');
   const tg = useTranslations('gamification');
   const [greetingKey, setGreetingKey] = useState('greeting');
   useEffect(() => { setGreetingKey(getGreetingKey()); }, []);
 
   const pnlPositive = pnl >= 0;
   const PnlIcon = pnlPositive ? ArrowUpRight : ArrowDownRight;
+  const managerPillCountdown = nextScopedEvent?.starts_at ? getTimeUntil(nextScopedEvent.starts_at) : null;
 
   return (
     <>
@@ -184,6 +196,23 @@ function ScoutHero({
             <span className="font-mono font-bold text-sm text-white tabular-nums">{holdingsCount}</span>
             <span className="text-[10px] text-white/40 font-medium">{t('players')}</span>
           </div>
+
+          {/* Slice 263 — ManagerPill (Cross-Identity) — visible only when nextScopedEvent exists */}
+          {nextScopedEvent && nextScopedEvent.gameweek != null && managerPillCountdown && (
+            <Link
+              href="/fantasy"
+              prefetch={false}
+              className="hero-stat-pill flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-gold/20 bg-gold/5 hover:bg-gold/10 transition-colors min-h-[44px]"
+            >
+              <Calendar className="size-3.5 text-gold" aria-hidden="true" />
+              <span className="font-bold text-sm text-gold tabular-nums">
+                {tScoutHero('managerPillGw', { n: nextScopedEvent.gameweek })}
+              </span>
+              <span className="text-[10px] text-white/40 font-medium font-mono tabular-nums">
+                {tScoutHero('managerPillCountdown', { time: managerPillCountdown })}
+              </span>
+            </Link>
+          )}
 
           {storyMessage && (
             <p className="text-[11px] text-white/40 ml-auto max-w-[180px] text-right leading-snug hidden md:block">

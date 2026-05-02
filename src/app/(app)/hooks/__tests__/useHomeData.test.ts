@@ -141,6 +141,8 @@ vi.mock('@/components/home/helpers', () => ({
   getStoryMessage: vi.fn(() => null),
   // Slice 262 — pickScopedEvent + ACTIVE_STATUSES (extrahiert in helpers, mocked als no-match default)
   pickScopedEvent: vi.fn(() => null),
+  // Slice 263 — pickNextScopedEvent (future-only + non-ended/scoring)
+  pickNextScopedEvent: vi.fn(() => null),
   ACTIVE_STATUSES: ['registering', 'late-reg', 'running'],
 }));
 

@@ -368,8 +368,6 @@
     "viewAllPosts": "Tüm gönderileri göster",
     "topScouts": "En İyi İzciler",
     "trader": "Koleksiyoncu",
-    "manager": "Menajer",
-    "scout": "İzci",
     "topTraders": "En İyi Koleksiyoncular",
     "sevenDays": "7 Gün",
     "trades": "İşlemler",
@@ -444,7 +442,13 @@
       "lineupSet": "Kadro hazır",
       "lineupCta": "Kadroyu seç",
       "captainSet": "Kaptan: {name}",
-      "captainCta": "Kaptan seç"
+      "captainCta": "Kaptan seç",
+      "scoutPillLabel": "Kadro"
+    },
+    "scoutHero": {
+      "managerPillGw": "Hafta {n}",
+      "managerPillCountdown": "{time} sonra",
+      "managerPillLive": "canlı"
     }
   },
   "fantasy": {

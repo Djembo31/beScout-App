@@ -9,6 +9,31 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 263 | 2026-05-02 | Doppel-Identität-Pills (Phase 1 Identity-Foundation Abschluss)
+
+- Stage-Chain: SPEC v1 → D62-Pre-Review CONCERNS (1xP0+4xP1+3xP2) → SPEC v2 (alle 8 Findings adressiert) → IMPACT skipped (UI-only) → BUILD (Primary-Claude direkt, S-Slice eng verzahnt mit Slice 262 Code) → Code-Review POST-BUILD CONCERNS (1xP2 Spec-Drift `home.manager.*` statt Spec-`home.managerBlock.*` — funktional gleichwertig, Notes-Patch in §15) → PROVE (64/64 Tests + tsc clean) → LOG
+- Slice-Type: UI · Größe: S (9 Files + 2 i18n + 3 Tests) · Scope: CTO autonom (Anil-„weiter"-greenlit, kein Multi-Choice nötig)
+- Anil-Direktive: „weiter" — Phase 1 Identity-Foundation abschließen ohne Architektur-Reibung. CTO autonom Slice-Scope reduziert auf 2 Cross-Identity-Pills (Liga-Rang + Streak-Risk auf Slice 264/265 verschoben weil Server-State pflicht).
+- Lösung: Doppel-Identität above-the-fold sichtbar via 2 Cross-Mode-Pills:
+  - **ScoutPill** in ManagerBlock (Active-GW Modus): Portfolio-Snapshot „Kader · {CR} · ±{PnL}%" → /manager?tab=kader. Show-Gate: holdingsCount > 0
+  - **ManagerPill** in ScoutHero (Off-GW Modus): GW-Hint „Spieltag {n} · in {countdown}" → /fantasy. Show-Gate: nextScopedEvent !== null
+  - Neuer Helper `pickNextScopedEvent` in helpers.tsx (future-only + non-ended/scoring + scoped Liga, Defense-in-Depth)
+  - i18n-Konflikt-Cleanup: Top-Level-Strings `home.manager`/`home.scout` (Z.371-372) gelöscht (Slice 262 Latent-Bomb durch Object/String-Duplicate-Drift)
+- D62-Pay-Off (3. Mal in Folge bestätigt): Pre-Review fand 1 P0 (i18n-Object/String-Konflikt — verifiziert: messages/de.json:371-372 Top-Level-String + Slice 262 Z.440 Object) + 4 P1 (Holdings-Anzeige, Defense-in-Depth, TR-Vokal-Harmonie-Bug, Mobile-Layout). Hätten zu Locale-Switch-Render-Crash + TR-User-Friction + Mobile-Overflow geführt.
+- Files (10): src/components/home/helpers.tsx (M, +pickNextScopedEvent) · src/app/(app)/hooks/useHomeData.ts (M, +nextScopedEvent memo + Return) · src/app/(app)/page.tsx (M, +prop pass-through) · src/components/home/HomeStoryHeader.tsx (M, +nextScopedEvent prop, ScoutHero ManagerPill, +Calendar import, tScoutHero useTranslations) · src/components/home/ManagerBlock.tsx (M, +3 Props portfolioValue/pnlPct/holdingsCount Re-Add, +ScoutPill render, +ChartLine import) · src/components/home/__tests__/ManagerBlock.test.tsx (M, +5 ScoutPill tests + ChartLine + fmtScout mocks) · src/components/home/__tests__/helpers.test.tsx (M, +8 pickNextScopedEvent tests) · src/app/(app)/hooks/__tests__/useHomeData.test.ts (M, +pickNextScopedEvent vi.mock) · messages/de.json (M, Z.371-372 cleanup-delete + 4 neue Keys: home.manager.scoutPillLabel + home.scoutHero.managerPillGw/Countdown/Live) · messages/tr.json (M, analog mit „{time} sonra"-Variante F-04)
+- Spec: worklog/specs/263-doppel-identity-pills.md (v2)
+- Pre-Review: worklog/reviews/263-pre-review.md (CONCERNS 1xP0+4xP1+3xP2 alle resolved)
+- Review: worklog/reviews/263-review.md (CONCERNS — F-NEW-1 Spec-Drift `home.manager.*` statt `home.managerBlock.*`, Notes-Patch in §15)
+- Proof: worklog/proofs/263-tests.txt (64/64 green) + worklog/proofs/263-tsc.txt (clean)
+- Commit: <wird gleich gesetzt>
+- Knowledge-Capture-Kandidaten (post-LOG promoten):
+  - errors-frontend.md: i18n Object/String-Duplicate-Key-Drift-Pattern (F-01 Bug-Klasse)
+- Notes:
+  - Phase 1 Identity-Foundation des Home-Redesigns (D63) ist mit Slice 263 abgeschlossen. Nächster Schritt = Phase 2 Action-Layer (Slice 264).
+  - Anil-PROVE post-Deploy pflicht für AC-09/10 (ManagerPill render+link), AC-11 (Mobile 393px Long-String), AC-12 (TR-Locale Cookie-Switch).
+  - D62 Reviewer-VOR-BUILD Pattern hat 3x in Folge (Slices 261, 262, 263) BUILD-Reverts verhindert. Pattern in workflow.md verankert.
+  - „weiter"-Direktive war effizientes Greenlight ohne Multi-Choice-Friction — Anil vertraut CTO-Judgment für Implementation-Details, behält sich Mobile-PROVE als finale Gate.
+
 ## 262 | 2026-05-02 | Hero-Mode-Detection + ManagerBlock (Phase 1 Identity-Foundation)
 
 - Stage-Chain: SPEC v1 → D62-Pre-Review REWORK (3xP0+4xP1+2xP2) → SPEC v2 (Anil-Decisions A=b · B=a · C=a · D=a · E=a, alle = CTO-Empfehlung) → IMPACT skipped → BUILD (Frontend-Agent Worktree für ManagerBlock+i18n+Tests, Primary-Claude für useHomeData+helpers+HomeStoryHeader+Hook) → Code-Review POST-BUILD PASS (2xP2 inline-cleaned: Dead-Hooks im Outer + orphan holdingsCount-Prop) → PROVE-pending (Anil Mobile-PROVE post-Deploy) → LOG

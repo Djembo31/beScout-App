@@ -86,7 +86,8 @@
       "PowerShell(npm install *)",
       "PowerShell(claude *)",
       "mcp__vercel__get_runtime_logs",
-      "mcp__sentry__get_sentry_resource"
+      "mcp__sentry__get_sentry_resource",
+      "Bash(git -C C:/bescout-app log --oneline -1 origin/main)"
     ]
   },
   "enableAllProjectMcpServers": true,

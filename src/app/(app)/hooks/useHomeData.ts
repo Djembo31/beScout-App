@@ -22,7 +22,7 @@ import { newIdempotencyKey } from '@/lib/idempotency';
 import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
-import { STREAK_KEY, getStoryMessage, pickScopedEvent } from '@/components/home/helpers';
+import { STREAK_KEY, getStoryMessage, pickScopedEvent, pickNextScopedEvent } from '@/components/home/helpers';
 import { useTranslations } from 'next-intl';
 import type { DbEvent, DpcHolding, Pos } from '@/types';
 
@@ -141,6 +141,12 @@ export function useHomeData() {
   const scopedActiveEvent = useMemo(() => {
     if (!scopedLeagueId || !leagueScopeHydrated) return null;
     return pickScopedEvent(events as DbEvent[], scopedLeagueId);
+  }, [events, scopedLeagueId, leagueScopeHydrated]);
+
+  // ── Slice 263 (D63 Phase 1 Abschluss): next upcoming event in scoped league for ScoutHero ManagerPill ──
+  const nextScopedEvent = useMemo(() => {
+    if (!scopedLeagueId || !leagueScopeHydrated) return null;
+    return pickNextScopedEvent(events as DbEvent[], scopedLeagueId);
   }, [events, scopedLeagueId, leagueScopeHydrated]);
 
   const heroMode: HeroMode = useMemo(() => {
@@ -298,5 +304,7 @@ export function useHomeData() {
     belowFoldReady, followedClubs,
     // Slice 262 — Hero-Mode + Manager-Block inputs
     heroMode, gw, hasLineup, hasCaptain, captainName,
+    // Slice 263 — Doppel-Identität-Pills inputs
+    nextScopedEvent,
   };
 }
