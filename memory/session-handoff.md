@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-02 19:26)
+# Session Handoff — Auto (2026-05-02 21:10)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,11 +10,12 @@
  M worklog/audits/type-truth-2026-05-02.md
 ```
 
-## Session Commits: 4
+## Session Commits: 5
+- 2c50637c chore(session-end): Slice 265 LIVE + Phase 2 Manager-Hub KOMPLETT (6 Slices in Folge)
+- d4e816a9 feat(265): StreakRiskCard im ActionRequiredStack (Phase 2 Action-Layer Streak-Risk)
 - a881df9d chore(session-end): D62-Marathon Bilanz + Knowledge-Promotion (5 Slices, 50 Findings, 0 Reverts)
 - 44057ab1 feat(264b): Wildcard-Pill (Phase 2 Action-Layer Optional-Hint)
 - b359f4ab feat(264): ActionRequiredStack (Phase 2 Action-Layer Start)
-- 53874a0e feat(263): Doppel-Identität-Pills (Phase 1 Identity-Foundation Abschluss)
 
 <!-- auto:handoff-end -->
 
@@ -76,12 +77,116 @@
 3. Lese worklog/active.md (status: idle)
 4. git log --oneline -8 (6 Slices: 261, 262, 263, 264, 264b, 265 + 2 chore)
 5. Anil-Frage: „Slice 266 Spotlight-Multi-Slot starten (Anil muss Layout-Vision spec'n)
-   ODER Slice 267 Realtime-Live-Score (M, IMPACT-pflicht für Realtime-Channel)
+   ODER Slice 267 Realtime-Live-Score (M, IMPACT-pflicht, Pro-Plan-Note unten)
    ODER PROVE-Pause für 5 Slices Mobile-Safari?"
 6. Bei „weiter": Default = Slice 267 (Phase 3 Live-Pulse, klarere Spec via D63)
 7. Bei Slice 266: Anil's Multi-Slot-Layout-Vision via Multi-Choice-Decisions (D64) abklären
 8. D62-Pflicht weiter: Pre-Review-VOR-BUILD bei M+ Slices (D65)
 ```
+
+## 🔥 Slice 267 Realtime-Live-Score — Pre-Spec-Notes (Pro-Plan-Constraints)
+
+**Status:** NICHT gestartet. Pre-Spec-Sammlung von CTO für nächste Session, weil Anil 2026-05-02 explizit Pro-Plan-Konstraint-Pflicht markierte.
+
+### Pro-Plan-Limits (Anil bestätigt: BeScout läuft auf Vercel Pro + Supabase Pro)
+
+**Vercel Pro** (relevant für Cron-getriggerte fixture-sync):
+- 40 Crons (vs Hobby 2), hourly+ erlaubt, 300s maxDuration
+- D36 Hobby-Crash-Pattern (errors-infra.md) gilt nicht für uns — aber zukunfts-relevant
+
+**Supabase Pro** (current tier):
+- 500 concurrent realtime connections (vs Free 200)
+- 2M realtime messages/month inkludiert
+- 250GB egress/month
+- ⚠️ context7 für aktuelle 2026-Limits verifizieren VOR SPEC-Schreiben
+
+### Realtime-Capacity-Mathematik
+
+**Beta-Day-3 (50 User max):**
+- 50 User × 1 Live-Channel = 50 connections — easy unter Limit
+- 50 User × 1 GW × 50 fixtures × 90 min × 5 events/min ≈ 1.1M msg/GW
+- 2 GW/Wochenende ≈ 2.2M msg/Monat = an Pro-Limit
+- **Risk:** Bei mehr als 1 GW/Woche → Limit-Bruch wahrscheinlich
+
+**Post-Beta-Scale (1000+ User parallel):**
+- 1000 User × 1 Channel = 1000 connections — **bricht Pro-Limit (500)**
+- → Channel-Strategy MUSS fan-out sein (NICHT 1 Channel pro User)
+
+### Channel-Strategy (CTO-Vorschlag, Spec-Pflicht klären)
+
+**Pattern A: Channel pro fixture (fan-out, RECOMMENDED):**
+- 50 fixtures × 1 Channel = 50 channels
+- Viele User listen auf gleichen Channel
+- Verifikation pflicht: Subscription-Count vs Connection-Count im Pro-Limit-Modell
+
+**Pattern B: 1 globaler Channel `gameweek-live`:**
+- Alle Fixture-Events in 1 Channel, Client-side filter
+- Bandwidth-wasteful (alle User bekommen alle Events)
+
+**Pattern C: Per-User Channel (wie social.ts `following-feed-${userId}`):**
+- 1000 User = 1000 connections — bricht Pro
+
+**CTO-Empfehlung Default:** Pattern A mit Auto-Cleanup (Channel-teardown nach fixture FT). Plus Throttle-Batching im Client (analog `FEED_EVENT_WINDOW_MS = 2000` in social.ts).
+
+### Slice 267 IMPACT-Pflicht-Liste
+
+1. `fixtures` Tabelle braucht `REPLICA IDENTITY FULL` (analog `activity_log_realtime` Migration `20260408220000`) — **prüfen ob schon gesetzt:** `SELECT relreplident FROM pg_class WHERE relname = 'fixtures'`
+2. `supabase_realtime` publication muss fixtures enthalten — **prüfen:** `SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime'`
+3. RLS-Policy auf fixtures: SELECT muss public-readable sein (vermutlich schon, aber verifizieren)
+4. Cron `gameweek-sync` ist Source-of-Truth für Live-Scores (existing in `src/app/api/cron/gameweek-sync/`) — schreibt Cron via supabase-client → triggert realtime broadcast
+5. Channel-Cleanup-Strategy bei FT (auto-unsubscribe wenn fixture status='finished')
+6. Polling-Fallback ohne Realtime (z.B. Pro-Limit-Bruch / Network-fail) — pflichtige Spec-Sektion
+
+### Slice 267 Spec-Pflicht-Klärungen (Anil-CEO)
+
+- **Live-Anzeige Position:** Im HomeSpotlight integriert? Eigene Card im ActionRequiredStack? Sticky in GameweekStatusBar (Slice 261)?
+- **Granularität:** Score (1:0) only oder auch Events (Goals/Assists/Cards) realtime?
+- **User-Filter:** Alle Live-Fixtures? Nur User's Holdings-Spieler? Nur Liga-Scope-Fixtures (LeagueScopeStore)?
+- **Fallback:** Ohne Realtime — wie oft Polling? 30s? 60s?
+
+### Slice 267 Pre-Mortem-Topics
+
+- **Pro-Limit-Bruch live während GW:** Realtime fällt aus → User sieht stale-score → schlechte Beta-Erfahrung. Mitigation: Polling-Fallback hardcoded.
+- **Cron-Replication-Gap:** API-Football → DB-Write → Realtime-Broadcast hat 1-3s Latency. Mitigation: kein „LIVE"-Badge ohne Server-Time-Verification.
+- **Memory-Leak bei Channel-Subscriptions:** social.ts hat 1 Sub/User. Bei 50 fixtures + Pattern A → 50 Subs/User → useEffect-Cleanup pflicht.
+- **REPLICA IDENTITY FULL Performance:** Vergrößert WAL um Faktor 3-5. fixtures-Tabelle ist klein (~500 rows/season) — trivialer Impact.
+
+### Pre-Implementation TODO (vor SPEC v1)
+
+1. **context7** für Supabase Realtime aktuelle Docs (Channel-Limits, Pricing-Model 2026, Subscription-vs-Connection-Counting)
+2. **Supabase MCP:** `pg_class.relreplident` für fixtures verifizieren
+3. **Supabase MCP:** `pg_publication_tables` für fixtures verifizieren
+4. Read `src/app/api/cron/gameweek-sync/route.ts` — Schreibmuster + Frequenz
+5. Pre-Spec D64-Multi-Choice für Anil: Position + Granularität + Filter + Fallback
+
+## 🎨 Slice 266 Spotlight-Multi-Slot — Pre-Spec-Notes (Anil-Vision-Pflicht)
+
+**Status:** NICHT gestartet. Anil-CEO-Decision pflicht.
+
+### Heutiger Stand: HomeSpotlight ist Single-Card mit Priority-Logic
+
+`src/components/home/HomeSpotlight.tsx` (160 Zeilen) rendert EINE Card mit Priority-Order:
+1. Priority 1: Live IPO (wenn `activeIPOs.length > 0`)
+2. Folgende Priority-Stufen: Trending Player, Holdings-Top-Mover, etc.
+
+D63 Phase 3 sagt: **„Spotlight-Refactor / Multi-Slot-Pulse"** — interpretierbar.
+
+### Anil's Decision-Set für SPEC v1 (D64-Multi-Choice empfohlen)
+
+| Decision | Optionen | CTO-Empfehlung |
+|----------|----------|----------------|
+| **Layout** | A=Single-Card bleibt, neue Slots als Carousel rechts · B=2-Card-Grid · C=3-Card-Horizontal-Scroll | A (least Big-Bang-Risk, additive zu existing) |
+| **Slot-Auswahl** | a=Live-IPO + Live-Score + Trending · b=Live-IPO + Top-Holding-Mover + Trending · c=Multi-Sources priorisiert | a (Phase-3-Live-Pulse-Theme dominant) |
+| **Rotation** | x=statisch (alle parallel) · y=Auto-Rotate alle 5s · z=Swipeable | x (least Cognitive-Load Beta) |
+| **Mobile (393px)** | m1=Vertical-Stack · m2=Horizontal-Scroll · m3=Swipeable-Pages | m2 (Phase 2 nutzt schon `overflow-x-auto scrollbar-hide` Pattern, Konsistenz) |
+
+**Risk-Note:** Slice 266 ist M-L-Refactor. D63 Section C Lehre: „Multi-File-Big-Bangs sind Risk-Klasse, Slice-für-Slice mit D62". → Inkrementell schneiden (Slice 266a Layout-Refactor + 266b neue Slots).
+
+### Pre-Implementation TODO (vor SPEC v1)
+
+1. Anil's Decision-Set abfragen via D64-Multi-Choice-Format
+2. context7 für React-Layout-Patterns (Carousel-State, Swipe-Gesture-Handling) falls Decision z gewählt
+3. Read `HomeSpotlight.tsx` voll + alle Konsumenten in `page.tsx`
 
 ## Anti-Pattern-Reminder
 
