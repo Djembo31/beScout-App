@@ -18,6 +18,35 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `ui-co
 - Cancellation Token in useEffect: `let cancelled = false; return () => { cancelled = true; }`.
 - Null-Guards: `floor_price ?? 0`, `entry.rank ?? 999`.
 
+### Defensive null-strict-equality bei optional-resolved Hook-Daten (Slice 265)
+
+**Bug-Klasse:** UI-Component leitet boolean-Risk-State aus Hook-Daten ab, die `number | null` returnieren (RPC noch nicht resolved oder silent-fail). Truthy-Check `!value` statt strict `=== 0` führt zu False-Positives — Card erscheint bei null/undefined obwohl Risk-State unbekannt ist.
+
+**Beispiel (Slice 265 StreakRiskCard):**
+```ts
+// FALSCH — null zählt als at-risk:
+const isStreakAtRisk = streak >= 7 && !shieldsRemaining;
+// Wenn shieldsRemaining=null (RPC error / network-fail):
+// !null === true → at-risk Card erscheint trotz unbekanntem State
+
+// RICHTIG — strict equality, defensive:
+const isStreakAtRisk = streak >= 7 && shieldsRemaining === 0;
+// null === 0 ist false → Card unsichtbar bei unbekanntem State
+```
+
+**Regel:** Bei `T | null`-Hook-Returns mit Risk-Indikator-Logik IMMER strict `=== <konkreterWert>` statt truthy-Falsy. Nur `null` (resolved) sollte als bekannter State zählen, nicht als unbekannter.
+
+**Audit-Pattern für Reviewer:**
+```bash
+# Findet truthy-Falsy-Checks auf number|null Hook-Returns:
+grep -rnE "!(streak|shields|count|balance|tickets|priceChange)[A-Z]" src/components/ src/features/
+# Manuell prüfen: kommt Wert aus Hook mit `T | null`-Return?
+```
+
+**Reference:** `useLoginStreak` returnt `data: StreakResult | null`, Slice 265 Pre-Review F-04 fand das Pattern bevor BUILD. Defensive `=== 0` ist die korrekte Mitigation für silent-fail/initial-resolve-Race.
+
+**Beziehung:** Cross-Cutting mit "Silent Fails" (common-errors.md §1) — eine UI-Layer-Variante. Backend hat ähnliches Pattern bei `Promise.allSettled` ohne Observability.
+
 ### Modal preventClose Pattern (J2 + J3)
 - Jeder Modal mit `useMutation.isPending` → `preventClose={isPending}` pflicht. Sonst ESC/Backdrop-Click mitten in DB-Transaction verliert State.
 - Heuristik: `Modal` + (`isPending|cancelling|selling|buying|submitting`) im gleichen File → nachruesten.

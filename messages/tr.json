@@ -458,7 +458,11 @@
       "captainTitle": "Kaptan eksik",
       "captainSubtitle": "En iyi puanını ikiye katlar",
       "captainCta": "Kaptan seç",
-      "urgentBadge": "SADECE {countdown}"
+      "urgentBadge": "SADECE {countdown}",
+      "streakRiskTitle": "Seri hatırlatması",
+      "streakRiskSubtitle": "Üst üste {streak} gün oynadın 🔥",
+      "streakRiskBadge": "Kalkan yok",
+      "streakRiskAriaLabel": "Seri hatırlatması: üst üste {streak} gün, kalkan yok"
     }
   },
   "fantasy": {

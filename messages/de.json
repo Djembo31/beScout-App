@@ -458,7 +458,11 @@
       "captainTitle": "Kapitän fehlt",
       "captainSubtitle": "Verdoppelt deinen besten Score",
       "captainCta": "Kapitän wählen",
-      "urgentBadge": "NUR {countdown}"
+      "urgentBadge": "NUR {countdown}",
+      "streakRiskTitle": "Streak-Erinnerung",
+      "streakRiskSubtitle": "Du hast {streak} Tage in Folge gespielt 🔥",
+      "streakRiskBadge": "Ohne Schild",
+      "streakRiskAriaLabel": "Streak-Erinnerung: {streak} Tage in Folge ohne Schild"
     }
   },
   "fantasy": {

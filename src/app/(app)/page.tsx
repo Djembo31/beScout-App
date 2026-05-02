@@ -149,7 +149,7 @@ export default function HomePage() {
         wildcardBalance={wildcardBalance}
       />
 
-      {/* ── 1b. ACTION-REQUIRED STACK (Slice 264) — direkt nach Hero, vor allen anderen Blocks ── */}
+      {/* ── 1b. ACTION-REQUIRED STACK (Slice 264 + 265) — direkt nach Hero, vor allen anderen Blocks ── */}
       <ActionRequiredStack
         heroMode={heroMode}
         gw={gw}
@@ -157,6 +157,8 @@ export default function HomePage() {
         hasCaptain={hasCaptain}
         locksAtIso={locksAtIso}
         scopedActiveEventStatus={scopedActiveEventStatus}
+        streak={streak}
+        shieldsRemaining={shieldsRemaining}
       />
 
       {/* Scout Cards — total + position breakdown.

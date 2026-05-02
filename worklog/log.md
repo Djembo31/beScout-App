@@ -9,6 +9,27 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 265 | 2026-05-02 | StreakRiskCard im ActionRequiredStack (Phase 2 Action-Layer Streak-Risk)
+
+- Stage-Chain: SPEC v1 → D62-Pre-Review CONCERNS (0xP0+2xP1+2xP2+1xMINOR) → SPEC v2 (5 Findings adressiert) → IMPACT skipped → BUILD (Primary-Claude, S-Slice Stateless-Component-Pattern) → Post-BUILD-Review PASS (Cold-Context, 7 Render-Branch-Cases manuell traced) → PROVE (22/22 Tests + tsc clean + i18n-Anti-Konflikt-Audit + Wording-Compliance-Audit) → LOG
+- Slice-Type: UI · Größe: S (5 Files + i18n + Test-Erweiterung 10→22) · Scope: CTO autonom (Anil's „volle Entscheidungsgewalt"-Mandat)
+- Files: ActionRequiredStack.tsx (66 lines diff), page.tsx (props-passing), de.json + tr.json (4 Keys × 2 Locales), test.tsx (12 neue Tests)
+- Spec: worklog/specs/265-streak-risk-card.md (v2)
+- Pre-Review: worklog/reviews/265-pre-review.md (CONCERNS, 5 Findings adressiert vor BUILD)
+- Review: worklog/reviews/265-review.md (PASS, 2 MINOR Pre-existing-Drifts nicht aus 265)
+- Proof: worklog/proofs/265-vitest.txt (22/22 Tests + i18n-Audit + Wording-Audit + tsc-Check)
+- Commit: (folgt)
+- Notes:
+  - **Phase 2 Action-Layer KOMPLETT** (264 + 264b + 265 live, 6 Slices in Folge mit D62-Pattern, 0 Reverts).
+  - **F-01 → F-05 alle adressiert vor BUILD** (Pre-Review-Pattern wirkt: 5 Findings → 0 post-BUILD).
+  - F-01-Decision: Card als Notification-only (kein Link, kein CTA). Begründung: „Streak schützen" als CTA wäre semantisch leeres Action-Versprechen + Loss-Aversion-Trigger.
+  - F-02-Decision: Wording neutralisiert auf information-only („STREAK-ERINNERUNG" statt „GEFÄHRDET", deskriptives „Du hast {streak} Tage in Folge gespielt 🔥" statt „komm morgen wieder"). business.md-konform für DSGVO-Kinderzielgruppe (KJM §4 Loss-Aversion-Restriction).
+  - F-03 Render-Branch-Refactor: 4 Guard-Branches mit Override-Logic. Streak-Card sichtbar in allen at-risk-Cases inklusive Lineup+Captain-done und off-GW.
+  - F-04 Defensive null: `shieldsRemaining === 0` (strict) — null wird NICHT als at-risk interpretiert (silent-fail-safe).
+  - Threshold-Werte 7/14 = `streakBenefits.ts` Tier-Boundaries (deckungsgleich, kein Magic Number).
+  - 7 Render-Branch-Cases manuell vom Reviewer-Agent traced — kein Catch-22.
+  - Reviewer-Learnings für Knowledge-Promotion: (1) patterns.md "Render-Branch-Refactor für Multi-Action-Stack" Pattern, (2) errors-frontend.md "Defensive null-strict-equality bei optional-resolved Hook-Daten", (3) D62-Pattern-Beleg #6 (ROI 4-8x bei Wording-heiklen Slices bestätigt).
+
 ## 264b | 2026-05-02 | Wildcard-Pill (Phase 2 Action-Layer Optional-Hint)
 
 - Stage-Chain: SPEC v1 → D62-Pre-Review CONCERNS (0xP0+2xP1+5xP2) → SPEC v2 (alle 7 Patches) → IMPACT skipped → BUILD (Primary-Claude direkt, XS-S Pattern-Reuse) → Self-Review PASS (workflow.md XS-Ausnahme) → PROVE (68/68 Tests + tsc clean) → LOG

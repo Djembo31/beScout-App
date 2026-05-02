@@ -37,14 +37,15 @@ vi.mock('next/link', () => ({
 vi.mock('lucide-react', () => {
   const Stub = () => null;
   return {
-    // ActionRequiredStack-Icons
+    // ActionRequiredStack-Icons (Slice 264 + 265)
     Users: Stub,
     Crown: Stub,
     ArrowRight: Stub,
+    Flame: Stub,  // Slice 265 StreakRiskCard
     // helpers.tsx transitive imports (FEED_ICON_MAP + ICON_MAP)
     ChevronRight: Stub, CircleDollarSign: Stub, Trophy: Stub, Award: Stub,
     Zap: Stub, FileText: Stub, Vote: Stub, Activity: Stub, Target: Stub,
-    Flame: Stub, Banknote: Stub, MessageCircle: Stub, Send: Stub,
+    Banknote: Stub, MessageCircle: Stub, Send: Stub,
     ArrowRightLeft: Stub, UserPlus: Stub,
   };
 });
@@ -69,6 +70,9 @@ const baseProps = {
   hasCaptain: false,
   locksAtIso: new Date(Date.now() + 86400_000).toISOString(),  // tomorrow default
   scopedActiveEventStatus: 'registering' as const,
+  // Slice 265 — Default: kein Streak-Risk (streak < 7)
+  streak: 0,
+  shieldsRemaining: null,
 };
 
 describe('ActionRequiredStack', () => {
@@ -168,5 +172,162 @@ describe('ActionRequiredStack', () => {
     );
     const link = screen.getByLabelText('home.actionStack.captainCta');
     expect(link).toHaveAttribute('href', '/fantasy?tab=lineup');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // Slice 265 — StreakRiskCard tests
+  // ═══════════════════════════════════════════════════════════════
+
+  // AC-01 — Streak-Card sichtbar bei streak >= 7 + shieldsRemaining === 0
+  it('renders Streak-Card when streak=7 and shieldsRemaining=0 (default style)', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={7}
+        shieldsRemaining={0}
+      />,
+    );
+    expect(screen.getByText('home.actionStack.streakRiskTitle')).toBeInTheDocument();
+    expect(screen.getByText(/home\.actionStack\.streakRiskSubtitle/)).toBeInTheDocument();
+  });
+
+  // AC-02 — Streak-Card unsichtbar bei streak < 7
+  it('hides Streak-Card when streak < 7', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={6}
+        shieldsRemaining={0}
+      />,
+    );
+    expect(screen.queryByText('home.actionStack.streakRiskTitle')).not.toBeInTheDocument();
+  });
+
+  // AC-03 — Streak-Card unsichtbar wenn Shields verfügbar
+  it('hides Streak-Card when shieldsRemaining > 0', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={14}
+        shieldsRemaining={2}
+      />,
+    );
+    expect(screen.queryByText('home.actionStack.streakRiskTitle')).not.toBeInTheDocument();
+  });
+
+  // AC-04 — Urgent-Variant: streak >= 14 → red-pulse
+  it('uses urgent (red) style when streak >= 14', () => {
+    const { container } = render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={14}
+        shieldsRemaining={0}
+      />,
+    );
+    const card = container.querySelector('[role="status"]');
+    expect(card).toBeTruthy();
+    expect(card?.className).toContain('border-red-400/30');
+    expect(card?.className).toContain('animate-pulse');
+  });
+
+  // AC-05 — Default-Variant: 7 <= streak < 14 → orange (no pulse)
+  it('uses default (orange, no pulse) style when 7 <= streak < 14', () => {
+    const { container } = render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={10}
+        shieldsRemaining={0}
+      />,
+    );
+    const card = container.querySelector('[role="status"]');
+    expect(card).toBeTruthy();
+    expect(card?.className).toContain('border-orange-400/30');
+    expect(card?.className).not.toContain('animate-pulse');
+  });
+
+  // AC-08 — Streak-Card unsichtbar in scout-Mode
+  it('hides Streak-Card in scout-Mode even when at-risk', () => {
+    const { container } = render(
+      <ActionRequiredStack
+        {...baseProps}
+        heroMode="scout"
+        streak={14}
+        shieldsRemaining={0}
+      />,
+    );
+    expect(container.firstChild).toBeNull();
+  });
+
+  // AC-09 — Streak-Card ist Notification-only (kein Link)
+  it('Streak-Card is notification-only (no link, no href)', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={14}
+        shieldsRemaining={0}
+      />,
+    );
+    // Streak-Title sichtbar, aber keine Streak-CTA-Link mehr
+    expect(screen.getByText('home.actionStack.streakRiskTitle')).toBeInTheDocument();
+    // Lineup/Captain-Cards sind ausgeblendet (hasLineup+hasCaptain=true)
+    // → keine Links mit lineupCta oder captainCta
+    expect(screen.queryByLabelText('home.actionStack.lineupCta')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('home.actionStack.captainCta')).not.toBeInTheDocument();
+  });
+
+  // AC-10 — Streak-Card overrides Lineup-done (sichtbar auch wenn Lineup+Captain done)
+  it('renders Streak-Card alone when Lineup+Captain done but streak at-risk', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={14}
+        shieldsRemaining={0}
+      />,
+    );
+    // Nur Streak-Card sichtbar
+    expect(screen.getByText('home.actionStack.streakRiskTitle')).toBeInTheDocument();
+    expect(screen.queryByText('home.actionStack.lineupTitle')).not.toBeInTheDocument();
+    expect(screen.queryByText('home.actionStack.captainTitle')).not.toBeInTheDocument();
+  });
+
+  // AC-11 — Off-GW + Streak-at-risk → Card sichtbar
+  it('renders Streak-Card off-GW (locksAtIso=null) when streak at-risk', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        locksAtIso={null}
+        streak={14}
+        shieldsRemaining={0}
+      />,
+    );
+    expect(screen.getByText('home.actionStack.streakRiskTitle')).toBeInTheDocument();
+  });
+
+  // AC-12 — Defensive: shieldsRemaining=null → Card unsichtbar (strict equality)
+  it('hides Streak-Card when shieldsRemaining is null (defensive)', () => {
+    render(
+      <ActionRequiredStack
+        {...baseProps}
+        hasLineup={true}
+        hasCaptain={true}
+        streak={14}
+        shieldsRemaining={null}
+      />,
+    );
+    expect(screen.queryByText('home.actionStack.streakRiskTitle')).not.toBeInTheDocument();
   });
 });
