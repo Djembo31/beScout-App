@@ -438,7 +438,14 @@
     "mysteryBoxFreeAvailable": "Ücretsiz kutu seni bekliyor!",
     "mysteryBoxClaimedTomorrow": "Yarın tekrar gel",
     "mysteryBoxFreeLabel": "Ücretsiz",
-    "mysteryBoxOpenCta": "Gizem Kutusunu Aç"
+    "mysteryBoxOpenCta": "Gizem Kutusunu Aç",
+    "manager": {
+      "gwLabel": "Hafta {n}",
+      "lineupSet": "Kadro hazır",
+      "lineupCta": "Kadroyu seç",
+      "captainSet": "Kaptan: {name}",
+      "captainCta": "Kaptan seç"
+    }
   },
   "fantasy": {
     "title": "Maç Günü",

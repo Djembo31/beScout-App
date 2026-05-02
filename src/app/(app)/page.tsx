@@ -86,6 +86,8 @@ export default function HomePage() {
     handleOpenMysteryBox, hasFreeBoxToday,
     storyMessage, spotlightType, retention, showQuickActions,
     followedClubs, highestPass,
+    // Slice 262 — Hero-Mode + ManagerBlock inputs
+    heroMode, gw, hasLineup, hasCaptain, captainName,
   } = useHomeData();
 
   const isNewUser = holdings.length === 0;
@@ -131,6 +133,11 @@ export default function HomePage() {
         pnlPct={pnlPct}
         storyMessage={storyMessage}
         balanceCents={balanceCents ?? null}
+        heroMode={heroMode}
+        gw={gw}
+        hasLineup={hasLineup}
+        hasCaptain={hasCaptain}
+        captainName={captainName}
       />
 
       {/* Scout Cards — total + position breakdown.

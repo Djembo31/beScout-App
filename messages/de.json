@@ -438,7 +438,14 @@
     "mysteryBoxFreeAvailable": "Gratis Box wartet!",
     "mysteryBoxClaimedTomorrow": "Morgen wieder verfügbar",
     "mysteryBoxFreeLabel": "Gratis",
-    "mysteryBoxOpenCta": "Mystery Box öffnen"
+    "mysteryBoxOpenCta": "Mystery Box öffnen",
+    "manager": {
+      "gwLabel": "Spieltag {n}",
+      "lineupSet": "Aufstellung gesetzt",
+      "lineupCta": "Aufstellung wählen",
+      "captainSet": "Kapitän: {name}",
+      "captainCta": "Kapitän wählen"
+    }
   },
   "fantasy": {
     "title": "Spieltag",

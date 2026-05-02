@@ -19,6 +19,33 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { getActivityIcon as actIconName, getActivityColor as actColor } from '@/lib/activityHelpers';
+import { getClub } from '@/lib/clubs';
+import type { DbEvent } from '@/types';
+
+// ── Active GW detection (Slice 262: extrahiert aus GameweekStatusBar Slice 261) ──
+//
+// Single-Source für „welches Event gehört zur scoped Liga und ist aktiv?".
+// Konsumenten: GameweekStatusBar (Slice 261), useHomeData heroMode (Slice 262).
+// Filter: e.league_id === leagueId ODER getClub(e.club_id)?.league_id === leagueId.
+// Sortierung: running > registering/late-reg, dann earliest starts_at.
+
+export const ACTIVE_STATUSES: ReadonlyArray<DbEvent['status']> = ['registering', 'late-reg', 'running'];
+
+export function pickScopedEvent(events: DbEvent[], leagueId: string): DbEvent | null {
+  const candidates = events.filter((e) => {
+    if (!ACTIVE_STATUSES.includes(e.status)) return false;
+    if (e.league_id === leagueId) return true;
+    if (!e.club_id) return false;
+    return getClub(e.club_id)?.league_id === leagueId;
+  });
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => {
+    if (a.status === 'running' && b.status !== 'running') return -1;
+    if (b.status === 'running' && a.status !== 'running') return 1;
+    return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+  });
+  return candidates[0];
+}
 
 // ── Greeting ──
 

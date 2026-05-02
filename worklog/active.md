@@ -1,14 +1,18 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 262
+stage: LOG
+spec: worklog/specs/262-hero-mode-detection-manager-block.md (v2)
+impact: skipped (kein DB/RPC/Service-Refactor)
+proof: worklog/proofs/262-tests.txt
+review: worklog/reviews/262-review.md PASS + worklog/reviews/262-pre-review.md REWORK→resolved
 ```
+
+## Slice 262 ACTIVE (M, Phase 1 Identity-Foundation): Hero-Mode-Detection + Manager-Block
+
+`heroMode` Derived-Wert in `useHomeData()` (`'manager' | 'scout' | 'cta-new'`) + neue `<ManagerBlock />` Component für aktive GW. HomeStoryHeader wird zum Dispatcher der zwischen Manager/Scout/CTA-Block switched. D62-Pflicht: Reviewer-VOR-BUILD nach Anil's Multi-Choice-Decisions.
 
 ## Slice 261 KOMPLETT (S, Phase 1 Identity-Foundation): Home Layer 0 Gameweek-Status-Bar
 

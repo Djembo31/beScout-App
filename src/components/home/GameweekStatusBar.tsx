@@ -23,31 +23,11 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { useEvents } from '@/lib/queries';
 import { getLeague } from '@/lib/leagues';
-import { getClub } from '@/lib/clubs';
 import { cn } from '@/lib/utils';
-import { getTimeUntil } from './helpers';
+import { getTimeUntil, pickScopedEvent } from './helpers';
 import type { DbEvent } from '@/types';
 
-const ACTIVE_STATUSES: ReadonlyArray<DbEvent['status']> = ['registering', 'late-reg', 'running'];
 const URGENT_THRESHOLD_MS = 6 * 60 * 60 * 1000;
-
-function pickBarEvent(events: DbEvent[], leagueId: string): DbEvent | null {
-  const candidates = events.filter((e) => {
-    if (!ACTIVE_STATUSES.includes(e.status)) return false;
-    if (e.league_id === leagueId) return true;
-    if (!e.club_id) return false;
-    const club = getClub(e.club_id);
-    return club?.league_id === leagueId;
-  });
-  if (candidates.length === 0) return null;
-  // Running > registering/late-reg, then earliest starts_at
-  candidates.sort((a, b) => {
-    if (a.status === 'running' && b.status !== 'running') return -1;
-    if (b.status === 'running' && a.status !== 'running') return 1;
-    return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
-  });
-  return candidates[0];
-}
 
 function GameweekStatusBarInner() {
   const t = useTranslations('home.gwBar');
@@ -68,7 +48,7 @@ function GameweekStatusBarInner() {
   // Top-level guards
   if (!user || !leagueId) return null;
 
-  const barEvent = pickBarEvent(events as DbEvent[], leagueId);
+  const barEvent = pickScopedEvent(events as DbEvent[], leagueId);
   if (!barEvent || !barEvent.starts_at) return null;
 
   const isRunning = barEvent.status === 'running';

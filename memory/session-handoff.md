@@ -1,23 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-01 01:03)
+# Session Handoff — Auto (2026-05-02 14:22)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 6 Files
 ```
- M .claude/settings.local.json
  M memory/session-handoff.md
  M worklog/active.md
  M worklog/audits/audit-stale-2026-04-30.md
  M worklog/audits/type-truth-2026-04-30.md
+?? worklog/reviews/262-pre-review.md
+?? worklog/specs/262-hero-mode-detection-manager-block.md
 ```
-
-## Session Commits: 5
-- 3aae52c9 feat(261): Home Layer 0 — Gameweek-Status-Bar (Phase 1 Identity-Foundation)
-- 263fae9b chore(session-end): Beta-Day-3 Resume-Anker — 5 Slices (3 live, 2 reverted), Reviewer-VOR-BUILD-Pattern etabliert
-- 8756b5dd chore(sentry): mark Slice 267 + earlier issues as resolved
-- 2964c44c chore(268): active.md → idle post-LOG
-- 17d0c5b8 feat(268): Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right)
 
 <!-- auto:handoff-end -->
 

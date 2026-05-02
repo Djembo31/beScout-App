@@ -139,6 +139,25 @@ vi.mock('@/lib/streakBenefits', () => ({
 vi.mock('@/components/home/helpers', () => ({
   STREAK_KEY: 'bescout-login-streak',
   getStoryMessage: vi.fn(() => null),
+  // Slice 262 — pickScopedEvent + ACTIVE_STATUSES (extrahiert in helpers, mocked als no-match default)
+  pickScopedEvent: vi.fn(() => null),
+  ACTIVE_STATUSES: ['registering', 'late-reg', 'running'],
+}));
+
+// Slice 262 — useLeagueScope + useLineupWithPlayers (Hero-Mode-Detection inputs)
+vi.mock('@/features/shared/store/leagueScopeStore', () => ({
+  useLeagueScope: () => ({
+    leagueId: null,
+    leagueName: null,
+    countryCode: null,
+    hydrated: true,
+    setLeagueScope: vi.fn(),
+  }),
+}));
+
+vi.mock('@/features/fantasy/queries/lineups', () => ({
+  useLineupWithPlayers: () => ({ data: null, isLoading: false }),
+  useLineupScores: () => ({ data: new Map(), isLoading: false }),
 }));
 
 vi.mock('next-intl', () => ({

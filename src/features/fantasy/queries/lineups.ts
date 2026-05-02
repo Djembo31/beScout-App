@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getLineup } from '../services/lineups.queries';
+import { getLineup, getLineupWithPlayers } from '../services/lineups.queries';
 import type { DbEvent } from '@/types';
 import { qk } from '@/lib/queries/keys';
 
@@ -36,5 +36,21 @@ export function useLineupScores(
     },
     enabled: !!userId && scoredJoinedIds.length > 0,
     staleTime: 5 * 60_000,
+  });
+}
+
+/**
+ * Slice 262 — Home ManagerBlock: Lineup + enriched player data for active GW.
+ * Returns `null` when user has no lineup for the event yet.
+ *
+ * Cache: 60s staleTime (Lineup-Status changes seltener als GW-State).
+ * Defense-in-Depth: Service throws on Supabase error → React Query auto-retry.
+ */
+export function useLineupWithPlayers(eventId: string | undefined, userId: string | undefined) {
+  return useQuery({
+    queryKey: qk.fantasy.lineupWithPlayers(eventId, userId),
+    queryFn: () => getLineupWithPlayers(eventId!, userId!),
+    enabled: !!eventId && !!userId,
+    staleTime: 60_000,
   });
 }

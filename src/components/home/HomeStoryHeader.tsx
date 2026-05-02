@@ -10,8 +10,11 @@ import { TierBadge } from '@/components/ui/TierBadge';
 import { InfoTooltip } from '@/components/ui';
 import { getGreetingKey } from './helpers';
 import GameweekStatusBar from './GameweekStatusBar';
+import ManagerBlock from './ManagerBlock';
 import { useTranslations } from 'next-intl';
 import type { DbUserStats } from '@/types';
+
+type HeroMode = 'manager' | 'scout' | 'cta-new';
 
 interface HomeStoryHeaderProps {
   loading: boolean;
@@ -25,17 +28,84 @@ interface HomeStoryHeaderProps {
   pnlPct: number;
   storyMessage: { key: string; params: Record<string, string> } | null;
   balanceCents: number | null;
+  // Slice 262 — Hero-Mode-Dispatcher inputs
+  heroMode: HeroMode;
+  gw: number;
+  hasLineup: boolean;
+  hasCaptain: boolean;
+  captainName: string | null;
 }
 
 function HomeStoryHeaderInner({
   loading, firstName, streak, shieldsRemaining, userStats,
   portfolioValue, holdingsCount, pnl, pnlPct, storyMessage, balanceCents,
+  heroMode, gw, hasLineup, hasCaptain, captainName,
 }: HomeStoryHeaderProps) {
+  return (
+    <div className="relative -mx-4 -mt-4 lg:-mx-6 lg:-mt-6 px-4 pt-6 pb-6 lg:px-6 lg:pt-8 lg:pb-8 bg-hero-stadium overflow-hidden">
+      {/* Vignette overlay for depth */}
+      <div className="absolute inset-0 bg-hero-vignette pointer-events-none" aria-hidden="true" />
+
+      <div className="relative z-10">
+        {/* ━━━ LAYER 0 — GAMEWEEK STATUS BAR (Slice 261, persistent in beiden Modi) ━━━ */}
+        <GameweekStatusBar />
+
+        {/* Slice 262 — Hero-Mode-Dispatcher (D63 Hero-State-Matrix) */}
+        {heroMode === 'manager' ? (
+          <ManagerBlock
+            firstName={firstName}
+            streak={streak}
+            shieldsRemaining={shieldsRemaining}
+            userStats={userStats}
+            gw={gw}
+            hasLineup={hasLineup}
+            hasCaptain={hasCaptain}
+            captainName={captainName}
+          />
+        ) : (
+          <ScoutHero
+            loading={loading}
+            firstName={firstName}
+            streak={streak}
+            shieldsRemaining={shieldsRemaining}
+            userStats={userStats}
+            portfolioValue={portfolioValue}
+            holdingsCount={holdingsCount}
+            pnl={pnl}
+            pnlPct={pnlPct}
+            storyMessage={storyMessage}
+            balanceCents={balanceCents}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Slice 262 — Scout-Mode body (status quo from Slice 261, 0-Diff-Refactor in this slice).
+// Extracted as inner component so HomeStoryHeader can dispatch between Manager + Scout
+// while keeping the wrapper + vignette + GameweekStatusBar persistent.
+type ScoutHeroProps = {
+  loading: boolean;
+  firstName: string;
+  streak: number;
+  shieldsRemaining: number | null;
+  userStats: DbUserStats | null;
+  portfolioValue: number;
+  holdingsCount: number;
+  pnl: number;
+  pnlPct: number;
+  storyMessage: { key: string; params: Record<string, string> } | null;
+  balanceCents: number | null;
+};
+
+function ScoutHero({
+  loading, firstName, streak, shieldsRemaining, userStats,
+  portfolioValue, holdingsCount, pnl, pnlPct, storyMessage, balanceCents,
+}: ScoutHeroProps) {
   const portfolioTick = useNumTick(portfolioValue);
   const t = useTranslations('home');
   const tg = useTranslations('gamification');
-
-  // Greeting depends on local time — compute client-only to avoid SSR timezone mismatch
   const [greetingKey, setGreetingKey] = useState('greeting');
   useEffect(() => { setGreetingKey(getGreetingKey()); }, []);
 
@@ -43,16 +113,9 @@ function HomeStoryHeaderInner({
   const PnlIcon = pnlPositive ? ArrowUpRight : ArrowDownRight;
 
   return (
-    <div className="relative -mx-4 -mt-4 lg:-mx-6 lg:-mt-6 px-4 pt-6 pb-6 lg:px-6 lg:pt-8 lg:pb-8 bg-hero-stadium overflow-hidden">
-      {/* Vignette overlay for depth */}
-      <div className="absolute inset-0 bg-hero-vignette pointer-events-none" aria-hidden="true" />
-
-      <div className="relative z-10">
-        {/* ━━━ LAYER 0 — GAMEWEEK STATUS BAR (Slice 261) ━━━ */}
-        <GameweekStatusBar />
-
-        {/* ━━━ GREETING + BADGES ━━━ */}
-        <div className="flex items-start justify-between">
+    <>
+      {/* ━━━ GREETING + BADGES ━━━ */}
+      <div className="flex items-start justify-between">
           <div>
             <div className="text-[11px] uppercase tracking-[0.2em] text-white/30 font-semibold" suppressHydrationWarning>{t(greetingKey)}</div>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight mt-0.5">
@@ -144,8 +207,7 @@ function HomeStoryHeaderInner({
             <ArrowUpRight className="size-5 text-gold shrink-0" aria-hidden="true" />
           </Link>
         )}
-      </div>
-    </div>
+    </>
   );
 }
 

@@ -9,6 +9,30 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 262 | 2026-05-02 | Hero-Mode-Detection + ManagerBlock (Phase 1 Identity-Foundation)
+
+- Stage-Chain: SPEC v1 → D62-Pre-Review REWORK (3xP0+4xP1+2xP2) → SPEC v2 (Anil-Decisions A=b · B=a · C=a · D=a · E=a, alle = CTO-Empfehlung) → IMPACT skipped → BUILD (Frontend-Agent Worktree für ManagerBlock+i18n+Tests, Primary-Claude für useHomeData+helpers+HomeStoryHeader+Hook) → Code-Review POST-BUILD PASS (2xP2 inline-cleaned: Dead-Hooks im Outer + orphan holdingsCount-Prop) → PROVE-pending (Anil Mobile-PROVE post-Deploy) → LOG
+- Slice-Type: UI · Größe: M (9 Files, eine Domain) · Scope: CTO autonom (D63 Phase 1 Identity-Foundation, Anil-approved 2026-04-30)
+- Anil-Direktive: „empfehlung" auf Multi-Choice-Decisions (D64 Format) — alle 5 CTO-Empfehlungen 1:1 übernommen.
+- Lösung: `heroMode` Derived-Wert in `useHomeData()` (`'manager' | 'scout' | 'cta-new'`) + neue Stateless `<ManagerBlock />` Component für aktive GW. HomeStoryHeader = Dispatcher: Wrapper + Vignette + GameweekStatusBar bleiben in beiden Modi persistent, nur Body-Inhalt wechselt zwischen Manager (Sub-Header firstName + Hero-Headline „Spieltag {gw}" + 2-Pill-Reihe Lineup/Captain) und Scout (Status quo). `pickScopedEvent` aus GameweekStatusBar in `helpers.tsx` extrahiert (shared-helper, Single-Source statt Duplicate). Neuer Hook `useLineupWithPlayers` mit `qk.fantasy.lineupWithPlayers`. Captain-Region cascading-hidden bei !hasLineup (D63 EC-05). Defense-in-Depth EC-11: wenn `captain_slot` set aber Player nicht in players[] → fallback auf CTA statt Empty-Pill.
+- D62-Pay-Off (zum 2. Mal bestätigt nach Slice 261): Pre-Review-VOR-BUILD fand 3 P0-Findings (useLeagueScope nicht importiert, placeholderData-Wiring-Annahme falsch, Wrapper-vs-Body-Trennung unklar) — alle hätten zu BUILD-Revert geführt. Spec v2 mit allen 9 Findings eingearbeitet vor Code-Start.
+- Anil-Decisions (Multi-Choice D64):
+  - A=b: HomeStoryHeader = Dispatcher (Wrapper-Continuity, GW-Bar persistent)
+  - B=a: heroMode in useHomeData derived (kein neuer Hook)
+  - C=a: Manager-Block minimal (GW + Lineup + Captain), kein Live-Score (Slice 267)
+  - D=a: Persist-Cache (Slice 261) reicht — kein placeholderData-Wiring (war ursprünglich „c", Reviewer-Korrektur)
+  - E=a: TR-Wording-Tabelle approved, KEIN neuer Greeting-Key („Selam" → existing „Hoş geldin"-Pattern bleibt)
+- Files (12, ohne worklog): src/app/(app)/hooks/useHomeData.ts (M, +heroMode/scopedActiveEvent/useLineupWithPlayers/derives) · src/app/(app)/page.tsx (M, +5 props) · src/components/home/HomeStoryHeader.tsx (M, Dispatcher + ScoutHero-Extract) · src/components/home/ManagerBlock.tsx (NEU, 130 LoC) · src/components/home/__tests__/ManagerBlock.test.tsx (NEU, 11 Tests) · src/components/home/helpers.tsx (M, +pickScopedEvent/ACTIVE_STATUSES) · src/components/home/__tests__/helpers.test.tsx (M, +8 Tests) · src/components/home/GameweekStatusBar.tsx (M, lokales pickBarEvent → shared pickScopedEvent) · src/features/fantasy/queries/lineups.ts (M, +useLineupWithPlayers) · src/lib/queries/keys.ts (M, +qk.fantasy.lineupWithPlayers) · src/app/(app)/hooks/__tests__/useHomeData.test.ts (M, +Mocks) · messages/de.json + messages/tr.json (M, +5 Keys home.manager.*)
+- Spec: worklog/specs/262-hero-mode-detection-manager-block.md (v2)
+- Pre-Review: worklog/reviews/262-pre-review.md (REWORK 3xP0+4xP1+2xP2 — alle resolved)
+- Review: worklog/reviews/262-review.md (PASS, 2 P2-Cleanups inline-fixed)
+- Proof: worklog/proofs/262-tests.txt (51/51 green) + worklog/proofs/262-tsc.txt (clean)
+- Commit: <wird gleich gesetzt>
+- Knowledge-Capture-Kandidaten (post-LOG promoten):
+  - errors-frontend.md: Shared-Helper-Extraction-Pattern (F-06: Duplicate-Logic-Drift-Prevention)
+  - memory/patterns.md: Dispatcher-Pattern für context-aware Hero/Block-Switching (D63 Beispiel)
+- Notes: D62-Reviewer-VOR-BUILD-Pattern + D64-Multi-Choice-Decisions ist jetzt 2x in Folge erfolgreich angewendet (Slice 261 + 262). Reviewer-Agent wurde 2x hintereinander mit mid-thought cut-offs unterbrochen (Tool-Output-Limit), Primary-Claude hat Pre-Review eigenständig konsolidiert + finalisiert.
+
 ## 261 | 2026-05-01 | Home Layer 0: Gameweek-Status-Bar (Phase 1 Identity-Foundation)
 
 - Stage-Chain: SPEC v1 → D62-Pre-Review-1st REWORK (4xP0+6xP1) → SPEC v2 (Anil-Decisions A=b · B=b · C=ja) → D62-Pre-Review-2nd CONCERNS (1xP0-NEW Mapper-Drift) → SPEC v2.1 (inline-fixed) → IMPACT skipped → BUILD → Code-Review POST-BUILD PASS (P2-1 motion-safe:animate-pulse inline-fixed) → PROVE Anil-Mobile-Safari ✓ → LOG

@@ -400,6 +400,9 @@ export const qk = {
     userHistory: (uid: string | undefined) => ['fantasy', 'userHistory', uid] as const,
     lineupSnapshot: (eventId: string, uid: string | undefined) =>
       ['fantasy', 'lineupSnapshot', eventId, uid] as const,
+    // Slice 262 — Lineup + Players (enriched, used by Home ManagerBlock)
+    lineupWithPlayers: (eventId: string | undefined, uid: string | undefined) =>
+      ['fantasy', 'lineupWithPlayers', eventId, uid] as const,
     // Slice 195e — Differentials + Captain-Pick-Rate (anonymized aggregates)
     captainDistribution: (eventId: string | null) =>
       ['fantasy', 'captainDistribution', eventId] as const,

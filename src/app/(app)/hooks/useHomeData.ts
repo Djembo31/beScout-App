@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
+import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { centsToBsd } from '@/lib/services/players';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import {
@@ -12,6 +13,7 @@ import {
   useHomeDashboard,
   qk,
 } from '@/lib/queries';
+import { useLineupWithPlayers } from '@/features/fantasy/queries/lineups';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useLoginStreak } from '@/lib/queries/streaks';
@@ -20,15 +22,18 @@ import { newIdempotencyKey } from '@/lib/idempotency';
 import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
-import { STREAK_KEY, getStoryMessage } from '@/components/home/helpers';
+import { STREAK_KEY, getStoryMessage, pickScopedEvent } from '@/components/home/helpers';
 import { useTranslations } from 'next-intl';
-import type { DpcHolding, Pos } from '@/types';
+import type { DbEvent, DpcHolding, Pos } from '@/types';
+
+type HeroMode = 'manager' | 'scout' | 'cta-new';
 
 export function useHomeData() {
   const { user, profile, loading } = useUser();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
   const { data: followedClubs = [] } = useFollowedClubs();
+  const { leagueId: scopedLeagueId, hydrated: leagueScopeHydrated } = useLeagueScope();
   const name = profile?.display_name || displayName(user);
   const firstName = name.split(' ')[0];
   const uid = user?.id;
@@ -131,6 +136,34 @@ export function useHomeData() {
     active.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
     return active[0] ?? null;
   }, [events]);
+
+  // ── Slice 262 (D63 Hero-State-Matrix): scoped active event for heroMode + ManagerBlock ──
+  const scopedActiveEvent = useMemo(() => {
+    if (!scopedLeagueId || !leagueScopeHydrated) return null;
+    return pickScopedEvent(events as DbEvent[], scopedLeagueId);
+  }, [events, scopedLeagueId, leagueScopeHydrated]);
+
+  const heroMode: HeroMode = useMemo(() => {
+    if (scopedActiveEvent) return 'manager';
+    if (holdings.length > 0) return 'scout';
+    return 'cta-new';
+  }, [scopedActiveEvent, holdings.length]);
+
+  // Lineup status for ManagerBlock (skipped when heroMode !== 'manager')
+  const { data: lineupWithPlayers } = useLineupWithPlayers(scopedActiveEvent?.id, uid);
+
+  const hasLineup = Boolean(lineupWithPlayers && (lineupWithPlayers.players?.length ?? 0) > 0);
+  const captainSlot = lineupWithPlayers?.lineup?.captain_slot ?? null;
+  const captainPlayer = useMemo(() => {
+    if (!captainSlot || !lineupWithPlayers?.players) return null;
+    return lineupWithPlayers.players.find((p) => p.slotKey === captainSlot) ?? null;
+  }, [captainSlot, lineupWithPlayers]);
+  // EC-11 defense: if captainSlot set but player not resolved → treat as no-captain
+  const hasCaptain = Boolean(captainPlayer);
+  const captainName = captainPlayer
+    ? `${captainPlayer.player.firstName} ${captainPlayer.player.lastName}`.trim()
+    : null;
+  const gw = scopedActiveEvent?.gameweek ?? 1;
 
   const storyMessage = useMemo(
     () => getStoryMessage(holdings, pnl, pnlPct, activeIPOs, nextEvent),
@@ -263,5 +296,7 @@ export function useHomeData() {
     // Derived
     storyMessage, spotlightType, retention, showQuickActions,
     belowFoldReady, followedClubs,
+    // Slice 262 — Hero-Mode + Manager-Block inputs
+    heroMode, gw, hasLineup, hasCaptain, captainName,
   };
 }
