@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-02 18:45)
+# Session Handoff — Auto (2026-05-02 19:26)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -11,51 +11,62 @@
 ```
 
 ## Session Commits: 4
+- a881df9d chore(session-end): D62-Marathon Bilanz + Knowledge-Promotion (5 Slices, 50 Findings, 0 Reverts)
 - 44057ab1 feat(264b): Wildcard-Pill (Phase 2 Action-Layer Optional-Hint)
 - b359f4ab feat(264): ActionRequiredStack (Phase 2 Action-Layer Start)
 - 53874a0e feat(263): Doppel-Identität-Pills (Phase 1 Identity-Foundation Abschluss)
-- ee31a628 feat(262): Home Hero-Mode-Detection + ManagerBlock (Phase 1 Identity-Foundation)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 Resume-Anker NÄCHSTE SESSION (post-2026-05-02-Marathon) — Phase 1 + 2 Manager-Hub komplett, 5 Slices in Folge
+# 🎯 Resume-Anker NÄCHSTE SESSION (post-2026-05-02-Mini-Session) — Phase 2 Action-Layer KOMPLETT, Slice 265 LIVE
 
-**HEAD `44057ab1`** Status: idle. 5 Slices live mit D62-Pattern (Pre-Review-VOR-BUILD).
+**HEAD `d4e816a9`** Status: idle. 6 Slices live mit D62-Pattern, 0 Reverts.
 
-## Session 2026-05-02 Bilanz — D62-Marathon (5 Slices, 50 Findings vor BUILD gefangen, 0 Reverts)
+## Session 2026-05-02 Mini-Session (Anil-Mandat „volle Entscheidungsgewalt") — Slice 265 LIVE
 
 | Slice | Commit | Größe | Pre-Review | Was |
 |---|---|---|---|---|
-| 262 M | `ee31a628` | M | REWORK 3xP0+4xP1+2xP2 | Hero-Mode-Detection + ManagerBlock (Phase 1) |
-| 263 S | `53874a0e` | S | CONCERNS 1xP0+4xP1+3xP2 | Doppel-Identität-Pills (Phase 1 Abschluss) + i18n-Konflikt-Cleanup |
-| 264 S→M | `b359f4ab` | S→M | REWORK 4xP0+4xP1+4xP2 | ActionRequiredStack Required-Cards (Phase 2 Start) |
-| 264b XS-S | `44057ab1` | XS-S | CONCERNS 0xP0+2xP1+5xP2 | Wildcard-Pill Optional-Hint (Phase 2 Manager-Hub komplett) |
+| 265 | `d4e816a9` | S | CONCERNS 0xP0+2xP1+2xP2+1xMINOR | StreakRiskCard im ActionRequiredStack (Phase 2 Streak-Risk) |
 
-**Plus 3 Knowledge-Decisions promoted:**
-- **D65 PROCESS:** D62 Reviewer-VOR-BUILD bewährt — jetzt Default für M+ Slices (5x in Folge demonstriert, ROI 4-8x)
-- **D66 ARCHITECTURE:** F-06 Shared-Helper-Extraction-Pattern (Slice 263 `pickScopedEvent` + Slice 264 `URGENT_THRESHOLD_MS`)
-- **errors-frontend.md** neuer Eintrag: JSON Object/String-Duplicate-Key-Drift (Slice 263 i18n-Konflikt-Cleanup)
+**Phase 2 Action-Layer KOMPLETT:** 264 (Required-Cards) + 264b (Wildcard-Pill Optional) + 265 (Streak-Risk-Card) live. 6-Slice-Streak (261, 262, 263, 264, 264b, 265) mit D62 Pre-Review-VOR-BUILD.
 
-## D63 Roadmap Status post-Session
+**CTO-Decisions autonom:**
+- 264c (Captain-Deep-Link) **skipped** als „accepted UX-compromise per D63" — `/fantasy?tab=lineup` ist heute dead-link, ein echter Captain-Deep-Link wäre M-Slice (URL-Param + Auto-Modal-Open + Captain-Slot-Focus), Aufwand ungerechtfertigt für Polish
+- Slice 265 Scope reduziert auf nur StreakRisk (Mission-Promotion → 265b deferred falls Anil das wirklich will, Doppelung mit MissionHintList unter HomeSpotlight wäre confusing-UX)
+- Slice 266 (Spotlight-Multi-Slot) **NICHT autonom gestartet** — Multi-Slot-Layout ist Product-Vision-Decision (Anil's Zone), keine fertige Spec in D63
+
+**Slice 265 F-01 → F-05 alle adressiert vor BUILD:**
+- F-01 (P1): CTA-Drift → Card als Notification-only (kein Link)
+- F-02 (P1): Wording-Compliance → information-only-Frame („STREAK-ERINNERUNG" statt „GEFÄHRDET", deskriptiv „Du hast {streak} Tage in Folge gespielt 🔥")
+- F-03 (P2): Render-Branch Catch-22 → 4 Guard-Branches mit Override-Logic
+- F-04 (P2): Defensive null-strict-equality (`shieldsRemaining === 0`)
+- F-05 (MINOR): nur Flame-Icon
+
+**Knowledge-Promotion (1 neuer Pattern):**
+- `errors-frontend.md`: „Defensive null-strict-equality bei optional-resolved Hook-Daten" — codifiziert F-04-Pattern als Cross-Cutting-Lehre für UI-Layer (silent-fail-Klasse)
+
+**D62-Pattern bestätigt #6:** ROI 4-8x bei Wording-heiklen UI-Slices. Pre-Review fand 5 Findings → 0 post-BUILD im selben Code.
+
+## D63 Roadmap Status post-Mini-Session
 
 | Phase | Slices | Status |
 |---|---|---|
 | 1 Identity-Foundation | 261, 262, 263 | ✅ LIVE |
-| 2 Action-Layer Manager-Hub | 264 (Required), 264b (Optional) | ✅ LIVE |
-| 2 Rest | 265 (Streak-Risk + Mission, IMPACT-pflicht), 264c (Captain-Deep-Link, Polish) | ⏳ pending |
-| 3 Live-Pulse | 266 (Spotlight-Multi-Slot), 267 (Realtime-Live-Score), 268 (Price-Cache) | ⏳ pending |
+| 2 Action-Layer Manager-Hub | 264 (Required), 264b (Wildcard), 265 (StreakRisk) | ✅ KOMPLETT |
+| 3 Live-Pulse | 268 ✅ live, 266 (Spotlight-Multi-Slot), 267 (Realtime-Live-Score) | ⏳ 2/3 pending |
 | 4 Discovery | 269 (Markt-Puls 3-Tab) | ⏳ pending |
 | 5 Visual-Polish | 270-273 (Stadium-Assets + 3D-Mystery-Box) | ⏳ pending |
 
-## Anil-PROVE-Backlog (post-Deploy für 5 Live-Slices)
+## Anil-PROVE-Backlog (post-Deploy für 6 Live-Slices)
 
-- **Slice 261:** Anil hat Mobile-Safari ✓ schon (LIVE bestätigt)
+- **Slice 261:** Mobile-Safari ✓ schon bestätigt
 - **Slice 262 ManagerBlock + Hero-Mode-Detection:** AC-10 TR-Wording, AC-11 Mobile 393px, AC-12 Liga-Switch Slow-Motion, Scout-Mode-Regression
 - **Slice 263 Doppel-Identität-Pills:** ManagerPill+ScoutPill DE+TR, Long-String-Mobile, 0-Holdings/0-Wildcards Edge-Cases
 - **Slice 264 ActionRequiredStack:** Mobile-393 URGENT/Default/Hidden, Position-Check, Decision K Wording-Verifikation
 - **Slice 264b Wildcard-Pill:** Pill visible/hidden, TR „Wild Card" Akzeptanz, 4-Pills-Worst-Case 393px
+- **Slice 265 StreakRiskCard:** Test-account mit streak ≥ 7 + shieldsRemaining=0, TR-Wording-Verifikation („Seri hatırlatması"), 393px-Mobile mit 1-3 Cards parallel, off-GW-Sichtbarkeit
 
 ## Bei Resume — Erste-Action-Pfad
 
@@ -63,10 +74,13 @@
 1. /clear (falls neue Session)
 2. Lese diesen Resume-Anker
 3. Lese worklog/active.md (status: idle)
-4. git log --oneline -6 (5 Slices der Session: 261, 262, 263, 264, 264b)
-5. Anil-Frage: „Slice 265 starten (Streak-Risk, IMPACT-pflicht) ODER 264c (Captain-Deep-Link Polish) ODER Phase 3 (266 Spotlight-Multi-Slot) ODER PROVE-Pause?"
-6. Bei „weiter": Default = Slice 265 (Phase 2 Rest abschließen vor Phase 3)
-7. D62-Pflicht weiter: Pre-Review-VOR-BUILD bei M+ Slices (D65 promoted)
+4. git log --oneline -8 (6 Slices: 261, 262, 263, 264, 264b, 265 + 2 chore)
+5. Anil-Frage: „Slice 266 Spotlight-Multi-Slot starten (Anil muss Layout-Vision spec'n)
+   ODER Slice 267 Realtime-Live-Score (M, IMPACT-pflicht für Realtime-Channel)
+   ODER PROVE-Pause für 5 Slices Mobile-Safari?"
+6. Bei „weiter": Default = Slice 267 (Phase 3 Live-Pulse, klarere Spec via D63)
+7. Bei Slice 266: Anil's Multi-Slot-Layout-Vision via Multi-Choice-Decisions (D64) abklären
+8. D62-Pflicht weiter: Pre-Review-VOR-BUILD bei M+ Slices (D65)
 ```
 
 ## Anti-Pattern-Reminder
