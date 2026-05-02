@@ -9,6 +9,36 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 264 | 2026-05-02 | ActionRequiredStack (Phase 2 Action-Layer Start)
+
+- Stage-Chain: SPEC v1 → D62-Pre-Review REWORK (4xP0+4xP1+4xP2) → SPEC v2 (alle 12 Findings + 3 NEU Decisions I/J/K adressiert) → IMPACT skipped → BUILD (Primary-Claude, S→M-Slice, 8 Files cross-Component) → Code-Review POST-BUILD PASS (4 P2-Notes ohne Action-Items) → PROVE (76/76 Tests + tsc clean) → LOG
+- Slice-Type: UI · Größe: S→M (10 Files, eine Domain. Wuchs durch Decisions I + J + P0-1) · Scope: CTO autonom (Anil-„weiter"-greenlit)
+- Anil-Direktive: „weiter" — Phase 2 Action-Layer starten ohne Architektur-Reibung. Wildcard out-of-scope (264b) weil optional, nicht „required".
+- Lösung: Prominenter Action-Card-Stack zwischen HomeStoryHeader und ScoutCardStats:
+  - **ActionRequiredStack** (NEU, 142 LoC): Stateless-Component mit Lineup-Card + Captain-Card (cascading), URGENT-Branch <6h mit red-Border + animate-pulse, hidden bei alle-Actions-erfüllt + status=running+locks_at past
+  - **URGENT_THRESHOLD_MS** in helpers.tsx exportiert (Decision I, F-06 Shared-Helper-Pattern aus Slice 263) — GameweekStatusBar refactored um zu importieren
+  - **ManagerBlock Lineup-Pill Downgrade** (Decision J): kein gold-pulse-bg + animate-pulse mehr — Stack übernimmt Pulse-Aufmerksamkeit, Pill bleibt Status-Indikator
+  - **useHomeData** liefert 2 neue Primitives (locksAtIso, scopedActiveEventStatus) — Stack entkoppelt vom DbEvent-Type
+- D62-Pay-Off (4. Mal in Folge bestätigt): Pre-Review fand 4 P0 (useHomeData-Drift, Mount-Position-Falle, TR-Vokal-Harmonie-Bug bei „sonra başlıyor", gw-Default-Defense) + 4 P1 + 4 P2. Hätten zu BUILD-Revert + TR-User-Friction + visuellem Pulse-Konflikt geführt. Post-BUILD-Review nur 4 P2-Notes.
+- 3 NEUE Decisions (Pre-Review-induziert):
+  - **Decision I**: URGENT_THRESHOLD_MS shared in helpers.tsx (F-06 Pattern) — GameweekStatusBar refactored
+  - **Decision J**: ManagerBlock Lineup-Pill ohne Pulse — Doppel-Pulse-Konkurrenz mit Stack-Card aufgelöst
+  - **Decision K**: Countdown-Differentiator GwBar (starts_at) vs Stack (locks_at) als bewusste Inkonsistenz — Anil-PROVE prüft ob Wording-Differentiator nötig (Backlog 264d wenn ja)
+- Files (10): src/components/home/ActionRequiredStack.tsx (NEU 142 LoC) · src/components/home/__tests__/ActionRequiredStack.test.tsx (NEU 12 Tests inkl. vi.useFakeTimers für deterministischen Date.now) · src/app/(app)/page.tsx (M, +Import + Mount + 6 Props direkt nach HomeStoryHeader) · src/app/(app)/hooks/useHomeData.ts (M, +locksAtIso + scopedActiveEventStatus Returns) · src/components/home/helpers.tsx (M, +URGENT_THRESHOLD_MS export) · src/components/home/GameweekStatusBar.tsx (M, -lokal, +Import Decision I) · src/components/home/ManagerBlock.tsx (M, -gold-pulse-bg/animate-pulse aus Lineup-Pill Decision J) · messages/de.json (M, +7 Keys home.actionStack.*) · messages/tr.json (M, analog mit „içinde"/„SADECE"-Variante)
+- Spec: worklog/specs/264-action-required-stack.md (v2)
+- Pre-Review: worklog/reviews/264-pre-review.md (REWORK 4xP0+4xP1+4xP2 alle resolved)
+- Review: worklog/reviews/264-review.md (PASS, 4 P2-Notes ohne Action-Items)
+- Proof: worklog/proofs/264-tests.txt (76/76 green) + worklog/proofs/264-tsc.txt (clean)
+- Commit: <wird gleich gesetzt>
+- Knowledge-Capture-Kandidaten (post-LOG promoten):
+  - memory/decisions.md: D62 Pre-Review-VOR-BUILD-Pattern als „PROCESS-Pattern bewährt, Default für M+ Slices" (4 Slices in Folge demonstriert)
+  - memory/patterns.md: F-06 Shared-Helper-Extraction-Pattern (Slice 263 + 264 Decision I)
+- Notes:
+  - Phase 2 Action-Layer von D63 ist mit Slice 264 gestartet. Slice 265 = Streak-Risk + Mission-Progress (Server-State, IMPACT-Pflicht, eigene Migration für record_login_streak Erweiterung).
+  - Anil-PROVE post-Deploy pflicht für AC-11 (Mobile 393px), AC-13 (TR-Locale), AC-12 (Position-Check), Decision K Wording-Verifikation.
+  - 4. Slice in Folge mit D62 Pattern — beweist konsistent Wert. Promotion in workflow.md als Default-Empfehlung sinnvoll.
+  - „weiter"-Direktive funktioniert als effizientes CTO-autonom-Greenlight ohne Multi-Choice-Friction.
+
 ## 263 | 2026-05-02 | Doppel-Identität-Pills (Phase 1 Identity-Foundation Abschluss)
 
 - Stage-Chain: SPEC v1 → D62-Pre-Review CONCERNS (1xP0+4xP1+3xP2) → SPEC v2 (alle 8 Findings adressiert) → IMPACT skipped (UI-only) → BUILD (Primary-Claude direkt, S-Slice eng verzahnt mit Slice 262 Code) → Code-Review POST-BUILD CONCERNS (1xP2 Spec-Drift `home.manager.*` statt Spec-`home.managerBlock.*` — funktional gleichwertig, Notes-Patch in §15) → PROVE (64/64 Tests + tsc clean) → LOG

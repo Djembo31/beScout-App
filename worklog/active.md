@@ -2,12 +2,12 @@
 
 ```
 status: active
-slice: 263
+slice: 264
 stage: LOG
-spec: worklog/specs/263-doppel-identity-pills.md (v2)
+spec: worklog/specs/264-action-required-stack.md (v2)
 impact: skipped (UI-only)
-proof: worklog/proofs/263-tests.txt
-review: worklog/reviews/263-review.md CONCERNS (F-NEW-1 Notes-patched) + worklog/reviews/263-pre-review.md
+proof: worklog/proofs/264-tests.txt
+review: worklog/reviews/264-review.md PASS + worklog/reviews/264-pre-review.md
 ```
 
 ## Slice 262 ACTIVE (M, Phase 1 Identity-Foundation): Hero-Mode-Detection + Manager-Block

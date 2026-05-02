@@ -1,18 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-02 15:54)
+# Session Handoff — Auto (2026-05-02 16:29)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 2 Files
 ```
- M .claude/settings.local.json
- M memory/session-handoff.md
-?? worklog/audits/audit-stale-2026-05-02.md
-?? worklog/audits/type-truth-2026-05-02.md
-?? worklog/audits/wiring-2026-05-02.md
+ M worklog/audits/audit-stale-2026-05-02.md
+ M worklog/audits/type-truth-2026-05-02.md
 ```
 
-## Session Commits: 1
+## Session Commits: 2
+- 53874a0e feat(263): Doppel-Identität-Pills (Phase 1 Identity-Foundation Abschluss)
 - ee31a628 feat(262): Home Hero-Mode-Detection + ManagerBlock (Phase 1 Identity-Foundation)
 
 <!-- auto:handoff-end -->

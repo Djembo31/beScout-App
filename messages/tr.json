@@ -449,6 +449,15 @@
       "managerPillGw": "Hafta {n}",
       "managerPillCountdown": "{time} sonra",
       "managerPillLive": "canlı"
+    },
+    "actionStack": {
+      "lineupTitle": "Kadro eksik",
+      "lineupSubtitle": "Hafta {n} · {countdown} içinde",
+      "lineupCta": "Kadroyu seç",
+      "captainTitle": "Kaptan eksik",
+      "captainSubtitle": "En iyi puanını ikiye katlar",
+      "captainCta": "Kaptan seç",
+      "urgentBadge": "SADECE {countdown}"
     }
   },
   "fantasy": {

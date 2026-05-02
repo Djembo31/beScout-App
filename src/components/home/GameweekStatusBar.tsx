@@ -24,10 +24,8 @@ import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { useEvents } from '@/lib/queries';
 import { getLeague } from '@/lib/leagues';
 import { cn } from '@/lib/utils';
-import { getTimeUntil, pickScopedEvent } from './helpers';
+import { getTimeUntil, pickScopedEvent, URGENT_THRESHOLD_MS } from './helpers';
 import type { DbEvent } from '@/types';
-
-const URGENT_THRESHOLD_MS = 6 * 60 * 60 * 1000;
 
 function GameweekStatusBarInner() {
   const t = useTranslations('home.gwBar');

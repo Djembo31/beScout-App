@@ -306,5 +306,8 @@ export function useHomeData() {
     heroMode, gw, hasLineup, hasCaptain, captainName,
     // Slice 263 — Doppel-Identität-Pills inputs
     nextScopedEvent,
+    // Slice 264 — ActionRequiredStack inputs (Primitives entkoppelt vom DbEvent-Type)
+    locksAtIso: scopedActiveEvent?.locks_at ?? null,
+    scopedActiveEventStatus: scopedActiveEvent?.status ?? null,
   };
 }

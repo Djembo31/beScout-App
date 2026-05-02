@@ -98,13 +98,14 @@ function ManagerBlockInner({
             <span className="text-sm font-bold text-vivid-green">{t('lineupSet')}</span>
           </div>
         ) : (
+          /* Slice 264 Decision J: Pill ist Status-Indikator (kein Pulse) — ActionRequiredStack
+             übernimmt Pulse-Aufmerksamkeit für Pflicht-CTA. Doppelte Pulse konkurrieren visuell. */
           <Link
             href="/fantasy?tab=lineup"
             prefetch={false}
             className={cn(
               'flex items-center gap-1.5 px-3 py-2 rounded-xl border min-h-[44px]',
               'bg-gold/10 border-gold/30 hover:bg-gold/15 transition-colors',
-              'gold-pulse-bg motion-safe:animate-pulse motion-reduce:animate-none',
             )}
           >
             <span className="text-sm font-bold text-gold">{t('lineupCta')}</span>

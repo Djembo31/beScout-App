@@ -31,6 +31,14 @@ import type { DbEvent } from '@/types';
 
 export const ACTIVE_STATUSES: ReadonlyArray<DbEvent['status']> = ['registering', 'late-reg', 'running'];
 
+/**
+ * Slice 264 — Shared URGENT-Threshold (extrahiert aus Slice 261 GameweekStatusBar.tsx).
+ * Konsumenten: GameweekStatusBar (Countdown <6h → red Text + pulse),
+ *              ActionRequiredStack (Card-Border red + animate-pulse).
+ * F-06-Pattern (Slice 263): Shared-Helper-Extraction prevents Drift.
+ */
+export const URGENT_THRESHOLD_MS = 6 * 60 * 60 * 1000;
+
 export function pickScopedEvent(events: DbEvent[], leagueId: string): DbEvent | null {
   const candidates = events.filter((e) => {
     if (!ACTIVE_STATUSES.includes(e.status)) return false;

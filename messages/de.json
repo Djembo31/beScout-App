@@ -449,6 +449,15 @@
       "managerPillGw": "Spieltag {n}",
       "managerPillCountdown": "in {time}",
       "managerPillLive": "läuft"
+    },
+    "actionStack": {
+      "lineupTitle": "Aufstellung fehlt",
+      "lineupSubtitle": "Spieltag {n} · in {countdown}",
+      "lineupCta": "Lineup wählen",
+      "captainTitle": "Kapitän fehlt",
+      "captainSubtitle": "Verdoppelt deinen besten Score",
+      "captainCta": "Kapitän wählen",
+      "urgentBadge": "NUR {countdown}"
     }
   },
   "fantasy": {

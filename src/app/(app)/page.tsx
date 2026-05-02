@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
+import ActionRequiredStack from '@/components/home/ActionRequiredStack';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import QuickActionPills from '@/components/home/QuickActionPills';
 import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
@@ -90,6 +91,8 @@ export default function HomePage() {
     heroMode, gw, hasLineup, hasCaptain, captainName,
     // Slice 263 — Doppel-Identität-Pills
     nextScopedEvent,
+    // Slice 264 — ActionRequiredStack inputs
+    locksAtIso, scopedActiveEventStatus,
   } = useHomeData();
 
   const isNewUser = holdings.length === 0;
@@ -141,6 +144,16 @@ export default function HomePage() {
         hasCaptain={hasCaptain}
         captainName={captainName}
         nextScopedEvent={nextScopedEvent}
+      />
+
+      {/* ── 1b. ACTION-REQUIRED STACK (Slice 264) — direkt nach Hero, vor allen anderen Blocks ── */}
+      <ActionRequiredStack
+        heroMode={heroMode}
+        gw={gw}
+        hasLineup={hasLineup}
+        hasCaptain={hasCaptain}
+        locksAtIso={locksAtIso}
+        scopedActiveEventStatus={scopedActiveEventStatus}
       />
 
       {/* Scout Cards — total + position breakdown.
