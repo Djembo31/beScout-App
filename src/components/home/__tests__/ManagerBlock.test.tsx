@@ -43,6 +43,7 @@ vi.mock('lucide-react', () => {
     AlertCircle: Stub,
     ArrowUpRight: Stub,
     ChartLine: Stub,  // Slice 263 — ScoutPill icon
+    Sparkles: Stub,   // Slice 264b — Wildcard-Pill icon
   };
 });
 
@@ -68,6 +69,8 @@ const baseProps = {
   // Slice 263 — ScoutPill props
   portfolioValue: 245000,
   pnlPct: 5.4,
+  // Slice 264b — Wildcard-Pill
+  wildcardBalance: 0,
 };
 
 describe('ManagerBlock', () => {
@@ -192,5 +195,40 @@ describe('ManagerBlock', () => {
       .getByText('home.manager.scoutPillLabel')
       .closest('a');
     expect(scoutPillLink).toHaveAttribute('href', '/manager?tab=kader');
+  });
+
+  // Slice 264b — Wildcard-Pill Tests
+
+  // AC-02: Wildcard-Pill sichtbar wenn wildcardBalance > 0
+  it('shows Wildcard-Pill when wildcardBalance > 0', () => {
+    render(<ManagerBlock {...baseProps} wildcardBalance={2} />);
+    expect(screen.getByText('home.manager.wildcardLabel')).toBeInTheDocument();
+    expect(screen.getByText(/· 2/)).toBeInTheDocument();
+  });
+
+  // AC-03: Wildcard-Pill hidden bei 0
+  it('hides Wildcard-Pill when wildcardBalance === 0', () => {
+    render(<ManagerBlock {...baseProps} wildcardBalance={0} />);
+    expect(screen.queryByText('home.manager.wildcardLabel')).not.toBeInTheDocument();
+  });
+
+  // AC-05: Wildcard-Pill Tap → /fantasy?tab=lineup
+  it('Wildcard-Pill links to /fantasy?tab=lineup', () => {
+    render(<ManagerBlock {...baseProps} wildcardBalance={1} />);
+    const link = screen.getByText('home.manager.wildcardLabel').closest('a');
+    expect(link).toHaveAttribute('href', '/fantasy?tab=lineup');
+  });
+
+  // EC-06: 0 Holdings + 0 Wildcards → ScoutPill + WildcardPill beide hidden
+  it('hides both ScoutPill and WildcardPill when 0 holdings AND 0 wildcards', () => {
+    render(
+      <ManagerBlock
+        {...baseProps}
+        holdingsCount={0}
+        wildcardBalance={0}
+      />,
+    );
+    expect(screen.queryByText('home.manager.scoutPillLabel')).not.toBeInTheDocument();
+    expect(screen.queryByText('home.manager.wildcardLabel')).not.toBeInTheDocument();
   });
 });

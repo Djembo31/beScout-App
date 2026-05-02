@@ -36,6 +36,8 @@ interface HomeStoryHeaderProps {
   captainName: string | null;
   // Slice 263 — Doppel-Identität-Pills inputs
   nextScopedEvent: DbEvent | null;
+  // Slice 264b — Wildcard-Pill input (passed-through to ManagerBlock)
+  wildcardBalance: number;
 }
 
 function HomeStoryHeaderInner({
@@ -43,6 +45,7 @@ function HomeStoryHeaderInner({
   portfolioValue, holdingsCount, pnl, pnlPct, storyMessage, balanceCents,
   heroMode, gw, hasLineup, hasCaptain, captainName,
   nextScopedEvent,
+  wildcardBalance,
 }: HomeStoryHeaderProps) {
   return (
     <div className="relative -mx-4 -mt-4 lg:-mx-6 lg:-mt-6 px-4 pt-6 pb-6 lg:px-6 lg:pt-8 lg:pb-8 bg-hero-stadium overflow-hidden">
@@ -67,6 +70,7 @@ function HomeStoryHeaderInner({
             portfolioValue={portfolioValue}
             pnlPct={pnlPct}
             holdingsCount={holdingsCount}
+            wildcardBalance={wildcardBalance}
           />
         ) : (
           <ScoutHero

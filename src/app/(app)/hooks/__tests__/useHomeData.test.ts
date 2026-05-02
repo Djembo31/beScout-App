@@ -162,6 +162,11 @@ vi.mock('@/features/fantasy/queries/lineups', () => ({
   useLineupScores: () => ({ data: new Map(), isLoading: false }),
 }));
 
+// Slice 264b — useWildcardBalance Mock (P1-01 Test-Mock-Drift-Fix)
+vi.mock('@/features/fantasy/queries/events', () => ({
+  useWildcardBalance: () => ({ data: 0, isLoading: false }),
+}));
+
 vi.mock('next-intl', () => ({
   useTranslations: () => ((key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`),
 }));

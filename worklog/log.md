@@ -9,6 +9,26 @@ Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Commit (hash)
 - Notes (optional, 1-2 Saetze)
 
+## 264b | 2026-05-02 | Wildcard-Pill (Phase 2 Action-Layer Optional-Hint)
+
+- Stage-Chain: SPEC v1 → D62-Pre-Review CONCERNS (0xP0+2xP1+5xP2) → SPEC v2 (alle 7 Patches) → IMPACT skipped → BUILD (Primary-Claude direkt, XS-S Pattern-Reuse) → Self-Review PASS (workflow.md XS-Ausnahme) → PROVE (68/68 Tests + tsc clean) → LOG
+- Slice-Type: UI · Größe: XS-S (5 Files + i18n + Test-Mock) · Scope: CTO autonom (Anil-„264b"-greenlit)
+- Anil-Direktive: „264b" — Wildcard-Card als Optional-Hint statt Required-Card. Pattern-Reuse aus ScoutPill (Slice 263).
+- Lösung: **Wildcard-Pill** in ManagerBlock-Pill-Reihe (nach Captain, vor ScoutPill). Show-Gate: `wildcardBalance > 0`. Tap → `/fantasy?tab=lineup`. Sparkles-Icon static (kein Pulse — Slice 264 Decision J Konsistenz). useHomeData ergänzt um `useWildcardBalance(uid, scopedLeagueId)` Hook + `wildcardBalance` Return-Field.
+- Pre-Review-Pay-Off (5. in Folge): 2 P1-Findings vor BUILD gefangen. P1-01 useHomeData.test.ts Mock-Drift (Test-Suite hätte gebrochen). P1-02 TR-Wording „Wildcard"→„Wild Card" (Inkonsistenz mit existing `errors.wildcardCounter` Z.961 + `wallet.wildCards` Z.2148). Hätte zu Test-CI-Fail + TR-User-Friction geführt.
+- Files (5): src/app/(app)/hooks/useHomeData.ts (M, +useWildcardBalance import + Hook-Call + wildcardBalance Return) · src/app/(app)/page.tsx (M, +1 Destructure + 1 Prop) · src/components/home/HomeStoryHeader.tsx (M, +wildcardBalance Prop + Pass-Through) · src/components/home/ManagerBlock.tsx (M, +Sparkles import + +1 Prop + Wildcard-Pill nach Captain-Block) · src/components/home/__tests__/ManagerBlock.test.tsx (M, +baseProps wildcardBalance + Sparkles mock + 4 neue Tests) · src/app/(app)/hooks/__tests__/useHomeData.test.ts (M, +useWildcardBalance Mock-Block) · messages/de.json (M, +1 Key home.manager.wildcardLabel = „Wildcard") · messages/tr.json (M, +1 Key = „Wild Card")
+- Spec: worklog/specs/264b-wildcard-pill.md (v2)
+- Pre-Review: worklog/reviews/264b-pre-review.md (CONCERNS resolved)
+- Review: worklog/reviews/264b-review.md (PASS, Self-Review per workflow.md XS-Ausnahme bei trivialer Pattern-Wiederholung)
+- Proof: worklog/proofs/264b-tests.txt (68/68 green) + worklog/proofs/264b-tsc.txt (clean)
+- Commit: <wird gleich gesetzt>
+- Notes:
+  - Phase 2 Action-Layer Manager-Hub-Surface jetzt komplett: Slice 264 (Required-Stack Lineup/Captain) + Slice 264b (Optional-Hint Wildcard).
+  - Nächster Schritt = Slice 265 Streak-Risk + Mission-Progress (Server-State-Erweiterung, IMPACT-Pflicht — neue Migration für `record_login_streak` RPC mit `at_risk` + `hours_remaining`).
+  - 5. Slice in Folge mit D62 Pattern. Pattern-Promotion-Kandidat post-Slice-265 in workflow.md als Default für M+ Slices.
+  - „weiter"-Direktive funktioniert konsistent als CTO-autonom-Greenlight ohne Multi-Choice-Friction.
+  - Self-Review-Pattern bei XS-S etablierter Pattern-Reuse spart ~30 min Reviewer-Agent-Overhead. Akzeptabel weil Pre-Review-CONCERNS-Findings in Spec v2 schon adressiert sind und keine neuen Architektur-Risiken auftauchen.
+
 ## 264 | 2026-05-02 | ActionRequiredStack (Phase 2 Action-Layer Start)
 
 - Stage-Chain: SPEC v1 → D62-Pre-Review REWORK (4xP0+4xP1+4xP2) → SPEC v2 (alle 12 Findings + 3 NEU Decisions I/J/K adressiert) → IMPACT skipped → BUILD (Primary-Claude, S→M-Slice, 8 Files cross-Component) → Code-Review POST-BUILD PASS (4 P2-Notes ohne Action-Items) → PROVE (76/76 Tests + tsc clean) → LOG

@@ -14,6 +14,7 @@ import {
   qk,
 } from '@/lib/queries';
 import { useLineupWithPlayers } from '@/features/fantasy/queries/lineups';
+import { useWildcardBalance } from '@/features/fantasy/queries/events';
 import { useChallengeHistory } from '@/lib/queries/dailyChallenge';
 import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useLoginStreak } from '@/lib/queries/streaks';
@@ -157,6 +158,10 @@ export function useHomeData() {
 
   // Lineup status for ManagerBlock (skipped when heroMode !== 'manager')
   const { data: lineupWithPlayers } = useLineupWithPlayers(scopedActiveEvent?.id, uid);
+
+  // Slice 264b — Wildcard balance for ManagerBlock Wildcard-Pill (Optional-Hint)
+  const { data: wildcardBalanceData = 0 } = useWildcardBalance(uid, scopedLeagueId ?? undefined);
+  const wildcardBalance = wildcardBalanceData ?? 0;
 
   const hasLineup = Boolean(lineupWithPlayers && (lineupWithPlayers.players?.length ?? 0) > 0);
   const captainSlot = lineupWithPlayers?.lineup?.captain_slot ?? null;
@@ -309,5 +314,7 @@ export function useHomeData() {
     // Slice 264 — ActionRequiredStack inputs (Primitives entkoppelt vom DbEvent-Type)
     locksAtIso: scopedActiveEvent?.locks_at ?? null,
     scopedActiveEventStatus: scopedActiveEvent?.status ?? null,
+    // Slice 264b — Wildcard-Pill (Optional-Hint in ManagerBlock)
+    wildcardBalance,
   };
 }

@@ -16,7 +16,7 @@
 
 import { memo } from 'react';
 import Link from 'next/link';
-import { Flame, Shield, UserCheck, Crown, AlertCircle, ArrowUpRight, ChartLine } from 'lucide-react';
+import { Flame, Shield, UserCheck, Crown, AlertCircle, ArrowUpRight, ChartLine, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { fmtScout, cn } from '@/lib/utils';
@@ -35,6 +35,8 @@ export interface ManagerBlockProps {
   portfolioValue: number;
   pnlPct: number;
   holdingsCount: number;
+  // Slice 264b — Wildcard-Pill (Optional-Hint, Show-Gate: wildcardBalance > 0)
+  wildcardBalance: number;
 }
 
 function ManagerBlockInner({
@@ -49,6 +51,7 @@ function ManagerBlockInner({
   portfolioValue,
   pnlPct,
   holdingsCount,
+  wildcardBalance,
 }: ManagerBlockProps) {
   const t = useTranslations('home.manager');
   const tg = useTranslations('gamification');
@@ -135,6 +138,19 @@ function ManagerBlockInner({
               <span className="text-sm font-bold text-yellow-200">{t('captainCta')}</span>
             </Link>
           )
+        )}
+
+        {/* Slice 264b — Wildcard-Pill (Optional-Hint, sichtbar wenn balance > 0) */}
+        {wildcardBalance > 0 && (
+          <Link
+            href="/fantasy?tab=lineup"
+            prefetch={false}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-400/30 hover:bg-purple-500/15 transition-colors min-h-[44px]"
+          >
+            <Sparkles className="size-4 text-purple-300 shrink-0" aria-hidden="true" />
+            <span className="text-xs font-semibold text-purple-200 uppercase tracking-wide">{t('wildcardLabel')}</span>
+            <span className="font-mono font-bold text-sm text-purple-100 tabular-nums">· {wildcardBalance}</span>
+          </Link>
         )}
 
         {/* Slice 263 — ScoutPill (Cross-Identity Pill) — visible only when holdings > 0 */}

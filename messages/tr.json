@@ -443,7 +443,8 @@
       "lineupCta": "Kadroyu seç",
       "captainSet": "Kaptan: {name}",
       "captainCta": "Kaptan seç",
-      "scoutPillLabel": "Kadro"
+      "scoutPillLabel": "Kadro",
+      "wildcardLabel": "Wild Card"
     },
     "scoutHero": {
       "managerPillGw": "Hafta {n}",

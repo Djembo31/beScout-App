@@ -93,6 +93,8 @@ export default function HomePage() {
     nextScopedEvent,
     // Slice 264 — ActionRequiredStack inputs
     locksAtIso, scopedActiveEventStatus,
+    // Slice 264b — Wildcard-Pill
+    wildcardBalance,
   } = useHomeData();
 
   const isNewUser = holdings.length === 0;
@@ -144,6 +146,7 @@ export default function HomePage() {
         hasCaptain={hasCaptain}
         captainName={captainName}
         nextScopedEvent={nextScopedEvent}
+        wildcardBalance={wildcardBalance}
       />
 
       {/* ── 1b. ACTION-REQUIRED STACK (Slice 264) — direkt nach Hero, vor allen anderen Blocks ── */}

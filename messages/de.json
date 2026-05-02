@@ -443,7 +443,8 @@
       "lineupCta": "Aufstellung wählen",
       "captainSet": "Kapitän: {name}",
       "captainCta": "Kapitän wählen",
-      "scoutPillLabel": "Kader"
+      "scoutPillLabel": "Kader",
+      "wildcardLabel": "Wildcard"
     },
     "scoutHero": {
       "managerPillGw": "Spieltag {n}",
