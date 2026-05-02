@@ -32,14 +32,21 @@ export function FixtureCard({ fixture, onSelect }: Props) {
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isFinished = fixture.status === 'simulated' || fixture.status === 'finished';
+  const isLive = fixture.status === 'live'; // Slice 267 — Live-State branch
   const totalGoals = (fixture.home_score ?? 0) + (fixture.away_score ?? 0);
 
   const kickoff = formatKickoff(fixture.played_at);
   const isPast = kickoff ? new Date(fixture.played_at!) < new Date() : false;
-  const isPendingResult = !isFinished && isPast;
+  const isPendingResult = !isFinished && !isLive && isPast;
 
   const accent = getStatusAccent(fixture.status);
-  const matchLabel = `${fixture.home_club_short || fixture.home_club_name} ${isFinished ? `${fixture.home_score} - ${fixture.away_score}` : 'vs'} ${fixture.away_club_short || fixture.away_club_name}`;
+
+  // Slice 267 — defensive null-strict-equality on fixture.minute (errors-frontend.md
+  // "Defensive null-strict-equality" — null === number is false, so undefined/null
+  // values do not render `0'`).
+  const matchLabel = isLive
+    ? `${fixture.home_club_short || fixture.home_club_name} ${fixture.home_score ?? 0} - ${fixture.away_score ?? 0} ${fixture.away_club_short || fixture.away_club_name} (${t('liveLabel')}${typeof fixture.minute === 'number' ? ` ${fixture.minute}'` : ''})`
+    : `${fixture.home_club_short || fixture.home_club_name} ${isFinished ? `${fixture.home_score} - ${fixture.away_score}` : 'vs'} ${fixture.away_club_short || fixture.away_club_name}`;
 
   return (
     <button
@@ -51,13 +58,20 @@ export function FixtureCard({ fixture, onSelect }: Props) {
       <div className="flex items-center gap-2 mb-2">
         <div className={`size-1.5 rounded-full shrink-0 ${accent.dot}`} />
         <span className="text-xs text-white/30 font-semibold">
-          {isFinished
-            ? t('browserFinished')
-            : isPendingResult
-            ? t('resultPending')
-            : kickoff
-            ? `${kickoff.date} · ${kickoff.time}`
-            : t('browserUpcoming')}
+          {isLive ? (
+            <span className="font-mono font-bold text-[10px] text-vivid-green">
+              {t('liveLabel')}
+              {typeof fixture.minute === 'number' ? ` ${t('minute', { minute: fixture.minute })}` : ''}
+            </span>
+          ) : isFinished ? (
+            t('browserFinished')
+          ) : isPendingResult ? (
+            t('resultPending')
+          ) : kickoff ? (
+            `${kickoff.date} · ${kickoff.time}`
+          ) : (
+            t('browserUpcoming')
+          )}
         </span>
         {isPendingResult && (
           <Clock className="size-3 text-amber-400/60" aria-hidden="true" />
@@ -74,7 +88,18 @@ export function FixtureCard({ fixture, onSelect }: Props) {
 
         {/* Score pill or kickoff */}
         <div className="shrink-0 w-[68px] sm:w-[72px] flex justify-center">
-          {isFinished ? (
+          {isLive ? (
+            // Slice 267 — Live-Score-Pill: vivid-green pulse, defensive `?? 0`
+            // (Edge-Case 2 in Spec §7 — Cron-Init-Race score=NULL).
+            <div
+              className="px-2.5 py-1.5 bg-vivid-green/[0.08] border border-vivid-green/20 rounded-lg motion-safe:animate-pulse motion-reduce:animate-none"
+              aria-hidden="true"
+            >
+              <span className="font-mono font-black text-lg sm:text-xl tabular-nums score-glow">
+                {fixture.home_score ?? 0} <span className="text-white/25">-</span> {fixture.away_score ?? 0}
+              </span>
+            </div>
+          ) : isFinished ? (
             <div className="px-2.5 py-1.5 bg-gold/[0.06] border border-gold/10 rounded-lg" aria-hidden="true">
               <span className="font-mono font-black text-lg sm:text-xl tabular-nums score-glow">
                 {fixture.home_score} <span className="text-white/25">-</span> {fixture.away_score}

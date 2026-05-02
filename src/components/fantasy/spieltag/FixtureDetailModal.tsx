@@ -483,6 +483,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
+  const isLive = fixture.status === 'live'; // Slice 267 F-06 — 3-State-Branch
   const homeColor = homeClub?.colors.primary ?? '#22C55E';
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
@@ -516,7 +517,32 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
 
           {/* Score Center */}
           <div className="text-center shrink-0">
-            {isSimulated ? (
+            {isLive ? (
+              // Slice 267 F-06 — Live-State header: vivid-green pulse score + LIVE badge.
+              // Defensive `home_score ?? 0` for Cron-Init-Race (Spec §7 Edge-Case 2).
+              // `typeof minute === 'number'` strict-check (errors-frontend.md
+              // "Defensive null-strict-equality").
+              <>
+                <div className="flex items-center gap-2.5 md:gap-5 motion-safe:animate-pulse motion-reduce:animate-none">
+                  <span className="font-mono font-black text-[2.75rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
+                    {fixture.home_score ?? 0}
+                  </span>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-[3px] h-2.5 md:h-3 rounded-full bg-vivid-green/60" />
+                    <div className="w-[3px] h-2.5 md:h-3 rounded-full bg-vivid-green/30" />
+                  </div>
+                  <span className="font-mono font-black text-[2.75rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
+                    {fixture.away_score ?? 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center gap-2 mt-1.5 md:mt-2">
+                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-vivid-green/15 text-[10px] font-black text-vivid-green uppercase tracking-widest border border-vivid-green/30 motion-safe:animate-pulse motion-reduce:animate-none">
+                    {ts('liveLabel')}{typeof fixture.minute === 'number' ? ` ${fixture.minute}'` : ''}
+                  </span>
+                  <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
+                </div>
+              </>
+            ) : isSimulated ? (
               <>
                 <div className="flex items-center gap-2.5 md:gap-5">
                   <span className="font-mono font-black text-[2.75rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
