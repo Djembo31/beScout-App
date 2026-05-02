@@ -1,14 +1,25 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 267
+stage: BUILD (Wave 1+2 parallel-Dispatch ready)
+spec: worklog/specs/267-realtime-live-score.md (v3, alle 8 Pre-Review-Patches eingearbeitet)
+impact: worklog/impact/267-realtime-live-score.md (v2, F-02+F-03+F-07 Patches)
+proof: pending
+review: worklog/reviews/267-pre-review.md (D62 PRE-Review CONCERNS → v3-Heal komplett)
 ```
+
+## Slice 267 — Realtime-Live-Score im Spieltag
+
+**Combo:** `Q1=Vercel-Cron · Q2=C-Adaptive · Q3=A-API-Confirm · Q4=G1-strict` + `P-Spieltag · F2-Liga-Scope · X1-Polling-60s-Fallback`
+
+**Wave-Plan (3 Worktrees parallel):**
+- Wave 1 Backend: Migration + Cron + Service + Type
+- Wave 2 Frontend: useLiveFixtures + SpieltagBrowser/Card/Modal + i18n
+- Wave 3 Tests + Pre-Review-Memo + Reviewer
+
+**Capacity verifiziert (context7 2026-05-02):** Vercel Pro ✅ Supabase Pro ✅ API-Football Pro ✅ — alle <20% Auslastung Beta.
 
 ## Phase 2 Action-Layer Manager-Hub KOMPLETT (Slices 261-265 live, 6 in Folge)
 

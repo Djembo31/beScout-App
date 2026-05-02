@@ -1,21 +1,23 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-02 21:10)
+# Session Handoff — Auto (2026-05-03 00:02)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 7 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
  M worklog/audits/audit-stale-2026-05-02.md
  M worklog/audits/type-truth-2026-05-02.md
+?? worklog/impact/267-realtime-live-score.md
+?? worklog/reviews/267-pre-review.md
+?? worklog/specs/267-realtime-live-score.md
 ```
 
-## Session Commits: 5
+## Session Commits: 3
+- cbee6cbc chore(handoff): /clear-Vorbereitung — Slice 266+267 Pre-Spec-Notes mit Pro-Plan-Constraints
 - 2c50637c chore(session-end): Slice 265 LIVE + Phase 2 Manager-Hub KOMPLETT (6 Slices in Folge)
 - d4e816a9 feat(265): StreakRiskCard im ActionRequiredStack (Phase 2 Action-Layer Streak-Risk)
-- a881df9d chore(session-end): D62-Marathon Bilanz + Knowledge-Promotion (5 Slices, 50 Findings, 0 Reverts)
-- 44057ab1 feat(264b): Wildcard-Pill (Phase 2 Action-Layer Optional-Hint)
-- b359f4ab feat(264): ActionRequiredStack (Phase 2 Action-Layer Start)
 
 <!-- auto:handoff-end -->
 

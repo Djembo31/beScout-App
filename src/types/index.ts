@@ -1538,6 +1538,10 @@ export type DbFixture = {
   home_formation?: string | null;
   away_formation?: string | null;
   created_at: string;
+  /** Slice 267: Live-Match-Minute (NULL = nicht-live oder pre-kickoff). Source: API-Football fixture.status.elapsed. */
+  minute?: number | null;
+  /** Slice 267: Letzter live-score-sync-Cron-Update. Stale-Detection > 5min = Live-Cron offline. */
+  last_live_update_at?: string | null;
 };
 
 export type DbFixturePlayerStat = {
