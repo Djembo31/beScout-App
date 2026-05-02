@@ -1,23 +1,30 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-03 00:02)
+# Session Handoff — Auto (2026-05-03 00:49)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 7 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
- M worklog/active.md
  M worklog/audits/audit-stale-2026-05-02.md
  M worklog/audits/type-truth-2026-05-02.md
-?? worklog/impact/267-realtime-live-score.md
-?? worklog/reviews/267-pre-review.md
-?? worklog/specs/267-realtime-live-score.md
 ```
 
-## Session Commits: 3
+## Session Commits: 7
+- 51d9b149 feat(267): Realtime-Live-Score im Spieltag (Wave 1+2+3 BUILD complete)
+- dfcf613a Merge branch 'worktree-agent-ac1fe350c2e6215d1' into worktree-agent-a031e6e55403f555a
+- 34b99677 feat(267): Wave 2 Frontend — useLiveFixtures Hook + Spieltag UI
+- ca21a824 feat(267): Wave 1 Backend — Migration + Cron + Service-Erweiterung
+- b0f2ba90 chore(267): SPEC v3 + IMPACT v2 + Pre-Review + Type/i18n Foundation für Wave-Dispatch
 - cbee6cbc chore(handoff): /clear-Vorbereitung — Slice 266+267 Pre-Spec-Notes mit Pro-Plan-Constraints
 - 2c50637c chore(session-end): Slice 265 LIVE + Phase 2 Manager-Hub KOMPLETT (6 Slices in Folge)
-- d4e816a9 feat(265): StreakRiskCard im ActionRequiredStack (Phase 2 Action-Layer Streak-Risk)
+
+## Pending Agent Work: 1 Worktrees
+- **agent-a4833668618492a66** (worktree-agent-a4833668618492a66):  1 file changed, 174 insertions(+)
+
+## Stale Worktrees: 2 (cleanup candidates)
+
+## Stashed Changes
+- stash@{0}: On worktree-agent-a031e6e55403f555a: settings.local.json before reset
 
 <!-- auto:handoff-end -->
 
