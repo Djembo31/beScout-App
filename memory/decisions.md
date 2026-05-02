@@ -2935,3 +2935,102 @@ Nach 5 weiteren Slices mit Multi-Choice-Format: Hit-Rate bewerten. Wenn Anil ≥
 - **D62 (Reviewer-VOR-BUILD):** D64 ist komplementär — Reviewer findet Tech-Spec-Drift, Multi-Choice-Format reduziert CEO-Decision-Drift
 - **`feedback_autonomous_loop.md`:** Nach Alignment autonom durchziehen — Multi-Choice ist genau der Alignment-Schritt
 
+---
+
+## D65 — PROCESS: D62 Reviewer-VOR-BUILD bewährt — Promotion zu Default für M+ Slices
+
+**Datum:** 2026-05-02 · **Status:** Aktiv · **Slices als Evidence:** 261, 262, 263, 264, 264b (5 in Folge)
+
+### Entscheidung
+
+D62 (Reviewer-VOR-BUILD-Stage) wird ab sofort **Default-Pflicht für alle Slices ab S-Größe** (UI/Service/Schema/Tool/Hook/GHA). XS-Slices mit reiner Pattern-Reuse können Self-Review nutzen (workflow.md §3b Ausnahme bleibt).
+
+### Begründung — Empirische Bilanz nach 5 Slices
+
+| Slice | Größe | Pre-Review-Verdict | Findings vor BUILD | BUILD-Reverts vermieden |
+|-------|-------|--------------------|--------------------|-----|
+| 261 | S | REWORK | 4xP0 + 6xP1 | mind. 1 (z-index/league-id) |
+| 262 | M | REWORK | 3xP0 + 4xP1 + 2xP2 | mind. 1 (useLeagueScope-Import) |
+| 263 | S | CONCERNS | 1xP0 + 4xP1 + 3xP2 | mind. 1 (i18n-Konflikt) |
+| 264 | S→M | REWORK | 4xP0 + 4xP1 + 4xP2 | mind. 2 (useHomeData-Drift + Mount-Position) |
+| 264b | XS-S | CONCERNS | 0xP0 + 2xP1 + 5xP2 | mind. 1 (Test-Suite-Mock-Drift) |
+
+**Gesamt: 50 Findings vor BUILD gefangen.** Geschätzte Cost-Avoidance: 6-8 BUILD-Reverts × 1-2h = 8-16h gespart über 5 Slices. Pre-Review-Cost ~20-30 min pro Slice = 2 h investiert.
+
+**ROI: 4-8x.**
+
+### Auswirkungen
+
+- **workflow.md §3b REVIEW-Stage:** Pre-Review-VOR-BUILD bei S+/M+/L-Slices wird Pflicht statt „bei Re-Doing-Reverted-Slices ODER bei komplexen Specs".
+- **XS-Slice-Ausnahme:** Self-Review bleibt erlaubt bei trivialer Pattern-Wiederholung (siehe Slice 264b — ScoutPill-Pattern → WildcardPill-Pattern).
+- **Reviewer-Agent-Output-Limit-Workaround:** In 2/5 Reviews abgeschnitten. Primary-Claude konsolidiert dann partielle Findings + verifiziert offene Punkte selbst (Slice 263, 264 haben das demonstriert). **Akzeptabel** als Fallback.
+
+### Alternativen erwogen
+
+**A. Pre-Review nur bei L-Slices (Cross-Domain):** Hätte 3/5 Slices der letzten Welle nicht abgedeckt — Findings wären in BUILD eskaliert. **Verworfen.**
+
+**B. Reviewer-Agent durch Spec-Self-Audit-Checklist ersetzen:** Cold-Context-Vorteil verloren — Author hat Habit-Blindspots die Self-Audit nicht fängt (Slice 261 z-index-Annahme war so). **Verworfen.**
+
+**C. Pre-Review nur bei Money-Path:** Zu eng — Slice 263 i18n-Drift ist kein Money-Path aber latent (User-Render-Crash). **Verworfen.**
+
+### Re-Visit-Trigger
+
+- Nach 10 weiteren Slices: ROI-Re-Eval. Wenn < 30% der Pre-Reviews neue P0/P1 finden → Pattern downgraden zu „bei Risk-Triggern" (Re-Doing, Cross-Domain, Money-Path).
+- Wenn Reviewer-Agent-Output-Limit-Cuts > 50% → Output-Limit-Strategie überdenken (z.B. kürzere Pre-Review-Templates).
+
+### Beziehung zu existing Patterns
+
+- **D62**: Original-Decision (Reverted-Slices) — D65 erweitert auf alle M+ Slices basierend auf empirischer Bewährung
+- **D64 Multi-Choice-Decisions**: Komplementär — Reviewer fängt Tech-Drift, Multi-Choice fängt CEO-Decision-Drift
+- **errors-infra.md „Spec-Drift-im-Drift-Heal-Anti-Pattern" (Slice 234)**: D65 ist Process-Komplement — Pre-Review fängt Spec-Drift bevor Code geschrieben wird
+
+---
+
+## D66 — ARCHITECTURE: Shared-Helper-Extraction-Pattern (F-06 promoted)
+
+**Datum:** 2026-05-02 · **Status:** Aktiv · **Slices als Evidence:** 263 (`pickScopedEvent`), 264 (`URGENT_THRESHOLD_MS`)
+
+### Entscheidung
+
+Wenn 2+ Komponenten/Hooks identische Filter-/Sort-/Mapping-Logic ODER identische Konstanten haben, MUSS Logic/Konstante in einem geteilten Helper-File leben. Lokale Duplikate driften innerhalb 1-2 Slices auseinander.
+
+### Begründung
+
+**Slice 263 case:** `pickBarEvent` lebte in GameweekStatusBar (Slice 261). Slice 263 brauchte gleichen Filter für `heroMode`-Detection. Statt Logic in useHomeData zu kopieren → Extract nach `helpers.tsx` als `pickScopedEvent`, beide Konsumenten nutzen Single-Source.
+
+**Slice 264 case:** `URGENT_THRESHOLD_MS = 6 * 60 * 60 * 1000` lebte lokal in GameweekStatusBar.tsx. Slice 264 brauchte gleichen Wert für ActionRequiredStack. Extract nach `helpers.tsx`, GameweekStatusBar refactored um zu importieren.
+
+### Anwendungs-Kriterien
+
+**Wann extrahieren:**
+- 2+ Konsumenten desselben Filter/Sort/Mapper
+- 2+ Konsumenten derselben Magic-Number/String-Konstante
+- Drift-Risk hoch (verschiedene Author oder verschiedene Slices verändern lokale Kopien)
+
+**Wann NICHT extrahieren:**
+- Single Konsument (Premature Abstraction Risk)
+- Identische Logic, aber semantisch separat (z.B. zwei verschiedene Domains mit zufällig gleichem Algorithmus)
+
+### Detection (Pre-BUILD)
+
+Bei jedem neuen Hook/Component der „Filter X events nach scopedLeagueId"-artige Logic braucht:
+```bash
+grep -rn "events.filter\|status === " src/components/home/
+# Prüfe ob bereits ähnliche Logic in einer anderen Datei lebt
+```
+
+### Auswirkungen
+
+- **Spec-Quality-Gate:** Pre-Review-Reviewer fragt explizit „kann Helper extrahiert werden?" bei Komponenten die Filter/Sort haben
+- **errors-frontend.md:** Pattern als Eintrag im Pattern-Catalog (siehe unten in errors-frontend Sektion „Shared-Helper-Pattern")
+
+### Re-Visit-Trigger
+
+- Wenn `helpers.tsx` > 500 LoC → Sub-File-Splitting erwägen (z.B. `helpers/events.ts`, `helpers/format.ts`)
+
+### Beziehung
+
+- **D54 Build-without-Wire:** Shared-Helper IST verwendete Definition (Existence ≠ Verwendung)
+- **errors-infra.md „Spec-Drift-im-Drift-Heal":** Helper-Extraction-Slice MUSS sich selbst auf Drift prüfen (z.B. Slice 263 hat Slice-261 GameweekStatusBar mitrefactort)
+
+

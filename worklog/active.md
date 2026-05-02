@@ -1,39 +1,34 @@
 # Active Slice
 
 ```
-status: active
-slice: 264b
-stage: LOG
-spec: worklog/specs/264b-wildcard-pill.md (v2)
-impact: skipped (UI-only)
-proof: worklog/proofs/264b-tests.txt
-review: worklog/reviews/264b-review.md PASS (self-review XS-S Pattern-Reuse) + 264b-pre-review.md
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
-## Slice 262 ACTIVE (M, Phase 1 Identity-Foundation): Hero-Mode-Detection + Manager-Block
+## Phase 1 + 2 Manager-Hub-Surface KOMPLETT (Slices 261-264b live, 5 in Folge)
 
-`heroMode` Derived-Wert in `useHomeData()` (`'manager' | 'scout' | 'cta-new'`) + neue `<ManagerBlock />` Component für aktive GW. HomeStoryHeader wird zum Dispatcher der zwischen Manager/Scout/CTA-Block switched. D62-Pflicht: Reviewer-VOR-BUILD nach Anil's Multi-Choice-Decisions.
+5 Slices in Folge mit D62 Reviewer-VOR-BUILD-Pattern durchgezogen — 50 Findings vor BUILD gefangen, 0 Reverts. Pattern via D65 promoted.
 
-## Slice 261 KOMPLETT (S, Phase 1 Identity-Foundation): Home Layer 0 Gameweek-Status-Bar
+| Slice | Commit | Was |
+|-------|--------|-----|
+| 261 | `3aae52c9` | GameweekStatusBar (Phase 1) |
+| 262 | `ee31a628` | Hero-Mode-Detection + ManagerBlock (Phase 1) |
+| 263 | `53874a0e` | Doppel-Identität-Pills (Phase 1 Abschluss) |
+| 264 | `b359f4ab` | ActionRequiredStack (Phase 2 Required) |
+| 264b | `44057ab1` | Wildcard-Pill (Phase 2 Optional-Hint) |
 
-Persistente GW-Awareness oberhalb Hero. Stateless-Component (Slice 254 Pattern), mountet innerhalb HomeStoryHeader-Edge-zu-Edge-Wrapper, non-sticky. D62-Pattern: 2 Spec-Iterationen (REWORK 4xP0+6xP1 → CONCERNS 1xP0-NEW Mapper-Drift) sparen mind. 1 BUILD-Revert. Anil-Decisions A=b · B=b · C=ja kompakt. Anil PROVE Mobile-Safari ✓ live auf bescout.net. Commit `3aae52c9`. Knowledge-Captures: D63 Home-Redesign-Plan + D64 Multi-Choice-Decisions + errors-frontend.md gold-pulse-bg.
+## D63 Roadmap Stand 2026-05-02
 
-## Phase 1 Identity-Foundation Pipeline (Anil-approved 2026-04-30 Plan)
-
-| Slice | Status | Was |
+| Phase | Slices | Status |
 |---|---|---|
-| **261** | ✅ live (commit 3aae52c9) | GW-Status-Bar oberhalb Hero — diese Slice |
-| **262** | NEXT | Hero-Mode-Detection-Hook + Manager-Block-Component (für aktive GW) |
-| **263** | PENDING | Liga-Rang-Pill + Streak-Risk + Scout-Block-Component (Off-GW) |
-
-## Phase 2-5 Backlog (post-Phase-1)
-
-| Phase | Slice | Was |
-|---|---|---|
-| 2 Action-Layer | 264 | ActionRequiredStack (Captain/Lineup/Wildcard) + Service `getPendingActions(userId)` |
-| 2 | 265 | Streak-Risk + Mission-Progress-Wiring (re-use existing Streak-Hook) |
-| 3 Live-Pulse | 266 | Multi-Slot-Pulse Refactor (HomeSpotlight Cascade auf 4 Priorities + Fallback-State statt null) |
-| 3 | 267 | Live-Score-Widget mit Realtime-Channel auf `player_gameweek_scores` |
-| 3 | 268 | `getPlayerPriceChanges7d` in TanStack-Cache |
-| 4 Discovery | 269 | Markt-Puls als 3-Tab-Section (Deine/Global/Trending) |
-| 5 Visual-Polish | 270-273 | Stadium-Asset-Pipeline + Action-Cards mit Photos + 3D-Mystery-Box-Render + MyClubs-Stadium-Cards |
+| 1 Identity-Foundation | 261, 262, 263 | ✅ live |
+| 2 Action-Layer | 264, 264b | ✅ Manager-Hub komplett |
+| 2 Rest | 265 (Streak-Risk + Mission), 264c (Captain-Deep-Link) | ⏳ pending |
+| 3 Live-Pulse | 266 (Spotlight-Multi-Slot), 267 (Realtime-Live-Score), 268 (Price-Cache) | ⏳ pending |
+| 4 Discovery | 269 (Markt-Puls 3-Tab) | ⏳ pending |
+| 5 Visual-Polish | 270-273 (Stadium-Assets + 3D-Mystery-Box) | ⏳ pending |

@@ -323,6 +323,32 @@ grep -rnE "useQuery.*get(.*(Map|Set))" src/
 
 ## i18n / Locale
 
+### JSON Object/String-Duplicate-Key-Drift (Slice 263 Pre-Review F-01)
+
+**Symptom:** Pre-existing Top-Level-String + neues Sub-Object mit gleichem Key im selben Namespace (z.B. `home.manager: "Manager"` String + Slice-262-`home.manager: { gwLabel: ... }` Object). JSON-Parser-Verhalten: `last-wins`. String wird unreachable, **kein Linter-Error**, latent.
+
+**Detection:**
+```bash
+# Findet Namespace mit doppelter Top-Level-Key-Definition
+grep -nE '^\s{4}"(\w+)":\s' messages/de.json | sort | uniq -d -w 30
+# Oder via Node:
+node -e "const d = require('./messages/de.json').home; for(const k in d) { console.log(typeof d[k], k); }"
+```
+
+**Latente Bombe:** Wenn künftiger Code `t('home.manager')` als String liest (statt `t('home.manager.gwLabel')`) → React-Render-Crash mit „Objects are not valid as a React child".
+
+**Fix-Pattern:**
+1. **Top-Level-String löschen** wenn 0 Consumer (`grep "t('namespace.key')" src/` → leer). Slice 263 hat das mit `home.manager: "Manager"` + `home.scout: "Scout"` gemacht.
+2. **ODER Sub-Namespace umbenennen** (z.B. `home.managerBlock` statt `home.manager`) — symmetrisch zu Component-Namen.
+3. **ODER pre-existing-String beibehalten und Sub-Namespace-Drift dokumentieren** (Anti-Pattern, nur in Notfällen).
+
+**Reference:**
+- Slice 262 hat `home.manager: { gwLabel ... }` als Object eingeführt → Latent-Drift mit pre-existing `home.manager: "Manager"` String (Z.371 in damals).
+- Slice 263 hat Top-Level-Strings gelöscht (`home.manager`/`home.scout` Z.371-372 in beiden Locales) — saubere Single-Pfad-Resolution.
+- Pre-Review-Catcher D62 fand das vor BUILD — ohne Pre-Review wäre der Drift live gegangen.
+
+**Pflicht-Check bei i18n-Erweiterung:** Bei jedem neuen Sub-Object in messages/{locale}.json prüfen ob gleicher Top-Level-Key bereits als String existiert.
+
 ### i18n-Key-Leak via Service-Errors (J1 + J3)
 - `throw new Error('handleReserved')` → `err.message === 'handleReserved'` (raw key). Caller mit `setError(err.message)` zeigt literal unuebersetzt.
 - Fix: Caller resolved via `mapErrorToKey(normalizeError(err)) → te(key)`.

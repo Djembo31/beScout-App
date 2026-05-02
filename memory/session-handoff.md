@@ -1,15 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-02 17:33)
+# Session Handoff — Auto (2026-05-02 18:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-02.md
  M worklog/audits/type-truth-2026-05-02.md
 ```
 
-## Session Commits: 3
+## Session Commits: 4
+- 44057ab1 feat(264b): Wildcard-Pill (Phase 2 Action-Layer Optional-Hint)
 - b359f4ab feat(264): ActionRequiredStack (Phase 2 Action-Layer Start)
 - 53874a0e feat(263): Doppel-Identität-Pills (Phase 1 Identity-Foundation Abschluss)
 - ee31a628 feat(262): Home Hero-Mode-Detection + ManagerBlock (Phase 1 Identity-Foundation)
@@ -18,7 +20,69 @@
 
 ---
 
-# 🎯 Resume-Anker NÄCHSTE SESSION (post-2026-05-01) — Phase 1 Identity-Foundation gestartet, Slice 261 LIVE
+# 🎯 Resume-Anker NÄCHSTE SESSION (post-2026-05-02-Marathon) — Phase 1 + 2 Manager-Hub komplett, 5 Slices in Folge
+
+**HEAD `44057ab1`** Status: idle. 5 Slices live mit D62-Pattern (Pre-Review-VOR-BUILD).
+
+## Session 2026-05-02 Bilanz — D62-Marathon (5 Slices, 50 Findings vor BUILD gefangen, 0 Reverts)
+
+| Slice | Commit | Größe | Pre-Review | Was |
+|---|---|---|---|---|
+| 262 M | `ee31a628` | M | REWORK 3xP0+4xP1+2xP2 | Hero-Mode-Detection + ManagerBlock (Phase 1) |
+| 263 S | `53874a0e` | S | CONCERNS 1xP0+4xP1+3xP2 | Doppel-Identität-Pills (Phase 1 Abschluss) + i18n-Konflikt-Cleanup |
+| 264 S→M | `b359f4ab` | S→M | REWORK 4xP0+4xP1+4xP2 | ActionRequiredStack Required-Cards (Phase 2 Start) |
+| 264b XS-S | `44057ab1` | XS-S | CONCERNS 0xP0+2xP1+5xP2 | Wildcard-Pill Optional-Hint (Phase 2 Manager-Hub komplett) |
+
+**Plus 3 Knowledge-Decisions promoted:**
+- **D65 PROCESS:** D62 Reviewer-VOR-BUILD bewährt — jetzt Default für M+ Slices (5x in Folge demonstriert, ROI 4-8x)
+- **D66 ARCHITECTURE:** F-06 Shared-Helper-Extraction-Pattern (Slice 263 `pickScopedEvent` + Slice 264 `URGENT_THRESHOLD_MS`)
+- **errors-frontend.md** neuer Eintrag: JSON Object/String-Duplicate-Key-Drift (Slice 263 i18n-Konflikt-Cleanup)
+
+## D63 Roadmap Status post-Session
+
+| Phase | Slices | Status |
+|---|---|---|
+| 1 Identity-Foundation | 261, 262, 263 | ✅ LIVE |
+| 2 Action-Layer Manager-Hub | 264 (Required), 264b (Optional) | ✅ LIVE |
+| 2 Rest | 265 (Streak-Risk + Mission, IMPACT-pflicht), 264c (Captain-Deep-Link, Polish) | ⏳ pending |
+| 3 Live-Pulse | 266 (Spotlight-Multi-Slot), 267 (Realtime-Live-Score), 268 (Price-Cache) | ⏳ pending |
+| 4 Discovery | 269 (Markt-Puls 3-Tab) | ⏳ pending |
+| 5 Visual-Polish | 270-273 (Stadium-Assets + 3D-Mystery-Box) | ⏳ pending |
+
+## Anil-PROVE-Backlog (post-Deploy für 5 Live-Slices)
+
+- **Slice 261:** Anil hat Mobile-Safari ✓ schon (LIVE bestätigt)
+- **Slice 262 ManagerBlock + Hero-Mode-Detection:** AC-10 TR-Wording, AC-11 Mobile 393px, AC-12 Liga-Switch Slow-Motion, Scout-Mode-Regression
+- **Slice 263 Doppel-Identität-Pills:** ManagerPill+ScoutPill DE+TR, Long-String-Mobile, 0-Holdings/0-Wildcards Edge-Cases
+- **Slice 264 ActionRequiredStack:** Mobile-393 URGENT/Default/Hidden, Position-Check, Decision K Wording-Verifikation
+- **Slice 264b Wildcard-Pill:** Pill visible/hidden, TR „Wild Card" Akzeptanz, 4-Pills-Worst-Case 393px
+
+## Bei Resume — Erste-Action-Pfad
+
+```
+1. /clear (falls neue Session)
+2. Lese diesen Resume-Anker
+3. Lese worklog/active.md (status: idle)
+4. git log --oneline -6 (5 Slices der Session: 261, 262, 263, 264, 264b)
+5. Anil-Frage: „Slice 265 starten (Streak-Risk, IMPACT-pflicht) ODER 264c (Captain-Deep-Link Polish) ODER Phase 3 (266 Spotlight-Multi-Slot) ODER PROVE-Pause?"
+6. Bei „weiter": Default = Slice 265 (Phase 2 Rest abschließen vor Phase 3)
+7. D62-Pflicht weiter: Pre-Review-VOR-BUILD bei M+ Slices (D65 promoted)
+```
+
+## Anti-Pattern-Reminder
+
+- **Stale-Status:** Bei „was ist offen?"-Fragen IMMER `git log --oneline -10` + `worklog/active.md` lesen, NICHT aus Memory raten (`feedback_verify_before_claiming_open.md`)
+- **Multi-Choice-Spam:** D64 Format nur bei ≥2 offenen CEO-Decisions. Bei klar-enumerierbaren Standards: CTO-Empfehlung autonom + Anil-„weiter"-Greenlight
+- **Worktree-Escape-Risk:** Bei Frontend-Agent-Worktree-Spawns IMMER `cd <worktree-path> && git status -s` self-verify (errors-db.md §0)
+- **i18n-Object/String-Konflikt:** Bei neuen Sub-Object-Namespaces in messages/{locale}.json prüfen ob gleicher Top-Level-Key bereits als String existiert (errors-frontend.md neuer Eintrag, Slice 263 case study)
+
+## Pre-Push-Hook Erinnerung
+
+Pre-Push-Hook läuft `CI=true pnpm exec vitest run` (~7-15 Min). Nach `git push` mit `run_in_background: true` arbeiten + Monitor-Pattern für Push-Confirm. Slice 263-Push hatte 1 sporadischen Test-Fail (timing-sensitive); 2. Push direkt durchgegangen. Nicht-deterministische Test-Failures = retry, nicht panik.
+
+---
+
+# 📋 Vor-heute Resume-Anker (post-2026-05-01) — Phase 1 Identity-Foundation gestartet, Slice 261 LIVE
 
 **HEAD `3aae52c9` (+ `chore(session-end)` Folge-Commit)** Status: idle.
 
