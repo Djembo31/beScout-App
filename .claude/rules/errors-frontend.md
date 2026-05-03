@@ -350,6 +350,116 @@ grep -rnE "useQuery.*get(.*(Map|Set))" src/
 - Post-Migration-Audit: `grep -n "queryClient\." <file>` → jede enclosing useCallback → deps pruefen.
 - Test-Pattern: `vi.hoisted(mockQc)` + partial `@tanstack/react-query`-Mock (siehe testing.md §5).
 
+### Realtime-Hook-Refactor: TanStack-Query → Subscription-only callback bei Konsumenten-State-Mismatch (Slice 267)
+
+**Bug-Klasse:** Wave-2-Frontend-Agent baut Realtime-Hook im TanStack-Query-Pattern (`useQuery({queryFn, refetchInterval}) + setQueryData(qk.X)` im Subscription-Callback). Konsument-Component nutzt aber **`useState<T[]>`** für die gleichen Daten (z.B. existing SpieltagTab pre-Slice-267). Result: Doppel-Fetch (Hook fetcht initial via TanStack + Component fetcht eigenen Pfad), State-Drift zwischen Hook-Cache und Component-Local-State, Realtime-Updates landen im Cache aber Component liest local-state.
+
+**Symptom:** Hook ist „compile-clean" + Tests grün, aber Component-Konsument zeigt nicht die Realtime-Updates. Manueller Refresh nötig.
+
+**Root-Cause:** Mismatch zwischen:
+- Hook-Architektur (TanStack-Query als Backing-Store, setQueryData in Subscription-Callback)
+- Component-Architektur (useState als Backing-Store, setX in eigener Loader-Function)
+
+**Fix-Pattern (Slice 267 useLiveFixtures):**
+
+Hook auf **Subscription-only callback-driven Pattern** umbauen (analog `src/lib/queries/social.ts:46-90` `useFollowingFeed` Goldstandard):
+
+```ts
+export type LiveChannelStatus = 'SUBSCRIBED' | 'CHANNEL_ERROR' | 'TIMED_OUT' | 'CLOSED';
+
+export type UseLiveOptions<T> = {
+  /** Called for every UPDATE event */
+  onUpdate?: (row: T) => void;
+  /** Optional channel-status observer (used for polling-fallback) */
+  onStatus?: (status: LiveChannelStatus) => void;
+};
+
+export function useLiveX(
+  scopeId: string | undefined,
+  options?: UseLiveOptions<DbX>,
+): { isPolling: boolean } {
+  const [isPolling, setIsPolling] = useState(false);
+
+  // STABLE CALLBACK-REFS — verhindert re-subscribe-Storm bei inline-callbacks
+  const onUpdateRef = useRef(options?.onUpdate);
+  const onStatusRef = useRef(options?.onStatus);
+  useEffect(() => {
+    onUpdateRef.current = options?.onUpdate;
+    onStatusRef.current = options?.onStatus;
+  }, [options?.onUpdate, options?.onStatus]);
+
+  useEffect(() => {
+    if (!scopeId) return;
+    const channel = subscribeXUpdates(scopeId,
+      (row) => onUpdateRef.current?.(row),
+      (status) => {
+        const typed = status as LiveChannelStatus;
+        if (typed === 'CHANNEL_ERROR' || typed === 'TIMED_OUT' || typed === 'CLOSED') setIsPolling(true);
+        else if (typed === 'SUBSCRIBED') setIsPolling(false);
+        onStatusRef.current?.(typed);
+      },
+    );
+    return () => { supabase.removeChannel(channel); };
+  }, [scopeId]);  // Callbacks via ref, NICHT in deps
+
+  return { isPolling };
+}
+```
+
+**Konsument bridges Hook → eigener State:**
+
+```ts
+// Component nutzt useState weiter, Hook nur als Side-Effect-Subscription
+useLiveX(scopeId, {
+  onUpdate: (updatedRow) => {
+    setLocalState((prev) => prev.map(r => r.id === updatedRow.id ? {...r, ...updatedRow} : r));
+  },
+});
+
+// Polling-Fallback kann Konsument selbst orchestrieren
+const { isPolling } = useLiveX(...);
+useEffect(() => {
+  if (!isPolling) return;
+  const interval = setInterval(() => loadFromAPI(), 60_000);
+  return () => clearInterval(interval);
+}, [isPolling]);
+```
+
+**Wann TanStack-Query-Pattern wählen vs. Callback-Pattern:**
+
+| Konsument-Architektur | Hook-Pattern |
+|----------------------|--------------|
+| Konsument nutzt `useQuery(qk.X)` | TanStack-Query-Hook mit `setQueryData(qk.X)` im Subscription |
+| Konsument nutzt `useState<T[]>` | **Subscription-only callback-Pattern** (Slice 267) |
+| Konsument ist neu / wird parallel gebaut | TanStack-Query (zukunftssicher) |
+| Konsument ist legacy + Refactor out-of-scope | **Callback-Pattern** (Slice 267) |
+
+**Detection-vor-BUILD:** Bei Wave-Dispatch mit Realtime-Hook → Code-Reading-Liste MUSS Konsument-File enthalten. Bei `useState<T[]>` im Konsument: SPEC explizit Callback-Pattern fordern.
+
+**Reference:** Slice 267 Wave 2 Frontend baute TanStack-Query-Hook, Wave 3 Hook-Refactor + SpieltagTab-Wire-Up post-Merge zur Subscription-only-Pattern. `worklog/reviews/267-review.md` Architektur-Bewertung.
+
+### qk-Key-Definition ohne Konsument (Slice 267)
+
+**Bug-Klasse:** Spec definiert neuen `qk.{namespace}.{key}` (z.B. `qk.fixtures.live(leagueId)`), Implementation fügt Key in `src/lib/queries/keys.ts` hinzu, aber **kein Konsument** verwendet ihn (z.B. nach Hook-Refactor weg von TanStack-Query-Pattern). Result: orphan-Export, kein Production-Impact aber Code-Smell + Reviewer-Verwirrung.
+
+**Detection:**
+
+```bash
+# Findet definierte Keys ohne Konsument
+for key in $(grep -oE "[a-z_]+: \([^)]*\) =>" src/lib/queries/keys.ts | sed 's/:.*//'); do
+  count=$(grep -rn "qk\.[a-z]*\.${key}\b" src/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "src/lib/queries/keys.ts" | wc -l)
+  [ "$count" = "0" ] && echo "ORPHAN: qk.*.$key"
+done
+```
+
+**Fix-Optionen:**
+
+1. **Delete** wenn 0 Konsumenten + kein zukünftiger Plan → cleanest
+2. **JSDoc-Reserve-Comment:** `/** Reserved — not yet consumed (intended for X). May be removed if X never lands. */` → behält Doku-Spur
+3. **Konsumenten-Plan dokumentieren:** Wenn Plan klar in Spec → Reference + Datum
+
+**Reference:** Slice 267 `qk.fixtures.live(leagueId)` (`src/lib/queries/keys.ts`) — definiert in Spec für TanStack-Query-Hook-Pattern, nach Hook-Refactor auf callback-only nicht mehr genutzt. Reviewer fand als F-NEW-09 MINOR. Optionale Cleanup im Future-Slice 267b.
+
 ## i18n / Locale
 
 ### JSON Object/String-Duplicate-Key-Drift (Slice 263 Pre-Review F-01)

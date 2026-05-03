@@ -9,8 +9,8 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: D    # alle 9 Re-Audit-Findings closed/deferred/wont-fix, zurück zu Sign-Off-Phase
-last_phase_run: 2026-04-28 (Tech-Cleanup-Session: Slice 238 silent-fail Heuristik-Tightening + Slice 240 TM-Scripts archive + Slice 241 errors-infra Knowledge-Capture + Slice 242 orphan-detector allowlist + 5 stale GH-Issues batch-closed)
+phase: D    # 3 Beta-Tester live im System (Anil-confirmed 2026-05-03), Phase 3b Tester-Blocker resolved
+last_phase_run: 2026-05-03 (Anil-confirmed: 3 Tester organisiert + active testing → Sign-Off-Re-Trial unblocked. Tester-Liste war SOFT-NO-GO-Blocker seit 2026-04-26.)
 last_signoff: FAIL
 last_signoff_date: 2026-04-26
 last_signoff_verdict: "HARD-NO-GO Slice 217 + Targeted Re-Audit 2026-04-27 fand 9 NEU Findings (3 P1+3 P2+3 P3). Slices 224+225+226 healed 7/9; FM-NEU-3 deferred post-Beta + FM-NEU-5 wont-fix. Visual-Check 2026-04-27 fand ORPHAN-NEU-1 (CommunityValuation orphan production-code) → Slice 227 deferred mit @experimental JSDoc + D46-Pattern-Erweiterung. **Tech-Side wieder maximal sauber — null open Findings.** Slice 238/240/241/242 Tech-Cleanup-Session 2026-04-28: silent-fail-baseline -28 / -17 HIGH (false-positives), TM-once-off-scripts archived (5), 4 errors-infra Knowledge-Lehren codifiziert, orphan-detector Allowlist (13→9 real-drift). 5 stale smoke-fail Issues batch-closed via Master-Tracker-Pattern (#25 stays open). Sign-Off-Re-Trial-Prognose: SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste)."

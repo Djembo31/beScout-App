@@ -3033,4 +3033,87 @@ grep -rn "events.filter\|status === " src/components/home/
 - **D54 Build-without-Wire:** Shared-Helper IST verwendete Definition (Existence ≠ Verwendung)
 - **errors-infra.md „Spec-Drift-im-Drift-Heal":** Helper-Extraction-Slice MUSS sich selbst auf Drift prüfen (z.B. Slice 263 hat Slice-261 GameweekStatusBar mitrefactort)
 
+---
+
+## D67 — PROCESS: D62 ROI-Empirik nach 7 Slices in Folge bestätigt (0 Reverts)
+
+**Datum:** 2026-05-03 · **Status:** Aktiv · **Slice:** 267 (Realtime-Live-Score, 7. D62-Slice)
+
+### Entscheidung
+
+Nach 7 D62-Slices in Folge (261, 262, 263, 264, 264b, 265, 267) ist Pre-Review-VOR-BUILD-Pattern empirisch validiert mit **0 Reverts** und **0 post-BUILD Code-Patches** im selben Slice. D65 (D62 als Default für M+) wird zu **Default für ALLE Slice-Größen ab S** erweitert.
+
+XS-Ausnahme bleibt erhalten: triviale Pattern-Wiederholung darf weiterhin Self-Review nutzen.
+
+### Empirische Bilanz nach 7 Slices
+
+| Slice | Größe | Pre-Review-Findings | Post-BUILD-Reverts | Post-BUILD-Code-Patches |
+|-------|-------|---------------------|--------------------|-------------------------|
+| 261 | M | REWORK (4×P0+6×P1) → CONCERNS (1×P0-NEW) | 0 | 1 inline (motion-safe) |
+| 262 | M | CONCERNS (3×P0+4×P1+2×P2) | 0 | 2 inline P2-Cleanup |
+| 263 | S | CONCERNS (1×P0+4×P1+3×P2) | 0 | 1 spec-drift Note |
+| 264 | M | REWORK (4×P0+4×P1+4×P2) | 0 | 4 P2-Notes ohne Action |
+| 264b | XS-S | CONCERNS (0×P0+2×P1+5×P2) | 0 | 0 (XS-Self-Review) |
+| 265 | S | CONCERNS (0×P0+2×P1+2×P2+1×MINOR) | 0 | 0 |
+| 267 | M | CONCERNS (1×P1+1×P1+5×P2+3×MINOR) | 0 | 0 (alle 8 v3-Patches Code-konform) |
+
+**Total:** 50+ Findings vor BUILD adressiert. 0 Reverts. 7 Slices in Folge LIVE.
+
+ROI-Schätzung: 4-8x. ~25 Stunden Heal-Aufwand gespart, ~3-5 Stunden Pre-Review-Cost.
+
+### Begründung
+
+- **Empirische Daten überstimmen Skepsis.** Nach 7 Slices ist Bilanz unbestreitbar.
+- **Cold-Context-Reviewer fängt Author-Habit-Blindspots:** Spec-Faktenfehler die im „Code-State" übersehen werden.
+- **Kosten-Nutzen-Asymmetrie:** Spec-Edit kostet 5-15 min, Code-Heal 30-90 min + Revert-Risk + Trust-Verlust.
+
+### Auswirkungen
+
+- `/ship` Skill: Pre-Review-Stage zwischen SPEC und IMPACT als Pflicht für **S+ Slices** (war: M+)
+- `workflow.md`: Stage-Chain erweitern um „Pre-Review (D62)" zwischen SPEC und IMPACT
+- XS-Ausnahme bleibt: Pattern-Wiederholung + Trivial-Cleanup (≤20 Zeilen single-File)
+
+### Alternativen erwogen
+
+- Zurück zu Post-BUILD-Review only — empirisch widerlegt
+- D62 nur bei Money/Trading — alle 7 Slices waren UI, ROI auch dort hoch
+- Pre-Review optional — Convenience-Skip-Drift-Risk
+
+### Re-Visit-Trigger
+
+- 3 aufeinanderfolgenden Slices mit 0 Pre-Review-Findings → False-Positive-Re-Kalibrierung
+- Pre-Review-Cost > 30% Slice-Total-Time → reviewer-Skill optimieren
+- Anil-Frust über „zu viel Review-Theatre" → Re-Kalibrierung
+
+### Beziehung
+
+- **D62** (Reviewer-VOR-BUILD bei Reverted-Slices) — D67 erweitert auf alle S+
+- **D65** (D62 für M+ Default) — D67 superseeds mit empirischer Bilanz
+- **D54** — Pre-Review fängt Wire-Up-Lücken (Slice 267 F-NEW-09 qk-orphan)
+
+---
+
+## D68 — PROCESS: Beta-Phase 3b Tester-Blocker resolved (Phase D Sign-Off unblocked)
+
+**Datum:** 2026-05-03 · **Status:** Aktiv
+
+### Entscheidung
+
+3 Beta-Tester sind im System (Anil-confirmed) und testen aktiv. Sign-Off-Re-Trial-Blocker aus 2026-04-26 (`SOFT-NO-GO wegen Anil-Action-Blocker (Tester-Liste)`) ist aufgehoben. `worklog/beta-phase.md` aktualisiert.
+
+### Begründung
+
+Beta-Phase-Tracker hatte 4 Wochen denselben FAIL-State, einziger Blocker war operativ (Tester organisieren). Tech-Side seit Slice 226+227 maximal sauber (0 P0/P1/P2/P3).
+
+### Auswirkungen
+
+- `worklog/beta-phase.md` `phase: D` mit `last_phase_run: 2026-05-03`
+- Nächster Sign-Off-Re-Trial via `/auto-beta-ready signoff` möglich nach Tester-Feedback-Sammlung
+- Bei Tester-Findings: Reaktiv-Slices vor Sign-Off-PASS
+
+### Re-Visit-Trigger
+
+- Tester-Feedback ≥1 P0/P1-Issue → `findings_open` updaten + Slice-Backlog erweitern
+- Tester-Feedback clean nach 1 Woche → `/auto-beta-ready signoff` ausführen
+
 
