@@ -3,7 +3,7 @@
 ```
 status: active
 slice: 267
-stage: PROVE (Wave 1+2+3 BUILD complete, Anil-Action-Items für DoD-Closure pending)
+stage: PROVE — RESUME-POINT für nächste Session (supabase-MCP-pflicht für Migration apply)
 spec: worklog/specs/267-realtime-live-score.md (v3)
 impact: worklog/impact/267-realtime-live-score.md (v2)
 review: worklog/reviews/267-review.md (CONCERNS — Code BUILD-konform, 11/18 ACs ✅, 6 ⏳ pending Migration/Runtime/Proof, 1 ⚠️ AC-16) + worklog/reviews/267-pre-review.md (D62 PRE-Review)

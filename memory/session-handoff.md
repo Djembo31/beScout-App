@@ -1,22 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-03 00:49)
+# Session Handoff — Auto (2026-05-03 11:43)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-02.md
  M worklog/audits/type-truth-2026-05-02.md
 ```
-
-## Session Commits: 7
-- 51d9b149 feat(267): Realtime-Live-Score im Spieltag (Wave 1+2+3 BUILD complete)
-- dfcf613a Merge branch 'worktree-agent-ac1fe350c2e6215d1' into worktree-agent-a031e6e55403f555a
-- 34b99677 feat(267): Wave 2 Frontend — useLiveFixtures Hook + Spieltag UI
-- ca21a824 feat(267): Wave 1 Backend — Migration + Cron + Service-Erweiterung
-- b0f2ba90 chore(267): SPEC v3 + IMPACT v2 + Pre-Review + Type/i18n Foundation für Wave-Dispatch
-- cbee6cbc chore(handoff): /clear-Vorbereitung — Slice 266+267 Pre-Spec-Notes mit Pro-Plan-Constraints
-- 2c50637c chore(session-end): Slice 265 LIVE + Phase 2 Manager-Hub KOMPLETT (6 Slices in Folge)
 
 ## Pending Agent Work: 1 Worktrees
 - **agent-a4833668618492a66** (worktree-agent-a4833668618492a66):  1 file changed, 174 insertions(+)
@@ -27,6 +19,159 @@
 - stash@{0}: On worktree-agent-a031e6e55403f555a: settings.local.json before reset
 
 <!-- auto:handoff-end -->
+
+---
+
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-03 Slice 267 PROVE-Stage)
+
+**HEAD `4219b19f`** Status: Slice 267 BUILD complete + pushed. Stage PROVE — wartet auf Migration-Apply.
+
+## ⚠️ Warum kein Migration-Apply in der vorherigen Session
+
+Die vorherige Claude-Code-Session hatte **kein `mcp__supabase__*` MCP aktiviert** (deferred tools waren: chrome-devtools, context7, memory, playwright, posthog, sequential-thinking, vercel — KEIN supabase). Anil's Frust war berechtigt — ich hätte am Session-Start MCP-Liste prüfen müssen.
+
+**FIX für nächste Session:** Vor Start prüfen via `/mcp`-Command in Claude Code dass `supabase`-MCP aktiv ist. Falls nicht: MCP-Config-Reload oder Claude Code restart.
+
+## Slice 267 State (alles committed + pushed in 4 Commits)
+
+| Commit | Type | Inhalt |
+|---|---|---|
+| `b0f2ba90` | chore | SPEC v3 + IMPACT v2 + Pre-Review + Type/i18n Foundation |
+| `51d9b149` | feat(267) | Wave 1+2+3 BUILD complete (Migration + Cron + Service + Hook + UI + Tests) |
+| `4219b19f` | fix(267) | renderWithProviders i18n-Mock Regression-Heal (132/132 vitest grün) |
+
+Plus historische Worktree-Branches `ca21a824`, `34b99677`, `dfcf613a` (nicht-mehr-relevant nach final merge).
+
+## D62-Pattern bestätigt #7: 0 post-BUILD Code-Patches notwendig
+
+Pre-Review fand 1×P1 + 1×P1 + 5×P2 + 3×MINOR vor BUILD. Alle 8 Findings in SPEC v3 + IMPACT v2 adressiert. Code-Realität entspricht v3 — Post-BUILD-Review fand nur „pending PROVE-Items" (Migration apply + Tests existieren, aber DB-Apply pflicht), kein Code-Heal.
+
+ROI-Trend: Slice 261-267 alle mit Pre-Review-VOR-BUILD-Pattern, durchgehend 0 Reverts.
+
+## ⚡ Erste Action nächste Session — Migration-Apply-Sequenz
+
+**Voraussetzung:** `mcp__supabase__*` MCP ist aktiv (`/mcp` zeigt's).
+
+### SCHRITT 1 — Pre-Migration-Verify (F-NEW-01 / AC-16)
+
+```sql
+SELECT COUNT(*) FROM fixtures WHERE league_id IS NULL;
+```
+
+**Erwartung:** `0`. Wenn `>0`: STOPP, Backfill-Decision pflicht (Realtime-Filter `league_id=eq.X` würde rows silent ausschließen, Slice 267 AC-15 Regression).
+
+Output → `worklog/proofs/267-pre-migration-verify.txt`
+
+### SCHRITT 2 — Migration applizieren
+
+```ts
+mcp__supabase__apply_migration({
+  project_id: '<bescout-prod-project-id>',  // aus Supabase-Dashboard URL
+  name: 'slice_267_fixtures_realtime',
+  query: <Inhalt aus supabase/migrations/20260503120000_slice_267_fixtures_realtime.sql>
+})
+```
+
+Migration-File-Pfad: `supabase/migrations/20260503120000_slice_267_fixtures_realtime.sql` (51 Zeilen, idempotent mit IF NOT EXISTS).
+
+### SCHRITT 3 — AC-Verify post-Apply (3 SQL-Queries)
+
+```sql
+-- AC-01: relreplident='f' (FULL)
+SELECT relreplident FROM pg_class WHERE relname = 'fixtures';
+
+-- AC-02: fixtures in supabase_realtime publication
+SELECT tablename FROM pg_publication_tables
+WHERE pubname='supabase_realtime' AND tablename='fixtures';
+
+-- AC-03: 2 neue Columns (minute, last_live_update_at) nullable
+SELECT column_name, data_type, is_nullable FROM information_schema.columns
+WHERE table_name='fixtures' AND column_name IN ('minute','last_live_update_at');
+```
+
+Output → `worklog/proofs/267-db-schema.txt`
+
+### SCHRITT 4 — Cron-curl-Proof (post-Vercel-Deploy)
+
+Vercel-Deploy ist via Push 2026-05-03 ~01:00 UTC bereits getriggered. Verifizieren via `mcp__vercel__list_deployments` dass Commit `4219b19f` deployed ist.
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" https://bescout.net/api/cron/live-score-sync
+```
+
+Erwartung außerhalb Live-Window (kein laufendes Spiel ±15min):
+```json
+{ "success": true, "skipped": true, "reason": "no_live_window" }
+```
+
+Output → `worklog/proofs/267-cron-execution.txt`
+
+### SCHRITT 5 — Realtime-WS-Frame-Screenshot (Chrome DevTools MCP)
+
+1. `mcp__chrome-devtools__new_page` → `https://bescout.net/fantasy`
+2. `mcp__chrome-devtools__list_network_requests` Filter auf `realtime.supabase.co`
+3. Manuell UPDATE auf einem fixture: `mcp__supabase__execute_sql` → `UPDATE fixtures SET minute=99 WHERE id='<test>'`
+4. WS-Frame-Screenshot → `worklog/proofs/267-realtime-ws-frame.png`
+
+### SCHRITT 6 — Mobile-Playwright + Modal-Screenshots
+
+```ts
+mcp__playwright__browser_resize({ width: 393, height: 851 })  // iPhone 16
+mcp__playwright__browser_navigate({ url: 'https://bescout.net/fantasy' })
+mcp__playwright__browser_take_screenshot({ filename: '267-spieltag-live-mobile.png' })
+// Click auf Live-Fixture → Modal
+mcp__playwright__browser_click({ ... })
+mcp__playwright__browser_take_screenshot({ filename: '267-modal-live.png' })
+```
+
+### SCHRITT 7 — LOG-Entry + active.md → idle
+
+`worklog/log.md` neuen Slice-267-Entry oben einfügen (Format wie Slice 265). active.md zurücksetzen.
+
+## Slice 267 Knowledge-Promotion-Kandidaten (für autodream)
+
+Reviewer hat 3 Patterns identifiziert die in Knowledge-Base promotet werden sollten:
+
+1. **errors-frontend.md:** „Hook-Refactor von TanStack-Query auf Subscription-only-callback bei State-Mismatch mit Konsument-useState" — Slice 267 Erfahrung. Wave 2 baute TanStack-Query-Hook, aber SpieltagTab nutzt useState → State-Doppelung. Refactor zu callback-Pattern (analog social.ts useFollowingFeed) löst es sauber.
+
+2. **common-errors.md:** „qk.{namespace}.{key}-Definition ohne Konsument" — Slice 267 hat `qk.fixtures.live(leagueId)` definiert aber nach Hook-Refactor niemand-konsumiert (callback-only Hook). Pre-Commit-Hook-Idee: grep nach Key-Konsument vor Commit.
+
+3. **Pre-Review-Process-Win:** Pre-Review v2→v3 hat alle 10 Findings vor BUILD adressiert. Post-BUILD-Findings sind alle „PROVE-State neu entstanden" (Tests/Migration/Proofs), nicht Code. D62 Pre-Review-Pattern wirkt nachweislich (7. Slice in Folge mit 0 Reverts).
+
+## Files-Status für Slice 267 BUILD-Stage
+
+**Code committed:**
+- `supabase/migrations/20260503120000_slice_267_fixtures_realtime.sql` (NEU, 51 Zeilen)
+- `src/app/api/cron/live-score-sync/route.ts` (NEU, ~291 Zeilen)
+- `src/features/fantasy/hooks/useLiveFixtures.ts` (NEU, ~80 Zeilen, callback-Pattern)
+- `src/features/fantasy/services/fixtures.ts` (Mapper + subscribeFixtureUpdates)
+- `src/features/fantasy/services/__tests__/fixtures.test.ts` (Tests erweitert)
+- `src/components/fantasy/SpieltagTab.tsx` (useLiveFixtures Wire-Up + Polling-Fallback)
+- `src/components/fantasy/spieltag/SpieltagBrowser.tsx` (Live-Bucket)
+- `src/components/fantasy/spieltag/FixtureCard.tsx` (Live-Render-Branch)
+- `src/components/fantasy/spieltag/FixtureDetailModal.tsx` (3-State-Header)
+- `src/components/fantasy/spieltag/helpers.ts` (getStatusAccent live)
+- `src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx` (NEU, 13 Tests)
+- `src/features/fantasy/hooks/__tests__/useLiveFixtures.test.ts` (NEU)
+- `src/lib/footballApi.ts` (ApiFixtureLive Type)
+- `src/lib/queries/keys.ts` (qk.fixtures.live)
+- `src/test/renderWithProviders.tsx` (i18n-Mock unverändert nach Regression-Heal)
+- `src/types/index.ts` (DbFixture +minute +last_live_update_at)
+- `messages/de.json` + `messages/tr.json` (3 spieltag-Keys)
+- `vercel.json` (Cron-Eintrag `* * * * *`)
+- `worklog/specs/267-realtime-live-score.md` (v3)
+- `worklog/impact/267-realtime-live-score.md` (v2)
+- `worklog/reviews/267-pre-review.md` + `worklog/reviews/267-review.md`
+- `worklog/proofs/267-build-complete.txt`
+
+## Worktree-Cleanup
+
+3 locked Worktrees existieren (von Wave 1+2+3 Agents):
+- `agent-a031e6e55403f555a` (Wave 1 Backend)
+- `agent-ac1fe350c2e6215d1` (Wave 2 Frontend)
+- `agent-a4833668618492a66` (Wave 3 Tests)
+
+Cleanup: `git worktree remove --force --force <path>` und `git branch -D worktree-agent-...` — kann in nächster Session passieren wenn Agent-Locks freigegeben sind.
 
 ---
 
