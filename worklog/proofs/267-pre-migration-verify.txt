@@ -1,0 +1,24 @@
+# Slice 267 — Pre-Migration-Verify (F-NEW-01 / AC-16)
+
+Date: 2026-05-03
+Project: skzjfhvgccaeplydsunz (beScout-App, eu-west-1, ACTIVE_HEALTHY)
+
+## Query
+
+```sql
+SELECT COUNT(*) AS null_league_id_count
+FROM fixtures
+WHERE league_id IS NULL;
+```
+
+## Result
+
+```
+null_league_id_count: 0
+```
+
+## Verdict
+
+✅ **AC-16 grün.** Alle existing fixtures haben `league_id NOT NULL`.
+Realtime-Filter `league_id=eq.${leagueId}` schließt **0 rows** silent aus.
+Migration-Apply unblocked, kein Backfill-Slice vor 267 nötig.

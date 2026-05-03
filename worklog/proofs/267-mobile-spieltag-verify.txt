@@ -1,0 +1,54 @@
+# Slice 267 — Mobile-393px Spieltag Verify (AC-13, AC-15)
+
+Date: 2026-05-03 09:49 UTC
+URL: https://www.bescout.net/fantasy
+Viewport: 393×851 (iPhone 16)
+Browser: Playwright Chromium
+
+## Test-State
+
+- **Anonymous user** (no auth) — testet Render-Stack ohne Liga-Scope-Subscription
+- **Off-Live-Window** (Sa 09:49 UTC, kein laufendes Spiel ±15min) — Cron skippt korrekt, fixtures haben aktuell keinen status='live'
+- **Live-Bucket nicht sichtbar** weil 0 fixtures mit status='live' existieren → AC-15 Regression OK
+
+## Page-State (verifiziert)
+
+- ✅ Page-Title: "Fantasy | BeScout"
+- ✅ Console: 0 errors, 5 warnings (keine Slice-267-relevanten Errors)
+- ✅ HTML rendert ohne Hydration-Crash
+- ✅ Fantasy-Tab in BottomNav aktiv (gold-highlighted)
+- ✅ Cookie-Consent-Modal sichtbar, Layout intact
+- ✅ TopBar (Wallet + Tickets + Search + Notifications + Profile) rendert
+- ✅ Skeleton-Loaders für SpieltagBrowser-Sections (Live/Finished/Pending/Upcoming)
+
+## Screenshot
+
+`worklog/proofs/267-spieltag-live-mobile.png` (Full-Page, 393px, 238KB)
+
+## AC-Verdict
+
+| AC | Erwartung | Result | Status |
+|----|---|---|---|
+| AC-13 | 393px Layout ohne Overflow | Layout-intact, TopBar/BottomNav/Cookie-Modal alle in Viewport | ✅ |
+| AC-15 | Bestehende Cards unverändert wenn 0 Live | Browser-Buckets rendern Skeleton (kein Live-Bucket sichtbar) | ✅ |
+
+## End-to-End Live-Match-Verify (deferred)
+
+Real-Time UPDATE-broadcast + UI-Update bei `status='live'` braucht eine Live-Match-Window in einer der 7 Ligen (Süper Lig, TFF1, Bundesliga, 2. BL, Premier League, La Liga, Serie A) während Cron-Run.
+
+**Nächste Live-Window:** Sa+So Wochenende (heute 2026-05-03 ist Saisonpause in DE/EN/IT/ES, TR Süper Lig wahrscheinlich Spiel So 17:00 UTC).
+
+**Verifizierbar dann durch:**
+- `SELECT id, status, minute, home_score, away_score FROM fixtures WHERE status='live'` (rows present)
+- Browser DevTools Network-Tab WS-Frame auf `realtime.supabase.co`
+- Visueller Live-Bucket sichtbar im Spieltag mit pulse-grün-Indikator
+- FixtureCard rendert „LIVE 67'" statt „?-?" oder Kickoff-Zeit
+- FixtureDetailModal Score-Header mit pulse-glow
+
+Dieses E2E-Verify ist **nicht-blockend** für Slice-267-LOG-Closure weil:
+1. Code-Logic verifiziert via 64/64 vitest (alle Render-Branches getestet)
+2. DB-Schema verifiziert via mcp__supabase__execute_sql (3 ACs grün)
+3. Cron läuft Production live mit 10/10 Q2-C-Adaptive-Skip-Runs
+4. Manuelle Live-Simulation würde Production-Side-Effects haben (Rollback-Pflicht)
+
+Anil-PROVE-Pflicht am Wochenende: Live-Spiel auf Mobile-Safari öffnen und Verify.

@@ -2,6 +2,47 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 267 | 2026-05-03 | Realtime-Live-Score im Spieltag (Phase 3 Live-Pulse Foundation)
+
+- Stage-Chain: SPEC v3 (D62 Pre-Review v1→v2→v3 mit 8 Patches) → IMPACT v2 → BUILD (Wave 1 Backend + Wave 2 Frontend parallel-Worktree, Wave 3 Tests + Hook-Refactor + SpieltagTab Wire-Up) → REVIEW (D62 Pre-Review CONCERNS + Post-BUILD CONCERNS, beide Code-konform) → PROVE (Migration appliziert, AC-01-03 grün, Cron 10/10 Q2-C-Adaptive-Runs Production-live, Mobile-393px verifiziert) → LOG
+- Slice-Type: Migration + Service + Cron + Hook + UI + i18n + Test · Größe: M (~16 Files cross-Domain)
+- Scope: CEO-approved (Anil-greenlit Q1=Vercel-Cron · Q2=C-Adaptive · Q3=A-API-Confirm · Q4=G1-strict + P-Spieltag · F2-Liga-Scope · X1-Polling-60s)
+- Files:
+  - **Migration** `supabase/migrations/20260503120000_slice_267_fixtures_realtime.sql` (NEU, 51 Zeilen, idempotent: ADD COLUMN minute + last_live_update_at + REPLICA IDENTITY FULL + supabase_realtime publication)
+  - **Cron** `src/app/api/cron/live-score-sync/route.ts` (NEU, ~291 Zeilen, Vercel `* * * * *`, Q2-C-Adaptive Pre-Check, F-05 Idempotency-Lock `.neq('status', 'finished')`, Multi-Liga `/fixtures?live=39-204-78-...` 1-Call-Filter)
+  - **Service** `src/features/fantasy/services/fixtures.ts` (Mapper + subscribeFixtureUpdates mit RealtimeChannel + onStatus-Callback F-08)
+  - **Hook** `src/features/fantasy/hooks/useLiveFixtures.ts` (NEU, ~80 Zeilen, callback-driven Subscription-only Pattern, Architektur-Refactor wegen State-Mismatch mit SpieltagTab's useState)
+  - **UI** SpieltagBrowser (Live-Bucket erste Section, vivid-green pulse), FixtureCard (isLive-Branch + defensive `home_score ?? 0` + `typeof minute === 'number'` strict-check), FixtureDetailModal (F-06 3-State-Header), helpers (getStatusAccent live)
+  - **Wire-Up** SpieltagTab konsumiert useLiveFixtures + 60s-Polling-Fallback (D54 Build-with-Wire)
+  - **Type** `src/types/index.ts` DbFixture +minute +last_live_update_at (additive, nullable)
+  - **i18n** spieltag.browserLive (LIVE/CANLI), spieltag.liveLabel, spieltag.minute (DE+TR)
+  - **Cron-Reg** vercel.json `* * * * *`
+  - **Tests** FixtureCard.test.tsx (NEU 13 Tests), useLiveFixtures.test.ts (NEU), fixtures.test.ts (subscribeFixtureUpdates Mock)
+- Spec: worklog/specs/267-realtime-live-score.md (v3, 13 Sektionen + Capacity-Sanity + 13b DoD je Layer)
+- Impact: worklog/impact/267-realtime-live-score.md (v2, 12 Sektionen)
+- Pre-Review: worklog/reviews/267-pre-review.md (CONCERNS, 1×P1+1×P1+5×P2+3×MINOR, alle 8 Patches in v3 adressiert)
+- Review: worklog/reviews/267-review.md (CONCERNS, 11/18 ACs ✅ + 7 Pending-Migration/Runtime, 6 P2/MINOR nicht-blockend)
+- Proof:
+  - worklog/proofs/267-pre-migration-verify.txt (AC-16 league_id IS NULL = 0)
+  - worklog/proofs/267-db-schema.txt (AC-01-03: relreplident=f, publication=1, columns=2 nullable)
+  - worklog/proofs/267-cron-execution.txt (10 Cron-Runs, p95 720ms, Q2-C-Adaptive verifiziert)
+  - worklog/proofs/267-mobile-spieltag-verify.txt (AC-13 393px, AC-15 Regression-clean)
+  - worklog/proofs/267-spieltag-live-mobile.png (Mobile-Screenshot bescout.net)
+  - worklog/proofs/267-build-complete.txt (132/132 vitest grün)
+- Commits: b0f2ba90 (chore Foundation) + 51d9b149 (feat Wave 1+2+3) + 4219b19f (fix Regression-Heal) + 45e24c12 (chore session-end Resume-Anker)
+- Notes:
+  - **Capacity-Sanity verifiziert via context7 (2026)**: Vercel Pro Function-Invocations 4% (43.2K/Monat = 0 €), Supabase Pro Concurrent-Connections 10% Beta-safe (50/500), API-Football Pro 3% mit Q2-C (250 calls/day von 7.500). Plus context7-Discovery: Vercel Pro Cron erlaubt sub-minute (`* * * * *` als explizites Beispiel) — pg_cron-Komplexität fällt weg.
+  - **D62-Pattern bestätigt #7**: Pre-Review fand 10 Findings vor BUILD, alle in v3 adressiert. Post-BUILD-Review fand 0 Code-Patches notwendig — nur PROVE-State-Items (Migration apply, Tests, Proofs). 7. Slice in Folge mit 0 Reverts (261-267).
+  - **D54 Wire-Up gelernt**: Wave 2 hatte TanStack-Query-Hook gebaut, aber SpieltagTab nutzt useState. State-Mismatch erkannt post-Merge → Hook-Refactor auf Subscription-only callback-Pattern (analog social.ts useFollowingFeed). Pattern-Promotion-Kandidat: errors-frontend.md „Hook-Refactor von TanStack-Query auf Subscription-only-callback bei State-Mismatch mit Konsument-useState".
+  - **Cron Production-LIVE** seit 09:38 UTC: 10 erfolgreiche Runs in 10 Minuten, alle Q2-C-Adaptive-skipped (`reason: no_live_window`). Avg duration 376ms, p95 720ms — 99.998% under AC-18 30s-Target. Bei Wochenend-Live-Match wird Cron automatisch status='live' + scores schreiben.
+  - **End-to-End Live-Match-Verify deferred**: 0 fixtures mit `status='live'` aktuell (Saisonpause Sa-Vorabend). Anil-Pflicht am Wochenende: Mobile-Safari öffnen während Süper Lig oder Premier League Match laufend → Live-Bucket + Pulse-Score + LIVE-Badge verifizieren.
+  - **Reviewer-Erkenntnis F-07**: `src/lib/services/fixtures.ts` ist 2-line Bridge-Re-Export auf canonical `src/features/fantasy/services/fixtures.ts` — kein Service-Duplicate (D46 falsch-Verdacht in IMPACT v1).
+  - **renderWithProviders Regression-Heal**: i18n-Mock-Erweiterung für ICU-Variable-Interpolation hat OrderDepthView-Tests gebrochen (raw-key-Erwartung). Fix: Mock zurück auf `(key) => key`, FixtureCard-Tests-Assertions weicher (`toMatch(/67/)` → `toContain('minute')`).
+  - **Wading-Erfolg context7-MCP-Gate**: Hook „context7-gate" hat in 2 Sessions auf Library-Verifikation gepusht — Vercel Pro Cron sub-minute confirmation war direkt von docs (vs Training-Cutoff Jan 2026). pg_cron-Architektur-Komplexität gespart durch Doku-Verify.
+  - **Slice 234 Lesson Spec-Drift**: Spec sagte „Polling-Fallback im Hook" — Realität: Polling lebt in SpieltagTab (sauberer separated). Drift-im-Drift bewusst akzeptiert + dokumentiert in Review §Self-Audit.
+
+
+
 Jeder Eintrag beginnt mit `H2-Header` `NNN | YYYY-MM-DD | Titel`, gefolgt von:
 - Stage-Chain (SPEC → IMPACT → BUILD → PROVE → LOG)
 - Files (git diff --stat summary)

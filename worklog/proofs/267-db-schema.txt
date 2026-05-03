@@ -1,0 +1,45 @@
+# Slice 267 — DB-Schema Post-Migration-Verify (AC-01, AC-02, AC-03)
+
+Date: 2026-05-03
+Project: skzjfhvgccaeplydsunz (beScout-App, eu-west-1, ACTIVE_HEALTHY)
+Migration: slice_267_fixtures_realtime (applied via mcp__supabase__apply_migration)
+
+## Combined Verify Query
+
+```sql
+SELECT
+  (SELECT relreplident::text FROM pg_class
+    WHERE relname = 'fixtures' AND relnamespace = 'public'::regnamespace) AS replica_identity,
+  (SELECT COUNT(*) FROM pg_publication_tables
+    WHERE pubname='supabase_realtime' AND schemaname='public' AND tablename='fixtures') AS in_publication_count,
+  (SELECT json_agg(json_build_object('column_name', column_name, 'data_type', data_type, 'is_nullable', is_nullable))
+    FROM information_schema.columns
+    WHERE table_name='fixtures' AND column_name IN ('minute','last_live_update_at')) AS new_columns;
+```
+
+## Result
+
+```json
+{
+  "replica_identity": "f",
+  "in_publication_count": 1,
+  "new_columns": [
+    { "column_name": "last_live_update_at", "data_type": "timestamp with time zone", "is_nullable": "YES" },
+    { "column_name": "minute", "data_type": "integer", "is_nullable": "YES" }
+  ]
+}
+```
+
+## AC-Verdict
+
+| AC | Erwartung | Result | Status |
+|----|---|---|---|
+| AC-01 | `relreplident = 'f'` (FULL) | `f` | ✅ |
+| AC-02 | fixtures in `supabase_realtime` publication | 1 row | ✅ |
+| AC-03 | `minute` + `last_live_update_at` nullable | both `YES` nullable, types `integer` + `timestamp with time zone` | ✅ |
+
+## Migration-Apply-Statement
+
+`mcp__supabase__apply_migration` returned `{"success": true}`.
+
+Migration-File: `supabase/migrations/20260503120000_slice_267_fixtures_realtime.sql`
