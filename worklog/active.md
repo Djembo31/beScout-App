@@ -1,15 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 269
-stage: LOG
-spec: worklog/specs/269-markt-puls-3-tab.md (v2)
-impact: skipped (Pure UI-Refactor + i18n)
-pre-review: worklog/reviews/269-pre-review.md
-build: 12 Files (inkl. inline-Heals F-NEW-01+02)
-proof: worklog/proofs/269-marktpuls-vitest.txt
-review: worklog/reviews/269-review.md (PASS, A-, LOW regression-risk)
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
 
 ## D63 Phase 4 Discovery KOMPLETT 2026-05-04 (1/1 Slice live)
