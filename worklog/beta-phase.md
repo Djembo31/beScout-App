@@ -13,7 +13,7 @@ phase: D    # 3 Beta-Tester live im System (Anil-confirmed 2026-05-03), Phase 3b
 last_phase_run: 2026-05-04 (Sign-Off-Re-Trial #2 produzierte SOFT-PASS — Tech-Side 6/6 grün, Persona-Avg-estimated 8.0, Tester-Items funktional erfüllt formell offen. Anil-Decision-Pflicht für last_signoff: PASS-Update.)
 last_signoff: SOFT-PASS-PENDING-ANIL
 last_signoff_date: 2026-05-04
-last_signoff_verdict: "Re-Trial #2 (2026-05-04 post-Slice-269): SOFT-PASS-PENDING-ANIL. Decision-Matrix 6/6 ✅ Tech (P0=0, P1=0, P2=0, P3=0, Smoke gegen bescout.net 18.3s PASS, Sentry MCP connected) + 2/2 ⚠️ Tester-Items (3 Tester funktional aktiv aber memory/beta-tester-list.md formell-fehlt + memory/beta-onboarding.md DRAFT mit TODO-Email/Tel). Per-Page-Health-Avg = System-Drift (0-50 Score nie persistiert, Punch-List 89/98 Proxy). Persona-Score-Avg estimated 8.0 post-Phase-1-4-Deployment (alt 7.17 aus 2026-04-28, post-D63-Deploy-Re-Walk deferred auf Beta-Cycle). Watch-Items: JAVASCRIPT-NEXTJS-15 Mobile-Safari Maximum-Update-Depth (1 event 0 users transient), 22+ Cold-Start-Transient GHA-Issues (locator.click 30s timeout während Vercel-Lambda-Warm). Anil-Action-Items: (1) memory/beta-tester-list.md formell anlegen, (2) onboarding-doc TODOs füllen, (3) TR-Pflicht-Review 11 neue Slice-266+269-Keys, (4) Mobile-Safari-Verify Phase 1-4. CTO-Empfehlung: GO bestätigen → 3-Tester-Beta. Phase 5 Visual-Polish parallel post-GO. Vorheriger Trial-Run (2026-04-26): HARD-NO-GO durch P1=3 + 2 hart-FAIL-Tester-Items, jetzt durch Slice 224+225+226+227 + D63 Phase 1-4 + Anil-Tester-Org gehealt."
+last_signoff_verdict: "Re-Trial #2 (2026-05-04 post-Slice-269 + post-SO-3/SO-4-Recovery + Static-Re-Walk): SOFT-PASS-STRENGTHENED. Recovery-Pass: SO-3 (Test-Determinismus, RISK-6 closed), SO-4 (Cold-Start-Resilience + Master-Tracker-Pattern, RISK-3 closed, 22 stale Issues batch-cleanup), Static-Re-Walk (Persona-Avg measured 8.33/10 vs alt estimated 8.0, RISK-2 closed). Decision-Matrix 7/8 ✅ measured (Tech 6/6 inkl. neuer 1 offener beta-blocker = nur Master-Tracker #63 by-design + Persona-Avg 8.33 measured) + 1 ❓ System-Drift (Per-Page-Health 0-50 Score nie persistiert, Backlog post-Beta) + 2 ⚠️ Tester-Items formell-offen funktional-erfüllt. 3 Risks closed (2/3/6) + 1 Watch (1 Sentry JAVASCRIPT-NEXTJS-15 Anil-Mobile-Safari-Verify) + 1 DEBT (4 Per-Page-Health post-Beta) + 1 USER-ACTION (5 TR-Pflicht-Review compliance-pre-verified). Anil-Action-Items: (1) memory/beta-tester-list.md formell anlegen, (2) onboarding-doc TODOs füllen, (3) TR-Pflicht-Review 11 Keys (alle pre-verified compliance-konform), (4) Mobile-Safari-Verify Phase 1-4. CTO-Empfehlung: GO bestätigen → 3-Tester-Beta. Phase 5 Visual-Polish parallel post-GO. Vorheriger Trial-Run (2026-04-26): HARD-NO-GO durch P1=3 + 2 hart-FAIL-Tester-Items, jetzt durch Slice 224+225+226+227 + D63 Phase 1-4 + Anil-Tester-Org + SO-2/3/4-Recovery + Static-Re-Walk gehealt."
 findings_open:
   P0: 0
   P1: 0   # Slice 225 healed UX-NEU-2 → ALLE P1 NULL
@@ -21,7 +21,7 @@ findings_open:
   P3: 0   # Slice 225 healed UX-NEU-4 → FM-NEU-5 wont-fix (User-Intent-Misalignment)
   incomplete_reruns: 0
   test_mock_backlog: 0
-  signoff_questionable: 2   # Page-Health-Score + Persona-Score numerisch
+  signoff_questionable: 1   # Per-Page-Health-Score 0-50-System nie persistiert (Backlog post-Beta). Persona-Avg measured 8.33/10 in 2026-05-04 Static-Re-Walk → ✅ measured PASS
   deferred:
     - POSTHOG-NEU-1 (post-3-Tester-Beta, wenn Skala >20 User)
     - FM-RR-2 (Watchlist-Standalone-Page Feature)
@@ -96,6 +96,7 @@ last_signoff_verdict: "<short-reasoning>"
 
 | Datum | Phase | Aktion | Outcome |
 |-------|-------|--------|---------|
+| 2026-05-04 18:30+ | D | **Recovery-Pass post-SO-3/SO-4 + Static-Re-Walk:** SOFT-PASS-STRENGTHENED. RISK-2/3/6 alle closed. Persona-Avg measured 8.33/10. 22 stale Issues batch-closed → 1 Master-Tracker #63 by-design open. GHA-Pipeline live-verified (Run für `73ede77c` SUCCESS in 1m47s). Verbleibend: RISK-1 Sentry-Watch + 4 Anil-Action-Items. | SOFT-PASS-STRENGTHENED |
 | 2026-05-04 | D | **Sign-Off Re-Trial #2 ausgeführt** post-Slice-269. Verdict: **SOFT-PASS-PENDING-ANIL** (6/6 Tech ✅, 2/2 Tester-Items ⚠️ formell-offen). Smoke 18.3s PASS gegen bescout.net (manuell-warm). 22+ GHA-Beta-Blocker-Issues = Cold-Start-Transients (kein App-Bug). Sentry: 1 NEW Watch-Item (JAVASCRIPT-NEXTJS-15 Maximum-Update-Depth, 1 event 0 users). Anil-Action-Items dokumentiert. CTO-Empfehlung: GO. Sign-Off-File: `worklog/sign-off/2026-05-04-readiness.md` | SOFT-PASS-PENDING-ANIL |
 | 2026-05-04 | D | D63 Phase 1+2+3+4 Home-Redesign 10/13 Slices live (261-269). Phase 5 Visual-Polish pending. **Tech-Side**: 0 P0/P1/P2/P3 open. 3 Tester aktiv. **Empfehlung: Sign-Off-Re-Trial.** | ⏳ ready-for-signoff |
 | 2026-04-26 17:50 | C | 7 Agents dispatched (3 Persona-Walker + 4 Auditors) | ⏳ running/aggregate-pending |
