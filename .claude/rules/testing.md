@@ -168,3 +168,68 @@ expect(mockQc.invalidateQueries).toHaveBeenCalled();
 - `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 162) — act+waitFor Pattern auf 7 Tests angewandt + queryClient mock expanded
 - `src/components/fantasy/__tests__/CreatePredictionModal.test.tsx` (Slice 163) — Service-direkt-Mock-Pattern
 - `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 170) — vi.hoisted-Pattern fuer shared mock-reference (Pattern 5)
+
+## Anti-Pattern: vi.resetModules() + dynamic-import-pro-Test (Slice SO-3 Heal, 2026-05-04)
+
+Wenn ein Test-File für jedes `it(...)` `vi.resetModules()` + `await import()` aufruft (oft genannt `loadHeader()` / `loadFresh()`), **wird der Test-Runner systemisch flaky** auf vollen Test-Suiten (3000+ Tests). Erste Test-Iteration kostet 3-10s JSDOM-Warmup + Module-Re-Transform; bei Pre-Push-Hook-Lauf mit Worker-Memory-Pressure kann der `getByRole(...)`-Lookup im sub-Render-Cycle den 30s-Timeout treffen → `MultipleElementsFoundError` weil das DOM noch nicht stabilisiert ist.
+
+**Symptom:**
+- Test passt isoliert (`vitest run path/to/file.test.tsx`)
+- Test failt intermittent in `pnpm exec vitest run` Full-Suite-Run
+- Erste Test-Iteration dauert 3-10s, Folge-Tests <300ms
+- Failure-Output zeigt `getMultipleElementsFoundError` oder `Element not found` obwohl DOM klar gerendert wurde
+
+**Anti-Pattern (verboten ab Slice SO-3):**
+```ts
+async function loadHeader() {
+  vi.resetModules();
+  const Header = (await import('@/components/layout/LeagueScopeHeader')).LeagueScopeHeader;
+  const store = (await import('../leagueScopeStore')).useLeagueScope;
+  return { Header, store };
+}
+
+it('renders ...', async () => {
+  const { Header } = await loadHeader();  // ← 3-10s erste Iteration
+  render(<Header />);
+  // ... assertions
+});
+```
+
+**Fix-Pattern (Slice SO-3):** Static imports + Zustand-Store-Reset:
+```ts
+// vi.mock-Factories oben (vitest hoisted automatisch)
+vi.mock('@/lib/leagues', () => ({...}));
+vi.mock('@/lib/queryClient', () => ({...}));
+
+// Static imports NACH den vi.mock-Calls
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
+import { useLeagueScope } from '../leagueScopeStore';
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  // Mocks setzen
+  mockGetCountries.mockReturnValue(COUNTRIES);
+  // Zustand store reset (replaces vi.resetModules)
+  useLeagueScope.getState().resetToDefault();
+});
+
+it('renders ...', () => {
+  render(<LeagueScopeHeader />);  // ← <500ms erste Iteration
+  // ...
+});
+```
+
+**Voraussetzung:** Der Zustand-Store muss eine `resetToDefault()`-Action haben. Falls nicht: per `useStore.setState({ ...initialState })` direkt setzen, oder Action ergänzen.
+
+**Verifikation der Determinismus-Reparatur:**
+```bash
+for i in 1 2 3 4 5; do
+  echo "=== RUN $i ==="
+  CI=true pnpm exec vitest run path/to/file.test.tsx --reporter=verbose 2>&1 | grep -E "Duration|passed|failed"
+done
+# Alle 5 Runs: PASS + Duration <10s + Worst-Test <600ms
+```
+
+**Reference:** Slice SO-3 Heal von Sign-Off-Re-Trial #2 RISK-6 — `LeagueScopeHeader.test.tsx` first-iteration 3500ms→280ms, intermittent-fail seit Slice 251 → 5/5 deterministic PASS.
+
+**Beziehung zu Pattern 5 (vi.hoisted für shared mock-reference):** Komplementär. Pattern 5 löst Singleton-Import-Migration, Anti-Pattern-Heal löst Test-Init-Latency-Flakiness. Beide kombinierbar im selben Test-File.

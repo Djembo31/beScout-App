@@ -25,11 +25,13 @@ vi.mock('next-intl', () => ({
 const mockGetCountries = vi.fn();
 const mockGetLeague = vi.fn();
 const mockGetAllLeaguesCached = vi.fn();
+const mockGetActiveLeagues = vi.fn();
 
 vi.mock('@/lib/leagues', () => ({
   getCountries: (...args: unknown[]) => mockGetCountries(...args),
   getLeague: (...args: unknown[]) => mockGetLeague(...args),
   getAllLeaguesCached: () => mockGetAllLeaguesCached(),
+  getActiveLeagues: () => mockGetActiveLeagues(),
   // Used by LeagueBar internals
   getLeaguesByCountry: () => [],
 }));
@@ -43,6 +45,12 @@ vi.mock('@/lib/clubs', () => ({ getClub: vi.fn() }));
 vi.mock('@/lib/observability/silentRejects', () => ({
   logSilentCatch: vi.fn(),
 }));
+
+// Static imports replace dynamic-import-inside-loadHeader (Slice SO-3 Heal,
+// Sign-Off Re-Trial #2 RISK-6). Dynamic import + vi.resetModules() caused
+// 10s+ JSDOM warmup latency on first test, intermittent pre-push failures.
+import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
+import { useLeagueScope } from '../leagueScopeStore';
 
 // ============================================
 // Test Fixtures
@@ -99,29 +107,23 @@ beforeEach(() => {
   }
   mockGetCountries.mockReturnValue(COUNTRIES);
   mockGetAllLeaguesCached.mockReturnValue([BL_LEAGUE, BL2_LEAGUE, TFF1_LEAGUE]);
+  mockGetActiveLeagues.mockReturnValue([BL_LEAGUE, BL2_LEAGUE, TFF1_LEAGUE]);
   mockGetLeague.mockImplementation((nameOrShort: string) => {
     if (nameOrShort === BL_LEAGUE.name || nameOrShort === BL_LEAGUE.short) return BL_LEAGUE;
     if (nameOrShort === TFF1_LEAGUE.name || nameOrShort === TFF1_LEAGUE.short) return TFF1_LEAGUE;
     return undefined;
   });
+  // Reset Zustand store to clean state (replaces vi.resetModules() pattern).
+  useLeagueScope.getState().resetToDefault();
 });
-
-async function loadHeader() {
-  vi.resetModules();
-  const Header = (await import('@/components/layout/LeagueScopeHeader'))
-    .LeagueScopeHeader;
-  const store = (await import('../leagueScopeStore')).useLeagueScope;
-  return { Header, store };
-}
 
 // ============================================
 // Tests
 // ============================================
 
 describe('<LeagueScopeHeader />', () => {
-  it('renders CountryBar and LeagueBar', async () => {
-    const { Header } = await loadHeader();
-    const { container } = render(<Header />);
+  it('renders CountryBar and LeagueBar', () => {
+    const { container } = render(<LeagueScopeHeader />);
     // Wrapper div is present
     expect(container.querySelector('[data-testid="league-scope-header"]')).not.toBeNull();
     // CountryBar nav present
@@ -132,43 +134,40 @@ describe('<LeagueScopeHeader />', () => {
     expect(screen.getByRole('navigation', { name: /Liga-Auswahl|leagueNavLabel/ })).toBeTruthy();
   });
 
-  it('clicking a country pill calls setCountry on the store', async () => {
-    const { Header, store } = await loadHeader();
-    render(<Header />);
+  it('clicking a country pill calls setCountry on the store', () => {
+    render(<LeagueScopeHeader />);
 
     // Find the DE pill — its aria-label is the country name.
     const dePill = screen.getByRole('button', { name: 'Deutschland' });
     fireEvent.click(dePill);
 
-    expect(store.getState().countryCode).toBe('DE');
+    expect(useLeagueScope.getState().countryCode).toBe('DE');
     // Smart-collapse: leagueId/Name cleared
-    expect(store.getState().leagueId).toBeNull();
-    expect(store.getState().leagueName).toBe('');
+    expect(useLeagueScope.getState().leagueId).toBeNull();
+    expect(useLeagueScope.getState().leagueName).toBe('');
   });
 
-  it('clicking a league pill resolves to id+name+country', async () => {
-    const { Header, store } = await loadHeader();
-    render(<Header />);
+  it('clicking a league pill resolves to id+name+country', () => {
+    render(<LeagueScopeHeader />);
 
     const blPill = screen.getByRole('button', { name: 'Bundesliga' });
     fireEvent.click(blPill);
 
-    const state = store.getState();
+    const state = useLeagueScope.getState();
     expect(state.leagueId).toBe('league-bl-uuid');
     expect(state.leagueName).toBe('Bundesliga');
     expect(state.countryCode).toBe('DE');
   });
 
   it('clicking the same league pill again toggles it off (LeagueBar emits "")', async () => {
-    const { Header, store } = await loadHeader();
-    render(<Header />);
+    render(<LeagueScopeHeader />);
 
     const blPill = screen.getByRole('button', { name: 'Bundesliga' });
     // Wrap clicks in act() so React 18 batched updates flush before second click.
     await act(async () => {
       fireEvent.click(blPill);
     });
-    expect(store.getState().leagueName).toBe('Bundesliga');
+    expect(useLeagueScope.getState().leagueName).toBe('Bundesliga');
 
     // Re-query to get the re-rendered button reference.
     const blPillAfter = screen.getByRole('button', { name: 'Bundesliga' });
@@ -176,15 +175,14 @@ describe('<LeagueScopeHeader />', () => {
       fireEvent.click(blPillAfter);
     });
     // Toggle-off: league reset, country preserved
-    expect(store.getState().leagueName).toBe('');
-    expect(store.getState().leagueId).toBeNull();
-    expect(store.getState().countryCode).toBe('DE');
+    expect(useLeagueScope.getState().leagueName).toBe('');
+    expect(useLeagueScope.getState().leagueId).toBeNull();
+    expect(useLeagueScope.getState().countryCode).toBe('DE');
   });
 
-  it('honours custom countries prop (e.g. event-filtered countries)', async () => {
-    const { Header } = await loadHeader();
+  it('honours custom countries prop (e.g. event-filtered countries)', () => {
     // 2+ countries needed because CountryBar renders null when countries.length <= 1.
-    render(<Header countries={[
+    render(<LeagueScopeHeader countries={[
       { code: 'TR', name: 'Türkei', leagueCount: 2 },
       { code: 'DE', name: 'Deutschland', leagueCount: 2 },
     ]} />);
