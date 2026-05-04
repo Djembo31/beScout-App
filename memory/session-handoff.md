@@ -1,16 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-04 21:21)
+# Session Handoff — Auto (2026-05-04 22:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-04.md
  M worklog/audits/type-truth-2026-05-04.md
 ```
 
-## Session Commits: 10
+## Session Commits: 8
+- 2a227bae chore(session-end): Sign-Off-Marathon Resume-Anker — 4 Slices live, 3 Risks closed
 - 50b78c19 chore(SO-2-recovery): Sign-Off STRENGTHENED post-SO-3/SO-4 + Static-Re-Walk
 - 73ede77c fix(SO-4): Cold-Start-Resilience + Auto-Issue-Master-Tracker (RISK-3)
 - de2c2150 fix(SO-3): LeagueScopeHeader.test.tsx Determinismus-Heal (RISK-6)
@@ -18,9 +18,6 @@
 - 61298b93 chore(session-end): Phase 4 Discovery KOMPLETT — Resume-Anker + Beta-Phase-Update
 - 3ab89bd2 chore(269-end): active.md -> idle, D63 Phase 4 KOMPLETT
 - c204cda5 feat(269): Markt-Puls 3-Tab Discovery (D63 Phase 4 Konsolidierung)
-- 7d6395cf chore(handoff): Phase 3 Live-Pulse KOMPLETT — Resume-Anker für nächste Session
-- 3e686653 chore(session-end): Phase 3 Live-Pulse KOMPLETT (Slices 266/267/268b live)
-- 4a370e6b feat(266): Spotlight-Multi-Slot Refactor (D63 Phase 3 Daily-Driver-Discoverability)
 
 <!-- auto:handoff-end -->
 

@@ -131,6 +131,9 @@ memory/episodisch/sessions/retro-*.md
 memory/senses/morning-briefing.md
 memory/episodisch/metriken/sessions.jsonl
 
+# PII — Beta-Tester-Daten (Name+Login+Profil), nur Template committed
+memory/beta-tester-list.md
+
 # Firecrawl cache
 .firecrawl/
 walkthrough/
