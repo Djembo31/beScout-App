@@ -9,11 +9,11 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: D    # 3 Beta-Tester live im System (Anil-confirmed 2026-05-03), Phase 3b Tester-Blocker resolved
-last_phase_run: 2026-05-04 (Sign-Off-Re-Trial #2 produzierte SOFT-PASS — Tech-Side 6/6 grün, Persona-Avg-estimated 8.0, Tester-Items funktional erfüllt formell offen. Anil-Decision-Pflicht für last_signoff: PASS-Update.)
-last_signoff: SOFT-PASS-PENDING-ANIL
-last_signoff_date: 2026-05-04
-last_signoff_verdict: "Re-Trial #2 (2026-05-04 post-Slice-269 + post-SO-3/SO-4-Recovery + Static-Re-Walk): SOFT-PASS-STRENGTHENED. Recovery-Pass: SO-3 (Test-Determinismus, RISK-6 closed), SO-4 (Cold-Start-Resilience + Master-Tracker-Pattern, RISK-3 closed, 22 stale Issues batch-cleanup), Static-Re-Walk (Persona-Avg measured 8.33/10 vs alt estimated 8.0, RISK-2 closed). Decision-Matrix 7/8 ✅ measured (Tech 6/6 inkl. neuer 1 offener beta-blocker = nur Master-Tracker #63 by-design + Persona-Avg 8.33 measured) + 1 ❓ System-Drift (Per-Page-Health 0-50 Score nie persistiert, Backlog post-Beta) + 2 ⚠️ Tester-Items formell-offen funktional-erfüllt. 3 Risks closed (2/3/6) + 1 Watch (1 Sentry JAVASCRIPT-NEXTJS-15 Anil-Mobile-Safari-Verify) + 1 DEBT (4 Per-Page-Health post-Beta) + 1 USER-ACTION (5 TR-Pflicht-Review compliance-pre-verified). Anil-Action-Items: (1) memory/beta-tester-list.md formell anlegen, (2) onboarding-doc TODOs füllen, (3) TR-Pflicht-Review 11 Keys (alle pre-verified compliance-konform), (4) Mobile-Safari-Verify Phase 1-4. CTO-Empfehlung: GO bestätigen → 3-Tester-Beta. Phase 5 Visual-Polish parallel post-GO. Vorheriger Trial-Run (2026-04-26): HARD-NO-GO durch P1=3 + 2 hart-FAIL-Tester-Items, jetzt durch Slice 224+225+226+227 + D63 Phase 1-4 + Anil-Tester-Org + SO-2/3/4-Recovery + Static-Re-Walk gehealt."
+phase: READY    # GO-LIVE 2026-05-05 — Sign-Off PASS-ENDGÜLTIG nach SO-2 bis SO-5 + alle Anil-Action-Items
+last_phase_run: 2026-05-05 (Sign-Off Final post-SO-5: 5/6 Action-Items synthetic-prüfbar DONE, NEW RISK-NEW 4-Migration-Drift CLOSED via SO-5, Mobile-Safari iPhone-WE-Verify als nicht-Beta-blocking-Item bleibt Anil)
+last_signoff: PASS
+last_signoff_date: 2026-05-05
+last_signoff_verdict: "Sign-Off ENDGÜLTIG-PASS post-SO-5 (2026-05-05). Sequence: SO-2 SOFT-PASS → SO-3/SO-4 Recovery → SO-2-Recovery STRENGTHENED → SO-5 Wildcard-RPC-Migration-Drift CLOSED. Action-Items 1+2+3+5 DONE (Tester-Liste + onboarding-Email/Tel + TR-Pre-Verify-Audit + Sentry NEXTJS-15 archived 1wk). Action-Item 4 (Mobile-Safari iPhone) Playwright-partial done — physisches iPhone bleibt Anil-WE-Verify als nicht-Beta-blocking-Watch-Item (RISK-1). NEW BONUS-DISCOVERY via SO-5: 4-Migration-Drift Slice 251 Wave 2 (28.04) nie applied, 3× get_wildcard_balance 404 systemisch in Production seit ~7 Tagen. Apply-Sequenz: 4 Original-Migrations + 1 Custom-Patch (22-arg rpc_save_lineup mit Track F + DROP 17-arg dead-code), 2 SQL-Bugs in Original gefixt (FROM-alias + DROP-order). Live-Verify post-Apply: bescout.net `/` 0 Errors (vs. 4 pre-Apply). 6/6 Risks closed (RISK-1 Watch P3 + RISK-2/3/6 closed + RISK-4 P3-DEBT post-Beta + RISK-5 USER-ACTION done + RISK-NEW closed). Beta GO-LIVE: 3 Tester (Kemal/Taki/Nail) angemeldet, Onboarding-Doc fertig (k_demirtas@hotmail.de + +49 1511 77 66 543), 802+11 TR-Strings compliance-verified. Phase 5 Visual-Polish parallel post-GO."
 findings_open:
   P0: 0
   P1: 0   # Slice 225 healed UX-NEU-2 → ALLE P1 NULL
@@ -46,10 +46,13 @@ slice_stubs_pending:
   - "Slice 225: InfoTooltip-Migration-Wave — UX-NEU-2 + UX-NEU-3 + UX-NEU-4 (BuyConfirmModal + MostOwnedSection Slice 216) + Pattern-Regel ui-components.md"
   - "Slice 226: getPlayerSentimentCounts Reliability-Weighting — FM-NEU-3"
   - "Slice 227: Sentiment-Bar 3-Segment + Empty-State-CTA — FM-NEU-4 + FM-NEU-5"
-anil_action_blockers:
-  - "memory/beta-tester-list.md erstellen (3 Tester, .gitignore-pflicht) — Recruitment-Templates fertig in memory/beta-tester-recruitment-templates.md (Slice 219)"
-  - "memory/beta-onboarding.md DRAFT fertig (Slice 219), Anil finalisiert echte Email/Tel-Nr beim Versand"
-  - "TR-Native-Reviewer organisieren"
+anil_action_blockers: []   # alle 5 Action-Items 2026-05-05 DONE (1+2+3+5) oder Watch-non-blocking (4 Mobile-Safari iPhone-WE)
+anil_action_done_2026_05_05:
+  - "Action-Item 1 ✅ memory/beta-tester-list.md erstellt (gitignored, Kemal+Taki+Nail)"
+  - "Action-Item 2 ✅ memory/beta-onboarding.md Email/Tel gefüllt (k_demirtas@hotmail.de + +49 1511 77 66 543)"
+  - "Action-Item 3 ✅ TR-Pflicht-Review Pre-Verify-Audit live (worklog/audits/2026-05-04/tr-keys-compliance-preverify.md PASS, Decision (a) post-Beta-Cleanup für Watchlist-Drift)"
+  - "Action-Item 4 ⚙️ Mobile-Safari Playwright-partial done — iPhone-WE-Verify Anil-Watch (RISK-1 P3 non-blocking)"
+  - "Action-Item 5 ✅ Sentry NEXTJS-15 archived 1week + commented"
 ```
 
 ## Phase-Definitionen
@@ -96,6 +99,7 @@ last_signoff_verdict: "<short-reasoning>"
 
 | Datum | Phase | Aktion | Outcome |
 |-------|-------|--------|---------|
+| 2026-05-05 ~00 | READY | **Sign-Off ENDGÜLTIG-PASS post-SO-5.** Action-Items 1+2+3+5 alle DONE. SO-5 Wildcard-RPC-4-Migration-Drift entdeckt + applied + 2 Original-SQL-Bugs gefixt. Live-Verify bescout.net `/` 0 Errors (vs. 4 pre-Apply). Mobile-Safari iPhone-Verify (Action-Item 4) Anil-WE-Watch RISK-1 nicht-blocking. **Beta GO-LIVE für Kemal/Taki/Nail.** | **PASS — READY** |
 | 2026-05-04 18:30+ | D | **Recovery-Pass post-SO-3/SO-4 + Static-Re-Walk:** SOFT-PASS-STRENGTHENED. RISK-2/3/6 alle closed. Persona-Avg measured 8.33/10. 22 stale Issues batch-closed → 1 Master-Tracker #63 by-design open. GHA-Pipeline live-verified (Run für `73ede77c` SUCCESS in 1m47s). Verbleibend: RISK-1 Sentry-Watch + 4 Anil-Action-Items. | SOFT-PASS-STRENGTHENED |
 | 2026-05-04 | D | **Sign-Off Re-Trial #2 ausgeführt** post-Slice-269. Verdict: **SOFT-PASS-PENDING-ANIL** (6/6 Tech ✅, 2/2 Tester-Items ⚠️ formell-offen). Smoke 18.3s PASS gegen bescout.net (manuell-warm). 22+ GHA-Beta-Blocker-Issues = Cold-Start-Transients (kein App-Bug). Sentry: 1 NEW Watch-Item (JAVASCRIPT-NEXTJS-15 Maximum-Update-Depth, 1 event 0 users). Anil-Action-Items dokumentiert. CTO-Empfehlung: GO. Sign-Off-File: `worklog/sign-off/2026-05-04-readiness.md` | SOFT-PASS-PENDING-ANIL |
 | 2026-05-04 | D | D63 Phase 1+2+3+4 Home-Redesign 10/13 Slices live (261-269). Phase 5 Visual-Polish pending. **Tech-Side**: 0 P0/P1/P2/P3 open. 3 Tester aktiv. **Empfehlung: Sign-Off-Re-Trial.** | ⏳ ready-for-signoff |
