@@ -1,27 +1,95 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-04 23:27)
+# Session Handoff — Auto (2026-05-05 00:38)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 3 Files
 ```
- M memory/beta-onboarding.md
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-04.md
  M worklog/audits/type-truth-2026-05-04.md
-?? worklog/audits/2026-05-04/mobile-repro-findings.md
 ```
 
 ## Session Commits: 7
+- d52df74e chore(beta-walkback): Phase READY -> D — iPhone-Verify pflicht vor GO-LIVE (Anil-Direktive (b))
+- cd7bfc37 chore(beta-go-live): Sign-Off PASS-ENDGÜLTIG — Phase READY 2026-05-05
+- afe5f604 fix(SO-5): Wildcard-RPC-Migration-Apply-Recovery — P1-Beta-Blocker (4-Migration-Drift seit 28.04)
 - e09e7a5e docs(audit): TR-Keys Compliance Pre-Verify Slice 266+269 (Anil-Action-Item 3)
 - 6babb43f chore(beta-prep): beta-tester-list Template + .gitignore (Anil-Action-Item 1 partial)
 - 2a227bae chore(session-end): Sign-Off-Marathon Resume-Anker — 4 Slices live, 3 Risks closed
 - 50b78c19 chore(SO-2-recovery): Sign-Off STRENGTHENED post-SO-3/SO-4 + Static-Re-Walk
-- 73ede77c fix(SO-4): Cold-Start-Resilience + Auto-Issue-Master-Tracker (RISK-3)
-- de2c2150 fix(SO-3): LeagueScopeHeader.test.tsx Determinismus-Heal (RISK-6)
-- 4e178f23 chore(SO-2): Sign-Off Re-Trial #2 — SOFT-PASS-PENDING-ANIL (post-Slice-269)
 
 <!-- auto:handoff-end -->
+
+---
+
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-05 ~01:00 — Feierabend nach Sign-Off-Marathon)
+
+**HEAD `d52df74e`** Status: idle. **Phase D, last_signoff: PASS-PENDING-IPHONE-VISUAL-VERIFY** (Walk-Back nach Anil's „pesmerga sieht alt aus"-Schreck, dann Diagnose dass Render spec-konform ist).
+
+## Erste Action morgen — Anil-Decision-Pflicht (3-Optionen)
+
+Pesmerga-Diagnose-Outcome: **Code-Side komplett richtig.** „Fehlende Komponenten" waren Account-State-konform:
+- ActionRequiredStack hidden bei Scout-Mode (`heroMode !== 'manager'`)
+- HomeSpotlight returnt null wenn 0 Slot-Conditions matchen (off-GW + 0% PnL + Box geöffnet)
+- 5 Tabs sichtbar = 8 Tabs definiert + Mobile-393px-overflow-x-auto-Container
+- 6-Streak ist NICHT at-risk (≥7-Threshold)
+
+**Walk-Forward-Möglich:**
+- **Option A** Phase D → READY + Beta-Mails an Taki/Nail (CTO-Empfehlung): Walk-Back war false-alarm. Tester decken die ungetesteten 7 Konfigs natural. iPhone-Verify mit Power-Account am WE als non-blocking Watch.
+- **Option B** Erst Power-Account-iPhone-Verify: Anil mit Kemal-Account einloggen + auf iPhone scrollen + verifizieren dass Spotlight/MarktPuls/ActionStack bei laufender GW sichtbar werden. Dann Phase READY.
+- **Option C** Pause: Phase-State eingefroren bis morgen frischer Kopf.
+
+**Anil hat „Feierabend" gesagt → Option C automatisch aktiviert. Phase bleibt D, last_signoff bleibt PASS-PENDING.**
+
+## Was passierte in dieser Session (3h Marathon, 8 Commits, 0 Reverts)
+
+| Slice | Commit | Was |
+|-------|--------|-----|
+| SO-2 | `4e178f23` | Sign-Off Re-Trial #2 — SOFT-PASS |
+| SO-3 | `de2c2150` | LeagueScopeHeader Test-Determinismus (RISK-6 closed) |
+| SO-4 | `73ede77c` | Cold-Start-Resilience + Master-Tracker (RISK-3 closed, 22 Issues batch-cleanup) |
+| SO-2-recovery | `50b78c19` | Sign-Off STRENGTHENED + Persona-Static-Re-Walk (RISK-2 closed, Avg 8.33) |
+| SO-5 | `afe5f604` | **Wildcard-RPC-4-Migration-Drift CLOSED** + 1 Custom-Patch + 2 SQL-Bugs gefixt + Live-Verify 0 Errors |
+| beta-go-live (zu früh) | `cd7bfc37` | Phase READY (Walk-Back wegen Anil's pesmerga-Verdacht) |
+| beta-walkback | `d52df74e` | Phase READY → D + iPhone-Verify-Checklist |
+| chore(beta-prep) | `6babb43f` | beta-tester-list Template + .gitignore |
+| docs(tr-pre-verify) | `e09e7a5e` | TR-Keys Compliance-Audit Slice 266+269 |
+
+## Action-Items Final-Status
+
+| # | Item | Status |
+|---|---|---|
+| 1 | beta-tester-list.md | ✅ DONE (Kemal/Taki/Nail in gitignored File) |
+| 2 | beta-onboarding.md Email/Tel | ✅ DONE (k_demirtas@hotmail.de + +49 1511 77 66 543) |
+| 3 | TR-Keys Pre-Verify | ✅ DONE Compliance-PASS, Decision (a) post-Beta-Cleanup |
+| 4 | Mobile-Safari-Verify | ⚙️ Playwright-partial (cta-new-Mode + pesmerga Render-Diagnose) — Power-Account-iPhone-Verify bleibt als Decision-Pflicht (A/B/C) |
+| 5 | Sentry NEXTJS-15 | ✅ DONE (1wk archived + commented) |
+| NEW (SO-5) | 4-Migration-Drift | ✅ CLOSED via SO-5 |
+
+## Files für nächsten Resume offen-relevant
+
+- `worklog/audits/2026-05-05/iphone-verify-checklist.md` — 5-Block-Checkliste falls Option B
+- `worklog/audits/2026-05-04/mobile-repro-findings.md` — vollständige SO-5 Discovery + Apply-Sequence
+- `worklog/audits/2026-05-04/tr-keys-compliance-preverify.md` — TR-PASS-Audit
+- `memory/beta-tester-list.md` — gitignored, 3 Tester
+- `memory/beta-onboarding.md` — fertig DE+TR
+- `memory/beta-tester-recruitment-templates.md` — fertig (DE für A+B, TR für C)
+
+## Pesmerga-Account-Diagnose-Reference (für Future-Confusion-Prevention)
+
+Wenn ein Tester sagt „Spotlight fehlt bei mir":
+- Account-State checken: `heroMode` + `holdings.length` + `holdings[].change24h` + `hasFreeBoxToday` + `isEventLive`
+- Bei 0 von 5 Slot-Conditions matched → HomeSpotlight returnt null = spec-konform
+- Bei `heroMode !== 'manager'` → ActionRequiredStack returnt null = spec-konform
+- Bei `streak < 7` → StreakRisk hidden
+- Mobile 5 Tabs sichtbar = 8 Tabs definiert + horizontal-scroll-Container
+
+Code-Refs:
+- `src/components/home/HomeSpotlight.tsx:53` (slots.primary null-Guard)
+- `src/components/home/ActionRequiredStack.tsx:69-72` (4 return-null-Branches)
+- `src/app/(app)/hooks/useHomeData.ts:214-225` (spotlightSlots Cascade-Logic)
+- `src/components/layout/BottomNav.tsx:10-19` (8 Tabs definiert)
 
 ---
 
