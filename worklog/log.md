@@ -2,6 +2,53 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## SO-5 | 2026-05-04 | Wildcard-RPC-Migration-Apply-Recovery (P1-Beta-Blocker NEW)
+
+- Stage-Chain: SPEC (skipped — Sign-Off-Mobile-Verify-Discovery, inline-Triage) → IMPACT (live-Discovery via Console-Errors auf bescout.net) → BUILD (4 Migrations + 1 Custom-Patch via mcp__supabase__apply_migration) → REVIEW (self-review per workflow.md XS-Ausnahme bei Migration-Apply-Pattern) → PROVE (POST-Smokes je Migration + Live-Verify 0× 404 post-apply) → LOG
+- Slice-Type: DB-Migration + Recovery (per D53 Definition-of-Done)
+- Trigger: Anil-Direktive „ich will das du das mit playwright durchziehst" für Mobile-Safari-Verify (Action-Item 4) → Console-Capture entdeckte 4-Migration-Drift seit 2026-04-28.
+- Bug-Klasse: Slice-251-Wave-2-Migrations (28.04) wurden geschrieben aber NIE applied weil Migration-File explizite Block-Comments hatte („NICHT via apply_migration ausfuehren — Anil appliziert manuell"). Plus: Slice 251 Wave 2 Track F war nicht mit Slice 195d (25.04 Bench-Slots) synchronisiert → 17-arg-Version konflikiert mit 22-arg.
+- 4-Migration-Drift bestätigt:
+  - `20260428120000_user_wildcards_per_league.sql` (Schema → Composite-PK)
+  - `20260428120500_wildcards_rpcs_per_league.sql` (5 RPCs auf neue Schema)
+  - `20260428121000_save_lineup_per_league.sql` (17-arg `rpc_save_lineup`)
+  - `20260428175547_slice_251_leagues_active_gameweek_backfill.sql` (active_gameweek SSOT)
+- Plus 1 Custom-Patch (post-discovery): `20260504220000_so5_rpc_save_lineup_22arg_track_f_patch.sql` — heilt 22-arg `rpc_save_lineup` (Slice 195d) das durch Migration #2 broken wurde (alte 5-arg `spend_wildcards` Calls vanished).
+- 2 SQL-Bugs in Original-Migration #1 entdeckt + gefixt (Migration nie getestet vom Author):
+  - **Bug #1** `INSERT ... SELECT bs.* FROM balance_splits` ohne Alias `AS bs` → "missing FROM-clause entry for table 'bs'"
+  - **Bug #2** PK-DROP nach INSERT statt davor → duplicate-key violation auf alter Single-PK
+- Apply-Sequenz (alle PASS):
+  1. user_wildcards Composite-PK (3rd attempt, 2 SQL-Bugs gefixt) → 35 rows (5 user × 7 leagues), Sum-Invariant 0=0, RLS 4 policies
+  2. wildcards_rpcs (clean) → 5 RPCs SECURITY DEFINER auf neue Composite-PK
+  3. save_lineup 17-arg (clean — dead, gedroppt in #5)
+  4. leagues active_gameweek backfill (clean) → 7/7 Ligen in_sync
+  5. Custom rpc_save_lineup 22-arg + Track F + DROP 17-arg → only 22-arg + Track F + new 6-arg calls bleibt
+- Files (8):
+  - `supabase/migrations/20260428120000_user_wildcards_per_league.sql` — 2 Bug-Fixes patched (FROM alias + DROP order)
+  - `supabase/migrations/20260504220000_so5_rpc_save_lineup_22arg_track_f_patch.sql` — neu (Custom-Patch)
+  - `worklog/audits/2026-05-04/mobile-repro-findings.md` — Mobile-Verify + 4-Migration-Drift + Apply-Sequence-Doku
+  - `worklog/audits/2026-05-04/tr-keys-compliance-preverify.md` — Action-Item 3 SO Pre-Verify (separater Slice)
+  - `memory/beta-tester-list.md` — Action-Item 1 Anil-data filled (gitignored, lokal)
+  - `memory/beta-tester-list.template.md` — Skelett-Template (committed)
+  - `memory/beta-onboarding.md` — Action-Item 2 Email/Tel TODOs gefüllt (`k_demirtas@hotmail.de` + `+49 1511 77 66 543`)
+  - `.gitignore` — `memory/beta-tester-list.md` excluded (PII)
+- Live-Verify post-Apply:
+  - Pre: bescout.net `/` Console = 4 Errors (3× `get_wildcard_balance` 404 + 1× Profile-Load-Fail-after-retry)
+  - Post: bescout.net `/` Console = **0 Errors / 1 Warning** (apple-mobile-web-app-capable deprecation, harmless)
+  - → P1-Beta-Blocker komplett gefixt.
+- Sign-Off-Re-Trial #2 Status:
+  - Action-Item 1 (Tester-Liste): ✅ DONE
+  - Action-Item 2 (Email/Tel): ✅ DONE
+  - Action-Item 3 (TR-Review): ✅ Pre-Verify-Audit live, Anil 5-min-Skim → RISK-5 CLOSE pending
+  - Action-Item 4 (Mobile-Safari): ⚙️ Playwright partial-Verify done (Slice 269 0-tabs Drift dokumentiert, JAVASCRIPT-NEXTJS-15 Chromium-can't-repro), echte Mobile-Safari WE-Verify bleibt Anil
+  - Action-Item 5 (Sentry-UI): ❌ pending (MCP nur read)
+  - **NEW RISK-NEW: 4-Migration-Drift → CLOSED via SO-5**
+- Knowledge-Promotion:
+  - `.claude/rules/errors-db.md` Pattern-Update für Migration-File-Block-Comments + apply_migration-Bug-Patterns (separater Commit nach SO-5).
+  - `memory/decisions.md` D? — TBD: „Migration-File-Block-Comment via CEO-go überstimmen, mit POST-Smoke-Verify-Pflicht" als Process-Decision.
+
+---
+
 ## SO-4 | 2026-05-04 | Cold-Start-Resilience + Auto-Issue-Master-Tracker-Pattern (Sign-Off RISK-3 CLOSE)
 
 - Stage-Chain: SPEC (XS, inline-Spec aus Sign-Off-RISK-3 Punch-List) → IMPACT (skipped — GHA-Workflow + Knowledge, kein App-Code) → BUILD → REVIEW (self-review per workflow.md XS-Ausnahme bei Pattern-Reuse — Slice 234 D54 Master-Tracker-Pattern in Smoke-Pipeline angewandt) → PROVE (YAML-Lint + 22 stale Issues batch-closed + Master-Tracker #63 erstellt) → LOG

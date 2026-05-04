@@ -1,23 +1,25 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-04 22:03)
+# Session Handoff — Auto (2026-05-04 23:27)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 5 Files
 ```
+ M memory/beta-onboarding.md
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-04.md
  M worklog/audits/type-truth-2026-05-04.md
+?? worklog/audits/2026-05-04/mobile-repro-findings.md
 ```
 
-## Session Commits: 8
+## Session Commits: 7
+- e09e7a5e docs(audit): TR-Keys Compliance Pre-Verify Slice 266+269 (Anil-Action-Item 3)
+- 6babb43f chore(beta-prep): beta-tester-list Template + .gitignore (Anil-Action-Item 1 partial)
 - 2a227bae chore(session-end): Sign-Off-Marathon Resume-Anker — 4 Slices live, 3 Risks closed
 - 50b78c19 chore(SO-2-recovery): Sign-Off STRENGTHENED post-SO-3/SO-4 + Static-Re-Walk
 - 73ede77c fix(SO-4): Cold-Start-Resilience + Auto-Issue-Master-Tracker (RISK-3)
 - de2c2150 fix(SO-3): LeagueScopeHeader.test.tsx Determinismus-Heal (RISK-6)
 - 4e178f23 chore(SO-2): Sign-Off Re-Trial #2 — SOFT-PASS-PENDING-ANIL (post-Slice-269)
-- 61298b93 chore(session-end): Phase 4 Discovery KOMPLETT — Resume-Anker + Beta-Phase-Update
-- 3ab89bd2 chore(269-end): active.md -> idle, D63 Phase 4 KOMPLETT
-- c204cda5 feat(269): Markt-Puls 3-Tab Discovery (D63 Phase 4 Konsolidierung)
 
 <!-- auto:handoff-end -->
 

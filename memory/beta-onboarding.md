@@ -39,7 +39,7 @@ BeScout ist eine **Fußball-Plattform für Fans**. Du kannst:
 ### Wie meldest du Bugs?
 
 **Während des Calls:** sag's einfach. Wir schreiben mit.
-**Später:** WhatsApp an Anil ODER Email an `anil@bescout.net` (TODO Anil — echte Adresse einsetzen)
+**Später:** WhatsApp an Anil ODER Email an `k_demirtas@hotmail.de`
 
 **Was hilft uns am meisten:**
 - Screenshot vom Bug (Screenshot-Funktion deines Phones)
@@ -63,8 +63,8 @@ Alle Daten sind in der EU (Frankfurt-Server). Wir speichern nur was nötig ist. 
 
 ### Kontakt
 
-- Anil: `+49-TODO-replace` (WhatsApp)
-- Email: `anil@bescout.net` (TODO Anil — echte Adresse einsetzen)
+- Anil: `+49 1511 77 66 543` (WhatsApp)
+- Email: `k_demirtas@hotmail.de`
 - Website: https://bescout.net
 
 ---
@@ -103,7 +103,7 @@ BeScout, **futbol fanları için bir platform**. Şunları yapabilirsin:
 ### Hata bildirimi nasıl?
 
 **Görüşme sırasında:** sadece söyle. Biz not alıyoruz.
-**Sonra:** WhatsApp'tan Anil'e VEYA Email `anil@bescout.net` (TODO Anil — gerçek adres)
+**Sonra:** WhatsApp'tan Anil'e VEYA Email `k_demirtas@hotmail.de`
 
 **En çok yardımcı olan:**
 - Hatanın ekran görüntüsü
@@ -127,16 +127,16 @@ Tüm veriler AB'de (Frankfurt sunucuları). Sadece gerekli olanı saklarız. Hes
 
 ### İletişim
 
-- Anil: `+49-TODO-replace` (WhatsApp)
-- Email: `anil@bescout.net` (TODO Anil — gerçek adres)
+- Anil: `+49 1511 77 66 543` (WhatsApp)
+- Email: `k_demirtas@hotmail.de`
 - Web sitesi: https://bescout.net
 
 ---
 
 ## Anil-Action vor Versand
 
-- [ ] Email-Adresse in DE+TR-Sektion ersetzen (`anil@bescout.net` — schon korrekt? Sonst ändern)
-- [ ] WhatsApp-Nummer einsetzen (`+49-TODO-replace`)
+- [x] Email-Adresse in DE+TR-Sektion ersetzen (`k_demirtas@hotmail.de` — vorerst, später `kdemirtas@bescout.net` / `official@bescout.net`)
+- [x] WhatsApp-Nummer einsetzen (`+49 1511 77 66 543`)
 - [ ] PDF/Markdown-Export erzeugen
 - [ ] An 3 Tester schicken (per Channel ihrer Wahl, siehe `beta-tester-recruitment-templates.md`)
 - [ ] 1× Zoom-Call-Slot pro Tester einplanen (~30 min)

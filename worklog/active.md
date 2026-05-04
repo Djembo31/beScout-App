@@ -2,12 +2,12 @@
 
 ```
 status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+slice: SO-5
+stage: LOG
+spec: inline (Sign-Off-Mobile-Verify-Discovery, kein dedicated specs file)
+impact: live-Discovery via Console-Errors auf bescout.net + 4-Migration-Drift seit 28.04
+proof: worklog/audits/2026-05-04/mobile-repro-findings.md (POST-Smokes + Live-Verify 0× 404)
+review: self-review per workflow.md XS-Ausnahme (Migration-Apply mit POST-Smoke-Pflicht)
 ```
 
 ## D63 Phase 4 Discovery KOMPLETT 2026-05-04 (1/1 Slice live)

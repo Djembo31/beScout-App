@@ -2,10 +2,12 @@
 -- Slice 251 Wave 2 Track F — user_wildcards Composite-PK pro Liga
 --
 -- Source-of-truth: supabase/migrations/20260326_wildcards.sql (initial schema)
--- Applied patches: none — this is the first PK-Migration on this table
+-- Applied patches:
+--   2026-05-04 SO-5: 2 SQL-Bugs gefixt (Original-Body wurde nie applied — siehe v1):
+--     #1 INSERT...SELECT bs.* FROM balance_splits → FROM balance_splits AS bs (alias-Bug)
+--     #2 DROP CONSTRAINT user_wildcards_pkey muss VOR INSERT (sonst PK-Konflikt)
 --
--- WICHTIG: NICHT via `mcp__supabase__apply_migration` ausfuehren —
---          Anil appliziert manuell im Supabase-Dashboard post-Merge.
+--   Applied 2026-05-04 via mcp__supabase__apply_migration mit Anil-go.
 --
 -- Verify-SQL post-apply:
 --   -- 1. PK-Check (muss 2 Rows liefern: user_id + league_id)
@@ -42,6 +44,12 @@ BEGIN;
 -- =============================================================================
 ALTER TABLE public.user_wildcards
   ADD COLUMN league_id UUID REFERENCES public.leagues(id) ON DELETE CASCADE;
+
+-- =============================================================================
+-- STEP 1b (Bug #2 fix 2026-05-04 SO-5): DROP alte single-column PK
+-- ZUERST, sonst blockt sie das INSERT in STEP 2 mit duplicate-key error.
+-- =============================================================================
+ALTER TABLE public.user_wildcards DROP CONSTRAINT user_wildcards_pkey;
 
 -- =============================================================================
 -- STEP 2: Backfill — split existing balance across active leagues
@@ -115,15 +123,15 @@ SELECT
   bs.final_earned,
   bs.final_spent,
   now()
-FROM balance_splits;
+FROM balance_splits AS bs;
+-- Bug #1 fix 2026-05-04 SO-5: alias `bs` muss explizit, sonst missing FROM-clause für `bs.*`.
 
 -- c) Delete the original single-PK rows (those without league_id)
 DELETE FROM public.user_wildcards WHERE league_id IS NULL;
 
 -- =============================================================================
--- STEP 3: Drop old single-column PK, add composite PK
+-- STEP 3: Add composite PK (alte PK wurde in STEP 1b bereits gedropped)
 -- =============================================================================
-ALTER TABLE public.user_wildcards DROP CONSTRAINT user_wildcards_pkey;
 ALTER TABLE public.user_wildcards ALTER COLUMN league_id SET NOT NULL;
 ALTER TABLE public.user_wildcards
   ADD CONSTRAINT user_wildcards_pkey PRIMARY KEY (user_id, league_id);
