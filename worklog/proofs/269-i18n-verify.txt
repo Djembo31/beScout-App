@@ -1,0 +1,40 @@
+Slice 269 — i18n + Compliance Verify
+=====================================
+Date: 2026-05-04
+
+## DE Keys (messages/de.json)
+"marketPulse": "Markt-Puls"  (existing, unverändert)
+"marketPulseTabs": {
+  "movers": "Bewegung",
+  "moversShort": "Movers",
+  "trending": "Trends",
+  "trendingShort": "Trends",
+  "watched": "Beobachtet",
+  "watchedShort": "Watched"
+}
+
+## TR Keys (messages/tr.json)
+"marketPulse": "Piyasa Nabzı"  (existing, unverändert)
+"marketPulseTabs": {
+  "movers": "Hareket",
+  "moversShort": "Hareket",
+  "trending": "Trendler",
+  "trendingShort": "Trend",
+  "watched": "İzlenen",
+  "watchedShort": "İzlenen"
+}
+
+## Compliance-Check
+- Pattern: gewinn|prämie|preis[eg]|investier|rendite|asset|kazan|ödül|yatırım|portföy|getiri
+- Hits in marketPulseTabs (DE+TR): 0
+
+## F-01 Drift-Schutz (Variante C)
+- Top-Level `marketPulse: "..."` String UNVERÄNDERT (bleibt für Section-Title)
+- Sub-Keys in NEU `marketPulseTabs` Object — KEIN Object/String-Drift
+- React-Crash-Risiko (Slice 263 Pattern) vermieden
+
+## Anil-Pflicht-Review pre-Commit
+TR-Wording per `feedback_tr_i18n_validation.md`:
+- "Hareket" (Movers): neutral, kein "Kazananlar"/"kazan"
+- "Trendler" / "Trend": neutral
+- "İzlenen" (Watched): neutral

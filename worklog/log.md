@@ -2,6 +2,47 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 269 | 2026-05-04 | Markt-Puls 3-Tab Discovery (D63 Phase 4 Konsolidierung)
+
+- Stage-Chain: SPEC (M-Slice, 13 Sektionen, Pre-Review-Patches v2) → IMPACT (skipped — Pure UI + i18n) → BUILD → REVIEW (D62 Pre-Review REWORK B+ → 4 PFLICHT in Spec gepatcht; Post-BUILD PASS Grade A-, 2 NEW-Findings inline-geheilt) → PROVE (vitest 16/16 + tsc + eslint clean + Compliance-grep 0 hits) → LOG
+- Slice-Type: UI · Größe: M (~9 Files: 3 NEU Components + 3 NEU Tests + page.tsx + de.json + tr.json)
+- D63 Phase 4 Discovery-Konsolidierung: 3 fragmentierte Sektionen (TopMoversWeek + Global Top Movers + Most Watched, ~480px vertical) → 1 konsolidierte 3-Tab-Section "Markt-Puls" (~180px). User-Filter zwischen Discovery-Modes statt parallel-Konsumieren.
+- Architektur:
+  - Slot-Priority-Engine analog Slice 266 #47: Tab-Cascade `movers > trending > watched`
+  - Tab-Visibility-Filter: Tab nur in Bar wenn Inhalt vorhanden
+  - Multi-Slot-Render-Pattern: 0 Tabs → null, 1 Tab → no TabBar (kein Slop), 2+ Tabs → SectionHeader + TabBar + TabPanel
+  - `effectiveActiveTab`-Fallback wenn activeTab invalid wird
+  - Hook-Hoist `useMostWatchedPlayers` auf page.tsx (Pre-Review F-02): Single-Source-Visibility-Decision via Prop, kein Doppel-Subscription-Overhead
+- Files (12 Edits inkl. inline-Heals F-NEW-01 + F-NEW-02):
+  - `src/components/home/MarktPuls.tsx` — NEU 3-Tab Container (~150 LOC)
+  - `src/components/home/OwnTopMoversStrip.tsx` — NEU extrahiert aus page.tsx:257-294 (DRY-Win)
+  - `src/components/home/TrendingPlayersStrip.tsx` — NEU 5-Top-Trades Strip mit Trade-Count-Badge
+  - `src/components/home/MostWatchedStrip.tsx` — EDIT `showHeader` Prop (F-NEW-01 Doppel-Header-Heal)
+  - `src/components/home/__tests__/MarktPuls.test.tsx` — NEU 10 Tests (8 AC-04-Permutationen + Tab-Switch + F-04-Gate)
+  - `src/components/home/__tests__/OwnTopMoversStrip.test.tsx` — NEU 3 Tests
+  - `src/components/home/__tests__/TrendingPlayersStrip.test.tsx` — NEU 3 Tests
+  - `src/app/(app)/page.tsx` — `useMostWatchedPlayers`-Hook-Call + 3 Sektionen → `<MarktPuls .../>`
+  - `messages/de.json` — NEU `marketPulseTabs` Sub-Object (6 Keys) + `tradeCount` Plural-Key (F-NEW-02)
+  - `messages/tr.json` — dito TR
+- Pre-Review-Memo (D62) Pattern-Recovery:
+  - F-01 CRITICAL i18n Object/String-Drift (Slice 263 Pattern) → Variante C avoided (Sub-Namespace `marketPulseTabs` statt String→Object umwandeln). Top-Level `marketPulse` String UNVERÄNDERT.
+  - F-02 Hook-Hoist auf page.tsx → Single-Source-Visibility
+  - F-03 8-Permutations-Tabelle in AC-04 → alle Tests
+  - F-04 `playersLoading`-Gate für movers-Tab
+  - F-05–F-09 NITs alle resolved
+  - 2 NEW-Findings post-BUILD inline-geheilt:
+    - F-NEW-01 Doppel-SectionHeader (MarktPuls + MostWatchedStrip) → `showHeader` Prop default `true`, MarktPuls passt `false`
+    - F-NEW-02 Hardcoded German "Trades" in aria-label → i18n-Key `home.tradeCount` (Plural-format DE+TR)
+- Tests: 16/16 Slice-Tests grün (10 MarktPuls + 3 OwnTopMoversStrip + 3 TrendingPlayersStrip). Full-Suite 3192/3194 (1 pre-existing flaky `LeagueScopeHeader.test.tsx` aus Slice 266-Push, isolated 5/5 grün).
+- Compliance-grep `marketPulseTabs` 0 Hits (kein "kazan|gewinn|prämie|investier|rendite|asset|ödül|yatırım|portföy|getiri").
+- TR-Wording: "Hareket"/"Trendler"/"İzlenen" — Anil-Pflicht-Review pre-Commit per `feedback_tr_i18n_validation.md`.
+- **Visual-Proof deferred:** Playwright Mobile 393px (4 Konfigurationen: 3-tabs/2-tabs/1-tab/0-tabs × 2 Accounts) post-Deploy → Anil-Pflicht-Verify am WE.
+- Spec: `worklog/specs/269-markt-puls-3-tab.md`
+- Pre-Review: `worklog/reviews/269-pre-review.md` (REWORK B+, 9 Findings)
+- Review: `worklog/reviews/269-review.md` (PASS Grade A-, 0 MAJOR, 2 NEW inline-geheilt)
+- Proof: `worklog/proofs/269-marktpuls-vitest.txt` + `269-i18n-verify.txt`
+- D63 Phase 4 abgeschlossen (1/1 Slice). D63-Roadmap-Stand: Phase 1+2+3+4 ✅ live (10/13 Slices). Phase 5 Visual-Polish (270-273) ⏳ pending.
+
 ## 266 | 2026-05-04 | Spotlight-Multi-Slot Refactor (D63 Phase 3 Daily-Driver-Discoverability)
 
 - Stage-Chain: SPEC (M-Slice, 13 Sektionen, post-Pre-Review-Patches v2) → IMPACT (skipped — Pure UI-Refactor + i18n) → BUILD → REVIEW (D62 Pre-Review B+ → 5 MAJOR + 5 MINOR + 4 NIT in Spec gepatcht; Post-BUILD Review PASS-w-MINOR Grade A-, 0 MAJOR, 1 MINOR test-coverage-gap, LOW regression-risk) → PROVE (vitest 42/42 + tsc + eslint clean + Compliance-grep 0 hits) → LOG

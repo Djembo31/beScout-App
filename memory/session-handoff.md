@@ -1,14 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-04 16:03)
+# Session Handoff — Auto (2026-05-04 17:50)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
- M memory/session-handoff.md
- M worklog/audits/audit-stale-2026-05-03.md
- M worklog/audits/type-truth-2026-05-03.md
+ M .claude/settings.local.json
+?? worklog/audits/audit-stale-2026-05-04.md
+?? worklog/audits/type-truth-2026-05-04.md
+?? worklog/audits/wiring-2026-05-04.md
 ```
+
+## Session Commits: 5
+- 7d6395cf chore(handoff): Phase 3 Live-Pulse KOMPLETT — Resume-Anker für nächste Session
+- 3e686653 chore(session-end): Phase 3 Live-Pulse KOMPLETT (Slices 266/267/268b live)
+- 4a370e6b feat(266): Spotlight-Multi-Slot Refactor (D63 Phase 3 Daily-Driver-Discoverability)
+- a762b608 feat(268b): Price-Changes-Cache (D63 Phase 3 Performance-Win)
+- 89315e86 chore(hygiene): Session-Handoff-Auto-Block + Audit-Re-Run-Timestamps
 
 <!-- auto:handoff-end -->
 

@@ -12,9 +12,13 @@ import { SectionHeader } from '@/components/home/helpers';
 
 interface MostWatchedStripProps {
   userId: string;
+  /** Slice 269 (D63 Phase 4 Post-BUILD F-NEW-01) — Render-Mode für eingebetteten
+   * Tab-Kontext: wenn `false`, eigener SectionHeader wird unterdrückt (z.B. wenn
+   * MarktPuls bereits SectionHeader rendert). Default `true` für Standalone-Konsumenten. */
+  showHeader?: boolean;
 }
 
-function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
+function MostWatchedStripInner({ userId, showHeader = true }: MostWatchedStripProps) {
   const t = useTranslations('home');
   const { data: players = [] } = useMostWatchedPlayers(userId, 10);
 
@@ -24,7 +28,7 @@ function MostWatchedStripInner({ userId }: MostWatchedStripProps) {
 
   return (
     <div>
-      <SectionHeader title={t('mostWatched')} href="/market" />
+      {showHeader && <SectionHeader title={t('mostWatched')} href="/market" />}
       <div
         className="mt-2 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1"
         style={{ WebkitOverflowScrolling: 'touch' }}

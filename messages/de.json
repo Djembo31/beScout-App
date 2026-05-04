@@ -410,8 +410,17 @@
     "mostWatched": "Meistbeobachtet",
     "watcherCount": "{count} Beobachter",
     "marketPulse": "Markt-Puls",
+    "marketPulseTabs": {
+      "movers": "Bewegung",
+      "moversShort": "Movers",
+      "trending": "Trends",
+      "trendingShort": "Trends",
+      "watched": "Beobachtet",
+      "watchedShort": "Watched"
+    },
     "trendingNow": "Gerade beliebt",
     "liveTrades": "Live auf BeScout",
+    "tradeCount": "{count, plural, one {# Trade} other {# Trades}}",
     "viewAllRoster": "Alle {count} Spieler",
     "spotlightIpo": "Erstverkauf",
     "spotlightEvent": "Nächstes Event",

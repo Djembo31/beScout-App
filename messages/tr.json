@@ -410,8 +410,17 @@
     "mostWatched": "En Çok İzlenen",
     "watcherCount": "{count} İzleyici",
     "marketPulse": "Piyasa Nabzı",
+    "marketPulseTabs": {
+      "movers": "Hareket",
+      "moversShort": "Hareket",
+      "trending": "Trendler",
+      "trendingShort": "Trend",
+      "watched": "İzlenen",
+      "watchedShort": "İzlenen"
+    },
     "trendingNow": "Şu an popüler",
     "liveTrades": "BeScout'ta canlı",
+    "tradeCount": "{count, plural, one {# işlem} other {# işlem}}",
     "viewAllRoster": "Tüm {count} oyuncu",
     "spotlightIpo": "Kulüp Satışı Canlı",
     "spotlightEvent": "Sonraki Etkinlik",

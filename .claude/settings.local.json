@@ -87,7 +87,13 @@
       "PowerShell(claude *)",
       "mcp__vercel__get_runtime_logs",
       "mcp__sentry__get_sentry_resource",
-      "Bash(git -C C:/bescout-app log --oneline -1 origin/main)"
+      "Bash(git -C C:/bescout-app log --oneline -1 origin/main)",
+      "Bash(grep -qE \"Test Files.*passed|Test Files.*failed|Tests.*passed|Errors  \" \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\bow0k2251.output\")",
+      "Bash(tail -25 \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\bow0k2251.output\")",
+      "Bash(grep -qE \"main -> main|rejected|error|fatal\" \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\bqo0glruo.output\")",
+      "Bash(tail -10 \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\bqo0glruo.output\")",
+      "Bash(grep -qE \"Verdict|PASS|REWORK|FAIL|CONCERNS\" \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\ab8c538d5883c0fca.output\")",
+      "Bash(tail -200 \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\ab8c538d5883c0fca.output\")"
     ]
   },
   "enableAllProjectMcpServers": true,

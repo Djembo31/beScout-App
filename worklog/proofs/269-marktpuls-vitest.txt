@@ -1,0 +1,8 @@
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+
+[2m Test Files [22m [1m[32m216 passed[39m[22m[90m (216)[39m
+[2m      Tests [22m [1m[32m3193 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (3194)[39m
+[2m   Start at [22m 18:24:03
+[2m   Duration [22m 524.32s[2m (transform 29.48s, setup 102.00s, import 276.21s, tests 110.60s, environment 821.30s)[22m
+

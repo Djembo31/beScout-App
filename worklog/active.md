@@ -1,14 +1,28 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 269
+stage: LOG
+spec: worklog/specs/269-markt-puls-3-tab.md (v2)
+impact: skipped (Pure UI-Refactor + i18n)
+pre-review: worklog/reviews/269-pre-review.md
+build: 12 Files (inkl. inline-Heals F-NEW-01+02)
+proof: worklog/proofs/269-marktpuls-vitest.txt
+review: worklog/reviews/269-review.md (PASS, A-, LOW regression-risk)
 ```
+
+## D63 Phase 4 Discovery KOMPLETT 2026-05-04 (1/1 Slice live)
+
+| Phase | Slices | Status |
+|-------|--------|--------|
+| 1 Identity-Foundation | 261/262/263 | ✅ live |
+| 2 Action-Layer | 264/264b/265 | ✅ live |
+| 3 Live-Pulse | 266/267/268b | ✅ live |
+| **4 Discovery** | **269** | ✅ **live** |
+| 5 Visual-Polish | 270-273 | ⏳ pending |
+
+10 von 13 Slices der D63-Roadmap live. Phase 5 (Visual-Polish: Stadium-Assets + 3D-Mystery-Box) ist nur noch offene Phase.
 
 ## Phase 3 Live-Pulse KOMPLETT 2026-05-04 (3/3 Slices live in main)
 

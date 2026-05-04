@@ -24,7 +24,8 @@ import QuickActionPills from '@/components/home/QuickActionPills';
 import BeScoutIntroCard from '@/components/home/BeScoutIntroCard';
 import ScoutCardStats from '@/components/home/ScoutCardStats';
 import LastGameweekWidget from '@/components/home/LastGameweekWidget';
-import TopMoversStrip from '@/components/home/TopMoversStrip';
+import MarktPuls from '@/components/home/MarktPuls';
+import { useMostWatchedPlayers } from '@/lib/queries/watchlist';
 import { SectionHeader, formatPrize, getTimeUntil } from '@/components/home/helpers';
 
 // Slice 116 — CLS-Fix: loading-Skeletons mit fixed heights für alle inline dynamic imports.
@@ -52,10 +53,6 @@ const MissionHintList = dynamic(() => import('@/components/missions/MissionHintL
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), {
   ssr: false,
   loading: () => null,
-});
-const MostWatchedStrip = dynamic(() => import('@/components/home/MostWatchedStrip'), {
-  ssr: false,
-  loading: () => <div className="h-44 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 const FollowingFeedRail = dynamic(() => import('@/components/social/FollowingFeedRail'), {
   ssr: false,
@@ -96,6 +93,12 @@ export default function HomePage() {
     // Slice 264b — Wildcard-Pill
     wildcardBalance,
   } = useHomeData();
+
+  // Slice 269 (D63 Phase 4) — Hook-Hoist for Single-Source-of-Truth Visibility-
+  // Decision (Pre-Review F-02). MarktPuls bekommt watchedPlayers per Prop für
+  // Tab-3-Visibility, MostWatchedStrip im selben Tab nutzt TanStack-Cache (gleicher
+  // queryKey via qk.watchlist.mostWatched(10)).
+  const { data: watchedPlayers = [] } = useMostWatchedPlayers(uid, 10);
 
   const isNewUser = holdings.length === 0;
 
@@ -249,62 +252,19 @@ export default function HomePage() {
               Track B1 of polish-sweep.md Home Pass 2. */}
           <LastGameweekWidget uid={uid} players={players} />
 
-          {/* Top Mover der Woche — own holdings winner/loser.
-              Empty-state shown when user holds players but there's no
-              price movement yet (Track A3 empty-state, Anil option A).
-              Note: change24h used as fallback until the 7d RPC ships
-              (scope-creep in polish-sweep.md). */}
-          {holdings.length > 0 && (
-            <div>
-              <SectionHeader title={t('topMoversWeek')} href="/market" />
-              {topMovers.length > 0 ? (
-                <div className="flex gap-2.5 mt-2 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                  {topMovers.map(h => {
-                    const up = h.change24h >= 0;
-                    return (
-                      <Link
-                        key={h.playerId}
-                        href={`/player/${h.playerId}`}
-                        className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border card-showcase shrink-0 min-w-[180px] shadow-card-md"
-                        style={{
-                          borderColor: up ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                          background: `linear-gradient(135deg, ${up ? 'rgba(34,197,94,0.05)' : 'rgba(239,68,68,0.05)'} 0%, rgba(255,255,255,0.02) 100%)`,
-                        }}
-                      >
-                        <div className="min-w-0">
-                          <div className="text-sm font-bold truncate">{h.player}</div>
-                          <div className="text-[10px] text-white/40">{h.club}</div>
-                        </div>
-                        <div className={cn('flex items-center gap-0.5 ml-auto font-mono font-bold text-sm tabular-nums shrink-0', up ? 'text-green-500' : 'text-red-400')}>
-                          {up ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
-                          {up ? '+' : ''}{h.change24h.toFixed(1)}%
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="mt-2 px-4 py-5 rounded-2xl border border-white/[0.06] bg-surface-minimal text-center shadow-card-sm">
-                  <div className="text-xs text-white/40 max-w-[280px] mx-auto">
-                    {t('topMoversWeekEmpty')}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Global Top Movers */}
-          {!playersLoading && hasGlobalMovers && (
-            <div>
-              <SectionHeader title={t('globalMovers')} href="/market" />
-              <div className="mt-2">
-                <TopMoversStrip players={players} />
-              </div>
-            </div>
-          )}
-
-          {/* Most Watched */}
-          {uid && <MostWatchedStrip userId={uid} />}
+          {/* Slice 269 (D63 Phase 4) — Markt-Puls 3-Tab Discovery-Konsolidierung.
+              3 ehemalige Sektionen (TopMoversWeek + Global Top Movers + Most Watched)
+              jetzt unter einer SectionHeader mit Tab-Filter. */}
+          <MarktPuls
+            topMovers={topMovers}
+            holdings={holdings}
+            players={players}
+            hasGlobalMovers={hasGlobalMovers}
+            trendingPlayers={trendingPlayers}
+            watchedPlayers={watchedPlayers}
+            uid={uid}
+            playersLoading={playersLoading}
+          />
         </div>
 
         {/* ── RIGHT COLUMN (Sidebar — sticky on desktop) ── */}
