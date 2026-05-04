@@ -320,6 +320,23 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install chromium --with-deps
 
+      # Slice SO-4: Cold-Start-Warm-Up (analog post-deploy-smoke.yml).
+      - name: Warm-Up bescout.net (Cold-Start-Mitigation)
+        run: |
+          set -e
+          for i in 1 2 3 4 5 6; do
+            echo "[warm-up] attempt $i/6 — curl https://bescout.net/"
+            CODE=$(curl -fsSL -o /dev/null -w "%{http_code}" -m 30 https://bescout.net/ || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "[warm-up] ✅ bescout.net responded 200 (warm)"
+              sleep 5
+              exit 0
+            fi
+            echo "[warm-up] ⚠️ HTTP $CODE — retry in 10s"
+            sleep 10
+          done
+          echo "[warm-up] ❌ bescout.net cold-boot fehlgeschlagen (60s window)"
+
       - name: Run Smoke Suite against bescout.net
         id: smoke
         env:
@@ -336,31 +353,60 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-      - name: Create Issue on smoke failure
+      # Slice SO-4: Master-Tracker-Pattern erzwingen (siehe post-deploy-smoke.yml).
+      - name: Smoke-Fail Issue (Master-Tracker-Pattern)
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const today = new Date().toISOString().split('T')[0];
-            await github.rest.issues.create({
+
+            const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚨 Nightly Smoke ${today} fehlgeschlagen gegen bescout.net`,
-              body: [
-                `**Run:** ${runUrl}`,
-                `**Target:** https://bescout.net`,
-                ``,
-                `Eines der 10 Smoke-Flows hat fehlgeschlagen. Playwright-Report-Artifact am Run.`,
-                ``,
-                `Mögliche Ursachen:`,
-                `- Vercel-Outage / 503`,
-                `- Live-Drift im Code seit letztem Push`,
-                `- Test-Account locked oder Cookie-Drift`,
-                `- Selektor-Drift (Component-Refactor ohne Smoke-Update)`,
-                ``,
-                `Bei false-positive: 1× retry via "Re-run failed jobs" im GHA-UI.`,
-                `Bei persistent-Fail: Beta-Blocker, Issue weiter triagen.`,
-              ].join('\n'),
-              labels: ['beta-blocker', 'smoke-fail', 'nightly-audit'],
+              state: 'open',
+              labels: 'smoke-fail,beta-blocker',
+              per_page: 30,
             });
+
+            const master = existing.data.find(i =>
+              /Master[- ]?Tracker|Beta[- ]?Blocker Tracker/i.test(i.title)
+            ) ?? existing.data.sort((a, b) =>
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            )[0];
+
+            const body = [
+              `**Run:** ${runUrl}`,
+              `**Target:** https://bescout.net`,
+              `**Date:** ${today}`,
+              `**Trigger:** Nightly Smoke (cron `0 4 * * *`)`,
+              ``,
+              `Eines der 10 Smoke-Flows hat fehlgeschlagen. Playwright-Report-Artifact am Run.`,
+              ``,
+              `Mögliche Ursachen:`,
+              `- Vercel-Outage / 503`,
+              `- Live-Drift im Code seit letztem Push`,
+              `- Test-Account locked oder Cookie-Drift`,
+              `- Selektor-Drift (Component-Refactor ohne Smoke-Update)`,
+              `- Cold-Start-Transient (Warm-Up sollte das verhindern, prüfen ob Lambda-Boot dauerte)`,
+            ].join('\n');
+
+            if (master) {
+              console.log(`[smoke-fail] master-tracker found: #${master.number} — appending comment`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: master.number,
+                body: `## 🌙 Nightly Smoke-Fail (auto-comment)\n\n${body}`,
+              });
+            } else {
+              console.log(`[smoke-fail] no master-tracker — creating new master issue`);
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Master-Tracker: Beta Smoke Failures (post-Slice-SO-4)`,
+                body: `**Master-Tracker** für recurring Smoke-Failures. Auto-Pipeline (Slice SO-4) hängt Failures als Comments dranan, statt Duplicates zu erstellen.\n\n## Erstes Failure (Nightly)\n\n${body}\n\n## Closing-Strategy\n\nClose dieses Issue NUR wenn 5+ consecutive Smoke-Runs SUCCESS.`,
+                labels: ['beta-blocker', 'smoke-fail', 'nightly-audit', 'master-tracker'],
+              });
+            }

@@ -28,6 +28,29 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install chromium --with-deps
+      # Slice SO-4: Cold-Start-Warm-Up VOR Smoke. Vercel-Lambda braucht
+      # ~10-25s Warm-Boot nach Deploy. Ohne Warm-Up trifft erster Smoke-
+      # locator.click den 30s-Timeout während Lambda noch bootet → false-
+      # positive Smoke-Fail. Curl mit max 60s retry + sleep boots Lambda
+      # OHNE Test-Counter zu inkrementieren.
+      - name: Warm-Up bescout.net (Cold-Start-Mitigation)
+        run: |
+          set -e
+          for i in 1 2 3 4 5 6; do
+            echo "[warm-up] attempt $i/6 — curl https://bescout.net/"
+            CODE=$(curl -fsSL -o /dev/null -w "%{http_code}" -m 30 https://bescout.net/ || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "[warm-up] ✅ bescout.net responded 200 (warm)"
+              # Extra 5s Settle-Time — gib React-Hydration einen kleinen Puffer
+              sleep 5
+              exit 0
+            fi
+            echo "[warm-up] ⚠️ HTTP $CODE — retry in 10s"
+            sleep 10
+          done
+          echo "[warm-up] ❌ bescout.net cold-boot fehlgeschlagen (6 retries × 10s = 60s window)"
+          # Kein Hard-Fail — Smoke versucht's trotzdem; Lambda könnte beim
+          # ersten Playwright-Goto warm werden. Aber loggen ist Pflicht.
       - name: Run Smoke Suite against bescout.net
         id: smoke
         env:
@@ -45,36 +68,66 @@ jobs:
           name: smoke-report-${{ github.event.deployment.sha || github.sha }}
           path: playwright-report/
           retention-days: 14
-      - name: Create Issue on failure
+      # Slice SO-4: Master-Tracker-Pattern erzwingen — Pre-Check für offene
+      # Beta-Smoke-Failure-Issues. Wenn ein offener existiert: Comment dranhängen
+      # statt neuen Duplicate erstellen. Verhindert die 22+ orphan-Issue-Spam-
+      # Akkumulation aus Sign-Off-Re-Trial #2 RISK-3.
+      - name: Smoke-Fail Issue (Master-Tracker-Pattern)
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
             const deployUrl = context.payload.deployment_status?.target_url ?? 'manual-dispatch';
             const sha = context.payload.deployment?.sha?.substring(0, 7) ?? context.sha.substring(0, 7);
+            const fullSha = context.payload.deployment?.sha ?? context.sha;
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.issues.create({
+
+            // Pre-Check: gibt es einen offenen Master-Tracker mit smoke-fail-Label?
+            const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚨 Beta Smoke failed on ${sha} (${deployUrl})`,
-              body: [
-                `**Deploy:** ${deployUrl}`,
-                `**Commit:** ${context.payload.deployment.sha}`,
-                `**GitHub Actions run:** ${runUrl}`,
-                ``,
-                `One of the 10 smoke flows failed. Check the Playwright report artifact on the run for details.`,
-                ``,
-                `**Flows:**`,
-                `1. /home unauth loads`,
-                `2. Login with QA account`,
-                `3. /market loads`,
-                `4. Market-Card interactive`,
-                `5. /manager Hub`,
-                `6. /player/[id] detail`,
-                `7. /fantasy/spieltag`,
-                `8. /community`,
-                `9. /missions`,
-                `10. /transactions`,
-              ].join('\n'),
-              labels: ['beta-blocker', 'smoke-fail'],
+              state: 'open',
+              labels: 'smoke-fail,beta-blocker',
+              per_page: 30,
             });
+
+            // Master-Tracker-Heuristik: Issue mit "Master-Tracker" oder "Beta-Blocker Tracker"
+            // im Title ist Master-Sammler. Sonst nimm das ÄLTESTE offene smoke-fail-Issue.
+            const master = existing.data.find(i =>
+              /Master[- ]?Tracker|Beta[- ]?Blocker Tracker/i.test(i.title)
+            ) ?? existing.data.sort((a, b) =>
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            )[0];
+
+            const body = [
+              `**Deploy:** ${deployUrl}`,
+              `**Commit:** ${fullSha}`,
+              `**Short SHA:** ${sha}`,
+              `**GitHub Actions run:** ${runUrl}`,
+              `**Timestamp:** ${new Date().toISOString()}`,
+              ``,
+              `One of the 10 smoke flows failed. Check the Playwright report artifact on the run for details.`,
+              ``,
+              `**Flows:** /home unauth · Login QA · /market · Market-Card · /manager · /player/[id] · /fantasy/spieltag · /community · /missions · /transactions`,
+            ].join('\n');
+
+            if (master) {
+              // Master existiert → Comment dranhängen statt neues Issue.
+              console.log(`[smoke-fail] master-tracker found: #${master.number} — appending comment`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: master.number,
+                body: `## 🚨 New Smoke-Fail (auto-comment)\n\n${body}`,
+              });
+            } else {
+              // Kein Master-Tracker → neues Issue erstellen UND als Master taggen.
+              console.log(`[smoke-fail] no master-tracker — creating new master issue`);
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Master-Tracker: Beta Smoke Failures (post-Slice-SO-4)`,
+                body: `**Master-Tracker** für recurring Smoke-Failures. Auto-Pipeline (Slice SO-4) hängt nachfolgende Failures als Comments an dieses Issue, statt Duplicates zu erstellen.\n\n## Erstes Failure\n\n${body}\n\n## Closing-Strategy\n\nClose dieses Issue NUR wenn 5+ consecutive Smoke-Runs SUCCESS.`,
+                labels: ['beta-blocker', 'smoke-fail', 'master-tracker'],
+              });
+            }

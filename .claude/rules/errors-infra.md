@@ -216,6 +216,87 @@ GitHub-Issue-Closing-Phasen verschleifen recurring Failure-Klassen wenn Bug nich
 - **Implementation Slice 234:** Issue #25 als Master-Tracker für "Player-Link-Timeout in Smoke-Tests" erstellt. Auto-Issue-Pipeline checkt seitdem `gh issue list --search "Smoke-Failure"` → Comment-Update statt new-Issue.
 - **Audit:** Bei jeder Auto-Issue-Pipeline: gibt es ≥1 Master-Tracker pro Failure-Klasse? Wenn nicht → Risk.
 
+### Master-Tracker-Pre-Check Code-Pattern (Slice SO-4, 2026-05-04)
+
+GHA-Auto-Issue-Pipeline darf nicht blind `issues.create` aufrufen — pre-check ob offener Master-Tracker mit `smoke-fail`-Label existiert, sonst Comment-an-Tracker. Codifiziert nach Sign-Off-Re-Trial #2 RISK-3 (22+ Cold-Start-Transient-Issue-Akkumulation seit 2026-04-29 trotz Slice-234-Erstellung von #25).
+
+**Code-Snippet (für `actions/github-script@v7` `script:`):**
+```js
+const existing = await github.rest.issues.listForRepo({
+  owner: context.repo.owner,
+  repo: context.repo.repo,
+  state: 'open',
+  labels: 'smoke-fail,beta-blocker',  // beide Labels pflicht (Komma = AND)
+  per_page: 30,
+});
+
+// Master-Heuristik: explicit-Title > ältestes-offenes
+const master = existing.data.find(i =>
+  /Master[- ]?Tracker|Beta[- ]?Blocker Tracker/i.test(i.title)
+) ?? existing.data.sort((a, b) =>
+  new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+)[0];
+
+if (master) {
+  await github.rest.issues.createComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: master.number,
+    body: `## 🚨 New Failure (auto-comment)\n\n${body}`,
+  });
+} else {
+  await github.rest.issues.create({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    title: `🚨 Master-Tracker: <Failure-Klasse>`,
+    body: `**Master-Tracker** für recurring <Klasse>. Auto-Pipeline hängt Failures als Comments dranan.\n\n## Erstes Failure\n\n${body}\n\n## Closing-Strategy\n\nClose NUR wenn N+ consecutive Runs SUCCESS.`,
+    labels: ['beta-blocker', 'smoke-fail', 'master-tracker'],
+  });
+}
+```
+
+**Wichtig:**
+- `labels` als Komma-String → AND-Match. Pre-Check matcht nur Issues mit BEIDEN labels.
+- `master-tracker`-Label im neu-erstellten Issue garantiert dass nachfolgende Failures es als Master finden.
+- Title-Heuristik (`Master-Tracker|Beta-Blocker Tracker`) als sekundärer Anker, falls Label-Drift.
+- `sort by created_at ASC` → ältestes offene Issue als Fallback-Master.
+
+**Audit:** `grep -A3 "issues.create" .github/workflows/*.yml | grep -v "createComment\|listForRepo"` — wenn `issues.create` ohne vorheriges `listForRepo` aufgerufen wird, ist das ein Risk-Punkt.
+
+**Reference:** Slice SO-4 patches `post-deploy-smoke.yml` + `nightly-audit.yml` (smoke-Sub-Job) mit diesem Pattern.
+
+### Cold-Start-Warm-Up vor Smoke-Suite (Slice SO-4, 2026-05-04)
+
+Vercel-Lambda braucht ~10-25s Warm-Boot nach Deploy. Ohne Warm-Up trifft erster `locator.click` den 30s-Timeout während Lambda noch bootet → false-positive Smoke-Fail. Patch via curl-retry-loop VOR Playwright-Run wakes Lambda OHNE Test-Counter zu inkrementieren.
+
+**Code-Snippet (Bash-Step in GHA-Workflow):**
+```yaml
+- name: Warm-Up bescout.net (Cold-Start-Mitigation)
+  run: |
+    set -e
+    for i in 1 2 3 4 5 6; do
+      echo "[warm-up] attempt $i/6 — curl https://bescout.net/"
+      CODE=$(curl -fsSL -o /dev/null -w "%{http_code}" -m 30 https://bescout.net/ || echo "000")
+      if [ "$CODE" = "200" ]; then
+        echo "[warm-up] ✅ bescout.net responded 200 (warm)"
+        sleep 5  # Settle-Time für React-Hydration
+        exit 0
+      fi
+      echo "[warm-up] ⚠️ HTTP $CODE — retry in 10s"
+      sleep 10
+    done
+    echo "[warm-up] ❌ bescout.net cold-boot fehlgeschlagen (60s window)"
+```
+
+**Position:** zwischen `playwright install` und `playwright test --project=smoke`.
+
+**Wichtig:**
+- 6 retries × max 30s curl + 10s sleep = max 4 min Warm-Up-Window. Genug für Vercel-Cold-Boot.
+- Kein Hard-Fail bei Failure — Smoke versucht es trotzdem (Lambda könnte beim ersten Playwright-Goto warm werden).
+- 5s Settle-Sleep nach 200 — gibt React-Hydration einen kleinen Puffer.
+
+**Reference:** Slice SO-4 patches `post-deploy-smoke.yml` + `nightly-audit.yml` smoke-Sub-Job. Sign-Off-Re-Trial #2 RISK-3 → CLOSED.
+
 ### settings.json-Edit > 3 Hooks → IMPACT-Stage-Pflicht (Slice 234)
 
 `.claude/settings.json` Hook-Registry-Edits sind architektonische Änderungen die ähnlich wie DB-Migrations Cross-Cutting-Impact haben. Slice 234 registrierte 8 Hooks gleichzeitig — Reviewer F-11 markierte das als "IMPACT-Stage hätte gerechtfertigt sein sollen".
