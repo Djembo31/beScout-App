@@ -9,11 +9,11 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: READY    # GO-LIVE 2026-05-05 — Sign-Off PASS-ENDGÜLTIG nach SO-2 bis SO-5 + alle Anil-Action-Items
-last_phase_run: 2026-05-05 (Sign-Off Final post-SO-5: 5/6 Action-Items synthetic-prüfbar DONE, NEW RISK-NEW 4-Migration-Drift CLOSED via SO-5, Mobile-Safari iPhone-WE-Verify als nicht-Beta-blocking-Item bleibt Anil)
-last_signoff: PASS
+phase: D    # Walk-Back 2026-05-05 — Anil-Direktive (b): erst iPhone-Visual-Verify alle 8 Konfigs DANN GO-LIVE-Mail
+last_phase_run: 2026-05-05 (Sign-Off PASS-PENDING-IPHONE-VISUAL-VERIFY — Tech-Side komplett grün post-SO-5, Action-Items 1+2+3+5 DONE, ABER Visual-Check Home/Spotlight/Markt-Puls bislang nur 1/8 Konfigs (cta-new) Playwright-verified. Anil verlangt vor GO-LIVE Manual-iPhone-Verify aller 8 Konfigs.)
+last_signoff: PASS-PENDING-IPHONE-VISUAL-VERIFY
 last_signoff_date: 2026-05-05
-last_signoff_verdict: "Sign-Off ENDGÜLTIG-PASS post-SO-5 (2026-05-05). Sequence: SO-2 SOFT-PASS → SO-3/SO-4 Recovery → SO-2-Recovery STRENGTHENED → SO-5 Wildcard-RPC-Migration-Drift CLOSED. Action-Items 1+2+3+5 DONE (Tester-Liste + onboarding-Email/Tel + TR-Pre-Verify-Audit + Sentry NEXTJS-15 archived 1wk). Action-Item 4 (Mobile-Safari iPhone) Playwright-partial done — physisches iPhone bleibt Anil-WE-Verify als nicht-Beta-blocking-Watch-Item (RISK-1). NEW BONUS-DISCOVERY via SO-5: 4-Migration-Drift Slice 251 Wave 2 (28.04) nie applied, 3× get_wildcard_balance 404 systemisch in Production seit ~7 Tagen. Apply-Sequenz: 4 Original-Migrations + 1 Custom-Patch (22-arg rpc_save_lineup mit Track F + DROP 17-arg dead-code), 2 SQL-Bugs in Original gefixt (FROM-alias + DROP-order). Live-Verify post-Apply: bescout.net `/` 0 Errors (vs. 4 pre-Apply). 6/6 Risks closed (RISK-1 Watch P3 + RISK-2/3/6 closed + RISK-4 P3-DEBT post-Beta + RISK-5 USER-ACTION done + RISK-NEW closed). Beta GO-LIVE: 3 Tester (Kemal/Taki/Nail) angemeldet, Onboarding-Doc fertig (k_demirtas@hotmail.de + +49 1511 77 66 543), 802+11 TR-Strings compliance-verified. Phase 5 Visual-Polish parallel post-GO."
+last_signoff_verdict: "Sign-Off PASS-PENDING-IPHONE-VISUAL-VERIFY (2026-05-05). Sequence: SO-2 SOFT-PASS → SO-3/SO-4 Recovery → SO-2-Recovery STRENGTHENED → SO-5 Wildcard-RPC-Migration-Drift CLOSED. Tech-Side komplett grün: Action-Items 1+2+3+5 DONE (Tester-Liste + onboarding-Email/Tel + TR-Pre-Verify-Audit + Sentry NEXTJS-15 archived 1wk). NEW BONUS-DISCOVERY via SO-5: 4-Migration-Drift Slice 251 Wave 2 (28.04) nie applied, 3× get_wildcard_balance 404 systemisch in Production seit ~7 Tagen — applied + 2 SQL-Bugs in Original gefixt + Custom-Patch für 22-arg rpc_save_lineup. Live-Verify bescout.net `/` 0 Errors post-Apply. ABER: Visual-Check (Action-Item 4) nur partial via Playwright Chromium done (1 von 8 Konfigs: cta-new-Mode bei Jarvis-Account 0 Holdings). 7 Konfigs nicht-testbar wegen Account-State-Limit + 1 Drift entdeckt (Slice 269 Markt-Puls 0-tabs h2-Heading-Leak 16px statt unsichtbar). Anil-Direktive (2026-05-05 post-SO-5-PASS-Walkback): Variante (b) — Manual-iPhone-Verify alle 8 Konfigs Pflicht VOR GO-LIVE-Mail an Tester. Checkliste: worklog/audits/2026-05-05/iphone-verify-checklist.md."
 findings_open:
   P0: 0
   P1: 0   # Slice 225 healed UX-NEU-2 → ALLE P1 NULL
@@ -46,12 +46,13 @@ slice_stubs_pending:
   - "Slice 225: InfoTooltip-Migration-Wave — UX-NEU-2 + UX-NEU-3 + UX-NEU-4 (BuyConfirmModal + MostOwnedSection Slice 216) + Pattern-Regel ui-components.md"
   - "Slice 226: getPlayerSentimentCounts Reliability-Weighting — FM-NEU-3"
   - "Slice 227: Sentiment-Bar 3-Segment + Empty-State-CTA — FM-NEU-4 + FM-NEU-5"
-anil_action_blockers: []   # alle 5 Action-Items 2026-05-05 DONE (1+2+3+5) oder Watch-non-blocking (4 Mobile-Safari iPhone-WE)
+anil_action_blockers:
+  - "🔒 iPhone-Manual-Visual-Verify 8 Konfigs PFLICHT vor GO-LIVE — siehe worklog/audits/2026-05-05/iphone-verify-checklist.md (Slice 266 4 Spotlight-Configs + Slice 269 4 MarktPuls-Configs × 2 Accounts)"
 anil_action_done_2026_05_05:
   - "Action-Item 1 ✅ memory/beta-tester-list.md erstellt (gitignored, Kemal+Taki+Nail)"
   - "Action-Item 2 ✅ memory/beta-onboarding.md Email/Tel gefüllt (k_demirtas@hotmail.de + +49 1511 77 66 543)"
   - "Action-Item 3 ✅ TR-Pflicht-Review Pre-Verify-Audit live (worklog/audits/2026-05-04/tr-keys-compliance-preverify.md PASS, Decision (a) post-Beta-Cleanup für Watchlist-Drift)"
-  - "Action-Item 4 ⚙️ Mobile-Safari Playwright-partial done — iPhone-WE-Verify Anil-Watch (RISK-1 P3 non-blocking)"
+  - "Action-Item 4 🔒 BLOCKER: Visual-Check 1/8 Konfigs Playwright (cta-new-Mode), 7 Konfigs + iPhone-Real-Safari-NEXTJS-15-Repro PFLICHT vor GO-LIVE"
   - "Action-Item 5 ✅ Sentry NEXTJS-15 archived 1week + commented"
 ```
 
@@ -99,7 +100,8 @@ last_signoff_verdict: "<short-reasoning>"
 
 | Datum | Phase | Aktion | Outcome |
 |-------|-------|--------|---------|
-| 2026-05-05 ~00 | READY | **Sign-Off ENDGÜLTIG-PASS post-SO-5.** Action-Items 1+2+3+5 alle DONE. SO-5 Wildcard-RPC-4-Migration-Drift entdeckt + applied + 2 Original-SQL-Bugs gefixt. Live-Verify bescout.net `/` 0 Errors (vs. 4 pre-Apply). Mobile-Safari iPhone-Verify (Action-Item 4) Anil-WE-Watch RISK-1 nicht-blocking. **Beta GO-LIVE für Kemal/Taki/Nail.** | **PASS — READY** |
+| 2026-05-05 ~01 | D | **Walk-Back zu Phase D (Anil-Direktive (b)):** Visual-Check Home nur partial via Playwright (1/8 Konfigs). iPhone-Manual-Verify alle 8 Konfigs Pflicht VOR GO-LIVE-Mail. Plus Slice 269 0-tabs Drift entdeckt. Tech-Side bleibt komplett grün post-SO-5. | **PASS-PENDING-IPHONE-VISUAL-VERIFY** |
+| 2026-05-05 ~00 | READY | Sign-Off ENDGÜLTIG-PASS post-SO-5 (zu früh deklariert — Visual-Verify-Coverage 12% war Anil nicht ausreichend, Walkback in Folgezeile). | (superseded) |
 | 2026-05-04 18:30+ | D | **Recovery-Pass post-SO-3/SO-4 + Static-Re-Walk:** SOFT-PASS-STRENGTHENED. RISK-2/3/6 alle closed. Persona-Avg measured 8.33/10. 22 stale Issues batch-closed → 1 Master-Tracker #63 by-design open. GHA-Pipeline live-verified (Run für `73ede77c` SUCCESS in 1m47s). Verbleibend: RISK-1 Sentry-Watch + 4 Anil-Action-Items. | SOFT-PASS-STRENGTHENED |
 | 2026-05-04 | D | **Sign-Off Re-Trial #2 ausgeführt** post-Slice-269. Verdict: **SOFT-PASS-PENDING-ANIL** (6/6 Tech ✅, 2/2 Tester-Items ⚠️ formell-offen). Smoke 18.3s PASS gegen bescout.net (manuell-warm). 22+ GHA-Beta-Blocker-Issues = Cold-Start-Transients (kein App-Bug). Sentry: 1 NEW Watch-Item (JAVASCRIPT-NEXTJS-15 Maximum-Update-Depth, 1 event 0 users). Anil-Action-Items dokumentiert. CTO-Empfehlung: GO. Sign-Off-File: `worklog/sign-off/2026-05-04-readiness.md` | SOFT-PASS-PENDING-ANIL |
 | 2026-05-04 | D | D63 Phase 1+2+3+4 Home-Redesign 10/13 Slices live (261-269). Phase 5 Visual-Polish pending. **Tech-Side**: 0 P0/P1/P2/P3 open. 3 Tester aktiv. **Empfehlung: Sign-Off-Re-Trial.** | ⏳ ready-for-signoff |
