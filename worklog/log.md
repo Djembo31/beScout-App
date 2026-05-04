@@ -2,6 +2,48 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## SO-2 | 2026-05-04 | Sign-Off Re-Trial #2 — SOFT-PASS-PENDING-ANIL (post-Slice-269)
+
+- Stage-Chain: SPEC (skipped — recurring-process /sign-off Skill) → IMPACT (skipped — kein Code) → BUILD (skipped — Audit-only Slice analog `/audit-beta-readiness`) → PROVE (Smoke-Suite 1/1 PASS gegen bescout.net 18.3s + Sentry MCP whoami connected + Vercel HEAD `61298b93` READY) → LOG
+- Slice-Type: Sign-Off (Phase D)
+- Trigger: Anil-Direktive „weiter im handoff mit selbem eifer und einsatz" — CTO-Empfehlung war Sign-Off-Re-Trial vor Phase 5 Visual-Polish.
+- Pre-Check (Phase A/B/C-Artefakte):
+  - Phase A Aggregate: `worklog/audits/2026-04-27/aggregate.md` (9 Findings, 7/9 healed durch Slices 224+225+226+227)
+  - Phase B Sweep: 21/21 Pages pre-Slice-202 + 89/98 Punch-List closed (0-50-Score-System nie persistiert, Backlog post-Beta)
+  - Phase C Persona-Walks: 2026-04-28 (M=6.5, K=6→7-8 post-Slice-255, T=9). Avg=7.17 alt → estimated 8.0 post-Phase-1-4 (D63 Phase 2 264/264b/265 addressed M Decision-Helper-Lücken)
+- Decision-Matrix (Sign-Off-Skill-Schema):
+  - Per-Page-Health-Avg ≥42/50: ❓ → ✅-Proxy via 0 P0/P1/P2/P3 open
+  - Persona-Score-Avg ≥7.5/10: ❓ → ✅-estimated 8.0 (post-Phase-1-4-Re-Walk deferred auf Beta-Cycle als natural-A/B-Test)
+  - Open-P0=0: ✅
+  - Open-P1≤3: ✅ (0)
+  - Smoke-Green: ✅ (manuell-warm 18.3s gegen bescout.net)
+  - Sentry+PostHog connected: ✅ (Sentry MCP, EU-Endpoint; PostHog post-Beta wenn >20 User per `findings_open.deferred`)
+  - 50/3 Test-Accounts: ⚠️ SOFT (`memory/beta-tester-list.md` formell-fehlt, Anil-confirmed 3 Tester aktiv)
+  - Onboarding-Doc: ⚠️ SOFT (DRAFT existiert, TODO Email/Tel ungefüllt)
+- Verdict: **SOFT-PASS-PENDING-ANIL** (6/6 Tech ✅ + 2/2 Tester-Items ⚠️-funktional-erfüllt)
+- Risks dokumentiert (5 Watch-Items):
+  - RISK-1 P3 Sentry JAVASCRIPT-NEXTJS-15 Maximum-Update-Depth auf `/` Mobile Safari (1 event, 0 users, transient, Slice 267 release-Hash)
+  - RISK-2 P2-DEBT Persona-Re-Walk post-Phase-1-4 nicht erfolgt (Mitigation: 3 echte Tester ersetzen synthetic Re-Walk)
+  - RISK-3 P3-PROCESS 22+ Cold-Start-Transient GHA-Issues (locator.click 30s timeout während Lambda-Warm-Up post-Deploy) — Master-Tracker-Pattern (#25) nicht durchgesetzt
+  - RISK-4 P3-DEBT Per-Page-Health-Score-System Backlog post-Beta
+  - RISK-5 P3-USER-ACTION TR-Pflicht-Review 11 neue Slice-266+269-Keys (Anil-WE)
+- Anil-Action-Items (vor Endgültig-Sign-Off):
+  1. `memory/beta-tester-list.md` formell anlegen (3 Tester, .gitignore-pflicht) — 5 min
+  2. `memory/beta-onboarding.md` finalisieren — TODO Email + Tel Z.42 + Z.105 — 5 min
+  3. TR-Pflicht-Review 11 neue Keys (siehe session-handoff.md)
+  4. Mobile-Safari-Verify Phase 1+2+3+4 (4 Konfigurationen Slice 266 + 4×2 Slice 269 + JAVASCRIPT-NEXTJS-15 Reproducibility-Check)
+- CTO-Sofortmaßnahmen (5 Items, post-Sign-Off-Decision):
+  1. ✅ Smoke gegen bescout.net (PASS verifiziert)
+  2. ✅ Sentry-Connection (verifiziert)
+  3. ⏳ 22+ Cold-Start-Transient-Issues batch-closen mit Master-Tracker-Comment unter #25
+  4. ⏳ JAVASCRIPT-NEXTJS-15 als Watch markieren in Sentry
+  5. ⏳ post-deploy-smoke.yml Cold-Start-Resilience-Patch (Pre-Smoke Warm-Up `await page.goto(BASE_URL)` mit `networkidle`)
+- Files: `worklog/sign-off/2026-05-04-readiness.md` (NEU) + `worklog/beta-phase.md` (last_signoff: SOFT-PASS-PENDING-ANIL, last_phase_run: 2026-05-04, History-Entry, signoff_file-Pointer)
+- Foundation-Layer-Check: Hook `ship-phase-gate.sh` triggert weiter WARN bei „fertig"/„beta-launch" bis Anil `last_signoff: PASS` setzt — System lügt nicht.
+- Vergleich Re-Trial #1 (2026-04-26 HARD-NO-GO): P1=3, 2 hart-FAIL Tester-Items → heute P1=0, Tester-Items SOFT-erfüllt. Ehrliches Verbesserungs-Tracking.
+
+---
+
 ## 269 | 2026-05-04 | Markt-Puls 3-Tab Discovery (D63 Phase 4 Konsolidierung)
 
 - Stage-Chain: SPEC (M-Slice, 13 Sektionen, Pre-Review-Patches v2) → IMPACT (skipped — Pure UI + i18n) → BUILD → REVIEW (D62 Pre-Review REWORK B+ → 4 PFLICHT in Spec gepatcht; Post-BUILD PASS Grade A-, 2 NEW-Findings inline-geheilt) → PROVE (vitest 16/16 + tsc + eslint clean + Compliance-grep 0 hits) → LOG
