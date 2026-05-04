@@ -14,6 +14,85 @@
 
 ---
 
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-04 Phase 3 Live-Pulse KOMPLETT)
+
+**HEAD `3e686653`** Status: idle. **D63 Phase 3 (3/3 Slices) live**: 266 + 267 + 268b alle in main. 0 Reverts.
+
+## Session 2026-05-04 — 2 Slices live (Anil-Direktive „autonom alles bis Endpoint, Quality first")
+
+| Slice | Commit | Größe | Pre-Review | Was |
+|---|---|---|---|---|
+| 268b | `a762b608` | S | CONCERNS B+ 14F → 7 in Spec gepatcht | Price-Changes-Cache (Battery-Drain-Fix) + Service-throw-Heal + Konsumenten-Migration |
+| 266 | `4a370e6b` | M | CONCERNS B+ 16F → 14 voll + 2 partial | Spotlight-Multi-Slot Refactor (Mystery-Box discoverable + Live-Score-Slot) |
+| chore | `89315e86` | — | — | Hygiene-Commit (3 audit-files) |
+| chore | `3e686653` | — | — | Session-End Phase 3 Übersichts-Tabelle |
+
+**Bonus Tooling-Heal:** `.npmrc` `public-hoist-pattern[]=@csstools/*` repariert pre-existing jsdom 28 ESM-Resolver-Bug. Vor Slice 268b waren ALLE jsdom-vitest-Tests silent-broken — Slice 268b hat das ans Licht gezogen + isoliert gefixt.
+
+## D62-Pattern bestätigt #8 + #9 (durchgehend 0 Reverts seit 261)
+
+Beide Slices nutzten Pre-Review-VOR-BUILD-Pattern:
+- 268b: 14 Findings vor BUILD, 5/5 MAJOR + 5/5 MINOR + 4/4 NIT addressed → A-Grade Post-Review
+- 266: 16 Findings vor BUILD, 5/5 MAJOR + 5/5 MINOR (1 partial) + 4/4 NIT addressed → A-/PASS-w-MINOR
+
+ROI-Bestätigung: Pre-Review reduziert Cold-Context-Review von ~60min auf ~40min, weil Reviewer sich auf NEW-Findings konzentriert statt komplettes Audit.
+
+## D63 Roadmap Stand 2026-05-04 Abend
+
+| Phase | Slices | Status |
+|---|---|---|
+| 1 Identity-Foundation | 261/262/263 | ✅ live |
+| 2 Action-Layer | 264/264b/265 | ✅ live |
+| **3 Live-Pulse** | **266/267/268b** | ✅ **live komplett (3/3)** |
+| 4 Discovery-Konsolidierung (Markt-Puls 3-Tab) | 269 | ⏳ pending |
+| 5 Visual-Polish (Stadium + 3D-Mystery-Box) | 270-273 | ⏳ pending |
+
+## Knowledge-Promotion (sofort, kein Draft)
+
+| File | Eintrag | Slice |
+|------|---------|-------|
+| `memory/patterns.md` | #46 TanStack-Query-Hook für deterministisch-keyed Multi-ID Aggregat-RPC | 268b |
+| `memory/patterns.md` | #47 Slot-Priority-Engine + Multi-Slot-Render-Pattern | 266 |
+| `memory/patterns.md` | #48 Legacy-Mapping-Tabelle bei Hook-Output-Migration | 266 |
+| `.claude/rules/errors-infra.md` | jsdom 28 + pnpm Hoisting Falle (Slice 268b) | 268b |
+
+## ⚡ Anil-Action-Items (am Wochenende, post-Vercel-Deploy)
+
+1. **Slice 267 E2E-Live-Match-Verify** — Mobile-Safari während Süper Lig oder Premier League Match → `/fantasy/spieltag` → Live-Bucket sichtbar + Pulse-Score + 0 Console-Errors.
+2. **Slice 266 Mobile 393px Visual-QA** — Playwright-Screenshots gegen bescout.net in 4 Konfigurationen:
+   - live-only (während running GW)
+   - mb-only (off-GW + hasFreeBoxToday)
+   - both (running GW + free box) → 2-Slot-Layout
+   - neither (off-GW + box-already-opened) → spotlightType=cta-Fallback
+   - **Pflicht-Check:** kein x-overflow, beide Slots above-fold (≤60vh) auf 393×720 Mobile
+3. **Slice 266 TR-Strings-Review** — 4 neue i18n-Keys (per `feedback_tr_i18n_validation.md` Anil-Pflicht):
+   - `home.spotlightLiveScore`: "Canlı · Hafta {gw} devam ediyor"
+   - `home.spotlightLiveScoreCta`: "Canlı Skoru Gör"
+   - `home.spotlightMysteryBox`: "Günlük Mystery Box · ücretsiz"
+   - `home.spotlightMysteryBoxCta`: "Kutu Aç"
+
+## ⚡ Erste Action nächste Session
+
+Drei Optionen, je nach Anil-Wunsch:
+
+**Option A: Phase 4 Discovery starten — Slice 269 (Markt-Puls 3-Tab)**
+- D63 Phase 4: Markt-Puls als 3-Tab-Section auf Home (Trending/Movers/Recent-Trades)
+- Aktuelle Home zeigt Markt-Puls als monolithische Section → 3-Tab erlaubt User-Filter
+
+**Option B: Phase 5 Visual-Polish starten — Slice 270-273**
+- Stadium-Asset-Pipeline (7 Liga-Hero-BGs via SDXL Phase-1)
+- Player-Action-Shots-Fallback per Position
+- 3D-Mystery-Box-Renders per Rarity
+
+**Option C: Sign-Off-Re-Trial fahren** (Beta-Phase D, last_signoff `FAIL` 2026-04-26)
+- 3 Beta-Tester aktiv im System (Anil-confirmed 2026-05-03)
+- Findings-Open: 0 P0/P1/P2/P3 — alle Tech-Side sauber
+- /auto-beta-ready signoff PFLICHT für Beta-launch-ready
+
+**Empfehlung:** Sign-Off-Re-Trial (Option C) — Phase 1+2+3 Home-Redesign sind live, Tech-Side null open Findings, 3 Beta-Tester aktiv. Wenn signoff PASS → Beta-launch-ready, Phase 4+5 können post-Beta.
+
+---
+
 # 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-03 Slice 267 PROVE-Stage)
 
 **HEAD `4219b19f`** Status: Slice 267 BUILD complete + pushed. Stage PROVE — wartet auf Migration-Apply.
