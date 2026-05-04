@@ -1,17 +1,37 @@
 # Active Slice
 
 ```
-status: active
-slice: 266
-stage: LOG
-spec: worklog/specs/266-spotlight-multi-slot.md (v2)
-impact: skipped (Pure UI-Refactor + i18n)
-pre-review: worklog/reviews/266-pre-review.md
-build: 7 Files: HomeSpotlight/useHomeData/page/de.json/tr.json + 2 Tests, 42/42 grün, tsc clean
-proof: worklog/proofs/266-{spotlight,consumer}-vitest.txt + 266-tsc-eslint.txt
-review: worklog/reviews/266-review.md (PASS-w-MINOR, A- grade, LOW regression-risk, 0 MAJOR-Findings, 1 MINOR test-gap)
-note: Visual-Proof Mobile 393px Playwright (4 Konfigurationen) post-Deploy — Anil-Pflicht-Verify am WE
+status: idle
+slice: —
+stage: —
+spec: —
+impact: —
+proof: —
+review: —
 ```
+
+## Phase 3 Live-Pulse KOMPLETT 2026-05-04 (3/3 Slices live in main)
+
+| Slice | Commit | Was |
+|-------|--------|-----|
+| 267 | `4219b19f` | Realtime-Live-Score im Spieltag (Live-Pulse Foundation, /fantasy/spieltag) |
+| 268b | `a762b608` | Price-Changes-Cache (Battery-Drain-Fix für Top-Movers im Home) |
+| 266 | `4a370e6b` | Spotlight-Multi-Slot Refactor (Mystery-Box discoverable + Live-Score-Slot) |
+
+**D63-Roadmap Stand 2026-05-04 Abend:**
+
+| Phase | Slices | Status |
+|---|---|---|
+| 1 Identity-Foundation | 261/262/263 | ✅ live |
+| 2 Action-Layer | 264/264b/265 | ✅ live |
+| **3 Live-Pulse** | **266/267/268b** | ✅ **live komplett** |
+| 4 Discovery (Markt-Puls 3-Tab) | 269 | ⏳ pending |
+| 5 Visual-Polish (Stadium + 3D-Mystery-Box) | 270-273 | ⏳ pending |
+
+**Anil-Pflicht-Verifies post-Deploy (am WE):**
+- Slice 267: E2E-Live-Match auf Mobile-Safari während Süper Lig/PL Match → Live-Bucket + Pulse-Score sichtbar
+- Slice 266: Mobile 393px Playwright (4 Konfigurationen: live-only/mb-only/both/neither) → kein Overflow, both Slots above-fold
+- Slice 266: TR-Strings-Review der 4 neuen i18n-Keys (`spotlightLiveScore` + Cta + `spotlightMysteryBox` + Cta)
 
 ## Slice 268b LIVE 2026-05-04 — Price-Changes-Cache (D63 Phase 3)
 
