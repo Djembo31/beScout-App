@@ -1,27 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-03 12:26)
+# Session Handoff — Auto (2026-05-04 16:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
-?? worklog/audits/audit-stale-2026-05-03.md
-?? worklog/audits/type-truth-2026-05-03.md
-?? worklog/audits/wiring-2026-05-03.md
+ M worklog/audits/audit-stale-2026-05-03.md
+ M worklog/audits/type-truth-2026-05-03.md
 ```
-
-## Session Commits: 2
-- f658b12c chore(267): PROVE + LOG — Slice 267 Realtime-Live-Score LIVE in Production
-- 45e24c12 chore(session-end): Slice 267 PROVE-Resume-Anker für nächste Session
-
-## Pending Agent Work: 1 Worktrees
-- **agent-a4833668618492a66** (worktree-agent-a4833668618492a66):  1 file changed, 174 insertions(+)
-
-## Stale Worktrees: 2 (cleanup candidates)
-
-## Stashed Changes
-- stash@{0}: On worktree-agent-a031e6e55403f555a: settings.local.json before reset
 
 <!-- auto:handoff-end -->
 
