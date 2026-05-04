@@ -1,17 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-04 17:50)
+# Session Handoff — Auto (2026-05-04 18:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
- M .claude/settings.local.json
-?? worklog/audits/audit-stale-2026-05-04.md
-?? worklog/audits/type-truth-2026-05-04.md
-?? worklog/audits/wiring-2026-05-04.md
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-05-04.md
+ M worklog/audits/type-truth-2026-05-04.md
 ```
 
-## Session Commits: 5
+## Session Commits: 7
+- 3ab89bd2 chore(269-end): active.md -> idle, D63 Phase 4 KOMPLETT
+- c204cda5 feat(269): Markt-Puls 3-Tab Discovery (D63 Phase 4 Konsolidierung)
 - 7d6395cf chore(handoff): Phase 3 Live-Pulse KOMPLETT — Resume-Anker für nächste Session
 - 3e686653 chore(session-end): Phase 3 Live-Pulse KOMPLETT (Slices 266/267/268b live)
 - 4a370e6b feat(266): Spotlight-Multi-Slot Refactor (D63 Phase 3 Daily-Driver-Discoverability)
@@ -19,6 +20,99 @@
 - 89315e86 chore(hygiene): Session-Handoff-Auto-Block + Audit-Re-Run-Timestamps
 
 <!-- auto:handoff-end -->
+
+---
+
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-04 Abend — Phase 4 Discovery KOMPLETT)
+
+**HEAD `3ab89bd2`** Status: idle. **D63 Phase 1+2+3+4 alle live (10/13 Slices)**. Phase 5 (Visual-Polish, Slices 270-273) ist die einzige offene Phase. 0 Reverts seit Slice 261.
+
+## Session 2026-05-04 — 3 Slices live (Anil-Direktive „autonom alles bis Endpoint, Quality first")
+
+| Slice | Commit | Größe | Pre-Review | Post-BUILD | Was |
+|---|---|---|---|---|---|
+| 268b | `a762b608` | S | CONCERNS B+ 14F → 7 Spec-Patches | PASS A, 0 MAJOR | Price-Changes-Cache + Service-throw-Heal + Konsumenten-Migration |
+| 266 | `4a370e6b` | M | CONCERNS B+ 16F → 14 voll + 2 partial | PASS-w-MINOR A-, 0 MAJOR | Spotlight-Multi-Slot Refactor (Mystery-Box discoverable + Live-Score-Slot) |
+| 269 | `c204cda5` | M | REWORK B+ 9F → 4 PFLICHT (1 CRITICAL) gepatcht | PASS-w-MINOR A-, 2 NEW inline-geheilt | Markt-Puls 3-Tab Discovery (3 Sektionen → 1 konsolidiert) |
+
+**Bonus Slice 268b:** `.npmrc` `public-hoist-pattern[]=@csstools/*` repariert pre-existing jsdom 28 ESM-Resolver-Bug. ALLE jsdom-vitest-Tests waren pre-Slice-268b silent-broken.
+
+## D62 Pre-Review-Pattern Bestätigung #8/#9/#10 (durchgehend 0 Reverts seit 261)
+
+ROI bestätigt: Pre-Review fängt CRITICAL-Architektur-Risiken (z.B. F-01 Slice 269: i18n-Object/String-Drift wäre exakter Slice-263-Bug-Wiederhol gewesen) bevor Code geschrieben wird.
+
+## D63 Roadmap-Stand 2026-05-04 Abend (10/13 Slices live)
+
+| Phase | Slices | Status |
+|---|---|---|
+| 1 Identity-Foundation | 261/262/263 | ✅ live |
+| 2 Action-Layer | 264/264b/265 | ✅ live |
+| 3 Live-Pulse | 266/267/268b | ✅ live |
+| 4 Discovery | 269 | ✅ live |
+| **5 Visual-Polish** | **270-273** | ⏳ **pending — einzige offene Phase** |
+
+**Phase 5 Scope (D63 Z.2822):**
+- **270 Stadium-Asset-Pipeline:** 7 Liga-Hero-BGs (SDXL Phase 1) + Storage + Component-Integration
+- **271 Player-Action-Shots-Fallback:** per-Position-Silhouette wenn `imageUrl === null`
+- **272 3D-Mystery-Box-Renders:** per Rarity (common/rare/epic/legendary)
+- **273 Achievement-Badges-Polish-Pass:** Tier-Badge-Glows-Review
+
+## Knowledge-Promotion (sofort, kein Draft)
+
+| File | Eintrag | Slice |
+|------|---------|-------|
+| `memory/patterns.md` | #46 TanStack-Query-Hook für deterministisch-keyed Multi-ID Aggregat-RPC | 268b |
+| `memory/patterns.md` | #47 Slot-Priority-Engine + Multi-Slot-Render-Pattern (266 + 269 reused) | 266 |
+| `memory/patterns.md` | #48 Legacy-Mapping-Tabelle bei Hook-Output-Migration | 266 |
+| `.claude/rules/errors-infra.md` | jsdom 28 + pnpm Hoisting Falle | 268b |
+
+## ⚡ Anil-Pflicht-Verifies post-Vercel-Deploy (am Wochenende)
+
+### 1. Slice 267 E2E-Live-Match (Mobile-Safari, zeitabhängig)
+- Während Süper Lig oder Premier League Match
+- Navigate `/fantasy/spieltag` → Live-Bucket sichtbar + Pulse-Score animiert + 0 Console-Errors
+
+### 2. Slice 266 Mobile 393px Visual-QA (Spotlight Multi-Slot)
+4 Konfigurationen via Playwright gegen bescout.net:
+- **live-only** (running GW, kein freier MB) → 1 Slot LiveScore
+- **mb-only** (off-GW + hasFreeBoxToday) → 1 Slot MysteryBox
+- **both** (running GW + free box) → 2-Slot stacked
+- **neither** (off-GW + box-already-opened) → fallback IPO/TopMover/Trending
+
+Pflicht-Check: kein x-overflow + above-fold (≤ 60vh)
+
+### 3. Slice 269 Mobile 393px Visual-QA (Markt-Puls 3-Tab) — Multi-Account
+4 Konfigurationen × 2 Accounts (Power-User mit Holdings + New-User ohne, per `feedback_polish_multi_account.md`):
+- **3-tabs** (movers+trending+watched aktiv)
+- **2-tabs** (z.B. movers+trending)
+- **1-tab** (nur einer aktiv) → SectionHeader+Strip ohne TabBar
+- **0-tabs** (alles leer) → Section unsichtbar
+
+Plus: Tab-Switch funktional + inactive Tabs nicht im DOM.
+
+### 4. TR-Strings-Review für 11 neue Keys (per `feedback_tr_i18n_validation.md`)
+
+**Slice 266 (4 Keys):**
+- `home.spotlightLiveScore`: "Canlı · Hafta {gw} devam ediyor"
+- `home.spotlightLiveScoreCta`: "Canlı Skoru Gör"
+- `home.spotlightMysteryBox`: "Günlük Mystery Box · ücretsiz"
+- `home.spotlightMysteryBoxCta`: "Kutu Aç"
+
+**Slice 269 (6 Tab-Keys + 1 Plural-Key):**
+- `home.marketPulseTabs.movers` / `.moversShort`: "Hareket" / "Hareket"
+- `home.marketPulseTabs.trending` / `.trendingShort`: "Trendler" / "Trend"
+- `home.marketPulseTabs.watched` / `.watchedShort`: "İzlenen" / "İzlenen"
+- `home.tradeCount`: "{count, plural, one {# işlem} other {# işlem}}" (TR-Plural ist same für 1 und N)
+
+## ⚡ Erste Action nächste Session
+
+**CTO-Empfehlung:** **Sign-Off-Re-Trial vor Phase 5.**
+
+Begründung: Phase 1+2+3+4 sind alle live = funktionales Beta-Set. Phase 5 ist Visual-Polish, nicht Beta-blocking. Sign-Off jetzt würde Beta-launch-ready-Flag setzen, dann Phase 5 als on-top-Polish.
+
+**Alternative:** Phase 5 starten mit **Slice 270 Stadium-Asset-Pipeline** (4-Slice-Endpoint-Plan).
+
+**Beta-Phase-Stand:** D, `last_signoff: FAIL` (2026-04-26). Findings-open: 0 P0/P1/P2/P3. 3 Tester aktiv (Anil-confirmed 2026-05-03). Sign-Off-Re-Trial-Trigger: `/auto-beta-ready signoff`.
 
 ---
 

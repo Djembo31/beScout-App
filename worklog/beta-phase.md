@@ -96,6 +96,7 @@ last_signoff_verdict: "<short-reasoning>"
 
 | Datum | Phase | Aktion | Outcome |
 |-------|-------|--------|---------|
+| 2026-05-04 | D | D63 Phase 1+2+3+4 Home-Redesign 10/13 Slices live (261-269). Phase 5 Visual-Polish pending. **Tech-Side**: 0 P0/P1/P2/P3 open. 3 Tester aktiv. **Empfehlung: Sign-Off-Re-Trial.** | ⏳ ready-for-signoff |
 | 2026-04-26 17:50 | C | 7 Agents dispatched (3 Persona-Walker + 4 Auditors) | ⏳ running/aggregate-pending |
 | 2026-04-26 14:24 | docs | Slice 209 Audit-Cleanup (12 audit-stale-marker korrigiert) | done |
 | 2026-04-25 ~18 | A | Phase-A-Audit (Brand+UX+FM+Fantasy) | 98 Findings dokumentiert |
