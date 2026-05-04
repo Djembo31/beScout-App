@@ -71,7 +71,9 @@ export function useHomeData() {
 
   // ── Gamification v5 Hooks ──
   const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
-  const { hasFreeBoxToday } = useHasFreeBoxToday(uid);
+  // Slice 266: isLoading-Guard pflicht (Pre-Review F-04) — Mystery-Box-Slot
+  // darf nicht 1 Frame zu früh rendern wenn React-Query noch resolved.
+  const { hasFreeBoxToday, isLoading: hasFreeBoxLoading } = useHasFreeBoxToday(uid);
 
   // ── Holdings Transform ──
   const holdings = useMemo<DpcHolding[]>(() =>
@@ -194,13 +196,47 @@ export function useHomeData() {
     });
   }, [profile?.created_at, streak, userStats, holdings.length, challengeHistory.length, followedClubs.length]);
 
+  // Slice 266 (D63 Phase 3) — Multi-Slot Spotlight Engine.
+  const isEventLive = nextEvent?.status === 'running';
+  // (Re-Order F-fix: isEventLive deklariert VOR spotlightSlots-useMemo, das es konsumiert.)
+  //
+  // Cascade-Order (höchste prio first):
+  //   1. liveScore   wenn isEventLive (running event) — Time-sensitive Live-Pulse
+  //   2. mysteryBox  wenn !hasFreeBoxLoading && hasFreeBoxToday  — Daily-Driver-Discovery (D63 Cross-Persona-#1)
+  //   3. ipo         wenn activeIPOs.length > 0 — limited-time
+  //   4. topMover    wenn holdings have change24h !== 0 — portfolio-Signal
+  //   5. trending    wenn trendingPlayers.length > 0 — Discovery
+  //
+  // Multi-Slot zeigt max 2 Cards (Mobile-393px-above-fold-Constraint, Pre-Review F-09).
+  // Tertiary fällt raus.
+  type SlotType = 'liveScore' | 'mysteryBox' | 'ipo' | 'topMover' | 'trending';
+
+  const spotlightSlots = useMemo<{ primary: SlotType | null; secondary: SlotType | null }>(() => {
+    const active: SlotType[] = [];
+    if (isEventLive) active.push('liveScore');
+    if (!hasFreeBoxLoading && hasFreeBoxToday) active.push('mysteryBox');
+    if (activeIPOs.length > 0) active.push('ipo');
+    if (holdings.length > 0 && holdings.some(h => h.change24h !== 0)) active.push('topMover');
+    if (trendingPlayers.length > 0) active.push('trending');
+    return {
+      primary: active[0] ?? null,
+      secondary: active[1] ?? null,
+    };
+  }, [isEventLive, hasFreeBoxLoading, hasFreeBoxToday, activeIPOs, holdings, trendingPlayers]);
+
+  // Legacy `spotlightType` für page.tsx Sidebar-Sektionen (Slice 266 F-01 explizite Mapping-Tabelle):
+  //   - liveScore → 'event'   (Sidebar-NextEvent unterdrückt: Spotlight zeigt Live-Hint)
+  //   - mysteryBox → 'cta'    (keine korrespondierende Sidebar-Sektion)
+  //   - ipo / topMover / trending → 1:1
+  //   - null → 'cta'
   const spotlightType = useMemo(() => {
-    if (activeIPOs.length > 0) return 'ipo' as const;
-    if (nextEvent) return 'event' as const;
-    if (holdings.length > 0 && holdings.some(h => h.change24h !== 0)) return 'topMover' as const;
-    if (trendingPlayers.length > 0) return 'trending' as const;
+    const p = spotlightSlots.primary;
+    if (p === 'liveScore') return 'event' as const;
+    if (p === 'ipo') return 'ipo' as const;
+    if (p === 'topMover') return 'topMover' as const;
+    if (p === 'trending') return 'trending' as const;
     return 'cta' as const;
-  }, [activeIPOs, nextEvent, holdings, trendingPlayers]);
+  }, [spotlightSlots.primary]);
 
   const trendingWithPlayers = useMemo(() => {
     return trendingPlayers
@@ -238,7 +274,6 @@ export function useHomeData() {
   }, [players]);
 
   const showQuickActions = !!uid;
-  const isEventLive = nextEvent?.status === 'running';
 
   // ── Actions ──
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
@@ -307,7 +342,7 @@ export function useHomeData() {
     showMysteryBox, setShowMysteryBox,
     handleOpenMysteryBox, hasFreeBoxToday,
     // Derived
-    storyMessage, spotlightType, retention, showQuickActions,
+    storyMessage, spotlightType, spotlightSlots, retention, showQuickActions,
     belowFoldReady, followedClubs,
     // Slice 262 — Hero-Mode + Manager-Block inputs
     heroMode, gw, hasLineup, hasCaptain, captainName,

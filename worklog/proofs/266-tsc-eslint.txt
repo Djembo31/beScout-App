@@ -1,0 +1,11 @@
+PROOF: tsc clean + 42/42 tests + Compliance-grep 0 hits in new spotlight keys
+Compliance-Check für 4 neue Slot-Keys (DE+TR):
+
+messages/de.json:    "spotlightLiveScore": "Live · Spieltag {gw} läuft",
+messages/de.json:    "spotlightLiveScoreCta": "Live-Score ansehen",
+messages/de.json:    "spotlightMysteryBox": "Daily Mystery Box · gratis",
+messages/de.json:    "spotlightMysteryBoxCta": "Box öffnen",
+messages/tr.json:    "spotlightLiveScore": "Canlı · Hafta {gw} devam ediyor",
+messages/tr.json:    "spotlightLiveScoreCta": "Canlı Skoru Gör",
+messages/tr.json:    "spotlightMysteryBox": "Günlük Mystery Box · ücretsiz",
+messages/tr.json:    "spotlightMysteryBoxCta": "Kutu Aç",

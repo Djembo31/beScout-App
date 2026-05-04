@@ -2,12 +2,15 @@
 
 ```
 status: active
-slice: 268b
+slice: 266
 stage: LOG
-spec: worklog/specs/268b-price-changes-cache.md
-impact: skipped (kein Schema-Change)
-proof: worklog/proofs/268b-{service,hook,consumer}-vitest.txt
-review: worklog/reviews/268b-review.md (PASS, A)
+spec: worklog/specs/266-spotlight-multi-slot.md (v2)
+impact: skipped (Pure UI-Refactor + i18n)
+pre-review: worklog/reviews/266-pre-review.md
+build: 7 Files: HomeSpotlight/useHomeData/page/de.json/tr.json + 2 Tests, 42/42 grün, tsc clean
+proof: worklog/proofs/266-{spotlight,consumer}-vitest.txt + 266-tsc-eslint.txt
+review: worklog/reviews/266-review.md (PASS-w-MINOR, A- grade, LOW regression-risk, 0 MAJOR-Findings, 1 MINOR test-gap)
+note: Visual-Proof Mobile 393px Playwright (4 Konfigurationen) post-Deploy — Anil-Pflicht-Verify am WE
 ```
 
 ## Slice 268b LIVE 2026-05-04 — Price-Changes-Cache (D63 Phase 3)

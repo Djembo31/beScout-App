@@ -2,6 +2,41 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 266 | 2026-05-04 | Spotlight-Multi-Slot Refactor (D63 Phase 3 Daily-Driver-Discoverability)
+
+- Stage-Chain: SPEC (M-Slice, 13 Sektionen, post-Pre-Review-Patches v2) → IMPACT (skipped — Pure UI-Refactor + i18n) → BUILD → REVIEW (D62 Pre-Review B+ → 5 MAJOR + 5 MINOR + 4 NIT in Spec gepatcht; Post-BUILD Review PASS-w-MINOR Grade A-, 0 MAJOR, 1 MINOR test-coverage-gap, LOW regression-risk) → PROVE (vitest 42/42 + tsc + eslint clean + Compliance-grep 0 hits) → LOG
+- Slice-Type: UI · Größe: M (~7 Files inkl. 2 Tests + 4 i18n-Keys × 2 locales)
+- D63 Phase 3 Cross-Persona-Top-Finding #1 (Mystery-Box-Discoverability) + FM-Power-User-Befund (Live-Score-Awareness):
+  - **Mystery-Box** war Sidebar-#16 begraben → Mobile-Daily-Driver-Engagement-Killer. Jetzt Spotlight-Slot 2 mit Sparkles-Icon + "Box öffnen"-CTA above-the-fold.
+  - **Live-Score** während running GW war ohne Hint auf Home — User mussten manuell zur `/fantasy`-Page. Jetzt Spotlight-Slot 1 mit Live-Pulse-Ring + GW-Number + CTA → `/fantasy/spieltag` (konsumiert Slice 267 Live-Page).
+- Architektur:
+  - Single-prio if-else-Cascade (160 LOC) → Slot-Priority-Engine in Hook + Multi-Slot-Render-Pattern in Component (~290 LOC)
+  - 5 Slot-Types: liveScore > mysteryBox > ipo > topMover > trending (höchste prio first)
+  - Max 2 Slots visible (Mobile-393px-above-fold-Constraint, kein Wahl-Lähmung)
+  - Backward-Compat `spotlightType` als Legacy-Mapping (`liveScore→event` für Sidebar-Suppression, `mysteryBox→cta`, `ipo/topMover/trending` 1:1)
+  - Bonus-Bug-Fix: pre-266 Sidebar-NextEvent over-suppressed bei ALLE active events; post-266 nur bei `running`
+- Files (8 edits):
+  - `src/components/home/HomeSpotlight.tsx` — Single-prio → Multi-Slot Render-Engine (Inline switch + 5 renderXSlot-Funktionen, closure-based)
+  - `src/components/home/__tests__/HomeSpotlight.test.tsx` — NEU 8 Tests (AC-01 bis AC-06 + Empty + Multi-Slot)
+  - `src/app/(app)/hooks/useHomeData.ts` — Slot-Priority-Engine + Legacy-Mapping (isEventLive moved up, spotlightSlots derived, spotlightType deprecated-but-mapped)
+  - `src/app/(app)/hooks/__tests__/useHomeData.test.ts` — 5 NEU spotlightSlots-Tests + Behavior-Change-Test mit Slice-Comment + Mock-Migration (mockUseHasFreeBoxToday)
+  - `src/app/(app)/page.tsx` — HomeSpotlight-Props (slots, liveScoreData, mysteryBoxData) Wire-Up via callback statt setState-Drilling
+  - `messages/de.json` — 4 neue Keys (spotlightLiveScore + Cta + spotlightMysteryBox + Cta)
+  - `messages/tr.json` — 4 neue Keys TR (Anil-pflicht-Review pre-Commit per `feedback_tr_i18n_validation.md`)
+- Tests: 42/42 grün (8 Component + 34 Hook). Compliance-grep 0 hits in 4 neuen Keys (kein "kazan|ödül|yatırım|gewinn|prämie|investier|rendite|portfolio").
+- **Visual-Proof deferred:** Playwright Mobile 393px Screenshots (4 Konfigurationen: live-only, mb-only, both, neither) post-Deploy → Anil-Pflicht-Verify am WE.
+- Spec: `worklog/specs/266-spotlight-multi-slot.md`
+- Pre-Review: `worklog/reviews/266-pre-review.md` (B+ grade, 16 Findings)
+- Review: `worklog/reviews/266-review.md` (PASS-w-MINOR, A- grade)
+- Proof: `worklog/proofs/266-{spotlight,consumer}-vitest.txt` + `266-tsc-eslint.txt` (Compliance-grep)
+- Knowledge-Promotion (sofort, kein Draft):
+  - `memory/patterns.md` #47: Slot-Priority-Engine + Multi-Slot-Render-Pattern (Hook+Component-Trennung mit 5 Pflicht-Bestandteilen)
+  - `memory/patterns.md` #48: Legacy-Mapping-Tabelle bei Hook-Output-Migration (Drift-Schutz + Behavior-Change-Doku-Pflicht)
+- Anti-Pattern-Vermeidung (Slice 261 + 265 + 267 Lehren):
+  - `gold-pulse-bg` NICHT verwendet — LiveScore-Slot nutzt static gradient + `live-ring` keyframe-Animation (Pattern-Falle Slice 261 umgangen)
+  - `hasFreeBoxLoading`-Guard pflicht (Defensive null-strict-equality Slice 265)
+  - Plain-Array-Output (Map/Set Persist-Issue Slice 267 N/A)
+
 ## 268b | 2026-05-04 | Price-Changes-Cache (D63 Phase 3 Performance-Win)
 
 - Stage-Chain: SPEC (S-Slice, alle 13 Sektionen, post-Pre-Review-Patches v2) → IMPACT (skipped — kein Schema-Change) → BUILD → REVIEW (D62 Pre-Review CONCERNS B+ → 7 MAJOR/MINOR in Spec gepatcht; Post-BUILD Review PASS Grade A, 0 MAJOR, 5 NIT-Findings) → PROVE (vitest 40/40 + tsc + eslint clean + Full-Suite 3163/3164 grün) → LOG

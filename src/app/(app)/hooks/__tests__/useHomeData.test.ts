@@ -129,11 +129,15 @@ vi.mock('@/lib/services/mysteryBox', () => ({
   countFreeMysteryBoxesToday: vi.fn().mockResolvedValue(0),
 }));
 
-// useHasFreeBoxToday wraps useQuery; stub it so the hook doesn't need a
-// QueryClientProvider in unit tests. Also stubs useMysteryBoxHistory in
-// case a future test imports it.
+// Slice 266: useHasFreeBoxToday is now consumed by spotlightSlots-Logic.
+// Mock returns mockable per-test (default: hasFreeBoxToday=false → no MB-Slot
+// in legacy 4 spotlightType-Tests; tests that exercise MB-Slot override).
+const mockUseHasFreeBoxToday = vi.fn().mockReturnValue({
+  hasFreeBoxToday: false,
+  isLoading: false,
+});
 vi.mock('@/lib/queries/mysteryBox', () => ({
-  useHasFreeBoxToday: () => ({ hasFreeBoxToday: true, isLoading: false }),
+  useHasFreeBoxToday: (...a: any[]) => mockUseHasFreeBoxToday(...a),
   useMysteryBoxHistory: () => ({ data: [], isLoading: false }),
 }));
 
@@ -273,6 +277,8 @@ function setDefaults() {
   mockUseEvents.mockReturnValue({ data: [] });
   mockUseTrendingPlayers.mockReturnValue({ data: [] });
   mockUseChallengeHistory.mockReturnValue({ data: [] });
+  // Slice 266: default no Mystery-Box (legacy spotlightType-Tests rely on this).
+  mockUseHasFreeBoxToday.mockReturnValue({ hasFreeBoxToday: false, isLoading: false });
   // Slice 268b: default to "no data yet" — pending state, no top movers.
   mockUsePlayerPriceChanges7d.mockReturnValue({
     data: undefined,
@@ -410,10 +416,22 @@ describe('useHomeData', () => {
     expect(result.current.spotlightType).toBe('ipo');
   });
 
-  it('spotlightType=event when no IPOs but event exists', () => {
-    mockUseEvents.mockReturnValue({ data: [makeEvent()] });
+  // Slice 266 behavior change: 'event' is now reserved for isEventLive (running).
+  // Pre-266 mapped ALL nextEvent (registering/late-reg/running) → 'event' which
+  // over-suppressed the Sidebar-NextEvent card. New behavior: only running events
+  // map to 'event' (= primarySlot=liveScore). Non-running nextEvent → 'cta',
+  // letting Sidebar render the upcoming-Event card normally.
+  it('spotlightType=event ONLY when event is running (Slice 266 behavior change)', () => {
+    mockUseEvents.mockReturnValue({ data: [makeEvent({ status: 'running' })] });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.spotlightType).toBe('event');
+    expect(result.current.spotlightSlots.primary).toBe('liveScore');
+  });
+
+  it('spotlightType=cta when nextEvent exists but is not running (Slice 266)', () => {
+    mockUseEvents.mockReturnValue({ data: [makeEvent({ status: 'registering' })] });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.spotlightType).toBe('cta');
   });
 
   it('spotlightType=trending when trending players exist', () => {
@@ -425,6 +443,43 @@ describe('useHomeData', () => {
   it('spotlightType=cta when nothing active', () => {
     const { result } = renderHook(() => useHomeData());
     expect(result.current.spotlightType).toBe('cta');
+  });
+
+  // ── Slice 266 — spotlightSlots Multi-Slot Engine ──
+
+  it('spotlightSlots.primary=liveScore when isEventLive', () => {
+    mockUseEvents.mockReturnValue({ data: [makeEvent({ status: 'running' })] });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.spotlightSlots.primary).toBe('liveScore');
+  });
+
+  it('spotlightSlots.primary=mysteryBox when hasFreeBoxToday and !isEventLive', () => {
+    mockUseHasFreeBoxToday.mockReturnValue({ hasFreeBoxToday: true, isLoading: false });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.spotlightSlots.primary).toBe('mysteryBox');
+    expect(result.current.spotlightType).toBe('cta'); // legacy mapping for mysteryBox
+  });
+
+  it('spotlightSlots: liveScore + mysteryBox both active → liveScore primary, mysteryBox secondary', () => {
+    mockUseEvents.mockReturnValue({ data: [makeEvent({ status: 'running' })] });
+    mockUseHasFreeBoxToday.mockReturnValue({ hasFreeBoxToday: true, isLoading: false });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.spotlightSlots.primary).toBe('liveScore');
+    expect(result.current.spotlightSlots.secondary).toBe('mysteryBox');
+  });
+
+  it('spotlightSlots.primary=null when nothing active', () => {
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.spotlightSlots.primary).toBeNull();
+    expect(result.current.spotlightSlots.secondary).toBeNull();
+  });
+
+  it('mysteryBox-Slot suppressed during isLoading (F-04 isLoading-Guard)', () => {
+    mockUseHasFreeBoxToday.mockReturnValue({ hasFreeBoxToday: true, isLoading: true });
+    const { result } = renderHook(() => useHomeData());
+    // Even though hasFreeBoxToday=true, isLoading=true blocks the slot.
+    expect(result.current.spotlightSlots.primary).not.toBe('mysteryBox');
+    expect(result.current.spotlightSlots.primary).toBeNull();
   });
 
   // ── Top Movers ──

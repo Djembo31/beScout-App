@@ -85,7 +85,7 @@ export default function HomePage() {
     userStats,
     ticketData, showMysteryBox, setShowMysteryBox,
     handleOpenMysteryBox, hasFreeBoxToday,
-    storyMessage, spotlightType, retention, showQuickActions,
+    storyMessage, spotlightType, spotlightSlots, retention, showQuickActions,
     followedClubs, highestPass,
     // Slice 262 — Hero-Mode + ManagerBlock inputs
     heroMode, gw, hasLineup, hasCaptain, captainName,
@@ -203,10 +203,13 @@ export default function HomePage() {
         <div className="h-40 bg-surface-base border border-white/10 rounded-2xl animate-pulse motion-reduce:animate-none" />
       ) : (
         <HomeSpotlight
+          slots={spotlightSlots}
           activeIPOs={activeIPOs}
           holdings={holdings}
           trendingPlayers={trendingPlayers}
           players={players}
+          liveScoreData={nextEvent && nextEvent.gameweek != null ? { gameweek: nextEvent.gameweek } : undefined}
+          mysteryBoxData={{ onOpen: () => setShowMysteryBox(true) }}
         />
       )}
 

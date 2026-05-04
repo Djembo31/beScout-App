@@ -1478,3 +1478,171 @@ const mapped = useMemo(
 - Aggregat ist Realtime-getrieben (z.B. Live-Score) → Subscription-Hook-Pattern statt Cache.
 
 **Reference:** Slice 268b — `usePlayerPriceChanges7d` (`src/lib/queries/players.ts:96-110`) für 7d-Top-Movers in Home-Page. D63 Cross-Persona-Top-Finding #3 (Battery-Drain-Fix).
+
+---
+
+### 47. Slot-Priority-Engine + Multi-Slot-Render-Pattern (Slice 266, 2026-05-04)
+
+**Wann:** Eine UI-Komponente soll aus N möglichen Inhalt-Quellen die wichtigsten 1-2 priorisiert anzeigen, statt einen einzigen prio-cascade-winner-takes-all. Beispiele: Home-Spotlight (5 Slot-Quellen), Notification-Stack (Multi-Channel), Achievement-Hub (Daily/Weekly/Milestone parallel).
+
+**Symptom-Anti-Pattern (vermeiden):**
+- Component hat `if-else-Cascade` mit 5 Returns → max 1 sichtbarer Inhalt, andere verloren.
+- Component berechnet sowohl Prio-Logik als auch Render-Logik → Verantwortungs-Mischung, schwer testbar.
+- Cascade enthält "fallback ist null" → Empty-State-Handling unsichtbar.
+- Sub-Component-Extraktion vor BUILD erzwungen → premature abstraction für ~5 Renderer-Funktionen.
+
+**Pattern (Hook + Component, Single-Source-of-Truth in Hook):**
+
+```ts
+// 1. Hook (in src/app/.../hooks/use<Domain>Data.ts) — Slot-Priority-Engine
+type SlotType = 'a' | 'b' | 'c' | 'd' | 'e';
+
+const slots = useMemo<{ primary: SlotType | null; secondary: SlotType | null }>(() => {
+  const active: SlotType[] = [];
+  if (conditionA) active.push('a');
+  if (conditionB) active.push('b');
+  if (conditionC) active.push('c');
+  if (conditionD) active.push('d');
+  if (conditionE) active.push('e');
+  return {
+    primary: active[0] ?? null,
+    secondary: active[1] ?? null,  // Max 2 visible (Mobile-above-fold-Constraint)
+  };
+}, [conditionA, conditionB, conditionC, conditionD, conditionE]);
+
+// 2. Legacy-Mapping (falls Konsumenten alten Discriminator-Output nutzen):
+const legacyType = useMemo(() => {
+  const p = slots.primary;
+  if (p === 'a') return 'a-legacy' as const;  // 1:1
+  if (p === 'b') return 'special-legacy' as const;  // Sub-Type-Suppress für Sidebar-Disambiguierung
+  return 'cta' as const;  // Fallback
+}, [slots.primary]);
+
+// 3. Component (reiner Renderer, NICHT Slot-Priority-Owner)
+interface ComponentProps {
+  slots: { primary: SlotType | null; secondary: SlotType | null };
+  // Slot-spezifische Sub-Payloads (Pre-Review F-07 reduzierte Prop-Surface):
+  aData?: { ... };
+  bData?: { onAction: () => void };
+}
+
+function Component({ slots, ...slotData }: ComponentProps) {
+  if (!slots.primary) return null;
+  const primary = renderSlot(slots.primary);
+  const secondary = slots.secondary ? renderSlot(slots.secondary) : null;
+  if (!secondary) return primary;
+  return <div className="space-y-3">{primary}{secondary}</div>;
+
+  function renderSlot(type: SlotType) {
+    switch (type) {
+      case 'a': return renderASlot();
+      case 'b': return renderBSlot();
+      // ... pro Slot eine inner-function (nutzt Closures auf props)
+    }
+  }
+}
+```
+
+**Pflicht-Bestandteile:**
+
+1. **Slot-Priority-Engine in Hook** (nicht Component) — Single-Source-of-Truth, testbar isoliert ohne Component-Render.
+2. **Max 2 Slots visible** (Mobile-above-fold-Constraint, nicht Wahl-Lähmung-Hick's-Law). 3+ verlangen separates Slice mit Constraint-Verifikation.
+3. **Sortierte-Reihenfolge-Cascade in Hook** statt if-else-return — Slot-Priority ist Daten, nicht Control-Flow.
+4. **`slots.primary === null` als legitimer Empty-State** — Component returnt `null`, Caller entscheidet ob Skeleton/Hide/Fallback-CTA.
+5. **Legacy-Mapping (falls Hook ältere Output-Form ersetzt)** — Discriminator-Mapping in Hook, NICHT zwei separate State-Updates die driften können.
+6. **Slot-spezifische Sub-Payload-Props** — `aData?`, `bData?` typed-optional statt 5 flat Props (`hasA`, `aValue1`, `aValue2`, `aOnClick`, `bValue` etc.).
+7. **Inline-Branches in Component** für ~5 Slot-Renderers OK (≤300 LOC). Sub-Component-Extraktion erst wenn Renderer-Funktion komplex genug für eigenes Test-File.
+
+**Test-Schichtung:**
+
+- **Hook-Test** (vitest jsdom mit renderHook): testet Slot-Priority-Cascade mit verschiedenen Input-Konfigurationen. Verifiziert primary + secondary in jeder Permutation.
+- **Component-Test** (vitest jsdom + render + i18n-Provider): testet rendered Output je Slot-Type (8 Tests = Empty + 5 Slot-Types + 1 Multi-Slot-Layout + 1 Legacy-Backward-Compat).
+- **Konsument-Test:** Konsument mockt Hook (nicht Component-internals) — nur Output-Mapping testen.
+
+**Wann verwenden:**
+
+- Multi-Source-UI mit klarer Priorität (Home-Spotlight, Notification-Stack, Discovery-Cards).
+- Hook hat alle Inputs für Priorität verfügbar (Time-sensitive > Daily > Limited-Time > Personal > Discovery).
+- Component soll nur Renderer sein (no business logic).
+
+**Wann NICHT verwenden:**
+
+- Single-prio-Inhalt (z.B. Hero-Card auf einer Detail-Seite) → einfacher if-else.
+- Multi-Source ohne Priorität (alle gleich-wichtig parallel) → Grid-Layout statt Slot-Engine.
+- Slot-Logik abhängig von Layout-Decisions (z.B. "wenn Card breit ist, zeige A+B; wenn schmal, nur A") → CSS-driven, nicht Hook-driven.
+
+**Reference:** Slice 266 — `useHomeData.spotlightSlots` (`src/app/(app)/hooks/useHomeData.ts:202-225`) + `HomeSpotlight.tsx` (`src/components/home/HomeSpotlight.tsx`) für 5-Slot Home-Spotlight (liveScore > mysteryBox > ipo > topMover > trending). D63 Phase 3 Mystery-Box-Discoverability-Fix.
+
+---
+
+### 48. Legacy-Mapping-Tabelle bei Hook-Output-Migration (Slice 266, 2026-05-04)
+
+**Wann:** Ein Hook ersetzt seinen alten Output-Discriminator durch eine reichere Datenstruktur, aber Konsumenten nutzen weiter die alte Form. Beispiele: `spotlightType: string` → `spotlightSlots: { primary, secondary }`, `loadingState: bool` → `loadingState: { isPending, isError, isFetching }`, `userRole: string` → `userPermissions: { canX, canY, canZ }`.
+
+**Symptom-Anti-Pattern (vermeiden):**
+- Hook-Output-Migration ohne Backward-Compat → 5+ Konsumenten brechen gleichzeitig → Slice wird L statt M.
+- Beide Outputs separat berechnet → Drift-Risiko (Hook-Logik einmal geändert, alter Output stale).
+- Konsument-Migration im selben Slice wie Hook-Migration → Reviewer-Audit wird groß, Test-Coverage zerfällt.
+
+**Pattern (explizite Mapping-Tabelle in Hook):**
+
+```ts
+// Hook: NEUE Output-Form als Single-Source-of-Truth
+const newOutput = useMemo<NewShape>(() => ({ /* ... */ }), [deps]);
+
+// Legacy-Mapping (Backward-Compat, NICHT separat berechnet):
+const legacyOutput = useMemo(() => {
+  const p = newOutput.primary;
+  if (p === 'liveScore') return 'event' as const;  // Sidebar-Suppression-Pflicht
+  if (p === 'ipo') return 'ipo' as const;          // 1:1
+  if (p === 'topMover') return 'topMover' as const; // 1:1
+  if (p === 'trending') return 'trending' as const; // 1:1
+  return 'cta' as const;                            // mysteryBox + null Fallback
+}, [newOutput.primary]);
+
+return { ...newOutput, legacyOutput };
+```
+
+**Spec-Pflicht:** Mapping-Tabelle MUSS in Spec dokumentiert sein bevor BUILD. Format:
+
+| primarySlot | legacyType | Begründung |
+|-------------|------------|------------|
+| `liveScore` | `'event'`  | Sidebar-NextEvent-Card unterdrückt (Doppelung-Schutz) |
+| `mysteryBox` | `'cta'`   | Keine korrespondierende Sidebar-Sektion |
+| `ipo` | `'ipo'`         | 1:1 |
+| `topMover` | `'topMover'` | 1:1 |
+| `trending` | `'trending'` | 1:1 |
+| `null` | `'cta'`         | Fallback |
+
+**Vorteile:**
+1. **Konsumenten-Migration deferred** — kein L-Slice durch Hook + 5 Konsumenten parallel.
+2. **Drift-Schutz** — `legacyOutput` ist `useMemo`-derived, kann nicht out-of-sync mit `newOutput` werden.
+3. **Behavior-Korrekturen sichtbar** — wenn Mapping eine pre-existing Doppelung-Bug fixt (z.B. `'event'` jetzt nur bei isEventLive statt ALLE active events), wird das durch explizite Tabelle dokumentiert + getestet.
+4. **Future-Cleanup planbar** — Legacy-Output kann in einem späteren Slice entfernt werden, wenn alle Konsumenten migriert sind.
+
+**Pflicht-Test:** Behavior-Change durch Mapping-Schmälerung MUSS einen expliziten Test mit Comment haben:
+
+```ts
+// Slice X behavior change: 'event' is now reserved for isEventLive (running).
+// Pre-X mapped ALL nextEvent (registering/late-reg/running) → 'event' which
+// over-suppressed the Sidebar-NextEvent card. New behavior: only running
+// events map to 'event'. Non-running nextEvent → 'cta', letting Sidebar
+// render the upcoming-Event card normally.
+it('legacyOutput=event ONLY when event is running (Slice X behavior change)', () => {
+  // ...
+});
+```
+
+**Wann verwenden:**
+
+- Hook-Output-Refactor mit ≥3 Konsumenten (Konsumenten-Migration in eigenem Slice deferred).
+- Pre-existing Bug im alten Discriminator-Mapping wird implicit gefixt (Behavior-Korrektur).
+- Konsumenten sind nicht alle Code-owned (z.B. Plugin-Konsumenten, Storybook-Stories).
+
+**Wann NICHT verwenden:**
+
+- Hook-Output ist nur an 1 Konsument-Stelle gebunden → direkt migrieren ohne Mapping-Layer.
+- Discriminator-Mapping wäre lossy (z.B. `Set<string>` → `string`) → Re-Design statt Mapping.
+- Behavior-Change ist Breaking + intentional → explizit als Migration-Slice mit Konsumenten-Update.
+
+**Reference:** Slice 266 — `useHomeData.ts:227-239` mappt `spotlightSlots → spotlightType` für `page.tsx:315,392` Sidebar-Suppression-Konsumenten. Pre-266 Bug: `spotlightType='event'` was over-set für ALLE active events → Sidebar-NextEvent over-suppressed. Post-266 Mapping: nur `liveScore` → `'event'`, andere `nextEvent`-Stati → `'cta'` (Sidebar zeigt upcoming-Event normal). Behavior-Change-Test in `useHomeData.test.ts:418-428` mit Slice-Comment.
