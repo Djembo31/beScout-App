@@ -27,6 +27,14 @@ const mockUseEvents = vi.fn();
 const mockUseTrendingPlayers = vi.fn();
 const mockUseChallengeHistory = vi.fn();
 const mockUseHomeDashboard = vi.fn();
+// Slice 268b: useHomeData migrated from getPlayerPriceChanges7d service-call
+// to usePlayerPriceChanges7d Hook (TanStack-cached). Test now mocks the hook
+// directly; default return matches "no data yet" (loading state).
+const mockUsePlayerPriceChanges7d = vi.fn().mockReturnValue({
+  data: undefined,
+  isPending: true,
+  isError: false,
+});
 
 // Helper to set a dashboard payload for tests; mirrors HomeDashboard shape.
 function setDashboard(
@@ -52,6 +60,7 @@ vi.mock('@/lib/queries', () => ({
   useEvents: (...a: any[]) => mockUseEvents(...a),
   useTrendingPlayers: (...a: any[]) => mockUseTrendingPlayers(...a),
   useHomeDashboard: (...a: any[]) => mockUseHomeDashboard(...a),
+  usePlayerPriceChanges7d: (...a: any[]) => mockUsePlayerPriceChanges7d(...a),
   qk: {
     dailyChallenge: { history: (uid: string) => ['dailyChallenge', 'history', uid] },
     tickets: { balance: (uid: string) => ['tickets', 'balance', uid] },
@@ -108,10 +117,10 @@ vi.mock('@/lib/hooks/useFollowedClubs', () => ({
 
 const mockCentsToBsd = vi.fn().mockImplementation((v: number) => v / 100000);
 
-const mockGetPlayerPriceChanges7d = vi.fn().mockResolvedValue([]);
+// Slice 268b: getPlayerPriceChanges7d service-mock removed — useHomeData
+// now consumes usePlayerPriceChanges7d hook (mocked above).
 vi.mock('@/lib/services/players', () => ({
   centsToBsd: (...args: any[]) => mockCentsToBsd(...args),
-  getPlayerPriceChanges7d: (...args: any[]) => mockGetPlayerPriceChanges7d(...args),
 }));
 
 const mockOpenMysteryBox = vi.fn().mockResolvedValue({ ok: false });
@@ -264,6 +273,12 @@ function setDefaults() {
   mockUseEvents.mockReturnValue({ data: [] });
   mockUseTrendingPlayers.mockReturnValue({ data: [] });
   mockUseChallengeHistory.mockReturnValue({ data: [] });
+  // Slice 268b: default to "no data yet" — pending state, no top movers.
+  mockUsePlayerPriceChanges7d.mockReturnValue({
+    data: undefined,
+    isPending: true,
+    isError: false,
+  });
   setDashboard();
 }
 
@@ -414,7 +429,7 @@ describe('useHomeData', () => {
 
   // ── Top Movers ──
 
-  it('returns top movers from the 7d price changes RPC', async () => {
+  it('returns top movers from the 7d price changes hook (Slice 268b)', () => {
     mockCentsToBsd.mockImplementation((v: number) => v / 100000);
     setDashboard({
       holdings: [
@@ -423,23 +438,53 @@ describe('useHomeData', () => {
         makeHolding({ id: 'h-3', player_id: 'p-3' }),
       ],
     });
-    // RPC returns rows already sorted by absolute change — the hook trusts that order.
-    mockGetPlayerPriceChanges7d.mockResolvedValueOnce([
-      { player_id: 'p-3', change_pct: 20 },
-      { player_id: 'p-1', change_pct: -10 },
-      { player_id: 'p-2', change_pct: 5 },
-    ]);
+    // Hook returns rows already sorted by absolute change — useHomeData
+    // trusts that order and just maps to the local TopMover shape.
+    mockUsePlayerPriceChanges7d.mockReturnValue({
+      data: [
+        { player_id: 'p-3', change_pct: 20 },
+        { player_id: 'p-1', change_pct: -10 },
+        { player_id: 'p-2', change_pct: 5 },
+      ],
+      isPending: false,
+      isError: false,
+    });
     const { result } = renderHook(() => useHomeData());
-    await waitFor(() => expect(result.current.topMovers).toHaveLength(3));
+    expect(result.current.topMovers).toHaveLength(3);
     expect(result.current.topMovers[0].change24h).toBe(20);
     expect(result.current.topMovers[1].change24h).toBe(-10);
     expect(result.current.topMovers[2].change24h).toBe(5);
   });
 
-  it('returns empty topMovers with fewer than 2 holdings', () => {
+  it('returns empty topMovers with fewer than 2 holdings (hook returns no data)', () => {
     setDashboard({ holdings: [makeHolding()] });
+    // With <2 holdings the hook stays disabled — data is undefined.
+    mockUsePlayerPriceChanges7d.mockReturnValue({
+      data: undefined,
+      isPending: false,
+      isError: false,
+    });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.topMovers).toHaveLength(0);
+  });
+
+  // AC-09 (Slice 268b Pre-Review F-04): Error-state graceful-degrade.
+  it('returns empty topMovers when hook is in error state (Slice 268b AC-09)', () => {
+    setDashboard({
+      holdings: [
+        makeHolding({ id: 'h-1', player_id: 'p-1' }),
+        makeHolding({ id: 'h-2', player_id: 'p-2' }),
+      ],
+    });
+    mockUsePlayerPriceChanges7d.mockReturnValue({
+      data: undefined,
+      isPending: false,
+      isError: true,
+    });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.topMovers).toEqual([]);
+    // Importantly: no crash on `.map(undefined)` — the `?? []` guard in
+    // useHomeData handles undefined data gracefully.
   });
 
   // ── Trending With Players ──

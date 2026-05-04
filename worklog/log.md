@@ -2,6 +2,33 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 268b | 2026-05-04 | Price-Changes-Cache (D63 Phase 3 Performance-Win)
+
+- Stage-Chain: SPEC (S-Slice, alle 13 Sektionen, post-Pre-Review-Patches v2) → IMPACT (skipped — kein Schema-Change) → BUILD → REVIEW (D62 Pre-Review CONCERNS B+ → 7 MAJOR/MINOR in Spec gepatcht; Post-BUILD Review PASS Grade A, 0 MAJOR, 5 NIT-Findings) → PROVE (vitest 40/40 + tsc + eslint clean + Full-Suite 3163/3164 grün) → LOG
+- Slice-Type: Service · Größe: S (~6 Source-Files + 2 Tests + .npmrc env-fix)
+- Slice-Number-Note: D63-Roadmap-Item "268 Price-Changes Cache" auf **268b** umnummeriert wegen Konflikt mit historischem Slice 268 (Cold-Start Cache-Mirror, 2026-04-30). Pattern analog 264b/195e/081b.
+- Drei-Achsen-Heal in einem chirurgischen Slice:
+  1. **Cache:** `getPlayerPriceChanges7d` mit `useQuery` + `qk.priceChanges.byPlayers` + 5min staleTime gewrapped → Battery-Drain-Fix (D63 Cross-Persona-Top-Finding #3).
+  2. **Service-Heal:** silent `console.error + return []` → `throw new Error(error.message)` per `errors-db.md` "Service Error-Swallowing" Standard-Fix-Pattern.
+  3. **Konsumenten-Migration:** `useState/useEffect/cancelled-flag` → `usePlayerPriceChanges7d` Hook mit `useMemo` für Reference-Stability.
+- Files (8 edits):
+  - `src/lib/queries/keys.ts` — neue qk.priceChanges-Sektion
+  - `src/lib/queries/players.ts` — `usePlayerPriceChanges7d` Hook + import-Erweiterung
+  - `src/lib/queries/index.ts` — Barrel re-export
+  - `src/lib/services/players.ts` — throw-heal + JSDoc
+  - `src/app/(app)/hooks/useHomeData.ts` — Hook-Konsumption + topMovers `useMemo`-Mapping
+  - `src/app/(app)/hooks/__tests__/useHomeData.test.ts` — Mock-Migration (Service-Mock entfernt, Hook-Mock hinzugefügt, AC-09 Error-Test neu)
+  - `src/lib/queries/__tests__/players-priceChanges.test.tsx` — NEU Hook-Test (7 Tests, shared-QC Wrapper)
+  - `src/lib/services/__tests__/players-priceChanges.test.ts` — NEU Service-Test (5 Tests, `// @vitest-environment node`)
+  - `.npmrc` — NEU `public-hoist-pattern[]=@csstools/*` (jsdom 28 ESM-Resolver-Bug, Pre-Condition für ALLE jsdom-Tests)
+- Tests: 40 neue/migrierte Cases, alle grün (5 Service + 7 Hook + 28 Konsument). Full-Suite 3163/3164 (1 skipped, 0 failures).
+- Bonus-Fix als Pre-Condition: `.npmrc` public-hoist-pattern für `@csstools/*` repariert pre-existing jsdom 28 ESM-Resolver-Bug der ALLE jsdom-vitest-Tests silent-broken machte. Nicht Slice-Scope-Creep — sondern unblock pflicht für Slice-Verify.
+- Spec: `worklog/specs/268b-price-changes-cache.md`
+- Pre-Review: `worklog/reviews/268b-pre-review.md` (B+ grade, 14 Findings)
+- Review: `worklog/reviews/268b-review.md` (PASS, A grade, 0 MAJOR)
+- Proof: `worklog/proofs/268b-{service,hook,consumer}-vitest.txt` + `268b-symbol-verification.txt`
+- Knowledge-Promotion-Kandidaten: TanStack-Query-Hook-Pattern für deterministisch-keyed Multi-ID Aggregat-RPCs (`memory/patterns.md`); jsdom 28 + pnpm hoisting Falle (`errors-infra.md`); D62 Pre-Review-ROI-Bestätigung.
+
 ## 267 | 2026-05-03 | Realtime-Live-Score im Spieltag (Phase 3 Live-Pulse Foundation)
 
 - Stage-Chain: SPEC v3 (D62 Pre-Review v1→v2→v3 mit 8 Patches) → IMPACT v2 → BUILD (Wave 1 Backend + Wave 2 Frontend parallel-Worktree, Wave 3 Tests + Hook-Refactor + SpieltagTab Wire-Up) → REVIEW (D62 Pre-Review CONCERNS + Post-BUILD CONCERNS, beide Code-konform) → PROVE (Migration appliziert, AC-01-03 grün, Cron 10/10 Q2-C-Adaptive-Runs Production-live, Mobile-393px verifiziert) → LOG

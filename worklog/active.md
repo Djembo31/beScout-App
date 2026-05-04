@@ -1,14 +1,27 @@
 # Active Slice
 
 ```
-status: idle
-slice: —
-stage: —
-spec: —
-impact: —
-proof: —
-review: —
+status: active
+slice: 268b
+stage: LOG
+spec: worklog/specs/268b-price-changes-cache.md
+impact: skipped (kein Schema-Change)
+proof: worklog/proofs/268b-{service,hook,consumer}-vitest.txt
+review: worklog/reviews/268b-review.md (PASS, A)
 ```
+
+## Slice 268b LIVE 2026-05-04 — Price-Changes-Cache (D63 Phase 3)
+
+| Stage | Output |
+|-------|--------|
+| SPEC | v2 (D62 Pre-Review CONCERNS B+ → 7 MAJOR/MINOR-Patches) |
+| IMPACT | skipped (kein Schema-Change) |
+| BUILD | 8 Files: keys/players/services/index/useHomeData/Tests/Tests/.npmrc |
+| REVIEW | Post-BUILD PASS Grade A, 0 MAJOR, 5 NIT-Findings |
+| PROVE | vitest 40/40 + tsc + eslint clean + Full-Suite 3163/3164 |
+| LOG | worklog/log.md ✅ |
+
+**Bonus:** `.npmrc` public-hoist-pattern fix für jsdom 28 ESM-Resolver-Bug — repariert pre-existing silent-broken vitest-Tests. Knowledge in errors-infra.md + patterns.md (#46) promoted.
 
 ## Slice 267 LIVE 2026-05-03 — Phase 3 Live-Pulse Foundation
 

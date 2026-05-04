@@ -1406,3 +1406,75 @@ TanStack v5 `placeholderData` setzt `dataUpdatedAt = 0` bis Real-Fetch resolved 
 **Coverage-Pflicht:** AC-03 (User-Switch) + AC-04 (SIGNED_OUT-Clear-Sync) MÜSSEN automatisierten Test haben — Cross-User-Pollution ist KRITISCHES Risk-Bucket. Spy-Order-Verify via `mockFn.mock.invocationCallOrder` für synchrone Reihenfolge.
 
 **Reference:** Slice 268 — Cold-Start Cache-Mirror Wallet+Tickets (Slice-265-done-right).
+
+---
+
+### 46. TanStack-Query-Hook für deterministisch-keyed Multi-ID Aggregat-RPC (Slice 268b, 2026-05-04)
+
+**Wann:** Service liest Aggregate über eine variable Liste von IDs (z.B. Top-Movers für User-Holdings, Most-Owned für Followed-Clubs, Sentiment für Compare-Players). Hook soll Cache-Hit liefern wenn dieselbe ID-Menge in beliebiger Reihenfolge erneut gefragt wird, **ohne** dass die Eingabe-Reihenfolge den Key ändert.
+
+**Symptom-Anti-Pattern (vermeiden):**
+- Konsument macht `useState/useEffect/cancelled-flag` und ruft Service direkt → kein dedup, kein staleTime, kein retry, jede Re-Mount = neue RPC.
+- Cache-Key nutzt `playerIds` als Array → Re-Render mit gleichen IDs aber neuem Array-Ref invalidet Cache.
+- Cache-Key nutzt `playerIds.join(',')` ohne Sort → `['a','b','c']` und `['c','a','b']` sind 2 separate Cache-Entries trotz identischer Datenanforderung.
+
+**Pattern (Service + qk + Hook + Konsument):**
+
+```ts
+// 1. Service — throw bei Error (kein silent return [])
+export async function getAggregateByIds(ids?: string[], limit = 20): Promise<Aggregate[]> {
+  const { data, error } = await supabase.rpc('rpc_name', { p_ids: ids ?? null, p_limit: limit });
+  if (error) throw new Error(error.message);
+  return (data as Aggregate[]) ?? [];
+}
+
+// 2. qk-Factory
+qk.aggregateName: {
+  byIds: (idsKey: string, limit: number) =>
+    ['aggregateName', idsKey, limit] as const,
+}
+
+// 3. Hook (in src/lib/queries/<domain>.ts)
+export function useAggregateByIds(ids: string[] | undefined, limit: number) {
+  const idsKey = useMemo(
+    () => (ids ?? []).slice().sort().join(','),
+    [ids],
+  );
+  return useQuery<Aggregate[]>({
+    queryKey: qk.aggregateName.byIds(idsKey, limit),
+    queryFn: () => getAggregateByIds(ids, limit),
+    enabled: !!ids && ids.length >= MIN_THRESHOLD,
+    staleTime: FIVE_MIN,
+  });
+}
+
+// 4. Konsument (Caller-Stability-Pflicht!)
+const ids = useMemo(() => holdings.map(h => h.playerId), [holdings]);
+const { data: aggregates } = useAggregateByIds(ids, 3);
+const mapped = useMemo(
+  () => (aggregates ?? []).map(a => ({ ... })),  // defensive null-strict-equality
+  [aggregates],
+);
+```
+
+**Pflicht-Bestandteile:**
+1. **Service throw bei Error** (nicht `return []`) per `errors-db.md` "Service Error-Swallowing".
+2. **Sorted-Joined Key** für Reihenfolgen-Invarianz.
+3. **`useMemo` für `idsKey`** im Hook + `useMemo` für `ids` im Konsument — Reference-Stability erforderlich.
+4. **enabled-Gate** ≥ MIN_THRESHOLD matcht Konsumenten-Logic.
+5. **Defensive `?? []`** im Konsument — schützt vor `data === undefined` (Loading + isError).
+6. **Layer 3 UUID_REGEX-aware Persist:** Wenn IDs UUIDs sind, persist-skip automatisch. KEIN initialData/placeholderData (Money-Path-Risk laut Slice 268 / Pattern #45).
+
+**Test-Schichtung:**
+- **Service-Test** (`@vitest-environment node`): mockSupabase, deckt success + error-throw + null-data-fallback ab.
+- **Hook-Test** (jsdom + QueryClientProvider-Wrapper, **shared QC** für Dedup-Test!): mockt Service, verifiziert enabled-Gate (3 Branches: undefined/[]/[1]), Cache-Dedup (zwei `renderHook` mit umgedrehter Reihenfolge teilen 1 RPC), error-Propagation.
+- **Konsument-Test:** mockt Hook (nicht Service), verifiziert mapping-Output + AC-09 graceful-degrade bei isError.
+
+**Wann verwenden:** Statt useState/useEffect/cancelled-flag für ID-scoped Service-Aggregate. Wenn die Liste der IDs durch User-Action variabel ist und Cache-Hits über Re-Mounts/Tab-Switches erwartet werden.
+
+**Wann NICHT verwenden:**
+- Single-ID-Lookup (`getById`) → einfachere `useDbPlayerById`-Pattern.
+- Money-Path mit User-spezifischen Werten → Pattern #45 (Cold-Start UID-keyed Cache-Mirror) mit `staleTime: 0` + `placeholderData`.
+- Aggregat ist Realtime-getrieben (z.B. Live-Score) → Subscription-Hook-Pattern statt Cache.
+
+**Reference:** Slice 268b — `usePlayerPriceChanges7d` (`src/lib/queries/players.ts:96-110`) für 7d-Top-Movers in Home-Page. D63 Cross-Persona-Top-Finding #3 (Battery-Drain-Fix).

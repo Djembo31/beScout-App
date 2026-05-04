@@ -1,0 +1,42 @@
+Slice 268 — Symbol Verification (post-BUILD)
+=============================================
+Date: 2026-05-04
+
+## tsc --noEmit
+Status: clean (0 errors)
+
+## Symbol-Hits Summary
+
+### `getPlayerPriceChanges7d` — 4 production hits (F-09 expectation: 4-5)
+- src/lib/services/players.ts:292 — Service definition
+- src/lib/queries/players.ts:12 — Hook import
+- src/lib/queries/players.ts:106 — Hook queryFn
+- src/lib/queries/__tests__/players-priceChanges.test.tsx:12 — Hook-test mock
+- src/lib/services/__tests__/players-priceChanges.test.ts:4,15,27,36,42,51,65 — Service-test
++ Comment-only mentions in: useHomeData.test.ts:30,120 (migration history),
+                            queries/players.ts:81 (JSDoc),
+                            services/players.ts:288 (JSDoc)
+
+✅ Konsument `useHomeData.ts` is NOT in the list — Migration complete (F-09).
+
+### `usePlayerPriceChanges7d` — 4 production hits
+- src/lib/queries/players.ts:96 — Hook definition
+- src/lib/queries/index.ts:7 — Barrel re-export
+- src/app/(app)/hooks/useHomeData.ts:13,220 — Konsument
+- src/lib/queries/__tests__/players-priceChanges.test.tsx — Hook-test (3+ uses)
+
+### `qk.priceChanges` — 2 production hits + 1 test-assertion
+- src/lib/queries/keys.ts (definition)
+- src/lib/queries/players.ts:105 — queryKey usage
+- src/lib/queries/__tests__/players-priceChanges.test.tsx:129 — cache-key shape assertion
+
+## Vitest Pre-Push Parity (CI=true pnpm exec vitest run)
+- Test Files: 212 passed (212)
+- Tests: 3163 passed | 1 skipped (3164)
+- Duration: 274.35s
+- Verdict: ✅ no regression in any other test file
+
+## ESLint
+- Slice 268-touched files (useHomeData, queries/players, services/players):
+  0 errors. 1 pre-existing warning on rawHoldings useMemo (line 67) —
+  unrelated to Slice 268.

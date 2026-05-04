@@ -5,12 +5,12 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { centsToBsd } from '@/lib/services/players';
-import { logSupabaseError } from '@/lib/supabaseErrors';
 import {
   usePlayers,
   useEvents,
   useTrendingPlayers,
   useHomeDashboard,
+  usePlayerPriceChanges7d,
   qk,
 } from '@/lib/queries';
 import { useLineupWithPlayers } from '@/features/fantasy/queries/lineups';
@@ -20,7 +20,6 @@ import { useHasFreeBoxToday } from '@/lib/queries/mysteryBox';
 import { useLoginStreak } from '@/lib/queries/streaks';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { newIdempotencyKey } from '@/lib/idempotency';
-import { getPlayerPriceChanges7d } from '@/lib/services/players';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
 import { STREAK_KEY, getStoryMessage, pickScopedEvent, pickNextScopedEvent } from '@/components/home/helpers';
@@ -210,15 +209,19 @@ export function useHomeData() {
       .slice(0, 5);
   }, [trendingPlayers, players]);
 
-  // Top Movers: 7d price changes for user's holdings (RPC-backed)
-  const [topMovers, setTopMovers] = useState<{ playerId: string; player: string; club: string; change24h: number }[]>([]);
-  useEffect(() => {
-    if (holdings.length < 2) { setTopMovers([]); return; }
-    const playerIds = holdings.map(h => h.playerId);
-    let cancelled = false;
-    getPlayerPriceChanges7d(playerIds, 3).then(changes => {
-      if (cancelled) return;
-      setTopMovers(changes.map(c => {
+  // Top Movers: 7d price changes for user's holdings (Slice 268b — TanStack-cached).
+  //
+  // Replaces the legacy useState/useEffect+cancelled-flag pattern with
+  // `usePlayerPriceChanges7d` (queries/players.ts). Battery-Drain-Fix per
+  // D63 Cross-Persona-Top-Finding #3: 5-min staleTime + dedup + retry.
+  // Stable playerIds reference is required so the cache key stays consistent
+  // across re-renders (Spec §9 F-07).
+  const playerIds = useMemo(() => holdings.map(h => h.playerId), [holdings]);
+  const { data: priceChanges } = usePlayerPriceChanges7d(playerIds, 3);
+
+  const topMovers = useMemo(
+    () =>
+      (priceChanges ?? []).map(c => {
         const h = holdings.find(h => h.playerId === c.player_id);
         return {
           playerId: c.player_id,
@@ -226,10 +229,9 @@ export function useHomeData() {
           club: h?.club ?? '',
           change24h: Number(c.change_pct),
         };
-      }));
-    }).catch(err => logSupabaseError('[Home] 7d price changes failed', err));
-    return () => { cancelled = true; };
-  }, [holdings]);
+      }),
+    [priceChanges, holdings],
+  );
 
   const hasGlobalMovers = useMemo(() => {
     return players.some(p => p.prices.change24h !== 0 && !p.isLiquidated);

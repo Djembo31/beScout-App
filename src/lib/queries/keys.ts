@@ -176,6 +176,23 @@ export const qk = {
     all: (n: number) => ['priceHist', n] as const,
   },
 
+  // ── Price Changes (Slice 268b — D63 Phase 3 Cache) ──
+  priceChanges: {
+    /**
+     * 7-day price-change top-movers, scoped to a player-id set.
+     *
+     * Key shape: `['priceChanges', '7d', sortedJoinedIds, limit]`.
+     * `sortedJoinedIds` is built by the hook via
+     * `playerIds.slice().sort().join(',')` — deterministic across re-renders
+     * and order-permutations.
+     *
+     * Persist behavior: serialized key contains UUIDs → QueryProvider Layer 3
+     * (`UUID_REGEX`) skips persist. localStorage stays clean.
+     */
+    byPlayers: (playerIdsKey: string, limit: number) =>
+      ['priceChanges', '7d', playerIdsKey, limit] as const,
+  },
+
   // ── DPC of the Week ──
   dpcOfWeek: ['dpcOfWeek'] as const,
 

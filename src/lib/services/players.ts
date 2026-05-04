@@ -277,7 +277,18 @@ export type PriceChange7d = {
   change_pct: number;
 };
 
-/** Get top movers by 7-day price change */
+/**
+ * Get top movers by 7-day price change.
+ *
+ * Slice 268b (D63 Phase 3) — silent-fail-fix per `errors-db.md`
+ * "Service Error-Swallowing":
+ *   - Success path: `data ?? []` (unchanged — handles PostgREST `null`-data quirk).
+ *   - RPC error: throws so React-Query can surface `isError` and retry.
+ *
+ * Caller should prefer `usePlayerPriceChanges7d` (queries/players.ts) — it
+ * wraps this service in TanStack-Query with a 5-min staleTime, dedup, and
+ * deterministic cache-keying.
+ */
 export async function getPlayerPriceChanges7d(
   playerIds?: string[],
   limit: number = 20,
@@ -287,8 +298,7 @@ export async function getPlayerPriceChanges7d(
     p_limit: limit,
   });
   if (error) {
-    console.error('[Players] getPlayerPriceChanges7d error:', error);
-    return [];
+    throw new Error(error.message);
   }
   return (data as PriceChange7d[]) ?? [];
 }

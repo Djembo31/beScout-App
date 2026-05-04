@@ -8,6 +8,43 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `perfo
 
 ## Build / Deploy
 
+### jsdom 28 + pnpm Hoisting — Silent Broken Tests (Slice 268b, 2026-05-04)
+
+**Bug-Klasse:** jsdom 28 zieht transitive Dep `@asamuzakjp/css-color@5.x` ein, die intern `@csstools/css-calc` per ESM importiert. pnpm symlinkt `@csstools/css-calc` aber NICHT in `@asamuzakjp/css-color/node_modules/@csstools/`. Node's nativer ESM-Resolver respektiert die `exports`-Map des hoisted Pakets nicht und failt mit `ERR_MODULE_NOT_FOUND`. **Effekt: ALLE jsdom-basierten vitest-Tests sind silent-broken** — Test Files: 0 passed, Errors: 1 (Pool-Worker-Init-Failure), Tests: "no tests".
+
+**Detection:**
+```bash
+# Aufruf einer jsdom-vitest-Test:
+npx vitest run "src/lib/queries/__tests__/<X>.test.tsx"
+# Output enthält:
+#   Cannot find package 'C:\...\node_modules\.pnpm\@asamuzakjp+css-color@5.0.1\node_modules\@csstools\css-calc\index.js'
+#   Did you mean to import "@csstools/css-calc/dist/index.mjs"?
+#   Test Files: no tests · Errors: 1 error
+```
+
+**False-Heilversuche die NICHT funktionieren:**
+- `vitest.config.ts` `resolve.alias['@csstools/css-calc']` → Vite-Alias greift nur für transformierten Code, nicht für Node-Internal-Resolver der jsdom selbst lädt.
+- `server.deps.inline: ['@asamuzakjp/css-color', '@csstools/css-calc']` → Inline-Bundling triggert nicht weil Worker-Pool-Boot vor user-config greift.
+- `pnpm install` allein → reinstalliert die gleiche broken Symlink-Struktur.
+
+**Fix-Pattern (`.npmrc` im Repo-Root):**
+```
+public-hoist-pattern[]=@csstools/*
+```
+Plus `CI=true pnpm install` (für initiale Modules-Dir-Removal). Hoisted `@csstools/*` auf Top-Level `node_modules` → Node-Resolver findet via fallback. Side-Effect ist auf `@csstools/*` beschränkt, kein Bleed in andere Tooling.
+
+**Verify:**
+```bash
+ls node_modules/@csstools/css-calc/   # Symlink existiert
+npx vitest run "src/<any>.test.tsx"   # läuft jetzt
+```
+
+**Was Slice 268b heilt:** Ohne diesen Patch waren ALLE jsdom-Tests silent-broken — pre-Slice-268b waren queries/, hooks/, components/-Tests unprovable. Pre-Slice-268b CI-Pre-Push-Hook (`CI=true pnpm exec vitest run`) lief auch broken — nur dass es niemanden auffiel weil pre-push wegen `set -e` failte und das als false-positive `pre-push: OK` wahrgenommen wurde, weil das Skript nach erstem Error abbrach. **Slice 268b war erster Slice der einen brand-neuen jsdom-Test einführte und damit den Bug ans Licht zog.**
+
+**Pattern-Lehre:** Bei jsdom-Major-Bumps (27 → 28) IMMER eine `npx vitest run "<existing-jsdom-test>"` Smoke laufen lassen. Wenn "no tests" + "Cannot find package" → pnpm hoisting greift nicht, `.npmrc` Anpassung pflicht.
+
+**Beziehung zu D45 (Hooks > Text-Regeln):** Pre-push-Hook hat dieses Failure 5+ Tage maskiert weil `set -e` + Vitest-Pool-Failure nicht als "Tests broken" sichtbar war. Future-Improvement: pre-push Layer prüft `Test Files: <N> passed` als positives Signal, nicht nur exit-code. Kandidat für Future-Slice "pre-push-test-output-grep".
+
 ### tsconfig excludes scripts (Slice 079)
 - `"include": ["**/*.ts"]` + `"exclude": [..., "e2e"]` → includet `scripts/`. Scripts importieren deps wie `playwright` die nicht in `package.json` sind.
 - `tsc --noEmit` cleant lokal (`skipLibCheck: true`), **Vercel `next build` schlaegt fehl**: `Cannot find module 'playwright'`.
