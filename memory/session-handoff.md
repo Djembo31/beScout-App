@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-04 19:20)
+# Session Handoff — Auto (2026-05-04 21:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,17 +10,100 @@
  M worklog/audits/type-truth-2026-05-04.md
 ```
 
-## Session Commits: 8
+## Session Commits: 10
+- 50b78c19 chore(SO-2-recovery): Sign-Off STRENGTHENED post-SO-3/SO-4 + Static-Re-Walk
+- 73ede77c fix(SO-4): Cold-Start-Resilience + Auto-Issue-Master-Tracker (RISK-3)
+- de2c2150 fix(SO-3): LeagueScopeHeader.test.tsx Determinismus-Heal (RISK-6)
+- 4e178f23 chore(SO-2): Sign-Off Re-Trial #2 — SOFT-PASS-PENDING-ANIL (post-Slice-269)
 - 61298b93 chore(session-end): Phase 4 Discovery KOMPLETT — Resume-Anker + Beta-Phase-Update
 - 3ab89bd2 chore(269-end): active.md -> idle, D63 Phase 4 KOMPLETT
 - c204cda5 feat(269): Markt-Puls 3-Tab Discovery (D63 Phase 4 Konsolidierung)
 - 7d6395cf chore(handoff): Phase 3 Live-Pulse KOMPLETT — Resume-Anker für nächste Session
 - 3e686653 chore(session-end): Phase 3 Live-Pulse KOMPLETT (Slices 266/267/268b live)
 - 4a370e6b feat(266): Spotlight-Multi-Slot Refactor (D63 Phase 3 Daily-Driver-Discoverability)
-- a762b608 feat(268b): Price-Changes-Cache (D63 Phase 3 Performance-Win)
-- 89315e86 chore(hygiene): Session-Handoff-Auto-Block + Audit-Re-Run-Timestamps
 
 <!-- auto:handoff-end -->
+
+---
+
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-04 Spät-Abend — Sign-Off STRENGTHENED + 4 SO-Slices live)
+
+**HEAD `50b78c19`** Status: idle. Sign-Off-Re-Trial #2 SOFT-PASS-STRENGTHENED. **D63 Phase 1+2+3+4 alle live (10/13 Slices)**. Phase 5 (Visual-Polish, Slices 270-273) ist die einzige offene Phase. 0 Reverts seit Slice 261.
+
+## Session 2026-05-04 Spät-Abend — 4 Sign-Off-Slices in Folge (Anil-Direktive „weiter im handoff mit selbem eifer und einsatz" + „a+b")
+
+| Slice | Commit | Was | Risk-Closure |
+|-------|--------|-----|--------------|
+| SO-2 | `4e178f23` | Sign-Off Re-Trial #2 ausgeführt — SOFT-PASS-PENDING-ANIL | identifiziert 6 Risks |
+| SO-3 | `de2c2150` | LeagueScopeHeader.test.tsx Determinismus-Heal | RISK-6 ✅ closed |
+| SO-4 | `73ede77c` | Cold-Start-Resilience + Auto-Issue-Master-Tracker | RISK-3 ✅ closed (22 Issues batch-cleanup) |
+| SO-2-recovery | `50b78c19` | Sign-Off STRENGTHENED + Persona-Static-Re-Walk | RISK-2 ✅ closed (Persona-Avg measured 8.33/10) |
+
+## Sign-Off Re-Trial #2 Final-State
+
+**Verdict: SOFT-PASS-STRENGTHENED** (Anil-Decision-Pflicht)
+
+Decision-Matrix 7/8 ✅ measured + 1 ❓ System-Drift + 2 ⚠️ Tester-Items SOFT:
+- ✅ Smoke 18.3s PASS gegen bescout.net (manuell-warm)
+- ✅ Sentry MCP connected (EU-Endpoint)
+- ✅ Open-P0/P1/P2/P3 alle 0
+- ✅ Vercel HEAD `50b78c19` state=READY
+- ✅ Open `beta-blocker` Issues = 1 (nur Master-Tracker #63 by-design)
+- ✅ Persona-Avg measured 8.33/10 (M=7.5, K=8.5, T=9 — Static-Re-Walk 2026-05-04)
+- ✅ 11 NEUE Slice-266+269 i18n-Keys compliance-pre-verified per business.md AR-7+AR-17
+- ❓ Per-Page-Health-Avg ≥42/50 (System-Drift, 0-50 Score nie persistiert — Backlog post-Beta wenn Telemetrie >20 User)
+- ⚠️ memory/beta-tester-list.md formell-fehlt (Anil-confirmed 3 Tester aktiv funktional)
+- ⚠️ memory/beta-onboarding.md DRAFT-TODOs (Anil's Email/Tel Z.42+105)
+
+## Live-Verifies dieser Session
+
+| Was | Erwartung | Resultat |
+|-----|-----------|----------|
+| SO-4 GHA-Pipeline für `73ede77c` Push | SUCCESS dank Warm-Up | ✅ 1m47s (vs. 2m29s+2m33s FAIL davor) |
+| Master-Tracker #63 trigger-status | bleibt ohne Comments solange Pipeline grün | ✅ stays untriggered |
+| Open beta-blocker Issues | nur Master-Tracker | ✅ exactly 1 (#63) |
+| LeagueScopeHeader.test.tsx | 5/5 deterministic Runs | ✅ alle PASS, worst-case 550ms (vs. 10548ms) |
+| Full vitest Suite | 3193/3194 PASS | ✅ in 563s |
+
+## Risks Final-State
+
+| ID | Risk | Status | Action |
+|----|------|--------|--------|
+| ~~RISK-2~~ | Persona-Re-Walk | ✅ CLOSED in Static-Re-Walk (Avg 8.33) | abgeschlossen |
+| ~~RISK-3~~ | 22+ Cold-Start GHA-Issues | ✅ CLOSED in SO-4 (Pipeline-Patch + batch-cleanup) | abgeschlossen |
+| ~~RISK-6~~ | Test-Determinismus | ✅ CLOSED in SO-3 (Static-Imports + Zustand-Reset) | abgeschlossen |
+| RISK-1 | Sentry JAVASCRIPT-NEXTJS-15 Maximum-Update-Depth `/` Mobile Safari | P3-WATCH | Anil-Mobile-Safari-Verify am WE |
+| RISK-4 | Per-Page-Health-Score-System | P3-DEBT | post-Beta wenn 50 Tester live |
+| RISK-5 | TR-Pflicht-Review 11 Keys | P3-USER-ACTION | compliance-pre-verified, Anil-Best-Practice |
+
+## Anil-Action-Items für PASS-Endgültig
+
+1. **memory/beta-tester-list.md formell anlegen** (.gitignore-pflicht, 3 Tester Name+Login+Profil) — 5 min
+2. **memory/beta-onboarding.md TODO Email + Tel füllen** (Z.42 + Z.105) — 5 min
+3. **TR-Pflicht-Review der 11 neuen Slice-266+269-Keys** — compliance-pre-verified, 5 min Best-Practice (siehe `worklog/audits/2026-05-04/persona-walks-static-post-phase-1-4.md` Persona-T Section)
+4. **Mobile-Safari-Verify Phase 1+2+3+4** — 30-45 min am Wochenende:
+   - 4 Konfigurationen Slice 266 (live-only/mb-only/both/neither)
+   - 4 Konfigurationen × 2 Accounts Slice 269 (3-tabs/2-tabs/1-tab/0-tabs × Power-User/New-User)
+   - JAVASCRIPT-NEXTJS-15 Reproducibility-Check (Mobile Safari iOS 18.7 auf `/`)
+   - Slice 267 E2E-Live-Match während Süper Lig oder Premier League Match
+5. **Sentry-Hygiene (UI-Klicks)**:
+   - JAVASCRIPT-NEXTJS-11/12/13 (n.values is not a function) → markieren als `Resolved: in commit 8756b5dd (Slice 267 Map-Persist-Heal)` — last-seen 3 days ago, kausativ gefixt
+   - JAVASCRIPT-NEXTJS-15 → Comment „Slice SO-2 RISK-1 Watch-Item, Reproducibility-Check pending" und ggf. snooze 1 week
+
+## Optionen für nächste Session
+
+**Option A: Anil-PASS bestätigen + Beta-Mails raus** (recommended)
+- Decision-Pflicht nach 4 Action-Items
+- 3-Tester-Beta startet, Phase 5 läuft parallel post-GO
+
+**Option B: Phase 5 Slice 270 Stadium-Asset-Pipeline starten**
+- BRAUCHT Anil's Visual-Direction (7 Liga-BG-Konzepte, SDXL-Style)
+- Pipeline-Code (Storage + Component-API) kann ich autonom; Asset-Generation ist Anil-CEO-Domain
+
+**Option C: Hot-Fix für JAVASCRIPT-NEXTJS-15** falls Anil-Verify am WE Reproducibility bestätigt
+- Watch-Item P3 — kein autonomer Trigger ohne Anil-Verify
+
+**CTO-Empfehlung:** A — Sign-Off ist saturiert, 3 echte Tester ersetzen synthetic Persona-Re-Walk. Phase 5 ist Polish, nicht-Beta-blocking.
 
 ---
 
