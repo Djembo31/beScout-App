@@ -2,13 +2,56 @@
 
 ```
 status: idle
-slice: 272
-stage: LOG
-spec: in-active-md (Lineup Duplicate-Defense-in-Depth — Anil-Live-Bug-Report 2026-05-05)
-impact: in-spec (4 Files: Store + Hook + Panel, defense-in-depth UX-Fix; DB-Guard rpc_save_lineup unangetastet/sicher)
-proof: worklog/proofs/272-tsc-vitest.txt
-review: self-review per workflow.md S-Ausnahme (UI-Defense für Money-Path-DB-Guard; +10 Store-Tests grün)
+slice: 273
+stage: LOG (Track A1+B+C live, Track A2+TFF1-Backfill als Slice 274 Backlog)
+spec: in-active-md + worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md (vorlage)
+impact: 5 Files Frontend (Liga-Filter + Modal-Refetch + selectedFixture-Derive) + DB-Heal active_gameweek für PL/La Liga (atomar, dual-write)
+proof: worklog/proofs/273-tsc-vitest.txt
+review: self-review (1 Specialist-Audit fantasy-scoring-expert + Live-DB-Audit 4 SQL-Smokes)
 ```
+
+## Slice 273 LIVE 2026-05-06 — Spieltag-Page Stabilisierung (Anil-Live-Bug-Komplex)
+
+**Anil-Live-Report:** 4 Symptome auf Spieltag — (1) Bewertungen fehlen trotz finished, (2) Filter manchmal andere Mannschaften, (3) UI updated nicht, (4) aktuelle GWs auf "beendet".
+
+**Diagnose-Methodik:** 1 Specialist (fantasy-scoring-expert) + Live-DB-Audit (4 SQL-Queries) + Code-Reading (5 Files).
+
+**Root-Cause-Analyse (2 Tier):**
+
+### Tier 1 — Backend-Pipeline (Live-DB-Findings)
+- **`fixture_player_stats` LEER für 6 von 7 Ligen** trotz status='finished' (nur TFF 1. Lig hat 264 Stats)
+- **`clubs.active_gameweek` drifted** für 3 Ligen: PL 31→echt 35, La Liga 33→echt 34, TFF1 38→echt 37
+- **Premier League stuck** wegen Manchester City vs Crystal Palace Nachholspiel scheduled für 2026-05-13 → `no_past_fixtures`-Skip blockt Cron-`advance_gameweek` → GW 32-35 nie synct
+- Cron-Bug-Klasse Slice 140 (Postponed-Match-aware advance fehlt)
+
+### Tier 2 — UI (Specialist 1)
+- **P0-A:** `getGameweekStatuses(gw, gw)` NICHT Liga-gefiltert → cross-league cache pollution
+- **P0-B:** `FixtureDetailModal` lädt Stats nur einmal bei Open, kein Refetch bei Realtime/status-Change
+- **P0-C:** `selectedFixture` ist Snapshot, nicht von `useLiveFixtures.onUpdate` gepatched → Stale-Score
+- **P1-D:** `qk.fantasy.gwFixtureInfo(gw)` Cache-Key ohne leagueId
+
+**Implementierung Slice 273:**
+
+| Track | Files | Änderung | Status |
+|---|---|---|---|
+| **A1 DB-Heal** | DB UPDATE | PL active_gw 31→36, La Liga 33→35 (atomar, dual-write clubs+leagues) | ✅ live |
+| **B Liga-Filter** | `fixtures.ts:170` + `keys.ts:412` + `useGameweek.ts:71-79` | `getGameweekStatuses(fromGw, toGw, leagueId?)` + Cache-Key + Hook-Routing | ✅ live |
+| **C Modal Stale** | `SpieltagTab.tsx:53-156` + `FixtureDetailModal.tsx:432-468` | selectedFixtureId + derived selectedFixture + Modal-Refetch bei status-change + 60s-Polling bei isLive | ✅ live |
+
+**Backlog (separater Slice 274 nach Beta):**
+- **Track A2 Cron-Code-Fix:** `gameweek-sync/route.ts` no_past_fixtures-Skip-Logic erweitern um „all-past-finished + future-only-pending"-Pattern → automatisches advance auch bei Postponed-Match
+- **TFF 1. Lig GW38 import_data error:** Saisonende-Edge-Case, API-Football mapping fehlt
+- **Stats-Backfill:** Cron läuft nicht retroaktiv. Anil-Decision: a) Manueller Trigger via Admin-UI für jede Liga+GW nötig wenn FT-Bewertungen für GW32-35 PL + GW32-34 La Liga gewünscht. b) Akzeptiere Lag, Tester sehen ab nächstem Cron-Run (06:00 UTC) korrekte Daten für CURRENT GW.
+
+**Money-Path-Garantie:** keine Money/Wallet/Trading-Logik betroffen. DB-Heal ist read-after-write Konfiguration. Frontend-Fixes sind UI-only.
+
+**Tests:** vitest 255/255 PASS in fantasy-Domain (Service+Hooks+Components).
+
+**Beta-Wirkung:**
+- Tester der DE Bundesliga wählt sieht nun korrekt GW32 als active (war vorher korrekt, durch Liga-Filter jetzt absolut sicher)
+- Tester der Premier League wählt sieht nun GW36 als active (war stuck auf 31)
+- Modal-Hover auf Live-Match: Score-Header und Bewertungen ticken alle 60s (war pre-Slice statisch)
+- Liga-Switch: gwStatus updates atomar pro Liga (war pre-Slice cross-league pollution)
 
 ## Slice 272 LIVE 2026-05-05 — Lineup Duplicate-Defense-in-Depth
 

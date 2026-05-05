@@ -47,6 +47,86 @@ grep -rnE "!(streak|shields|count|balance|tickets|priceChange)[A-Z]" src/compone
 
 **Beziehung:** Cross-Cutting mit "Silent Fails" (common-errors.md §1) — eine UI-Layer-Variante. Backend hat ähnliches Pattern bei `Promise.allSettled` ohne Observability.
 
+### Selected-Item-Snapshot vs. Realtime-Update-Drift (Slice 273, 2026-05-06)
+
+**Bug-Klasse:** Komponente hält ein "selectedX"-Item als Snapshot-State (`useState<X | null>`), während ein Realtime-Hook die Source-Liste patched (`setItems(prev.map(...))`). Modal/Detail-View liest weiterhin den eingefrorenen Snapshot → User sieht Stale-Score, Stale-Status, Stale-Minute.
+
+**Symptom (Slice 273 Live-Bug):**
+- User klickt Fixture → Modal öffnet mit `selectedFixture = fixtures[i]`
+- Realtime-Update kommt: `useLiveFixtures.onUpdate` patches `fixtures[i] = {...next, home_score: 2}`
+- Modal-State `selectedFixture` ist der **alte Pointer** (vor Patch) → zeigt Score 0:0
+- React preserved den Pointer, kein implicit-sync
+
+**Anti-Pattern:**
+```ts
+// ❌ Snapshot-State
+const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
+// ...
+onClick={(f) => setSelectedFixture(f)}  // capture snapshot
+// ...
+<Modal fixture={selectedFixture} />  // stale across realtime updates
+```
+
+**Fix-Pattern: ID-as-State + derived-from-list:**
+```ts
+// ✓ Slice 273 Pattern
+const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
+
+const selectedFixture = useMemo(
+  () => (selectedFixtureId ? fixtures.find(f => f.id === selectedFixtureId) ?? null : null),
+  [selectedFixtureId, fixtures],
+);
+// ...
+onClick={(f) => setSelectedFixtureId(f.id)}  // capture ID only
+// ...
+<Modal fixture={selectedFixture} />  // atomar synchron mit fixtures[]-Updates
+```
+
+**Cross-Cutting Property:** Sub-Components die `fixture` als Prop erhalten + eigene State-Loads (z.B. `getFixturePlayerStats(fixture.id)`) müssen useEffect-deps auf **stabile Felder** spreizen (`fixture.id`, `fixture.status`) statt auf das ganze `fixture`-Object — sonst re-runs der Effect bei jedem Realtime-Patch.
+
+```ts
+// ❌ ganzer Object als dep → re-run bei jedem patch
+useEffect(() => loadStats(), [fixture, isOpen]);
+
+// ✓ stabile Felder als deps → re-run nur bei id/status-change
+const fixtureId = fixture?.id;
+const fixtureStatus = fixture?.status;
+useEffect(() => loadStats(), [fixtureId, fixtureStatus, isOpen]);
+```
+
+**Refetch-Strategy für Modal mit Live-Match:**
+```ts
+useEffect(() => {
+  if (!fixtureId || !isOpen) return;
+  let cancelled = false;
+  const loadStats = () => { /* fetch + setStats */ };
+  loadStats();
+
+  // 60s-Polling während Live-Match (BPS/Bewertungen ticken hoch)
+  if (fixtureStatus === 'live') {
+    const interval = setInterval(loadStats, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }
+  return () => { cancelled = true; };
+}, [fixtureId, fixtureStatus, isOpen]);
+```
+
+Effect re-feuert bei `live → finished`-Transition automatisch via deps und holt finale Stats.
+
+**Audit-Pattern:**
+```bash
+# Find Snapshot-State auf Realtime-pflegten Listen
+grep -rnE "useState<[A-Z][a-zA-Z]+ \| null>" src/components/ src/features/ | head
+# Manuell prüfen: wird das Item einer Realtime-gepatchten Liste in setX(item) gestellt?
+# Wenn ja: zu ID-as-State + derived-from-list refactoren.
+```
+
+**Reference:** Slice 273 `src/components/fantasy/SpieltagTab.tsx:53-156` + `FixtureDetailModal.tsx:432-468`. fantasy-scoring-expert Specialist-Audit P0-B + P0-C.
+
+**Beziehung:**
+- Cross-Cutting mit Slice 270 "Per-Tenant-Window vs. Global-MAX" (errors-db.md) — beide sind „Daten-Frische in Multi-Source-Architektur".
+- Erweitert "Realtime-Hook-Refactor TanStack-Query → callback-only" (Slice 267) auf UI-Modal-Layer.
+
 ### Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik (Slice 272, 2026-05-05)
 
 **Bug-Klasse:** Zustand-Store für Multi-Slot-State (Lineup-Builder, Equipment-Slots, Tab-Pinning, Card-Loadouts) mit `selectX(id, slot)` Action der nur den Target-Slot filtert, nicht aber die ID. Wenn User dieselbe ID auf 2 Slots setzt, sitzt sie auf beiden → UI zeigt Duplicate.

@@ -50,7 +50,13 @@ export function SpieltagTab({
   const [importResult, setImportResult] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
-  const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
+  // Slice 273 Track C — Snapshot-State ersetzt durch ID-Selektion + derived-from-fixtures.
+  // Pre-Slice-273: selectedFixture als Fixture-Snapshot war stale wenn useLiveFixtures
+  // den fixtures[]-Array via setFixtures patched (Realtime-Update auf score/minute/status).
+  // Modal sah weiterhin den alten Snapshot → Score-Header und MVP zeigten stale Werte.
+  // Slice 273: selectedFixtureId ist die einzige State-Source-of-Truth, das Modal-fixture
+  // wird per-render aus aktuellem fixtures[]-Array abgeleitet → atomar synchron.
+  const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [apiAvailable, setApiAvailable] = useState(false);
 
   // Load fixtures for current GW (league-scoped when leagueId is provided)
@@ -141,6 +147,14 @@ export function SpieltagTab({
     if (!topspiel) return fixtures;
     return fixtures.filter(f => f.id !== topspiel.id);
   }, [fixtures, topspiel]);
+
+  // Slice 273 Track C — Derive selectedFixture from current fixtures[].
+  // Atomar synchron mit useLiveFixtures.onUpdate-Patches: Modal sieht immer
+  // aktuellen Score/Status/Minute weil das Fixture-Object der useState-Quelle entstammt.
+  const selectedFixture = useMemo(
+    () => (selectedFixtureId ? fixtures.find(f => f.id === selectedFixtureId) ?? null : null),
+    [selectedFixtureId, fixtures],
+  );
 
   const handleImport = async () => {
     if (!isAdmin || importing) return;
@@ -274,7 +288,7 @@ export function SpieltagTab({
             <TopspielCard
               fixture={topspiel}
               userClubId={clubId}
-              onSelect={(f) => setSelectedFixture(f)}
+              onSelect={(f) => setSelectedFixtureId(f.id)}
             />
           </div>
         </>
@@ -287,7 +301,7 @@ export function SpieltagTab({
           <div className="card-entrance" style={{ animationDelay: '0.2s' }}>
             <SpieltagBrowser
               fixtures={otherFixtures}
-              onSelect={(f) => setSelectedFixture(f)}
+              onSelect={(f) => setSelectedFixtureId(f.id)}
             />
           </div>
         </>
@@ -394,7 +408,7 @@ export function SpieltagTab({
       <FixtureDetailModal
         fixture={selectedFixture}
         isOpen={!!selectedFixture}
-        onClose={() => setSelectedFixture(null)}
+        onClose={() => setSelectedFixtureId(null)}
         sponsorName={events.find(e => e.sponsorName)?.sponsorName}
         sponsorLogo={events.find(e => e.sponsorLogo)?.sponsorLogo}
       />

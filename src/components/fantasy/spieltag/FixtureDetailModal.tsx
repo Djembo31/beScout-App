@@ -429,23 +429,44 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const [detailTab, setDetailTab] = useState<'overview' | 'ranking' | 'formation'>('overview');
   const [floorPrices, setFloorPrices] = useState<Map<string, number>>(new Map());
 
+  // Slice 273 Track C — Refetch on status-change (live → finished) + 60s polling while live.
+  // Pre-Slice-273: Stats wurden EINMAL bei Modal-Open geladen, NICHT refetched bei
+  // Realtime-Update. User öffnete Modal nach status='finished'-Flip aber während
+  // fixture_player_stats-Sync noch läuft → leere Bewertungen, kein Refetch.
+  // Plus: parent passes derived `fixture` from fixtures[] (Track C), so status updates
+  // are observable here as `fixture.status`-Wechsel und triggern useEffect via deps.
+  const fixtureId = fixture?.id;
+  const fixtureStatus = fixture?.status;
+
   useEffect(() => {
-    if (!fixture || !isOpen) return;
+    if (!fixtureId || !isOpen) return;
     let cancelled = false;
     setLoading(true);
     setDetailTab('overview');
-    Promise.all([
-      getFixturePlayerStats(fixture.id),
-      getFixtureSubstitutions(fixture.id),
-    ]).then(([statsData, subsData]) => {
-      if (!cancelled) {
-        setStats(statsData);
-        setSubstitutions(subsData);
-        setLoading(false);
-      }
-    }).catch((err) => { console.error('FixtureDetailModal fetch failed:', err); if (!cancelled) setLoading(false); });
+
+    const loadStats = () => {
+      Promise.all([
+        getFixturePlayerStats(fixtureId),
+        getFixtureSubstitutions(fixtureId),
+      ]).then(([statsData, subsData]) => {
+        if (!cancelled) {
+          setStats(statsData);
+          setSubstitutions(subsData);
+          setLoading(false);
+        }
+      }).catch((err) => { console.error('FixtureDetailModal fetch failed:', err); if (!cancelled) setLoading(false); });
+    };
+
+    loadStats();
+
+    // 60s-Polling während Live-Match: BPS/Bewertungen ticken hoch.
+    if (fixtureStatus === 'live') {
+      const interval = setInterval(loadStats, 60_000);
+      return () => { cancelled = true; clearInterval(interval); };
+    }
+
     return () => { cancelled = true; };
-  }, [fixture, isOpen]);
+  }, [fixtureId, fixtureStatus, isOpen]);
 
   // Load floor prices when stats arrive
   useEffect(() => {

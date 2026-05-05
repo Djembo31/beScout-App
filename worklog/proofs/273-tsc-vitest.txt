@@ -1,0 +1,91 @@
+Slice 273 Proof — Spieltag-Page Stabilisierung
+Datum: 2026-05-06 00:00
+
+═══════════════════════════════════════════════════════════
+1) tsc --noEmit
+═══════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit
+(no output → exit 0 → clean)
+
+═══════════════════════════════════════════════════════════
+2) vitest fantasy-domain
+═══════════════════════════════════════════════════════════
+
+Test Files: 18 passed (18)
+     Tests: 255 passed (255)
+   Duration: 35.81s
+
+═══════════════════════════════════════════════════════════
+3) DB-Smoke pre/post Heal
+═══════════════════════════════════════════════════════════
+
+PRE-HEAL Snapshot:
+  La Liga:        league_gw=33, clubs_active=[33]
+  Premier League: league_gw=31, clubs_active=[31] ← drifted (latest_finished=35)
+  TFF 1. Lig:     league_gw=38, clubs_active=[38]
+
+POST-HEAL Verify:
+  La Liga:        league_gw=35, clubs_min/max=35  ✓
+  Premier League: league_gw=36, clubs_min/max=36  ✓
+  TFF 1. Lig:     league_gw=38, clubs_min/max=38  (unverändert — Saisonende-Edge-Case)
+
+═══════════════════════════════════════════════════════════
+4) Audit-Findings (Live-DB pre-Heal)
+═══════════════════════════════════════════════════════════
+
+GW-Drift pro Liga:
+  Bundesliga:   active=32 latest_finished=32 (✓)
+  2.Bundesliga: active=32 latest_finished=32 (✓)
+  La Liga:      active=33 latest_finished=34 (1 GW hinten — fixed)
+  Premier:      active=31 latest_finished=35 (4 GWs hinten — fixed)
+  Serie A:      active=35 latest_finished=35 (✓)
+  Süper Lig:    active=32 latest_finished=32 (✓)
+  TFF 1. Lig:   active=38 latest_finished=37 (1 GW vorraus — Slice 274 Backlog)
+
+fixture_player_stats Coverage (latest finished GW pro Liga):
+  Bundesliga GW32:    0 stats (BACKLOG)
+  2.Bundesliga GW32:  0 stats (BACKLOG)
+  La Liga GW34:       0 stats (BACKLOG)
+  Premier GW35:       0 stats (BACKLOG)
+  Serie A GW35:       0 stats (BACKLOG)
+  Süper Lig GW32:     0 stats (BACKLOG)
+  TFF 1. Lig GW37:    264 stats (✓)
+
+Pipeline-Bug (Premier League):
+  Manchester City vs Crystal Palace Nachholspiel scheduled 2026-05-13
+  → blockt Cron-advance_gameweek (no_past_fixtures-Skip-Logic)
+  → 4 GWs Lag akkumuliert seit ~2026-04-01
+  → Slice 274 Track A2: Cron-Code-Fix no_past_fixtures + future-only-Pattern
+
+═══════════════════════════════════════════════════════════
+5) Files geändert
+═══════════════════════════════════════════════════════════
+
+Frontend Track B (Liga-Filter):
+- src/features/fantasy/services/fixtures.ts (getGameweekStatuses signature + leagueId-Param)
+- src/lib/queries/keys.ts (qk.fantasy.gwFixtureInfo Cache-Key + leagueId)
+- src/features/fantasy/hooks/useGameweek.ts (leagueId durchroute)
+
+Frontend Track C (Modal Stale):
+- src/components/fantasy/SpieltagTab.tsx (selectedFixtureId + derived selectedFixture)
+- src/components/fantasy/spieltag/FixtureDetailModal.tsx (Refetch bei status-change + 60s-Polling bei isLive)
+
+Backend Track A1 (DB-Heal):
+- DB: leagues.active_gameweek + clubs.active_gameweek atomar dual-write für PL=36, La Liga=35
+
+═══════════════════════════════════════════════════════════
+6) Backlog für Slice 274 (post-Beta)
+═══════════════════════════════════════════════════════════
+
+A2 Cron-Code-Fix:
+- gameweek-sync/route.ts no_past_fixtures-Skip + Postponed-Match-Aware advance
+- Bug-Klasse Slice 140 (API-Response-Count vs DB-Count) generalized
+
+TFF 1. Lig GW38:
+- Saisonende-API-Mapping check (api-football-id vs Saison-Endspielwoche)
+- import_data Error-Reason: ggf. API-Football hat GW38 nicht synct, ggf. Mapping-Drift
+
+Stats-Backfill GW32-35 PL + GW32-34 La Liga + GW32 BL/2BL + GW32 Süper Lig + GW35 Serie A:
+- Manueller Aufruf via Admin-UI ODER /api/cron/gameweek-sync re-trigger
+- Cron läuft nicht retroaktiv — separater backfill-script nötig

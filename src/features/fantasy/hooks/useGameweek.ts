@@ -66,11 +66,14 @@ export function useGameweek(gwEvents: FantasyEvent[] = [], leagueId: string | nu
     setCurrentGw(currentGw);
   }, [currentGw, setCurrentGw]);
 
-  // GW fixture completion — lightweight check (independent of events)
+  // GW fixture completion — lightweight check (independent of events).
+  // Slice 273 Track B: leagueId-scoped to prevent cross-league cache pollution.
+  // Pre-Slice-273: global aggregate → TR Süper Lig finished GW caused DE Bundesliga
+  // user to see same GW as „simulated"/„beendet". Bug-Klasse Slice 270 (Per-Tenant-Window).
   const { data: gwFixtureInfo = { complete: false, count: 0 } } = useQuery({
-    queryKey: qk.fantasy.gwFixtureInfo(currentGw),
+    queryKey: qk.fantasy.gwFixtureInfo(currentGw, leagueId),
     queryFn: async () => {
-      const statuses = await getGameweekStatuses(currentGw, currentGw);
+      const statuses = await getGameweekStatuses(currentGw, currentGw, leagueId);
       const s = statuses.find(st => st.gameweek === currentGw);
       return { complete: s?.is_complete ?? false, count: s?.total ?? 0 };
     },

@@ -409,7 +409,10 @@ export const qk = {
 
   // ── Fantasy ──
   fantasy: {
-    gwFixtureInfo: (gw: number) => ['fantasy', 'gwFixtureInfo', gw] as const,
+    /** Slice 273 Track B — leagueId in cache-key prevents cross-league pollution.
+     *  Pre-Slice-273: same key for all leagues → first liga's status leaked to second. */
+    gwFixtureInfo: (gw: number, leagueId: string | null = null) =>
+      ['fantasy', 'gwFixtureInfo', gw, leagueId ?? 'global'] as const,
     fixtureDeadlines: (gw: number) => ['fantasy', 'fixtureDeadlines', gw] as const,
     leaderboard: (eventId: string | undefined) => ['fantasy', 'leaderboard', eventId] as const,
     progressiveScores: (gw: number | undefined, playerIds: string[]) =>

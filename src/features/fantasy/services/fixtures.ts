@@ -167,12 +167,36 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
 }
 
 /** Get gameweek simulation status for a range */
-export async function getGameweekStatuses(fromGw: number, toGw: number): Promise<GameweekStatus[]> {
-  const { data, error } = await supabase
+/**
+ * Slice 273 Track B — leagueId-Filter (Per-Tenant-Window, Bug-Klasse Slice 270).
+ *
+ * Pre-Slice-273: Service aggregierte ALLE Ligen für einen GW. Multi-League-Bug:
+ * TR Süper Lig GW32 finished + DE Bundesliga GW32 finished + EN Premier League
+ * GW32 finished → `is_complete=true` für alle. Konsument `useGameweek.gwFixtureInfo`
+ * zeigte „GW32 simulated" auch bei Liga-Switch wo GW32 noch offen wäre.
+ *
+ * Slice-273-Fix: leagueId optional, default null = global aggregate (legacy).
+ * Konsumenten sollten leagueId durchrouten wenn Per-Liga-Status gewünscht.
+ *
+ * Backward-Compat: useClubEventsData (admin-tab) nutzt fromGw=1, toGw=38 ohne
+ * leagueId → bleibt globale Liste. Spieltag-Page nutzt jetzt leagueId-aware.
+ */
+export async function getGameweekStatuses(
+  fromGw: number,
+  toGw: number,
+  leagueId?: string | null,
+): Promise<GameweekStatus[]> {
+  let query = supabase
     .from('fixtures')
     .select('gameweek, status')
     .gte('gameweek', fromGw)
     .lte('gameweek', toGw);
+
+  if (leagueId) {
+    query = query.eq('league_id', leagueId);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
   if (!data) return [];
