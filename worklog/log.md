@@ -2,7 +2,27 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
-## 270d | 2026-05-05 | fix(perf-bars): PostgREST 1000-row-Cap auf RPC-Call (Slice 270 Hotfix)
+## 270d v2 | 2026-05-05 | fix(perf-bars): JSONB-Return weil PostgREST .range()/limit auf RPC IGNORIERT
+
+- Stage-Chain: BUILD-Heal (v1 270d war wirkungslos — Live-Verify entdeckte das) → PROVE → LOG
+- Trigger: 270d v1 setzte `.range(0, 99999)` an `.rpc()`, Live-Verify Network-Trace zeigte Response-Header `content-range: 0-999/*` trotz URL-Param `?offset=0&limit=100000` — PostgREST hat den Override **ignoriert**. DOM-Audit via Chrome-DevTools-evaluate_script bestätigte: alle 12 FormBars-Container rendern 5 dashed bars (childCount=5, alle `border-dashed`).
+- Bug-Klasse: PostgREST-RPC-Pfad ignoriert `Range`-Override Mechanismen die für `.from().select()` funktionieren. errors-db.md §1 hatte bereits "limit(N) ist KEIN Override-Path" — die Erkenntnis erweitert sich auf RPC-TABLE-Return.
+- Fix: RPC auf JSONB-Array-Return umgestellt — 1 row × 1 column, kein Row-Cap. Migration v2 mit gleichem Filename-Stem (`20260505HHMMSS_slice_270d_jsonb_return_recent_player_scores.sql`).
+  - SQL: `SELECT jsonb_agg(jsonb_build_object(...) ORDER BY player_id, gameweek ASC)` als Single-Row-Return
+  - Service: `data` direkt als JSON-Array casten (Supabase-JS deserialisiert JSONB)
+- Files (3):
+  - `supabase/migrations/20260505HHMMSS_slice_270d_jsonb_return_recent_player_scores.sql` — DROP TABLE-Version + neue JSONB-Variante
+  - `src/features/fantasy/services/fixtures.ts:438-465` — `.range()` raus, JSONB-Direkt-Parse
+  - `src/test/mocks/supabase.ts` — chainable rpc-Builder bleibt (v1-Pattern weiterhin sinnvoll für andere RPC-Konsumenten)
+- DB-Verify v2: `SELECT jsonb_array_length(rpc_get_recent_player_scores())` = 15.350 ✓
+- Proof: tsc clean. fixtures.test.ts 52/52.
+- Live-Verify: Pending nach v2-Push.
+
+---
+
+## 270d v1 | 2026-05-05 | fix(perf-bars): PostgREST 1000-row-Cap auf RPC-Call (Slice 270 Hotfix)
+
+- **Status: SUPERSEDED** durch v2 oben — v1 war wirkungslos (PostgREST ignoriert URL-`?limit=` für RPC).
 
 - Stage-Chain: SPEC (inline-Hotfix from Live-Verify) → IMPACT (skipped — Service + Test-Mock, 2 Files) → BUILD → REVIEW (self-review per workflow.md XS-Ausnahme — Pattern-Reuse PostgREST-Cap-Heal aus errors-db.md §1) → PROVE (tsc + fixtures.test.ts 52/52 + Volltest 3196/3197) → LOG
 - Slice-Type: Service + Test-Mock (XS-Slice, 2 Files)

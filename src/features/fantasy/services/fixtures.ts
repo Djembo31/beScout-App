@@ -447,22 +447,24 @@ export async function getRecentScoreGameweeks(): Promise<number[]> {
  *  Spieler ohne Scores fehlen in der Map → Caller `?? []` fällt auf 5 dashed bars.
  */
 export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
-  // Slice 270d fix: .range(0, 99999) zwingt PostgREST über den 1000-row-Default-
-  // Cap (errors-db.md §1 PostgREST 1000-row cap). RPC liefert ~15k Rows
-  // (~3k Active-Player × 5 GWs); ohne range bekamen Konsumenten nur die ersten
-  // ~200 Player-Slots gefüllt, der Rest renderte leere dashed-bars trotz
-  // vorhandener DB-Daten.
-  const { data, error } = await supabase
-    .rpc('rpc_get_recent_player_scores')
-    .range(0, 99999);
+  // Slice 270d v2: RPC returns JSONB-Array (single-row, single-column) statt
+  // TABLE-Set, weil PostgREST den 1000-row-Cap auf TABLE-Return-RPCs hart
+  // erzwingt + .range()/?limit=-Overrides für RPC-Calls IGNORIERT
+  // (Live-Verify: response-header content-range:0-999/* trotz ?limit=100000).
+  // JSONB-Return ist 1 row × 1 column = kein Cap.
+  // errors-db.md §1 "PostgREST 1000-row cap MONEY-CRITICAL" gilt auch für RPC.
+  const { data, error } = await supabase.rpc('rpc_get_recent_player_scores');
   if (error) throw new Error(error.message);
-  if (!data || data.length === 0) return new Map();
+  if (!data) return new Map();
 
+  // JSONB-Array deserialisiert von Supabase-JS bereits zu JS-Array.
   // RPC contract: ORDER BY player_id, gameweek ASC (oldest→newest per player).
   // Slice 270 Reviewer F-01: changing the RPC ORDER would silently break
   // FormBars left→right rendering — keep this comment + DB-smoke proof as guard.
+  const rows = data as Array<{ player_id: string; gameweek: number; score: number }>;
+  if (rows.length === 0) return new Map();
   const rawByPlayer = new Map<string, number[]>();
-  for (const row of data as Array<{ player_id: string; gameweek: number; score: number }>) {
+  for (const row of rows) {
     const arr = rawByPlayer.get(row.player_id) ?? [];
     arr.push(row.score);
     rawByPlayer.set(row.player_id, arr);
