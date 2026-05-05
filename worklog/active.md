@@ -2,13 +2,35 @@
 
 ```
 status: idle
-slice: 270d-v2
+slice: 270b
 stage: LOG
-spec: worklog/specs/270-perf-bars-multi-league-window.md (270c + 270d v1/v2 inline-Hotfix dazu)
-impact: worklog/impact/270-perf-bars-multi-league-window.md
-proof: worklog/proofs/270-db-smoke.txt + 270-tsc-vitest.txt + 270c-live-zaniolo-card-back-FIXED.png + 270d-v2-live-market-FIXED-COLORED-BARS.png
-review: worklog/reviews/270-review.md (PASS) · 270c/270d self-review per workflow.md XS-Ausnahme
+spec: worklog/specs/270b-recent-score-gameweeks-per-player-tooltip.md
+impact: in-spec (Service-Refactor mit 5 Files, Konsumenten unverändert via select-Pattern)
+proof: worklog/proofs/270b-tsc-vitest.txt
+review: self-review per workflow.md S-Ausnahme (1 RPC-Cap-Bug aus 270 saniert, kein neuer Behavior-Risk)
 ```
+
+## Slice 270b LIVE 2026-05-05 — Tooltip-GW-Drift gefixt + Audit-Befund 271 verifiziert
+
+| Stage | Output |
+|-------|--------|
+| 270b SPEC + BUILD + REVIEW + PROVE + LOG | S — Combined Service + select-Pattern (5 Files, 1 RPC, 2 Konsumenten-Sichten) |
+| Befund 1 H1+H2+H3 Verify | ❌H1 ❌H2 ✅H3 (History-Gap 04-26 bis 04-29 → past.mv_eur=NULL → trend=NULL) |
+| Befund 2 H4 Verify | ✅ DB-Default `perf_l5 NUMERIC NOT NULL DEFAULT 50.00` (intentional Salary-Cap-Proxy, Frontend-Bug für matches=0 Junioren) |
+
+**Slice 270b Wirkung:**
+- KaderTab Tooltip zeigt nun pro Spieler echte Player-eigene GWs (nicht globalen MAX).
+- 1 RPC-Call shared zwischen `useRecentScores` (4 Konsumenten) und `useRecentPlayerGameweeks` (1 Konsument).
+- API-Backward-Compat: `useRecentScores` Sigantur unverändert für legacy-Konsumenten.
+- Orphan API gelöscht: `getRecentScoreGameweeks`, `useRecentScoreGameweeks`, `qk.fixtures.recentScoreGameweeks`.
+
+**Slice 271 Audit-Verify (worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md):**
+
+Track A (mv_trend_7d) — H3 ROOT-CAUSE: History-Gap-Days (2026-04-26/27/28/29) fehlen → `past.mv_eur IS NULL` → `new_trend = NULL` für alle 4556 Spieler heute. **Self-Healing-Prognose:** ab 2026-05-07 sind 7d-old=2026-04-30 Daten verfügbar, dann echte Trends.
+
+Track B (perf_l5=50) — H4 ROOT-CAUSE: DB-Default 50.00 ist intentional als Lineup-Salary-Cap-Proxy (6 RPCs nutzen `COALESCE(p.perf_l5, 50)`). Bug ist NUR im Frontend-Display (PlayerIPOCard zeigt 50 für 0-played Junioren).
+
+**CTO-Empfehlung an Anil:** Track A Option A1 (PASSIV-Self-Healing) + Track B Option B1 (Frontend-`—`-Display für matches=0). Slice 271 als reine Frontend-Polish.
 
 ## Slice 270 + 270c + 270d v2 LIVE 2026-05-05 — Performance-Bars-Bug komplett gefixt (DOM-verifiziert)
 

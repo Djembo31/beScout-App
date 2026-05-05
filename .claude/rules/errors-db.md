@@ -93,6 +93,69 @@ mcp__supabase__execute_sql:
 
 **Reference:** Migration `20260505190000_slice_270d_jsonb_return_recent_player_scores.sql`. Service `src/features/fantasy/services/fixtures.ts:436-470` (`getRecentPlayerScores`).
 
+### History-Gap-Tag-Sensitivität bei strict-7d-LEFT-JOIN (Slice 271 Discovery, 2026-05-05)
+
+**Bug-Klasse:** Daily-Snapshot-Cron + Daily-Trend-Calc-Cron mit strict-7d-LEFT-JOIN (`past.date = CURRENT_DATE - INTERVAL '7 days'`). Wenn auch nur EIN Snapshot-Tag innerhalb des 7-Tage-Fensters fehlt (z.B. weil Cron 1× ausfiel, Schedule erst später aktiv wurde, Initial-Backfill am Tag X aber Daily-Cron erst am Tag X+5 live), bekommt der Trend-Calc 7 Tage später `past.mv_eur IS NULL` → CASE returnt NULL → ALLE Spieler bekommen `trend = NULL` für diesen Tag.
+
+**Symptom (Slice 271 Discovery 2026-05-05):**
+
+`cron_snapshot_and_calc_mv_trends` lief grün seit 2026-05-01 (cron_sync_log status=success). `players_mv_history` hat 31.892 Rows. ABER `players.mv_trend_7d` = 4556× NULL.
+
+| Datum | snapshot_count | trend_updated_count | 7d-old Datum | History-Gap? |
+|-------|---------------|----------------------|---------------|---------------|
+| 2026-05-05 | 4556 | **0** | 2026-04-28 | ❌ GAP |
+| 2026-05-04 | 4556 | **0** | 2026-04-27 | ❌ GAP |
+| 2026-05-03 | 4556 | 4556 | 2026-04-26 | ❌ GAP — DB hatte non-NULL Werte vorher → IS DISTINCT FROM matched, alle auf NULL gesetzt |
+| 2026-05-02 | 4556 | 4556 | 2026-04-25 | ✅ EXISTS (Initial-Backfill) → echte Trends |
+| 2026-05-01 | 4556 | **0** | 2026-04-24 | ❌ GAP — alle waren schon NULL |
+
+History gefüllt nur für: 2026-04-25 (Initial-Backfill) + 2026-04-30 ff. (Daily-Cron live). 4 Tage Gap dazwischen.
+
+**Detection:**
+```sql
+-- Welche History-Daten fehlen?
+SELECT date, COUNT(*) AS rows
+FROM <history_table>
+GROUP BY date
+ORDER BY date DESC;
+
+-- Direkter Check: Wie viele Trends wären HEUTE NULL?
+WITH trend_calc AS (
+  SELECT today.player_id,
+    CASE WHEN past.mv_eur IS NULL THEN NULL ELSE 'computed' END AS state
+  FROM <history_table> today
+  LEFT JOIN <history_table> past ON past.player_id = today.player_id
+    AND past.date = CURRENT_DATE - INTERVAL '7 days'
+  WHERE today.date = CURRENT_DATE
+)
+SELECT state, COUNT(*) FROM trend_calc GROUP BY state;
+```
+
+**Fix-Pattern: LATERAL-Fallback-Lookup im Window [3d, 14d].**
+
+Statt strict `past.date = CURRENT_DATE - INTERVAL '7 days'`:
+```sql
+LEFT JOIN LATERAL (
+  SELECT mv_eur FROM <history_table> h
+  WHERE h.player_id = today.player_id
+    AND h.date BETWEEN CURRENT_DATE - INTERVAL '14 days' AND CURRENT_DATE - INTERVAL '3 days'
+  ORDER BY h.date DESC
+  LIMIT 1
+) past ON true
+```
+
+Vorteile: Robust gegen 1-3 Gap-Tage. Trend-Semantik bleibt valid.
+Nachteile: Trend-Threshold (`> past * 1.05`) leicht Skew-anfällig bei großen n — akzeptabel weil Trend-Klasse qualitativ bleibt.
+
+**Anti-Pattern erkannt durch:**
+- Self-Healing innerhalb 7-14 Tagen, danach steady-state — verleitet zu „blieb 1 Woche kaputt, kein Bug".
+- Cron-Sync-Log zeigt `status=success` weil RPC nicht failed — Bug ist `trend_updated_count=0` bei `snapshot_count > 0`.
+- Frontend-Konsument fehlt → kein User-Bug-Report → bleibt latent.
+
+**Beziehung:** Cross-Cutting mit Slice 270 "Per-Tenant-Window vs. Global-MAX" (gleiche Bug-Klasse "Aggregations-Window-Drift", andere Achse). Pattern-Familie: temporale Aggregations brauchen robuste Fallback-Lookups gegen Gap-Tage.
+
+**Reference:** Slice 271 Discovery `worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md`. Live-Bug seit Slice 197d Deploy 2026-04-25, latent bis 2026-05-05 weil 0 Frontend-Konsumenten.
+
 ### Per-Tenant-Window vs. Global-MAX in Aggregat-Services (Slice 270, 2026-05-05)
 
 **Bug-Klasse:** Slice-102 Pilot-Default-Pattern auf DB-Achse. Service mit Multi-Tenant-Daten (Liga, Region, Sub-Org) nutzt `MAX(timestamp_col)` global als Fenster-Anchor → Tenants mit Lag bekommen leere/null-Slots, obwohl ihre eigenen Daten existieren.

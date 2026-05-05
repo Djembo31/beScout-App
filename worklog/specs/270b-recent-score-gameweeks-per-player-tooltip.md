@@ -1,10 +1,32 @@
-# Slice 270b — Skeleton: Per-Player Tooltip-GW-Labels in FormBars
+# Slice 270b — Per-Player Tooltip-GW-Labels in FormBars
 
 **Slice-Type:** Service + Component-Tooltip
-**Größe:** S (1-2 Files)
-**Status:** SKELETON (nicht implementiert — Follow-up zu Slice 270, vom Reviewer F-02 ausgelöst)
+**Größe:** S (5 Files)
+**Status:** ✅ IMPLEMENTED 2026-05-05 Abend
 **Datum:** 2026-05-05
 **Trigger:** Slice 270 Reviewer F-02 — Tooltip-GW-Drift weil `getRecentScoreGameweeks` UNCHANGED globalen MAX nutzt während Bars Per-Player-Window haben.
+
+## Implementation-Notes (2026-05-05 Abend)
+
+**Variant gewählt:** Combined Service + select-Pattern (sauberster Pfad).
+- Service `getRecentPlayerScoresAndGameweeks()` returnt `Map<string, RecentScoreSlot[]>` mit `{score, gameweek}` pro Slot.
+- 1 RPC-Call, 1 QueryKey, 2 Konsumenten-Sichten via TanStack-Query `select`-Pattern.
+- `useRecentScores` selectiert `scoresMap` (4 legacy-Konsumenten unverändert API).
+- `useRecentPlayerGameweeks` selectiert `gameweeksMap` (NEU — KaderTab).
+- Old `getRecentScoreGameweeks` + `useRecentScoreGameweeks` + `qk.fixtures.recentScoreGameweeks` GELÖSCHT.
+
+**Files geändert:**
+- `src/features/fantasy/services/fixtures.ts` (Service refactor + Type `RecentScoreSlot`)
+- `src/lib/queries/managerData.ts` (Hooks mit select-Pattern)
+- `src/lib/queries/keys.ts` (orphan-Key entfernt)
+- `src/features/manager/components/kader/KaderTab.tsx` (Hook-Migration)
+- `src/features/manager/components/kader/KaderPlayerRow.tsx` (gameweeks-Prop Type-Erweiterung)
+- `src/features/fantasy/services/__tests__/fixtures.test.ts` (4 Tests umbenannt + erweitert)
+
+**Verify:**
+- `npx tsc --noEmit` clean
+- `vitest run` 3196/3197 PASS (1 pre-existing skip, 0 failures)
+- 4 fixtures.test.ts Tests grün mit kombinierter `{score, gameweek}` Map-Shape
 
 ---
 

@@ -414,23 +414,7 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
   return result;
 }
 
-/** Slice 198 fm 5.1 — Returns the 5 most recent scored gameweeks (oldest→newest, aligned with FormBars order).
- *  Used by FormBars tooltip to label each bar with its actual GW number. */
-export async function getRecentScoreGameweeks(): Promise<number[]> {
-  const { data: latest, error } = await supabase
-    .from('player_gameweek_scores')
-    .select('gameweek')
-    .gt('score', 0)
-    .order('gameweek', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!latest) return [];
-  const maxGw = latest.gameweek as number;
-  return Array.from({ length: 5 }, (_, i) => maxGw - 4 + i); // oldest→newest
-}
-
-/** Recent gameweek scores per player — last 5 played GWs PER PLAYER (not global window).
+/** Per-player recent score+gameweek combined — last 5 played GWs PER PLAYER.
  *
  *  Slice 270 fix: Pre-Slice nutzte einen globalen MAX(gw) als Window-Anchor → bei
  *  Multi-League hatten Ligen mit Lag (DE Bundesliga lag=5, EN PL lag=4, ES La Liga lag=4)
@@ -438,15 +422,18 @@ export async function getRecentScoreGameweeks(): Promise<number[]> {
  *  (last_appearance_gw=30, globales Fenster=[33..37] → 0/5 Slots).
  *  Bug-Klasse Slice-102 (Pilot-Default-Pattern).
  *
- *  Fix: Server-side ROW_NUMBER OVER (PARTITION BY player_id ORDER BY gameweek DESC)
- *  via RPC `rpc_get_recent_player_scores`. Jeder Spieler bekommt seine eigenen
- *  letzten 5 played-GWs (score > 0), Liga-übergreifend semantisch korrekt.
+ *  Slice 270b: Combined Service liefert sowohl Score als auch Gameweek pro Slot.
+ *  TanStack-Query select-Pattern: 1 RPC, 1 Cache, 2 Konsumenten-Sichten.
+ *  - useRecentScores → select scores-only Map (4 legacy Konsumenten)
+ *  - useRecentPlayerGameweeks → select gameweeks-only Map (KaderTab Tooltip)
  *
- *  Returns: Map<playerId, scores[oldest→newest]> — FormBars-Convention left→right.
- *  Spieler mit < 5 played-GWs werden mit `null` am ältesten Ende gepaddet.
- *  Spieler ohne Scores fehlen in der Map → Caller `?? []` fällt auf 5 dashed bars.
+ *  Returns: Map<playerId, Array<{score, gameweek}>[oldest→newest]> mit padded NULLs
+ *  am ältesten Ende, sodass jedes Array exakt 5 Slots hat. Spieler ohne played-Scores
+ *  fehlen in der Map → Caller `?? []` fällt auf 5 dashed bars.
  */
-export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
+export type RecentScoreSlot = { score: number | null; gameweek: number | null };
+
+export async function getRecentPlayerScoresAndGameweeks(): Promise<Map<string, RecentScoreSlot[]>> {
   // Slice 270d v2: RPC returns JSONB-Array (single-row, single-column) statt
   // TABLE-Set, weil PostgREST den 1000-row-Cap auf TABLE-Return-RPCs hart
   // erzwingt + .range()/?limit=-Overrides für RPC-Calls IGNORIERT
@@ -463,21 +450,21 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
   // FormBars left→right rendering — keep this comment + DB-smoke proof as guard.
   const rows = data as Array<{ player_id: string; gameweek: number; score: number }>;
   if (rows.length === 0) return new Map();
-  const rawByPlayer = new Map<string, number[]>();
+  const rawByPlayer = new Map<string, Array<{ score: number; gameweek: number }>>();
   for (const row of rows) {
     const arr = rawByPlayer.get(row.player_id) ?? [];
-    arr.push(row.score);
+    arr.push({ score: row.score, gameweek: row.gameweek });
     rawByPlayer.set(row.player_id, arr);
   }
 
-  // Pad arrays with leading nulls so each player ends up with exactly 5 entries
+  // Pad arrays with leading null-slots so each player ends up with exactly 5 entries
   // (FormBars renders 5 slots; missing slots → dashed-bar via the null status mapping).
-  const result = new Map<string, (number | null)[]>();
-  rawByPlayer.forEach((scores, pid) => {
-    const padded: (number | null)[] = [];
-    const padCount = Math.max(0, 5 - scores.length);
-    for (let i = 0; i < padCount; i++) padded.push(null);
-    for (const s of scores) padded.push(s);
+  const result = new Map<string, RecentScoreSlot[]>();
+  rawByPlayer.forEach((slots, pid) => {
+    const padded: RecentScoreSlot[] = [];
+    const padCount = Math.max(0, 5 - slots.length);
+    for (let i = 0; i < padCount; i++) padded.push({ score: null, gameweek: null });
+    for (const s of slots) padded.push({ score: s.score, gameweek: s.gameweek });
     result.set(pid, padded);
   });
 

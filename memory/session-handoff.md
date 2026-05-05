@@ -1,23 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-05 20:28)
+# Session Handoff — Auto (2026-05-05 20:42)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 10 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
- M worklog/audits/audit-stale-2026-05-04.md
- M worklog/audits/type-truth-2026-05-04.md
-?? worklog/audits/audit-stale-2026-05-05.md
-?? worklog/audits/type-truth-2026-05-05.md
-?? worklog/audits/wiring-2026-05-05.md
-?? worklog/proofs/270d-live-market-bestand-DESKTOP-FIXED.png
-?? worklog/proofs/270d-live-market-bestand-FIXED.png
-?? worklog/proofs/270d-live-market-bestand-FULLPAGE.png
-?? worklog/proofs/270d-rpc-actual-response.network-response
+ M worklog/audits/audit-stale-2026-05-05.md
+ M worklog/audits/type-truth-2026-05-05.md
 ```
 
-## Session Commits: 6
+## Session Commits: 7
+- 1a2a8eb6 chore(session-end): Knowledge-Promotion 270d v2 + active.md idle + Audit-Cron-Sweep
 - ed15892a chore(270d v2): Live-Verify PASS — 11/12 FormBars colored
 - 00b3500f fix(perf-bars): JSONB-Return weil PostgREST .range()/limit auf RPC IGNORIERT (Slice 270d v2)
 - 77da7fae fix(perf-bars): PostgREST 1000-row-Cap auf RPC-Call (Slice 270d Hotfix)

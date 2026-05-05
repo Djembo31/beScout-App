@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   getRecentPlayerMinutes,
-  getRecentPlayerScores,
-  getRecentScoreGameweeks,
+  getRecentPlayerScoresAndGameweeks,
   getNextFixturesByClub,
+  type RecentScoreSlot,
 } from '@/lib/services/fixtures';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
 import { qk } from './keys';
@@ -17,22 +17,44 @@ export function useRecentMinutes() {
   });
 }
 
-/** Recent GW scores per player (last 5 completed GWs) */
+/** Slice 270b — Combined-source Hook (1 RPC, shared cache via select-pattern).
+ *  Konsumenten greifen entweder Scores- oder Gameweeks-Slice ab.
+ */
+function selectScoresMap(combined: Map<string, RecentScoreSlot[]>): Map<string, (number | null)[]> {
+  const result = new Map<string, (number | null)[]>();
+  combined.forEach((slots, pid) => {
+    result.set(pid, slots.map(s => s.score));
+  });
+  return result;
+}
+
+function selectGameweeksMap(combined: Map<string, RecentScoreSlot[]>): Map<string, (number | null)[]> {
+  const result = new Map<string, (number | null)[]>();
+  combined.forEach((slots, pid) => {
+    result.set(pid, slots.map(s => s.gameweek));
+  });
+  return result;
+}
+
+/** Recent GW scores per player (last 5 played GWs) */
 export function useRecentScores() {
   return useQuery({
     queryKey: qk.fixtures.recentScores,
-    queryFn: getRecentPlayerScores,
+    queryFn: getRecentPlayerScoresAndGameweeks,
+    select: selectScoresMap,
     staleTime: 5 * 60 * 1000,
   });
 }
 
-/** Slice 198 fm 5.1 — 5 most recent scored gameweeks (oldest→newest, aligned with FormBars).
- *  Cheap query (limit 1, single row) — used to label FormBars tooltips with GW number.
- *  Returns empty array when no scored gameweeks exist yet. */
-export function useRecentScoreGameweeks() {
+/** Slice 270b — Per-player recent gameweeks Map (replaces global Slice-198 useRecentScoreGameweeks).
+ *  Used by FormBars tooltip to label each bar with its actual GW number per player.
+ *  Shares cache with useRecentScores (1 RPC, 2 selectors).
+ */
+export function useRecentPlayerGameweeks() {
   return useQuery({
-    queryKey: qk.fixtures.recentScoreGameweeks,
-    queryFn: getRecentScoreGameweeks,
+    queryKey: qk.fixtures.recentScores,
+    queryFn: getRecentPlayerScoresAndGameweeks,
+    select: selectGameweeksMap,
     staleTime: 5 * 60 * 1000,
   });
 }

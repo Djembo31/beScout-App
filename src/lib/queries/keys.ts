@@ -256,9 +256,9 @@ export const qk = {
   // ── Fixtures (Manager Data) ──
   fixtures: {
     recentMinutes: ['fixtures', 'recentMinutes'] as const,
+    /** Slice 270b — Single source for both scores and per-player gameweeks (combined RPC).
+     *  useRecentScores + useRecentPlayerGameweeks share this key via select-pattern → 1 RPC, 2 views. */
     recentScores: ['fixtures', 'recentScores'] as const,
-    /** Slice 198 fm 5.1 — 5 most recent scored gameweeks (oldest→newest), used by FormBars tooltip. */
-    recentScoreGameweeks: ['fixtures', 'recentScoreGameweeks'] as const,
     nextByClub: ['fixtures', 'nextByClub'] as const,
     next: ['fixtures', 'next'] as const,
     byClub: (cid: string) => ['fixtures', 'club', cid] as const,

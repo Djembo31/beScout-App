@@ -50,23 +50,51 @@ WHERE p.id = tc.player_id
   AND (p.mv_trend_7d IS DISTINCT FROM tc.new_trend);
 ```
 
-### Bug-Hypothese (3 mögliche Root-Causes)
+### Bug-Hypothese (3 mögliche Root-Causes) — VERIFIED 2026-05-05 Abend
 
-**H1: Function wird nicht aufgerufen.**
-- Kein pg_cron-Job registriert.
-- History-Tabelle wird gefüllt → vermutlich via Vercel-Cron-Endpoint oder externes Script (`scripts/sync-*.ts`?).
-- Function-Logic für UPDATE läuft nie → mv_trend bleibt NULL.
-- **Test-Pfad:** Manuell `SELECT public.cron_snapshot_and_calc_mv_trends()` ausführen und mv_trend_7d-Coverage prüfen.
+**H1: Function wird nicht aufgerufen.** — ❌ falsifiziert
+- Vercel-Cron `calculate-mv-trends` läuft täglich `45 3 * * *` (vercel.json:Z.50).
+- `cron_sync_log` zeigt 5 grüne Runs zwischen 2026-05-01 und 2026-05-05, alle status=success.
+- snapshot_count = 4556 jeden Tag (Snapshot-Pfad funktioniert).
 
-**H2: UPDATE-Klausel skippt wegen Date-Mismatch.**
-- WHERE today.date = CURRENT_DATE.
-- Wenn die Function ÜBERHAUPT von einer anderen Quelle gerufen wurde, könnte CURRENT_DATE drift sein (z.B. UTC vs. local).
-- Plus: `INTERVAL '7 days'` braucht **exakt** 7 Tage History. History startet 2026-04-25 → ab 2026-05-02 hätten Trends berechnet werden können.
-- **Test-Pfad:** Manuelles SELECT der CTE `trend_calc` für CURRENT_DATE → wie viele Player haben non-NULL `new_trend`?
+**H2: UPDATE-Klausel skippt wegen Date-Mismatch.** — ❌ falsifiziert
+- CURRENT_DATE ist UTC und matched today-Snapshot.
 
-**H3: market_value_eur ist NULL für viele Player → past.mv_eur IS NULL → new_trend = NULL → UPDATE setzt NULL = NULL → IS DISTINCT FROM-Filter blockiert.**
-- 595 Player haben matches=0 + perf_l5=50 (siehe Befund 2). Diese könnten NULL market_value haben.
-- **Test-Pfad:** SELECT count market_value_eur IS NULL.
+**H3: past.mv_eur IS NULL → new_trend = NULL.** — ✅ **ROOT-CAUSE bestätigt**
+- Manuelle Trend-Calc-Smoke 2026-05-05: 4556× new_trend = NULL.
+- History hat **GAP**: 2026-04-26, 2026-04-27, 2026-04-28, 2026-04-29 fehlen komplett.
+  - Existiert: 2026-04-25 (Initial-Backfill aus Slice 197d Migration), 2026-04-30 ff. (täglich seit Vercel-Cron live).
+  - Heute = 2026-05-05, 7d-old = 2026-04-28 → GAP → past.mv_eur IS NULL → new_trend = NULL.
+  - Gestern 2026-05-04, 7d-old = 2026-04-27 → GAP → trend_updated_count=0.
+  - 2026-05-03, 7d-old = 2026-04-26 → GAP, aber trend_updated_count=4556. Weil DB-Werte vorher nicht-NULL, dann auf NULL gesetzt → IS DISTINCT FROM matched.
+  - 2026-05-02, 7d-old = 2026-04-25 → EXISTS! → echte Trend-Berechnung. 4556 Updates plausibel.
+  - 2026-05-01, 7d-old = 2026-04-24 → GAP → 0 Updates (alle waren schon NULL nach 04-30 Initial-Run).
+- **Self-Healing in 2 Tagen**: ab 2026-05-07 ist 7d-old = 2026-04-30 (existiert) → 4556 echte Trends.
+- ABER: Aktuell ALLE 4556 Player auf NULL → Frontend könnte UI-Risk haben falls Konsument existiert.
+
+### Self-Healing-Prognose
+
+| Datum | 7d-old Datum | History exists? | Erwarteter trend_updated_count |
+|-------|-------------|-----------------|--------------------------------|
+| 2026-05-06 | 2026-04-29 | ❌ GAP | 0 (bleibt NULL) |
+| 2026-05-07 | 2026-04-30 | ✅ EXISTS | 4556 (erste echte Trends) |
+| 2026-05-08+ | 2026-05-01+ | ✅ EXISTS | 4556 (steady state) |
+
+### Optionaler Fix: Robustes Fallback-Lookup
+
+Statt strict `past.date = CURRENT_DATE - INTERVAL '7 days'`:
+```sql
+-- Nutze nächst-älteres Datum innerhalb [3d, 14d] window
+LEFT JOIN LATERAL (
+  SELECT mv_eur FROM players_mv_history h
+  WHERE h.player_id = today.player_id
+    AND h.date BETWEEN CURRENT_DATE - INTERVAL '14 days' AND CURRENT_DATE - INTERVAL '3 days'
+  ORDER BY h.date DESC
+  LIMIT 1
+) past ON true
+```
+Vorteil: Robust gegen 1-2 Gap-Tage. Wartet nicht 7+ Tage auf Self-Healing.
+Nachteil: Trend ist möglicherweise nicht "exakt 7d" sondern "n-Tage" (n ∈ [3, 14]). Trend-Semantik bleibt valid.
 
 ### Frontend-Konsumenten von mv_trend_7d
 
@@ -107,14 +135,22 @@ perf_season: 0,
 
 **Inkonsistenz:** Code schreibt `0`, DB hat `50.00` für 615 Spieler. → Anderer Sync-Pfad muss existieren.
 
-### Bug-Hypothese
+### Bug-Hypothese — VERIFIED 2026-05-05 Abend
 
-**H4: `score_event`-RPC oder `recalculate_perf_l5`-Cron schreibt `50.00` als „neutralen Default" wenn keine Match-Score gefunden.**
+**H4: DB-Default `perf_l5 NUMERIC NOT NULL DEFAULT 50.00`.** — ✅ **ROOT-CAUSE bestätigt**
+- `supabase/migrations/20260331_baseline_core.sql:96` definiert `perf_l5 NUMERIC NOT NULL DEFAULT 50.00`.
+- Spielanleitung: 50.00 ist **intentional** als Salary-Cap-Proxy (Lineup-RPCs nutzen `COALESCE(p.perf_l5, 50)` für Salary-Calculation: 195c L264, 195d L425+894, 197c L210, 422-L302, SO5 L251).
+- 595 Junioren mit matches=0 → DB-Default griff bei Insert, Cron `recalculate_perf` skippt sie (kein avg5 verfügbar).
+- 20 Player mit matches>0 + perf_l5=50 → Edge-Case: `recalculate_perf` Cron-Lag oder Score-Drift.
+- **Code-Inkonsistenz:** `players.ts:252` `perf_l5: 0` wird im neuen-Player-Pfad gesetzt, aber Insert-Spread mit DB-Default überschreibt das.
 
-Suchpfade:
-- `grep -rn "perf_l5" supabase/migrations/` → Trigger oder RPC?
-- `grep -rn "50.0\|50.00" supabase/migrations/` → magische Zahl?
-- `scripts/sync-*.ts` → Bulk-Default-Setter?
+### Wirkung-Klassifikation
+
+| Layer | 50.00-Wirkung |
+|-------|--------------|
+| **Lineup-Salary-Cap (DB-RPC)** | INTENTIONAL — Salary-Approximation für Spieler ohne perf-Historie |
+| **Frontend-Display (PlayerIPOCard, FormBars-Sub)** | BUG — User denkt „mittelmäßig" obwohl 0 Spiele |
+| **Filter-Sortierung (Marktplatz)** | BUG — Junioren landen mittig statt unten/N/A |
 
 ### Wirkung im Frontend
 
@@ -157,4 +193,19 @@ perf: {
 
 ---
 
-**Status:** AUDIT-FERTIG · Anil-Decision-Pflicht für Track A/B/C-Scope · Implementation-Slice 271 wartet.
+**Status:** AUDIT-FERTIG · Befunde 1+2 verifiziert 2026-05-05 Abend · Anil-Decision-Pflicht für Track A/B/C-Scope · Implementation-Slice 271 wartet.
+
+---
+
+## CTO-Empfehlung 2026-05-05 Abend
+
+**Track A (mv_trend_7d):**
+- **Option A1 (PASSIV — empfohlen für Beta):** Self-Healing abwarten. Ab 2026-05-07 sind echte Trends da. Kein Code-Change nötig.
+- **Option A2 (AKTIV):** Migration mit LATERAL-Fallback-Lookup deployen — robust gegen Gap-Tage. ~20 LOC Migration. Kein User-Impact (kein Frontend-Konsument).
+- **Option A3 (CLEANUP):** Spalte streichen wenn Frontend-Integration nicht geplant. Slice 197d war pre-emptive Build, kein Konsument.
+
+**Track B (perf_l5=50):**
+- **Option B1 (FRONTEND-FIX — empfohlen):** PlayerIPOCard + FormBars zeigen `—` bei `matches === 0 && perf_l5 === 50`. ~10 LOC. Lineup-Salary-Logic bleibt unangetastet.
+- **Option B2 (DB-DEFAULT-CHANGE):** Default auf NULL + Constraint relaxen + alle 6 Lineup-RPCs anpassen. Hoher Refactor-Aufwand, Money-Path-Risk.
+
+**Empfehlung Anil-Decision:** A1 + B1 → minimaler Aufwand, Beta-Launch nicht blockiert. Slice 271 als reine Frontend-Polish (`matches === 0` → `—`).

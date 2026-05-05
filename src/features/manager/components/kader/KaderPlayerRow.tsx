@@ -49,8 +49,9 @@ interface KaderPlayerRowProps {
   lens: KaderLens;
   minutes?: number[];
   scores?: (number | null)[];
-  /** Slice 198 fm 5.1 — Gameweeks aligned with `scores` (oldest→newest) for tooltip context. */
-  gameweeks?: number[];
+  /** Slice 270b — Per-player gameweeks aligned with `scores` (oldest→newest) for tooltip context.
+   *  Null-slots match null-score-slots (player did not play that GW). */
+  gameweeks?: (number | null)[];
   nextFixture?: NextFixtureInfo;
   inLineup: boolean;
   onSellClick: (playerId: string) => void;

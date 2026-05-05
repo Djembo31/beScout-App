@@ -1,0 +1,64 @@
+Slice 270b Proof — Per-Player Tooltip-GW Refactor
+Datum: 2026-05-05 21:20
+
+═══════════════════════════════════════════════════════════
+1) tsc --noEmit
+═══════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit
+(no output → exit 0 → clean)
+
+═══════════════════════════════════════════════════════════
+2) vitest run src/features/fantasy/services/__tests__/fixtures.test.ts
+═══════════════════════════════════════════════════════════
+
+Slice 270b combined-Map-Tests (4/4 PASS):
+  ✓ getRecentPlayerScoresAndGameweeks > returns empty Map when RPC returns no rows (1ms)
+  ✓ getRecentPlayerScoresAndGameweeks > returns 5 latest played GWs per player with score+gameweek combined (1ms)
+  ✓ getRecentPlayerScoresAndGameweeks > pads to 5 with leading null-slots when player has fewer than 5 played GWs (1ms)
+  ✓ getRecentPlayerScoresAndGameweeks > handles Multi-League correctly — each player gets own GW window regardless of league lag (7ms)
+
+Test Files: 1 passed (1)
+     Tests: 52 passed (52)
+   Duration: 2.84s
+
+═══════════════════════════════════════════════════════════
+3) vitest run (full suite)
+═══════════════════════════════════════════════════════════
+
+Test Files: 216 passed (216)
+     Tests: 3196 passed | 1 skipped (3197)
+   Duration: 443.44s
+
+═══════════════════════════════════════════════════════════
+4) Verifizierte Wirkung
+═══════════════════════════════════════════════════════════
+
+KaderTab Tooltip Pre-Slice-270b:
+- Player de-1 (Bundesliga, max GW 32): bars [60, 65, 70, 68, 72] mit tooltip [33, 34, 35, 36, 37] ← FALSCH
+  (globaler MAX-Window war [33..37], aber Player war auf GW 28-32)
+
+KaderTab Tooltip Post-Slice-270b:
+- Player de-1: bars [60, 65, 70, 68, 72] mit tooltip [28, 29, 30, 31, 32] ← KORREKT (per-player window)
+
+═══════════════════════════════════════════════════════════
+5) API-Backward-Compat
+═══════════════════════════════════════════════════════════
+
+useRecentScores returnt unverändert Map<string, (number | null)[]> via select.
+4 legacy-Konsumenten unverändert:
+- src/features/manager/hooks/useManagerData.ts (scoresMap.get)
+- src/features/market/components/MarketContent.tsx (scoresMap-Prop)
+- src/features/market/components/marktplatz/ClubAccordion.tsx (recentScores.get)
+- src/features/market/components/marktplatz/TransferListSection.tsx (scoresMap.get)
+
+Nur KaderTab + KaderPlayerRow migriert:
+- KaderTab: useRecentScoreGameweeks → useRecentPlayerGameweeks, gameweeks-Prop pro Player
+- KaderPlayerRow: gameweeks?: number[] → gameweeks?: (number | null)[]
+
+═══════════════════════════════════════════════════════════
+6) RPC + Cache Performance
+═══════════════════════════════════════════════════════════
+
+1 RPC-Call (rpc_get_recent_player_scores) → 1 QueryKey (qk.fixtures.recentScores) → 2 Konsumenten-Sichten
+Network-Cost identisch zu Pre-Slice. Tooltip-Wirkung jetzt korrekt per-player.
