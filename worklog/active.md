@@ -38,10 +38,15 @@ review: self-review (1 Specialist-Audit fantasy-scoring-expert + Live-DB-Audit 4
 | **B Liga-Filter** | `fixtures.ts:170` + `keys.ts:412` + `useGameweek.ts:71-79` | `getGameweekStatuses(fromGw, toGw, leagueId?)` + Cache-Key + Hook-Routing | ✅ live |
 | **C Modal Stale** | `SpieltagTab.tsx:53-156` + `FixtureDetailModal.tsx:432-468` | selectedFixtureId + derived selectedFixture + Modal-Refetch bei status-change + 60s-Polling bei isLive | ✅ live |
 
+**Track A2 Backfill-Run — Status: PENDING (Agent läuft im Hintergrund 2026-05-06 ~00:35)**
+- Script `scripts/slice-273-backfill-fixture-stats.mjs` committed (Commit 4e8200a0)
+- Smoke-Test Bundesliga GW32 PASSED: 359 stats / 125 matched players
+- backend-Agent (`a0ce80579fb4a81de`) läuft volle 6-Liga-Backfill (~13 GWs, ~260 API-Calls, ETA 5-8 min)
+- **Resume-Schritt nächste Session:** Agent-Output abrufen, DB-Smoke verifizieren, Slice 273 final closen
+
 **Backlog (separater Slice 274 nach Beta):**
 - **Track A2 Cron-Code-Fix:** `gameweek-sync/route.ts` no_past_fixtures-Skip-Logic erweitern um „all-past-finished + future-only-pending"-Pattern → automatisches advance auch bei Postponed-Match
 - **TFF 1. Lig GW38 import_data error:** Saisonende-Edge-Case, API-Football mapping fehlt
-- **Stats-Backfill:** Cron läuft nicht retroaktiv. Anil-Decision: a) Manueller Trigger via Admin-UI für jede Liga+GW nötig wenn FT-Bewertungen für GW32-35 PL + GW32-34 La Liga gewünscht. b) Akzeptiere Lag, Tester sehen ab nächstem Cron-Run (06:00 UTC) korrekte Daten für CURRENT GW.
 
 **Money-Path-Garantie:** keine Money/Wallet/Trading-Logik betroffen. DB-Heal ist read-after-write Konfiguration. Frontend-Fixes sind UI-only.
 

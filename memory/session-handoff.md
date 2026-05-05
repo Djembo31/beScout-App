@@ -1,15 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 00:12)
+# Session Handoff — Auto (2026-05-06 00:35)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-05.md
  M worklog/audits/type-truth-2026-05-05.md
 ```
 
-## Session Commits: 6
+## Session Commits: 7
+- 4e8200a0 feat(backfill): Slice 273 Track A2 Multi-Liga Fixture-Stats Backfill-Script
 - 0b76346a fix(spieltag): Komplett-Stabilisierung Liga-Filter + Modal-Refetch + DB-Heal (Slice 273)
 - 6b8ecb27 fix(lineup): Duplicate-Defense-in-Depth (Slice 272 — Anil-Live-Bug)
 - 3c967ba0 fix(perf-l5): Em-Dash-Display fuer matches=0 (Slice 271 Track B1)
@@ -17,7 +19,86 @@
 - 97ac5b1a fix(form-bars): Per-Player Tooltip-GW + Slice 271 Discovery Audit (Slice 270b)
 - 1a2a8eb6 chore(session-end): Knowledge-Promotion 270d v2 + active.md idle + Audit-Cron-Sweep
 
+## Stale Worktrees: 1 (cleanup candidates)
+
 <!-- auto:handoff-end -->
+
+---
+
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~00:40 — Schluss nach Spieltag-Stabilisierung)
+
+**HEAD `4e8200a0`** Status: idle. Slice 273 Spieltag-Stabilisierung 3/4 Tracks live, Track A2 Backfill-Run im Hintergrund (Agent läuft).
+
+## Erste Action morgen — Backfill-Status checken (5 min)
+
+Backend-Agent `a0ce80579fb4a81de` lief Multi-Liga-Backfill (~5-8 min Laufzeit). Output sollte in der nächsten Session-Inbox als task-notification verfügbar sein. Wenn nicht: SendMessage(to: 'a0ce80579fb4a81de') oder DB-Smoke direkt.
+
+**DB-Smoke Verify-Query (kopier-fertig):**
+```sql
+SELECT l.name, f.gameweek, COUNT(DISTINCT f.id) AS fixtures, COUNT(DISTINCT fps.id) AS stats_rows
+FROM fixtures f
+JOIN clubs c ON c.id = f.home_club_id
+JOIN leagues l ON l.id = c.league_id
+LEFT JOIN fixture_player_stats fps ON fps.fixture_id = f.id
+WHERE f.status IN ('finished','simulated')
+  AND ((l.name = 'Bundesliga' AND f.gameweek = 32)
+    OR (l.name = '2. Bundesliga' AND f.gameweek = 32)
+    OR (l.name = 'La Liga' AND f.gameweek IN (32,33,34))
+    OR (l.name = 'Premier League' AND f.gameweek IN (32,33,34,35))
+    OR (l.name = 'Serie A' AND f.gameweek = 35)
+    OR (l.name = 'Süper Lig' AND f.gameweek = 32))
+GROUP BY l.name, f.gameweek
+ORDER BY l.name, f.gameweek;
+```
+
+Erwartung: stats_rows > 100 pro Zeile. Wenn 0 → Re-Run via `node scripts/slice-273-backfill-fixture-stats.mjs`.
+
+## Was passierte heute Abend (4 Slices, 5 Commits, 0 Reverts)
+
+| Slice | Commit | Was |
+|-------|--------|-----|
+| 270b | `97ac5b1a` | Tooltip-GW-Drift Fix — Combined Service + select-Pattern (5 Files) |
+| 271 B1 | `3c967ba0` | Em-Dash für matches=0 Junioren (8 Files, +9 Tests) |
+| 272 | `6b8ecb27` | Lineup Duplicate-Defense-in-Depth (4 Files, +10 Store-Tests, Anil-Live-Bug) |
+| 273 | `0b76346a` + `4e8200a0` | Spieltag-Stabilisierung — Track A1 DB-Heal + B Liga-Filter + C Modal Stale + Track A2 Backfill-Script |
+
+## Slice 273 Detailstand
+
+| Track | Status |
+|-------|--------|
+| A1 DB-Heal active_gameweek (PL 31→36, La Liga 33→35, dual-write atomar) | ✅ live |
+| B Liga-Filter `getGameweekStatuses` + Cache-Key + Hook | ✅ live |
+| C Modal Stale-Fix (selectedFixtureId derived + Refetch + 60s-Polling) | ✅ live |
+| A2 Backfill-Run für 13 lagged Liga+GW-Kombos | ⏳ Agent läuft |
+
+## Knowledge-Promotion heute Abend
+
+- `errors-frontend.md` — "Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik" (Slice 272)
+- `errors-frontend.md` — "Selected-Item-Snapshot vs. Realtime-Update-Drift" (Slice 273)
+- `errors-db.md` — "History-Gap-Tag-Sensitivität bei strict-7d-LEFT-JOIN" (Slice 271 Audit)
+
+## Beta-Phase D Status (unverändert)
+
+- `last_signoff: PASS-PENDING-IPHONE-VISUAL-VERIFY`
+- iPhone-Verify mit Power-Account am WE pflicht (45 min)
+- TR-Pflicht-Review 11 Slice-266+269-Keys (5 min)
+- Beta-Mails an Taki/Nail Mo (Templates fertig)
+
+## Slice 274 Backlog (post-Beta)
+
+- Cron-Code-Fix `gameweek-sync/route.ts` für Postponed-Match-Aware advance (Slice 140 Pattern-Familie generalized)
+- TFF 1. Lig GW38 Saisonende-API-Mapping
+- Wenn `clubs.active_gameweek` zukünftig drifted: gleicher Pattern, evtl. Auto-Reconcile via Cron
+
+## Tests final state
+
+- 3215+ tests grün im Branch
+- Slice 273 Frontend: 255/255 fantasy-Domain
+- Slice 272: +10 Store-Tests
+- Slice 271 B1: +9 Helper-Tests
+- 0 Reverts seit Slice 261
+
+---
 
 ---
 
