@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-05 21:55)
+# Session Handoff — Auto (2026-05-05 22:46)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,7 +10,8 @@
  M worklog/audits/type-truth-2026-05-05.md
 ```
 
-## Session Commits: 6
+## Session Commits: 7
+- 3c967ba0 fix(perf-l5): Em-Dash-Display fuer matches=0 (Slice 271 Track B1)
 - 6330129c chore(audits): JSONB-Perf + Test-Mock-Realism Audits (Slice 270 Self-Audit Items 4+5)
 - 97ac5b1a fix(form-bars): Per-Player Tooltip-GW + Slice 271 Discovery Audit (Slice 270b)
 - 1a2a8eb6 chore(session-end): Knowledge-Promotion 270d v2 + active.md idle + Audit-Cron-Sweep

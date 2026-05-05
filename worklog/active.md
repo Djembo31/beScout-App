@@ -2,13 +2,42 @@
 
 ```
 status: idle
-slice: 271-track-b1
+slice: 272
 stage: LOG
-spec: in-active-md (Frontend-Display-Polish, kein DB-Refactor — siehe worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md Track B1)
-impact: in-spec (8 Files Frontend-Display, 3 neue Helper, kein Money-Path/Wording)
-proof: worklog/proofs/271b1-tsc-vitest.txt
-review: self-review per workflow.md S-Ausnahme (Frontend-Polish, keine DB/Money/Wording-Änderung)
+spec: in-active-md (Lineup Duplicate-Defense-in-Depth — Anil-Live-Bug-Report 2026-05-05)
+impact: in-spec (4 Files: Store + Hook + Panel, defense-in-depth UX-Fix; DB-Guard rpc_save_lineup unangetastet/sicher)
+proof: worklog/proofs/272-tsc-vitest.txt
+review: self-review per workflow.md S-Ausnahme (UI-Defense für Money-Path-DB-Guard; +10 Store-Tests grün)
 ```
+
+## Slice 272 LIVE 2026-05-05 — Lineup Duplicate-Defense-in-Depth
+
+**Anil-Live-Bug:** „bei manager aufstellung, einen spieler mehrmals aufstellen" (UI-Bug, Money-Path safe — DB-Guard `rpc_save_lineup` blockt `duplicate_player` beim Save).
+
+**Root-Cause (4 Pfade):**
+1. `lineupStore.selectPlayer` filtert nur Target-Slot, nicht playerId → Duplicate auf 2 Slots erreichbar
+2. `lineupStore.setBenchSlot` deduptet INNERHALB Bench, NICHT vs. Starter → Player auf Starter+Bench gleichzeitig
+3. `useLineupBuilder.getAvailablePlayersForPosition` excludet nur Starter, nicht Bench → Bench-Player im Starter-Picker wählbar
+4. `LineupPanel:854-865` Quick-Add-Click in Holdings-Strip findet freien Slot ohne `isSelected`-Check
+
+**Defense-in-Depth Fix (4 Layer):**
+- Store-Layer Move-Semantik: `selectPlayer` filtert Slot UND playerId, entfernt Player aus Bench
+- Store-Layer Cross-Subtype: `setBenchSlot` entfernt Player aus Starter beim Bench-Set
+- Hook-Layer Picker-Filter: `getAvailablePlayersForPosition` excludet Starter UND Bench
+- UI-Layer Quick-Add: `LineupPanel` skip wenn `isSelected`
+
+**Wirkung:**
+- UI kann keinen Duplicate-State darstellen
+- DB-Guard bleibt Pflicht (Server-Validation als Ground-Truth)
+- Move-Semantik klar: User wählt X auf Slot 1 wenn X auf Slot 0 → Slot 0 wird geleert, X wandert
+
+**Tests:** vitest 3215/3216 PASS (+10 neue Tests, 0 Regressionen).
+- `src/features/fantasy/store/__tests__/lineupStore.test.ts` NEU (10 Tests)
+  - Move-Semantik (kein Duplicate auf 2 Slots)
+  - Cross-Slot-Subtype (Bench → Starter Promote, Starter → Bench Demote)
+  - Cross-Validation (kein Duplicate-State erreichbar)
+
+**Knowledge-Promotion:** `errors-frontend.md` Pattern „Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik" mit Audit-Pattern für künftige Multi-Slot-Stores.
 
 ## Slice 271 Track B1 LIVE 2026-05-05 Abend — Frontend-—-Display für matches=0
 

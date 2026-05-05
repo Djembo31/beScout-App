@@ -855,6 +855,10 @@ export default function LineupPanel({
                 // Quick-add: place player into first free slot for their position.
                 // Keeps users inside the event modal instead of blowing up context
                 // with a new player-detail tab.
+                // Slice 272 — Skip if already in lineup (defense vs. duplicate-display).
+                // DB-Server-Guard rpc_save_lineup blockt duplicate_player, aber UI sollte
+                // gar keinen Duplicate-State erzeugen.
+                if (selectedPlayers.some(sp => sp.playerId === player.id)) return;
                 const freeSlot = formationSlots.find(slot =>
                   slot.pos === player.pos &&
                   !selectedPlayers.some(sp => sp.position === slot.pos && sp.slot === slot.slot),

@@ -1,0 +1,119 @@
+Slice 272 Proof — Lineup Duplicate-Defense-in-Depth
+Datum: 2026-05-05 23:05
+
+═══════════════════════════════════════════════════════════
+1) tsc --noEmit
+═══════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit
+(no output → exit 0 → clean)
+
+═══════════════════════════════════════════════════════════
+2) vitest run (full suite)
+═══════════════════════════════════════════════════════════
+
+Test Files: 217 passed (217)
+     Tests: 3215 passed | 1 skipped (3216)
+   Duration: 462.68s
+
++10 Tests vs. pre-Slice-272 (3205 → 3215):
+
+src/features/fantasy/store/__tests__/lineupStore.test.ts (NEU):
+  selectPlayer — Move-Semantik (kein Duplicate auf 2 Slots):
+    ✓ moves player from old slot when re-selected on new slot
+    ✓ replaces existing slot occupant when other player chosen
+    ✓ removes player from bench when promoted to starter
+    ✓ removes player from bench-gk when promoted to starter
+  setBenchSlot — Asymmetrie behoben:
+    ✓ removes player from starter when assigned to bench
+    ✓ keeps existing bench-deduplication (move within bench)
+    ✓ clears slot when playerId is null
+    ✓ does NOT touch starter when clearing bench-slot (null)
+  Cross-validation — kein Duplicate-State erreichbar:
+    ✓ player on starter slot 0 + same player on bench-o1 → bench setzt nimmt Vorrang
+    ✓ player on bench-o1 + same player on starter slot 0 → starter nimmt Vorrang
+
+═══════════════════════════════════════════════════════════
+3) Bug-Report (Anil-Live, 2026-05-05)
+═══════════════════════════════════════════════════════════
+
+Anil's Wording: "ich konnte bei manager aufsellung, einen spieler mehrmals aufstellen,
+ich glaube der ist noch nicht korrekt druchzogen, den in events war das alle bereits
+korrekt, falls mittlerweile nicht kaputt gespielt"
+
+═══════════════════════════════════════════════════════════
+4) Root-Cause-Analyse
+═══════════════════════════════════════════════════════════
+
+4 unabhängige Pfade die Duplicate-State erzeugen können:
+
+PATH 1: lineupStore.selectPlayer
+  Pre-Slice-272:
+    selectedPlayers: [
+      ...state.selectedPlayers.filter((p) => p.slot !== slot),  // ← nur Slot
+      { playerId, position, slot, isLocked: false },
+    ]
+  Bug: Player X auf Slot 0, dann selectPlayer(X, 1) → X auf BEIDEN Slots
+
+PATH 2: lineupStore.setBenchSlot
+  Pre-Slice-272: dedupted INNERHALB Bench, nicht vs. Starter
+  Bug: Player X auf Starter-Slot 0, dann setBenchSlot('bench_o1', X)
+       → X erscheint im Starter UND auf Bench-O1
+
+PATH 3: useLineupBuilder.getAvailablePlayersForPosition
+  Pre-Slice-272:
+    const usedIds = new Set(selectedPlayers.map((p) => p.playerId));
+    // ← nur Starter, nicht Bench
+  Bug: Bench-Spieler erscheint im Starter-Picker → wählbar → Duplicate
+
+PATH 4: LineupPanel:854-865 Quick-Add (Holdings-Strip-Click)
+  Pre-Slice-272:
+    const freeSlot = formationSlots.find(slot =>
+      slot.pos === player.pos &&
+      !selectedPlayers.some(sp => sp.position === slot.pos && sp.slot === slot.slot),
+    );
+    if (freeSlot) onSelectPlayer(player.id, ...);
+  Bug: Klick auf Player im Holdings-Strip findet nächsten freien Slot UND fügt Player
+       hinzu, auch wenn Player schon im Lineup ist
+
+═══════════════════════════════════════════════════════════
+5) Defense-in-Depth Fix
+═══════════════════════════════════════════════════════════
+
+Store-Layer (selectPlayer):
+  selectedPlayers: [
+    ...state.selectedPlayers.filter((p) => p.slot !== slot && p.playerId !== playerId),
+    { playerId, position, slot, isLocked: false },
+  ],
+  + benchClear: entfernt Player aus allen Bench-Slots beim Starter-Promote
+
+Store-Layer (setBenchSlot):
+  + nextStarter: entfernt Player aus Starter-Slots beim Bench-Set
+
+Hook-Layer (getAvailablePlayersForPosition):
+  if (benchGk) usedIds.add(benchGk);
+  if (benchO1) usedIds.add(benchO1);
+  if (benchO2) usedIds.add(benchO2);
+  if (benchO3) usedIds.add(benchO3);
+
+UI-Layer (LineupPanel Quick-Add):
+  if (selectedPlayers.some(sp => sp.playerId === player.id)) return;
+
+═══════════════════════════════════════════════════════════
+6) Money-Path-Garantie
+═══════════════════════════════════════════════════════════
+
+DB-Server-Guard rpc_save_lineup BLEIBT INTACT:
+  - Migration 20260417110000_save_lineup_formation_validation.sql:248-258
+  - v_seen Array + IF v_pid = ANY(v_seen) THEN RETURN error 'duplicate_player'
+  - Server-Validation ist Ground-Truth, UI-Defense ist Pre-Submit-UX
+
+═══════════════════════════════════════════════════════════
+7) Files geändert
+═══════════════════════════════════════════════════════════
+
+- src/features/fantasy/store/lineupStore.ts (selectPlayer + setBenchSlot)
+- src/features/fantasy/hooks/useLineupBuilder.ts (getAvailablePlayersForPosition)
+- src/components/fantasy/event-tabs/LineupPanel.tsx:854-865 (Quick-Add Skip)
+- src/features/fantasy/store/__tests__/lineupStore.test.ts (NEU, 10 Tests)
+- .claude/rules/errors-frontend.md (Knowledge-Promotion)

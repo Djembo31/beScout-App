@@ -241,7 +241,14 @@ export function useLineupBuilder({
         ATT: ['ATT', 'FW', 'ST', 'CF', 'LW', 'RW'],
       };
       const validPos = posMap[position] || [position];
+      // Slice 272 — Exclude Starter-Slots UND Bench-Slots (vorher nur Starter).
+      // Asymmetrie zu getAvailablePlayersForBench behoben — beide picker excluden jetzt
+      // konsistent ALLE belegten Slots (Starter + Bench).
       const usedIds = new Set(selectedPlayers.map((p) => p.playerId));
+      if (benchGk) usedIds.add(benchGk);
+      if (benchO1) usedIds.add(benchO1);
+      if (benchO2) usedIds.add(benchO2);
+      if (benchO3) usedIds.add(benchO3);
       const isClubScoped = event?.scope === 'club' && event?.clubId;
       const players = effectiveHoldings.filter(
         (h) =>
@@ -252,7 +259,7 @@ export function useLineupBuilder({
       );
       return [...players].sort((a, b) => b.perfL5 - a.perfL5);
     },
-    [selectedPlayers, effectiveHoldings, isPlayerLocked, event?.scope, event?.clubId],
+    [selectedPlayers, effectiveHoldings, isPlayerLocked, event?.scope, event?.clubId, benchGk, benchO1, benchO2, benchO3],
   );
 
   // ==================== Bench helpers (Slice 195d) ====================

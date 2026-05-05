@@ -47,6 +47,71 @@ grep -rnE "!(streak|shields|count|balance|tickets|priceChange)[A-Z]" src/compone
 
 **Beziehung:** Cross-Cutting mit "Silent Fails" (common-errors.md §1) — eine UI-Layer-Variante. Backend hat ähnliches Pattern bei `Promise.allSettled` ohne Observability.
 
+### Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik (Slice 272, 2026-05-05)
+
+**Bug-Klasse:** Zustand-Store für Multi-Slot-State (Lineup-Builder, Equipment-Slots, Tab-Pinning, Card-Loadouts) mit `selectX(id, slot)` Action der nur den Target-Slot filtert, nicht aber die ID. Wenn User dieselbe ID auf 2 Slots setzt, sitzt sie auf beiden → UI zeigt Duplicate.
+
+**Symptom (Slice 272 — Lineup-Builder Pre-Fix):**
+```ts
+selectPlayer: (playerId, position, slot) =>
+  set((state) => ({
+    selectedPlayers: [
+      ...state.selectedPlayers.filter((p) => p.slot !== slot),  // ← nur Slot, nicht playerId
+      { playerId, position, slot, isLocked: false },
+    ],
+  })),
+```
+
+User-Flow: Player X auf Slot 0 → User wählt X für Slot 1 → X erscheint auf Slot 0 UND Slot 1.
+
+**UI-Defense reicht nicht:** Picker-Komponente filtert `usedIds` aus Available-Liste, aber sekundäre Pfade (Quick-Add-Click in Holdings-Strip, Drag&Drop, Pre-Pick-via-URL-Param) können die UI-Defense umgehen.
+
+**Fix-Pattern: Move-Semantik im Store-Action (defense-in-depth).**
+
+```ts
+selectPlayer: (playerId, position, slot) =>
+  set((state) => ({
+    selectedPlayers: [
+      ...state.selectedPlayers.filter((p) => p.slot !== slot && p.playerId !== playerId),  // ← BEIDE
+      { playerId, position, slot, isLocked: false },
+    ],
+  })),
+```
+
+**Cross-Slot-Subtype-Asymmetrie:** Wenn der Store mehrere Slot-Subtypes hat (z.B. Starter + Bench), MUSS jede `setX`-Action gegen ALLE anderen Subtypes deduplen, nicht nur INNERHALB. Slice 272 hatte folgende Asymmetrie:
+- `setBenchSlot` deduptete INNERHALB Bench, aber nicht vs. Starter
+- `selectPlayer` (Starter) deduptete nicht vs. Bench
+
+Fix: jede Action prüft alle Slot-Subtypes (siehe `lineupStore.ts` Slice 272).
+
+**Picker-Filter-Konsistenz:** Wenn 2 Picker für 2 Subtypes existieren, MÜSSEN beide `getAvailableForX` Funktionen gegen ALLE belegten Slots filtern, nicht nur eigene Subtype:
+```ts
+// Pre-Slice-272 Asymmetrie
+const usedIds = new Set(selectedPlayers.map((p) => p.playerId));  // ← nur Starter
+// Bench-Player könnten im Starter-Picker auftauchen!
+
+// Slice 272 Fix
+const usedIds = new Set(selectedPlayers.map((p) => p.playerId));
+if (benchGk) usedIds.add(benchGk);
+if (benchO1) usedIds.add(benchO1);
+// ... alle Bench-Slots
+```
+
+**DB-Server-Guard ist Pflicht (Money/Fantasy-Path):** Trotz UI-Defense MUSS Server validieren. RPC `rpc_save_lineup` hat `duplicate_player`-Guard via `v_seen` Array-Check über alle 12 Slots — Slice 272 UI-Fix ist Defense-in-Depth, ersetzt nicht Server-Validation.
+
+**Reference:** Slice 272 Anil-Live-Bug-Report 2026-05-05. Files:
+- `src/features/fantasy/store/lineupStore.ts` (selectPlayer + setBenchSlot Move-Semantik)
+- `src/features/fantasy/hooks/useLineupBuilder.ts` (`getAvailablePlayersForPosition` excludet Bench)
+- `src/components/fantasy/event-tabs/LineupPanel.tsx` Z.854-865 (Quick-Add isSelected-Skip)
+- DB-Guard: `supabase/migrations/20260417110000_save_lineup_formation_validation.sql:248-258`
+
+**Audit-Pattern:**
+```bash
+# Find Multi-Slot-Stores mit Insert-Action ohne ID-Filter
+grep -rnE "selectedPlayers\.filter\(.*\.slot !==" src/features/*/store/
+# Wenn `&& p.playerId !==` fehlt, Move-Semantik-Bug.
+```
+
 ### Modal preventClose Pattern (J2 + J3)
 - Jeder Modal mit `useMutation.isPending` → `preventClose={isPending}` pflicht. Sonst ESC/Backdrop-Click mitten in DB-Transaction verliert State.
 - Heuristik: `Modal` + (`isPending|cancelling|selling|buying|submitting`) im gleichen File → nachruesten.

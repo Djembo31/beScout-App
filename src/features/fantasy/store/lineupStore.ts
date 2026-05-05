@@ -88,13 +88,26 @@ export const useLineupStore = create<LineupState>((set) => ({
   synergyOnly: false,
 
   // Actions
+  // Slice 272 — Move-Semantik: filter Target-Slot UND PlayerId aus allen Slots/Bench.
+  // Wenn Player bereits in anderem Starter-Slot oder Bench-Slot sitzt, dort entfernen.
+  // Verhindert Duplicate-Display vor Submit (DB-Guard rpc_save_lineup blockt zwar
+  // duplicate_player, aber UI sollte Duplicate gar nicht erst zulassen).
   selectPlayer: (playerId, position, slot) =>
-    set((state) => ({
-      selectedPlayers: [
-        ...state.selectedPlayers.filter((p) => p.slot !== slot),
-        { playerId, position, slot, isLocked: false },
-      ],
-    })),
+    set((state) => {
+      const benchClear = {
+        benchGk: state.benchGk === playerId ? null : state.benchGk,
+        benchO1: state.benchO1 === playerId ? null : state.benchO1,
+        benchO2: state.benchO2 === playerId ? null : state.benchO2,
+        benchO3: state.benchO3 === playerId ? null : state.benchO3,
+      };
+      return {
+        selectedPlayers: [
+          ...state.selectedPlayers.filter((p) => p.slot !== slot && p.playerId !== playerId),
+          { playerId, position, slot, isLocked: false },
+        ],
+        ...benchClear,
+      };
+    }),
 
   removePlayer: (slot) =>
     set((state) => ({
@@ -168,6 +181,8 @@ export const useLineupStore = create<LineupState>((set) => ({
   setSynergyOnly: (v) => set({ synergyOnly: v }),
 
   // ── Bench (Slice 195d) ────────────────────────────────────
+  // Slice 272 — Asymmetrie behoben: setBenchSlot entfernt Player auch aus Starter-Slots
+  // (vorher nur INNERHALB Bench dedupt, nicht vs. Starter).
   setBenchSlot: (kind, playerId) =>
     set((state) => {
       // Wenn playerId bereits in anderem Bench-Slot → dort entfernen (kein duplicate)
@@ -177,11 +192,14 @@ export const useLineupStore = create<LineupState>((set) => ({
         benchO2: state.benchO2,
         benchO3: state.benchO3,
       };
+      let nextStarter = state.selectedPlayers;
       if (playerId) {
         if (next.benchGk === playerId) next.benchGk = null;
         if (next.benchO1 === playerId) next.benchO1 = null;
         if (next.benchO2 === playerId) next.benchO2 = null;
         if (next.benchO3 === playerId) next.benchO3 = null;
+        // Slice 272 — Wenn Player im Starter-Lineup ist, dort entfernen
+        nextStarter = state.selectedPlayers.filter((p) => p.playerId !== playerId);
       }
       const map: Record<BenchSlotKey, keyof typeof next> = {
         bench_gk: 'benchGk',
@@ -190,7 +208,7 @@ export const useLineupStore = create<LineupState>((set) => ({
         bench_o3: 'benchO3',
       };
       next[map[kind]] = playerId;
-      return next;
+      return { ...next, selectedPlayers: nextStarter };
     }),
 
   moveBenchOrder: (fromIdx, toIdx) =>
