@@ -14,7 +14,7 @@ import { cn, fmtScout, countryToFlag } from '@/lib/utils';
 import { computePlayerFloor } from '@/lib/playerMath';
 import { getClub } from '@/lib/clubs';
 import {
-  MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg,
+  MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg, fmtPerfL5, getL5ColorWithMatches,
   PlayerIdentity, PlayerBadgeStrip, PlayerKPIs,
   type HoldingData, type IpoDisplayData, type PlayerContext,
 } from './index';
@@ -267,8 +267,8 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
           <PlayerIdentity player={player} size="md" />
           <div className="flex items-center gap-1.5 shrink-0">
             {cardFlag && <span className="text-sm leading-none">{cardFlag}</span>}
-            <div className={cn('font-mono font-bold text-sm tabular-nums', getL5Color(player.perf.l5))}>
-              {player.perf.l5}
+            <div className={cn('font-mono font-bold text-sm tabular-nums', getL5ColorWithMatches(player.perf.l5, player.stats.matches))}>
+              {fmtPerfL5(player.perf.l5, player.stats.matches)}
             </div>
             {watchBtn}
           </div>

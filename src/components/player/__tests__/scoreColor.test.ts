@@ -1,5 +1,42 @@
 import { describe, it, expect } from 'vitest';
 import { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass } from '../scoreColor';
+import { fmtPerfL5, getL5ColorWithMatches, getL5HexWithMatches } from '../index';
+
+describe('fmtPerfL5 (Slice 271 Track B1)', () => {
+  it('returns em-dash when matches=0 (avoids DB-default 50.00 visual bug)', () => {
+    expect(fmtPerfL5(50, 0)).toBe('—');
+    expect(fmtPerfL5(75, 0)).toBe('—');
+    expect(fmtPerfL5(0, 0)).toBe('—');
+  });
+  it('returns rounded l5 when matches>0', () => {
+    expect(fmtPerfL5(75.4, 5)).toBe('75');
+    expect(fmtPerfL5(75.6, 5)).toBe('76');
+    expect(fmtPerfL5(50, 1)).toBe('50');
+  });
+  it('returns 0 when matches=1 and l5=0 (legitimate edge case)', () => {
+    expect(fmtPerfL5(0, 1)).toBe('0');
+  });
+});
+
+describe('getL5ColorWithMatches (Slice 271 Track B1)', () => {
+  it('returns neutral text-white/40 when matches=0', () => {
+    expect(getL5ColorWithMatches(50, 0)).toBe('text-white/40');
+    expect(getL5ColorWithMatches(75, 0)).toBe('text-white/40');
+  });
+  it('returns score-based color when matches>0', () => {
+    expect(getL5ColorWithMatches(75, 5)).toBe(getScoreStyle(75).text);
+    expect(getL5ColorWithMatches(50, 1)).toBe(getScoreStyle(50).text);
+  });
+});
+
+describe('getL5HexWithMatches (Slice 271 Track B1)', () => {
+  it('returns neutral-zinc hex when matches=0', () => {
+    expect(getL5HexWithMatches(50, 0)).toBe('#71717a');
+  });
+  it('returns score-based hex when matches>0', () => {
+    expect(getL5HexWithMatches(75, 5)).toBe(getScoreStyle(75).hex);
+  });
+});
 
 describe('getScoreStyle', () => {
   it('returns elite for 90-100', () => {

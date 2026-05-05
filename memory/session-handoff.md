@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-05 20:42)
+# Session Handoff — Auto (2026-05-05 21:55)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,14 +10,13 @@
  M worklog/audits/type-truth-2026-05-05.md
 ```
 
-## Session Commits: 7
+## Session Commits: 6
+- 6330129c chore(audits): JSONB-Perf + Test-Mock-Realism Audits (Slice 270 Self-Audit Items 4+5)
+- 97ac5b1a fix(form-bars): Per-Player Tooltip-GW + Slice 271 Discovery Audit (Slice 270b)
 - 1a2a8eb6 chore(session-end): Knowledge-Promotion 270d v2 + active.md idle + Audit-Cron-Sweep
 - ed15892a chore(270d v2): Live-Verify PASS — 11/12 FormBars colored
 - 00b3500f fix(perf-bars): JSONB-Return weil PostgREST .range()/limit auf RPC IGNORIERT (Slice 270d v2)
 - 77da7fae fix(perf-bars): PostgREST 1000-row-Cap auf RPC-Call (Slice 270d Hotfix)
-- 924a2c41 chore(270c): Live-Verify auf bescout.net PASS — ScoutCard-Back fixed
-- 9da2974b fix(match-timeline): getPlayerMatchTimeline robust gegen Cross-Club-Spieler (Slice 270c)
-- 11e8a42f fix(perf-bars): Per-Player Multi-League-Window in getRecentPlayerScores (Slice 270)
 
 <!-- auto:handoff-end -->
 

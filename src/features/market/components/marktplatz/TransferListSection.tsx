@@ -5,7 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Loader2, TrendingUp, TrendingDown, Minus, ChevronDown, ShoppingCart } from 'lucide-react';
-import { PlayerIdentity, FormBars } from '@/components/player';
+import { PlayerIdentity, FormBars, fmtPerfL5 } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { InfoTooltip, EmptyState } from '@/components/ui';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
@@ -224,7 +224,7 @@ export default function TransferListSection({
                           style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
                         >
                           <span className="font-mono font-black text-xs tabular-nums text-white/90">
-                            {Math.round(p.perf.l5)}
+                            {fmtPerfL5(p.perf.l5, p.stats.matches)}
                           </span>
                         </div>
                       </div>

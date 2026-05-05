@@ -17,6 +17,8 @@ vi.mock('@/components/player', () => ({
   PlayerPhoto: () => null,
   PositionBadge: () => null,
   FormBars: () => null,
+  // Slice 271 Track B1 — Display-Helper für L5
+  fmtPerfL5: (l5: number, matches: number) => (matches === 0 ? '—' : Math.round(l5).toString()),
 }));
 vi.mock('@/components/player/positionColors', () => ({
   posCardFrame: { GK: '#000', DEF: '#000', MID: '#000', ATT: '#000' },

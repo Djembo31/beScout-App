@@ -8,7 +8,7 @@ import {
   FileText, Activity, Lock,
 } from 'lucide-react';
 import {
-  PlayerPhoto, PositionBadge, FormBars,
+  PlayerPhoto, PositionBadge, FormBars, fmtPerfL5,
 } from '@/components/player';
 import { getContractInfo, posTintColors } from '@/components/player/PlayerRow';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
@@ -105,7 +105,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               style={{ backgroundColor: `${posTintColors[player.pos]}33`, borderColor: `${posTintColors[player.pos]}99` }}
             >
               <span className="font-mono font-black text-sm tabular-nums text-white/90">
-                {Math.round(player.perf.l5)}
+                {fmtPerfL5(player.perf.l5, player.stats.matches)}
               </span>
             </div>
             {trendIcon[player.perf.trend]}

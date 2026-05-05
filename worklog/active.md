@@ -2,13 +2,40 @@
 
 ```
 status: idle
-slice: 270b
+slice: 271-track-b1
 stage: LOG
-spec: worklog/specs/270b-recent-score-gameweeks-per-player-tooltip.md
-impact: in-spec (Service-Refactor mit 5 Files, Konsumenten unverändert via select-Pattern)
-proof: worklog/proofs/270b-tsc-vitest.txt
-review: self-review per workflow.md S-Ausnahme (1 RPC-Cap-Bug aus 270 saniert, kein neuer Behavior-Risk)
+spec: in-active-md (Frontend-Display-Polish, kein DB-Refactor — siehe worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md Track B1)
+impact: in-spec (8 Files Frontend-Display, 3 neue Helper, kein Money-Path/Wording)
+proof: worklog/proofs/271b1-tsc-vitest.txt
+review: self-review per workflow.md S-Ausnahme (Frontend-Polish, keine DB/Money/Wording-Änderung)
 ```
+
+## Slice 271 Track B1 LIVE 2026-05-05 Abend — Frontend-—-Display für matches=0
+
+**Problem:** DB-Default `perf_l5 NUMERIC NOT NULL DEFAULT 50.00` ist intentional (Lineup-Salary-Cap-Proxy in 6 RPCs). 595 Junioren mit `matches = 0` zeigen aber „L5: 50" im Frontend → User denkt „mittelmäßiger Spieler" obwohl 0 Spiele = unsichtbarer Trust-Bug für Beta-Tester.
+
+**Lösung:** 3 neue Display-Helper in `src/components/player/index.tsx`:
+- `fmtPerfL5(l5, matches)` → `'—'` wenn matches=0, sonst `Math.round(l5).toString()`
+- `getL5ColorWithMatches(l5, matches)` → `'text-white/40'` neutral, sonst getScoreStyle
+- `getL5HexWithMatches(l5, matches)` → `#71717a` neutral-zinc, sonst getScoreStyle
+
+**Display-Sites migriert (5 primäre + 2 Sekundäre):**
+- `PlayerIPOCard.tsx:108` (Marktplatz Card)
+- `KaderPlayerRow.tsx:274` + `kaderHelpers.tsx PerfPills` (Mein Kader)
+- `TransferListSection.tsx:227` (Transferliste)
+- `ClubCard.tsx:170-171` (Club-Card mit nächstem Match)
+- `PlayerRow.tsx:270-271` (PlayerRow generic)
+- `TradingCardFrame.tsx:330` (Detail-Page L5-Score) — neue `matches?` Prop
+- `PlayerHero.tsx:182` (TradingCardFrame Wrapper)
+
+**Lineup-Cap-Logic (DB-RPC) bleibt unangetastet:** `COALESCE(p.perf_l5, 50)` in 6 RPCs — Salary-Approximation für Players ohne perf-Historie ist intentional.
+
+**Tests:** vitest 3205/3206 PASS (+9 Tests vs. pre-Track-B1):
+- `scoreColor.test.ts` +9 Tests für fmtPerfL5 + getL5ColorWithMatches + getL5HexWithMatches
+- `TradingCardFrame.test.tsx` +2 Tests für matches=0 Em-Dash + matches=undefined Backward-Compat
+- `PlayerIPOCard.test.tsx` Mock-Update für fmtPerfL5
+
+**Beta-Wirkung:** Tester sehen sofort professionelles `—` statt verwirrendes `50` für 595 Junioren. Differenziert „kein Datenpunkt" vs. „mittelmäßiger Spieler" semantisch korrekt.
 
 ## Slice 270b LIVE 2026-05-05 — Tooltip-GW-Drift gefixt + Audit-Befund 271 verifiziert
 

@@ -38,6 +38,8 @@ interface TradingCardFrameProps {
   shirtNumber: number;
   imageUrl?: string | null;
   l5: number;
+  /** Slice 271 Track B1 — Total matches; if 0, render "—" instead of l5 to avoid 50.00-default visual bug. */
+  matches?: number;
   l5Apps?: number;    // Appearances in last 5 GWs (0-5)
   l15Apps?: number;   // Appearances in last 15 GWs (0-15)
   edition?: string;
@@ -144,7 +146,7 @@ const formatMV = (v: number) => {
 };
 
 function TradingCardFrameInner({
-  first, last, pos, club, shirtNumber, imageUrl, l5, l5Apps = 0, l15Apps = 0, edition, className = '', backData,
+  first, last, pos, club, shirtNumber, imageUrl, l5, matches, l5Apps = 0, l15Apps = 0, edition, className = '', backData,
   age, country, masteryLevel, league, leagueShort, leagueLogoUrl,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
@@ -327,7 +329,7 @@ function TradingCardFrameInner({
                 <div className="flex-1">
                   <div className="flex items-baseline gap-1 justify-center">
                     <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color: `${tint}90` }}>L5</span>
-                    <span className="text-[22px] md:text-[26px] font-black text-white/90 leading-none tabular-nums font-mono">{l5}</span>
+                    <span className="text-[22px] md:text-[26px] font-black text-white/90 leading-none tabular-nums font-mono">{matches === 0 ? '—' : l5}</span>
                   </div>
                   <div className="mt-1 flex items-center gap-1">
                     <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">

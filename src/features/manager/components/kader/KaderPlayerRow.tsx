@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import {
   TrendingUp, TrendingDown, Minus, DollarSign, Shield, Check as CheckIcon, ListPlus,
 } from 'lucide-react';
-import { PlayerPhoto, PositionBadge, FormBars } from '@/components/player';
+import { PlayerPhoto, PositionBadge, FormBars, fmtPerfL5 } from '@/components/player';
 import { posTintColors } from '@/components/player/positionColors';
 import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
@@ -76,7 +76,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: KaderPlayer; mi
     <>
       {/* Desktop columns */}
       <div className="hidden md:flex items-center gap-3 shrink-0">
-        <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} mvTrend={p.mvTrend7d ?? null} />
+        <PerfPills l5={p.perf.l5} l15={p.perf.l15} matches={p.stats.matches} trend={p.perf.trend} mvTrend={p.mvTrend7d ?? null} />
         <span className="text-[10px] font-mono text-white/50 tabular-nums">
           {p.stats.matches}<span className="text-white/40">{t('statMatchesAbbr')}</span>{' '}
           {p.stats.goals}<span className="text-white/40">{t('statGoalsAbbr')}</span>{' '}
@@ -88,7 +88,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: KaderPlayer; mi
       </div>
       {/* Mobile row 2 */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5">
-        <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} mvTrend={p.mvTrend7d ?? null} />
+        <PerfPills l5={p.perf.l5} l15={p.perf.l15} matches={p.stats.matches} trend={p.perf.trend} mvTrend={p.mvTrend7d ?? null} />
         <span className="text-[10px] font-mono text-white/50 tabular-nums">
           {p.stats.matches}<span className="text-white/40">{t('statMatchesAbbr')}</span>{' '}
           {p.stats.goals}<span className="text-white/40">{t('statGoalsAbbr')}</span>{' '}
@@ -271,7 +271,7 @@ function KaderPlayerRowInner({ item, lens, minutes, scores, gameweeks, nextFixtu
                 style={{ backgroundColor: `${tint}33`, borderColor: `${tint}99` }}
               >
                 <span className="font-mono font-black text-xs tabular-nums text-white/90">
-                  {Math.round(p.perf.l5)}
+                  {fmtPerfL5(p.perf.l5, p.stats.matches)}
                 </span>
               </div>
             </div>

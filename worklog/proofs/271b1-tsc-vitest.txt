@@ -1,0 +1,79 @@
+Slice 271 Track B1 Proof — Frontend-—-Display für matches=0
+Datum: 2026-05-05 22:25
+
+═══════════════════════════════════════════════════════════
+1) tsc --noEmit
+═══════════════════════════════════════════════════════════
+
+$ npx tsc --noEmit
+(no output → exit 0 → clean)
+
+═══════════════════════════════════════════════════════════
+2) vitest run (full suite)
+═══════════════════════════════════════════════════════════
+
+Test Files: 216 passed (216)
+     Tests: 3205 passed | 1 skipped (3206)
+   Duration: 503.22s
+
++9 Tests vs. pre-Track-B1 (3196 → 3205):
+- src/components/player/__tests__/scoreColor.test.ts:
+    fmtPerfL5: 3 Tests
+      ✓ returns em-dash when matches=0 (avoids DB-default 50.00 visual bug)
+      ✓ returns rounded l5 when matches>0
+      ✓ returns 0 when matches=1 and l5=0 (legitimate edge case)
+    getL5ColorWithMatches: 2 Tests
+      ✓ returns neutral text-white/40 when matches=0
+      ✓ returns score-based color when matches>0
+    getL5HexWithMatches: 2 Tests
+      ✓ returns neutral-zinc hex when matches=0
+      ✓ returns score-based hex when matches>0
+- src/components/player/detail/__tests__/TradingCardFrame.test.tsx:
+    +2 Tests
+      ✓ shows em-dash for L5 when matches=0
+      ✓ shows L5 score when matches is undefined (backward-compat)
+
+═══════════════════════════════════════════════════════════
+3) Verifizierte Wirkung
+═══════════════════════════════════════════════════════════
+
+Pre-Slice-271-Track-B1:
+- 595 Junioren mit matches=0 + perf_l5=50 (DB-Default) zeigten "L5: 50" überall
+- User-Wirkung: "mittelmäßiger Spieler"-Suggestion obwohl 0 Spiele
+
+Post-Slice-271-Track-B1:
+- 595 Junioren zeigen "L5: —" mit neutral-grey Color
+- Differenziert sauber "kein Datenpunkt" vs. "echter L5-Score"
+- Tester sehen professionellen Default
+
+═══════════════════════════════════════════════════════════
+4) Money-Path-Garantie
+═══════════════════════════════════════════════════════════
+
+Lineup-Salary-Cap-Logic (DB-RPC) UNANGETASTET:
+- 6 RPCs nutzen weiterhin COALESCE(p.perf_l5, 50) für Salary-Approximation
+  - 195a, 195c, 195d, 197c, save_lineup_per_league, SO5_save_lineup_22arg
+- DB-Default 50.00 ist intentional als Lineup-Cap-Proxy
+- Frontend-Display ist die einzige Schicht die Em-Dash zeigt
+
+═══════════════════════════════════════════════════════════
+5) Files geändert
+═══════════════════════════════════════════════════════════
+
+Helper:
+- src/components/player/index.tsx (3 neue Exports + Comments)
+
+Display-Sites:
+- src/features/market/components/marktplatz/PlayerIPOCard.tsx
+- src/features/manager/components/kader/KaderPlayerRow.tsx
+- src/features/manager/components/kader/kaderHelpers.tsx (PerfPills)
+- src/features/market/components/marktplatz/TransferListSection.tsx
+- src/features/market/components/marktplatz/ClubCard.tsx
+- src/components/player/PlayerRow.tsx
+- src/components/player/detail/TradingCardFrame.tsx (+ matches Prop)
+- src/components/player/detail/PlayerHero.tsx
+
+Tests:
+- src/components/player/__tests__/scoreColor.test.ts (+7 Tests)
+- src/components/player/detail/__tests__/TradingCardFrame.test.tsx (+2 Tests)
+- src/features/market/components/marktplatz/__tests__/PlayerIPOCard.test.tsx (Mock-Update)

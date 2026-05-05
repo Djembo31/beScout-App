@@ -180,6 +180,7 @@ function PlayerHeroInner({
               shirtNumber={player.ticket}
               imageUrl={player.imageUrl}
               l5={player.perf.l5}
+              matches={player.stats.matches}
               l5Apps={player.perf.l5Apps}
               l15Apps={player.perf.l15Apps}
               edition={edition}

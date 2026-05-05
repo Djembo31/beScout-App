@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { PlayerPhoto, getL5Color } from '@/components/player';
+import { PlayerPhoto, fmtPerfL5, getL5ColorWithMatches } from '@/components/player';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import { getLeague } from '@/lib/leagues';
 import type { Pos } from '@/types';
@@ -167,8 +167,8 @@ export default function ClubCard({
           <span className="text-[9px] text-white/50 truncate flex-1 min-w-0">
             {soonestPlayer.player.last}
           </span>
-          <span className={cn('font-mono font-bold text-[9px] tabular-nums', getL5Color(soonestPlayer.player.perf.l5))}>
-            {soonestPlayer.player.perf.l5}
+          <span className={cn('font-mono font-bold text-[9px] tabular-nums', getL5ColorWithMatches(soonestPlayer.player.perf.l5, soonestPlayer.player.stats.matches))}>
+            {fmtPerfL5(soonestPlayer.player.perf.l5, soonestPlayer.player.stats.matches)}
           </span>
           <CountdownBadge targetDate={soonestPlayer.endsAt} compact />
         </div>

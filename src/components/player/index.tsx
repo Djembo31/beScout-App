@@ -29,6 +29,31 @@ export function getL5Color(l5: number): string { return getScoreStyle(l5).text; 
 /** Hex color for L5/L15 (inline styles, SVG) */
 export function getL5Hex(l5: number): string { return getScoreStyle(l5).hex; }
 
+/** Slice 271 Track B1 — Display-Helper für L5-Score.
+ *  DB-Default `perf_l5 = 50.00 NOT NULL` ist intentional (Lineup-Salary-Cap-Proxy in 6 RPCs:
+ *  COALESCE(p.perf_l5, 50)). Frontend-Display-Bug: 595 Junioren mit matches=0 zeigen "L5: 50"
+ *  → User denkt "mittelmäßig" obwohl 0 Spiele. Dieser Helper liefert "—" für 0-played.
+ *
+ *  Ruft Display-Sites NICHT für DB-Wert, nur für visuelles Display.
+ *  Lineup-Cap-Logic (DB-RPC) bleibt unangetastet — perf.l5 bleibt 50 als Salary-Approximation.
+ */
+export function fmtPerfL5(l5: number, matches: number): string {
+  if (matches === 0) return '—';
+  return Math.round(l5).toString();
+}
+
+/** Slice 271 Track B1 — Color-Helper analog zu getL5Color, aber neutral-grey für 0-played. */
+export function getL5ColorWithMatches(l5: number, matches: number): string {
+  if (matches === 0) return 'text-white/40';
+  return getScoreStyle(l5).text;
+}
+
+/** Slice 271 Track B1 — Hex analog zu getL5Hex, neutral-hex für 0-played. */
+export function getL5HexWithMatches(l5: number, matches: number): string {
+  if (matches === 0) return '#71717a'; // neutral-zinc-500
+  return getScoreStyle(l5).hex;
+}
+
 /** Tailwind bg class for L5/L15 pill backgrounds */
 export function getL5Bg(l5: number): string {
   const s = getScoreStyle(l5);

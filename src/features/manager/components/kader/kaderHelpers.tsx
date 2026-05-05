@@ -122,11 +122,14 @@ export function MinutesBar({ minutes }: { minutes: number[] }) {
 export function PerfPills({
   l5,
   l15,
+  matches,
   trend,
   mvTrend,
 }: {
   l5: number;
   l15: number;
+  /** Slice 271 Track B1 — Total matches; if 0, show "—" instead of l5/l15 (DB-default 50.00 visual fix). */
+  matches?: number;
   trend: string;
   /** Slice 197d — optional MV-Trend (rising/stable/falling) over 7d. Hidden when null/undefined. */
   mvTrend?: MvTrend | null;
@@ -145,8 +148,8 @@ export function PerfPills({
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className={cn('text-[10px] font-mono font-black', getL5Color(l5))}>L5 {l5}</span>
-      <span className="text-[10px] font-mono text-white/40">L15 {l15}</span>
+      <span className={cn('text-[10px] font-mono font-black', matches === 0 ? 'text-white/40' : getL5Color(l5))}>L5 {matches === 0 ? '—' : l5}</span>
+      <span className="text-[10px] font-mono text-white/40">L15 {matches === 0 ? '—' : l15}</span>
       <TrendIcon className={cn('w-3 h-3', trendColor)} aria-hidden="true" />
       {mvTrend && (
         <span

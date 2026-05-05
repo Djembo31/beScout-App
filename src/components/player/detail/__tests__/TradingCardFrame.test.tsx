@@ -123,6 +123,22 @@ describe('TradingCardFrame', () => {
     expect(screen.getByText('75')).toBeInTheDocument();
   });
 
+  // 6b. Slice 271 Track B1 — shows em-dash when matches=0 (avoids DB-default 50.00 visual bug)
+  it('shows em-dash for L5 when matches=0', () => {
+    renderWithProviders(<TradingCardFrame {...PROPS} l5={50} matches={0} />);
+    // L5-score area uses em-dash (—), not "50"
+    expect(screen.queryByText('50')).not.toBeInTheDocument();
+    // The L5 zone has the em-dash
+    const dashes = screen.getAllByText('—');
+    expect(dashes.length).toBeGreaterThan(0);
+  });
+
+  // 6c. Slice 271 Track B1 — fallback when matches undefined (legacy callers)
+  it('shows L5 score when matches is undefined (backward-compat)', () => {
+    renderWithProviders(<TradingCardFrame {...PROPS} l5={75} matches={undefined} />);
+    expect(screen.getByText('75')).toBeInTheDocument();
+  });
+
   // 7. shows age when provided
   it('shows age when provided', () => {
     renderWithProviders(<TradingCardFrame {...PROPS} age={24} />);
