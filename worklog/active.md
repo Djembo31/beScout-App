@@ -2,33 +2,37 @@
 
 ```
 status: idle
-slice: 270
+slice: 270c
 stage: LOG
-spec: worklog/specs/270-perf-bars-multi-league-window.md
+spec: worklog/specs/270-perf-bars-multi-league-window.md (270c inline-Hotfix dazu)
 impact: worklog/impact/270-perf-bars-multi-league-window.md
-proof: worklog/proofs/270-db-smoke.txt + worklog/proofs/270-tsc-vitest.txt
-review: worklog/reviews/270-review.md (PASS, 5 Findings)
+proof: worklog/proofs/270-db-smoke.txt + 270-tsc-vitest.txt + 270c-live-zaniolo-card-back-FIXED.png
+review: worklog/reviews/270-review.md (PASS) · 270c self-review per workflow.md XS-Ausnahme
 ```
 
-## Slice 270 LIVE 2026-05-05 — Per-Player Multi-League FormBars Fix
+## Slice 270 + 270c LIVE 2026-05-05 — Performance-Bars-Bug komplett gefixt
 
 | Stage | Output |
 |-------|--------|
-| SPEC | worklog/specs/270-perf-bars-multi-league-window.md (13 Pflicht-Sektionen, M-Slice) |
-| IMPACT | worklog/impact/270-perf-bars-multi-league-window.md (5 Konsumenten profitieren ohne Edit) |
-| BUILD | Migration via mcp__supabase__apply_migration + fixtures.ts:436-490 + fixtures.test.ts (4 neue Cases) |
-| REVIEW | reviewer-Agent PASS, F-01 Comment gefixt, F-02 → Slice 270b Skeleton, F-03/04/05 INFO |
-| PROVE | DB-Smoke (15.350 RPC-Rows, 4 Ligen 0%→79-87% Coverage) + tsc clean + vitest 3196/3197 |
-| LOG | worklog/log.md ✅ |
+| 270 SPEC | worklog/specs/270-perf-bars-multi-league-window.md (M-Slice, 13 Pflicht-Sektionen) |
+| 270 IMPACT | worklog/impact/270-perf-bars-multi-league-window.md |
+| 270 BUILD | Migration `rpc_get_recent_player_scores` + `getRecentPlayerScores` Refactor + 4 Tests |
+| 270 REVIEW | reviewer-Agent PASS, 5 Findings (1 LOW gefixt + 1 LOW deferred zu 270b + 3 INFO) |
+| 270 PROVE | DB-Smoke 4 Ligen 0%→79-87% Coverage + tsc + vitest 3196/3197 + Live-Verify Marktplatz 0 Errors |
+| 270 LOG | worklog/log.md ✅ + Knowledge-Promotion errors-db.md "Per-Tenant-Window vs. Global-MAX" |
+| 270c HOTFIX | `getPlayerMatchTimeline` Refactor (Cross-Club-Spieler Slice-081d-Pattern) |
+| 270c PROVE | tsc + vitest 117/117 + Live-Verify Zaniolo-Card-Back 5/5 played (vs. pre 5/5 N/K) |
 
-**Knowledge-Promotion:** errors-db.md neuer Block "Per-Tenant-Window vs. Global-MAX" (Slice-102 DB-Achse).
+**Anil-Live-Bug 2026-05-05 ("Galatasaray-Performance-Bars / ScoutCard wenn die sich dreht"):**
+- Symptom 1 (Marktplatz/Bestand/Kader Form-Bars Lücke) → Slice 270 ✅ behoben (alle 7 Ligen)
+- Symptom 2 (ScoutCard-Back Match-Timeline alle N/K) → Slice 270c ✅ behoben (Cross-Club-robust)
 
-**Pending Follow-ups:**
-- ⏳ Live-Verify post-Vercel-Deploy via Chrome-DevTools-MCP (Galatasaray + Bundesliga-Spieler-Card Screenshots)
-- ⏳ Slice 270b — Tooltip-GW-Drift in `getRecentScoreGameweeks` (Skeleton liegt vor)
-- ⏳ Slice 271 — Audit `mv_trend_7d` (0 Records über alle Ligen) + `perf_l5=50.00`-Default-Source
+**Pending Follow-ups (kein Beta-Blocker):**
+- ⏳ Slice 270b — Tooltip-GW-Drift (Reviewer F-02, Skeleton vorhanden in worklog/specs/270b-...)
+- ⏳ Slice 271 — `mv_trend_7d` Cron-Drift + `perf_l5=50` Default — Audit-File worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md, Anil-Decision-Pflicht für Track A/B/C-Scope
+- ⏳ Sekundär: Player-Card Liga-Badge zeigt Süper Lig statt Serie A für Zaniolo (Cross-Club-Drift im Frontend-Lookup, tracking via 271)
 
-## D63 Phase 4 Discovery KOMPLETT 2026-05-04 (Stand pre-270)
+## D63 Phase 4 Discovery KOMPLETT 2026-05-04
 
 | Phase | Slices | Status |
 |-------|--------|--------|
@@ -38,4 +42,4 @@ review: worklog/reviews/270-review.md (PASS, 5 Findings)
 | 4 Discovery | 269 | ✅ live |
 | 5 Visual-Polish | 270-273 | ⏳ pending |
 
-10 von 13 D63-Slices live. Slice 270 ist **NICHT** Phase 5 Visual-Polish — eigenständiger Hot-Fix außerhalb der Roadmap, vom Anil-Live-Bug 2026-05-05 ausgelöst. Phase 5 (Visual-Polish: Stadium-Assets + 3D-Mystery-Box) bleibt offen.
+10 von 13 D63-Slices live + Hotfix-Slices 270 + 270c (außerhalb Roadmap, vom Anil-Live-Bug 2026-05-05 getrieben).
