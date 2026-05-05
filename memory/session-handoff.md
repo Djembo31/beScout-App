@@ -1,17 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-05 23:38)
+# Session Handoff — Auto (2026-05-06 00:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
- M memory/working-memory.md
  M worklog/audits/audit-stale-2026-05-05.md
  M worklog/audits/type-truth-2026-05-05.md
 ```
 
-## Session Commits: 5
+## Session Commits: 6
+- 0b76346a fix(spieltag): Komplett-Stabilisierung Liga-Filter + Modal-Refetch + DB-Heal (Slice 273)
 - 6b8ecb27 fix(lineup): Duplicate-Defense-in-Depth (Slice 272 — Anil-Live-Bug)
 - 3c967ba0 fix(perf-l5): Em-Dash-Display fuer matches=0 (Slice 271 Track B1)
 - 6330129c chore(audits): JSONB-Perf + Test-Mock-Realism Audits (Slice 270 Self-Audit Items 4+5)

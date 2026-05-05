@@ -31,7 +31,8 @@ for (const line of envFile.split('\n')) {
 const API_KEY = env.API_FOOTBALL_KEY || env.NEXT_PUBLIC_API_FOOTBALL_KEY;
 const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
-const LEAGUE_ID = parseInt(env.NEXT_PUBLIC_LEAGUE_ID || '204', 10);
+// Slice 273: LEAGUE_ID via CLI-Arg-3 (default env-var or 204 TFF1).
+const LEAGUE_ID = parseInt(process.argv[4] || env.NEXT_PUBLIC_LEAGUE_ID || '204', 10);
 const SEASON = parseInt(env.NEXT_PUBLIC_SEASON || '2025', 10);
 
 if (!API_KEY) { console.error('Missing API_FOOTBALL_KEY in .env.local'); process.exit(1); }
