@@ -159,9 +159,29 @@ function createQueryBuilder(table: string): Record<string, unknown> {
 // Mock supabase client
 // ============================================
 
+/**
+ * RPC builder — chainable like .from(), supports .range()/.order()/.limit() etc.
+ * (Slice 270d: getRecentPlayerScores chains .rpc().range() to bypass PostgREST
+ * 1000-row default cap on TABLE-RETURN RPCs.)
+ */
+function createRpcBuilder(fnName: string): Record<string, unknown> {
+  const builder: Record<string, unknown> = {};
+  const chainMethods = ['select', 'eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'in', 'range', 'order', 'limit', 'offset'];
+  for (const method of chainMethods) {
+    builder[method] = vi.fn().mockReturnValue(builder);
+  }
+  const getResult = () => getResponse(_rpcQueues, fnName);
+  builder['single'] = vi.fn().mockImplementation(getResult);
+  builder['maybeSingle'] = vi.fn().mockImplementation(getResult);
+  builder['then'] = vi.fn().mockImplementation(
+    (resolve: (val: unknown) => void) => resolve(getResult()),
+  );
+  return builder;
+}
+
 export const mockSupabase = {
   from: vi.fn().mockImplementation((table: string) => createQueryBuilder(table)),
-  rpc: vi.fn().mockImplementation((fnName: string) => getResponse(_rpcQueues, fnName)),
+  rpc: vi.fn().mockImplementation((fnName: string) => createRpcBuilder(fnName)),
   auth: {
     getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),

@@ -2,6 +2,22 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 270d | 2026-05-05 | fix(perf-bars): PostgREST 1000-row-Cap auf RPC-Call (Slice 270 Hotfix)
+
+- Stage-Chain: SPEC (inline-Hotfix from Live-Verify) → IMPACT (skipped — Service + Test-Mock, 2 Files) → BUILD → REVIEW (self-review per workflow.md XS-Ausnahme — Pattern-Reuse PostgREST-Cap-Heal aus errors-db.md §1) → PROVE (tsc + fixtures.test.ts 52/52 + Volltest 3196/3197) → LOG
+- Slice-Type: Service + Test-Mock (XS-Slice, 2 Files)
+- Trigger: Anil-Live-Screenshots 2026-05-05 (Marktplatz "Mein Kader" + ClubAccordion IPO-Cards) zeigen FormBars als 5 dünne dashed Striche statt farbige Balken trotz Slice 270 + Slice 270c. DB-Smoke gegen DEMIR/BOSTAN/ATING bestätigt: alle haben 5 played-GWs in `rpc_get_recent_player_scores()`, aber Frontend liefert 0 Bars für sie.
+- Bug-Klasse: PostgREST 1000-row-Default-Cap auf TABLE-Return-RPCs (errors-db.md §1 "PostgREST 1000-row cap MONEY-CRITICAL"). Slice 270 hat `getRecentPlayerScores` auf RPC umgestellt aber **vergaß `.range()`-Override**. RPC liefert 15.350 Rows; Client bekam nur erste ~1000 → ~200 Player ihre 5 GWs, der Rest fiel raus → leere FormBars für DEMIR/BOSTAN/ATING und Hunderte andere.
+- Fix: `.rpc('rpc_get_recent_player_scores').range(0, 99999)` zwingt PostgREST über das 1000-row-Limit (analog `.from().range()`-Pattern für SELECT-Queries).
+- Files (2):
+  - `src/features/fantasy/services/fixtures.ts:445-455` — `.range(0, 99999)` ergänzt + Comment "Slice 270d fix"
+  - `src/test/mocks/supabase.ts:158-176` — `createRpcBuilder` chainable analog `createQueryBuilder` (rpc-Mock supportet jetzt `.range()/.order()/.limit()` etc.)
+- Reviewer-Wirkung: Slice 270 Reviewer F-09-NEU (latent: PostgREST-Cap auf RPC ohne range) hätte das fangen können — die Reviewer-Heuristik "RPC ist nicht `.from()`-basiert, kein Cap-Risiko" war falsch. Pattern-Note in errors-db.md anstehend.
+- Proof: tsc clean. fixtures.test.ts 52/52 (incl. die 4 Multi-League-Cases). Volltest 216/216, 3196/3197 (1 skipped). Mock-Refactor in supabase.ts ohne Regression.
+- Live-Verify: Pending nach Push.
+
+---
+
 ## 270c | 2026-05-05 | fix(match-timeline): getPlayerMatchTimeline robust gegen Cross-Club-Spieler
 
 - Stage-Chain: SPEC (inline-Hotfix from Slice 270 Live-Verify-Discovery) → IMPACT (skipped — XS Service-Edit, 1 File, kein DB-Schema) → BUILD → REVIEW (self-review per workflow.md XS-Ausnahme — Pattern-Reuse, kein Money-Path) → PROVE (tsc + vitest 117/117 + Live-Verify post-Deploy) → LOG

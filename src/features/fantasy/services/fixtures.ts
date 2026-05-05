@@ -447,7 +447,14 @@ export async function getRecentScoreGameweeks(): Promise<number[]> {
  *  Spieler ohne Scores fehlen in der Map → Caller `?? []` fällt auf 5 dashed bars.
  */
 export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
-  const { data, error } = await supabase.rpc('rpc_get_recent_player_scores');
+  // Slice 270d fix: .range(0, 99999) zwingt PostgREST über den 1000-row-Default-
+  // Cap (errors-db.md §1 PostgREST 1000-row cap). RPC liefert ~15k Rows
+  // (~3k Active-Player × 5 GWs); ohne range bekamen Konsumenten nur die ersten
+  // ~200 Player-Slots gefüllt, der Rest renderte leere dashed-bars trotz
+  // vorhandener DB-Daten.
+  const { data, error } = await supabase
+    .rpc('rpc_get_recent_player_scores')
+    .range(0, 99999);
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) return new Map();
 
