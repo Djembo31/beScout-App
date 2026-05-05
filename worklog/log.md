@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 270c | 2026-05-05 | fix(match-timeline): getPlayerMatchTimeline robust gegen Cross-Club-Spieler
+
+- Stage-Chain: SPEC (inline-Hotfix from Slice 270 Live-Verify-Discovery) → IMPACT (skipped — XS Service-Edit, 1 File, kein DB-Schema) → BUILD → REVIEW (self-review per workflow.md XS-Ausnahme — Pattern-Reuse, kein Money-Path) → PROVE (tsc + vitest 117/117 + Live-Verify post-Deploy) → LOG
+- Slice-Type: Service (XS-Slice, 1 File-Edit)
+- Trigger: Slice 270 Live-Verify auf bescout.net 2026-05-05 — Zaniolo-ScoutCard-Back zeigte alle 5 Match-Bars als „N/K" obwohl DB 23 fixture_player_stats für ihn hat. Anil-Quote „scoutcard, wenn die sich dreht" trifft GENAU diese Card-Back. Slice 270 hatte nur Marktplatz-FormBars gefixt, nicht TradingCardFrame.matchTimeline.
+- Bug-Klasse: Slice-081d Cross-Club-Contamination via API-Football. `players.club_id` zeigt auf GAL (Galatasaray), `players.club` (TEXT) korrekt auf „Udinese", `fixture_player_stats` an Udinese-Fixtures gebunden. `getPlayerMatchTimeline` baute Window aus `players.club_id` → GAL-Fixtures → 0 stats für Zaniolo → 5/5 N/K.
+- Fix: Service liest direkt aus `fixture_player_stats` (player_id-eq), holt Fixtures aus den Stat-Rows, ermittelt effective_club_id via Majority-Vote über die fixture-Clubs (= echter aktueller Club des Spielers, robust gegen stale `players.club_id`). isHome/opponent ableiten aus effective_club_id.
+- Files (1): `src/features/fantasy/services/scoring.queries.ts:81-186` (`getPlayerMatchTimeline` Body komplett refactored, Return-Shape unverändert)
+- Trade-off: Reine Bench/Not-In-Squad-Fixtures (kein Stat-Row) erscheinen nicht mehr in der Timeline. Pre-Slice zeigte sie als „N/K" (irreführend bei Cross-Club), Post-Slice zeigt nur kader-relevante Fixtures. Visual-Win > Vollständigkeit.
+- Proof: tsc clean + vitest 117/117 (3 Test-Files in features/fantasy/services).
+- Live-Verify: Pending nach Push.
+
+---
+
 ## 270 | 2026-05-05 | fix(perf-bars): Per-Player Multi-League-Window in getRecentPlayerScores
 
 - Stage-Chain: SPEC → IMPACT → BUILD (Migration + Service-Refactor + 4 Tests) → REVIEW (reviewer-Agent PASS, 5 Findings: 1 LOW gefixt + 1 LOW deferred zu 270b + 3 INFO) → PROVE (DB-Smoke + tsc + vitest 3196/3197) → LOG

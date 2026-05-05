@@ -78,55 +78,84 @@ export type MatchTimelineEntry = {
   status: MatchTimelineStatus;
 };
 
-/** Load detailed per-match timeline for a player — ALL club gameweeks, including non-appearances */
+/** Load detailed per-match timeline for a player.
+ *
+ *  Slice 270c fix: Pre-Slice baute Window aus `players.club_id` (= Step 1
+ *  query), holt dann ALL club fixtures (Step 2). Bei Cross-Club-Spielern
+ *  (Slice 081d Pattern: API-Football current-Club ≠ DB players.club_id —
+ *  z.B. Zaniolo aktuell Udinese, DB-club_id noch Galatasaray) führte das zu
+ *  einer 5/5 N/K-Anzeige obwohl 23 fixture_player_stats-Rows existieren.
+ *
+ *  Fix: Service liest direkt aus `fixture_player_stats` (Step 1) und
+ *  rekonstruiert die Fixtures aus den Stat-Rows (Step 2). Damit ist die
+ *  Match-Timeline robust gegen stale players.club_id und zeigt immer die
+ *  echte Match-History des Spielers.
+ *
+ *  Trade-off: Reine Bench/Not-In-Squad-Fixtures (kein Stat-Row) erscheinen
+ *  nicht mehr in der Timeline. Pre-Slice zeigte sie als "N/K"; Post-Slice
+ *  zeigt nur Fixtures, in denen der Spieler kader-relevant war (incl.
+ *  minutes=0 Bench wenn Stat-Row existiert). Visual-Win > Vollständigkeit.
+ */
 export async function getPlayerMatchTimeline(
   playerId: string,
   limit = 15
 ): Promise<MatchTimelineEntry[]> {
-  // 1. Get the player's club_id
-  const { data: playerData, error: playerError } = await supabase
-    .from('players')
-    .select('club_id')
-    .eq('id', playerId)
-    .maybeSingle();
+  // 1. Get player's stat-rows directly. fixture_id ist die Wahrheits-Quelle
+  //    für „in welchem Match war der Spieler kader-relevant".
+  const { data: statRows, error: statError } = await supabase
+    .from('fixture_player_stats')
+    .select('fixture_id, minutes_played, goals, assists, clean_sheet, yellow_card, red_card, saves, rating, is_starter')
+    .eq('player_id', playerId);
 
-  if (playerError) throw new Error(playerError.message);
-  if (!playerData?.club_id) return [];
-  const clubId = playerData.club_id as string;
+  if (statError) throw new Error(statError.message);
+  if (!statRows || statRows.length === 0) return [];
 
-  // 2. Get ALL finished fixtures for this club (desc by GW, limited)
-  const { data: clubFixtures, error: fixError } = await supabase
+  const statMap = new Map<string, Record<string, unknown>>();
+  for (const row of statRows) {
+    statMap.set(row.fixture_id as string, row);
+  }
+  const fixtureIds = Array.from(statMap.keys());
+
+  // 2. Get fixtures for those stat-rows (only finished, latest first, limited)
+  const { data: fixtures, error: fixError } = await supabase
     .from('fixtures')
     .select(`
       id, gameweek, home_club_id, away_club_id, home_score, away_score, created_at,
       home_club:clubs!fixtures_home_club_id_fkey(short, logo_url),
       away_club:clubs!fixtures_away_club_id_fkey(short, logo_url)
     `)
-    .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+    .in('id', fixtureIds)
     .not('home_score', 'is', null)
     .order('gameweek', { ascending: false })
     .limit(limit);
 
   if (fixError) throw new Error(fixError.message);
-  if (!clubFixtures || clubFixtures.length === 0) return [];
+  if (!fixtures || fixtures.length === 0) return [];
 
-  const fixtureIds = clubFixtures.map(f => f.id as string);
-
-  // 3. Get player stats for these fixtures (includes minutes=0 bench entries)
-  const { data: statsData, error: statsError } = await supabase
-    .from('fixture_player_stats')
-    .select('fixture_id, minutes_played, goals, assists, clean_sheet, yellow_card, red_card, saves, rating, is_starter')
-    .eq('player_id', playerId)
-    .in('fixture_id', fixtureIds);
-
-  if (statsError) throw new Error(statsError.message);
-  const statsMap = new Map<string, Record<string, unknown>>();
-  for (const row of statsData ?? []) {
-    statsMap.set(row.fixture_id as string, row);
+  // 3. Determine player's effective club (majority of his stat-fixtures).
+  //    Used to determine isHome/opponent. Robust gegen Cross-Club-Drift,
+  //    weil wir die Wahrheit aus den Match-Daten ableiten, nicht aus dem
+  //    möglicherweise stale `players.club_id`-Feld.
+  const clubVoteCount = new Map<string, number>();
+  for (const fix of fixtures) {
+    const home = fix.home_club_id as string;
+    const away = fix.away_club_id as string;
+    clubVoteCount.set(home, (clubVoteCount.get(home) ?? 0) + 1);
+    clubVoteCount.set(away, (clubVoteCount.get(away) ?? 0) + 1);
   }
+  // Beide Clubs jeder Fixture haben +1 — der echte Club erscheint in JEDER
+  // Fixture (also count = N). Andere Clubs erscheinen nur einmalig.
+  let effectiveClubId: string | null = null;
+  let maxVotes = 0;
+  clubVoteCount.forEach((count, clubId) => {
+    if (count > maxVotes) {
+      maxVotes = count;
+      effectiveClubId = clubId;
+    }
+  });
 
-  // 4. Get GW scores
-  const gameweeks = clubFixtures.map(f => f.gameweek as number);
+  // 4. Get GW scores for the gameweeks in this timeline
+  const gameweeks = fixtures.map(f => f.gameweek as number);
   const { data: scoresData, error: scoresError } = await supabase
     .from('player_gameweek_scores')
     .select('gameweek, score')
@@ -139,12 +168,12 @@ export async function getPlayerMatchTimeline(
     scoreMap.set(row.gameweek as number, row.score as number);
   }
 
-  // 5. Merge: every club fixture becomes a timeline entry
-  return clubFixtures.map((fix) => {
+  // 5. Merge: every stat-fixture becomes a timeline entry
+  return fixtures.map((fix) => {
     const homeClub = fix.home_club as unknown as { short: string; logo_url: string | null } | null;
     const awayClub = fix.away_club as unknown as { short: string; logo_url: string | null } | null;
     const gw = fix.gameweek as number;
-    const isHome = clubId === (fix.home_club_id as string);
+    const isHome = effectiveClubId === (fix.home_club_id as string);
     const opponent = isHome ? (awayClub?.short ?? '???') : (homeClub?.short ?? '???');
     const opponentLogoUrl = isHome ? (awayClub?.logo_url ?? null) : (homeClub?.logo_url ?? null);
     const homeScore = fix.home_score as number | null;
@@ -153,7 +182,7 @@ export async function getPlayerMatchTimeline(
       ? (isHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`)
       : '';
 
-    const stat = statsMap.get(fix.id as string);
+    const stat = statMap.get(fix.id as string);
     const minutesPlayed = (stat?.minutes_played as number) ?? 0;
     const hasEntry = !!stat;
 
