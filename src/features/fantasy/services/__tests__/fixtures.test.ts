@@ -474,17 +474,73 @@ describe('getFixtureDeadlinesByGameweek', () => {
 // getRecentPlayerScores
 // ============================================
 
-describe('getRecentPlayerScores', () => {
+describe('getRecentPlayerScores — Slice 270 per-player Multi-League window', () => {
   beforeEach(() => resetMocks());
 
-  it('should return empty map when no scores exist', async () => {
-    // maybeSingle returns null for latest GW
-    mockTable('player_gameweek_scores', null);
+  it('returns empty Map when RPC returns no rows', async () => {
+    mockRpc('rpc_get_recent_player_scores', []);
 
     const result = await getRecentPlayerScores();
 
     expect(result).toBeInstanceOf(Map);
     expect(result.size).toBe(0);
+  });
+
+  it('returns 5 latest played GWs per player (oldest→newest)', async () => {
+    // RPC returns rows ORDER BY player_id, gameweek ASC.
+    // Player p-1 has 5 played GWs: [27,28,29,30,32] (gap at 31)
+    mockRpc('rpc_get_recent_player_scores', [
+      { player_id: 'p-1', gameweek: 27, score: 70, position_in_window: 5 },
+      { player_id: 'p-1', gameweek: 28, score: 66, position_in_window: 4 },
+      { player_id: 'p-1', gameweek: 29, score: 67, position_in_window: 3 },
+      { player_id: 'p-1', gameweek: 30, score: 65, position_in_window: 2 },
+      { player_id: 'p-1', gameweek: 32, score: 70, position_in_window: 1 },
+    ]);
+
+    const result = await getRecentPlayerScores();
+
+    expect(result.size).toBe(1);
+    expect(result.get('p-1')).toEqual([70, 66, 67, 65, 70]);
+  });
+
+  it('pads to 5 with leading nulls when player has fewer than 5 played GWs', async () => {
+    // Player p-2 has only 2 played GWs (e.g., new transfer mid-season)
+    mockRpc('rpc_get_recent_player_scores', [
+      { player_id: 'p-2', gameweek: 25, score: 55, position_in_window: 2 },
+      { player_id: 'p-2', gameweek: 30, score: 76, position_in_window: 1 },
+    ]);
+
+    const result = await getRecentPlayerScores();
+
+    expect(result.size).toBe(1);
+    expect(result.get('p-2')).toEqual([null, null, null, 55, 76]);
+  });
+
+  it('handles Multi-League correctly — each player gets own window regardless of league lag', async () => {
+    // Slice 270 fix verification: simulate DE-Bundesliga player (max GW=32)
+    // and TR-Süper-Lig player (max GW=37) in same payload.
+    // Pre-fix: DE-player would have 5/5 nulls because global window=[33..37].
+    // Post-fix: each player has own per-player window.
+    mockRpc('rpc_get_recent_player_scores', [
+      // DE-Bundesliga player — last 5 played up to GW 32
+      { player_id: 'de-1', gameweek: 28, score: 60, position_in_window: 5 },
+      { player_id: 'de-1', gameweek: 29, score: 65, position_in_window: 4 },
+      { player_id: 'de-1', gameweek: 30, score: 70, position_in_window: 3 },
+      { player_id: 'de-1', gameweek: 31, score: 68, position_in_window: 2 },
+      { player_id: 'de-1', gameweek: 32, score: 72, position_in_window: 1 },
+      // TR-Süper-Lig player — last 5 played up to GW 37
+      { player_id: 'tr-1', gameweek: 33, score: 55, position_in_window: 5 },
+      { player_id: 'tr-1', gameweek: 34, score: 60, position_in_window: 4 },
+      { player_id: 'tr-1', gameweek: 35, score: 65, position_in_window: 3 },
+      { player_id: 'tr-1', gameweek: 36, score: 70, position_in_window: 2 },
+      { player_id: 'tr-1', gameweek: 37, score: 75, position_in_window: 1 },
+    ]);
+
+    const result = await getRecentPlayerScores();
+
+    expect(result.size).toBe(2);
+    expect(result.get('de-1')).toEqual([60, 65, 70, 68, 72]);  // 5/5 sichtbar — Bug-Fix!
+    expect(result.get('tr-1')).toEqual([55, 60, 65, 70, 75]);
   });
 });
 

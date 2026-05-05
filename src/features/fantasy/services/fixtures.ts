@@ -430,53 +430,46 @@ export async function getRecentScoreGameweeks(): Promise<number[]> {
   return Array.from({ length: 5 }, (_, i) => maxGw - 4 + i); // oldest→newest
 }
 
-/** Recent gameweek scores per player (last 5 completed GWs) — batch query for all players.
- *  Returns Map<playerId, [newest, ..., oldest]> with null for GWs the player didn't play.
- *  Always 5 entries per player, aligned to the 5 most recent scored GWs. */
+/** Recent gameweek scores per player — last 5 played GWs PER PLAYER (not global window).
+ *
+ *  Slice 270 fix: Pre-Slice nutzte einen globalen MAX(gw) als Window-Anchor → bei
+ *  Multi-League hatten Ligen mit Lag (DE Bundesliga lag=5, EN PL lag=4, ES La Liga lag=4)
+ *  5/5 NULL-Slots → leere FormBars. Dasselbe Symptom traf Galatasaray-Stamm-XI
+ *  (last_appearance_gw=30, globales Fenster=[33..37] → 0/5 Slots).
+ *  Bug-Klasse Slice-102 (Pilot-Default-Pattern).
+ *
+ *  Fix: Server-side ROW_NUMBER OVER (PARTITION BY player_id ORDER BY gameweek DESC)
+ *  via RPC `rpc_get_recent_player_scores`. Jeder Spieler bekommt seine eigenen
+ *  letzten 5 played-GWs (score > 0), Liga-übergreifend semantisch korrekt.
+ *
+ *  Returns: Map<playerId, scores[oldest→newest]> — FormBars-Convention left→right.
+ *  Spieler mit < 5 played-GWs werden mit `null` am ältesten Ende gepaddet.
+ *  Spieler ohne Scores fehlen in der Map → Caller `?? []` fällt auf 5 dashed bars.
+ */
 export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
-  // Step 1: Find the latest GW with real scores (score>0, range 0-100)
-  const { data: latest, error: latestError } = await supabase
-    .from('player_gameweek_scores')
-    .select('gameweek')
-    .gt('score', 0)
-    .order('gameweek', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc('rpc_get_recent_player_scores');
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return new Map();
 
-  if (latestError) throw new Error(latestError.message);
-  if (!latest) return new Map();
-
-  const maxGw = latest.gameweek as number;
-  const gameweeks = Array.from({ length: 5 }, (_, i) => maxGw - i); // [maxGw, maxGw-1, ... , maxGw-4]
-
-  // Step 2: Single batched query with explicit range to bypass 1000-row default.
-  // ~570 players × 5 GWs = ~2850 rows; range 0-9999 is safe with margin.
-  const lookup = new Map<string, Map<number, number>>();
-
-  const { data, error: gwError } = await supabase
-    .from('player_gameweek_scores')
-    .select('player_id, gameweek, score')
-    .in('gameweek', gameweeks)
-    .gt('score', 0)
-    .range(0, 9999);
-
-  if (gwError) throw new Error(gwError.message);
-  if (data) {
-    for (const s of data) {
-      const pid = s.player_id as string;
-      const gw = s.gameweek as number;
-      if (!lookup.has(pid)) lookup.set(pid, new Map());
-      lookup.get(pid)!.set(gw, s.score as number);
-    }
+  // RPC contract: ORDER BY player_id, gameweek ASC (oldest→newest per player).
+  // Slice 270 Reviewer F-01: changing the RPC ORDER would silently break
+  // FormBars left→right rendering — keep this comment + DB-smoke proof as guard.
+  const rawByPlayer = new Map<string, number[]>();
+  for (const row of data as Array<{ player_id: string; gameweek: number; score: number }>) {
+    const arr = rawByPlayer.get(row.player_id) ?? [];
+    arr.push(row.score);
+    rawByPlayer.set(row.player_id, arr);
   }
 
-  if (lookup.size === 0) return new Map();
-
-  // Step 4: Build result — oldest→newest (left→right in FormBars)
-  const gwOldestFirst = [...gameweeks].reverse();
+  // Pad arrays with leading nulls so each player ends up with exactly 5 entries
+  // (FormBars renders 5 slots; missing slots → dashed-bar via the null status mapping).
   const result = new Map<string, (number | null)[]>();
-  lookup.forEach((gwMap, playerId) => {
-    result.set(playerId, gwOldestFirst.map(gw => gwMap.get(gw) ?? null));
+  rawByPlayer.forEach((scores, pid) => {
+    const padded: (number | null)[] = [];
+    const padCount = Math.max(0, 5 - scores.length);
+    for (let i = 0; i < padCount; i++) padded.push(null);
+    for (const s of scores) padded.push(s);
+    result.set(pid, padded);
   });
 
   return result;

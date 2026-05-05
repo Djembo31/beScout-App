@@ -1,0 +1,94 @@
+Slice 270 — DB-Smoke Proof
+Datum: 2026-05-05
+Migration: supabase/migrations/20260505180000_slice_270_per_player_recent_scores.sql
+
+═══════════════════════════════════════════════════════════════════════════
+PRE-MIGRATION (Bug-Bestätigung)
+═══════════════════════════════════════════════════════════════════════════
+
+Globaler latest_with_score = 37 (TR Süper Lig + TFF 1. Lig).
+Window pre-Slice = [33, 34, 35, 36, 37].
+
+Liga-Coverage gegen globales Window:
+country | league         | latest_with_score | lag_vs_global
+TR      | Süper Lig      | 37                | 0
+TR      | TFF 1. Lig     | 37                | 0
+IT      | Serie A        | 36                | 1
+ES      | La Liga        | 33                | 4   ← fast leer
+GB      | Premier League | 33                | 4   ← fast leer
+DE      | Bundesliga     | 32                | 5   ← komplett leer
+DE      | 2. Bundesliga  | 32                | 5   ← komplett leer
+
+Galatasaray-Spezifik (40 Spieler, globales Window [33..37]):
+- Morata          : 1/5 Slots (GW33 = 63 pts)
+- ALLE 39 anderen : 5/5 NULLs
+
+═══════════════════════════════════════════════════════════════════════════
+POST-MIGRATION (rpc_get_recent_player_scores())
+═══════════════════════════════════════════════════════════════════════════
+
+Function-Definition verifiziert:
+  CREATE OR REPLACE FUNCTION public.rpc_get_recent_player_scores()
+   RETURNS TABLE(player_id uuid, gameweek integer, score integer, position_in_window smallint)
+   LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO 'public'
+  AS $function$
+    SELECT player_id, gameweek, score, position_in_window
+    FROM (
+      SELECT player_id, gameweek, score,
+        (ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY gameweek DESC))::smallint
+          AS position_in_window
+      FROM public.player_gameweek_scores
+      WHERE score > 0
+    ) t
+    WHERE position_in_window <= 5
+    ORDER BY player_id, gameweek ASC;
+  $function$
+
+REVOKE/GRANT (AR-44):
+  REVOKE EXECUTE FROM PUBLIC ✓
+  REVOKE EXECUTE FROM anon   ✓
+  GRANT EXECUTE TO authenticated ✓
+
+═══════════════════════════════════════════════════════════════════════════
+AC-01: GAL-Stamm-XI Coverage
+═══════════════════════════════════════════════════════════════════════════
+
+  gal_total_rows      : 129
+  gal_distinct_players: 27 (von 40 GAL-Spielern; 13 sind 0-played-Junioren)
+
+  Beispiel-Sample (Top-Spieler nach matches):
+  Zaniolo  | MID | last_appearance_gw=32 | rpc_gws=[27,28,29,30,32] | scores=[70,66,67,65,70]
+  Morata   | ATT | last_appearance_gw=33 | rpc_gws=[27,28,30,32,33] | scores=[63,63,62,69,63]
+  Gündoğan | MID | last_appearance_gw=30 | rpc_gws=[24,26,27,28,29] | scores=[63,66,67,62,69]
+  Icardi   | ATT | last_appearance_gw=30 | rpc_gws=[26,27,28,29,30] | scores=[65,62,62,63,76]
+  Davinson | DEF | last_appearance_gw=30 | rpc_gws=[26,27,28,29,30] | scores=[77,69,77,69,72]
+  Çakır    | GK  | last_appearance_gw=30 | rpc_gws=[26,27,28,29,30] | scores=[72,82,69,69,65]
+  Ayhan    | DEF | last_appearance_gw=30 | rpc_gws=[20,22,25,26,27] | scores=[70,67,66,69,69]
+
+  ✅ 5/5 Slots gefüllt für alle 27 played-Spieler (vs. pre-Migration 1/40)
+
+═══════════════════════════════════════════════════════════════════════════
+AC-02 + AC-03: Liga-übergreifende Coverage
+═══════════════════════════════════════════════════════════════════════════
+
+country | league         | active | in_rpc | coverage % | total_rows
+IT      | Serie A        |   643  |  511   | 79.5       |   2401
+TR      | TFF 1. Lig     |   638  |  610   | 95.6       |   2736
+ES      | La Liga        |   603  |  496   | 82.3       |   2154
+GB      | Premier League |   561  |  471   | 84.0       |   2203
+DE      | Bundesliga     |   529  |  454   | 85.8       |   2127
+TR      | Süper Lig      |   496  |  419   | 84.5       |   1884
+DE      | 2. Bundesliga  |   473  |  415   | 87.7       |   1845
+                                           Total Rows: 15.350
+
+  ✅ AC-02 erfüllt: Bundesliga 85.8% Coverage (vs. pre 0% via globales Window).
+  ✅ AC-03: 4 von 7 Ligen vorher praktisch leer, jetzt alle ≥ 79.5%.
+  ✅ AC-09: 15.350 Rows ≪ 25k Cap.
+
+═══════════════════════════════════════════════════════════════════════════
+AC-04 (Type-Shape): Service-Return-Type unverändert
+═══════════════════════════════════════════════════════════════════════════
+
+  getRecentPlayerScores(): Promise<Map<string, (number | null)[]>>
+  Konsumenten (ClubAccordion, BestandPlayerRow, KaderPlayerRow,
+  TransferListSection, FantasyPlayerRow) brauchen KEINE Anpassung.

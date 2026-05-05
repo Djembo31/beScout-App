@@ -2,6 +2,43 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 270 | 2026-05-05 | fix(perf-bars): Per-Player Multi-League-Window in getRecentPlayerScores
+
+- Stage-Chain: SPEC → IMPACT → BUILD (Migration + Service-Refactor + 4 Tests) → REVIEW (reviewer-Agent PASS, 5 Findings: 1 LOW gefixt + 1 LOW deferred zu 270b + 3 INFO) → PROVE (DB-Smoke + tsc + vitest 3196/3197) → LOG
+- Slice-Type: Service + DB-Migration (M-Slice, eine Domain)
+- Trigger: Anil-Live-Bug 2026-05-05 — „die leistungsbalken werden zb bei galatasaray spielern nicht angezeigt auch nicht in der scoutcard, wenn die sich dreht."
+- Bug-Klasse: Slice-102 Pilot-Default-Pattern auf DB-Service-Achse. `getRecentPlayerScores` baute FormBars-Window aus globalem `MAX(gw) WHERE score>0` über alle 7 Ligen. TR-Süper-Lig + TFF1 bei GW 37 setzten den Anker → DE Bundesliga (lag=5), EN Premier League (lag=4), ES La Liga (lag=4), DE 2. Bundesliga (lag=5), IT Serie A (lag=1) bekamen 5/5 NULL-Slots. **4 von 7 Ligen hatten 0% sichtbare Form-Bars.** GAL-Stamm-XI (last_appearance_gw=30) hatte selbst in TR Süper Lig 0/5 Slots im globalen [33..37]-Fenster, weil andere TR-Clubs spielten weiter während GAL pausierte.
+- Fix: Server-side `ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY gameweek DESC)` via neue RPC `rpc_get_recent_player_scores()`. Jeder Spieler bekommt seine eigenen letzten 5 played-GWs (`score > 0`), Liga-übergreifend semantisch korrekt + visuell konsistent.
+- Files (6):
+  - `supabase/migrations/20260505180000_slice_270_per_player_recent_scores.sql` — neu, RPC mit STABLE + SECURITY DEFINER + AR-44 REVOKE/GRANT-Block
+  - `src/features/fantasy/services/fixtures.ts` — `getRecentPlayerScores()` Body komplett ersetzt (RPC-Call statt 2-Step-`.from()`-Sequence). Reviewer-F-01 Comment ergänzt.
+  - `src/features/fantasy/services/__tests__/fixtures.test.ts` — bestehender Test ersetzt durch 4 Cases (empty / 5+ played / <5 padded / Multi-League-Mix mit DE+TR im selben Payload als Regression-Guard)
+  - `worklog/specs/270-perf-bars-multi-league-window.md` — full SPEC mit 13 Pflicht-Sektionen (M-Slice)
+  - `worklog/impact/270-perf-bars-multi-league-window.md` — Consumer-Liste 5 betroffene Pages, IMPACT verifiziert
+  - `worklog/specs/270b-recent-score-gameweeks-per-player-tooltip.md` — Skeleton für Follow-up (Tooltip-Drift Reviewer-F-02)
+- DB-Smoke Pre-vs-Post (alle 7 Ligen):
+
+  | Liga | Pre Bars | Post Coverage | Δ |
+  |---|---|---|---|
+  | DE Bundesliga | 0% (lag 5) | 85.8% | +85.8 |
+  | EN Premier League | 0% (lag 4) | 84.0% | +84.0 |
+  | ES La Liga | 0% (lag 4) | 82.3% | +82.3 |
+  | DE 2. Bundesliga | 0% (lag 5) | 87.7% | +87.7 |
+  | IT Serie A | ~ (lag 1) | 79.5% | +79.5 |
+  | TR Süper Lig | partial | 84.5% | konsistenter |
+  | TR TFF 1. Lig | OK | 95.6% | +0 |
+  - Total RPC-Rows: 15.350 (≪ 25k Cap)
+- GAL-Stamm-XI Sample post-Migration: Zaniolo `[27,28,29,30,32]=70,66,67,65,70`, Morata `[27,28,30,32,33]=63,63,62,69,63`, Icardi 5/5, Davinson 5/5, Çakır 5/5, alle 27 played-Player mit 5/5.
+- Proof: `worklog/proofs/270-db-smoke.txt` + `worklog/proofs/270-tsc-vitest.txt`
+- Review: `worklog/reviews/270-review.md` (PASS)
+- Knowledge-Promotion (Pre-LOG-Pflicht):
+  - `.claude/rules/errors-db.md` — neuer Block „Per-Tenant-Window vs. Global-MAX in Aggregat-Services" (Slice-102-Pattern auf DB-Achse, mit Detection-SQL + Fix-Pattern-Template).
+- Live-Verify-Status: ⏳ pending (post-Vercel-Deploy via Chrome-DevTools-MCP — Galatasaray + Bundesliga-Spieler-Card)
+- Vitest: 216 Files / 3196 PASS / 1 skipped (Volltest 315s).
+- tsc: clean.
+
+---
+
 ## SO-5 | 2026-05-04 | Wildcard-RPC-Migration-Apply-Recovery (P1-Beta-Blocker NEW)
 
 - Stage-Chain: SPEC (skipped — Sign-Off-Mobile-Verify-Discovery, inline-Triage) → IMPACT (live-Discovery via Console-Errors auf bescout.net) → BUILD (4 Migrations + 1 Custom-Patch via mcp__supabase__apply_migration) → REVIEW (self-review per workflow.md XS-Ausnahme bei Migration-Apply-Pattern) → PROVE (POST-Smokes je Migration + Live-Verify 0× 404 post-apply) → LOG

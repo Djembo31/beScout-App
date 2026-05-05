@@ -4,9 +4,75 @@ description: DB-Fehler — Supabase/Postgres, RPCs, Auth/Security, Cache-Sync
 
 # Errors: Database & RPCs
 
-Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
+Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
 
 ## Supabase / Postgres
+
+### Per-Tenant-Window vs. Global-MAX in Aggregat-Services (Slice 270, 2026-05-05)
+
+**Bug-Klasse:** Slice-102 Pilot-Default-Pattern auf DB-Achse. Service mit Multi-Tenant-Daten (Liga, Region, Sub-Org) nutzt `MAX(timestamp_col)` global als Fenster-Anchor → Tenants mit Lag bekommen leere/null-Slots, obwohl ihre eigenen Daten existieren.
+
+**Symptom (Slice 270 Live-Bug 2026-05-05):** `getRecentPlayerScores` in `fixtures.ts` baute Window aus `MAX(gw) WHERE score>0` über **alle 7 Ligen**. TR Süper Lig + TFF 1. Lig waren bei GW 37, EU-Ligen 4–5 GWs hinten:
+- DE Bundesliga `latest_with_score = 32` → `lag_vs_global = 5` → **5/5 NULL-Slots**, 0% Form-Bars sichtbar
+- EN Premier League `latest = 33` → lag 4 → fast leer
+- ES La Liga `latest = 33` → lag 4 → fast leer
+- IT Serie A `latest = 36` → lag 1 → meist 4/5
+
+Plus: Galatasaray-Stamm-XI `last_appearance_gw = 30` während Süper Lig `max_gw = 37` (andere Clubs spielten weiter) → 0/5 Slots im globalen [33..37]-Fenster trotz vorhandener GW-Score-Rows. Anil-User-Sicht: „Form-Bars werden bei Galatasaray nicht angezeigt".
+
+**Detection-Pattern:**
+```sql
+-- Pre-Fix Smoke: gibt's Tenant-Lag gegen globalen MAX?
+WITH per_tenant AS (
+  SELECT tenant_col, MAX(time_col) FILTER (WHERE filter_cond) AS latest_with_data
+  FROM <data_table> JOIN <tenant_table> USING (...)
+  GROUP BY tenant_col
+),
+global AS (SELECT MAX(time_col) AS global_max FROM <data_table> WHERE filter_cond)
+SELECT pt.tenant_col, pt.latest_with_data, g.global_max,
+       (g.global_max - pt.latest_with_data) AS lag
+FROM per_tenant pt, global g
+ORDER BY lag DESC;
+-- Lag > 0 für > 1 Tenant → Bug-Verdacht.
+```
+
+**Fix-Pattern: Server-side Per-Tenant-ROW_NUMBER via RPC.**
+```sql
+CREATE OR REPLACE FUNCTION public.rpc_get_recent_<x>()
+RETURNS TABLE(<tenant_id> uuid, <time_col> integer, <value> integer, position smallint)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT <tenant_id>, <time_col>, <value>, position
+  FROM (
+    SELECT
+      <tenant_id>, <time_col>, <value>,
+      (ROW_NUMBER() OVER (PARTITION BY <tenant_id> ORDER BY <time_col> DESC))::smallint AS position
+    FROM public.<data_table>
+    WHERE <filter_cond>
+  ) t
+  WHERE position <= <N>
+  ORDER BY <tenant_id>, <time_col> ASC;  -- oldest→newest per tenant
+$$;
+-- AR-44 REVOKE/GRANT-Block pflicht.
+```
+
+**Warum nicht Client-side group-by:**
+- Skaliert nicht: 60k+ rows Daten-Transfer für eine 5-Slot-Visualisierung.
+- Pre-Fix-Variante in Slice 270 hatte 2 Sequenz-Queries (latest_gw + window_rows). RPC ist 1 Round-Trip.
+- ROW_NUMBER ist Postgres-native, STABLE-Marker erlaubt Caching.
+
+**Anti-Pattern erkannt durch:**
+- Plurale Tenants in der App (Multi-League, Multi-Region).
+- Service-Aggregation mit globalem `MAX/MIN/LATEST` ohne Tenant-Group.
+- Visuell: Konsumenten zeigen leere Slots/null-Werte trotz vorhandener Daten.
+- Symptom-Verstärker: Pilot/Beachhead-Tenant ist „immer aktuell" (Default sieht ok aus, andere Tenants brechen still).
+
+**Reference:** Slice 270 (`supabase/migrations/20260505180000_slice_270_per_player_recent_scores.sql` + `fixtures.ts:436-490`). Spec: `worklog/specs/270-perf-bars-multi-league-window.md`. Erweitert Slice 102 (Frontend-Achse) auf DB-Service-Achse.
+
+**Beziehung:**
+- Slice 102 (errors-frontend.md → Data-Format vs Component-Expectation Drift) — gleiche Bug-Klasse, andere Layer (Frontend Hardcode-Default).
+- Slice 081d (errors-scraper.md → Cross-Club-Contamination) — Pattern-Familie „Liga-übergreifender silent corrupted Aggregat".
+- Slice 200 (errors-frontend.md → PLAYER_SELECT_COLS Sync) — komplementär: Type-Drift vs. globale Annahme.
 
 ### Migration-Heal v1→v2 Same-Session (Slice 207, codifiziert Slice 211)
 

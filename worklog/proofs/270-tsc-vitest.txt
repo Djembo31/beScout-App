@@ -1,0 +1,39 @@
+Slice 270 — TypeScript + Vitest Proof
+Datum: 2026-05-05
+
+═══════════════════════════════════════════════════════════════════════════
+TypeScript
+═══════════════════════════════════════════════════════════════════════════
+
+Command: npx tsc --noEmit
+Output: (empty — clean)
+Status: ✅ PASS
+
+═══════════════════════════════════════════════════════════════════════════
+Vitest — fixtures.test.ts (Service-Spezifisch)
+═══════════════════════════════════════════════════════════════════════════
+
+Command: npx vitest run src/features/fantasy/services/__tests__/fixtures.test.ts
+
+ Test Files  1 passed (1)
+      Tests  52 passed (52)
+   Duration  2.71s
+
+Davon 4 neue Cases für Slice 270:
+  ✅ getRecentPlayerScores — Slice 270 per-player Multi-League window
+       › returns empty Map when RPC returns no rows
+       › returns 5 latest played GWs per player (oldest→newest)
+       › pads to 5 with leading nulls when player has fewer than 5 played GWs
+       › handles Multi-League correctly — each player gets own window regardless of league lag
+
+═══════════════════════════════════════════════════════════════════════════
+Vitest — Volle Suite (Regression-Check)
+═══════════════════════════════════════════════════════════════════════════
+
+Command: CI=true npx vitest run
+
+ Test Files  216 passed (216)
+      Tests  3196 passed | 1 skipped (3197)
+   Duration  315.31s
+
+Status: ✅ PASS — keine Regression durch Service-Refactor.
