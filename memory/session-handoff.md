@@ -1,23 +1,29 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-05 00:38)
+# Session Handoff — Auto (2026-05-05 20:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 10 Files
 ```
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-04.md
  M worklog/audits/type-truth-2026-05-04.md
+?? worklog/audits/audit-stale-2026-05-05.md
+?? worklog/audits/type-truth-2026-05-05.md
+?? worklog/audits/wiring-2026-05-05.md
+?? worklog/proofs/270d-live-market-bestand-DESKTOP-FIXED.png
+?? worklog/proofs/270d-live-market-bestand-FIXED.png
+?? worklog/proofs/270d-live-market-bestand-FULLPAGE.png
+?? worklog/proofs/270d-rpc-actual-response.network-response
 ```
 
-## Session Commits: 7
-- d52df74e chore(beta-walkback): Phase READY -> D — iPhone-Verify pflicht vor GO-LIVE (Anil-Direktive (b))
-- cd7bfc37 chore(beta-go-live): Sign-Off PASS-ENDGÜLTIG — Phase READY 2026-05-05
-- afe5f604 fix(SO-5): Wildcard-RPC-Migration-Apply-Recovery — P1-Beta-Blocker (4-Migration-Drift seit 28.04)
-- e09e7a5e docs(audit): TR-Keys Compliance Pre-Verify Slice 266+269 (Anil-Action-Item 3)
-- 6babb43f chore(beta-prep): beta-tester-list Template + .gitignore (Anil-Action-Item 1 partial)
-- 2a227bae chore(session-end): Sign-Off-Marathon Resume-Anker — 4 Slices live, 3 Risks closed
-- 50b78c19 chore(SO-2-recovery): Sign-Off STRENGTHENED post-SO-3/SO-4 + Static-Re-Walk
+## Session Commits: 6
+- ed15892a chore(270d v2): Live-Verify PASS — 11/12 FormBars colored
+- 00b3500f fix(perf-bars): JSONB-Return weil PostgREST .range()/limit auf RPC IGNORIERT (Slice 270d v2)
+- 77da7fae fix(perf-bars): PostgREST 1000-row-Cap auf RPC-Call (Slice 270d Hotfix)
+- 924a2c41 chore(270c): Live-Verify auf bescout.net PASS — ScoutCard-Back fixed
+- 9da2974b fix(match-timeline): getPlayerMatchTimeline robust gegen Cross-Club-Spieler (Slice 270c)
+- 11e8a42f fix(perf-bars): Per-Player Multi-League-Window in getRecentPlayerScores (Slice 270)
 
 <!-- auto:handoff-end -->
 
@@ -2011,3 +2017,55 @@ Live & autonom:
 14. **"/done"** → Session-End
 
 (Detail siehe vorheriger Resume-Anker — durch Slice 223+ obsoleted)
+
+## ⚠ CRASH RECOVERY (20260505-154721)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260505-154721.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-05-04.md
+ M worklog/audits/type-truth-2026-05-04.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-154721.diff`
+
+## ⚠ CRASH RECOVERY (20260505-154746)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260505-154746.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-05-04.md
+ M worklog/audits/type-truth-2026-05-04.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-154746.diff`
+
+## ⚠ CRASH RECOVERY (20260505-154804)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260505-154804.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-05-04.md
+ M worklog/audits/type-truth-2026-05-04.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-154804.diff`
+
+## ⚠ CRASH RECOVERY (20260505-154818)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260505-154818.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-05-04.md
+ M worklog/audits/type-truth-2026-05-04.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-154818.diff`

@@ -8,6 +8,91 @@ Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `datab
 
 ## Supabase / Postgres
 
+### PostgREST RPC-Pfad ignoriert `.range()` und `?limit` (Slice 270d v2, 2026-05-05)
+
+**Bug-Klasse:** Erweiterung von "PostgREST 1000-row cap" (siehe `common-errors.md §1`) auf RPC-Achse. Bei TABLE-Return-RPCs **ignoriert PostgREST den Range-Override** den Supabase-JS via `.range(start, end)` als URL-Param `?offset=X&limit=Y` an die RPC-URL hängt. Server cappt hart bei 1000 Rows, Response-Header zeigt `content-range: 0-999/*` trotz `?limit=100000`.
+
+**Symptom (Slice 270d Live-Bug 2026-05-05):**
+
+`rpc_get_recent_player_scores()` returnt `TABLE(player_id, gameweek, score, ...)`. DB-Smoke `SELECT COUNT(*)` = 15.350 Rows. Client `supabase.rpc('rpc_get_recent_player_scores').range(0, 99999)` produzierte:
+- Request-URL: `POST .../rpc/rpc_get_recent_player_scores?offset=0&limit=100000`
+- **Response-Header:** `content-range: 0-999/*` ← nur 1000 Rows
+- DOM-Audit: alle 12 FormBars-Container in Marktplatz "Mein Kader" rendern 5 dashed bars statt farbige (Service-Map war leer für Player-IDs außerhalb der ersten ~200).
+
+`.range()` für `.from().select()` setzt einen `Range`-HTTP-Header und wird respektiert. Bei `.rpc()` wird stattdessen ein URL-Query-Param geschrieben — der wird vom PostgREST-RPC-Handler aktiv ignoriert.
+
+**Fix-Pattern: JSONB-Aggregation als Single-Row-Return.**
+
+Statt `RETURNS TABLE(...)` mit Set-Output liefert die RPC einen einzelnen JSONB-Array-Wert (1 Row × 1 Column = kein Cap):
+
+```sql
+DROP FUNCTION IF EXISTS public.<rpc_name>();
+
+CREATE OR REPLACE FUNCTION public.<rpc_name>()
+RETURNS JSONB
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT COALESCE(jsonb_agg(
+    jsonb_build_object(
+      '<col1>', col1,
+      '<col2>', col2,
+      ...
+    ) ORDER BY <sort_cols>
+  ), '[]'::jsonb)
+  FROM (
+    -- subquery (window function etc.)
+  ) t
+  WHERE <filter>;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.<rpc_name>() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.<rpc_name>() TO authenticated;
+```
+
+Service-Side parst das Result als JS-Array:
+
+```ts
+const { data, error } = await supabase.rpc('<rpc_name>');
+if (error) throw new Error(error.message);
+if (!data) return new Map();
+const rows = data as Array<{ ... }>;  // Supabase-JS deserialisiert JSONB
+// ... process rows ...
+```
+
+**Anti-Pattern:**
+
+```ts
+// FALSCH — .range() wird vom RPC-Pfad ignoriert
+const { data } = await supabase.rpc('fn').range(0, 99999);
+
+// FALSCH — .limit() ist KEIN Override-Path bei RPC
+const { data } = await supabase.rpc('fn').limit(99999);
+```
+
+**Detection (vor BUILD bei aggregaten RPCs):**
+
+```bash
+# Pre-Implementation Check: erwartet die RPC mehr als 1000 Rows?
+mcp__supabase__execute_sql:
+  EXPLAIN (ANALYZE) SELECT * FROM public.<rpc_name>();
+  -- "actual rows" > 1000 → JSONB-Return wählen, NICHT TABLE-Set + .range()
+```
+
+**Live-Verify (post-Deploy bei jedem Aggregat-RPC-Refactor):**
+
+```js
+// Chrome-DevTools-Network-Trace: Response-Header content-range prüfen
+// content-range: 0-999/* → Cap getroffen, Fix nötig
+// content-range: 0-N/* mit N > 999 → OK (oder JSONB-Return aktiv)
+```
+
+**Beziehung:**
+- `common-errors.md §1` "PostgREST 1000-row cap MONEY-CRITICAL" — gleicher Bug-Familie auf `.from().select()`-Achse, Fix dort ist `.range()`-Loop. Bei RPC ist `.range()` NICHT der Fix.
+- Slice 270d v1 (superseded) hat das verkannt — `.range()` an `.rpc()` angesetzt, Live-Verify zeigte content-range 0-999/* trotz request-limit=100000.
+- Slice 270d v2 (live) hat auf JSONB-Return umgestellt.
+
+**Reference:** Migration `20260505190000_slice_270d_jsonb_return_recent_player_scores.sql`. Service `src/features/fantasy/services/fixtures.ts:436-470` (`getRecentPlayerScores`).
+
 ### Per-Tenant-Window vs. Global-MAX in Aggregat-Services (Slice 270, 2026-05-05)
 
 **Bug-Klasse:** Slice-102 Pilot-Default-Pattern auf DB-Achse. Service mit Multi-Tenant-Daten (Liga, Region, Sub-Org) nutzt `MAX(timestamp_col)` global als Fenster-Anchor → Tenants mit Lag bekommen leere/null-Slots, obwohl ihre eigenen Daten existieren.

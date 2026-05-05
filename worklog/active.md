@@ -2,42 +2,49 @@
 
 ```
 status: idle
-slice: 270c
+slice: 270d-v2
 stage: LOG
-spec: worklog/specs/270-perf-bars-multi-league-window.md (270c inline-Hotfix dazu)
+spec: worklog/specs/270-perf-bars-multi-league-window.md (270c + 270d v1/v2 inline-Hotfix dazu)
 impact: worklog/impact/270-perf-bars-multi-league-window.md
-proof: worklog/proofs/270-db-smoke.txt + 270-tsc-vitest.txt + 270c-live-zaniolo-card-back-FIXED.png
-review: worklog/reviews/270-review.md (PASS) · 270c self-review per workflow.md XS-Ausnahme
+proof: worklog/proofs/270-db-smoke.txt + 270-tsc-vitest.txt + 270c-live-zaniolo-card-back-FIXED.png + 270d-v2-live-market-FIXED-COLORED-BARS.png
+review: worklog/reviews/270-review.md (PASS) · 270c/270d self-review per workflow.md XS-Ausnahme
 ```
 
 ## Slice 270 + 270c + 270d v2 LIVE 2026-05-05 — Performance-Bars-Bug komplett gefixt (DOM-verifiziert)
 
-**270d v2 Live-Verify (Chrome-DevTools DOM-Audit):**
-- 12 FormBars-Container in Marktplatz "Mein Kader" → 11 mit `colored=5, dashed=0`, 1 mit `colored=0, dashed=5` (BOZKURT, 0 Spiele = korrekt).
-- 0 Console-Errors.
-- Pre-270d-v2: ALLE 12 hatten `colored=0, dashed=5` (PostgREST-Cap-Bug).
-
-
-
 | Stage | Output |
 |-------|--------|
-| 270 SPEC | worklog/specs/270-perf-bars-multi-league-window.md (M-Slice, 13 Pflicht-Sektionen) |
-| 270 IMPACT | worklog/impact/270-perf-bars-multi-league-window.md |
-| 270 BUILD | Migration `rpc_get_recent_player_scores` + `getRecentPlayerScores` Refactor + 4 Tests |
-| 270 REVIEW | reviewer-Agent PASS, 5 Findings (1 LOW gefixt + 1 LOW deferred zu 270b + 3 INFO) |
-| 270 PROVE | DB-Smoke 4 Ligen 0%→79-87% Coverage + tsc + vitest 3196/3197 + Live-Verify Marktplatz 0 Errors |
-| 270 LOG | worklog/log.md ✅ + Knowledge-Promotion errors-db.md "Per-Tenant-Window vs. Global-MAX" |
-| 270c HOTFIX | `getPlayerMatchTimeline` Refactor (Cross-Club-Spieler Slice-081d-Pattern) |
-| 270c PROVE | tsc + vitest 117/117 + Live-Verify Zaniolo-Card-Back 5/5 played (vs. pre 5/5 N/K) |
+| 270 SPEC + IMPACT + BUILD + REVIEW + PROVE + LOG | M-Slice — Migration RPC `rpc_get_recent_player_scores` + `getRecentPlayerScores` Refactor + 4 Tests |
+| 270c BUILD + PROVE + LOG | XS — `getPlayerMatchTimeline` Cross-Club-robust (Slice-081d Pattern) |
+| 270d v1 BUILD + LOG (SUPERSEDED) | XS — `.range(0, 99999)` an `.rpc()` — wirkungslos, PostgREST ignorierte Override |
+| 270d v2 BUILD + PROVE + LOG | XS — RPC auf JSONB-Return umgestellt (PostgREST-RPC-Cap-Workaround) |
 
-**Anil-Live-Bug 2026-05-05 ("Galatasaray-Performance-Bars / ScoutCard wenn die sich dreht"):**
-- Symptom 1 (Marktplatz/Bestand/Kader Form-Bars Lücke) → Slice 270 ✅ behoben (alle 7 Ligen)
-- Symptom 2 (ScoutCard-Back Match-Timeline alle N/K) → Slice 270c ✅ behoben (Cross-Club-robust)
+**Live-Verify-Bilanz (Chrome-DevTools DOM-Audit):**
+- Marktplatz "Mein Kader" → 11/12 Player mit `colored=5, dashed=0`, 1/12 expected dashed (BOZKURT 0 Spiele)
+- ScoutCard-Back Zaniolo → 5/5 played mit echten Scores [70/65/67/66/70]
+- 0 Console-Errors auf allen verifizierten Pages
+
+**Knowledge-Promotion (alle 3 Patterns in errors-db.md):**
+- Per-Tenant-Window vs. Global-MAX (Slice 270)
+- Cross-Club-Contamination via API-Football (Slice 270c, ergänzt Slice 081d)
+- PostgREST RPC-Pfad ignoriert `.range()` und `?limit` (Slice 270d v2)
 
 **Pending Follow-ups (kein Beta-Blocker):**
-- ⏳ Slice 270b — Tooltip-GW-Drift (Reviewer F-02, Skeleton vorhanden in worklog/specs/270b-...)
-- ⏳ Slice 271 — `mv_trend_7d` Cron-Drift + `perf_l5=50` Default — Audit-File worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md, Anil-Decision-Pflicht für Track A/B/C-Scope
-- ⏳ Sekundär: Player-Card Liga-Badge zeigt Süper Lig statt Serie A für Zaniolo (Cross-Club-Drift im Frontend-Lookup, tracking via 271)
+- ⏳ Slice 270b — Tooltip-GW-Drift Reviewer-F-02 (Skeleton liegt vor)
+- ⏳ Slice 271 — `mv_trend_7d` 4556× NULL + `perf_l5=50` Default 615 Spieler (Audit `worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md`, Anil-Decision-Pflicht für Track A/B/C)
+- ⏳ JSONB-Return Performance-Audit (15.350-Element-Array @ Cold-Start, 200-400ms JSON.parse Mobile) — Server-Side Filter-Param oder Pagination als Slice 271+
+- ⏳ Test-Mock-Realismus-Refactor (Mock muss Backend-Cap-Verhalten spiegeln) — Slice 272+
+
+## Self-Audit Session-Bilanz (Anil-Frage „Unsauberkeiten?")
+
+5 Slice-Commits, 0 Reverts, aber mit Verbesserungspotential:
+
+1. **Reviewer-Heuristik-Loch** — Slice 270 Reviewer hat PASS gegeben, RPC-Cap übersehen. Pattern erweitert in errors-db.md.
+2. **270d v1 ohne Live-Verify gepusht** — `.range()` an `.rpc()` blind probiert statt Network-Header zu prüfen.
+3. **Reviewer-Pflicht für 270d v2 ausgesetzt** — XS-self-review per workflow.md, aber post-fail wäre cold-context Reviewer angemessen gewesen.
+4. **Test-Mocks zu naiv** — simulieren keinen 1000-row-Cap; grüne Tests trotz live-broken Service.
+5. **JSONB-Return ohne Performance-Audit** — 15k-Element-Array at Cold-Start ist nicht-Ferrari-Quality. Funktioniert, aber kandidat für Refactor.
+6. **4 separate Vercel-Deploys statt einer Wave** — Indiz für mangelnde Test-vor-Push-Disziplin.
 
 ## D63 Phase 4 Discovery KOMPLETT 2026-05-04
 
@@ -47,6 +54,6 @@ review: worklog/reviews/270-review.md (PASS) · 270c self-review per workflow.md
 | 2 Action-Layer | 264/264b/265 | ✅ live |
 | 3 Live-Pulse | 266/267/268b | ✅ live |
 | 4 Discovery | 269 | ✅ live |
-| 5 Visual-Polish | 270-273 | ⏳ pending |
+| 5 Visual-Polish | 270-273 (Stadium + 3D-Mystery-Box) | ⏳ pending |
 
-10 von 13 D63-Slices live + Hotfix-Slices 270 + 270c (außerhalb Roadmap, vom Anil-Live-Bug 2026-05-05 getrieben).
+10 von 13 D63-Slices live + Hotfix-Slice-Familie 270/270c/270d v2 (außerhalb Roadmap, vom Anil-Live-Bug 2026-05-05 getrieben).
