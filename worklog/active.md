@@ -10,7 +10,14 @@ proof: worklog/proofs/270-db-smoke.txt + 270-tsc-vitest.txt + 270c-live-zaniolo-
 review: worklog/reviews/270-review.md (PASS) · 270c self-review per workflow.md XS-Ausnahme
 ```
 
-## Slice 270 + 270c LIVE 2026-05-05 — Performance-Bars-Bug komplett gefixt
+## Slice 270 + 270c + 270d v2 LIVE 2026-05-05 — Performance-Bars-Bug komplett gefixt (DOM-verifiziert)
+
+**270d v2 Live-Verify (Chrome-DevTools DOM-Audit):**
+- 12 FormBars-Container in Marktplatz "Mein Kader" → 11 mit `colored=5, dashed=0`, 1 mit `colored=0, dashed=5` (BOZKURT, 0 Spiele = korrekt).
+- 0 Console-Errors.
+- Pre-270d-v2: ALLE 12 hatten `colored=0, dashed=5` (PostgREST-Cap-Bug).
+
+
 
 | Stage | Output |
 |-------|--------|
