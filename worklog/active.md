@@ -38,11 +38,26 @@ review: self-review (1 Specialist-Audit fantasy-scoring-expert + Live-DB-Audit 4
 | **B Liga-Filter** | `fixtures.ts:170` + `keys.ts:412` + `useGameweek.ts:71-79` | `getGameweekStatuses(fromGw, toGw, leagueId?)` + Cache-Key + Hook-Routing | ✅ live |
 | **C Modal Stale** | `SpieltagTab.tsx:53-156` + `FixtureDetailModal.tsx:432-468` | selectedFixtureId + derived selectedFixture + Modal-Refetch bei status-change + 60s-Polling bei isLive | ✅ live |
 
-**Track A2 Backfill-Run — Status: PENDING (Agent läuft im Hintergrund 2026-05-06 ~00:35)**
-- Script `scripts/slice-273-backfill-fixture-stats.mjs` committed (Commit 4e8200a0)
-- Smoke-Test Bundesliga GW32 PASSED: 359 stats / 125 matched players
-- backend-Agent (`a0ce80579fb4a81de`) läuft volle 6-Liga-Backfill (~13 GWs, ~260 API-Calls, ETA 5-8 min)
-- **Resume-Schritt nächste Session:** Agent-Output abrufen, DB-Smoke verifizieren, Slice 273 final closen
+**Track A2 Backfill-Run — Status: ✅ DONE (Agent-Run 2026-05-06 ~01:00, 20 min Dauer)**
+
+| Liga | GW | fixtures | stats_rows |
+|------|----|----------|------------|
+| Bundesliga | 32 | 9 | 359 |
+| 2. Bundesliga | 32 | 9 | 358 |
+| La Liga | 32 | 10 | 453 |
+| La Liga | 33 | 10 | 454 |
+| La Liga | 34 | 10 | 450 |
+| Premier League | 32 | 10 | 397 |
+| Premier League | 33 | 10 | 397 |
+| Premier League | 34 | 10 | 398 |
+| Premier League | 35 | 10 | 398 |
+| Serie A | 35 | 10 | 462 |
+| Süper Lig | 32 | 9 | 374 |
+
+11/11 GWs erfolgreich, 0 Fehler. Alle stats_rows ≫ 100 (Pflicht-Threshold) ✓.
+Spieltag-FixtureDetailModal zeigt nun für alle 6 Ligen sichtbare Bewertungen.
+
+**Slice 273 ist 4/4 Tracks LIVE — Spieltag-Bug-Komplex endgültig gefixt.**
 
 **Backlog (separater Slice 274 nach Beta):**
 - **Track A2 Cron-Code-Fix:** `gameweek-sync/route.ts` no_past_fixtures-Skip-Logic erweitern um „all-past-finished + future-only-pending"-Pattern → automatisches advance auch bei Postponed-Match

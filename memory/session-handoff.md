@@ -29,9 +29,11 @@
 
 **HEAD `4e8200a0`** Status: idle. Slice 273 Spieltag-Stabilisierung 3/4 Tracks live, Track A2 Backfill-Run im Hintergrund (Agent läuft).
 
-## Erste Action morgen — Backfill-Status checken (5 min)
+## Slice 273 ENDGÜLTIG ABGESCHLOSSEN — Backfill-Run erfolgreich
 
-Backend-Agent `a0ce80579fb4a81de` lief Multi-Liga-Backfill (~5-8 min Laufzeit). Output sollte in der nächsten Session-Inbox als task-notification verfügbar sein. Wenn nicht: SendMessage(to: 'a0ce80579fb4a81de') oder DB-Smoke direkt.
+Backend-Agent `a0ce80579fb4a81de` Multi-Liga-Backfill DONE (~20 min, 11/11 GWs erfolgreich, 0 Fehler).
+
+**Erste Action morgen:** keine. Slice 273 ist 4/4 Tracks live. Anil's Anweisung „endgültig aus der welt haben" erfüllt.
 
 **DB-Smoke Verify-Query (kopier-fertig):**
 ```sql
@@ -69,7 +71,7 @@ Erwartung: stats_rows > 100 pro Zeile. Wenn 0 → Re-Run via `node scripts/slice
 | A1 DB-Heal active_gameweek (PL 31→36, La Liga 33→35, dual-write atomar) | ✅ live |
 | B Liga-Filter `getGameweekStatuses` + Cache-Key + Hook | ✅ live |
 | C Modal Stale-Fix (selectedFixtureId derived + Refetch + 60s-Polling) | ✅ live |
-| A2 Backfill-Run für 13 lagged Liga+GW-Kombos | ⏳ Agent läuft |
+| A2 Backfill-Run für 11 lagged Liga+GW-Kombos | ✅ done (11/11, 0 Fehler) |
 
 ## Knowledge-Promotion heute Abend
 

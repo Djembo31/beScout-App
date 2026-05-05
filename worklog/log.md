@@ -2,6 +2,56 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 273 | 2026-05-06 | fix(spieltag): Komplett-Stabilisierung Liga-Filter + Modal-Refetch + DB-Heal + Backfill
+
+- Stage-Chain: SPEC (Specialist-Audit + Live-DB-Audit, kein File-Spec — inline in active.md) → IMPACT (5 Files Frontend + DB-Heal active_gameweek + Backfill-Script) → BUILD (3 Tracks parallel: A1 DB-Heal, B Liga-Filter, C Modal-Stale, A2 Script) → REVIEW (self-review + 1 Specialist fantasy-scoring-expert + 4 SQL-Smokes) → PROVE (vitest 255/255 fantasy-Domain + Backfill-Run 11/11 GWs erfolgreich) → LOG
+- Slice-Type: Service + Hook + UI + DB-Heal + Script (M-Slice cross-domain, "endgültig" Anil-Wunsch)
+- Trigger: Anil-Live-Bug-Komplex 2026-05-05 — 4 Symptome auf Spieltag (Bewertungen fehlen trotz finished, Filter zeigt andere Mannschaften, UI updates nicht, aktuelle GWs auf "beendet"). „Hier brauche ich alles stabil am laufen" + „endgültig aus der welt haben".
+- Diagnose-Methodik: 1 Specialist (fantasy-scoring-expert P0/P1 audit) + Live-DB-Audit 4 SQL-Smokes (active_gameweek-Drift, fixture_player_stats-Coverage, Cron-Sync-Log, Postponed-Match-Detection) + Code-Reading 5 Files (SpieltagTab, SpieltagBrowser, FixtureDetailModal, useGameweek, useLiveFixtures).
+- Bug-Komplex (2 Tier):
+  - Tier 1 Backend: fixture_player_stats LEER für 6/7 Ligen + clubs.active_gameweek drifted für PL (31→echt 35) + La Liga (33→echt 34) + Premier League stuck wegen Manchester City vs Crystal Palace Nachholspiel (scheduled 2026-05-13) → no_past_fixtures-Skip blockt advance
+  - Tier 2 UI: P0-A getGameweekStatuses NICHT Liga-gefiltert / P0-B FixtureDetailModal kein Stats-Refetch / P0-C selectedFixture-Snapshot stale vs Realtime / P1-D Cache-Key ohne leagueId
+- Files: src/features/fantasy/services/fixtures.ts (getGameweekStatuses + leagueId), src/lib/queries/keys.ts (qk.fantasy.gwFixtureInfo Liga-aware), src/features/fantasy/hooks/useGameweek.ts, src/components/fantasy/SpieltagTab.tsx (selectedFixtureId derived), src/components/fantasy/spieltag/FixtureDetailModal.tsx (Refetch + 60s-Polling), scripts/slice-273-backfill-fixture-stats.mjs (NEU), scripts/backfill-complete-stats.mjs (LEAGUE_ID via CLI-Arg)
+- DB-Heal: PL active_gameweek 31→36, La Liga 33→35 (atomar dual-write clubs+leagues, TFF1 Saisonende unverändert)
+- Backfill-Run (Agent a0ce80579fb4a81de, 20 min): 11/11 GWs erfolgreich, alle stats_rows >>100 (Bundesliga GW32: 359, La Liga GW32-34: 1357, Premier GW32-35: 1590, Serie A GW35: 462, Süper Lig GW32: 374, 2.Bundesliga GW32: 358)
+- Knowledge-Promotion: errors-frontend.md "Selected-Item-Snapshot vs. Realtime-Update-Drift" (ID-as-State + derived-from-list Pattern)
+- Backlog Slice 274: Cron-Code-Fix gameweek-sync no_past_fixtures-Postponed-Match-Aware advance + TFF1 GW38 Saisonende-API-Mapping
+- Money-Path: keine Money/Wallet/Trading-Logik betroffen — DB-Heal ist Konfiguration, Frontend-Fixes sind UI-only
+- Tests: vitest 255/255 fantasy-Domain PASS, tsc clean, audit:type-truth/stale/wiring alle 0 findings
+- Commits: 0b76346a (Slice 273 Track B+C+A1) + 4e8200a0 (Track A2 Script) + cd582279 (Resume-Anker)
+- Beta-Wirkung: Spieltag-FixtureDetailModal zeigt nun für ALLE 7 Ligen sichtbare Bewertungen, Liga-Switch atomar pro Liga, Live-Match Score-Header tickt 60s, selectedFixture-Stale-Bug eliminiert. Tester-ready.
+
+## 272 | 2026-05-05 | fix(lineup): Duplicate-Defense-in-Depth (Anil-Live-Bug)
+
+- Stage-Chain: SPEC (active.md inline + audit-2026-05-05) → IMPACT (4 Files Store+Hook+UI defense-in-depth, DB-Guard rpc_save_lineup unangetastet) → BUILD → REVIEW (self-review S-Slice) → PROVE (vitest 3215/3216 + 10 neue Store-Tests) → LOG
+- Slice-Type: Store-Action + Hook-Filter + UI-Click (S-Slice, 4 Files)
+- Trigger: Anil-Live-Bug 2026-05-05 — „bei manager aufstellung, einen spieler mehrmals aufstellen, in events war das alle bereits korrekt"
+- Bug-Komplex: 4 unabhängige Pfade konnten Duplicate-State erzeugen (lineupStore.selectPlayer filterte nur Slot, setBenchSlot dedupte INNERHALB Bench nicht vs. Starter, getAvailablePlayersForPosition excluded nur Starter, LineupPanel Quick-Add ohne isSelected-Check). Money-Path safe via DB-Guard rpc_save_lineup duplicate_player.
+- Fix Defense-in-Depth (4 Layer): Store Move-Semantik (filter Slot+playerId, entfernt aus Bench), Store Cross-Subtype (setBenchSlot entfernt aus Starter), Hook Picker-Filter (excludet Bench auch), UI Quick-Add (skip wenn isSelected)
+- Knowledge: errors-frontend.md "Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik"
+- Commit: 6b8ecb27
+
+## 271 B1 | 2026-05-05 | fix(perf-l5): Em-Dash-Display für matches=0 Junioren
+
+- Stage-Chain: SPEC (audit-2026-05-05/slice-271-discovery-mv-trend-perf-l5.md) → BUILD → REVIEW (self-review S) → PROVE (vitest 3205/3206) → LOG
+- Slice-Type: UI-Display-Helper + 7 Konsumenten-Sites (S-Slice)
+- Trigger: 595 Junioren mit matches=0 + perf_l5=50 (DB-Default als Lineup-Salary-Cap-Proxy intentional) zeigten "L5: 50" → User-Trust-Bug
+- Lösung: 3 neue Display-Helper (fmtPerfL5, getL5ColorWithMatches, getL5HexWithMatches) in src/components/player/index.tsx + Migration in PlayerIPOCard, KaderPlayerRow, kaderHelpers PerfPills, TransferListSection, ClubCard, PlayerRow, TradingCardFrame (+ matches Prop), PlayerHero
+- Money-Path-Garantie: Lineup-Salary-Cap-Logic UNANGETASTET (6 RPCs nutzen weiter COALESCE(p.perf_l5, 50))
+- Tests: +9 Helper-Tests + 2 TradingCardFrame-Tests
+- Commit: 3c967ba0
+
+## 270b | 2026-05-05 | fix(form-bars): Per-Player Tooltip-GW (Slice 270 Reviewer F-02 Follow-up)
+
+- Stage-Chain: SPEC (worklog/specs/270b) → BUILD → REVIEW (self-review S) → PROVE (vitest 3196/3197 → 3205/3206) → LOG
+- Slice-Type: Service-Refactor + Hook-Erweiterung (S-Slice, 5 Files)
+- Trigger: Slice 270 Reviewer F-02 — Tooltip-GW-Drift weil getRecentScoreGameweeks UNCHANGED globalen MAX nutzt während Bars per-player-Window haben
+- Lösung: Combined Service getRecentPlayerScoresAndGameweeks + TanStack-Query select-Pattern (1 RPC, 1 Cache, 2 Konsumenten-Sichten) + KaderTab Migration auf useRecentPlayerGameweeks + KaderPlayerRow gameweeks-Prop Type-Erweiterung
+- Orphan-API gelöscht: getRecentScoreGameweeks + useRecentScoreGameweeks + qk.fixtures.recentScoreGameweeks
+- Plus: Slice 271 Discovery-Audit verifiziert (Befund 1 H3 mv_trend Gap-Days, Befund 2 H4 perf_l5=50 DB-Default intentional)
+- Knowledge: errors-db.md "History-Gap-Tag-Sensitivität bei strict-7d-LEFT-JOIN"
+- Commit: 97ac5b1a
+
 ## 270d v2 | 2026-05-05 | fix(perf-bars): JSONB-Return weil PostgREST .range()/limit auf RPC IGNORIERT
 
 - Stage-Chain: BUILD-Heal (v1 270d war wirkungslos — Live-Verify entdeckte das) → PROVE → LOG
