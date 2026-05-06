@@ -1,14 +1,26 @@
 /**
  * Slice 070 — Sync Player-Injuries from API-Football
  * Slice 075 — Batch-Refactor: 1 pre-query + chunked concurrent updates
+ * Slice 275 — Date-Filter Bugfix (Anil-Live-Bug 2026-05-06)
  *
- * Fetches /injuries?league=X&season=Y per active league (~7 calls/run).
+ * Fetches /injuries?league=X&season=Y&date=YYYY-MM-DD per active league
+ * × per fixture-date in [now-14d, now+14d] window (~21-28 calls/day).
+ *
+ * Slice 275 Bug-Fix:
+ *   Pre-Slice: Cron rief `/injuries?league=X&season=Y` ohne Date-Filter.
+ *   API-Football returnt aber ALLE Saison-Injuries (13.398 für 7 Ligen),
+ *   nicht nur aktuelle. → 1861 false-positive injured (60-87% pro Top-Club).
+ *   Fix: Iteriere distinct fixture-dates in 28d-Window, pro Date 1 API-Call.
+ *   Spieler die in irgendeinem Window-Date als injured gemeldet werden = injured.
+ *   Recovery (Phase 5) cleant Spieler die NICHT in Window-Response auf fit.
+ *
  * Updates players.status (injured|suspended|doubtful) + injury_reason.
  * Recovery: Players die vorher injured/suspended waren aber nicht mehr in
  * API-Response → status='fit'.
  *
  * Performance:
- * - Phase 1: 7 parallel API-calls (rate-limited 300ms stagger)
+ * - Phase 0: 1 SQL-Query: Liga × Distinct fixture-dates in [-14d, +14d]
+ * - Phase 1: Sequential API-calls (rate-limited 300ms stagger, ~21-28 calls)
  * - Phase 2: 1 pre-query lookup alle Players by api_football_id
  * - Phase 3: Chunked concurrent UPDATEs (50/chunk)
  *
@@ -123,7 +135,39 @@ export const GET = withLogger('cron.sync-injuries', async (request): Promise<Nex
     if (p.api_football_id) previouslyFlagged.set(p.api_football_id, p.id);
   }
 
+  // ---- Phase 0: Hole Distinct Fixture-Dates pro Liga in [-14d, +14d] Window ----
+  // Slice 275: Date-Filter ist KRITISCH. Ohne ihn liefert die API alle Saison-
+  // Injuries (13k+ rows mit Saisonbeginn-Verletzungen die längst geheilt sind).
+  // Mit ?date=X bekommen wir nur Injuries für Fixtures DAS Datum.
+  const windowStartIso = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const windowEndIso = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  const fixtureDatesByLeague = new Map<string, Set<string>>(); // league.id → Set<YYYY-MM-DD>
+
+  for (const league of activeLeagues) {
+    const { data: fixtureRows, error: fixErr } = await supabaseAdmin
+      .from('fixtures')
+      .select('played_at')
+      .eq('league_id', league.id)
+      .gte('played_at', windowStartIso)
+      .lte('played_at', windowEndIso)
+      .not('played_at', 'is', null);
+
+    if (fixErr) {
+      stats.errors.push(`fixture-dates ${league.short}: ${fixErr.message}`);
+      continue;
+    }
+
+    const dateSet = new Set<string>();
+    for (const row of (fixtureRows ?? []) as Array<{ played_at: string | null }>) {
+      if (!row.played_at) continue;
+      // YYYY-MM-DD aus ISO-Timestamp
+      dateSet.add(row.played_at.slice(0, 10));
+    }
+    fixtureDatesByLeague.set(league.id, dateSet);
+  }
+
   // ---- Phase 1: Sequential API-fetches mit Rate-Limit ----
+  // Pro Liga × pro Distinct-Date 1 API-Call.
   const allInjuries: Array<{
     apiPlayerId: number;
     status: 'injured' | 'suspended' | 'doubtful';
@@ -131,30 +175,43 @@ export const GET = withLogger('cron.sync-injuries', async (request): Promise<Nex
   }> = [];
 
   for (const league of activeLeagues) {
-    try {
-      await sleep(API_RATE_LIMIT_MS);
-      stats.api_calls++;
+    const dateSet = fixtureDatesByLeague.get(league.id) ?? new Set<string>();
 
-      const endpoint = `/injuries?league=${league.api_football_id}&season=${season}`;
-      const response = await apiFetch<ApiInjuryResponse>(endpoint);
-
-      stats.injuries_imported += response.response?.length ?? 0;
-
-      for (const entry of response.response ?? []) {
-        const apiPlayerId = entry.player?.id;
-        if (!apiPlayerId) continue;
-        allInjuries.push({
-          apiPlayerId,
-          status: mapStatus(entry.type, entry.reason),
-          reason: entry.reason || 'Unknown',
-        });
-      }
-
+    if (dateSet.size === 0) {
+      // Saisonpause: keine fixtures in Window → Recovery (Phase 5) wird alle vorher
+      // flagged players auf fit setzen. Liga gilt als processed (recovery legitimiert).
       stats.leagues_processed++;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      stats.errors.push(`League ${league.short}: ${msg}`);
+      continue;
     }
+
+    let leagueOk = true;
+    for (const date of Array.from(dateSet).sort()) {
+      try {
+        await sleep(API_RATE_LIMIT_MS);
+        stats.api_calls++;
+
+        const endpoint = `/injuries?league=${league.api_football_id}&season=${season}&date=${date}`;
+        const response = await apiFetch<ApiInjuryResponse>(endpoint);
+
+        stats.injuries_imported += response.response?.length ?? 0;
+
+        for (const entry of response.response ?? []) {
+          const apiPlayerId = entry.player?.id;
+          if (!apiPlayerId) continue;
+          allInjuries.push({
+            apiPlayerId,
+            status: mapStatus(entry.type, entry.reason),
+            reason: entry.reason || 'Unknown',
+          });
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        stats.errors.push(`League ${league.short} date=${date}: ${msg}`);
+        leagueOk = false;
+      }
+    }
+
+    if (leagueOk) stats.leagues_processed++;
   }
 
   // ---- Phase 2: Batch-Lookup alle Players auf einmal ----

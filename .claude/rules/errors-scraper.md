@@ -8,6 +8,73 @@ Stand: 2026-04-24 · Split aus `common-errors.md` (Slice 186). Siehe auch Slice-
 
 ## Silent Data-Corruption Patterns (siehe auch common-errors.md §1)
 
+### External-API liefert historische Daten als „aktuelle" (Slice 275, 2026-05-06)
+
+**Bug-Klasse:** Cron-Endpoint nutzt externe API ohne Date-Filter. API returnt scheinbar „aktuelle" Daten — bei genauem Hinsehen sind es ALLE historischen Episoden der ganzen Saison. Code mappt jede Row auf „aktuell" → massive Daten-Korruption.
+
+**Symptom (Slice 275 Anil-Live-Bug):** `/injuries?league=78&season=2025` returnt **2647 results** für eine Liga (jede injury-Episode pro Fixture, ganze Saison). Cron hat alle als `players.status='injured'` geschrieben → 1862 false-positive (60-87% pro Top-Club als verletzt angezeigt).
+
+**API-Smoking-Gun:**
+- `/injuries?league=X&season=Y` → 2647 rows (Saison)
+- `/injuries?league=X&season=Y&date=YYYY-MM-DD` → 48 rows (1 Match-Day)
+- 55× Reduktion mit Date-Filter
+
+**Detection (Pre-Cron-Deploy-Check):**
+```bash
+# API-Response-Size single-Liga, ohne Date-Filter
+curl ".../injuries?league=X&season=Y" | jq '.results'
+# Wenn > expected_active_injuries × 10: API liefert historische Records.
+
+# Mit Date-Filter
+TODAY=$(date -u +%Y-%m-%d)
+curl ".../injuries?league=X&season=Y&date=$TODAY" | jq '.results'
+# Realistische Größenordnung pro Match-Day.
+```
+
+**Fix-Pattern: Pro Liga × pro Distinct-Fixture-Date in Window iterieren.**
+
+```ts
+// Phase 0: Hole Distinct Fixture-Dates pro Liga in [-14d, +14d]
+const windowStart = new Date(Date.now() - 14*24*60*60*1000).toISOString();
+const windowEnd = new Date(Date.now() + 14*24*60*60*1000).toISOString();
+const fixtureDatesByLeague = new Map<string, Set<string>>();
+
+for (const league of activeLeagues) {
+  const { data } = await supabaseAdmin.from('fixtures')
+    .select('played_at')
+    .eq('league_id', league.id)
+    .gte('played_at', windowStart).lte('played_at', windowEnd)
+    .not('played_at', 'is', null);
+  const dates = new Set((data ?? []).map(r => r.played_at.slice(0, 10)));
+  fixtureDatesByLeague.set(league.id, dates);
+}
+
+// Phase 1: Pro (Liga, Date) 1 API-Call
+for (const league of activeLeagues) {
+  const dates = fixtureDatesByLeague.get(league.id) ?? new Set();
+  if (dates.size === 0) { stats.leagues_processed++; continue; } // Saisonpause
+  for (const date of dates) {
+    await sleep(API_RATE_LIMIT_MS);
+    const r = await apiFetch(`/endpoint?league=${league.api_id}&season=${season}&date=${date}`);
+    // ... process r.response
+  }
+}
+```
+
+**Quota-Math:** 7 Ligen × ~3-4 Match-Dates in 28d-Window = 21-28 calls/day = 0.4% von API-Football Pro 7500/day. Trade-off ist günstig.
+
+**Recovery-Logic-Compatibility:** Pre-Slice-275 Recovery-Pattern (Spieler nicht in API-Response → fit) bleibt korrekt — funktioniert sogar besser, weil API-Response jetzt nur AKTUELLE Injuries enthält.
+
+**Audit (post-Beta empfohlen):**
+```bash
+# Cron-Endpoints die Saison-Daten ohne Date/Fixture-Filter holen
+grep -rn "season=" src/app/api/cron/ | grep -v "date=\|fixture=\|live=\|round=\|next="
+```
+
+**Reference:** Slice 275 `worklog/specs/275-sync-injuries-date-filter.md`. Pattern-Familie mit Slice 081 „Scraper Default-Poisoning" (gleiche Bug-Klasse: external-source liefert nicht das was wir denken, silent-fail in DB).
+
+
+
 ### Scraper Default-Poisoning (Slice 081, TM)
 - Parser-Fallback-Werte (MV=500K/8M + contract=2025-07-01) erscheinen auf vielen Spielern identisch — sehen aus wie echte Daten.
 - Detect: `GROUP BY market_value_eur, contract_end HAVING COUNT(*) >= 4`.

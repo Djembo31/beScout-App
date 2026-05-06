@@ -1,0 +1,52 @@
+Slice 275 — Sync-Injuries Date-Filter + Daten-Heilung
+========================================================
+Date: 2026-05-06
+
+PHASE 1 — DATEN-HEILUNG (live 2026-05-06 13:25 UTC)
+====================================================
+SQL: UPDATE players SET status='fit', injury_reason=NULL, injury_until=NULL,
+       status_updated_at=NOW()
+     WHERE status IN ('injured', 'doubtful')
+       AND status_updated_at >= '2026-05-05 12:00:00+00'
+       AND status_updated_at <= '2026-05-05 12:01:00+00';
+Result: 1862 healed.
+
+Per-Club-Verteilung POST-HEAL:
+  Bayern München:   total=43  fit=39  not_fit=4   (pre: 13/30)
+  Galatasaray:      total=40  fit=36  not_fit=4   (pre:  8/32)
+  Real Madrid:      total=42  fit=40  not_fit=2   (pre: 17/25)
+✓ Realistische Verteilung wiederhergestellt.
+
+PHASE 2 — CODE-FIX (sync-injuries Date-Filter)
+==============================================
+File: src/app/api/cron/sync-injuries/route.ts
+
+Diff Summary:
++ Phase 0: Hole Distinct fixture-dates pro Liga in [-14d, +14d] Window (1 SQL/Liga)
++ Phase 1: Pro Liga × pro Date 1 API-Call mit ?date=YYYY-MM-DD param
++ leagueOk-Tracking: bei API-Failure einer Date wird Recovery für Liga skipped
++ Saisonpause-Edge-Case: dateSet leer → leagues_processed++ → Recovery legitim
+
+API-DISCOVERY (Live-Tests 2026-05-06):
+  /injuries?league=78&season=2025                    → 2647 results (ALL Saison) ❌
+  /injuries?league=78&season=2025&date=2026-05-03    →   48 results (1 Match-Day) ✓
+  /injuries?fixture=1388593                          →   16 results (1 Fixture)   ✓
+
+Bundesliga 28d-Window Sample:
+  2026-04-26: 32 injuries
+  2026-05-03: 48 injuries
+  2026-05-04:  0 (kein Match-Day)
+  2026-05-09:  0 (kein Match-Day)
+  2026-05-10:  0 (kein Match-Day)
+  TOTAL: 80 unique injury-rows pro Liga in 28-Tage-Window.
+
+API-Quota Math: 7 Ligen × ~3-4 Match-Dates in Window = 21-28 calls/day
+              = 0.4% von Pro-Tier 7500/day quota.
+
+VERIFY:
+  tsc --noEmit       EXIT: 0 (clean)
+
+PRE-DEPLOY HEALTH:
+  - Vercel auto-deploy via push
+  - Nächster regulärer Cron-Run: 2026-05-07 12:00 UTC (sicher gefixt)
+  - Optional manueller Trigger via Admin-UI nach Deploy zur Verifikation

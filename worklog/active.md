@@ -1,14 +1,30 @@
 # Active Slice
 
 ```
-status: idle
-slice: 274
-stage: LOG (commit c9064e50, pushed to main, Vercel auto-deploy)
-spec: worklog/specs/274-form-bars-absolute-league-window.md
-impact: API-Contract bleibt (Service-Signatur unverändert), 5 Konsumenten kompatibel (s != null ? 'played' : 'not_in_squad' Pattern)
-proof: worklog/proofs/274-tsc-vitest.txt
-review: self-review (CTO + 1 Performance-Heal v1→v2)
+status: in-progress
+slice: 275
+stage: REVIEW (pending Anil-Live-Verify post-Deploy)
+spec: worklog/specs/275-sync-injuries-date-filter.md
+impact: Phase 1 1862 rows healed (live), Phase 2 Cron-Code-Fix Date-Filter (1 file)
+proof: worklog/proofs/275-data-heal-and-code-fix.txt
+review: self-review (CTO + Live-API-Discovery 5 sample-dates)
 ```
+
+## Slice 275 — Sync-Injuries Date-Filter + Daten-Heilung (Anil-Live-Bug)
+
+**Anil-Trigger:** „check die club page die spieler, die zeigen alle verletzt an bei Galatasaray, warum?"
+
+**Root-Cause:** Cron `sync-injuries` (Slice 070) ruft `/injuries?league=X&season=Y` ohne Date-Filter. API-Football returnt **alle Saison-Injuries** (13.398 für 7 Ligen), nicht nur aktive. Code mappt jede auf `injured`. → 1861 falsch-injured Spieler (60-87% pro Top-Club).
+
+**Smoking Gun:** Alle 1861 `status='injured'` haben identischen `status_updated_at = 2026-05-05 12:00:15` — letzter Cron-Run.
+
+**Plan 2-Stufen:**
+1. Daten-Heilung (5 min): SQL-Update aller 1861 false-positive auf 'fit'
+2. Code-Fix (30 min): Date-Filter in sync-injuries Cron — nur Injuries mit aktivem End-Date
+
+---
+
+## (Slice 273+274 erledigt — siehe log.md)
 
 ## Slice 274 v2 — Form-Bars Absolute Liga-Window (REVIEW)
 
