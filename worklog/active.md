@@ -2,13 +2,26 @@
 
 ```
 status: idle
-slice: 280
-stage: LOG (review PASS, cleanups F-02/F-03/F-04 done, commit pending)
-spec: worklog/specs/280-bundle-analysis-tree-shaking.md
-impact: skipped (Build-Optimization, keine Service/RPC/DB)
-proof: worklog/proofs/280-fat-modules.md + worklog/proofs/280-bundle-diff.md
-review: worklog/reviews/280-review.md (PASS, 4 NIT/MINOR — F-02/F-03/F-04 in LOG-Step erledigt, F-01 als doc-drift akzeptiert)
+slice: 281
+stage: LOG (commit pending)
+spec: worklog/specs/281-synthetic-users-daily-gha.md
+impact: skipped (neue Workflow-Datei, keine Service/RPC/DB)
+proof: worklog/proofs/281-workflow-yaml.txt + post-push live-verify
+review: worklog/reviews/281-review.md (Self-Review PASS — XS-Slice 1:1 Pattern-Wiederholung von post-deploy-smoke.yml)
 ```
+
+## Slice 281 — Synthetic-User-Daily-GHA-Verkabelung (D54-Recovery) ✅ DONE
+
+**Trigger:** Anil 2026-05-06 ~21:40 — „erstverkabeln".
+**Existing:** `e2e/synthetic-users.spec.ts` + `pnpm run test:synthetic` Script seit Phase-A. Nie in GHA-Schedule verkabelt.
+**Slice-Type:** GHA-Workflow · **Größe:** XS (1 File NEU, 134 Zeilen)
+**Live-Verify-Pflicht post-push:** `gh workflow list | grep -i synthetic` + `gh workflow run synthetic-users.yml` (manueller Dispatch zur Verify) + `gh run view <id>` für ersten Live-Run.
+
+---
+
+## Slice 280 (vorheriger, abgeschlossen)
+
+`status: idle · stage: LOG complete · commit c9a36469 pushed`. Headline: -374 KB Total-FLJS-Sum, Reviewer PASS, 4 NIT/MINOR alle behoben, Knowledge-Promotion in errors-frontend.md live.
 
 ## Slice 280 — Bundle-Analysis + Tree-Shaking (Cold-Start-Track Phase 2)
 

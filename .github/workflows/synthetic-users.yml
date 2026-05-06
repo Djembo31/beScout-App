@@ -1,0 +1,146 @@
+name: Synthetic User Daily
+
+# Slice 281 (2026-05-06): Synthetic-User-Suite Daily-GHA-Verkabelung.
+# D54-Recovery — `e2e/synthetic-users.spec.ts` existierte seit Phase-A
+# Beta-Setup, Tool gebaut + Phase-A-Doku-erwähnt aber NIE in GHA-Schedule
+# verkabelt. Während aktueller Live-Beta-Phase (Taki/Nail Mo, siehe
+# memory/project_beta_live.md) liefert Daily-Run Tester-Surrogate-Coverage
+# die Smoke-Suite (10 Flows post-deploy) nicht abdeckt: 3-Personas-Deep-Walk
+# inkl. TR-String-Audit (Profile-C dump in qa-screenshots/synthetic/).
+
+on:
+  schedule:
+    - cron: '0 5 * * *'   # 05:00 UTC = 07:00 Berlin Sommerzeit, 1h Headroom nach nightly-audit (03/04 UTC)
+  workflow_dispatch:        # Manual-Trigger ohne Wait-für-Cron
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium --with-deps
+
+      # Slice SO-4 Cold-Start-Warm-Up: Vercel-Lambda braucht ~10-25s Warm-Boot
+      # bei niedrigem Traffic (05:00 UTC ist Off-Peak). Ohne Warm-Up trifft
+      # erster Synthetic-locator den 30s-Timeout während Lambda noch bootet.
+      # 6× retry × 30s curl + 5s settle bootet OHNE Test-Counter zu inkrementieren.
+      - name: Warm-Up bescout.net (Cold-Start-Mitigation)
+        run: |
+          set -e
+          for i in 1 2 3 4 5 6; do
+            echo "[warm-up] attempt $i/6 — curl https://bescout.net/"
+            CODE=$(curl -fsSL -o /dev/null -w "%{http_code}" -m 30 https://bescout.net/ || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "[warm-up] ✅ bescout.net responded 200 (warm)"
+              sleep 5
+              exit 0
+            fi
+            echo "[warm-up] ⚠️ HTTP $CODE — retry in 10s"
+            sleep 10
+          done
+          echo "[warm-up] ❌ bescout.net cold-boot fehlgeschlagen (6 retries × 10s = 60s window)"
+
+      - name: Run Synthetic Users Suite against bescout.net
+        id: synthetic
+        env:
+          PLAYWRIGHT_BASE_URL: https://bescout.net
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: pnpm exec playwright test --project=synthetic --reporter=list
+
+      # Artifact-Upload: bei SUCCESS nur tr-strings.txt (TR-Audit-Verlauf für Anil),
+      # bei FAILURE komplette qa-screenshots/synthetic/ + playwright-report.
+      - name: Upload TR-String-Dump on success
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tr-strings-${{ github.run_number }}
+          path: qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload full report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-report-${{ github.run_number }}
+          path: |
+            playwright-report/
+            qa-screenshots/synthetic/
+          retention-days: 14
+
+      # Slice SO-4 Master-Tracker-Pattern: Pre-Check für offene synthetic-fail-Issues.
+      # Wenn ein offener existiert: Comment dranhängen statt neuen Duplicate erstellen.
+      # Verhindert Issue-Spam analog zu post-deploy-smoke.yml für smoke-fail.
+      - name: Synthetic-Fail Issue (Master-Tracker-Pattern)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.sha.substring(0, 7);
+            const fullSha = context.sha;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const trigger = context.eventName === 'workflow_dispatch' ? 'manual-dispatch' : `cron-${context.payload.schedule || '0 5 * * *'}`;
+
+            // Pre-Check: gibt es einen offenen Master-Tracker mit synthetic-fail-Label?
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'synthetic-fail,beta-blocker',
+              per_page: 30,
+            });
+
+            // Master-Tracker-Heuristik: Title-Match → sonst ältestes offenes Issue.
+            const master = existing.data.find(i =>
+              /Master[- ]?Tracker|Synthetic[- ]?Failure Tracker/i.test(i.title)
+            ) ?? existing.data.sort((a, b) =>
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            )[0];
+
+            const body = [
+              `**Trigger:** ${trigger}`,
+              `**Commit:** ${fullSha}`,
+              `**Short SHA:** ${sha}`,
+              `**GitHub Actions run:** ${runUrl}`,
+              `**Timestamp:** ${new Date().toISOString()}`,
+              ``,
+              `Eine der 3 Synthetic-User-Profile ist gefailed. Check Playwright-Report-Artifact für Details.`,
+              ``,
+              `**Profile:** A=Discovery (12 entry pages) · B=Power-User (Buy-Flow + Lineup + Mission-Detail) · C=TR-Locale (12 pages + visible-string-dump)`,
+              ``,
+              `**Artifacts:** synthetic-report-${context.runId} (playwright-report/ + qa-screenshots/synthetic/)`,
+            ].join('\n');
+
+            if (master) {
+              console.log(`[synthetic-fail] master-tracker found: #${master.number} — appending comment`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: master.number,
+                body: `## 🚨 New Synthetic-Fail (auto-comment)\n\n${body}`,
+              });
+            } else {
+              console.log(`[synthetic-fail] no master-tracker — creating new master issue`);
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Master-Tracker: Synthetic-User-Suite Failures (post-Slice-281)`,
+                body: `**Master-Tracker** für recurring Synthetic-Failures. Auto-Pipeline (Slice 281) hängt nachfolgende Failures als Comments an dieses Issue, statt Duplicates zu erstellen.\n\n## Erstes Failure\n\n${body}\n\n## Closing-Strategy\n\nClose dieses Issue NUR wenn 5+ consecutive Synthetic-Runs SUCCESS.`,
+                labels: ['beta-blocker', 'synthetic-fail', 'master-tracker'],
+              });
+            }

@@ -2,6 +2,21 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 281 | 2026-05-06 | feat(qa): Synthetic-User-Suite Daily-GHA-Verkabelung (D54-Recovery)
+
+- Stage-Chain: SPEC (worklog/specs/281-synthetic-users-daily-gha.md) → IMPACT (skipped — neue Workflow-Datei, keine Service/RPC/DB) → BUILD → REVIEW (Self-Review PASS, XS-Slice 1:1 Pattern-Wiederholung) → PROVE (worklog/proofs/281-workflow-yaml.txt + post-push live-verify pending) → LOG
+- Slice-Type: GHA-Workflow (XS-Slice, 1 File NEU). Trigger: Anil 2026-05-06 ~21:40 „erstverkabeln" — während Live-Beta mit Taki/Nail Mo (siehe `memory/project_beta_live.md`) liefert Synthetic-Daily Tester-Surrogate-Coverage die Smoke-Suite nicht abdeckt.
+- Architektur-Win: D54 Build-without-Wire Recovery. `e2e/synthetic-users.spec.ts` (270 Zeilen, 3 test.describe-Blöcke: Discovery 12 Pages, Power-User Buy-Flow, TR-Locale 12 Pages + visible-string-dump) existierte seit Phase-A Beta-Setup. `pnpm run test:synthetic` Script in package.json. Aber: **0 GHA-Trigger** seit Tool-Bau. Slice 281 verkabelt orphan-Tool in 1 Workflow.
+- Files: 1 NEU (`.github/workflows/synthetic-users.yml`, 134 Zeilen). Zusätzlich Slice-Artefakte: spec + proof + review.
+- Trigger-Filter: `schedule: '0 5 * * *'` UTC (07:00 Berlin Sommerzeit, 1h Headroom nach nightly-audit 03/04 UTC) + `workflow_dispatch` für manuellen Re-Run.
+- Pattern-Konformität: 1:1 Adapter von `post-deploy-smoke.yml` — Cold-Start-Warm-Up (Slice SO-4: 6× retry × 30s curl + 5s settle) + Master-Tracker-Issue-Pattern (Slice SO-4: Pre-Check listForRepo mit `synthetic-fail,beta-blocker` Labels-AND-Match → createComment-OR-create-Master). Disjoint von smoke-fail-Master damit beide Master-Tracker parallel laufen können.
+- Artifact-Strategy: SUCCESS = tr-strings.txt (7d retention, für Anil's TR-String-Audit-Verlauf) · FAILURE = full report (playwright-report/ + qa-screenshots/synthetic/, 14d retention).
+- AC-Bilanz: 5/6 directly verifiable pre-push (AC-01..AC-04 + AC-06), 1/6 post-push live-verify (AC-05 workflow_dispatch via `gh workflow run`).
+- Verify pre-push: js-yaml 4.1.1 parse OK, 10 Steps in synthetic-job, alle 3 permissions correct (`contents:read, issues:write, actions:read`).
+- Anti-Patterns vermieden: D54 Build-without-Wire (orphan Tool seit Phase-A, ~2-3 Wochen latency, jetzt verkabelt). Issue-Spam-Prevention via Master-Tracker-Pattern (verhindert 22+ Duplicate-Akkumulation analog Sign-Off-Re-Trial #2 RISK-3).
+- Pattern-Familie: D54 Build-without-Wire UI-Layer-Recovery. Slice SO-4 Master-Tracker-Pattern (smoke-fail) → Slice 281 (synthetic-fail) ist 2. Anwendung. nightly-audit.yml ist 3. Anwendung (audit-fail).
+- Notes: Self-Review statt Cold-Context-Reviewer-Agent — XS-Slice mit 1:1 Pattern-Wiederholung (workflow.md §3b Ausnahme). Doku-Trail in worklog/reviews/281-review.md zeigt Differenzen zu Template (Trigger, Job-Name, Timeout, Artifacts, Labels).
+
 ## 280 | 2026-05-06 | perf(bundle): Bundle-Analysis + Tree-Shaking (Cold-Start-Track Phase 2) — Total -374 KB FLJS
 
 - Stage-Chain: SPEC (worklog/specs/280-bundle-analysis-tree-shaking.md) → IMPACT (skipped — Build-Optimization, keine Service/RPC/DB) → BUILD → REVIEW (Cold-Context-reviewer-agent PASS, 4 NIT/MINOR) → PROVE (worklog/proofs/280-fat-modules.md + worklog/proofs/280-bundle-diff.md) → LOG

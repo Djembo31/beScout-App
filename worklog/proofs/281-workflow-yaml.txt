@@ -1,0 +1,45 @@
+Slice 281 — Synthetic-User-Daily-GHA Workflow Verify (Pre-Push)
+================================================================
+Datum: 2026-05-06
+File: .github/workflows/synthetic-users.yml
+
+YAML-Syntax-Verify (js-yaml 4.1.1):
+-----------------------------------
+YAML valid. Workflow name: Synthetic User Daily
+Triggers: [ 'schedule', 'workflow_dispatch' ]
+Schedule cron: [{"cron":"0 5 * * *"}]
+Permissions: {"contents":"read","issues":"write","actions":"read"}
+Jobs: [ 'synthetic' ]
+Steps in synthetic job: 10
+Step names: [
+  'actions/checkout@v6',
+  'pnpm/action-setup@v4',
+  'actions/setup-node@v6',
+  'pnpm install --frozen-lockfile',
+  'pnpm exec playwright install chromium --with-deps',
+  'Warm-Up bescout.net (Cold-Start-Mitigation)',
+  'Run Synthetic Users Suite against bescout.net',
+  'Upload TR-String-Dump on success',
+  'Upload full report on failure',
+  'Synthetic-Fail Issue (Master-Tracker-Pattern)'
+]
+
+Acceptance Criteria Verify:
+---------------------------
+AC-01 [HAPPY] Valid YAML + permissions Block          → ✅ verified
+AC-02 [HAPPY] Schedule '0 5 * * *' + workflow_dispatch → ✅ verified
+AC-03 [HAPPY] Cold-Start-Warm-Up Step VOR Synthetic-Run → ✅ Step 6 vor Step 7
+AC-04 [HAPPY] Master-Tracker-Issue-Pattern              → ✅ Step 10 mit listForRepo + createComment-OR-create
+AC-05 [REGRESSION] workflow_dispatch (post-push)        → ⏳ verify nach Push via gh workflow run
+AC-06 [REGRESSION] TR-String-Dump as Artifact on success → ✅ Step 8 success-conditional + retention 7d
+
+Pattern-Conformance:
+-------------------
+- post-deploy-smoke.yml Template 1:1 übernommen (Cold-Start-Warm-Up + Master-Tracker)
+- nightly-audit.yml Schedule-Format 1:1 übernommen
+- Slice SO-4 Pattern für Issue-Spam-Prevention (Pre-Check listForRepo mit Labels-AND-Match)
+- D54 Build-without-Wire Recovery — orphan synthetic-Suite seit Phase-A nun verkabelt
+
+Files-Changed:
+--------------
++ .github/workflows/synthetic-users.yml (NEU, 134 Zeilen)

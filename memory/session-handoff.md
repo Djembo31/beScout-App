@@ -1,20 +1,20 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 20:34)
+# Session Handoff — Auto (2026-05-06 23:26)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
  M worklog/audits/audit-stale-2026-05-06.md
  M worklog/audits/type-truth-2026-05-06.md
 ```
 
-## Session Commits: 4
+## Session Commits: 3
+- c9a36469 perf(bundle): Slice 280 — Bundle-Analysis + Tree-Shaking (Cold-Start-Track Phase 2)
 - afe0dbf2 chore(session-end): Slice 280 Pre-Spec + Resume-Anker für nächste Session
 - d05d42cb chore(audits): tägliche auto-cron Outputs 2026-05-06 (Re-Run nach Slice 279)
-- 66e6208d feat(perf): Slice 279 — Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Foundation Phase 1)
-- 6614c95f chore(session-end): Hygiene + D70 Cold-Start-Track + 5 Slice-Bilanz 2026-05-06
 
 ## Stale Worktrees: 1 (cleanup candidates)
 
@@ -22,48 +22,63 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~17:05 — Slice 280 ready, Slice 279 Phase-1-Live nach Push)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~21:25 — Slice 280 LIVE, Cold-Start-Track Phase-2-Wartemodus)
 
-**HEAD `66e6208d`** Status: idle. Slice 279 Phase 1 BUILD complete (Lighthouse-CI Workflow live). Cold-Start-Track Phase 1 Foundation gelegt.
+**HEAD `c9a36469`** Status: idle. Slice 280 Phase-2 BUILD live (Bundle-Analysis -374 KB Total-FLJS-Sum). Cold-Start-Track Foundation Phase 1+2 komplett. Phase-3-Wartemodus auf Lighthouse-Baseline-Datensammlung (3-5 Live-Runs).
 
-## Erste Action nächste Session — Slice 280 Bundle-Analysis + Tree-Shaking
+## Erste Action nächste Session — abhängig von Anil-Track-Wahl
 
-**Anil-Direktive 2026-05-06 ~16:55:** „ich will 280 in einer neuen session starten, bereite alles vor und mach session end"
-
-**Pre-Spec liegt fertig:** `worklog/specs/280-bundle-analysis-tree-shaking.md` (M-Slice Skelett mit 7 Code-Reading-Items, 7 ACs, 8 Edge-Cases, 3 Open-Questions).
-
-**Erste 5 Schritte in nächster Session (kopier-fertig):**
-
+### Track A — Slice 281 (`useHomeData`-Konsolidierung)
+**Voraussetzung:** Slice 279 lighthouse.yml-Workflow hat 3-5 Runs gesammelt (anti-Pattern „Optimieren ohne Baseline" vermeiden).
+**Verify pre-Start:**
 ```bash
-# 1. Bundle-Analyzer-Run — Mess-Wahrheit erstellen
-ANALYZE=true pnpm exec next build > /tmp/build-analyze.txt 2>&1
+gh run list --workflow=lighthouse.yml --limit=10
+# Wenn ≥ 3 SUCCESS-Runs: Phase-2-Baseline schreibbar, Track A startfähig.
+```
+**Spec-Skelett:** Noch zu schreiben. Erstes Reading: `useHomeData`-Hook + alle Konsumenten + bestehende RPCs für Home-Data-Bündelung.
 
-# 2. Treemap inspizieren (Browser)
-# file:///C:/bescout-app/.next/analyze/client.html
+### Track B — Phase-D Beta-Pflicht ✅ ERLEDIGT (Status-Update 2026-05-06)
+**Anil 2026-05-06 ~21:30:** „ich teste bereits mit denen live, daher kommen die letzten fixes". Beta-Launch ist bereits in Live-Test mit echten Testern (Taki/Nail Mo). Slice 270+ Live-Bug-Fixes (274/275/276/277/278) sind aus Tester-Feedback entstanden. Phase-D-Tracker stale → BLOCKER-Status entfernt.
 
-# 3. Top-5 fat-Modules dokumentieren
-# worklog/proofs/280-fat-modules.md schreiben
+iPhone-Visual-Verify + Beta-Mails-Recruiting: nicht mehr auf der Liste. Beta läuft live.
 
-# 4. Pre-Implementation greppen (Slice 121-Lehre — keine Eager-Trap!)
-grep -rn "import \* as " src/ | head -30
-grep -rn "from '@radix-ui/" src/ | head
-grep -rn "from '@supabase/ssr'" src/ | wc -l
+### Track C — Slice 280b (Wave 3, Dialog/AlertDialog dynamic-Wrap)
+Wenn weiterer Bundle-Win priorisiert. Risk: User-Side Loading-Spike auf Modal-Open. Empfehlung: defer bis Phase 2 Lighthouse-Daten zeigen ob LCP-Verbesserung ausreicht.
 
-# 5. Spec finalisieren — Open-Questions klären, ACs scharfstellen, Track-Approval bestätigen, BUILD starten
+## Slice 280 Recap — was passierte
+
+Bundle-Win-Headline: **-17 KB FLJS auf JEDER der 22 tracked Pages = -374 KB Total**. Stretch-Goal -200 KB massiv übertroffen.
+
+**Discovery-Story:** Pre-Implementation `grep -rln "DropdownMenu" src/` ergab Wrapper hat **0 Konsumenten** in Production-Code (Slice-181-Foundation, nie konsumiert). Delete eliminiert 105 KB transitive `@radix-ui/react-dropdown-menu`-Bundle pro Page-Chunk.
+
+**Wave-Bilanz:** Wave 0 (Dead-Wrapper-Delete) brachte ~100% des Wins. Wave 1 (`optimizePackageImports`-Erweiterung) + Wave 2 (Sentry Namespace → Named-Imports) waren 0 KB direkt — Lehre: moderne ESM-libs sind bereits tree-shaken, Hauptwin liegt in Dead-Wrapper-Removal + Lazy-Loading + API-Surface-Reduktion. Wave 3 (Dialog/AlertDialog dynamic-Wrap) DEFERRED.
+
+**Reviewer:** PASS, 4 NIT/MINOR alle im LOG behoben. Knowledge-Promotion live in `errors-frontend.md` neu „Dead-Wrapper-File mit transitive Lib-Lock-In (Slice 280)" — Bug-Klasse + Detection-Pattern + Fix-Pattern + Bundle-Win-Erwartung. Cross-Cutting D54 + D46.
+
+**Files-Changed:** 22 Files, +522 / -774 = Net -252 Zeilen.
+
+## Slice 279 Phase-2-Sammlung (läuft parallel)
+
+Workflow `lighthouse.yml` läuft auto bei jedem `deployment_status: success`. Nach 3-5 Live-Runs:
+- `worklog/audits/2026-05-06/lighthouse-baseline.md` schreiben (Mean ± StdDev pro Metric pro URL)
+- Phase-3-Schwellen ableiten (baseline + 1.5×StdDev)
+- Anil-Approval → `lighthouserc.json` `assert.assertions` auf `error`-Level switchen → hard-fail Gate aktiv
+
+**Verify-Commands für Phase-2-Sammlung:**
+```bash
+gh run list --workflow=lighthouse.yml --limit=5
+gh run view <run-id> --log
+gh run download --name lhci-results-<sha-short> <run-id>
 ```
 
-**3 Open-Questions für Anil-Klärung (Slice 280 Pre-Spec Sektion 9):**
-1. Scope-Granularität: 1 fat-Modul pro Slice ODER alle 5 in 1 Slice mit Wave-Steps? (Empfehlung: alle 5 in 1 Slice)
-2. FLJS-Reduktions-Ziel realistisch? D70 nennt -200-400 KB, Slice 120 brachte 56 KB allein durch country-flag-icons. -200 KB als Mindestziel ambitioniert aber machbar wenn Sentry+Supabase+Radix zusammen optimiert.
-3. Service-Worker für Static-Chunk-Caching? (Empfehlung: Slice 282+ post-Beta, NICHT in Slice 280)
+## Notion-Drift erkannt 2026-05-06 ~21:25
 
-**Pflicht-Lese-Liste vor Implementation** (Slice 280 Pre-Spec Sektion 4):
-- `worklog/log.md` Slice 120 (static-asset-Migration Win-Pattern, -56 KB)
-- `worklog/log.md` Slice 121 (dynamic-Import Anti-Pattern, 0 KB Win wegen Eager-Pfad)
-- `worklog/log.md` Slice 185b (Bundle-Budget-Gate-Workflow)
-- `next.config.mjs` (`optimizePackageImports` aktuell 8 Libraries)
-- `bundle-budget.json` (Pages am Limit: `/club/[slug]/admin` 425/425, `/bescout-admin` 420/420)
-- `.next/analyze/client.html` post-`ANALYZE=true next build` (Treemap-Wahrheit)
+Notion-MCP Slice-Database (DB-ID `57670082f03a4ac4a305f68186c981a0` aus CLAUDE.md) returnt 404. Search-Query nach "Slice 279 280 Lighthouse Bundle" returnt 0 Hits. Mögliche Ursachen:
+- Notion-Integration verlor Zugriff auf Slice-DB (Permissions-Drift)
+- DB-ID in CLAUDE.md ist stale (DB umbenannt/gelöscht/migriert)
+- Workspace-Switch in Notion-Integration
+
+**Action für Anil:** Notion-Integration prüfen, ggf. DB-ID in `CLAUDE.md` Sektion „Notion-Integration" aktualisieren. Kanban-Sync für Slice 279 + 280 manuell auf „Erledigt" setzen falls Sync nicht automatisch greift.
 
 ## Slice 279 Phase-2-Sammlung (läuft parallel zu Slice 280)
 
@@ -79,7 +94,7 @@ gh run view <run-id> --log
 gh run download --name lhci-results-<sha-short> <run-id>
 ```
 
-## Was passierte heute (6 Slices, 7 Commits, 0 Reverts)
+## Was passierte heute (8 Slices, 9 Commits, 0 Reverts)
 
 | Slice | Commit | Was |
 |-------|--------|-----|
@@ -89,7 +104,8 @@ gh run download --name lhci-results-<sha-short> <run-id>
 | 276b | `0eb4365b` | DB-Heal 4 stuck Ligen Cron-Drift |
 | 277 | `86f29d87` | Cron-Code-Fix advance_gameweek in Skip-Branches (276b recurrent verhindern) |
 | 278 | `5f5e15a4` | MysteryBox-Doppel-Render-Suppression (Slice 266 Multi-Slot-Drift) |
-| **279** | **`66e6208d`** | **Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Phase 1 Foundation)** |
+| 279 | `66e6208d` | Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Phase 1 Foundation) |
+| **280** | **`c9a36469`** | **Bundle-Analysis + Tree-Shaking — Total -374 KB FLJS (Cold-Start-Track Phase 2)** |
 
 Plus Hygiene:
 - TR-Pre-Verify Anil-confirmed (commit `68e73257`) → RISK-5 endgültig CLOSED
@@ -98,16 +114,20 @@ Plus Hygiene:
 - errors-frontend.md erweitert um Cross-Section-Coupling-Drift Pattern (Slice 278)
 - Slice 279 verkabelt pre-existing orphan `lighthouserc.json` (commit 8aad8428 vom 2026-04-19, 17 Tage Build-without-Wire — D54-Recovery)
 
-## Phase-D Anil-Pflicht (parallel zu Cold-Start-Track, BLOCKER für Beta-Launch)
+## Beta-Launch Status: LIVE (Status-Update 2026-05-06)
 
-Cold-Start-Track ist CTO-Track ohne Anil-Action-Items. Phase-D bleibt Anil-Pflicht:
+Anil testet bereits live mit Taki/Nail Mo. Phase-D-BLOCKER-Tracker ist stale → wird in nächster Session aus `worklog/beta-phase.md` korrigiert. Slice 270+ Live-Bug-Fixes kommen aus Tester-Feedback:
+- Slice 274: Form-Bars DNP-Spieler dashed bars
+- Slice 275: Sync-Injuries 1862 false-positive Heal
+- Slice 276/276b/277: Club-Logo + Cron-GW-Drift
+- Slice 278: MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug Report)
 
-1. **iPhone-Visual-Verify 8 Konfigs** (BLOCKER, Checkliste in `worklog/audits/2026-05-05/iphone-verify-checklist.md`)
-2. **Beta-Mails an Taki/Nail Mo** (Templates in `memory/beta-tester-recruitment-templates.md`)
+Cold-Start-Track (Slice 279/280/281+) parallel — Performance-Win für aktive Live-Tester relevanter als für hypothetische 50-Mann-Pipeline.
 
 ## Knowledge-Promotion heute
 
 - `errors-frontend.md` neu „Cross-Section-Coupling-Drift bei Multi-Slot-Refactors" (Slice 278)
+- `errors-frontend.md` neu „Dead-Wrapper-File mit transitive Lib-Lock-In" (Slice 280)
 - `errors-infra.md` neu „Cron-Skip-Branch ohne advance_gameweek-Aufruf" (Slice 273+276b)
 - `errors-db.md` neu „Tenant-Window Achsen-Erweiterung Per-Player vs. Per-Liga" (Slice 274)
 - `errors-scraper.md` neu „External-API liefert historische Daten als aktuelle" (Slice 275)
