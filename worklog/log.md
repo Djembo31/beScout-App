@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 275 | 2026-05-06 | fix(sync-injuries): Date-Filter + Daten-Heilung 1862 rows (Anil-Live-Bug)
+
+- Stage-Chain: SPEC (worklog/specs/275) → IMPACT (skipped, single-cron-route, kein cross-cutting) → BUILD (Phase 1 SQL-Heal + Phase 2 Cron-Code-Fix) → REVIEW (self-review M, Live-API-Discovery 5 sample-dates) → PROVE (worklog/proofs/275-data-heal-and-code-fix.txt) → LOG
+- Slice-Type: Cron-Code-Fix + DB-Heal (M-Slice)
+- Trigger: Anil-Live-Bug-Report 2026-05-06 — „check die club page die spieler, die zeigen alle verletzt an bei Galatasaray, warum?"
+- Bug-Klasse: Slice-070 sync-injuries Cron rief `/injuries?league=X&season=Y` ohne Date-Filter. API-Football returnt aber ALLE Saison-Injuries (13.398 für 7 Ligen). Code mappte JEDE auf `players.status='injured'`. → 1862 false-positive (60-87% pro Top-Club als verletzt). Smoking-Gun: identical `status_updated_at='2026-05-05 12:00:15'` (= 41% aller Spieler in 1 Sekunde verletzt gesetzt).
+- Phase 1 Daten-Heilung: SQL-Bulk-Update aller 1862 false-positive auf `status='fit'`. Per-Club post-Heal: Bayern 39/4, Galatasaray 36/4, Real Madrid 40/2 (realistisch).
+- Phase 2 Code-Fix: Cron iteriert nun pro Liga × Distinct fixture-dates in 28d-Window [now-14d, now+14d]. Pro (Liga, Date) 1 API-Call mit `?date=YYYY-MM-DD`. API-Quota: 21-28 calls/day = 0.4% Pro-Tier.
+- API-Discovery: `?date=YYYY-MM-DD` reduziert results 55× (2647 → 48 für Bundesliga 1 Match-Day). Recovery-Logic unverändert.
+- Knowledge-Promotion: errors-scraper.md neu „External-API liefert historische Daten als aktuelle (Slice 275)" — Detection + Fix-Template + Audit-CMD für künftige Cron-Endpoints.
+- Files: 5 changed, 344 insertions, 30 deletions
+- Commit: 04d84641
+- Pending Anil-Verify post-Vercel-Deploy: Club-Page Galatasaray + Bayern + Real Madrid → realistische 2-5 verletzte Spieler. Optional: manueller Cron-Trigger via Admin-UI bzw. warten auf 2026-05-07 12:00 UTC regulärer Run.
+
 ## 274 | 2026-05-06 | fix(form-bars): Absolute Liga-Window für Performance-Bars (Anil-Live-Bug)
 
 - Stage-Chain: SPEC (worklog/specs/274) → IMPACT (skipped, API-kompatibel, 5 Konsumenten verifiziert via grep) → BUILD (3 Schritte: Migration v1→v2 Heal + Service-Refactor + i18n) → REVIEW (self-review M-Slice, performance-heal v1→v2 dokumentiert) → PROVE (worklog/proofs/274-tsc-vitest.txt, vitest 3215/3216 PASS) → LOG

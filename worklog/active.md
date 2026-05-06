@@ -1,9 +1,9 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 275
-stage: REVIEW (pending Anil-Live-Verify post-Deploy)
+stage: LOG (commit 04d84641, pushed to main, Vercel auto-deploy)
 spec: worklog/specs/275-sync-injuries-date-filter.md
 impact: Phase 1 1862 rows healed (live), Phase 2 Cron-Code-Fix Date-Filter (1 file)
 proof: worklog/proofs/275-data-heal-and-code-fix.txt
