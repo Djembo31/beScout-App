@@ -1,17 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 23:26)
+# Session Handoff — Auto (2026-05-06 23:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
- M worklog/active.md
  M worklog/audits/audit-stale-2026-05-06.md
  M worklog/audits/type-truth-2026-05-06.md
 ```
 
-## Session Commits: 3
+## Session Commits: 5
+- 71cfe7d6 chore(slice-281): live-verify proof + active.md → idle
+- 21af2e74 feat(qa): Slice 281 — Synthetic-User-Suite Daily-GHA-Verkabelung (D54-Recovery)
 - c9a36469 perf(bundle): Slice 280 — Bundle-Analysis + Tree-Shaking (Cold-Start-Track Phase 2)
 - afe0dbf2 chore(session-end): Slice 280 Pre-Spec + Resume-Anker für nächste Session
 - d05d42cb chore(audits): tägliche auto-cron Outputs 2026-05-06 (Re-Run nach Slice 279)
@@ -22,28 +22,47 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~21:25 — Slice 280 LIVE, Cold-Start-Track Phase-2-Wartemodus)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~21:50 — Session-End nach Slice 280 + 281, beide LIVE)
 
-**HEAD `c9a36469`** Status: idle. Slice 280 Phase-2 BUILD live (Bundle-Analysis -374 KB Total-FLJS-Sum). Cold-Start-Track Foundation Phase 1+2 komplett. Phase-3-Wartemodus auf Lighthouse-Baseline-Datensammlung (3-5 Live-Runs).
+**HEAD `71cfe7d6`** Status: idle. Slices 279 + 280 + 281 alle LIVE auf main. Beta läuft mit Taki/Nail Mo (D71). Cold-Start-Track in Phase-2-Wartemodus.
 
-## Erste Action nächste Session — abhängig von Anil-Track-Wahl
+## Letzter Stand bei Session-End (Anil 2026-05-06 ~21:50: „rocht für heute")
 
-### Track A — Slice 281 (`useHomeData`-Konsolidierung)
-**Voraussetzung:** Slice 279 lighthouse.yml-Workflow hat 3-5 Runs gesammelt (anti-Pattern „Optimieren ohne Baseline" vermeiden).
+**3 Slices heute LIVE:**
+- **Slice 279** `66e6208d` — Lighthouse-CI Baseline + GHA-Gate (Cold-Start Foundation Phase 1)
+- **Slice 280** `c9a36469` — Bundle-Analysis + Tree-Shaking (Cold-Start Phase 2). **Total -374 KB FLJS-Sum**, Discovery-Story DropdownMenu-Dead-Wrapper.
+- **Slice 281** `21af2e74` — Synthetic-User-Daily-GHA-Verkabelung (D54-Recovery). Manual-Dispatch live verifiziert (run-id 25462649034).
+
+**2 neue Decisions (DISTILL):**
+- **D71** PROCESS — Beta-Launch-Status korrigiert: LIVE mit Taki/Nail Mo statt Pre-Launch
+- **D72** ARCHITECTURE — `optimizePackageImports`-Lehre: 0 KB Win für moderne ESM-Libs, Hauptwin = Dead-Wrapper-Delete
+
+## Erste Action nächste Session — Track-Auswahl (Anil-Direktive)
+
+### Track A — Slice 282 (Cold-Start Phase 3, `useHomeData`-Konsolidierung) — DEFERRED bis Lighthouse-Baseline da
+**Voraussetzung:** Slice 279 lighthouse.yml-Workflow hat 3-5 Runs gesammelt (D70 anti-Pattern „Optimieren ohne Baseline" vermeiden).
+
 **Verify pre-Start:**
 ```bash
 gh run list --workflow=lighthouse.yml --limit=10
 # Wenn ≥ 3 SUCCESS-Runs: Phase-2-Baseline schreibbar, Track A startfähig.
 ```
+
 **Spec-Skelett:** Noch zu schreiben. Erstes Reading: `useHomeData`-Hook + alle Konsumenten + bestehende RPCs für Home-Data-Bündelung.
 
-### Track B — Phase-D Beta-Pflicht ✅ ERLEDIGT (Status-Update 2026-05-06)
-**Anil 2026-05-06 ~21:30:** „ich teste bereits mit denen live, daher kommen die letzten fixes". Beta-Launch ist bereits in Live-Test mit echten Testern (Taki/Nail Mo). Slice 270+ Live-Bug-Fixes (274/275/276/277/278) sind aus Tester-Feedback entstanden. Phase-D-Tracker stale → BLOCKER-Status entfernt.
+**Hinweis Slice-Numbering:** Cold-Start Phase 3 ist nun Slice 282 (Slice 281 wurde Synthetic-Daily-GHA). D70 Re-Numbering: Slice 282 = Phase 3 (`useHomeData`), Slice 283 = Phase 4 (Vercel Edge-Caching).
 
-iPhone-Visual-Verify + Beta-Mails-Recruiting: nicht mehr auf der Liste. Beta läuft live.
+### Track B — Phase-D Beta-Pflicht ✅ ERLEDIGT (D71 dokumentiert)
+Beta läuft live mit Taki/Nail Mo. Phase-D-BLOCKER-Tracker stale. Live-Bug-Reports von Anil = Tester-Befund hohe Prio.
 
-### Track C — Slice 280b (Wave 3, Dialog/AlertDialog dynamic-Wrap)
-Wenn weiterer Bundle-Win priorisiert. Risk: User-Side Loading-Spike auf Modal-Open. Empfehlung: defer bis Phase 2 Lighthouse-Daten zeigen ob LCP-Verbesserung ausreicht.
+### Track C — Slice 280b (Wave 3, Dialog/AlertDialog dynamic-Wrap) — DEFERRED
+Risk/Reward ungünstig nach Slice 280 Wave-0-Win (-374 KB). Wave 3 würde User-Side Loading-Spike auf Modal-Open einführen. Empfehlung: defer bis Phase 2 Lighthouse-Daten zeigen ob LCP-Verbesserung ausreicht.
+
+### Track D — Slice 281 Live-Run-Triage (1× pro Tag morgens)
+**Pflicht für Anil:** `gh run list --workflow=synthetic-users.yml --limit=3` morgens checken. Master-Tracker-Issue mit `synthetic-fail` Label = Live-Bug-Report aus Tester-Surrogate. Sofort triagen.
+
+### Track E — Notion-Integration-Drift heilen
+Notion-MCP DB-ID `57670082f03a4ac4a305f68186c981a0` returnt 404. Anil-Action: Integration-Permissions checken oder DB-ID in CLAUDE.md aktualisieren.
 
 ## Slice 280 Recap — was passierte
 
@@ -94,7 +113,7 @@ gh run view <run-id> --log
 gh run download --name lhci-results-<sha-short> <run-id>
 ```
 
-## Was passierte heute (8 Slices, 9 Commits, 0 Reverts)
+## Was passierte heute (9 Slices, 11 Commits, 0 Reverts)
 
 | Slice | Commit | Was |
 |-------|--------|-----|
@@ -105,7 +124,8 @@ gh run download --name lhci-results-<sha-short> <run-id>
 | 277 | `86f29d87` | Cron-Code-Fix advance_gameweek in Skip-Branches (276b recurrent verhindern) |
 | 278 | `5f5e15a4` | MysteryBox-Doppel-Render-Suppression (Slice 266 Multi-Slot-Drift) |
 | 279 | `66e6208d` | Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Phase 1 Foundation) |
-| **280** | **`c9a36469`** | **Bundle-Analysis + Tree-Shaking — Total -374 KB FLJS (Cold-Start-Track Phase 2)** |
+| 280 | `c9a36469` | Bundle-Analysis + Tree-Shaking — Total -374 KB FLJS (Cold-Start-Track Phase 2) |
+| **281** | **`21af2e74` + `71cfe7d6`** | **Synthetic-User-Daily-GHA-Verkabelung (D54-Recovery, live verifiziert)** |
 
 Plus Hygiene:
 - TR-Pre-Verify Anil-confirmed (commit `68e73257`) → RISK-5 endgültig CLOSED
@@ -138,6 +158,8 @@ Cold-Start-Track (Slice 279/280/281+) parallel — Performance-Win für aktive L
 
 - **D69** Backlog-Sub-Track MUSS nächster Slice sein, nicht „separater Slice nach Beta"
 - **D70** Cold-Start-Latency als nächster Strategic-Track (Slice 279+)
+- **D71** Beta-Launch-Status korrigiert: LIVE seit ≤2026-05-06 mit Taki/Nail Mo (statt Pre-Launch)
+- **D72** `optimizePackageImports`-Lehre: 0 KB Win für moderne ESM-Libs, Hauptwin = Dead-Wrapper-Delete (Slice 280 empirisch)
 
 ## Tests final state
 

@@ -3223,3 +3223,80 @@ Der Track ist Strategic-Investment für Beta-Launch-Erfolg: Tester die 4s Cold-S
 - Lighthouse-Baseline zeigt LCP < 3s → Track auf 1-2 Slices reduzieren (nur niedrig-hängende Früchte)
 - Slice 279-282 done + LCP > 3s → Track erweitern mit weiteren Optimierungen (Image-CDN, ISR-Refinement, Service-Worker)
 - Anil-Decision sagt „später" → Track in `slice_stubs_pending` parken
+
+---
+
+## D71 — PROCESS: Beta-Launch-Status korrigiert: LIVE seit ≤2026-05-06 statt Pre-Launch
+
+**Datum:** 2026-05-06 · **Category:** PROCESS · **Status:** Aktiv
+
+### Entscheidung
+
+Beta-Launch ist ✅ **LIVE** mit Taki + Nail Mo als aktive Tester. Phase-D-BLOCKER-Tracker (`worklog/beta-phase.md` + alte session-handoff-Sektionen) ist stale. Slice 270-280 Live-Bug-Fixes (Form-Bars, Sync-Injuries, Logo-Konflikt, Cron-Drift, MysteryBox-Doppel-Render, Bundle-Win) kommen aus **Tester-Feedback**, nicht aus internem QA.
+
+Anil-Status-Update wörtlich (2026-05-06 ~21:30): „ich teste bereits mit denen live, daher kommen die letzten fixes".
+
+### Begründung
+
+Anil hat die formelle Phase-D-Checklist-Abarbeitung (iPhone-Visual-Verify 8 Konfigs + Beta-Mails-Recruiting an Taki/Nail Mo) übersprungen und ist direkt in Live-Test gegangen. Das ist seine CEO-Decision — Phase-D-Process war als Pre-Launch-Hürde formuliert, hat sich überholt.
+
+### Auswirkungen
+
+- `MEMORY.md` Beta-Launch-Section auf LIVE geändert (Pre-Launch als historischer Snapshot markiert)
+- `project_beta_live.md` neu — project-Memory mit Live-Status, Tester-Liste, Live-Bug-Fix-Pipeline, How-to-apply
+- Bug-Reports von Anil mit Phrasen wie „zeigt nicht / wird nicht angezeigt / falsch / komisch" ab jetzt als **Tester-Befund hohe Prio** behandeln (nicht als internes QA-Issue)
+- Cold-Start-Track (D70 Slice 279+) Argumentation: für aktive Tester relevant, nicht für hypothetische 50-Mann-Pipeline
+- Phase-D-Checklist-Items (iPhone-Verify, Beta-Mails) in nächster Session aus tracker entfernen oder als „pre-launch erledigt"-Annotation versehen
+
+### Alternativen erwogen
+
+- **A: Phase-D als Soft-Recommendation behalten** — verworfen, weil Tracker dann inkonsistent zur Realität (CEO testet längst live)
+- **B: Beta-Launch als Status „Live (2-Tester)" tracken bis 50-Mann aktiviert** — gewählt, klarer Status, kein Auto-Promote
+- **C: project_beta_live.md als feedback-Memory** — verworfen, project-Memory passt besser (es ist Status-Information, nicht Anil-Preference)
+
+### Re-Visit-Trigger
+
+- 50-Mann-Pipeline aktiviert → D71 wird abgelöst durch neuen Status-Decision
+- Live-Beta endet (Sunset oder Hard-Pivot) → D71 als Superseded markieren
+
+---
+
+## D72 — ARCHITECTURE: optimizePackageImports-Lehre — moderne ESM-Libs sind bereits tree-shaken
+
+**Datum:** 2026-05-06 · **Category:** ARCHITECTURE · **Status:** Aktiv (Slice 280 empirisch verifiziert)
+
+### Entscheidung
+
+`next.config.mjs` `experimental.optimizePackageImports` bringt bei modernen ESM-Libraries (Radix-UI, Supabase-SSR, TanStack-Query-Persist-Client) **0 KB direkten Bundle-Win**. Webpack-Tree-Shaking war bereits effektiv, weil Libraries Named-Exports + ESM-Module-Format nutzen. Hauptwin liegt in:
+
+1. **Dead-Wrapper-Removal** (Slice 280: -374 KB total durch DropdownMenu-Wrapper-Delete)
+2. **Lazy-Loading** (Slice 121 Anti-Pattern: nur effektiv wenn ALLE Call-Sites lazy, nicht parallel eager)
+3. **API-Surface-Reduktion via Named-Imports statt Namespace** (Slice 120 country-flag-icons static-asset-Migration)
+
+### Begründung
+
+Slice 280 hat das empirisch gemessen:
+- Wave 1 (`optimizePackageImports` +5 entries) → 0 KB direkter Win
+- Wave 2 (Sentry Namespace → Named-Imports in 3 Files) → 0 KB direkter Win
+- Wave 0 (DropdownMenu-Wrapper-Delete via Pre-Implementation-Greppen-Discovery) → -374 KB Total-FLJS-Sum
+
+Pattern-Lehre: Bundle-Win-Hunt sollte mit `grep -rln "<Wrapper-Name>" src/` für jeden UI-Wrapper-File starten. Wenn 0 Konsumenten in Production: sofort delete (Slice 280 Pattern). Erst dann config-only Optimizations versuchen.
+
+### Auswirkungen
+
+- `errors-frontend.md` neu „Dead-Wrapper-File mit transitive Lib-Lock-In (Slice 280)" — Bug-Klasse + Detection-Pattern + Fix-Pattern + Bundle-Win-Erwartung (live seit Commit `c9a36469`)
+- Bei künftigen Bundle-Optimization-Slices: Wave 0 (Dead-Wrapper-Audit) MUSS vor Wave 1 (config-Tweaks) kommen
+- `optimizePackageImports`-Add ist Low-Risk (kein Code-Change), kann als Safety-Net trotzdem hinzugefügt werden
+- `scripts/orphan-component-detector.ts` (Slice 228) sollte um Wrapper-File-Filter erweitert werden — Future-Slice-Kandidat (siehe Slice 280 Reviewer Empfehlung 2)
+
+### Alternativen erwogen
+
+- **A: optimizePackageImports als primärer Bundle-Win-Pfad behalten** — empirisch widerlegt, 0 KB Win für moderne Libs
+- **B: Lazy-Loading aller Modal-Components** — high-Risk (UX-Spike beim ersten Open), zurückgehalten als Slice 280b/Wave 3
+- **C: Dead-Wrapper-Audit als Pre-Step für jede Bundle-Optimization** — gewählt, Slice 280 zeigte den Win-Pfad
+
+### Re-Visit-Trigger
+
+- Next.js 15+ ändert `optimizePackageImports`-Verhalten → D72 ggf. neu empirisch messen
+- Library-Update bringt neue ESM-Format-Drift → Tree-Shaking könnte regredieren
+- Bundle-Budget-Drift > 10% → Audit-Pattern aus D72 anwenden vor neuer Optimization-Strategie
