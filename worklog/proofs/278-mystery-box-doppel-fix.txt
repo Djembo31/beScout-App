@@ -1,0 +1,103 @@
+Slice 278 — MysteryBox-Doppel-Render auf Home (Anil-Live-Bug)
+================================================================
+Datum: 2026-05-06
+Stage: PROVE
+Größe: XS (1 File, 1 Zeilen-Gate)
+
+## 1. Anil-Trigger
+
+„wieviele mysteryboxen habe ich im home? ich habe das gefühl das es 2 mal auftritt"
+(2026-05-06 ~15:35 UTC, post-Slice-277-LIVE)
+
+## 2. Diagnose (5 min Code-Reading)
+
+MysteryBox erschien an 2 Stellen wenn hasFreeBoxToday=true:
+
+| Stelle | File:Line | Sichtbarkeits-Bedingung |
+|--------|-----------|-------------------------|
+| HomeSpotlight Slot | HomeSpotlight.tsx:73-74 (gerendert via page.tsx:208-216) | hasFreeBoxToday=true (Cascade Slot 2) |
+| Sidebar/Mobile Card | page.tsx:386-450 | uid !== null (KEIN Suppression-Gate) |
+
+Root-Cause: Slice 266 Multi-Slot-Spotlight hat Suppression-Mapping in page.tsx
+für event/ipo/topMover/trending erfasst — mysteryBox wurde übersehen.
+
+## 3. Fix (1 Zeile)
+
+```diff
+- {uid && (
++ {/* Slice 278: Suppress wenn Spotlight bereits MysteryBox als Slot zeigt */}
++ {uid && spotlightSlots.primary !== 'mysteryBox' && spotlightSlots.secondary !== 'mysteryBox' && (
+    <Card
+      role="button"
+      ...
+```
+
+File: src/app/(app)/page.tsx Z.385-386
+
+## 4. Acceptance Criteria — Verifizierung
+
+| AC | Szenario | Erwartung | Verify |
+|----|----------|-----------|--------|
+| AC1 | hasFreeBoxToday=true, kein Live-Event, keine IPO | Spotlight zeigt MysteryBox primary, Sidebar unsichtbar | Logic-Trace: spotlightSlots.primary='mysteryBox' → Gate false → Card hidden ✓ |
+| AC2 | hasFreeBoxToday=true, Live-Event aktiv | Spotlight liveScore primary + mysteryBox secondary, Sidebar unsichtbar | Logic-Trace: spotlightSlots.secondary='mysteryBox' → Gate false → Card hidden ✓ |
+| AC3 | hasFreeBoxToday=false | Cascade ohne mysteryBox-Slot, Sidebar sichtbar (dezenter Variant) | Logic-Trace: primary !== 'mysteryBox' UND secondary !== 'mysteryBox' → Gate true → Card visible ✓ |
+| AC4 | uid === null (logout) | Sidebar unsichtbar (existing) | Logic-Trace: uid=null → Gate false → Card hidden ✓ |
+
+## 5. tsc --noEmit Output
+
+$ npx tsc --noEmit && echo "TSC_CLEAN"
+TSC_CLEAN
+
+## 6. vitest Output (Home + Hooks)
+
+$ npx vitest run src/components/home/ src/app/\(app\)/hooks/
+
+ Test Files  11 passed (11)
+      Tests  135 passed (135)
+   Start at  16:20:35
+   Duration  16.92s
+
+Alle Home-relevanten Tests grün — kein Regression in HomeSpotlight,
+useHomeData, MarktPuls, ActionRequiredStack.
+
+## 7. Live-Verify (post-Deploy via Anil's Account)
+
+Nach Deploy auf bescout.net:
+1. Home öffnen mit hasFreeBoxToday=true (UTC-Tag noch nicht Box geöffnet)
+   → Erwartung: NUR 1× MysteryBox sichtbar (im Spotlight oben)
+2. Mystery Box im Spotlight öffnen
+   → hasFreeBoxToday=false
+   → Spotlight rückt nach (zeigt nächsten Slot oder leer)
+   → Sidebar-Card erscheint mit dezenter Variant „Holst du dir morgen"
+
+## 8. Knowledge-Promotion-Kandidat
+
+Pattern: „Cross-Section-Coupling-Audit bei neuen Multi-Slot-Components".
+Wenn Slot-Container neue Slot-Types einführt, MUSS systematisch geprüft
+werden welche Sidebar/Mobile-Sections doppelt zeigen würden.
+
+Slice 266 hat Suppression für 4/5 Slot-Types erfasst (event/ipo/topMover/
+trending), mysteryBox vergessen.
+
+→ errors-frontend.md Eintrag post-Slice-278 (parallel-Pull-Pattern für
+  künftige Multi-Slot-Refactors).
+
+## 9. Scope-Out
+
+NICHT in Slice 278:
+- Cold-Start-Latency-Optimierung (Anil's 2. Frustration aus selbem Anil-Message)
+  → separates strategisches Thema, Lighthouse-CI-Gate + Bundle-Analysis post-Beta
+- Cross-Page UX-Coherence-Audit-Skill systematisch dispatchen
+  → ux-coherence-auditor existiert, wird aber nicht systematisch genutzt
+- Visual-Regression-Suite (Storybook + Chromatic)
+  → CapEx-Investment, post-Beta-Phase
+
+## 10. Slice-Done-Definition (D54)
+
+✓ Code-Edit verkabelt (1 Zeile in produktivem Page-Render-Tree)
+✓ tsc --noEmit clean
+✓ vitest 135/135 PASS in betroffener Domain
+✓ XS-Slice Self-Review (Pattern-Wiederholung Slice 266 Suppression-Mapping,
+  reviewer-agent skipped per workflow.md XS-exception)
+✓ Acceptance-Criteria 4/4 logic-trace ✓
+✓ Pending Anil-Verify post-Deploy (Live-Check auf bescout.net)

@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 278 | 2026-05-06 | fix(home): MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug)
+
+- Stage-Chain: SPEC (inline-active.md, XS) → BUILD (1-Zeilen-Gate) → PROVE (worklog/proofs/278-mystery-box-doppel-fix.txt) → LOG
+- Slice-Type: UI-Component (XS, Pattern-Wiederholung Slice 266 Suppression-Mapping)
+- Trigger: Anil-Live-Report 2026-05-06 ~15:35 — „wieviele mysteryboxen habe ich im home? ich habe das gefühl das es 2 mal auftritt"
+- Bug-Klasse: Cross-Section-Coupling-Drift bei Multi-Slot-Refactor. Slice 266 hat Spotlight Multi-Slot eingeführt + Suppression-Mapping für 4/5 Slot-Types (event/ipo/topMover/trending) erfasst — mysteryBox wurde übersehen. Sidebar-Card in `page.tsx:386` hatte keinen Gate auf `spotlightSlots.primary/secondary !== 'mysteryBox'`, dadurch erschien MysteryBox 2× wenn `hasFreeBoxToday=true` (1× im Spotlight als Slot, 1× in Sidebar als persistent Card).
+- Fix: 1-Zeilen-Gate in `page.tsx:386` — `{uid && spotlightSlots.primary !== 'mysteryBox' && spotlightSlots.secondary !== 'mysteryBox' && (`. Sidebar-Card unterdrückt wenn Spotlight bereits MysteryBox-Slot rendert.
+- Acceptance: 4/4 ACs (mit/ohne hasFreeBoxToday × mit/ohne Live-Event) logic-trace ✓.
+- Tests: vitest 135/135 PASS in Home + Hooks Domain. tsc --noEmit clean.
+- Files: 1 (`src/app/(app)/page.tsx` +3/-1).
+- Pending Anil-Verify: post-Deploy Live-Check auf bescout.net — Home öffnen mit free Box available, NUR 1× MysteryBox sichtbar (im Spotlight oben, Sidebar-Card unsichtbar).
+- Knowledge-Promotion-Kandidat (post-Slice-278): „Cross-Section-Coupling-Audit bei neuen Multi-Slot-Components" als Pattern in errors-frontend.md.
+- Anil-Frustration zur Cold-Start-Latency NICHT in Slice 278 — separates strategisches Thema (Lighthouse-CI-Gate + Bundle-Analysis), post-Beta-Phase.
+
 ## 277 | 2026-05-06 | fix(gameweek-cron): advance_gameweek auch in Skip-Branches
 
 - Stage-Chain: SPEC (worklog/specs/277-gameweek-cron-advance-on-complete.md) → IMPACT (inline) → BUILD (advance-helpers.ts + route.ts integration) → REVIEW (Cold-Context PASS) → PROVE (worklog/proofs/277-cron-advance-on-complete.txt) → LOG

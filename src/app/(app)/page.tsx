@@ -382,8 +382,10 @@ export default function HomePage() {
             </Link>
           )}
 
-          {/* Mystery Box — animated when free box available */}
-          {uid && (
+          {/* Mystery Box — animated when free box available.
+              Slice 278: Suppress wenn Spotlight bereits MysteryBox als Slot zeigt
+              (HomeSpotlight Multi-Slot Cascade Slice 266). Verhindert Doppel-Render. */}
+          {uid && spotlightSlots.primary !== 'mysteryBox' && spotlightSlots.secondary !== 'mysteryBox' && (
             <Card
               role="button"
               tabIndex={0}
