@@ -2,6 +2,25 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 279 | 2026-05-06 | feat(perf): Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Foundation Phase 1)
+
+- Stage-Chain: SPEC (worklog/specs/279-lighthouse-ci-baseline.md) → IMPACT (skipped — neue Workflow-Datei + Config, keine Service/RPC/DB) → BUILD → REVIEW (Cold-Context-reviewer-agent PASS) → PROVE (worklog/proofs/279-build-prove.md) → LOG
+- Slice-Type: GHA-Workflow (M-Slice, Phase 1 von 3-Phasen-Plan)
+- Trigger: D70 Cold-Start-Track Phase 1. Anil-Frustration 2026-05-06 ~15:35 — „ich bin weiterhin mit dem laden der App total unzufrieden! warum bekommen wir es nicht endlich mal alles reibungslos?". Track-Approval von Anil pre-BUILD ✓.
+- Architektur-Win: Verkabelt pre-existing orphan `lighthouserc.json` (commit 8aad8428 vom 2026-04-19, ~17 Tage Build-without-Wire) in 2 Trigger-Pfade — `lighthouse:local` npm-Script (manuell) + `.github/workflows/lighthouse.yml` GHA-Job (auto post-deploy). Klassisches D54-Recovery in 1 Slice.
+- Files: 3 (`.github/workflows/lighthouse.yml` NEU 126 Zeilen, `lighthouserc.json` MOD von desktop-provided/1-run auf perf-mobile-simulate-Slow4G/3-runs, `package.json` +1 Script `lighthouse:local`).
+- Trigger-Filter: `deployment_status.state == 'success' && deployment.environment == 'Production'` (1:1 Pattern aus post-deploy-smoke.yml). Plus `workflow_dispatch` für manuellen Re-Run. Concurrency-Group `lighthouse-${{ github.ref }}` cancel-in-progress für Quota-Schutz.
+- LHCI-Config: 3 URLs (`/`, `/market`, `/community` — Top-3-FLJS laut bundle-budget.json: 395+385+400 KB) × 3 Iterations median. Mobile 393×852 = iPhone 16. Slow 4G simulated (rttMs:150, throughput:1638.4 Kbps, cpu 4×). chromeFlags `--no-sandbox --headless=new` für GHA-Container.
+- Phase-Plan in 1 Slice: Phase 1 BUILD heute (Workflow live, WARN-only, kein hard-fail) → Phase 2 nach 3-5 Live-Runs (`worklog/audits/2026-05-06/lighthouse-baseline.md` mit Mean ± StdDev) → Phase 3 nach Anil-Approval der Schwellen (`assertions`-Block auf `error`-Level, hard-fail Gate aktiv).
+- Cold-Start-Warm-Up Pattern (errors-infra.md Slice SO-4) 1:1 übernommen — 6× curl retry × max 30s + 5s Settle-Time vor erstem LHCI-Goto. Verhindert dass Vercel-Cold-Lambda LCP-Werte inflatiert → false-Baseline.
+- Job-Summary: Markdown-Tabelle (URL × Performance/LCP/CLS/TBT/Speed-Index) via $GITHUB_STEP_SUMMARY + node-Parse manifest.json. 3-Layer Defensive (`-d`, `-f manifest.json`, `2>&1 ||`). Reports als 30-day-Artifact uploaded.
+- Reviewer-Verdict: PASS (worklog/reviews/279-review.md). 2 LOW Spec-Drifts identifiziert + im Spec-File gefixt: F-01 AC-10 Permissions auf 2 Keys (YAGNI, pull-requests:write deferred bis Slice 280) · F-02 AC-02 URL-Set auf `/community` statt ursprünglich `/player/[id]` (dynamic-id-drift-Risk). 2 INFO-Findings non-blocking.
+- AC-Bilanz: 8/10 directly verifiable (AC-01..AC-06 + AC-09 + AC-10), 2/10 by-design deferred (AC-07 + AC-08 = Phase 2/3 tasks).
+- Anti-Patterns vermieden: D70 „Optimieren ohne Baseline" (Phase 1 ist explizit Baseline-Sammlung, kein Optimization-Theater). D70 „Bundle-Splitting blind" (Slice 280 wartet auf Phase-1-Mess-Wahrheit).
+- Pattern-Familie: D45 (Hooks > Text-Regeln) — Lighthouse-Gate ist GHA-Variante für Performance-Discipline analog `audit:type-truth`/`audit:wiring`. D54 (Build-without-Wire) — orphan Config nach 17 Tagen verkabelt, Existenz + Verwendung beide etabliert in 1 Slice.
+- Pending Anil-Action für Phase-1-Live: `git push origin main` → Vercel-Deploy → Workflow läuft auto. Verify: `gh run list --workflow=lighthouse.yml --limit=5`. Nach 3-5 erfolgreichen Runs: Phase-2-Baseline-Markdown schreiben.
+- Knowledge-Promotion-Kandidaten (post-Phase-3): Pattern „Phase-Plan in 1 Slice (BUILD-now + LOG-tasks-deferred)" + Pattern „GHA-Workflow im D54-Recovery-Modus verkabelt orphan Config" — beide in `memory/patterns.md` + `errors-infra.md` post Phase-3-Erfolg.
+
 ## 278 | 2026-05-06 | fix(home): MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug)
 
 - Stage-Chain: SPEC (inline-active.md, XS) → BUILD (1-Zeilen-Gate) → PROVE (worklog/proofs/278-mystery-box-doppel-fix.txt) → LOG

@@ -1,0 +1,125 @@
+name: Lighthouse Audit
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+# Slice 279 (2026-05-06): D70 Cold-Start-Track Phase 1.
+# Triggert nach erfolgreichem Vercel-Deploy auf Production-Environment
+# (gleicher Pattern wie post-deploy-smoke.yml). Misst LCP/CLS/TBT/Score
+# auf 3 Top-FLJS-Pages (/, /market, /community) im Mobile-Slow-4G-Profil.
+# Phase 1 ist WARN-only — sammelt 3-5 Baseline-Runs für StdDev-Berechnung.
+# Phase 3 (separater Slice 279 LOG-step) aktiviert hard-fail Gate mit
+# Schwellen aus worklog/audits/2026-05-06/lighthouse-baseline.md.
+#
+# Concurrency-Group cancel-in-progress: bei 2 schnellen Pushes wird der
+# ältere Run abgebrochen — verhindert Quota-Verschwendung.
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    # Run on manual dispatch OR on successful Production deploy.
+    # Filter analog post-deploy-smoke.yml.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Slice SO-4 Cold-Start-Warm-Up Pattern (errors-infra.md): Vercel-Lambda
+      # braucht ~10-25s Warm-Boot nach Deploy. Ohne Warm-Up trifft erster LHCI-
+      # Run die cold Lambda → LCP-Wert grossly inflated → false-Baseline. curl-
+      # retry-loop wakes Lambda OHNE Lighthouse-Counter zu inkrementieren.
+      - name: Warm-Up bescout.net (Cold-Start-Mitigation)
+        run: |
+          set -e
+          for i in 1 2 3 4 5 6; do
+            echo "[warm-up] attempt $i/6 — curl https://bescout.net/"
+            CODE=$(curl -fsSL -o /dev/null -w "%{http_code}" -m 30 https://bescout.net/ || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "[warm-up] ✅ bescout.net responded 200 (warm)"
+              # Extra 5s Settle-Time für React-Hydration-Puffer
+              sleep 5
+              exit 0
+            fi
+            echo "[warm-up] ⚠️ HTTP $CODE — retry in 10s"
+            sleep 10
+          done
+          echo "[warm-up] ❌ bescout.net cold-boot fehlgeschlagen (60s window)"
+          # Kein Hard-Fail — LHCI versucht's trotzdem; Lambda könnte beim
+          # ersten Lighthouse-Goto warm werden.
+
+      - name: Run Lighthouse CI against bescout.net
+        id: lhci
+        # @lhci/cli 0.15.1 ist als devDep installiert (siehe package.json devDependencies).
+        # autorun macht: collect (3 URLs × 3 runs) → assert (warn-only Phase 1) → upload (filesystem).
+        # Output landet in ./.lighthouseci/ (LHR JSON + HTML reports).
+        run: pnpm exec lhci autorun --config=./lighthouserc.json
+        continue-on-error: false
+
+      - name: Generate Job Summary (LCP/CLS/TBT/Score Tabelle)
+        if: always()
+        run: |
+          set -e
+          if [ ! -d .lighthouseci ]; then
+            echo "::warning::No .lighthouseci/ directory — LHCI failed before producing reports"
+            echo "## Lighthouse Audit — keine Reports generiert" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          echo "## Lighthouse Audit — Slice 279 Phase 1 (WARN-only)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Run:** ${{ github.run_id }} · **Commit:** ${GITHUB_SHA:0:7} · **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| URL | Performance | LCP (ms) | CLS | TBT (ms) | Speed-Index (ms) |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------------|----------|-----|----------|------------------|" >> $GITHUB_STEP_SUMMARY
+          # LHCI median-of-3 ist im manifest.json. Parse mit jq pro URL.
+          if [ -f .lighthouseci/manifest.json ]; then
+            node -e '
+              const fs = require("fs");
+              const path = require("path");
+              const manifest = JSON.parse(fs.readFileSync(".lighthouseci/manifest.json", "utf8"));
+              // Group by url, pick representative=true entry (median)
+              const median = manifest.filter(m => m.isRepresentativeRun);
+              for (const entry of median) {
+                const lhr = JSON.parse(fs.readFileSync(entry.jsonPath, "utf8"));
+                const url = lhr.finalUrl || lhr.requestedUrl;
+                const perfScore = lhr.categories.performance ? Math.round(lhr.categories.performance.score * 100) : "-";
+                const lcp = lhr.audits["largest-contentful-paint"]?.numericValue?.toFixed(0) ?? "-";
+                const cls = lhr.audits["cumulative-layout-shift"]?.numericValue?.toFixed(3) ?? "-";
+                const tbt = lhr.audits["total-blocking-time"]?.numericValue?.toFixed(0) ?? "-";
+                const si = lhr.audits["speed-index"]?.numericValue?.toFixed(0) ?? "-";
+                console.log(`| ${url} | ${perfScore} | ${lcp} | ${cls} | ${tbt} | ${si} |`);
+              }
+            ' >> $GITHUB_STEP_SUMMARY 2>&1 || echo "| (parse error, see logs) | - | - | - | - | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| (no manifest.json) | - | - | - | - | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Phase 1:** Baseline-Sammlung (Slice 279). Nach 3-5 erfolgreichen Runs: \`worklog/audits/2026-05-06/lighthouse-baseline.md\` mit Mean ± StdDev → Phase 3 Gate-Schwellen ableiten." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Reports:** Vollständige HTML+JSON-Reports im Artifact \`lhci-results-${GITHUB_SHA:0:7}\` herunterladbar." >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Lighthouse Reports as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lhci-results-${{ github.event.deployment.sha && github.event.deployment.sha || github.sha }}
+          path: .lighthouseci/
+          retention-days: 30
+          if-no-files-found: warn

@@ -36,6 +36,7 @@
     "rotate-secret": "npx tsx scripts/rotate-secret.ts",
     "beta:metrics": "node scripts/beta-metrics.mjs",
     "size": "npx tsx scripts/check-bundle-size.ts",
+    "lighthouse:local": "lhci autorun --config=./lighthouserc.json",
     "cron:audit": "npx tsx scripts/check-cron-registry.ts",
     "prepare": "husky"
   },

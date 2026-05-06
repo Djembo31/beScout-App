@@ -2,51 +2,23 @@
 
 ```
 status: idle
-slice: 278
+slice: 279
 stage: LOG (commit pending push)
-spec: in-active-md (XS-Slice Hot-Fix)
-impact: page.tsx Z.386 Gate erweitert (1 Zeile)
-proof: worklog/proofs/278-mystery-box-doppel-fix.txt
-review: self-review (XS Pattern-Wiederholung Slice 266, vitest 135/135 PASS)
+spec: worklog/specs/279-lighthouse-ci-baseline.md
+impact: skipped (neue Workflow-Datei + Config, keine Service/RPC/DB)
+proof: worklog/proofs/279-build-prove.md
+review: worklog/reviews/279-review.md (PASS, 2 minor Spec-Drifts F-01+F-02 in Spec gefixt)
 ```
 
-## Slice 278 — MysteryBox-Doppel-Render auf Home (Anil-Live-Bug 2026-05-06)
+## Slice 279 — Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Foundation)
 
-**Anil-Trigger 2026-05-06 ~15:35:** „wieviele mysteryboxen habe ich im home? ich habe das gefühl das es 2 mal auftritt"
+Phase 1 BUILD complete. Files live:
+- `.github/workflows/lighthouse.yml` — neuer Workflow, deployment_status-trigger, 3 URLs × 3 runs Mobile-Slow-4G
+- `lighthouserc.json` — pre-existing orphan (commit 8aad8428 vom 2026-04-19) auf Phase-1-Config aktualisiert
+- `package.json` — neuer Script `lighthouse:local`
 
-**Diagnose (5-min Code-Reading):**
+**Anil-Action für Phase-1-Live:** `git push origin main` → Vercel-Deploy-success → Workflow läuft automatisch. Verify: `gh run list --workflow=lighthouse.yml --limit=5`.
 
-MysteryBox erscheint im Home an 2 Stellen, beide gefüttert vom selben `hasFreeBoxToday`-Flag:
+**Phase 2 (deferred bis 3-5 erfolgreiche Live-Runs gesammelt):** `worklog/audits/2026-05-06/lighthouse-baseline.md` mit Mean ± StdDev pro Metric → ableitbare Gate-Schwellen.
 
-| Stelle | File:Line | Sichtbarkeits-Bedingung |
-|--------|-----------|------------------------|
-| HomeSpotlight Slot | `HomeSpotlight.tsx:73-74` (gerendert via `page.tsx:208-216`) | `hasFreeBoxToday === true` (sonst Slot fällt raus, Cascade rückt nach) |
-| Sidebar/Mobile Card | `page.tsx:386-450` | `uid !== null` (immer wenn eingeloggt) — KEIN Suppression-Gate |
-
-**Root-Cause:** Slice 266 hat Multi-Slot-Spotlight eingeführt + Suppression-Mapping in `page.tsx` für event/ipo/topMover/trending erfasst. **MysteryBox wurde im Multi-Slot-Refactor übersehen** — Sidebar-Card hat keinen `spotlightSlots.primary !== 'mysteryBox'`-Gate.
-
-**Fix (1 Zeile):** `page.tsx:386` Gate erweitern:
-```tsx
-// Vorher
-{uid && (
-  <Card ...>
-
-// Nachher
-{uid && spotlightSlots.primary !== 'mysteryBox' && spotlightSlots.secondary !== 'mysteryBox' && (
-  <Card ...>
-```
-
-**Acceptance Criteria:**
-
-| # | Szenario | Erwartung |
-|---|----------|-----------|
-| AC1 | `hasFreeBoxToday=true`, kein Live-Event, keine IPO | Spotlight zeigt MysteryBox als primary, Sidebar-Card unsichtbar (Suppression aktiv) |
-| AC2 | `hasFreeBoxToday=true`, Live-Event aktiv | Spotlight zeigt liveScore (primary) + mysteryBox (secondary), Sidebar-Card unsichtbar |
-| AC3 | `hasFreeBoxToday=false` | Spotlight cascade ohne mysteryBox-Slot, Sidebar-Card sichtbar (dezenter Variant „Holst du dir morgen") |
-| AC4 | `uid === null` (logout) | Sidebar-Card unsichtbar (existing behavior) |
-
-**Self-Verification:** `npx tsc --noEmit` clean + bestehende vitest-Suite Home-Tests grün.
-
-**Knowledge-Promotion-Kandidat:** Pattern „Cross-Section-Coupling-Audit bei neuen Multi-Slot-Components" — wenn ein Slot-Container neue Slot-Types einführt, MUSS systematisch geprüft werden welche Sidebar/Mobile-Sections doppelt zeigen würden. Slice 266 hat das für 4 von 5 Slot-Types gemacht (event/ipo/topMover/trending), für mysteryBox vergessen. Errors-frontend.md-Eintrag post-Slice-278.
-
-**Scope-Out:** Cold-Start-Latency-Optimierung (Anil's 2. Frustration) ist nicht Teil von Slice 278 — separates strategisches Thema (Lighthouse-CI-Gate, Bundle-Analysis).
+**Phase 3 (separater LOG-Step nach Anil-Approval der Schwellen):** `lighthouserc.json` `assertions`-Block auf `error`-Level mit konkreten Schwellen → hard-fail Gate live.

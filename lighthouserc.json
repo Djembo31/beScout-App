@@ -1,19 +1,25 @@
 {
+  "_comment": "Slice 279 (2026-05-06) — D70 Cold-Start-Track Foundation. Phase 1: WARN-only Baseline-Sammlung über deployment_status-trigger via .github/workflows/lighthouse.yml. URLs sind 3 Top-FLJS-Pages laut bundle-budget.json (/=395kB, /market=385kB, /community=400kB) — public-readable ohne Auth-Wall. /player/[id] aus der ursprünglichen Spec ersetzt durch /community wegen dynamic-id-drift-Risk (Player könnte inactive werden). 3 runs per URL median minimiert Mess-Rauschen aus Vercel-Cold-Lambda-Boot. Phase-3-Schwellen werden nach 3-5 Live-Runs aus worklog/audits/2026-05-06/lighthouse-baseline.md abgeleitet (baseline + 1.5×StdDev pro Metric).",
   "ci": {
     "collect": {
       "url": [
-        "https://www.bescout.net/",
-        "https://www.bescout.net/market",
-        "https://www.bescout.net/fantasy",
-        "https://www.bescout.net/inventory",
-        "https://www.bescout.net/transactions",
-        "https://www.bescout.net/profile"
+        "https://bescout.net/",
+        "https://bescout.net/market",
+        "https://bescout.net/community"
       ],
-      "numberOfRuns": 1,
+      "numberOfRuns": 3,
       "settings": {
-        "preset": "desktop",
-        "throttlingMethod": "provided",
-        "emulatedFormFactor": "mobile",
+        "preset": "perf",
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "cpuSlowdownMultiplier": 4,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 0,
+          "uploadThroughputKbps": 0
+        },
         "screenEmulation": {
           "mobile": true,
           "width": 393,
@@ -21,11 +27,12 @@
           "deviceScaleFactor": 2,
           "disabled": false
         },
-        "formFactor": "mobile"
+        "chromeFlags": "--no-sandbox --headless=new"
       }
     },
     "assert": {
       "assertions": {
+        "_comment_phase1": "Slice 279 Phase 1 (Baseline-Sammlung): ALLE assertions auf 'warn' damit Workflow nicht hard-failed solange Baseline noch nicht etabliert ist (D70 Anti-Pattern Optimieren ohne Baseline). Phase 3 (post Slice 279 LOG) schaltet auf 'error' mit baseline+1.5×StdDev-Schwellen.",
         "categories:performance": ["warn", { "minScore": 0.5 }],
         "categories:accessibility": ["warn", { "minScore": 0.8 }],
         "categories:best-practices": ["warn", { "minScore": 0.85 }],
@@ -34,7 +41,7 @@
     },
     "upload": {
       "target": "filesystem",
-      "outputDir": "./worklog/proofs/lighthouse"
+      "outputDir": "./.lighthouseci"
     }
   }
 }
