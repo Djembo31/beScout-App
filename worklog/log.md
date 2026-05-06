@@ -2,6 +2,19 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 276 | 2026-05-06 | fix(club-logo): short-Code-Konflikt-Resolution (Anil-Live-Bug)
+
+- Stage-Chain: SPEC (inline-active.md, S-Hot-Fix) → BUILD (clubs.ts Cache-Refactor + Helper-Add) → REVIEW (self-review S, vitest 1647/1647) → PROVE (worklog/proofs/276-club-logo-conflict-fix.txt) → LOG
+- Slice-Type: Frontend-Fix (S-Slice)
+- Trigger: Anil-Live-Bug-Report 2026-05-06 — „Wolfsburg zeigt Wolverhampton Wappen, Gençlerbirliği auch"
+- Bug-Klasse: `src/lib/clubs.ts:65` indizierte ClubCache nach `short`-Code zusätzlich zu UUID/slug/name. 6 short-Codes sind in DB doppelt vergeben (ALA, BAY, BOL, GEN, KAR, WOL = 12 Vereine). ORDER BY name → letzter Insert gewinnt → falsches Logo.
+- Phase 1 Cache-Fix: short-Code nur in globalen Cache wenn EINDEUTIG. Konflikte landen in shortConflicts-Map. Console-Warning bei Init.
+- Helper-Add: `getClubByShortInLeague(short, leagueId)` für Caller mit Liga-Context.
+- Wirkung: Fixture-Caller mit `getClub(short) || getClub(name)` Fallback automatisch gefixt (FixtureCard, FixtureDetailModal, TopspielCard, FixtureCards). Caller ohne Fallback (3 Lineup-Picker + FantasyPlayerRow.opponentClub) zeigen bei den 12 Konflikt-Clubs kein Logo (Placeholder) — Slice 277 Backlog für Migration auf getClubByShortInLeague oder UUID.
+- Knowledge-Promotion: errors-frontend.md neu „Lookup-Map indexed by ambiguous Key (Slice 276)" — Detection + Fix-Pattern + Audit-CMD für künftige Caches.
+- Files: 4 changed
+- Pending Anil-Verify post-Vercel-Deploy: bescout.net/club/vfl-wolfsburg + bescout.net/club/genclerbirligi-s-k zeigen korrekte Wappen.
+
 ## 275 | 2026-05-06 | fix(sync-injuries): Date-Filter + Daten-Heilung 1862 rows (Anil-Live-Bug)
 
 - Stage-Chain: SPEC (worklog/specs/275) → IMPACT (skipped, single-cron-route, kein cross-cutting) → BUILD (Phase 1 SQL-Heal + Phase 2 Cron-Code-Fix) → REVIEW (self-review M, Live-API-Discovery 5 sample-dates) → PROVE (worklog/proofs/275-data-heal-and-code-fix.txt) → LOG

@@ -2,13 +2,40 @@
 
 ```
 status: idle
-slice: 275
-stage: LOG (commit 04d84641, pushed to main, Vercel auto-deploy)
-spec: worklog/specs/275-sync-injuries-date-filter.md
-impact: Phase 1 1862 rows healed (live), Phase 2 Cron-Code-Fix Date-Filter (1 file)
-proof: worklog/proofs/275-data-heal-and-code-fix.txt
-review: self-review (CTO + Live-API-Discovery 5 sample-dates)
+slice: 276
+stage: LOG (commit pending push)
+spec: in-active-md (S-Slice Hot-Fix)
+impact: clubs.ts Cache-Fix + Helper getClubByShortInLeague (Phase 1, Caller-Migration als 277 Backlog)
+proof: worklog/proofs/276-club-logo-conflict-fix.txt
+review: self-review (S-Slice, vitest 1647/1647 PASS)
 ```
+
+## Slice 276 — Club-Logo-Mismatch durch short-Code-Konflikte (Anil-Live-Bug)
+
+**Anil-Trigger 2026-05-06:** „check die club page die spieler, die zeigen alle verletzt an bei Galatasaray... mir ist zusätzlich aufgefallen, dass ich für wolfsburg das falsche wappen angezeigt bekomme, nämlich das von wolverhampton wanderers!"
+
+**Root-Cause:** `src/lib/clubs.ts:65` indiziert ClubCache zusätzlich nach `short`-Code. **6 Konflikte** in DB:
+
+| short | Konflikt |
+|-------|----------|
+| ALA | Alanyaspor (TR) ↔ Alaves (ES) |
+| BAY | Bayer Leverkusen ↔ Bayern München (beide DE!) |
+| BOL | Bologna (IT) ↔ Boluspor (TR) |
+| GEN | Gençlerbirliği (TR) ↔ Genoa (IT) |
+| KAR | Fatih Karagümrük (TR) ↔ Karlsruher SC (DE) |
+| WOL | VfL Wolfsburg (DE) ↔ Wolves (EN) |
+
+ORDER BY name → letzter Insert gewinnt → falsches Logo bei `getClub(short)` für jeweils einen Verein.
+
+**Fix-Strategy:**
+1. Cache bei Duplicate-short → Eintrag DELETEN statt überschreiben + Console-Warning
+2. Neuer Helper `getClubByShortInLeague(short, leagueId)` für Caller mit Liga-Context
+3. Caller-Sites die `getClub(short) || getClub(name)` haben → automatisch gefixt durch (1) — name-Fallback greift
+4. Caller-Sites die nur `getClub(short)` haben → auf `getClub(uuid)` ODER `getClubByShortInLeague` migrieren wo möglich
+
+---
+
+## (Slice 273+274+275 erledigt — siehe log.md)
 
 ## Slice 275 — Sync-Injuries Date-Filter + Daten-Heilung (Anil-Live-Bug)
 

@@ -127,6 +127,74 @@ grep -rnE "useState<[A-Z][a-zA-Z]+ \| null>" src/components/ src/features/ | hea
 - Cross-Cutting mit Slice 270 "Per-Tenant-Window vs. Global-MAX" (errors-db.md) — beide sind „Daten-Frische in Multi-Source-Architektur".
 - Erweitert "Realtime-Hook-Refactor TanStack-Query → callback-only" (Slice 267) auf UI-Modal-Layer.
 
+### Lookup-Map indexed by ambiguous Key (Slice 276, 2026-05-06)
+
+**Bug-Klasse:** Frontend-Cache (z.B. ClubCache) indiziert Records nach mehreren Keys für „flexiblen Lookup". Wenn EIN Key nicht garantiert eindeutig ist (z.B. `short`-Code 3-stellig), überschreibt der letzte Insert silent → nachfolgende Lookups returnen das falsche Record. ORDER BY entscheidet welcher gewinnt — vom User-Standpunkt random.
+
+**Symptom (Slice 276 Anil-Live-Bug 2026-05-06):** „Wolfsburg zeigt Wolverhampton-Wappen, Gençlerbirliği auch". DB-Truth korrekt (`logo_url` matcht Verein), aber Frontend-Cache `clubCache.set(c.short, lookup)` für `short='WOL'` 2× ausgeführt → letzter Wolves-Insert überschreibt Wolfsburg.
+
+**6 Konflikte in BeScout DB:**
+
+| short | Konflikte |
+|-------|-----------|
+| ALA | Alanyaspor (TR) ↔ Alaves (ES) |
+| BAY | Bayer Leverkusen ↔ Bayern München (beide DE!) |
+| BOL | Bologna (IT) ↔ Boluspor (TR) |
+| GEN | Gençlerbirliği (TR) ↔ Genoa (IT) |
+| KAR | Fatih Karagümrük (TR) ↔ Karlsruher SC (DE) |
+| WOL | VfL Wolfsburg (DE) ↔ Wolves (EN) |
+
+**Detection (Pre-Cache-Init):**
+```sql
+SELECT short, COUNT(*) AS conflicts, ARRAY_AGG(name) AS clubs
+FROM clubs WHERE short IS NOT NULL
+GROUP BY short HAVING COUNT(*) > 1;
+```
+
+**Fix-Pattern: Konflikt-Detection + Multi-Map-Helper.**
+
+```ts
+// Phase 1: Sammle non-unique Key-Lookups in temporärer Map<key, Lookup[]>
+const byShort = new Map<string, ClubLookup[]>();
+for (const c of data) {
+  cache.set(c.id, lookup);    // unique
+  cache.set(c.slug, lookup);  // unique
+  cache.set(c.name, lookup);  // unique mostly
+  if (c.short) {
+    const list = byShort.get(c.short) ?? [];
+    list.push(lookup);
+    byShort.set(c.short, list);
+  }
+}
+
+// Phase 2: short-Code nur indizieren wenn EINDEUTIG
+const conflicts = new Map<string, ClubLookup[]>();
+byShort.forEach((list, short) => {
+  if (list.length === 1) cache.set(short, list[0]);
+  else conflicts.set(short, list);
+});
+
+// Helper für Caller mit Disambiguator-Context (z.B. league_id)
+export function getByKeyAndLeague(key: string, leagueId: string | null): Lookup | null {
+  const direct = cache.get(key);
+  if (direct) return leagueId ? (direct.league_id === leagueId ? direct : null) : direct;
+  const conflictList = conflicts.get(key);
+  if (!conflictList || !leagueId) return null;
+  return conflictList.find(c => c.league_id === leagueId) ?? null;
+}
+```
+
+**Caller-Pattern bei Konflikten:** Caller mit Fallback-Pattern (`getCache(short) || getCache(name)`) sind automatisch gefixt — short-Lookup returnt null, name-Fallback greift. Caller ohne Fallback brauchen `getByKeyAndLeague(short, leagueId)` ODER Migration auf eindeutige Keys (UUID).
+
+**Audit-Pattern für künftige Lookup-Caches:**
+```bash
+grep -rnE "newCache\.set\(c\.(short|code|abbreviation)" src/lib/ src/features/
+```
+
+**Reference:** Slice 276 `worklog/proofs/276-club-logo-conflict-fix.txt`. `src/lib/clubs.ts:24-110` Cache-Init mit Konflikt-Detection.
+
+**Beziehung:** Cross-Cutting mit Slice 081 „Cross-Club-Contamination via API-Football" (errors-scraper.md) — gleiche Bug-Klasse „Eindeutigkeits-Annahme verletzt → silent Cross-Entity-Pollution", andere Layer (Cache statt Scraper).
+
 ### Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik (Slice 272, 2026-05-05)
 
 **Bug-Klasse:** Zustand-Store für Multi-Slot-State (Lineup-Builder, Equipment-Slots, Tab-Pinning, Card-Loadouts) mit `selectX(id, slot)` Action der nur den Target-Slot filtert, nicht aber die ID. Wenn User dieselbe ID auf 2 Slots setzt, sitzt sie auf beiden → UI zeigt Duplicate.

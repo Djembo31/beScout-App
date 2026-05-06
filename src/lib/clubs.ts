@@ -22,6 +22,11 @@ export type ClubLookup = {
 // ============================================
 
 let clubCache: Map<string, ClubLookup> = new Map();
+// Slice 276: Konflikt-Map für short-Codes die mehrfach belegt sind.
+// Bei Konflikt fliegt der globale short-Eintrag aus clubCache raus,
+// stattdessen liegt eine Liste hier. Caller mit Liga-Context nutzen
+// getClubByShortInLeague(short, leagueId).
+let shortConflicts: Map<string, ClubLookup[]> = new Map();
 let cacheReady = false;
 let cachePromise: Promise<void> | null = null;
 
@@ -43,6 +48,10 @@ export async function initClubCache(): Promise<void> {
       }
 
       const newCache = new Map<string, ClubLookup>();
+      const newConflicts = new Map<string, ClubLookup[]>();
+      // Slice 276: Sammle short→Lookups, Konflikte erkennen via "mehr als 1 distinct id"
+      const byShort = new Map<string, ClubLookup[]>();
+
       for (const c of data ?? []) {
         const lookup: ClubLookup = {
           id: c.id,
@@ -58,13 +67,39 @@ export async function initClubCache(): Promise<void> {
           league_id: c.league_id,
           country: c.country ?? notifText('unknownFallback'),
         };
-        // Index by multiple keys for flexible lookup
+        // Index by unique keys (UUID, slug, full name).
         newCache.set(c.id, lookup);         // UUID
         newCache.set(c.slug, lookup);       // slug
         newCache.set(c.name, lookup);       // full name
-        newCache.set(c.short, lookup);      // short code (SAK, GÖZ, etc.)
+        // Sammle short → Liste für Konflikt-Check.
+        if (c.short) {
+          const list = byShort.get(c.short) ?? [];
+          list.push(lookup);
+          byShort.set(c.short, list);
+        }
       }
+
+      // Slice 276: short-Code nur in globalen Cache wenn EINDEUTIG.
+      // Bei Konflikt → in shortConflicts, Caller muss getClubByShortInLeague nutzen.
+      const conflictDesc: string[] = [];
+      byShort.forEach((list, short) => {
+        if (list.length === 1) {
+          newCache.set(short, list[0]);
+        } else {
+          newConflicts.set(short, list);
+          conflictDesc.push(`${short}: ${list.map(c => c.name).join(' / ')}`);
+        }
+      });
+
+      if (conflictDesc.length > 0) {
+        console.warn(
+          '[ClubCache] short-Code Konflikte erkannt — getClub(short) returnt null für diese. Nutze getClub(uuid|slug|name) oder getClubByShortInLeague(short, leagueId):\n  ' +
+          conflictDesc.join('\n  '),
+        );
+      }
+
       clubCache = newCache;
+      shortConflicts = newConflicts;
       cacheReady = true;
     } catch (err) {
       console.error('[ClubCache] Init error:', err);
@@ -74,6 +109,31 @@ export async function initClubCache(): Promise<void> {
   })();
 
   return cachePromise;
+}
+
+/**
+ * Slice 276: Liga-bewusster Lookup für short-Codes mit Konflikten.
+ * Falls short eindeutig: returnt aus regulärem Cache.
+ * Falls short mehrdeutig (z.B. WOL = Wolfsburg ODER Wolves): filtert per leagueId.
+ *
+ * Empfohlen für Caller die nur (short, leagueId) haben (z.B. PlayerPicker, LineupBuilder).
+ * Caller mit UUID sollten weiterhin getClub(uuid) nutzen.
+ */
+export function getClubByShortInLeague(short: string, leagueId: string | null | undefined): ClubLookup | null {
+  if (!short) return null;
+  // Erst regulären Cache (eindeutig)
+  const direct = clubCache.get(short);
+  if (direct) {
+    return leagueId ? (direct.league_id === leagueId ? direct : null) : direct;
+  }
+  // Konflikt-Map (mehrdeutig)
+  const conflicts = shortConflicts.get(short);
+  if (!conflicts) return null;
+  if (!leagueId) {
+    // Ohne Liga-Context: kein deterministisches Ergebnis möglich
+    return null;
+  }
+  return conflicts.find(c => c.league_id === leagueId) ?? null;
 }
 
 /** Force-refresh the club cache (e.g. after adding a new club) */

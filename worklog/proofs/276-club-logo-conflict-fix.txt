@@ -1,0 +1,58 @@
+Slice 276 — Club-Logo-Mismatch Fix (Anil-Live-Bug)
+==================================================
+Date: 2026-05-06
+
+ROOT CAUSE
+==========
+src/lib/clubs.ts:65 indexed ClubCache by short-Code zusätzlich zu UUID/slug/name.
+6 short-Codes sind in DB doppelt vergeben:
+
+| short | conflicts |
+|-------|-----------|
+| ALA | Alanyaspor (Süper Lig) ↔ Alaves (La Liga) |
+| BAY | Bayer Leverkusen ↔ Bayern München (beide Bundesliga!) |
+| BOL | Bologna (Serie A) ↔ Boluspor (TFF 1. Lig) |
+| GEN | Gençlerbirliği (Süper Lig) ↔ Genoa (Serie A) |
+| KAR | Fatih Karagümrük (Süper Lig) ↔ Karlsruher SC (2. Bundesliga) |
+| WOL | VfL Wolfsburg (Bundesliga) ↔ Wolves (Premier League) |
+
+ORDER BY name → letzter Insert in Map gewinnt → falsches Logo.
+
+PHASE 1 — clubs.ts Cache-Fix (committed)
+=========================================
+Diff:
+- Sammle short-Lookups in temporärer Map<short, Lookup[]>
+- short-Code nur in globalen Cache wenn EINDEUTIG (list.length === 1)
+- Bei Konflikt: in shortConflicts-Map, console.warn mit Liste
+
+Plus neuer Helper:
++ getClubByShortInLeague(short: string, leagueId: string | null): ClubLookup | null
+  - Eindeutiger Cache-Hit: returnt direkt (mit optional leagueId-Verify)
+  - Konflikt: filtert per leagueId aus shortConflicts
+  - Ohne leagueId bei Konflikt: returnt null (no-deterministic-fallback)
+
+WIRKUNG
+=======
+- Fixture-Caller (FixtureCard, FixtureDetailModal, TopspielCard, FixtureCards):
+  Pattern getClub(short) || getClub(name) → AUTO-FIX, weil short-Lookup bei
+  Konflikt jetzt null returnt → name-Fallback greift → richtiges Logo.
+
+- Caller ohne Fallback (3 Lineup-Picker + FantasyPlayerRow.opponentClub):
+  Bei Konflikt-Clubs: kein Logo (Placeholder). UX-degradation auf 12 Vereinen.
+  → Slice 277 Backlog: Caller migrieren auf getClubByShortInLeague oder UUID.
+
+VERIFY
+======
+tsc --noEmit       EXIT: 0 (clean)
+vitest src/lib + src/features/shared/store: 1647/1647 PASS
+
+DB-Smoke: alle 6 Konflikte detected:
+  ALA, BAY, BOL, GEN, KAR, WOL
+  → 12 Vereine sind betroffen.
+
+POST-DEPLOY VERIFY (Anil)
+=========================
+Club-Page bescout.net/club/vfl-wolfsburg → korrektes Wolfsburg-Wappen
+Club-Page bescout.net/club/genclerbirligi-s-k → korrektes Gençlerbirliği-Wappen
+Plus alle 4 weiteren: Alaves/Alanyaspor, Bayer/Bayern, Bologna/Boluspor, Karagümrük/Karlsruher
+Plus Fixture-Cards (Spieltag) — Logos in Game-Karten korrekt.
