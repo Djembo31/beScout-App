@@ -51,7 +51,7 @@ anil_action_blockers:
 anil_action_done_2026_05_05:
   - "Action-Item 1 ✅ memory/beta-tester-list.md erstellt (gitignored, Kemal+Taki+Nail)"
   - "Action-Item 2 ✅ memory/beta-onboarding.md Email/Tel gefüllt (k_demirtas@hotmail.de + +49 1511 77 66 543)"
-  - "Action-Item 3 ✅ TR-Pflicht-Review Pre-Verify-Audit live (worklog/audits/2026-05-04/tr-keys-compliance-preverify.md PASS, Decision (a) post-Beta-Cleanup für Watchlist-Drift)"
+  - "Action-Item 3 ✅ TR-Pflicht-Review Pre-Verify-Audit live (worklog/audits/2026-05-04/tr-keys-compliance-preverify.md PASS, Decision (a) post-Beta-Cleanup für Watchlist-Drift) — **ANIL-CONFIRMED 2026-05-06: '2 bestätigt'** → RISK-5 endgültig CLOSED"
   - "Action-Item 4 🔒 BLOCKER: Visual-Check 1/8 Konfigs Playwright (cta-new-Mode), 7 Konfigs + iPhone-Real-Safari-NEXTJS-15-Repro PFLICHT vor GO-LIVE"
   - "Action-Item 5 ✅ Sentry NEXTJS-15 archived 1week + commented"
 ```
