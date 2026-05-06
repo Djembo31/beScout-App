@@ -99,7 +99,7 @@
     "gw": "GW {gw}",
     "played": "GW {gw} · {score} Pkt.",
     "bench": "Bank",
-    "notInSquad": "Nicht im Kader"
+    "notInSquad": "nicht aufgestellt"
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",

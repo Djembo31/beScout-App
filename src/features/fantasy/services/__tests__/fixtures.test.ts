@@ -509,21 +509,27 @@ describe('getRecentPlayerScoresAndGameweeks — Slice 270 per-player Multi-Leagu
     ]);
   });
 
-  it('pads to 5 with leading null-slots when player has fewer than 5 played GWs', async () => {
-    // Player p-2 has only 2 played GWs (e.g., new transfer mid-season)
+  it('returns 5 slots per player from backend with NULL scores for DNP/bench (Slice 274 contract)', async () => {
+    // Slice 274: Backend liefert für jeden aktiven Spieler exakt 5 Slots
+    // (Cross-Join Spieler × Liga-Window). NULL-score = DNP/bench, number = played.
+    // Service paddet NICHT mehr — Backend-Contract garantiert 5 Slots.
+    // Beispiel: Player p-2 wurde verletzt vor GW 28, hat nur 2 played in [26..30]
     mockRpc('rpc_get_recent_player_scores', [
-      { player_id: 'p-2', gameweek: 25, score: 55, position_in_window: 2 },
-      { player_id: 'p-2', gameweek: 30, score: 76, position_in_window: 1 },
+      { player_id: 'p-2', gameweek: 26, score: null },
+      { player_id: 'p-2', gameweek: 27, score: null },
+      { player_id: 'p-2', gameweek: 28, score: null },
+      { player_id: 'p-2', gameweek: 29, score: 55 },
+      { player_id: 'p-2', gameweek: 30, score: 76 },
     ]);
 
     const result = await getRecentPlayerScoresAndGameweeks();
 
     expect(result.size).toBe(1);
     expect(result.get('p-2')).toEqual([
-      { score: null, gameweek: null },
-      { score: null, gameweek: null },
-      { score: null, gameweek: null },
-      { score: 55, gameweek: 25 },
+      { score: null, gameweek: 26 },
+      { score: null, gameweek: 27 },
+      { score: null, gameweek: 28 },
+      { score: 55, gameweek: 29 },
       { score: 76, gameweek: 30 },
     ]);
   });

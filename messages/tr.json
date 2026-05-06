@@ -99,7 +99,7 @@
     "gw": "MH {gw}",
     "played": "MH {gw} · {score} puan",
     "bench": "Yedek",
-    "notInSquad": "Kadroda değil"
+    "notInSquad": "kadroda yok"
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",

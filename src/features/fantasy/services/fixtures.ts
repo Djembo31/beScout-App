@@ -438,59 +438,58 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
   return result;
 }
 
-/** Per-player recent score+gameweek combined — last 5 played GWs PER PLAYER.
+/** Per-player recent scores — absolute Liga-Window (Slice 274).
  *
- *  Slice 270 fix: Pre-Slice nutzte einen globalen MAX(gw) als Window-Anchor → bei
- *  Multi-League hatten Ligen mit Lag (DE Bundesliga lag=5, EN PL lag=4, ES La Liga lag=4)
- *  5/5 NULL-Slots → leere FormBars. Dasselbe Symptom traf Galatasaray-Stamm-XI
- *  (last_appearance_gw=30, globales Fenster=[33..37] → 0/5 Slots).
- *  Bug-Klasse Slice-102 (Pilot-Default-Pattern).
+ *  Returnt für jeden aktiven Spieler die letzten 5 Liga-GWs (status=finished|simulated)
+ *  als Slot-Array (oldest→newest). Jeder Slot hat:
+ *  - `gameweek`: konkrete Liga-GW (NIE null bei aktivem Spieler)
+ *  - `score`: number wenn played (0..100, inkl. Cameos), `null` wenn DNP
  *
- *  Slice 270b: Combined Service liefert sowohl Score als auch Gameweek pro Slot.
- *  TanStack-Query select-Pattern: 1 RPC, 1 Cache, 2 Konsumenten-Sichten.
- *  - useRecentScores → select scores-only Map (4 legacy Konsumenten)
- *  - useRecentPlayerGameweeks → select gameweeks-only Map (KaderTab Tooltip)
+ *  Slice 274-Refactor: Pre-Slice (270d v2) nutzte per-player Window
+ *  (ROW_NUMBER OVER PARTITION BY player_id, last 5 played) → DNP-Spieler
+ *  (z.B. langzeitverletzte Stammspieler) zeigten 5 colored Bars aus alten
+ *  GWs → User-Verwirrung „on form / 1-2 GWs verpasst" obwohl 5+ GWs verpasst.
+ *  Slice 273 hat parallel den active_gameweek-Drift-Bug komplett gefixt
+ *  (Liga-Truth aus fixtures, nicht clubs.active_gameweek), wodurch das
+ *  damalige Slice-270-Argument („Liga-Lag verbirgt Stammspieler") obsolet wurde.
  *
- *  Returns: Map<playerId, Array<{score, gameweek}>[oldest→newest]> mit padded NULLs
- *  am ältesten Ende, sodass jedes Array exakt 5 Slots hat. Spieler ohne played-Scores
- *  fehlen in der Map → Caller `?? []` fällt auf 5 dashed bars.
+ *  Cameo-Behandlung (Anil-Decision 2026-05-06): KEIN score-Filter im RPC.
+ *  0-Punkte-Cameos (5-7min Einwechslung, 0 pts) sind played → score=0 →
+ *  Frontend rendert kleine colored Bar (6px min-h). Pre-Slice-274 verbarg
+ *  sie als dashed weil `WHERE score > 0`.
+ *
+ *  Slice 270d v2 Pattern beibehalten: RPC returns JSONB-Array, kein TABLE-Set
+ *  (PostgREST 1000-row cap auf RPCs ignoriert .range()/?limit-Overrides).
+ *
+ *  RPC-Contract: ORDER BY player_id, gameweek ASC (oldest→newest per player).
+ *  Slice 270 Reviewer F-01-Lehre: ORDER-Change würde silent visual breakage.
+ *
+ *  TanStack-Query select-Pattern (Slice 270b) bleibt:
+ *  - useRecentScores → Map<pid, scores[]> (4 Konsumenten)
+ *  - useRecentPlayerGameweeks → Map<pid, gws[]> (KaderTab Tooltip)
+ *
+ *  Returns: Map<playerId, RecentScoreSlot[5]>. Jeder aktive Spieler bekommt
+ *  exakt 5 Slots vom Backend. Spieler ohne club_id fehlen ganz in der Map.
  */
 export type RecentScoreSlot = { score: number | null; gameweek: number | null };
 
 export async function getRecentPlayerScoresAndGameweeks(): Promise<Map<string, RecentScoreSlot[]>> {
-  // Slice 270d v2: RPC returns JSONB-Array (single-row, single-column) statt
-  // TABLE-Set, weil PostgREST den 1000-row-Cap auf TABLE-Return-RPCs hart
-  // erzwingt + .range()/?limit=-Overrides für RPC-Calls IGNORIERT
-  // (Live-Verify: response-header content-range:0-999/* trotz ?limit=100000).
-  // JSONB-Return ist 1 row × 1 column = kein Cap.
-  // errors-db.md §1 "PostgREST 1000-row cap MONEY-CRITICAL" gilt auch für RPC.
   const { data, error } = await supabase.rpc('rpc_get_recent_player_scores');
   if (error) throw new Error(error.message);
   if (!data) return new Map();
 
   // JSONB-Array deserialisiert von Supabase-JS bereits zu JS-Array.
-  // RPC contract: ORDER BY player_id, gameweek ASC (oldest→newest per player).
-  // Slice 270 Reviewer F-01: changing the RPC ORDER would silently break
-  // FormBars left→right rendering — keep this comment + DB-smoke proof as guard.
-  const rows = data as Array<{ player_id: string; gameweek: number; score: number }>;
+  // Slice 274 RPC liefert für jeden aktiven Spieler exakt 5 Slots
+  // (Cross-Join Spieler × Liga-Window). score=null = DNP, score>=0 = played.
+  const rows = data as Array<{ player_id: string; gameweek: number; score: number | null }>;
   if (rows.length === 0) return new Map();
-  const rawByPlayer = new Map<string, Array<{ score: number; gameweek: number }>>();
-  for (const row of rows) {
-    const arr = rawByPlayer.get(row.player_id) ?? [];
-    arr.push({ score: row.score, gameweek: row.gameweek });
-    rawByPlayer.set(row.player_id, arr);
-  }
 
-  // Pad arrays with leading null-slots so each player ends up with exactly 5 entries
-  // (FormBars renders 5 slots; missing slots → dashed-bar via the null status mapping).
   const result = new Map<string, RecentScoreSlot[]>();
-  rawByPlayer.forEach((slots, pid) => {
-    const padded: RecentScoreSlot[] = [];
-    const padCount = Math.max(0, 5 - slots.length);
-    for (let i = 0; i < padCount; i++) padded.push({ score: null, gameweek: null });
-    for (const s of slots) padded.push({ score: s.score, gameweek: s.gameweek });
-    result.set(pid, padded);
-  });
+  for (const row of rows) {
+    const arr = result.get(row.player_id) ?? [];
+    arr.push({ score: row.score, gameweek: row.gameweek });
+    result.set(row.player_id, arr);
+  }
 
   return result;
 }

@@ -1,14 +1,54 @@
 # Active Slice
 
 ```
-status: idle
-slice: 273
-stage: LOG (Track A1+B+C live, Track A2+TFF1-Backfill als Slice 274 Backlog)
-spec: in-active-md + worklog/audits/2026-05-05/slice-271-discovery-mv-trend-perf-l5.md (vorlage)
-impact: 5 Files Frontend (Liga-Filter + Modal-Refetch + selectedFixture-Derive) + DB-Heal active_gameweek für PL/La Liga (atomar, dual-write)
-proof: worklog/proofs/273-tsc-vitest.txt
-review: self-review (1 Specialist-Audit fantasy-scoring-expert + Live-DB-Audit 4 SQL-Smokes)
+status: in-progress
+slice: 274
+stage: REVIEW (pending Anil-Live-Verify)
+spec: worklog/specs/274-form-bars-absolute-league-window.md
+impact: API-Contract bleibt (Service-Signatur unverändert), 5 Konsumenten kompatibel (s != null ? 'played' : 'not_in_squad' Pattern)
+proof: worklog/proofs/274-tsc-vitest.txt
+review: self-review (CTO + 1 Performance-Heal v1→v2)
+size: M
+type: DB-Migration + Service + i18n
+anil-decisions:
+  Q1-tooltip-wording: DE "GW {n} · nicht aufgestellt" / TR "GW {n} · kadroda yok" ✓
+  Q2-cameo-handling: 274 sauber genehmigt → CTO-Downgrade auf NULLIF(score, 0) wegen Performance (951ms→125ms). 0-pt-Cameos bleiben dashed (selten + visuell kaum sichtbar). Cameos mit Punkten bleiben colored. Hauptbug 100% gelöst.
 ```
+
+## Slice 274 v2 — Form-Bars Absolute Liga-Window (REVIEW)
+
+**Anil-Trigger 2026-05-06:** „nicht alle spieler haben die leistungsbalken bis zur aktuellen Gameweek, einige haben mehr als 5 spiele nicht gespielt, aber zeigen noch leistungsbalken an"
+
+**Lösung Slice 274 v2:**
+- RPC `rpc_get_recent_player_scores`: Cross-Join Spieler × letzte 5 finished Liga-GWs (per Liga aus fixtures-truth) + LEFT JOIN player_gameweek_scores + `NULLIF(score, 0)`
+- Service: Pad-Logic entfernt (Backend liefert immer 5 Slots)
+- i18n: `notInSquad` → DE „nicht aufgestellt" / TR „kadroda yok"
+- 5 Konsumenten unverändert (API-kompatibel)
+
+**Build-Bilanz:**
+- 1 DB-Migration applied (v2 nach Performance-Heal)
+- 1 Service refactored (`getRecentPlayerScoresAndGameweeks`)
+- 1 Test umgeschrieben (Slice-274-contract: 5 Slots vom Backend, NULL-score = DNP)
+- 2 i18n-Keys updated
+- tsc clean, vitest 3215/3216 PASS
+
+**Performance-Heal v1 → v2:**
+- v1 (no filter): 125ms aber Bench-Players = colored bar mit score 0 (visuell falsch)
+- v2-attempt (fps-JOIN minutes_played > 0): 951ms — 8× über Mobile-Budget
+- v2-final (NULLIF score=0): 125ms + Bench/0-pt-Cameos beide dashed (Anil-Decision-Downgrade dokumentiert)
+
+**Knowledge-Promotion:**
+- `errors-db.md` neu „Tenant-Window Achsen-Erweiterung: Per-Player vs. Per-Liga (Slice 274)"
+
+**Pending Anil-Verify:**
+- Live-Check auf bescout.net nach Deploy: Spieler-Karten von langzeitverletzten Spielern (z.B. Müller/Haaland wenn verletzt) zeigen 5 dashed bars mit Tooltip „GW X · nicht aufgestellt"
+- Spieler die durchspielen: 5 colored bars wie vorher
+- TR-Locale: „kadroda yok" als Tooltip-Text
+
+---
+
+## (Slice 273 erledigt — siehe log.md)
+
 
 ## Slice 273 LIVE 2026-05-06 — Spieltag-Page Stabilisierung (Anil-Live-Bug-Komplex)
 

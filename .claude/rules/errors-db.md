@@ -8,6 +8,56 @@ Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `datab
 
 ## Supabase / Postgres
 
+### Tenant-Window Achsen-Erweiterung: Per-Player vs. Per-Liga (Slice 274, 2026-05-06)
+
+**Bug-Klasse-Erweiterung:** Slice 270 ("Per-Tenant-Window vs. Global-MAX") spannte Player-Tenant-Achse vs. globalem MAX. Slice 274 zeigt: dieselbe Bug-Klasse hat **mehrere zulässige Tenant-Achsen** mit gegensätzlichen User-Effekten:
+
+| Achse | Beispiel | Wenn FALSCH (Anti-Pattern) | Wenn RICHTIG |
+|-------|----------|---------------------------|--------------|
+| **Per-Player-Window** (ROW_NUMBER PARTITION BY player_id) | Slice 270 | Spieler verletzt seit GW 30, Liga bei GW 35 → Service liefert 5 played [GW26-30] → User sieht „on form, 1-2 verpasst" | Wenn ABSOLUTE Liga-GWs verzerrt sind (z.B. cross-league mit lagging Tenants und kein per-tenant-Reconcile) |
+| **Per-Tenant-Window (Liga)** mit absoluter MAX-pro-Tenant + LEFT JOIN | Slice 274 | Wenn Liga-Lag noch nicht gefixt ist (Slice 273 pre-Heal) → Stammspieler in lagging Liga zeigen 5/5 dashed obwohl spielen | Wenn Liga-Truth aus fixtures-Status sauber ist |
+
+**Decision-Tree für neue Aggregat-Services mit „letzte N pro Tenant":**
+
+1. Gibt es Aggregat-Drift in der Tenant-Achse? (Liga-Lag, Active-Counter-Drift, etc.)
+   - JA → Erst die Drift fixen (Slice 273-Pattern), DANN absolutes Window
+   - NEIN → Absolutes Tenant-Window ist FPL-Standard (DNP-Spieler werden visuell als „nicht aufgestellt" sichtbar)
+2. Sub-Frage: Soll DNP visuell unterscheidbar von „played mit 0 Punkten" sein?
+   - JA + Performance OK → Differential-JOIN auf transactional Layer (z.B. fps.minutes_played > 0)
+   - JA + Performance kritisch → Pragma: NULLIF(score, 0) — opfert Bench/Cameo-Differenzierung für Frequency
+   - NEIN → JOIN ohne Filter — alle pgs-rows = played
+
+**Performance-Trap (Slice 274 v1→v2 Heal):** Differential-JOIN via `LEFT JOIN fps + GROUP BY + SUM(minutes_played)` kostet 8× mehr (951ms vs 125ms) wenn `players` als Seq Scan + Hash Aggregate kombiniert. Pragma `NULLIF(score, 0)` ist 100% drop-in same-cost und löst 95% des Differenzierungs-Bedarfs.
+
+**Beispiel-Migration:** `supabase/migrations/20260506100000_slice_274_absolute_league_window.sql`
+
+```sql
+-- Tenant-Window: 5 letzte finished GWs per Liga
+WITH league_recent_gws AS (
+  SELECT league_id, gameweek,
+    ROW_NUMBER() OVER (PARTITION BY league_id ORDER BY gameweek DESC) AS rn
+  FROM (SELECT DISTINCT league_id, gameweek FROM fixtures
+    WHERE status IN ('finished','simulated') AND league_id IS NOT NULL) sub
+),
+window_gws AS (SELECT league_id, gameweek FROM league_recent_gws WHERE rn <= 5),
+player_window AS (
+  -- Cross-Join Spieler × ihr Liga-Window
+  SELECT p.id AS player_id, wg.gameweek
+  FROM players p JOIN clubs c ON c.id = p.club_id
+  JOIN window_gws wg ON wg.league_id = c.league_id
+  WHERE p.club_id IS NOT NULL
+)
+SELECT jsonb_agg(jsonb_build_object(
+  'player_id', pw.player_id, 'gameweek', pw.gameweek,
+  'score', NULLIF(pgs.score, 0)  -- score=0 → NULL → dashed
+) ORDER BY pw.player_id, pw.gameweek ASC)
+FROM player_window pw
+LEFT JOIN player_gameweek_scores pgs
+  ON pgs.player_id = pw.player_id AND pgs.gameweek = pw.gameweek;
+```
+
+**Reference:** Slice 274 Spec `worklog/specs/274-form-bars-absolute-league-window.md`. Pattern-Beziehung: erweitert Slice 270 „Per-Tenant-Window vs. Global-MAX" um die zweite Tenant-Achse (Liga statt Player) + dokumentiert die NULLIF-vs-Differential-JOIN Performance-Trap.
+
 ### PostgREST RPC-Pfad ignoriert `.range()` und `?limit` (Slice 270d v2, 2026-05-05)
 
 **Bug-Klasse:** Erweiterung von "PostgREST 1000-row cap" (siehe `common-errors.md §1`) auf RPC-Achse. Bei TABLE-Return-RPCs **ignoriert PostgREST den Range-Override** den Supabase-JS via `.range(start, end)` als URL-Param `?offset=X&limit=Y` an die RPC-URL hängt. Server cappt hart bei 1000 Rows, Response-Header zeigt `content-range: 0-999/*` trotz `?limit=100000`.

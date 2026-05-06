@@ -1,0 +1,41 @@
+Slice 274 — Form-Bars Absolute Liga-Window
+============================================
+Date: 2026-05-06
+
+tsc --noEmit
+============
+EXIT: 0 (clean)
+
+vitest full suite
+=================
+Test Files  217 passed (217)
+Tests       3215 passed | 1 skipped (3216)
+Duration    291.88s
+
+Subset (FormBars + consumers): 210/210 PASS
+Subset (fixtures.ts services): 52/52 PASS
+
+DB Migration applied
+====================
+Migration: 20260506100000_slice_274_absolute_league_window.sql (v2)
+Apply: success via mcp__supabase__apply_migration
+
+DB Smoke
+========
+Per-Liga-Window verify (5 letzte finished GWs):
+ 2. Bundesliga    [32,31,30,29,28]
+ Bundesliga       [32,31,30,29,28]
+ La Liga          [34,33,32,31,30]
+ Premier League   [35,34,33,32,31]
+ Serie A          [35,34,33,32,31]
+ Süper Lig        [32,31,30,29,28]
+ TFF 1. Lig       [38,37,36,35,34]
+
+JSONB-Output:
+ Total slots:      22360 (= 4472 active players × 5 GWs ✓)
+ DNP-or-zero:      16329 (73%)  → dashed bars
+ Scored (>0):       6031 (27%)  → colored bars
+
+Performance:
+ Pre-Slice-274 (Per-Player Window): 125ms
+ Slice-274 v2 (NULLIF zero):        125ms (no regression, JSONB unchanged size)
