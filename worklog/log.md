@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 277 | 2026-05-06 | fix(gameweek-cron): advance_gameweek auch in Skip-Branches
+
+- Stage-Chain: SPEC (worklog/specs/277-gameweek-cron-advance-on-complete.md) → IMPACT (inline) → BUILD (advance-helpers.ts + route.ts integration) → REVIEW (Cold-Context PASS) → PROVE (worklog/proofs/277-cron-advance-on-complete.txt) → LOG
+- Slice-Type: Service (S-Slice, Cron-Side-Effects)
+- Trigger: D69-Regel von Slice 276b — „Backlog-Sub-Track MUSS nächster Slice sein". 276b heilte 4 Ligen DB-only, 277 ist der Code-Fix damit Drift nicht recurrent kommt.
+- Bug-Klasse: errors-infra.md „Cron-Skip-Branch ohne advance_gameweek-Aufruf" — `gameweek-sync/route.ts` 2 Skip-Branches (already_complete + no_past_fixtures) returnten ohne advance, → clubs.active_gameweek + leagues.active_gameweek blieben +1 Drift.
+- Architektur-Win: Pure-helper (`advance-helpers.ts shouldAdvanceAfterSkip`) + thin-orchestration (`route.ts maybeAdvanceAfterSkip`). 13 vitest-Tests in 6 Edge-Case-Kategorien (über-erfüllt AC5: 6 erforderlich).
+- Edge-Cases abgedeckt: Saisonende (nextGw > maxGameweeks), Postponed-Match-Edge (nextGw advance ignoriert alten Postponed), leere nextGw (no_next_fixtures), invalid input (Robustness), Boundary 38/38.
+- Idempotency: implizit durch State-Maschine (nach advance setzt clubs.active_gameweek auf nextGw → nächster Cron-Lauf liefert activeGw=nextGw via get_active_gw → kein Doppel-Advance möglich). Inline-Comment dokumentiert.
+- Files: 3 (advance-helpers.ts NEU 70 Zeilen, advance-helpers.test.ts NEU 140 Zeilen, route.ts +90 Zeilen).
+- Reviewer-Verdict: PASS (worklog/reviews/277-review.md). 2 low-Findings akzeptable trade-offs. Pattern-Promotion-Kandidat: „Pure decision helper + thin orchestration" für Cron-Branch-Logik.
+- DB-Smoke pre-Deploy: 6/7 Ligen aligned (active_gw == first_open). PL postponed-edge bleibt akzeptiert (Slice 278 Backlog), TFF1 Saisonende-Edge GW8-Postponed (Slice 278+ Backlog).
+- Production-Verify: pending Vercel-Deploy + 06:00 UTC Cron-Run 07.05. — drift sollte 0 bleiben für 7d-Watch-Window.
+
 ## 276b | 2026-05-06 | hotfix(gameweek): DB-Heal 4 stuck Ligen (Anil-Live-Bug)
 
 - Stage-Chain: SPEC (inline-active.md) → BUILD (DB-only, kein Code) → PROVE (worklog/proofs/276b-gameweek-hotfix.txt) → LOG

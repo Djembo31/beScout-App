@@ -1,18 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 15:01)
+# Session Handoff — Auto (2026-05-06 15:15)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 3 Files
 ```
- M .claude/settings.local.json
- M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-06.md
  M worklog/audits/type-truth-2026-05-06.md
 ?? memory/strategic-advisory-2026-05-06.md
 ```
 
-## Session Commits: 7
+## Session Commits: 8
+- df74afcd chore(session-end): 2026-05-06 Session — 4 Slices LIVE + Auto-Updates
 - 1451405b chore(audits): tägliche auto-cron Outputs 2026-05-05 + 2026-05-06
 - 0eb4365b fix(gameweek): Slice 276b — DB-Heal 4 stuck Ligen + Slice 277 Spec (Anil-Live-Bug)
 - 0ee22fc8 fix(club-logo): Slice 276 — short-Code-Konflikt-Resolution (Anil-Live-Bug)

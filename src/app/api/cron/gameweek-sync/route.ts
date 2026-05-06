@@ -14,6 +14,7 @@ import {
   type ApiLineupPlayer,
   type ApiFixtureEventsResponse,
 } from '@/lib/footballApi';
+import { shouldAdvanceAfterSkip } from './advance-helpers';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN']);
 
@@ -338,6 +339,103 @@ export const GET = withLogger('cron.gameweek-sync', async (request) => {
 });
 
 // ============================================
+// Slice 277 — advance_gameweek nach Skip-Branch (Drift-Prevention)
+// ============================================
+
+type RunStep = <T>(name: string, fn: () => Promise<T>) => Promise<{ result: T | null; error: string | null }>;
+type LogStep = (
+  gameweek: number,
+  step: string,
+  status: string,
+  details?: Record<string, unknown>,
+  durationMs?: number,
+) => Promise<void>;
+
+/**
+ * Slice 277 — prüft nach `already_complete` oder `no_past_fixtures` Skip-Branch
+ * ob advance_gameweek fällig ist (nextGw <= maxGameweeks UND nextGw hat fixtures).
+ * Wenn ja: dual-write (clubs + leagues.active_gameweek) atomar wie Phase B.
+ *
+ * Verhindert chronischen GW-Drift bei voll-gescored-fertig Ligen (Slice 276b Anil-Live-Bug).
+ *
+ * Idempotent durch State-Maschine: nach erfolgreichem advance setzt clubs.active_gameweek
+ * auf nextGw → nächster Cron-Lauf liefert activeGw=nextGw via get_active_gw, sodass
+ * der bereits-advancede Pfad nicht erneut betreten wird (kein Doppel-Advance möglich).
+ *
+ * Side-Effects (only when advance fällig):
+ * - clubs.active_gameweek = nextGw für alle clubsToProcess
+ * - leagues.active_gameweek = nextGw
+ * - cron_sync_log entry: step='advance_after_skip'
+ */
+async function maybeAdvanceAfterSkip(params: {
+  activeGw: number;
+  maxGameweeks: number;
+  allLeagueClubIds: string[];
+  clubsToProcess: Array<{ id: string }>;
+  leagueId: string;
+  branch: 'already_complete' | 'no_past_fixtures';
+  runStep: RunStep;
+  logStep: LogStep;
+}): Promise<void> {
+  const { activeGw, maxGameweeks, allLeagueClubIds, clubsToProcess, leagueId, branch, runStep, logStep } = params;
+
+  const nextGw = activeGw + 1;
+
+  // 1. Pre-Check: hat nextGw überhaupt Fixtures? (vermeidet advance auf leere GW)
+  let hasFixturesAtNextGw = false;
+  if (nextGw <= maxGameweeks && allLeagueClubIds.length > 0) {
+    const { data: nextGwFixtures } = await supabaseAdmin
+      .from('fixtures')
+      .select('id')
+      .eq('gameweek', nextGw)
+      .in('home_club_id', allLeagueClubIds)
+      .limit(1);
+    hasFixturesAtNextGw = (nextGwFixtures ?? []).length > 0;
+  }
+
+  // 2. Decision via pure helper
+  const decision = shouldAdvanceAfterSkip({ activeGw, maxGameweeks, hasFixturesAtNextGw });
+
+  if (!decision.advance) {
+    // Saisonende oder leere nextGw — log decision aber kein Write
+    await logStep(activeGw, 'advance_after_skip', 'skipped', {
+      branch,
+      reason: decision.reason,
+      next_gw: nextGw,
+      max_gameweeks: maxGameweeks,
+    });
+    return;
+  }
+
+  // 3. Atomic dual-write (gleiche Logik wie Phase B Z.1598-1616)
+  const { error: stepError } = await runStep('advance_after_skip', async () => {
+    // Step 1: advance all clubs in this league
+    for (const club of clubsToProcess) {
+      const { error } = await supabaseAdmin
+        .from('clubs')
+        .update({ active_gameweek: decision.nextGw })
+        .eq('id', club.id);
+      if (error) throw new Error(`Club ${club.id}: ${error.message}`);
+    }
+    // Step 2: Dual-Write — also advance leagues.active_gameweek (SSOT, Slice 251 Pattern)
+    const { error: leagueErr } = await supabaseAdmin
+      .from('leagues')
+      .update({ active_gameweek: decision.nextGw })
+      .eq('id', leagueId);
+    if (leagueErr) throw new Error(`League ${leagueId}: ${leagueErr.message}`);
+    return { from: activeGw, to: decision.nextGw, leagueId, branch };
+  });
+
+  await logStep(activeGw, 'advance_after_skip', stepError ? 'error' : 'success', {
+    branch,
+    from: activeGw,
+    to: decision.nextGw,
+    clubs_advanced: clubsToProcess.length,
+    error: stepError ?? undefined,
+  });
+}
+
+// ============================================
 // syncLeague(league) — Per-League Pipeline
 // ============================================
 
@@ -501,6 +599,20 @@ async function syncLeague(
 
       if (!unscoredEvents || unscoredEvents.length === 0) {
         await logStep(activeGw, 'already_complete', 'skipped', { reason: 'All fixtures finished, all events scored' });
+
+        // Slice 277: nach already_complete-Skip prüfen ob advance_gameweek fällig ist
+        // (verhindert chronischen GW-Drift wenn GW vollständig fertig + GW+1 hat fixtures)
+        await maybeAdvanceAfterSkip({
+          activeGw,
+          maxGameweeks: league.maxGameweeks,
+          allLeagueClubIds,
+          clubsToProcess,
+          leagueId: league.id,
+          branch: 'already_complete',
+          runStep,
+          logStep,
+        });
+
         return {
           short: leagueShort,
           apiFootballId: leagueId,
@@ -532,6 +644,20 @@ async function syncLeague(
       if (!pastUnfinished || pastUnfinished.length === 0) {
         // All unfinished fixtures are in the future — nothing to sync
         await logStep(activeGw, 'no_past_fixtures', 'skipped', { reason: 'No fixtures past kickoff yet' });
+
+        // Slice 277: nach no_past_fixtures-Skip prüfen ob advance_gameweek fällig ist
+        // (z.B. wenn alle Fixtures der activeGw in Vergangenheit aber finished sind und nextGw weiter ist)
+        await maybeAdvanceAfterSkip({
+          activeGw,
+          maxGameweeks: league.maxGameweeks,
+          allLeagueClubIds,
+          clubsToProcess,
+          leagueId: league.id,
+          branch: 'no_past_fixtures',
+          runStep,
+          logStep,
+        });
+
         return {
           short: leagueShort,
           apiFootballId: leagueId,

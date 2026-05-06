@@ -2,12 +2,12 @@
 
 ```
 status: idle
-slice: 276
+slice: 277
 stage: LOG (commit pending push)
-spec: in-active-md (S-Slice Hot-Fix)
-impact: clubs.ts Cache-Fix + Helper getClubByShortInLeague (Phase 1, Caller-Migration als 277 Backlog)
-proof: worklog/proofs/276-club-logo-conflict-fix.txt
-review: self-review (S-Slice, vitest 1647/1647 PASS)
+spec: worklog/specs/277-gameweek-cron-advance-on-complete.md
+impact: route.ts integration in 2 Skip-Branches + new pure-helper + 13 vitest tests
+proof: worklog/proofs/277-cron-advance-on-complete.txt
+review: worklog/reviews/277-review.md (Cold-Context PASS, 0 critical findings)
 ```
 
 ## Slice 276 — Club-Logo-Mismatch durch short-Code-Konflikte (Anil-Live-Bug)
