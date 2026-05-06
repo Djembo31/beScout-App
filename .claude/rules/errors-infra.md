@@ -106,6 +106,88 @@ npx vitest run "src/<any>.test.tsx"   # läuft jetzt
 - Latenz-Gewinn nur bei: sequentielle Queries (waterfall), LCP-blocking, HTTP/1-Limits.
 - Structural Wins echt: -N Roundtrips, Konsistenz, Priming-Pattern, DB-billiger.
 
+### Cron-Skip-Branch ohne advance_gameweek-Aufruf → chronischer GW-Drift (Slice 273+276b, 2026-05-06)
+
+**Bug-Klasse:** Daily-Sync-Cron hat mehrere Skip-Branches die early-returnen. Wenn EINE Skip-Branch den State-Advance-Step (`advance_gameweek`, `bump_window`, `next_period`) NICHT vor dem return aufruft, bleibt der State auf der gerade fertiggestellten Period kleben. Recurrent-Bug: GW-Drift kommt nach jeder fertig-gespielten GW zurück.
+
+**Symptom (Slice 276b 2026-05-06):**
+- 4 Ligen mit `clubs.active_gameweek = last_finished_gw` (drift +1) — UI zeigt „Spieltag beendet" für gerade fertige GW.
+- Cron-log zeigt 06:00 UTC `already_complete (skipped)` für alle 4 Ligen.
+- Pre-Fix: Bundesliga 32→32, Serie A 35→35 trotz fixtures.status='finished' für gleichen GW.
+- Slice 273 hat das DB-State manuell für 2 Ligen geheilt, Cron-Code-Fix als „Backlog" markiert → 3 Live-Bugs dazwischen → Cron-Code-Fix nie gebaut → Bug rekurrent über jede neue Match-Day-Nacht.
+
+**Code-Pattern Anti-Pattern (`gameweek-sync/route.ts:502-544`):**
+```ts
+// Branch 1: alle finished + alle scored → KEIN advance, early return
+if (!unscoredEvents || unscoredEvents.length === 0) {
+  await logStep(activeGw, 'already_complete', 'skipped', { reason: '...' });
+  return { /* keine advance, kein step für nextGw */ };
+}
+
+// Branch 2: unfinished aber alle in der Zukunft → KEIN advance, early return
+if (!pastUnfinished || pastUnfinished.length === 0) {
+  await logStep(activeGw, 'no_past_fixtures', 'skipped', { reason: '...' });
+  return { /* keine advance */ };
+}
+
+// Branch 3 (Phase B vollständig durchlaufen): → advance_gameweek wird aufgerufen ✓
+```
+
+**Fix-Pattern (Slice 277 geplant):**
+
+Vor jedem early-return in Skip-Branch prüfen, ob das State-Advance fällig ist. Generisch:
+
+```ts
+// Vor early-return: prüfe ob nächste Period-State fällig ist
+const nextGw = activeGw + 1;
+if (nextGw <= league.maxGameweeks) {
+  const { data: nextGwHasFixtures } = await supabaseAdmin
+    .from('fixtures')
+    .select('id', { count: 'exact', head: true })
+    .eq('gameweek', nextGw)
+    .in('home_club_id', allLeagueClubIds)
+    .limit(1);
+
+  if (nextGwHasFixtures && nextGwHasFixtures.length > 0) {
+    // Same advance_gameweek dual-write logic wie Phase B Z.1598-1616
+    for (const club of clubsToProcess) {
+      await supabaseAdmin.from('clubs').update({ active_gameweek: nextGw }).eq('id', club.id);
+    }
+    await supabaseAdmin.from('leagues').update({ active_gameweek: nextGw }).eq('id', league.id);
+    await logStep(activeGw, 'advance_after_skip', 'success', { from: activeGw, to: nextGw, branch: 'already_complete' });
+  }
+}
+```
+
+**Detection-Query (täglich post-Cron):**
+
+```sql
+-- Drift-Detector: active_gw == last_finished UND first_open > active_gw → stuck
+SELECT l.name, l.active_gameweek, ft.last_finished_gw, ft.first_open_gw,
+       (ft.first_open_gw - l.active_gameweek) AS drift
+FROM leagues l
+LEFT JOIN (
+  SELECT league_id,
+    MAX(gameweek) FILTER (WHERE status IN ('finished','simulated')) AS last_finished_gw,
+    MIN(gameweek) FILTER (WHERE status NOT IN ('finished','simulated')) AS first_open_gw
+  FROM fixtures WHERE league_id IS NOT NULL GROUP BY league_id
+) ft ON ft.league_id = l.id
+WHERE ft.first_open_gw > l.active_gameweek
+  AND ft.first_open_gw - l.active_gameweek <= 3;  -- ignoriere Postponed-Edge-Cases mit großem Gap
+```
+
+CI-Integration empfohlen: post-Cron-Smoke (analog `post-deploy-smoke.yml`) der diesen Query auf 0 Rows checkt → GH-Issue auf Failure.
+
+**Backlog-as-Slice-Anti-Pattern (Process-Lehre):**
+
+Slice 273 markierte den Cron-Code-Fix als „Backlog für separater Slice 274 nach Beta". Slice 274 wurde aber von einem **anderen** Live-Bug vereinnahmt (Form-Bars), Slice 275 von wieder einem anderen (sync-injuries), Slice 276 ein dritter (Logo). Der ursprüngliche Backlog-Item ist NIE der nächste Slice gewesen.
+
+**Regel:** Wenn ein Slice einen Sub-Track als „Backlog für nächsten Slice" markiert, MUSS der nächste Slice exakt dieser Sub-Track sein, nicht ein neuer Live-Bug. Live-Bugs sind Slice N+2 oder via Emergency-Path. Sonst recurrent-Drift wie hier.
+
+**Beziehung zu D54 „Build-without-Wire":** D54 dokumentierte Tools/Hooks die gebaut+nicht-verkabelt werden. Slice 276b ist die Variante „Track-A1-DB-Heal ohne Track-A2-Code-Fix" — gleiche Bug-Familie auf Process-Achse: das Slice-Done-Kriterium (siehe workflow.md §3a) MUSS umfassen, dass automatische Reproduktion ausgeschlossen ist, nicht nur dass aktueller State korrekt ist.
+
+**Reference:** Slice 276b Hot-Fix (2026-05-06 ~12:25 UTC) — `worklog/proofs/276b-gameweek-hotfix.txt`. Cron-Code-Fix Slice 277 (geplant, Spec-Skelett `worklog/specs/277-gameweek-cron-advance-on-complete.md`).
+
 ## Cross-Cutting / Operational
 
 ### Branch-Protection enforce_admins=true ist NICHT direct-push-kompatibel (Slice 244 Phase 2 + Slice 248)

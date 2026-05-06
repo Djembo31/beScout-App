@@ -3116,4 +3116,46 @@ Beta-Phase-Tracker hatte 4 Wochen denselben FAIL-State, einziger Blocker war ope
 - Tester-Feedback ≥1 P0/P1-Issue → `findings_open` updaten + Slice-Backlog erweitern
 - Tester-Feedback clean nach 1 Woche → `/auto-beta-ready signoff` ausführen
 
+---
+
+## D69 — PROCESS: Backlog-Sub-Track MUSS nächster Slice sein, nicht „separater Slice nach Beta"
+
+**Datum:** 2026-05-06
+**Status:** Aktiv
+**Category:** PROCESS
+**Trigger:** Slice 276b Hot-Fix Diagnose — Slice 273 Track A2 Cron-Code-Fix wurde als „Backlog für separater Slice 274 nach Beta" markiert. Slice 274/275/276 wurden danach von 3 anderen Live-Bugs vereinnahmt (Form-Bars, Injuries, Logo). Cron-Code-Fix nie gebaut → Bug-Klasse über Nacht in 4 weiteren Ligen wiederaufgetaucht (Bundesliga, 2.BL, Süper Lig, Serie A).
+
+### Entscheidung
+
+Wenn ein Slice-LOG einen Sub-Track explizit als „Backlog" oder „separater Slice N+1" markiert, MUSS der direkt nächste Slice exakt dieser Sub-Track sein. Live-Bug-Reports die danach reinkommen sind:
+
+- **Emergency-Path:** wenn Money/Trading/Auth betroffen ODER User-blocking → `/ship emergency` (umgeht Spec-Gate)
+- **Slice N+2 oder später:** alle anderen Live-Bugs
+
+Anti-Pattern verboten: „Live-Bug X kam rein, ist dringender als Backlog-Track A2, schiebe ich auf Slice N+2" — genau das hat 3× hintereinander stattgefunden, weil JEDER Live-Bug subjektiv „dringender" wirkte.
+
+### Begründung
+
+Backlog-Drift ist exponentiell: jeder neue Live-Bug eskaliert die Subjektive-Dringlichkeit, der Backlog-Track sammelt Staub. Im konkreten Fall 273 → 4 Tage Verzögerung → Bug-Klasse rekurrent in 4 zusätzlichen Ligen sichtbar geworden. Hot-Fix nötig der ohne A2-Code-Fix in 1-3 Tagen wieder broken sein wird.
+
+Verwandt aber nicht identisch zu D54 „Build-without-Wire": D54 ist „Tool gebaut, nicht verkabelt", D69 ist „Track-A1 gebaut, Track-A2 verschoben und vergessen". Process-Wurzel ist gleich: Slice gilt als „done" während ein logisch zusammengehörender Sub-Track offen ist.
+
+### Auswirkungen
+
+- `workflow.md` LOG-Stage-Sektion erweitern: bei „Backlog für separater Slice"-Markierung MUSS nächster Slice-Eintrag in active.md exakt der Backlog-Track sein. Hook-Idee `ship-backlog-followup-gate` (warn): wenn vorheriger Slice „Backlog für Slice N+1" markierte und neuer Slice einen anderen Scope hat, warnt vor Commit.
+- Slice 277 ist Pflicht-nächster-Slice (nach Slice 276 Wolfsburg-Logo wenn parallel-laufend). Cron-Code-Fix gameweek-sync `already_complete` + `no_past_fixtures` Branches.
+- LOG-Format-Konvention: „Backlog für späteren Slice" ist nicht mehr akzeptiert ohne explizite Slice-Nummer. Statt „Backlog nach Beta" → „Pflicht-nächster Slice 277".
+
+### Alternativen erwogen
+
+- **A: GitHub-Issue-Tracker für Backlog-Items** — gut für externes Reporting, aber Workflow-intern bleibt active.md SSOT. Issue-Tracker hatte schon Slice-234-Probleme (recurring Failure-Klassen ohne Master-Tracker).
+- **B: Hard-Gate-Hook der nächsten Slice-Scope blockt** — zu rigide bei echten Emergencies. Soft-warn ist ausreichend wenn Process-Regel klar.
+- **C: Status-quo, jedem Slice trauen** — funktioniert nicht, wie Slice 273→276 gezeigt hat.
+
+Gewählt: PROCESS-Regel + WARN-Hook (D45 Hooks > Text-Regeln).
+
+### Re-Visit-Trigger
+
+- Backlog-Drift-Recurrence trotz Regel → Hard-Gate-Hook (Option B) erwägen
+- 0 Backlog-Driftet nach 10 Slices → Regel hat sich bewährt, in workflow.md kanonisieren
 

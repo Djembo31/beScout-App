@@ -2,6 +2,22 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 276b | 2026-05-06 | hotfix(gameweek): DB-Heal 4 stuck Ligen (Anil-Live-Bug)
+
+- Stage-Chain: SPEC (inline-active.md) → BUILD (DB-only, kein Code) → PROVE (worklog/proofs/276b-gameweek-hotfix.txt) → LOG
+- Slice-Type: DB-Heal (Hot-Fix, kein Code-Change)
+- Trigger: Anil-Live-Bug 2026-05-06 ~12:20 UTC — „warum laufen die Gameweeks immer noch nicht? alle Spieltage werden weiterhin als beendet angezeigt"
+- Diagnose: Slice 273 hatte Track A2 (Cron-Code-Fix) explizit als „Backlog für Slice 274 nach Beta" markiert. Slice 274/275/276 wurden danach von 3 anderen Live-Bugs vereinnahmt (Form-Bars, Injuries, Logo). Cron-Code-Fix nie gebaut. Bug-Klasse rekurrent in 4 weiteren Ligen aufgetaucht.
+- Bug-Klasse: `gameweek-sync/route.ts:502-544` Skip-Branches (`already_complete`, `no_past_fixtures`) returnen ohne `advance_gameweek`-Aufruf. clubs.active_gameweek bleibt für immer auf der gerade fertiggestellten GW.
+- DB-State pre-Fix: BL=32/32, BL2=32/32, SL=32/32, SA=35/35 (active_gw == last_finished_gw, drift +1).
+- Hot-Fix SQL: 8 UPDATEs in 1 BEGIN/COMMIT. Bundesliga 32→33, 2.BL 32→33, Süper Lig 32→33, Serie A 35→36. Dual-Write clubs+leagues SSOT.
+- DB-State post-Fix: alle 4 Ligen `active_gw = first_open_gw` ✓. PL/LL/TFF1 unverändert (Slice 273 + Saisonende-Edge).
+- Knowledge-Promotion: errors-infra.md neu „Cron-Skip-Branch ohne advance_gameweek-Aufruf → chronischer GW-Drift (Slice 273+276b)" — Detection-Query + Fix-Pattern + CI-Smoke-Idee.
+- Decision-Eintrag: memory/decisions.md D69 „Backlog-Sub-Track MUSS nächster Slice sein, nicht ‚separater Slice nach Beta'" — Process-Lehre damit Recurrence verhindert wird.
+- Spec-Skelett für strukturellen Fix: worklog/specs/277-gameweek-cron-advance-on-complete.md (S-Slice, ready für BUILD).
+- Files: 0 code-changes (DB-only). Meta: 1 proof + 1 spec + 1 errors-infra-edit + 1 decisions-edit.
+- Pending: Slice 277 ist Pflicht-nächster-Slice (D69-Regel) — sonst kommt Drift in 1-3 Tagen wieder.
+
 ## 276 | 2026-05-06 | fix(club-logo): short-Code-Konflikt-Resolution (Anil-Live-Bug)
 
 - Stage-Chain: SPEC (inline-active.md, S-Hot-Fix) → BUILD (clubs.ts Cache-Refactor + Helper-Add) → REVIEW (self-review S, vitest 1647/1647) → PROVE (worklog/proofs/276-club-logo-conflict-fix.txt) → LOG

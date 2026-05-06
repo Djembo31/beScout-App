@@ -1,0 +1,97 @@
+Slice 276b — Hot-Fix Gameweek-Drift 4 stuck Ligen (Anil-Live-Bug 2026-05-06)
+============================================================================
+
+TRIGGER:
+  Anil-Report: "alle Spieltage werden weiterhin als beendet angezeigt"
+  obwohl Slice 273 (gestern) explizit als "Spieltag-Bug-Komplex endgültig gefixt" closed wurde.
+
+ROOT-CAUSE-DIAGNOSE:
+  Slice 273 hat 3 von 4 Tracks gefixt (DB-Heal manuell für PL+LL, UI-Liga-Filter, Modal-Stale).
+  Track A2 — der Cron-Code-Fix in gameweek-sync/route.ts — wurde explizit als
+  "Backlog für separater Slice 274 nach Beta" markiert.
+  Slice 274/275/276 wurden danach von 3 anderen Live-Bugs vereinnahmt.
+  Cron-Code-Fix ist bis heute NICHT gebaut.
+
+  Konsequenz: Cron-Branches `already_complete` (route.ts:502) und `no_past_fixtures`
+  (route.ts:534) returnen ohne `advance_gameweek`-Aufruf. Wenn GW vollständig
+  fertig (alle fixtures finished + alle events scored), bleibt clubs.active_gameweek
+  für immer auf der gerade fertiggestellten GW kleben.
+
+PRE-FIX STATE (gemessen 2026-05-06 ~12:20 UTC):
+  Liga              | active_gw | last_finished | first_open | DRIFT
+  ------------------|-----------|---------------|------------|------
+  Bundesliga        |   32      |     32        |     33     |  +1
+  2. Bundesliga     |   32      |     32        |     33     |  +1
+  Süper Lig         |   32      |     32        |     33     |  +1
+  Serie A           |   35      |     35        |     36     |  +1
+  Premier League    |   36      |     35        |     31*    |   0  (Slice 273-Heal)
+  La Liga           |   35      |     34        |     35     |   0  (Slice 273-Heal)
+  TFF 1. Lig        |   38      |     38        |      8*    |   0  (Saisonende edge)
+
+  *: Postponed-Match Edge-Cases (PL: MC v Crystal Palace 2026-05-13; TFF1: Saisonende GW8-Postponed)
+
+CRON-LOG-EVIDENZ (cron_sync_log, gameweek-sync 2026-05-06 06:00 UTC):
+  - already_complete (skipped): BL1, BL2, SL, SA, TFF1
+  - no_past_fixtures  (skipped): PL, LL
+  - Keine fetch_stats / import_data / score_events / advance_gameweek-Steps für 4 stuck Ligen.
+
+HOT-FIX SQL (atomar, 1 Transaction, 8 UPDATEs):
+  BEGIN;
+  -- Bundesliga 32 → 33
+  UPDATE clubs   SET active_gameweek = 33 WHERE league_id = '4f968f3a-...';
+  UPDATE leagues SET active_gameweek = 33 WHERE id        = '4f968f3a-...';
+  -- 2. Bundesliga 32 → 33
+  UPDATE clubs   SET active_gameweek = 33 WHERE league_id = '2c9768e6-...';
+  UPDATE leagues SET active_gameweek = 33 WHERE id        = '2c9768e6-...';
+  -- Süper Lig 32 → 33
+  UPDATE clubs   SET active_gameweek = 33 WHERE league_id = '05ec9bf8-...';
+  UPDATE leagues SET active_gameweek = 33 WHERE id        = '05ec9bf8-...';
+  -- Serie A 35 → 36
+  UPDATE clubs   SET active_gameweek = 36 WHERE league_id = 'ef641939-...';
+  UPDATE leagues SET active_gameweek = 36 WHERE id        = 'ef641939-...';
+  COMMIT;
+
+POST-FIX STATE (gemessen direkt nach COMMIT):
+  Liga              | active_gw | last_finished | first_open | OK?
+  ------------------|-----------|---------------|------------|------
+  Bundesliga        |   33      |     32        |     33     |  ✓
+  2. Bundesliga     |   33      |     32        |     33     |  ✓
+  Süper Lig         |   33      |     32        |     33     |  ✓
+  Serie A           |   36      |     35        |     36     |  ✓
+  Premier League    |   36      |     35        |     31     |  ✓ (unverändert)
+  La Liga           |   35      |     34        |     35     |  ✓ (unverändert)
+  TFF 1. Lig        |   38      |     38        |      8     |  ✓ (unverändert)
+
+  Alle 7 Ligen: distinct_club_gws = 1 (kein club-level drift)
+                league_active_gw = first_open_gw  ODER  Edge-Case (PL/TFF1)
+
+WIRKUNG:
+  - UI Spieltag-Tab zeigt nun für die 4 stuck-Ligen den korrekten "Aktiv"-State (GW33/36).
+  - Modal-Filter "Mein Kader" + Picker greifen wieder auf richtigen GW zu.
+  - Lineup-Save für GW33/36 wieder möglich (war pre-Fix gesperrt weil GW32/35 als active galt).
+
+VERBLEIBENDER BUG (struktureller Cron-Fix):
+  Slice 277 muss gameweek-sync/route.ts patchen:
+  - already_complete-Branch (Z. 502-513): vor early-return prüfen ob nextGw <= maxGameweeks
+    UND nextGw Fixtures hat, dann advance_gameweek aufrufen.
+  - no_past_fixtures-Branch (Z. 532-544): analog.
+  - Test-Coverage: 3 Skip-Branches × 2 advance-Fälle = 6 Test-Cases.
+
+  Ohne Slice 277 wird derselbe Drift-Bug morgen nach dem nächsten Match-Day für die
+  nächsten Ligen wieder auftreten. Hot-Fix heilt nur Symptom, nicht Ursache.
+
+VERIFY-COMMAND post-Deploy:
+  -- nach jedem täglich-06:00-Cron-Run:
+  SELECT l.name, l.active_gameweek,
+         MAX(f.gameweek) FILTER (WHERE f.status IN ('finished','simulated')) AS last_finished,
+         MIN(f.gameweek) FILTER (WHERE f.status NOT IN ('finished','simulated')) AS first_open
+  FROM leagues l
+  LEFT JOIN fixtures f ON f.league_id = l.id
+  GROUP BY l.id, l.name, l.active_gameweek
+  ORDER BY l.name;
+  -- Erwartet: active_gw = first_open (außer Postponed-Edge-Cases).
+
+EXECUTED-BY: Claude (Hot-Fix mandate by Anil 2026-05-06)
+EXECUTED-AT: 2026-05-06 ~12:25 UTC (DB time)
+DURATION:    < 100ms (8 UPDATEs in 1 BEGIN/COMMIT)
+ROLLBACK:    Reversibel via UPDATE clubs/leagues SET active_gameweek = <prev_value>

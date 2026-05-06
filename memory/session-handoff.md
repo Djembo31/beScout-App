@@ -1,23 +1,29 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 00:35)
+# Session Handoff — Auto (2026-05-06 14:37)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 11 Files
 ```
+ M .claude/rules/errors-infra.md
+ M memory/decisions.md
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-05.md
  M worklog/audits/type-truth-2026-05-05.md
+ M worklog/log.md
+?? worklog/audits/audit-stale-2026-05-06.md
+?? worklog/audits/type-truth-2026-05-06.md
+?? worklog/audits/wiring-2026-05-06.md
+?? worklog/proofs/276b-gameweek-hotfix.txt
+?? worklog/specs/277-gameweek-cron-advance-on-complete.md
 ```
 
-## Session Commits: 7
-- 4e8200a0 feat(backfill): Slice 273 Track A2 Multi-Liga Fixture-Stats Backfill-Script
-- 0b76346a fix(spieltag): Komplett-Stabilisierung Liga-Filter + Modal-Refetch + DB-Heal (Slice 273)
-- 6b8ecb27 fix(lineup): Duplicate-Defense-in-Depth (Slice 272 — Anil-Live-Bug)
-- 3c967ba0 fix(perf-l5): Em-Dash-Display fuer matches=0 (Slice 271 Track B1)
-- 6330129c chore(audits): JSONB-Perf + Test-Mock-Realism Audits (Slice 270 Self-Audit Items 4+5)
-- 97ac5b1a fix(form-bars): Per-Player Tooltip-GW + Slice 271 Discovery Audit (Slice 270b)
-- 1a2a8eb6 chore(session-end): Knowledge-Promotion 270d v2 + active.md idle + Audit-Cron-Sweep
+## Session Commits: 5
+- 0ee22fc8 fix(club-logo): Slice 276 — short-Code-Konflikt-Resolution (Anil-Live-Bug)
+- 9c20080f chore(log): Slice 275 LOG-Eintrag + active.md auf idle
+- 04d84641 fix(sync-injuries): Slice 275 — Date-Filter + Daten-Heilung 1862 rows (Anil-Live-Bug)
+- 7d7c9395 chore(log): Slice 274 LOG-Eintrag + active.md auf idle
+- c9064e50 fix(form-bars): Slice 274 — Absolute Liga-Window für Performance-Bars (Anil-Live-Bug)
 
 ## Stale Worktrees: 1 (cleanup candidates)
 
