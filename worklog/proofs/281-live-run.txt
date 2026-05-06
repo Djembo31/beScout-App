@@ -1,0 +1,12 @@
+Slice 281 Live-Verify Output (post-push 2026-05-06)
+===================================================
+
+gh workflow list (filter synthetic):
+Synthetic User Daily	active	272287983
+
+gh workflow run synthetic-users.yml: dispatched OK
+
+gh run list --workflow=synthetic-users.yml --limit=3:
+in_progress		Synthetic User Daily	Synthetic User Daily	main	workflow_dispatch	25462649034	19s	2026-05-06T21:39:34Z
+
+AC-05 [REGRESSION] workflow_dispatch (post-push): VERIFIED

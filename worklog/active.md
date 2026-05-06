@@ -2,8 +2,8 @@
 
 ```
 status: idle
-slice: 281
-stage: LOG (commit pending)
+slice: 281 ✅ DONE
+stage: LOG complete (commit 21af2e74 pushed, manual workflow_dispatch verified live, run-id 25462649034 in_progress)
 spec: worklog/specs/281-synthetic-users-daily-gha.md
 impact: skipped (neue Workflow-Datei, keine Service/RPC/DB)
 proof: worklog/proofs/281-workflow-yaml.txt + post-push live-verify
@@ -15,7 +15,7 @@ review: worklog/reviews/281-review.md (Self-Review PASS — XS-Slice 1:1 Pattern
 **Trigger:** Anil 2026-05-06 ~21:40 — „erstverkabeln".
 **Existing:** `e2e/synthetic-users.spec.ts` + `pnpm run test:synthetic` Script seit Phase-A. Nie in GHA-Schedule verkabelt.
 **Slice-Type:** GHA-Workflow · **Größe:** XS (1 File NEU, 134 Zeilen)
-**Live-Verify-Pflicht post-push:** `gh workflow list | grep -i synthetic` + `gh workflow run synthetic-users.yml` (manueller Dispatch zur Verify) + `gh run view <id>` für ersten Live-Run.
+**Live-Verify ✅ (post-push):** `gh workflow list` zeigt „Synthetic User Daily active 272287983". `gh workflow run synthetic-users.yml` dispatched. Run-ID `25462649034` in_progress, see `worklog/proofs/281-live-run.txt`. AC-05 verified.
 
 ---
 
