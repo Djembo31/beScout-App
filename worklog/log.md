@@ -2,6 +2,23 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 274 | 2026-05-06 | fix(form-bars): Absolute Liga-Window für Performance-Bars (Anil-Live-Bug)
+
+- Stage-Chain: SPEC (worklog/specs/274) → IMPACT (skipped, API-kompatibel, 5 Konsumenten verifiziert via grep) → BUILD (3 Schritte: Migration v1→v2 Heal + Service-Refactor + i18n) → REVIEW (self-review M-Slice, performance-heal v1→v2 dokumentiert) → PROVE (worklog/proofs/274-tsc-vitest.txt, vitest 3215/3216 PASS) → LOG
+- Slice-Type: DB-Migration + Service + i18n (M-Slice)
+- Trigger: Anil-Live-Bug-Report 2026-05-06 — „nicht alle spieler haben die leistungsbalken bis zur aktuellen Gameweek, einige haben mehr als 5 spiele nicht gespielt, aber zeigen noch leistungsbalken an aus vergangenen GW's, das irrtiert den user."
+- Bug-Klasse: Slice 270 Per-Player-Window (ROW_NUMBER PARTITION BY player_id, last 5 played) war damals Liga-Lag-Workaround. Slice 273 hat Liga-Lag komplett gefixt (DB-Heal active_gw + fixtures-truth). Per-Player-Window verursachte jetzt eigenen Bug: DNP-Spieler (verletzt seit GW 30, Liga bei GW 35) zeigen 5 colored Bars [GW26-30] → User-Wahrnehmung „on form, 1-2 GWs verpasst" obwohl 5+ GWs verpasst.
+- Lösung: RPC `rpc_get_recent_player_scores` returnt absolute Liga-Window (5 letzte finished GWs per Liga aus fixtures-truth) + LEFT JOIN player_gameweek_scores + NULLIF(score, 0). Service-Pad-Logic entfernt (Backend liefert immer 5 Slots). i18n notInSquad → DE „nicht aufgestellt" / TR „kadroda yok".
+- Performance-Heal v1→v2 (in-Session): v1 (no filter) 125ms aber Bench mit score=0 als „played 0pt" colored. v2-attempt (fps-JOIN minutes_played > 0) 951ms (8× über Mobile-Budget). v2-final (NULLIF score=0) 125ms + Bench/0-pt-Cameos beide dashed. Trade-off: 0-pt-Cameos (5-7min, 0 Pkte) als DNP angezeigt — selten + visuell kaum sichtbar. Cameos mit Punkten bleiben colored. Anil's Hauptbug 100% gelöst.
+- DB-Smoke verify: 22360 total slots = 4472 active players × 5 GWs ✓. 16329 DNP-or-zero (73%) → dashed. 6031 scored (27%) → colored.
+- 5 Konsumenten unverändert (TransferListSection, PlayerIPOCard, ClubAccordion, KaderPlayerRow, BestandPlayerRow) — alle nutzen identisches Pattern `s != null ? 'played' : 'not_in_squad'` was 1:1 mit Slice 274 NULL-score-Semantik matcht.
+- Knowledge-Promotion: errors-db.md neu „Tenant-Window Achsen-Erweiterung: Per-Player vs. Per-Liga (Slice 274)" — Decision-Tree für künftige Aggregat-Services + NULLIF-vs-Differential-JOIN Performance-Trap dokumentiert.
+- Files: 9 changed, 563 insertions, 54 deletions
+- Commit: c9064e50
+- Pending Anil-Verify: Live-Check auf bescout.net nach Deploy — langzeitverletzte Spieler zeigen 5 dashed bars mit Tooltip „GW X · nicht aufgestellt"
+
+
+
 ## 273 | 2026-05-06 | fix(spieltag): Komplett-Stabilisierung Liga-Filter + Modal-Refetch + DB-Heal + Backfill
 
 - Stage-Chain: SPEC (Specialist-Audit + Live-DB-Audit, kein File-Spec — inline in active.md) → IMPACT (5 Files Frontend + DB-Heal active_gameweek + Backfill-Script) → BUILD (3 Tracks parallel: A1 DB-Heal, B Liga-Filter, C Modal-Stale, A2 Script) → REVIEW (self-review + 1 Specialist fantasy-scoring-expert + 4 SQL-Smokes) → PROVE (vitest 255/255 fantasy-Domain + Backfill-Run 11/11 GWs erfolgreich) → LOG

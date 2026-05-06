@@ -1,18 +1,13 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 274
-stage: REVIEW (pending Anil-Live-Verify)
+stage: LOG (commit c9064e50, pushed to main, Vercel auto-deploy)
 spec: worklog/specs/274-form-bars-absolute-league-window.md
 impact: API-Contract bleibt (Service-Signatur unverändert), 5 Konsumenten kompatibel (s != null ? 'played' : 'not_in_squad' Pattern)
 proof: worklog/proofs/274-tsc-vitest.txt
 review: self-review (CTO + 1 Performance-Heal v1→v2)
-size: M
-type: DB-Migration + Service + i18n
-anil-decisions:
-  Q1-tooltip-wording: DE "GW {n} · nicht aufgestellt" / TR "GW {n} · kadroda yok" ✓
-  Q2-cameo-handling: 274 sauber genehmigt → CTO-Downgrade auf NULLIF(score, 0) wegen Performance (951ms→125ms). 0-pt-Cameos bleiben dashed (selten + visuell kaum sichtbar). Cameos mit Punkten bleiben colored. Hauptbug 100% gelöst.
 ```
 
 ## Slice 274 v2 — Form-Bars Absolute Liga-Window (REVIEW)
