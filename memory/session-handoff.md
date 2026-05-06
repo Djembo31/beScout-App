@@ -1,24 +1,20 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 14:37)
+# Session Handoff — Auto (2026-05-06 15:01)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 11 Files
+## Uncommitted Changes: 5 Files
 ```
- M .claude/rules/errors-infra.md
- M memory/decisions.md
+ M .claude/settings.local.json
  M memory/session-handoff.md
- M worklog/audits/audit-stale-2026-05-05.md
- M worklog/audits/type-truth-2026-05-05.md
- M worklog/log.md
-?? worklog/audits/audit-stale-2026-05-06.md
-?? worklog/audits/type-truth-2026-05-06.md
-?? worklog/audits/wiring-2026-05-06.md
-?? worklog/proofs/276b-gameweek-hotfix.txt
-?? worklog/specs/277-gameweek-cron-advance-on-complete.md
+ M worklog/audits/audit-stale-2026-05-06.md
+ M worklog/audits/type-truth-2026-05-06.md
+?? memory/strategic-advisory-2026-05-06.md
 ```
 
-## Session Commits: 5
+## Session Commits: 7
+- 1451405b chore(audits): tägliche auto-cron Outputs 2026-05-05 + 2026-05-06
+- 0eb4365b fix(gameweek): Slice 276b — DB-Heal 4 stuck Ligen + Slice 277 Spec (Anil-Live-Bug)
 - 0ee22fc8 fix(club-logo): Slice 276 — short-Code-Konflikt-Resolution (Anil-Live-Bug)
 - 9c20080f chore(log): Slice 275 LOG-Eintrag + active.md auf idle
 - 04d84641 fix(sync-injuries): Slice 275 — Date-Filter + Daten-Heilung 1862 rows (Anil-Live-Bug)

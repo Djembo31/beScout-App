@@ -93,7 +93,8 @@
       "Bash(grep -qE \"main -> main|rejected|error|fatal\" \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\bqo0glruo.output\")",
       "Bash(tail -10 \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\bqo0glruo.output\")",
       "Bash(grep -qE \"Verdict|PASS|REWORK|FAIL|CONCERNS\" \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\ab8c538d5883c0fca.output\")",
-      "Bash(tail -200 \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\ab8c538d5883c0fca.output\")"
+      "Bash(tail -200 \"C:\\\\\\\\Users\\\\\\\\Anil\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--bescout-app\\\\\\\\dc72e591-9d08-4e44-9d67-cd2f69ab8da4\\\\\\\\tasks\\\\\\\\ab8c538d5883c0fca.output\")",
+      "Read(//c/Users/Anil/AppData/Local/Temp/claude/C--bescout-app/addc8e21-cf48-4a21-a433-17042cdc5fbc/tasks/**)"
     ]
   },
   "enableAllProjectMcpServers": true,
