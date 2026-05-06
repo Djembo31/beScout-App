@@ -1,16 +1,20 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 15:15)
+# Session Handoff — Auto (2026-05-06 16:29)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-06.md
  M worklog/audits/type-truth-2026-05-06.md
 ?? memory/strategic-advisory-2026-05-06.md
 ```
 
-## Session Commits: 8
+## Session Commits: 10
+- 5f5e15a4 fix(home): Slice 278 — MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug)
+- 68e73257 chore(beta-phase): RISK-5 TR-Pre-Verify endgültig CLOSED — Anil-confirmed
+- 86f29d87 fix(gameweek-cron): Slice 277 — advance_gameweek auch in Skip-Branches
 - df74afcd chore(session-end): 2026-05-06 Session — 4 Slices LIVE + Auto-Updates
 - 1451405b chore(audits): tägliche auto-cron Outputs 2026-05-05 + 2026-05-06
 - 0eb4365b fix(gameweek): Slice 276b — DB-Heal 4 stuck Ligen + Slice 277 Spec (Anil-Live-Bug)
@@ -18,7 +22,6 @@
 - 9c20080f chore(log): Slice 275 LOG-Eintrag + active.md auf idle
 - 04d84641 fix(sync-injuries): Slice 275 — Date-Filter + Daten-Heilung 1862 rows (Anil-Live-Bug)
 - 7d7c9395 chore(log): Slice 274 LOG-Eintrag + active.md auf idle
-- c9064e50 fix(form-bars): Slice 274 — Absolute Liga-Window für Performance-Bars (Anil-Live-Bug)
 
 ## Stale Worktrees: 1 (cleanup candidates)
 
@@ -26,7 +29,80 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~00:40 — Schluss nach Spieltag-Stabilisierung)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~16:25 — Cold-Start-Track ready)
+
+**HEAD `5f5e15a4`** Status: idle. 5 Slices LIVE heute (274/275/276/276b/277/278), 0 Reverts. Strategic-Advisory entfernt. D70 dokumentiert Cold-Start-Track als nächste Strategic-Investition.
+
+## Erste Action morgen — Cold-Start-Latency-Track Slice 279
+
+**Anil-Direktive 2026-05-06:** „in der nächsten session will ich an der cold start weiter machen"
+
+D70 (memory/decisions.md, neueste Decision) definiert den Multi-Slice-Track:
+
+| Slice | Was | ROI |
+|-------|-----|-----|
+| **279** | Lighthouse-CI als hard-fail Gate in GHA + Baseline-Measurement | macht Drift sichtbar, ohne kein Slice 280+ messbar |
+| 280 | Bundle-Analysis + Tree-Shaking (Top 5 fat-Modules) | -200-400KB parsed-bundle |
+| 281 | Initial-Query-Konsolidierung — `useHomeData` Parallel-Loads in 1-RPC bundeln | -1.5s LCP wenn Waterfall vermieden |
+| 282 | Vercel Edge-Caching für static + ISR für `/club/*` | -800ms TTFB für returning visitors |
+
+**Erste Action:** Slice 279 spec'en. Ziel = Lighthouse-Baseline messen + GHA-Gate + Target-Definition (LCP < 2.5s Mobile-3G-Slow).
+
+**Pre-Spec-Pflicht-Read:**
+- `memory/decisions.md` D70 (Track-Definition + Anti-Patterns)
+- `worklog/log.md` Slice 109 (Konsolidierung Δ -1-5% LCP — Anti-Pattern „Optimize ohne Baseline")
+- `worklog/log.md` Slice 121 (`dynamic()` lazy-import bringt nichts wenn eager — Anti-Pattern „Splitting blind")
+- `worklog/log.md` Slice 185b (Bundle-Budget existing infra — wird erweitert um Lighthouse)
+
+**Track-Approval-Pflicht:** Vor Slice 279 BUILD muss Anil das Multi-Slice-Investment ok geben. Spec wird vor BUILD geliefert.
+
+## Was passierte heute (5 Slices, 5 Commits, 0 Reverts)
+
+| Slice | Commit | Was |
+|-------|--------|-----|
+| 274 | `c9064e50` | Form-Bars Absolute Liga-Window (DNP-Spieler dashed bars) |
+| 275 | `04d84641` | Sync-Injuries Date-Filter + 1862 false-positive Heal |
+| 276 | `0ee22fc8` | Club-Logo short-Code-Konflikt-Resolution (Wolfsburg/Wolves etc.) |
+| 276b | `0eb4365b` | DB-Heal 4 stuck Ligen Cron-Drift |
+| 277 | `86f29d87` | Cron-Code-Fix advance_gameweek in Skip-Branches (276b recurrent verhindern) |
+| 278 | `5f5e15a4` | MysteryBox-Doppel-Render-Suppression (Slice 266 Multi-Slot-Drift) |
+
+Plus Hygiene:
+- TR-Pre-Verify Anil-confirmed (commit `68e73257`) → RISK-5 endgültig CLOSED
+- Strategic-Advisory entfernt (Anil-Anweisung)
+- D70 Cold-Start-Track dokumentiert
+- errors-frontend.md erweitert um Cross-Section-Coupling-Drift Pattern (Slice 278)
+
+## Phase-D Anil-Pflicht (parallel zu Cold-Start-Track)
+
+Cold-Start-Track ist CTO-Track ohne Anil-Action-Items. Phase-D bleibt:
+
+1. **iPhone-Visual-Verify 8 Konfigs** (BLOCKER, Checkliste in `worklog/audits/2026-05-05/iphone-verify-checklist.md`)
+2. **Beta-Mails an Taki/Nail Mo** (Templates in `memory/beta-tester-recruitment-templates.md`)
+
+## Knowledge-Promotion heute
+
+- `errors-frontend.md` neu „Cross-Section-Coupling-Drift bei Multi-Slot-Refactors" (Slice 278)
+- `errors-infra.md` neu „Cron-Skip-Branch ohne advance_gameweek-Aufruf" (Slice 273+276b)
+- `errors-db.md` neu „Tenant-Window Achsen-Erweiterung Per-Player vs. Per-Liga" (Slice 274)
+- `errors-scraper.md` neu „External-API liefert historische Daten als aktuelle" (Slice 275)
+- `errors-frontend.md` neu „Lookup-Map indexed by ambiguous Key" (Slice 276)
+
+## Decisions heute
+
+- **D69** Backlog-Sub-Track MUSS nächster Slice sein, nicht „separater Slice nach Beta"
+- **D70** Cold-Start-Latency als nächster Strategic-Track (Slice 279+)
+
+## Tests final state
+
+- 3215+ tests grün im Branch
+- vitest 13/13 in advance-helpers (Slice 277)
+- vitest 135/135 in Home + Hooks (Slice 278)
+- 0 Reverts seit Slice 261
+
+---
+
+# 🎯 RESUME-ANKER VORHERIGE SESSION (2026-05-06 ~00:40 — Schluss nach Spieltag-Stabilisierung)
 
 **HEAD `4e8200a0`** Status: idle. Slice 273 Spieltag-Stabilisierung 3/4 Tracks live, Track A2 Backfill-Run im Hintergrund (Agent läuft).
 

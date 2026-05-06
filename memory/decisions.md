@@ -3159,3 +3159,67 @@ Gewählt: PROCESS-Regel + WARN-Hook (D45 Hooks > Text-Regeln).
 - Backlog-Drift-Recurrence trotz Regel → Hard-Gate-Hook (Option B) erwägen
 - 0 Backlog-Driftet nach 10 Slices → Regel hat sich bewährt, in workflow.md kanonisieren
 
+---
+
+## D70 — PROCESS: Cold-Start-Latency als nächster Strategic-Track (Slice 279+)
+
+**Datum:** 2026-05-06
+**Status:** Aktiv (Track für nächste Session)
+**Category:** PROCESS
+**Trigger:** Anil-Frustration 2026-05-06 ~15:35 — „ich bin weiterhin mit dem laden der App total unzufrieden! warum bekommen wir es nicht endlich mal alles reibungslos, abgestimmt wie ein fluss hinzubekommen? was machen die anderen anders wie wir?"
+
+### Entscheidung
+
+Cold-Start-Latency-Optimierung wird als nächster Strategic-Track ab Slice 279+ geöffnet. NICHT zwischen Live-Bug-Fixes als Sub-Track, sondern als dedizierter Multi-Slice-Track mit messbarer Metric.
+
+**Track-Definition:**
+- **Metric:** Mobile-LCP (Largest Contentful Paint) auf bescout.net im 3G-Slow-Profile via Lighthouse-CI.
+- **Baseline messen:** vor Slice 279 BUILD — Lighthouse-Run gegen `https://bescout.net/` mit Mobile-Preset + 3G-Slow-Throttling. Output als `worklog/audits/2026-05-Y/lighthouse-baseline.md`.
+- **Target:** LCP < 2.5s (Web-Vital good). Aktueller Schätzwert ~4-5s.
+
+**Multi-Slice-Plan (vor BUILD: Anil-Approval-Pflicht für Track):**
+
+| Slice | Was | ROI |
+|-------|-----|-----|
+| 279 | Lighthouse-CI als hard-fail Gate in GHA + Baseline-Measurement | macht Drift sichtbar, ohne kein Slice 280+ messbar |
+| 280 | Bundle-Analysis + Tree-Shaking (Top 5 fat-Modules eliminieren) | -200-400KB sichtbarer parsed-bundle |
+| 281 | Initial-Query-Konsolidierung — `useHomeData` Parallel-Loads in 1-RPC bundeln (analog Slice 109 Lehre) | -1.5s LCP wenn Waterfall vermieden |
+| 282 | Vercel Edge-Caching für static assets + ISR für `/club/*` Pages | -800ms TTFB für returning visitors |
+
+**Reihenfolge ist sequenziell:** ohne 279 keine Mess-Wahrheit, ohne 280-281 keine Bundle-Wins.
+
+### Begründung
+
+Anil's Frustration ist berechtigt. Status-quo:
+- Cold-Start ~4-5s ist schlechter als Sorare/Linear/Socios (alle <2s LCP auf Mobile)
+- 278 Slices in 12 Monaten haben Code-Quality + Feature-Breadth gebracht, aber Performance-Discipline fehlt systematisch
+- Bundle-Budget existiert (Slice 185b), aber kein Lighthouse-Gate
+- Die strategic-advisory hat das auch direkt gesagt: „Du hast 12 Monate Engineering-Arsenal aufgebaut, ohne parallel die Distribution-Maschine zu zünden" — gilt analog für UX-Latency-Discipline
+
+Der Track ist Strategic-Investment für Beta-Launch-Erfolg: Tester die 4s Cold-Start sehen, kommen nicht wieder. Web-Vital-LCP <2.5s ist Mindeststandard für Retention in 2026.
+
+### Anti-Pattern verboten
+
+- **Performance-Slice zwischen Live-Bug-Fixes squeezen:** zu wenig Fokus, kein Mess-Workflow, keine Pattern-Lehre.
+- **Optimieren ohne Baseline:** Slice 109 hat das gezeigt — Konsolidierung von 4 parallelen Hooks in 1 RPC brachte Δ -1-5% LCP, innerhalb Rauschen, weil Queries sowieso parallel waren. Ohne Lighthouse-Mess-Wahrheit produzieren wir „Optimize-Theater".
+- **Bundle-Splitting blind:** Slice 121 hat gezeigt — `dynamic()` lazy-import bringt nichts wenn anderer Code-Path eager importiert. Erst Bundle-Analyzer + Mess-Wahrheit, dann Splits.
+
+### Auswirkungen
+
+- `workflow.md` Strategic-Track-Sektion ergänzen mit „Cold-Start-Latency-Track (Slice 279-282)"
+- Track-Approval-Pflicht von Anil VOR Slice 279 BUILD — er muss Multi-Slice-Investment OK geben
+- Slice 279 Spec wird Pflicht-Read VOR irgendeiner Optimization-Implementierung
+- Alternative-Tracks (z.B. iPhone-Visual-Verify finishen, Beta-Mails) bleiben Anil-Pflicht parallel — Cold-Start ist CTO-Track ohne Anil-Action-Items
+
+### Alternativen erwogen
+
+- **A: Inline-Optimization im nächsten Live-Bug-Slice** — verworfen, siehe Anti-Pattern oben (zu wenig Fokus, kein Mess-Workflow)
+- **B: Single-Big-Slice „Cold-Start fix"** — verworfen, zu groß für 1 Slice (wäre L oder XL), bricht workflow.md S/M-Empfehlung
+- **C: Multi-Slice-Track mit Lighthouse-Baseline** — gewählt, klare Reihenfolge, messbar, Knowledge-Promotion-fähig
+- **D: post-Beta verschieben** — verworfen, weil Cold-Start direkten Beta-Launch-Erfolg gefährdet (Tester-Retention-Risk)
+
+### Re-Visit-Trigger
+
+- Lighthouse-Baseline zeigt LCP < 3s → Track auf 1-2 Slices reduzieren (nur niedrig-hängende Früchte)
+- Slice 279-282 done + LCP > 3s → Track erweitern mit weiteren Optimierungen (Image-CDN, ISR-Refinement, Service-Worker)
+- Anil-Decision sagt „später" → Track in `slice_stubs_pending` parken

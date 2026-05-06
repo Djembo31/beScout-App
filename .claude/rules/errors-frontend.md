@@ -127,6 +127,51 @@ grep -rnE "useState<[A-Z][a-zA-Z]+ \| null>" src/components/ src/features/ | hea
 - Cross-Cutting mit Slice 270 "Per-Tenant-Window vs. Global-MAX" (errors-db.md) — beide sind „Daten-Frische in Multi-Source-Architektur".
 - Erweitert "Realtime-Hook-Refactor TanStack-Query → callback-only" (Slice 267) auf UI-Modal-Layer.
 
+### Cross-Section-Coupling-Drift bei Multi-Slot-Refactors (Slice 278, 2026-05-06)
+
+**Bug-Klasse:** Page-Render-Tree zeigt dasselbe semantische Element an 2 Stellen (z.B. CTA-Card oben in Hero-Slot UND als persistent Card in Sidebar). Beide Stellen reagieren auf gleiche Daten-Quelle (`hasFreeBoxToday`, `activeIPOs.length`, etc.). Wenn ein Multi-Slot-Refactor neue Slot-Types einführt, MUSS systematisch geprüft werden welche Sidebar/Mobile-Sections doppelt zeigen würden — sonst Doppel-Render-Drift.
+
+**Symptom (Slice 278 Anil-Live-Bug 2026-05-06):** „wieviele mysteryboxen habe ich im home? ich habe das gefühl das es 2 mal auftritt". HomeSpotlight-Slot zeigt MysteryBox als Slot 2 in der 5-Tier-Cascade wenn `hasFreeBoxToday=true`. Sidebar-Card in `page.tsx:386` zeigt MysteryBox parallel mit Shimmer-Animation, **OHNE Suppression-Gate** auf `spotlightSlots.primary !== 'mysteryBox'`. → Mobile-User sieht 2× MysteryBox im Scroll-Viewport.
+
+**Root-Cause:** Slice 266 hat Multi-Slot-Spotlight eingeführt + Suppression-Mapping in `page.tsx` für 4/5 Slot-Types erfasst (`spotlightType !== 'event'`, `!== 'ipo'`, `!== 'topMover'`, `!== 'trending'`) — **mysteryBox wurde übersehen**. Sidebar-Card hatte daher keinen Gate, war pre-Slice-266 ohne-Konflikt sichtbar, post-Slice-266 mit-Konflikt-aber-unentdeckt.
+
+**Fix-Pattern:**
+```tsx
+// Vorher (Drift)
+{uid && (
+  <Card>...MysteryBox...</Card>
+)}
+
+// Nachher (Suppression)
+{uid && spotlightSlots.primary !== 'mysteryBox' && spotlightSlots.secondary !== 'mysteryBox' && (
+  <Card>...MysteryBox...</Card>
+)}
+```
+
+**Audit-Pattern (Pflicht bei JEDEM Multi-Slot-Refactor):**
+```bash
+# Bei JEDEM neuen Slot-Type in Spotlight/Multi-Slot-Container:
+# Greppen welche Sections im selben Page-Render-Tree dieselben Daten konsumieren
+grep -rnE "spotlightType\s*!==|spotlightSlots\.(primary|secondary)" src/app/
+
+# Plus: alle Sections greppen die conditionally auf gleiche Daten-Quelle reagieren
+grep -rnE "(hasFreeBoxToday|activeIPOs\.length|isEventLive|nextEvent)" src/app/\(app\)/page.tsx \
+  src/components/home/*.tsx
+```
+
+**Decision-Tree für künftige Multi-Slot-Components:**
+1. Welche Daten-Quellen konsumiert der Slot-Container? (z.B. 5 Slot-Types in HomeSpotlight = 5 Daten-Quellen)
+2. Pro Daten-Quelle: gibt es eine zweite Section im Page-Render-Tree die DIESELBE Daten-Quelle konsumiert?
+3. Wenn JA: brauche ich Suppression-Gate der die Section verbirgt wenn Slot-Container das Element bereits zeigt?
+4. Spec-Pflicht: Suppression-Mapping-Tabelle (Slot-Type → betroffene Sidebar-Section) als Sektion in Multi-Slot-Spec.
+
+**Beziehung:**
+- Slice 266 (D63 Phase 1) hat Multi-Slot-Spotlight eingeführt — original Drift-Quelle
+- Slice 278 fixt mysteryBox-Suppression als 5. Slot-Type
+- Pattern-Familie: Cross-Section-Coupling — gleiche Bug-Klasse wie „Selected-Item-Snapshot vs. Realtime-Update-Drift" (Slice 273), aber andere Achse (statisches-Render statt dynamisches-State)
+
+**Reference:** Slice 278 `src/app/(app)/page.tsx:386` Suppression-Gate. Pre-Slice-278 Render-Pfad: `useHomeData.spotlightSlots` → Spotlight rendert Slot + Sidebar rendert Card parallel.
+
 ### Lookup-Map indexed by ambiguous Key (Slice 276, 2026-05-06)
 
 **Bug-Klasse:** Frontend-Cache (z.B. ClubCache) indiziert Records nach mehreren Keys für „flexiblen Lookup". Wenn EIN Key nicht garantiert eindeutig ist (z.B. `short`-Code 3-stellig), überschreibt der letzte Insert silent → nachfolgende Lookups returnen das falsche Record. ORDER BY entscheidet welcher gewinnt — vom User-Standpunkt random.
