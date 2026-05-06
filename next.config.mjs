@@ -9,7 +9,20 @@ const withBundleAnalyzer = createBundleAnalyzer({ enabled: process.env.ANALYZE =
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    optimizePackageImports: ['lucide-react', '@supabase/supabase-js', 'posthog-js', '@tanstack/react-query', 'next-intl', 'zustand', 'country-flag-icons', '@sentry/nextjs'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@supabase/supabase-js',
+      '@supabase/ssr',
+      'posthog-js',
+      '@tanstack/react-query',
+      '@tanstack/react-query-persist-client',
+      'next-intl',
+      'zustand',
+      'country-flag-icons',
+      '@sentry/nextjs',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-alert-dialog',
+    ],
     // Slice 125: Next.js 14 requires this flag for the instrumentation hook.
     // Removed in Next.js 15 (stable by default).
     instrumentationHook: true,

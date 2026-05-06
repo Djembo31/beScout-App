@@ -237,9 +237,6 @@ export { Dialog } from './Dialog';
 export type { DialogProps } from './Dialog';
 export { AlertDialog } from './AlertDialog';
 export type { AlertDialogProps } from './AlertDialog';
-export { DropdownMenu } from './DropdownMenu';
-export type { DropdownMenuItemProps, DropdownMenuContentProps } from './DropdownMenu';
-
 export function ErrorState({
   message,
   retryLabel,

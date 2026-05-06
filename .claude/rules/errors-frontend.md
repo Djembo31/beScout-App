@@ -172,6 +172,55 @@ grep -rnE "(hasFreeBoxToday|activeIPOs\.length|isEventLive|nextEvent)" src/app/\
 
 **Reference:** Slice 278 `src/app/(app)/page.tsx:386` Suppression-Gate. Pre-Slice-278 Render-Pfad: `useHomeData.spotlightSlots` → Spotlight rendert Slot + Sidebar rendert Card parallel.
 
+### Dead-Wrapper-File mit transitive Lib-Lock-In (Slice 280, 2026-05-06)
+
+**Bug-Klasse:** Wrapper-Component (`src/components/ui/X.tsx`) ist Barrel-re-exportiert (`@/components/ui` `export { X }`), aber kein Konsument importiert `X` mehr. Webpack/Next bundlet das Wrapper-File trotzdem mit allen transitive deps (Radix-Primitives, Floating-UI-Layer, etc.) in jeden Page-Chunk der das Barrel importiert. Result: 100+ KB transitive Lib-Bundle pro Page-Chunk für 0 User-Visible-Code.
+
+**Symptom (Slice 280 Discovery):** `DropdownMenu.tsx` Wrapper hatte 0 Konsumenten in Production-Code (verifiziert via `grep -rln "DropdownMenu" src/ | grep -v __tests__ | grep -v ui/index.tsx`). Wrapper hatte aber `import * as RadixMenu from '@radix-ui/react-dropdown-menu'` + Barrel-Re-Export. Bundle-Inclusion: ~105 KB direct + transitive floating-ui/collection/dismiss-Layer. Nach Delete: **-17 KB FLJS auf JEDER der 22 tracked Pages, -374 KB Total-FLJS-Sum**.
+
+**Root-Cause:** Wrapper wurde im Slice 181 Radix-Foundation als „Pilot-Multi-Wrapper" gebaut (Dialog + AlertDialog + DropdownMenu), aber nur 2 davon sind tatsächlich in Code migriert worden. DropdownMenu blieb orphan. Pre-Slice-280 Audit hatte das nicht gefangen weil:
+- TSC clean (Wrapper-File compiles selbst-konsistent)
+- Tests grün (DropdownMenu.test.tsx existierte)
+- Barrel-Re-Export sieht „in-use" aus
+- `audit:orphan` (Slice 228) detektiert Orphan-Components, aber Wrapper-Files mit eigenem Test waren False-Positive-Filter.
+
+**Detection-Pattern (Pre-Bundle-Refactor pflicht):**
+```bash
+# Für jeden Wrapper-File in src/components/ui/:
+for wrapper in src/components/ui/*.tsx; do
+  name=$(basename "$wrapper" .tsx)
+  count=$(grep -rln "\b$name\b" src/ \
+    --exclude-dir=__tests__ \
+    --exclude-dir=test-utils \
+    | grep -v "components/ui/$name.tsx\|components/ui/index.tsx" \
+    | wc -l)
+  if [ "$count" = "0" ]; then
+    echo "ORPHAN-WRAPPER: $wrapper (0 Konsumenten)"
+  fi
+done
+```
+
+**Fix-Pattern:**
+1. Wrapper-File löschen (`src/components/ui/X.tsx`)
+2. Test-File löschen (`src/components/ui/__tests__/X.test.tsx`)
+3. Barrel-Re-Export entfernen (`src/components/ui/index.tsx`)
+4. `optimizePackageImports`-Eintrag entfernen falls vorhanden (`next.config.mjs`)
+5. Optional: zugrundeliegendes pnpm-dep entfernen wenn 0 anderer Consumer (`pnpm remove`)
+6. Optional: Test-Helpers in `src/test-utils/` mit-prüfen (oft eigene Mock-Factories für den Wrapper, dann auch dead)
+
+**Bundle-Win-Erwartung:** 50-150 KB pro Page-Chunk (abhängig von transitive Tiefe). Slice 280: -17 KB × 22 Pages = -374 KB.
+
+**Beziehung zu D54 / D46:**
+- D54 „Build-without-Wire" — Tools/Hooks/Migrations gebaut + nicht verkabelt. Wrapper-Variante ist die UI-Layer-Achse: gebaut + Barrel-exportiert + nicht konsumiert.
+- D46 „Service-Duplicate bei parallelem BE+FE-Dispatch" — andere Achse (Duplikate), aber gleiche Pattern-Familie „Existenz ≠ Verwendung".
+
+**Lehre für `optimizePackageImports`:** Wins via `optimizePackageImports` sind oft **0 KB für ESM-libs** weil moderne Libraries bereits tree-shaken sind. Hauptwin liegt in:
+1. **Dead-Wrapper-Removal** (105 KB+ pro Wrapper, Slice 280)
+2. **Lazy-Loading** (Slice 121 Pattern, Eager-Trap vermeiden)
+3. **API-Surface-Reduktion** via gezielte Named-Imports statt Namespace (Slice 120)
+
+**Reference:** Slice 280 Bundle-Diff Proof `worklog/proofs/280-bundle-diff.md`. `next.config.mjs:12-26`. Discovery via Pre-Implementation-Greppen analog Slice 121-Lehre.
+
 ### Lookup-Map indexed by ambiguous Key (Slice 276, 2026-05-06)
 
 **Bug-Klasse:** Frontend-Cache (z.B. ClubCache) indiziert Records nach mehreren Keys für „flexiblen Lookup". Wenn EIN Key nicht garantiert eindeutig ist (z.B. `short`-Code 3-stellig), überschreibt der letzte Insert silent → nachfolgende Lookups returnen das falsche Record. ORDER BY entscheidet welcher gewinnt — vom User-Standpunkt random.

@@ -15,7 +15,8 @@
  * Replaces direct `Sentry.captureException(err, { tags: {...} })` callsites.
  */
 
-import * as Sentry from '@sentry/nextjs';
+import { captureException, captureMessage as sentryCaptureMessage } from '@sentry/nextjs';
+import type { SeverityLevel } from '@sentry/nextjs';
 import { isDomainError, toDomainError, type ErrorCode } from '@/lib/errors';
 
 export type CaptureContext = {
@@ -32,7 +33,7 @@ export type CaptureContext = {
   /** Arbitrary extra context — serialised via Sentry `extra` */
   extra?: Record<string, unknown>;
   /** Override level — defaults to `error` */
-  level?: Sentry.SeverityLevel;
+  level?: SeverityLevel;
 };
 
 /**
@@ -53,7 +54,7 @@ export function captureError(err: unknown, ctx: CaptureContext = {}): void {
   if (ctx.slice) tags.slice = ctx.slice;
   if (ctx.requestId) tags.requestId = ctx.requestId;
 
-  Sentry.captureException(domainErr, {
+  captureException(domainErr, {
     level: ctx.level ?? 'error',
     tags,
     user: ctx.userId ? { id: ctx.userId } : undefined,
@@ -70,7 +71,7 @@ export function captureError(err: unknown, ctx: CaptureContext = {}): void {
  */
 export function captureMessage(
   message: string,
-  level: Sentry.SeverityLevel = 'info',
+  level: SeverityLevel = 'info',
   ctx: CaptureContext = {},
 ): void {
   const tags: Record<string, string> = {};
@@ -79,7 +80,7 @@ export function captureMessage(
   if (ctx.slice) tags.slice = ctx.slice;
   if (ctx.requestId) tags.requestId = ctx.requestId;
 
-  Sentry.captureMessage(message, {
+  sentryCaptureMessage(message, {
     level,
     tags,
     user: ctx.userId ? { id: ctx.userId } : undefined,

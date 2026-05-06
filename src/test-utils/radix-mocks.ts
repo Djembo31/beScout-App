@@ -9,12 +9,11 @@
  *
  * ```ts
  * import { vi } from 'vitest';
- * import { createRadixDialogMock, createRadixAlertDialogMock, createRadixDropdownMenuMock }
+ * import { createRadixDialogMock, createRadixAlertDialogMock }
  *   from '@/test-utils/radix-mocks';
  *
  * vi.mock('@radix-ui/react-dialog', () => createRadixDialogMock());
  * vi.mock('@radix-ui/react-alert-dialog', () => createRadixAlertDialogMock());
- * vi.mock('@radix-ui/react-dropdown-menu', () => createRadixDropdownMenuMock());
  *
  * // ...dann import des zu testenden Components
  * import { Dialog, AlertDialog } from '@/components/ui';
@@ -155,109 +154,3 @@ export function createRadixAlertDialogMock() {
   };
 }
 
-// ============================================
-// DropdownMenu mock
-// ============================================
-
-export function createRadixDropdownMenuMock() {
-  /**
-   * Stateful Root: speichert open-State (controlled oder uncontrolled).
-   * Children werden via React.Context bereitgestellt damit Trigger den
-   * Toggle und Content das open-Reading koennen.
-   */
-  const MenuCtx = React.createContext<{
-    open: boolean;
-    setOpen: (next: boolean) => void;
-  }>({ open: false, setOpen: () => {} });
-
-  const Root: React.FC<any> = ({ children, open, defaultOpen, onOpenChange }) => {
-    const [internalOpen, setInternalOpen] = React.useState<boolean>(
-      open ?? defaultOpen ?? false,
-    );
-    const isControlled = open !== undefined;
-    const isOpen = isControlled ? !!open : internalOpen;
-    const setOpen = React.useCallback(
-      (next: boolean) => {
-        if (!isControlled) setInternalOpen(next);
-        onOpenChange?.(next);
-      },
-      [isControlled, onOpenChange],
-    );
-    return React.createElement(
-      MenuCtx.Provider,
-      { value: { open: isOpen, setOpen } },
-      React.createElement(
-        'div',
-        { 'data-testid': 'radix-menu-root', 'data-state': isOpen ? 'open' : 'closed' },
-        children,
-      ),
-    );
-  };
-
-  const Trigger: React.FC<any> = ({ children, asChild, ...props }) => {
-    const { open, setOpen } = React.useContext(MenuCtx);
-    const onClick = (e: React.MouseEvent) => {
-      setOpen(!open);
-      const rest = props as { onClick?: (e: React.MouseEvent) => void };
-      rest.onClick?.(e);
-    };
-    if (asChild && React.isValidElement(children)) {
-      return React.cloneElement(children, { ...props, onClick } as any);
-    }
-    return React.createElement(
-      'button',
-      { ...props, onClick, 'data-testid': 'radix-menu-trigger' },
-      children,
-    );
-  };
-
-  const Content: React.FC<any> = ({ children, ...rest }) => {
-    const { open } = React.useContext(MenuCtx);
-    if (!open) return null;
-    return React.createElement(
-      'div',
-      { 'data-testid': 'radix-menu-content', ...rest },
-      children,
-    );
-  };
-
-  const Item: React.FC<any> = ({ children, onSelect, asChild, disabled, ...rest }) => {
-    void asChild;
-    const onClick = (e: React.MouseEvent) => {
-      if (disabled) return;
-      const ev = { defaultPrevented: false, preventDefault: () => {} } as Event;
-      onSelect?.(ev);
-      const r = rest as { onClick?: (e: React.MouseEvent) => void };
-      r.onClick?.(e);
-    };
-    return React.createElement(
-      'div',
-      {
-        ...rest,
-        onClick,
-        role: 'menuitem',
-        'data-disabled': disabled ? '' : undefined,
-      },
-      children,
-    );
-  };
-
-  return {
-    Root,
-    Trigger,
-    Portal: passthroughDiv('RadixMenu.Portal'),
-    Content,
-    Item,
-    Label: asChildOrWrap('div', 'RadixMenu.Label'),
-    Separator: (props: any) => React.createElement('hr', props),
-    Group: passthroughDiv('RadixMenu.Group'),
-    RadioGroup: passthroughDiv('RadixMenu.RadioGroup'),
-    CheckboxItem: Item,
-    RadioItem: Item,
-    ItemIndicator: passthroughDiv('RadixMenu.ItemIndicator'),
-    Sub: passthroughDiv('RadixMenu.Sub'),
-    SubTrigger: passthroughDiv('RadixMenu.SubTrigger'),
-    SubContent: passthroughDiv('RadixMenu.SubContent'),
-    Arrow: () => null,
-  };
-}

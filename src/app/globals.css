@@ -112,7 +112,7 @@ body {
   to { transform: translateY(0); }
 }
 /* Slice 181 — anim-* in @layer utilities, damit Tailwind data-[state=open]: Variants
-   fuer Radix-Wrapper (Dialog/AlertDialog/DropdownMenu) generieren kann. */
+   fuer Radix-Wrapper (Dialog/AlertDialog) generieren kann. */
 @layer utilities {
   .anim-modal { animation: modal-in 0.2s ease-out; }
   .anim-bottom-sheet { animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }

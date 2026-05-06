@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 20:19)
+# Session Handoff — Auto (2026-05-06 20:34)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,10 +10,11 @@
  M worklog/audits/type-truth-2026-05-06.md
 ```
 
-## Session Commits: 3
+## Session Commits: 4
+- afe0dbf2 chore(session-end): Slice 280 Pre-Spec + Resume-Anker für nächste Session
+- d05d42cb chore(audits): tägliche auto-cron Outputs 2026-05-06 (Re-Run nach Slice 279)
 - 66e6208d feat(perf): Slice 279 — Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Foundation Phase 1)
 - 6614c95f chore(session-end): Hygiene + D70 Cold-Start-Track + 5 Slice-Bilanz 2026-05-06
-- 5f5e15a4 fix(home): Slice 278 — MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug)
 
 ## Stale Worktrees: 1 (cleanup candidates)
 

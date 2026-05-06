@@ -5,7 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
-import * as Sentry from '@sentry/nextjs';
+import { captureException as sentryCaptureException } from '@sentry/nextjs';
 import { queryClient } from '@/lib/queryClient';
 
 // ============================================
@@ -147,7 +147,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       // Slice 261 P3-Heal (Reviewer): observability via Sentry so we know
       // when persist degrades silently in real-world Privacy-Mode users.
       console.error('[QueryProvider] persist init failed:', err);
-      Sentry.captureException(err, {
+      sentryCaptureException(err, {
         tags: { component: 'QueryProvider', stage: 'persist-init' },
       });
     }
