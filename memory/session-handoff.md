@@ -1,27 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 16:29)
+# Session Handoff — Auto (2026-05-06 20:19)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-06.md
  M worklog/audits/type-truth-2026-05-06.md
-?? memory/strategic-advisory-2026-05-06.md
 ```
 
-## Session Commits: 10
+## Session Commits: 3
+- 66e6208d feat(perf): Slice 279 — Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Foundation Phase 1)
+- 6614c95f chore(session-end): Hygiene + D70 Cold-Start-Track + 5 Slice-Bilanz 2026-05-06
 - 5f5e15a4 fix(home): Slice 278 — MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug)
-- 68e73257 chore(beta-phase): RISK-5 TR-Pre-Verify endgültig CLOSED — Anil-confirmed
-- 86f29d87 fix(gameweek-cron): Slice 277 — advance_gameweek auch in Skip-Branches
-- df74afcd chore(session-end): 2026-05-06 Session — 4 Slices LIVE + Auto-Updates
-- 1451405b chore(audits): tägliche auto-cron Outputs 2026-05-05 + 2026-05-06
-- 0eb4365b fix(gameweek): Slice 276b — DB-Heal 4 stuck Ligen + Slice 277 Spec (Anil-Live-Bug)
-- 0ee22fc8 fix(club-logo): Slice 276 — short-Code-Konflikt-Resolution (Anil-Live-Bug)
-- 9c20080f chore(log): Slice 275 LOG-Eintrag + active.md auf idle
-- 04d84641 fix(sync-injuries): Slice 275 — Date-Filter + Daten-Heilung 1862 rows (Anil-Live-Bug)
-- 7d7c9395 chore(log): Slice 274 LOG-Eintrag + active.md auf idle
 
 ## Stale Worktrees: 1 (cleanup candidates)
 
@@ -29,34 +21,64 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~16:25 — Cold-Start-Track ready)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~17:05 — Slice 280 ready, Slice 279 Phase-1-Live nach Push)
 
-**HEAD `5f5e15a4`** Status: idle. 5 Slices LIVE heute (274/275/276/276b/277/278), 0 Reverts. Strategic-Advisory entfernt. D70 dokumentiert Cold-Start-Track als nächste Strategic-Investition.
+**HEAD `66e6208d`** Status: idle. Slice 279 Phase 1 BUILD complete (Lighthouse-CI Workflow live). Cold-Start-Track Phase 1 Foundation gelegt.
 
-## Erste Action morgen — Cold-Start-Latency-Track Slice 279
+## Erste Action nächste Session — Slice 280 Bundle-Analysis + Tree-Shaking
 
-**Anil-Direktive 2026-05-06:** „in der nächsten session will ich an der cold start weiter machen"
+**Anil-Direktive 2026-05-06 ~16:55:** „ich will 280 in einer neuen session starten, bereite alles vor und mach session end"
 
-D70 (memory/decisions.md, neueste Decision) definiert den Multi-Slice-Track:
+**Pre-Spec liegt fertig:** `worklog/specs/280-bundle-analysis-tree-shaking.md` (M-Slice Skelett mit 7 Code-Reading-Items, 7 ACs, 8 Edge-Cases, 3 Open-Questions).
 
-| Slice | Was | ROI |
-|-------|-----|-----|
-| **279** | Lighthouse-CI als hard-fail Gate in GHA + Baseline-Measurement | macht Drift sichtbar, ohne kein Slice 280+ messbar |
-| 280 | Bundle-Analysis + Tree-Shaking (Top 5 fat-Modules) | -200-400KB parsed-bundle |
-| 281 | Initial-Query-Konsolidierung — `useHomeData` Parallel-Loads in 1-RPC bundeln | -1.5s LCP wenn Waterfall vermieden |
-| 282 | Vercel Edge-Caching für static + ISR für `/club/*` | -800ms TTFB für returning visitors |
+**Erste 5 Schritte in nächster Session (kopier-fertig):**
 
-**Erste Action:** Slice 279 spec'en. Ziel = Lighthouse-Baseline messen + GHA-Gate + Target-Definition (LCP < 2.5s Mobile-3G-Slow).
+```bash
+# 1. Bundle-Analyzer-Run — Mess-Wahrheit erstellen
+ANALYZE=true pnpm exec next build > /tmp/build-analyze.txt 2>&1
 
-**Pre-Spec-Pflicht-Read:**
-- `memory/decisions.md` D70 (Track-Definition + Anti-Patterns)
-- `worklog/log.md` Slice 109 (Konsolidierung Δ -1-5% LCP — Anti-Pattern „Optimize ohne Baseline")
-- `worklog/log.md` Slice 121 (`dynamic()` lazy-import bringt nichts wenn eager — Anti-Pattern „Splitting blind")
-- `worklog/log.md` Slice 185b (Bundle-Budget existing infra — wird erweitert um Lighthouse)
+# 2. Treemap inspizieren (Browser)
+# file:///C:/bescout-app/.next/analyze/client.html
 
-**Track-Approval-Pflicht:** Vor Slice 279 BUILD muss Anil das Multi-Slice-Investment ok geben. Spec wird vor BUILD geliefert.
+# 3. Top-5 fat-Modules dokumentieren
+# worklog/proofs/280-fat-modules.md schreiben
 
-## Was passierte heute (5 Slices, 5 Commits, 0 Reverts)
+# 4. Pre-Implementation greppen (Slice 121-Lehre — keine Eager-Trap!)
+grep -rn "import \* as " src/ | head -30
+grep -rn "from '@radix-ui/" src/ | head
+grep -rn "from '@supabase/ssr'" src/ | wc -l
+
+# 5. Spec finalisieren — Open-Questions klären, ACs scharfstellen, Track-Approval bestätigen, BUILD starten
+```
+
+**3 Open-Questions für Anil-Klärung (Slice 280 Pre-Spec Sektion 9):**
+1. Scope-Granularität: 1 fat-Modul pro Slice ODER alle 5 in 1 Slice mit Wave-Steps? (Empfehlung: alle 5 in 1 Slice)
+2. FLJS-Reduktions-Ziel realistisch? D70 nennt -200-400 KB, Slice 120 brachte 56 KB allein durch country-flag-icons. -200 KB als Mindestziel ambitioniert aber machbar wenn Sentry+Supabase+Radix zusammen optimiert.
+3. Service-Worker für Static-Chunk-Caching? (Empfehlung: Slice 282+ post-Beta, NICHT in Slice 280)
+
+**Pflicht-Lese-Liste vor Implementation** (Slice 280 Pre-Spec Sektion 4):
+- `worklog/log.md` Slice 120 (static-asset-Migration Win-Pattern, -56 KB)
+- `worklog/log.md` Slice 121 (dynamic-Import Anti-Pattern, 0 KB Win wegen Eager-Pfad)
+- `worklog/log.md` Slice 185b (Bundle-Budget-Gate-Workflow)
+- `next.config.mjs` (`optimizePackageImports` aktuell 8 Libraries)
+- `bundle-budget.json` (Pages am Limit: `/club/[slug]/admin` 425/425, `/bescout-admin` 420/420)
+- `.next/analyze/client.html` post-`ANALYZE=true next build` (Treemap-Wahrheit)
+
+## Slice 279 Phase-2-Sammlung (läuft parallel zu Slice 280)
+
+Workflow `lighthouse.yml` läuft auto bei jedem `deployment_status: success`. Nach 3-5 Live-Runs:
+- `worklog/audits/2026-05-06/lighthouse-baseline.md` schreiben (Mean ± StdDev pro Metric pro URL)
+- Phase-3-Schwellen ableiten (baseline + 1.5×StdDev)
+- Anil-Approval → `lighthouserc.json` `assert.assertions` auf `error`-Level switchen → hard-fail Gate aktiv
+
+**Verify-Commands für Phase-2-Sammlung:**
+```bash
+gh run list --workflow=lighthouse.yml --limit=5
+gh run view <run-id> --log
+gh run download --name lhci-results-<sha-short> <run-id>
+```
+
+## Was passierte heute (6 Slices, 7 Commits, 0 Reverts)
 
 | Slice | Commit | Was |
 |-------|--------|-----|
@@ -66,16 +88,18 @@ D70 (memory/decisions.md, neueste Decision) definiert den Multi-Slice-Track:
 | 276b | `0eb4365b` | DB-Heal 4 stuck Ligen Cron-Drift |
 | 277 | `86f29d87` | Cron-Code-Fix advance_gameweek in Skip-Branches (276b recurrent verhindern) |
 | 278 | `5f5e15a4` | MysteryBox-Doppel-Render-Suppression (Slice 266 Multi-Slot-Drift) |
+| **279** | **`66e6208d`** | **Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Phase 1 Foundation)** |
 
 Plus Hygiene:
 - TR-Pre-Verify Anil-confirmed (commit `68e73257`) → RISK-5 endgültig CLOSED
 - Strategic-Advisory entfernt (Anil-Anweisung)
 - D70 Cold-Start-Track dokumentiert
 - errors-frontend.md erweitert um Cross-Section-Coupling-Drift Pattern (Slice 278)
+- Slice 279 verkabelt pre-existing orphan `lighthouserc.json` (commit 8aad8428 vom 2026-04-19, 17 Tage Build-without-Wire — D54-Recovery)
 
-## Phase-D Anil-Pflicht (parallel zu Cold-Start-Track)
+## Phase-D Anil-Pflicht (parallel zu Cold-Start-Track, BLOCKER für Beta-Launch)
 
-Cold-Start-Track ist CTO-Track ohne Anil-Action-Items. Phase-D bleibt:
+Cold-Start-Track ist CTO-Track ohne Anil-Action-Items. Phase-D bleibt Anil-Pflicht:
 
 1. **iPhone-Visual-Verify 8 Konfigs** (BLOCKER, Checkliste in `worklog/audits/2026-05-05/iphone-verify-checklist.md`)
 2. **Beta-Mails an Taki/Nail Mo** (Templates in `memory/beta-tester-recruitment-templates.md`)
@@ -87,6 +111,7 @@ Cold-Start-Track ist CTO-Track ohne Anil-Action-Items. Phase-D bleibt:
 - `errors-db.md` neu „Tenant-Window Achsen-Erweiterung Per-Player vs. Per-Liga" (Slice 274)
 - `errors-scraper.md` neu „External-API liefert historische Daten als aktuelle" (Slice 275)
 - `errors-frontend.md` neu „Lookup-Map indexed by ambiguous Key" (Slice 276)
+- Slice 279 Knowledge-Promotion-Kandidaten (post-Phase-3): Pattern „Phase-Plan in 1 Slice (BUILD-now + LOG-tasks-deferred)" + „GHA-Workflow im D54-Recovery-Modus verkabelt orphan Config"
 
 ## Decisions heute
 
@@ -98,6 +123,7 @@ Cold-Start-Track ist CTO-Track ohne Anil-Action-Items. Phase-D bleibt:
 - 3215+ tests grün im Branch
 - vitest 13/13 in advance-helpers (Slice 277)
 - vitest 135/135 in Home + Hooks (Slice 278)
+- Slice 279 keine neuen Tests (Workflow-File + Config, by-design kein Unit-Test-Target)
 - 0 Reverts seit Slice 261
 
 ---
