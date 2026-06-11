@@ -1,14 +1,18 @@
 # Active Slice
 
 ```
-status: idle
-slice: 282 ✅ DONE
-stage: LOG complete (Live-Verify: 0x /api/players auf Home, -4,2 MB, Smoke 1m07s SUCCESS)
-spec: worklog/specs/282-home-players-payload-decouple.md
-impact: worklog/impact/282-home-players-payload-decouple.md
-proof: worklog/proofs/282-home-payload.md
-review: worklog/reviews/282-review.md (Cold-Context REWORK -> 11/11 geheilt)
+status: active
+slice: 282b
+stage: BUILD
+spec: worklog/specs/282b-lhci-auth-fix.md
+impact: skipped (kein src/ — Config + e2e-Script + GHA-Workflow)
+proof: pending
+review: pending
 ```
+
+## Slice 282b — LHCI-Auth-Fix (M) — AKTIV
+
+Lighthouse misst seit Slice 279 die /login-Page (alle 3 URLs auth-redirected). Fix: puppeteerScript-Login (jarvis-qa) + disableStorageReset + www-URLs + Artifact-Fix (include-hidden-files). Trigger: Anil 2026-06-12 „Weiter mit 282b".
 
 ## Slice 282 — Home von /api/players entkoppelt ✅ DONE (2026-06-11)
 

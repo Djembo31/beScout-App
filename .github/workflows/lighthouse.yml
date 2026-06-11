@@ -65,12 +65,17 @@ jobs:
           # Kein Hard-Fail — LHCI versucht's trotzdem; Lambda könnte beim
           # ersten Lighthouse-Goto warm werden.
 
-      - name: Run Lighthouse CI against bescout.net
+      - name: Run Lighthouse CI against bescout.net (authenticated, Slice 282b)
         id: lhci
-        # @lhci/cli 0.15.1 ist als devDep installiert (siehe package.json devDependencies).
-        # autorun macht: collect (3 URLs × 3 runs) → assert (warn-only Phase 1) → upload (filesystem).
-        # Output landet in ./.lighthouseci/ (LHR JSON + HTML reports).
-        run: pnpm exec lhci autorun --config=./lighthouserc.json
+        # @lhci/cli 0.15.1 als devDep. autorun: collect (3 URLs × 3 runs, eingeloggt
+        # via e2e/lhci-login.cjs puppeteerScript) → assert (warn-only Phase 1) →
+        # upload (filesystem ./.lighthouseci/). Chrome = System-Chrome des Runners
+        # (lighthouserc.cjs resolveChromePath — puppeteer lädt keinen eigenen,
+        # .puppeteerrc.cjs skipDownload schützt alle Workflows vor 130-MB-Postinstall).
+        env:
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: pnpm exec lhci autorun --config=./lighthouserc.cjs
         continue-on-error: false
 
       - name: Generate Job Summary (LCP/CLS/TBT/Score Tabelle)
@@ -123,3 +128,8 @@ jobs:
           path: .lighthouseci/
           retention-days: 30
           if-no-files-found: warn
+          # Slice 282b Root-Cause-Fix: .lighthouseci/ ist ein Dot-Verzeichnis —
+          # upload-artifact@v4 default include-hidden-files:false hat es still
+          # ausgeschlossen (Run 27360734770: "No files were found"). Alle
+          # Slice-279-Runs hatten deshalb 0 abrufbare Artifacts.
+          include-hidden-files: true
