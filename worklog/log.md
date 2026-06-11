@@ -2,6 +2,21 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 282 | 2026-06-11 | perf(home): Home von /api/players entkoppelt — −4,2 MB Payload (Cold-Start Phase 3)
+
+- Stage-Chain: SPEC (worklog/specs/282-home-players-payload-decouple.md) → IMPACT (worklog/impact/282-home-players-payload-decouple.md — Konsumenten-Map grep-verifiziert, 4 Children + page.tsx) → BUILD (3 Waves serial) → REVIEW (Cold-Context-Agent REWORK → 11/11 Findings geheilt, worklog/reviews/282-review.md) → PROVE (worklog/proofs/282-home-payload.md) → LOG
+- Slice-Type: Service + UI (M). Trigger: Anil „go" — D70 Cold-Start-Track Phase 3 (Anils Kern-Schmerzpunkt App-Ladezeit).
+- **Discovery-Story:** Geplant war „useHomeData-Konsolidierung". Baseline-Messung (D70-Regel) ergab: (1) `/api/players` = **4,2 MB / 5,5s**, auf Home für 2 Mini-Ableitungen + 1 totes Feature konsumiert — Payload-Elimination statt Query-Konsolidierung (Slice-109-Lehre: parallel-Queries bündeln bringt nichts). (2) **Lighthouse-Validity-Befund:** alle 3 LHCI-URLs redirecten auf /login — die gesamte Phase-1-Baseline maß die Login-Page (worklog/audits/2026-06-11/lighthouse-baseline.md, Fix = Slice 282b). (3) `activeIPOs` war seit jeher dead code (dbToPlayer setzt ipo.status='none') — IPO-Spotlight hat NIE gerendert.
+- **Headline: Home-Transfer 2,28 MB statt ~6,5 MB (−4,2 MB / −65%).** Live-Verify eingeloggt: 0× /api/players, byIds-Ersatz 6,5 KB (−99,8% auf der Players-Achse). Post-Deploy-Smoke SUCCESS 1m07s.
+- Architektur: `usePlayersByIds` (chunked, sorted-key) + `useGlobalMovers` (server-cached abs-Top-N, Endpoint-Semantik konsumentenfrei geändert + limit-Clamp) + `useActiveIpos` (echte ipos-Quelle, Status-Priorität + Tranchen-Dedupe). 4 Children entkoppelt: HomeSpotlight (trendingWithPlayers, dead-Sparkline-Drop dokumentiert), LastGameweekWidget + FollowingFeedRail (interne byIds ≤12 IDs), TopMoversStrip (self-fetch).
+- **Review-Wert:** 2 MAJOR vor Live-Gang gefangen — (1) IPO-Doppel-Render bei Secondary-Slot (Slice-278-Klasse, durch Feature-Reaktivierung erstmals scharf), (2) homeError-Semantik härter als Original (dekorativer movers-Fail hätte Full-Page-ErrorState ausgelöst; TanStack-v5-Background-Refetch-Guard ergänzt).
+- Bonus: `beta-smoke.spec.ts` hatte denselben Click-Stability-Bug wie Synthetic (Master-Tracker-#63-Klasse) → 282a-Pattern angewandt, erster Smoke-Lauf danach grün in 1m07s.
+- D36-Vorfall: Vercel-Webhook für 1ab44019 kam ~14 min verzögert (0 statuses) — Re-Push als Re-Trigger, Protokoll funktionierte.
+- Knowledge-Promotion: errors-frontend.md „Feature-Reaktivierung + Query-Ersatz: 3 Drift-Klassen (Slice 282)" + testing.md „vi.spyOn+mockRestore auf gemockter vi.fn".
+- Tests: 154/154 (13 Files), +7 Service-Tests (Chunk-Boundary 101→2 Queries, error-throws). tsc clean.
+- Commits: `1ab44019` (Slice) + `29abe210` (Smoke-Fix + Knowledge) + LOG-Commit.
+- Scope-Out → Backlog: **Slice 282b** (LHCI-Auth-Fix + GHA-Artifact-Fix), Market-Entkopplung von /api/players (L-Slice).
+
 ## 282a | 2026-06-11 | fix(ops): Ops-Recovery nach 5-Wochen-Pause (Synthetic-Fix + Baseline + Master-Tracker + Hygiene)
 
 - Stage-Chain: SPEC (worklog/specs/282a-ops-recovery.md) → IMPACT (skipped — kein Service/RPC/DB, nur e2e/GHA-YAML/Baseline/Docs) → BUILD → REVIEW (worklog/reviews/282a-review.md, Self-Review PASS — kein src/-Produktionscode) → PROVE (worklog/proofs/282a-ops-recovery.md) → LOG

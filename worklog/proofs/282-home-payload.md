@@ -64,6 +64,22 @@ wird in der gesamten Codebase NIRGENDS befüllt (einziger Treffer = Type-Definit
 — die Sparkline hat nie gerendert. Restaurierung wäre Scope-Creep (History-Datenquelle
 existiert nicht).
 
-## AC-01 + AC-07 — Live-Network-Verify (post-Deploy)
+## AC-01 + AC-07 — Live-Network-Verify (post-Deploy) ✅
 
-→ Abschnitt unten nach Vercel-Deploy ergänzt.
+Deploy-Story (D36): Vercel-Webhook für `1ab44019` kam ~14 min verzögert (0 commit-statuses,
+0 deployment-Entries) — Re-Push `29abe210` (Smoke-Fix) als Re-Trigger, beide deployed.
+Post-Deploy-Smoke: **SUCCESS in 1m07s** (Run 27376469436 — erster Lauf mit dem
+282a-Pattern-Fix in beta-smoke.spec.ts).
+
+```
+$ npx tsx e2e/qa-282-network.ts   (eingeloggt jarvis-qa, 393px, Production)
+Requests total: 125 | Transfer-Sum (response bodies): 2.28 MB
+AC-01 — GET /api/players (full): 0 ✅ ELIMINIERT
+Movers-Endpoint (erwartet 1): 1 — 0.0 KB   (DB hat aktuell 0 Movers — korrekt leer)
+byIds-Mini-Fetches (rest/v1 players id=in.): 1 — 6.5 KB
+Screenshot: qa-screenshots/282-home-mobile.png (Hero + Stats + Streak rendern, 0 Layout-Bruch)
+```
+
+**AC-07: Home-Transfer 2,28 MB statt ~6,5 MB (Vorher = 2,3 MB Rest + 4,2 MB players)
+→ −4,2 MB / −65% — Hard-AC ≥ 4 MB erfüllt.** Die 4,2-MB-Payload ist durch 6,5 KB
+byIds + 0-KB-Movers ersetzt (−99,8% auf der Players-Achse).
