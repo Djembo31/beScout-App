@@ -151,10 +151,16 @@ test.describe('Synthetic Users — Profile B: Power User (deep interactions)', (
       await page.waitForTimeout(2000);
       await page.screenshot({ path: path.join(outDir, '01_market_list.png'), fullPage: true });
 
+      // Slice 282a: /market re-rendert live (Preis-/Realtime-Updates) — das first()-Element
+      // ist visible, wird aber nie click-"stable" (33/36 Daily-Fails als locator.click-Timeout).
+      // href-Extraktion + goto statt click: Synthetic prüft Player-Detail-Render-Coverage,
+      // Click-Mechanik deckt die Post-Deploy-Smoke-Suite ab.
       const playerLink = page.locator('a[href*="/player/"]').first();
-      if (await playerLink.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await playerLink.click();
-        await page.waitForURL(/\/player\//, { timeout: 15_000 });
+      const playerHref = (await playerLink.isVisible({ timeout: 10_000 }).catch(() => false))
+        ? await playerLink.getAttribute('href').catch(() => null)
+        : null;
+      if (playerHref) {
+        await page.goto(playerHref, { waitUntil: 'domcontentloaded', timeout: 30_000 });
         await page.waitForTimeout(2000);
         await page.screenshot({ path: path.join(outDir, '02_player_detail.png'), fullPage: true });
 

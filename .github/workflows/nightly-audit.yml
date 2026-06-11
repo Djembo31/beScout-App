@@ -259,8 +259,8 @@ jobs:
               } catch (e) { return ''; }
             }).filter(Boolean).join('\n');
 
-            const title = `🔍 Nightly Audit ${today}: ${failures || 'new reports'}`;
             const body = [
+              `**Date:** ${today}`,
               `**Run:** ${runUrl}`,
               `**Failed Audits:** ${failures || '(none — but new audit-report files detected)'}`,
               `**New Audit-Report-Files in worklog/audits/:** ${newReports}`,
@@ -274,7 +274,9 @@ jobs:
               sections,
             ].join('\n');
 
-            // Slice 234 Issue-Dedupe: check if a today-issue with same title already exists
+            // Slice 282a Master-Tracker-Pattern (errors-infra.md SO-4): per-day-Dedupe
+            // erzeugte 26+ Daily-Duplicates (#41-#102). Jetzt: 1 Master-Tracker, Failures
+            // als Comments. Analog synthetic-users.yml + post-deploy-smoke.yml.
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -282,26 +284,29 @@ jobs:
               state: 'open',
               per_page: 30,
             });
-            const sameTitleIssue = existing.data.find(i => i.title.startsWith(`🔍 Nightly Audit ${today}`));
+            const master = existing.data.find(i =>
+              /Master[- ]?Tracker/i.test(i.title)
+            ) ?? existing.data.sort((a, b) =>
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            )[0];
 
-            if (sameTitleIssue) {
-              // Update existing issue with comment instead of creating duplicate
+            if (master) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: sameTitleIssue.number,
-                body: `**Re-Run:** ${runUrl}\n**Updated Failed Audits:** ${failures || '(none — but new audit-report files detected)'}\n\n${sections}`,
+                issue_number: master.number,
+                body: `## 🔍 Nightly-Audit-Finding ${today} (auto-comment)\n\n${body}`,
               });
-              console.log(`Updated existing issue #${sameTitleIssue.number} (dedupe)`);
+              console.log(`[nightly-audit] master-tracker #${master.number} — comment appended`);
             } else {
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title,
-                body,
-                labels: ['audit-finding', 'nightly-audit'],
+                title: `🔍 Master-Tracker: Nightly-Audit-Findings (post-Slice-282a)`,
+                body: `**Master-Tracker** für recurring Nightly-Audit-Findings. Pipeline hängt neue Findings als Comments an dieses Issue statt Daily-Duplicates zu erstellen.\n\n## Erstes Finding\n\n${body}\n\n## Closing-Strategy\n\nClose NUR wenn 5+ consecutive Nightly-Runs ohne Findings (dann erstellt der nächste Finding-Run automatisch einen neuen Tracker).`,
+                labels: ['audit-finding', 'nightly-audit', 'master-tracker'],
               });
-              console.log(`Created new issue for ${today}`);
+              console.log(`[nightly-audit] no master-tracker — created new`);
             }
 
   smoke:

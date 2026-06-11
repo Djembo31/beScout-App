@@ -267,7 +267,12 @@ async function main() {
   md += `- \`.select()\` in .eq() context → false positive\n`;
 
   writeFileSync(reportPath, md, 'utf-8');
+  // Slice 282a: Full-Findings-JSON für Baseline-Diffs (Report cappt bei 50/Pattern,
+  // count-only Baseline erlaubt sonst keine Lokations-Triage bei HIGH-Increase).
+  const jsonPath = join(OUT_DIR, `silent-fail-${today()}.json`);
+  writeFileSync(jsonPath, JSON.stringify(all, null, 2) + '\n', 'utf-8');
   console.log(`report written: ${reportPath}`);
+  console.log(`findings json: ${jsonPath}`);
   console.log(`total risk: ${totalHigh > 5 ? 'HIGH' : totalHigh > 0 || totalMed > 10 ? 'MEDIUM' : 'LOW'}`);
 }
 

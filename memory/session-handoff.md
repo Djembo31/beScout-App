@@ -1,20 +1,31 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-06 23:47)
+# Session Handoff — Auto (2026-06-11 17:02)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 20 Files
 ```
+ M .claude/hooks/run_tests_on_change.sh
+ M .claude/hooks/ship-ceo-scope-gate.sh
+ M .claude/hooks/ship-cto-review-gate.sh
+ M .claude/hooks/ship-meta-plan-block.sh
+ M .claude/hooks/ship-parallel-dispatch-gate.sh
+ M .claude/hooks/ship-proof-gate.sh
+ M .claude/hooks/ship-spec-quality-gate.sh
+ M .claude/hooks/ship-task-enforcement.sh
+ M .claude/hooks/ship-tool-wiring-gate.sh
+ M .claude/hooks/ship-verify-completeness-gate.sh
+ M .claude/rules/workflow.md
+ M .claude/settings.json
+ M .claude/skills/ship/SKILL.md
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-05-06.md
  M worklog/audits/type-truth-2026-05-06.md
+?? .agents/skills/audit-beta-readiness/
+?? .agents/skills/auto-beta-ready/
+?? .agents/skills/beScout-backend/
+?? .agents/skills/beScout-business/
 ```
-
-## Session Commits: 5
-- 71cfe7d6 chore(slice-281): live-verify proof + active.md → idle
-- 21af2e74 feat(qa): Slice 281 — Synthetic-User-Suite Daily-GHA-Verkabelung (D54-Recovery)
-- c9a36469 perf(bundle): Slice 280 — Bundle-Analysis + Tree-Shaking (Cold-Start-Track Phase 2)
-- afe0dbf2 chore(session-end): Slice 280 Pre-Spec + Resume-Anker für nächste Session
-- d05d42cb chore(audits): tägliche auto-cron Outputs 2026-05-06 (Re-Run nach Slice 279)
 
 ## Stale Worktrees: 1 (cleanup candidates)
 

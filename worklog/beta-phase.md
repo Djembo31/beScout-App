@@ -9,9 +9,9 @@
 > **Gelesen von:** `.claude/hooks/ship-phase-gate.sh`, `/auto-beta-ready status`.
 
 ```yaml
-phase: D    # Walk-Back 2026-05-05 — Anil-Direktive (b): erst iPhone-Visual-Verify alle 8 Konfigs DANN GO-LIVE-Mail
-last_phase_run: 2026-05-05 (Sign-Off PASS-PENDING-IPHONE-VISUAL-VERIFY — Tech-Side komplett grün post-SO-5, Action-Items 1+2+3+5 DONE, ABER Visual-Check Home/Spotlight/Markt-Puls bislang nur 1/8 Konfigs (cta-new) Playwright-verified. Anil verlangt vor GO-LIVE Manual-iPhone-Verify aller 8 Konfigs.)
-last_signoff: PASS-PENDING-IPHONE-VISUAL-VERIFY
+phase: READY    # LIVE-Korrektur 2026-06-11 (Slice 282a): Beta läuft real mit Taki + Nail Mo seit ≤2026-05-06 (D71). Der iPhone-Verify-Blocker vom 2026-05-05 ist durch Anils faktischen Go-Live superseded — Live-Tester-Feedback ersetzte den Manual-Verify (Slices 270-278 waren Tester-getriebene Fixes).
+last_phase_run: 2026-06-11 (Status-Truth-Korrektur Slice 282a — kein neuer Sign-Off-Lauf; Tech-Stand vom 2026-05-05-Sign-Off unverändert grün)
+last_signoff: PASS-PENDING-IPHONE-VISUAL-VERIFY   # formal letzter Sign-Off-Lauf 2026-05-05; faktisch LIVE per D71
 last_signoff_date: 2026-05-05
 last_signoff_verdict: "Sign-Off PASS-PENDING-IPHONE-VISUAL-VERIFY (2026-05-05). Sequence: SO-2 SOFT-PASS → SO-3/SO-4 Recovery → SO-2-Recovery STRENGTHENED → SO-5 Wildcard-RPC-Migration-Drift CLOSED. Tech-Side komplett grün: Action-Items 1+2+3+5 DONE (Tester-Liste + onboarding-Email/Tel + TR-Pre-Verify-Audit + Sentry NEXTJS-15 archived 1wk). NEW BONUS-DISCOVERY via SO-5: 4-Migration-Drift Slice 251 Wave 2 (28.04) nie applied, 3× get_wildcard_balance 404 systemisch in Production seit ~7 Tagen — applied + 2 SQL-Bugs in Original gefixt + Custom-Patch für 22-arg rpc_save_lineup. Live-Verify bescout.net `/` 0 Errors post-Apply. ABER: Visual-Check (Action-Item 4) nur partial via Playwright Chromium done (1 von 8 Konfigs: cta-new-Mode bei Jarvis-Account 0 Holdings). 7 Konfigs nicht-testbar wegen Account-State-Limit + 1 Drift entdeckt (Slice 269 Markt-Puls 0-tabs h2-Heading-Leak 16px statt unsichtbar). Anil-Direktive (2026-05-05 post-SO-5-PASS-Walkback): Variante (b) — Manual-iPhone-Verify alle 8 Konfigs Pflicht VOR GO-LIVE-Mail an Tester. Checkliste: worklog/audits/2026-05-05/iphone-verify-checklist.md."
 findings_open:
@@ -46,8 +46,7 @@ slice_stubs_pending:
   - "Slice 225: InfoTooltip-Migration-Wave — UX-NEU-2 + UX-NEU-3 + UX-NEU-4 (BuyConfirmModal + MostOwnedSection Slice 216) + Pattern-Regel ui-components.md"
   - "Slice 226: getPlayerSentimentCounts Reliability-Weighting — FM-NEU-3"
   - "Slice 227: Sentiment-Bar 3-Segment + Empty-State-CTA — FM-NEU-4 + FM-NEU-5"
-anil_action_blockers:
-  - "🔒 iPhone-Manual-Visual-Verify 8 Konfigs PFLICHT vor GO-LIVE — siehe worklog/audits/2026-05-05/iphone-verify-checklist.md (Slice 266 4 Spotlight-Configs + Slice 269 4 MarktPuls-Configs × 2 Accounts)"
+anil_action_blockers: []   # iPhone-Verify-Blocker superseded durch D71 (faktischer Go-Live mit Taki/Nail Mo ≤2026-05-06). Checkliste bleibt als Referenz: worklog/audits/2026-05-05/iphone-verify-checklist.md
 anil_action_done_2026_05_05:
   - "Action-Item 1 ✅ memory/beta-tester-list.md erstellt (gitignored, Kemal+Taki+Nail)"
   - "Action-Item 2 ✅ memory/beta-onboarding.md Email/Tel gefüllt (k_demirtas@hotmail.de + +49 1511 77 66 543)"
@@ -100,6 +99,7 @@ last_signoff_verdict: "<short-reasoning>"
 
 | Datum | Phase | Aktion | Outcome |
 |-------|-------|--------|---------|
+| 2026-06-11 | READY | **LIVE-Status-Korrektur (Slice 282a):** Tracker war 5 Wochen stale auf Phase D. Realität per D71: Beta LIVE mit Taki + Nail Mo seit ≤2026-05-06, Slices 270-278 waren Live-Tester-getriebene Fixes. iPhone-Verify-Blocker durch faktischen Go-Live superseded. | **LIVE (3 Tester)** |
 | 2026-05-05 ~01 | D | **Walk-Back zu Phase D (Anil-Direktive (b)):** Visual-Check Home nur partial via Playwright (1/8 Konfigs). iPhone-Manual-Verify alle 8 Konfigs Pflicht VOR GO-LIVE-Mail. Plus Slice 269 0-tabs Drift entdeckt. Tech-Side bleibt komplett grün post-SO-5. | **PASS-PENDING-IPHONE-VISUAL-VERIFY** |
 | 2026-05-05 ~00 | READY | Sign-Off ENDGÜLTIG-PASS post-SO-5 (zu früh deklariert — Visual-Verify-Coverage 12% war Anil nicht ausreichend, Walkback in Folgezeile). | (superseded) |
 | 2026-05-04 18:30+ | D | **Recovery-Pass post-SO-3/SO-4 + Static-Re-Walk:** SOFT-PASS-STRENGTHENED. RISK-2/3/6 alle closed. Persona-Avg measured 8.33/10. 22 stale Issues batch-closed → 1 Master-Tracker #63 by-design open. GHA-Pipeline live-verified (Run für `73ede77c` SUCCESS in 1m47s). Verbleibend: RISK-1 Sentry-Watch + 4 Anil-Action-Items. | SOFT-PASS-STRENGTHENED |

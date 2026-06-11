@@ -1,0 +1,1213 @@
+[
+  {
+    "file": "e2e/qa-realtime-feed.ts",
+    "line": 81,
+    "match": "const { error } = await admin.from('activity_log').delete().in('id', ids);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/archived/2026-04-28-once-off/fix-bug-004.ts",
+    "line": 61,
+    "match": ".in('gameweek', fullyScheduledGWs);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/archived/2026-04-28-once-off/fix-bug-004.ts",
+    "line": 83,
+    "match": ".in('id', ids);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/backfill-complete-stats.mjs",
+    "line": 553,
+    "match": ".in('fixture_id', gwFixtureIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/backfill-scoring-historical.mjs",
+    "line": 417,
+    "match": ".in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/backfill-scoring-historical.mjs",
+    "line": 634,
+    "match": ".in('short', TARGET_LEAGUE_SHORTS);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/backfill-scoring-historical.mjs",
+    "line": 657,
+    "match": "const { data: players } = await supabase.from('players').select('id').in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/backfill-tff-players.mjs",
+    "line": 166,
+    "match": ".in('club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/backfill-tff-players.mjs",
+    "line": 452,
+    "match": ".in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/beta-metrics.mjs",
+    "line": 138,
+    "match": ": countTable('posts', q => q.in('user_id', botIds)),",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/cron-health-check.ts",
+    "line": 151,
+    "match": ".in('home_club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/cron-health-check.ts",
+    "line": 167,
+    "match": ".in('home_club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/fix-tff-logos.mjs",
+    "line": 128,
+    "match": ".in('id', ids)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/fix-tff-logos.mjs",
+    "line": 236,
+    "match": ".in('id', ids)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/import-ban-stats.mjs",
+    "line": 81,
+    "match": ".in('fixture_id', (fixtures ?? []).map(f => f.id));",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/import-fixtures.mjs",
+    "line": 242,
+    "match": ".in('short', shorts);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/import-fixtures.mjs",
+    "line": 265,
+    "match": ".in('league_id', leagueIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/import-league.mjs",
+    "line": 299,
+    "match": ".in('id', leagueIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/rebuild-ban-squad.mjs",
+    "line": 141,
+    "match": ".in('id', oldIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/rebuild-ban-squad.mjs",
+    "line": 197,
+    "match": ".in('player_id', (verify ?? []).map(v => v.id));",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/seed-multi-league-events.mjs",
+    "line": 125,
+    "match": ".in('short', TARGET_LEAGUES.map(l => l.short));",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/seed-multi-league-events.mjs",
+    "line": 216,
+    "match": ".in('club_id', pilotIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/seed-multi-league-events.mjs",
+    "line": 217,
+    "match": ".in('gameweek', gws);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/seed-multi-league-events.mjs",
+    "line": 310,
+    "match": ".in('id', (inserted ?? []).map(e => e.id));",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/tm-profile-local.ts",
+    "line": 69,
+    "match": "const { data } = await supabase",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "scripts/tm-rescrape-stale.ts",
+    "line": 327,
+    "match": ".in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/tm-rescrape-stale.ts",
+    "line": 332,
+    "match": ".in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/verify-multi-league-events.mjs",
+    "line": 35,
+    "match": ".in('club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/verify-multi-league-events.mjs",
+    "line": 72,
+    "match": ".in('club_id', (clubs ?? []).map(c => c.id))",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_investigate-gw4.mjs",
+    "line": 18,
+    "match": "const { data: fps } = await supabase.from('fixture_player_stats').select('player_id, fixture_id').in('fixture_id', fxIds",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_investigate-payload.mjs",
+    "line": 25,
+    "match": "const { data: fps } = await supabase.from('fixture_player_stats').select('player_id').in('fixture_id', leagueFxs).not('p",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_investigate-payload.mjs",
+    "line": 32,
+    "match": "const { data: bl1Players } = await supabase.from('players').select('id').in('club_id', bl1Clubs.map(c => c.id));",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_investigate-payload.mjs",
+    "line": 38,
+    "match": "const { data: pgw } = await supabase.from('player_gameweek_scores').select('player_id').in('player_id', slice).eq('gamew",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_preflight-stats.mjs",
+    "line": 20,
+    "match": "const { count: playerCount } = await supabase.from('players').select('*', { head: true, count: 'exact' }).in('club_id', ",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_preflight-stats.mjs",
+    "line": 24,
+    "match": "const { data: players } = await supabase.from('players').select('id, perf_l5').in('club_id', ids);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "scripts/_verify-bl1-gw1.mjs",
+    "line": 15,
+    "match": "const { data: players } = await supabase.from('players').select('id').in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/app/(app)/bescout-admin/AdminFoundingPassesTab.tsx",
+    "line": 71,
+    "match": "const { data } = await supabase",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/(app)/club/[slug]/page.tsx",
+    "line": 9,
+    "match": "const { data } = await supabaseAdmin",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/(app)/player/[id]/page.tsx",
+    "line": 9,
+    "match": "const { data } = await supabaseAdmin",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/(app)/profile/[handle]/layout.tsx",
+    "line": 11,
+    "match": "const { data } = await supabaseAdmin",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/admin/backfill-ratings/route.ts",
+    "line": 208,
+    "match": "const { data } = await supabaseAdmin.rpc('admin_resync_gw_scores', { p_gameweek: gw });",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/admin/sync-contracts/route.ts",
+    "line": 133,
+    "match": "supabaseAdmin.from('clubs').select('id, name'),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 246,
+    "match": ".in('id', leagueIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 639,
+    "match": ".in('home_club_id', allLeagueClubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 775,
+    "match": ".in('home_club_id', allLeagueClubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 783,
+    "match": ".in('club_id', allLeagueClubIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 882,
+    "match": ".in('home_club_id', allLeagueClubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 1490,
+    "match": ".in('home_club_id', allLeagueClubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 1574,
+    "match": ".in('event_id', eventIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 1652,
+    "match": ".in('home_club_id', allLeagueClubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 1785,
+    "match": ".in('club_id', allLeagueClubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/gameweek-sync/route.ts",
+    "line": 1798,
+    "match": ".in('club_id', allLeagueClubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/live-score-sync/route.ts",
+    "line": 172,
+    "match": ".in('id', leagueIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/app/api/cron/sync-players-daily/route.ts",
+    "line": 142,
+    "match": "const { data: clubs, error: clubErr } = await supabaseAdmin.from('clubs').select('id, name');",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/components/profile/FollowListModal.tsx",
+    "line": 59,
+    "match": ".in('user_id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/events.mutations.ts",
+    "line": 314,
+    "match": ".in('id', eventIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/events.queries.ts",
+    "line": 39,
+    "match": ".in('club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/events.queries.ts",
+    "line": 62,
+    "match": "const { data } = await supabase",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/features/fantasy/services/events.queries.ts",
+    "line": 85,
+    "match": "const { data } = await supabase",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/features/fantasy/services/events.queries.ts",
+    "line": 130,
+    "match": "query = query.in('status', filters.status);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/events.queries.ts",
+    "line": 133,
+    "match": "query = query.in('type', filters.type);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/fixtures.ts",
+    "line": 240,
+    "match": ".in('fixture_id', fixtureIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/fixtures.ts",
+    "line": 274,
+    "match": ".in('fixture_id', fixtureIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/fixtures.ts",
+    "line": 275,
+    "match": ".in('player_id', playerIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/fixtures.ts",
+    "line": 416,
+    "match": ".in('fixture_id', fixtureIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/fixtures.ts",
+    "line": 664,
+    "match": ".in('id', playerIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/leagues.ts",
+    "line": 22,
+    "match": ".in('id', leagueIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/lineups.queries.ts",
+    "line": 50,
+    "match": "const { data } = await supabase",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/features/fantasy/services/lineups.queries.ts",
+    "line": 89,
+    "match": ".in('id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/lineups.queries.ts",
+    "line": 139,
+    "match": ".in('id', playerIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/predictions.mutations.ts",
+    "line": 95,
+    "match": "const { data } = await supabase",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/features/fantasy/services/scoring.queries.ts",
+    "line": 127,
+    "match": ".in('id', fixtureIds)",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/scoring.queries.ts",
+    "line": 163,
+    "match": ".in('gameweek', gameweeks);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/scoring.queries.ts",
+    "line": 236,
+    "match": ".in('player_id', playerIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/features/fantasy/services/scoring.queries.ts",
+    "line": 263,
+    "match": ".in('id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/adRevenueShare.ts",
+    "line": 26,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/adRevenueShare.ts",
+    "line": 44,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/adRevenueShare.ts",
+    "line": 62,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/bounties.ts",
+    "line": 72,
+    "match": ".in('id', creatorIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/bounties.ts",
+    "line": 84,
+    "match": ".in('id', playerIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/bounties.ts",
+    "line": 134,
+    "match": ".in('id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/club.ts",
+    "line": 710,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/clubCrm.ts",
+    "line": 131,
+    "match": ".in('user_id', userIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/clubCrm.ts",
+    "line": 136,
+    "match": ".in('player_id', playerIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/clubCrm.ts",
+    "line": 137,
+    "match": ".in('user_id', userIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/clubCrm.ts",
+    "line": 221,
+    "match": ".in('user_id', userIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/clubCrm.ts",
+    "line": 229,
+    "match": ".in('user_id', userIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/clubCrm.ts",
+    "line": 237,
+    "match": ".in('user_id', userIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/communityPolls.ts",
+    "line": 27,
+    "match": ".in('id', creatorIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 54,
+    "match": "? supabase.from('profiles').select('id, handle, display_name').in('id', reporterIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 54,
+    "match": "? supabase.from('profiles').select('id, handle, display_name').in('id', reporterIds)",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 57,
+    "match": "? supabase.from('posts').select('id, content, user_id, club_id').in('id', postIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 57,
+    "match": "? supabase.from('posts').select('id, content, user_id, club_id').in('id', postIds)",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 60,
+    "match": "? supabase.from('research_posts').select('id, title, user_id').in('id', researchIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 60,
+    "match": "? supabase.from('research_posts').select('id, title, user_id').in('id', researchIds)",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/contentReports.ts",
+    "line": 84,
+    "match": ".in('id', missingAuthorIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/cosmetics.ts",
+    "line": 98,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/creatorFund.ts",
+    "line": 20,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/creatorFund.ts",
+    "line": 55,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/cronHealth.ts",
+    "line": 68,
+    "match": ".in('home_club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/cronHealth.ts",
+    "line": 81,
+    "match": ".in('home_club_id', clubIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/dailyChallenge.ts",
+    "line": 35,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 93,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 106,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 119,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 132,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 154,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 180,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 193,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 205,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 262,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/economyConfig.ts",
+    "line": 275,
+    "match": "if (error) return { ok: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/fanRanking.ts",
+    "line": 64,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/fanRanking.ts",
+    "line": 98,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/fanWishes.ts",
+    "line": 18,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/fanWishes.ts",
+    "line": 46,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/footballData.ts",
+    "line": 124,
+    "match": "supabase.from('clubs').select('id, name'),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/footballData.ts",
+    "line": 397,
+    "match": "supabase.from('players').select('id', { count: 'exact', head: true }),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/foundingPasses.ts",
+    "line": 47,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/gamification.ts",
+    "line": 59,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/ipo.ts",
+    "line": 280,
+    "match": ".in('player_id', playerIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/liquidation.ts",
+    "line": 20,
+    "match": "if (error) return { success: false, error: mapRpcError(error.message) };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/liquidation.ts",
+    "line": 49,
+    "match": "if (error) return { success: false, error: mapRpcError(error.message) };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/liquidation.ts",
+    "line": 134,
+    "match": ".in('id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/missions.ts",
+    "line": 134,
+    "match": "if (error) return { success: false, error: mapErrorToKey(normalizeError(error)) };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/mysteryBox.ts",
+    "line": 48,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/offers.ts",
+    "line": 22,
+    "match": "supabase.from('players').select('id, first_name, last_name, position, club').in('id', playerIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/offers.ts",
+    "line": 22,
+    "match": "supabase.from('players').select('id, first_name, last_name, position, club').in('id', playerIds),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/offers.ts",
+    "line": 23,
+    "match": "supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/offers.ts",
+    "line": 23,
+    "match": "supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/platformAdmin.ts",
+    "line": 101,
+    "match": ".in('user_id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/platformAdmin.ts",
+    "line": 108,
+    "match": ".in('user_id', userIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/platformAdmin.ts",
+    "line": 119,
+    "match": ".in('user_id', userIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/platformAdmin.ts",
+    "line": 255,
+    "match": ".in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/platformAdmin.ts",
+    "line": 265,
+    "match": ".in('club_id', clubIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/players.ts",
+    "line": 264,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/posts.ts",
+    "line": 73,
+    "match": ".in('id', authorIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/posts.ts",
+    "line": 75,
+    "match": "? supabase.from('players').select('id, first_name, last_name, position').in('id', playerIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/posts.ts",
+    "line": 78,
+    "match": "? supabase.from('tips').select('content_id, amount_cents').eq('content_type', 'post').in('content_id', postIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/posts.ts",
+    "line": 353,
+    "match": ".in('post_id', postIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/profiles.ts",
+    "line": 139,
+    "match": ".in('id', uniqueIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/pushSender.ts",
+    "line": 53,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/pushSender.ts",
+    "line": 91,
+    "match": ".in('id', staleIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/referral.ts",
+    "line": 19,
+    "match": "if (error) return 0;",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/referral.ts",
+    "line": 52,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/referral.ts",
+    "line": 62,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/research.ts",
+    "line": 73,
+    "match": ".in('id', authorIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/research.ts",
+    "line": 82,
+    "match": ".in('id', playerIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/research.ts",
+    "line": 312,
+    "match": ".in('research_id', researchIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/scouting.ts",
+    "line": 35,
+    "match": ".in('id', playerIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/scouting.ts",
+    "line": 189,
+    "match": "supabase.from('bounty_submissions').select('user_id').eq('status', 'approved').in('user_id', userIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/scouting.ts",
+    "line": 291,
+    "match": ".in('id', userIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/scouting.ts",
+    "line": 295,
+    "match": ".in('user_id', userIds),",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 126,
+    "match": "supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 127,
+    "match": "supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 157,
+    "match": "supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 158,
+    "match": "supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 346,
+    "match": ".in('post_id', myPostIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 374,
+    "match": ".in('research_id', researchIds);",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/social.ts",
+    "line": 561,
+    "match": ".in('user_id', followingIds)",
+    "pattern": "in-without-chunking",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/services/sponsors.ts",
+    "line": 106,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/sponsors.ts",
+    "line": 119,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/sponsors.ts",
+    "line": 129,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/sponsorTracking.ts",
+    "line": 42,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/tickets.ts",
+    "line": 91,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/tickets.ts",
+    "line": 121,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/tips.ts",
+    "line": 72,
+    "match": "if (error) {",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/trading.ts",
+    "line": 512,
+    "match": "if (error) return { success: false, error: mapRpcError(error.message) };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/services/valuations.ts",
+    "line": 87,
+    "match": "if (error) return { success: false, error: error.message };",
+    "pattern": "error-check-without-throw-or-return",
+    "severity": "MEDIUM"
+  },
+  {
+    "file": "src/lib/supabaseMiddleware.ts",
+    "line": 77,
+    "match": "const { data } = await supabase.auth.getUser();",
+    "pattern": "destructure-data-without-error",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/__tests__/db-invariants.test.ts",
+    "line": 83,
+    "match": "const { data: allClubs } = await sb.from('clubs').select('id, league_id');",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/__tests__/db-invariants.test.ts",
+    "line": 146,
+    "match": "const { data: allClubs } = await sb.from('clubs').select('id, league_id');",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  },
+  {
+    "file": "src/lib/__tests__/db-invariants.test.ts",
+    "line": 1904,
+    "match": "const { data, error } = await sb.from('clubs').select('id, name, logo_url');",
+    "pattern": "select-without-range-or-limit",
+    "severity": "HIGH"
+  }
+]
