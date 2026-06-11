@@ -127,6 +127,24 @@ grep -rnE "useState<[A-Z][a-zA-Z]+ \| null>" src/components/ src/features/ | hea
 - Cross-Cutting mit Slice 270 "Per-Tenant-Window vs. Global-MAX" (errors-db.md) — beide sind „Daten-Frische in Multi-Source-Architektur".
 - Erweitert "Realtime-Hook-Refactor TanStack-Query → callback-only" (Slice 267) auf UI-Modal-Layer.
 
+### Feature-Reaktivierung + Query-Ersatz: 3 Drift-Klassen (Slice 282, 2026-06-11)
+
+Slice 282 (Home von 4,2-MB-/api/players entkoppelt) — Cold-Context-Reviewer fing 2 MAJOR, alle 3 Klassen sind generalisierbar:
+
+**1. Feature-Reaktivierung = Multi-Slot-Suppression-Audit-Trigger (erweitert Slice 278).**
+Wenn ein Slice eine TOTE Daten-Quelle reaktiviert (Slice 282: activeIPOs war immer leer weil dbToPlayer ipo.status='none' setzte), werden latente Suppression-Gate-Gaps erstmals scharf. Der Sidebar-IPO-Gate prüfte nur `spotlightType` (= primary-Slot) — IPO als SECONDARY-Slot hätte doppelt gerendert. Der Gap existierte seit Slice 266, war aber unsichtbar weil das Feature nie feuerte.
+Regel: Bei Reaktivierung einer Daten-Quelle die Suppression-Mapping-Tabelle ALLER Sections neu auditieren, die diese Quelle konsumieren (`grep -rnE "spotlightSlots\.(primary|secondary)|spotlightType" src/app/`).
+
+**2. Error-Gate-Semantik bei Query-Ersatz NIE verschärfen.**
+Original: `playersError && players.length === 0` (Full-Page-Error nur ohne Daten). Naiver Ersatz: `homeError = moversError || byIdsError` — (a) dekorativer Endpoint-Fail ersetzt die GANZE Page durch ErrorState, (b) TanStack v5 setzt `status='error'` auch nach Background-Refetch-Fail TROTZ vorhandener data → gerenderte Page kann nachträglich durch Error-Screen ersetzt werden.
+Regel: `error && data.length === 0`-Guards des Originals beibehalten; dekorative Quellen graceful degraden (defensiv false, Slice-265-Pattern), nicht page-fatal machen.
+
+**3. Abgeleitete byIds-Queries: Upstream-Loading in kombinierten Loading-State.**
+`usePlayersByIds(ids)` mit ids aus anderen Queries (trending, ipos) ist ein Waterfall: byIds startet erst NACH Upstream-Resolve. Wenn der kombinierte Loading-State das Upstream-Loading NICHT enthält, oszilliert die UI Content→Skeleton→Content (loading=false-Fenster zwischen Upstream-Resolve und byIds-Start) UND jeder ids-Wachstumsschritt erzeugt einen neuen Cache-Key → Mehrfach-Fetches.
+Regel: `combinedLoading = upstreamLoading || (ids.length > 0 && byIdsLoading)`.
+
+**Reference:** `worklog/reviews/282-review.md` F-01/F-02/F-03. Files: `useHomeData.ts:96-107`, `page.tsx:351`.
+
 ### Cross-Section-Coupling-Drift bei Multi-Slot-Refactors (Slice 278, 2026-05-06)
 
 **Bug-Klasse:** Page-Render-Tree zeigt dasselbe semantische Element an 2 Stellen (z.B. CTA-Card oben in Hero-Slot UND als persistent Card in Sidebar). Beide Stellen reagieren auf gleiche Daten-Quelle (`hasFreeBoxToday`, `activeIPOs.length`, etc.). Wenn ein Multi-Slot-Refactor neue Slot-Types einführt, MUSS systematisch geprüft werden welche Sidebar/Mobile-Sections doppelt zeigen würden — sonst Doppel-Render-Drift.

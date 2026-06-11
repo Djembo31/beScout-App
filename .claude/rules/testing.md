@@ -176,6 +176,20 @@ expect(mockQc.invalidateQueries).toHaveBeenCalled();
 - `src/components/fantasy/__tests__/CreatePredictionModal.test.tsx` (Slice 163) — Service-direkt-Mock-Pattern
 - `src/components/community/hooks/__tests__/useCommunityActions.test.ts` (Slice 170) — vi.hoisted-Pattern fuer shared mock-reference (Pattern 5)
 
+## Anti-Pattern: vi.spyOn + mockRestore auf bereits-gemockter vi.fn (Slice 282, 2026-06-11)
+
+`vi.spyOn(supabase, 'from')` auf einem Object dessen `from` BEREITS eine `vi.fn()` aus einem Mock-Module ist (z.B. `@/test/mocks/supabase`) gibt die existierende Mock-Fn zurück — `mockRestore()` löscht dann deren `mockImplementation`. Alle Folge-Queries im selben Test-File laufen auf `undefined` (`Cannot read properties of undefined (reading 'select')`).
+
+Fix-Pattern: Call-Counts direkt über die Mock-Property lesen, kein spy/restore:
+```ts
+const fromMock = supabase.from as unknown as Mock;
+const before = fromMock.mock.calls.length;
+await serviceCall();
+expect(fromMock.mock.calls.length - before).toBe(2);
+```
+
+Reference: `src/lib/services/__tests__/players-byIds-movers.test.ts` (Chunk-Boundary-Test).
+
 ## Anti-Pattern: vi.resetModules() + dynamic-import-pro-Test (Slice SO-3 Heal, 2026-05-04)
 
 Wenn ein Test-File für jedes `it(...)` `vi.resetModules()` + `await import()` aufruft (oft genannt `loadHeader()` / `loadFresh()`), **wird der Test-Runner systemisch flaky** auf vollen Test-Suiten (3000+ Tests). Erste Test-Iteration kostet 3-10s JSDOM-Warmup + Module-Re-Transform; bei Pre-Push-Hook-Lauf mit Worker-Memory-Pressure kann der `getByRole(...)`-Lookup im sub-Render-Cycle den 30s-Timeout treffen → `MultipleElementsFoundError` weil das DOM noch nicht stabilisiert ist.

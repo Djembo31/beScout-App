@@ -73,7 +73,12 @@ test.describe('Beta Smoke Suite', () => {
         }
       }
       await expect(playerLink, 'no /player/ link on /market').toBeVisible({ timeout: 25_000 });
-      await playerLink.click();
+      // Slice 282a-Pattern (testing.md): /market re-rendert live — first()-Element
+      // ist visible aber nie click-"stable" (14× retry → 30s-Timeout, Master-Tracker
+      // #63-Klasse). href + goto statt click; Render-Coverage ist das Test-Ziel.
+      const playerHref = await playerLink.getAttribute('href');
+      expect(playerHref, 'player link has no href').toBeTruthy();
+      await page.goto(playerHref!, { waitUntil: 'domcontentloaded', timeout: 30_000 });
       await page.waitForURL(/\/player\//, { timeout: 15_000 });
       await expect(page.locator('main, [role="main"]')).toBeVisible({ timeout: 15_000 });
     });
