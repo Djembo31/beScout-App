@@ -2,6 +2,19 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 282a | 2026-06-11 | fix(ops): Ops-Recovery nach 5-Wochen-Pause (Synthetic-Fix + Baseline + Master-Tracker + Hygiene)
+
+- Stage-Chain: SPEC (worklog/specs/282a-ops-recovery.md) → IMPACT (skipped — kein Service/RPC/DB, nur e2e/GHA-YAML/Baseline/Docs) → BUILD → REVIEW (worklog/reviews/282a-review.md, Self-Review PASS — kein src/-Produktionscode) → PROVE (worklog/proofs/282a-ops-recovery.md) → LOG
+- Slice-Type: GHA + Tool + Doc (M-Slice, 4 Tracks). Trigger: Anil 2026-06-11 Re-Onboarding nach 5 Wochen Pause, Track-Auswahl „282 a" — Messinstrumente wieder scharf stellen bevor Slice 282 (Cold-Start Phase 3) startet.
+- **Track A (Synthetic-Fix):** `e2e/synthetic-users.spec.ts` Profile B failte 33/36 Tage seit 2026-05-07 mit `locator.click: Timeout 30000ms`. Root-Cause-Korrektur: NICHT Cold-Start (Warm-Up-Log bewies Attempt-1-200), sondern Click-Stability — `first()`-Locator auf live-re-rendernder /market-Liste ist visible aber nie „stable". Fix: href-Extraktion + `page.goto()`. **Live-Verify: Run 27359335661 SUCCESS in 4m28s — erster grüner Run nach 33 Fails.** Pattern promoted → testing.md „Click auf first()-Locator live-re-rendernder Listen".
+- **Track B (Silent-Fail-Baseline):** 79 HIGH > Baseline 76 (stale seit Slice 238). Methodik neu: Full-Findings-JSON-Dump ins Audit-Script + Temp-Worktree auf Baseline-Commit 630c15a6 → exakter Diff. Alle 3 neuen HIGHs mit Code-Read triagiert (live-score-sync:172 error-checked ≤7 Liga-IDs · cronHealth:68+81 ≤24 Club-IDs per-Liga, fail-open by design) → akzeptiert, `.audit-baseline.json` 168/76/92 → 173/79/94. Check grün.
+- **Track C (Master-Tracker):** `nightly-audit.yml` per-day-Dedupe erzeugte seit 2026-04-30 tägliche Duplicate-Issues. Patch auf errors-infra.md-SO-4-Pattern (listForRepo-Pre-Check → Comment-an-Master). 43 Issues (#41–#102) batch-closed mit Triage-Kommentar. **Offene Issues 45 → 2** (nur Master-Tracker #63 Smoke + #67 Synthetic, beide by-design).
+- **Track D (Hygiene):** Stale Agent-Worktree `agent-a0ce80579fb4a81de` (Slice-273-Backfill, done) unlocked+removed. Tooling-Drift aus Upgrade-Session als `chore(tooling)` e8e4acb1 committed (Effort-Gate-Lib in 10 SHIP-Hooks, continueOnBlock, 3 neue Hooks, .agents-Skills-Mirror, AGENTS.md). **Security-Catch: Firecrawl-API-Key in `.codex/config.toml` gefunden → `.codex/` gitignored statt committed.** `beta-phase.md` Phase D → READY/LIVE-Korrektur (D71 — Beta läuft mit Taki/Nail Mo seit ≤2026-05-06, iPhone-Verify-Blocker superseded).
+- Files: 9 geändert (e2e-Spec, 2 Audit-Scripts, nightly-audit.yml, Baseline, beta-phase.md, testing.md, .gitignore, active.md) + Slice-Artefakte. Commits: `e8e4acb1` (tooling) + `618c6d05` (slice).
+- Review: worklog/reviews/282a-review.md (Self-Review PASS, 1 MINOR akzeptiert)
+- Proof: worklog/proofs/282a-ops-recovery.md (AC-01–AC-08 alle ✅)
+- Notes: Nächster Slice 282 = Cold-Start Phase 3 (`useHomeData`-Konsolidierung) — Lighthouse-Baseline-Voraussetzung (5 SUCCESS-Runs vom 2026-05-06) erfüllt.
+
 ## 281 | 2026-05-06 | feat(qa): Synthetic-User-Suite Daily-GHA-Verkabelung (D54-Recovery)
 
 - Stage-Chain: SPEC (worklog/specs/281-synthetic-users-daily-gha.md) → IMPACT (skipped — neue Workflow-Datei, keine Service/RPC/DB) → BUILD → REVIEW (Self-Review PASS, XS-Slice 1:1 Pattern-Wiederholung) → PROVE (worklog/proofs/281-workflow-yaml.txt + post-push live-verify pending) → LOG

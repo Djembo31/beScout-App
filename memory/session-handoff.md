@@ -1,33 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-11 17:02)
+# Session Handoff — Auto (2026-06-11 17:49)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 20 Files
+## Uncommitted Changes: 2 Files
 ```
- M .claude/hooks/run_tests_on_change.sh
- M .claude/hooks/ship-ceo-scope-gate.sh
- M .claude/hooks/ship-cto-review-gate.sh
- M .claude/hooks/ship-meta-plan-block.sh
- M .claude/hooks/ship-parallel-dispatch-gate.sh
- M .claude/hooks/ship-proof-gate.sh
- M .claude/hooks/ship-spec-quality-gate.sh
- M .claude/hooks/ship-task-enforcement.sh
- M .claude/hooks/ship-tool-wiring-gate.sh
- M .claude/hooks/ship-verify-completeness-gate.sh
- M .claude/rules/workflow.md
- M .claude/settings.json
- M .claude/skills/ship/SKILL.md
- M memory/session-handoff.md
- M worklog/audits/audit-stale-2026-05-06.md
- M worklog/audits/type-truth-2026-05-06.md
-?? .agents/skills/audit-beta-readiness/
-?? .agents/skills/auto-beta-ready/
-?? .agents/skills/beScout-backend/
-?? .agents/skills/beScout-business/
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
 ```
 
-## Stale Worktrees: 1 (cleanup candidates)
+## Session Commits: 2
+- 618c6d05 fix(ops): Slice 282a — Ops-Recovery (Synthetic-Fix + Baseline + Master-Tracker)
+- e8e4acb1 chore(tooling): Effort-Gate für SHIP-Hooks + /goal-Workflow + .agents-Skills-Mirror + Codex-Setup
 
 <!-- auto:handoff-end -->
 

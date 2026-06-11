@@ -38,6 +38,13 @@ globs: ["src/**/*.test.ts", "src/**/*.test.tsx", "tests/**/*"]
 - qa-visual Agent hat KEINE Playwright MCP Tools — nutze `npx tsx e2e/qa-*.ts` mit `@playwright/test` chromium API. Template: `e2e/screenshot-home.ts`
 - jarvis-qa Password: `e2e/mystery-box-qa.spec.ts:5` (nicht in .env.local)
 
+### Click auf first()-Locator live-re-rendernder Listen (Slice 282a, 2026-06-11)
+- `page.locator('a[href*="/player/"]').first()` auf /market (oder anderen Listen mit Realtime-/Preis-Updates): Element ist `isVisible()`-true, wird aber nie click-"stable" — Playwright retried bis Timeout (`2 × waiting for element to be visible, enabled and stable … 14 × retrying click action`). Symptom-Signatur: failt fast-deterministisch (33/36 Daily-Runs), sieht aus wie Cold-Start, ist es nicht.
+- Diagnose-Reihenfolge: ERST Warm-Up-/Netzwerk-Logs pruefen (`[warm-up] ✅ 200` = Cold-Start ausgeschlossen), DANN Click-Stability verdaechtigen.
+- Fix fuer Render-Coverage-Tests (synthetic/smoke): href extrahieren + `page.goto(href)` statt `click()` — Click-Mechanik gehoert in dedizierte Interaction-Tests, nicht in Page-Render-Walks.
+- Anti-Pattern: Timeout hochdrehen — Liste re-rendert weiter, das verschiebt nur den Fail.
+- Reference: `e2e/synthetic-users.spec.ts` Profile B (Slice 282a Fix), Master-Tracker #25/#67-Klasse.
+
 ## useSafeMutation Test-Patterns (codifiziert Slice 164, aus 159/161/162/163)
 
 Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).

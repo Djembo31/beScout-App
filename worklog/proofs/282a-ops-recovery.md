@@ -57,6 +57,11 @@ Root-Cause-Beweis: Run 27336160129 Warm-Up-Log zeigt `[warm-up] ✅ bescout.net 
 
 `pnpm exec playwright test --list --project=synthetic` → 3 Tests geparst.
 
-## AC-01 — Synthetic-Live-Run (post-push)
+## AC-01 — Synthetic-Live-Run (post-push) ✅
 
-→ siehe Abschnitt unten (nach Push dispatcht + verifiziert).
+```
+$ gh run list --workflow=synthetic-users.yml --limit=1
+completed  success  Synthetic User Daily  main  workflow_dispatch  27359335661  4m28s  2026-06-11T15:48:24Z
+```
+
+Erster SUCCESS nach 33/36 Fails seit 2026-05-07. Run gegen Commit `618c6d05` (href+goto-Fix).
