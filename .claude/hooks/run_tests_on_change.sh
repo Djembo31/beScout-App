@@ -6,6 +6,9 @@
 # 1 - Hook error (allow operation)
 # 2 - Tests failed (block operation)
 
+# EFFORT GATE: skip on medium/low effort sessions (silent)
+source "$(dirname "$0")/lib/effort-guard.sh"
+
 # Read input from stdin
 INPUT=$(cat)
 

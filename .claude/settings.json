@@ -13,27 +13,38 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/auto-lint.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/auto-lint.sh",
+            "continueOnBlock": true
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/file-size-warning.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/file-size-warning.sh",
+            "continueOnBlock": true
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/test-reminder.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/test-reminder.sh",
+            "continueOnBlock": true
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-post-service.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/ship-post-service.sh",
+            "continueOnBlock": true
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-stage-timer.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/ship-stage-timer.sh",
+            "continueOnBlock": true
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/track-file-changes.sh"
+            "command": "bash C:/bescout-app/.claude/hooks/track-file-changes.sh",
+            "continueOnBlock": true
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/ship-build-goal-suggest.sh",
+            "continueOnBlock": true
           }
         ]
       }
@@ -172,6 +183,10 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/session-retro.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/queue-watch-stop.sh"
           }
         ]
       }
@@ -203,6 +218,11 @@
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/morning-briefing.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/inject-learnings.sh",
+            "timeout": 5
           }
         ]
       }

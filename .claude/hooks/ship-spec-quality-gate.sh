@@ -27,6 +27,9 @@
 
 set -u
 
+# EFFORT GATE: skip on medium/low effort sessions (silent)
+source "$(dirname "$0")/lib/effort-guard.sh"
+
 JSON_INPUT="$(cat)"
 FILE_PATH="$(echo "$JSON_INPUT" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
 

@@ -143,3 +143,7 @@ walkthrough/
 tmp/
 
 .env.vercel-prod-fresh
+
+# Lokale Tool-Configs mit API-Keys (Codex) + Session-State
+.codex/
+.claude/learnings-shown.jsonl

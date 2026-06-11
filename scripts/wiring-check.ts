@@ -47,6 +47,9 @@ const CHECK_MODE = args.includes('--check');
  * Format: relative path from PROJECT_ROOT.
  */
 const KNOWN_ORPHANS: Record<string, string> = {
+  // Sourced-Library, kein standalone Hook — via `source lib/effort-guard.sh` in 10
+  // SHIP-Hooks gewired (Effort-Gate-Tooling-Upgrade, committed Slice 282a Track D).
+  '.claude/hooks/lib/effort-guard.sh': 'Shared sourced lib (Effort-Gate), kein settings.json-Entry nötig',
   // TM-Operational manual-tools (Slice 240 Triage — kept) — Cloudflare-Workaround,
   // recurring on demand, nicht CI-gated.
   'scripts/tm-rescrape-stale.ts': 'Stale-TM-Data-Maintenance, recurring on demand',

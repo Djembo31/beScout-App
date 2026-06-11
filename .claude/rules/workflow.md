@@ -261,6 +261,78 @@ Nicht missbrauchen. Wenn der Anti-Pattern-Count in einer Woche > 2 ist: Retrospe
 
 ---
 
+## Autonomer BUILD via `/goal` (seit Claude Code v2.1.139)
+
+BUILD-Stage kann **autonom** laufen statt jeden Step zu prompten. Voraussetzung: verifizierbare End-Bedingung.
+
+### Pattern
+
+Hook `ship-build-goal-suggest.sh` emittiert beim BUILD-Stage-Übergang einen Vorschlag:
+
+```text
+/goal slice NNN BUILD complete:
+  alle ACs aus worklog/specs/NNN-*.md erfüllt
+  UND pnpm exec tsc --noEmit grün
+  UND CI=true pnpm exec vitest run grün
+  UND worklog/proofs/NNN-*.md existiert
+  UND active.md stage=PROVE
+```
+
+Claude läuft Red→Green→Refactor→Proof autonom. Fast-Model checkt nach jedem Turn ob Bedingung hält. Goal löst sich auf wenn ja.
+
+### Wann NICHT
+
+- ACs vage oder qualitativ statt binary
+- Cross-Domain → `/parallel-dispatch` besser
+- Anil-Entscheidung mid-BUILD nötig
+- Emergency-Fix
+
+### Sicherheits-Net
+
+Die SHIP-Hooks (`spec-gate`, `cto-review-gate`, `proof-gate`, `tool-wiring-gate`, `verify-completeness-gate`) wirken **während** des autonomen Runs weiter und verhindern Drift. `continueOnBlock: true` auf PostToolUse-Hooks (seit 2026-05-28) feedet Hook-Reject zurück, sodass Claude direkt korrigiert statt zu stoppen.
+
+---
+
+## Multi-Slice parallel via `claude agents` (seit v2.1.139)
+
+Für 2-3 **unabhängige** Slices parallel. Jeder Slice in eigenem Worktree mit eigener Claude Code Session.
+
+### Dispatch
+
+```bash
+# Worktree pro Slice
+git worktree add ../bescout-282 -b slice-282-i18n
+git worktree add ../bescout-283 -b slice-283-bug-fix
+
+# Pro Worktree: claude agents mit /goal
+claude agents --add-dir ../bescout-282 --effort xhigh \
+  "/goal slice 282 BUILD complete: ..."
+```
+
+### Dashboard
+
+```bash
+claude agents
+```
+
+Zeigt alle Sessions: RUNNING / BLOCKED ON YOU / DONE. Attach mit Pfeil-Rechts, Liste mit Pfeil-Links.
+
+### Hard Limit
+
+Max 4 parallele Slices. Mehr = Anil verliert Überblick. Bei dependencies (Slice B braucht Slice A's Service) **nicht** parallel — sequentiell.
+
+### Unterschied zu `/parallel-dispatch`
+
+| | `/parallel-dispatch` | `claude agents` |
+|---|---|---|
+| Scope | Sub-Agents in EINER Session | EIGENE Sessions parallel |
+| Tool | `Agent` (Task) | `claude agents` CLI |
+| Worktree | Optional | Pflicht |
+
+Vollständiges Playbook: Skill `ship-agents`.
+
+---
+
 ## DISTILL — Session-End-Protokoll (seit 2026-04-21, siehe `memory/decisions.md` D5)
 
 **Zweck:** Chat-Ausarbeitungen nicht verloren gehen lassen. Strategic Decisions, Architektur-Alternativen und Process-Erfindungen werden am Session-Ende in `memory/decisions.md` extrahiert.

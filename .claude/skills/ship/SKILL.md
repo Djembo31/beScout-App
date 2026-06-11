@@ -90,6 +90,67 @@ Wenn nicht noetig: `active.md` auf `impact: skipped (Grund)`, direkt `stage: BUI
    - test-writer fuer Tests aus Spec
 4. **Nach BUILD** → `/ship review`.
 
+### `/ship goal` — Autonomer BUILD via `/goal` (v2.1.139+)
+
+Wenn BUILD-Stage eine **verifizierbare End-Bedingung** hat, kann ich Claude autonom laufen lassen statt jeden Step zu prompten.
+
+**Wann nutzen:**
+- BUILD-Stage just gestartet (`active.md stage: BUILD`)
+- Spec hat klare ACs (`AC-NN: [HAPPY] ...`)
+- Tests + tsc als Verifikation reichen aus
+- Kein offener Architektur-Diskurs mehr
+
+**Wann NICHT nutzen:**
+- Spec unklar oder ACs vage
+- Slice braucht Anil-Entscheidung mid-BUILD
+- Cross-Domain mit Sub-Agent-Dispatch geplant (use `/parallel-dispatch` stattdessen)
+- Emergency-Fix (use `/ship emergency`)
+
+**Goal-String-Template (aus aktuellem active.md):**
+
+```text
+/goal slice NNN BUILD complete:
+  alle ACs aus worklog/specs/NNN-*.md erfüllt
+  UND pnpm exec tsc --noEmit grün
+  UND CI=true pnpm exec vitest run grün
+  UND worklog/proofs/NNN-*.md existiert
+  UND active.md stage=PROVE
+```
+
+Den konkreten String emittiert das Hook `ship-build-goal-suggest.sh` automatisch bei BUILD-Stage-Übergang (siehe ship-build-goal-suggest in `.claude/hooks/`).
+
+**Was passiert während `/goal`:**
+- Claude läuft Red→Green→Refactor→Proof autonom
+- Hooks (`ship-spec-gate`, `ship-cto-review-gate`, `ship-proof-gate`, `ship-tool-wiring-gate`, `ship-verify-completeness-gate`) wirken weiter — sie verhindern Drift
+- Nach jedem Turn checkt fast-model die End-Bedingung
+- Goal löst sich auf wenn alle 5 Conditions hold
+
+**Risiko-Mitigation:**
+- ACs müssen verifizierbar sein (binary yes/no), nicht qualitativ
+- tsc-fail → ich fixe, Versuch nochmal
+- Bei wiederholtem gleichen Error: STOP, melden, nicht endlos retry
+- Bei Token-Verbrauch > 80% (capacity): Auto-Handoff laut `feedback_token_management_autonomous`
+
+**Nach `/goal` Ende:**
+- `/ship review` startet (Cold-Context-Reviewer)
+- Wenn PASS → `/ship prove` → `/ship log`
+
+### `/ship parallel` — Multi-Slice via `claude agents` (v2.1.139+)
+
+Für 2-3 **unabhängige** Slices parallel über separate Worktrees + Claude Sessions.
+
+Siehe Skill `ship-agents` für vollständiges Playbook. Kurzform:
+
+```bash
+git worktree add ../bescout-282 -b slice-282-i18n
+claude agents --add-dir ../bescout-282 --effort xhigh \
+  "/goal slice 282 BUILD complete: ..."
+```
+
+Dann `claude agents` Dashboard öffnen → alle Sessions sehen.
+
+**Nicht zu verwechseln mit `/parallel-dispatch`** (Sub-Agents in EINER Session) — siehe `ship-agents`-Skill für die Unterschiede.
+
 ### `/ship review` — Cold-Context-Agent prueft (Stage 3b)
 
 Pflicht bei feat/fix/refactor-Slices ab S-Groesse. XS-Ausnahme nur bei trivialer

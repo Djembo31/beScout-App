@@ -24,6 +24,9 @@
 
 set -u
 
+# EFFORT GATE: skip on medium/low effort sessions (silent)
+source "$(dirname "$0")/lib/effort-guard.sh"
+
 JSON_INPUT="$(cat)"
 COMMAND="$(echo "$JSON_INPUT" | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\(.*\)"[[:space:]]*}.*/\1/p' | head -1)"
 if [ -z "$COMMAND" ]; then
