@@ -4,7 +4,7 @@
  */
 
 export { qk } from './keys';
-export { usePlayers, usePlayerNames, usePlayerPriceChanges7d } from './players';
+export { usePlayers, usePlayerNames, usePlayerPriceChanges7d, usePlayersByIds, useGlobalMovers } from './players';
 export { useHoldings } from './holdings';
 export { useHomeDashboard, primeHomeDashboardCaches } from './homeDashboard';
 export { useAllOpenOrders, useAllOpenBuyOrders } from './orders';

@@ -29,6 +29,7 @@ import {
   getFormationsForFormat,
   buildSlotDbKeys,
 } from '@/features/fantasy/constants';
+import { usePlayersByIds } from '@/lib/queries';
 import type { Player, UserFantasyResult, DbLineup } from '@/types';
 
 const ONE_MIN = 60_000;
@@ -141,29 +142,35 @@ function buildSlotRows(lineup: DbLineup): SlotRow[] {
 
 interface LastGameweekWidgetProps {
   uid: string | undefined;
-  players: Player[];
 }
 
-function LastGameweekWidgetInner({ uid, players }: LastGameweekWidgetProps) {
+function LastGameweekWidgetInner({ uid }: LastGameweekWidgetProps) {
   const t = useTranslations('home');
   const { data: result, isLoading: resultLoading } = useLastFantasyResult(uid);
   const { data: lineup, isLoading: lineupLoading } = useLineupSnapshot(result?.eventId, uid);
 
+  // Slice 282: targeted byIds-Fetch der ≤12 Lineup-Player statt volles
+  // players-Array von Home (4,2-MB-Payload-Decouple).
+  const slotRows = useMemo<SlotRow[]>(
+    () => (lineup ? buildSlotRows(lineup) : []),
+    [lineup],
+  );
+  const lineupPlayerIds = useMemo(
+    () => slotRows.map((r) => r.playerId).filter((id): id is string => id !== null),
+    [slotRows],
+  );
+  const { data: lineupPlayers = [] } = usePlayersByIds(lineupPlayerIds);
   const playerMap = useMemo(() => {
     const map = new Map<string, Player>();
-    for (const p of players) map.set(p.id, p);
+    for (const p of lineupPlayers) map.set(p.id, p);
     return map;
-  }, [players]);
+  }, [lineupPlayers]);
 
   const rankCfg = useMemo(
     () => (result ? rankColor(result.rank) : null),
     [result?.rank],
   );
 
-  const slotRows = useMemo<SlotRow[]>(
-    () => (lineup ? buildSlotRows(lineup) : []),
-    [lineup],
-  );
 
   // Auth guard — component has nothing to show for anon users.
   if (!uid) return null;

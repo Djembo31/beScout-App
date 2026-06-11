@@ -20,6 +20,12 @@ vi.mock('@/components/player/PlayerRow', () => ({
 }));
 
 // MostWatchedStrip uses useMostWatchedPlayers internally — stub it.
+// Slice 282: TopMoversStrip self-fetcht via useGlobalMovers (Barrel-Import) —
+// Mock verhindert Module-Load-Cascade + liefert leeres Result (Strip gated via hasGlobalMovers).
+vi.mock('@/lib/queries', () => ({
+  useGlobalMovers: () => ({ data: [], isLoading: false, isError: false }),
+}));
+
 vi.mock('@/lib/queries/watchlist', () => ({
   useMostWatchedPlayers: () => ({
     data: [
@@ -77,13 +83,23 @@ function makeTrending(overrides: Partial<TrendingPlayer> = {}): TrendingPlayer {
 const baseProps = {
   topMovers: [],
   holdings: [],
-  players: [] as Player[],
   hasGlobalMovers: false,
-  trendingPlayers: [] as TrendingPlayer[],
+  trendingWithPlayers: [] as Array<{ tp: TrendingPlayer; player: Player }>,
   watchedPlayers: [],
   uid: 'u1',
-  playersLoading: false,
+  moversLoading: false,
 };
+
+function makeTrendingPlayerRow(): Player {
+  return {
+    id: 'p-1',
+    first: 'Test',
+    last: 'Player',
+    pos: 'MID',
+    club: 'Club',
+    imageUrl: null,
+  } as unknown as Player;
+}
 
 const moversConfig = {
   topMovers: [{ playerId: 'p-1', player: 'Alice Mover', club: 'CA', change24h: 8.0 }],
@@ -91,7 +107,7 @@ const moversConfig = {
 };
 
 const trendingConfig = {
-  trendingPlayers: [makeTrending()],
+  trendingWithPlayers: [{ tp: makeTrending(), player: makeTrendingPlayerRow() }],
 };
 
 const watchedConfig = {
@@ -176,7 +192,7 @@ describe('MarktPuls (Slice 269)', () => {
 
   it('AC-01 + F-04: movers-Tab suppressed when playersLoading=true', () => {
     renderWithIntl(
-      <MarktPuls {...baseProps} {...moversConfig} {...trendingConfig} playersLoading={true} />,
+      <MarktPuls {...baseProps} {...moversConfig} {...trendingConfig} moversLoading={true} />,
     );
     // Only trending should be visible (movers gated by playersLoading)
     expect(screen.queryAllByRole('tab')).toHaveLength(0); // single-tab → no TabBar

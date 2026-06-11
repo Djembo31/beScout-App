@@ -55,8 +55,8 @@ function renderWithIntl(ui: React.ReactElement) {
 const baseProps = {
   activeIPOs: [] as Player[],
   holdings: [] as DpcHolding[],
-  trendingPlayers: [] as TrendingPlayer[],
-  players: [] as Player[],
+  // Slice 282: vorgejointe Items statt trendingPlayers + players
+  trendingWithPlayers: [] as Array<{ tp: TrendingPlayer; player: Player }>,
 };
 
 function makePlayer(overrides: Partial<Player> = {}): Player {
@@ -67,7 +67,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     pos: 'MID',
     club: 'Test Club',
     imageUrl: null,
-    prices: { history7d: [10, 11, 12, 13, 14] },
+    prices: { change24h: 0 },
     ipo: { status: 'open', price: 100 },
     ...overrides,
   } as unknown as Player;
@@ -198,7 +198,7 @@ describe('HomeSpotlight (Slice 266)', () => {
       <HomeSpotlight
         {...baseProps}
         slots={{ primary: 'trending', secondary: null }}
-        trendingPlayers={[makeTrending()]}
+        trendingWithPlayers={[{ tp: makeTrending(), player: makePlayer() }]}
       />,
     );
     expect(screen.getByText('Trending')).toBeTruthy();

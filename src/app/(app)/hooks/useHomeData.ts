@@ -6,7 +6,9 @@ import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { centsToBsd } from '@/lib/services/players';
 import {
-  usePlayers,
+  usePlayersByIds,
+  useGlobalMovers,
+  useActiveIpos,
   useEvents,
   useTrendingPlayers,
   useHomeDashboard,
@@ -24,7 +26,7 @@ import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
 import { STREAK_KEY, getStoryMessage, pickScopedEvent, pickNextScopedEvent } from '@/components/home/helpers';
 import { useTranslations } from 'next-intl';
-import type { DbEvent, DpcHolding, Pos } from '@/types';
+import type { DbEvent, DpcHolding, Player, Pos } from '@/types';
 
 type HeroMode = 'manager' | 'scout' | 'cta-new';
 
@@ -56,9 +58,53 @@ export function useHomeData() {
   const streakBenefits = useMemo(() => getStreakBenefits(streak), [streak]);
 
   // ── React Query ──
-  const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
+  // Slice 282 (Cold-Start Phase 3): usePlayers() (4,2 MB /api/players) ist raus.
+  // Home holt nur noch gezielte Mini-Daten: aktive IPOs (ipos-Tabelle), die ≤5
+  // Trending-Player + IPO-Player via byIds, globale Movers via server-cached Endpoint.
   const { data: events = [] } = useEvents();
-  const { data: trendingPlayers = [] } = useTrendingPlayers(5);
+  const { data: trendingPlayers = [], isLoading: trendingLoading } = useTrendingPlayers(5);
+  const {
+    data: activeIpoRows = [],
+    isLoading: iposLoading,
+  } = useActiveIpos();
+  const {
+    data: globalMovers = [],
+    isLoading: globalMoversLoading,
+    isError: globalMoversError,
+  } = useGlobalMovers(5);
+
+  const miniFetchIds = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...trendingPlayers.map((tp) => tp.playerId),
+          ...activeIpoRows.map((row) => row.player_id),
+        ]),
+      ),
+    [trendingPlayers, activeIpoRows],
+  );
+  const {
+    data: miniPlayers = [],
+    isLoading: miniPlayersLoading,
+    isError: miniPlayersError,
+  } = usePlayersByIds(miniFetchIds);
+  const miniPlayerById = useMemo(
+    () => new Map(miniPlayers.map((p) => [p.id, p])),
+    [miniPlayers],
+  );
+
+  // Kombinierter Loading/Error-State als Ersatz für das frühere
+  // playersLoading/playersError (Spotlight-Skeleton + Error-Retry-Screen).
+  // Review F-03: trendingLoading MUSS drin sein — byIds startet erst nach
+  // trending-Resolve (Waterfall); ohne Gate flackert der Spotlight
+  // Content→Skeleton→Content und byIds feuert mit wachsendem Key doppelt.
+  const homeLoading =
+    iposLoading || globalMoversLoading || trendingLoading || (miniFetchIds.length > 0 && miniPlayersLoading);
+  // Review F-02: NICHT härter als das Original (`playersError && players.length===0`).
+  // movers-Error ist dekorativ → graceful degrade via hasGlobalMovers, KEIN Full-Page-Error.
+  // miniPlayersError nur fatal wenn wirklich Daten angefragt wurden und keine da sind —
+  // TanStack v5 setzt status='error' auch nach Background-Refetch-Fail trotz vorhandener data.
+  const homeError = miniPlayersError && miniPlayers.length === 0 && miniFetchIds.length > 0;
 
   // Slice 109: 4 per-user queries (holdings + user_stats + tickets + highest_pass)
   // consolidated into a single `get_home_dashboard_v1` RPC. Primes individual
@@ -131,7 +177,37 @@ export function useHomeData() {
   const pnl = portfolioValue - portfolioCost;
   const pnlPct = portfolioCost > 0 ? (pnl / portfolioCost) * 100 : 0;
 
-  const activeIPOs = useMemo(() => players.filter((p) => p.ipo.status === 'open' || p.ipo.status === 'early_access'), [players]);
+  // Slice 282: echte IPO-Quelle (ipos-Tabelle) statt players-Filter. Der alte
+  // Filter `p.ipo.status === 'open'` war dead code — dbToPlayer setzt ipo.status
+  // unconditional 'none' (players.ts „loaded separately"), die Sektion hat nie
+  // gerendert. Jetzt: DbIpo-Rows + Mini-Player-Join → Player-Shape mit ipo-Patch.
+  const activeIPOs = useMemo<Player[]>(() => {
+    if (activeIpoRows.length === 0) return [];
+    // Review F-05: Status-Priorität vor Dedupe — Player mit Tranche1=open +
+    // Tranche2=early_access (neuer, getActiveIpos sortiert starts_at DESC) muss
+    // die HANDELBARE open-Tranche zeigen. Analog FIX-13 in ipo.ts getIpoForPlayer.
+    const prio: Record<string, number> = { open: 1, early_access: 2 };
+    const sorted = [...activeIpoRows].sort(
+      (a, b) => (prio[a.status] ?? 9) - (prio[b.status] ?? 9),
+    );
+    const seen = new Set<string>();
+    const out: Player[] = [];
+    for (const row of sorted) {
+      if (seen.has(row.player_id)) continue; // 1 Slot pro Player (mehrere Tranchen möglich)
+      const player = miniPlayerById.get(row.player_id);
+      if (!player) continue; // Player-Row fehlt (gelöscht/club_id null) → nicht anzeigen
+      seen.add(row.player_id);
+      out.push({
+        ...player,
+        ipo: {
+          status: row.status,
+          price: centsToBsd(row.price),
+          progress: row.total_offered > 0 ? Math.round((row.sold / row.total_offered) * 100) : 0,
+        },
+      });
+    }
+    return out;
+  }, [activeIpoRows, miniPlayerById]);
 
   const nextEvent = useMemo(() => {
     const active = events.filter(e => e.status === 'registering' || e.status === 'late-reg' || e.status === 'running');
@@ -240,10 +316,10 @@ export function useHomeData() {
 
   const trendingWithPlayers = useMemo(() => {
     return trendingPlayers
-      .map(tp => ({ tp, player: players.find(p => p.id === tp.playerId) }))
+      .map(tp => ({ tp, player: miniPlayerById.get(tp.playerId) }))
       .filter((item): item is { tp: typeof trendingPlayers[0]; player: NonNullable<typeof item.player> } => !!item.player)
       .slice(0, 5);
-  }, [trendingPlayers, players]);
+  }, [trendingPlayers, miniPlayerById]);
 
   // Top Movers: 7d price changes for user's holdings (Slice 268b — TanStack-cached).
   //
@@ -269,9 +345,9 @@ export function useHomeData() {
     [priceChanges, holdings],
   );
 
-  const hasGlobalMovers = useMemo(() => {
-    return players.some(p => p.prices.change24h !== 0 && !p.isLiquidated);
-  }, [players]);
+  // Slice 282: Endpoint filtert bereits change24h≠0 + !is_liquidated server-side.
+  // Defensiv false bei Error (Slice-265-Lehre: unknown ≠ true).
+  const hasGlobalMovers = !globalMoversError && globalMovers.length > 0;
 
   const showQuickActions = !!uid;
 
@@ -328,8 +404,8 @@ export function useHomeData() {
     user, uid, profile, loading, firstName,
     // Streak
     streak, shieldsRemaining, streakBenefits,
-    // Market data
-    players, playersLoading, playersError,
+    // Market data (Slice 282: kein volles `players` mehr — Children fetchen targeted)
+    homeLoading, homeError, globalMovers,
     holdings, activeIPOs, trendingPlayers, trendingWithPlayers,
     topMovers, hasGlobalMovers,
     // Portfolio

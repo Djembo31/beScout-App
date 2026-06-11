@@ -34,31 +34,30 @@ type TabId = 'movers' | 'trending' | 'watched';
 interface MarktPulsProps {
   topMovers: OwnTopMover[];
   holdings: { playerId: string }[];
-  players: Player[];
   hasGlobalMovers: boolean;
-  trendingPlayers: TrendingPlayer[];
+  /** Slice 282: vorgejointe Trending-Items — ersetzt trendingPlayers + players (Payload-Decouple). */
+  trendingWithPlayers: Array<{ tp: TrendingPlayer; player: Player }>;
   /** Pre-Review F-02: hoisted from page.tsx for Single-Source-Visibility */
   watchedPlayers: { playerId: string }[];
   uid: string | undefined;
-  /** Pre-Review F-04: gate movers-Tab against initial-mount flicker */
-  playersLoading: boolean;
+  /** Pre-Review F-04: gate movers-Tab against initial-mount flicker (Slice 282: movers-Query-Loading) */
+  moversLoading: boolean;
 }
 
 function MarktPulsInner({
   topMovers,
   holdings,
-  players,
   hasGlobalMovers,
-  trendingPlayers,
+  trendingWithPlayers,
   watchedPlayers,
   uid,
-  playersLoading,
+  moversLoading,
 }: MarktPulsProps) {
   const t = useTranslations('home');
 
   // Tab-Visibility-Logic (Pre-Review F-04 incl. playersLoading-Gate).
-  const moversAvailable = !playersLoading && (holdings.length > 0 || hasGlobalMovers);
-  const trendingAvailable = trendingPlayers.length > 0;
+  const moversAvailable = !moversLoading && (holdings.length > 0 || hasGlobalMovers);
+  const trendingAvailable = trendingWithPlayers.length > 0;
   const watchedAvailable = !!uid && watchedPlayers.length >= 2;
 
   const visibleTabs = useMemo<TabDef[]>(() => {
@@ -131,12 +130,12 @@ function MarktPulsInner({
       return (
         <div className="space-y-3">
           <OwnTopMoversStrip topMovers={topMovers} hasHoldings={holdings.length > 0} />
-          {hasGlobalMovers && <TopMoversStrip players={players} />}
+          {hasGlobalMovers && <TopMoversStrip />}
         </div>
       );
     }
     if (tab === 'trending') {
-      return <TrendingPlayersStrip trendingPlayers={trendingPlayers} players={players} />;
+      return <TrendingPlayersStrip trendingWithPlayers={trendingWithPlayers} />;
     }
     // 'watched' — F-NEW-01 inline-heal: showHeader={false} weil MarktPuls bereits SectionHeader rendert
     return uid ? <MostWatchedStrip userId={uid} showHeader={false} /> : null;

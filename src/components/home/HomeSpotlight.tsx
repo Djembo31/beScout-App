@@ -4,7 +4,7 @@ import { memo } from 'react';
 import Link from 'next/link';
 import { Sparkles, TrendingUp, Trophy } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { PlayerPhoto, PositionBadge, MiniSparkline } from '@/components/player';
+import { PlayerPhoto, PositionBadge } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { fmtScout, cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -31,8 +31,9 @@ interface HomeSpotlightProps {
   slots: { primary: SpotlightSlotType | null; secondary: SpotlightSlotType | null };
   activeIPOs: Player[];
   holdings: DpcHolding[];
-  trendingPlayers: TrendingPlayer[];
-  players: Player[];
+  /** Slice 282: vorgejointe Trending-Items (tp + resolved Player) — ersetzt
+   *  trendingPlayers + das volle players-Array (4,2-MB-Payload-Decouple). */
+  trendingWithPlayers: Array<{ tp: TrendingPlayer; player: Player }>;
   /** Slot-spezifische Sub-Payload (Pre-Review F-07 reduzierte Prop-Surface). */
   liveScoreData?: { gameweek: number };
   /** Slot-spezifische Sub-Payload — onOpen ist callback um Modal-Mount in page.tsx zu triggern. */
@@ -43,8 +44,7 @@ function HomeSpotlightInner({
   slots,
   activeIPOs,
   holdings,
-  trendingPlayers,
-  players,
+  trendingWithPlayers,
   liveScoreData,
   mysteryBoxData,
 }: HomeSpotlightProps) {
@@ -203,8 +203,6 @@ function HomeSpotlightInner({
     const best = [...holdings].sort((a, b) => b.change24h - a.change24h)[0];
     if (!best || best.change24h === 0) return null;
     const posColor = posTintColors[best.pos];
-    const matchedPlayer = players.find(p => p.id === best.playerId);
-    const history = matchedPlayer?.prices.history7d;
     return (
       <Link href={`/player/${best.playerId}`} className="block" key="slot-topMover">
         <Card surface="hero" className="p-4 relative overflow-hidden shadow-card-elevated card-entrance" style={{ borderLeftColor: posColor, borderLeftWidth: 2 }}>
@@ -226,9 +224,6 @@ function HomeSpotlightInner({
               <div className={cn('font-mono font-black text-lg', best.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
                 {best.change24h >= 0 ? '+' : ''}{best.change24h.toFixed(1)}%
               </div>
-              {history && history.length >= 2 && (
-                <MiniSparkline values={history} width={60} height={20} />
-              )}
             </div>
           </div>
         </Card>
@@ -237,18 +232,15 @@ function HomeSpotlightInner({
   }
 
   function renderTrendingSlot() {
-    if (trendingPlayers.length === 0) return null;
-    const tp = trendingPlayers[0];
+    if (trendingWithPlayers.length === 0) return null;
+    const { tp, player: matchedPlayer } = trendingWithPlayers[0];
     const posColor = posTintColors[tp.position];
-    const matchedPlayer = players.find(p => p.id === tp.playerId);
     return (
-      <Link href={matchedPlayer ? `/player/${matchedPlayer.id}` : '/market'} className="block" key="slot-trending">
+      <Link href={`/player/${matchedPlayer.id}`} className="block" key="slot-trending">
         <Card surface="hero" className="p-4 relative overflow-hidden shadow-card-elevated card-entrance" style={{ borderLeftColor: posColor, borderLeftWidth: 2 }}>
           <div className="absolute inset-0 opacity-15" style={{ backgroundImage: `linear-gradient(135deg, ${posColor}40, transparent 60%)` }} />
           <div className="relative flex items-center gap-3">
-            {matchedPlayer && (
-              <PlayerPhoto imageUrl={matchedPlayer.imageUrl} first={matchedPlayer.first} last={matchedPlayer.last} pos={matchedPlayer.pos} size={44} />
-            )}
+            <PlayerPhoto imageUrl={matchedPlayer.imageUrl} first={matchedPlayer.first} last={matchedPlayer.last} pos={matchedPlayer.pos} size={44} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="text-[10px] font-black uppercase text-white/60">{t('spotlightTrending')}</span>

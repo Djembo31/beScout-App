@@ -1,9 +1,17 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import TopMoversStrip from '../TopMoversStrip';
 import type { Player } from '@/types';
+
+// Slice 282: Strip self-fetcht via useGlobalMovers (server-cached Endpoint).
+// Filter (change24h≠0, !is_liquidated) + Top-5-abs-Sort sind SERVER-Semantik
+// (src/app/api/players/route.ts movers-Branch) — Component rendert das Query-Result 1:1.
+const mockUseGlobalMovers = vi.fn();
+vi.mock('@/lib/queries', () => ({
+  useGlobalMovers: (...a: unknown[]) => mockUseGlobalMovers(...a),
+}));
 
 vi.mock('lucide-react', () => ({
   TrendingUp: () => <span data-testid="trending-up" />,
@@ -35,59 +43,56 @@ function makePlayer(overrides: Partial<Player> & { change24h: number }): Player 
   } as unknown as Player;
 }
 
+function setMovers(players: Player[]) {
+  mockUseGlobalMovers.mockReturnValue({ data: players, isLoading: false, isError: false });
+}
+
 describe('TopMoversStrip', () => {
-  it('renders nothing when no movers', () => {
-    const { container } = renderWithProviders(
-      <TopMoversStrip players={[makePlayer({ change24h: 0 })]} />,
-    );
+  it('renders nothing when query returns empty', () => {
+    setMovers([]);
+    const { container } = renderWithProviders(<TopMoversStrip />);
     expect(container.innerHTML).toBe('');
   });
 
-  it('renders nothing when empty array', () => {
-    const { container } = renderWithProviders(<TopMoversStrip players={[]} />);
+  it('renders nothing while query has no data yet', () => {
+    mockUseGlobalMovers.mockReturnValue({ data: undefined, isLoading: true, isError: false });
+    const { container } = renderWithProviders(<TopMoversStrip />);
     expect(container.innerHTML).toBe('');
   });
 
   it('shows player last name', () => {
-    renderWithProviders(
-      <TopMoversStrip players={[makePlayer({ last: 'Mueller', change24h: 5.2 })]} />,
-    );
+    setMovers([makePlayer({ last: 'Mueller', change24h: 5.2 })]);
+    renderWithProviders(<TopMoversStrip />);
     expect(screen.getByText('Mueller')).toBeInTheDocument();
   });
 
   it('shows positive change with +', () => {
-    renderWithProviders(
-      <TopMoversStrip players={[makePlayer({ change24h: 3.5 })]} />,
-    );
+    setMovers([makePlayer({ change24h: 3.5 })]);
+    renderWithProviders(<TopMoversStrip />);
     expect(screen.getByText('+3.5%')).toBeInTheDocument();
     expect(screen.getByTestId('trending-up')).toBeInTheDocument();
   });
 
   it('shows negative change', () => {
-    renderWithProviders(
-      <TopMoversStrip players={[makePlayer({ change24h: -2.1 })]} />,
-    );
+    setMovers([makePlayer({ change24h: -2.1 })]);
+    renderWithProviders(<TopMoversStrip />);
     expect(screen.getByText('-2.1%')).toBeInTheDocument();
     expect(screen.getByTestId('trending-down')).toBeInTheDocument();
   });
 
-  it('limits to top 5 movers', () => {
-    const players = Array.from({ length: 10 }, (_, i) =>
-      makePlayer({ id: `p${i}`, last: `P${i}`, change24h: (i + 1) * 2 }),
-    );
-    renderWithProviders(<TopMoversStrip players={players} />);
-    const links = screen.getAllByRole('link');
-    expect(links.length).toBe(5);
+  it('requests limit=5 from the movers query', () => {
+    setMovers([]);
+    renderWithProviders(<TopMoversStrip />);
+    expect(mockUseGlobalMovers).toHaveBeenCalledWith(5);
   });
 
-  it('excludes liquidated players', () => {
-    renderWithProviders(
-      <TopMoversStrip players={[
-        makePlayer({ last: 'Active', change24h: 10, isLiquidated: false } as any),
-        makePlayer({ last: 'Gone', change24h: 20, isLiquidated: true } as any),
-      ]} />,
+  it('renders all returned movers (server already caps at limit)', () => {
+    setMovers(
+      Array.from({ length: 5 }, (_, i) =>
+        makePlayer({ id: `p${i}`, last: `P${i}`, change24h: (i + 1) * 2 }),
+      ),
     );
-    expect(screen.getByText('Active')).toBeInTheDocument();
-    expect(screen.queryByText('Gone')).not.toBeInTheDocument();
+    renderWithProviders(<TopMoversStrip />);
+    expect(screen.getAllByRole('link').length).toBe(5);
   });
 });

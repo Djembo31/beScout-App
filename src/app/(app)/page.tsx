@@ -74,8 +74,8 @@ export default function HomePage() {
   const {
     user, uid, loading, firstName,
     streak, shieldsRemaining, streakBenefits,
-    players, playersLoading, playersError,
-    holdings, activeIPOs, trendingPlayers, trendingWithPlayers,
+    homeLoading, homeError,
+    holdings, activeIPOs, trendingWithPlayers,
     topMovers, hasGlobalMovers,
     portfolioValue, pnl, pnlPct,
     nextEvent, isEventLive,
@@ -103,11 +103,16 @@ export default function HomePage() {
   const isNewUser = holdings.length === 0;
 
   // ── Guards ──
-  if (playersError && players.length === 0) {
-    // Retry: alle parallel-geladenen Home-Queries refetchen, nicht nur players.
-    // Slice 198b-A — Audit ux #1 P3: ErrorState onRetry-Scope inkonsistent.
+  if (homeError) {
+    // Retry: alle parallel-geladenen Home-Queries refetchen (Slice 198b-A Scope-Regel).
+    // Slice 282: players-Root-Prefix invalidiert byIds + globalMovers zusammen
+    // (Root-Prefix-Pattern Slice 254 — robust gegen künftige Sub-Keys).
     const handleRetry = () => {
-      queryClient.refetchQueries({ queryKey: qk.players.all });
+      // Review F-09: enge byIds/globalMovers-Prefixes statt ['players']-Root —
+      // Root würde qk.players.all treffen und nach Market-Besuch die 4,2 MB
+      // refetchen, die dieser Slice gerade von Home eliminiert hat.
+      queryClient.refetchQueries({ queryKey: ['players', 'byIds'] });
+      queryClient.refetchQueries({ queryKey: ['players', 'globalMovers'] });
       queryClient.refetchQueries({ queryKey: qk.events.all });
       queryClient.refetchQueries({ queryKey: qk.trending.top(5) });
       queryClient.refetchQueries({ queryKey: qk.ipos.active });
@@ -202,15 +207,14 @@ export default function HomePage() {
       {showQuickActions && <QuickActionPills />}
 
       {/* ── 1b. SPOTLIGHT ── */}
-      {playersLoading ? (
+      {homeLoading ? (
         <div className="h-40 bg-surface-base border border-white/10 rounded-2xl animate-pulse motion-reduce:animate-none" />
       ) : (
         <HomeSpotlight
           slots={spotlightSlots}
           activeIPOs={activeIPOs}
           holdings={holdings}
-          trendingPlayers={trendingPlayers}
-          players={players}
+          trendingWithPlayers={trendingWithPlayers}
           liveScoreData={nextEvent && nextEvent.gameweek != null ? { gameweek: nextEvent.gameweek } : undefined}
           mysteryBoxData={{ onOpen: () => setShowMysteryBox(true) }}
         />
@@ -250,7 +254,7 @@ export default function HomePage() {
               grid. Active users see score/rank/reward + full per-slot
               scores; new users see an empty state with a CTA to /fantasy.
               Track B1 of polish-sweep.md Home Pass 2. */}
-          <LastGameweekWidget uid={uid} players={players} />
+          <LastGameweekWidget uid={uid} />
 
           {/* Slice 269 (D63 Phase 4) — Markt-Puls 3-Tab Discovery-Konsolidierung.
               3 ehemalige Sektionen (TopMoversWeek + Global Top Movers + Most Watched)
@@ -258,12 +262,11 @@ export default function HomePage() {
           <MarktPuls
             topMovers={topMovers}
             holdings={holdings}
-            players={players}
             hasGlobalMovers={hasGlobalMovers}
-            trendingPlayers={trendingPlayers}
+            trendingWithPlayers={trendingWithPlayers}
             watchedPlayers={watchedPlayers}
             uid={uid}
-            playersLoading={playersLoading}
+            moversLoading={homeLoading}
           />
         </div>
 
@@ -272,7 +275,7 @@ export default function HomePage() {
           <div className="lg:sticky lg:top-20 space-y-6">
 
           {/* Next Event */}
-          {!playersLoading && nextEvent && spotlightType !== 'event' && (
+          {!homeLoading && nextEvent && spotlightType !== 'event' && (
             <div>
               <SectionHeader
                 title={t('nextEvent')}
@@ -349,7 +352,9 @@ export default function HomePage() {
           )}
 
           {/* Active IPO */}
-          {!playersLoading && activeIPOs.length > 0 && spotlightType !== 'ipo' && (
+          {/* Review F-01 (Slice-278-Klasse): Suppression-Gate auf BEIDE Slots —
+              IPO kann auch als secondary im Spotlight rendern. */}
+          {!homeLoading && activeIPOs.length > 0 && spotlightSlots.primary !== 'ipo' && spotlightSlots.secondary !== 'ipo' && (
             <Link href={`/player/${activeIPOs[0].id}`} className="block">
               <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-card-glow-green shadow-card-md">
                 <div className="relative flex items-center justify-between p-4 gap-4">
@@ -465,7 +470,7 @@ export default function HomePage() {
 
           {/* Scout Activity (Following Feed) — active users only */}
           {uid && !isNewUser && (
-            <FollowingFeedRail userId={uid} players={players} limit={5} />
+            <FollowingFeedRail userId={uid} limit={5} />
           )}
 
           {/* My Clubs */}

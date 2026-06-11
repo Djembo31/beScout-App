@@ -22,7 +22,11 @@ vi.mock('@tanstack/react-query', async () => {
   return { ...actual, useQueryClient: () => mockQc };
 });
 
-const mockUsePlayers = vi.fn();
+// Slice 282: usePlayers (4,2 MB) ist raus aus useHomeData — ersetzt durch
+// usePlayersByIds (Mini-Fetch) + useGlobalMovers (server-cached) + useActiveIpos.
+const mockUsePlayersByIds = vi.fn();
+const mockUseGlobalMovers = vi.fn();
+const mockUseActiveIpos = vi.fn();
 const mockUseEvents = vi.fn();
 const mockUseTrendingPlayers = vi.fn();
 const mockUseChallengeHistory = vi.fn();
@@ -56,7 +60,9 @@ function setDashboard(
 }
 
 vi.mock('@/lib/queries', () => ({
-  usePlayers: (...a: any[]) => mockUsePlayers(...a),
+  usePlayersByIds: (...a: any[]) => mockUsePlayersByIds(...a),
+  useGlobalMovers: (...a: any[]) => mockUseGlobalMovers(...a),
+  useActiveIpos: (...a: any[]) => mockUseActiveIpos(...a),
   useEvents: (...a: any[]) => mockUseEvents(...a),
   useTrendingPlayers: (...a: any[]) => mockUseTrendingPlayers(...a),
   useHomeDashboard: (...a: any[]) => mockUseHomeDashboard(...a),
@@ -259,6 +265,18 @@ function makePlayer(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function makeIpoRow(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'ipo-1',
+    player_id: 'p-1',
+    status: 'open',
+    price: 100000,
+    total_offered: 100,
+    sold: 0,
+    ...overrides,
+  };
+}
+
 function makeEvent(overrides: Record<string, unknown> = {}) {
   return {
     id: 'ev-1',
@@ -273,7 +291,9 @@ function makeEvent(overrides: Record<string, unknown> = {}) {
 // ============================================
 
 function setDefaults() {
-  mockUsePlayers.mockReturnValue({ data: [], isLoading: false, isError: false });
+  mockUsePlayersByIds.mockReturnValue({ data: [], isLoading: false, isError: false });
+  mockUseGlobalMovers.mockReturnValue({ data: [], isLoading: false, isError: false });
+  mockUseActiveIpos.mockReturnValue({ data: [], isLoading: false });
   mockUseEvents.mockReturnValue({ data: [] });
   mockUseTrendingPlayers.mockReturnValue({ data: [] });
   mockUseChallengeHistory.mockReturnValue({ data: [] });
@@ -309,16 +329,45 @@ describe('useHomeData', () => {
 
   // ── Loading States ──
 
-  it('returns playersLoading from usePlayers', () => {
-    mockUsePlayers.mockReturnValue({ data: [], isLoading: true, isError: false });
+  it('homeLoading=true while globalMovers query loads', () => {
+    mockUseGlobalMovers.mockReturnValue({ data: [], isLoading: true, isError: false });
     const { result } = renderHook(() => useHomeData());
-    expect(result.current.playersLoading).toBe(true);
+    expect(result.current.homeLoading).toBe(true);
   });
 
-  it('returns playersError from usePlayers', () => {
-    mockUsePlayers.mockReturnValue({ data: [], isLoading: false, isError: true });
+  it('homeLoading=true while ipos query loads', () => {
+    mockUseActiveIpos.mockReturnValue({ data: [], isLoading: true });
     const { result } = renderHook(() => useHomeData());
-    expect(result.current.playersError).toBe(true);
+    expect(result.current.homeLoading).toBe(true);
+  });
+
+  it('homeLoading ignores byIds loading when no ids requested', () => {
+    mockUsePlayersByIds.mockReturnValue({ data: [], isLoading: true, isError: false });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.homeLoading).toBe(false);
+  });
+
+  it('homeError stays FALSE on movers error — graceful degrade, kein Full-Page-Error (Review F-02)', () => {
+    mockUseGlobalMovers.mockReturnValue({ data: [], isLoading: false, isError: true });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.homeError).toBe(false);
+  });
+
+  it('homeError=true only when byIds errored AND ids requested AND no data (Review F-02)', () => {
+    mockUseTrendingPlayers.mockReturnValue({ data: [{ playerId: 'p-1' }], isLoading: false });
+    mockUsePlayersByIds.mockReturnValue({ data: [], isLoading: false, isError: true });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.homeError).toBe(true);
+  });
+
+  it('homeError=false when byIds background-refetch fails but data exists (TanStack v5)', () => {
+    mockUseTrendingPlayers.mockReturnValue({ data: [{ playerId: 'p-1' }], isLoading: false });
+    mockUsePlayersByIds.mockReturnValue({
+      data: [makePlayer({ id: 'p-1' })],
+      isLoading: false, isError: true,
+    });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.homeError).toBe(false);
   });
 
   // ── Holdings Transform ──
@@ -369,16 +418,25 @@ describe('useHomeData', () => {
 
   // ── Active IPOs ──
 
-  it('filters active IPOs (open + early_access)', () => {
-    const players = [
-      makePlayer({ id: 'p-1', ipo: { status: 'open' } }),
-      makePlayer({ id: 'p-2', ipo: { status: 'early_access' } }),
-      makePlayer({ id: 'p-3', ipo: { status: 'ended' } }),
-      makePlayer({ id: 'p-4', ipo: { status: 'none' } }),
-    ];
-    mockUsePlayers.mockReturnValue({ data: players, isLoading: false, isError: false });
+  it('maps active IPO rows to Player-shape with ipo patch (Slice 282)', () => {
+    mockUseActiveIpos.mockReturnValue({
+      data: [
+        makeIpoRow({ id: 'ipo-1', player_id: 'p-1', status: 'open', price: 150000, total_offered: 100, sold: 40 }),
+        makeIpoRow({ id: 'ipo-2', player_id: 'p-2', status: 'early_access' }),
+        makeIpoRow({ id: 'ipo-3', player_id: 'p-missing' }), // Player-Row fehlt -> skip
+        makeIpoRow({ id: 'ipo-4', player_id: 'p-1' }), // zweite Tranche gleicher Player -> dedupe
+      ],
+      isLoading: false,
+    });
+    mockUsePlayersByIds.mockReturnValue({
+      data: [makePlayer({ id: 'p-1' }), makePlayer({ id: 'p-2' })],
+      isLoading: false, isError: false,
+    });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.activeIPOs).toHaveLength(2);
+    expect(result.current.activeIPOs[0].ipo.status).toBe('open');
+    expect(result.current.activeIPOs[0].ipo.progress).toBe(40);
+    expect(mockCentsToBsd).toHaveBeenCalledWith(150000);
   });
 
   // ── Next Event ──
@@ -408,8 +466,12 @@ describe('useHomeData', () => {
   // ── Spotlight Type ──
 
   it('spotlightType=ipo when active IPOs exist', () => {
-    mockUsePlayers.mockReturnValue({
-      data: [makePlayer({ ipo: { status: 'open' } })],
+    mockUseActiveIpos.mockReturnValue({
+      data: [makeIpoRow({ player_id: 'p-1', status: 'open' })],
+      isLoading: false,
+    });
+    mockUsePlayersByIds.mockReturnValue({
+      data: [makePlayer({ id: 'p-1' })],
       isLoading: false, isError: false,
     });
     const { result } = renderHook(() => useHomeData());
@@ -546,7 +608,7 @@ describe('useHomeData', () => {
 
   it('joins trending data with player objects', () => {
     const players = [makePlayer({ id: 'p-1' }), makePlayer({ id: 'p-2' })];
-    mockUsePlayers.mockReturnValue({ data: players, isLoading: false, isError: false });
+    mockUsePlayersByIds.mockReturnValue({ data: players, isLoading: false, isError: false });
     mockUseTrendingPlayers.mockReturnValue({ data: [{ playerId: 'p-1' }, { playerId: 'p-99' }] });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.trendingWithPlayers).toHaveLength(1);
@@ -555,8 +617,8 @@ describe('useHomeData', () => {
 
   // ── Has Global Movers ──
 
-  it('hasGlobalMovers=true when non-liquidated players have price changes', () => {
-    mockUsePlayers.mockReturnValue({
+  it('hasGlobalMovers=true when movers endpoint returns rows', () => {
+    mockUseGlobalMovers.mockReturnValue({
       data: [makePlayer({ prices: { change24h: 5 }, isLiquidated: false })],
       isLoading: false, isError: false,
     });
@@ -564,10 +626,16 @@ describe('useHomeData', () => {
     expect(result.current.hasGlobalMovers).toBe(true);
   });
 
-  it('hasGlobalMovers=false when all changes are 0', () => {
-    mockUsePlayers.mockReturnValue({
-      data: [makePlayer({ prices: { change24h: 0 } })],
-      isLoading: false, isError: false,
+  it('hasGlobalMovers=false when movers endpoint is empty', () => {
+    mockUseGlobalMovers.mockReturnValue({ data: [], isLoading: false, isError: false });
+    const { result } = renderHook(() => useHomeData());
+    expect(result.current.hasGlobalMovers).toBe(false);
+  });
+
+  it('hasGlobalMovers=false on movers error (defensive, Slice-265-Lehre)', () => {
+    mockUseGlobalMovers.mockReturnValue({
+      data: [makePlayer({ prices: { change24h: 5 } })],
+      isLoading: false, isError: true,
     });
     const { result } = renderHook(() => useHomeData());
     expect(result.current.hasGlobalMovers).toBe(false);

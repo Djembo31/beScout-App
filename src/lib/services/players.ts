@@ -78,6 +78,38 @@ export async function getPlayerPercentiles(playerId: string): Promise<Record<str
  *   ausgeschlossen. Default false = Full-Set (wird z.B. von Admin-Liquidate-UI gebraucht).
  *   Filter-Hintergrund: Slice 081/081b/081c hat 52% der Rows als stale geflaggt.
  */
+/**
+ * Slice 282 — targeted Mini-Fetch für Home-Ableitungen (Trending-Join, IPO-Player,
+ * Lineup-Rows, Feed-Enrichment). Ersetzt das 4,2-MB-`getPlayers()` auf Home.
+ * Chunked per common-errors.md §1 (.in() URL-Limit), auch wenn Caller ≤ 12 IDs liefern.
+ */
+export async function getPlayersByIds(ids: string[]): Promise<DbPlayer[]> {
+  if (ids.length === 0) return [];
+  const CHUNK = 100;
+  const out: DbPlayer[] = [];
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const { data, error } = await supabase
+      .from('players')
+      .select(PLAYER_SELECT_COLS)
+      .in('id', ids.slice(i, i + CHUNK));
+    if (error) throw new Error(error.message);
+    out.push(...((data ?? []) as unknown as DbPlayer[]));
+  }
+  return out;
+}
+
+/**
+ * Slice 282 — globale 24h-Top-Movers via server-cached API-Route
+ * (`/api/players?movers=true`, 5-min In-Memory-Cache, PLAYER_SELECT_COLS-Rows).
+ * Ersetzt das client-seitige sort/filter über die volle Players-Liste.
+ */
+export async function getGlobalMovers(limit: number): Promise<DbPlayer[]> {
+  const res = await fetch(`/api/players?movers=true&limit=${limit}`);
+  if (!res.ok) throw new Error('Failed to fetch global movers');
+  const json = await res.json();
+  return Array.isArray(json) ? (json as DbPlayer[]) : [];
+}
+
 export async function getPlayersByClubId(
   clubId: string,
   opts?: { activeOnly?: boolean }

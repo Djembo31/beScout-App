@@ -11,6 +11,9 @@ export const qk = {
     byId: (id: string) => ['players', id] as const,
     byClub: (cid: string, activeOnly = false) => ['players', 'club', cid, activeOnly] as const,
     raw: ['players', 'raw'] as const,
+    // Slice 282: targeted Mini-Fetches — Home konsumiert NICHT mehr qk.players.all (4,2 MB).
+    byIds: (idsKey: string) => ['players', 'byIds', idsKey] as const,
+    globalMovers: (limit: number) => ['players', 'globalMovers', limit] as const,
   },
 
   // ── Holdings / Wallet ──

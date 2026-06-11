@@ -1,15 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-11 17:49)
+# Session Handoff — Auto (2026-06-11 18:09)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
-```
- M worklog/audits/audit-stale-2026-06-11.md
- M worklog/audits/type-truth-2026-06-11.md
-```
+## Working Tree: Clean
 
-## Session Commits: 2
+## Session Commits: 4
+- df4f0a88 chore(audits): lokale Audit-Re-Run-Outputs 2026-06-11 (Slice 282a Verify-Laeufe)
+- 3fdc46a5 chore(slice-282a): LOG-Abschluss — AC-01 Live-Run SUCCESS + Pattern-Promotion testing.md
 - 618c6d05 fix(ops): Slice 282a — Ops-Recovery (Synthetic-Fix + Baseline + Master-Tracker)
 - e8e4acb1 chore(tooling): Effort-Gate für SHIP-Hooks + /goal-Workflow + .agents-Skills-Mirror + Codex-Setup
 
@@ -2327,3 +2325,63 @@ Session crashed. State at crash time:
 
 
 ### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-233419.diff`
+
+## ⚠ CRASH RECOVERY (20260611-185930)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260611-185930.diff)
+```
+ M memory/session-handoff.md
+ M src/app/(app)/hooks/__tests__/useHomeData.test.ts
+ M src/app/(app)/hooks/useHomeData.ts
+ M src/app/(app)/page.tsx
+ M src/app/api/players/route.ts
+ M src/components/home/HomeSpotlight.tsx
+ M src/components/home/LastGameweekWidget.tsx
+ M src/components/home/MarktPuls.tsx
+ M src/components/home/TopMoversStrip.tsx
+ M src/components/home/TrendingPlayersStrip.tsx
+ M src/components/home/__tests__/HomeSpotlight.test.tsx
+ M src/components/home/__tests__/MarktPuls.test.tsx
+ M src/components/home/__tests__/TopMoversStrip.test.tsx
+ M src/components/home/__tests__/TrendingPlayersStrip.test.tsx
+ M src/components/social/FollowingFeedRail.tsx
+ M src/lib/queries/index.ts
+ M src/lib/queries/keys.ts
+ M src/lib/queries/players.ts
+ M src/lib/services/players.ts
+ M worklog/active.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260611-185930.diff`
+
+## ⚠ CRASH RECOVERY (20260611-185931)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260611-185931.diff)
+```
+ M memory/session-handoff.md
+ M src/app/(app)/hooks/__tests__/useHomeData.test.ts
+ M src/app/(app)/hooks/useHomeData.ts
+ M src/app/(app)/page.tsx
+ M src/app/api/players/route.ts
+ M src/components/home/HomeSpotlight.tsx
+ M src/components/home/LastGameweekWidget.tsx
+ M src/components/home/MarktPuls.tsx
+ M src/components/home/TopMoversStrip.tsx
+ M src/components/home/TrendingPlayersStrip.tsx
+ M src/components/home/__tests__/HomeSpotlight.test.tsx
+ M src/components/home/__tests__/MarktPuls.test.tsx
+ M src/components/home/__tests__/TopMoversStrip.test.tsx
+ M src/components/home/__tests__/TrendingPlayersStrip.test.tsx
+ M src/components/social/FollowingFeedRail.tsx
+ M src/lib/queries/index.ts
+ M src/lib/queries/keys.ts
+ M src/lib/queries/players.ts
+ M src/lib/services/players.ts
+ M worklog/active.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260611-185931.diff`

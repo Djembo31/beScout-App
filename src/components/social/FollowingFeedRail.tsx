@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { UserPlus, Users, ArrowUp } from 'lucide-react';
 import { useFollowingFeed } from '@/lib/queries/social';
+import { usePlayersByIds } from '@/lib/queries';
 import { formatTimeAgo } from '@/lib/utils';
 import { Skeleton, ErrorState } from '@/components/ui';
 import { SectionHeader } from '@/components/home/helpers';
@@ -20,11 +21,10 @@ const KNOWN_ACTIONS = new Set([
 
 type Props = {
   userId: string;
-  players: Player[];
   limit?: number;
 };
 
-export default function FollowingFeedRail({ userId, players, limit = 5 }: Props) {
+export default function FollowingFeedRail({ userId, limit = 5 }: Props) {
   const t = useTranslations('feed');
   const {
     data: feed,
@@ -35,16 +35,30 @@ export default function FollowingFeedRail({ userId, players, limit = 5 }: Props)
     applyPending,
   } = useFollowingFeed(userId, limit);
 
-  // Player lookup map for trade action enrichment
-  const playerMap = useMemo(
-    () => new Map(players.map((p) => [p.id, p])),
-    [players],
-  );
-
   // Filter to only actions we can render safely
   const visibleItems = useMemo(
     () => (feed ?? []).filter((i) => KNOWN_ACTIONS.has(i.action)),
     [feed],
+  );
+
+  // Slice 282: targeted byIds-Fetch der Feed-Player statt volles players-Array
+  // von Home (4,2-MB-Payload-Decouple). Items ohne Player-Match haben weiterhin
+  // den bestehenden Fallback-Render (kein Player-Link).
+  const feedPlayerIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          visibleItems
+            .map((i) => (i.metadata as Record<string, unknown> | null)?.playerId)
+            .filter((id): id is string => typeof id === 'string'),
+        ),
+      ),
+    [visibleItems],
+  );
+  const { data: feedPlayers = [] } = usePlayersByIds(feedPlayerIds);
+  const playerMap = useMemo(
+    () => new Map(feedPlayers.map((p) => [p.id, p])),
+    [feedPlayers],
   );
 
   // ─── Loading ───

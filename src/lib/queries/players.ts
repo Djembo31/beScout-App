@@ -7,6 +7,8 @@ import {
   getPlayers,
   getPlayerById,
   getPlayersByClubId,
+  getPlayersByIds,
+  getGlobalMovers,
   getPlayerNames,
   getPlayerPercentiles,
   getPlayerPriceChanges7d,
@@ -72,6 +74,41 @@ export function useDbPlayerById(id: string | undefined) {
     queryFn: async () => (await getPlayerById(id!)) ?? null,
     enabled: !!id,
     staleTime: FIVE_MIN,
+  });
+}
+
+/**
+ * Slice 282 — targeted Player-Fetch per ID-Liste (Home-Payload-Decouple).
+ *
+ * Ersetzt auf Home das volle `usePlayers()` (4,2 MB /api/players) für
+ * Trending-Join, IPO-Player, Lineup-Rows und Feed-Enrichment. Mapped via
+ * `dbToPlayers` → gleiche Player-Shape wie usePlayers (Slice-102-Regel:
+ * Component-Contract im Service-Layer erzwingen).
+ *
+ * Caller-stability: memoized `ids`-Array übergeben — Cache-Key ist
+ * `ids.slice().sort().join(',')` (gleiche Konvention wie usePlayerPriceChanges7d).
+ */
+export function usePlayersByIds(ids: string[] | undefined) {
+  const idsKey = useMemo(() => (ids ?? []).slice().sort().join(','), [ids]);
+  return useQuery({
+    queryKey: qk.players.byIds(idsKey),
+    queryFn: async () => dbToPlayers(await getPlayersByIds(ids ?? [])),
+    enabled: !!ids && ids.length > 0,
+    staleTime: FIVE_MIN,
+  });
+}
+
+/**
+ * Slice 282 — globale 24h-Top-Movers (server-cached `/api/players?movers=true`).
+ * Ersetzt client-seitiges sort/filter über die volle Players-Liste in
+ * TopMoversStrip + den `hasGlobalMovers`-Check in useHomeData.
+ */
+export function useGlobalMovers(limit: number, enabled = true) {
+  return useQuery({
+    queryKey: qk.players.globalMovers(limit),
+    queryFn: async () => dbToPlayers(await getGlobalMovers(limit)),
+    staleTime: FIVE_MIN,
+    enabled,
   });
 }
 

@@ -56,9 +56,9 @@ function makePlayer(id: string): Player {
 }
 
 describe('TrendingPlayersStrip (Slice 269)', () => {
-  it('returns null when trendingPlayers empty', () => {
+  it('returns null when trendingWithPlayers empty', () => {
     const { container } = renderWithIntl(
-      <TrendingPlayersStrip trendingPlayers={[]} players={[]} />,
+      <TrendingPlayersStrip trendingWithPlayers={[]} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -66,22 +66,22 @@ describe('TrendingPlayersStrip (Slice 269)', () => {
   it('renders trending players with trade-count', () => {
     renderWithIntl(
       <TrendingPlayersStrip
-        trendingPlayers={[makeTrending({ tradeCount: 17 })]}
-        players={[makePlayer('p-1')]}
+        trendingWithPlayers={[{ tp: makeTrending({ tradeCount: 17 }), player: makePlayer('p-1') }]}
       />,
     );
     expect(screen.getByText('Player')).toBeTruthy();
     expect(screen.getByText(/17×/)).toBeTruthy();
   });
 
-  it('handles player not in players list (fallback href=/market)', () => {
+  // Slice 282: unresolved Player wird bereits upstream (useHomeData-Join) gefiltert —
+  // Items kommen vorgejoint an, der frühere /market-Fallback-Pfad existiert nicht mehr.
+  it('links resolved player to player detail', () => {
     renderWithIntl(
       <TrendingPlayersStrip
-        trendingPlayers={[makeTrending({ playerId: 'unknown' })]}
-        players={[]}
+        trendingWithPlayers={[{ tp: makeTrending(), player: makePlayer('p-1') }]}
       />,
     );
     const link = screen.getByRole('link');
-    expect(link.getAttribute('href')).toBe('/market');
+    expect(link.getAttribute('href')).toBe('/player/p-1');
   });
 });

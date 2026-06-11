@@ -17,19 +17,16 @@ import type { TrendingPlayer } from '@/lib/services/trading';
 // 24h-change-color-tint (trending ist activity-driven, nicht price-driven).
 
 interface TrendingPlayersStripProps {
-  trendingPlayers: TrendingPlayer[];
-  players: Player[];
+  /** Slice 282: vorgejointe Items (tp + resolved Player) — ersetzt das volle players-Array. */
+  trendingWithPlayers: Array<{ tp: TrendingPlayer; player: Player }>;
 }
 
-function TrendingPlayersStripInner({ trendingPlayers, players }: TrendingPlayersStripProps) {
+function TrendingPlayersStripInner({ trendingWithPlayers }: TrendingPlayersStripProps) {
   const t = useTranslations('home');
 
-  if (trendingPlayers.length === 0) return null;
+  if (trendingWithPlayers.length === 0) return null;
 
-  // Resolve TrendingPlayer → Player for photo + display fields.
-  const enriched = trendingPlayers
-    .map(tp => ({ tp, player: players.find(p => p.id === tp.playerId) }))
-    .slice(0, 5);
+  const enriched = trendingWithPlayers.slice(0, 5);
 
   return (
     <div

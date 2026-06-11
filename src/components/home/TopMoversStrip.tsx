@@ -5,18 +5,14 @@ import Link from 'next/link';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { PlayerPhoto } from '@/components/player';
 import { fmtScout, cn } from '@/lib/utils';
-import type { Player } from '@/types';
+import { useGlobalMovers } from '@/lib/queries';
 
-interface TopMoversStripProps {
-  players: Player[];
-}
-
-function TopMoversStripInner({ players }: TopMoversStripProps) {
-  // Global top 5 by absolute 24h change
-  const movers = players
-    .filter(p => p.prices.change24h !== 0 && !p.isLiquidated)
-    .sort((a, b) => Math.abs(b.prices.change24h) - Math.abs(a.prices.change24h))
-    .slice(0, 5);
+// Slice 282: Self-Fetch statt players-Prop. Der server-cached Endpoint
+// (/api/players?movers=true) liefert bereits Top-5 nach absoluter 24h-Änderung,
+// gefiltert um change24h=0 + is_liquidated — gleiche Semantik wie das frühere
+// client-seitige sort/filter über die volle 4,2-MB-Liste.
+function TopMoversStripInner() {
+  const { data: movers = [] } = useGlobalMovers(5);
 
   if (movers.length === 0) return null;
 
