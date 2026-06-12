@@ -244,7 +244,10 @@ export async function getRecentlyEndedIpos(): Promise<DbIpo[]> {
     .select('*')
     .eq('status', 'ended')
     .gte('ends_at', thirtyDaysAgo)
-    .order('ends_at', { ascending: false });
+    .order('ends_at', { ascending: false })
+    // 284c-FM-05: PostgREST-1000-cap-Klasse — bei Massen-Saisonende (4720 ended)
+    // wuerde die Liste sonst still gekappt. UI braucht nur die juengsten.
+    .limit(200);
 
   if (error) throw new Error(error.message);
   return (data ?? []) as DbIpo[];

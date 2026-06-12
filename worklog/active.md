@@ -1,13 +1,13 @@
 # Active Slice
 
 ```
-status: idle
-slice: 284a ✅ DONE (Wave 1 von 4)
-stage: LOG complete (stuck-live=0 extern verifiziert; API-Key-Suspension als kritischer Fund)
-spec: worklog/specs/284a-live-lifecycle.md
-impact: inline (Spec §4) + Migration applied
-proof: worklog/proofs/284a-live-lifecycle.md
-review: worklog/reviews/284a-review.md (REWORK → 3 MAJOR + 5 MINOR geheilt)
+status: active
+slice: 284c
+stage: PROVE (Live-Spotcheck post-Deploy offen)
+spec: worklog/specs/284c-markt-rankings-fixes.md
+impact: skipped (keine RPC/Migration; Query-Key komponentenlokal)
+proof: worklog/proofs/284c-markt-rankings.md
+review: worklog/reviews/284c-review.md (Self-Review PASS — Fixes 1:1 Experten-Audit-Skizzen)
 ```
 
 ## Slice 284 — Core-Domain-Stabilisierung · Wave 1 ✅ / Waves 2-4 offen
@@ -20,7 +20,7 @@ teilweise (kein API-Verify), Live-Features blind, Saisonstart-Pipeline steht.
 |------|--------|--------|
 | 1 (284a) | Live-Lifecycle P0-Kette | ✅ LIVE |
 | 2 (284b) | Daten-Heal: 154 Geister + Süper-Lig-GW35-37-Drift + max_gameweeks + parseGameweek-Cap + FANT-10 | offen (teilw. Key-abhängig) |
-| 3 (284c) | Markt/Rankings: FM-01 Floor-Parity + FM-02/03 Rankings + FM-04 Bulk-Sell + FM-05/06/07 | offen (Key-unabhängig) |
+| 3 (284c) | Markt/Rankings: FM-01..05,07 ✅ · FM-06 defer (Leaderboard-Scoping = eigener Slice) | 🔄 PROVE |
 | 4 (284d) | Fantasy-UI: FANT-05 Liga-Scope Ergebnisse + FANT-09/13/08 | offen (Key-unabhängig) |
 
 Punch-List: worklog/audits/2026-06-12/stab-284-punchlist.md

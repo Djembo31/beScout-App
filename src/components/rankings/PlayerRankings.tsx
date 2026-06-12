@@ -9,7 +9,7 @@ import { Card, ErrorState } from '@/components/ui';
 import { PlayerPhoto } from '@/components/player';
 import { supabase } from '@/lib/supabaseClient';
 import { fmtScout } from '@/lib/utils';
-import { getClub } from '@/lib/clubs';
+import { getAllClubsCached } from '@/lib/clubs';
 import { Loader2, Users } from 'lucide-react';
 import type { Pos } from '@/types';
 
@@ -46,16 +46,32 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
 
   const orderCol = sort === 'floor' ? 'floor_price' : sort === 'volume' ? 'volume_24h' : 'price_change_24h';
 
-  const { data: allPlayers = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['rankings', 'players', sort],
+  // 284c-FM-03: Liga/Country-Filter SERVER-seitig via club_id-Set — vorher holte
+  // die Query global Top-100 und filterte danach client-seitig: kleine Ligen,
+  // deren Spieler nicht im globalen Top-100 sind, zeigten 2-3 Spieler/nichts.
+  const filterClubIds = useMemo(() => {
+    if (!filterCountry && !filterLeague) return null;
+    return getAllClubsCached()
+      .filter(c =>
+        (!filterLeague || c.league === filterLeague) &&
+        (!filterCountry || c.country === filterCountry))
+      .map(c => c.id);
+  }, [filterCountry, filterLeague]);
+
+  const { data: players = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['rankings', 'players', sort, filterLeague ?? '', filterCountry ?? ''],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from('players')
         .select('id, first_name, last_name, position, floor_price, volume_24h, price_change_24h, club_id, image_url')
         .eq('is_liquidated', false)
-        .gt('floor_price', 0)
-        .order(orderCol, { ascending: false })
-        .limit(100);
+        .gt('floor_price', 0);
+      // 284c-FM-02: bei totem Markt (alle change/volume = 0) sortierte Postgres
+      // beliebig -> Zufallsliste voller "+0%". Sortier-Spalte muss Signal haben.
+      if (sort === 'volume') q = q.gt('volume_24h', 0);
+      if (sort === 'change') q = q.neq('price_change_24h', 0);
+      if (filterClubIds) q = q.in('club_id', filterClubIds);
+      const { data, error } = await q.order(orderCol, { ascending: false }).limit(20);
 
       if (error) {
         console.error('[PlayerRankings] error:', error);
@@ -65,22 +81,6 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
     },
     staleTime: 5 * 60 * 1000,
   });
-
-  // Client-side filter via club cache
-  const players = useMemo(() => {
-    if (!filterCountry && !filterLeague) return allPlayers.slice(0, 20);
-
-    const filtered = allPlayers.filter(p => {
-      if (!p.club_id) return false;
-      const club = getClub(p.club_id);
-      if (!club) return false;
-      if (filterLeague && club.league !== filterLeague) return false;
-      if (filterCountry && club.country !== filterCountry) return false;
-      return true;
-    });
-
-    return filtered.slice(0, 20);
-  }, [allPlayers, filterCountry, filterLeague]);
 
   return (
     <Card className="p-5">
@@ -114,7 +114,10 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : players.length === 0 ? (
-        <p className="text-white/40 text-sm text-center py-6">{t('noData')}</p>
+        <p className="text-white/40 text-sm text-center py-6">
+          {/* 284c-FM-02: toter Markt — semantische Message statt generisch */}
+          {sort === 'volume' || sort === 'change' ? t('noMarketMovement') : t('noData')}
+        </p>
       ) : (
         <div className="space-y-0.5 max-h-[400px] overflow-y-auto scrollbar-hide">
           {players.map((player, i) => (

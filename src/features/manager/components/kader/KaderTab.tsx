@@ -7,6 +7,8 @@ import { LeagueScopeHeader } from '@/components/layout/LeagueScopeHeader';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { computePlayerFloor } from '@/lib/playerMath';
+import { useToast } from '@/components/providers/ToastProvider';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import type { Player, Pos, DbIpo, DbHolding, OfferWithDetails } from '@/types';
 import { useRecentMinutes, useRecentScores, useRecentPlayerGameweeks, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
@@ -91,6 +93,7 @@ export default function KaderTab({
   players, holdings, ipoList, userId, incomingOffers, onSell, onCancelOrder,
 }: KaderTabProps) {
   const t = useTranslations('market');
+  const { addToast } = useToast();
   const locale = useLocale() as CountryLocale;
 
   // Store state
@@ -186,7 +189,11 @@ export default function KaderTab({
 
       const avgBuyBsd = centsToBsd(h.avg_buy_price);
       const hasListings = player.listings.length > 0;
-      const floorBsd = hasListings ? Math.min(...player.listings.map(l => l.price)) : null;
+      // 284c-FM-01: kanonische Floor-Chain (listings-min -> Server-floor_price ->
+      // ipoPrice) statt eigener Kette die prices.floor uebersprang — /market und
+      // /manager zeigten fuer denselben Kader VERSCHIEDENE Werte/P&L.
+      const canonicalFloor = computePlayerFloor(player);
+      const floorBsd = canonicalFloor > 0 ? canonicalFloor : null;
       const activeIpo = ipoList.find(ipo => ipo.player_id === player.id && (ipo.status === 'open' || ipo.status === 'early_access' || ipo.status === 'announced'));
       const hasActiveIpo = !!activeIpo;
       const ipoPriceBsd = activeIpo ? centsToBsd(activeIpo.price) : null;
@@ -221,16 +228,22 @@ export default function KaderTab({
   const handleBulkSell = useCallback(async () => {
     if (selectedIds.size === 0 || bulkSelling) return;
     setBulkSelling(true);
+    // 284c-FM-04: Silent-Skip-Fix — Spieler ohne Marktpreis wurden kommentarlos
+    // uebersprungen ("Verkaufen geht nicht"). Jetzt: zaehlen + Abschluss-Toast.
+    let sold = 0;
+    let skipped = 0;
     for (const playerId of Array.from(selectedIds)) {
       const item = bestandItems.find(i => i.player.id === playerId);
-      if (!item || item.availableToSell <= 0 || item.floorBsd == null) continue;
+      if (!item || item.availableToSell <= 0 || item.floorBsd == null) { skipped++; continue; }
       const priceCents = Math.round(item.floorBsd * 100);
-      await onSell(playerId, item.availableToSell, priceCents);
+      const res = await onSell(playerId, item.availableToSell, priceCents);
+      if (res.success) sold++; else skipped++;
     }
+    addToast(t('bulkSellResult', { sold, skipped }), skipped > 0 ? 'info' : 'success');
     setBulkSelling(false);
     setSelectedIds(new Set());
     setBulkMode(false);
-  }, [selectedIds, bulkSelling, bestandItems, onSell]);
+  }, [selectedIds, bulkSelling, bestandItems, onSell, addToast, t]);
 
   // Derive unique countries from players in Kader
   const kaderCountries = useMemo(() => {

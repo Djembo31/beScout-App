@@ -67,7 +67,8 @@ export function LastEventResults() {
             <span className="text-[13px] font-bold text-white truncate">{lastEvent.eventName}</span>
             <div className="flex items-center gap-2 flex-shrink-0">
               <span className="text-[11px] font-mono tabular-nums text-gold">
-                #{lastEvent.rank}
+                {/* 284c-FM-07: rank=0 = noch nicht final gerankt -> Em-Dash statt "#0" */}
+                {lastEvent.rank > 0 ? `#${lastEvent.rank}` : '\u2014'}
               </span>
               <span className="text-[11px] font-mono tabular-nums text-white/50">
                 {lastEvent.totalScore.toLocaleString(numLocale)} pts
