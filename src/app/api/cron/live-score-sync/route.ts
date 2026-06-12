@@ -288,7 +288,7 @@ export const GET = withLogger('cron.live-score-sync', async (request) => {
     const staleCutoff = new Date(Date.now() - 4 * 60 * 60_000).toISOString();
     const { data: staleLive, error: staleErr } = await supabaseAdmin
       .from('fixtures')
-      .select('id, api_fixture_id, played_at')
+      .select('id, api_fixture_id, played_at, home_club_id')
       .eq('status', 'live')
       .lt('played_at', staleCutoff)
       .not('api_fixture_id', 'is', null);
@@ -300,36 +300,62 @@ export const GET = withLogger('cron.live-score-sync', async (request) => {
       (f) => !liveApiIds.has(f.api_fixture_id as number),
     );
     if (staleToRecover.length > 0) {
-      const CHUNK = 20; // API-Football ?ids= Limit
-      for (let i = 0; i < staleToRecover.length; i += CHUNK) {
-        const chunk = staleToRecover.slice(i, i + CHUNK);
-        const idsParam = chunk.map((f) => f.api_fixture_id).join('-');
+      // Lookup-Strategie: league+season+date (Slice-275-Pattern, plan-sicher).
+      // ?ids= ist auf API-Football je nach Plan GESPERRT ("Free plans do not
+      // have access to the Ids parameter" — live verifiziert 2026-06-12) und
+      // lieferte HTTP 200 + leeres response → Recovery lief ins Leere.
+      // Gruppierung: (api-league-id, datum) → 1 Call pro Gruppe.
+      const homeClubIds = Array.from(new Set(staleToRecover.map((f) => f.home_club_id as string)));
+      const { data: clubRows } = await supabaseAdmin
+        .from('clubs')
+        .select('id, league_id')
+        .in('id', homeClubIds);
+      const clubToLeague = new Map((clubRows ?? []).map((c) => [c.id as string, c.league_id as string]));
+      const leagueApiById = new Map(activeLeagues.map((l) => [l.id, l.apiFootballId]));
+
+      type StaleGroup = { apiLeagueId: number; date: string; items: typeof staleToRecover };
+      const groups = new Map<string, StaleGroup>();
+      for (const f of staleToRecover) {
+        const leagueId = clubToLeague.get(f.home_club_id as string);
+        const apiLeagueId = leagueId ? leagueApiById.get(leagueId) : undefined;
+        const date = f.played_at ? String(f.played_at).slice(0, 10) : null;
+        if (!apiLeagueId || !date) {
+          console.warn('[live-score-sync] stale-live ohne League/Date-Mapping — skip:', f.id);
+          continue;
+        }
+        const key = `${apiLeagueId}|${date}`;
+        const g = groups.get(key) ?? { apiLeagueId, date, items: [] as typeof staleToRecover };
+        g.items.push(f);
+        groups.set(key, g);
+      }
+
+      const cancelCutoff = Date.now() - 24 * 60 * 60_000;
+      for (const group of Array.from(groups.values())) {
+        // Saison aus Datum ableiten (API nutzt Start-Jahr: Mai 2026 → season 2025)
+        const d = new Date(group.date);
+        const season = d.getUTCMonth() + 1 >= 7 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
         recoveryApiCalls++;
         const lookup = await apiFetch<{ response: ApiFixtureLive[]; errors?: unknown }>(
-          `/fixtures?ids=${idsParam}`,
+          `/fixtures?league=${group.apiLeagueId}&season=${season}&date=${group.date}`,
         );
         const lookupRows = lookup.response ?? [];
-        // Review-284a-F-01: API-Football liefert Rate-Limit/Fehler als HTTP 200
+        // Review-284a-F-01: API-Football liefert Rate-Limit/Plan-Fehler als HTTP 200
         // mit errors-Body + LEEREM response. Leere Antwort darf NIE als
-        // „Fixtures existieren nicht" gewertet werden — sonst würden echte
-        // Ergebnisse als cancelled verschluckt (Scoring-Pfad!). Skip + Retry
-        // im nächsten Lauf.
+        // „Fixtures existieren nicht" gewertet werden — Skip + Retry nächster Lauf.
         if (lookupRows.length === 0) {
           console.warn(
-            '[live-score-sync] stale-live lookup returned empty response — skipping chunk (api errors:',
+            '[live-score-sync] stale-live lookup returned empty response — skipping group (api errors:',
             JSON.stringify(lookup.errors ?? null).slice(0, 200),
             ')',
           );
           continue;
         }
         const byApiId = new Map(lookupRows.map((r) => [r.fixture.id, r]));
-        const cancelCutoff = Date.now() - 24 * 60 * 60_000;
-        for (const stale of chunk) {
+        for (const stale of group.items) {
           const apiRow = byApiId.get(stale.api_fixture_id as number);
           if (!apiRow) {
-            // API kennt ANDERE Fixtures des Chunks, dieses nicht. Cancel erst
-            // nach 24h (pragmatisches 2-Strike: der Daily-Sync hat bis dahin
-            // Vorrang, transiente Lücken heilen sich selbst).
+            // API kennt ANDERE Fixtures des Tages, dieses nicht. Cancel erst
+            // nach 24h-Cutoff (2-Strike: Daily-Sync hat Vorrang).
             if (!stale.played_at || new Date(stale.played_at).getTime() > cancelCutoff) {
               console.warn('[live-score-sync] stale-live not in API response — waiting for 24h cutoff:', stale.id);
               continue;

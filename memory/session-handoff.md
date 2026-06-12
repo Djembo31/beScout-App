@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-12 16:38)
+# Session Handoff — Auto (2026-06-12 23:24)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,7 +10,7 @@
 ```
 
 ## Session Commits: 1
-- 0c2326ea docs(slice-284): Phase-A-Befund komplett — Punch-List 30 Findings (3xP0, 8xP1)
+- 1d996297 fix(fantasy): Slice 284a — Live-Lifecycle: Cron-Window-OR + Status-Union + Self-Heal + Scoring-Guard
 
 <!-- auto:handoff-end -->
 

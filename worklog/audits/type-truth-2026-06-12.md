@@ -1,11 +1,11 @@
 # Type-Truth Audit Report — 2026-06-12
 
-**Generated:** 2026-06-12T14:29:33.102Z
+**Generated:** 2026-06-12T21:15:49.066Z
 **Slice:** 229 (D43/D49 Pattern-Detection)
 
 ## Summary
 
-- **Files scanned:** 232
+- **Files scanned:** 233
 - **PATTERN-A (Silent-Cast-After-RPC):** 0 hits
 - **PATTERN-B (Missing Error-Destructure):** 0 hits
 - **PATTERN-C (Nested-Select Implicit-Cast):** 0 hits
