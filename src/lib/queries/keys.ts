@@ -14,6 +14,8 @@ export const qk = {
     // Slice 282: targeted Mini-Fetches — Home konsumiert NICHT mehr qk.players.all (4,2 MB).
     byIds: (idsKey: string) => ['players', 'byIds', idsKey] as const,
     globalMovers: (limit: number) => ['players', 'globalMovers', limit] as const,
+    // Slice 283: server-side Name-Suche (CreateOfferModal-Picker, limit 8)
+    search: (q: string) => ['players', 'search', q] as const,
   },
 
   // ── Holdings / Wallet ──

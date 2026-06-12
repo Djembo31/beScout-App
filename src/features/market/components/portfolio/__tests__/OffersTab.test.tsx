@@ -20,6 +20,10 @@ vi.mock('@/lib/utils', () => ({
   fmtScout: (n: number) => String(n),
 }));
 vi.mock('@/lib/services/players', () => ({ centsToBsd: (n: number) => n / 100 }));
+// Slice 283: CreateOfferModal sucht server-side statt ueber players-Prop.
+vi.mock('@/lib/queries', () => ({
+  usePlayerSearch: () => ({ data: [], isLoading: false }),
+}));
 vi.mock('@/components/ui', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Button: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) =>
@@ -72,18 +76,18 @@ describe('ManagerOffersTab', () => {
   });
 
   it('renders without crashing', () => {
-    const { container } = renderWithProviders(<ManagerOffersTab players={[]} />);
+    const { container } = renderWithProviders(<ManagerOffersTab />);
     expect(container.innerHTML).not.toBe('');
   });
 
   it('shows sub-tab navigation', () => {
-    renderWithProviders(<ManagerOffersTab players={[]} />);
+    renderWithProviders(<ManagerOffersTab />);
     expect(screen.getByText('tabIncoming')).toBeInTheDocument();
     expect(screen.getByText('tabOutgoing')).toBeInTheDocument();
   });
 
   it('loads incoming offers on mount', async () => {
-    renderWithProviders(<ManagerOffersTab players={[]} />);
+    renderWithProviders(<ManagerOffersTab />);
     await waitFor(() => {
       expect(mockGetIncoming).toHaveBeenCalled();
     });

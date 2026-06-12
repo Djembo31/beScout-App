@@ -8,7 +8,9 @@ import type { Player } from '@/types';
 // Mocks — all query hooks + Zustand store
 // ============================================
 
-let mockTab = 'portfolio';
+// Slice 283: Default-Tab fuer Bestands-Tests ist marktplatz (full-list-Pfad aktiv);
+// Tab-Gating-Tests setzen mockTab explizit.
+let mockTab = 'marktplatz';
 vi.mock('@/features/market/store/marketStore', () => ({
   useMarketStore: (selector: (s: { tab: string }) => string) => selector({ tab: mockTab }),
 }));
@@ -16,11 +18,17 @@ vi.mock('@/features/market/store/marketStore', () => ({
 const mockEnrichedPlayers = vi.fn().mockReturnValue({ data: [] as Player[], isLoading: true, isError: false });
 const mockAllOpenOrders = vi.fn().mockReturnValue({ data: [] });
 const mockAllOpenBuyOrders = vi.fn().mockReturnValue({ data: [] });
+// Slice 283: Portfolio-Pfad via usePlayersByIds
+const mockPlayersByIds = vi.fn().mockReturnValue({ data: [] as Player[], isLoading: false, isError: false });
 
 vi.mock('@/lib/queries', () => ({
-  useEnrichedPlayers: (uid: unknown) => mockEnrichedPlayers(uid),
+  useEnrichedPlayers: (uid: unknown, _h: unknown, _o: unknown, opts?: { enabled?: boolean }) => mockEnrichedPlayers(uid, opts),
   useAllOpenOrders: () => mockAllOpenOrders(),
   useAllOpenBuyOrders: () => mockAllOpenBuyOrders(),
+  usePlayersByIds: (ids: unknown) => mockPlayersByIds(ids),
+}));
+vi.mock('@/lib/queries/enriched', () => ({
+  enrichPlayersWithData: (players: Player[]) => players,
 }));
 
 // Slice 122: useMarketUserDashboard konsolidiert holdings/watchlist/offers/bids.
@@ -105,9 +113,12 @@ function makePlayer(overrides: Partial<Player> & { id: string }): Player {
 describe('useMarketData', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTab = 'portfolio';
+    // Slice 283: Default marktplatz — Bestands-Tests testen den full-list-Pfad.
+    // Tab-Gating-Tests setzen mockTab='portfolio' explizit.
+    mockTab = 'marktplatz';
     // Reset to loading state
     mockEnrichedPlayers.mockReturnValue({ data: [] as Player[], isLoading: true, isError: false });
+    mockPlayersByIds.mockReturnValue({ data: [] as Player[], isLoading: false, isError: false });
     mockAllOpenOrders.mockReturnValue({ data: [] });
     mockAllOpenBuyOrders.mockReturnValue({ data: [] });
     mockActiveIpos.mockReturnValue({ data: [] });
@@ -122,21 +133,50 @@ describe('useMarketData', () => {
 
   // ── Test 1: Loading state ──
 
-  it('returns playersLoading=true when enriched players are still loading', () => {
+  it('returns marketListLoading=true when enriched players are still loading', () => {
     mockEnrichedPlayers.mockReturnValue({ data: [], isLoading: true, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
-    expect(result.current.playersLoading).toBe(true);
+    expect(result.current.marketListLoading).toBe(true);
     expect(result.current.players).toEqual([]);
   });
 
-  it('returns playersError=true when enriched players query fails', () => {
+  it('returns marketListError=true when enriched players query fails', () => {
     mockEnrichedPlayers.mockReturnValue({ data: [], isLoading: false, isError: true });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
-    expect(result.current.playersError).toBe(true);
+    expect(result.current.marketListError).toBe(true);
+  });
+
+  // ── Slice 283: Tab-Gating ──
+
+  it('disables the full players list on portfolio tab (Slice 283)', () => {
+    mockTab = 'portfolio';
+    renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
+    expect(mockEnrichedPlayers).toHaveBeenCalledWith('user-1', { enabled: false });
+    mockTab = 'marktplatz';
+  });
+
+  it('enables the full players list on marktplatz tab (Slice 283)', () => {
+    renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
+    expect(mockEnrichedPlayers).toHaveBeenCalledWith('user-1', { enabled: true });
+  });
+
+  it('surfaces dashboard RPC error as portfolioPlayersError instead of endless loading (Review-283-F-01)', () => {
+    mockMarketDashboard.mockReturnValue({ data: undefined, isLoading: false, isError: true });
+    const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
+    expect(result.current.portfolioLoading).toBe(false);
+    expect(result.current.portfolioPlayersError).toBe(true);
+  });
+
+  it('builds mySquadPlayers from the portfolio byIds subset (Slice 283)', () => {
+    const owned = makePlayer({ id: 'p-own', dpc: { owned: 2, onMarket: 0, supply: 100, float: 100, circulation: 100 } });
+    mockPlayersByIds.mockReturnValue({ data: [owned], isLoading: false, isError: false });
+    const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
+    expect(result.current.mySquadPlayers.map((p) => p.id)).toEqual(['p-own']);
+    mockPlayersByIds.mockReturnValue({ data: [], isLoading: false, isError: false });
   });
 
   // ── Test 2: Players array when loaded ──
@@ -148,7 +188,7 @@ describe('useMarketData', () => {
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
-    expect(result.current.playersLoading).toBe(false);
+    expect(result.current.marketListLoading).toBe(false);
     expect(result.current.players).toHaveLength(2);
     expect(result.current.players[0].id).toBe('p1');
     expect(result.current.players[1].id).toBe('p2');
@@ -335,7 +375,8 @@ describe('useMarketData', () => {
     const liquidated = makePlayer({ id: 'p3', dpc: { supply: 300, float: 200, circulation: 150, onMarket: 10, owned: 3 }, isLiquidated: true });
     const ownedNotLiquidated = makePlayer({ id: 'p4', dpc: { supply: 300, float: 200, circulation: 150, onMarket: 10, owned: 1 }, isLiquidated: false });
 
-    mockEnrichedPlayers.mockReturnValue({ data: [owned, notOwned, liquidated, ownedNotLiquidated], isLoading: false, isError: false });
+    // Slice 283: mySquadPlayers kommt aus dem Portfolio-byIds-Subset, nicht der full-list.
+    mockPlayersByIds.mockReturnValue({ data: [owned, notOwned, liquidated, ownedNotLiquidated], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
@@ -349,7 +390,7 @@ describe('useMarketData', () => {
 
   it('mySquadPlayers is empty when no players are owned', () => {
     const p1 = makePlayer({ id: 'p1', dpc: { supply: 300, float: 200, circulation: 150, onMarket: 10, owned: 0 } });
-    mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
+    mockPlayersByIds.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
@@ -362,7 +403,7 @@ describe('useMarketData', () => {
     // Explicitly ensure isLiquidated is not set (default from makePlayer is undefined)
     delete (p1 as Record<string, unknown>).isLiquidated;
 
-    mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
+    mockPlayersByIds.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
@@ -377,7 +418,7 @@ describe('useMarketData', () => {
 
     expect(result.current.players).toEqual([]);
     // Verify hooks were called with undefined
-    expect(mockEnrichedPlayers).toHaveBeenCalledWith(undefined);
+    expect(mockEnrichedPlayers).toHaveBeenCalledWith(undefined, { enabled: true });
     expect(mockMarketDashboard).toHaveBeenCalledWith(undefined);
   });
 

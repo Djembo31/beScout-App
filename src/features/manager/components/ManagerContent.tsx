@@ -93,7 +93,12 @@ function ManagerInner() {
   if (playersError) {
     return (
       <div className="max-w-[1100px] mx-auto px-4 py-12">
-        <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
+        {/* Slice 283: Portfolio-Quelle ist byIds — enger Prefix statt qk.players.all
+            (Root würde nach Market-Besuch die 4,2 MB refetchen, 282-F-09-Lehre). */}
+        <ErrorState onRetry={() => {
+          queryClient.refetchQueries({ queryKey: ['players', 'byIds'] });
+          if (user?.id) queryClient.refetchQueries({ queryKey: qk.marketDashboard.byUser(user.id) });
+        }} />
       </div>
     );
   }

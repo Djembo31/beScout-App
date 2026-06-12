@@ -1,27 +1,25 @@
 # Active Slice
 
 ```
-status: idle
-slice: 282b ✅ DONE
-stage: LOG complete (GHA-Run 27382868006 SUCCESS authed, Artifact 4,45 MB, Baseline live)
-spec: worklog/specs/282b-lhci-auth-fix.md
-impact: skipped (kein src/ — Config + e2e-Script + GHA-Workflow)
-proof: worklog/proofs/282b-lhci-auth.md
-review: worklog/reviews/282b-review.md (Self-Review PASS)
+status: active
+slice: 283
+stage: PROVE (Live-Network + GHA-Lighthouse-Delta post-Deploy offen)
+spec: worklog/specs/283-market-players-tab-decouple.md
+impact: worklog/impact/283-market-players-tab-decouple.md
+proof: worklog/proofs/283-market-decouple.md
+review: worklog/reviews/283-review.md (Cold-Context REWORK → MAJOR+MINOR geheilt, Wave-2-partial dokumentiert)
 ```
 
-## Slice 282b — LHCI-Auth-Fix ✅ DONE (2026-06-12)
+## Slice 283 — Market: Portfolio-Tab von /api/players entkoppeln (L)
 
-Lighthouse misst jetzt die eingeloggte App (5 Wochen lang war es /login). Erste valide Baseline: / Perf 69 · /market 52 · /community 82 (GHA). 2 neue Hebel-Findings: /market-TBT (4,2-MB-Parse) + Home-CLS 0.55.
+**Trigger:** Anil 2026-06-12 „weiter mit 1" (Baseline-Hebel #1: /market GHA LCP 4,4s / Perf 52).
+**Design-Pivot:** Statt Server-Pagination (L+, beta-riskant) → Tab-Decoupling: Default-Tab `portfolio` (nur Holdings) wird heute vom 4,2-MB-Fetch des Marktplatz-Tabs gegated — exakt die Slice-282-Home-Klasse. Wave 1 Tab-Gating + byIds-Portfolio-Pfad, Wave 2 Enrichment-Single-Pass, Wave 3 SortOption-No-Op-Fix.
+**Messkorrektur dokumentiert:** Transfer ist br-komprimiert ~461 KB — Killer ist Parse/Materialisierung/Enrichment (4.500 Objekte × 3-5 Pässe).
 
 ## Zuletzt
 
-- **Slice 282b** (2026-06-12) — LHCI-Auth-Fix, erste valide Baseline (M, Self-Review PASS).
-- **Slice 282** (2026-06-11) — Home-Payload-Decouple −4,2 MB (M, Review REWORK→geheilt).
-- **Slice 282a** (2026-06-11) — Ops-Recovery (M, Self-Review PASS).
+- **Slice 282b** (2026-06-12) — LHCI-Auth-Fix, erste valide Baseline.
+- **Slice 282** (2026-06-11) — Home-Payload-Decouple −4,2 MB.
+- **Slice 282a** (2026-06-11) — Ops-Recovery.
 
-Nächstes (Kandidaten, Anil-Priorisierung):
-- **Slice 283 — Market-Entkopplung von /api/players** (L, Server-Pagination) — größter verbleibender Cold-Start-Hebel (TBT-Median 5,4s / LCP 4,4s auf /market, Baseline-belegt).
-- **Slice 284 — Home-CLS-Fix** (S/M) — CLS bis 0.55 auf /, „Seite springt"-UX.
-- Lighthouse Phase-3-Gates scharf schalten (XS, nach 3-5 gesammelten GHA-Runs).
-- D70 Phase 4 Vercel Edge-Caching.
+Nächstes: 283b (Lite-Endpoint/Server-Pagination falls nötig) · 284 Home-CLS · Lighthouse Phase-3-Gates.

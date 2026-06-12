@@ -10,9 +10,8 @@ import {
 import { cn, fmtScout } from '@/lib/utils';
 import { useManagerStore, type ApplyLineupTemplate } from '../../store/managerStore';
 import { useLineupSnapshot } from '../../queries/historyQueries';
-import { useManagerData } from '../../hooks/useManagerData';
+import { usePlayersByIds } from '@/lib/queries';
 import { useOpenEvents, pickDefaultEvent } from '../../queries/eventQueries';
-import { useUser } from '@/components/providers/AuthProvider';
 import { getFormationsForFormat, buildSlotDbKeys } from '@/features/fantasy/constants';
 import type { UserFantasyResult } from '@/types';
 
@@ -43,9 +42,24 @@ function LineupView({ eventId }: { eventId: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { user } = useUser();
   const { data: lineup, isLoading } = useLineupSnapshot(eventId, true);
-  const { playerMap } = useManagerData(user?.id);
+  // Slice 283: Historie-Lineups können VERKAUFTE Spieler enthalten — die sind nicht
+  // im Portfolio-Subset von useManagerData. Eigener byIds-Fetch über die ≤12
+  // Snapshot-Slot-IDs (gleicher Pattern wie LastGameweekWidget, Slice 282).
+  const lineupPlayerIds = useMemo(() => {
+    if (!lineup) return [] as string[];
+    return [
+      lineup.slot_gk, lineup.slot_def1, lineup.slot_def2, lineup.slot_def3, lineup.slot_def4,
+      lineup.slot_mid1, lineup.slot_mid2, lineup.slot_mid3, lineup.slot_mid4,
+      lineup.slot_att, lineup.slot_att2, lineup.slot_att3,
+    ].filter((id): id is string => !!id);
+  }, [lineup]);
+  // Review-283-F-08: byIds-Loading ins Gate (282-F-03-Formel) — sonst „—"-Namen-Flash.
+  const { data: lineupPlayers = [], isLoading: lineupPlayersLoading } = usePlayersByIds(lineupPlayerIds);
+  const playerMap = useMemo(
+    () => new Map(lineupPlayers.map((p) => [p.id, p])),
+    [lineupPlayers],
+  );
 
   const setApplyLineupTemplate = useManagerStore((s) => s.setApplyLineupTemplate);
   const setActiveTab = useManagerStore((s) => s.setActiveTab);
@@ -53,7 +67,7 @@ function LineupView({ eventId }: { eventId: string }) {
   const selectedEventId = useManagerStore((s) => s.selectedEventId);
   const { events: openEvents } = useOpenEvents();
 
-  if (isLoading) {
+  if (isLoading || (lineupPlayerIds.length > 0 && lineupPlayersLoading)) {
     return (
       <div className="flex items-center justify-center py-6">
         <Loader2 className="size-5 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />

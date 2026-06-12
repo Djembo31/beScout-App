@@ -1,28 +1,34 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-12 00:12)
+# Session Handoff — Auto (2026-06-12 11:54)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 12 Files
+## Uncommitted Changes: 20 Files
 ```
- M .github/workflows/lighthouse.yml
-D  lighthouserc.json
  M memory/session-handoff.md
- M package.json
- M pnpm-lock.yaml
+ M src/features/manager/components/ManagerContent.tsx
+ M src/features/manager/components/historie/HistoryEventCard.tsx
+ M src/features/manager/hooks/useManagerData.ts
+ M src/features/market/components/MarketContent.tsx
+ M src/features/market/components/portfolio/OffersTab.tsx
+ M src/features/market/components/portfolio/PortfolioTab.tsx
+ M src/features/market/components/portfolio/__tests__/OffersTab.test.tsx
+ M src/features/market/hooks/__tests__/useMarketData.test.ts
+ M src/features/market/hooks/useMarketData.ts
+ M src/features/market/store/marketStore.ts
+ M src/lib/queries/enriched.ts
+ M src/lib/queries/index.ts
+ M src/lib/queries/keys.ts
+ M src/lib/queries/players.ts
+ M src/lib/services/players.ts
  M worklog/active.md
- M worklog/audits/audit-stale-2026-06-11.md
- M worklog/audits/type-truth-2026-06-11.md
-?? .puppeteerrc.cjs
-?? e2e/lhci-login.cjs
-?? lighthouserc.cjs
-?? worklog/specs/282b-lhci-auth-fix.md
+?? worklog/audits/audit-stale-2026-06-12.md
+?? worklog/audits/type-truth-2026-06-12.md
+?? worklog/audits/wiring-2026-06-12.md
 ```
 
-## Session Commits: 3
-- 9d443151 chore(slice-282): LOG-Abschluss — Live-Verify -4,2 MB Home-Transfer, active.md idle
-- 29abe210 fix(qa): Smoke-Suite Player-Link href+goto (282a-Pattern) + Knowledge-Promotion
-- 1ab44019 perf(home): Slice 282 — Home von /api/players entkoppelt (-4,2 MB Payload)
+## Session Commits: 1
+- 199b5a03 chore(slice-282b): LOG-Abschluss — GHA authed SUCCESS, Baseline + Proof + Knowledge
 
 <!-- auto:handoff-end -->
 

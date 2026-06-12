@@ -72,13 +72,6 @@ export async function getPlayerPercentiles(playerId: string): Promise<Record<str
 }
 
 /**
- * Alle Spieler eines Clubs laden (by club_id).
- *
- * @param opts.activeOnly Wenn true, werden Spieler mit `mv_source='transfermarkt_stale'`
- *   ausgeschlossen. Default false = Full-Set (wird z.B. von Admin-Liquidate-UI gebraucht).
- *   Filter-Hintergrund: Slice 081/081b/081c hat 52% der Rows als stale geflaggt.
- */
-/**
  * Slice 282 — targeted Mini-Fetch für Home-Ableitungen (Trending-Join, IPO-Player,
  * Lineup-Rows, Feed-Enrichment). Ersetzt das 4,2-MB-`getPlayers()` auf Home.
  * Chunked per common-errors.md §1 (.in() URL-Limit), auch wenn Caller ≤ 12 IDs liefern.
@@ -110,6 +103,34 @@ export async function getGlobalMovers(limit: number): Promise<DbPlayer[]> {
   return Array.isArray(json) ? (json as DbPlayer[]) : [];
 }
 
+/**
+ * Slice 283 — server-side Name-Suche für Picker-UIs (CreateOfferModal).
+ * Ersetzt das Filtern über die volle 4,2-MB-Liste. ilike auf Vor-/Nachname,
+ * kleine Result-Caps — Parity zum früheren client-side includes()-Filter.
+ */
+export async function searchPlayersByName(query: string, limit = 8): Promise<DbPlayer[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  // Review-283-F-02: neben %_ auch PostgREST-or-Syntax-Zeichen strippen —
+  // Kommas/Klammern parsen als Bedingungs-Separator/Gruppierung → 400-Error.
+  const pattern = `%${q.replace(/[%_,().]/g, '')}%`;
+  const { data, error } = await supabase
+    .from('players')
+    .select(PLAYER_SELECT_COLS)
+    .or(`first_name.ilike.${pattern},last_name.ilike.${pattern}`)
+    .order('last_name')
+    .limit(limit);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as DbPlayer[];
+}
+
+/**
+ * Alle Spieler eines Clubs laden (by club_id).
+ *
+ * @param opts.activeOnly Wenn true, werden Spieler mit `mv_source='transfermarkt_stale'`
+ *   ausgeschlossen. Default false = Full-Set (wird z.B. von Admin-Liquidate-UI gebraucht).
+ *   Filter-Hintergrund: Slice 081/081b/081c hat 52% der Rows als stale geflaggt.
+ */
 export async function getPlayersByClubId(
   clubId: string,
   opts?: { activeOnly?: boolean }

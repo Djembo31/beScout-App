@@ -9,6 +9,7 @@ import {
   getPlayersByClubId,
   getPlayersByIds,
   getGlobalMovers,
+  searchPlayersByName,
   getPlayerNames,
   getPlayerPercentiles,
   getPlayerPriceChanges7d,
@@ -109,6 +110,20 @@ export function useGlobalMovers(limit: number, enabled = true) {
     queryFn: async () => dbToPlayers(await getGlobalMovers(limit)),
     staleTime: FIVE_MIN,
     enabled,
+  });
+}
+
+/**
+ * Slice 283 — server-side Spieler-Suche für Picker-UIs (ilike, limit 8).
+ * enabled erst ab 2 Zeichen — gleiche Schwelle wie der frühere client-Filter.
+ */
+export function usePlayerSearch(query: string) {
+  const q = query.trim();
+  return useQuery({
+    queryKey: qk.players.search(q.toLowerCase()),
+    queryFn: async () => dbToPlayers(await searchPlayersByName(q)),
+    enabled: q.length >= 2,
+    staleTime: 60 * 1000,
   });
 }
 

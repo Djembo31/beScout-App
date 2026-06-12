@@ -12,6 +12,7 @@ import { cn, fmtScout } from '@/lib/utils';
 import { PlayerIdentity } from '@/components/player';
 import { useToast } from '@/components/providers/ToastProvider';
 import { centsToBsd } from '@/lib/services/players';
+import { usePlayerSearch } from '@/lib/queries';
 import { createOffer } from '@/lib/services/offers';
 import { useOffersState, type SubTab } from './useOffersState';
 import type { OfferWithDetails, Player } from '@/types';
@@ -189,11 +190,10 @@ function OfferCard({
 // ============================================
 
 function CreateOfferModal({
-  open, onClose, players, userId,
+  open, onClose, userId,
 }: {
   open: boolean;
   onClose: () => void;
-  players: Player[];
   userId: string;
 }) {
   const t = useTranslations('offers');
@@ -206,11 +206,10 @@ function CreateOfferModal({
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const filteredPlayers = search.length >= 2
-    ? players.filter(p =>
-        `${p.first} ${p.last}`.toLowerCase().includes(search.toLowerCase())
-      ).slice(0, 8)
-    : [];
+  // Slice 283: server-side Suche (ilike, limit 8) statt Filter über die volle
+  // 4,2-MB-Liste — der Picker war der einzige Grund, warum der Portfolio-Tab
+  // die komplette Players-Liste brauchte.
+  const { data: filteredPlayers = [] } = usePlayerSearch(open ? search : '');
 
   const handleSubmit = async () => {
     if (!selectedPlayer || !price) return;
@@ -379,7 +378,7 @@ function CreateOfferModal({
 // Main Component
 // ============================================
 
-export default function ManagerOffersTab({ players }: { players: Player[] }) {
+export default function ManagerOffersTab() {
   const t = useTranslations('offers');
   const state = useOffersState();
 
@@ -466,7 +465,6 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         <CreateOfferModal
           open={state.showCreate}
           onClose={() => state.setShowCreate(false)}
-          players={players}
           userId={state.uid}
         />
       )}

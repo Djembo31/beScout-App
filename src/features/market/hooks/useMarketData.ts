@@ -3,7 +3,8 @@
 import { useMemo, useCallback } from 'react';
 import type { Player } from '@/types';
 import { computePlayerFloor } from '@/lib/playerMath';
-import { useEnrichedPlayers, useAllOpenOrders, useAllOpenBuyOrders } from '@/lib/queries';
+import { useEnrichedPlayers, useAllOpenOrders, useAllOpenBuyOrders, usePlayersByIds } from '@/lib/queries';
+import { enrichPlayersWithData } from '@/lib/queries/enriched';
 import { useMarketUserDashboard } from '@/lib/queries/marketDashboard';
 import { useActiveIpos, useAnnouncedIpos, useRecentlyEndedIpos } from '@/features/market/queries/ipos';
 import { useTrendingPlayers } from '@/features/market/queries/trending';
@@ -17,7 +18,15 @@ export function useMarketData(userId: string | undefined) {
   const { data: ipoList = [] } = useActiveIpos();
   // Slice 122: 4 per-user queries (holdings + watchlist + incoming_offers + open_bids)
   // in 1 RPC konsolidiert.
-  const { data: dashboard } = useMarketUserDashboard(userId);
+  // Review-283-F-01: isLoading/isError MÜSSEN destrukturiert werden — bei
+  // RPC-Error bliebe `data === undefined` sonst für immer „loading" (endloser
+  // Skeleton auf dem Default-Tab + /manager, ohne ErrorState/Retry).
+  // Anti-Pattern „Derived-Loading aus data===undefined" (TanStack v5).
+  const {
+    data: dashboard,
+    isLoading: dashboardLoading,
+    isError: dashboardError,
+  } = useMarketUserDashboard(userId);
   const holdings = dashboard?.holdings ?? [];
   const watchlistEntries = dashboard?.watchlist ?? [];
   const incomingOffers = dashboard?.incoming_offers ?? [];
@@ -26,7 +35,44 @@ export function useMarketData(userId: string | undefined) {
   // Slice 123: useEnrichedPlayers konsumiert holdings+orders als Input (entfernt
   // doppelte useHoldings/useAllOpenOrders-Fetches die vorher race-conditional
   // zu useMarketUserDashboard liefen).
-  const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(userId, holdings, recentOrders);
+  // Slice 283 W1: volle 4,2-MB-Liste NUR für den Marktplatz-Tab (Slice-282-Klasse:
+  // Default-Tab portfolio wurde vom Fetch des anderen Tabs gegated). Gleicher
+  // enabled-Mechanismus wie die tab-gated Queries unten.
+  const marktplatzActive = tab === 'marktplatz';
+  const {
+    data: enrichedPlayers = [],
+    isLoading: marketListLoading,
+    isError: marketListError,
+  } = useEnrichedPlayers(userId, holdings, recentOrders, { enabled: marktplatzActive });
+
+  // Slice 283 W1: Portfolio-Pfad — nur die Spieler aus Holdings + Offers/Bids
+  // via byIds (Slice-282-Hook), gleiche dbToPlayers+Enrichment-Pipeline →
+  // identische Player-Shape (Slice-102-Contract).
+  const portfolioIds = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...holdings.map((h) => h.player_id),
+          ...incomingOffers.map((o) => o.player_id),
+          ...openBids.map((o) => o.player_id),
+        ]),
+      ),
+    [holdings, incomingOffers, openBids],
+  );
+  const {
+    data: portfolioRaw = [],
+    isLoading: portfolioByIdsLoading,
+    isError: portfolioByIdsError,
+  } = usePlayersByIds(portfolioIds);
+  // Review-283-F-01: Dashboard ist Upstream-ID-Quelle UND eigener Failure-Mode.
+  const portfolioPlayersError = dashboardError || portfolioByIdsError;
+  const portfolioPlayers = useMemo(
+    () => (portfolioRaw.length === 0 ? portfolioRaw : enrichPlayersWithData(portfolioRaw, holdings, recentOrders)),
+    [portfolioRaw, holdings, recentOrders],
+  );
+  // 282-F-03-Lehre: Upstream-Loading (dashboard liefert die ids) MUSS in den
+  // kombinierten Loading-State, sonst false-window + Skeleton-Oszillation.
+  const portfolioLoading = dashboardLoading || (portfolioIds.length > 0 && portfolioByIdsLoading);
 
   // ── Tab-gated queries (marktplatz only) ──
   const { data: priceHistMap } = useAllPriceHistories(10, { enabled: tab === 'marktplatz' });
@@ -55,33 +101,35 @@ export function useMarketData(userId: string | undefined) {
   // ── Derived: floor prices ──
   // Canonical chain matches enrichPlayersWithData (enriched.ts):
   //   live-listings Math.min → enriched `prices.floor` → 0.
-  // `prices.floor` is always a number post-enrichment (floorFromOrders ??
-  // old floor ?? ipoPrice ?? 0), so the secondary fallback is sufficient.
+  // Slice 283: Union aus full-list (wenn marktplatz geladen) + Portfolio-Subset —
+  // deckt beide Tabs + TradeSuccessCard ab; Subset-Werte gewinnen (gleiches Enrichment).
   const floorMap = useMemo(() => {
     const m = new Map<string, number>();
-    for (const p of players) {
-      m.set(p.id, computePlayerFloor(p));
-    }
+    for (const p of players) m.set(p.id, computePlayerFloor(p));
+    for (const p of portfolioPlayers) m.set(p.id, computePlayerFloor(p));
     return m;
-  }, [players]);
+  }, [players, portfolioPlayers]);
 
   // ── Derived: player lookup ──
   const playerMap = useMemo(() => {
     const m = new Map<string, Player>();
     for (const p of players) m.set(p.id, p);
+    for (const p of portfolioPlayers) m.set(p.id, p);
     return m;
-  }, [players]);
+  }, [players, portfolioPlayers]);
 
-  // ── Derived: owned squad ──
+  // ── Derived: owned squad (Slice 283: aus dem Portfolio-Subset) ──
   const mySquadPlayers = useMemo(() => {
-    return players.filter(p => p.dpc.owned > 0 && !p.isLiquidated);
-  }, [players]);
+    return portfolioPlayers.filter(p => p.dpc.owned > 0 && !p.isLiquidated);
+  }, [portfolioPlayers]);
 
   // ── Helper: get floor price for a player ──
   const getFloor = useCallback((p: Player) => floorMap.get(p.id) ?? 0, [floorMap]);
 
   return {
-    players, playersLoading, playersError,
+    // Slice 283: getrennte Quellen + Loading-States pro Tab.
+    players, marketListLoading, marketListError,
+    portfolioPlayers, portfolioLoading, portfolioPlayersError,
     holdings, ipoList, watchlistEntries, recentOrders, incomingOffers, openBids,
     announcedIpos, endedIpos, trending, buyOrders, priceHistMap,
     playerMap, floorMap, watchlistMap, mySquadPlayers, getFloor,

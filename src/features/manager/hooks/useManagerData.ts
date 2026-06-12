@@ -28,7 +28,19 @@ export interface NextEventInfo {
 
 export function useManagerData(userId: string | undefined) {
   // ── Core player data (shared cache with Market) ──
-  const { players, mySquadPlayers, playersLoading, playersError, holdings, getFloor } = useMarketData(userId);
+  // Slice 283: Manager ist Kader-zentrisch (Lineups nur aus Holdings) — Quelle ist
+  // das Portfolio-Subset (byIds), NICHT mehr die volle 4,2-MB-Liste. Externe API
+  // (players/playersLoading/playersError) bleibt stabil für die Konsumenten.
+  // Lineup-HISTORIE kann verkaufte Spieler enthalten → HistoryEventCard holt die
+  // per eigenem usePlayersByIds (282-LastGameweekWidget-Pattern).
+  const {
+    portfolioPlayers: players,
+    mySquadPlayers,
+    portfolioLoading: playersLoading,
+    portfolioPlayersError: playersError,
+    holdings,
+    getFloor,
+  } = useMarketData(userId);
 
   // ── Trading data needed by Kader Tab (shared cache with Market) ──
   const { data: ipoList = [] } = useActiveIpos();

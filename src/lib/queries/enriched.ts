@@ -21,8 +21,11 @@ export function useEnrichedPlayers(
   userId: string | undefined,
   holdings: DbHolding[],
   orders: PublicOrder[],
+  // Slice 283: Tab-Gating — /market lädt die volle 4,2-MB-Liste erst wenn der
+  // Marktplatz-Tab aktiv ist (Default-Tab portfolio braucht sie nicht).
+  options?: { enabled?: boolean },
 ) {
-  const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
+  const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers(options?.enabled ?? true);
 
   const enriched = useMemo(() => {
     if (!players.length) return players;

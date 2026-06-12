@@ -19,7 +19,6 @@ const OffersTab = dynamic(() => import('./OffersTab'), {
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
 });
 type Props = {
-  players: Player[];
   mySquadPlayers: Player[];
   holdings: { player_id: string; quantity: number; avg_buy_price: number }[];
   floorMap: Map<string, number>;
@@ -34,7 +33,7 @@ type Props = {
 };
 
 export default function PortfolioTab({
-  players, mySquadPlayers, holdings, floorMap, recentOrders, buyOrders,
+  mySquadPlayers, holdings, floorMap, recentOrders, buyOrders,
   scoresMap, lockedMap, onSell, onCancelOrder, incomingOffers, openBids,
 }: Props) {
   const t = useTranslations('market');
@@ -80,7 +79,7 @@ export default function PortfolioTab({
         />
       )}
       {portfolioSubTab === 'angebote' && (
-        <OffersTab players={players} />
+        <OffersTab />
       )}
       <TradingDisclaimer variant="card" />
     </>

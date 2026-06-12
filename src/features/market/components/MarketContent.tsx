@@ -97,16 +97,15 @@ export default function MarketContent() {
     if (p) trade.setBuyOrderPlayer(p);
   }, [data.playerMap, trade]);
 
-  // ── Error Guard (Loading wird Section-scoped unten gehandhabt) ──
-  // Slice 198b-A — Audit ux #3 P3: `playersLoading` blockte komplette Page.
-  // Header + Tabs rendern immer; Tab-Inhalte zeigen Section-scoped Skeleton.
-  if (data.playersError && data.players.length === 0) {
-    return (
-      <div className="max-w-[1400px] mx-auto py-12">
-        <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
-      </div>
-    );
-  }
+  // Slice 283: Error/Loading sind per-Tab-scoped (282-F-02-Lehre: kein Full-Page-
+  // Error für Daten des jeweils anderen Tabs). Page-Level-Guard entfernt.
+  const tabSkeleton = (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+      {[...Array(8)].map((_, i) => (
+        <SkeletonCard key={i} className="h-64" />
+      ))}
+    </div>
+  );
 
   return (
     <GeoGate feature="dpc_trading">
@@ -212,20 +211,20 @@ export default function MarketContent() {
       {/* Contextual Mission Hints */}
       <MissionHintList context="trading" />
 
-      {/* Tab-Content: Section-scoped Loading-Skeleton bis players geladen sind.
-          Slice 198b-A — Audit ux #3 P3: page-blocking removed, header+tabs rendern frueh. */}
-      {data.playersLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {[...Array(8)].map((_, i) => (
-            <SkeletonCard key={i} className="h-64" />
-          ))}
-        </div>
-      ) : (
+      {/* Tab-Content — Slice 283: per-Tab Loading/Error.
+          Portfolio = byIds-Subset (Holdings+Offers), Marktplatz = volle Liste
+          (lazy ab Tab-Aktivierung). Slice 198b-A bleibt: Header+Tabs rendern frueh. */}
+      {(
         <>
           {/* Portfolio Tab */}
           <TabPanel id="portfolio" activeTab={tab}>
+            {data.portfolioPlayersError && data.portfolioPlayers.length === 0 ? (
+              <ErrorState onRetry={() => {
+                queryClient.refetchQueries({ queryKey: ['players', 'byIds'] });
+                if (user?.id) queryClient.refetchQueries({ queryKey: qk.marketDashboard.byUser(user.id) });
+              }} />
+            ) : data.portfolioLoading ? tabSkeleton : (
             <PortfolioTab
-              players={data.players}
               mySquadPlayers={data.mySquadPlayers}
               holdings={data.holdings}
               floorMap={data.floorMap}
@@ -238,10 +237,14 @@ export default function MarketContent() {
               incomingOffers={data.incomingOffers}
               openBids={data.openBids}
             />
+            )}
           </TabPanel>
 
           {/* Marktplatz Tab */}
           <TabPanel id="marktplatz" activeTab={tab}>
+            {data.marketListError && data.players.length === 0 ? (
+              <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
+            ) : data.marketListLoading ? tabSkeleton : (
             <MarktplatzTab
               players={data.players}
               playerMap={data.playerMap}
@@ -261,6 +264,7 @@ export default function MarketContent() {
               onIpoBuy={trade.handleIpoBuy}
               onCreateBuyOrder={FEATURE_BUY_ORDERS ? handleCreateBuyOrder : undefined}
             />
+            )}
           </TabPanel>
         </>
       )}

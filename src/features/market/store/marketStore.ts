@@ -2,8 +2,12 @@ import { create } from 'zustand';
 import type { Pos } from '@/types';
 import type { MvTrendValue } from '@/lib/filters/mvTrendFilter';
 
-export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
-  | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract'
+// Slice 283 W3: tote Werte entfernt (l15/change/name/age_asc/age_desc) — sie
+// wurden in KEINEM Sort-Dropdown angeboten und hatten in applySorting keine
+// cases (silent no-op, Explore-Befund 2026-06-12). Store hat kein persist →
+// kein Migrations-Fallback nötig.
+export type SortOption = 'floor_asc' | 'floor_desc' | 'l5'
+  | 'goals' | 'assists' | 'matches' | 'contract'
   | 'volume_desc';
 export type MarketTab = 'portfolio' | 'marktplatz';
 export type PortfolioSubTab = 'bestand' | 'angebote';
