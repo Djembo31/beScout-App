@@ -2,6 +2,18 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 282b | 2026-06-12 | fix(perf): LHCI misst die App statt /login — erste valide Lighthouse-Baseline
+
+- Stage-Chain: SPEC (worklog/specs/282b-lhci-auth-fix.md) → IMPACT (skipped — kein src/, Config + e2e-Script + GHA) → BUILD → REVIEW (worklog/reviews/282b-review.md, Self-Review PASS) → PROVE (worklog/proofs/282b-lhci-auth.md) → LOG
+- Slice-Type: GHA + Tool (M). Trigger: Anil „Weiter mit 282b" — Slice-282-Validity-Befund: ALLE Lighthouse-Runs seit Slice 279 (5 Wochen) maßen die /login-Redirect-Page statt der App.
+- **Fix-Architektur:** `e2e/lhci-login.cjs` (puppeteerScript, jarvis-qa via SMOKE-Secrets, idempotent via sb-Cookie-Check, Loud-Fail-Design) + `lighthouserc.json → .cjs` (disableStorageReset + chromePath collect-Ebene + www-URLs) + `.puppeteerrc.cjs` skipDownload (puppeteer-devDep OHNE 130-MB-Chrome-Download in jedem Workflow-Install) + `include-hidden-files: true` (Root-Cause der 0-Artifacts: Dot-Dir-Default von upload-artifact@v4).
+- **Verify komplett:** lokal 9/9 Runs `requested == final` (0× /login) · GHA-Run 27382868006 SUCCESS 3m36s mit eingeloggten Messungen (/ Perf 69 · /market 52 · /community 82) · Artifact 4,45 MB downloadbar (vorher 0) · Negativ-Test falsche Creds → Error-Abort · kein Chrome-Download im Install.
+- **Erste valide Baseline** (`worklog/audits/2026-06-12/lighthouse-baseline-authed.md`) mit 2 neuen Hebel-Findings: (1) **/market TBT-Median 5,4s lokal / LCP 4,4s GHA** — der 4,2-MB-/api/players-Parse, bestätigt Market-Entkopplung als nächsten großen Cold-Start-Hebel; (2) **Home CLS bis 0.55** — Layout-Shift-Fix-Kandidat (above-fold Sections ohne reservierte Höhen).
+- Debugging-Journey (4 Iterationen, in Review dokumentiert): client-side-Auth-Redirect machte page.url()-Skip-Check zum false-positive; danach ~1h Jagd auf ein bereits gelöstes Problem weil `lhci collect` ohne upload KEINE Reports schreibt (stale manifest gelesen). In-Page-Instrumentierung (Cookie-Expiry + Softnav-Hooks) lieferte die Beweise.
+- Knowledge-Promotion: errors-infra.md „LHCI/Lighthouse-Fallen-Sammlung" (4 LHCI-Fallen + upload-artifact-Dot-Dir-Falle).
+- Files: 5 geändert/neu (lhci-login.cjs, lighthouserc.cjs, .puppeteerrc.cjs, lighthouse.yml, package.json) + lighthouserc.json gelöscht. Commits: `3e6f45ab` + LOG-Commit.
+- Notes: Phase-3-Error-Gates weiterhin WARN-only — Schwellen nach 3-5 GHA-Runs aus authed Quelle ableiten (jeder Deploy sammelt jetzt automatisch).
+
 ## 282 | 2026-06-11 | perf(home): Home von /api/players entkoppelt — −4,2 MB Payload (Cold-Start Phase 3)
 
 - Stage-Chain: SPEC (worklog/specs/282-home-players-payload-decouple.md) → IMPACT (worklog/impact/282-home-players-payload-decouple.md — Konsumenten-Map grep-verifiziert, 4 Children + page.tsx) → BUILD (3 Waves serial) → REVIEW (Cold-Context-Agent REWORK → 11/11 Findings geheilt, worklog/reviews/282-review.md) → PROVE (worklog/proofs/282-home-payload.md) → LOG

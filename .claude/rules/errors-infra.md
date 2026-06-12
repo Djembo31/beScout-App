@@ -106,6 +106,19 @@ npx vitest run "src/<any>.test.tsx"   # läuft jetzt
 - Latenz-Gewinn nur bei: sequentielle Queries (waterfall), LCP-blocking, HTTP/1-Limits.
 - Structural Wins echt: -N Roundtrips, Konsistenz, Priming-Pattern, DB-billiger.
 
+### LHCI/Lighthouse-Fallen-Sammlung (Slice 282b, 2026-06-12)
+
+Vier Fallen aus dem LHCI-Auth-Fix — jede hat einzeln Stunden gekostet bzw. 5 Wochen invalide Messung verursacht:
+
+1. **Auth-gated Pages still als /login gemessen (5 Wochen, Slice 279-282).** LHCI folgt Redirects ohne Warnung; `finalDisplayedUrl` zeigt die wahre gemessene Page. Pflicht-Verify nach JEDEM Lighthouse-Setup: `requestedUrl == finalDisplayedUrl` über alle Reports. Fix für authed Apps: `collect.puppeteerScript`-Login + `settings.disableStorageReset: true` (sonst killt der Storage-Reset die Session pro Run).
+2. **Client-side-Auth-Apps: Login-State NIE via `page.url()` nach domcontentloaded prüfen.** Der Redirect kommt erst nach Hydration → false-positive „eingeloggt". Deterministisch: Session-Cookie prüfen (`page.cookies()` auf `sb-*-auth-token`).
+3. **`lhci collect` (ohne upload-Step) schreibt KEINE Reports nach `.lighthouseci/`** — nur `autorun`/`upload` (filesystem) dumpt. Wer nach einem collect-Run `manifest.json` liest, liest STALE Reports des letzten autorun. Verify immer über `fetchTime` im LHR, nie `manifest[last]`.
+4. **LHCI überschreibt `puppeteerLaunchOptions.executablePath`** intern mit `collect.chromePath` (`puppeteer-manager.js`: `executablePath: this._options.chromePath`) — Chrome-Pfad MUSS auf collect-Ebene stehen.
+
+Plus GHA-Falle (gilt für ALLE Workflows): **upload-artifact@v4 `include-hidden-files: false` (Default) schließt Dot-Verzeichnisse still aus** — `.lighthouseci/` Upload produzierte 5 Wochen 0 Artifacts trotz `if: always()`; einziges Signal war `##[warning]No files were found` im Log. Bei Dot-Dir-Pfaden explizit `include-hidden-files: true`.
+
+**Reference:** Slice 282b `worklog/proofs/282b-lhci-auth.md` + `e2e/lhci-login.cjs` + `lighthouserc.cjs`.
+
 ### Cron-Skip-Branch ohne advance_gameweek-Aufruf → chronischer GW-Drift (Slice 273+276b, 2026-05-06)
 
 **Bug-Klasse:** Daily-Sync-Cron hat mehrere Skip-Branches die early-returnen. Wenn EINE Skip-Branch den State-Advance-Step (`advance_gameweek`, `bump_window`, `next_period`) NICHT vor dem return aufruft, bleibt der State auf der gerade fertiggestellten Period kleben. Recurrent-Bug: GW-Drift kommt nach jeder fertig-gespielten GW zurück.

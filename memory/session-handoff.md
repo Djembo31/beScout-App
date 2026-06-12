@@ -1,15 +1,28 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-11 18:09)
+# Session Handoff — Auto (2026-06-12 00:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 12 Files
+```
+ M .github/workflows/lighthouse.yml
+D  lighthouserc.json
+ M memory/session-handoff.md
+ M package.json
+ M pnpm-lock.yaml
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? .puppeteerrc.cjs
+?? e2e/lhci-login.cjs
+?? lighthouserc.cjs
+?? worklog/specs/282b-lhci-auth-fix.md
+```
 
-## Session Commits: 4
-- df4f0a88 chore(audits): lokale Audit-Re-Run-Outputs 2026-06-11 (Slice 282a Verify-Laeufe)
-- 3fdc46a5 chore(slice-282a): LOG-Abschluss — AC-01 Live-Run SUCCESS + Pattern-Promotion testing.md
-- 618c6d05 fix(ops): Slice 282a — Ops-Recovery (Synthetic-Fix + Baseline + Master-Tracker)
-- e8e4acb1 chore(tooling): Effort-Gate für SHIP-Hooks + /goal-Workflow + .agents-Skills-Mirror + Codex-Setup
+## Session Commits: 3
+- 9d443151 chore(slice-282): LOG-Abschluss — Live-Verify -4,2 MB Home-Transfer, active.md idle
+- 29abe210 fix(qa): Smoke-Suite Player-Link href+goto (282a-Pattern) + Knowledge-Promotion
+- 1ab44019 perf(home): Slice 282 — Home von /api/players entkoppelt (-4,2 MB Payload)
 
 <!-- auto:handoff-end -->
 
@@ -2385,3 +2398,51 @@ Session crashed. State at crash time:
 
 
 ### Recovery: Apply diff with `git apply .claude/backups/crash-20260611-185931.diff`
+
+## ⚠ CRASH RECOVERY (20260612-005640)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-005640.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? worklog/audits/2026-06-12/
+?? worklog/audits/lhci-local-282b.log
+?? worklog/reviews/282b-review.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005640.diff`
+
+## ⚠ CRASH RECOVERY (20260612-005646)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-005646.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? worklog/audits/2026-06-12/
+?? worklog/audits/lhci-local-282b.log
+?? worklog/reviews/282b-review.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005646.diff`
+
+## ⚠ CRASH RECOVERY (20260612-005905)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-005905.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? worklog/audits/2026-06-12/
+?? worklog/audits/lhci-local-282b.log
+?? worklog/reviews/282b-review.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005905.diff`
