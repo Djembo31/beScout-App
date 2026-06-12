@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 283 | 2026-06-12 | perf(market): Portfolio-Tab + Manager von /api/players entkoppelt — /market Perf 52→87
+
+- Stage-Chain: SPEC (worklog/specs/283-market-players-tab-decouple.md, L) → IMPACT (worklog/impact/283-...md) → BUILD (3 Waves serial) → REVIEW (Cold-Context REWORK → MAJOR+2 MINOR geheilt, worklog/reviews/283-review.md) → PROVE (worklog/proofs/283-market-decouple.md) → LOG
+- Slice-Type: Service + UI (L). Trigger: Anil „weiter mit 1" — Baseline-Hebel #1 (/market schlechteste Page: Perf 52, LCP 4,4s).
+- **Headline (GHA-Lighthouse-Delta, Run 27409327891): /market Perf 52→87, LCP 4423→2532ms (−43%), TBT 1189→327ms (−72%)** — von der schlechtesten zur besten Perf-Page. Live-Network-Verify: 0× /api/players auf /market-Default-Tab UND /manager; full-list lädt lazy erst bei Marktplatz-Tab-Klick.
+- **Design-Pivot:** Statt Server-Pagination (L+, beta-riskant) → Tab-Decoupling: Default-Tab `portfolio` (nur Holdings) wurde vom 4,2-MB-Fetch des Marktplatz-Tabs gegated (Slice-282-Home-Klasse). Messkorrektur dokumentiert: Transfer ist br-komprimiert ~461 KB — der Killer war Parse/Materialisierung/Enrichment (4.500 Objekte × 3-5 Pässe).
+- Architektur: full-list `enabled: tab==='marktplatz'`; Portfolio via `usePlayersByIds(holdings∪offers∪bids)` + Subset-Enrichment (identische Pipeline = Slice-102-Contract); Union-playerMap/floorMap; per-Tab Loading/Error-Gates. **Bonus-Discovery:** useManagerData (Impact-Map-Lücke, im BUILD gefunden) — /manager lud dieselben 4,2 MB → mit entkoppelt; HistoryEventCard (Historie enthält VERKAUFTE Spieler!) auf eigenen ≤12-IDs-byIds (282-Pattern). OffersTab-Picker (einziger full-list-Grund auf portfolio) → server-side `searchPlayersByName`/`usePlayerSearch`.
+- **Review-Wert (L-Pflicht):** MAJOR F-01 vor Live-Gang gefangen — Dashboard-RPC-Error hätte endlosen Skeleton ohne Retry auf Default-Tab + /manager erzeugt („Derived-Loading aus data===undefined" = TanStack-v5-Anti-Pattern). Plus F-02 PostgREST-or-Syntax-Escaping (`,()` = Parser-Zeichen). Wave-2-Memo-Merge bewusst partial dokumentiert (Gating entschärft; 283b-Re-Visit-Trigger definiert).
+- Wave 3: 5 tote SortOption-Type-Werte + 4 orphan i18n-Keys entfernt (Explore-Befund: silent no-op cases, in keinem UI angeboten).
+- Knowledge-Promotion: errors-frontend.md „Derived-Loading aus data===undefined" + „PostgREST .or() User-Input-Escaping".
+- Tests: 197/197 (market+manager+queries) inkl. Gating-Propagation- und F-01-Regression-Tests. tsc clean.
+- Commits: `ec0ae74b` + LOG-Commit. Backlog: F-06 Search-Debounce/Error-Hint, F-07 `portfolioOnly`-Option für Manager (Tab-Store-Erbe), 283b Lite-Endpoint falls Marktplatz-Tab-Open-TBT auffällt.
+- Notes: CLS / = 0.225 im Post-Run → bestätigt **Slice 284 (Home-CLS)** als nächsten Baseline-Hebel.
+
 ## 282b | 2026-06-12 | fix(perf): LHCI misst die App statt /login — erste valide Lighthouse-Baseline
 
 - Stage-Chain: SPEC (worklog/specs/282b-lhci-auth-fix.md) → IMPACT (skipped — kein src/, Config + e2e-Script + GHA) → BUILD → REVIEW (worklog/reviews/282b-review.md, Self-Review PASS) → PROVE (worklog/proofs/282b-lhci-auth.md) → LOG

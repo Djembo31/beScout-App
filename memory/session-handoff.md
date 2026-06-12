@@ -1,33 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-12 11:54)
+# Session Handoff — Auto (2026-06-12 12:11)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 20 Files
+## Uncommitted Changes: 4 Files
 ```
  M memory/session-handoff.md
- M src/features/manager/components/ManagerContent.tsx
- M src/features/manager/components/historie/HistoryEventCard.tsx
- M src/features/manager/hooks/useManagerData.ts
- M src/features/market/components/MarketContent.tsx
- M src/features/market/components/portfolio/OffersTab.tsx
- M src/features/market/components/portfolio/PortfolioTab.tsx
- M src/features/market/components/portfolio/__tests__/OffersTab.test.tsx
- M src/features/market/hooks/__tests__/useMarketData.test.ts
- M src/features/market/hooks/useMarketData.ts
- M src/features/market/store/marketStore.ts
- M src/lib/queries/enriched.ts
- M src/lib/queries/index.ts
- M src/lib/queries/keys.ts
- M src/lib/queries/players.ts
- M src/lib/services/players.ts
- M worklog/active.md
-?? worklog/audits/audit-stale-2026-06-12.md
-?? worklog/audits/type-truth-2026-06-12.md
-?? worklog/audits/wiring-2026-06-12.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? e2e/qa-283-network.ts
 ```
 
-## Session Commits: 1
+## Session Commits: 2
+- ec0ae74b perf(market): Slice 283 — Portfolio-Tab + Manager von /api/players entkoppelt
 - 199b5a03 chore(slice-282b): LOG-Abschluss — GHA authed SUCCESS, Baseline + Proof + Knowledge
 
 <!-- auto:handoff-end -->

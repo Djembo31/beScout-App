@@ -39,10 +39,27 @@ mySquadPlayers aus byIds-Subset.
 
 → worklog/reviews/283-review.md (Cold-Context, L-Slice-Pflicht)
 
-## AC-01/02/03 — Live-Network + Visual (post-Deploy)
+## AC-01/02/03 — Live-Network + Visual (post-Deploy) ✅
 
-→ Abschnitt unten nach Deploy.
+```
+$ npx tsx e2e/qa-283-network.ts   (eingeloggt jarvis-qa, 393px, Production ec0ae74b)
+/market (Default portfolio): /api/players(full)=0 ✅ | byIds=1
+/market nach Marktplatz-Klick: /api/players(full)=1 ✅ lazy nachgeladen (4.0 MB decoded)
+/manager: /api/players(full)=0 ✅ | byIds=1
+```
 
-## AC-05 — GHA-Lighthouse-Delta (post-Deploy)
+Screenshots: qa-screenshots/283-market-portfolio.png (Bestand vollständig: 22 Scout
+Cards, Kader-Wert 5.690,93 CR, Pos/Club-Filter, 12 Spieler-Rows aus Subset),
+283-market-marktplatz.png, 283-manager.png.
 
-→ Abschnitt unten nach nächstem authed Run.
+## AC-05 — GHA-Lighthouse-Delta ✅ (Run 27409327891, SUCCESS 2m56s)
+
+| Page | Baseline (282b) | **Post-283** | Delta |
+|---|---|---|---|
+| **/market** | Perf 52 · LCP 4423 · TBT 1189 | **Perf 87 · LCP 2532 · TBT 327** | **+35 Perf · −43% LCP · −72% TBT** |
+| / | Perf 75* · LCP 3221 · TBT 664 | Perf 75 · LCP 2705 · TBT 394 | −0,5s LCP · −41% TBT |
+| /community | Perf 82 · LCP 2067 · TBT 578 | Perf 86 · LCP 1953 · TBT 420 | +4 Perf |
+
+AC-05-Ziel (LCP < 3,5s UND TBT < 900ms): **massiv übertroffen** (2532/327).
+/market ist von der schlechtesten zur besten Perf-Page geworden.
+CLS / = 0.225 bleibt → bestätigt Slice 284 (Home-CLS) als nächsten Hebel.

@@ -127,6 +127,32 @@ grep -rnE "useState<[A-Z][a-zA-Z]+ \| null>" src/components/ src/features/ | hea
 - Cross-Cutting mit Slice 270 "Per-Tenant-Window vs. Global-MAX" (errors-db.md) — beide sind „Daten-Frische in Multi-Source-Architektur".
 - Erweitert "Realtime-Hook-Refactor TanStack-Query → callback-only" (Slice 267) auf UI-Modal-Layer.
 
+### Derived-Loading aus `data === undefined` — TanStack-v5-Anti-Pattern (Slice 283, 2026-06-12)
+
+**Bug-Klasse:** Hook leitet einen Loading-State aus `data === undefined` ab statt `isLoading` zu destrukturieren. Bei Query-ERROR bleibt `data` für immer undefined → der abgeleitete Loading-State hängt permanent → endloser Skeleton OHNE ErrorState/Retry. Besonders fies wenn die Query Upstream-ID-Lieferant für abhängige byIds-Queries ist: deren `isError` feuert nie (0 ids = disabled).
+
+```ts
+// ❌ FALSCH (283-F-01): Error-Fall = ewiges Loading
+const { data: dashboard } = useMarketUserDashboard(userId);
+const dashboardLoading = dashboard === undefined;
+
+// ✓ RICHTIG: Loading UND Error explizit verkabeln
+const { data: dashboard, isLoading: dashboardLoading, isError: dashboardError } = useMarketUserDashboard(userId);
+const combinedError = dashboardError || downstreamByIdsError;
+```
+
+Regel: Upstream-Queries sind ID-Lieferant UND eigener Failure-Mode — beide Achsen in kombinierte Loading/Error-States (erweitert 282-F-02/F-03 um die Error-Achse). v5-Hinweis: `isLoading` ist bei disabled Queries false → anon-Fälle bleiben sauber.
+
+**Reference:** Slice 283 Review F-01, `useMarketData.ts`.
+
+### PostgREST `.or()` mit User-Input: `,` und `()` sind Parser-Syntax (Slice 283, 2026-06-12)
+
+`supabase.or(\`first_name.ilike.%q%,last_name.ilike.%q%\`)` — der or-Parser nutzt Komma als Bedingungs-Separator und Klammern als Gruppierung. User-Input mit `,()` erzeugt einen 400-Parse-Error → throw → je nach Consumer silent leere Liste. Kein Injection-Risiko (parametrisiert), aber funktionaler Silent-Fail.
+
+Fix: Input-Strip `q.replace(/[%_,().]/g, '')` ODER quoted-literal `col.ilike."${pattern}"`.
+
+**Reference:** `src/lib/services/players.ts` searchPlayersByName (Slice 283 F-02).
+
 ### Feature-Reaktivierung + Query-Ersatz: 3 Drift-Klassen (Slice 282, 2026-06-11)
 
 Slice 282 (Home von 4,2-MB-/api/players entkoppelt) — Cold-Context-Reviewer fing 2 MAJOR, alle 3 Klassen sind generalisierbar:

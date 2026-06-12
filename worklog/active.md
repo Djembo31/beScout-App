@@ -1,25 +1,27 @@
 # Active Slice
 
 ```
-status: active
-slice: 283
-stage: PROVE (Live-Network + GHA-Lighthouse-Delta post-Deploy offen)
+status: idle
+slice: 283 ✅ DONE
+stage: LOG complete (GHA-Delta: /market Perf 52→87, LCP −43%, TBT −72%; Live-Network 0× full-fetch auf Default-Tab + /manager)
 spec: worklog/specs/283-market-players-tab-decouple.md
 impact: worklog/impact/283-market-players-tab-decouple.md
 proof: worklog/proofs/283-market-decouple.md
-review: worklog/reviews/283-review.md (Cold-Context REWORK → MAJOR+MINOR geheilt, Wave-2-partial dokumentiert)
+review: worklog/reviews/283-review.md (Cold-Context REWORK → geheilt)
 ```
 
-## Slice 283 — Market: Portfolio-Tab von /api/players entkoppeln (L)
+## Slice 283 — Market/Manager von /api/players entkoppelt ✅ DONE (2026-06-12)
 
-**Trigger:** Anil 2026-06-12 „weiter mit 1" (Baseline-Hebel #1: /market GHA LCP 4,4s / Perf 52).
-**Design-Pivot:** Statt Server-Pagination (L+, beta-riskant) → Tab-Decoupling: Default-Tab `portfolio` (nur Holdings) wird heute vom 4,2-MB-Fetch des Marktplatz-Tabs gegated — exakt die Slice-282-Home-Klasse. Wave 1 Tab-Gating + byIds-Portfolio-Pfad, Wave 2 Enrichment-Single-Pass, Wave 3 SortOption-No-Op-Fix.
-**Messkorrektur dokumentiert:** Transfer ist br-komprimiert ~461 KB — Killer ist Parse/Materialisierung/Enrichment (4.500 Objekte × 3-5 Pässe).
+Headline: **/market Perf 52 → 87, LCP 4,4s → 2,5s, TBT −72%** — schlechteste → beste Page. /manager mit-entkoppelt (Bonus-Discovery). Review fing 1 MAJOR (Dashboard-Error → Endlos-Skeleton).
 
 ## Zuletzt
 
-- **Slice 282b** (2026-06-12) — LHCI-Auth-Fix, erste valide Baseline.
-- **Slice 282** (2026-06-11) — Home-Payload-Decouple −4,2 MB.
-- **Slice 282a** (2026-06-11) — Ops-Recovery.
+- **Slice 283** (2026-06-12) — Market+Manager-Decouple, /market Perf +35 (L, REWORK→geheilt).
+- **Slice 282b** (2026-06-12) — LHCI-Auth-Fix, erste valide Baseline (M).
+- **Slice 282** (2026-06-11) — Home-Payload-Decouple −4,2 MB (M).
 
-Nächstes: 283b (Lite-Endpoint/Server-Pagination falls nötig) · 284 Home-CLS · Lighthouse Phase-3-Gates.
+Nächstes (Kandidaten):
+- **Slice 284 — Home-CLS-Fix** (S/M): CLS 0.225 im Post-283-Run (lokal bis 0.55) — letzter großer Baseline-Hebel, UX-spürbar („Seite springt").
+- Lighthouse Phase-3-Gates scharf schalten (XS — jetzt 2 authed GHA-Runs, ab 3-5 Schwellen ableiten).
+- 283-Backlog: Search-Debounce (F-06), Manager portfolioOnly-Option (F-07), 283b Lite-Endpoint (Re-Visit-Trigger: Marktplatz-Tab-Open-TBT).
+- D70 Phase 4 Vercel Edge-Caching.
