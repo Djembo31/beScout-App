@@ -1,17 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-12 16:25)
+# Session Handoff — Auto (2026-06-12 16:38)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
- M worklog/active.md
  M worklog/audits/audit-stale-2026-06-12.md
  M worklog/audits/type-truth-2026-06-12.md
-?? e2e/qa-284-stab-walk.ts
-?? worklog/audits/2026-06-12/stab-284-punchlist.md
 ```
+
+## Session Commits: 1
+- 0c2326ea docs(slice-284): Phase-A-Befund komplett — Punch-List 30 Findings (3xP0, 8xP1)
 
 <!-- auto:handoff-end -->
 
@@ -2474,3 +2473,81 @@ Session crashed. State at crash time:
 
 
 ### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130128.diff`
+
+## ⚠ CRASH RECOVERY (20260612-170143)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-170143.diff)
+```
+ M memory/session-handoff.md
+ M src/app/api/cron/gameweek-sync/route.ts
+ M src/app/api/cron/live-score-sync/route.ts
+ M src/app/api/cron/sync-fixtures-future/route.ts
+ M src/components/fantasy/spieltag/FixtureCard.tsx
+ M src/components/fantasy/spieltag/FixtureDetailModal.tsx
+ M src/components/fantasy/spieltag/SpieltagBrowser.tsx
+ M src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx
+ M src/features/fantasy/services/fixtures.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? src/features/fantasy/lib/
+?? supabase/migrations/20260612180000_slice_284a_fixture_status_union.sql
+?? worklog/specs/284a-live-lifecycle.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-170143.diff`
+
+## ⚠ CRASH RECOVERY (20260612-170145)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-170145.diff)
+```
+ M memory/session-handoff.md
+ M src/app/api/cron/gameweek-sync/route.ts
+ M src/app/api/cron/live-score-sync/route.ts
+ M src/app/api/cron/sync-fixtures-future/route.ts
+ M src/components/fantasy/spieltag/FixtureCard.tsx
+ M src/components/fantasy/spieltag/FixtureDetailModal.tsx
+ M src/components/fantasy/spieltag/SpieltagBrowser.tsx
+ M src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx
+ M src/features/fantasy/services/fixtures.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? src/features/fantasy/lib/
+?? supabase/migrations/20260612180000_slice_284a_fixture_status_union.sql
+?? worklog/specs/284a-live-lifecycle.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-170145.diff`
+
+## ⚠ CRASH RECOVERY (20260612-175916)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-175916.diff)
+```
+ M memory/session-handoff.md
+ M src/app/api/cron/gameweek-sync/route.ts
+ M src/app/api/cron/live-score-sync/route.ts
+ M src/app/api/cron/sync-fixtures-future/route.ts
+ M src/components/fantasy/spieltag/FixtureCard.tsx
+ M src/components/fantasy/spieltag/FixtureDetailModal.tsx
+ M src/components/fantasy/spieltag/SpieltagBrowser.tsx
+ M src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx
+ M src/features/fantasy/services/fixtures.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? src/features/fantasy/lib/
+?? supabase/migrations/20260612180000_slice_284a_fixture_status_union.sql
+?? worklog/specs/284a-live-lifecycle.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-175916.diff`

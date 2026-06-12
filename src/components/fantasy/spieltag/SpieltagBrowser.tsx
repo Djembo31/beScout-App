@@ -1,5 +1,6 @@
 'use client';
 
+import { isFixtureLive } from '@/features/fantasy/lib/fixtureLive';
 import React, { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -16,11 +17,13 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
   const now = useMemo(() => new Date(), []);
 
   // Slice 267 — Live-Bucket (status='live' separates from finished/pending/upcoming)
+  // Slice 284a: isFixtureLive statt blindem status-Check — stale-live (Cron-Leichen)
+  // fällt in den Ausstehend-Bucket statt wochenlang zu pulsieren.
   const live = useMemo(() =>
     fixtures
-      .filter(f => f.status === 'live')
+      .filter(f => isFixtureLive(f.status, f.played_at, now))
       .sort((a, b) => new Date(b.played_at ?? 0).getTime() - new Date(a.played_at ?? 0).getTime()),
-    [fixtures]
+    [fixtures, now]
   );
 
   const finished = useMemo(() =>
@@ -32,14 +35,19 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
 
   const pendingResult = useMemo(() =>
     fixtures
-      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && f.status !== 'live' && f.played_at && new Date(f.played_at) < now)
+      // Slice 284a: stale-live wandert hierher; cancelled verschwindet aus pending
+      // (findet nie statt — Wave-2-UI gibt ihm ein eigenes Label).
+      .filter(f =>
+        f.status !== 'simulated' && f.status !== 'finished' && f.status !== 'cancelled' &&
+        !isFixtureLive(f.status, f.played_at, now) &&
+        f.played_at && new Date(f.played_at) < now)
       .sort((a, b) => new Date(b.played_at ?? 0).getTime() - new Date(a.played_at ?? 0).getTime()),
     [fixtures, now]
   );
 
   const upcoming = useMemo(() =>
     fixtures
-      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && f.status !== 'live' && (!f.played_at || new Date(f.played_at) >= now))
+      .filter(f => f.status !== 'simulated' && f.status !== 'finished' && f.status !== 'live' && f.status !== 'cancelled' && (!f.played_at || new Date(f.played_at) >= now))
       .sort((a, b) => new Date(a.played_at ?? '9999').getTime() - new Date(b.played_at ?? '9999').getTime()),
     [fixtures, now]
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { isFixtureLive } from '@/features/fantasy/lib/fixtureLive';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -437,6 +438,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   // are observable here as `fixture.status`-Wechsel und triggern useEffect via deps.
   const fixtureId = fixture?.id;
   const fixtureStatus = fixture?.status;
+  const fixturePlayedAt = fixture?.played_at;
 
   useEffect(() => {
     if (!fixtureId || !isOpen) return;
@@ -460,13 +462,14 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
     loadStats();
 
     // 60s-Polling während Live-Match: BPS/Bewertungen ticken hoch.
-    if (fixtureStatus === 'live') {
+    // Slice 284a: Staleness-Guard — stale-live darf NICHT endlos pollen.
+    if (isFixtureLive(fixtureStatus, fixturePlayedAt)) {
       const interval = setInterval(loadStats, 60_000);
       return () => { cancelled = true; clearInterval(interval); };
     }
 
     return () => { cancelled = true; };
-  }, [fixtureId, fixtureStatus, isOpen]);
+  }, [fixtureId, fixtureStatus, fixturePlayedAt, isOpen]);
 
   // Load floor prices when stats arrive
   useEffect(() => {
@@ -504,7 +507,8 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
-  const isLive = fixture.status === 'live'; // Slice 267 F-06 — 3-State-Branch
+  // Slice 284a: Staleness-Guard — kein LIVE-Badge/Puls für Cron-Leichen.
+  const isLive = isFixtureLive(fixture.status, fixture.played_at);
   const homeColor = homeClub?.colors.primary ?? '#22C55E';
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 

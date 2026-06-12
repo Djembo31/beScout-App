@@ -124,7 +124,9 @@ export function SpieltagTab({
   }, [gameweek, isAdmin]);
 
   // Derived state
-  const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
+  // Review-284a-F-04: cancelled zählt als komplett — sonst hält ein abgesagtes
+  // Spiel den grünen „Offen"-Pulse für immer (FANT-07-Symptomklasse).
+  const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished' || f.status === 'cancelled').length;
   const finishedCount = fixtures.filter(f => f.status === 'finished').length;
   const allFixturesFinished = finishedCount === fixtures.length && fixtures.length > 0;
   const gwEvents = events;

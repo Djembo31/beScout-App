@@ -584,7 +584,8 @@ async function syncLeague(
       .select('id, played_at')
       .eq('gameweek', activeGw)
       .in('home_club_id', allLeagueClubIds)
-      .neq('status', 'finished')
+      // Slice 284a: cancelled = GW-done (findet nie statt)
+      .not('status', 'in', '("finished","cancelled")')
       .limit(1);
 
     if (!unfinishedFixtures || unfinishedFixtures.length === 0) {
@@ -637,7 +638,8 @@ async function syncLeague(
         .select('id')
         .eq('gameweek', activeGw)
         .in('home_club_id', allLeagueClubIds)
-        .neq('status', 'finished')
+        // Slice 284a: cancelled = GW-done
+        .not('status', 'in', '("finished","cancelled")')
         .lt('played_at', new Date().toISOString())
         .limit(1);
 
@@ -880,7 +882,8 @@ async function syncLeague(
         .select('id')
         .eq('gameweek', activeGw)
         .in('home_club_id', allLeagueClubIds)
-        .eq('status', 'finished');
+        // Slice 284a: cancelled zählt als done (dbTruthAllDone darf nicht ewig blocken)
+        .in('status', ['finished', 'cancelled']);
       for (const f of alreadyFinished ?? []) {
         dbFinishedIds.add(f.id as string);
       }
@@ -1433,6 +1436,24 @@ async function syncLeague(
     // ---- 8 & 9. Score events ----
 
     await runStep('score_events', async () => {
+      // Slice 284a (FANT-03) — Pre-Scoring-Invariant: NIE scoren solange die GW
+      // unaufgelöste Vergangenheits-Fixtures hat (scheduled/live/postponed).
+      // Defense-in-Depth zusätzlich zu dbTruthAllDone — schützt auch alternative
+      // Aufruf-Pfade. Spieler nie-beendeter Spiele würden sonst als No-Show
+      // (0 Punkte, falscher Auto-Sub) gewertet.
+      const { count: unresolvedPast } = await supabaseAdmin
+        .from('fixtures')
+        .select('id', { count: 'exact', head: true })
+        .eq('gameweek', activeGw)
+        .in('home_club_id', allLeagueClubIds)
+        .in('status', ['scheduled', 'live', 'postponed'])
+        .lt('played_at', new Date().toISOString());
+      if (unresolvedPast && unresolvedPast > 0) {
+        await logStep(activeGw, 'scoring_blocked_unresolved_fixtures', 'skipped', {
+          unresolved_past_fixtures: unresolvedPast,
+        });
+        return { skipped: true, reason: 'unresolved_fixtures' };
+      }
       // Score-coverage guard: skip auto-scoring if no real player data exists
       // (prevents meaningless default-40 scores when API-Football is unavailable)
       // Scoped per-league via player_id IN leaguePlayerIds
@@ -1767,6 +1788,9 @@ async function syncLeague(
       const { data: maxGwData } = await supabaseAdmin
         .from('fixtures')
         .select('gameweek')
+        // Review-284a-F-05: cancelled hier bewusst NICHT — diese Query ermittelt
+        // die maximal GESPIELTE GW (Spiel-Evidenz); cancelled liefert keine.
+        // (Done-Set-Semantik gilt nur für Advance/Scoring-Gates.)
         .in('status', ['FT', 'finished', 'simulated'])
         .in('home_club_id', allLeagueClubIds)
         .order('gameweek', { ascending: false })

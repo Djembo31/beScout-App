@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { DbFixture, Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, SimulateResult } from '@/types';
+import type { DbFixture, Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, SimulateResult, FixtureStatus } from '@/types';
 
 // ============================================
 // Queries
@@ -39,7 +39,7 @@ export async function getFixturesByGameweek(gw: number, leagueId?: string | null
       away_club_id: row.away_club_id as string,
       home_score: row.home_score as number | null,
       away_score: row.away_score as number | null,
-      status: row.status as 'scheduled' | 'simulated' | 'live' | 'finished',
+      status: row.status as FixtureStatus,
       played_at: row.played_at as string | null,
       home_formation: (row.home_formation as string | null) ?? null,
       away_formation: (row.away_formation as string | null) ?? null,
@@ -85,7 +85,7 @@ export async function getFixturesByClub(clubId: string): Promise<Fixture[]> {
       away_club_id: row.away_club_id as string,
       home_score: row.home_score as number | null,
       away_score: row.away_score as number | null,
-      status: row.status as 'scheduled' | 'simulated' | 'live' | 'finished',
+      status: row.status as FixtureStatus,
       played_at: row.played_at as string | null,
       home_formation: (row.home_formation as string | null) ?? null,
       away_formation: (row.away_formation as string | null) ?? null,
@@ -206,7 +206,8 @@ export async function getGameweekStatuses(
     const gw = row.gameweek as number;
     const existing = gwMap.get(gw) || { total: 0, simulated: 0 };
     existing.total++;
-    if (row.status === 'simulated' || row.status === 'finished') existing.simulated++;
+    // Slice 284a: cancelled zählt als komplett (Spiel findet nie statt)
+    if (row.status === 'simulated' || row.status === 'finished' || row.status === 'cancelled') existing.simulated++;
     gwMap.set(gw, existing);
   }
 

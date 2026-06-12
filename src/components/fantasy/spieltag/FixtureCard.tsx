@@ -1,5 +1,6 @@
 'use client';
 
+import { isFixtureLive } from '@/features/fantasy/lib/fixtureLive';
 import React from 'react';
 import { ChevronRight, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -32,14 +33,17 @@ export function FixtureCard({ fixture, onSelect }: Props) {
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isFinished = fixture.status === 'simulated' || fixture.status === 'finished';
-  const isLive = fixture.status === 'live'; // Slice 267 — Live-State branch
+  // Slice 284a: Staleness-Guard — stale-live rendert als „Ergebnis ausstehend".
+  const isLive = isFixtureLive(fixture.status, fixture.played_at);
   const totalGoals = (fixture.home_score ?? 0) + (fixture.away_score ?? 0);
 
   const kickoff = formatKickoff(fixture.played_at);
   const isPast = kickoff ? new Date(fixture.played_at!) < new Date() : false;
   const isPendingResult = !isFinished && !isLive && isPast;
 
-  const accent = getStatusAccent(fixture.status);
+  // Review-284a-F-03: Accent vom EFFEKTIVEN Status — sonst pulsiert der
+  // stale-live-Geist im Border/Glow weiter, obwohl das Label korrekt ist.
+  const accent = getStatusAccent(isLive ? 'live' : fixture.status === 'live' ? 'scheduled' : fixture.status);
 
   // Slice 267 — defensive null-strict-equality on fixture.minute (errors-frontend.md
   // "Defensive null-strict-equality" — null === number is false, so undefined/null

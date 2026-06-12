@@ -97,7 +97,9 @@ function makeFixture(overrides: Partial<FixtureWithLive> = {}): FixtureWithLive 
     home_score: null,
     away_score: null,
     status: 'scheduled',
-    played_at: '2025-01-15T18:00:00Z',
+    // Slice 284a: frischer Kickoff — isFixtureLive-Staleness-Guard stuft
+    // live-Fixtures mit Anstoß > 5h als stale ein (das ist der Bugfix).
+    played_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
     created_at: '2025-01-01T00:00:00Z',
     home_club_name: 'Home FC',
     home_club_short: 'HOM',
@@ -116,6 +118,22 @@ const noOp = () => {};
 // ============================================
 // AC-06: Standard-Live-Render
 // ============================================
+
+describe('FixtureCard — Stale-Live-Guard (Slice 284a AC-06)', () => {
+  it('rendert stale-live (Anstoß > 5h) als Ergebnis-ausstehend OHNE Live-Pulse', () => {
+    const fixture = makeFixture({
+      status: 'live',
+      played_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+      home_score: null,
+      away_score: null,
+    });
+    const { container } = renderWithProviders(<FixtureCard fixture={fixture} onSelect={noOp} />);
+    // Kein LIVE-Indikator, kein animate-pulse — der 08.05.-Leichen-Fall.
+    expect(container.textContent).not.toMatch(/LIVE/i);
+    expect(container.querySelector('.animate-pulse')).toBeNull();
+    expect(container.textContent).toContain('resultPending');
+  });
+});
 
 describe('FixtureCard — Live-Render Standard (AC-06)', () => {
   it('zeigt LIVE-Indikator + Score + Minute bei status="live"', () => {

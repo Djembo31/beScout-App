@@ -52,6 +52,8 @@ type LiveSyncResult = {
   leagues?: number;
   live_fixtures_count?: number;
   updated_count?: number;
+  /** Slice 284a: per Stale-Live-Recovery final geschriebene Fixtures. */
+  recovered_count?: number;
   duration_ms: number;
   error?: string;
 };
@@ -96,9 +98,14 @@ export const GET = withLogger('cron.live-score-sync', async (request) => {
 
   try {
     // ============================================
-    // Q2-C-Adaptive Pre-Check
-    // Skip API-call when no fixtures are within the live-window.
-    // Live-window = played_at ± 15min AND status NOT IN ('finished', 'simulated').
+    // Q2-C-Adaptive Pre-Check — Slice 284a (FANT-01-Fix).
+    // VORHER (Bug): played_at ±15min AND status IN (scheduled, live) — ein
+    // laufendes Match war 15min nach Anstoß AUSSERHALB des Fensters, FT sowieso
+    // → live→finished-Transition strukturell unmöglich, Fixtures blieben auf
+    // 'live' hängen (2× seit 08.05., Punch-List FANT-02).
+    // JETZT (OR): status='live' zählt IMMER (egal wie alt — deckt laufende
+    // Matches UND stale-live-Recovery ab); 'scheduled' nur im ±15min-Fenster
+    // (Kickoff-Detection, hält die API-Quota klein).
     // ============================================
     const windowStart = new Date(Date.now() - 15 * 60_000).toISOString();
     const windowEnd = new Date(Date.now() + 15 * 60_000).toISOString();
@@ -106,9 +113,9 @@ export const GET = withLogger('cron.live-score-sync', async (request) => {
     const { count: liveWindowCount, error: windowErr } = await supabaseAdmin
       .from('fixtures')
       .select('id', { count: 'exact', head: true })
-      .gte('played_at', windowStart)
-      .lte('played_at', windowEnd)
-      .in('status', ['scheduled', 'live']);
+      .or(
+        `status.eq.live,and(status.eq.scheduled,played_at.gte.${windowStart},played_at.lte.${windowEnd})`,
+      );
 
     if (windowErr) {
       const result: LiveSyncResult = {
@@ -211,6 +218,7 @@ export const GET = withLogger('cron.live-score-sync', async (request) => {
     );
 
     const liveFixtures = apiResp.response ?? [];
+    const liveApiIds = new Set(liveFixtures.map((f) => f.fixture.id));
 
     // ============================================
     // Per-fixture UPDATE with Idempotency-Lock (F-05).
@@ -266,14 +274,117 @@ export const GET = withLogger('cron.live-score-sync', async (request) => {
       }
     }
 
+    // ============================================
+    // Slice 284a (FANT-02/T3) — Stale-Live-Recovery.
+    // Der ?live=-Feed liefert beendete Spiele NIE — die finished-Transition
+    // braucht einen ID-Lookup. Jedes Fixture, das >4h nach Anstoß noch 'live'
+    // ist UND nicht (mehr) im Live-Feed auftaucht, wird per /fixtures?ids=
+    // nachgeschlagen und final geschrieben. Heilt auch Alt-Leichen (die 2
+    // stuck-live seit 08.05.) beim ersten Lauf. Wenn die API das Fixture gar
+    // nicht kennt → 'cancelled' + WARN (Operator-Sicht via cron_sync_log).
+    // ============================================
+    let recoveredCount = 0;
+    let recoveryApiCalls = 0;
+    const staleCutoff = new Date(Date.now() - 4 * 60 * 60_000).toISOString();
+    const { data: staleLive, error: staleErr } = await supabaseAdmin
+      .from('fixtures')
+      .select('id, api_fixture_id, played_at')
+      .eq('status', 'live')
+      .lt('played_at', staleCutoff)
+      .not('api_fixture_id', 'is', null);
+    if (staleErr) {
+      // Recovery ist additiv — Fehler loggen, Haupt-Sync-Ergebnis nicht kippen.
+      console.error('[live-score-sync] stale-live query failed:', staleErr.message);
+    }
+    const staleToRecover = (staleLive ?? []).filter(
+      (f) => !liveApiIds.has(f.api_fixture_id as number),
+    );
+    if (staleToRecover.length > 0) {
+      const CHUNK = 20; // API-Football ?ids= Limit
+      for (let i = 0; i < staleToRecover.length; i += CHUNK) {
+        const chunk = staleToRecover.slice(i, i + CHUNK);
+        const idsParam = chunk.map((f) => f.api_fixture_id).join('-');
+        recoveryApiCalls++;
+        const lookup = await apiFetch<{ response: ApiFixtureLive[]; errors?: unknown }>(
+          `/fixtures?ids=${idsParam}`,
+        );
+        const lookupRows = lookup.response ?? [];
+        // Review-284a-F-01: API-Football liefert Rate-Limit/Fehler als HTTP 200
+        // mit errors-Body + LEEREM response. Leere Antwort darf NIE als
+        // „Fixtures existieren nicht" gewertet werden — sonst würden echte
+        // Ergebnisse als cancelled verschluckt (Scoring-Pfad!). Skip + Retry
+        // im nächsten Lauf.
+        if (lookupRows.length === 0) {
+          console.warn(
+            '[live-score-sync] stale-live lookup returned empty response — skipping chunk (api errors:',
+            JSON.stringify(lookup.errors ?? null).slice(0, 200),
+            ')',
+          );
+          continue;
+        }
+        const byApiId = new Map(lookupRows.map((r) => [r.fixture.id, r]));
+        const cancelCutoff = Date.now() - 24 * 60 * 60_000;
+        for (const stale of chunk) {
+          const apiRow = byApiId.get(stale.api_fixture_id as number);
+          if (!apiRow) {
+            // API kennt ANDERE Fixtures des Chunks, dieses nicht. Cancel erst
+            // nach 24h (pragmatisches 2-Strike: der Daily-Sync hat bis dahin
+            // Vorrang, transiente Lücken heilen sich selbst).
+            if (!stale.played_at || new Date(stale.played_at).getTime() > cancelCutoff) {
+              console.warn('[live-score-sync] stale-live not in API response — waiting for 24h cutoff:', stale.id);
+              continue;
+            }
+            const { error: cancelErr } = await supabaseAdmin
+              .from('fixtures')
+              .update({ status: 'cancelled', last_live_update_at: new Date().toISOString() })
+              .eq('id', stale.id)
+              .eq('status', 'live');
+            if (cancelErr) {
+              console.error('[live-score-sync] stale-live cancel failed:', stale.id, cancelErr.message);
+            } else {
+              console.warn('[live-score-sync] stale-live unresolvable via API → cancelled:', stale.id);
+              recoveredCount++;
+            }
+            continue;
+          }
+          const short = apiRow.fixture.status.short;
+          const finalStatus = FINISHED_STATUSES.has(short)
+            ? 'finished'
+            : short === 'PST' || short === 'SUSP' || short === 'INT'
+              ? 'postponed'
+              : ['CANC', 'ABD', 'AWD', 'WO'].includes(short)
+                ? 'cancelled'
+                : null; // noch echt live (extremer Sonderfall) → unangetastet
+          if (!finalStatus) continue;
+          const { error: healErr } = await supabaseAdmin
+            .from('fixtures')
+            .update({
+              status: finalStatus,
+              home_score: apiRow.goals.home,
+              away_score: apiRow.goals.away,
+              minute: null,
+              last_live_update_at: new Date().toISOString(),
+            })
+            .eq('id', stale.id)
+            .eq('status', 'live'); // nur den stale-Zustand überschreiben
+          if (healErr) {
+            console.error('[live-score-sync] stale-live heal failed:', stale.id, healErr.message);
+          } else {
+            recoveredCount++;
+          }
+        }
+      }
+    }
+
     const totalDuration = Date.now() - runStart;
     const result: LiveSyncResult = {
       success: true,
       skipped: false,
-      api_calls: 1,
+      api_calls: 1 + recoveryApiCalls,
       leagues: activeLeagues.length,
       live_fixtures_count: liveFixtures.length,
       updated_count: updatedCount,
+      recovered_count: recoveredCount,
       duration_ms: totalDuration,
     };
 

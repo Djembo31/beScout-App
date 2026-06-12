@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { apiFetch, getCurrentSeason } from '@/lib/footballApi';
 import { withLogger } from '@/lib/observability/apiLogger';
+import type { FixtureStatus } from '@/types';
 
 type ApiFixturesSeasonResponse = {
   response: Array<{
@@ -62,15 +63,16 @@ function parseGameweek(round: string | undefined): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
-/** Map API status.short → DB status string. */
-function mapStatus(apiStatus: string): string {
+/** Map API status.short → DB status (Slice 284a: NUR Union-Werte — 'halftime'
+ * u.a. failten still am fixtures_status_check und liessen 154 Geister zurück). */
+function mapStatus(apiStatus: string): FixtureStatus {
   const s = apiStatus.toUpperCase();
   if (['FT', 'AET', 'PEN'].includes(s)) return 'finished';
-  if (['1H', '2H', 'ET', 'BT', 'P', 'LIVE'].includes(s)) return 'live';
-  if (s === 'HT') return 'halftime';
-  if (s === 'PST') return 'postponed';
-  if (s === 'CANC' || s === 'ABD') return 'cancelled';
-  return 'scheduled'; // NS, TBD, SUSP
+  if (['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(s)) return 'live';
+  if (['PST', 'SUSP', 'INT'].includes(s)) return 'postponed';
+  // Review-284a-F-02: 'AWD' (Awarded/Technical Loss) — NICHT 'AWO' (existiert nicht)
+  if (['CANC', 'ABD', 'AWD', 'WO'].includes(s)) return 'cancelled';
+  return 'scheduled'; // NS, TBD
 }
 
 export const GET = withLogger('cron.sync-fixtures-future', async (request): Promise<NextResponse> => {

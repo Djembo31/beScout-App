@@ -1522,7 +1522,9 @@ export type DbLiquidationPayout = {
 // FIXTURE TYPES
 // ============================================
 
-export type FixtureStatus = 'scheduled' | 'simulated' | 'live' | 'finished';
+// Slice 284a: +postponed (wird nachgeholt, zählt NICHT als GW-done) +cancelled
+// (findet nie statt, zählt als GW-done). DB-CHECK fixtures_status_check synchron.
+export type FixtureStatus = 'scheduled' | 'simulated' | 'live' | 'finished' | 'postponed' | 'cancelled';
 
 export type DbFixture = {
   id: string;

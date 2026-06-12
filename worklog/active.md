@@ -3,11 +3,11 @@
 ```
 status: active
 slice: 284
-stage: SPEC (Phase A Befund läuft — 2 Domain-Experten + DB-Truth + Live-Walk)
-spec: worklog/audits/2026-06-12/stab-284-punchlist.md (Punch-List = lebende Spec-Grundlage; formale Spec nach Befund-Konsolidierung)
-impact: pending
-proof: pending
-review: pending
+stage: PROVE (AC-01 Stuck-Live-Heilung post-Deploy offen — Cron minütlich)
+spec: worklog/specs/284a-live-lifecycle.md (Punch-List: worklog/audits/2026-06-12/stab-284-punchlist.md)
+impact: inline in Spec §4 (Status-Union-Konsumenten grep-verifiziert, Migration CHECK-only + applied)
+proof: worklog/proofs/284a-live-lifecycle.md
+review: worklog/reviews/284a-review.md (Cold-Context REWORK → 3 MAJOR + 5 MINOR geheilt)
 ```
 
 ## Slice 284 — Core-Domain-Stabilisierung (Spieltag · Markt · Rankings · Auswertung · Wettbewerbe)
