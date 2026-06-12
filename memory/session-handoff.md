@@ -1,19 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-12 12:11)
+# Session Handoff — Auto (2026-06-12 16:25)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 6 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
  M worklog/audits/audit-stale-2026-06-12.md
  M worklog/audits/type-truth-2026-06-12.md
-?? e2e/qa-283-network.ts
+?? e2e/qa-284-stab-walk.ts
+?? worklog/audits/2026-06-12/stab-284-punchlist.md
 ```
-
-## Session Commits: 2
-- ec0ae74b perf(market): Slice 283 — Portfolio-Tab + Manager von /api/players entkoppelt
-- 199b5a03 chore(slice-282b): LOG-Abschluss — GHA authed SUCCESS, Baseline + Proof + Knowledge
 
 <!-- auto:handoff-end -->
 
@@ -2437,3 +2435,42 @@ Session crashed. State at crash time:
 
 
 ### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005905.diff`
+
+## ⚠ CRASH RECOVERY (20260612-130123)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-130123.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130123.diff`
+
+## ⚠ CRASH RECOVERY (20260612-130123)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-130123.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130123.diff`
+
+## ⚠ CRASH RECOVERY (20260612-130128)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-130128.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130128.diff`

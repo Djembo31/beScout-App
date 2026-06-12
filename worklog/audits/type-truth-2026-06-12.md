@@ -1,6 +1,6 @@
 # Type-Truth Audit Report — 2026-06-12
 
-**Generated:** 2026-06-12T10:00:28.631Z
+**Generated:** 2026-06-12T10:18:16.473Z
 **Slice:** 229 (D43/D49 Pattern-Detection)
 
 ## Summary
