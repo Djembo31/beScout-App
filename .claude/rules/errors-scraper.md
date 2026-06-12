@@ -75,6 +75,25 @@ grep -rn "season=" src/app/api/cron/ | grep -v "date=\|fixture=\|live=\|round=\|
 
 
 
+### API-Football Account-Suspension = wochenlang stiller Total-Ausfall (Slice 284a, 2026-06-12)
+
+**Bug-Klasse:** API-Football liefert bei suspendiertem Account/Plan-Limits **HTTP 200** mit `errors`-Body + leerem `response`. `apiFetch` prüft das errors-Feld nicht → alle Crons laufen „erfolgreich" mit 0 Ergebnissen. Prod-Key war 06.05.–12.06. tot (5 Wochen): Live-Feed leer → 2 Fixtures froren auf 'live' ein; Status-Updates leer → 154 Geister wuchsen; cron_sync_log zeigte überall status=success.
+
+**Detection (Operator-Smoke):**
+```sql
+SELECT created_at::date, MAX((details->>'total')::int) AS max_total
+FROM cron_sync_log WHERE step='check_fixtures'
+GROUP BY 1 ORDER BY 1 DESC LIMIT 7;
+-- max_total=0 an Tagen mit bekannt-existierenden Fixtures -> Key tot.
+```
+Lokaler Key-Test: curl mit x-apisports-key → `.errors` inspizieren.
+
+**Plan-Fallen (live verifiziert):** `?ids=` (plural) ist plan-gesperrt („Free plans do not have access to the Ids parameter") — HTTP 200 + leer. Recovery-Lookups deshalb IMMER über das Slice-275-Pattern `?league=&season=&date=`.
+
+**Prevention-Kandidaten (Backlog):** (1) apiFetch wirft bei non-empty errors-Body; (2) cronHealth-Check „API-total=0 für bekannt-beendete GW an N Tagen" → Sentinel/GH-Issue.
+
+**Reference:** worklog/proofs/284a-live-lifecycle.md Forensik.
+
 ### Scraper Default-Poisoning (Slice 081, TM)
 - Parser-Fallback-Werte (MV=500K/8M + contract=2025-07-01) erscheinen auf vielen Spielern identisch — sehen aus wie echte Daten.
 - Detect: `GROUP BY market_value_eur, contract_end HAVING COUNT(*) >= 4`.

@@ -2,6 +2,18 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 284a | 2026-06-12 | fix(fantasy): Live-Lifecycle — Cron-Window + Status-Modell + Self-Heal + Scoring-Guard (Wave 1 Stabilisierung)
+
+- Stage-Chain: SPEC (worklog/specs/284a-live-lifecycle.md, L) → IMPACT (inline §4) → BUILD (Migration-First: CHECK applied VOR Code-Push) → REVIEW (Cold-Context REWORK → 3 MAJOR + 5 MINOR geheilt, worklog/reviews/284a-review.md) → PROVE (worklog/proofs/284a-live-lifecycle.md) → LOG
+- Slice-Type: Migration + Service + UI (L). Wave 1 der Core-Domain-Stabilisierung (Punch-List FANT-01/02/03/04/14 = 3×P0+2×P1).
+- **5 Tracks live:** T1 Window-OR (live zählt immer — vorher schloss ±15min laufende Matches aus, live→finished strukturell unmöglich) · T2 Status-Union +postponed/+cancelled (CHECK-Migration; mapStatus-Writes failten vorher SILENT = Root-Cause der 154 Geister; done-Semantik differenziert: cancelled=done für Advance/Scoring, NICHT für max-gespielte-GW) · T3 Stale-Live-Recovery (>4h-live via league+season+date; Empty-Response-Guard + 24h-Cancel-Cutoff) · T4 Pre-Scoring-Invariant · T5 UI-Staleness-Guard isFixtureLive (Buckets/Card inkl. Accent/Modal-Polling).
+- **Review-Wert (3 MAJOR vor Live):** F-01 Empty-Response-Falle (hätte echte Ergebnisse als cancelled verschluckt — **bewies sich im ersten Prod-Lauf sofort**), F-02 AWO→AWD-Typo (hätte unheilbare Geister-Klasse + 1440-Calls/Tag-Quota-Leck gebaut), F-03 Accent-Pulse-Geist.
+- **🚨 Kritischster Fund (PROVE-Forensik): Production-API-Football-Key seit 06.05. suspendiert** — alle API-Calls liefern seit 5 Wochen HTTP 200 + leer, cron_sync_log zeigte trotzdem success. DIE Wurzel hinter eingefrorenen Live-Spielen + Geistern. Detection-SQL + Plan-Fallen kodifiziert (errors-scraper.md). **CEO-Action: API-Football-Abo reaktivieren.**
+- AC-01 erfüllt: 2 stuck-live-Fixtures geheilt (Endstände extern gegen kicker/DFB verifiziert: KL 2:0, SCP 2:2 — identisch mit eingefrorenen DB-Scores), live-Count=0. Self-Heal bleibt für die Zukunft scharf (Key-abhängig).
+- Recovery-Lookup-Pivot mid-PROVE: ?ids= plan-gesperrt (live verifiziert) → Refactor auf Slice-275-Pattern league+season+date (cbe1ae5c).
+- Tests: 346/346 fantasy+api, +6 neue. Commits: 1d996297 + cbe1ae5c + LOG.
+- Nächste Waves: 284b Daten-Heal (Key-abhängig für API-Verify) · 284c Markt/Rankings · 284d Fantasy-UI (beide Key-unabhängig).
+
 ## 283 | 2026-06-12 | perf(market): Portfolio-Tab + Manager von /api/players entkoppelt — /market Perf 52→87
 
 - Stage-Chain: SPEC (worklog/specs/283-market-players-tab-decouple.md, L) → IMPACT (worklog/impact/283-...md) → BUILD (3 Waves serial) → REVIEW (Cold-Context REWORK → MAJOR+2 MINOR geheilt, worklog/reviews/283-review.md) → PROVE (worklog/proofs/283-market-decouple.md) → LOG

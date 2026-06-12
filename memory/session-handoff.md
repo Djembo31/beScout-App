@@ -1,15 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-12 23:24)
+# Session Handoff — Auto (2026-06-12 23:43)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-06-12.md
  M worklog/audits/type-truth-2026-06-12.md
 ```
 
-## Session Commits: 1
+## Session Commits: 2
+- cbe1ae5c fix(fantasy): 284a-Heal — Recovery-Lookup auf league+season+date (Plan-sicher)
 - 1d996297 fix(fantasy): Slice 284a — Live-Lifecycle: Cron-Window-OR + Status-Union + Self-Heal + Scoring-Guard
 
 <!-- auto:handoff-end -->
