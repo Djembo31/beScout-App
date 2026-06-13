@@ -362,6 +362,18 @@ jobs:
           SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
         run: pnpm exec playwright test --project=fantasy-lifecycle --reporter=list
 
+      # Slice 298: Deterministic /clubs + /club lifecycle contract. Non-blocking
+      # (continue-on-error) — a flaky prod run must not break nightly. Promotion
+      # to a hard gate only after multiple green runs (Spec §11 Scope-Out).
+      - name: Run Club Lifecycle contract against bescout.net
+        if: always()
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_BASE_URL: https://bescout.net
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: pnpm exec playwright test --project=club-lifecycle --reporter=list
+
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4

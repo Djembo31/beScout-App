@@ -65,6 +65,10 @@ Deterministisch über jeden Backend-State UND brüchig gegen echte Bugs. 0 offen
 
 **Reference:** `e2e/fantasy-lifecycle.spec.ts` (Slice 293). Blueprint reusable für /club, /clubs Lifecycle-E2Es (Demo-Step 8). Active-Tab-Anker: `toHaveClass(/text-gold/)` auf dem geklickten Nav-Button.
 
+**Anwendung Slice 298** (`e2e/club-lifecycle.spec.ts` — /clubs + /club/[slug]): Blueprint auf Club-Pages übertragen. Zwei Lehren für künftige Lifecycle-E2Es:
+1. **Active-Tab-Anker ist komponenten-abhängig.** Die generische `TabBar` (`src/components/ui/TabBar.tsx`) rendert den aktiven Tab bei gesetztem `accentColor` (z.B. Club-Farbe) via **Inline-`style`**, NICHT via `text-gold`-Klasse — die greift nur im `!accentColor`-Branch. Anker dann `toHaveAttribute('aria-selected','true')` (immer gesetzt via `role="tab"`), nicht `toHaveClass(/text-gold/)`. Vor dem Schreiben die TabBar-Source des Ziels prüfen welcher Active-Marker gilt.
+2. **Compliance-Element (Punkt 2 oben) ist seiten-spezifisch.** /fantasy hat einen Pflicht-Disclaimer (harter Anker); /club hat keinen (Compliance via Slice-294-Metadata-Unit-Test) → Compliance-Assertion entfällt im Contract, dafür Daten-Pfad-Anker = Discovery-Card-presence + ErrorState-absent.
+
 ## useSafeMutation Test-Patterns (codifiziert Slice 164, aus 159/161/162/163)
 
 Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).

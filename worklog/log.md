@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 298 | 2026-06-13 | test(club): Contract-Level Lifecycle-E2E /clubs + /club (Demo-Step-8)
+
+- Stage-Chain: SPEC (`worklog/specs/298-club-lifecycle-e2e.md`, M, Slice-Type Tool) → IMPACT skipped (reine E2E-Test-Infra, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/298-review.md`, reviewer-Agent PASS, 2 NITPICK, #1 übernommen) → PROVE (`worklog/proofs/298-club-lifecycle.txt`, 2 passed gegen bescout.net) → LOG.
+- Trigger: Demo-Step-8 (Anil-Direktive) — `e2e/club.spec.ts` ist konditionaler Render-Smoke (kann nicht failen). Slice-293-Blueprint („Contract-Level E2E gegen Live-Prod") auf Club-Pages angewandt, schließt den demo-yellow E2E-Gap der Club-Pages + macht Slice-297-AC-5-Mobile-Verify wiederholbar.
+- Neu `e2e/club-lifecycle.spec.ts` — 2 Contract-Tests (own-login jarvis-qa, contract-not-value, retries:1, pageerror-Collector, exact:true Error-Absence, ≤1px-Mobile):
+  - **Test A /clubs** (AC-A1…A5): reachable (kein /login-Redirect) · league-scope-Filter ≥1 Button (Slice-286-Cold-Load-Anker) · data-path resolved (Club-Card visible + ErrorState absent) · no i18n-leak · mobile-393px no-overflow.
+  - **Test B /club/[slug]** (AC-B1…B7): public reachable · 4 Tabs role=tab Übersicht/Spieler/Spielplan/Mehr (Slice-297-Split + Skeleton-resolved) · ErrorState absent · Tab-Walk via `aria-selected=true` (TabBar `accentColor`→Inline-style, NICHT text-gold) · no-leak · mobile-393px 4-Tabs+no-overflow (Slice-297-AC-5-Regression) · 0 pageerror.
+- Verkabelung analog 293: `playwright.config.ts` Projekt `club-lifecycle` · `package.json` `test:club-lifecycle` · `nightly-audit.yml` non-blocking Step (`if: always()`+`continue-on-error`). Promotion zu Hard-Gate erst nach mehreren grünen Runs (§11).
+- Knowledge: `testing.md` 293-Sektion erweitert um Slice-298-Anwendung — 2 Lehren: (1) Active-Tab-Anker ist komponenten-abhängig (`aria-selected` bei accentColor-TabBar statt text-gold); (2) Compliance-Element ist seiten-spezifisch (/club hat keinen Disclaimer → Daten-Pfad-Anker = Card-presence statt Disclaimer).
+- Files: `e2e/club-lifecycle.spec.ts` (neu) · `playwright.config.ts` · `package.json` · `.github/workflows/nightly-audit.yml` · `.claude/rules/testing.md`. Kein src/**-Runtime-Change. Proof: 2 passed 15.1s gegen bescout.net, tsc n/a (e2e tsconfig-excluded, runtime-typed).
+
 ## 297 | 2026-06-13 | refactor(club): Narrative Tab-Split — neuer „Mehr"-Tab (S3 F-4)
 
 - Stage-Chain: SPEC (`worklog/specs/297-club-detail-tab-split.md`, M, Slice-Type UI) → IMPACT skipped (UI-Reorder + ClubTab-Type + i18n, kein Service/RPC/Schema/Query-Key, useClubData untouched) → BUILD → REVIEW (`worklog/reviews/297-review.md`, reviewer-Agent PASS, 1 INFO orphan-imports out-of-scope) → PROVE (`worklog/proofs/297-club-tab-split.txt`) → LOG.

@@ -1,0 +1,64 @@
+Slice 298 — /club + /clubs Contract-Level Lifecycle E2E (Demo-Step-8) — PROOF
+Date: 2026-06-13
+
+=========================================================
+1. E2E run against bescout.net (own-login jarvis-qa)
+=========================================================
+$ PLAYWRIGHT_BASE_URL=https://bescout.net npx playwright test --project=club-lifecycle --reporter=list
+
+Running 2 tests using 1 worker
+
+  ok 1 [club-lifecycle] › club-lifecycle.spec.ts:48 › A — /clubs discovery contract:
+        reachable, league-filter, data-path, no leak, mobile (7.3s)
+  ok 2 [club-lifecycle] › club-lifecycle.spec.ts:107 › B — /club/[slug] detail contract:
+        public, 4-tab walk (Slice 297), data-path, no crash, mobile (7.3s)
+
+  2 passed (16.9s)
+
+Note: `pnpm run test:club-lifecycle` works in CI (Linux) but the inline-env
+syntax fails on local Windows cmd.exe — run via bash env-prefix locally
+(same property as the pre-existing test:fantasy-lifecycle script).
+
+=========================================================
+2. Contract assertions verified live
+=========================================================
+Test A (/clubs):
+  AC-A1 reachable, pathname=/clubs (no /login redirect), main visible
+  AC-A2 [data-testid=league-scope-header] visible + >0 filter buttons (Slice 286 cold-load anchor)
+  AC-A3 club card <a href*="/club/"> visible AND ErrorState (exact) count 0 → data-path resolved
+  AC-A4 no raw i18n-key leak in main
+  AC-A5 mobile 393px: documentElement overflow ≤ 1px
+
+Test B (/club/sakaryaspor):
+  AC-B1 reachable (public), pathname=/club/sakaryaspor (no redirect), main visible
+  AC-B2 4 tabs role=tab present: Übersicht/Spieler/Spielplan/Mehr (Slice 297 split + skeleton resolved)
+  AC-B3 ErrorState (exact) count 0 → data-path resolved
+  AC-B4 tab walk: each tab click → aria-selected="true" (TabBar accentColor inline-style, NOT text-gold),
+        ErrorState stays absent (no crash on switch)
+  AC-B5 no raw i18n-key leak in main
+  AC-B6 mobile 393px: 4 tabs reachable + documentElement overflow ≤ 1px (Slice 297 AC-5 regression anchor)
+  AC-B7 0 uncaught pageerror across the walk
+
+=========================================================
+3. Wiring (analog Slice 293 fantasy-lifecycle)
+=========================================================
+playwright.config.ts:58-60     project "club-lifecycle" (testMatch /club-lifecycle\.spec\.ts/)
+package.json:21                "test:club-lifecycle" script
+nightly-audit.yml:367-375      non-blocking step (if: always() + continue-on-error: true)
+
+=========================================================
+4. tsc
+=========================================================
+e2e/ is excluded from tsconfig (Slice 079); playwright type-checks the spec at
+runtime — 2 passed proves the spec compiles + selectors resolve.
+
+=========================================================
+5. Review
+=========================================================
+worklog/reviews/298-review.md — reviewer-Agent (see file).
+
+=========================================================
+6. Scope-Out (non-blocking until N green runs)
+=========================================================
+Step is continue-on-error in nightly. Promotion to a hard gate after multiple
+green runs (Spec §11). Existing e2e/club.spec.ts kept as local authenticated smoke.

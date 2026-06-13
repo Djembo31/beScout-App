@@ -53,6 +53,12 @@ export default defineConfig({
       testMatch: /fantasy-lifecycle\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // --- Club Lifecycle (deterministic contract /clubs + /club, own login, runs against Prod) — Slice 298 ---
+    {
+      name: 'club-lifecycle',
+      testMatch: /club-lifecycle\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // --- Authenticated tests (fan) ---
     {
       name: 'authenticated',

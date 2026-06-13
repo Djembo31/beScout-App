@@ -2,18 +2,21 @@
 
 ```
 status: idle
-slice: 297 ✅ DONE
+slice: 298 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/297-club-detail-tab-split.md
-impact: skipped (UI-Reorder + ClubTab-Type + i18n — kein Service/RPC/Schema/Query-Key)
-proof: worklog/proofs/297-club-tab-split.txt
-review: worklog/reviews/297-review.md (reviewer-Agent PASS — 1 INFO orphan-imports out-of-scope)
-decision: F-4 → Option B (Tab-Split). Label „Mehr"/„Daha" (id `mehr`). Übersicht 17→8; neuer Mehr-Tab (6); FDR+LastResults → Spielplan. FeatureShowcase bleibt Übersicht (Onboarding-Fallback).
-note: AC-5 Mobile-393px-Playshot post-Deploy ausstehend (Proof §7).
+spec: worklog/specs/298-club-lifecycle-e2e.md
+impact: skipped (reine E2E-Test-Infra — kein Service/RPC/Schema/Query-Key)
+proof: worklog/proofs/298-club-lifecycle.txt
+review: worklog/reviews/298-review.md (reviewer-Agent PASS — 2 NITPICK, NITPICK#1 übernommen)
+decision: Demo-Step-8 (Anil). Contract-Level Lifecycle-E2E /clubs + /club via Slice-293-Blueprint. Active-Tab-Anker = aria-selected (TabBar accentColor → kein text-gold). Non-blocking nightly bis grüne Runs.
 ```
+
+### Slice 297 — ✅ DONE (LOG complete)
+AC-5 Mobile-393px Live-Verify abgeschlossen (Proof §7, commit 07698c88): 4 Tabs @ 393px, 0 horizontal-overflow, Mehr-Tab-Content live. FeatureShowcase bleibt Übersicht (Anil bestätigt). S3 Page-Contract-Audit komplett (F-1…F-4 ✅).
 
 ## Zuletzt
 
+- **Slice 298** (2026-06-13) — /club + /clubs Contract-Level Lifecycle-E2E (Tool, M, PASS): Demo-Step-8. Neuer `e2e/club-lifecycle.spec.ts` (2 Tests, Slice-293-Blueprint) gegen bescout.net own-login — Test A /clubs (reachable/league-filter-286/data-path/no-leak/mobile), Test B /club (public/4-tab-walk-297/aria-selected/no-crash/mobile-AC-5-regression). Verkabelt: playwright-Projekt + test:club-lifecycle + non-blocking nightly-Step. 2 passed 15.1s. Aktiv-Tab-Anker = aria-selected (TabBar accentColor inline-style, kein text-gold). testing.md erweitert.
 - **Slice 297** (2026-06-13) — Club-Detail Narrative Tab-Split (UI, M, PASS): schließt S3 F-4 (P2). Option B (Anil): Übersicht 17→8 Lead-Module; neuer „Mehr"/„Daha"-Tab (Most-Owned, Trades, Fan-Rang, News, Research, Info); FDR-Strip+Letzte-Ergebnisse → Spielplan-Tab. FeatureShowcase bleibt Übersicht (thin-Club-Onboarding-Fallback). Behavior-preserving (useClubData untouched), 17/17 grün, tsc 0. Mobile-393px-Playshot post-Deploy.
 - **Slice 296** (2026-06-13) — Fantasy Unauth State Explicit + Test (Tool+Doc, S, PASS): schließt S3 F-3 (P2). Decision: Auth-Enforcement ausschließlich via `<AuthGuard>` (redirect `!user`→/login), `&& user`-Gates sind defensive Null-Safety, KEIN page-local Sign-In-CTA (Single-Source-Auth-UX). Doku-Kommentar in `FantasyContent.tsx` + `describe('unauth contract')` ×4 (Shell rendert, kein Tab-Body, Disclaimer bleibt, kein CTA); Auth-Mock → mutable. 10/10 grün, tsc 0.
 - **Slice 295** (2026-06-13) — /clubs Discovery Page Contract Test (Tool, S, PASS): schließt S3 F-2 — `ClubsDiscoveryPage` hatte 0 Page-Test. Neu `ClubsDiscoveryPage.test.tsx` lockt 5 page-local Contracts (loading/error/empty/follow/activate) + 2 Edges (anon no-op, Activate-absent); 7/7 grün, tsc 0. Kein src/**-Runtime-Change.
