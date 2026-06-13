@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 304 ✅ DONE
+slice: 305 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/304-dbfeeconfig-type-alignment.md
-impact: skipped (reine TS-Typ-Addition, kein Runtime/Service/RPC/Schema-Change)
-proof: worklog/proofs/304-feeconfig-type.txt
-review: worklog/reviews/304-review.md (self-review, XS pure-type-completeness gegen verifiziertes Live-Schema)
-decision: S7 Phase-2 #2 — DbFeeConfig-Typ an Live-fee_config angeglichen: +6 NOT-NULL-Felder (offer_platform/pbt/club_bps + abo_discount_bronze/silber/gold_bps). Schließt latentes Money-Typ-Loch (RPCs nutzten Spalten, Typ war blind). tsc 0, 54 grün. Nächste S7-Phase-2: #3 Orphan-Value-Removal, #4 Wildcard-Ledger.
+spec: worklog/specs/305-orphan-value-removal.md
+impact: in-spec (vollständige RED-State-Dependency-Karte Code+DB)
+proof: worklog/proofs/305-orphan-value-removal.txt
+review: worklog/reviews/305-review.md (reviewer-Agent CONCERNS — F-1/F-2 Residuen in-slice abgearbeitet, F-3 Reviewer-Misread, F-4 post-hoc-akzeptiert)
+decision: S7 Phase-2 #3 — Orphan Community-Valuation Removal LIVE (Anil „3"). Self-contained orphan entfernt: 2 Files + Barrel + 3 Test-Zeilen + DROP FUNCTION + DROP 2 TABLE (je 5 Test-Zeilen). RED/GREEN-Proof. Residuen mit-bereinigt (orphan-detector-Allowlist + 9 i18n-Keys). Knowledge: errors-frontend.md „Dead-Feature-Removal 4-Residuen-Achsen". Nächste S7-Phase-2: #4 Wildcard-Ledger.
 ```
 
 ### Slice 301 — SPEC (in Arbeit)

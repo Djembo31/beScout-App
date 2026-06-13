@@ -70,9 +70,7 @@ const KNOWN_ORPHANS: Record<string, string> = {
   'src/components/community/FollowBtn.tsx': 'Test-only fixture (used by community-feed tests)',
   'src/components/home/HomeSkeleton.tsx': 'Test-only fixture (loading-state test scaffold)',
   'src/features/market/components/portfolio/OffersTab.tsx': 'Test-only fixture (manager-offers test scaffold)',
-  // Deferred mit @experimental JSDoc (Slice 227 ORPHAN-NEU-1)
-  'src/components/player/detail/CommunityValuation.tsx':
-    'Slice 227 @experimental — wire-Plan if scale >20 active-scouts, sonst delete (Slice 239 Wire-Plan-Wave)',
+  // Slice 305: CommunityValuation (Slice-227-@experimental-Orphan) wurde gelöscht — Allowlist-Eintrag entfernt.
 };
 
 type ComponentDef = {

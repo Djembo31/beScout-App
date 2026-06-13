@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 305 | 2026-06-13 | refactor(market): S7 Phase-2 #3 — Orphan Community-Valuation Removal
+
+- Stage-Chain: SPEC (`worklog/specs/305-orphan-value-removal.md`, M, Removal) → IMPACT (in-spec: vollständige RED-State-Dependency-Karte Code+DB) → BUILD → REVIEW (`worklog/reviews/305-review.md`, reviewer-Agent **CONCERNS**, F-1/F-2 Residuen in-slice abgearbeitet) → PROVE (`worklog/proofs/305-orphan-value-removal.txt`) → LOG.
+- Trigger: S7-Registry Trading-Befund #2 (P0 Value-Pfad gebrochen) — Community-Valuation-Feature vollständig gebaut aber orphan. Anil „3".
+- RED-State (verifiziert): `CommunityValuation.tsx` (@experimental, 0 JSX/Import, nur Barrel) → `valuations.ts` (3 fn, Types inline) → `player_fair_values`/`player_valuations` (je 5 Pre-Orphan-Testzeilen) + RPC `submit_player_valuation`. DB-Deps: 0 incoming-FK, 0 View, 0 Trigger, 0 Wrapper-Caller.
+- Removal: DELETE CommunityValuation.tsx + valuations.ts · Barrel-Zeile · 3 db-invariants.test.ts-Zeilen (RPC-shape-map + public-tables-doc-map + RLS-table-array) · DB-Migration `20260613220000` DROP FUNCTION + DROP 2 TABLE (Reihenfolge RPC→Tabellen, IF EXISTS ohne CASCADE).
+- GREEN: grep 0 Live-Refs · DB to_regclass NULL + rpc 0 · tsc 0 · vitest 191/191 (db-invariants self-detektierend: übersehener RPC-Map-Eintrag hätte „RPC not found"-FAIL getriggert → grüner Run beweist Struktur-Korrektheit).
+- Reviewer-CONCERNS in-slice: F-1 orphan-detector KNOWN_ORPHANS-Eintrag entfernt · F-2 9 orphan i18n-Keys (de+tr) entfernt (floorPrice/saving shared → behalten, grep-verifiziert, de/tr 0 Key-Mismatch) · F-3 = Reviewer-Misread (git-diff bestätigt 3 Entfernungen) · F-4 Daten-Verlust LOW (orphan seit Slice 227 → strukturell kein User-Write).
+- Files: -2 (−291 Z.) + 1 Migration + 4 Edits (Barrel/Test/Allowlist/i18n×2). Net −318 Z. Knowledge: errors-frontend.md „Dead-Feature-Removal 4-Residuen-Achsen" (Code+DB+i18n+Tooling-Allowlists) + DROP-TABLE-Diligence (MAX(created_at) vor Drop). Nächste S7-Phase-2: #4 Wildcard-Ledger.
+
 ## 304 | 2026-06-13 | fix(types): S7 Phase-2 #2 — DbFeeConfig Type-Schema Alignment
 
 - Stage-Chain: SPEC (`worklog/specs/304-dbfeeconfig-type-alignment.md`, XS) → IMPACT skipped (reine TS-Typ-Addition) → BUILD → REVIEW (`worklog/reviews/304-review.md`, **self-review** XS pure-type-completeness gegen verifiziertes Live-Schema) → PROVE (`worklog/proofs/304-feeconfig-type.txt`) → LOG.

@@ -265,6 +265,18 @@ done
 
 **Reference:** Slice 280 Bundle-Diff Proof `worklog/proofs/280-bundle-diff.md`. `next.config.mjs:12-26`. Discovery via Pre-Implementation-Greppen analog Slice 121-Lehre.
 
+**Erweiterung Slice 305 (Dead-Feature-Removal — 4 Residuen-Achsen):** Bei Removal eines toten Features (nicht nur Wrapper) MUSS die RED-State-Karte **4 Achsen** abdecken, nicht nur Code+DB. Slice 305 (CommunityValuation + valuations.ts + 2 Tabellen + RPC) hatte Code+DB perfekt, ließ aber 2 Residuen zurück (vom Reviewer gefangen):
+1. **Code/Service** — Component, Service, Barrel-Exports, Test-Refs (`grep -rn "<Feature>" src/`)
+2. **DB-Objekte** — Tabellen, RPCs, Trigger, Views, FKs (`pg_proc`/`pg_constraint`/`pg_views` + 0-incoming-FK-Check vor DROP)
+3. **i18n-Keys** — `messages/{de,tr}.json` exklusiv-konsumierte Keys (`grep` jeden Key-Token in src/ → 0 = orphan, aber **shared Keys wie `floorPrice`/`saving` behalten** — pro Key verifizieren, nicht Block-Delete)
+4. **Tooling-Allowlists** — `orphan-component-detector.ts` KNOWN_ORPHANS, `wiring-check.ts`-Allowlist, baseline-JSONs (ein excused-Eintrag für eine gelöschte Datei = Dead-Config)
+
+Pflicht-Grep bei jedem Dead-Feature-Removal: `grep -rn "<FeatureName>" messages/ scripts/ .claude/` zusätzlich zu `src/`.
+
+**Plus DROP-TABLE-Diligence (Slice 305 F-4):** Vor jedem `DROP TABLE` mit `user_id`-Spalte → Pflicht-Proof-Zeile `SELECT COUNT(*), MAX(created_at) FROM <table>` um Live-User-Content vs. Testdaten zeitlich zu belegen. Drop ist irreversibel — Diligence VOR dem Drop dokumentieren. `DROP TABLE IF EXISTS` ohne CASCADE = richtige Safety (failt bei übersehener FK statt still mitzulöschen).
+
+**Reference 305:** `worklog/reviews/305-review.md`, Migration `20260613220000_slice_305_drop_orphan_valuations.sql`.
+
 ### Lookup-Map indexed by ambiguous Key (Slice 276, 2026-05-06)
 
 **Bug-Klasse:** Frontend-Cache (z.B. ClubCache) indiziert Records nach mehreren Keys für „flexiblen Lookup". Wenn EIN Key nicht garantiert eindeutig ist (z.B. `short`-Code 3-stellig), überschreibt der letzte Insert silent → nachfolgende Lookups returnen das falsche Record. ORDER BY entscheidet welcher gewinnt — vom User-Standpunkt random.

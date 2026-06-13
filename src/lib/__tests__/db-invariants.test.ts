@@ -1047,8 +1047,7 @@ describe('DB Invariants', () => {
       unlock_research: ['success', 'error', 'amount_paid', 'author_earned', 'platform_fee'],
       rate_research: ['success', 'error', 'avg_rating', 'ratings_count', 'user_rating'],
 
-      // Valuations/Voting
-      submit_player_valuation: ['success', 'error', 'median_cents', 'vote_count'],
+      // Voting (submit_player_valuation entfernt — Slice 305 Orphan-Value-Removal)
       cast_vote: ['success', 'cost', 'total_votes'],
       cast_community_poll_vote: ['success', 'error', 'cost', 'total_votes', 'creator_share'],
 
@@ -1620,7 +1619,6 @@ describe('DB Invariants', () => {
       fan_rankings: 'Fan-Rankings pro Club, public',
       monthly_liga_snapshots: 'Monthly-Liga-Snapshots, public history',
       monthly_liga_winners: 'Monthly-Winners, public',
-      player_fair_values: 'Player-Fair-Values (algorithmic), public',
       player_gameweek_scores: 'Gameweek-Scores, public leaderboard',
       scout_scores: 'Scout-Score-Leaderboard, public',
       user_stats: 'User-Stats Leaderboard-by-design (auch in INV-26 Allowlist)',
@@ -1687,7 +1685,6 @@ describe('DB Invariants', () => {
       'liquidation_events',
       'liquidation_payouts',
       'platform_admins',
-      'player_valuations',
       'predictions',
       'research_unlocks',
       'score_events',

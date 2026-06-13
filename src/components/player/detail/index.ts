@@ -18,7 +18,6 @@ export { default as LiquidationAlert } from './LiquidationAlert';
 // Slice 239 (2026-04-28): PlayerImagePlaceholder/DpcMasteryCard/TradeSuccessEffect/
 // LimitOrderModal gelöscht — replaced by PlayerPhoto/YourPosition Mastery /
 // feedback_no_confetti / AR-23 deferred.
-export { default as CommunityValuation } from './CommunityValuation';
 export { default as TradingCardFrame } from './TradingCardFrame';
 export { default as OfferModal } from './OfferModal';
 export { default as TradingQuickStats } from './TradingQuickStats';

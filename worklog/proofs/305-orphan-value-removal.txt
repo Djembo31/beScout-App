@@ -1,0 +1,30 @@
+=== Slice 305 — Orphan Community-Valuation Removal — PROVE ===
+Date: 2026-06-13
+
+### RED-State (pre-removal Konsumenten-Karte) ###
+CommunityValuation.tsx: 5 (self) · index.ts: 1 (barrel) · valuations.ts: 3 (self)
+db-invariants.test.ts: 3 Entfernungen (git-diff-cached verifiziert) = RPC-shape-map Z.1051
+  (submit_player_valuation) + public-tables-doc-map Z.1623 (player_fair_values) + RLS-table-array Z.1690 (player_valuations)
+DB-Deps: 0 incoming-FK · 0 View · 0 Trigger · 1 RPC submit_player_valuation (0 Wrapper-Caller)
+
+### Residuen-Bereinigung (Reviewer-CONCERNS F-1/F-2, in-slice) ###
+F-1: orphan-component-detector.ts KNOWN_ORPHANS-Eintrag CommunityValuation entfernt (war Dead-Config nach Delete).
+F-2: 9 orphan i18n-Keys aus de.json+tr.json entfernt (communityValuation/fairValue/valuations/noValuations/
+  beFirst/yourEstimate/valuationSubmitted/updateValuation/submitValuation). floorPrice(71 refs)+saving(38) shared → behalten.
+F-4 (Daten-Diligence, post-hoc): Verlust-Risiko LOW — submit_player_valuation einziger Write-Pfad, nur via
+  orphan-CommunityValuation (orphan seit ≥Slice 227) → nach Orphan strukturell kein User-Write möglich. 5+5 Pre-Orphan-Testdaten.
+Row-counts: player_fair_values=5, player_valuations=5 (Pre-Orphan-Testdaten)
+
+### GREEN-State (post-removal) ###
+AC-2 Code-Removal:
+  CommunityValuation.tsx: DELETED
+  valuations.ts: DELETED
+  index.ts barrel-Zeile entfernt · db-invariants.test.ts 3 Zeilen entfernt
+
+AC-3 DB-Drop (to_regclass/pg_proc):
+  player_fair_values=NULL · player_valuations=NULL · submit_player_valuation rpc_count=0
+
+AC-1 grep src/: 0 Live-Referenzen (nur 1 Removal-Marker-Kommentar)
+AC-4 tsc --noEmit exit 0 · vitest 191/191 (db-invariants + player) grün
+
+Self-contained orphan Dead-Feature komplett entfernt, §11.3 RED/GREEN-Proof erbracht.
