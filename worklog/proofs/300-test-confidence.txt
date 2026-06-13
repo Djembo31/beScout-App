@@ -1,0 +1,76 @@
+Slice 300 — S5 Test-Confidence Audit + Ratchet-Guard — PROOF
+Date: 2026-06-13
+
+=========================================================
+1. AC-1/AC-6 — report mode + baseline (post 2 fixes)
+=========================================================
+$ npx tsx scripts/test-confidence-check.ts
+═══ Test-Confidence-Check (Slice 300, S5) ═══
+Placeholder (expect(true)…): 5      (was 7 pre-fix: -2 PURE removed)
+Skipped (*.skip / xit / xdescribe): 1
+
+.test-confidence-baseline.json:
+{ "placeholders": 5, "skips": 1 }
+
+Remaining 5 placeholders = 1 WEAK (useCommunityActions:1572 no-crash) +
+4 CONDITIONAL (bug-regression data-gated integration guards). 1 skip =
+ProfileView HONEST-SKIP (unimplemented feature, TODO-documented). All
+acceptable (no false-green) — frozen, not migrated.
+
+=========================================================
+2. AC-2 — --check at baseline → exit 0
+=========================================================
+$ npx tsx scripts/test-confidence-check.ts --check
+✅ No test-confidence increase vs baseline. Green stays meaningful.
+REAL EXIT = 0
+
+=========================================================
+3. AC-3 — synthetic regression (add expect(true).toBe(true) → exit 1 → revert)
+=========================================================
+# scratch: src/components/__tc_scratch__.test.ts with it(noop, expect(true).toBe(true))
+$ npx tsx scripts/test-confidence-check.ts --check
+❌ Test-confidence regression — new false-green test(s):
+  • placeholders: 6 > 5 (baseline)
+REAL EXIT (with violation) = 1
+# after rm scratch:
+REAL EXIT (after revert) = 0
+
+=========================================================
+4. AC-4 — no-baseline → write-initial + exit 0  (verified during first --check)
+=========================================================
+[--check] no baseline yet — wrote initial to .test-confidence-baseline.json → exit 0
+
+=========================================================
+5. AC-7 — the 2 PURE placeholders fixed; both test files green
+=========================================================
+ResearchCard.test.tsx — deleted no-op formatTimeAgo placeholder it-block.
+NotificationDropdown.test.tsx — placeholder → 2 real render-smoke tests:
+  • renders dialog + empty-state ('noNew') when open
+  • renders null when closed (mounted=false guard)
+  (real lucide+cn — `new Proxy` mock crashed suite-load; portalTarget=document.body)
+
+$ CI=true npx vitest run NotificationDropdown.test.tsx ResearchCard.test.tsx
+  Test Files  2 passed (2)
+       Tests  4 passed (4)
+
+=========================================================
+6. AC-5 — wiring (package.json + pre-commit Step 6 + wiring-check allowlist)
+=========================================================
+package.json   audit:test-confidence + audit:test-confidence:check
+.husky/pre-commit Step 6  pnpm run audit:test-confidence:check
+wiring-check.ts  KNOWN_ORPHANS += both (.husky not scanned by wiring-check)
+
+$ npx tsx scripts/wiring-check.ts --check
+Real drift:  0
+✅ No drift orphans found. All tools wired.
+
+=========================================================
+7. AC-8 — audit doc
+=========================================================
+worklog/audits/2026-06-13/s5-test-confidence.md — taxonomy classification of
+all 7+1 (PURE/WEAK/CONDITIONAL/HONEST-SKIP) + disposition + 4 follow-up findings.
+
+=========================================================
+8. Review
+=========================================================
+worklog/reviews/300-review.md — reviewer-Agent (see file).

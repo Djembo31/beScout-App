@@ -22,6 +22,8 @@
     "audit": "bash scripts/audit/index.sh",
     "audit:boundary": "npx tsx scripts/boundary-check.ts",
     "audit:boundary:check": "npx tsx scripts/boundary-check.ts --check",
+    "audit:test-confidence": "npx tsx scripts/test-confidence-check.ts",
+    "audit:test-confidence:check": "npx tsx scripts/test-confidence-check.ts --check",
     "audit:compliance": "bash scripts/audit/compliance.sh",
     "audit:i18n": "node scripts/audit/i18n-coverage.js",
     "audit:rpc-security": "node scripts/audit/rpc-security.js",

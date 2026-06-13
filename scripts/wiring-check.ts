@@ -80,6 +80,8 @@ const KNOWN_ORPHANS: Record<string, string> = {
   'npm:audit:wiring:check': 'Called by ship-tool-wiring-gate.sh hook (Slice 234 Pre-Commit gate)',
   'npm:audit:boundary:check': 'Called in .husky/pre-commit Step 5 (S4 Source-of-Truth Ratchet, Slice 299); .husky/ wird von wiring-check nicht gescannt (nur .github + .claude/hooks)',
   'npm:audit:boundary': 'Manual report-mode tool (S4, Slice 299) — schreibt worklog/audits/<date>/s4-...-report.md; bewusst manueller Trigger, :check ist der verkabelte Gate-Pfad',
+  'npm:audit:test-confidence:check': 'Called in .husky/pre-commit Step 6 (S5 Test-Confidence Ratchet, Slice 300); .husky/ wird von wiring-check nicht gescannt',
+  'npm:audit:test-confidence': 'Manual report-mode tool (S5, Slice 300) — schreibt worklog/audits/<date>/s5-...-report.md; :check ist der verkabelte Gate-Pfad',
   'npm:audit:cron-health:check': 'Slice 255 strict-mode variant; nightly nutzt audit:cron-health (WARN-only). :check für künftige CI-blocking-Erweiterung wenn cron-stale = beta-blocker.',
   'npm:rotate-secret': 'Slice 255 manual-tool für Secret-Rotation, manueller Trigger gewollt (3-Location-Sync).',
   'npm:audit': 'Aggregated audit-runner, not nightly',

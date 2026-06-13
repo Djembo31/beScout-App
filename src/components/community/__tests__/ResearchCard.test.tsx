@@ -7,12 +7,8 @@ describe('ResearchCard constants', () => {
   // Import the module to access callColor and categoryColor
   // These are not exported, so we test the formatTimeAgo helper from PostCard instead
 
-  describe('formatTimeAgo (from PostCard, reused in ResearchCard)', () => {
-    // Already tested in PostCard.test.tsx
-    it('placeholder for future ResearchCard rendering tests', () => {
-      expect(true).toBe(true);
-    });
-  });
+  // formatTimeAgo is the shared PostCard helper, exercised in PostCard.test.tsx.
+  // Slice 300 (S5): removed the false-green no-op placeholder it-block.
 
   describe('callColor mapping', () => {
     it('has correct call types', () => {

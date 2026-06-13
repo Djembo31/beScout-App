@@ -7,7 +7,8 @@
 # 3. audit:stale — D48 Audit-Stale-Catcher (~7s, exit 1 bei stale row-marker)
 # 4. audit:wiring:check — D54 Tool-Wiring-Gate (~7s, exit 1 bei orphan-Tool)
 # 5. audit:boundary:check — S4 Source-of-Truth Ratchet (~2s, exit 1 bei neuem Bridge-/Direct-Supabase-Import)
-# 6. lint-staged — ESLint + auto-fix auf staged files (Config: .lintstagedrc.json)
+# 6. audit:test-confidence:check — S5 Test-Confidence Ratchet (~2s, exit 1 bei neuem Placeholder/Skip)
+# 7. lint-staged — ESLint + auto-fix auf staged files (Config: .lintstagedrc.json)
 #
 # Bewusst ausgeschlossen: audit:orphan (66s, gehoert pre-push), audit:silent-fail (CI),
 # audit:mutation-race (CI). Slice 243 docs/test.rtf #8 strukturell geheilt.
@@ -28,6 +29,9 @@ pnpm run audit:wiring:check
 
 echo "[pre-commit] audit:boundary:check..."
 pnpm run audit:boundary:check
+
+echo "[pre-commit] audit:test-confidence:check..."
+pnpm run audit:test-confidence:check
 
 echo "[pre-commit] lint-staged..."
 npx lint-staged

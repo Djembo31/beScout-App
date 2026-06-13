@@ -2,6 +2,19 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 300 | 2026-06-13 | chore(audit): S5 Test-Confidence — Audit + Ratchet-Guard + 2 Placeholder-Fixes
+
+- Stage-Chain: SPEC (`worklog/specs/300-test-confidence-audit.md`, M, Slice-Type Tool) → IMPACT skipped (Test + Script-Infra, kein src/**-Runtime) → BUILD → REVIEW (`worklog/reviews/300-review.md`, reviewer-Agent PASS, 2 NITPICK, F-1 in-slice übernommen) → PROVE (`worklog/proofs/300-test-confidence.txt`) → LOG.
+- Trigger: Stabilization-Master-Audit §10 Slice S5 (Anil „1"). „Testgrün wieder aussagekräftig machen" — §11.4 (Testanzahl ≠ Vertrauen) war nur Prosa.
+- Befund (244 Test-Files): 7 `expect(true).toBe(true)`-Placeholder + 1 `it.skip`. Taxonomie: 2 PURE (ResearchCard, NotificationDropdown), 1 WEAK (useCommunityActions no-crash), 4 CONDITIONAL (bug-regression data-gated Integration-Guards), 1 HONEST-SKIP (ProfileView unimplemented-TODO).
+- Fixes (§10 „real machen ODER quarantinen"): ResearchCard no-op-`it` gelöscht; NotificationDropdown placeholder → 2 reale Render-Smokes (open→dialog+empty-state, closed→null-guard; portalTarget=document.body, real lucide+cn da `new Proxy`-Mock Suite-Load crashte). Beide grün (4 Tests). WEAK/CONDITIONAL/HONEST-SKIP bleiben (kein false-green, Baseline friert ein).
+- Enforcement (kein Audit-Theater): `scripts/test-confidence-check.ts` Baseline-Ratchet (patterns.md #49, 3. Instanz) — `.test-confidence-baseline.json` (placeholders 5, skips 1), `--check` exit 1 nur bei Anstieg, pre-commit Step 6. Demo: synthetic +1 → exit 1, revert → exit 0.
+- F-1 (Reviewer, in-slice): SKIP_RE um Focus-Marker `.only`/`fit(`/`xtest(` erweitert (focus droppt andere Tests silent — schlimmer als skip). Präzise als CALL gematcht — bare `\bfit\b` false-positivet auf player `status:'fit'` (14 Treffer). 0 reale Focus-Marker, Baseline stabil 5+1.
+- Verkabelung (D54): `package.json` `audit:test-confidence[:check]` · `.husky/pre-commit` Step 6 · `wiring-check.ts` Allowlist ×2. `audit:wiring:check` exit 0.
+- Folge-Slices (NICHT in 300): S5-F-1 (useCommunityActions echte assertion) · S5-F-2 (bug-regression `test.skip()` mit Reason) · S5-F-3 (Mock-Heavy-Audit systematisch) · S5-F-4 (ResearchCard tautologische callColor/categoryColor-Tests real ODER del).
+- Knowledge: `memory/patterns.md` #49 erweitert (3. Ratchet-Instanz + Focus-Marker-Falle). Audit-Doc `worklog/audits/2026-06-13/s5-test-confidence.md`.
+- Files: `scripts/test-confidence-check.ts` (neu) · `.test-confidence-baseline.json` (neu) · `wiring-check.ts` · `package.json` · `.husky/pre-commit` · 2 Test-Files · audit-doc + report (neu) · spec/review/proof (neu) · `patterns.md`. Kein src/**-Runtime-Change.
+
 ## 299 | 2026-06-13 | chore(audit): S4 Source-of-Truth Boundaries — Audit + Ratchet-Guard
 
 - Stage-Chain: SPEC (`worklog/specs/299-source-of-truth-boundaries.md`, M, Slice-Type Tool) → IMPACT skipped (Audit + Script-Infra, kein Service/RPC/Schema/Query-Key, kein src/**-Runtime) → BUILD → REVIEW (`worklog/reviews/299-review.md`, reviewer-Agent PASS, 1 MINOR F-1 übernommen, 2 NITPICK) → PROVE (`worklog/proofs/299-boundary-check.txt`) → LOG.

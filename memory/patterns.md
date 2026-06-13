@@ -1676,7 +1676,9 @@ writeReport(snap);                                     // default: human report
 
 **Scanner-Falle (Slice 299 F-1, Familie „Grep-Audit-Scope-Gap" Slice 166):** Static-`from '…'`-only-Regex verpasst dynamic `await import('…')` + inline-type-imports `import('…').T` + `require('…')`. Regex IMMER auf `(from|import\s*\(|require\s*\()\s*['"]…['"]` erweitern, sonst umgeht ein dynamic-Crossing den Ratchet silent.
 
-**Instanzen:** `silent-fail-audit.ts` (`.audit-baseline.json`, Slice 092/093, HIGH-increase-Gate) · `boundary-check.ts` (`.boundary-baseline.json`, Slice 299, bridge-imports + direct-supabase). Beide gleiches Template.
+**Instanzen:** `silent-fail-audit.ts` (`.audit-baseline.json`, Slice 092/093, HIGH-increase-Gate) · `boundary-check.ts` (`.boundary-baseline.json`, Slice 299, bridge-imports + direct-supabase) · `test-confidence-check.ts` (`.test-confidence-baseline.json`, Slice 300, placeholder + skip/focus). Alle gleiches Template.
+
+**Marker-Falle (Slice 300 F-1):** Test-Focus-Marker `fit(`/`xtest(`/`.only` sind eine KOMPLEMENTÄRE false-confidence-Achse zu `.skip` (focus droppt alle ANDEREN Tests silent). Beim Tracken IMMER als CALL matchen (`\bfit\s*\(`) — bare `\bfit\b` false-positivet auf Domain-Wörter (z.B. player `status: 'fit'`, 14 Treffer in BeScout). Gleiche Familie wie Scanner-Falle oben.
 
 **Wann NICHT:** Bei 0 legacy-Verstößen → direkt Hard-Rule (ESLint-error). Bei Verstößen die SOFORT alle gefixt werden müssen (Security) → kein Ratchet, sofort-fix.
 

@@ -2,14 +2,20 @@
 
 ```
 status: idle
-slice: 299 ✅ DONE
+slice: 300 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/299-source-of-truth-boundaries.md
-impact: skipped (Audit + Script-Infra — kein Service/RPC/Schema/Query-Key, kein src/**-Runtime)
-proof: worklog/proofs/299-boundary-check.txt
-review: worklog/reviews/299-review.md (reviewer-Agent PASS — 1 MINOR F-1 übernommen, 2 NITPICK)
-decision: S4 (Anil „weiter"). Source-of-Truth-Boundaries-Audit + Baseline-Ratchet-Guard (verhindert NEUE Bridge-Imports/Direct-Supabase ohne Migrations-Zwang der 46 bestehenden). Kein ESLint-Hard-Rule. F-1: Regex auf dynamic import() erweitert → Baseline 46+5. Folge: S4-F-1..F-4.
+spec: worklog/specs/300-test-confidence-audit.md
+impact: skipped (Test + Script-Infra — kein src/**-Runtime, kein Service/RPC/Schema/Query-Key)
+proof: worklog/proofs/300-test-confidence.txt
+review: worklog/reviews/300-review.md (reviewer-Agent PASS — 2 NITPICK, F-1 focus-marker in-slice übernommen)
+decision: S5 (Anil „1"). Test-Confidence-Audit + Ratchet-Guard (#49, 3. Instanz). 2 PURE-Placeholder gefixt (ResearchCard del, NotificationDropdown real). Baseline placeholders 5 + skips 1. F-1: SKIP_RE um focus-marker (.only/fit(/xtest() erweitert.
 ```
+
+### Slice 300 — ✅ DONE (LOG complete)
+S5 Test-Confidence-Guard live: `scripts/test-confidence-check.ts` + `.test-confidence-baseline.json` (placeholders 5, skips 1), pre-commit Step 6. Master-Audit §11.4 Prosa→enforced. 2 PURE-Placeholder gefixt (NotificationDropdown jetzt real Render-Smoke). patterns.md #49 erweitert (3. Instanz + focus-marker-Falle). Folge: S5-F-1..4.
+
+### Slice 299 — ✅ DONE
+S4 Boundary-Ratchet (4fed642a). S0–S5 + E2E-Layer (293+298) abgeschlossen.
 
 ### Slice 299 — ✅ DONE (LOG complete)
 S4 Boundary-Ratchet-Guard live: `scripts/boundary-check.ts` + `.boundary-baseline.json` (bridges 46, direct-supabase 5), pre-commit Step 5. Master-Audit §11.5/6 Prosa→enforced. 4 Folge-Findings (S4-F-1 wildcards-delete, F-2/F-3 facade-Migration, F-4 inkrementell). patterns.md #49 „Baseline-Ratchet-Guard".
