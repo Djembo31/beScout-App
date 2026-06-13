@@ -1,21 +1,20 @@
 # Active Slice
 
 ```
-status: idle
-slice: 285 ✅ DONE (FM-06)
-stage: LOG complete
-spec: worklog/specs/285-rankings-league-header-scope.md
-impact: skipped (rein lokales Layout — kein Consumer/Service/DB betroffen)
-proof: worklog/proofs/285-rankings-header.md (+ desktop/mobile Screenshots)
-review: worklog/reviews/285-review.md (self-review, PASS)
+status: active
+slice: 286
+stage: PROVE
+spec: worklog/specs/286-league-cache-ready-race.md
+impact: inline (3 race-Konsumenten + 1 lib + 1 neuer Hook — alle gelistet in Spec)
+proof: worklog/proofs/286-cache-race.md (Cold-Load-Verify post-Deploy)
+review: worklog/reviews/286-review.md (PASS, 0 CRITICAL)
 ```
 
-**🔴 NEU entdeckt (Slice 286 Kandidat — Anil-Entscheidung):** Cold-Load-Race im
-`LeagueScopeHeader` — rendert app-weit LEER bei Hard-Navigation/Hard-Refresh/PWA-Cold-Start
-(/rankings + /clubs reproduziert). Root: `ClubProvider:167` kein cachesReady-Gating +
-`LeagueScopeHeader:52` `useMemo(getCountries, [locale])` recomputet nie nach async-Cache-Load
-→ `CountryBar:22` `length<=1 return null`. Liga-Filter unsichtbar = potenzieller Beta-Blocker.
-Cross-cutting (/rankings, /clubs, /fantasy, /market). Details: worklog/proofs/285-rankings-header.md.
+**Slice 286 — Cold-Load-Race im LeagueScopeHeader fixen.** Liga-Filter (CountryBar +
+LeagueBar) rendert app-weit LEER bei Hard-Nav/PWA-Cold-Start. Fix: reaktives
+Cache-Ready-Signal in `leagues.ts` (Subscription + `useSyncExternalStore`-Hook),
+in die 3 race-prone useMemos (LeagueScopeHeader:52, FantasyContent:108,
+LeagueBarShared:30) als dep. Anil-Decision: jetzt fixen (potenzieller Beta-Blocker).
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
 

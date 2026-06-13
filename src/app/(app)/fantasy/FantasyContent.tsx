@@ -14,6 +14,7 @@ import { centsToBsd } from '@/lib/services/players';
 import { useUserTickets } from '@/lib/queries/tickets';
 import { getClub } from '@/lib/clubs';
 import { getCountries, type CountryLocale } from '@/lib/leagues';
+import { useLeagueCacheVersion } from '@/lib/hooks/useLeagueCacheVersion';
 import { useIsClubAdmin } from '@/lib/queries/events';
 import type { FantasyEvent } from '@/components/fantasy';
 import { CreateEventModal, SpieltagTab } from '@/components/fantasy';
@@ -105,7 +106,9 @@ export default function FantasyContent() {
   // → CountryBar suppressed when only TR-events existed (length≤1). User cannot
   // discover or switch to other leagues. Catch-22.
   // Filter is audience-choice (which league am I watching?), not result-filter.
-  const eventCountries = useMemo(() => getCountries(locale), [locale]);
+  // Slice 286: cacheVersion-dep → recompute nach async League-Cache-Load (Cold-Load-Race).
+  const cacheVersion = useLeagueCacheVersion();
+  const eventCountries = useMemo(() => getCountries(locale), [locale, cacheVersion]);
 
   // Filter gwEvents by selected league
   const filteredGwEvents = useMemo(() => {

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { getAllLeaguesCached } from '@/lib/leagues';
+import { useLeagueCacheVersion } from '@/lib/hooks/useLeagueCacheVersion';
 import type { League } from '@/types';
 
 interface LeagueBarProps {
@@ -27,11 +28,14 @@ interface LeagueBarProps {
 function LeagueBarInner({ selected, onSelect, country, size = 'md', showAll = true, className }: LeagueBarProps) {
   const t = useTranslations('common');
 
+  // Slice 286: cacheVersion-dep → recompute nach async League-Cache-Load
+  // (Cold-Load-Race: getAllLeaguesCached() leer → `length<=1 return null` → Bar weg).
+  const cacheVersion = useLeagueCacheVersion();
   const leagues: League[] = useMemo(() => {
     const all = getAllLeaguesCached();
     const filtered = country ? all.filter((l) => l.country === country) : all;
     return filtered;
-  }, [country]);
+  }, [country, cacheVersion]);
 
   // Smart collapse: hide if <= 1 league for the country
   if (leagues.length <= 1) return null;

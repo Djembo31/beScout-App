@@ -19,6 +19,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import { CountryBar, LeagueBar } from '@/components/ui';
 import { getCountries, getLeague, type CountryLocale, type CountryInfo } from '@/lib/leagues';
+import { useLeagueCacheVersion } from '@/lib/hooks/useLeagueCacheVersion';
 import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +50,10 @@ export function LeagueScopeHeader({
   const setCountry = useLeagueScope((s) => s.setCountry);
   const setLeagueScope = useLeagueScope((s) => s.setLeagueScope);
 
-  const allCountries = useMemo(() => getCountries(locale), [locale]);
+  // Slice 286: cacheVersion-dep → recompute sobald League-Cache async geladen ist
+  // (sonst Cold-Load-Race: getCountries() leer → CountryBar `length<=1 return null`).
+  const cacheVersion = useLeagueCacheVersion();
+  const allCountries = useMemo(() => getCountries(locale), [locale, cacheVersion]);
   const countries = countriesProp ?? allCountries;
 
   // CountryBar callback: drop league when country changes (smart-collapse).

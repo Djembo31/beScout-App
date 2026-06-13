@@ -34,6 +34,9 @@ vi.mock('@/lib/leagues', () => ({
   getActiveLeagues: () => mockGetActiveLeagues(),
   // Used by LeagueBar internals
   getLeaguesByCountry: () => [],
+  // Slice 286: reactive cache-ready signal (useLeagueCacheVersion → useSyncExternalStore)
+  subscribeLeagueCache: () => () => {},
+  getLeagueCacheVersion: () => 0,
 }));
 
 vi.mock('@/lib/queryClient', () => ({

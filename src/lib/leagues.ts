@@ -9,6 +9,31 @@ let leagueCache: League[] = [];
 let cacheReady = false;
 let cachePromise: Promise<void> | null = null;
 
+// ── Reaktives Cache-Ready-Signal (Slice 286) ──────────────────────────────
+// Der Cache wird async (DB) befüllt. Komponenten lesen ihn in useMemos mit
+// stale deps und recomputen sonst nie nach dem Load → Liga-Filter rendert leer
+// bei Cold-Load. Version-Counter + Listener erlauben useSyncExternalStore-Binding.
+let cacheVersion = 0;
+const cacheListeners = new Set<() => void>();
+
+function emitCacheChange() {
+  cacheVersion += 1;
+  cacheListeners.forEach((l) => l());
+}
+
+/** Subscribe to league-cache-ready changes (für useSyncExternalStore). */
+export function subscribeLeagueCache(listener: () => void): () => void {
+  cacheListeners.add(listener);
+  return () => {
+    cacheListeners.delete(listener);
+  };
+}
+
+/** Monotoner Versions-Snapshot — ändert sich wenn der Cache (re)geladen wurde. */
+export function getLeagueCacheVersion(): number {
+  return cacheVersion;
+}
+
 /** Country display names — locale-aware. AR-7 + TR-audit fix (2026-04-21). */
 const COUNTRY_NAMES_DE: Record<string, string> = {
   DE: 'Deutschland',
@@ -72,6 +97,7 @@ export async function initLeagueCache(): Promise<void> {
         isActive: l.is_active,
       }));
       cacheReady = true;
+      emitCacheChange(); // Slice 286: race-prone useMemos recomputen lassen
     } catch (err) {
       console.error('[LeagueCache] Init error:', err);
     } finally {
