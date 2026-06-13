@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 289 | 2026-06-13 | docs(audit): Page Contract Audit — Home + Manager
+
+- Stage-Chain: SPEC (`worklog/specs/289-home-manager-page-contract.md`, M) → IMPACT skipped (docs-only) → BUILD (Claude Code audit artifacts) → REVIEW (`worklog/reviews/289-review.md`, PASS) → PROVE (`worklog/proofs/289-home-manager-page-contract.md`) → LOG.
+- Slice-Type: Docs/Audit. Claude Code was used as read-only worker; it hit `error_max_turns` after writing the four audit artifacts. Hermes independently verified the core claims before log/commit.
+- Audit: `worklog/audits/2026-06-13/page-contract-home-manager.md`.
+- Ergebnis: `/` Home = GREEN with YELLOW caveat; `/manager` = YELLOW.
+- Verified facts: no GeoGate in Home or Manager scope; no direct Supabase client imports in Home/Manager scope; no placeholder/skip tests in scope; Home uses scalar `floor_price` for portfolio value while Manager uses `computePlayerFloor` live-listings path.
+- Findings: F-1 P1 portfolio-floor divergence Home vs Manager/Market; F-2 P1 GeoGate asymmetry extends to Manager; F-3 P2 manager lacks page-level disclaimer; plus test/e2e confidence follow-ups.
+- No runtime/source changes. Next: fix F-1 portfolio floor parity or decide unified GeoGate plan, then S3 `/fantasy` + `/clubs` + `/club/[slug]` audit.
+
 ## 288 | 2026-06-13 | docs(audit): Page Contract Audit — /market + /player/[id]
 
 - Stage-Chain: SPEC (`worklog/specs/288-market-player-page-contract.md`, M) → IMPACT skipped (docs-only) → BUILD (Audit) → REVIEW (`worklog/reviews/288-review.md`, PASS) → PROVE (`worklog/proofs/288-market-player-page-contract.md`) → LOG.
