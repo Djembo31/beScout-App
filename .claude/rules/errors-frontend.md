@@ -566,6 +566,69 @@ className={cn(
 - Verify: `grep -oE "data-state=open[^{]{0,80}\\{[^}]{0,80}" .next/static/css/*.css` — sollte 4 Animation-Rules zeigen post-build.
 - Gilt analog fuer `data-[state=closed]:`, `data-[disabled]:`, `aria-[expanded=true]:` etc.
 
+### Non-reaktiver Module-Cache + useMemo-stale-deps → Cold-Load-Race (Slice 286, 2026-06-13)
+
+**Bug-Klasse:** Ein Module-Level-Cache (`leagueCache`/`clubCache`-Familie in `src/lib/`) wird **async** befüllt (`initLeagueCache()` aus DB). Komponenten lesen ihn **synchron** in einem `useMemo` mit deps, die sich bei Cache-Ready NICHT ändern (z.B. `[locale]`, `[country]`). Beim ersten Render (Cold-Load) ist der Cache leer → der useMemo captured die leere Liste und **recomputet nie**, weil der async-Load kein Re-Render mit geänderten deps triggert. Folge-Effekt: `if (list.length <= 1) return null`-Guards (Slice 254 Smart-Collapse) kollabieren die ganze UI-Komponente → app-weit unsichtbar.
+
+**Symptom (Slice 286 Live-Bug, bei Slice-285-Verifikation entdeckt):** Liga-Filter (`CountryBar` via `getCountries`, `LeagueBar` via `getAllLeaguesCached`) rendert **leer** bei **Hard-Navigation / Hard-Refresh / PWA-Cold-Start** — DOM-verifiziert `[data-testid=league-scope-header]` `childCount: 0` auf /rankings + /clubs. Bei **warmer SPA-Navigation** (Klick durch die App, Cache schon ready) korrekt (9 Buttons). Deshalb in einer Live-Beta lange latent — Cold-Load trifft v.a. Mobile/PWA.
+
+**Root-Cause-Kette:**
+1. Provider rendert Children sofort, ohne Gating auf `cachesReady` (`ClubProvider.tsx:167`).
+2. `initLeagueCache()` ist async → `leagueCache` zunächst leer.
+3. `useMemo(() => getCountries(locale), [locale])` captured `[]`, recomputet nie.
+4. `CountryBar:22` / `LeagueBar:38` `if (length <= 1) return null` → Bar weg.
+
+**Fix-Pattern (Root-Cause): reaktives Cache-Ready-Signal via `useSyncExternalStore`.**
+
+Module-Cache framework-frei lassen, nur ein Versions-Signal exportieren:
+```ts
+// src/lib/leagues.ts
+let cacheVersion = 0;
+const cacheListeners = new Set<() => void>();
+function emitCacheChange() { cacheVersion += 1; cacheListeners.forEach((l) => l()); }
+export function subscribeLeagueCache(listener: () => void) {
+  cacheListeners.add(listener);
+  return () => { cacheListeners.delete(listener); };
+}
+export function getLeagueCacheVersion() { return cacheVersion; }
+// ... in initLeagueCache() NACH cacheReady = true:  emitCacheChange();
+```
+```ts
+// src/lib/hooks/useLeagueCacheVersion.ts  ('use client')
+export function useLeagueCacheVersion(): number {
+  return useSyncExternalStore(subscribeLeagueCache, getLeagueCacheVersion, getLeagueCacheVersion);
+}
+```
+```ts
+// Konsument: cacheVersion als zusätzliche useMemo-dep
+const cacheVersion = useLeagueCacheVersion();
+const countries = useMemo(() => getCountries(locale), [locale, cacheVersion]);
+```
+
+**Warum useSyncExternalStore (nicht `useClub().loading` als dep):** Generische UI-Komponenten (`src/components/ui/CountryBar`, `LeagueBarShared`) dürfen nicht von ClubContext abhängen — falsche Layer + Wiederverwendbarkeit. Das Signal gehört an die **Daten-Quelle** und deckt damit ALLE Caller. SSR-safe via 3. Arg `getServerSnapshot` (=`getLeagueCacheVersion` → 0 auf Server == Client-initial 0 → kein Hydration-Mismatch). Primitiver number-Snapshot → `Object.is` stabil, kein Loop (emit nur 1× bei init + selten bei refresh, Daten deterministisch).
+
+**Warum nicht Provider-Gating:** würde die GANZE App hinter dem Cache-Load blockieren (Render-Verzögerung für alle Pages) — zu invasiv für ein Filter-Bar-Problem.
+
+**Out-of-scope (gleicher Cache, aber NICHT race-prone):**
+- useMemo-dep enthält async-Daten die ohnehin nach dem Cache laden (z.B. `KaderTab:249` dep `bestandItems`) → self-healt.
+- Cache-Read im **Click-/Effect-Handler** (`BestandView:239`, `clubs/page.tsx:55`) → feuert erst nach User-Interaktion → Cache warm.
+- Read gated auf `cachesReady` (`leagueScopeStore:220` via ClubProvider).
+
+**Detection-grep:**
+```bash
+# Render-time useMemos die einen async Module-Cache lesen, ohne Cache-Version-dep:
+grep -rnE "useMemo\(\(\) => (getCountries|getAllLeaguesCached|getActiveLeagues)" src/ \
+  | # dann manuell prüfen: ist cacheVersion / cache-ready in den deps?
+```
+
+**Test-Mock-Pflicht:** Jeder Test der `@/lib/leagues` mockt UND einen Hook-Konsumenten rendert braucht Mock-Expansion: `subscribeLeagueCache: () => () => {}` + `getLeagueCacheVersion: () => 0` (sonst `useSyncExternalStore` wirft auf undefined-subscribe).
+
+**Backlog:** `clubs.ts` (`initClubCache`/`getClub`) hat dasselbe non-reaktive Pattern. Falls je ein render-time `useMemo(() => getClub(...))` entsteht → gleiche Race, gleiches Fix-Pattern anwendbar.
+
+**Beziehung:** Pattern-Familie „Cold-Start-State-Race" mit Slice 268 (`initialData` vs `placeholderData`) + Slice 267 (Map/Set-Serialization). Verletzt Slice 254 (Filter-as-audience-choice) NICHT — die `length<=1 return null`-Guards bleiben korrekt für echte 1-Liga-Länder (England→nur PL); gefixt wird der Recompute-Trigger, nicht der Guard.
+
+**Reference:** Slice 286 — `src/lib/leagues.ts`, `src/lib/hooks/useLeagueCacheVersion.ts`, `LeagueScopeHeader.tsx:56`, `FantasyContent.tsx:111`, `LeagueBarShared.tsx:38`. Proof: `worklog/proofs/286-cache-race.md` (Cold-Load buttonCount 0→9 auf 3 Pages).
+
 ### TanStack Query v5: `initialData` vs `placeholderData` für Cold-Start-Mirror (Slice 268)
 
 **Bug-Klasse:** Hook nutzt `initialData: cached` aus localStorage als Cold-Start-Optimierung. Slice 265 hat das gemacht und broke Page-Render. Root-Cause-Analyse zeigt: `initialData` markiert Wert als **persistiert data** mit `dataUpdatedAt = Date.now()` (oder via `initialDataUpdatedAt`-Override). Konsumenten die `dataUpdatedAt`-basiertes Freshness-Gating machen (z.B. `useIsBalanceFresh`) sehen "fresh-vor-fetch" → Money-Path-Bug. Plus: `enabled: !!userId` Race kann initialData mit User-A's Wallet bei User-B's Render zeigen wenn Single-Slot-Storage.

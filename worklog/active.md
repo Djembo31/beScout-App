@@ -1,20 +1,29 @@
 # Active Slice
 
 ```
-status: active
-slice: 286
-stage: PROVE
+status: idle
+slice: 286 ✅ DONE
+stage: LOG complete
 spec: worklog/specs/286-league-cache-ready-race.md
-impact: inline (3 race-Konsumenten + 1 lib + 1 neuer Hook — alle gelistet in Spec)
-proof: worklog/proofs/286-cache-race.md (Cold-Load-Verify post-Deploy)
+impact: inline
+proof: worklog/proofs/286-cache-race.md (Cold-Load 0→9 auf 3 Pages, live verifiziert)
 review: worklog/reviews/286-review.md (PASS, 0 CRITICAL)
 ```
 
-**Slice 286 — Cold-Load-Race im LeagueScopeHeader fixen.** Liga-Filter (CountryBar +
-LeagueBar) rendert app-weit LEER bei Hard-Nav/PWA-Cold-Start. Fix: reaktives
-Cache-Ready-Signal in `leagues.ts` (Subscription + `useSyncExternalStore`-Hook),
-in die 3 race-prone useMemos (LeagueScopeHeader:52, FantasyContent:108,
-LeagueBarShared:30) als dep. Anil-Decision: jetzt fixen (potenzieller Beta-Blocker).
+## Zuletzt
+
+- **Slice 286** (2026-06-13) — Cold-Load-Race Liga-Filter (M, root-cause via useSyncExternalStore, live 0→9 buttons).
+- **Slice 285** (2026-06-13) — FM-06 Liga-Header über PlayerRankings (XS).
+- **Slice 284d** (2026-06-13) — Fantasy-UI (M, 2 P1 DB-bewiesen).
+
+**Backlog-Notiz (Slice 286 Reviewer):** `clubs.ts` hat dasselbe non-reaktive Cache-Pattern
+wie leagues.ts (pre-Fix). Falls je ein render-time `useMemo(() => getClub(...))` entsteht →
+gleiche Cold-Load-Race, gleiches useSyncExternalStore-Fix-Pattern anwendbar.
+
+**🚨 Slice 284 Wave 2 (284b) weiter blockiert:** API-Football-Key seit 06.05. suspendiert.
+154 Geister-Triage + Süper-Lig-Drift brauchen API-Verify. Anil-Action: dashboard.api-football.com.
+
+**TR-Review offen (Anil):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
 

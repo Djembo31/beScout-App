@@ -32,7 +32,21 @@ useLeagueCacheVersion.ts   useSyncExternalStore(subscribe, getSnapshot, getServe
 > Der entscheidende Test: **Hard-Navigation** (`page.goto`, NICHT warme SPA-Nav).
 > Vor dem Fix: childCount 0 / buttonCount 0. Erwartet nach Fix: buttonCount >= 6.
 
-<!-- POST-DEPLOY-COLD-LOAD-MARKER -->
+**Deploy au7c86nzb · Playwright MCP · jarvis-qa · Hard-Navigation (`page.goto`):**
+
+| Page | buttonCount (cold) | Vorher (Slice 285 Befund) |
+|------|--------------------|---------------------------|
+| /rankings | **9** (6 Länder + 3 Ligen) | 0 (leer) |
+| /clubs | **9** | 0 (leer) |
+| /fantasy | **9** (Alle·Deutschland·Türkei·Spanien·England·Italien + Alle·Süper Lig·TFF 1. Lig) | (gleiche Klasse) |
+
+- Header populiert nach async-Cache-Load (childCount 2 = CountryBar + LeagueBar).
+- AC-4 SSR: **0 Console-Errors**, keine Hydration-Mismatch-Warning. Die 2 Warnings
+  sind unrelated (apple-meta-deprecation + ClubCache-short-Konflikte/Slice 276) — letztere
+  bestätigt sogar dass der Cache lud.
+- Screenshot: `286-fantasy-coldload-header.png` (Header sichtbar nach Cold-Load).
+
+**AC-1/2/3/4/5 alle grün. Cold-Load-Race gefixt.**
 
 ## Review
 

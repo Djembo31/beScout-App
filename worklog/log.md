@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 286 | 2026-06-13 | fix(leagues): Cold-Load-Race — Liga-Filter (LeagueScopeHeader/LeagueBar) rendert leer
+
+- Stage-Chain: SPEC (worklog/specs/286-league-cache-ready-race.md, M) → IMPACT (inline) → BUILD → REVIEW (Cold-Context PASS, 0 CRITICAL, worklog/reviews/286-review.md) → PROVE (worklog/proofs/286-cache-race.md, Cold-Load-Live-Verify) → LOG + errors-frontend.md-Pattern
+- Slice-Type: UI + Service-lib (M). Entdeckt bei Slice-285-Verifikation (Nebenbefund).
+- **Bug:** Liga-Filter (CountryBar via getCountries, LeagueBar via getAllLeaguesCached) rendert app-weit LEER bei Hard-Nav/PWA-Cold-Start. Root: async-League-Cache + useMemos mit stale deps ([locale]/[country]) → captured leere Liste, recomputet nie → `length<=1 return null` → Bars weg. Warm SPA-Nav OK → lange latent.
+- **Fix (Root-Cause):** reaktives Cache-Ready-Signal in leagues.ts (Version-Counter + Listener + emitCacheChange nach cacheReady=true) + Hook useLeagueCacheVersion via useSyncExternalStore (SSR-safe) + cacheVersion-dep in 3 Konsumenten (LeagueScopeHeader:56, FantasyContent:111, LeagueBarShared:38). Deckt /rankings /clubs /fantasy /market.
+- **Live-Verify (Deploy au7c86nzb, Hard-`page.goto`):** buttonCount 0→**9** auf /rankings + /clubs + /fantasy. 0 Console-Errors, kein Hydration-Mismatch (AC-4). tsc + 45 Tests grün.
+- **Reviewer-NIT:** clubs/page.tsx:55 getLeaguesByCountry in useEffect = safe (cache-warm bei Country-Select); clubs.ts hat dasselbe non-reaktive Pattern → Backlog-Notiz.
+- Pattern codifiziert: errors-frontend.md „Non-reaktiver Module-Cache + useMemo-stale-deps Cold-Load-Race". Commit: b1262ebe + LOG.
+
 ## 285 | 2026-06-13 | fix(rankings): FM-06 — Liga-Header über PlayerRankings verschieben
 
 - Stage-Chain: SPEC (worklog/specs/285-rankings-league-header-scope.md, XS) → IMPACT (skipped: rein lokales Layout) → BUILD (1 File) → REVIEW (self-review PASS, worklog/reviews/285-review.md) → PROVE (worklog/proofs/285-rankings-header.md + 2 Screenshots) → LOG
