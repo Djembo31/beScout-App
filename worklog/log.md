@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 284d | 2026-06-13 | fix(fantasy): Fantasy-UI-Fixes — Liga-Scope Ergebnisse + Minutes-Window + Topspiel-Live + Lineup-Lock (Wave 4 Stabilisierung)
+
+- Stage-Chain: SPEC (worklog/specs/284d-fantasy-ui-fixes.md, M) → IMPACT (inline) → BUILD (Migration-First) → REVIEW (Cold-Context CONCERNS → 1 MAJOR + 1 MINOR + 1 NIT geheilt, worklog/reviews/284d-review.md) → PROVE (worklog/proofs/284d-fantasy-ui.md) → LOG
+- Slice-Type: Migration + Service + UI (M). Wave 4 (Key-unabhängig). Punch-List FANT-05/08/09/13.
+- **4 Fixes (2 DB-bewiesen):** FANT-05 P1 Ergebnisse-Tab Liga-gescopt (leagueId-Thread FantasyContent→ErgebnisseTab→2 Services; DB-Verify GW30 disjunkte Scorer La Liga 449/Serie A 409/TFF 407/PL 398) · FANT-09 P2 Recent-Minutes via neue RPC rpc_get_recent_player_minutes (Absolute-Liga-Window, Mirror Slice 274, COALESCE(minutes,0); DB-Verify 22360/4472=5.00 Slots/Spieler) · FANT-13 P2 TopspielCard Live-Branch (isFixtureLive statt '?-?') · FANT-08 P2 isLocked rein played_at-basiert (Server-Parität).
+- **Review-Wert:** MAJOR = Migration-File war nur in DB applied, nicht committet (neue D54-Achse „Build-without-Wire" auf Migration-File-Ebene) → rekonstruiert + committet. MINOR Doppel-Spieltag-MAX am Body bestätigt OK (MAX+GROUP BY).
+- Verify: tsc 0 · 354/354 Tests (FANT-08-Test invertiert auf neues Lock-Verhalten) · Post-Deploy-Smoke grün (1× transienter Cold-Start-Rerun, Master-Tracker #25-Klasse — keine 284d-Regression, Live-Login+Nav verifiziert).
+- i18n: matchLive DE+TR. Commit: 3f58d171 + LOG.
+- **Stabilisierung Waves 1+3+4 ✅ — nur Wave 2 (Daten-Heal 154 Geister) offen, blockiert auf API-Key-Reaktivierung.**
+
 ## 284c | 2026-06-13 | fix(market): Markt/Rankings-Fixes — Floor-Parity + Rankings-Toter-Markt + Liga-Filter (Wave 3 Stabilisierung)
 
 - Stage-Chain: SPEC (worklog/specs/284c-markt-rankings-fixes.md, M) → IMPACT (skipped — keine RPC/Migration, Query-Key komponentenlokal) → BUILD → REVIEW (Self-Review PASS — Fixes 1:1 fm-mechanics-Experten-Audit-Skizzen, worklog/reviews/284c-review.md) → PROVE (worklog/proofs/284c-markt-rankings.md) → LOG
