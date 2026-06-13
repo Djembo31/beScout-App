@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 307 | 2026-06-14 | refactor(fantasy): S7 Phase-2 #4/#6 — last-5-Scores Unifikation auf Kanon-RPC
+
+- Stage-Chain: SPEC (`worklog/specs/307-last5-scores-unification.md`, M, Refactor/non-Money) → IMPACT skipped (kein Schema/RPC-Change; Migration auf existierenden Kanon-Hook; gelöschter Code 0 Tests) → BUILD → REVIEW (`worklog/reviews/307-review.md`, reviewer-Agent **PASS**, 1 NIT + 1 INFO) → PROVE (`worklog/proofs/307-last5-unification.txt`) → LOG.
+- Trigger: S7-Registry Player-#4 = Fantasy-#6 (cross-domain P1) — „letzte 5 GW-Scores" 2 nicht-äquivalente Impls. „gehe die findings an".
+- Befund: `getBatchFormScores` (nur Fantasy-Picker) hatte GLOBAL `limit(playerIds.length*5)` (kein per-Player-Window = Slice-270-Bug-Klasse) + hardcoded `status:'played'` (keine DNP-Awareness). Kanonisch ist `rpc_get_recent_player_scores` (per-Player absolute Liga-Window, Slice 270/274-korrigiert, DNP=null) via `useRecentScores` — von allem anderen genutzt.
+- Fix: 3 Picker-Consumer (PlayerPicker, useLineupPanelState, LineupBuilder) `useBatchFormScores`→`useRecentScores()` + Standard-Mapper `{score:s??0, status:s!=null?'played':'not_in_squad'}` (= 4 Bestand-Copies). `getBatchFormScores` + `useBatchFormScores` + Import + `qk.scoring.batchForm` gelöscht (4 Achsen, Slice-305-Delete-Disziplin). Behavioral-Gewinn: Picker zeigt DNP jetzt korrekt als dashed bars.
+- Registry-Housekeeping (in-slice entdeckt): Floor Player-#1/#3 + Trading-#1/#3/#5 bereits durch **Slice 303 Teil C** geschlossen (verifiziert: computePlayerFloor=Passthrough, Math.min entfernt); Value-#2 durch 305; FeeConfig durch 304 → Registry-Tabellen aktualisiert (verhindert Redo).
+- Offen-markiert: Player-#3 (L5-Pill vs FormBars) = **Anil-UX-Decision** (Pill aus Bars ableiten vs. beide behalten), KEIN reiner Tech-Fix.
+- Files: 6 (3 Consumer + scoring.queries.ts + fantasyPicker.ts + keys.ts), Net −29 Z. tsc clean, vitest 375/375 (fantasy+manager+market+queries). 0 Reverts.
+
 ## 306 | 2026-06-14 | fix(fantasy): S7 Phase-2 #4 — Wildcard-Ledger dormant + getWildcardHistory swallow→throw
 
 - Stage-Chain: SPEC (`worklog/specs/306-wildcard-ledger-dormant.md`, S, Service+Doc) → IMPACT skipped (kein Schema/RPC-Change; `useWildcardHistory` 0 gemountete Consumer) → BUILD → REVIEW (`worklog/reviews/306-review.md`, reviewer-Agent **PASS**, 1 MINOR in-slice) → PROVE (`worklog/proofs/306-wildcard-ledger.txt`) → LOG.

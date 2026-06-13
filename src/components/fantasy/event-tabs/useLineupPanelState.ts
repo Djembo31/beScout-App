@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useBatchFormScores, useNextFixtures } from '@/lib/queries/fantasyPicker';
+import { useNextFixtures } from '@/lib/queries/fantasyPicker';
+import { useRecentScores } from '@/lib/queries/managerData';
 import { usePlayers } from '@/lib/queries/players';
 import { getClub } from '@/lib/clubs';
 import { getClubAvgL5 } from '@/components/fantasy/FDRBadge';
@@ -72,8 +73,8 @@ export function useLineupPanelState({
   }, []);
 
   // ── Data Hooks ──
-  const playerIds = useMemo(() => effectiveHoldings.map(h => h.id), [effectiveHoldings]);
-  const { data: formScoresMap } = useBatchFormScores(playerIds, !!showPlayerPicker || !isReadOnly);
+  // Slice 307: canonical last-5 scores via shared RPC (replaces weaker getBatchFormScores).
+  const { data: formScoresMap } = useRecentScores();
   const { data: nextFixturesMap } = useNextFixtures(!isReadOnly);
   const { data: allPlayers = [] } = usePlayers(!isReadOnly);
 
@@ -110,7 +111,10 @@ export function useLineupPanelState({
   const getRowProps = useCallback((player: UserDpcHolding) => {
     const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
     const fixtureLocked = isPlayerLocked(player.id);
-    const formEntries = formScoresMap?.get(player.id) ?? [];
+    const formEntries = (formScoresMap?.get(player.id) ?? []).map((s) => ({
+      score: s ?? 0,
+      status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+    }));
     const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
     const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentShort, allPlayers) : 0;

@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import {
-  getBatchFormScores,
   getEventCaptainDistribution,
   getEventPlayerPickRates,
 } from '@/features/fantasy/services/scoring.queries';
@@ -12,14 +11,8 @@ import { getNextFixturesByClub } from '@/features/fantasy/services/fixtures';
 const FIVE_MIN = 5 * 60 * 1000;
 const ONE_MIN = 60 * 1000;
 
-export function useBatchFormScores(playerIds: string[], enabled = true) {
-  return useQuery({
-    queryKey: [...qk.scoring.batchForm, playerIds.length],
-    queryFn: () => getBatchFormScores(playerIds, 5),
-    enabled: enabled && playerIds.length > 0,
-    staleTime: FIVE_MIN,
-  });
-}
+// Slice 307: useBatchFormScores entfernt — Consumer nutzen jetzt useRecentScores
+// (kanonischer last-5-RPC, shared cache). Siehe scoring.queries.ts.
 
 export function useNextFixtures(enabled = true) {
   return useQuery({

@@ -1,0 +1,28 @@
+=== Slice 307 — last-5-Scores Unification — PROVE ===
+Date: 2026-06-14
+
+### AC-1: dead refs (live code) — expect 0 ###
+0 live refs (only Slice-307 doc comments remain) ✓
+
+### AC-2: useRecentScores in 3 picker consumers ###
+src/features/fantasy/components/lineup/PlayerPicker.tsx:62:  const { data: formScoresMap } = useRecentScores();
+src/components/fantasy/event-tabs/useLineupPanelState.ts:77:  const { data: formScoresMap } = useRecentScores();
+src/features/fantasy/components/lineup/LineupBuilder.tsx:140:  const { data: formScoresMap } = useRecentScores();
+
+### AC-3: mapper shape (DNP→not_in_squad) ###
+src/features/fantasy/components/lineup/PlayerPicker.tsx:90:      status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+src/components/fantasy/event-tabs/useLineupPanelState.ts:116:      status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+src/features/fantasy/components/lineup/LineupBuilder.tsx:176:      status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+
+### AC-4: tsc + vitest ###
+tsc --noEmit: clean (exit 0)
+vitest: 375/375 passed (24 files) — fantasy+manager+market+queries domains
+
+### git diff stat ###
+ .../fantasy/event-tabs/useLineupPanelState.ts      | 12 ++++---
+ .../fantasy/components/lineup/LineupBuilder.tsx    | 12 ++++---
+ .../fantasy/components/lineup/PlayerPicker.tsx     | 12 ++++---
+ src/features/fantasy/queries/fantasyPicker.ts      | 11 ++----
+ src/features/fantasy/services/scoring.queries.ts   | 40 ++--------------------
+ src/lib/queries/keys.ts                            |  2 +-
+ 6 files changed, 30 insertions(+), 59 deletions(-)

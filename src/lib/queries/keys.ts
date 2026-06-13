@@ -255,7 +255,7 @@ export const qk = {
   scoring: {
     gwScores: (pid: string) => ['scoring', 'gwScores', pid] as const,
     matchTimeline: (pid: string) => ['scoring', 'matchTimeline', pid] as const,
-    batchForm: ['scoring', 'batchForm'] as const,
+    // Slice 307: batchForm entfernt (getBatchFormScores → useRecentScores Kanon-RPC).
   },
 
   // ── Fixtures (Manager Data) ──

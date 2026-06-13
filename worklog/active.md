@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 306 ✅ DONE
+slice: 307 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/306-wildcard-ledger-dormant.md
-impact: skipped (kein Schema/RPC-Change; getWildcardHistory hat 0 gemountete Consumer → throw erreicht niemanden)
-proof: worklog/proofs/306-wildcard-ledger.txt
-review: worklog/reviews/306-review.md (reviewer-Agent PASS, 1 MINOR Pattern-#4-Doku-Drift in-slice gefixt)
-decision: S7 Phase-2 #4 — Anil „A: minimal schließen". Befund: Wildcard-Economy dormant (35 leere Backfill-Rows / 0 tx / Ledger-Pfad korrekt live), KEIN Compliance-Risiko. Scope: getWildcardHistory swallow→throw + Registry §2.7 + Knowledge korrigieren.
+spec: worklog/specs/307-last5-scores-unification.md
+impact: skipped (kein Schema/RPC-Change; Consumer-Migration auf bereits-existierenden Kanon-Hook useRecentScores; gelöschter Code hat 0 Tests)
+proof: worklog/proofs/307-last5-unification.txt
+review: worklog/reviews/307-review.md (reviewer-Agent PASS, 1 NIT DRY-Helper deferred + 1 INFO enabled-loss accepted)
+decision: S7 Phase-2 #4/#6 last-5-Scores auf Kanon-RPC vereinheitlicht (getBatchFormScores gelöscht, 3 Picker-Consumer → useRecentScores). Floor (#1/Trading#1/#3/#5) bereits durch 303 Teil C, Value (#2) durch 305, FeeConfig durch 304 — Registry-Tabellen aktualisiert.
 ```
 
 ## Zuletzt

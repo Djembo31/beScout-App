@@ -87,10 +87,10 @@
 
 | # | Sev | Semantik | Issue | Ziel |
 |---|-----|----------|-------|------|
-| 1 | **P0 Money** | Floor/Preis | 3-fach berechnet (floor_price/orders/listings), Truth hängt von Komponente ab | EINE `computeFloor(player, orders)`-Funktion überall |
-| 2 | **P0 Value** | Fair-Value | `player_fair_values`+`player_valuations`+`CommunityValuation` komplett gebaut aber orphan (5 Testzeilen, nie importiert) | Entscheiden: wire ODER del + 2 Tabellen droppen |
-| 3 | **P0 Demo** | L5/Form | KaderTab zeigt Skalar-Pill UND unabhängige FormBars in 1 Zeile → können widersprechen | Pill aus derselben RPC ableiten ODER 1 Repräsentation droppen |
-| 4 | P1 | letzte-5-Scores | 2 nicht-äquivalente Implementierungen (Picker hardcoded `played`, Kader DNP-aware) | Auf RPC-Pfad vereinheitlichen (`getBatchFormScores` ist der schwächere) |
+| 1 | ~~P0 Money~~ ✅ **303** | Floor/Preis | ~~3-fach berechnet~~ → **Slice 303 Teil C** alle Client-Reader auf `players.floor_price` (computePlayerFloor=Passthrough, Math.min entfernt, resolveBuyPriceCents=floorBsd) | erledigt |
+| 2 | ~~P0 Value~~ ✅ **305** | Fair-Value | CommunityValuation + 2 Tabellen + RPC entfernt (Slice 305) | erledigt |
+| 3 | **P0 Demo** | L5/Form | KaderTab zeigt Skalar-Pill UND unabhängige FormBars in 1 Zeile → können widersprechen. **(≠ #4: das ist Pill-vs-Bars, nicht Bars-vs-Bars)** | **Anil-UX-Decision:** Pill aus Bars ableiten vs. beide behalten + labeln |
+| 4 | ~~P1~~ ✅ **307** | letzte-5-Scores | ~~2 Impls~~ → **Slice 307** Picker auf Kanon-RPC (`getBatchFormScores` gelöscht); = Fantasy #6 | erledigt |
 | 5 | P1 | perf_l5=50 | Pilot-Default, nur display-seitig mitigiert | Sentinel/NULL statt 50, oder zentraler Guard |
 | 6 | P1 | goals/assists | Dual-Grain (Saison-Counter vs pro-Match) auf selber Seite | Klare Trennung „Saison" vs „Spiel", Cron-Lag-Hinweis |
 | 7 | P1 | club-Identity | `players.club` (String) vs `club_id` (UUID), club_id stale | Auf `club_id` als Truth, `club`-String deprecaten |
@@ -155,7 +155,7 @@
 | 3 | ~~P1~~ ✅ | Wildcards: ~~35 Balances ohne Ledger~~ → **dormant** (35 leere Backfill-Rows, 0 Aktivität, Ledger-Pfad korrekt). Slice 306: swallow→throw + doku. Kein Risiko. |
 | 4 | P1 | Lineup `wildcardSlots:Set`, loadFromDb rehydriert wildcards nicht → Reload-Verlust |
 | 5 | P1 | GW-Status 3× unabhängig berechnet (kann divergieren) |
-| 6 | P1 | last-5-Scores 2 nicht-äquiv. Impls (= Player #4, **cross-domain**) |
+| 6 | ~~P1~~ ✅ **307** | ~~last-5-Scores 2 Impls~~ → Picker auf Kanon-RPC vereinheitlicht (= Player #4, cross-domain) |
 | 7 | P1 | Live-progressiveScores vs DB-slot_scores divergieren während GW |
 | 8 | P2 | Events `createNextGameweekEvents` hardcoded >38 vs per-Liga max |
 | 9 | P2 | League-Scope Dual-Achse leagueId(UUID) vs leagueName(String) |
@@ -199,11 +199,11 @@
 ## Market/Trading — Top-Befunde
 | # | Sev | Issue |
 |---|-----|-------|
-| 1 | **P0 Money** | Floor 5-6 divergierende Berechnungen, keine repliziert DB-Formel; resolveBuyPriceCents treibt angezeigte Kaufsumme |
-| 2 | **P0 Money latent** | `DbFeeConfig`-Typ fehlen offer_*_bps + abo_discount_*_bps (Schema≠Typ) |
-| 3 | P1 | 2 Floors für 1 Spieler auf /market (Trending-Strip vs Liste) |
+| 1 | ~~P0 Money~~ ✅ **303** | ~~Floor 5-6 divergierende Berechnungen~~ → Teil C: alle Reader auf `players.floor_price`; resolveBuyPriceCents=floorBsd |
+| 2 | ~~P0 Money latent~~ ✅ **304** | `DbFeeConfig`-Typ um offer_*_bps + abo_discount_*_bps ergänzt (Slice 304) |
+| 3 | ~~P1~~ ✅ **303** | ~~2 Floors auf /market~~ → Trending+Liste teilen jetzt `players.floor_price` (computePlayerFloor=Passthrough) |
 | 4 | P1 | IPO-Preis `ipo_price ?? floor_price` vermischt Semantik |
-| 5 | P1 | Holdings-Floor-Leak (optimistic Client-Floor in Cache) |
+| 5 | ~~P1~~ ✅ **303** | ~~Holdings-Floor-Leak~~ → optimistic kommt jetzt aus RPC-Response statt Client-Recompute |
 | 6 | P1 | Offers Dual-Source (Dashboard-RPC + offers.ts), owned-Filter 2× |
 | 7 | P1 | Platform-Fee = Remainder, `trade_platform_bps` nie direkt genutzt (Doku-Drift) |
 | 8 | P2 | 24h-Change 3 Quellen · volume_24h vs trades_volume_7d |

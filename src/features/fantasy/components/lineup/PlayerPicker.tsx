@@ -13,7 +13,8 @@ import FantasyPlayerRow from '@/components/fantasy/FantasyPlayerRow';
 import { PickerSortFilter } from '@/components/fantasy/PickerSortFilter';
 import type { PickerSortKey } from '@/components/fantasy/PickerSortFilter';
 import { getClubAvgL5 } from '@/components/fantasy/FDRBadge';
-import { useBatchFormScores, useNextFixtures } from '@/lib/queries/fantasyPicker';
+import { useNextFixtures } from '@/lib/queries/fantasyPicker';
+import { useRecentScores } from '@/lib/queries/managerData';
 import { getClub } from '@/lib/clubs';
 import { usePlayers } from '@/lib/queries/players';
 import { centsToBsd } from '@/lib/services/players';
@@ -57,8 +58,8 @@ export function PlayerPicker({
   const [synergyOnly, setSynergyOnly] = useState(false);
 
   // Data for Intelligence Strip rows
-  const playerIds = useMemo(() => effectiveHoldings.map(h => h.id), [effectiveHoldings]);
-  const { data: formScoresMap } = useBatchFormScores(playerIds, true);
+  // Slice 307: canonical last-5 scores via shared RPC (replaces weaker getBatchFormScores).
+  const { data: formScoresMap } = useRecentScores();
   const { data: nextFixturesMap } = useNextFixtures(true);
   const { data: allPlayers = [] } = usePlayers(true);
 
@@ -84,7 +85,10 @@ export function PlayerPicker({
   function getRowProps(player: UserDpcHolding) {
     const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
     const fixtureLocked = isPlayerLocked(player.id);
-    const formEntries = formScoresMap?.get(player.id) ?? [];
+    const formEntries = (formScoresMap?.get(player.id) ?? []).map((s) => ({
+      score: s ?? 0,
+      status: (s != null ? 'played' : 'not_in_squad') as 'played' | 'not_in_squad',
+    }));
     const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
     const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentShort, allPlayers) : 0;

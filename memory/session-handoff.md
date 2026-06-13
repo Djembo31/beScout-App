@@ -1,11 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 23:32)
+# Session Handoff — Auto (2026-06-14 00:08)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 5
+## Session Commits: 6
+- e809b55c fix(fantasy): Slice 306 — S7 Phase-2 #4 Wildcard-Ledger dormant + swallow→throw
 - 8f591c4f docs(distill): D76 S7-Harmonisierung + Resume-Anker (Session-End 301-305)
 - 9580e52d refactor(market): Slice 305 — Orphan Community-Valuation Removal (S7 Phase-2 #3)
 - c9519e24 fix(types): Slice 304 — DbFeeConfig Type-Schema Alignment (S7 Phase-2 #2)
