@@ -2,16 +2,17 @@
 
 ```
 status: idle
-slice: 293 ✅ DONE
+slice: 294 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/293-fantasy-lifecycle-e2e.md
-impact: skipped (E2E-Test only — kein Service/RPC/Schema/Query-Key-Touch)
-proof: worklog/proofs/293-fantasy-lifecycle-e2e.txt (Prod-Run grün 7.4s, 8 ACs, tsc clean)
-review: worklog/reviews/293-review.md (PASS — 2 MINOR inline-fixed)
+spec: worklog/specs/294-club-metadata-compliance-copy.md
+impact: skipped (i18n + 1 Component — kein Service/RPC/Schema/Query-Key)
+proof: worklog/proofs/294-club-metadata.txt
+review: worklog/reviews/294-review.md (self-review PASS — XS, Copy CEO-approved)
 ```
 
 ## Zuletzt
 
+- **Slice 294** (2026-06-13) — Public Club Metadata Compliance Copy (i18n, XS, PASS): `/club/[slug]` Meta „Trading" raus → i18n-driven `meta.clubDescription` (DE+TR Option A); orphaned RED-Test `page.metadata.test.ts` grün gemacht (i18n-sauber); vitest 4/4, compliance passed.
 - **Slice 293** (2026-06-13) — Deterministic Fantasy Lifecycle E2E (Tool, M, PASS): Contract-Level-E2E gegen bescout.net (own-login) ersetzt konditionalen Render-Smoke; 8 ACs grün 7.4s; schließt den 5×-wiederholten demo-green E2E-Caveat aus Hermes' Audits S1–S3. Commit 5294833a.
 - **Slice 292** (2026-06-13) — S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]` (Docs-only): all three demo-yellow; F-1 public Club metadata “Trading” copy; F-2 `/clubs` page-test gap.
 - **Slice 291** (2026-06-13) — Unified Trading GeoGate (TDD): `/player/[id]` and `/manager` trading actions now use `useRegionGuard('dpc_trading')`; content remains visible, trading execution blocked when restricted.
@@ -42,8 +43,8 @@ Steering audit:
 
 Nächstes empfohlen:
 - **Slice 293 ✅ DONE:** Deterministic Fantasy Lifecycle E2E — schließt den E2E-Caveat für /fantasy.
-- **⚠️ Orphaned RED-Test (uncommitted):** `src/app/(app)/club/[slug]/__tests__/page.metadata.test.ts` existiert (untracked) + ist RED — fordert „kein Trading", aber `page.tsx:24` sagt weiter „Trading". Das ist S3 F-1, Test geschrieben aber nie GREEN gemacht. Bewusst NICHT mit Slice 293 committet (würde CI röten). **Slice 294-Kandidat:** F-1 GREEN machen — Metadata-Copy „Trading" raus, i18n-sauber (`meta.clubDescription` mit `{name}`, nicht hardcoded DE — sonst TR-Besucher = DE OG-Cards), Test auf t()-Call statt DE-Literal anpassen.
-- Danach: S3 F-2 — `/clubs` Page-Test für loading/error/empty/follow/activate Basics.
+- **Slice 294 ✅ DONE:** S3 F-1 — Public Club Metadata „Trading" raus + i18n; orphaned RED-Test geheilt.
+- Offen S3 F-2 — `/clubs` Page-Test für loading/error/empty/follow/activate Basics.
 - Optional Demo-Step-8: /club + /clubs Lifecycle-E2E via Slice-293-Blueprint (`testing.md` „Contract-Level E2E gegen Live-Prod").
 - Nächster Audit-Schritt: S4 Source-of-Truth Boundaries.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.

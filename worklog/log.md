@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 294 | 2026-06-13 | fix(compliance): Public Club Metadata Compliance Copy (F-1)
+
+- Stage-Chain: SPEC (`worklog/specs/294-club-metadata-compliance-copy.md`, XS, i18n+UI) → IMPACT skipped (i18n + 1 Component, kein Service/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/294-review.md`, self-review PASS — XS, Copy CEO-approved) → PROVE (`worklog/proofs/294-club-metadata.txt`) → LOG.
+- Trigger: Slice 292 S3 F-1 (P1) — öffentliche `/club/[slug]`-Metadata-Description hardcoded DE inkl. „Trading" → falsches Public-Positioning (current-product-truth §4) + TR-Besucher bekamen DE OG/Twitter-Cards.
+- Fix: `page.tsx` description → `t('clubDescription', { name })`; neuer i18n-Key `meta.clubDescription` in de+tr (Anil-approved Option A: DE „Spieler, Fantasy und Scout Cards", TR „Oyuncular, Fantasy ve Scout Cards"). „Trading" entfernt (bleibt legit im Market-Kontext, kein Blanket-Verbot).
+- Orphan-Heal: die seit Slice 292 uncommittete RED-Test-Leiche `page.metadata.test.ts` grün gemacht — i18n-sauber (Behavior: key+name, og===twitter===description; Content: reale de/tr-Strings trading-frei + `{name}` + „BeScout"), NICHT als hardcoded-DE-Literal.
+- Verify: vitest 4/4 · tsc 0 · `pnpm audit:compliance` passed · `grep -i trading page.tsx` = nur Kommentar.
+- Commit: <hash>.
+
 ## 293 | 2026-06-13 | test(fantasy): Deterministic Fantasy Lifecycle E2E
 
 - Stage-Chain: SPEC (`worklog/specs/293-fantasy-lifecycle-e2e.md`, M, Slice-Type Tool) → IMPACT skipped (E2E-only, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/293-review.md`, PASS, 2 MINOR inline-fixed) → PROVE (`worklog/proofs/293-fantasy-lifecycle-e2e.txt`) → LOG.

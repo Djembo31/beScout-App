@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!club) return { title: t('club') };
 
   const title = club.name;
-  const description = `${club.name} auf BeScout: Spieler, Fantasy, Trading. Werde Fan!`;
+  // Slice 294: i18n-driven public copy (was hardcoded DE incl. "Trading" — F-1).
+  // TR visitors now get TR OG/Twitter cards; "Trading" replaced with compliance-safe
+  // positioning per current-product-truth.md §4.
+  const description = t('clubDescription', { name: club.name });
 
   return {
     title,

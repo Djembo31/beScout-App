@@ -1,0 +1,49 @@
+Slice 294 — Public Club Metadata Compliance Copy (F-1) — PROOF
+Date: 2026-06-13
+
+=========================================================
+1. vitest — page.metadata.test.ts (was orphaned RED, now GREEN)
+=========================================================
+$ pnpm exec vitest run "src/app/(app)/club/[slug]/__tests__/page.metadata.test.ts"
+  Test Files  1 passed (1)
+       Tests  4 passed (4)
+
+  ✓ derives public description from i18n meta.clubDescription with {name} (no hardcoded trading)
+  ✓ falls back to club title when club not found
+  ✓ de: exists, has {name}, mentions BeScout, no trading positioning
+  ✓ tr: exists, has {name}, mentions BeScout, no trading positioning
+
+=========================================================
+2. tsc
+=========================================================
+$ pnpm exec tsc --noEmit
+EXIT: 0 (clean)
+
+=========================================================
+3. Real i18n values (Anil-approved Option A)
+=========================================================
+DE: {name} auf BeScout: Spieler, Fantasy und Scout Cards. Werde Fan!
+TR: {name} BeScout'ta: Oyuncular, Fantasy ve Scout Cards. Fan ol!
+  → "Trading" entfernt · i18n-driven (TR-Besucher bekommt TR OG/Twitter-Cards)
+
+=========================================================
+4. page.tsx — no hardcoded trading in code
+=========================================================
+$ grep -in trading "src/app/(app)/club/[slug]/page.tsx"
+24:  // Slice 294: i18n-driven public copy (was hardcoded DE incl. "Trading" — F-1).
+25:  // TR visitors now get TR OG/Twitter cards; "Trading" replaced with compliance-safe
+  → only the explanatory comment; description line uses t('clubDescription', { name }).
+
+=========================================================
+5. audit:compliance
+=========================================================
+$ pnpm audit:compliance
+✅ Compliance-Audit passed
+
+=========================================================
+Files (Slice 294)
+=========================================================
+  EDIT  src/app/(app)/club/[slug]/page.tsx                       description → t('clubDescription', { name })
+  EDIT  messages/de.json                                          + meta.clubDescription
+  EDIT  messages/tr.json                                          + meta.clubDescription
+  EDIT  src/app/(app)/club/[slug]/__tests__/page.metadata.test.ts orphan RED → GREEN (i18n behavior + locale content)
