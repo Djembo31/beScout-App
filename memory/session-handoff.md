@@ -1,36 +1,70 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 18:17)
+# Session Handoff — Auto (2026-06-13 22:22)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 10
-- 33332654 chore(audit): Slice 300 — S5 test-confidence audit + ratchet-guard
-- 4fed642a chore(audit): Slice 299 — S4 Source-of-Truth Boundaries audit + ratchet-guard
-- 787e1719 test(club): Slice 298 — contract-level lifecycle E2E /clubs + /club (Demo-Step-8)
-- 07698c88 docs(proof): Slice 297 AC-5 mobile 393px verify — PROVE complete
-- 21855b40 docs(distill): D74 AuthGuard single-source + session-handoff (Slices 294-297)
-- 4c4f996d refactor(club): Slice 297 narrative tab-split — new "Mehr" tab (S3 F-4)
-- 16e46448 docs(fantasy): Slice 296 explicit unauth contract + test (S3 F-3)
-- e1963466 test(clubs): Slice 295 /clubs Discovery Page Contract Test (S3 F-2)
-- 6f4212cb chore(worklog): regenerate audit reports + session-handoff post-Slice-294
-- 3677134f fix(compliance): Slice 294 Public Club Metadata Compliance Copy (F-1)
+## Session Commits: 6
+- 9580e52d refactor(market): Slice 305 — Orphan Community-Valuation Removal (S7 Phase-2 #3)
+- c9519e24 fix(types): Slice 304 — DbFeeConfig Type-Schema Alignment (S7 Phase-2 #2)
+- eb0f146b feat(market): Slice 303 — Floor-Price Source-of-Truth Consolidation (S7 Phase-2 #1)
+- cd407b8d docs(audit): Slice 302 — S7 Source-of-Truth & Wiring Registry (Foundation + 3 P0-Domänen)
+- f6776119 chore(audit): Slice 301 — S6 Dead-Artifact-Inventory + wildcards-Bridge-Removal
+- 6b1ba1b1 docs(decision): D75 — Stabilization-Audit-Slices = Audit + Ratchet-Guard (Session-End 297-300)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 Abend — Session-End nach Slice 297–300, S4+S5 komplett)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 spät — S6 + S7-Registry + S7-Phase-2 #1–#3, 5 Slices)
+
+**Status: idle** · HEAD `9580e52d` · origin/main synchron · Working tree clean. **0 Reverts** (durchgehend seit Slice 261).
+
+## ⚠️ Erste Action: S7 Phase-2 **#4 — Wildcard-Ledger** (Money/Compliance)
+
+Anil hat #4 für die nächste Session reserviert (frischer Kopf für Money/Compliance). **Befund (S7-Registry Fantasy 2.7):** `user_wildcards` hat **35 Balances**, `wildcard_transactions` aber **0 Zeilen** → Balance ohne Audit-Ledger. `getWildcardHistory` liefert immer `[]` + swallowed Errors. Bezahlte/gewährte Wildcards ohne Trail = Compliance-Risiko.
+
+**Vorgehen #4:** (1) DB-Investigation — schreibt `admin_grant_wildcards`/`save_lineup`(p_wildcard_slots) überhaupt in `wildcard_transactions`? `pg_get_functiondef` der wildcard-RPCs prüfen. (2) Entscheiden: Ledger-Schreibpfad reparieren (RPC-Body) ODER dokumentieren warum kein Ledger. (3) `getWildcardHistory` Error-Swallow → throw. Spec-Skelett noch zu schreiben. Money-Path → Pflicht-Review.
+
+## Was diese Session lief (Start: „weiter" → Anil-Direktive „alles harmonisieren")
+
+Aus Anils Gefühl „Repo aus Mocks zusammengewachsen, Brücken/Workarounds, mehrere Datenquellen pro Komponente" wurde ein abgearbeitetes Programm. 5 Slices, alle reviewt, 0 Reverts:
+
+1. **Slice 301** `f6776119` — S6 Dead-Artifact-Inventory: 24 Artefakte klassifiziert + wildcards-Bridge gelöscht (RED/GREEN). **Stabilization S0–S6 komplett.**
+2. **Slice 302** `cd407b8d` — **S7 Source-of-Truth & Wiring Registry** (die „Verfassung"): `worklog/audits/2026-06-13/s7-source-of-truth-registry.md`. 3 P0-Domänen (Player/Fantasy/Trading) via 3 parallele Explore-Agents live-schema-gemappt, 8-Achsen-Format. **6 systemische Muster** identifiziert (#1 Floor 5-6-fach · Schema≠Typ · 2-Spalten/2-Impls je Semantik · Audit-Ledger leer · dormant/orphan · externe-Dep-blockiert). Methode = Strangler-Fig + Ratchet (D75), kein Big-Bang.
+3. **Slice 303** `eb0f146b` — **S7 #1 Floor-Konsolidierung (Money, größter Hebel).** Root-Cause-Catch: `last_price` Seed-Müll vergiftete `recalc_floor_price` → naiver Backfill hätte 3310 Floors zerschossen (Yamal 200.000→100). A: Hygiene (Divergenz 73%→0,57%). B: cancel_order → Kanon recalc. C: 4 Recompute-Pfade → `players.floor_price` (eine Quelle). Knowledge: errors-db.md „Seed-Wert-Poisoning in Fallback-Formel-Branch".
+4. **Slice 304** `c9519e24` — **S7 #2 DbFeeConfig-Typ-Fix.** +6 NOT-NULL-Felder (offer_*_bps + abo_discount_*_bps) gegen Live-Schema. Schema≠Typ-Loch zu, kein Fee-Wert-Change.
+5. **Slice 305** `9580e52d` — **S7 #3 Orphan-Value-Removal.** CommunityValuation + valuations.ts + 2 Tabellen + RPC gelöscht (RED/GREEN). Reviewer-CONCERNS-Residuen in-slice (orphan-detector-Allowlist + 9 i18n-Keys). Knowledge: errors-frontend.md „Dead-Feature-Removal 4-Residuen-Achsen".
+
+## S7 Registry — Stand & Roadmap
+
+**Phase 1 (Map):** 3/9 Makro-Domänen gemappt (Player/Fantasy/Trading = alle P0). **Offen (P1–P3, falls je gewünscht):** Club, Social/Community, Gamification/Economy, Creator/Sponsor, Identity, Admin/Ops.
+
+**Phase 2 (Migrieren):** #1✅ #2✅ #3✅ · **#4 Wildcard-Ledger offen** (= erste Action oben). Weitere Registry-Befunde P1 (eigene Slices wenn Anil will): active_gameweek 2-Spalten-Drift (clubs vs leagues) · GW-Status 3× berechnet · last-5-Scores 2 Impls (cross-domain Player#4/Fantasy#6) · Lineup wildcardSlots:Set-Rehydration · IPO-Preis `?? floor_price`-Vermischung · 24h-Change 3 Quellen.
+
+## Offene Folge-Findings (opportunistisch, kein Zwang)
+
+- **S4-F-2/F-3 (P2):** `PlayerRankings.tsx` + `FollowListModal.tsx` direkter Supabase-Zugriff → Query-Facade-Migration (durch boundary-Ratchet eingefroren, noch DRIFT).
+- **S5-F-1..4 (P2/P3):** Mock-Heavy-Tests Behavioral-Audit + bug-regression test.skip-Reasons.
+- **303 F-1 (pre-existing, doc'd in trading.md):** Display-Floor inkl. eigener Sell-Orders vs buy_player_sc skippt eigene → minimale Display/Charge-Abweichung wenn User selbst günstigster Lister.
+
+## Carry-over (Anil-Action, unverändert)
+
+- **🚨 API-Football-Key suspendiert seit 06.05.** → blockiert Slice 284b (154 Geister + Süper-Lig-GW-Drift: SL active_gameweek=34 bei max=38). dashboard.api-football.com.
+- **TR-Review (3 Strings):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+- **Backlog (286):** `clubs.ts` non-reaktives Cache-Pattern (falls render-time `useMemo(() => getClub(...))` → useSyncExternalStore-Fix).
+- **Backlog-Slices (kein API-Key):** FM-08..11, FANT-11/12/16 (CEO Vice-Captain). Punch-List: `worklog/audits/2026-06-12/stab-284-punchlist.md`.
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-06-13 Abend — Session-End nach Slice 297–300, S4+S5 komplett)
 
 **Status: idle** · HEAD `33332654` · origin/main synchron · Working tree clean (nur auto Handoff-Block). 0 Reverts.
 
-## Anil-Direktive für nächste Session
+## Anil-Direktive (erledigt)
 
-**→ Anil setzt S6 (Dead-Artifact-Inventory) selbst durch.** Nicht autonom vorgreifen.
+**→ Anil setzt S6 (Dead-Artifact-Inventory) selbst durch.** ✅ Erledigt als Slice 301.
 
 ## Was diese Session lief (Start: „weiter im handoff")
 

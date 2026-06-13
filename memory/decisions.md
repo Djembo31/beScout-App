@@ -3394,3 +3394,23 @@ Die Master-Audit-Anti-Kreis-Regeln (§11) waren reine Prosa → 0 Enforcement �
 
 - Wenn ein Bestand vollständig migriert ist (Count → 0) → Ratchet-Guard + Baseline-File löschen, Regel ggf. zu ESLint-Hard-Rule promoten (dann ist Big-Bang-Risk weg).
 - Wenn pre-commit durch zu viele Ratchet-Steps spürbar langsam wird → Ratchets in einen kombinierten `audit:ratchets:check`-Sammel-Step bündeln.
+
+---
+
+## D76 — ARCHITECTURE: S7 Source-of-Truth-Harmonisierung (Mock-Erblast → eine Quelle pro Datenpunkt)
+
+**Datum:** 2026-06-13 · **Status:** Aktiv (Programm, mehrere Sessions)
+
+**Kontext:** Anil-Direktive aus Strategic-Konversation — Projekt ist „aus Mocks zusammengewachsen, nicht professionell strukturiert; immer mehr Brücken/Workarounds; mehrere Datenquellen pro Komponente wo eine reichte". Gefühl: unsauber, unnötige Datenpflege.
+
+**Entscheidung:** Mehrphasiges Harmonisierungs-Programm (S7), das die Lese-/Source-of-Truth-Achse aufräumt — Daten-Analogon zu S6 (toter Code). Zielbild: geschichtete Architektur **DB → RPC/Service (1/Domäne) → Query-Facade → Component (nur UI)** mit 4 Gesetzen: (1) 1 Datenpunkt = 1 Quelle, (2) keine Komponente fasst `supabaseClient` direkt an, (3) keine Re-Export-Brücken, (4) keine Mehrquellen-Reads.
+
+**Methode (= D75 Strangler-Fig + Ratchet, kein Big-Bang, Beta läuft live):** 3 Phasen — (1) **Registry** (`worklog/audits/2026-06-13/s7-source-of-truth-registry.md`, 8-Achsen-Record-Format pro Domäne), (2) Domäne-für-Domäne migrieren + Ratchet, (3) redundante Speicher mit RED/GREEN-Proof abräumen. Demo-/Money-Path zuerst.
+
+**Begründung:** Beta live (Taki/Nail Mo) → Big-Bang verboten. Registry-first macht Migration evidenzbasiert statt Raten. Bewiesen wertvoll Slice 303: Money-Path-Health-Check verhinderte, dass ein naiver Floor-Backfill 3310 Spieler-Floors zerschießt (Seed-Müll-Poisoning, Yamal 200.000→100).
+
+**Alternativen erwogen:** (a) Big-Bang-Refactor aller Datenquellen — verworfen (Beta-Risiko, kein Rollback). (b) Nur Code-Cleanup ohne Daten-Achse — verworfen (Kernproblem ist Mehrquellen-Lese-Drift, nicht toter Code allein). (c) Ad-hoc fixen wo's auffällt — verworfen (ohne Registry-Map = Raten, kein Drift-Schutz, Workarounds kommen zurück).
+
+**Stand 2026-06-13:** Phase 1 = 3/9 P0-Domänen gemappt (Player/Fantasy/Trading). Phase 2 = #1 Floor (303) · #2 DbFeeConfig-Typ (304) · #3 Orphan-Value-Removal (305) live. Offen: #4 Wildcard-Ledger + 6 P1-Domänen. 6 systemische Muster als generische Klassen (Floor-Mehrfach · Schema≠Typ · 2-Spalten/2-Impls · leerer Ledger · orphan-Feature · dormant-by-external-dep).
+
+**Re-Visit-Trigger:** Wenn alle P0-Befunde migriert + Ratchets grün → entscheiden ob die 6 P1-Domänen gemappt werden oder Programm als „Demo-/Money-Path harmonisiert" geschlossen wird.
