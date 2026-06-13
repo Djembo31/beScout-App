@@ -409,7 +409,9 @@ describe('useHomeData', () => {
     expect(result.current.pnlPct).toBeCloseTo(20);
   });
 
-  it('uses canonical byIds live-listing floor for held players to match Manager/Market parity', () => {
+  // Slice 303 (S7): Floor = canonical byIds prices.floor (= players.floor_price, DB-Canon),
+  // NICHT mehr min(listings). Manager/Market-Parity bleibt — alle nutzen dieselbe eine Quelle.
+  it('uses canonical byIds prices.floor for held players to match Manager/Market parity', () => {
     mockCentsToBsd.mockImplementation((v: number) => v / 100000);
     setDashboard({ holdings: [makeHolding()] });
     mockUsePlayersByIds.mockReturnValue({
@@ -425,10 +427,10 @@ describe('useHomeData', () => {
     const { result } = renderHook(() => useHomeData());
 
     expect(mockUsePlayersByIds).toHaveBeenCalledWith(['p-1']);
-    expect(result.current.holdings[0].floor).toBe(4);
-    expect(result.current.portfolioValue).toBeCloseTo(20); // 5 * live-listing floor 4
-    expect(result.current.pnl).toBeCloseTo(-5); // cost remains 25
-    expect(result.current.pnlPct).toBeCloseTo(-20);
+    expect(result.current.holdings[0].floor).toBe(7); // prices.floor, NOT min(listings)=4
+    expect(result.current.portfolioValue).toBeCloseTo(35); // 5 * floor_price 7
+    expect(result.current.pnl).toBeCloseTo(10); // value 35 - cost 25
+    expect(result.current.pnlPct).toBeCloseTo(40);
   });
 
   it('returns pnlPct=0 when portfolioCost is 0', () => {

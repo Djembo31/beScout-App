@@ -278,7 +278,6 @@ export default function MarketContent() {
         const floorCents = resolveBuyPriceCents({
           isIpo,
           ipoPriceCents: ipo?.price,
-          listings: player.listings,
           floorBsd: player.prices.floor,
         });
         const ipoRemaining = ipo ? ipo.total_offered - ipo.sold : 0;

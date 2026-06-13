@@ -267,7 +267,8 @@ describe('useMarketData', () => {
 
   // ── Test 4: floorMap ──
 
-  it('floorMap uses min listing price when player has listings', () => {
+  // Slice 303 (S7): floorMap = prices.floor (DB-Canon), listings werden IGNORIERT.
+  it('floorMap uses prices.floor ignoring listings', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [
@@ -275,12 +276,13 @@ describe('useMarketData', () => {
         { id: 'l2', isOwn: false, sellerHandle: 's2', sellerName: 'Seller2', price: 300, expiresAt: 0 },
         { id: 'l3', isOwn: false, sellerHandle: 's3', sellerName: 'Seller3', price: 700, expiresAt: 0 },
       ],
+      prices: { lastTrade: 1000, change24h: 5, floor: 420 },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
     const { result } = renderHook(() => useMarketData('user-1'), { wrapper: createWrapper() });
 
-    expect(result.current.floorMap.get('p1')).toBe(300);
+    expect(result.current.floorMap.get('p1')).toBe(420); // floor_price, NOT min(listings)=300
   });
 
   it('floorMap falls back to prices.floor when no listings', () => {
@@ -313,10 +315,11 @@ describe('useMarketData', () => {
     expect(result.current.floorMap.get('p1')).toBe(0);
   });
 
-  it('getFloor helper returns floor for a player', () => {
+  it('getFloor helper returns prices.floor for a player', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [{ id: 'l1', isOwn: false, sellerHandle: 's1', sellerName: 'S', price: 250, expiresAt: 0 }],
+      prices: { lastTrade: 1000, change24h: 5, floor: 250 },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 
@@ -422,10 +425,11 @@ describe('useMarketData', () => {
     expect(mockMarketDashboard).toHaveBeenCalledWith(undefined);
   });
 
-  it('floorMap handles player with single listing correctly', () => {
+  it('floorMap returns prices.floor for player with single listing', () => {
     const p1 = makePlayer({
       id: 'p1',
       listings: [{ id: 'l1', isOwn: false, sellerHandle: 's1', sellerName: 'S', price: 999, expiresAt: 0 }],
+      prices: { lastTrade: 1000, change24h: 5, floor: 999 },
     });
     mockEnrichedPlayers.mockReturnValue({ data: [p1], isLoading: false, isError: false });
 

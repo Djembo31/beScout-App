@@ -1,0 +1,31 @@
+=== Slice 303 — Floor Source-of-Truth Consolidation — PROVE ===
+Date: 2026-06-13
+
+### Teil A — last_price Seed-Hygiene (DB) ###
+Migration: 20260613210000_slice_303_last_price_hygiene.sql
+AC-1: 0 untradete Spieler mit last_price != 0 (verifiziert post-apply)
+AC-2: Floor-Divergenz vs Kanon-Formel: 3310 (73%) -> 26 (0.57%) [<5% target]
+AC-3: 202 getradete Spieler last_price unveraendert (Summe 8.347.832 vorher==nachher)
+
+### Teil B — cancel_order Recalc (DB) ###
+Migration: 20260613210500_slice_303_cancel_order_recalc.sql
+AC-4: cancel_order Inline-Floor-Formel -> PERFORM recalc_floor_price (Kanon, eine Quelle in DB)
+      Schliesst zugleich die 'cancel laesst Floor stale-low'-Luecke.
+
+### Teil C — Code-Konsolidierung (4 Recompute-Pfade -> prices.floor) ###
+computePlayerFloor (playerMath.ts):  Math.min(listings) -> prices.floor
+enrichPlayersWithData (enriched.ts): floorFromOrders entfernt -> prices.floor
+resolveBuyPriceCents (priceCents):   listings-Branch entfernt -> floorBsd (treibt BuyConfirm-Anzeige)
+trading.md:                          Floor-Regel auf single-source players.floor_price umgestellt
+
+AC-6: keine Client-Floor-Recomputes mehr (grep Math.min listings/orders.price = leer)
+  -> 0 Treffer (clean)
+
+AC-7: tsc --noEmit exit 0
+AC-7: vitest 459/459 grün (market + manager + player + queries + lib + app-hooks)
+      inkl. 5 angepasste Tests (playerMath x1, useMarketData x3, useHomeData x1, priceCents rewrite)
+
+### Root-Cause-Catch (Money-Save) ###
+Health-Check fand: last_price ist Seed-Muell (3855x 10000 ohne Trades) -> vergiftete recalc-Formel.
+Naiver recalc-Backfill haette 3310 Floors auf 100 SCOUT zerschossen (z.B. Yamal 200.000 -> 100).
+Hygiene (untraded -> 0) de-poisoned die Formel -> floor_price + Kanon stimmen ueberein -> Konsolidierung sicher.

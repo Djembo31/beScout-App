@@ -6,6 +6,35 @@ description: DB-Fehler — Supabase/Postgres, RPCs, Auth/Security, Cache-Sync
 
 Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
 
+### Seed-Wert-Poisoning in Fallback-Formel-Branch (Slice 303, 2026-06-13)
+
+**Bug-Klasse:** Eine NOT-NULL-Spalte wird mit einem plausibel aussehenden Seed-Wert befüllt (z.B. `last_price = 10000` cents = 100 $SCOUT für alle ungetradeten Spieler). Eine Kanon-Formel/RPC nutzt diese Spalte als **Fallback-Branch** (`... → last_price > 0 → use last_price`). Der Seed vergiftet die Formel still: für 96 % der Zeilen liefert der Fallback Müll, der gespeicherte (andere) Wert ist aber korrekt. **Ein naiver Recompute-Backfill würde die korrekten Werte mit dem vergifteten Formel-Output überschreiben.**
+
+**Symptom (Slice 303):** `recalc_floor_price` Fallback `... → last_price>0 → keep`. 3870 Spieler hatten `last_price=10000` (nur 15 mit echten Trades), 496 auf `0`. Health-Check: 3310/4556 (73 %) `floor_price` „divergieren" von der Formel — aber der gespeicherte `floor_price` (= IPO-Preis) war der **bessere** Wert; die Formel war vergiftet. Naiver `recalc`-Backfill hätte Yamal-Floor 200.000 → 100 $SCOUT zerschossen.
+
+**Detection (PFLICHT vor jedem Recompute-Backfill einer Formel mit Fallback-Branch):**
+```sql
+-- 1. Seed-Cluster finden (identischer Wert massenhaft)
+SELECT <fallback_col>, COUNT(*) AS rows,
+  COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM <source> s WHERE s.fk=t.id)) AS has_real_source
+FROM <table> t GROUP BY <fallback_col> ORDER BY rows DESC LIMIT 10;
+-- Ein Wert mit hoher row-count + niedrigem has_real_source = Seed-Müll.
+
+-- 2. Divergenz stored vs Formel messen — VOR Backfill
+-- (CASE der Kanon-Formel nachbauen, COUNT WHERE stored <> formel)
+```
+
+**Fix-Pattern: Hygiene VOR Formel-Vertrauen, nie umgekehrt.**
+Untradete/Source-lose Zeilen auf den „nie-X"-Sentinel normalisieren (hier `0`, da Formel `> 0` prüft), NICHT die Formel über alle laufen lassen:
+```sql
+UPDATE <table> t SET <fallback_col> = 0
+WHERE t.<fallback_col> <> 0
+  AND t.id NOT IN (SELECT fk FROM <source> WHERE fk IS NOT NULL);  -- NULL-trap-safe
+```
+Danach stimmen gespeicherter Wert + Formel überein → Recompute/Konsolidierung sicher. Verify: Divergenz-Re-Check muss von hoch (73 %) auf ~0 fallen; Source-behaftete Zeilen (Snapshot-Summe) unverändert.
+
+**Beziehung:** Pattern-Familie mit `errors-scraper.md` „Scraper Default-Poisoning (Slice 081)" — plausible Default-Werte, die wie echte Daten aussehen. Hier auf DB-Formel-Achse: der Seed ist nicht im Display sichtbar (Client fällt auf den richtigen gespeicherten Wert zurück), wird erst beim Backfill gefährlich. **Reference:** Slice 303 `supabase/migrations/20260613210000_slice_303_last_price_hygiene.sql`.
+
 ## Supabase / Postgres
 
 ### Tenant-Window Achsen-Erweiterung: Per-Player vs. Per-Liga (Slice 274, 2026-05-06)

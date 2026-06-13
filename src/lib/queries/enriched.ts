@@ -59,13 +59,10 @@ export function enrichPlayersWithData(
     const playerOrders = ordersByPlayer.get(p.id) ?? [];
     const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
 
-    // Floor price from cheapest user order, fallback to ipo_price
-    let floorFromOrders: number | undefined;
-    if (playerOrders.length > 0) {
-      const cheapest = Math.min(...playerOrders.map(o => o.price));
-      floorFromOrders = centsToBsd(cheapest);
-    }
-
+    // Slice 303 (S7): Floor = EINE Quelle players.floor_price (via prices.floor).
+    // Kein Client-Recompute aus orders mehr — recalc_floor_price pflegt floor_price
+    // bei jeder Sell-Order/Trade/Cancel mit der Kanon-Formel. listings bleiben nur
+    // für die Orderbook-Anzeige (nicht für den Floor).
     const listings = playerOrders.map(o => ({
       id: o.id,
       isOwn: o.is_own,
@@ -81,7 +78,7 @@ export function enrichPlayersWithData(
       dpc: { ...p.dpc, owned, onMarket },
       prices: {
         ...p.prices,
-        floor: floorFromOrders ?? p.prices.floor ?? p.prices.ipoPrice ?? 0,
+        floor: p.prices.floor ?? p.prices.ipoPrice ?? 0,
       },
       listings,
     };

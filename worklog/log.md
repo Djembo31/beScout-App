@@ -2,6 +2,18 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 303 | 2026-06-13 | feat(market): S7 Phase-2 #1 — Floor-Price Source-of-Truth Consolidation (Money)
+
+- Stage-Chain: SPEC (`worklog/specs/303-floor-source-of-truth-consolidation.md`, L, Money-Path) → IMPACT (in-spec: Call-Site-Karte + recalc-Caller + Consumer-Guards + Health-Check) → BUILD (A→B→C) → REVIEW (`worklog/reviews/303-review.md`, reviewer-Agent **PASS**, Money-Pflicht, 3 MINOR+1 NIT+1 pre-existing) → PROVE (`worklog/proofs/303-floor-consolidation.txt`) → LOG.
+- Trigger: S7-Registry-Befund #1 (höchster Hebel projektweit) — Spieler-Floor 5-6-fach divergierend berechnet, keine Client-Variante replizierte die DB-Formel; resolveBuyPriceCents treibt die angezeigte Kaufsumme; Trending-Strip vs Markt-Liste zeigten 2 Floors/Spieler. Anil „J".
+- **Root-Cause-Catch (Money-Save):** Health-Check fand `last_price` = Seed-Müll (3855× 10000 ohne Trades, 496× 0) → `recalc_floor_price`-Fallback vergiftet. Divergenz floor_price vs Kanon 73%. **Naiver recalc-Backfill hätte 3310 Floors auf 100 $SCOUT zerschossen** (z.B. Yamal 200.000→100). Statt Backfill: Hygiene VOR Formel-Vertrauen.
+- Teil A (DB `20260613210000_slice_303_last_price_hygiene.sql`): untradete `last_price=0` (Sentinel, kein Schema-Change — Spalte NOT NULL). Divergenz **73% → 0,57%**. 202 getradete unberührt (Summe 8.347.832 pre==post, NULL-trap-safe `NOT IN (... WHERE player_id IS NOT NULL)`).
+- Teil B (DB `20260613210500_slice_303_cancel_order_recalc.sql`): cancel_order's eigene Inline-Floor-Formel (`MIN(open-sell)→players.ipo_price`, = 7. Floor-Berechnung in der DB) → `PERFORM recalc_floor_price`. Eine Quelle auch in DB + schließt Stale-Low-Lücke. Slice-156-PATCH-AUDIT clean (Body aus pg_get_functiondef, nur Floor-Block getauscht, AR-44 REVOKE/GRANT).
+- Teil C (Code): `computePlayerFloor` (Math.min(listings)→prices.floor), `enrichPlayersWithData` (floorFromOrders raus), `resolveBuyPriceCents` (listings-Branch raus, ×100-BSD→cents-Lock behalten). 6 Konsumenten unverändert (lasen prices.floor schon). `trading.md`-Floor-Regel auf single-source umgestellt + F-1-Doc-Note (Display vs Charge bei eigener Order, pre-existing). 5 Tests angepasst (echtes neues Verhalten, nicht grün-gemacht).
+- Reviewer-Findings in-slice: F-2 (KaderTab dead `hasListings` + Kommentar), F-3 (trading.md Post-Trade-Snippet → invalidate statt client-recompute), F-4 (MarketContent listings-arg gedroppt). F-1 (own-order Display/Charge-Edge) = pre-existing, von 303 verbessert, als Doc-Note.
+- Files: +2 Migrationen · ~6 Code/Doc · 5 Tests. tsc 0, **459/459 + 77/77** grün. Beseitigt nebenbei Home↔Manager Portfolio-Wert-Divergenz (Slice 289 F-1/290) by-construction.
+- Knowledge: `errors-db.md` neu „Seed-Wert-Poisoning in Fallback-Formel-Branch" (Detection + Hygiene-vor-Formel-Pattern, Familie Slice 081). S7-Phase-2 nächste: #2 DbFeeConfig-Typ-Fix · #3 Orphan-Value-Removal · #4 Wildcard-Ledger.
+
 ## 302 | 2026-06-13 | docs(audit): S7 Source-of-Truth & Wiring Registry (Foundation + 3 P0-Domänen)
 
 - Trigger: Anil-Direktive (Strategic-Konversation) — „Projekt aus Mocks zusammengewachsen, immer mehr Brücken/Workarounds, mehrere Datenquellen pro Komponente wo eine reichte; alles harmonisieren/professionalisieren". Daten-Analogon zu S6 (Code), aber auf der Lese-/Source-of-Truth-Achse.

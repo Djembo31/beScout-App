@@ -9,28 +9,29 @@ import type { Player } from '@/types';
 const asPlayer = (p: unknown): Pick<Player, 'listings' | 'prices'> =>
   p as Pick<Player, 'listings' | 'prices'>;
 
+// Slice 303 (S7 Floor-Source-of-Truth): computePlayerFloor liest NUR prices.floor
+// (= players.floor_price, DB-Canon via recalc_floor_price). Kein listings/orders-
+// Recompute mehr — listings werden ignoriert (waren Divergenz-Quelle, S7-Registry #1).
 describe('computePlayerFloor', () => {
-  it('returns Math.min of listings when listings exist', () => {
+  it('returns prices.floor ignoring listings (Slice 303 single source)', () => {
     const p = asPlayer({
       listings: [{ price: 300 }, { price: 150 }, { price: 200 }],
       prices: { floor: 500, lastTrade: 0, change24h: 0 },
     });
-    expect(computePlayerFloor(p)).toBe(150);
+    expect(computePlayerFloor(p)).toBe(500); // floor_price wins, NOT min(listings)=150
   });
 
-  it('falls back to prices.floor when listings empty', () => {
+  it('returns prices.floor regardless of listings presence', () => {
     const p = asPlayer({ listings: [], prices: { floor: 250, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(250);
   });
 
-  // Slice 115 (2026-04-20): referencePrice-Fallback entfernt. Floor ist nun die
-  // einzige autoritative Quelle (nach listings.min). Formel-Chain: listings.min → floor → 0.
-  it('falls back to 0 when listings empty and floor is null', () => {
+  it('falls back to 0 when floor is null', () => {
     const p = asPlayer({ listings: [], prices: { floor: null, lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(0);
   });
 
-  it('returns 0 for empty listings and minimal prices', () => {
+  it('returns 0 for minimal prices (no floor)', () => {
     const p = asPlayer({ listings: [], prices: { lastTrade: 0, change24h: 0 } });
     expect(computePlayerFloor(p)).toBe(0);
   });

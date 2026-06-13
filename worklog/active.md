@@ -1,14 +1,14 @@
 # Active Slice
 
 ```
-status: active
-slice: 302 ✅ DONE (Foundation)
+status: idle
+slice: 303 ✅ DONE
 stage: LOG complete
-spec: skipped (Strategic-Audit aus Anil-Konversation „alles harmonisieren" — kein _TEMPLATE-Spec, Deliverable = Registry-Doc)
-impact: skipped (reines Read-only-Audit-Doc, kein Code-Diff)
-proof: worklog/audits/2026-06-13/s7-source-of-truth-registry.md (3 P0-Domänen gemappt, live-schema-verifiziert)
-review: skipped (Docs-only Foundation; Migrations-Slices Phase 2 reviewen Code)
-decision: S7 Source-of-Truth & Wiring Registry. Anil-Direktive: ganzes Projekt harmonisieren (Mock-Erblast, Brücken, Mehrquellen-Reads). Methode = Strangler-Fig + Ratchet (D75), kein Big-Bang, live-sicher. Phase 1 (Map): Player+Fantasy+Trading gemappt via 3 Cold-Context-Agents. 6 systemische Muster identifiziert. #1-Hebel = Floor 5-6-fach. Phase 2 #1 = computeFloor (Money, /impact zuerst).
+spec: worklog/specs/303-floor-source-of-truth-consolidation.md
+impact: in-spec (Call-Site-Karte + recalc-Caller + Consumer-Guards + Health-Check verifiziert)
+proof: worklog/proofs/303-floor-consolidation.txt
+review: worklog/reviews/303-review.md (reviewer-Agent PASS — Money-Path, 3 MINOR + 1 NIT + 1 pre-existing F-1, F-2/3/4 in-slice übernommen)
+decision: S7 Phase-2 #1 Floor-Konsolidierung LIVE (Money, Anil „J"). A last_price=0-Hygiene (Divergenz 73%→0,57%, 202 getradet unberührt) · B cancel_order → Kanon recalc · C 4 Recompute-Pfade → prices.floor (eine Quelle). Knowledge: errors-db.md „Seed-Wert-Poisoning in Fallback-Formel-Branch". Nächste S7-Phase-2: #2 DbFeeConfig-Typ-Fix, #3 Orphan-Value-Removal, #4 Wildcard-Ledger.
 ```
 
 ### Slice 301 — SPEC (in Arbeit)

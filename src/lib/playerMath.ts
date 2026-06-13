@@ -8,15 +8,18 @@
 import type { Player } from '@/types';
 
 /**
- * Berechnet den Floor-Preis eines Players.
- * Fallback-Chain: aktuellste Listings.min → prices.floor → 0
+ * Liefert den Floor-Preis eines Players.
+ *
+ * Slice 303 (S7 Floor-Source-of-Truth): EINE Quelle = `players.floor_price`
+ * (via `prices.floor`). Die DB-RPC `recalc_floor_price` pflegt diesen Wert nach
+ * JEDEM Trade UND jeder Sell-Order-Platzierung/-Stornierung mit der Kanon-Formel
+ * `LEAST(MIN(non-expired open sell), aktive IPO) → last_price>0 → keep`.
+ * Kein Client-seitiger listings/orders-Recompute mehr (war Divergenz-Quelle:
+ * 5-6 abweichende Floor-Berechnungen, keine replizierte die DB-Formel).
  */
 export function computePlayerFloor(
-  player: Pick<Player, 'listings' | 'prices'>
+  player: Pick<Player, 'prices'>
 ): number {
-  if (player.listings && player.listings.length > 0) {
-    return Math.min(...player.listings.map((l) => l.price));
-  }
   return player.prices.floor ?? 0;
 }
 

@@ -40,9 +40,21 @@ paths:
 
 ### Regeln
 - `ipo_price` = fest pro Tranche nach Launch, aendert sich NIE durch Marktaktivitaet
-- `floor_price` = MIN(offene User-Sell-Orders) oder `ipo_price` als Fallback
-- Floor Price Client-seitig berechnen: `Math.min(...sellOrders.map(o => o.price))` — NICHT per-Player DB Query
+- `floor_price` (DB-Spalte `players.floor_price`, cents) = **die EINE Floor-Quelle** (Slice 303 S7).
+  Kanon-Formel in RPC `recalc_floor_price`: `LEAST(MIN(non-expired open sell), aktive IPO aus ipos)
+  → last_price>0 → keep`. Gepflegt bei JEDEM Trade (`buy_player_sc`/`buy_from_order`),
+  jeder Sell-Order (`place_sell_order`), jedem Cancel (`cancel_order`) + Cron (`expire_pending_orders`).
+- **Floor Client-seitig: NUR `player.prices.floor` lesen (= centsToBsd(floor_price))** — NIEMALS
+  aus listings/orders neu berechnen. Der frühere `Math.min(...sellOrders)`-Client-Recompute war
+  Divergenz-Quelle (5-6 abweichende Floor-Berechnungen, S7-Registry #1) und ist entfernt
+  (Slice 303: `computePlayerFloor` → `prices.floor`; `enriched`/`resolveBuyPriceCents` entkoppelt).
 - Pool/IPO verkauft immer zu `ipo_price`, nicht `floor_price`
+- **Display vs Charge bei eigener Order (S7-303 F-1, pre-existing):** `floor_price` schließt
+  EIGENE offene Sell-Orders mit ein; `buy_player_sc`/`buy_from_order` buchen aber die günstigste
+  Order ANDERER User (`user_id != p_user_id`). Wenn ein User selbst der günstigste Lister ist,
+  kann die angezeigte Kaufsumme minimal unter dem tatsächlich gebuchten Preis liegen. Future-Fix
+  optional: eigene Orders aus dem Display-Floor excludieren ODER Kauf blocken wenn eigene Order
+  am günstigsten. Kein Live-Blocker (selten + RPC ist autoritativ).
 - Details: `memory/decision_pricing_asset_model.md`
 
 ## Fee-Split
@@ -82,8 +94,10 @@ paths:
 const [hlds, orders, offers] = await Promise.all([
   getHoldings(uid), getAllOpenSellOrders(), getIncomingOffers(uid),
 ]);
-// Floor-Price client-seitig neu berechnen
-setPlayers(prev => enrichPlayers(prev, orders, hlds));
+// Slice 303: Floor NICHT client-seitig neu berechnen — players.floor_price ist die
+// eine Quelle (von buy/sell/cancel-RPCs via recalc_floor_price gepflegt). Nach Trade
+// players invalidieren/refetchen (frischer floor_price), nicht aus orders rekonstruieren.
+queryClient.invalidateQueries({ queryKey: qk.players.all });
 ```
 
 ## MiCA/CASP Compliance

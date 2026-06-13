@@ -188,10 +188,9 @@ export default function KaderTab({
       if (!player || player.isLiquidated) continue;
 
       const avgBuyBsd = centsToBsd(h.avg_buy_price);
-      const hasListings = player.listings.length > 0;
-      // 284c-FM-01: kanonische Floor-Chain (listings-min -> Server-floor_price ->
-      // ipoPrice) statt eigener Kette die prices.floor uebersprang — /market und
-      // /manager zeigten fuer denselben Kader VERSCHIEDENE Werte/P&L.
+      // 284c-FM-01 + 303: kanonische `prices.floor` (= players.floor_price, DB-Canon)
+      // statt eigener Kette — /market und /manager zeigten für denselben Kader
+      // VERSCHIEDENE Werte/P&L. Slice 303: eine Quelle, kein listings-Recompute mehr.
       const canonicalFloor = computePlayerFloor(player);
       const floorBsd = canonicalFloor > 0 ? canonicalFloor : null;
       const activeIpo = ipoList.find(ipo => ipo.player_id === player.id && (ipo.status === 'open' || ipo.status === 'early_access' || ipo.status === 'announced'));
