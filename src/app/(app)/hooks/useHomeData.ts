@@ -23,6 +23,7 @@ import { useLoginStreak } from '@/lib/queries/streaks';
 import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { newIdempotencyKey } from '@/lib/idempotency';
 import { getRetentionContext } from '@/lib/retentionEngine';
+import { computePlayerFloor } from '@/lib/playerMath';
 import { getStreakBenefits } from '@/lib/streakBenefits';
 import { STREAK_KEY, getStoryMessage, pickScopedEvent, pickNextScopedEvent } from '@/components/home/helpers';
 import { useTranslations } from 'next-intl';
@@ -73,15 +74,30 @@ export function useHomeData() {
     isError: globalMoversError,
   } = useGlobalMovers(5);
 
+  // Slice 109: 4 per-user queries (holdings + user_stats + tickets + highest_pass)
+  // consolidated into a single `get_home_dashboard_v1` RPC. Primes individual
+  // query caches so TopBar / SideNav / etc. stay warm without extra roundtrips.
+  const { data: dashboard } = useHomeDashboard(uid);
+  const rawHoldings = dashboard?.holdings ?? [];
+  const userStats = dashboard?.user_stats ?? null;
+  const ticketData = dashboard?.tickets ?? null;
+  const highestPass = dashboard?.highest_pass ?? null;
+
+  const holdingPlayerIds = useMemo(
+    () => rawHoldings.filter((h) => h.player != null).map((h) => h.player_id),
+    [rawHoldings],
+  );
+
   const miniFetchIds = useMemo(
     () =>
       Array.from(
         new Set([
+          ...holdingPlayerIds,
           ...trendingPlayers.map((tp) => tp.playerId),
           ...activeIpoRows.map((row) => row.player_id),
         ]),
       ),
-    [trendingPlayers, activeIpoRows],
+    [holdingPlayerIds, trendingPlayers, activeIpoRows],
   );
   const {
     data: miniPlayers = [],
@@ -106,15 +122,6 @@ export function useHomeData() {
   // TanStack v5 setzt status='error' auch nach Background-Refetch-Fail trotz vorhandener data.
   const homeError = miniPlayersError && miniPlayers.length === 0 && miniFetchIds.length > 0;
 
-  // Slice 109: 4 per-user queries (holdings + user_stats + tickets + highest_pass)
-  // consolidated into a single `get_home_dashboard_v1` RPC. Primes individual
-  // query caches so TopBar / SideNav / etc. stay warm without extra roundtrips.
-  const { data: dashboard } = useHomeDashboard(uid);
-  const rawHoldings = dashboard?.holdings ?? [];
-  const userStats = dashboard?.user_stats ?? null;
-  const ticketData = dashboard?.tickets ?? null;
-  const highestPass = dashboard?.highest_pass ?? null;
-
   // ── Gamification v5 Hooks ──
   const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
   // Slice 266: isLoading-Guard pflicht (Pre-Review F-04) — Mystery-Box-Slot
@@ -123,26 +130,32 @@ export function useHomeData() {
 
   // ── Holdings Transform ──
   const holdings = useMemo<DpcHolding[]>(() =>
-    rawHoldings.filter((h) => h.player != null).map((h) => ({
-      id: h.id,
-      playerId: h.player_id,
-      player: `${h.player.first_name} ${h.player.last_name}`,
-      club: h.player.club,
-      pos: h.player.position as Pos,
-      qty: h.quantity,
-      avgBuy: centsToBsd(h.avg_buy_price),
-      floor: centsToBsd(h.player.floor_price),
-      change24h: Number(h.player.price_change_24h),
-      listedByUser: 0,
-      ticket: h.player.shirt_number ?? 0,
-      age: h.player.age ?? 0,
-      perfL5: h.player.perf_l5 ?? 0,
-      matches: h.player.matches ?? 0,
-      goals: h.player.goals ?? 0,
-      assists: h.player.assists ?? 0,
-      imageUrl: h.player.image_url ?? null,
-    })),
-    [rawHoldings]
+    rawHoldings.filter((h) => h.player != null).map((h) => {
+      const canonicalPlayer = miniPlayerById.get(h.player_id);
+      const floor = canonicalPlayer
+        ? computePlayerFloor(canonicalPlayer)
+        : centsToBsd(h.player.floor_price);
+      return {
+        id: h.id,
+        playerId: h.player_id,
+        player: `${h.player.first_name} ${h.player.last_name}`,
+        club: h.player.club,
+        pos: h.player.position as Pos,
+        qty: h.quantity,
+        avgBuy: centsToBsd(h.avg_buy_price),
+        floor,
+        change24h: Number(h.player.price_change_24h),
+        listedByUser: 0,
+        ticket: h.player.shirt_number ?? 0,
+        age: h.player.age ?? 0,
+        perfL5: h.player.perf_l5 ?? 0,
+        matches: h.player.matches ?? 0,
+        goals: h.player.goals ?? 0,
+        assists: h.player.assists ?? 0,
+        imageUrl: h.player.image_url ?? null,
+      };
+    }),
+    [rawHoldings, miniPlayerById]
   );
 
   // ── Login Streak Side-Effects (Toasts + localStorage Mirror) ──

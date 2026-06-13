@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 290 | 2026-06-13 | fix(home): Portfolio floor parity with Manager/Market
+
+- Stage-Chain: SPEC (`worklog/specs/290-home-portfolio-floor-parity.md`, S) → IMPACT (`src/app/(app)/hooks/useHomeData.ts`) → BUILD (TDD) → REVIEW (`worklog/reviews/290-review.md`, PASS) → PROVE (`worklog/proofs/290-home-portfolio-floor-parity.md`) → LOG.
+- Trigger: Slice 289 F-1 P1 — Home valued holdings via scalar `floor_price`, while Manager/Market use canonical `computePlayerFloor` over byIds/enriched Player shape.
+- RED: new useHomeData test failed because Home called `usePlayersByIds([])` and could not use held-player live-listing floor.
+- Fix: Home now derives held player IDs from `get_home_dashboard_v1` holdings, includes them in the existing byIds mini-fetch, and uses `computePlayerFloor(canonicalPlayer)` for `holdings[].floor` with scalar `floor_price` fallback.
+- GREEN: focused test passed; full `useHomeData.test.ts` passed 40/40; `pnpm exec tsc --noEmit && pnpm audit:type-truth && pnpm audit:stale && pnpm audit:wiring:check` passed.
+- No full-list player fetch reintroduced; no DB/RPC migration; `memory/session-handoff.md` remains untouched/pre-existing dirty.
+
 ## 289 | 2026-06-13 | docs(audit): Page Contract Audit — Home + Manager
 
 - Stage-Chain: SPEC (`worklog/specs/289-home-manager-page-contract.md`, M) → IMPACT skipped (docs-only) → BUILD (Claude Code audit artifacts) → REVIEW (`worklog/reviews/289-review.md`, PASS) → PROVE (`worklog/proofs/289-home-manager-page-contract.md`) → LOG.

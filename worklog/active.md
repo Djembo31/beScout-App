@@ -2,16 +2,17 @@
 
 ```
 status: idle
-slice: 289 ✅ DONE
+slice: 290 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/289-home-manager-page-contract.md
-impact: skipped — docs/page-contract audit only, no runtime code
-proof: worklog/proofs/289-home-manager-page-contract.md (docs-only, no src changes)
-review: worklog/reviews/289-review.md (PASS)
+spec: worklog/specs/290-home-portfolio-floor-parity.md
+impact: src/app/(app)/hooks/useHomeData.ts only; Home byIds mini-fetch now includes held players
+proof: worklog/proofs/290-home-portfolio-floor-parity.md (RED/GREEN + tsc/audits)
+review: worklog/reviews/290-review.md (PASS)
 ```
 
 ## Zuletzt
 
+- **Slice 290** (2026-06-13) — Home Portfolio-Floor-Parity Fix (TDD): Home nutzt für Holdings jetzt canonical `computePlayerFloor` via byIds Player, fallback `floor_price`; useHomeData 40/40 grün.
 - **Slice 289** (2026-06-13) — S2 Page Contract Audit Home + Manager (Docs-only): Home GREEN mit YELLOW-Vorbehalt; Manager YELLOW; F-1 Portfolio-Floor-Divergenz als höchster Demo-Coherence-Fix.
 - **Slice 288** (2026-06-13) — S1 Page Contract Audit /market + /player/[id] (Docs-only): /market GREEN mit YELLOW-Vorbehalt; /player/[id] YELLOW; F-1 GeoGate-Asymmetrie als P1-Folgeentscheidung.
 - **Slice 287** (2026-06-13) — Product Truth Freeze / S0 Stabilization (Docs-only): current product truth file, README replacement, historical vision warnings, READY wording clarified.
@@ -37,10 +38,9 @@ Steering audit:
 - `worklog/audits/2026-06-12/stabilization-master-audit.md`
 
 Nächstes empfohlen:
-- **S2 / Slice 289 ✅ DONE:** Page Contract Audit `/` + `/manager` ist abgeschlossen.
-- Höchster Fix-Kandidat: F-1 Portfolio-Floor-Parity Home vs Manager/Market (Home scalar `floor_price`, Manager live-listings `computePlayerFloor`).
+- **Slice 290 ✅ DONE:** Portfolio-Floor-Parity Home vs Manager/Market angepasst.
 - Offene CEO/Anil-Entscheidung: einheitlicher GeoGate-Plan für `/player/[id]` + `/manager` Trading-CTAs.
-- Nächster Audit-Schritt nach Fix/Decision: S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]`.
+- Nächster Audit-Schritt nach GeoGate-Decision/Fix: S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]`.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert

@@ -409,6 +409,28 @@ describe('useHomeData', () => {
     expect(result.current.pnlPct).toBeCloseTo(20);
   });
 
+  it('uses canonical byIds live-listing floor for held players to match Manager/Market parity', () => {
+    mockCentsToBsd.mockImplementation((v: number) => v / 100000);
+    setDashboard({ holdings: [makeHolding()] });
+    mockUsePlayersByIds.mockReturnValue({
+      data: [makePlayer({
+        id: 'p-1',
+        listings: [{ price: 4 }, { price: 8 }],
+        prices: { floor: 7, change24h: 0 },
+      })],
+      isLoading: false,
+      isError: false,
+    });
+
+    const { result } = renderHook(() => useHomeData());
+
+    expect(mockUsePlayersByIds).toHaveBeenCalledWith(['p-1']);
+    expect(result.current.holdings[0].floor).toBe(4);
+    expect(result.current.portfolioValue).toBeCloseTo(20); // 5 * live-listing floor 4
+    expect(result.current.pnl).toBeCloseTo(-5); // cost remains 25
+    expect(result.current.pnlPct).toBeCloseTo(-20);
+  });
+
   it('returns pnlPct=0 when portfolioCost is 0', () => {
     mockCentsToBsd.mockReturnValue(0);
     setDashboard({ holdings: [makeHolding()] });
