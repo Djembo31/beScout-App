@@ -2,16 +2,18 @@
 
 ```
 status: idle
-slice: 295 ✅ DONE
+slice: 296 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/295-clubs-discovery-page-test.md
-impact: skipped (test-only — kein Service/RPC/Schema/Query-Key)
-proof: worklog/proofs/295-clubs-discovery-test.txt
-review: worklog/reviews/295-review.md (reviewer-Agent PASS — NIT-1 fixed)
+spec: worklog/specs/296-fantasy-unauth-explicit.md
+impact: skipped (Component-Kommentar + Test — kein Service/RPC/Schema/Query-Key)
+proof: worklog/proofs/296-fantasy-unauth.txt
+review: worklog/reviews/296-review.md (reviewer-Agent PASS — proof war PROVE-Stage post-REVIEW)
+decision: F-3 → rely strictly on AuthGuard (kein page-local Sign-In-CTA); `&& user` ist defensive Null-Safety
 ```
 
 ## Zuletzt
 
+- **Slice 296** (2026-06-13) — Fantasy Unauth State Explicit + Test (Tool+Doc, S, PASS): schließt S3 F-3 (P2). Decision: Auth-Enforcement ausschließlich via `<AuthGuard>` (redirect `!user`→/login), `&& user`-Gates sind defensive Null-Safety, KEIN page-local Sign-In-CTA (Single-Source-Auth-UX). Doku-Kommentar in `FantasyContent.tsx` + `describe('unauth contract')` ×4 (Shell rendert, kein Tab-Body, Disclaimer bleibt, kein CTA); Auth-Mock → mutable. 10/10 grün, tsc 0.
 - **Slice 295** (2026-06-13) — /clubs Discovery Page Contract Test (Tool, S, PASS): schließt S3 F-2 — `ClubsDiscoveryPage` hatte 0 Page-Test. Neu `ClubsDiscoveryPage.test.tsx` lockt 5 page-local Contracts (loading/error/empty/follow/activate) + 2 Edges (anon no-op, Activate-absent); 7/7 grün, tsc 0. Kein src/**-Runtime-Change.
 - **Slice 294** (2026-06-13) — Public Club Metadata Compliance Copy (i18n, XS, PASS): `/club/[slug]` Meta „Trading" raus → i18n-driven `meta.clubDescription` (DE+TR Option A); orphaned RED-Test `page.metadata.test.ts` grün gemacht (i18n-sauber); vitest 4/4, compliance passed.
 - **Slice 293** (2026-06-13) — Deterministic Fantasy Lifecycle E2E (Tool, M, PASS): Contract-Level-E2E gegen bescout.net (own-login) ersetzt konditionalen Render-Smoke; 8 ACs grün 7.4s; schließt den 5×-wiederholten demo-green E2E-Caveat aus Hermes' Audits S1–S3. Commit 5294833a.
@@ -46,6 +48,8 @@ Nächstes empfohlen:
 - **Slice 293 ✅ DONE:** Deterministic Fantasy Lifecycle E2E — schließt den E2E-Caveat für /fantasy.
 - **Slice 294 ✅ DONE:** S3 F-1 — Public Club Metadata „Trading" raus + i18n; orphaned RED-Test geheilt.
 - **Slice 295 ✅ DONE:** S3 F-2 — `/clubs` Page-Test für loading/error/empty/follow/activate (+2 Edges).
+- **Slice 296 ✅ DONE:** S3 F-3 — Fantasy Unauth-State explizit + getestet (rely-on-AuthGuard Decision).
+- Offen S3 F-4 (P2) — Club-Detail hat zu viele konkurrierende Overview-Module (UX-Dichte, kein Bug).
 - Optional Demo-Step-8: /club + /clubs Lifecycle-E2E via Slice-293-Blueprint (`testing.md` „Contract-Level E2E gegen Live-Prod").
 - Nächster Audit-Schritt: S4 Source-of-Truth Boundaries.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.

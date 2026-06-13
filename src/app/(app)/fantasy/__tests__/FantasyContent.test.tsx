@@ -8,19 +8,36 @@ import FantasyContent from '../FantasyContent';
 // Mocks — Providers
 // ============================================
 
-const mockUser = { id: 'u1', email: 'test@test.com' };
-const mockProfile = { display_name: 'Tester', favorite_club: null };
 const mockAddToast = vi.fn();
 
+// Slice 296 (S3 F-3): mutable auth-state so the unauth contract can be tested
+// without resetModules (testing.md SO-3). Default = authed; beforeEach resets
+// it so the 30+ pre-existing tests are unaffected. `mock`-prefix satisfies the
+// vitest factory-closure rule.
+const mockAuthState: {
+  user: { id: string; email: string } | null;
+  profile: { display_name: string; favorite_club: null } | null;
+  loading: boolean;
+  refreshProfile: () => void;
+  platformRole: null;
+  clubAdmin: null;
+} = {
+  user: { id: 'u1', email: 'test@test.com' },
+  profile: { display_name: 'Tester', favorite_club: null },
+  loading: false,
+  refreshProfile: vi.fn(),
+  platformRole: null,
+  clubAdmin: null,
+};
+
+function resetAuthState() {
+  mockAuthState.user = { id: 'u1', email: 'test@test.com' };
+  mockAuthState.profile = { display_name: 'Tester', favorite_club: null };
+  mockAuthState.loading = false;
+}
+
 vi.mock('@/components/providers/AuthProvider', () => ({
-  useUser: () => ({
-    user: mockUser,
-    profile: mockProfile,
-    loading: false,
-    refreshProfile: vi.fn(),
-    platformRole: null,
-    clubAdmin: null,
-  }),
+  useUser: () => mockAuthState,
 }));
 
 // Slice 152d: WalletProvider entfernt — useWallet-Hook via Query-Cache.
@@ -501,6 +518,7 @@ function setDefaultQueryMocks(overrides?: {
 describe('FantasyContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetAuthState(); // Slice 296: ensure authed default for all pre-existing tests
   });
 
   it('renders header + nav + scoring rules', () => {
@@ -545,5 +563,53 @@ describe('FantasyContent', () => {
     const missionHint = screen.getByTestId('mission-hint-list');
     expect(missionHint).toBeInTheDocument();
     expect(missionHint).toHaveAttribute('data-context', 'fantasy');
+  });
+
+  // ============================================
+  // Slice 296 (S3 F-3) — Explicit unauth contract.
+  //
+  // Decision: auth-enforcement lives in <AuthGuard> only (it redirects !user
+  // to /login). FantasyContent's `&& user` tab-gates are defensive null-safety;
+  // there is intentionally NO page-local sign-in CTA. These tests lock the
+  // explicit shape of the defensive state: shell renders, no tab body, and
+  // (importantly) the compliance disclaimer stays visible.
+  // ============================================
+  describe('unauth contract (user = null)', () => {
+    beforeEach(() => {
+      mockAuthState.user = null;
+      mockAuthState.profile = null;
+    });
+
+    it('renders the shell (header + nav + scoring rules) without a user', () => {
+      renderWithProviders(<FantasyContent />);
+
+      expect(screen.getByTestId('fantasy-header')).toBeInTheDocument();
+      expect(screen.getByTestId('fantasy-nav')).toBeInTheDocument();
+      expect(screen.getByTestId('scoring-rules')).toBeInTheDocument();
+    });
+
+    it('renders NO primary tab body (default paarungen → no spieltag-tab)', () => {
+      renderWithProviders(<FantasyContent />);
+
+      // `mainTab === 'paarungen' && user` → gate closed when user is null.
+      expect(screen.queryByTestId('spieltag-tab')).not.toBeInTheDocument();
+    });
+
+    it('keeps the compliance FantasyDisclaimer visible', () => {
+      renderWithProviders(<FantasyContent />);
+
+      // FantasyDisclaimer (card) renders t('legal.fantasyDisclaimer') → key
+      // via the next-intl passthrough mock. Compliance copy must survive even
+      // the (defensive) unauth render.
+      expect(screen.getByText('fantasyDisclaimer')).toBeInTheDocument();
+    });
+
+    it('does NOT render a page-local sign-in CTA (relies on AuthGuard)', () => {
+      renderWithProviders(<FantasyContent />);
+
+      // No login affordance is rendered by the page itself — AuthGuard owns it.
+      expect(screen.queryByRole('button', { name: /sign[- ]?in|log[- ]?in|anmelden|einloggen/i })).toBeNull();
+      expect(screen.queryByRole('link', { name: /sign[- ]?in|log[- ]?in|anmelden|einloggen/i })).toBeNull();
+    });
   });
 });

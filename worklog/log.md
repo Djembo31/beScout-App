@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 296 | 2026-06-13 | docs(fantasy): Explicit Unauth Contract + Test (S3 F-3)
+
+- Stage-Chain: SPEC (`worklog/specs/296-fantasy-unauth-explicit.md`, S, Slice-Type Tool+Doc) → IMPACT skipped (Component-Kommentar + Test, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/296-review.md`, reviewer-Agent CONCERNS→PASS: einziger Block war fehlende Proof = PROVE-Stage post-REVIEW; MINOR Regex-Breite akzeptiert) → PROVE (`worklog/proofs/296-fantasy-unauth.txt`) → LOG.
+- Trigger: Slice 292 S3 F-3 (P2) — `FantasyContent` gated alle 4 Main-Tab-Bodies mit `&& user`; falls App-Shell je unauth durchließe → Header/Disclaimer/Nav ohne Primary-Body = impliziter, untestbarer Zustand.
+- Decision (CTO, Auth-UX-Konsistenz): **strikt auf `<AuthGuard>` verlassen** (redirect `!user`→/login + ContentSkeleton; FantasyContent erreicht `!user` im Produktiv-Pfad nie). `&& user`-Gates = bewusst defensive Null-Safety. KEIN page-local Sign-In-CTA (vermeidet divergenten zweiten Auth-UX-Pfad; Single-Source = AuthGuard). Reviewer verifizierte: FantasyContent's einziger Render-Entry ist `(app)/fantasy/page.tsx`, AuthGuard-gewrappt via `(app)/layout.tsx` — kein non-(app)-Pfad rendert es unguarded. Kein Produkt-Gap.
+- Implizit→explizit ohne Behavior-Change: (1) Doku-Kommentar in `FantasyContent.tsx` vor den Tab-Gates (AuthGuard=Single-Source, `&& user`=defensiv, no-CTA-Decision, Test-Cross-Ref). (2) `describe('unauth contract')` ×4: Shell rendert (header/nav/scoring), kein Tab-Body (`spieltag-tab` absent), FantasyDisclaimer bleibt (Compliance, real-render), kein page-local Sign-In-CTA.
+- Test-Refactor: static `useUser`-Mock → mutable `mockAuthState` + `resetAuthState()` in outer `beforeEach` → 30+ bestehende Tests unaffected (authed-default). testing.md SO-3-konform (kein resetModules), Slice-295-Mutable-Mock-Präzedenz.
+- Files: `FantasyContent.tsx` (+Kommentar, kein Logik-Change) · `FantasyContent.test.tsx` (Mock mutable + 4 unauth-Tests). Proof: vitest 10/10 (6 alt + 4 neu), tsc 0.
+
 ## 295 | 2026-06-13 | test(clubs): /clubs Discovery Page Contract Test (S3 F-2)
 
 - Stage-Chain: SPEC (`worklog/specs/295-clubs-discovery-page-test.md`, S, Slice-Type Tool) → IMPACT skipped (test-only, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/295-review.md`, reviewer-Agent PASS, 1 NIT inline-fixed) → PROVE (`worklog/proofs/295-clubs-discovery-test.txt`) → LOG.

@@ -234,6 +234,15 @@ export default function FantasyContent() {
         onGameweekChange={gw.setSelectedGameweek}
       />
 
+      {/* Slice 296 (S3 F-3) — Auth-Enforcement liegt AUSSCHLIESSLICH bei
+          <AuthGuard> (app/(app)/layout.tsx): unauth → router.replace('/login')
+          + ContentSkeleton, sodass diese Page einen !user-State im Produktiv-
+          Pfad nie erreicht. Die `&& user`-Gates unten sind bewusst nur
+          defensive Null-Safety (belt-and-suspenders) — KEIN page-local
+          Sign-In-CTA, um keinen divergenten zweiten Auth-UX-Pfad zu schaffen
+          (Single-Source-of-Truth = AuthGuard). Verhalten getestet:
+          FantasyContent.test.tsx → describe('unauth contract'). */}
+
       {/* ========== PAARUNGEN TAB ========== */}
       {store.mainTab === 'paarungen' && user && (
         <SpieltagTab

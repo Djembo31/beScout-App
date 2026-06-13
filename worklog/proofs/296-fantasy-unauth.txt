@@ -1,0 +1,57 @@
+Slice 296 — Fantasy Unauth State Explicit + Test (S3 F-3) — PROOF
+Date: 2026-06-13
+
+=========================================================
+1. vitest — FantasyContent.test.tsx (6 existing + 4 new unauth)
+=========================================================
+$ CI=true pnpm exec vitest run "src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx"
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Duration  ~4.6s
+
+  existing (6): header+nav+scoring · 4 tabs · SpieltagTab default · EventDetailModal closed · NewUserTip · MissionHintList
+  NEW unauth contract (4):
+    ✓ renders the shell (header + nav + scoring rules) without a user
+    ✓ renders NO primary tab body (default paarungen → no spieltag-tab)
+    ✓ keeps the compliance FantasyDisclaimer visible
+    ✓ does NOT render a page-local sign-in CTA (relies on AuthGuard)
+
+=========================================================
+2. tsc
+=========================================================
+$ pnpm exec tsc --noEmit
+EXIT: 0 (clean)
+
+=========================================================
+3. Decision documented in code
+=========================================================
+$ grep -n "AuthGuard\|Sign-In-CTA\|defensive Null-Safety" "src/app/(app)/fantasy/FantasyContent.tsx"
+238:          <AuthGuard> (app/(app)/layout.tsx): unauth → router.replace('/login')
+241:          defensive Null-Safety (belt-and-suspenders) — KEIN page-local
+242:          Sign-In-CTA, um keinen divergenten zweiten Auth-UX-Pfad zu schaffen
+243:          (Single-Source-of-Truth = AuthGuard). Verhalten getestet:
+
+=========================================================
+4. Decision (S3 F-3)
+=========================================================
+Auth-enforcement lives ONLY in <AuthGuard> (redirects !user → /login + ContentSkeleton).
+FantasyContent `&& user` gates = defensive null-safety. NO page-local sign-in CTA
+(avoids divergent second Auth-UX path). Reviewer verified routing: FantasyContent's
+sole render entry is (app)/fantasy/page.tsx, wrapped in AuthGuard via (app)/layout.tsx
+— no non-(app) route renders it unguarded. No product gap.
+
+=========================================================
+5. Review
+=========================================================
+worklog/reviews/296-review.md — reviewer-Agent CONCERNS→resolved:
+  - MAJOR (proof missing) = this file (PROVE stage, post-REVIEW per SHIP order). RESOLVED.
+  - MINOR (sign-in regex not exhaustive) = accepted as-is.
+Decision verified sound; assertions non-tautological; testing.md SO-3 compliant.
+
+=========================================================
+6. Scope
+=========================================================
+EDIT  src/app/(app)/fantasy/FantasyContent.tsx              +documenting comment (no logic change)
+EDIT  src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx  static auth-mock → mutable mockAuthState + resetAuthState() + describe('unauth contract') ×4
+No behavior change. No new dependency. 30+ pre-existing tests unaffected (beforeEach resets to authed).
