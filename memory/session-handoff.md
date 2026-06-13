@@ -1,11 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 11:54)
+# Session Handoff — Auto (2026-06-13 13:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 4
+## Session Commits: 9
+- e50e8852 chore(slice-286): LOG — Cold-Load-Race gefixt, live verifiziert (0→9 buttons)
+- b1262ebe fix(leagues): Slice 286 — Cold-Load-Race im Liga-Filter (LeagueScopeHeader/LeagueBar)
+- fad7d139 chore(slice-285): temp Playwright-Snapshot aus Repo-Root entfernen
+- 9f2c064f chore(slice-285): LOG — FM-06 Liga-Header verschoben, visuell verifiziert
+- 682e99f8 fix(rankings): Slice 285 — FM-06 Liga-Header über PlayerRankings verschieben
 - a2d6cf64 chore(session): Housekeeping — Handoff-Block + Audit-Timestamps nach Slice 284d
 - 839e8283 chore(slice-284d): LOG — Fantasy-UI-Fixes live, Smoke gruen (Waves 1+3+4 komplett)
 - 3f58d171 fix(fantasy): Slice 284d — Wave 4 Fantasy-UI-Fixes (FANT-05,08,09,13)
@@ -15,7 +20,33 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~21:50 — Session-End nach Slice 280 + 281, beide LIVE)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 — Session-End nach Slice 285 + 286, beide LIVE)
+
+**HEAD `e50e8852`** · Status: **idle** · Working tree clean · origin/main synchron.
+
+## Was diese Session lief (Start: „konnte Session nicht sauber schließen")
+
+1. **Session-Cleanup** — 3 offene Auto-Artefakte (Handoff-Block + Audit-Timestamps) sauber committed. Kein Code verloren, Slice 284d war vollständig durch. Selbst-erneuernde Audit-Timestamp-Churn (Pre-Commit-Hook schreibt `Generated:` neu) als Pattern erkannt → `git restore` statt committen.
+2. **Slice 285 (FM-06)** `682e99f8` — Liga-Header (`LeagueScopeHeader`) von Page-Top runter direkt über `PlayerRankings` (rankings/page.tsx). Header filtert nur Spieler-Rankings, nicht die 5 Leaderboards → seitenweite Platzierung war irreführend. Anil-Decision Option 1. XS, live, DOM+visuell verifiziert.
+3. **Slice 286** `b1262ebe` — **der Hauptgewinn.** Bei 285-Verifikation entdeckt: Liga-Filter (CountryBar+LeagueBar) rendert **app-weit LEER** bei Hard-Nav/Hard-Refresh/PWA-Cold-Start. Root: async-League-Cache + useMemos mit stale deps → captured leere Liste, recomputet nie → `length<=1 return null`. Fix (root-cause): reaktives Cache-Ready-Signal in `leagues.ts` via `useSyncExternalStore`-Hook (`useLeagueCacheVersion`), als dep in 3 Konsumenten. Live-verifiziert Cold-Load **buttonCount 0→9** auf /rankings + /clubs + /fantasy, 0 Hydration-Errors. Reviewer PASS.
+
+## DISTILL diese Session
+
+- **D73** PROCESS — PROVE für conditional-render/filter-Components = **Cold-Load (`page.goto`) + DOM-Assertion**, nicht warmer Screenshot. (285 wäre mit warmem Screenshot „done" gewesen — DOM-Assertion auf Cold-Load fand den 286-Blocker.)
+- **errors-frontend.md** neue Bug-Klasse: „Non-reaktiver Module-Cache + useMemo-stale-deps Cold-Load-Race" (Slice 286) — Fix-Pattern useSyncExternalStore + Detection-grep + Test-Mock-Pflicht.
+
+## Offen für nächste Session (Anil-Calls)
+
+1. **🚨 API-Football-Key suspendiert seit 06.05.** → blockiert Slice 284b (154 Geister-Triage + Süper-Lig-Drift). Anil: dashboard.api-football.com Abo/Zahlung prüfen.
+2. **TR-Review** (3 Strings): `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+3. **Backlog-Notiz (286 Reviewer):** `clubs.ts` hat dasselbe non-reaktive Cache-Pattern wie leagues.ts (pre-286). Falls je render-time `useMemo(() => getClub(...))` entsteht → gleiche Cold-Load-Race, gleiches Fix-Pattern.
+4. **Backlog-Slices (kein API-Key nötig):** FM-08 (P2, /manager lädt nach Marktplatz-Besuch wieder 4,2 MB — Punch-List „jetzt fixen"), FM-09/10/11, FANT-11/12/16 (CEO Vice-Captain).
+
+Punch-List: `worklog/audits/2026-06-12/stab-284-punchlist.md`
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-05-06 ~21:50 — Slice 280 + 281)
 
 **HEAD `71cfe7d6`** Status: idle. Slices 279 + 280 + 281 alle LIVE auf main. Beta läuft mit Taki/Nail Mo (D71). Cold-Start-Track in Phase-2-Wartemodus.
 

@@ -3300,3 +3300,37 @@ Pattern-Lehre: Bundle-Win-Hunt sollte mit `grep -rln "<Wrapper-Name>" src/` für
 - Next.js 15+ ändert `optimizePackageImports`-Verhalten → D72 ggf. neu empirisch messen
 - Library-Update bringt neue ESM-Format-Drift → Tree-Shaking könnte regredieren
 - Bundle-Budget-Drift > 10% → Audit-Pattern aus D72 anwenden vor neuer Optimization-Strategie
+
+## D73 — PROCESS: PROVE für conditional-render/filter-Components = Cold-Load + DOM-Assertion, nicht warmer Screenshot
+
+**Datum:** 2026-06-13 · **Category:** PROCESS · **Status:** Aktiv (Slice 285→286 empirisch entstanden)
+
+### Entscheidung
+
+Bei der PROVE-Stage von Slices, die **conditional-render-Components** betreffen (Filter-Bars, Empty/Loading-States, `if (x) return null`-Guards, alles was abhängig von async-State sichtbar/unsichtbar wird), ist ein **warmer Screenshot allein kein ausreichender Proof**. Pflicht:
+1. **Cold-Load** testen (`page.goto` = Hard-Navigation, nicht warme SPA-Klick-Navigation) — der Zustand den ein Direkt-Link / Hard-Refresh / PWA-Cold-Start trifft.
+2. **DOM-Assertion** statt Augenmaß — konkret messen (`buttonCount`, `childCount`, Element-Präsenz via `browser_evaluate`), nicht nur ein Screenshot „sieht ok aus".
+
+### Begründung
+
+Slice 285 (FM-06, trivialer XS-Layout-Move: Liga-Header verschieben) wäre mit einem warmen Screenshot als „done" durchgegangen. Erst die **DOM-Assertion** (`[data-testid=league-scope-header]` → `childCount`/`buttonCount`) bei **Hard-Navigation** deckte auf, dass der Header **app-weit leer** rendert (Cold-Load-Race, → Slice 286). Bei warmer SPA-Navigation war alles sichtbar — ein Screenshot hätte gelogen. Der Beta-Blocker (Liga-Filter unsichtbar auf Mobile/PWA-Cold-Start) wäre latent live geblieben.
+
+Kernpunkt: Conditional-Render hängt von Timing/State ab. Der „glückliche" Render-Pfad (warm, alles geladen) verdeckt den „kalten" Pfad, den echte User auf Mobile/Direkt-Link häufig treffen. Augenmaß auf dem glücklichen Pfad ist systematisch blind dafür.
+
+### Auswirkungen
+
+- `worklog/specs/_TEMPLATE.md` Proof-Plan-Sektion + `testing.md` Visual-QA: für conditional-render/filter-Components Cold-Load (`page.goto`) + DOM-Assertion als Proof-Pflicht ergänzen.
+- Bei Filter/Empty-State/Skeleton-Slices: PROVE-Plan MUSS den Cold-Load-Pfad explizit nennen, nicht nur „Screenshot bescout.net".
+- Verstärkt die bestehende Visual-QA-Regel (testing.md): „starte mit der Page die am meisten Änderungen erwartet" → ergänzt um „und teste den Cold-Load-Zustand, nicht nur den warmen".
+- Pattern-Familie mit errors-frontend.md „Non-reaktiver Module-Cache + useMemo-stale-deps Cold-Load-Race" (Slice 286) — die Detection-Seite dieses Process-Standards.
+
+### Alternativen erwogen
+
+- **A: Screenshot des warmen Zustands reicht** — empirisch widerlegt (285 hätte den 286-Blocker verdeckt).
+- **B: Nur DOM-Assertion, kein Cold-Load** — unzureichend: warme DOM-Assertion zeigt auch 9 Buttons. Der Cold-Load-Pfad ist das Entscheidende.
+- **C: Cold-Load + DOM-Assertion (gewählt)** — fand den Blocker, generalisiert auf alle conditional-render-Components.
+
+### Re-Visit-Trigger
+
+- Wenn ein conditional-render-Bug trotz dieses Standards live geht → Standard war nicht angewandt oder unvollständig, nachschärfen.
+- Falls Playwright-MCP Cold-vs-Warm nicht mehr unterscheidbar (Caching-Änderung) → Test-Strategie anpassen.
