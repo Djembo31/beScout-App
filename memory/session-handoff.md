@@ -1,20 +1,28 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 13:03)
+# Session Handoff — Auto (2026-06-13 15:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 5 Files
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-13.md
+ M worklog/audits/type-truth-2026-06-13.md
+ M worklog/audits/wiring-2026-06-13.md
+?? src/app/(app)/club/[slug]/__tests__/page.metadata.test.ts
+```
 
-## Session Commits: 9
+## Session Commits: 10
+- ff1313b7 docs(log): Slice 293 LOG — Fantasy Lifecycle E2E + F-1 orphan-test note
+- 5294833a test(fantasy): Slice 293 deterministic Fantasy lifecycle E2E
+- 2076982e docs(audit): Slice 292 fantasy club page contracts
+- b26de4cf fix(compliance): Slice 291 unified trading geogate
+- a3a7648b fix(home): Slice 290 portfolio floor parity
+- 3c94e979 docs(audit): Slice 289 home manager page contracts
+- 2962737c docs(audit): Slice 288 market player page contracts
+- 6777158f docs(product): Slice 287 product truth freeze
+- e3ba4904 docs(decision): D73 — PROVE für conditional-render = Cold-Load + DOM-Assertion + Session-Handoff
 - e50e8852 chore(slice-286): LOG — Cold-Load-Race gefixt, live verifiziert (0→9 buttons)
-- b1262ebe fix(leagues): Slice 286 — Cold-Load-Race im Liga-Filter (LeagueScopeHeader/LeagueBar)
-- fad7d139 chore(slice-285): temp Playwright-Snapshot aus Repo-Root entfernen
-- 9f2c064f chore(slice-285): LOG — FM-06 Liga-Header verschoben, visuell verifiziert
-- 682e99f8 fix(rankings): Slice 285 — FM-06 Liga-Header über PlayerRankings verschieben
-- a2d6cf64 chore(session): Housekeeping — Handoff-Block + Audit-Timestamps nach Slice 284d
-- 839e8283 chore(slice-284d): LOG — Fantasy-UI-Fixes live, Smoke gruen (Waves 1+3+4 komplett)
-- 3f58d171 fix(fantasy): Slice 284d — Wave 4 Fantasy-UI-Fixes (FANT-05,08,09,13)
-- 196972c0 chore(slice-284c): LOG — Markt/Rankings-Fixes live, 2 P1 DB-bewiesen
 
 <!-- auto:handoff-end -->
 
