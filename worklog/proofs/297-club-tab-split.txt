@@ -70,4 +70,37 @@ flex-shrink-0 + whitespace-nowrap; labels short ("Mehr"/"Daha" = 4 chars).
 Live Playwright @ 393px against bescout.net to be run post-Vercel-deploy
 (appended below after deploy).
 
-[POST-DEPLOY MOBILE VERIFY — pending]
+[POST-DEPLOY MOBILE VERIFY — DONE 2026-06-13]
+
+Deploy: Slice 297 commit 4c4f996d live on origin/main + Vercel (verified by
+"Mehr" tab present in live DOM at https://www.bescout.net/club/sakaryaspor).
+Method: Playwright MCP @ 393×852 viewport, anon session (public discovery page).
+
+A) Page-level horizontal overflow:
+   document.documentElement.scrollWidth - clientWidth = 0px  ✅ (no x-overflow)
+
+B) Club TabBar element (live DOM, exact match):
+   DIV.flex gap-1 p-1 bg-surface-base border border-white/[0.10] rounded-2xl
+       overflow-x-auto scrollbar-hide
+   scrollWidth 351 == clientWidth 351  →  ownOverflowPx = 0  ✅
+   childCount 4 → ["Übersicht","Spieler","Spielplan","Mehr"]  ✅
+   → all 4 tabs fit within 393px, no scroll needed (structural safety confirmed live)
+
+C) Functional tab-switch (click "Mehr"):
+   htmlOverflowPx stays 0; content markers all present after switch:
+   mostOwned ✅ news ✅ research ✅ clubInfo ✅ fanRank ✅
+   → Mehr-tab module mapping renders live (matches §4, confirms 17/17 unit tests)
+
+D) Console: 1 error = "[AuthProvider] Profile load failed after retry"
+   → expected anon-browsing artifact (no session on public /club page,
+     consistent w/ D74 AuthGuard single-source). NOT a Slice-297 regression.
+   0 new errors introduced by tab-switch.
+
+Screenshots:
+   297-club-tabs-393-uebersicht.png  — hero/stats viewport @ 393px (above-fold)
+   297-club-tabs-393-mehr.png        — TabBar (4 tabs, "Mehr" gold-active) +
+                                        Beliebteste Spieler (MostOwned) +
+                                        Letzte Aktivität (RecentActivity)
+
+AC-5 RESULT: ✅ PASS — 4 tabs render @ 393px with 0 horizontal overflow,
+Mehr-tab content mapping verified live. PROVE stage complete.
