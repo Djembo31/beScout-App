@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 295 | 2026-06-13 | test(clubs): /clubs Discovery Page Contract Test (S3 F-2)
+
+- Stage-Chain: SPEC (`worklog/specs/295-clubs-discovery-page-test.md`, S, Slice-Type Tool) → IMPACT skipped (test-only, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/295-review.md`, reviewer-Agent PASS, 1 NIT inline-fixed) → PROVE (`worklog/proofs/295-clubs-discovery-test.txt`) → LOG.
+- Trigger: Slice 292 S3 F-2 (P1) — `ClubsDiscoveryPage` (`/clubs`) hatte kein dediziertes Page-Contract-Test; Discovery→Follow→Activate ist demo-path-wichtig + vollständig page-local (State + Optimistic-Bump) → 0 Regressions-Schutz.
+- Lösung: Neu `src/app/(app)/clubs/__tests__/ClubsDiscoveryPage.test.tsx` (jsdom-vitest, `renderWithProviders` + gezielte `vi.mock` der Daten-Hooks/Services, Mock-Konvention analog `ClubContent.test.tsx`). Lockt 5 page-local Contracts: loading (Skeleton ≥6) · error (`ErrorState` role=alert + retry) · empty (`EmptyState` noClubsAvailable) · follow (`toggleAsync({follow:true})`) · activate (`setActiveClub`). Plus 2 Edges: anon-User Follow-No-Op (`if (!user) return`-Guard), Activate-Button absent für non-followed Club.
+- Non-tautological: Reviewer verifizierte dass Test reale Component-Render-Pfade assertet (i18n-key-passthrough gegen reale clubs/common-Keys), nicht Mock-gegen-Mock. testing.md-konform (kein Snapshot, static imports statt SO-3-resetModules, vi.hoisted Pattern 5, useSafeMutation §2 act+waitFor, console.error real-spy+restore).
+- Files: `ClubsDiscoveryPage.test.tsx` (NEU). Kein src/**-Runtime-Change. Keine neue Dependency (`@testing-library/user-event` bereits deklariert).
+- Proof: vitest 7/7 grün, tsc 0.
+
 ## 294 | 2026-06-13 | fix(compliance): Public Club Metadata Compliance Copy (F-1)
 
 - Stage-Chain: SPEC (`worklog/specs/294-club-metadata-compliance-copy.md`, XS, i18n+UI) → IMPACT skipped (i18n + 1 Component, kein Service/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/294-review.md`, self-review PASS — XS, Copy CEO-approved) → PROVE (`worklog/proofs/294-club-metadata.txt`) → LOG.

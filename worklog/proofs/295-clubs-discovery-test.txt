@@ -1,0 +1,39 @@
+Slice 295 — /clubs Discovery Page Contract Test (S3 F-2) — PROOF
+Date: 2026-06-13
+
+=========================================================
+1. vitest — ClubsDiscoveryPage.test.tsx (NEW)
+=========================================================
+$ CI=true pnpm exec vitest run "src/app/(app)/clubs/__tests__/ClubsDiscoveryPage.test.tsx"
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Duration  ~5.7s
+
+  ✓ AC-1: shows skeletons while clubs are loading (no grid, no empty/error)
+  ✓ AC-2: shows ErrorState with retry when club load rejects
+  ✓ AC-3: shows EmptyState when no clubs are available
+  ✓ AC-4: clicking Follow on a club calls toggleAsync with follow:true
+  ✓ AC-5: clicking Activate on a followed, non-active club calls setActiveClub
+  ✓ edge: anonymous user clicking Follow does NOT call toggleAsync
+  ✓ edge: Activate button is absent for a non-followed club
+
+=========================================================
+2. tsc
+=========================================================
+$ pnpm exec tsc --noEmit
+EXIT: 0 (clean)
+
+=========================================================
+3. Review
+=========================================================
+worklog/reviews/295-review.md — verdict PASS (reviewer-Agent, 9 min).
+NIT #1 (loading selector) FIXED → querySelectorAll('.animate-pulse').length >= 6.
+NIT #2 (fixture cast) accepted, no action.
+
+=========================================================
+4. Scope
+=========================================================
+NEW   src/app/(app)/clubs/__tests__/ClubsDiscoveryPage.test.tsx   (test-only, no src/** runtime change)
+Locks 5 page-local contracts: loading · error · empty · follow · activate (+2 edges).
+No new dependency (@testing-library/user-event already declared, used in FantasyContent/AdminUsersTab tests).

@@ -1,18 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 15:21)
+# Session Handoff — Auto (2026-06-13 15:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-06-13.md
  M worklog/audits/type-truth-2026-06-13.md
- M worklog/audits/wiring-2026-06-13.md
-?? src/app/(app)/club/[slug]/__tests__/page.metadata.test.ts
 ```
 
 ## Session Commits: 10
+- 6f4212cb chore(worklog): regenerate audit reports + session-handoff post-Slice-294
+- 3677134f fix(compliance): Slice 294 Public Club Metadata Compliance Copy (F-1)
 - ff1313b7 docs(log): Slice 293 LOG — Fantasy Lifecycle E2E + F-1 orphan-test note
 - 5294833a test(fantasy): Slice 293 deterministic Fantasy lifecycle E2E
 - 2076982e docs(audit): Slice 292 fantasy club page contracts
@@ -21,8 +21,6 @@
 - 3c94e979 docs(audit): Slice 289 home manager page contracts
 - 2962737c docs(audit): Slice 288 market player page contracts
 - 6777158f docs(product): Slice 287 product truth freeze
-- e3ba4904 docs(decision): D73 — PROVE für conditional-render = Cold-Load + DOM-Assertion + Session-Handoff
-- e50e8852 chore(slice-286): LOG — Cold-Load-Race gefixt, live verifiziert (0→9 buttons)
 
 <!-- auto:handoff-end -->
 
