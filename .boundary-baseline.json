@@ -1,0 +1,12 @@
+{
+  "bridges": {
+    "fixtures": 15,
+    "lineups": 7,
+    "fantasyLeagues": 1,
+    "scoring": 14,
+    "events": 6,
+    "predictions": 3,
+    "wildcards": 0
+  },
+  "directSupabaseComponents": 5
+}

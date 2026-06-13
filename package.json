@@ -20,6 +20,8 @@
     "test:fantasy-lifecycle": "PLAYWRIGHT_BASE_URL=https://bescout.net playwright test --project=fantasy-lifecycle --reporter=list",
     "test:club-lifecycle": "PLAYWRIGHT_BASE_URL=https://bescout.net playwright test --project=club-lifecycle --reporter=list",
     "audit": "bash scripts/audit/index.sh",
+    "audit:boundary": "npx tsx scripts/boundary-check.ts",
+    "audit:boundary:check": "npx tsx scripts/boundary-check.ts --check",
     "audit:compliance": "bash scripts/audit/compliance.sh",
     "audit:i18n": "node scripts/audit/i18n-coverage.js",
     "audit:rpc-security": "node scripts/audit/rpc-security.js",

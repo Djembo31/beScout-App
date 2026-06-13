@@ -78,6 +78,8 @@ const KNOWN_ORPHANS: Record<string, string> = {
   'npm:test:fantasy-lifecycle': 'Called via "pnpm exec playwright test --project=fantasy-lifecycle" in nightly-audit.yml (non-blocking trigger, Slice 293; not via pnpm run)',
   'npm:test:club-lifecycle': 'Called via "pnpm exec playwright test --project=club-lifecycle" in nightly-audit.yml (non-blocking trigger, Slice 298; not via pnpm run)',
   'npm:audit:wiring:check': 'Called by ship-tool-wiring-gate.sh hook (Slice 234 Pre-Commit gate)',
+  'npm:audit:boundary:check': 'Called in .husky/pre-commit Step 5 (S4 Source-of-Truth Ratchet, Slice 299); .husky/ wird von wiring-check nicht gescannt (nur .github + .claude/hooks)',
+  'npm:audit:boundary': 'Manual report-mode tool (S4, Slice 299) — schreibt worklog/audits/<date>/s4-...-report.md; bewusst manueller Trigger, :check ist der verkabelte Gate-Pfad',
   'npm:audit:cron-health:check': 'Slice 255 strict-mode variant; nightly nutzt audit:cron-health (WARN-only). :check für künftige CI-blocking-Erweiterung wenn cron-stale = beta-blocker.',
   'npm:rotate-secret': 'Slice 255 manual-tool für Secret-Rotation, manueller Trigger gewollt (3-Location-Sync).',
   'npm:audit': 'Aggregated audit-runner, not nightly',

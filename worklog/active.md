@@ -2,17 +2,20 @@
 
 ```
 status: idle
-slice: 298 ✅ DONE
+slice: 299 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/298-club-lifecycle-e2e.md
-impact: skipped (reine E2E-Test-Infra — kein Service/RPC/Schema/Query-Key)
-proof: worklog/proofs/298-club-lifecycle.txt
-review: worklog/reviews/298-review.md (reviewer-Agent PASS — 2 NITPICK, NITPICK#1 übernommen)
-decision: Demo-Step-8 (Anil). Contract-Level Lifecycle-E2E /clubs + /club via Slice-293-Blueprint. Active-Tab-Anker = aria-selected (TabBar accentColor → kein text-gold). Non-blocking nightly bis grüne Runs.
+spec: worklog/specs/299-source-of-truth-boundaries.md
+impact: skipped (Audit + Script-Infra — kein Service/RPC/Schema/Query-Key, kein src/**-Runtime)
+proof: worklog/proofs/299-boundary-check.txt
+review: worklog/reviews/299-review.md (reviewer-Agent PASS — 1 MINOR F-1 übernommen, 2 NITPICK)
+decision: S4 (Anil „weiter"). Source-of-Truth-Boundaries-Audit + Baseline-Ratchet-Guard (verhindert NEUE Bridge-Imports/Direct-Supabase ohne Migrations-Zwang der 46 bestehenden). Kein ESLint-Hard-Rule. F-1: Regex auf dynamic import() erweitert → Baseline 46+5. Folge: S4-F-1..F-4.
 ```
 
-### Slice 297 — ✅ DONE (LOG complete)
-AC-5 Mobile-393px Live-Verify abgeschlossen (Proof §7, commit 07698c88): 4 Tabs @ 393px, 0 horizontal-overflow, Mehr-Tab-Content live. FeatureShowcase bleibt Übersicht (Anil bestätigt). S3 Page-Contract-Audit komplett (F-1…F-4 ✅).
+### Slice 299 — ✅ DONE (LOG complete)
+S4 Boundary-Ratchet-Guard live: `scripts/boundary-check.ts` + `.boundary-baseline.json` (bridges 46, direct-supabase 5), pre-commit Step 5. Master-Audit §11.5/6 Prosa→enforced. 4 Folge-Findings (S4-F-1 wildcards-delete, F-2/F-3 facade-Migration, F-4 inkrementell). patterns.md #49 „Baseline-Ratchet-Guard".
+
+### Slice 298 — ✅ DONE
+/club + /clubs Contract-Lifecycle-E2E live (787e1719). S0–S3 + E2E-Layer (293+298).
 
 ## Zuletzt
 

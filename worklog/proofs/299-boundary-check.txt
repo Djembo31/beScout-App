@@ -1,0 +1,87 @@
+Slice 299 — S4 Source-of-Truth Boundaries (Audit + Ratchet-Guard) — PROOF
+Date: 2026-06-13
+
+NOTE: counts below are POST-F-1 (regex extended to also match dynamic
+`import('…')` / `require('…')` per reviewer F-1 — total 42→46 as 4 dynamic
+bridge-crossings are now tracked: fixtures 14→15, lineups 6→7, events 5→6,
+predictions 2→3). Baseline re-frozen via --update.
+
+=========================================================
+1. AC-1 — report mode (writes report, exit 0)
+=========================================================
+$ npx tsx scripts/boundary-check.ts
+═══ Boundary-Check (Slice 299, S4) ═══
+Bridge importers total: 46  (fixtures:15 lineups:7 fantasyLeagues:1 scoring:14 events:6 predictions:3 wildcards:0)
+Direct-Supabase component-layer files: 5
+Report: worklog/audits/2026-06-13/s4-source-of-truth-boundaries-report.md
+
+=========================================================
+2. AC-4 — --check without baseline → writes initial + exit 0
+=========================================================
+$ npx tsx scripts/boundary-check.ts --check
+[--check] no baseline yet — wrote initial to .boundary-baseline.json
+
+=========================================================
+3. AC-6 — .boundary-baseline.json content (frozen live state, post-F-1)
+=========================================================
+{
+  "bridges": { "fixtures": 15, "lineups": 7, "fantasyLeagues": 1,
+               "scoring": 14, "events": 6, "predictions": 3, "wildcards": 0 },
+  "directSupabaseComponents": 5
+}
+
+=========================================================
+4. AC-2 — --check at baseline → exit 0
+=========================================================
+$ npx tsx scripts/boundary-check.ts --check
+✅ No boundary increase vs baseline. All source-of-truth boundaries held.
+REAL EXIT = 0
+
+=========================================================
+5. AC-3 — synthetic regression demo (add bridge import → exit 1 → revert → exit 0)
+=========================================================
+# created src/components/__boundary_scratch__.tsx with: import { x } from '@/lib/services/scoring'
+$ npx tsx scripts/boundary-check.ts --check
+❌ Boundary regression — new source-of-truth violation(s):
+  • bridge "scoring": 15 > 14 (baseline)   [demo'd pre-F-1; mechanism identical post-re-baseline]
+Master-Audit §11.5/6: no new bridge imports / no new direct-Supabase components.
+REAL EXIT (with violation) = 1
+
+# after rm scratch file:
+$ npx tsx scripts/boundary-check.ts --check
+✅ No boundary increase vs baseline.
+REAL EXIT (after revert) = 0
+
+=========================================================
+6. AC-5 — wiring (package.json + pre-commit + wiring-check allowlist)
+=========================================================
+package.json:23   "audit:boundary": "npx tsx scripts/boundary-check.ts"
+package.json:24   "audit:boundary:check": "npx tsx scripts/boundary-check.ts --check"
+.husky/pre-commit:29-30  pnpm run audit:boundary:check  (Step 5)
+scripts/wiring-check.ts  KNOWN_ORPHANS += audit:boundary + audit:boundary:check
+  (.husky/ wird von wiring-check nicht gescannt — nur .github + .claude/hooks;
+   gleiches Pattern wie audit:wiring:check)
+
+$ npx tsx scripts/wiring-check.ts --check
+Real drift:  0
+✅ No drift orphans found. All tools wired.
+
+=========================================================
+7. AC-7 — audit doc (BRIDGE inventory + direct-supabase classification + findings)
+=========================================================
+worklog/audits/2026-06-13/s4-source-of-truth-boundaries.md
+  - 7 bridges, all pure re-export (verified), 42 prod importers, wildcards=0 (DEAD?)
+  - 5 direct-supabase: AuthProvider (legit), 2 admin (accepted), PlayerRankings + FollowListModal (DRIFT)
+  - 4 follow-up findings: S4-F-1 (wildcards-delete) · F-2 (PlayerRankings→facade) ·
+    F-3 (FollowListModal→facade) · F-4 (incremental bridge-migration)
+
+=========================================================
+8. tsc
+=========================================================
+$ npx tsc --noEmit  →  EXIT 0 (boundary-check.ts type-clean; scripts not in tsconfig
+                        but verified via pre-commit tsc run at commit time)
+
+=========================================================
+9. Review
+=========================================================
+worklog/reviews/299-review.md — reviewer-Agent (see file).

@@ -2,6 +2,18 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 299 | 2026-06-13 | chore(audit): S4 Source-of-Truth Boundaries — Audit + Ratchet-Guard
+
+- Stage-Chain: SPEC (`worklog/specs/299-source-of-truth-boundaries.md`, M, Slice-Type Tool) → IMPACT skipped (Audit + Script-Infra, kein Service/RPC/Schema/Query-Key, kein src/**-Runtime) → BUILD → REVIEW (`worklog/reviews/299-review.md`, reviewer-Agent PASS, 1 MINOR F-1 übernommen, 2 NITPICK) → PROVE (`worklog/proofs/299-boundary-check.txt`) → LOG.
+- Trigger: Stabilization-Master-Audit §10 Slice S4 (Anil „weiter"). Source-of-Truth-Grenzen waren nur Prosa (§11.5/6 „keine neuen Bridge-/Direct-Supabase-Imports"), nicht enforced.
+- Audit-Befund: 7 Fantasy-Bridges (`src/lib/services/{fixtures,lineups,fantasyLeagues,scoring,events,predictions,wildcards}.ts`) sind reine Re-Export-Shims (verifiziert), 46 prod-Importer (inkl. dynamic), wildcards=0 (DEAD?). 5 Direct-`supabaseClient`-Files: AuthProvider (legit Auth-Owner), 2 Admin-Tabs (akzeptiert), PlayerRankings + FollowListModal (DRIFT).
+- Enforcement (kein Audit-Theater): `scripts/boundary-check.ts` Baseline-Ratchet (Pattern analog silent-fail-audit) — `.boundary-baseline.json` friert Ist-Stand (bridges per-Bridge 46, direct-supabase 5), `--check` exit 1 NUR bei Anstieg (strict `>`, Senken erlaubt), `--update` re-baselined, no-baseline→write-initial. Verhindert NEUE Verstöße ohne Mass-Migration der Bestände (kein ESLint-Hard-Rule — würfe alle 46 als Error). Demo: synthetic +1 import → exit 1, revert → exit 0.
+- F-1 (Reviewer, übernommen): `from`-only-Regex übersah dynamic `await import()`/inline-type-imports (reale Crossings in scoring.admin.ts) → Regex auf `(from|import(|require()` erweitert, 4 dynamic-Crossings jetzt getrackt (Total 42→46), Baseline neu eingefroren.
+- Verkabelung (D54): `package.json` `audit:boundary` + `audit:boundary:check` · `.husky/pre-commit` Step 5 · `wiring-check.ts` Allowlist (×2, da `.husky/` nicht von wiring-check gescannt). `audit:wiring:check` exit 0.
+- Folge-Fix-Slices (NICHT in 299): S4-F-1 (wildcards-Delete mit Removal-Proof) · S4-F-2 (PlayerRankings→query-facade) · S4-F-3 (FollowListModal→facade) · S4-F-4 (inkrementelle Bridge-Migration via `--update`-Ratchet).
+- Knowledge: `memory/patterns.md` #49 „Baseline-Ratchet-Guard (Anti-Drift ohne Mass-Migration)" — generisches Template (silent-fail + boundary = 2 Instanzen) + Scanner-Falle (Slice-166-Familie „Grep-Audit-Scope-Gap"). Audit-Doc `worklog/audits/2026-06-13/s4-source-of-truth-boundaries.md`.
+- Files: `scripts/boundary-check.ts` (neu) · `.boundary-baseline.json` (neu) · `scripts/wiring-check.ts` · `package.json` · `.husky/pre-commit` · audit-doc + auto-report (neu) · spec/review/proof (neu) · `memory/patterns.md`. Kein src/**-Runtime-Change. Proof: boundary-check report/--check/synthetic-fail + wiring exit 0.
+
 ## 298 | 2026-06-13 | test(club): Contract-Level Lifecycle-E2E /clubs + /club (Demo-Step-8)
 
 - Stage-Chain: SPEC (`worklog/specs/298-club-lifecycle-e2e.md`, M, Slice-Type Tool) → IMPACT skipped (reine E2E-Test-Infra, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/298-review.md`, reviewer-Agent PASS, 2 NITPICK, #1 übernommen) → PROVE (`worklog/proofs/298-club-lifecycle.txt`, 2 passed gegen bescout.net) → LOG.

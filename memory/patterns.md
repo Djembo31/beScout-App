@@ -1646,3 +1646,38 @@ it('legacyOutput=event ONLY when event is running (Slice X behavior change)', ()
 - Behavior-Change ist Breaking + intentional → explizit als Migration-Slice mit Konsumenten-Update.
 
 **Reference:** Slice 266 — `useHomeData.ts:227-239` mappt `spotlightSlots → spotlightType` für `page.tsx:315,392` Sidebar-Suppression-Konsumenten. Pre-266 Bug: `spotlightType='event'` was over-set für ALLE active events → Sidebar-NextEvent over-suppressed. Post-266 Mapping: nur `liveScore` → `'event'`, andere `nextEvent`-Stati → `'cta'` (Sidebar zeigt upcoming-Event normal). Behavior-Change-Test in `useHomeData.test.ts:418-428` mit Slice-Comment.
+
+### 49. Baseline-Ratchet-Guard (Anti-Drift ohne Mass-Migration) (Slice 299, 2026-06-13)
+
+**Wann:** Eine Code-Hygiene-Regel soll enforced werden ("keine neuen X"), aber es existieren bereits N legacy-Verstöße. Eine Hard-Rule (ESLint-error, blocking-Gate) würfe alle N → erzwingt Mass-Migration in einem Slice (Big-Bang-Anti-Pattern). Beispiele: keine neuen Bridge-Imports, kein neuer Direct-Supabase-in-Component, keine neuen silent-catches, keine neuen `any`.
+
+**Pattern (Count-Baseline + Increase-only-Gate):**
+
+```ts
+// scripts/<x>-check.ts — 3 Modi: report | --check | --update
+const BASELINE = '.<x>-baseline.json';
+const snap = scan();                                   // count current violations
+if (mode === 'update') { write(BASELINE, snap); exit(0); }   // re-freeze nach legit Migration
+if (mode === 'check') {
+  if (!exists(BASELINE)) { write(BASELINE, snap); exit(0); } // no-baseline → write-initial (kein false-CI-fail)
+  const base = read(BASELINE);
+  const violations = keys.filter(k => snap[k] > base[k]);    // STRICT > (nicht !=) — Senken erlaubt
+  if (violations.length) { logEach(violations); exit(1); }
+  exit(0);
+}
+writeReport(snap);                                     // default: human report
+```
+
+**Schlüssel-Eigenschaften:**
+- **STRICT `>`**, nicht `!=` — legitime Migration (Count SINKT) failt NICHT; danach `--update` ratcht Baseline runter.
+- **no-baseline → write-initial + exit 0** — kein false-CI-fail beim ersten Lauf (silent-fail-Vorbild).
+- **`--update`-Hinweis im Fehler-Output** — proaktive UX für den Senkungs-Fall.
+- **Verkabelung (D54-Pflicht):** package.json `audit:x` + `audit:x:check` + `.husky/pre-commit`-Step + wiring-check-Allowlist (`.husky/` wird von wiring-check NICHT gescannt → :check muss allowlisted werden trotz echter Verkabelung).
+
+**Scanner-Falle (Slice 299 F-1, Familie „Grep-Audit-Scope-Gap" Slice 166):** Static-`from '…'`-only-Regex verpasst dynamic `await import('…')` + inline-type-imports `import('…').T` + `require('…')`. Regex IMMER auf `(from|import\s*\(|require\s*\()\s*['"]…['"]` erweitern, sonst umgeht ein dynamic-Crossing den Ratchet silent.
+
+**Instanzen:** `silent-fail-audit.ts` (`.audit-baseline.json`, Slice 092/093, HIGH-increase-Gate) · `boundary-check.ts` (`.boundary-baseline.json`, Slice 299, bridge-imports + direct-supabase). Beide gleiches Template.
+
+**Wann NICHT:** Bei 0 legacy-Verstößen → direkt Hard-Rule (ESLint-error). Bei Verstößen die SOFORT alle gefixt werden müssen (Security) → kein Ratchet, sofort-fix.
+
+**Reference:** Slice 299 — `scripts/boundary-check.ts`, `.boundary-baseline.json`, `worklog/audits/2026-06-13/s4-source-of-truth-boundaries.md`. Master-Audit §11.5/6 von Prosa → enforced.
