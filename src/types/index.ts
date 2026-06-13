@@ -962,6 +962,15 @@ export type DbFeeConfig = {
   ipo_club_bps: number;
   ipo_platform_bps: number;
   ipo_pbt_bps: number;
+  // Slice 304 (S7 Phase-2 #2): Schema≠Typ-Drift geschlossen — diese 6 Spalten existieren
+  // live in fee_config + werden in accept_offer/buy_player_sc-RPCs genutzt, fehlten aber im
+  // TS-Typ. P2P-Offer-Fees (3% total = 2%+0,5%+0,5%) + Abo-Discount-bps (bronze/silber/gold).
+  offer_platform_bps: number; // default 200 (2%)
+  offer_pbt_bps: number;      // default 50 (0,5%)
+  offer_club_bps: number;     // default 50 (0,5%)
+  abo_discount_bronze_bps: number; // default 50
+  abo_discount_silber_bps: number; // default 100
+  abo_discount_gold_bps: number;   // default 150
   updated_by: string | null;
   created_at: string;
   updated_at: string;

@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 303 ✅ DONE
+slice: 304 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/303-floor-source-of-truth-consolidation.md
-impact: in-spec (Call-Site-Karte + recalc-Caller + Consumer-Guards + Health-Check verifiziert)
-proof: worklog/proofs/303-floor-consolidation.txt
-review: worklog/reviews/303-review.md (reviewer-Agent PASS — Money-Path, 3 MINOR + 1 NIT + 1 pre-existing F-1, F-2/3/4 in-slice übernommen)
-decision: S7 Phase-2 #1 Floor-Konsolidierung LIVE (Money, Anil „J"). A last_price=0-Hygiene (Divergenz 73%→0,57%, 202 getradet unberührt) · B cancel_order → Kanon recalc · C 4 Recompute-Pfade → prices.floor (eine Quelle). Knowledge: errors-db.md „Seed-Wert-Poisoning in Fallback-Formel-Branch". Nächste S7-Phase-2: #2 DbFeeConfig-Typ-Fix, #3 Orphan-Value-Removal, #4 Wildcard-Ledger.
+spec: worklog/specs/304-dbfeeconfig-type-alignment.md
+impact: skipped (reine TS-Typ-Addition, kein Runtime/Service/RPC/Schema-Change)
+proof: worklog/proofs/304-feeconfig-type.txt
+review: worklog/reviews/304-review.md (self-review, XS pure-type-completeness gegen verifiziertes Live-Schema)
+decision: S7 Phase-2 #2 — DbFeeConfig-Typ an Live-fee_config angeglichen: +6 NOT-NULL-Felder (offer_platform/pbt/club_bps + abo_discount_bronze/silber/gold_bps). Schließt latentes Money-Typ-Loch (RPCs nutzten Spalten, Typ war blind). tsc 0, 54 grün. Nächste S7-Phase-2: #3 Orphan-Value-Removal, #4 Wildcard-Ledger.
 ```
 
 ### Slice 301 — SPEC (in Arbeit)

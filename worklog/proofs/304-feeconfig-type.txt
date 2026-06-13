@@ -1,0 +1,12 @@
+=== Slice 304 — DbFeeConfig Type-Schema Alignment — PROVE ===
+AC-1/2: 6 neue Felder im Typ (grep): 6
+
+Live fee_config bps-Spalten (information_schema, verifiziert):
+  trade_fee/platform/pbt/club_bps · ipo_club/platform/pbt_bps
+  offer_platform(200)/pbt(50)/club(50)_bps · abo_discount_bronze(50)/silber(100)/gold(150)_bps
+  → alle NOT NULL → non-optional number im TS-Typ
+
+AC-3: tsc --noEmit exit 0
+AC-3: vitest pbt + smallServices: 54/54 grün
+
+Kein Runtime/Logic/Fee-Wert-Change — reine Schema≠Typ-Drift geschlossen (S7-Befund #2).

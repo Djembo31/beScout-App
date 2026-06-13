@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 304 | 2026-06-13 | fix(types): S7 Phase-2 #2 — DbFeeConfig Type-Schema Alignment
+
+- Stage-Chain: SPEC (`worklog/specs/304-dbfeeconfig-type-alignment.md`, XS) → IMPACT skipped (reine TS-Typ-Addition) → BUILD → REVIEW (`worklog/reviews/304-review.md`, **self-review** XS pure-type-completeness gegen verifiziertes Live-Schema) → PROVE (`worklog/proofs/304-feeconfig-type.txt`) → LOG.
+- Trigger: S7-Registry Trading-Befund #2 (P0 latent) — `DbFeeConfig` (TS) fehlten 6 Spalten die live in `fee_config` existieren + in RPCs `accept_offer`/`buy_player_sc` genutzt werden. Schema≠TS-Typ-Drift (Slice-200-Familie). Anil „#2".
+- Fix: `src/types/index.ts` DbFeeConfig +6 non-optional `number` (alle NOT NULL live): `offer_platform_bps`(200)/`offer_pbt_bps`(50)/`offer_club_bps`(50) = P2P-Fee 3% + `abo_discount_bronze_bps`(50)/`silber_bps`(100)/`gold_bps`(150). Live-Schema via information_schema 1:1 verifiziert.
+- Risiko null: Konsumenten (pbt.ts getFeeConfig/getAllFeeConfigs, AdminFeesTab) casten `as DbFeeConfig` bzw. feste FeeKey-Union → kein Render-Zwang; Test-Mocks untypisierte Literale → kein tsc-Bruch. Kein Fee-Wert/Logic-Change (RPCs nutzten Spalten bereits).
+- Files: 1 (types) + SHIP-Artefakte. tsc 0, 54/54 (pbt + smallServices) grün. Scope-Out: Admin-UI offer/abo-Edit = separater CEO-Feature-Slice. Nächste S7-Phase-2: #3 Orphan-Value-Removal · #4 Wildcard-Ledger.
+
 ## 303 | 2026-06-13 | feat(market): S7 Phase-2 #1 — Floor-Price Source-of-Truth Consolidation (Money)
 
 - Stage-Chain: SPEC (`worklog/specs/303-floor-source-of-truth-consolidation.md`, L, Money-Path) → IMPACT (in-spec: Call-Site-Karte + recalc-Caller + Consumer-Guards + Health-Check) → BUILD (A→B→C) → REVIEW (`worklog/reviews/303-review.md`, reviewer-Agent **PASS**, Money-Pflicht, 3 MINOR+1 NIT+1 pre-existing) → PROVE (`worklog/proofs/303-floor-consolidation.txt`) → LOG.
