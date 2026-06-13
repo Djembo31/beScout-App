@@ -1,33 +1,75 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 16:54)
+# Session Handoff — Auto (2026-06-13 18:17)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 1 Files
 ```
- M memory/decisions.md
  M memory/session-handoff.md
- M worklog/audits/audit-stale-2026-06-13.md
- M worklog/audits/type-truth-2026-06-13.md
 ```
 
 ## Session Commits: 10
+- 33332654 chore(audit): Slice 300 — S5 test-confidence audit + ratchet-guard
+- 4fed642a chore(audit): Slice 299 — S4 Source-of-Truth Boundaries audit + ratchet-guard
+- 787e1719 test(club): Slice 298 — contract-level lifecycle E2E /clubs + /club (Demo-Step-8)
+- 07698c88 docs(proof): Slice 297 AC-5 mobile 393px verify — PROVE complete
+- 21855b40 docs(distill): D74 AuthGuard single-source + session-handoff (Slices 294-297)
 - 4c4f996d refactor(club): Slice 297 narrative tab-split — new "Mehr" tab (S3 F-4)
 - 16e46448 docs(fantasy): Slice 296 explicit unauth contract + test (S3 F-3)
 - e1963466 test(clubs): Slice 295 /clubs Discovery Page Contract Test (S3 F-2)
 - 6f4212cb chore(worklog): regenerate audit reports + session-handoff post-Slice-294
 - 3677134f fix(compliance): Slice 294 Public Club Metadata Compliance Copy (F-1)
-- ff1313b7 docs(log): Slice 293 LOG — Fantasy Lifecycle E2E + F-1 orphan-test note
-- 5294833a test(fantasy): Slice 293 deterministic Fantasy lifecycle E2E
-- 2076982e docs(audit): Slice 292 fantasy club page contracts
-- b26de4cf fix(compliance): Slice 291 unified trading geogate
-- a3a7648b fix(home): Slice 290 portfolio floor parity
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 — Session-End nach Slice 294–297, S3-Audit komplett)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 Abend — Session-End nach Slice 297–300, S4+S5 komplett)
+
+**Status: idle** · HEAD `33332654` · origin/main synchron · Working tree clean (nur auto Handoff-Block). 0 Reverts.
+
+## Anil-Direktive für nächste Session
+
+**→ Anil setzt S6 (Dead-Artifact-Inventory) selbst durch.** Nicht autonom vorgreifen.
+
+## Was diese Session lief (Start: „weiter im handoff")
+
+1. **Aufräumen:** Handoff sagte fälschlich „origin/main synchron" — der DISTILL-Commit D74 (`21855b40`) hing **unpushed**. Gepusht. Audit-Timestamp-Churn (audit-stale/type-truth) = self-renewing → `git restore` (Pattern bleibt).
+2. **Slice 297** `07698c88` — AC-5 Mobile-393px Live-Verify (Playwright @ 393px vs `bescout.net/club/sakaryaspor`): 4 Tabs (Übersicht/Spieler/Spielplan/Mehr), TabBar own-overflow 0px, Page-Overflow 0px, Mehr-Tab-Content live. Proof §7. **S3-Audit komplett (F-1…F-4 ✅).** Anil-Decision: FeatureShowcase bleibt Übersicht.
+3. **Slice 298** `787e1719` — Demo-Step-8: `e2e/club-lifecycle.spec.ts` (Slice-293-Blueprint), 2 Contract-Tests (/clubs + /club) own-login gegen bescout.net, **2 passed**. Verkabelt: playwright-Projekt + `test:club-lifecycle` + non-blocking nightly-Step. Schlüssel: Active-Tab-Anker = `aria-selected` (TabBar accentColor → kein text-gold).
+4. **Slice 299** `4fed642a` — **S4 Source-of-Truth Boundaries**: `scripts/boundary-check.ts` Baseline-Ratchet (`.boundary-baseline.json`, bridges 46 + direct-supabase 5), pre-commit Step 5. 7 Fantasy-Bridges = reine Re-Exports, wildcards=0 (DEAD?). Master-Audit §11.5/6 Prosa→enforced.
+5. **Slice 300** `33332654` — **S5 Test-Confidence**: `scripts/test-confidence-check.ts` Baseline-Ratchet (`.test-confidence-baseline.json`, placeholders 5 + skips 1), pre-commit Step 6. 2 PURE-Placeholder gefixt (ResearchCard del, NotificationDropdown → real Render-Smoke). Master-Audit §11.4 Prosa→enforced.
+
+→ **Stabilization-Track S0–S5 + E2E-Layer (293+298) abgeschlossen.** Nur S6 offen.
+
+## DISTILL diese Session
+
+- **D75** PROCESS — Stabilization-Audit-Slices (S-Serie) liefern Audit-Doc + Baseline-Ratchet-Guard (kein reines Audit-Theater). 3 Ratchets aktiv (silent-fail 092 · boundary 299 · test-confidence 300). Ratchet friert Ist-Stand, blockt nur Neuzuwachs (kein Big-Bang). Re-Visit: bei Count→0 zu ESLint-Hard-Rule promoten / bei zu vielen pre-commit-Steps bündeln.
+- **patterns.md #49** erweitert: 3. Ratchet-Instanz + Marker-Falle (`fit(` als CALL matchen, nicht `\bfit\b`; `import()` nicht nur `from`).
+
+## ⚠️ S6 — Dead-Artifact-Inventory (Master-Audit §10 S6) — was Anil/nächste Session angeht
+
+Ziel: Löschkandidaten **beweisbar** machen. Status pro Artefakt: KEEP / BRIDGE / DEPRECATED / DEAD?. **§11.3: kein Blind-Delete — Löschen nur mit RED/GREEN Removal-Proof** (grep 0 Konsumenten + tsc + vitest grün).
+- **Konkrete Startpunkte aus S4-Findings:** `wildcards.ts`-Bridge (0 Importer, S4-F-1 = klarster DEAD-Kandidat). `audit:orphan`-Script existiert (Slice 228) — als Discovery nutzen.
+- **Werkzeug-Vorschlag:** ggf. 4. Ratchet-Instanz (#49) für orphan-Count, ODER `audit:orphan` als pre-push-Gate verkabeln (D54).
+- **Pattern beachten:** Slice 280 „Dead-Wrapper mit transitive Lib-Lock-In" (105 KB pro orphan-Wrapper) — DEAD-Artefakt-Removal hat realen Bundle-Win.
+
+## Offene Folge-Findings (opportunistisch, kein Zwang)
+
+- **S4-F-2/F-3 (P2, Demo-Path):** `PlayerRankings.tsx` + `FollowListModal.tsx` direkter Supabase-Zugriff → Query-Facade-Migration. (Durch Ratchet eingefroren, aber noch DRIFT.)
+- **S5-F-3 (P2):** Mock-Heavy-Tests systematisch auditieren (Behavioral vs Mock-against-Mock).
+- S4-F-4 (Bridge-Migration inkrementell), S5-F-1/F-2/F-4 (P3).
+
+## Carry-over (Anil-Action, unverändert)
+
+- **🚨 API-Football-Key suspendiert seit 06.05.** → blockiert Slice 284b (154 Geister + Süper-Lig-Drift). dashboard.api-football.com.
+- **TR-Review** (3 Strings): `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+- **Backlog (286):** `clubs.ts` non-reaktives Cache-Pattern (falls render-time `useMemo(() => getClub(...))` → useSyncExternalStore-Fix).
+- **Backlog-Slices (kein API-Key):** FM-08..11, FANT-11/12/16 (CEO Vice-Captain). Punch-List: `worklog/audits/2026-06-12/stab-284-punchlist.md`.
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-06-13 — Session-End nach Slice 294–297, S3-Audit komplett)
 
 **Status: idle** · Slices 294/295/296/297 alle committed & gepusht. origin/main synchron.
 

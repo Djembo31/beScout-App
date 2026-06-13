@@ -3363,3 +3363,34 @@ Ein page-local Sign-In-CTA wäre eine **zweite Quelle der Wahrheit** für „log
 ### Re-Visit-Trigger
 
 - Falls je eine `(app)`-Page legitim einen anderen unauth-Zustand braucht als „redirect-to-login" (z.B. eine teil-öffentliche Page mit Login-Teaser) → dann ist das eine bewusste public-Route-Entscheidung, nicht ein zweiter Auth-Pfad; AuthGuard-Scope neu schneiden statt page-local CTA streuen.
+
+## D75 — PROCESS: Stabilization-Audit-Slices liefern Audit-Doc + Ratchet-Guard (kein reines Audit-Theater)
+
+**Category:** PROCESS · **Datum:** 2026-06-13 · **Status:** Aktiv · **Slice:** 299 (S4) + 300 (S5)
+
+### Entscheidung
+
+Stabilization-Audit-Slices der S-Serie (Master-Audit `worklog/audits/2026-06-12/stabilization-master-audit.md` §10) deren Ziel eine Prosa-Regel „keine neuen X" ist (§11.4/5/6: keine neuen Bridge-Imports, keine neuen Direct-Supabase-Components, keine neuen Placeholder/Skip-Tests), liefern IMMER **zwei** Artefakte: (1) ein kuratiertes Audit-Doc mit Taxonomie-Klassifikation + Folge-Findings, UND (2) ein **Baseline-Ratchet-Guard** (`scripts/<x>-check.ts` + `.<x>-baseline.json`, patterns.md #49) der die Prosa-Regel von Wort → enforced macht. Reines Audit ohne Enforcement ist verboten (workflow.md Anti-Pattern #1 + `ship-no-audit-slice`-Hook).
+
+### Begründung
+
+Die Master-Audit-Anti-Kreis-Regeln (§11) waren reine Prosa → 0 Enforcement → Drift kommt zurück sobald niemand hinschaut (genau die „Confidence Drift" / „Source-of-Truth Drift" die der Audit beklagt). Ein Baseline-Ratchet friert den Ist-Stand ein und blockt nur **Neuzuwachs** (strict `>`) — das verhindert Regression OHNE Mass-Migration der Bestände (Big-Bang-Refactor = §0-Anti-Pattern). Eine ESLint-Hard-Rule würfe alle Bestände als Error (erzwänge Big-Bang); ein „warn"-Level produziert N Dauer-Warnungen (Noise). Der Ratchet ist der churn-freie Mittelweg und macht den Audit zu echtem Fortschritt statt „gelb markieren".
+
+### Auswirkungen
+
+- S-Serie-Slices (S4 boundary, S5 test-confidence; künftig S6 dead-artifact) = Audit-Doc + Ratchet + pre-commit-Step + wiring-allowlist (D54).
+- Bestände werden NICHT erzwungen migriert — als nummerierte Folge-Findings (S4-F-1.., S5-F-1..) für opportunistische Fix-Slices dokumentiert.
+- `.husky/pre-commit` wächst pro S-Slice um 1 Ratchet-Step (~2s je). Bei >8 Steps Performance neu bewerten (dann ggf. pre-push-Bündelung).
+- 3 Ratchet-Instanzen aktiv (silent-fail 092 · boundary 299 · test-confidence 300) — patterns.md #49 ist das Template.
+- Scanner-Falle (#49): Marker IMMER als CALL/präzise matchen — `\bfit\b`/`from`-only false-positivet/verpasst (Slice 299 F-1 dynamic-import, Slice 300 F-1 `status:'fit'`).
+
+### Alternativen erwogen
+
+- **A: Reines Audit-Doc** (gelb markieren, Folge-Slices) — verworfen: §1-Anti-Pattern, Drift kommt zurück, kein Enforcement.
+- **B: ESLint-Hard-Rule** (`no-restricted-imports` error / `no-disabled-tests`) — verworfen: würfe alle Bestände als Error → Big-Bang-Migrations-Zwang in einem Slice (§0).
+- **C: Audit-Doc + Baseline-Ratchet-Guard (gewählt)** — Ist-Stand eingefroren, nur Neuzuwachs blockiert, Bestände als Folge-Findings; churn-frei + echtes Enforcement.
+
+### Re-Visit-Trigger
+
+- Wenn ein Bestand vollständig migriert ist (Count → 0) → Ratchet-Guard + Baseline-File löschen, Regel ggf. zu ESLint-Hard-Rule promoten (dann ist Big-Bang-Risk weg).
+- Wenn pre-commit durch zu viele Ratchet-Steps spürbar langsam wird → Ratchets in einen kombinierten `audit:ratchets:check`-Sammel-Step bündeln.
