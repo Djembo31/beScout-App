@@ -220,13 +220,17 @@ export async function getGameweekStatuses(
 }
 
 /** Get top scorers for a gameweek */
-export async function getGameweekTopScorers(gw: number, limit: number = 5): Promise<FixturePlayerStat[]> {
+export async function getGameweekTopScorers(gw: number, limit: number = 5, leagueId?: string | null): Promise<FixturePlayerStat[]> {
   // First get fixture IDs for this gameweek
-  const { data: fixtures, error: fixError } = await supabase
+  // 284d-FANT-05: leagueId-Filter — sonst mischt der Ergebnisse-Tab alle 7 Ligen
+  // (gleiche GW-Nummer = rein). Slice-270-Klasse.
+  let fixQuery = supabase
     .from('fixtures')
     .select('id')
     .eq('gameweek', gw)
     .in('status', ['simulated', 'finished']);
+  if (leagueId) fixQuery = fixQuery.eq('league_id', leagueId);
+  const { data: fixtures, error: fixError } = await fixQuery;
 
   if (fixError) throw new Error(fixError.message);
   if (!fixtures || fixtures.length === 0) return [];
@@ -253,14 +257,17 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
 }
 
 /** Get GW stats for specific player IDs (for "Deine Spieler" portfolio view) */
-export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]): Promise<FixturePlayerStat[]> {
+export async function getGameweekStatsForPlayers(gw: number, playerIds: string[], leagueId?: string | null): Promise<FixturePlayerStat[]> {
   if (playerIds.length === 0) return [];
 
-  const { data: fixtures, error: fixError2 } = await supabase
+  // 284d-FANT-05: leagueId-Filter analog getGameweekTopScorers.
+  let fixQuery2 = supabase
     .from('fixtures')
     .select('id')
     .eq('gameweek', gw)
     .in('status', ['simulated', 'finished']);
+  if (leagueId) fixQuery2 = fixQuery2.eq('league_id', leagueId);
+  const { data: fixtures, error: fixError2 } = await fixQuery2;
 
   if (fixError2) throw new Error(fixError2.message);
   if (!fixtures || fixtures.length === 0) return [];
@@ -361,7 +368,10 @@ export async function getFixtureDeadlinesByGameweek(gw: number): Promise<Map<str
   const result = new Map<string, FixtureDeadline>();
 
   for (const f of fixtures) {
-    const isLocked = f.played_at != null && new Date(f.played_at) <= now && f.status !== 'scheduled';
+    // 284d-FANT-08: isLocked rein played_at-basiert (Server-Gate rpc_save_lineup
+    // lockt ab erstem Kickoff der GW). status!=='scheduled' liess bei Cron-Lag
+    // die UI faelschlich „editierbar" anzeigen.
+    const isLocked = f.played_at != null && new Date(f.played_at) <= now;
 
     // Home club entry
     result.set(f.home_club_id, {
@@ -391,51 +401,25 @@ export async function getFixtureDeadlinesByGameweek(gw: number): Promise<Map<str
 // Manager Data (Minutes + Next Fixture)
 // ============================================
 
-/** Get recent minutes played per player (last 5 completed gameweeks) */
+/** Get recent minutes played per player (last 5 league GWs, newest-first).
+ *  284d-FANT-09: Absolute-Liga-Window via RPC (mirror rpc_get_recent_player_scores)
+ *  — vorher globales Top-5-GW-Window über alle Ligen → 34-GW-Ligen sahen leere
+ *  Slots (Slice-270-Klasse). RPC liefert JSONB (1000-cap-sicher, Slice-270d). */
 export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
-  const { data: completedFixtures, error: cfError } = await supabase
-    .from('fixtures')
-    .select('id, gameweek')
-    .in('status', ['simulated', 'finished'])
-    .order('gameweek', { ascending: false });
+  const { data, error } = await supabase.rpc('rpc_get_recent_player_minutes');
+  if (error) throw new Error(error.message);
+  if (!data) return new Map();
 
-  if (cfError) throw new Error(cfError.message);
-  if (!completedFixtures || completedFixtures.length === 0) return new Map();
-
-  const gameweeks = Array.from(new Set(completedFixtures.map(f => f.gameweek as number)))
-    .sort((a, b) => b - a)
-    .slice(0, 5);
-  const fixtureIds = completedFixtures
-    .filter(f => gameweeks.includes(f.gameweek as number))
-    .map(f => f.id as string);
-
-  if (fixtureIds.length === 0) return new Map();
-
-  const { data: stats, error: statsError } = await supabase
-    .from('fixture_player_stats')
-    .select('player_id, minutes_played, fixture_id')
-    .in('fixture_id', fixtureIds)
-    .not('player_id', 'is', null);
-
-  if (statsError) throw new Error(statsError.message);
-  if (!stats) return new Map();
-
-  const fixtureGwMap = new Map(completedFixtures.map(f => [f.id as string, f.gameweek as number]));
-  const playerMinutes = new Map<string, { gw: number; minutes: number }[]>();
-
-  for (const s of stats) {
-    const gw = fixtureGwMap.get(s.fixture_id as string) ?? 0;
-    const arr = playerMinutes.get(s.player_id as string) ?? [];
-    arr.push({ gw, minutes: s.minutes_played as number });
-    playerMinutes.set(s.player_id as string, arr);
-  }
+  // JSONB-Array → Map. RPC liefert pro Spieler 5 Slots, newest-first sortiert.
+  const rows = data as Array<{ player_id: string; gameweek: number; minutes: number }>;
+  if (rows.length === 0) return new Map();
 
   const result = new Map<string, number[]>();
-  playerMinutes.forEach((arr, playerId) => {
-    arr.sort((a, b) => b.gw - a.gw);
-    result.set(playerId, arr.map(a => a.minutes));
-  });
-
+  for (const row of rows) {
+    const arr = result.get(row.player_id) ?? [];
+    arr.push(row.minutes);
+    result.set(row.player_id, arr);
+  }
   return result;
 }
 

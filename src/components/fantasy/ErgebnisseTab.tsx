@@ -25,6 +25,8 @@ type ErgebnisseTabProps = {
   fixtureCount: number;
   events: FantasyEvent[];
   userId: string;
+  /** 284d-FANT-05: Liga-Scope für Top-Scorer/Best-XI/GW-Summary. null = global. */
+  leagueId?: string | null;
   // History data passed from parent
   participations: {
     eventId: string;
@@ -53,6 +55,7 @@ export function ErgebnisseTab({
   fixtureCount,
   events,
   userId,
+  leagueId,
   participations,
   userDisplayName,
   userFavoriteClub,
@@ -90,14 +93,14 @@ export function ErgebnisseTab({
     setHeldPlayerStats([]);
     setLoadingScorers(true);
     let cancelled = false;
-    getGameweekTopScorers(gameweek, 300).then(data => {
+    getGameweekTopScorers(gameweek, 300, leagueId).then(data => {
       if (!cancelled) { setTopScorers(data); setLoadingScorers(false); }
     }).catch((err) => {
       console.error('[ErgebnisseTab] topScorers fetch failed:', err);
       if (!cancelled) { setTopScorers([]); setLoadingScorers(false); }
     });
     return () => { cancelled = true; };
-  }, [gameweek, isUpcoming]);
+  }, [gameweek, isUpcoming, leagueId]);
 
   // User's DPC holdings — cross-reference with GW stats
   const { data: holdings = [] } = useHoldings(userId);
@@ -106,14 +109,14 @@ export function ErgebnisseTab({
   useEffect(() => {
     if (isUpcoming || heldPlayerIds.length === 0) { setHeldPlayerStats([]); return; }
     let cancelled = false;
-    getGameweekStatsForPlayers(gameweek, heldPlayerIds).then(data => {
+    getGameweekStatsForPlayers(gameweek, heldPlayerIds, leagueId).then(data => {
       if (!cancelled) setHeldPlayerStats(data);
     }).catch((err) => {
       console.error('[ErgebnisseTab] Failed to load player stats:', err);
       if (!cancelled) setHeldPlayerStats([]);
     });
     return () => { cancelled = true; };
-  }, [gameweek, isUpcoming, heldPlayerIds]);
+  }, [gameweek, isUpcoming, heldPlayerIds, leagueId]);
 
   // GW summary stats (from top scorers)
   const gwSummary = useMemo(() => {

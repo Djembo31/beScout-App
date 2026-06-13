@@ -1,19 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 00:32)
+# Session Handoff — Auto (2026-06-13 11:13)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
- M worklog/audits/audit-stale-2026-06-12.md
- M worklog/audits/type-truth-2026-06-12.md
+?? worklog/audits/audit-stale-2026-06-13.md
+?? worklog/audits/type-truth-2026-06-13.md
+?? worklog/audits/wiring-2026-06-13.md
 ```
 
-## Session Commits: 4
-- 53a51911 fix(market): Slice 284c — Wave 3 Markt/Rankings-Fixes (FM-01..05,07)
-- c147354d chore(slice-284a): LOG — stuck-live geheilt (extern verifiziert) + API-Key-Suspension-Fund
-- cbe1ae5c fix(fantasy): 284a-Heal — Recovery-Lookup auf league+season+date (Plan-sicher)
-- 1d996297 fix(fantasy): Slice 284a — Live-Lifecycle: Cron-Window-OR + Status-Union + Self-Heal + Scoring-Guard
+## Session Commits: 1
+- 196972c0 chore(slice-284c): LOG — Markt/Rankings-Fixes live, 2 P1 DB-bewiesen
 
 <!-- auto:handoff-end -->
 

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Fixture } from '@/types';
 import { getClub } from '@/lib/clubs';
+import { isFixtureLive } from '@/features/fantasy/lib/fixtureLive';
 import { ClubLogo } from './ClubLogo';
 
 type Props = {
@@ -25,8 +26,10 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
-  const now = useMemo(() => new Date(), []);
-  const isPendingResult = !isSimulated && fixture.played_at && new Date(fixture.played_at) < now;
+  const now = new Date(); // Review-284d-F3: live (nicht memoized) — konsistent mit FixtureCard
+  // 284d-FANT-13: Live-Branch — vorher zeigte das Topspiel „?-?" statt Live-Score.
+  const isLive = isFixtureLive(fixture.status, fixture.played_at, now);
+  const isPendingResult = !isSimulated && !isLive && fixture.played_at && new Date(fixture.played_at) < now;
   const homeColor = homeClub?.colors.primary ?? '#22C55E';
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
@@ -57,7 +60,19 @@ export function TopspielCard({ fixture, onSelect }: Props) {
 
         {/* Score */}
         <div className="shrink-0 text-center px-2">
-          {isSimulated ? (
+          {isLive ? (
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-black text-4xl md:text-5xl tabular-nums text-emerald-400">{fixture.home_score ?? 0}</span>
+                <div className="w-[2px] h-6 bg-emerald-400/40 rounded-full" />
+                <span className="font-mono font-black text-4xl md:text-5xl tabular-nums text-emerald-400">{fixture.away_score ?? 0}</span>
+              </div>
+              <span className="flex items-center gap-1 text-xs font-bold text-emerald-400">
+                <span className="size-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                {fixture.minute != null ? `${fixture.minute}'` : t('matchLive')}
+              </span>
+            </div>
+          ) : isSimulated ? (
             <div className="flex items-center gap-3">
               <span className="font-mono font-black text-4xl md:text-5xl tabular-nums" style={goldScoreStyle}>{fixture.home_score}</span>
               <div className="w-[2px] h-6 bg-gold/30 rounded-full" />

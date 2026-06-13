@@ -441,14 +441,15 @@ describe('getFixtureDeadlinesByGameweek', () => {
     expect(result.get('club-away')!.isLocked).toBe(true);
   });
 
-  it('should NOT lock fixture when played_at is past but status is scheduled', async () => {
+  it('should LOCK fixture when played_at is past regardless of status (284d-FANT-08)', async () => {
     const pastDate = new Date(Date.now() - 86400000).toISOString();
     mockTable('fixtures', [makeFixtureRow({ played_at: pastDate, status: 'scheduled' })]);
 
     const result = await getFixtureDeadlinesByGameweek(10);
 
-    // status === 'scheduled' => isLocked false (postponed/not yet started)
-    expect(result.get('club-home')!.isLocked).toBe(false);
+    // 284d-FANT-08: Lock rein played_at-basiert — Server-Gate lockt ab Kickoff;
+    // status!=='scheduled' liess bei Cron-Lag UI faelschlich „editierbar" zeigen.
+    expect(result.get('club-home')!.isLocked).toBe(true);
   });
 
   it('should return empty map when no fixtures', async () => {

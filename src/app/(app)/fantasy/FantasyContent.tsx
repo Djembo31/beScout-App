@@ -274,6 +274,7 @@ export default function FantasyContent() {
           fixtureCount={gw.fixtureCount}
           events={filteredGwEvents}
           userId={user.id}
+          leagueId={leagueScopeId}
           participations={dashboardStats.pastParticipations}
           userDisplayName={profile?.display_name || user?.email?.split('@')[0] || 'User'}
           userFavoriteClub={profile?.favorite_club ?? null}

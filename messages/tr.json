@@ -653,6 +653,7 @@
     "bestLabel": "En İyi {label}",
     "poweredBy": "BeScout Fantasy tarafından",
     "topMatch": "Öne Çıkan Maç",
+    "matchLive": "Canlı",
     "matchUpcoming": "Yakında",
     "matchPendingResult": "Sonuç bekleniyor",
     "allSimulated": "{goals} Gol • Tüm maçlar simüle edildi",

@@ -653,6 +653,7 @@
     "bestLabel": "Best {label}",
     "poweredBy": "Powered by BeScout Fantasy",
     "topMatch": "Topspiel",
+    "matchLive": "Live",
     "matchUpcoming": "Kommend",
     "matchPendingResult": "Ergebnis ausstehend",
     "allSimulated": "{goals} Tore • Alle Spiele simuliert",
