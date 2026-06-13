@@ -1,16 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 16:19)
+# Session Handoff — Auto (2026-06-13 16:54)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
+ M memory/decisions.md
  M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-06-13.md
  M worklog/audits/type-truth-2026-06-13.md
 ```
 
 ## Session Commits: 10
+- 4c4f996d refactor(club): Slice 297 narrative tab-split — new "Mehr" tab (S3 F-4)
 - 16e46448 docs(fantasy): Slice 296 explicit unauth contract + test (S3 F-3)
 - e1963466 test(clubs): Slice 295 /clubs Discovery Page Contract Test (S3 F-2)
 - 6f4212cb chore(worklog): regenerate audit reports + session-handoff post-Slice-294
@@ -20,13 +22,48 @@
 - 2076982e docs(audit): Slice 292 fantasy club page contracts
 - b26de4cf fix(compliance): Slice 291 unified trading geogate
 - a3a7648b fix(home): Slice 290 portfolio floor parity
-- 3c94e979 docs(audit): Slice 289 home manager page contracts
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 — Session-End nach Slice 285 + 286, beide LIVE)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 — Session-End nach Slice 294–297, S3-Audit komplett)
+
+**Status: idle** · Slices 294/295/296/297 alle committed & gepusht. origin/main synchron.
+
+## Was diese Session lief (Start: „Session plötzlich beendet, setze nahtlos an")
+
+1. **Slice 294** `3677134f` — Resume: Slice 294 war voll durch alle Stages, nur der Commit fehlte (Session war davor gecrasht). Proof-Gate blockierte zunächst, weil die `proof:`-Zeile in active.md eine `(…)`-Annotation als Teil des Pfads enthielt → bare path gesetzt, dann committed. (Public Club Metadata „Trading"→i18n, S3 F-1.)
+2. **Slice 295** `e1963466` — S3 F-2: `/clubs` Page-Contract-Test (`ClubsDiscoveryPage.test.tsx`), 7 Tests (loading/error/empty/follow/activate + 2 Edges). reviewer PASS.
+3. **Slice 296** `16e46448` — S3 F-3: Fantasy Unauth-State explizit. Decision: Auth-Enforcement nur via AuthGuard, `&& user`=defensiv, KEIN page-local CTA. Kommentar + `describe('unauth contract')` ×4, Auth-Mock mutable. reviewer PASS.
+4. **Slice 297** `4c4f996d` — S3 F-4: Club-Detail Narrative Tab-Split (Anil Option B). Übersicht 17→8 Lead; neuer „Mehr"/„Daha"-Tab (6); FDR+Letzte-Ergebnisse → Spielplan. FeatureShowcase bleibt Übersicht (thin-Club-Onboarding-Fallback). 17/17 Tests, reviewer PASS.
+
+→ **S3 Page-Contract-Audit (Slice 292) komplett geschlossen: F-1 ✅ F-2 ✅ F-3 ✅ F-4 ✅.**
+
+## DISTILL diese Session
+
+- **D74** ARCHITECTURE — Auth-Enforcement Single-Source = AuthGuard; `(app)`-Pages rendern KEINE eigene Sign-In-CTA, `&& user`-Gates sind defensiv (kein zweiter Auth-UX-Pfad). Aus Slice 296.
+
+## ⚠️ OFFEN — zuerst angehen nächste Session
+
+1. **Slice 297 AC-5 Mobile-393px-Playshot (POST-DEPLOY, PENDING).** Sobald Vercel den 297-Commit deployed hat: Playwright/Chrome-DevTools @ 393px gegen `https://bescout.net/club/<slug>` → 4 Tabs (Übersicht/Spieler/Spielplan/Mehr) ohne horizontalen Overflow verifizieren + Screenshot. Ergebnis an `worklog/proofs/297-club-tab-split.txt` §7 anhängen. TabBar ist strukturell mobile-safe (overflow-x-auto + scrollbar-hide + flex-shrink-0, Label „Mehr"=4 chars) → erwartet grün, nur formaler PROVE-Abschluss.
+2. **Anil-Frage offen (297):** FeatureShowcase bleibt in Übersicht (statt Mehr) — bewusste Deviation (Onboarding-Fallback). Anil-Bestätigung ausstehend; falls er es doch in Mehr will → 1 kleiner Edit (Ternary auflösen + in Mehr-Block mit `showFeatureShowcase &&`).
+
+## Danach (S3 abgeschlossen → nächste Linie)
+
+3. **Demo-Step-8** — `/club` + `/clubs` Lifecycle-E2E via Slice-293-Blueprint (`testing.md` „Contract-Level E2E gegen Live-Prod"). E2E-Layer obendrauf auf die neuen Page-Tests 295.
+4. **S4** — Source-of-Truth Boundaries Audit (nächster Stabilization-Audit-Schritt).
+
+## Carry-over (ältere offene Calls — unverändert)
+
+- **🚨 API-Football-Key suspendiert seit 06.05.** → blockiert Slice 284b (154 Geister-Triage + Süper-Lig-Drift). Anil: dashboard.api-football.com.
+- **TR-Review** (3 Strings): `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+- **Backlog (286 Reviewer):** `clubs.ts` hat dasselbe non-reaktive Cache-Pattern wie leagues.ts (pre-286). Falls render-time `useMemo(() => getClub(...))` entsteht → gleiche Cold-Load-Race, useSyncExternalStore-Fix.
+- **Backlog-Slices (kein API-Key nötig):** FM-08..11, FANT-11/12/16 (CEO Vice-Captain). Punch-List: `worklog/audits/2026-06-12/stab-284-punchlist.md`.
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-06-13 — Session-End nach Slice 285 + 286, beide LIVE)
 
 **HEAD `e50e8852`** · Status: **idle** · Working tree clean · origin/main synchron.
 

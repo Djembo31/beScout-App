@@ -3334,3 +3334,32 @@ Kernpunkt: Conditional-Render hängt von Timing/State ab. Der „glückliche" Re
 
 - Wenn ein conditional-render-Bug trotz dieses Standards live geht → Standard war nicht angewandt oder unvollständig, nachschärfen.
 - Falls Playwright-MCP Cold-vs-Warm nicht mehr unterscheidbar (Caching-Änderung) → Test-Strategie anpassen.
+
+## D74 — ARCHITECTURE: Auth-Enforcement Single-Source = AuthGuard; Pages rendern KEINE eigene Sign-In-CTA
+
+**Category:** ARCHITECTURE · **Datum:** 2026-06-13 · **Status:** Aktiv · **Slice:** 296 (S3 F-3)
+
+### Entscheidung
+
+Auth-Enforcement für alle `(app)`-Routes liegt **ausschließlich** bei `<AuthGuard>` (`app/(app)/layout.tsx`): unauth → `router.replace('/login')` + `ContentSkeleton`. Page-Components rendern **keine** eigene Sign-In-CTA und keinen eigenen unauth-Empty-State. Die in Page-Bodies vorhandenen `&& user`-Gates (z.B. `FantasyContent` Tab-Bodies) sind bewusst **defensive Null-Safety** (belt-and-suspenders), nicht ein zweiter Auth-UX-Pfad.
+
+### Begründung
+
+Ein page-local Sign-In-CTA wäre eine **zweite Quelle der Wahrheit** für „logged out" → divergenter Auth-UX-Pfad, Drift-Risiko (zwei Stellen müssten konsistent gehalten werden: Redirect-Ziel, Wording, Geo/Onboarding-Reihenfolge). AuthGuard kennt bereits die volle State-Maschine (loading / !user→/login / !profile→/onboarding / profileLoading-fall-through). Page-Components erreichen im Produktiv-Pfad nie einen `!user`-State, weil AuthGuard vorher Skeleton rendert + redirected. Die `&& user`-Gates schaden nicht (defensiv), aber dürfen nicht zu sichtbarem unauth-UI ausgebaut werden.
+
+### Auswirkungen
+
+- Neue `(app)`-Pages: KEINE eigene Login-Aufforderung bauen — auf AuthGuard verlassen.
+- Bestehende `&& user`-Gates dokumentieren als „defensiv, AuthGuard = Enforcement" (Slice 296 Kommentar-Pattern in `FantasyContent.tsx`).
+- Unauth-Verhalten als expliziten Test-Contract locken (Shell rendert, kein Primary-Body, kein CTA) statt implizit zu lassen — siehe `FantasyContent.test.tsx` `describe('unauth contract')`.
+- Gilt NICHT für public Routes außerhalb `(app)` (z.B. `/club/[slug]` non-admin Branch, Landing) — die haben eigene Sichtbarkeits-Logik.
+
+### Alternativen erwogen
+
+- **A: Page-local Sign-In-CTA** (Audit F-3 Option) — verworfen: divergenter zweiter Auth-UX-Pfad, Drift-Risiko, redundant zu AuthGuard.
+- **B: `&& user`-Gates entfernen** (rein auf AuthGuard vertrauen, kein defensives Gate) — verworfen: defensive Tiefe ist billig + schützt gegen künftige AuthGuard-Render-Reihenfolge-Änderungen.
+- **C: AuthGuard single-source + defensive Gates + expliziter Test-Contract (gewählt)** — implizit→explizit ohne Behavior-Change, kein zweiter Pfad.
+
+### Re-Visit-Trigger
+
+- Falls je eine `(app)`-Page legitim einen anderen unauth-Zustand braucht als „redirect-to-login" (z.B. eine teil-öffentliche Page mit Login-Teaser) → dann ist das eine bewusste public-Route-Entscheidung, nicht ein zweiter Auth-Pfad; AuthGuard-Scope neu schneiden statt page-local CTA streuen.
