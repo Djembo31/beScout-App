@@ -2,16 +2,17 @@
 
 ```
 status: idle
-slice: 291 ✅ DONE
+slice: 292 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/291-unified-trading-geogate.md
-impact: PlayerContent + ManagerContent trading actions guarded by dpc_trading
-proof: worklog/proofs/291-unified-trading-geogate.md (RED/GREEN + tsc/audits)
-review: worklog/reviews/291-review.md (PASS)
+spec: worklog/specs/292-fantasy-club-page-contract.md
+impact: docs-only S3 Page Contract Audit for /fantasy + /clubs + /club/[slug]
+proof: worklog/proofs/292-fantasy-club-page-contract.md (focused page tests 18/18 + grep evidence)
+review: worklog/reviews/292-review.md (PASS)
 ```
 
 ## Zuletzt
 
+- **Slice 292** (2026-06-13) — S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]` (Docs-only): all three demo-yellow; F-1 public Club metadata “Trading” copy; F-2 `/clubs` page-test gap.
 - **Slice 291** (2026-06-13) — Unified Trading GeoGate (TDD): `/player/[id]` and `/manager` trading actions now use `useRegionGuard('dpc_trading')`; content remains visible, trading execution blocked when restricted.
 - **Slice 290** (2026-06-13) — Home Portfolio-Floor-Parity Fix (TDD): Home nutzt für Holdings jetzt canonical `computePlayerFloor` via byIds Player, fallback `floor_price`; useHomeData 40/40 grün.
 - **Slice 289** (2026-06-13) — S2 Page Contract Audit Home + Manager (Docs-only): Home GREEN mit YELLOW-Vorbehalt; Manager YELLOW; F-1 Portfolio-Floor-Divergenz als höchster Demo-Coherence-Fix.
@@ -39,9 +40,10 @@ Steering audit:
 - `worklog/audits/2026-06-12/stabilization-master-audit.md`
 
 Nächstes empfohlen:
-- **Slice 291 ✅ DONE:** Unified Trading GeoGate für `/player/[id]` + `/manager` ist umgesetzt.
-- Nächster Audit-Schritt: S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]`.
-- Optionaler späterer UX-Polish: sichtbare trading CTAs in restricted regions durch disabled/explainer copy ersetzen; Execution-Gap ist geschlossen.
+- **Slice 292 ✅ DONE:** S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]` abgeschlossen.
+- Höchster kleiner Fix-Kandidat: S3 F-1 — öffentliche `/club/[slug]` Metadata-Copy “Trading” ersetzen durch compliance-sichere Scout-Cards/Fantasy/Fan-Wissen Sprache.
+- Danach: S3 F-2 — `/clubs` Page-Test für loading/error/empty/follow/activate Basics.
+- Nächster Audit-Schritt nach diesen kleinen Fixes: S4 Source-of-Truth Boundaries.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert

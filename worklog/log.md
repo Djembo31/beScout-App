@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 292 | 2026-06-13 | docs(audit): Page Contract Audit — Fantasy + Clubs
+
+- Stage-Chain: SPEC (`worklog/specs/292-fantasy-club-page-contract.md`, M) → AUDIT (`worklog/audits/2026-06-13/page-contract-fantasy-club.md`) → REVIEW (`worklog/reviews/292-review.md`, PASS) → PROVE (`worklog/proofs/292-fantasy-club-page-contract.md`) → LOG.
+- Scope: docs-only S3 Page Contract Audit for `/fantasy`, `/clubs`, `/club/[slug]`; no `src/**` runtime changes.
+- Statuses: `/fantasy` demo-yellow near-green; `/clubs` demo-yellow; `/club/[slug]` demo-yellow.
+- Evidence: focused page tests passed 18/18 (`FantasyContent` 6/6 + `ClubContent` 12/12); grep found Fantasy `GeoGate free_fantasy`; no native confirm/alert; no skip/placeholder tests in S3 scope.
+- Top findings: F-1 public club metadata says “Trading” (replace with compliance-safe Scout Cards/Fantasy/Fan-Wissen copy); F-2 `/clubs` lacks dedicated Page test.
+
 ## 291 | 2026-06-13 | fix(compliance): Unified Trading GeoGate for Player + Manager
 
 - Stage-Chain: SPEC (`worklog/specs/291-unified-trading-geogate.md`, S) → IMPACT (`PlayerContent`, `ManagerContent`) → BUILD (TDD) → REVIEW (`worklog/reviews/291-review.md`, PASS) → PROVE (`worklog/proofs/291-unified-trading-geogate.md`) → LOG.
