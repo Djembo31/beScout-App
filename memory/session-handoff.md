@@ -1,15 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 16:00)
+# Session Handoff — Auto (2026-06-13 16:19)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-06-13.md
  M worklog/audits/type-truth-2026-06-13.md
 ```
 
 ## Session Commits: 10
+- 16e46448 docs(fantasy): Slice 296 explicit unauth contract + test (S3 F-3)
 - e1963466 test(clubs): Slice 295 /clubs Discovery Page Contract Test (S3 F-2)
 - 6f4212cb chore(worklog): regenerate audit reports + session-handoff post-Slice-294
 - 3677134f fix(compliance): Slice 294 Public Club Metadata Compliance Copy (F-1)
@@ -19,7 +21,6 @@
 - b26de4cf fix(compliance): Slice 291 unified trading geogate
 - a3a7648b fix(home): Slice 290 portfolio floor parity
 - 3c94e979 docs(audit): Slice 289 home manager page contracts
-- 2962737c docs(audit): Slice 288 market player page contracts
 
 <!-- auto:handoff-end -->
 

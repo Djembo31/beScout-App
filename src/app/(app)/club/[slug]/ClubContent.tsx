@@ -84,6 +84,7 @@ const TABS: { id: ClubTab; label: string }[] = [
   { id: 'uebersicht', label: 'overview' },
   { id: 'spieler', label: 'players' },
   { id: 'spielplan', label: 'fixtures' },
+  { id: 'mehr', label: 'more' },
 ];
 
 // ============================================
@@ -318,7 +319,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         )}
       </div>
 
-      {/* ========== TAB: UEBERSICHT ========== */}
+      {/* ========== TAB: UEBERSICHT (Slice 297 — Lead-Story; sekundäre Module → Tab „Mehr"/Spielplan) ========== */}
       {tab === 'uebersicht' && (
         <div className="space-y-6">
           {/* Naechste Begegnung */}
@@ -354,58 +355,43 @@ export default function ClubContent({ slug }: { slug: string }) {
           )}
 
           {/* Aktive Angebote (IPOs) */}
-          <RevealSection delay={100}>
+          <RevealSection delay={75}>
             <ActiveOffersSection ipos={clubIpos} players={players} clubColor={clubColor} />
           </RevealSection>
 
-          {/* Slice 197e — 5-GW-Forward FDR-Strip (Wildcard-Timing-Helper) */}
-          {clubId && (
-            <RevealSection delay={125}>
-              <ClubFixturesStrip clubId={clubId} count={5} />
-            </RevealSection>
-          )}
-
           {/* Trending Spieler + Collection Progress */}
-          <RevealSection delay={150}>
+          <RevealSection delay={100}>
             <SquadPreviewSection players={players} ownedPlayerIds={ownedPlayerIds} clubColor={clubColor} onViewAll={() => setTab('spieler')} />
           </RevealSection>
 
-          {/* Slice 199 K-02 — Beliebteste Spieler (Most-Owned, anonymized) */}
-          {clubId && (
-            <RevealSection delay={175}>
-              <MostOwnedSection clubId={clubId} clubColor={clubColor} />
-            </RevealSection>
-          )}
-
+          {/* Community-Lead: thin-Club (≥2 leere Sektionen) → FeatureShowcase als
+              Onboarding-Fallback, sonst Mitmachen + Events. Slice 297: bleibt im
+              Übersicht-Tab (FeatureShowcase ist prominenter Onboarding-Hook);
+              „Letzte Trades" wandert in den Tab „Mehr". */}
           {showFeatureShowcase ? (
-            <RevealSection delay={200}>
+            <RevealSection delay={125}>
               <FeatureShowcase clubColor={clubColor} />
             </RevealSection>
           ) : (
             <>
               {/* Mitmachen (Scout + Bounties + Votes + Leaderboard) */}
               {clubId && (
-                <RevealSection delay={200}>
+                <RevealSection delay={125}>
                   <MitmachenSection clubId={clubId} userId={userId} clubColor={clubColor} />
                 </RevealSection>
               )}
 
               {/* Club Events */}
               {clubId && (
-                <RevealSection delay={250}>
+                <RevealSection delay={150}>
                   <ClubEventsSection events={clubEvents} clubColor={clubColor} />
                 </RevealSection>
               )}
-
-              {/* Letzte Trades */}
-              <RevealSection delay={300}>
-                <RecentActivitySection trades={recentTrades} clubColor={clubColor} />
-              </RevealSection>
             </>
           )}
 
           {/* Club-Mitgliedschaft */}
-          <RevealSection delay={350}>
+          <RevealSection delay={175}>
             {clubId && (
               <MembershipSection
                 userId={userId}
@@ -416,129 +402,6 @@ export default function ClubContent({ slug }: { slug: string }) {
                 }}
               />
             )}
-          </RevealSection>
-
-          {/* Fan-Rang Overview — Gamification v5 */}
-          {userId && (
-            <RevealSection delay={375}>
-              <FanRankOverview
-                ranking={fanRanking ?? null}
-                clubName={club.name}
-                isLoading={fanRankingLoading}
-              />
-            </RevealSection>
-          )}
-
-          {/* Club-Neuigkeiten */}
-          {clubNews.length > 0 && (
-            <RevealSection delay={400}>
-              <Card className="p-4 md:p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <MessageCircle className="size-5" style={{ color: clubColor }} />
-                  <h2 className="font-black text-balance">{t('news')}</h2>
-                </div>
-                <div className="space-y-3">
-                  {clubNews.map(news => (
-                    <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
-                          {tcom('clubNewsLabel')}
-                        </span>
-                        <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
-                      </div>
-                      <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
-                      <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
-                        <span>{news.author_display_name || news.author_handle}</span>
-                        <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </RevealSection>
-          )}
-
-          {/* Club Research */}
-          {clubResearch.length > 0 && (
-            <RevealSection delay={425}>
-              <Card className="p-4 md:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <FileText className="size-5" style={{ color: clubColor }} />
-                    <h2 className="font-black text-balance">{t('clubResearch')}</h2>
-                  </div>
-                  <Link href="/community?tab=research" className="text-[10px] text-white/40 hover:text-white/60 transition-colors">
-                    {t('allResearch')}
-                  </Link>
-                </div>
-                <div className="space-y-1.5">
-                  {clubResearch.map(post => (
-                    <Link key={post.id} href={`/community?post=${post.id}`}>
-                      <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors">
-                        <div className="flex-shrink-0 w-5 text-center">
-                          {post.call === 'Bullish' ? <span className="text-green-500 font-bold text-sm">&#9650;</span>
-                            : post.call === 'Bearish' ? <span className="text-red-400 font-bold text-sm">&#9660;</span>
-                            : <span className="text-white/40 text-sm">&#9679;</span>}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            {post.player_name && <span className="text-[10px] font-bold text-white/70">{post.player_name}</span>}
-                            <span className="text-[10px] text-white/30">{post.author_display_name || post.author_handle}</span>
-                          </div>
-                          <div className="text-sm text-white/60 truncate">{post.title}</div>
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {post.ratings_count > 0 && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px]">
-                              <Star className="size-2.5 text-gold fill-gold" />
-                              <span className="text-white/40 font-mono tabular-nums">{post.avg_rating.toFixed(1)}</span>
-                            </span>
-                          )}
-                          <span className="text-[10px] text-white/30 font-mono tabular-nums">{post.unlock_count}x</span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </Card>
-            </RevealSection>
-          )}
-
-          {/* Letzte Ergebnisse */}
-          <RevealSection delay={450}>
-            {clubId && <LastResultsCard fixtures={clubFixtures} clubId={clubId} />}
-          </RevealSection>
-
-          {/* Club Info */}
-          <RevealSection delay={500}>
-            <Card className="p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Building2 className="size-5 text-white/50" />
-                <h2 className="font-black text-balance">{t('clubInfo')}</h2>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                {club.stadium && (
-                  <div className="bg-surface-base rounded-xl p-3">
-                    <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
-                    <div className="font-bold text-sm">{club.stadium}</div>
-                  </div>
-                )}
-                {club.city && (
-                  <div className="bg-surface-base rounded-xl p-3">
-                    <div className="text-xs text-white/50 mb-1">{t('city')}</div>
-                    <div className="font-bold text-sm">{club.city}</div>
-                  </div>
-                )}
-                <div className="bg-surface-base rounded-xl p-3">
-                  <div className="text-xs text-white/50 mb-1">{t('league')}</div>
-                  <div className="font-bold text-sm">{club.league}</div>
-                </div>
-                <div className="bg-surface-base rounded-xl p-3">
-                  <div className="text-xs text-white/50 mb-1">{t('players')}</div>
-                  <div className="font-bold tabular-nums text-sm text-green-500">{players.length}</div>
-                </div>
-              </div>
-            </Card>
           </RevealSection>
         </div>
       )}
@@ -627,19 +490,168 @@ export default function ClubContent({ slug }: { slug: string }) {
         </div>
       )}
 
-      {/* ========== TAB: SPIELPLAN ========== */}
+      {/* ========== TAB: SPIELPLAN (Slice 297 — + FDR-Strip + Letzte Ergebnisse, fixture-thematisch) ========== */}
       {tab === 'spielplan' && clubId && (
-        <SpielplanTab
-          clubFixtures={clubFixtures}
-          clubId={clubId}
-          clubColor={club.primary_color || '#FFD700'}
-          fixtureFilter={fixtureFilter}
-          setFixtureFilter={setFixtureFilter}
-          expandedGw={expandedGw}
-          setExpandedGw={setExpandedGw}
-          autoExpandedGw={autoExpandedGw}
-          setAutoExpandedGw={setAutoExpandedGw}
-        />
+        <div className="space-y-6">
+          {/* Slice 197e — 5-GW-Forward FDR-Strip (Wildcard-Timing-Helper) */}
+          <RevealSection>
+            <ClubFixturesStrip clubId={clubId} count={5} />
+          </RevealSection>
+
+          <RevealSection delay={25}>
+            <SpielplanTab
+              clubFixtures={clubFixtures}
+              clubId={clubId}
+              clubColor={club.primary_color || '#FFD700'}
+              fixtureFilter={fixtureFilter}
+              setFixtureFilter={setFixtureFilter}
+              expandedGw={expandedGw}
+              setExpandedGw={setExpandedGw}
+              autoExpandedGw={autoExpandedGw}
+              setAutoExpandedGw={setAutoExpandedGw}
+            />
+          </RevealSection>
+
+          {/* Letzte Ergebnisse */}
+          <RevealSection delay={50}>
+            <LastResultsCard fixtures={clubFixtures} clubId={clubId} />
+          </RevealSection>
+        </div>
+      )}
+
+      {/* ========== TAB: MEHR (Slice 297 — sekundäre/retrospektive/Info-Module) ========== */}
+      {tab === 'mehr' && (
+        <div className="space-y-6">
+          {/* Slice 199 K-02 — Beliebteste Spieler (Most-Owned, anonymized) */}
+          {clubId && (
+            <RevealSection>
+              <MostOwnedSection clubId={clubId} clubColor={clubColor} />
+            </RevealSection>
+          )}
+
+          {/* Letzte Trades */}
+          <RevealSection delay={25}>
+            <RecentActivitySection trades={recentTrades} clubColor={clubColor} />
+          </RevealSection>
+
+          {/* Fan-Rang Overview — Gamification v5 */}
+          {userId && (
+            <RevealSection delay={50}>
+              <FanRankOverview
+                ranking={fanRanking ?? null}
+                clubName={club.name}
+                isLoading={fanRankingLoading}
+              />
+            </RevealSection>
+          )}
+
+          {/* Club-Neuigkeiten */}
+          {clubNews.length > 0 && (
+            <RevealSection delay={75}>
+              <Card className="p-4 md:p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageCircle className="size-5" style={{ color: clubColor }} />
+                  <h2 className="font-black text-balance">{t('news')}</h2>
+                </div>
+                <div className="space-y-3">
+                  {clubNews.map(news => (
+                    <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
+                          {tcom('clubNewsLabel')}
+                        </span>
+                        <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
+                      </div>
+                      <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
+                      <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
+                        <span>{news.author_display_name || news.author_handle}</span>
+                        <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </RevealSection>
+          )}
+
+          {/* Club Research */}
+          {clubResearch.length > 0 && (
+            <RevealSection delay={100}>
+              <Card className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="size-5" style={{ color: clubColor }} />
+                    <h2 className="font-black text-balance">{t('clubResearch')}</h2>
+                  </div>
+                  <Link href="/community?tab=research" className="text-[10px] text-white/40 hover:text-white/60 transition-colors">
+                    {t('allResearch')}
+                  </Link>
+                </div>
+                <div className="space-y-1.5">
+                  {clubResearch.map(post => (
+                    <Link key={post.id} href={`/community?post=${post.id}`}>
+                      <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors">
+                        <div className="flex-shrink-0 w-5 text-center">
+                          {post.call === 'Bullish' ? <span className="text-green-500 font-bold text-sm">&#9650;</span>
+                            : post.call === 'Bearish' ? <span className="text-red-400 font-bold text-sm">&#9660;</span>
+                            : <span className="text-white/40 text-sm">&#9679;</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            {post.player_name && <span className="text-[10px] font-bold text-white/70">{post.player_name}</span>}
+                            <span className="text-[10px] text-white/30">{post.author_display_name || post.author_handle}</span>
+                          </div>
+                          <div className="text-sm text-white/60 truncate">{post.title}</div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {post.ratings_count > 0 && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px]">
+                              <Star className="size-2.5 text-gold fill-gold" />
+                              <span className="text-white/40 font-mono tabular-nums">{post.avg_rating.toFixed(1)}</span>
+                            </span>
+                          )}
+                          <span className="text-[10px] text-white/30 font-mono tabular-nums">{post.unlock_count}x</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </Card>
+            </RevealSection>
+          )}
+
+          {/* Club Info */}
+          <RevealSection delay={125}>
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Building2 className="size-5 text-white/50" />
+                <h2 className="font-black text-balance">{t('clubInfo')}</h2>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                {club.stadium && (
+                  <div className="bg-surface-base rounded-xl p-3">
+                    <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
+                    <div className="font-bold text-sm">{club.stadium}</div>
+                  </div>
+                )}
+                {club.city && (
+                  <div className="bg-surface-base rounded-xl p-3">
+                    <div className="text-xs text-white/50 mb-1">{t('city')}</div>
+                    <div className="font-bold text-sm">{club.city}</div>
+                  </div>
+                )}
+                <div className="bg-surface-base rounded-xl p-3">
+                  <div className="text-xs text-white/50 mb-1">{t('league')}</div>
+                  <div className="font-bold text-sm">{club.league}</div>
+                </div>
+                <div className="bg-surface-base rounded-xl p-3">
+                  <div className="text-xs text-white/50 mb-1">{t('players')}</div>
+                  <div className="font-bold tabular-nums text-sm text-green-500">{players.length}</div>
+                </div>
+              </div>
+            </Card>
+          </RevealSection>
+        </div>
       )}
 
     </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import ClubContent from '../ClubContent';
 
@@ -423,14 +423,66 @@ describe('ClubContent', () => {
     expect(adminLink).toHaveAttribute('href', '/club/test-club/admin');
   });
 
-  // 12. Renders FanRankBadge and FanRankOverview when fanRanking data exists
-  it('renders FanRankBadge and FanRankOverview when fan ranking data exists', () => {
+  // 12. FanRankBadge in header (overview); FanRankOverview moved to "Mehr" tab (Slice 297)
+  it('renders FanRankBadge in header and FanRankOverview in the Mehr tab', () => {
     mockUseFanRanking.mockReturnValue({
       data: { rank_tier: 'gold', csf_multiplier: 1.5 },
       isLoading: false,
     });
     renderWithProviders(<ClubContent slug="test-club" />);
+    // Badge lives in the header above the tabs — always visible.
     expect(screen.getByTestId('fan-rank-badge')).toBeInTheDocument();
+    // Overview moved into the "Mehr" tab — not in default overview.
+    expect(screen.queryByTestId('fan-rank-overview')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('tab-mehr'));
     expect(screen.getByTestId('fan-rank-overview')).toBeInTheDocument();
+  });
+
+  // ============================================
+  // Slice 297 — Narrative Tab-Split (S3 F-4)
+  // Übersicht = lead story; secondary modules → "Mehr"; fixtures → "Spielplan".
+  // ============================================
+  describe('tab-split (Slice 297)', () => {
+    it('renders a "Mehr" tab', () => {
+      renderWithProviders(<ClubContent slug="test-club" />);
+      expect(screen.getByTestId('tab-mehr')).toBeInTheDocument();
+    });
+
+    it('keeps secondary modules OUT of the overview tab', () => {
+      mockUseClubRecentTrades.mockReturnValue({
+        data: [{ id: 't1', player: { first_name: 'Test', last_name: 'Player' }, price: 1000, executed_at: '2025-01-01' }],
+      });
+      renderWithProviders(<ClubContent slug="test-club" />);
+      // RecentActivitySection (Letzte Trades) moved to "Mehr" → absent from overview.
+      expect(screen.queryByTestId('recent-activity-section')).not.toBeInTheDocument();
+    });
+
+    it('renders secondary modules in the Mehr tab', () => {
+      mockUseClubRecentTrades.mockReturnValue({
+        data: [{ id: 't1', player: { first_name: 'Test', last_name: 'Player' }, price: 1000, executed_at: '2025-01-01' }],
+      });
+      renderWithProviders(<ClubContent slug="test-club" />);
+      fireEvent.click(screen.getByTestId('tab-mehr'));
+      expect(screen.getByTestId('recent-activity-section')).toBeInTheDocument();
+    });
+
+    it('moves fixture modules (FDR strip + last results) into the Spielplan tab', () => {
+      renderWithProviders(<ClubContent slug="test-club" />);
+      // Not in overview anymore.
+      expect(screen.queryByTestId('club-fixtures-strip')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('last-results-card')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('tab-spielplan'));
+      expect(screen.getByTestId('club-fixtures-strip')).toBeInTheDocument();
+      expect(screen.getByTestId('last-results-card')).toBeInTheDocument();
+    });
+
+    it('keeps Mitmachen + ClubEvents as the overview community lead', () => {
+      mockUseEvents.mockReturnValue({ data: [{ club_id: 'club-1' }] });
+      mockUseClubRecentTrades.mockReturnValue({
+        data: [{ id: 't1', player: { first_name: 'Test', last_name: 'Player' }, price: 1000, executed_at: '2025-01-01' }],
+      });
+      renderWithProviders(<ClubContent slug="test-club" />);
+      expect(screen.getByTestId('club-events-section')).toBeInTheDocument();
+    });
   });
 });

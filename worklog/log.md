@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 297 | 2026-06-13 | refactor(club): Narrative Tab-Split — neuer „Mehr"-Tab (S3 F-4)
+
+- Stage-Chain: SPEC (`worklog/specs/297-club-detail-tab-split.md`, M, Slice-Type UI) → IMPACT skipped (UI-Reorder + ClubTab-Type + i18n, kein Service/RPC/Schema/Query-Key, useClubData untouched) → BUILD → REVIEW (`worklog/reviews/297-review.md`, reviewer-Agent PASS, 1 INFO orphan-imports out-of-scope) → PROVE (`worklog/proofs/297-club-tab-split.txt`) → LOG.
+- Trigger: Slice 292 S3 F-4 (P2) — `/club/[slug]` Übersicht stapelte ~17 Module gleichgewichtig flach → „Modul-Inventar statt Narrativ". Anil-Decision: **Option B (Tab-Split/Disclosure)**, Label „Mehr"/„Daha", Fixture-Module → bestehender Spielplan-Tab.
+- Mapping: Übersicht 17→8 Lead (NextMatch · Tabelle · Spieler-Bestand · Angebote · Trending · [thin-club-Ternary: FeatureShowcase XOR Mitmachen+Events] · Mitgliedschaft). Neuer `mehr`-Tab (6): Most-Owned · Letzte Trades · Fan-Rang · News · Research · Club-Info. Spielplan +2: FDR-Strip · Letzte Ergebnisse.
+- 2 begründete Deviations vom Default-Mapping (reviewer-confirmed sound): (1) FeatureShowcase bleibt Übersicht — ist thin-Club-Onboarding-Fallback (`emptySections>=2`), gerendert statt Mitmachen/Events-Cluster; in Secondary-Tab verschieben würde Onboarding zerstören. (2) RecentActivity aus thin-club-Ternary-else gelöst → unconditional in Mehr (self-suppress bei leeren Trades).
+- Files: `hooks/types.ts` (ClubTab += 'mehr') · `ClubContent.tsx` (3 Tab-Blöcke umgebaut, RevealSection-Delays pro Tab ab 0 re-gestaffelt → deferred-mount Perf-Win) · `de.json`+`tr.json` (club.more) · `ClubContent.test.tsx` (Test 12 split + describe('tab-split') ×5, fireEvent Tab-Switch). Behavior-preserving (kein useClubData-Change). Proof: vitest 17/17, tsc 0. AC-5 Mobile-393px-Playshot post-Deploy.
+
 ## 296 | 2026-06-13 | docs(fantasy): Explicit Unauth Contract + Test (S3 F-3)
 
 - Stage-Chain: SPEC (`worklog/specs/296-fantasy-unauth-explicit.md`, S, Slice-Type Tool+Doc) → IMPACT skipped (Component-Kommentar + Test, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/296-review.md`, reviewer-Agent CONCERNS→PASS: einziger Block war fehlende Proof = PROVE-Stage post-REVIEW; MINOR Regex-Breite akzeptiert) → PROVE (`worklog/proofs/296-fantasy-unauth.txt`) → LOG.

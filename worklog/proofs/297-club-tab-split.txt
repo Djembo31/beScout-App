@@ -1,0 +1,73 @@
+Slice 297 — Club-Detail Narrative Tab-Split (S3 F-4) — PROOF
+Date: 2026-06-13
+
+=========================================================
+1. vitest — ClubContent.test.tsx (12 original + 5 new tab-split)
+=========================================================
+$ CI=true pnpm exec vitest run "src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx"
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Duration  ~4.6s
+
+  NEW (Slice 297):
+    ✓ test 12 split: FanRankBadge in header (always) + FanRankOverview in Mehr tab (fireEvent.click tab-mehr)
+    ✓ renders a "Mehr" tab
+    ✓ keeps secondary modules OUT of overview (recent-activity absent w/ non-empty trades seeded)
+    ✓ renders secondary modules in the Mehr tab (recent-activity present after tab-switch)
+    ✓ moves fixture modules (FDR strip + last results) into Spielplan tab
+    ✓ keeps Mitmachen + ClubEvents as overview community lead
+
+=========================================================
+2. tsc
+=========================================================
+$ pnpm exec tsc --noEmit
+EXIT: 0 (clean)
+
+=========================================================
+3. i18n — club.more (DE + TR)
+=========================================================
+de.json:2385  "more": "Mehr"
+tr.json:2385  "more": "Daha"
+  → TABS label 'more' → t('more') via useTranslations('club') → club.more
+
+=========================================================
+4. Module → Tab Mapping (Option B, Anil-decided)
+=========================================================
+ÜBERSICHT (8 lead):  NextMatch · Standing · Spieler-Bestand · ActiveOffers
+                     · SquadPreview(Trending) · [thin-club ternary: FeatureShowcase
+                     XOR Mitmachen+ClubEvents] · Membership
+MEHR (new, 6):       MostOwned · RecentActivity(Trades) · FanRankOverview
+                     · News · Research · ClubInfo
+SPIELPLAN (+2):      ClubFixturesStrip(FDR) · LastResultsCard
+HEADER (unchanged):  Hero · StatsBar · FanRankBadge · TabBar(4 tabs)
+
+Reviewer cross-check: all 13 section components land in exactly one tab,
+conditional wrappers (clubId/userId/.length>0) preserved. Nothing dropped.
+
+=========================================================
+5. Deviations from default mapping (both reviewer-confirmed SOUND)
+=========================================================
+- FeatureShowcase KEPT in Übersicht (not Mehr): it's a thin-club onboarding
+  fallback (showFeatureShowcase = emptySections >= 2), shown INSTEAD of the
+  Mitmachen/Events cluster. Moving to a secondary tab would defeat onboarding.
+- RecentActivity moved out of thin-club ternary else-branch → unconditional in
+  Mehr. RecentActivitySection self-suppresses on empty (if trades.length===0
+  return null) → no ghost card.
+
+=========================================================
+6. Review
+=========================================================
+worklog/reviews/297-review.md — reviewer-Agent PASS.
+1 INFO finding: pre-existing orphan imports in ClubContent.tsx (not introduced
+by 297, out-of-scope, noted for future cleanup slice).
+
+=========================================================
+7. AC-5 Mobile 393px (4 tabs) — POST-DEPLOY
+=========================================================
+TabBar structurally mobile-safe: overflow-x-auto + scrollbar-hide +
+flex-shrink-0 + whitespace-nowrap; labels short ("Mehr"/"Daha" = 4 chars).
+Live Playwright @ 393px against bescout.net to be run post-Vercel-deploy
+(appended below after deploy).
+
+[POST-DEPLOY MOBILE VERIFY — pending]

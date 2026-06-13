@@ -3,7 +3,7 @@ import type { ClubPrestige } from '@/lib/services/club';
 
 // ── Tab & Filter Types ──
 
-export type ClubTab = 'uebersicht' | 'spieler' | 'spielplan';
+export type ClubTab = 'uebersicht' | 'spieler' | 'spielplan' | 'mehr';
 
 export type SpielerSort = 'perf' | 'price' | 'change';
 

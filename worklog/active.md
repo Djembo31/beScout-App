@@ -2,17 +2,19 @@
 
 ```
 status: idle
-slice: 296 ✅ DONE
+slice: 297 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/296-fantasy-unauth-explicit.md
-impact: skipped (Component-Kommentar + Test — kein Service/RPC/Schema/Query-Key)
-proof: worklog/proofs/296-fantasy-unauth.txt
-review: worklog/reviews/296-review.md (reviewer-Agent PASS — proof war PROVE-Stage post-REVIEW)
-decision: F-3 → rely strictly on AuthGuard (kein page-local Sign-In-CTA); `&& user` ist defensive Null-Safety
+spec: worklog/specs/297-club-detail-tab-split.md
+impact: skipped (UI-Reorder + ClubTab-Type + i18n — kein Service/RPC/Schema/Query-Key)
+proof: worklog/proofs/297-club-tab-split.txt
+review: worklog/reviews/297-review.md (reviewer-Agent PASS — 1 INFO orphan-imports out-of-scope)
+decision: F-4 → Option B (Tab-Split). Label „Mehr"/„Daha" (id `mehr`). Übersicht 17→8; neuer Mehr-Tab (6); FDR+LastResults → Spielplan. FeatureShowcase bleibt Übersicht (Onboarding-Fallback).
+note: AC-5 Mobile-393px-Playshot post-Deploy ausstehend (Proof §7).
 ```
 
 ## Zuletzt
 
+- **Slice 297** (2026-06-13) — Club-Detail Narrative Tab-Split (UI, M, PASS): schließt S3 F-4 (P2). Option B (Anil): Übersicht 17→8 Lead-Module; neuer „Mehr"/„Daha"-Tab (Most-Owned, Trades, Fan-Rang, News, Research, Info); FDR-Strip+Letzte-Ergebnisse → Spielplan-Tab. FeatureShowcase bleibt Übersicht (thin-Club-Onboarding-Fallback). Behavior-preserving (useClubData untouched), 17/17 grün, tsc 0. Mobile-393px-Playshot post-Deploy.
 - **Slice 296** (2026-06-13) — Fantasy Unauth State Explicit + Test (Tool+Doc, S, PASS): schließt S3 F-3 (P2). Decision: Auth-Enforcement ausschließlich via `<AuthGuard>` (redirect `!user`→/login), `&& user`-Gates sind defensive Null-Safety, KEIN page-local Sign-In-CTA (Single-Source-Auth-UX). Doku-Kommentar in `FantasyContent.tsx` + `describe('unauth contract')` ×4 (Shell rendert, kein Tab-Body, Disclaimer bleibt, kein CTA); Auth-Mock → mutable. 10/10 grün, tsc 0.
 - **Slice 295** (2026-06-13) — /clubs Discovery Page Contract Test (Tool, S, PASS): schließt S3 F-2 — `ClubsDiscoveryPage` hatte 0 Page-Test. Neu `ClubsDiscoveryPage.test.tsx` lockt 5 page-local Contracts (loading/error/empty/follow/activate) + 2 Edges (anon no-op, Activate-absent); 7/7 grün, tsc 0. Kein src/**-Runtime-Change.
 - **Slice 294** (2026-06-13) — Public Club Metadata Compliance Copy (i18n, XS, PASS): `/club/[slug]` Meta „Trading" raus → i18n-driven `meta.clubDescription` (DE+TR Option A); orphaned RED-Test `page.metadata.test.ts` grün gemacht (i18n-sauber); vitest 4/4, compliance passed.
@@ -49,7 +51,7 @@ Nächstes empfohlen:
 - **Slice 294 ✅ DONE:** S3 F-1 — Public Club Metadata „Trading" raus + i18n; orphaned RED-Test geheilt.
 - **Slice 295 ✅ DONE:** S3 F-2 — `/clubs` Page-Test für loading/error/empty/follow/activate (+2 Edges).
 - **Slice 296 ✅ DONE:** S3 F-3 — Fantasy Unauth-State explizit + getestet (rely-on-AuthGuard Decision).
-- Offen S3 F-4 (P2) — Club-Detail hat zu viele konkurrierende Overview-Module (UX-Dichte, kein Bug).
+- **Slice 297 ✅ DONE:** S3 F-4 — Club-Detail Tab-Split (Option B): neuer „Mehr"-Tab, Übersicht 17→8.
 - Optional Demo-Step-8: /club + /clubs Lifecycle-E2E via Slice-293-Blueprint (`testing.md` „Contract-Level E2E gegen Live-Prod").
 - Nächster Audit-Schritt: S4 Source-of-Truth Boundaries.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
