@@ -30,9 +30,6 @@ export default function RankingsPage() {
         <h1 className="text-2xl font-black text-white">{t('title')}</h1>
       </div>
 
-      {/* Country + League Filter (Slice 251 Wave 3 — global SSOT) */}
-      <LeagueScopeHeader leagueBarSize="md" nonSticky />
-
       {/* Self Rank */}
       <SelfRankCard />
 
@@ -49,7 +46,13 @@ export default function RankingsPage() {
           <FriendsLeaderboard />
           <ClubLeaderboard />
           <LastEventResults />
-          <PlayerRankings filterCountry={filterCountry} filterLeague={filterLeague} />
+          {/* FM-06 (Slice 285): Liga-Header direkt über Spieler-Rankings — er filtert
+              NUR diese Card (Country+League), nicht die Leaderboards. Vorher Page-Top
+              = irreführend (suggerierte seitenweite Wirkung). Anil-Decision Option 1. */}
+          <div className="space-y-3">
+            <LeagueScopeHeader leagueBarSize="md" nonSticky />
+            <PlayerRankings filterCountry={filterCountry} filterLeague={filterLeague} />
+          </div>
         </div>
       </div>
 

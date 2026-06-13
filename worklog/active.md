@@ -1,14 +1,18 @@
 # Active Slice
 
 ```
-status: idle
-slice: 284d ✅ DONE (Wave 4 von 4)
-stage: LOG complete (2 P1 DB-bewiesen, Smoke grün)
-spec: worklog/specs/284d-fantasy-ui-fixes.md
-impact: inline
-proof: worklog/proofs/284d-fantasy-ui.md
-review: worklog/reviews/284d-review.md (CONCERNS → MAJOR+MINOR+NIT geheilt)
+status: active
+slice: 285
+stage: PROVE
+spec: worklog/specs/285-rankings-league-header-scope.md
+impact: skipped (rein lokales Layout — kein Consumer/Service/DB betroffen)
+proof: worklog/proofs/285-rankings-header.md (visuell post-Deploy)
+review: worklog/reviews/285-review.md (self-review, PASS)
 ```
+
+**Slice 285 — FM-06:** Rankings-Liga-Header (`LeagueScopeHeader`) von Page-Top runter
+direkt über die `PlayerRankings`-Card verschieben. Header filtert nur Spieler-Rankings,
+nicht die 5 Leaderboards → seitenweite Platzierung war irreführend. Anil-Decision: Option 1.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
 
