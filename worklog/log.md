@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 302 | 2026-06-13 | docs(audit): S7 Source-of-Truth & Wiring Registry (Foundation + 3 P0-Domänen)
+
+- Trigger: Anil-Direktive (Strategic-Konversation) — „Projekt aus Mocks zusammengewachsen, immer mehr Brücken/Workarounds, mehrere Datenquellen pro Komponente wo eine reichte; alles harmonisieren/professionalisieren". Daten-Analogon zu S6 (Code), aber auf der Lese-/Source-of-Truth-Achse.
+- Methode (D75-konform): Strangler-Fig + Ratchet-Guards, kein Big-Bang (Beta live), Demo-/Money-Path zuerst. 3 Phasen: 1 Registry (Map) → 2 Domäne-für-Domäne migrieren + Ratchet → 3 redundante Speicher mit RED/GREEN-Proof abräumen.
+- Zielbild: geschichtete Architektur DB→RPC/Service(1/Domäne)→Query-Facade→Component(nur UI), 4 Gesetze (1 Datenpunkt=1 Quelle · keine Komponente fasst supabaseClient direkt an · keine Bridges · keine Mehrquellen-Reads).
+- Deliverable: `worklog/audits/2026-06-13/s7-source-of-truth-registry.md` — 9 Makro-Domänen-Terrain + 8-Achsen-Record-Format (kanonisch/redundant/E2E-Wiring/Schwächen/Missverständnisse/offen/Ziel/Severity). Player + Fantasy + Trading (3× P0) voll gemappt via 3 parallele Cold-Context-Explore-Agents, live-schema-verifiziert (project skzjfhvgccaeplydsunz).
+- 6 systemische Muster identifiziert: (1) **Floor 5-6-fach** projektweit (höchster Hebel, keine Client-Variante repliziert DB-Formel; resolveBuyPriceCents treibt angezeigte Kaufsumme), (2) Schema≠TS-Typ (Phantom `players.rating/score/form*`; fehlend `DbFeeConfig.offer_*_bps`), (3) 2 Spalten/2 Impls je Semantik (active_gameweek clubs/leagues, last-5-Scores, GW-Status 3×, 24h-Change 3×), (4) Audit-Ledger leer (`wildcard_transactions` 0 bei 35 Balances), (5) dormant/orphan + Testdaten (CommunityValuation+2 Tabellen, predictions 1 Zeile), (6) externe Dep blockiert Heilung (API-Key 06.05 → SL-GW-Drift dormant).
+- Wichtige Korrekturen: `players.rating/score/score_delta/form*` existieren NICHT (Phantom-Spalten); `scout_scores`/`score_history` = User-Reputation, nicht Player-Daten. DB-Money-Schreibseite ist solide (atomar/locks/dedup/append-only) — Probleme sitzen im Read/Display-Layer.
+- Phase-2-Reihenfolge (Hebel×Risiko): #1 computeFloor (Money, Player+Trading+IPO) → #2 DbFeeConfig-Typ-Fix → #3 Orphan-Value-Removal → #4 Wildcard-Ledger → Rest P1 domänenweise. Offene Map: 6 Domänen (Club/Social/Economy/Creator/Identity/Admin) P1-P3.
+- Stage-Chain: Strategic-Audit (SPEC/IMPACT/REVIEW skipped — Docs-only Foundation; Phase-2-Code-Slices durchlaufen volle SHIP-Loop). Kein Code-Diff → ship-no-audit-Hook erwartet (bewusst, Foundation-Map).
+
 ## 301 | 2026-06-13 | chore(audit): S6 Dead-Artifact-Inventory + bewiesenes wildcards-Bridge-Removal
 
 - Stage-Chain: SPEC (`worklog/specs/301-s6-dead-artifact-inventory.md`, M, Slice-Type Tool+Service) → IMPACT skipped (kein Runtime-Service/RPC/Schema — Dead-File-Removal 0 Importer + Doc + Script-const-Cleanup) → BUILD → REVIEW (`worklog/reviews/301-review.md`, reviewer-Agent PASS, 2 NIT, F-1 in-slice) → PROVE (`worklog/proofs/301-s6-dead-artifact.txt`) → LOG.

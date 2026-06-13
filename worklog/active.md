@@ -1,14 +1,14 @@
 # Active Slice
 
 ```
-status: idle
-slice: 301 ✅ DONE
+status: active
+slice: 302 ✅ DONE (Foundation)
 stage: LOG complete
-spec: worklog/specs/301-s6-dead-artifact-inventory.md
-impact: skipped (kein Runtime-Service/RPC/Schema — Dead-File-Removal 0 Importer + Doc + Script-const-Cleanup)
-proof: worklog/proofs/301-s6-dead-artifact.txt
-review: worklog/reviews/301-review.md (reviewer-Agent PASS — 2 NIT, F-1 Component-Summary in-slice übernommen)
-decision: S6 abgeschlossen. Inventory-Doc 24 Artefakte klassifiziert + bewiesenes wildcards-Bridge-Removal (0 Importer, RED/GREEN). §9 orphan-pre-push: CTO-NEIN, als Finding dokumentiert (Anil-Decision falls gewünscht). Stabilization-Track S0–S6 + E2E (293/298) KOMPLETT.
+spec: skipped (Strategic-Audit aus Anil-Konversation „alles harmonisieren" — kein _TEMPLATE-Spec, Deliverable = Registry-Doc)
+impact: skipped (reines Read-only-Audit-Doc, kein Code-Diff)
+proof: worklog/audits/2026-06-13/s7-source-of-truth-registry.md (3 P0-Domänen gemappt, live-schema-verifiziert)
+review: skipped (Docs-only Foundation; Migrations-Slices Phase 2 reviewen Code)
+decision: S7 Source-of-Truth & Wiring Registry. Anil-Direktive: ganzes Projekt harmonisieren (Mock-Erblast, Brücken, Mehrquellen-Reads). Methode = Strangler-Fig + Ratchet (D75), kein Big-Bang, live-sicher. Phase 1 (Map): Player+Fantasy+Trading gemappt via 3 Cold-Context-Agents. 6 systemische Muster identifiziert. #1-Hebel = Floor 5-6-fach. Phase 2 #1 = computeFloor (Money, /impact zuerst).
 ```
 
 ### Slice 301 — SPEC (in Arbeit)
