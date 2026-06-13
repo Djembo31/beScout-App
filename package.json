@@ -17,6 +17,7 @@
     "test:e2e": "npx playwright test",
     "test:smoke": "PLAYWRIGHT_BASE_URL=https://bescout.net playwright test --project=smoke --reporter=list",
     "test:synthetic": "PLAYWRIGHT_BASE_URL=https://bescout.net playwright test --project=synthetic --reporter=list",
+    "test:fantasy-lifecycle": "PLAYWRIGHT_BASE_URL=https://bescout.net playwright test --project=fantasy-lifecycle --reporter=list",
     "audit": "bash scripts/audit/index.sh",
     "audit:compliance": "bash scripts/audit/compliance.sh",
     "audit:i18n": "node scripts/audit/i18n-coverage.js",

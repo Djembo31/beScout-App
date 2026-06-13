@@ -1,14 +1,21 @@
 # Active Slice
 
 ```
-status: idle
-slice: 292 ✅ DONE
-stage: LOG complete
-spec: worklog/specs/292-fantasy-club-page-contract.md
-impact: docs-only S3 Page Contract Audit for /fantasy + /clubs + /club/[slug]
-proof: worklog/proofs/292-fantasy-club-page-contract.md (focused page tests 18/18 + grep evidence)
-review: worklog/reviews/292-review.md (PASS)
+status: active
+slice: 293
+stage: PROVE complete
+spec: worklog/specs/293-fantasy-lifecycle-e2e.md
+impact: skipped (E2E-Test only — kein Service/RPC/Schema/Query-Key-Touch)
+proof: worklog/proofs/293-fantasy-lifecycle-e2e.txt (Prod-Run grün 7.4s, 8 ACs, tsc clean)
+review: worklog/reviews/293-review.md (PASS — 2 MINOR inline-fixed)
 ```
+
+## Slice 293 — Deterministic Fantasy Lifecycle E2E
+
+Ziel: konditionalen Render-Smoke (`fantasy.spec.ts`) durch deterministisches Contract-E2E ersetzen
+(Auth+Geo erreichbar, FantasyDisclaimer, 4-Tab-Walk, Daten-Pfad verkabelt, keine Page-Exceptions,
+kein i18n-Leak, Mobile). Own-Login (jarvis-qa) gegen bescout.net. Schließt den 5×-wiederholten
+demo-green E2E-Caveat aus Hermes' Page-Contract-Audits S1–S3. M-Slice, Größe M, Slice-Type Tool.
 
 ## Zuletzt
 

@@ -53,3 +53,37 @@ export async function expectToast(page: Page, text: string) {
   const toast = page.getByText(text);
   await expect(toast).toBeVisible({ timeout: 8_000 });
 }
+
+/**
+ * Dismiss WelcomeBonus + Cookie-Consent overlays that can block assertions.
+ * Mirrors the beta-smoke `dismissModals` pattern (Slice 293). Safe no-op when
+ * neither overlay is present.
+ */
+export async function dismissOverlays(page: Page) {
+  const later = page.getByText(/Später|Later/i).first();
+  if (await later.isVisible({ timeout: 800 }).catch(() => false)) {
+    await later.click().catch(() => {});
+  }
+  const accept = page.getByRole('button', { name: 'Akzeptieren' });
+  if (await accept.isVisible({ timeout: 800 }).catch(() => false)) {
+    await accept.click().catch(() => {});
+  }
+}
+
+/**
+ * Own-login via the UI (no pre-loaded storageState), mirroring the proven
+ * beta-smoke login step (Slice 293). Use for prod-aligned suites that must
+ * authenticate against bescout.net with a real account.
+ *
+ * Slice 282b Falle #2: client-side auth redirects AFTER hydration — gate on
+ * `waitForURL(!/login)` rather than reading `page.url()` post-domcontentloaded.
+ */
+export async function loginViaUI(page: Page, email: string, password: string) {
+  await page.goto('/login', { waitUntil: 'domcontentloaded', timeout: 30_000 });
+  await dismissOverlays(page);
+  await page.getByPlaceholder('E-Mail Adresse').fill(email, { timeout: 15_000 });
+  await page.getByPlaceholder('Passwort').fill(password);
+  await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30_000 });
+  await dismissOverlays(page);
+}

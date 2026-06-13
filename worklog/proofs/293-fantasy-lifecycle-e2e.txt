@@ -1,0 +1,65 @@
+Slice 293 — Deterministic Fantasy Lifecycle E2E — PROOF
+Date: 2026-06-13
+Target: https://bescout.net (NOT localhost — feedback_no_local_qa)
+Account: jarvis-qa@bescout.net (own-login, no storageState)
+
+=========================================================
+1. PROD RUN (the proof — all 8 ACs green)
+=========================================================
+$ PLAYWRIGHT_BASE_URL=https://bescout.net SMOKE_EMAIL=jarvis-qa@bescout.net \
+    SMOKE_PASSWORD=*** pnpm exec playwright test --project=fantasy-lifecycle --reporter=list
+
+Running 1 test using 1 worker
+
+  ok 1 [fantasy-lifecycle] › e2e\fantasy-lifecycle.spec.ts:42:7 › Fantasy Lifecycle —
+       deterministic contract (bescout.net) › authenticated /fantasy contract:
+       auth+geo, disclaimer, 4-tab walk, data-path, no errors, mobile (8.1s)
+
+  1 passed (11.5s)
+
+Post-review re-run (after F-2 heal: getByText DATA_LOAD_FAILED → { exact: true }):
+  ok 1 [fantasy-lifecycle] … (7.4s)
+  1 passed (9.7s)
+
+ACs covered in the single test (test.step granularity):
+  AC-01 [HAPPY]       /fantasy reachable — no /login redirect, no GeoGate block, main visible
+  AC-02 [COMPLIANCE]  FantasyDisclaimer visible ("Fantasy-Turniere sind Unterhaltungsangebote…")
+  AC-03 [HAPPY]       4 tabs present: Spiele / Events / Mitmachen / Ergebnisse (no if-guards)
+  AC-04 [LOAD→CONT]   skeleton resolved (tabs present) + FantasyError absent (events data-path wired)
+  AC-05 [HAPPY]       tab walk — each tab activates (text-gold) without page-error
+  AC-06 [REGRESSION]  0 uncaught page exceptions across the walk
+  AC-07 [I18N]        no raw i18n-key leak in visible text
+  AC-08 [MOBILE]      393×852 — tabs reachable, horizontal overflow ≤ 1px
+
+=========================================================
+2. tsc
+=========================================================
+$ pnpm exec tsc --noEmit
+EXIT: 0 (clean)
+
+=========================================================
+3. Anti-pattern audit — no conditional assertions in the spec
+=========================================================
+$ grep -nE "if \(await .*isVisible\(\)\)" e2e/fantasy-lifecycle.spec.ts
+10: * where every assertion hides behind `if (await X.isVisible())` and can never fail).
+   → ONLY match is the doc-comment describing the OLD anti-pattern. No conditional
+     assertion in any test step. (dismissOverlays' isVisible lives in helpers.ts, a
+     safe pre-step, not an assertion.)
+
+=========================================================
+4. Playwright project wiring
+=========================================================
+$ pnpm exec playwright test --project=fantasy-lifecycle --list
+  [fantasy-lifecycle] › fantasy-lifecycle.spec.ts:42:7 › … › authenticated /fantasy contract…
+Total: 1 test in 1 file
+
+=========================================================
+5. Files (Slice 293)
+=========================================================
+  NEW   e2e/fantasy-lifecycle.spec.ts        deterministic contract spec
+  EDIT  e2e/helpers.ts                        + loginViaUI / dismissOverlays (shared own-login)
+  EDIT  playwright.config.ts                  + project "fantasy-lifecycle" (own-login, prod)
+  EDIT  package.json                          + script test:fantasy-lifecycle (Tool-DoD: wired)
+  EDIT  .github/workflows/nightly-audit.yml   + non-blocking nightly trigger (continue-on-error)
+
+Tool-DoD (workflow.md §3a): ✅ package.json pnpm-Script · ✅ recurring trigger (nightly, non-blocking)

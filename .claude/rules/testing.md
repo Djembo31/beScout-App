@@ -45,6 +45,26 @@ globs: ["src/**/*.test.ts", "src/**/*.test.tsx", "tests/**/*"]
 - Anti-Pattern: Timeout hochdrehen — Liste re-rendert weiter, das verschiebt nur den Fail.
 - Reference: `e2e/synthetic-users.spec.ts` Profile B (Slice 282a Fix), Master-Tracker #25/#67-Klasse.
 
+### Contract-Level E2E gegen Live-Prod (Slice 293, 2026-06-13)
+
+**Problem:** Render-Smoke gegen Live-Prod mit konditionalen Assertions (`if (await X.isVisible())` ohne `else`-Fail) **kann nicht fehlschlagen** — verschwindet ein Tab/Disclaimer/Daten-Pfad, bleibt der Test grün (pre-293 `e2e/fantasy.spec.ts`). Andererseits sind Wert-Assertions („Event X mit Score Y") gegen Live-Prod flaky, weil der Backend-State (Gameweek, Events) sich bewegt.
+
+**Lösung — Contract statt Wert:** Assert die *Struktur* die unabhängig von volatilen Daten immer wahr sein muss:
+1. **Auth+Geo erreichbar** — `goto` → `status<500`, pathname strict-equals Ziel (kein client-side Redirect zu /login, Slice 282b), `main` visible.
+2. **Compliance** — Pflicht-Disclaimer sichtbar (harter Anker auf i18n-Text).
+3. **Daten-Pfad resolved** — Loading-Early-Return cleared via downstream-element-presence (z.B. „Nav-Tabs sichtbar" beweist „Skeleton weg", weil Skeleton ein früherer early-return ist) + Error-Early-Return-Text **absent** (`toHaveCount(0)`). Beweist „Query resolved", NICHT „Daten existieren".
+4. **No-crash** — `page.on('pageerror')` sammelt uncaught Exceptions → `toHaveLength(0)`.
+5. **No i18n-leak** — sichtbarer Text matcht NICHT `/\b(namespace|…)\.[a-z][a-zA-Z]{2,}\b/`.
+6. **Mobile** — `documentElement.scrollWidth - clientWidth ≤ 1` (≤1px Sub-Pixel-Toleranz).
+
+Deterministisch über jeden Backend-State UND brüchig gegen echte Bugs. 0 offene Events / leeres RPC-Array = „resolved" (Skeleton-weg + Error-absent), kein Fehler.
+
+**Run:** Own-login (kein storageState) gegen bescout.net, gespiegelt von beta-smoke. `retries:1` + nightly Warm-Up (SO-4) gegen Cold-Start. Neuer Spec → eigenes playwright-Projekt + `test:<x>` Script + non-blocking nightly-Trigger (`continue-on-error` bis Stabilität bewiesen, dann zum Gate promoten).
+
+**Anti-Pattern:** `getByText('<error-string>')` ohne `{ exact: true }` als Error-**Absence**-Check, wenn der String über i18n-Namespaces dupliziert ist und sich nur in Interpunktion unterscheidet (Slice 293 F-2: `fantasy.dataLoadFailed` ohne Punkt vs `common.errorLoadFailed`/`fantasy.loadError` mit Punkt). Substring-Match fängt die Perioden-Varianten mit → widert die Failure-Surface über die Intention hinaus. Fix: `{ exact: true }`.
+
+**Reference:** `e2e/fantasy-lifecycle.spec.ts` (Slice 293). Blueprint reusable für /club, /clubs Lifecycle-E2Es (Demo-Step 8). Active-Tab-Anker: `toHaveClass(/text-gold/)` auf dem geklickten Nav-Button.
+
 ## useSafeMutation Test-Patterns (codifiziert Slice 164, aus 159/161/162/163)
 
 Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).
