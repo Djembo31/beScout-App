@@ -1,17 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 22:22)
+# Session Handoff — Auto (2026-06-13 23:32)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 6
+## Session Commits: 5
+- 8f591c4f docs(distill): D76 S7-Harmonisierung + Resume-Anker (Session-End 301-305)
 - 9580e52d refactor(market): Slice 305 — Orphan Community-Valuation Removal (S7 Phase-2 #3)
 - c9519e24 fix(types): Slice 304 — DbFeeConfig Type-Schema Alignment (S7 Phase-2 #2)
 - eb0f146b feat(market): Slice 303 — Floor-Price Source-of-Truth Consolidation (S7 Phase-2 #1)
 - cd407b8d docs(audit): Slice 302 — S7 Source-of-Truth & Wiring Registry (Foundation + 3 P0-Domänen)
-- f6776119 chore(audit): Slice 301 — S6 Dead-Artifact-Inventory + wildcards-Bridge-Removal
-- 6b1ba1b1 docs(decision): D75 — Stabilization-Audit-Slices = Audit + Ratchet-Guard (Session-End 297-300)
 
 <!-- auto:handoff-end -->
 

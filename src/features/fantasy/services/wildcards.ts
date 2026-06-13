@@ -36,7 +36,13 @@ export async function getWildcardRecord(userId: string, leagueId: string): Promi
   return data as DbUserWildcard | null;
 }
 
-/** Get wild card transaction history */
+/**
+ * Get wild card transaction history.
+ * Slice 306: throw on error (was silent `return []` — errors-db.md §Service Error-Swallowing).
+ * Note: the wildcard economy is currently dormant — earn/spend/admin_grant RPCs DO write
+ * to wildcard_transactions (verified live), but no app path calls them yet, so this returns
+ * [] in practice (no error, just no rows). The throw matters once the economy is activated.
+ */
 export async function getWildcardHistory(
   userId: string,
   limit = 20,
@@ -47,10 +53,7 @@ export async function getWildcardHistory(
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit);
-  if (error) {
-    console.error('[Wildcards] getHistory error:', error);
-    return [];
-  }
+  if (error) throw new Error(error.message);
   return (data ?? []) as DbWildcardTransaction[];
 }
 

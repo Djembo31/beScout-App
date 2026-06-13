@@ -3,7 +3,7 @@
  * Per-league wildcard balance (Composite-PK: user_id + league_id)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getWildcardBalance, getWildcardRecord } from './wildcards';
+import { getWildcardBalance, getWildcardRecord, getWildcardHistory } from './wildcards';
 
 // Mock supabase client
 vi.mock('@/lib/supabaseClient', () => ({
@@ -114,5 +114,48 @@ describe('getWildcardRecord', () => {
     (supabase.from as ReturnType<typeof vi.fn>).mockReturnValueOnce(mockChain);
 
     await expect(getWildcardRecord(USER_ID, LEAGUE_ID)).rejects.toThrow('connection_error');
+  });
+});
+
+describe('getWildcardHistory', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function mockHistoryChain(result: { data: unknown; error: unknown }) {
+    const chain = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValueOnce(result),
+    };
+    (supabase.from as ReturnType<typeof vi.fn>).mockReturnValueOnce(chain);
+    return chain;
+  }
+
+  it('should return transaction rows for the user', async () => {
+    const rows = [
+      { id: 'tx-1', user_id: USER_ID, amount: 2, balance_after: 2, source: 'admin_grant' },
+    ];
+    const chain = mockHistoryChain({ data: rows, error: null });
+
+    const result = await getWildcardHistory(USER_ID, 20);
+
+    expect(supabase.from).toHaveBeenCalledWith('wildcard_transactions');
+    expect(chain.eq).toHaveBeenCalledWith('user_id', USER_ID);
+    expect(chain.order).toHaveBeenCalledWith('created_at', { ascending: false });
+    expect(chain.limit).toHaveBeenCalledWith(20);
+    expect(result).toEqual(rows);
+  });
+
+  it('should return [] when there are no rows (dormant — no error)', async () => {
+    mockHistoryChain({ data: null, error: null });
+    const result = await getWildcardHistory(USER_ID);
+    expect(result).toEqual([]);
+  });
+
+  it('should throw on DB error (not swallow to [])', async () => {
+    mockHistoryChain({ data: null, error: { message: 'connection_error' } });
+    await expect(getWildcardHistory(USER_ID)).rejects.toThrow('connection_error');
   });
 });

@@ -137,10 +137,11 @@
 
 ## 2.6 Predictions — dormant (1 live Zeile). `club`-String-Filter. **Severity P3.**
 
-## 2.7 Wildcards — **Balance ohne Ledger (Money-angrenzend)**
+## 2.7 Wildcards — **Dormant Feature (KEIN Compliance-Risiko)** · ✅ Slice 306
 - **Kanonisch:** `user_wildcards` (Composite-PK user+league), Balance via `get_wildcard_balance`.
-- **Redundant/Bruch:** `wildcard_transactions` (Ledger) **live 0 Zeilen** bei 35 Balances → Balance existiert ohne Audit-Trail; `getWildcardHistory` immer `[]` + Error-Swallow.
-- **Ziel:** Ledger-Schreibpfad reparieren/verifizieren; Error-Swallow → throw. **Severity P1** (bezahlte/gewährte Wildcards ohne Audit = Compliance-Risiko).
+- **~~Risiko-These widerlegt~~ (Slice 306 Live-Investigation 2026-06-13):** Die 35 `user_wildcards`-Zeilen sind **alle leer** (balance=0, earned=0, spent=0, **alle 1 Timestamp** `2026-05-04 21:30:08` = Backfill-Platzhalter). `wildcard_transactions` 0 Zeilen ist **korrekt** — nie geearnt/gespent/gewährt. `earn`/`spend`/`admin_grant`-RPCs **schreiben** bereits `INSERT INTO wildcard_transactions` (live verifiziert via `pg_get_functiondef`). 444 lineups, **0 mit Wildcard-Slots**; `save_lineup` debitiert keine Balance; **0 Earning/Spending/Grant-Aufrufer in `src/`**.
+- **Klasse:** Muster #5 (dormant/orphan), NICHT „Audit-Ledger als Risiko". Es gibt kein „Geld ohne Trail" — es gibt schlicht keine Wildcard-Aktivität.
+- **Erledigt (Slice 306, Option A „minimal schließen"):** `getWildcardHistory` Error-Swallow → throw. Ledger-Pfad braucht KEIN Repair (bereits korrekt). Code bleibt dormant-aber-korrekt für spätere Aktivierung (Option C) bzw. Removal (Option B) — keins gewählt. **Severity P1 → resolved/dormant.**
 
 ## 2.8 League Scope — **Dual-Achse UUID vs String**
 - **Kanonisch:** `useLeagueScope` Store (`leagueId` UUID).
@@ -151,7 +152,7 @@
 |---|-----|-------|
 | 1 | P1 | Active-GW: 2 Spalten (clubs/leagues), nur Cron synct, Admin schreibt nur clubs → stiller Drift |
 | 2 | P1 | Süper Lig active_gameweek=34 bei max=38 + API-Key seit 06.05 → Advance kann nicht heilen |
-| 3 | P1 | Wildcards: 35 Balances, 0 Transactions → kein Audit-Ledger |
+| 3 | ~~P1~~ ✅ | Wildcards: ~~35 Balances ohne Ledger~~ → **dormant** (35 leere Backfill-Rows, 0 Aktivität, Ledger-Pfad korrekt). Slice 306: swallow→throw + doku. Kein Risiko. |
 | 4 | P1 | Lineup `wildcardSlots:Set`, loadFromDb rehydriert wildcards nicht → Reload-Verlust |
 | 5 | P1 | GW-Status 3× unabhängig berechnet (kann divergieren) |
 | 6 | P1 | last-5-Scores 2 nicht-äquiv. Impls (= Player #4, **cross-domain**) |
@@ -217,6 +218,6 @@
 1. **FLOOR PRICE = das #1-Problem projektweit** — 5-6 Client-Berechnungen + 1 DB-Canon, keine repliziert die DB-Formel. Berührt Player + Trading + Fantasy(IPO). **Eine `computeFloor` ist der höchste Einzel-Hebel.**
 2. **Schema ≠ TS-Typ** — Phantom-Spalten (`players.rating/score/form*`), fehlende Spalten (`DbFeeConfig.offer_*_bps`). Klasse: TS-Typ driftet von Live-DB. → Ratchet-Kandidat (Type-Truth-Audit erweitern).
 3. **2 physische Spalten / 2 Implementierungen für 1 Semantik** — active_gameweek (clubs/leagues), last-5-Scores (2 Impls), GW-Status (3×), 24h-Change (3×). Klasse: kein „single computation".
-4. **Audit-Ledger ohne Einträge** — wildcard_transactions leer bei 35 Balances. Klasse: Aggregat ohne Audit-Trail.
+4. **Audit-Fehldiagnose: leere Backfill-Platzhalter** — wildcard_transactions leer bei „35 Balances", die aber alle 0 sind (Backfill-Platzhalter, 1 Timestamp). Slice 306 widerlegt die „Aggregat ohne Audit-Trail = Risiko"-These: Werte echt UND Write-Pfad schreibt nicht → erst dann Risiko. Klasse: vor Risiko-Label Row-Werte + RPC-Ledger-Pfad verifizieren.
 5. **Dormant/orphan Features mit Test-Daten** — CommunityValuation + 2 Tabellen, predictions (1 Zeile). Klasse: gebaut, nie verdrahtet (S6-Removal-Kandidaten).
 6. **Externe Dep blockiert Heilung** — API-Football-Key seit 06.05 → SL-GW-Drift + Live-Pfade dormant. Klasse: nicht-redundant, sondern dormant.

@@ -1,0 +1,84 @@
+Slice 306 — S7 #4 Wildcard-Ledger: dormant-Feature dokumentieren + getWildcardHistory swallow→throw
+PROVE — 2026-06-13
+
+================================================================================
+1. DB-EVIDENCE (live, project skzjfhvgccaeplydsunz "beScout-App")
+================================================================================
+
+-- user_wildcards: 35 Zeilen, ALLE leer, ALLE 1 Timestamp (Backfill-Platzhalter)
+SELECT COUNT(*) rows, SUM(balance) sum_balance, SUM(earned_total) sum_earned,
+       SUM(spent_total) sum_spent, MIN(updated_at) first, MAX(updated_at) last,
+       COUNT(*) FILTER (WHERE balance=0 AND earned_total=0 AND spent_total=0) empty
+FROM user_wildcards;
+→ rows=35  sum_balance=0  sum_earned=0  sum_spent=0
+   first=last=2026-05-04 21:30:08.51243+00   empty=35
+
+-- wildcard_transactions: 0 Zeilen (korrekt — nie Aktivität)
+SELECT COUNT(*) FROM wildcard_transactions;  → 0
+
+-- Live-RPC-Bodies schreiben bereits in den Ledger (logs_ledger=true):
+SELECT proname, pg_get_functiondef(oid) ILIKE '%INSERT INTO public.wildcard_transactions%' logs_ledger
+FROM pg_proc WHERE proname IN ('earn_wildcards','spend_wildcards','admin_grant_wildcards','save_lineup','get_wildcard_balance','refund_wildcards_on_leave');
+→ earn_wildcards          logs_ledger=true
+   spend_wildcards         logs_ledger=true
+   admin_grant_wildcards   logs_ledger=true
+   get_wildcard_balance    logs_ledger=false   (read-only, korrekt)
+   refund_wildcards_on_leave logs_ledger=false (ruft earn_wildcards, das loggt)
+   save_lineup             logs_ledger=false   (speichert slots, debitiert keine Balance)
+
+-- lineups: 444 total, 0 mit Wildcard-Slots
+SELECT COUNT(*) total, COUNT(*) FILTER (WHERE array_length(wildcard_slots,1)>0) with_wc FROM lineups;
+→ total=444  with_wc=0
+
+FAZIT: Wildcard-Economy vollständig dormant. KEIN "Geld ohne Trail" — keine Aktivität.
+       S7-Registry-These "35 Balances ohne Ledger = Compliance-Risiko P1" widerlegt.
+
+================================================================================
+2. CODE-FIX (AC-1, AC-2)
+================================================================================
+
+src/features/fantasy/services/wildcards.ts — getWildcardHistory:
+  VORHER: if (error) { console.error('[Wildcards] getHistory error:', error); return []; }
+  NACHHER: if (error) throw new Error(error.message);   // errors-db.md §Service Error-Swallowing
+
+grep "return \[\]" src/features/fantasy/services/wildcards.ts
+→ nur Kommentar (Z.41). Kein bare error-swallow mehr. SUCCESS-Pfad `return (data ?? [])` legit.
+
+grep "throw new Error(error.message)" src/features/fantasy/services/wildcards.ts
+→ 4 Treffer (balance:18, record:35, history:56, adminGrant:79) — alle 4 Read/Write-Pfade werfen jetzt.
+
+================================================================================
+3. TEST (AC-1, AC-2, AC-4)
+================================================================================
+
+CI=true npx vitest run src/features/fantasy/services/wildcards.test.ts
+ Test Files  1 passed (1)
+      Tests  9 passed (9)     [war 6, +3 neue getWildcardHistory-Tests]
+
+Neue Tests:
+- should return transaction rows for the user          (AC-1 HAPPY)
+- should return [] when there are no rows (dormant)     (Edge: kein error, keine Rows)
+- should throw on DB error (not swallow to [])          (AC-2 ERROR)
+
+npx tsc --noEmit → clean (kein Output)
+
+================================================================================
+4. DOKU-KORREKTUR (AC-3) + safety (throw safe)
+================================================================================
+
+grep "useWildcardHistory(" src/ → 0 echte Call-Sites (nur Definition misc.ts:99 +
+  re-export index.ts:15 + Persist-Allowlist-Kommentar QueryProvider.tsx:82).
+  → throw erreicht keinen gemounteten Consumer. SAFE.
+
+Registry §2.7 + Finding #3 + Übergreifendes-Muster #4 korrigiert:
+  "Compliance-Risiko" → "dormant Feature, kein Risiko" (mit Live-Evidence).
+sed -n '140,144p' …/s7-source-of-truth-registry.md | grep -c "KEIN Compliance-Risiko" → 1
+
+Knowledge: .claude/rules/errors-db.md neuer Eintrag
+  "Leere Backfill-Platzhalter sehen aus wie Balances ohne Audit-Trail (Slice 306)"
+  — Sibling zu Slice 303 Seed-Wert-Poisoning, mit Detection-SQL.
+
+================================================================================
+5. REVIEW
+================================================================================
+worklog/reviews/306-review.md — reviewer-Agent PASS, 1 MINOR (Pattern #4 Doku-Drift) in-slice gefixt.

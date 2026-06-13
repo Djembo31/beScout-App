@@ -91,10 +91,10 @@ export function usePlayerHoldersConcentration(
 /**
  * Fetch wildcard transaction history for a user.
  * Reads from the `wildcard_transactions` table via getWildcardHistory.
- * Currently the table is empty (wildcards not yet emitting tx rows), but
- * the hook is live so that once mint/spend RPCs start writing rows,
- * consumers can mount this hook in Timeline / Transactions without code
- * changes elsewhere.
+ * Slice 306: the wildcard economy is dormant — earn/spend/admin_grant RPCs DO write
+ * tx rows (verified live), but no app path calls them yet, so the table is empty.
+ * The hook stays live so that once an earning/spending path is wired, consumers can
+ * mount it in Timeline / Transactions without code changes elsewhere.
  */
 export function useWildcardHistory(
   userId: string | undefined,

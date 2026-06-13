@@ -6,6 +6,30 @@ description: DB-Fehler — Supabase/Postgres, RPCs, Auth/Security, Cache-Sync
 
 Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
 
+### Leere Backfill-Platzhalter sehen aus wie „Balances ohne Audit-Trail" (Slice 306, 2026-06-13)
+
+**Bug-Klasse (Audit-Fehldiagnose):** Eine Balance/Aggregat-Tabelle hat N Zeilen, die zugehörige Ledger/Audit-Tabelle hat 0 Zeilen. Schnell-Schluss: „N Balances ohne Trail = Compliance-Risiko". **Falsch, wenn die N Zeilen leere Backfill-Platzhalter sind** (alle balance/earned/spent = 0, alle mit identischem `updated_at` = ein Batch-INSERT). Dann gibt es keine echte Aktivität → leerer Ledger ist korrekt, kein Risiko. Sibling zu „Seed-Wert-Poisoning" (Slice 303, unten): plausibel aussehende DB-Rows verleiten zur Fehl-Klassifikation.
+
+**Detection (PFLICHT vor jeder „Aggregat ohne Audit = Risiko"-Klassifikation):**
+```sql
+-- 1. Sind die "Balances" echt oder leere Platzhalter?
+SELECT COUNT(*) AS rows, SUM(balance) AS sum_bal, SUM(earned_total) AS sum_earned,
+       SUM(spent_total) AS sum_spent, MIN(updated_at) AS first, MAX(updated_at) AS last,
+       COUNT(*) FILTER (WHERE balance=0 AND earned_total=0 AND spent_total=0) AS empty_rows
+FROM <balance_table>;
+-- sum_*=0 + empty_rows=COUNT + first==last → Backfill-Platzhalter, KEIN Risiko.
+
+-- 2. Schreiben die Write-RPCs überhaupt in den Ledger? (sonst echtes Repair nötig)
+SELECT proname, (pg_get_functiondef(oid) ILIKE '%INSERT INTO%<ledger_table>%') AS logs_ledger
+FROM pg_proc WHERE proname IN ('<earn_rpc>','<spend_rpc>','<grant_rpc>');
+-- logs_ledger=true für alle → Ledger-Pfad korrekt, leerer Ledger = nur dormant.
+
+-- 3. Gibt es überhaupt Aufrufer im App-Code? (grep src/ nach den RPC-Namen)
+-- 0 Aufrufer → dormant feature (Removal/Aktivierung = separate Produkt-Entscheidung).
+```
+
+**Lehre:** „Aggregat ohne Audit-Trail" ist erst dann ein Money/Compliance-Risiko, wenn die Aggregat-Werte **echt** sind UND der Write-Pfad den Ledger **nicht** schreibt. Beides verifizieren, bevor P1-Risiko gelabelt wird. **Reference:** Slice 306 (Wildcards) — S7-Registry hatte „35 Balances ohne Ledger = Compliance-Risiko P1" geclaimt; Investigation: 35 leere Platzhalter, RPCs schreiben korrekt, 0 Aufrufer → dormant, kein Risiko. Fix war nur `getWildcardHistory` swallow→throw.
+
 ### Seed-Wert-Poisoning in Fallback-Formel-Branch (Slice 303, 2026-06-13)
 
 **Bug-Klasse:** Eine NOT-NULL-Spalte wird mit einem plausibel aussehenden Seed-Wert befüllt (z.B. `last_price = 10000` cents = 100 $SCOUT für alle ungetradeten Spieler). Eine Kanon-Formel/RPC nutzt diese Spalte als **Fallback-Branch** (`... → last_price > 0 → use last_price`). Der Seed vergiftet die Formel still: für 96 % der Zeilen liefert der Fallback Müll, der gespeicherte (andere) Wert ist aber korrekt. **Ein naiver Recompute-Backfill würde die korrekten Werte mit dem vergifteten Formel-Output überschreiben.**

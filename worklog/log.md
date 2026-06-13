@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 306 | 2026-06-14 | fix(fantasy): S7 Phase-2 #4 — Wildcard-Ledger dormant + getWildcardHistory swallow→throw
+
+- Stage-Chain: SPEC (`worklog/specs/306-wildcard-ledger-dormant.md`, S, Service+Doc) → IMPACT skipped (kein Schema/RPC-Change; `useWildcardHistory` 0 gemountete Consumer) → BUILD → REVIEW (`worklog/reviews/306-review.md`, reviewer-Agent **PASS**, 1 MINOR in-slice) → PROVE (`worklog/proofs/306-wildcard-ledger.txt`) → LOG.
+- Trigger: S7-Registry Fantasy §2.7 / Finding #3 (P1 „35 Balances ohne Ledger = Compliance-Risiko"). Anil-Decision: Option A „minimal schließen".
+- **Risiko-These widerlegt (Live-DB-Investigation):** `user_wildcards` 35 Zeilen ALLE leer (balance/earned/spent=0, alle 1 Timestamp 2026-05-04 = Backfill-Platzhalter); `wildcard_transactions`=0 korrekt; `earn`/`spend`/`admin_grant`-RPCs schreiben bereits in Ledger (logs_ledger=true via pg_get_functiondef); 444 lineups, 0 mit Wildcard-Slots; `save_lineup` debitiert keine Balance; 0 Earning/Spending-Aufrufer in src/. → Feature dormant (Muster #5), KEIN „Geld ohne Trail".
+- Fix: `getWildcardHistory` Error-Swallow (`console.error + return []`) → `throw new Error(error.message)` (analog Sibling getWildcardBalance/getWildcardRecord). +3 Tests (rows/leer/throw). misc.ts Hook-Kommentar präzisiert.
+- Doku: Registry §2.7 + Finding #3 + Übergreifendes-Muster #4 korrigiert (dormant statt Risiko, mit Evidence). Knowledge: errors-db.md „Leere Backfill-Platzhalter sehen aus wie Balances ohne Audit-Trail" (Sibling Slice 303) + Detection-SQL.
+- KEIN Repair (Ledger-Pfad korrekt), KEINE Removal (Option B), KEINE Aktivierung (Option C) — Code bleibt dormant-aber-korrekt.
+- Files: 5 (wildcards.ts/.test.ts, misc.ts, registry, errors-db.md). tsc clean, vitest 9/9. 0 Reverts (durchgehend seit Slice 261).
+
 ## 305 | 2026-06-13 | refactor(market): S7 Phase-2 #3 — Orphan Community-Valuation Removal
 
 - Stage-Chain: SPEC (`worklog/specs/305-orphan-value-removal.md`, M, Removal) → IMPACT (in-spec: vollständige RED-State-Dependency-Karte Code+DB) → BUILD → REVIEW (`worklog/reviews/305-review.md`, reviewer-Agent **CONCERNS**, F-1/F-2 Residuen in-slice abgearbeitet) → PROVE (`worklog/proofs/305-orphan-value-removal.txt`) → LOG.
