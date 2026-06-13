@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 285 | 2026-06-13 | fix(rankings): FM-06 — Liga-Header über PlayerRankings verschieben
+
+- Stage-Chain: SPEC (worklog/specs/285-rankings-league-header-scope.md, XS) → IMPACT (skipped: rein lokales Layout) → BUILD (1 File) → REVIEW (self-review PASS, worklog/reviews/285-review.md) → PROVE (worklog/proofs/285-rankings-header.md + 2 Screenshots) → LOG
+- Slice-Type: UI (XS). Punch-List FM-06 (P2). Anil-Decision Option 1.
+- **Fix:** `LeagueScopeHeader` von Page-Top (rankings/page.tsx:34) runter in die rechte Grid-Spalte, in `space-y-3`-Container direkt über `<PlayerRankings>`. Header filtert NUR Spieler-Rankings (Country+League), die 5 Leaderboards ignorieren ihn by design → seitenweite Platzierung war irreführend. /clubs + /fantasy bleiben Top (dort ganze Seite gescopt).
+- Verify: tsc 0 · DOM-Verify bescout.net (Deploy m47yf4otg, warm SPA-Nav): headerCount=1, 9 Buttons (6 Länder + 3 Ligen), headerIsAbovePlayerRankings=true, mobile 393px korrekt.
+- **⚠️ Nebenbefund (eigener Slice empfohlen):** Cold-Load-Race — `LeagueScopeHeader` rendert app-weit LEER bei Hard-Navigation/PWA-Cold-Start. Root: `ClubProvider` gated Children nicht auf `cachesReady` + `getCountries`-useMemo (LeagueScopeHeader.tsx:52) deps=[locale] recomputet nie nach async-Cache-Load → `CountryBar` `length<=1 return null`. Potenzieller Beta-Blocker (Filter unsichtbar). Details in 285-Proof.
+- Commit: 682e99f8 + LOG.
+
 ## 284d | 2026-06-13 | fix(fantasy): Fantasy-UI-Fixes — Liga-Scope Ergebnisse + Minutes-Window + Topspiel-Live + Lineup-Lock (Wave 4 Stabilisierung)
 
 - Stage-Chain: SPEC (worklog/specs/284d-fantasy-ui-fixes.md, M) → IMPACT (inline) → BUILD (Migration-First) → REVIEW (Cold-Context CONCERNS → 1 MAJOR + 1 MINOR + 1 NIT geheilt, worklog/reviews/284d-review.md) → PROVE (worklog/proofs/284d-fantasy-ui.md) → LOG

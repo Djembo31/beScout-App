@@ -1,18 +1,21 @@
 # Active Slice
 
 ```
-status: active
-slice: 285
-stage: PROVE
+status: idle
+slice: 285 ✅ DONE (FM-06)
+stage: LOG complete
 spec: worklog/specs/285-rankings-league-header-scope.md
 impact: skipped (rein lokales Layout — kein Consumer/Service/DB betroffen)
-proof: worklog/proofs/285-rankings-header.md (visuell post-Deploy)
+proof: worklog/proofs/285-rankings-header.md (+ desktop/mobile Screenshots)
 review: worklog/reviews/285-review.md (self-review, PASS)
 ```
 
-**Slice 285 — FM-06:** Rankings-Liga-Header (`LeagueScopeHeader`) von Page-Top runter
-direkt über die `PlayerRankings`-Card verschieben. Header filtert nur Spieler-Rankings,
-nicht die 5 Leaderboards → seitenweite Platzierung war irreführend. Anil-Decision: Option 1.
+**🔴 NEU entdeckt (Slice 286 Kandidat — Anil-Entscheidung):** Cold-Load-Race im
+`LeagueScopeHeader` — rendert app-weit LEER bei Hard-Navigation/Hard-Refresh/PWA-Cold-Start
+(/rankings + /clubs reproduziert). Root: `ClubProvider:167` kein cachesReady-Gating +
+`LeagueScopeHeader:52` `useMemo(getCountries, [locale])` recomputet nie nach async-Cache-Load
+→ `CountryBar:22` `length<=1 return null`. Liga-Filter unsichtbar = potenzieller Beta-Blocker.
+Cross-cutting (/rankings, /clubs, /fantasy, /market). Details: worklog/proofs/285-rankings-header.md.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
 
