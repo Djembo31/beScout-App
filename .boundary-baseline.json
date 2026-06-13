@@ -5,8 +5,7 @@
     "fantasyLeagues": 1,
     "scoring": 14,
     "events": 6,
-    "predictions": 3,
-    "wildcards": 0
+    "predictions": 3
   },
   "directSupabaseComponents": 5
 }

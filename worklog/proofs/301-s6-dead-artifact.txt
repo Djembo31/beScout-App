@@ -1,0 +1,32 @@
+=== Slice 301 — S6 Dead-Artifact-Inventory — PROVE ===
+Date: 2026-06-13
+
+=== RED STATE (pre-delete) — wildcards bridge 0 consumers ===
+$ grep -rn '@/lib/services/wildcards' src/ ; echo exit=$?
+exit=1 (1 = no match = safe to delete)
+
+=== GREEN STATE (post-delete + cleanup) ===
+--- AC-2: file deleted ---
+src/lib/services/wildcards.ts: DELETED OK
+--- AC-7: BRIDGES const clean ---
+boundary-check.ts 'wildcards' count: 0 (expect 0)
+--- AC-8: baseline clean ---
+baseline bridges keys: 6 (expect 6)
+
+=== AC-6: audit:boundary:check ===
+> bescout-app@0.1.0 audit:boundary:check C:\bescout-app
+> npx tsx scripts/boundary-check.ts --check
+Bridge importers total: 46  (fixtures:15 lineups:7 fantasyLeagues:1 scoring:14 events:6 predictions:3)
+Direct-Supabase component-layer files: 5
+✅ No boundary increase vs baseline. All source-of-truth boundaries held.
+
+=== AC-4: tsc --noEmit ===
+tsc-exit=0 (0=clean)
+
+=== AC-5: affected-domain vitest (canonical wildcards consumers) ===
+12 test files / 192 tests passed (src/features/fantasy + queries + error-keys-coverage + FantasyContent)
+
+=== AC-1: Inventory-Doc ===
+worklog/audits/2026-06-13/s6-dead-artifact-inventory.md classified rows: 24
+
+=== Net-Action: 1 proven removal (wildcards bridge), 24 artifacts classified, 0 blind-deletes ===

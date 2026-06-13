@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 301 | 2026-06-13 | chore(audit): S6 Dead-Artifact-Inventory + bewiesenes wildcards-Bridge-Removal
+
+- Stage-Chain: SPEC (`worklog/specs/301-s6-dead-artifact-inventory.md`, M, Slice-Type Tool+Service) → IMPACT skipped (kein Runtime-Service/RPC/Schema — Dead-File-Removal 0 Importer + Doc + Script-const-Cleanup) → BUILD → REVIEW (`worklog/reviews/301-review.md`, reviewer-Agent PASS, 2 NIT, F-1 in-slice) → PROVE (`worklog/proofs/301-s6-dead-artifact.txt`) → LOG.
+- Trigger: Stabilization-Master-Audit §10 Slice S6 (Anil freigegeben) — letzter Stabilization-Schritt. Ziel: „Löschkandidaten beweisbar machen", §11.3 kein Blind-Delete (nur RED/GREEN Removal-Proof).
+- Deliverable 1 — Inventory-Doc (`worklog/audits/2026-06-13/s6-dead-artifact-inventory.md`): 24 Artefakte klassifiziert (KEEP/BRIDGE/DEPRECATED/DEAD?) über 4 Achsen, konsolidiert aus 3 existierenden Discovery-Tools (boundary-check, orphan-detector, wiring-check) statt Boil-the-Ocean-src-Scan. 7 Bridges (6 BRIDGE + 1 DEAD), 5 direct-supabase (3 KEEP + 2 DEPRECATED→S4-F-2/F-3), 159 Components (0 real-drift), Scripts (alle verkabelt).
+- Deliverable 2 — bewiesenes Removal: `src/lib/services/wildcards.ts` (Re-Export-Shim, 0 Importer, S4-F-1) gelöscht. RED: 2× grep `@/lib/services/wildcards` → 0 (Test-Mocks zeigen auf kanonischen Pfad). GREEN: tsc 0, 192/192 Fantasy-Domain-Tests grün, `audit:boundary:check` clean. Cleanup: `wildcards` aus `boundary-check.ts` BRIDGES-const + `.boundary-baseline.json` synchron entfernt (6 Bridges, total 46 unverändert da wildcards=0).
+- §9-Finding (S6-F-1, offen): `audit:orphan` läuft nur nightly (`nightly-audit.yml`), nicht pre-push. CTO-Empfehlung NEIN (Drift=0, +66s-Friktion). Als Anil-Decision dokumentiert, NICHT autonom umgesetzt. Kein D54-Verstoß (Tool IST verkabelt, nur Trigger-Wahl).
+- Files: -1 (wildcards.ts) · ~2 (boundary-check.ts, baseline.json) · +3 Doku (inventory, spec, review, proof). tsc 0, 192/192 grün.
+- **Stabilization-Track S0–S6 + E2E-Layer (293/298) KOMPLETT.** Follow-ups: S4-F-2/F-3 (Facade-Migration), S5-F-1..4. Knowledge: kein neuer Bug → keine neue errors-Regel (Slice-280-Pattern + patterns.md #49 decken ab).
+
 ## 300 | 2026-06-13 | chore(audit): S5 Test-Confidence — Audit + Ratchet-Guard + 2 Placeholder-Fixes
 
 - Stage-Chain: SPEC (`worklog/specs/300-test-confidence-audit.md`, M, Slice-Type Tool) → IMPACT skipped (Test + Script-Infra, kein src/**-Runtime) → BUILD → REVIEW (`worklog/reviews/300-review.md`, reviewer-Agent PASS, 2 NITPICK, F-1 in-slice übernommen) → PROVE (`worklog/proofs/300-test-confidence.txt`) → LOG.
