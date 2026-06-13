@@ -1,7 +1,10 @@
 # BeScout — Produkt-Vision
 
 > Letzte Aktualisierung: 12.02.2026
-> Single Source of Truth für die Produktvision.
+> Historische/strategische Produktvision. **Nicht mehr alleinige operative Source of Truth.**
+>
+> Aktuelle operative Produktwahrheit: `memory/current-product-truth.md`, `CLAUDE.md`, `memory/decisions.md`, `worklog/active.md`.
+> Wenn ältere Pilot-, Investment- oder Token-Formulierungen hier mit aktuellen Compliance-/Scope-Regeln kollidieren, gewinnen die aktuellen Truth-Dateien.
 
 ---
 

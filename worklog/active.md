@@ -2,16 +2,17 @@
 
 ```
 status: idle
-slice: 286 ✅ DONE
+slice: 287 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/286-league-cache-ready-race.md
-impact: inline
-proof: worklog/proofs/286-cache-race.md (Cold-Load 0→9 auf 3 Pages, live verifiziert)
-review: worklog/reviews/286-review.md (PASS, 0 CRITICAL)
+spec: worklog/specs/287-product-truth-freeze.md
+impact: skipped — docs/product-truth only, no runtime code
+proof: worklog/proofs/287-product-truth-freeze.md (docs-only diff, no src/ changes)
+review: worklog/reviews/287-review.md (PASS)
 ```
 
 ## Zuletzt
 
+- **Slice 287** (2026-06-13) — Product Truth Freeze / S0 Stabilization (Docs-only): current product truth file, README replacement, historical vision warnings, READY wording clarified.
 - **Slice 286** (2026-06-13) — Cold-Load-Race Liga-Filter (M, root-cause via useSyncExternalStore, live 0→9 buttons).
 - **Slice 285** (2026-06-13) — FM-06 Liga-Header über PlayerRankings (XS).
 - **Slice 284d** (2026-06-13) — Fantasy-UI (M, 2 P1 DB-bewiesen).
@@ -24,6 +25,18 @@ gleiche Cold-Load-Race, gleiches useSyncExternalStore-Fix-Pattern anwendbar.
 154 Geister-Triage + Süper-Lig-Drift brauchen API-Verify. Anil-Action: dashboard.api-football.com.
 
 **TR-Review offen (Anil):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+
+## Stabilization Mode — Product Truth Freeze ✅
+
+Canonical current-product-truth pointer:
+- `memory/current-product-truth.md`
+
+Steering audit:
+- `worklog/audits/2026-06-12/stabilization-master-audit.md`
+
+Nächstes empfohlen:
+- **S1 / Slice 288:** Page Contract Audit für `/market` + `/player/[id]`.
+- Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
 
@@ -40,14 +53,3 @@ Drift-Cleanup) braucht API-Verify gegen echte Spielergebnisse vor dem Löschen.
 
 Punch-List: worklog/audits/2026-06-12/stab-284-punchlist.md
 Backlog (Slice 284+): FM-08..11 · FANT-11/12/16 (CEO Vice-Captain) · FM-06 Leaderboard-Scoping · LW-01.
-
-## Zuletzt
-
-- **Slice 284d** (2026-06-13) — Fantasy-UI (M, 2 P1 DB-bewiesen).
-- **Slice 284c** (2026-06-13) — Markt/Rankings (M, 2 P1 DB-bewiesen).
-- **Slice 284a** (2026-06-12) — Live-Lifecycle (L, API-Key-Fund).
-
-Nächstes: Wave 2 (284b) sobald API-Key live · sonst Sommer-Roadmap.
-
-## TR-Review offen (Anil)
-- `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (= „Canlı")

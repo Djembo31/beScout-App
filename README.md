@@ -1,130 +1,109 @@
-# BeScout App - MVP Starter
+# BeScout App
 
-Ein vollständiges, lauffähiges Next.js Projekt für die BeScout Trading Platform.
+BeScout is a Next.js 14 / TypeScript / Supabase football fan-engagement platform.
 
-## 🚀 Quick Start
+Current product truth lives in:
 
-```bash
-# 1. Dependencies installieren
-npm install
+1. `memory/current-product-truth.md`
+2. `CLAUDE.md`
+3. `memory/decisions.md`
+4. `worklog/active.md`
+5. `worklog/audits/2026-06-12/stabilization-master-audit.md`
+6. `worklog/beta-phase.md`
 
-# 2. Development Server starten
-npm run dev
+If this README conflicts with those files, those files win.
 
-# 3. Browser öffnen
-open http://localhost:3000
-```
+---
 
-## 📁 Projektstruktur
+## Current product scope
 
-```
-bescout-app/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── layout.tsx          # Root Layout mit AppShell
-│   │   ├── page.tsx            # Home (Dashboard)
-│   │   ├── market/page.tsx     # Transfermarkt
-│   │   ├── player/[id]/page.tsx # Player Detail
-│   │   ├── fantasy/page.tsx    # Fantasy Contests
-│   │   ├── community/page.tsx  # Scout Zone
-│   │   ├── profile/page.tsx    # User Profile
-│   │   └── club/page.tsx       # Club Page
-│   │
-│   ├── components/
-│   │   ├── layout/             # SideNav, TopBar
-│   │   ├── ui/                 # Button, Card, Modal, etc.
-│   │   └── player/             # PlayerCard, PositionBadge, etc.
-│   │
-│   ├── types/
-│   │   └── index.ts            # Alle TypeScript Types
-│   │
-│   └── lib/
-│       ├── utils.ts            # Utility Functions
-│       ├── nav.ts              # Navigation Config
-│       └── mock-data.ts        # Mock Data
-│
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-└── next.config.mjs
-```
+BeScout is a B2B2C fan-engagement platform:
 
-## 🎯 Enthaltene Features
+- Clubs use BeScout as a fan economy / CRM / revenue tool.
+- Fans use Scout Cards, Market, Manager, Fantasy, Club/Community and Profile/Reputation loops.
+- Current scope targets 7 leagues, not the older Sakaryaspor-only pilot scope.
+- Phase 1 is a closed-loop platform-credit economy. User-facing copy must avoid investment, ROI, profit, ownership and cash-out promises.
 
-### Pages
-- ✅ **Home** - Dashboard mit Portfolio, Trending Players, Fantasy, Votes
-- ✅ **Market** - Transferliste mit Suche & Filter
-- ✅ **Player Detail** - Vollständige Player-Ansicht mit Buy Widget
-- ✅ **Fantasy** - Contest Lobby & Lineup Builder (UI)
-- ✅ **Community** - Research Feed mit Paywalls
-- ✅ **Profile** - User Dashboard & Portfolio
-- ✅ **Club** - Club Page mit Votes & Players
+See `memory/current-product-truth.md` for the canonical compact version.
 
-### Components
-- ✅ **SideNav** - Collapsible Sidebar mit Wallet
-- ✅ **TopBar** - Header mit Search & User
-- ✅ **PlayerCard** - Grid View für Players
-- ✅ **PositionBadge** - GK/DEF/MID/ATT Badges
-- ✅ **ScoreCircle** - L5/L15 Performance
-- ✅ **Button, Card, Modal, Chip** - UI Components
+---
 
-### Design System
-- ✅ Gold (#FFD700) als Primärfarbe
-- ✅ Position-spezifische Farben
-- ✅ Outfit + Space Mono Fonts
-- ✅ Dark Theme mit Glow Effects
+## Current stabilization mode
 
-## 📊 Code Stats
+The project is in stabilization mode, not broad feature-expansion mode.
 
-| Bereich | Zeilen |
-|---------|--------|
-| Pages | ~2.500 |
-| Components | ~800 |
-| Types | ~200 |
-| Utils/Config | ~400 |
-| **Total** | **~4.000** |
+Primary steering doc:
 
-## 🔜 Nächste Schritte
+- `worklog/audits/2026-06-12/stabilization-master-audit.md`
 
-### Session 2: Vollständige Pages
-- [ ] Market Page komplett (Offers, MySquad)
-- [ ] Player Detail komplett (alle Tabs)
-- [ ] Fantasy Lineup Builder
+Current stabilization sequence:
 
-### Session 3: Supabase Integration
-- [ ] Database Schema
-- [ ] Auth (Login/Register)
-- [ ] API Routes
+1. Product Truth Freeze.
+2. Page Contract Audit: `/market` + `/player/[id]`.
+3. Page Contract Audit: `/` + `/manager`.
+4. Page Contract Audit: `/fantasy` + `/clubs` + `/club/[slug]`.
+5. Source-of-Truth Boundaries.
+6. Test Confidence Audit.
+7. Dead Artifact Inventory.
 
-### Session 4: Trading Engine
-- [ ] Buy/Sell Logic
-- [ ] Offer System
-- [ ] Wallet Integration
+Do not use the old MVP-starter assumptions that said Supabase/Auth/Trading are future work. They are no longer current.
 
-### Session 5: Polish
-- [ ] Error Handling
-- [ ] Loading States
-- [ ] Responsive Fixes
+---
 
-## 🛠️ Tech Stack
+## Stack
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Icons:** Lucide React
-- **State:** React useState (später Zustand)
-- **Backend:** Mock Data (später Supabase)
+- Next.js 14 App Router
+- TypeScript strict
+- Tailwind CSS
+- Supabase
+- TanStack React Query v5
+- Zustand v5
+- next-intl
+- Vitest
+- Playwright
 
-## 📝 Commands
+---
+
+## Commands
+
+Use pnpm, not npm.
 
 ```bash
-npm run dev       # Development Server
-npm run build     # Production Build
-npm run start     # Production Server
-npm run lint      # ESLint Check
-npm run type-check # TypeScript Check
+pnpm install
+pnpm dev
+pnpm type-check
+pnpm test
+pnpm test:e2e
+```
+
+Common project checks:
+
+```bash
+pnpm run audit:silent-fail:check
+pnpm run audit:compliance
+pnpm run audit:tr-strings
 ```
 
 ---
 
-**Erstellt für BeScout MVP** 🚀
+## Process
+
+This repo follows the BeScout SHIP loop from `CLAUDE.md`:
+
+```text
+SPEC -> IMPACT -> BUILD -> PROVE -> LOG
+```
+
+Every non-trivial change should have:
+
+- a spec under `worklog/specs/`,
+- proof under `worklog/proofs/`,
+- review under `worklog/reviews/`,
+- a log entry in `worklog/log.md`,
+- current status in `worklog/active.md`.
+
+---
+
+## Historical note
+
+This README replaced an obsolete MVP-starter README that described BeScout as mock-data/future-Supabase. That was historical prototype context and is no longer the project reality.

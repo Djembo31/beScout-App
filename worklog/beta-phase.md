@@ -63,7 +63,7 @@ anil_action_done_2026_05_05:
 | **B** | Polish-Sweeps (sweep-page je Findings-Page) | P1-Items abgearbeitet auf <5 |
 | **C** | Persona-Walk (3 Personas FM-Power/Casual/TR-Locale) | Friction-Reports vorliegen, P0-Findings closed |
 | **D** | Sign-Off (Beta-Exit-Kriterien-Check) | last_signoff == PASS + alle P0/P1 grün |
-| **READY** | Beta GO-LIVE | 50-Tester-Onboarding aktiv |
+| **READY** | Beta faktisch live / invite-only Betrieb | Aktueller Tracker-Status nach D71: real live mit 3 Testern; 50-Tester-Onboarding ist historischer Zielzustand, nicht automatische READY-Bedeutung |
 
 ## Regel-Block (von Hook gelesen)
 

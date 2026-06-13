@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 287 | 2026-06-13 | docs(product): Product Truth Freeze — S0 Stabilization
+
+- Stage-Chain: SPEC (`worklog/specs/287-product-truth-freeze.md`, S) → IMPACT skipped (docs-only) → BUILD → REVIEW (`worklog/reviews/287-review.md`, PASS) → PROVE (`worklog/proofs/287-product-truth-freeze.md`) → LOG.
+- Slice-Type: Docs/Product Truth (S). Trigger: Anil nach Slice 286 — Stabilization Master Audit soll jetzt operativ werden, ohne wieder in Feature-Kreis zu rutschen.
+- **Fix:** `memory/current-product-truth.md` als kompakte aktuelle Wahrheit: authoritative source order, 7-Liga-Scope, D71 Beta-live-Status, compliance-safe "not investment/betting/NFT", historische Docs-Regel, Journey-Status-Vokabular (`wired` / `production-data-stable` / `beta-user-validated` / demo-green-yellow-red), Demo Path Lock und nächste Stabilization-Sequenz.
+- **Truth Drift geheilt:** README ersetzt obsolete MVP-Starter-/Mock-Data-Aussagen; `docs/VISION.md` + `memory/semantisch/produkt/bescout-vision.md` behalten historischen/strategischen Inhalt, tragen aber klare Current-Truth-Pointer; `worklog/beta-phase.md` READY-Definition korrigiert (D71 factual live mit 3 Testern statt automatisch 50-Tester-Onboarding).
+- Proof: docs-only diff, **0 `src/**` Runtime-Dateien** in Slice-287-Diff. Nächstes empfohlen: Slice 288 / S1 Page Contract Audit `/market` + `/player/[id]`.
+
 ## 286 | 2026-06-13 | fix(leagues): Cold-Load-Race — Liga-Filter (LeagueScopeHeader/LeagueBar) rendert leer
 
 - Stage-Chain: SPEC (worklog/specs/286-league-cache-ready-race.md, M) → IMPACT (inline) → BUILD → REVIEW (Cold-Context PASS, 0 CRITICAL, worklog/reviews/286-review.md) → PROVE (worklog/proofs/286-cache-race.md, Cold-Load-Live-Verify) → LOG + errors-frontend.md-Pattern

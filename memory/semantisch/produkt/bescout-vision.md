@@ -1,5 +1,10 @@
 # beScout Vision & Strategie
 
+> Historische/strategische Vision. Nicht als aktuelle operative Source of Truth verwenden.
+>
+> Aktuelle operative Produktwahrheit: `memory/current-product-truth.md`, `CLAUDE.md`, `memory/decisions.md`, `worklog/active.md`.
+> Insbesondere Phase-1-Sakaryaspor-only, 25-Spieler/50-Tester, Token/CASP-Zeitplan und Club-Rollout-Angaben in diesem Dokument sind historische Kontext-/Strategieannahmen, nicht aktueller Build-Scope.
+
 > WARUM existiert beScout? WOHIN geht die Reise? Was unterscheidet uns?
 
 ## Das Problem
