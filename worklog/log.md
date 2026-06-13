@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 293 | 2026-06-13 | test(fantasy): Deterministic Fantasy Lifecycle E2E
+
+- Stage-Chain: SPEC (`worklog/specs/293-fantasy-lifecycle-e2e.md`, M, Slice-Type Tool) → IMPACT skipped (E2E-only, kein Service/RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/293-review.md`, PASS, 2 MINOR inline-fixed) → PROVE (`worklog/proofs/293-fantasy-lifecycle-e2e.txt`) → LOG.
+- Trigger: Anknüpfung an Hermes' Page-Contract-Audits S1–S3 (288/289/292) — jede Page „demo-yellow" mit identischem Caveat: kein deterministisches Page-Contract-E2E, nur konditionaler Render-Smoke (`fantasy.spec.ts`, jede Assertion hinter `if isVisible` → kann nie failen).
+- Lösung: Contract-Level-E2E gegen bescout.net (own-login, jarvis-qa) — assert Struktur + data-path-resolved + no-errors statt volatiler Gameweek-Werte. 8 ACs: Auth+Geo erreichbar · FantasyDisclaimer · 4-Tab-Walk (text-gold active) · Daten-Pfad verkabelt (Skeleton resolved + FantasyError absent) · 0 pageerror · kein i18n-Leak · Mobile 393px (overflow ≤1px).
+- Files: `e2e/fantasy-lifecycle.spec.ts` (NEU) · `e2e/helpers.ts` (+loginViaUI/dismissOverlays) · `playwright.config.ts` (+project) · `package.json` (+test:fantasy-lifecycle) · `nightly-audit.yml` (non-blocking continue-on-error Trigger) · `wiring-check.ts` (allowlist) · `testing.md` (Pattern codifiziert).
+- Verify: Prod-Run grün 7.4s (8/8 ACs) · tsc 0 · wiring-check 0 drift · Anti-Pattern-grep: 0 konditionale Assertions im Spec.
+- Commit: 5294833a. Reviewer-Learning → `testing.md` „Contract-Level E2E gegen Live-Prod" + getByText-exact-Anti-Pattern.
+- Scope-Out: /club + /clubs Lifecycle-E2E (Demo-Step 8) · echte join/submit-Mutation gegen Prod (Test-Pollution) · Post-Deploy-Gate-Promotion (erst nach Stabilität).
+
 ## 292 | 2026-06-13 | docs(audit): Page Contract Audit — Fantasy + Clubs
 
 - Stage-Chain: SPEC (`worklog/specs/292-fantasy-club-page-contract.md`, M) → AUDIT (`worklog/audits/2026-06-13/page-contract-fantasy-club.md`) → REVIEW (`worklog/reviews/292-review.md`, PASS) → PROVE (`worklog/proofs/292-fantasy-club-page-contract.md`) → LOG.

@@ -1,24 +1,18 @@
 # Active Slice
 
 ```
-status: active
-slice: 293
-stage: PROVE complete
+status: idle
+slice: 293 ✅ DONE
+stage: LOG complete
 spec: worklog/specs/293-fantasy-lifecycle-e2e.md
 impact: skipped (E2E-Test only — kein Service/RPC/Schema/Query-Key-Touch)
 proof: worklog/proofs/293-fantasy-lifecycle-e2e.txt (Prod-Run grün 7.4s, 8 ACs, tsc clean)
 review: worklog/reviews/293-review.md (PASS — 2 MINOR inline-fixed)
 ```
 
-## Slice 293 — Deterministic Fantasy Lifecycle E2E
-
-Ziel: konditionalen Render-Smoke (`fantasy.spec.ts`) durch deterministisches Contract-E2E ersetzen
-(Auth+Geo erreichbar, FantasyDisclaimer, 4-Tab-Walk, Daten-Pfad verkabelt, keine Page-Exceptions,
-kein i18n-Leak, Mobile). Own-Login (jarvis-qa) gegen bescout.net. Schließt den 5×-wiederholten
-demo-green E2E-Caveat aus Hermes' Page-Contract-Audits S1–S3. M-Slice, Größe M, Slice-Type Tool.
-
 ## Zuletzt
 
+- **Slice 293** (2026-06-13) — Deterministic Fantasy Lifecycle E2E (Tool, M, PASS): Contract-Level-E2E gegen bescout.net (own-login) ersetzt konditionalen Render-Smoke; 8 ACs grün 7.4s; schließt den 5×-wiederholten demo-green E2E-Caveat aus Hermes' Audits S1–S3. Commit 5294833a.
 - **Slice 292** (2026-06-13) — S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]` (Docs-only): all three demo-yellow; F-1 public Club metadata “Trading” copy; F-2 `/clubs` page-test gap.
 - **Slice 291** (2026-06-13) — Unified Trading GeoGate (TDD): `/player/[id]` and `/manager` trading actions now use `useRegionGuard('dpc_trading')`; content remains visible, trading execution blocked when restricted.
 - **Slice 290** (2026-06-13) — Home Portfolio-Floor-Parity Fix (TDD): Home nutzt für Holdings jetzt canonical `computePlayerFloor` via byIds Player, fallback `floor_price`; useHomeData 40/40 grün.
@@ -47,10 +41,11 @@ Steering audit:
 - `worklog/audits/2026-06-12/stabilization-master-audit.md`
 
 Nächstes empfohlen:
-- **Slice 292 ✅ DONE:** S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]` abgeschlossen.
-- Höchster kleiner Fix-Kandidat: S3 F-1 — öffentliche `/club/[slug]` Metadata-Copy “Trading” ersetzen durch compliance-sichere Scout-Cards/Fantasy/Fan-Wissen Sprache.
+- **Slice 293 ✅ DONE:** Deterministic Fantasy Lifecycle E2E — schließt den E2E-Caveat für /fantasy.
+- **⚠️ Orphaned RED-Test (uncommitted):** `src/app/(app)/club/[slug]/__tests__/page.metadata.test.ts` existiert (untracked) + ist RED — fordert „kein Trading", aber `page.tsx:24` sagt weiter „Trading". Das ist S3 F-1, Test geschrieben aber nie GREEN gemacht. Bewusst NICHT mit Slice 293 committet (würde CI röten). **Slice 294-Kandidat:** F-1 GREEN machen — Metadata-Copy „Trading" raus, i18n-sauber (`meta.clubDescription` mit `{name}`, nicht hardcoded DE — sonst TR-Besucher = DE OG-Cards), Test auf t()-Call statt DE-Literal anpassen.
 - Danach: S3 F-2 — `/clubs` Page-Test für loading/error/empty/follow/activate Basics.
-- Nächster Audit-Schritt nach diesen kleinen Fixes: S4 Source-of-Truth Boundaries.
+- Optional Demo-Step-8: /club + /clubs Lifecycle-E2E via Slice-293-Blueprint (`testing.md` „Contract-Level E2E gegen Live-Prod").
+- Nächster Audit-Schritt: S4 Source-of-Truth Boundaries.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
