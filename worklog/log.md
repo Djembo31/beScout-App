@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 291 | 2026-06-13 | fix(compliance): Unified Trading GeoGate for Player + Manager
+
+- Stage-Chain: SPEC (`worklog/specs/291-unified-trading-geogate.md`, S) → IMPACT (`PlayerContent`, `ManagerContent`) → BUILD (TDD) → REVIEW (`worklog/reviews/291-review.md`, PASS) → PROVE (`worklog/proofs/291-unified-trading-geogate.md`) → LOG.
+- Trigger: Slice 288/289 P1 GeoGate-Asymmetry — `/market` gated `dpc_trading`, but `/player/[id]` and `/manager` trading entrypoints executed without the same region guard.
+- Decision: keep non-trading content visible; gate trading execution only.
+- RED: Player restricted test opened raw modal; Manager restricted test called raw Kader sell action.
+- Fix: `PlayerContent` and `ManagerContent` now use `useRegionGuard('dpc_trading')` for buy/sell/offer/accept-bid and Kader sell/cancel actions.
+- GREEN: affected suites passed 29/29; `pnpm exec tsc --noEmit && pnpm audit:type-truth && pnpm audit:stale && pnpm audit:wiring:check` passed.
+- Follow-up optional: restricted-region UX copy/disabled state polish; execution/compliance gap is closed.
+
 ## 290 | 2026-06-13 | fix(home): Portfolio floor parity with Manager/Market
 
 - Stage-Chain: SPEC (`worklog/specs/290-home-portfolio-floor-parity.md`, S) → IMPACT (`src/app/(app)/hooks/useHomeData.ts`) → BUILD (TDD) → REVIEW (`worklog/reviews/290-review.md`, PASS) → PROVE (`worklog/proofs/290-home-portfolio-floor-parity.md`) → LOG.

@@ -10,6 +10,7 @@ import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/lib/hooks/useWallet';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useRegionGuard } from '@/lib/useRegionGuard';
 
 import {
   usePlayerDetailData,
@@ -60,6 +61,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { user, clubAdmin } = useUser();
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
+  const tradingRegionGuard = useRegionGuard('dpc_trading');
   const t = useTranslations('player');
   const uid = user?.id;
 
@@ -109,12 +111,28 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   // ─── Club Admin Guard ───────────────────
   const isRestrictedAdmin = !!(clubAdmin && data.dbPlayer?.club_id === clubAdmin.clubId);
   const te = useTranslations('errors');
-  const guardedBuy = isRestrictedAdmin
-    ? () => addToast(te('clubAdminRestricted'), 'error')
-    : trading.openBuyModal;
-  const guardedSell = isRestrictedAdmin
-    ? () => addToast(te('clubAdminRestricted'), 'error')
-    : trading.openSellModal;
+  const guardedBuy = tradingRegionGuard.guard(async () => {
+    if (isRestrictedAdmin) {
+      addToast(te('clubAdminRestricted'), 'error');
+      return;
+    }
+    trading.openBuyModal();
+  });
+  const guardedSell = tradingRegionGuard.guard(async () => {
+    if (isRestrictedAdmin) {
+      addToast(te('clubAdminRestricted'), 'error');
+      return;
+    }
+    trading.openSellModal();
+  });
+  const guardedOpenOfferModal = tradingRegionGuard.guard(async () => {
+    trading.openOfferModal();
+  });
+  const guardedAcceptBid = (offerId: string) => {
+    void tradingRegionGuard.guard(async () => {
+      trading.handleAcceptBid(offerId);
+    })();
+  };
 
   // ─── Share Handler ──────────────────────
   const handleShare = async () => {
@@ -219,9 +237,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             holdingQty={data.holdingQty}
             holderCount={data.holderCount}
             mastery={data.masteryData && data.holdingQty > 0 ? { level: data.masteryData.level, xp: data.masteryData.xp } : null}
-            onAcceptBid={trading.handleAcceptBid}
+            onAcceptBid={guardedAcceptBid}
             acceptingBidId={trading.acceptingBidId}
-            onOpenOfferModal={trading.openOfferModal}
+            onOpenOfferModal={tradingRegionGuard.allowed ? guardedOpenOfferModal : undefined}
             isRestrictedAdmin={isRestrictedAdmin}
             playerResearch={data.playerResearch}
             onBuyClick={guardedBuy}

@@ -27,6 +27,8 @@ vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
 // Provider Mocks
 // ============================================
 const mockAddToast = vi.fn();
+let mockTradingAllowed = true;
+const mockRegionGuardToast = vi.fn();
 
 let mockUserValue: Record<string, unknown> = {
   user: { id: 'u1' },
@@ -60,6 +62,22 @@ vi.mock('@/lib/hooks/useWallet', () => ({
 
 vi.mock('@/components/providers/ToastProvider', () => ({
   useToast: () => ({ addToast: mockAddToast }),
+}));
+
+vi.mock('@/lib/useRegionGuard', () => ({
+  useRegionGuard: () => ({
+    allowed: mockTradingAllowed,
+    geofencingEnabled: true,
+    isHydrated: true,
+    tier: mockTradingAllowed ? 'FULL' : 'TIER_RESTRICTED',
+    guard: <T,>(action: () => Promise<T>) => async () => {
+      if (!mockTradingAllowed) {
+        mockRegionGuardToast('restricted');
+        return undefined;
+      }
+      return action();
+    },
+  }),
 }));
 
 // ============================================
@@ -268,6 +286,8 @@ vi.mock('@/components/player/detail', () => ({
   PlayerHero: (props: Record<string, unknown>) => (
     <div data-testid="player-hero" data-player-id={(props.player as { id: string })?.id}>
       PlayerHero
+      <button data-testid="hero-buy" onClick={props.onBuyClick as React.MouseEventHandler<HTMLButtonElement>}>buy</button>
+      <button data-testid="hero-sell" onClick={props.onSellClick as React.MouseEventHandler<HTMLButtonElement>}>sell</button>
     </div>
   ),
   CommunityTab: () => <div data-testid="community-tab">CommunityTab</div>,
@@ -416,6 +436,7 @@ const baseDetailData: any = {
 describe('PlayerContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTradingAllowed = true;
 
     // Reset auth mock
     mockUserValue = {
@@ -601,6 +622,18 @@ describe('PlayerContent', () => {
     // MobileTradingBar still renders (it disables via isLiquidated || isRestrictedAdmin)
     expect(screen.getByTestId('mobile-trading-bar')).toBeInTheDocument();
     expect(screen.getByTestId('player-hero')).toBeInTheDocument();
+  });
+
+  it('blocks trading entrypoints when dpc_trading is geo-restricted', async () => {
+    mockTradingAllowed = false;
+
+    renderWithProviders(<PlayerContent playerId="p1" />);
+    await userEvent.click(screen.getByTestId('hero-buy'));
+    await userEvent.click(screen.getByTestId('hero-sell'));
+
+    expect(mockOpenBuyModal).not.toHaveBeenCalled();
+    expect(mockOpenSellModal).not.toHaveBeenCalled();
+    expect(mockRegionGuardToast).toHaveBeenCalledTimes(2);
   });
 
   // ─── 14. StickyDashboardStrip rendered ──

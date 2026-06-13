@@ -10,6 +10,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
 import { SkeletonCard, ErrorState } from '@/components/ui';
 import { qk } from '@/lib/queries/keys';
+import { useRegionGuard } from '@/lib/useRegionGuard';
 import { useManagerData } from '../hooks/useManagerData';
 import { useManagerStore, type ManagerTab } from '../store/managerStore';
 import { useTradeActions } from '@/features/market/hooks/useTradeActions';
@@ -62,6 +63,21 @@ function ManagerInner() {
     : null;
 
   const { handleSell, handleCancelOrder } = useTradeActions(user?.id, ipoList);
+  const tradingRegionGuard = useRegionGuard('dpc_trading');
+  const guardedHandleSell = useCallback(
+    async (playerId: string, quantity: number, priceCents: number) => {
+      const result = await tradingRegionGuard.guard(() => handleSell(playerId, quantity, priceCents))();
+      return result ?? { success: false, error: 'geo_restricted' };
+    },
+    [tradingRegionGuard, handleSell],
+  );
+  const guardedHandleCancelOrder = useCallback(
+    async (orderId: string) => {
+      const result = await tradingRegionGuard.guard(() => handleCancelOrder(orderId))();
+      return result ?? { success: false, error: 'geo_restricted' };
+    },
+    [tradingRegionGuard, handleCancelOrder],
+  );
 
   const handleTabChange = useCallback(
     (id: string) => {
@@ -146,8 +162,8 @@ function ManagerInner() {
           ipoList={ipoList}
           userId={user?.id}
           incomingOffers={incomingOffers}
-          onSell={handleSell}
-          onCancelOrder={handleCancelOrder}
+          onSell={guardedHandleSell}
+          onCancelOrder={guardedHandleCancelOrder}
         />
       </TabPanel>
 

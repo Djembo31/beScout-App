@@ -2,16 +2,17 @@
 
 ```
 status: idle
-slice: 290 ✅ DONE
+slice: 291 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/290-home-portfolio-floor-parity.md
-impact: src/app/(app)/hooks/useHomeData.ts only; Home byIds mini-fetch now includes held players
-proof: worklog/proofs/290-home-portfolio-floor-parity.md (RED/GREEN + tsc/audits)
-review: worklog/reviews/290-review.md (PASS)
+spec: worklog/specs/291-unified-trading-geogate.md
+impact: PlayerContent + ManagerContent trading actions guarded by dpc_trading
+proof: worklog/proofs/291-unified-trading-geogate.md (RED/GREEN + tsc/audits)
+review: worklog/reviews/291-review.md (PASS)
 ```
 
 ## Zuletzt
 
+- **Slice 291** (2026-06-13) — Unified Trading GeoGate (TDD): `/player/[id]` and `/manager` trading actions now use `useRegionGuard('dpc_trading')`; content remains visible, trading execution blocked when restricted.
 - **Slice 290** (2026-06-13) — Home Portfolio-Floor-Parity Fix (TDD): Home nutzt für Holdings jetzt canonical `computePlayerFloor` via byIds Player, fallback `floor_price`; useHomeData 40/40 grün.
 - **Slice 289** (2026-06-13) — S2 Page Contract Audit Home + Manager (Docs-only): Home GREEN mit YELLOW-Vorbehalt; Manager YELLOW; F-1 Portfolio-Floor-Divergenz als höchster Demo-Coherence-Fix.
 - **Slice 288** (2026-06-13) — S1 Page Contract Audit /market + /player/[id] (Docs-only): /market GREEN mit YELLOW-Vorbehalt; /player/[id] YELLOW; F-1 GeoGate-Asymmetrie als P1-Folgeentscheidung.
@@ -38,9 +39,9 @@ Steering audit:
 - `worklog/audits/2026-06-12/stabilization-master-audit.md`
 
 Nächstes empfohlen:
-- **Slice 290 ✅ DONE:** Portfolio-Floor-Parity Home vs Manager/Market angepasst.
-- Offene CEO/Anil-Entscheidung: einheitlicher GeoGate-Plan für `/player/[id]` + `/manager` Trading-CTAs.
-- Nächster Audit-Schritt nach GeoGate-Decision/Fix: S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]`.
+- **Slice 291 ✅ DONE:** Unified Trading GeoGate für `/player/[id]` + `/manager` ist umgesetzt.
+- Nächster Audit-Schritt: S3 Page Contract Audit `/fantasy` + `/clubs` + `/club/[slug]`.
+- Optionaler späterer UX-Polish: sichtbare trading CTAs in restricted regions durch disabled/explainer copy ersetzen; Execution-Gap ist geschlossen.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
