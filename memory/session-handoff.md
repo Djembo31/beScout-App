@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 00:02)
+# Session Handoff — Auto (2026-06-13 00:32)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,7 +9,8 @@
  M worklog/audits/type-truth-2026-06-12.md
 ```
 
-## Session Commits: 3
+## Session Commits: 4
+- 53a51911 fix(market): Slice 284c — Wave 3 Markt/Rankings-Fixes (FM-01..05,07)
 - c147354d chore(slice-284a): LOG — stuck-live geheilt (extern verifiziert) + API-Key-Suspension-Fund
 - cbe1ae5c fix(fantasy): 284a-Heal — Recovery-Lookup auf league+season+date (Plan-sicher)
 - 1d996297 fix(fantasy): Slice 284a — Live-Lifecycle: Cron-Window-OR + Status-Union + Self-Heal + Scoring-Guard
@@ -2553,3 +2554,62 @@ Session crashed. State at crash time:
 
 
 ### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-175916.diff`
+
+## ⚠ CRASH RECOVERY (20260613-003604)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260613-003604.diff)
+```
+ M memory/session-handoff.md
+ M memory/working-memory.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260613-003604.diff`
+
+## ⚠ CRASH RECOVERY (20260613-003943)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260613-003943.diff)
+```
+ M memory/session-handoff.md
+ M memory/working-memory.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260613-003943.diff`
+
+## ⚠ CRASH RECOVERY (20260613-110315)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260613-110315.diff)
+```
+ M memory/session-handoff.md
+ M memory/working-memory.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260613-110315.diff`
+
+## ⚠ CRASH RECOVERY (20260613-110342)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260613-110342.diff)
+```
+ M memory/session-handoff.md
+ M memory/working-memory.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260613-110342.diff`
+
+<!-- TR-REVIEW-PENDING-284c (2026-06-13) -->
+- TR-Review offen: `market.bulkSellResult` = "{sold} satıldı, {skipped} atlandı (piyasa fiyatı yok)" · `rankings.noMarketMovement` = "Şu anda piyasa hareketi yok"

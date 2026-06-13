@@ -1,4 +1,4 @@
-# Working Memory (pre-compaction 2026-05-05 23:33)
+# Working Memory (pre-compaction 2026-06-13 00:35)
 
 ## Sprint
 # Current Sprint — Operation Beta Ready
@@ -24,25 +24,251 @@
 
 ## Handoff
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-05-05 23:17)
+# Session Handoff — Auto (2026-06-13 00:32)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Uncommitted Changes: 2 Files
 ```
- M worklog/audits/audit-stale-2026-05-05.md
- M worklog/audits/type-truth-2026-05-05.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
 ```
 
-## Session Commits: 6
-- 6b8ecb27 fix(lineup): Duplicate-Defense-in-Depth (Slice 272 — Anil-Live-Bug)
-- 3c967ba0 fix(perf-l5): Em-Dash-Display fuer matches=0 (Slice 271 Track B1)
-- 6330129c chore(audits): JSONB-Perf + Test-Mock-Realism Audits (Slice 270 Self-Audit Items 4+5)
-- 97ac5b1a fix(form-bars): Per-Player Tooltip-GW + Slice 271 Discovery Audit (Slice 270b)
-- 1a2a8eb6 chore(session-end): Knowledge-Promotion 270d v2 + active.md idle + Audit-Cron-Sweep
-- ed15892a chore(270d v2): Live-Verify PASS — 11/12 FormBars colored
+## Session Commits: 4
+- 53a51911 fix(market): Slice 284c — Wave 3 Markt/Rankings-Fixes (FM-01..05,07)
+- c147354d chore(slice-284a): LOG — stuck-live geheilt (extern verifiziert) + API-Key-Suspension-Fund
+- cbe1ae5c fix(fantasy): 284a-Heal — Recovery-Lookup auf league+season+date (Plan-sicher)
+- 1d996297 fix(fantasy): Slice 284a — Live-Lifecycle: Cron-Window-OR + Status-Union + Self-Heal + Scoring-Guard
 
 <!-- auto:handoff-end -->
+
+---
+
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-05-06 ~21:50 — Session-End nach Slice 280 + 281, beide LIVE)
+
+**HEAD `71cfe7d6`** Status: idle. Slices 279 + 280 + 281 alle LIVE auf main. Beta läuft mit Taki/Nail Mo (D71). Cold-Start-Track in Phase-2-Wartemodus.
+
+## Letzter Stand bei Session-End (Anil 2026-05-06 ~21:50: „rocht für heute")
+
+**3 Slices heute LIVE:**
+- **Slice 279** `66e6208d` — Lighthouse-CI Baseline + GHA-Gate (Cold-Start Foundation Phase 1)
+- **Slice 280** `c9a36469` — Bundle-Analysis + Tree-Shaking (Cold-Start Phase 2). **Total -374 KB FLJS-Sum**, Discovery-Story DropdownMenu-Dead-Wrapper.
+- **Slice 281** `21af2e74` — Synthetic-User-Daily-GHA-Verkabelung (D54-Recovery). Manual-Dispatch live verifiziert (run-id 25462649034).
+
+**2 neue Decisions (DISTILL):**
+- **D71** PROCESS — Beta-Launch-Status korrigiert: LIVE mit Taki/Nail Mo statt Pre-Launch
+- **D72** ARCHITECTURE — `optimizePackageImports`-Lehre: 0 KB Win für moderne ESM-Libs, Hauptwin = Dead-Wrapper-Delete
+
+## Erste Action nächste Session — Track-Auswahl (Anil-Direktive)
+
+### Track A — Slice 282 (Cold-Start Phase 3, `useHomeData`-Konsolidierung) — DEFERRED bis Lighthouse-Baseline da
+**Voraussetzung:** Slice 279 lighthouse.yml-Workflow hat 3-5 Runs gesammelt (D70 anti-Pattern „Optimieren ohne Baseline" vermeiden).
+
+**Verify pre-Start:**
+```bash
+gh run list --workflow=lighthouse.yml --limit=10
+# Wenn ≥ 3 SUCCESS-Runs: Phase-2-Baseline schreibbar, Track A startfähig.
+```
+
+**Spec-Skelett:** Noch zu schreiben. Erstes Reading: `useHomeData`-Hook + alle Konsumenten + bestehende RPCs für Home-Data-Bündelung.
+
+**Hinweis Slice-Numbering:** Cold-Start Phase 3 ist nun Slice 282 (Slice 281 wurde Synthetic-Daily-GHA). D70 Re-Numbering: Slice 282 = Phase 3 (`useHomeData`), Slice 283 = Phase 4 (Vercel Edge-Caching).
+
+### Track B — Phase-D Beta-Pflicht ✅ ERLEDIGT (D71 dokumentiert)
+Beta läuft live mit Taki/Nail Mo. Phase-D-BLOCKER-Tracker stale. Live-Bug-Reports von Anil = Tester-Befund hohe Prio.
+
+### Track C — Slice 280b (Wave 3, Dialog/AlertDialog dynamic-Wrap) — DEFERRED
+Risk/Reward ungünstig nach Slice 280 Wave-0-Win (-374 KB). Wave 3 würde User-Side Loading-Spike auf Modal-Open einführen. Empfehlung: defer bis Phase 2 Lighthouse-Daten zeigen ob LCP-Verbesserung ausreicht.
+
+### Track D — Slice 281 Live-Run-Triage (1× pro Tag morgens)
+**Pflicht für Anil:** `gh run list --workflow=synthetic-users.yml --limit=3` morgens checken. Master-Tracker-Issue mit `synthetic-fail` Label = Live-Bug-Report aus Tester-Surrogate. Sofort triagen.
+
+### Track E — Notion-Integration-Drift heilen
+Notion-MCP DB-ID `57670082f03a4ac4a305f68186c981a0` returnt 404. Anil-Action: Integration-Permissions checken oder DB-ID in CLAUDE.md aktualisieren.
+
+## Slice 280 Recap — was passierte
+
+Bundle-Win-Headline: **-17 KB FLJS auf JEDER der 22 tracked Pages = -374 KB Total**. Stretch-Goal -200 KB massiv übertroffen.
+
+**Discovery-Story:** Pre-Implementation `grep -rln "DropdownMenu" src/` ergab Wrapper hat **0 Konsumenten** in Production-Code (Slice-181-Foundation, nie konsumiert). Delete eliminiert 105 KB transitive `@radix-ui/react-dropdown-menu`-Bundle pro Page-Chunk.
+
+**Wave-Bilanz:** Wave 0 (Dead-Wrapper-Delete) brachte ~100% des Wins. Wave 1 (`optimizePackageImports`-Erweiterung) + Wave 2 (Sentry Namespace → Named-Imports) waren 0 KB direkt — Lehre: moderne ESM-libs sind bereits tree-shaken, Hauptwin liegt in Dead-Wrapper-Removal + Lazy-Loading + API-Surface-Reduktion. Wave 3 (Dialog/AlertDialog dynamic-Wrap) DEFERRED.
+
+**Reviewer:** PASS, 4 NIT/MINOR alle im LOG behoben. Knowledge-Promotion live in `errors-frontend.md` neu „Dead-Wrapper-File mit transitive Lib-Lock-In (Slice 280)" — Bug-Klasse + Detection-Pattern + Fix-Pattern + Bundle-Win-Erwartung. Cross-Cutting D54 + D46.
+
+**Files-Changed:** 22 Files, +522 / -774 = Net -252 Zeilen.
+
+## Slice 279 Phase-2-Sammlung (läuft parallel)
+
+Workflow `lighthouse.yml` läuft auto bei jedem `deployment_status: success`. Nach 3-5 Live-Runs:
+- `worklog/audits/2026-05-06/lighthouse-baseline.md` schreiben (Mean ± StdDev pro Metric pro URL)
+- Phase-3-Schwellen ableiten (baseline + 1.5×StdDev)
+- Anil-Approval → `lighthouserc.json` `assert.assertions` auf `error`-Level switchen → hard-fail Gate aktiv
+
+**Verify-Commands für Phase-2-Sammlung:**
+```bash
+gh run list --workflow=lighthouse.yml --limit=5
+gh run view <run-id> --log
+gh run download --name lhci-results-<sha-short> <run-id>
+```
+
+## Notion-Drift erkannt 2026-05-06 ~21:25
+
+Notion-MCP Slice-Database (DB-ID `57670082f03a4ac4a305f68186c981a0` aus CLAUDE.md) returnt 404. Search-Query nach "Slice 279 280 Lighthouse Bundle" returnt 0 Hits. Mögliche Ursachen:
+- Notion-Integration verlor Zugriff auf Slice-DB (Permissions-Drift)
+- DB-ID in CLAUDE.md ist stale (DB umbenannt/gelöscht/migriert)
+- Workspace-Switch in Notion-Integration
+
+**Action für Anil:** Notion-Integration prüfen, ggf. DB-ID in `CLAUDE.md` Sektion „Notion-Integration" aktualisieren. Kanban-Sync für Slice 279 + 280 manuell auf „Erledigt" setzen falls Sync nicht automatisch greift.
+
+## Slice 279 Phase-2-Sammlung (läuft parallel zu Slice 280)
+
+Workflow `lighthouse.yml` läuft auto bei jedem `deployment_status: success`. Nach 3-5 Live-Runs:
+- `worklog/audits/2026-05-06/lighthouse-baseline.md` schreiben (Mean ± StdDev pro Metric pro URL)
+- Phase-3-Schwellen ableiten (baseline + 1.5×StdDev)
+- Anil-Approval → `lighthouserc.json` `assert.assertions` auf `error`-Level switchen → hard-fail Gate aktiv
+
+**Verify-Commands für Phase-2-Sammlung:**
+```bash
+gh run list --workflow=lighthouse.yml --limit=5
+gh run view <run-id> --log
+gh run download --name lhci-results-<sha-short> <run-id>
+```
+
+## Was passierte heute (9 Slices, 11 Commits, 0 Reverts)
+
+| Slice | Commit | Was |
+|-------|--------|-----|
+| 274 | `c9064e50` | Form-Bars Absolute Liga-Window (DNP-Spieler dashed bars) |
+| 275 | `04d84641` | Sync-Injuries Date-Filter + 1862 false-positive Heal |
+| 276 | `0ee22fc8` | Club-Logo short-Code-Konflikt-Resolution (Wolfsburg/Wolves etc.) |
+| 276b | `0eb4365b` | DB-Heal 4 stuck Ligen Cron-Drift |
+| 277 | `86f29d87` | Cron-Code-Fix advance_gameweek in Skip-Branches (276b recurrent verhindern) |
+| 278 | `5f5e15a4` | MysteryBox-Doppel-Render-Suppression (Slice 266 Multi-Slot-Drift) |
+| 279 | `66e6208d` | Lighthouse-CI Baseline + GHA-Gate (Cold-Start-Track Phase 1 Foundation) |
+| 280 | `c9a36469` | Bundle-Analysis + Tree-Shaking — Total -374 KB FLJS (Cold-Start-Track Phase 2) |
+| **281** | **`21af2e74` + `71cfe7d6`** | **Synthetic-User-Daily-GHA-Verkabelung (D54-Recovery, live verifiziert)** |
+
+Plus Hygiene:
+- TR-Pre-Verify Anil-confirmed (commit `68e73257`) → RISK-5 endgültig CLOSED
+- Strategic-Advisory entfernt (Anil-Anweisung)
+- D70 Cold-Start-Track dokumentiert
+- errors-frontend.md erweitert um Cross-Section-Coupling-Drift Pattern (Slice 278)
+- Slice 279 verkabelt pre-existing orphan `lighthouserc.json` (commit 8aad8428 vom 2026-04-19, 17 Tage Build-without-Wire — D54-Recovery)
+
+## Beta-Launch Status: LIVE (Status-Update 2026-05-06)
+
+Anil testet bereits live mit Taki/Nail Mo. Phase-D-BLOCKER-Tracker ist stale → wird in nächster Session aus `worklog/beta-phase.md` korrigiert. Slice 270+ Live-Bug-Fixes kommen aus Tester-Feedback:
+- Slice 274: Form-Bars DNP-Spieler dashed bars
+- Slice 275: Sync-Injuries 1862 false-positive Heal
+- Slice 276/276b/277: Club-Logo + Cron-GW-Drift
+- Slice 278: MysteryBox-Doppel-Render-Suppression (Anil-Live-Bug Report)
+
+Cold-Start-Track (Slice 279/280/281+) parallel — Performance-Win für aktive Live-Tester relevanter als für hypothetische 50-Mann-Pipeline.
+
+## Knowledge-Promotion heute
+
+- `errors-frontend.md` neu „Cross-Section-Coupling-Drift bei Multi-Slot-Refactors" (Slice 278)
+- `errors-frontend.md` neu „Dead-Wrapper-File mit transitive Lib-Lock-In" (Slice 280)
+- `errors-infra.md` neu „Cron-Skip-Branch ohne advance_gameweek-Aufruf" (Slice 273+276b)
+- `errors-db.md` neu „Tenant-Window Achsen-Erweiterung Per-Player vs. Per-Liga" (Slice 274)
+- `errors-scraper.md` neu „External-API liefert historische Daten als aktuelle" (Slice 275)
+- `errors-frontend.md` neu „Lookup-Map indexed by ambiguous Key" (Slice 276)
+- Slice 279 Knowledge-Promotion-Kandidaten (post-Phase-3): Pattern „Phase-Plan in 1 Slice (BUILD-now + LOG-tasks-deferred)" + „GHA-Workflow im D54-Recovery-Modus verkabelt orphan Config"
+
+## Decisions heute
+
+- **D69** Backlog-Sub-Track MUSS nächster Slice sein, nicht „separater Slice nach Beta"
+- **D70** Cold-Start-Latency als nächster Strategic-Track (Slice 279+)
+- **D71** Beta-Launch-Status korrigiert: LIVE seit ≤2026-05-06 mit Taki/Nail Mo (statt Pre-Launch)
+- **D72** `optimizePackageImports`-Lehre: 0 KB Win für moderne ESM-Libs, Hauptwin = Dead-Wrapper-Delete (Slice 280 empirisch)
+
+## Tests final state
+
+- 3215+ tests grün im Branch
+- vitest 13/13 in advance-helpers (Slice 277)
+- vitest 135/135 in Home + Hooks (Slice 278)
+- Slice 279 keine neuen Tests (Workflow-File + Config, by-design kein Unit-Test-Target)
+- 0 Reverts seit Slice 261
+
+---
+
+# 🎯 RESUME-ANKER VORHERIGE SESSION (2026-05-06 ~00:40 — Schluss nach Spieltag-Stabilisierung)
+
+**HEAD `4e8200a0`** Status: idle. Slice 273 Spieltag-Stabilisierung 3/4 Tracks live, Track A2 Backfill-Run im Hintergrund (Agent läuft).
+
+## Slice 273 ENDGÜLTIG ABGESCHLOSSEN — Backfill-Run erfolgreich
+
+Backend-Agent `a0ce80579fb4a81de` Multi-Liga-Backfill DONE (~20 min, 11/11 GWs erfolgreich, 0 Fehler).
+
+**Erste Action morgen:** keine. Slice 273 ist 4/4 Tracks live. Anil's Anweisung „endgültig aus der welt haben" erfüllt.
+
+**DB-Smoke Verify-Query (kopier-fertig):**
+```sql
+SELECT l.name, f.gameweek, COUNT(DISTINCT f.id) AS fixtures, COUNT(DISTINCT fps.id) AS stats_rows
+FROM fixtures f
+JOIN clubs c ON c.id = f.home_club_id
+JOIN leagues l ON l.id = c.league_id
+LEFT JOIN fixture_player_stats fps ON fps.fixture_id = f.id
+WHERE f.status IN ('finished','simulated')
+  AND ((l.name = 'Bundesliga' AND f.gameweek = 32)
+    OR (l.name = '2. Bundesliga' AND f.gameweek = 32)
+    OR (l.name = 'La Liga' AND f.gameweek IN (32,33,34))
+    OR (l.name = 'Premier League' AND f.gameweek IN (32,33,34,35))
+    OR (l.name = 'Serie A' AND f.gameweek = 35)
+    OR (l.name = 'Süper Lig' AND f.gameweek = 32))
+GROUP BY l.name, f.gameweek
+ORDER BY l.name, f.gameweek;
+```
+
+Erwartung: stats_rows > 100 pro Zeile. Wenn 0 → Re-Run via `node scripts/slice-273-backfill-fixture-stats.mjs`.
+
+## Was passierte heute Abend (4 Slices, 5 Commits, 0 Reverts)
+
+| Slice | Commit | Was |
+|-------|--------|-----|
+| 270b | `97ac5b1a` | Tooltip-GW-Drift Fix — Combined Service + select-Pattern (5 Files) |
+| 271 B1 | `3c967ba0` | Em-Dash für matches=0 Junioren (8 Files, +9 Tests) |
+| 272 | `6b8ecb27` | Lineup Duplicate-Defense-in-Depth (4 Files, +10 Store-Tests, Anil-Live-Bug) |
+| 273 | `0b76346a` + `4e8200a0` | Spieltag-Stabilisierung — Track A1 DB-Heal + B Liga-Filter + C Modal Stale + Track A2 Backfill-Script |
+
+## Slice 273 Detailstand
+
+| Track | Status |
+|-------|--------|
+| A1 DB-Heal active_gameweek (PL 31→36, La Liga 33→35, dual-write atomar) | ✅ live |
+| B Liga-Filter `getGameweekStatuses` + Cache-Key + Hook | ✅ live |
+| C Modal Stale-Fix (selectedFixtureId derived + Refetch + 60s-Polling) | ✅ live |
+| A2 Backfill-Run für 11 lagged Liga+GW-Kombos | ✅ done (11/11, 0 Fehler) |
+
+## Knowledge-Promotion heute Abend
+
+- `errors-frontend.md` — "Multi-Slot-State-Stores: Move-Semantik vs. Insert-Semantik" (Slice 272)
+- `errors-frontend.md` — "Selected-Item-Snapshot vs. Realtime-Update-Drift" (Slice 273)
+- `errors-db.md` — "History-Gap-Tag-Sensitivität bei strict-7d-LEFT-JOIN" (Slice 271 Audit)
+
+## Beta-Phase D Status (unverändert)
+
+- `last_signoff: PASS-PENDING-IPHONE-VISUAL-VERIFY`
+- iPhone-Verify mit Power-Account am WE pflicht (45 min)
+- TR-Pflicht-Review 11 Slice-266+269-Keys (5 min)
+- Beta-Mails an Taki/Nail Mo (Templates fertig)
+
+## Slice 274 Backlog (post-Beta)
+
+- Cron-Code-Fix `gameweek-sync/route.ts` für Postponed-Match-Aware advance (Slice 140 Pattern-Familie generalized)
+- TFF 1. Lig GW38 Saisonende-API-Mapping
+- Wenn `clubs.active_gameweek` zukünftig drifted: gleicher Pattern, evtl. Auto-Reconcile via Cron
+
+## Tests final state
+
+- 3215+ tests grün im Branch
+- Slice 273 Frontend: 255/255 fantasy-Domain
+- Slice 272: +10 Store-Tests
+- Slice 271 B1: +9 Helper-Tests
+- 0 Reverts seit Slice 261
+
+---
 
 ---
 
@@ -2115,16 +2341,255 @@ Session crashed. State at crash time:
 
 ### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-233214.diff`
 
+## ⚠ CRASH RECOVERY (20260505-233419)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260505-233419.diff)
+```
+ M memory/session-handoff.md
+ M memory/working-memory.md
+ M worklog/audits/audit-stale-2026-05-05.md
+ M worklog/audits/type-truth-2026-05-05.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260505-233419.diff`
+
+## ⚠ CRASH RECOVERY (20260611-185930)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260611-185930.diff)
+```
+ M memory/session-handoff.md
+ M src/app/(app)/hooks/__tests__/useHomeData.test.ts
+ M src/app/(app)/hooks/useHomeData.ts
+ M src/app/(app)/page.tsx
+ M src/app/api/players/route.ts
+ M src/components/home/HomeSpotlight.tsx
+ M src/components/home/LastGameweekWidget.tsx
+ M src/components/home/MarktPuls.tsx
+ M src/components/home/TopMoversStrip.tsx
+ M src/components/home/TrendingPlayersStrip.tsx
+ M src/components/home/__tests__/HomeSpotlight.test.tsx
+ M src/components/home/__tests__/MarktPuls.test.tsx
+ M src/components/home/__tests__/TopMoversStrip.test.tsx
+ M src/components/home/__tests__/TrendingPlayersStrip.test.tsx
+ M src/components/social/FollowingFeedRail.tsx
+ M src/lib/queries/index.ts
+ M src/lib/queries/keys.ts
+ M src/lib/queries/players.ts
+ M src/lib/services/players.ts
+ M worklog/active.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260611-185930.diff`
+
+## ⚠ CRASH RECOVERY (20260611-185931)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260611-185931.diff)
+```
+ M memory/session-handoff.md
+ M src/app/(app)/hooks/__tests__/useHomeData.test.ts
+ M src/app/(app)/hooks/useHomeData.ts
+ M src/app/(app)/page.tsx
+ M src/app/api/players/route.ts
+ M src/components/home/HomeSpotlight.tsx
+ M src/components/home/LastGameweekWidget.tsx
+ M src/components/home/MarktPuls.tsx
+ M src/components/home/TopMoversStrip.tsx
+ M src/components/home/TrendingPlayersStrip.tsx
+ M src/components/home/__tests__/HomeSpotlight.test.tsx
+ M src/components/home/__tests__/MarktPuls.test.tsx
+ M src/components/home/__tests__/TopMoversStrip.test.tsx
+ M src/components/home/__tests__/TrendingPlayersStrip.test.tsx
+ M src/components/social/FollowingFeedRail.tsx
+ M src/lib/queries/index.ts
+ M src/lib/queries/keys.ts
+ M src/lib/queries/players.ts
+ M src/lib/services/players.ts
+ M worklog/active.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260611-185931.diff`
+
+## ⚠ CRASH RECOVERY (20260612-005640)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-005640.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? worklog/audits/2026-06-12/
+?? worklog/audits/lhci-local-282b.log
+?? worklog/reviews/282b-review.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005640.diff`
+
+## ⚠ CRASH RECOVERY (20260612-005646)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-005646.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? worklog/audits/2026-06-12/
+?? worklog/audits/lhci-local-282b.log
+?? worklog/reviews/282b-review.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005646.diff`
+
+## ⚠ CRASH RECOVERY (20260612-005905)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-005905.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-11.md
+ M worklog/audits/type-truth-2026-06-11.md
+?? worklog/audits/2026-06-12/
+?? worklog/audits/lhci-local-282b.log
+?? worklog/reviews/282b-review.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-005905.diff`
+
+## ⚠ CRASH RECOVERY (20260612-130123)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-130123.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130123.diff`
+
+## ⚠ CRASH RECOVERY (20260612-130123)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-130123.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130123.diff`
+
+## ⚠ CRASH RECOVERY (20260612-130128)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-130128.diff)
+```
+ M memory/session-handoff.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-130128.diff`
+
+## ⚠ CRASH RECOVERY (20260612-170143)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-170143.diff)
+```
+ M memory/session-handoff.md
+ M src/app/api/cron/gameweek-sync/route.ts
+ M src/app/api/cron/live-score-sync/route.ts
+ M src/app/api/cron/sync-fixtures-future/route.ts
+ M src/components/fantasy/spieltag/FixtureCard.tsx
+ M src/components/fantasy/spieltag/FixtureDetailModal.tsx
+ M src/components/fantasy/spieltag/SpieltagBrowser.tsx
+ M src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx
+ M src/features/fantasy/services/fixtures.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? src/features/fantasy/lib/
+?? supabase/migrations/20260612180000_slice_284a_fixture_status_union.sql
+?? worklog/specs/284a-live-lifecycle.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-170143.diff`
+
+## ⚠ CRASH RECOVERY (20260612-170145)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-170145.diff)
+```
+ M memory/session-handoff.md
+ M src/app/api/cron/gameweek-sync/route.ts
+ M src/app/api/cron/live-score-sync/route.ts
+ M src/app/api/cron/sync-fixtures-future/route.ts
+ M src/components/fantasy/spieltag/FixtureCard.tsx
+ M src/components/fantasy/spieltag/FixtureDetailModal.tsx
+ M src/components/fantasy/spieltag/SpieltagBrowser.tsx
+ M src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx
+ M src/features/fantasy/services/fixtures.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? src/features/fantasy/lib/
+?? supabase/migrations/20260612180000_slice_284a_fixture_status_union.sql
+?? worklog/specs/284a-live-lifecycle.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-170145.diff`
+
+## ⚠ CRASH RECOVERY (20260612-175916)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260612-175916.diff)
+```
+ M memory/session-handoff.md
+ M src/app/api/cron/gameweek-sync/route.ts
+ M src/app/api/cron/live-score-sync/route.ts
+ M src/app/api/cron/sync-fixtures-future/route.ts
+ M src/components/fantasy/spieltag/FixtureCard.tsx
+ M src/components/fantasy/spieltag/FixtureDetailModal.tsx
+ M src/components/fantasy/spieltag/SpieltagBrowser.tsx
+ M src/components/fantasy/spieltag/__tests__/FixtureCard.test.tsx
+ M src/features/fantasy/services/fixtures.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
+?? src/features/fantasy/lib/
+?? supabase/migrations/20260612180000_slice_284a_fixture_status_union.sql
+?? worklog/specs/284a-live-lifecycle.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260612-175916.diff`
+
 ## Files Changed This Session
 - Keine tracked
 
 ## Git State
  M memory/session-handoff.md
  M memory/working-memory.md
- M worklog/audits/audit-stale-2026-05-05.md
- M worklog/audits/type-truth-2026-05-05.md
+ M worklog/audits/audit-stale-2026-06-12.md
+ M worklog/audits/type-truth-2026-06-12.md
 
 Last 3 commits:
-6b8ecb27 fix(lineup): Duplicate-Defense-in-Depth (Slice 272 — Anil-Live-Bug)
-3c967ba0 fix(perf-l5): Em-Dash-Display fuer matches=0 (Slice 271 Track B1)
-6330129c chore(audits): JSONB-Perf + Test-Mock-Realism Audits (Slice 270 Self-Audit Items 4+5)
+53a51911 fix(market): Slice 284c — Wave 3 Markt/Rankings-Fixes (FM-01..05,07)
+c147354d chore(slice-284a): LOG — stuck-live geheilt (extern verifiziert) + API-Key-Suspension-Fund
+cbe1ae5c fix(fantasy): 284a-Heal — Recovery-Lookup auf league+season+date (Plan-sicher)

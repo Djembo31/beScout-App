@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 284c | 2026-06-13 | fix(market): Markt/Rankings-Fixes — Floor-Parity + Rankings-Toter-Markt + Liga-Filter (Wave 3 Stabilisierung)
+
+- Stage-Chain: SPEC (worklog/specs/284c-markt-rankings-fixes.md, M) → IMPACT (skipped — keine RPC/Migration, Query-Key komponentenlokal) → BUILD → REVIEW (Self-Review PASS — Fixes 1:1 fm-mechanics-Experten-Audit-Skizzen, worklog/reviews/284c-review.md) → PROVE (worklog/proofs/284c-markt-rankings.md) → LOG
+- Slice-Type: Service + UI (M). Wave 3 (Key-unabhängig, parallel zu Anils API-Key-Reaktivierung). Punch-List FM-01..05,07.
+- **6 Fixes:** FM-01 P1 Floor-Parity (/manager nutzt jetzt denselben computePlayerFloor wie /market — kein Wert/P&L-Drift mehr) · FM-02 P1 Rankings-Toter-Markt (.neq/.gt-Filter + Empty-State — DB-Truth: 4501 tradeable, 0 mit change/volume≠0) · FM-03 P1 Liga-Filter server-seitig (DB-Truth: 2.BL hatte 542 tradeable aber 0 im Top-100 → Filter zeigte NICHTS; jetzt echte Top 20) · FM-04 Bulk-Sell-Toast · FM-05 ended-IPOs limit(200) · FM-07 rank=0→Em-Dash.
+- **FM-06 dokumentiertes Defer:** Leaderboard-Liga-Scoping = eigener Slice (Header-Hack abgelehnt, globale SSOT-Konsistenz Slice 251).
+- Verify: tsc 0 · 1238/1238 Tests · Post-Deploy-Smoke 27446937629 SUCCESS · 2 P1 DB-bewiesen · Live-Walk 0 App-Errors (nur RSC-Prefetch-Blips).
+- i18n: market.bulkSellResult + rankings.noMarketMovement (DE+TR) — TR für Anil-Review markiert.
+- Commit: 53a51911 + LOG. Nächste Waves: 284d Fantasy-UI (Key-unabhängig) · 284b Daten-Heal (Key-abhängig).
+
 ## 284a | 2026-06-12 | fix(fantasy): Live-Lifecycle — Cron-Window + Status-Modell + Self-Heal + Scoring-Guard (Wave 1 Stabilisierung)
 
 - Stage-Chain: SPEC (worklog/specs/284a-live-lifecycle.md, L) → IMPACT (inline §4) → BUILD (Migration-First: CHECK applied VOR Code-Push) → REVIEW (Cold-Context REWORK → 3 MAJOR + 5 MINOR geheilt, worklog/reviews/284a-review.md) → PROVE (worklog/proofs/284a-live-lifecycle.md) → LOG
