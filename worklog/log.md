@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 288 | 2026-06-13 | docs(audit): Page Contract Audit — /market + /player/[id]
+
+- Stage-Chain: SPEC (`worklog/specs/288-market-player-page-contract.md`, M) → IMPACT skipped (docs-only) → BUILD (Audit) → REVIEW (`worklog/reviews/288-review.md`, PASS) → PROVE (`worklog/proofs/288-market-player-page-contract.md`) → LOG.
+- Slice-Type: Docs/Audit. Claude Code was used as read-only worker; it hit `error_max_turns`, so Hermes independently verified the useful findings and wrote the final artifacts.
+- Audit: `worklog/audits/2026-06-13/page-contract-market-player.md`.
+- Ergebnis: `/market` = GREEN with YELLOW caveat; `/player/[id]` = YELLOW.
+- Verified facts: `/market` has `GeoGate feature="dpc_trading"`; player scope has no GeoGate; 0 direct Supabase client imports in market/player components; 0 placeholder/skip tests in scope; test counts verified.
+- Findings: F-1 P1 GeoGate asymmetry on player trading CTAs; F-2 P2 `usePlayerDetailData` confidence gap; F-3 P2 holdings Source-of-Truth split; F-4/F-5 P3 e2e confidence/click-stability.
+- No runtime/source changes. Next: decide F-1 or continue S2 `/` + `/manager` audit.
+
 ## 287 | 2026-06-13 | docs(product): Product Truth Freeze — S0 Stabilization
 
 - Stage-Chain: SPEC (`worklog/specs/287-product-truth-freeze.md`, S) → IMPACT skipped (docs-only) → BUILD → REVIEW (`worklog/reviews/287-review.md`, PASS) → PROVE (`worklog/proofs/287-product-truth-freeze.md`) → LOG.

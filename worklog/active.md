@@ -2,16 +2,17 @@
 
 ```
 status: idle
-slice: 287 ✅ DONE
+slice: 288 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/287-product-truth-freeze.md
-impact: skipped — docs/product-truth only, no runtime code
-proof: worklog/proofs/287-product-truth-freeze.md (docs-only diff, no src/ changes)
-review: worklog/reviews/287-review.md (PASS)
+spec: worklog/specs/288-market-player-page-contract.md
+impact: skipped — docs/page-contract audit only, no runtime code
+proof: worklog/proofs/288-market-player-page-contract.md (docs-only, no src changes)
+review: worklog/reviews/288-review.md (PASS)
 ```
 
 ## Zuletzt
 
+- **Slice 288** (2026-06-13) — S1 Page Contract Audit /market + /player/[id] (Docs-only): /market GREEN mit YELLOW-Vorbehalt; /player/[id] YELLOW; F-1 GeoGate-Asymmetrie als P1-Folgeentscheidung.
 - **Slice 287** (2026-06-13) — Product Truth Freeze / S0 Stabilization (Docs-only): current product truth file, README replacement, historical vision warnings, READY wording clarified.
 - **Slice 286** (2026-06-13) — Cold-Load-Race Liga-Filter (M, root-cause via useSyncExternalStore, live 0→9 buttons).
 - **Slice 285** (2026-06-13) — FM-06 Liga-Header über PlayerRankings (XS).
@@ -35,7 +36,9 @@ Steering audit:
 - `worklog/audits/2026-06-12/stabilization-master-audit.md`
 
 Nächstes empfohlen:
-- **S1 / Slice 288:** Page Contract Audit für `/market` + `/player/[id]`.
+- **S1 / Slice 288 ✅ DONE:** Page Contract Audit `/market` + `/player/[id]` ist abgeschlossen.
+- Offene Folgeentscheidung: F-1 GeoGate-Asymmetrie auf `/player/[id]` Trading-CTAs (P1, Anil/CEO-Approval vor Fix).
+- Nächster Audit-Schritt: S2 Page Contract Audit `/` + `/manager`, mit F-3 Holdings-Source-of-Truth-Split als Input.
 - Kein breiter Feature-Ausbau vor Demo-Path-Stabilisierung.
 
 ## Slice 284 — Core-Domain-Stabilisierung · Waves 1+3+4 ✅ / Wave 2 blockiert
