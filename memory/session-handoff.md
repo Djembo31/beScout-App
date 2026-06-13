@@ -1,17 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-13 11:38)
+# Session Handoff — Auto (2026-06-13 11:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
  M worklog/audits/audit-stale-2026-06-13.md
  M worklog/audits/type-truth-2026-06-13.md
-?? worklog/audits/tmp-284d-log.py
 ```
 
-## Session Commits: 2
+## Session Commits: 3
+- 839e8283 chore(slice-284d): LOG — Fantasy-UI-Fixes live, Smoke gruen (Waves 1+3+4 komplett)
 - 3f58d171 fix(fantasy): Slice 284d — Wave 4 Fantasy-UI-Fixes (FANT-05,08,09,13)
 - 196972c0 chore(slice-284c): LOG — Markt/Rankings-Fixes live, 2 P1 DB-bewiesen
 

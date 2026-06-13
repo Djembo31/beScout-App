@@ -1,6 +1,6 @@
 # Audit-Stale Report — 2026-06-13
 
-**Generated:** 2026-06-13T09:27:23.206Z
+**Generated:** 2026-06-13T09:40:08.534Z
 **Punch-List:** `worklog/punch-list-2026-04-25.md`
 **Slice:** 223 (D48-Catcher automatisiert)
 
