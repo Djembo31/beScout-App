@@ -59,7 +59,26 @@ $ npx vitest run src/components/player/__tests__/scoreColor.test.ts
  src/features/manager/components/kader/KaderPlayerRow.tsx | +/-  (derive + wire)
  src/features/manager/components/kader/KaderTab.tsx | +3   (sort doc)
 
-[6] POST-DEPLOY (PROVE-Abschluss, pending Vercel)
+[6] POST-DEPLOY LIVE-VERIFY (PROVE-Abschluss) — 2026-06-14, Commit 87b48f31
 ----------------------------------------------------------------
-Playwright @ bescout.net /manager Kader: Circle-Zahl ≈ avg der sichtbaren Bars,
-Circle == PerfPills-L5. (Augenschein-Spot-Check; Math bereits unit-bewiesen.)
+Vercel Production deploy 87b48f31 state=success. Playwright @ www.bescout.net
+/manager?tab=kader (jarvis-qa, 12 Spieler). DOM-Extraktion pro Row: L5-Circle,
+PerfPills-L5, Bar-Scores (aus aria-labels). 0 Console-Errors.
+
+Player    Circle  PerfPills  Bars(played)            ROUND(avg)  AC
+ÇOBAN     72      L5 72      82,72,63                72.33→72    ✅ AC-1+5
+SZUMSKI   77      L5 77      70,83                   76.5 →77    ✅ round-half-up
+DEMIR     66      L5 66      65,66                   65.5 →66    ✅
+KWABENA   66      L5 66      63,69                   66   →66    ✅
+YAVUZ     63      L5 63      65,60                   62.5 →63    ✅
+ATING     63      L5 63      70,59,(DNP),60          63.0 →63    ✅ AC-2 null gefiltert
+ÖZÇIMEN   70      L5 70      73,70,67                70.0 →70    ✅
+OKUMUŞ    71      L5 71      alle DNP                fallback    ✅ AC-3 perf.l5=71
+YILDIZ    52      L5 52      alle DNP                fallback    ✅ AC-3 perf.l5=52
+BOZKURT   —       L5 —       alle DNP, matches=0     —           ✅ AC-4
+
+ERGEBNIS: Alle 11 Rows — Circle == PerfPills-L5 (AC-5, kein interner Widerspruch).
+Spieler mit Live-Window: Circle == ROUND(avg(non-null bars)) exakt (AC-1).
+DNP-Slots gefiltert (ATING GW36; AC-2). All-DNP → Fallback perf.l5 (AC-3).
+0-Match → „—" (AC-4). 0 Console-Errors. Screenshot: 309-kader-l5-derived.png.
+PROVE vollständig abgeschlossen.
