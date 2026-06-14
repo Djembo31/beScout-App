@@ -42,6 +42,29 @@ export function fmtPerfL5(l5: number, matches: number): string {
   return Math.round(l5).toString();
 }
 
+/** Slice 309 (Player-#3, Option A) — L5-Skalar aus den letzten-5-FormBars-Scores ableiten,
+ *  damit die angezeigte L5-Zahl mit den Live-Bars übereinstimmt (gespeichertes
+ *  `players.perf_l5` laggt gegenüber `player_gameweek_scores` zwischen Cron-Läufen).
+ *
+ *  Gleiche Skala + Aggregat wie `cron_recalc_perf`: `LEAST(100, ROUND(AVG(score)))`.
+ *  KEIN /1.5 (fantasy.md-Doc war stale, live gegen cron_recalc_perf verifiziert — D77).
+ *
+ *  Window-Hinweis (Slice 309 Review F-1): Der Cron mittelt über die letzten 5
+ *  *existierenden* player_gameweek_scores-Rows (skippt DNP-Gaps, reicht ggf. weiter
+ *  zurück). Hier wird über die played-Slots *innerhalb* des letzten-5-Liga-GW-Fensters
+ *  (Slice 274 RPC) gemittelt. Für lückenlose Stammspieler identisch; bei DNP-Lücken
+ *  bewusst an die *sichtbaren Bars* gekoppelt statt an den (laggenden) Cron-Skalar — das
+ *  ist der Sinn des Slices.
+ *  - `null`-Slots (DNP) werden gefiltert (wie FormBars dashed rendert).
+ *  - `score=0` (Cameo, non-null) zählt mit (wie Cron 0-Rows inkludiert).
+ *  - Kein non-null-Score (alle DNP / scores noch nicht geladen) → `fallback` (= perf.l5).
+ */
+export function deriveL5FromRecentScores(scores: (number | null)[] | undefined, fallback: number): number {
+  const played = (scores ?? []).filter((s): s is number => s != null);
+  if (played.length === 0) return fallback;
+  return Math.min(100, Math.round(played.reduce((sum, s) => sum + s, 0) / played.length));
+}
+
 /** Slice 271 Track B1 — Color-Helper analog zu getL5Color, aber neutral-grey für 0-played. */
 export function getL5ColorWithMatches(l5: number, matches: number): string {
   if (matches === 0) return 'text-white/40';

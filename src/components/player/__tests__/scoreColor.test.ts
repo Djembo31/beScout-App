@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass } from '../scoreColor';
-import { fmtPerfL5, getL5ColorWithMatches, getL5HexWithMatches } from '../index';
+import { fmtPerfL5, getL5ColorWithMatches, getL5HexWithMatches, deriveL5FromRecentScores } from '../index';
 
 describe('fmtPerfL5 (Slice 271 Track B1)', () => {
   it('returns em-dash when matches=0 (avoids DB-default 50.00 visual bug)', () => {
@@ -15,6 +15,32 @@ describe('fmtPerfL5 (Slice 271 Track B1)', () => {
   });
   it('returns 0 when matches=1 and l5=0 (legitimate edge case)', () => {
     expect(fmtPerfL5(0, 1)).toBe('0');
+  });
+});
+
+describe('deriveL5FromRecentScores (Slice 309 Player-#3)', () => {
+  it('AC-1: full window of played scores → ROUND(avg) (mirrors cron_recalc_perf)', () => {
+    // P1 live: [0,65,70,69,62] → avg 53.2 → 53
+    expect(deriveL5FromRecentScores([0, 65, 70, 69, 62], 99)).toBe(53);
+    // P8 live: [60,59,70,62,62] → avg 62.6 → 63
+    expect(deriveL5FromRecentScores([60, 59, 70, 62, 62], 99)).toBe(63);
+  });
+  it('AC-2: DNP-null slots filtered, score=0 cameos counted', () => {
+    // [0,73,0,73,63] → all 5 played (0 = cameo), avg 41.8 → 42
+    expect(deriveL5FromRecentScores([0, 73, 0, 73, 63], 99)).toBe(42);
+    // null = DNP filtered: [null,73,null,73,63] → avg(73,73,63)=69.67 → 70
+    expect(deriveL5FromRecentScores([null, 73, null, 73, 63], 99)).toBe(70);
+  });
+  it('AC-3: no live window (all null / undefined) → fallback', () => {
+    expect(deriveL5FromRecentScores([null, null, null, null, null], 41)).toBe(41);
+    expect(deriveL5FromRecentScores(undefined, 41)).toBe(41);
+    expect(deriveL5FromRecentScores([], 41)).toBe(41);
+  });
+  it('single non-null score returns that score', () => {
+    expect(deriveL5FromRecentScores([null, null, 77, null, null], 50)).toBe(77);
+  });
+  it('caps at 100 like cron LEAST(100, …)', () => {
+    expect(deriveL5FromRecentScores([120, 110, 130], 50)).toBe(100);
   });
 });
 

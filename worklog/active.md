@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 308 ✅ DONE
-stage: LOG complete
-spec: worklog/specs/308-ipo-price-strict.md
-impact: skipped (1-Zeilen-Mapper-Fix in dbToPlayer; alle prices.ipoPrice-Consumer bereits null/0-guarded — verifiziert)
-proof: worklog/proofs/308-ipo-price-strict.txt
-review: worklog/reviews/308-review.md (reviewer-Agent PASS, 1 INFO benign enriched.ts dead-branch + 1 NITPICK stale Test-Name in-slice gefixt)
-decision: S7 Phase-2 Trading-#4 — IPO-Preis strikt aus ipo_price (kein floor-Fallback). QUEUE (Anil-Batch): Player-#3-A (Pill aus Bars, Anil-confirmed Option A), Fantasy-#1 (active_gameweek drift, preventiv — live-drift aktuell 0), Fantasy-#5 (GW-Status 3×).
+slice: 309
+stage: LOG complete ✅ DONE
+spec: worklog/specs/309-kader-l5-pill-from-bars.md
+impact: skipped (1 File-Logik, kein Service/RPC/DB; reines Display-Derive aus bereits-vorhandenem scores-Prop)
+proof: worklog/proofs/309-kader-l5-derived.txt
+review: worklog/reviews/309-review.md (reviewer-Agent PASS, 1 INFO Doc-Präzisierung in-slice gefixt, 2 NITPICKS kein Change)
+decision: derivedL5 = LEAST(100, ROUND(avg(non-null bars))) spiegelt cron_recalc_perf-Skala (KEIN /1.5 — fantasy.md-Doc stale, live-SQL-verifiziert D77). Beide L5-Displays (Circle + PerfPills) auf derivedL5. Sort bleibt perf.l5 (Anil tighter-scope, dokumentiert). QUEUE-Reste: Fantasy-#1 (active_gameweek drift, preventiv), Fantasy-#5 (GW-Status 3×).
 ```
 
 ## Zuletzt

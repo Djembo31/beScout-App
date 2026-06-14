@@ -1,0 +1,65 @@
+Slice 309 — Kader L5-Pill aus FormBars ableiten (Player-#3, Option A)
+====================================================================
+Datum: 2026-06-14
+
+[1] LIVE-FORMEL-VERIFIKATION (D77 — gegen Prod, nicht stale Doc)
+----------------------------------------------------------------
+cron_recalc_perf (live gelesen via pg_get_functiondef):
+  perf_l5 = LEAST(100, ROUND( AVG(score) OVER (last 5 player_gameweek_scores
+            rows PARTITION BY player_id ORDER BY gameweek DESC) ))
+  → KEIN /1.5. fantasy.md-Doc ("AVG/1.5") war stale/falsch.
+
+Live-Sample (players matches>5), perf_l5 vs ROUND(avg(last5 scores)):
+  P1 656edba7  perf_l5=54  scores=[0,65,70,69,62]  avg=53.2 → 53  (≈, Cron-Lag)
+  P2 422d2ec8  perf_l5=66  scores=[65,69,62,73,65] avg=66.8 → 67  (≈)
+  P4 417e14f0  perf_l5=68  scores=[65,65,76,65,62] avg=66.6 → 67  (≈)
+  P6 65491b69  perf_l5=71  scores=[63,79,72,65,87] avg=73.2 → 73  (≈)
+  P8 3eff16c8  perf_l5=63  scores=[60,59,70,62,62] avg=62.6 → 63  (=)
+  P3 4a52161c  perf_l5=34  scores=[0,63,0,0,0]     avg=12.6 → 13  ← Cron-Lag-Stale
+        (gespeicherter Skalar 34 ≠ frische Bars 13 = genau der gefixte Widerspruch)
+  avg_div_1_5-Spalte lag durchweg 18-25 daneben → /1.5 widerlegt.
+
+[2] CHANGE
+----------------------------------------------------------------
+Pure Helper (src/components/player/index.tsx):
+  deriveL5FromRecentScores(scores, fallback)
+    = LEAST(100, ROUND(avg(non-null scores)))  // spiegelt cron_recalc_perf
+    | fallback (= perf.l5) wenn 0 non-null   // Loading / alle DNP
+  - null (DNP) gefiltert (wie FormBars dashed)
+  - score=0 (Cameo) zählt mit (wie Cron 0-Rows + FormBars kleiner Balken)
+
+KaderPlayerRow.tsx: derivedL5 = deriveL5FromRecentScores(scores, p.perf.l5)
+  → L5-Circle (Z.280) fmtPerfL5(derivedL5, matches)
+  → PerfPills l5={derivedL5} Desktop+Mobile (Z.80/92); L15 bleibt perf.l15
+  Beide L5-Displays konsistent → kein interner Row-Widerspruch (AC-5).
+
+KaderTab.tsx: Sort 'l5' bleibt perf.l5 (Anil tighter-scope) + Doc-Kommentar.
+
+[3] TSC
+----------------------------------------------------------------
+$ npx tsc --noEmit
+=== TSC EXIT: 0 ===   (clean)
+
+[4] UNIT-TESTS (scoreColor.test.ts — +5 neue, gegen Live-Daten)
+----------------------------------------------------------------
+$ npx vitest run src/components/player/__tests__/scoreColor.test.ts
+ Test Files  1 passed (1)
+      Tests  27 passed (27)   (war 22, +5 deriveL5FromRecentScores)
+
+  AC-1 full window:        [0,65,70,69,62]→53 ; [60,59,70,62,62]→63
+  AC-2 DNP+cameo:          [0,73,0,73,63]→42 ; [null,73,null,73,63]→70
+  AC-3 fallback:           all-null→41 ; undefined→41 ; []→41
+  single non-null:         [_,_,77,_,_]→77
+  cap 100 (cron LEAST):    [120,110,130]→100
+
+[5] FILES
+----------------------------------------------------------------
+ src/components/player/index.tsx                    | +16  (deriveL5FromRecentScores)
+ src/components/player/__tests__/scoreColor.test.ts | +28  (+5 tests)
+ src/features/manager/components/kader/KaderPlayerRow.tsx | +/-  (derive + wire)
+ src/features/manager/components/kader/KaderTab.tsx | +3   (sort doc)
+
+[6] POST-DEPLOY (PROVE-Abschluss, pending Vercel)
+----------------------------------------------------------------
+Playwright @ bescout.net /manager Kader: Circle-Zahl ≈ avg der sichtbaren Bars,
+Circle == PerfPills-L5. (Augenschein-Spot-Check; Math bereits unit-bewiesen.)

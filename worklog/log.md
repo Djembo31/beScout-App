@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 309 | 2026-06-14 | fix(manager): S7 Phase-2 Player-#3 — Kader L5-Pill aus FormBars ableiten
+
+- Stage-Chain: SPEC (`worklog/specs/309-kader-l5-pill-from-bars.md`, XS, UI-Display) → IMPACT skipped (1 File-Logik, kein Service/RPC/DB; Display-Derive aus bereits-vorhandenem scores-Prop) → BUILD → REVIEW (`worklog/reviews/309-review.md`, reviewer-Agent **PASS**, 1 INFO Doc-Präzisierung in-slice, 2 NITPICKS) → PROVE (`worklog/proofs/309-kader-l5-derived.txt`) → LOG.
+- Trigger: S7-Registry Player-#3 (P0 Demo) — Kader-Row zeigte FormBars (frische letzte-5 aus Kanon-RPC) UND L5-Pill aus gespeichertem Cron-Skalar `players.perf_l5` (laggt zwischen Cron-Läufen) → sichtbarer Widerspruch (P3-Extremfall: gespeichert 34 vs Live-Bars-avg 13). Anil-Decision Option A.
+- **D77-Live-Verifikation:** `pg_get_functiondef('cron_recalc_perf')` gegen Prod → Formel ist `LEAST(100, ROUND(AVG(score) letzte 5 GW))` — **KEIN /1.5**. fantasy.md-Doc behauptet fälschlich `/1.5` (stale); Live-SQL P1-P8 bestätigt `perf_l5 ≈ ROUND(avg(scores))`, /1.5-Spalte 18-25 daneben. Gut dass via SQL geprüft statt Doc/Handoff-Annahme gefolgt.
+- Fix: pure Helper `deriveL5FromRecentScores(scores, fallback)` (index.tsx) = `LEAST(100, ROUND(avg(non-null)))` | fallback bei 0 non-null. null=DNP gefiltert, score=0-Cameo zählt (konsistent Cron/RPC-Contract/FormBars). Beide L5-Displays (Circle Z.280 + PerfPills Desktop+Mobile) auf derivedL5 (kein interner Row-Widerspruch); L15 bleibt perf.l15 (15er-Fenster). Sort bleibt perf.l5 (Anil tighter-scope) + Doc-Kommentar.
+- Slice-265-Falle bewusst umgangen: strict `played.length === 0` statt truthy-Falsy auf `T|null`.
+- Files: 4 (index.tsx Helper +Tests, KaderPlayerRow wire, KaderTab sort-doc). tsc clean, scoreColor 27/27 (+5 gegen Live-Daten: full-window/cameo/null/fallback/cap-100). 0 Reverts.
+- Doc-Hygiene-Carry: fantasy.md `/1.5`-Behauptung stale (D77) → separater Doc-Fix-Hinweis.
+
 ## 308 | 2026-06-14 | fix(market): S7 Phase-2 Trading-#4 — IPO-Preis strikt aus ipo_price
 
 - Stage-Chain: SPEC (`worklog/specs/308-ipo-price-strict.md`, S, Money-Display) → IMPACT skipped (1-Zeilen-Mapper; alle Consumer null/0-guarded verifiziert) → BUILD → REVIEW (`worklog/reviews/308-review.md`, reviewer-Agent **PASS**, 1 INFO + 1 NITPICK in-slice) → PROVE (`worklog/proofs/308-ipo-price-strict.txt`) → LOG.

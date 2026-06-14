@@ -63,6 +63,9 @@ function sortItems(items: KaderPlayer[], sortBy: string, minutesMap: Map<string,
     switch (sortBy) {
       case 'name': return a.player.last.localeCompare(b.player.last);
       case 'value_desc': return (b.valueBsd * b.quantity) - (a.valueBsd * a.quantity);
+      // Slice 309: Sort bleibt bewusst auf dem gespeicherten perf.l5-Skalar (grobe
+      // Ordnung), während die Row-Pill den frischen derivedL5 aus den FormBars zeigt.
+      // Minimale Ordnungs-Divergenz akzeptiert (Anil tighter-scope, Player-#3).
       case 'l5': return b.player.perf.l5 - a.player.perf.l5;
       case 'pnl_desc': return b.pnlBsd - a.pnlBsd;
       case 'pnl_asc': return a.pnlBsd - b.pnlBsd;
