@@ -51,6 +51,25 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 
 **Slice-Größen-spezifische Mindest-Anforderungen:**
 
+### Resume-/Handoff-Preflight für L-Slices (D81, 2026-06-15)
+
+Vor jedem L-Slice oder nach einer Claude/Hermes/Handoff-Session gilt: **nicht direkt BUILD starten**. Erst Repo-Realität gegen Handoff/Worklog abgleichen:
+
+```bash
+git status --short --branch
+git log --oneline -8
+```
+
+Pflichtchecks vor SPEC/BUILD:
+- Aktueller HEAD vs. letzter echter Feature/RPC-Slice nennen. Handoff-only Commits sind Continuity, keine technische Baseline.
+- `worklog/active.md` muss den letzten Slice eindeutig als DONE oder in-progress zeigen; Wording wie "in Arbeit" bei DONE-Slices korrigieren.
+- `worklog/log.md` ist hilfreich, aber nicht alleinige Current-State-Quelle: wenn Chronologie driftet, `git log` + `active.md` + `memory/session-handoff.md` priorisieren.
+- Untracked Audit-Churn (`worklog/audits/{audit-stale,type-truth,wiring}-*.md`) nicht versehentlich committen.
+- Bei String→UUID/Source-of-Truth-Migrationen: unknown/nullable Mapping-Pfade fail-closed machen oder als bewusstes Edge im Spec aufnehmen; kein neuer soft-null Drift.
+- Bei L-Slice mit DROP: Pre-Drop-grep muss `src/`, `scripts/`, `messages/`, `.claude/rules/`, `worklog/` abdecken; erst DROP, wenn Runtime-Reader/Writer komplett umgestellt sind.
+
+**Aktueller Anker:** Vor Slice 326 zuerst `worklog/notes/326-preflight-hermes-review.md` lesen.
+
 | Größe | Kriterium | Mindest-Pflicht-Sektionen | Code-Reading | Edge-Cases | ACs |
 |-------|-----------|---------------------------|--------------|------------|-----|
 | XS | 1 File, Pattern-bekannt | 1, 3, 4, 6, 8, 10 (6 von 13) | ≥ 3 Items (Pattern-Source + 1 Reference + 1 Rule) | ≥ 3 | ≥ 3 |

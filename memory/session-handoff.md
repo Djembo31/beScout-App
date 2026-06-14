@@ -1,14 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto
+# Session Handoff — Auto / Hermes Manual Anchor (2026-06-15)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
+> Vor Weiterarbeit immer aktuelle Realität prüfen: `git status --short --branch && git log --oneline -8`.
+
 <!-- auto:handoff-end -->
 
 ---
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-15 — S7 Phase-3 läuft, nächster Schritt = Slice 326)
 
-**Status: idle** · HEAD `b385c3af` (Slice 325) · origin/main synchron · **0 Reverts** (durchgehend seit 261). Working tree: nur Auto-Handoff-Block + 3 self-renewing Audit-Churn-Files (`worklog/audits/{audit-stale,type-truth,wiring}-2026-06-14.md` → `git restore`/ignorieren).
+**Status: idle** · aktueller HEAD kann ein Handoff-only Commit sein (`9c00b131`); letzte echte technische Baseline ist `b385c3af` (Slice 325). Vor dem Start: `git status --short --branch && git log --oneline -5` laufen lassen und tatsächlichen HEAD gegen diese Zeile abgleichen. Working tree typischerweise: Auto-Handoff-Block + 3 self-renewing Audit-Churn-Files (`worklog/audits/{audit-stale,type-truth,wiring}-2026-06-14.md` → nicht committen, reinigen/ignorieren). **Hermes-Review-Anker lesen:** `worklog/notes/326-preflight-hermes-review.md`.
 
 ## ⚡ ERSTE ACTION: Slice 326 — clubs.league String→UUID VOLLMIGRATION (der große gelbe Block)
 
