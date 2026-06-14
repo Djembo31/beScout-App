@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 314 | 2026-06-14 | docs(audit): S7 Phase-1 Mapping P1-Batch — Club + Social + Gamification (6/9 Domänen)
+
+- Stage-Chain: SPEC skipped (Mapping-Slice, 302-Muster) → IMPACT skipped (nur worklog/audits) → BUILD (3 parallele Explore-Agents gegen Live-Schema → Konsolidierung) → REVIEW self-review (Agent-Sektionen live-schema-verifiziert, Format konsistent 302) → PROVE (`worklog/proofs/314-s7-phase1-p1-mapping.txt`) → LOG.
+- Trigger: Anil-Direktive „wir setzen das Mappen weiter fort" (2026-06-14). Fortsetzung Slice 302, P1-Batch in Demo/Money-Reihenfolge.
+- Ergebnis: 3 Registry-Sektionen (Domäne 4 Club / 5 Social-Community / 6 Gamification-Economy) im 8-Achsen-Format + je Top-Befunde-Tabelle, gegen Live-Schema verifiziert (Row-Counts + pg_get_functiondef). Domänen-Tabelle 4/5/6 → ✅. **Phase 1 jetzt 6/9 gemappt** (alle P0+P1); offen P2/P3: Creator/Identity/Admin.
+- Neue Funde: **2× P0 Money (Club)** — Founding-Pass bcredits TS≠RPC-Drift (fan 100k vs 250k → falsche angezeigte Credits) + `grant_founding_pass` Preis nicht server-validiert (Kill-Switch-Integrität hängt am Client-Wert). **P1:** Club-Challenges Phantom-Tabellen (Admin-Crash 42P01), cancelSubscription RLS-Swallow, Social Notification-i18n-Drift, Posts-Counter-vs-Ledger, Gamif Score-Road-Shape + Leaderboard-Median-Bias + 1 Ticket-Balance-Drift. Robust bestätigt: subscribe_to_club, Founding-Kill-Switch, Fan-Ranking-E2E, vote_post-Discriminator, credit_tickets-Guards, MysteryBox-Idempotency.
+- Player-Korrekturen: score_history = Gamification-Eigentum (nicht domänenfremd); Player-Sentiment-Brücke = research_posts.call (nicht avg_rating).
+- Muster erweitert: #2/#3/#4/#5 um neue Instanzen + NEU #7 Money-Truth-nur-im-Client (P0) · #8 De-norm-Counter-ohne-Reconcile · #9 Phantom-Tabellen · #10 pre-localized-String-vs-i18n_key. Kein src/-Diff. 0 Reverts.
+
 ## 313 | 2026-06-14 | docs(learning): S7 Phase-2 P2/P3-Reste D77-Verifikation + rating-Chain-Bridge-Pattern
 
 - Stage-Chain: SPEC skipped (Doc-Slice) → IMPACT skipped (nur `.claude/rules` + `worklog`, keine gated Pfade) → BUILD (Doc-Edits) → REVIEW self-review (kein feat/fix/refactor; Pattern grep-verifiziert gegen Live-Code) → PROVE (`worklog/proofs/313-p2p3-reste-verify.txt`) → LOG.

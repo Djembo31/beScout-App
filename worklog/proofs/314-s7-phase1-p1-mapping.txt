@@ -1,0 +1,61 @@
+Slice 314 — S7 Phase-1 Mapping: P1-Batch (Club + Social + Gamification)
+=======================================================================
+Datum: 2026-06-14
+Typ: Mapping-Slice (read-only Live-Schema-Map → Registry-Doc). Kein src/-Diff.
+Methode: 3 parallele Explore-Agents (8-Achsen-Format, gegen Live-Schema verifiziert),
+Konsolidierung durch Primary-Claude in die S7-Registry.
+
+== Dispatch ==
+3 Explore-Agents parallel, je 1 Domäne, je verifiziert gegen Live-Schema
+(Projekt skzjfhvgccaeplydsunz) via mcp__supabase execute_sql + grep src/.
+
+== Ergebnis: 3 Registry-Sektionen ergänzt ==
+DOMÄNE 4 — CLUB (6 Sub-Semantiken: Identity, Abos, Founding-Passes, Fan-Ranking,
+  Club-Challenges, Club-CRM) + Top-Befunde-Tabelle (8 Zeilen + Robust).
+DOMÄNE 5 — SOCIAL/COMMUNITY (7: Follows, Posts, Votes, Club-Votes/Polls, Research,
+  Notifications, Feedback) + Top-Befunde-Tabelle (8 + Robust).
+DOMÄNE 6 — GAMIFICATION/ECONOMY (12: Dimension-Scores, Score-Road, Missions,
+  Daily-Challenge, Streaks, MysteryBox, Equipment/Cosmetics, Mastery, Tickets,
+  Airdrop, Achievements, Monthly-Liga) + Top-Befunde-Tabelle (10 + Robust).
+
+== Live-Schema-Belege (Auszug, alle via execute_sql verifiziert) ==
+Club:   clubs 134 · club_subscriptions 2 (0 aktiv) · user_founding_passes 0 ·
+        fan_rankings 37 (echt) · club_challenges/achievement_perk_claims EXISTIEREN NICHT.
+Social: notifications 327 (60 mit i18n_key) · user_follows 29 · posts 10 (HAT upvotes/downvotes) ·
+        post_votes 7 · research_posts/ratings/unlocks je 0 · club_votes/vote_entries je 0.
+Gamif:  scout_scores 128 (kein overall_score → Median client sorted[1]) · score_history 1758 ·
+        user_missions 3987 (153 completed) · dpc_mastery 2532 (2480 lvl>1) · user_tickets 128
+        (107 leere Platzhalter, 21 non-zero = 21 Ledger-User, 20/21 balance==ledger, 1 Drift) ·
+        monthly_liga_snapshots/winners 0.
+
+== Top-Funde (Phase-2-Kandidaten) ==
+P0 Money: Club #1 Founding-bcredits TS≠RPC (fan 100k vs 250k → falsche angezeigte Credits).
+P0 Money: Club #2 grant_founding_pass Preis nicht server-validiert → Kill-Switch-Integrität
+          hängt am Client-Wert.
+P1:       Club-Challenges Phantom-Tabellen (Admin-Tab crasht 42P01); cancelSubscription RLS-Swallow;
+          Social Notification-i18n-Drift (Reload vs Realtime); Posts-Counter-vs-Ledger;
+          Gamif Score-Road-Shape (Feld-Existenz statt success); Leaderboard-Median-Truncation-Bias;
+          1 Ticket-Balance-Drift (user 99b601d2 +5).
+Robust (NICHT ändern): subscribe_to_club + grant_founding_pass-Kill-Switch + Fan-Ranking-E2E (Club);
+          vote_post-Toggle-Discriminator + RLS + Money-Splits (Social);
+          credit_tickets-Auth-Guards + open_mystery_box_v2-Idempotency + REVOKED-Mint-RPCs (Gamif).
+
+== Player-Sektion-Korrekturen (durch neue Domänen aufgelöst) ==
+- Player §1.5 score_history: ist Gamification-Eigentum (3-D-Elo-Audit-Trail), NICHT domänenfremdes Log.
+- Player §1.3 Sentiment-Brücke: ist research_posts.call, NICHT avg_rating (avg_rating fließt NICHT
+  in Player-Views). Klarstellung in Social-Sektion.
+
+== Übergreifende Muster erweitert ==
+#2 Schema≠TS (jetzt Money-Path bestätigt) · #3 2-Impls (+4 Fälle) · #4 leere Backfill (Tickets angewandt) ·
+#5 dormant (+5 Features) · NEU #7 Money-Truth-nur-im-Client (P0) · #8 De-norm-Counter-ohne-Reconcile ·
+#9 Phantom-Tabellen · #10 pre-localized-String-vs-i18n_key.
+
+== Artefakte ==
+- worklog/audits/2026-06-13/s7-source-of-truth-registry.md (3 Sektionen + Domänen-Tabelle 4/5/6 ✅
+  + Muster #2/#3/#4/#5 erweitert + neue #7-#10 + Phase-1-Stand 6/9).
+Kein src/-Diff. 0 Reverts.
+
+== Review ==
+Self-review (Mapping-Doc, kein src/-Diff): Agent-Sektionen sind live-schema-verifiziert
+(Row-Counts + pg_get_functiondef-Belege im Agent-Output), Format konsistent mit Slice-302-Sektionen,
+Severity ehrlich (Robust-Zeilen + P3-dormant explizit). Konsolidierung 1:1 aus Agent-Output.

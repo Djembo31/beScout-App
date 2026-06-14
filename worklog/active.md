@@ -2,17 +2,18 @@
 
 ```
 status: idle
-slice: 313
+slice: 314
 stage: LOG complete ✅ DONE
-spec: skipped (Doc-Slice — D77-Verifikation der 3 P2/P3-Reste + Knowledge-Capture, kein src/-Diff)
-impact: skipped (nur .claude/rules + worklog, keine gated Pfade)
-proof: worklog/proofs/313-p2p3-reste-verify.txt
-review: self-review (Doc-Slice, kein feat/fix/refactor; Pattern-Text grep-verifiziert gegen Live-Code)
-decision: S7-Phase-2 P2/P3-Reste verifiziert non-actionable/mitigiert. Player-#6=bereits-mitigiert, getScoreStyle=sauber, Trading-#6=intentional-defer, Player-#8=als Pattern dokumentiert (errors-db.md). Offen nur: post-Beta-Migrationen (club String→UUID, League-Scope dual-axis) + API-Key-blockiert.
+spec: skipped (Mapping-Slice — S7 Phase-1 Fortsetzung, 302-Muster; read-only Live-Schema-Map → Registry-Doc)
+impact: skipped (nur worklog/audits Registry-Doc)
+proof: worklog/proofs/314-s7-phase1-p1-mapping.txt
+review: self-review (Mapping-Doc, kein src/-Diff; Agent-Sektionen live-schema-verifiziert)
+decision: S7 Phase-1 jetzt 6/9 gemappt (Player/Fantasy/Trading + Club/Social/Gamification). Neue P0-Money-Funde: Club-Founding bcredits TS≠RPC-Drift + Preis nicht server-validiert (Kill-Switch). Offen Phase-1: P2/P3-Domänen Creator/Identity/Admin (Folge-Slice). API-Key-Punkt wartet auf Anil-Signal.
 ```
 
 ## Zuletzt
 
+- **Slice 314** (2026-06-14) — S7 Phase-1 Mapping P1-Batch: Club + Social + Gamification (docs, self-review). 6/9 Domänen gemappt; 2 neue P0-Money-Funde (Club-Founding).
 - **Slice 313** (2026-06-14) — S7-P2/P3-Reste D77-Verifikation + rating-Chain-Bridge-Pattern (docs, self-review).
 - **Slice 312** (2026-06-14) — /compare perf_l5/l15 matches-Guard + P2/P3-Sweep (fix, PASS).
 - **Slice 311** (2026-06-14) — Fantasy-#5 GW-Status Single-Source computeGwStatus (refactor, PASS).
