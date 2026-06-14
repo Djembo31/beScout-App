@@ -3429,4 +3429,24 @@ Die Master-Audit-Anti-Kreis-Regeln (§11) waren reine Prosa → 0 Enforcement �
 
 **Alternativen erwogen:** (a) Registry blind als Arbeits-Queue abarbeiten — verworfen (führt zu Redo + Fehl-Fixes). (b) Registry bei jedem Slice live-synchron halten — unrealistisch (Pflege-Overhead, Findings schließen sich quer). Stattdessen: Verifikation am Abarbeitungs-Zeitpunkt (lazy, evidenzbasiert) + Korrektur-Pflicht bei Abweichung.
 
-**Anwendung diese Session:** Player/Fantasy/Trading Top-Befunde-Tabellen + Übergreifende-Muster #4 korrigiert (✅-Markierung + Slice-Ref) für 303/304/305/306/307/308. Verhindert dass nächste Session erledigte Findings erneut aufgreift.
+**Anwendung diese Session:** Player/Fantasy/Trading Top-Befunde-Tabellen + Übergreifende-Muster #4 korrigiert (✅-Markierung + Slice-Ref) für 303/304/305/306/307/308. Verhindert dass nächste Session erledigte Findings erneut aufgreift. **Zweite Anwendung (Session-End 309-312):** P2/P3-Residuen-Sweep — `fantasy.md /1.5`-Doc gegen `cron_recalc_perf` widerlegt (Slice 309), Lineup-Set/Offers-Dual/24h-Change live als false-positive/verschiedene-Surfaces/konsistent verifiziert statt blind refactored (Slice 312). 3 von 6 „Findings" non-actionable.
+
+---
+
+## D78 — ARCHITECTURE: active_gameweek = leagues-Single-Truth, Admin-Set liga-weit, Drift per Detektions-Skript
+
+**Datum:** 2026-06-14 · **Status:** Aktiv · **Slice:** 310
+
+**Kontext:** `active_gameweek` lebt in 2 physischen Spalten für 1 Semantik — `clubs.active_gameweek` (per-Club, legacy) + `leagues.active_gameweek` (per-Liga, Slice 251). Die Haupt-Fantasy-Leseseite (`useGameweek` → `useLeagueActiveGameweek`) liest `leagues`, aber der Admin-Write `set_active_gameweek` schrieb nur `clubs` → stiller Drift (Fantasy-UI sieht Admin-Änderung nie). Aktuell 0 Live-Drift (Cron dual-writet, Slice 277), daher preventiv. Registry §2.1 / Fantasy-#1.
+
+**Entscheidung (Anil, 2-teilig):**
+1. **`set_active_gameweek` wird liga-weit:** resolved `league_id`, setzt ALLE Clubs der Liga + die `leagues`-Zeile atomar. Hält Invariante `clubs-MIN === clubs-MAX === leagues`. `leagues` ist die einzige Lese-Wahrheit. Bewusste Folge: ein Club-Owner bewegt den GW seiner ganzen Liga (konsistent, da ein GW inhärent liga-weit ist; per-Club-Divergenz war nie gültig). Auth-Guard unverändert (Caller muss Admin des übergebenen Clubs sein).
+2. **Drift-Guard = Detektions-Skript, kein DB-Trigger:** `scripts/audit/gameweek-drift.js` (clubs-MIN===MAX===leagues pro Liga) wired in `nightly-audit.yml` (D75-Ratchet-Stil, alarmiert via GH-Issue). KEIN BEFORE-UPDATE-Trigger (D39-Stil).
+
+**Begründung:** Ein GW gehört semantisch der Liga, nicht dem Club — die per-Club-Spalte ist Redundanz. Liga-weiter Write ist der einzige Weg, die ratchet-Invariante (`clubs-MIN === leagues`) zu halten, wenn ein Admin setzt. Skript statt Trigger: ein BEFORE-UPDATE-Trigger riskiert legitime Cron-Dual-Write-Zwischenstände (Reihenfolge clubs-dann-leagues) hart zu blocken; das Detektions-Skript ist ein Sicherheitsnetz ohne Block-Risiko und passt zur bestehenden D75-Ratchet-Familie (silent-fail 092 · boundary 299 · test-confidence 300).
+
+**Alternativen erwogen:** (a) Dual-Write nur Club+dessen-Liga (ohne sibling-Clubs) — verworfen, bricht die Invariante wenn ein Club aus der Reihe gesetzt wird. (b) Admin-GW-Set nur Platform-Admin (Club-Owner verliert die Fähigkeit) — verworfen, entzieht bestehende UI-Funktion. (c) DB-Trigger hart — verworfen wegen Cron-Zwischenstand-Risiko. (d) `clubs.active_gameweek`-Spalte droppen — Scope-Out (Cron + Admin-Display lesen noch; größere Migration).
+
+**Auswirkungen:** Admin-Drift-Quelle aus App-Code geschlossen; `useActiveGameweek`+`qk.events.activeGw` orphan entfernt (Registry-Ziel); `getActiveGameweek` bleibt für Admin-per-Club-Display (post-Fix clubs===leagues, harmlos). Reviewer bestätigte: kein Money/Security-Risiko durch erweiterte Schreibreichweite (Scheduling-Feld, sibling-Clubs derselben Liga). Süper-Lig-Saison-End-Stau (active=34/max=38, API-Key) ist Cron-Lag, KEIN Spalten-Drift → kein False-Alarm im Skript.
+
+**Re-Visit-Trigger:** Wenn `clubs.active_gameweek` je vollständig redundant wird (alle Reader auf leagues migriert) → Spalte droppen. Wenn das Drift-Skript je feuert → `clubsToProcess`-Vollständigkeit im Cron auditieren (Reviewer-F-3-Observation).

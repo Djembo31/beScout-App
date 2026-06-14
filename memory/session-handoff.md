@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-14 12:35)
+# Session Handoff — Auto (2026-06-14 14:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -11,14 +11,55 @@
 ?? worklog/audits/wiring-2026-06-14.md
 ```
 
-## Session Commits: 1
+## Session Commits: 8
+- e668a32a fix(compare): Slice 312 — /compare perf_l5/l15 matches-Guard (Player-Residuum)
+- e57ffd36 docs(fantasy): perf_l5-Formel korrigiert — KEIN /1.5 (D77-Closure)
+- c9970159 refactor(fantasy): Slice 311 — GW-Status Single-Source computeGwStatus (Fantasy-#5)
+- ae586f6f feat(fantasy): Slice 310 — active_gameweek leagues=single-truth + drift-guard (Fantasy-#1)
+- 4df4fbd1 docs(proof): Slice 309 — Post-Deploy Live-Verify (PROVE-Abschluss)
+- 87b48f31 fix(manager): Slice 309 — Kader L5-Pill aus FormBars ableiten (Player-#3)
+- 9ebe342f docs(decision): D77 — Registry/Audit-Findings gegen Live-Code verifizieren vor Abarbeitung
 - 0944347d fix(market): Slice 308 — S7 Trading-#4 IPO-Preis strikt aus ipo_price
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-14 — S7-Phase-2 #4 + last-5 + IPO, „gehe die findings an")
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-14 spät — S7-Phase-2 Queue KOMPLETT + P2/P3-Sweep)
+
+**Status: idle** · HEAD `e668a32a` (312) · origin/main synchron · **0 Reverts** (durchgehend seit 261). Working tree clean bis auf Auto-Handoff + 3 self-renewing Audit-Churn-Files (`worklog/audits/audit-stale|type-truth|wiring-2026-06-14.md` — `git restore`/ignorieren, Pattern bleibt).
+
+## ✅ S7-PHASE-2 IST DURCH — kein offener P0/P1-Demo/Money-Punkt mehr
+
+Die „gehe die findings an"-Queue + alle clean P1/P2-Residuen sind erledigt oder als non-actionable verifiziert. **Verbleibt NUR:** (a) 2 große post-Beta-Migrationen, (b) API-Key-blockierte Punkte.
+
+### Was diese Session lief (Start „weiter im handoff" → „weiter" → „reste" → „abschlüsse ziehen")
+1. **309** `87b48f31`+`4df4fbd1` — Player-#3 Kader L5-Pill aus FormBars (Anil Option A). **D77-Catch:** `cron_recalc_perf` live gelesen → Formel `LEAST(100,ROUND(AVG(score) letzte 5))`, **KEIN /1.5** (fantasy.md-Doc war falsch). Post-Deploy live 11/11 Rows verifiziert.
+2. **310** `ae586f6f` — Fantasy-#1 active_gameweek leagues=Single-Truth. **Anil-Decisions (→ D78):** set_active_gameweek liga-weit (alle Clubs+leagues atomar) + Drift-Guard-Skript `scripts/audit/gameweek-drift.js` in nightly (kein DB-Trigger). useActiveGameweek orphan raus.
+3. **311** `c9970159` — Fantasy-#5 GW-Status 3× → EINE `computeGwStatus` in `fantasy/lib/gwStatus.ts` (useGameweek+SpieltagTab geteilt, isFixtureDone DRY).
+4. **doc** `e57ffd36` — fantasy.md `/1.5`-Formel korrigiert (D77-Closure).
+5. **312** `e668a32a` — Player perf_l5=50-Residuum: `/compare` zeigte L5/L15 roh → fmtPerfL5 + guardByMatches. **+ P2/P3-Sweep** (D77-Disziplin): Lineup-Set=false-positive, Offers-Dual=verschiedene-Surfaces, 24h-Change=konsistent.
+6. **Session-End:** D78 (ARCHITECTURE) + Registry Player/Fantasy Top-Befunde auf ✅-Stand gebracht.
+
+### Offen — nur noch 2 Kategorien
+**(a) Post-Beta-Migrationen (eigene Spec + ggf. Anil-Decision, NICHT Schnell-Sweep — Regressions-Risiko auf Live-Beta):**
+- **Player-#7 / Fantasy-#9:** `players.club` (String) vs `club_id` (UUID, stale) → auf club_id als Truth, club-String deprecaten. League-Scope Dual-Achse (leagueId UUID vs leagueName String) gehört dazu.
+- Player-#6 goals/assists Dual-Grain (Saison vs pro-Match Labeling). Player-#8 rating-Chain-Bridge-Doku. Trading-#6 Offers Dual-Source (verschiedene Surfaces — nur falls je echt konsolidieren).
+
+**(b) API-Football-Key blockiert (🚨 Anil-Action: dashboard.api-football.com, suspendiert seit 06.05.):**
+- Fantasy-#2 Süper-Lig active_gameweek=34/max=38 (Advance kann nicht heilen). Slice 284b (154 Geister). Fantasy-#7 Live-progressiveScores vs DB-slot_scores. Backlog FM-08..11, FANT-11/12/16.
+
+### Carry-over (Anil-Action, unverändert)
+- **🚨 API-Football-Key suspendiert seit 06.05.**
+- **TR-Review (3):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+- Registry Phase-1 offen (P1-P3, falls je gewünscht): Club, Social, Gamification, Creator, Identity, Admin (6 Makro-Domänen ungemappt).
+
+### S7-Registry (die „Verfassung")
+`worklog/audits/2026-06-13/s7-source-of-truth-registry.md` — Player/Fantasy/Trading Top-Befunde-Tabellen sind jetzt auf ✅-Stand (309-312 markiert). 3 P0-Domänen gemappt, alle Money/Demo-Findings zu.
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-06-14 — S7-Phase-2 #4 + last-5 + IPO, „gehe die findings an")
 
 **Status: idle** · HEAD `0944347d` (308) · 3 Slices diese Session (306/307/308), alle reviewt PASS, **0 Reverts** (seit 261).
 

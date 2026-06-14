@@ -89,9 +89,9 @@
 |---|-----|----------|-------|------|
 | 1 | ~~P0 Money~~ ✅ **303** | Floor/Preis | ~~3-fach berechnet~~ → **Slice 303 Teil C** alle Client-Reader auf `players.floor_price` (computePlayerFloor=Passthrough, Math.min entfernt, resolveBuyPriceCents=floorBsd) | erledigt |
 | 2 | ~~P0 Value~~ ✅ **305** | Fair-Value | CommunityValuation + 2 Tabellen + RPC entfernt (Slice 305) | erledigt |
-| 3 | **P0 Demo** | L5/Form | KaderTab zeigt Skalar-Pill UND unabhängige FormBars in 1 Zeile → können widersprechen. **(≠ #4: das ist Pill-vs-Bars, nicht Bars-vs-Bars)** | **Anil-UX-Decision:** Pill aus Bars ableiten vs. beide behalten + labeln |
+| 3 | ~~P0 Demo~~ ✅ **309** | L5/Form | ~~Pill-vs-Bars-Widerspruch~~ → **Slice 309** (Anil Option A) Pill aus FormBars abgeleitet (`deriveL5FromRecentScores`, beide L5-Displays); live 11/11 Rows verifiziert. **D77-Catch: Formel KEIN /1.5** | erledigt |
 | 4 | ~~P1~~ ✅ **307** | letzte-5-Scores | ~~2 Impls~~ → **Slice 307** Picker auf Kanon-RPC (`getBatchFormScores` gelöscht); = Fantasy #6 | erledigt |
-| 5 | P1 | perf_l5=50 | Pilot-Default, nur display-seitig mitigiert | Sentinel/NULL statt 50, oder zentraler Guard |
+| 5 | ~~P1~~ ✅ **312** (display) | perf_l5=50 | Display-Mitigation komplett (Slice 271 + **312** /compare-Lücke). DB-Default 50 bleibt bewusst (6 Salary-Cap-RPCs `COALESCE(perf_l5,50)`) | display erledigt; DB-Default Scope-Out |
 | 6 | P1 | goals/assists | Dual-Grain (Saison-Counter vs pro-Match) auf selber Seite | Klare Trennung „Saison" vs „Spiel", Cron-Lag-Hinweis |
 | 7 | P1 | club-Identity | `players.club` (String) vs `club_id` (UUID), club_id stale | Auf `club_id` als Truth, `club`-String deprecaten |
 | 8 | P2 | rating-Chain | 3-Hop `rating→fantasy_points→gw_score` Bridge | Bridge dokumentieren / Sync-Garantie |
@@ -111,13 +111,13 @@
 - **Kanonisch:** Lese-Truth `leagues.active_gameweek` (`getLeagueActiveGameweek` → `useGameweek`). Treiber `clubs.active_gameweek` (MIN/Liga, Cron `get_active_gw`).
 - **Redundant:** `clubs.active_gameweek` (18-20 Zeilen/Liga) + `leagues.active_gameweek` (1/Liga) + 3. Reader `getActiveGameweek(clubId)` + 4. Override `fantasyStore.selectedGameweek`.
 - **Wiring:** ⚠️ partiell — nur der Cron dual-writet beide; **kein Trigger synct sie**. Admin-`set_active_gameweek` schreibt nur `clubs` → stiller Drift. `FantasyContent.handleSimulated:165` liest `clubs`, `useGameweek` liest `leagues` (im selben Mount verschiedene Spalten).
-- **Ziel:** `leagues` = einzige Wahrheit; `getActiveGameweek(clubId)`+`useActiveGameweek` entfernen; Drift-Guard-Ratchet (clubs-MIN === leagues). **Severity P1.**
+- **✅ Slice 310 (Anil liga-weit):** `set_active_gameweek` schreibt liga-weit (alle Clubs der Liga + leagues-Zeile atomar → hält clubs-MIN===MAX===leagues); `handleSimulated` liest leagues; `useActiveGameweek`+`qk.events.activeGw` orphan entfernt; Drift-Guard `scripts/audit/gameweek-drift.js` wired in nightly (D75-Ratchet). `getActiveGameweek` bleibt für Admin-per-Club-Display (post-Fix clubs===leagues, harmlos). **P1 → erledigt.**
 
 ## 2.2 Fixtures & Status — **GW-Completion 3-fach berechnet**
 - **Kanonisch:** `fixtures.status` ∈ scheduled/live/finished/simulated/cancelled/postponed.
 - **Redundant:** „GW fertig?" 3× unabhängig — `getGameweekStatuses.is_complete` vs `useGameweek.gwStatus` (mischt events) vs `SpieltagTab.gwStatus` (lokale Logik). FDR client-side aus `players.perf.l5`+`club`-String (erbt 1.1-Drift).
 - **Wiring:** ✅ Read intakt; Realtime/Live ⚠️ dormant (API-Key, 0 live-Zeilen). `SpieltagTab` umgeht React-Query (eigener useState/useEffect).
-- **Ziel:** EINE `computeGwStatus(fixtures, events)` von Selector+Tab geteilt; SpieltagTab auf React-Query. **Severity P1** (Live-Pfad P2 bis Key zurück).
+- **✅ Slice 311:** EINE `computeGwStatus(fixturesComplete, fixtureCount, events)` in `fantasy/lib/gwStatus.ts` von `useGameweek`+`SpieltagTab` geteilt; `isFixtureDone` DRY auch in `getGameweekStatuses`. SpieltagTab→React-Query Scope-Out (separater Slice). **P1 → erledigt.**
 
 ## 2.3 Events
 - **Kanonisch:** `events`-Tabelle, Read via `/api/events`-Server-Route (nicht direkter DB-Read).
@@ -128,7 +128,7 @@
 - **Kanonisch:** DB `lineups` (12 slot_* + captain + bench + `wildcard_slots`), Write via `save_lineup` RPC. Working-State `lineupStore` (Zustand).
 - **Redundant:** Lineup-State doppelt (Store ↔ DB), Slot↔Column-Mapping **3× implementiert** (`useLineupBuilder` load, `submitLineup` map, `getLineupWithPlayers`).
 - **Schwäche:** `wildcardSlots` ist **`Set`** im Store (Serialisierungs-Risiko Slice 267); **`loadFromDb` rehydriert wildcards NICHT** → nach Reload Wildcard-Picks weg bis Re-Toggle. `perfL5 ?? 50`-Default (erbt Pilot-Default).
-- **Ziel:** Set→Array; loadFromDb rehydriert wildcards; Slot-Mapping in 1 Helper. **Severity P1** (Money-angrenzend: bezahlte Wildcard-Slots).
+- **✅ verifiziert false-positive (Slice 312 Sweep):** `wildcardSlots:Set` hat **keinen Serialisierungs-Pfad** — `lineupStore` hat KEINE persist-Middleware, kein React-Query-Cache, kein RPC-stringify des Sets (in-memory React-Props + `.has()`). Slice-267-Klasse trifft NICHT zu. `loadFromDb`-Rehydration betrifft nur das **dormante** Wildcard-Feature (0 Aktivität, Slice 306). Kein echter Bug. Slot-Mapping-3×-DRY bleibt optionaler Cleanup. **P1 → kein Handlungsbedarf.**
 
 ## 2.5 Scoring — **Cross-Domain mit Player 1.3/1.5**
 - **Kanonisch:** `player_gameweek_scores.score` (pro-GW) + `lineups.total_score`/`slot_scores` (via `score_event` RPC).
@@ -150,11 +150,11 @@
 ## Fantasy — Top-Befunde
 | # | Sev | Issue |
 |---|-----|-------|
-| 1 | P1 | Active-GW: 2 Spalten (clubs/leagues), nur Cron synct, Admin schreibt nur clubs → stiller Drift |
-| 2 | P1 | Süper Lig active_gameweek=34 bei max=38 + API-Key seit 06.05 → Advance kann nicht heilen |
-| 3 | ~~P1~~ ✅ | Wildcards: ~~35 Balances ohne Ledger~~ → **dormant** (35 leere Backfill-Rows, 0 Aktivität, Ledger-Pfad korrekt). Slice 306: swallow→throw + doku. Kein Risiko. |
-| 4 | P1 | Lineup `wildcardSlots:Set`, loadFromDb rehydriert wildcards nicht → Reload-Verlust |
-| 5 | P1 | GW-Status 3× unabhängig berechnet (kann divergieren) |
+| 1 | ~~P1~~ ✅ **310** | Active-GW: ~~Admin schreibt nur clubs~~ → `set_active_gameweek` liga-weit + Drift-Guard-Skript (nightly). leagues=Lese-Wahrheit |
+| 2 | P1 🔴 | Süper Lig active_gameweek=34 bei max=38 + API-Key seit 06.05 → Advance kann nicht heilen (API-Key-blockiert) |
+| 3 | ~~P1~~ ✅ **306** | Wildcards: ~~35 Balances ohne Ledger~~ → **dormant** (35 leere Backfill-Rows, 0 Aktivität, Ledger-Pfad korrekt). swallow→throw + doku. Kein Risiko. |
+| 4 | ~~P1~~ ✅ verifiziert | Lineup `wildcardSlots:Set` = **false-positive** (kein persist/cache/RPC-Serialization, in-memory props; Slice-267-Klasse trifft nicht). Rehydration nur dormantes Wildcard-Feature. Slice 312 Sweep |
+| 5 | ~~P1~~ ✅ **311** | GW-Status: ~~3× berechnet~~ → EINE `computeGwStatus` geteilt (useGameweek+SpieltagTab) |
 | 6 | ~~P1~~ ✅ **307** | ~~last-5-Scores 2 Impls~~ → Picker auf Kanon-RPC vereinheitlicht (= Player #4, cross-domain) |
 | 7 | P1 | Live-progressiveScores vs DB-slot_scores divergieren während GW |
 | 8 | P2 | Events `createNextGameweekEvents` hardcoded >38 vs per-Liga max |
