@@ -1,0 +1,50 @@
+Slice 315 — S7 Phase-1 Mapping ABSCHLUSS: Creator + Identity + Admin (9/9)
+==========================================================================
+Datum: 2026-06-14
+Typ: Mapping-Slice (read-only Live-Schema-Map → Registry-Doc). Kein src/-Diff.
+Methode: 3 parallele Explore-Agents (8-Achsen, gegen Live-Schema verifiziert),
+Konsolidierung durch Primary-Claude. Schließt S7 Phase 1 (Map) ab: 9/9 Domänen.
+
+== Dispatch ==
+3 Explore-Agents parallel: Domäne 7 (Creator/Sponsor/Revenue), 8 (Identity/Profile),
+9 (Admin/Ops). Je verifiziert gegen Live-Schema (skzjfhvgccaeplydsunz).
+
+== Ergebnis: 3 Registry-Sektionen ergänzt ==
+DOMÄNE 7 — CREATOR (Tips, Bounties, Scouting, Sponsors, Ad-Revenue-Share, Creator-Fund) + Tabelle.
+DOMÄNE 8 — IDENTITY (Auth, Profile, top_role, Admin-Autorität, Avatars, Push, Onboarding, Creator-Subs) + Tabelle.
+DOMÄNE 9 — ADMIN/OPS (Platform-Admin, Cron-Health, Home-Aggregat, Leaderboards, Activity-Log) + Tabelle.
+
+== Live-Schema-Belege (Auszug) ==
+Creator: bounties 1 · tips 1 (1000/50/950 = 95/5) · sponsors 21 (0 aktiv, revenue/imp NULL) ·
+         sponsor_impressions 0 · creator_fund_payouts 0 · content_impressions 0.
+Identity: profiles 128 vs auth.users 129 (1 Lücke) · platform_admins RLS SELECT-own+write-locked ·
+          push_subscriptions 1 · profiles_update-RLS qual(auth.uid()=id) OHNE Spalten-Whitelist.
+Admin:   platform_admins 2 (superadmin) · activity_log 14790 · cron_sync_log 73030 (120 error/42 partial) ·
+         events 207 ALLE 'ended' · user_stats 68 (rank>0).
+
+== Top-Funde ==
+P0 Money (Club, aus Slice 314): Founding-bcredits TS≠RPC + Preis nicht server-validiert.
+P1 Security (NEU, Identity):
+  - profiles_update-RLS ohne Column-Whitelist → User self-set verified/plan/top_role/subscription_price/invited_by
+  - /api/push erlaubt cross-user-Push (beliebige userId + freie title/body) = Spam/Phishing-Vektor
+P1 Demo: 1 profilloser Account; Push silent-fail+localStorage-Dual-State.
+Robust (NICHT ändern): send_tip + alle Bounty-RPCs (95/5 server-seitig, atomar, escrow, auth);
+  platform_admins write-locked (kein Self-Grant-Admin); get_auth_state self-guarded;
+  get_home_dashboard_v1 (single-user-scope, floor-Kanon, Slice-282-entkoppelt); push_subscriptions RLS CRUD-vollständig.
+
+== Korrekturen früherer Annahmen ==
+- Admin-Guard = platform_admins (NICHT profiles.top_role='Admin'); top_role ist Display-only.
+- activity_log.action ≠ activityHelpers (das mappt DbTransaction.type) → getrennte Taxonomien, kein i18n-Leak.
+- Creator-Money-Splits 95/5 server-seitig in RPCs = positives Gegenteil von Muster #7.
+
+== Registry-Updates ==
+- 3 Sektionen (Domäne 7/8/9) + Domänen-Tabelle 7/8/9 → ✅ + „Phase 1 KOMPLETT 9/9".
+- Muster #7 erweitert (Security-Klasse aus Identity); Phase-1-Stand-Sektion → 9/9 + voller
+  Phase-2-Backlog severity-sortiert (P0-Money → P1-Security → P1-Demo → P2/P3).
+- ÜBERGREIFENDE-MUSTER-Header → „über alle 9 gemappten Domänen".
+Kein src/-Diff. 0 Reverts.
+
+== Review ==
+Self-review (Mapping-Doc): Agent-Sektionen live-schema-verifiziert (Row-Counts + pg_get_functiondef +
+RLS-Policy-Listing im Agent-Output), Format konsistent mit 302/314. Security-Funde (Identity #1/#2)
+sind die wertvollsten — RLS-Befund via pg_policies verifiziert, /api/push via route.ts-Read.

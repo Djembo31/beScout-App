@@ -31,9 +31,11 @@
 | 4 | **Club** | club, clubChallenges, clubCrm, clubSubscriptions, fanRanking, foundingPasses | 🟡 P1 | ✅ gemappt (Slice 314) |
 | 5 | **Social / Community** | social, posts, votes, communityPolls, notifications, feedback | 🟡 P1 | ✅ gemappt (Slice 314) |
 | 6 | **Gamification / Economy** | missions, dailyChallenge, streaks, mysteryBox, equipment, cosmetics, mastery, tickets, airdrop | 🟡 P1 | ✅ gemappt (Slice 314) |
-| 7 | **Creator / Sponsor / Revenue** | creatorFund, sponsors, adRevenueShare, bounties, tips, scouting | 🟢 P2 | ⏳ offen |
-| 8 | **Identity / Profile** | auth, profiles, avatars, push* | 🟢 P2 | ⏳ offen |
-| 9 | **Admin / Ops** | platformAdmin, cronHealth, homeDashboard, leaderboards, activityLog | 🟢 P3 | ⏳ offen |
+| 7 | **Creator / Sponsor / Revenue** | creatorFund, sponsors, adRevenueShare, bounties, tips, scouting | 🟢 P2 | ✅ gemappt (Slice 315) |
+| 8 | **Identity / Profile** | auth, profiles, avatars, push* | 🟢 P2 | ✅ gemappt (Slice 315) |
+| 9 | **Admin / Ops** | platformAdmin, cronHealth, homeDashboard, leaderboards, activityLog | 🟢 P3 | ✅ gemappt (Slice 315) |
+
+**→ Phase 1 (Map) KOMPLETT: 9/9 Makro-Domänen gemappt (Slice 302 + 314 + 315).**
 
 ---
 
@@ -424,7 +426,175 @@
 
 ---
 
-# ÜBERGREIFENDE MUSTER (über alle 6 gemappten Domänen — Player/Fantasy/Trading/Club/Social/Gamification)
+# DOMÄNE 7 — CREATOR / SPONSOR / REVENUE (gemappt 2026-06-14)
+
+> Live-Schema: `bounties` **1** · `bounty_submissions` **1** (0 approved) · `tips` **1** (1000/50/950 cents) · `sponsors` **21** (`is_active` **0**, alle `revenue_cents_per_impression` NULL/0) · `sponsor_impressions` **0** · `creator_fund_payouts` **0** · `content_impressions` **0** · `creator_config` **10** · `platform_admins` 2.
+> **Korrekturen:** Bounty- + Tip-Split sind **95/5** (server-seitig in RPC, verifiziert). „Polls 70/30" gehört NICHT hierher (community_polls/research = Domäne 5, 80/20). Creator-Fund/Ad-Revenue-Splits sind **config-getrieben** (`creator_config`). **Kein Schema≠TS-Drift** (DbBounty/DbSponsor/DbTip matchen 1:1). **Keine Phantom-Tabellen.**
+> **Money-Kern:** Tip + Bounty-RPCs robust/atomar/auth-guarded. **Die gesamte Ad-Revenue-Share-Kette ist write-path-gebrochen** (Writer ohne Caller).
+
+## 7.1 Tips (95/5) — Money-Path
+- **Kanonisch:** Ledger `tips.{amount_cents,platform_fee_cents,receiver_earned_cents}`, Write nur via RPC `send_tip` (Split `fee=amount*5/100`, live 1000→50/950).
+- **Robust, NICHT ändern:** auth-guarded + `auth.uid()`-Mismatch→EXCEPTION + Self-Tip-Block + Rate-Limit 5/h + Wallet-`FOR UPDATE` + Min/Max 1000–100000 cents + Doppel-`transactions`-Append + Discriminated-Return.
+- **Inkonsistenz (Muster #3):** Feed-Tip-Total wird NICHT über `getTipsForContent` (consumer-los) gelesen, sondern via eigene `tips`-Batch in `posts.ts:69-109` → `PostCard.tipTotalCents`. `getTipsSent` summiert brutto, `getTipsReceived` netto (leicht verwechselbar). `sendTip` macht kein `throw` bei error (returnt `{success:false}`).
+- **Severity:** **P1 (Money, robust).** Aggregat-Doppel-Lesepfad = P2.
+
+## 7.2 Bounties (95/5) — Money-Path
+- **Kanonisch:** `bounties.{reward_cents,status,is_user_bounty}` + `bounty_submissions`. Split in `approve_bounty_submission` (5% Platform).
+- **Robust, NICHT ändern:** Voller atomarer RPC-Satz (create/cancel/submit/approve/reject), Escrow via `locked_balance` `FOR UPDATE`, auth-guarded, `balance_after`-Trail, Analyst-Score via DB-Trigger `trg_fn_bounty_approved_analyst`.
+- **Schwäche:** `bounties.club_name`(TEXT) neben `club_id`(UUID) = Player-1.1-Doppelung; `enrichBounties` serielle `.in()` ohne Chunking (latent 1000-Cap).
+- **Severity:** **P1 (Money, robust).** club_name + Cap = P2.
+
+## 7.3 Scouting-Reports (Aggregator, keine eigene Tabelle)
+- **Kanonisch:** Read-Aggregator über `research_posts` (category Scouting-Report + `evaluation`) + `bounty_submissions` + `user_stats.scout_score`.
+- **E2E:** ⚠️ partiell dormant — Quellen leer (research dormant, 0 approved submissions) → Leaderboards leer. `getGlobalTopScouts` liest `user_stats.scout_score` (Aggregat-Spiegel), nennt es `analystScore` → **Semantik-Verwechslung** mit Gamif §6.1 3-D-analyst-Dimension.
+- **Severity:** **P2** (read-only; dormant wegen leerer Quellen, Code korrekt).
+
+## 7.4 Sponsors + Display-Tracking
+- **Kanonisch (Def):** `sponsors.{placement,priority,is_active,revenue_cents_per_impression}`. **Kanonisch (Counter):** `sponsor_stats.{impressions,clicks}` via RPC `record_sponsor_events` (gewirkt via IntersectionObserver).
+- **Schwäche:** Live alle 21 `is_active=false` → kein Banner sichtbar (Demo-leer); alle `revenue_cents_per_impression` NULL/0. Sponsor-Mutationen via direktem RLS-`.update/.delete` ohne throw (database.md-Verstoß, Admin-only).
+- **Severity:** **P2** (Display; Money-Wirkung erst über 7.5).
+
+## 7.5 Ad-Revenue-Share — **GEBROCHEN: Write-Pfad ohne Caller** 🔴
+- **Kanonisch (behauptet):** `sponsor_impressions.{context_author_ids[]}` → RPC `calculate_ad_revenue_share` (pro-rata nach Author-Impressions, 20% config).
+- **E2E:** ❌ gebrochen — einziger Writer `logSponsorImpression` (`adRevenueShare.ts:9`) hat **0 Caller**; Banner trackt nur `sponsor_stats` (andere Tabelle, ohne author-context). **2 parallele Impression-Pfade, nur der nicht-revenue-relevante verdrahtet** (Muster #3+#5). → `sponsor_impressions` 0 → Pool immer 0 → `creator_fund_payouts` 0. Admin-Button „Werbeanteil auszahlen" = stille No-Op.
+- **Severity:** **P2** (Money-Feature, aber 0 echtes Geld bewegt → kein Fehlauszahlungs-Risiko; bei Aktivierung P1). Ziel: Write-Pfad schließen ODER dormant gaten (S6).
+
+## 7.6 Creator-Fund (config-getrieben) — dormant
+- **Kanonisch:** `creator_fund_payouts` via RPC `calculate_creator_fund_payout`, config `creator_config` (Creator 70%, min_payout 10000c, min_level 5).
+- **Robust, NICHT ändern:** RPC auth-guarded + `platform_admins`-Check + atomar + `rolled_over`-Status + config-getrieben (NICHT client-berechnet).
+- **E2E:** ⚠️ vollständig dormant — `content_impressions` 0 Rows (kein Writer) + revenue/impression=0 → Pool 0. Dormantes Schwester-Feature `beratervertrag_*` (5 config-Keys) ohne jeden Service/RPC/UI = orphan config rows.
+- **Severity:** **P2** (dormant, 0€; bei Aktivierung P1).
+
+## Creator-Domäne — Top-Befunde (severity-sortiert)
+
+| # | Sev | Semantik | Issue | Ziel |
+|---|-----|----------|-------|------|
+| 1 | **P1** ✅robust | Tips 95/5 | `send_tip` atomar+auth+rate-limit, Split live verifiziert | **Robust** — nur `sendTip` `throw`-Angleichung |
+| 2 | **P1** ✅robust | Bounties 95/5 | Voller atomarer RPC-Satz, Trigger-Gamification | **Robust** — `enrichBounties` Chunking + club_name-Deprecation |
+| 3 | P2 🔴 | Ad-Revenue-Share | `logSponsorImpression` 0 Caller; Pool immer 0; Admin-Button No-Op | Write-Pfad schließen ODER dormant gaten (S6) |
+| 4 | P2 | Creator-Fund | `content_impressions` 0 (kein Writer) → Pool 0; RPC selbst robust | Writer bauen ODER pre-Revenue dormant markieren |
+| 5 | P2 | Tip-Aggregat | 2 Lese-Pfade (`getTipsForContent` consumer-los vs posts-Enrich) | EINE Quelle; getTipsForContent löschen oder Feed umstellen |
+| 6 | P2 | Scouting | `getGlobalTopScouts` `scout_score` als `analystScore` (Semantik-Verwechslung); Quellen leer | Benennung klären; Quellen-Aktivierung |
+| 7 | P2 | Sponsors | RLS-`.update/.delete` ohne RPC/throw; alle 21 inaktiv (Demo-leer) | RPC+throw; Demo-Seed |
+| 8 | P3 | dormant config | `beratervertrag_*` config ohne Consumer = orphan rows | Verdrahten ODER entfernen |
+| — | ✅ | **Robust, NICHT ändern** | `send_tip` + alle Bounty-RPCs (atomar, escrow, auth, append-only); Creator-Fund/Ad-Revenue-RPCs sauber (config-getrieben, platform_admins-Check) — nur Write-Datenbasis fehlt | — |
+
+**Cross-Domain:** `tips`→`posts.ts`-Enrich (Social §5.2, der Enrich-Pfad ist Wahrheit). Bounty-Approve→Gamif-Analyst-Trigger + Trading-`transactions`-Ledger. Scouting liest research_posts.evaluation (§5.5) + scout_score (§6.1) — rein read. `creator_config` = config-Truth (analog `fee_config`). **Money-Splits 95/5 server-seitig in RPCs = positives Gegenteil von Muster #7.**
+
+---
+
+# DOMÄNE 8 — IDENTITY / PROFILE (gemappt 2026-06-14)
+
+> Live-Schema: `profiles` **128** (auth.users **129** → 1 Profil-Lücke) · `top_role` gesetzt 81 (Manager 54/Trader 24/Admin 1/Scout 1/Fan 1, NULL 47) · `avatar_url` 6 · `push_subscriptions` 1 · `scout_subscriptions` 0 · `platform_admins` RLS-on (SELECT-own).
+> **Korrektur:** Admin-Guard hängt **NICHT** an `profiles.top_role='Admin'` — kanonische Admin-Autorität ist `platform_admins.role` via `get_auth_state`. `top_role` ist **rein Display** (gatet nichts). Es gibt KEINE eigene avatars/frames-Tabelle (Avatar=`profiles.avatar_url`; Frames=Gamif 6.7), keine Onboarding-State-Tabelle, keine user_settings.
+
+## 8.1 Auth / Session
+- **Kanonisch:** Supabase Auth + dünner Wrapper `services/auth.ts`. Event→`AuthProvider`→`get_auth_state`-RPC (Profil+platformRole+clubAdmin in 1 Roundtrip, self-guarded auth.uid()-Mismatch→EXCEPTION).
+- **Schwäche:** `profiles` 128 vs `auth.users` 129 = 1 User **ohne Profil-Zeile** (kein Self-Heal → Profil-loser Limbo).
+- **Severity:** **P1** (Kern robust; Profil-Lücke = kaputter Einzel-Account).
+
+## 8.2 Profile-Daten
+- **Kanonisch:** `profiles.{handle,display_name,bio,favorite_club,favorite_club_id,language,region,avatar_url}` via `getProfile`/`getProfileByHandle` (22-Spalten-SELECT **2× dupliziert** `profiles.ts:43`==`:152`). Write `updateProfile` whitelistet 7 Felder.
+- **Redundant:** `favorite_club`(TEXT) neben `favorite_club_id`(UUID) = Player-1.1-Klasse.
+- **Severity:** **P2.** Ziel: `PROFILE_SELECT_COLS`-Konstante; favorite_club post-Beta deprecaten.
+
+## 8.3 top_role / Rollen — **Display-Truth, RLS-schreibbar** 🔴
+- **Kanonisch:** `profiles.top_role` (nullable, Display-only — Badges in PostCard/ResearchCard/Profil-Meta). **Kein Code nutzt top_role als Autorisierung** (Grep-verifiziert).
+- **🔴 Security-Schwäche (Muster #7):** RLS `profiles_update` = `qual (auth.uid()=id)` **OHNE Spalten-Whitelist** + KEIN BEFORE-UPDATE-Trigger. Service `updateProfile` whitelistet, aber **RLS ist die echte Grenze** → direkter PostgREST-`.update()` kann `top_role`/`verified`(Checkmark)/`level`/`plan`/`subscription_price_cents` selbst setzen. **Kein Admin-Takeover** (top_role gatet keine Auth), ABER self-set `verified`-Badge + `plan`/`level`-Hochstufung = Trust-/Money-nahe Manipulation.
+- **Severity:** **P1.** Ziel: RLS-`WITH CHECK`-Spalten-Whitelist ODER BEFORE-UPDATE-Trigger der `top_role/verified/level/plan/subscription_*/is_demo/referral_code` gegen OLD einfriert (nur via DEFINER-RPC).
+
+## 8.4 Admin-Autorität — **Robust, NICHT ändern**
+- **Kanonisch:** `platform_admins.role` + `club_admins.role` via `get_auth_state`/`getPlatformAdminRole`. RLS = SELECT-own + **write-locked** (kein Self-Grant-Admin) — korrekte scharfe Grenze (im Gegensatz zu 8.3).
+- **Schwäche (mittel):** **Kein `src/middleware.ts`** — bescout-admin-Guard client-only (`router.replace`). Daten bleiben dicht (jede Admin-Mutation via DEFINER-RPC mit server-side platform_admins-Re-Check) → Defense-in-Depth-Lücke, kein Daten-Leak.
+- **Severity:** **P2** (Daten server-seitig dicht; fehlende Route-Guard = Härtungs-Schuld).
+
+## 8.5 Avatars
+- **Kanonisch:** `profiles.avatar_url` ← Storage-Bucket `avatars`, `uploadAvatar` (6/128 gesetzt). **Schwäche:** keine MIME/Size-Validierung im Service, `ext` client-gesteuert. **Severity P2** (Frames=Gamif 6.7).
+
+## 8.6 Push-Subscriptions
+- **Kanonisch:** `push_subscriptions.{endpoint,p256dh,auth}` (1 Zeile, RLS ALL-own sauber). Versand `sendPushToUser` (service-role + web-push).
+- **🔴 Schwäche:** (1) `subscribeToPush`/`unsubscribe` **swallowen** (console.error;return false). (2) `localStorage['bescout-push-enabled']`-Spiegel divergiert von DB (gerätelokal vs user-global). (3) **`/api/push` erlaubt jedem authenticated Caller beliebige `userId`+freie `title`/`body`** ohne Bindung an existierende Notification-Zeile → **cross-user-Push-Spam/Phishing-Vektor**.
+- **Severity:** **P1** (Befund 3 = Phishing/Spam-Endpoint; 1/2 P2). Ziel: an reference/Notification-Existenz binden ODER self-push-only; swallow→throw.
+
+## 8.7 Onboarding-State & Referral
+- **Kanonisch:** Kein dedizierter State — `createProfile` (generiert referral_code, optional invited_by). „Profil existiert?" IST der Gate (8.1-Lücke).
+- **Schwäche:** `referral.ts:50` `.update({invited_by})` auf eigene Zeile → **nachträglich umsetzbar** (sollte einmalig), koppelt an Airdrop-Score → Referral-Manipulation (Teil der 8.3-RLS-Lücke).
+- **Severity:** **P2** (Airdrop pre-token).
+
+## 8.8 Creator-Monetization-Spalten — dormant
+- `profiles.{subscription_enabled,subscription_price_cents}` + `scout_subscriptions` (0 Rows, kein Writer). Via 8.3-RLS-Lücke client-setzbar, aber kein Cash-Flow-Pfad. Semantisch Domäne 7. **Severity P3** (bei Aktivierung RLS-Whitelist Pflicht).
+
+## Identity-Domäne — Top-Befunde (severity-sortiert)
+
+| # | Sev | Semantik | Issue | Ziel |
+|---|-----|----------|-------|------|
+| 1 | **P1** 🔴 | top_role/verified/plan | `profiles_update`-RLS ohne Spalten-Whitelist + kein Trigger → User self-set `top_role`/`verified`/`level`/`plan`/`subscription_*`/`invited_by`/`is_demo` per direktem `.update()` | RLS-`WITH CHECK`-Whitelist ODER BEFORE-UPDATE-Trigger (sensible Spalten gegen OLD einfrieren) |
+| 2 | **P1** 🔴 | Push-Endpoint | `/api/push` erlaubt cross-user-Push (beliebige userId + freie title/body, keine Notification-Bindung) → Spam/Phishing | An reference/Notification-Existenz binden ODER self-push-only |
+| 3 | **P1** | Auth/Profil-Lücke | auth.users 129 vs profiles 128 → 1 profilloser Account, kein Self-Heal | Onboarding-Backfill / get_auth_state-Recovery |
+| 4 | **P1** | Push silent-fail | subscribe/unsubscribe swallowen; localStorage-Spiegel divergiert von DB | swallow→throw; localStorage nur Hint |
+| 5 | P2 | Admin-Route-Guard | Kein middleware.ts — client-only Gate (Daten via DEFINER-RPC dicht) | Server-Middleware/Layout-Guard auf platform_admins |
+| 6 | P2 | Profil-SELECT | 22-Spalten-SELECT 2× dupliziert → Drift-Risiko | `PROFILE_SELECT_COLS`-Konstante |
+| 7 | P2 | favorite_club | TEXT neben UUID = Player-1.1 | favorite_club_id als Truth |
+| 8 | P2 | top_role-Spiegel | de-norm Spiegel des Elo-Rangs ohne Reconcile, 47/128 NULL | Aus Elo ableiten ODER als reines Badge dokumentieren |
+| 9 | P2 | Avatar | keine MIME/Size-Validierung; client-`ext` | Service/Storage-Policy-Validierung |
+| 10 | P2 | Referral | invited_by nachträglich umsetzbar (Airdrop-Manipulation) | einmalig (Teil #1 RLS-Freeze) |
+| 11 | P3 | Creator-Subs | scout_subscriptions 0, kein Writer = dormant (Domäne 7) | bei Aktivierung Money-RLS-Whitelist |
+| — | ✅ | **Robust, NICHT ändern** | `platform_admins` SELECT-own + write-locked (kein Self-Grant); `get_auth_state` self-guarded 1-Roundtrip; `push_subscriptions` RLS CRUD-vollständig; Auth-Wrapper dünn; Handle-Regex+Reserved-Blocklist | — |
+
+**Cross-Domain:** **`profiles.top_role` ist KEIN Admin-Guard** — Folge-Arbeit MUSS `getPlatformAdminRole`/`get_auth_state` nutzen, NIE `top_role==='Admin'`. `profiles` welt-lesbar (RLS `qual true`) + via `.in()`-Enrich in Social/Research/Posts/Scouting/Club/Search gejoint → exponiert `subscription_price_cents`/`referral_code`/`region` öffentlich (Privacy). `top_role`↔Elo-Rang (§6.1) = Reconcile-Punkt (#8). `top_role`-Badges sind capitalized-EN ohne i18n-Key (#10).
+
+---
+
+# DOMÄNE 9 — ADMIN / OPS (gemappt 2026-06-14)
+
+> Live-Schema: `platform_admins` **2** (beide superadmin) · `activity_log` **14.790** (page_view 12.721/login 1.646/Rest) · `cron_sync_log` **73.030** (skipped 63.630/success 9.238/**error 120**/partial 42) · `user_stats` 68 (alle rank>0) · `events` **207 — ALLE `status='ended'`** · `predictions` 1.
+> **Korrekturen:** Admin-Auth via `platform_admins` (nicht top_role). `activity_log.action` (page_view/login/ipo_buy) ist **andere Taxonomie** als `activityHelpers.ts` (das mappt `DbTransaction.type`) — Namens-Falle, kein gemeinsamer Mapper. homeDashboard/leaderboards/cronHealth = reine Read-Aggregatoren.
+
+## 9.1 Platform-Admin / Auth-Gate + Dashboards
+- **Kanonisch:** `platform_admins.{user_id,role}` via `getPlatformAdminRole`. Admin-Writes via RPC (`adjust_user_wallet` atomar, `update_fee_config_rpc`, `create_club_by_platform_admin`).
+- **Schwäche:** `getSystemStats.activeEvents` filtert `upcoming/registering/late-reg/running` — live ALLE 207 Events `ended` → KPI strukturell **0** (Muster #2). Aggregat-Fallbacks `.limit(5000)` (Cap-Klasse). `updateEventFeeConfig` direkter `.update()` statt RPC. `platform_admins.role` 3 Stufen, live nur superadmin (admin/viewer dormant).
+- **Severity:** **P2** (Admin-only; activeEvents-0 = falscher KPI, kein Money).
+
+## 9.2 Cron-Health / Pipeline-Sentinel
+- **Kanonisch (Detection):** `getCronHealthStatus` (anon, Drift-Heuristik über leagues/clubs/fixtures, NICHT cron_sync_log). **(Audit):** `cron_sync_log.{step,status,details}` (73k) — **von KEINEM Service gelesen** (nur Dashboard-Link).
+- **Schwäche:** **120 `error` + 42 `partial` nirgends UI-sichtbar**; Sentinel erkennt nur GW-Advance-Drift, NICHT fehlgeschlagene Money-Crons (Score/Floor/MV). N+1 pro Liga.
+- **Severity:** **P2** (GW-Drift abgedeckt; Cron-Step-Errors blind = latent P1 bei Money-Cron-Ausfall).
+
+## 9.3 Home-Dashboard-Aggregation — **Robust, NICHT ändern**
+- **Kanonisch:** RPC `get_home_dashboard_v1` (SECURITY DEFINER, `auth_required`+`auth_uid_mismatch`-Guard, holdings single-user-scope → **kein 1000-Cap/Liga-Scope-Problem**, floor_price-Kanon). **Slice 282 verifiziert:** Home von 4,2MB /api/players entkoppelt.
+- **Offen:** `nextEvent`/Manager-Hero filtern auf nie-vorkommende Event-Status (alle ended) → Hero leer (erbt 9.1-Klasse).
+- **Severity:** **P3** (Aggregat robust; Event-Leere = Fantasy/Seed-Thema).
+
+## 9.4 Leaderboards — **5 parallele Implementierungen**
+- **Kanonisch (je Surface):** (A) `social.getLeaderboard` (`user_stats.rank`-Spiegel) · (B) `getScoutLeaderboard` (3-D-Elo, Client-Median, Truncation-Bias §6.1#2) · (C) `getMonthlyLeaderboard` (dormant, 0 Rows) · (D) `getClubFanLeaderboard` (Club §4.4) · (E) `getTopPredictorsLeaderboard` (RPC, dormant 1 Row).
+- **Redundant:** 5 Services, **3 Truth-Tabellen** (user_stats vs scout_scores vs fan_rankings) für „User-Rang" (Muster #3); (A) Spiegel-rank vs (B) Live-Median → 2 Ränge/User möglich.
+- **Robust:** RPC `get_top_predictors_leaderboard` sauber (limit-clamp 1–100, deterministisch). **Schwäche:** (B) console.error+Return statt throw.
+- **Severity:** **P2** (mehrere Rang-Zahlen möglich; non-Money).
+
+## 9.5 Activity-Log (Telemetrie)
+- **Kanonisch:** `activity_log.{action,category,metadata}` (14.790) via `logActivity` (fire-and-forget, 5s-Batch). Spalte **`action`** (nicht action_type).
+- **E2E:** ⚠️ write-many (14 Service-Files)/read-thin (nur Admin-DebugTab 50 Zeilen + Club-CRM §4.6 `.limit(1000)` ungechunkt). Kein User-Feed.
+- **i18n-Risiko WIDERLEGT:** `activityHelpers.ts` mappt `DbTransaction.type` (i18n-sauber), NICHT `activity_log.action` — getrennte Taxonomien, kein snake_case-Leak.
+- **Severity:** **P3** (Telemetrie-Sink by design).
+
+## Admin-Domäne — Top-Befunde (severity-sortiert)
+
+| # | Sev | Semantik | Issue | Ziel |
+|---|-----|----------|-------|------|
+| 1 | P2 | Cron-Health | 120 `error`+42 `partial` nirgends UI-sichtbar; Sentinel nur GW-Drift, nicht Money-Cron-Fails | error/partial-Tail in DebugTab; latent P1 bei Money-Cron-Ausfall |
+| 2 | P2 | System-Stats | `activeEvents`-Filter vs alle-207-ended → KPI strukturell 0 (Muster #2) | Filter an Live-Status / Event-Lifecycle |
+| 3 | P2 | Leaderboards | 5 Impls/3 Truth-Tabellen; Spiegel-rank vs Live-Median → 2 Ränge/User | „User-Rang" auf EINE Truth; Median DB-seitig (=Gamif #2) |
+| 4 | P2 | Admin-Writes | `updateEventFeeConfig` direkter `.update()`; Fallbacks `.limit(5000)` ungechunkt | RPC + Chunking |
+| 5 | P3 | Activity-Log | write-many/read-thin; `action`⊃`DbTransaction.type`⊃`notifications.type` (3 Taxonomien); CRM-Read 1000-Cap | Als Telemetrie-Sink dokumentieren; CRM-Chunking (=Club #7) |
+| 6 | P3 | Home-Aggregat | nextEvent/Manager-Hero filtern nie-vorkommende Status → leer | Fantasy-Event-Lifecycle/Seed |
+| 7 | P3 | dormant | platform_admins nur superadmin (admin/viewer ungetestet); predictions=1; monthly_liga=0 | bei Aktivierung re-prüfen |
+| — | ✅ | **Robust, NICHT ändern** | `get_home_dashboard_v1` (auth-guard, single-user-scope, floor-Kanon, Slice-282-entkoppelt); `get_top_predictors_leaderboard` (limit-clamp); `adjust_user_wallet` atomar; `cronHealth` graceful-fail; `activityHelpers` i18n-sauber | — |
+
+**Cross-Domain:** homeDashboard aggregiert über ~5 Domänen (Floor erbt Slice-303-Kanon). leaderboards überspannen 3 Truth-Tabellen (Konsolidierung gemeinsam mit Gamif #2). activity_log = Schreib-Sink vieler Domänen, gelesen von Club-CRM §4.6 + Admin. cronHealth überwacht die Crons hinter active_gameweek/scores/floor — meldet aber nur GW-Drift, nicht Score/Floor-Step-Fails (#1). De-norm `user_stats.*` = Reconcile-Punkt mit Social #5.
+
+---
+
+# ÜBERGREIFENDE MUSTER (über alle 9 gemappten Domänen — Player/Fantasy/Trading/Club/Social/Gamification/Creator/Identity/Admin)
 
 1. **FLOOR PRICE = das #1-Problem projektweit** — 5-6 Client-Berechnungen + 1 DB-Canon, keine repliziert die DB-Formel. Berührt Player + Trading + Fantasy(IPO). **Eine `computeFloor` ist der höchste Einzel-Hebel.**
 2. **Schema ≠ TS-Typ** — Phantom-Spalten (`players.rating/score/form*`), fehlende Spalten (`DbFeeConfig.offer_*_bps`). **Slice 314 bestätigt im Money-Path:** Founding-Pass `bcredits` TS≠RPC (fan 100k vs 250k → falsche angezeigte Credits), Airdrop `tier` DB-`silver` vs TS-`silber` (Mapper an jedem Reader), MysteryBox-RPC camelCase vs v1-snake. Klasse: TS-Typ driftet von Live-DB. → Ratchet-Kandidat (Type-Truth-Audit erweitern).
@@ -432,21 +602,34 @@
 4. **Audit-Fehldiagnose: leere Backfill-Platzhalter** — wildcard_transactions leer bei „35 Balances", die aber alle 0 sind (Backfill-Platzhalter, 1 Timestamp). Slice 306 widerlegt die „Aggregat ohne Audit-Trail = Risiko"-These: Werte echt UND Write-Pfad schreibt nicht → erst dann Risiko. **Slice 314 angewandt:** Tickets 107/128 leere Platzhalter (kein Risiko), nur 1 echter Balance-Drift; Club-Subs/Founding leer-weil-unbenutzt (kein Risiko). Klasse: vor Risiko-Label Row-Werte + RPC-Ledger-Pfad verifizieren.
 5. **Dormant/orphan Features mit Test-Daten** — CommunityValuation + 2 Tabellen, predictions (1 Zeile). **Slice 314 +:** Research (3 Tabellen je 0 Rows, voll gebaut), beide Voting-Systeme (0 Rows), Monthly-Liga-Snapshots (0 Rows), Daily-Challenge (1 Submission), Cosmetics (3 Rows). Klasse: gebaut, nie/kaum verdrahtet (S6-Removal- bzw. Aktivierungs-Kandidaten).
 6. **Externe Dep blockiert Heilung** — API-Football-Key seit 06.05 → SL-GW-Drift + Live-Pfade dormant. Klasse: nicht-redundant, sondern dormant.
-7. **🔴 Money-Truth nur im Client / nicht server-validiert (NEU, Slice 314 — höchste neue Severity)** — `grant_founding_pass` nimmt `p_price_eur_cents` als freien Caller-Parameter ohne Tier-CHECK; die EUR-Wahrheit lebt nur im Admin-Client (`AdminFoundingPassesTab.tsx:171`), und der Kill-Switch (EUR 900K) summiert exakt diesen ungeprüften Wert. Klasse: ein Money-Limit/Reward hängt an einem Client-gelieferten Wert. → Server-seitige Ableitung (CASE wie bcredits) Pflicht. **2 P0-Money-Befunde (Club #1/#2).**
+7. **🔴 Money/Security-Truth nur im Client / nicht server-validiert (Slice 314+315 — höchste neue Severity-Klasse)** — (a) `grant_founding_pass` nimmt `p_price_eur_cents` als freien Caller-Parameter ohne Tier-CHECK; EUR-Wahrheit nur im Admin-Client, Kill-Switch (EUR 900K) summiert ungeprüften Wert (Club #1/#2, **2× P0 Money**). (b) **Slice 315 Identity:** `profiles_update`-RLS ohne Spalten-Whitelist → User self-set `verified`/`plan`/`top_role`/`subscription_price_cents`/`invited_by` per direktem `.update()` (Service-Whitelist ist KEINE Grenze); `/api/push` cross-user-Spam (beliebige userId+freie title/body). Klasse: ein Money/Trust-Wert hängt an Client-Input bzw. an einer RLS ohne Column-Guard. → Server-Ableitung / RLS-`WITH CHECK`-Whitelist / BEFORE-UPDATE-Trigger Pflicht. **Höchste Severity-Klasse projektweit nach Floor.**
 8. **De-normalisierte Counter ohne sichtbaren Reconcile (NEU, Slice 314)** — `posts.upvotes/downvotes` (Spiegel) vs `post_votes`-Ledger (Display gewinnt der Spiegel); `user_stats.followers_count` vs Live-COUNT; `research_posts.avg_rating` vs `research_ratings`. Klasse: Aggregat-Spiegel kann von Ledger driften, UI liest den Spiegel. → Spiegel als bewussten Read-Cache dokumentieren + Recompute-Guard/Ratchet.
 9. **Phantom-Tabellen: Service referenziert nie-deployte Tabelle (NEU, Slice 314)** — `club_challenges` + `achievement_perk_claims` existieren in der Live-DB NICHT, aber Service+Hook+Admin-Tab sind voll gebaut + im UI gerendert → Hard-Crash (42P01) statt leerer Liste. Schärfere Variante von #2/#5. → Deploy-vs-Cut-Entscheidung; bis dahin UI-Pfad gaten.
 10. **Pre-localized String vs i18n_key (NEU, Slice 314)** — `notifications.title/body` = DE-String, parallel `i18n_key`/`i18n_params` (60/327 Rows); `getNotifications` selektiert i18n_key nicht → Reload (roher String) vs Realtime-Push (lokalisiert) divergieren. Cross-domain (alle createNotification-Caller). → SELECT ergänzen + neue Notifs nur via i18n_key.
 
 ---
 
-## Phase-1-Stand (Map): 6/9 Makro-Domänen gemappt
+## Phase-1-Stand (Map): ✅ KOMPLETT — 9/9 Makro-Domänen gemappt
 
-✅ **Player · Fantasy · Trading** (Slice 302, alle P0) · ✅ **Club · Social · Gamification** (Slice 314, alle P1).
-⏳ **Offen (P2/P3):** Creator/Sponsor/Revenue (7), Identity/Profile (8), Admin/Ops (9).
+✅ **Player · Fantasy · Trading** (Slice 302, alle P0) · ✅ **Club · Social · Gamification** (Slice 314, alle P1) · ✅ **Creator · Identity · Admin** (Slice 315, P2/P3).
 
-**Neue Money/Demo-Befunde aus Slice 314 (Phase-2-Kandidaten, severity-sortiert):**
-- 🔴 **P0** Club #1 Founding-bcredits TS≠RPC-Drift (falsche angezeigte Credits)
-- 🔴 **P0** Club #2 Founding-Preis nicht server-validiert (Kill-Switch-Integrität)
-- 🟡 **P1** Club #3 Club-Challenges Phantom-Tabellen (Admin-Crash) · Club #4 cancelSubscription RLS-Swallow
-- 🟡 **P1** Social #1 Notification-i18n-Drift (Beta-sichtbar) · Social #2 Posts-Counter-vs-Ledger
-- 🟡 **P1** Gamif #1 Score-Road-Shape · #2 Leaderboard-Median-Bias · #3 1 Ticket-Balance-Drift
+**Phase-2-Backlog — alle Map-Befunde, severity-sortiert (Demo/Money/Security zuerst):**
+
+**🔴 P0 (Money):**
+- Club #1 Founding-bcredits TS≠RPC-Drift (falsche angezeigte Credits)
+- Club #2 Founding-Preis nicht server-validiert (Kill-Switch-Integrität)
+
+**🔴 P1 (Security — neu aus Slice 315, eigene Klasse):**
+- Identity #1 `profiles_update`-RLS ohne Spalten-Whitelist → User self-set `verified`/`plan`/`top_role`/`subscription_price_cents`/`invited_by`
+- Identity #2 `/api/push` cross-user-Push-Spam/Phishing (beliebige userId + freie title/body)
+
+**🟡 P1 (Demo/Funktion):**
+- Identity #3 1 profilloser Account (auth.users 129 vs profiles 128) · #4 Push silent-fail + localStorage-Dual-State
+- Club #3 Club-Challenges Phantom-Tabellen (Admin-Crash 42P01) · Club #4 cancelSubscription RLS-Swallow
+- Social #1 Notification-i18n-Drift (Beta-sichtbar) · Social #2 Posts-Counter-vs-Ledger
+- Gamif #1 Score-Road-Shape · #2 Leaderboard-Median-Bias · #3 1 Ticket-Balance-Drift
+- Creator: Tips/Bounties **robust** (95/5 server-seitig) — keine P0/P1; Ad-Revenue-Share write-path-gebrochen = P2 (0€ bewegt)
+
+**🟢 P2/P3:** Admin Cron-error-Tail unsichtbar · 5 Leaderboard-Impls/3 Truth-Tabellen · diverse dormant Features (Research, Voting-Systeme, Creator-Fund, Monthly-Liga) · String-vs-UUID-Identity-Doppelung (club/league/favorite_club, cross-domain post-Beta).
+
+**Phase 3 (Abräumen) + Phase 2 (Migrieren) hängen an dieser Liste.** Empfohlene Reihenfolge: P0-Money (Club-Founding) → P1-Security (Identity-RLS + /api/push) → P1-Demo. Jeder Fix = eigener Slice mit Spec + Review (Money/Security → CEO-Scope).

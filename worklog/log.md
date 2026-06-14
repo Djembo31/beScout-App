@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 315 | 2026-06-14 | docs(audit): S7 Phase-1 ABSCHLUSS — Creator + Identity + Admin (9/9 Domänen)
+
+- Stage-Chain: SPEC skipped (Mapping-Slice, 302/314-Muster) → IMPACT skipped (nur worklog/audits) → BUILD (3 parallele Explore-Agents gegen Live-Schema → Konsolidierung) → REVIEW self-review (Agent-Sektionen live-schema-verifiziert inkl. RLS-Policies via pg_policies) → PROVE (`worklog/proofs/315-s7-phase1-complete.txt`) → LOG.
+- Trigger: Anil „weiter" (2026-06-14). Letzter Mapping-Batch → **S7 Phase 1 (Map) KOMPLETT: 9/9 Makro-Domänen.**
+- Ergebnis: 3 Registry-Sektionen (Domäne 7 Creator/Sponsor/Revenue, 8 Identity/Profile, 9 Admin/Ops) im 8-Achsen-Format + Top-Befunde-Tabellen. Domänen-Tabelle 7/8/9 → ✅. Phase-1-Stand-Sektion → 9/9 + voller Phase-2-Backlog severity-sortiert.
+- Neue Funde: **2× P1 Security (Identity)** — `profiles_update`-RLS ohne Spalten-Whitelist (User self-set verified/plan/top_role/subscription_price/invited_by per direktem .update()) + `/api/push` cross-user-Push-Spam/Phishing. Plus P1 Demo (1 profilloser Account, Push silent-fail). **Robust bestätigt:** Tips+Bounties 95/5 server-seitig atomar, platform_admins write-locked (kein Self-Grant), get_auth_state self-guarded, get_home_dashboard_v1 (Slice-282-entkoppelt), push_subscriptions RLS CRUD-vollständig.
+- Korrekturen: Admin-Guard = platform_admins (NICHT top_role); activity_log.action ≠ activityHelpers (DbTransaction.type) → kein i18n-Leak; Creator-Splits 95/5 server-seitig = Gegenteil von Muster #7.
+- Muster #7 erweitert (Security-Klasse: RLS ohne Column-Guard + /api/push); Header → „alle 9 Domänen". Kein src/-Diff. 0 Reverts.
+- **Phase-2-Fix-Reihenfolge (Empfehlung):** P0-Money (Club-Founding bcredits+Preis) → P1-Security (Identity-RLS+/api/push) → P1-Demo. Jeder = eigener Slice + Review (Money/Security = CEO-Scope).
+
 ## 314 | 2026-06-14 | docs(audit): S7 Phase-1 Mapping P1-Batch — Club + Social + Gamification (6/9 Domänen)
 
 - Stage-Chain: SPEC skipped (Mapping-Slice, 302-Muster) → IMPACT skipped (nur worklog/audits) → BUILD (3 parallele Explore-Agents gegen Live-Schema → Konsolidierung) → REVIEW self-review (Agent-Sektionen live-schema-verifiziert, Format konsistent 302) → PROVE (`worklog/proofs/314-s7-phase1-p1-mapping.txt`) → LOG.
