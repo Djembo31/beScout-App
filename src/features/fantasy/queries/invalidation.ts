@@ -44,8 +44,8 @@ export async function invalidateAfterScoring(clubId?: string): Promise<void> {
  */
 async function invalidateFantasyQueriesCore(userId?: string, clubId?: string): Promise<void> {
   // Slice 251 Wave 1: leagueGw is now per-league (function-form key). Prefix-match invalidates all variants.
+  // Slice 310: per-club activeGw key removed (useActiveGameweek orphan deleted) — leagueGw covers GW invalidation.
   queryClient.invalidateQueries({ queryKey: ['events', 'leagueGw'] });
-  if (clubId) queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
   const critical: Promise<void>[] = [queryClient.invalidateQueries({ queryKey: qk.events.all })];
   if (userId) {
     critical.push(

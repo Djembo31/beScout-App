@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 310 | 2026-06-14 | feat(fantasy): S7 Phase-2 Fantasy-#1 — active_gameweek leagues=einzige Wahrheit + Drift-Guard
+
+- Stage-Chain: SPEC (`worklog/specs/310-active-gameweek-single-truth.md`, M, Migration+UI+GHA) → IMPACT skipped (Consumer in §4 grep-verifiziert) → BUILD (Wave A→B→C) → REVIEW (`worklog/reviews/310-review.md`, reviewer-Agent **PASS**, 2 NIT [1 in-slice] + 1 pre-existing Cron-Observation) → PROVE (`worklog/proofs/310-active-gameweek.txt`) → LOG.
+- Trigger: S7-Registry Fantasy-#1 / §2.1 (P1 preventiv) — `active_gameweek` lebt in 2 Spalten (clubs per-Club + leagues per-Liga). Admin-Write `set_active_gameweek` schrieb nur clubs → leagues (Fantasy-Lese-Wahrheit) driftete still. Live-Drift aktuell 0 (Cron synct beide, Slice 277). Anil wählte Fantasy-#1 aus der Queue.
+- **Anil-Decisions:** (1) set_active_gameweek **LIGA-WEIT** (alle Clubs der Liga + leagues-Zeile atomar; hält Invariante clubs-MIN===MAX===leagues; bewusste Folge: Club-Owner bewegt Liga-GW). (2) Drift-Guard = **Detektions-Skript + nightly** (kein DB-Trigger).
+- Wave A (DB-Migration `20260614120000`): set_active_gameweek resolved league_id → UPDATE alle Liga-Clubs + leagues. AR-44 REVOKE/GRANT. Verifiziert: pg_get_functiondef-Body + Grants (kein anon) + funktionaler Rollback-Test (clubs_min=max=30, leagues=30, invariant_holds=t).
+- Wave B (Frontend): `FantasyContent.handleSimulated` getActiveGameweek(clubs)→getLeagueActiveGameweek(leagueScopeId). `useActiveGameweek` orphan entfernt (+ getActiveGameweek-Import, qk.events.activeGw, invalidation.ts:48 toter Invalidate, 2 Test-Mock-Keys). Admin-clubs-Reads bleiben bewusst (post-Wave-A clubs===leagues harmlos).
+- Wave C (Tool/GHA, D75-Ratchet): `scripts/audit/gameweek-drift.js` (clubs-MIN===MAX===leagues pro Liga; CRLF-safe Cred-Load) + `audit:gameweek-drift` + nightly-audit.yml Step + Aggregate-failure-Registrierung (D54). Live-Run: 7 Ligen OK, exit 0.
+- CRLF-Falle gefunden+gefixt: `.split('\n')` ließ `\r` → `.*$` matchte nicht (gleicher Bug in rpc-security.js latent). `split(/\r?\n/)`.
+- Files: 9 (1 Migration, 4 Frontend, 1 Skript, package.json, nightly-audit.yml). tsc clean, FantasyContent 10/10. 0 Reverts.
+
 ## 309 | 2026-06-14 | fix(manager): S7 Phase-2 Player-#3 — Kader L5-Pill aus FormBars ableiten
 
 - Stage-Chain: SPEC (`worklog/specs/309-kader-l5-pill-from-bars.md`, XS, UI-Display) → IMPACT skipped (1 File-Logik, kein Service/RPC/DB; Display-Derive aus bereits-vorhandenem scores-Prop) → BUILD → REVIEW (`worklog/reviews/309-review.md`, reviewer-Agent **PASS**, 1 INFO Doc-Präzisierung in-slice, 2 NITPICKS) → PROVE (`worklog/proofs/309-kader-l5-derived.txt`) → LOG.

@@ -6,7 +6,7 @@ import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry
 import { getPlayerEventUsage } from '@/features/fantasy/services/lineups.queries';
 import { getUserHoldingLocks } from '@/lib/services/wallet';
 import { getWildcardBalance } from '@/features/fantasy/services/wildcards';
-import { getActiveGameweek, getLeagueActiveGameweek, getLeagueMaxGameweeks, isClubAdmin } from '@/lib/services/club';
+import { getLeagueActiveGameweek, getLeagueMaxGameweeks, isClubAdmin } from '@/lib/services/club';
 import type { DbEventEntry } from '@/types';
 
 const ONE_MIN = 60 * 1000;
@@ -59,16 +59,6 @@ export function useWildcardBalance(userId: string | undefined, leagueId: string 
     queryFn: () => getWildcardBalance(userId!, leagueId!),
     enabled: !!userId && !!leagueId,
     staleTime: ONE_MIN,
-  });
-}
-
-export function useActiveGameweek(clubId: string | undefined) {
-  return useQuery({
-    queryKey: qk.events.activeGw(clubId!),
-    queryFn: () => getActiveGameweek(clubId!),
-    enabled: !!clubId,
-    staleTime: FIVE_MIN,
-    gcTime: 10 * 60 * 1000,
   });
 }
 

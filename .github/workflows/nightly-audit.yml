@@ -125,6 +125,22 @@ jobs:
           tail -30 /tmp/rpc-security.log >> $GITHUB_STEP_SUMMARY
           exit $EXIT
 
+      - name: Audit gameweek-drift
+        id: gameweek_drift
+        shell: bash
+        continue-on-error: true
+        # Slice 310 (Fantasy-#1): clubs.active_gameweek MIN/MAX === leagues.active_gameweek
+        # pro Liga. Drift = ein Write-Pfad schreibt nur eine Spalte. Braucht Supabase-Keys.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          pnpm run audit:gameweek-drift 2>&1 | tee /tmp/gameweek-drift.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:gameweek-drift (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/gameweek-drift.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
       - name: Audit tr-strings
         id: tr_strings
         shell: bash
@@ -228,6 +244,7 @@ jobs:
           [ "${{ steps.mutation_race.outcome }}" = "failure" ] && FAILURES="$FAILURES mutation-race;"
           [ "${{ steps.i18n.outcome }}" = "failure" ] && FAILURES="$FAILURES i18n;"
           [ "${{ steps.rpc_security.outcome }}" = "failure" ] && FAILURES="$FAILURES rpc-security;"
+          [ "${{ steps.gameweek_drift.outcome }}" = "failure" ] && FAILURES="$FAILURES gameweek-drift;"
           [ "${{ steps.tr_strings.outcome }}" = "failure" ] && FAILURES="$FAILURES tr-strings;"
           [ "${{ steps.compliance.outcome }}" = "failure" ] && FAILURES="$FAILURES compliance;"
           [ "${{ steps.wiring.outcome }}" = "failure" ] && FAILURES="$FAILURES wiring;"

@@ -55,7 +55,6 @@ export const qk = {
      */
     wildcardBalance: (uid: string, leagueId: string) => ['events', 'wildcardBalance', uid, leagueId] as const,
     wildcardBalancePrefix: (uid: string) => ['events', 'wildcardBalance', uid] as const,
-    activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
     /** Slice 251 Wave 1: function-form per leagueId. Prefix-match for invalidation: ['events', 'leagueGw']. */
     leagueGw: (leagueId: string | null) => ['events', 'leagueGw', leagueId] as const,
     /** Slice 251 Wave 1: max gameweeks per league (TFF1=34, BL=34, PL=38). */

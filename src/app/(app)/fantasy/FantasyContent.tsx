@@ -160,15 +160,18 @@ export default function FantasyContent() {
     addToast(t('gameweekDone'), 'success');
     (async () => {
       await refetchEvents();
-      if (clubId) {
+      // Slice 310 (Fantasy-#1): read the league's active_gameweek (single read-truth,
+      // = leagues.active_gameweek) instead of the per-club column. Avoids clubs↔leagues
+      // drift on this user-facing path after an admin/cron GW advance.
+      if (leagueScopeId) {
         try {
-          const { getActiveGameweek: fetchGw } = await import('@/lib/services/club');
-          const newGw = await fetchGw(clubId);
+          const { getLeagueActiveGameweek } = await import('@/lib/services/club');
+          const newGw = await getLeagueActiveGameweek(leagueScopeId);
           gw.setSelectedGameweek(newGw);
         } catch (err) { console.error('[Fantasy] Active gameweek fetch failed:', err); }
       }
     })();
-  }, [addToast, refetchEvents, clubId, gw, t]);
+  }, [addToast, refetchEvents, leagueScopeId, gw, t]);
 
   const handleCreateEvent = useCallback((eventData: Partial<FantasyEvent>) => {
     addToast(t('eventCreated', { name: eventData.name || t('newEventDefault') }), 'success');

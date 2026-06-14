@@ -1,0 +1,77 @@
+Slice 310 — active_gameweek: leagues = einzige Wahrheit + Drift-Guard (Fantasy-#1)
+==================================================================================
+Datum: 2026-06-14 · Anil-Decisions: (1) liga-weit (2) Detektions-Skript+nightly
+
+[WAVE A] DB — set_active_gameweek wird liga-weit
+----------------------------------------------------------------
+Migration: supabase/migrations/20260614120000_slice_310_set_active_gameweek_league_wide.sql
+Applied via mcp__supabase__apply_migration → {"success":true}
+
+AC-1+AC-3 (pg_get_functiondef-Verify):
+  has_clubs_leaguewide = true   (UPDATE clubs ... WHERE league_id)
+  has_leagues_write    = true   (UPDATE leagues SET active_gameweek)
+  has_admin_guard      = true   (admin_required unverändert)
+  has_validation       = true   (invalid_gameweek 1–38 unverändert)
+  execute_grants       = service_role,authenticated,postgres   (KEIN anon → AR-44 ✓)
+
+AC-2 (funktionaler Rollback-Test, Bundesliga 34→Test-30, RAISE→rollback):
+  ROLLBACK_TEST_OK: clubs_min=30 clubs_max=30 distinct=1 leagues=30 invariant_holds=t
+  → nach liga-weitem UPDATE: alle Clubs===leagues===30. Invariante hält.
+  Rollback bestätigt: Bundesliga danach wieder league_gw=34, clubs_min/max=34.
+
+[WAVE B] Frontend — drift-sensitiver Read auf leagues + orphan raus
+----------------------------------------------------------------
+AC-4: FantasyContent.handleSimulated:165 getActiveGameweek(clubId)
+      → getLeagueActiveGameweek(leagueScopeId). Liest jetzt leagues (Lese-Wahrheit).
+AC-5: useActiveGameweek (events.ts:65) entfernt (orphan, 0 Prod-Consumer).
+      + getActiveGameweek-Import aus events.ts entfernt.
+      + qk.events.activeGw aus keys.ts entfernt (orphan).
+      + invalidation.ts:48 toter activeGw-Invalidate entfernt (leagueGw deckt ab).
+      + 2 tote useActiveGameweek-Mock-Keys aus FantasyContent.test.tsx.
+  grep useActiveGameweek/qk.events.activeGw in src/ → 0 Treffer.
+  Bewusst auf clubs belassen: AdminSettingsTab/AdminGameweeksTab (per-Club-Display;
+  post-Wave-A clubs===leagues → harmlos). getActiveGameweek-Service bleibt für diese.
+
+[WAVE C] Tool/GHA — Drift-Detektion + nightly-Wiring (D75-Ratchet)
+----------------------------------------------------------------
+scripts/audit/gameweek-drift.js (process.env→.env.local Fallback, CRLF-safe split).
+package.json: "audit:gameweek-drift": "node scripts/audit/gameweek-drift.js"
+
+AC-6 (lokaler Live-Run gegen Prod):
+  Liga                  league_gw  clubs_min  clubs_max  status
+  2. Bundesliga                34         34         34  OK
+  Bundesliga                   34         34         34  OK
+  La Liga                      38         38         38  OK
+  Premier League               38         38         38  OK
+  Serie A                      38         38         38  OK
+  Süper Lig                    34         34         34  OK
+  TFF 1. Lig                   38         38         38  OK
+  ✓ active_gameweek synchron in allen Ligen. EXIT 0.
+
+AC-7 (Wiring, D54): nightly-audit.yml
+  - neuer Step "Audit gameweek-drift" (id: gameweek_drift, SUPABASE-env, tee+summary)
+  - in Aggregate-failure-detection registriert (steps.gameweek_drift.outcome → Issue)
+
+[TSC + TESTS]
+----------------------------------------------------------------
+AC-8: npx tsc --noEmit → EXIT 0 (clean)
+      FantasyContent.test.tsx → 10 passed
+      (kein dedizierter events/invalidation-Test; tsc deckt Type-Korrektheit)
+
+[FILES]
+----------------------------------------------------------------
+ supabase/migrations/20260614120000_slice_310_...sql   neu (Wave A)
+ src/app/(app)/fantasy/FantasyContent.tsx               handleSimulated→leagues
+ src/features/fantasy/queries/events.ts                 useActiveGameweek+import raus
+ src/features/fantasy/queries/invalidation.ts           toter activeGw-Invalidate raus
+ src/lib/queries/keys.ts                                qk.events.activeGw raus
+ src/app/(app)/fantasy/__tests__/FantasyContent.test.tsx  2 tote Mock-Keys raus
+ scripts/audit/gameweek-drift.js                        neu (Wave C)
+ package.json                                           audit:gameweek-drift
+ .github/workflows/nightly-audit.yml                    Step + Aggregation
+
+[OUT-OF-SCOPE / FOLLOW-UP]
+----------------------------------------------------------------
+- Voll-Removal getActiveGameweek + Admin-clubs-Reads (harmlos post-Wave-A).
+- clubs.active_gameweek-Spalten-Drop (Cron+Admin lesen noch).
+- vestigialer clubId-Param in invalidateFantasyQueriesCore (optional, ungenutzt; Entfernen kaskadiert auf Caller).

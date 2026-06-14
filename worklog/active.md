@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 309
+slice: 310
 stage: LOG complete ✅ DONE
-spec: worklog/specs/309-kader-l5-pill-from-bars.md
-impact: skipped (1 File-Logik, kein Service/RPC/DB; reines Display-Derive aus bereits-vorhandenem scores-Prop)
-proof: worklog/proofs/309-kader-l5-derived.txt
-review: worklog/reviews/309-review.md (reviewer-Agent PASS, 1 INFO Doc-Präzisierung in-slice gefixt, 2 NITPICKS kein Change)
-decision: derivedL5 = LEAST(100, ROUND(avg(non-null bars))) spiegelt cron_recalc_perf-Skala (KEIN /1.5 — fantasy.md-Doc stale, live-SQL-verifiziert D77). Beide L5-Displays (Circle + PerfPills) auf derivedL5. Sort bleibt perf.l5 (Anil tighter-scope, dokumentiert). QUEUE-Reste: Fantasy-#1 (active_gameweek drift, preventiv), Fantasy-#5 (GW-Status 3×).
+spec: worklog/specs/310-active-gameweek-single-truth.md
+impact: skipped (Consumer in Spec §4 grep-verifiziert; set_active_gameweek einzige Write-RPC, scoring.admin erbt, Read-Consumer enumeriert)
+proof: worklog/proofs/310-active-gameweek.txt
+review: worklog/reviews/310-review.md (reviewer-Agent PASS, 2 NIT [1 in-slice gefixt] + 1 pre-existing Cron-Observation den der Drift-Guard fängt)
+decision: Anil — (1) set_active_gameweek LIGA-WEIT (alle Clubs der Liga + leagues-Zeile atomar, hält clubs===leagues; leagues=einzige Lese-Wahrheit), (2) Drift-Guard = Skript scripts/audit/gameweek-drift.js wired in nightly (kein DB-Trigger). QUEUE-Rest: Fantasy-#5 (GW-Status 3×).
 ```
 
 ## Zuletzt
