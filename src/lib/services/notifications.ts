@@ -144,7 +144,7 @@ export async function getNotifications(userId: string, limit = 20, offset = 0): 
   const safeLimit = Math.min(Math.max(1, limit), 100);
   const { data, error } = await supabase
     .from('notifications')
-    .select('id, user_id, type, title, body, reference_id, reference_type, read, created_at')
+    .select('id, user_id, type, title, body, reference_id, reference_type, read, created_at, i18n_key, i18n_params')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .range(offset, offset + safeLimit - 1);

@@ -7445,3 +7445,10 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Residual (dokumentiert, Backlog): notifications_insert_any_authenticated cross-user RLS → cross-user-Notification-Creation auf SEC-DEFINER-RPCs (großer Slice)
 - Files: route.ts, pushSender.ts, notifications.ts, notificationDeepLink.ts (neu). tsc clean, notifications-Tests 29/29 grün
 - Review: worklog/reviews/318-review.md | Proof: worklog/proofs/318-api-push-row-derived.txt
+
+## 319 | 2026-06-14 | fix(notifications): i18n-SELECT + push-unsubscribe error-capture (P1-Demo: Social #1 + Identity #4)
+- Stage-Chain: SPEC → IMPACT (skipped, 2 Files) → BUILD → REVIEW (self-review PASS, XS) → PROVE → LOG
+- Social #1: getNotifications SELECT um i18n_key/i18n_params ergänzt → Reload lokalisiert (vorher DE-Fallback vs Realtime-Divergenz)
+- Identity #4: unsubscribeFromPush .delete()-Fehler erfasst+geloggt statt Swallow; localStorage-Cache + 410-self-heal dokumentiert
+- Files: notifications.ts, pushSubscription.ts. tsc clean, notifications-Tests 29/29 grün. Kein Money/Daten/RLS
+- Review: worklog/reviews/319-review.md | Proof: worklog/proofs/319-notif-push-hygiene.txt

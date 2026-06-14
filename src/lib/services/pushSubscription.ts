@@ -74,12 +74,18 @@ export async function unsubscribeFromPush(userId: string): Promise<boolean> {
     const subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
-      // Remove from DB
-      await supabase
+      // Remove from DB — Slice 319: capture the error instead of swallowing it.
+      // If the row survives, the next push attempt returns 410 Gone and pushSender
+      // auto-deletes the stale subscription (self-heal), so we proceed with the
+      // browser unsubscribe regardless. localStorage is only a UI cache.
+      const { error } = await supabase
         .from('push_subscriptions')
         .delete()
         .eq('user_id', userId)
         .eq('endpoint', subscription.endpoint);
+      if (error) {
+        console.error('[Push] Unsubscribe DB delete failed (will self-heal via 410):', error.message);
+      }
 
       await subscription.unsubscribe();
     }

@@ -1,0 +1,21 @@
+Slice 319 — Notification/Push Delivery Hygiene — PROOF
+======================================================
+Datum: 2026-06-14 · P1-Demo: Social #1 + Identity #4
+
+[1] tsc --noEmit → EXIT 0 (clean)
+
+[2] Tests: CI=true vitest notifications-v2 + notifications-batch → 2 Files, 29 passed
+
+[3] Social #1 — getNotifications SELECT (grep)
+notifications.ts:146 .select('id, user_id, type, title, body, reference_id, reference_type, read, created_at, i18n_key, i18n_params')
+  → i18n_key + i18n_params jetzt geladen → Reload-Pfad lokalisiert (tNotifTpl), keine DE-Fallback-Divergenz mehr ggü Realtime-Push.
+  DbNotification (types:1227-1228) hatte die Felder bereits → Consumer unverändert, nur Daten kommen jetzt an.
+
+[4] Identity #4 — unsubscribeFromPush error-capture (pushSubscription.ts:78-86)
+  const { error } = await supabase.from('push_subscriptions').delete()...
+  if (error) console.error('[Push] Unsubscribe DB delete failed (will self-heal via 410):', error.message)
+  → kein Silent-Swallow mehr. Browser-unsubscribe + localStorage-Removal laufen weiter (best-effort UI).
+  Dual-State self-healt: stale DB-Row → nächster Push 410 Gone → pushSender löscht (bestehend).
+
+ERGEBNIS: TR/DE-Notification-i18n konsistent über Reload+Realtime; Push-Unsubscribe-Fehler beobachtbar.
+Kein Money/Daten/RLS-Change. 2 Files.
