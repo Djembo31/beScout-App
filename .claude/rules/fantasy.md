@@ -26,7 +26,7 @@ paths:
 ## Scoring
 - `score_event` v4: GW Events → `player_gameweek_scores`, Non-GW → `_temp_event_scores`
 - `sync_fixture_scores`: API-Football `fantasy_points` (0-15) → Scores (40-150)
-- Normierung: GW-Scores 40-150 → `perf_l5` = AVG(letzte 5) / 1.5 (Skala 0-100)
+- `perf_l5`/`perf_l15`/`perf_season` = `LEAST(100, ROUND(AVG(score) über letzte 5/15/alle GW-Rows ORDER BY gameweek DESC))` — Quelle `cron_recalc_perf` (live-verifiziert Slice 309/D77). **KEIN /1.5** (frühere Doc-Behauptung war falsch; GW-Scores 40-150 werden NICHT durch 1.5 geteilt, sondern direkt gemittelt + bei 100 gecappt). Helper: `deriveL5FromRecentScores` (Display aus FormBars).
 - Score-Farben: >=100 Gold, 70-99 Weiss, <70 Rot
 - `perf_l5`/`perf_l15`: `ORDER BY gameweek DESC` (NICHT `created_at DESC`)
 - Prize-Splitting: DENSE_RANK + Position-Counting (ADR-013)
