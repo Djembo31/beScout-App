@@ -1,0 +1,53 @@
+Slice 316 — Founding-Pass Money-Härtung — PROOF
+================================================
+Datum: 2026-06-14
+Scope: S7 Phase-2 #1 (bcredits TS↔RPC Drift) + #2 (EUR-Preis server-validiert)
+Anil-Decision: bcredits-Kanon = RPC-Werte (höher).
+
+[1] tsc --noEmit
+----------------
+=== TSC EXIT: 0 ===  (clean)
+
+[2] Unit-Tests (CI=true vitest)
+-------------------------------
+src/lib/__tests__/foundingPasses-tiers.invariant.test.ts  (NEU, Zero-Drift-Invariant)
+src/lib/services/__tests__/foundingPasses.test.ts        (bestehend, Service-Plumbing)
+ Test Files  2 passed (2)
+      Tests  32 passed (32)
+
+Invariant prüft pro Tier:
+ - bcreditsCents == RPC v_bcredits     {fan 250000, scout 1000000, pro 3500000, founder 10000000}
+ - priceEurCents == RPC v_price CASE   {999, 2999, 7499, 19999}
+ - migrationBonusPct == RPC v_bonus_pct {15,25,35,50}
+ - bcreditsLabel == fmtScout(centsToBsd(bcreditsCents))  → "2.500"/"10.000"/"35.000"/"100.000"
+
+[3] Migration applied (mcp__supabase__apply_migration → {"success":true})
+-------------------------------------------------------------------------
+20260614170000_slice_316_grant_founding_pass_price_binding.sql
+
+[4] Live pg_proc-Verify (post-apply)
+------------------------------------
+price_case:
+  v_price_eur_cents := 999;
+  WHEN 'scout'   THEN v_bcredits := 1000000;  v_bonus_pct := 25; v_price_eur_cents := 2999;
+  WHEN 'pro'     THEN v_bcredits := 3500000;  v_bonus_pct := 35; v_price_eur_cents := 7499;
+  WHEN 'founder' THEN v_bcredits := 10000000; v_bonus_pct := 50; v_price_eur_cents := 19999;
+  END CASE
+has_price_guard ('Preis-Mismatch fuer Tier'):  true
+insert_uses_server_price (v_price_eur_cents):   true
+killswitch_uses_server_price:                   true
+ACL: postgres=X/postgres | service_role=X/postgres | authenticated=X/postgres
+  → KEIN anon, KEIN PUBLIC (AR-44 erfüllt).
+
+[5] Sold-Passes Pre-Change (Decision-Kontext)
+---------------------------------------------
+SELECT ... FROM user_founding_passes GROUP BY tier  → []  (0 verkauft → keine Wallet-Migration nötig)
+
+[6] Mismatch-RAISE-Pfad
+-----------------------
+Step 4 RAISE EXCEPTION feuert VOR jedem INSERT (kein Teil-Write). Live-anon-Smoke nicht möglich,
+weil Admin-Gate (Step 1, auth.uid()=NULL → 'Nicht berechtigt') zuerst greift. Logik via
+pg_get_functiondef (has_price_guard=true) + Code-Review verifiziert.
+
+ERGEBNIS: Angezeigte == gutgeschriebene Credits (2.500/10.000/35.000/100.000 $SCOUT).
+EUR-Preis + Kill-Switch server-seitig, nicht mehr Client-manipulierbar.

@@ -7418,3 +7418,12 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Proof: `worklog/proofs/001-wallet-invariant.txt` — 127 Wallets geprueft, 124 mit Transactions, 0 Violations
 - Commit: (pending)
 - Notes: Invariante `wallets.balance == latest transactions.balance_after` haelt live. Ledger-Drift-Risiko aus Blocker A-04 damit fuer Pilot-DB verifiziert, kein Folge-Fix noetig. Health-Check bleibt als Regression-Guard dauerhaft.
+
+## 316 | 2026-06-14 | fix(money): Founding-Pass Härtung — bcredits TS↔RPC + Preis server-validiert (S7 Phase-2 #1+#2)
+- Stage-Chain: SPEC → IMPACT (skipped: 0 verkauft) → BUILD → REVIEW (PASS) → PROVE → LOG
+- #1 bcredits-Drift (2×): TS+Label auf RPC-Kanon (fan 2.500/scout 10.000/pro 35.000/founder 100.000 $SCOUT) — Anil-Decision RPC-Werte
+- #2 EUR-Preis server-seitig aus Tier abgeleitet (CASE 999/2999/7499/19999) → INSERT + Kill-Switch nutzen server-Preis; Client-Mismatch → RAISE
+- Slice-108 Zero-Drift-Invariant (bcredits+price+bonus+label) — neuer Test
+- Files: src/lib/foundingPasses.ts, supabase/migrations/20260614170000_slice_316_*.sql, src/lib/__tests__/foundingPasses-tiers.invariant.test.ts
+- Review: worklog/reviews/316-review.md | Proof: worklog/proofs/316-founding-money-harden.txt
+- Note (Reviewer, pre-existing out-of-scope): Founding-Pass-Kaufstrecke für normale User tot (Admin-gated RPC, kein Public-Purchase + kein Payment-Gateway) → eigener Slice/Produkt-Entscheidung
