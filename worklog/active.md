@@ -2,24 +2,24 @@
 
 ```
 status: idle
-slice: 324
+slice: 325
 stage: LOG complete ✅ DONE
-spec: worklog/specs/324-favorite-club-uuid-migration.md
-impact: inline (Spec §3/§4: ~15 Files inkl. scripts/seed-demo.sql; Landkarte Sektion C; 5 Reader + Writer + Type/SELECT + 4 Tests + Drop-Migration)
-proof: worklog/proofs/324-favorite-club-uuid.txt
-review: worklog/reviews/324-review.md (REWORK→RESOLVED→PASS; MAJOR scripts/seed-demo.sql gefixt)
-decision: S7 Phase-3 START. favorite_club String→UUID als VORLAGE-Migration. Muster: backfill → Reader getClub(id)?.name → Writer id-only → Type/SELECT raus → DROP COLUMN (nach Push). Etabliert das wiederverwendbare Muster für clubs.league (M) + players.club (L).
+spec: worklog/specs/325-clubs-league-uuid-filters.md
+impact: inline (reine RPC-Härtung, kein src-Diff)
+proof: worklog/proofs/325-clubs-league-filters.txt
+review: worklog/reviews/325-review.md (self-PASS, PATCH-AUDIT + AR-44 verifiziert)
+decision: S7 Phase-3 Paar B = nur Drift-Stop (create_club setzt league_id). Volle clubs.league-Migration (Filter Name→ID, Cache-Decouple, DROP) ist L mit tiefen Tendrils (LeagueBar namens-Listbuilder, PlayerRankings prop-thread, Club-Cache liest Name) → eigene Slice 326, kohärente Einheit. Premature Foundation-Edits reverted (kein Orphan, D54).
 ```
 
 ## Zuletzt
 
-- **Slice 324** (2026-06-14, in Arbeit) — S7 Phase-3 START: favorite_club String→UUID (Vorlage-Migration, D80).
-- **Slice 323** (2026-06-14) — P1-Demo Gamif #3: Ticket-Ledger-Reconciliation (fix, self-PASS, live `d8c1818f`).
-- **Slice 322** (2026-06-14) — P1-Demo Gamif #1+#2: claim_score_road + Leaderboard (fix, PASS, live).
-- **Slice 321** (2026-06-14) — P1-Demo Club #3: FanChallenges Removal (refactor, PASS, live).
-- **Slice 320** (2026-06-14) — P1-Demo Club #4: cancel_club_subscription RPC (fix, self-PASS, live).
+- **Slice 325** (2026-06-15, in Arbeit) — S7 Phase-3 Paar B(1/2): clubs.league Filter-Foundation + Drift-Stop.
+- **Slice 324** (2026-06-15) — S7 Phase-3 Paar C: favorite_club String→UUID Vorlage (refactor, REWORK→PASS, live `10a92273`).
+- **Slice 323** (2026-06-14) — P1-Demo Gamif #3: Ticket-Reconcile (fix, live).
+- **Slice 322** (2026-06-14) — P1-Demo Gamif #1+#2 (fix, live).
+- **Slice 321** (2026-06-14) — P1-Demo Club #3 FanChallenges Removal (refactor, live).
 
-**Strategie (D80):** Sommer = Tech-First Tiefen-Umbau (keine Tester, sicheres Fenster). Monetarisierung post-Legal-Go, Wachstum später. Landkarte: `worklog/audits/2026-06-14/string-to-uuid-map.md`.
-**🚨 API-Football-Key gesperrt** → players.club_id-Reconcile (294 falsche Liga) teil-blockiert.
+**Strategie D80:** Sommer Tech-First Tiefen-Umbau. Landkarte: `worklog/audits/2026-06-14/string-to-uuid-map.md` (+ Vorlage-Lehren).
+**🚨 API-Football-Key gesperrt** → players.club (Paar A) Reconcile teil-blockiert.
 
-Nach 324: clubs.league (Paar B, M) → players.club (Paar A, L). Plus billige Leck-Stopfer (create_club RPC league_id, dead RPC drop).
+Nach 325: Slice 326 (clubs.league Cache-Decouple + DROP) → dann players.club (Paar A, L, braucht API-Key-Reconcile).

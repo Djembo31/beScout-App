@@ -1,0 +1,26 @@
+Slice 325 — create_club_by_platform_admin setzt league_id (Drift-Stop) — PROOF
+=============================================================================
+Datum: 2026-06-15 · S7 Phase-3 Paar B (Drift-Stop). Volle clubs.league-Migration = Slice 326.
+
+[1] Migration applied (apply_migration → {"success":true})
+20260615130000_slice_325_create_club_league_id.sql
+
+[2] PATCH-AUDIT (live pg_get_functiondef, alle Pre-existing-Branches erhalten)
+insert_has_league_id  = true   (INSERT INTO clubs (name, slug, short, league, league_id, ...))
+resolves_league_id    = true   ((SELECT id FROM leagues WHERE name = trim(p_league) LIMIT 1))
+admin_check_kept      = true
+slug_check_kept       = true
+fee_config_kept       = true
+ACL = postgres | service_role | authenticated   (KEIN anon/PUBLIC → AR-44 erfüllt)
+
+[3] Live-Smoke (BEGIN … ROLLBACK, p_admin_id = realer platform_admin)
+create_club_by_platform_admin(..., 'Slice325 Smoke FC', 'slice325-smoke-fc', 'S325', 'Bundesliga', 'DE')
+→ Club: league='Bundesliga', has_league_id=TRUE, resolved_league='Bundesliga'  → league_id korrekt aufgelöst.
+ROLLBACK (keine echte Änderung).
+
+[4] Scope
+- Reine RPC-Härtung, keine src/-Änderung (tsc unberührt).
+- Premature Foundation-Edits (getLeagueById, dbToPlayer.leagueId) REVERTED → kein Orphan-Code (D54); kommen in Slice 326 wo verkabelt.
+
+ERGEBNIS: Neue Admin-Clubs bekommen ab sofort league_id → latente clubs.league-Drift-Quelle gestoppt.
+Volle clubs.league String→UUID (Filter Name→ID, Cache-Decouple, DROP) = Slice 326.

@@ -7491,3 +7491,11 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Reviewer-MAJOR: scripts/seed-demo.sql schrieb favorite_club noch (Removal-grep nur src/) → gefixt. Knowledge: errors-frontend.md 305-Erweiterung (Column-DROP → scripts/-grep, kein tsc-Schutz; BEGIN/COMMIT-Wrap) + string-to-uuid-map.md Vorlage-Lehren (players.club braucht echten Reconcile, NICHT name→id-Backfill).
 - Files: ~15 (types, profiles.ts, club.ts, onboarding, settings, 5 Reader, 4 Tests, seed-demo.sql, migration 20260615120000). tsc clean, 115 Tests grün.
 - Review: worklog/reviews/324-review.md | Proof: worklog/proofs/324-favorite-club-uuid.txt
+
+## 325 | 2026-06-15 | fix(clubs): create_club_by_platform_admin setzt league_id (S7 Phase-3 Paar B Drift-Stop)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD (RPC-Migration) → REVIEW (self-PASS, PATCH-AUDIT+AR-44) → PROVE → LOG
+- clubs.league Paar B: RPC INSERTete nur league-String, NICHT league_id → neue Admin-Clubs = league_id NULL = latente Drift-Quelle. Fix: league_id aus leagues.name auflösen (String bleibt für 326).
+- PATCH-AUDIT: alle Pre-existing-Branches erhalten (admin/validation/slug/fee_config/return); AR-44 ACL ok. Live-Smoke (rollback): league_id=Bundesliga korrekt aufgelöst.
+- Scope-Entscheidung: volle clubs.league String→UUID (Filter Name→ID, Cache-Decouple, DROP) = L mit tiefen Tendrils (LeagueBar namens-Listbuilder, PlayerRankings prop-thread, Club-Cache liest Name) → kohärente Slice 326. Premature Foundation-Edits (getLeagueById, dbToPlayer.leagueId) reverted → kein Orphan (D54).
+- Files: 1 Migration (20260615130000). Kein src-Diff.
+- Review: worklog/reviews/325-review.md | Proof: worklog/proofs/325-clubs-league-filters.txt
