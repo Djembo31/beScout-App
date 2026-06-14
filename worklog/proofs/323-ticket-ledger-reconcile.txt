@@ -1,0 +1,34 @@
+Slice 323 — Ticket-Ledger-Reconciliation — PROOF
+=================================================
+Datum: 2026-06-14 · P1-Demo Gamif #3 · money-adjacent Data-Fix · Anil-OK
+
+[1] Pre-State (Drift)
+---------------------
+1 User 99b601d2: user_tickets.balance=70, SUM(ticket_transactions.amount)=65 (15 Zeilen) → +5 Drift.
+Investigation: 14× +5 daily_login + 1× -5 event_entry über 1 Monat; balance_after-Progression endet
+bei 70; eine daily_login-Race ließ balance_after 35→45 springen ohne passende amount-Zeile.
+→ balance (70) = gelebte Wahrheit; Ledger um +5 unvollständig. Wahl: Ledger += 5 (nicht balance−5).
+
+[2] Migration applied (apply_migration → {"success":true})
+20260614210000_slice_323_ticket_ledger_reconcile.sql (idempotente DO-Guard: nur INSERT wenn balance>SUM(amount)).
+
+[3] Reconcile-Zeile (live)
+-------------------------
+amount=5, balance_after=70, source='admin_grant',
+description='Slice 323 reconciliation: ledger was short by 5 vs balance (balance was truth;
+daily_login race). No tickets added to balance.'
+
+[4] Post-State (AC-Verify)
+--------------------------
+AC1 balance == ledger: user 99b601d2 balance=70, ledger_sum jetzt 70 ✓
+AC2 balance UNVERÄNDERT 70 (kein Ticket weggenommen) ✓
+AC3 drift_users repo-weit = 0 ✓
+AC4 idempotent (DO-Guard: Re-Run findet balance==ledger → no Insert) ✓
+AC5 Reconcile-Zeile source=admin_grant + erklärende description ✓
+
+[5] Scope-Out / Surfacing
+-------------------------
+- daily_login-RPC-Root-Cause: seltene Race (1 von 130 daily_login-Usern) → nicht systemisch, kein Root-Cause-Slice (Backlog falls Drift wiederkehrt).
+- Identity #3 (1 profilloser Account) = Beta-Tester Taki (taki.okuyucu@gmx.de, Signup 2026-04-10, last_sign_in == created, kein meta-Handle = incomplete Onboarding). KEIN auto-Backfill mit geratenem Handle → an Anil surface (backfillen mit gewähltem Handle ODER lassen bis Taki Onboarding abschließt).
+
+ERGEBNIS: Ticket-Ledger des einzigen Drift-Users vervollständigt (balance=ledger=70), balance unangetastet. P1-Demo bis auf Identity #3 (Anil-Entscheidung) komplett.

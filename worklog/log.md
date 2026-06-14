@@ -7475,3 +7475,11 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Gamif #2: getScoutLeaderboard('overall') limit*3-by-trader+client-median = Truncation-Bias (latent bei 128<300 User). Fix: neuer SEC-DEFINER read-only RPC rpc_get_scout_leaderboard_overall(percentile_disc(0.5)-Median DESC, JSONB-Return, AR-44, nur public-Profile-Felder). Live-Smoke: bot027 höchster trader aber rank 2 (median 756) = Fix bewiesen.
 - Files: gamification.ts, gamification.test.ts (15 grün), scoutScores.ts, migration 20260614200000. tsc clean
 - Review: worklog/reviews/322-review.md | Proof: worklog/proofs/322-gamif-correctness.txt
+
+## 323 | 2026-06-14 | fix(gamification): Ticket-Ledger-Reconciliation (P1-Demo Gamif #3)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD (idempotente Data-Migration) → REVIEW (self-PASS, money-adjacent Checkliste) → PROVE → LOG
+- Gamif #3: 1 User (99b601d2) balance=70 vs ledger-SUM=65 (+5 Drift). Investigation: daily_login-Race (balance_after endet 70, eine amount-Zeile fehlte) → balance=Wahrheit. Fix: +5 Reconcile-Ledger-Zeile (source=admin_grant), balance UNVERÄNDERT (kein Ticket weg). Anil-OK.
+- Idempotent (DO-Guard balance>SUM). Verify: drift_users repo-weit 0, balance=ledger=70.
+- Identity #3 NICHT gefixt: profilloser Account = Beta-Tester Taki (incomplete Onboarding, kein gewählter Handle) → an Anil surface (kein auto-Backfill mit geratenem Handle).
+- Files: migration 20260614210000 (Data-Fix). Kein Code-Diff.
+- Review: worklog/reviews/323-review.md | Proof: worklog/proofs/323-ticket-ledger-reconcile.txt
