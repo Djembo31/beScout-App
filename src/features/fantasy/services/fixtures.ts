@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { DbFixture, Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, SimulateResult, FixtureStatus } from '@/types';
+import { isFixtureDone } from '../lib/gwStatus';
 
 // ============================================
 // Queries
@@ -206,8 +207,9 @@ export async function getGameweekStatuses(
     const gw = row.gameweek as number;
     const existing = gwMap.get(gw) || { total: 0, simulated: 0 };
     existing.total++;
-    // Slice 284a: cancelled zählt als komplett (Spiel findet nie statt)
-    if (row.status === 'simulated' || row.status === 'finished' || row.status === 'cancelled') existing.simulated++;
+    // Slice 284a: cancelled zählt als komplett (Spiel findet nie statt).
+    // Slice 311: isFixtureDone = geteilte „done"-Definition (gwStatus.ts).
+    if (isFixtureDone(row.status as string)) existing.simulated++;
     gwMap.set(gw, existing);
   }
 

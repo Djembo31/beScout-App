@@ -1,0 +1,66 @@
+Slice 311 — GW-Status Single-Source: computeGwStatus (Fantasy-#5)
+=================================================================
+Datum: 2026-06-14
+
+[PROBLEM] „GW offen/fertig/leer?" 3× berechnet
+----------------------------------------------------------------
+#1 getGameweekStatuses.is_complete (fixtures.ts:218) = simulated===total  [Primitive]
+#2 useGameweek.gwStatus (useGameweek.ts) — aus gwFixtureInfo.complete + events
+#3 SpieltagTab.gwStatus (SpieltagTab.tsx) — lokale, divergente Logik
+Divergenz #2 vs #3:
+ - #2 → 'empty' bei events=0 (ignoriert offene Fixtures)
+ - #3 → 'empty' nur bei events=0 UND fixtures=0; Events-Branch hat simulatedCount>0-Guard
+
+[FIX] Eine computeGwStatus(fixturesComplete, fixtureCount, events)
+----------------------------------------------------------------
+Neuer Helper src/features/fantasy/lib/gwStatus.ts:
+  isFixtureDone(status) = simulated|finished|cancelled  (geteilte „done"-Definition)
+  computeGwStatus():
+    1. fixturesComplete → 'simulated'
+    2. events>0 && every(ended||scoredAt) → 'simulated'
+    3. fixtureCount===0 && events===0 → 'empty'
+    4. sonst → 'open'
+Input-Typ strukturell ({status:string; scoredAt?:string|null}) → FantasyEvent[] zuweisbar + trivial testbar.
+
+Reconciliation (bewusste Divergenz-Fixes, dormant Live-Pfad):
+ - fixtures>0 + events=0 + nicht-complete → 'open' (war #2 'empty'; offene Spiele ≠ leer)
+ - events alle ended + 0 complete fixtures → 'simulated' (war #3 'open'; simulatedCount>0-Guard weg)
+
+Wiring:
+ - useGameweek.ts: inline-Ternary → computeGwStatus({complete, count, events})
+ - SpieltagTab.tsx: simulatedCount via isFixtureDone; gwStatus via computeGwStatus;
+   allSimulated-Var entfällt; finishedCount/allFixturesFinished/allEnded bleiben (eigene UI-Branches Z.219/226/229)
+ - getGameweekStatuses (#1): isFixtureDone statt inline-Set (DRY, is_complete-Output identisch)
+
+[VERIFY]
+----------------------------------------------------------------
+AC-6: npx tsc --noEmit → EXIT 0 (clean)
+
+Tests (CI=true vitest run):
+ - gwStatus.test.ts          9 passed   (AC-1/AC-2: alle Edge-Cases inkl. Divergenz-Fixes + isFixtureDone)
+ - SpieltagTab.test.tsx     17 passed   (gwStatus-Refactor bricht nichts)
+ - fixtures.test.ts          (in 71)    (is_complete unverändert nach isFixtureDone-DRY)
+ - FantasyContent.test.tsx   (in 71)    (gwStatus-Consumer)
+ Gesamt-Batch: 71 + 9 = grün.
+
+[AC-MATRIX]
+ AC-1 computeGwStatus pure + Kanon-Logik ........ ✓ gwStatus.test
+ AC-2 Divergenz-Fälle (a/b/c/d) gepinnt ......... ✓ gwStatus.test
+ AC-3 useGameweek nutzt computeGwStatus ......... ✓ grep (kein inline-Ternary)
+ AC-4 SpieltagTab nutzt computeGwStatus ......... ✓ grep + SpieltagTab.test 17/17
+ AC-5 getGameweekStatuses isFixtureDone ......... ✓ fixtures.test grün
+ AC-6 tsc clean + alle Tests grün ............... ✓
+
+[FILES]
+----------------------------------------------------------------
+ src/features/fantasy/lib/gwStatus.ts                neu (Helper)
+ src/features/fantasy/lib/__tests__/gwStatus.test.ts neu (9 Tests)
+ src/features/fantasy/hooks/useGameweek.ts           gwStatus → Helper
+ src/components/fantasy/SpieltagTab.tsx              gwStatus + simulatedCount → Helper
+ src/features/fantasy/services/fixtures.ts           getGameweekStatuses → isFixtureDone
+
+[OUT-OF-SCOPE / FOLLOW-UP]
+----------------------------------------------------------------
+- SpieltagTab useState/useEffect → React-Query (Daten-Fetch-Refactor, separater Slice).
+- FDR client-side aus perf.l5+club-String (Registry §2.2, erbt 1.1-Drift).
+- Live/Realtime-Pfad (API-Key dormant).

@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 311 | 2026-06-14 | refactor(fantasy): S7 Phase-2 Fantasy-#5 — GW-Status Single-Source computeGwStatus
+
+- Stage-Chain: SPEC (`worklog/specs/311-gwstatus-single-source.md`, S–M, UI+Service-DRY) → IMPACT skipped (gwStatus-Consumer enumeriert; Output-Typ unverändert) → BUILD → REVIEW (`worklog/reviews/311-review.md`, reviewer-Agent **PASS**, 0 Findings) → PROVE (`worklog/proofs/311-gwstatus.txt`) → LOG.
+- Trigger: S7-Registry Fantasy-#5 / §2.2 (P1, Live-Pfad dormant API-Key) — „GW offen/fertig/leer?" 3× berechnet: #1 getGameweekStatuses.is_complete (Primitive) + #2 useGameweek.gwStatus + #3 SpieltagTab.gwStatus. #2/#3 divergent (#2 → 'empty' bei events=0 ignorierte offene Fixtures; #3 → 'empty' nur bei beides=0 + simulatedCount>0-Guard).
+- Fix: neuer pure Helper `src/features/fantasy/lib/gwStatus.ts` — `computeGwStatus({fixturesComplete, fixtureCount, events})` + `isFixtureDone(status)`. Struktureller Input-Typ ({status:string;scoredAt?}) → FantasyEvent[] zuweisbar + trivial testbar. Kanon: fixturesComplete→'simulated' / events-all-ended→'simulated' / beides-0→'empty' / sonst→'open'.
+- Reconciliation (bewusste Divergenz-Fixes, dormant): (a) fixtures>0+events=0+nicht-complete → 'open' (war #2 'empty'); (b) events-all-ended+0-complete → 'simulated' (war #3 'open', simulatedCount>0-Guard weg). Reviewer: beide für Consumer (Pulse/Nav) Verbesserung.
+- Wiring: useGameweek + SpieltagTab → computeGwStatus; getGameweekStatuses (#1) → isFixtureDone (DRY der „done"-Definition, is_complete bit-identisch). SpieltagTab→React-Query out-of-scope (separater Slice).
+- Files: 5 (gwStatus.ts + Test neu, useGameweek, SpieltagTab, fixtures.ts). tsc clean, gwStatus 9/9 + SpieltagTab 17/17 + fixtures+FantasyContent grün. 0 Reverts.
+- → S7-Phase-2 Fantasy-Domäne bis auf P2/P3-Reste (Lineup Set→Array, League-Scope dual-axis) durch.
+
 ## 310 | 2026-06-14 | feat(fantasy): S7 Phase-2 Fantasy-#1 — active_gameweek leagues=einzige Wahrheit + Drift-Guard
 
 - Stage-Chain: SPEC (`worklog/specs/310-active-gameweek-single-truth.md`, M, Migration+UI+GHA) → IMPACT skipped (Consumer in §4 grep-verifiziert) → BUILD (Wave A→B→C) → REVIEW (`worklog/reviews/310-review.md`, reviewer-Agent **PASS**, 2 NIT [1 in-slice] + 1 pre-existing Cron-Observation) → PROVE (`worklog/proofs/310-active-gameweek.txt`) → LOG.

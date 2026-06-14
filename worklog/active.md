@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 310
+slice: 311
 stage: LOG complete ✅ DONE
-spec: worklog/specs/310-active-gameweek-single-truth.md
-impact: skipped (Consumer in Spec §4 grep-verifiziert; set_active_gameweek einzige Write-RPC, scoring.admin erbt, Read-Consumer enumeriert)
-proof: worklog/proofs/310-active-gameweek.txt
-review: worklog/reviews/310-review.md (reviewer-Agent PASS, 2 NIT [1 in-slice gefixt] + 1 pre-existing Cron-Observation den der Drift-Guard fängt)
-decision: Anil — (1) set_active_gameweek LIGA-WEIT (alle Clubs der Liga + leagues-Zeile atomar, hält clubs===leagues; leagues=einzige Lese-Wahrheit), (2) Drift-Guard = Skript scripts/audit/gameweek-drift.js wired in nightly (kein DB-Trigger). QUEUE-Rest: Fantasy-#5 (GW-Status 3×).
+spec: worklog/specs/311-gwstatus-single-source.md
+impact: skipped (gwStatus-Consumer enumeriert in Spec §4; reine Logik-Unifikation, Output-Typ 'open'|'simulated'|'empty' unverändert)
+proof: worklog/proofs/311-gwstatus.txt
+review: worklog/reviews/311-review.md (reviewer-Agent PASS, 0 Findings, 1 harmlose Observation SpieltagPulse empty-Branch tot)
+decision: EINE computeGwStatus(fixturesComplete, fixtureCount, events) in fantasy/lib/gwStatus.ts ersetzt divergente #2 (useGameweek) + #3 (SpieltagTab). getGameweekStatuses DRY auf isFixtureDone. SpieltagTab→React-Query out-of-scope. → Fantasy-Domäne S7-Phase-2 bis auf P2/P3-Reste durch.
 ```
 
 ## Zuletzt

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLeagueActiveGameweek } from '../queries/events';
 import { getGameweekStatuses } from '../services/fixtures';
+import { computeGwStatus } from '../lib/gwStatus';
 import { useFantasyStore } from '../store/fantasyStore';
 import { qk } from '@/lib/queries/keys';
 import type { FantasyEvent } from '../types';
@@ -81,19 +82,16 @@ export function useGameweek(gwEvents: FantasyEvent[] = [], leagueId: string | nu
     enabled: !!currentGw,
   });
 
-  // GW status for selector — considers BOTH fixtures AND events
-  const gwStatus = useMemo((): 'open' | 'simulated' | 'empty' => {
-    // All fixtures finished -> GW is done (regardless of events)
-    if (gwFixtureInfo.complete) return 'simulated';
-    // Events exist and all ended -> done
-    if (gwEvents.length > 0) {
-      const allEnded = gwEvents.every(e => e.status === 'ended' || e.scoredAt);
-      if (allEnded) return 'simulated';
-    }
-    // No fixtures and no events -> empty
-    if (gwEvents.length === 0) return 'empty';
-    return 'open';
-  }, [gwEvents, gwFixtureInfo.complete]);
+  // GW status for selector — Slice 311: single source of truth (computeGwStatus),
+  // shared with SpieltagTab. Considers BOTH fixtures AND events.
+  const gwStatus = useMemo(
+    () => computeGwStatus({
+      fixturesComplete: gwFixtureInfo.complete,
+      fixtureCount: gwFixtureInfo.count,
+      events: gwEvents,
+    }),
+    [gwEvents, gwFixtureInfo.complete, gwFixtureInfo.count],
+  );
 
   const fixtureCount = gwFixtureInfo.count;
 

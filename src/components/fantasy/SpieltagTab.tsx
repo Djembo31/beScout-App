@@ -19,6 +19,7 @@ import { SpieltagPulse } from './spieltag/SpieltagPulse';
 import { SpieltagBrowser } from './spieltag/SpieltagBrowser';
 import { FixtureDetailModal } from './spieltag/FixtureDetailModal';
 import { useLiveFixtures } from '@/features/fantasy/hooks/useLiveFixtures';
+import { computeGwStatus, isFixtureDone } from '@/features/fantasy/lib/gwStatus';
 
 // ============================================
 // SpieltagTab (3-Zone Layout)
@@ -126,19 +127,21 @@ export function SpieltagTab({
   // Derived state
   // Review-284a-F-04: cancelled zählt als komplett — sonst hält ein abgesagtes
   // Spiel den grünen „Offen"-Pulse für immer (FANT-07-Symptomklasse).
-  const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished' || f.status === 'cancelled').length;
+  // Slice 311: isFixtureDone = geteilte „done"-Definition (gwStatus.ts).
+  const simulatedCount = fixtures.filter(f => isFixtureDone(f.status)).length;
   const finishedCount = fixtures.filter(f => f.status === 'finished').length;
   const allFixturesFinished = finishedCount === fixtures.length && fixtures.length > 0;
   const gwEvents = events;
   const allEnded = gwEvents.length > 0 && gwEvents.every(e => e.status === 'ended' || e.scoredAt);
   const isCurrentGw = gameweek === activeGameweek;
-  const allSimulated = simulatedCount === fixtures.length && fixtures.length > 0;
 
-  const gwStatus: 'open' | 'simulated' | 'empty' =
-    allSimulated ? 'simulated'
-    : allEnded && simulatedCount > 0 ? 'simulated'
-    : gwEvents.length === 0 && fixtures.length === 0 ? 'empty'
-    : 'open';
+  // Slice 311 (Fantasy-#5): gwStatus via single-source computeGwStatus
+  // (shared with useGameweek). Ersetzt die vorher divergente lokale Ternary.
+  const gwStatus = computeGwStatus({
+    fixturesComplete: simulatedCount === fixtures.length && fixtures.length > 0,
+    fixtureCount: fixtures.length,
+    events: gwEvents,
+  });
 
   // Topspiel selection (liga-scoped: sponsor > club > highest-score > first)
   const topspiel = useMemo(
