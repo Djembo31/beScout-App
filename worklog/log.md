@@ -7483,3 +7483,11 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Identity #3 NICHT gefixt: profilloser Account = Beta-Tester Taki (incomplete Onboarding, kein gewählter Handle) → an Anil surface (kein auto-Backfill mit geratenem Handle).
 - Files: migration 20260614210000 (Data-Fix). Kein Code-Diff.
 - Review: worklog/reviews/323-review.md | Proof: worklog/proofs/323-ticket-ledger-reconcile.txt
+
+## 324 | 2026-06-15 | refactor(profiles): favorite_club String→UUID Vorlage-Migration (S7 Phase-3, D80)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → REVIEW (reviewer-Agent REWORK→RESOLVED→PASS) → PROVE → LOG
+- S7 Phase-3 START. profiles.favorite_club (denorm Name, Drift-Quelle) entfernt; Name jetzt Single-Source aus favorite_club_id via getClub(id).name. Vorlage-Muster für clubs.league + players.club.
+- Muster: Backfill (9 verlustfrei, has_uuid 52→61) → 5 Reader getClub(id)?.name (kein getClubName-UUID-Leak) → Writer id-only (club.ts 4×, onboarding, settings, profiles.ts) → Profile-Type + 2 SELECTs bereinigt → DROP COLUMN.
+- Reviewer-MAJOR: scripts/seed-demo.sql schrieb favorite_club noch (Removal-grep nur src/) → gefixt. Knowledge: errors-frontend.md 305-Erweiterung (Column-DROP → scripts/-grep, kein tsc-Schutz; BEGIN/COMMIT-Wrap) + string-to-uuid-map.md Vorlage-Lehren (players.club braucht echten Reconcile, NICHT name→id-Backfill).
+- Files: ~15 (types, profiles.ts, club.ts, onboarding, settings, 5 Reader, 4 Tests, seed-demo.sql, migration 20260615120000). tsc clean, 115 Tests grün.
+- Review: worklog/reviews/324-review.md | Proof: worklog/proofs/324-favorite-club-uuid.txt

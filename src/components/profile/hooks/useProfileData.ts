@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getHoldings } from '@/lib/services/wallet';
+import { getClub } from '@/lib/clubs';
 import { getMyPayouts } from '@/lib/services/creatorFund';
 import {
   getUserStats, refreshUserStats, getFollowerCount, getFollowingCount,
@@ -145,10 +146,10 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
     if (!targetProfile?.favorite_club_id) return;
     getMySubscription(targetUserId, targetProfile.favorite_club_id)
       .then(sub => {
-        if (sub) setClubSub({ tier: sub.tier, clubName: targetProfile.favorite_club ?? '' });
+        if (sub) setClubSub({ tier: sub.tier, clubName: targetProfile.favorite_club_id ? (getClub(targetProfile.favorite_club_id)?.name ?? '') : '' });
       })
       .catch(err => console.error('[ProfileView] getMySubscription:', err));
-  }, [targetUserId, targetProfile?.favorite_club_id, targetProfile?.favorite_club]);
+  }, [targetUserId, targetProfile?.favorite_club_id]);
 
   // ── Follow Status Check ──
   useEffect(() => {

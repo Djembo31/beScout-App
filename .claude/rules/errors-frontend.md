@@ -277,6 +277,8 @@ Pflicht-Grep bei jedem Dead-Feature-Removal: `grep -rn "<FeatureName>" messages/
 
 **Reference 305:** `worklog/reviews/305-review.md`, Migration `20260613220000_slice_305_drop_orphan_valuations.sql`.
 
+**Erweiterung Slice 324 (Column-DROP zählt als Removal):** Ein `ALTER TABLE ... DROP COLUMN` ist dieselbe Removal-Klasse wie Dead-Feature-Removal — der Pflicht-Grep MUSS auch hier `scripts/*.sql` + `messages/` + `.claude/` umfassen, nicht nur `src/`. Grund: **manuelle Seed-/Maintenance-SQL (`scripts/seed-demo.sql`) hat KEINEN tsc-Schutz** — eine INSERT-Spaltenliste mit der gedroppten Spalte failt erst zur Laufzeit (`column "x" does not exist`), nicht beim Build. Slice 324 (favorite_club-Drop) hatte src/ sauber, aber `seed-demo.sql` schrieb die Spalte noch → vom Reviewer gefangen. Audit pro Column-Drop: `grep -rnE "<col>([^_]|$)" src/ scripts/ messages/ supabase/migrations/` (RPC-Bodies/Views mitprüfen). Plus: Data-Migrationen mit Backfill+DROP in `BEGIN; … COMMIT;` wrappen (atomar; bei riskanteren Folge-Drops wie players.club Pflicht).
+
 ### Lookup-Map indexed by ambiguous Key (Slice 276, 2026-05-06)
 
 **Bug-Klasse:** Frontend-Cache (z.B. ClubCache) indiziert Records nach mehreren Keys für „flexiblen Lookup". Wenn EIN Key nicht garantiert eindeutig ist (z.B. `short`-Code 3-stellig), überschreibt der letzte Insert silent → nachfolgende Lookups returnen das falsche Record. ORDER BY entscheidet welcher gewinnt — vom User-Standpunkt random.

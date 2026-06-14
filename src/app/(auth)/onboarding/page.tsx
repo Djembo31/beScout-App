@@ -166,7 +166,6 @@ function OnboardingContent() {
         display_name: displayNameValue || null,
         language,
         favorite_club_id: referralClub?.id ?? null,
-        favorite_club: referralClub?.name ?? null,
         invited_by: referrer?.id ?? null,
       });
 

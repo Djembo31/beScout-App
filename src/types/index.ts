@@ -491,7 +491,6 @@ export type Profile = {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
-  favorite_club: string | null;
   favorite_club_id: string | null;
   language: 'de' | 'tr' | 'en';
   plan: string;

@@ -209,7 +209,7 @@ export async function toggleFollowClub(
     if (isPrimary) {
       await supabase
         .from('profiles')
-        .update({ favorite_club: clubName, favorite_club_id: clubId })
+        .update({ favorite_club_id: clubId })
         .eq('id', userId);
     }
   } else {
@@ -233,7 +233,7 @@ export async function toggleFollowClub(
     if (follower?.is_primary) {
       const { data: nextClub } = await supabase
         .from('club_followers')
-        .select('club_id, clubs!club_id(name)')
+        .select('club_id')
         .eq('user_id', userId)
         .limit(1)
         .maybeSingle();
@@ -248,10 +248,9 @@ export async function toggleFollowClub(
 
         if (promoteErr) throw new Error(`promote next primary failed: ${promoteErr.message}`);
 
-        const clubs = nextClub.clubs as unknown as { name: string } | null;
         const { error: profileErr } = await supabase
           .from('profiles')
-          .update({ favorite_club: clubs?.name ?? null, favorite_club_id: nextClub.club_id })
+          .update({ favorite_club_id: nextClub.club_id })
           .eq('id', userId);
 
         if (profileErr) throw new Error(`profile sync failed: ${profileErr.message}`);
@@ -259,7 +258,7 @@ export async function toggleFollowClub(
         // No more followed clubs
         const { error: clearErr } = await supabase
           .from('profiles')
-          .update({ favorite_club: null, favorite_club_id: null })
+          .update({ favorite_club_id: null })
           .eq('id', userId);
 
         if (clearErr) throw new Error(`profile clear failed: ${clearErr.message}`);
@@ -342,16 +341,10 @@ export async function setUserPrimaryClub(userId: string, clubId: string): Promis
 
   if (error) throw new Error(error.message);
 
-  // Dual-write to profiles
-  const { data: club } = await supabase
-    .from('clubs')
-    .select('name')
-    .eq('id', clubId)
-    .maybeSingle();
-
+  // Dual-write favorite_club_id to profiles (name is derived from the id via club cache)
   await supabase
     .from('profiles')
-    .update({ favorite_club: club?.name ?? null, favorite_club_id: clubId })
+    .update({ favorite_club_id: clubId })
     .eq('id', userId);
 
 }

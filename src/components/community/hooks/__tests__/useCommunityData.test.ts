@@ -39,6 +39,12 @@ vi.mock('@/lib/services/club', () => ({
   getUserPrimaryClub: vi.fn(() => Promise.resolve(null)),
 }));
 
+// Slice 324: club name is now derived from favorite_club_id via the club cache.
+vi.mock('@/lib/clubs', async (orig) => ({
+  ...(await orig<typeof import('@/lib/clubs')>()),
+  getClub: (id: string) => (id ? { id, name: 'Sakaryaspor' } : null),
+}));
+
 vi.mock('@/lib/services/posts', () => ({
   getUserPostVotes: vi.fn(() => Promise.resolve(new Map())),
 }));
@@ -137,7 +143,6 @@ const mockDispatch = vi.fn() as unknown as React.Dispatch<CommunityAction> & { m
 
 const mockProfile = {
   favorite_club_id: CLUB_ID,
-  favorite_club: CLUB_NAME,
 };
 
 // ============================================

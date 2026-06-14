@@ -38,8 +38,8 @@ BEGIN
   -- ──────────────────────────────────────────────
 
   -- Demo Fan
-  INSERT INTO profiles (id, handle, display_name, language, plan, level, verified, is_demo, referral_code, favorite_club, favorite_club_id)
-  VALUES (v_fan_id, 'demo-fan', 'Demo Fan', 'tr', 'free', 12, false, true, 'DEMOFAN1', 'Sakaryaspor', v_club_id)
+  INSERT INTO profiles (id, handle, display_name, language, plan, level, verified, is_demo, referral_code, favorite_club_id)
+  VALUES (v_fan_id, 'demo-fan', 'Demo Fan', 'tr', 'free', 12, false, true, 'DEMOFAN1', v_club_id)
   ON CONFLICT (id) DO UPDATE SET
     handle = EXCLUDED.handle,
     display_name = EXCLUDED.display_name,
@@ -47,8 +47,8 @@ BEGIN
     favorite_club_id = EXCLUDED.favorite_club_id;
 
   -- Demo Admin
-  INSERT INTO profiles (id, handle, display_name, language, plan, level, verified, is_demo, referral_code, favorite_club, favorite_club_id)
-  VALUES (v_admin_id, 'demo-admin', 'Demo Admin', 'tr', 'free', 20, true, true, 'DEMOADM1', 'Sakaryaspor', v_club_id)
+  INSERT INTO profiles (id, handle, display_name, language, plan, level, verified, is_demo, referral_code, favorite_club_id)
+  VALUES (v_admin_id, 'demo-admin', 'Demo Admin', 'tr', 'free', 20, true, true, 'DEMOADM1', v_club_id)
   ON CONFLICT (id) DO UPDATE SET
     handle = EXCLUDED.handle,
     display_name = EXCLUDED.display_name,

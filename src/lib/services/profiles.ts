@@ -40,7 +40,7 @@ export function validateHandle(handle: string): 'handleInvalid' | 'handleReserve
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, handle, display_name, avatar_url, bio, favorite_club, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
+    .select('id, handle, display_name, avatar_url, bio, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
     .eq('id', userId)
     .maybeSingle();
 
@@ -54,7 +54,6 @@ export async function createProfile(
   data: {
     handle: string;
     display_name?: string | null;
-    favorite_club?: string | null;
     favorite_club_id?: string | null;
     language?: 'de' | 'tr' | 'en';
     invited_by?: string | null;
@@ -77,7 +76,6 @@ export async function createProfile(
       id: userId,
       handle: normalizedHandle,
       display_name: data.display_name ?? null,
-      favorite_club: data.favorite_club ?? null,
       favorite_club_id: data.favorite_club_id ?? null,
       language: data.language ?? 'de',
       referral_code,
@@ -99,7 +97,7 @@ export async function createProfile(
 
 export async function updateProfile(
   userId: string,
-  data: Partial<Pick<Profile, 'handle' | 'display_name' | 'bio' | 'favorite_club' | 'favorite_club_id' | 'language' | 'avatar_url' | 'region'>>
+  data: Partial<Pick<Profile, 'handle' | 'display_name' | 'bio' | 'favorite_club_id' | 'language' | 'avatar_url' | 'region'>>
 ): Promise<Profile> {
   const update: Record<string, unknown> = {};
   if (data.handle !== undefined) {
@@ -110,7 +108,6 @@ export async function updateProfile(
   }
   if (data.display_name !== undefined) update.display_name = data.display_name;
   if (data.bio !== undefined) update.bio = data.bio;
-  if (data.favorite_club !== undefined) update.favorite_club = data.favorite_club;
   if (data.favorite_club_id !== undefined) update.favorite_club_id = data.favorite_club_id;
   if (data.language !== undefined) update.language = data.language;
   if (data.avatar_url !== undefined) update.avatar_url = data.avatar_url;
@@ -149,7 +146,7 @@ export async function getProfilesByIds(
 export async function getProfileByHandle(handle: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, handle, display_name, avatar_url, bio, favorite_club, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
+    .select('id, handle, display_name, avatar_url, bio, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
     .eq('handle', handle.toLowerCase())
     .maybeSingle();
 

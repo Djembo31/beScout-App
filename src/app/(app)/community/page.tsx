@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Users, MessageCircle } from 'lucide-react';
 import { Skeleton, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -80,7 +81,7 @@ export default function CommunityPage() {
   // ─── UI State (Reducer) ─────────────────
   const [state, dispatch] = useReducer(communityReducer, {
     clubId: profile?.favorite_club_id ?? null,
-    clubName: profile?.favorite_club ?? null,
+    clubName: profile?.favorite_club_id ? (getClub(profile.favorite_club_id)?.name ?? null) : null,
     isClubAdmin: false,
     clubScope: 'all' as const,
     feedMode: 'all' as const,

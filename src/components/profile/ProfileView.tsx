@@ -6,6 +6,7 @@ import { Loader2, ArrowRight } from 'lucide-react';
 import { Card, ErrorState } from '@/components/ui';
 
 import { useWallet } from '@/lib/hooks/useWallet';
+import { getClub } from '@/lib/clubs';
 import { formatScout } from '@/lib/services/wallet';
 import { ScoutCard } from '@/components/profile/ScoutCard';
 import FollowListModal from '@/components/profile/FollowListModal';
@@ -155,7 +156,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, initi
                   fantasyResults={fantasyResults}
                   isSelf={isSelf}
                   favoriteClubId={targetProfile.favorite_club_id ?? undefined}
-                  favoriteClubName={targetProfile.favorite_club ?? undefined}
+                  favoriteClubName={targetProfile.favorite_club_id ? (getClub(targetProfile.favorite_club_id)?.name ?? undefined) : undefined}
                 />
               </TabPanel>
 

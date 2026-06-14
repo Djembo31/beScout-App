@@ -95,3 +95,13 @@
 - `src/lib/services/club.ts` (favorite_club Dual-Write :212/254/354; getClubDashboardStats→v2 :499)
 - `src/features/manager/components/kader/KaderTab.tsx` (club+league String-Filter :276/304/313)
 - `src/app/api/cron/sync-transfers/route.ts` (club_id-only Transfer-Update :204-217 = 294-Drift-Ursache)
+
+---
+
+## Vorlage-Lehren (aus Slice 324 favorite_club Review — PFLICHT für league + players.club)
+
+1. **Removal-Grep-Scope:** Column-Drop = Removal → grep `<col>([^_]|$)` über `src/ scripts/ messages/ supabase/migrations/`, NICHT nur src/. Seed-/Maintenance-SQL (`scripts/seed-demo.sql`) hat keinen tsc-Schutz und failt erst zur Laufzeit. (Slice 324 ließ favorite_club in seed-demo.sql stehen → Reviewer-MAJOR.)
+2. **Truth-Achse pro Paar verifizieren, NICHT übertragen:** favorite_club ging einfach, weil `favorite_club_id` eindeutig Truth ist (UUID=Truth, String=Display) → simpler name→id-Backfill verlustfrei. **players.club ist anders:** bei den 294 Mismatches ist der STRING frisch + `club_id` veraltet → ein name→id-Backfill würde stale club_ids ZEMENTIEREN. players.club braucht echten Reconcile via `club_external_ids`/api_football_id (API-Key-gated), kein „eine Spalte gewinnt".
+3. **Migration atomar:** Backfill+DROP in `BEGIN; … COMMIT;` wrappen (bei players.club mit 294 Reconcile-Zeilen Pflicht).
+4. **Reader-Ableitung:** `getClub(id)?.name` (sauberes null bei Cache-Miss), NIE `getClubName(id)` (leakt die UUID als Fallback).
+5. **Test-Mocks:** `@/lib/clubs` per `vi.mock(..., async (orig) => ({ ...(await orig()), getClub: ... }))` (importActual-Override), sonst Slice-286-useSyncExternalStore-Crash.

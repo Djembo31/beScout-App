@@ -213,7 +213,6 @@ const baseProfile: Profile = {
   avatar_url: null,
   level: 5,
   favorite_club_id: 'club-1',
-  favorite_club: 'Test FC',
   bio: '',
 } as Profile;
 

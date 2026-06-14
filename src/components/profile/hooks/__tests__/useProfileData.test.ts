@@ -76,6 +76,12 @@ vi.mock('@/lib/services/clubSubscriptions', () => ({
   getMySubscription: (...a: any[]) => mockGetMySubscription(...a),
 }));
 
+// Slice 324: club name is now derived from favorite_club_id via the club cache.
+vi.mock('@/lib/clubs', async (orig) => ({
+  ...(await orig<typeof import('@/lib/clubs')>()),
+  getClub: (id: string) => (id ? { id, name: 'Sakaryaspor' } : null),
+}));
+
 // Stable reference to prevent useEffect re-triggering on every render
 const MOCK_USER = { id: 'u-self' };
 vi.mock('@/components/providers/AuthProvider', () => ({
@@ -112,7 +118,6 @@ function makeProfile(overrides: Record<string, any> = {}) {
     display_name: 'Test User',
     level: 3,
     favorite_club_id: 'club-1',
-    favorite_club: 'Sakaryaspor',
     ...overrides,
   };
 }

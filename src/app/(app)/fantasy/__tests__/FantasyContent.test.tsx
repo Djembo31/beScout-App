@@ -16,14 +16,14 @@ const mockAddToast = vi.fn();
 // vitest factory-closure rule.
 const mockAuthState: {
   user: { id: string; email: string } | null;
-  profile: { display_name: string; favorite_club: null } | null;
+  profile: { display_name: string; favorite_club_id: null } | null;
   loading: boolean;
   refreshProfile: () => void;
   platformRole: null;
   clubAdmin: null;
 } = {
   user: { id: 'u1', email: 'test@test.com' },
-  profile: { display_name: 'Tester', favorite_club: null },
+  profile: { display_name: 'Tester', favorite_club_id: null },
   loading: false,
   refreshProfile: vi.fn(),
   platformRole: null,
@@ -32,7 +32,7 @@ const mockAuthState: {
 
 function resetAuthState() {
   mockAuthState.user = { id: 'u1', email: 'test@test.com' };
-  mockAuthState.profile = { display_name: 'Tester', favorite_club: null };
+  mockAuthState.profile = { display_name: 'Tester', favorite_club_id: null };
   mockAuthState.loading = false;
 }
 

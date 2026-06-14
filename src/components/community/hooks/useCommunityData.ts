@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getActiveSubscriptionsByUsers } from '@/lib/services/clubSubscriptions';
+import { getClub } from '@/lib/clubs';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { resolveExpiredResearch } from '@/lib/services/research';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
@@ -21,7 +22,7 @@ import type { CommunityState, CommunityAction } from './types';
 
 export function useCommunityData(
   userId: string | undefined,
-  profile: { favorite_club_id?: string | null; favorite_club?: string | null } | null,
+  profile: { favorite_club_id?: string | null } | null,
   scopeClubId: string | undefined,
   state: CommunityState,
   dispatch: React.Dispatch<CommunityAction>,
@@ -82,7 +83,7 @@ export function useCommunityData(
       resolveExpiredResearch().catch(err => console.error('[Community] Resolve expired research:', err));
 
       let cId = profile?.favorite_club_id ?? state.clubId;
-      let cName = profile?.favorite_club ?? state.clubName;
+      let cName = profile?.favorite_club_id ? (getClub(profile.favorite_club_id)?.name ?? null) : state.clubName;
       if (!cId) {
         const primaryClub = await getUserPrimaryClub(userId!);
         if (primaryClub) { cId = primaryClub.id; cName = primaryClub.name; }

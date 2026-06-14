@@ -292,7 +292,7 @@ export default function FantasyContent() {
           leagueId={leagueScopeId}
           participations={dashboardStats.pastParticipations}
           userDisplayName={profile?.display_name || user?.email?.split('@')[0] || 'User'}
-          userFavoriteClub={profile?.favorite_club ?? null}
+          userFavoriteClub={profile?.favorite_club_id ? (getClub(profile.favorite_club_id)?.name ?? null) : null}
           seasonPoints={dashboardStats.seasonPoints}
           eventsPlayed={dashboardStats.eventsPlayed}
           bestRank={dashboardStats.bestRank}

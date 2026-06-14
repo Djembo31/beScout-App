@@ -1,0 +1,46 @@
+Slice 324 — favorite_club String→UUID Migration — PROOF
+=======================================================
+Datum: 2026-06-15 · S7 Phase-3 Vorlage-Migration (D80) · Landkarte Sektion C
+
+[1] tsc --noEmit → EXIT 0 (clean)
+
+[2] Tests: CI=true vitest (5 betroffene Files) → 115 passed, 1 skipped (pre-existing)
+  ProfileView, FantasyContent, useCommunityData, useProfileData, leagueScopeStore.
+  useCommunityData.test + useProfileData.test: @/lib/clubs gemockt (importActual + getClub-Override),
+  da der Name jetzt aus favorite_club_id abgeleitet wird.
+
+[3] Code-Migration (das wiederverwendbare Muster)
+-------------------------------------------------
+WRITER → id-only (kein favorite_club-String mehr geschrieben):
+  club.ts 4× (.update favorite_club_id), onboarding, settings (selectedClub-Lookup entfernt da unused),
+  profiles.ts createProfile + updateProfile (Param/Pick/Handling).
+READER → Name aus favorite_club_id via getClub(id)?.name (sauberes null, KEIN getClubName-UUID-Leak):
+  ProfileView:158, useProfileData:148 (+deps :152), community/page:83, useCommunityData:85, FantasyContent:295.
+TYPE/SELECT: Profile.favorite_club entfernt (types/index.ts); beide getProfile-SELECTs bereinigt.
+RESIDUE-grep `favorite_club([^_]|$)` in src/ = 0 (außer leagueScopeStore Kommentare/Test-Namen — kein Code).
+
+[4] Backfill + Drop (Migration 20260615120000)
+----------------------------------------------
+Pre: string_only_to_backfill=9, davon 0 ohne clubs.name-Match (verlustfrei), has_uuid_before=52.
+apply_migration → {"success":true}.
+Post (information_schema): favorite_club-Spalte EXISTIERT NICHT mehr (0); favorite_club_id EXISTIERT (1);
+  has_uuid_after = 61 (= 52 + 9 backfilled). KEINE favorite_club_id-Daten verloren.
+
+[5] Deploy-Reihenfolge / Sicherheit
+-----------------------------------
+Migration während Sommerpause appliziert (Anil: 0 aktive Tester, alles ruhig). Theoretisches Fenster
+„Spalte gedroppt + alter Code noch live" → 0 User-Requests → kein Impact. Neuer Code referenziert die
+Spalte nicht mehr (grep 0), wird mit diesem Slice deployed.
+
+ERGEBNIS: profiles.favorite_club (Drift-Quelle) entfernt; Name ist Single-Source aus favorite_club_id.
+Etabliertes Muster (backfill → Reader getClub(id).name → Writer id-only → Type/SELECT → DROP) ist die
+Vorlage für clubs.league (M) + players.club (L).
+
+[6] Reviewer-REWORK behoben (Finding #1 MAJOR)
+----------------------------------------------
+Reviewer fand: scripts/seed-demo.sql:41-42,50-51 schrieb favorite_club (String) noch in 2 INSERTs
+→ nach DROP COLUMN würde Demo-Seed crashen (column does not exist). Removal-grep lief nur über src/.
+Fix: favorite_club aus beiden INSERT-Spaltenlisten + VALUES ('Sakaryaspor') entfernt (favorite_club_id reicht).
+Re-Verify: grep "favorite_club([^_]|$)" scripts/ = 0. (.claude/backups/*.diff = historische Snapshots, kein Code.)
+NIT #3 (BEGIN/COMMIT-Wrap): für 324 bereits appliziert; als Template-Standard in Vorlage-Lehren + errors-frontend.md (305-Erweiterung) festgehalten.
+Knowledge: errors-frontend.md Slice-305-Erweiterung (Column-DROP → scripts/-grep, kein tsc-Schutz) + string-to-uuid-map.md „Vorlage-Lehren".
