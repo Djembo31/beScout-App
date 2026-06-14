@@ -1,0 +1,68 @@
+Slice 317 — profiles_update Spalten-Whitelist — PROOF
+=====================================================
+Datum: 2026-06-14
+Scope: S7 Phase-2 #3 (P1 Security). BEFORE-UPDATE-Trigger friert sensible profiles-Spalten.
+
+[1] Vuln-Baseline (vor Fix, live pg_policy)
+-------------------------------------------
+profiles_update: cmd=UPDATE, using_qual=(auth.uid()=id), with_check=NULL  ← kein Column-Guard
+profiles_select: USING(true) (Public-Read, gewollt) · profiles_insert: WITH CHECK(auth.uid()=id)
+
+[2] Migration applied (mcp__supabase__apply_migration → {"success":true})
+-------------------------------------------------------------------------
+20260614180000_slice_317_profiles_sensitive_update_guard.sql
+
+[3] Funktion live verifiziert
+-----------------------------
+proname=prevent_profile_sensitive_update
+is_security_definer = FALSE   ← AC1: SECURITY INVOKER (current_user = echter Aufrufer). KRITISCH.
+has_current_user_guard = true  (current_user NOT IN (authenticated,anon))
+has_guc_escape = true          (bescout.allow_profile_admin_update)
+Trigger: trg_prevent_profile_sensitive_update · tgenabled='O' · tgtype=19 (BEFORE UPDATE FOR EACH ROW)
+
+[4] Live-Smoke — Testuser 492e8ffd… ('abu', non-admin: verified=false/top_role=null/plan=Free/level=1)
+------------------------------------------------------------------------------------------------------
+SMOKE 1 (Angreifer, SET ROLE authenticated + jwt.sub=eigene uid):
+  UPDATE profiles SET verified=true, top_role='Admin', plan='Pro', level=99, is_demo=true, bio='slice317-smoke'
+  → ERGEBNIS: verified=false, top_role=null, plan='Free', level=1, is_demo=false  (ALLE FROZEN ✓)
+             bio='slice317-smoke'  (legit Feld ÜBERNOMMEN ✓)
+  → ROLLBACK (keine echte Änderung)
+
+SMOKE 2 (privilegiert, current_user=postgres):
+  UPDATE profiles SET verified=true → ctx='privileged_postgres', verified=TRUE  (Bypass ✓)
+  → ROLLBACK
+
+SMOKE 3 (authenticated + SET LOCAL bescout.allow_profile_admin_update=true):
+  UPDATE profiles SET verified=true → ctx='guc_bypass_authenticated', verified=TRUE  (Escape-Hatch ✓)
+  → ROLLBACK
+
+[5] Writer-Audit (IMPACT — KORRIGIERT nach Reviewer-Finding #1)
+---------------------------------------------------------------
+Legitime SQL-RPC/Trigger-Writer sensibler Spalten (alle SECURITY DEFINER → current_user=postgres → Auto-Bypass):
+  - top_role: refresh_user_stats-RPC (slice_055, UPDATE profiles SET top_role) — SEC DEFINER ✓
+  - level:    sync_level_on_stats_update() Trigger — SEC DEFINER ✓
+  - verified: KEIN profiles.verified-Writer; verify_scout schreibt in separate Tabelle verified_scouts (Reviewer-Klarstellung).
+
+CLIENT-WRITER (src) — Reviewer-Finding #1, vom initialen SQL-only-Audit übersehen:
+  - invited_by: applyReferralCode (referral.ts:50) machte client-seitig authenticated .update({invited_by})
+    → wäre durch den Freeze-Trigger silent eingefroren (Silent-Fail-Landmine). DORMANT (0 Production-Consumer,
+    nur Tests; Onboarding nutzt createProfile-INSERT, vom BEFORE-UPDATE-Trigger unberührt).
+  → FIX in Slice 317b (siehe [6]): auf SECURITY-DEFINER-RPC apply_referral_code umgestellt (Root-Cause, kein
+    dokumentierter Workaround). Kein weiterer Client-Writer einer Freeze-Spalte in src/scripts (grep verifiziert).
+  - subscription_* dormant (kein Writer).
+
+[6] Slice 317b — apply_referral_code RPC (Folge-Fix Reviewer-Finding #1)
+-----------------------------------------------------------------------
+Migration: 20260614183000_slice_317b_apply_referral_code_rpc.sql (apply_migration → {"success":true})
+  apply_referral_code(text): is_security_definer=TRUE, acl = postgres | authenticated | service_role (kein anon/PUBLIC).
+  Validierung server-seitig (vorher client-seitig=umgehbar): not_authenticated/invalidCode/selfInvite/alreadyInvited.
+Service: referral.ts applyReferralCode(referrerCode) → supabase.rpc('apply_referral_code', {p_referrer_code}).
+Tests: referral.test.ts 22 passed (applyReferralCode-Block auf RPC-Mock umgestellt). tsc clean.
+Live-Smoke (SET ROLE authenticated, jwt.sub=abu[invited_by=NULL baseline]):
+  apply_referral_code(<foreign code>) → invited_by_set=true (RPC bypassed Freeze-Trigger), ROLLBACK.
+  → beweist: direkter .update({invited_by}) FROZEN, aber legitimer Referral-Pfad via RPC funktioniert.
+
+ERGEBNIS: User kann verified/top_role/plan/level/subscription_*/is_demo/referral_code/invited_by[_club]
+NICHT mehr per direktem PostgREST .update() self-setzen. Verified-Checkmark + Admin-Rolle gesichert.
+Legitime Profil-Edits (bio/avatar/handle/display_name/favorite_club/language/region) + SEC-DEFINER-Writer +
+Referral-Pfad (via RPC) ungestört. Kein Silent-Fail-Residuum.

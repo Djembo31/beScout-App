@@ -30,28 +30,19 @@ export async function getProfileByReferralCode(code: string): Promise<{ id: stri
   return data as { id: string; handle: string; display_name: string | null };
 }
 
-export async function applyReferralCode(userId: string, referrerCode: string): Promise<{ success: boolean; error?: string }> {
-  // Look up referrer
-  const referrer = await getProfileByReferralCode(referrerCode);
-  if (!referrer) return { success: false, error: 'invalidCode' };
-  if (referrer.id === userId) return { success: false, error: 'selfInvite' };
-
-  // Check if already has invited_by
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('invited_by')
-    .eq('id', userId)
-    .maybeSingle();
-  if (profile?.invited_by) return { success: false, error: 'alreadyInvited' };
-
-  // Set invited_by
-  const { error } = await supabase
-    .from('profiles')
-    .update({ invited_by: referrer.id })
-    .eq('id', userId);
+/**
+ * Apply a referral code to the current user (sets profiles.invited_by).
+ *
+ * Slice 317b: routed through the SECURITY DEFINER RPC `apply_referral_code` because
+ * `invited_by` is frozen against direct client `.update()` by the Slice-317 guard trigger.
+ * The RPC also validates valid-code / self-invite / already-invited server-side (the old
+ * client-side checks were bypassable via direct PostgREST). Uses auth.uid() — no userId param.
+ */
+export async function applyReferralCode(referrerCode: string): Promise<{ success: boolean; error?: string }> {
+  const { data, error } = await supabase.rpc('apply_referral_code', { p_referrer_code: referrerCode });
   if (error) return { success: false, error: error.message };
-
-  // Referrer airdrop refresh handled by periodic pg_cron job
+  const result = data as { success: boolean; error?: string };
+  if (!result.success) return { success: false, error: result.error ?? 'referral_failed' };
   return { success: true };
 }
 

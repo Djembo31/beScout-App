@@ -55,42 +55,33 @@ describe('getProfileByReferralCode', () => {
 });
 
 describe('applyReferralCode', () => {
-  it('applies referral code successfully', async () => {
-    // Step 1: look up referrer
-    mockTable('profiles', { id: 'referrer-1', handle: 'alice', display_name: null });
-    // Step 2: check if already invited
-    mockTable('profiles', { invited_by: null });
-    // Step 3: update invited_by
-    mockTable('profiles', null);
-    const result = await applyReferralCode('u1', 'ABC123');
+  // Slice 317b: routed through SECURITY DEFINER RPC apply_referral_code (invited_by is frozen
+  // against direct client .update() by the Slice-317 guard trigger).
+  it('applies referral code successfully via RPC', async () => {
+    mockRpc('apply_referral_code', { success: true });
+    const result = await applyReferralCode('ABC123');
     expect(result).toEqual({ success: true });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('apply_referral_code', { p_referrer_code: 'ABC123' });
   });
 
   it('returns invalidCode when referrer not found', async () => {
-    mockTable('profiles', null); // referrer lookup fails
-    const result = await applyReferralCode('u1', 'INVALID');
-    expect(result).toEqual({ success: false, error: 'invalidCode' });
+    mockRpc('apply_referral_code', { success: false, error: 'invalidCode' });
+    expect(await applyReferralCode('INVALID')).toEqual({ success: false, error: 'invalidCode' });
   });
 
   it('returns selfInvite when user tries own code', async () => {
-    mockTable('profiles', { id: 'u1', handle: 'self', display_name: null });
-    const result = await applyReferralCode('u1', 'MYCODE');
-    expect(result).toEqual({ success: false, error: 'selfInvite' });
+    mockRpc('apply_referral_code', { success: false, error: 'selfInvite' });
+    expect(await applyReferralCode('MYCODE')).toEqual({ success: false, error: 'selfInvite' });
   });
 
   it('returns alreadyInvited when user already has referrer', async () => {
-    mockTable('profiles', { id: 'referrer-1', handle: 'alice', display_name: null });
-    mockTable('profiles', { invited_by: 'other-referrer' });
-    const result = await applyReferralCode('u1', 'ABC123');
-    expect(result).toEqual({ success: false, error: 'alreadyInvited' });
+    mockRpc('apply_referral_code', { success: false, error: 'alreadyInvited' });
+    expect(await applyReferralCode('ABC123')).toEqual({ success: false, error: 'alreadyInvited' });
   });
 
-  it('returns error on update failure', async () => {
-    mockTable('profiles', { id: 'referrer-1', handle: 'alice', display_name: null });
-    mockTable('profiles', { invited_by: null });
-    mockTable('profiles', null, { message: 'Update failed' });
-    const result = await applyReferralCode('u1', 'ABC123');
-    expect(result).toEqual({ success: false, error: 'Update failed' });
+  it('returns error on RPC failure', async () => {
+    mockRpc('apply_referral_code', null, { message: 'rpc failed' });
+    expect(await applyReferralCode('ABC123')).toEqual({ success: false, error: 'rpc failed' });
   });
 });
 

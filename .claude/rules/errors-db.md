@@ -428,6 +428,11 @@ COMMENT ON FUNCTION public.prevent_<X>() IS
 **Applied:**
 - Slice 179: `transactions` append-only (BEFORE UPDATE/DELETE). GUC `bescout.allow_transactions_mutation`.
 - Slice 189: `players` ghost-prevention INV-39/40 (BEFORE INSERT). GUC `bescout.allow_player_ghost_insert`.
+- Slice 317: `profiles` Spalten-Freeze (BEFORE UPDATE) — friert 11 sensible Spalten (verified/top_role/plan/level/subscription_*/is_demo/referral_code/invited_by[_club]) gegen direkten Client-`.update()`. **Variante:** Trigger-Funktion ist SECURITY **INVOKER** (kein DEFINER!) + Bypass via `current_user NOT IN ('authenticated','anon')` ODER GUC `bescout.allow_profile_admin_update`. So bypassen alle SEC-DEFINER-RPCs (laufen als postgres) automatisch → **kein Patch an Bestandscode**. Silent-Freeze (`NEW.col := OLD.col`) statt RAISE (legit Edits brechen nie). RLS `WITH CHECK` ungeeignet (kein OLD-Zugriff → kann „Spalte unverändert" nicht ausdrücken).
+
+**Freeze-Trigger-Audit-Pflicht (Slice 317, Reviewer-Finding):** Vor einem Spalten-Freeze-Trigger MUSS man **beide** Achsen nach legitimen Writern der Frozen-Cols absuchen, nicht nur SQL-RPCs:
+- SQL-RPCs/Trigger: `grep -rn "SET .*<col>" supabase/migrations/` (die bypassen wenn SEC DEFINER).
+- **src-Layer Client-Writer:** `grep -rn "\.update(\{[^}]*<col>" src/` — ein authenticated-Client-`.update()` einer Freeze-Spalte wird silent eingefroren + die Funktion gibt trotzdem `{success:true}` → **Silent-Fail-Landmine**. Fix: solchen Write auf SEC-DEFINER-RPC umstellen (Slice 317b: `applyReferralCode` → `apply_referral_code`-RPC). Gleiche „Existenz ≠ vollständige Erfassung"-Familie wie D43/D46/D54.
 
 **Kandidaten:** `trades` (append-only), `activity_log`, `holdings_history`, `audit_log`.
 

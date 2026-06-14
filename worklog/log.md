@@ -7427,3 +7427,12 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Files: src/lib/foundingPasses.ts, supabase/migrations/20260614170000_slice_316_*.sql, src/lib/__tests__/foundingPasses-tiers.invariant.test.ts
 - Review: worklog/reviews/316-review.md | Proof: worklog/proofs/316-founding-money-harden.txt
 - Note (Reviewer, pre-existing out-of-scope): Founding-Pass-Kaufstrecke für normale User tot (Admin-gated RPC, kein Public-Purchase + kein Payment-Gateway) → eigener Slice/Produkt-Entscheidung
+
+## 317 | 2026-06-14 | fix(security): profiles_update Spalten-Whitelist + apply_referral_code RPC (S7 Phase-2 #3)
+- Stage-Chain: SPEC → IMPACT (inline Writer-Audit) → BUILD → REVIEW (REWORK→RESOLVED via 317b→PASS) → PROVE (3 Live-Smokes) → LOG
+- #3: RLS profiles_update hatte with_check=NULL → User konnte verified/top_role/plan/level/subscription_*/is_demo/referral_code/invited_by[_club] per direktem PostgREST .update() self-setzen (Privilege-Escalation + Verified-Checkmark-Fälschung)
+- Fix: BEFORE-UPDATE-Trigger prevent_profile_sensitive_update (SEC INVOKER!) friert 11 sensible Spalten gegen OLD; Bypass via current_user NOT IN (authenticated,anon) ODER GUC → alle SEC-DEFINER-Writer (top_role/level) auto-bypass, kein Bestandscode-Patch
+- 317b (Reviewer-Finding #1): applyReferralCode war client-Writer von invited_by (Freeze→Silent-Fail-Landmine, dormant) → auf SEC-DEFINER-RPC apply_referral_code umgestellt (Root-Cause, härtet Client-Guards)
+- Live-Smokes: Angreifer(authenticated)=alle frozen+bio ok / postgres=bypass / GUC=bypass / RPC setzt invited_by trotz Trigger. is_security_definer=false verifiziert (KRITISCH)
+- Files: 2 Migrationen (317 Trigger + 317b RPC), referral.ts, referral.test.ts (22 grün), errors-db.md (D39 + Audit-Pflicht)
+- Review: worklog/reviews/317-review.md | Proof: worklog/proofs/317-profiles-rls-guard.txt
