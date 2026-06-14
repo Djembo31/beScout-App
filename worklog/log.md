@@ -7468,3 +7468,10 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - NICHT angefasst: dailyChallenge/user_daily_challenges/daily-challenge (separates Live-Feature)
 - Verify: JSON valid, Residue-grep=0, Sparkles=0, tsc clean, vitest 214 passed (16 Files)
 - Review: worklog/reviews/321-review.md | Proof: worklog/proofs/321-fanchallenges-removal.txt
+
+## 322 | 2026-06-14 | fix(gamification): claim_score_road ok-Discriminator + Leaderboard Median-RPC (P1-Demo Gamif #1+#2)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → REVIEW (reviewer-Agent PASS, 1 out-of-scope NIT) → PROVE → LOG
+- Gamif #1: claimScoreRoad prüfte Feld-Existenz ('error' in data) statt ok-Discriminator (RPC gibt auf jedem Pfad ok zurück). Fix: result.ok===true=Erfolg, null/ok!==true→fail (Money-Mint-defensiv, fail-closed). Tests auf reale ok-Shape umgestellt. KEINE RPC-Migration (RPC bereits korrekt), keine Beträge geändert.
+- Gamif #2: getScoutLeaderboard('overall') limit*3-by-trader+client-median = Truncation-Bias (latent bei 128<300 User). Fix: neuer SEC-DEFINER read-only RPC rpc_get_scout_leaderboard_overall(percentile_disc(0.5)-Median DESC, JSONB-Return, AR-44, nur public-Profile-Felder). Live-Smoke: bot027 höchster trader aber rank 2 (median 756) = Fix bewiesen.
+- Files: gamification.ts, gamification.test.ts (15 grün), scoutScores.ts, migration 20260614200000. tsc clean
+- Review: worklog/reviews/322-review.md | Proof: worklog/proofs/322-gamif-correctness.txt

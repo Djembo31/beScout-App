@@ -47,8 +47,9 @@ describe('getScoreRoadClaims', () => {
 // claimScoreRoad
 // ============================================
 describe('claimScoreRoad', () => {
+  // Slice 322: mocks now use the REAL claim_score_road shape — every path returns `ok`.
   it('claims milestone and returns reward', async () => {
-    mockRpc('claim_score_road', { reward_bsd: 50 });
+    mockRpc('claim_score_road', { ok: true, reward_bsd: 50, milestone: 500, median_score: 700 });
     const result = await claimScoreRoad('u1', 500);
     expect(result).toEqual({ ok: true, reward_bsd: 50 });
     expect(mockSupabase.rpc).toHaveBeenCalledWith('claim_score_road', {
@@ -64,24 +65,24 @@ describe('claimScoreRoad', () => {
     consoleSpy.mockRestore();
   });
 
-  it('returns error when RPC data contains error field', async () => {
-    mockRpc('claim_score_road', { error: 'Already claimed' });
+  it('returns error when RPC returns ok=false', async () => {
+    mockRpc('claim_score_road', { ok: false, error: 'Already claimed' });
     const result = await claimScoreRoad('u1', 500);
     expect(result).toEqual({ ok: false, error: 'Already claimed' });
   });
 
-  it('handles missing reward_bsd in response', async () => {
-    mockRpc('claim_score_road', {});
+  it('handles ok=true with missing reward_bsd', async () => {
+    mockRpc('claim_score_road', { ok: true });
     const result = await claimScoreRoad('u1', 500);
     expect(result.ok).toBe(true);
     expect(result.reward_bsd).toBeUndefined();
   });
 
-  it('handles null data response', async () => {
+  it('treats null data as failure (money-mint safety)', async () => {
     mockRpc('claim_score_road', null);
     const result = await claimScoreRoad('u1', 500);
-    // null is not an object, so 'error' check fails → ok: true
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe('claim_failed');
   });
 });
 

@@ -1,0 +1,33 @@
+Slice 322 — Gamification Correctness — PROOF
+============================================
+Datum: 2026-06-14 · P1-Demo Gamif #1 (claim_score_road Discriminator) + #2 (Leaderboard Median-RPC)
+
+[1] tsc --noEmit → EXIT 0 (clean)
+
+[2] Tests: CI=true vitest gamification.test.ts → 1 File, 15 passed
+  claimScoreRoad-Block auf reale RPC-Shape (ok-Feld) umgestellt; null→ok:false (Money-Mint-defensiv).
+
+=== Gamif #1 (claim_score_road ok-Discriminator) ===
+[3] Baseline: claim_score_road (live def) gibt auf JEDEM Pfad {ok:true,...} bzw. {ok:false,error}.
+    Service prüfte aber 'error' in data (Feld-Existenz) + behandelte null als ok:true (fragil für BSD-Mint).
+[4] Fix (gamification.ts:54-70): result.ok===true = Erfolg; null/ok!==true → {ok:false, error: result?.error ?? 'claim_failed'}.
+    reward_bsd nur bei Erfolg. Consumer ScoreRoadCard (result.ok + reward_bsd) unverändert kompatibel.
+
+=== Gamif #2 (Leaderboard Median server-side) ===
+[5] Migration applied (apply_migration → {"success":true}): 20260614200000_slice_322_scout_leaderboard_overall_rpc.sql
+[6] RPC live: rpc_get_scout_leaderboard_overall(integer)
+    sec_definer=TRUE · acl = postgres | authenticated | service_role (KEIN anon/PUBLIC, AR-44).
+[7] Median-Sortierung Live-Smoke (top 5):
+    handle  trader manager analyst median
+    bot039   830    778     470    778   ← rank 1
+    bot027  1575    756     470    756   ← rank 2 (HÖCHSTER trader, aber median 756 → NICHT rank 1)
+    bot018  1195    745     480    745
+    bot017   930    745     480    745   (tie 745 → trader-DESC-Tiebreak: bot018 vor bot017 ✓)
+    bot030  1470    734     470    734
+    → beweist den Fix: Ranking nach Median, nicht nach trader. (Alt: limit*3-by-trader + client-median = Truncation-Bias.)
+[8] Service (scoutScores.ts): getScoutLeaderboard('overall') → RPC; dimension-Pfad unverändert (.from().order()).
+
+[9] #2-Latenz-Notiz: aktuell ~128 User < limit*3 (300 bei limit=100) → Bias war latent (alle geholt).
+    RPC future-proofed das Ranking vor User-Wachstum. ScoutLeaderboardEntry-Shape exakt gespiegelt (GlobalLeaderboard unverändert).
+
+ERGEBNIS: claimScoreRoad robust gegen Money-Mint-Fehlinterpretation; Overall-Leaderboard korrekt median-gerankt server-seitig.

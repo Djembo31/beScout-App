@@ -60,13 +60,17 @@ export async function claimScoreRoad(
     console.error('[Gamification] claimScoreRoad error:', error);
     return { ok: false, error: error.message };
   }
-  if (data && typeof data === 'object' && 'error' in data) {
-    return { ok: false, error: String(data.error) };
+
+  // Slice 322: use the RPC's `ok` discriminator (every return path sets it) instead of
+  // field-existence. Defensive for this BSD-mint action: null / ok!==true → treat as failure.
+  const result = data as { ok?: boolean; error?: string; reward_bsd?: number } | null;
+  if (!result || result.ok !== true) {
+    return { ok: false, error: result?.error ?? 'claim_failed' };
   }
-  const reward = data && typeof data === 'object' && 'reward_bsd' in data
-    ? Number(data.reward_bsd)
-    : undefined;
-  return { ok: true, reward_bsd: reward };
+  return {
+    ok: true,
+    reward_bsd: result.reward_bsd != null ? Number(result.reward_bsd) : undefined,
+  };
 }
 
 // ============================================

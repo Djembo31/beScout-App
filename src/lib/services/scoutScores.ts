@@ -64,22 +64,31 @@ export async function getScoutLeaderboard(
   dimension: Dimension | 'overall' = 'overall',
   limit: number = 20,
 ): Promise<ScoutLeaderboardEntry[]> {
-  const orderCol = dimension === 'overall'
-    ? 'trader_score' // We'll sort client-side for median
-    : `${dimension}_score`;
+  // Slice 322: 'overall' ranks by the median of the 3 dimensions. The old client-side
+  // approach fetched limit*3 rows ordered by trader_score only and re-sorted by median —
+  // a truncation bias (high-median/low-trader users dropped once total users > limit*3).
+  // Now the median ordering + top-N happens server-side.
+  if (dimension === 'overall') {
+    const { data, error } = await supabase.rpc('rpc_get_scout_leaderboard_overall', { p_limit: limit });
+    if (error) {
+      console.error('[ScoutScores] getScoutLeaderboard(overall) error:', error);
+      return [];
+    }
+    return (data as ScoutLeaderboardEntry[] | null) ?? [];
+  }
 
   const { data, error } = await supabase
     .from('scout_scores')
     .select('user_id, trader_score, manager_score, analyst_score, profiles!inner(handle, display_name, avatar_url, verified)')
-    .order(orderCol, { ascending: false })
-    .limit(dimension === 'overall' ? limit * 3 : limit);
+    .order(`${dimension}_score`, { ascending: false })
+    .limit(limit);
 
   if (error) {
     console.error('[ScoutScores] getScoutLeaderboard error:', error);
     return [];
   }
 
-  const mapped = (data ?? []).map((row: Record<string, unknown>) => {
+  return (data ?? []).map((row: Record<string, unknown>) => {
     const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
     return {
       user_id: row.user_id as string,
@@ -92,18 +101,6 @@ export async function getScoutLeaderboard(
       verified: (profile as Record<string, unknown>)?.verified as boolean ?? false,
     };
   });
-
-  if (dimension === 'overall') {
-    // Sort by median of 3 dimensions
-    mapped.sort((a, b) => {
-      const medA = getMedian([a.trader_score, a.manager_score, a.analyst_score]);
-      const medB = getMedian([b.trader_score, b.manager_score, b.analyst_score]);
-      return medB - medA;
-    });
-    return mapped.slice(0, limit);
-  }
-
-  return mapped;
 }
 
 // award_dimension_score is REVOKED from PUBLIC — all scoring now happens via DB triggers
