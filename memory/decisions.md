@@ -3450,3 +3450,26 @@ Die Master-Audit-Anti-Kreis-Regeln (§11) waren reine Prosa → 0 Enforcement �
 **Auswirkungen:** Admin-Drift-Quelle aus App-Code geschlossen; `useActiveGameweek`+`qk.events.activeGw` orphan entfernt (Registry-Ziel); `getActiveGameweek` bleibt für Admin-per-Club-Display (post-Fix clubs===leagues, harmlos). Reviewer bestätigte: kein Money/Security-Risiko durch erweiterte Schreibreichweite (Scheduling-Feld, sibling-Clubs derselben Liga). Süper-Lig-Saison-End-Stau (active=34/max=38, API-Key) ist Cron-Lag, KEIN Spalten-Drift → kein False-Alarm im Skript.
 
 **Re-Visit-Trigger:** Wenn `clubs.active_gameweek` je vollständig redundant wird (alle Reader auf leagues migriert) → Spalte droppen. Wenn das Drift-Skript je feuert → `clubsToProcess`-Vollständigkeit im Cron auditieren (Reviewer-F-3-Observation).
+
+---
+
+## D79 — PROCESS: S7 Phase 1 (Map) komplett 9/9 → nächste Priorität sind die 4 vom Mapping aufgedeckten P0-Money/P1-Security-Funde, NICHT weiter aufräumen/neue Features
+
+**Datum:** 2026-06-14 · **Status:** Aktiv · **Slices:** 313–315 (Map-Abschluss)
+
+**Kontext:** Die S7 Source-of-Truth-Registry (D76, Strangler-Fig + Ratchet D75) hatte Phase 1 (Map) = alle 9 Makro-Domänen live-schema kartieren. Mit Slice 302 (Player/Fantasy/Trading, P0), 314 (Club/Social/Gamification, P1) und 315 (Creator/Identity/Admin, P2/P3) ist Phase 1 **komplett**. Das Mappen war read-only Wahrheits-Feststellung — sein Wert liegt in den Funden. Diese Session schloss zusätzlich S7-Phase-2 für die 3 P0-Domänen ab (alle Demo/Money-Findings durch oder als non-actionable verifiziert, Slice 313).
+
+**Entscheidung:** Der nächste Arbeitsblock ist **Phase 2 (Migrieren/Fixen) der vom Mapping aufgedeckten Top-Funde**, in dieser Severity-Reihenfolge — NICHT weitere Audit-Runden und NICHT neue Features:
+1. **🔴 P0 Money** — Club-Founding-Passes: (a) bcredits TS≠RPC-Drift, (b) Preis nicht server-validiert (Kill-Switch-Integrität).
+2. **🔴 P1 Security** (neue Klasse, Slice 315) — Identity: (a) `profiles_update`-RLS ohne Spalten-Whitelist (User self-set verified/plan/top_role/subscription_price), (b) `/api/push` cross-user-Spam.
+3. **🟡 P1 Demo** — Club-Challenges-Crash, Notification-i18n, Score-Road-Shape, profilloser Account, etc.
+
+Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope** (Anil entscheidet Werte/Approach VOR Build, z.B. „sind Founding-bcredits 100k oder 250k pro Tier?").
+
+**Begründung:** Der höchste Hebel ist nicht mehr „mehr Landkarte" oder „neue Features", sondern die konkreten Geld-Korrektheits- und Sicherheits-Lücken, die ohne das Mapping unsichtbar geblieben wären (Founding-bcredits-Drift = falsche gebuchte Geldmenge; profiles-RLS = self-set verified/plan; /api/push = Phishing-Vektor). Diese sind live-relevant (Beta läuft, D71) und CEO-Scope. Aufräumen (Phase 3) + restliche dormant/P2/P3-Konsolidierung kommt danach.
+
+**Alternativen erwogen:** (a) Direkt neue Features / Sommer-Roadmap — verworfen, die P0-Money/P1-Security-Funde sind live + risikobehaftet, gehen vor. (b) Weiter Phase-3-Abräumen (dead code, dormant features) zuerst — verworfen, niedrigerer Hebel als Money/Security. (c) Alle Funde in einem Sammel-Slice fixen — verworfen, Money + Security brauchen je eigene Spec + Review + CEO-Decision (Scope-Trennung).
+
+**Auswirkungen:** Registry `worklog/audits/2026-06-13/s7-source-of-truth-registry.md` ist jetzt die Single-Source des Phase-2-Backlogs (severity-sortierte Liste am Ende der Datei + pro-Domäne Top-Befunde-Tabellen). Resume-Anker im Handoff verweist mit Datei:Zeile-Pointern darauf. 6 neue übergreifende Muster-Instanzen + 4 neue Muster (#7 Money/Security-Truth-nur-im-Client, #8 De-norm-Counter-ohne-Reconcile, #9 Phantom-Tabellen, #10 pre-localized-vs-i18n_key).
+
+**Re-Visit-Trigger:** Wenn alle P0/P1-Funde gefixt sind → Phase 3 (Abräumen: dormant Features S6-Removal + P2/P3-Konsolidierung) ODER Sommer-Roadmap/neue Features. Wenn API-Football-Key zurückkommt → die key-blockierten Fantasy-Punkte (284b, Süper-Lig-Drift) reaktivieren.

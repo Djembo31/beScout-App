@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-14 14:28)
+# Session Handoff — Auto (2026-06-14 16:23)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -11,21 +11,74 @@
 ?? worklog/audits/wiring-2026-06-14.md
 ```
 
-## Session Commits: 8
+## Session Commits: 10
+- d748a027 docs(audit): Slice 315 — S7 Phase-1 ABSCHLUSS (Creator + Identity + Admin, 9/9)
+- e6e48d49 docs(audit): Slice 314 — S7 Phase-1 Mapping P1-Batch (Club + Social + Gamification)
+- 3ea668ff docs(learning): Slice 313 — S7 P2/P3-Reste D77-Verifikation + rating-Chain-Bridge-Pattern
+- 306ef975 docs(active): active.md auf sauberen idle-Stand (Session-End, stale 311-Zeilen raus)
+- 54cdb486 docs(distill): D78 + S7-Registry-Abschlüsse + Handoff-Anker (Session-End 309-312)
 - e668a32a fix(compare): Slice 312 — /compare perf_l5/l15 matches-Guard (Player-Residuum)
 - e57ffd36 docs(fantasy): perf_l5-Formel korrigiert — KEIN /1.5 (D77-Closure)
 - c9970159 refactor(fantasy): Slice 311 — GW-Status Single-Source computeGwStatus (Fantasy-#5)
 - ae586f6f feat(fantasy): Slice 310 — active_gameweek leagues=single-truth + drift-guard (Fantasy-#1)
 - 4df4fbd1 docs(proof): Slice 309 — Post-Deploy Live-Verify (PROVE-Abschluss)
-- 87b48f31 fix(manager): Slice 309 — Kader L5-Pill aus FormBars ableiten (Player-#3)
-- 9ebe342f docs(decision): D77 — Registry/Audit-Findings gegen Live-Code verifizieren vor Abarbeitung
-- 0944347d fix(market): Slice 308 — S7 Trading-#4 IPO-Preis strikt aus ipo_price
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-14 spät — S7-Phase-2 Queue KOMPLETT + P2/P3-Sweep)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-14 Nacht — S7 Phase 1 (Map) KOMPLETT 9/9 → Phase 2 (Fix) startklar)
+
+**Status: idle** · HEAD `d748a027` (315) · origin/main **synchron** · **0 Reverts** (durchgehend seit 261). Working tree: nur Auto-Handoff-Block + 3 self-renewing Audit-Churn-Files (`worklog/audits/{audit-stale,type-truth,wiring}-2026-06-14.md` → `git restore`/ignorieren, Pattern bleibt). 3 Slices diese Session: 313 (P2/P3-Reste-Verifikation), 314 (Map Club/Social/Gamification), 315 (Map Creator/Identity/Admin).
+
+## ✅ MEILENSTEIN: S7-Registry Phase 1 (Map) ist VOLLSTÄNDIG — alle 9 Makro-Domänen live-schema-kartiert
+
+**Master-Doc (die „Verfassung" + Phase-2-Backlog):** `worklog/audits/2026-06-13/s7-source-of-truth-registry.md`
+- Pro Domäne: 8-Achsen-Records + „Top-Befunde"-Tabelle (severity-sortiert) + „Robust, NICHT ändern"-Zeile.
+- **Am Datei-Ende:** „Phase-1-Stand → Phase-2-Backlog" (severity-sortierte Gesamt-Liste) + 10 übergreifende Muster.
+- DISTILL dieser Session: **D79** (memory/decisions.md) — „nächste Priorität sind die 4 P0-Money/P1-Security-Funde, NICHT weiter aufräumen/Features".
+
+## ⚡ PHASE-2-EXECUTION-QUEUE — lückenlos, severity-sortiert, jeder Punkt ready-to-spec
+
+> Jeder Fix = **eigener SHIP-Slice** (Spec + Review Pflicht). **Money + Security = CEO-Scope** → Anil entscheidet Werte/Approach VOR Build. Registry hat pro Punkt die vollen 8 Achsen.
+
+### 🔴 1 — P0 MONEY: Founding-Pass bcredits TS≠RPC-Drift
+- **Bug:** `FOUNDING_PASS_TIERS.bcreditsCents` (`src/lib/services/foundingPasses.ts:39,52,63,76` = fan 100_000 / scout 500_000 / pro 2_000_000 / founder 5_000_000) **≠** RPC `grant_founding_pass` `v_bcredits` (fan **250000** / scout 1000000 / pro 3500000 / founder 10000000). Wallet bekommt RPC-Wert, Admin-UI (`AdminFoundingPassesTab.tsx` + `bcreditsLabel`) zeigt TS-Wert → **angezeigte ≠ gutgeschriebene Credits.**
+- **🟥 ANIL-DECISION VOR BUILD:** Welcher Wert ist korrekt — 100k oder 250k pro Tier (bzw. die echte Tier-Tabelle)? Danach: eine Quelle (RPC aus Config lesen ODER TS an RPC spiegeln) + `bcreditsLabel` angleichen.
+- **Verify-Start:** `pg_get_functiondef('public.grant_founding_pass(...)')` → v_bcredits-CASE gegen TS.
+
+### 🔴 2 — P0 MONEY: Founding-Preis nicht server-validiert (Kill-Switch)
+- **Bug:** `grant_founding_pass` nimmt `p_price_eur_cents` als freien Caller-Param **ohne Tier-CHECK**, speichert verbatim. Admin-UI füttert `tierDef?.priceEurCents ?? 0` (`AdminFoundingPassesTab.tsx:171`) → EUR-Wahrheit **nur im Client**. Kill-Switch (`v_kill_switch_limit := 90000000` cents = EUR 900K) summiert exakt diesen ungeprüften Wert.
+- **Fix:** Preis tier-gebunden server-seitig ableiten (CASE wie bcredits), `p_price_eur_cents`-Param entfernen/CHECK. Money + SECURITY DEFINER → CEO + Review.
+
+### 🔴 3 — P1 SECURITY: profiles_update-RLS ohne Spalten-Whitelist
+- **Bug:** RLS `profiles_update` = `qual (auth.uid()=id)` ohne Column-Guard + KEIN BEFORE-UPDATE-Trigger. Service `updateProfile` whitelistet, aber **RLS ist die echte Grenze** → direkter PostgREST-`.update()` setzt selbst: `top_role`, `verified` (Checkmark!), `level`, `plan`, `subscription_price_cents`, `subscription_enabled`, `invited_by`, `is_demo`, `referral_code`.
+- **Fix-Pattern:** RLS `WITH CHECK`-Spalten-Whitelist ODER BEFORE-UPDATE-Trigger der sensible Spalten gegen OLD einfriert (nur via SECURITY-DEFINER-RPC änderbar) — **D39 Trigger+GUC-Pattern** (`.claude/rules/errors-db.md`). Verify: `SELECT polname,qual,with_check FROM pg_policy ... profiles`.
+
+### 🔴 4 — P1 SECURITY: /api/push cross-user-Spam
+- **Bug:** `src/app/api/push/route.ts:19` — jeder authenticated Caller darf beliebige `userId` + freie `title`/`body` pushen, ohne Bindung an existierende Notification-Zeile → Phishing/Spam-Vektor.
+- **Fix:** an `reference_id`/Notification-Existenz binden ODER self-push-only (`auth.uid()===p_user_id`).
+
+### 🟡 5 — P1 DEMO (kleiner, teils Quick-Wins, evtl. 1 Sammel-Slice):
+- **Social #1 (Quick, Beta-sichtbar):** `getNotifications` (`src/lib/services/notifications.ts:146`) selektiert `i18n_key`/`i18n_params` nicht → Reload (roher DE-String) vs Realtime-Push (lokalisiert) divergieren. **1-Zeilen-SELECT-Fix.**
+- **Club #3:** `club_challenges` + `achievement_perk_claims` existieren in DB NICHT → `FanChallengesTab.tsx` (+ `clubChallenges.ts`/`queries/clubChallenges.ts`) crasht (42P01). Tab gaten ODER Tabellen deployen ODER Feature entfernen (S6).
+- **Club #4:** `cancelSubscription` (`clubSubscriptions.ts`) direkter RLS-`.update()` + swallow → auf RPC + throw.
+- **Gamif #1:** `claimScoreRoad` (`gamification.ts:50-70`) Return via Feld-Existenz statt `success`-Discriminator (BSD-Mint). **#2:** `getScoutLeaderboard('overall')` `limit*3`+Client-Median = Truncation-Bias. **#3:** 1 Ticket-Balance-Drift (user `99b601d2…` balance 70 vs Ledger 65).
+- **Identity #3:** 1 profilloser Account (auth.users 129 vs profiles 128) — Onboarding-Backfill. **#4:** Push subscribe/unsubscribe swallowen + localStorage-Dual-State.
+
+### 🟢 P2/P3 (später, Phase 3 / dormant):
+Ad-Revenue-Share write-path-gebrochen (0€) · 5 Leaderboard-Impls/3 Truth-Tabellen · dormante Features (Research, 2 Voting-Systeme, Creator-Fund, Monthly-Liga = S6-Removal/Aktivierung) · Cron-error-Tail unsichtbar · String→UUID-Identity-Doppelung (club/league/favorite_club, cross-domain post-Beta-Migration) · rating-Chain-Trigger-Absicherung (post-API-Key).
+
+## Carry-over (Anil-Action, unverändert)
+- **🚨 API-Football-Key suspendiert seit 06.05.** (dashboard.api-football.com) → blockiert Süper-Lig-GW-Drift, Fantasy-#2/#7, Slice 284b (154 Geister). Wenn zurück: key-blockierte Punkte reaktivieren.
+- **TR-Review (3 Strings):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+
+## Produkt-Gesamtstand (Kontext)
+Beta LIVE (D71, Taki/Nail Mo). Stabilisierungs-Track S0–S7: S0–S6 ✅, S7 Phase 1 (Map) ✅ 9/9, S7 Phase 2 (Fix) = diese Queue. Danach Phase 3 (Abräumen) ODER Sommer-Roadmap.
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-06-14 spät — S7-Phase-2 Queue KOMPLETT + P2/P3-Sweep)
 
 **Status: idle** · HEAD `e668a32a` (312) · origin/main synchron · **0 Reverts** (durchgehend seit 261). Working tree clean bis auf Auto-Handoff + 3 self-renewing Audit-Churn-Files (`worklog/audits/audit-stale|type-truth|wiring-2026-06-14.md` — `git restore`/ignorieren, Pattern bleibt).
 
