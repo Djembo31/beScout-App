@@ -178,15 +178,22 @@ describe('subscribeTo', () => {
 // cancelSubscription
 // ============================================
 describe('cancelSubscription', () => {
+  // Slice 320: routed through SECURITY DEFINER RPC cancel_club_subscription
+  // (club_subscriptions has no UPDATE RLS policy → direct .update() was silently blocked).
   it('cancels auto-renew and returns true', async () => {
-    mockTable('club_subscriptions', null);
+    mockRpc('cancel_club_subscription', { success: true });
     expect(await cancelSubscription('u1', 'c1')).toBe(true);
-    expect(mockSupabase.from).toHaveBeenCalledWith('club_subscriptions');
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('cancel_club_subscription', { p_club_id: 'c1' });
   });
 
-  it('returns false on error', async () => {
+  it('returns false when no active subscription', async () => {
+    mockRpc('cancel_club_subscription', { success: false, error: 'no_active_subscription' });
+    expect(await cancelSubscription('u1', 'c1')).toBe(false);
+  });
+
+  it('returns false on RPC error', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockTable('club_subscriptions', null, { message: 'Update failed' });
+    mockRpc('cancel_club_subscription', null, { message: 'rpc failed' });
     expect(await cancelSubscription('u1', 'c1')).toBe(false);
     consoleSpy.mockRestore();
   });

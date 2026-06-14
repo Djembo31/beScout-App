@@ -7452,3 +7452,11 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Identity #4: unsubscribeFromPush .delete()-Fehler erfasst+geloggt statt Swallow; localStorage-Cache + 410-self-heal dokumentiert
 - Files: notifications.ts, pushSubscription.ts. tsc clean, notifications-Tests 29/29 grün. Kein Money/Daten/RLS
 - Review: worklog/reviews/319-review.md | Proof: worklog/proofs/319-notif-push-hygiene.txt
+
+## 320 | 2026-06-14 | fix(subscriptions): cancel_club_subscription RPC (P1-Demo Club #4)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → REVIEW (self-PASS) → PROVE → LOG
+- Club #4: club_subscriptions hatte nur SELECT-RLS (keine UPDATE-Policy) → cancelSubscription .update() stumm geblockt. Fix: SEC-DEFINER-RPC cancel_club_subscription(auth.uid()), Service throw-on-error. (dormant feature, 0 UI-Consumer)
+- RPC: prosecdef=true, auth.uid()-Guard, REVOKE PUBLIC/anon + GRANT authenticated, discriminated return
+- Files: migration 20260614190000, clubSubscriptions.ts, clubSubscriptions.test.ts (28/28). tsc clean
+- Operator-Slip: Live-Smoke-DO-Block ohne ROLLBACK committete auto_renew-Flip 1 aktiver Sub → sofort restauriert (default=true, Feature nie funktional). Lehre → testing.md (mutierende Smokes IMMER BEGIN/ROLLBACK)
+- Review: worklog/reviews/320-review.md | Proof: worklog/proofs/320-cancel-subscription-rpc.txt

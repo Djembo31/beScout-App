@@ -129,20 +129,22 @@ export async function subscribeTo(
   return result;
 }
 
-/** Cancel auto-renew */
+/** Cancel auto-renew.
+ *
+ *  Slice 320: routed through the SECURITY DEFINER RPC `cancel_club_subscription` because
+ *  club_subscriptions has only SELECT RLS policies (no UPDATE) — a direct client `.update()`
+ *  was silently blocked (0 rows, no error). The RPC uses auth.uid(); the `userId` arg is kept
+ *  for API stability but ignored server-side. Returns false if no active subscription. */
 export async function cancelSubscription(userId: string, clubId: string): Promise<boolean> {
-  const { error } = await supabase
-    .from('club_subscriptions')
-    .update({ auto_renew: false, updated_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .eq('club_id', clubId)
-    .eq('status', 'active');
+  void userId;
+  const { data, error } = await supabase.rpc('cancel_club_subscription', { p_club_id: clubId });
 
   if (error) {
-    console.error(`[Subscriptions] cancelSubscription failed (user=${userId}, club=${clubId}):`, error.message);
+    console.error(`[Subscriptions] cancelSubscription failed (club=${clubId}):`, error.message);
     return false;
   }
-  return true;
+  const result = data as { success: boolean; error?: string };
+  return result?.success === true;
 }
 
 /** Get all active subscribers for a club (admin) */

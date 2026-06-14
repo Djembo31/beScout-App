@@ -24,6 +24,7 @@ globs: ["src/**/*.test.ts", "src/**/*.test.tsx", "tests/**/*"]
 - IMMER gegen echte Daten testen (keine Mocks fuer DB)
 - Nach neuer Tabelle: Smoke Test mit `SELECT COUNT(*)`
 - RLS: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`
+- **Mutierende Live-Smokes IMMER in `BEGIN; … ROLLBACK;` wrappen** (Slice 320-Lehre). Ein nackter `DO $$ … $$`-Block (oder freies `UPDATE/INSERT`) gegen Live-Prod **committet** und mutiert echte User-Daten. Slip-Beispiel: `cancel_club_subscription`-Smoke flippte `auto_renew` einer echten aktiven Subscription, weil der DO-Block nicht in eine Transaktion mit ROLLBACK gewickelt war (musste manuell restauriert werden). Muster siehe 316/317 profiles-Smokes: `BEGIN; SET LOCAL ROLE authenticated; SELECT set_config('request.jwt.claims', …, true); <mutation>; <verify SELECT>; ROLLBACK;`. `RAISE NOTICE` wird von `mcp__supabase__execute_sql` NICHT zurückgegeben → Verify-Werte via finalem `SELECT` vor ROLLBACK ausgeben, nicht via NOTICE.
 
 ## Ausfuehren
 - `npx vitest run` — alle Tests
