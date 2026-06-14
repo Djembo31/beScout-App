@@ -61,7 +61,7 @@
 - **Kanonisch:** `fixture_player_stats.rating` (API-Match-Rating 1–10, 48k non-null). **KEIN player-rating auf `players`.**
 - **Redundant (messigste Gruppe):** `fixture_player_stats.rating` → `fantasy_points = round(rating*10)` (gleiche Zeile, dupliziert) → `player_gameweek_scores.score` (andere Tabelle, via Bridge-RPC `sync_fixture_scores`). 3 Repräsentationen derselben Rating-Semantik. Plus `research_posts.avg_rating` (Community-Content-Rating 1–5) → `ScoutConsensus` als Spieler-Sentiment (andere Semantik, surface aber als Spieler-Bewertung).
 - **E2E:** ✅ intakt aber 3-Hop-Bridge — wenn `sync_fixture_scores` nach Rating-Backfill nicht läuft, divergieren FormBars (`player_gameweek_scores`) und Match-Rating-Views (`fixture_player_stats.rating`).
-- **Offen:** `getScoreStyle` (6-Tier-Farbe) wird auf L5 (0–100) UND GW-Score (0–100) UND ggf. `rating` (1–10) angewendet — ein 1–10-rating durch `getScoreStyle` würde alles <45 = „Schwach" mis-colorieren. Verifizieren dass kein Caller das tut.
+- **Offen → ✅ verifiziert (Slice 313):** `getScoreStyle` (6-Tier-Farbe) — **kein Caller füttert ein 1–10-`rating`**. Alle Argumente 0–100 (`score`/`l5`/`perfValue`/`avgScore`/`mvpScore`/`getMatchScore`). Kein Mis-Color-Bug. Divergenz-Risiko liegt im Zahlenwert der Bridge (siehe errors-db.md „Multi-Hop Cron-Bridge"), nicht in der Farb-Zuordnung.
 - **Severity:** P1.
 
 ## 1.4 Marktwert / Value
@@ -92,9 +92,9 @@
 | 3 | ~~P0 Demo~~ ✅ **309** | L5/Form | ~~Pill-vs-Bars-Widerspruch~~ → **Slice 309** (Anil Option A) Pill aus FormBars abgeleitet (`deriveL5FromRecentScores`, beide L5-Displays); live 11/11 Rows verifiziert. **D77-Catch: Formel KEIN /1.5** | erledigt |
 | 4 | ~~P1~~ ✅ **307** | letzte-5-Scores | ~~2 Impls~~ → **Slice 307** Picker auf Kanon-RPC (`getBatchFormScores` gelöscht); = Fantasy #6 | erledigt |
 | 5 | ~~P1~~ ✅ **312** (display) | perf_l5=50 | Display-Mitigation komplett (Slice 271 + **312** /compare-Lücke). DB-Default 50 bleibt bewusst (6 Salary-Cap-RPCs `COALESCE(perf_l5,50)`) | display erledigt; DB-Default Scope-Out |
-| 6 | P1 | goals/assists | Dual-Grain (Saison-Counter vs pro-Match) auf selber Seite | Klare Trennung „Saison" vs „Spiel", Cron-Lag-Hinweis |
-| 7 | P1 | club-Identity | `players.club` (String) vs `club_id` (UUID), club_id stale | Auf `club_id` als Truth, `club`-String deprecaten |
-| 8 | P2 | rating-Chain | 3-Hop `rating→fantasy_points→gw_score` Bridge | Bridge dokumentieren / Sync-Garantie |
+| 6 | ~~P1~~ ✅ **313** (verifiziert: bereits mitigiert) | goals/assists | ~~Dual-Grain auf selber Seite~~ → Season-Card='Saison-Statistiken'-Heading; MatchTimeline per-GW-Zeilen + `dataUntilGw`-Freshness. Saison/Spiel-Trennung + Cron-Lag-Hinweis existieren bereits | erledigt (kein Code-Change nötig) |
+| 7 | P1 | club-Identity | `players.club` (String) vs `club_id` (UUID), club_id stale | Auf `club_id` als Truth, `club`-String deprecaten (post-Beta-Migration) |
+| 8 | ~~P2~~ ✅ **313** (Doku) | rating-Chain | 3-Hop `rating→fantasy_points→gw_score` Bridge → dokumentiert in errors-db.md „Multi-Hop Cron-Bridge ohne Trigger" (Sync via `sync_fixture_scores`/`admin_import_gameweek_stats`, kein Trigger; Detection-SQL; Trigger-Absicherung als post-API-Key-Backlog) | erledigt |
 | 9 | P2 | market_value_eur | INTEGER vs „€", `||undefined` versteckt 0 | Typ/Präzision klären |
 | 10 | — | Taxonomie | Phantom-Spalten `players.rating/score/form*` nicht existent; `scout_scores`/`score_history` = User-Reputation | In Folge-Arbeit nie auf Phantome bauen |
 
@@ -204,7 +204,7 @@
 | 3 | ~~P1~~ ✅ **303** | ~~2 Floors auf /market~~ → Trending+Liste teilen jetzt `players.floor_price` (computePlayerFloor=Passthrough) |
 | 4 | ~~P1~~ ✅ **308** | ~~IPO-Preis `ipo_price ?? floor_price`~~ → dbToPlayer strikt aus ipo_price (undefined wenn kein IPO), Floor-Fallback entfernt |
 | 5 | ~~P1~~ ✅ **303** | ~~Holdings-Floor-Leak~~ → optimistic kommt jetzt aus RPC-Response statt Client-Recompute |
-| 6 | P1 | Offers Dual-Source (Dashboard-RPC + offers.ts), owned-Filter 2× |
+| 6 | ~~P1~~ ✅ **313** (verifiziert: intentional, defer) | Offers Dual-Source — 2 Lese-Pfade, **beide mit aktiven Konsumenten**: `get_market_user_dashboard`-RPC (=/market konsolidiert, useMarketData) + `offers.ts`-Hooks (`useIncomingOffers`/`useOpenBids` für KaderTab/Bestand). Owned-Filter 2× ist gewollte Surface-Trennung. Konsolidieren = Live-Beta-Regressionsrisiko ohne User-Nutzen → defer bis post-Beta |
 | 7 | P1 | Platform-Fee = Remainder, `trade_platform_bps` nie direkt genutzt (Doku-Drift) |
 | 8 | P2 | 24h-Change 3 Quellen · volume_24h vs trades_volume_7d |
 | — | ✅ | **Robust, NICHT ändern:** Money-Writes atomar (RPC+lock+dedup), append-only, zombie-Trigger, uncached-gegen-RLS-Race |

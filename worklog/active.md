@@ -2,17 +2,18 @@
 
 ```
 status: idle
-slice: 312
+slice: 313
 stage: LOG complete ✅ DONE
-spec: worklog/specs/312-compare-perf-l5-matches-guard.md
-impact: skipped (1 File UI-Display; fmtPerfL5-Pattern Slice 271)
-proof: worklog/proofs/312-compare-l5-guard.txt
-review: worklog/reviews/312-review.md (reviewer-Agent PASS, 2 NITPICKs out-of-scope; Radar-Achse bewusst Scope-Out)
-decision: S7-Phase-2 KOMPLETT (alle P0 Money/Demo + clean P1/P2 durch oder als non-actionable verifiziert). Offen nur: post-Beta-Migrationen (club String→UUID, League-Scope dual-axis) + API-Key-blockiert (Süper-Lig-Drift, Fantasy-#2/#7). Resume-Anker: memory/session-handoff.md.
+spec: skipped (Doc-Slice — D77-Verifikation der 3 P2/P3-Reste + Knowledge-Capture, kein src/-Diff)
+impact: skipped (nur .claude/rules + worklog, keine gated Pfade)
+proof: worklog/proofs/313-p2p3-reste-verify.txt
+review: self-review (Doc-Slice, kein feat/fix/refactor; Pattern-Text grep-verifiziert gegen Live-Code)
+decision: S7-Phase-2 P2/P3-Reste verifiziert non-actionable/mitigiert. Player-#6=bereits-mitigiert, getScoreStyle=sauber, Trading-#6=intentional-defer, Player-#8=als Pattern dokumentiert (errors-db.md). Offen nur: post-Beta-Migrationen (club String→UUID, League-Scope dual-axis) + API-Key-blockiert.
 ```
 
 ## Zuletzt
 
+- **Slice 313** (2026-06-14) — S7-P2/P3-Reste D77-Verifikation + rating-Chain-Bridge-Pattern (docs, self-review).
 - **Slice 312** (2026-06-14) — /compare perf_l5/l15 matches-Guard + P2/P3-Sweep (fix, PASS).
 - **Slice 311** (2026-06-14) — Fantasy-#5 GW-Status Single-Source computeGwStatus (refactor, PASS).
 - **Slice 310** (2026-06-14) — Fantasy-#1 active_gameweek leagues=Single-Truth + Drift-Guard (feat, PASS, → D78).

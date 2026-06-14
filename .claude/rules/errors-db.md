@@ -6,6 +6,38 @@ description: DB-Fehler — Supabase/Postgres, RPCs, Auth/Security, Cache-Sync
 
 Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
 
+### Multi-Hop Cron-Bridge ohne Trigger: rating→fantasy_points→gw_score Divergenz (Slice 313 Doku, 2026-06-14)
+
+**Bug-Klasse (latent):** Dieselbe Semantik wird über mehrere Tabellen per **RPC-Bridge** (nicht per Trigger) propagiert. Solange nur EIN Pfad die Bridge auslöst, desynct jede *out-of-band*-Mutation der Quell-Tabelle (manueller SQL-Backfill, partielle API-Reparatur) die Downstream-Tabelle **still** bis zum nächsten Bridge-Lauf. Zwei UI-Views, die je eine Seite der Bridge lesen, zeigen dann widersprüchliche Zahlen.
+
+**Konkrete Kette (BeScout Rating-Semantik, 3-Hop):**
+1. `fixture_player_stats.rating` (API-Football Match-Rating 1–10, ~48k non-null) — Quelle.
+2. `fixture_player_stats.fantasy_points` = `round(rating*10)` (0–100, **gleiche Zeile**, dupliziert).
+3. `player_gameweek_scores.score` (0–100, **andere Tabelle**) — geschrieben **nur** vom RPC `sync_fixture_scores`.
+
+**Verkabelung (verifiziert Slice 313):** `sync_fixture_scores` läuft via `admin_import_gameweek_stats` (API-Import-Flow) + Manual-Fallback (`scoring.admin.ts:187`). **Kein DB-Trigger** verbindet `fixture_player_stats.rating`-UPDATE → `player_gameweek_scores`. → Wer `rating`/`fantasy_points` direkt patcht (Backfill-Skript, MCP-SQL), MUSS danach `sync_fixture_scores(p_gameweek)` aufrufen, sonst:
+- **FormBars** (`rpc_get_recent_player_scores` → `player_gameweek_scores`) zeigen alten Score.
+- **Match-Rating-Views** (`fixture_player_stats.rating`/`fantasy_points`, z.B. FixtureDetailModal) zeigen neuen Wert.
+
+**Detection (pro GW, divergierende Spieler):**
+```sql
+SELECT pgs.player_id, pgs.gameweek, pgs.score,
+       ROUND(AVG(fps.rating) * 10) AS expected_from_rating
+FROM player_gameweek_scores pgs
+JOIN fixture_player_stats fps ON fps.player_id = pgs.player_id
+JOIN fixtures f ON f.id = fps.fixture_id AND f.gameweek = pgs.gameweek
+WHERE pgs.gameweek = <gw> AND fps.rating IS NOT NULL
+GROUP BY pgs.player_id, pgs.gameweek, pgs.score
+HAVING pgs.score <> ROUND(AVG(fps.rating) * 10);
+-- Rows > 0 → Bridge nicht gelaufen nach Rating-Mutation → sync_fixture_scores(<gw>) nachziehen.
+```
+
+**Color-Layer ist NICHT betroffen (verifiziert Slice 313):** `getScoreStyle` (`scoreColor.ts`) ist Single-Source 0–100; FormBars füttern `gw_score` (0–100), MatchTimeline `entry.score` (0–100), Fantasy-Badges `score`/`mvpScore` (0–100). **Kein Caller reicht ein rohes 1–10-`rating` durch** (`grep "getScore(Style|Hex|Bg|TextClass|BadgeStyle)\("` → alle Argumente 0–100-Skala). Die Divergenz ist also rein im **Zahlenwert** der zwei Tabellen, nicht in der Farb-Tier-Zuordnung.
+
+**Regel:** Bei jedem manuellen Eingriff in `fixture_player_stats.rating`/`fantasy_points` → `sync_fixture_scores(p_gameweek)` als Pflicht-Folgeschritt. Backlog (post-API-Key): Bridge als AFTER-UPDATE-Trigger absichern (gleiche Klasse wie D39 Trigger+GUC-Invariant), damit out-of-band-Mutationen nicht mehr desyncen können.
+
+**Beziehung:** Pattern-Familie mit „History-Gap-Tag-Sensitivität" (Slice 271, unten) + „Per-Tenant-Window vs Global-MAX" (Slice 270) — alle drei: temporale/cross-table-Aggregation, deren Frische an einem separaten Job hängt. **Reference:** S7-Registry §1.3/1.5 (`worklog/audits/2026-06-13/s7-source-of-truth-registry.md`), `scoring.admin.ts:154-190`, `fixtures.ts:629`.
+
 ### Leere Backfill-Platzhalter sehen aus wie „Balances ohne Audit-Trail" (Slice 306, 2026-06-13)
 
 **Bug-Klasse (Audit-Fehldiagnose):** Eine Balance/Aggregat-Tabelle hat N Zeilen, die zugehörige Ledger/Audit-Tabelle hat 0 Zeilen. Schnell-Schluss: „N Balances ohne Trail = Compliance-Risiko". **Falsch, wenn die N Zeilen leere Backfill-Platzhalter sind** (alle balance/earned/spent = 0, alle mit identischem `updated_at` = ein Batch-INSERT). Dann gibt es keine echte Aktivität → leerer Ledger ist korrekt, kein Risiko. Sibling zu „Seed-Wert-Poisoning" (Slice 303, unten): plausibel aussehende DB-Rows verleiten zur Fehl-Klassifikation.

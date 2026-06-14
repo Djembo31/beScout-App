@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 313 | 2026-06-14 | docs(learning): S7 Phase-2 P2/P3-Reste D77-Verifikation + rating-Chain-Bridge-Pattern
+
+- Stage-Chain: SPEC skipped (Doc-Slice) → IMPACT skipped (nur `.claude/rules` + `worklog`, keine gated Pfade) → BUILD (Doc-Edits) → REVIEW self-review (kein feat/fix/refactor; Pattern grep-verifiziert gegen Live-Code) → PROVE (`worklog/proofs/313-p2p3-reste-verify.txt`) → LOG.
+- Trigger: Anil-Track-Wahl „kleine P2/P3-Reste". D77-Disziplin: jeden Registry-Befund gegen Live-Code geprüft statt Behauptung übernommen → 3 von 4 non-actionable/bereits-mitigiert, 1 genuine Fragilität als Pattern festgehalten.
+- Befunde: **Player-#6** goals/assists Dual-Grain = bereits mitigiert (Season-Card='Saison-Statistiken'-Heading + MatchTimeline per-GW + `dataUntilGw`-Freshness). **getScoreStyle 1–10-Mis-Color (Z.64)** = sauber (alle Caller 0–100, kein 1–10-`rating`-Caller). **Trading-#6** Offers Dual-Source = intentional (2 Lese-Pfade, beide aktive Konsumenten: Dashboard-RPC=/market + offers.ts=KaderTab/Bestand) → defer post-Beta. **Player-#8** rating→fantasy_points→gw_score 3-Hop-Bridge = dokumentiert (kein Trigger, Sync via `sync_fixture_scores`/`admin_import_gameweek_stats`; Detection-SQL; Trigger-Absicherung post-API-Key-Backlog).
+- Files: `.claude/rules/errors-db.md` (neues autoloaded Pattern „Multi-Hop Cron-Bridge ohne Trigger"), `worklog/audits/2026-06-13/s7-source-of-truth-registry.md` (Player #6/#8 + §1.3 + Trading #6 auf ✅). Kein src/-Diff. 0 Reverts.
+- **S7-Phase-2 damit komplett abgearbeitet** — kein offener P0/P1/P2/P3-Demo/Money-Punkt mehr; verbleibt nur post-Beta-Migrationen (club String→UUID, League-Scope dual-axis) + API-Key-blockierte Punkte.
+
 ## 312 | 2026-06-14 | fix(compare): S7 Phase-2 Player-Residuum — /compare perf_l5/l15 matches-Guard
 
 - Stage-Chain: SPEC (`worklog/specs/312-compare-perf-l5-matches-guard.md`, XS, UI) → IMPACT skipped (1 File) → BUILD → REVIEW (`worklog/reviews/312-review.md`, reviewer-Agent **PASS**, 2 NITPICKs out-of-scope) → PROVE (`worklog/proofs/312-compare-l5-guard.txt`) → LOG.

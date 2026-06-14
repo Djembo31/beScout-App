@@ -1,0 +1,59 @@
+Slice 313 — S7-Phase-2 P2/P3-Reste: D77-Verifikation + Knowledge-Capture
+========================================================================
+Datum: 2026-06-14
+Typ: Doc-Slice (Knowledge-Promotion errors-db.md + S7-Registry-Wahrheit)
+Kein Code-Change in src/ — alle 3 named Findings als verifiziert non-actionable
+oder bereits-mitigiert belegt; 1 genuine Fragilität als Pattern festgehalten.
+
+== 1. getScoreStyle 1–10 Mis-Color-Verdacht (Registry §1.3 Z.64) → SAUBER ==
+grep "getScore(Style|Hex|Bg|TextClass|BadgeStyle)\(" src/**/*.tsx
+Alle Caller füttern 0–100-Skala:
+  player/index.tsx        getScoreStyle(l5)            — L5 0–100
+  FormBars.tsx:91         getScoreHex(entry.score)     — gw_score 0–100
+  TradingCardFrame.tsx    getScoreHex(entry.score)     — 0–100
+  MatchTimeline.tsx       getScoreHex(perfValue/score) — perf.l5/l15 + entry.score 0–100
+  GameweekScoreBar.tsx    getScoreHex(bar.score)       — 0–100
+  fantasy/* (8 Files)     getScoreBadgeStyle(score/mvpScore/getMatchScore) — 0–100
+→ KEIN Caller reicht ein rohes fixture_player_stats.rating (1–10) durch.
+→ Kein <45='Schwach'-Mis-Color-Bug. Verdacht widerlegt.
+
+== 2. Player-#6 goals/assists Dual-Grain → BEREITS MITIGIERT ==
+PerformanceTab.tsx:
+  - Season-Card Heading = t('seasonStats') = DE "Saison-Statistiken" / TR "Sezon İstatistikleri"
+    → 3-col Grid (Spiele/Tore/Assists) eindeutig als Saison-Rollup gelabelt.
+  - MatchTimeline.tsx: per-GW-Zeilen (GW{n} + Gegner + Tore/Assists pro Spiel)
+    + Freshness-Zeile t('dataUntilGw') = "Daten bis GW {gw} · {matches} Einsätze"
+    → Cron-Lag-Hinweis existiert bereits.
+→ Saison-vs-Spiel-Trennung + Cron-Lag-Hinweis sind vorhanden. Kein Code-Change nötig.
+
+== 3. Trading-#6 Offers Dual-Source → INTENTIONAL (defer) ==
+Zwei Lese-Pfade, beide mit aktiven Konsumenten:
+  a) lib/services/marketDashboard.ts getMarketUserDashboard → incoming_offers + open_bids
+     (RPC get_market_user_dashboard, Slice 122) — konsumiert von useMarketData (/market).
+  b) features/market/queries/offers.ts useIncomingOffers/useOpenBids
+     → lib/services/offers.ts getIncomingOffers/getOpenBids — KaderTab/Bestand-Surfaces.
+marketDashboard.ts:10-11 doku'd: open_bids pre-filtered = ownedByUserId-Branch von getOpenBids().
+→ Gewollte Surface-Trennung (konsolidierter /market-Round-Trip vs Einzel-Hooks).
+→ Konsolidieren = Live-Beta-Regressionsrisiko ohne User-Nutzen → defer post-Beta.
+
+== 4. Player-#8 rating-Chain 3-Hop-Bridge → DOKUMENTIERT (genuine Fragilität) ==
+Verkabelung verifiziert:
+  fixture_player_stats.rating (1–10) → fantasy_points=round(rating*10) (gleiche Zeile)
+  → player_gameweek_scores.score via RPC sync_fixture_scores.
+grep sync_fixture_scores (ohne worklog/):
+  scoring.admin.ts:164  importGameweek → admin_import_gameweek_stats ruft intern sync_fixture_scores
+  scoring.admin.ts:187  Manual-Fallback
+  fixtures.ts:629       Service-Wrapper supabase.rpc('sync_fixture_scores', {p_gameweek})
+→ KEIN DB-Trigger fixture_player_stats.rating-UPDATE → player_gameweek_scores.
+→ Out-of-band-Rating-Mutation desynct FormBars vs Match-Rating-Views still bis nächster Sync.
+→ Als Pattern festgehalten: errors-db.md „Multi-Hop Cron-Bridge ohne Trigger" (Detection-SQL +
+  Pflicht-Folgeschritt sync_fixture_scores + Trigger-Absicherung als post-API-Key-Backlog).
+
+== Artefakte ==
+- .claude/rules/errors-db.md  — neues Pattern (autoloaded, Future-Agent-Wert)
+- worklog/audits/2026-06-13/s7-source-of-truth-registry.md — Player #6/#8 + §1.3 + Trading #6 ✅
+
+== Review ==
+Self-review (Doc-Slice, kein src/-Diff, kein feat/fix/refactor): Pattern-Text gegen Live-Code
+verifiziert (grep-Belege oben), Registry-Markierungen entsprechen den Befunden. D77 eingehalten:
+jeder Befund gegen echten Code geprüft statt Registry-Behauptung übernommen.
