@@ -136,6 +136,21 @@ describe('dbToPlayer', () => {
     expect(p.prices.change24h).toBe(5.2);
   });
 
+  // Slice 308 (S7 Trading-#4): ipoPrice strictly from ipo_price, NO floor_price fallback.
+  it('ipoPrice = undefined when no IPO (ipo_price=0), NOT floor_price fallback', () => {
+    const db = createMockDbPlayer({ ipo_price: 0, floor_price: 50000 });
+    const p = dbToPlayer(db);
+    // Pre-308 this returned 500 (floor fallback) — now strictly undefined.
+    expect(p.prices.ipoPrice).toBeUndefined();
+    expect(p.prices.floor).toBe(500); // floor unchanged
+  });
+
+  it('ipoPrice = undefined when ipo_price is null', () => {
+    const db = createMockDbPlayer({ ipo_price: null as unknown as number, floor_price: 50000 });
+    const p = dbToPlayer(db);
+    expect(p.prices.ipoPrice).toBeUndefined();
+  });
+
   it('calculates perf trend correctly', () => {
     // l5 > l15 -> UP
     const dbUp = createMockDbPlayer({ perf_l5: 80, perf_l15: 60 });
@@ -231,10 +246,11 @@ describe('dbToPlayer', () => {
     expect(p.topOwners).toEqual([]);
   });
 
-  it('uses ipo_price as fallback when ipo_price is not null', () => {
+  it('maps ipoPrice from positive ipo_price (independent of floor)', () => {
+    // Slice 308: stale name fixed ('fallback' wording was pre-308 floor-fallback era).
     const db = createMockDbPlayer({ ipo_price: 75000, floor_price: 50000 });
     const p = dbToPlayer(db);
-    expect(p.prices.ipoPrice).toBe(750); // 75000 cents
+    expect(p.prices.ipoPrice).toBe(750); // 75000 cents, NOT floor (50000)
   });
 
   it('maps l5Apps and l15Apps from DB columns', () => {

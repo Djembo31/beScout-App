@@ -202,7 +202,7 @@
 | 1 | ~~P0 Money~~ ✅ **303** | ~~Floor 5-6 divergierende Berechnungen~~ → Teil C: alle Reader auf `players.floor_price`; resolveBuyPriceCents=floorBsd |
 | 2 | ~~P0 Money latent~~ ✅ **304** | `DbFeeConfig`-Typ um offer_*_bps + abo_discount_*_bps ergänzt (Slice 304) |
 | 3 | ~~P1~~ ✅ **303** | ~~2 Floors auf /market~~ → Trending+Liste teilen jetzt `players.floor_price` (computePlayerFloor=Passthrough) |
-| 4 | P1 | IPO-Preis `ipo_price ?? floor_price` vermischt Semantik |
+| 4 | ~~P1~~ ✅ **308** | ~~IPO-Preis `ipo_price ?? floor_price`~~ → dbToPlayer strikt aus ipo_price (undefined wenn kein IPO), Floor-Fallback entfernt |
 | 5 | ~~P1~~ ✅ **303** | ~~Holdings-Floor-Leak~~ → optimistic kommt jetzt aus RPC-Response statt Client-Recompute |
 | 6 | P1 | Offers Dual-Source (Dashboard-RPC + offers.ts), owned-Filter 2× |
 | 7 | P1 | Platform-Fee = Remainder, `trade_platform_bps` nie direkt genutzt (Doku-Drift) |

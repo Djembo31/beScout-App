@@ -2,13 +2,13 @@
 
 ```
 status: idle
-slice: 307 ✅ DONE
+slice: 308 ✅ DONE
 stage: LOG complete
-spec: worklog/specs/307-last5-scores-unification.md
-impact: skipped (kein Schema/RPC-Change; Consumer-Migration auf bereits-existierenden Kanon-Hook useRecentScores; gelöschter Code hat 0 Tests)
-proof: worklog/proofs/307-last5-unification.txt
-review: worklog/reviews/307-review.md (reviewer-Agent PASS, 1 NIT DRY-Helper deferred + 1 INFO enabled-loss accepted)
-decision: S7 Phase-2 #4/#6 last-5-Scores auf Kanon-RPC vereinheitlicht (getBatchFormScores gelöscht, 3 Picker-Consumer → useRecentScores). Floor (#1/Trading#1/#3/#5) bereits durch 303 Teil C, Value (#2) durch 305, FeeConfig durch 304 — Registry-Tabellen aktualisiert.
+spec: worklog/specs/308-ipo-price-strict.md
+impact: skipped (1-Zeilen-Mapper-Fix in dbToPlayer; alle prices.ipoPrice-Consumer bereits null/0-guarded — verifiziert)
+proof: worklog/proofs/308-ipo-price-strict.txt
+review: worklog/reviews/308-review.md (reviewer-Agent PASS, 1 INFO benign enriched.ts dead-branch + 1 NITPICK stale Test-Name in-slice gefixt)
+decision: S7 Phase-2 Trading-#4 — IPO-Preis strikt aus ipo_price (kein floor-Fallback). QUEUE (Anil-Batch): Player-#3-A (Pill aus Bars, Anil-confirmed Option A), Fantasy-#1 (active_gameweek drift, preventiv — live-drift aktuell 0), Fantasy-#5 (GW-Status 3×).
 ```
 
 ## Zuletzt

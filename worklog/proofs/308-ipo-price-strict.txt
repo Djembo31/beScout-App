@@ -1,0 +1,18 @@
+=== Slice 308 — IPO-Preis strikt — PROVE ===
+Date: 2026-06-14
+
+### AC-3: kein floor-Fallback fuer ipoPrice ###
+230:      ipoPrice: db.ipo_price && db.ipo_price > 0 ? centsToBsd(db.ipo_price) : undefined,
+
+### AC-1/AC-2: tests ###
+players.test.ts: ipo_price=0 -> undefined (nicht floor 500) | null -> undefined | 75000 -> 750 (nicht floor 500)
+
+### AC-4: tsc + domain tests ###
+tsc --noEmit: clean
+vitest players.test.ts: see above
+vitest src/components/player: 225/225
+vitest src/features/market: 152/152 (BestandView/MarketContent consumers)
+
+### Consumer-Guards (alle null/undefined-safe) ###
+RewardsTab:39 (?? 0 +>0) | TradingTab:95/121 (? : undefined) | BestandView:381 (?? null) | enriched.ts:81 (dead branch, floor NOT-NULL)
+KaderTab (activeIpo.price) + SearchOverlay (DbSearchResult) = andere Pfade, unbetroffen

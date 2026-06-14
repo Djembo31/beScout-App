@@ -225,7 +225,9 @@ export function dbToPlayer(db: DbPlayer): Player {
       lastTrade: lastBsd,
       change24h: Number(db.price_change_24h),
       floor: floorBsd,
-      ipoPrice: centsToBsd(db.ipo_price ?? db.floor_price),
+      // Slice 308: strictly from ipo_price — NO floor_price fallback (semantic mix, S7 Trading-#4).
+      // undefined when no IPO (ipo_price null/0); consumers guard (?? 0 / >0 / ? :).
+      ipoPrice: db.ipo_price && db.ipo_price > 0 ? centsToBsd(db.ipo_price) : undefined,
       initialListingPrice: db.initial_listing_price ? centsToBsd(db.initial_listing_price) : undefined,
     },
     dpc: {

@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 308 | 2026-06-14 | fix(market): S7 Phase-2 Trading-#4 — IPO-Preis strikt aus ipo_price
+
+- Stage-Chain: SPEC (`worklog/specs/308-ipo-price-strict.md`, S, Money-Display) → IMPACT skipped (1-Zeilen-Mapper; alle Consumer null/0-guarded verifiziert) → BUILD → REVIEW (`worklog/reviews/308-review.md`, reviewer-Agent **PASS**, 1 INFO + 1 NITPICK in-slice) → PROVE (`worklog/proofs/308-ipo-price-strict.txt`) → LOG.
+- Trigger: S7-Registry Trading-#4 (P1, §3.7) — `dbToPlayer` mappte `ipoPrice = centsToBsd(ipo_price ?? floor_price)`; der Floor-Fallback vermischt Semantik (Spieler ohne IPO zeigte Floor als „IPO-Preis"). Anil-Batch-Auswahl.
+- Fix: `players.ts:230` → `ipoPrice: db.ipo_price && db.ipo_price > 0 ? centsToBsd(db.ipo_price) : undefined`. Typ `ipoPrice?: number` bereits optional → kein Typ-Change. +3 Tests (0→undefined nicht floor, null→undefined, 75000→750), 1 stale Test-Name gefixt.
+- Consumer-Safety: alle 5 prices.ipoPrice-Consumer geguardet (RewardsTab `?? 0`+`>0`, TradingTab `? : undefined` ×2, BestandView `?? null`, enriched.ts dead-branch da floor NOT-NULL). KaderTab/SearchOverlay nutzen andere Quellen.
+- Reviewer-Learning: bei Mapper-Field-Changes auch `grep src/lib/queries/` (Enrichment-Layer) — enriched.ts war von Spec §4 übersehen (benign).
+- Files: 2 (players.ts + test). tsc clean, vitest players 33/33 + player 225/225 + market 152/152. 0 Reverts.
+
 ## 307 | 2026-06-14 | refactor(fantasy): S7 Phase-2 #4/#6 — last-5-Scores Unifikation auf Kanon-RPC
 
 - Stage-Chain: SPEC (`worklog/specs/307-last5-scores-unification.md`, M, Refactor/non-Money) → IMPACT skipped (kein Schema/RPC-Change; Migration auf existierenden Kanon-Hook; gelöschter Code 0 Tests) → BUILD → REVIEW (`worklog/reviews/307-review.md`, reviewer-Agent **PASS**, 1 NIT + 1 INFO) → PROVE (`worklog/proofs/307-last5-unification.txt`) → LOG.
