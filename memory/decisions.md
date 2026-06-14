@@ -3414,3 +3414,19 @@ Die Master-Audit-Anti-Kreis-Regeln (§11) waren reine Prosa → 0 Enforcement �
 **Stand 2026-06-13:** Phase 1 = 3/9 P0-Domänen gemappt (Player/Fantasy/Trading). Phase 2 = #1 Floor (303) · #2 DbFeeConfig-Typ (304) · #3 Orphan-Value-Removal (305) live. Offen: #4 Wildcard-Ledger + 6 P1-Domänen. 6 systemische Muster als generische Klassen (Floor-Mehrfach · Schema≠Typ · 2-Spalten/2-Impls · leerer Ledger · orphan-Feature · dormant-by-external-dep).
 
 **Re-Visit-Trigger:** Wenn alle P0-Befunde migriert + Ratchets grün → entscheiden ob die 6 P1-Domänen gemappt werden oder Programm als „Demo-/Money-Path harmonisiert" geschlossen wird.
+
+---
+
+## D77 — PROCESS: Registry/Audit-Steering-Doc-Findings gegen Live-Code verifizieren VOR Behandlung als offen
+
+**Datum:** 2026-06-14 · **Status:** Aktiv
+
+**Kontext:** Session „gehe die findings an" (S7-Phase-2). Die S7-Registry (`worklog/audits/2026-06-13/s7-source-of-truth-registry.md`, geschrieben in Slice 302) listete Floor (Player-#1/#3, Trading-#1/#3/#5, P0 Money) + Wildcard-Ledger (#3/#4, P1 „Compliance-Risiko") als offen. Live-Verifikation zeigte: **Floor war bereits durch Slice 303 Teil C geschlossen** (computePlayerFloor=Passthrough, Math.min entfernt — Registry war seit 303 stale), und der **Wildcard-„Compliance-Risiko"-Befund war ein Fehlalarm** (35 leere Backfill-Platzhalter, Ledger-Pfad korrekt, 0 Aktivität). Ohne Verifikation hätte ich Floor neu konsolidiert (Doppelarbeit) bzw. ein nicht-existentes Risiko „gefixt".
+
+**Entscheidung:** Bevor ein Registry-/Audit-Doc-Finding als offene Arbeit behandelt wird, MUSS es gegen den aktuellen Live-Stand verifiziert werden — Code (`grep`/Datei lesen) UND Daten (`pg_get_functiondef` / `SELECT`-Counts/Werte). Steering-Docs sind ein Snapshot ihres Schreibzeitpunkts, keine Wahrheit. Erst verifizieren, dann specen/bauen. Bei Abweichung: Registry-Eintrag korrigieren (✅/widerlegt mit Evidence + Slice-Ref), damit der Drift nicht zurückkommt.
+
+**Begründung:** Audit-Docs driften zwischen Schreiben und Abarbeiten (andere Slices schließen Findings, ohne das Doc zu pflegen). „Finding existiert im Doc" ≠ „Problem existiert im Code". Zwei Fehlerklassen verhindert: (a) Redo bereits-erledigter Arbeit (Floor/303), (b) Fixen von Fehl-Diagnosen (Wildcard-Risiko/306). Schwester-Lektion zu errors-db.md „Leere Backfill-Platzhalter" (Slice 306) auf Process-Achse.
+
+**Alternativen erwogen:** (a) Registry blind als Arbeits-Queue abarbeiten — verworfen (führt zu Redo + Fehl-Fixes). (b) Registry bei jedem Slice live-synchron halten — unrealistisch (Pflege-Overhead, Findings schließen sich quer). Stattdessen: Verifikation am Abarbeitungs-Zeitpunkt (lazy, evidenzbasiert) + Korrektur-Pflicht bei Abweichung.
+
+**Anwendung diese Session:** Player/Fantasy/Trading Top-Befunde-Tabellen + Übergreifende-Muster #4 korrigiert (✅-Markierung + Slice-Ref) für 303/304/305/306/307/308. Verhindert dass nächste Session erledigte Findings erneut aufgreift.

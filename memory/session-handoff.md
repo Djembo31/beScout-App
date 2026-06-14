@@ -1,26 +1,62 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-14 00:08)
+# Session Handoff — Auto (2026-06-14 12:35)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 4 Files
 ```
  M memory/session-handoff.md
+?? worklog/audits/audit-stale-2026-06-14.md
+?? worklog/audits/type-truth-2026-06-14.md
+?? worklog/audits/wiring-2026-06-14.md
 ```
 
-## Session Commits: 6
-- e809b55c fix(fantasy): Slice 306 — S7 Phase-2 #4 Wildcard-Ledger dormant + swallow→throw
-- 8f591c4f docs(distill): D76 S7-Harmonisierung + Resume-Anker (Session-End 301-305)
-- 9580e52d refactor(market): Slice 305 — Orphan Community-Valuation Removal (S7 Phase-2 #3)
-- c9519e24 fix(types): Slice 304 — DbFeeConfig Type-Schema Alignment (S7 Phase-2 #2)
-- eb0f146b feat(market): Slice 303 — Floor-Price Source-of-Truth Consolidation (S7 Phase-2 #1)
-- cd407b8d docs(audit): Slice 302 — S7 Source-of-Truth & Wiring Registry (Foundation + 3 P0-Domänen)
+## Session Commits: 1
+- 0944347d fix(market): Slice 308 — S7 Trading-#4 IPO-Preis strikt aus ipo_price
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-13 spät — S6 + S7-Registry + S7-Phase-2 #1–#3, 5 Slices)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-14 — S7-Phase-2 #4 + last-5 + IPO, „gehe die findings an")
+
+**Status: idle** · HEAD `0944347d` (308) · 3 Slices diese Session (306/307/308), alle reviewt PASS, **0 Reverts** (seit 261).
+
+## ⚠️ OFFENE QUEUE — Anil-Batch „gehe die findings an" (4 gewählt, 1 erledigt) — Decisions schon eingeholt, direkt baubar
+
+### 1. Player-#3 — L5-Pill aus Bars ableiten (P0 Demo) · **Anil-Decision: Option A** (confirmed 2026-06-14)
+- KaderTab/KaderPlayerRow zeigt L5-Pill (`perf.l5` Cron-Skalar) UND FormBars (last-5) in einer Zeile → Cron-Lag-Widerspruch. Option A = **Pill = avg(bars)** aus denselben `useRecentScores`-Daten.
+- **VOR BUILD Scale prüfen:** `fantasy.md` perf_l5 = AVG(letzte 5)/1.5 (GW-Scores 40-150 → 0-100); FormBars rendern score/100. SQL-Check exakte Relation: `SELECT perf_l5, (SELECT array_agg(score ORDER BY gameweek DESC) FROM player_gameweek_scores p2 WHERE p2.player_id=p.id) FROM players p WHERE matches>5 LIMIT 5` → derivedL5 muss 0-100-Skala + Color-Tiers (`getL5ColorWithMatches`) treffen.
+- Files: `KaderPlayerRow.tsx` (PerfPills Z.79/91 + L5-Circle Z.274), evtl. `KaderTab.tsx` sort 'l5' Z.66. Edge: keine scores → Fallback perf.l5.
+- **Tighter-Scope:** nur Row-Pill derivieren (sichtbarer Widerspruch), Sort auf perf.l5 lassen + dokumentieren.
+
+### 2. Fantasy-#1 — active_gameweek 2-Spalten-Drift (P1, **preventiv** — live-Drift aktuell 0)
+- Alle 7 Ligen aktuell clubs-MIN===leagues (Slice-277-Dual-Write). Kein akuter Bug.
+- **VOR BUILD:** `pg_get_functiondef('public.set_active_gameweek(...)')` — schreibt nur clubs (=Drift-Risiko) oder dual? Service: `club.ts:614`.
+- Ziel (Registry §2.1): leagues=einzige Lese-Wahrheit; set_active_gameweek dual-write; Drift-Guard-Ratchet (clubs-MIN===leagues, D75-Stil); `FantasyContent.handleSimulated:165` von `getActiveGameweek(clubId)` (clubs) auf leagues. Consumer: AdminGameweeksTab:29, AdminSettingsTab:538, useActiveGameweek (events.ts:65). Migration wahrsch. → REVIEW Pflicht.
+
+### 3. Fantasy-#5 — GW-Status 3× berechnet (P1)
+- `getGameweekStatuses.is_complete` vs `useGameweek.gwStatus` (mischt events) vs `SpieltagTab.gwStatus` (lokal) → EINE `computeGwStatus(fixtures, events)` geteilt; SpieltagTab auf React-Query. Live-Pfad dormant (API-Key).
+
+## Was diese Session lief (Start „weiter im handoff" → „gehe die findings an")
+1. **306** `e809b55c` — S7 #4 Wildcard-Ledger: Risiko-These widerlegt (35 leere Backfill-Rows, Ledger-Pfad korrekt → dormant, KEIN Risiko). swallow→throw. Anil „A".
+2. **307** `5f377dc4` — #4/#6 last-5 Unifikation: `getBatchFormScores` (Global-limit-Bug) gelöscht, Picker → Kanon-RPC `useRecentScores`. DNP jetzt dashed.
+3. **308** `0944347d` — Trading-#4 IPO-Preis strikt aus `ipo_price` (floor-Fallback raus).
+4. **Discovery:** Floor (P#1/#3, T#1/#3/#5) bereits durch **303 Teil C** geschlossen (verifiziert); Value-#2 durch 305; FeeConfig durch 304 → Registry-Tabellen aktualisiert (Redo verhindert).
+
+## S7-Phase-2 Stand
+✅ #1 Floor(303) · #2 Value(305) · FeeConfig(304) · #3 Wildcards(306) · #4/#6 last-5(307) · Trading-#4 IPO(308)
+⏳ Player-#3(A,queued) · Fantasy-#1(preventiv) · Fantasy-#5 · +Reste (Offers Dual-Source, 24h-Change 3×, club-string-vs-uuid, goals/assists dual-grain, events>38, league-scope dual-axis)
+🔴 Fantasy-#2/#7 (API-Key blockiert)
+
+## Carry-over (Anil-Action)
+- **🚨 API-Football-Key suspendiert seit 06.05.** → 284b + Fantasy-#2/#7. dashboard.api-football.com.
+- **TR-Review (3):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
+- **Backlog (286):** `clubs.ts` non-reaktives Cache-Pattern (falls render-time `useMemo(() => getClub(...))`).
+
+---
+
+# 🎯 RESUME-ANKER ARCHIV (2026-06-13 spät — S6 + S7-Registry + S7-Phase-2 #1–#3, 5 Slices)
 
 **Status: idle** · HEAD `9580e52d` · origin/main synchron · Working tree clean. **0 Reverts** (durchgehend seit Slice 261).
 
