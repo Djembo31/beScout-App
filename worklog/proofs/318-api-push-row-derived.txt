@@ -1,0 +1,65 @@
+Slice 318 — /api/push Row-Derived — PROOF
+==========================================
+Datum: 2026-06-14
+Scope: S7 Phase-2 #4 (P1 Security). Push-Inhalt server-seitig aus Notification-Row statt Client-Free-Text.
+
+[1] Vuln-Baseline (vor Fix)
+--------------------------
+/api/push akzeptierte {userId, title, body, url, tag} frei vom Client → jeder authenticated User
+konnte beliebigem Opfer eine Push mit frei wählbarem Text + EXTERNER URL senden (Phishing).
+RLS-Kontext: notifications_insert_any_authenticated = WITH CHECK(auth.uid() IS NOT NULL) (cross-user-Insert),
+SELECT/UPDATE own-only (auth.uid()=user_id).
+
+[2] tsc
+-------
+=== TSC EXIT: 0 ===  (clean)
+
+[3] Contract-Change (grep-verifiziert)
+--------------------------------------
+Client (notifications.ts:205-208): fetch('/api/push', { body: JSON.stringify({ notificationId }) })
+  → KEIN userId/title/body/url mehr vom Client.
+Route (route.ts:39): const { notificationId } = body  → einziges akzeptiertes Feld.
+  401 unauth · 400 missing notificationId · 404 row nicht gefunden.
+  Inhalt 100% server-derived via sendPushForNotification (pushSender.ts).
+firePush callers tragen die Row-id:
+  :249 firePush(notificationId, userId, ...)      (createNotification)
+  :394 firePush(row.id, row.user_id, ...)         (createNotificationsBatch)
+
+[4] Server-Derivation (pushSender.sendPushForNotification)
+----------------------------------------------------------
+- service-role Admin-Client liest Row (kann cross-user, SELECT-RLS bypassed).
+- title/body/userId/tag = aus Row; URL = resolveDeepLink(reference_type, reference_id) → IMMER interner
+  Deep-Link, NIE Client-URL → externer-Phishing-URL-Vektor geschlossen.
+- Row nicht gefunden → return false → Route 404.
+
+[5] Row-Read Query-Shape live verifiziert
+-----------------------------------------
+SELECT id, user_id, type, title, body, reference_id, reference_type FROM notifications ORDER BY created_at DESC LIMIT 2
+→ 2 Rows (achievement-Notifications) mit allen Feldern → exakte Spalten die sendPushForNotification liest, valide.
+
+[6] Client-id-Generierung (cross-user-SELECT-RLS-Lösung)
+-------------------------------------------------------
+createNotification/createNotificationsBatch INSERTen explizite crypto.randomUUID()-id (Read-Back via .select()
+scheitert bei cross-user-Rows wegen SELECT-RLS auth.uid()=user_id). id → firePush → Route → admin-read.
+
+[7] resolveDeepLink geteilt (kein Drift)
+----------------------------------------
+Neues pures Util src/lib/notificationDeepLink.ts (kein supabase-Import) → notifications.ts + pushSender.ts
+importieren beide; lokale Kopie in notifications.ts entfernt.
+
+[7b] Regression-Tests (Reviewer-Finding #1 — Korrektur)
+-------------------------------------------------------
+notifications-v2.test.ts + notifications-batch.test.ts existieren (Spec-Behauptung "keine
+notifications.test.ts" war ungenau — grep nur auf exakten Namen). Beide push-agnostisch
+(asserten kein Push-Verhalten; Client-fetch-Pfad, Fehler swallowed) → Contract-Wechsel unberührt.
+CI=true vitest: 2 Files, 29 passed.
+
+[8] Residual (dokumentiert — eigener Slice)
+-------------------------------------------
+notifications_insert_any_authenticated erlaubt weiterhin cross-user Row-Insert mit Free-Text → Angreifer kann
+eine sichtbare in-app-Notification + Push mit Text erzeugen, ABER: interner URL only + DB-Trace (auditierbar).
+Echte Wurzel = cross-user-Notification-Creation auf SECURITY-DEFINER-RPCs (großer Refactor, Beta-Risiko) → Backlog.
+
+ERGEBNIS: /api/push liefert nur noch Inhalt der als DB-Row existiert, an die Row-userId, mit internem URL.
+Arbitrary-userId + arbitrary-external-URL + Free-Text-Spoof am Push-Layer geschlossen.
+Legitime Notifications (in-app + push) unverändert funktionsfähig.

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSupabaseError } from '@/lib/supabaseErrors';
+import { resolveDeepLink } from '@/lib/notificationDeepLink';
 import type { NotificationType, NotificationCategory, NotificationPreferences, DbNotification } from '@/types';
 
 // ============================================
@@ -187,41 +188,24 @@ export async function markAllAsRead(userId: string): Promise<void> {
 // PUSH NOTIFICATION DELIVERY
 // ============================================
 
-/** Resolve a deep-link URL from reference metadata */
-function resolveDeepLink(referenceType?: string, referenceId?: string): string {
-  if (!referenceType) return '/';
-  switch (referenceType) {
-    case 'event': return '/fantasy';
-    case 'player': return `/player/${referenceId}`;
-    case 'offer': return '/market?tab=angebote';
-    case 'research': return '/community?tab=research';
-    case 'bounty': case 'poll': return '/community?tab=aktionen';
-    case 'prediction': return '/fantasy';
-    case 'mission': return '/missions';
-    case 'achievement': return '/profile';
-    case 'profile': return referenceId ? `/profile/${referenceId}` : '/profile';
-    case 'post': return '/community';
-    default: return '/';
-  }
-}
-
 /**
  * Send a web push notification — works from BOTH client and server.
- * Server-side: calls sendPushToUser directly (web-push needs Node).
- * Client-side: hits POST /api/push which calls sendPushToUser server-side.
+ * Server-side: calls sendPushToUser directly with the server-constructed content (trusted).
+ * Client-side: hits POST /api/push with ONLY the notificationId; the server derives all push
+ * content from the DB row (Slice 318 anti-spoof — client never controls push title/body/url/userId).
  */
-function firePush(userId: string, title: string, body?: string, url?: string, tag?: string): void {
+function firePush(notificationId: string, userId: string, title: string, body?: string, url?: string, tag?: string): void {
   if (typeof window === 'undefined') {
-    // Server-side: direct import
+    // Server-side: direct import (content is server-constructed, trusted)
     import('./pushSender').then(({ sendPushToUser }) => {
       sendPushToUser(userId, { title, body, url, tag });
     }).catch((err) => console.error('[Push] Server-side import failed:', err));
   } else {
-    // Client-side: proxy via API route
+    // Client-side: proxy via API route — pass only the row id, server reads the row.
     fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, title, body, url, tag }),
+      body: JSON.stringify({ notificationId }),
     }).catch((err) => console.error('[Push] Client-side API call failed:', err));
   }
 }
@@ -242,7 +226,11 @@ export async function createNotification(
     if (!prefs[category]) return; // User disabled this category
   }
 
+  // Client-generated id so we can reference the row for push delivery WITHOUT a SELECT
+  // read-back (cross-user notifications can't be re-selected under RLS). Slice 318.
+  const notificationId = crypto.randomUUID();
   const { error } = await supabase.from('notifications').insert({
+    id: notificationId,
     user_id: userId,
     type,
     title,
@@ -258,7 +246,7 @@ export async function createNotification(
 
   // Fire-and-forget push notification (works from client AND server)
   const url = resolveDeepLink(referenceType, referenceId);
-  firePush(userId, title, body ?? undefined, url, type);
+  firePush(notificationId, userId, title, body ?? undefined, url, type);
 }
 
 // ============================================
@@ -382,8 +370,9 @@ export async function createNotificationsBatch(items: BatchNotificationInput[]):
 
   if (filtered.length === 0) return;
 
-  // Single bulk INSERT
+  // Single bulk INSERT with client-generated ids (referenced for push without SELECT read-back). Slice 318.
   const rows = filtered.map((item) => ({
+    id: crypto.randomUUID(),
     user_id: item.userId,
     type: item.type,
     title: item.title,
@@ -400,8 +389,8 @@ export async function createNotificationsBatch(items: BatchNotificationInput[]):
   }
 
   // Fire-and-forget push notifications (works from client AND server)
-  for (const item of filtered) {
-    const url = resolveDeepLink(item.referenceType, item.referenceId);
-    firePush(item.userId, item.title, item.body ?? undefined, url, item.type);
+  for (const row of rows) {
+    const url = resolveDeepLink(row.reference_type, row.reference_id);
+    firePush(row.id, row.user_id, row.title, row.body ?? undefined, url, row.type);
   }
 }

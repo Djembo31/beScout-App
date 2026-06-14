@@ -1,6 +1,7 @@
 import webpush from 'web-push';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
+import { resolveDeepLink } from '@/lib/notificationDeepLink';
 
 // Lazy-initialized to avoid build-time crashes when env vars aren't available
 let _supabaseAdmin: SupabaseClient | null = null;
@@ -94,4 +95,39 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
       console.error('[Push] Failed to clean stale subscriptions:', deleteError.message);
     }
   }
+}
+
+/**
+ * Slice 318: Send a push for an EXISTING notification row — all content is derived
+ * server-side from the DB row (never client free-text). The client (firePush) only
+ * passes the notificationId; this prevents the /api/push phishing/spam vector where a
+ * caller could push arbitrary userId + title/body + external URL.
+ *
+ * Uses the service-role admin client to read the row (the row may belong to another user
+ * for legitimate cross-user notifications, which the caller cannot SELECT under RLS).
+ * Returns false if the notification does not exist.
+ */
+export async function sendPushForNotification(notificationId: string): Promise<boolean> {
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data: notif, error } = await supabaseAdmin
+    .from('notifications')
+    .select('user_id, type, title, body, reference_id, reference_type')
+    .eq('id', notificationId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[Push] sendPushForNotification: row lookup failed:', error.message);
+    return false;
+  }
+  if (!notif) return false;
+
+  // URL is ALWAYS a server-resolved internal deep-link — never a client-supplied URL.
+  const url = resolveDeepLink(notif.reference_type, notif.reference_id);
+  await sendPushToUser(notif.user_id, {
+    title: notif.title,
+    body: notif.body ?? undefined,
+    url,
+    tag: notif.type,
+  });
+  return true;
 }

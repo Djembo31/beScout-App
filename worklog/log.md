@@ -7436,3 +7436,12 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Live-Smokes: Angreifer(authenticated)=alle frozen+bio ok / postgres=bypass / GUC=bypass / RPC setzt invited_by trotz Trigger. is_security_definer=false verifiziert (KRITISCH)
 - Files: 2 Migrationen (317 Trigger + 317b RPC), referral.ts, referral.test.ts (22 grün), errors-db.md (D39 + Audit-Pflicht)
 - Review: worklog/reviews/317-review.md | Proof: worklog/proofs/317-profiles-rls-guard.txt
+
+## 318 | 2026-06-14 | fix(security): /api/push Row-Derived (S7 Phase-2 #4)
+- Stage-Chain: SPEC → IMPACT (inline) → BUILD → REVIEW (PASS, 3 LOW/INFO) → PROVE → LOG
+- #4: /api/push trust client {userId,title,body,url} → jeder authed User konnte Phishing-Push (Free-Text + externe URL) an Opfer senden
+- Fix: Client sendet nur {notificationId}; sendPushForNotification (pushSender, service-role) liest Row + derived title/body/userId/tag; URL IMMER server-resolveDeepLink (intern) → externer-Phishing-URL-Vektor strukturell zu
+- Client-generierte crypto.randomUUID()-id (cross-user SELECT-RLS blockt .select()-Read-Back); resolveDeepLink in pures Util src/lib/notificationDeepLink.ts extrahiert (geteilt, kein Drift)
+- Residual (dokumentiert, Backlog): notifications_insert_any_authenticated cross-user RLS → cross-user-Notification-Creation auf SEC-DEFINER-RPCs (großer Slice)
+- Files: route.ts, pushSender.ts, notifications.ts, notificationDeepLink.ts (neu). tsc clean, notifications-Tests 29/29 grün
+- Review: worklog/reviews/318-review.md | Proof: worklog/proofs/318-api-push-row-derived.txt

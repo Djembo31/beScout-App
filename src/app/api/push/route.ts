@@ -1,24 +1,25 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { sendPushToUser, type PushPayload } from '@/lib/services/pushSender';
+import { sendPushForNotification } from '@/lib/services/pushSender';
 import { withLogger } from '@/lib/observability/apiLogger';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 /**
- * POST /api/push — Send a web push notification to a user.
- * Called by createNotification/createNotificationsBatch from the client
- * since web-push requires Node.js (server-side only).
+ * POST /api/push — Deliver a web push for an EXISTING notification row.
+ * Called by createNotification/createNotificationsBatch from the client (web-push needs Node).
  *
- * Body: { userId: string } & PushPayload
- * Security: Auth check — caller must be authenticated. Cross-user push is allowed
- * (e.g., trade notification to seller) since the caller is already authenticated
- * and the notification was already inserted into the DB via RLS-protected insert.
+ * Body: { notificationId: string }
+ * Security (Slice 318): the caller passes ONLY a notificationId. ALL push content
+ * (target user, title, body, url, tag) is derived server-side from the DB row via the
+ * service-role admin client — never from client free-text. This closes the previous
+ * phishing/spam vector (arbitrary userId + title/body + external URL).
+ * Residual: notifications INSERT is still cross-user (notifications_insert_any_authenticated) —
+ * tracked as a separate slice (move cross-user notification creation to SECURITY DEFINER RPCs).
  */
 export const POST = withLogger('public.push', async (request) => {
   try {
-    // Auth check: verify caller is the target user
     const supabase = createServerClient(
       supabaseUrl,
       supabaseAnonKey,
@@ -35,27 +36,18 @@ export const POST = withLogger('public.push', async (request) => {
     }
 
     const body = await request.json();
-    const { userId, title, body: pushBody, url, tag } = body as {
-      userId: string;
-      title: string;
-      body?: string;
-      url?: string;
-      tag?: string;
-    };
+    const { notificationId } = body as { notificationId?: string };
 
-    if (!userId || !title) {
-      return NextResponse.json({ error: 'Missing userId or title' }, { status: 400 });
+    if (!notificationId) {
+      return NextResponse.json({ error: 'Missing notificationId' }, { status: 400 });
     }
 
-    // Auth verified — cross-user push allowed (e.g., seller notifications after trade)
-    // The notification row was already RLS-checked on INSERT, push is just delivery
-
-    const payload: PushPayload = { title, body: pushBody, url, tag };
-
-    // Fire-and-forget: don't block the response on push delivery
-    sendPushToUser(userId, payload).catch((err) =>
-      console.error('[API/Push] sendPushToUser failed:', err)
-    );
+    // Content is derived 100% from the notification row (server-side). If the row does not
+    // exist, there is nothing legitimate to deliver.
+    const found = await sendPushForNotification(notificationId);
+    if (!found) {
+      return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
