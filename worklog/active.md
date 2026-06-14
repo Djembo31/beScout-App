@@ -2,8 +2,13 @@
 
 ```
 status: idle
-slice: 311
+slice: 312
 stage: LOG complete ✅ DONE
+spec: worklog/specs/312-compare-perf-l5-matches-guard.md
+impact: skipped (1 File UI-Display; fmtPerfL5-Pattern Slice 271)
+proof: worklog/proofs/312-compare-l5-guard.txt
+review: worklog/reviews/312-review.md (reviewer-Agent PASS, 2 NITPICKs out-of-scope; Radar-Achse bewusst Scope-Out)
+decision: Sweep der P2/P3-Residuen — /compare zeigte L5/L15 roh (Slice-271-Bug übersehen). Fix: fmtPerfL5 + guardByMatches. Andere Residuen verifiziert: Lineup-Set=false-positive (kein persist), Offers-Dual=verschiedene Surfaces (kein Refactor), 24h-Change 2 Pfade konsistent, club-String/League-dual-axis=post-Beta-Migration. fantasy.md /1.5 korrigiert (D77).
 spec: worklog/specs/311-gwstatus-single-source.md
 impact: skipped (gwStatus-Consumer enumeriert in Spec §4; reine Logik-Unifikation, Output-Typ 'open'|'simulated'|'empty' unverändert)
 proof: worklog/proofs/311-gwstatus.txt

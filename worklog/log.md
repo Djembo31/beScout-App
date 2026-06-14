@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 312 | 2026-06-14 | fix(compare): S7 Phase-2 Player-Residuum — /compare perf_l5/l15 matches-Guard
+
+- Stage-Chain: SPEC (`worklog/specs/312-compare-perf-l5-matches-guard.md`, XS, UI) → IMPACT skipped (1 File) → BUILD → REVIEW (`worklog/reviews/312-review.md`, reviewer-Agent **PASS**, 2 NITPICKs out-of-scope) → PROVE (`worklog/proofs/312-compare-l5-guard.txt`) → LOG.
+- Trigger: P2/P3-Residuen-Sweep (Registry §1.5 Player perf_l5=50). Slice 271 mitigierte den DB-Default-50-Display-Bug, aber `/compare` wurde übersehen → 0-Match-Junior zeigte „L5: 50" (Dropdown + Vergleichstabelle inkl. best/worst-Highlight).
+- Fix: `fmtPerfL5(p.perf_l5, p.matches)` im Such-Dropdown; `guardByMatches`-Flag auf L5/L15-statRows → 0-Match-Spieler zeigt „—", zählt nicht in best/worst (cells=null, maxVal/minVal nur über present-Werte).
+- Files: 1 (`compare/page.tsx`). tsc clean. 0 Reverts.
+- **P2/P3-Residuen-Sweep verifiziert** (D77-Disziplin: gegen Live-Code prüfen): Lineup wildcardSlots:Set = false-positive (kein persist/cache, in-memory); Offers Dual-Source = verschiedene Surfaces (Dashboard-Badges vs OffersTab-Management, keine Redundanz); 24h-Change = 2 Service-Pfade lesen dieselbe `price_change_24h` (konsistent); club String-vs-UUID + League-Scope dual-axis = post-Beta-Migration (groß/Risiko); fantasy.md /1.5-Doc korrigiert (commit `e57ffd36`, D77-Closure).
+
 ## 311 | 2026-06-14 | refactor(fantasy): S7 Phase-2 Fantasy-#5 — GW-Status Single-Source computeGwStatus
 
 - Stage-Chain: SPEC (`worklog/specs/311-gwstatus-single-source.md`, S–M, UI+Service-DRY) → IMPACT skipped (gwStatus-Consumer enumeriert; Output-Typ unverändert) → BUILD → REVIEW (`worklog/reviews/311-review.md`, reviewer-Agent **PASS**, 0 Findings) → PROVE (`worklog/proofs/311-gwstatus.txt`) → LOG.

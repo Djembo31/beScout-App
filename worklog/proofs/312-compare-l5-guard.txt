@@ -1,0 +1,42 @@
+Slice 312 — /compare perf_l5/l15 matches-Guard (Player perf_l5=50-Residuum)
+==========================================================================
+Datum: 2026-06-14
+
+[PROBLEM]
+players.perf_l5/perf_l15 DB-Default 50.00 NOT NULL. Slice 271 mitigierte display-
+seitig (fmtPerfL5 matches=0 → "—"), ABER /compare wurde übersehen:
+ - compare/page.tsx:222 Such-Dropdown: roh `L5: {p.perf_l5}` → 0-Match-Junior "L5: 50"
+ - statRows-Tabelle (perf_l5/perf_l15): roh "50" + best/worst-Highlight gegen Phantom-50
+
+[FIX]
+1. Such-Dropdown Z.223: fmtPerfL5(p.perf_l5, p.matches) → "—" bei matches=0.
+2. statRows Z.106/107: guardByMatches:true auf L5/L15.
+   Render Z.269-292: cells = null wenn guarded+matches=0; best/worst nur über
+   present (non-null) Werte; Anzeige "—" bei null.
+
+[VERIFY]
+npx tsc --noEmit → EXIT 0 (clean)
+grep bestätigt:
+  :9    import fmtPerfL5
+  :106  L5 guardByMatches:true
+  :107  L15 guardByMatches:true
+  :223  L5: {fmtPerfL5(p.perf_l5, p.matches)}
+  :275  guarded = row.guardByMatches && (p.matches ?? 0) === 0
+  :290  v === null ? '—' : ...
+
+[AC-MATRIX]
+ AC-1 Dropdown 0-Match → "—" ................... ✓ fmtPerfL5
+ AC-2 statRows L5/L15 0-Match → "—", kein best/worst ✓ guardByMatches + present-filter
+ AC-3 matches>0 unverändert .................... ✓ fmtPerfL5/num-Pfad
+ AC-4 andere Rows (goals/assists/floor/age) unverändert ✓ guardByMatches nur L5/L15
+ AC-5 tsc clean ............................... ✓
+
+[FILES] src/app/(app)/compare/page.tsx (1 File)
+(Kein dedizierter compare-Test; tsc + Reviewer decken.)
+
+[SWEEP-CONTEXT — P2/P3-Residuen verifiziert]
+ - Lineup wildcardSlots:Set → FALSE-POSITIVE (kein persist/cache/RPC-stringify; in-memory props)
+ - Offers Dual-Source → verschiedene Surfaces (Dashboard-Badges vs OffersTab-Management), keine pure Redundanz
+ - 24h-Change → players.ts + trading.ts lesen beide price_change_24h (konsistent)
+ - club String-vs-UUID / League-Scope dual-axis → post-Beta-Migration (groß, Risiko)
+ - fantasy.md /1.5 → korrigiert (commit e57ffd36, D77-Closure)

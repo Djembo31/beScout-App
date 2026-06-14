@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight } from 'lucide-react';
 import { Card, Button, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
-import { PlayerIdentity } from '@/components/player';
+import { PlayerIdentity, fmtPerfL5 } from '@/components/player';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 import type { RadarDataSet } from '@/components/player/RadarChart';
 import { centsToBsd } from '@/lib/services/players';
@@ -103,8 +103,8 @@ export default function ComparePage() {
     { label: t('goals'), key: 'goals' as const },
     { label: t('assists'), key: 'assists' as const },
     { label: t('cleanSheets'), key: 'clean_sheets' as const },
-    { label: 'L5', key: 'perf_l5' as const },
-    { label: 'L15', key: 'perf_l15' as const },
+    { label: 'L5', key: 'perf_l5' as const, guardByMatches: true },
+    { label: 'L15', key: 'perf_l15' as const, guardByMatches: true },
     { label: t('floorPrice'), key: 'floor_price' as const, isBsd: true },
     { label: t('age'), key: 'age' as const },
   ];
@@ -219,7 +219,8 @@ export default function ComparePage() {
                     player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
                     size="sm" showStatus={false}
                   />
-                  <div className="text-xs text-white/40 font-mono tabular-nums">L5: {p.perf_l5}</div>
+                  {/* Slice 312: matches-Guard — 0-Match-Spieler zeigt „—" statt DB-Default 50. */}
+                  <div className="text-xs text-white/40 font-mono tabular-nums">L5: {fmtPerfL5(p.perf_l5, p.matches)}</div>
                 </button>
               ))}
             </div>
@@ -265,22 +266,28 @@ export default function ComparePage() {
             </thead>
             <tbody>
               {statRows.map(row => {
-                const values = selectedPlayers.map(p => {
-                  const v = (p as Record<string, unknown>)[row.key];
-                  return typeof v === 'number' ? v : 0;
+                // Slice 312: guardByMatches-Rows (L5/L15) für 0-Match-Spieler ausblenden —
+                // der DB-Default perf_l5=50 ist keine echte Form. null = ausgeblendet,
+                // zählt nicht in den best/worst-Vergleich.
+                const cells = selectedPlayers.map(p => {
+                  const raw = (p as Record<string, unknown>)[row.key];
+                  const num = typeof raw === 'number' ? raw : 0;
+                  const guarded = row.guardByMatches && (p.matches ?? 0) === 0;
+                  return guarded ? null : num;
                 });
-                const maxVal = Math.max(...values);
-                const minVal = Math.min(...values);
+                const present = cells.filter((v): v is number => v !== null);
+                const maxVal = present.length > 0 ? Math.max(...present) : 0;
+                const minVal = present.length > 0 ? Math.min(...present) : 0;
 
                 return (
                   <tr key={row.key} className="border-b border-white/[0.04]">
                     <td className="py-2.5 text-white/60">{row.label}</td>
-                    {values.map((v, i) => {
-                      const isBest = v === maxVal && maxVal !== minVal;
-                      const isWorst = v === minVal && maxVal !== minVal;
+                    {cells.map((v, i) => {
+                      const isBest = v !== null && v === maxVal && maxVal !== minVal;
+                      const isWorst = v !== null && v === minVal && maxVal !== minVal;
                       return (
                         <td key={i} className={cn('py-2.5 text-right font-mono font-bold tabular-nums', isBest ? 'text-gold' : isWorst ? 'text-red-400' : 'text-white')}>
-                          {row.isBsd ? fmtScout(centsToBsd(v)) : v}
+                          {v === null ? '—' : row.isBsd ? fmtScout(centsToBsd(v)) : v}
                         </td>
                       );
                     })}
