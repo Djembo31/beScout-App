@@ -3473,3 +3473,30 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** Registry `worklog/audits/2026-06-13/s7-source-of-truth-registry.md` ist jetzt die Single-Source des Phase-2-Backlogs (severity-sortierte Liste am Ende der Datei + pro-Domäne Top-Befunde-Tabellen). Resume-Anker im Handoff verweist mit Datei:Zeile-Pointern darauf. 6 neue übergreifende Muster-Instanzen + 4 neue Muster (#7 Money/Security-Truth-nur-im-Client, #8 De-norm-Counter-ohne-Reconcile, #9 Phantom-Tabellen, #10 pre-localized-vs-i18n_key).
 
 **Re-Visit-Trigger:** Wenn alle P0/P1-Funde gefixt sind → Phase 3 (Abräumen: dormant Features S6-Removal + P2/P3-Konsolidierung) ODER Sommer-Roadmap/neue Features. Wenn API-Football-Key zurückkommt → die key-blockierten Fantasy-Punkte (284b, Süper-Lig-Drift) reaktivieren.
+
+## D80 — PRODUCT: Sommer 2026 = Tiefen-Umbau/Professionalisierung (Tech-First), Wachstum + Monetarisierung bewusst nach hinten
+
+**Datum:** 2026-06-14 · **Status:** Aktiv · **Kontext-Slices:** 316–323 (S7 Phase-2 P0/P1 komplett)
+
+**Kontext:** S7 Phase-2 (alle P0-Money + P1-Security + P1-Demo-Funde) ist mit Slices 316–323 abgeschlossen (Founding-Pass-Money, profiles-RLS, /api/push, notifications/push, cancel-sub-RPC, FanChallenges-Removal, Gamif-Discriminator+Leaderboard, Ticket-Reconcile). Anil-Lagebild 2026-06-14: **Sommerpause, KEINE aktiven Tester, alles ruhig** → die „offener-Laden"-Bremse (riskante Struktur-Umbauten bei Live-Testern verboten) ist aufgehoben. Anil-Direktive wörtlich: „wir können aktuell alles vergewaltigen, um besser zu werden, strukturierter, professioneller."
+
+**Entscheidung:** Den Sommer (jetzt bis ~Saisonstart Mitte/Ende August, ~8–10 Wochen) **voll auf technischen Tiefen-Umbau + Professionalisierung** (Track A) richten. Konkret = S7 **Phase 3** (Abräumen/Migrieren) + Politur:
+- Daten-Modell-Vereinheitlichung (String→UUID für club/league/favorite_club, cross-domain).
+- Konsolidierung (5 Leaderboard-Impls → 1, mehrere Truth-Tabellen → eine Quelle; Boundary: Komponenten → Service-Schicht).
+- Dormant-Feature-Hygiene (Research, 2 Voting-Systeme, Creator-Fund, Monthly-Liga → je aktivieren ODER löschen; kein Halbfertiges).
+- Reste: /api/push cross-user-INSERT-RLS, Ad-Revenue-Share (0€-Writepath), Cron-Monitoring.
+- Onboarding-Glättung + Politur (Mobile/Performance/Empty-States) als Retention-Vorbereitung.
+- Sobald Anil den API-Football-Key freischaltet: key-blockierte Live-Daten-Punkte (284b 154 Geister, Süper-Lig-Drift, Live-Scores).
+
+**Bewusst NICHT jetzt (Anil-bestätigt):**
+- **Monetarisierung/Bezahlsystem** → erst nach „Legal Go". Founding-Pass-Kaufstrecke (kein Payment-Gateway) ist damit KEINE Sommer-Priorität. Plattform bleibt vorerst kostenlos.
+- **Wachstum/GTM-Akquise** → bewusst nach hinten (Anil-Wahl „erst Technik, Wachstum später").
+- **Konsequenz akzeptiert:** das „1000 Nutzer bis Saisonstart"-Ziel rutscht nach hinten und ist ohne Akquise-Kanal nicht real — Anil hat das explizit akzeptiert. Nordstern dieses Sommers = professionelle, strukturierte, solide Plattform (launch-bereit), nicht Nutzerzahl.
+
+**Begründung:** (1) Leeres-Laden-Fenster ist der einzig sichere Zeitpunkt für riskante Struktur-Migrationen (keine Live-User-Daten-Churn, Tester-Bugs nicht von Umbau-Bugs unterscheidbar entfällt). (2) Monetarisierung ist legal-gegated → kein Hebel jetzt. (3) „1000 Nutzer" ist ein Wachstums-Ziel (Akquise-Kanal-abhängig), kein Technik-Ziel — CTO-Wahrheit „Code bringt keine Nutzer, Code sorgt nur dass sie nicht gehen". Ohne Kanal wäre Tech+Wachstum-parallel verzettelt; Tech-First baut die Bühne sauber, Wachstum folgt wenn der Kanal steht.
+
+**Alternativen erwogen:** (a) Technik + Wachstum parallel — verworfen, Anil hat (noch) keinen Akquise-Kanal, parallel = verzettelt. (b) Nur kleine sichere Fixes wie bisher — verworfen, das Leeres-Laden-Fenster wäre verschwendet (große Umbauten gehen jetzt sicher). (c) Bezahlsystem vorziehen — verworfen, legal-gegated.
+
+**Auswirkungen:** Arbeits-Modus wechselt von „kleine vorsichtige Slices auf Live-Beta" zu „große strukturelle Umbauten im Wartungsfenster" — ABER SHIP-Disziplin (Spec/Review/Proof) bleibt, weil das Ziel „professionell/strukturiert" ist (schlampige Refactors widersprächen dem Zweck). Empfohlene Phase-3-Sequenz: erst Sicherheitsnetz auf den umzubauenden Pfaden härten (S5 fand mock-heavy Tests = grün-aber-bedeutungslos), DANN Fundament (String→UUID), DANN Konsolidierung, DANN Feature-Hygiene, DANN Politur. Supersedes D79-Re-Visit-Trigger („nach P0/P1 → Phase 3 ODER Sommer-Roadmap") — gewählt: Phase 3 / Tech-First.
+
+**Re-Visit-Trigger:** „Legal Go" erreicht → Monetarisierung (Bezahlsystem + Founding-Kaufstrecke) wird Thema. ODER Anil entscheidet Akquise-Kanal → Track B (GTM) parallel hochfahren. ODER Plattform ist „professionell/solide genug" → Wachstums-Fokus.
