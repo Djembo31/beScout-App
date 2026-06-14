@@ -7460,3 +7460,11 @@ Drei Slices in einer Session-Welle gelandet. Punch-Liste: 6/98 → **26/98 close
 - Files: migration 20260614190000, clubSubscriptions.ts, clubSubscriptions.test.ts (28/28). tsc clean
 - Operator-Slip: Live-Smoke-DO-Block ohne ROLLBACK committete auto_renew-Flip 1 aktiver Sub → sofort restauriert (default=true, Feature nie funktional). Lehre → testing.md (mutierende Smokes IMMER BEGIN/ROLLBACK)
 - Review: worklog/reviews/320-review.md | Proof: worklog/proofs/320-cancel-subscription-rpc.txt
+
+## 321 | 2026-06-14 | refactor(admin): FanChallenges Dead-Feature-Removal (P1-Demo Club #3)
+- Stage-Chain: SPEC → IMPACT (inline 4-Achsen) → BUILD → REVIEW (reviewer-Agent PASS, 1 doc-NIT) → PROVE → LOG
+- Club #3: club_challenges + achievement_perk_claims existieren in DB nicht (to_regclass=NULL) → FanChallengesTab 42P01-Crash. Anil-Decision: Feature entfernen.
+- 4-Achsen (Slice 305): Code (4 DELETE: FanChallengesTab+Test, services/clubChallenges, queries/clubChallenges; 5 EDIT: AdminContent Tab+Sparkles, adminRoles Union+Access, keys qk, QueryProvider Allowlist) · DB (keine — Tabellen existieren nicht) · i18n (15 exklusive admin.challenge*-Keys de+tr inkl. orphan challengeStatus; admin.cancel shared behalten) · Tooling (keine)
+- NICHT angefasst: dailyChallenge/user_daily_challenges/daily-challenge (separates Live-Feature)
+- Verify: JSON valid, Residue-grep=0, Sparkles=0, tsc clean, vitest 214 passed (16 Files)
+- Review: worklog/reviews/321-review.md | Proof: worklog/proofs/321-fanchallenges-removal.txt

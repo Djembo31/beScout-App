@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet, Telescope, Heart, Sparkles, Megaphone,
+  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet, Telescope, Heart, Megaphone,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -22,7 +22,6 @@ import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
 import AdminWithdrawalTab from '@/components/admin/AdminWithdrawalTab';
 import AdminScoutingTab from '@/components/admin/AdminScoutingTab';
 import AdminFansTab from '@/components/admin/AdminFansTab';
-import FanChallengesTab from '@/components/admin/FanChallengesTab';
 import AdminSponsorTab from '@/components/admin/AdminSponsorTab';
 import { canAccessTab, getRoleBadge, type AdminTab } from '@/lib/adminRoles';
 import type { ClubWithAdmin } from '@/types';
@@ -37,7 +36,6 @@ const ADMIN_TAB_ICONS: { id: AdminTab; icon: React.ElementType }[] = [
   { id: 'moderation', icon: Shield },
   { id: 'analytics', icon: Activity },
   { id: 'fans', icon: Heart },
-  { id: 'challenges', icon: Sparkles },
   { id: 'revenue', icon: DollarSign },
   { id: 'withdrawal', icon: Wallet },
   { id: 'sponsors', icon: Megaphone },
@@ -169,7 +167,6 @@ export default function AdminContent({ slug }: { slug: string }) {
       {tab === 'moderation' && <AdminModerationTab club={club} />}
       {tab === 'analytics' && <AdminAnalyticsTab club={club} />}
       {tab === 'fans' && <AdminFansTab club={club} />}
-      {tab === 'challenges' && <FanChallengesTab club={club} />}
       {tab === 'revenue' && <AdminRevenueTab club={club} />}
       {tab === 'withdrawal' && <AdminWithdrawalTab club={club} />}
       {tab === 'sponsors' && <AdminSponsorTab club={club} />}

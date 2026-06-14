@@ -396,11 +396,6 @@ export const qk = {
     inventoryAll: (userId: string) => ['equipment', 'inventory-all', userId] as const,
   },
 
-  // ── Club Challenges (B10: Fan Rewards) ──
-  clubChallenges: {
-    byClub: (clubId: string) => ['club-challenges', clubId] as const,
-  },
-
   // ── Economy Config ──
   economy: {
     elo: ['economy', 'elo'] as const,

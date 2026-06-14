@@ -1,0 +1,44 @@
+Slice 321 — FanChallenges Dead-Feature-Removal — PROOF
+======================================================
+Datum: 2026-06-14 · P1-Demo Club #3 (Anil: Feature entfernen) · 4-Achsen (Slice 305)
+
+[1] Baseline (Crash)
+--------------------
+to_regclass('club_challenges')=NULL, to_regclass('achievement_perk_claims')=NULL
+→ FanChallengesTab .from('club_challenges') = 42P01-Crash beim Tab-Öffnen.
+
+[2] Achse 1 — Code/Service (DELETE + Refs)
+------------------------------------------
+DELETED:
+  src/components/admin/FanChallengesTab.tsx
+  src/components/admin/__tests__/FanChallengesTab.test.tsx
+  src/lib/services/clubChallenges.ts
+  src/lib/queries/clubChallenges.ts
+EDITED:
+  AdminContent.tsx — FanChallenges-Import + Tab-Def {id:'challenges',icon:Sparkles} + render + Sparkles-Import raus
+  adminRoles.ts — 'challenges' aus AdminTab-Union + TAB_ACCESS-Map raus
+  keys.ts — qk.clubChallenges-Block raus
+  QueryProvider.tsx — 'club-challenges' Persist-Allowlist raus
+
+[3] Achse 2 — DB: keine (Tabellen existieren nicht; nichts zu DROPpen).
+
+[4] Achse 3 — i18n (15 exklusive admin.challenge*-Keys, pro Key 0 externe Nutzung verifiziert)
+de.json + tr.json: challenges, challengeCreate, challengeReward, challengeTitle, challengeDesc,
+  challengeType, challengeStatus, challengeActive, challengeEnded, challengeEmpty, challengeCreated,
+  challengeCreateError, challengeStartsAt, challengeEndsAt, challengeCosmeticKey — alle entfernt.
+  admin.cancel (shared) BEHALTEN. challengeStatus war orphan (0 Nutzung).
+
+[5] Achse 4 — Tooling-Allowlists: keine (grep scripts/.claude = 0).
+
+[6] NICHT angefasst: dailyChallenge / user_daily_challenges / daily-challenge-qk = separates LIVE-Feature.
+
+[7] Verifikation
+----------------
+JSON valid: de.json + tr.json beide JSON.parse OK.
+Residue-grep (clubChallenges|FanChallenges|club_challenges|achievement_perk_claims|challengeStatus|challengeCosmeticKey) in src/+messages/ = 0.
+Sparkles in AdminContent = 0.
+tsc --noEmit → EXIT 0 (fängt auch Test-Imports gelöschter Module — keine).
+vitest (admin + lib + clubSubscriptions): 16 Files, 214 passed.
+
+ERGEBNIS: Challenges-Tab + toter Code + 15 i18n-Keys + qk + Persist-Allowlist + Tab-Access entfernt.
+Kein 42P01-Crash mehr. daily-challenge unberührt.

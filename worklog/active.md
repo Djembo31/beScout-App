@@ -2,23 +2,23 @@
 
 ```
 status: idle
-slice: 320
+slice: 321
 stage: LOG complete ✅ DONE
-spec: worklog/specs/320-cancel-subscription-rpc.md
-impact: inline (Spec §4: RLS nur SELECT → Update stumm blockiert; 0 Production-Consumer; Spalten verifiziert)
-proof: worklog/proofs/320-cancel-subscription-rpc.txt
-review: worklog/reviews/320-review.md (self-review PASS; Operator-Slip restauriert)
-decision: P1-Demo Club #4. cancelSubscription RLS-blockiert (keine UPDATE-Policy) → SEC-DEFINER-RPC cancel_club_subscription (auth.uid()), Service throw-on-error.
+spec: worklog/specs/321-fanchallenges-removal.md
+impact: inline (Spec §4: 4-Achsen-Removal; DB keine Tabellen; i18n 15 exklusive Keys inkl. orphan challengeStatus; daily-challenge separat)
+proof: worklog/proofs/321-fanchallenges-removal.txt
+review: worklog/reviews/321-review.md (PASS, 1 doc-NIT)
+decision: P1-Demo Club #3 (Anil: Feature entfernen). FanChallenges (club_challenges/achievement_perk_claims existieren nicht → 42P01-Crash) komplett raus: 4 Files DELETE + AdminContent/adminRoles/keys/QueryProvider/de/tr EDIT.
 ```
 
 ## Zuletzt
 
-- **Slice 320** (2026-06-14, in Arbeit) — P1-Demo Club #4: cancel_club_subscription RPC (RLS-Gap-Fix).
-- **Slice 319** (2026-06-14) — P1-Demo: notifications i18n-SELECT + push-unsubscribe error-capture (fix, self-PASS, live `f0957187`).
-- **Slice 318** (2026-06-14) — S7 Phase-2 #4: /api/push Row-Derived (fix security, PASS, live `c56a8716`).
-- **Slice 317** (2026-06-14) — S7 Phase-2 #3: profiles_update Spalten-Whitelist (fix security, PASS, live `6452afe8`).
-- **Slice 316** (2026-06-14) — S7 Phase-2 #1+#2: Founding-Pass Money-Härtung (fix money, PASS, live `f1061653`).
+- **Slice 321** (2026-06-14, in Arbeit) — P1-Demo Club #3: FanChallenges Dead-Feature-Removal (4-Achsen, Slice-305-Muster).
+- **Slice 320** (2026-06-14) — P1-Demo Club #4: cancel_club_subscription RPC (fix, self-PASS, live).
+- **Slice 319** (2026-06-14) — P1-Demo: notifications i18n-SELECT + push-unsubscribe error-capture (fix, self-PASS, live).
+- **Slice 318** (2026-06-14) — S7 Phase-2 #4: /api/push Row-Derived (fix security, PASS, live).
+- **Slice 317** (2026-06-14) — S7 Phase-2 #3: profiles_update Spalten-Whitelist (fix security, PASS, live).
 
-**🚨 API-Football-Key seit 06.05. suspendiert.** **TR-Review offen:** market.bulkSellResult, rankings.noMarketMovement, fantasy.matchLive.
+**🚨 API-Football-Key seit 06.05. suspendiert.** **TR-Review offen.**
 
-P1-Demo Restplan (nach 320): Gamif #1 claim_score_road Discriminator (money), Gamif #2 leaderboard median-RPC, Club #3 Decision (Phantom-Tabellen), Daten-Fixes Gamif #3 + Identity #3.
+P1-Demo offen nach 321: Gamif #1 claim_score_road Discriminator (money), Gamif #2 leaderboard median-RPC, Gamif #3 Ticket-Reconcile (+5 Ledger — balance=70 ist Wahrheit, Ledger short, investigiert), Identity #3 (1 profilloser Account).

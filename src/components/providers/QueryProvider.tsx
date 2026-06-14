@@ -68,7 +68,6 @@ const USER_SCOPED_DOMAINS = new Set([
   'fantasy-leagues',
   'founding-passes',
   'fan-ranking',
-  'club-challenges',
   'creatorFund',
   'airdrop',
   'missions',
