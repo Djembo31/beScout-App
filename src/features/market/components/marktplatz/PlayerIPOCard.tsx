@@ -13,7 +13,8 @@ import {
 import { getContractInfo, posTintColors } from '@/components/player/PlayerRow';
 import { LeagueBadge } from '@/components/ui/LeagueBadge';
 import CountdownBadge from './CountdownBadge';
-import { fmtScout, cn, countryToFlag } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
+import CountryFlag from '@/components/ui/CountryFlag';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbIpo, Pos } from '@/types';
 
@@ -42,7 +43,6 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
   const progress = ipo.total_offered > 0 ? (ipo.sold / ipo.total_offered) * 100 : 0;
   const remaining = ipo.total_offered - ipo.sold;
   const tint = posTint[player.pos];
-  const flag = player.country ? countryToFlag(player.country) : '';
   const contract = getContractInfo(player.contractMonthsLeft);
 
   return (
@@ -72,7 +72,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               <span className="font-black text-sm text-white truncate">
                 {player.first} {player.last}
               </span>
-              {flag && <span className="text-sm leading-none shrink-0">{flag}</span>}
+              {player.country && <CountryFlag code={player.country} size={14} className="shrink-0" />}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <PositionBadge pos={player.pos} size="sm" />

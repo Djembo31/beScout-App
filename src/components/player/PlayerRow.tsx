@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Player, Pos } from '@/types';
-import { cn, fmtScout, countryToFlag } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
+import CountryFlag from '@/components/ui/CountryFlag';
 import { computePlayerFloor } from '@/lib/playerMath';
 import { getClub } from '@/lib/clubs';
 import {
@@ -254,8 +255,6 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   }
 
   // ─── CARD (~170px) — Carbon + Gold FIFA UT ──
-  const cardFlag = player.country ? countryToFlag(player.country) : '';
-
   return (
     <Link
       href={`/player/${player.id}`}
@@ -266,7 +265,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
         <div className="flex items-start justify-between gap-2">
           <PlayerIdentity player={player} size="md" />
           <div className="flex items-center gap-1.5 shrink-0">
-            {cardFlag && <span className="text-sm leading-none">{cardFlag}</span>}
+            {player.country && <CountryFlag code={player.country} size={14} />}
             <div className={cn('font-mono font-bold text-sm tabular-nums', getL5ColorWithMatches(player.perf.l5, player.stats.matches))}>
               {fmtPerfL5(player.perf.l5, player.stats.matches)}
             </div>

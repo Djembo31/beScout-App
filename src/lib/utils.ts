@@ -68,14 +68,6 @@ export function cn(...classes: (string | boolean | undefined | null)[]): string 
   return classes.filter(Boolean).join(' ');
 }
 
-/** Convert ISO 3166-1 alpha-2 country code to flag emoji (e.g. "TR" → 🇹🇷) */
-export function countryToFlag(code: string): string {
-  if (!code || code.length !== 2) return '';
-  return String.fromCodePoint(
-    ...Array.from(code.toUpperCase()).map(c => 0x1F1E6 + c.charCodeAt(0) - 65)
-  );
-}
-
 /** Download data as a CSV file. Headers = keys of first row. */
 export function downloadCsv(rows: Record<string, string | number | boolean | null | undefined>[], filename: string) {
   if (rows.length === 0) return;

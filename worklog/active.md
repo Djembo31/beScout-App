@@ -2,12 +2,23 @@
 
 ```
 status: active
-slice: 326
-stage: BUILD (Wave A DONE/PASS → Commit+Deploy → Live-Verify → Wave B)
+slice: 327
+stage: BUILD
+spec_327: worklog/specs/327-flag-normalization-svg.md
+type_327: UI (Flaggen-Normung Emoji→SVG, cross-cutting)
+size_327: S
+problem_327: countryToFlag (Unicode-Emoji 🇩🇪) rendert auf Windows als Text "DE"/"TR". 2 parallele Flaggen-Systeme (Emoji vs SVG CountryFlag) → Inkonsistenz. Anil-Live-Bug 2026-06-15.
+fix_327: 4 Emoji-Konsumenten (CountryBar, LeagueBar, PlayerRow, PlayerIPOCard) → CountryFlag (SVG static /flags/3x2). countryToFlag aus utils entfernen. EINE Flaggen-Quelle.
+parked_326: Slice 326 Wave A ist live (d6bce498, reviewer-PASS, Live-verifiziert). Wave B (Display-Resolver + DROP clubs.league) GEPARKT — reiner Cleanup, nach 327 nachholen.
+
+[326-Kontext darunter erhalten]
+stage_326: BUILD (Wave A DONE/PASS → Commit+Deploy → Live-Verify → Wave B)
 spec: worklog/specs/326-clubs-league-uuid-full-migration.md
 impact: worklog/impact/326-clubs-league-uuid-full-migration.md (DROP sicher: 0 Views/Trigger/Constraints, 134 Clubs 0 NULL league_id; ⚠️ 2 RPC-Blocker get_player_data_completeness + get_club_by_slug → Wave B)
-proof: worklog/proofs/326a-wave-a.txt
-review: worklog/reviews/326-review.md
+proof: worklog/proofs/327-flag-normalization.txt
+review: worklog/reviews/327-review.md
+proof_326a: worklog/proofs/326a-wave-a.txt
+review_326: worklog/reviews/326-review.md
 size: L
 type: Migration + Service + UI
 scope: CEO-approved 2026-06-15 (Anil: "Voll inkl. DROP", Hermes-Plan) — Writer-Fix via RPC p_league→p_league_id (FK = fail-closed)

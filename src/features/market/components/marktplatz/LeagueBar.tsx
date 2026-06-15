@@ -3,7 +3,8 @@
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { getAllClubsCached } from '@/lib/clubs';
-import { countryToFlag, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import CountryFlag from '@/components/ui/CountryFlag';
 
 interface LeagueBarProps {
   selected: string;
@@ -67,9 +68,7 @@ export default function LeagueBar({ selected, onSelect }: LeagueBarProps) {
           aria-pressed={selected === l.name}
           aria-label={l.name}
         >
-          <span className="text-sm" aria-hidden="true">
-            {countryToFlag(l.country)}
-          </span>
+          <CountryFlag code={l.country} size={14} />
           <span className="truncate max-w-[120px]">{l.name}</span>
         </button>
       ))}

@@ -1,0 +1,41 @@
+Slice 327 — PROOF (Flaggen-Normung Emoji→SVG)
+Datum: 2026-06-15
+
+═══════════════════════════════════════════════════════════════
+1. TSC
+═══════════════════════════════════════════════════════════════
+$ npx tsc --noEmit
+TSC EXIT: 0
+
+═══════════════════════════════════════════════════════════════
+2. countryToFlag vollständig entfernt
+═══════════════════════════════════════════════════════════════
+$ grep -rn "countryToFlag" src/
+(0 — sauber entfernt; utils.ts-Def + 4 Konsumenten + Test-Mock alle migriert)
+
+═══════════════════════════════════════════════════════════════
+3. VITEST (flag-betroffene Bereiche)
+═══════════════════════════════════════════════════════════════
+$ CI=true npx vitest run src/components/ui/__tests__/CountryFlag.test.tsx \
+    src/features/market/.../PlayerIPOCard.test.tsx src/components/player
+ Test Files  18 passed (18)
+      Tests  210 passed (210)
+
+═══════════════════════════════════════════════════════════════
+4. Umstellung (Emoji → CountryFlag SVG)
+═══════════════════════════════════════════════════════════════
+CountryBar.tsx     : countryToFlag(c.code)   → <CountryFlag code={c.code} size={14}>
+LeagueBar.tsx      : countryToFlag(l.country) → <CountryFlag code={l.country} size={14}>  (orphan, konsistent)
+PlayerRow.tsx      : countryToFlag(player.country) → <CountryFlag size={14}>  (NULL-guard erhalten)
+PlayerIPOCard.tsx  : countryToFlag(player.country) → <CountryFlag size={14} className="shrink-0">
+utils.ts           : countryToFlag-Funktion entfernt (Dead-Code)
+PlayerIPOCard.test : Mock countryToFlag raus, CountryFlag stub
+
+═══════════════════════════════════════════════════════════════
+5. LIVE-VERIFY (Playwright bescout.net — nach Deploy)
+═══════════════════════════════════════════════════════════════
+[wird nach Vercel-Deploy ergänzt: Screenshot Filter + Cards mit SVG-Flaggen statt Text]
+
+═══════════════════════════════════════════════════════════════
+REVIEW: worklog/reviews/327-review.md — self-PASS (1 NITPICK A11y, out-of-scope)
+═══════════════════════════════════════════════════════════════

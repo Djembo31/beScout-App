@@ -2,7 +2,8 @@
 
 import React, { memo } from 'react';
 import { useTranslations } from 'next-intl';
-import { countryToFlag, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import CountryFlag from '@/components/ui/CountryFlag';
 import type { CountryInfo } from '@/lib/leagues';
 
 interface CountryBarProps {
@@ -47,9 +48,7 @@ function CountryBarInner({ countries, selected, onSelect, className }: CountryBa
           aria-pressed={selected === c.code}
           aria-label={c.name}
         >
-          <span className="text-sm" aria-hidden="true">
-            {countryToFlag(c.code)}
-          </span>
+          <CountryFlag code={c.code} size={14} />
           <span className="truncate max-w-[120px]">{c.name}</span>
         </button>
       ))}

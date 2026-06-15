@@ -10,8 +10,8 @@ vi.mock('lucide-react', () => {
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
   fmtScout: (n: number) => String(n),
-  countryToFlag: () => '🇩🇪',
 }));
+vi.mock('@/components/ui/CountryFlag', () => ({ default: () => null }));
 vi.mock('@/lib/services/players', () => ({ centsToBsd: (n: number) => n / 100 }));
 vi.mock('@/components/player', () => ({
   PlayerPhoto: () => null,
