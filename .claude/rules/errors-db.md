@@ -392,6 +392,23 @@ SELECT * FROM public.<rpc>(<test-params>) LIMIT 5;
 
 **Reference:** Slice 207 Most-Owned-Discovery-Batch v1 (CTO club-max-relative falsch) → v2 (Agent's total_managers_of_club, FPL-semantic "X% der Manager besitzen Y"). Pattern-Draft im Session-Handoff dokumentiert, jetzt promoted.
 
+### Same-Day-Migration mit FRÜHEREM Timestamp als Vorgänger-Slice (Slice 326, 2026-06-15)
+
+**Bug-Klasse:** Zwei Migrations am gleichen Tag redefinieren dieselbe RPC per `CREATE OR REPLACE`. Wenn der **spätere** Slice einen **niedrigeren** Filename-Timestamp trägt als der frühere, ist Filename-Order ≠ Slice-Order. Auf der Live-DB ist alles korrekt (apply_migration stempelt mit Aufruf-Zeit, später-applied gewinnt), aber bei `supabase db reset` / greenfield CI-Migration läuft die Filename-Reihenfolge → der ältere Slice überschreibt den neueren. Bei **Signatur-Änderung** (z.B. `p_league text` → `p_league_id uuid`) entstehen zwei koexistierende Overloads (alte text + neue uuid) → pg_proc-Ambiguity + toter Overload.
+
+**Konkret (Slice 326):** Slice 326 (p_league_id) initial `20260615120000`, Slice 325 (p_league) `20260615130000`. 326 < 325 → greenfield: 326 setzt uuid, dann 325 setzt text drüber. Live-DB war korrekt (326 zuletzt applied), aber `db reset` hätte gebrochen.
+
+**Fix:** Späteren Slice immer auf höheren Timestamp umbenennen (`git mv …120000… …140000…`, nach dem Vorgänger). Live-DB nicht re-applien nötig — nur File-Timestamp für Greenfield-Korrektheit.
+
+**Detection (Pre-Commit bei RPC-redefinierenden Same-Day-Migrations):**
+```bash
+# Alle Migrations die dieselbe Funktion CREATE OR REPLACE'n, chronologisch:
+grep -l "CREATE OR REPLACE FUNCTION public.<name>" supabase/migrations/*.sql | sort
+# Der zeitlich SPÄTERE Slice MUSS den höheren Timestamp haben. Sonst rename.
+```
+
+**Reference:** Slice 326 Wave A — vom Cold-Context-Reviewer gefangen vor Commit. Verwandt mit "Migration-Heal v1→v2 Same-Session" oben (dort gleicher Timestamp = nur 1 File appliziert; hier umgekehrte Ordnung zwischen zwei verschiedenen Slices).
+
 ### CREATE OR REPLACE FUNCTION — PATCH-AUDIT PFLICHT (Slice 156 FAIL)
 - Beim Body-Rewrite einer SECURITY DEFINER RPC: ALLE Vorgaenger-Migrations greppen, neuester Body = current DB-State. **Nicht vom ersten Create ableiten.**
 - Audit: `grep -rn "CREATE OR REPLACE FUNCTION public\\.<name>" supabase/migrations/` + zeitlich sortieren → letzter File ist Baseline. **Oder besser**: `pg_get_functiondef('public.<name>(args)'::regprocedure)` als live-truth.

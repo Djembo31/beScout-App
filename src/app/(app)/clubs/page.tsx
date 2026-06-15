@@ -45,6 +45,8 @@ export default function ClubsDiscoveryPage() {
   // Slice 251 Wave 3 — Liga-Scope SSOT (replaces local useState filterCountry/filterLeague).
   const filterCountry = useLeagueScope((s) => s.countryCode);
   const filterLeague = useLeagueScope((s) => s.leagueName);
+  // Slice 326: leagueId für den Liga-Filter (Name bleibt für Smart-Auto-Select-Guards).
+  const filterLeagueId = useLeagueScope((s) => s.leagueId);
   const setLeagueScope = useLeagueScope((s) => s.setLeagueScope);
   const tw = useTranslations('fanWishes');
 
@@ -87,7 +89,8 @@ export default function ClubsDiscoveryPage() {
     if (!matchesSearch) return false;
 
     // League filter takes precedence over country (league implies country)
-    if (filterLeague) return c.league === filterLeague;
+    // Slice 326: c.league_id statt c.league.
+    if (filterLeagueId) return c.league_id === filterLeagueId;
     if (filterCountry) return c.country === filterCountry;
     return true;
   });

@@ -196,6 +196,8 @@ export function dbToPlayer(db: DbPlayer): Player {
     last: db.last_name,
     club: db.club,
     clubId: db.club_id ?? undefined,
+    // Slice 326: leagueId (UUID) = Filter-Wahrheit; `league` (Name) bleibt Display.
+    leagueId: db.club_id ? (getClub(db.club_id)?.league_id ?? undefined) : undefined,
     league: db.club_id ? (getClub(db.club_id)?.league ?? undefined) : undefined,
     leagueShort: db.club_id ? (leagueLookup(db.club_id)?.short ?? undefined) : undefined,
     leagueLogoUrl: db.club_id ? (leagueLookup(db.club_id)?.logoUrl ?? undefined) : undefined,

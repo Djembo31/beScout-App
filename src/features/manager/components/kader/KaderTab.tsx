@@ -114,7 +114,8 @@ export default function KaderTab({
   // Slice 251 Wave 3 — Liga-Scope SSOT (replaces managerStore.kaderCountry/kaderLeague).
   const kaderCountry = useLeagueScope(s => s.countryCode);
   const setKaderCountry = useLeagueScope(s => s.setCountry);
-  const kaderLeague = useLeagueScope(s => s.leagueName);
+  // Slice 326: leagueId statt leagueName (Filter-Wahrheit).
+  const kaderLeagueId = useLeagueScope(s => s.leagueId);
 
   // Local state
   const [query, setQuery] = useState('');
@@ -258,13 +259,13 @@ export default function KaderTab({
     return allCountries.filter(c => playerCountryCodes.has(c.code));
   }, [bestandItems, locale]);
 
-  // Smart collapse: auto-select league when country has only 1 league
-  const smartLeague = useMemo(() => {
-    if (!kaderCountry) return '';
+  // Smart collapse: auto-select league when country has only 1 league (Slice 326: id-basiert)
+  const smartLeagueId = useMemo(() => {
+    if (!kaderCountry) return null;
     const countryLeagues = getLeaguesByCountry(kaderCountry);
-    if (countryLeagues.length === 1) return countryLeagues[0].name;
-    return kaderLeague;
-  }, [kaderCountry, kaderLeague]);
+    if (countryLeagues.length === 1) return countryLeagues[0].id;
+    return kaderLeagueId;
+  }, [kaderCountry, kaderLeagueId]);
 
   // Filter available clubs by selected league
   const availableClubs = useMemo(() => {
@@ -272,11 +273,11 @@ export default function KaderTab({
     if (kaderCountry) {
       items = items.filter(i => i.player.leagueCountry === kaderCountry);
     }
-    if (smartLeague) {
-      items = items.filter(i => i.player.league === smartLeague);
+    if (smartLeagueId) {
+      items = items.filter(i => i.player.leagueId === smartLeagueId);
     }
     return Array.from(new Set(items.map(i => i.player.club))).sort();
-  }, [bestandItems, kaderCountry, smartLeague]);
+  }, [bestandItems, kaderCountry, smartLeagueId]);
 
   // Summary stats
   const summary = useMemo(() => {
@@ -300,8 +301,8 @@ export default function KaderTab({
     if (kaderCountry) {
       result = result.filter(item => item.player.leagueCountry === kaderCountry);
     }
-    if (smartLeague) {
-      result = result.filter(item => item.player.league === smartLeague);
+    if (smartLeagueId) {
+      result = result.filter(item => item.player.leagueId === smartLeagueId);
     }
     if (query) {
       const q = query.toLowerCase();
@@ -323,7 +324,7 @@ export default function KaderTab({
       });
     }
     return sortItems(result, sortBy, minutesMap);
-  }, [bestandItems, kaderCountry, smartLeague, query, posFilter, clubFilter, formL5, mvTrend, inLineup, eventUsageMap, sortBy, minutesMap]);
+  }, [bestandItems, kaderCountry, smartLeagueId, query, posFilter, clubFilter, formL5, mvTrend, inLineup, eventUsageMap, sortBy, minutesMap]);
 
   // Club-grouped data
   const clubGroups = useMemo(() => {

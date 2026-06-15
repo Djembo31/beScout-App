@@ -134,6 +134,13 @@ export function getLeague(nameOrShort: string): League | undefined {
   return leagueCache.find((l) => l.name === nameOrShort || l.short === nameOrShort);
 }
 
+/** Get a single league by its UUID. Returns undefined for null/unknown id.
+ *  Slice 326: Filter-/Display-Wahrheit auf league_id (statt String-Name). */
+export function getLeagueById(id: string | null | undefined): League | undefined {
+  if (!id) return undefined;
+  return leagueCache.find((l) => l.id === id);
+}
+
 /** Get leagues filtered by country code (e.g. 'DE', 'TR') */
 export function getLeaguesByCountry(countryCode: string): League[] {
   return leagueCache.filter((l) => l.country === countryCode);

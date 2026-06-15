@@ -19,8 +19,9 @@ export default function RankingsPage() {
   const t = useTranslations('rankings');
 
   // Slice 251 Wave 3 — Liga-Scope SSOT (replaces local useState).
+  // Slice 326: leagueId statt leagueName.
   const filterCountry = useLeagueScope((s) => s.countryCode);
-  const filterLeague = useLeagueScope((s) => s.leagueName);
+  const filterLeagueId = useLeagueScope((s) => s.leagueId);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-6 space-y-6 pb-24 lg:pb-8">
@@ -51,7 +52,7 @@ export default function RankingsPage() {
               = irreführend (suggerierte seitenweite Wirkung). Anil-Decision Option 1. */}
           <div className="space-y-3">
             <LeagueScopeHeader leagueBarSize="md" nonSticky />
-            <PlayerRankings filterCountry={filterCountry} filterLeague={filterLeague} />
+            <PlayerRankings filterCountry={filterCountry} filterLeagueId={filterLeagueId ?? undefined} />
           </div>
         </div>
       </div>

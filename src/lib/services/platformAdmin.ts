@@ -277,14 +277,14 @@ export async function getAllClubs(): Promise<AdminClub[]> {
 
 export async function createClub(
   adminId: string,
-  clubData: { name: string; slug: string; short: string; league: string; country: string; city?: string; plan?: string },
+  clubData: { name: string; slug: string; short: string; leagueId: string; country: string; city?: string; plan?: string },
 ): Promise<{ success: boolean; error?: string; club_id?: string; slug?: string }> {
   const { data, error } = await supabase.rpc('create_club_by_platform_admin', {
     p_admin_id: adminId,
     p_name: clubData.name,
     p_slug: clubData.slug,
     p_short: clubData.short,
-    p_league: clubData.league,
+    p_league_id: clubData.leagueId,
     p_country: clubData.country,
     p_city: clubData.city ?? null,
     p_plan: clubData.plan ?? 'baslangic',

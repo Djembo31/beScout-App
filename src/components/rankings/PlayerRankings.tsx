@@ -35,10 +35,11 @@ const SORT_TABS: { key: SortMode; labelKey: string }[] = [
 
 interface PlayerRankingsProps {
   filterCountry?: string;
-  filterLeague?: string;
+  /** Slice 326: league_id (UUID) statt Liga-Name. */
+  filterLeagueId?: string;
 }
 
-export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsProps) {
+export function PlayerRankings({ filterCountry, filterLeagueId }: PlayerRankingsProps) {
   const t = useTranslations('rankings');
   const locale = useLocale();
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
@@ -50,16 +51,16 @@ export function PlayerRankings({ filterCountry, filterLeague }: PlayerRankingsPr
   // die Query global Top-100 und filterte danach client-seitig: kleine Ligen,
   // deren Spieler nicht im globalen Top-100 sind, zeigten 2-3 Spieler/nichts.
   const filterClubIds = useMemo(() => {
-    if (!filterCountry && !filterLeague) return null;
+    if (!filterCountry && !filterLeagueId) return null;
     return getAllClubsCached()
       .filter(c =>
-        (!filterLeague || c.league === filterLeague) &&
+        (!filterLeagueId || c.league_id === filterLeagueId) &&
         (!filterCountry || c.country === filterCountry))
       .map(c => c.id);
-  }, [filterCountry, filterLeague]);
+  }, [filterCountry, filterLeagueId]);
 
   const { data: players = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['rankings', 'players', sort, filterLeague ?? '', filterCountry ?? ''],
+    queryKey: ['rankings', 'players', sort, filterLeagueId ?? '', filterCountry ?? ''],
     queryFn: async () => {
       let q = supabase
         .from('players')

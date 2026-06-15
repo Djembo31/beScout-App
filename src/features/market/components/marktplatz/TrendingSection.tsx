@@ -16,17 +16,17 @@ type Props = {
 
 export default function TrendingSection({ trending, playerMap }: Props) {
   const t = useTranslations('market');
-  // Slice 251 Wave 3 — Liga-Scope SSOT.
-  const selectedLeague = useLeagueScope((s) => s.leagueName);
+  // Slice 251 Wave 3 — Liga-Scope SSOT. Slice 326: leagueId statt leagueName.
+  const selectedLeagueId = useLeagueScope((s) => s.leagueId);
 
   // Filter trending by global league selection
   const filtered = useMemo(() => {
-    if (!selectedLeague) return trending;
+    if (!selectedLeagueId) return trending;
     return trending.filter(tp => {
       const player = playerMap.get(tp.playerId);
-      return player?.league === selectedLeague;
+      return player?.leagueId === selectedLeagueId;
     });
-  }, [trending, playerMap, selectedLeague]);
+  }, [trending, playerMap, selectedLeagueId]);
 
   if (filtered.length === 0) {
     return (

@@ -1,0 +1,63 @@
+Slice 326 Wave A — PROOF (clubs.league String→UUID: Filter-Wahrheit + Writer)
+Datum: 2026-06-15
+
+═══════════════════════════════════════════════════════════════
+1. TSC — alle Edits sauber
+═══════════════════════════════════════════════════════════════
+$ npx tsc --noEmit
+TSC EXIT: 0   (nach Fundament, nach Filter, nach Writer — 3× verifiziert)
+
+═══════════════════════════════════════════════════════════════
+2. VITEST — alle Wave-A-Bereiche
+═══════════════════════════════════════════════════════════════
+$ CI=true npx vitest run \
+    src/lib/services/__tests__/players.test.ts src/features/market \
+    src/features/manager src/components/rankings src/app/(app)/clubs \
+    src/app/(app)/hooks src/app/(app)/fantasy src/features/shared/store \
+    src/components/home src/components/admin
+
+ Test Files  39 passed (39)
+      Tests  545 passed (545)
+   Duration  59.10s
+
+═══════════════════════════════════════════════════════════════
+3. FILTER-GREP — 0 verbliebene Name-Filter
+═══════════════════════════════════════════════════════════════
+$ grep -rnE "\.league === selectedLeague|\.league !== selectedLeague|=== fantasyLeague|\.league === filterLeague|=== smartLeague" src/features src/app src/components | grep -v "league_id|leagueId"
+(0 echte Filter-Treffer — alle auf leagueId/league_id umgestellt)
+
+═══════════════════════════════════════════════════════════════
+4. RPC LIVE-VERIFY — create_club_by_platform_admin
+═══════════════════════════════════════════════════════════════
+Signatur (genau 1 Overload):
+  p_admin_id uuid, p_name text, p_slug text, p_short text,
+  p_league_id uuid, p_country text, p_city text DEFAULT NULL, p_plan text DEFAULT 'baslangic'
+  → alte p_league(text)-Signatur per DROP FUNCTION entfernt. ✓
+
+Grants (AR-44):
+  service_role:EXECUTE, authenticated:EXECUTE, postgres:EXECUTE
+  → KEIN anon, KEIN PUBLIC. ✓
+
+fail-closed Smoke (unbekannte league_id, kein Write):
+  create_club_by_platform_admin(<echter admin>, 'ZZ Smoke', 'zz-smoke-test-326',
+    'ZZT', '00000000-...-000000000000'::uuid, 'Testland', NULL, 'baslangic')
+  → {"error":"Unbekannte Liga.","success":false}   ✓
+  (beweist: fail-closed greift VOR INSERT + echter admin existiert → Liga-Pfad erreicht)
+
+═══════════════════════════════════════════════════════════════
+5. DB-DATEN — DROP-Sicherheit (für Wave B)
+═══════════════════════════════════════════════════════════════
+clubs: 134 total, 0 NULL league, 0 NULL league_id → kein Backfill nötig.
+clubs.league = NOT NULL (bis Wave-B-DROP), league_id = nullable.
+
+═══════════════════════════════════════════════════════════════
+6. MIGRATION-ORDERING (Reviewer-BLOCKER, gefixt)
+═══════════════════════════════════════════════════════════════
+324: 20260615120000_slice_324_drop_profiles_favorite_club.sql
+325: 20260615130000_slice_325_create_club_league_id.sql
+326: 20260615140000_slice_326_create_club_league_id.sql  ← umbenannt von 120000
+→ chronologisch korrekt: 326 nach 325 (greenfield-reset-safe).
+
+═══════════════════════════════════════════════════════════════
+REVIEW: worklog/reviews/326-review.md — PASS (2 MINOR, 1 NITPICK)
+═══════════════════════════════════════════════════════════════

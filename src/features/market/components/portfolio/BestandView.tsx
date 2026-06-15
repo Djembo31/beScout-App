@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PosFilter } from '@/components/ui/PosFilter';
 import { CountryBar, LeagueBar } from '@/components/ui/index';
-import { getAllLeaguesCached, getCountryName, type CountryLocale } from '@/lib/leagues';
+import { getAllLeaguesCached, getCountryName, getLeague, type CountryLocale } from '@/lib/leagues';
 import type { CountryInfo } from '@/lib/leagues';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useMarketStore } from '@/features/market/store/marketStore';
@@ -61,6 +61,12 @@ export default function BestandView({
   const [filterCountry, setFilterCountry] = useState<string>('');
   const [filterLeague, setFilterLeague] = useState<string>('');
   const [sellPlayerId, setSellPlayerId] = useState<string | null>(null);
+  // Slice 326: LeagueBar (shared UI) bleibt name-basiert (selected/onSelect);
+  // gefiltert wird über league_id. Name→id via getLeague.
+  const filterLeagueId = useMemo(
+    () => (filterLeague ? getLeague(filterLeague)?.id ?? null : null),
+    [filterLeague],
+  );
 
   // ── Build holdings map ──
   const holdingsMap = useMemo(() => {
@@ -161,18 +167,18 @@ export default function BestandView({
     const counts: Record<Pos, number> = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
     let source = items;
     if (filterCountry) source = source.filter(i => i.player.leagueCountry === filterCountry);
-    if (filterLeague) source = source.filter(i => i.player.league === filterLeague);
+    if (filterLeagueId) source = source.filter(i => i.player.leagueId === filterLeagueId);
     if (filterClub) source = source.filter(i => i.player.clubId === filterClub);
     for (const i of source) counts[i.player.pos] += i.quantity;
     return counts;
-  }, [items, filterCountry, filterLeague, filterClub]);
+  }, [items, filterCountry, filterLeagueId, filterClub]);
 
   // ── Club counts (filtered by country/league, for filter chips) ──
   const clubCounts = useMemo(() => {
     const map = new Map<string, { club: ClubLookup; count: number }>();
     let source = items;
     if (filterCountry) source = source.filter(i => i.player.leagueCountry === filterCountry);
-    if (filterLeague) source = source.filter(i => i.player.league === filterLeague);
+    if (filterLeagueId) source = source.filter(i => i.player.leagueId === filterLeagueId);
     for (const i of source) {
       const clubId = i.player.clubId;
       if (!clubId) continue;
@@ -185,7 +191,7 @@ export default function BestandView({
       }
     }
     return Array.from(map.values()).sort((a, b) => b.count - a.count);
-  }, [items, filterCountry, filterLeague]);
+  }, [items, filterCountry, filterLeagueId]);
 
   // ── Filter items ──
   const filtered = useMemo(() => {
@@ -193,8 +199,8 @@ export default function BestandView({
     if (filterCountry) {
       result = result.filter(i => i.player.leagueCountry === filterCountry);
     }
-    if (filterLeague) {
-      result = result.filter(i => i.player.league === filterLeague);
+    if (filterLeagueId) {
+      result = result.filter(i => i.player.leagueId === filterLeagueId);
     }
     if (filterPos.size > 0) {
       result = result.filter(i => filterPos.has(i.player.pos));
@@ -203,7 +209,7 @@ export default function BestandView({
       result = result.filter(i => i.player.clubId === filterClub);
     }
     return result;
-  }, [items, filterCountry, filterLeague, filterPos, filterClub]);
+  }, [items, filterCountry, filterLeagueId, filterPos, filterClub]);
 
   // ── Sort ──
   const sorted = useMemo(() => {

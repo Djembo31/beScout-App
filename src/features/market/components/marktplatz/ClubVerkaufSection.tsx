@@ -60,7 +60,8 @@ export default function ClubVerkaufSection({
     ipoViewState, setIpoViewState,
   } = store;
   // Slice 251 Wave 3 — Liga-Filter from global SSOT (replaces marketStore.selectedLeague).
-  const selectedLeague = useLeagueScope((s) => s.leagueName);
+  // Slice 326: leagueId statt leagueName (club aus getClub-Lookup hat league_id).
+  const selectedLeagueId = useLeagueScope((s) => s.leagueId);
 
   const hasRendered = useRef(false);
   useEffect(() => { hasRendered.current = true; }, []);
@@ -100,8 +101,8 @@ export default function ClubVerkaufSection({
       const club = getClub(clubName);
       if (!club) return;
 
-      // League filter (now uses global selectedLeague from store)
-      if (selectedLeague && club.league !== selectedLeague) return;
+      // League filter (Slice 326: club.league_id statt club.league)
+      if (selectedLeagueId && club.league_id !== selectedLeagueId) return;
 
       const ipoMap = new Map<string, DbIpo>();
       const endDates: string[] = [];
@@ -146,7 +147,7 @@ export default function ClubVerkaufSection({
       if (aEnd !== bEnd) return aEnd - bEnd;
       return b.dpcCount - a.dpcCount;
     });
-  }, [players, viewIpos, store, selectedLeague, iposByPlayer, followedClubIds]);
+  }, [players, viewIpos, store, selectedLeagueId, iposByPlayer, followedClubIds]);
 
   const hasContent = clubAggregates.length > 0;
   const isBuyable = ipoViewState === 'laufend';

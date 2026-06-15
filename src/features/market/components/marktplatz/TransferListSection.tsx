@@ -51,7 +51,8 @@ export default function TransferListSection({
   const t = useTranslations('market');
   const store = useMarketStore();
   // Slice 251 Wave 3 — Liga-Filter from global SSOT (replaces store.selectedLeague).
-  const selectedLeague = useLeagueScope((s) => s.leagueName);
+  // Slice 326: leagueId statt leagueName.
+  const selectedLeagueId = useLeagueScope((s) => s.leagueId);
   const { data: scoresMap } = useRecentScores();
 
   // Aggregate sell orders by player
@@ -85,8 +86,8 @@ export default function TransferListSection({
     let result = players.filter(p => listings.has(p.id));
 
     // Global league filter from useLeagueScope SSOT.
-    if (selectedLeague) {
-      result = result.filter(p => p.league === selectedLeague);
+    if (selectedLeagueId) {
+      result = result.filter(p => p.leagueId === selectedLeagueId);
     }
 
     // Apply shared filters
@@ -134,7 +135,7 @@ export default function TransferListSection({
     });
 
     return result;
-  }, [players, listings, store, selectedLeague, getFloor, showAffordable, balanceCents]);
+  }, [players, listings, store, selectedLeagueId, getFloor, showAffordable, balanceCents]);
 
   return (
     <div className="space-y-4">

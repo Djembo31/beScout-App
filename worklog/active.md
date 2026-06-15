@@ -1,20 +1,27 @@
 # Active Slice
 
 ```
-status: idle
-slice: 325 ✅ DONE
-stage: LOG complete
-spec: worklog/specs/325-clubs-league-uuid-filters.md
-impact: inline (reine RPC-Härtung, kein src-Diff)
-proof: worklog/proofs/325-clubs-league-filters.txt
-review: worklog/reviews/325-review.md (self-PASS, PATCH-AUDIT + AR-44 verifiziert)
-decision: S7 Phase-3 Paar B = nur Drift-Stop (create_club setzt league_id). Volle clubs.league-Migration (Filter Name→ID, Cache-Decouple, DROP) ist L mit tiefen Tendrils (LeagueBar namens-Listbuilder, PlayerRankings prop-thread, Club-Cache liest Name) → eigene Slice 326, kohärente Einheit. Premature Foundation-Edits reverted (kein Orphan, D54).
-next_preflight: worklog/notes/326-preflight-hermes-review.md lesen, dann erst Slice 326 SPEC/BUILD starten.
+status: active
+slice: 326
+stage: BUILD (Wave A DONE/PASS → Commit+Deploy → Live-Verify → Wave B)
+spec: worklog/specs/326-clubs-league-uuid-full-migration.md
+impact: worklog/impact/326-clubs-league-uuid-full-migration.md (DROP sicher: 0 Views/Trigger/Constraints, 134 Clubs 0 NULL league_id; ⚠️ 2 RPC-Blocker get_player_data_completeness + get_club_by_slug → Wave B)
+proof: worklog/proofs/326a-wave-a.txt
+review: worklog/reviews/326-review.md
+size: L
+type: Migration + Service + UI
+scope: CEO-approved 2026-06-15 (Anil: "Voll inkl. DROP", Hermes-Plan) — Writer-Fix via RPC p_league→p_league_id (FK = fail-closed)
+wave_a_done: Fundament (getLeagueById/Player.leagueId/dbToPlayer) + 10 Filter Name→league_id + Writer (CreateClubModal/platformAdmin/RPC fail-closed). 15 Files. PASS. → committen + deployen für Live-Verify.
+wave_b_todo: ~25 Display-Stellen → getLeagueById(id).name; 2 RPC-DROP-Blocker (get_player_data_completeness, get_club_by_slug); clubs.ts/club.ts SELECT-Bereinigung; 4-Achsen-Pre-DROP-Grep (inkl. seed-demo.sql + orphan LeagueBar.tsx removal); DROP COLUMN league + league_id→NOT NULL; REVIEW B + CEO-DROP-OK.
+plan: 2 Waves in 1 Slice (kein Orphan, D54). Wave A = Filter-Wahrheit Name→ID (~12 Konsumenten + getLeagueById + Player.leagueId + platformAdmin-Write), live-verifizierbar. Wave B = ~25 Display-Stellen auf getLeagueById(league_id).name + clubs.ts/club.ts SELECT-Bereinigung + DROP clubs.league.
+preflight: worklog/notes/326-preflight-hermes-review.md + Inventur (Explore-Agent: 57 Files → ~12 Filter/A, ~25 Display/B, Rest Test/C).
+open_q: (1) RPC create_club p_league_id-Param? via pg_get_functiondef. (2) unbekannte Liga = fail-closed? CEO.
 ```
 
 ## Zuletzt
 
-- **Slice 325** (2026-06-15, DONE) — S7 Phase-3 Paar B(1/2): create_club setzt `league_id` als Drift-Stop; volle `clubs.league` String→UUID-Migration bleibt Slice 326.
+- **Slice 326** (2026-06-15, SPEC) — clubs.league String→UUID Vollmigration (L, 2 Waves). Inventur done: getLeagueById fehlt, ClubLookup trägt league_id schon, leagueScopeStore ist ID-SSOT, PLAYER_SELECT_COLS unbetroffen.
+- **Slice 325** (2026-06-15, DONE) — S7 Phase-3 Paar B(1/2): create_club setzt `league_id` als Drift-Stop; volle `clubs.league` String→UUID-Migration = Slice 326.
 - **Slice 324** (2026-06-15) — S7 Phase-3 Paar C: favorite_club String→UUID Vorlage (refactor, REWORK→PASS, live `10a92273`).
 - **Slice 323** (2026-06-14) — P1-Demo Gamif #3: Ticket-Reconcile (fix, live).
 - **Slice 322** (2026-06-14) — P1-Demo Gamif #1+#2 (fix, live).

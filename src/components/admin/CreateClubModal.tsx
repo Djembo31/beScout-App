@@ -43,7 +43,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [short, setShort] = useState('');
-  const [league, setLeague] = useState('');
+  const [leagueId, setLeagueId] = useState('');
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
   const [plan, setPlan] = useState('baslangic');
@@ -58,7 +58,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !slug.trim() || !short.trim() || !league.trim() || !country.trim()) {
+    if (!name.trim() || !slug.trim() || !short.trim() || !leagueId || !country.trim()) {
       addToast(t('fillRequired'), 'error');
       return;
     }
@@ -68,7 +68,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
         name: name.trim(),
         slug: slug.trim(),
         short: short.trim(),
-        league: league.trim(),
+        leagueId,
         country: country.trim(),
         city: city.trim() || undefined,
         plan,
@@ -151,17 +151,17 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
             <label htmlFor="club-league" className="block text-xs text-white/60 mb-1">{t('clubLeagueLabel')}</label>
             <select
               id="club-league"
-              value={league}
+              value={leagueId}
               onChange={(e) => {
-                const l = getAllLeaguesCached().find(lg => lg.name === e.target.value);
-                setLeague(e.target.value);
+                const l = getAllLeaguesCached().find(lg => lg.id === e.target.value);
+                setLeagueId(e.target.value);
                 if (l) setCountry(getCountryName(l.country, locale));
               }}
               className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-base border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
             >
               <option value="">{tc('all')}</option>
               {getAllLeaguesCached().map(l => (
-                <option key={l.short} value={l.name}>{l.name}</option>
+                <option key={l.id} value={l.id}>{l.name}</option>
               ))}
             </select>
           </div>

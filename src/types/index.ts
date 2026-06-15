@@ -47,6 +47,8 @@ export type Player = {
   name?: string;
   club: string;
   clubId?: string;
+  /** Slice 326: league_id (UUID) — die Filter-/Routing-Wahrheit. `league` bleibt nur Display-Name. */
+  leagueId?: string;
   league?: string;
   leagueShort?: string;
   leagueCountry?: string;

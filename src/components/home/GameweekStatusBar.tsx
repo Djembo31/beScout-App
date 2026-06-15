@@ -22,7 +22,7 @@ import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useLeagueScope } from '@/features/shared/store/leagueScopeStore';
 import { useEvents } from '@/lib/queries';
-import { getLeague } from '@/lib/leagues';
+import { getLeagueById } from '@/lib/leagues';
 import { cn } from '@/lib/utils';
 import { getTimeUntil, pickScopedEvent, URGENT_THRESHOLD_MS } from './helpers';
 import type { DbEvent } from '@/types';
@@ -54,7 +54,8 @@ function GameweekStatusBarInner() {
   const remainingMs = timeIso ? Math.max(0, new Date(timeIso).getTime() - Date.now()) : 0;
   const isUrgent = !isRunning && remainingMs > 0 && remainingMs < URGENT_THRESHOLD_MS;
 
-  const league = leagueName ? getLeague(leagueName) : null;
+  // Slice 326: id-basierter Lookup (robuster als name-Lookup). leagueName bleibt Display-Fallback.
+  const league = getLeagueById(leagueId);
   const leagueLogoUrl = league?.logoUrl ?? null;
   const leagueDisplayName = league?.short ?? leagueName;
   const gw = barEvent.gameweek ?? 1;

@@ -88,7 +88,6 @@ export default function FantasyContent() {
   // Header-Switch wirkt jetzt überall atomar: useGameweek/Fixtures refetchen via 5-Key-invalidate.
   const leagueScopeId = useLeagueScope((s) => s.leagueId);
   const fantasyCountry = useLeagueScope((s) => s.countryCode);
-  const fantasyLeague = useLeagueScope((s) => s.leagueName);
   const gw = useGameweek(gwEvents, leagueScopeId);
   const { holdings } = useFantasyHoldings();
   const { joinEvent, leaveEvent, submitLineup: handleSubmitLineup } = useEventActions(clubId);
@@ -110,18 +109,18 @@ export default function FantasyContent() {
   const cacheVersion = useLeagueCacheVersion();
   const eventCountries = useMemo(() => getCountries(locale), [locale, cacheVersion]);
 
-  // Filter gwEvents by selected league
+  // Filter gwEvents by selected league (Slice 326: club.league_id statt club.league)
   const filteredGwEvents = useMemo(() => {
-    if (!fantasyLeague && !fantasyCountry) return gwEvents;
+    if (!leagueScopeId && !fantasyCountry) return gwEvents;
     return gwEvents.filter(e => {
       if (!e.clubId) return true; // Global events always show
       const club = getClub(e.clubId);
       if (!club) return true;
-      if (fantasyLeague) return club.league === fantasyLeague;
+      if (leagueScopeId) return club.league_id === leagueScopeId;
       if (fantasyCountry) return club.country === fantasyCountry;
       return true;
     });
-  }, [gwEvents, fantasyLeague, fantasyCountry]);
+  }, [gwEvents, leagueScopeId, fantasyCountry]);
 
   // ── Dashboard stats (for ErgebnisseTab) — liga-scoped via filteredGwEvents ──
   const dashboardStats = useMemo(() => {
