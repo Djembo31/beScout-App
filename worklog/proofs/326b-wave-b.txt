@@ -47,3 +47,27 @@ supabase/migrations/20260615160000_slice_326_wave_b_drop_clubs_league.sql
   3 RPCs (create_club ohne league-INSERT, get_club_by_slug + get_player_data_completeness
   via leagues-Join) + ALTER league_id NOT NULL + DROP COLUMN league — atomar in 1 TX.
   Apply NACH Schritt-A-Deploy + Live-Verify der abgeleiteten Liga-Namen.
+
+═══════════════════════════════════════════════════════════════
+6. PRE-DROP LIVE-GATE (Network-Check — verhinderte verfrühten DROP)
+═══════════════════════════════════════════════════════════════
+Playwright Network-Trace bescout.net/clubs:
+  VOR Deploy-durch: clubs?select=...short,LEAGUE,league_id,... (alte Version las noch league)
+  → Service-Worker cachte alte Bundles! SW unregister + caches.delete → frisch geladen.
+  NACH: clubs?select=...short,LEAGUE_ID,country,... (KEIN league mehr) = neue Version live.
+  Liga-Labels „TFF 1. Lig"/„Süper Lig" erscheinen TROTZ select-ohne-league → Ableitung greift.
+→ DROP erst NACH bestätigt-neuer-Version (live-App liest clubs.league nicht mehr).
+
+═══════════════════════════════════════════════════════════════
+7. DROP APPLIED + POST-DROP-VERIFY
+═══════════════════════════════════════════════════════════════
+apply_migration → success: true
+DB-Verify:
+  league_col_exists      = 0        (Spalte weg)
+  league_id_nullable     = NO       (NOT NULL gesetzt)
+  get_club_by_slug('sakaryaspor').league         = "TFF 1. Lig"   (RPC via leagues-Join)
+  get_player_data_completeness[0].league         = "2. Bundesliga" (Join-Gruppierung)
+Live-App (post-DROP, Spalte weg):
+  /clubs        → Liga-Labels „TFF 1. Lig"/„Süper Lig" ✅, 0 echte Errors
+  /club/sakaryaspor → Titel „Sakaryaspor" (SSR-Metadata F-2 ✅), Liga „TFF 1. Lig" ✅, 0 Errors
+→ league_id ist jetzt die EINZIGE Wahrheit; Display-Name durchgängig abgeleitet. D80-Ziel erreicht.

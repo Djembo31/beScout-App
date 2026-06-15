@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 326 Wave B | 2026-06-15 | refactor(clubs): DROP clubs.league — league_id ist einzige Wahrheit
+- Stage-Chain: BUILD (Reader-Decouple + DROP-Migration) → REVIEW (`worklog/reviews/326-wave-b-review.md`, reviewer **REWORK** → 5 übersehene Reader gefixt → PASS) → PROVE (`worklog/proofs/326b-wave-b.txt`, Network-Gate + DROP-apply + post-DROP live) → LOG. Schließt Slice 326 (S7 Phase-3 Paar B) komplett ab.
+- Trigger: Anil „nachholen" nach Wave-A-Live-Verify. D80-Single-Truth: clubs.league-String-Spalte gedroppt, Display-Name durchgängig via getLeagueById(league_id).name abgeleitet.
+- Schritt A (Reader, reversibel): clubs.ts (Cache-Order initLeagueCache-first, Slice 286) + club.ts (withLeagueName ×5) + platformAdmin.getAllClubs + page.tsx getClubMeta + 4 scripts; orphan marktplatz/LeagueBar.tsx gelöscht. Commit `b8452176`.
+- Schritt B (DROP, irreversibel, atomar 1 TX): 3 RPCs umgestellt (create_club INSERT ohne league; get_club_by_slug + get_player_data_completeness via leagues-Join) + `ALTER league_id SET NOT NULL` + `DROP COLUMN league`. Migration `20260615160000`.
+- Reviewer-Gate fing 2 BLOCKER (platformAdmin.getAllClubs + club/[slug] SSR-Metadata, beide direkte clubs.league-SELECTs außerhalb des Diffs) + 3 MAJOR (scripts) → alle vor DROP gefixt.
+- Pre-DROP Network-Gate (Playwright): verifiziert dass live-Version clubs.league nicht mehr selektiert (PWA-Service-Worker-Cache musste erst geleert werden). DROP erst danach.
+- Verify: tsc + 1264 Tests grün. DB post-DROP: league-Spalte weg, league_id NOT NULL, 3 RPCs via Join (get_club_by_slug('sakaryaspor').league="TFF 1. Lig"). Live: /clubs + /club/sakaryaspor Liga-Namen korrekt TROTZ gedroppter Spalte, 0 Errors.
+- Knowledge: `.claude/rules/errors-frontend.md` „Column-DROP" erweitert (ALLE src/lib/services/*.ts + src/app/**/page.tsx SSR-Achsen; DROP-Sicherheits-Sequenz mit Network-Gate + PWA-SW-Cache-Falle).
+
 ## 327 | 2026-06-15 | refactor(ui): Flaggen-Normung Emoji→SVG (Windows-konsistent)
 - Stage-Chain: SPEC (`worklog/specs/327-flag-normalization-svg.md`, S, UI) → IMPACT skipped (nur UI-Components + utils) → BUILD → REVIEW self-PASS (`worklog/reviews/327-review.md`, 1 NITPICK A11y out-of-scope) → PROVE (`worklog/proofs/327-flag-normalization.txt`, Playwright live) → LOG.
 - Trigger: Anil-Live-Bug 2026-06-15 (während 326-Verify): „warum sehe ich die Flaggen nie konstant? Text TR DE bei Filtern und einigen Spielern". Root-Cause: `countryToFlag` erzeugt Unicode-Emoji-Flaggen (🇩🇪); Windows hat keine Emoji-Flaggen-Glyphs → rendert „DE"/„TR" als Text. 2 parallele Systeme (Emoji vs SVG `CountryFlag`).

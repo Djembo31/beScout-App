@@ -1,14 +1,13 @@
 # Active Slice
 
 ```
-status: active
-slice: 326
-stage: BUILD (Wave B Schritt A committed → Deploy → Live-Verify → DROP-apply)
+status: idle
+slice: 326 ✅ DONE — Wave A + Wave B komplett, DROP clubs.league live-verifiziert
+stage: LOG complete
 proof: worklog/proofs/326b-wave-b.txt
 review: worklog/reviews/326-wave-b-review.md
-wave_b_step_a: Reader auf league_id-Ableitung (clubs.ts cache-order, club.ts withLeagueName×5, platformAdmin getAllClubs, page.tsx getClubMeta, 4 scripts, orphan LeagueBar gelöscht). Reviewer REWORK→5 Findings gefixt→re-verifiziert. tsc + 1264 Tests grün.
-wave_b_step_b: DROP-Migration 20260615160000 geschrieben (3 RPCs + DROP COLUMN + league_id NOT NULL, atomar). APPLY erst nach Schritt-A-Live-Verify (abgeleitete Liga-Namen korrekt).
-next_327_done: 327 Flaggen-Normung DONE (live 0f7ea0c1).
+done_326: S7 Phase-3 Paar B abgeschlossen. clubs.league String→UUID Vollmigration. league_id ist EINZIGE Wahrheit, Display-Name via getLeagueById abgeleitet, Spalte gedroppt + NOT NULL. D80-Ziel erreicht. DROP atomar (3 RPCs via leagues-Join + DROP COLUMN), post-DROP live-verifiziert (/clubs + /club/sakaryaspor, 0 Errors).
+next: Slice 327 Flaggen DONE. Paar A (players.club) bleibt blockiert (API-Football-Key gesperrt). log.md-Chronologie-Reparatur optional offen.
 spec_327: worklog/specs/327-flag-normalization-svg.md
 type_327: UI (Flaggen-Normung Emoji→SVG, cross-cutting)
 size_327: S
