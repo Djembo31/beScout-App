@@ -285,8 +285,8 @@ async function main() {
   // Load all clubs for this league from DB
   const { data: dbClubs } = await supabase
     .from('clubs')
-    .select('id, name, slug')
-    .eq('league', config.leagueName)
+    .select('id, name, slug, leagues!inner(name)')
+    .eq('leagues.name', config.leagueName)
     .order('name');
 
   if (!dbClubs?.length) { console.error('No clubs found for league'); process.exit(1); }

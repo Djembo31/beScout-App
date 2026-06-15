@@ -1,6 +1,16 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, ClubDashboardStats, ClubAdminRole, OperationResult } from '@/types';
+import { getLeagueById } from '@/lib/leagues';
+
+/**
+ * Slice 326 Wave B: leitet DbClub.league (Display-Name) aus league_id ab.
+ * Die DB-Spalte clubs.league wurde gedroppt — league ist jetzt nur noch ein
+ * cache-abgeleiteter Anzeigename (League-Cache ready via ClubProvider).
+ */
+function withLeagueName<T extends { league_id: string | null }>(club: T): T {
+  return { ...club, league: getLeagueById(club.league_id)?.name ?? '' };
+}
 
 // ============================================
 // Club Queries
@@ -21,22 +31,22 @@ export async function getClubBySlug(slug: string, userId?: string): Promise<Club
 export async function getClubById(clubId: string): Promise<DbClub | null> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
+    .select('id, slug, name, short, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .eq('id', clubId)
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  return data as DbClub;
+  return withLeagueName(data as DbClub);
 }
 
 /** Get all clubs */
 export async function getAllClubs(): Promise<DbClub[]> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
+    .select('id, slug, name, short, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .order('name');
   if (error) throw new Error(error.message);
-  return (data ?? []) as DbClub[];
+  return (data ?? []).map((c) => withLeagueName(c as DbClub));
 }
 
 /** Get the first club the user is admin of (Pilot: max 1 club) */
@@ -303,7 +313,7 @@ export async function getUserFollowedClubs(userId: string): Promise<DbClub[]> {
   if (!data) return [];
   return data.map((row) => {
     const club = row.clubs as unknown as DbClub;
-    return club;
+    return withLeagueName(club);
   }).filter(Boolean);
 }
 
@@ -317,7 +327,7 @@ export async function getUserPrimaryClub(userId: string): Promise<DbClub | null>
     .maybeSingle();
 
   if (error || !data) return null;
-  return data.clubs as unknown as DbClub;
+  return withLeagueName(data.clubs as unknown as DbClub);
 }
 
 /** Set a club as the user's primary club */
@@ -364,7 +374,7 @@ export async function getClubsWithStats(
 ): Promise<Array<DbClub & { follower_count: number; player_count: number }>> {
   const { data: clubs, error } = await supabase
       .from('clubs')
-      .select('id, slug, name, short, league, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
+      .select('id, slug, name, short, league_id, country, city, stadium, stadium_image_url, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
       .order('name');
 
   if (error) throw new Error(error.message);
@@ -412,7 +422,7 @@ export async function getClubsWithStats(
   }
 
   return clubs.map(c => ({
-    ...(c as DbClub),
+    ...withLeagueName(c as DbClub),
     follower_count: followerCounts.get(c.id) ?? 0,
     player_count: playerCounts.get(c.id) ?? 0,
   }));

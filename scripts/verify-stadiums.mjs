@@ -43,8 +43,8 @@ async function main() {
   // Load all clubs from DB
   const { data: dbClubs } = await supabase
     .from('clubs')
-    .select('id, name, slug, stadium, city, league')
-    .order('league').order('name');
+    .select('id, name, slug, stadium, city')
+    .order('name');
 
   const clubByNorm = new Map();
   for (const c of dbClubs ?? []) {

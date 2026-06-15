@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
+import { getLeagueById } from '@/lib/leagues';
 import type { DbFeeConfig, DbEventFeeConfig, OperationResult } from '@/types';
 
 // ============================================
@@ -229,6 +230,7 @@ export type AdminClub = {
   slug: string;
   short: string;
   league: string;
+  league_id: string | null;
   country: string;
   city: string | null;
   plan: string;
@@ -241,12 +243,13 @@ export type AdminClub = {
 export async function getAllClubs(): Promise<AdminClub[]> {
   const { data: clubs, error } = await supabase
     .from('clubs')
-    .select('id, name, slug, short, league, country, city, plan, is_verified, created_at')
+    .select('id, name, slug, short, league_id, country, city, plan, is_verified, created_at')
     .order('name', { ascending: true });
   if (error || !clubs) return [];
 
   const clubIds = clubs.map(c => c.id);
-  if (clubIds.length === 0) return clubs.map(c => ({ ...c, follower_count: 0, player_count: 0 }));
+  // Slice 326 Wave B: league (Display-Name) aus league_id ableiten (clubs.league gedroppt).
+  if (clubIds.length === 0) return clubs.map(c => ({ ...c, league: getLeagueById(c.league_id)?.name ?? '', follower_count: 0, player_count: 0 }));
 
   // Fetch follower counts
   const { data: followers } = await supabase
@@ -270,6 +273,7 @@ export async function getAllClubs(): Promise<AdminClub[]> {
 
   return clubs.map(c => ({
     ...c,
+    league: getLeagueById(c.league_id)?.name ?? '',
     follower_count: followerMap.get(c.id) ?? 0,
     player_count: playerMap.get(c.id) ?? 0,
   }));

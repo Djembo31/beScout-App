@@ -8,7 +8,7 @@ type Props = { params: Promise<{ slug: string }> };
 async function getClubMeta(slug: string) {
   const { data } = await supabaseAdmin
     .from('clubs')
-    .select('name, logo_url, league, city')
+    .select('name, logo_url, city')
     .eq('slug', slug)
     .maybeSingle();
   return data;

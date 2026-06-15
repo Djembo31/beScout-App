@@ -181,8 +181,8 @@ async function main() {
   // Load all clubs from DB, mit JOIN auf leagues.short für --exclude-league filter
   const { data: clubsRaw } = await supabase
     .from('clubs')
-    .select('id, slug, name, stadium, league, leagues!inner(short)')
-    .order('league').order('name');
+    .select('id, slug, name, stadium, leagues!inner(short)')
+    .order('name');
   const clubs = (clubsRaw ?? []).filter(c => {
     const shortCode = c.leagues?.short;
     return !EXCLUDE_LEAGUES.includes(shortCode);

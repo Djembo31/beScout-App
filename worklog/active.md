@@ -1,10 +1,14 @@
 # Active Slice
 
 ```
-status: idle
-slice: 327 ✅ DONE — LOG complete (live-verifiziert: 5 SVG / 0 Emoji)
-stage: LOG complete
-next: Slice 326 Wave B (Display-Resolver + DROP clubs.league) — geparkt, nachholen
+status: active
+slice: 326
+stage: BUILD (Wave B Schritt A committed → Deploy → Live-Verify → DROP-apply)
+proof: worklog/proofs/326b-wave-b.txt
+review: worklog/reviews/326-wave-b-review.md
+wave_b_step_a: Reader auf league_id-Ableitung (clubs.ts cache-order, club.ts withLeagueName×5, platformAdmin getAllClubs, page.tsx getClubMeta, 4 scripts, orphan LeagueBar gelöscht). Reviewer REWORK→5 Findings gefixt→re-verifiziert. tsc + 1264 Tests grün.
+wave_b_step_b: DROP-Migration 20260615160000 geschrieben (3 RPCs + DROP COLUMN + league_id NOT NULL, atomar). APPLY erst nach Schritt-A-Live-Verify (abgeleitete Liga-Namen korrekt).
+next_327_done: 327 Flaggen-Normung DONE (live 0f7ea0c1).
 spec_327: worklog/specs/327-flag-normalization-svg.md
 type_327: UI (Flaggen-Normung Emoji→SVG, cross-cutting)
 size_327: S

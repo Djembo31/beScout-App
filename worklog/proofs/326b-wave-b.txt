@@ -1,0 +1,49 @@
+Slice 326 Wave B — PROOF (Schritt A: Reader auf league_id-Ableitung, pre-DROP)
+Datum: 2026-06-15
+
+═══════════════════════════════════════════════════════════════
+1. TSC + VITEST
+═══════════════════════════════════════════════════════════════
+$ npx tsc --noEmit  → EXIT 0
+$ CI=true vitest run (club/clubs/admin/services/lib)
+ Test Files  64 passed (64)
+      Tests  1264 passed (1264)
+
+═══════════════════════════════════════════════════════════════
+2. REVIEWER (REWORK → fixed)
+═══════════════════════════════════════════════════════════════
+reviewer-Agent fand 5 übersehene clubs.league-Reader/Writer (2 BLOCKER live-Pfad):
+- F-1 platformAdmin.ts:244 getAllClubs (AdminClubsTab) → league_id + getLeagueById ✓
+- F-2 club/[slug]/page.tsx:11 getClubMeta SSR → league aus SELECT gestrichen ✓
+- F-3 scripts/import-league.mjs:137 INSERT league → entfernt (league_id reicht) ✓
+- F-4 scripts/enrich-from-transfermarkt.mjs:289 .eq('league') → leagues!inner-Join-Filter ✓
+- F-5 scripts/fetch-stadium-images.mjs + verify-stadiums.mjs select/order('league') → league_id/name ✓
+Review: worklog/reviews/326-wave-b-review.md
+
+═══════════════════════════════════════════════════════════════
+3. RE-GREP (umfassend, alle Achsen) — 0 echte clubs.league-Reader
+═══════════════════════════════════════════════════════════════
+$ grep from('clubs') + league (nicht league_id) src/ scripts/  → nur Falsch-Positive:
+  - JS-Var league.id/league.country (import-league)
+  - API-Football-JSON league:{id,season} (Cron-Routes)
+  - Test-Mocks league:'...' (abgeleitetes Feld, korrekt)
+$ grep .eq/.order/.select('league')  → 0
+
+═══════════════════════════════════════════════════════════════
+4. SRC-READER UMGESTELLT (auf getLeagueById(league_id).name)
+═══════════════════════════════════════════════════════════════
+clubs.ts        : initClubCache awaitet initLeagueCache ZUERST (Cache-Order Slice 286);
+                  SELECT ohne league; ClubLookup.league = getLeagueById(league_id).name
+club.ts         : Helper withLeagueName ×5 (getClubById/getAllClubs/getClubsWithStats/
+                  getUserFollowedClubs/getUserPrimaryClub); 3 SELECTs ohne league
+platformAdmin.ts: getAllClubs SELECT league_id + getLeagueById-Ableitung (2 map-Stellen)
+page.tsx        : getClubMeta SELECT ohne league (war ungenutzt)
+LeagueBar.tsx   : GELÖSCHT (orphan, 0 Importer)
+
+═══════════════════════════════════════════════════════════════
+5. DROP-MIGRATION (geschrieben, NICHT appliziert bis Live-Verify)
+═══════════════════════════════════════════════════════════════
+supabase/migrations/20260615160000_slice_326_wave_b_drop_clubs_league.sql
+  3 RPCs (create_club ohne league-INSERT, get_club_by_slug + get_player_data_completeness
+  via leagues-Join) + ALTER league_id NOT NULL + DROP COLUMN league — atomar in 1 TX.
+  Apply NACH Schritt-A-Deploy + Live-Verify der abgeleiteten Liga-Namen.

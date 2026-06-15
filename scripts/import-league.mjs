@@ -134,7 +134,6 @@ async function importLeague(league) {
           name: team.name,
           slug,
           short: team.code || slug.slice(0, 3).toUpperCase(),
-          league: league.name,
           league_id: league.id,
           country: league.country,
           city: venue?.city ?? null,

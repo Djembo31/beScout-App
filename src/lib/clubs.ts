@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText } from '@/lib/notifText';
+import { getLeagueById, initLeagueCache } from '@/lib/leagues';
 
 // ============================================
 // Club Lookup Type (used by all consumers)
@@ -37,9 +38,14 @@ export async function initClubCache(): Promise<void> {
 
   cachePromise = (async () => {
     try {
+      // Slice 326 Wave B: League-Cache MUSS vor Club-Cache-Build ready sein —
+      // ClubLookup.league wird unten aus getLeagueById(league_id) abgeleitet
+      // (clubs.league String-Spalte gedroppt). Cache-Order-Race (Slice 286).
+      await initLeagueCache();
+
       const { data, error } = await supabase
         .from('clubs')
-        .select('id, slug, name, short, league, league_id, country, primary_color, secondary_color, logo_url')
+        .select('id, slug, name, short, league_id, country, primary_color, secondary_color, logo_url')
         .order('name');
 
       if (error) {
@@ -63,7 +69,8 @@ export async function initClubCache(): Promise<void> {
             secondary: c.secondary_color ?? '#FFFFFF',
           },
           logo: c.logo_url,
-          league: c.league,
+          // Slice 326 Wave B: Display-Name aus League-Cache (clubs.league gedroppt).
+          league: getLeagueById(c.league_id)?.name ?? '',
           league_id: c.league_id,
           country: c.country ?? notifText('unknownFallback'),
         };
