@@ -1,66 +1,69 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto / Hermes Manual Anchor (2026-06-15)
+# Session Handoff — Auto (2026-06-15 17:39)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
-> Vor Weiterarbeit immer aktuelle Realität prüfen: `git status --short --branch && git log --oneline -8`.
+
+## Uncommitted Changes
+```
+?? worklog/audits/audit-stale-2026-06-15.md      (self-renewing Cron-Churn — NICHT committen)
+?? worklog/audits/type-truth-2026-06-15.md       (dito)
+?? worklog/audits/wiring-2026-06-15.md           (dito)
+```
+
+## Session Commits (2026-06-15)
+- 7449026e refactor(clubs): Slice 326 Wave B — DROP clubs.league (atomar, live-verifiziert)
+- b8452176 refactor(clubs): Slice 326 Wave B Schritt A — clubs.league-Reader auf league_id-Ableitung
+- ecd31533 docs(log): Slice 326 Wave A + 327 log-Einträge + 327 live-verify-proof
+- 0f7ea0c1 refactor(ui): Slice 327 — Flaggen-Normung Emoji→SVG (Windows-konsistent)
+- d6bce498 refactor(clubs): Slice 326 Wave A — clubs.league Filter-Wahrheit + Writer auf league_id
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-15 — S7 Phase-3 läuft, nächster Schritt = Slice 326)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-15 Abend — S7 Phase-3 läuft)
 
-**Status: idle** · aktueller HEAD kann ein Handoff-only Commit sein (`9c00b131`); letzte echte technische Baseline ist `b385c3af` (Slice 325). Vor dem Start: `git status --short --branch && git log --oneline -5` laufen lassen und tatsächlichen HEAD gegen diese Zeile abgleichen. Working tree typischerweise: Auto-Handoff-Block + 3 self-renewing Audit-Churn-Files (`worklog/audits/{audit-stale,type-truth,wiring}-2026-06-14.md` → nicht committen, reinigen/ignorieren). **Hermes-Review-Anker lesen:** `worklog/notes/326-preflight-hermes-review.md`.
+**Status: idle.** HEAD = `7449026e` (Slice 326 Wave B DONE). Vor Start: `git status --short --branch && git log --oneline -6`. Working tree: nur 3 self-renewing Audit-Churn-Files (`worklog/audits/*-2026-06-XX.md` → NICHT committen, ignorieren). `worklog/active.md` = idle.
 
-## ⚡ ERSTE ACTION: Slice 326 — clubs.league String→UUID VOLLMIGRATION (der große gelbe Block)
+## ✅ Diese Session — 3 Slices komplett, alle live + Playwright-verifiziert, 0 Reverts
 
-**EINE kohärente L-Einheit** (in Slice 325 bewusst NICHT angefangen, nur Drift-Stop gemacht). Landkarte: `worklog/audits/2026-06-14/string-to-uuid-map.md` Sektion B + „Vorlage-Lehren". Scope-Out-Liste: `worklog/specs/325-clubs-league-uuid-filters.md` §11.
+| Slice | Was | Commit |
+|-------|-----|--------|
+| **326 Wave A** | Liga-Filter Name→`league_id` (10 Konsumenten) + `getLeagueById` + `Player.leagueId` + Writer fail-closed (createClub RPC `p_league`→`p_league_id`, FK=fail-closed) | `d6bce498` |
+| **327** | Flaggen-Normung Emoji→SVG (Anil-Windows-Bug „TR/DE als Text"). 4 Emoji-Konsumenten → `CountryFlag` (SVG), `countryToFlag` entfernt | `0f7ea0c1` |
+| **326 Wave B** | **DROP `clubs.league`** — `league_id` ist einzige Wahrheit, Display via `getLeagueById().name`. 3 RPCs via leagues-Join + DROP + NOT NULL atomar | `b8452176`+`7449026e` |
 
-**326-Bausteine (alle zusammen):**
-1. `getLeagueById(id)` in `src/lib/leagues.ts` (war in 325 vorbereitet, reverted weil sonst Orphan — jetzt MIT Konsument bauen).
-2. `dbToPlayer` → `leagueId` exposen (`src/lib/services/players.ts`, aus `getClub(club_id)?.league_id`; Player-Type hat `leagueId?` schon, types:133).
-3. **Filter-Consumer Name→ID** (alle vergleichen aktuell `player.league`/`club.league` === `useLeagueScope.leagueName`; Store hat `leagueId` schon):
-   - `marktplatz/TrendingSection.tsx:20,27` · `TransferListSection.tsx:54,89` · `ClubVerkaufSection.tsx:63,104` (club.league_id; getClub=ClubLookup hat league_id)
-   - `kader/KaderTab.tsx:117,262(smartLeague gibt Namen→auf id via getLeaguesByCountry()[0].id),276,304`
-   - `rankings/PlayerRankings.tsx:56` (filterLeague ist **PROP** von `rankings/page.tsx:54` → Parent mit-umstellen)
-   - `portfolio/BestandView.tsx` (filterLeague + eigener LeagueBar)
-   - `marktplatz/LeagueBar.tsx:26-31` (**Listbuilder** baut Liga-Pillen aus `c.league`-Name als Map-Key → league_id/Name-Paar; genutzt von LeagueScopeHeader + BestandView)
-4. **Club-Cache entkoppeln** (`src/lib/clubs.ts:42` liest `clubs.league`-String → `ClubLookup.league` Name): SELECT `league` raus, `lookup.league` aus `getLeagueById(league_id)?.name` ableiten. **Cache-Ordering:** League-Cache MUSS vor Club-Cache ready sein (sonst Name leer) — prüfen ob initLeagueCache vor initClubCache (ClubProvider). `leagueLookup` (players.ts:178) auf `club.league_id`→getLeagueById.
-5. **Anzeige-Reader** (player.league Name): bleiben — Name kommt aus Cache via league_id (Schritt 4).
-6. **localStorage** (`leagueScopeStore` KEY `bescout-league-scope-v1`): leagueName bleibt (Display), leagueId ist Truth → KEIN Break. Falls leagueName ganz raus: buster-bump.
-7. **DROP** `clubs.league` (Migration NACH Code-Deploy, BEGIN/COMMIT; Spalte NOT NULL default 'TFF 1. Lig' → Default/NOT-NULL weg oder direkt DROP). Pre-Drop-grep PFLICHT auch `scripts/` + `messages/` (Vorlage-Lehre Slice 324!).
+**→ Slice 326 (S7 Phase-3 Paar B) KOMPLETT abgeschlossen.** D80-Single-Truth für `clubs.league` erreicht.
 
-**Muster aus Slice 324 (favorite_club):** Backfill→Reader via getXById(id).name→Writer id-only→Type/SELECT→DROP. Vorlage-Lehre #2: **Truth-Achse pro Paar prüfen** — clubs.league: league_id=Truth + 0 Drift (einfach); players.club (Paar A): invertiert → echter Reconcile nötig.
+## ⚡ NÄCHSTE PRIORITÄT (D80 Sommer Tech-First Phase-3, Reihenfolge)
 
-## ✅ Diese Session (2026-06-14/15) — 11 Slices, 0 Reverts
+String→UUID-Fundament Stand:
+- ✅ `favorite_club` (Slice 324), ✅ `clubs.league` (Slice 326)
+- ⏳ **`players.club` (Paar A) — BLOCKIERT durch gesperrten API-Football-Key** (braucht Reconcile, `clubs.name`-Truth invertiert vs. league_id). Nicht startbar bis Anil den Key freischaltet.
 
-**S7 Phase-2 KOMPLETT (P0-Money + P1-Security + P1-Demo):**
-- 316 Founding-Pass Money-Härtung (bcredits TS↔RPC + Preis server-validiert; Anil-Decision: RPC-Werte)
-- 317 (+317b) profiles_update RLS Spalten-Whitelist (Trigger SEC INVOKER) + apply_referral_code RPC
-- 318 /api/push Row-Derived (Phishing-Stop)
-- 319 notifications i18n-SELECT + push-unsubscribe error-capture
-- 320 cancel_club_subscription RPC (RLS-Gap)
-- 321 FanChallenges Dead-Feature-Removal (4-Achsen)
-- 322 claim_score_road ok-Discriminator + Leaderboard Median-RPC
-- 323 Ticket-Ledger-Reconciliation (1 User +5, balance war Truth)
+**Da Paar A blockiert → nächster Phase-3-Schritt ist KONSOLIDIERUNG oder DORMANT-FEATURE-HYGIENE** (beide aus D80):
+1. **Konsolidierung** — 5 Leaderboard-Impls → 1; mehrere Truth-Tabellen → eine Quelle; Boundary Komponenten→Service-Schicht. Landkarte: `worklog/audits/2026-06-13/s7-source-of-truth-registry.md`.
+2. **Dormant-Feature-Hygiene** — Research, 2 Voting-Systeme, Creator-Fund, Monthly-Liga → je aktivieren ODER löschen (kein Halbfertiges).
+3. Reste: `/api/push` (schon Slice 318 gefixt — verifizieren), Ad-Revenue-Share 0€-Writepath, Cron-Monitoring.
 
-**S7 Phase-3 START (D80):**
-- Landkarte `string-to-uuid-map.md` (3 Paare club/league/favorite_club)
-- 324 favorite_club String→UUID (VORLAGE-Migration, Spalte gedroppt)
-- 325 create_club league_id Drift-Stop (clubs.league Teil 1)
+→ **Empfehlung: mit Konsolidierung (Leaderboards) starten** — höchster Struktur-Gewinn, kein API-Key nötig. Anil fragen welcher Track.
 
-## 🧭 Strategie (D80, memory/decisions.md)
-Sommer 2026 = **Tech-First Tiefen-Umbau** (Sommerpause/keine Tester = sicheres Fenster). Monetarisierung erst nach Legal-Go; Wachstum/GTM später; 1000-Nutzer-Ziel akzeptiert-verschoben. Nordstern = professionelle/strukturierte/solide Plattform. Sequenz: favorite_club ✅ → clubs.league (326) → players.club (Paar A, L, API-Key-abhängig).
+## 🔧 WORKFLOW-LEHREN dieser Session (kodifiziert — Performance-Steigerung)
 
-## 📌 Anil-Modus
-**Lern-Modus aktiv** (feedback_teaching_mode.md): alles detailliert/kindgerecht erklären (warum/was/wofür, Lern-Merksätze). Bei „erkläre/warum/wo stehen wir" ausführlich-pädagogisch.
+- **D82 (neu) — DROP-Sicherheits-Sequenz** für irreversible Column-Drops: Reader-umstellen → Cold-Review (ALLE Achsen!) → Deploy → Network-Gate → DROP → post-verify. Gilt für `players.club` u.a. künftige DROPs. Siehe `memory/decisions.md` D82 + `.claude/rules/errors-frontend.md` „Column-DROP".
+- **Reviewer-Gate fing 3× Blindspots** (Migration-Ordering + 5 übersehene Reader, 2 BLOCKER live-Pfad). Der eigene Pre-DROP-Grep verpasste `src/lib/services/*.ts` (Nicht-Domain-Service) + `src/app/**/page.tsx` (SSR via supabaseAdmin). Bestätigt D45 (Gates > Text).
+- **PWA-Service-Worker-Falle:** Beim Live-Verify cacht der SW alte Bundles → man testet die alte Version. Vor jedem post-Deploy-Verify: `navigator.serviceWorker`-unregister + `caches.delete` + Hard-Reload (Playwright `browser_evaluate`).
+- **Reviewer-Agent-Truncation:** Der reviewer-Agent wurde 2× mitten in Live-DB-Checks abgeschnitten → via SendMessage fortgesetzt. Mitigation fürs nächste Mal: Reviewer-Briefing „max N DB-Checks, dann Verdict" ODER Verdict zuerst, Belege danach.
 
-## Carry-over (Anil-Action)
-- **🚨 API-Football-Key gesperrt seit 06.05.** (dashboard.api-football.com) → blockiert players.club-Reconcile (294 falsche Liga), Fantasy-#2/#7, Slice 284b (154 Geister), Süper-Lig-GW-Drift.
-- **TR-Review (3 Strings):** `market.bulkSellResult`, `rankings.noMarketMovement`, `fantasy.matchLive` (=„Canlı").
-- **Identity #3 (Taki profillos):** Anil-Decision „lassen" → erledigt, kein Eingriff.
-- **316-Backlog:** Founding-Pass-Kaufstrecke für normale User tot (Admin-gated + kein Payment) → post-Legal-Go.
-- **318-Residual:** notifications cross-user INSERT RLS → cross-user-Notification-Creation auf SEC-DEFINER-RPCs (großer Slice, später).
+## 🧹 OFFENE HYGIENE (nicht kritisch, bei Gelegenheit)
 
-## S7-Phase-3-Roadmap (nach clubs.league)
-players.club (Paar A, L) · 5 Leaderboard-Impls→1 · dormante Features (Research/Voting/Creator-Fund/Monthly-Liga aktivieren-oder-löschen) · Ad-Revenue-Share (0€-Writepath) · Cron-Monitoring · Onboarding-Glättung. Quellen: `string-to-uuid-map.md` + S7-Registry `worklog/audits/2026-06-13/s7-source-of-truth-registry.md`.
+- **log.md-Chronologie-Drift:** Einträge 316–325 stehen UNTER 315 (sollten oben sein, „neueste oben"). 326/326-WaveB/327 sind korrekt oben. Reparatur = 316–325 über 315 sortieren. Rein kosmetisch.
+- **D81-Gap:** `workflow.md` referenziert „D81 (Resume-Preflight)", aber `decisions.md` springt D80→D82. Bei Gelegenheit D81 (Resume-/Handoff-Preflight-Regel, steht ausführlich in workflow.md) in decisions.md nachtragen.
+- **Workflow-Tool-Kandidat:** `scripts/audit-column-drop.ts` — greppt automatisch alle 4 Achsen (src-services/SSR-pages/scripts/DB-functions) + prüft Network-Trace. Würde Schritt 2 der D82-Sequenz teil-automatisieren. Eigener Slice wert wenn mehrere DROPs anstehen (players.club + Konsolidierung).
+
+## ⚠️ STOLPERFALLEN
+
+1. **active.md auf idle** — sauber, kein Spec-Gate-Block.
+2. **API-Football-Key gesperrt** — blockiert players.club + 154 Geister (Slice 284b) + Live-Scores. Anil muss Key freischalten.
+3. **Audit-Churn** (`worklog/audits/*-2026-06-XX.md`) — self-renewing Cron-Output, NIE committen.
+4. **Playwright-QA:** jarvis-qa@bescout.net / `JarvisQA2026!` / BASE_URL `https://www.bescout.net`. Bei Liga/Club-Verify SW-Cache leeren (s.o.).

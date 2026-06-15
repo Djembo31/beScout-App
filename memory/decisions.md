@@ -3500,3 +3500,22 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** Arbeits-Modus wechselt von „kleine vorsichtige Slices auf Live-Beta" zu „große strukturelle Umbauten im Wartungsfenster" — ABER SHIP-Disziplin (Spec/Review/Proof) bleibt, weil das Ziel „professionell/strukturiert" ist (schlampige Refactors widersprächen dem Zweck). Empfohlene Phase-3-Sequenz: erst Sicherheitsnetz auf den umzubauenden Pfaden härten (S5 fand mock-heavy Tests = grün-aber-bedeutungslos), DANN Fundament (String→UUID), DANN Konsolidierung, DANN Feature-Hygiene, DANN Politur. Supersedes D79-Re-Visit-Trigger („nach P0/P1 → Phase 3 ODER Sommer-Roadmap") — gewählt: Phase 3 / Tech-First.
 
 **Re-Visit-Trigger:** „Legal Go" erreicht → Monetarisierung (Bezahlsystem + Founding-Kaufstrecke) wird Thema. ODER Anil entscheidet Akquise-Kanal → Track B (GTM) parallel hochfahren. ODER Plattform ist „professionell/solide genug" → Wachstums-Fokus.
+
+## D82 — PROCESS: DROP-Sicherheits-Sequenz für irreversible Column-Drops auf Live-Prod
+
+**Datum:** 2026-06-15 · **Status:** Aktiv · **Kontext:** Slice 326 Wave B (DROP clubs.league). Mehrere String→UUID-Migrationen stehen im Sommer an (D80 Tech-First); players.club (Paar A) kommt als nächster großer DROP sobald API-Key frei. Diese Session etablierte eine wiederholbare Sequenz, die einen Live-Prod-Bruch verhindert hat.
+
+**Entscheidung:** Jeder irreversible `ALTER TABLE ... DROP COLUMN` auf Live-Prod läuft ab jetzt in dieser 5-Schritt-Sequenz (kodifiziert in `.claude/rules/errors-frontend.md` „Column-DROP"):
+1. **Reader umstellen, Spalte bleibt** — alle Leser/Schreiber auf die ableitbare Quelle (hier `league_id` → `getLeagueById().name`) umstellen, Spalte noch als Netz. Cache-Order beachten (abgeleitete Quelle vor Konsumenten-Cache ready, Slice 286).
+2. **Cold-Context-REVIEW vor jedem Apply** — reviewer-Agent prüft GEZIELT auf übersehene Reader über ALLE Achsen: `src/lib/services/*.ts` (nicht nur Domain-Service), `src/app/**/page.tsx` (SSR via supabaseAdmin umgeht Client-Cache), `scripts/*` (kein tsc-Schutz), DB-Functions/Views/Trigger. Diese Session: Review fing 5 übersehene Reader (2 BLOCKER live-Pfad) die der eigene Grep verpasste.
+3. **Deploy + Network-Trace-Gate** — per Playwright verifizieren dass die LIVE-Version die Spalte nicht mehr selektiert. **PWA-Service-Worker cacht alte Bundles** → vor dem Check `serviceWorker`-unregister + `caches.delete` + Hard-Reload, sonst testet man die alte Version (passierte hier).
+4. **DROP applien** — erst nach bestätigt-neuer-Version. RPC-Änderungen die die Spalte schreiben (z.B. `create_club` INSERT) + DROP atomar in 1 TX.
+5. **Post-DROP-Verify** — Spalte weg + abgeleitete Werte erscheinen TROTZDEM live = Ableitung greift.
+
+**Begründung:** Der DROP ist nicht datenverlust-irreversibel solange die FK-ID alle Infos behält (worst case = behebbarer Display-Glitch, kein DB-Restore). Echtes Risiko = übersehener Reader, der nach DROP mit PostgREST-400 die ganze Query (nicht nur ein Label) wirft — die liegen oft AUSSERHALB des offensichtlichen Domain-Service (zweiter Service, SSR-Metadata). Network-Gate + Cold-Review sind die zwei Filter die das fangen.
+
+**Alternativen erwogen:** (a) Reader + DROP in einem Deploy — verworfen, dann ist die Spalte schon weg beim Live-Verify, kein Netz. (b) Nur eigener Grep ohne Cold-Review — verworfen, eigener Grep verpasste 5 Reader (Confirmation-Bias auf Domain-Service). (c) PostgREST-Join für DbClub.league — fummeliger (nested-cast, auth-race); Client-Ableitung via DRY-Helper `withLeagueName` gewählt.
+
+**Auswirkungen:** Gilt für kommende String→UUID-DROPs (players.club Paar A u.a.). Macht irreversible DROPs zur Routine mit definierten Gates statt Einzelfall-Mut. Bestätigt D45 (Gates > Text) — diese Session 3× Blindspots gefangen (Migration-Ordering + 5 übersehene Reader).
+
+**Re-Visit-Trigger:** Falls ein `audit:column-drop`-Tool gebaut wird (greppt alle Achsen + prüft Network-Trace automatisch), kann Schritt 2 teil-automatisiert werden → Sequenz aktualisieren.
