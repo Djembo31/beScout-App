@@ -32,9 +32,20 @@ utils.ts           : countryToFlag-Funktion entfernt (Dead-Code)
 PlayerIPOCard.test : Mock countryToFlag raus, CountryFlag stub
 
 ═══════════════════════════════════════════════════════════════
-5. LIVE-VERIFY (Playwright bescout.net — nach Deploy)
+5. LIVE-VERIFY (Playwright bescout.net/market, Windows-Chromium, post-Deploy 0f7ea0c1)
 ═══════════════════════════════════════════════════════════════
-[wird nach Vercel-Deploy ergänzt: Screenshot Filter + Cards mit SVG-Flaggen statt Text]
+DOM-Check Länderwahl-Filter — VORHER (alte Version):
+  img[src*="/flags/3x2/"]  → svgFlagCount: 0
+  Emoji-Regional-Indicator → emojiFlagOccurrences: 5  (🇩🇪🇹🇷🇪🇸🇬🇧🇮🇹 = Windows-Text-Bug)
+
+DOM-Check NACHHER (neue Version, gleicher Code-Pfad):
+  img[src*="/flags/3x2/"]  → svgFlagCount: 5
+  svgFlagSamples           → ["/flags/3x2/DE.svg","/flags/3x2/TR.svg","/flags/3x2/ES.svg",
+                              "/flags/3x2/GB.svg","/flags/3x2/IT.svg"]
+  Emoji-Regional-Indicator → emojiFlagOccurrences: 0
+
+→ Exakte Umkehrung: 0→5 SVG, 5→0 Emoji. Visuell bestätigt (Screenshot): echte
+  Flaggen-Grafiken in der Länderwahl statt Text-Kürzel. 0 Console-Errors.
 
 ═══════════════════════════════════════════════════════════════
 REVIEW: worklog/reviews/327-review.md — self-PASS (1 NITPICK A11y, out-of-scope)

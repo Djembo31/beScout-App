@@ -2,6 +2,19 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 327 | 2026-06-15 | refactor(ui): Flaggen-Normung Emoji→SVG (Windows-konsistent)
+- Stage-Chain: SPEC (`worklog/specs/327-flag-normalization-svg.md`, S, UI) → IMPACT skipped (nur UI-Components + utils) → BUILD → REVIEW self-PASS (`worklog/reviews/327-review.md`, 1 NITPICK A11y out-of-scope) → PROVE (`worklog/proofs/327-flag-normalization.txt`, Playwright live) → LOG.
+- Trigger: Anil-Live-Bug 2026-06-15 (während 326-Verify): „warum sehe ich die Flaggen nie konstant? Text TR DE bei Filtern und einigen Spielern". Root-Cause: `countryToFlag` erzeugt Unicode-Emoji-Flaggen (🇩🇪); Windows hat keine Emoji-Flaggen-Glyphs → rendert „DE"/„TR" als Text. 2 parallele Systeme (Emoji vs SVG `CountryFlag`).
+- Fix: EINE Quelle. 4 Emoji-Konsumenten (CountryBar, LeagueBar[orphan], PlayerRow, PlayerIPOCard) → `CountryFlag` (SVG `/flags/3x2/*.svg`, 265 assets, Slice 120). `countryToFlag` aus utils entfernt. Daten bereits ISO (CountryInfo.code / League.country / player.country via mapNationalityToIso).
+- Verify: tsc grün, 210 Tests grün, `grep countryToFlag` → 0. Live (Playwright bescout.net/market): DOM 0→5 SVG, 5→0 Emoji; visuell echte Flaggen. Commit `0f7ea0c1`.
+
+## 326 | 2026-06-15 | refactor(clubs): Wave A — clubs.league Filter-Wahrheit + Writer auf league_id
+- Stage-Chain: SPEC (`worklog/specs/326-clubs-league-uuid-full-migration.md`, L, Migration+Service+UI, CEO-approved „Voll inkl. DROP") → IMPACT (`worklog/impact/326-…md`, DROP-sicher: 0 Views/Trigger, 134 Clubs 0 NULL league_id, 2 RPC-Blocker für Wave B) → BUILD (Fundament + 10 Filter via frontend-Agent + Writer+RPC selbst) → REVIEW (`worklog/reviews/326-review.md`, reviewer-PASS; fand+fixte Migration-Ordering-BLOCKER) → PROVE (`worklog/proofs/326a-wave-a.txt`) → LOG.
+- Trigger: S7 Phase-3 Paar B (2/2). Slice 325 war Drift-Stop; 326 macht volle String→UUID-Migration. Wave A = Filter-Wahrheit Name→league_id (~12 Konsumenten + getLeagueById + Player.leagueId + dbToPlayer) + Writer fail-closed (createClub RPC p_league→p_league_id, FK = fail-closed, schließt Hermes-Punkt-5-soft-null-Drift).
+- Verify: tsc grün, 545 Tests grün, RPC 1 Overload + AR-44-Grants (kein anon), fail-closed Smoke. Live-verifiziert (Playwright): Liga-Filter korrekt je Liga (Türkei 20 Spieler, Bundesliga leer), 0 Console-Errors auf /market /rankings /clubs. Commit `d6bce498`.
+- Wave B (offen, geparkt): ~25 Display-Stellen → getLeagueById(id).name; 2 RPCs (get_player_data_completeness, get_club_by_slug); orphan LeagueBar-Removal; 4-Achsen-Pre-DROP-Grep; DROP COLUMN league + league_id→NOT NULL; REVIEW B + CEO-DROP-OK.
+- Knowledge: `.claude/rules/errors-db.md` neues Pattern „Same-Day-Migration mit früherem Timestamp als Vorgänger-Slice".
+
 ## 315 | 2026-06-14 | docs(audit): S7 Phase-1 ABSCHLUSS — Creator + Identity + Admin (9/9 Domänen)
 
 - Stage-Chain: SPEC skipped (Mapping-Slice, 302/314-Muster) → IMPACT skipped (nur worklog/audits) → BUILD (3 parallele Explore-Agents gegen Live-Schema → Konsolidierung) → REVIEW self-review (Agent-Sektionen live-schema-verifiziert inkl. RLS-Policies via pg_policies) → PROVE (`worklog/proofs/315-s7-phase1-complete.txt`) → LOG.

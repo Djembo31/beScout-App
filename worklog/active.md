@@ -1,9 +1,10 @@
 # Active Slice
 
 ```
-status: active
-slice: 327
-stage: BUILD
+status: idle
+slice: 327 ✅ DONE — LOG complete (live-verifiziert: 5 SVG / 0 Emoji)
+stage: LOG complete
+next: Slice 326 Wave B (Display-Resolver + DROP clubs.league) — geparkt, nachholen
 spec_327: worklog/specs/327-flag-normalization-svg.md
 type_327: UI (Flaggen-Normung Emoji→SVG, cross-cutting)
 size_327: S
