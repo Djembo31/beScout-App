@@ -1,34 +1,43 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-16 14:07)
+# Session Handoff — Auto (2026-06-17 00:19)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
- M worklog/concepts/csf-club-treasury-model.md
-?? worklog/audits/audit-stale-2026-06-15.md
-?? worklog/audits/type-truth-2026-06-15.md
-?? worklog/audits/wiring-2026-06-15.md
 ```
+
+## Session Commits: 2
+- 4cda65de docs(plan): Karpathy-Minimalismus als Leitstern im Setup-Upgrade verankert
+- 21ff6b7f chore(memory): 27 verwaiste journey-Audits archiviert (Hygiene Achse 4)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-15 Abend — S7 Phase-3 läuft)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-17 — Setup-Upgrade DONE)
 
-**Status: idle.** HEAD = `7449026e` (Slice 326 Wave B DONE). Vor Start: `git status --short --branch && git log --oneline -6`. Working tree: nur 3 self-renewing Audit-Churn-Files (`worklog/audits/*-2026-06-XX.md` → NICHT committen, ignorieren). `worklog/active.md` = idle.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Working tree: nur self-renewing Audit-Churn (`worklog/audits/*-2026-06-XX.md` → NICHT committen). `worklog/active.md` = idle.
 
-## ✅ Diese Session — 3 Slices komplett, alle live + Playwright-verifiziert, 0 Reverts
+## ✅ Diese Session — Setup-Elite-Upgrade, 5 Achsen voll-autonom (D84), 0 Code-Risiko
 
-| Slice | Was | Commit |
+Meta-Session (kein Produkt-Slice). Plan: `worklog/concepts/setup-elite-upgrade.md` §6. Decision: `memory/decisions.md` D84.
+
+| Achse | Was | Commit |
 |-------|-----|--------|
-| **326 Wave A** | Liga-Filter Name→`league_id` (10 Konsumenten) + `getLeagueById` + `Player.leagueId` + Writer fail-closed (createClub RPC `p_league`→`p_league_id`, FK=fail-closed) | `d6bce498` |
-| **327** | Flaggen-Normung Emoji→SVG (Anil-Windows-Bug „TR/DE als Text"). 4 Emoji-Konsumenten → `CountryFlag` (SVG), `countryToFlag` entfernt | `0f7ea0c1` |
-| **326 Wave B** | **DROP `clubs.league`** — `league_id` ist einzige Wahrheit, Display via `getLeagueById().name`. 3 RPCs via leagues-Join + DROP + NOT NULL atomar | `b8452176`+`7449026e` |
+| **4 Müll** | 6 beta-Phase Audit-Subdirs (>30d) + 2 Proofs → `worklog/_archive/`. Slice-Proofs bewusst NICHT bewegt | `f1a228d0` |
+| **2 Doku** | `workflow-reference.md`→`workflow.md` gemerged+gelöscht; CLAUDE.md 164→103 Z. Karpathy-first; **SHIP-Loop 5→6 Stufen Fix** (REVIEW-Widerspruch weg); Register=SSOT-Pointer | `ced8b2c7` |
+| **1 Verschlankung** | Audit-Befund: **kein Cull nötig** — 0 tote Hooks (alle gewired), keine Agent-Dups, keine toten Skills. „Fett" war Doku-Drift | `60ee1c84` |
+| **3 Autoload** | `errors-{frontend,db,infra,scraper}.md`+`testing.md` → `paths:`-scoped. Always-Load ~4,5k→~1,2k Z./Session | `3797e3cd` |
+| **5 Modell** | Routing-Regel CLAUDE.md §8 (Sonnet default / Opus money+security / Haiku trivial) | `15ddcbfc` |
 
-**→ Slice 326 (S7 Phase-3 Paar B) KOMPLETT abgeschlossen.** D80-Single-Truth für `clubs.league` erreicht.
+**→ CLAUDE.md ist jetzt Prinzipien-Kompass, nicht Register. Drift-Klasse strukturell beseitigt (SSOT-Pointer).**
+
+## 🧠 WICHTIG fürs nächste Mal (aus D84)
+- **NIE wieder Hook/Skill/Agent/MCP-Zahlen in Docs hardcoden** — SSOT-Pointer (settings.json / .mcp.json / Laufzeit-Tools). Das war die Drift-Ursache.
+- `errors-*.md` laden jetzt nur beim Edit der Domain-Files (paths:). Bei reinem Debugging/Planning ohne Edit → bei Bedarf direkt `Read`.
+- Neuer Hook/Skill/Agent → nur via SSOT, nicht in CLAUDE.md listen.
 
 ## ⚡ NÄCHSTE PRIORITÄT (D80 Sommer Tech-First Phase-3, Reihenfolge)
 

@@ -3549,3 +3549,22 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** `trading.md` (autoloaded) trägt jetzt das CSF-Modell + Osimhen-Beispiel. `worklog/concepts/csf-club-treasury-model.md` = ausführliche Quelle (§1-10). Künftige Money-Specs referenzieren D83, nicht neu erarbeiten.
 
 **Re-Visit-Trigger:** Cap-Semantik final festlegen (pro-Card cents vs. Transfer-EUR-Referenz) bei Treasury/CSF-Bau. ODER „Legal Go" → Phase-2-Cash-out wird Thema.
+
+## D84 — PROCESS: Setup-Elite-Upgrade — CLAUDE.md Karpathy-first, Register=SSOT, Rules on-demand, Modell-Routing
+
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Kontext:** Auftrag „Setup auf Elite-Level + Hygiene + kein Widerspruch + EIN Workflow + Context ohne Overhead". Faktenbasis: Deep Research `walz06h0w` + Inventur. Voll-autonom alle 5 Achsen ausgeführt. Plan: `worklog/concepts/setup-elite-upgrade.md` (§6 Ausführungsprotokoll).
+
+**Entscheidung:**
+1. **CLAUDE.md = Karpathy-Prinzipien-First** (§1: Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven; Leitsatz „bias toward caution over speed"). 164→103 Zeilen. Money/Security-CEO-Gates bleiben prominent (§3) = BeScouts legitimer Unterschied.
+2. **EIN Workflow:** `workflow-reference.md` → `workflow.md` gemerged + gelöscht. Kern-Fix: SHIP-Loop 5→6 Stufen (REVIEW war in CLAUDE.md verschluckt — der Haupt-Widerspruch).
+3. **Register = SSOT-Pointer statt hardcoded Kopien.** Hooks→settings.json, MCP→.mcp.json, Skills/Agents→Laufzeit-Tools. Killt die Drift-Klasse, die 28/22/9-Falschstände erzeugte. **Künftig NIE wieder Hook/Skill/Agent/MCP-Zahlen in Docs hardcoden.**
+4. **Autoload-Budget:** `errors-{frontend,db,infra,scraper}.md` + `testing.md` von always-loaded auf `paths:`-scoped (laden beim Edit der Domain). Always-Load ~4,5k → ~1,2k Zeilen/Session. `common-errors.md` bleibt always-loaded als Navigator.
+5. **Modell-Routing (CLAUDE.md §8):** Sonnet 4.6 Default, Opus 4.8 money/security/architektur/race/komplexe Migration, Haiku 4.5 trivial.
+
+**Begründung:** Die vermeintliche „Setup-Fett"-Annahme (40 Hooks/26 Skills/16 Agents culln) war primär **Doku-Drift**, nicht reale Redundanz — Per-Item-Audit (Achse 1) fand 0 tote Hooks (alle gewired), keine Agent-Duplikate (distinkte Auditor-Lenses), keine toten Skills. Research refutierte „nur 3 Hooks" (kein Kahlschlag). Echter Hebel war Doku-Konsolidierung (Drift weg) + Autoload-Budget (Context-Overhead), nicht Item-Minimierung.
+
+**Alternativen erwogen:** (a) Aggressiver Hook/Skill/Agent-Cull auf Zielzahlen — verworfen, Items sind je begründet + gewired, Cull bräche Skills (sweep/persona/audit). (b) 600+ slice-nummerierte SHIP-Proofs/Specs archivieren — verworfen, append-only Record, nicht im Context, = reine Churn. (c) Register-Tabellen mit korrekten Zahlen aktualisieren — verworfen, driftet sofort wieder; SSOT-Pointer ist die strukturelle Lösung. (d) errors-*.md ganz streichen — verworfen, wertvoll; paths-scoping behält Wissen, senkt nur always-Load.
+
+**Auswirkungen:** Jede Session lädt ~3,3k Zeilen weniger. CLAUDE.md ist der Prinzipien-Kompass, nicht das Register. Commits: f1a228d0 (A4) · ced8b2c7 (A2) · 60ee1c84 (A1) · 3797e3cd (A3) · 15ddcbfc (A5).
+
+**Re-Visit-Trigger:** Falls ein neuer Hook/Skill/Agent gebaut wird → NICHT in Docs listen, nur via SSOT. Falls Sessions errors-*.md-Wissen vermissen (paths-Trigger greift nicht) → paths-Globs erweitern, nicht zurück auf always-load.
