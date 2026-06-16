@@ -202,4 +202,41 @@ Jede Bewegung (rein wie raus) = **eine Ledger-Zeile**; Saldo = Summe daraus (ana
 
 ---
 
-*Strategie-Session 2026-06-15/16. Slice A (MV-Anker-IPO-UI) DONE. Nächster echter Bau-Slice: Treasury-Fundament (Saldo + Ledger). Danach CSF-Engine + Fan-Reward-Engine.*
+## 9. Fan-Reward-Engine — paralleles Membership-Perks-System (Konzeption 2026-06-16)
+
+> **Zweck (Anil):** Fans anreizen, dem Club zu **folgen / zu abonnieren**. Primär ein **Perks-/Gating-System** (Conversion-Anreiz), NICHT primär ein Treasury-Geldfluss. Direkte $SCOUT-Airdrops = optionale zweite Ebene.
+
+### Zwei parallele Status-Schienen (Anil-Decision: „parallel")
+Ein Fan erreicht Perks auf zwei unabhängigen Wegen — beide treiben Follow/Abo, ohne sich zu entwerten:
+
+| Schiene | Natur | Stufen | Perks |
+|---|---|---|---|
+| **Abo** (Geld — Club *verdient*) | bezahlt | Bronze / Silber / Gold | Fee-Rabatt (0,5/1/1,5 %) · Early IPO Access (Silber+) · Premium Fantasy (Gold) · Premium-Polls/Votes |
+| **Fan-Rank** (Treue — Club *belohnt*) | verdient durch Aktivität | Zuschauer→Vereinsikone (6) | exklusiver Community-Zugang (Treue-Polls/Votes/Bereiche) · Status-Badges · optional Treasury-Airdrop an Top-Tiers |
+| **Follow** (Einstieg) | gratis | — | Basis-Community-Zugang (heute bringt Folgen NICHTS → erster Anreiz) |
+
+### Bestehende Basis (nicht von Null)
+Viele Perks existieren bereits als `club_subscriptions`-Benefits (heute nur Abo-gekoppelt): Fee-Discount, IPO Early Access, 2× Vote-Gewicht, exklusive Bounties, Premium Fantasy. Tier-Gating existiert (`events.min_subscription_tier`). **Neu:** (1) Follow-Einstiegsstufe, (2) Fan-Rank als zweite Perk-Achse (heute nur toter csf_multiplier), (3) Votes/Polls-Gating ausbauen, (4) **Club-Konfigurierbarkeit** (heute plattform-fix → Club entscheidet welche Perks an welche Stufe).
+
+### Treasury-Verhältnis
+Perks-Gating kostet das Treasury **nichts direkt** (außer Fee-Rabatt = entgangene Einnahme). Nur die optionale **Airdrop-Ebene** (direkte $SCOUT/Drops an Fan-Rank-Tiers) ist echter Treasury-Outflow → dann via Club-Airdrop-Mechanik (§8 RAUS). Die Fan-Reward-Engine ist daher **leichter** als das Treasury und nicht zwingend von ihm abhängig.
+
+### Offen (bei Spec): exklusive Votes/Polls — Abo-Schiene (Premium) vs. Fan-Rank-Schiene (Treue) vs. beide. Club-konfigurierbar lösen.
+
+---
+
+## 10. Money/Reward-Modell — Konzeptions-Stand (2026-06-16)
+
+| Baustein | Konzept | Bau |
+|---|---|---|
+| Pricing / IPO-Preis (MV-Anker) | ✅ §3.4 | ✅ Slice 328 DONE |
+| Wechselkurs (1 $SCOUT = 1 Cent) | ✅ §5 | — (Doc-Fix CONCEPT-DPC offen) |
+| CSF / Liquidation (10 %-Regel, proportional, Tranchen raus, csf_mult raus) | ✅ §3.2 + §4 | offen |
+| Club-Treasury-Fundament (Saldo + Ledger, REIN/RAUS) | ✅ §8 | offen (nächster großer Slice) |
+| Fan-Reward-Engine (2 Schienen parallel) | ✅ §9 | offen |
+
+**Bau-Sequenz (Vorschlag):** 1) Treasury-Fundament (Saldo + Ledger + Einnahmen-Verbuchung, Abo-Bug-Fix) → 2) CSF-Engine an Treasury → 3) RAUS-Kanäle ans Treasury (Events/Polls/Bounties-Aufstockung) → 4) Fan-Reward-Engine (Perks-Schienen + optional Airdrop). Alle Money-kritisch → CEO-Scope, sorgfältige Specs.
+
+---
+
+*Strategie-Session 2026-06-15/16. Slice A (MV-Anker-IPO-UI) DONE. Money/Reward-Modell konzeptionell komplett. Nächster echter Bau-Slice: Treasury-Fundament.*
