@@ -1,5 +1,9 @@
 ---
-description: Frontend-Fehler — React/TS/CSS, i18n/Locale
+paths:
+  - "src/components/**"
+  - "src/app/**"
+  - "src/features/**"
+  - "src/lib/hooks/**"
 ---
 
 # Errors: Frontend

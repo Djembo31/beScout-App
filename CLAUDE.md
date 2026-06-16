@@ -78,7 +78,7 @@ BeScouts legitimer Unterschied zu einem generic Setup — diese Gates bleiben, k
 
 Hardcoded Listen driften (Grund für alte Falschstände 28/22/9). Quelle der Wahrheit:
 
-- **Autoload-Rules (immer):** `workflow.md` (SHIP-Loop + Arbeitsweise), `common-errors.md` (+ `errors-{db,frontend,infra,scraper}.md`), `business.md`, `performance.md`, `testing.md`. **Domain-Rules (kontextuell):** `database.md`, `trading.md`, `fantasy.md`, `club-admin.md`, `community.md`, `gamification.md`, `profile.md`, `ui-components.md`.
+- **Autoload-Rules (immer):** `workflow.md` (SHIP-Loop + Arbeitsweise), `common-errors.md` (Navigator + Silent-Fails), `business.md`, `performance.md`. **Path-scoped (laden beim Edit der Domain, `paths:`-Frontmatter):** `errors-{db,frontend,infra,scraper}.md`, `testing.md`, `database.md`, `trading.md`, `fantasy.md`, `club-admin.md`, `community.md`, `gamification.md`, `profile.md`, `ui-components.md`. Bei Debugging ohne Edit: direkt lesen.
 - **Hooks** → `.claude/settings.json` · Wiring: `pnpm audit:wiring:check`.
 - **Skills** → Skill-Tool (Laufzeit) / `.claude/skills/`. Domain-Einstieg: `/ship`, `/impact`, `/spec`, `/parallel-dispatch`.
 - **Agents** → Agent-Tool (Laufzeit) / `.claude/agents/`. Reviewer nach Impl = PFLICHT.

@@ -1,5 +1,10 @@
 ---
-description: DB-Fehler — Supabase/Postgres, RPCs, Auth/Security, Cache-Sync
+paths:
+  - "src/lib/services/**"
+  - "src/lib/queries/**"
+  - "src/app/api/**"
+  - "src/types/**"
+  - "supabase/migrations/**"
 ---
 
 # Errors: Database & RPCs

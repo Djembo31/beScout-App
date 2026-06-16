@@ -1,5 +1,10 @@
 ---
-description: Scraper/External-Data-Fehler — Transfermarkt, API-Football, HTML-Parsing
+paths:
+  - "src/lib/scrapers/**"
+  - "scripts/tm-*"
+  - "scripts/*scrape*"
+  - "scripts/*nationality*"
+  - "src/app/api/cron/**"
 ---
 
 # Errors: Scraper / External Data

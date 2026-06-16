@@ -1,6 +1,10 @@
 ---
-description: Test-Konventionen fuer vitest Unit Tests und Playwright E2E
-globs: ["src/**/*.test.ts", "src/**/*.test.tsx", "tests/**/*"]
+paths:
+  - "src/**/*.test.ts"
+  - "src/**/*.test.tsx"
+  - "e2e/**"
+  - "tests/**"
+  - "vitest.config.ts"
 ---
 
 ## Unit Tests (vitest)

@@ -1,5 +1,12 @@
 ---
-description: Infra-Fehler — Build/Deploy, Bundle, Hooks, Beta-Ops
+paths:
+  - ".github/**"
+  - "scripts/**"
+  - ".husky/**"
+  - "next.config.mjs"
+  - "vercel.json"
+  - "*.config.ts"
+  - "*.config.mjs"
 ---
 
 # Errors: Build / Deploy / Ops

@@ -8,14 +8,14 @@ Stand: 2026-04-24 · Split nach Slice 186. Konsolidiert aus Slices 001-185.
 
 ## Navigator
 
-Spezifische Error-Patterns pro Domain:
+Spezifische Error-Patterns pro Domain. **On-demand (Setup-Upgrade 2026-06-17):** die `errors-*.md` sind `paths:`-scoped — sie laden automatisch beim Edit der jeweiligen Domain-Files (= der relevante Moment für Pre-Edit-Checks). Diese Datei (`common-errors.md`) bleibt always-loaded als Navigator + Cross-Cutting-Silent-Fails. Bei Debugging ohne Edit: bei Bedarf direkt lesen.
 
-| File | Scope |
-|------|-------|
-| `errors-db.md` | Supabase/Postgres, RPC-Design, Auth/Security, React-Query+Cache |
-| `errors-frontend.md` | React/TS/CSS, Modal-Pattern, i18n/Locale |
-| `errors-infra.md` | Build/Deploy, Bundle-Budget, Hooks, Beta-Launch-Ops |
-| `errors-scraper.md` | Transfermarkt, API-Football, HTML-Parsing |
+| File | Scope | Lädt bei Edit von |
+|------|-------|-------------------|
+| `errors-db.md` | Supabase/Postgres, RPC-Design, Auth/Security, React-Query+Cache | services, queries, migrations, api, types |
+| `errors-frontend.md` | React/TS/CSS, Modal-Pattern, i18n/Locale | components, app, features, hooks |
+| `errors-infra.md` | Build/Deploy, Bundle-Budget, Hooks, Beta-Launch-Ops | .github, scripts, .husky, configs |
+| `errors-scraper.md` | Transfermarkt, API-Football, HTML-Parsing | scrapers, tm-scripts, cron |
 
 Cross-Cutting: `database.md` (Columns, CHECK), `trading.md` (Money-Regeln), `business.md` (Compliance), `performance.md` (Query-Limits), `testing.md` (vitest + Playwright), `memory/patterns.md` (#28 Ferrari-Blueprint).
 
