@@ -145,4 +145,47 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 
 ---
 
-*Strategie-Session 2026-06-15/16. Slice A (MV-Anker-IPO-UI) zuerst, danach Konzeption Fan-Reward-Engine + Treasury-Fundament.*
+## 8. Treasury-Fundament — IST-Stand + Zielbild (Konzeption 2026-06-16)
+
+> Verifiziert via Explore-Agent gegen `src/` + `supabase/migrations/`. Das Club-Treasury ist die **zentrale Engagement-Investitions-Kasse** des Vereins: verdientes Geld wird in Fan-Aktivierung reinvestiert (→ SC-Nachfrage).
+
+### IST-Stand (überraschend)
+- **Kein echtes Konto.** Zwei parallele Saldo-Systeme, eines tot:
+  1. `clubs.treasury_balance_cents` — persistente Spalte, bei jedem Trade/IPO inkrementiert, aber **nirgends gelesen** (Dead-Write-Counter).
+  2. `get_club_balance` (RPC) — **on-the-fly** `SUM(trades.club_fee) + SUM(aktive Abos) − Withdrawals`; speist die UI, ignoriert die Spalte.
+- **IPO-85 % ist NICHT die vermutete Lücke** — landet korrekt im Saldo (via `trades.club_fee`).
+- **PBT** = komplett separater Topf (per Spieler, 1,5 %, → Holder bei Liquidation). Keine Überlappung.
+- 🐛 **Abo-Bug:** nur `status='active'` zählt → läuft ein Abo aus, schrumpft `total_earned` **rückwirkend** (verdientes Geld verschwindet). Mit echtem Konto unvereinbar.
+- **Kein Deposit-Pfad, keine atomare RAUS-Seite.** Heute kann der Club nur ansammeln, nicht gezielt ausgeben.
+- **Source-Schuld:** `request_club_withdrawal` + `accept_offer` (P2P) Bodies nur in Remote-DB, nicht in Migrations (AR-43-Verstoß, Greenfield-Risiko).
+
+### Zielbild: echtes Konto = Saldo + append-only Kontoauszug (Ledger)
+Jede Bewegung (rein wie raus) = **eine Ledger-Zeile**; Saldo = Summe daraus (analog User-`wallets` + `transactions` append-only). Löst den Abo-Bug (verdient = bleibt gebucht) + liefert die fehlende RAUS-Seite.
+
+```
+   REIN (verdient, Phase 1)        CLUB-KONTO            RAUS (intern $SCOUT, Phase 1)
+ Trading 1% · IPO 85% ──┐      ┌─ Saldo (1 Wahrheit) ┐   ├─ CSF an Holder (Liquidation)
+ P2P 0,5% · Abo 100% ───┼─────►│  + Ledger           │──►├─ Fan-Rewards (gezielt)
+ (EUR-Deposit = Ph2) ───┘      └─ (append-only)      ┘   ├─ Event-Belohnungen (Prize-Pools)
+                                                          ├─ Umfrage-Belohnungen (Polls)
+                                                          ├─ Aufträge/Bounties (vergütet)
+                                                          └─ (Withdrawal EUR = Phase 2)
+```
+
+**Phase 1 = rein intern $SCOUT:** REIN = verdiente Einnahmen, RAUS = alle Engagement-Belohnungen. Echtes EUR rein/raus (Deposit + Cash-out) = Phase 2.
+
+### Anschluss-Punkt (bei Spec verifizieren)
+Event-Prizes / Polls / Bounties **existieren bereits**, werden aber NICHT aus einem Club-Treasury finanziert (heute inkonsistent: User-Wallet / Platform-Minting / dormant). Treasury-Fundament führt sie auf **eine** Finanzierungsquelle zusammen. Heutige Finanzierung pro Kanal vor Umbau verifizieren.
+
+### Gap-Liste (Bau, nach Konzeption)
+1. Saldo-SSOT: Ledger-Tabelle (`club_treasury_ledger`, append-only) + Saldo-Feld; `get_club_balance` darauf umstellen; Doppel-Buchung (Spalte + SUM) auflösen.
+2. Alle Einnahmen ledger-basiert verbuchen (einmal beim Verdienen) → Abo-Bug weg.
+3. P2P `accept_offer` verifizieren + einbinden.
+4. Atomare RAUS-RPCs (FOR UPDATE + Dekrement) für CSF · Fan-Rewards · Event-Prizes · Polls · Bounties.
+5. Deposit-Pfad (Phase 1 intern) — existiert nicht.
+6. Source-Schuld: `request_club_withdrawal` + `accept_offer` in Migrations zurückholen.
+7. UI: `AdminTreasuryTab` zeigt Club-Fee fälschlich als „Outflow/burn"; per-Club-Breakdown + `sub_revenue` ergänzen.
+
+---
+
+*Strategie-Session 2026-06-15/16. Slice A (MV-Anker-IPO-UI) DONE. Nächster echter Bau-Slice: Treasury-Fundament (Saldo + Ledger). Danach CSF-Engine + Fan-Reward-Engine.*
