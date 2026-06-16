@@ -88,7 +88,13 @@ Hardcoded Listen driften (Grund für alte Falschstände 28/22/9). Quelle der Wah
 
 ---
 
-## §8 — Superpowers-Override (D-191)
+## §8 — Modell-Routing
+
+Default-Driver **Sonnet 4.6** (Routine: UI, Doku, Tests, Standard-Slices, Reviews). Eskalation **Opus 4.8** für: Money/Trading, Security (SECURITY DEFINER, RLS), Architektur-Entscheidungen, Race-Conditions, komplexe Migrationen. **Haiku 4.5** für triviale Mechanik (Renames, Format-Fixes, Greps). Bei Agent-Dispatch via `model:`-Param setzen; im Zweifel den teureren wählen wenn money/security berührt (§3 „caution over speed"). Preise/Mtok: Opus $5/$25, Sonnet $3/$15, Haiku $1/$5.
+
+---
+
+## §9 — Superpowers-Override (D-191)
 
 BeScouts kanonischer Workflow ist der **SHIP-Loop**, nicht das Superpowers-Trio (zu aggressive Auto-Trigger).
 
