@@ -174,8 +174,22 @@ Jede Bewegung (rein wie raus) = **eine Ledger-Zeile**; Saldo = Summe daraus (ana
 
 **Phase 1 = rein intern $SCOUT:** REIN = verdiente Einnahmen, RAUS = alle Engagement-Belohnungen. Echtes EUR rein/raus (Deposit + Cash-out) = Phase 2.
 
-### Anschluss-Punkt (bei Spec verifizieren)
-Event-Prizes / Polls / Bounties **existieren bereits**, werden aber NICHT aus einem Club-Treasury finanziert (heute inkonsistent: User-Wallet / Platform-Minting / dormant). Treasury-Fundament führt sie auf **eine** Finanzierungsquelle zusammen. Heutige Finanzierung pro Kanal vor Umbau verifizieren.
+### Anschluss-Punkt: heutige Finanzierung der RAUS-Kanäle (verifiziert 2026-06-16)
+
+| Kanal | finanziert heute | Quelle | Club-Konto belastet? |
+|---|---|---|---|
+| Event-Prizes | Teilnehmer-Entry-Fees → `prize_pool` (zero-sum) | `events.prize_pool` aus `event_entries.fee_split` | nein (Club kriegt „beneficiary"-Anteil) |
+| Polls | Teilnehmer zahlt `cost_bsd` zum Voten | 70 % → Creator/Club **verdient** (`cast_community_poll_vote`) | nein — Club verdient hier sogar |
+| Bounties | Ersteller-Wallet Escrow (`locked_balance`) | `create_user_bounty`; Club-Bounty (`club_id`) → Admin-User-Wallet | nein (kein Club-Wallet) |
+| CSF | PBT[player] + Success-Fee-Pool (`liquidate_player`) | PBT-Treasury | nein |
+| Fan-Rewards (gezielt) | **existiert nicht** | — | n.a. |
+
+**Strategischer Kern-Befund — extractive → investive:** Heute ist das Modell *extractive* (Fan zahlt für Engagement, Plattform/Club verdient). KEIN Pfad lässt den Verein Engagement aus eigenem Geld *sponsern*. Anils Vision dreht das auf *investive*: Verein reinvestiert verdientes $SCOUT in Fan-Aktivierung. Treasury ist das Werkzeug. Pro Kanal:
+- **Events:** Verein stockt `prize_pool` aus Treasury auf (auch Gratis-Events) → SC-Nachfrage-Hebel.
+- **Polls:** *neue* Mechanik — Verein belohnt Teilnahme (Umkehrung des heutigen „Fan zahlt").
+- **Bounties:** Club-Bounties aus Treasury statt Admin-Privat-Wallet.
+
+**Geld-Modell:** alles **Transfer, kein Minting** — Treasury gibt verdientes $SCOUT aus, Geld zirkuliert. Closed Economy bleibt deflationär-neutral, keine Inflation.
 
 ### Gap-Liste (Bau, nach Konzeption)
 1. Saldo-SSOT: Ledger-Tabelle (`club_treasury_ledger`, append-only) + Saldo-Feld; `get_club_balance` darauf umstellen; Doppel-Buchung (Spalte + SUM) auflösen.
