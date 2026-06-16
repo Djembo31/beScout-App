@@ -1,0 +1,55 @@
+SLICE 329 — Club-Treasury-Fundament — PROOF
+Live-DB skzjfhvgccaeplydsunz (beta-prod) · 2026-06-17 · Migration slice_329 + slice_329b applied (success)
+
+=== AC-01: Tabelle + Trigger existieren ===
+club_treasury_ledger: created, RLS enabled
+trg_treasury_ledger_append_only (BEFORE UPDATE/DELETE), trg_trades_treasury_credit (AFTER INSERT trades): created
+book_club_treasury() helper: created (SUM-based nach 329b-Heal)
+
+=== AC-02: Backfill-Abgleich Ledger vs ALTE Formel (SUM trades.club_fee + SUM active subs) ===
+total_ledger_rows:    35
+clubs_with_ledger:    34
+clubs_with_income:    34
+trade_divergence:     0      ← Ledger opening_trade_fees == SUM(trades.club_fee) pro Club
+sub_divergence:       0      ← Ledger opening_subscription == SUM(active subs) pro Club
+=> Eröffnungssaldo deckt sich EXAKT mit alter Berechnung. Read-Switch sicher.
+
+=== Saldo-Invariante: MAX(balance_after) == SUM(credits-debits) pro Club ===
+max_based_violations: 0
+(Erste Prüfung zeigte 1 "Violation" = False-Positive der Prüf-Query: beide opening-Zeilen teilen
+ created_at (gleiche TX), uuid-id ist kein Insert-Order-Tiebreaker. Daten korrekt; Beispiel-Club
+ 19b1574b: opening_trade_fees 253257 → opening_subscription balance_after 303257 = 253257+50000 ✓)
+
+=== 329b-Heal: book_club_treasury SUM-based (robust gegen same-txn Multi-Booking) ===
+Grund: künftige CSF/Fan-Reward-Airdrops buchen N Debits für 1 Club in 1 TX.
+"letzte balance_after" via created_at/id war unzuverlässig → SUM(ledger) unter clubs-Lock.
+
+=== AC-03 + Multi-Booking-Chain + Trade-Trigger (BEGIN/ROLLBACK Smoke) ===
+prev:            0
+a1 (book #1):    111   chain1_ok: true   (= prev+111)
+a2 (book #2):    333   chain2_ok: true   (= prev+333; 2 Buchungen in EINER TX korrekt verkettet)
+trade-trigger:   777   trigger_fired: true   (INSERT trades club_fee=777 → Ledger-credit 777)
+trigger_chain_ok: true (balance_after = prev+333+777, kumulativ korrekt)
+
+=== Rollback-Safety (kein Leak auf Prod) ===
+ledger_rows: 35 (unverändert)   smoke_leak: 0   trade_leak: 0
+=> BEGIN/ROLLBACK sauber, keine Test-Mutation committed.
+
+=== AC-06: RLS + Grants ===
+club_treasury_ledger RLS: enabled
+ledger grants: nur postgres + service_role (KEIN anon, KEIN authenticated) — default-deny Client
+book_club_treasury grants: nur postgres + service_role (nicht client-callable)
+append-only: trg_treasury_ledger_append_only blockt UPDATE/DELETE (GUC-Bypass bescout.allow_treasury_mutation)
+
+=== AC-04: Abo-Bug behoben (by construction) ===
+get_club_balance liest jetzt aus club_treasury_ledger (credits nach type), NICHT mehr SUM(club_subscriptions WHERE status='active').
+=> Läuft ein Abo aus, schrumpft total_earned NICHT mehr — der subscription-credit bleibt permanent im Ledger.
+   subscribe_to_club + renew_club_subscription buchen den Credit bei Zahlung (verifiziert in Migration §8).
+
+=== Grant-Regression-Fix (Reviewer-BLOCKER, live verifiziert) ===
+renew_club_subscription: REVOKE authenticated; GRANT postgres+service_role (cron-only Intent erhalten)
+get_club_balance + subscribe_to_club: GRANT authenticated+postgres+service_role (Baseline 1:1)
+
+=== Backward-Compat ===
+get_club_balance Return-Shape unverändert: {total_earned, trade_fees, sub_revenue, total_withdrawn, available}
+=> db-invariants.test.ts (L1114) + AdminWithdrawalTab.available unberührt. 0 src/-Änderungen.

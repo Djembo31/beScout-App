@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 329 | 2026-06-17 | feat(treasury): Club-Treasury-Fundament — append-only Ledger + Saldo + Abo-Bug-Fix
+- Stage-Chain: SPEC (`worklog/specs/329-...md`, L, Migration, **CEO-approved** 3 Entscheidungen) → IMPACT (`worklog/impact/329-...md`, Live-RPC-Bodies verifiziert → trigger-zentrisches Redesign, Blast-Radius 6-RPC-Edits → 2) → BUILD (selbst, Money/CEO) → REVIEW (`worklog/reviews/329-review.md`, reviewer **REWORK**: 1 BLOCKER grant-revert + 1 MAJOR → live-verifiziert gefixt) → PROVE (`worklog/proofs/329-treasury-ledger.txt`) → LOG.
+- Trigger: D83 Bau-Sequenz Schritt 1. Erster echter Treasury-Bau. „wir bauen jetzt die treasury" (Anil 2026-06-17) — zugleich Test des neuen Setup-Workflows (D84).
+- Bau (pure DB, 0 src/-Änderungen): `club_treasury_ledger` (append-only D39-Trigger + GUC) · `book_club_treasury()` Helper (Saldo = SUM(ledger) unter clubs-FOR-UPDATE — race-frei + robust gegen same-txn Multi-Booking) · `trg_trades_treasury_credit` (AFTER INSERT trades → fängt Trade/IPO/P2P-Income OHNE Edit der 4 Trade-RPCs) · `subscribe_to_club` + `renew_club_subscription` buchen Abo-Credit (fixt Abo-Bug: verdient bleibt permanent) · `get_club_balance` liest Ledger (5 Keys backward-compat) · Eröffnungssaldo-Backfill (2 credits/Club, idempotent).
+- CEO-Decisions: Q1 Eröffnungssaldo-Snapshot · Q2 Backend-only (UI→329b) · Q3 Pre-Migration-Abo-Verlust akzeptiert. RAUS-Seite (CSF/Fan-Rewards) deferred (D54), Schema unterstützt debit.
+- Reviewer-Catch (Slice-156-Klasse): meine Migration re-`GRANT`te das **cron-only** `renew_club_subscription` an authenticated + droppte service_role → live verifiziert (renew = nur postgres+service_role) + gefixt. Bestätigt REVIEW-Stage-Wert.
+- Heal v1→v2 (same-session): `book_club_treasury` last-row→SUM (Migration `slice_329b`) — created_at/id kein Insert-Order-Tiebreaker bei same-txn Multi-Booking.
+- Verify (Live-Prod): Backfill-Abgleich 34 Clubs 0 Divergenz · Saldo-Invariante 0 · Trade-Trigger + Multi-Booking-Chain BEGIN/ROLLBACK grün · RLS default-deny + Grants korrekt · Rollback 0 Leak. Migrations `20260617120000` + `…120500` (slice_329b) prod-applied.
+- Knowledge: `.claude/rules/errors-db.md` 2 neue Patterns (Bank-Ledger balance_after same-txn + SUM(bigint)=numeric Cast-Trap).
+
 ## 328 | 2026-06-16 | feat(admin): IPO-Erstellung Marktwert-Anker + Vorschlagspreis
 - Stage-Chain: SPEC (`worklog/specs/328-ipo-mv-anchor-ui.md`, S, UI) → IMPACT skipped (nur 2 Components + i18n, keine Service/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/328-review.md`, Cold-Context-Reviewer **PASS**, 1 NIT post-Beta) → PROVE (`worklog/proofs/328-ipo-mv-anchor.txt`) → LOG.
 - Trigger: Strategie-Session 2026-06-15/16 (Reward-/Money-Modell). Anil-Decision: IPO-Preis = Vereins-Entscheidung mit MV-Anker (nicht starr). Erster konkreter Bau des Scout-Card-Money-Modells.

@@ -11,6 +11,25 @@ paths:
 
 Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
 
+### Bank-Ledger `balance_after`: NIE „letzte Zeile" via created_at/id — SUM unter Row-Lock (Slice 329, 2026-06-17)
+
+**Bug-Klasse (latent, Money):** Ein append-only Ledger (à la `transactions`/`club_treasury_ledger`) pflegt einen laufenden `balance_after`. Naive Implementierung liest den vorherigen Saldo als „letzte Zeile": `SELECT balance_after ... ORDER BY created_at DESC, id DESC LIMIT 1`. **Falle:** Bei **mehreren Buchungen in EINER Transaktion** ist `created_at` (= `now()`, transaktions-fix) für alle gleich → der Tiebreaker `id DESC` (gen_random_uuid) ist **kein Insert-Order** → die „letzte Zeile" ist zufällig → `balance_after`-Kette wird falsch. Trifft Bulk-Buchungen: CSF-Auszahlung/Fan-Reward-Airdrop (N Debits, 1 Konto, 1 TX), Migrations-Backfill (2 opening-rows/Entity).
+
+**Symptom:** Saldo-Invariante `letzter balance_after == SUM(credit)-SUM(debit)` schlägt fehl — ABER auch die *Prüf-Query* selbst ist betroffen, wenn sie denselben `created_at/id`-Tiebreaker nutzt (False-Positive). Robuste Prüfung: `MAX(balance_after) == SUM(...)` (bei monoton steigendem credits-only) ODER über eine echte Sequenz.
+
+**Fix:** `balance_after` = `SUM` aller Ledger-Zeilen des Kontos, NICHT „letzte Zeile":
+```sql
+PERFORM 1 FROM <accounts> WHERE id = p_id FOR UPDATE;  -- per-Konto Serialisierung (Race)
+SELECT COALESCE(SUM(CASE WHEN direction='credit' THEN amount ELSE -amount END),0)
+  INTO v_prev FROM <ledger> WHERE account_id = p_id;
+v_after := v_prev + (CASE WHEN p_direction='debit' THEN -p_amount ELSE p_amount END);
+```
+SUM ist unter dem Row-Lock race-frei UND robust gegen same-txn Multi-Booking. O(n) pro Buchung, bei kleinem n/Konto vernachlässigbar; bei großem n: dedizierte `seq bigint`-Spalte (strenge Ordnung) statt created_at. **Reference:** Slice 329 `book_club_treasury` (v1 last-row → v2 SUM same-session-Heal). Verwandt mit D39 (append-only Trigger) + „Holdings Zombie-Row".
+
+### SUM(bigint) = numeric → Cast-Trap bei Funktions-Signatur (Slice 329, 2026-06-17)
+
+`SUM(col)` über eine `bigint`-Spalte liefert in Postgres **`numeric`**, nicht `bigint`. Wird das Ergebnis an eine Funktion mit `bigint`-Parameter übergeben (`PERFORM fn(..., SUM(x), ...)`), failt die Resolution: `function fn(..., numeric, ...) does not exist`. Fix: explizit casten — `COALESCE(SUM(x),0)::bigint`. Gleiches bei untypisiertem `NULL` an typisierte Params → `NULL::uuid`. Wird beim `apply_migration` als harter Fehler gefangen (transaktionaler Rollback, kein Silent-Fail) — DB-Apply IST ein Verify-Gate.
+
 ### Multi-Hop Cron-Bridge ohne Trigger: rating→fantasy_points→gw_score Divergenz (Slice 313 Doku, 2026-06-14)
 
 **Bug-Klasse (latent):** Dieselbe Semantik wird über mehrere Tabellen per **RPC-Bridge** (nicht per Trigger) propagiert. Solange nur EIN Pfad die Bridge auslöst, desynct jede *out-of-band*-Mutation der Quell-Tabelle (manueller SQL-Backfill, partielle API-Reparatur) die Downstream-Tabelle **still** bis zum nächsten Bridge-Lauf. Zwei UI-Views, die je eine Seite der Bridge lesen, zeigen dann widersprüchliche Zahlen.

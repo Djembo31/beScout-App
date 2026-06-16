@@ -2,15 +2,16 @@
 
 ```
 status: idle
-slice: 328 ✅ DONE — IPO-Erstellung Marktwert-Anker + Vorschlagspreis
+slice: 329 ✅ DONE — Club-Treasury-Fundament (append-only Ledger + Saldo + Einnahmen-Verbuchung + Abo-Bug-Fix)
 stage: LOG complete
-size: S
-type: UI
-spec: worklog/specs/328-ipo-mv-anchor-ui.md
-review: worklog/reviews/328-review.md (Cold-Context PASS, 1 NIT post-Beta)
-proof: worklog/proofs/328-ipo-mv-anchor.txt
-done_328: IPO-Modal (AdminPlayersTab) — Spieler-Auswahl setzt Vorschlagspreis round(MV/1000) $SCOUT als anpassbaren Default + MV/Vorschlag-Anzeige + EUR-Orientierung. tsc grün, 14/14 Tests, i18n DE+TR. Erster konkreter Bau des Scout-Card-Money-Modells.
-next: ✅ Money/Reward-Modell KONZEPTIONELL KOMPLETT (csf-club-treasury-model.md §1-10). Nächster echter Bau-Slice = TREASURY-FUNDAMENT (Saldo + append-only Ledger + Einnahmen-Verbuchung + Abo-Bug-Fix). Großer Money-Slice, CEO-Scope, sorgfältige Spec. Danach: CSF-Engine → RAUS-Kanäle → Fan-Reward-Engine. Wartet auf Anil-Go zum Bau-Start.
+size: L
+type: Migration (Money, CEO)
+spec: worklog/specs/329-club-treasury-foundation.md
+impact: worklog/impact/329-club-treasury-foundation.md
+review: worklog/reviews/329-review.md (REWORK → 1 BLOCKER grant-revert + 1 MAJOR gefixt → resolved)
+proof: worklog/proofs/329-treasury-ledger.txt
+done_329: club_treasury_ledger (append-only D39) + book_club_treasury (SUM-based, race-frei) + trades-AFTER-INSERT-Trigger (fängt Trade/IPO/P2P ohne RPC-Edit) + 2 Sub-RPC-Credits (Abo-Bug weg) + get_club_balance Ledger-Read (5 Keys erhalten) + Eröffnungssaldo-Backfill (34 Clubs, 0 Divergenz). 0 src/-Änderungen. Prod-applied + verifiziert.
+next: Treasury RAUS-Seite — Slice 330 CSF-Engine ans Treasury (debit-Buchung, Cap-Semantik, csf_multiplier raus). Dann RAUS-Kanäle (Events/Polls/Bounties) + Fan-Reward-Engine. Optional 329b-UI (AdminTreasuryTab Ledger-Anzeige). Alle Money/CEO.
 ```
 
 ## Zuletzt
