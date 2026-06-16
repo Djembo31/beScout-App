@@ -65,6 +65,21 @@
 4. **Context/Memory-Tuning** (Achse 3) — Autoload-Budget, Hermes-geprüftes Memory.
 5. **Modell-Strategie** (Achse 5) — Routing-Regel.
 
+## 5b. LEITSTERN — Karpathy-Minimalismus (Anil-Inspiration 2026-06-17)
+
+Quelle: `github.com/multica-ai/andrej-karpathy-skills/CLAUDE.md` — eine CLAUDE.md aus NUR 4 Verhaltens-Prinzipien, kein Register/Mechanik. Leitsatz: **„bias toward caution over speed"**.
+
+**Die 4 Prinzipien (an die Spitze unserer CLAUDE.md):**
+1. **Think Before Coding** — Annahmen explizit, mehrere Interpretationen zeigen, einfacheren Weg vorschlagen, Verwirrung benennen.
+2. **Simplicity First** — Minimum-Code, nichts Spekulatives. Selbstcheck: „Würde ein Senior das überkompliziert nennen?"
+3. **Surgical Changes** — nur anfassen was nötig, eigenen Müll aufräumen, Nachbar-Code nicht „verbessern".
+4. **Goal-Driven Execution** — Requests → verifizierbare Ziele, test-first.
+
+**Anwendung auf BeScout (Geist übernehmen, nicht Leere):**
+- **CLAUDE.md neu = Prinzipien-First.** Die 4 Verhaltens-Prinzipien nach oben. Stack/Import-Map/Hook-Listen → on-demand-Rules oder gestrichen. Karpathys Eleganz + unsere money-Gates, ohne Ballast dazwischen.
+- **Reduktion ist das Maß für jede Achse:** Hooks/Skills/Agents/Rules nur behalten, wenn ein Senior „nicht überkompliziert" sagen würde.
+- **Money-kritische Gates bleiben** (spec/proof/review/ceo) — das ist BeScouts legitimer Unterschied zu einem general-purpose-Setup, kein Ballast.
+
 ## 5. Prozesssicherheit
 - Jede Achse = eigener Commit (rückrollbar).
 - Verschlankung NICHT blind: vor jedem Hook/Skill/Agent-Removal „warum existierte das" + „was bricht" prüfen (D54-Familie).
