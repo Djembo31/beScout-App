@@ -376,7 +376,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             <label className="block text-sm font-bold text-white/70 mb-1">{t('playerLabel')}</label>
             <select
               value={s.ipoPlayerId}
-              onChange={(e) => s.setIpoPlayerId(e.target.value)}
+              onChange={(e) => s.selectIpoPlayer(e.target.value)}
               className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
               <option value="" className="bg-[#1a1a2e] text-white/50">{t('selectPlayer')}</option>
@@ -388,6 +388,19 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('pricePerDpc')}</label>
             <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.ipoPrice} onChange={(e) => s.setIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-surface-base border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+            {s.ipoPlayerMarketValue > 0 && (
+              <div className="mt-1 text-xs text-white/40">
+                {t('marketValueAnchor', {
+                  mv: `${(s.ipoPlayerMarketValue / 1000000).toFixed(1)}M €`,
+                  suggested: fmtScout(Math.round(s.ipoPlayerMarketValue / 1000)),
+                })}
+              </div>
+            )}
+            {s.ipoPrice !== '' && parseFloat(s.ipoPrice) > 0 && (
+              <div className="mt-0.5 text-xs text-gold/60">
+                {t('eurPerCard', { eur: (parseFloat(s.ipoPrice) * 0.01).toFixed(2) })}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('dpcCount')}</label>

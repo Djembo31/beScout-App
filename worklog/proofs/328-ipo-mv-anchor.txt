@@ -1,0 +1,30 @@
+Slice 328 — IPO-Erstellung MV-Anker + Vorschlagspreis — PROOF
+================================================================
+
+1. tsc --noEmit
+   → exit 0 (grün, keine Type-Fehler)
+
+2. Vitest AdminPlayersTab.test.tsx
+   Test Files  1 passed (1)
+        Tests  14 passed (14)
+
+3. i18n-Keys (DE + TR vorhanden)
+   marketValueAnchor: de=1 tr=1
+   eurPerCard:        de=1 tr=1
+   JSON beide valide (node require)
+
+4. Money-Formel-Probe (Reviewer-verifiziert, deckt sich mit csf-club-treasury-model.md §3.4)
+   Osimhen MV 75.000.000 € →
+     Vorschlag  = round(75.000.000 / 1000)  = 75.000 $SCOUT   ✓
+     EUR/Card   = 75.000 × 0,01 €            = 750 €           ✓
+   Einheiten-Kette MV(EUR) → ipoPrice($SCOUT) → bsdToCents(cents)→create_ipo: konsistent, keine Faktor-100-Falle.
+
+5. Reviewer (Cold-Context): PASS. 1 NIT (kosmetische Low-MV-Anzeige, post-Beta), 0 BLOCKER.
+
+Files:
+  src/components/admin/useAdminPlayersState.ts  (selectIpoPlayer + ipoPlayerMarketValue)
+  src/components/admin/AdminPlayersTab.tsx       (Select-Handler + MV/Vorschlag/EUR-Anzeige)
+  messages/de.json + messages/tr.json            (marketValueAnchor, eurPerCard)
+
+Hinweis: Live-Playwright-Verify auf bescout.net erst nach Deploy möglich (Admin-Bereich, Auth).
+Pricing-Mechanik unverändert (nur Display + Default) → kein Money-Pfad-Risiko.

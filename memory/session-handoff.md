@@ -1,21 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-15 17:39)
+# Session Handoff — Auto (2026-06-16 14:07)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes
+## Uncommitted Changes: 5 Files
 ```
-?? worklog/audits/audit-stale-2026-06-15.md      (self-renewing Cron-Churn — NICHT committen)
-?? worklog/audits/type-truth-2026-06-15.md       (dito)
-?? worklog/audits/wiring-2026-06-15.md           (dito)
+ M memory/session-handoff.md
+ M worklog/concepts/csf-club-treasury-model.md
+?? worklog/audits/audit-stale-2026-06-15.md
+?? worklog/audits/type-truth-2026-06-15.md
+?? worklog/audits/wiring-2026-06-15.md
 ```
-
-## Session Commits (2026-06-15)
-- 7449026e refactor(clubs): Slice 326 Wave B — DROP clubs.league (atomar, live-verifiziert)
-- b8452176 refactor(clubs): Slice 326 Wave B Schritt A — clubs.league-Reader auf league_id-Ableitung
-- ecd31533 docs(log): Slice 326 Wave A + 327 log-Einträge + 327 live-verify-proof
-- 0f7ea0c1 refactor(ui): Slice 327 — Flaggen-Normung Emoji→SVG (Windows-konsistent)
-- d6bce498 refactor(clubs): Slice 326 Wave A — clubs.league Filter-Wahrheit + Writer auf league_id
 
 <!-- auto:handoff-end -->
 

@@ -2802,6 +2802,8 @@
     "selectPlayer": "Oyuncu seç...",
     "playerLabel": "Oyuncu",
     "pricePerDpc": "Scout Card başına fiyat (Credits)",
+    "marketValueAnchor": "Piyasa değeri: {mv} · Öneri: {suggested} CR",
+    "eurPerCard": "≈ {eur} €/Kart",
     "dpcCount": "Scout Card sayısı",
     "availableOf": "Mevcut: {available} / {total} (dolaşımda: {circulation})",
     "maxPerUser": "Kullanıcı başına maks.",

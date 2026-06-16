@@ -99,6 +99,12 @@ export function useAdminPlayersState(club: ClubWithAdmin, t: TranslatorFn, te: T
     return players.filter(p => !activeIpoPlayerIds.has(p.id) && !p.isLiquidated);
   }, [players, clubIpos]);
 
+  // Slice 328: Marktwert (EUR) des im IPO-Modal gewählten Spielers — für MV-Anker-Anzeige.
+  const ipoPlayerMarketValue = useMemo(() => {
+    const p = players.find(pl => pl.id === ipoPlayerId);
+    return p?.marketValue ?? 0;
+  }, [players, ipoPlayerId]);
+
   const activeIpos = clubIpos.filter(ipo => ['announced', 'early_access', 'open'].includes(ipo.status));
   const pastIpos = clubIpos.filter(ipo => ['ended', 'cancelled'].includes(ipo.status));
   const activePlayers = players.filter(p => !p.isLiquidated);
@@ -141,6 +147,18 @@ export function useAdminPlayersState(club: ClubWithAdmin, t: TranslatorFn, te: T
       setIpoLoading(false);
     }
   }, [user, ipoPlayerId, ipoPrice, ipoQty, ipoMaxPerUser, ipoDuration, ipoStartNow, club.id, t, te]);
+
+  // Slice 328: Spieler-Auswahl im IPO-Modal — setzt Marktwert-Vorschlagspreis als anpassbaren Default.
+  // Vorschlag: 1 SC = MV/100.000 € = MV/1000 $SCOUT (1 $SCOUT = 1 Cent). Verein passt nach Einschätzung an.
+  const selectIpoPlayer = useCallback((playerId: string) => {
+    setIpoPlayerId(playerId);
+    const p = players.find(pl => pl.id === playerId);
+    if (p?.marketValue && p.marketValue > 0) {
+      setIpoPrice(String(Math.round(p.marketValue / 1000)));
+    } else {
+      setIpoPrice('');
+    }
+  }, [players]);
 
   const handleIpoStatusChange = useCallback(async (ipoId: string, newStatus: string) => {
     if (!user) return;
@@ -294,7 +312,7 @@ export function useAdminPlayersState(club: ClubWithAdmin, t: TranslatorFn, te: T
     ipoError, setIpoError, ipoSuccess,
     // IPO Modal
     ipoModalOpen, setIpoModalOpen, ipoLoading,
-    ipoPlayerId, setIpoPlayerId, ipoPrice, setIpoPrice,
+    ipoPlayerId, setIpoPlayerId, selectIpoPlayer, ipoPlayerMarketValue, ipoPrice, setIpoPrice,
     ipoQty, setIpoQty, ipoMaxPerUser, setIpoMaxPerUser,
     ipoDuration, setIpoDuration, ipoStartNow, setIpoStartNow,
     handleCreateIpo, handleIpoStatusChange,

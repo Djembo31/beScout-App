@@ -2802,6 +2802,8 @@
     "selectPlayer": "Spieler wählen...",
     "playerLabel": "Spieler",
     "pricePerDpc": "Preis pro Scout Card (Credits)",
+    "marketValueAnchor": "Marktwert: {mv} · Vorschlag: {suggested} CR",
+    "eurPerCard": "≈ {eur} €/Card",
     "dpcCount": "Anzahl Scout Card",
     "availableOf": "Verfügbar: {available} von {total} (im Umlauf: {circulation})",
     "maxPerUser": "Max pro User",

@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 328 | 2026-06-16 | feat(admin): IPO-Erstellung Marktwert-Anker + Vorschlagspreis
+- Stage-Chain: SPEC (`worklog/specs/328-ipo-mv-anchor-ui.md`, S, UI) → IMPACT skipped (nur 2 Components + i18n, keine Service/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/328-review.md`, Cold-Context-Reviewer **PASS**, 1 NIT post-Beta) → PROVE (`worklog/proofs/328-ipo-mv-anchor.txt`) → LOG.
+- Trigger: Strategie-Session 2026-06-15/16 (Reward-/Money-Modell). Anil-Decision: IPO-Preis = Vereins-Entscheidung mit MV-Anker (nicht starr). Erster konkreter Bau des Scout-Card-Money-Modells.
+- Fix: IPO-Modal (`AdminPlayersTab`) — bei Spieler-Auswahl Vorschlagspreis `round(MV/1000)` $SCOUT als anpassbaren Default (`selectIpoPlayer`), MV+Vorschlag-Anzeige, EUR-Orientierung „≈ X €/Card" (`ipoPrice × 0,01 €`). Mechanik (`create_ipo p_price`) war schon da — nur der intelligente Anker fehlte.
+- Money-Probe: Osimhen MV 75M → 75.000 $SCOUT = 750 €/Card (deckt sich mit Concept §3.4; 1 $SCOUT = 1 Cent). Einheiten MV(EUR)→$SCOUT→cents konsistent, keine Faktor-100-Falle.
+- Verify: tsc grün · 14/14 Tests grün · i18n DE+TR (marketValueAnchor, eurPerCard). Files: useAdminPlayersState.ts, AdminPlayersTab.tsx, messages/{de,tr}.json.
+- Kontext: Konzept-Docs `worklog/concepts/` (Reward-Ökosystem + CSF/Club-Treasury-Zielbild). Nächste Schritte: Konzeption Fan-Reward-Engine + Treasury-Fundament.
+
 ## 326 Wave B | 2026-06-15 | refactor(clubs): DROP clubs.league — league_id ist einzige Wahrheit
 - Stage-Chain: BUILD (Reader-Decouple + DROP-Migration) → REVIEW (`worklog/reviews/326-wave-b-review.md`, reviewer **REWORK** → 5 übersehene Reader gefixt → PASS) → PROVE (`worklog/proofs/326b-wave-b.txt`, Network-Gate + DROP-apply + post-DROP live) → LOG. Schließt Slice 326 (S7 Phase-3 Paar B) komplett ab.
 - Trigger: Anil „nachholen" nach Wave-A-Live-Verify. D80-Single-Truth: clubs.league-String-Spalte gedroppt, Display-Name durchgängig via getLeagueById(league_id).name abgeleitet.
