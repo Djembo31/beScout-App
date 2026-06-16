@@ -143,7 +143,7 @@ Diese Klasse bleibt hier, weil sie **cross-cutting** ist — trifft DB, Frontend
 
 ## Knowledge-Flywheel
 
-Nach Bug-Fix: Pattern **sofort** in die richtige errors-*.md, nicht draft. Regel aus workflow-reference.md:
+Nach Bug-Fix: Pattern **sofort** in die richtige errors-*.md, nicht draft. Regel aus `workflow.md` (Knowledge-Flywheel):
 
 > Bug gefixt → Pattern in common-errors/errors-*.md SOFORT, kein Draft/Pending.
 

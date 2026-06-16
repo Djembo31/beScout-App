@@ -399,3 +399,112 @@ Am Ende einer Session:
 2. **„Schreibe ich später rein"** — später heißt nie. Am Session-End jetzt.
 3. **Alles in 1 Entry stopfen** — jede Decision eigenes D<n>, sonst untrennbar.
 4. **Alternativen weglassen** — die „warum nicht anders"-Info ist der halbe Wert.
+
+---
+
+# Arbeitsweise (How I Work)
+
+Spec-Driven. Code lesen, nicht annehmen. Fertig heisst fertig — keine Restarbeit.
+*(konsolidiert aus ehemals `workflow-reference.md`, 2026-06-17 Setup-Upgrade)*
+
+### Vor Code schreiben
+- Betroffene Files + deren Consumers identifizieren (grep).
+- Bestehende Patterns im Codebase finden (grep/read) — nutzen > neu schreiben.
+- DB/RPC/Service-Aenderung → `/impact` zuerst.
+- Library-Frage → `context7` MCP (Training-Cutoff driftet).
+- „required → optional" = Data-Contract-Change → ERST alle Consumer greppen.
+
+### Verification (Beweis je Change-Typ — siehe PROVE-Stage)
+| Aenderung | Beweis |
+|-----------|--------|
+| Jede | `tsc --noEmit` clean (Voraussetzung, kein Proof) |
+| Logik/Service | Betroffene Tests gruen |
+| UI | Playwright gegen bescout.net (nach Deploy) — NICHT localhost |
+| DB/RPC | SELECT mit echten Daten |
+| i18n | DE + TR verifiziert |
+
+Playwright laeuft gegen Prod, nicht localhost:
+```bash
+PLAYWRIGHT_BASE_URL=https://bescout.net npx playwright test      # Full Suite
+QA_BASE_URL=https://bescout.net npx tsx e2e/qa-polish.ts --path=/ --slug=home
+```
+
+### Prinzipien (operativ — ergaenzen die 4 Karpathy-Leitsterne in CLAUDE.md)
+1. Code lesen, nicht annehmen. Jede Hypothese verifizieren.
+2. Einfachste Loesung zuerst. 1 Feature bewegen < 8 Komponenten bauen.
+3. Exakt was gefragt. Kein Bonus-Refactoring, kein Scope-Creep.
+4. 2x gescheitert → STOP. Andere Hypothese (`/competing-hypotheses`).
+5. Messen vor optimieren. Keine Perf-Aenderung ohne Baseline.
+6. Fertig = verifiziert. „tsc clean" / „sollte passen" ist KEIN Beweis.
+
+### Knowledge-Flywheel
+```
+Arbeit → Wissen → LEARNINGS.md + common-errors.md
+  ↑                                          ↓
+  └── Naechster Agent laedt LEARNINGS.md ←───┘
+```
+Bug gefixt → Pattern SOFORT in `.claude/rules/common-errors.md` (errors-*.md bei Domain-Spezifik), kein Draft. Komplexe Analyse → `memory/semantisch/projekt/`.
+
+---
+
+# Agent-Dispatch (Orchestrator-Protokoll)
+
+**Meine Rolle:** CTO & Orchestrator. Ich denke, plane, delegiere. Agents sind ein Elite-Team — jeder denkt selbst und liefert produktionsreif. Verfuegbare Agent-Typen liefert das **Agent-Tool** (SSOT), nicht eine Liste hier — sonst driftet sie.
+
+### Briefing-Template (jeder Dispatch)
+```
+KONTEXT: [Was Anil will + warum + Business-Hintergrund]
+ZIEL:    [Konkretes Ergebnis, nicht Schritte]
+CONSTRAINTS: [Mobile 393px, i18n DE+TR, Patterns]
+DU ENTSCHEIDEST: [Autonom-Zone des Agents]
+VERIFY:  [Wie der Agent seinen Output selbst prueft]
+WICHTIG: Lies deine LEARNINGS.md VOR dem Arbeiten.
+```
+NIEMALS „editiere Zeile 45 in File X" (Micromanagement). IMMER Ziel + Autonom-Zone + Verify.
+
+### Dispatch-Entscheidung
+| Situation | Aktion |
+|-----------|--------|
+| Quick Fix <3 Files | Selbst |
+| Feature 3+ Files, eine Domain | 1 Agent (backend ODER frontend) |
+| Feature 3+ Files, cross-domain | Parallel: backend + frontend (+ test-writer) in Worktrees |
+| DB/RPC-Aenderung | `/impact` ZUERST, dann Agent |
+| Nach Implementation | Reviewer-Agent (PFLICHT — auch bei „identischem Pattern") |
+| Reviewer findet Issues | Healer-Agent |
+| Geld/Trading/Security | SELBST (zu kritisch fuer Delegation) |
+
+### After-Action (nach JEDEM Agent-Ergebnis)
+1. Output verifizieren: `git diff --stat` im Worktree — kein Vertrauen auf Behauptungen.
+2. Review-Agent (PFLICHT) → `worklog/reviews/NNN-review.md` persistieren.
+3. Neues Pattern → LEARNINGS.md / common-errors.md.
+4. Merge → tsc + vitest auf merged Code.
+5. UI → Playwright gegen bescout.net nach Deploy.
+
+Vollstaendiges Playbook: `/parallel-dispatch` Skill. Multi-Session-Parallelitaet: `/ship-agents`.
+
+### 3 Gesetze (Agent-Architektur)
+1. Cache-Prefix-Sharing: `SHARED-PREFIX.md` = gemeinsamer Prefix aller Agents.
+2. Nie leere Tool-Arrays: jeder Agent hat explizite Tools.
+3. Human-Curated Context Only: Agents schreiben Drafts, Menschen promoten.
+
+---
+
+# Session-Lifecycle
+
+```
+SessionStart → ship-session-start Briefing (Branch, Slice, Stage, tsc, uncommitted)
+  ↓  Pending Agent-Worktrees? → MERGE ZUERST
+  ↓  memory/session-handoff.md lesen (Resume-Preflight, D81)
+Waehrend → PostToolUse-Hooks (lint, test-reminder, gates)
+Stop → session-handoff-auto (Worktrees + Changes + Commits)
+StopFailure → crash-recovery (Diff-Backup + Handoff-Append)
+```
+
+**Session-Start-Checkliste:** (1) Briefing lesen → (2) handoff lesen → (3) Pending Worktrees mergen → (4) dann erst neue Arbeit.
+
+### Tooling-Register = SSOTs, keine Kopien (2026-06-17 Anti-Drift)
+Hardcoded Listen von Hooks/Skills/Agents/MCPs driften (Grund fuer die alten 28/22/9-Falschstaende). Quelle der Wahrheit:
+- **Hooks** → `.claude/settings.json`. Wiring-Check: `pnpm audit:wiring:check`.
+- **Skills** → Skill-Tool (Laufzeit-Liste) / `.claude/skills/`.
+- **Agents** → Agent-Tool (Laufzeit-Liste) / `.claude/agents/`.
+- **MCPs (Projekt)** → `.mcp.json`. Weitere MCPs sind user-/session-level verbunden.
