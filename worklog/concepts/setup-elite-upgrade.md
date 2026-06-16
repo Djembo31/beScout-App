@@ -87,4 +87,31 @@ Quelle: `github.com/multica-ai/andrej-karpathy-skills/CLAUDE.md` — eine CLAUDE
 
 ---
 
-*Erstellt 2026-06-17. Danach: frische Session → restliche Punkte, beginnend mit A (Treasury-Fundament).*
+## 6. Ausführung 2026-06-17 (Voll-autonom, alle 5 Achsen)
+
+### Achse 4 — Müll-Räumung ✅ (Commit `f1a228d0`)
+6 dated Audit-Subdirs (2026-04-25..05-05, beta-Phase persona/journey) + 2 stale Proofs → `worklog/_archive/`. **Bewusst NICHT bewegt:** 600+ slice-nummerierte SHIP-Proofs/Specs/Reviews — append-only Projektrecord, nicht im Context, Move = reine Churn (Karpathy: surgical). Self-renewing audit-cron-Outputs sind bereits gitignored.
+
+### Achse 2 — Doku-Konsolidierung ✅ (Commit `ced8b2c7`)
+- `workflow-reference.md` (305 Z.) → `workflow.md` gemerged (Evergreen: Arbeitsweise, Agent-Dispatch, 3 Gesetze, Session-Lifecycle). Stale Register-Tabellen gedroppt.
+- `CLAUDE.md` 164→97 Z., Karpathy-Prinzipien-First, money-Gates prominent.
+- **Kern-Fix:** SHIP-Loop 5→6 Stufen in CLAUDE.md (REVIEW war verschluckt) — Haupt-Widerspruch beseitigt.
+- **Anti-Drift:** Register = SSOT-Pointer (settings.json / .mcp.json / Skill-/Agent-Tool) statt hardcoded Kopien. Killt die Drift-Klasse, die die 28/22/9-Falschstände erzeugte.
+
+### Achse 1 — Setup-Verschlankung ✅ Audit-Ergebnis: Kern bereits schlank, KEIN Cull
+„Verschlankung NICHT blind" + Research „kein Kahlschlag" angewandt. Befund nach Per-Item-Audit:
+- **Hooks (39):** `pnpm audit:wiring:check` = 0 Drift, alle gewired. 18 „Orphans" sind allowlisted **mit explizitem Grund je Eintrag** (shared sourced libs, TM-Cloudflare-Workaround-Tools recurring, npm-Scripts via andere Pfade gewired). Keine toten Hooks.
+- **Agents (15 + SHARED-PREFIX):** Keine echten Duplikate. Auditor-Agents (brand/ux/fantasy/fm/persona/qa) sind **distinkte Lenses**, gewired in `sweep-page`/`audit-beta-readiness`/`persona-walk`. Entfernen würde Skills brechen. Plan-Schätzung „16→8-10" war Redundanz-Illusion aus Doku-Drift.
+- **Skills (26):** Alle aktuell. Superseded (`deliver`/`cto-review`/`eval-skill`) sind bereits entfernt. Kein toter Skill.
+- **MCP:** „3 vs 12" ist **kein Bug** — `.mcp.json` = Projekt-Scope (3), weitere user-/session-level verbunden.
+**Schluss:** Die „Fett"-Annahme war primär Doku-Drift (in Achse 2 behoben), nicht reale Redundanz. Elite = jedes Item begründet + dokumentiert, nicht Zahlen-Minimierung um ihrer selbst willen.
+
+### Achse 3 — Context/Memory (Autoload-Budget)
+Echter Overhead-Hebel: always-loaded `errors-*.md` ~2,2k Zeilen (frontend 1012 + db 695 + infra 461). → siehe Commit.
+
+### Achse 5 — Modell-Strategie
+Routing-Regel verankert → siehe Commit.
+
+---
+
+*Erstellt 2026-06-17. Ausgeführt 2026-06-17 (Setup-Upgrade voll-autonom). Danach: frische Session → Treasury-Fundament (D83).*
