@@ -10,7 +10,7 @@ spec: worklog/specs/328-ipo-mv-anchor-ui.md
 review: worklog/reviews/328-review.md (Cold-Context PASS, 1 NIT post-Beta)
 proof: worklog/proofs/328-ipo-mv-anchor.txt
 done_328: IPO-Modal (AdminPlayersTab) — Spieler-Auswahl setzt Vorschlagspreis round(MV/1000) $SCOUT als anpassbaren Default + MV/Vorschlag-Anzeige + EUR-Orientierung. tsc grün, 14/14 Tests, i18n DE+TR. Erster konkreter Bau des Scout-Card-Money-Modells.
-next: Konzeption weiter — Fan-Reward-Engine (§3.3) + Treasury-Fundament (csf-club-treasury-model.md). Slice A war Aufwärm-Bau; Money-Modell-Kern (CSF-Engine, Treasury) folgt nach Konzeption.
+next: ✅ Money/Reward-Modell KONZEPTIONELL KOMPLETT (csf-club-treasury-model.md §1-10). Nächster echter Bau-Slice = TREASURY-FUNDAMENT (Saldo + append-only Ledger + Einnahmen-Verbuchung + Abo-Bug-Fix). Großer Money-Slice, CEO-Scope, sorgfältige Spec. Danach: CSF-Engine → RAUS-Kanäle → Fan-Reward-Engine. Wartet auf Anil-Go zum Bau-Start.
 ```
 
 ## Zuletzt

@@ -17,7 +17,8 @@ Das Modell ist **kein Blockchain-Token, kein Wertpapier** — es ist eine vertra
 Community Success Fee = (verkaufte DPCs / 10.000 × 10%) × min(Transfererlös, Cap)
 ```
 
-**Währung:** $SCOUT (ehemals BSD) | **Wechselkurs:** 100 $SCOUT = 1 Cent | 10.000 $SCOUT = 1 EUR
+**Währung:** $SCOUT (ehemals BSD) | **Wechselkurs:** 1 $SCOUT = 1 Cent = 0,01 € | 100 $SCOUT = 1 EUR
+> ⚠️ KORRIGIERT 2026-06-16: vorher fälschlich „100 $SCOUT = 1 Cent / 10.000 = 1 EUR" (Faktor-100-Drift). Wahrheit = `trading.md` + Live-Code + ICO-Seed-Preis €0,01. Siehe `memory/decisions.md` D83.
 
 ---
 
@@ -408,7 +409,7 @@ Bei 5x Umschlag pro DPC: 28 × 2.000 × 5 × 300 × 6% = 5.040.000 BSD (= 504 EU
 | Steuerliche Behandlung für User | **Mittel** | AGB: User ist selbst verantwortlich. Transparente Transaktionshistorie für Steuererklärung |
 | Verwechslung mit Krypto-Scam | **Mittel** | Seriöses Branding, echte Club-Partnerschaften, kein "Pump&Dump"-Narrativ |
 
-**Wechselkurs:** 100 $SCOUT = 1 Cent EUR | 10.000 $SCOUT = 1 EUR
+**Wechselkurs:** 1 $SCOUT = 1 Cent EUR | 100 $SCOUT = 1 EUR  (korrigiert 2026-06-16, siehe D83)
 
 **Migrations-Scope:** Rein kosmetisch in Phase 1 (Umbenennung BSD → $SCOUT in UI + Docs). Kein technischer Umbau der Wallet/DB nötig — intern bleibt alles in Cents (BIGINT).
 
@@ -609,7 +610,7 @@ Jede Interaktion muss dem User vermitteln: **"Ich besitze einen Anteil an diesem
 | Begriff | Definition |
 |---------|-----------|
 | **DPC** | Digital Player Card — digitaler Anteil an einem Spieler auf BeScout |
-| **$SCOUT** | Plattform-Währung (ehemals BSD). 100 $SCOUT = 1 Cent EUR. Zentrale Datenbank, kein Blockchain-Token |
+| **$SCOUT** | Plattform-Währung (ehemals BSD). 1 $SCOUT = 1 Cent EUR (100 $SCOUT = 1 EUR). Zentrale Datenbank, kein Blockchain-Token |
 | **IPO** | Initial Player Offering — Erstausgabe von DPCs eines Spielers |
 | **Supply (DPC)** | Anzahl DPCs die der Club für einen Spieler erstellt (max 10.000) |
 | **Cap (EUR)** | Maximaler Referenzwert für die Fee-Berechnung. Schützt den Club vor extremen Zahlungen |

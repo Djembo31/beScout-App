@@ -3519,3 +3519,33 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** Gilt für kommende String→UUID-DROPs (players.club Paar A u.a.). Macht irreversible DROPs zur Routine mit definierten Gates statt Einzelfall-Mut. Bestätigt D45 (Gates > Text) — diese Session 3× Blindspots gefangen (Migration-Ordering + 5 übersehene Reader).
 
 **Re-Visit-Trigger:** Falls ein `audit:column-drop`-Tool gebaut wird (greppt alle Achsen + prüft Network-Trace automatisch), kann Schritt 2 teil-automatisiert werden → Sequenz aktualisieren.
+
+## D83 — PRODUCT/ARCHITECTURE: BeScout Money/Reward-Modell — konsolidiert (Scout Card → IPO → CSF → Club-Treasury → Fan-Rewards)
+
+**Datum:** 2026-06-16 · **Status:** Aktiv (Konzept komplett, Bau ausstehend) · **Kontext:** Strategie-Session 2026-06-15/16. Anil-Frustration: zentrale Money-Modell-Infos gingen zwischen Sessions verloren und mussten neu ausgearbeitet werden. Diese Decision + `worklog/concepts/csf-club-treasury-model.md` + `trading.md` sind die **dauerhafte Basis** — nie wieder neu durchgehen.
+
+**Das Modell (Kern-Aussagen, unveränderlich):**
+1. **Scout Card = vertragsgekoppelter Anteil am Spieler** (Produkt-Wahrheit, Equity-artig) / nach außen „digitale Sammelkarte" (Doppel-Register `business.md`). Asset-Laufzeit = Spielervertrag.
+2. **Tokenisierung:** 100.000 SC = 100 % Spielerwert · max **10.000 SC = 10 %** (Verein-Anteil bleibt 90 %). **1 SC = MV / 100.000 €.**
+3. **Wechselkurs:** **1 $SCOUT = 1 Cent = 0,01 €** (100 $SCOUT = 1 EUR). Deckt sich mit Live-Code (`ipo_price_cents=MV/10` → `centsToBsd` → `MV/1000 $SCOUT`) + ICO-Seed-Preis €0,01. `CONCEPT-DPC-ECONOMY.md` war Faktor-100-falsch → korrigiert. Phase 1 = bCredits intern; echtes EUR Cash-out = **Phase 2** (lizenz-gegated).
+4. **IPO-Preis (Einstieg) = Vereins-Entscheidung mit MV-Anker** — nicht starr. Mechanik existiert (`create_ipo p_price`); MV-Vorschlag-UI = Slice 328 (DONE).
+5. **CSF / Liquidation (Ausgang):** Bei realem Transfer. **Reward pro Card = min(Transfererlös, Cap) / 100.000 €** (Card-Anzahl kürzt sich raus). **Cap** = Vereins-Schutz bei IPO gesetzt. **Einmalig** (keine Tranchen), **rein proportional** nach Besitz (KEIN csf_multiplier — Treue separat über Fan-Rewards), aus **Club-Treasury**. Nur SC im Umlauf. Der Spread Einstieg↔Ausgang = der „Scout-Fang".
+6. **Club-Treasury = echtes bidirektionales Konto** (Saldo + append-only Ledger). REIN: Trading 1 % · IPO 85 % · P2P 0,5 % · Abo 100 %. RAUS: CSF · Fan-Rewards · Event-Prizes · Poll-Rewards · Bounties. **extractive → investive:** Verein reinvestiert verdientes $SCOUT in Fan-Aktivierung. Alles Transfer/kein Minting (Closed Economy bleibt deflationär-neutral). IST heute: KEIN echtes Konto (tote Spalte `clubs.treasury_balance_cents` + on-the-fly `get_club_balance`, Abo-Bug schrumpft rückwirkend).
+7. **Fan-Reward-Engine = 2 parallele Perks-Schienen** (Conversion-Anreiz, primär Gating nicht Geldfluss): **Abo** (bezahlt: Fee-Rabatt/Early-IPO/Premium) + **Fan-Rank** (verdient: Community-Zugang/Status/opt. Airdrop). Follow = Einstieg. Club-konfigurierbar.
+
+**Kanon-Beispiel (Osimhen, mit Anil verifiziert 2026-06-16):**
+- IPO bei MV 75 Mio → 1 SC = 750 € = 75.000 $SCOUT.
+- Fan kauft 2 SC = 150.000 $SCOUT (1.500 €).
+- Real-Transfer 150 Mio (kein Cap) → Reward/Card = 150 Mio/100.000 = 1.500 € = 150.000 $SCOUT.
+- 2 SC → **3.000 € = 300.000 $SCOUT** (Gewinn +1.500 €, = **2×**, weil 75→150 Mio = 2× Wertsteigerung).
+- Mit Cap 100 Mio → 1.000 €/Card (= 2.000 € für 2 SC). Cap ist der entscheidende Upside-Deckel.
+
+**Bau-Sequenz:** 1) Treasury-Fundament (Saldo+Ledger+Einnahmen-Verbuchung+Abo-Bug-Fix) → 2) CSF-Engine ans Treasury (Cap-Semantik + csf_mult raus) → 3) RAUS-Kanäle (Events/Polls/Bounties) → 4) Fan-Reward-Engine. Alle Money-kritisch (CEO-Scope). Slice 328 (IPO-MV-Anker) bereits DONE.
+
+**Begründung:** Das Geflecht (3 Score-Welten, CSF, Treasury, Perks) fühlte sich „wild" an, weil nie als EIN Modell formuliert. Diese Konsolidierung ist die SSOT für alle Money/Reward-Specs.
+
+**Alternativen erwogen:** (a) CSF „echt machen" (Deckel lockern) — verworfen, Securities-Nähe + trifft nicht „Aktivität belohnen". (b) Treue über csf_multiplier bei Liquidation — verworfen (wirkungslos 1,15× + verwässert proportional), ersetzt durch Fan-Reward-Engine. (c) Tranchen-Auszahlung — verworfen, Club zahlt aus Treasury (kein Cashflow-Grund).
+
+**Auswirkungen:** `trading.md` (autoloaded) trägt jetzt das CSF-Modell + Osimhen-Beispiel. `worklog/concepts/csf-club-treasury-model.md` = ausführliche Quelle (§1-10). Künftige Money-Specs referenzieren D83, nicht neu erarbeiten.
+
+**Re-Visit-Trigger:** Cap-Semantik final festlegen (pro-Card cents vs. Transfer-EUR-Referenz) bei Treasury/CSF-Bau. ODER „Legal Go" → Phase-2-Cash-out wird Thema.

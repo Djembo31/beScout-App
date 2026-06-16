@@ -31,12 +31,16 @@ paths:
   - Bekir (MV 1M€) → ipo_price 100.000 cents = 1.000 $SCOUT ✓
   - Manaj (MV 2,2M€) → ipo_price 250.000 cents ≈ Formel 220.000
 
-### Liquidation-Payout
-- Bei Transfer/Liquidation für `MV_liqui`:
-  - Payout pro Card = `MV_liqui / 100.000 €`
-  - Community-Pool-Share = `verkaufte_Cards / 10.000 × 10% × MV_liqui`
-  - Verein bekommt: Transfer-Erlös − Community-Payout + unverkaufte Cards-Reserve
-- Card-Value skaliert **1:1 mit MV_liqui** (5× MV-Growth = 5× Card-Value)
+### Liquidation-Payout / Community Success Fee (CSF) — MODELL 2026-06-16 (D83)
+- **Reward pro Card = `min(Transfererlös, Cap) / 100.000 €`** (= `MV_liqui/100.000` ohne Cap). Die Anzahl verkaufter Cards **kürzt sich raus** → pro Card immer Liquidationswert/100.000.
+- **Community-Pool gesamt** = `verkaufte_Cards / 10.000 × 10% × min(Transfer, Cap)`. Nur SC **im Umlauf** (Holdings) zählen.
+- **Cap** = Vereins-Schutz, bei IPO gesetzt (`success_fee_cap`). Deckelt die Fee-Basis (`min(Transfer, Cap)`).
+- **Verteilung: rein PROPORTIONAL nach Besitz** — KEIN `csf_multiplier`/Treue-Gewichtung (D83: csf_mult RAUS → Treue separat über Fan-Reward-Engine).
+- **Einmalige Auszahlung** (KEINE Tranchen — D83), aus dem **Club-Treasury** (Verein zahlt aus zugesagter Marketinggebühr).
+- Card-Value skaliert **1:1 mit MV_liqui** → Fan-Gewinn-Multiplikator = Spieler-Wertsteigerungs-Multiplikator.
+- **Kanon-Beispiel (Osimhen):** IPO MV 75 Mio → 1 SC = 750 € = 75.000 $SCOUT. Transfer 150 Mio (kein Cap) → Reward/Card = 150 Mio/100.000 = **1.500 € = 150.000 $SCOUT**. 2 SC → **3.000 € = 300.000 $SCOUT** (2×, weil 75→150 Mio = 2× Wertsteigerung). Mit Cap 100 Mio → 1.000 €/Card.
+- **+ PBT-Anteil** (separater per-Player-Topf, 1,5% der Trades) wird bei Liquidation mit-ausgeschüttet (klein, volumenabhängig).
+- **Vollständiges Modell:** `worklog/concepts/csf-club-treasury-model.md` (+ `reward-ranking-ecosystem.md`), Decision `memory/decisions.md` D83.
 
 ### Regeln
 - `ipo_price` = fest pro Tranche nach Launch, aendert sich NIE durch Marktaktivitaet
@@ -55,7 +59,7 @@ paths:
   kann die angezeigte Kaufsumme minimal unter dem tatsächlich gebuchten Preis liegen. Future-Fix
   optional: eigene Orders aus dem Display-Floor excludieren ODER Kauf blocken wenn eigene Order
   am günstigsten. Kein Live-Blocker (selten + RPC ist autoritativ).
-- Details: `memory/decision_pricing_asset_model.md`
+- Details: `worklog/concepts/csf-club-treasury-model.md` + `docs/CONCEPT-DPC-ECONOMY.md` + `memory/decisions.md` D83 (Pfad `memory/decision_pricing_asset_model.md` existiert NICHT — Drift)
 
 ## Fee-Split
 - **Trading (6% total):** `trade_fee_bps=600` → Platform 3.5% + PBT 1.5% + Club 1%
