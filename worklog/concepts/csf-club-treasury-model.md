@@ -60,6 +60,20 @@ Der Verein setzt Treasury-Budget ein, um Engagement zu fördern — die konkrete
 - club-gebundene Missionen (Infra existiert, `mission_definitions.club_id` — heute 0 Seeds)
 - exklusive Drops / Perks / Welcome-Boni für neue Club-Fans
 
+### 3.4 IPO-Preisbildung (Einstieg) — Vereins-Entscheidung mit MV-Anker (Anil 2026-06-16)
+
+Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Vereins-Entscheidung mit dem Marktwert als Anker**: der Verein kennt seinen Spieler besser als Transfermarkt + hält den Einstieg erschwinglich (günstiger = mehr Fans). MV = Vorschlag, Verein = finale Entscheidung.
+
+**Zwei getrennte Preise — die Differenz ist der Scout-Fang:**
+| | wer setzt | gekoppelt an |
+|---|---|---|
+| IPO-Preis (Einstieg) | **Verein** | MV-Anker + Einschätzung |
+| Liquidations-Wert (Ausgang) | Realität | tatsächlicher Transfererlös × 10 %-Regel, Cap |
+
+**Tokenisierung (Beispiel Osimhen, MV 75 Mio):** 100.000 SC = 100 %, max 10.000 SC = 10 %. 1 SC = MV/100.000 = **750 € = 75.000 $SCOUT**. Exklusive Spieler = exklusive Cards (gewollt — nicht jeder Verein kann sich Osimhen leisten).
+
+**Code-Stand:** Mechanik existiert — `create_ipo(p_price)` / `createPlayer(ipoPrice)` respektieren expliziten Preis; `MV/10`-cents nur als Default-Fallback. **UI-Gap (`AdminPlayersTab`):** Preis-Input vorhanden, aber kein MV-abgeleiteter Vorschlag (Default willkürlich `5.00`) + keine EUR-Orientierung. → UI-Slice: MV-Vorschlag als anpassbaren Default einsetzen + „≈ X €/Card" anzeigen.
+
 ---
 
 ## 4. Konzept-vs-Code-Gap (verifiziert 2026-06-15)
@@ -87,8 +101,11 @@ Der Verein setzt Treasury-Budget ein, um Engagement zu fördern — die konkrete
 2. **`csf_multiplier` raus** — CSF rein proportional nach Besitz; Treue separat über Fan-Reward-Engine (§3.3).
 3. **Treasury zuerst**, aber **noch nicht bauen** (Anil) — bleiben in Konzeption.
 
-**Verbleibende Prüfpunkte vor jedem CSF-Bau:**
-- 🔴 **Wechselkurs-Skala** ($SCOUT↔Cent, Faktor-100-Drift trading.md vs CONCEPT) — money-kritisch verifizieren.
+**Wechselkurs aufgelöst (2026-06-16):** **1 $SCOUT = 1 Cent = 0,01 € (100 $SCOUT/€).** Bestätigt durch `trading.md` + Live-Code (`MV/10` cents → `centsToBsd` → `MV/1000 $SCOUT`; Osimhen 75.000 $SCOUT = 750 €) + ICO-Seed-Preis (€0,01, `pilot-founding-strategy-design.md`). `CLAUDE.md` „100 cents = 1 $SCOUT" = nur DB-Speicher-Präzision, kein Peg. 🟡 `CONCEPT-DPC-ECONOMY.md` „10.000 $SCOUT = 1 EUR" ist **falsch (Faktor 100)** → Doc korrigieren. **Kein Live-Bug:** Phase 1 Closed Economy rechnet nirgends $SCOUT→EUR.
+
+**ICO-Plan (Kontext):** Pre-ICO/Seed €0,01 (= 1 Cent, deckt sich mit Card-Math) · Main ICO €0,03 · 1 Mrd Supply · Pilot-Credits → Token-Migration. **Offene Phase-3-Frage:** Token-Preis steigt (1→3 Cent→Markt), Card-Preis fix in $SCOUT → EUR-Gegenwert schwankt mit Coin. Card fix-in-$SCOUT (Asset-Verhalten) oder EUR-Anker? — nicht jetzt.
+
+**Verbleibende Prüfpunkte vor CSF-Bau:**
 - Cap-Semantik (pro Card vs. Transfer-Referenz) sauber definieren.
 - Club-Treasury: echtes Konto + Buchungslücke (IPO-85 % + P2P-Club) schließen.
 
@@ -103,4 +120,29 @@ Der Verein setzt Treasury-Budget ein, um Engagement zu fördern — die konkrete
 
 ---
 
-*Strategie-Session 2026-06-15. Nächster Schritt: §5-Entscheidungen mit Anil, dann Spec für Slice 1 (Club-Treasury-Fundament).*
+## 7. Betroffene Komponenten & Themen (Basis-Register)
+
+> Alles, was am Scout-Card-Money-Modell hängt. Referenz für jede künftige Spec, damit kein Pfad übersehen wird (D43/D54-Familie: „Existenz ≠ vollständige Erfassung").
+
+**Kern-Aussagen (unveränderlich, als Basis):**
+1. Scout Card = vertragsgekoppelter Anteil (Produkt-Wahrheit) / Sammelkarte (Wort). 100.000 SC = 100 % Spielerwert, max 10.000 SC = 10 %. 1 SC = MV/100.000.
+2. **1 $SCOUT = 1 Cent = 0,01 €** (100 $SCOUT/€). Phase 1 = bCredits intern, Cash-out Phase 2.
+3. IPO-Preis = Vereins-Entscheidung mit MV-Anker (Einstieg). Liquidations-Wert = realer Transfer × 10 %-Regel, Cap (Ausgang). Differenz = Scout-Fang.
+4. CSF = einmalig (keine Tranchen), aus Club-Treasury, rein proportional nach Besitz (kein csf_multiplier). Nur SC im Umlauf.
+5. Club-Treasury = echtes bidirektionales Konto (Einnahmen + Deposit / CSF + Fan-Rewards + Withdrawal[Ph2]).
+
+**Tabellen:** `players` (ipo_price, floor_price, market_value_eur, success_fee_cap_cents, is_liquidated) · `ipos` · `holdings` · `liquidation_events` · `pbt_treasury` · `fan_rankings` (csf_multiplier → entfernen) · `club_subscriptions` · `club_followers` · `club_withdrawals` · `trades` (club_fee) · `transactions` · `wallets` · `fee_config`.
+
+**RPCs:** `liquidate_player` (Formel/Treue raus/Cap) · `create_ipo` · `buy_from_ipo` · `buy_player_sc` · `buy_from_order` · `get_club_balance` (Buchungslücke IPO/P2P) · `request_club_withdrawal` · `calculate_success_fee` (NEU, fehlt) · Treasury-Deposit (NEU).
+
+**Services:** `players.ts` (createPlayer, PLAYER_SELECT_COLS) · `ipo.ts` · `trading*` · `wallet*` · `club.ts` (getClubBalance) · `clubSubscriptions.ts` · `fanRanking.ts`.
+
+**Components:** `AdminPlayersTab` + `useAdminPlayersState` (IPO-Erstellung — **Slice A**) · `AdminTreasuryTab` (Treasury) · `PlayerHero` / `TradingTab` / `BuyModal` / `RewardsTab` (Card-Preis-Display) · Player-Detail (Was-wäre-wenn-Rechner, NEU).
+
+**Docs:** `CONCEPT-DPC-ECONOMY.md` (🟡 Wechselkurs + Tranchen korrigieren) · `trading.md` · `pilot-founding-strategy-design.md` (ICO) · `business.md` (Wording, Licensing-Phasen) · `decision_pricing_asset_model.md` (Pfad-Drift: in trading.md referenziert, existiert nicht).
+
+**Themen:** Wechselkurs (✅ geklärt) · IPO-Preisbildung · CSF/Liquidation · Club-Treasury · Fan-Reward-Engine · Phase-1-bCredits→Phase-3-Token.
+
+---
+
+*Strategie-Session 2026-06-15/16. Slice A (MV-Anker-IPO-UI) zuerst, danach Konzeption Fan-Reward-Engine + Treasury-Fundament.*
