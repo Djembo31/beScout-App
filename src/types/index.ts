@@ -385,6 +385,7 @@ export type ClubBalance = {
   total_earned: number;
   trade_fees: number;
   sub_revenue: number;
+  poll_revenue: number;   // Slice 333: SUM Credit type='poll_revenue' (Vereins-Umfrage-Einnahmen)
   total_withdrawn: number;
   csf_paid: number;       // Slice 330b: SUM Debit type='csf'
   total_debited: number;  // Slice 330b: SUM aller Debits
@@ -1033,7 +1034,23 @@ export type DbCommunityPoll = {
   starts_at: string;
   ends_at: string;
   club_id?: string | null;
+  source: CommunityPollSource;  // Slice 333: 'club' = offiziell (Geld→Treasury), 'user' = Geld→Wallet
   created_at: string;
+};
+
+/** Slice 333: Quellen-/Autoritäts-Achse einer bezahlten Umfrage (Geld-Routing). */
+export type CommunityPollSource = 'club' | 'user';
+
+/** Slice 333: Params für create_community_poll. */
+export type CreateCommunityPollParams = {
+  userId: string;
+  question: string;
+  options: string[];
+  costBsd: number;        // BIGINT cents, 0..100000
+  durationDays: number;   // 1..30
+  source: CommunityPollSource;
+  clubId?: string | null; // Pflicht wenn source='club'; optionaler Bezug wenn 'user'
+  description?: string | null;
 };
 
 export type DbCommunityPollVote = {

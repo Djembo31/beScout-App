@@ -1,0 +1,19 @@
+Slice 333 — Polls P1 — Vitest Proof (2026-06-18)
+=================================================
+
+$ CI=true npx vitest run src/lib/services/__tests__/communityPolls-create.test.ts
+ ✓ createCommunityPoll > maps params to create_community_poll RPC (club source)
+ ✓ createCommunityPoll > defaults clubId + description to null (user source)
+ ✓ createCommunityPoll > throws the RPC error key when success=false (discriminated union)
+ ✓ createCommunityPoll > throws when success=true but poll_id missing (defensive)
+ ✓ createCommunityPoll > throws on transport error
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+
+Regression (bestehende Tests, no break):
+$ CI=true npx vitest run src/components/community/__tests__/CommunityFeedTab.test.tsx src/lib/services/__tests__/club.test.ts
+ Test Files  2 passed (2)
+      Tests  93 passed (93)
+
+$ npx tsc --noEmit   → clean (exit 0)
+JSON (de+tr) valid · i18n key coverage DE+TR komplett (26 community + 2 admin + poll_revenue).

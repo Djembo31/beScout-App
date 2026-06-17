@@ -12,7 +12,7 @@ import type { ClubWithAdmin, ClubBalance, DbClubWithdrawal, DbTreasuryLedgerEntr
 const KNOWN_LEDGER_TYPES = new Set([
   'trade_fee', 'ipo_fee', 'p2p_fee', 'subscription', 'opening_trade_fees',
   'opening_subscription', 'deposit', 'withdrawal', 'csf', 'fan_reward',
-  'event_prize', 'poll_reward', 'bounty',
+  'event_prize', 'poll_reward', 'bounty', 'poll_revenue',
 ]);
 
 function timeAgo(dateStr: string): string {

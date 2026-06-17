@@ -1,0 +1,44 @@
+Slice 333 — Polls P1 — Money/DB Proof (LIVE bescout-App DB, 2026-06-18)
+========================================================================
+
+1) Migration applied: {"success":true}
+   20260618120000_slice_333_polls_create_treasury.sql
+
+2) CHECK additive (poll_revenue als CREDIT-Typ):
+   CHECK ((type = ANY (ARRAY['trade_fee','ipo_fee','p2p_fee','subscription',
+     'opening_trade_fees','opening_subscription','deposit','withdrawal','csf',
+     'fan_reward','event_prize','poll_reward','bounty','poll_revenue'])))
+
+3) Grants (AR-44) — anon REVOKED, authenticated GRANTED:
+   create_community_poll      anon=false  authenticated=true
+   cast_community_poll_vote   anon=false  authenticated=true
+   get_club_balance           anon=false  authenticated=true
+
+4) FORCE-ROLLBACK MONEY SMOKE (DO + RAISE, beide Routing-Pfade, alles rolled back):
+   SMOKE_OK_ROLLBACK | club_treasury_delta=700 club_voter_debit=1000
+     club_poll_earn=0 user_creator_credit=700 | ALL ASSERTIONS PASSED
+   → Vereins-Poll (source='club'): Vote 1000 → Treasury +700 (poll_revenue credit),
+     Voter -1000 (poll_vote_cost), KEIN poll_earn an eine Person.
+   → User-Poll (source='user'): Vote 1000 → Creator-Wallet +700 (poll_earn),
+     KEIN Treasury-Eintrag.
+   → Geld-Routing keyt korrekt auf community_polls.source (Identitäts-Grenze §3).
+
+5) VALIDATION/SECURITY GUARDS (return-before-insert, non-mutating):
+   1 Option              -> invalid_options
+   5 Optionen            -> invalid_options
+   leeres Label          -> invalid_options
+   cost 200000 (>Cap)    -> invalid_cost
+   duration 60 (>30)     -> invalid_duration
+   source=club, club_id NULL -> club_id_required
+   source=club, Nicht-Admin  -> not_club_admin   (Identitäts-Lock)
+   source=user, <50 Follower -> follower_threshold (Follower-Tor)
+
+6) DEFENSE-IN-DEPTH GUARD (Reviewer NIT #1, gefixt + re-applied):
+   cast_community_poll_vote ELSE-Branch: source='club' ohne club_id → RAISE 'club_poll_missing_club_id'.
+   Re-Smoke (rolled back):
+   SMOKE_OK | treasury_delta=700 voter_debit=1000 club_poll_earn=0 user_creator_credit=700 guard_fired=t
+   → normale Pfade unverändert grün + club-ohne-club_id scheitert jetzt laut statt still ins Wallet zu zahlen.
+
+AC-Abdeckung: AC-01..08 + AC-11 (Regression: User-Poll-Pfad byte-identisch) verifiziert.
+AC-09 (Mobile UI) = PROVE-Stage Playwright post-Deploy. AC-10 (i18n) = DE+TR-Key-Audit grün.
+Reviewer-Verdict: PASS (worklog/reviews/333-review.md), 3 NITs (NIT#1 gefixt, #2/#3 accepted).

@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 333 | 2026-06-18 | feat(polls): Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor
+- Stage-Chain: SPEC (`worklog/specs/333-polls-p1-creation-treasury.md`, L, Money/CEO-approved) → IMPACT (`worklog/impact/333-polls-p1.md`) → BUILD (4 Waves) → REVIEW (`worklog/reviews/333-review.md`, Cold-Context **PASS**, NIT#1 gefixt) → PROVE (DB-Smoke + vitest) → LOG.
+- Trigger: Anil „weiter mit bescout" → nächstes Money-Stück nach Treasury-RAUS (329-332). Kanon D86 (`docs/knowledge/domain/polls.md`): community_polls war „Hülle ohne Tür" (kein Create). Anil-Entscheidungen: volles P1 · Follower-Schwelle 50 · cost-Cap 1000 $SCOUT.
+- Bau: **Migration** `community_polls.source` ('club'|'user') + `club_treasury_ledger`-CHECK +`poll_revenue` + **`create_community_poll`-RPC** (auth-guard, Identitäts-Lock club_admins, Follower-Tor 50, Validierung opts/cost/duration) + **`cast_community_poll_vote` Geld-Branch** (source='club'→70% REIN Treasury via book_club_treasury; source='user'→Wallet byte-identisch) + `get_club_balance` (poll_revenue-Breakdown). **Service** `createCommunityPoll` (Discriminated-Guard) + Types. **UI** `CreatePollModal`+`CreatePollButton` (Follower-Tor-State), 2 Einstiege (Club-Admin Votes-Tab source='club' + Community-Feed source='user'). **i18n** DE+TR (29 community + 2 admin + ledgerType.poll_revenue).
+- Geld-Sicherheit: Routing keyt AUSSCHLIESSLICH auf `source`, NICHT club_id (Identitäts-Grenze §3). Force-Rollback-Money-Smoke (live, rolled back): club-Vote→Treasury +700/0 poll_earn · user-Vote→Wallet +700/0 Treasury · 8 Validierungs-Guards · Defense-in-Depth-Guard (club ohne club_id → RAISE). AR-44 Grants auf allen 3 RPCs. tsc clean · vitest 5/5 + 93/93 Regression.
+- Offen (post-Slice): AC-09 Mobile-Playwright gegen bescout.net POST-DEPLOY · TR-Strings Anil-Review-pflichtig (feedback_tr_i18n_validation). Scope-Out P2 (player_id+Discovery)/P3 (soziale Schicht)/P4 (Teilnehmer-Auszahlung).
+
 ## E0-W3b | 2026-06-17 | chore(hygiene): cortex-Trio retiren — Jarvis-Legacy abgewickelt
 - Stage-Chain: SPEC (`worklog/specs/E0-W3b-cortex-trio-retire.md`, M, Hook+Tool) → IMPACT skipped (Tooling-Hygiene, Consumer in Spec §3) → BUILD → REVIEW (`worklog/reviews/E0-W3b-review.md`, Cold-Context **PASS**, 2 NIT out-of-scope) → PROVE (`worklog/proofs/E0-W3b-proof.txt`) → LOG.
 - Trigger: Anil „weiter" → Gruppe-C-Folge aus E0-W3. Scope-Entscheidung (AskUserQuestion): Commands + morning-briefing **ganz retiren**.

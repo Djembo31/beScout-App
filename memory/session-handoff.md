@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-17 23:48)
+# Session Handoff — Auto (2026-06-18 00:11)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,13 +10,13 @@
 ```
 
 ## Session Commits: 7
+- ab8b406e docs(session-end): Handoff Polls-P1-Fresh-Start + DISTILL Legacy-Retire-Triage
 - 0766987e chore(hygiene): E0-W3b — cortex-Trio retiren, Jarvis-Legacy abgewickelt
 - 86d27bed docs(log): E0-W3 LOG — Hygiene-Slice geloggt, active.md idle, TODO neu priorisiert
 - 4997531f chore(hygiene): E0-W3 — Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung (16 stale Files)
 - 8cd83072 docs(session-end): DISTILL D90 (3-Schichten-Wissens-Kanon) + Handoff W3-fresh-start
 - 72b22fc0 docs(knowledge): E0-W2c — Wissens-Welle abgeschlossen (cortex abgelöst, Stubs weg, ~95 ephemere Files archiviert)
 - aa3bcbdd docs(knowledge): E0-W2b — Wissens-Basis migriert (18 Gold-Files → docs/knowledge/, 3-Schichten-Kanon)
-- 3e9dd504 docs(session-end): DISTILL D89 (Option B Wissens-Heimat) + Handoff E0-W2b
 
 <!-- auto:handoff-end -->
 

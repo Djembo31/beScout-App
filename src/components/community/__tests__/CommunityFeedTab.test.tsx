@@ -234,6 +234,7 @@ function makePoll(overrides: Partial<CommunityPollWithCreator> = {}): CommunityP
     ],
     status: 'active',
     total_votes: 13,
+    source: 'user',
     cost_bsd: 0,
     creator_earned: 0,
     starts_at: '2026-01-01T00:00:00Z',

@@ -1,25 +1,29 @@
 # Active Slice
 
 ```
-status: idle
-slice: E0-W3b
-title: ✅ DONE — cortex-Trio retiren (Jarvis-Legacy abgewickelt)
-stage: LOG complete
-size: M
-type: Hook + Tool (Infra)
-spec: worklog/specs/E0-W3b-cortex-trio-retire.md
-impact: skipped (Tooling-Hygiene, Consumer in Spec §3 erfasst)
-review: worklog/reviews/E0-W3b-review.md (PASS, 2 NIT out-of-scope)
-proof: worklog/proofs/E0-W3b-proof.txt
-parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 3, Gruppe-C-Folge)
-done_E0W3b: 3 tote Memory-Files (working-memory/session-digest/current-sprint) → _archive/2026-06-17-w3b · inject-context-on-compact (Write-Block raus, Injection intakt) + pattern-check (session-digest-Block raus, fix-Check intakt) · morning-briefing.sh GANZ retired (settings.json + git rm) · Commands /done /status /switch git rm (Ersatz /ship done|status) · MEMORY.md current-sprint-Pointer → active.md · wiring-check grün (38 Hooks) · Reviewer PASS.
-next: **POLLS P1** (E1-Geldmaschine) — Anil entschieden, frische Session. Einstieg: `memory/session-handoff.md` Resume-Anker + `docs/knowledge/domain/polls.md` §8 P1. Money/CEO-Scope, selbst bauen (Opus), D87 Live-functiondef vor Spec. E0 (Operating-System) faktisch fertig. DANN W4 (Historie-Rewrite, mit Backup). Danach Polls (E1).
+status: active
+slice: 333
+title: Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor
+stage: LOG
+size: L
+type: Migration + Service + UI + i18n (Money/CEO-Scope)
+spec: worklog/specs/333-polls-p1-creation-treasury.md
+impact: worklog/impact/333-polls-p1.md
+build: DONE — Migration applied+verified (force-rollback money smoke PASS, +Defense-in-Depth-Guard) · Service+Types · UI (CreatePollModal/Button, 2 Einstiege) · i18n DE+TR
+review: worklog/reviews/333-review.md (PASS, NIT#1 gefixt, #2/#3 accepted)
+proof: worklog/proofs/333-treasury-routing.txt + worklog/proofs/333-vitest.txt
+offen: AC-09 Mobile-Playwright gegen bescout.net POST-DEPLOY · TR-Strings Anil-Review (feedback_tr_i18n_validation)
+review: pending
 ```
 
-## Wissens-Heimat — Endstand E0 Welle 2 (W2a+W2gov+W2b+W2c)
-- **Kanon:** `docs/knowledge/{domain,decisions,lessons,research}/` (18 Files) · **Routing-SSOT:** `docs/knowledge/INDEX.md` (consult_when, auto-injiziert) · **Gate:** `audit:knowledge` (pre-commit HARD / nightly SOFT, D88).
-- **3-Schichten:** domain=WIE (Kanon) · decisions.md=WARUM+Link · .claude/rules=schlanke Regel+Zeiger.
-- `memory/cortex-index.md` abgelöst (→ _archive). `memory/semantisch|deps|features` weitgehend geleert (Kanon migriert, Rest archiviert). `memory/learnings/` bleibt aktiv.
+## Zuletzt
+
+- **Slice 332** (2026-06-17) — Club-Bounties ans Treasury (Reward-Escrow bei Erstellung). RAUS-Kanäle damit komplett.
+- **Slice 331** (2026-06-17) — Events ans Treasury (Prize-Escrow, 5-Quellen-Modell).
+- **E0-W3b** (2026-06-17) — cortex-Trio retired (Hygiene, kein Code).
+
+Nächstes: SPEC-Approval durch Anil (Money/CEO-Scope), dann IMPACT → BUILD.
 
 ## Money-SSOTs (NIE neu erarbeiten)
-- Treasury/CSF (D83): `docs/knowledge/domain/treasury.md` (RAUS-Kanäle 329-332 DONE). Polls (D86, REIN, nächstes Money-Stück): `docs/knowledge/domain/polls.md` — community_polls hat KEINE Erstellung.
+- Polls (D86, REIN): `docs/knowledge/domain/polls.md` — community_polls hatte KEINE Erstellung.
+- Treasury (D83): `docs/knowledge/domain/treasury.md` — REIN-Seite, `book_club_treasury(club_id, direction, type, amount, ref, desc)` (Slice 329).

@@ -6,6 +6,7 @@ import { Plus, Users, Clock } from 'lucide-react';
 import { Card, Button, Chip, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
+import { CreatePollButton } from '@/components/community/CreatePollModal';
 import { getAllVotes, createVote } from '@/lib/services/votes';
 import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, DbClubVote } from '@/types';
@@ -77,6 +78,17 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
           {t('newVote')}
         </Button>
       </div>
+
+      {/* Slice 333: Bezahlte Vereins-Umfrage (Einnahmen → Treasury). Erscheint im Community-Feed. */}
+      {user && (
+        <Card className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-amber-500/[0.04] border-amber-500/20">
+          <div>
+            <div className="font-bold text-amber-300">{t('clubPollSectionTitle')}</div>
+            <p className="text-xs text-white/50">{t('clubPollSectionDesc')}</p>
+          </div>
+          <CreatePollButton userId={user.id} source="club" clubId={club.id} />
+        </Card>
+      )}
 
       {loading ? (
         <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse motion-reduce:animate-none" />)}</div>

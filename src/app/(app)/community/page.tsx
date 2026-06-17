@@ -13,6 +13,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { qk } from '@/lib/queries/keys';
 import CommunityHero from '@/components/community/CommunityHero';
+import { CreatePollButton } from '@/components/community/CreatePollModal';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import type { ContentFilter } from '@/components/community/CommunityFeedTab';
 import CommunitySidebar from '@/components/community/CommunitySidebar';
@@ -129,6 +130,14 @@ export default function CommunityPage() {
           researchLocked={false}
           onCreateBounty={() => dispatch({ type: 'SET_CREATE_BOUNTY_OPEN', value: true })}
         />
+        {/* Slice 333: User-Umfrage erstellen (ab 50 Followern), Einnahmen → eigenes Wallet. */}
+        <div className="mt-3">
+          <CreatePollButton
+            userId={user.id}
+            source="user"
+            onCreated={() => queryClient.invalidateQueries({ queryKey: qk.polls.all })}
+          />
+        </div>
       </div>
 
       {/* New User Tip */}

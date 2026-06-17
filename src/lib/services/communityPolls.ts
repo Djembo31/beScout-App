@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbCommunityPoll, CommunityPollWithCreator } from '@/types';
+import type { DbCommunityPoll, CommunityPollWithCreator, CreateCommunityPollParams } from '@/types';
 
 // ============================================
 // Community Polls (Bezahlte Umfragen)
@@ -38,6 +38,35 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
         creator_avatar_url: creator?.avatar_url ?? null,
       };
     });
+}
+
+/**
+ * Slice 333: Bezahlte Umfrage erstellen (die fehlende Tür).
+ * source='club' → nur Club-Admin, 70% Vote-Einnahmen → Vereins-Treasury (poll_revenue).
+ * source='user' → User ab 50 Followern, 70% → Creator-Wallet.
+ * RPC verriegelt Identität/Follower-Tor server-seitig (Geld/Security).
+ */
+export async function createCommunityPoll(params: CreateCommunityPollParams): Promise<string> {
+  const { data, error } = await supabase.rpc('create_community_poll', {
+    p_user_id: params.userId,
+    p_question: params.question,
+    p_options: params.options,
+    p_cost_bsd: params.costBsd,
+    p_duration_days: params.durationDays,
+    p_source: params.source,
+    p_club_id: params.clubId ?? null,
+    p_description: params.description ?? null,
+  });
+  if (error) throw new Error(error.message);
+  const result = data as { success: boolean; error?: string; poll_id?: string };
+  if (!result.success || !result.poll_id) throw new Error(result.error ?? 'poll_create_failed');
+
+  // Activity log (best-effort, wie createVote)
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'poll_create', 'community', { pollId: result.poll_id, question: params.question });
+  }).catch(err => console.error('[Polls] Activity log failed:', err));
+
+  return result.poll_id;
 }
 
 export async function getUserPollVotedIds(userId: string): Promise<Set<string>> {
