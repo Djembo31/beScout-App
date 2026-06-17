@@ -5,11 +5,10 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **E0 Operating-System + Wissens-Basis** — Welle 1 Cockpit (Master-Plan + ToDo + Auto-Inject-Hook). *Welle 2-4 (Wissen gemeinsam kuratieren · Hygiene · Historie-Rewrite) = nächste fokussierte Session.*
+- **E0 Welle 2 — Wissens-Basis (Option B, läuft):** ✅ W2a Wissens-Index (`docs/knowledge/INDEX.md`, 37 consult_when, Auto-Inject, Pflege-Regel). **⬜ W2b = Nächstes:** 13 Gold-Files physisch migrieren + auf Juni-Stand + ⚠️-Dup-Entscheidungen mit Anil (Treasury-Kanon/Polls-Dedup/D28-39/D62-65-67/patterns.md/Compliance). Dann ⬜ W2c (~90 Files archivieren, `cortex-index.md` ablösen).
 
 ## 🟡 P1 — als Nächstes
 - **Polls P1** (E1) — Erstellung + Identität/Quelle (Verein→Treasury via `poll_revenue` / User→Wallet, Follower-Tor). Konzept: `polls-engagement-monetization-model.md` §8 P1.
-- **E0 Welle 2** — Hermes-Wissens-Index (`consult_when`) + verstreutes Wissen gemeinsam sauber formulieren + konsolidieren.
 - **E0 Welle 3-4** — Hygiene (Screenshots gitignoren) + Historie abspecken (mit Backup).
 - **Pre-existing Fix:** `events.status` CHECK kennt kein 'cancelled' → UI-„Absagen" broken (Cancel + CHECK + Event-Prize-Refund-Zweig bündeln).
 

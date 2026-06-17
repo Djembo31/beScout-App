@@ -11,7 +11,7 @@
 ## 🗺️ Epics (Reihenfolge = grobe Prio)
 
 ### ⏳ IN ARBEIT
-- **E0 — Operating-System + Wissens-Basis** *(dieses Meta-Upgrade)*. Cockpit (Master-Plan + ToDo, auto-gezeigt) · Hermes-Wissens-Index (`consult_when`) · saubere Trennung Wissen/Status/Plan/Inbox · Hygiene (Binär-Müll raus, Historie abspecken). **Welle 1 (Cockpit) = jetzt; Welle 2-4 = fokussierte Folge-Session, gemeinsam.**
+- **E0 — Operating-System + Wissens-Basis** *(dieses Meta-Upgrade)*. ✅ Welle 1 Cockpit · ✅ Welle 2a Wissens-Index (`docs/knowledge/` + INDEX consult_when, **Option B**: frisch statt memory/ wiederbeleben). **Läuft: W2b** (13 Gold-Files migrieren + Dup-Entscheidungen) → W2c (~90 Files archivieren, cortex-index ablösen) → W3 Hygiene → W4 Historie.
 
 ### ⬜ ALS NÄCHSTES
 - **E1 — Money/Reward-Modell (D83):** Treasury → Polls → Fan-Rewards.

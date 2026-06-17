@@ -2,17 +2,22 @@
 
 ```
 status: idle
-slice: 332
-title: ✅ DONE — Club-Bounties ans Treasury (Escrow bei Erstellung)
+slice: E0-W2a
+title: ✅ DONE — Wissens-Index (INDEX-first) + Skelett + Auto-Inject
 stage: LOG complete
-size: M
-type: Migration (Money, CEO)
-spec: worklog/specs/332-club-bounties-treasury.md
-review: worklog/reviews/332-review.md (PASS, 4 LOW/INFO)
-proof: worklog/proofs/332-club-bounties-treasury.md
-done_332: Club-Bounty (is_user_bounty=false) zahlte heute Admin aus EIGENEM Wallet bei Approval (Live-Befund, kein Minting). A=Escrow bei Erstellung aus Treasury. 4 Trigger/Edits: escrow (BEFORE INSERT, Admin-Gate+Guard+Debit) · settle (status: cancelled/closed→Refund, completed→flag off) · resync (reward_cents, Defense-in-Depth) · approve-Edit (escrowt→KEIN Admin-Abzug). User-Bounties unangetastet. PREREQ-FIX: bounties_status_check fehlte 'completed' → Approval war broken (0 je). Force-rollback-verifiziert (behavioral: admin unverändert, submitter +95%, treasury −reward).
-next: Polls (REIN-Geldmaschine, D86, Roadmap P1-P4) · weitere Event-Quellen (bescout/sponsor/user) · Fan-Reward-Engine.
+size: S
+type: Doc + Hook
+spec: worklog/specs/E0-W2a-knowledge-index.md
+review: worklog/reviews/E0-W2a-review.md (PASS, self-review, 3 INFO/LOW)
+proof: worklog/proofs/E0-W2a-proof.txt
+parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 2)
+decision: Anil 2026-06-17 — Option B (frisches docs/knowledge/, memory/-Baum stilllegen). INDEX-first.
+done_E0W2a: docs/knowledge/ Skelett (4 Buckets+README) + INDEX.md (37 consult_when, 0 broken, alle Gold geroutet) + Session-Start-Pointer + workflow.md DISTILL-Regel. INDEX zeigt noch auf Alt-Lage (Pfad-Update=W2b).
+next: E0-W2b (10 Gold-Files physisch migrieren + auf Juni-Stand heben, ⚠️-Dup-Entscheidungen mit Anil: Treasury-Kanon/Polls-Dedup/D28-39/D62-65-67/patterns.md/Compliance) · E0-W2c (~90 Files archivieren, cortex-index ablösen)
 ```
+
+## Treasury-Serie 332 (DONE, idle bis E0-W2a)
+- **332** Club-Bounties ans Treasury (Escrow, mirror 331). PASS. spec/review/proof unter worklog/{specs,reviews,proofs}/332-*.
 
 ## Zuletzt (Treasury-Serie 2026-06-17)
 - **332** Club-Bounties ans Treasury (Escrow, mirror 331). PASS.

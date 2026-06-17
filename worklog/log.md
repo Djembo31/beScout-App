@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## E0-W2a | 2026-06-17 | docs(knowledge): Wissens-Index (INDEX-first) + Skelett + Auto-Inject
+- Stage-Chain: SPEC (`worklog/specs/E0-W2a-knowledge-index.md`, S, Doc+Hook) → IMPACT skipped (additiv, keine Consumer) → BUILD → REVIEW (`worklog/reviews/E0-W2a-review.md`, self-review **PASS**, 3 INFO/LOW) → PROVE (`worklog/proofs/E0-W2a-proof.txt`) → LOG.
+- Trigger: Epic E0 Welle 2. Anil-Entscheidung 2026-06-17: **Option B** (frisches `docs/knowledge/`, memory/-Baum stilllegen) — nach 2 Vorarbeits-Agents: Wissens-Inventur (138 Brocken triagiert) + memory/-Qualitäts-Assessment (⅔ leer/ephemer, nur ~13 Gold-Files, cortex-index inhaltlich tot). Evidence: `worklog/notes/E0-welle2-{wissens-inventur,memory-quality-assessment}.md`.
+- Bau: `docs/knowledge/` Skelett (README + 4 Bucket-READMEs domain/decisions/lessons/research mit Grenz-Definition rule↔lessons + Front-matter-Pflicht) · `INDEX.md` = vollständige consult_when-Routing-Tabelle (37 Einträge, zeigt INDEX-first auf Alt-Lage) · `ship-session-start.sh` +Wissens-Pointer (2 Zeilen, Anti-Marathon) · `workflow.md` DISTILL +Zeile +Regel „neues durable Wissen → INDEX-Eintrag+consult_when Pflicht".
+- Verify: 37 consult_when (≥20) · 4 READMEs · Pointer im Hook-Output · workflow-Regel · **0 broken Links** (4 Auto-Memory-Fehlpfade früh gefangen+korrigiert: pricing/pilot/migration/realtime) · alle 13 routebaren Gold-Files vertreten · mogul-mutationsplan VERTRAULICH vermerkt.
+- Lehre: Repo-`memory/` ≠ Auto-Memory (`~/.claude/...`) — MEMORY.md-Links zeigen in Auto-Memory, beim Routing nur Repo-interne Pfade nutzen.
+- Next: W2b (Gold physisch migrieren + Juni-Stand + ⚠️-Dup-Entscheidungen mit Anil) → W2c (~90 Files archivieren, cortex-index ablösen).
+
 ## 332 | 2026-06-17 | feat(treasury): Club-Bounties ans Treasury — Reward-Escrow bei Erstellung
 - Stage-Chain: SPEC (`worklog/specs/332-club-bounties-treasury.md`, M, Migration, **CEO-approved** Variante A) → IMPACT (Live-PATCH-AUDIT der Bounty-RPCs) → BUILD (selbst, Money, mirror 331) → REVIEW (`worklog/reviews/332-review.md`, Cold-Context **PASS**, 4 LOW/INFO) → PROVE (`worklog/proofs/332-club-bounties-treasury.md`) → LOG.
 - Trigger: D80 RAUS-Kanäle Schritt 2 (Bounties, nach Events 331). „bounties" (Anil). Befund-Korrektur: Club-Bounty MINTET NICHT — Live-approve zahlt Admin aus EIGENEM Wallet bei Approval (alte Migrations-Datei war veraltet, PATCH-AUDIT korrigiert).

@@ -375,6 +375,9 @@ Vollständiges Playbook: Skill `ship-agents`.
 | Process-Erfindung (Workflow, Regel, Checkliste) | `memory/decisions.md` Category PROCESS | `docs(decision): D<n> — ...` |
 | Code-Pattern (Bug-Klasse, Fix-Template) | `.claude/rules/common-errors.md` | `docs(learning): ...` |
 | Business-Wording (Compliance) | `.claude/rules/business.md` | `docs(compliance): ...` |
+| Durable Domain-/Prozess-Wissen (wie funktioniert X, Markt, Lehre) | `docs/knowledge/{domain,decisions,lessons,research}/` + **Pflicht: Zeile in `docs/knowledge/INDEX.md` mit `consult_when`** | `docs(knowledge): ...` |
+
+**Wissens-Index-Pflicht (E0 W2):** Jedes neue durable Wissen MUSS einen `INDEX.md`-Eintrag mit `consult_when`-Auslöser bekommen — sonst gilt es als verloren (kein Routing = niemand findet es). Beim Update: `updated`-Datum + ggf. `status: superseded` + Nachfolger verlinken. Reine Code-Patterns bleiben in `.claude/rules/` (path-scoped Autoload), brauchen KEINEN INDEX-Eintrag.
 
 ### Pflicht-Sektionen im decisions.md-Entry
 

@@ -1,0 +1,37 @@
+E0-W2a — Wissens-Index (INDEX-first) — PROOF
+Datum: 2026-06-17
+
+=== AC1: consult_when-Einträge im INDEX (Soll ≥20) ===
+$ grep -c 'consult_when:' docs/knowledge/INDEX.md
+37   ✅
+
+=== AC2: 4 Bucket-READMEs (Soll ==4) ===
+$ ls docs/knowledge/*/README.md | wc -l
+4   ✅
+docs/knowledge/{decisions,domain,lessons,research}/README.md
+
+=== AC3: Session-Start zeigt Wissens-Pointer (Soll ≥1) ===
+$ bash .claude/hooks/ship-session-start.sh | grep -c 'docs/knowledge/INDEX.md'
+1   ✅
+Ausgabe-Block:
+── 📚 Wissen (docs/knowledge/INDEX.md) ──
+Bei Task zu Treasury/Polls/Fantasy/Trading/Compliance/Wettbewerb → INDEX (consult_when-Routing) konsultieren.
+
+=== AC4: workflow.md DISTILL erzwingt INDEX (Soll ≥1) ===
+$ grep -c 'INDEX.md' .claude/rules/workflow.md
+2   ✅
+
+=== Broken-Link-Check (alle ../../-Pfade im INDEX) ===
+0 broken   ✅  (4 Auto-Memory-Pfade früh erkannt + auf Repo-Kanon korrigiert:
+                 pricing→wiki/business-model · pilot-token→wiki/scout-launch-strategie ·
+                 migration→errors-db · realtime→community.md)
+
+=== AC5: Gold-Liste (Assessment) im INDEX vertreten ===
+13/13 routebare Gold-Files ✅ (product-map, vision, feature-dependencies, cross-domain-map,
+fantasy, missions-architecture, equipment-realtime, architecture-3hub, bescout-liga,
+rls-cross-user-writes, tier-based-config, slot-composition, db-i18n-schema-extension)
+mogul-mutationsplan = VERTRAULICH (in vision-Zeile vermerkt, nicht zitiert).
+anil.md = always-present via MEMORY.md (kein docs/knowledge-Eintrag, bewusst).
+
+Scope-Out eingehalten: keine physische Migration, keine Archivierung/Löschung,
+cortex-index.md unangetastet (= W2b/W2c).

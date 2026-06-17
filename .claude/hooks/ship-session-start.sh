@@ -61,6 +61,13 @@ if [ -f "$TD" ]; then
     echo "(voll: MASTERPLAN.md + TODO.md)"
 fi
 
+# Wissens-Index (E0 W2) — Pointer, kein Dump. consult_when wird task-bezogen gematcht.
+KIDX="$REPO_ROOT/docs/knowledge/INDEX.md"
+if [ -f "$KIDX" ]; then
+    echo "── 📚 Wissen (docs/knowledge/INDEX.md) ──"
+    echo "Bei Task zu Treasury/Polls/Fantasy/Trading/Compliance/Wettbewerb → INDEX (consult_when-Routing) konsultieren."
+fi
+
 echo ""
 echo "Next: /ship status (details) oder /ship new \"Task\" (neuer Slice)"
 echo "══════════════════════"
