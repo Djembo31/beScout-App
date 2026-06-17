@@ -45,6 +45,22 @@ if [ "$WORKTREES" -gt 1 ]; then
     echo "!! Open worktrees: $WORKTREES (merge before new work)"
 fi
 
+# Cockpit (E0) — Master-Plan + Prio-ToDo auto-gezeigt, damit "wo stehen wir" nie wieder gefragt werden muss.
+MP="$REPO_ROOT/MASTERPLAN.md"
+TD="$REPO_ROOT/TODO.md"
+if [ -f "$MP" ]; then
+    echo ""
+    echo "── 🗺️ Stand (MASTERPLAN.md) ──"
+    grep -A1 '📍 Stand' "$MP" 2>/dev/null | tail -1
+fi
+if [ -f "$TD" ]; then
+    echo "── 🔴 P0 jetzt (TODO.md) ──"
+    awk '/^## 🔴 P0/{f=1;next} /^## /{f=0} f' "$TD" 2>/dev/null | grep '^- ' | head -3
+    echo "── 🟡 P1 als Nächstes ──"
+    awk '/^## 🟡 P1/{f=1;next} /^## /{f=0} f' "$TD" 2>/dev/null | grep '^- ' | head -4
+    echo "(voll: MASTERPLAN.md + TODO.md)"
+fi
+
 echo ""
 echo "Next: /ship status (details) oder /ship new \"Task\" (neuer Slice)"
 echo "══════════════════════"
