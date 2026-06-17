@@ -5,8 +5,8 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **E0 Welle 2 (Wissens-Basis) ✅ KOMPLETT** (W2a/W2gov/W2b/W2c). **E0 Welle 3 (Hygiene) ✅ Teil 1+A** (`.gitignore`-Binärstop + 16 verwaiste memory-Files archiviert, KONSERVATIV, Commit `4997531f`).
-- **⬜ E0-W3b = Nächstes (Gruppe-C-Folge):** cortex-Trio retiren — `session-digest`/`working-memory`/`current-sprint` archivieren + 3 Hooks (morning-briefing/pattern-check/inject-context-on-compact) + 3 Commands (done/status/switch) auf `active.md`/handoff umverdrahten; dann beta-ops (MEMORY.md/Skills-Links) trimmen. Braucht eigenen Review (berührt Live-Tooling).
+- **E0 Operating-System faktisch FERTIG.** W2 (Wissens-Basis) ✅ · W3 Teil1+A (Binärmüll-Stop + 16 Files) ✅ · **W3b cortex-Trio retired** ✅ (Jarvis-Legacy weg: morning-briefing + /done|/status|/switch + 3 tote Memory-Files). Restliche W3-Teil-2 Root-Vault-Notizen = LOW/optional.
+- **⬜ Entscheidung nächstes großes Stück:** **Polls P1** (E1-Geldmaschine) ODER **E0-W4** (Historie-Rewrite, riskant, mit Backup). Empfehlung: Polls — höchster Produktwert; W4 ist reine Hygiene und kann warten.
 
 ## 🟡 P1 — als Nächstes
 - **Polls P1** (E1) — Erstellung + Identität/Quelle (Verein→Treasury via `poll_revenue` / User→Wallet, Follower-Tor). Konzept: `docs/knowledge/domain/polls.md` §8 P1.
@@ -23,5 +23,5 @@
 - S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges. ⛔ players.club (API-Key).
 
 ## ✅ Erledigt (letzte, dann archivieren)
-- 2026-06-17: **E0-W3 Teil1+A** (Hygiene: .gitignore-Binärstop + 16 memory-Files archiviert) · **E0 Welle 2 komplett** (Wissens-Basis W2a/gov/b/c).
+- 2026-06-17: **E0-W3b** (cortex-Trio retired: morning-briefing + 3 Alt-Commands + 3 tote Memory-Files weg) · **E0-W3 Teil1+A** (.gitignore-Binärstop + 16 memory-Files) · **E0 Welle 2 komplett** (Wissens-Basis W2a/gov/b/c).
 - 2026-06-17: Treasury 329→330→330b→331→332 (RAUS-Kanäle komplett) · D86 Polls-Modell · D87 Live-functiondef-vor-Spec · Cockpit Welle 1.

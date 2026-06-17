@@ -1,6 +1,6 @@
 #!/bin/bash
 # Stop Hook: Write useful session state for next session recovery.
-# Output: memory/session-handoff.md (read by morning-briefing + inject-context-on-compact)
+# Output: memory/session-handoff.md (read by inject-context-on-compact + ship-session-start)
 # Also outputs warnings to Claude's context on stop.
 #
 # MERGE-STRATEGY (seit 2026-04-24):

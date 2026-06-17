@@ -10,8 +10,8 @@
 - [errors.md](errors.md) — Top 50 Fehler nach Kategorie mit Fixes
 - [patterns.md](patterns.md) — Top 20 etablierte Code-Patterns
 - [failures.md](failures.md) — Failure-Mode Quick-Lookup (Slice 188) — "meine 3 typischen Fehler beim X" in 30 Sek, Domain-Tables verlinkt zu errors-*.md
-- [current-sprint.md](current-sprint.md) — Aktueller Sprint-Stand + Blocker
 - [session-handoff.md](session-handoff.md) — Letzte Session + naechste Schritte
+- Aktueller Slice/Sprint-Stand: `worklog/active.md` (SSOT) — current-sprint.md retired E0-W3b.
 
 ## Beta-Launch Operations (aktiv 2026-04-21)
 - [beta-exit-criteria.md](beta-exit-criteria.md) — 36 KPIs + 3-Ausgangs-Logik (Go/Extend/Abort)

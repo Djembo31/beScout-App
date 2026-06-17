@@ -1,50 +1,13 @@
 #!/bin/bash
-# inject-context-on-compact.sh — Compaction Shield for Jarvis Cortex
-# Writes working memory before compaction + outputs critical context
-# PreCompact hook — saves "Zettel auf dem Nachttisch"
+# inject-context-on-compact.sh — Compaction Shield
+# PreCompact hook — injects critical context (active slice + handoff + knowledge routing)
+# into the post-compaction window so the SHIP-Loop survives a compaction.
+# (E0-W3b: Jarvis working-memory.md snapshot-write entfernt — nichts las den Dump;
+#  Quelle der Wahrheit ist active.md + session-handoff.md + docs/knowledge/INDEX.md.)
 
 cd "C:/bescout-app" || exit 0
 
-WORKING_MEM="memory/working-memory.md"
 SESSION_FILES=".claude/session-files.txt"
-NOW=$(date +"%Y-%m-%d %H:%M")
-
-# Write working memory file (Blackboard snapshot)
-{
-  echo "# Working Memory (pre-compaction $NOW)"
-  echo ""
-
-  # Aktueller Slice (live status)
-  echo "## Aktueller Slice"
-  if [ -f "worklog/active.md" ]; then
-    head -20 "worklog/active.md"
-  fi
-  echo ""
-
-  # Session handoff
-  echo "## Handoff"
-  if [ -f "memory/session-handoff.md" ]; then
-    cat "memory/session-handoff.md"
-  fi
-  echo ""
-
-  # Files changed this session
-  echo "## Files Changed This Session"
-  if [ -f "$SESSION_FILES" ]; then
-    sort -u "$SESSION_FILES"
-  else
-    echo "- Keine tracked"
-  fi
-  echo ""
-
-  # Git state
-  echo "## Git State"
-  git status --porcelain 2>/dev/null | head -15
-  echo ""
-  echo "Last 3 commits:"
-  git log --oneline -3 2>/dev/null
-
-} > "$WORKING_MEM"
 
 # Output to stdout for Claude's context window
 echo "=== COMPACTION SHIELD ==="

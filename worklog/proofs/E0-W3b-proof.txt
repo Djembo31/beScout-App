@@ -1,0 +1,50 @@
+E0-W3b — cortex-Trio retiren (Proof, 2026-06-17)
+==================================================
+
+## AC-1: 3 tote Memory-Files raus aus Root-Vault
+ls memory/*.md | grep -E "working-memory|session-digest|current-sprint" → leer ✅
+git mv → memory/_archive/2026-06-17-w3b/{working-memory,session-digest,current-sprint}.md
+
+## AC-2: inject-context-on-compact.sh — working-memory-Write entfernt, Injection intakt
+grep -c working-memory → 1 (nur Erklär-Kommentar zur Entfernung, kein funktionaler Write)
+COMPACTION-SHIELD-Marker → 2 (Injection-Block active.md+handoff+INDEX unverändert)
+
+## AC-3: pattern-check.sh — session-digest-Stale-Block entfernt, fix()-Check behalten
+grep -c session-digest → 1 (nur Erklär-Kommentar)
+grep -c 'fix(' → 3 (Knowledge-Flywheel-Check intakt)
+
+## AC-4: morning-briefing.sh ganz retired
+grep -c morning-briefing .claude/settings.json → 0 (SessionStart-Eintrag entfernt)
+ls .claude/hooks/morning-briefing.sh → removed (git rm; in Historie erhalten)
+→ entfernt zugleich tote senses/wiki/session-counter/AutoDream-Refs.
+
+## AC-5: Alt-Commands retired
+git rm .claude/commands/{done,status,switch}.md → 3 removed
+Ersatz: /ship done · /ship status. /switch war eh kaputt (memory/features W2c-archiviert).
+
+## AC-6: wiring-check grün (kein neuer Orphan)
+$ pnpm audit:wiring:check
+Hooks scanned: 38 (war 39, −1 morning-briefing korrekt) · Scripts: 25
+Total orphans: 19 · Real drift: 0 · Known (allowlisted): 19
+✅ No drift orphans found. All tools wired.
+(Hook + Script ZUSAMMEN entfernt → kein Orphan, kein KNOWN_ORPHANS-Eintrag nötig.)
+
+## AC-7: kein lebender Broken-Ref
+Broke-Ref-Grep "working-memory|session-digest|current-sprint|morning-briefing" über Live-Schicht
+(.claude/hooks, .claude/commands, .claude/skills, .claude/agents, docs/knowledge/INDEX.md,
+ memory/MEMORY.md, MASTERPLAN.md, TODO.md, worklog/active.md):
+Verbleibende Treffer alle UNKRITISCH:
+  - inject-context-on-compact.sh:5 / pattern-check.sh:4 → Erklär-Kommentare zur Entfernung
+  - ship-session-start.sh:3 → "Replaces morning-briefing marathon" (akkurate Historie)
+  - TODO.md:9 / worklog/active.md:15 → W3b-Plan/Scan-Notizen (kein Pointer)
+  - memory/MEMORY.md:13 → WAR toter current-sprint-Pointer → GETRIMMT (→ worklog/active.md SSOT)
+
+## Kosmetische stale-Ref-Fixes (mitgenommen)
+- .claude/agents/SHARED-PREFIX.md: "Lies senses/morning-briefing.md"-Instruktion entfernt
+- .claude/hooks/session-handoff-auto.sh: Kommentar (read by …) aktualisiert
+- .claude/hooks/ship-parallel-dispatch-gate.sh: stale "reset by morning-briefing"-Kommentar → "self-reset 8h"
+
+## Scope-Out (bewusst NICHT)
+- inject-learnings.sh + ship-session-start.sh bleiben (kein cortex-Bezug).
+- Weitere Jarvis-Reste (memory/wiki-*.md, .claude/session-counter, autodream-Agent) → eigener Cleanup falls nötig.
+- Gruppe-C beta-ops (beta-cost-budget/testplan/…) bleibt (E0-W3 konservativ) — nicht Teil von W3b.

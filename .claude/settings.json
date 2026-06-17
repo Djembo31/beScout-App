@@ -216,11 +216,6 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/morning-briefing.sh",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/inject-learnings.sh",
             "timeout": 5
           }

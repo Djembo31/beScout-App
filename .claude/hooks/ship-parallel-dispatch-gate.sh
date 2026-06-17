@@ -25,7 +25,7 @@ WARNED_FLAG="$STATE_DIR/parallel-dispatch-warned.flag"
 STAGE="$(sed -n 's/^stage:[[:space:]]*\(.*\)$/\1/p' "$ACTIVE" | head -1 | tr -d '\r')"
 [ "$STAGE" != "BUILD" ] && exit 0
 
-# Session-once gate (reset on session-start by morning-briefing OR manual)
+# Session-once gate (self-reset when flag older than 8h = new session assumed)
 if [ -f "$WARNED_FLAG" ]; then
     # Reset if older than 8 hours (new session assumed)
     FLAG_AGE=$(( $(date +%s) - $(stat -c %Y "$WARNED_FLAG" 2>/dev/null || echo 0) ))

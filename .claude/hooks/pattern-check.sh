@@ -1,7 +1,7 @@
 #!/bin/bash
 # pattern-check.sh — Stop hook
-# Warns if fix() commits exist but common-errors.md wasn't updated.
-# Also checks if session-digest.md is stale.
+# Warns if fix() commits exist but common-errors.md wasn't updated (Knowledge-Flywheel).
+# (E0-W3b: Jarvis session-digest.md-Stale-Check entfernt — File retired.)
 
 cd C:/bescout-app || exit 0
 
@@ -16,16 +16,6 @@ if [ "$FIX_COMMITS" -gt 0 ] 2>/dev/null; then
     echo "PATTERN-CHECK: $FIX_COMMITS fix() Commits aber common-errors.md NICHT aktualisiert."
     echo "→ Neue Error-Patterns eintragen? (Ferrari: Same-Session Extraction)"
     echo ""
-  fi
-fi
-
-# Check if session-digest is stale (older than 4 hours)
-if [ -f "memory/session-digest.md" ]; then
-  DIGEST_MOD=$(stat -c %Y "memory/session-digest.md" 2>/dev/null || stat -f %m "memory/session-digest.md" 2>/dev/null || echo 0)
-  NOW=$(date +%s)
-  AGE=$(( (NOW - DIGEST_MOD) / 3600 ))
-  if [ "$AGE" -gt 4 ] 2>/dev/null; then
-    echo "SESSION-DIGEST: memory/session-digest.md ist ${AGE}h alt. Bitte aktualisieren."
   fi
 fi
 

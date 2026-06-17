@@ -2,19 +2,18 @@
 
 ```
 status: idle
-slice: E0-W3
-title: ✅ DONE — Hygiene: Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung (16 Files, KONSERVATIV)
+slice: E0-W3b
+title: ✅ DONE — cortex-Trio retiren (Jarvis-Legacy abgewickelt)
 stage: LOG complete
 size: M
-type: Doc + Hygiene
-spec: worklog/specs/E0-W3-hygiene-gitignore-vault.md
-impact: skipped (kein Service/RPC/Schema — reine Doku-/Config-Hygiene)
-review: worklog/reviews/E0-W3-review.md (PASS, 1 pre-existing NIT)
-proof: worklog/proofs/E0-W3-proof.txt
-commit: 4997531f
-parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 3)
-done_E0W3: .gitignore ignoriert worklog/proofs/*-Binaries · 16 verwaiste memory/*.md (Gruppe A) → _archive/2026-06-17-w3 (root 58→42) · Broke-Ref-Grep Live-Schicht = 0 funktionale Broken-Refs · Reviewer PASS · 7 Pre-Commit-Gates grün.
-next: **OFFEN — Gruppe-C-Folge-Slice (E0-W3b):** cortex-Trio (session-digest/working-memory/current-sprint) retiren = 3 Hooks (morning-briefing/pattern-check/inject-context-on-compact) + 3 Commands (done/status/switch) auf active.md/handoff umverdrahten, dann Files archivieren + beta-ops via MEMORY.md/Skills trimmen. DANN W4 (Historie-Rewrite, mit Backup). Danach Polls (E1).
+type: Hook + Tool (Infra)
+spec: worklog/specs/E0-W3b-cortex-trio-retire.md
+impact: skipped (Tooling-Hygiene, Consumer in Spec §3 erfasst)
+review: worklog/reviews/E0-W3b-review.md (PASS, 2 NIT out-of-scope)
+proof: worklog/proofs/E0-W3b-proof.txt
+parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 3, Gruppe-C-Folge)
+done_E0W3b: 3 tote Memory-Files (working-memory/session-digest/current-sprint) → _archive/2026-06-17-w3b · inject-context-on-compact (Write-Block raus, Injection intakt) + pattern-check (session-digest-Block raus, fix-Check intakt) · morning-briefing.sh GANZ retired (settings.json + git rm) · Commands /done /status /switch git rm (Ersatz /ship done|status) · MEMORY.md current-sprint-Pointer → active.md · wiring-check grün (38 Hooks) · Reviewer PASS.
+next: **W4 Historie abspecken** (git filter-repo, mit Backup, eigener bewusster Schritt) ODER **Polls P1** (E1-Geldmaschine). E0 Operating-System damit faktisch fertig (W3-Teil-2 Root-Vault-Reste = LOW, optional). DANN W4 (Historie-Rewrite, mit Backup). Danach Polls (E1).
 ```
 
 ## Wissens-Heimat — Endstand E0 Welle 2 (W2a+W2gov+W2b+W2c)

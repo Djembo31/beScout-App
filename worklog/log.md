@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## E0-W3b | 2026-06-17 | chore(hygiene): cortex-Trio retiren — Jarvis-Legacy abgewickelt
+- Stage-Chain: SPEC (`worklog/specs/E0-W3b-cortex-trio-retire.md`, M, Hook+Tool) → IMPACT skipped (Tooling-Hygiene, Consumer in Spec §3) → BUILD → REVIEW (`worklog/reviews/E0-W3b-review.md`, Cold-Context **PASS**, 2 NIT out-of-scope) → PROVE (`worklog/proofs/E0-W3b-proof.txt`) → LOG.
+- Trigger: Anil „weiter" → Gruppe-C-Folge aus E0-W3. Scope-Entscheidung (AskUserQuestion): Commands + morning-briefing **ganz retiren**.
+- Bau: **3 tote Memory-Files** (`working-memory.md` 145KB / `session-digest.md` / `current-sprint.md`) → `memory/_archive/2026-06-17-w3b/`. **inject-context-on-compact.sh**: working-memory-Write-Block raus (nichts las den Snapshot), Injection (active.md+handoff+INDEX) intakt. **pattern-check.sh**: session-digest-Stale-Block raus, fix()-Knowledge-Flywheel-Check behalten. **morning-briefing.sh GANZ retired** (aus settings.json SessionStart + `git rm`) — entfernt zugleich tote senses/wiki/session-counter/AutoDream-Refs; SHIP-Briefing (`ship-session-start.sh`) deckt SessionStart ab. **Commands `/done`,`/status`,`/switch`** `git rm` (Ersatz `/ship done|status`; `/switch` las archiviertes `memory/features/` = war kaputt).
+- Stale-Ref-Fixes: `SHARED-PREFIX.md` (senses/morning-briefing-Instruktion raus), `session-handoff-auto.sh` + `ship-parallel-dispatch-gate.sh` (Kommentare), `memory/MEMORY.md` (toter current-sprint-Pointer → `worklog/active.md` SSOT).
+- Verify: 7 ACs grün · `audit:wiring:check` 0 real-drift (38 Hooks, −1 korrekt) · Broke-Ref Live-Schicht leer · parallel-dispatch-gate self-reset 8h (kein morning-briefing-Dep, verifiziert) · Reviewer 5/5 Risikopunkte bestätigt.
+- Scope-Out: weitere Jarvis-Reste (`memory/wiki-*.md`, `.claude/session-counter`, autodream-Agent) + Root-Vault-Notizen-Refs = LOW, optionaler Folge-Cleanup. beta-ops (Gruppe C) bleibt (W3-konservativ).
+
 ## E0-W3 | 2026-06-17 | chore(hygiene): Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung (16 stale Files)
 - Stage-Chain: SPEC (`worklog/specs/E0-W3-hygiene-gitignore-vault.md`, M, Doc+Hygiene) → IMPACT skipped (kein Service/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/E0-W3-review.md`, Cold-Context **PASS**, 1 pre-existing NIT) → PROVE (`worklog/proofs/E0-W3-proof.txt`) → LOG.
 - Trigger: Anil „diszipliniert weiter" → E0-Welle-3 (Hygiene) laut Handoff/Plan.
