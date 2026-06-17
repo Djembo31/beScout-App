@@ -1,20 +1,20 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: E0-W3
-title: Hygiene — Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung
-stage: LOG
+title: ✅ DONE — Hygiene: Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung (16 Files, KONSERVATIV)
+stage: LOG complete
 size: M
 type: Doc + Hygiene
 spec: worklog/specs/E0-W3-hygiene-gitignore-vault.md
 impact: skipped (kein Service/RPC/Schema — reine Doku-/Config-Hygiene)
 review: worklog/reviews/E0-W3-review.md (PASS, 1 pre-existing NIT)
 proof: worklog/proofs/E0-W3-proof.txt
-decision_gruppeC: Anil → KONSERVATIV. Nur Teil1 + Gruppe A. Gruppe C (cortex-Trio + beta-ops) = eigener Folge-Slice.
+commit: 4997531f
 parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 3)
-scan_E0W3: Broke-Ref-Grep über Live-Schicht ergab 3 Gruppen — A=verwaist (~17, nur Crash-Backups+Kommentare) → archivieren · B=aktiv (beta-rollback/sentry-runbook, von INDEX.md geroutet) → behalten · C=live verdrahtet (session-digest/working-memory/current-sprint in Hooks/Commands + beta-ops via MEMORY.md/Skills) → Anil-Scope-Frage.
-next: Teil1 .gitignore + Gruppe-A-Archiv autonom; Gruppe C nach Anil-Entscheidung. Dann W4 Historie. Danach Polls (E1).
+done_E0W3: .gitignore ignoriert worklog/proofs/*-Binaries · 16 verwaiste memory/*.md (Gruppe A) → _archive/2026-06-17-w3 (root 58→42) · Broke-Ref-Grep Live-Schicht = 0 funktionale Broken-Refs · Reviewer PASS · 7 Pre-Commit-Gates grün.
+next: **OFFEN — Gruppe-C-Folge-Slice (E0-W3b):** cortex-Trio (session-digest/working-memory/current-sprint) retiren = 3 Hooks (morning-briefing/pattern-check/inject-context-on-compact) + 3 Commands (done/status/switch) auf active.md/handoff umverdrahten, dann Files archivieren + beta-ops via MEMORY.md/Skills trimmen. DANN W4 (Historie-Rewrite, mit Backup). Danach Polls (E1).
 ```
 
 ## Wissens-Heimat — Endstand E0 Welle 2 (W2a+W2gov+W2b+W2c)

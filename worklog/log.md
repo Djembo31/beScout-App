@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## E0-W3 | 2026-06-17 | chore(hygiene): Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung (16 stale Files)
+- Stage-Chain: SPEC (`worklog/specs/E0-W3-hygiene-gitignore-vault.md`, M, Doc+Hygiene) → IMPACT skipped (kein Service/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/E0-W3-review.md`, Cold-Context **PASS**, 1 pre-existing NIT) → PROVE (`worklog/proofs/E0-W3-proof.txt`) → LOG.
+- Trigger: Anil „diszipliniert weiter" → E0-Welle-3 (Hygiene) laut Handoff/Plan.
+- Teil 1: `.gitignore` ignoriert `worklog/proofs/*`-Binaries (png/jpg/jpeg/webp/gif/pdf) — .git-Bloat-Stop, Proof-Konvention = Text. qa-screenshots/e2e/root-png waren bereits abgedeckt (surgical, redundanzfrei).
+- Teil 2: **Broke-Ref-Grep über Live-Doku-Schicht (W2c-Lehre) → 3 Gruppen.** Gruppe A (16 verwaist) → `memory/_archive/2026-06-17-w3/` (phase3-*, audit_/impact_multi_league, feature/service-map, user-journeys, operation-beta-ready, polish-sweep, bug-tracker, data-integrity, ar-counter, phase-1.3). memory root **58 → 42**. Null funktionale Broken-Refs.
+- Anil-Entscheidung **KONSERVATIV:** Gruppe B (`beta-rollback`/`beta-sentry-alerts-runbook`, von `docs/knowledge/INDEX.md` geroutet = aktiv) + Gruppe C (cortex-Trio `session-digest`/`working-memory`/`current-sprint` in Hooks/Commands + beta-ops) **unangetastet → eigener Folge-Slice**.
+- Verify: 7 Pre-Commit-Gates grün (tsc, type-truth, stale, wiring, boundary, test-confidence, knowledge 0/0). Reviewer selbst-grep bestätigt null lebende Broken-Refs.
+- Scope-Out (bewusst → Folge-Slices): Gruppe C (cortex-Mechanik retiren = 3 Hooks + 3 Commands rewiren + beta-ops). W4 Historie-Rewrite (`git filter-repo`, mit Backup). `beta-tester-list.template.md` behalten (Template, echte Liste PII-gitignored).
+
 ## E0-W2c | 2026-06-17 | docs(knowledge): Wissens-Welle abgeschlossen — cortex abgelöst, 18 Stubs weg, ~95 ephemere Files archiviert
 - Stage-Chain: SPEC (`worklog/specs/E0-W2c-knowledge-cleanup.md`, L, Doc+Hygiene) → IMPACT skipped (Hygiene, Consumer-Repointing in Spec §2) → BUILD → REVIEW (`worklog/reviews/E0-W2c-review.md`, Cold-Context **CONCERNS→geheilt**) → PROVE (`worklog/proofs/E0-W2c-proof.txt`) → LOG.
 - Trigger: Anil „w2c". Abschluss von E0 Welle 2 (Wissens-Basis).

@@ -5,11 +5,12 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **E0 Welle 2 — Wissens-Basis (Option B, läuft):** ✅ W2a Wissens-Index (`docs/knowledge/INDEX.md`, 37 consult_when, Auto-Inject, Pflege-Regel). **⬜ W2b = Nächstes:** 13 Gold-Files physisch migrieren + auf Juni-Stand + ⚠️-Dup-Entscheidungen mit Anil (Treasury-Kanon/Polls-Dedup/D28-39/D62-65-67/patterns.md/Compliance). Dann ⬜ W2c (~90 Files archivieren, `cortex-index.md` ablösen).
+- **E0 Welle 2 (Wissens-Basis) ✅ KOMPLETT** (W2a/W2gov/W2b/W2c). **E0 Welle 3 (Hygiene) ✅ Teil 1+A** (`.gitignore`-Binärstop + 16 verwaiste memory-Files archiviert, KONSERVATIV, Commit `4997531f`).
+- **⬜ E0-W3b = Nächstes (Gruppe-C-Folge):** cortex-Trio retiren — `session-digest`/`working-memory`/`current-sprint` archivieren + 3 Hooks (morning-briefing/pattern-check/inject-context-on-compact) + 3 Commands (done/status/switch) auf `active.md`/handoff umverdrahten; dann beta-ops (MEMORY.md/Skills-Links) trimmen. Braucht eigenen Review (berührt Live-Tooling).
 
 ## 🟡 P1 — als Nächstes
 - **Polls P1** (E1) — Erstellung + Identität/Quelle (Verein→Treasury via `poll_revenue` / User→Wallet, Follower-Tor). Konzept: `docs/knowledge/domain/polls.md` §8 P1.
-- **E0 Welle 3-4** — Hygiene (Screenshots gitignoren) + Historie abspecken (mit Backup).
+- **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt).
 - **Pre-existing Fix:** `events.status` CHECK kennt kein 'cancelled' → UI-„Absagen" broken (Cancel + CHECK + Event-Prize-Refund-Zweig bündeln).
 
 ## 🟢 P2 — Backlog
@@ -22,4 +23,5 @@
 - S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges. ⛔ players.club (API-Key).
 
 ## ✅ Erledigt (letzte, dann archivieren)
+- 2026-06-17: **E0-W3 Teil1+A** (Hygiene: .gitignore-Binärstop + 16 memory-Files archiviert) · **E0 Welle 2 komplett** (Wissens-Basis W2a/gov/b/c).
 - 2026-06-17: Treasury 329→330→330b→331→332 (RAUS-Kanäle komplett) · D86 Polls-Modell · D87 Live-functiondef-vor-Spec · Cockpit Welle 1.
