@@ -189,6 +189,24 @@ Jede Bewegung (rein wie raus) = **eine Ledger-Zeile**; Saldo = Summe daraus (ana
 - **Polls:** *neue* Mechanik — Verein belohnt Teilnahme (Umkehrung des heutigen „Fan zahlt").
 - **Bounties:** Club-Bounties aus Treasury statt Admin-Privat-Wallet.
 
+### Event-Prize-Finanzierung — KORREKTUR + 5-Quellen-Modell (verifiziert Slice 331, 2026-06-17)
+
+**Korrektur zur Tabelle oben:** „Event-Prizes finanziert Entry-Fees (zero-sum)" ist **falsch**. Verifiziert via `score_event` (Live-functiondef) + `20260321_unified_event_payment.sql` + UI:
+- Entry-Fees sind **Tickets** (`user_tickets`, Live-Modus) — eine **andere Währung** als der `$SCOUT`-`prize_pool`. ($SCOUT-Entry = `scout`-Currency, Feature-Flag `scout_events_enabled=false`.)
+- `score_event` schreibt den deklarierten `prize_pool` **direkt in die Gewinner-Wallets, ohne Konto-Belastung** → **Minting** (gleiche Klasse wie Pre-330-CSF). Tickets decken den Prize nicht.
+
+**Die Geldquelle eines Events ist `events.type`** (= Kategorie UND Finanzierung), bestätigt via `EventFormModal` (Erstellung) + `EventBrowser` (Teilnahme-Kategorien). 5 Quellen:
+
+| `events.type` | Wer zahlt den Prize | Quelle existiert? | Reconcile-Slice |
+|---|---|---|---|
+| **club** | Vereins-Treasury | ✅ (329/330b) | **Slice 331** (escrow bei Insert via Trigger, nur type='club') |
+| **bescout** | Plattform (BeScout) | ❌ Plattform-Topf (ADR-026) noch nicht gebaut | später |
+| **special** | vermutl. Plattform | ❌ | später (wie bescout) |
+| **sponsor** | Sponsor (sponsor_name gesetzt) | ❌ Sponsor-Deposit-Mechanik fehlt | später |
+| **creator** | User-Wallet | ❌ live aus (`PAID_FANTASY_ENABLED`=false, Phase 4) | später |
+
+**Scope-Regel (D-…):** Jeder Prize braucht eine Quelle. Reconcile (Minting → echte Quelle) erfolgt **eine Quelle pro Slice**. Slice 331 = nur `type='club'` (Vereins-Treasury, einzige existierende Quelle). `bescout`/`special`/`sponsor`/`creator` **minten bewusst weiter**, bis ihr jeweiliger Quellen-Slice gebaut ist. Der Escrow-Trigger keyt auf `type='club'` (NICHT auf „wer hat angelegt" — ein Club-Admin kann auch andere Typen anlegen, die dann nicht die Vereins-Treasury belasten). **Offene Permissions-Frage (separat):** soll ein Club-Admin überhaupt non-club-Typen anlegen dürfen?
+
 **Geld-Modell:** alles **Transfer, kein Minting** — Treasury gibt verdientes $SCOUT aus, Geld zirkuliert. Closed Economy bleibt deflationär-neutral, keine Inflation.
 
 ### Gap-Liste (Bau, nach Konzeption)

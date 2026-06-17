@@ -262,6 +262,23 @@ describe('createNextGameweekEvents', () => {
     expect(result.skipped).toBe(false);
   });
 
+  it('skips a clone on treasury underfunding, keeps going (Slice 331)', async () => {
+    mockTable('events', []); // no existing
+    mockTable('events', [{
+      name: 'Spieltag 10 Cup', type: 'club', format: '6er', entry_fee: 0, prize_pool: 1000000,
+      max_entries: 100, club_id: 'club-1', created_by: 'admin-1', sponsor_name: null, sponsor_logo: null,
+      event_tier: 'club', tier_bonuses: null, min_tier: null, min_subscription_tier: null, salary_cap: null,
+    }]);
+    // insert fails with the escrow-guard error
+    mockTable('events', null, { message: 'treasury_insufficient_for_event_prize: benoetigt 1000000, verfuegbar 500000' });
+    mockGetFixtures.mockResolvedValue([{ played_at: '2025-03-08T18:00:00Z' }]);
+
+    const result = await createNextGameweekEvents('club-1', 10);
+    expect(result.created).toBe(0);
+    expect(result.skippedInsufficient).toBe(1);
+    expect(result.error).toBeUndefined(); // kein harter Fehler — nur übersprungen
+  });
+
   it('uses fallback timing when no fixture times', async () => {
     mockTable('events', []);
     mockTable('events', [{

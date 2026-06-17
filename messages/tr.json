@@ -3622,6 +3622,7 @@
     "slotEmpty": "Bu slot boş.",
     "positionMismatch": "Donanım oyuncu pozisyonuna uymuyor.",
     "lineupLocked": "Kadro kilitli — artık değişiklik yapılamaz.",
+    "eventPrizeTreasuryInsufficient": "Hazine ödül havuzu için yetersiz. Lütfen havuzu azaltın veya hazineyi artırın.",
     "noEquipmentOnSlot": "Bu slotta donanım yok.",
     "equipmentSaveFailed": "{count, plural, =1 {1 donanım kaydedilemedi.} other {# donanım slotu kaydedilemedi.}} Lütfen kadronu tekrar kaydet.",
     "ghost_holding_row": "Bir oyuncu kaydı yüklenemedi. Sayfayı yeniden yükle.",

@@ -138,6 +138,9 @@ const ERROR_MAP: [RegExp, string][] = [
   [/slot.*is.*empty|slot.*boş|slot.*leer/i, 'slotEmpty'],
   [/position.*mismatch|pozisyon.*uyumsuz|position.*passt.*nicht/i, 'positionMismatch'],
   [/lineup.*is.*locked|kadro.*kilitli|lineup.*gesperrt/i, 'lineupLocked'],
+
+  // Slice 331 — Event-Prize-Escrow: Treasury reicht nicht für den Gewinn-Topf
+  [/treasury_insufficient_for_event_prize/i, 'eventPrizeTreasuryInsufficient'],
 ];
 
 /**

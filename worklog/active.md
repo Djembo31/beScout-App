@@ -2,16 +2,16 @@
 
 ```
 status: idle
-slice: 330b
-title: ✅ DONE — Treasury-Saldo Debit-Reconcile + Kontoauszug/CSF-Anzeige
+slice: 331
+title: ✅ DONE — Events ans Treasury (Voll-Reconcile, nur type='club')
 stage: LOG complete
-size: M
+size: L
 type: Migration (Money, CEO)
-spec: worklog/specs/330b-treasury-balance-debits.md
-review: worklog/reviews/330b-review.md (PASS, 3 NITs)
-proof: worklog/proofs/330b-treasury-balance-debits.md
-done_330b: get_club_balance v2 (available = SUM(credit)−SUM(debit)−Withdrawals = identisch 330-Guard; +csf_paid +total_debited) schließt Withdrawal-Leck (CSF war doppelt abhebbar, da request_club_withdrawal denselben available liest) · neue get_club_treasury_ledger (Kontoauszug, JSONB-Return, admin-Guard) · AdminWithdrawalTab: csf_paid-Karte + Kontoauszug · i18n DE+TR (ledgerType 13). Prod-applied + behavioral force-rollback-verifiziert (avail-Delta == csf_debited). Deposit gestrichen (CEO).
-next: RAUS-Kanäle (Events/Polls/Bounties ans Treasury) + Fan-Reward-Engine. Alle Money/CEO.
+spec: worklog/specs/331-events-treasury-reconcile.md
+review: worklog/reviews/331-review.md (CONCERNS → Finding #1 geheilt → PASS)
+proof: worklog/proofs/331-events-treasury-escrow.md
+done_331: 5-Quellen-Modell (events.type=Geldquelle) verifiziert; NUR type='club' escrowt aus Vereins-Treasury, Rest mintet weiter (eigene Slices). 3 Trigger: BEFORE INSERT escrow (guard+debit), BEFORE UPDATE OF status settle (ended→Rest zurück), BEFORE UPDATE OF prize_pool/type resync (Reviewer-Finding #1 Money-Leck: editierbarer Topf/Typ umging Escrow → geheilt). score_event NICHT angefasst. createNextGameweekEvents Batch→Loop (skip+log bei Unterdeckung). i18n + errorMap. Prod-applied, force-rollback-verifiziert (escrow/guard/ended-refund/partial/grandfather/resync). Pre-existing geflaggt: 'cancelled' kein gültiger events.status (UI-Cancel broken).
+next: weitere RAUS-Kanäle (Polls/Bounties ans Treasury) + Plattform-/Sponsor-/User-Quellen für bescout/special/sponsor/creator-Events + Fan-Reward-Engine.
 ```
 
 ## Zuletzt

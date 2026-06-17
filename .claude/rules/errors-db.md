@@ -653,6 +653,25 @@ SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conname='transactions_
 
 **Beziehung:** Verschärfung von „Transaction-Type activityHelpers Sync" (Slice 027, dort nur 3-File ohne CHECK) + Schwester von „RPC INSERT Column-Mismatch" (J5 AR-42, gleiche „Body kompiliert, Runtime failt"-Klasse). **Reference:** Slice 330 `20260617130500_slice_330_fix_transactions_type_liquidation.sql`.
 
+### Escrow-bei-INSERT + Settle-bei-status deckt editierbare Escrow-Felder NICHT ab (Slice 331, 2026-06-17)
+
+**Bug-Klasse (latent, Money):** Ein Wert wird bei INSERT in ein Konto escrowt (debitiert) und bei einem terminalen status-Change zurückgebucht — über je einen Trigger (`BEFORE INSERT` + `BEFORE UPDATE OF status`). **Falle:** Ist das Escrow-bestimmende Feld (Betrag ODER die Quellen-Diskriminante) per `UPDATE` **nachträglich änderbar** (App-`EDITABLE_FIELDS`-Allowlist), umgeht ein nacktes `.update({feld})` BEIDE Trigger: der Insert-Trigger feuert nicht (kein INSERT), der Settle-Trigger nur bei `status`-Change. Folge: Escrow desynct vom Wert → bei Erhöhung **Minting durch die Hintertür** (mehr Auszahlung als hinterlegt), bei Quellen-Wechsel (z.B. `type` club→bescout) bleibt fremde Kaution liegen.
+
+**Konkret (Slice 331):** `events.prize_pool` (escrowt bei INSERT für type='club') ist in `EDITABLE_FIELDS[registering/late-reg/running]`, `events.type` in `[upcoming/registering]`. `updateEvent` `.update({prize_pool})` umging Escrow-Sync → prize_pool 1M→2M ohne Treasury-Debit der Differenz.
+
+**Fix-Pattern: 3. Trigger `BEFORE UPDATE OF <betrag>, <quellen-feld>` der Escrow = Ziel hält.**
+```sql
+v_target := CASE WHEN <quelle-gilt> AND NEW.<betrag> > 0 THEN NEW.<betrag> ELSE 0 END;
+v_held   := CASE WHEN OLD.<escrow_flag> THEN OLD.<betrag> ELSE 0 END;
+v_delta  := v_target - v_held;
+IF v_delta > 0 THEN <guard+debit v_delta>;
+ELSIF v_delta < 0 THEN <credit -v_delta>; END IF;
+NEW.<escrow_flag> := (v_target > 0);
+```
+Deckt alle Achsen: 0→X (neu escrowt), X→Y (Differenz), X→0 (voll zurück), Quellen-Wechsel (voll zurück). `IS DISTINCT FROM`-Natur via delta=0-No-Op. **Regel:** Bei jedem INSERT-escrowten Feld die `EDITABLE_FIELDS`/Allowlist prüfen — ist Betrag oder Quellen-Diskriminante editierbar → Resync-Trigger Pflicht (oder Feld aus Allowlist für escrowte States).
+
+**Beziehung:** Schwester von „Trigger-Guard BEFORE UPDATE" (Slice 081, „jede Mutations-Achse braucht eigenen Guard") + „transactions.type-CHECK-Drift" (Slice 330, oben) — Familie „Trigger/Guard deckt nicht ALLE Mutations-Achsen ab". **Reference:** Slice 331 `20260617150000_slice_331_events_treasury_escrow.sql` §4 (`trg_events_resync_prize_escrow`), Reviewer-Finding #1.
+
 ### RPC Response camelCase/snake_case Cast-Mismatch
 - RPC `jsonb_build_object('rewardType', ...)` → camelCase. Service `as { reward_type }` → ALLE Felder undefined.
 - Check: `pg_get_functiondef()` → Return-Shape → Service-Cast vergleichen.

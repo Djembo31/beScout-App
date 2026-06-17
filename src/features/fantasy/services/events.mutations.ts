@@ -107,7 +107,7 @@ export async function createNextGameweekEvents(
   clubId: string,
   currentGw: number,
   leagueId?: string | null
-): Promise<{ created: number; skipped: boolean; error?: string }> {
+): Promise<{ created: number; skipped: boolean; error?: string; skippedInsufficient?: number }> {
   const nextGw = currentGw + 1;
   if (nextGw > 38) return { created: 0, skipped: true, error: 'Max GW 38 reached' };
 
@@ -184,10 +184,25 @@ export async function createNextGameweekEvents(
     current_entries: 0,
   }));
 
-  const { error: insertErr } = await supabase.from('events').insert(clones);
-  if (insertErr) return { created: 0, skipped: false, error: insertErr.message };
+  // Slice 331: per-Klon statt Sammel-Insert. Ein Klon, der am Treasury-Escrow-Guard scheitert
+  // (type='club' + prize_pool > Treasury), überspringt NUR sich selbst — die anderen werden angelegt.
+  // (Sammel-Insert hätte bei einem Guard-RAISE den ganzen Batch zurückgerollt → 0 Events nächste GW.)
+  let created = 0;
+  let skippedInsufficient = 0;
+  for (const clone of clones) {
+    const { error: insertErr } = await supabase.from('events').insert(clone);
+    if (insertErr) {
+      if (insertErr.message.includes('treasury_insufficient_for_event_prize')) {
+        skippedInsufficient++;
+        console.warn(`[Events] Klon übersprungen (Treasury-Unterdeckung): ${clone.name}`);
+        continue;
+      }
+      return { created, skipped: false, error: insertErr.message };
+    }
+    created++;
+  }
 
-  return { created: clones.length, skipped: false };
+  return { created, skipped: false, skippedInsufficient };
 }
 
 export async function updateEventStatus(
