@@ -25,6 +25,7 @@ export function getActivityIcon(type: string): string {
   if (type === 'bounty_cost') return 'Target';
   if (type === 'bounty_reward') return 'Target';
   if (type === 'pbt_liquidation') return 'Banknote';
+  if (type === 'success_fee') return 'Banknote';
   if (type === 'streak_bonus' || type === 'streak_reward') return 'Flame';
   if (type === 'tip_receive') return 'Coins';
   if (type === 'scout_subscription_earning') return 'Users';
@@ -63,6 +64,7 @@ export function getActivityColor(type: string): string {
   if (type === 'bounty_cost') return 'text-amber-400 bg-amber-400/10';
   if (type === 'bounty_reward') return 'text-green-500 bg-green-500/10';
   if (type === 'pbt_liquidation') return 'text-gold bg-gold/10';
+  if (type === 'success_fee') return 'text-emerald-400 bg-emerald-400/10';
   if (type === 'streak_bonus' || type === 'streak_reward') return 'text-orange-400 bg-orange-400/10';
   if (type === 'tip_receive') return 'text-emerald-400 bg-emerald-400/10';
   if (type === 'scout_subscription_earning') return 'text-gold bg-gold/10';
@@ -102,6 +104,7 @@ export function getActivityLabelKey(type: string): string {
   if (type === 'bounty_cost') return 'bountyCost';
   if (type === 'bounty_reward') return 'bountyReward';
   if (type === 'pbt_liquidation') return 'pbtLiquidation';
+  if (type === 'success_fee') return 'successFee';
   if (type === 'streak_bonus' || type === 'streak_reward') return 'streakReward';
   if (type === 'tip_receive') return 'tipReceive';
   if (type === 'scout_subscription_earning') return 'subscriptionEarning';

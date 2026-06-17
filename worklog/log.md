@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 330 | 2026-06-17 | feat(treasury): CSF-Engine ans Treasury — debit-Buchung + Cap + Multiplikatoren raus
+- Stage-Chain: SPEC (`worklog/specs/330-csf-engine-treasury.md`, L, Migration, **CEO-approved** 3 Entscheidungen) → IMPACT (in Spec §12, Consumer grep-verifiziert) → BUILD (selbst, Money/CEO) → REVIEW (`worklog/reviews/330-review.md`, Cold-Context-Reviewer **PASS**, 3 NITs) → PROVE (`worklog/proofs/330-csf-engine-treasury.md`) → LOG.
+- Trigger: D83 Bau-Sequenz Schritt 2 (nach 329 Treasury-Fundament). „weiter mit t 330" (Anil 2026-06-17).
+- CEO-Decisions: D-A CSF-Quelle = **Deposit-Pflicht vorab** (Guard blockt fail-safe bei Treasury<CSF; Deposit-RPC=330b) · D-B Cap = **Pro-Card behalten** · D-C **csf_multiplier UND mastery raus** → CSF+PBT rein proportional + UI-Badge weg.
+- Bau (`liquidate_player` CREATE OR REPLACE, Baseline=live functiondef PATCH-AUDIT): beide Holder-Loops rein proportional (effective-qty/mastery/csf_mult raus, Nenner v_total_dpcs) · CSF debitiert Treasury via `book_club_treasury('debit','csf', v_actual_sf_distributed)` (= Σ FLOOR, Ledger==Wallets exakt) · Guard `treasury_insufficient_for_csf` (Ledger-SUM − offene Withdrawals) unter `clubs FOR UPDATE` VOR allen Writes · Pro-Card-Cap unverändert · PBT-Quelle unverändert. Return +csf_debited_cents, weighted=false, formula_version=proportional_v3.
+- UI: `FanRankBadge`/`FanRankOverview`/`ClubContent` Multiplikator-Badge entfernt · i18n -`gamification.csfBonus` +`activity.successFee` (DE+TR) · `activityHelpers` success_fee-Mapping (3 Fn + Test). `fan_rankings.csf_multiplier`-Spalte dormant (NICHT gedroppt → künftige Fan-Reward-Engine).
+- PREREQ-FIX (in PROVE entdeckt): `transactions_type_check` fehlten `pbt_liquidation`+`success_fee` seit Slice 178 → JEDE Liquidation mit Auszahlung 23514-Fail (latent, 0 Rows je). Migration `20260617130500` ergänzt additiv.
+- Verify (Live-Prod, alle Mutationen force-rollback): Struktur-functiondef (Multiplikator weg/Debit/Guard) · Grants authenticated+postgres+service_role · Guard-Sim 12 Spieler diskriminiert korrekt · Block-Pfad RAISE + 0 Leak · Erfolgs-Pfad csf_debited=770k=Ledger-Debit, Saldo 886347→116347, 11 success_fee-tx, ledger==result · tsc grün · 75+17 Tests grün. Migrations `20260617130000` + `…130500` prod-applied.
+- Knowledge: `.claude/rules/errors-db.md` neu „transactions.type-CHECK-Drift — RPC schreibt neuen Typ ohne 4-File-Sync" (latent bis erster Real-Write).
+
 ## 329 | 2026-06-17 | feat(treasury): Club-Treasury-Fundament — append-only Ledger + Saldo + Abo-Bug-Fix
 - Stage-Chain: SPEC (`worklog/specs/329-...md`, L, Migration, **CEO-approved** 3 Entscheidungen) → IMPACT (`worklog/impact/329-...md`, Live-RPC-Bodies verifiziert → trigger-zentrisches Redesign, Blast-Radius 6-RPC-Edits → 2) → BUILD (selbst, Money/CEO) → REVIEW (`worklog/reviews/329-review.md`, reviewer **REWORK**: 1 BLOCKER grant-revert + 1 MAJOR → live-verifiziert gefixt) → PROVE (`worklog/proofs/329-treasury-ledger.txt`) → LOG.
 - Trigger: D83 Bau-Sequenz Schritt 1. Erster echter Treasury-Bau. „wir bauen jetzt die treasury" (Anil 2026-06-17) — zugleich Test des neuen Setup-Workflows (D84).

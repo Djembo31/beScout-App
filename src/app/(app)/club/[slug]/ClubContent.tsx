@@ -292,10 +292,8 @@ export default function ClubContent({ slug }: { slug: string }) {
         <div className="mb-4 flex items-center gap-2">
           <FanRankBadge
             tier={fanRanking.rank_tier}
-            csfMultiplier={fanRanking.csf_multiplier}
             clubName={club.name}
             size="md"
-            showMultiplier
           />
         </div>
       )}

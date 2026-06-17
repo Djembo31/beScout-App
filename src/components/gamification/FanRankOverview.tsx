@@ -98,20 +98,13 @@ export default function FanRankOverview({
         <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">{seasonLabel}</span>
       </div>
 
-      {/* Badge + CSF Multiplier */}
+      {/* Badge */}
       <div className="flex flex-col items-center gap-2 mb-6">
         <FanRankBadge
           tier={ranking.rank_tier}
-          csfMultiplier={ranking.csf_multiplier}
           clubName={clubName}
           size="lg"
-          showMultiplier
         />
-        {ranking.csf_multiplier > 1 && (
-          <span className="text-xs font-mono tabular-nums font-bold text-gold">
-            {t('csfBonus', { multiplier: ranking.csf_multiplier.toFixed(2) })}
-          </span>
-        )}
       </div>
 
       {/* 5 Dimension Bars */}

@@ -631,6 +631,28 @@ RETURN v_result;
 - Beispiele: `open_mystery_box_v2` INSERT `equipment_rank` (heisst `rank`), `transactions(amount_cents)` statt `amount`+`balance_after`.
 - Regel: Nach JEDER RPC-Migration: `information_schema.columns` gegen Body matchen.
 
+### transactions.type-CHECK-Drift — RPC schreibt neuen Typ ohne 4-File-Sync (Slice 330, 2026-06-17)
+
+**Bug-Klasse (latent, Money):** Eine RPC schreibt einen neuen `transactions.type`-Wert (`INSERT INTO transactions ... type='neuer_typ'`), aber der `transactions_type_check`-CHECK listet ihn NICHT. Der Body kompiliert (CREATE OR REPLACE validiert keine Werte), Migration applied sauber — Fehler erst beim **ersten echten Aufruf** als `23514 violates check constraint`. Latent solange der Pfad nie real ausgeführt wird (z.B. Liquidation mit Auszahlung in der Beta = nie passiert).
+
+**Konkret (Slice 330):** `liquidate_player` schreibt `pbt_liquidation` + `success_fee` seit Slice 178 (April), beide fehlten im CHECK → JEDE Liquidation mit PBT-/CSF-Auszahlung wäre mit 23514 gefailt. Verifiziert latent: `SELECT type,COUNT(*) FROM transactions WHERE type IN (...)` = 0 Rows je.
+
+**4-File-Sync-Pflicht bei jedem neuen `transactions.type`:**
+1. `transactions_type_check` CHECK-Constraint (sonst 23514 beim ersten Write) ← **am häufigsten vergessen, weil tsc/Tests es nicht fangen**
+2. `src/lib/activityHelpers.ts` — `getActivityIcon` + `getActivityColor` + `getActivityLabelKey` (sonst roher snake_case im Feed)
+3. `messages/de.json` activity-Namespace (Label)
+4. `messages/tr.json` activity-Namespace (Label)
+
+**Detection (live-CHECK gegen RPC-Body):**
+```sql
+SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conname='transactions_type_check';
+-- gegen alle type-Literale matchen die RPCs in transactions schreiben.
+```
+
+**Fix:** `ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check; ADD CONSTRAINT ... CHECK (type = ANY(ARRAY[<alle bestehenden> + <neue>]))` — reine additive Werte-Erweiterung, alle Bestands-Rows bleiben gültig, idempotent.
+
+**Beziehung:** Verschärfung von „Transaction-Type activityHelpers Sync" (Slice 027, dort nur 3-File ohne CHECK) + Schwester von „RPC INSERT Column-Mismatch" (J5 AR-42, gleiche „Body kompiliert, Runtime failt"-Klasse). **Reference:** Slice 330 `20260617130500_slice_330_fix_transactions_type_liquidation.sql`.
+
 ### RPC Response camelCase/snake_case Cast-Mismatch
 - RPC `jsonb_build_object('rewardType', ...)` → camelCase. Service `as { reward_type }` → ALLE Felder undefined.
 - Check: `pg_get_functiondef()` → Return-Shape → Service-Cast vergleichen.

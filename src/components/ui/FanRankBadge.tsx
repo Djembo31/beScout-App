@@ -75,19 +75,15 @@ const sizeClasses: Record<FanRankBadgeSize, { badge: string; icon: string; text:
 
 export interface FanRankBadgeProps {
   tier: FanRankTier;
-  csfMultiplier?: number;
   clubName?: string;
   size?: FanRankBadgeSize;
-  showMultiplier?: boolean;
   className?: string;
 }
 
 export default function FanRankBadge({
   tier,
-  csfMultiplier,
   clubName,
   size = 'md',
-  showMultiplier,
   className,
 }: FanRankBadgeProps) {
   const t = useTranslations('gamification');
@@ -115,11 +111,6 @@ export default function FanRankBadge({
     >
       <Icon className={s.icon} aria-hidden="true" />
       {size !== 'sm' && <span className={s.text}>{displayLabel}</span>}
-      {showMultiplier && csfMultiplier != null && csfMultiplier > 1 && (
-        <span className={cn(s.mult, 'font-mono tabular-nums opacity-70')}>
-          {csfMultiplier.toFixed(2)}x
-        </span>
-      )}
     </span>
   );
 }
