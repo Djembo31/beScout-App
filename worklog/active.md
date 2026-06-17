@@ -1,18 +1,20 @@
 # Active Slice
 
 ```
-status: idle
-slice: E0-W2c
-title: ✅ DONE — Wissens-Welle abgeschlossen (cortex abgelöst, 18 Stubs weg, ~95 ephemere Files archiviert)
-stage: LOG complete
-size: L
+status: active
+slice: E0-W3
+title: Hygiene — Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung
+stage: LOG
+size: M
 type: Doc + Hygiene
-spec: worklog/specs/E0-W2c-knowledge-cleanup.md
-review: worklog/reviews/E0-W2c-review.md (CONCERNS→geheilt; Finding #1 Money-SSOT-Nav-Pointer gefixt, #2 Lehre → errors-infra.md)
-proof: worklog/proofs/E0-W2c-proof.txt
-parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 2)
-done_E0W2c: cortex-index → _archive (4 Consumer auf docs/knowledge/INDEX.md + worklog/active.md repointet) · 18 Migrations-Stubs entfernt · 71 ephemere Files git-mv → memory/_archive/2026-06-17-w2c (42 journals, 10 projekt-Phasen, 7 features, sprint, personen) · 5 leere Junk-Dirs gelöscht · learnings/ KORREKT behalten (aktiver Mechanismus, Reviewer-Catch via broken-ref-grep) · inject-compact/morning-briefing lesen jetzt active.md statt totes sprint/current.md. audit:knowledge 0 HARD/0 SOFT, 0 lebende broken refs.
-next: E0-W3 Hygiene (Screenshots gitignoren) + ENTHÄLT root-Vault-Hygiene (38 stale beta-/phase3-/audit-Files → _archive + MEMORY.md-Trim, von W2c bewusst hierher verschoben). Dann W4 Historie. Danach Polls (E1).
+spec: worklog/specs/E0-W3-hygiene-gitignore-vault.md
+impact: skipped (kein Service/RPC/Schema — reine Doku-/Config-Hygiene)
+review: worklog/reviews/E0-W3-review.md (PASS, 1 pre-existing NIT)
+proof: worklog/proofs/E0-W3-proof.txt
+decision_gruppeC: Anil → KONSERVATIV. Nur Teil1 + Gruppe A. Gruppe C (cortex-Trio + beta-ops) = eigener Folge-Slice.
+parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 3)
+scan_E0W3: Broke-Ref-Grep über Live-Schicht ergab 3 Gruppen — A=verwaist (~17, nur Crash-Backups+Kommentare) → archivieren · B=aktiv (beta-rollback/sentry-runbook, von INDEX.md geroutet) → behalten · C=live verdrahtet (session-digest/working-memory/current-sprint in Hooks/Commands + beta-ops via MEMORY.md/Skills) → Anil-Scope-Frage.
+next: Teil1 .gitignore + Gruppe-A-Archiv autonom; Gruppe C nach Anil-Entscheidung. Dann W4 Historie. Danach Polls (E1).
 ```
 
 ## Wissens-Heimat — Endstand E0 Welle 2 (W2a+W2gov+W2b+W2c)

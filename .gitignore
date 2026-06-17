@@ -155,3 +155,13 @@ tmp/
 worklog/audits/audit-stale-*.md
 worklog/audits/type-truth-*.md
 worklog/audits/wiring-*.md
+
+# E0-W3: Binär-Beweise lokal behalten, nicht committen (.git-Bloat-Stop).
+# Proof-Konvention = Text (SQL/Test-Output/grep) + optional 1 lokaler Screenshot.
+# (qa-screenshots/, e2e/screenshots/, root-*.png sind oben bereits abgedeckt.)
+worklog/proofs/*.png
+worklog/proofs/*.jpg
+worklog/proofs/*.jpeg
+worklog/proofs/*.webp
+worklog/proofs/*.gif
+worklog/proofs/*.pdf

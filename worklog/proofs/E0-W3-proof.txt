@@ -1,0 +1,37 @@
+E0-W3 — Hygiene Proof (2026-06-17)
+==================================================
+
+## AC-1: .gitignore ignoriert Proof-Binaries
+$ git check-ignore worklog/proofs/test.png worklog/proofs/x.pdf
+worklog/proofs/test.png
+worklog/proofs/x.pdf
+→ beide ignoriert ✅ (qa-screenshots/, e2e/screenshots/, root-*.png waren bereits abgedeckt)
+
+## AC-2: Gruppe-A-Files raus aus Root-Vault
+memory root *.md vorher: 58
+memory root *.md nachher: 42  (−16)
+16 Files git-mv → memory/_archive/2026-06-17-w3/:
+  ar-counter, audit_multi_league_backend_20260415, audit_multi_league_frontend_20260415,
+  bug-tracker, data-integrity-deep-dive-2026-04-18, feature-map,
+  impact_multi_league_backend_20260415, operation-beta-ready, phase-1.3-impact-map,
+  phase3-compliance-audit, phase3-db-audit, phase3-i18n-audit, phase3-performance-audit,
+  polish-sweep, service-map, user-journeys
+
+## AC-3: kein lebender Broken-Ref nach Archivierung
+Broke-Ref-Grep der 16 Namen über Live-Schicht
+(.claude/hooks, .claude/commands, .claude/skills, .claude/agents,
+ docs/knowledge/INDEX.md, memory/MEMORY.md, MASTERPLAN.md, TODO.md, worklog/active.md):
+→ leer ✅ (nur Crash-Backup-Diffs + 3 historische Code-Kommentare zu polish-sweep — kein funktionaler Read)
+
+## AC-4: Gruppe B unangetastet (aktives Wissen)
+beta-rollback-runbook.md + beta-sentry-alerts-runbook.md bleiben im Root
+(von docs/knowledge/INDEX.md consult_when-geroutet).
+
+## Wissens-Gate (E0-W2gov/D88) — Regression-Check
+$ pnpm audit:knowledge:check
+Content-Files: 18 · INDEX-Links: 37 · HARD: 0 · SOFT: 0 → ✅ Clean.
+
+## Scope-Out (bewusst NICHT in W3)
+- Kein git rm bestehender Binaries / Historie-Rewrite (= W4, separat, mit Backup).
+- Gruppe C (cortex-Mechanik + beta-ops, live verdrahtet) → Anil-Scope-Entscheidung offen.
+- beta-tester-list.template.md bewusst behalten (Template, echte Liste ist PII-gitignored).

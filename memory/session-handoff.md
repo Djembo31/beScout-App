@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-17 21:13)
+# Session Handoff — Auto (2026-06-17 21:24)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,7 +8,8 @@
 ?? worklog/audits/knowledge-2026-06-17.md
 ```
 
-## Session Commits: 7
+## Session Commits: 8
+- 8cd83072 docs(session-end): DISTILL D90 (3-Schichten-Wissens-Kanon) + Handoff W3-fresh-start
 - 72b22fc0 docs(knowledge): E0-W2c — Wissens-Welle abgeschlossen (cortex abgelöst, Stubs weg, ~95 ephemere Files archiviert)
 - aa3bcbdd docs(knowledge): E0-W2b — Wissens-Basis migriert (18 Gold-Files → docs/knowledge/, 3-Schichten-Kanon)
 - 3e9dd504 docs(session-end): DISTILL D89 (Option B Wissens-Heimat) + Handoff E0-W2b
