@@ -3649,3 +3649,22 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 - **Staleness HARD blockieren** — verworfen: würde unrelated Code-Commits blockieren; Veraltung gehört sichtbar (nightly), nicht als Commit-Blocker.
 
 **Re-Visit-Trigger:** Wenn nach W2b-Migration `audit:knowledge` SOFT-Findings akkumulieren ohne dass sie abgearbeitet werden → Master-Tracker-Disziplin nachschärfen (analog Smoke-Fail SO-4).
+
+---
+
+## D89 — ARCHITECTURE: Wissens-Heimat = frisches `docs/knowledge/` (Option B), nicht `memory/semantisch` wiederbeleben
+
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Category:** ARCHITECTURE · **Kontext:** E0 Welle 2 wollte das verstreute durable Wissen an EINEN Ort bringen. Beim Aufbau zeigte sich: es existiert bereits ein zweiter Obsidian-„Second-Brain" unter `memory/semantisch/` + `memory/episodisch/`, geroutet von `memory/cortex-index.md` (bei jedem Session-Start gelesen). Ein neues `docs/knowledge/` wäre eine SECHSTE konkurrierende Taxonomie — das Gegenteil des Ziels.
+
+**Entscheidung (Anil, nach Evidenz):** Option B — **frisches `docs/knowledge/` bauen, den `memory/`-Baum stilllegen** (Gold migrieren, Rest archivieren, cortex-index ablösen). NICHT Option A (memory/ wiederbeleben).
+
+**Begründung (aus Qualitäts-Assessment `worklog/notes/E0-welle2-memory-quality-assessment.md`):** Der `memory/`-Baum ist zu ⅔ leer oder ephemer — 6 Teilbäume komplett leer (semantisch/episodisch-Split nie gelebt), 6 reine Snapshot-Halden, nur ~13 Files tragen durables Gold, und die sind systematisch gedriftet (Stand 2026-03/04, kennen kein Treasury/CSF/Polls). cortex-index ist technisch ~95% intakt aber inhaltlich tot. Wiederbeleben = fast neu bauen, mit derselben Drift-Struktur die ihn umbrachte. Das Wertvolle ist ohnehin schon woanders kanonisch (`.claude/rules/`, `decisions.md`, `worklog/concepts/`).
+
+**Auswirkungen:** Neue Heimat `docs/knowledge/{domain,decisions,lessons,research}/` + `INDEX.md`. Migration in Wellen: W2a (Index) ✅ → W2gov (Governance/D88) ✅ → W2b (13 Gold migrieren + Dup-Entscheidungen) → W2c (~90 Files archivieren + cortex-index ablösen). `.claude/rules/` (path-scoped Autoload) + `wiki/` (Anil-kuratiert) + `session-handoff.md` bleiben eigene Häuser.
+
+**Alternativen erwogen:**
+- **Option A (memory/ wiederbeleben)** — verworfen: gleiche Drift-Anfälligkeit, die den Baum schon einmal killte; Aufwand ≈ Neubau ohne den Vorteil eines sauberen Schnitts + Front-matter-Disziplin.
+- **Beides parallel laufen lassen** — verworfen: zwei Routing-Tabellen (cortex + INDEX) = genau die Mehrdeutigkeit, die E0 beseitigen soll.
+- **Erst Qualität prüfen, dann entscheiden** — GEWÄHLT als Zwischenschritt (Assessment-Agent), führte zu fundiertem B statt Bauchgefühl.
+
+**Re-Visit-Trigger:** Falls bei W2b-Migration ein Gold-File sich als nicht-migrierbar/wertlos zeigt → ist ok (war Schätzung); falls >5 der 13 wertlos → Assessment war zu optimistisch, Scope neu bewerten.

@@ -1,44 +1,53 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-17 16:50)
+# Session Handoff — Auto (2026-06-17 19:52)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Uncommitted Changes: 2 Files
 ```
  M memory/session-handoff.md
- M worklog/active.md
+?? worklog/audits/knowledge-2026-06-17.md
 ```
 
-## Session Commits: 4
+## Session Commits: 6
+- dd16715d feat(knowledge): E0-W2gov — Wissens-Governance verdrahtet (D88 + audit:knowledge)
+- 4154ca5a docs(knowledge): E0-W2a — Wissens-Index (INDEX-first) + Skelett + Auto-Inject
+- 1e66f4f7 docs(plan): E0 Operating-System + Wissens-Basis — Epic-Plan (Wellen 2-4)
+- 72f394b4 docs(cockpit): E0 Welle 1 — MASTERPLAN + prio-TODO auto-gezeigt bei Session-Start
+- 7ee54574 docs(session-end): DISTILL D87 (Live-functiondef vor Spec) + Handoff + active cleanup
 - a5c27519 feat(treasury): Slice 332 — Club-Bounties ans Treasury (Reward-Escrow bei Erstellung)
-- 13404dc1 docs(decision): D86 — Polls = Vereins-Geldmaschine (REIN) + Discovery + soziale Schicht
-- e912431a feat(treasury): Slice 331 — Events ans Treasury (Prize-Escrow statt Minting)
-- 785e88b7 feat(treasury): Slice 330b — Saldo Debit-Reconcile + Kontoauszug
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-17 Abend — Treasury RAUS-Kanäle DONE)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-17 Nacht — E0 Welle 2 Kern DONE)
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. `worklog/active.md` = idle (332 DONE).
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen (1× `knowledge-2026-06-17.md` untracked = ok). `worklog/active.md` = idle (E0-W2gov DONE). HEAD = `dd16715d`.
 
-## ⚡ NÄCHSTES GROSSES STÜCK = Anil wählt (Empfehlung: Polls)
+## ⚡ NÄCHSTES STÜCK = E0-W2b (kollaborativ, mit Anil)
 
-Treasury **RAUS-Kanäle sind komplett** (329 Fundament → 330 CSF → 330b Saldo/Kontoauszug → 331 Events → 332 Club-Bounties, alle live + force-rollback-verifiziert). Drei Optionen:
+E0 Welle 2 **Kern steht**: W2a (Wissens-Index `docs/knowledge/INDEX.md`) + W2gov (Lebenszyklus verdrahtet — D88 + `audit:knowledge` in pre-commit+nightly). **WICHTIG ab jetzt:** jede neue/migrierte Datei in `docs/knowledge/` braucht 6 Front-matter-Felder + INDEX-Zeile mit `consult_when`, sonst **blockt Pre-Commit** (`audit:knowledge:check` Step 7). Konvention: `docs/knowledge/README.md`.
 
-1. **POLLS (EMPFOHLEN — REIN-Geldmaschine, größtes B2B-Stück, D86).** Fan zahlt → **Verein verdient → Treasury**. **Befund: `community_polls` hat KEINE Erstellung** (kein Service/RPC/UI — „Hülle ohne Tür"; nur lesen/abstimmen/abbrechen existiert). Volles Modell + Roadmap **P1-P4: `worklog/concepts/polls-engagement-monetization-model.md`**. P1 = Erstellung + Identität/Quelle (Verein offiziell→Treasury via NEUEM Credit-Typ `poll_revenue` / User→Wallet, Follower-Tor) · P2 = Spieler-Bezug + Discovery (Filter Verein/Spieler) · P3 = soziale Schicht · P4 = „User auszahlen"-Idee (offen).
-2. **Fan-Reward-Engine** (Verein belohnt treue Fans; `csf-club-treasury-model.md` §9; `fan_rankings.csf_multiplier` dormant bereit).
-3. **Andere Event-Quellen** (bescout/sponsor/user-Events minten noch; brauchen Plattform-Topf/Sponsor-Deposit/User-Wallet).
+**W2b-Worklist (2 Teile):**
+1. **13 Gold-Files physisch migrieren** nach `docs/knowledge/<bucket>/` + auf Juni-Stand heben + `verified-against`-Anker setzen wenn Code beschrieben. Liste + Bucket-Vorschläge: `worklog/notes/E0-welle2-wissens-inventur.md` + `E0-welle2-memory-quality-assessment.md`.
+2. **5 ⚠️-Dup-Entscheidungen GEMEINSAM klären** (bestimmen wohin Files wandern): (a) Treasury-Kanon (3 Orte: concept+D83+trading.md) (b) Polls-Dedup (`worklog/concepts/polls-...` vs `memory/project_polls_...`) (c) D28/D39 zusammenführen (d) D62/65/67 (e) `patterns.md` auflösen + Compliance `business.md`↔`wiki/compliance`. Volle ⚠️-Liste: Inventur-Note Sektion „Zur gemeinsamen Klärung".
 
-**Pflicht-Ablauf (Money/CEO):** erst **Bild aufbauen** (Teaching-Mode, Analogien, KEINE Spec ohne Anil-Verständnis) → bei RPC-Berührung **D87: Live-`pg_get_functiondef` ZUERST** → SPEC → IMPACT → BUILD selbst → REVIEW (Cold-Context) → PROVE (force-rollback) → LOG.
+**Danach:** W2c (~90 ephemere/leere memory-Files → `_archive/`, `cortex-index.md` ablösen) → W3 Hygiene (Screenshots gitignoren) → W4 Historie abspecken (mit Backup). Epic-Plan: `worklog/specs/E0-operating-system-knowledge-base.md`.
 
-## ✅ Diese Session (2026-06-17 Abend) — Treasury-Serie + Polls-Modell
-- **329-332** (5 Slices): Treasury-Fundament + CSF + Saldo-Reconcile/Kontoauszug + Events ans Treasury + Club-Bounties ans Treasury. Alle trigger-zentrisch (Escrow-bei-Erstellung-Muster), nur Club-Quelle, fail-safe Guard. Details: `worklog/log.md`.
-- **D86** Polls-Modell (REIN-Geldmaschine) komplett konzipiert + Konzept-Doc + korrigierte die falsche „RAUS"-Annahme im CSF-Doc.
-- **D87** Live-functiondef-vor-Spec (2× falsche Prämisse aus alten Files vermieden ab jetzt).
-- **Teaching-Mode verschärft** (feedback_teaching_mode.md): erst Konzept einfach aufbauen, dann Optionen — Anil soll bewusst entscheiden, nie raten.
-- **3 latente CHECK-Drift-Bugs** gefunden (transactions.type/liquidation [gefixt 330] · events.status/'cancelled' [geflaggt, UI-Cancel broken] · bounties.status/'completed' [gefixt 332]). Pattern in errors-db.md.
+**Offen (LOW, Review E0-W2gov):** Orphan-Pfad-Casing/Trailing-Slash im Detektor härten vor W2b-Migration (`scripts/audit-knowledge.ts`).
+
+**Pflicht-Ablauf (kollaborativ):** erst gemeinsam pro Dup-Entscheidung Bild + Beschluss (Teaching-Mode, Anil entscheidet) → dann migrieren → `pnpm audit:knowledge:check` grün halten → SHIP-Loop.
+
+## ✅ Diese Session (2026-06-17 Nacht) — E0 Operating-System Welle 2
+- **E0-W2a** (`4154ca5a`): `docs/knowledge/` Skelett + `INDEX.md` (37→jetzt routing-Tabelle consult_when) + Session-Start-Pointer + DISTILL-Regel. **Option B** (frisch statt memory/ wiederbeleben) nach 2 Vorarbeits-Agents (Inventur 138 Brocken + memory/-Assessment: ⅔ leer/ephemer). → **D89**.
+- **E0-W2gov** (`dd16715d`): Wissens-Lebenszyklus verdrahtet — **D88** + `scripts/audit-knowledge.ts` (intelligenter Detektor, markdown-bewusst, HARD blockt pre-commit / SOFT nightly) + `verified-against`-Konvention + SHIP-LOG/DoD-Kopplung. Deliberate-break-getestet. Reviewer fing Wiring-Self-Block (KNOWN_ORPHANS) → geheilt. Lehre in `errors-infra.md`.
+- **Cockpit (W1)** war schon vor dieser Session da (`72f394b4`) — Anil hatte gefragt warum die Begrüßung „anders" sei; Antwort: funktioniert, ist eingebettet ins SHIP-Briefing.
+
+## 💡 Money-Arbeit (pausiert während E0) — SSOTs nicht neu erarbeiten
+- Treasury RAUS-Kanäle komplett (329-332). **Nächstes großes Money-Stück nach E0 = Polls (REIN-Geldmaschine, D86)** — `community_polls` hat KEINE Erstellung („Hülle ohne Tür"). Modell+Roadmap P1-P4: `worklog/concepts/polls-engagement-monetization-model.md`.
+- Money-Slice-Muster (bewährt 329-332): Live-functiondef VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag) · Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · `pg_get_constraintdef` gegen CHECK-Drift · force-rollback-Smokes.
+- SSOTs: **D83** (`csf-club-treasury-model.md`) + **D86** (Polls). NIE neu erarbeiten.
 
 ## 🧠 WICHTIG fürs nächste Mal
 - **Money-Slice-Muster (bewährt 329-332):** Live-functiondef = Baseline VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag — letzteres Pflicht wenn Betrag editierbar, 331-Finding-#1) · Guard = `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · Grandfathering via `*_escrowed`-Flag · `pg_get_constraintdef` gegen Status/Type-Literale (CHECK-Drift) · force-rollback-Smokes (DO + RAISE).
