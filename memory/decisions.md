@@ -3608,3 +3608,19 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** Korrigiert `csf-club-treasury-model.md` §8 (falsche „Umkehr"-Zeile). Roadmap P1–P4 im Konzept-Doc. P1 (Erstellung + Quelle/Identität + Treasury-Routing) ist der Kern-Slice. Ledger-Typ: vorgehaltener `poll_reward`-DEBIT war falsche Annahme (RAUS) → für Polls braucht es einen REIN-Credit-Typ (`poll_revenue`).
 
 **Alternativen erwogen:** Polls als RAUS/„Verein belohnt Teilnahme" (mein erster Entwurf) — von Anil verworfen: das verfehlt den Geschäftszweck (Verein soll *verdienen*, nicht ausgeben). Die Auszahl-an-Fans-Idee bleibt als *optionale* Zusatzebene (§7), nicht als Kern.
+
+---
+
+## D87 — PROCESS: Live-Reality-Check (functiondef) VOR SPEC/Modell, nicht erst vor BUILD
+
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Kontext:** In der Treasury-Serie (329-332) war meine Spec-/Modell-Prämisse **zweimal falsch**, weil ich Doku/alten Migrations-Dateien statt dem Live-Stand vertraute:
+1. **Polls:** Konzept-Doc/mein Framing sagte „Verein belohnt Teilnahme (RAUS)" + „Fan legt Poll für Verein an". Beides falsch — Anil korrigierte (REIN = Verein verdient; Verein legt selbst an). D86.
+2. **Bounties:** Ich spec'te „Club-Bounty mintet" aus der **alten Migrations-Datei** (`20260404191000`). Der **Live-functiondef** zeigte: Admin zahlt aus eigenem Wallet bei Approval (evolviert). Hätte ich nach Spec gebaut, wäre die Annahme falsch gewesen.
+
+**Lehre:** Der Slice-156-PATCH-AUDIT („Live-functiondef = Baseline, nicht erste/alte Migration") gilt nicht nur vor BUILD, sondern **vor dem SPEC-Problem-Statement**. Sobald eine Slice eine bestehende RPC beschreibt/anfasst, MUSS Code-Reading #1 der Live-`pg_get_functiondef` sein — BEVOR ich das Problem in Worte fasse oder dem CEO ein Modell präsentiere. Sonst baue ich (oder erkläre Anil) auf einer veralteten Prämisse.
+
+**Zusätzlicher Befund (Verstärkung errors-db.md):** 3 latente CHECK-Drift-Bugs in EINER Session gefunden (transactions.type/liquidation · events.status/'cancelled' · bounties.status/'completed') — alle „Body kompiliert, Runtime failt beim ersten echten Call". Systemisch. Pflicht-Grep `pg_get_constraintdef` gegen RPC-Status/Type-Literale bei jeder Money-Slice.
+
+**Auswirkungen:** SPEC-Code-Reading-Liste (workflow.md §1.4) startet bei RPC-Slices IMMER mit Live-functiondef. Spart Fehl-Specs + Fehl-Erklärungen an den CEO.
+
+**Alternativen erwogen:** Nur vor BUILD prüfen (Status quo D85/156) — verworfen: dann ist die Spec + die CEO-Präsentation schon auf falscher Basis, und der Reviewer/Build-Heal kommt zu spät (Anil hat dann ggf. schon eine falsche Entscheidung getroffen).

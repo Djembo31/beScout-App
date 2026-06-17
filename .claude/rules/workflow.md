@@ -38,7 +38,7 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 1. **Problem-Statement** mit Evidence (Screenshot/Audit-Item-Nr/Anil-Quote/Sentry-ID)
 2. **Lösungs-Design** (was ändert sich + warum, kurz Architektur)
 3. **Betroffene Files** (geschätzt, mit Begründung)
-4. **Code-Reading-Liste (Pflicht VOR Implementation)** — File + Zweck + zu prüfende Frage
+4. **Code-Reading-Liste (Pflicht VOR Implementation)** — File + Zweck + zu prüfende Frage. **D87: Berührt/beschreibt die Slice eine bestehende RPC → Item #1 ist IMMER der Live-`pg_get_functiondef` (nicht die Migrations-Datei), BEVOR das Problem-Statement geschrieben wird.** Sonst Spec + CEO-Präsentation auf veralteter Prämisse (Treasury-Serie: 2× falsche Prämisse aus alten Files).
 5. **Pattern-References** — relevante existing Patterns/Decisions/Common-Errors mit IDs
 6. **Acceptance Criteria** (executable, nicht prosa)
 7. **Edge Cases Table** (systematisch enumerieren, nicht raten)

@@ -1,53 +1,52 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-17 01:48)
+# Session Handoff — Auto (2026-06-17 16:50)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
 ```
 
-## Session Commits: 9
-- 4b005e20 feat(treasury): Slice 329 — Club-Treasury-Fundament (append-only Ledger + Saldo + Abo-Bug-Fix)
-- 3cd6fa4a docs(session-end): DISTILL D84 (Setup-Elite-Upgrade) + Resume-Handoff
-- 15ddcbfc docs(setup): Achse 5 — Modell-Routing-Regel verankert (§8)
-- 3797e3cd docs(setup): Achse 3 — Autoload-Budget, ~2,6k Z. errors-*.md on-demand
-- 60ee1c84 docs(setup): Achse 1 — Verschlankungs-Audit, Befund: Kern bereits schlank
-- ced8b2c7 docs(setup): Achse 2 — EIN Workflow + Karpathy-CLAUDE.md, Zahlen-Drift raus
-- f1a228d0 chore(worklog): Achse 4 — beta-Phase Audit-Subdirs >30d archiviert
-- 4cda65de docs(plan): Karpathy-Minimalismus als Leitstern im Setup-Upgrade verankert
-- 21ff6b7f chore(memory): 27 verwaiste journey-Audits archiviert (Hygiene Achse 4)
+## Session Commits: 4
+- a5c27519 feat(treasury): Slice 332 — Club-Bounties ans Treasury (Reward-Escrow bei Erstellung)
+- 13404dc1 docs(decision): D86 — Polls = Vereins-Geldmaschine (REIN) + Discovery + soziale Schicht
+- e912431a feat(treasury): Slice 331 — Events ans Treasury (Prize-Escrow statt Minting)
+- 785e88b7 feat(treasury): Slice 330b — Saldo Debit-Reconcile + Kontoauszug
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-17 Abend — Treasury-Fundament DONE)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (2026-06-17 Abend — Treasury RAUS-Kanäle DONE)
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Working tree: nur self-renewing Audit-Churn (`worklog/audits/*-2026-06-XX.md` → NICHT committen). `worklog/active.md` = idle.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. `worklog/active.md` = idle (332 DONE).
 
-## ⚡ NÄCHSTER SLICE = 330 — CSF-Engine ans Treasury (Money/CEO, eigene sorgfältige Spec)
+## ⚡ NÄCHSTES GROSSES STÜCK = Anil wählt (Empfehlung: Polls)
 
-D83 Bau-Sequenz Schritt 2. Erste **RAUS/debit-Buchung** gegen das neue Treasury (Slice 329 ist die REIN-Seite).
-- **Scope:** `liquidate_player` zahlt CSF aus dem Club-Treasury (debit via `book_club_treasury(...,'debit','csf',...)`) statt on-the-fly. + **Cap-Semantik final** (pro-Card cents vs. Transfer-EUR-Referenz — D83 Re-Visit-Trigger, in Spec klären) + **`csf_multiplier` RAUS** (rein proportional, D83). Was-wäre-wenn-Rechner (`calculate_success_fee`) optional.
-- **Fundament steht:** `book_club_treasury()` unterstützt `debit` (Schema + Helper SUM-based, robust gegen N-Debits-1-TX → Airdrops/CSF-Massenauszahlung). Ledger-Typen `csf`/`fan_reward`/etc. im CHECK vorgehalten.
-- **Pflicht:** `/ship new` → SPEC mit Live-RPC-Body-Verify (`liquidate_player` pg_get_functiondef = Baseline, Slice-156) → IMPACT → BUILD selbst (Money) → REVIEW (Cold-Context, Grants 1:1!) → PROVE (BEGIN/ROLLBACK-Smokes) → LOG.
-- Danach D83-Sequenz: #3 RAUS-Kanäle (Events/Polls/Bounties aus Treasury) → #4 Fan-Reward-Engine. Optional **329b-UI** (`AdminTreasuryTab` Ledger-Anzeige; Club-Fee NICHT als „burn").
+Treasury **RAUS-Kanäle sind komplett** (329 Fundament → 330 CSF → 330b Saldo/Kontoauszug → 331 Events → 332 Club-Bounties, alle live + force-rollback-verifiziert). Drei Optionen:
 
-## ✅ Diese Session (2026-06-17) — 2 große Blöcke
+1. **POLLS (EMPFOHLEN — REIN-Geldmaschine, größtes B2B-Stück, D86).** Fan zahlt → **Verein verdient → Treasury**. **Befund: `community_polls` hat KEINE Erstellung** (kein Service/RPC/UI — „Hülle ohne Tür"; nur lesen/abstimmen/abbrechen existiert). Volles Modell + Roadmap **P1-P4: `worklog/concepts/polls-engagement-monetization-model.md`**. P1 = Erstellung + Identität/Quelle (Verein offiziell→Treasury via NEUEM Credit-Typ `poll_revenue` / User→Wallet, Follower-Tor) · P2 = Spieler-Bezug + Discovery (Filter Verein/Spieler) · P3 = soziale Schicht · P4 = „User auszahlen"-Idee (offen).
+2. **Fan-Reward-Engine** (Verein belohnt treue Fans; `csf-club-treasury-model.md` §9; `fan_rankings.csf_multiplier` dormant bereit).
+3. **Andere Event-Quellen** (bescout/sponsor/user-Events minten noch; brauchen Plattform-Topf/Sponsor-Deposit/User-Wallet).
 
-1. **Setup-Elite-Upgrade (D84)** — 5 Achsen: CLAUDE.md Karpathy-Prinzipien-first (164→103 Z.), EIN Workflow (workflow-reference gemerged), SHIP-Loop 5→6-Stufen-Fix, Register=SSOT-Pointer (Drift-Klasse tot), Autoload ~4,5k→~1,2k Z. (errors-*.md paths-scoped), Modell-Routing §8.
-2. **Slice 329 Treasury-Fundament (DONE, prod-live)** — `club_treasury_ledger` append-only + `book_club_treasury` (SUM-based) + trades-Trigger (Income ohne RPC-Edit) + Abo-Bug-Fix + `get_club_balance` Ledger-Read. Commit `4b005e20`. Reviewer fing 1 BLOCKER (cron-Grant-Revert) → gefixt.
-3. **Reviewer-„Verdict-first" (D85)** — `.claude/agents/reviewer.md` + `/ship review`: sichtbare Antwort startet mit Verdict + Findings (gegen Truncation, 2× in 329). Supabase-Branch-Dry-Run = verworfen (Anil).
+**Pflicht-Ablauf (Money/CEO):** erst **Bild aufbauen** (Teaching-Mode, Analogien, KEINE Spec ohne Anil-Verständnis) → bei RPC-Berührung **D87: Live-`pg_get_functiondef` ZUERST** → SPEC → IMPACT → BUILD selbst → REVIEW (Cold-Context) → PROVE (force-rollback) → LOG.
+
+## ✅ Diese Session (2026-06-17 Abend) — Treasury-Serie + Polls-Modell
+- **329-332** (5 Slices): Treasury-Fundament + CSF + Saldo-Reconcile/Kontoauszug + Events ans Treasury + Club-Bounties ans Treasury. Alle trigger-zentrisch (Escrow-bei-Erstellung-Muster), nur Club-Quelle, fail-safe Guard. Details: `worklog/log.md`.
+- **D86** Polls-Modell (REIN-Geldmaschine) komplett konzipiert + Konzept-Doc + korrigierte die falsche „RAUS"-Annahme im CSF-Doc.
+- **D87** Live-functiondef-vor-Spec (2× falsche Prämisse aus alten Files vermieden ab jetzt).
+- **Teaching-Mode verschärft** (feedback_teaching_mode.md): erst Konzept einfach aufbauen, dann Optionen — Anil soll bewusst entscheiden, nie raten.
+- **3 latente CHECK-Drift-Bugs** gefunden (transactions.type/liquidation [gefixt 330] · events.status/'cancelled' [geflaggt, UI-Cancel broken] · bounties.status/'completed' [gefixt 332]). Pattern in errors-db.md.
 
 ## 🧠 WICHTIG fürs nächste Mal
-- **Money-Migration-Muster (aus 329, bewährt):** Live-RPC-Bodies verifizieren VOR Spec (IMPACT senkt Blast-Radius drastisch) · D39-Trigger statt N RPC-Edits wo möglich · Grants 1:1 zur Live-Wahrheit halten (cron-only-RPCs NICHT an authenticated granten!) · Backfill verifizieren VOR Read-Switch · BEGIN/ROLLBACK für alle Prod-Smokes · `SUM(bigint)::bigint`-Cast.
-- **Bank-Ledger:** `balance_after` = SUM(ledger) unter Row-Lock, NIE „letzte Zeile" via created_at/id (`errors-db.md`).
-- Money-Konzept-SSOT: **D83** + `worklog/concepts/csf-club-treasury-model.md`. NIE neu erarbeiten.
+- **Money-Slice-Muster (bewährt 329-332):** Live-functiondef = Baseline VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag — letzteres Pflicht wenn Betrag editierbar, 331-Finding-#1) · Guard = `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · Grandfathering via `*_escrowed`-Flag · `pg_get_constraintdef` gegen Status/Type-Literale (CHECK-Drift) · force-rollback-Smokes (DO + RAISE).
+- Money-/Polls-Konzept-SSOTs: **D83** (`csf-club-treasury-model.md`) + **D86** (`polls-engagement-monetization-model.md`). NIE neu erarbeiten.
 
-## ⚠️ STOLPERFALLEN
-1. **API-Football-Key gesperrt** — blockiert players.club (S7 Paar A) + 154 Geister + Live-Scores. Anil muss Key freischalten. (CSF/Treasury brauchen ihn NICHT.)
-2. **Audit-Churn** (`worklog/audits/*-2026-06-XX.md`) — self-renewing Cron-Output, NIE committen.
-3. **Playwright-QA:** jarvis-qa@bescout.net / `JarvisQA2026!` / BASE_URL `https://www.bescout.net`. Bei Liga/Club-Verify SW-Cache leeren.
-4. **Offene Mini-Hygiene (unkritisch):** log.md 316–325 unter 315 (Sortier-Drift); D81 fehlt in decisions.md (springt D80→D82).
+## ⚠️ STOLPERFALLEN / BACKLOG
+1. **API-Football-Key gesperrt** — blockiert players.club + Live-Scores (Treasury/Polls brauchen ihn NICHT).
+2. **events.status CHECK kennt kein 'cancelled'** → UI-„Absagen" broken → eigener Slice (Cancel + CHECK + Event-Prize-Refund-Zweig).
+3. **bounty reward_cents-Max-Drift** (CHECK 100k vs RPC-Text 1M $SCOUT) + **`auto_close_expired_bounties` ohne getrackte Migration** (AR-43) → Backlog.
+4. **TR-i18n Anil-Review-pflichtig:** successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin (diese Session geschrieben, ungeprüft).
+5. **Audit-Churn** (`worklog/audits/*`) — NIE committen. **session-handoff.md** = dieses File (committen OK).
