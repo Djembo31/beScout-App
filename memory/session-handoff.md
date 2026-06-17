@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-17 19:52)
+# Session Handoff — Auto (2026-06-17 20:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,13 +9,14 @@
 ?? worklog/audits/knowledge-2026-06-17.md
 ```
 
-## Session Commits: 6
+## Session Commits: 7
+- aa3bcbdd docs(knowledge): E0-W2b — Wissens-Basis migriert (18 Gold-Files → docs/knowledge/, 3-Schichten-Kanon)
+- 3e9dd504 docs(session-end): DISTILL D89 (Option B Wissens-Heimat) + Handoff E0-W2b
 - dd16715d feat(knowledge): E0-W2gov — Wissens-Governance verdrahtet (D88 + audit:knowledge)
 - 4154ca5a docs(knowledge): E0-W2a — Wissens-Index (INDEX-first) + Skelett + Auto-Inject
 - 1e66f4f7 docs(plan): E0 Operating-System + Wissens-Basis — Epic-Plan (Wellen 2-4)
 - 72f394b4 docs(cockpit): E0 Welle 1 — MASTERPLAN + prio-TODO auto-gezeigt bei Session-Start
 - 7ee54574 docs(session-end): DISTILL D87 (Live-functiondef vor Spec) + Handoff + active cleanup
-- a5c27519 feat(treasury): Slice 332 — Club-Bounties ans Treasury (Reward-Escrow bei Erstellung)
 
 <!-- auto:handoff-end -->
 
@@ -45,13 +46,13 @@ E0 Welle 2 **Kern steht**: W2a (Wissens-Index `docs/knowledge/INDEX.md`) + W2gov
 - **Cockpit (W1)** war schon vor dieser Session da (`72f394b4`) — Anil hatte gefragt warum die Begrüßung „anders" sei; Antwort: funktioniert, ist eingebettet ins SHIP-Briefing.
 
 ## 💡 Money-Arbeit (pausiert während E0) — SSOTs nicht neu erarbeiten
-- Treasury RAUS-Kanäle komplett (329-332). **Nächstes großes Money-Stück nach E0 = Polls (REIN-Geldmaschine, D86)** — `community_polls` hat KEINE Erstellung („Hülle ohne Tür"). Modell+Roadmap P1-P4: `worklog/concepts/polls-engagement-monetization-model.md`.
+- Treasury RAUS-Kanäle komplett (329-332). **Nächstes großes Money-Stück nach E0 = Polls (REIN-Geldmaschine, D86)** — `community_polls` hat KEINE Erstellung („Hülle ohne Tür"). Modell+Roadmap P1-P4: `docs/knowledge/domain/polls.md`.
 - Money-Slice-Muster (bewährt 329-332): Live-functiondef VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag) · Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · `pg_get_constraintdef` gegen CHECK-Drift · force-rollback-Smokes.
-- SSOTs: **D83** (`csf-club-treasury-model.md`) + **D86** (Polls). NIE neu erarbeiten.
+- SSOTs: **D83** (`docs/knowledge/domain/treasury.md`) + **D86** (Polls). NIE neu erarbeiten.
 
 ## 🧠 WICHTIG fürs nächste Mal
 - **Money-Slice-Muster (bewährt 329-332):** Live-functiondef = Baseline VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag — letzteres Pflicht wenn Betrag editierbar, 331-Finding-#1) · Guard = `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · Grandfathering via `*_escrowed`-Flag · `pg_get_constraintdef` gegen Status/Type-Literale (CHECK-Drift) · force-rollback-Smokes (DO + RAISE).
-- Money-/Polls-Konzept-SSOTs: **D83** (`csf-club-treasury-model.md`) + **D86** (`polls-engagement-monetization-model.md`). NIE neu erarbeiten.
+- Money-/Polls-Konzept-SSOTs: **D83** (`docs/knowledge/domain/treasury.md`) + **D86** (`docs/knowledge/domain/polls.md`). NIE neu erarbeiten.
 
 ## ⚠️ STOLPERFALLEN / BACKLOG
 1. **API-Football-Key gesperrt** — blockiert players.club + Live-Scores (Treasury/Polls brauchen ihn NICHT).

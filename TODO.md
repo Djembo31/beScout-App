@@ -8,7 +8,7 @@
 - **E0 Welle 2 — Wissens-Basis (Option B, läuft):** ✅ W2a Wissens-Index (`docs/knowledge/INDEX.md`, 37 consult_when, Auto-Inject, Pflege-Regel). **⬜ W2b = Nächstes:** 13 Gold-Files physisch migrieren + auf Juni-Stand + ⚠️-Dup-Entscheidungen mit Anil (Treasury-Kanon/Polls-Dedup/D28-39/D62-65-67/patterns.md/Compliance). Dann ⬜ W2c (~90 Files archivieren, `cortex-index.md` ablösen).
 
 ## 🟡 P1 — als Nächstes
-- **Polls P1** (E1) — Erstellung + Identität/Quelle (Verein→Treasury via `poll_revenue` / User→Wallet, Follower-Tor). Konzept: `polls-engagement-monetization-model.md` §8 P1.
+- **Polls P1** (E1) — Erstellung + Identität/Quelle (Verein→Treasury via `poll_revenue` / User→Wallet, Follower-Tor). Konzept: `docs/knowledge/domain/polls.md` §8 P1.
 - **E0 Welle 3-4** — Hygiene (Screenshots gitignoren) + Historie abspecken (mit Backup).
 - **Pre-existing Fix:** `events.status` CHECK kennt kein 'cancelled' → UI-„Absagen" broken (Cancel + CHECK + Event-Prize-Refund-Zweig bündeln).
 

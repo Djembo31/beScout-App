@@ -253,6 +253,16 @@ error: failed to push some refs to '...'
   ```
 - Regel: Full-recursive-Grep, cross-Ref mit zweit-Pattern (Mutation-State). Reviewer-Agent als Scope-Gap-Catcher.
 
+### Removal/Migration-Slice: Broken-Ref-Grep MUSS Live-Doku-Schicht abdecken (E0-W2c, 2026-06-17)
+
+**Bug-Klasse:** Ein Slice löscht/verschiebt Files (Stubs, migrierte Konzepte) und greppt nur `src/ scripts/ .claude/hooks .claude/skills` nach toten Referenzen — übersieht die **always-loaded Doku-/Status-Schicht** (`MASTERPLAN.md`, `TODO.md`, `memory/session-handoff.md`, `memory/MEMORY.md`, `memory/decisions.md`). Dort leben „read this"-Pointer (oft Money-SSOT, „NIE neu erarbeiten"). Nach Removal zeigen sie ins Leere → nächste Session folgt dem Pointer → 404 → Failure-Mode = Modell neu herleiten (silent, teurer als Code-Bruch).
+
+**Symptom:** Proof meldet „keine lebenden broken refs" (Grep-Scope zu eng), aber eine always-loaded Navigation zeigt auf einen gelöschten Pfad. E0-W2c: MASTERPLAN/TODO/handoff zeigten nach Stub-Removal noch auf `worklog/concepts/{csf,polls}` (Cold-Context-Reviewer fing's).
+
+**Regel:** Bei jedem Stub-/File-Removal- oder Migrations-Slice den Broken-Ref-Grep **repo-weit über die Live-Doku** laufen (mind. `MASTERPLAN.md TODO.md memory/MEMORY.md memory/session-handoff.md memory/decisions.md` + `.claude/`), NICHT nur Code/Hooks. Frozen Records (`worklog/specs|proofs|reviews`, `_archive`) ausschließen. „Read this"-Pointer = genauso ein Broken-Ref wie ein `source x.sh`. Prinzip „repoint-before-remove".
+
+**Beziehung:** D37 (Re-Audit-Grep vor Deletion) — erweitert den Scope um die Doku-Schicht.
+
 ### Data Contract Changes (NICHT als UI-Change behandeln)
 - required → optional (Field, Prop, DB Column) = Contract Change → alle Consumer greppen.
 - optional → required = Breaking → Migration + Backfill noetig.

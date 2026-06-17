@@ -4,7 +4,7 @@
 > Jede Zeile: `[Titel](pfad) — consult_when: <Auslöser>`. Bei Task-Start die passenden `consult_when` matchen → File laden.
 > 4 Buckets: **domain** (wie funktioniert X) · **decisions** (warum) · **lessons** (Bug-Klassen/Anti-Patterns) · **research** (extern).
 > **Pflege (workflow.md/DISTILL):** jedes neue durable Wissen → Zeile hier + `consult_when`. Kein verlorenes Wissen mehr.
-> **Status (E0 Welle 2b):** Gold-Files migriert nach `docs/knowledge/<bucket>/`. Routing-SSOT (löst `memory/cortex-index.md` ab — physische Retirement = W2c). v2 — 2026-06-17.
+> **Status (E0 Welle 2c):** Gold-Files migriert + Routing-SSOT. `memory/cortex-index.md` abgelöst (→ `_archive`, alle Consumer hier repointet). ephemere memory-Files archiviert. v3 — 2026-06-17.
 
 ---
 

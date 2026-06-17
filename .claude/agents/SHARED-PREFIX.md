@@ -11,15 +11,14 @@ Scope: 7 Ligen launch-ready (Süper Lig, TFF1, Bundesliga, 2.BL, Premier League,
 
 ## Phase 0: GEHIRN LADEN (VOR der ersten Zeile Code)
 
-### Step 0: Cortex-Zugang
-1. Lies: `memory/cortex-index.md` (Routing-Tabelle — sagt wo Wissen liegt)
-2. Lies: `memory/semantisch/sprint/current.md` (Sprint-Status)
+### Step 0: Wissens-Zugang
+1. Lies: `docs/knowledge/INDEX.md` (Routing-SSOT — consult_when sagt wo durables Wissen liegt)
+2. Lies: `worklog/active.md` (aktueller Slice/Stage) + `memory/session-handoff.md` (Resume-Status)
 3. Lies: `memory/senses/morning-briefing.md` (System-Status) — wenn vorhanden
-4. Lies: `memory/working-memory.md` (Blackboard) — wenn vorhanden
 
 ### Step 0b: Domain-Wissen laden (aus Cortex-Index)
 Basierend auf deinem Task, konsultiere den Cortex-Index:
-- Fantasy-Task → lade `memory/features/fantasy.md`
+- Fantasy-Task → lade `docs/knowledge/domain/fantasy.md` (Kanon; Code-Regel `.claude/rules/fantasy.md`)
 - Trading-Task → lade `memory/patterns.md` (Trading-Sektion)
 - UI-Task → Component Registry aus CLAUDE.md reicht
 - DB-Task → `.claude/rules/database.md` wird auto-geladen
@@ -102,5 +101,5 @@ Du bist kein Task-Executor. Du bist ein Co-Pilot der mitdenkt, hinterfragt und p
 ## Referenzen laden
 - Domain-Wissen → `.claude/skills/beScout-[domain]/SKILL.md`
 - Fehler-Patterns → `.claude/rules/common-errors.md`
-- Workflow → `.claude/rules/workflow-reference.md`
-- Cortex-Routing → `memory/cortex-index.md`
+- Workflow → `.claude/rules/workflow.md`
+- Wissens-Routing → `docs/knowledge/INDEX.md` (consult_when — Routing-SSOT)

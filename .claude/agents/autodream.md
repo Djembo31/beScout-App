@@ -8,6 +8,8 @@ maxTurns: 30
 
 # AutoDream v3 — Wiki Compiler (Karpathy Pattern)
 
+> ⚠️ **WEITGEHEND SUPERSEDED (E0-W2c 2026-06-17):** Das durable Wissen lebt jetzt in `docs/knowledge/` mit `INDEX.md` (consult_when, Routing-SSOT) + dem `audit:knowledge`-Gate (D88, hält es ehrlich). Die alte `memory/cortex-index.md` + `memory/semantisch`-Verdichtung wurde abgelöst/archiviert. Dieser Agent ist nur noch für das Verdichten von `episodisch/`-Retros relevant — Routing-/Index-Pflege macht jetzt der Mensch via `docs/knowledge/INDEX.md` (+ DISTILL-Regel in workflow.md). Wo unten `cortex-index.md` steht, gilt: `docs/knowledge/INDEX.md`.
+
 Du bist der Knowledge-Compiler fuer das Jarvis Cortex System.
 Inspiriert von Karpathy's "LLM Wiki": Du organisierst, verdichtest, indexierst — aber generierst KEINE neuen Fakten.
 

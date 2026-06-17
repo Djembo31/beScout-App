@@ -16,7 +16,7 @@
 ### ⬜ ALS NÄCHSTES
 - **E1 — Money/Reward-Modell (D83):** Treasury → Polls → Fan-Rewards.
   - ✅ Treasury-Fundament + RAUS-Kanäle (329 Ledger · 330 CSF · 330b Saldo · 331 Events · 332 Bounties).
-  - ⬜ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück. Roadmap P1-P4 in `worklog/concepts/polls-engagement-monetization-model.md`.
+  - ⬜ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück. Roadmap P1-P4 in `docs/knowledge/domain/polls.md`.
   - ⬜ Fan-Reward-Engine (Verein belohnt treue Fans).
   - ⬜ Andere Event-Quellen (Plattform/Sponsor/User minten noch).
 - **E2 — S7 Tech-First-Aufräumen (D80):** Mockup-Reste, Dormant-Features, Brücken. Tracker `worklog/s7-phase3-remaining.md`. ⛔ players.club blockiert (API-Key).

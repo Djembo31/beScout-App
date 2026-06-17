@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## E0-W2c | 2026-06-17 | docs(knowledge): Wissens-Welle abgeschlossen — cortex abgelöst, 18 Stubs weg, ~95 ephemere Files archiviert
+- Stage-Chain: SPEC (`worklog/specs/E0-W2c-knowledge-cleanup.md`, L, Doc+Hygiene) → IMPACT skipped (Hygiene, Consumer-Repointing in Spec §2) → BUILD → REVIEW (`worklog/reviews/E0-W2c-review.md`, Cold-Context **CONCERNS→geheilt**) → PROVE (`worklog/proofs/E0-W2c-proof.txt`) → LOG.
+- Trigger: Anil „w2c". Abschluss von E0 Welle 2 (Wissens-Basis).
+- Bau: **cortex-index → `_archive`** (4 Consumer — inject-context-on-compact.sh, morning-briefing.sh, SHARED-PREFIX.md, autodream.md — auf `docs/knowledge/INDEX.md` + `worklog/active.md` repointet; inject/morning lesen jetzt Live-active.md statt totes sprint/current.md). **18 Migrations-Stubs entfernt** (Kanon in docs/knowledge + git-Historie). **71 ephemere Files git-mv → `memory/_archive/2026-06-17-w2c/`** (42 journals, 10 projekt-Phase-Snapshots, 7 features, sprint/current, personen/anil). **5 leere Junk-Dirs** gelöscht. **`memory/learnings/` KORREKT behalten** (aktiver Mechanismus: 9 Agents schreiben drafts).
+- REVIEW-HEAL: Cold-Context-Reviewer fing (a) **learnings-Fehlklassifikation** (broken-ref-grep → revertet vor Commit) und (b) **MEDIUM:** always-loaded Nav-Files (MASTERPLAN/TODO/session-handoff) zeigten mit Money-SSOT-Pointern (D86 „NIE neu erarbeiten") noch auf gelöschte `worklog/concepts/`-Pfade → auf `docs/knowledge/domain/{polls,treasury}.md` umgebogen.
+- Knowledge: `errors-infra.md` — **Removal/Migration-Slice: Broken-Ref-Grep MUSS Live-Doku-Schicht** (MASTERPLAN/TODO/handoff/MEMORY/decisions) abdecken, nicht nur Code/Hooks (erweitert D37).
+- Verify: audit:knowledge 0 HARD/0 SOFT · 0 lebende broken refs · learnings intakt (6 Templates + drafts/) · 6 aktive Files (sessions.jsonl/sessions/senses/handoff/queues) nicht verschoben.
+- Scope-Out (bewusst → W3): 38 root `beta-*/phase3-*/audit_*`-Files + MEMORY.md-Trim (berührt geladenen Index, eigener Pass). `patterns.md`/`errors.md`-Dup (W2b-Klärpunkt #5). autodream-Redesign (nur gebannert).
+
 ## E0-W2b | 2026-06-17 | docs(knowledge): Wissens-Basis migriert — 13+2 Gold-Files → docs/knowledge/ (3-Schichten-Kanon)
 - Stage-Chain: SPEC (`worklog/specs/E0-W2b-knowledge-migration.md`, L, Doc+Decision) → IMPACT skipped (reine Doku-Migration, keine Code/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/E0-W2b-review.md`, Cold-Context **PASS**, 3 NIT) → PROVE (`worklog/proofs/E0-W2b-proof.txt`) → LOG.
 - Trigger: E0 Welle 2b. Anil-Entscheidung (AskUserQuestion): **3-Schichten-Kanon** (docs/knowledge/domain=WIE · memory/decisions.md=WARUM+Link · .claude/rules=schlanke Regel+Zeiger) + **alle 13 in einem Rutsch**.

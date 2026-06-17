@@ -2,22 +2,23 @@
 
 ```
 status: idle
-slice: E0-W2b
-title: ✅ DONE — Wissens-Basis migriert (18 Gold-Files → docs/knowledge/, 3-Schichten-Kanon)
+slice: E0-W2c
+title: ✅ DONE — Wissens-Welle abgeschlossen (cortex abgelöst, 18 Stubs weg, ~95 ephemere Files archiviert)
 stage: LOG complete
 size: L
-type: Doc + Decision
-spec: worklog/specs/E0-W2b-knowledge-migration.md
-review: worklog/reviews/E0-W2b-review.md (PASS, 3 NIT; #1 gefixt, #2/#3 → W2c/optional)
-proof: worklog/proofs/E0-W2b-proof.txt
+type: Doc + Hygiene
+spec: worklog/specs/E0-W2c-knowledge-cleanup.md
+review: worklog/reviews/E0-W2c-review.md (CONCERNS→geheilt; Finding #1 Money-SSOT-Nav-Pointer gefixt, #2 Lehre → errors-infra.md)
+proof: worklog/proofs/E0-W2c-proof.txt
 parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 2)
-done_E0W2b: 18 Content-Files in docs/knowledge/{domain12,decisions1,lessons4,research1}, 6-Feld-Frontmatter, INDEX Routing-SSOT (alle Pfade umgebogen), 18 Alt-Originale → Redirect-Stubs, Live-Pointer (trading.md + decisions.md D83/D84/D86) auf Kanon, cortex-index SUPERSEDED-Banner. Money-Kanon (treasury/polls) selbst gemacht (§3), Reviewer-bestätigt 1:1. Decisions-Merge D28→D39 + D62/65/67. audit:knowledge 0 HARD/0 SOFT.
-next: E0-W2c (≈90 ephemere memory-Files → _archive, Stubs entfernen, cortex-index physisch ablösen) → W3 Hygiene (Screenshots gitignoren) → W4 Historie. LOW: Orphan-Pfad-Casing-Härtung (scripts/audit-knowledge.ts).
+done_E0W2c: cortex-index → _archive (4 Consumer auf docs/knowledge/INDEX.md + worklog/active.md repointet) · 18 Migrations-Stubs entfernt · 71 ephemere Files git-mv → memory/_archive/2026-06-17-w2c (42 journals, 10 projekt-Phasen, 7 features, sprint, personen) · 5 leere Junk-Dirs gelöscht · learnings/ KORREKT behalten (aktiver Mechanismus, Reviewer-Catch via broken-ref-grep) · inject-compact/morning-briefing lesen jetzt active.md statt totes sprint/current.md. audit:knowledge 0 HARD/0 SOFT, 0 lebende broken refs.
+next: E0-W3 Hygiene (Screenshots gitignoren) + ENTHÄLT root-Vault-Hygiene (38 stale beta-/phase3-/audit-Files → _archive + MEMORY.md-Trim, von W2c bewusst hierher verschoben). Dann W4 Historie. Danach Polls (E1).
 ```
 
-## Kanon-Modell (Anil 2026-06-17, gilt fort)
-docs/knowledge/domain = WIE (Kanon-Inhalt, alle Zahlen) · memory/decisions.md = WARUM (+Link) · .claude/rules = schlanke Code-Regel + Zeiger. Jede neue/migrierte docs/knowledge-Datei: 6 Frontmatter-Felder + INDEX-Zeile mit consult_when, sonst Pre-Commit-Block (audit:knowledge:check).
+## Wissens-Heimat — Endstand E0 Welle 2 (W2a+W2gov+W2b+W2c)
+- **Kanon:** `docs/knowledge/{domain,decisions,lessons,research}/` (18 Files) · **Routing-SSOT:** `docs/knowledge/INDEX.md` (consult_when, auto-injiziert) · **Gate:** `audit:knowledge` (pre-commit HARD / nightly SOFT, D88).
+- **3-Schichten:** domain=WIE (Kanon) · decisions.md=WARUM+Link · .claude/rules=schlanke Regel+Zeiger.
+- `memory/cortex-index.md` abgelöst (→ _archive). `memory/semantisch|deps|features` weitgehend geleert (Kanon migriert, Rest archiviert). `memory/learnings/` bleibt aktiv.
 
 ## Money-SSOTs (NIE neu erarbeiten)
-- **Treasury/CSF (D83):** `docs/knowledge/domain/treasury.md` (Kanon, RAUS-Kanäle 329-332 DONE). Nächstes Money-Stück = **Polls (REIN, D86):** `docs/knowledge/domain/polls.md` — `community_polls` hat KEINE Erstellung (Hülle ohne Tür), Roadmap P1-P4.
-- Money-Slice-Muster (329-332): Live-functiondef VOR Spec (D87) · trigger-zentrisch · Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · force-rollback-Smokes.
+- Treasury/CSF (D83): `docs/knowledge/domain/treasury.md` (RAUS-Kanäle 329-332 DONE). Polls (D86, REIN, nächstes Money-Stück): `docs/knowledge/domain/polls.md` — community_polls hat KEINE Erstellung.

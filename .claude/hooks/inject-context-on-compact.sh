@@ -14,10 +14,10 @@ NOW=$(date +"%Y-%m-%d %H:%M")
   echo "# Working Memory (pre-compaction $NOW)"
   echo ""
 
-  # Sprint status
-  echo "## Sprint"
-  if [ -f "memory/semantisch/sprint/current.md" ]; then
-    head -20 "memory/semantisch/sprint/current.md"
+  # Aktueller Slice (live status)
+  echo "## Aktueller Slice"
+  if [ -f "worklog/active.md" ]; then
+    head -20 "worklog/active.md"
   fi
   echo ""
 
@@ -49,9 +49,9 @@ NOW=$(date +"%Y-%m-%d %H:%M")
 # Output to stdout for Claude's context window
 echo "=== COMPACTION SHIELD ==="
 echo ""
-echo "## Sprint"
-if [ -f "memory/semantisch/sprint/current.md" ]; then
-  head -15 "memory/semantisch/sprint/current.md"
+echo "## Aktueller Slice"
+if [ -f "worklog/active.md" ]; then
+  head -15 "worklog/active.md"
 fi
 echo ""
 echo "## Session Handoff"
@@ -64,5 +64,5 @@ if [ -f "$SESSION_FILES" ]; then
   sort -u "$SESSION_FILES"
 fi
 echo ""
-echo "## Cortex Routing: memory/cortex-index.md"
+echo "## Wissens-Routing: docs/knowledge/INDEX.md (consult_when — Routing-SSOT)"
 echo "=== END COMPACTION SHIELD ==="

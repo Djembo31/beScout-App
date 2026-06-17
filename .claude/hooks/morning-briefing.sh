@@ -88,12 +88,12 @@ mkdir -p memory/senses
   echo "- Migrations: $MIGRATION_COUNT, letzte: ${LATEST_MIGRATION:-unbekannt}"
   echo ""
 
-  # Sprint
-  echo "## Sprint"
-  if [ -f "memory/semantisch/sprint/current.md" ]; then
-    grep -A 3 "## Naechste" "memory/semantisch/sprint/current.md" 2>/dev/null | head -5
+  # Aktueller Slice (live status)
+  echo "## Aktueller Slice"
+  if [ -f "worklog/active.md" ]; then
+    grep -E "^(slice|title|stage|next):" "worklog/active.md" 2>/dev/null | head -6
   else
-    echo "- current.md nicht gefunden"
+    echo "- active.md nicht gefunden"
   fi
   echo ""
 

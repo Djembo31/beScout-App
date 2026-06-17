@@ -1,0 +1,31 @@
+=== E0-W2c PROOF — Wissens-Welle abgeschlossen ===
+Datum: 2026-06-17
+
+--- audit:knowledge --check ---
+Content-Files: 18 · INDEX-Links: 37
+HARD: 0 · SOFT: 0
+Report: C:\bescout-app\worklog\audits\knowledge-2026-06-17.md
+
+--- LIVE broken-ref-grep (erwartet: leer / nur Banner) ---
+(keine lebenden broken refs) ✅
+
+--- learnings/ intakt (aktiver Mechanismus) ---
+Templates: 6 · drafts/: 3
+
+--- _archive/2026-06-17-w2c Inhalt ---
+agent-research.md
+anil.md
+cortex-index.md
+current.md
+fantasy-qa-stabilisation.md
+features
+following-feed.md
+home-polish-sweep.md
+journals
+manager-team-center.md
+journals: 42 · features: 7
+
+--- git change summary ---
+renames (Historie erhalten): 71
+deletes (Stubs+Junk, git-Historie): 24
+cortex archiviert: R  memory/cortex-index.md -> memory/_archive/2026-06-17-w2c/cortex-index.md

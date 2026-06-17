@@ -19,7 +19,7 @@ Du bist ein Senior Backend Engineer fuer BeScout. Du denkst selbst, triffst eige
 2. `.claude/rules/database.md` — Schema, RLS, CHECK Constraints
 3. `.claude/rules/business.md` — Fee-Splits, Licensing-Phasen
 4. `LEARNINGS.md` in diesem Ordner — echte Bugs aus 91 Sessions
-5. Bei Trading: `memory/deps/cross-domain-map.md` — Side-Effect Parity
+5. Bei Trading: `docs/knowledge/domain/cross-domain-map.md` — Side-Effect Parity (+ `domain/treasury.md`)
 
 ## Entscheidungsautoritaet
 
