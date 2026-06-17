@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## E0-W2gov | 2026-06-17 | feat(knowledge): Wissens-Governance verdrahtet — D88 + audit:knowledge + SHIP-Kopplung
+- Stage-Chain: SPEC (`worklog/specs/E0-W2gov-knowledge-governance.md`, M, Tool+Hook+Doc+Decision) → IMPACT skipped (additiv, Wiring-Consumer in Spec) → BUILD → REVIEW (`worklog/reviews/E0-W2gov-review.md`, Cold-Context **REWORK→geheilt→PASS**) → PROVE (`worklog/proofs/E0-W2gov-proof.txt`) → LOG.
+- Trigger: Anil auf die 5 Wissens-Fragen (Korrektheit/Aktualität/neues Wissen/Korrektur/Erweiterung) — „nicht nur planen, alle komplett verdrahten mit Verstand". Lücke nach W2a: Landkarte ja, Lebenszyklus-Enforcement nein (= woran memory/semantisch starb).
+- Bau: **D88** (PROCESS — Lebenszyklus: Verifikations-Anker `verified-against`, Detektor+SHIP-Kopplung, Korrektur-Regeln pro Bucket: decisions=append-only/supersede, domain/lessons/research=überschreiben-mit-Spur) · **`scripts/audit-knowledge.ts`** (intelligenter Detektor: HARD broken-link/orphan/no-frontmatter blockt Pre-Commit, SOFT updated>6Mo/verified-against-git-Drift→nightly; markdown-bewusst: Inline-Code + Fenced-Block-Skip) · verkabelt package.json (2 Scripts) + `.husky/pre-commit` Step 7 + `nightly-audit.yml` (Step+Aggregate+tools-Array) · `verified-against`-Konvention + Korrektur-Regeln in `docs/knowledge/README.md` · SHIP-Kopplung workflow.md (LOG-Bullet + §3a DoD-Zeile, 4 docs/knowledge-Anker).
+- Verify (mit Verstand): clean exit 0 · **deliberate-break-Test: 3 HARD-Klassen gefangen** (broken-link+orphan+no-frontmatter) → revert exit 0 · 8/8 ACs grün · False-Positive (Format-Beispiel in Inline-Code) live geheilt → Detektor markdown-bewusst.
+- REVIEW-HEAL: Cold-Context-Reviewer fing **CRITICAL** — `audit:knowledge:check` nur in `.husky/` (das wiring-check nicht scannt) + kein KNOWN_ORPHANS-Eintrag → nächster Pre-Commit Step-4-`audit:wiring:check` hätte jeden Commit blockiert (D54-Selbstverletzung). Gefixt (KNOWN_ORPHANS-Eintrag), frisch verifiziert 0 real-drift. Proof um Wiring-Output ergänzt (Finding #2).
+- Knowledge: `errors-infra.md` — neue `audit:*:check`-Scripts nur in `.husky/` → KNOWN_ORPHANS-Pflicht (wiederkehrend: boundary/test-confidence/cron-health/knowledge) + Wiring-Report-im-Proof-muss-frisch-sein (verwandt D48).
+- Offen: LOW Orphan-Pfad-Casing-Härtung → W2b-Vormerkung.
+
 ## E0-W2a | 2026-06-17 | docs(knowledge): Wissens-Index (INDEX-first) + Skelett + Auto-Inject
 - Stage-Chain: SPEC (`worklog/specs/E0-W2a-knowledge-index.md`, S, Doc+Hook) → IMPACT skipped (additiv, keine Consumer) → BUILD → REVIEW (`worklog/reviews/E0-W2a-review.md`, self-review **PASS**, 3 INFO/LOW) → PROVE (`worklog/proofs/E0-W2a-proof.txt`) → LOG.
 - Trigger: Epic E0 Welle 2. Anil-Entscheidung 2026-06-17: **Option B** (frisches `docs/knowledge/`, memory/-Baum stilllegen) — nach 2 Vorarbeits-Agents: Wissens-Inventur (138 Brocken triagiert) + memory/-Qualitäts-Assessment (⅔ leer/ephemer, nur ~13 Gold-Files, cortex-index inhaltlich tot). Evidence: `worklog/notes/E0-welle2-{wissens-inventur,memory-quality-assessment}.md`.

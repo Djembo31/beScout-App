@@ -2,18 +2,17 @@
 
 ```
 status: idle
-slice: E0-W2a
-title: ✅ DONE — Wissens-Index (INDEX-first) + Skelett + Auto-Inject
+slice: E0-W2gov
+title: ✅ DONE — Wissens-Governance verdrahtet (D88 + audit:knowledge + SHIP-Kopplung)
 stage: LOG complete
-size: S
-type: Doc + Hook
-spec: worklog/specs/E0-W2a-knowledge-index.md
-review: worklog/reviews/E0-W2a-review.md (PASS, self-review, 3 INFO/LOW)
-proof: worklog/proofs/E0-W2a-proof.txt
+size: M
+type: Tool + Hook + Doc + Decision
+spec: worklog/specs/E0-W2gov-knowledge-governance.md
+review: worklog/reviews/E0-W2gov-review.md (REWORK→geheilt→PASS; CRITICAL Wiring-Self-Block gefangen+gefixt, 1 LOW offen für W2b)
+proof: worklog/proofs/E0-W2gov-proof.txt
 parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 2)
-decision: Anil 2026-06-17 — Option B (frisches docs/knowledge/, memory/-Baum stilllegen). INDEX-first.
-done_E0W2a: docs/knowledge/ Skelett (4 Buckets+README) + INDEX.md (37 consult_when, 0 broken, alle Gold geroutet) + Session-Start-Pointer + workflow.md DISTILL-Regel. INDEX zeigt noch auf Alt-Lage (Pfad-Update=W2b).
-next: E0-W2b (10 Gold-Files physisch migrieren + auf Juni-Stand heben, ⚠️-Dup-Entscheidungen mit Anil: Treasury-Kanon/Polls-Dedup/D28-39/D62-65-67/patterns.md/Compliance) · E0-W2c (~90 Files archivieren, cortex-index ablösen)
+done_E0W2gov: D88 (Lebenszyklus: Korrektheit/Aktualität/Korrektur pro Bucket) + scripts/audit-knowledge.ts (intelligenter Detektor, markdown-bewusst, HARD/SOFT) verkabelt package.json+pre-commit+nightly + verified-against-Konvention + SHIP-LOG/DoD-Kopplung (workflow.md, 4 Anker). Deliberate-break-getestet (3 HARD gefangen). Reviewer fing Wiring-Self-Block (KNOWN_ORPHANS) → geheilt. Lehre in errors-infra.md.
+next: E0-W2b (Gold-Files migrieren + ⚠️-Dup-Entscheidungen; LOW: Orphan-Pfad-Casing härten) · E0-W2c (archivieren + cortex ablösen)
 ```
 
 ## Treasury-Serie 332 (DONE, idle bis E0-W2a)

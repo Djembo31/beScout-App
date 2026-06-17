@@ -161,6 +161,9 @@ Slice ist **nicht fertig** mit "Code geschrieben + Tests grün". Je nach Type is
 | **GHA-Workflow** (`.github/workflows/*.yml`) | ✅ YAML-Lint-clean · ✅ permissions explizit · ✅ Live-Run nach push verifiziert · ✅ Failure-Path (Auto-Issue) erprobt |
 | **DB-Migration** | ✅ via `mcp__supabase__apply_migration` applied · ✅ `pg_get_functiondef`-Verify · ✅ RLS-Policies komplett (SELECT+INSERT+UPDATE+DELETE) |
 | **i18n-Strings** | ✅ DE + TR · ✅ business.md-konform · ✅ Anil-Pflicht-Review markiert |
+| **Wissens-Doku** (`docs/knowledge/**`) | ✅ Front-matter komplett (6 Felder) · ✅ INDEX-Zeile mit `consult_when` · ✅ `verified-against` wenn Code beschrieben · ✅ `pnpm audit:knowledge:check` grün (E0-W2gov/D88) |
+
+**Wissens-Kopplung (E0-W2gov/D88):** Ändert ein Service-/RPC-/Migration-Slice eine Domain, zu der ein `docs/knowledge/domain/`-File existiert, ist „Done" erst mit mit-aktualisiertem File (`updated`/`verified-against`) — sonst driftet das Wissen.
 
 **Anti-Pattern (Build-without-Wire — Slice 233 D53):**
 > "Tool gebaut + Smokes PASS + Slice closed → Future-Slice 233+ verkabelt." Wenn ein Slice ein Tool baut und nicht verkabelt, ist Slice **nicht fertig** — egal wie grün die Smokes.
@@ -236,6 +239,7 @@ Agent({
 **Pflicht:**
 - Git-Commit mit aussagekraeftiger Message
 - Wenn Bug gefixt: neue Regel in `.claude/rules/common-errors.md`
+- **Wissens-Kopplung (E0-W2gov):** Hat der Slice eine Domain geändert, zu der ein `docs/knowledge/domain/`-File existiert? → im SELBEN Slice mit-updaten (`updated` + ggf. `verified-against`). Sonst driftet das Wissen (getrennte Code-/Doku-Änderung = Drift-Ursache). `audit:knowledge` (nightly) flaggt `verified-against`-Drift SOFT.
 - `worklog/active.md` zurueck auf `status: idle`
 
 ## Gates (architektonisch via Hooks)

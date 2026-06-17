@@ -39,6 +39,8 @@
     "audit:wiring:check": "npx tsx scripts/wiring-check.ts --check",
     "audit:cron-health": "npx tsx scripts/cron-health-check.ts",
     "audit:cron-health:check": "npx tsx scripts/cron-health-check.ts --check",
+    "audit:knowledge": "npx tsx scripts/audit-knowledge.ts",
+    "audit:knowledge:check": "npx tsx scripts/audit-knowledge.ts --check",
     "audit:tr-strings": "node scripts/audit/tr-strings.mjs",
     "rotate-secret": "npx tsx scripts/rotate-secret.ts",
     "beta:metrics": "node scripts/beta-metrics.mjs",

@@ -410,6 +410,22 @@ Vercel-Lambda braucht ~10-25s Warm-Boot nach Deploy. Ohne Warm-Up trifft erster 
 - **Beziehung zu D45 (Hooks > Text-Regeln):** D45 ist Architektur-Win, dieser Pattern ist Process-Komplement. Beide gelten parallel.
 - **Audit:** `git log --oneline -- .claude/settings.json | head -20` sollte zeigen: alle Edits mit ≥3 Hook-Mods haben IMPACT-File. Pre-Slice-234 Backlog: erste 5 Edits ohne IMPACT-File → Slice 242+ Backfill möglich.
 
+### Neue `audit:*:check`-Scripts nur in `.husky/` → KNOWN_ORPHANS-Pflicht (E0-W2gov, 2026-06-17)
+
+**Bug-Klasse:** Ein neues `audit:X:check`-npm-Script wird in `.husky/pre-commit` als Gate verkabelt, aber NICHT in einer GHA. `scripts/wiring-check.ts` scannt nur `.github/` + `.claude/hooks/` (NICHT `.husky/`) → meldet `npm:audit:X:check` als real-drift orphan. Da `audit:wiring:check` selbst **Step 4 im Pre-Commit** ist, läuft es VOR dem Commit → **exit 1 → jeder künftige Commit projektweit blockiert.** Ironisch: die Drift-Klasse, die das neue Tool bekämpft, bringt den Drift-Gate zum Absturz (D54-Selbstverletzung).
+
+**Symptom:** `audit:wiring:check` exit 1, „Real drift: 1", `npm:audit:X:check` in Orphan-Liste. Oft maskiert weil der tagesgleiche `worklog/audits/wiring-<date>.md` STALE ist (vor dem package.json-Edit erzeugt) → false-green im Proof.
+
+**Fix:** In `wiring-check.ts` `KNOWN_ORPHANS` ergänzen:
+```ts
+'npm:audit:X:check': 'Called in .husky/pre-commit Step N; .husky/ wird von wiring-check nicht gescannt (nur .github + .claude/hooks)',
+```
+Report-Variante (`audit:X` ohne `:check`) braucht den Eintrag nur, wenn sie auch in keiner GHA läuft.
+
+**Regel:** Nach JEDEM neuen `.husky/`-only npm-Script → SOFORT `pnpm audit:wiring:check` **frisch** laufen (nicht stalen Report vertrauen) + KNOWN_ORPHANS-Eintrag. Wiederkehrende Klasse: `audit:boundary:check` (299), `audit:test-confidence:check` (300), `audit:cron-health:check` (255), `audit:knowledge:check` (E0-W2gov) — alle brauchten den Eintrag.
+
+**Prozess-Lehre (verwandt D48 „Audit-Stale"):** Wiring-Report im Proof MUSS frisch nach dem package.json-Edit erzeugt werden — der tagesgleiche Pre-Edit-Report ist false-green. Cold-Context-Reviewer fing genau das (E0-W2gov Finding #1+#2).
+
 ## Beta-Launch-Ops
 
 ### CSP blocks Sentry EU ingest (silent error-tracking failure)

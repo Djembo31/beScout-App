@@ -83,6 +83,7 @@ const KNOWN_ORPHANS: Record<string, string> = {
   'npm:audit:test-confidence:check': 'Called in .husky/pre-commit Step 6 (S5 Test-Confidence Ratchet, Slice 300); .husky/ wird von wiring-check nicht gescannt',
   'npm:audit:test-confidence': 'Manual report-mode tool (S5, Slice 300) — schreibt worklog/audits/<date>/s5-...-report.md; :check ist der verkabelte Gate-Pfad',
   'npm:audit:cron-health:check': 'Slice 255 strict-mode variant; nightly nutzt audit:cron-health (WARN-only). :check für künftige CI-blocking-Erweiterung wenn cron-stale = beta-blocker.',
+  'npm:audit:knowledge:check': 'Called in .husky/pre-commit Step 7 (E0-W2gov/D88 Wissens-Integrität, HARD-Gate); .husky/ wird von wiring-check nicht gescannt (nur .github + .claude/hooks). audit:knowledge (ohne :check) ist via nightly-audit.yml gewired.',
   'npm:rotate-secret': 'Slice 255 manual-tool für Secret-Rotation, manueller Trigger gewollt (3-Location-Sync).',
   'npm:audit': 'Aggregated audit-runner, not nightly',
 };

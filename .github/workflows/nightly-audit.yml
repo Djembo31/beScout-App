@@ -203,6 +203,19 @@ jobs:
           # explizit (statt im "new audit-reports"-Bucket zu verschwinden).
           exit $EXIT
 
+      - name: Audit knowledge (E0-W2gov — Wissens-Integrität + Staleness)
+        id: knowledge
+        shell: bash
+        continue-on-error: true
+        # Default-Mode (nicht --check): surfaced auch SOFT-Findings (Staleness,
+        # verified-against-Drift) die im pre-commit bewusst NICHT blockieren.
+        run: |
+          pnpm run audit:knowledge 2>&1 | tee /tmp/knowledge.log
+          EXIT=${PIPESTATUS[0]}
+          echo "## audit:knowledge (exit: $EXIT)" >> $GITHUB_STEP_SUMMARY
+          tail -30 /tmp/knowledge.log >> $GITHUB_STEP_SUMMARY
+          exit $EXIT
+
       - name: Findings → Slices Pipeline (Slice 214/234)
         id: findings_pipeline
         shell: bash
@@ -249,6 +262,7 @@ jobs:
           [ "${{ steps.compliance.outcome }}" = "failure" ] && FAILURES="$FAILURES compliance;"
           [ "${{ steps.wiring.outcome }}" = "failure" ] && FAILURES="$FAILURES wiring;"
           [ "${{ steps.cron_health.outcome }}" = "failure" ] && FAILURES="$FAILURES cron-health;"
+          [ "${{ steps.knowledge.outcome }}" = "failure" ] && FAILURES="$FAILURES knowledge;"
           echo "failures=$FAILURES" >> $GITHUB_OUTPUT
           if [ -n "$FAILURES" ] || [ "${{ steps.report_diff.outputs.new_reports }}" != "0" ]; then
             echo "should_alert=true" >> $GITHUB_OUTPUT
@@ -267,7 +281,7 @@ jobs:
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const today = new Date().toISOString().split('T')[0];
 
-            const tools = ['silent-fail', 'stale', 'orphan', 'type-truth', 'mutation-race', 'i18n', 'rpc-security', 'tr-strings', 'compliance', 'wiring', 'cron-health'];
+            const tools = ['silent-fail', 'stale', 'orphan', 'type-truth', 'mutation-race', 'i18n', 'rpc-security', 'tr-strings', 'compliance', 'wiring', 'cron-health', 'knowledge'];
             const sections = tools.map(t => {
               try {
                 const log = fs.readFileSync(`/tmp/${t}.log`, 'utf-8');

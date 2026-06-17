@@ -3624,3 +3624,28 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** SPEC-Code-Reading-Liste (workflow.md §1.4) startet bei RPC-Slices IMMER mit Live-functiondef. Spart Fehl-Specs + Fehl-Erklärungen an den CEO.
 
 **Alternativen erwogen:** Nur vor BUILD prüfen (Status quo D85/156) — verworfen: dann ist die Spec + die CEO-Präsentation schon auf falscher Basis, und der Reviewer/Build-Heal kommt zu spät (Anil hat dann ggf. schon eine falsche Entscheidung getroffen).
+
+---
+
+## D88 — PROCESS: Wissens-Lebenszyklus — Korrektheit, Aktualität, Korrektur verdrahtet (nicht nur dokumentiert)
+
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Category:** PROCESS · **Kontext:** Anil fragte beim Aufbau von `docs/knowledge/` (E0 Welle 2): „Wie stelle ich sicher dass das gespeicherte Wissen korrekt ist, abgestimmt aktuell bleibt, was passiert bei neuem Wissen / Korrektur / Erweiterung?" — und: „nicht nur planen, alle komplett verdrahten mit Verstand." Das ist DIE Existenzfrage: `memory/semantisch` ist genau daran gestorben (Files behaupteten „truth", drifteten unbemerkt, kein Detektor).
+
+**Entscheidung:** Der Wissens-Lebenszyklus wird als **Gesetz + Enforcement** festgelegt (D45 „Hooks > Text-Regeln"):
+1. **Korrektheit:** Ableitbares Wissen (RPC-Verhalten, Spalten, Fees) wird NICHT als Prosa dupliziert — entweder auf Live-Quelle zeigen oder `verified-against: <pfad> @ <datum>` ankern (kodifiziert D87). Migration/Anlage eines `domain/`-Files = Verify gegen Live-Realität (`pg_get_functiondef`), nicht alte Datei.
+2. **Aktualität:** (a) `scripts/audit-knowledge.ts` — intelligenter Detektor (HARD: broken-link/orphan/no-frontmatter blockt Pre-Commit; SOFT: `updated`>6 Mo / `verified-against`-git-Drift → nightly sichtbar). (b) SHIP-LOG-Kopplung: Slice ändert Domain → `domain/`-File im SELBEN Slice mit-updaten (Drift = getrennte Code-/Doku-Änderung).
+3. **Neues Wissen:** DISTILL-Regel (W2a) — Bucket-File mit Front-matter + INDEX-Zeile mit `consult_when`, sonst „verloren".
+4. **Korrektur/Erweiterung pro Bucket:** `decisions/` = append-only (nie still überschreiben, `status: superseded` + Nachfolger-Link). `domain/lessons/research/` = überschreiben mit Spur (`updated` hoch; bei sachlich-falsch eine „Korrektur \<datum\>:"-Zeile behalten).
+
+**Verkabelung (D53 Build-without-Wire verboten):** `audit:knowledge` in `package.json` + `.husky/pre-commit` (HARD-Gate) + `.github/workflows/nightly-audit.yml` (SOFT-Surfacing → Master-Tracker-Issue). Konvention in `docs/knowledge/README.md`. Live-getestet via deliberate-break (Proof E0-W2gov).
+
+**Begründung:** Ein Wissens-Index ohne Lebenszyklus-Enforcement ist ein zukünftiger Friedhof. Die Mechanik existiert in BeScout bereits (`audit:stale`, `wiring-check`, Knowledge-Flywheel) — D88 erweitert bewährte Muster auf `docs/knowledge/`, erfindet nichts.
+
+**Auswirkungen:** Jedes durable Wissen hat genau einen Ort + consult_when + (für Code-beschreibendes) einen Verifikations-Anker. Drift wird maschinell gefangen statt menschlich übersehen. Pre-Commit blockt jetzt-eingeführte Integritäts-Bugs; Nightly macht Veraltung sichtbar.
+
+**Alternativen erwogen:**
+- **Nur D88 dokumentieren, kein Tool** — verworfen: Text-Regeln driften (genau die Lehre aus `memory/semantisch`-Tod). „mit Verstand verdrahten" = Anils explizite Anforderung.
+- **Auto-Update von `updated`/`verified`** — verworfen: Human-Curated-Context-Gesetz; ein Bot der „updated" hochsetzt ohne echte Re-Verifikation lügt nur maschinell.
+- **Staleness HARD blockieren** — verworfen: würde unrelated Code-Commits blockieren; Veraltung gehört sichtbar (nightly), nicht als Commit-Blocker.
+
+**Re-Visit-Trigger:** Wenn nach W2b-Migration `audit:knowledge` SOFT-Findings akkumulieren ohne dass sie abgearbeitet werden → Master-Tracker-Disziplin nachschärfen (analog Smoke-Fail SO-4).

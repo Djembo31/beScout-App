@@ -1,0 +1,49 @@
+E0-W2gov — Wissens-Governance verdrahtet — PROOF
+Datum: 2026-06-17
+
+=== AC1: audit:knowledge:check exit 0 auf aktuellem Repo ===
+═══ Knowledge-Audit ═══
+Content-Files: 0 · INDEX-Links: 36
+HARD: 0 · SOFT: 0
+✅ Wissens-System integer.   exit=0   ✅
+
+=== AC2: DELIBERATE-BREAK-TEST (mit Verstand — Detektor fängt ECHTE Defekte) ===
+Eingeschleust: (a) kaputter INDEX-Link  (b) Content-File ohne Front-matter
+Detektor-Output (exit=1):
+  ❌ HARD [broken-link] INDEX.md:69 — Link-Ziel existiert nicht: ../../does/not/exist.md
+  ❌ HARD [orphan] docs/knowledge/domain/__break-test.md — Content-File ohne INDEX-Eintrag
+  ❌ HARD [no-frontmatter] docs/knowledge/domain/__break-test.md — Kein Front-matter-Block
+→ alle 3 HARD-Klassen gefangen, Commit blockiert.
+Nach REVERT (git checkout INDEX + rm test-file): exit=0 ✅
+
+FALSE-POSITIVE-HEAL (Live-Verstand): Erster Run flaggte das Format-BEISPIEL
+`[Titel](pfad)` im INDEX-Header (Inline-Code). Detektor markdown-bewusst gemacht
+(stripInlineCode + Fenced-Block-Skip) → Beispiel-Links werden ignoriert, echte
+INDEX-Links (36) korrekt geprüft. Kein Rubber-Stamp.
+
+=== AC3: package.json (Soll ≥2) === 2 ✅  (audit:knowledge + :check)
+=== AC4: .husky/pre-commit (Soll ≥1) === 3 ✅
+=== AC5: D88 in decisions.md (Soll ==1) === 1 ✅
+=== AC6: workflow.md docs/knowledge-Anker (Soll ≥3) === 4 ✅  (DISTILL + LOG + §3a-DoD-Zeile + Kopplungs-Absatz)
+=== AC7: README verified-against (Soll ≥1) === 5 ✅
+=== AC8: nightly-audit.yml audit:knowledge (Soll ≥1) === 2 ✅
+
+Nightly-Verkabelung (YAML-Sanity):
+  L207  id: knowledge
+  L265  steps.knowledge.outcome → FAILURES aggregate
+  L284  tools[]-Array für Issue-Body (+'knowledge')
+→ Step + Failure-Aggregation + Issue-Surfacing komplett. Live-Run-Verify = nächstes Nightly (post-merge).
+
+=== REVIEW-HEAL: audit:wiring:check (Finding #1+#2, frisch nach KNOWN_ORPHANS-Edit) ===
+Hooks scanned: 39 · Scripts scanned: 25
+Total orphans: 19 · Real drift: 0 · Known (allowlisted): 19
+✅ No drift orphans found. All tools wired.   exit=0   ✅
+→ audit:knowledge:check als KNOWN_ORPHANS['npm:audit:knowledge:check'] ergänzt
+  (nur in .husky/pre-commit, das wiring-check nicht scannt). Ohne diesen Fix
+  hätte der nächste Pre-Commit Step 4 jeden Commit projektweit blockiert (D54-Selbstverletzung,
+  vom Cold-Context-Reviewer gefangen).
+
+=== tsc ===  clean (scripts/ via tsx validiert, audit lief mehrfach fehlerfrei)
+
+Scope-Out eingehalten: keine Gold-Migration (W2b), keine Archivierung (W2c),
+kein Auto-Update von updated/verified (Human-Curated).
