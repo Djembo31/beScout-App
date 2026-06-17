@@ -1,0 +1,34 @@
+Slice 333 — Polls P1 — Playwright Live-QA gegen www.bescout.net (Mobile 393×852, 2026-06-18)
+============================================================================================
+
+Eingeloggt als jarvis-qa@bescout.net. Deploy live verifiziert (neuer Code vorhanden).
+
+AC-09 (Mobile-Modal) + Follower-Tor + Club-Pfad:
+
+1) USER-PFAD / Follower-Tor (Screenshot 333-user-gate-mobile.png):
+   /community, QA-User hat 0 Follower → Knopf "Umfrage erstellen" DISABLED
+   + Hinweis "Ab 50 Followern kannst du bezahlte Umfragen erstellen." ✓ (AC-05/Gate live)
+
+2) CLUB-PFAD / Modal (Screenshot 333-club-poll-modal-mobile.png):
+   QA-User temporär als Owner von "1. FC Köln" (1 Zeile, danach gelöscht — reversibel,
+   KEINE echte Umfrage erstellt → kein Geld bewegt).
+   Admin → Tab "Abstimmungen" → "Vereins-Umfrage erstellen" → Modal:
+   - Titel "Vereins-Umfrage erstellen" + Subtitle "Offizielle Umfrage im Namen des Vereins.
+     Einnahmen fließen in die Vereins-Treasury." ✓
+   - Felder: Frage · Beschreibung (optional) · Optionen (2-4) mit "Option hinzufügen" ·
+     Kosten pro Stimme (CR)=0 · Laufzeit=7 ✓
+   - Treasury-Hinweis "70% der Stimm-Einnahmen fließen in die Vereins-Treasury, 30% an die
+     Plattform." ✓
+   - Mobile 393px sauber, kein Overflow. ✓
+
+BUG GEFUNDEN (via Live-QA) + GEFIXT:
+   Console: 4× "MISSING_MESSAGE: admin.clubPollSectionTitle/Desc (de)".
+   Ursache: i18n-Keys ins falsche Namespace-Objekt eingefügt (nach club-`newVote:"Neu"`
+   statt admin-`newVote:"Neue Abstimmung"`; admin-Namespace startet erst bei Zeile 2624).
+   → Section-Header zeigte rohen Key statt "Bezahlte Vereins-Umfrage".
+   Fix: Keys in den admin-Namespace verschoben (de+tr, Zeile 2985). Verify:
+   node -> require('./messages/de.json').admin.clubPollSectionTitle == "Bezahlte Vereins-Umfrage" ✓
+   (beide Locales). Re-Deploy → Live-Re-Check folgt.
+
+Lehre → errors-frontend.md: i18n-Key-Audit per grep-count ist unzureichend (Key kann im
+falschen Namespace stehen). Pflicht: node-Check `messages[locale][namespace][key]`.

@@ -948,6 +948,22 @@ node -e "const d = require('./messages/de.json').home; for(const k in d) { conso
 - Reference: Slice 198 Track C `KaderPlayerRow.tsx:301` — `manager.quickLineupAction` fehlte in beiden Locales. Reviewer-Agent caught Post-Build (Slice 198 Heal).
 - Beziehung zu i18n-Key-Leak: gleiche Bug-Klasse, andere Achse (Leak = Service-Error-Path, hier = Component-Render-Path).
 
+#### Erweiterung Slice 333 — Key im FALSCHEN Namespace-Objekt (grep-Audit unzureichend)
+
+**Bug-Variante:** Neuer Key existiert im `messages/{locale}.json`, aber unter dem **falschen Top-Level-Namespace-Objekt**. Component `t = useTranslations('admin')` + `t('clubPollSectionTitle')`, aber der Key wurde versehentlich in ein anderes Namespace-Objekt (vor `"admin": {`) eingefügt — oft weil derselbe Schlüsselname (`newVote`) in mehreren Namespaces existiert und man den falschen Anker trifft. Runtime: `MISSING_MESSAGE: admin.clubPollSectionTitle (de)` → roher Key im UI (kein TSC-Error).
+
+**Warum der Standard-Audit es VERPASST:** `grep -c '"key"' messages/de.json` ist `≥ 1` (Key steht ja im File) → grün, obwohl falsch platziert. grep sieht „Wort kommt vor", nicht „unter welchem Objekt".
+
+**Pflicht-Audit (namespace-aware, nicht nur grep):**
+```bash
+# Pro neuem Key: prüfe dass er unter dem GENUTZTEN Namespace aufgelöst wird:
+node -e "const m=require('./messages/de.json'); console.log(m.admin?.clubPollSectionTitle ?? 'MISSING')"
+node -e "const m=require('./messages/tr.json'); console.log(m.admin?.clubPollSectionTitle ?? 'MISSING')"
+# 'MISSING' → falscher Namespace ODER fehlt. Beide Locales + exakt das Namespace-Objekt das die Component per useTranslations(...) nutzt.
+```
+
+**Detection-Garantie nur via Live-Render:** TSC + Unit-Tests + grep-Audit waren alle grün; gefangen erst durch Playwright-Render gegen bescout.net (`browser_console_messages` zeigte `MISSING_MESSAGE`). → Bestätigt: nach i18n-Erweiterung an neuer CTA IMMER 1× Live-Render mit Console-Error-Check (`MISSING_MESSAGE`-Scan), nicht nur grep. Reference: Slice 333 `AdminVotesTab` clubPollSection-Header (admin-Namespace startet erst spät im File; `newVote` existierte 2× → falscher Anker getroffen).
+
 ### Polish-Audit Pre-Existing-Code-Drift (Slice 200a, Reviewer-Find)
 - Punch-List-Item klassifiziert "X fehlt", aber Code im **consumed Hook/Service** des Components löst es bereits. Polish-Audit greppt nur Component-File, verpasst Hook-source.
 - Symptom: Implementer fügt neuen useEffect/State hinzu → **Duplicate** zu pre-existing Logic. Beide feuern parallel auf gleichen Trigger. Cleanup-Order undefiniert. tsc + Tests bleiben grün → Bug erst durch Cold-Context-Reviewer entdeckt.
