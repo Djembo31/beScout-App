@@ -186,7 +186,7 @@ Jede Bewegung (rein wie raus) = **eine Ledger-Zeile**; Saldo = Summe daraus (ana
 
 **Strategischer Kern-Befund — extractive → investive:** Heute ist das Modell *extractive* (Fan zahlt für Engagement, Plattform/Club verdient). KEIN Pfad lässt den Verein Engagement aus eigenem Geld *sponsern*. Anils Vision dreht das auf *investive*: Verein reinvestiert verdientes $SCOUT in Fan-Aktivierung. Treasury ist das Werkzeug. Pro Kanal:
 - **Events:** Verein stockt `prize_pool` aus Treasury auf (auch Gratis-Events) → SC-Nachfrage-Hebel.
-- **Polls:** *neue* Mechanik — Verein belohnt Teilnahme (Umkehrung des heutigen „Fan zahlt").
+- **Polls:** ⚠️ KORRIGIERT (2026-06-17) — Polls sind KEINE RAUS-Mechanik („Verein belohnt Teilnahme"). Sie sind eine **REIN-Mechanik**: Fan zahlt → **Verein verdient → Treasury** (Geldmaschine + Fan-Stimme). Volles Modell: `worklog/concepts/polls-engagement-monetization-model.md` (D86).
 - **Bounties:** Club-Bounties aus Treasury statt Admin-Privat-Wallet.
 
 ### Event-Prize-Finanzierung — KORREKTUR + 5-Quellen-Modell (verifiziert Slice 331, 2026-06-17)

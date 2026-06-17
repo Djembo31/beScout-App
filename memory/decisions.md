@@ -3587,3 +3587,24 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** Reviewer-Output ab jetzt verdict-first. Money-Migrationen bleiben Review→Apply→Verify ohne Branch-Schritt.
 
 **Alternativen erwogen:** (a) Branch-Dry-Run — von Anil verworfen (Overhead > Nutzen bei vorhandenem Rollback+Verify-Gate). (b) Reviewer nur im Skill-Template ändern — verworfen, die Agent-Persona ist der stärkere Hebel (gilt bei jedem Dispatch, auch ohne /ship).
+
+---
+
+## D86 — PRODUCT: Polls = Vereins-Geldmaschine + Fan-Stimme (REIN, nicht RAUS) + Discovery + soziale Schicht
+
+**Datum:** 2026-06-17 · **Status:** Aktiv (Vision geklärt, Bau offen) · **Kontext:** Strategie-Session beim Planen der RAUS-Kanäle. Anil korrigierte mein Missverständnis (ich hatte Polls als „Verein zahlt Fans / RAUS" eingeordnet). **Volles Modell + ToDos: `worklog/concepts/polls-engagement-monetization-model.md`. Beibezug Pflicht.**
+
+**Die Entscheidung / das Modell:**
+1. **Polls sind REIN, nicht RAUS.** Fan zahlt fürs Mitmachen → **Verein verdient → Treasury**. Das ist gewollt extractive (die Geldmaschine), KEINE „Verein-belohnt-Teilnahme"-Umkehr. Strategischer Kern: Vereine können Fan-Meinung (besonders Transferzeit) heute nirgends kanalisieren/monetarisieren — genau das schließen wir. Skalen-Hebel: Gala 35 Mio Fans, 1 % = 350k zahlende Teilnehmer.
+2. **Drei Anlege-Spuren:** Gratis-Club-Vote (Admin, „fühl-dich-gehört", existiert) · **bezahlte Vereins-Umfrage** (Club-Admin, im Namen des Vereins, Geld → Treasury) · **bezahlte User-Umfrage** (User ab Follower-Schwelle, eigener Name, Geld → User-Wallet).
+3. **Identitäts-/Autoritätsgrenze (sicherheitskritisch):** Bezug nehmen darf jeder; „im Namen des Vereins" auftreten (offiziell, an die Kasse) nur verifizierter Club-Admin. Sonst Impersonation/Geld-Umleitung. Gleiche Klasse wie Events-`type`-Quellenmodell (Slice 331).
+4. **Bezug/Tags = Verein UND/ODER Spieler** (nicht nur Verein). `community_polls` braucht zusätzlich `player_id`.
+5. **Discovery:** Fans müssen Polls + Paywalls (Research) nach **Verein + Spieler** suchen/filtern können (existiert heute nicht — nur Typ-Filter + Textsuche).
+6. **Soziale Schicht:** **Follower** = Reichweite + Tor fürs User-Anlegen · **Abonnenten** = Perks (2×-Gewicht/Early/exklusiv bei Paid-Polls) · **Fan-Rang** (evtl.) = Treue-Bevorzugung/Auszahl-Gewichtung.
+7. **Offen:** „Mehrheit der User auszahlen" — Lotterie/Topf vs „Recht behalten" (prediction) vs Mini-Teilnahme-Reward; Fan-Rang ggf. als Gewicht.
+
+**Befund Current-State:** `community_polls` kann lesen/abstimmen(70/30)/abbrechen — **aber KEINE Erstellung** (kein Service/RPC/UI). „Hülle ohne Tür". Einzige existierende Erstellung = Gratis-Club-Vote (Admin). Kein `player_id`, kein Filter nach Verein/Spieler, Follower/Fan-Rang wirkungslos.
+
+**Auswirkungen:** Korrigiert `csf-club-treasury-model.md` §8 (falsche „Umkehr"-Zeile). Roadmap P1–P4 im Konzept-Doc. P1 (Erstellung + Quelle/Identität + Treasury-Routing) ist der Kern-Slice. Ledger-Typ: vorgehaltener `poll_reward`-DEBIT war falsche Annahme (RAUS) → für Polls braucht es einen REIN-Credit-Typ (`poll_revenue`).
+
+**Alternativen erwogen:** Polls als RAUS/„Verein belohnt Teilnahme" (mein erster Entwurf) — von Anil verworfen: das verfehlt den Geschäftszweck (Verein soll *verdienen*, nicht ausgeben). Die Auszahl-an-Fans-Idee bleibt als *optionale* Zusatzebene (§7), nicht als Kern.
