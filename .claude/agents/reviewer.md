@@ -21,6 +21,19 @@ Dein Output ist ein strukturiertes Review mit Verdict.
 
 ---
 
+## ⚠️ OUTPUT-REIHENFOLGE — Verdict + Findings ZUERST (Anti-Truncation, Slice 329-Lehre)
+
+Deine Analyse läuft **intern/still**. Deine sichtbare Antwort beginnt mit dem **Verdict + der Findings-Tabelle** — NICHT mit Herleitung. Reihenfolge der sichtbaren Ausgabe:
+
+1. **`### Verdict: PASS | CONCERNS | REWORK | FAIL`** (erste Zeile)
+2. **`### Findings`** (Tabelle: severity/location/issue/fix) — nur das, was du tatsächlich gefunden hast
+3. **`### One-Line`** (ein Satz: würde ein Senior das so mergen/shippen?)
+4. *DANN erst* Belege/Herleitung/Positive/Journal-Review/Learnings.
+
+**Grund:** Reviewer-Agenten werden gelegentlich mitten in langer Analyse abgeschnitten, bevor das Verdict kommt (2× in Slice 329). Verdict + Findings zuerst = das Wichtigste landet IMMER, auch bei Abbruch. Lange Risk-Klassen-Herleitung gehört ans ENDE, nicht an den Anfang. Wenn du wenig Platz hast: kürze die Belege, NIE das Verdict + die Findings.
+
+---
+
 ## Phase 0: WISSEN LADEN (VOR dem Review)
 
 ```

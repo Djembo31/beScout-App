@@ -165,11 +165,12 @@ Pattern-Wiederholung, dann `review: skipped (Grund)` in `active.md`.
               Pruefe gegen .claude/rules/common-errors.md, memory/patterns.md,
               business.md. Read-only.
 
-              Schreibe nach worklog/reviews/NNN-review.md:
-              - verdict: PASS | REWORK | FAIL
-              - findings: [{severity, location, issue, fix}]
-              - positive-section fuer das was gut ist
-              - time-spent"
+              Antworte in DIESER Reihenfolge (Verdict + Findings ZUERST — Anti-Truncation):
+              1. verdict: PASS | CONCERNS | REWORK | FAIL
+              2. findings: [{severity, location, issue, fix}] — nur real Gefundenes
+              3. one-line: wuerde ein Senior das so mergen?
+              4. DANN erst Belege/Positive/time-spent.
+              Analyse laeuft intern; sichtbare Antwort startet mit dem Verdict, nie mit Herleitung."
    })
    ```
 2. **Review-File pruefen** — Gate `ship-cto-review-gate` blockt Commits ohne.

@@ -3568,3 +3568,22 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 **Auswirkungen:** Jede Session lädt ~3,3k Zeilen weniger. CLAUDE.md ist der Prinzipien-Kompass, nicht das Register. Commits: f1a228d0 (A4) · ced8b2c7 (A2) · 60ee1c84 (A1) · 3797e3cd (A3) · 15ddcbfc (A5).
 
 **Re-Visit-Trigger:** Falls ein neuer Hook/Skill/Agent gebaut wird → NICHT in Docs listen, nur via SSOT. Falls Sessions errors-*.md-Wissen vermissen (paths-Trigger greift nicht) → paths-Globs erweitern, nicht zurück auf always-load.
+
+## D85 — PROCESS: SHIP-Workflow-Test (Slice 329 Treasury) — Befunde + Reviewer-„Verdict-first"
+
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Kontext:** Erster großer Money-Slice (329 Club-Treasury) nach dem Setup-Upgrade (D84), bewusst als Test des neuen Workflows gefahren. Anil: „falls Schwächen/Lücken auffallen, klären wir das" + „entspricht der Output einem Senior?".
+
+**Befund — der Workflow trägt, die Gates haben 2× echte Geld-Fehler gefangen:**
+1. **IMPACT ist der größte Hebel:** Live-RPC-Bodies verifizieren (statt Spec/Konzept glauben) reduzierte den Blast-Radius von „6–7 Money-RPC-Edits" auf „2 Edits + 2 Trigger" (trades-AFTER-INSERT-Trigger fängt Income, D39). Ohne IMPACT hätte ich 4 Geld-RPCs unnötig angefasst (Slice-156-Revert-Risiko).
+2. **REVIEW fing einen BLOCKER, den ICH eingebaut hatte:** Migration re-`GRANT`te das cron-only `renew_club_subscription` an authenticated + droppte service_role (AR-44-Muskelgedächtnis). Cold-Context-Reviewer fand's, live-verifiziert + gefixt. Bestätigt: REVIEW vor Prod-Apply ist bei Money Pflicht, nicht optional.
+3. **PROVE/apply-Gate fing 2 Bugs:** `SUM(bigint)=numeric`-Cast (transaktionaler Rollback, kein Silent-Fail) + `balance_after`-Same-TX-Fragilität (→ 329b SUM-Heal). Beide jetzt in `errors-db.md`.
+
+**Entscheidungen (Anil 2026-06-17):**
+- **Reviewer „Verdict + Findings ZUERST" — JA, umgesetzt.** Reviewer-Agent (`.claude/agents/reviewer.md`) + `/ship review`-Template: sichtbare Antwort startet mit Verdict + Findings + One-Line, Herleitung ans Ende. Grund: reviewer-Agent wurde 2× in Slice 329 mitten in der Analyse abgeschnitten, bevor das Verdict kam. So landet das Wichtigste immer, auch bei Truncation.
+- **Supabase-Branch-Dry-Run für Money-Migrationen — NEIN** (Anil). Bleibt bei: Review-vor-Apply + transaktionaler Rollback (`apply_migration` rollt bei Fehler komplett zurück) + Verify-Gate (Backfill-Abgleich VOR Read-Switch) + BEGIN/ROLLBACK-Smokes. Direkt auf Beta-Prod ist akzeptiert.
+
+**Senior-Selbstcheck:** Kern-Design senior-grade (trigger-zentrisch, Bank-Ledger, append-only, RAUS deferred, Backfill-verify-vor-Switch). Die 2 Fehler, die ich beim ersten Wurf machte (cron-Grant, Same-TX-balance_after), sind genau die, die die Gates abfingen — System funktioniert wie entworfen.
+
+**Auswirkungen:** Reviewer-Output ab jetzt verdict-first. Money-Migrationen bleiben Review→Apply→Verify ohne Branch-Schritt.
+
+**Alternativen erwogen:** (a) Branch-Dry-Run — von Anil verworfen (Overhead > Nutzen bei vorhandenem Rollback+Verify-Gate). (b) Reviewer nur im Skill-Template ändern — verworfen, die Agent-Persona ist der stärkere Hebel (gilt bei jedem Dispatch, auch ohne /ship).
