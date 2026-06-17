@@ -3669,3 +3669,21 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 - **Erst Qualität prüfen, dann entscheiden** — GEWÄHLT als Zwischenschritt (Assessment-Agent), führte zu fundiertem B statt Bauchgefühl.
 
 **Re-Visit-Trigger:** Falls bei W2b-Migration ein Gold-File sich als nicht-migrierbar/wertlos zeigt → ist ok (war Schätzung); falls >5 der 13 wertlos → Assessment war zu optimistisch, Scope neu bewerten.
+
+## D90 — ARCHITECTURE: 3-Schichten-Kanon für durables Wissen (WIE/WARUM/Regel-Zeiger)
+
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Category:** ARCHITECTURE · **Kontext:** Bei W2b lag dasselbe durable Wissen oft an 3 Orten (Treasury: `concept` + D83 + `trading.md`) → Doppel-Pflege-Risiko (Geld-Zahl an einer Stelle ändern, andere vergessen = Drift). Vor der Migration brauchte es eine Regel, WELCHE Schicht WAS hält. Anil-Entscheidung (AskUserQuestion, 2 Optionen verworfen).
+
+**Entscheidung (Anil):** **3 Schichten, jede mit klarer Rolle, EINE Wahrheit pro Fakt:**
+1. **`docs/knowledge/domain/` = WIE es funktioniert** = Kanon-Inhalt. ALLE Zahlen/Mechanik leben hier (Treasury-Formeln, Polls-Spuren, Fee-Splits-Mechanik).
+2. **`memory/decisions.md` = WARUM** = kurze Entscheidung + Link auf domain. Append-only, supersede-Spur.
+3. **`.claude/rules/*.md` = schlanke path-scoped Code-Regel + Zeiger** auf den domain-Kanon (statt Voll-Kopie).
+Plus: Scope-Entscheidung „alle 13 Gold-Files in einem Rutsch migrieren" (nicht inkrementell).
+
+**Begründung:** Verworfene Optionen waren (a) „alles nach docs/knowledge ziehen" — bricht den path-scoped Autoload von `.claude/rules` (lädt beim Domain-Edit, der wertvollste Moment) + den DISTILL-Fluss in decisions.md; (b) „Status quo, nur INDEX zeigt drauf" — lässt das Drift-Problem (der Grund für E0) ungelöst. Die 3-Schichten trennen nach Frage (WIE/WARUM/Code-Regel), sodass jede Information genau einen Heimat-Ort hat und die anderen Schichten nur zeigen.
+
+**Auswirkungen:** Governance-Regel für jede künftige Wissens-Platzierung. Money-Modell-Beispiel umgesetzt: `domain/treasury.md` (WIE, Kanon) ← D83 (WARUM) ← `trading.md` (Regel + Zeiger). Gilt für alle Domains. Verstärkt D88 (Lebenszyklus) + D89 (Heimat = docs/knowledge).
+
+**Alternativen erwogen:** siehe Begründung (alles-zentralisieren / Status-quo) — beide verworfen.
+
+**Re-Visit-Trigger:** Falls Doppel-Pflege trotzdem auftritt (gleiche Zahl in domain UND rule gepflegt) → Zeiger-Disziplin in der Regel-Schicht nachschärfen (Regel darf Zahl nur referenzieren, nicht kopieren).
