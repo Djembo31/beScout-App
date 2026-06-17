@@ -420,6 +420,22 @@ Vercel-Lambda braucht ~10-25s Warm-Boot nach Deploy. Ohne Warm-Up trifft erster 
 - **Beziehung zu D45 (Hooks > Text-Regeln):** D45 ist Architektur-Win, dieser Pattern ist Process-Komplement. Beide gelten parallel.
 - **Audit:** `git log --oneline -- .claude/settings.json | head -20` sollte zeigen: alle Edits mit ≥3 Hook-Mods haben IMPACT-File. Pre-Slice-234 Backlog: erste 5 Edits ohne IMPACT-File → Slice 242+ Backfill möglich.
 
+### Legacy-Tooling retiren: erst klassifizieren, dann löschen (E0-W3/W3b, 2026-06-17)
+
+**Bug-Klasse-Prävention:** Ein Hygiene-Slice, der alte Files/Hooks/Commands „wegräumt", behandelt sie pauschal als „stale" und verschiebt/löscht blind. Tatsächlich zerfällt jedes Legacy-Artefakt in **drei Klassen mit verschiedener Behandlung** — der Broken-Ref-Grep (E0-W2c-Regel oben) sagt *ob* etwas referenziert wird, aber nicht *wie*:
+
+| Klasse | Erkennung | Aktion |
+|--------|-----------|--------|
+| **Write-only / tot** | Hook *schreibt* das File, aber kein lebender Consumer *liest* es (z. B. `working-memory.md`: 145KB-Snapshot, Injection liest längst `active.md`) | Write-Block entfernen, File archivieren |
+| **Funktionaler Read-Dep** | Ein Hook/Command *liest* es zur Laufzeit (`session-digest`→pattern-check, `current-sprint`→/done,/status,/switch) | Consumer zuerst umstellen/retiren, DANN File archivieren |
+| **Aktives Wissen** | von `docs/knowledge/INDEX.md` `consult_when`-geroutet (z. B. `beta-rollback-runbook`) | NICHT anfassen — gar nicht stale |
+
+**Versteckte-Side-Effect-Pflicht:** Vor `git rm` eines Hooks prüfen, ob er einen **Seiteneffekt** hatte, auf den anderes baut (Kommentar `# reset by morning-briefing` behauptete einen Gate-Reset — der Gate `ship-parallel-dispatch-gate.sh` resettet aber **selbst** per 8h-Age; Kommentar war stale). Annahme am Code verifizieren, nicht am Kommentar glauben.
+
+**Wiring-Sicherheit (D54):** Hook aus `settings.json` UND als Script-Datei **zusammen** entfernen → kein `wiring-check`-Orphan, kein KNOWN_ORPHANS-Eintrag nötig. Nur eines von beiden = Drift-Gate-Bruch.
+
+**Scope-Disziplin:** Live-verdrahtete Reste, die Rewiring brauchen (Hooks/Commands), sind ein **eigener Slice** mit eigenem Review — nicht en passant im Datei-Archivier-Slice (E0-W3 trennte Gruppe A=verwaist von Gruppe C=live → W3b). Bei „retiren vs. behalten"-Grauzone (Beta-ops bei Live-Beta) = Anil-Scope-Frage, nicht autonom.
+
 ### Neue `audit:*:check`-Scripts nur in `.husky/` → KNOWN_ORPHANS-Pflicht (E0-W2gov, 2026-06-17)
 
 **Bug-Klasse:** Ein neues `audit:X:check`-npm-Script wird in `.husky/pre-commit` als Gate verkabelt, aber NICHT in einer GHA. `scripts/wiring-check.ts` scannt nur `.github/` + `.claude/hooks/` (NICHT `.husky/`) → meldet `npm:audit:X:check` als real-drift orphan. Da `audit:wiring:check` selbst **Step 4 im Pre-Commit** ist, läuft es VOR dem Commit → **exit 1 → jeder künftige Commit projektweit blockiert.** Ironisch: die Drift-Klasse, die das neue Tool bekämpft, bringt den Drift-Gate zum Absturz (D54-Selbstverletzung).

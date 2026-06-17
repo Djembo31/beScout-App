@@ -11,12 +11,15 @@
 ## 🗺️ Epics (Reihenfolge = grobe Prio)
 
 ### ⏳ IN ARBEIT
-- **E0 — Operating-System + Wissens-Basis** *(dieses Meta-Upgrade)*. ✅ Welle 1 Cockpit · ✅ Welle 2a Wissens-Index (`docs/knowledge/` + INDEX consult_when, **Option B**: frisch statt memory/ wiederbeleben). **Läuft: W2b** (13 Gold-Files migrieren + Dup-Entscheidungen) → W2c (~90 Files archivieren, cortex-index ablösen) → W3 Hygiene → W4 Historie.
+- **E1 — Polls P1 (REIN-Geldmaschine, D86)** — startet frisch. „Die fehlende Tür": `community_polls` hat keine Erstellung. Einstieg: `memory/session-handoff.md` Resume-Anker + `docs/knowledge/domain/polls.md` §8 P1. Money/CEO-Scope.
 
-### ⬜ ALS NÄCHSTES
+### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
+- ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.
+
+### ⬜ ALS NÄCHSTES (E1 weiter)
 - **E1 — Money/Reward-Modell (D83):** Treasury → Polls → Fan-Rewards.
   - ✅ Treasury-Fundament + RAUS-Kanäle (329 Ledger · 330 CSF · 330b Saldo · 331 Events · 332 Bounties).
-  - ⬜ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück. Roadmap P1-P4 in `docs/knowledge/domain/polls.md`.
+  - ⏳ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück, P1 startet. Roadmap P1-P4 in `docs/knowledge/domain/polls.md`.
   - ⬜ Fan-Reward-Engine (Verein belohnt treue Fans).
   - ⬜ Andere Event-Quellen (Plattform/Sponsor/User minten noch).
 - **E2 — S7 Tech-First-Aufräumen (D80):** Mockup-Reste, Dormant-Features, Brücken. Tracker `worklog/s7-phase3-remaining.md`. ⛔ players.club blockiert (API-Key).
@@ -27,4 +30,4 @@
 - Beta-Launch live (Tester aktiv).
 
 ## 📍 Stand in einem Satz
-RAUS-Kanäle des Treasury ✅ fertig. Als Nächstes: **Operating-System aufsetzen (E0)**, dann die **Polls-Geldmaschine (E1)**.
+Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ fertig. Als Nächstes: **Polls-Geldmaschine P1 (E1)** — die fehlende Erstellungs-„Tür", REIN → Treasury.

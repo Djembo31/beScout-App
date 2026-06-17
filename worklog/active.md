@@ -13,7 +13,7 @@ review: worklog/reviews/E0-W3b-review.md (PASS, 2 NIT out-of-scope)
 proof: worklog/proofs/E0-W3b-proof.txt
 parent: worklog/specs/E0-operating-system-knowledge-base.md (Epic E0, Welle 3, Gruppe-C-Folge)
 done_E0W3b: 3 tote Memory-Files (working-memory/session-digest/current-sprint) → _archive/2026-06-17-w3b · inject-context-on-compact (Write-Block raus, Injection intakt) + pattern-check (session-digest-Block raus, fix-Check intakt) · morning-briefing.sh GANZ retired (settings.json + git rm) · Commands /done /status /switch git rm (Ersatz /ship done|status) · MEMORY.md current-sprint-Pointer → active.md · wiring-check grün (38 Hooks) · Reviewer PASS.
-next: **W4 Historie abspecken** (git filter-repo, mit Backup, eigener bewusster Schritt) ODER **Polls P1** (E1-Geldmaschine). E0 Operating-System damit faktisch fertig (W3-Teil-2 Root-Vault-Reste = LOW, optional). DANN W4 (Historie-Rewrite, mit Backup). Danach Polls (E1).
+next: **POLLS P1** (E1-Geldmaschine) — Anil entschieden, frische Session. Einstieg: `memory/session-handoff.md` Resume-Anker + `docs/knowledge/domain/polls.md` §8 P1. Money/CEO-Scope, selbst bauen (Opus), D87 Live-functiondef vor Spec. E0 (Operating-System) faktisch fertig. DANN W4 (Historie-Rewrite, mit Backup). Danach Polls (E1).
 ```
 
 ## Wissens-Heimat — Endstand E0 Welle 2 (W2a+W2gov+W2b+W2c)
