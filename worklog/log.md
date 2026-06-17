@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 330b | 2026-06-17 | feat(treasury): Saldo Debit-Reconcile + Kontoauszug/CSF-Anzeige
+- Stage-Chain: SPEC (`worklog/specs/330b-treasury-balance-debits.md`, M, Migration, **CEO-approved**, Deposit gestrichen) → IMPACT (in Spec §12: Consumer = AdminWithdrawalTab + request_club_withdrawal-RPC) → BUILD (selbst, Money) → REVIEW (`worklog/reviews/330b-review.md`, Cold-Context-Reviewer **PASS**, 3 NITs) → PROVE (`worklog/proofs/330b-treasury-balance-debits.md`) → LOG.
+- Trigger: Money-Leck entdeckt beim 330b-Scoping — Slice 330 führte CSF-Debits ein, aber get_club_balance.available rechnete brutto-Credits−Withdrawals (Debits ignoriert), und request_club_withdrawal liest exakt diesen available → ausgezahltes CSF nochmal abhebbar.
+- CEO-Decision: Deposit-RPC NICHT bauen (Anil) → 330b = Balance-Reconcile + Ledger/CSF-Anzeige. Phase-1-Hebel = Pro-Card-Cap.
+- Bau: `get_club_balance` v2 (Baseline=live functiondef): `available = SUM(credit)−SUM(debit) − Withdrawals` (= identisch 330-Guard-Maß → Guard==UI==Withdrawal-Gate konsistent) + neue Keys `csf_paid`/`total_debited`, 5 alte erhalten · neue `get_club_treasury_ledger(club,limit)` (Kontoauszug, JSONB-Array gegen 1000-Cap [270d], admin-Guard, LIMIT clamp 1/50/200) · `getClubTreasuryLedger`-Service + `DbTreasuryLedgerEntry`-Type · `AdminWithdrawalTab` 5. Karte „CSF ausgezahlt" + Kontoauszug-Section (Credit grün +, Debit rose −, Typ-Label, balance_after) · i18n DE+TR (wdCsfPaid, ledger*, ledgerType 13 Typen, TR Anil-bestätigt).
+- Verify (Live-Prod, force-rollback): Reconcile behavioral — Club liquidiert (CSF 770k), available 886347→116347 (Delta == csf_debited == csf_paid, drop_matches=t), Kontoauszug-Top = csf · non-admin → not_authorized · Grants beide RPCs authenticated+postgres+service_role · tsc grün · 217 Tests grün (+3 Ledger-Cases). Migration `20260617140000` prod-applied. AC6 (UI-Screenshot) = post-Deploy Anil-Visual.
+- Knowledge: kein neuer Bug — Patterns 270d (JSONB-Return) + 329 (SUM-Saldo) + AR-44 + 095 (Admin-Guard) korrekt wiederverwendet.
+
 ## 330 | 2026-06-17 | feat(treasury): CSF-Engine ans Treasury — debit-Buchung + Cap + Multiplikatoren raus
 - Stage-Chain: SPEC (`worklog/specs/330-csf-engine-treasury.md`, L, Migration, **CEO-approved** 3 Entscheidungen) → IMPACT (in Spec §12, Consumer grep-verifiziert) → BUILD (selbst, Money/CEO) → REVIEW (`worklog/reviews/330-review.md`, Cold-Context-Reviewer **PASS**, 3 NITs) → PROVE (`worklog/proofs/330-csf-engine-treasury.md`) → LOG.
 - Trigger: D83 Bau-Sequenz Schritt 2 (nach 329 Treasury-Fundament). „weiter mit t 330" (Anil 2026-06-17).

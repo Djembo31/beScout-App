@@ -9,7 +9,7 @@ import {
   removeClubAdmin, getActiveGameweek, getLeagueActiveGameweek, getLeagueMaxGameweeks,
   setActiveGameweek, updateCommunityGuidelines, getClubFantasySettings,
   updateClubFantasySettings, getClubBalance, getClubWithdrawals,
-  requestClubWithdrawal, getClubStanding,
+  getClubTreasuryLedger, requestClubWithdrawal, getClubStanding,
 } from '../club';
 
 beforeEach(() => { resetMocks(); vi.clearAllMocks(); });
@@ -468,12 +468,34 @@ describe('updateClubFantasySettings', () => {
 // ============================================
 describe('getClubBalance', () => {
   it('returns balance via RPC', async () => {
-    mockRpc('get_club_balance', { earned: 500000, withdrawn: 100000, available: 400000 });
-    expect((await getClubBalance('c1')).available).toBe(400000);
+    mockRpc('get_club_balance', { total_earned: 500000, total_withdrawn: 100000, csf_paid: 70000, total_debited: 70000, available: 330000 });
+    const bal = await getClubBalance('c1');
+    expect(bal.available).toBe(330000);
+    expect(bal.csf_paid).toBe(70000);  // Slice 330b: Debit-Anteil exposed
   });
   it('throws on error', async () => {
     mockRpc('get_club_balance', null, { message: 'err' });
     await expect(getClubBalance('c1')).rejects.toThrow('err');
+  });
+});
+
+describe('getClubTreasuryLedger', () => {
+  it('returns ledger entries via RPC', async () => {
+    mockRpc('get_club_treasury_ledger', [
+      { id: 'l1', direction: 'debit', type: 'csf', amount: 70000, balance_after: 330000, description: 'CSF', created_at: '2026-06-17T00:00:00Z' },
+    ]);
+    const rows = await getClubTreasuryLedger('c1', 50);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].direction).toBe('debit');
+    expect(rows[0].type).toBe('csf');
+  });
+  it('returns empty array when RPC returns null', async () => {
+    mockRpc('get_club_treasury_ledger', null);
+    expect(await getClubTreasuryLedger('c1')).toEqual([]);
+  });
+  it('throws on error', async () => {
+    mockRpc('get_club_treasury_ledger', null, { message: 'err' });
+    await expect(getClubTreasuryLedger('c1')).rejects.toThrow('err');
   });
 });
 

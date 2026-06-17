@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
-import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, ClubDashboardStats, ClubAdminRole, OperationResult } from '@/types';
+import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, DbTreasuryLedgerEntry, ClubDashboardStats, ClubAdminRole, OperationResult } from '@/types';
 import { getLeagueById } from '@/lib/leagues';
 
 /**
@@ -741,6 +741,19 @@ export async function getClubWithdrawals(clubId: string): Promise<(DbClubWithdra
       requester_handle: profiles?.handle ?? 'unbekannt',
     };
   });
+}
+
+/** Slice 330b: Kontoauszug (Credits + Debits inkl. CSF) des Club-Treasury. */
+export async function getClubTreasuryLedger(
+  clubId: string,
+  limit = 50,
+): Promise<DbTreasuryLedgerEntry[]> {
+  const { data, error } = await supabase.rpc('get_club_treasury_ledger', {
+    p_club_id: clubId,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbTreasuryLedgerEntry[];
 }
 
 /** Request a withdrawal */

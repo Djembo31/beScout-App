@@ -2,16 +2,16 @@
 
 ```
 status: idle
-slice: 330
-title: ✅ DONE — CSF-Engine ans Treasury (debit-Buchung + Cap + Multiplikatoren raus)
+slice: 330b
+title: ✅ DONE — Treasury-Saldo Debit-Reconcile + Kontoauszug/CSF-Anzeige
 stage: LOG complete
-size: L
+size: M
 type: Migration (Money, CEO)
-spec: worklog/specs/330-csf-engine-treasury.md
-review: worklog/reviews/330-review.md (PASS, 3 NITs)
-proof: worklog/proofs/330-csf-engine-treasury.md
-done_330: liquidate_player → CSF+PBT rein proportional (csf_multiplier+mastery raus) · CSF debitiert Club-Treasury (book_club_treasury 'debit'/'csf') · fail-safe Guard treasury_insufficient_for_csf (race-frei via clubs FOR UPDATE) · Pro-Card-Cap unverändert · UI-Badge "CSF Bonus" weg (FanRankBadge/Overview/ClubContent + i18n csfBonus) · activity.successFee-Mapping. PREREQ-FIX: transactions_type_check fehlten pbt_liquidation+success_fee (latent seit Slice 178 → JEDE Auszahlungs-Liquidation 23514) → Migration 130500. Prod-applied + verifiziert (Block + Erfolgs-Pfad force-rollback).
-next: 330b Deposit-RPC (Escape-Ventil Guard, Money-Frage "aus welchem Wallet") + AdminTreasuryTab Ledger/CSF-Debit-Anzeige (329b-UI). Dann RAUS-Kanäle (Events/Polls/Bounties) + Fan-Reward-Engine. Alle Money/CEO.
+spec: worklog/specs/330b-treasury-balance-debits.md
+review: worklog/reviews/330b-review.md (PASS, 3 NITs)
+proof: worklog/proofs/330b-treasury-balance-debits.md
+done_330b: get_club_balance v2 (available = SUM(credit)−SUM(debit)−Withdrawals = identisch 330-Guard; +csf_paid +total_debited) schließt Withdrawal-Leck (CSF war doppelt abhebbar, da request_club_withdrawal denselben available liest) · neue get_club_treasury_ledger (Kontoauszug, JSONB-Return, admin-Guard) · AdminWithdrawalTab: csf_paid-Karte + Kontoauszug · i18n DE+TR (ledgerType 13). Prod-applied + behavioral force-rollback-verifiziert (avail-Delta == csf_debited). Deposit gestrichen (CEO).
+next: RAUS-Kanäle (Events/Polls/Bounties ans Treasury) + Fan-Reward-Engine. Alle Money/CEO.
 ```
 
 ## Zuletzt

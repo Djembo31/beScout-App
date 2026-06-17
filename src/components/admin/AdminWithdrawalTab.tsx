@@ -2,12 +2,18 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Wallet, ArrowDownToLine, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Wallet, ArrowDownToLine, Clock, CheckCircle, XCircle, Loader2, ArrowUpRight, ArrowDownLeft, ReceiptText } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { getClubBalance, getClubWithdrawals, requestClubWithdrawal } from '@/lib/services/club';
+import { getClubBalance, getClubWithdrawals, getClubTreasuryLedger, requestClubWithdrawal } from '@/lib/services/club';
 import { formatScout } from '@/lib/services/wallet';
-import type { ClubWithAdmin, ClubBalance, DbClubWithdrawal } from '@/types';
+import type { ClubWithAdmin, ClubBalance, DbClubWithdrawal, DbTreasuryLedgerEntry } from '@/types';
+
+const KNOWN_LEDGER_TYPES = new Set([
+  'trade_fee', 'ipo_fee', 'p2p_fee', 'subscription', 'opening_trade_fees',
+  'opening_subscription', 'deposit', 'withdrawal', 'csf', 'fan_reward',
+  'event_prize', 'poll_reward', 'bounty',
+]);
 
 function timeAgo(dateStr: string): string {
   const now = Date.now();
@@ -25,6 +31,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
   const [balance, setBalance] = useState<ClubBalance | null>(null);
   const [withdrawals, setWithdrawals] = useState<(DbClubWithdrawal & { requester_handle: string })[]>([]);
+  const [ledger, setLedger] = useState<DbTreasuryLedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -38,15 +45,20 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
     paid: { label: t('wdStatusPaid'), color: 'text-gold', icon: CheckCircle },
   };
 
+  const ledgerTypeLabel = (type: string) =>
+    KNOWN_LEDGER_TYPES.has(type) ? t(`ledgerType.${type}`) : type;
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [b, w] = await Promise.all([
+      const [b, w, l] = await Promise.all([
         getClubBalance(club.id),
         getClubWithdrawals(club.id),
+        getClubTreasuryLedger(club.id, 50),
       ]);
       setBalance(b);
       setWithdrawals(w);
+      setLedger(l);
     } catch (err) {
       console.error('[AdminWithdrawal] Load failed:', err);
     } finally {
@@ -92,7 +104,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
       <h2 className="text-xl font-black text-balance">{t('withdrawalTitle')}</h2>
 
       {/* Balance Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <Card className="p-4 bg-gold/[0.06] border-gold/20">
           <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdAvailable')}</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
@@ -115,6 +127,12 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
           <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdAlreadyPaid')}</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-sm font-mono font-bold text-white/60 tabular-nums">{formatScout(balance?.total_withdrawn ?? 0)} CR</div>
+          )}
+        </Card>
+        <Card className="p-4">
+          <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdCsfPaid')}</div>
+          {loading ? <Skeleton className="h-7 w-24" /> : (
+            <div className="text-sm font-mono font-bold text-rose-400 tabular-nums">{formatScout(balance?.csf_paid ?? 0)} CR</div>
           )}
         </Card>
       </div>
@@ -195,6 +213,48 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                   <div className="text-right">
                     <div className={cn('text-xs font-semibold', status.color)}>{status.label}</div>
                     <div className="text-[10px] text-white/25">{timeAgo(w.created_at)}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Card>
+
+      {/* Kontoauszug (Treasury-Ledger inkl. CSF-Debits) */}
+      <Card className="p-6">
+        <h3 className="text-sm font-bold text-white/70 mb-4 flex items-center gap-2">
+          <ReceiptText className="size-4" aria-hidden="true" />
+          {t('ledgerTitle')}
+        </h3>
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
+          </div>
+        ) : ledger.length === 0 ? (
+          <div className="text-center py-8 text-sm text-white/30 text-pretty">{t('ledgerEmpty')}</div>
+        ) : (
+          <div className="space-y-2">
+            {ledger.map(entry => {
+              const isCredit = entry.direction === 'credit';
+              return (
+                <div key={entry.id} className="flex items-center justify-between bg-surface-minimal rounded-xl px-4 py-3 border border-divider">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {isCredit
+                      ? <ArrowDownLeft className="size-4 text-emerald-400 shrink-0" aria-hidden="true" />
+                      : <ArrowUpRight className="size-4 text-rose-400 shrink-0" aria-hidden="true" />}
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate">{ledgerTypeLabel(entry.type)}</div>
+                      {entry.description && <div className="text-xs text-white/40 truncate">{entry.description}</div>}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0 pl-3">
+                    <div className={cn('text-sm font-mono font-bold tabular-nums', isCredit ? 'text-emerald-400' : 'text-rose-400')}>
+                      {isCredit ? '+' : '−'}{formatScout(entry.amount)} CR
+                    </div>
+                    <div className="text-[10px] text-white/25 tabular-nums">
+                      {timeAgo(entry.created_at)} · {formatScout(entry.balance_after)} CR
+                    </div>
                   </div>
                 </div>
               );

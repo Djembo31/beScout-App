@@ -386,7 +386,20 @@ export type ClubBalance = {
   trade_fees: number;
   sub_revenue: number;
   total_withdrawn: number;
-  available: number;
+  csf_paid: number;       // Slice 330b: SUM Debit type='csf'
+  total_debited: number;  // Slice 330b: SUM aller Debits
+  available: number;      // Slice 330b: Ledger-Netto (Credits − Debits) − Withdrawals
+};
+
+/** Slice 330b: eine Zeile aus dem Club-Treasury-Kontoauszug (get_club_treasury_ledger). */
+export type DbTreasuryLedgerEntry = {
+  id: string;
+  direction: 'credit' | 'debit';
+  type: string;
+  amount: number;
+  balance_after: number;
+  description: string | null;
+  created_at: string;
 };
 
 /**
