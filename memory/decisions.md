@@ -1049,7 +1049,7 @@ Session-Evidence 2026-04-23 (9 Slices):
 ## D28 — ARCHITECTURE: DB-Invariants via Trigger + Opt-In GUC fuer legitimierte Bulk-Migrations
 
 - **Datum:** 2026-04-24
-- **Status:** Aktiv (etabliert Slice 179, applicable auf andere immutable-log-tables)
+- **Status:** ⤳ Konsolidiert in **D39** (generalisiert das Trigger+GUC-Pattern über append-only hinaus). D28 = der append-only-Erstfall, D39 = Kanon für alle Data-Integrity-Invariants. (E0-W2b 2026-06-17)
 - **Kontext:** CLAUDE.md-Regel "Trades/Transactions append-only" war nur Doku, nicht enforced. Slice 179 setzt als DB-Invariant: `REVOKE UPDATE, DELETE` von anon/authenticated + BEFORE-Trigger raising exception.
 - **Entscheidung:** Trigger pruefen `current_setting('bescout.allow_transactions_mutation', true) = 'true'` → Bypass. Legitimierte Bulk-Migrations setzen `SET LOCAL <guc>` innerhalb Transaction. SET LOCAL = Transaction-scope, nicht Session-scope.
 - **Begruendung:** REVOKE allein reicht nicht (SECURITY DEFINER RPCs laufen als postgres). Trigger = defense-in-depth. GUC-Opt-in-Pattern erlaubt legitimierte one-time-backfills ohne Trigger-temporaer-disable/re-enable (zu risky).
@@ -1514,8 +1514,8 @@ Gegenargument: „Migration als Audit-Trail". Counter: Git-Log + Proof-File sind
 ## D39 — ARCHITECTURE: Trigger+GUC-Pattern als Standard für DB-Level Data-Integrity-Invariants
 
 **Datum:** 2026-04-24
-**Status:** ✅ Aktiv
-**Supersedes:** — (generalisiert D28 über append-only hinaus)
+**Status:** ✅ Aktiv (Kanon für Trigger+GUC-Invariants)
+**Supersedes:** **D28** (generalisiert dessen append-only-Pattern auf alle Data-Integrity-Invariants — D28 bleibt als Erstfall-Doku)
 
 ### Entscheidung
 
@@ -2751,7 +2751,8 @@ TanStack Query ist der korrekte Layer für authenticated-Daten-Caching (JWT-awar
 
 ## D62 — PROCESS: Reviewer-VOR-BUILD-Stage bei Re-Doing-Reverted-Slices
 
-**Datum:** 2026-04-30 · **Status:** Aktiv · **Slice:** 268
+**Datum:** 2026-04-30 · **Status:** Aktiv (Kanon) · **Slice:** 268
+> **Evolution (1 Thema, D62 = Kanon):** D62 Einführung → **D65** Promotion zu Default für M+ Slices (operative Regel) → **D67** ROI nach 7 Slices bestätigt (0 Reverts, reine Empirik). (konsolidiert E0-W2b 2026-06-17)
 
 ### Entscheidung
 
@@ -3037,7 +3038,7 @@ grep -rn "events.filter\|status === " src/components/home/
 
 ## D67 — PROCESS: D62 ROI-Empirik nach 7 Slices in Folge bestätigt (0 Reverts)
 
-**Datum:** 2026-05-03 · **Status:** Aktiv · **Slice:** 267 (Realtime-Live-Score, 7. D62-Slice)
+**Datum:** 2026-05-03 · **Status:** ⤳ Bestätigung zu **D62/D65** (reine Empirik, kein neuer Beschluss — siehe D62 Evolution) · **Slice:** 267 (Realtime-Live-Score, 7. D62-Slice)
 
 ### Entscheidung
 
@@ -3522,7 +3523,7 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 
 ## D83 — PRODUCT/ARCHITECTURE: BeScout Money/Reward-Modell — konsolidiert (Scout Card → IPO → CSF → Club-Treasury → Fan-Rewards)
 
-**Datum:** 2026-06-16 · **Status:** Aktiv (Konzept komplett, Bau ausstehend) · **Kontext:** Strategie-Session 2026-06-15/16. Anil-Frustration: zentrale Money-Modell-Infos gingen zwischen Sessions verloren und mussten neu ausgearbeitet werden. Diese Decision + `worklog/concepts/csf-club-treasury-model.md` + `trading.md` sind die **dauerhafte Basis** — nie wieder neu durchgehen.
+**Datum:** 2026-06-16 · **Status:** Aktiv (Konzept komplett, Bau ausstehend) · **Kontext:** Strategie-Session 2026-06-15/16. Anil-Frustration: zentrale Money-Modell-Infos gingen zwischen Sessions verloren und mussten neu ausgearbeitet werden. Diese Decision + `docs/knowledge/domain/treasury.md` (Kanon) + `trading.md` sind die **dauerhafte Basis** — nie wieder neu durchgehen.
 
 **Das Modell (Kern-Aussagen, unveränderlich):**
 1. **Scout Card = vertragsgekoppelter Anteil am Spieler** (Produkt-Wahrheit, Equity-artig) / nach außen „digitale Sammelkarte" (Doppel-Register `business.md`). Asset-Laufzeit = Spielervertrag.
@@ -3546,13 +3547,13 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 
 **Alternativen erwogen:** (a) CSF „echt machen" (Deckel lockern) — verworfen, Securities-Nähe + trifft nicht „Aktivität belohnen". (b) Treue über csf_multiplier bei Liquidation — verworfen (wirkungslos 1,15× + verwässert proportional), ersetzt durch Fan-Reward-Engine. (c) Tranchen-Auszahlung — verworfen, Club zahlt aus Treasury (kein Cashflow-Grund).
 
-**Auswirkungen:** `trading.md` (autoloaded) trägt jetzt das CSF-Modell + Osimhen-Beispiel. `worklog/concepts/csf-club-treasury-model.md` = ausführliche Quelle (§1-10). Künftige Money-Specs referenzieren D83, nicht neu erarbeiten.
+**Auswirkungen:** `trading.md` (autoloaded) trägt jetzt das CSF-Modell + Osimhen-Beispiel. `docs/knowledge/domain/treasury.md` = ausführliche Kanon-Quelle (WIE). Künftige Money-Specs referenzieren D83, nicht neu erarbeiten.
 
 **Re-Visit-Trigger:** Cap-Semantik final festlegen (pro-Card cents vs. Transfer-EUR-Referenz) bei Treasury/CSF-Bau. ODER „Legal Go" → Phase-2-Cash-out wird Thema.
 
 ## D84 — PROCESS: Setup-Elite-Upgrade — CLAUDE.md Karpathy-first, Register=SSOT, Rules on-demand, Modell-Routing
 
-**Datum:** 2026-06-17 · **Status:** Aktiv · **Kontext:** Auftrag „Setup auf Elite-Level + Hygiene + kein Widerspruch + EIN Workflow + Context ohne Overhead". Faktenbasis: Deep Research `walz06h0w` + Inventur. Voll-autonom alle 5 Achsen ausgeführt. Plan: `worklog/concepts/setup-elite-upgrade.md` (§6 Ausführungsprotokoll).
+**Datum:** 2026-06-17 · **Status:** Aktiv · **Kontext:** Auftrag „Setup auf Elite-Level + Hygiene + kein Widerspruch + EIN Workflow + Context ohne Overhead". Faktenbasis: Deep Research `walz06h0w` + Inventur. Voll-autonom alle 5 Achsen ausgeführt. Plan/Distillat: `docs/knowledge/research/claude-code-setup.md` (§4 Ausführungsprotokoll).
 
 **Entscheidung:**
 1. **CLAUDE.md = Karpathy-Prinzipien-First** (§1: Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven; Leitsatz „bias toward caution over speed"). 164→103 Zeilen. Money/Security-CEO-Gates bleiben prominent (§3) = BeScouts legitimer Unterschied.
@@ -3592,7 +3593,7 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 
 ## D86 — PRODUCT: Polls = Vereins-Geldmaschine + Fan-Stimme (REIN, nicht RAUS) + Discovery + soziale Schicht
 
-**Datum:** 2026-06-17 · **Status:** Aktiv (Vision geklärt, Bau offen) · **Kontext:** Strategie-Session beim Planen der RAUS-Kanäle. Anil korrigierte mein Missverständnis (ich hatte Polls als „Verein zahlt Fans / RAUS" eingeordnet). **Volles Modell + ToDos: `worklog/concepts/polls-engagement-monetization-model.md`. Beibezug Pflicht.**
+**Datum:** 2026-06-17 · **Status:** Aktiv (Vision geklärt, Bau offen) · **Kontext:** Strategie-Session beim Planen der RAUS-Kanäle. Anil korrigierte mein Missverständnis (ich hatte Polls als „Verein zahlt Fans / RAUS" eingeordnet). **Volles Modell + ToDos (Kanon): `docs/knowledge/domain/polls.md`. Beibezug Pflicht.**
 
 **Die Entscheidung / das Modell:**
 1. **Polls sind REIN, nicht RAUS.** Fan zahlt fürs Mitmachen → **Verein verdient → Treasury**. Das ist gewollt extractive (die Geldmaschine), KEINE „Verein-belohnt-Teilnahme"-Umkehr. Strategischer Kern: Vereine können Fan-Meinung (besonders Transferzeit) heute nirgends kanalisieren/monetarisieren — genau das schließen wir. Skalen-Hebel: Gala 35 Mio Fans, 1 % = 350k zahlende Teilnehmer.
@@ -3605,7 +3606,7 @@ Jeder Fix = eigener SHIP-Slice mit Spec + Review. **Money + Security = CEO-Scope
 
 **Befund Current-State:** `community_polls` kann lesen/abstimmen(70/30)/abbrechen — **aber KEINE Erstellung** (kein Service/RPC/UI). „Hülle ohne Tür". Einzige existierende Erstellung = Gratis-Club-Vote (Admin). Kein `player_id`, kein Filter nach Verein/Spieler, Follower/Fan-Rang wirkungslos.
 
-**Auswirkungen:** Korrigiert `csf-club-treasury-model.md` §8 (falsche „Umkehr"-Zeile). Roadmap P1–P4 im Konzept-Doc. P1 (Erstellung + Quelle/Identität + Treasury-Routing) ist der Kern-Slice. Ledger-Typ: vorgehaltener `poll_reward`-DEBIT war falsche Annahme (RAUS) → für Polls braucht es einen REIN-Credit-Typ (`poll_revenue`).
+**Auswirkungen:** Korrigiert `docs/knowledge/domain/treasury.md` §7 (Polls = REIN). Roadmap P1–P4 im Kanon-Doc `docs/knowledge/domain/polls.md`. P1 (Erstellung + Quelle/Identität + Treasury-Routing) ist der Kern-Slice. Ledger-Typ: vorgehaltener `poll_reward`-DEBIT war falsche Annahme (RAUS) → für Polls braucht es einen REIN-Credit-Typ (`poll_revenue`).
 
 **Alternativen erwogen:** Polls als RAUS/„Verein belohnt Teilnahme" (mein erster Entwurf) — von Anil verworfen: das verfehlt den Geschäftszweck (Verein soll *verdienen*, nicht ausgeben). Die Auszahl-an-Fans-Idee bleibt als *optionale* Zusatzebene (§7), nicht als Kern.
 

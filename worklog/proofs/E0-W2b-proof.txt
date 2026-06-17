@@ -1,0 +1,62 @@
+=== E0-W2b PROOF — Wissens-Basis-Migration ===
+Datum: 2026-06-17
+
+--- audit:knowledge --check (Pre-Commit-Sicht, nur HARD blockt) ---
+═══ Knowledge-Audit ═══
+Content-Files: 18 · INDEX-Links: 37
+HARD: 0 · SOFT: 0
+Report: C:\bescout-app\worklog\audits\knowledge-2026-06-17.md
+
+
+✅ Clean.
+
+--- INDEX zeigt KEINE Alt-Pfade mehr (erwartet: leer) ---
+(keine) ✅
+
+--- docs/knowledge/ Bucket-Inhalt ---
+[domain]
+domain/README.md
+domain/architecture-3hub.md
+domain/bescout-liga.md
+domain/cross-domain-map.md
+domain/equipment-realtime.md
+domain/fantasy.md
+domain/feature-dependencies.md
+domain/missions.md
+domain/polls.md
+domain/product-map.md
+domain/reward-ranking.md
+domain/treasury.md
+domain/vision.md
+[decisions]
+decisions/README.md
+decisions/mogul-mutationsplan.md
+[lessons]
+lessons/README.md
+lessons/db-i18n-schema-extension.md
+lessons/rls-cross-user-writes.md
+lessons/slot-composition.md
+lessons/tier-based-config.md
+[research]
+research/README.md
+research/claude-code-setup.md
+
+--- Front-matter-Pflichtfelder pro File (6 Keys) ---
+6/6  docs/knowledge/domain/architecture-3hub.md
+6/6  docs/knowledge/domain/bescout-liga.md
+6/6  docs/knowledge/domain/cross-domain-map.md
+6/6  docs/knowledge/domain/equipment-realtime.md
+6/6  docs/knowledge/domain/fantasy.md
+6/6  docs/knowledge/domain/feature-dependencies.md
+6/6  docs/knowledge/domain/missions.md
+6/6  docs/knowledge/domain/polls.md
+6/6  docs/knowledge/domain/product-map.md
+6/6  docs/knowledge/domain/reward-ranking.md
+6/6  docs/knowledge/domain/treasury.md
+6/6  docs/knowledge/domain/vision.md
+6/6  docs/knowledge/decisions/mogul-mutationsplan.md
+6/6  docs/knowledge/lessons/db-i18n-schema-extension.md
+6/6  docs/knowledge/lessons/rls-cross-user-writes.md
+6/6  docs/knowledge/lessons/slot-composition.md
+6/6  docs/knowledge/lessons/tier-based-config.md
+6/6  docs/knowledge/research/claude-code-setup.md

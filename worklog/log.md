@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## E0-W2b | 2026-06-17 | docs(knowledge): Wissens-Basis migriert — 13+2 Gold-Files → docs/knowledge/ (3-Schichten-Kanon)
+- Stage-Chain: SPEC (`worklog/specs/E0-W2b-knowledge-migration.md`, L, Doc+Decision) → IMPACT skipped (reine Doku-Migration, keine Code/RPC/Schema) → BUILD → REVIEW (`worklog/reviews/E0-W2b-review.md`, Cold-Context **PASS**, 3 NIT) → PROVE (`worklog/proofs/E0-W2b-proof.txt`) → LOG.
+- Trigger: E0 Welle 2b. Anil-Entscheidung (AskUserQuestion): **3-Schichten-Kanon** (docs/knowledge/domain=WIE · memory/decisions.md=WARUM+Link · .claude/rules=schlanke Regel+Zeiger) + **alle 13 in einem Rutsch**.
+- Bau: **18 Content-Files** nach `docs/knowledge/{domain(12),decisions(1),lessons(4),research(1)}/` mit 6-Feld-Pflicht-Frontmatter. **Money-Kanon selbst** (§3): `domain/treasury.md` (329-332-Bau-Stand refresht) + `domain/polls.md`. 4 Parallel-Agents für faithful-relocate (produkt/projekt/cross-domain+fantasy/patterns). INDEX zentral neu (Routing-SSOT, alle Pfade auf docs/knowledge/). 18 Alt-Originale → Redirect-Stubs (Inhalt in git+Kanon). Live-Pointer umgebogen: `trading.md` (autoloaded) + decisions.md D83/D84/D86 → docs/knowledge/. `cortex-index.md` als SUPERSEDED gebannert (Retirement W2c).
+- Decisions-Merge: **D28→D39** (supersede-Spur, append-only) + **D62/D65/D67** (Evolution-Konsolidierung, D62 Kanon).
+- Verify: `audit:knowledge` **0 HARD / 0 SOFT**, 18 Files alle 6/6 Frontmatter, INDEX 0 Alt-Pfad-Reste, 7 verified-against-Pfade existent. Money-Treue gegen D83/D86 vom Reviewer 1:1 bestätigt (1 $SCOUT=1 Cent, 100k SC=100%, CSF einmalig/proportional/kein csf_mult, Polls=REIN).
+- Findings: #1 cross-domain-map Body-Datum ↔ Frontmatter → GEFIXT. #2 community.md↔polls.md Rück-Zeiger → W2c. #3 INDEX consult_when-Kurzform → optional (Spec-erlaubt).
+- Offen/Next: **W2c** (≈90 ephemere memory-Files → _archive, Stubs entfernen, cortex-index physisch ablösen) · W3 Hygiene · W4 Historie. LOW (aus W2gov): Orphan-Pfad-Casing-Härtung im Detektor.
+
 ## E0-W2gov | 2026-06-17 | feat(knowledge): Wissens-Governance verdrahtet — D88 + audit:knowledge + SHIP-Kopplung
 - Stage-Chain: SPEC (`worklog/specs/E0-W2gov-knowledge-governance.md`, M, Tool+Hook+Doc+Decision) → IMPACT skipped (additiv, Wiring-Consumer in Spec) → BUILD → REVIEW (`worklog/reviews/E0-W2gov-review.md`, Cold-Context **REWORK→geheilt→PASS**) → PROVE (`worklog/proofs/E0-W2gov-proof.txt`) → LOG.
 - Trigger: Anil auf die 5 Wissens-Fragen (Korrektheit/Aktualität/neues Wissen/Korrektur/Erweiterung) — „nicht nur planen, alle komplett verdrahten mit Verstand". Lücke nach W2a: Landkarte ja, Lebenszyklus-Enforcement nein (= woran memory/semantisch starb).

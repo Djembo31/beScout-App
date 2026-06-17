@@ -40,7 +40,7 @@ paths:
 - Card-Value skaliert **1:1 mit MV_liqui** → Fan-Gewinn-Multiplikator = Spieler-Wertsteigerungs-Multiplikator.
 - **Kanon-Beispiel (Osimhen):** IPO MV 75 Mio → 1 SC = 750 € = 75.000 $SCOUT. Transfer 150 Mio (kein Cap) → Reward/Card = 150 Mio/100.000 = **1.500 € = 150.000 $SCOUT**. 2 SC → **3.000 € = 300.000 $SCOUT** (2×, weil 75→150 Mio = 2× Wertsteigerung). Mit Cap 100 Mio → 1.000 €/Card.
 - **+ PBT-Anteil** (separater per-Player-Topf, 1,5% der Trades) wird bei Liquidation mit-ausgeschüttet (klein, volumenabhängig).
-- **Vollständiges Modell:** `worklog/concepts/csf-club-treasury-model.md` (+ `reward-ranking-ecosystem.md`), Decision `memory/decisions.md` D83.
+- **Vollständiges Modell (Kanon):** `docs/knowledge/domain/treasury.md` (+ `docs/knowledge/domain/reward-ranking.md`), Decision `memory/decisions.md` D83.
 
 ### Regeln
 - `ipo_price` = fest pro Tranche nach Launch, aendert sich NIE durch Marktaktivitaet
@@ -59,7 +59,7 @@ paths:
   kann die angezeigte Kaufsumme minimal unter dem tatsächlich gebuchten Preis liegen. Future-Fix
   optional: eigene Orders aus dem Display-Floor excludieren ODER Kauf blocken wenn eigene Order
   am günstigsten. Kein Live-Blocker (selten + RPC ist autoritativ).
-- Details: `worklog/concepts/csf-club-treasury-model.md` + `docs/CONCEPT-DPC-ECONOMY.md` + `memory/decisions.md` D83 (Pfad `memory/decision_pricing_asset_model.md` existiert NICHT — Drift)
+- Details: `docs/knowledge/domain/treasury.md` (Kanon) + `docs/CONCEPT-DPC-ECONOMY.md` + `memory/decisions.md` D83 (Pfad `memory/decision_pricing_asset_model.md` existiert NICHT — Drift)
 
 ## Fee-Split
 - **Trading (6% total):** `trade_fee_bps=600` → Platform 3.5% + PBT 1.5% + Club 1%

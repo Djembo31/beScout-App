@@ -7,6 +7,8 @@ tags: [reference, index, workflow]
 
 # Cortex Index
 
+> ⚠️ **SUPERSEDED (E0-W2b 2026-06-17):** Routing-SSOT ist jetzt `docs/knowledge/INDEX.md` (consult_when, auto-injiziert). Durables Gold-Wissen wurde nach `docs/knowledge/<bucket>/` migriert — viele `memory/semantisch/`-Pfade unten sind jetzt **Stubs** (zeigen auf den Kanon). Diese Datei wird in **W2c** physisch retired. Bis dahin nur historische/ephemere Pfade hier verlässlich.
+>
 > Routing-Tabelle. Sagt WO Wissen liegt, nicht WAS es ist.
 > Jarvis laedt relevante Files on-demand basierend auf dem aktuellen Task.
 
