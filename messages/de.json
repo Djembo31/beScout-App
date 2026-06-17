@@ -3623,6 +3623,8 @@
     "positionMismatch": "Equipment passt nicht zur Spieler-Position.",
     "lineupLocked": "Lineup ist gesperrt — Aenderungen nicht mehr moeglich.",
     "eventPrizeTreasuryInsufficient": "Treasury reicht nicht für den Gewinn-Topf. Bitte Topf verringern oder Treasury aufstocken.",
+    "bountyTreasuryInsufficient": "Treasury reicht nicht für die Bounty-Belohnung. Bitte Belohnung verringern oder Treasury aufstocken.",
+    "bountyNotClubAdmin": "Nur Club-Admins können einen vereinsfinanzierten Bounty erstellen.",
     "noEquipmentOnSlot": "Kein Equipment auf diesem Slot.",
     "equipmentSaveFailed": "{count, plural, =1 {1 Equipment konnte nicht gespeichert werden.} other {# Equipment-Slots konnten nicht gespeichert werden.}} Bitte Aufstellung erneut speichern.",
     "ghost_holding_row": "Ein Spieler-Datensatz konnte nicht geladen werden. Lade die Seite neu.",

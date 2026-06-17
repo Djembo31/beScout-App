@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 332 | 2026-06-17 | feat(treasury): Club-Bounties ans Treasury — Reward-Escrow bei Erstellung
+- Stage-Chain: SPEC (`worklog/specs/332-club-bounties-treasury.md`, M, Migration, **CEO-approved** Variante A) → IMPACT (Live-PATCH-AUDIT der Bounty-RPCs) → BUILD (selbst, Money, mirror 331) → REVIEW (`worklog/reviews/332-review.md`, Cold-Context **PASS**, 4 LOW/INFO) → PROVE (`worklog/proofs/332-club-bounties-treasury.md`) → LOG.
+- Trigger: D80 RAUS-Kanäle Schritt 2 (Bounties, nach Events 331). „bounties" (Anil). Befund-Korrektur: Club-Bounty MINTET NICHT — Live-approve zahlt Admin aus EIGENEM Wallet bei Approval (alte Migrations-Datei war veraltet, PATCH-AUDIT korrigiert).
+- CEO-Decision: **A — Escrow bei Erstellung** (Fans sehen garantiert gedeckten Bounty), statt B (Quelle bei Approval tauschen). User-Bounties (is_user_bounty=true, eigenes Wallet) unangetastet.
+- Bau (trigger-zentrisch, mirror 331 + 1 Money-RPC-Edit): Spalte `treasury_escrowed` · `trg_bounties_escrow_reward` (BEFORE INSERT Club-Bounty: Admin-Gate `not_club_admin_for_bounty` + Treasury-Guard [ledger_net−Withdrawals, clubs FOR UPDATE] + book_club_treasury debit 'bounty') · `trg_bounties_settle` (BEFORE UPDATE OF status: cancelled/closed → Refund, completed → flag off) · `trg_bounties_resync_escrow` (BEFORE UPDATE OF reward_cents — Defense-in-Depth gg. RLS-Admin-reward-Edit, 331-Finding-#1-Klasse) · `approve_bounty_submission`-Edit (PATCH-AUDIT: bei treasury_escrowed=true KEIN Admin-Wallet-Abzug, Treasury hat bei Erstellung gezahlt; grandfathered=Admin zahlt wie bisher). src: errorMessages +2 (bountyTreasuryInsufficient/bountyNotClubAdmin) + i18n DE+TR.
+- PREREQ-FIX: `bounties_status_check` kannte 'completed' NICHT (approve setzt es) → JEDE Bounty-Approval failte 23514 (latent, 0 approved je). Additiv ergänzt → Auszahl-Pfad entsperrt.
+- Verify (Live-Prod, force-rollback): escrow debit=reward · Nicht-Admin→RAISE · user-bounty 0-Treasury · cancel/closed je voll zurück · completed kein Refund+flag off · grandfathered 0 · **behavioral: approve escrowt → Admin-Wallet 1M→1M UNVERÄNDERT, Submitter +95.000 (reward−5%), bounty=completed** → Treasury zahlt, nicht Admin. tsc grün. Migrations `20260617160000` (+status_completed) prod-applied.
+- Knowledge: errors-db.md „Status-CHECK-Drift" (Verallgemeinerung der transactions.type-CHECK-Drift — 3 Fälle EINE Session: liquidation-type, events-'cancelled', bounties-'completed').
+
 ## 331 | 2026-06-17 | feat(treasury): Events ans Treasury — Voll-Reconcile (Prize-Escrow statt Minting)
 - Stage-Chain: SPEC (`worklog/specs/331-events-treasury-reconcile.md`, L, Migration, **CEO-approved**) → IMPACT (in Spec) → BUILD Wave1 Migration + Wave2 src (selbst, Money) → REVIEW (`worklog/reviews/331-review.md`, Cold-Context **CONCERNS** → 1 MAJOR geheilt → PASS) → PROVE (`worklog/proofs/331-events-treasury-escrow.md`) → LOG.
 - Trigger: D80 RAUS-Kanäle Schritt 1 (Events). „events/polls/bounties" (Anil) → Events zuerst. Befund: score_event MINTET prize_pool (deklariert → Gewinner-Wallets, kein Konto belastet) = Pre-330-CSF-Klasse.

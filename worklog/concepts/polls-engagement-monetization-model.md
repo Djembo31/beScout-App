@@ -131,4 +131,25 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 
 ---
 
+---
+
+## 10. Gesamtbild Community-Geldkanäle (Events · Bounties · Polls · Research) — 2026-06-17
+
+Alle hängen an **denselben zwei Ankern: Spieler + Verein** → gemeinsame Discovery (Filter/Suche).
+
+| Kanal | Form | Wer zahlt → wer verdient | Vereins-Treasury? |
+|---|---|---|---|
+| **Events** | Wettbewerb | Fan zahlt Entry → Gewinner | Club-Event: Prize aus Treasury (✅ Slice 331) |
+| **Bounty** | **Nachfrage (Pull)** „ich zahle für eine Lieferung" | User-Bounty: User→User (eigenes Wallet) · **Club-Bounty: Verein→Erfüller** | Club-Bounty: Reward aus **Treasury** (NÄCHSTER SLICE) |
+| **Poll** | Meinung | Fan zahlt Vote → **Verein/Creator** | Vereins-Poll: **REIN → Treasury** (D86, P1) |
+| **Research/Paywall** | **Angebot (Push)** „zahl, um meine Analyse zu lesen" | User→User, **80 % Autor / 20 % Plattform** | **NEIN — bleibt User-zu-User (Entscheidung A)** |
+
+**Research ⇄ Bounty = dieselbe Münze:** Research = **Angebot** (Autor publiziert), Bounty = **Nachfrage** (Auftraggeber pullt). Beide getaggt an Spieler+Verein, beide im selben Scout-Wissens-Markt + Reputation-Flywheel.
+
+**User-Bounty vs Club-Bounty (verifiziert 2026-06-17):** User-Bounty = simples offenes Freitext-Gesuch (Titel/Beschreibung/Reward/Deadline, immer `type='general'`), Reward aus **eigenem Wallet** (`create_user_bounty`, `is_user_bounty=true`, Escrow `locked_balance`). Club-Bounty = strukturiert (scouting-Typ, player/position/fixture/min_tier), **direkter Insert** (`createBounty`, `is_user_bounty=false`) → heute **gemintet bei Approval** (kein Escrow, kein Quell-Konto) = gleiche Klasse wie Events-Minting. `approve_bounty_submission` zahlt immer den Erfüller; Escrow-Release nur bei `is_user_bounty`.
+
+**Entscheidung A (Research, 2026-06-17):** Research bleibt **User-zu-User** (unabhängige Scout-Stimme = der Wert). Vereins-Geldkanäle = Polls + Events + Bounties. **Option B (offizielle Club-Paywall → Treasury)** ist später leicht nachrüstbar (`research_posts.club_id` existiert), aber **kein Vorrang**.
+
+---
+
 *Strategie-Session 2026-06-17. Vision geklärt, Bau offen. Decision-Log: `memory/decisions.md` D86.*

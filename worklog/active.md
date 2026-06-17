@@ -2,9 +2,16 @@
 
 ```
 status: idle
-slice: 331
-title: ✅ DONE — Events ans Treasury (Voll-Reconcile, nur type='club')
+slice: 332
+title: ✅ DONE — Club-Bounties ans Treasury (Escrow bei Erstellung)
 stage: LOG complete
+size: M
+type: Migration (Money, CEO)
+spec: worklog/specs/332-club-bounties-treasury.md
+review: worklog/reviews/332-review.md (PASS, 4 LOW/INFO)
+proof: worklog/proofs/332-club-bounties-treasury.md
+done_332: Club-Bounty (is_user_bounty=false) zahlte heute Admin aus EIGENEM Wallet bei Approval (Live-Befund, kein Minting). A=Escrow bei Erstellung aus Treasury. 4 Trigger/Edits: escrow (BEFORE INSERT, Admin-Gate+Guard+Debit) · settle (BEFORE UPDATE OF status: cancelled/closed→Refund, completed→flag off) · resync (BEFORE UPDATE OF reward_cents, Defense-in-Depth) · approve_bounty_submission-Edit (treasury_escrowed=true → KEIN Admin-Wallet-Abzug). User-Bounties unangetastet. PREREQ-FIX: bounties_status_check fehlte 'completed' → Approval war komplett broken (0 je). Prod-applied + force-rollback-verifiziert (behavioral: admin unverändert, submitter +95%, treasury −reward).
+next: Polls (REIN-Geldmaschine, D86, Roadmap P1-P4) · weitere Event-Quellen (bescout/sponsor/user) · Fan-Reward-Engine.
 size: L
 type: Migration (Money, CEO)
 spec: worklog/specs/331-events-treasury-reconcile.md

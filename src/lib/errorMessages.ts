@@ -141,6 +141,10 @@ const ERROR_MAP: [RegExp, string][] = [
 
   // Slice 331 — Event-Prize-Escrow: Treasury reicht nicht für den Gewinn-Topf
   [/treasury_insufficient_for_event_prize/i, 'eventPrizeTreasuryInsufficient'],
+
+  // Slice 332 — Club-Bounty-Escrow
+  [/treasury_insufficient_for_bounty/i, 'bountyTreasuryInsufficient'],
+  [/not_club_admin_for_bounty/i, 'bountyNotClubAdmin'],
 ];
 
 /**
