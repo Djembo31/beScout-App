@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 335 | 2026-06-18 | fix(events): Event-Absage geld-sicher — cancel_event-RPC + CHECK +'cancelled' + Prize-Refund-Zweig
+- Stage-Chain: SPEC (`worklog/specs/335-event-cancel-money-safe.md`, L, Money/CEO „voll geld-sicher") → IMPACT (in Spec §3) → BUILD → REVIEW (`worklog/reviews/335-review.md`, Cold-Context **CONCERNS→geheilt**) → PROVE (`worklog/proofs/335-proof.md`) → LOG.
+- Trigger: Anil „2 dann 1" → Backlog-Stolperfalle #2. `events_status_check` kannte kein 'cancelled' → „Absagen"-Knopf broken (23514). Slice 331 §3 hatte den Refund-Zweig hierher vorgesehen.
+- Bau: **Migration** events_status_check +'cancelled' · `trg_events_prize_settle` +'cancelled'-Voll-Refund-Zweig (331-'ended'-Logik byte-identisch erhalten) · **`cancel_event`-RPC** (atomar, Club-Admin/Platform-Admin-auth, FOR UPDATE, Status-Guard upcoming/registering/late-reg, Teilnehmer-Refund via rpc_cancel_event_entries + status='cancelled' → Kaution zurück, AR-44). **Service** `cancelEvent` (Discriminated + !data-Guard). **UI** AdminEventsTab Knopf → AlertDialog-Confirm + `handleCancelEvent`. **Type** DbEvent.status +'cancelled'. **i18n** admin de+tr (eventCancel*).
+- **Latenter Money-Bug gefunden+gefixt:** `ticket_transactions_source_check` kannte `'event_entry_refund'` nicht → Ticket-Refund wäre mit 23514 gescheitert (CHECK additiv ergänzt §1b). Gefangen durch Live-Money-Smoke. Lehre → errors-db.md (CHECK-Drift-Familie, 4. Fall).
+- **Verify:** Money-Smoke (Rollback) — Treasury +50000 (=prize) · Ticket +100 (=Einsatz) · status cancelled · escrowed false · entries 0; Negativ: not_cancellable (running) + not_authorized (Fremder). Reviewer CONCERNS→geheilt (#1 fail-closed-Guard, #3 !data-Guard, #2 benigner No-Op). vitest 111+5 · tsc clean.
+- Offen: Live-Playwright ConfirmDialog (QA-Konto kein Club-Admin → gated; DB+Service-bewiesen).
+
 ## 334 | 2026-06-18 | feat(polls): Polls P2 — player_id-Anker + Discovery (Filter/Suche Verein+Spieler)
 - Stage-Chain: SPEC (`worklog/specs/334-polls-p2-player-anchor-discovery.md`, L, KEIN Money-Path) → IMPACT (`worklog/impact/334-polls-p2-player-anchor.md`) → BUILD → REVIEW (`worklog/reviews/334-review.md`, Cold-Context **PASS**, 3 NITPICK) → PROVE (`worklog/proofs/334-proof.md`) → LOG.
 - Trigger: Anil „weiter mit p2" → Polls-Roadmap D86 §8 (`docs/knowledge/domain/polls.md`). Scope-Entscheidung (AskUserQuestion): Anker-Filter-Chips (mittel) + alle Inhalts-Typen.

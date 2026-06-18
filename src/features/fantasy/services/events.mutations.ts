@@ -238,6 +238,22 @@ export async function updateEventStatus(
   return { success: true };
 }
 
+/**
+ * Slice 335: Atomare, geld-sichere Event-Absage (Club-Admin oder Platform-Admin).
+ * Die `cancel_event`-RPC erstattet Teilnehmer-Einsätze (Tickets/$SCOUT) UND bucht die
+ * Preisgeld-Kaution zurück in die Vereins-Treasury, dann status='cancelled' — atomar.
+ */
+export async function cancelEvent(
+  eventId: string,
+): Promise<{ success: boolean; refundedCount?: number; error?: string }> {
+  const { data, error } = await supabase.rpc('cancel_event', { p_event_id: eventId });
+  if (error) return { success: false, error: error.message };
+  if (!data) return { success: false, error: 'cancel_failed' };
+  const result = data as { success: boolean; error?: string; refunded_count?: number };
+  if (!result.success) return { success: false, error: result.error ?? 'cancel_failed' };
+  return { success: true, refundedCount: result.refunded_count };
+}
+
 // ============================================
 // Admin Event Management
 // ============================================

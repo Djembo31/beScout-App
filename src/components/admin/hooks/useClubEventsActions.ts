@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { createEvent, updateEventStatus } from '@/lib/services/events';
+import { createEvent, updateEventStatus, cancelEvent } from '@/lib/services/events';
 import { simulateGameweek } from '@/lib/services/fixtures';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { DbEvent } from '@/types';
@@ -33,6 +33,8 @@ export function useClubEventsActions({
   const [changingId, setChangingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  // Slice 335: geld-sichere Absage braucht Bestätigung (erstattet alle Einsätze, irreversibel)
+  const [cancelEventId, setCancelEventId] = useState<string | null>(null);
 
   // -- Create event -----------------------------------------------------------
   const handleCreate = useCallback(async () => {
@@ -78,6 +80,35 @@ export function useClubEventsActions({
     }
   }, [changingId, refreshEvents, t, tErrors]);
 
+  // -- Cancel event (geld-sicher, mit Bestätigung) ----------------------------
+  const requestCancel = useCallback((eventId: string) => {
+    setError(null);
+    setCancelEventId(eventId);
+  }, []);
+
+  const dismissCancel = useCallback(() => setCancelEventId(null), []);
+
+  const confirmCancel = useCallback(async () => {
+    if (!cancelEventId || changingId) return;
+    setChangingId(cancelEventId);
+    setError(null);
+    try {
+      const result = await cancelEvent(cancelEventId);
+      if (!result.success) {
+        setError(result.error ? tErrors(mapErrorToKey(result.error)) : t('statusChangeError'));
+      } else {
+        setSuccess(t('eventCancelSuccess', { count: result.refundedCount ?? 0 }));
+        setTimeout(() => setSuccess(null), 3000);
+        await refreshEvents();
+      }
+    } catch (err) {
+      setError(tErrors(mapErrorToKey(normalizeError(err))));
+    } finally {
+      setChangingId(null);
+      setCancelEventId(null);
+    }
+  }, [cancelEventId, changingId, refreshEvents, t, tErrors]);
+
   // -- Simulate gameweek ------------------------------------------------------
   const handleSimulate = useCallback(async (gw: number) => {
     setSimulating(true);
@@ -115,6 +146,10 @@ export function useClubEventsActions({
     saving,
     handleStatusChange,
     changingId,
+    cancelEventId,
+    requestCancel,
+    dismissCancel,
+    confirmCancel,
     handleSimulate,
     simulating,
     handleClone,

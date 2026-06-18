@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2, Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, Button, Chip } from '@/components/ui';
+import { Card, Button, Chip, AlertDialog } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
@@ -209,7 +209,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                             <Button variant="gold" size="sm" onClick={() => actions.handleStatusChange(ev.id, 'running')} disabled={actions.changingId === ev.id}>
                               {actions.changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Play className="w-3 h-3" />}{t('start')}
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => actions.handleStatusChange(ev.id, 'cancelled')} disabled={actions.changingId === ev.id}>
+                            <Button variant="outline" size="sm" onClick={() => actions.requestCancel(ev.id)} disabled={actions.changingId === ev.id}>
                               {actions.changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <XCircle className="w-3 h-3" />}{t('cancel')}
                             </Button>
                           </>
@@ -278,6 +278,19 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         submitLabel={t('eventCreate')}
         labels={FORM_LABELS}
         scoutEventsEnabled={scoutEventsEnabled}
+      />
+
+      {/* Slice 335: geld-sichere Absage-Bestätigung (erstattet alle Einsätze, irreversibel) */}
+      <AlertDialog
+        open={actions.cancelEventId !== null}
+        title={t('eventCancelConfirmTitle')}
+        message={t('eventCancelConfirmMsg')}
+        confirmLabel={t('eventCancelConfirmCta')}
+        cancelLabel={t('eventCancelKeep')}
+        onConfirm={actions.confirmCancel}
+        onCancel={actions.dismissCancel}
+        confirmVariant="danger"
+        confirming={actions.changingId !== null && actions.changingId === actions.cancelEventId}
       />
     </div>
   );

@@ -717,7 +717,7 @@ export type DbEvent = {
   id: string;
   name: string;
   type: 'bescout' | 'club' | 'sponsor' | 'special';
-  status: 'upcoming' | 'registering' | 'late-reg' | 'running' | 'scoring' | 'ended';
+  status: 'upcoming' | 'registering' | 'late-reg' | 'running' | 'scoring' | 'ended' | 'cancelled';
   format: string;
   gameweek: number | null;
   /** @deprecated Use ticket_cost + currency */

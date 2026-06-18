@@ -2,31 +2,26 @@
 
 ```
 status: idle
-slice: 334
-title: ✅ DONE — Polls P2 (player_id-Bezug + Discovery Anker-Filter)
+slice: 335
+title: ✅ DONE — Event-Absage geld-sicher (cancel_event RPC + CHECK + Prize-Refund-Zweig)
 stage: LOG complete
-spec: worklog/specs/334-polls-p2-player-anchor-discovery.md
-impact: worklog/impact/334-polls-p2-player-anchor.md
-proof: worklog/proofs/334-proof.md
-review: worklog/reviews/334-review.md
+spec: worklog/specs/335-event-cancel-money-safe.md
+impact: in Spec §3 (events-Consumer + 331-Trigger)
+proof: worklog/proofs/335-proof.md
+review: worklog/reviews/335-review.md
 ```
 
 ## Zuletzt
 
-- **Slice 333** (2026-06-18) — Polls P1 (L, Money/CEO). PASS. `community_polls` erstellbar, Geld-Routing keyt auf `source`.
-- **Slice 334** (2026-06-18) — Polls P2 (L, KEIN Money-Path). Scope: Anker-Filter-Chips + alle Typen (Anil-Freigabe). IMPACT: MitmachenSection = safe (optional-Feld), Picker Modal-intern.
+- **Slice 334** (2026-06-18) — Polls P2 (player_id + Discovery). PASS, live.
+- **Slice 335** (2026-06-18) — Event-Absage geld-sicher (L, Money/CEO „voll geld-sicher"). cancel_event-RPC (Club-Admin-auth, atomar: entries-refund + prize-Kaution zurück + status='cancelled') + CHECK +'cancelled' + 331-Settle-Trigger cancelled-Zweig + ConfirmDialog.
 
-## Plan (BUILD-Reihenfolge)
+## Plan (BUILD)
+1. Migration: events_status_check +'cancelled' · trg_events_prize_settle +cancelled-Zweig · cancel_event-RPC (AR-44).
+2. Type DbEvent.status +'cancelled'.
+3. Service cancelEvent.
+4. Hook handleCancelEvent + Confirm-State.
+5. AdminEventsTab Knopf → Confirm.
+6. i18n de+tr.
 
-1. Migration: player_id-Spalte + create_community_poll (9-arg) + REVOKE/GRANT.
-2. Types: DbCommunityPoll.player_id, CreateCommunityPollParams.playerId, CommunityPollWithCreator.player_name/player_position.
-3. Service: createCommunityPoll (p_player_id) + getCommunityPolls (player-name-resolve).
-4. CreatePollModal: optionaler Spieler-Picker (usePlayerNames intern).
-5. CommunityFeedTab: Suche erweitern (player+club) + Anker-Chip-Leiste.
-6. CommunityPollCard: optionaler Spieler-Tag.
-7. i18n de+tr (community-Namespace).
-8. Tests anpassen.
-
-## Nächstes Money-Stück (Polls-Roadmap, D86 §8)
-- **P3** — soziale Schicht (Follower-Reichweite, Abo-2×-Gewicht bei Paid-Polls, Fan-Rang).
-- **P4** — Auszahl-Idee an Teilnehmer (offen, §7).
+## Danach (Anil-Reihenfolge): Polls P3 (soziale Schicht).
