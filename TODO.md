@@ -5,28 +5,22 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Anil-Wahl offen** — Polls P1/P2/P3 + Fee + Event-Cancel + Predictions-Removal (333-338) alle DONE. Nächster Slice = Anil-Entscheidung aus P1-Liste unten.
+- **Anil-Wahl offen** — Fixes-Cluster (339/polls.md/340/341) + Polls P1-P3+Fee + Event-Cancel + Predictions (333-341) alle DONE. Nächster Slice = Anil-Entscheidung aus P1.
 
 ## 🟡 P1 — als Nächstes
-- **Polls P3c — Fan-Rang** (deferred aus Slice 336): Fan-Rang (`fanRanking.ts`, 6 Stufen, „fast wirkungslos") als Gewicht/Auszahl-Anteil aktivieren + Abo Early-Access/exklusive Mitglieder-Umfragen. `polls.md` §6/§8.
-- ~~UI-Live-Verifikationen 334/335/336~~ — **erledigt 2026-06-18:** 334 Discovery live re-bestätigt; 335/336 als DB-bewiesen abgehakt (Anil: „db beweis reicht" — Prod-Fixtures bewusst nicht fabriziert, Money-Pfade voll Smoke-bewiesen). CreatePollModal-Picker bleibt code/test-bewiesen (Follower-Tor-gated).
-- ~~`.limit()`-Härtung getPlayerNames + Follower-Notify~~ — **erledigt Slice 339** (2026-06-18, Range-Loop, Reviewer PASS).
-- **Notify-Fan-out-Batching** (NEU, 339-Review-NIT#1): Follower-Notify `Promise.all` ist jetzt — da Cap weg — bei Mega-Club ein Concurrency-Storm. Vor echtem Galatasaray-Launch in Chunks (500er) oder serverseitige Fan-out-RPC. Eigener Slice.
-- ~~`polls.md` §9 Current-State-Refresh~~ — **erledigt 2026-06-18** (§2-§9 auf Code-Stand 333-339).
-- ~~bounty `reward_cents`-Max-Drift~~ — **erledigt Slice 340** (RPC-Guard an CHECK 500–100.000 angeglichen, Anil: Max 1.000 $SCOUT; Reviewer PASS).
-- ~~`auto_close_expired_bounties` getrackte Migration (AR-43)~~ — **erledigt Slice 341** (live functiondef → Migration `20260618220000`, byte-identisch, applied). **→ Fixes-Cluster komplett.**
-- **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt).
+- **Notify-Fan-out-Batching** (aus 339-Review-NIT#1): Follower-Notify `Promise.all` ist seit dem Cap-Fix (339) bei Mega-Club ein Concurrency-Storm. Vor echtem Galatasaray-Launch in Chunks (500er) oder serverseitige Fan-out-RPC. **Money-nah, Skalen-kritisch.**
+- **Polls P3c — Fan-Rang** (deferred aus Slice 336): Fan-Rang (`fanRanking.ts`, 6 Stufen, „fast wirkungslos") als Gewicht/Auszahl-Anteil aktivieren + Abo Early-Access/exklusive Mitglieder-Umfragen. `polls.md` §6/§8. **Letztes Polls-Feature.**
+- **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt). LOW.
 
 ## 🟢 P2 — Backlog
-- Polls P4 (User-Auszahl-Idee an Teilnehmer, offene Entscheidung §7).
-- Fan-Reward-Engine (E1).
+- Polls P4 (User-Auszahl-Idee an Teilnehmer) — **VERWORFEN** (Anil 2026-06-18: Glücksspiel-Risiko). Nicht ohne neue Ansage.
+- Fan-Reward-Engine (E1) — Verein belohnt treue Fans.
 - Andere Event-Quellen (bescout/sponsor/user) — Plattform-Topf/Sponsor-Deposit/User-Wallet.
-- bounty `reward_cents`-Max-Drift (CHECK 100k vs RPC-Text 1M).
-- `auto_close_expired_bounties` als getrackte Migration (AR-43).
-- TR-i18n Anil-Review: successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin.
-- S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges. ⛔ players.club (API-Key).
+- TR-i18n Anil-Review: successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin, Polls-`pollErr*`/`createPoll*` (Genauigkeit, kein Commit-Blocker).
+- S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges (46). ⛔ players.club (API-Key gesperrt).
 
 ## ✅ Erledigt (letzte, dann archivieren)
+- 2026-06-18: **Fixes-Cluster** — Slice 339 (`.limit()`-Cap-Härtung getPlayerNames+Follower-Notify, Reviewer PASS) · polls.md §2-§9 Doku-Refresh (333-339) · Slice 340 (Bounty-Reward-Guard an CHECK, Money, Reviewer PASS, Boundary-Smoke) · Slice 341 (`auto_close_expired_bounties` getrackte Migration AR-43). Plus: Plan-Drift geheilt + Live-Verifikation 334-336.
 - 2026-06-18: **Slice 338 Predictions-Removal** (Tippspiel-Feature komplett raus, 5 Achsen: Code 14 Files + DB-DROP + i18n + Tooling + Doku). Reviewer PASS, deploy→DROP, AC grün. `b15c69b5`.
 - 2026-06-18: **Slice 337 Polls-Fee 30/70→20/80** (CEO-Fee-Change, Verein behält mehr). Self-Review PASS, Money-Smoke. `0f877843`.
 - 2026-06-18: **Slice 336 Polls P3** (Follower-Reichweite-Notify + Abo-2×-Gewicht bei Paid-Polls; Fan-Rang deferred→P3c). Reviewer PASS, Money-Smoke. `60147794`.
