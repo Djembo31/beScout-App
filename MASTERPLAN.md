@@ -11,11 +11,11 @@
 ## 🗺️ Epics (Reihenfolge = grobe Prio)
 
 ### ⏳ IN ARBEIT
-- **E1 — Polls-Geldmaschine: P1-P3 + Fee FERTIG (Slices 333-337, 2026-06-18).** Offen nur noch **P3c — Fan-Rang** (aktivieren als Gewicht/Auszahl-Anteil) + Live-UI-Verifikationen (gated). Nächster Slice = Anil-Wahl (siehe `TODO.md`).
-  - ✅ **P1 (Slice 333):** Erstellung + Quellen-Identität (`source`) + Treasury-REIN-Routing (`poll_revenue`) + Follower-Tor 50.
-  - ✅ **P2 (Slice 334):** `player_id`-Anker + Discovery (Anker-Chip-Filter + Suche Verein/Spieler über alle Feed-Typen). DB live verifiziert.
-  - ✅ **P3 (Slice 336):** Follower-Reichweite-Notify + Abo-2×-Gewicht bei Paid-Polls. (Fan-Rang → P3c deferred.)
-  - ✅ **Fee 20/80 (Slice 337):** Verein behält 80 %. ✅ **Event-Cancel geld-sicher (Slice 335).** ✅ **Predictions-Removal (Slice 338).**
+- **E1 — Money/Reward: Polls-Geldmaschine FERTIG (333-337+343), jetzt Fan-Reward-Engine.** Verein belohnt treue Fans (Treasury §8). Design-Alignment + 5 Festlegungen + Slice-Kette = **D93**. Namens-Klarheit: Engine-Schritte = **FRE-1 … FRE-5** (Teil des E1-Epics).
+  - ✅ **Polls komplett:** P1 (333) Erstellung+REIN-Routing · P2 (334) Discovery · P3 (336) Follower+Abo-Gewicht · Fee 20/80 (337) · P3c (343) Fan-Rang→Poll-Stimmgewicht. Plus Event-Cancel (335) + Predictions-Removal (338).
+  - ✅ **FRE-1 (Slice 344):** Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default). Reine UI, live.
+  - ⏳ **FRE-2 (nächster Slice):** Follow zählt als Einstiegssignal in `calculate_fan_rank`. **Money-nah** → /impact + Live-RPC zuerst + Anil-Design-Entscheidung.
+  - ⬜ FRE-3 echtes Perk-Gate · FRE-4 Airdrop (Treasury-RAUS, Money) · FRE-5 Club-Konfig.
 
 ### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
 - ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.
@@ -34,4 +34,4 @@
 - Beta-Launch live (Tester aktiv).
 
 ## 📍 Stand in einem Satz
-Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine P1-P3 + Fee (Slices 333-337) ✅ live** + Event-Cancel geld-sicher (335) + Predictions-Removal (338). Als Nächstes: **Anil-Wahl** — Polls P3c Fan-Rang · Live-UI-Verifikationen · kleine Backlog-Härtung · E0 Welle 4 (Historie).
+Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + Event-Cancel (335) + Predictions-Removal (338). **Jetzt: Fan-Reward-Engine** — FRE-1 (Fan-Rang-Leiter, Slice 344) ✅ live, **FRE-2 (Follow zählt) als Nächstes** (Money-nah → /impact zuerst). Plan = D93.

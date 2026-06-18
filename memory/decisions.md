@@ -3717,3 +3717,26 @@ Plus: Scope-Entscheidung „alle 13 Gold-Files in einem Rutsch migrieren" (nicht
 **Alternativen erwogen:** (a) reine Tier-Tabelle (Tier setzt Gewicht absolut) → verworfen: regressiert Abo-Inhaber mit stale Rang von 2× auf 1×, still. (b) Multiplizieren/Addieren (Abo × Fan-Rang) → verworfen: 6×-Eskalation, kein konzeptioneller Sinn, „doppelt zählen". (c) recalc-on-read des Fan-Rangs im Vote, um Staleness zu beheben → verworfen für Tally-only: teuer (5-Dim) im FOR-UPDATE-Money-Pfad, Risiko/Latenz disproportional, da stale = max „1 zu wenig", nie Geld-Effekt. Erst relevant wenn Fan-Rang ein **Geld-** oder **Zugangs**-Tor steuert (Polls (b)).
 
 **Re-Visit-Trigger:** Wenn `fan_rankings` einen Frische-Trigger (auf Abo/Holdings/Follow) bekommt ODER Fan-Rang ein Geld-/Zugangstor steuert (Polls (b) exklusive Treue-Umfragen) → recalc-on-read bzw. Abhängigkeit von der Staleness neu bewerten.
+
+---
+
+## D93 — PRODUCT/ARCHITECTURE: Fan-Reward-Engine (Teil von Epic E1) — Reihenfolge + Mechanik
+
+**Datum:** 2026-06-18 · **Status:** Aktiv · **Category:** PRODUCT/ARCHITECTURE · **Kontext:** Anil wählte als nächstes großes Money-Stück die **Fan-Reward-Engine** (Treasury §8: Verein belohnt treue Fans). Design-Alignment-Session 2026-06-18. Namens-Klarstellung: „E1" im MASTERPLAN = ganzes Money/Reward-Epic (Treasury → Polls → Fan-Rewards); die Fan-Reward-Engine ist ein Teil davon, ihre Schritte heißen **FRE-1 … FRE-5** (Slice 344 = FRE-1).
+
+**Entscheidung (5 Festlegungen + Slice-Kette):**
+1. **Perks/Gating zuerst, Airdrop ($SCOUT-RAUS) später.** Die Engine ist primär ein Perks-/Anreiz-System (Folgen/Abonnieren attraktiver machen), nicht primär ein Geldfluss.
+2. **Follow zählt** als kleines Einstiegssignal in den Fan-Rang (`calculate_fan_rank`). Heute bringt Folgen nichts (reward-ranking.md W2-C) — das ist der erste Anreiz.
+3. **`csf_multiplier` raus** aus dem Fan-Rang-Pfad (D83: Treue läuft vollständig über diese Engine, nicht über den CSF-Liquidations-Bonus, der ohnehin auf 1,15× gedeckelt/wirkungslos ist).
+4. **Plattform-Default-Perks zuerst**, Club-Konfigurierbarkeit später (FRE-5).
+5. **Welt-1 bleibt RAUS** (user_stats-Retire, Monatsliga-Aktivierung sind „Plattform belohnt Können", eigener Track — nicht Teil der Fan-Reward-Engine).
+
+**Slice-Kette:** FRE-1 Leiter sichtbar + Perk-Katalog (Slice 344 ✅) → FRE-2 Follow→Fan-Rang-Signal (Migration, Money-nah, /impact) → FRE-3 ein echtes neues Perk-Gate → FRE-4 Airdrop (Club belohnt Top-Treue mit $SCOUT aus Treasury, Money) → FRE-5 Club-Konfigurierbarkeit.
+
+**Begründung:** Perks-first hat kein Geld-Risiko (außer entgangene Fee-Rabatte), macht Follow/Fan-Rang sofort wirksam + sichtbar (größte tote Stelle laut reward-ranking.md W2-B/C/D) und bereitet den schärferen Airdrop-Money-Slice sauber vor. Follow als Signal heilt W2-C (größte, ignorierte Fan-Basis). csf_multiplier raus folgt D83 (Treue gehört in die Engine).
+
+**Auswirkungen:** FRE-2 ändert die Fan-Rang-Formel = **Money-Tally-Input** (Fan-Rang steuert seit Slice 343 das Poll-Stimmgewicht). Daher /impact + Live-`pg_get_functiondef`-Read ZUERST + Anil-Design-Entscheidung (wie stark Follow zählt: kleines additives Signal vs. Neu-Gewichtung) + recalc-Latenz beachten (Fan-Rang aktualisiert nur nach Event-Scoring/Cron — D92 Re-Visit-Familie).
+
+**Alternativen erwogen:** (a) Airdrop zuerst → verworfen: Geld-Risiko höher, Anils Frame ist Perks-primär. (b) Follow zählt NICHT (Treue nur Abo+Aktivität) → verworfen: Follow bleibt sonst totes Signal (W2-C). (c) Welt-1 mit reinnehmen (Monatsliga/user_stats) → verworfen: anderer Track (Können, nicht Treue), würde den Block unkontrollierbar machen.
+
+**Re-Visit-Trigger:** Bei FRE-2 die recalc-Frage (Staleness) konkret entscheiden; bei FRE-4 das D92-`MAX`-Floor-Muster wiederverwenden. csf_multiplier-Removal als eigener Aufräum-Slice einplanen.

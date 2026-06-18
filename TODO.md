@@ -5,21 +5,25 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Anil-Wahl offen** — Fixes-Cluster (339/polls.md/340/341) + Polls P1-P3+Fee + Event-Cancel + Predictions (333-341) alle DONE. Nächster Slice = Anil-Entscheidung aus P1.
+- **Fan-Reward-Engine (Teil von E1) — FRE-2 als Nächstes.** FRE-1 (Slice 344: Fan-Rang-Leiter sichtbar + Perk-Katalog) ✅ live. **FRE-2 = Follow zählt** als Einstiegssignal in `calculate_fan_rank`. **Money-nah** (Fan-Rang steuert seit 343 das Poll-Stimmgewicht) → **/impact + Live-RPC-Read ZUERST** + Anil-Design-Entscheidung (wie stark zählt Follow: kleines additives Signal vs. Neu-Gewichtung). Design-Alignment + Slice-Kette = **D93**.
 
 ## 🟡 P1 — als Nächstes
-- **Notify-Fan-out-Batching** (aus 339-Review-NIT#1): Follower-Notify `Promise.all` ist seit dem Cap-Fix (339) bei Mega-Club ein Concurrency-Storm. Vor echtem Galatasaray-Launch in Chunks (500er) oder serverseitige Fan-out-RPC. **Money-nah, Skalen-kritisch.**
-- **Polls P3c — Fan-Rang** (deferred aus Slice 336): Fan-Rang (`fanRanking.ts`, 6 Stufen, „fast wirkungslos") als Gewicht/Auszahl-Anteil aktivieren + Abo Early-Access/exklusive Mitglieder-Umfragen. `polls.md` §6/§8. **Letztes Polls-Feature.**
+- **Aufräum-Haken aus FRE-Investigation (2026-06-18):**
+  - **`csf_multiplier` raus** aus `calculate_fan_rank` (D83: Treue läuft über die Engine, nicht den CSF-Bonus). Eigener kleiner Slice, kein Money-Effekt (CSF-Multiplier ist ohnehin gedeckelt/wirkungslos, W2-A).
+  - **Fan-Rang aktualisiert verzögert** (nur nach Event-Scoring/Cron, kein Trigger auf Abo/Holdings/Follow — reward-ranking.md W2-A). Bei FRE-2 die recalc-Frage konkret entscheiden (vgl. D92 Re-Visit).
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt). LOW.
 
 ## 🟢 P2 — Backlog
 - Polls P4 (User-Auszahl-Idee an Teilnehmer) — **VERWORFEN** (Anil 2026-06-18: Glücksspiel-Risiko). Nicht ohne neue Ansage.
-- Fan-Reward-Engine (E1) — Verein belohnt treue Fans.
+- Fan-Reward-Engine Rest: FRE-3 echtes Perk-Gate · FRE-4 Airdrop (Club belohnt Top-Treue mit $SCOUT aus Treasury, Money, D92-MAX-Floor) · FRE-5 Club-Konfigurierbarkeit der Perks.
 - Andere Event-Quellen (bescout/sponsor/user) — Plattform-Topf/Sponsor-Deposit/User-Wallet.
 - TR-i18n Anil-Review: successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin, Polls-`pollErr*`/`createPoll*` (Genauigkeit, kein Commit-Blocker).
 - S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges (46). ⛔ players.club (API-Key gesperrt).
 
 ## ✅ Erledigt (letzte, dann archivieren)
+- 2026-06-18: **FRE-1 / Slice 344** — Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default). 6-Stufen-Leiter + Fortschritt + Poll-Gewicht je Stufe (Mirror 343), rendert auch ohne Rang. Reine UI, keine Geld-Formel. Reviewer PASS, Live-Proof bescout.net. `4afd47e6`/`6e53a770`. → Start der Fan-Reward-Engine.
+- 2026-06-18: **Slice 343 Polls P3c** — Fan-Rang → Poll-Stimmgewicht (`MAX(Abo, Fan-Rang)`, Ultra/Legende 2× / Ehren/Ikone 3×). Tally-only, Geld unberührt. Reviewer PASS, DB-Smoke 13/13. D92 (MAX-Floor). → Polls-Geldmaschine komplett.
+- 2026-06-18: **Slice 342** — Notify-Fan-out-Batching (100er-Chunks, Concurrency-Storm geschlossen). Reviewer PASS.
 - 2026-06-18: **Fixes-Cluster** — Slice 339 (`.limit()`-Cap-Härtung getPlayerNames+Follower-Notify, Reviewer PASS) · polls.md §2-§9 Doku-Refresh (333-339) · Slice 340 (Bounty-Reward-Guard an CHECK, Money, Reviewer PASS, Boundary-Smoke) · Slice 341 (`auto_close_expired_bounties` getrackte Migration AR-43). Plus: Plan-Drift geheilt + Live-Verifikation 334-336.
 - 2026-06-18: **Slice 338 Predictions-Removal** (Tippspiel-Feature komplett raus, 5 Achsen: Code 14 Files + DB-DROP + i18n + Tooling + Doku). Reviewer PASS, deploy→DROP, AC grün. `b15c69b5`.
 - 2026-06-18: **Slice 337 Polls-Fee 30/70→20/80** (CEO-Fee-Change, Verein behält mehr). Self-Review PASS, Money-Smoke. `0f877843`.
