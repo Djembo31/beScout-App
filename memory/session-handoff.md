@@ -19,28 +19,34 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P4 ODER UI-Live-Verifikationen)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: SLICE 338 — Predictions-Feature-Removal)
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 336 oder neuer. `worklog/active.md` = idle. **Polls P1 (333) + P2 (334) + P3 (336) DONE; Event-Absage geld-sicher (335) DONE — alle live (DB) bewiesen.**
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 337 oder neuer. `worklog/active.md` = idle. **Polls P1 (333) + P2 (334) + P3 (336) + Fee-20/80 (337) DONE; Event-Absage geld-sicher (335) DONE — alle live + gepusht.**
 
-## ✅ Diese Session (2026-06-18) — 334 + 335 + 336 (alle DONE)
-- **334 Polls P2** (L): `community_polls.player_id` + Discovery-Anker-Chip-Leiste + Suche Spieler/Verein über alle Typen. Reviewer PASS. **Live-Playwright bestätigt** (Chips, Filter 9→1, §254 kein Catch-22, Suche).
-- **335 Event-Absage geld-sicher** (L, Money): `cancel_event`-RPC (atomar, Club-Admin-auth, FOR UPDATE, Teilnehmer-Refund + Prize-Kaution zurück + status='cancelled') + events_status_check +'cancelled' + trg_events_prize_settle cancelled-Zweig. **Latenter Bug mitgefixt:** ticket_transactions_source_check +'event_entry_refund'. Reviewer CONCERNS→geheilt (fail-closed). Money-Smoke: Treasury +prize / Ticket +Einsatz / negativ ok.
-- **336 Polls P3** (L, Money-near): cast_community_poll_vote +Abo-2×-Gewicht (Tally-only, Geld byte-identisch) + community_poll_votes.weight + Follower-Notify (poll_new) bei Poll-Erstellung. Reviewer PASS. Money-Smoke: Abo weight=2 aber wallet −cost (nicht 2×).
+## 🎯 NÄCHSTER SLICE = 338 Predictions-Feature KOMPLETT entfernen (Anil 2026-06-18)
+**Entscheidung:** Das gesamte Fantasy-Tippspiel-/Predictions-Feature aus der App werfen. **Daten-Befund (erhoben): `predictions`-Tabelle = 1 Testzeile (1 User, 2026-05-01, seither nichts) → DROP sicher, kein echter User-Content.** Polls bleiben unangetastet.
+**Footprint (read-only erhoben, Dead-Feature-Removal 4-Achsen, errors-frontend.md Slice 305):**
+- **DB:** Tabelle `predictions` (1 Zeile) + 3 RPCs (`create_prediction`, `get_prediction_consensus`, `resolve_gameweek_predictions`) + Leaderboard-/Consensus-Objekte (Migrationen 199 top_predictors, 201d consensus). DROP-Diligence + 0-incoming-FK-Check vor DROP.
+- **~10 dedizierte Code-Files löschen:** PredictionsTab, PredictionCard, PredictionConsensusHint, CreatePredictionModal, ergebnisse/PredictionResults, profile/PredictionStatsCard, services predictions.queries/mutations + lib/services/predictions.ts + lib/queries/predictions.ts (+ keys.ts prediction-keys).
+- **~22 geteilte Files ENTKOPPELN (nicht löschen):** NotificationDropdown + notifications.ts (`prediction_resolved`-Typ + TYPE_TO_CATEGORY) + notifications_type_check CHECK · leaderboards.ts (`top_predictors`) · scoring.admin.ts + gameweek-sync cron (`resolve_gameweek_predictions`-Aufruf) · profile AnalystTab · OnboardingChecklist · Glossary · community PostCard · fantasy MitmachenTab/SpieltagTab/ErgebnisseTab/EventCommunityTab/index.ts · types/index.ts · notificationDeepLink.ts.
+- **i18n:** ~50 prediction/vorhersage/tipp-Keys (de+tr) — pro Key grep ob exklusiv (shared behalten).
+- **Tooling:** orphan-detector/wiring-check Allowlists + NotificationType-Union.
+- **Muster:** /impact ZUERST (Cross-Domain) · Cold-Reviewer Pflicht · `BEGIN;…COMMIT;` für DB-Drops · `grep -rn "[Pp]rediction" src/ messages/ scripts/ .claude/` Pflicht-Sweep nach Removal = 0.
 
-## ⚡ NÄCHSTE KANDIDATEN (Anil wählt)
-1. **Polls P4** — Teilnehmer-Auszahlung (OFFENE Entscheidung `polls.md` §7: a Lotterie/Topf · b „Recht behalten"/prediction · c Mini-Teilnahme-Reward; Fan-Rang könnte gewichten). Braucht CEO-Entscheidung VOR Bau.
-2. **Polls P3c — Fan-Rang** (deferred aus 336): Fan-Rang als Gewicht/Auszahl-Anteil — `fanRanking.ts` existiert, „fast wirkungslos", müsste erst sinnvoll verankert werden. + Abo Early-Access/exklusive Mitglieder-Umfragen.
-3. **UI-Live-Verifikationen** (mit passendem Konto, QA-„Jarvis" gated): 335 Absage-ConfirmDialog (Club-Admin-Konto), 336 Abo-2×-sichtbar (Gold-Abo-Konto), 334 CreatePollModal-Picker (≥50 Follower).
+## ⚡ DANACH / SECONDARY
+- **Polls P3c — Fan-Rang** (deferred aus 336): Fan-Rang als Gewicht/Auszahl-Anteil — `fanRanking.ts` existiert, „fast wirkungslos". + Abo Early-Access/exklusive Mitglieder-Umfragen.
+- **UI-Live-Verifikationen** (passendes Konto, QA-„Jarvis" gated): 335 Absage-ConfirmDialog (Club-Admin), 336 Abo-2×-sichtbar (Gold-Abo), 334 CreatePollModal-Picker (≥50 Follower).
+- **Polls P4 (Teilnehmer-Auszahlung) = VERWORFEN** (Anil 2026-06-18): Lotterie (a)/Prediction (b) = Glücksspiel-Risiko, Mini-Reward (c) nicht verfolgt → Polls bleiben wie sie sind; stattdessen Fee auf 20/80 (337). Nicht wieder aufmachen ohne neue Anil-Ansage.
 
 ## 🔧 KLEINE BACKLOG-FUNDE (Post-Beta, eigener Mini-Slice)
-- **`getPlayerNames` ohne `.limit()`** (`players.ts:42`, 334-NIT) + **Follower-Notify-Query ohne `.limit()`** (`communityPolls.ts`, 336-NIT, = createEvent-Parität) — beide PostgREST-1000-Cap bei Mega-Clubs/-Listen. Zusammen härten (`.range()`-Loop, common-errors.md §1).
+- **`getPlayerNames` ohne `.limit()`** (`players.ts:42`, 334-NIT) + **Follower-Notify-Query ohne `.limit()`** (`communityPolls.ts`, 336-NIT) — beide PostgREST-1000-Cap bei Mega-Clubs/-Listen. Zusammen härten (`.range()`-Loop).
+- **`polls.md` §9 Current-State breiter stale** (sagt „KEINE Erstellung" — stimmt seit 333 nicht; weitere 334/336-Drift) → Doku-Refresh-Slice (E0-W2gov-Kopplung).
 
-**Muster:** Kein Money-Path → kein D87-Zwang, Money-nah/Schema → **/impact ZUERST**. UI/Service → Mobile 393px + DE/TR. Reviewer-Pflicht. **TR-Genauigkeit ist KEIN Commit-Blocker mehr** (Anil 2026-06-18; nur Compliance/`business.md` hart). **Teaching-Mode DURCHGEHEND** (`feedback_teaching_mode`): jede Antwort startet mit Klartext-Erklärung vor Technik.
+**Muster:** Money-nah/Schema → **/impact ZUERST**. UI/Service → Mobile 393px + DE/TR. Reviewer-Pflicht. Pre-Push fährt VOLLE vitest-Suite (~6 min) → bei UI/i18n vorher Compliance- + betroffene Component-Tests laufen (337-Lehre). **TR-Genauigkeit kein Commit-Blocker** (nur Compliance hart). **Teaching-Mode DURCHGEHEND** (`feedback_teaching_mode`).
 
 ## 💰 Money-SSOTs — NIE neu erarbeiten
 - **D83** → `docs/knowledge/domain/treasury.md` (WIE Treasury) · **D86** → `docs/knowledge/domain/polls.md` (WIE Polls). `memory/decisions.md` = WARUM. INDEX.md routet via `consult_when`.
-- Grundgrößen: 1 $SCOUT = 1 Cent · 1 SC = MV/100.000 € · Fee-Split Polls 30 % Platform / 70 % Creator (Vote heute via `cast_community_poll_vote`).
+- Grundgrößen: 1 $SCOUT = 1 Cent · 1 SC = MV/100.000 € · **Fee-Split Polls 20 % Platform / 80 % Creator (Slice 337, war 30/70)**.
 
 ## ✅ Diese Session (2026-06-18) — Slice 333 Polls P1 (DONE + live)
 - **Slice 333** (`5c674e3d` feat + `871ec47e` i18n-fix): Polls-Erstellung gebaut (L, Money/CEO). Migration (`community_polls.source` + ledger-CHECK `poll_revenue` + `create_community_poll` + `cast_community_poll_vote` Geld-Branch + `get_club_balance`) · Service · UI (`CreatePollModal`/`CreatePollButton`, 2 Einstiege) · i18n DE+TR. Anil-Entscheidungen: volles P1 · Follower-Tor 50 · cost-Cap 1000 $SCOUT · Routing keyt auf `source` (nicht club_id).
