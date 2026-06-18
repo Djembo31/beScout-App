@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 340 | 2026-06-18 | fix(db): create_user_bounty Reward-Guard an bounties_reward_cents_check angleichen (Money-RPC)
+- Stage-Chain: SPEC (`worklog/specs/340-bounty-reward-guard-alignment.md`, S, Money/CEO) → IMPACT (skipped: 1 RPC, kein neuer Consumer) → BUILD (Migration apply) → REVIEW (`worklog/reviews/340-review.md`, Cold-Context **PASS**, 2 NIT pre-existing) → PROVE (`worklog/proofs/340-rpc.txt`) → LOG.
+- Trigger: Anil „backlog und die offenen fixes zuerst" → Handoff-Stolperfalle #3. CEO-Wert-Entscheid: Max 1.000 $SCOUT (CHECK gewinnt).
+- D87-Befund: Live-`create_user_bounty` hatte den „1 Mio $SCOUT"-Guard gar nicht mehr (späteres CREATE OR REPLACE entfernte ihn) — Handoff-Annahme „RPC-Text 1M" war bzgl. Live überholt. Echter Drift: Min-Guard `<100` (zu niedrig vs CHECK 500) + KEIN Max-Guard → reward 100–499/>100000 cents = roher 23514 statt sauberem Error.
+- Bau: Migration `20260618210000` CREATE OR REPLACE — Body **byte-identisch** zur D87-Baseline, NUR Amount-Guard angeglichen (`<500` „5 $SCOUT" + `>100000` „1.000 $SCOUT", strikt = inklusiver CHECK). AR-44 REVOKE/GRANT auf 9-arg-Signatur.
+- Verify: guards_present + body_intact (auth/FOR UPDATE/is_user_bounty erhalten) · anon=false/auth=true · Boundary-Money-Smoke (BEGIN/ROLLBACK, jwt-claims): r499→min-error, r100001→max-error, r500+r100000→success. Cleanup-Verify: 0 persistierte Bounties, locked_balance=0 (keine Prod-Mutation).
+- Knowledge: errors-db.md CHECK-Drift-Familie um umgekehrte Richtung ergänzt (RPC-Guard an CHECK angleichen, strikte Grenzen).
+- Commit: <pending>
+
 ## 339 | 2026-06-18 | fix(services): PostgREST-1000-Cap-Härtung — getPlayerNames + Follower-Notify
 - Stage-Chain: SPEC (`worklog/specs/339-postgrest-cap-limit-hardening.md`, S, kein Money/Schema) → IMPACT (skipped: kein Contract-Change, Return-Typen identisch) → BUILD → REVIEW (`worklog/reviews/339-review.md`, Cold-Context **PASS**, 2 NIT Scope-Out) → PROVE (`worklog/proofs/339-vitest.txt`) → LOG.
 - Trigger: Anil „backlog und die offenen fixes zuerst" → Backlog-Funde aus 334-Review-NIT#3 + 336-Review-NIT#2 (Handoff).

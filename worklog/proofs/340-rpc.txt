@@ -1,0 +1,34 @@
+Slice 340 — create_user_bounty Reward-Guard an CHECK angleichen — PROOF
+(live, project skzjfhvgccaeplydsunz, 2026-06-18)
+
+## Ausgangs-Drift (D87 — Live functiondef, NICHT alte Migration)
+- bounties_reward_cents_check = CHECK (reward_cents >= 500 AND reward_cents <= 100000)
+- Live create_user_bounty VORHER: nur `IF p_reward_cents < 100 → 'Mindestbetrag: 1 $SCOUT'`, KEIN Max-Guard.
+  (Die alte 100M-Guard/"1.000.000 $SCOUT" aus Migration 20260404191000 war durch späteres
+   CREATE OR REPLACE bereits entfernt — Handoff-Annahme "RPC-Text 1M" bzgl. Live überholt.)
+- Folge: reward 100–499 / >100000 cents → roher 23514-CHECK-Crash statt sauberem Error.
+
+## AC-04/05 — Signatur + Grants + Body-Integrität (nach apply)
+guards_present (< 500 UND > 100000 im Body) = true
+body_intact (auth_uid_mismatch + FOR UPDATE + is_user_bounty erhalten) = true   ← Patch-Audit: nur Guard geändert
+has_function_privilege('anon','EXECUTE')          = false
+has_function_privilege('authenticated','EXECUTE') = true   (AR-44)
+
+## AC-01/02/03 — Boundary-Money-Smoke (BEGIN; jwt-claims; … ROLLBACK;)
+Aufrufer = jarvis-qa (auth.uid via request.jwt.claims.sub), club=Galatasaray, Wallet 1.222.077 cents.
+{
+  "r499_min":    {"success": false, "error": "Mindestbetrag: 5 $SCOUT"},   ← AC-01 (kein 23514)
+  "r100001_max": {"success": false, "error": "Maximum: 1.000 $SCOUT"},     ← AC-02 (kein 23514)
+  "r500_ok":     {"success": true,  "bounty_id": "..."},                   ← AC-03 untere Grenze inklusiv
+  "r100000_ok":  {"success": true,  "bounty_id": "..."}                    ← AC-03 obere Grenze inklusiv
+}
+Grenzen exakt = CHECK-Band (Guard `< 500` / `> 100000` strikt → 500 und 100000 erlaubt).
+
+## Cleanup-Verify (Money/Prod-Sicherheit)
+nach ROLLBACK: bounties WHERE title ILIKE 'Smoke340%' = 0 rows · jarvis locked_balance = 0
+→ keine Prod-Mutation, kein hängender Wallet-Lock.
+
+## Hinweis (erster Smoke-Versuch)
+Erster Smoke schlug an bounties_description_check (description >= 20 chars) — Testdaten zu kurz,
+NICHT der reward-Guard. Re-Run mit validen Längen → alle 4 ACs grün. (Beweist nebenbei: reward 500
+passierte den reward-Guard und erreichte den description-CHECK = Guard ließ Boundary durch.)
