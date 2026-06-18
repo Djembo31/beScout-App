@@ -55,12 +55,20 @@ de/tr community.feed.noAnchorResults/clearFilter            → alle aufgelöst
 npx tsc --noEmit → exit 0
 ```
 
-## OFFEN (post-Deploy) — Live-Playwright gegen bescout.net
-- AC-08 CreatePollModal Spieler-Picker (User- + Club-Pfad, 393px)
-- AC-09 Suche matcht Spieler/Verein über alle Typen
-- AC-10/11 Anker-Chip-Filter (filtert + kein Catch-22)
-- MISSING_MESSAGE-Console-Scan (Slice-333-Lehre)
-→ wird nach Vercel-Deploy als Proof-Nachtrag bestätigt (analog Slice 333 AC-09).
+## Live-Playwright gegen www.bescout.net (post-Deploy, 2026-06-18) — BESTÄTIGT
+
+Build live verifiziert (SW unregister + cache.delete + Hard-Reload, Slice-326-Pattern).
+
+- **AC-10 Anker-Chips rendern:** 3 Chips im Feed — `SAK` (Verein Sakaryaspor) + `Raymond Adeola` + `Oğulcan Çağlayan` (2 Spieler). Verein + Spieler gemischt, korrekt.
+- **AC-10 Filter wirkt:** Klick auf Chip „Oğulcan Çağlayan" → Counter `9 → 1 Beiträge`; einziger Eintrag = player_take dieses Spielers.
+- **AC-11 §254 kein Catch-22:** nach Auswahl bleiben alle 3 Chips sichtbar/klickbar; nur geklickter `aria-pressed=true`, andere `false`.
+- **AC-11 Clear:** aktiven Chip erneut geklickt → `1 → 9 Beiträge`, kein Chip aktiv.
+- **AC-09 Suche nach Verein:** Eingabe „Sakarya" → `9 → 2 Beiträge` (matcht via getClub-Name über Typen); Chip-Leiste rechnet sich aus Suchergebnis neu (SAK + Raymond Adeola).
+- **AC-12 i18n:** frische `/community`-Seite → 0 Konsolen-Fehler, kein `MISSING_MESSAGE` für `community.*`. (Im all-Scan auftauchende `admin.clubPollSection*`-MISSING = alte gecachte Chunk-Hashes vor Reload; Keys existieren in de.json:2992 → resolven auf frischem Bundle.)
+
+### AC-08 — CreatePollModal Spieler-Picker: code-/test-bewiesen (Live-Modal gated)
+- QA-Konto „Jarvis QA" hat 0 Follower → „Umfrage erstellen" korrekt durch Follower-Tor (50, P1) gesperrt → Modal nicht öffenbar mit diesem Konto.
+- Abgedeckt durch: vitest (playerId→p_player_id durchgereicht) + tsc + Picker ist 1:1-Reuse des live-bewährten CreateResearchModal-Pickers (usePlayerNames). Funktional zusätzlich bewiesen durch happy-insert Rollback-Smoke (source='club', has_player=true).
 
 ## Review
 - worklog/reviews/334-review.md → PASS, 3 NITPICK (alle dokumentiert/out-of-scope).

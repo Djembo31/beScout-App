@@ -1,10 +1,10 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 334
-title: Polls P2 — player_id-Bezug + Discovery (Anker-Filter Verein/Spieler)
-stage: LOG
+title: ✅ DONE — Polls P2 (player_id-Bezug + Discovery Anker-Filter)
+stage: LOG complete
 spec: worklog/specs/334-polls-p2-player-anchor-discovery.md
 impact: worklog/impact/334-polls-p2-player-anchor.md
 proof: worklog/proofs/334-proof.md
