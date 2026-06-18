@@ -10,7 +10,9 @@
 ## 🟡 P1 — als Nächstes
 - **Polls P3c — Fan-Rang** (deferred aus Slice 336): Fan-Rang (`fanRanking.ts`, 6 Stufen, „fast wirkungslos") als Gewicht/Auszahl-Anteil aktivieren + Abo Early-Access/exklusive Mitglieder-Umfragen. `polls.md` §6/§8.
 - ~~UI-Live-Verifikationen 334/335/336~~ — **erledigt 2026-06-18:** 334 Discovery live re-bestätigt; 335/336 als DB-bewiesen abgehakt (Anil: „db beweis reicht" — Prod-Fixtures bewusst nicht fabriziert, Money-Pfade voll Smoke-bewiesen). CreatePollModal-Picker bleibt code/test-bewiesen (Follower-Tor-gated).
-- **Kleine Backlog-Härtung** (eigener Mini-Slice): `getPlayerNames` (`players.ts:42`) + Follower-Notify-Query (`communityPolls.ts`) ohne `.limit()` → PostgREST-1000-Cap, zusammen via `.range()`-Loop härten. + `polls.md` §9 Current-State-Refresh (sagt „KEINE Erstellung" — stale seit 333).
+- ~~`.limit()`-Härtung getPlayerNames + Follower-Notify~~ — **erledigt Slice 339** (2026-06-18, Range-Loop, Reviewer PASS).
+- **Notify-Fan-out-Batching** (NEU, 339-Review-NIT#1): Follower-Notify `Promise.all` ist jetzt — da Cap weg — bei Mega-Club ein Concurrency-Storm. Vor echtem Galatasaray-Launch in Chunks (500er) oder serverseitige Fan-out-RPC. Eigener Slice.
+- **Offene Fixes-Cluster:** `polls.md` §9 Current-State-Refresh (sagt „KEINE Erstellung" — stale seit 333) · bounty `reward_cents`-Max-Drift (CHECK 100k vs RPC-Text 1M) · `auto_close_expired_bounties` als getrackte Migration (AR-43).
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt).
 
 ## 🟢 P2 — Backlog

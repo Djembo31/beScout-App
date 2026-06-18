@@ -1,0 +1,33 @@
+Slice 339 — PostgREST-1000-Cap-Härtung — PROOF
+
+## tsc
+npx tsc --noEmit → exit 0 (clean)
+
+## Neue Pagination-Tests (AC-01..06)
+CI=true npx vitest run players-getPlayerNames.test.ts communityPolls-followers.test.ts
+  Test Files  2 passed (2)
+       Tests  9 passed (9)
+
+players-getPlayerNames.test.ts:
+  ✓ AC-01: paginiert über >1000 Spieler (1000 + 500 = 1500) — from() 2× aufgerufen
+  ✓ AC-02: < 1000 Spieler → genau 1 Seite (kein zweiter Call)
+  ✓ AC-02b: 0 Spieler → leeres Array, kein Crash
+  ✓ AC-03: Fehler auf einer Seite → throw (kein silent leeres Array)
+
+communityPolls-followers.test.ts:
+  ✓ AC-04: Club-Follower paginiert über >1000 (1000 + 200 = 1200) — from() 2×
+  ✓ AC-06: User-Follower paginiert (1000 + 50 = 1050)
+  ✓ AC-05: Query-Fehler → throw (best-effort catch in createCommunityPoll fängt)
+  ✓ Edge: source=club ohne clubId → leeres Array, keine Query
+  ✓ Edge: 0 Follower → leeres Array (1 Call, bricht sofort)
+
+## Regression (AC-07) — volle players + communityPolls Suites
+CI=true npx vitest run src/lib/services/__tests__/players src/lib/services/__tests__/communityPolls
+  Test Files  7 passed (7)
+       Tests  62 passed (62)
+
+## Code-Beleg (Range-Loop statt unranged select)
+- src/lib/services/players.ts getPlayerNames: for-Loop .range(offset, offset+999) bis page.length < 1000.
+- src/lib/services/communityPolls.ts fetchAllFollowerIds (neu, exportiert): identischer Range-Loop
+  für club_followers + user_follows; Notify-IIFE ruft Helper auf (best-effort try/catch erhalten).
+- Pattern 1:1 aus club.ts:388 (getClubsWithStats, Slice 079b).

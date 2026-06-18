@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 339 | 2026-06-18 | fix(services): PostgREST-1000-Cap-Härtung — getPlayerNames + Follower-Notify
+- Stage-Chain: SPEC (`worklog/specs/339-postgrest-cap-limit-hardening.md`, S, kein Money/Schema) → IMPACT (skipped: kein Contract-Change, Return-Typen identisch) → BUILD → REVIEW (`worklog/reviews/339-review.md`, Cold-Context **PASS**, 2 NIT Scope-Out) → PROVE (`worklog/proofs/339-vitest.txt`) → LOG.
+- Trigger: Anil „backlog und die offenen fixes zuerst" → Backlog-Funde aus 334-Review-NIT#3 + 336-Review-NIT#2 (Handoff).
+- Bug-Klasse: 3 unbounded `.select()` → PostgREST cappt still bei 1000. (1) `getPlayerNames` (players.ts, players >4k) → Spieler-Picker sah nur ~1000. (2) Club-Follower-Notify (`club_followers`) + (3) User-Follower-Notify (`user_follows`) → Mega-Club >1000 Follower bekamen keine `poll_new`-Benachrichtigung (zerstört die Galatasaray-35-Mio-Skalen-Story).
+- Bau: Range-Loop 1:1 aus `club.ts:388` (getClubsWithStats, Slice 079b-Muster). `getPlayerNames` inline-Loop; Follower-ID-Beschaffung in neuen exportierten Helper `fetchAllFollowerIds(source, clubId?, userId?)` extrahiert (Testbarkeit), Notify-IIFE ruft ihn auf — best-effort try/catch erhalten (throw bricht Poll-Erstellung NICHT).
+- Verify: tsc clean · 9/9 neue Pagination-Tests (>1000 paginiert · <1000 1 Call · 0-leer · Error-throw · Helper-Guard-Edge) · 62/62 Regression (players + communityPolls). Sticky-Mock-Falle in Tests umgangen (2-Eintrag-Queue = echte Pagination).
+- Backlog (Review-NIT#1): Notify-`Promise.all` ist jetzt — da Follower-Cap weg — bei Mega-Club ein Concurrency-Storm (vorher implizit ≤1000). Vor echtem Galatasaray-Launch Batching (500er-Chunks oder Fan-out-RPC) nötig. Eigener Slice.
+- Commit: <pending>
+
 ## 338 | 2026-06-18 | refactor(predictions): Predictions-/Tippspiel-Feature komplett entfernt
 - Stage-Chain: SPEC (`worklog/specs/338-predictions-feature-removal.md`, L, CEO-approved) → IMPACT (`worklog/impact/338-*.md`, Cross-Domain) → BUILD → REVIEW (`worklog/reviews/338-review.md`, Cold-Context **PASS**, 3 NIT kosmetisch) → PROVE (`worklog/proofs/338-proof.md`) → LOG.
 - Trigger: Anil „löschen der predictions" (2026-06-18) → gesamtes Fantasy-Tippspiel raus. Scope-Erweiterung (Anil-Frage): auch Community-Research-Kategorie „Prediction" raus. ChallengeType/score_events/ticket-CHECK bewusst behalten (andere Features).

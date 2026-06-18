@@ -61,6 +61,47 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
 }
 
 /**
+ * Slice 339: Alle Follower-IDs einer Quelle laden — Range-Loop gegen PostgREST-1000-Cap.
+ * Club-Poll → club_followers.user_id; User-Poll → user_follows.follower_id (following_id=Creator).
+ * Mega-Clubs (polls.md §1: Galatasaray ~35 Mio) > 1000 Follower → unranged .select() würde still
+ * nur 1000 benachrichtigen. Exportiert für direkte Unit-Tests der Pagination.
+ */
+export async function fetchAllFollowerIds(
+  source: 'club' | 'user',
+  clubId?: string | null,
+  userId?: string | null,
+): Promise<string[]> {
+  const PAGE = 1000;
+  const ids: string[] = [];
+  if (source === 'club' && clubId) {
+    for (let offset = 0; ; offset += PAGE) {
+      const { data, error } = await supabase
+        .from('club_followers')
+        .select('user_id')
+        .eq('club_id', clubId)
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(error.message);
+      const rows = data ?? [];
+      ids.push(...rows.map(r => r.user_id));
+      if (rows.length < PAGE) break;
+    }
+  } else if (source === 'user' && userId) {
+    for (let offset = 0; ; offset += PAGE) {
+      const { data, error } = await supabase
+        .from('user_follows')
+        .select('follower_id')
+        .eq('following_id', userId)
+        .range(offset, offset + PAGE - 1);
+      if (error) throw new Error(error.message);
+      const rows = data ?? [];
+      ids.push(...rows.map(r => r.follower_id));
+      if (rows.length < PAGE) break;
+    }
+  }
+  return ids;
+}
+
+/**
  * Slice 333: Bezahlte Umfrage erstellen (die fehlende Tür).
  * source='club' → nur Club-Admin, 70% Vote-Einnahmen → Vereins-Treasury (poll_revenue).
  * source='user' → User ab 50 Followern, 70% → Creator-Wallet.
@@ -92,16 +133,8 @@ export async function createCommunityPoll(params: CreateCommunityPollParams): Pr
   const pollId = result.poll_id;
   (async () => {
     try {
-      let followerIds: string[] = [];
-      if (params.source === 'club' && params.clubId) {
-        const { data, error } = await supabase.from('club_followers').select('user_id').eq('club_id', params.clubId);
-        if (error) throw new Error(error.message);
-        followerIds = (data ?? []).map(r => r.user_id);
-      } else if (params.source === 'user') {
-        const { data, error } = await supabase.from('user_follows').select('follower_id').eq('following_id', params.userId);
-        if (error) throw new Error(error.message);
-        followerIds = (data ?? []).map(r => r.follower_id);
-      }
+      // Slice 339: Range-Loop gegen PostgREST-1000-Cap (Mega-Club > 1000 Follower).
+      const followerIds = await fetchAllFollowerIds(params.source, params.clubId, params.userId);
       if (followerIds.length > 0) {
         const { createNotification } = await import('@/lib/services/notifications');
         const { notifText } = await import('@/lib/notifText');

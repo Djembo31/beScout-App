@@ -40,12 +40,23 @@ export async function getPlayers(): Promise<DbPlayer[]> {
 /** Lightweight player names — only id, name, position. For dropdowns/autocomplete. */
 export type PlayerName = { id: string; name: string; pos: Pos };
 export async function getPlayerNames(): Promise<PlayerName[]> {
-  const { data, error } = await supabase
-    .from('players')
-    .select('id, first_name, last_name, position')
-    .order('last_name');
-  if (error) throw new Error(error.message);
-  return (data ?? []).map(p => ({
+  // PostgREST cappt unranged .select() still bei ~1000 Rows; players hat >4000.
+  // Range-Loop wie getClubsWithStats (club.ts, Slice 079b-Muster) — sonst fehlen
+  // dem Spieler-Picker (CreatePollModal/CreateResearchModal) >3000 Spieler.
+  const PAGE = 1000;
+  const rows: { id: string; first_name: string; last_name: string; position: string }[] = [];
+  for (let offset = 0; ; offset += PAGE) {
+    const { data, error } = await supabase
+      .from('players')
+      .select('id, first_name, last_name, position')
+      .order('last_name')
+      .range(offset, offset + PAGE - 1);
+    if (error) throw new Error(error.message);
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < PAGE) break;
+  }
+  return rows.map(p => ({
     id: p.id,
     name: `${p.first_name} ${p.last_name}`,
     pos: toPos(p.position),
