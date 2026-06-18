@@ -11,8 +11,11 @@
 ## 🗺️ Epics (Reihenfolge = grobe Prio)
 
 ### ⏳ IN ARBEIT
-- **E1 — Polls P2 (Spieler-Bezug + Discovery)** — startet frisch. `player_id` zu `community_polls` + Filter/Suche nach Verein+Spieler über Polls UND Research. KEIN Money-Path. Einstieg: `memory/session-handoff.md` Resume-Anker + `docs/knowledge/domain/polls.md` §5/§8 P2.
-  - ✅ **Polls P1 (Slice 333, 2026-06-18):** Erstellung + Quellen-Identität (`source`) + Treasury-REIN-Routing (`poll_revenue`) + Follower-Tor 50. Live bewiesen. REIN-Geldmaschine eröffnet.
+- **E1 — Polls-Geldmaschine: P1-P3 + Fee FERTIG (Slices 333-337, 2026-06-18).** Offen nur noch **P3c — Fan-Rang** (aktivieren als Gewicht/Auszahl-Anteil) + Live-UI-Verifikationen (gated). Nächster Slice = Anil-Wahl (siehe `TODO.md`).
+  - ✅ **P1 (Slice 333):** Erstellung + Quellen-Identität (`source`) + Treasury-REIN-Routing (`poll_revenue`) + Follower-Tor 50.
+  - ✅ **P2 (Slice 334):** `player_id`-Anker + Discovery (Anker-Chip-Filter + Suche Verein/Spieler über alle Feed-Typen). DB live verifiziert.
+  - ✅ **P3 (Slice 336):** Follower-Reichweite-Notify + Abo-2×-Gewicht bei Paid-Polls. (Fan-Rang → P3c deferred.)
+  - ✅ **Fee 20/80 (Slice 337):** Verein behält 80 %. ✅ **Event-Cancel geld-sicher (Slice 335).** ✅ **Predictions-Removal (Slice 338).**
 
 ### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
 - ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.
@@ -20,7 +23,7 @@
 ### ⬜ ALS NÄCHSTES (E1 weiter)
 - **E1 — Money/Reward-Modell (D83):** Treasury → Polls → Fan-Rewards.
   - ✅ Treasury-Fundament + RAUS-Kanäle (329 Ledger · 330 CSF · 330b Saldo · 331 Events · 332 Bounties).
-  - ⏳ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück. ✅ P1 (Slice 333: Erstellung + `source`-Routing + `poll_revenue` + Follower-Tor) live. ⏳ P2 (Spieler-Bezug + Discovery) als Nächstes. Roadmap P1-P4 in `docs/knowledge/domain/polls.md`.
+  - ✅ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück. P1 (333) + P2 Discovery (334) + P3 soziale Schicht (336) + Fee 20/80 (337) alle live. Offen: P3c Fan-Rang + P4 (Teilnehmer-Auszahl, §7 offene Entscheidung). Roadmap in `docs/knowledge/domain/polls.md`.
   - ⬜ Fan-Reward-Engine (Verein belohnt treue Fans).
   - ⬜ Andere Event-Quellen (Plattform/Sponsor/User minten noch).
 - **E2 — S7 Tech-First-Aufräumen (D80):** Mockup-Reste, Dormant-Features, Brücken. Tracker `worklog/s7-phase3-remaining.md`. ⛔ players.club blockiert (API-Key).
@@ -31,4 +34,4 @@
 - Beta-Launch live (Tester aktiv).
 
 ## 📍 Stand in einem Satz
-Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls P1 (REIN-Geldmaschine, Slice 333) ✅ live**. Als Nächstes: **Polls P2 (E1)** — Spieler-Bezug + Discovery (Filter/Suche), damit die Geldmaschine auffindbar wird.
+Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine P1-P3 + Fee (Slices 333-337) ✅ live** + Event-Cancel geld-sicher (335) + Predictions-Removal (338). Als Nächstes: **Anil-Wahl** — Polls P3c Fan-Rang · Live-UI-Verifikationen · kleine Backlog-Härtung · E0 Welle 4 (Historie).
