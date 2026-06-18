@@ -10,6 +10,7 @@ import { PositionBadge } from '@/components/player';
 import { getClubDashboardStats, getClubFollowerCount } from '@/lib/services/club';
 import { getClubSubscribers } from '@/lib/services/clubSubscriptions';
 import { createClubNews } from '@/lib/services/posts';
+import type { FanRankTier } from '@/types';
 import { getPlayersByClubId, centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -20,6 +21,7 @@ import type { ClubWithAdmin, ClubDashboardStats, DbPlayer, Pos } from '@/types';
 
 export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
+  const tg = useTranslations('gamification');
   const role = club.admin_role ?? 'editor';
   const canPublishNews = canPerformAction('publish_news', role);
   const { user } = useUser();
@@ -35,6 +37,8 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
   const [newsOpen, setNewsOpen] = useState(false);
   const [newsContent, setNewsContent] = useState('');
   const [newsPublishing, setNewsPublishing] = useState(false);
+  // Slice 346 (FRE-3): optionale Mindest-Fan-Stufe für exklusive News (null = für alle)
+  const [newsMinTier, setNewsMinTier] = useState<FanRankTier | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -192,6 +196,23 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             className="w-full h-32 bg-surface-base border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
             maxLength={1000}
           />
+          {/* Slice 346 (FRE-3): Sichtbar ab Fan-Stufe (exklusive News) */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="news-min-tier" className="text-[11px] font-semibold text-white/50 shrink-0">{t('newsMinTierLabel')}</label>
+            <select
+              id="news-min-tier"
+              value={newsMinTier ?? ''}
+              onChange={e => setNewsMinTier((e.target.value || null) as FanRankTier | null)}
+              className="flex-1 bg-surface-base border border-white/10 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-gold/40 min-h-[44px]"
+            >
+              <option value="">{t('newsMinTierAll')}</option>
+              <option value="stammgast">{tg('fanRankStammgast')}</option>
+              <option value="ultra">{tg('fanRankUltra')}</option>
+              <option value="legende">{tg('fanRankLegende')}</option>
+              <option value="ehrenmitglied">{tg('fanRankEhrenmitglied')}</option>
+              <option value="vereinsikone">{tg('fanRankVereinsikone')}</option>
+            </select>
+          </div>
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-white/30">{newsContent.length}/1000</span>
             <div className="flex gap-2">
@@ -204,9 +225,10 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   if (!user) return;
                   setNewsPublishing(true);
                   try {
-                    await createClubNews(user.id, club.id, club.name, newsContent.trim());
+                    await createClubNews(user.id, club.id, club.name, newsContent.trim(), 'News', newsMinTier);
                     addToast(t('newsPublished'), 'success');
                     setNewsContent('');
+                    setNewsMinTier(null);
                     setNewsOpen(false);
                   } catch (err) {
                     console.error('[Admin] News publish:', err);

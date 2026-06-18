@@ -2,21 +2,22 @@
 
 ```
 status: idle
-slice: 345
-title: ✅ DONE — FRE-2: Follow zählt als Einstiegssignal in den Fan-Rang (+5)
+slice: 346
+title: ✅ DONE — FRE-3: Exklusive Vereins-Beiträge (Fan-Rang-Gate + gesperrte Vorschau)
 stage: LOG complete
-size: S
+size: M
 slice-type: Migration
-spec: worklog/specs/345-follow-fanrank-signal.md
-impact: inline (siehe Spec §3/§4 — Money-nah)
-proof: worklog/proofs/345-rpc.txt
-review: worklog/reviews/345-review.md (PASS, 2 NIT non-blocking)
+spec: worklog/specs/346-exclusive-club-posts.md
+impact: inline (Spec §3/§4 — RLS/Security-nah)
+proof: worklog/proofs/346-rls.txt (+ UI-Playwright post-Deploy offen)
+review: worklog/reviews/346-review.md (PASS, 3 NIT non-blocking)
 ```
 
 ## Zuletzt
-- **Slice 343** (2026-06-18) — Polls P3c Fan-Rang→Poll-Stimmgewicht (MAX mit Abo-Floor). Reviewer PASS.
-- **Slice 344 / FRE-1** (2026-06-18) — Fan-Rang-Leiter sichtbar + Perk-Katalog (UI). Reviewer PASS, live.
+- **Slice 344 / FRE-1** — Fan-Rang-Leiter sichtbar (UI). PASS, live.
+- **Slice 345 / FRE-2** — Follow zählt (+5) + Recalc-Trigger. PASS, live.
 
 ## Fan-Reward-Engine (E1-Teil) — Plan = D93
-- FRE-1 Leiter ✅ · **FRE-2 Follow zählt (dieser Slice)** · FRE-3 Perk-Gate · FRE-4 Airdrop (Money) · FRE-5 Club-Konfig.
-- FRE-2 Design (Anil 2026-06-18): Follow = **kleiner Schubs ~5 Punkte** (Fuß in der Tür). Money-nah (Fan-Rang steuert Poll-Stimmgewicht seit 343) → Abo-Floor (D92) bleibt unberührt.
+- FRE-1 ✅ · FRE-2 ✅ · **FRE-3 (dieser Slice): exklusive Vereins-Beiträge ab Fan-Stufe X, mit gesperrter Vorschau (🔒).** Security-nah (RLS-Lese-Gate) → ich (CTO) baue selbst.
+- Design (Anil 2026-06-18): gesperrte Vorschau (nicht komplett unsichtbar); Mindeststufe wählt der Admin pro Beitrag.
+- Danach: FRE-4 Airdrop (Money) · FRE-5 Club-Konfig.

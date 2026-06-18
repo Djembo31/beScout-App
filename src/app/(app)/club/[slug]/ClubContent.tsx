@@ -10,6 +10,7 @@ import {
   LayoutGrid, List,
   Settings,
   ShoppingBag,
+  Lock,
 } from 'lucide-react';
 import { Card, Button, ErrorState, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import dynamic from 'next/dynamic';
@@ -97,6 +98,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   const queryClient = useQueryClient();
   const t = useTranslations('club');
   const tcom = useTranslations('community');
+  const tg = useTranslations('gamification');
   const { data: followedClubs = [] } = useFollowedClubs();
 
   // ── Local UI State ──
@@ -552,21 +554,45 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <h2 className="font-black text-balance">{t('news')}</h2>
                 </div>
                 <div className="space-y-3">
-                  {clubNews.map(news => (
-                    <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
-                          {tcom('clubNewsLabel')}
-                        </span>
-                        <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
+                  {clubNews.map(news => {
+                    const tierLabel = news.min_fan_rank_tier
+                      ? tg(`fanRank${news.min_fan_rank_tier.charAt(0).toUpperCase()}${news.min_fan_rank_tier.slice(1)}`)
+                      : '';
+                    return (
+                      <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
+                            {tcom('clubNewsLabel')}
+                          </span>
+                          {news.min_fan_rank_tier && news.can_view && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/25">
+                              <Lock className="size-2.5" aria-hidden="true" />
+                              {t('exclusiveBadge', { tier: tierLabel })}
+                            </span>
+                          )}
+                          <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
+                        </div>
+                        {news.can_view ? (
+                          <>
+                            <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
+                            {news.author_handle && (
+                              <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
+                                <span>{news.author_handle}</span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex items-start gap-2.5 py-1">
+                            <Lock className="size-4 text-purple-300/70 shrink-0 mt-0.5" aria-hidden="true" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-white/70">{t('exclusiveLockedTitle')}</p>
+                              <p className="text-xs text-white/40 mt-0.5 text-pretty">{t('exclusiveLockedHint', { tier: tierLabel })}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
-                      <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
-                        <span>{news.author_display_name || news.author_handle}</span>
-                        <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </Card>
             </RevealSection>

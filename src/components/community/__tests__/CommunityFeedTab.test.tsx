@@ -113,6 +113,7 @@ function makePost(overrides: Partial<PostWithAuthor> = {}): PostWithAuthor {
     replies_count: 3,
     is_pinned: false,
     is_exclusive: false,
+    min_fan_rank_tier: null,
     parent_id: null,
     event_id: null,
     rumor_source: null,

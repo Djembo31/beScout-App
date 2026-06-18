@@ -11,9 +11,9 @@ import { useActiveIpos } from '@/lib/queries/ipos';
 import { useEvents } from '@/lib/queries/events';
 import { useClubRecentTrades } from '@/lib/queries/trades';
 import { useFanRanking } from '@/lib/queries/fanRanking';
-import { getPosts } from '@/lib/services/posts';
+import { getClubNewsTeasers } from '@/lib/services/posts';
 import { getFixtureResult } from '@/components/club/FixtureCards';
-import type { Pos, PostWithAuthor, ResearchPostWithAuthor } from '@/types';
+import type { Pos, ClubNewsTeaser, ResearchPostWithAuthor } from '@/types';
 import type { ClubFilters, ClubDataResult } from './types';
 
 interface UseClubDataParams {
@@ -45,13 +45,13 @@ export function useClubData({ slug, userId, filters }: UseClubDataParams): ClubD
   }, []);
 
   // ── Club News & Research (manual fetches) ──
-  const [clubNews, setClubNews] = useState<PostWithAuthor[]>([]);
+  const [clubNews, setClubNews] = useState<ClubNewsTeaser[]>([]);
   const [clubResearch, setClubResearch] = useState<ResearchPostWithAuthor[]>([]);
 
   useEffect(() => {
     if (!clubId) return;
     let cancelled = false;
-    getPosts({ clubId, postType: 'club_news', limit: 3 }).then(news => {
+    getClubNewsTeasers(clubId, 3).then(news => {
       if (!cancelled) setClubNews(news);
     }).catch(err => console.error('[Club] News fetch:', err));
     return () => { cancelled = true; };

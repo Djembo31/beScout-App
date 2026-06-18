@@ -180,6 +180,7 @@ vi.mock('@/lib/services/research', () => ({
 
 vi.mock('@/lib/services/posts', () => ({
   getPosts: vi.fn(() => Promise.resolve([])),
+  getClubNewsTeasers: vi.fn(() => Promise.resolve([])),
 }));
 
 vi.mock('@/lib/utils', () => ({

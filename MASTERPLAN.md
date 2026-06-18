@@ -15,8 +15,8 @@
   - ✅ **Polls komplett:** P1 (333) Erstellung+REIN-Routing · P2 (334) Discovery · P3 (336) Follower+Abo-Gewicht · Fee 20/80 (337) · P3c (343) Fan-Rang→Poll-Stimmgewicht. Plus Event-Cancel (335) + Predictions-Removal (338).
   - ✅ **FRE-1 (Slice 344):** Fan-Rang-Leiter sichtbar + Perk-Katalog. Reine UI, live.
   - ✅ **FRE-2 (Slice 345):** Follow zählt als Einstiegssignal in den Fan-Rang (+5, monoton) + Recalc-Trigger. Money-nah, Abo-Floor (D92) intakt.
-  - ⏳ **FRE-3 (nächster Slice):** ein echtes neues Perk-Gate (Design-Entscheidung mit Anil offen).
-  - ⬜ FRE-4 Airdrop (Treasury-RAUS, Money, D92-MAX-Floor) · FRE-5 Club-Konfig.
+  - ✅ **FRE-3 (Slice 346):** Exklusive Vereins-Beiträge ab Fan-Stufe + gesperrte Vorschau (🔒). RLS-Lese-Gate + Teaser-RPC (Content-Maskierung). Security: kein Content-Leak.
+  - ⏳ **FRE-4 (nächster Slice, Anil-Wahl):** Airdrop (Club belohnt Top-Treue mit $SCOUT aus Treasury, Money, D92-MAX-Floor). ODER FRE-5 Club-Konfig.
 
 ### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
 - ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.

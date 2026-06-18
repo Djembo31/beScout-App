@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 346 | 2026-06-18 | feat(db): FRE-3 — Exklusive Vereins-Beiträge (Fan-Rang-Gate + gesperrte Vorschau)
+- Stage-Chain: SPEC (`worklog/specs/346-exclusive-club-posts.md`, M, Migration, CEO-approved Security-nah) → IMPACT (inline) → BUILD (Migration zuerst + Live-Logik-Test + Scharfschaltung + Service + UI) → REVIEW (`worklog/reviews/346-review.md`, Cold-Context **PASS**, 3 NIT) → PROVE (`worklog/proofs/346-rls.txt` + UI-Playwright post-Deploy) → LOG.
+- Trigger: Anil „weiter mit 3" → 3. Schritt Fan-Reward-Engine (D93). Design (Anil): gesperrte Vorschau (🔒), Admin wählt Mindeststufe pro Beitrag.
+- Bau (DB): Migration `20260618234000` — `fan_rank_tier_rank(text)` (Mirror FAN_RANK_TIERS) · `posts.min_fan_rank_tier` + CHECK · **RLS-SELECT-Policy ersetzt** (war `USING(true)`) durch Fan-Rang-Lese-Gate · SECURITY-DEFINER `get_club_news_teasers` (maskiert content für Unberechtigte = gesperrte Vorschau) · AR-44 Grants. **2-Phasen-Apply:** additiv zuerst, RLS-Gate erst NACH read-only-Logik-Test (kein Live-Risiko).
+- Bau (Code): `DbPost.min_fan_rank_tier` + `ClubNewsTeaser`-Type · `createClubNews`-Param + `getClubNewsTeasers` + SELECT-Cols · `useClubData` lädt News via Teaser-RPC · `ClubContent` 🔒-Teaser/Badge · `AdminOverviewTab` Stufen-Selektor · i18n DE+TR (5 Keys). tsc clean, 60/60 betroffene Tests.
+- Security-Proof: Logik-Test (low/high/anon × public/exkl) + Live-RLS-Rollensmoke (low sees_exclusive=0, public=2, force-rollback) + 4 Policies intakt + teaser-RPC anon=false/auth=true + tier-Lineal verifiziert. **Kein Content-Leak** (Row-Hide + Maskierung, identische Gate-Bedingung).
+- Backlog (aus Review): Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`); INSERT-Policy-club_admins-Härtung (pre-existing, separat).
+- Commit: <pending> · Nächstes: FRE-4 Airdrop (Money) oder FRE-5.
+
 ## 345 | 2026-06-18 | feat(db): FRE-2 — Follow zählt als Einstiegssignal in den Fan-Rang (+5)
 - Stage-Chain: SPEC (`worklog/specs/345-follow-fanrank-signal.md`, S, Migration, CEO-approved Money-nah) → IMPACT (inline, Consumer grep-verifiziert) → BUILD (apply_migration) → REVIEW (`worklog/reviews/345-review.md`, Cold-Context **PASS**, 2 NIT non-blocking) → PROVE (`worklog/proofs/345-rpc.txt`) → LOG.
 - Trigger: Anil „weiter mit E1" → 2. Schritt der Fan-Reward-Engine (D93). Design (Anil): Follow = kleiner Schubs **~5 Punkte** (Fuß in der Tür, kein Geschenk).

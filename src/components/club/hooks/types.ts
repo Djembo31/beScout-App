@@ -1,4 +1,4 @@
-import type { Player, Pos, PostWithAuthor, ResearchPostWithAuthor, ClubWithAdmin, Fixture, DbIpo, DbEvent, DbFanRanking } from '@/types';
+import type { Player, Pos, ClubNewsTeaser, ResearchPostWithAuthor, ClubWithAdmin, Fixture, DbIpo, DbEvent, DbFanRanking } from '@/types';
 import type { ClubPrestige } from '@/lib/services/club';
 
 // ── Tab & Filter Types ──
@@ -48,7 +48,7 @@ export interface ClubDataResult {
   showFeatureShowcase: boolean;
 
   // Content
-  clubNews: PostWithAuthor[];
+  clubNews: ClubNewsTeaser[];
   clubResearch: ResearchPostWithAuthor[];
 
   // Gamification

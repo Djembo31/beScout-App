@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
-import type { DbPost, PostWithAuthor, PostType, OperationResult } from '@/types';
+import type { DbPost, PostWithAuthor, PostType, OperationResult, ClubNewsTeaser, FanRankTier } from '@/types';
 import { toPos } from '@/types';
 import { ConflictError, UnexpectedError } from '@/lib/errors';
 
@@ -40,7 +40,7 @@ export async function getPosts(options: {
 
   let query = supabase
     .from('posts')
-    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, min_fan_rank_tier, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
@@ -123,7 +123,8 @@ export async function createPost(
   rumorSource: string | null = null,
   rumorClubTarget: string | null = null,
   eventId: string | null = null,
-  imageUrl: string | null = null
+  imageUrl: string | null = null,
+  minFanRankTier: FanRankTier | null = null,
 ): Promise<DbPost> {
   const { data, error } = await supabase
     .from('posts')
@@ -140,6 +141,7 @@ export async function createPost(
       rumor_club_target: rumorClubTarget,
       event_id: eventId,
       ...(imageUrl ? { image_url: imageUrl } : {}),
+      ...(minFanRankTier ? { min_fan_rank_tier: minFanRankTier } : {}),
     })
     .select()
     .single();
@@ -161,21 +163,38 @@ export async function createPost(
   return data as DbPost;
 }
 
-/** Create a club news post (admin only) */
+/** Create a club news post (admin only).
+ *  Slice 346 (FRE-3): optional minFanRankTier → exklusiv ab Fan-Stufe (NULL = für alle). */
 export async function createClubNews(
   adminUserId: string,
   clubId: string,
   clubName: string,
   content: string,
   category: string = 'News',
+  minFanRankTier: FanRankTier | null = null,
 ): Promise<DbPost> {
-  return createPost(adminUserId, null, clubName, content, [], category, clubId, 'club_news');
+  return createPost(
+    adminUserId, null, clubName, content, [], category, clubId, 'club_news',
+    null, null, null, null, minFanRankTier,
+  );
+}
+
+/** Slice 346 (FRE-3): Vereins-News mit gesperrter Vorschau.
+ *  Liefert ALLE club_news (auch exklusive) via SECURITY-DEFINER-RPC; content ist NULL,
+ *  wenn der aktuelle User die Fan-Stufe nicht erreicht (can_view=false). */
+export async function getClubNewsTeasers(clubId: string, limit = 3): Promise<ClubNewsTeaser[]> {
+  const { data, error } = await supabase.rpc('get_club_news_teasers', {
+    p_club_id: clubId,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as ClubNewsTeaser[];
 }
 
 export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, min_fan_rank_tier, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
     .eq('parent_id', parentId)
     .order('created_at', { ascending: true })
     .limit(200);

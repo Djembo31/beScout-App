@@ -1182,12 +1182,27 @@ export type DbPost = {
   replies_count: number;
   is_pinned: boolean;
   is_exclusive: boolean;
+  /** Slice 346 (FRE-3): Mindest-Fan-Stufe zum Lesen. NULL = öffentlich. RLS-erzwungen. */
+  min_fan_rank_tier: FanRankTier | null;
   parent_id: string | null;
   event_id: string | null;
   rumor_source: string | null;
   rumor_club_target: string | null;
   image_url: string | null;
   created_at: string;
+};
+
+/** Slice 346 (FRE-3): Vereins-News-Teaser via RPC get_club_news_teasers.
+ *  content ist NULL wenn can_view=false (gesperrte Vorschau). */
+export type ClubNewsTeaser = {
+  id: string;
+  created_at: string;
+  category: string;
+  content: string | null;
+  min_fan_rank_tier: FanRankTier | null;
+  can_view: boolean;
+  author_handle: string | null;
+  author_avatar_url: string | null;
 };
 
 export type DbPostVote = {

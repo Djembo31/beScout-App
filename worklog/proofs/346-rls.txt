@@ -1,0 +1,32 @@
+Slice 346 (FRE-3) — Exklusive Vereins-Beiträge (Fan-Rang-Gate + gesperrte Vorschau)
+Proof: Live-DB skzjfhvgccaeplydsunz, 2026-06-18. Migration applied (additiv + RLS-Gate, beide success).
+Testdaten: club 2bf30014…, high_user 535b… (ultra), low_user ca37… (zuschauer).
+
+=== 1. Logik-Test der Gate-Bedingung (read-only, VOR Scharfschaltung) ===
+Betrachter × Beitrag → darf sehen?
+  low(zuschauer):  PUBLIC=true ✓ | EXCL_byHigh=false ✓ (gesperrt) | EXCL_byLow=true ✓ (Autor)
+  high(ultra):     PUBLIC=true ✓ | EXCL_byHigh=true ✓  | EXCL_byLow=true ✓ (via Tier)
+  anon:            PUBLIC=true ✓ | EXCL_byHigh=null→nicht-sichtbar ✓ | EXCL_byLow=null→nicht-sichtbar ✓
+→ Logik korrekt. Anschließend RLS-Policy scharf geschaltet (mit explizitem auth.uid()-Guard → anon liefert explizit false statt null).
+
+=== 2. Live-RLS-Test an der scharfen Regel (Rollensimulation + force-rollback) ===
+SET LOCAL ROLE authenticated + jwt(low_user) gegen einen temporär exklusiv ('ultra') markierten Beitrag:
+  low_user sees_exclusive   = 0  (erwartet 0) ✓  — exklusiver Beitrag über generischen Pfad UNSICHTBAR (kein Content-Leak)
+  low_user sees_public_in_club = 2 (erwartet >0) ✓ — öffentliche Beiträge weiterhin sichtbar (kein Regress)
+→ RAISE-Rollback: kein Test-Beitrag persistiert.
+
+=== 3. Vollständigkeit & Grants ===
+posts-Policies (alle 4 Ops intakt, nur SELECT ersetzt):
+  DELETE  "Users can delete own posts"
+  INSERT  "Users can create own posts"
+  SELECT  "Read posts with fan-rank gate"   ← neu (war "Anyone can read posts" USING(true))
+  UPDATE  "Users can update own posts"
+Teaser-RPC get_club_news_teasers: anon EXECUTE=false ✓ | authenticated EXECUTE=true ✓
+Tier-Lineal fan_rank_tier_rank: zuschauer=0, ultra=2, vereinsikone=5, unbekannt=-1 ✓ (Mirror FAN_RANK_TIERS)
+
+=== 4. Code-Seite ===
+tsc --noEmit: CLEAN. Betroffene Tests: useClubData + ClubContent + CommunityFeedTab = 60/60 PASS.
+i18n DE+TR namespace-aware: club.exclusiveLockedTitle/Hint/Badge + admin.newsMinTierLabel/All vorhanden (beide Locales).
+
+=== Offen ===
+UI-Visual-Proof (Admin setzt Exklusiv-News; low-tier sieht 🔒, high-tier Content) = Playwright gegen bescout.net POST-DEPLOY.
