@@ -1,7 +1,7 @@
 ---
 title: Reward- & Ranking-Ökosystem — Konzept-Landkarte
 created: 2026-06-15
-updated: 2026-06-17
+updated: 2026-06-18
 status: active
 tags: [rewards, ranking, gamification, fan-rank, scout-scores, treasury]
 consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gamification-Landkarte, Monatsliga, fan_rankings, scout_scores, Minting-Inventar
@@ -99,7 +99,7 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 - **Club-Treasury seit Slice 329 gebaut** (Saldo + Ledger). Auszahlung an sich selbst via `request_club_withdrawal` (Phase 2).
 
 ### 🔴 Schmerzpunkte Welt 2 (das eigentliche Ziel ist hier am schwächsten)
-- **W2-A — CSF-Multiplier wirkungslos.** Der Multiplier 1.00–1.50 greift **nur** bei `liquidate_player` und wurde dort durch `LEAST(1.15, ...)` hart auf 1,15× gedeckelt → Unterschied Zuschauer vs. Vereinsikone ~15 %. (Stand Treasury-Modell D83: `csf_multiplier` wird ENTFERNT, CSF rein proportional, Treue über Fan-Reward-Engine.)
+- **W2-A — CSF-Multiplier wirkungslos.** Der Multiplier 1.00–1.50 greift **nur** bei `liquidate_player` und wurde dort durch `LEAST(1.15, ...)` hart auf 1,15× gedeckelt → Unterschied Zuschauer vs. Vereinsikone ~15 %. (Stand Treasury-Modell D83: `csf_multiplier` wird ENTFERNT, CSF rein proportional, Treue über Fan-Reward-Engine.) **Update Slice 343:** Fan-Rang hat jetzt einen **zweiten, realen Hebel** — **Poll-Stimmgewicht** (`cast_community_poll_vote`: Ultra/Legende 2×, Ehren/Ikone 3×, `MAX` mit Abo). Erster Effekt des Fan-Rangs unabhängig vom CSF. Querbezug: `domain/polls.md` §6/§8.
 - **W2-B — Club-Fan-Treue-Board ist TOT.** `getClubFanLeaderboard` + `useClubFanLeaderboard` gebaut + getestet, **0 UI-Consumer**.
 - **W2-C — `club_followers` ist totes Treue-Signal.** Größte, niederschwelligste Fan-Basis zählt **nicht** in fan_ranking.
 - **W2-D — Kein club-initiierter Fan-Reward.** Es gibt **keinen Pfad**, über den ein Club-Admin gezielt seine treuesten Fans belohnt (Airdrop/Perks/Drops). **← Größte Lücke gegenüber dem Ziel.** (Adressiert vom Treasury-Modell §8 Fan-Reward-Engine, Bau offen.)
@@ -153,7 +153,7 @@ Speist **weder** scout_scores **noch** fan_rankings direkt — wirkt parallel, m
 ## 6. Offene Produkt-Entscheidungen für Anil
 
 1. **CSF-Zukunft:** echt wirksam (Deckel lockern) oder **neuer expliziter Reward-Mechanismus** (Fan-Reward-Engine)? *(Treasury-Modell D83 tendiert zu: csf_multiplier raus, Treue via Fan-Reward-Engine.)*
-2. **Follower vs. Abonnenten:** Sollen **Follower** (gratis) fan_ranking-Score bekommen, oder bleibt Treue an **Abo + Aktivität** gekoppelt?
+2. **Follower vs. Abonnenten:** Sollen **Follower** (gratis) fan_ranking-Score bekommen, oder bleibt Treue an **Abo + Aktivität** gekoppelt? *(Teil-Kontext seit Slice 343: Fan-Rang ist jetzt als Poll-Stimmgewicht spürbar — Frage gewinnt an Gewicht, da der Rang reale Wirkung hat.)*
 3. **user_stats:** ableiten/cachen oder ganz retiren?
 4. **Monatsliga aktivieren?** 34.000 $SCOUT/Monat Minting — passt das zur Treasury-Planung im kostenlosen Sommer-Modus?
 

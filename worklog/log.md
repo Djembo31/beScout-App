@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 343 | 2026-06-18 | feat(db): Polls P3c — Fan-Rang → Stimmgewicht (MAX mit Abo-Floor)
+- Stage-Chain: SPEC (`worklog/specs/343-poll-fanrank-vote-weight.md`, S, CEO-approved) → IMPACT (skipped: 1 RPC, kein neuer Consumer, Return-Shape unverändert) → BUILD (Migration apply) → REVIEW (`worklog/reviews/343-review.md`, Cold-Context **PASS**, 2 NITPICK byte-Identität) → PROVE (`worklog/proofs/343-rpc.txt`) → LOG.
+- Trigger: Anil „1" → letztes Poll-Feature. Scope-Entscheid via AskUserQuestion: NUR (a) Stimmgewicht (b/c verworfen für diesen Slice, d tot weil P4 verworfen).
+- Befund: Fan-Rang (6 Stufen) war „fast wirkungslos" — einziger Effekt = CSF-Multiplier, der per D83 entfernt wird. Live-DB: `fan_rankings` real befüllt (37 Zeilen, 36 > Zuschauer). D87: Live-`cast_community_poll_vote` = Migration 336 (Baseline verifiziert).
+- Bau: Migration `20260618230000` CREATE OR REPLACE — Body byte-identisch zu 336, NUR Weight-Block: `weight = GREATEST(v_abo_weight, v_rank_weight)`. Fan-Rang ultra/legende→2×, ehren/ikone→3×, sonst 1×; Abo-Floor (MAX) verhindert Regression der Live-2× bei stale/niedrigem Rang. Tally-only (Geld = 1 echte Stimme, D86). Stored-read (kein recalc-on-read im Money-Pfad). AR-44 REVOKE/GRANT.
+- Verify: Live-Body trägt v_rank_weight + GREATEST, Money-Branches (treasury/poll_earn) intakt, anon=false/auth=true. DB-Smoke (transaktional, BEGIN→RAISE-Rollback): 13/13 Assertions PASS — je Tier (S1-S6), Abo-Floor (S7=2), MAX≠6 (S8=3), NULL-Rang (S9=1), club-keyed noclub (S10=1), **Money-Invariante (S11: weight=3 aber amount_paid=1000 nicht 3000, Wallets+transactions korrekt)**, Tally=18. 0 Persistenz-Leak. tsc clean.
+- Wissens-Kopplung (E0-W2gov): `docs/knowledge/domain/polls.md` (§6/§8/§9/Status) + `reward-ranking.md` (W2-A/§6) mit-aktualisiert.
+- Commit: <pending>
+- Notes: Mapping-Konstante lebt in der RPC (kein TS-Spiegel, da Gewicht nicht UI-surfacet). Backlog: bei UI-Surfacing Test-Invariant TS↔RPC (Slice-108-Familie, Review-NIT#1).
+
 ## 342 | 2026-06-18 | fix(services): Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
 - Stage-Chain: SPEC (`worklog/specs/342-poll-notify-fanout-batching.md`, S) → IMPACT (skipped: 1 Service-File, kein Contract-Change) → BUILD → REVIEW (`worklog/reviews/342-review.md`, Cold-Context **PASS**, 2 NIT pre-existing) → PROVE (`worklog/proofs/342-vitest.txt`) → LOG.
 - Trigger: Anil „risiko schließen" → 339-Review-NIT#1 (Cap weg → `Promise.all` über alle Follower = Mega-Club-Concurrency-Storm).

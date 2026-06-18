@@ -1,0 +1,53 @@
+Slice 343 — Polls P3c: Fan-Rang → Stimmgewicht (MAX mit Abo-Floor)
+PROOF — DB-Smoke (transaktional, BEGIN→RAISE-Rollback) gegen Live-DB skzjfhvgccaeplydsunz
+Datum: 2026-06-18
+
+================================================================
+A) GRANT / BODY-VERIFY (nach apply_migration, AC-08 + Money-Branch-Integrität)
+================================================================
+SELECT … pg_get_functiondef(...) ILIKE '%…%' + has_function_privilege(...)
+  has_rank_weight        = true     (v_rank_weight im Live-Body)
+  has_max                = true     (GREATEST(v_abo_weight, v_rank_weight))
+  money_treasury_intact  = true     (book_club_treasury unverändert)
+  money_poll_earn_intact = true     (poll_earn-Branch unverändert)
+  anon_can               = false    ✅ AC-08
+  auth_can               = true     ✅ AC-08
+
+================================================================
+B) WEIGHT-LOGIK SMOKE (cost=0 isoliert Gewicht/Tally vom Geld; reale Club-User,
+   Ränge innerhalb der Txn gesetzt, danach ROLLBACK via RAISE)
+   Club = 2bf30014-db88-4567-9885-9da215e3a0d4
+================================================================
+=== Slice 343 DB-Smoke: Fan-Rang -> Stimmgewicht (MAX mit Abo-Floor) ===
+S1  zuschauer      abo=f     weight=1 exp=1 [AC02] PASS
+S2  stammgast      abo=f     weight=1 exp=1 [AC02] PASS
+S3  ultra          abo=f     weight=2 exp=2 [AC02] PASS
+S4  legende        abo=f     weight=2 exp=2 [AC02] PASS
+S5  ehrenmitglied  abo=f     weight=3 exp=3 [AC02] PASS
+S6  vereinsikone   abo=f     weight=3 exp=3 [AC01] PASS
+S7  zuschauer      abo=t     weight=2 exp=2 [AC03 floor]    PASS   ← Abo-Floor, keine Regression
+S8  vereinsikone   abo=t     weight=3 exp=3 [AC04 max!=6]   PASS   ← MAX, kein Stapeln (nicht 6)
+S9  __none__       abo=f     weight=1 exp=1 [AC05 none]     PASS   ← kein fan_rankings-Eintrag
+S10 noclub-poll    ikone-rank weight=1 exp=1 [AC06 club-keyed] PASS ← Rang ignoriert wenn club_id NULL
+S11 MONEY ikone    weight=3 cost=1000 creator_share=700 |
+       amount_paid=1000 (exp 1000, NOT 3000)  voterBal=1000(exp1000)
+       creatorBal=700(exp700)  txnCost=1  txnEarn=1  [AC07] PASS   ← Geld = 1 echte Stimme trotz weight=3
+TALLY poll1 total_votes=18 exp=18 PASS   ← 1+1+2+2+3+3+2+3+1 = 18 (Gewicht skaliert Tally)
+
+OVERALL: PASS (alle ACs gruen)
+(transactional smoke — rolled back via RAISE)
+
+================================================================
+C) ROLLBACK-VERIFY (kein Persistenz-Leak)
+================================================================
+leaked_polls = 0   leaked_txns = 0   leaked_ranks = 0
+→ Keine Test-Daten persistiert, keine Prod-Mutation.
+
+================================================================
+D) tsc --noEmit
+================================================================
+clean (kein TS-File geändert; reiner RPC-Slice). Bestehende communityPolls-Suite
+unverändert (Return-Shape identisch) → keine Regression im Service-Layer.
+
+================================================================
+FAZIT: AC-01..08 erfüllt. Gewicht = MAX(Abo, Fan-Rang), Tally-only, Geld byte-identisch.

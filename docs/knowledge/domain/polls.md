@@ -12,7 +12,7 @@ verified-against: .claude/rules/community.md @ 2026-06-18
 
 > **Kanon (WIE):** Umfragen (Polls) als Vereins-Geldmaschine + Fan-Stimme, inkl. Discovery (Suche/Filter) und sozialer Schicht (Follower/Abo/Fan-Rang). **WARUM-Entscheidung:** `memory/decisions.md` **D86**. Strategie-Session 2026-06-17.
 >
-> **Status (2026-06-18):** P1 Erstellung (Slice 333) + P2 Spieler-Bezug & Discovery (334) + P3 soziale Schicht Follower/Abo (336) + Fee 20/80 (337) **gebaut + live**. Offen: P3c Fan-Rang + P4 (Teilnehmer-Auszahl, §7). Referenz für alle künftigen Poll-/Discovery-Slices. **Beibezug Pflicht** (Anil: „darf nicht verloren gehen, wird unbedingt genutzt").
+> **Status (2026-06-18):** P1 Erstellung (Slice 333) + P2 Spieler-Bezug & Discovery (334) + P3 soziale Schicht Follower/Abo (336) + Fee 20/80 (337) + **P3c Fan-Rang → Stimmgewicht (Slice 343)** **gebaut + live**. Offen: P3c-Rest (b exklusive Treue-Umfragen, c Early-Access). ~~P4 Teilnehmer-Auszahl~~ verworfen (§7). Referenz für alle künftigen Poll-/Discovery-Slices. **Beibezug Pflicht** (Anil: „darf nicht verloren gehen, wird unbedingt genutzt").
 >
 > **Geld-Richtung (zentral):** Polls sind eine **REIN-Mechanik** (Fan zahlt → Verein verdient → Treasury), NICHT „Verein belohnt Teilnahme". Querbezug: `domain/treasury.md` (REIN-Seite, Slices 329/330b).
 
@@ -81,7 +81,7 @@ Wenn es viele Umfragen, Polls und **Paywalls** (bezahlte Reports) gibt, müssen 
 |-------|-------|----------|--------------|
 | **Follower** (`club_followers`) | Reichweite (Lautsprecher) | **wer sieht es** + **Tor fürs User-Anlegen** (ab Schwelle) | ✅ **aktiv** — Follower-Tor 50 fürs User-Anlegen (333) + `poll_new`-Notification an ALLE Follower bei neuer Umfrage (336; Range-Loop gegen 1000-Cap, Slice 339) |
 | **Abonnenten** (`club_subscriptions`) | Perks/Zugang | **doppeltes Stimmgewicht**, früherer/exklusiver Zugang | ✅ **2×-Gewicht jetzt auch bei Paid-Polls** (336, `community_poll_votes.weight`; Gewicht skaliert NUR Tally, NICHT Geld). Offen: Early/exklusiver Zugang |
-| **Fan-Rang** (`fan_rankings`, *„evtl."*) | Treue-Status (Vereinsikonen) | Gewicht, exklusive Treue-Umfragen, **Anteil an Auszahlung** | ⚠️ existiert (6 Stufen), aber **fast wirkungslos** — **= P3c, noch offen** |
+| **Fan-Rang** (`fan_rankings`, *„evtl."*) | Treue-Status (Vereinsikonen) | Gewicht, exklusive Treue-Umfragen, ~~Anteil an Auszahlung~~ | ✅ **Stimmgewicht aktiv** (Slice 343): Ultra/Legende 2×, Ehrenmitglied/Vereinsikone 3×. Offen: exklusive Treue-Umfragen (b) + Early-Access (c) |
 
 **Beispiel (alle drei):** Gala startet „Welche Position verstärken?" → erreicht 35 Mio **Follower** → **Gold-Abos** stimmen mit 2× Gewicht / sehen zuerst → **Vereinsikonen** bekommen am Ende einen Anteil aus dem Topf.
 
@@ -111,10 +111,11 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 - [x] `player_id` zu `community_polls`.
 - [x] Filter/Suche **nach Verein + Spieler** über alle Feed-Typen (Anker-Chip-Leiste + erweiterte Suche). Research trägt Anker bereits.
 
-**P3 — Soziale Schicht aktivieren** — Reichweite + Abo ✅ **DONE (Slice 336)**, Fan-Rang offen
+**P3 — Soziale Schicht aktivieren** — Reichweite + Abo ✅ **DONE (Slice 336)**, Fan-Rang-Gewicht ✅ **DONE (Slice 343)**
 - [x] **Follower** = Reichweite: `poll_new`-Notification an alle Follower (Range-Loop Slice 339).
 - [x] **Abo-Perks bei Paid-Polls:** 2×-Gewicht (`community_poll_votes.weight`).
-- [ ] **P3c — Fan-Rang** (evtl.): Treue-Gewicht / exklusive Treue-Umfragen / Auszahl-Gewichtung. + Abo Early/exklusiver Zugang. **← nächstes offenes Poll-Stück.**
+- [x] **P3c-Gewicht — Fan-Rang → Stimmgewicht (Slice 343):** `weight = MAX(Abo-Gewicht, Fan-Rang-Gewicht)`, Tally-only (Geld = 1 echte Stimme). Ultra/Legende 2×, Ehrenmitglied/Vereinsikone 3×, sonst 1×. Abo-Floor (MAX) verhindert Regression der Live-2×. Anil-Entscheid 2026-06-18 (AskUserQuestion): nur (a). Mapping-Konstante lebt in `cast_community_poll_vote` (kein TS-Spiegel, da nicht UI-surfacet).
+- [ ] **P3c-Rest (offen, je eigener Slice):** (b) exklusive Treue-Umfragen (`min_fan_rank`-Tor, Schema + Vote-/Sichtbarkeits-Guard + recalc-on-read) · (c) Abo Early-Access (Zeitfenster). ~~(d) Auszahl-Gewichtung~~ tot (P4 verworfen). UI-Surfacing des eigenen Gewichts = Backlog (heute auch Abo-2× still).
 
 **P4 — Auszahl-Idee an Teilnehmer** — **VERWORFEN (Anil 2026-06-18):** Lotterie (a)/Prediction (b) = Glücksspiel-Risiko, Mini-Reward (c) nicht verfolgt. Nicht wieder aufmachen ohne neue Anil-Ansage.
 
@@ -134,7 +135,7 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 | Gratis-Club-Vote erstellen | ✅ `createVote` / `AdminVotesTab` (Admin), 2×-Gewicht Bronze+ |
 | Filter nach Verein/Spieler | ✅ **Anker-Chip-Leiste + Such-Match über alle Feed-Typen** (334), live verifiziert |
 | Follower-Reichweite / Abo-Gewicht | ✅ `poll_new`-Notification an alle Follower (336, Range-Loop 339) + Abo-2× bei Paid-Polls (336) |
-| Fan-Rang-Wirkung | ❌ existiert (6 Stufen), wirkungslos — **= P3c offen** |
+| Fan-Rang-Wirkung | ✅ **Stimmgewicht (Slice 343):** `MAX(Abo, Fan-Rang)`, Ultra/Legende 2×, Ehren/Ikone 3×, Tally-only. Offen: (b) exklusive Treue-Umfragen, (c) Early-Access |
 
 ---
 
