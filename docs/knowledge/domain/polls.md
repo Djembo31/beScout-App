@@ -5,7 +5,7 @@ updated: 2026-06-18
 status: active
 tags: [polls, community, monetization, treasury, poll_revenue, discovery, follower, fan-rank]
 consult_when: Polls, Umfragen, poll_revenue, Verein→Treasury vs User→Wallet, Follower-Tor, Discovery, Identitätsgrenze Club-Admin, Bezug Verein/Spieler
-verified-against: .claude/rules/community.md @ 2026-06-17 · Code-Stand Slices 333-337+339 @ 2026-06-18
+verified-against: .claude/rules/community.md @ 2026-06-18
 ---
 
 # Polls & Community-Monetarisierung — Zielmodell (Kanon)
