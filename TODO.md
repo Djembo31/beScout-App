@@ -9,7 +9,7 @@
 
 ## 🟡 P1 — als Nächstes
 - **Polls P3c — Fan-Rang** (deferred aus Slice 336): Fan-Rang (`fanRanking.ts`, 6 Stufen, „fast wirkungslos") als Gewicht/Auszahl-Anteil aktivieren + Abo Early-Access/exklusive Mitglieder-Umfragen. `polls.md` §6/§8.
-- **UI-Live-Verifikationen** (post-deploy, passendes Konto/QA-Gating): 334 CreatePollModal-Spieler-Picker + Anker-Chip-Filter · 335 Absage-ConfirmDialog (Club-Admin) · 336 Abo-2×-sichtbar (Gold-Abo).
+- ~~UI-Live-Verifikationen 334/335/336~~ — **erledigt 2026-06-18:** 334 Discovery live re-bestätigt; 335/336 als DB-bewiesen abgehakt (Anil: „db beweis reicht" — Prod-Fixtures bewusst nicht fabriziert, Money-Pfade voll Smoke-bewiesen). CreatePollModal-Picker bleibt code/test-bewiesen (Follower-Tor-gated).
 - **Kleine Backlog-Härtung** (eigener Mini-Slice): `getPlayerNames` (`players.ts:42`) + Follower-Notify-Query (`communityPolls.ts`) ohne `.limit()` → PostgREST-1000-Cap, zusammen via `.range()`-Loop härten. + `polls.md` §9 Current-State-Refresh (sagt „KEINE Erstellung" — stale seit 333).
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt).
 
