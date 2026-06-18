@@ -3687,3 +3687,19 @@ Plus: Scope-Entscheidung „alle 13 Gold-Files in einem Rutsch migrieren" (nicht
 **Alternativen erwogen:** siehe Begründung (alles-zentralisieren / Status-quo) — beide verworfen.
 
 **Re-Visit-Trigger:** Falls Doppel-Pflege trotzdem auftritt (gleiche Zahl in domain UND rule gepflegt) → Zeiger-Disziplin in der Regel-Schicht nachschärfen (Regel darf Zahl nur referenzieren, nicht kopieren).
+
+---
+
+## D91 — PROCESS: Gated UI-Live-Verifikation → DB-Proof akzeptieren, keine Prod-Fixtures fabrizieren
+
+**Datum:** 2026-06-18 · **Status:** Aktiv · **Category:** PROCESS · **Kontext:** PROVE-Stage verlangt bei UI-Changes Live-Playwright gegen bescout.net. Bei Slices 335 (Event-Cancel-ConfirmDialog) + 336 (Abo-2×-Gewicht) ist der UI-Pfad aber **konto-/daten-gated**: das QA-Konto `jarvisqa` ist platform_admin=0, club_admin=0, active_subs=0; zudem existierten auf Prod 0 absagbare Events + 0 aktive Club-Polls. Echte Live-Verifikation hätte das **Fabrizieren von Prod-Fixtures** (Test-Event, Club-Poll, Gold-Abo) + bei 336 eine **echte bezahlte Stimme** (Geld-Mutation auf Prod) erfordert.
+
+**Entscheidung (Anil, „db beweis reicht"):** Wenn die Live-UI-Verifikation eines Money-/Mutations-Pfads **nur** durch Fabrizieren von Prod-Fixtures oder echte Geld-Mutationen möglich wäre, **gilt der Slice als bewiesen, sobald der Money-Pfad per DB-Smoke (`BEGIN; … ROLLBACK;`) belegt ist.** Keine Prod-Fixtures fabrizieren, keine echte Geld-Mutation nur für einen UI-Screenshot. Den Gating-Grund + die DB-Proof-Abdeckung im Proof-File dokumentieren (damit die nächste Session nicht erneut mit demselben Konto scheitert).
+
+**Begründung:** Der Wert der Live-UI-Verifikation (Screenshot eines Dialogs / Tally-Inkrements) ist gering gegenüber dem Risiko/Aufwand, echte Vereins-/Abo-/Vote-Daten auf der Live-Prod-DB anzulegen — besonders im Money-Path (§3 „caution over speed"). Der DB-Smoke beweist die kritische Logik (Geld-Fluss, Guards, Refund) deterministisch und ohne Prod-Mutation. Trigger für echte UI-Verifikation bleibt: sobald ein passendes Test-Konto (Club-Admin / Gold-Abo) ODER organische Prod-Daten existieren.
+
+**Auswirkungen:** Gilt für alle konto-/daten-gated UI-Verifikationen (Club-Admin-Panels, Abo-Perks, Rollen-spezifische Flows). Proof-File hält fest: (a) Gating-Grund (DB-verifizierte Rollen/Counts), (b) DB-Smoke-Abdeckung, (c) Re-Verify-Trigger. Ergänzt `feedback_no_local_qa` (Prod statt localhost) um die Gating-Ausnahme.
+
+**Alternativen erwogen:** (a) jarvisqa temporär per DB hochstufen (Club-Admin + Abo) → verworfen, weil dann immer noch Prod-Fixtures (Event/Poll) fehlten + Prod-Mutation; (b) volle Fixtures fabrizieren inkl. echtem Vote → verworfen (Geld-Mutation auf Prod für Screenshot-Wert disproportional).
+
+**Re-Visit-Trigger:** Sobald ein dediziertes Club-Admin-/Gold-Abo-Test-Konto + Test-Verein mit Fixtures existiert → gated UI-Verifikationen (335/336/334-Picker) echt nachholen.
