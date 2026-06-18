@@ -23,24 +23,24 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P2 — Spieler-Bezug + Discovery)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P3 ODER events.status-Fix)
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen (`knowledge-*.md`/`wiring-*.md` untracked = ok). HEAD = Slice 333 (`5c674e3d`/`871ec47e`) oder neuer. `worklog/active.md` = idle. **Polls P1 (Slice 333) ist DONE + live bewiesen** — die Erstellungs-„Tür" steht; REIN-Geld-Routing (Vereins-Poll → Treasury `poll_revenue` / User-Poll → Wallet) keyt auf `community_polls.source`, force-rollback-Money-Smoke + Live-Playwright PASS.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 334 oder neuer. `worklog/active.md` = idle. **Polls P1 (333) + P2 (334) sind DONE + live bewiesen.**
 
-## ⚡ NÄCHSTES STÜCK = POLLS P2 („auffindbar machen") — Spieler-Bezug + Discovery, KEIN Money-Path (leichter als P1)
+## ✅ Diese Session (2026-06-18) — Slice 334 Polls P2 (DONE + live)
+- **Slice 334** (L, KEIN Money-Path): `community_polls.player_id` (uuid NULL, FK players ON DELETE SET NULL) + `create_community_poll` 9-arg (+p_player_id, alte 8-arg gedroppt, AR-44, `invalid_player`-Guard). Service reicht player_id durch + getCommunityPolls löst player_name/position auf. **UI:** CreatePollModal optionaler Spieler-Picker (`usePlayerNames` intern) · CommunityFeedTab Suche matcht Spieler+Verein über alle Typen + **Anker-Chip-Leiste** (`availableAnchors` aus pre-anchor Set → §254-Catch-22 vermieden) · CommunityPollCard Spieler-Tag. i18n de+tr.
+- **Verify:** Reviewer PASS (3 NITPICK) · DB live (Spalte/FK confdeltype='n'/genau 1×9-arg-Signatur/anon=false) · invalid_player Live-Call + happy-insert Rollback-Smoke (has_player=true) · vitest 138+8 · **Live-Playwright** (Chips SAK+2 Spieler · Filter 9→1 · §254 kein Catch-22 · Clear→9 · Suche „Sakarya" 9→2 · 0 MISSING_MESSAGE auf /community).
+- **Gating-Hinweis:** CreatePollModal-Picker (AC-08) live nicht öffenbar — QA-Konto „Jarvis" 0 Follower → User-Poll-Knopf durch Follower-Tor 50 (P1) gesperrt; Picker code-/test-bewiesen + Reuse des live-CreateResearchModal-Pickers.
 
-**Was & Warum:** Umfragen haben heute nur einen **Vereins-Bezug** (`club_id`), keinen **Spieler-Bezug** + keine **Discovery** (nur Typ-Filter + Textsuche). Ohne Filter/Suche nach Spieler/Verein ertrinken Polls + bezahlte Reports im Feed. Ziel (Canon §5): Fan tippt Lieblings-Spieler an → sieht ALLE Umfragen + Reports zu genau dem Spieler/Verein. Erst Discovery macht die P1-Geldmaschine auffindbar.
+## ⚡ NÄCHSTE KANDIDATEN (Anil wählt)
+1. **Polls P3 — soziale Schicht** (`polls.md` §6/§8): Follower=Reichweite (Umfrage an Follower ausspielen/benachrichtigen) · **Abo-Perks bei Paid-Polls** (2×-Gewicht / Early Access — heute nur bei Gratis-Votes) · Fan-Rang (evtl. Gewicht/Auszahl-Anteil). Money-nah → `/impact` zuerst.
+2. **events.status CHECK 'cancelled'-Fix** (P1-Backlog): UI-„Absagen" broken (CHECK kennt kein 'cancelled') — Cancel + CHECK + Event-Prize-Refund-Zweig bündeln. Money/Treasury.
+3. **Polls P4** — Teilnehmer-Auszahlung (offene Entscheidung `polls.md` §7 a/b/c).
 
-**PFLICHT-LESE-REIHENFOLGE vor Spec:**
-1. **`docs/knowledge/domain/polls.md`** §5 (Discovery), §8 P2, §10 (Gesamtbild: alle Geldkanäle teilen die zwei Anker Spieler+Verein). **NICHT neu erarbeiten.**
-2. **`src/components/community/CommunityFeedTab.tsx`** — bestehende `ContentFilter` ('all/posts/rumors/research/bounties/votes/news') + case-insensitive Textsuche. P2 erweitert die Filter-Achse um **Spieler + Verein**.
-3. **`.claude/rules/community.md`** (autoload bei Edit) — Feed-Union-Type + Search-Pattern. `research_posts`/`bounties` tragen `player_id` bereits → Vorlage für `community_polls.player_id`.
+## 🔧 KLEINE BACKLOG-FUNDE (aus 334)
+- **`getPlayerNames` ohne `.limit()`/`.range()`** (`src/lib/services/players.ts:42`) — PostgREST-1000-Cap-Kandidat; Poll-Picker ist jetzt 2. Konsument. Bei >1000 Spielern unvollständige Picker-Liste. Eigener Mini-Slice (`.range()`-Loop, common-errors.md §1). Review-NIT#3.
 
-**Polls-P2-Scope (aus polls.md §8):**
-- [ ] `player_id` zu `community_polls` (zusätzlich zu `club_id`) — Migration + `DbCommunityPoll`-Type + optionaler Spieler-Tag im `CreatePollModal` (Slice 333). Research/Bounties = Vorlage.
-- [ ] Filter/Suche **nach Verein + Spieler** über Polls UND Paywalls (Research) — Feed-Filter-Achse + Discovery erweitern.
-
-**Muster:** Kein Money-Path → kein D87-Zwang, aber Schema-Change → **/impact ZUERST** (Consumer von `community_polls` + Feed-Union). UI/Service → Mobile 393px + DE/TR. Reviewer-Pflicht. **TR-Genauigkeit ist KEIN Commit-Blocker mehr** (Anil 2026-06-18: User korrigieren später; nur Compliance/`business.md` bleibt hart) — siehe Memory `feedback_tr_i18n_validation`.
+**Muster:** Kein Money-Path → kein D87-Zwang, Money-nah/Schema → **/impact ZUERST**. UI/Service → Mobile 393px + DE/TR. Reviewer-Pflicht. **TR-Genauigkeit ist KEIN Commit-Blocker mehr** (Anil 2026-06-18; nur Compliance/`business.md` hart). **Teaching-Mode DURCHGEHEND** (`feedback_teaching_mode`): jede Antwort startet mit Klartext-Erklärung vor Technik.
 
 ## 💰 Money-SSOTs — NIE neu erarbeiten
 - **D83** → `docs/knowledge/domain/treasury.md` (WIE Treasury) · **D86** → `docs/knowledge/domain/polls.md` (WIE Polls). `memory/decisions.md` = WARUM. INDEX.md routet via `consult_when`.
