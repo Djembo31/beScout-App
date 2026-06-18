@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 347 | 2026-06-18 | feat(db): FRE-5 — Club-konfigurierbare Fan-Rang-Schwellen
+- Stage-Chain: SPEC (`worklog/specs/347-club-configurable-fan-rank-thresholds.md`, L, Migration, Money-nah, Anil-approved + 2 OQ) → IMPACT (impact-analyst Consumer-Karte, 6 Gruppen, Risiko HIGH) → BUILD (Wave 1 Backend = CTO selbst; Wave 2 Frontend = frontend-Agent) → REVIEW (`worklog/reviews/347-review.md`, Cold-Context **PASS**, Finding #1 gefixt) → PROVE (`worklog/proofs/347-thresholds-smoke.txt`) → LOG.
+- Trigger: Anil wählte FRE-5 (FRE-4 Airdrop → Coin-Phase verschoben, D93-Update). Design (Anil OQ): sofort-Recalc nach Save + Config in Tab „Fans".
+- Bau (DB, `20260618235000`): neue Tabelle `club_fan_rank_thresholds` (1 Zeile/Club, monotoner CHECK strikt `<`, 4-Op-RLS Writes-nur-via-RPC) · Helper `get_club_fan_rank_thresholds` (Default-Resolution Single-Source) · `calculate_fan_rank`-Rewrite gegen **Live-Baseline (D87)** — nur Tier-CASE variabel, alle Patches erhalten (Follow +5, ELO, csf) · Write-RPC `set_club_fan_rank_thresholds` (Club-Admin/Platform-Admin-Gate, Validierung, UPSERT, fail-isolierter Sofort-Recalc aller Club-Fans) · AR-44.
+- Bau (Code): `ClubFanRankThresholds`-Type · Service get/set + `DEFAULT_FAN_RANK_THRESHOLDS` · `FanRankLadder` dynamische Schwellen (thresholds-Prop, buildTierRanges) · `FanRankOverview` lädt+reicht durch · `ClubContent` clubId · `AdminFansTab` Config-UI (5 Inputs, Live-Validierung, mapErrorToKey) · `getFanRankByScore` entfernt (Drift-Bombe) · qk.fanRanking.thresholds · i18n DE+TR (9 Keys). tsc clean, vitest 3242 grün.
+- Schutz-Grenze: Gewicht-Mapping Tier→Faktor bleibt **global** — Club verschiebt nur, wer qualifiziert, erfindet keine Gewichte.
+- Proof: Backend AC1-AC8 live (CHECK, RLS 4-Op, AR-44 anon=false, Schwellen-Wirkung ultra→ehrenmitglied via Config-Smoke, Default-Fallback, Auth-Gate, Monoton-CHECK) + UI-Playwright (AC9 Leiter live, AC10 Admin-Sektion live, 0 Console-Errors, Mobile 393px).
+- Knowledge: 2 Patterns → errors-db.md (Recalc-on-Save bei Config→Geld/Tally · UI-Gate vs RPC-Gate-Drift Platform-Admin).
+- Backlog: csf_multiplier-Removal (D93) · recalculateFanRank Service swallow→throw (pre-existing NIT).
+- Commit: <pending> · Nächstes: Fan-Reward-Engine FRE-1/2/3/5 abgeschlossen (FRE-4 Coin-Phase). Money-Reste = Polls (b/c) oder neuer Block.
+
 ## 346 | 2026-06-18 | feat(db): FRE-3 — Exklusive Vereins-Beiträge (Fan-Rang-Gate + gesperrte Vorschau)
 - Stage-Chain: SPEC (`worklog/specs/346-exclusive-club-posts.md`, M, Migration, CEO-approved Security-nah) → IMPACT (inline) → BUILD (Migration zuerst + Live-Logik-Test + Scharfschaltung + Service + UI) → REVIEW (`worklog/reviews/346-review.md`, Cold-Context **PASS**, 3 NIT) → PROVE (`worklog/proofs/346-rls.txt` + UI-Playwright post-Deploy) → LOG.
 - Trigger: Anil „weiter mit 3" → 3. Schritt Fan-Reward-Engine (D93). Design (Anil): gesperrte Vorschau (🔒), Admin wählt Mindeststufe pro Beitrag.

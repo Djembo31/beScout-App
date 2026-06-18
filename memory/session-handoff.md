@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 17:19)
+# Session Handoff — Auto (2026-06-18 17:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -10,7 +10,8 @@
 ?? worklog/audits/knowledge-2026-06-18.md
 ```
 
-## Session Commits: 10
+## Session Commits: 9
+- 0ed07dd9 docs(session-end): Handoff-Anker auf FRE-4 (Airdrop), Fan-Reward-Engine FRE-1/2/3 live
 - d3c4f561 feat(db): Slice 346 — FRE-3 Exklusive Vereins-Beiträge (Fan-Rang-Gate + 🔒-Vorschau)
 - 027b4cdf feat(db): Slice 345 — FRE-2 Follow zählt als Fan-Rang-Einstiegssignal (+5)
 - d4ff6795 docs(plan): offene Punkte aufgenommen — D93 Fan-Reward-Engine + TODO/MASTERPLAN
@@ -19,8 +20,6 @@
 - a7853e6a docs(decision): D92 — MAX-Floor beim Subsumieren eines Live-Perks (Slice 343 DISTILL) + Handoff-Anker
 - b77c1b43 feat(db): Slice 343 — Polls P3c Fan-Rang → Stimmgewicht (MAX mit Abo-Floor)
 - 27e0a121 docs(session-end): Handoff-Auto-Block aktualisiert (Stop-Hook)
-- 3a4511ca docs(session-end): Fixes-Cluster + Verifikation geloggt, Handoff-Anker auf P3c, D91
-- 92fc9105 fix(services): Slice 342 — Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
 
 ## Stale Worktrees: 1 (cleanup candidates)
 
@@ -30,7 +29,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 346 (`d3c4f561`). `worklog/active.md` = idle. **Fan-Reward-Engine FRE-1/2/3 (Slices 344/345/346) alle DONE — live + gepusht/applied.** Polls-Geldmaschine (333-337+343) komplett.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 347 (`b2ff32ba` + docs). `worklog/active.md` = idle. **Fan-Reward-Engine FRE-1/2/3/5 (Slices 344/345/346/347) alle DONE — live + gepusht/applied.** **FRE-4 Airdrop verschoben auf echte-Coin-Phase** (Anil 2026-06-18: Verein zahlt keine $SCOUT-Airdrops, war Übergangs-Mechanik; D93-Update). Polls-Geldmaschine (333-337+343) komplett.
+
+## ✅ ZULETZT FERTIG: FRE-5 / Slice 347 (Club-konfigurierbare Fan-Rang-Schwellen, Money-nah)
+- Neue Tabelle `club_fan_rank_thresholds` (1 Zeile/Club, monotoner CHECK, 4-Op-RLS Writes-nur-via-RPC). Fehlende Zeile = Plattform-Default 10/25/40/55/70.
+- `calculate_fan_rank`-Rewrite gegen **Live-Baseline (D87)** — nur Tier-CASE liest Config; alle Patches erhalten (Follow +5, ELO, csf). Helper `get_club_fan_rank_thresholds` (Default-Single-Source). Write-RPC `set_club_fan_rank_thresholds` (Club-Admin ODER `top_role='Admin'`-Gate, Validierung, **Sofort-Recalc aller Club-Fans** = Money-Tally-Frische).
+- Frontend: AdminFansTab Config-UI (5 Inputs, Live-Validierung), FanRankLadder dynamische Schwellen, `getFanRankByScore` entfernt. Service get/set + DEFAULT. i18n DE+TR (9 Keys, namespace-geprüft).
+- **Schutz-Grenze:** Gewicht-Mapping Tier→Faktor bleibt GLOBAL (Club verschiebt nur, wer qualifiziert).
+- Reviewer PASS (Finding #1 Platform-Admin-Gate gefixt). Proof: Backend AC1-AC8 live + UI-Playwright AC9/AC10 (0 Console-Errors). `worklog/proofs/347-thresholds-smoke.txt`, `e2e/qa-347-fanrank-thresholds.ts`.
+- **NÄCHSTES Money-Stück = Anil-Wahl:** Polls-Reste (b exklusive Treue-Umfragen · c Abo-Early-Access) ODER neuer Treasury/REIN-Block. NICHT Airdrop (Coin-Phase). Backlog: csf_multiplier-Removal (D93) · recalculateFanRank swallow→throw.
 
 ## ✅ ZULETZT FERTIG: FAN-REWARD-ENGINE FRE-1/2/3 (2026-06-18) — Plan = **D93**
 „E1" im MASTERPLAN = ganzes Money-Epic; die Fan-Reward-Engine ist ein Teil davon, Schritte = **FRE-1…FRE-5**.

@@ -1,15 +1,15 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 347
-title: FRE-5 — Club-konfigurierbare Fan-Rang-Schwellen (Money-nah)
-stage: PROVE (Backend bewiesen; UI-Playwright post-Deploy offen)
+title: ✅ DONE — FRE-5: Club-konfigurierbare Fan-Rang-Schwellen (Money-nah)
+stage: LOG complete
 size: L
 slice-type: Migration
 spec: worklog/specs/347-club-configurable-fan-rank-thresholds.md
 impact: worklog (impact-analyst Consumer-Karte, 6 Gruppen, Risiko HIGH)
-proof: worklog/proofs/347-thresholds-smoke.txt (Backend AC1-AC8 ✅; UI AC9/AC10 post-Deploy)
+proof: worklog/proofs/347-thresholds-smoke.txt (Backend AC1-AC8 ✅ + UI AC9/AC10 ✅)
 review: worklog/reviews/347-review.md (PASS, Finding #1 gefixt, 1 NIT pre-existing)
 ```
 

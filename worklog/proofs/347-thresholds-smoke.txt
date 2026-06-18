@@ -39,3 +39,13 @@ POST-REVIEW FIX (Finding #1 — Platform-Admin-Gate):
   Gate = top_role='Admin' (Platform-Superadmin) OR club_admins role IN ('owner','admin').
   Spiegelt AdminContent superadmin->synthetic-owner Override + bounty_rpcs_rls-Muster.
   apply_migration => {"success":true}. AR-44 REVOKE/GRANT erneut gesetzt.
+
+UI-PROOF (Playwright gegen bescout.net, Mobile 393px, demo-admin@bescout.app, 2026-06-18):
+  Skript: e2e/qa-347-fanrank-thresholds.ts · Screenshots: qa-screenshots/347/
+  AC10 — Admin "Fans CRM"-Tab: "Fan-Rang-Schwellen"-Sektion sichtbar (Inputs + "Schwellen speichern"),
+         Defaults (Ehrenmitglied 55, Vereinsikone 70) vorbefüllt. screenshot: admin-fans-thresholds.png
+  AC9  — Club /club/sakaryaspor "Mehr"-Tab: Fan-Rang-Leiter rendert live mit aufgelösten Schwellen
+         (Default, da Sakaryaspor keine Config-Zeile). screenshot: club-ladder.png
+  Console/Page-Errors: NONE (kein MISSING_MESSAGE i18n-Leak — Slice-333-Falle negativ).
+  Hinweis: Custom-Schwellen-Rendering der Leiter + Save-Validierung sind unit-bewiesen
+  (FanRankLadder.test.tsx 8/8) + backend-bewiesen (AC3/AC5/AC6); Demo-Club nicht mutiert.

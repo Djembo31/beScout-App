@@ -16,7 +16,8 @@
   - ✅ **FRE-1 (Slice 344):** Fan-Rang-Leiter sichtbar + Perk-Katalog. Reine UI, live.
   - ✅ **FRE-2 (Slice 345):** Follow zählt als Einstiegssignal in den Fan-Rang (+5, monoton) + Recalc-Trigger. Money-nah, Abo-Floor (D92) intakt.
   - ✅ **FRE-3 (Slice 346):** Exklusive Vereins-Beiträge ab Fan-Stufe + gesperrte Vorschau (🔒). RLS-Lese-Gate + Teaser-RPC (Content-Maskierung). Security: kein Content-Leak.
-  - ⏳ **FRE-4 (nächster Slice, Anil-Wahl):** Airdrop (Club belohnt Top-Treue mit $SCOUT aus Treasury, Money, D92-MAX-Floor). ODER FRE-5 Club-Konfig.
+  - ✅ **FRE-5 (Slice 347):** Club-konfigurierbare Fan-Rang-Schwellen (pro-Club Score→Tier, Recalc-on-Save, Club-Admin-Gate). Money-nah. Schutz-Grenze: Gewicht-Mapping bleibt global. Reviewer PASS, Live-Proof.
+  - ⏸️ **FRE-4 Airdrop = verschoben auf die echte-Coin-Phase** (Phase 3 nach CASP). Verein zahlt keine $SCOUT-Airdrops (ADR-026 „post-Pilot"). Aktive Fan-Reward-Engine damit für jetzt **abgeschlossen (FRE-1/2/3/5)**. Siehe D93-Update.
 
 ### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
 - ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.
@@ -35,4 +36,4 @@
 - Beta-Launch live (Tester aktiv).
 
 ## 📍 Stand in einem Satz
-Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + Event-Cancel (335) + Predictions-Removal (338). **Jetzt: Fan-Reward-Engine** — FRE-1 (Fan-Rang-Leiter, Slice 344) ✅ live, **FRE-2 (Follow zählt) als Nächstes** (Money-nah → /impact zuerst). Plan = D93.
+Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + Event-Cancel (335) + Predictions-Removal (338). **Fan-Reward-Engine FRE-1/2/3/5 alle ✅ live** (344/345/346/347); FRE-4 Airdrop verschoben auf Coin-Phase (D93). Nächstes Money-Stück = Polls-Reste (b/c) oder neuer Treasury/REIN-Block. Plan = D93.

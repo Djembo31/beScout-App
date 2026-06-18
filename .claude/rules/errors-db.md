@@ -11,6 +11,26 @@ paths:
 
 Stand: 2026-05-05 · Split aus `common-errors.md` (Slice 186). Siehe auch `database.md` (Columns, CHECK), `trading.md` (Money-Regeln).
 
+### Config-Wert steuert Geld-/Tally-Pfad → Recalc-on-Save im Write-RPC (Slice 347, 2026-06-18)
+
+**Bug-Klasse (latent, Money-nah):** Eine konfigurierbare Größe wird in einem **gespeicherten abgeleiteten Wert** materialisiert, der einen Geld-/Tally-Pfad steuert. Ändert ein Admin die Config, bleibt der gespeicherte Wert **stale** bis zum nächsten regulären Recalc (Cron/Event) → der Geld-/Tally-Pfad rechnet kurzzeitig mit veralteten Werten. Bei *Erhöhung* der Wirkung = sofort sichtbarer Über-Effekt (kein langsames Score-Drift wie bei impliziten Änderungen, sondern Admin-Knopfdruck).
+
+**Konkret (Slice 347 FRE-5):** `club_fan_rank_thresholds` (pro-Club Score→Tier-Schwellen) steuert via gespeichertem `fan_rankings.rank_tier` das Poll-Stimmgewicht (`cast_community_poll_vote` liest den gespeicherten Tier, Slice 343). Schwellen-Edit ohne Recalc → laufende Umfragen zählen mit altem Tier-Gewicht.
+
+**Fix-Pattern:** Im Write-RPC nach dem Config-UPSERT **synchron** alle betroffenen abgeleiteten Zeilen neu rechnen — fail-isolierte Schleife (`FOR r IN ... LOOP BEGIN PERFORM recalc(r.id); EXCEPTION WHEN OTHERS THEN CONTINUE; END; END LOOP`), Erfolgs-Count zurückgeben. Bei Pilot-Skala synchron OK; bei großen N als bewussten Trade-off dokumentieren oder async-Job. **Regel:** Config-Wert, der einen gespeicherten money/tally-relevanten Ableitungswert beeinflusst → Recalc-on-Save ist Pflicht-Teil des Write-RPC, nicht „nächster Cron". Verwandt mit D92/Slice 343 (Tier→Poll-Gewicht MAX-Floor) + „Multi-Hop Cron-Bridge"-Divergenz (Slice 313). **Reference:** `set_club_fan_rank_thresholds` (`20260618235000_slice_347_club_fan_rank_thresholds.sql`).
+
+### UI-Gate vs. RPC-Gate-Drift bei Platform-Admin-Override (Slice 347, 2026-06-18)
+
+**Bug-Klasse (UX, fail-closed):** Ein Client-Pfad vergibt einem Platform-Superadmin **synthetisch** erweiterte Rechte (z.B. `AdminContent.tsx`: `platformRole==='superadmin'` → `data.is_admin=true; admin_role='owner'`), damit das UI Admin-Controls zeigt. Ein neuer Write-RPC gated aber nur auf `club_admins.role IN ('owner','admin')` **ohne** den `top_role='Admin'`-Bypass → UI zeigt den Button, RPC antwortet `not_*admin`. Keine Security-Lücke (fail-closed), aber UI-zeigt-Button-aber-RPC-rejected-Drift für Platform-Admins ohne club_admins-Row.
+
+**Regel:** Spiegelt ein UI-Gate einen synthetischen Platform-Admin-Override, MUSS der zugehörige Write-RPC denselben Bypass enthalten:
+```sql
+IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = v_uid AND top_role = 'Admin')
+   AND NOT EXISTS (SELECT 1 FROM club_admins WHERE user_id = v_uid AND club_id = p_club_id AND role IN ('owner','admin'))
+THEN RETURN jsonb_build_object('success', false, 'error', 'not_club_admin'); END IF;
+```
+Etabliertes Muster: `20260404191000_bounty_rpcs_rls.sql`. **Detection:** Bei jedem neuen Club-Admin-gated Write-RPC prüfen, ob `top_role='Admin'`-Branch fehlt (`grep -L "top_role = 'Admin'"` über Club-Admin-RPCs). **Reference:** Slice 347 Review Finding #1 (vom Cold-Context-Reviewer gefangen, vor Slice-Done gefixt).
+
 ### Bank-Ledger `balance_after`: NIE „letzte Zeile" via created_at/id — SUM unter Row-Lock (Slice 329, 2026-06-17)
 
 **Bug-Klasse (latent, Money):** Ein append-only Ledger (à la `transactions`/`club_treasury_ledger`) pflegt einen laufenden `balance_after`. Naive Implementierung liest den vorherigen Saldo als „letzte Zeile": `SELECT balance_after ... ORDER BY created_at DESC, id DESC LIMIT 1`. **Falle:** Bei **mehreren Buchungen in EINER Transaktion** ist `created_at` (= `now()`, transaktions-fix) für alle gleich → der Tiebreaker `id DESC` (gen_random_uuid) ist **kein Insert-Order** → die „letzte Zeile" ist zufällig → `balance_after`-Kette wird falsch. Trifft Bulk-Buchungen: CSF-Auszahlung/Fan-Reward-Airdrop (N Debits, 1 Konto, 1 TX), Migrations-Backfill (2 opening-rows/Entity).

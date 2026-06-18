@@ -5,7 +5,7 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Fan-Reward-Engine (Teil von E1) — FRE-4 als Nächstes (Anil-Wahl).** FRE-1 (344) ✅ · FRE-2 (345) ✅ · FRE-3 (346 exklusive News mit 🔒-Vorschau) ✅ live. **FRE-4 = Airdrop** (Club belohnt Top-Treue mit $SCOUT aus Treasury, Money, D92-MAX-Floor) — größter Money-Schritt, /impact + CEO. ODER FRE-5 Club-Konfig. Plan = **D93**.
+- **Fan-Reward-Engine FRE-1/2/3/5 alle ✅ live (344/345/346/347).** FRE-4 Airdrop **verschoben auf die echte-Coin-Phase** (Anil 2026-06-18: Verein zahlt keine $SCOUT-Airdrops, war Übergangs-Mechanik; ADR-026 post-Pilot). D93-Update. → **Nächstes Money-Stück = Anil-Wahl:** Polls-Reste (b exklusive Treue-Umfragen · c Abo-Early-Access) ODER neuer Treasury/REIN-Block.
 - Backlog aus 346-Review: Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`) · posts-INSERT-Policy `club_admins`-Härtung (pre-existing).
 
 ## 🟡 P1 — als Nächstes
@@ -16,12 +16,13 @@
 
 ## 🟢 P2 — Backlog
 - Polls P4 (User-Auszahl-Idee an Teilnehmer) — **VERWORFEN** (Anil 2026-06-18: Glücksspiel-Risiko). Nicht ohne neue Ansage.
-- Fan-Reward-Engine Rest: FRE-3 echtes Perk-Gate · FRE-4 Airdrop (Club belohnt Top-Treue mit $SCOUT aus Treasury, Money, D92-MAX-Floor) · FRE-5 Club-Konfigurierbarkeit der Perks.
+- FRE-4 Airdrop (Club belohnt Top-Treue mit $SCOUT) — **erst in der echten-Coin-Phase** (Phase 3 nach CASP, ADR-026 post-Pilot). Nicht in der jetzigen Phase bauen.
 - Andere Event-Quellen (bescout/sponsor/user) — Plattform-Topf/Sponsor-Deposit/User-Wallet.
 - TR-i18n Anil-Review: successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin, Polls-`pollErr*`/`createPoll*` (Genauigkeit, kein Commit-Blocker).
 - S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges (46). ⛔ players.club (API-Key gesperrt).
 
 ## ✅ Erledigt (letzte, dann archivieren)
+- 2026-06-18: **FRE-5 / Slice 347** — Club-konfigurierbare Fan-Rang-Schwellen (neue Tabelle `club_fan_rank_thresholds` pro Club + Helper + `calculate_fan_rank`-Rewrite gegen Live-Baseline + Write-RPC mit Admin-Gate + Sofort-Recalc + AdminFansTab-UI + dynamische Leiter). Money-nah; Schutz-Grenze: Gewicht-Mapping bleibt global. Reviewer PASS (Finding #1 Platform-Admin-Gate gefixt), Backend AC1-AC8 live + UI-Playwright AC9/AC10. 2 Patterns → errors-db.md. `b2ff32ba`.
 - 2026-06-18: **FRE-3 / Slice 346** — Exklusive Vereins-Beiträge ab Fan-Stufe + gesperrte Vorschau (🔒). RLS-Lese-Gate (ersetzt `USING(true)`) + SECURITY-DEFINER-Teaser-RPC (content-Maskierung) + Tier-Lineal + Admin-Selektor + Anzeige. Security: kein Content-Leak (doppelt), Live-RLS-Smoke grün, 4 Policies intakt. Reviewer PASS.
 - 2026-06-18: **FRE-2 / Slice 345** — Follow zählt als Einstiegssignal in den Fan-Rang (+5, monoton, cap 100) + Recalc-Trigger bei (Un)Follow. Migration byte-identisch zur Live-Baseline (D87) + additiver Block. Money-nah, Abo-Floor (D92) verifiziert intakt. Reviewer PASS, force-rollback-Smoke grün.
 - 2026-06-18: **FRE-1 / Slice 344** — Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default). 6-Stufen-Leiter + Fortschritt + Poll-Gewicht je Stufe (Mirror 343), rendert auch ohne Rang. Reine UI, keine Geld-Formel. Reviewer PASS, Live-Proof bescout.net. `4afd47e6`/`6e53a770`. → Start der Fan-Reward-Engine.
