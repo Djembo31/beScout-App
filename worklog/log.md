@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 334 | 2026-06-18 | feat(polls): Polls P2 — player_id-Anker + Discovery (Filter/Suche Verein+Spieler)
+- Stage-Chain: SPEC (`worklog/specs/334-polls-p2-player-anchor-discovery.md`, L, KEIN Money-Path) → IMPACT (`worklog/impact/334-polls-p2-player-anchor.md`) → BUILD → REVIEW (`worklog/reviews/334-review.md`, Cold-Context **PASS**, 3 NITPICK) → PROVE (`worklog/proofs/334-proof.md`) → LOG.
+- Trigger: Anil „weiter mit p2" → Polls-Roadmap D86 §8 (`docs/knowledge/domain/polls.md`). Scope-Entscheidung (AskUserQuestion): Anker-Filter-Chips (mittel) + alle Inhalts-Typen.
+- Bau: **Migration** `community_polls.player_id` (uuid NULL, FK players ON DELETE SET NULL) + **`create_community_poll`** auf 9-arg (+p_player_id, alte 8-arg gedroppt, AR-44, `invalid_player`-Guard vor FK-Crash). **Service** createCommunityPoll reicht player_id durch + getCommunityPolls löst player_name/position auf (Batch ≤50 ids). **Types** DbCommunityPoll/CreateParams/WithCreator erweitert. **UI** CreatePollModal optionaler Spieler-Picker (`usePlayerNames` intern → beide Quellen automatisch) · CommunityFeedTab Suche matcht Spieler+Verein über alle Typen + **Anker-Chip-Leiste** (filtert alle 5 Feed-Typen; `availableAnchors` aus pre-anchor Set → §254-Catch-22 vermieden) · CommunityPollCard Spieler-Tag. **i18n** de+tr (community-Namespace, node-verifiziert).
+- Money-Sicherheit: KEIN Money-Path berührt — `cast_community_poll_vote`/`poll_revenue` unverändert (Routing keyt weiter auf `source`, nicht player_id). DB live bewiesen (Spalte uuid/nullable · FK confdeltype='n' · genau 1 9-arg-Signatur · anon=false) · invalid_player Live-Call + happy-insert Rollback-Smoke (source='club' has_player=true) · vitest 138+8 · tsc clean.
+- Offen (post-Slice): Live-Playwright gegen bescout.net POST-DEPLOY (Picker + Chip-Filter + MISSING_MESSAGE-Scan). Backlog: `getPlayerNames` `.limit()`-Härtung (Review-NIT#3, pre-existing). Scope-Out P2b (klickbare Card-Tags + Player-Detail-Einstieg) · P3 soziale Schicht · P4 Teilnehmer-Auszahlung.
+
 ## 333 | 2026-06-18 | feat(polls): Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor
 - Stage-Chain: SPEC (`worklog/specs/333-polls-p1-creation-treasury.md`, L, Money/CEO-approved) → IMPACT (`worklog/impact/333-polls-p1.md`) → BUILD (4 Waves) → REVIEW (`worklog/reviews/333-review.md`, Cold-Context **PASS**, NIT#1 gefixt) → PROVE (DB-Smoke + vitest) → LOG.
 - Trigger: Anil „weiter mit bescout" → nächstes Money-Stück nach Treasury-RAUS (329-332). Kanon D86 (`docs/knowledge/domain/polls.md`): community_polls war „Hülle ohne Tür" (kein Create). Anil-Entscheidungen: volles P1 · Follower-Schwelle 50 · cost-Cap 1000 $SCOUT.
