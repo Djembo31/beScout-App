@@ -1,15 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 14:00)
+# Session Handoff — Auto (2026-06-18 14:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
 ?? worklog/audits/knowledge-2026-06-18.md
 ```
 
 ## Session Commits: 10
+- b77c1b43 feat(db): Slice 343 — Polls P3c Fan-Rang → Stimmgewicht (MAX mit Abo-Floor)
+- 27e0a121 docs(session-end): Handoff-Auto-Block aktualisiert (Stop-Hook)
 - 3a4511ca docs(session-end): Fixes-Cluster + Verifikation geloggt, Handoff-Anker auf P3c, D91
 - 92fc9105 fix(services): Slice 342 — Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
 - 5320929b docs(plan): TODO nach Fixes-Cluster bereinigen (339-341 erledigt, P2-Dubletten raus)
@@ -18,8 +21,6 @@
 - 27ce56b7 fix(db): Slice 340 — create_user_bounty Reward-Guard an bounties_reward_cents_check angleichen
 - 79301710 docs(knowledge): polls.md §2-§9 auf Code-Stand 333-339 — Current-State-Drift heilen
 - f56eaf18 fix(services): Slice 339 — PostgREST-1000-Cap-Härtung (getPlayerNames + Follower-Notify)
-- 459bb037 docs(proof): 335/336 Live-UI-Verifikation geschlossen — DB-Beweis akzeptiert (Anil)
-- 50920943 docs(proof): Live-Verifikations-Pass 334-336 — 334 re-bestätigt, 335/336 account-gated dokumentiert
 
 <!-- auto:handoff-end -->
 
@@ -27,16 +28,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 342 oder neuer. `worklog/active.md` = idle. **Polls P1-P3 + Fee (333-337) + Event-Cancel (335) + Predictions-Removal (338) + Fixes-Cluster (339-342) alle DONE — live + gepusht/applied.**
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 343 oder neuer (`b77c1b43`). `worklog/active.md` = idle. **Polls P1-P3 + Fee (333-337) + P3c Fan-Rang-Gewicht (343) + Event-Cancel (335) + Predictions-Removal (338) + Fixes-Cluster (339-342) alle DONE — live + gepusht/applied.**
 
-## 🎯 NÄCHSTER SLICE: POLLS P3c — FAN-RANG (Anil 2026-06-18 „in frischer Session mit P3c beginnen")
-- **Letztes Polls-Feature.** `fanRanking.ts` (6 Treue-Stufen) existiert, ist aber „fast wirkungslos" → aktivieren als **Stimm-Gewicht UND/ODER Auszahl-Anteil** bei Polls + **Abo Early-Access / exklusive Mitglieder-Umfragen**.
-- Konzept (Kanon): `docs/knowledge/domain/polls.md` §6 (soziale Schicht) + §8 (P3-Roadmap). WARUM = D86.
-- **Money-near** (berührt Auszahl-Logik bei Paid-Polls) → **/impact ZUERST** + ggf. CEO-Wert-Entscheid (wie viel Gewicht/Anteil pro Rang?). Mobile 393px + DE/TR + Reviewer-Pflicht.
-- Vorbild für Gewicht: Abo-2× aus Slice 336 (`community_poll_votes.weight`, skaliert NUR Tally, NICHT Geld). Fan-Rang-Auszahl wäre der erste Geld-wirksame Rang-Effekt → besonders vorsichtig (Smoke + Rollback).
+## ✅ ZULETZT FERTIG: SLICE 343 — POLLS P3c FAN-RANG → STIMMGEWICHT (2026-06-18)
+- `cast_community_poll_vote`: `weight = MAX(Abo-Gewicht, Fan-Rang-Gewicht)`. Fan-Rang Ultra/Legende 2×, Ehren/Ikone 3×, sonst 1×. **Tally-only, Geld byte-identisch zu 336.** Abo-Floor (MAX) verhindert Regression der Live-2× → **D92** (Blaupause für Reward-Konsolidierung).
+- Reviewer PASS (Money-Branch-Diff Zeile-für-Zeile byte-identisch), DB-Smoke 13/13 (inkl. Money-Invariante: weight=3 aber amount_paid=1000). `polls.md` §6/§8/§9 + `reward-ranking.md` W2-A mit-aktualisiert.
+- **Polls-Geldmaschine inkl. Fan-Rang-Gewicht damit KOMPLETT.**
 
-## ⚡ DANACH
-- **Fan-Reward-Engine** (E1) — nächster großer Money-Block (Verein belohnt treue Fans).
+## 🎯 NÄCHSTER SLICE = ANIL-WAHL (keine Vorfestlegung)
+- **Polls-Rest (je eigener Slice):** (b) exklusive Treue-Umfragen (`min_fan_rank`-Tor — Schema + Vote-/Sichtbarkeits-Guard + **recalc-on-read** weil Fan-Rang dann ein Zugangstor steuert, vgl. D92 Re-Visit) · (c) Abo Early-Access (Zeitfenster) · UI-Surfacing des eigenen Gewichts (Backlog, heute auch Abo-2× still).
+- **Fan-Reward-Engine** (E1) — nächster großer Money-Block (Verein belohnt treue Fans, Treasury §8). **D92 = MAX-Floor-Muster hier wiederverwenden.**
 - **E0-W4** — Historie git filter-repo (mit Backup, separat). LOW.
 - **Polls P4 (Teilnehmer-Auszahlung) = VERWORFEN** (Anil 2026-06-18, Glücksspiel-Risiko). Nicht ohne neue Ansage.
 
