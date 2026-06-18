@@ -2962,7 +2962,12 @@
     "searchFans": "Fan ara...",
     "fans": "Fan",
     "noFans": "Bu segmentte henüz fan yok",
-    "exportCsv": "CSV olarak indir"
+    "exportCsv": "CSV olarak indir",
+    "fanRankThresholdsTitle": "Fan Rütbesi Eşikleri",
+    "fanRankThresholdsDesc": "Fanlarının her seviyeye hangi puandan itibaren ulaşacağını belirle. Daha düşük değerler = fanlar daha hızlı yükselir.",
+    "fanRankThresholdsSave": "Eşikleri kaydet",
+    "fanRankThresholdsSaved": "Fan Rütbesi eşikleri kaydedildi.",
+    "fanRankThresholdsInvalid": "Değerler artan sırada olmalı (Müdavim < Ultra < … < Kulüp İkonu) ve 1 ile 100 arasında olmalıdır."
   },
   "notifications": {
     "title": "Bildirimler",
@@ -3528,6 +3533,8 @@
     "alreadyExists": "Bu kayıt zaten mevcut.",
     "notFound": "Bulunamadı.",
     "permissionDenied": "Bu işlem için yetkiniz yok.",
+    "fanRankThresholdsNotAdmin": "Fan Rütbesi eşiklerini yalnızca kulüp yöneticileri değiştirebilir.",
+    "fanRankThresholdsInvalidValues": "Eşikler artan sırada ve 1 ile 100 arasında olmalıdır.",
     "rateLimited": "Çok fazla istek. Lütfen biraz bekleyin.",
     "networkError": "Ağ hatası. Bağlantınızı kontrol edin.",
     "timeout": "İstek zaman aşımına uğradı. Lütfen tekrar deneyin.",

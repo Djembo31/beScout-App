@@ -2083,6 +2083,20 @@ export type DbFanRanking = {
   created_at: string;
 };
 
+/**
+ * Club-configurable Fan-Rang score thresholds (Slice 347 / FRE-5).
+ * Resolved values (platform default applied when a club has no config row):
+ * stammgast 10 / ultra 25 / legende 40 / ehrenmitglied 55 / vereinsikone 70.
+ * zuschauer is implicit (score below `stammgast`).
+ */
+export type ClubFanRankThresholds = {
+  stammgast: number;
+  ultra: number;
+  legende: number;
+  ehrenmitglied: number;
+  vereinsikone: number;
+};
+
 // ============================================
 // LIGA SEASON TYPES
 // ============================================

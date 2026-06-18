@@ -540,6 +540,7 @@ export default function ClubContent({ slug }: { slug: string }) {
               <FanRankOverview
                 ranking={fanRanking ?? null}
                 clubName={club.name}
+                clubId={club.id}
                 isLoading={fanRankingLoading}
               />
             </RevealSection>

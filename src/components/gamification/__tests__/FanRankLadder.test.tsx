@@ -18,9 +18,17 @@ vi.mock('lucide-react', () => {
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),
 }));
+// Slice 347: stub the service so the ladder's DEFAULT_FAN_RANK_THRESHOLDS import
+// does not pull in supabaseClient into the unit test.
+vi.mock('@/lib/services/fanRanking', () => ({
+  DEFAULT_FAN_RANK_THRESHOLDS: {
+    stammgast: 10, ultra: 25, legende: 40, ehrenmitglied: 55, vereinsikone: 70,
+  },
+}));
 
 import FanRankLadder from '../FanRankLadder';
 import { FAN_RANK_PERKS } from '@/lib/fanRankPerks';
+import type { ClubFanRankThresholds } from '@/types';
 
 const ALL_TIER_LABELS = [
   'fanRankZuschauer',
@@ -76,5 +84,33 @@ describe('FanRankLadder', () => {
     renderWithProviders(<FanRankLadder currentTier="vereinsikone" currentScore={120} />);
     expect(screen.getByText('fanRankTopTier')).toBeInTheDocument();
     expect(screen.queryByText('fanRankNextTier')).not.toBeInTheDocument();
+  });
+});
+
+describe('FanRankLadder — Slice 347 dynamic thresholds', () => {
+  it('renders default range labels when no thresholds prop is passed', () => {
+    renderWithProviders(<FanRankLadder currentTier="ultra" currentScore={30} />);
+    // Default platform thresholds: stammgast=10, ultra=25, legende=40, ...
+    expect(screen.getByText('0–9')).toBeInTheDocument();      // zuschauer 0..stammgast-1
+    expect(screen.getByText('10–24')).toBeInTheDocument();    // stammgast..ultra-1
+    expect(screen.getByText('70+')).toBeInTheDocument();      // vereinsikone..∞
+  });
+
+  it('derives range labels from a club-specific thresholds prop', () => {
+    const custom: ClubFanRankThresholds = {
+      stammgast: 5, ultra: 12, legende: 20, ehrenmitglied: 30, vereinsikone: 45,
+    };
+    renderWithProviders(
+      <FanRankLadder currentTier="legende" currentScore={20} thresholds={custom} />,
+    );
+    expect(screen.getByText('0–4')).toBeInTheDocument();      // zuschauer 0..4
+    expect(screen.getByText('5–11')).toBeInTheDocument();     // stammgast 5..11
+    expect(screen.getByText('12–19')).toBeInTheDocument();    // ultra 12..19
+    expect(screen.getByText('20–29')).toBeInTheDocument();    // legende 20..29
+    expect(screen.getByText('30–44')).toBeInTheDocument();    // ehrenmitglied 30..44
+    expect(screen.getByText('45+')).toBeInTheDocument();      // vereinsikone 45..∞
+    // Default labels must NOT appear when custom thresholds are active.
+    expect(screen.queryByText('10–24')).not.toBeInTheDocument();
+    expect(screen.queryByText('70+')).not.toBeInTheDocument();
   });
 });

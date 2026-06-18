@@ -1,5 +1,14 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbFanRanking, FanRankTier } from '@/types';
+import type { ClubFanRankThresholds, DbFanRanking, FanRankTier } from '@/types';
+
+/** Platform-default Fan-Rang score thresholds (Slice 347 — fallback when a club has no config). */
+export const DEFAULT_FAN_RANK_THRESHOLDS: ClubFanRankThresholds = {
+  stammgast: 10,
+  ultra: 25,
+  legende: 40,
+  ehrenmitglied: 55,
+  vereinsikone: 70,
+};
 
 // ============================================
 // Fan Ranking Service
@@ -102,4 +111,51 @@ export async function batchRecalculateFanRanks(
 
   const result = data as { ok: boolean; recalculated: number; errors: string[] };
   return result;
+}
+
+/**
+ * Fetch a club's Fan-Rang score thresholds (Slice 347 / FRE-5).
+ * Returns resolved values — platform defaults applied server-side when the club has no config row.
+ */
+export async function getClubFanRankThresholds(clubId: string): Promise<ClubFanRankThresholds> {
+  const { data, error } = await supabase.rpc('get_club_fan_rank_thresholds', { p_club_id: clubId });
+  if (error) throw new Error(error.message);
+
+  const r = data as Partial<ClubFanRankThresholds> | null;
+  if (!r || typeof r.stammgast !== 'number') {
+    // Defensive: RPC returned an unexpected shape — fall back to platform defaults.
+    return { ...DEFAULT_FAN_RANK_THRESHOLDS };
+  }
+  return {
+    stammgast: r.stammgast,
+    ultra: r.ultra ?? DEFAULT_FAN_RANK_THRESHOLDS.ultra,
+    legende: r.legende ?? DEFAULT_FAN_RANK_THRESHOLDS.legende,
+    ehrenmitglied: r.ehrenmitglied ?? DEFAULT_FAN_RANK_THRESHOLDS.ehrenmitglied,
+    vereinsikone: r.vereinsikone ?? DEFAULT_FAN_RANK_THRESHOLDS.vereinsikone,
+  };
+}
+
+/**
+ * Set a club's Fan-Rang score thresholds (Slice 347 / FRE-5).
+ * Club-admin only (enforced in the SECURITY DEFINER RPC). Triggers a synchronous
+ * recalc of all the club's fan ranks so poll vote weight is never stale.
+ * Throws (i18n-key error) on gate/validation failure so the caller can surface it.
+ */
+export async function setClubFanRankThresholds(
+  clubId: string,
+  thresholds: ClubFanRankThresholds,
+): Promise<{ success: true; recalculated: number }> {
+  const { data, error } = await supabase.rpc('set_club_fan_rank_thresholds', {
+    p_club_id: clubId,
+    p_stammgast: thresholds.stammgast,
+    p_ultra: thresholds.ultra,
+    p_legende: thresholds.legende,
+    p_ehrenmitglied: thresholds.ehrenmitglied,
+    p_vereinsikone: thresholds.vereinsikone,
+  });
+  if (error) throw new Error(error.message);
+
+  const result = data as { success: boolean; error?: string; recalculated?: number };
+  if (!result.success) throw new Error(result.error ?? 'rpc_failed');
+  return { success: true, recalculated: result.recalculated ?? 0 };
 }

@@ -39,13 +39,7 @@ export function getFanRankDef(tier: FanRankTier): FanRankTierDef {
   return FAN_RANK_TIERS.find(t => t.tier === tier) ?? FAN_RANK_TIERS[0];
 }
 
-/** Get tier definition by score (returns the highest tier the score qualifies for) */
-export function getFanRankByScore(score: number): FanRankTierDef {
-  // Walk tiers from highest to lowest, return first match
-  for (let i = FAN_RANK_TIERS.length - 1; i >= 0; i--) {
-    if (score >= FAN_RANK_TIERS[i].minScore) {
-      return FAN_RANK_TIERS[i];
-    }
-  }
-  return FAN_RANK_TIERS[0];
-}
+// NOTE (Slice 347): `getFanRankByScore` was removed. Score→tier resolution lives in
+// the `calculate_fan_rank` RPC (now club-configurable via club_fan_rank_thresholds).
+// A client-side copy would silently drift from per-club thresholds. The Fan-Rang ladder
+// reads resolved thresholds via `getClubFanRankThresholds` (services/fanRanking.ts).

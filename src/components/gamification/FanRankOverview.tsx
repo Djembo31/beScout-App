@@ -3,12 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { Trophy, ArrowRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, Skeleton } from '@/components/ui';
 import FanRankBadge from '@/components/ui/FanRankBadge';
 import FanRankLadder from '@/components/gamification/FanRankLadder';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useCurrentLigaSeason } from '@/lib/queries/gamification';
+import { qk } from '@/lib/queries/keys';
+import { getClubFanRankThresholds } from '@/lib/services/fanRanking';
 import type { DbFanRanking } from '@/types';
 
 // ============================================
@@ -18,6 +21,8 @@ import type { DbFanRanking } from '@/types';
 interface FanRankOverviewProps {
   ranking: DbFanRanking | null;
   clubName: string;
+  /** Club id — drives the per-club score thresholds for the ladder (Slice 347). */
+  clubId: string;
   isLoading?: boolean;
 }
 
@@ -41,12 +46,23 @@ const DIMENSIONS: DimensionDef[] = [
 export default function FanRankOverview({
   ranking,
   clubName,
+  clubId,
   isLoading = false,
 }: FanRankOverviewProps) {
   const t = useTranslations('gamification');
   // FIX-05 (J9F-06): Replace hardcoded "Season 1" with live season name from get_current_liga_season RPC
   const { data: currentSeason } = useCurrentLigaSeason();
   const seasonLabel = currentSeason?.name ?? t('seasonDefault');
+
+  // Slice 347 (FRE-5): per-club score thresholds for the ladder. Static data
+  // (changes only via club-admin) → 5min staleTime. Falls back to platform
+  // defaults inside FanRankLadder when undefined (loading / no config).
+  const { data: thresholds } = useQuery({
+    queryKey: qk.fanRanking.thresholds(clubId),
+    queryFn: () => getClubFanRankThresholds(clubId),
+    enabled: !!clubId,
+    staleTime: 5 * 60 * 1000,
+  });
 
   if (isLoading) {
     return (
@@ -87,7 +103,7 @@ export default function FanRankOverview({
           <ArrowRight className="size-3.5" aria-hidden="true" />
         </Link>
         {/* Slice 344: Leiter auch ohne Rang zeigen — Anreiz "was du erreichen kannst" */}
-        <FanRankLadder currentTier={null} currentScore={0} />
+        <FanRankLadder currentTier={null} currentScore={0} thresholds={thresholds} />
       </Card>
     );
   }
@@ -152,7 +168,7 @@ export default function FanRankOverview({
       </div>
 
       {/* Slice 344 (E1.1): Aufstiegs-Leiter + was jede Stufe freischaltet */}
-      <FanRankLadder currentTier={ranking.rank_tier} currentScore={ranking.total_score} />
+      <FanRankLadder currentTier={ranking.rank_tier} currentScore={ranking.total_score} thresholds={thresholds} />
     </Card>
   );
 }

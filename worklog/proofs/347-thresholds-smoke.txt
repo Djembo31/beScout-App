@@ -1,0 +1,41 @@
+Slice 347 (FRE-5) — Backend Proof (Live-DB skzjfhvgccaeplydsunz, 2026-06-18)
+========================================================================
+
+MIGRATION: 20260618235000_slice_347_club_fan_rank_thresholds.sql — apply_migration {"success":true}
+
+AC1 — CHECK exists:
+  pg_constraint contype='c' on club_fan_rank_thresholds => "cfrt_monotonic"
+
+AC2 — RLS all 4 ops (SELECT open, INSERT/UPDATE/DELETE client-blocked):
+  DELETE:cfrt_no_client_delete | INSERT:cfrt_no_client_insert | SELECT:cfrt_select | UPDATE:cfrt_no_client_update
+
+AC8 — AR-44 (anon kein EXECUTE, authenticated ja):
+  anon_set=false  anon_get=false  anon_calc=false  auth_set=true
+
+Preserved patches in calculate_fan_rank (D87/PATCH-AUDIT — Rewrite gegen Live-Baseline):
+  has_follow (Slice 345 +5)=true   has_elo (fn_get_streak_elo_boost)=true   reads_config (club_fan_rank_thresholds)=true
+
+AC3 — Schwellen-Wirkung (Rollback-Smoke, Club 2bf30014, Fan 535bbcaf total_score=33.32):
+  default thresholds => tier 'ultra'
+  config (5,12,20,30,45) => tier 'ehrenmitglied'  (33.32 >= ehren=30)  ✅ Tier ändert sich durch Config
+
+AC4 — Default-Fallback (Club ohne Config-Zeile):
+  get_club_fan_rank_thresholds('0000...') => {stammgast:10, ultra:25, legende:40, ehrenmitglied:55, vereinsikone:70}  ✅
+AC4b — konfiguriert:
+  get_club_fan_rank_thresholds(2bf30014) [in-txn] => {5,12,20,30,45}  ✅
+
+AC5 — Write-RPC Auth-Gate (auth.uid() NULL in raw SQL):
+  set_club_fan_rank_thresholds(...) => {"success":false,"error":"not_authenticated"}  ✅
+  (Club-Admin-Gate role IN ('owner','admin') greift downstream — Live-Auth-Test im UI-Proof)
+
+AC6 — Monoton-CHECK blockt nicht-steigende Werte:
+  INSERT (50,40,30,20,10) => check_violation raised  ✅
+
+Alle smokes rolled back — keine Live-Daten verändert.
+Offen für Wave 2 (Frontend, post-Deploy): AC9 (Leiter zeigt Club-Schwellen), AC10 (Admin-Save-Roundtrip), AC11 (tsc+vitest).
+
+POST-REVIEW FIX (Finding #1 — Platform-Admin-Gate):
+  set_club_fan_rank_thresholds re-applied (slice_347_fanrank_thresholds_admin_gate_fix):
+  Gate = top_role='Admin' (Platform-Superadmin) OR club_admins role IN ('owner','admin').
+  Spiegelt AdminContent superadmin->synthetic-owner Override + bounty_rpcs_rls-Muster.
+  apply_migration => {"success":true}. AR-44 REVOKE/GRANT erneut gesetzt.

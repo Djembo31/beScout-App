@@ -1,17 +1,20 @@
 # Active Slice
 
 ```
-status: idle
-slice: 346
-title: ✅ DONE — FRE-3: Exklusive Vereins-Beiträge (Fan-Rang-Gate + gesperrte Vorschau)
-stage: LOG complete
-size: M
+status: in-progress
+slice: 347
+title: FRE-5 — Club-konfigurierbare Fan-Rang-Schwellen (Money-nah)
+stage: PROVE (Backend bewiesen; UI-Playwright post-Deploy offen)
+size: L
 slice-type: Migration
-spec: worklog/specs/346-exclusive-club-posts.md
-impact: inline (Spec §3/§4 — RLS/Security-nah)
-proof: worklog/proofs/346-rls.txt (+ UI-Playwright post-Deploy offen)
-review: worklog/reviews/346-review.md (PASS, 3 NIT non-blocking)
+spec: worklog/specs/347-club-configurable-fan-rank-thresholds.md
+impact: worklog (impact-analyst Consumer-Karte, 6 Gruppen, Risiko HIGH)
+proof: worklog/proofs/347-thresholds-smoke.txt (Backend AC1-AC8 ✅; UI AC9/AC10 post-Deploy)
+review: worklog/reviews/347-review.md (PASS, Finding #1 gefixt, 1 NIT pre-existing)
 ```
+
+## Vorheriger Slice
+- **346 / FRE-3** ✅ DONE — Exklusive Vereins-Beiträge (Fan-Rang-Gate + 🔒-Vorschau). PASS, live.
 
 ## Zuletzt
 - **Slice 344 / FRE-1** — Fan-Rang-Leiter sichtbar (UI). PASS, live.

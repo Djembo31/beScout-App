@@ -2962,7 +2962,12 @@
     "searchFans": "Fan suchen...",
     "fans": "Fans",
     "noFans": "Noch keine Fans in diesem Segment",
-    "exportCsv": "Als CSV exportieren"
+    "exportCsv": "Als CSV exportieren",
+    "fanRankThresholdsTitle": "Fan-Rang-Schwellen",
+    "fanRankThresholdsDesc": "Lege fest, ab welchem Punktestand deine Fans die jeweilige Stufe erreichen. Niedrigere Werte = Fans steigen schneller auf.",
+    "fanRankThresholdsSave": "Schwellen speichern",
+    "fanRankThresholdsSaved": "Fan-Rang-Schwellen gespeichert.",
+    "fanRankThresholdsInvalid": "Die Werte müssen aufsteigend sein (Stammgast < Ultra < … < Vereinsikone) und zwischen 1 und 100 liegen."
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -3528,6 +3533,8 @@
     "alreadyExists": "Dieser Eintrag existiert bereits.",
     "notFound": "Nicht gefunden.",
     "permissionDenied": "Keine Berechtigung für diese Aktion.",
+    "fanRankThresholdsNotAdmin": "Nur Club-Admins können die Fan-Rang-Schwellen ändern.",
+    "fanRankThresholdsInvalidValues": "Die Schwellen müssen aufsteigend sein und zwischen 1 und 100 liegen.",
     "rateLimited": "Zu viele Anfragen. Bitte warte einen Moment.",
     "networkError": "Netzwerkfehler. Bitte prüfe deine Verbindung.",
     "timeout": "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.",

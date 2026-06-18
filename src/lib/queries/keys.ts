@@ -356,6 +356,8 @@ export const qk = {
   fanRanking: {
     user: (userId: string, clubId: string) => ['fan-ranking', userId, clubId] as const,
     leaderboard: (clubId: string, limit?: number) => ['fan-ranking', 'leaderboard', clubId, limit] as const,
+    /** Slice 347 (FRE-5) — per-club score thresholds (zuschauer→vereinsikone). Static-ish, 5min staleTime. */
+    thresholds: (clubId: string) => ['fan-ranking', 'thresholds', clubId] as const,
   },
 
   // ── Cosmetics ──

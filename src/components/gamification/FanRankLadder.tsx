@@ -7,11 +7,14 @@ import { cn } from '@/lib/utils';
 import { FAN_RANK_TIERS } from '@/lib/fanRanking';
 import { FAN_RANK_PERKS } from '@/lib/fanRankPerks';
 import { FAN_RANK_TIER_CONFIG } from '@/components/ui/FanRankBadge';
-import type { FanRankTier } from '@/types';
+import { DEFAULT_FAN_RANK_THRESHOLDS } from '@/lib/services/fanRanking';
+import type { ClubFanRankThresholds, FanRankTier } from '@/types';
 
 // ============================================
 // FAN-RANG LADDER — 6 Tiers + what each unlocks
 // Slice 344 (E1.1): macht die Aufstiegs-Leiter + Perks sichtbar.
+// Slice 347 (FRE-5): Range-Labels + Progress-Text aus club-konfigurierbaren
+//   Schwellen (thresholds-Prop) statt aus FAN_RANK_TIERS-Default-Scores.
 // Rendert auch ohne Rang (currentTier=null) als Anreiz ("was du erreichen kannst").
 // ============================================
 
@@ -20,17 +23,41 @@ interface FanRankLadderProps {
   currentTier: FanRankTier | null;
   /** Current total_score (0 when no rank yet). */
   currentScore: number;
+  /**
+   * Club-specific score thresholds (Slice 347). When omitted, falls back to the
+   * platform-default thresholds — keeps the ladder backwards-compatible.
+   */
+  thresholds?: ClubFanRankThresholds;
 }
 
-function FanRankLadder({ currentTier, currentScore }: FanRankLadderProps) {
+/** Computed [minScore, maxScore] window per tier (maxScore=null for the top tier). */
+type TierRange = { minScore: number; maxScore: number | null };
+
+/**
+ * Derive each tier's score window from the (club-specific) thresholds.
+ * zuschauer: 0..stammgast-1 · stammgast: stammgast..ultra-1 · ... · vereinsikone: vereinsikone..∞
+ */
+function buildTierRanges(th: ClubFanRankThresholds): Record<FanRankTier, TierRange> {
+  return {
+    zuschauer: { minScore: 0, maxScore: th.stammgast - 1 },
+    stammgast: { minScore: th.stammgast, maxScore: th.ultra - 1 },
+    ultra: { minScore: th.ultra, maxScore: th.legende - 1 },
+    legende: { minScore: th.legende, maxScore: th.ehrenmitglied - 1 },
+    ehrenmitglied: { minScore: th.ehrenmitglied, maxScore: th.vereinsikone - 1 },
+    vereinsikone: { minScore: th.vereinsikone, maxScore: null },
+  };
+}
+
+function FanRankLadder({ currentTier, currentScore, thresholds }: FanRankLadderProps) {
   const t = useTranslations('gamification');
   const effectiveTier: FanRankTier = currentTier ?? 'zuschauer';
+  const ranges = buildTierRanges(thresholds ?? DEFAULT_FAN_RANK_THRESHOLDS);
 
   const currentIndex = FAN_RANK_TIERS.findIndex(d => d.tier === effectiveTier);
   const nextDef = currentIndex >= 0 ? FAN_RANK_TIERS[currentIndex + 1] : undefined;
   const progressText = nextDef
     ? t('fanRankNextTier', {
-        n: Math.max(0, nextDef.minScore - currentScore),
+        n: Math.max(0, ranges[nextDef.tier].minScore - currentScore),
         tier: t(FAN_RANK_TIER_CONFIG[nextDef.tier].labelKey),
       })
     : t('fanRankTopTier');
@@ -52,6 +79,7 @@ function FanRankLadder({ currentTier, currentScore }: FanRankLadderProps) {
           const cfg = FAN_RANK_TIER_CONFIG[def.tier];
           const perks = FAN_RANK_PERKS[def.tier];
           const isCurrent = def.tier === effectiveTier;
+          const range = ranges[def.tier];
           const Icon = cfg.icon;
 
           return (
@@ -74,7 +102,7 @@ function FanRankLadder({ currentTier, currentScore }: FanRankLadderProps) {
                     {t(cfg.labelKey)}
                   </span>
                   <span className="text-[10px] font-mono tabular-nums text-white/30 shrink-0">
-                    {def.maxScore === null ? `${def.minScore}+` : `${def.minScore}–${def.maxScore}`}
+                    {range.maxScore === null ? `${range.minScore}+` : `${range.minScore}–${range.maxScore}`}
                   </span>
                 </div>
                 <span className="text-[10px] text-white/40">

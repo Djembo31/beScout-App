@@ -36,6 +36,8 @@ const KNOWN_KEYS = new Set([
   // Slice 195d — Bench + Auto-Sub validation
   'bench_gk_position_mismatch', 'bench_overlaps_starter', 'bench_not_in_holdings',
   'bench_duplicate', 'invalid_bench_order',
+  // Slice 347 — Fan-Rang-Schwellen (FRE-5)
+  'fanRankThresholdsNotAdmin', 'fanRankThresholdsInvalidValues',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -145,6 +147,10 @@ const ERROR_MAP: [RegExp, string][] = [
   // Slice 332 — Club-Bounty-Escrow
   [/treasury_insufficient_for_bounty/i, 'bountyTreasuryInsufficient'],
   [/not_club_admin_for_bounty/i, 'bountyNotClubAdmin'],
+
+  // Slice 347 — Fan-Rang-Schwellen (FRE-5)
+  [/not_club_admin/i, 'fanRankThresholdsNotAdmin'],
+  [/invalid_thresholds/i, 'fanRankThresholdsInvalidValues'],
 ];
 
 /**
