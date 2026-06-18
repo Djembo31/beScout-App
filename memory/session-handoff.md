@@ -20,21 +20,16 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: SLICE 338 — Predictions-Feature-Removal)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 337 oder neuer. `worklog/active.md` = idle. **Polls P1 (333) + P2 (334) + P3 (336) + Fee-20/80 (337) DONE; Event-Absage geld-sicher (335) DONE — alle live + gepusht.**
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 338 oder neuer. `worklog/active.md` = idle. **Polls P1-P3 + Fee-20/80 (333-337) DONE; Event-Absage geld-sicher (335) DONE; Predictions-Removal (338) DONE — alle live + gepusht/applied.**
 
-## 🎯 NÄCHSTER SLICE = 338 Predictions-Feature KOMPLETT entfernen (Anil 2026-06-18)
-**Entscheidung:** Das gesamte Fantasy-Tippspiel-/Predictions-Feature aus der App werfen. **Daten-Befund (erhoben): `predictions`-Tabelle = 1 Testzeile (1 User, 2026-05-01, seither nichts) → DROP sicher, kein echter User-Content.** Polls bleiben unangetastet.
-**Footprint (read-only erhoben, Dead-Feature-Removal 4-Achsen, errors-frontend.md Slice 305):**
-- **DB:** Tabelle `predictions` (1 Zeile) + 3 RPCs (`create_prediction`, `get_prediction_consensus`, `resolve_gameweek_predictions`) + Leaderboard-/Consensus-Objekte (Migrationen 199 top_predictors, 201d consensus). DROP-Diligence + 0-incoming-FK-Check vor DROP.
-- **~10 dedizierte Code-Files löschen:** PredictionsTab, PredictionCard, PredictionConsensusHint, CreatePredictionModal, ergebnisse/PredictionResults, profile/PredictionStatsCard, services predictions.queries/mutations + lib/services/predictions.ts + lib/queries/predictions.ts (+ keys.ts prediction-keys).
-- **~22 geteilte Files ENTKOPPELN (nicht löschen):** NotificationDropdown + notifications.ts (`prediction_resolved`-Typ + TYPE_TO_CATEGORY) + notifications_type_check CHECK · leaderboards.ts (`top_predictors`) · scoring.admin.ts + gameweek-sync cron (`resolve_gameweek_predictions`-Aufruf) · profile AnalystTab · OnboardingChecklist · Glossary · community PostCard · fantasy MitmachenTab/SpieltagTab/ErgebnisseTab/EventCommunityTab/index.ts · types/index.ts · notificationDeepLink.ts.
-- **i18n:** ~50 prediction/vorhersage/tipp-Keys (de+tr) — pro Key grep ob exklusiv (shared behalten).
-- **Tooling:** orphan-detector/wiring-check Allowlists + NotificationType-Union.
-- **Muster:** /impact ZUERST (Cross-Domain) · Cold-Reviewer Pflicht · `BEGIN;…COMMIT;` für DB-Drops · `grep -rn "[Pp]rediction" src/ messages/ scripts/ .claude/` Pflicht-Sweep nach Removal = 0.
+## ✅ Slice 338 DONE (2026-06-18) — Predictions-/Tippspiel-Feature komplett entfernt
+Dead-Feature-Removal 5 Achsen (Code 14 Files gelöscht + ~20 entkoppelt · DB DROP predictions+4 RPCs+3 CHECK-Recreate · i18n de/tr · Tooling · Doku). **Scope-Erweiterung (Anil):** auch Community-Research-Kategorie „Prediction" raus. Diligence: 1 Testzeile/0 FK. Deploy b15c69b5 → Vercel success → DB-Apply (Pre-Mortem #3). Reviewer PASS, AC-03/04/05 grün. ChallengeType/score_events/ticket-CHECK bewusst behalten. Details: log.md #338.
 
-## ⚡ DANACH / SECONDARY
+## 🎯 NÄCHSTER SLICE (Anil-Wahl)
+
+## ⚡ SECONDARY-KANDIDATEN
 - **Polls P3c — Fan-Rang** (deferred aus 336): Fan-Rang als Gewicht/Auszahl-Anteil — `fanRanking.ts` existiert, „fast wirkungslos". + Abo Early-Access/exklusive Mitglieder-Umfragen.
 - **UI-Live-Verifikationen** (passendes Konto, QA-„Jarvis" gated): 335 Absage-ConfirmDialog (Club-Admin), 336 Abo-2×-sichtbar (Gold-Abo), 334 CreatePollModal-Picker (≥50 Follower).
 - **Polls P4 (Teilnehmer-Auszahlung) = VERWORFEN** (Anil 2026-06-18): Lotterie (a)/Prediction (b) = Glücksspiel-Risiko, Mini-Reward (c) nicht verfolgt → Polls bleiben wie sie sind; stattdessen Fee auf 20/80 (337). Nicht wieder aufmachen ohne neue Anil-Ansage.

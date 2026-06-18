@@ -29,4 +29,16 @@ de/tr-Key-Parität: **0 only-de / 0 only-tr** (node-Check).
 | posts category='Prediction' | CHECK -1 | 0 Rows (Analyse:1, Meinung:8, News:1) |
 
 ## DB-Proof (nach Apply — AC-03/04/05)
-<!-- wird nach mcp__supabase__apply_migration eingefügt -->
+
+Migration `slice_338_remove_predictions` via `mcp__supabase__apply_migration` → `{"success":true}`.
+**Deploy-Reihenfolge eingehalten (Pre-Mortem #3):** Code-Push b15c69b5 → Vercel-Deploy `success` (verifiziert) → DANN DB-DROP.
+
+| Check | Ergebnis |
+|-------|----------|
+| AC-03 predictions-Tabelle | `NULL (gone)` ✓ |
+| AC-03 prediction-RPCs | `0 (gone)` ✓ |
+| AC-04/05 notifications_type_check | prediction_resolved weg, poll_new/event_scored/creator_fund_payout erhalten ✓ |
+| AC-04/05 notifications_reference_type_check | prediction weg, research/poll/club/system erhalten ✓ |
+| AC-04/05 chk_posts_category | Prediction weg, Analyse/Meinung/News erhalten ✓ |
+
+Containment-Proof gegen die Live-`pg_get_constraintdef`-Definitionen (kein versehentlich verlorener Wert).

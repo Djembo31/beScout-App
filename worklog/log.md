@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 338 | 2026-06-18 | refactor(predictions): Predictions-/Tippspiel-Feature komplett entfernt
+- Stage-Chain: SPEC (`worklog/specs/338-predictions-feature-removal.md`, L, CEO-approved) → IMPACT (`worklog/impact/338-*.md`, Cross-Domain) → BUILD → REVIEW (`worklog/reviews/338-review.md`, Cold-Context **PASS**, 3 NIT kosmetisch) → PROVE (`worklog/proofs/338-proof.md`) → LOG.
+- Trigger: Anil „löschen der predictions" (2026-06-18) → gesamtes Fantasy-Tippspiel raus. Scope-Erweiterung (Anil-Frage): auch Community-Research-Kategorie „Prediction" raus. ChallengeType/score_events/ticket-CHECK bewusst behalten (andere Features).
+- Diligence (live): predictions = 1 Testzeile / 0 eingehende FK; alle CHECK-betroffenen Werte 0 Rows → DROP risikolos.
+- Dead-Feature-Removal über **5 Achsen**: (1) Code — 14 dedizierte Files gelöscht (PredictionsTab/Card/Modal/ConsensusHint/Results/StatsCard, predictions.queries/mutations/service/queries, leaderboards.ts orphan) + ~20 geteilte entkoppelt (notifications/types/keys/deepLink, cron gameweek-sync, scoring.admin finalizeGameweek, AnalystTab **entkoppelt-statt-gelöscht**, OnboardingChecklist, Glossary, PostCard, EventCommunityTab, Mitmachen/Spieltag/Ergebnisse/PersonalResults, Barrels). (2) DB — Migration `20260618190000` DROP predictions + 4 RPCs + 3 CHECK-Recreate (notifications type/reference_type + chk_posts_category). (3) i18n — predictions-Namespace + glossary + scattered Keys (de+tr, Parität 0/0), 3 geteilte Werte neutralisiert. (4) Tooling — boundary-check BRIDGES + Baseline. (5) Doku — fantasy.md paths-Glob + §Predictions.
+- Verify: tsc clean · vitest **3219/3219** (full pre-push) · Reviewer PASS · **Deploy b15c69b5 → Vercel success → DANN DB-DROP** (Pre-Mortem #3) · Post-Apply AC-03/04/05 alle grün (Tabelle NULL, 0 RPCs, kein CHECK-Wert verloren).
+- Commit: b15c69b5 (Code) + Migration applied via MCP. Compliance-Plus: Glücksspiel-nahe Tippspiel-Mechanik weg (SPK/MASAK-Fläche kleiner).
+
 ## 337 | 2026-06-18 | feat(polls): Polls-Fee-Split 30/70 → 20/80 (CEO-Fee-Change)
 - Stage-Chain: SPEC (`worklog/specs/337-polls-fee-split-80-20.md`, S, Money/CEO) → IMPACT (trivial, §3) → BUILD → REVIEW (`worklog/reviews/337-review.md`, **Self-Review PASS** — 1-Zeilen-%-Änderung, Body byte-identisch zu 336-Cold-PASS) → PROVE (`worklog/proofs/337-proof.md`) → LOG.
 - Trigger: Anil „die prozente sinngemäß passend zum bescout konzept anpassen" → 20% Plattform / 80% Creator (war 30/70, höchster Plattform-Cut aller Kanäle; Polls = Vereins-Geldmaschine → Verein behält mehr). Variante mit Player-Pool verworfen.
