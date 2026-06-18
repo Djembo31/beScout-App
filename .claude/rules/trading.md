@@ -66,7 +66,7 @@ paths:
 - **IPO:** 85% Club, 10% Platform, 5% PBT
 - **Research Unlock:** 80% Author, 20% Platform
 - **Bounty Approval:** 95% Creator, 5% Platform
-- **Polls:** 70% Creator, 30% Platform
+- **Polls:** 80% Creator, 20% Platform (Slice 337)
 - **P2P Offers (3% total):** Platform 2% + PBT 0.5% + Club 0.5% (ADR-025 updated, `offer_*_bps` in fee_config)
 - **Club Abos:** 100% Club (ADR-027)
 - Fee-Discount: Platform absorbs Rabatt, PBT+Club immer voller Anteil

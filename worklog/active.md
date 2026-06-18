@@ -2,22 +2,18 @@
 
 ```
 status: idle
-slice: 336
-title: ✅ DONE — Polls P3 (Follower-Reichweite + Abo-2×-Gewicht bei Paid-Polls)
+slice: 337
+title: ✅ DONE — Polls-Fee-Split 30/70 → 20/80
 stage: LOG complete
-spec: worklog/specs/336-polls-p3-social-layer.md
-impact: in Spec §3
-proof: worklog/proofs/336-proof.md
-review: worklog/reviews/336-review.md
+spec: worklog/specs/337-polls-fee-split-80-20.md
+impact: in Spec §3 (trivial)
+proof: worklog/proofs/337-proof.md
+review: worklog/reviews/337-review.md
 ```
 
 ## Zuletzt
-- **Slice 335** (2026-06-18) — Event-Absage geld-sicher. CONCERNS→geheilt, live.
-- **Slice 336** (2026-06-18) — Polls P3 (L, Money-near). Reichweite (Follower-Notify poll_new) + Abo-2×-Gewicht (cast_community_poll_vote, Tally-only, Geld unverändert). Fan-Rang deferred (Anil).
+- **Slice 336** (2026-06-18) — Polls P3 (Reichweite + Abo-2×). PASS, live.
+- **Slice 337** (2026-06-18) — Polls-Fee 30/70→20/80 (S, Money/CEO). cast_community_poll_vote *80/100 + alle Doc/i18n-Refs.
 
-## Plan (BUILD)
-1. Migration: community_poll_votes +weight · cast_community_poll_vote +weight (Money byte-identisch) · notifications_type_check +'poll_new'.
-2. Type NotificationType +'poll_new'.
-3. Service createCommunityPoll → Follower-Notify.
-4. notifText pollNew de+tr.
-5. NotificationDropdown Icon+Color 'poll_new'.
+## Danach
+- **Slice 338** — Predictions-Feature komplett entfernen (Anil 2026-06-18). Groß (4-Achsen Removal: Code+DB+i18n+Tooling). Erst Footprint+Live-Daten prüfen, Plan vorlegen.

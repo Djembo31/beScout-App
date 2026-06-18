@@ -1,24 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 04:02)
+# Session Handoff — Auto (2026-06-18 10:25)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
+ M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
 ?? worklog/audits/knowledge-2026-06-18.md
 ```
 
-## Session Commits: 9
-- 24835a40 fix(events): Event-Absage geld-sicher — cancel_event-RPC + CHECK +'cancelled' + Prize-Refund-Zweig (Slice 335)
-- 3a7d0ceb docs(session-end): Slice 334 Polls P2 abgeschlossen — Handoff-Anker auf P3/events-cancel
-- be13be1a docs(proof): Slice 334 — Live-Bestätigung nach Deploy (Anker-Filter + Suche + i18n live verifiziert)
-- 1dc4dddb docs(log): Slice 334 — Polls P2 geloggt (player_id-Anker + Discovery)
-- 10d0e5c0 feat(polls): Polls P2 — player_id-Anker für community_polls + Discovery (Filter/Suche Verein+Spieler) (Slice 334)
-- ae0dec87 docs(session-end): Slice 333 abgeschlossen — Handoff/TODO/MASTERPLAN auf Polls P2 vorbereitet
-- c4d24743 docs(proof): Slice 333 — AC-09 Live-Bestätigung nach Deploy (i18n-Fix live verifiziert)
-- 871ec47e fix(i18n): Slice 333 — admin.clubPollSection-Keys in korrekten Namespace (Live-QA-Find)
-- 5c674e3d feat(polls): Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor (Slice 333)
+## Session Commits: 3
+- cea07dc6 fix(test): Pre-Push-Regressionen aus Slice 335/336 heilen
+- 249d1fe9 docs(session-end): 334+335+336 abgeschlossen — Handoff-Anker auf P4/Fan-Rang/UI-Live-Verifikationen
+- 60147794 feat(polls): Polls P3 — Follower-Reichweite + Abo-2x-Gewicht bei Paid-Polls (Slice 336)
 
 <!-- auto:handoff-end -->
 

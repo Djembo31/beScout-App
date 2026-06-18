@@ -107,7 +107,7 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 4. CSF = einmalig (keine Tranchen), aus Club-Treasury, rein proportional nach Besitz (kein `csf_multiplier` — entfernt; Treue läuft über Fan-Reward-Engine). Nur SC im Umlauf.
 5. Club-Treasury = echtes bidirektionales Konto (Einnahmen + Deposit / CSF + Fan-Rewards + Event-Prizes + Poll-Revenue[REIN] + Bounties + Withdrawal[Ph2]).
 
-**Fee-Splits (SSOT `business.md`):** Trading 3,5 % Platform + 1,5 % PBT + 1 % Club · IPO 10 % Plat + 5 % PBT + 85 % Club · Research 20/80 · Bounty 5/95 · Polls 30/70 · P2P 2 % + 0,5 % PBT + 0,5 % Club · Club-Abos 100 % Club.
+**Fee-Splits (SSOT `business.md`):** Trading 3,5 % Platform + 1,5 % PBT + 1 % Club · IPO 10 % Plat + 5 % PBT + 85 % Club · Research 20/80 · Bounty 5/95 · Polls 20/80 · P2P 2 % + 0,5 % PBT + 0,5 % Club · Club-Abos 100 % Club.
 
 ---
 

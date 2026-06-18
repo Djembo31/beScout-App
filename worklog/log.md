@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 337 | 2026-06-18 | feat(polls): Polls-Fee-Split 30/70 → 20/80 (CEO-Fee-Change)
+- Stage-Chain: SPEC (`worklog/specs/337-polls-fee-split-80-20.md`, S, Money/CEO) → IMPACT (trivial, §3) → BUILD → REVIEW (`worklog/reviews/337-review.md`, **Self-Review PASS** — 1-Zeilen-%-Änderung, Body byte-identisch zu 336-Cold-PASS) → PROVE (`worklog/proofs/337-proof.md`) → LOG.
+- Trigger: Anil „die prozente sinngemäß passend zum bescout konzept anpassen" → 20% Plattform / 80% Creator (war 30/70, höchster Plattform-Cut aller Kanäle; Polls = Vereins-Geldmaschine → Verein behält mehr). Variante mit Player-Pool verworfen.
+- Bau: `cast_community_poll_vote` `v_creator_share := (v_cost * 80) / 100` (war 70; platform_share = Rest = 20% Burn, kein zweiter Hardcode). Alle 70/30-Refs → 80/20: i18n de+tr (createPollSubtitle/pollClubRevenueHint/pollPriceHint) · business.md Fee-Tabelle (SSOT) · trading.md · polls.md §3/§9 · treasury.md.
+- Verify: Money-Smoke (Rollback) creator_share=800 / treasury +800 / platform 200. grep 0 stale Poll-70/30. AR-44. vitest 17 (compliance+polls) + tsc clean. Money-Branches byte-identisch zu 336.
+- Backlog: polls.md §9 Current-State breiter stale (333+) → Doku-Refresh-Slice.
+
 ## 336 | 2026-06-18 | feat(polls): Polls P3 — Follower-Reichweite + Abo-2×-Gewicht bei Paid-Polls
 - Stage-Chain: SPEC (`worklog/specs/336-polls-p3-social-layer.md`, L, Money-near/CEO „Reichweite+Abo-2×, Fan-Rang deferred") → IMPACT (Spec §3) → BUILD → REVIEW (`worklog/reviews/336-review.md`, Cold-Context **PASS**, 2 NIT) → PROVE (`worklog/proofs/336-proof.md`) → LOG.
 - Trigger: Anil „2 dann 1" → Polls-Roadmap D86 §6/§8 (soziale Schicht).

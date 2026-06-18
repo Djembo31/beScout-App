@@ -38,7 +38,7 @@ Fans äußern überall ihre Meinung über Spieler/Vereine, aber **der Verein kan
 | **Bezahlte Vereins-Umfrage** | **Club-Admin** | **Verein (offiziell)** | ja | **Vereins-Treasury** | ⚠️ Tabelle + Vote da, **Erstellung fehlt komplett** |
 | **Bezahlte User-Umfrage** | **User (ab Follower-Schwelle)** | **eigener Name** | ja | **User-Wallet** | ⚠️ Tabelle + Vote da, **Erstellung fehlt komplett** |
 
-**Current-State-Befund (verifiziert 2026-06-17):** `community_polls` kann **gelesen, abgestimmt (bezahlt, 70 % Creator / 30 % Plattform via `cast_community_poll_vote`), abgebrochen** werden — aber **es gibt KEINE Erstellung** (kein Service, keine RPC, keine UI). Die „Hülle ohne Tür". Einzige existierende Poll-Erstellung = Gratis-Club-Vote (Admin).
+**Current-State-Befund (verifiziert 2026-06-17):** `community_polls` kann **gelesen, abgestimmt (bezahlt, 80 % Creator / 20 % Plattform via `cast_community_poll_vote`, Slice 337), abgebrochen** werden — aber **es gibt KEINE Erstellung** (kein Service, keine RPC, keine UI). Die „Hülle ohne Tür". Einzige existierende Poll-Erstellung = Gratis-Club-Vote (Admin).
 
 ---
 
@@ -128,7 +128,7 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 |---|---|
 | `community_polls` Tabelle | ✅ (question, options JSONB, cost_bsd, creator_earned, ends_at, club_id, created_by, status, total_votes) — **kein player_id** |
 | Poll anzeigen (`CommunityPollCard`) | ✅ Frage + Optionen-Balken (% erst nach Vote) + Kosten + Status-Chips + Cancel |
-| Poll abstimmen (bezahlt) | ✅ `cast_community_poll_vote` (70/30), `communityPolls.ts` |
+| Poll abstimmen (bezahlt) | ✅ `cast_community_poll_vote` (80/20, Slice 337), `communityPolls.ts` |
 | Poll abbrechen | ✅ nur Creator, nur bei 0 Votes |
 | **Poll ERSTELLEN** | ❌ **fehlt komplett** (kein Service/RPC/UI) |
 | Gratis-Club-Vote erstellen | ✅ `createVote` / `AdminVotesTab` (Admin), 2×-Gewicht Bronze+ |
