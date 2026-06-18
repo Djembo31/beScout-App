@@ -5,7 +5,7 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Fan-Reward-Engine (Teil von E1) — FRE-2 als Nächstes.** FRE-1 (Slice 344: Fan-Rang-Leiter sichtbar + Perk-Katalog) ✅ live. **FRE-2 = Follow zählt** als Einstiegssignal in `calculate_fan_rank`. **Money-nah** (Fan-Rang steuert seit 343 das Poll-Stimmgewicht) → **/impact + Live-RPC-Read ZUERST** + Anil-Design-Entscheidung (wie stark zählt Follow: kleines additives Signal vs. Neu-Gewichtung). Design-Alignment + Slice-Kette = **D93**.
+- **Fan-Reward-Engine (Teil von E1) — FRE-3 als Nächstes.** FRE-1 (344 Leiter) ✅ · FRE-2 (345 Follow zählt +5) ✅ live. **FRE-3 = ein echtes neues Perk-Gate** (z. B. exklusiver Community-Zugang ab einer Fan-Stufe). Design-Entscheidung mit Anil offen (welcher Perk zuerst?). Plan = **D93**.
 
 ## 🟡 P1 — als Nächstes
 - **Aufräum-Haken aus FRE-Investigation (2026-06-18):**
@@ -21,6 +21,7 @@
 - S7 Phase-3 Reste (E2): Leaderboard-Konsolidierung, Dormant-Features, Bridges (46). ⛔ players.club (API-Key gesperrt).
 
 ## ✅ Erledigt (letzte, dann archivieren)
+- 2026-06-18: **FRE-2 / Slice 345** — Follow zählt als Einstiegssignal in den Fan-Rang (+5, monoton, cap 100) + Recalc-Trigger bei (Un)Follow. Migration byte-identisch zur Live-Baseline (D87) + additiver Block. Money-nah, Abo-Floor (D92) verifiziert intakt. Reviewer PASS, force-rollback-Smoke grün.
 - 2026-06-18: **FRE-1 / Slice 344** — Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default). 6-Stufen-Leiter + Fortschritt + Poll-Gewicht je Stufe (Mirror 343), rendert auch ohne Rang. Reine UI, keine Geld-Formel. Reviewer PASS, Live-Proof bescout.net. `4afd47e6`/`6e53a770`. → Start der Fan-Reward-Engine.
 - 2026-06-18: **Slice 343 Polls P3c** — Fan-Rang → Poll-Stimmgewicht (`MAX(Abo, Fan-Rang)`, Ultra/Legende 2× / Ehren/Ikone 3×). Tally-only, Geld unberührt. Reviewer PASS, DB-Smoke 13/13. D92 (MAX-Floor). → Polls-Geldmaschine komplett.
 - 2026-06-18: **Slice 342** — Notify-Fan-out-Batching (100er-Chunks, Concurrency-Storm geschlossen). Reviewer PASS.

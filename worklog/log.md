@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 345 | 2026-06-18 | feat(db): FRE-2 — Follow zählt als Einstiegssignal in den Fan-Rang (+5)
+- Stage-Chain: SPEC (`worklog/specs/345-follow-fanrank-signal.md`, S, Migration, CEO-approved Money-nah) → IMPACT (inline, Consumer grep-verifiziert) → BUILD (apply_migration) → REVIEW (`worklog/reviews/345-review.md`, Cold-Context **PASS**, 2 NIT non-blocking) → PROVE (`worklog/proofs/345-rpc.txt`) → LOG.
+- Trigger: Anil „weiter mit E1" → 2. Schritt der Fan-Reward-Engine (D93). Design (Anil): Follow = kleiner Schubs **~5 Punkte** (Fuß in der Tür, kein Geschenk).
+- Bau: Migration `20260618233000` — `calculate_fan_rank` byte-identisch zur **Live-Baseline (D87)** + additiver Block „6.6 FOLLOW BONUS" (`+5` wenn `club_followers`-Eintrag existiert, `LEAST(...,100)`, monoton). Plus neuer Trigger `club_followers_recalc_fan_rank` (AFTER INSERT OR DELETE, best-effort `EXCEPTION WHEN OTHERS → NULL`) → sofortige Neuberechnung bei (Un)Follow (heilt Recalc-Latenz für diesen Pfad). AR-44 REVOKE/GRANT. Kein Frontend (Leiter aus FRE-1 zeigt total bereits).
+- Money: Fan-Rang steuert Poll-Stimmgewicht (343). +5 kann an Tier-Grenze das Tally-Gewicht heben (gewollt, monoton); **Abo-Floor (D92, MAX) bleibt unberührt** (live verifiziert). Kein Geld-Fluss.
+- Verify (Live-DB, force-rollback Smoke): before 42.68 → follow 47.68 (Trigger+RPC) → unfollow 42.68; delta 5.00; unfollow_back true. anon=false/auth=true, has_follow_check=true, trigger_present=1, poll_weight_max_intact=true. 0 Persistenz.
+- Knowledge: `errors-db.md` PATCH-AUDIT — `calculate_fan_rank`-Body nur live, `20260330`-Datei stale (nicht als Baseline nutzen).
+- Commit: <pending>
+- Nächstes: FRE-3 (ein echtes neues Perk-Gate) — siehe D93/TODO.
+
 ## 344 | 2026-06-18 | feat(gamification): Fan-Rang-Leiter sichtbar + Perk-Katalog (E1.1)
 - Stage-Chain: SPEC (`worklog/specs/344-fanrank-ladder-perk-catalog.md`, M, UI, CTO) → IMPACT (skipped: reine UI, 1 Consumer, kein RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/344-review.md`, Cold-Context **PASS**, 2 NIT non-blocking) → PROVE (`344-vitest.txt` + `344-ladder-desktop.png` + `344-ladder-393px.png` + `344-live-verify.md`) → LOG.
 - Trigger: Anil-Wahl → Fan-Reward-Engine (E1, Treasury §8). Design-Alignment 2026-06-18: Perks-first, Follow zählt (E1.2), csf_multiplier raus, Plattform-Default zuerst, Welt-1 raus. Erster Slice E1.1 = Leiter sichtbar.

@@ -1,0 +1,28 @@
+Slice 345 (FRE-2) — Follow zählt als Einstiegssignal in den Fan-Rang (+5)
+Proof: Live-DB skzjfhvgccaeplydsunz, 2026-06-18. Migration applied (success: true).
+
+=== 1. Force-Rollback DB-Smoke (BEGIN→RAISE-Rollback, keine Prod-Mutation) ===
+Testfall: realer (user, club) mit Fan-Rang 42.68 (legende), ohne bestehenden Follow.
+
+SMOKE_RESULT:
+  before                 = 42.68 (legende)
+  after_follow_trigger   = 47.68   <- Trigger hat fan_rankings SOFORT neu gerechnet (ohne manuellen RPC-Call)
+  after_follow_rpc       = 47.68 (legende)
+  after_unfollow_trigger = 42.68   <- zurück auf Baseline nach DELETE
+  follow_delta           = 5.00    <- AC-01 PASS (+5)
+  unfollow_back          = true    <- AC-02 PASS (Symmetrie)
+→ AC-03 PASS (Trigger feuert bei INSERT und DELETE, sofortige Neuberechnung).
+→ Transaktion per RAISE EXCEPTION zurückgerollt: 0 Persistenz (kein Follow, keine fan_rankings-Mutation bleibt).
+
+=== 2. Form-/Sicherheits-Checks ===
+  anon_can_exec          = false   <- AC-07 PASS (anon kein EXECUTE)
+  auth_can_exec          = true    <- authenticated EXECUTE erhalten (Consumer fanRanking.ts + Cron)
+  has_follow_check       = true    <- +5/club_followers-Logik live im Body
+  trigger_present        = 1       <- club_followers_recalc_fan_rank registriert
+  poll_weight_max_intact = true    <- AC-06 PASS: cast_community_poll_vote unberührt (GREATEST/Abo-Floor D92 intakt)
+
+=== Bewertung ===
+AC-01 (+5) ✓ · AC-02 (Symmetrie) ✓ · AC-03 (Trigger sofort) ✓ · AC-06 (Money-Floor D92) ✓ · AC-07 (Shape/Grants) ✓.
+AC-04 (best-effort, Recalc-Fehler blockt nicht) = per Code (EXCEPTION WHEN OTHERS → NULL) + AFTER-Trigger.
+AC-05 (Cap 100) = per Code LEAST(v_total_score+5, 100).
+Return-Shape unverändert (5 Top-Level-Keys), Baseline byte-identisch + nur additiver 6.6-Block.

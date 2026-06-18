@@ -13,9 +13,10 @@
 ### ⏳ IN ARBEIT
 - **E1 — Money/Reward: Polls-Geldmaschine FERTIG (333-337+343), jetzt Fan-Reward-Engine.** Verein belohnt treue Fans (Treasury §8). Design-Alignment + 5 Festlegungen + Slice-Kette = **D93**. Namens-Klarheit: Engine-Schritte = **FRE-1 … FRE-5** (Teil des E1-Epics).
   - ✅ **Polls komplett:** P1 (333) Erstellung+REIN-Routing · P2 (334) Discovery · P3 (336) Follower+Abo-Gewicht · Fee 20/80 (337) · P3c (343) Fan-Rang→Poll-Stimmgewicht. Plus Event-Cancel (335) + Predictions-Removal (338).
-  - ✅ **FRE-1 (Slice 344):** Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default). Reine UI, live.
-  - ⏳ **FRE-2 (nächster Slice):** Follow zählt als Einstiegssignal in `calculate_fan_rank`. **Money-nah** → /impact + Live-RPC zuerst + Anil-Design-Entscheidung.
-  - ⬜ FRE-3 echtes Perk-Gate · FRE-4 Airdrop (Treasury-RAUS, Money) · FRE-5 Club-Konfig.
+  - ✅ **FRE-1 (Slice 344):** Fan-Rang-Leiter sichtbar + Perk-Katalog. Reine UI, live.
+  - ✅ **FRE-2 (Slice 345):** Follow zählt als Einstiegssignal in den Fan-Rang (+5, monoton) + Recalc-Trigger. Money-nah, Abo-Floor (D92) intakt.
+  - ⏳ **FRE-3 (nächster Slice):** ein echtes neues Perk-Gate (Design-Entscheidung mit Anil offen).
+  - ⬜ FRE-4 Airdrop (Treasury-RAUS, Money, D92-MAX-Floor) · FRE-5 Club-Konfig.
 
 ### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
 - ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.

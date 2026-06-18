@@ -439,6 +439,7 @@ grep -l "CREATE OR REPLACE FUNCTION public.<name>" supabase/migrations/*.sql | s
 - Gefahr: Silent-Revert aller Patches zwischen Original-Create und aktuellem Stand (Slice 156 v1: auth.uid()-Guard, min_tier-Gate, fee_config-Lookup alle weggeschrieben).
 - Migration-Header: `-- Source-of-truth: <last-CREATE>.sql` + explizite `Applied patches`-Liste.
 - Post-Apply: `pg_get_functiondef() ILIKE '%<expected-guard>%'` pro preserved Feature.
+- **Konkret-Fall `calculate_fan_rank` (Slice 345):** Body lebt NUR live. Die Migrationsdatei `20260330_streak_benefits_rpcs.sql` ist **stale** (noch inline `CASE >= 14 THEN 10.0` statt `fn_get_streak_elo_boost`, „DPC SCORE" statt „SC SCORE"). → bei künftigem Replace IMMER `pg_get_functiondef` als Baseline, NIE die 20260330-Datei. Slice 345 hat genau das gemacht (D87-Live-Read).
 
 ### Trigger+GUC-Invariant-Enforcement — generalisiert (D39, 2026-04-24)
 
