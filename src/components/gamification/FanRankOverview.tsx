@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Trophy, ArrowRight } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
 import FanRankBadge from '@/components/ui/FanRankBadge';
+import FanRankLadder from '@/components/gamification/FanRankLadder';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useCurrentLigaSeason } from '@/lib/queries/gamification';
@@ -85,6 +86,8 @@ export default function FanRankOverview({
           {t('noFanRankCta')}
           <ArrowRight className="size-3.5" aria-hidden="true" />
         </Link>
+        {/* Slice 344: Leiter auch ohne Rang zeigen — Anreiz "was du erreichen kannst" */}
+        <FanRankLadder currentTier={null} currentScore={0} />
       </Card>
     );
   }
@@ -147,6 +150,9 @@ export default function FanRankOverview({
           {ranking.total_score}
         </span>
       </div>
+
+      {/* Slice 344 (E1.1): Aufstiegs-Leiter + was jede Stufe freischaltet */}
+      <FanRankLadder currentTier={ranking.rank_tier} currentScore={ranking.total_score} />
     </Card>
   );
 }
