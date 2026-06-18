@@ -28,7 +28,10 @@ BUG GEFUNDEN (via Live-QA) + GEFIXT:
    → Section-Header zeigte rohen Key statt "Bezahlte Vereins-Umfrage".
    Fix: Keys in den admin-Namespace verschoben (de+tr, Zeile 2985). Verify:
    node -> require('./messages/de.json').admin.clubPollSectionTitle == "Bezahlte Vereins-Umfrage" ✓
-   (beide Locales). Re-Deploy → Live-Re-Check folgt.
+   (beide Locales).
+   LIVE-RE-CHECK NACH DEPLOY (333-i18n-fix-confirmed.png): Admin → Abstimmungen zeigt jetzt
+   "Bezahlte Vereins-Umfrage" + Beschreibung korrekt, 0 Konsolen-Fehler (vorher 4× MISSING_MESSAGE).
+   Temp-Admin-Zeile danach gelöscht — Prod sauber. AC-09 vollständig bewiesen.
 
 Lehre → errors-frontend.md: i18n-Key-Audit per grep-count ist unzureichend (Key kann im
 falschen Namespace stehen). Pflicht: node-Check `messages[locale][namespace][key]`.
