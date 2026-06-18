@@ -37,7 +37,7 @@ export type Trend = 'UP' | 'DOWN' | 'FLAT';
 export type IPOStatus = 'none' | 'announced' | 'early_access' | 'open' | 'ended' | 'cancelled';
 export type IPOType = 'fixed';
 export type FeedbackType = 'bug' | 'feature' | 'sonstiges';
-export type PostCategory = 'Analyse' | 'Prediction' | 'Meinung' | 'News';
+export type PostCategory = 'Analyse' | 'Meinung' | 'News';
 
 export type Player = {
   id: string;
@@ -1175,7 +1175,7 @@ export type DbPost = {
   club_id: string | null;
   content: string;
   tags: string[];
-  category: string;  // PostCategory — 'Analyse' | 'Prediction' | 'Meinung' | 'News' | 'Gerücht'
+  category: string;  // PostCategory — 'Analyse' | 'Meinung' | 'News' | 'Gerücht'
   post_type: PostType;
   upvotes: number;
   downvotes: number;
@@ -1245,7 +1245,7 @@ export type LeaderboardUser = {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'event_scored' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up' | 'prediction_resolved' | 'post_upvoted' | 'ipo_purchase' | 'report_resolved' | 'poll_new';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'event_scored' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up' | 'post_upvoted' | 'ipo_purchase' | 'report_resolved' | 'poll_new';
 
 export type DbNotification = {
   id: string;
@@ -1927,36 +1927,6 @@ export type DbCreatorFundPayout = {
   created_at: string;
 };
 
-// ============================================
-// PREDICTION TYPES
-// ============================================
-
-export type PredictionType = 'match' | 'player';
-export type PredictionStatus = 'pending' | 'correct' | 'wrong' | 'void';
-export type MatchCondition = 'match_result' | 'total_goals' | 'both_score';
-export type PlayerCondition = 'player_goals' | 'player_assists' | 'player_card' | 'clean_sheet' | 'player_minutes';
-export type PredictionCondition = MatchCondition | PlayerCondition;
-
-export type Prediction = {
-  id: string;
-  user_id: string;
-  fixture_id: string;
-  gameweek: number;
-  prediction_type: PredictionType;
-  player_id: string | null;
-  condition: PredictionCondition;
-  predicted_value: string;
-  confidence: number;
-  difficulty: number;
-  status: PredictionStatus;
-  actual_value: string | null;
-  points_awarded: number;
-  resolved_at: string | null;
-  created_at: string;
-  // Joined
-  fixture?: { home_club_id: string; away_club_id: string; gameweek: number; played_at: string | null };
-  player?: { first_name: string; last_name: string; position: string; club_id: string };
-};
 
 // ============================================
 // FOUNDING PASS TYPES

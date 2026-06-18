@@ -13,7 +13,6 @@ export function resolveDeepLink(referenceType?: string | null, referenceId?: str
     case 'offer': return '/market?tab=angebote';
     case 'research': return '/community?tab=research';
     case 'bounty': case 'poll': return '/community?tab=aktionen';
-    case 'prediction': return '/fantasy';
     case 'mission': return '/missions';
     case 'achievement': return '/profile';
     case 'profile': return referenceId ? `/profile/${referenceId}` : '/profile';

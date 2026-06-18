@@ -8,7 +8,6 @@ export { HistoryTab } from './HistoryTab';
 export { CreateEventModal } from './CreateEventModal';
 export { EventDetailModal } from './EventDetailModal';
 export { SpieltagTab } from './SpieltagTab';
-export { PredictionsTab } from './PredictionsTab';
 export { MitmachenTab } from './MitmachenTab';
 export { ErgebnisseTab } from './ErgebnisseTab';
 export { EventsTab } from './EventsTab';

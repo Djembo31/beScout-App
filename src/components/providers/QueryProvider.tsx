@@ -62,7 +62,6 @@ const USER_SCOPED_DOMAINS = new Set([
   'tickets',
   'gamification',
   'scouting',
-  'predictions',
   'home-dashboard',
   'market-dashboard',
   'fantasy-leagues',

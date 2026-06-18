@@ -5,7 +5,6 @@ paths:
   - "src/lib/services/events*"
   - "src/lib/services/lineups*"
   - "src/lib/services/scoring*"
-  - "src/lib/services/predictions*"
 ---
 
 ## Events
@@ -37,18 +36,6 @@ paths:
 - Positions-Slots zuerst: 1 GK + 4 DEF + 3 MID + 3 ATT, dann Restplaetze aus besten Uebrigen
 - `getFormationRows()` gruppiert nach Position, reversed fuer Pitch (ATT oben, GK unten)
 - Starter/Bench: Top 11 nach `minutes_played`, Formation aus DEF/MID/ATT Counts
-
-## Predictions
-- `PredictionType`: 'match' | 'player'
-- `PredictionStatus`: 'pending' | 'correct' | 'wrong' | 'void'
-- `MatchCondition`: 'match_result' | 'total_goals' | 'both_score'
-- `PlayerCondition`: 'player_goals' | 'player_assists' | 'player_card' | 'clean_sheet' | 'player_minutes'
-- Scoring: Correct = `+10 × (confidence/100) × difficulty`, Wrong = `-6 × (confidence/100) × difficulty`
-- Difficulty: 0.5/1.0/1.5 (auto-calculated aus avg IPO price per club)
-- Confidence-Farben: >=86 gold, >=66 green-500, sonst amber-400
-- Privacy: Pending predictions nur fuer eigenen User sichtbar (RLS)
-- `activeGameweek` Fallback: `?? 1` ist gefaehrlich fuer User ohne Club
-- Query Hooks: `usePredictions(userId, gw)`, `usePredictionCount(userId, gw)`
 
 ## Spieltag-Lifecycle (atomar, Admin-Tab)
 ```

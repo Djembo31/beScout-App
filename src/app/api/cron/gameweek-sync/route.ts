@@ -1611,20 +1611,6 @@ async function syncLeague(
       // logStep is handled by runStep — omit duplicate unconditional log
     }
 
-    // ---- 9b. Resolve predictions ----
-    // RPC supports service_role via v_is_service_role JWT check (migration 20260314).
-    const { result: predResult } = await runStep('resolve_predictions', async () => {
-      const { data, error } = await supabaseAdmin.rpc('resolve_gameweek_predictions', {
-        p_gameweek: activeGw,
-      });
-      if (error) throw new Error(error.message);
-      const result = data as { ok: boolean; resolved?: number; correct?: number; wrong?: number; error?: string } | null;
-      if (!result?.ok) throw new Error(result?.error ?? 'resolve_predictions failed');
-      return { resolved: result.resolved, correct: result.correct, wrong: result.wrong };
-    });
-
-    await logStep(activeGw, 'resolve_predictions', predResult ? 'success' : 'error', predResult ?? { error: 'resolve_predictions failed' });
-
     // ---- 9c. SC of the Week ----
     // RPC supports service_role via v_is_service_role JWT check (migration 20260314).
     const { result: dpcResult } = await runStep('sc_of_week', async () => {

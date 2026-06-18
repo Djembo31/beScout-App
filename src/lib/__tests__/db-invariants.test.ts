@@ -1033,8 +1033,6 @@ describe('DB Invariants', () => {
       score_event: ['success', 'error'],
       reset_event: ['success', 'error', 'message'],
       simulate_gameweek: ['success', 'error', 'fixtures_simulated', 'gameweek', 'player_stats_created'],
-      create_prediction: ['ok', 'error', 'id', 'gameweek', 'difficulty'],
-      resolve_gameweek_predictions: ['ok', 'error', 'resolved'],
       close_monthly_liga: ['ok', 'error', 'month', 'winners_inserted', 'payouts_credited', 'total_paid_cents'],
       soft_reset_season: ['ok', 'new_season_id', 'users_reset'],
 
@@ -1685,7 +1683,6 @@ describe('DB Invariants', () => {
       'liquidation_events',
       'liquidation_payouts',
       'platform_admins',
-      'predictions',
       'research_unlocks',
       'score_events',
       'score_history',

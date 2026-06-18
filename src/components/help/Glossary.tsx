@@ -23,7 +23,6 @@ const GLOSSARY_TERMS: { key: string; category: GlossaryCategory }[] = [
   { key: 'successFee', category: 'trading' },
   // Fantasy
   { key: 'lineup', category: 'fantasy' },
-  { key: 'prediction', category: 'fantasy' },
   { key: 'chip', category: 'fantasy' },
   { key: 'l5Score', category: 'fantasy' },
   // Gamification

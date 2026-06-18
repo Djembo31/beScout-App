@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { Card, Dialog } from '@/components/ui';
 import { useTranslations } from 'next-intl';
-import { usePredictions } from '@/lib/queries/predictions';
 import { useHoldings } from '@/lib/queries/holdings';
 import { getGameweekTopScorers, getGameweekStatsForPlayers } from '@/lib/services/fixtures';
 import type { FixturePlayerStat } from '@/types';
@@ -131,9 +130,6 @@ export function ErgebnisseTab({
     return { totalGoals, totalAssists, cleanSheets, yellowCards, avgRating, best };
   }, [topScorers]);
 
-  // Predictions for this GW
-  const { data: predictions = [] } = usePredictions(userId, gameweek);
-
   // Footer modals
   const [showLeagues, setShowLeagues] = useState(false);
   const [showSeason, setShowSeason] = useState(false);
@@ -187,12 +183,11 @@ export function ErgebnisseTab({
         <VisualShowcase topScorers={topScorers} gameweek={gameweek} />
       )}
 
-      {/* ── ZONE 3: Personal Results (DPCs / Events / Tipps) ── */}
+      {/* ── ZONE 3: Personal Results (DPCs / Events) ── */}
       <PersonalResults
         heldPlayerStats={heldPlayerStats}
         holdings={holdings}
         joinedScoredEvents={joinedScoredEvents}
-        predictions={predictions}
       />
 
       {/* ── FOOTER: Ligen + Saison Buttons ── */}

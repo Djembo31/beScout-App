@@ -251,54 +251,6 @@ describe('SpieltagTab', () => {
   // 6. Removed in Slice 252 Wave 6 — League-Selector-Badge wurde entfernt,
   //    Liga-Anzeige liegt jetzt im globalen LeagueScopeHeader (eigene Test-File).
 
-  // ------------------------------------------
-  // 7. Prediction CTA visible when fixtures exist and gw not simulated
-  // ------------------------------------------
-  it('shows prediction CTA when fixtures exist and gwStatus is not simulated', async () => {
-    const fixtures = [makeFixture({ status: 'scheduled' })];
-    mockGetFixturesByGameweek.mockResolvedValue(fixtures);
-    renderWithProviders(<SpieltagTab {...DEFAULT_PROPS} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('predictionCta')).toBeInTheDocument();
-    });
-  });
-
-  // ------------------------------------------
-  // 8. Prediction CTA calls onTabChange('mitmachen')
-  // ------------------------------------------
-  it('prediction CTA calls onTabChange with mitmachen on click', async () => {
-    const user = userEvent.setup();
-    const onTabChange = vi.fn();
-    const fixtures = [makeFixture({ status: 'scheduled' })];
-    mockGetFixturesByGameweek.mockResolvedValue(fixtures);
-
-    renderWithProviders(<SpieltagTab {...DEFAULT_PROPS} onTabChange={onTabChange} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('predictionCta')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByText('predictionCta'));
-    expect(onTabChange).toHaveBeenCalledWith('mitmachen');
-  });
-
-  // ------------------------------------------
-  // 9. Hides prediction CTA when gwStatus is simulated
-  // ------------------------------------------
-  it('hides prediction CTA when gwStatus is simulated', async () => {
-    // All fixtures simulated → gwStatus = 'simulated'
-    const fixtures = [makeFixture({ status: 'simulated' }), makeFixture({ id: 'f2', status: 'simulated' })];
-    mockGetFixturesByGameweek.mockResolvedValue(fixtures);
-
-    renderWithProviders(<SpieltagTab {...DEFAULT_PROPS} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('spieltag-pulse')).toBeInTheDocument();
-    });
-
-    expect(screen.queryByText('predictionCta')).not.toBeInTheDocument();
-  });
 
   // ------------------------------------------
   // 10. Admin: shows import button when apiAvailable + isCurrentGw

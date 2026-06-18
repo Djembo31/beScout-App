@@ -25,7 +25,7 @@ const SRC = join(ROOT, 'src');
 const BASELINE_PATH = join(ROOT, '.boundary-baseline.json');
 
 // Slice 301 (S6): wildcards bridge (src/lib/services/wildcards.ts) removed — 0 importers (S4-F-1, RED/GREEN-proof).
-const BRIDGES = ['fixtures', 'lineups', 'fantasyLeagues', 'scoring', 'events', 'predictions'] as const;
+const BRIDGES = ['fixtures', 'lineups', 'fantasyLeagues', 'scoring', 'events'] as const;
 type Bridge = (typeof BRIDGES)[number];
 
 interface BoundarySnapshot {

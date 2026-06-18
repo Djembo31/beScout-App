@@ -28,7 +28,6 @@ export { useClubFixtures } from './fixtures';
 export { useScoutScores, useScoreRoadClaims } from './gamification';
 export { useDpcMastery, useUserMasteryAll } from './mastery';
 export { useAirdropLeaderboard, useAirdropStats } from './airdrop';
-export { usePredictions, usePredictionCount, usePredictionStats, usePredictionFixtures, useHasAnyPrediction, useTopPredictorsLeaderboard, usePredictionConsensus } from './predictions';
 export { usePlayerScoutingSummaries, useTopScouts, useScoutingStats, useClubPrestige, useGlobalTopScouts } from './scouting';
 export { useMissionHints } from './missions';
 export {

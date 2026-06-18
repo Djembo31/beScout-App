@@ -47,7 +47,6 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
 
   const CATEGORIES = [
     { id: 'Meinung', label: t('catOpinion'), color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
-    { id: 'Prediction', label: t('catPrediction'), color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
     { id: 'Analyse', label: t('catAnalysis'), color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
   ];
 

@@ -206,7 +206,7 @@ export async function importProgressiveStats(
 // ============================================
 
 /**
- * Finalize a gameweek: resolve predictions, score events, create next GW events, advance GW.
+ * Finalize a gameweek: score events, create next GW events, advance GW.
  * Should only be called once when all fixtures are finished.
  */
 export async function finalizeGameweek(
@@ -218,18 +218,7 @@ export async function finalizeGameweek(
   let eventsScored = 0;
   let nextGwEventsCreated = 0;
 
-  // 1. Resolve predictions for this gameweek
-  try {
-    const { resolvePredictions } = await import('@/lib/services/predictions');
-    const predResult = await resolvePredictions(gameweek);
-    if (!predResult.success && predResult.error) {
-      errors.push(`Prediction-Auflösung: ${predResult.error}`);
-    }
-  } catch (e) {
-    errors.push(`Prediction-Auflösung: ${e instanceof Error ? e.message : 'Fehler'}`);
-  }
-
-  // 2. Load all GW events
+  // 1. Load all GW events
   const { data: gwEvents, error: evtErr } = await supabase
     .from('events')
     .select('id, status, scored_at, current_entries')

@@ -1,16 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 10:25)
+# Session Handoff — Auto (2026-06-18 10:55)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
 ?? worklog/audits/knowledge-2026-06-18.md
 ```
 
-## Session Commits: 3
+## Session Commits: 5
+- 5a02bbda docs(session-end): Slice 337 geloggt + Handoff-Anker auf 338 Predictions-Removal (Footprint + Daten-Befund erhoben)
+- 0f877843 feat(polls): Polls-Fee-Split 30/70 -> 20/80 (CEO-Fee-Change, Slice 337)
 - cea07dc6 fix(test): Pre-Push-Regressionen aus Slice 335/336 heilen
 - 249d1fe9 docs(session-end): 334+335+336 abgeschlossen — Handoff-Anker auf P4/Fan-Rang/UI-Live-Verifikationen
 - 60147794 feat(polls): Polls P3 — Follower-Reichweite + Abo-2x-Gewicht bei Paid-Polls (Slice 336)

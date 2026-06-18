@@ -90,10 +90,6 @@ vi.mock('@/lib/services/fanRanking', () => ({
   batchRecalculateFanRanks: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('@/lib/services/predictions', () => ({
-  resolvePredictions: vi.fn().mockResolvedValue({ success: true }),
-}));
-
 vi.mock('@/lib/services/events', () => ({
   createNextGameweekEvents: vi.fn().mockResolvedValue({ created: 2, error: null, skipped: false }),
 }));
@@ -452,32 +448,12 @@ describe('Scoring Service v2', () => {
       expect(result.nextGwEventsCreated).toBe(2);
     });
 
-    it('resolves predictions before scoring', async () => {
-      setFromResponse('events', []);
-
-      const { resolvePredictions } = await import('@/lib/services/predictions');
-
-      await finalizeGameweek(CLUB_ID, GW);
-
-      expect(resolvePredictions).toHaveBeenCalledWith(GW);
-    });
-
     it('records error when events query fails', async () => {
       setFromResponse('events', null, { message: 'events table unavailable' });
 
       const result = await finalizeGameweek(CLUB_ID, GW);
 
       expect(result.errors).toContain('Events laden: events table unavailable');
-    });
-
-    it('records error when prediction resolution fails', async () => {
-      setFromResponse('events', []);
-      const { resolvePredictions } = await import('@/lib/services/predictions');
-      vi.mocked(resolvePredictions).mockResolvedValueOnce({ success: false, error: 'pred fail' });
-
-      const result = await finalizeGameweek(CLUB_ID, GW);
-
-      expect(result.errors.some(e => e.includes('pred fail'))).toBe(true);
     });
 
     it('returns nextGameweek = gameweek + 1', async () => {

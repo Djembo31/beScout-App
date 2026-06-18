@@ -15,14 +15,6 @@ vi.mock('@/lib/services/lineups', () => ({
   getLineup: (...args: unknown[]) => mockGetLineup(...args),
 }));
 
-vi.mock('../PredictionsTab', () => ({
-  PredictionsTab: ({ gameweek, userId }: { gameweek: number; userId: string }) => (
-    <div data-testid="predictions-tab" data-gameweek={gameweek} data-userid={userId}>
-      PredictionsTab
-    </div>
-  ),
-}));
-
 vi.mock('../LeaguesSection', () => ({
   default: ({ mode }: { mode: string }) => (
     <div data-testid="leagues-section" data-mode={mode}>
@@ -231,16 +223,6 @@ describe('MitmachenTab', () => {
     // Mock getStatusStyle returns labelKey = 'status_running', which goes through tf()
     // tf returns the key, so we see 'status_running'
     expect(screen.getByText('status_running')).toBeInTheDocument();
-  });
-
-  // --- 10. PredictionsTab rendered as child ---
-  it('renders PredictionsTab with correct props', () => {
-    renderWithProviders(<MitmachenTab {...DEFAULT_PROPS} events={[]} />);
-
-    const predictions = screen.getByTestId('predictions-tab');
-    expect(predictions).toBeInTheDocument();
-    expect(predictions).toHaveAttribute('data-gameweek', '5');
-    expect(predictions).toHaveAttribute('data-userid', 'user-1');
   });
 
   // --- 11. LeaguesSection rendered as child ---

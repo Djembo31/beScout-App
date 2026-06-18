@@ -2,14 +2,13 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Briefcase, Trophy, Target, ShieldCheck } from 'lucide-react';
+import { Briefcase, Trophy, ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
 import { getPosAccent, getRingFrameClass, getMatchScore } from '../spieltag/helpers';
 import { getScoreBadgeStyle } from '@/components/player/scoreColor';
-import { PredictionResults } from './PredictionResults';
-import type { FixturePlayerStat, Prediction } from '@/types';
+import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 import type { FantasyEvent } from '../types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
@@ -18,16 +17,14 @@ type Props = {
   heldPlayerStats: FixturePlayerStat[];
   holdings: HoldingWithPlayer[];
   joinedScoredEvents: FantasyEvent[];
-  predictions: Prediction[];
 };
 
-export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents, predictions }: Props) {
+export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents }: Props) {
   const tf = useTranslations('fantasy');
 
   const TABS = [
     { id: 'dpcs', label: tf('ergebnisse.tab_my_dpcs'), shortLabel: 'SCs', icon: <Briefcase className="size-3.5" aria-hidden="true" /> },
     { id: 'events', label: tf('ergebnisse.tab_events'), icon: <Trophy className="size-3.5" aria-hidden="true" /> },
-    { id: 'tipps', label: tf('ergebnisse.tab_tipps'), icon: <Target className="size-3.5" aria-hidden="true" /> },
   ];
   const [activeTab, setActiveTab] = useState('dpcs');
 
@@ -163,10 +160,6 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
         )}
       </TabPanel>
 
-      {/* Tipps Tab */}
-      <TabPanel id="tipps" activeTab={activeTab}>
-        <PredictionResults predictions={predictions} />
-      </TabPanel>
     </section>
   );
 }

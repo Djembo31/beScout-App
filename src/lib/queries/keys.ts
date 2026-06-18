@@ -333,21 +333,6 @@ export const qk = {
     globalTopScouts: (n: number) => ['scouting', 'globalTop', n] as const,
   },
 
-  // ── Predictions ──
-  predictions: {
-    byUserGw: (uid: string, gw: number) => ['predictions', uid, gw] as const,
-    resolved: (uid: string) => ['predictions', 'resolved', uid] as const,
-    stats: (uid: string) => ['predictions', 'stats', uid] as const,
-    countGw: (uid: string, gw: number) => ['predictions', 'count', uid, gw] as const,
-    fixtures: (gw: number) => ['predictions', 'fixtures', gw] as const,
-    hasAny: (uid: string) => ['predictions', 'stats', uid, 'any'] as const,
-    /** Slice 199 C-05 — Top Predictor Leaderboard (anonymized, public). */
-    topPredictors: (limit: number) => ['predictions', 'topPredictors', limit] as const,
-    /** Slice 201d C-03 — Prediction-Consensus per fixture+condition[+player]. */
-    consensus: (fixtureId: string, condition: string, playerId: string | null) =>
-      ['predictions', 'consensus', fixtureId, condition, playerId ?? 'no-player'] as const,
-  },
-
   // ── Founding Passes ──
   foundingPasses: {
     list: (uid: string) => ['founding-passes', uid] as const,

@@ -46,8 +46,8 @@ describe('PostCard helpers', () => {
   });
 
   describe('POST_CATEGORIES', () => {
-    it('has 4 categories', () => {
-      expect(POST_CATEGORIES).toHaveLength(4);
+    it('has 3 categories', () => {
+      expect(POST_CATEGORIES).toHaveLength(3);
     });
 
     it('each category has id, labelKey, color', () => {
@@ -61,7 +61,6 @@ describe('PostCard helpers', () => {
     it('includes expected category IDs', () => {
       const ids = POST_CATEGORIES.map(c => c.id);
       expect(ids).toContain('Analyse');
-      expect(ids).toContain('Prediction');
       expect(ids).toContain('Meinung');
       expect(ids).toContain('News');
     });

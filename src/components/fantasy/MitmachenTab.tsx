@@ -9,7 +9,6 @@ import { useTranslations } from 'next-intl';
 import { getLineup } from '@/lib/services/lineups';
 import type { FantasyEvent, FantasyTab } from './types';
 import { getStatusStyle } from './helpers';
-import { PredictionsTab } from './PredictionsTab';
 import dynamic from 'next/dynamic';
 
 const LeaguesSection = dynamic(() => import('./LeaguesSection'), { ssr: false });
@@ -139,12 +138,7 @@ export function MitmachenTab({
         )}
       </section>
 
-      {/* ── SECTION 2: Meine Tipps ── */}
-      <section>
-        <PredictionsTab gameweek={gameweek} userId={userId} />
-      </section>
-
-      {/* ── SECTION 3: Meine Ligen (compact) ── */}
+      {/* ── SECTION 2: Meine Ligen (compact) ── */}
       <section>
         <LeaguesSection mode="compact" />
       </section>

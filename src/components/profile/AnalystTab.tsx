@@ -2,7 +2,6 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { CheckCircle, XCircle, Clock, Shield, Star, Lock, FileText, Target, Vote, Coins, Search as SearchIcon, TrendingUp, Trophy, Award, Users, Zap } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -11,8 +10,6 @@ import { getExpertBadges } from '@/lib/expertBadges';
 import ScoreProgress from '@/components/profile/ScoreProgress';
 import { useTranslations } from 'next-intl';
 import type { DbUserStats, DbTransaction, ResearchPostWithAuthor, AuthorTrackRecord, DbCreatorFundPayout } from '@/types';
-
-const PredictionStatsCard = dynamic(() => import('./PredictionStatsCard'), { ssr: false });
 
 // ============================================
 // TYPES
@@ -302,10 +299,7 @@ export default function AnalystTab({
         </Card>
       )}
 
-      {/* 4. Prediction Stats */}
-      <PredictionStatsCard userId={userId} />
-
-      {/* 5. Content Earnings Breakdown (self only) */}
+      {/* 4. Content Earnings Breakdown (self only) */}
       {contentEarnings && (
         <Card className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">

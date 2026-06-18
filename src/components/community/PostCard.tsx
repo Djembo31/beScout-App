@@ -30,7 +30,6 @@ export { formatTimeAgo } from '@/lib/utils';
 
 export const POST_CATEGORIES: { id: string; labelKey: string; color: string }[] = [
   { id: 'Analyse', labelKey: 'cat_analyse', color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
-  { id: 'Prediction', labelKey: 'cat_prediction', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
   { id: 'Meinung', labelKey: 'cat_meinung', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
   { id: 'News', labelKey: 'cat_news', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
 ];

@@ -3,10 +3,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 
-vi.mock('next/dynamic', () => ({
-  __esModule: true,
-  default: () => () => <div data-testid="prediction-stats" />,
-}));
 vi.mock('lucide-react', () => {
   const Stub = () => null;
   return {

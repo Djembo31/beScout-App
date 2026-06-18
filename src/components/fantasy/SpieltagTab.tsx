@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Trophy, Calendar, Play, ArrowRight, Loader2, Target,
+  Trophy, Calendar, Play, ArrowRight, Loader2,
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, Dialog } from '@/components/ui';
@@ -272,18 +272,6 @@ export function SpieltagTab({
 
       {/* Sponsor Banner */}
       <SponsorBanner placement="fantasy_spieltag" />
-
-      {/* Prediction CTA — nudge users to Mitmachen tab */}
-      {onTabChange && fixtures.length > 0 && !fixturesLoading && gwStatus !== 'simulated' && (
-        <button
-          onClick={() => onTabChange('mitmachen')}
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl hover:bg-amber-500/10 transition-colors group"
-        >
-          <Target className="size-4 text-amber-400 flex-shrink-0" aria-hidden="true" />
-          <span className="text-xs text-white/50 group-hover:text-white/70 transition-colors">{ts('predictionCta')}</span>
-          <ArrowRight className="size-3.5 text-white/20 ml-auto flex-shrink-0" aria-hidden="true" />
-        </button>
-      )}
 
       {/* ZONE 2: Spotlight — Topspiel hero card */}
       {topspiel && !fixturesLoading && (
