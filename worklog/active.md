@@ -2,20 +2,20 @@
 
 ```
 status: idle
-slice: 341
-title: ✅ DONE — auto_close_expired_bounties als getrackte Migration (AR-43)
+slice: 342
+title: ✅ DONE — Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
 stage: LOG complete
-spec: worklog/specs/341-auto-close-bounties-tracked-migration.md
-impact: skipped (1 Funktion, kein Consumer-Change, Body byte-identisch)
-proof: worklog/proofs/341-rpc.txt
-review: worklog/reviews/341-review.md
+spec: worklog/specs/342-poll-notify-fanout-batching.md
+impact: skipped (1 Service-File, kein Contract-Change, Return unverändert)
+proof: worklog/proofs/342-vitest.txt
+review: worklog/reviews/342-review.md
 ```
 
 ## Zuletzt
-- **Slice 340** (2026-06-18) — Bounty-Reward-Guard an CHECK (S, Money). Reviewer PASS.
 - **Slice 341** (2026-06-18) — auto_close_expired_bounties getrackt (XS, AR-43). Self-Review PASS.
-- **Fixes-Cluster (Anil „backlog…zuerst") KOMPLETT:** 339 .limit() · polls.md-Refresh · 340 Bounty-Guard · 341 AR-43.
+- **Slice 342** (2026-06-18) — Notify-Fan-out-Batching (S, 339-NIT#1 geschlossen). Reviewer PASS, 11 + 68 Tests.
 
-## Danach
-- **Notify-Fan-out-Batching** (339-Review-NIT#1): `Promise.all` über alle Follower → Mega-Club-Concurrency-Storm. Chunks/Fan-out-RPC.
-- **Polls P3c Fan-Rang** (letztes Polls-Feature) · **E0-W4** (Historie git filter-repo).
+## 🎯 NÄCHSTE SESSION: START MIT POLLS P3c FAN-RANG (Anil 2026-06-18)
+- **Polls P3c — Fan-Rang:** `fanRanking.ts` (6 Stufen, „fast wirkungslos") als Stimm-Gewicht/Auszahl-Anteil aktivieren + Abo Early-Access/exklusive Mitglieder-Umfragen. Konzept: `docs/knowledge/domain/polls.md` §6/§8. Letztes Polls-Feature → danach Maschine komplett. Money-near → /impact + ggf. CEO.
+- Danach: Fan-Reward-Engine (E1, nächster großer Money-Block) · E0-W4 (Historie).
+- Backlog: cross-user Batch-Notify-Locale (342-NIT#1, DE-only seit 336).

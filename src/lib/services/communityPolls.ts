@@ -129,24 +129,50 @@ export async function createCommunityPoll(params: CreateCommunityPollParams): Pr
   }).catch(err => console.error('[Polls] Activity log failed:', err));
 
   // Slice 336 (P3a Reichweite): Follower über neue Umfrage benachrichtigen (best-effort, wie createEvent).
-  // Club-Poll → Club-Follower (club_followers); User-Poll → eigene Follower (user_follows.following_id=Creator).
   const pollId = result.poll_id;
   (async () => {
     try {
-      // Slice 339: Range-Loop gegen PostgREST-1000-Cap (Mega-Club > 1000 Follower).
-      const followerIds = await fetchAllFollowerIds(params.source, params.clubId, params.userId);
-      if (followerIds.length > 0) {
-        const { createNotification } = await import('@/lib/services/notifications');
-        const { notifText } = await import('@/lib/notifText');
-        const snippet = params.question.slice(0, 60);
-        await Promise.all(followerIds.map(uid =>
-          createNotification(uid, 'poll_new', notifText('pollNewTitle'), notifText('pollNewBody', { name: snippet }), pollId, 'poll'),
-        ));
-      }
+      await notifyPollFollowers(params.source, params.clubId, params.userId, pollId, params.question);
     } catch (err) { console.error('[Polls] follower notify failed:', err); }
   })();
 
   return result.poll_id;
+}
+
+/**
+ * Slice 342: Follower über eine neue Umfrage benachrichtigen — gebündelt + bounded.
+ * Club-Poll → Club-Follower (club_followers); User-Poll → eigene Follower (user_follows).
+ * Statt N gleichzeitiger createNotification-Calls (Concurrency-Storm bei Mega-Club, 339-Review-NIT#1)
+ * in 100er-Chunks via createNotificationsBatch (1 Pref-Query + 1 Bulk-INSERT je Chunk).
+ * CHUNK=100 hält dessen internes `.in('user_id', …)` unter dem PostgREST-~100-UUID-Limit (common-errors §1).
+ * Exportiert für direkte Unit-Tests (statt über die fire-and-forget-IIFE).
+ */
+export async function notifyPollFollowers(
+  source: 'club' | 'user',
+  clubId: string | null | undefined,
+  userId: string,
+  pollId: string,
+  question: string,
+): Promise<void> {
+  const followerIds = await fetchAllFollowerIds(source, clubId, userId);
+  if (followerIds.length === 0) return;
+  const { createNotificationsBatch } = await import('@/lib/services/notifications');
+  const { notifText } = await import('@/lib/notifText');
+  const title = notifText('pollNewTitle');
+  const body = notifText('pollNewBody', { name: question.slice(0, 60) });
+  const CHUNK = 100;
+  for (let i = 0; i < followerIds.length; i += CHUNK) {
+    await createNotificationsBatch(
+      followerIds.slice(i, i + CHUNK).map(uid => ({
+        userId: uid,
+        type: 'poll_new' as const,
+        title,
+        body,
+        referenceId: pollId,
+        referenceType: 'poll',
+      })),
+    );
+  }
 }
 
 export async function getUserPollVotedIds(userId: string): Promise<Set<string>> {

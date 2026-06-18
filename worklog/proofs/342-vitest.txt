@@ -1,0 +1,26 @@
+Slice 342 — Poll-Follower-Notify Fan-out-Batching — PROOF
+
+## tsc
+npx tsc --noEmit → exit 0
+
+## grep-Beleg (kein Storm mehr)
+grep "Promise.all" src/lib/services/communityPolls.ts → 0 Treffer
+Notify-Pfad nutzt jetzt: notifyPollFollowers → createNotificationsBatch in CHUNK=100-Schleife.
+
+## Neue Chunking-Tests (notifyPollFollowers)
+CI=true npx vitest run communityPolls-followers.test.ts → 11 passed (5 fetchAllFollowerIds + 6 neu)
+  ✓ AC-01: 250 Follower → 3 Batches (100 + 100 + 50)
+  ✓ AC-03: ≤100 Follower → genau 1 Batch (80)
+  ✓ Edge: genau 100 → 1 Batch · 101 → 2 Batches (100 + 1)
+  ✓ AC-02: 0 Follower → kein Batch-Call
+  ✓ AC-04: Batch-Item-Shape {userId, type:'poll_new', title, body, referenceId, referenceType:'poll'}
+  ✓ AC-05: best-effort — Batch-Fehler propagiert (IIFE-catch fängt extern)
+
+## Regression (AC-05) — volle communityPolls + players Suites
+CI=true npx vitest run …/communityPolls …/players → 7 files, 68 passed
+  (createCommunityPoll-IIFE ruft notifyPollFollowers fire-and-forget; bei 0 Followern kein Batch → create-Tests unberührt.)
+
+## Effekt
+Vorher: Promise.all über ALLE Follower = N gleichzeitige (Pref-SELECT + INSERT + Push)-Round-Trips → Mega-Club-Storm.
+Nachher: ceil(N/100) sequenzielle Batches, je 1 Pref-Query (.in() ≤100 = unter PostgREST-Limit) + 1 Bulk-INSERT + Push-Loop. Bounded. Preferences + Push erhalten (via createNotificationsBatch).
+Scope-Out: True-Millionen in EINER Serverless-Invocation = Queue/Worker (eigener Slice).

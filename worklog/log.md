@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 342 | 2026-06-18 | fix(services): Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
+- Stage-Chain: SPEC (`worklog/specs/342-poll-notify-fanout-batching.md`, S) → IMPACT (skipped: 1 Service-File, kein Contract-Change) → BUILD → REVIEW (`worklog/reviews/342-review.md`, Cold-Context **PASS**, 2 NIT pre-existing) → PROVE (`worklog/proofs/342-vitest.txt`) → LOG.
+- Trigger: Anil „risiko schließen" → 339-Review-NIT#1 (Cap weg → `Promise.all` über alle Follower = Mega-Club-Concurrency-Storm).
+- Bau: Notify-Pfad in exportierten `notifyPollFollowers(...)` extrahiert; nutzt `fetchAllFollowerIds` (339) + benachrichtigt in **100er-Chunks** via bestehendem getesteten `createNotificationsBatch` (1 Pref-Query + 1 Bulk-INSERT + Push je Chunk). CHUNK=100 hält dessen `.in()` unter PostgREST-100-UUID-Limit. best-effort try/catch in IIFE erhalten. Kein neues Primitive (Reuse).
+- Verify: tsc clean · 11 Tests (Chunking 0/80/100/101/250 + Item-Shape + best-effort-throw) · 68/68 Regression (communityPolls+players) · grep: 0 Promise.all.
+- Effekt: N gleichzeitige Round-Trips → ceil(N/100) sequenzielle bounded Batches. Preferences + Push erhalten. Scope-Out: True-Millionen in 1 Serverless-Invocation = Queue/Worker (eigener Slice).
+- Backlog (Review-NIT#1): cross-user Batch-Notify nutzt notifText ohne locale → DE für alle (pre-existing seit 336); i18n-KEY-in-DB später.
+- Commit: <pending>
+
 ## 341 | 2026-06-18 | chore(db): auto_close_expired_bounties als getrackte Migration (AR-43)
 - Stage-Chain: SPEC (`worklog/specs/341-auto-close-bounties-tracked-migration.md`, XS) → IMPACT (skipped: 1 Funktion, kein Consumer-Change) → BUILD (Migration apply) → REVIEW (`worklog/reviews/341-review.md`, **self-review PASS**, Body byte-identisch) → PROVE (`worklog/proofs/341-rpc.txt`) → LOG.
 - Trigger: Anil „weiter" → letztes Original-Fixes-Cluster-Item, Handoff-Stolperfalle #3 / AR-43.
