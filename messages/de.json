@@ -2797,7 +2797,7 @@
     "ipoCreateError": "IPO konnte nicht erstellt werden.",
     "statusChangeError": "Status konnte nicht geändert werden.",
     "eventCancelConfirmTitle": "Event absagen?",
-    "eventCancelConfirmMsg": "Alle Teilnehmer-Einsätze werden erstattet und der Preis-Pool geht zurück in die Vereins-Treasury. Diese Aktion ist nicht umkehrbar.",
+    "eventCancelConfirmMsg": "Alle Teilnehmer-Einsätze werden erstattet und der Rewards-Pool geht zurück in die Vereins-Treasury. Diese Aktion ist nicht umkehrbar.",
     "eventCancelConfirmCta": "Ja, absagen",
     "eventCancelKeep": "Behalten",
     "eventCancelSuccess": "Event abgesagt — {count} Einsätze erstattet.",

@@ -61,6 +61,8 @@ vi.mock('@/components/ui', () => ({
   Chip: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <span data-testid="chip" className={className}>{children}</span>
   ),
+  AlertDialog: ({ open, title, onConfirm }: { open: boolean; title?: string; onConfirm?: () => void }) =>
+    open ? <div data-testid="alert-dialog" data-title={title}><button data-testid="alert-confirm" onClick={onConfirm}>OK</button></div> : null,
   Dialog: ({ open, children, title, onClose }: { open: boolean; children: React.ReactNode; title?: string; onClose?: () => void }) =>
     open ? <div data-testid="modal" data-title={title}><button data-testid="modal-close" onClick={onClose}>X</button>{children}</div> : null,
 }));
