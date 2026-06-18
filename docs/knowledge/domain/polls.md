@@ -1,18 +1,18 @@
 ---
 title: Polls & Community-Monetarisierung — Vereins-Geldmaschine (Kanon)
 created: 2026-06-17
-updated: 2026-06-17
+updated: 2026-06-18
 status: active
 tags: [polls, community, monetization, treasury, poll_revenue, discovery, follower, fan-rank]
 consult_when: Polls, Umfragen, poll_revenue, Verein→Treasury vs User→Wallet, Follower-Tor, Discovery, Identitätsgrenze Club-Admin, Bezug Verein/Spieler
-verified-against: .claude/rules/community.md @ 2026-06-17
+verified-against: .claude/rules/community.md @ 2026-06-17 · Code-Stand Slices 333-337+339 @ 2026-06-18
 ---
 
 # Polls & Community-Monetarisierung — Zielmodell (Kanon)
 
 > **Kanon (WIE):** Umfragen (Polls) als Vereins-Geldmaschine + Fan-Stimme, inkl. Discovery (Suche/Filter) und sozialer Schicht (Follower/Abo/Fan-Rang). **WARUM-Entscheidung:** `memory/decisions.md` **D86**. Strategie-Session 2026-06-17.
 >
-> **Status:** Zielbild — Vision geklärt, Bau offen. Referenz für alle künftigen Poll-/Discovery-Slices. **Beibezug Pflicht** (Anil: „darf nicht verloren gehen, wird unbedingt genutzt").
+> **Status (2026-06-18):** P1 Erstellung (Slice 333) + P2 Spieler-Bezug & Discovery (334) + P3 soziale Schicht Follower/Abo (336) + Fee 20/80 (337) **gebaut + live**. Offen: P3c Fan-Rang + P4 (Teilnehmer-Auszahl, §7). Referenz für alle künftigen Poll-/Discovery-Slices. **Beibezug Pflicht** (Anil: „darf nicht verloren gehen, wird unbedingt genutzt").
 >
 > **Geld-Richtung (zentral):** Polls sind eine **REIN-Mechanik** (Fan zahlt → Verein verdient → Treasury), NICHT „Verein belohnt Teilnahme". Querbezug: `domain/treasury.md` (REIN-Seite, Slices 329/330b).
 
@@ -35,10 +35,10 @@ Fans äußern überall ihre Meinung über Spieler/Vereine, aber **der Verein kan
 | Spur | Wer legt an | Im Namen von | Kosten Fan? | Geld an | Status heute |
 |------|-------------|--------------|-------------|---------|--------------|
 | **Gratis-Club-Vote** (`club_votes`) | Club-Admin | Verein | nein | niemand | ✅ existiert (`createVote`, `AdminVotesTab`) |
-| **Bezahlte Vereins-Umfrage** | **Club-Admin** | **Verein (offiziell)** | ja | **Vereins-Treasury** | ⚠️ Tabelle + Vote da, **Erstellung fehlt komplett** |
-| **Bezahlte User-Umfrage** | **User (ab Follower-Schwelle)** | **eigener Name** | ja | **User-Wallet** | ⚠️ Tabelle + Vote da, **Erstellung fehlt komplett** |
+| **Bezahlte Vereins-Umfrage** | **Club-Admin** | **Verein (offiziell)** | ja | **Vereins-Treasury** | ✅ **gebaut** (Slice 333: `create_community_poll` `source='club'` → `poll_revenue` REIN-Credit; UI `CreatePollButton`/`CreatePollModal` in AdminVotesTab) |
+| **Bezahlte User-Umfrage** | **User (ab 50 Followern)** | **eigener Name** | ja | **User-Wallet** | ✅ **gebaut** (Slice 333: `source='user'`, Follower-Tor 50; UI-Einstieg im Community-Feed) |
 
-**Current-State-Befund (verifiziert 2026-06-17):** `community_polls` kann **gelesen, abgestimmt (bezahlt, 80 % Creator / 20 % Plattform via `cast_community_poll_vote`, Slice 337), abgebrochen** werden — aber **es gibt KEINE Erstellung** (kein Service, keine RPC, keine UI). Die „Hülle ohne Tür". Einzige existierende Poll-Erstellung = Gratis-Club-Vote (Admin).
+**Current-State-Befund (verifiziert 2026-06-18):** `community_polls` ist voll funktional: **erstellbar** (Slice 333, `create_community_poll`, Quellen-Identität `source` club/user, Follower-Tor 50, Geld-Routing keyt auf `source`), **mit Spieler-Anker** (Slice 334, `player_id`), **abstimmbar** (bezahlt, 80 % Creator / 20 % Plattform via `cast_community_poll_vote`, Slice 337; Abo-2×-Gewicht Slice 336), **abbrechbar** (nur Creator, 0 Votes). Die „Hülle ohne Tür" ist geschlossen.
 
 ---
 
@@ -49,7 +49,7 @@ Fans äußern überall ihre Meinung über Spieler/Vereine, aber **der Verein kan
 - **Bezug (Tag) ≠ Urheberschaft.** Ein User darf eine Umfrage auf einen Verein/Spieler **beziehen** (Thema), aber **niemals „im Namen des Vereins" erstellen**.
 - **„Als der Verein auftreten"** (offiziell, Geld → Treasury) ist **nur verifiziertem Club-Admin** erlaubt.
 - Sonst: Fan könnte Vereins-Umfrage fälschen oder Geld in/aus der Treasury umleiten → **hart verriegeln** (gleiche Klasse wie Events-`type`-Quellenmodell + Bounty-Quellen, `domain/treasury.md` §7).
-- Heute fehlt das Feld, das „**offiziell vom Verein**" von „**User mit Vereins-Bezug**" unterscheidet (`community_polls` hat nur `created_by` + `club_id`).
+- ✅ **Gelöst (Slice 333):** `community_polls.source` ('club'|'user') unterscheidet „offiziell vom Verein" von „User mit Vereins-Bezug"; `create_community_poll` verriegelt server-seitig (nur Club-Admin darf `source='club'`), Geld-Routing keyt auf `source` (club→Treasury, user→Wallet).
 
 ---
 
@@ -58,7 +58,7 @@ Fans äußern überall ihre Meinung über Spieler/Vereine, aber **der Verein kan
 Eine Umfrage (analog Bounties / bezahlte Research/Paywalls) kann sich beziehen auf:
 - einen **Verein** (`club_id`), einen **Spieler** (`player_id`), oder **beides** (z. B. „Sollte Gala Spieler X holen?").
 
-**Heute:** `community_polls` hat nur `club_id`, **keinen `player_id`**. Bounties + Research tragen `player_id` bereits → Vorlage vorhanden.
+**✅ Gebaut (Slice 334):** `community_polls.player_id` (uuid NULL, FK players ON DELETE SET NULL) ergänzt; `create_community_poll` nimmt `p_player_id`, Picker in CreatePollModal, Spieler-Tag in CommunityPollCard.
 
 ---
 
@@ -69,7 +69,7 @@ Wenn es viele Umfragen, Polls und **Paywalls** (bezahlte Reports) gibt, müssen 
 
 **Beispiel:** Ein Gala-Fan tippt seinen Lieblings-Stürmer an → sieht **alle Umfragen + bezahlten Reports zu genau dem Spieler** (und/oder zu Gala).
 
-**Heute:** Community-Feed hat Typ-Filter (`all/posts/rumors/research/bounties/votes/news`) + Textsuche, aber **NICHT nach Spieler oder Verein**. → die zwei Anker (Verein + Spieler) fehlen als Filter-Achse.
+**✅ Gebaut (Slice 334):** Community-Feed hat jetzt eine **Anker-Chip-Leiste** (Verein- + Spieler-Anker aus dem pre-anchor-Set, §254-konform) die ALLE Feed-Typen filtert, + erweiterte Textsuche die Spieler-Name **und** Verein-Name über alle Typen matcht (live verifiziert 2026-06-18). Offen (P2b, Scope-Out): klickbare Card-Tags als Anker-Setzer + Einstieg von der Spieler-Detailseite.
 
 **Merksatz:** *Jeder Inhalt kriegt zwei Anker — welcher Verein, welcher Spieler — und über genau die kann gesucht/gefiltert werden.*
 
@@ -79,9 +79,9 @@ Wenn es viele Umfragen, Polls und **Paywalls** (bezahlte Reports) gibt, müssen 
 
 | Hebel | Rolle | Funktion | Status heute |
 |-------|-------|----------|--------------|
-| **Follower** (`club_followers`) | Reichweite (Lautsprecher) | **wer sieht es** + **Tor fürs User-Anlegen** (ab Schwelle) | existiert, bringt heute **NICHTS** |
-| **Abonnenten** (`club_subscriptions`) | Perks/Zugang | **doppeltes Stimmgewicht**, früherer/exklusiver Zugang | 2×-Gewicht nur bei **Gratis-Votes**, nicht bei Paid-Polls |
-| **Fan-Rang** (`fan_rankings`, *„evtl."*) | Treue-Status (Vereinsikonen) | Gewicht, exklusive Treue-Umfragen, **Anteil an Auszahlung** | existiert (6 Stufen), aber **fast wirkungslos** (CSF-Bonus entfernt) |
+| **Follower** (`club_followers`) | Reichweite (Lautsprecher) | **wer sieht es** + **Tor fürs User-Anlegen** (ab Schwelle) | ✅ **aktiv** — Follower-Tor 50 fürs User-Anlegen (333) + `poll_new`-Notification an ALLE Follower bei neuer Umfrage (336; Range-Loop gegen 1000-Cap, Slice 339) |
+| **Abonnenten** (`club_subscriptions`) | Perks/Zugang | **doppeltes Stimmgewicht**, früherer/exklusiver Zugang | ✅ **2×-Gewicht jetzt auch bei Paid-Polls** (336, `community_poll_votes.weight`; Gewicht skaliert NUR Tally, NICHT Geld). Offen: Early/exklusiver Zugang |
+| **Fan-Rang** (`fan_rankings`, *„evtl."*) | Treue-Status (Vereinsikonen) | Gewicht, exklusive Treue-Umfragen, **Anteil an Auszahlung** | ⚠️ existiert (6 Stufen), aber **fast wirkungslos** — **= P3c, noch offen** |
 
 **Beispiel (alle drei):** Gala startet „Welche Position verstärken?" → erreicht 35 Mio **Follower** → **Gold-Abos** stimmen mit 2× Gewicht / sehen zuerst → **Vereinsikonen** bekommen am Ende einen Anteil aus dem Topf.
 
@@ -101,39 +101,40 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 
 > Mehrere Slices. Reihenfolge-Vorschlag; jeder einzeln Money/CEO-Scope.
 
-**P1 — Poll-Erstellung („die fehlende Tür") + Quelle/Identität** *(Kern, ohne das geht nichts)*
-- [ ] `create_community_poll`-RPC + Service + Erstell-UI (Frage + 2–4 Optionen + Laufzeit).
-- [ ] **Autoritäts-/Quellen-Feld** (analog Events-`type`): „offiziell vom Verein" vs „User". Nur Club-Admin darf offiziell-vom-Verein anlegen.
-- [ ] **Geld-Routing:** offizielle Vereins-Umfrage → Creator-Anteil in die **Treasury** (REIN-Credit, neuer Ledger-Typ z. B. `poll_revenue`); User-Umfrage → User-Wallet (wie heute). **Achtung:** vorgehaltener Ledger-Typ `poll_reward` war als **DEBIT** (RAUS) gedacht (falsche Annahme) — Polls sind REIN; korrekten Credit-Typ einführen.
-- [ ] **Follower-Tor** fürs User-Anlegen (Schwelle TBD).
+**P1 — Poll-Erstellung („die fehlende Tür") + Quelle/Identität** ✅ **DONE (Slice 333)**
+- [x] `create_community_poll`-RPC + Service + Erstell-UI (Frage + 2–4 Optionen + Laufzeit).
+- [x] **Autoritäts-/Quellen-Feld** `source` (analog Events-`type`): „offiziell vom Verein" vs „User". Server-seitig verriegelt.
+- [x] **Geld-Routing:** Vereins-Umfrage → **Treasury** (REIN-Credit `poll_revenue`); User-Umfrage → User-Wallet. (Credit-Typ korrekt eingeführt, nicht der falsch angenommene `poll_reward`-DEBIT.)
+- [x] **Follower-Tor** fürs User-Anlegen (Schwelle = 50).
 
-**P2 — Bezug Spieler + Discovery**
-- [ ] `player_id` zu `community_polls` (zusätzlich zu `club_id`).
-- [ ] Filter/Suche **nach Verein + Spieler** über Polls **und** Paywalls (Research) — Feed-Filter erweitern.
+**P2 — Bezug Spieler + Discovery** ✅ **DONE (Slice 334)**
+- [x] `player_id` zu `community_polls`.
+- [x] Filter/Suche **nach Verein + Spieler** über alle Feed-Typen (Anker-Chip-Leiste + erweiterte Suche). Research trägt Anker bereits.
 
-**P3 — Soziale Schicht aktivieren**
-- [ ] **Follower** = Reichweite: Vereins-/Creator-Umfrage an Follower ausspielen/benachrichtigen.
-- [ ] **Abo-Perks bei Paid-Polls:** 2×-Gewicht / Early Access / exklusive Mitglieder-Umfragen.
-- [ ] **Fan-Rang** (evtl.): Treue-Gewicht / exklusive Treue-Umfragen / Auszahl-Gewichtung.
+**P3 — Soziale Schicht aktivieren** — Reichweite + Abo ✅ **DONE (Slice 336)**, Fan-Rang offen
+- [x] **Follower** = Reichweite: `poll_new`-Notification an alle Follower (Range-Loop Slice 339).
+- [x] **Abo-Perks bei Paid-Polls:** 2×-Gewicht (`community_poll_votes.weight`).
+- [ ] **P3c — Fan-Rang** (evtl.): Treue-Gewicht / exklusive Treue-Umfragen / Auszahl-Gewichtung. + Abo Early/exklusiver Zugang. **← nächstes offenes Poll-Stück.**
 
-**P4 — Auszahl-Idee an Teilnehmer** (offene Entscheidung §7: a/b/c).
+**P4 — Auszahl-Idee an Teilnehmer** — **VERWORFEN (Anil 2026-06-18):** Lotterie (a)/Prediction (b) = Glücksspiel-Risiko, Mini-Reward (c) nicht verfolgt. Nicht wieder aufmachen ohne neue Anil-Ansage.
 
 **Querbezug:** Hängt am **Club-Treasury** (`domain/treasury.md`, 329/330b — REIN-Seite) und an der **Fan-Reward-Engine** (`domain/treasury.md` §8). Identitäts-/Quellen-Verriegelung = gleiche Klasse wie Events-`type` (Slice 331) + 5-Quellen-Modell.
 
 ---
 
-## 9. Current-State-Inventar (verifiziert 2026-06-17)
+## 9. Current-State-Inventar (verifiziert 2026-06-18)
 
 | Baustein | Stand |
 |---|---|
-| `community_polls` Tabelle | ✅ (question, options JSONB, cost_bsd, creator_earned, ends_at, club_id, created_by, status, total_votes) — **kein player_id** |
-| Poll anzeigen (`CommunityPollCard`) | ✅ Frage + Optionen-Balken (% erst nach Vote) + Kosten + Status-Chips + Cancel |
-| Poll abstimmen (bezahlt) | ✅ `cast_community_poll_vote` (80/20, Slice 337), `communityPolls.ts` |
+| `community_polls` Tabelle | ✅ (question, options JSONB, cost_bsd, creator_earned, ends_at, club_id, created_by, status, total_votes, **`source`** [333], **`player_id`** [334]) |
+| Poll anzeigen (`CommunityPollCard`) | ✅ Frage + Optionen-Balken (% erst nach Vote) + Kosten + Status-Chips + Cancel + **Spieler-Tag** (334) |
+| Poll abstimmen (bezahlt) | ✅ `cast_community_poll_vote` (80/20, Slice 337) + **Abo-2×-Gewicht** (336, `community_poll_votes.weight`), `communityPolls.ts` |
 | Poll abbrechen | ✅ nur Creator, nur bei 0 Votes |
-| **Poll ERSTELLEN** | ❌ **fehlt komplett** (kein Service/RPC/UI) |
+| **Poll ERSTELLEN** | ✅ **`create_community_poll`** (333): `source` club/user, Follower-Tor 50, cost-Cap 1000 $SCOUT, Geld-Routing keyt auf `source`. UI `CreatePollModal`/`CreatePollButton` (2 Einstiege) + optionaler Spieler-Picker (334) |
 | Gratis-Club-Vote erstellen | ✅ `createVote` / `AdminVotesTab` (Admin), 2×-Gewicht Bronze+ |
-| Filter nach Verein/Spieler | ❌ (nur Typ-Filter + Textsuche) |
-| Follower-Funktion / Fan-Rang-Wirkung | ❌ (existieren, aber wirkungslos) |
+| Filter nach Verein/Spieler | ✅ **Anker-Chip-Leiste + Such-Match über alle Feed-Typen** (334), live verifiziert |
+| Follower-Reichweite / Abo-Gewicht | ✅ `poll_new`-Notification an alle Follower (336, Range-Loop 339) + Abo-2× bei Paid-Polls (336) |
+| Fan-Rang-Wirkung | ❌ existiert (6 Stufen), wirkungslos — **= P3c offen** |
 
 ---
 
