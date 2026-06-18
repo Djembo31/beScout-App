@@ -1,61 +1,60 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 00:11)
+# Session Handoff — Auto (2026-06-18 02:13)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
+?? worklog/audits/knowledge-2026-06-18.md
 ```
 
-## Session Commits: 7
+## Session Commits: 5
+- c4d24743 docs(proof): Slice 333 — AC-09 Live-Bestätigung nach Deploy (i18n-Fix live verifiziert)
+- 871ec47e fix(i18n): Slice 333 — admin.clubPollSection-Keys in korrekten Namespace (Live-QA-Find)
+- 5c674e3d feat(polls): Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor (Slice 333)
 - ab8b406e docs(session-end): Handoff Polls-P1-Fresh-Start + DISTILL Legacy-Retire-Triage
 - 0766987e chore(hygiene): E0-W3b — cortex-Trio retiren, Jarvis-Legacy abgewickelt
-- 86d27bed docs(log): E0-W3 LOG — Hygiene-Slice geloggt, active.md idle, TODO neu priorisiert
-- 4997531f chore(hygiene): E0-W3 — Binärmüll-Stop (.gitignore) + Root-Vault-Archivierung (16 stale Files)
-- 8cd83072 docs(session-end): DISTILL D90 (3-Schichten-Wissens-Kanon) + Handoff W3-fresh-start
-- 72b22fc0 docs(knowledge): E0-W2c — Wissens-Welle abgeschlossen (cortex abgelöst, Stubs weg, ~95 ephemere Files archiviert)
-- aa3bcbdd docs(knowledge): E0-W2b — Wissens-Basis migriert (18 Gold-Files → docs/knowledge/, 3-Schichten-Kanon)
 
 <!-- auto:handoff-end -->
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P1 — frisch, Money-Slice)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P2 — Spieler-Bezug + Discovery)
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen (`knowledge-*.md`/`wiring-*.md` untracked = ok). HEAD = E0-W3b `0766987e` oder neuer (DISTILL-Commit). `worklog/active.md` = idle. **E0 (Operating-System) ist faktisch FERTIG** — die nächste Session baut wieder Produkt/Geld.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen (`knowledge-*.md`/`wiring-*.md` untracked = ok). HEAD = Slice 333 (`5c674e3d`/`871ec47e`) oder neuer. `worklog/active.md` = idle. **Polls P1 (Slice 333) ist DONE + live bewiesen** — die Erstellungs-„Tür" steht; REIN-Geld-Routing (Vereins-Poll → Treasury `poll_revenue` / User-Poll → Wallet) keyt auf `community_polls.source`, force-rollback-Money-Smoke + Live-Playwright PASS.
 
-## ⚡ NÄCHSTES STÜCK = POLLS P1 („die fehlende Tür") — Money/CEO-Scope, SELBST bauen (Opus)
+## ⚡ NÄCHSTES STÜCK = POLLS P2 („auffindbar machen") — Spieler-Bezug + Discovery, KEIN Money-Path (leichter als P1)
 
-**Was & Warum:** `community_polls` kann gelesen/abgestimmt/abgebrochen werden, aber **es gibt KEINE Erstellung** (kein Service/RPC/UI) = „Hülle ohne Tür". Polls = **REIN-Geldmaschine** (Fan zahlt Vote → Verein/Creator verdient → Treasury), NICHT „Verein belohnt Teilnahme" (D86). Das ist das nächste große Geld-Stück nach den Treasury-RAUS-Kanälen (329-332).
+**Was & Warum:** Umfragen haben heute nur einen **Vereins-Bezug** (`club_id`), keinen **Spieler-Bezug** + keine **Discovery** (nur Typ-Filter + Textsuche). Ohne Filter/Suche nach Spieler/Verein ertrinken Polls + bezahlte Reports im Feed. Ziel (Canon §5): Fan tippt Lieblings-Spieler an → sieht ALLE Umfragen + Reports zu genau dem Spieler/Verein. Erst Discovery macht die P1-Geldmaschine auffindbar.
 
 **PFLICHT-LESE-REIHENFOLGE vor Spec:**
-1. **`docs/knowledge/domain/polls.md`** (Kanon, D86) — §2 drei Spuren, §3 Identitäts-Grenze, §8 P1-Roadmap, §9 Current-State-Inventar. **Das ist die Wahrheit, NICHT neu erarbeiten.**
-2. **`docs/knowledge/domain/treasury.md`** — REIN-Seite + Ledger-Pattern (Polls-Creator-Anteil → Treasury-Credit).
-3. **D87-Pflicht (Money):** Live-`pg_get_functiondef('cast_community_poll_vote')` + `community_polls`-Schema (`mcp__supabase`/`list_tables`) **VOR** dem Problem-Statement lesen — nicht aus Migrations-Files annehmen.
+1. **`docs/knowledge/domain/polls.md`** §5 (Discovery), §8 P2, §10 (Gesamtbild: alle Geldkanäle teilen die zwei Anker Spieler+Verein). **NICHT neu erarbeiten.**
+2. **`src/components/community/CommunityFeedTab.tsx`** — bestehende `ContentFilter` ('all/posts/rumors/research/bounties/votes/news') + case-insensitive Textsuche. P2 erweitert die Filter-Achse um **Spieler + Verein**.
+3. **`.claude/rules/community.md`** (autoload bei Edit) — Feed-Union-Type + Search-Pattern. `research_posts`/`bounties` tragen `player_id` bereits → Vorlage für `community_polls.player_id`.
 
-**Polls-P1-Scope (aus polls.md §8, jeder Punkt einzeln CEO/Money):**
-- [ ] `create_community_poll`-RPC + Service + Erstell-UI (Frage + 2–4 Optionen + Laufzeit).
-- [ ] **Autoritäts-/Quellen-Feld** (analog Events-`type`, Slice 331): „offiziell vom Verein" vs „User". Nur Club-Admin darf offiziell-vom-Verein anlegen (Identitäts-Grenze §3, sicherheitskritisch).
-- [ ] **Geld-Routing:** Vereins-Umfrage → Creator-Anteil als **REIN-Credit in die Treasury** (neuer Ledger-Typ `poll_revenue`); User-Umfrage → User-Wallet (wie heute). **⚠️ FALLE:** vorgehaltener Ledger-Typ `poll_reward` war als **DEBIT/RAUS** gedacht (falsche Annahme) — Polls sind REIN, korrekten **Credit**-Typ einführen.
-- [ ] **Follower-Tor** fürs User-Anlegen (Schwelle TBD = Anil-Frage).
+**Polls-P2-Scope (aus polls.md §8):**
+- [ ] `player_id` zu `community_polls` (zusätzlich zu `club_id`) — Migration + `DbCommunityPoll`-Type + optionaler Spieler-Tag im `CreatePollModal` (Slice 333). Research/Bounties = Vorlage.
+- [ ] Filter/Suche **nach Verein + Spieler** über Polls UND Paywalls (Research) — Feed-Filter-Achse + Discovery erweitern.
 
-**Money-Slice-Muster (bewährt 329-332) — anwenden:** Live-`pg_get_functiondef` VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag wenn editierbar) · Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · Grandfathering via `*_escrowed`-Flag · `pg_get_constraintdef` gegen CHECK-Drift · force-rollback-Smokes (DO + RAISE). **/impact ZUERST** (RPC+Schema-Change). **Compliance:** Wording user-facing (kein „gewinnen/Preis" — `business.md`), TR-i18n Anil-Review-pflichtig.
+**Muster:** Kein Money-Path → kein D87-Zwang, aber Schema-Change → **/impact ZUERST** (Consumer von `community_polls` + Feed-Union). UI/Service → Mobile 393px + DE/TR. Reviewer-Pflicht. **TR-Genauigkeit ist KEIN Commit-Blocker mehr** (Anil 2026-06-18: User korrigieren später; nur Compliance/`business.md` bleibt hart) — siehe Memory `feedback_tr_i18n_validation`.
 
 ## 💰 Money-SSOTs — NIE neu erarbeiten
 - **D83** → `docs/knowledge/domain/treasury.md` (WIE Treasury) · **D86** → `docs/knowledge/domain/polls.md` (WIE Polls). `memory/decisions.md` = WARUM. INDEX.md routet via `consult_when`.
 - Grundgrößen: 1 $SCOUT = 1 Cent · 1 SC = MV/100.000 € · Fee-Split Polls 30 % Platform / 70 % Creator (Vote heute via `cast_community_poll_vote`).
 
-## ✅ Diese Session (2026-06-17) — E0 Welle 3 abgeschlossen
-- **E0-W3** (`4997531f`/`86d27bed`): `.gitignore`-Binärstop + 16 verwaiste `memory/*.md` → `_archive/2026-06-17-w3` (root 58→42). KONSERVATIV (Gruppe B/C unangetastet). Reviewer PASS.
-- **E0-W3b** (`0766987e`): cortex-Trio retired — `morning-briefing.sh` + Commands `/done`/`/status`/`/switch` + 3 tote Memory-Files weg; inject-context/pattern-check entkernt. Reviewer PASS. Lehre → `errors-infra.md` (Legacy-Retire-Triage).
-- **DISTILL:** Infra-Lesson „Legacy-Tooling retiren: erst klassifizieren, dann löschen" → `errors-infra.md` (kein neues D — geplante Hygiene-Ausführung).
+## ✅ Diese Session (2026-06-18) — Slice 333 Polls P1 (DONE + live)
+- **Slice 333** (`5c674e3d` feat + `871ec47e` i18n-fix): Polls-Erstellung gebaut (L, Money/CEO). Migration (`community_polls.source` + ledger-CHECK `poll_revenue` + `create_community_poll` + `cast_community_poll_vote` Geld-Branch + `get_club_balance`) · Service · UI (`CreatePollModal`/`CreatePollButton`, 2 Einstiege) · i18n DE+TR. Anil-Entscheidungen: volles P1 · Follower-Tor 50 · cost-Cap 1000 $SCOUT · Routing keyt auf `source` (nicht club_id).
+- **Verify:** force-rollback-Money-Smoke live PASS (club→Treasury+700/0 poll_earn, user→Wallet+700/0 Treasury, 8 Guards) · Reviewer PASS (NIT#1 Defense-in-Depth-Guard inline gefixt) · vitest 5/5 + 93/93 Regression · **Live-Playwright** (Modal + Follower-Tor + i18n-Fix re-bestätigt nach Deploy).
+- **Live-QA-Find + Fix:** i18n-Keys `admin.clubPollSection*` standen im falschen Namespace-Objekt → roher Key im UI. Verschoben (de+tr), live bestätigt. Lehre → `errors-frontend.md` (grep-Audit verpasst falschen Namespace; node-Check + Live-Console-MISSING_MESSAGE-Scan Pflicht).
+- **Prozess-Änderungen (→ Memory):** Teaching-Mode gilt DURCHGEHEND beim Bauen, nicht nur an Forks (`feedback_teaching_mode`). TR-Genauigkeit ist kein Commit-Blocker mehr, nur Compliance hart (`feedback_tr_i18n_validation`).
+- **DISTILL:** kein neues `D<n>` — Slice 333 ist Ausführung von D86 (Kanon `polls.md`); Money-Architektur/Wording bereits dort + im Spec erfasst. Code-Lehre → `errors-frontend.md`. Prozess-Feedbacks → User-Memory.
 
 ## ⚠️ STOLPERFALLEN / BACKLOG
 1. **API-Football-Key gesperrt** — blockiert players.club + Live-Scores (Polls braucht ihn NICHT).
 2. **events.status CHECK kennt kein 'cancelled'** → UI-„Absagen" broken → eigener Slice (Cancel + CHECK + Event-Prize-Refund-Zweig).
 3. **bounty reward_cents-Max-Drift** (CHECK 100k vs RPC-Text 1M $SCOUT) + **`auto_close_expired_bounties` ohne getrackte Migration** (AR-43) → Backlog.
-4. **TR-i18n Anil-Review-pflichtig:** successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin (frühere Session geschrieben, ungeprüft).
+4. **TR-i18n (Genauigkeit kein Blocker mehr, 2026-06-18):** offene unidiomatik-Kandidaten (successFee, eventPrizeTreasuryInsufficient, bountyTreasuryInsufficient, bountyNotClubAdmin, Polls-`pollErr*`/`createPoll*`) — User-korrigieren später; nur Compliance prüfen, kein Anil-Review-Stopp.
 5. **E0-Reste (LOW, optional):** W3-Teil-2 Root-Vault-Notizen (`wiki-*.md`, `_HOME.md` + ~20 weitere stale root-`memory/*.md`) noch nicht archiviert · W4 Historie-Rewrite (`git filter-repo`, mit Backup, separat) · `patterns.md`/`errors.md`-Dup (W2b-#5) · `audit-knowledge.ts` Orphan-Pfad-Härtung. Kein Blocker für Polls.
 6. **Audit-Churn** (`worklog/audits/*`) — NIE committen. **session-handoff.md** = committen OK.
