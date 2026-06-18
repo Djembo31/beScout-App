@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 344 | 2026-06-18 | feat(gamification): Fan-Rang-Leiter sichtbar + Perk-Katalog (E1.1)
+- Stage-Chain: SPEC (`worklog/specs/344-fanrank-ladder-perk-catalog.md`, M, UI, CTO) → IMPACT (skipped: reine UI, 1 Consumer, kein RPC/Schema/Query-Key) → BUILD → REVIEW (`worklog/reviews/344-review.md`, Cold-Context **PASS**, 2 NIT non-blocking) → PROVE (`344-vitest.txt` + `344-ladder-desktop.png` + `344-ladder-393px.png` + `344-live-verify.md`) → LOG.
+- Trigger: Anil-Wahl → Fan-Reward-Engine (E1, Treasury §8). Design-Alignment 2026-06-18: Perks-first, Follow zählt (E1.2), csf_multiplier raus, Plattform-Default zuerst, Welt-1 raus. Erster Slice E1.1 = Leiter sichtbar.
+- Bau: `fanRankPerks.ts` (Perk-Katalog SSOT, **Mirror** `cast_community_poll_vote`/343 + Drift-Regression-Test) · `FanRankLadder.tsx` (6-Stufen-Leiter, aktuelle Stufe, Fortschritt zur nächsten, Perk je Stufe, rendert auch ohne Rang) · `FanRankOverview.tsx` Einbau (Haupt-View + Empty-State) · `gamification`-i18n DE+TR (5 Keys, namespace-geprüft) · Vitest 6/6. **Keine DB/Geld-Formel.** csf_multiplier bewusst NICHT gesurfaced (D83).
+- Verify (live bescout.net, post-Deploy `4afd47e6`): Leiter rendert, Poll-Gewicht exakt (Ultra/Legende 2×, Ehren/Ikone 3×, sonst 1×), Fortschritt „Noch 10 bis Stammgast", AKTUELL-Marker, 0px Overflow @393px, kein MISSING_MESSAGE. tsc clean, alle Pre-Commit-Gates grün.
+- Commit: `4afd47e6` (Code) + Proof-Artefakte separat.
+- Nächstes E1: E1.2 Follow→fan_rank-Signal (Migration, /impact, Money-nah).
+
 ## 343 | 2026-06-18 | feat(db): Polls P3c — Fan-Rang → Stimmgewicht (MAX mit Abo-Floor)
 - Stage-Chain: SPEC (`worklog/specs/343-poll-fanrank-vote-weight.md`, S, CEO-approved) → IMPACT (skipped: 1 RPC, kein neuer Consumer, Return-Shape unverändert) → BUILD (Migration apply) → REVIEW (`worklog/reviews/343-review.md`, Cold-Context **PASS**, 2 NITPICK byte-Identität) → PROVE (`worklog/proofs/343-rpc.txt`) → LOG.
 - Trigger: Anil „1" → letztes Poll-Feature. Scope-Entscheid via AskUserQuestion: NUR (a) Stimmgewicht (b/c verworfen für diesen Slice, d tot weil P4 verworfen).

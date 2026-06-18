@@ -1,15 +1,15 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 344
-title: E1.1 — Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default)
-stage: PROVE
+title: ✅ DONE — E1.1: Fan-Rang-Leiter sichtbar + Perk-Katalog (Plattform-Default)
+stage: LOG complete
 size: M
 slice-type: UI
 spec: worklog/specs/344-fanrank-ladder-perk-catalog.md
-impact: pending
-proof: pending
+impact: skipped (reine UI, 1 Consumer, kein RPC/Schema/Query-Key)
+proof: worklog/proofs/344-live-verify.md (+ desktop/393px PNG + vitest)
 review: worklog/reviews/344-review.md (PASS, 2 NIT non-blocking)
 ```
 
