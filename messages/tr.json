@@ -4957,6 +4957,8 @@
     "bountyFallbackTitle": "Görev",
     "eventNewTitle": "Yeni Fantezi Etkinlik!",
     "eventNewBody": "\"{name}\" — Şimdi kaydol ve katıl!",
+    "pollNewTitle": "Yeni anket",
+    "pollNewBody": "\"{name}\" — Şimdi oyunu kullan!",
     "eventStartedTitle": "Etkinlik başladı!",
     "eventStartedBody": "{name} şimdi canlı — puanlar sayılıyor!",
     "eventFallbackName": "Bir etkinlik",

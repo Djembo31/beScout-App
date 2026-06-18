@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 336 | 2026-06-18 | feat(polls): Polls P3 — Follower-Reichweite + Abo-2×-Gewicht bei Paid-Polls
+- Stage-Chain: SPEC (`worklog/specs/336-polls-p3-social-layer.md`, L, Money-near/CEO „Reichweite+Abo-2×, Fan-Rang deferred") → IMPACT (Spec §3) → BUILD → REVIEW (`worklog/reviews/336-review.md`, Cold-Context **PASS**, 2 NIT) → PROVE (`worklog/proofs/336-proof.md`) → LOG.
+- Trigger: Anil „2 dann 1" → Polls-Roadmap D86 §6/§8 (soziale Schicht).
+- Bau: **Migration** `community_poll_votes.weight` (smallint default 1) · **`cast_community_poll_vote`** +Abo-Gewicht (Port aus cast_vote: club_subscriptions active+expires>now → weight=2; nur bei club_id; Tally `+v_weight`, total_votes `+v_weight`; **Geld-Branches byte-identisch** zu Live/333) · `notifications_type_check` +'poll_new'. **Service** createCommunityPoll → Follower-Notify (best-effort: Club-Poll→club_followers, User-Poll→user_follows). **Type** NotificationType +'poll_new'. **Render** NotificationDropdown Icon(Megaphone)+Color + TYPE_TO_CATEGORY('social'). **i18n** notifTemplates pollNew de+tr.
+- **Money-Sicherheit:** Gewicht skaliert NUR Tally/total_votes, NICHT Geld — Money-Smoke (Rollback): Abonnent weight=2 (option+2) aber wallet −1000 (=cost, nicht 2000), creator_share 700; Nicht-Abo weight=1. poll_new-Notification Live-INSERT OK. AR-44. vitest 8 + tsc clean. Reviewer Byte-Vergleich 333↔336 = Geld-Branches identisch.
+- Offen: Live-Playwright (Abo-2× in UI sichtbar) gated. Backlog: Follower-Notify `.limit()` bei Mega-Clubs (NIT#2, = createEvent-Parität).
+
 ## 335 | 2026-06-18 | fix(events): Event-Absage geld-sicher — cancel_event-RPC + CHECK +'cancelled' + Prize-Refund-Zweig
 - Stage-Chain: SPEC (`worklog/specs/335-event-cancel-money-safe.md`, L, Money/CEO „voll geld-sicher") → IMPACT (in Spec §3) → BUILD → REVIEW (`worklog/reviews/335-review.md`, Cold-Context **CONCERNS→geheilt**) → PROVE (`worklog/proofs/335-proof.md`) → LOG.
 - Trigger: Anil „2 dann 1" → Backlog-Stolperfalle #2. `events_status_check` kannte kein 'cancelled' → „Absagen"-Knopf broken (23514). Slice 331 §3 hatte den Refund-Zweig hierher vorgesehen.

@@ -1,16 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 03:25)
+# Session Handoff — Auto (2026-06-18 04:02)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
 ?? worklog/audits/knowledge-2026-06-18.md
 ```
 
-## Session Commits: 10
+## Session Commits: 9
+- 24835a40 fix(events): Event-Absage geld-sicher — cancel_event-RPC + CHECK +'cancelled' + Prize-Refund-Zweig (Slice 335)
 - 3a7d0ceb docs(session-end): Slice 334 Polls P2 abgeschlossen — Handoff-Anker auf P3/events-cancel
 - be13be1a docs(proof): Slice 334 — Live-Bestätigung nach Deploy (Anker-Filter + Suche + i18n live verifiziert)
 - 1dc4dddb docs(log): Slice 334 — Polls P2 geloggt (player_id-Anker + Discovery)
@@ -19,8 +19,6 @@
 - c4d24743 docs(proof): Slice 333 — AC-09 Live-Bestätigung nach Deploy (i18n-Fix live verifiziert)
 - 871ec47e fix(i18n): Slice 333 — admin.clubPollSection-Keys in korrekten Namespace (Live-QA-Find)
 - 5c674e3d feat(polls): Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor (Slice 333)
-- ab8b406e docs(session-end): Handoff Polls-P1-Fresh-Start + DISTILL Legacy-Retire-Triage
-- 0766987e chore(hygiene): E0-W3b — cortex-Trio retiren, Jarvis-Legacy abgewickelt
 
 <!-- auto:handoff-end -->
 

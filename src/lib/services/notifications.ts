@@ -30,6 +30,7 @@ const TYPE_TO_CATEGORY: Record<NotificationType, NotificationCategory | 'system'
   follow: 'social',
   reply: 'social',
   poll_vote: 'social',
+  poll_new: 'social',
   research_unlock: 'social',
   research_rating: 'social',
   post_upvoted: 'social',

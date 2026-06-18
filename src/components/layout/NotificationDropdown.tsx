@@ -21,6 +21,7 @@ function getNotifIcon(type: NotificationType) {
     case 'follow': return <UserPlus className="size-4" />;
     case 'fantasy_reward': return <Trophy className="size-4" />;
     case 'poll_vote': return <Vote className="size-4" />;
+    case 'poll_new': return <Megaphone className="size-4" />;
     case 'reply': return <MessageCircle className="size-4" />;
     case 'bounty_submission': return <Target className="size-4" />;
     case 'bounty_approved': return <CheckCircle className="size-4" />;
@@ -64,6 +65,7 @@ function getNotifColor(type: NotificationType): string {
     case 'follow': return 'text-green-500 bg-green-500/10';
     case 'fantasy_reward': return 'text-gold bg-gold/10';
     case 'poll_vote': return 'text-amber-400 bg-amber-400/10';
+    case 'poll_new': return 'text-amber-400 bg-amber-400/10';
     case 'reply': return 'text-sky-400 bg-sky-400/10';
     case 'trade': return 'text-gold bg-gold/10';
     case 'bounty_submission': return 'text-amber-400 bg-amber-400/10';

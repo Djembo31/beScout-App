@@ -87,6 +87,32 @@ export async function createCommunityPoll(params: CreateCommunityPollParams): Pr
     logActivity(params.userId, 'poll_create', 'community', { pollId: result.poll_id, question: params.question });
   }).catch(err => console.error('[Polls] Activity log failed:', err));
 
+  // Slice 336 (P3a Reichweite): Follower über neue Umfrage benachrichtigen (best-effort, wie createEvent).
+  // Club-Poll → Club-Follower (club_followers); User-Poll → eigene Follower (user_follows.following_id=Creator).
+  const pollId = result.poll_id;
+  (async () => {
+    try {
+      let followerIds: string[] = [];
+      if (params.source === 'club' && params.clubId) {
+        const { data, error } = await supabase.from('club_followers').select('user_id').eq('club_id', params.clubId);
+        if (error) throw new Error(error.message);
+        followerIds = (data ?? []).map(r => r.user_id);
+      } else if (params.source === 'user') {
+        const { data, error } = await supabase.from('user_follows').select('follower_id').eq('following_id', params.userId);
+        if (error) throw new Error(error.message);
+        followerIds = (data ?? []).map(r => r.follower_id);
+      }
+      if (followerIds.length > 0) {
+        const { createNotification } = await import('@/lib/services/notifications');
+        const { notifText } = await import('@/lib/notifText');
+        const snippet = params.question.slice(0, 60);
+        await Promise.all(followerIds.map(uid =>
+          createNotification(uid, 'poll_new', notifText('pollNewTitle'), notifText('pollNewBody', { name: snippet }), pollId, 'poll'),
+        ));
+      }
+    } catch (err) { console.error('[Polls] follower notify failed:', err); }
+  })();
+
   return result.poll_id;
 }
 

@@ -4957,6 +4957,8 @@
     "bountyFallbackTitle": "Auftrag",
     "eventNewTitle": "Neues Fantasy Event!",
     "eventNewBody": "\"{name}\" — Jetzt anmelden und mitspielen!",
+    "pollNewTitle": "Neue Umfrage",
+    "pollNewBody": "\"{name}\" — Jetzt deine Stimme abgeben!",
     "eventStartedTitle": "Event gestartet!",
     "eventStartedBody": "{name} ist jetzt live — die Punkte zählen!",
     "eventFallbackName": "Ein Event",
