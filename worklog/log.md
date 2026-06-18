@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 341 | 2026-06-18 | chore(db): auto_close_expired_bounties als getrackte Migration (AR-43)
+- Stage-Chain: SPEC (`worklog/specs/341-auto-close-bounties-tracked-migration.md`, XS) → IMPACT (skipped: 1 Funktion, kein Consumer-Change) → BUILD (Migration apply) → REVIEW (`worklog/reviews/341-review.md`, **self-review PASS**, Body byte-identisch) → PROVE (`worklog/proofs/341-rpc.txt`) → LOG.
+- Trigger: Anil „weiter" → letztes Original-Fixes-Cluster-Item, Handoff-Stolperfalle #3 / AR-43.
+- Befund: `auto_close_expired_bounties()` existierte live (vom Cron `close-expired-bounties/route.ts` genutzt), aber in KEINER Migration (grep 0 Treffer) → `db reset`/Greenfield hätte sie verloren.
+- Bau: Migration `20260618220000` mit Live-Body 1:1 (locked_balance-Release-Loop + Close-UPDATE, FOR UPDATE) + AR-44. Applied (idempotent), body_intact + anon=false/auth=true verifiziert. Kein Behavior-Change.
+- Commit: <pending>
+
 ## 340 | 2026-06-18 | fix(db): create_user_bounty Reward-Guard an bounties_reward_cents_check angleichen (Money-RPC)
 - Stage-Chain: SPEC (`worklog/specs/340-bounty-reward-guard-alignment.md`, S, Money/CEO) → IMPACT (skipped: 1 RPC, kein neuer Consumer) → BUILD (Migration apply) → REVIEW (`worklog/reviews/340-review.md`, Cold-Context **PASS**, 2 NIT pre-existing) → PROVE (`worklog/proofs/340-rpc.txt`) → LOG.
 - Trigger: Anil „backlog und die offenen fixes zuerst" → Handoff-Stolperfalle #3. CEO-Wert-Entscheid: Max 1.000 $SCOUT (CHECK gewinnt).

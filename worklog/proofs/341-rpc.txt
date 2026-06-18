@@ -1,0 +1,25 @@
+Slice 341 — auto_close_expired_bounties als getrackte Migration (AR-43) — PROOF
+(live, project skzjfhvgccaeplydsunz, 2026-06-18)
+
+## AC-01 — Migration-Datei vollständig (kein Stub)
+supabase/migrations/20260618220000_slice_341_track_auto_close_bounties.sql
+  vollständiger CREATE OR REPLACE-Body (locked_balance-Release-Loop + Close-UPDATE) + AR-44-Block.
+
+## Ausgangslage (AR-43 bestätigt)
+grep auto_close_expired_bounties in supabase/migrations/ VORHER = 0 Treffer
+  → Funktion live, aber ungetrackt; vom Cron src/app/api/cron/close-expired-bounties/route.ts genutzt.
+  → db reset / Greenfield hätte sie verloren.
+
+## AC-02 — Body byte-identisch nach Apply (kein Behavior-Change)
+apply_migration → {success: true}
+body_intact (locked_balance GREATEST-Release + status='open' AND deadline_at<now() + FOR UPDATE) = true
+  → identisch zur Pre-Apply Live-Baseline (pg_get_functiondef @ 2026-06-18).
+
+## AC-03 — AR-44 Grants
+has_function_privilege('anon','EXECUTE')          = false
+has_function_privilege('authenticated','EXECUTE') = true
+  → wie vor Apply (Cron via service_role bypassed RLS/Grants ohnehin).
+
+## Ergebnis
+Funktion jetzt in getrackter Migration + Registry. Greenfield/db reset recreated sie korrekt.
+Reines Tracking — kein Logik-/Schedule-Change.

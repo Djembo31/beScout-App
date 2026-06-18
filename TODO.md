@@ -14,7 +14,7 @@
 - **Notify-Fan-out-Batching** (NEU, 339-Review-NIT#1): Follower-Notify `Promise.all` ist jetzt — da Cap weg — bei Mega-Club ein Concurrency-Storm. Vor echtem Galatasaray-Launch in Chunks (500er) oder serverseitige Fan-out-RPC. Eigener Slice.
 - ~~`polls.md` §9 Current-State-Refresh~~ — **erledigt 2026-06-18** (§2-§9 auf Code-Stand 333-339).
 - ~~bounty `reward_cents`-Max-Drift~~ — **erledigt Slice 340** (RPC-Guard an CHECK 500–100.000 angeglichen, Anil: Max 1.000 $SCOUT; Reviewer PASS).
-- **Offen:** `auto_close_expired_bounties` als getrackte Migration (AR-43) — live functiondef → Migration-File ziehen.
+- ~~`auto_close_expired_bounties` getrackte Migration (AR-43)~~ — **erledigt Slice 341** (live functiondef → Migration `20260618220000`, byte-identisch, applied). **→ Fixes-Cluster komplett.**
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt).
 
 ## 🟢 P2 — Backlog

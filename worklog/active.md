@@ -2,21 +2,20 @@
 
 ```
 status: idle
-slice: 340
-title: ✅ DONE — create_user_bounty Reward-Guard an CHECK angleichen (Money-RPC)
+slice: 341
+title: ✅ DONE — auto_close_expired_bounties als getrackte Migration (AR-43)
 stage: LOG complete
-spec: worklog/specs/340-bounty-reward-guard-alignment.md
-impact: skipped (1 RPC, kein neuer Consumer, Return-Shape unverändert)
-proof: worklog/proofs/340-rpc.txt
-review: worklog/reviews/340-review.md
+spec: worklog/specs/341-auto-close-bounties-tracked-migration.md
+impact: skipped (1 Funktion, kein Consumer-Change, Body byte-identisch)
+proof: worklog/proofs/341-rpc.txt
+review: worklog/reviews/341-review.md
 ```
 
 ## Zuletzt
-- **Slice 339** (2026-06-18) — PostgREST-1000-Cap-Härtung (S). Reviewer PASS, 9/9 + 62/62.
-- **polls.md §2-§9 Refresh** (2026-06-18) — Current-State-Drift geheilt (333-339 als gebaut markiert).
-- **Slice 340** (2026-06-18) — Bounty-Reward-Guard an CHECK angeglichen (S, Money). Reviewer PASS, Boundary-Smoke grün.
+- **Slice 340** (2026-06-18) — Bounty-Reward-Guard an CHECK (S, Money). Reviewer PASS.
+- **Slice 341** (2026-06-18) — auto_close_expired_bounties getrackt (XS, AR-43). Self-Review PASS.
+- **Fixes-Cluster (Anil „backlog…zuerst") KOMPLETT:** 339 .limit() · polls.md-Refresh · 340 Bounty-Guard · 341 AR-43.
 
-## Danach (offene Fixes-Cluster, Anil 2026-06-18)
-- **auto_close_expired_bounties** als getrackte Migration (AR-43) — live functiondef → Migration-File ziehen.
+## Danach
 - **Notify-Fan-out-Batching** (339-Review-NIT#1): `Promise.all` über alle Follower → Mega-Club-Concurrency-Storm. Chunks/Fan-out-RPC.
-- Dann: Polls P3c Fan-Rang / E0-W4 (Historie).
+- **Polls P3c Fan-Rang** (letztes Polls-Feature) · **E0-W4** (Historie git filter-repo).
