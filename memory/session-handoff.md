@@ -1,16 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 02:13)
+# Session Handoff — Auto (2026-06-18 02:40)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
  M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
 ?? worklog/audits/knowledge-2026-06-18.md
+?? worklog/specs/334-polls-p2-player-anchor-discovery.md
 ```
 
-## Session Commits: 5
+## Session Commits: 6
+- ae0dec87 docs(session-end): Slice 333 abgeschlossen — Handoff/TODO/MASTERPLAN auf Polls P2 vorbereitet
 - c4d24743 docs(proof): Slice 333 — AC-09 Live-Bestätigung nach Deploy (i18n-Fix live verifiziert)
 - 871ec47e fix(i18n): Slice 333 — admin.clubPollSection-Keys in korrekten Namespace (Live-QA-Find)
 - 5c674e3d feat(polls): Polls P1 — Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor (Slice 333)

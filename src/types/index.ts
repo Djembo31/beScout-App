@@ -1034,6 +1034,7 @@ export type DbCommunityPoll = {
   starts_at: string;
   ends_at: string;
   club_id?: string | null;
+  player_id?: string | null;  // Slice 334: optionaler Spieler-Anker (Discovery), zusätzlich zu club_id
   source: CommunityPollSource;  // Slice 333: 'club' = offiziell (Geld→Treasury), 'user' = Geld→Wallet
   created_at: string;
 };
@@ -1051,6 +1052,7 @@ export type CreateCommunityPollParams = {
   source: CommunityPollSource;
   clubId?: string | null; // Pflicht wenn source='club'; optionaler Bezug wenn 'user'
   description?: string | null;
+  playerId?: string | null; // Slice 334: optionaler Spieler-Anker (Discovery)
 };
 
 export type DbCommunityPollVote = {
@@ -1068,6 +1070,8 @@ export type CommunityPollWithCreator = DbCommunityPoll & {
   creator_handle: string;
   creator_display_name: string | null;
   creator_avatar_url: string | null;
+  player_name?: string | null;       // Slice 334: aufgelöster Spieler-Name (Anzeige + Discovery-Suche)
+  player_position?: string | null;   // Slice 334: aufgelöste Position (Tag-Farbe)
 };
 
 // ============================================

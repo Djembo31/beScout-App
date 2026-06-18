@@ -29,13 +29,33 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
 
     const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
 
+    // Slice 334: Spieler-Namen auflösen (für Anzeige + Discovery-Suche). Max 50 Polls → max 50 ids, kein Chunking.
+    const playerIds = Array.from(new Set(polls.map(p => p.player_id).filter((id): id is string => !!id)));
+    const playerMap = new Map<string, { name: string; position: string | null }>();
+    if (playerIds.length > 0) {
+      const { data: players, error: plErr } = await supabase
+        .from('players')
+        .select('id, first_name, last_name, position')
+        .in('id', playerIds);
+      if (plErr) throw new Error(plErr.message);
+      for (const pl of players ?? []) {
+        playerMap.set(pl.id, {
+          name: `${pl.first_name ?? ''} ${pl.last_name ?? ''}`.trim(),
+          position: pl.position ?? null,
+        });
+      }
+    }
+
     return polls.map(poll => {
       const creator = profileMap.get(poll.created_by);
+      const player = poll.player_id ? playerMap.get(poll.player_id) : undefined;
       return {
         ...poll,
         creator_handle: creator?.handle ?? 'unknown',
         creator_display_name: creator?.display_name ?? null,
         creator_avatar_url: creator?.avatar_url ?? null,
+        player_name: player?.name ?? null,
+        player_position: player?.position ?? null,
       };
     });
 }
@@ -56,6 +76,7 @@ export async function createCommunityPoll(params: CreateCommunityPollParams): Pr
     p_source: params.source,
     p_club_id: params.clubId ?? null,
     p_description: params.description ?? null,
+    p_player_id: params.playerId ?? null,
   });
   if (error) throw new Error(error.message);
   const result = data as { success: boolean; error?: string; poll_id?: string };

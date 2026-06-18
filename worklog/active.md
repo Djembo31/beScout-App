@@ -1,28 +1,32 @@
 # Active Slice
 
 ```
-status: idle
-slice: 333
-title: ✅ DONE — Polls P1 (Erstellung + Quellen-Identität + Treasury-REIN-Routing + Follower-Tor)
-stage: LOG complete
-commit: 5c674e3d (pushed origin/main)
+status: active
+slice: 334
+title: Polls P2 — player_id-Bezug + Discovery (Anker-Filter Verein/Spieler)
+stage: LOG
+spec: worklog/specs/334-polls-p2-player-anchor-discovery.md
+impact: worklog/impact/334-polls-p2-player-anchor.md
+proof: worklog/proofs/334-proof.md
+review: worklog/reviews/334-review.md
 ```
 
 ## Zuletzt
 
-- **Slice 333** (2026-06-18) — Polls P1 (L, Money/CEO). Reviewer PASS (NIT#1 Defense-in-Depth gefixt). `community_polls` jetzt erstellbar (war „Hülle ohne Tür"). Geld-Routing keyt auf `source` ('club'→Treasury `poll_revenue` / 'user'→Wallet). Force-Rollback-Money-Smoke live PASS.
-- **E0-W3b** (2026-06-17) — cortex-Trio retired (Hygiene).
+- **Slice 333** (2026-06-18) — Polls P1 (L, Money/CEO). PASS. `community_polls` erstellbar, Geld-Routing keyt auf `source`.
+- **Slice 334** (2026-06-18) — Polls P2 (L, KEIN Money-Path). Scope: Anker-Filter-Chips + alle Typen (Anil-Freigabe). IMPACT: MitmachenSection = safe (optional-Feld), Picker Modal-intern.
 
-## Offen aus Slice 333 (post-Deploy / Anil)
-1. **AC-09 Mobile-Playwright** gegen bescout.net (CreatePollModal beide Pfade, 393px) — erst NACH Vercel-Deploy.
-2. **TR-Strings Anil-Review** (feedback_tr_i18n_validation) — Poll-Create-Wording DE+TR geschrieben, ungeprüft. Kernstrings: createPollTitle/createClubPollTitle/pollFollowerGateHint.
+## Plan (BUILD-Reihenfolge)
+
+1. Migration: player_id-Spalte + create_community_poll (9-arg) + REVOKE/GRANT.
+2. Types: DbCommunityPoll.player_id, CreateCommunityPollParams.playerId, CommunityPollWithCreator.player_name/player_position.
+3. Service: createCommunityPoll (p_player_id) + getCommunityPolls (player-name-resolve).
+4. CreatePollModal: optionaler Spieler-Picker (usePlayerNames intern).
+5. CommunityFeedTab: Suche erweitern (player+club) + Anker-Chip-Leiste.
+6. CommunityPollCard: optionaler Spieler-Tag.
+7. i18n de+tr (community-Namespace).
+8. Tests anpassen.
 
 ## Nächstes Money-Stück (Polls-Roadmap, D86 §8)
-- **P2** — `player_id`-Bezug + Discovery (Filter Verein/Spieler über Polls + Paywalls).
 - **P3** — soziale Schicht (Follower-Reichweite, Abo-2×-Gewicht bei Paid-Polls, Fan-Rang).
 - **P4** — Auszahl-Idee an Teilnehmer (offen, §7).
-- Daneben: Fan-Reward-Engine (treasury.md §8) · events.status 'cancelled'-Fix (Backlog-Stolperfalle).
-
-## Money-SSOTs (NIE neu erarbeiten)
-- Polls (D86, REIN): `docs/knowledge/domain/polls.md`. Treasury (D83): `docs/knowledge/domain/treasury.md`.
-- Ledger-REIN-Helper: `book_club_treasury(club_id, direction, type, amount, ref, desc)` (Slice 329). Poll-Credit-Typ = `poll_revenue`.

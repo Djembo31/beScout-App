@@ -18,8 +18,19 @@ describe('createCommunityPoll', () => {
     expect(mockSupabase.rpc).toHaveBeenCalledWith('create_community_poll', {
       p_user_id: 'u1', p_question: 'Frage?', p_options: ['A', 'B'],
       p_cost_bsd: 500, p_duration_days: 7, p_source: 'club',
-      p_club_id: 'c1', p_description: null,
+      p_club_id: 'c1', p_description: null, p_player_id: null,
     });
+  });
+
+  it('maps playerId to p_player_id when set (Slice 334 anchor)', async () => {
+    mockRpc('create_community_poll', { success: true, poll_id: 'p3' });
+    await createCommunityPoll({
+      userId: 'u6', question: 'Q?', options: ['A', 'B'],
+      costBsd: 0, durationDays: 7, source: 'user', playerId: 'pl-99',
+    });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('create_community_poll', expect.objectContaining({
+      p_player_id: 'pl-99',
+    }));
   });
 
   it('defaults clubId + description to null (user source)', async () => {

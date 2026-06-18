@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Trophy, MessageSquare, Vote, FileText, Target, Radio, Megaphone } from 'lucide-react';
+import { Trophy, MessageSquare, Vote, FileText, Target, Radio, Megaphone, User, Shield, X } from 'lucide-react';
 import { SearchInput, SortPills, EmptyState, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
 import PostCard from '@/components/community/PostCard';
 import ResearchCard from '@/components/community/ResearchCard';
 import BountyCard from '@/components/community/BountyCard';
@@ -27,6 +28,32 @@ type FeedItem =
   | { type: 'bounty'; data: BountyWithCreator; date: string }
   | { type: 'vote'; data: DbClubVote; date: string }
   | { type: 'poll'; data: CommunityPollWithCreator; date: string };
+
+// ── Slice 334: Discovery-Anker (welcher Verein / Spieler steckt im Eintrag) ──
+type Anchor = { type: 'club' | 'player'; id: string; label: string };
+
+function itemClubId(item: FeedItem): string | null {
+  // Alle Feed-Typen (post/research/bounty/vote/poll) tragen club_id.
+  return item.data.club_id ?? null;
+}
+function itemPlayerId(item: FeedItem): string | null {
+  switch (item.type) {
+    case 'post': return item.data.player_id ?? null;
+    case 'research': return item.data.player_id ?? null;
+    case 'bounty': return item.data.player_id ?? null;
+    case 'poll': return item.data.player_id ?? null;
+    case 'vote': return null;
+  }
+}
+function itemPlayerName(item: FeedItem): string | null {
+  switch (item.type) {
+    case 'post': return item.data.player_name ?? null;
+    case 'research': return item.data.player_name ?? null;
+    case 'bounty': return item.data.player_name ?? null;
+    case 'poll': return item.data.player_name ?? null;
+    case 'vote': return null;
+  }
+}
 
 /** Trending score: engagement weighted by recency (half-life ~24h) */
 function trendingScore(post: PostWithAuthor): number {
@@ -187,6 +214,7 @@ export default function CommunityFeedTab({
   const t = useTranslations('community');
   const [feedSort, setFeedSort] = useState<FeedSort>('new');
   const [query, setQuery] = useState('');
+  const [anchor, setAnchor] = useState<Anchor | null>(null); // Slice 334: aktiver Verein/Spieler-Filter
   const [reportTarget, setReportTarget] = useState<{ type: 'post' | 'research'; id: string } | null>(null);
 
   // Batch-fetch cosmetics for all post authors
@@ -245,11 +273,22 @@ export default function CommunityFeedTab({
     return items;
   }, [posts, researchPosts, bounties, clubVotes, communityPolls, contentFilter, isFollowingTab, followingIds]);
 
-  // ---- Search filter ----
+  // ---- Search filter (Slice 334: matcht zusätzlich Spieler- + Vereinsname über alle Typen) ----
   const searchedItems = useMemo(() => {
     if (!query.trim()) return feedItems;
     const q = query.toLowerCase();
+    const matchesAnchorText = (item: FeedItem) => {
+      const pName = itemPlayerName(item);
+      if (pName && pName.toLowerCase().includes(q)) return true;
+      const cId = itemClubId(item);
+      if (cId) {
+        const c = getClub(cId);
+        if ((c?.name && c.name.toLowerCase().includes(q)) || (c?.short && c.short.toLowerCase().includes(q))) return true;
+      }
+      return false;
+    };
     return feedItems.filter(item => {
+      if (matchesAnchorText(item)) return true;
       switch (item.type) {
         case 'post':
           return item.data.content.toLowerCase().includes(q) ||
@@ -272,9 +311,37 @@ export default function CommunityFeedTab({
     });
   }, [feedItems, query]);
 
+  // ---- Anker-Chips (Slice 334) — aus dem PRE-anchor Set (Typ+Following+Suche) abgeleitet,
+  //      UNABHÄNGIG vom aktiven Anker → kein §254-Catch-22 (Chips verschwinden nicht nach Auswahl) ----
+  const availableAnchors = useMemo(() => {
+    const clubs = new Map<string, string>();
+    const players = new Map<string, string>();
+    for (const item of searchedItems) {
+      const cId = itemClubId(item);
+      if (cId && !clubs.has(cId)) {
+        const c = getClub(cId);
+        clubs.set(cId, c?.short ?? c?.name ?? cId);
+      }
+      const pId = itemPlayerId(item);
+      const pName = itemPlayerName(item);
+      if (pId && pName && !players.has(pId)) players.set(pId, pName);
+    }
+    const clubAnchors: Anchor[] = Array.from(clubs, ([id, label]) => ({ type: 'club', id, label }));
+    const playerAnchors: Anchor[] = Array.from(players, ([id, label]) => ({ type: 'player', id, label }));
+    return [...clubAnchors, ...playerAnchors];
+  }, [searchedItems]);
+
+  // ---- Anker-Filter ----
+  const anchoredItems = useMemo(() => {
+    if (!anchor) return searchedItems;
+    return searchedItems.filter(item =>
+      anchor.type === 'club' ? itemClubId(item) === anchor.id : itemPlayerId(item) === anchor.id
+    );
+  }, [searchedItems, anchor]);
+
   // ---- Sort ----
   const sortedItems = useMemo(() => {
-    const items = [...searchedItems];
+    const items = [...anchoredItems];
 
     if (feedSort === 'new') {
       items.sort((a, b) => {
@@ -301,7 +368,7 @@ export default function CommunityFeedTab({
     }
 
     return items;
-  }, [searchedItems, feedSort]);
+  }, [anchoredItems, feedSort]);
 
   return (
     <div className="space-y-4">
@@ -339,6 +406,32 @@ export default function CommunityFeedTab({
         )}
       </div>
 
+      {/* Anker-Filter-Chips (Slice 334): Verein + Spieler aus dem Feed, tap → filtern */}
+      {availableAnchors.length > 0 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide items-center">
+          {availableAnchors.map(a => {
+            const active = anchor?.type === a.type && anchor?.id === a.id;
+            return (
+              <button
+                key={`${a.type}-${a.id}`}
+                onClick={() => setAnchor(active ? null : a)}
+                aria-pressed={active}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border min-h-[44px] whitespace-nowrap inline-flex items-center gap-1',
+                  active ? 'bg-gold/15 text-gold border-gold/30' : 'bg-surface-minimal text-white/40 border-white/10 hover:text-white/60'
+                )}
+              >
+                {a.type === 'player'
+                  ? <User className="size-3" aria-hidden="true" />
+                  : <Shield className="size-3" aria-hidden="true" />}
+                {a.label}
+                {active && <X className="size-3" aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Result Counter */}
       <div className="text-xs text-white/40 px-1">{sortedItems.length} {t('feed.posts')}</div>
 
@@ -346,6 +439,8 @@ export default function CommunityFeedTab({
       {sortedItems.length === 0 ? (
         isFollowingTab ? (
           <EmptyState icon={<Trophy />} title={t('feed.emptyFollowing')} action={{ label: t('feed.discoverScouts'), onClick: onSwitchToLeaderboard }} />
+        ) : anchor ? (
+          <EmptyState icon={<MessageSquare />} title={t('feed.noAnchorResults', { anchor: anchor.label })} action={{ label: t('feed.clearFilter'), onClick: () => setAnchor(null) }} />
         ) : query.trim() ? (
           <EmptyState icon={<MessageSquare />} title={`${t('feed.noResults')} "${query}"`} action={{ label: t('feed.clearSearch'), onClick: () => setQuery('') }} />
         ) : contentFilter === 'rumors' ? (

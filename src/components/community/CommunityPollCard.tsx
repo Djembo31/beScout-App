@@ -50,7 +50,13 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
         {/* Question */}
         <h3 className="font-bold text-lg mb-1">{poll.question}</h3>
         {poll.description && (
-          <p className="text-sm text-white/50 mb-3">{poll.description}</p>
+          <p className="text-sm text-white/50 mb-1">{poll.description}</p>
+        )}
+        {/* Slice 334: Spieler-Bezug (Anker) */}
+        {poll.player_name && (
+          <div className="mb-3">
+            <Chip className="bg-sky-500/15 text-sky-300 border-sky-500/25 text-[11px]">{poll.player_name}</Chip>
+          </div>
         )}
 
         {/* Options */}

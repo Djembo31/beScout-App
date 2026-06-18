@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Plus, X, Vote, Lock } from 'lucide-react';
 import { Button, Dialog } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { createCommunityPoll } from '@/lib/services/communityPolls';
 import { getFollowerCount } from '@/lib/services/social';
+import { usePlayerNames } from '@/lib/queries';
 import type { CommunityPollSource } from '@/types';
 
 const FOLLOWER_THRESHOLD = 50;
@@ -45,9 +46,27 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Slice 334: optionaler Spieler-Anker (Discovery). Picker analog CreateResearchModal.
+  const { data: players = [] } = usePlayerNames();
+  const [playerId, setPlayerId] = useState('');
+  const [playerSearch, setPlayerSearch] = useState('');
+  const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (playerRef.current && !playerRef.current.contains(e.target as Node)) {
+        setPlayerDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
   const reset = () => {
     setQuestion(''); setDescription(''); setOptions(['', '']);
     setCost('0'); setDays('7'); setError(null);
+    setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false);
   };
 
   const handleClose = () => {
@@ -79,6 +98,7 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
         durationDays,
         source,
         clubId: source === 'club' ? clubId : null,
+        playerId: playerId || null,
       });
       reset();
       onCreated?.();
@@ -89,7 +109,7 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
     } finally {
       setCreating(false);
     }
-  }, [creating, options, question, description, cost, days, userId, source, clubId, onCreated, onClose, t]);
+  }, [creating, options, question, description, cost, days, userId, source, clubId, playerId, onCreated, onClose, t]);
 
   const isClub = source === 'club';
 
@@ -124,6 +144,64 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
             placeholder={t('pollDescriptionPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-base bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
+        </div>
+
+        {/* Slice 334: optionaler Spieler-Anker (Discovery) */}
+        <div className="relative" ref={playerRef}>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('pollPlayerLabel')}</label>
+          <input
+            type="text"
+            value={playerSearch}
+            onChange={(e) => { setPlayerSearch(e.target.value); setPlayerDropdownOpen(true); }}
+            onFocus={() => setPlayerDropdownOpen(true)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
+            placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? t('pollPlayerSearch') : t('pollPlayerSearch')}
+            className={cn(
+              'w-full px-4 py-2.5 rounded-xl text-base bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40',
+              playerId && !playerSearch && 'text-white/70',
+            )}
+          />
+          {playerId && (
+            <button
+              type="button"
+              onClick={() => { setPlayerId(''); setPlayerSearch(''); }}
+              aria-label={t('pollPlayerRemove')}
+              className="absolute right-3 top-[34px] min-h-[44px] min-w-[44px] flex items-center justify-center text-white/30 hover:text-white"
+            >
+              <X className="size-4" aria-hidden="true" />
+            </button>
+          )}
+          {playerDropdownOpen && (
+            <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] shadow-card-md">
+              <button
+                type="button"
+                onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
+                className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-surface-base min-h-[44px]"
+              >
+                {t('pollPlayerNone')}
+              </button>
+              {players
+                .filter(p => !playerSearch || p.name.toLowerCase().includes(playerSearch.toLowerCase()))
+                .slice(0, 20)
+                .map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => { setPlayerId(p.id); setPlayerSearch(p.name); setPlayerDropdownOpen(false); }}
+                    className={cn(
+                      'w-full px-4 py-2 text-left text-sm hover:bg-surface-base flex items-center justify-between min-h-[44px]',
+                      playerId === p.id ? 'text-gold' : 'text-white/80'
+                    )}
+                  >
+                    <span>{p.name}</span>
+                    <span className="text-[10px] text-white/30">{p.pos}</span>
+                  </button>
+                ))}
+              {players.filter(p => !playerSearch || p.name.toLowerCase().includes(playerSearch.toLowerCase())).length === 0 && (
+                <div className="px-4 py-2 text-sm text-white/30">{t('pollPlayerNotFound')}</div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Options */}
