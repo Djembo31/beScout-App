@@ -37,3 +37,6 @@ worklog/reviews/336-review.md → PASS, 2 NIT (dokumentiert/Backlog).
 
 ## OFFEN (post-Deploy)
 Live-Playwright: Abo-2×-Gewicht in der UI sichtbar (Gold-Abo-Konto stimmt → Balken +2) + Follower-Notification-Anzeige. QA-Konto gated (kein Gold-Abo des Test-Vereins) → DB-Smoke + Service-Test decken ab. Backlog: Follower-Notify `.limit()` bei Mega-Clubs (NIT#2).
+
+### Re-Versuch 2026-06-18 (Live-Verifikations-Pass) — weiterhin GATED
+DB-verifiziert: `jarvisqa` active_subs=0 (kein aktives Club-Abo). Das 2×-Gewicht greift nur für Abonnenten des poll-tragenden Vereins → mit jarvis-qa nicht live auslösbar. Gewicht-Money-Sicherheit bleibt voll DB-bewiesen (Smoke oben: weight=2 skaliert NUR Tally, Wallet −cost nicht −2×cost). **Blocker:** braucht Gold-Abo-Test-Konto eines Vereins mit aktiver Poll. Nächste Session nicht erneut mit jarvis-qa versuchen.

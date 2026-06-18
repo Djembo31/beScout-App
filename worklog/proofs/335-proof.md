@@ -47,3 +47,6 @@ worklog/reviews/335-review.md → CONCERNS → geheilt (#1 fail-closed-Guard, #3
 
 ## OFFEN (post-Deploy)
 Live-Playwright UI-Pfad (ConfirmDialog + Absage) — QA-Konto „Jarvis" ist kein Club-Admin → UI-Modal gated; abgedeckt durch DB-Money-Smoke + Service-Test + tsc. Optional via Platform-Admin-Konto später.
+
+### Re-Versuch 2026-06-18 (Live-Verifikations-Pass) — weiterhin GATED
+DB-verifiziert: `jarvisqa` ist platform_admin=0, club_admin_count=0, active_subs=0. Navigation zu `/club/1-fc-koln/admin` → Redirect auf `/club/1-fc-koln` (kein Admin-Zugang). `cancel_event`-RPC erlaubt nur Club-Admin/Platform-Admin → mit jarvis-qa **nicht** live durchführbar. Money-Path bleibt voll DB-bewiesen (Round-Trip-Smoke oben). **Blocker:** braucht Club-Admin- oder Platform-Admin-Test-Konto. Nächste Session nicht erneut mit jarvis-qa versuchen.
