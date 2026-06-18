@@ -1,16 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 13:41)
+# Session Handoff — Auto (2026-06-18 14:00)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 2 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-17.md
 ?? worklog/audits/knowledge-2026-06-18.md
 ```
 
 ## Session Commits: 10
+- 3a4511ca docs(session-end): Fixes-Cluster + Verifikation geloggt, Handoff-Anker auf P3c, D91
+- 92fc9105 fix(services): Slice 342 — Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
 - 5320929b docs(plan): TODO nach Fixes-Cluster bereinigen (339-341 erledigt, P2-Dubletten raus)
 - 4a826b0e chore(db): Slice 341 — auto_close_expired_bounties als getrackte Migration (AR-43)
 - 908c6ece docs(knowledge): polls.md verified-against auf parsebaren Pfad zurücksetzen
@@ -19,8 +20,6 @@
 - f56eaf18 fix(services): Slice 339 — PostgREST-1000-Cap-Härtung (getPlayerNames + Follower-Notify)
 - 459bb037 docs(proof): 335/336 Live-UI-Verifikation geschlossen — DB-Beweis akzeptiert (Anil)
 - 50920943 docs(proof): Live-Verifikations-Pass 334-336 — 334 re-bestätigt, 335/336 account-gated dokumentiert
-- 12125018 docs(plan): Stale-Drift heilen — Polls P2 (334)/P3 (336)/Event-Cancel (335) waren als offen markiert
-- 66300298 docs(session-end): Slice 338 Predictions-Removal geloggt + DB-Migration applied (AC-03/04/05 grün)
 
 <!-- auto:handoff-end -->
 
