@@ -24,22 +24,22 @@
 
 ---
 
-# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P3 ODER events.status-Fix)
+# 🎯 RESUME-ANKER NÄCHSTE SESSION (Start: POLLS P4 ODER UI-Live-Verifikationen)
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 334 oder neuer. `worklog/active.md` = idle. **Polls P1 (333) + P2 (334) sind DONE + live bewiesen.**
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 336 oder neuer. `worklog/active.md` = idle. **Polls P1 (333) + P2 (334) + P3 (336) DONE; Event-Absage geld-sicher (335) DONE — alle live (DB) bewiesen.**
 
-## ✅ Diese Session (2026-06-18) — Slice 334 Polls P2 (DONE + live)
-- **Slice 334** (L, KEIN Money-Path): `community_polls.player_id` (uuid NULL, FK players ON DELETE SET NULL) + `create_community_poll` 9-arg (+p_player_id, alte 8-arg gedroppt, AR-44, `invalid_player`-Guard). Service reicht player_id durch + getCommunityPolls löst player_name/position auf. **UI:** CreatePollModal optionaler Spieler-Picker (`usePlayerNames` intern) · CommunityFeedTab Suche matcht Spieler+Verein über alle Typen + **Anker-Chip-Leiste** (`availableAnchors` aus pre-anchor Set → §254-Catch-22 vermieden) · CommunityPollCard Spieler-Tag. i18n de+tr.
-- **Verify:** Reviewer PASS (3 NITPICK) · DB live (Spalte/FK confdeltype='n'/genau 1×9-arg-Signatur/anon=false) · invalid_player Live-Call + happy-insert Rollback-Smoke (has_player=true) · vitest 138+8 · **Live-Playwright** (Chips SAK+2 Spieler · Filter 9→1 · §254 kein Catch-22 · Clear→9 · Suche „Sakarya" 9→2 · 0 MISSING_MESSAGE auf /community).
-- **Gating-Hinweis:** CreatePollModal-Picker (AC-08) live nicht öffenbar — QA-Konto „Jarvis" 0 Follower → User-Poll-Knopf durch Follower-Tor 50 (P1) gesperrt; Picker code-/test-bewiesen + Reuse des live-CreateResearchModal-Pickers.
+## ✅ Diese Session (2026-06-18) — 334 + 335 + 336 (alle DONE)
+- **334 Polls P2** (L): `community_polls.player_id` + Discovery-Anker-Chip-Leiste + Suche Spieler/Verein über alle Typen. Reviewer PASS. **Live-Playwright bestätigt** (Chips, Filter 9→1, §254 kein Catch-22, Suche).
+- **335 Event-Absage geld-sicher** (L, Money): `cancel_event`-RPC (atomar, Club-Admin-auth, FOR UPDATE, Teilnehmer-Refund + Prize-Kaution zurück + status='cancelled') + events_status_check +'cancelled' + trg_events_prize_settle cancelled-Zweig. **Latenter Bug mitgefixt:** ticket_transactions_source_check +'event_entry_refund'. Reviewer CONCERNS→geheilt (fail-closed). Money-Smoke: Treasury +prize / Ticket +Einsatz / negativ ok.
+- **336 Polls P3** (L, Money-near): cast_community_poll_vote +Abo-2×-Gewicht (Tally-only, Geld byte-identisch) + community_poll_votes.weight + Follower-Notify (poll_new) bei Poll-Erstellung. Reviewer PASS. Money-Smoke: Abo weight=2 aber wallet −cost (nicht 2×).
 
 ## ⚡ NÄCHSTE KANDIDATEN (Anil wählt)
-1. **Polls P3 — soziale Schicht** (`polls.md` §6/§8): Follower=Reichweite (Umfrage an Follower ausspielen/benachrichtigen) · **Abo-Perks bei Paid-Polls** (2×-Gewicht / Early Access — heute nur bei Gratis-Votes) · Fan-Rang (evtl. Gewicht/Auszahl-Anteil). Money-nah → `/impact` zuerst.
-2. **events.status CHECK 'cancelled'-Fix** (P1-Backlog): UI-„Absagen" broken (CHECK kennt kein 'cancelled') — Cancel + CHECK + Event-Prize-Refund-Zweig bündeln. Money/Treasury.
-3. **Polls P4** — Teilnehmer-Auszahlung (offene Entscheidung `polls.md` §7 a/b/c).
+1. **Polls P4** — Teilnehmer-Auszahlung (OFFENE Entscheidung `polls.md` §7: a Lotterie/Topf · b „Recht behalten"/prediction · c Mini-Teilnahme-Reward; Fan-Rang könnte gewichten). Braucht CEO-Entscheidung VOR Bau.
+2. **Polls P3c — Fan-Rang** (deferred aus 336): Fan-Rang als Gewicht/Auszahl-Anteil — `fanRanking.ts` existiert, „fast wirkungslos", müsste erst sinnvoll verankert werden. + Abo Early-Access/exklusive Mitglieder-Umfragen.
+3. **UI-Live-Verifikationen** (mit passendem Konto, QA-„Jarvis" gated): 335 Absage-ConfirmDialog (Club-Admin-Konto), 336 Abo-2×-sichtbar (Gold-Abo-Konto), 334 CreatePollModal-Picker (≥50 Follower).
 
-## 🔧 KLEINE BACKLOG-FUNDE (aus 334)
-- **`getPlayerNames` ohne `.limit()`/`.range()`** (`src/lib/services/players.ts:42`) — PostgREST-1000-Cap-Kandidat; Poll-Picker ist jetzt 2. Konsument. Bei >1000 Spielern unvollständige Picker-Liste. Eigener Mini-Slice (`.range()`-Loop, common-errors.md §1). Review-NIT#3.
+## 🔧 KLEINE BACKLOG-FUNDE (Post-Beta, eigener Mini-Slice)
+- **`getPlayerNames` ohne `.limit()`** (`players.ts:42`, 334-NIT) + **Follower-Notify-Query ohne `.limit()`** (`communityPolls.ts`, 336-NIT, = createEvent-Parität) — beide PostgREST-1000-Cap bei Mega-Clubs/-Listen. Zusammen härten (`.range()`-Loop, common-errors.md §1).
 
 **Muster:** Kein Money-Path → kein D87-Zwang, Money-nah/Schema → **/impact ZUERST**. UI/Service → Mobile 393px + DE/TR. Reviewer-Pflicht. **TR-Genauigkeit ist KEIN Commit-Blocker mehr** (Anil 2026-06-18; nur Compliance/`business.md` hart). **Teaching-Mode DURCHGEHEND** (`feedback_teaching_mode`): jede Antwort startet mit Klartext-Erklärung vor Technik.
 
