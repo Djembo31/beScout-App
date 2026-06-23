@@ -1,20 +1,23 @@
 # Active Slice
 
 ```
-status: idle
-slice: 348
-title: ✅ DONE — csf_multiplier raus (toter CSF-Multiplier aus Fan-Rank, D83/D93)
-stage: LOG complete
-size: M
-slice-type: Migration
-spec: worklog/specs/348-remove-csf-multiplier.md
-impact: inline (Live-functiondef-verifiziert: nur calculate_fan_rank las die Spalte, keine Views/Indexe/Trigger/RLS, kein UI-Reader)
-proof: worklog/proofs/348-remove-csf-multiplier.txt (Wave 1 AC5/6/7 + Wave 2 AC1-AC8 live ✅)
-review: worklog/reviews/348-review.md (CONCERNS → Doku-Findings #1/#2 gefixt; Code/Migration PASS)
-next: Pro-Stand-Roadmap weiter — worklog/notes/348-pro-stand-roadmap.md (Polls-Reste ODER S7-Leaderboard-Konsolidierung)
+status: in-progress
+slice: 349
+title: Club-Fan-Treue-Board mounten (W2-B) — Top-Fans-Rangliste auf Club-Page sichtbar
+stage: PROVE
+size: S
+slice-type: UI
+spec: worklog/specs/349-mount-club-fan-leaderboard.md
+impact: inline (reine UI; nutzt bestehenden Hook useClubFanLeaderboard + Service getClubFanLeaderboard, kein RPC/Schema/Query-Key neu)
+proof: worklog/proofs/349-fan-board.txt (BUILD-Evidenz tsc/5 vitest/wiring/i18n/RLS; Playwright nach Deploy)
+review: worklog/reviews/349-review.md (PASS, 2 NIT non-blocking)
+next: BUILD — ClubFanLeaderboard-Komponente + Mount im "Mehr"-Tab + i18n DE/TR → REVIEW → Playwright-Proof gegen bescout.net (Sakaryaspor, 37 Fans)
 ```
 
-## Aktueller Stand
+## Kontext
 
-- **Slice 348 ✅ live + applied.** `csf_multiplier` ist vollständig raus: Spalte `fan_rankings.csf_multiplier` gedroppt, RPC-Variable + Return-Feld weg, TS-Layer 0 Treffer, Docs aktualisiert. **0 Money-Effekt** (liquidate_player war seit Slice 330 proportional_v3, las die Spalte nie — live verifiziert). 2-Wellen-Deploy (D82): TS zuerst (ef8ecc1f), dann Migration nach Ready-Deploy.
-- Pro-Stand-Roadmap (Track B abgehakt). Nächste Anil-Wahl: **(A) Polls-Reste** (exklusive Treue-Umfragen `min_fan_rank` / Abo-Early-Access), **(C) S7-Leaderboard-Konsolidierung** (scout_scores/user_stats/airdrop_scores), oder **Club-Fan-Board mounten** (W2-B, schneller sichtbarer Gewinn).
+W2-B aus reward-ranking.md/Pro-Stand-Roadmap: `getClubFanLeaderboard` + `useClubFanLeaderboard` sind gebaut + getestet, haben aber **0 UI-Consumer** (tote Brücke). Dieser Slice mountet die Top-Fans-Rangliste sichtbar.
+
+- **RLS verifiziert:** `fan_rankings_select_leaderboard` (qual=true) → Board liest alle Zeilen, kein Blocker.
+- **Live-Daten:** Sakaryaspor 37 Fans (Top 33.32) → Proof-Ziel; andere Clubs 0 → Empty/null.
+- **Mount:** Club-Page „Mehr"-Tab, direkt nach `FanRankOverview` (eigener Rang → Top-Fans des Clubs).

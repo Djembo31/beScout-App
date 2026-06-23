@@ -46,6 +46,7 @@ import { SpielplanTab } from '@/components/club/sections/SpielplanTab';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import FanRankBadge from '@/components/ui/FanRankBadge';
 import FanRankOverview from '@/components/gamification/FanRankOverview';
+import ClubFanLeaderboard from '@/components/gamification/ClubFanLeaderboard';
 import { ClubSkeleton } from '@/components/club/ClubSkeleton';
 import { SquadOverviewWidget } from '@/components/club/SquadOverviewWidget';
 import { PickRateBadge } from '@/components/club/PickRateBadge';
@@ -543,6 +544,13 @@ export default function ClubContent({ slug }: { slug: string }) {
                 clubId={club.id}
                 isLoading={fanRankingLoading}
               />
+            </RevealSection>
+          )}
+
+          {/* Club-Fan-Treue-Board (W2-B / Slice 349) — Top-Fans des Vereins */}
+          {clubId && (
+            <RevealSection delay={60}>
+              <ClubFanLeaderboard clubId={clubId} currentUserId={userId} />
             </RevealSection>
           )}
 

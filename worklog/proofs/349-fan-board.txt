@@ -1,0 +1,36 @@
+Slice 349 — Club-Fan-Treue-Board mounten (W2-B) — PROOF
+
+=========================================================
+BUILD-Evidenz (verifiziert 2026-06-23, vor Deploy)
+=========================================================
+
+AC7 — tsc --noEmit:
+  TSC EXIT: 0
+
+AC7 — Vitest (neue Komponente):
+  $ CI=true pnpm exec vitest run src/components/gamification/__tests__/ClubFanLeaderboard.test.tsx
+  Test Files  1 passed (1)
+       Tests  5 passed (5)
+  (render+badge+score · empty→null · self-highlight · loading-spinner · error-state)
+
+Mount-Verkabelung (≥1 Consumer, D54-Aktivierung):
+  src/app/(app)/club/[slug]/ClubContent.tsx:49  import ClubFanLeaderboard ...
+  src/app/(app)/club/[slug]/ClubContent.tsx:553 <ClubFanLeaderboard clubId={clubId} currentUserId={userId} />
+
+i18n (namespace-aware, beide Locales):
+  de gamification.clubFanLeaderboardTitle = "Treueste Fans"
+  tr gamification.clubFanLeaderboardTitle = "En Sadık Taraftarlar"
+
+RLS-Voraussetzung (verifiziert live):
+  fan_rankings_select_leaderboard  cmd=SELECT  qual=true  → Board liest alle Zeilen.
+
+Live-Daten (Proof-Ziel):
+  /club/sakaryaspor → 37 Fan-Zeilen (alle mit Handle), Top-Score 33.32.
+  Andere Clubs → 0 Fans → Komponente rendert null (kein Card-Rauschen).
+
+=========================================================
+AC1-AC6 — Playwright gegen bescout.net (nach Deploy)
+=========================================================
+(Wird nach Vercel-Deploy ergänzt: /club/sakaryaspor Tab "Mehr" Screenshot
+ desktop + 393px, Board mit Top-Fans sichtbar, Console-Scan auf MISSING_MESSAGE,
+ 0-Fan-Club → Board absent.)
