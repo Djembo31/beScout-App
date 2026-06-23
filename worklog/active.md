@@ -2,25 +2,25 @@
 
 ```
 status: idle
-slice: 350
-title: ✅ DONE — CI-grün + Push-Fix (Slice 350) · Fan-Board gemountet (Slice 349)
+slice: 351
+title: ✅ DONE — Knowledge-Coupling-Gate (Workflow-Härtung gegen Stale)
 stage: LOG complete
 size: S
-slice-type: Hook
-spec: worklog/specs/349-mount-club-fan-leaderboard.md + 350 inline
-proof: worklog/proofs/350-ci-push-fix.txt + worklog/proofs/349-fan-board.txt
-review: worklog/reviews/350-review.md + worklog/reviews/349-review.md
-next: Slice 349 Live-Playwright-Verify (/club/sakaryaspor „Mehr"-Tab) ist erste Next-Session-Action; dann Pro-Stand-Roadmap (Polls-Reste ODER S7-Leaderboard-Konsolidierung)
+slice-type: Tool
+spec: inline (Trigger = Anil: Knowledge-Stale darf nicht durchrutschen)
+proof: worklog/proofs/351-knowledge-coupling-gate.txt
+review: worklog/reviews/351-review.md (self-review, Tooling, positiv+negativ getestet)
+next: Slice 349 Live-Playwright-Verify (offen) → dann Pro-Stand-Roadmap (Polls-Reste / S7-Leaderboard)
 ```
 
 ## Stand (Session-Ende 2026-06-23)
 
-**Diese Session, sauber abgeschlossen:**
-- **Slice 348** ✅ — `csf_multiplier` komplett raus (Code + RPC + Spalte gedroppt), 0 Money-Effekt, live verifiziert.
-- **Slice 349** ✅ (Code) — Club-Fan-Treue-Board gemountet (W2-B). **Offen:** Live-Playwright-Screenshot = erste Next-Session-Action.
-- **Slice 350** ✅ — CI-grün (Silent-Fail-Baseline re-anchored) + Push-Fix (Pre-Push entschlackt) + Nightly-Workflow-SyntaxError-Fix. Behebt Anils tägliche Fail-Emails + Push-Bruch.
+**Slices diese Session:** 348 (csf_multiplier raus) · 349 (Fan-Board, ⚠ Playwright offen) · 350 (CI-grün + Push-Fix + Nightly-Fix) · 351 (Knowledge-Coupling-Gate).
 
-**Wichtig für nächste Session:**
-- Push funktioniert wieder normal (kein `--no-verify` nötig). Pre-Push läuft jetzt schnellen `audit:silent-fail:check` (~5s); volle Tests = CI-Autorität.
-- Bei neuem Silent-Fail-HIGH/MEDIUM: `.audit-baseline.json` bewusst nachziehen (Tool sagt's), sonst CI rot.
-- Pro-Stand-Roadmap: `worklog/notes/348-pro-stand-roadmap.md`.
+**Slice 351 — Workflow-Härtung (D45: Hooks > Text-Regeln):**
+Die Knowledge-Stale-Klasse, die diese Session durchrutschte (INDEX D93 vs D94, `updated:` nicht gebumpt), ist jetzt ein **blockierender pre-commit-Gate** in `audit-knowledge.ts`:
+- **Check 7 (HARD):** INDEX „D1–D<n>"-Range muss == max-D in `decisions.md`.
+- **Check 8 (HARD):** staged `docs/knowledge/**.md` mit Content-Change → `updated:` MUSS heute sein.
+Beide positiv+negativ getestet, 0 False-Positives, bereits verdrahtet (pre-commit Step 7 + nightly).
+
+**Wichtig nächste Session:** Wer ein Knowledge-File ändert, MUSS `updated:` auf heute setzen — sonst blockt der Commit. Wer D<n> zu decisions.md hinzufügt, MUSS INDEX-Range mitziehen.

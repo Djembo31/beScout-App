@@ -1,0 +1,37 @@
+Slice 351 — Knowledge-Coupling-Gate (Workflow-Härtung) — PROOF
+
+Trigger: Anil — diese Session rutschte Knowledge-Stale durch (INDEX D93 vs D94,
+reward-ranking/treasury updated nicht gebumpt, W2-B stale), nur durch Anils
+Nachhaken gefangen. D45: Hooks > Text-Regeln. → 2 deterministische HARD-Checks
+ins bestehende (pre-commit-verdrahtete) audit-knowledge.ts.
+
+=========================================================
+NEGATIV-TEST (sauberer Zustand → keine False-Positives)
+=========================================================
+$ pnpm run audit:knowledge:check
+HARD: 0 · SOFT: 3   (3 SOFT = pre-existing verify-drift, unverwandt, nightly-tracked)
+→ Check 7 + 8 feuern NICHT im in-sync-Zustand. ✅
+
+=========================================================
+POSITIV-TEST Check 7 (INDEX-D-Range vs max-D in decisions.md)
+=========================================================
+INDEX temporär auf "D1–D93" gesetzt (decisions.md hat D94):
+  ❌ HARD [decisions-index-stale] INDEX.md — Decisions-Log-Range endet bei D93,
+     aber decisions.md hat max D94. Range in INDEX.md auf D94 aktualisieren.
+→ fängt exakt den D93/D94-Miss dieser Session. ✅ (revertiert)
+
+=========================================================
+POSITIV-TEST Check 8 (staged Content-Change ohne updated:=heute)
+=========================================================
+polls.md Inhalt geändert + staged (updated: stand auf 2026-06-18):
+  ❌ HARD [updated-not-today] docs/knowledge/domain/polls.md — Inhalt geändert,
+     aber updated:=2026-06-18 (nicht heute 2026-06-23). E0-W2gov Wissens-Kopplung.
+→ fängt exakt den Slice-348-Miss (Content geändert, updated vergessen). ✅ (revertiert)
+
+=========================================================
+EIGENSCHAFTEN
+=========================================================
+- Beide Checks HARD → blocken pre-commit (audit:knowledge:check ist Step 7 im pre-commit).
+- Check 8 nur im git-staging-Kontext aktiv (pre-commit); CI/nightly = No-Op (nichts staged).
+- Check 7 deterministisch (Header-Regex ^##+ D<n>, en-/em-dash-tolerant), 0 FP.
+- tsc clean. Tool war bereits verdrahtet (pre-commit + nightly) → kein Build-without-Wire.

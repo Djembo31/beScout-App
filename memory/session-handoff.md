@@ -1,22 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 15:51)
+# Session Handoff — Auto (2026-06-23 17:39)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 9 Files
+## Uncommitted Changes: 4 Files
 ```
- M .github/workflows/nightly-audit.yml
- M .gitignore
  M memory/session-handoff.md
- M src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx
-?? .design-sync/
-?? tsconfig.dssync.json
 ?? worklog/audits/knowledge-2026-06-23.md
 ?? worklog/audits/silent-fail-2026-06-23.json
 ?? worklog/audits/silent-fail-2026-06-23.md
 ```
 
-## Session Commits: 5
+## Session Commits: 9
+- 270055b2 docs(knowledge): Wissens-Kopplung Slice 348/349 — Frontmatter + W2-B + INDEX (E0-W2gov)
+- 7fe4e148 chore(gitignore): DesignSync-Tooling-Artefakte ignorieren (.design-sync/, tsconfig.dssync.json)
+- d5e52fdb docs(session-end): LOG 348/349/350 + DISTILL (D94 Pre-Push-Strategie + 3 errors-infra-Patterns) + Handoff
+- 8bc155d2 fix(ci): Slice 350 follow-up — ClubContent-Test-Mock + Nightly-Workflow-SyntaxError
 - c03a43f7 fix(ci): Slice 350 — CI-grün (Silent-Fail-Baseline re-anchored) + Push-Fix (Pre-Push entschlackt)
 - 3a8b966a feat(gamification): Slice 349 — Club-Fan-Treue-Board mounten (W2-B)
 - 5c963681 refactor(db): Slice 348 Wave 2 — calculate_fan_rank-Rewrite + DROP COLUMN csf_multiplier
@@ -86,3 +85,87 @@
 3. **RLS posts SELECT** ist seit 346 ein Fan-Rang-Gate (war `USING(true)`) — bei künftigen posts-Read-Änderungen beachten: öffentliche Beiträge = `min_fan_rank_tier IS NULL`-Zweig.
 
 > Crash-Recovery-Blöcke 2026-06-23 (3×) entfernt — Recovery erfolgreich in Folge-Session, Phase-A-Hygiene committet.
+
+## ⚠ CRASH RECOVERY (20260623-161717)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260623-161717.diff)
+```
+ M memory/session-handoff.md
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260623-161717.diff`
+
+## ⚠ CRASH RECOVERY (20260623-161808)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260623-161808.diff)
+```
+ M memory/session-handoff.md
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260623-161808.diff`
+
+## ⚠ CRASH RECOVERY (20260623-161858)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260623-161858.diff)
+```
+ M memory/session-handoff.md
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260623-161858.diff`
+
+## ⚠ CRASH RECOVERY (20260623-163226)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260623-163226.diff)
+```
+ M memory/session-handoff.md
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260623-163226.diff`
+
+## ⚠ CRASH RECOVERY (20260623-163548)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260623-163548.diff)
+```
+ M memory/session-handoff.md
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260623-163548.diff`
+
+## ⚠ CRASH RECOVERY (20260623-164821)
+Session crashed. State at crash time:
+
+### Uncommitted Changes (saved as .claude/backups/crash-20260623-164821.diff)
+```
+ M memory/session-handoff.md
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
+```
+
+
+### Recovery: Apply diff with `git apply .claude/backups/crash-20260623-164821.diff`

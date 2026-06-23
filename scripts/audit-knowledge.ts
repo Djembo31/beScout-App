@@ -10,6 +10,8 @@
  *   HARD  INDEX-Link → nicht-existente Datei         (Routing-Bug)
  *   HARD  Content-File ohne INDEX-Eintrag (Orphan)   (unauffindbar)
  *   HARD  Content-File ohne Pflicht-Front-matter     (Konvention-Verstoß)
+ *   HARD  INDEX Decisions-Log-Range != max D-Nr      (Slice 351: D93/D94-Drift)
+ *   HARD  Knowledge-Content staged geändert ohne `updated:`=heute (Slice 351: Kopplung)
  *   SOFT  INDEX-Entry-Zeile ohne consult_when        (Routing schwach)
  *   SOFT  verified-against-Ziel seit Verify in git geändert (Code driftete)
  *   SOFT  updated älter als STALE_MONTHS             (Veraltungs-Verdacht)
@@ -29,6 +31,7 @@ import { execSync } from 'node:child_process';
 const PROJECT_ROOT = resolve(__dirname, '..');
 const KNOWLEDGE_DIR = resolve(PROJECT_ROOT, 'docs/knowledge');
 const INDEX_FILE = resolve(KNOWLEDGE_DIR, 'INDEX.md');
+const DECISIONS_FILE = resolve(PROJECT_ROOT, 'memory/decisions.md');
 const BUCKETS = ['domain', 'decisions', 'lessons', 'research'];
 const STALE_MONTHS = 6;
 const REQUIRED_FRONTMATTER = ['title', 'created', 'updated', 'status', 'tags', 'consult_when'];
@@ -169,6 +172,23 @@ function main(): void {
     }
   }
 
+  // --- Check 7 (HARD, Slice 351): INDEX Decisions-Log-Range == max D-Nr in decisions.md ---
+  // Fängt die "D1–D93 obwohl D94 existiert"-Drift (diese Session). Deterministisch, 0 FP.
+  if (existsSync(DECISIONS_FILE)) {
+    const decisionsContent = readFileSync(DECISIONS_FILE, 'utf8');
+    const dNums = [...decisionsContent.matchAll(/^#{2,3}\s+D(\d+)\b/gm)].map((m) => parseInt(m[1], 10));
+    const maxD = dNums.length ? Math.max(...dNums) : null;
+    const rangeMatch = /Decisions-Log\s+D\d+\s*[–—-]\s*D(\d+)/.exec(indexContent);
+    if (maxD !== null && rangeMatch) {
+      const indexMax = parseInt(rangeMatch[1], 10);
+      if (indexMax !== maxD) {
+        add('HARD', 'decisions-index-stale', 'INDEX.md', `Decisions-Log-Range endet bei D${indexMax}, aber decisions.md hat max D${maxD}. Range in INDEX.md auf D${maxD} aktualisieren.`);
+      }
+    } else if (maxD !== null && !rangeMatch) {
+      add('HARD', 'decisions-index-missing', 'INDEX.md', `decisions.md hat D-Nummern (max D${maxD}), aber kein "Decisions-Log D1–D<n>"-Range-Eintrag in INDEX.md gefunden.`);
+    }
+  }
+
   // --- Content-Files: Orphan + Front-matter + Staleness ---
   const contentFiles = listContentFiles();
   for (const file of contentFiles) {
@@ -214,6 +234,33 @@ function main(): void {
           add('SOFT', 'verify-format', rel, `verified-against muss Format "<pfad> @ <YYYY-MM-DD>" haben, ist: ${fm['verified-against']}`);
         }
       }
+    }
+  }
+
+  // --- Check 8 (HARD, pre-commit, Slice 351): staged Knowledge-Content geändert → updated:=heute ---
+  // Fängt "Inhalt geändert, aber Front-matter updated: vergessen" (Slice-348-Miss diese Session).
+  // Nur im git-staging-Kontext aktiv (pre-commit); in CI/nightly ist nichts staged → No-Op.
+  let staged: string[] = [];
+  try {
+    staged = execSync('git diff --cached --name-only --diff-filter=ACMR', { cwd: PROJECT_ROOT, encoding: 'utf8' })
+      .split('\n').map((s) => s.trim()).filter(Boolean);
+  } catch { /* kein git / nichts staged → skip */ }
+
+  for (const sf of staged) {
+    if (!/^docs\/knowledge\/.+\.md$/.test(sf) || sf.endsWith('INDEX.md')) continue;
+    let diff = '';
+    try {
+      diff = execSync(`git diff --cached -- "${sf}"`, { cwd: PROJECT_ROOT, encoding: 'utf8' });
+    } catch { continue; }
+    if (!diff) continue;
+    // Geänderte Zeilen (ohne Datei-Header), die NICHT nur das updated:/verified-against:-Datum sind.
+    const changed = diff.split('\n').filter((l) => /^[+-]/.test(l) && !/^[+-]{3}/.test(l));
+    const hasContentChange = changed.some((l) => !/^[+-]\s*(updated|verified-against):/.test(l));
+    if (!hasContentChange) continue; // reiner Datums-Bump → ok
+    const abs = resolve(PROJECT_ROOT, sf);
+    const fm = existsSync(abs) ? parseFrontmatter(readFileSync(abs, 'utf8')) : null;
+    if (fm?.updated !== today) {
+      add('HARD', 'updated-not-today', sf, `Inhalt geändert, aber updated:=${fm?.updated ?? 'fehlt'} (nicht heute ${today}). E0-W2gov Wissens-Kopplung: updated: auf ${today} setzen (+ ggf. INDEX/verified-against).`);
     }
   }
 

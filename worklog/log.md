@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 351 | 2026-06-23 | feat(tooling): Knowledge-Coupling-Gate — Stale hart blocken (D45)
+- Stage-Chain: SPEC (inline, Trigger Anil) → BUILD → REVIEW (`worklog/reviews/351-review.md`, Self-Review, positiv+negativ getestet) → PROVE (`worklog/proofs/351-knowledge-coupling-gate.txt`) → LOG.
+- Trigger: Diese Session rutschte Knowledge-Stale durch (INDEX D93 vs D94, `reward-ranking`/`treasury` `updated:` nicht gebumpt, W2-B stale) — nur durch Anils Nachhaken gefangen. Lehre D45 (Hooks > Text-Regeln): Wissens-Kopplung war Text-Regel in workflow.md, unter Druck übersprungen → jetzt blockierender Gate.
+- Bau: 2 HARD-Checks in `scripts/audit-knowledge.ts` (bereits pre-commit-verdrahtet): **Check 7** INDEX „D1–D<n>"-Range == max-D in `decisions.md` (fängt D93/D94); **Check 8** staged `docs/knowledge/**.md` Content-Change → `updated:`=heute Pflicht (fängt vergessenen Frontmatter-Bump). Beide deterministisch, 0 FP (negativ-getestet: in-sync HARD=0). workflow.md LOG-Regel auf hook-enforced aktualisiert.
+- Proof: Positiv-Test beide Checks feuern (D93→HARD, polls.md-Change ohne updated→HARD), Negativ-Test sauber, tsc clean, Reverts sauber. Commit: (dieser).
+
 ## 350 | 2026-06-23 | fix(ci): CI-grün + Push-Fix (Silent-Fail-Baseline re-anchored + Pre-Push entschlackt)
 - Stage-Chain: SPEC (inline, Ops-Fix) → BUILD → REVIEW (`worklog/reviews/350-review.md`, Self-Review, CI/Tooling, kein Money/Security) → PROVE (`worklog/proofs/350-ci-push-fix.txt`) → LOG.
 - Trigger: Anil — (1) tägliche CI-Fail-Emails, (2) Push „failed to push some refs" seit Slice 349.
