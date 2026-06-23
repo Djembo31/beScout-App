@@ -465,7 +465,7 @@ describe('useClubData', () => {
   // ── Fan Ranking ──
 
   it('passes through fan ranking data', () => {
-    const ranking = { rank_tier: 'ultra', csf_multiplier: 1.5 };
+    const ranking = { rank_tier: 'ultra' };
     mockUseClubBySlug.mockReturnValue({ data: makeClub(), isLoading: false, isError: false });
     mockUseFanRanking.mockReturnValue({ data: ranking, isLoading: false });
     const { result } = renderHook(() =>

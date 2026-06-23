@@ -1,0 +1,45 @@
+Slice 348 — csf_multiplier Removal — PROOF
+
+=========================================================
+WAVE 1 (Code) — verifiziert 2026-06-23
+=========================================================
+
+AC5 — grep csf_multiplier|csfMultiplier in src/ = 0 Treffer:
+  $ grep -rn "csf_multiplier\|csfMultiplier" src/
+  (kein Output) ; EXIT 1 (= keine Treffer)
+
+AC6 — tsc --noEmit clean:
+  $ pnpm exec tsc --noEmit
+  === TSC EXIT: 0 ===
+
+AC7 — Fokussierte Tests grün:
+  $ CI=true pnpm exec vitest run src/lib/services/__tests__/fanRanking-v2.test.ts \
+      src/components/club/hooks/__tests__/useClubData.test.ts <weitere>
+  Test Files  3 passed (3)
+       Tests  58 passed (58)
+  $ CI=true pnpm exec vitest run "src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx"
+  Test Files  1 passed (1)
+       Tests  17 passed (17)
+  Hinweis: db-invariants.test.ts ist Integration-Test (nur ohne CI=true).
+  Whitelist-Logik ist Subset-Check (missing = whitelist.filter(k => !actual.has(k)));
+  Entfernen eines Keys aus der Whitelist kann missing nur verkleinern → bleibt grün
+  jetzt UND nach Wave 2. Voll-Suite (Pre-Push) bestätigt zusätzlich.
+
+git diff --stat (Wave 1):
+  src/lib/services/fanRanking.ts            | 6 +---
+  src/types/index.ts                        | 1 -
+  src/lib/fanRanking.ts                     | 15 ++++-----
+  src/lib/fanRankPerks.ts                   | 4 +--
+  src/lib/services/__tests__/fanRanking-v2.test.ts | 6 ++---
+  src/lib/__tests__/db-invariants.test.ts   | 2 +-
+  src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx | 2 +-
+  src/components/club/hooks/__tests__/useClubData.test.ts  | 2 +-
+  docs/knowledge/domain/reward-ranking.md   | (W2-A + Tier-Zeile + Diagnose)
+  docs/knowledge/domain/treasury.md         | (§8/§9 erledigt)
+
+=========================================================
+WAVE 2 (Migration: RPC-Rewrite + DROP COLUMN) — nach Vercel-Deploy
+=========================================================
+(Wird nach Migration-Apply ergänzt: AC1 functiondef ohne csf + Patches erhalten,
+ AC2 Spalte weg, AC3 RPC-Smoke BEGIN/ROLLBACK, AC4 liquidate_player unverändert,
+ AC8 has_function_privilege anon=false/auth=true.)

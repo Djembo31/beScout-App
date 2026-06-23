@@ -427,7 +427,7 @@ describe('ClubContent', () => {
   // 12. FanRankBadge in header (overview); FanRankOverview moved to "Mehr" tab (Slice 297)
   it('renders FanRankBadge in header and FanRankOverview in the Mehr tab', () => {
     mockUseFanRanking.mockReturnValue({
-      data: { rank_tier: 'gold', csf_multiplier: 1.5 },
+      data: { rank_tier: 'gold' },
       isLoading: false,
     });
     renderWithProviders(<ClubContent slug="test-club" />);

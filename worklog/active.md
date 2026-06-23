@@ -1,36 +1,24 @@
 # Active Slice
 
 ```
-status: idle
-slice: 347
-title: ✅ DONE — FRE-5: Club-konfigurierbare Fan-Rang-Schwellen (Money-nah)
-stage: LOG complete
-size: L
+status: in-progress
+slice: 348
+title: csf_multiplier raus — toten CSF-Multiplier aus Fan-Rank entfernen (D83/D93)
+stage: PROVE
+size: M
 slice-type: Migration
-spec: worklog/specs/347-club-configurable-fan-rank-thresholds.md
-impact: worklog (impact-analyst Consumer-Karte, 6 Gruppen, Risiko HIGH)
-proof: worklog/proofs/347-thresholds-smoke.txt (Backend AC1-AC8 ✅ + UI AC9/AC10 ✅)
-review: worklog/reviews/347-review.md (PASS, Finding #1 gefixt, 1 NIT pre-existing)
-next: Pro-Stand-Roadmap sichern/abarbeiten — worklog/notes/348-pro-stand-roadmap.md
+spec: worklog/specs/348-remove-csf-multiplier.md
+impact: inline (Live-functiondef-verifiziert: nur calculate_fan_rank liest die Spalte, keine Views/Indexe/Trigger/RLS, kein UI-Reader)
+proof: worklog/proofs/348-remove-csf-multiplier.txt (Wave 1 ✅ AC5/6/7; Wave 2 SQL folgt nach Apply)
+review: worklog/reviews/348-review.md (CONCERNS → Doku-Findings #1/#2 gefixt; Code/Migration PASS)
+next: Wave 1 committet + gepusht → Vercel-Deploy abwarten → Wave 2 Migration applien (DROP COLUMN) → PROVE → LOG
 ```
 
-## Aktueller Stand — Mock → Pro
+## Kontext
 
-- **FRE-1/2/3/5 ✅ live**: Fan-Rang ist sichtbar, Follow zählt, exklusive Vereins-Beiträge sind gated, Schwellen sind club-konfigurierbar. **FRE-4 Airdrop ist bewusst auf echte-Coin-Phase verschoben** (D93-Update), nicht vergessen/nicht bauen.
-- **E1 Money/Reward ist stark fortgeschritten**: Treasury-Ledger + CSF + Events + Bounties + Polls-REIN + Fan-Reward-Perks stehen. Nächster Money-Fokus ist nicht Airdrop, sondern Polls-Reste oder ein neuer REIN/Club-Value-Block.
-- **E2 S7 Tech-First bleibt offen**: Leaderboard-/Score-Konsolidierung, Dormant-Feature-Hygiene, Bridges-Abbau, `players.club` sobald API-Football-Key frei.
+Track B aus der Pro-Stand-Roadmap (`worklog/notes/348-pro-stand-roadmap.md` Phase B), von Anil gewählt.
+`csf_multiplier` ist **toter Ballast**: Live `liquidate_player` ist `proportional_v3_2026_06_17` und liest die Spalte GAR NICHT (rein proportionale CSF-Auszahlung seit Slice 330). Entfernen hat **null Money-Effekt** — live verifiziert.
 
-## Vorherige FRE-Slices
-
-- **344 / FRE-1** ✅ — Fan-Rang-Leiter sichtbar + Perk-Katalog. PASS, live.
-- **345 / FRE-2** ✅ — Follow zählt (+5) + Recalc-Trigger. PASS, live.
-- **346 / FRE-3** ✅ — Exklusive Vereins-Beiträge (Fan-Rang-Gate + 🔒-Vorschau). PASS, live.
-- **347 / FRE-5** ✅ — Club-konfigurierbare Fan-Rang-Schwellen. PASS, live.
-
-## Nächste sinnvolle Slice-Kandidaten
-
-1. **Plan-/Drift-Hygiene**: TODO/MASTERPLAN/Knowledge gegen D93 und Pro-Stand synchron halten.
-2. **Kleiner Aufräum-Slice**: `csf_multiplier` aus Fan-Rank/CSF-Resten entfernen (D83/D93), live-functiondef zuerst.
-3. **Polls-Reste**: exklusive Treue-Umfragen (`min_fan_rank`) oder Abo-Early-Access.
-4. **E2 Phase-3**: Leaderboard-Konsolidierung (scout_scores vs user_stats), Dormant-Feature-Hygiene, Bridge-Reduktion.
-5. **Blockiert**: `players.club` String→UUID erst nach API-Football-Key-Reaktivierung.
+## Deploy-Ordering (D82, harter Constraint)
+- `getFanRanking` IST gemountet → das live `.select('...csf_multiplier...')` läuft. DROP COLUMN würde altes Bundle brechen.
+- **Wave 1 (TS) zuerst deployen**, dann **Wave 2 (Migration: RPC-Rewrite + DROP COLUMN)**.

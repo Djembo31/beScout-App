@@ -2,7 +2,9 @@
  * Fan Ranking — Tier Definitions & Constants
  *
  * 6 Tiers: Zuschauer → Stammgast → Ultra → Legende → Ehrenmitglied → Vereinsikone
- * Each tier grants a CSF multiplier (Community Success Fee bonus).
+ * Tiers are a loyalty/perks axis (Fan-Reward-Engine). The old CSF tier-multiplier
+ * was removed in Slice 348 — CSF payout is purely proportional (liquidate_player
+ * proportional_v3), and loyalty rewards run through the Fan-Reward-Engine (D83/D93).
  */
 
 import type { FanRankTier } from '@/types';
@@ -14,7 +16,6 @@ import type { FanRankTier } from '@/types';
 export type FanRankTierDef = {
   tier: FanRankTier;
   name: string;
-  csfMultiplier: number;
   minScore: number;
   maxScore: number | null;
   color: string;
@@ -22,12 +23,12 @@ export type FanRankTierDef = {
 };
 
 export const FAN_RANK_TIERS: FanRankTierDef[] = [
-  { tier: 'zuschauer', name: 'Zuschauer', csfMultiplier: 1.00, minScore: 0, maxScore: 9, color: 'gray', icon: 'eye' },
-  { tier: 'stammgast', name: 'Stammgast', csfMultiplier: 1.05, minScore: 10, maxScore: 24, color: 'blue', icon: 'users' },
-  { tier: 'ultra', name: 'Ultra', csfMultiplier: 1.15, minScore: 25, maxScore: 39, color: 'purple', icon: 'flame' },
-  { tier: 'legende', name: 'Legende', csfMultiplier: 1.25, minScore: 40, maxScore: 54, color: 'amber', icon: 'star' },
-  { tier: 'ehrenmitglied', name: 'Ehrenmitglied', csfMultiplier: 1.35, minScore: 55, maxScore: 69, color: 'emerald', icon: 'award' },
-  { tier: 'vereinsikone', name: 'Vereinsikone', csfMultiplier: 1.50, minScore: 70, maxScore: null, color: 'gold', icon: 'crown' },
+  { tier: 'zuschauer', name: 'Zuschauer', minScore: 0, maxScore: 9, color: 'gray', icon: 'eye' },
+  { tier: 'stammgast', name: 'Stammgast', minScore: 10, maxScore: 24, color: 'blue', icon: 'users' },
+  { tier: 'ultra', name: 'Ultra', minScore: 25, maxScore: 39, color: 'purple', icon: 'flame' },
+  { tier: 'legende', name: 'Legende', minScore: 40, maxScore: 54, color: 'amber', icon: 'star' },
+  { tier: 'ehrenmitglied', name: 'Ehrenmitglied', minScore: 55, maxScore: 69, color: 'emerald', icon: 'award' },
+  { tier: 'vereinsikone', name: 'Vereinsikone', minScore: 70, maxScore: null, color: 'gold', icon: 'crown' },
 ];
 
 // ============================================

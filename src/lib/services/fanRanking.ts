@@ -18,7 +18,7 @@ export const DEFAULT_FAN_RANK_THRESHOLDS: ClubFanRankThresholds = {
 export async function getFanRanking(userId: string, clubId: string): Promise<DbFanRanking | null> {
   const { data, error } = await supabase
     .from('fan_rankings')
-    .select('user_id, club_id, rank_tier, csf_multiplier, event_score, dpc_score, abo_score, community_score, streak_score, total_score, calculated_at, created_at')
+    .select('user_id, club_id, rank_tier, event_score, dpc_score, abo_score, community_score, streak_score, total_score, calculated_at, created_at')
     .eq('user_id', userId)
     .eq('club_id', clubId)
     .maybeSingle();
@@ -34,7 +34,7 @@ export async function getClubFanLeaderboard(
 ): Promise<(DbFanRanking & { profile: { handle: string; avatar_url: string | null } })[]> {
   const { data, error } = await supabase
     .from('fan_rankings')
-    .select('user_id, club_id, rank_tier, csf_multiplier, event_score, dpc_score, abo_score, community_score, streak_score, total_score, calculated_at, created_at, profiles!inner(handle, avatar_url)')
+    .select('user_id, club_id, rank_tier, event_score, dpc_score, abo_score, community_score, streak_score, total_score, calculated_at, created_at, profiles!inner(handle, avatar_url)')
     .eq('club_id', clubId)
     .order('total_score', { ascending: false })
     .limit(limit);
@@ -47,7 +47,6 @@ export async function getClubFanLeaderboard(
     user_id: row.user_id as string,
     club_id: row.club_id as string,
     rank_tier: row.rank_tier as DbFanRanking['rank_tier'],
-    csf_multiplier: row.csf_multiplier as number,
     event_score: row.event_score as number,
     dpc_score: row.dpc_score as number,
     abo_score: row.abo_score as number,
@@ -64,7 +63,7 @@ export async function getClubFanLeaderboard(
 export async function recalculateFanRank(
   userId: string,
   clubId: string,
-): Promise<{ ok: boolean; rankTier?: FanRankTier; csfMultiplier?: number; totalScore?: number; error?: string }> {
+): Promise<{ ok: boolean; rankTier?: FanRankTier; totalScore?: number; error?: string }> {
   const { data, error } = await supabase.rpc('calculate_fan_rank', {
     p_user_id: userId,
     p_club_id: clubId,
@@ -78,7 +77,6 @@ export async function recalculateFanRank(
   const result = data as {
     ok: boolean;
     rank_tier?: FanRankTier;
-    csf_multiplier?: number;
     total_score?: number;
     components?: Record<string, number>;
     error?: string;
@@ -91,7 +89,6 @@ export async function recalculateFanRank(
   return {
     ok: true,
     rankTier: result.rank_tier,
-    csfMultiplier: result.csf_multiplier,
     totalScore: result.total_score,
   };
 }

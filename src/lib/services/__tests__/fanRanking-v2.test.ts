@@ -20,7 +20,7 @@ describe('getFanRanking', () => {
   it('returns fan ranking for user+club', async () => {
     const ranking = {
       user_id: 'u1', club_id: 'c1', rank_tier: 'silber',
-      csf_multiplier: 1.5, event_score: 100, dpc_score: 200,
+      event_score: 100, dpc_score: 200,
       abo_score: 50, community_score: 30, streak_score: 20,
       total_score: 400, calculated_at: '2025-03-01', created_at: '2025-01-01',
     };
@@ -48,7 +48,7 @@ describe('getClubFanLeaderboard', () => {
   it('returns leaderboard with profile data', async () => {
     mockTable('fan_rankings', [{
       user_id: 'u1', club_id: 'c1', rank_tier: 'gold',
-      csf_multiplier: 2.0, event_score: 200, dpc_score: 300,
+      event_score: 200, dpc_score: 300,
       abo_score: 100, community_score: 50, streak_score: 30,
       total_score: 680, calculated_at: '2025-03-01', created_at: '2025-01-01',
       profiles: { handle: 'alice', avatar_url: '/alice.png' },
@@ -83,12 +83,12 @@ describe('getClubFanLeaderboard', () => {
 describe('recalculateFanRank', () => {
   it('recalculates and returns result', async () => {
     mockRpc('calculate_fan_rank', {
-      ok: true, rank_tier: 'gold', csf_multiplier: 2.0, total_score: 750,
+      ok: true, rank_tier: 'gold', total_score: 750,
       components: { event: 200, dpc: 300, abo: 100, community: 80, streak: 70 },
     });
     const result = await recalculateFanRank('u1', 'c1');
     expect(result).toEqual({
-      ok: true, rankTier: 'gold', csfMultiplier: 2.0, totalScore: 750,
+      ok: true, rankTier: 'gold', totalScore: 750,
     });
     expect(mockSupabase.rpc).toHaveBeenCalledWith('calculate_fan_rank', {
       p_user_id: 'u1', p_club_id: 'c1',

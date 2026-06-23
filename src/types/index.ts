@@ -2072,7 +2072,6 @@ export type DbFanRanking = {
   user_id: string;
   club_id: string;
   rank_tier: FanRankTier;
-  csf_multiplier: number;
   event_score: number;
   dpc_score: number;
   abo_score: number;

@@ -6,7 +6,7 @@
  *
  * Today only ONE real fan-rank perk exists: poll vote weight (Slice 343).
  * The status identity (badge) is implicit in the tier itself.
- * `csf_multiplier` is intentionally NOT a perk here — it is being removed (D83,
+ * The old CSF tier-bonus is NOT a perk here — it was removed in Slice 348 (D83,
  * treasury.md §8: loyalty moves fully into the Fan-Reward-Engine).
  */
 

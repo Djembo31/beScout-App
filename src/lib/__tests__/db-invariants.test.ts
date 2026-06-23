@@ -1021,7 +1021,7 @@ describe('DB Invariants', () => {
       claim_score_road: ['ok', 'error', 'reward_bsd', 'milestone'],
       submit_daily_challenge: ['ok', 'error', 'is_correct', 'tickets_awarded'],
       // calculate_fan_rank has no error branch — always returns ok=true with components
-      calculate_fan_rank: ['ok', 'rank_tier', 'csf_multiplier', 'total_score', 'components'],
+      calculate_fan_rank: ['ok', 'rank_tier', 'total_score', 'components'],
       batch_recalculate_fan_ranks: ['ok', 'recalculated', 'errors'],
       get_todays_challenge: ['ok', 'error', 'already_answered', 'challenge'],
 
