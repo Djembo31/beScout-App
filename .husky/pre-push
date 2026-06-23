@@ -1,38 +1,32 @@
 #!/usr/bin/env bash
-# BeScout Pre-Push Gate (Slice 248, 2026-04-28)
-# Laeuft vor JEDEM Push — simuliert lokal CI test-job.
+# BeScout Pre-Push Gate (Slice 248 → überarbeitet 2026-06-23)
 #
-# Architektonischer Layer-Stack (von Slice 248):
+# WARUM die Überarbeitung (2026-06-23): Die ehemalige `CI=true vitest run`-Zeile
+# war für ~30-90s budgetiert (Slice 248), die Suite ist auf ~6-7 min gewachsen
+# (3242 Tests). Diese Laufzeit war reproduzierbar der AUSLÖSER für
+# "failed to push some refs" (HTTPS-Transport bricht nach dem langen Hook ab;
+# `git push --no-verify` landet denselben Commit sofort).
+# Verifiziert 2026-06-23: 3× Push-Fail nach 6-min-Hook, 0× Fail ohne Hook.
+#
+# Architektonischer Layer-Stack (aktuell):
 #   pre-commit (Slice 243):  tsc + audit:type-truth + audit:stale +
 #                            audit:wiring:check + lint-staged  (~32s)
-#   pre-push   (Slice 248):  vitest (CI=true, skip integration)  (~30-90s)
-#   ci.yml      (post-push): lint + audit + build + test  (~2-3 min)
+#   pre-push   (heute):      audit:silent-fail:check  (~5s) — schneller Gate gegen
+#                            den häufigsten CI-lint-Fail (Silent-Fail-Baseline-Drift,
+#                            war die Quelle der täglichen CI-Fail-Mails). Hält die
+#                            Verbindung frisch → Push-Transport bleibt stabil.
+#   ci.yml      (post-push): lint + audit + build + test (volle vitest, ~2-3 min)
+#                            = AUTORITÄT für Tests/Build (CI-Runner schneller als lokal).
 #
-# Begruendung: Branch-Protection mit enforce_admins=true ist nicht direct-push-
-# kompatibel (Slice 244 Phase 2 Catch-22 — Push blockt bis CI gruen, CI braucht
-# Push). Solo-Dev-Workflow braucht pre-push-Layer als ECHTE Sicherheit gegen
-# silent-CI-Failures (Pattern Slice 226-245 — ≥20 Pushes durchgehend rot
-# ohne dass jemand merkt).
+# Begründung der Aufteilung (ersetzt Slice-248-Annahme): Die volle Test-Suite läuft
+# zuverlässig in CI (test-job grün). Lokal vor dem Push nur die billigen, häufig-
+# brechenden Gates — so bleibt der Push schnell + zuverlässig, CI fängt Test-/Build-Drift.
 #
-# Bewusst NICHT in pre-push:
-#   - tsc            → bereits in pre-commit (Slice 243)
-#   - audit:*        → bereits in pre-commit (Slice 243)
-#   - next build     → 5+ min, in CI 2nd-Layer (audit-Job 36s + build-Job)
-#   - bundle-budget  → Teil von next build → in CI
-#
-# Pre-push Test-Layer faengt: Test-Mock-Drift (Slice 247 Pattern), Logic-Bugs
-# die tsc nicht catched. Build/Bundle-Drift wird in CI sichtbar (4 required-
-# status-checks ab Slice 244 Phase 2).
-#
-# CI=true env-var: triggert vitest-config skipIntegration → Integration-Tests
-# (db-invariants etc.) werden geskippt, Parität mit CI-Verhalten.
-#
-# Bypass: git push --no-verify (gleiche Mechanik wie pre-commit). Bewusst
-# opt-out moeglich; CI fängt es trotzdem als 2nd-Layer.
+# Bypass: git push --no-verify.
 
 set -e
 
-echo "[pre-push] vitest run (Test-job-Simulation, CI=true für Integration-Test-Skip-Parität)..."
-CI=true pnpm exec vitest run
+echo "[pre-push] audit:silent-fail:check (schneller Gate gegen Baseline-Drift)..."
+pnpm run audit:silent-fail:check
 
-echo "[pre-push] OK"
+echo "[pre-push] OK — volle Tests laufen in CI (test-job)."

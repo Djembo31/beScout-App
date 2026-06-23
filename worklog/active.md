@@ -2,22 +2,26 @@
 
 ```
 status: in-progress
-slice: 349
-title: Club-Fan-Treue-Board mounten (W2-B) — Top-Fans-Rangliste auf Club-Page sichtbar
+slice: 350
+title: CI-grün + Push-Fix — Silent-Fail-Baseline re-anchored + Pre-Push-Hook entschlackt
 stage: PROVE
 size: S
-slice-type: UI
-spec: worklog/specs/349-mount-club-fan-leaderboard.md
-impact: inline (reine UI; nutzt bestehenden Hook useClubFanLeaderboard + Service getClubFanLeaderboard, kein RPC/Schema/Query-Key neu)
-proof: worklog/proofs/349-fan-board.txt (BUILD-Evidenz tsc/5 vitest/wiring/i18n/RLS; Playwright nach Deploy)
-review: worklog/reviews/349-review.md (PASS, 2 NIT non-blocking)
-next: BUILD — ClubFanLeaderboard-Komponente + Mount im "Mehr"-Tab + i18n DE/TR → REVIEW → Playwright-Proof gegen bescout.net (Sakaryaspor, 37 Fans)
+slice-type: Hook
+spec: inline (Ops-Fix, Trigger = Anil: tägliche CI-Fail-Emails + Push schlägt fehl)
+proof: worklog/proofs/350-ci-push-fix.txt
+review: worklog/reviews/350-review.md (self-review, CI/Tooling-Config, kein Money/Security)
+next: push (verifiziert Hook-Fix) → CI grün bestätigen → zurück zu Slice 349 LOG + Playwright
 ```
 
-## Kontext
+## Problem (Anil 2026-06-23)
+1. **Tägliche CI-Fail-Emails:** CI failt bei JEDEM Push → jeder Commit = Fail-Mail.
+2. **Push schlägt fehl** ("failed to push some refs") seit Slice 349.
 
-W2-B aus reward-ranking.md/Pro-Stand-Roadmap: `getClubFanLeaderboard` + `useClubFanLeaderboard` sind gebaut + getestet, haben aber **0 UI-Consumer** (tote Brücke). Dieser Slice mountet die Top-Fans-Rangliste sichtbar.
+## Root Causes (verifiziert)
+1. **CI-Fail:** `audit:silent-fail:check` exit 1 — Code hat 81 HIGH, `.audit-baseline.json` kannte nur 79. Die 2 „neuen" sind line-shifted **bestehende** Cron-`.in()`-Muster (gameweek-sync/live-score-sync, beschränkte Liga-Club-Listen) — kein neuer Bug (Report-Diff 06-11↔06-23). Baseline war seit ≥06-11 stale → CI seit Tagen rot.
+2. **Push-Fail:** Pre-Push-Hook lief volle vitest (~6-7 min, war für 30-90s budgetiert). Lange Laufzeit = Transport-Auslöser. `git push --no-verify` (kein Hook) landete sofort (3× Fail mit Hook, 0× ohne).
 
-- **RLS verifiziert:** `fan_rankings_select_leaderboard` (qual=true) → Board liest alle Zeilen, kein Blocker.
-- **Live-Daten:** Sakaryaspor 37 Fans (Top 33.32) → Proof-Ziel; andere Clubs 0 → Empty/null.
-- **Mount:** Club-Page „Mehr"-Tab, direkt nach `FanRankOverview` (eigener Rang → Top-Fans des Clubs).
+## Fix
+- `.audit-baseline.json` → 174/81/93 (akkurat, vom Tool vorgesehen).
+- `.husky/pre-push` → volle vitest raus, schneller `audit:silent-fail:check` rein (CI = Test-Autorität).
+- `git config http.version HTTP/1.1` + `http.postBuffer` (Transport-Härtung, lokal).
