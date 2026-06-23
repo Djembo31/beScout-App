@@ -3781,3 +3781,42 @@ Plus: Scope-Entscheidung „alle 13 Gold-Files in einem Rutsch migrieren" (nicht
 **Re-Visit-Trigger:** Falls Claude Navigator-Regeln zu oft zu knapp findet und ständig ins Detail springt → Navigator-Regeln pro Pattern um 1 Zeile anreichern. Falls der native Rule-Loader `globs:` vs `paths:` anders behandelt als angenommen → Detail-Glob-Mechanik prüfen (beide Keys gesetzt = abgesichert).
 
 **Begleit-Tweaks gleiche Session (kein eigenes D, in `workflow.md` kodifiziert):** (#2) `ship-status-gate.sh` SHIP-STATUS-Injection von 5 log.md-Einträgen auf 1 + `git log -3` getrimmt. (#3) schlanke **Ops/Tooling-Slice-Spur** in `workflow.md` (Hook/GHA/Tool/Doc ohne Money/Security → inline-Spec + Smoke-Proof + self-review).
+
+## D96 — ARCHITECTURE/PRODUCT: Plattform-Treasury (BeScout-Topf) — fängt Plattform-Fees auf + finanziert Plattform-Rewards
+
+**Datum:** 2026-06-23 · **Status:** Aktiv (Planung, Bau startet nächste Session) · **Category:** ARCHITECTURE + PRODUCT · **Kontext:** Aus der Monats-Liga-e2e-Untersuchung (Anker `worklog/notes/357-preflight-monthly-leaderboard.md`) wuchs eine Geld-Grundsatzfrage. Anil: „weiter mit monthly leaderboard" → Frage „wird das aus dem BeScout-Topf bezahlt?" → „wo kommt unser Anteil an den ganzen Fees her bzw. wo fließt es hin?".
+
+**Verifizierter Befund (Live-`pg_get_functiondef` aller 6 Fee-RPCs, D87):** Der **Plattform-Anteil JEDER Fee-Quelle wird verbrannt** — dem Zahler abgezogen, auf KEIN Konto gutgeschrieben, verschwindet aus dem Umlauf (impliziter Burn, ADR-026):
+| Quelle | Plattform-Anteil | RPC | Wohin heute |
+|---|---|---|---|
+| Trading | 3,5 % | `buy_player_sc` | 🔥 nur `trades.platform_fee` notiert |
+| IPO/Erstverkauf | 10 % | `buy_from_ipo` | 🔥 nur `trades.platform_fee` notiert |
+| Polls | 20 % | `cast_community_poll_vote` | 🔥 nur `community_poll_votes.platform_share` notiert |
+| Research | 20 % | `unlock_research` | 🔥 nur `research_unlocks.platform_fee` notiert |
+| Bounty | 5 % | `approve_bounty_submission` | 🔥 nicht mal notiert (Differenz reward−creator_net) |
+| P2P-Offers | 2 % | `accept_offer` | 🔥 nur `trades.platform_fee` notiert |
+Kontrast: PBT-Anteile → `pbt_treasury` ✅, Club-Anteile → `clubs.treasury_balance_cents` ✅. **Nur der Plattform-Anteil verbrennt überall** → BeScout fängt aktuell technisch 0 € seiner eigenen Fees auf. Es gibt **kein Plattform-Konto** (live nur `club_treasury_ledger` per-Club + `pbt_treasury`).
+
+**Entscheidung:** Wir bauen die **Plattform-Treasury** (BeScout-Topf) als echtes Konto (Saldo + append-only Ledger), spiegelbildlich zur Club-Treasury (Slice 329):
+1. **REIN:** die heute verbrannten Plattform-Fee-Anteile (6 Quellen oben) fließen in den Topf statt zu verschwinden.
+2. **RAUS:** plattformweite Rewards werden daraus bezahlt — **Monats-Liga** + **BeScout-Events** (`type='bescout'`, heute noch minten lt. treasury.md §7).
+3. **Modell-Shift bewusst:** von rein **deflationär** (Plattform-Fees verbrennen) zu **zirkulär** (Fees finanzieren Engagement-Rewards). Selbst-finanzierend, kein Netto-Minting für Plattform-Rewards.
+
+**Bau-Sequenz (Fundament zuerst, kein Reward-Kanal vor dem Topf):**
+| Slice | Was | Typ |
+|---|---|---|
+| **1 Fundament** | `platform_treasury_ledger` + Saldo + `book_platform_treasury()` (Mirror `book_club_treasury`) + Admin-Sichtbarkeit | Money-Infra |
+| **2 REIN** | verbrannte Plattform-Fees umleiten — **eine Quelle pro Slice** (Trading zuerst), wie Club-Treasury | Money |
+| **3 Liga e2e** | Monats-Liga zahlt aus Topf + Live-Standing-UI + Cron (voll-auto, Anil) + `overall`=Median-Fix | Money + UI |
+| **4 BeScout-Events** | `type='bescout'`-Events aus Topf (Reconcile Minting→Topf) | Money |
+| **5 Wettkampf-Darstellung** | Events als „BeScout Liga" mit Monats-/Saison-Wertung sichtbar + die 7 Ranglisten konsolidieren | UI |
+
+**Anil-Festlegungen diese Session:** (a) Geld aus Treasury, nicht minten — aber Topf existiert nicht → erst bauen. (b) Monatsabschluss **voll-automatisch per Cron** (Treasury-Quelle senkt das Auto-Risiko ggü. Minting; trotzdem Idempotenz + Deckungs-Check). (c) Scope „Liga e2e zuerst" expandiert bewusst zum Topf-Epic, weil Liga ohne Topf nicht sauber zahlbar ist. (d) Events sollen als Wettkampf (Saison/Monat) sichtbar werden — Manager messen sich („BeScout Liga"). (e) `overall`-Dimension der Monats-Liga rankt aktuell fälschlich nur nach `manager_score` (Array-Index [2] ohne Sortierung) statt Median → in Slice 3 fixen.
+
+**Begründung:** Geld-Konsistenz (jeder Reward-Kanal aus echtem Konto), echte Plattform-Umsatz-Akkumulation statt Totalverbrennung, und es schließt drei offene Dinge auf einmal: Liga-e2e-Lücke (nie geschlossen, 0 Snapshots live), „wo fließen unsere Fees hin", Events-als-Wettkampf-Darstellung.
+
+**Auswirkungen:** Money-/CEO-Scope über mehrere Slices (§3 selbst bauen). `treasury.md` §7 „bescout/sponsor/special/creator minten bewusst weiter" wird für `type='bescout'` durch Slice 4 abgelöst. Verändert die Geldpolitik (deflationär→zirkulär) — bewusst von Anil abgesegnet. ADR-026 „Fees = Burn" gilt damit nur noch für den NICHT-aufgefangenen Rest (falls Caps/Teil-Burn gewollt — in Slice 1/2 zu entscheiden).
+
+**Alternativen erwogen:** (a) Monats-Liga weiter minten + nur deckeln → verworfen (inkonsistent zu Club-Töpfen, Anils Kern-Einwand). (b) Aus Club-Töpfen zahlen → unmöglich, Liga ist plattformweit, gehört keinem Club. (c) Aus PBT-Treasury → semantisch falsch (PBT = zweckgebunden Spieler/Holder). (d) Topf später, Liga zuerst → verworfen: kein Reward-Kanal vor seinem Konto (Fundament-zuerst, bewährt 329→332).
+
+**Re-Visit-Trigger:** Wenn der zirkuläre Shift die $SCOUT-Inflation messbar treibt → Teil-Burn/Cap-Politik in `book_platform_treasury` einziehen. Wenn Plattform-Events vor Slice 4 dringend echtes Geld brauchen → Quelle-Priorität in Sequenz tauschen. Phase-2/3 (EUR-Cash-out aus Plattform-Topf) bleibt lizenz-/CASP-gegated, nicht jetzt.

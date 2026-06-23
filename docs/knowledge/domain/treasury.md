@@ -185,4 +185,25 @@ Alle Money-kritisch → CEO-Scope, sorgfältige Specs (D87-Muster).
 
 ---
 
-*Kanon-Doc (WIE). Entscheidung (WARUM) = D83. Code-Regel = `.claude/rules/trading.md`. Polls = `domain/polls.md` (D86). Reward-/Ranking-Landkarte = `domain/reward-ranking.md`.*
+## 10. Plattform-Treasury (BeScout-Topf) — geplant, D96 (2026-06-23)
+
+> **Befund (Live-verifiziert, alle 6 Fee-RPCs via `pg_get_functiondef`, D87):** Der **Plattform-Anteil JEDER Fee-Quelle wird verbrannt** — dem Zahler abgezogen, auf KEIN Konto gebucht, weg aus dem Umlauf. PBT- + Club-Anteile landen auf echten Konten, nur der **Plattform-Anteil** verbrennt überall → BeScout fängt heute technisch **0 €** seiner eigenen Fees auf. Es existiert **kein Plattform-Konto** (live nur `club_treasury_ledger` per-Club + `pbt_treasury`).
+
+| Quelle | Plattform-% | RPC | heute |
+|---|---|---|---|
+| Trading | 3,5 % | `buy_player_sc` | 🔥 `trades.platform_fee` notiert, nicht gebucht |
+| IPO | 10 % | `buy_from_ipo` | 🔥 `trades.platform_fee` notiert, nicht gebucht |
+| Polls | 20 % | `cast_community_poll_vote` | 🔥 `community_poll_votes.platform_share` notiert |
+| Research | 20 % | `unlock_research` | 🔥 `research_unlocks.platform_fee` notiert |
+| Bounty | 5 % | `approve_bounty_submission` | 🔥 nicht mal notiert (reward−creator_net) |
+| P2P | 2 % | `accept_offer` | 🔥 `trades.platform_fee` notiert |
+
+**Entscheidung (D96):** Plattform-Treasury als echtes Konto bauen (Saldo + append-only Ledger, Mirror Club-Treasury 329). **REIN** = die 6 verbrannten Plattform-Fee-Ströme. **RAUS** = plattformweite Rewards (**Monats-Liga**, **BeScout-Events** `type='bescout'`). Modell-Shift **deflationär → zirkulär** (bewusst, Anil). Selbst-finanzierend, kein Netto-Minting für Plattform-Rewards.
+
+**Bau-Sequenz:** 1 Topf-Fundament (`platform_treasury_ledger` + `book_platform_treasury()` + Admin-Sichtbarkeit) → 2 Fees REIN (eine Quelle/Slice, Trading zuerst) → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf (löst §7 „bescout mintet weiter" ab) → 5 Events als „BeScout Liga"-Wettkampf (Saison/Monat) + Ranking-Konsolidierung (7 Boards → klar).
+
+**Monats-Liga Ist-Stand (Slice-3-Vorarbeit):** `close_monthly_liga(date)` lebt, idempotent (Snapshot-Existenz-Guard), `liga_reward` im `transactions`-CHECK ✅, mintet heute **34.000 $SCOUT/Monat** (5.000/2.500/1.000 × 4 Dim). **0 Snapshots/0 Winners live** (nie gefeuert → Sieger-Box `/rankings` leer). `getMonthlyLeaderboard` liest Snapshots = **abgeschlossene** Monate (NICHT laufend) → echtes Live-Standing braucht neue Read-Query (Delta `scout_scores.x − season_start_x`). Detail-Plan: `worklog/notes/358-platform-treasury-epic.md` (+ Ursprung `357-preflight-monthly-leaderboard.md`).
+
+---
+
+*Kanon-Doc (WIE). Entscheidung (WARUM) = D83 + **D96** (Plattform-Treasury). Code-Regel = `.claude/rules/trading.md`. Polls = `domain/polls.md` (D86). Reward-/Ranking-Landkarte = `domain/reward-ranking.md`.*

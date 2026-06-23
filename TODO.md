@@ -5,7 +5,8 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Nächster Track (Anil setzt fort):** Polls-Roadmap KOMPLETT (356: exklusive Treue-Umfragen + 80/20-Fee-Heal). Jetzt **(C) E2/S7-Pro-Aufräumen** — konkret offen: Monthly-Liga-Board (tot) · `scout_scores`↔`user_stats`-Konsolidierung · Dormant-Hygiene (Research/Voting/Creator-Fund/Wildcard) · Bridges (46). ⛔ `players.club` blockiert (API-Football-Key). Detailkarten: `worklog/s7-phase3-remaining.md` (Block-SSOT) + `worklog/notes/348-pro-stand-roadmap.md`.
+- **NÄCHSTER BAU (Anil startet frische Session) — E3 Plattform-Treasury (D96), Money/CEO-Scope, selbst bauen (§3):** Befund live-verifiziert: alle 6 Plattform-Fee-Anteile verbrennen, BeScout fängt 0 € eigener Fees auf, kein Plattform-Konto existiert. **Slice 1 = Topf-Fundament** (`platform_treasury_ledger` + `book_platform_treasury()` Mirror 329 + Admin-Sichtbarkeit). Dann 2 Fees REIN → 3 Monats-Liga e2e → 4 BeScout-Events → 5 Wettkampf-Darstellung. **Plan-Anker: `worklog/notes/358-platform-treasury-epic.md`** (+ WARUM D96 + WIE treasury.md §10). Pre-Spec: Live-`pg_get_functiondef('book_club_treasury')` als Blueprint (D87).
+- **(C) E2/S7-Pro-Aufräumen** (nachgelagert, Teile wandern in E3): `scout_scores`↔`user_stats`-Konsolidierung · Dormant-Hygiene (Research/Voting/Creator-Fund/Wildcard) · Bridges (46). Monthly-Liga-Board + Ranking-Konsolidierung sind jetzt E3 Slice 3/5. ⛔ `players.club` blockiert (API-Football-Key). Tracker: `worklog/s7-phase3-remaining.md` + `worklog/notes/348-pro-stand-roadmap.md`.
 - Backlog aus 346-Review: Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`) · posts-INSERT-Policy `club_admins`-Härtung (pre-existing).
 
 ## 🟡 P1 — als Nächstes

@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 23:21)
+# Session Handoff — Auto (2026-06-23 00:43)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,13 +8,10 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 6
+## Session Commits: 3
+- dd43756e docs(handoff): Session-Ende Slice 356 + Preflight Monthly-Leaderboard (nächste Session)
 - 8b8fb124 chore(audit): re-baseline silent-fail 81->82 HIGH (Slice 356 bounded .in())
 - 84b369c5 feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal (Slice 356)
-- 27edf18a chore(gitignore): Audit-Churn ignorieren — knowledge-* + silent-fail-* Reports (Slice 355)
-- d25c5a1e docs(handoff): stale "NÄCHSTER ARBEITSBLOCK" entfernt (349+Workflow-Tracks erledigt)
-- 7cde45a7 fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention (Slice 354)
-- 009f596c docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL (Slice 353)
 
 <!-- auto:handoff-end -->
 
@@ -22,14 +19,21 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 356 (+ baseline-Commit).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn ist gitignored (355). **CI grün, Push normal.** Alles committet + gepusht.
+**Status: idle. HEAD = Slice 356 (+ baseline-Commit + Doku-Session 2026-06-23).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn ist gitignored (355). **CI grün, Push normal.** Alles committet + gepusht.
 
-## ➡️ NÄCHSTER SLICE: Monthly Leaderboard e2e-fertig verfolgen (Anil-Auftrag 2026-06-23)
-> „weiter mit monthly leader board, das wurde wie vieles angefangen, aber nicht e2e verfolgt."
-- **ZUERST lesen:** `worklog/notes/357-preflight-monthly-leaderboard.md` — vollständige Bestandsaufnahme (was lebt: `MonthlyWinners`/`close_monthly_liga`; was tot: `getMonthlyLeaderboard`+Hook ohne UI; die e2e-Lücke: kein Cron + keine Live-Board-UI).
-- **Money-Path:** `close_monthly_liga` ist payoutfähig → SPEC startet mit Live-`pg_get_functiondef` (D87), selbst bauen (§3).
-- **2 Anil-Fragen vor BUILD:** Monatsabschluss Cron-automatisch vs. manuell (Payout-Risiko Beta)? · Welche Dimension(en) zeigt das Live-Board?
-- Entscheidung D80 = **activate** (e2e fertig), nicht löschen (Anil-Intention).
+## ➡️ NÄCHSTER BAU: E3 Plattform-Treasury (BeScout-Topf) — D96, Money/CEO-Scope, selbst bauen (§3)
+> Aus der Monthly-Liga-Frage gewachsen (2026-06-23). Anil: Topf bauen statt minten — „wo fließt unser Fee-Anteil hin?"
+- **ZUERST lesen (Bau-Anker):** `worklog/notes/358-platform-treasury-epic.md` (Sequenz, Slice-Specs-Vorarbeit, alle Live-Fakten) · WARUM = `memory/decisions.md` **D96** · WIE = `docs/knowledge/domain/treasury.md` §10.
+- **Kern-Befund (live-verifiziert, D87):** alle 6 Plattform-Fee-Anteile **verbrennen** (Trading 3,5 % · IPO 10 % · Polls 20 % · Research 20 % · Bounty 5 % · P2P 2 %) → BeScout fängt 0 € eigener Fees auf, **kein Plattform-Konto existiert**. PBT/Club-Anteile landen sehr wohl auf Konten — nur Plattform-Anteil verbrennt.
+- **Sequenz:** 1 Topf-Fundament (`platform_treasury_ledger` + `book_platform_treasury()` Mirror Slice 329 + Admin-Sichtbarkeit) → 2 Fees REIN (eine Quelle/Slice, Trading zuerst) → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf → 5 Events als „BeScout Liga"-Wettkampf + Ranking-Konsolidierung.
+- **Anil-Festlegungen:** Geld aus Treasury (Topf erst bauen) · Cron voll-automatisch · Modell-Shift deflationär→zirkulär abgesegnet · Events als Wettkampf (Saison/Monat) sichtbar.
+- **Slice 1 Start:** Pre-Spec Live-`pg_get_functiondef('book_club_treasury(...)')` als Blueprint (D87), dann `/ship new`.
+- **Monthly-Liga-Ist (Slice-3-Vorarbeit):** `close_monthly_liga` lebt, idempotent, mintet 34.000 $SCOUT/Monat, **0 Snapshots live** (nie gefeuert). `getMonthlyLeaderboard` = abgeschlossene Monate (Live-Standing braucht NEUE Delta-Query). Ursprung: `worklog/notes/357-preflight-monthly-leaderboard.md`.
+
+## 🧾 SESSION 2026-06-23 (Doku/DISTILL, kein Code) — Plattform-Treasury ausgearbeitet
+- Monthly-Liga-Untersuchung → Geld-Grundsatzfrage → **D96** (Plattform-Treasury-Epic). 6 Fee-RPCs live gelesen, Verbrenn-Befund verifiziert.
+- Aktualisiert: `decisions.md` D96 · `treasury.md` §10 (+updated 2026-06-23) · INDEX D1–D96 · MASTERPLAN E3 + Stand · TODO P0 · neuer Plan `worklog/notes/358-platform-treasury-epic.md`.
+- **Kein Slice/Code** — Bau bewusst auf frische Session vertagt (Anil).
 
 ## ✅ SESSION 2026-06-23 (Abend) — Slice 356 Exklusive Treue-Umfragen + Money-Heal
 - **Slice 356** — Exklusive Treue-Umfragen (`community_polls.min_fan_rank_tier`-Tor): create-Param (nur source='club'), Vote-Guard VOR Wallet (fail-closed), Service `viewer_locked` pro Poll/Betrachter (multi-club), Card-Schloss-Teaser + Create-Selector, i18n DE+TR. Silent-Fail-Fix: `castCommunityPollVote` wirft jetzt bei !success (vorher false-success-Toast). → **Polls-Roadmap KOMPLETT** ((c) Abo-Early-Access von Anil gestrichen).
