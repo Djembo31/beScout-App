@@ -242,6 +242,7 @@ Agent({
 - Git-Commit mit aussagekraeftiger Message
 - Wenn Bug gefixt: neue Regel in `.claude/rules/common-errors.md`
 - **Wissens-Kopplung (E0-W2gov):** Hat der Slice eine Domain geändert, zu der ein `docs/knowledge/domain/`-File existiert? → im SELBEN Slice mit-updaten (`updated` + ggf. `verified-against`). Sonst driftet das Wissen (getrennte Code-/Doku-Änderung = Drift-Ursache). **Hook-enforced seit Slice 351 (D45):** `audit:knowledge:check` (pre-commit, HARD) blockt (a) Content-Change an `docs/knowledge/**.md` ohne `updated:`=heute und (b) INDEX-Decisions-Range != max-D in `decisions.md`. Heißt: neue `D<n>` → INDEX-Range mitziehen; Knowledge-Content ändern → `updated:` heute setzen, sonst blockt der Commit. `verified-against`-Drift bleibt SOFT (nightly).
+- **Tracker-Kopplung (Slice 354):** Berührte der Slice einen Epic-/Domain-Scope, der in einem **Sub-Tracker** geführt wird (`worklog/s7-phase3-remaining.md`, `worklog/notes/348-pro-stand-roadmap.md`) ODER ändert den großen Stand → im SELBEN Slice mit-reconcilen (Block abhaken / Stand-Satz). Plus `MASTERPLAN.md` (Stand-Satz) + `TODO.md` (Erledigt/Prio). **Reminder-enforced:** der `.husky/pre-commit` `[TRACKER-RECONCILE]`-Hinweis feuert, sobald ein neuer `## NNN` in `log.md` gestaged ist (non-blocking, weil „welcher Tracker" semantisch ist) — Surface am richtigen Moment statt Memory. Ursache der Stale-Klasse: Sub-Tracker werden von KEINEM anderen Ritual angefasst → driften (348/349-Drift, Slice 354).
 - `worklog/active.md` zurueck auf `status: idle`
 
 ## Gates (architektonisch via Hooks)

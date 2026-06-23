@@ -2,15 +2,15 @@
 
 ```
 status: idle
-slice: 353
-title: ✅ DONE — errors-db + errors-infra Navigator-Split (D95) + DISTILL
+slice: 354
+title: ✅ DONE — 349 Live-Verify (Prod-Bug gefunden+gefixt) + fan_rankings→profiles FK + Stale-Prävention
 stage: LOG complete
 size: S
-slice-type: Doc
-spec: inline (Folge-Slices zu 352, gleiche Navigator-Mechanik, D95)
-proof: Heading-Diff verifiziert (db 44 ###, infra 41 ### verbatim erhalten; navigator 44/41 Bullets 1:1)
-review: self-review (Ops/Doc, kein Money/Security) + unabhängige Verifikation der 2 Parallel-Agent-Outputs
-next: Pro-Stand-Roadmap (Polls-Reste / S7-Leaderboard) ODER offene Backlog-Items
+slice-type: Migration + Tool/Doc
+spec: inline (Anil: 349-Verify + Stale-Ursache beheben + für neue Session finalisieren)
+proof: worklog/proofs/354-fan-leaderboard-fk.txt (vorher Error-State → nachher 38 Fans, desktop+393px)
+review: worklog/reviews/354-review.md (reviewer-Agent PASS, 2 INFO, kein Money/Tally-Effekt)
+next: Pro-Stand-Roadmap (Polls-Reste / S7-Leaderboard scout_scores↔user_stats / Dormant-Hygiene)
 ```
 
 ## Plan (Anil-Alignment 2026-06-23)

@@ -36,4 +36,4 @@
 - Beta-Launch live (Tester aktiv).
 
 ## 📍 Stand in einem Satz
-Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + Event-Cancel (335) + Predictions-Removal (338). **Fan-Reward-Engine FRE-1/2/3/5 alle ✅ live** (344/345/346/347); FRE-4 Airdrop verschoben auf Coin-Phase (D93). Nächstes Money-Stück = Polls-Reste (b/c) oder neuer Treasury/REIN-Block. Plan = D93.
+Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + **Fan-Reward-Engine FRE-1/2/3/5 ✅ live** (344-347; FRE-4 Airdrop → Coin-Phase, D93). **Workflow-Effizienz (352/353, D95): errors-*.md auf Navigator+Detail, ~90% weniger Context/Edit.** **349 Club-Fan-Board live-bestätigt + Prod-FK-Bug gefixt (354); Stale-Tracker-Klasse abgestellt (354).** Nächster Track (Anil-Wahl): Polls-Reste ODER S7-Aufräumen (scout_scores↔user_stats / Dormant / Bridges; ⛔ players.club=API-Key).

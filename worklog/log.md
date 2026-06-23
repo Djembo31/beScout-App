@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 354 | 2026-06-23 | fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention
+- Stage-Chain: SPEC (inline, Anil) → BUILD → REVIEW (`worklog/reviews/354-review.md`, reviewer-Agent PASS) → PROVE (`worklog/proofs/354-fan-leaderboard-fk.txt`) → LOG.
+- **349 Live-Verify** (der offene Beweis) fand einen **Prod-Bug**: Club-Fan-Board „Treueste Fans" rendert Error-State. Root Cause: `getClubFanLeaderboard` Embed `profiles!inner(...)` ohne FK `fan_rankings→profiles` (FK ging nur auf `auth.users`, verletzt database.md). tsc+Unit-Mock grün, nur Live-Render fängt's.
+- **Fix:** Migration `20260623210000` — additiver FK `fan_rankings.user_id → profiles(id) ON DELETE CASCADE` (kanonisch = scout_scores). 0 src/-Änderung, 0 Orphans (37 Zeilen), apply_migration live. Re-Verify: 38 echte Fans, desktop+393px, kein MISSING_MESSAGE. Reviewer PASS (kein Money/Tally-Effekt, D92 unberührt).
+- **Stale-Tracker-Prävention** (Anil-Auftrag „Ursache beheben"): Ursache = Epic-Sub-Tracker werden von keinem Close-Out-Ritual angefasst → driften. Fix 3-teilig: (1) `.husky/pre-commit` `[TRACKER-RECONCILE]`-Reminder am mechanischen Trigger „neuer ## NNN in log.md gestaged" (non-blocking, semantisch); (2) `workflow.md` LOG-Step „Tracker-Kopplung"; (3) `s7-phase3-remaining.md` Stand-Quellen-Header + `reconciled-through-slice: 354` + 348/349/354 abgehakt.
+- Knowledge: `errors-db.md` S354-Bullet (Embed-FK→profiles + generalisiert „neue `*!inner` braucht Live-Verify als DoD"). QA-Script `e2e/qa-349-club-fan-leaderboard.ts`.
+- Commit: (dieser).
+
 ## 353 | 2026-06-23 | docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL
 - Stage-Chain: SPEC (inline, Folge zu 352) → BUILD (2 Parallel-Agents, je 1 File) → REVIEW (self + unabhängige Heading-Diff/Coverage-Verifikation der Agent-Outputs) → PROVE (Heading-Counts) → LOG.
 - Folge-Slices zu 352, gleiche Navigator-Mechanik (D95): `errors-db.md` 787→73 Z. (44 Patterns, git mv → Detail verbatim; +1 `##`-Sektion für 7 vorher header-lose Patterns) · `errors-infra.md` 538→66 Z. (41 Patterns). Beide Detail-Files non-matching glob (`__never-autoload__/**`), Navigator-`paths:` unverändert.

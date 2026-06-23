@@ -1,0 +1,51 @@
+Slice 354 — 349 Live-Verify + fan_rankings→profiles FK-Fix + Stale-Prävention
+Proof (2026-06-23)
+============================================================
+
+### A) 349 LIVE-VERIFY (war der einzige offene Beweis) — fand einen Prod-Bug
+qa-349 gegen bescout.net (demo-fan, /club/sakaryaspor Tab "Mehr"):
+  VORHER (Bug): Board "Treueste Fans" rendert ERROR-STATE
+    → "Daten konnten nicht geladen werden" / "Erneut versuchen"
+    → isVisible(title)=true täuschte (Titel rendert auch im Error-State), aber 1 profile-row.
+
+### B) ROOT CAUSE (via Supabase MCP, Live-DB)
+fan_rankings FKs:
+  fan_rankings_user_id_fkey       → auth.users   (vorhanden)
+  fan_rankings_user_id_profiles_  → FEHLTE        ← Bug
+Service getClubFanLeaderboard nutzt Embed `profiles!inner(handle, avatar_url)`.
+PostgREST braucht FK fan_rankings→profiles für die Relation → fehlte → "could not find
+a relationship" → Service throw → UI-Error-State. database.md-Regel verletzt ("FK auf profiles").
+Kanon-Vergleich: scout_scores.user_id → profiles ✅ (Embed funktioniert); user_stats → auth.users (gleiche Lücke).
+Orphan-Check VOR Fix: 37 Zeilen, 0 ohne Profil → FK sicher addbar.
+
+### C) FIX (Migration, additiv)
+20260623210000_slice_354_fan_rankings_profiles_fk.sql:
+  ALTER TABLE public.fan_rankings
+    ADD CONSTRAINT fan_rankings_user_id_profiles_fkey
+    FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE;
+apply_migration → {success:true}. pg_notify('pgrst','reload schema').
+0 src/-Änderung (Service-Query war korrekt, nur Schema fehlte). AR-44 N/A (keine Funktion).
+
+### D) RE-VERIFY (nach Fix) — PASS
+qa-349 erneut:
+  desktop board visible : true
+  mobile  board visible : true   (393px iPhone 16)
+  profile-row links     : 38  (vorher 1 = Error-State)
+  MISSING_MESSAGE/errors: NONE
+  board-card screenshot : qa-screenshots/349/board-card.png
+    → "Treueste Fans" mit echten Fans: 1 jarvisqa 33.32 · 2 bot002 28.99 · 3 bot039 26.92
+      (Gold-Ränge Top-3, FanRankBadges, Self-Highlight, Scores)
+Reviewer (cold-context): PASS, 2 INFO-Findings (theoretisch), kein Money/Tally-Effekt (D92 unberührt).
+
+### E) STALE-TRACKER-PRÄVENTION (Anil: "ursache herausfinden + beheben")
+Ursache: Epic-Sub-Tracker (s7-phase3-remaining.md, 348-pro-stand-roadmap.md) werden von
+KEINEM Close-Out-Ritual angefasst → driften, sobald ein Slice ihren Scope berührt (348
+csf_multiplier + 349 Board waren nicht abgehakt). Semantisch ("welcher Tracker") → kein harter
+Block möglich, daher 3-teilig:
+  1. .husky/pre-commit [TRACKER-RECONCILE]-Reminder — feuert am mechanischen Trigger
+     "neuer ## NNN in log.md gestaged" (non-blocking). Surface am richtigen Moment statt Memory.
+  2. workflow.md LOG-Stage: "Tracker-Kopplung" als expliziter Pflicht-Step.
+  3. s7-phase3-remaining.md: Stand-Quellen-Header (SSOT-Klarheit) + "reconciled-through-slice: 354"
+     + 348/349/354 abgehakt.
+
+STATUS: PASS. 349 voll-DONE. Stale-Klasse abgestellt. Knowledge: errors-db.md S354-Bullet.

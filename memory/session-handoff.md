@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 18:06)
+# Session Handoff — Auto (2026-06-23 19:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -11,16 +11,15 @@
 ?? worklog/audits/silent-fail-2026-06-23.md
 ```
 
-## Session Commits: 9
+## Session Commits: 8
+- 009f596c docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL (Slice 353)
+- fc1334a2 chore(workflow): Effizienz-Tracks #1+#2+#3 — Navigator-Split + Status-Trim + Ops-Spur (Slice 352)
+- 8302abcc docs(notes): Workflow-Effizienz-Analyse + 3 Optimierungs-Tracks (frische Session)
 - 560a6136 feat(tooling): Slice 351 — Knowledge-Coupling-Gate (Stale hart blocken, D45)
 - 270055b2 docs(knowledge): Wissens-Kopplung Slice 348/349 — Frontmatter + W2-B + INDEX (E0-W2gov)
 - 7fe4e148 chore(gitignore): DesignSync-Tooling-Artefakte ignorieren (.design-sync/, tsconfig.dssync.json)
 - d5e52fdb docs(session-end): LOG 348/349/350 + DISTILL (D94 Pre-Push-Strategie + 3 errors-infra-Patterns) + Handoff
 - 8bc155d2 fix(ci): Slice 350 follow-up — ClubContent-Test-Mock + Nightly-Workflow-SyntaxError
-- c03a43f7 fix(ci): Slice 350 — CI-grün (Silent-Fail-Baseline re-anchored) + Push-Fix (Pre-Push entschlackt)
-- 3a8b966a feat(gamification): Slice 349 — Club-Fan-Treue-Board mounten (W2-B)
-- 5c963681 refactor(db): Slice 348 Wave 2 — calculate_fan_rank-Rewrite + DROP COLUMN csf_multiplier
-- ef8ecc1f refactor(db): Slice 348 Wave 1 — csf_multiplier aus TS + Docs entfernen (D83/D93)
 
 <!-- auto:handoff-end -->
 
@@ -28,12 +27,25 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = `8bc155d2` (Slice 350). `worklog/active.md` = idle. **CI ist GRÜN, Push funktioniert normal.** Fan-Reward-Engine FRE-1/2/3/5 + csf_multiplier-Removal + Fan-Board alle DONE.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = `Slice 354`. `worklog/active.md` = idle. **CI grün, Push normal.** Alles dieser Session committet + gepusht — **Anil setzt frei fort** (Polls-Reste ODER S7-Aufräumen, s.u.).
 
-## ✅ SESSION 2026-06-23 — 3 Slices + Infra-Heilung
-- **Slice 348** — `csf_multiplier` komplett raus (Code+RPC+Spalte gedroppt), 0 Money-Effekt live verifiziert (liquidate_player ist proportional_v3 seit 330). 2-Wellen-Deploy (D82).
-- **Slice 349** — Club-Fan-Treue-Board gemountet (W2-B, tote Brücke aktiviert). Code/Tests/Review/RLS/Daten grün. **⚠ OFFEN = ERSTE NEXT-SESSION-ACTION:** Live-Playwright-Screenshot `/club/sakaryaspor` Tab „Mehr" (desktop+393px, Console-Scan MISSING_MESSAGE). Sakaryaspor hat 37 Fans = sichtbares Board. Deploy ist live.
-- **Slice 350** — **CI-grün + Push-Fix** (Anil-Notfall: tägliche Fail-Mails + Push gebrochen). Root-Causes: (1) `.audit-baseline.json` stale (79 vs 81, alles bestehende Cron-`.in()`) → re-anchored 174/81/93. (2) Pre-Push-Hook lief volle 6-min-vitest = Push-Transport-Killer → entschlackt auf schnellen `audit:silent-fail:check` (~5s), **volle Tests = CI-Autorität** (D94). Plus `git http.version HTTP/1.1`. Plus nightly-audit.yml SyntaxError (verschachtelte Backticks) gefixt. **CI grün end-to-end bestätigt.**
+## ✅ SESSION 2026-06-23 (Fortsetzung) — Workflow-Effizienz + 349-Heilung
+- **Slice 352** — Workflow-Effizienz #1+#2+#3: `ship-status-gate.sh` log.md-Injection 5→1; Ops/Tooling-Slice-Spur in `workflow.md`; **`errors-frontend.md` → Navigator (78 Z., always-loaded) + `errors-frontend-detail.md` (on-demand, non-matching glob)**. Anil-Alignment: path-scopen verworfen (.tsx-Kollaps = Safety-Regression).
+- **Slice 353** — `errors-db.md` (787→73) + `errors-infra.md` (538→66) gleiche Navigator-Mechanik (2 Parallel-Agents). **DISTILL D95** (Navigator+Detail-Architektur). 3 Domains: ~90% weniger always-loaded Context/Edit, 0 Pattern-Verlust.
+- **Slice 354** — **349 Live-Verify fand Prod-Bug + gefixt:** Club-Fan-Board „Treueste Fans" war im **Error-State** — `getClubFanLeaderboard` Embed `profiles!inner` ohne FK `fan_rankings→profiles` (FK ging nur auf auth.users). Fix = additiver FK→profiles (Migration `20260623210000`, kanonisch=scout_scores), 0 src/-Änderung, Re-Verify 38 Fans live PASS. **349 jetzt voll-DONE.** Plus **Stale-Tracker-Prävention** (s.u.).
+
+## 🛡️ STALE-TRACKER-KLASSE ABGESTELLT (Slice 354 — Anil-Auftrag)
+- **Ursache:** Epic-Sub-Tracker (`s7-phase3-remaining.md`, `348-pro-stand-roadmap.md`) werden von KEINEM Close-Out-Ritual angefasst → driften (348/349 waren nicht abgehakt).
+- **Fix (3-teilig):** (1) `.husky/pre-commit` `[TRACKER-RECONCILE]`-Reminder feuert bei „neuer ## NNN in log.md gestaged" (non-blocking, weil semantisch); (2) `workflow.md` LOG-Step „Tracker-Kopplung"; (3) `s7-phase3-remaining.md` Stand-Quellen-Header + `reconciled-through-slice: 354`.
+- **Heißt für nächste Session:** beim Slice-LOG erinnert der Hook an MASTERPLAN/TODO/s7-Tracker — reconcilen, nicht ignorieren (außer reine Doku/Meta-Slices).
+
+## 🎯 NÄCHSTER TRACK (Anil-Wahl, frei fortsetzbar)
+- **(A) Polls-Reste:** exklusive Treue-Umfragen (`min_fan_rank`) · Abo-Early-Access (kleine Money-Slices).
+- **(C) S7-Aufräumen** (Block-SSOT `worklog/s7-phase3-remaining.md`): Monthly-Liga-Board (tot) · `scout_scores`↔`user_stats`-Konsolidierung · Dormant-Hygiene (Research/Voting/Creator-Fund/Wildcard) · Bridges (46). ⛔ `players.club` blockiert (API-Football-Key — Anil-Action).
+
+## 📦 ÄLTERE SESSION 2026-06-23 (Vormittag) — 348/350/351
+- **Slice 348** — `csf_multiplier` komplett raus (Code+RPC+Spalte), 0 Money-Effekt (liquidate_player proportional_v3 seit 330).
+- **Slice 350** — CI-grün + Push-Fix (D94: Pre-Push=schneller Gate, volle Tests=CI). **Slice 351** — Knowledge-Coupling-Gate (D45).
 
 ## ⚙️ NEUE WORKFLOW-REALITÄT (D94 — wichtig!)
 - **Push geht wieder normal** (kein `--no-verify` nötig). Falls ein Push doch mal „failed to push some refs" zeigt ohne `remote:`-Meldung: das ist der Transport-Bruch — `git push --no-verify` als Notfall, dann Pre-Push-Hook-Laufzeit prüfen.

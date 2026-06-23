@@ -5,13 +5,13 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Pro-Stand-Entscheidung / nächster Track:** Fan-Reward-Engine FRE-1/2/3/5 ist für die aktuelle Phase abgeschlossen; FRE-4 Airdrop ist echte-Coin-Phase. Jetzt wählen/abarbeiten: **(A) Polls-Reste** (exklusive Treue-Umfragen `min_fan_rank`, Abo-Early-Access), **(B) kleiner Aufräum-Slice `csf_multiplier` raus**, oder **(C) E2/S7-Pro-Aufräumen** (Leaderboard-Konsolidierung, Dormant-Hygiene, Bridges). Detailkarte: `worklog/notes/348-pro-stand-roadmap.md`.
+- **Pro-Stand-Entscheidung / nächster Track (Anil setzt fort):** Fan-Reward-Engine FRE-1/2/3/5 ✅, Polls-Geldmaschine ✅, Workflow-Effizienz (352/353) ✅, 349-Board live-bestätigt + FK-Fix (354) ✅. Jetzt wählen: **(A) Polls-Reste** (exklusive Treue-Umfragen `min_fan_rank`, Abo-Early-Access), oder **(C) E2/S7-Pro-Aufräumen** — konkret offen: Monthly-Liga-Board (tot) · `scout_scores`↔`user_stats`-Konsolidierung · Dormant-Hygiene (Research/Voting/Creator-Fund/Wildcard) · Bridges (46). ⛔ `players.club` blockiert (API-Football-Key). Detailkarten: `worklog/s7-phase3-remaining.md` (Block-SSOT) + `worklog/notes/348-pro-stand-roadmap.md`.
 - Backlog aus 346-Review: Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`) · posts-INSERT-Policy `club_admins`-Härtung (pre-existing).
 
 ## 🟡 P1 — als Nächstes
 - **Aufräum-Haken aus FRE-Investigation (2026-06-18):**
-  - **`csf_multiplier` raus** aus `calculate_fan_rank` (D83: Treue läuft über die Engine, nicht den CSF-Bonus). Eigener kleiner Slice, kein Money-Effekt (CSF-Multiplier ist ohnehin gedeckelt/wirkungslos, W2-A).
-  - **Fan-Rang aktualisiert verzögert** (nur nach Event-Scoring/Cron, kein Trigger auf Abo/Holdings/Follow — reward-ranking.md W2-A). Bei FRE-2 die recalc-Frage konkret entscheiden (vgl. D92 Re-Visit).
+  - ✅ **`csf_multiplier` raus** — erledigt Slice 348 (aus TS + RPC + DROP COLUMN).
+  - **Fan-Rang aktualisiert verzögert** (nur nach Event-Scoring/Cron, kein Trigger auf Abo/Holdings — reward-ranking.md W2-A). Follow zählt seit FRE-2 (345) mit Recalc-Trigger; Abo/Holdings noch verzögert. Bei Bedarf recalc-Frage konkret entscheiden (vgl. D92 Re-Visit).
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt). LOW.
 
 ## 🟢 P2 — Backlog

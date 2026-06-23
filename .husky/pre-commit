@@ -16,6 +16,25 @@
 
 set -e
 
+# [pre-commit] Tracker-Reconcile-Reminder (Slice 354) — NON-BLOCKING.
+# Mechanischer Trigger: ein neuer Slice wird geLOGgt (worklog/log.md bekommt ein neues "## NNN |").
+# Verhindert die Stale-Tracker-Klasse (348/349 waren in s7-phase3-remaining.md nicht abgehakt,
+# weil KEIN Ritual diese Epic-Sub-Tracker anfasst). Surface am richtigen Moment statt Memory.
+if git diff --cached --name-only | grep -qx 'worklog/log.md'; then
+  NEW_SLICE=$(git diff --cached -U0 -- worklog/log.md 2>/dev/null | grep -E '^\+## [0-9]+ \|' | head -1 | sed 's/^+//')
+  if [ -n "$NEW_SLICE" ]; then
+    echo ""
+    echo "[TRACKER-RECONCILE] Neuer Slice geLOGgt: $NEW_SLICE"
+    echo "  → Status-Surfaces auf Ist-Stand? (sonst Stale wie 348/349 im s7-tracker):"
+    echo "     • MASTERPLAN.md  (Stand-Satz)"
+    echo "     • TODO.md        (Erledigt + P0/P1)"
+    echo "     • worklog/s7-phase3-remaining.md  (Epic-Tracker — falls S7-Scope berührt)"
+    echo "     • worklog/notes/348-pro-stand-roadmap.md  (falls Pro-Stand betroffen)"
+    echo "  Reine Doku/Meta-Slices ohne Domain-Scope: ignorieren."
+    echo ""
+  fi
+fi
+
 echo "[pre-commit] tsc --noEmit..."
 npx tsc --noEmit
 
