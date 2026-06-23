@@ -1,25 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 19:45)
+# Session Handoff — Auto (2026-06-23 20:15)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-23.md
 ?? worklog/audits/silent-fail-2026-06-23.json
 ?? worklog/audits/silent-fail-2026-06-23.md
 ```
 
-## Session Commits: 8
+## Session Commits: 6
+- 7cde45a7 fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention (Slice 354)
 - 009f596c docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL (Slice 353)
 - fc1334a2 chore(workflow): Effizienz-Tracks #1+#2+#3 — Navigator-Split + Status-Trim + Ops-Spur (Slice 352)
 - 8302abcc docs(notes): Workflow-Effizienz-Analyse + 3 Optimierungs-Tracks (frische Session)
 - 560a6136 feat(tooling): Slice 351 — Knowledge-Coupling-Gate (Stale hart blocken, D45)
 - 270055b2 docs(knowledge): Wissens-Kopplung Slice 348/349 — Frontmatter + W2-B + INDEX (E0-W2gov)
-- 7fe4e148 chore(gitignore): DesignSync-Tooling-Artefakte ignorieren (.design-sync/, tsconfig.dssync.json)
-- d5e52fdb docs(session-end): LOG 348/349/350 + DISTILL (D94 Pre-Push-Strategie + 3 errors-infra-Patterns) + Handoff
-- 8bc155d2 fix(ci): Slice 350 follow-up — ClubContent-Test-Mock + Nightly-Workflow-SyntaxError
 
 <!-- auto:handoff-end -->
 
@@ -67,9 +64,7 @@
 - **FRE-3 / Slice 346** (`d3c4f561`): **Exklusive Vereins-Beiträge** ab Fan-Stufe + gesperrte Vorschau (🔒). **RLS-SELECT-Policy auf `posts` ersetzt** (war `USING(true)`) → Fan-Rang-Lese-Gate; `get_club_news_teasers` (SECURITY DEFINER) maskiert content. Neu: `fan_rank_tier_rank(text)` (Mirror FAN_RANK_TIERS), `posts.min_fan_rank_tier`. Kein Content-Leak (Row-Hide + Maskierung), Live-RLS-Smoke grün, Community-Feed + Club-Page post-Deploy regress-frei. Feature **ruhend** bis erste exklusive News (0 club_news live).
 
 ## 🎯 NÄCHSTER ARBEITSBLOCK
-- **ERST:** Slice 349 Live-Playwright-Verify (s.o.) — der einzige offene Beweis. Danach 349 als voll-DONE markieren.
-- **DANN Workflow-Effizienz-Tracks** (Anil-Auftrag „Overhead/Context optimieren", bewusst auf frische Session vertagt): `worklog/notes/workflow-efficiency-analysis.md`. Reihenfolge: **#2** SHIP-STATUS-Injection trimmen (schnell, 1 Hook) → **#1** errors-*.md Lade-Effizienz (Navigator+on-demand, **Anil-Alignment nötig** — Schlüssel-Befund: nicht stale, sondern „alle 41 Patterns laden bei jedem Edit"; strukturell vs. lossless ist Anil-Entscheidung) → **#3** XS/Ops-Slice-Zeremonie entschlacken.
-- **ODER Pro-Stand-Roadmap** (`worklog/notes/348-pro-stand-roadmap.md`): `csf_multiplier` raus erledigt (348). Nächste Wahl: (A) Polls-Reste (`min_fan_rank` / Abo-Early-Access) ODER (C) S7-Leaderboard-Konsolidierung. → Anil priorisiert Workflow-Tracks vs. Produkt-Roadmap.
+- ✅ **Erledigt diese Session:** 349 Live-Verify (+ Prod-FK-Bug gefixt, 354) UND alle 3 Workflow-Effizienz-Tracks (352/353). → aktueller offener Stand steht oben unter „🎯 NÄCHSTER TRACK" (Polls-Reste ODER S7-Aufräumen).
 - **Slice 351 Gate aktiv:** Knowledge-Content ändern → `updated:`=heute Pflicht; neue `D<n>` → INDEX-Range mitziehen (sonst pre-commit blockt).
 - **FRE-4 Airdrop bleibt deferred** (echte-Coin-/CASP-Phase, D93). Nicht resurrecten.
 - Quellen: Treasury-WIE `docs/knowledge/domain/treasury.md`; Polls-WIE `docs/knowledge/domain/polls.md`; Score/Fan-Rank-WIE `docs/knowledge/domain/reward-ranking.md`. Pre-Push/CI-Realität: **D94** + `errors-infra.md` (Slice 350).
