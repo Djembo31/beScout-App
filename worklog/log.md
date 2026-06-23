@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 355 | 2026-06-23 | chore(gitignore): Audit-Churn ignorieren (knowledge-* + silent-fail-* Reports)
+- Stage-Chain: SPEC (inline, Anil-Frage „was ist der Churn") → BUILD → PROVE → LOG. REVIEW: self (Ops/Tooling-Spur, kein Money/Security). Größe XS.
+- Ursache: `.husky/pre-commit`-Audit-Scripts schreiben datierte Reports nach `worklog/audits/`. 3 Geschwister-Reports (audit-stale/type-truth/wiring) waren in `.gitignore`, aber `knowledge-*.md` + `silent-fail-*.{md,json}` nie nachgetragen → jede Session als `??` untracked = der „NIE committen"-Churn.
+- Fix: 3 Zeilen in `.gitignore` (gleiche Konvention wie Z.155-157). Proof: `git check-ignore` grün für alle 3 Patterns, `git status` churn-frei. Handoff-Resume-Anker „Audit-Churn NIE committen" als obsolet aktualisiert.
+- Commit: (dieser).
+
 ## 354 | 2026-06-23 | fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention
 - Stage-Chain: SPEC (inline, Anil) → BUILD → REVIEW (`worklog/reviews/354-review.md`, reviewer-Agent PASS) → PROVE (`worklog/proofs/354-fan-leaderboard-fk.txt`) → LOG.
 - **349 Live-Verify** (der offene Beweis) fand einen **Prod-Bug**: Club-Fan-Board „Treueste Fans" rendert Error-State. Root Cause: `getClubFanLeaderboard` Embed `profiles!inner(...)` ohne FK `fan_rankings→profiles` (FK ging nur auf `auth.users`, verletzt database.md). tsc+Unit-Mock grün, nur Live-Render fängt's.

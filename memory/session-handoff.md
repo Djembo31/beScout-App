@@ -1,16 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 20:15)
+# Session Handoff — Auto (2026-06-23 20:25)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 4 Files
 ```
+ M memory/session-handoff.md
 ?? worklog/audits/knowledge-2026-06-23.md
 ?? worklog/audits/silent-fail-2026-06-23.json
 ?? worklog/audits/silent-fail-2026-06-23.md
 ```
 
-## Session Commits: 6
+## Session Commits: 7
+- d25c5a1e docs(handoff): stale "NÄCHSTER ARBEITSBLOCK" entfernt (349+Workflow-Tracks erledigt)
 - 7cde45a7 fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention (Slice 354)
 - 009f596c docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL (Slice 353)
 - fc1334a2 chore(workflow): Effizienz-Tracks #1+#2+#3 — Navigator-Split + Status-Trim + Ops-Spur (Slice 352)
@@ -24,7 +26,7 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = `Slice 354`. `worklog/active.md` = idle. **CI grün, Push normal.** Alles dieser Session committet + gepusht — **Anil setzt frei fort** (Polls-Reste ODER S7-Aufräumen, s.u.).
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. (Audit-Churn ist seit Slice 355 gitignored — kein manuelles „nie committen" mehr nötig.) HEAD = `Slice 355`. `worklog/active.md` = idle. **CI grün, Push normal.** Alles dieser Session committet + gepusht — **Anil setzt frei fort** (Polls-Reste ODER S7-Aufräumen, s.u.).
 
 ## ✅ SESSION 2026-06-23 (Fortsetzung) — Workflow-Effizienz + 349-Heilung
 - **Slice 352** — Workflow-Effizienz #1+#2+#3: `ship-status-gate.sh` log.md-Injection 5→1; Ops/Tooling-Slice-Spur in `workflow.md`; **`errors-frontend.md` → Navigator (78 Z., always-loaded) + `errors-frontend-detail.md` (on-demand, non-matching glob)**. Anil-Alignment: path-scopen verworfen (.tsx-Kollaps = Safety-Regression).

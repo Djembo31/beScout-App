@@ -2,15 +2,15 @@
 
 ```
 status: idle
-slice: 354
-title: ✅ DONE — 349 Live-Verify (Prod-Bug gefunden+gefixt) + fan_rankings→profiles FK + Stale-Prävention
+slice: 355
+title: ✅ DONE — Audit-Churn gitignoren (knowledge-* + silent-fail-* Reports)
 stage: LOG complete
-size: S
-slice-type: Migration + Tool/Doc
-spec: inline (Anil: 349-Verify + Stale-Ursache beheben + für neue Session finalisieren)
-proof: worklog/proofs/354-fan-leaderboard-fk.txt (vorher Error-State → nachher 38 Fans, desktop+393px)
-review: worklog/reviews/354-review.md (reviewer-Agent PASS, 2 INFO, kein Money/Tally-Effekt)
-next: Pro-Stand-Roadmap (Polls-Reste / S7-Leaderboard scout_scores↔user_stats / Dormant-Hygiene)
+size: XS
+slice-type: Tool (Ops/Tooling-Spur, kein Money/Security)
+spec: inline (Anil: Audit-Churn-Ursache beheben — gitignore-Lücke vs. Geschwister-Reports)
+proof: git check-ignore grün für knowledge-*.md + silent-fail-*.{md,json}; git status churn-frei
+review: self-review (Ops, gleiche .gitignore-Konvention wie Z.155-157)
+next: Pro-Stand-Roadmap (Polls-Reste / S7-Aufräumen scout_scores↔user_stats / Dormant-Hygiene)
 ```
 
 ## Plan (Anil-Alignment 2026-06-23)

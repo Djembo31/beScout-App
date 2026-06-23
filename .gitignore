@@ -151,10 +151,13 @@ tmp/
 # LHCI lokale Run-Outputs
 .lighthouseci/
 
-# Self-renewing Audit-Cron-Output (Slice 234/223/228/229) — nie committen
+# Self-renewing Audit-Cron-Output (Slice 234/223/228/229/355) — nie committen
 worklog/audits/audit-stale-*.md
 worklog/audits/type-truth-*.md
 worklog/audits/wiring-*.md
+worklog/audits/knowledge-*.md
+worklog/audits/silent-fail-*.md
+worklog/audits/silent-fail-*.json
 
 # E0-W3: Binär-Beweise lokal behalten, nicht committen (.git-Bloat-Stop).
 # Proof-Konvention = Text (SQL/Test-Output/grep) + optional 1 lokaler Screenshot.
