@@ -38,8 +38,29 @@ git diff --stat (Wave 1):
   docs/knowledge/domain/treasury.md         | (§8/§9 erledigt)
 
 =========================================================
-WAVE 2 (Migration: RPC-Rewrite + DROP COLUMN) — nach Vercel-Deploy
+WAVE 2 (Migration: RPC-Rewrite + DROP COLUMN) — applied 2026-06-23
 =========================================================
-(Wird nach Migration-Apply ergänzt: AC1 functiondef ohne csf + Patches erhalten,
- AC2 Spalte weg, AC3 RPC-Smoke BEGIN/ROLLBACK, AC4 liquidate_player unverändert,
- AC8 has_function_privilege anon=false/auth=true.)
+
+Deploy-Gate (D82): Vercel-Deploy von Wave 1 (Commit ef8ecc1f) = ● Ready
+  (vercel inspect bescout-915ae7cz9, created 14:36) VOR Migration-Apply bestätigt.
+
+apply_migration slice_348_remove_csf_multiplier → {"success": true}
+
+Live-SQL-Verifikation (mcp execute_sql):
+  AC1  has_csf            = false   (functiondef enthält csf_multiplier NICHT mehr)
+  AC1  has_elo            = true    (fn_get_streak_elo_boost erhalten)
+  AC1  has_thresholds     = true    (club_fan_rank_thresholds erhalten)
+  AC1  has_follow_plus5   = true    (Follow +5 erhalten)
+  AC2  col_count          = 0       (fan_rankings.csf_multiplier Spalte gedroppt)
+  AC4  liquidate_proportional = true (liquidate_player unverändert proportional_v3_2026_06_17)
+  AC8  anon EXECUTE       = false   (REVOKE wirksam)
+  AC8  authenticated EXECUTE = true (GRANT wirksam)
+
+AC3 — Live-RPC-Smoke (BEGIN; calculate_fan_rank(echter user,club); ROLLBACK):
+  rpc_result = {"ok":true,"rank_tier":"stammgast","total_score":17.03,
+                "components":{"event_score":56.75,"dpc_score":0,"abo_score":0,
+                              "community_score":0,"streak_score":0}}
+  result_has_csf_multiplier_key = false
+  → RPC läuft fehlerfrei, rank_tier + total_score korrekt, kein csf_multiplier im Return. 0 Persistenz (ROLLBACK).
+
+ALLE ACs (AC1-AC8) grün.

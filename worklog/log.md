@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 348 | 2026-06-23 | refactor(db): csf_multiplier raus — toten CSF-Multiplier aus Fan-Rank entfernen
+- Stage-Chain: SPEC (`worklog/specs/348-remove-csf-multiplier.md`, M, Migration, Money-nah) → IMPACT (inline, Live-functiondef-verifiziert) → BUILD (Wave 1 TS = CTO selbst; Wave 2 Migration) → REVIEW (`worklog/reviews/348-review.md`, Cold-Context **CONCERNS** → 2 Doku-Findings gefixt, Code/Migration PASS) → PROVE (`worklog/proofs/348-remove-csf-multiplier.txt`) → LOG.
+- Trigger: Anil wählte Track B aus Pro-Stand-Roadmap (`worklog/notes/348-pro-stand-roadmap.md`). Befund (D87 Live-Read): `liquidate_player` ist seit Slice 330 `proportional_v3` und liest `csf_multiplier` NICHT → Removal = **0 Money-Effekt** (live verifiziert).
+- 2-Wellen-Deploy (D82, getFanRanking gemountet selektierte die Spalte live): **Wave 1** (`ef8ecc1f`, Code+Docs) zuerst gepusht + Vercel-Ready bestätigt, **dann Wave 2** Migration (`20260623150000`) applied.
+- Bau (Wave 1): `fanRanking.ts` Service (2 Selects + Map + recalculateFanRank-Return) · `types/index.ts` DbFanRanking · `lib/fanRanking.ts` FanRankTierDef + 6 Tier-Objekte (reine Loyalty/Perks-Achse) · `fanRankPerks.ts` Kommentar · Tests (fanRanking-v2, db-invariants Return-Shape-Map, ClubContent, useClubData). grep csf = 0, tsc clean, vitest grün.
+- Bau (Wave 2, Migration gegen **Live-Baseline D87**): `calculate_fan_rank`-Rewrite ohne csf_multiplier (Variable + Tier-CASE-Zuweisungen + INSERT-Col + ON-CONFLICT + Return-Feld raus) — alle anderen Patches 1:1 erhalten (Score-Gewichte, ELO-Boost, Follow +5, club_fan_rank_thresholds + Defaults, rank_tier-CASE) · AR-44 REVOKE/GRANT · `ALTER TABLE fan_rankings DROP COLUMN csf_multiplier`.
+- Wissens-Kopplung (E0-W2gov): `reward-ranking.md` W2-A + Tier-Zeile + Diagnose + Zielbild + offene Entscheidung auf „entfernt (348)"; `treasury.md` §8/§9 auf erledigt.
+- Proof (live): AC1 functiondef ohne csf + ELO/Schwellen/Follow erhalten · AC2 Spalte weg (col_count=0) · AC3 RPC-Smoke `{ok:true,rank_tier:stammgast,total_score:17.03}` kein csf-Key · AC4 liquidate_player unverändert proportional_v3 · AC8 anon=false/auth=true.
+- Commits: `ef8ecc1f` (Wave 1) + Wave-2-Migration-Commit. Migration applied via mcp apply_migration.
+
 ## 347 | 2026-06-18 | feat(db): FRE-5 — Club-konfigurierbare Fan-Rang-Schwellen
 - Stage-Chain: SPEC (`worklog/specs/347-club-configurable-fan-rank-thresholds.md`, L, Migration, Money-nah, Anil-approved + 2 OQ) → IMPACT (impact-analyst Consumer-Karte, 6 Gruppen, Risiko HIGH) → BUILD (Wave 1 Backend = CTO selbst; Wave 2 Frontend = frontend-Agent) → REVIEW (`worklog/reviews/347-review.md`, Cold-Context **PASS**, Finding #1 gefixt) → PROVE (`worklog/proofs/347-thresholds-smoke.txt`) → LOG.
 - Trigger: Anil wählte FRE-5 (FRE-4 Airdrop → Coin-Phase verschoben, D93-Update). Design (Anil OQ): sofort-Recalc nach Save + Config in Tab „Fans".
