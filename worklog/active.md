@@ -1,27 +1,26 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 350
-title: CI-grün + Push-Fix — Silent-Fail-Baseline re-anchored + Pre-Push-Hook entschlackt
-stage: PROVE
+title: ✅ DONE — CI-grün + Push-Fix (Slice 350) · Fan-Board gemountet (Slice 349)
+stage: LOG complete
 size: S
 slice-type: Hook
-spec: inline (Ops-Fix, Trigger = Anil: tägliche CI-Fail-Emails + Push schlägt fehl)
-proof: worklog/proofs/350-ci-push-fix.txt
-review: worklog/reviews/350-review.md (self-review, CI/Tooling-Config, kein Money/Security)
-next: push (verifiziert Hook-Fix) → CI grün bestätigen → zurück zu Slice 349 LOG + Playwright
+spec: worklog/specs/349-mount-club-fan-leaderboard.md + 350 inline
+proof: worklog/proofs/350-ci-push-fix.txt + worklog/proofs/349-fan-board.txt
+review: worklog/reviews/350-review.md + worklog/reviews/349-review.md
+next: Slice 349 Live-Playwright-Verify (/club/sakaryaspor „Mehr"-Tab) ist erste Next-Session-Action; dann Pro-Stand-Roadmap (Polls-Reste ODER S7-Leaderboard-Konsolidierung)
 ```
 
-## Problem (Anil 2026-06-23)
-1. **Tägliche CI-Fail-Emails:** CI failt bei JEDEM Push → jeder Commit = Fail-Mail.
-2. **Push schlägt fehl** ("failed to push some refs") seit Slice 349.
+## Stand (Session-Ende 2026-06-23)
 
-## Root Causes (verifiziert)
-1. **CI-Fail:** `audit:silent-fail:check` exit 1 — Code hat 81 HIGH, `.audit-baseline.json` kannte nur 79. Die 2 „neuen" sind line-shifted **bestehende** Cron-`.in()`-Muster (gameweek-sync/live-score-sync, beschränkte Liga-Club-Listen) — kein neuer Bug (Report-Diff 06-11↔06-23). Baseline war seit ≥06-11 stale → CI seit Tagen rot.
-2. **Push-Fail:** Pre-Push-Hook lief volle vitest (~6-7 min, war für 30-90s budgetiert). Lange Laufzeit = Transport-Auslöser. `git push --no-verify` (kein Hook) landete sofort (3× Fail mit Hook, 0× ohne).
+**Diese Session, sauber abgeschlossen:**
+- **Slice 348** ✅ — `csf_multiplier` komplett raus (Code + RPC + Spalte gedroppt), 0 Money-Effekt, live verifiziert.
+- **Slice 349** ✅ (Code) — Club-Fan-Treue-Board gemountet (W2-B). **Offen:** Live-Playwright-Screenshot = erste Next-Session-Action.
+- **Slice 350** ✅ — CI-grün (Silent-Fail-Baseline re-anchored) + Push-Fix (Pre-Push entschlackt) + Nightly-Workflow-SyntaxError-Fix. Behebt Anils tägliche Fail-Emails + Push-Bruch.
 
-## Fix
-- `.audit-baseline.json` → 174/81/93 (akkurat, vom Tool vorgesehen).
-- `.husky/pre-push` → volle vitest raus, schneller `audit:silent-fail:check` rein (CI = Test-Autorität).
-- `git config http.version HTTP/1.1` + `http.postBuffer` (Transport-Härtung, lokal).
+**Wichtig für nächste Session:**
+- Push funktioniert wieder normal (kein `--no-verify` nötig). Pre-Push läuft jetzt schnellen `audit:silent-fail:check` (~5s); volle Tests = CI-Autorität.
+- Bei neuem Silent-Fail-HIGH/MEDIUM: `.audit-baseline.json` bewusst nachziehen (Tool sagt's), sonst CI rot.
+- Pro-Stand-Roadmap: `worklog/notes/348-pro-stand-roadmap.md`.

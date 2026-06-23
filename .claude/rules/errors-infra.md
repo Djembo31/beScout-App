@@ -508,3 +508,31 @@ Report-Variante (`audit:X` ohne `:check`) braucht den Eintrag nur, wenn sie auch
   allDone = apiAllDone && dbTruthAllDone;
   ```
 - Regel: API-Response-Count IST KEIN Proxy fuer DB-Completion.
+
+### github-script Template-Literal: verschachtelte Backticks → "SyntaxError: Unexpected number" (Slice 350, 2026-06-23)
+
+**Bug-Klasse:** In einem `actions/github-script@v7` `script: |`-Block ist der gesamte JS-Code, der `const body = [ \`...\`, ... ]`-Template-Literals nutzt, anfällig: Steht in einem Backtick-String ein **literaler Backtick** (z.B. ein Cron-Ausdruck in Prosa: `` (cron `0 4 * * *`) ``), beendet er das Template-Literal vorzeitig → der Rest (`0 4 * * *`) wird als nacktes JS geparst → **`SyntaxError: Unexpected number`** (die führende `0`). Der Step crasht hart. Bei `if: failure()`-Steps (Auto-Issue/Master-Tracker) heißt das: jeder echte/transiente Vorlauf-Fail triggert den Step, der dann selbst crasht → **Job failt hart → Fail-Email**, und das Issue-Dedup greift nie.
+
+**Symptom:** GHA-Job-Fail mit „Unhandled error: SyntaxError: Unexpected number" in einem github-script-Step; oft begleitet von einem unverwandten „git exit 128"-Annotation (Shallow-Checkout-Rauschen). Die eigentlichen Test-/Audit-Steps (continue-on-error) sind grün.
+
+**Fix:** Innere Backticks aus Prosa-Strings entfernen — `` `(cron `0 4 * * *`)` `` → `` `(cron 0 4 * * *)` ``. Oder Cron-Wert in einfache Quotes / als Variable.
+
+**Detection (vor Commit von Workflow-Edits):**
+```bash
+grep -nE "cron \`|\` *[0-9*]" .github/workflows/*.yml   # verschachtelte Backticks in JS-Templates
+```
+YAML-Lint fängt das NICHT (gültiges YAML), erst der GHA-JS-Parser zur Laufzeit. **Reference:** Slice 350 `nightly-audit.yml` Z443 (Smoke-Fail-Issue-Step).
+
+### Pre-Push-Hook-Laufzeit bricht Push-Transport (Slice 350, 2026-06-23)
+
+**Bug-Klasse:** Ein `.husky/pre-push`-Hook, der eine lange Operation (volle vitest-Suite, ~6-7 min) ausführt, ist reproduzierbar der **Auslöser** für „failed to push some refs to '...'" **ohne** `remote:`-Meldung (= Transport-Bruch beim Pack-Upload, keine Server-Ablehnung). `git ls-remote` (frische Verbindung) klappt sofort; `git push --no-verify` (kein Hook) landet denselben Commit sofort. Mechanik vermutlich Windows-Git-curl/credential-Staleness nach langem Hook.
+
+**Detection:** Push failt nach langem Pre-Push-Hook, `git status` zeigt weiter `ahead N` (nicht divergiert), `git rev-list --left-right --count origin/main...HEAD` = `0 N`. Test: `git push --no-verify` → sofort erfolgreich = Hook-Laufzeit ist die Ursache.
+
+**Fix:** Pre-Push-Hook auf eine **schnelle** Prüfung beschränken (~Sekunden), volle Tests/Build = CI-Autorität (siehe D94). NICHT `--no-verify` als Dauer-Workaround (umgeht alle Gates). **Reference:** Slice 350, `.husky/pre-push` (volle vitest → `audit:silent-fail:check`). Entscheidung: `memory/decisions.md` D94.
+
+### audit:silent-fail-Baseline driftet → CI bei JEDEM Push rot (Slice 350, 2026-06-23)
+
+**Bug-Klasse:** `audit:silent-fail:check` vergleicht HIGH/MEDIUM-Counts gegen `.audit-baseline.json` und exit 1 bei Increase. Wächst der Code organisch (neue Cron-`.in()`-Calls, line-shifts reklassifizieren MEDIUM→HIGH), driftet die Ist-Zahl über die Baseline — und wenn niemand die Baseline nachzieht, failt CI **bei jedem Push** (auch docs-only Commits), weil der Check zustandslos re-scannt. Symptom: tägliche CI-Fail-Mails, `❌ HIGH increased: N > M (baseline)` im lint-job-Log; auch Doku-Commits failen (Beweis: kein echter Code-Fund).
+
+**Fix-Entscheidung (fix vs. re-baseline):** Report-Diff gegen einen älteren `worklog/audits/silent-fail-*.md` fahren — sind die delta-Findings **neue echte** Money-Path-Silent-Fails (fixen) oder **line-shifted bestehende** akzeptable Muster (re-baseline)? Bei letzterem `.audit-baseline.json` auf die akkuraten Ist-Zahlen setzen (genau das, was die Tool-Meldung „update .audit-baseline.json explicitly" vorgibt). Danach `pnpm run audit:silent-fail:check` lokal grün verifizieren. **Reference:** Slice 350 (79→81 HIGH = line-shifted gameweek-sync/live-score-sync `.in()`-Muster). Prävention: Pre-Push läuft jetzt diesen Check (D94) → Drift fällt vor dem Push auf.

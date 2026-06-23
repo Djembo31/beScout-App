@@ -3742,3 +3742,23 @@ Plus: Scope-Entscheidung „alle 13 Gold-Files in einem Rutsch migrieren" (nicht
 **Re-Visit-Trigger:** Bei FRE-2 die recalc-Frage (Staleness) konkret entscheiden; csf_multiplier-Removal als eigener Aufräum-Slice einplanen.
 
 **UPDATE 2026-06-18 (nach FRE-5):** Anil-Klarstellung — **FRE-4 Airdrop gehört NICHT in die jetzige Phase.** Der Airdrop ($SCOUT-RAUS an Top-Treue-Fans) war als **Übergangs-Mechanik auf den echten Coin** angelegt (Phase 3 nach CASP, business.md Licensing-Phasen). **Der Verein zahlt keine $SCOUT-Airdrops aus dem Treasury** — Treasury-Redistribution/Airdrops sind explizit „post-Pilot" (ADR-026). Damit ist die aktive Fan-Reward-Engine mit **FRE-1/2/3/5 inhaltlich abgeschlossen** für die jetzige Phase; FRE-4 ist auf die Coin-Phase verschoben (kein „nächster Money-Schritt"). **Slice-Kette aktualisiert:** FRE-1 (344 ✅) → FRE-2 (345 ✅) → FRE-3 (346 ✅) → FRE-5 Club-konfigurierbare Schwellen (**Slice 347 ✅** — pro-Club Score→Tier, Recalc-on-Save, Schutz-Grenze: Gewicht-Mapping bleibt global) → ~~FRE-4 Airdrop~~ (deferred bis echter Coin). Nächstes Money-Stück = **Polls-Reste** (b exklusive Treue-Umfragen, c Abo-Early-Access) ODER neuer Treasury-/REIN-Block, nicht Airdrop.
+
+---
+
+## D94 — PROCESS: Pre-Push-Hook = schneller Gate, volle Tests = CI-Autorität
+
+**Datum:** 2026-06-23 · **Status:** Aktiv · **Category:** PROCESS · **Kontext:** Anil meldete (a) tägliche CI-Fail-Emails und (b) reproduzierbares „failed to push some refs". Diagnose: Der Pre-Push-Hook (Slice 248) lief `CI=true pnpm exec vitest run` — budgetiert für ~30-90s, aber die Suite ist auf 3242 Tests / ~6-7 min gewachsen. Diese Laufzeit war der **Auslöser** des Push-Transport-Bruchs (verifiziert: `git push --no-verify` ohne Hook landet sofort; 3× Fail mit Hook, 0× ohne). Parallel failte CI bei jedem Push am stale `audit:silent-fail`-Baseline (79 vs. 81, alles bestehende Cron-`.in()`-Muster).
+
+**Entscheidung:**
+1. **`.husky/pre-push` führt NICHT mehr die volle Test-Suite aus**, sondern nur den schnellen `audit:silent-fail:check` (~5s) — der Gate gegen genau die Drift-Klasse, die die täglichen CI-Fail-Mails verursachte. Verbindung bleibt frisch → Push-Transport stabil.
+2. **Volle Tests/Build = CI-Autorität** (`ci.yml` test-job, grün, ~2.5 min auf GH-Runnern — schneller als lokal). Ein echter Testfehler erscheint in CI (mit Mail = echtes Signal), nicht mehr in einem 6-min-Lokal-Lauf.
+3. **`git config http.version HTTP/1.1` + `http.postBuffer`** als Transport-Härtung (lokal).
+4. **Audit-Baseline-Drift wird bewusst nachgezogen** (`.audit-baseline.json`), wie das Tool es vorgibt — nach Verifikation, dass die delta-Findings keine neuen Money-Path-Silent-Fails sind (Report-Diff).
+
+**Begründung:** Die volle Suite lokal UND in CI ist Doppelung; die lokale Variante war zudem aktiv schädlich (Push-Bruch + 6 min/Push). CI deckt Tests zuverlässig ab. Für einen Solo-Dev mit Direct-Push ist „CI fängt es in ~2,5 min + Mail" ausreichend — sobald CI verlässlich grün ist, ist jede Fail-Mail Signal statt Rauschen (genau Anils Wunsch).
+
+**Auswirkungen:** Revidiert die Slice-248-Annahme („pre-push simuliert lokal den CI test-job"). Trade-off bewusst akzeptiert: Test-/Mock-Drift (Slice-247-Klasse) wird erst in CI sichtbar, nicht pre-push — Beispiel diese Session: ein ClubContent-Mock-Bug rutschte durch einen `--no-verify`-Push und wurde korrekt von CI gefangen. Bei Bedarf später: schnelle changed-file-scoped `vitest related` als pre-push-Ergänzung (ohne 6-min-Vollauf).
+
+**Alternativen erwogen:** (a) Vollen Hook behalten + Transport per HTTP/1.1 fixen → verworfen: HTTP/1.1 allein behob den Bruch nicht, und 6 min/Push bleiben schmerzhaft. (b) Hook ganz entfernen → verworfen: der schnelle Silent-Fail-Gate hat echten Wert (verhindert genau die Email-Quelle). (c) `--no-verify` als Dauer-Workaround → verworfen: Bypass-Anti-Pattern, umgeht ALLE Gates.
+
+**Re-Visit-Trigger:** Wenn Test-/Mock-Drift trotz CI mehrfach erst spät auffällt → `vitest related` (changed-file-scoped, schnell) als pre-push-Ergänzung einführen. Wenn der Push-Transport-Bruch auch bei kurzem Hook wiederkehrt → Windows-Git-curl/credential-Mechanik tiefer untersuchen.

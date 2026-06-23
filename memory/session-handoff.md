@@ -1,27 +1,27 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-18 17:58)
+# Session Handoff — Auto (2026-06-23 15:51)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 9 Files
 ```
+ M .github/workflows/nightly-audit.yml
+ M .gitignore
  M memory/session-handoff.md
-?? worklog/audits/knowledge-2026-06-17.md
-?? worklog/audits/knowledge-2026-06-18.md
+ M src/app/(app)/club/[slug]/__tests__/ClubContent.test.tsx
+?? .design-sync/
+?? tsconfig.dssync.json
+?? worklog/audits/knowledge-2026-06-23.md
+?? worklog/audits/silent-fail-2026-06-23.json
+?? worklog/audits/silent-fail-2026-06-23.md
 ```
 
-## Session Commits: 9
-- 0ed07dd9 docs(session-end): Handoff-Anker auf FRE-4 (Airdrop), Fan-Reward-Engine FRE-1/2/3 live
-- d3c4f561 feat(db): Slice 346 — FRE-3 Exklusive Vereins-Beiträge (Fan-Rang-Gate + 🔒-Vorschau)
-- 027b4cdf feat(db): Slice 345 — FRE-2 Follow zählt als Fan-Rang-Einstiegssignal (+5)
-- d4ff6795 docs(plan): offene Punkte aufgenommen — D93 Fan-Reward-Engine + TODO/MASTERPLAN
-- 6e53a770 docs(log): Slice 344 LOG + Live-Proof (Fan-Rang-Leiter, E1.1)
-- 4afd47e6 feat(gamification): Slice 344 — Fan-Rang-Leiter sichtbar + Perk-Katalog (E1.1)
-- a7853e6a docs(decision): D92 — MAX-Floor beim Subsumieren eines Live-Perks (Slice 343 DISTILL) + Handoff-Anker
-- b77c1b43 feat(db): Slice 343 — Polls P3c Fan-Rang → Stimmgewicht (MAX mit Abo-Floor)
-- 27e0a121 docs(session-end): Handoff-Auto-Block aktualisiert (Stop-Hook)
-
-## Stale Worktrees: 1 (cleanup candidates)
+## Session Commits: 5
+- c03a43f7 fix(ci): Slice 350 — CI-grün (Silent-Fail-Baseline re-anchored) + Push-Fix (Pre-Push entschlackt)
+- 3a8b966a feat(gamification): Slice 349 — Club-Fan-Treue-Board mounten (W2-B)
+- 5c963681 refactor(db): Slice 348 Wave 2 — calculate_fan_rank-Rewrite + DROP COLUMN csf_multiplier
+- ef8ecc1f refactor(db): Slice 348 Wave 1 — csf_multiplier aus TS + Docs entfernen (D83/D93)
+- bf505e41 docs(plan): Phase-A Plan-/Knowledge-Hygiene (Pro-Stand-Roadmap)
 
 <!-- auto:handoff-end -->
 
@@ -29,7 +29,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = Slice 347 (`b2ff32ba` + docs). `worklog/active.md` = idle. **Fan-Reward-Engine FRE-1/2/3/5 (Slices 344/345/346/347) alle DONE — live + gepusht/applied.** **FRE-4 Airdrop verschoben auf echte-Coin-Phase** (Anil 2026-06-18: Verein zahlt keine $SCOUT-Airdrops, war Übergangs-Mechanik; D93-Update). Polls-Geldmaschine (333-337+343) komplett.
+**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn (`worklog/audits/*`) NIE committen. HEAD = `8bc155d2` (Slice 350). `worklog/active.md` = idle. **CI ist GRÜN, Push funktioniert normal.** Fan-Reward-Engine FRE-1/2/3/5 + csf_multiplier-Removal + Fan-Board alle DONE.
+
+## ✅ SESSION 2026-06-23 — 3 Slices + Infra-Heilung
+- **Slice 348** — `csf_multiplier` komplett raus (Code+RPC+Spalte gedroppt), 0 Money-Effekt live verifiziert (liquidate_player ist proportional_v3 seit 330). 2-Wellen-Deploy (D82).
+- **Slice 349** — Club-Fan-Treue-Board gemountet (W2-B, tote Brücke aktiviert). Code/Tests/Review/RLS/Daten grün. **⚠ OFFEN = ERSTE NEXT-SESSION-ACTION:** Live-Playwright-Screenshot `/club/sakaryaspor` Tab „Mehr" (desktop+393px, Console-Scan MISSING_MESSAGE). Sakaryaspor hat 37 Fans = sichtbares Board. Deploy ist live.
+- **Slice 350** — **CI-grün + Push-Fix** (Anil-Notfall: tägliche Fail-Mails + Push gebrochen). Root-Causes: (1) `.audit-baseline.json` stale (79 vs 81, alles bestehende Cron-`.in()`) → re-anchored 174/81/93. (2) Pre-Push-Hook lief volle 6-min-vitest = Push-Transport-Killer → entschlackt auf schnellen `audit:silent-fail:check` (~5s), **volle Tests = CI-Autorität** (D94). Plus `git http.version HTTP/1.1`. Plus nightly-audit.yml SyntaxError (verschachtelte Backticks) gefixt. **CI grün end-to-end bestätigt.**
+
+## ⚙️ NEUE WORKFLOW-REALITÄT (D94 — wichtig!)
+- **Push geht wieder normal** (kein `--no-verify` nötig). Falls ein Push doch mal „failed to push some refs" zeigt ohne `remote:`-Meldung: das ist der Transport-Bruch — `git push --no-verify` als Notfall, dann Pre-Push-Hook-Laufzeit prüfen.
+- **Pre-Push prüft nur noch `audit:silent-fail:check`** (~5s). Volle Tests laufen in CI (test-job). Ein echter Testfehler erscheint jetzt in CI (~2,5 min + Mail = echtes Signal), nicht mehr lokal vor Push. Bei money-/komplexen Slices ggf. `CI=true pnpm exec vitest run` bewusst lokal fahren vor Push.
+- **Bei neuem Silent-Fail-HIGH/MEDIUM:** `.audit-baseline.json` bewusst nachziehen (Report-Diff: neuer echter Bug fixen vs. bestehend re-baseline), sonst CI rot bei JEDEM Push. Pattern in `errors-infra.md` (Slice 350).
 
 ## ✅ ZULETZT FERTIG: FRE-5 / Slice 347 (Club-konfigurierbare Fan-Rang-Schwellen, Money-nah)
 - Neue Tabelle `club_fan_rank_thresholds` (1 Zeile/Club, monotoner CHECK, 4-Op-RLS Writes-nur-via-RPC). Fehlende Zeile = Plattform-Default 10/25/40/55/70.
@@ -45,11 +55,11 @@
 - **FRE-2 / Slice 345** (`027b4cdf`): **Follow zählt** (+5 in `calculate_fan_rank`, monoton, cap 100) + Trigger `club_followers_recalc_fan_rank` (best-effort, sofort-Recalc). Money-nah (Fan-Rang→Poll-Gewicht); Abo-Floor (D92) live intakt. Force-rollback-Smoke grün.
 - **FRE-3 / Slice 346** (`d3c4f561`): **Exklusive Vereins-Beiträge** ab Fan-Stufe + gesperrte Vorschau (🔒). **RLS-SELECT-Policy auf `posts` ersetzt** (war `USING(true)`) → Fan-Rang-Lese-Gate; `get_club_news_teasers` (SECURITY DEFINER) maskiert content. Neu: `fan_rank_tier_rank(text)` (Mirror FAN_RANK_TIERS), `posts.min_fan_rank_tier`. Kein Content-Leak (Row-Hide + Maskierung), Live-RLS-Smoke grün, Community-Feed + Club-Page post-Deploy regress-frei. Feature **ruhend** bis erste exklusive News (0 club_news live).
 
-## 🎯 NÄCHSTER ARBEITSBLOCK — Pro-Stand statt Airdrop
-- **Wichtig:** FRE-4 Airdrop ist **NICHT** der nächste Slice. Anil-Klarstellung 2026-06-18: Airdrop/$SCOUT-RAUS an Top-Treue-Fans gehört in die echte-Coin-/CASP-Phase. Nicht bauen, nicht specen, nicht wieder als „nächstes Money-Stück" resurrecten.
-- **Aktive Fan-Reward-Engine für jetzige Phase ist abgeschlossen:** FRE-1 (Leiter) · FRE-2 (Follow zählt) · FRE-3 (exklusive Beiträge) · FRE-5 (club-konfigurierbare Schwellen) alle live.
-- **Nächster Fokus = Pro-Stand-Roadmap:** `worklog/notes/348-pro-stand-roadmap.md`. Empfohlene Reihenfolge: (1) `csf_multiplier` raus (D83/D93, alte Mock-Hybrid-Mechanik), (2) Polls-Reste: exklusive Treue-Umfragen/Abo-Early-Access, (3) E2/S7-Aufräumen: Leaderboard-Konsolidierung, Dormant-Hygiene, Bridges.
-- Plan/Begründung: **D93 Update** in `memory/decisions.md`, `MASTERPLAN.md`, `TODO.md`, `worklog/active.md`. Treasury-WIE: `docs/knowledge/domain/treasury.md`; Polls-WIE: `docs/knowledge/domain/polls.md`; Score/Fan-Rank-WIE: `docs/knowledge/domain/reward-ranking.md`.
+## 🎯 NÄCHSTER ARBEITSBLOCK
+- **ERST:** Slice 349 Live-Playwright-Verify (s.o.) — der einzige offene Beweis. Danach 349 als voll-DONE markieren.
+- **DANN Pro-Stand-Roadmap** (`worklog/notes/348-pro-stand-roadmap.md`): `csf_multiplier` raus ist erledigt (348). Nächste Wahl: (A) Polls-Reste (exklusive Treue-Umfragen `min_fan_rank` / Abo-Early-Access) ODER (C) S7-Leaderboard-Konsolidierung (scout_scores/user_stats/airdrop_scores).
+- **FRE-4 Airdrop bleibt deferred** (echte-Coin-/CASP-Phase, D93). Nicht resurrecten.
+- Quellen: Treasury-WIE `docs/knowledge/domain/treasury.md`; Polls-WIE `docs/knowledge/domain/polls.md`; Score/Fan-Rank-WIE `docs/knowledge/domain/reward-ranking.md`. Pre-Push/CI-Realität: **D94** + `errors-infra.md` (Slice 350).
 
 ## 🧮 FAN-RANG-MECHANIK (kurz, für nächste Polls-/csf_multiplier-Slices) — Quelle: live `calculate_fan_rank`
 - total_score 0–100 = event×0,30 + dpc×0,25 + abo×0,20 + community×0,15 + streak×0,10, +ELO-Boost (Login-Streak), **+5 Follow (FRE-2)**, cap 100.
