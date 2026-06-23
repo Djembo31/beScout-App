@@ -2,6 +2,12 @@
 
 > Trigger: Anil — „haben wir Overhead? bauen/managen wir Context bewusst + optimiert für maximale Effizienz?" Evidenzbasierte Analyse (gemessen, nicht Bauchgefühl). Diese 3 Tracks bewusst auf frische Session vertagt (Safety-kritisch, nicht am Ende einer langen Session).
 
+## ✅ ALLE 3 TRACKS ERLEDIGT (Slice 352, 2026-06-23 frische Session)
+- **#2 DONE:** `ship-status-gate.sh` — log.md-Injection 5 Einträge → 1 (git log 5→3). Redundanz zu `git log` raus.
+- **#3 DONE:** `workflow.md` — schlanke **Ops/Tooling-Slice-Spur** definiert (Hook/GHA/Tool/Doc ohne Money/Security: inline-Spec + Smoke-Proof + self-review). `**Größe:** XS` bleibt für Hook-Kompatibilität.
+- **#1 DONE:** errors-frontend.md → **Navigator (78 Z., always-loaded) + errors-frontend-detail.md (1038 Z., on-demand)**. ~92% weniger Token/.tsx-Edit, 41 Patterns 1:1 erhalten (Heading-Diff verifiziert). **Anil-Entscheidung:** „feiner path-scopen" verworfen nach Code-Reading (i18n/CSS/Modal/React kollabieren auf `.tsx` → Path-Split würde Patterns verstecken = Safety-Regression). Gewählt: Navigator-Regel inline (Auto-Show bleibt) + Detail on-demand. Proof: `worklog/proofs/352-navigator-split.txt`.
+- **Folge-Slices (offen, gleiche Mechanik):** errors-db.md (787 Z.) · errors-infra.md (538 Z.) — je eigener Ops-Slice.
+
 ## Gemessene Context-Kosten (2026-06-23)
 - **Always-loaded (~990 Z.):** CLAUDE.md 103 · workflow.md 517 · common-errors.md 150 · business.md 194 · performance.md 28.
 - **Path-scoped (laden bei Domain-Edit, ~2900 Z.):** errors-frontend.md **1032** · errors-db **787** · errors-infra **538** · testing 285 · database 150 · ui-components 137.

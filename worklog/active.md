@@ -2,25 +2,24 @@
 
 ```
 status: idle
-slice: 351
-title: ✅ DONE — Knowledge-Coupling-Gate (Workflow-Härtung gegen Stale)
+slice: 352
+title: ✅ DONE — Workflow-Effizienz #1+#2+#3 (Navigator-Split + Status-Trim + Ops-Spur)
 stage: LOG complete
 size: S
-slice-type: Tool
-spec: inline (Trigger = Anil: Knowledge-Stale darf nicht durchrutschen)
-proof: worklog/proofs/351-knowledge-coupling-gate.txt
-review: worklog/reviews/351-review.md (self-review, Tooling, positiv+negativ getestet)
-next: Slice 349 Live-Playwright-Verify (offen) → dann Pro-Stand-Roadmap (Polls-Reste / S7-Leaderboard)
+slice-type: Doc
+spec: inline (3 Tracks aus worklog/notes/workflow-efficiency-analysis.md, Anil-Alignment 2026-06-23)
+proof: worklog/proofs/352-navigator-split.txt
+review: worklog/reviews/352-review.md (self-review, Ops/Doc, kein Money/Security)
+next: errors-db.md (787 Z.) + errors-infra.md (538 Z.) gleiche Navigator-Mechanik (eigene Ops-Slices)
 ```
 
-## Stand (Session-Ende 2026-06-23)
+## Plan (Anil-Alignment 2026-06-23)
 
-**Slices diese Session:** 348 (csf_multiplier raus) · 349 (Fan-Board, ⚠ Playwright offen) · 350 (CI-grün + Push-Fix + Nightly-Fix) · 351 (Knowledge-Coupling-Gate).
+**Tracks #2 + #3 erledigt** (Ops-Spur): #2 `ship-status-gate.sh` log.md-Injection 5→1 Eintrag + git log 5→3. #3 workflow.md Ops/Tooling-Slice-Spur definiert.
 
-**Slice 351 — Workflow-Härtung (D45: Hooks > Text-Regeln):**
-Die Knowledge-Stale-Klasse, die diese Session durchrutschte (INDEX D93 vs D94, `updated:` nicht gebumpt), ist jetzt ein **blockierender pre-commit-Gate** in `audit-knowledge.ts`:
-- **Check 7 (HARD):** INDEX „D1–D<n>"-Range muss == max-D in `decisions.md`.
-- **Check 8 (HARD):** staged `docs/knowledge/**.md` mit Content-Change → `updated:` MUSS heute sein.
-Beide positiv+negativ getestet, 0 False-Positives, bereits verdrahtet (pre-commit Step 7 + nightly).
+**#1 — Anil-Entscheidung nach Code-Reading-Finding:** „feiner path-scopen" trifft .tsx-Kollaps-Wand (i18n/CSS/Modal/React-Patterns feuern alle beim .tsx-Edit → Path-Split würde Patterns verstecken = Safety-Regression). Gewählt: **Navigator-Regel inline (always-loaded) + Detail on-demand**.
 
-**Wichtig nächste Session:** Wer ein Knowledge-File ändert, MUSS `updated:` auf heute setzen — sonst blockt der Commit. Wer D<n> zu decisions.md hinzufügt, MUSS INDEX-Range mitziehen.
+- `errors-frontend.md` behält `paths:`-Frontmatter (lädt bei .tsx-Edit) → wird zu **Navigator**: je Pattern 1 Zeile mit der ACTIONABLE Regel + Pointer auf Detail-Anker. Auto-Show der Guardrail bleibt.
+- NEU `errors-frontend-detail.md`: voller verbose Inhalt (Root-Cause, Code-Blöcke, Audits) aller Patterns. **Non-matching glob** → NIE auto-geladen, nur on-demand via Read.
+- **Verify (Pflicht):** Heading-Diff — jeder `### Pattern` aus dem Original überlebt in Detail UND erscheint im Navigator. Null Pattern-Verlust.
+- Danach errors-db / errors-infra als eigene Folge-Slices (gleiche Mechanik).

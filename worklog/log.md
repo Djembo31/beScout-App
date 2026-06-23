@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 352 | 2026-06-23 | chore(workflow): Effizienz-Tracks #1+#2+#3 — Navigator-Split + Status-Trim + Ops-Spur
+- Stage-Chain: SPEC (inline, 3 Tracks aus `worklog/notes/workflow-efficiency-analysis.md`) → BUILD → REVIEW (`worklog/reviews/352-review.md`, Self-Review, Ops/Doc, kein Money/Security) → PROVE (`worklog/proofs/352-navigator-split.txt`) → LOG.
+- Trigger: Anil-Auftrag „Overhead/Context optimieren". 3 gemessene Tracks, bewusst auf frische Session vertagt.
+- **#2** `ship-status-gate.sh`: SHIP-STATUS-Injection log.md 5 Einträge → 1 (git log 5→3) — Redundanz zu `git log` raus. Smoke-getestet (exit 0, getrimmt).
+- **#3** `workflow.md`: schlanke **Ops/Tooling-Slice-Spur** (Hook/GHA/Tool/Doc ohne Money/Security → inline-Spec + Smoke-Proof + self-review; `**Größe:** XS` bleibt für Hook-Kompat). Dieser Slice selbst lief auf der neuen Spur.
+- **#1** `errors-frontend.md` → **Navigator (78 Z., always-loaded bei .tsx) + `errors-frontend-detail.md` (1038 Z., on-demand, non-matching glob)**. ~92% weniger Token/.tsx-Edit. Anil-Entscheidung nach Code-Reading: „feiner path-scopen" verworfen (i18n/CSS/Modal/React kollabieren auf `.tsx` → Path-Split versteckt Patterns = Safety-Regression). Navigator trägt die ACTIONABLE Regel inline (Auto-Show bleibt), nur verbose Detail on-demand. **Heading-Diff: 41 `###` + 1 `####` verbatim erhalten** (git mv), Coverage 1:1 (38 Bullets + 3 terse Sektionen).
+- Folge-Slices (offen): errors-db.md (787 Z.) · errors-infra.md (538 Z.) gleiche Mechanik.
+- Commit: (dieser).
+
 ## 351 | 2026-06-23 | feat(tooling): Knowledge-Coupling-Gate — Stale hart blocken (D45)
 - Stage-Chain: SPEC (inline, Trigger Anil) → BUILD → REVIEW (`worklog/reviews/351-review.md`, Self-Review, positiv+negativ getestet) → PROVE (`worklog/proofs/351-knowledge-coupling-gate.txt`) → LOG.
 - Trigger: Diese Session rutschte Knowledge-Stale durch (INDEX D93 vs D94, `reward-ranking`/`treasury` `updated:` nicht gebumpt, W2-B stale) — nur durch Anils Nachhaken gefangen. Lehre D45 (Hooks > Text-Regeln): Wissens-Kopplung war Text-Regel in workflow.md, unter Druck übersprungen → jetzt blockierender Gate.

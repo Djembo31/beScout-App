@@ -77,6 +77,8 @@ Pflichtchecks vor SPEC/BUILD:
 | M | 3-5 Files, eine Domain | 1-13 (alle) | ≥ 6 Items | ≥ 8 | ≥ 8 |
 | L | Cross-Domain oder Schema-Migration | 1-13 + Wave-Plan + Pre-Mortem ≥ 5 | ≥ 10 Items inkl. DB-Schema-Verify per `pg_get_functiondef` | ≥ 10 | alle 11 Categorien |
 
+**Ops/Tooling-Spur (Slice 352 — Zeremonie-Entschlackung):** Slices vom Typ **Hook | GHA | Tool | Doc**, die **kein Money/Security/User-facing-Verhalten** berühren (z.B. Hook-Tweak, Audit-Script, Workflow-Doku), laufen als **XS mit schlanker Zeremonie**: inline-Spec in `active.md` (Problem + Plan, kein eigenes spec-File nötig), **PROVE = Smoke-Output** (Hook-Run / Script-Output), **REVIEW = self-review** (`active.md: review: self-review (Ops, kein Money/Security)`), LOG normal. Sobald Money/Security/Trading berührt → zurück zur vollen Spur (XS/S/M/L + Reviewer-Agent). `**Größe:** XS` bleibt im Header (Hook-Kompatibilität).
+
 **Gate:** CEO-Approval (wenn CEO-Scope laut `memory/ceo-approval-matrix.md`) ODER Claude setzt `S-Slice: true` für triviale Fälle.
 
 **Spec-Quality-Selbstcheck vor Anil-Approval (Slice 211):**

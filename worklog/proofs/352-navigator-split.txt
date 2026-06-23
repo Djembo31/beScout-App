@@ -1,0 +1,43 @@
+Slice 352 — errors-frontend.md Navigator + Detail on-demand
+Proof (2026-06-23)
+============================================================
+
+ZIEL: errors-frontend.md lädt bei JEDEM .tsx/Hook-Edit alle 1032 Z. (41 Patterns,
+~90% irrelevant für den konkreten Edit). Anil-Alignment: Navigator-Regel inline
+(always-loaded, Auto-Show der Guardrail bleibt) + voller Detail on-demand.
+
+MECHANIK-VERIFY (warum sicher):
+- Always-loaded vs path-scoped wird über Frontmatter entschieden:
+  KEIN paths:/globs: = always-loaded (common-errors.md, workflow.md beweisen das).
+  paths:/globs: = nur bei Match geladen (errors-frontend.md war im Session-Start NICHT da).
+- Detail-File bekam non-matching glob (BEIDE Keys paths: + globs: = "__never-autoload__/**")
+  → wird nie auto-geladen, nur on-demand via Read (Navigator-Pointer).
+
+TRANSFORMATION (zero-loss via git mv):
+  git mv errors-frontend.md → errors-frontend-detail.md   (Body verbatim, kein Transkriptions-Risiko)
+  → Detail-Frontmatter auf non-matching glob umgestellt + Header
+  → neues errors-frontend.md = Navigator (paths: unverändert = lädt wie vorher)
+
+HEADING-DIFF (Pflicht — null Pattern-Verlust):
+  PRE  errors-frontend.md : 41 '### ' + 1 '#### '
+  POST errors-frontend-detail.md : 41 '### ' + 1 '#### '   ✓ identisch
+
+COVERAGE (jeder Detail-Pattern im Navigator):
+  Detail 41 '### ' Headings = 38 benannte Patterns + 3 terse Sektionen (Checklist / CSS Gotchas / UX Konsistenz)
+  Navigator: 38 '- **'-Pattern-Bullets + 3 volle Sektionen + 1 Gruppen-Header   ✓ 1:1, exakt
+
+LINE-REDUKTION (always-loaded pro .tsx-Edit):
+  vorher : 1032 Z.
+  nachher:   78 Z.   → ~92% weniger Token/Edit
+  Detail (on-demand, nicht auto-geladen): 1038 Z. (voller Inhalt erhalten)
+
+FRONTMATTER-GUARD:
+  errors-frontend.md        paths: src/components/** , src/app/** , src/features/** , src/lib/hooks/**   (unverändert)
+  errors-frontend-detail.md paths/globs: __never-autoload__/**   (nie auto-geladen)
+
+SAFETY-ERHALT:
+  Auto-Show bleibt — die ACTIONABLE Regel jedes Patterns steht inline im Navigator (lädt bei .tsx-Edit).
+  Nur der verbose Detail (Root-Cause-Story, Code-Blöcke, Audit-greps, Reference) ist on-demand.
+  Kein Path-Split nach Dateityp (würde Patterns vom .tsx-Edit verstecken = Safety-Regression, verworfen nach Code-Reading).
+
+STATUS: PASS. Folge-Slices (gleiche Mechanik): errors-db.md (787 Z.), errors-infra.md (538 Z.).

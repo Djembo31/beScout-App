@@ -24,8 +24,8 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." 2>/dev/null && pwd)"
 
 echo "[SHIP-STATUS-INJECTION] Evidenz aus Repo (Hook liefert, nicht Memory):"
 echo ""
-echo "=== git log --oneline -5 ==="
-(cd "$REPO_ROOT" && git log --oneline -5 2>/dev/null || echo "(git log failed)")
+echo "=== git log --oneline -3 ==="
+(cd "$REPO_ROOT" && git log --oneline -3 2>/dev/null || echo "(git log failed)")
 echo ""
 echo "=== git status --short ==="
 (cd "$REPO_ROOT" && git status --short 2>/dev/null | head -15 || echo "(git status failed)")
@@ -39,8 +39,8 @@ fi
 
 LOG="$REPO_ROOT/worklog/log.md"
 if [ -f "$LOG" ]; then
-    echo "=== worklog/log.md (letzte 3 Eintraege) ==="
-    grep -A 5 '^## ' "$LOG" 2>/dev/null | head -30 || echo "(leer)"
+    echo "=== worklog/log.md (letzter Eintrag — Details zu Aelterem via git log oben) ==="
+    grep -A 5 '^## ' "$LOG" 2>/dev/null | head -6 || echo "(leer)"
 fi
 
 echo ""
