@@ -47,3 +47,17 @@ ERWARTUNG nach diesem Slice
 - CI bei künftigen Pushes grün (audit:silent-fail:check passt) → keine per-Push-Fail-Mails.
 - Push funktioniert normal (schneller Hook, kein Transport-Bruch).
 - Nächste echte CI-Fail-Mail = echtes Signal, nicht Rauschen.
+
+=========================================================
+NACHTRAG — CI test-job + Nightly (Folge des Fixes)
+=========================================================
+- Der CI-Run für c03a43f7: lint-job GRÜN (Baseline-Fix wirkt!), aber test-job
+  fand einen ECHTEN Bug aus Slice 349: ClubContent.test.tsx mockte
+  @/lib/queries/fanRanking ohne useClubFanLeaderboard (ClubContent rendert jetzt
+  ClubFanLeaderboard). Rutschte durch, weil Slice 349 mit --no-verify gepusht
+  wurde (Transport-Problem) → lokale Suite lief nie. = CI arbeitet korrekt (Signal).
+  Fix: useClubFanLeaderboard zum Mock ergänzt (leeres Board → null).
+- Volle Suite lokal CI=true: 226 Files / 3247 passed / 1 skipped (grün).
+- Nightly-Audit-Email-Quelle: nightly-audit.yml Z443 hatte verschachtelte Backticks
+  (`(cron `0 4 * * *`)`) → "SyntaxError: Unexpected number" → if:failure()-Step
+  crashte hart bei jedem Smoke-Wackler → Job-Fail-Mail. Fix: innere Backticks raus.

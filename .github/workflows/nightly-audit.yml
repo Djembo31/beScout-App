@@ -440,7 +440,7 @@ jobs:
               `**Run:** ${runUrl}`,
               `**Target:** https://bescout.net`,
               `**Date:** ${today}`,
-              `**Trigger:** Nightly Smoke (cron `0 4 * * *`)`,
+              `**Trigger:** Nightly Smoke (cron 0 4 * * *)`,
               ``,
               `Eines der 10 Smoke-Flows hat fehlgeschlagen. Playwright-Report-Artifact am Run.`,
               ``,

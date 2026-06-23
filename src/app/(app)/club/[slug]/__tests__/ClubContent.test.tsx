@@ -301,6 +301,9 @@ vi.mock('@/lib/queries/trades', () => ({
 const mockUseFanRanking = vi.fn();
 vi.mock('@/lib/queries/fanRanking', () => ({
   useFanRanking: (...args: unknown[]) => mockUseFanRanking(...args),
+  // Slice 349: ClubContent rendert jetzt ClubFanLeaderboard (→ useClubFanLeaderboard).
+  // Leeres Board → Komponente rendert null, stört bestehende ClubContent-Tests nicht.
+  useClubFanLeaderboard: () => ({ data: [], isLoading: false, isError: false, refetch: () => {} }),
 }));
 
 // ============================================
