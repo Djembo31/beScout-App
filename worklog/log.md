@@ -2,6 +2,21 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 357 | 2026-06-24 | feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
+- Stage-Chain: SPEC (`worklog/specs/357-platform-treasury-foundation.md`, L, CEO-Scope Money §3, D96-approved) → IMPACT (skipped, neue isolierte Tabellen, 0 Consumer) → BUILD (selbst, Money) → REVIEW (`worklog/reviews/357-review.md`, reviewer PASS, 2 NIT accepted) → PROVE → LOG.
+- **Feature:** Echtes Plattform-Konto (BeScout-Topf) als Fundament. Mirror Club-Treasury 329 minus tenant-id, Single-Pot. Befund D96: alle 6 Plattform-Fee-Anteile verbrennen heute → Topf fängt sie ab Slice 2 auf. **Diese Slice baut nur das leere Fundament (Topf live bei 0, kein Backfill).**
+  - Tabelle `platform_treasury` (Singleton-Lock-Anker, `id boolean PK CHECK(id)`, 1 Row) + `platform_treasury_ledger` (append-only: direction/source/amount>0/balance_after/reference_id/description).
+  - RPC `book_platform_treasury(direction,source,amount,ref,desc)` (Saldo=SUM unter Singleton-`FOR UPDATE`, Variante A, REVOKE-only Definer-intern) + `get_platform_balance()` + `get_platform_treasury_ledger(limit)` (beide platform-admin-guarded, AR-44).
+  - Append-only via Wiederverwendung generischer 329-Trigger `prevent_treasury_ledger_mutation`. RLS 0-Policies (Definer-Only, S197d).
+  - Service `platformAdmin.ts` +`getPlatformTreasuryBalance`/`getPlatformTreasuryLedger` (Pre-Cast-Guard S168). UI `AdminTreasuryTab` „Plattform-Topf"-Card (Saldo+REIN/RAUS+Kontoauszug, isoliert via allSettled). i18n DE+TR (IPO→Erstverkauf).
+  - `source`-CHECK hält alle 8 Epic-Werte (6 REIN Slice 2 + 2 RAUS Slice 3/4) → kein CHECK-Churn.
+- Design (CEO-approved): Variante A (Saldo=SUM, kohärent mit Club-Treasury) statt B (gecachter Saldo O(1)); Revisit B bei Millionen-Zeilen (Lock-Row existiert → lokaler Umstieg).
+- Files: migration (1) + types + platformAdmin.ts + AdminTreasuryTab.tsx + de/tr.json + test (9 grün).
+- Proof: `357-money-smoke.txt` (Kette 1000/1500/1200, append/delete/bad-source/noauth geblockt, RLS/Grants) + `357-rpc.txt` + `357-vitest.txt`. UI-Playwright = post-Deploy.
+- Wissens-Kopplung: `docs/knowledge/domain/treasury.md` §10 Bau-Stand (Slice 1 ✅) + Mirror-Notiz.
+- Commit: <pending>
+- Notes: Nächster Bau E3-2 = Fees REIN (Trading zuerst, eine Quelle/Slice). CEO-Frage „voller Auffang vs. Teil-Burn/Cap" (ADR-026) gehört zu Slice 2.
+
 ## 356 | 2026-06-23 | feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal
 - Stage-Chain: SPEC (`worklog/specs/356-exclusive-loyalty-polls.md`, M, 2 CEO-Design-Fragen) → IMPACT (skipped, Consumer kartiert) → BUILD → REVIEW (`worklog/reviews/356-review.md`, reviewer REWORK→geheilt) → PROVE → LOG.
 - **Feature:** Vereins-Umfragen erst ab konfigurierbarer Fan-Stufe abstimmbar. Spiegelt 346er Fan-Rang-Gate, aber ohne Teaser-RPC (kein versteckter Content bei Polls — Frage = Teaser).

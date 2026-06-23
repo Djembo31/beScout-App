@@ -403,6 +403,25 @@ export type DbTreasuryLedgerEntry = {
   created_at: string;
 };
 
+/** Slice 357: eine Zeile aus dem Plattform-Treasury-Kontoauszug (get_platform_treasury_ledger).
+ *  Single-Pot (kein club_id); `source` statt `type` (Fee-Quellen-Dimension). */
+export type DbPlatformLedgerEntry = {
+  id: string;
+  direction: 'credit' | 'debit';
+  source: string;
+  amount: number;
+  balance_after: number;
+  description: string | null;
+  created_at: string;
+};
+
+/** Slice 357: Saldo des Plattform-Treasury (get_platform_balance). Werte in cents. */
+export type PlatformTreasuryBalance = {
+  balance: number;
+  totalIn: number;
+  totalOut: number;
+};
+
 /**
  * Slice 050: Shared Operation-Result type fuer RPCs die { success, error? } returnen.
  * Ersetzt wiederkehrende inline-casts in Services (club.ts, fanWishes.ts).

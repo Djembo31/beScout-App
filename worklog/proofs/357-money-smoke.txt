@@ -1,0 +1,36 @@
+Slice 357 — Plattform-Treasury Topf-Fundament — Money-Smoke (live, transaktional via RAISE-Rollback)
+Project: skzjfhvgccaeplydsunz · Datum: 2026-06-24
+
+=== Smoke 1: Buchungskette + no-op + Admin-Read (impersonierter JWT) ===
+DO-Block: credit 1000 → credit 500 → debit 300 → credit 0 (no-op); dann get_platform_balance() + get_platform_treasury_ledger(5)
+
+ERGEBNIS (RAISE rollt zurück — nichts bleibt im Topf):
+  SMOKE_RESULT | chain=1000/1500/1200 | zero_noop=NULL | ledger_rows=3 | balance={"success":true,"balance":1200,"total_in":1500,"total_out":300} | ledger_len=3
+
+  ✅ AC-3/AC-4 balance_after-Kette korrekt (1000/1500/1200, kein Race — SUM unter Singleton-Row-Lock)
+  ✅ AC-5 amount=0 → RETURN NULL, kein Insert (ledger_rows=3, nicht 4)
+  ✅ get_platform_balance() = {balance:1200, total_in:1500, total_out:300} stimmt mit Kette überein
+  ✅ AC-10 get_platform_treasury_ledger(5) → 3 Rows
+
+=== Smoke 2: Append-Only + CHECK + Auth-Guard ===
+DO-Block: book → UPDATE (erwartet block) → DELETE (erwartet block) → book bad source (erwartet CHECK) → no-auth get_platform_balance (erwartet block)
+
+ERGEBNIS:
+  GUARD_RESULT | append_blocked=t | delete_blocked=t | bad_source_blocked=t | noauth_blocked=t
+
+  ✅ AC-9 UPDATE/DELETE auf Ledger geblockt (prevent_treasury_ledger_mutation Trigger)
+  ✅ AC-6 source außerhalb Enum → CHECK 23514
+  ✅ AC-7 get_platform_balance() ohne auth.uid() → 'auth_required'
+
+=== Static Security (live) ===
+  singleton_count                     = 1            ✅ AC-2 (id boolean PK CHECK erzwingt max 1 Row)
+  rls_policies                        = NONE         ✅ AC-8 (Definer-Only-Pattern, S197d)
+  rls_enabled                         = platform_treasury=true, platform_treasury_ledger=true  ✅
+  anon_can_select_ledger              = false        ✅ AC-8
+  authenticated_can_select_ledger     = false        ✅ AC-8
+  anon_can_exec_book                  = false        ✅ AR-44
+  anon_can_exec_balance               = false        ✅ AR-44
+  authd_can_exec_balance              = true         ✅ (Read-RPC für Admin-UI)
+  ledger_checks                       = amount_check, direction_check, source_check  ✅
+
+FAZIT: DB-Fundament vollständig grün. Topf live bei 0 (kein Backfill). Fees REIN = Slice 2.

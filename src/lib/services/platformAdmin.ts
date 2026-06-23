@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
 import { getLeagueById } from '@/lib/leagues';
-import type { DbFeeConfig, DbEventFeeConfig, OperationResult } from '@/types';
+import type { DbFeeConfig, DbEventFeeConfig, OperationResult, DbPlatformLedgerEntry, PlatformTreasuryBalance } from '@/types';
 
 // ============================================
 // Admin Role Check
@@ -423,4 +423,28 @@ export async function getTreasuryStats(): Promise<TreasuryStats> {
     ticketsEarned: tkRows.reduce((s, t) => s + cents(t.earned_total), 0),
     ticketsSpent: tkRows.reduce((s, t) => s + cents(t.spent_total), 0),
   };
+}
+
+// ============================================
+// Platform Treasury (BeScout-Topf) — Slice 357 (E3-1, D96)
+// ============================================
+
+/** Saldo des Plattform-Treasury (Topf). Platform-Admin-guarded RPC (get_platform_balance). */
+export async function getPlatformTreasuryBalance(): Promise<PlatformTreasuryBalance> {
+  const { data, error } = await supabase.rpc('get_platform_balance');
+  if (error) throw new Error(error.message);
+  const result = data as { success?: boolean; error?: string; balance?: number; total_in?: number; total_out?: number };
+  if (!result?.success) throw new Error(result?.error ?? 'platform_balance_failed');
+  return {
+    balance: result.balance ?? 0,
+    totalIn: result.total_in ?? 0,
+    totalOut: result.total_out ?? 0,
+  };
+}
+
+/** Kontoauszug des Plattform-Treasury (Topf). Platform-Admin-guarded RPC (get_platform_treasury_ledger). */
+export async function getPlatformTreasuryLedger(limit = 50): Promise<DbPlatformLedgerEntry[]> {
+  const { data, error } = await supabase.rpc('get_platform_treasury_ledger', { p_limit: limit });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbPlatformLedgerEntry[];
 }

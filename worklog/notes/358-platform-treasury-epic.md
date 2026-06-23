@@ -30,7 +30,9 @@ PBT-Anteile → `pbt_treasury` ✅ · Club-Anteile → `clubs.treasury_balance_c
 
 ## Bau-Sequenz (Fundament zuerst — kein Reward-Kanal vor seinem Konto)
 
-### Slice 1 — Topf-Fundament (Money-Infra)
+### Slice 1 — Topf-Fundament (Money-Infra) — ✅ DONE (Slice 357, 2026-06-24)
+> Gebaut: `platform_treasury` (Singleton-Lock `id boolean PK CHECK(id)`) + `platform_treasury_ledger` (append-only, `source` statt `type`) + `book_platform_treasury()`/`get_platform_balance()`/`get_platform_treasury_ledger()` + AdminTreasuryTab „Plattform-Topf"-Card + i18n DE+TR. **Variante A** (Saldo=SUM unter Singleton-Row-Lock, CEO-approved; Revisit B bei Millionen-Zeilen). **Kein Backfill** → Topf live bei 0. `source`-CHECK hält alle 8 Epic-Werte. Proofs: `worklog/proofs/357-*`. Review PASS.
+
 - Tabelle `platform_treasury_ledger` (append-only, Mirror `club_treasury_ledger` aus Slice 329): direction credit/debit, source-Enum, amount, reference_id, description, created_at. **1 Topf** (kein per-X), evtl. Singleton-Row-Saldo oder reiner Ledger + SUM.
 - RPC `book_platform_treasury(direction, source, amount, reference_id, description)` — Mirror `book_club_treasury`. AR-44 REVOKE/GRANT. Saldo-Lese-RPC `get_platform_balance()` (Ledger-SUM, race-frei unter Row-Lock — vgl. errors-db „Bank-Ledger balance_after").
 - RLS: cron-only-Pattern (ENABLE RLS + 0 Policies, service_role bypassed) ODER Admin-SELECT. Kein Client-Write.

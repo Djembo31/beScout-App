@@ -4,12 +4,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Loader2, RefreshCw, Wallet, TrendingDown, TrendingUp, Banknote,
-  Users, Ticket, Gift, ArrowDownRight, ArrowUpRight, Flame,
+  Users, Ticket, Gift, ArrowDownRight, ArrowUpRight, Flame, Landmark,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 
-import { getTreasuryStats, type TreasuryStats } from '@/lib/services/platformAdmin';
+import {
+  getTreasuryStats, type TreasuryStats,
+  getPlatformTreasuryBalance, getPlatformTreasuryLedger,
+} from '@/lib/services/platformAdmin';
+import type { DbPlatformLedgerEntry, PlatformTreasuryBalance } from '@/types';
 
 function fmt(centVal: number): string {
   return fmtScout(centVal / 100);
@@ -22,17 +26,24 @@ function fmt(centVal: number): string {
 export function AdminTreasuryTab() {
   const t = useTranslations('bescoutAdmin');
   const [stats, setStats] = useState<TreasuryStats | null>(null);
+  const [pot, setPot] = useState<PlatformTreasuryBalance | null>(null);
+  const [potLedger, setPotLedger] = useState<DbPlatformLedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    try {
-      const result = await getTreasuryStats();
-      setStats(result);
-    } catch (err) {
-      console.error('[Admin] Treasury data load failed:', err);
-    } finally {
-      setLoading(false);
-    }
+    // Plattform-Topf isoliert laden (Slice 357): ein RPC-Fehler darf die Treasury-Stats nicht killen.
+    const [statsRes, potBalRes, potLedgerRes] = await Promise.allSettled([
+      getTreasuryStats(),
+      getPlatformTreasuryBalance(),
+      getPlatformTreasuryLedger(20),
+    ]);
+    if (statsRes.status === 'fulfilled') setStats(statsRes.value);
+    else console.error('[Admin] Treasury data load failed:', statsRes.reason);
+    if (potBalRes.status === 'fulfilled') setPot(potBalRes.value);
+    else console.error('[Admin] Platform pot balance load failed:', potBalRes.reason);
+    if (potLedgerRes.status === 'fulfilled') setPotLedger(potLedgerRes.value);
+    else console.error('[Admin] Platform pot ledger load failed:', potLedgerRes.reason);
+    setLoading(false);
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -48,6 +59,17 @@ export function AdminTreasuryTab() {
   const netSupply = stats.circulatingCents + stats.lockedCents;
   const totalMinted = stats.passBcredits + stats.welcomeBonusMinted;
   const avgFeePerTrade = stats.totalTrades > 0 ? Math.round((stats.platformFees + stats.pbtFees + stats.clubFees) / stats.totalTrades) : 0;
+
+  // Slice 357: source-Enum → i18n-Label (Fallback = raw source bei unbekanntem Wert, kein MISSING_MESSAGE-Crash)
+  const SOURCE_LABEL_KEY: Record<string, string> = {
+    trading: 'platformPotSrcTrading', ipo: 'platformPotSrcIpo', poll: 'platformPotSrcPoll',
+    research: 'platformPotSrcResearch', bounty: 'platformPotSrcBounty', p2p: 'platformPotSrcP2p',
+    monthly_liga: 'platformPotSrcMonthlyLiga', bescout_event: 'platformPotSrcBescoutEvent',
+  };
+  const sourceLabel = (source: string): string => {
+    const key = SOURCE_LABEL_KEY[source];
+    return key ? t(key) : source;
+  };
 
   return (
     <div className="space-y-6">
@@ -74,6 +96,45 @@ export function AdminTreasuryTab() {
           value={String(stats.walletsWithBalance)}
         />
       </div>
+
+      {/* Plattform-Topf (BeScout) — Slice 357 (E3-1, D96) */}
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Landmark aria-hidden="true" className="size-5 text-gold" />
+          <h3 className="text-sm font-black text-white/80 uppercase tracking-wide">{t('platformPotTitle')}</h3>
+        </div>
+        <p className="text-xs text-white/40 text-pretty">{t('platformPotHint')}</p>
+
+        <div className="grid grid-cols-3 gap-3">
+          <MiniStat label={t('platformPotBalance')} value={fmt(pot?.balance ?? 0)} color="text-gold" icon={<Wallet className="size-4" />} />
+          <MiniStat label={t('platformPotIn')} value={fmt(pot?.totalIn ?? 0)} color="text-green-400" icon={<ArrowDownRight className="size-4" />} />
+          <MiniStat label={t('platformPotOut')} value={fmt(pot?.totalOut ?? 0)} color="text-red-400" icon={<ArrowUpRight className="size-4" />} />
+        </div>
+
+        <div className="pt-3 border-t border-divider space-y-2">
+          <div className="text-xs font-bold text-white/50">{t('platformPotLedger')}</div>
+          {potLedger.length === 0 ? (
+            <div className="py-4 text-center text-xs text-white/30">{t('platformPotEmpty')}</div>
+          ) : (
+            <div className="space-y-1.5">
+              {potLedger.map((row) => (
+                <div key={row.id} className="flex items-center justify-between py-1.5 px-3 bg-surface-minimal rounded-lg">
+                  <div className="text-xs text-white/60">
+                    {sourceLabel(row.source)}
+                    {row.description && <span className="text-white/30 ml-1.5">· {row.description}</span>}
+                  </div>
+                  <span className={cn(
+                    'font-mono tabular-nums text-xs font-bold',
+                    row.direction === 'debit' ? 'text-red-400/70' : 'text-green-400/70',
+                  )}>
+                    {row.direction === 'debit' ? '-' : '+'}{fmt(row.amount)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
 
       {/* $SCOUT Flow */}
       <Card className="p-5 space-y-4">

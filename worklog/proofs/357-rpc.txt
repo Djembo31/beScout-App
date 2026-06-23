@@ -1,0 +1,31 @@
+Slice 357 — Live pg_get_functiondef + CHECK-defs (2026-06-24, project skzjfhvgccaeplydsunz)
+
+=== book_platform_treasury(text,text,bigint,uuid,text) → bigint, SECURITY DEFINER ===
+IF p_amount IS NULL OR <= 0 → RETURN NULL (no-op)
+PERFORM 1 FROM platform_treasury WHERE id=true FOR UPDATE  -- Serialisierungspunkt
+IF NOT FOUND → RAISE (Singleton-Guard)
+v_prev := COALESCE(SUM(CASE direction credit:+amount / debit:-amount),0)  -- race-frei unter Lock
+v_after := v_prev + (debit:-p_amount / sonst:+p_amount)
+INSERT ledger(direction,source,amount,balance_after,reference_id,description)
+RETURN v_after
+GRANTS: REVOKE ALL FROM PUBLIC,anon,authenticated (kein GRANT — nur Definer-intern aufgerufen)
+
+=== get_platform_balance() → json, SECURITY DEFINER ===
+auth.uid() NULL → 'auth_required'
+NOT EXISTS platform_admins → 'not_authorized'
+SUM amount FILTER credit/debit → {success:true, balance:in-out, total_in, total_out}
+GRANTS: REVOKE EXECUTE FROM PUBLIC,anon · GRANT authenticated,postgres,service_role
+
+=== get_platform_treasury_ledger(integer DEFAULT 50) → jsonb, SECURITY DEFINER ===
+auth.uid()/platform_admins-Guard identisch
+jsonb_agg(to_jsonb(t) ORDER BY created_at DESC, id DESC), default '[]'
+LIMIT GREATEST(LEAST(COALESCE(p_limit,50),200),1)  -- clamp 1..200
+GRANTS: REVOKE EXECUTE FROM PUBLIC,anon · GRANT authenticated,postgres,service_role
+
+=== CHECK constraints (platform_treasury_ledger) ===
+amount_check:    CHECK (amount > 0)
+direction_check: CHECK (direction IN ('credit','debit'))
+source_check:    CHECK (source IN ('trading','ipo','poll','research','bounty','p2p','monthly_liga','bescout_event'))
+                 -- REIN-Werte (Slice 2) + RAUS-Werte (Slice 3/4) vorgehalten, kein CHECK-Churn
+
+Live-Def == Migration-File 20260624120000_slice_357_platform_treasury_foundation.sql (1:1 verifiziert).

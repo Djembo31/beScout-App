@@ -2,29 +2,30 @@
 
 ```
 status: idle
-slice: 356
-title: ✅ DONE — Exklusive Treue-Umfragen (Fan-Rang-Tor auf Community-Polls) + 80/20-Fee-Heal
+slice: 357
+title: ✅ DONE — Plattform-Treasury Topf-Fundament (E3-1)
 stage: LOG complete
-size: M
-slice-type: Service + Migration + UI (cross-domain, money-nah)
-spec: worklog/specs/356-exclusive-loyalty-polls.md
-impact: skipped (Consumer in Spec §3/§4 kartiert)
-review: worklog/reviews/356-review.md (REWORK→geheilt: Fee 343-Bug 70/30→80/20)
-proof: worklog/proofs/356-money-smoke.txt (+ 356-rpc.txt + 356-vitest.txt; UI-Playwright post-Deploy)
-next: S7-Aufräumen (scout_scores↔user_stats / Monthly-Liga-Board / Dormant / Bridges; ⛔ players.club=API-Key)
+size: L
+slice-type: Migration + Service + UI (Money-Infra, CEO-Scope §3)
+spec: worklog/specs/357-platform-treasury-foundation.md
+impact: skipped (neue isolierte Tabellen, 0 bestehende Consumer)
+proof: worklog/proofs/357-money-smoke.txt
+proof-extra: 357-rpc.txt + 357-vitest.txt; UI-Playwright post-Deploy
+review: worklog/reviews/357-review.md (PASS, 2 NIT accepted)
+next: E3-2 Fees REIN (Trading zuerst, eine Quelle/Slice; CEO-Frage voller Auffang vs. Teil-Burn/Cap)
 ```
 
-## Ergebnis Slice 356
+## Ergebnis Slice 357
 
-- Schema `community_polls.min_fan_rank_tier` (NULL=offen, CHECK 6-Tier-Mirror).
-- `create_community_poll` +Param (nur source='club'), alte Overload gedroppt, AR-44.
-- `cast_community_poll_vote` Vote-Guard VOR Wallet (gespeicherter Rang, fail-closed, money-safe).
-- Service `getCommunityPolls(clubId, viewerId)` → `viewer_locked` pro Poll (multi-club, Ersteller nie gesperrt).
-- Card-Schloss-Teaser + Create-Tier-Selector (nur Club). i18n DE+TR.
-- Silent-Fail-Fix: `castCommunityPollVote` wirft jetzt bei !success (vorher false-success-Toast).
-- **Money-Heal:** 343-Fee-Regression 70/30 → CEO-approved 80/20 (Anil-approved). Live-verifiziert.
+- Echtes Plattform-Konto (BeScout-Topf) als Fundament — Mirror Club-Treasury 329 minus tenant-id, Single-Pot.
+- `platform_treasury` (Singleton-Lock-Anker) + `platform_treasury_ledger` (append-only).
+- 3 RPCs: `book_platform_treasury` (Saldo=SUM unter Singleton-`FOR UPDATE`, Variante A, REVOKE-only) + `get_platform_balance()` + `get_platform_treasury_ledger()` (platform-admin-guarded, AR-44).
+- Append-only via generischem 329-Trigger. RLS 0-Policies (Definer-Only).
+- Service +2 Fn (Pre-Cast-Guard S168) · AdminTreasuryTab „Plattform-Topf"-Card · i18n DE+TR.
+- **Topf live bei 0** (kein Backfill — verbrannte Fees nie gebucht). Fees REIN = Slice 2.
+- Money-Smoke grün: Kette 1000/1500/1200, append/delete/bad-source/noauth geblockt, RLS/Grants verifiziert.
 
 ## Zuletzt
 
+- **Slice 356** — Exklusive Treue-Umfragen + 80/20-Fee-Heal (M).
 - **Slice 355** — Audit-Churn gitignoren (XS).
-- **Slice 354** — 349 Live-Verify + FK-Fix + Stale-Tracker-Prävention.
