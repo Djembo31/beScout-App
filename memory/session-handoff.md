@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 20:36)
+# Session Handoff — Auto (2026-06-23 23:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,15 +8,13 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 8
+## Session Commits: 6
+- 8b8fb124 chore(audit): re-baseline silent-fail 81->82 HIGH (Slice 356 bounded .in())
+- 84b369c5 feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal (Slice 356)
 - 27edf18a chore(gitignore): Audit-Churn ignorieren — knowledge-* + silent-fail-* Reports (Slice 355)
 - d25c5a1e docs(handoff): stale "NÄCHSTER ARBEITSBLOCK" entfernt (349+Workflow-Tracks erledigt)
 - 7cde45a7 fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention (Slice 354)
 - 009f596c docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL (Slice 353)
-- fc1334a2 chore(workflow): Effizienz-Tracks #1+#2+#3 — Navigator-Split + Status-Trim + Ops-Spur (Slice 352)
-- 8302abcc docs(notes): Workflow-Effizienz-Analyse + 3 Optimierungs-Tracks (frische Session)
-- 560a6136 feat(tooling): Slice 351 — Knowledge-Coupling-Gate (Stale hart blocken, D45)
-- 270055b2 docs(knowledge): Wissens-Kopplung Slice 348/349 — Frontmatter + W2-B + INDEX (E0-W2gov)
 
 <!-- auto:handoff-end -->
 
@@ -24,7 +22,21 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle.** Vor Start: `git status --short --branch && git log --oneline -8`. (Audit-Churn ist seit Slice 355 gitignored — kein manuelles „nie committen" mehr nötig.) HEAD = `Slice 355`. `worklog/active.md` = idle. **CI grün, Push normal.** Alles dieser Session committet + gepusht — **Anil setzt frei fort** (Polls-Reste ODER S7-Aufräumen, s.u.).
+**Status: idle. HEAD = Slice 356 (+ baseline-Commit).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn ist gitignored (355). **CI grün, Push normal.** Alles committet + gepusht.
+
+## ➡️ NÄCHSTER SLICE: Monthly Leaderboard e2e-fertig verfolgen (Anil-Auftrag 2026-06-23)
+> „weiter mit monthly leader board, das wurde wie vieles angefangen, aber nicht e2e verfolgt."
+- **ZUERST lesen:** `worklog/notes/357-preflight-monthly-leaderboard.md` — vollständige Bestandsaufnahme (was lebt: `MonthlyWinners`/`close_monthly_liga`; was tot: `getMonthlyLeaderboard`+Hook ohne UI; die e2e-Lücke: kein Cron + keine Live-Board-UI).
+- **Money-Path:** `close_monthly_liga` ist payoutfähig → SPEC startet mit Live-`pg_get_functiondef` (D87), selbst bauen (§3).
+- **2 Anil-Fragen vor BUILD:** Monatsabschluss Cron-automatisch vs. manuell (Payout-Risiko Beta)? · Welche Dimension(en) zeigt das Live-Board?
+- Entscheidung D80 = **activate** (e2e fertig), nicht löschen (Anil-Intention).
+
+## ✅ SESSION 2026-06-23 (Abend) — Slice 356 Exklusive Treue-Umfragen + Money-Heal
+- **Slice 356** — Exklusive Treue-Umfragen (`community_polls.min_fan_rank_tier`-Tor): create-Param (nur source='club'), Vote-Guard VOR Wallet (fail-closed), Service `viewer_locked` pro Poll/Betrachter (multi-club), Card-Schloss-Teaser + Create-Selector, i18n DE+TR. Silent-Fail-Fix: `castCommunityPollVote` wirft jetzt bei !success (vorher false-success-Toast). → **Polls-Roadmap KOMPLETT** ((c) Abo-Early-Access von Anil gestrichen).
+- **🔴 Live-Money-Heal (Reviewer-Fund, Anil-approved):** Poll-Fee lief seit Slice 343 fälschlich **70/30** statt CEO-approved **80/20** (343 rekonstruierte Body aus `slice_336`-Datei statt Live → 337-Patch still revertiert). Zurück auf 80/20, live-verifiziert (creator_share=800 bei cost=1000). Pattern → errors-db.md (PATCH-AUDIT muss **Konstanten** prüfen, nicht nur Präsenz).
+- **Reviewer:** REWORK→geheilt (`worklog/reviews/356-review.md`). **Proof:** `356-rpc.txt` + `356-money-smoke.txt` (Reject→Wallet unverändert; Pass→80/20) + 27 vitest.
+- **Prozess:** TR-i18n-Abnahme-Regel (`feedback_tr_i18n_validation`) auf Anil-Wunsch entfernt — TR-Strings nicht mehr vor Commit zeigen.
+- DISTILL geprüft: Learnings in errors-db.md (Konstanten-Audit) + polls.md (Feature). Kein neuer `D<n>` nötig (Bug-Fix-/Feature-Klasse, kein Strategiewechsel).
 
 ## ✅ SESSION 2026-06-23 (Fortsetzung) — Workflow-Effizienz + 349-Heilung
 - **Slice 352** — Workflow-Effizienz #1+#2+#3: `ship-status-gate.sh` log.md-Injection 5→1; Ops/Tooling-Slice-Spur in `workflow.md`; **`errors-frontend.md` → Navigator (78 Z., always-loaded) + `errors-frontend-detail.md` (on-demand, non-matching glob)**. Anil-Alignment: path-scopen verworfen (.tsx-Kollaps = Safety-Regression).
