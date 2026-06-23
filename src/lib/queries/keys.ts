@@ -209,7 +209,7 @@ export const qk = {
   // ── Polls ──
   polls: {
     all: ['polls'] as const,
-    list: (clubId?: string) => ['polls', clubId] as const,
+    list: (clubId?: string, viewerId?: string) => ['polls', clubId, viewerId] as const,
   },
 
   // ── Club Admin ──

@@ -1,7 +1,7 @@
 ---
 title: Polls & Community-Monetarisierung — Vereins-Geldmaschine (Kanon)
 created: 2026-06-17
-updated: 2026-06-18
+updated: 2026-06-23
 status: active
 tags: [polls, community, monetization, treasury, poll_revenue, discovery, follower, fan-rank]
 consult_when: Polls, Umfragen, poll_revenue, Verein→Treasury vs User→Wallet, Follower-Tor, Discovery, Identitätsgrenze Club-Admin, Bezug Verein/Spieler
@@ -12,7 +12,9 @@ verified-against: .claude/rules/community.md @ 2026-06-18
 
 > **Kanon (WIE):** Umfragen (Polls) als Vereins-Geldmaschine + Fan-Stimme, inkl. Discovery (Suche/Filter) und sozialer Schicht (Follower/Abo/Fan-Rang). **WARUM-Entscheidung:** `memory/decisions.md` **D86**. Strategie-Session 2026-06-17.
 >
-> **Status (2026-06-18):** P1 Erstellung (Slice 333) + P2 Spieler-Bezug & Discovery (334) + P3 soziale Schicht Follower/Abo (336) + Fee 20/80 (337) + **P3c Fan-Rang → Stimmgewicht (Slice 343)** **gebaut + live**. Offen: P3c-Rest (b exklusive Treue-Umfragen, c Early-Access). ~~P4 Teilnehmer-Auszahl~~ verworfen (§7). Referenz für alle künftigen Poll-/Discovery-Slices. **Beibezug Pflicht** (Anil: „darf nicht verloren gehen, wird unbedingt genutzt").
+> **Status (2026-06-23):** P1 Erstellung (333) + P2 Spieler-Bezug & Discovery (334) + P3 soziale Schicht Follower/Abo (336) + Fee 20/80 (337) + **P3c Fan-Rang → Stimmgewicht (343)** + **P3c-(b) exklusive Treue-Umfragen (`min_fan_rank_tier`, Slice 356)** **gebaut + live**. ~~(c) Abo Early-Access~~ aus Plan gestrichen (Anil 2026-06-23). ~~P4 Teilnehmer-Auszahl~~ verworfen (§7). **Polls-Roadmap damit abgeschlossen.** Referenz für alle künftigen Poll-/Discovery-Slices. **Beibezug Pflicht** (Anil: „darf nicht verloren gehen, wird unbedingt genutzt").
+>
+> **Fee-Heal (Slice 356):** `cast_community_poll_vote` lief seit Slice 343 fälschlich auf **70/30** (343 rekonstruierte den Body aus der `slice_336`-Datei statt aus Live → Patch-Revert von 337). In Slice 356 auf CEO-approved **80/20** zurückgesetzt (Anil-approved 2026-06-23). Live-verifiziert: creator_share=800 bei cost=1000.
 >
 > **Geld-Richtung (zentral):** Polls sind eine **REIN-Mechanik** (Fan zahlt → Verein verdient → Treasury), NICHT „Verein belohnt Teilnahme". Querbezug: `domain/treasury.md` (REIN-Seite, Slices 329/330b).
 
@@ -81,7 +83,7 @@ Wenn es viele Umfragen, Polls und **Paywalls** (bezahlte Reports) gibt, müssen 
 |-------|-------|----------|--------------|
 | **Follower** (`club_followers`) | Reichweite (Lautsprecher) | **wer sieht es** + **Tor fürs User-Anlegen** (ab Schwelle) | ✅ **aktiv** — Follower-Tor 50 fürs User-Anlegen (333) + `poll_new`-Notification an ALLE Follower bei neuer Umfrage (336; Range-Loop gegen 1000-Cap, Slice 339) |
 | **Abonnenten** (`club_subscriptions`) | Perks/Zugang | **doppeltes Stimmgewicht**, früherer/exklusiver Zugang | ✅ **2×-Gewicht jetzt auch bei Paid-Polls** (336, `community_poll_votes.weight`; Gewicht skaliert NUR Tally, NICHT Geld). Offen: Early/exklusiver Zugang |
-| **Fan-Rang** (`fan_rankings`, *„evtl."*) | Treue-Status (Vereinsikonen) | Gewicht, exklusive Treue-Umfragen, ~~Anteil an Auszahlung~~ | ✅ **Stimmgewicht aktiv** (Slice 343): Ultra/Legende 2×, Ehrenmitglied/Vereinsikone 3×. Offen: exklusive Treue-Umfragen (b) + Early-Access (c) |
+| **Fan-Rang** (`fan_rankings`, *„evtl."*) | Treue-Status (Vereinsikonen) | Gewicht, exklusive Treue-Umfragen, ~~Anteil an Auszahlung~~ | ✅ **Stimmgewicht** (343) + ✅ **exklusive Treue-Umfragen** (356, `min_fan_rank_tier`-Tor). ~~Early-Access (c)~~ gestrichen |
 
 **Beispiel (alle drei):** Gala startet „Welche Position verstärken?" → erreicht 35 Mio **Follower** → **Gold-Abos** stimmen mit 2× Gewicht / sehen zuerst → **Vereinsikonen** bekommen am Ende einen Anteil aus dem Topf.
 
@@ -115,7 +117,8 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 - [x] **Follower** = Reichweite: `poll_new`-Notification an alle Follower (Range-Loop Slice 339).
 - [x] **Abo-Perks bei Paid-Polls:** 2×-Gewicht (`community_poll_votes.weight`).
 - [x] **P3c-Gewicht — Fan-Rang → Stimmgewicht (Slice 343):** `weight = MAX(Abo-Gewicht, Fan-Rang-Gewicht)`, Tally-only (Geld = 1 echte Stimme). Ultra/Legende 2×, Ehrenmitglied/Vereinsikone 3×, sonst 1×. Abo-Floor (MAX) verhindert Regression der Live-2×. Anil-Entscheid 2026-06-18 (AskUserQuestion): nur (a). Mapping-Konstante lebt in `cast_community_poll_vote` (kein TS-Spiegel, da nicht UI-surfacet).
-- [ ] **P3c-Rest (offen, je eigener Slice):** (b) exklusive Treue-Umfragen (`min_fan_rank`-Tor, Schema + Vote-/Sichtbarkeits-Guard + recalc-on-read) · (c) Abo Early-Access (Zeitfenster). ~~(d) Auszahl-Gewichtung~~ tot (P4 verworfen). UI-Surfacing des eigenen Gewichts = Backlog (heute auch Abo-2× still).
+- [x] **P3c-(b) exklusive Treue-Umfragen (Slice 356):** `community_polls.min_fan_rank_tier` (NULL=offen, CHECK 6-Tier-Mirror) · `create_community_poll` +Param (nur source='club') · `cast_community_poll_vote` Vote-Guard VOR Wallet (gespeicherter Rang, stale-tolerant, fail-closed; KEIN recalc-on-read — money-safe da Reject vor Geldfluss, konsistent 346/343) · Service `getCommunityPolls` berechnet `viewer_locked` pro Poll/Betrachter (1 fan_rankings-Query, multi-club, Ersteller nie gesperrt) · Card-Schloss-Teaser + Create-Tier-Selector. **Spiegelt 346er Read-Gate, aber ohne Teaser-RPC** (kein versteckter Content — Frage = Teaser).
+- [x] ~~(c) Abo Early-Access~~ — aus Plan gestrichen (Anil 2026-06-23). ~~(d) Auszahl-Gewichtung~~ tot (P4 verworfen). UI-Surfacing des eigenen Gewichts = Backlog.
 
 **P4 — Auszahl-Idee an Teilnehmer** — **VERWORFEN (Anil 2026-06-18):** Lotterie (a)/Prediction (b) = Glücksspiel-Risiko, Mini-Reward (c) nicht verfolgt. Nicht wieder aufmachen ohne neue Anil-Ansage.
 
@@ -135,7 +138,8 @@ Anil: „es sollte eine Möglichkeit geben, wo auch die Mehrheit der User ausgez
 | Gratis-Club-Vote erstellen | ✅ `createVote` / `AdminVotesTab` (Admin), 2×-Gewicht Bronze+ |
 | Filter nach Verein/Spieler | ✅ **Anker-Chip-Leiste + Such-Match über alle Feed-Typen** (334), live verifiziert |
 | Follower-Reichweite / Abo-Gewicht | ✅ `poll_new`-Notification an alle Follower (336, Range-Loop 339) + Abo-2× bei Paid-Polls (336) |
-| Fan-Rang-Wirkung | ✅ **Stimmgewicht (Slice 343):** `MAX(Abo, Fan-Rang)`, Ultra/Legende 2×, Ehren/Ikone 3×, Tally-only. Offen: (b) exklusive Treue-Umfragen, (c) Early-Access |
+| Fan-Rang-Wirkung | ✅ **Stimmgewicht (343):** `MAX(Abo, Fan-Rang)`, Ultra/Legende 2×, Ehren/Ikone 3×, Tally-only. ✅ **exklusive Treue-Umfragen (356):** `min_fan_rank_tier`-Tor (Vote-Guard vor Wallet + `viewer_locked`-Card-Schloss). ~~(c) Early-Access~~ gestrichen |
+| **min_fan_rank_tier** Spalte | ✅ **Slice 356** — nullable, CHECK 6-Tier-Mirror, nur via `create_community_poll` (source='club') setzbar |
 
 ---
 

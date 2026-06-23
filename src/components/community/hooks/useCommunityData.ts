@@ -50,7 +50,7 @@ export function useCommunityData(
   const { data: leaderboard = [] } = useLeaderboard(50);
   const { data: researchPosts = [] } = useResearchPosts(deferredReady ? userId : undefined);
   const { data: bounties = [] } = useActiveBounties(deferredReady ? userId : undefined, scopeClubId);
-  const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
+  const { data: communityPolls = [] } = useCommunityPolls(scopeClubId, userId);
 
   // ─── Derived Data ─────────────────────────
   const followingIds = useMemo(() => new Set(socialStats?.following_ids ?? []), [socialStats]);

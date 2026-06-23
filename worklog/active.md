@@ -2,24 +2,29 @@
 
 ```
 status: idle
-slice: 355
-title: ✅ DONE — Audit-Churn gitignoren (knowledge-* + silent-fail-* Reports)
+slice: 356
+title: ✅ DONE — Exklusive Treue-Umfragen (Fan-Rang-Tor auf Community-Polls) + 80/20-Fee-Heal
 stage: LOG complete
-size: XS
-slice-type: Tool (Ops/Tooling-Spur, kein Money/Security)
-spec: inline (Anil: Audit-Churn-Ursache beheben — gitignore-Lücke vs. Geschwister-Reports)
-proof: git check-ignore grün für knowledge-*.md + silent-fail-*.{md,json}; git status churn-frei
-review: self-review (Ops, gleiche .gitignore-Konvention wie Z.155-157)
-next: Pro-Stand-Roadmap (Polls-Reste / S7-Aufräumen scout_scores↔user_stats / Dormant-Hygiene)
+size: M
+slice-type: Service + Migration + UI (cross-domain, money-nah)
+spec: worklog/specs/356-exclusive-loyalty-polls.md
+impact: skipped (Consumer in Spec §3/§4 kartiert)
+review: worklog/reviews/356-review.md (REWORK→geheilt: Fee 343-Bug 70/30→80/20)
+proof: worklog/proofs/356-money-smoke.txt (+ 356-rpc.txt + 356-vitest.txt; UI-Playwright post-Deploy)
+next: S7-Aufräumen (scout_scores↔user_stats / Monthly-Liga-Board / Dormant / Bridges; ⛔ players.club=API-Key)
 ```
 
-## Plan (Anil-Alignment 2026-06-23)
+## Ergebnis Slice 356
 
-**Tracks #2 + #3 erledigt** (Ops-Spur): #2 `ship-status-gate.sh` log.md-Injection 5→1 Eintrag + git log 5→3. #3 workflow.md Ops/Tooling-Slice-Spur definiert.
+- Schema `community_polls.min_fan_rank_tier` (NULL=offen, CHECK 6-Tier-Mirror).
+- `create_community_poll` +Param (nur source='club'), alte Overload gedroppt, AR-44.
+- `cast_community_poll_vote` Vote-Guard VOR Wallet (gespeicherter Rang, fail-closed, money-safe).
+- Service `getCommunityPolls(clubId, viewerId)` → `viewer_locked` pro Poll (multi-club, Ersteller nie gesperrt).
+- Card-Schloss-Teaser + Create-Tier-Selector (nur Club). i18n DE+TR.
+- Silent-Fail-Fix: `castCommunityPollVote` wirft jetzt bei !success (vorher false-success-Toast).
+- **Money-Heal:** 343-Fee-Regression 70/30 → CEO-approved 80/20 (Anil-approved). Live-verifiziert.
 
-**#1 — Anil-Entscheidung nach Code-Reading-Finding:** „feiner path-scopen" trifft .tsx-Kollaps-Wand (i18n/CSS/Modal/React-Patterns feuern alle beim .tsx-Edit → Path-Split würde Patterns verstecken = Safety-Regression). Gewählt: **Navigator-Regel inline (always-loaded) + Detail on-demand**.
+## Zuletzt
 
-- `errors-frontend.md` behält `paths:`-Frontmatter (lädt bei .tsx-Edit) → wird zu **Navigator**: je Pattern 1 Zeile mit der ACTIONABLE Regel + Pointer auf Detail-Anker. Auto-Show der Guardrail bleibt.
-- NEU `errors-frontend-detail.md`: voller verbose Inhalt (Root-Cause, Code-Blöcke, Audits) aller Patterns. **Non-matching glob** → NIE auto-geladen, nur on-demand via Read.
-- **Verify (Pflicht):** Heading-Diff — jeder `### Pattern` aus dem Original überlebt in Detail UND erscheint im Navigator. Null Pattern-Verlust.
-- Danach errors-db / errors-infra als eigene Folge-Slices (gleiche Mechanik).
+- **Slice 355** — Audit-Churn gitignoren (XS).
+- **Slice 354** — 349 Live-Verify + FK-Fix + Stale-Tracker-Prävention.

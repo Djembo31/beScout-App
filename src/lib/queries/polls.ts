@@ -6,10 +6,11 @@ import { getCommunityPolls } from '@/lib/services/communityPolls';
 
 const TWO_MIN = 2 * 60 * 1000;
 
-export function useCommunityPolls(clubId?: string) {
+export function useCommunityPolls(clubId?: string, viewerId?: string) {
   return useQuery({
-    queryKey: qk.polls.list(clubId),
-    queryFn: () => getCommunityPolls(clubId),
+    // Slice 356: viewerId im Key — exklusive Poll-Sperre (viewer_locked) ist betrachter-spezifisch.
+    queryKey: qk.polls.list(clubId, viewerId),
+    queryFn: () => getCommunityPolls(clubId, viewerId),
     staleTime: TWO_MIN,
   });
 }

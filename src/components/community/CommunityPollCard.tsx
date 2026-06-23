@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Users, Clock, Coins, Vote, X } from 'lucide-react';
+import { Users, Clock, Coins, Vote, X, Lock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, Chip } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -19,8 +19,14 @@ type Props = {
 
 export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCancel, voting }: Props) {
   const tc = useTranslations('community');
+  const tg = useTranslations('gamification');
   const totalVotes = poll.total_votes;
   const isActive = poll.status === 'active' && new Date(poll.ends_at) > new Date();
+  // Slice 356: Exklusives Treue-Tor. viewer_locked wird service-seitig pro Betrachter/Verein berechnet
+  // (getCommunityPolls). Ersteller nie gesperrt. UI-Sperre = Defense-in-Depth; der RPC-Vote-Guard ist die Wahrheit.
+  const minTier = poll.min_fan_rank_tier ?? null;
+  const isLocked = !!poll.viewer_locked;
+  const minTierLabel = minTier ? tg(`fanRank${minTier.charAt(0).toUpperCase()}${minTier.slice(1)}`) : '';
   const diffMs = new Date(poll.ends_at).getTime() - Date.now();
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -59,6 +65,14 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
           </div>
         )}
 
+        {/* Slice 356: Exklusiv-Tor — gesperrte Vorschau (Frage ist Teaser, Abstimmen gated) */}
+        {isLocked && (
+          <div className="mb-4 flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-amber-500/[0.08] border border-amber-500/25 text-amber-200" role="note">
+            <Lock className="size-4 shrink-0" aria-hidden="true" />
+            <span className="text-sm font-semibold">{tc('pollLockedHint', { tier: minTierLabel })}</span>
+          </div>
+        )}
+
         {/* Options */}
         <div className="space-y-2 mb-4">
           {(poll.options as { label: string; votes: number }[]).map((option, idx) => {
@@ -66,11 +80,12 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
             return (
               <button
                 key={idx}
-                onClick={() => !hasVoted && !isOwn && isActive && onVote(poll.id, idx)}
-                disabled={hasVoted || isOwn || !isActive || voting === poll.id}
+                onClick={() => !hasVoted && !isOwn && isActive && !isLocked && onVote(poll.id, idx)}
+                disabled={hasVoted || isOwn || !isActive || isLocked || voting === poll.id}
                 className={cn(
                   'w-full p-3 rounded-xl border transition-colors text-left relative overflow-hidden',
-                  hasVoted || isOwn || !isActive
+                  isLocked && 'opacity-50',
+                  hasVoted || isOwn || !isActive || isLocked
                     ? 'bg-surface-minimal border-white/10'
                     : 'bg-surface-minimal border-white/10 hover:bg-surface-subtle hover:border-white/20'
                 )}
@@ -103,6 +118,11 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
 
         {/* Status chips */}
         <div className="flex items-center gap-2 mt-2 flex-wrap">
+          {minTier && (
+            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25 inline-flex items-center gap-1">
+              <Lock className="size-3" aria-hidden="true" />{tc('pollExclusiveChip', { tier: minTierLabel })}
+            </Chip>
+          )}
           {isOwn && (
             <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">{tc('yourPollLabel')}</Chip>
           )}

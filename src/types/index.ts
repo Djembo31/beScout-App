@@ -1036,6 +1036,7 @@ export type DbCommunityPoll = {
   club_id?: string | null;
   player_id?: string | null;  // Slice 334: optionaler Spieler-Anker (Discovery), zusätzlich zu club_id
   source: CommunityPollSource;  // Slice 333: 'club' = offiziell (Geld→Treasury), 'user' = Geld→Wallet
+  min_fan_rank_tier?: FanRankTier | null;  // Slice 356: exklusives Treue-Tor (NULL = offen). Nur source='club'.
   created_at: string;
 };
 
@@ -1053,6 +1054,7 @@ export type CreateCommunityPollParams = {
   clubId?: string | null; // Pflicht wenn source='club'; optionaler Bezug wenn 'user'
   description?: string | null;
   playerId?: string | null; // Slice 334: optionaler Spieler-Anker (Discovery)
+  minFanRankTier?: FanRankTier | null; // Slice 356: exklusives Treue-Tor (nur source='club')
 };
 
 export type DbCommunityPollVote = {
@@ -1072,6 +1074,7 @@ export type CommunityPollWithCreator = DbCommunityPoll & {
   creator_avatar_url: string | null;
   player_name?: string | null;       // Slice 334: aufgelöster Spieler-Name (Anzeige + Discovery-Suche)
   player_position?: string | null;   // Slice 334: aufgelöste Position (Tag-Farbe)
+  viewer_locked?: boolean;           // Slice 356: Betrachter erreicht min_fan_rank_tier NICHT (service-berechnet). Ersteller nie gesperrt.
 };
 
 // ============================================

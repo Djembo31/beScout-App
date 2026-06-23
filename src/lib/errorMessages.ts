@@ -38,6 +38,8 @@ const KNOWN_KEYS = new Set([
   'bench_duplicate', 'invalid_bench_order',
   // Slice 347 — Fan-Rang-Schwellen (FRE-5)
   'fanRankThresholdsNotAdmin', 'fanRankThresholdsInvalidValues',
+  // Slice 356 — Exklusive Treue-Umfragen + Poll-Vote-Fehler (vorher silent false-success)
+  'fanRankTooLow', 'pollAlreadyVoted', 'pollCannotVoteOwn', 'pollClosed',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -151,6 +153,15 @@ const ERROR_MAP: [RegExp, string][] = [
   // Slice 347 — Fan-Rang-Schwellen (FRE-5)
   [/not_club_admin/i, 'fanRankThresholdsNotAdmin'],
   [/invalid_thresholds/i, 'fanRankThresholdsInvalidValues'],
+
+  // Slice 356 — cast_community_poll_vote wirft jetzt bei !success (vorher silent false-success).
+  // RPC-Bodies werfen DE-Prosa — hier auf i18n-Keys mappen.
+  [/fan_rank_too_low/i, 'fanRankTooLow'],
+  [/nicht.genug.bsd|nicht.genug.sc/i, 'insufficientBalance'],
+  [/bereits.abgestimmt|already.voted/i, 'pollAlreadyVoted'],
+  [/eigene.umfrage|own.poll/i, 'pollCannotVoteOwn'],
+  [/umfrage.*(beendet|nicht.aktiv)|poll.*(ended|not.active)/i, 'pollClosed'],
+  [/umfrage.nicht.gefunden|poll.not.found/i, 'notFound'],
 ];
 
 /**

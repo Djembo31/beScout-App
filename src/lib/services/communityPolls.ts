@@ -1,11 +1,12 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbCommunityPoll, CommunityPollWithCreator, CreateCommunityPollParams } from '@/types';
+import { meetsRankTier } from '@/lib/fanRankGates';
+import type { DbCommunityPoll, CommunityPollWithCreator, CreateCommunityPollParams, FanRankTier } from '@/types';
 
 // ============================================
 // Community Polls (Bezahlte Umfragen)
 // ============================================
 
-export async function getCommunityPolls(clubId?: string): Promise<CommunityPollWithCreator[]> {
+export async function getCommunityPolls(clubId?: string, viewerId?: string): Promise<CommunityPollWithCreator[]> {
   let query = supabase
       .from('community_polls')
       .select('*')
@@ -18,6 +19,33 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
     if (!data || data.length === 0) return [];
 
     const polls = data as DbCommunityPoll[];
+
+    // Slice 356: Exklusive Treue-Umfragen — pro Poll berechnen, ob der Betrachter gesperrt ist.
+    // Nur wenn exklusive Polls vorhanden + Betrachter bekannt → 1 Fan-Rankings-Query über die
+    // betroffenen Vereine. Fehlender Rang = gesperrt (fail-closed, spiegelt RPC fan_rank_tier_rank(NULL)=-1).
+    // Ersteller nie gesperrt. Die UI-Sperre ist Defense-in-Depth; der RPC-Vote-Guard ist die Wahrheit.
+    const lockedMap = new Map<string, boolean>();
+    if (viewerId) {
+      const exclusiveClubIds = Array.from(new Set(
+        polls.filter(p => p.min_fan_rank_tier && p.club_id).map(p => p.club_id as string)
+      ));
+      if (exclusiveClubIds.length > 0) {
+        const rankByClub = new Map<string, FanRankTier>();
+        const { data: ranks, error: rErr } = await supabase
+          .from('fan_rankings')
+          .select('club_id, rank_tier')
+          .eq('user_id', viewerId)
+          .in('club_id', exclusiveClubIds);
+        if (rErr) throw new Error(rErr.message);
+        for (const r of ranks ?? []) rankByClub.set(r.club_id, r.rank_tier as FanRankTier);
+        for (const p of polls) {
+          if (!p.min_fan_rank_tier || !p.club_id) continue;
+          if (p.created_by === viewerId) { lockedMap.set(p.id, false); continue; }
+          const rank = rankByClub.get(p.club_id);
+          lockedMap.set(p.id, !(rank && meetsRankTier(rank, p.min_fan_rank_tier)));
+        }
+      }
+    }
 
     // Fetch creator profiles
     const creatorIds = Array.from(new Set(polls.map(p => p.created_by)));
@@ -56,6 +84,7 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
         creator_avatar_url: creator?.avatar_url ?? null,
         player_name: player?.name ?? null,
         player_position: player?.position ?? null,
+        viewer_locked: lockedMap.get(poll.id) ?? false,
       };
     });
 }
@@ -118,6 +147,7 @@ export async function createCommunityPoll(params: CreateCommunityPollParams): Pr
     p_club_id: params.clubId ?? null,
     p_description: params.description ?? null,
     p_player_id: params.playerId ?? null,
+    p_min_fan_rank_tier: params.minFanRankTier ?? null,
   });
   if (error) throw new Error(error.message);
   const result = data as { success: boolean; error?: string; poll_id?: string };
@@ -206,8 +236,12 @@ export async function castCommunityPollVote(
 
   if (error) throw new Error(error.message);
   const result = data as CastPollVoteResult;
+  // Slice 356: Discriminated-Union — bei !success werfen (vorher silent false-success:
+  // fehlgeschlagene Votes zeigten Erfolgs-Toast + markierten als abgestimmt). Wirft den raw
+  // RPC-Key/DE-String, Consumer-Handler resolved via mapErrorToKey (errors-db Discriminated-Union).
+  if (!result.success) throw new Error(result.error ?? 'poll_vote_failed');
 
-  if (result.success) {
+  {
     // Mission tracking (daily_vote via wrapper RPC)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_vote']);

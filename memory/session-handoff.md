@@ -1,17 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 20:25)
+# Session Handoff — Auto (2026-06-23 20:36)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
-?? worklog/audits/knowledge-2026-06-23.md
-?? worklog/audits/silent-fail-2026-06-23.json
-?? worklog/audits/silent-fail-2026-06-23.md
 ```
 
-## Session Commits: 7
+## Session Commits: 8
+- 27edf18a chore(gitignore): Audit-Churn ignorieren — knowledge-* + silent-fail-* Reports (Slice 355)
 - d25c5a1e docs(handoff): stale "NÄCHSTER ARBEITSBLOCK" entfernt (349+Workflow-Tracks erledigt)
 - 7cde45a7 fix(db): 349 Live-Verify → fan_rankings→profiles FK + Stale-Tracker-Prävention (Slice 354)
 - 009f596c docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL (Slice 353)

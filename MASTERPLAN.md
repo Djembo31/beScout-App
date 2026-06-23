@@ -25,7 +25,7 @@
 ### ⬜ ALS NÄCHSTES
 - **E1 — Money/Reward-Modell (D83):** Treasury → Polls → Fan-Rewards.
   - ✅ Treasury-Fundament + RAUS-Kanäle (329 Ledger · 330 CSF · 330b Saldo · 331 Events · 332 Bounties).
-  - ✅ **Polls (REIN-Geldmaschine, D86)** — P1 Erstellung (333) · P2 Discovery (334) · P3 Follower/Abo (336) · Fee 20/80 (337) · P3c Fan-Rang→Stimmgewicht (343) live. Offen nur P3c-Reste: exklusive Treue-Umfragen (`min_fan_rank`) + Abo-Early-Access; P4 Auszahl-Idee verworfen.
+  - ✅ **Polls (REIN-Geldmaschine, D86) KOMPLETT** — P1 Erstellung (333) · P2 Discovery (334) · P3 Follower/Abo (336) · Fee 20/80 (337) · P3c Fan-Rang→Stimmgewicht (343) · **P3c-(b) exklusive Treue-Umfragen `min_fan_rank_tier` (356)** live. (c) Abo-Early-Access gestrichen (Anil), P4 Auszahl-Idee verworfen. **356 heilte zudem einen Live-Fee-Bug: 343 hatte 337s 80/20 still auf 70/30 revertiert → zurück auf CEO-approved 80/20.**
   - ✅ **Fan-Reward-Engine für aktuelle Phase abgeschlossen** — FRE-1/2/3/5 live; FRE-4 Airdrop auf echte-Coin-Phase verschoben (D93).
   - ⬜ Andere Event-Quellen (Plattform/Sponsor/User minten noch) + optionaler neuer Treasury/REIN-Block.
 - **E2 — S7 Tech-First-Aufräumen (D80):** Mockup-Reste, Dormant-Features, Brücken. Tracker `worklog/s7-phase3-remaining.md`. ⛔ players.club blockiert (API-Key). Nächste Pro-Stand-Karte: `worklog/notes/348-pro-stand-roadmap.md`.
@@ -36,4 +36,4 @@
 - Beta-Launch live (Tester aktiv).
 
 ## 📍 Stand in einem Satz
-Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + **Fan-Reward-Engine FRE-1/2/3/5 ✅ live** (344-347; FRE-4 Airdrop → Coin-Phase, D93). **Workflow-Effizienz (352/353, D95): errors-*.md auf Navigator+Detail, ~90% weniger Context/Edit.** **349 Club-Fan-Board live-bestätigt + Prod-FK-Bug gefixt (354); Stale-Tracker-Klasse abgestellt (354).** Nächster Track (Anil-Wahl): Polls-Reste ODER S7-Aufräumen (scout_scores↔user_stats / Dormant / Bridges; ⛔ players.club=API-Key).
+Treasury-RAUS-Kanäle ✅ + Operating-System (E0) ✅ + **Polls-Geldmaschine komplett (333-337+343) ✅ live** + **Fan-Reward-Engine FRE-1/2/3/5 ✅ live** (344-347; FRE-4 Airdrop → Coin-Phase, D93). **Workflow-Effizienz (352/353, D95): errors-*.md auf Navigator+Detail, ~90% weniger Context/Edit.** **349 Club-Fan-Board live-bestätigt + Prod-FK-Bug gefixt (354); Stale-Tracker-Klasse abgestellt (354).** **Polls-Roadmap komplett (356: exklusive Treue-Umfragen + 80/20-Fee-Heal).** Nächster Track (Anil-Wahl): S7-Aufräumen (scout_scores↔user_stats / Monthly-Liga-Board / Dormant / Bridges; ⛔ players.club=API-Key).

@@ -34,3 +34,57 @@ describe('getCommunityPolls — Slice 334 player-name resolution', () => {
     expect(polls[0].player_name).toBeNull();
   });
 });
+
+describe('getCommunityPolls — Slice 356 exklusive Treue-Umfragen (viewer_locked)', () => {
+  beforeEach(() => {
+    mockTable('profiles', [
+      { id: 'u1', handle: 'admin', display_name: null, avatar_url: null },
+      { id: 'viewer', handle: 'fan', display_name: null, avatar_url: null },
+    ]);
+    mockTable('players', []);
+  });
+
+  it('locks exclusive poll when viewer rank below min tier', async () => {
+    mockTable('community_polls', [
+      { id: 'p-ex', created_by: 'u1', club_id: 'c1', min_fan_rank_tier: 'ultra', question: 'Q', options: [] },
+    ]);
+    mockTable('fan_rankings', [{ club_id: 'c1', rank_tier: 'stammgast' }]); // stammgast(1) < ultra(2)
+    const polls = await getCommunityPolls(undefined, 'viewer');
+    expect(polls[0].viewer_locked).toBe(true);
+  });
+
+  it('unlocks exclusive poll when viewer rank meets min tier', async () => {
+    mockTable('community_polls', [
+      { id: 'p-ex', created_by: 'u1', club_id: 'c1', min_fan_rank_tier: 'ultra', question: 'Q', options: [] },
+    ]);
+    mockTable('fan_rankings', [{ club_id: 'c1', rank_tier: 'vereinsikone' }]); // 5 >= 2
+    const polls = await getCommunityPolls(undefined, 'viewer');
+    expect(polls[0].viewer_locked).toBe(false);
+  });
+
+  it('locks exclusive poll when viewer has no fan ranking (fail-closed)', async () => {
+    mockTable('community_polls', [
+      { id: 'p-ex', created_by: 'u1', club_id: 'c1', min_fan_rank_tier: 'stammgast', question: 'Q', options: [] },
+    ]);
+    mockTable('fan_rankings', []); // kein Rang → gesperrt
+    const polls = await getCommunityPolls(undefined, 'viewer');
+    expect(polls[0].viewer_locked).toBe(true);
+  });
+
+  it('never locks the creator on their own exclusive poll', async () => {
+    mockTable('community_polls', [
+      { id: 'p-own', created_by: 'viewer', club_id: 'c1', min_fan_rank_tier: 'vereinsikone', question: 'Q', options: [] },
+    ]);
+    mockTable('fan_rankings', []); // creator hat niedrigen/keinen Rang, trotzdem nie gesperrt
+    const polls = await getCommunityPolls(undefined, 'viewer');
+    expect(polls[0].viewer_locked).toBe(false);
+  });
+
+  it('open poll (min null) is never locked', async () => {
+    mockTable('community_polls', [
+      { id: 'p-open', created_by: 'u1', club_id: 'c1', min_fan_rank_tier: null, question: 'Q', options: [] },
+    ]);
+    const polls = await getCommunityPolls(undefined, 'viewer');
+    expect(polls[0].viewer_locked).toBe(false);
+  });
+});

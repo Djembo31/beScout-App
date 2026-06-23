@@ -1,0 +1,26 @@
+Slice 356 — Money-Smoke (transaktional, BEGIN…ROLLBACK gegen Live-Prod skzjfhvgccaeplydsunz)
+Datum: 2026-06-23
+
+ZWECK: AC-6 (Reject VOR Wallet, kein Geldfluss) + AC-7 (qualifizierter Vote) + Fee-80/20-Heal-Verify.
+
+Setup (transient, alles ROLLBACK):
+  - Test-Poll: source='club', cost_bsd=1000, min_fan_rank_tier='vereinsikone'
+  - Voter: echtes Wallet (Balance 4.949.801), Creator: anderer User (kein Eigene-Poll-Reject)
+  - Szenario A: Voter fan_rank='stammgast' (1) < vereinsikone (5)
+  - Szenario B: Voter fan_rank='vereinsikone' (5) >= vereinsikone (5)
+  - auth.uid() = Voter via set_config('request.jwt.claims', ...)
+
+ERGEBNIS:
+  1_bal_before        : 4949801
+  2_reject_result     : {"error":"fan_rank_too_low","success":false}   ← Tor greift (Stufe zu niedrig)
+  3_bal_after_reject  : 4949801                                        ← WALLET UNVERÄNDERT (AC-6 ✓)
+  4_pass_result       : {"cost":1000,"weight":3,"success":true,"total_votes":3,"creator_share":800}
+  5_bal_after_pass    : 4948801                                        ← -1000 (Kosten bezahlt, AC-7 ✓)
+
+VERIFIKATIONEN:
+  ✓ AC-6: Reject vor jeder Wallet-Belastung — Balance identisch vor/nach Reject.
+  ✓ AC-7: Qualifizierte Stufe stimmt ab, normaler Flow.
+  ✓ Fee 80/20 wiederhergestellt (337-Heal): creator_share = 800 = 80% von 1000 (war live 700 = 70% seit 343-Bug).
+  ✓ 343-Gewicht erhalten: weight=3 (vereinsikone 3×), Geld bleibt 1 echte Stimme (cost=1000, nicht ×3).
+
+ROLLBACK ausgeführt — keine echten User-Daten mutiert (testing.md Mutations-Smoke-Pflicht).

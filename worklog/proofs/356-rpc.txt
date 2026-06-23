@@ -1,0 +1,24 @@
+Slice 356 — RPC/Schema Patch-Audit (Live pg_get_functiondef, D87)
+Datum: 2026-06-23 · Projekt skzjfhvgccaeplydsunz
+
+== Schema (community_polls.min_fan_rank_tier) ==
+col_nullable : YES
+check_def    : CHECK ((min_fan_rank_tier IS NULL OR min_fan_rank_tier = ANY
+               (ARRAY['zuschauer','stammgast','ultra','legende','ehrenmitglied','vereinsikone'])))
+
+== create_community_poll ==
+create_overload_count : 1   (alte 9-arg-Overload gedroppt → kein Ambiguity)
+create_has_gate       : true (exclusive_requires_club + invalid_fan_rank_tier Validierung)
+REVOKE/GRANT          : FROM PUBLIC,anon + GRANT authenticated (AR-44)
+
+== cast_community_poll_vote (nach 80/20-Heal) ==
+fee_80_20_restored    : true   (v_cost * 80) / 100
+fee_70_30_present_BAD  : false  (kein Rest des 343-Bugs)
+gate_present          : true   (fan_rank_too_low)
+gate_before_wallet    : true   (Position(fan_rank_too_low) < Position(UPDATE wallets … - v_cost))
+treasury_routing      : true   (book_club_treasury erhalten)
+weight343             : true   (v_weight := GREATEST(v_abo_weight, v_rank_weight))
+REVOKE/GRANT          : FROM PUBLIC,anon + GRANT authenticated (AR-44)
+
+FAZIT: Tor money-safe (Reject vor Wallet), alle Patches (337 Fee, 343 Gewicht, Treasury) erhalten,
+       Fee-Regression aus Slice 343 (70/30) auf CEO-approved 80/20 geheilt.

@@ -2,6 +2,21 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 356 | 2026-06-23 | feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal
+- Stage-Chain: SPEC (`worklog/specs/356-exclusive-loyalty-polls.md`, M, 2 CEO-Design-Fragen) → IMPACT (skipped, Consumer kartiert) → BUILD → REVIEW (`worklog/reviews/356-review.md`, reviewer REWORK→geheilt) → PROVE → LOG.
+- **Feature:** Vereins-Umfragen erst ab konfigurierbarer Fan-Stufe abstimmbar. Spiegelt 346er Fan-Rang-Gate, aber ohne Teaser-RPC (kein versteckter Content bei Polls — Frage = Teaser).
+  - Schema `community_polls.min_fan_rank_tier` (NULL=offen, CHECK 6-Tier-Mirror).
+  - `create_community_poll` v2 +`p_min_fan_rank_tier` (nur source='club'; alte 9-arg-Overload gedroppt; AR-44).
+  - `cast_community_poll_vote` v2 Vote-Guard VOR Wallet (gespeicherter Rang, fail-closed, stale-tolerant, kein recalc-on-read — money-safe da Reject vor Geldfluss).
+  - Service `getCommunityPolls(clubId, viewerId)` → `viewer_locked` pro Poll (1 fan_rankings-Query nur bei exklusiven Polls, multi-club, Ersteller nie gesperrt).
+  - UI: Card-Schloss-Teaser (Frage sichtbar, Optionen disabled, „Ab [Tier]" + Exklusiv-Chip) + Create-Tier-Selector (nur Club). i18n DE+TR.
+  - Silent-Fail-Fix: `castCommunityPollVote` wirft jetzt bei `!success` (Discriminated-Union) — vorher zeigte JEDER fehlgeschlagene Vote (Nicht-genug-BSD etc.) fälschlich einen Erfolgs-Toast. +6 errorMessages-Mappings.
+- **🔴 Money-Heal (Reviewer-Fund, Anil-approved):** `cast_community_poll_vote` lief live seit Slice 343 fälschlich auf **70/30** statt CEO-approved **80/20** (337) — 343 hatte den Body aus der `slice_336`-Datei statt aus Live rekonstruiert → 337s Fee-Patch still revertiert, ~5 Tage live. In 356 auf 80/20 zurückgesetzt + Konstanten-Audit-Pattern in errors-db.md.
+- Files: 1 Migration (+1 Heal-Apply) · types · communityPolls-Service · polls-query+keys · useCommunityData · CreatePollModal · CommunityPollCard · errorMessages · de/tr.json · 3 Test-Files.
+- Proof: `356-rpc.txt` (Live-Patch-Audit: fee_80_20=true, gate_before_wallet=true, alle Patches erhalten) · `356-money-smoke.txt` (BEGIN…ROLLBACK: Reject→Wallet unverändert, Pass→creator_share=800 bei cost=1000, weight=3) · `356-vitest.txt` (27 grün). UI-Playwright post-Deploy.
+- Knowledge: polls.md (Roadmap komplett, `updated` heute), errors-db.md (PATCH-AUDIT Konstanten-Check + 343-Baseline-from-file-Bug). (c) Abo-Early-Access gestrichen (Anil).
+- Commit: (dieser).
+
 ## 355 | 2026-06-23 | chore(gitignore): Audit-Churn ignorieren (knowledge-* + silent-fail-* Reports)
 - Stage-Chain: SPEC (inline, Anil-Frage „was ist der Churn") → BUILD → PROVE → LOG. REVIEW: self (Ops/Tooling-Spur, kein Money/Security). Größe XS.
 - Ursache: `.husky/pre-commit`-Audit-Scripts schreiben datierte Reports nach `worklog/audits/`. 3 Geschwister-Reports (audit-stale/type-truth/wiring) waren in `.gitignore`, aber `knowledge-*.md` + `silent-fail-*.{md,json}` nie nachgetragen → jede Session als `??` untracked = der „NIE committen"-Churn.

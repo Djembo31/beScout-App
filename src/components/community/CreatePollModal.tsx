@@ -8,10 +8,13 @@ import { cn } from '@/lib/utils';
 import { createCommunityPoll } from '@/lib/services/communityPolls';
 import { getFollowerCount } from '@/lib/services/social';
 import { usePlayerNames } from '@/lib/queries';
-import type { CommunityPollSource } from '@/types';
+import type { CommunityPollSource, FanRankTier } from '@/types';
 
 const FOLLOWER_THRESHOLD = 50;
 const MAX_COST_SCOUT = 1000; // 100.000 cents Cap (Slice 333)
+
+// Slice 356: wählbare Mindeststufen für exklusive Treue-Umfragen (ohne 'zuschauer' = sinnlos/offen).
+const EXCLUSIVE_TIER_OPTIONS: FanRankTier[] = ['stammgast', 'ultra', 'legende', 'ehrenmitglied', 'vereinsikone'];
 
 /** Bekannte RPC-Fehlerschlüssel → i18n. Service wirft den raw key (errors-frontend.md i18n-Leak). */
 function pollErrorKey(raw: string): string {
@@ -23,6 +26,8 @@ function pollErrorKey(raw: string): string {
     case 'club_id_required': return 'pollErrClubRequired';
     case 'not_club_admin': return 'pollErrNotAdmin';
     case 'follower_threshold': return 'pollErrFollowerGate';
+    case 'exclusive_requires_club': return 'pollErrExclusiveClub';
+    case 'invalid_fan_rank_tier': return 'pollErrInvalidTier';
     default: return 'pollErrGeneric';
   }
 }
@@ -38,11 +43,13 @@ type ModalProps = {
 
 export function CreatePollModal({ open, onClose, userId, source, clubId, onCreated }: ModalProps) {
   const t = useTranslations('community');
+  const tg = useTranslations('gamification');
   const [question, setQuestion] = useState('');
   const [description, setDescription] = useState('');
   const [options, setOptions] = useState(['', '']);
   const [cost, setCost] = useState('0');
   const [days, setDays] = useState('7');
+  const [minFanRankTier, setMinFanRankTier] = useState<FanRankTier | ''>(''); // Slice 356: '' = offen für alle
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,7 +72,7 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
 
   const reset = () => {
     setQuestion(''); setDescription(''); setOptions(['', '']);
-    setCost('0'); setDays('7'); setError(null);
+    setCost('0'); setDays('7'); setError(null); setMinFanRankTier('');
     setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false);
   };
 
@@ -99,6 +106,7 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
         source,
         clubId: source === 'club' ? clubId : null,
         playerId: playerId || null,
+        minFanRankTier: source === 'club' && minFanRankTier ? minFanRankTier : null,
       });
       reset();
       onCreated?.();
@@ -109,7 +117,7 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
     } finally {
       setCreating(false);
     }
-  }, [creating, options, question, description, cost, days, userId, source, clubId, playerId, onCreated, onClose, t]);
+  }, [creating, options, question, description, cost, days, userId, source, clubId, playerId, minFanRankTier, onCreated, onClose, t]);
 
   const isClub = source === 'club';
 
@@ -262,6 +270,32 @@ export function CreatePollModal({ open, onClose, userId, source, clubId, onCreat
             />
           </div>
         </div>
+
+        {/* Slice 356: Exklusives Treue-Tor (nur Vereins-Umfragen) */}
+        {isClub && (
+          <div>
+            <label htmlFor="poll-min-tier" className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
+              <Lock className="size-3.5" aria-hidden="true" />
+              {t('pollExclusiveLabel')}
+            </label>
+            <select
+              id="poll-min-tier"
+              value={minFanRankTier}
+              onChange={(e) => setMinFanRankTier(e.target.value as FanRankTier | '')}
+              className="w-full px-4 py-2.5 rounded-xl text-base bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40"
+            >
+              <option value="">{t('pollExclusiveOpen')}</option>
+              {EXCLUSIVE_TIER_OPTIONS.map(tier => (
+                <option key={tier} value={tier}>
+                  {tg(`fanRank${tier.charAt(0).toUpperCase()}${tier.slice(1)}`)}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-white/40 mt-1.5">
+              {minFanRankTier ? t('pollExclusiveHint') : t('pollExclusiveOpenHint')}
+            </p>
+          </div>
+        )}
 
         {isClub && <p className="text-xs text-white/40">{t('pollClubRevenueHint')}</p>}
 
