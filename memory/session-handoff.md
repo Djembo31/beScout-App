@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 17:39)
+# Session Handoff — Auto (2026-06-23 18:06)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -12,6 +12,7 @@
 ```
 
 ## Session Commits: 9
+- 560a6136 feat(tooling): Slice 351 — Knowledge-Coupling-Gate (Stale hart blocken, D45)
 - 270055b2 docs(knowledge): Wissens-Kopplung Slice 348/349 — Frontmatter + W2-B + INDEX (E0-W2gov)
 - 7fe4e148 chore(gitignore): DesignSync-Tooling-Artefakte ignorieren (.design-sync/, tsconfig.dssync.json)
 - d5e52fdb docs(session-end): LOG 348/349/350 + DISTILL (D94 Pre-Push-Strategie + 3 errors-infra-Patterns) + Handoff
@@ -20,7 +21,6 @@
 - 3a8b966a feat(gamification): Slice 349 — Club-Fan-Treue-Board mounten (W2-B)
 - 5c963681 refactor(db): Slice 348 Wave 2 — calculate_fan_rank-Rewrite + DROP COLUMN csf_multiplier
 - ef8ecc1f refactor(db): Slice 348 Wave 1 — csf_multiplier aus TS + Docs entfernen (D83/D93)
-- bf505e41 docs(plan): Phase-A Plan-/Knowledge-Hygiene (Pro-Stand-Roadmap)
 
 <!-- auto:handoff-end -->
 
@@ -56,7 +56,9 @@
 
 ## 🎯 NÄCHSTER ARBEITSBLOCK
 - **ERST:** Slice 349 Live-Playwright-Verify (s.o.) — der einzige offene Beweis. Danach 349 als voll-DONE markieren.
-- **DANN Pro-Stand-Roadmap** (`worklog/notes/348-pro-stand-roadmap.md`): `csf_multiplier` raus ist erledigt (348). Nächste Wahl: (A) Polls-Reste (exklusive Treue-Umfragen `min_fan_rank` / Abo-Early-Access) ODER (C) S7-Leaderboard-Konsolidierung (scout_scores/user_stats/airdrop_scores).
+- **DANN Workflow-Effizienz-Tracks** (Anil-Auftrag „Overhead/Context optimieren", bewusst auf frische Session vertagt): `worklog/notes/workflow-efficiency-analysis.md`. Reihenfolge: **#2** SHIP-STATUS-Injection trimmen (schnell, 1 Hook) → **#1** errors-*.md Lade-Effizienz (Navigator+on-demand, **Anil-Alignment nötig** — Schlüssel-Befund: nicht stale, sondern „alle 41 Patterns laden bei jedem Edit"; strukturell vs. lossless ist Anil-Entscheidung) → **#3** XS/Ops-Slice-Zeremonie entschlacken.
+- **ODER Pro-Stand-Roadmap** (`worklog/notes/348-pro-stand-roadmap.md`): `csf_multiplier` raus erledigt (348). Nächste Wahl: (A) Polls-Reste (`min_fan_rank` / Abo-Early-Access) ODER (C) S7-Leaderboard-Konsolidierung. → Anil priorisiert Workflow-Tracks vs. Produkt-Roadmap.
+- **Slice 351 Gate aktiv:** Knowledge-Content ändern → `updated:`=heute Pflicht; neue `D<n>` → INDEX-Range mitziehen (sonst pre-commit blockt).
 - **FRE-4 Airdrop bleibt deferred** (echte-Coin-/CASP-Phase, D93). Nicht resurrecten.
 - Quellen: Treasury-WIE `docs/knowledge/domain/treasury.md`; Polls-WIE `docs/knowledge/domain/polls.md`; Score/Fan-Rank-WIE `docs/knowledge/domain/reward-ranking.md`. Pre-Push/CI-Realität: **D94** + `errors-infra.md` (Slice 350).
 
