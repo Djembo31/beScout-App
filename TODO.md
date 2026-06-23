@@ -5,7 +5,7 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **Fan-Reward-Engine FRE-1/2/3/5 alle ✅ live (344/345/346/347).** FRE-4 Airdrop **verschoben auf die echte-Coin-Phase** (Anil 2026-06-18: Verein zahlt keine $SCOUT-Airdrops, war Übergangs-Mechanik; ADR-026 post-Pilot). D93-Update. → **Nächstes Money-Stück = Anil-Wahl:** Polls-Reste (b exklusive Treue-Umfragen · c Abo-Early-Access) ODER neuer Treasury/REIN-Block.
+- **Pro-Stand-Entscheidung / nächster Track:** Fan-Reward-Engine FRE-1/2/3/5 ist für die aktuelle Phase abgeschlossen; FRE-4 Airdrop ist echte-Coin-Phase. Jetzt wählen/abarbeiten: **(A) Polls-Reste** (exklusive Treue-Umfragen `min_fan_rank`, Abo-Early-Access), **(B) kleiner Aufräum-Slice `csf_multiplier` raus**, oder **(C) E2/S7-Pro-Aufräumen** (Leaderboard-Konsolidierung, Dormant-Hygiene, Bridges). Detailkarte: `worklog/notes/348-pro-stand-roadmap.md`.
 - Backlog aus 346-Review: Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`) · posts-INSERT-Policy `club_admins`-Härtung (pre-existing).
 
 ## 🟡 P1 — als Nächstes

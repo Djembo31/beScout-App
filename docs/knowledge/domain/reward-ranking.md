@@ -92,7 +92,7 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 
 → 6 Tiers **Zuschauer → Vereinsikone** mit `csf_multiplier` 1.00 → 1.50 (`src/lib/fanRanking.ts:24-31`).
 
-**Aktualisierung:** nur nach Event-Scoring (`batchRecalculateFanRanks`) oder GW-Cron — **kein Trigger** auf holdings/abo/posts. → Latenz: heute Gold-Abo gekauft, Rang-Effekt erst nach nächstem Event.
+**Aktualisierung:** Event-Scoring/GW-Cron + seit FRE-2 sofort bei (Un)Follow + seit FRE-5 Recalc-on-Save bei Schwellen-Änderung. Weiterhin kein Trigger auf Holdings/Abo/Post-Aktivität. Bei neuem money-/zugangsrelevantem Gate → Recalc-on-read oder Recalc-on-save prüfen (D92-Familie).
 
 ### Wie ein Verein heute Geld bekommt
 - Trading 6 % → **Club 1 %** (`trades.club_fee`) · IPO → **85 % Club** · P2P 3 % → **0,5 % Club** · **Abo 100 % Club**.
@@ -101,8 +101,8 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 ### 🔴 Schmerzpunkte Welt 2 (das eigentliche Ziel ist hier am schwächsten)
 - **W2-A — CSF-Multiplier wirkungslos.** Der Multiplier 1.00–1.50 greift **nur** bei `liquidate_player` und wurde dort durch `LEAST(1.15, ...)` hart auf 1,15× gedeckelt → Unterschied Zuschauer vs. Vereinsikone ~15 %. (Stand Treasury-Modell D83: `csf_multiplier` wird ENTFERNT, CSF rein proportional, Treue über Fan-Reward-Engine.) **Update Slice 343:** Fan-Rang hat jetzt einen **zweiten, realen Hebel** — **Poll-Stimmgewicht** (`cast_community_poll_vote`: Ultra/Legende 2×, Ehren/Ikone 3×, `MAX` mit Abo). Erster Effekt des Fan-Rangs unabhängig vom CSF. Querbezug: `domain/polls.md` §6/§8.
 - **W2-B — Club-Fan-Treue-Board ist TOT.** `getClubFanLeaderboard` + `useClubFanLeaderboard` gebaut + getestet, **0 UI-Consumer**.
-- **W2-C — `club_followers` ist totes Treue-Signal.** Größte, niederschwelligste Fan-Basis zählt **nicht** in fan_ranking.
-- **W2-D — Kein club-initiierter Fan-Reward.** Es gibt **keinen Pfad**, über den ein Club-Admin gezielt seine treuesten Fans belohnt (Airdrop/Perks/Drops). **← Größte Lücke gegenüber dem Ziel.** (Adressiert vom Treasury-Modell §8 Fan-Reward-Engine, Bau offen.)
+- **W2-C — `club_followers` ist nicht mehr tot:** Seit **FRE-2 / Slice 345** zählt Follow als +5 Einstiegssignal in `calculate_fan_rank` + sofortiger Recalc-Trigger bei (Un)Follow. Offen bleibt: Follow ist ein kleines Signal, kein vollwertiger Perk-/Reward-Pfad.
+- **W2-D — Club→Fan-Reward jetzt als Perks/Gating teilgebaut:** FRE-1 Leiter/Perk-Katalog, FRE-3 exklusive Vereins-Beiträge, FRE-5 club-konfigurierbare Schwellen. Direkte $SCOUT-Airdrops sind bewusst auf echte-Coin-/CASP-Phase verschoben; aktuelle Phase = Perks/Gating, nicht Treasury-Airdrop.
 - **W2-E — Buchungs-Lücke (teil-behoben Slice 329):** Treasury-Ledger erfasst Einnahmen jetzt zentral.
 - **W2-F — Gold-Abo „Score Boost" dormant** — Benefit-Label ohne Codepfad.
 
@@ -144,7 +144,7 @@ Speist **weder** scout_scores **noch** fan_rankings direkt — wirkt parallel, m
 
 **Welt 1 — eine Können-Wahrheit:** `scout_scores` (Elo) = kanonisch. `user_stats`-Score-Spalten → abgeleiteter Cache ODER retired; alle Leser auf scout_scores umrouten. Monatsliga **aktivieren** (Cron + erster Abschluss).
 
-**Welt 2 — Treue sichtbar + wirksam machen:** Club-Fan-Treue-Board **mounten** (fertig). CSF **echt machen** ODER durch **expliziten Club→Fan-Reward** ersetzen (Fan-Reward-Engine, Treasury §8). `club_followers` als Treue-Signal einbinden.
+**Welt 2 — Treue sichtbar + wirksam machen:** Club-Fan-Treue-Board **mounten** (fertig, aber 0 UI-Consumer). `club_followers` ist seit FRE-2 eingebunden. Fan-Reward-Engine ist als Perks/Gating für aktuelle Phase gebaut (FRE-1/2/3/5); direkte Airdrops sind Coin-Phase. Nächste Pro-Reste: `csf_multiplier` raus + Polls-Gates (exklusive Treue-Umfragen, Early-Access).
 
 **Quer:** Gamification-Engagement an Status-Welten **koppeln**, Dormant-Features aktivieren oder löschen (D80).
 
@@ -167,7 +167,7 @@ Speist **weder** scout_scores **noch** fan_rankings direkt — wirkt parallel, m
 | Monatsliga-Cron aktivieren | W1 | GHA/Cron | mittel (Minting) |
 | Rang-Schwellen DB↔TS↔Doc angleichen | W1 | Doc+Config | niedrig |
 | Club-Fan-Treue-Board mounten | W2 | UI | niedrig |
-| Club→Fan-Reward-Mechanismus (Fan-Reward-Engine) | W2 | Feature | hoch (Konzept+Build) |
+| Club→Fan-Reward-Mechanismus (Perks/Gating) | W2 | Feature | ✅ FRE-1/2/3/5 gebaut; Airdrop deferred |
 | club_followers in fan_ranking | W2 | Migration | mittel |
 | Dormant-Hygiene: Wildcard-Earn / club-Missionen / referral | Quer | div. | niedrig–mittel |
 

@@ -22,13 +22,13 @@
 ### ✅ E0 — Operating-System + Wissens-Basis (FERTIG)
 - ✅ W1 Cockpit · ✅ W2 Wissens-Basis (Index/Governance D88/Migration D90/Cleanup) · ✅ W3 Hygiene (Binärstop + Vault-Archiv) · ✅ W3b cortex-Trio retired. Rest LOW/optional: W4 Historie-Rewrite, Root-Vault-Notizen-Reste.
 
-### ⬜ ALS NÄCHSTES (E1 weiter)
+### ⬜ ALS NÄCHSTES
 - **E1 — Money/Reward-Modell (D83):** Treasury → Polls → Fan-Rewards.
   - ✅ Treasury-Fundament + RAUS-Kanäle (329 Ledger · 330 CSF · 330b Saldo · 331 Events · 332 Bounties).
-  - ✅ **Polls (REIN-Geldmaschine, D86)** — größtes B2B-Stück. P1 (333) + P2 Discovery (334) + P3 soziale Schicht (336) + Fee 20/80 (337) alle live. Offen: P3c Fan-Rang + P4 (Teilnehmer-Auszahl, §7 offene Entscheidung). Roadmap in `docs/knowledge/domain/polls.md`.
-  - ⬜ Fan-Reward-Engine (Verein belohnt treue Fans).
-  - ⬜ Andere Event-Quellen (Plattform/Sponsor/User minten noch).
-- **E2 — S7 Tech-First-Aufräumen (D80):** Mockup-Reste, Dormant-Features, Brücken. Tracker `worklog/s7-phase3-remaining.md`. ⛔ players.club blockiert (API-Key).
+  - ✅ **Polls (REIN-Geldmaschine, D86)** — P1 Erstellung (333) · P2 Discovery (334) · P3 Follower/Abo (336) · Fee 20/80 (337) · P3c Fan-Rang→Stimmgewicht (343) live. Offen nur P3c-Reste: exklusive Treue-Umfragen (`min_fan_rank`) + Abo-Early-Access; P4 Auszahl-Idee verworfen.
+  - ✅ **Fan-Reward-Engine für aktuelle Phase abgeschlossen** — FRE-1/2/3/5 live; FRE-4 Airdrop auf echte-Coin-Phase verschoben (D93).
+  - ⬜ Andere Event-Quellen (Plattform/Sponsor/User minten noch) + optionaler neuer Treasury/REIN-Block.
+- **E2 — S7 Tech-First-Aufräumen (D80):** Mockup-Reste, Dormant-Features, Brücken. Tracker `worklog/s7-phase3-remaining.md`. ⛔ players.club blockiert (API-Key). Nächste Pro-Stand-Karte: `worklog/notes/348-pro-stand-roadmap.md`.
 
 ### ✅ GESCHAFFT (Auszug)
 - Treasury RAUS-Kanäle komplett (329-332, alle live + verifiziert).

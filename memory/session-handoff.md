@@ -45,15 +45,16 @@
 - **FRE-2 / Slice 345** (`027b4cdf`): **Follow zählt** (+5 in `calculate_fan_rank`, monoton, cap 100) + Trigger `club_followers_recalc_fan_rank` (best-effort, sofort-Recalc). Money-nah (Fan-Rang→Poll-Gewicht); Abo-Floor (D92) live intakt. Force-rollback-Smoke grün.
 - **FRE-3 / Slice 346** (`d3c4f561`): **Exklusive Vereins-Beiträge** ab Fan-Stufe + gesperrte Vorschau (🔒). **RLS-SELECT-Policy auf `posts` ersetzt** (war `USING(true)`) → Fan-Rang-Lese-Gate; `get_club_news_teasers` (SECURITY DEFINER) maskiert content. Neu: `fan_rank_tier_rank(text)` (Mirror FAN_RANK_TIERS), `posts.min_fan_rank_tier`. Kein Content-Leak (Row-Hide + Maskierung), Live-RLS-Smoke grün, Community-Feed + Club-Page post-Deploy regress-frei. Feature **ruhend** bis erste exklusive News (0 club_news live).
 
-## 🎯 NÄCHSTER SLICE = FRE-4 (AIRDROP) — Anil: „frische Session starten"
-- **FRE-4 = Airdrop:** Club belohnt Top-Treue-Fans gezielt mit **$SCOUT aus dem Treasury** (Treasury §8, letzter offener RAUS-Kanal §7). **Größter Money-Schritt der Engine** → **/impact ZUERST + Live-`pg_get_functiondef` (D87) + CEO-Scope**. Muster wiederverwenden: Escrow/Ledger 331/332, **D92 MAX-Floor**, `book_club_treasury`/Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE`. Offene Design-Frage für Anil: wer ist eligible (Top-N nach total_score? ab Tier X? Follower auch?) + Betrag/Verteilung.
-- **FRE-5 = Club-Konfigurierbarkeit** der Perks (später).
-- Plan/Begründung: **D93** in `memory/decisions.md`. Treasury-WIE: `docs/knowledge/domain/treasury.md` §7-§9.
+## 🎯 NÄCHSTER ARBEITSBLOCK — Pro-Stand statt Airdrop
+- **Wichtig:** FRE-4 Airdrop ist **NICHT** der nächste Slice. Anil-Klarstellung 2026-06-18: Airdrop/$SCOUT-RAUS an Top-Treue-Fans gehört in die echte-Coin-/CASP-Phase. Nicht bauen, nicht specen, nicht wieder als „nächstes Money-Stück" resurrecten.
+- **Aktive Fan-Reward-Engine für jetzige Phase ist abgeschlossen:** FRE-1 (Leiter) · FRE-2 (Follow zählt) · FRE-3 (exklusive Beiträge) · FRE-5 (club-konfigurierbare Schwellen) alle live.
+- **Nächster Fokus = Pro-Stand-Roadmap:** `worklog/notes/348-pro-stand-roadmap.md`. Empfohlene Reihenfolge: (1) `csf_multiplier` raus (D83/D93, alte Mock-Hybrid-Mechanik), (2) Polls-Reste: exklusive Treue-Umfragen/Abo-Early-Access, (3) E2/S7-Aufräumen: Leaderboard-Konsolidierung, Dormant-Hygiene, Bridges.
+- Plan/Begründung: **D93 Update** in `memory/decisions.md`, `MASTERPLAN.md`, `TODO.md`, `worklog/active.md`. Treasury-WIE: `docs/knowledge/domain/treasury.md`; Polls-WIE: `docs/knowledge/domain/polls.md`; Score/Fan-Rank-WIE: `docs/knowledge/domain/reward-ranking.md`.
 
-## 🧮 FAN-RANG-MECHANIK (kurz, für FRE-4/5) — Quelle: live `calculate_fan_rank`
+## 🧮 FAN-RANG-MECHANIK (kurz, für nächste Polls-/csf_multiplier-Slices) — Quelle: live `calculate_fan_rank`
 - total_score 0–100 = event×0,30 + dpc×0,25 + abo×0,20 + community×0,15 + streak×0,10, +ELO-Boost (Login-Streak), **+5 Follow (FRE-2)**, cap 100.
-- Tier-Schwellen (im RPC, „für Pilot abgesenkt"): Stammgast 10 · Ultra 25 · Legende 40 · Ehrenmitglied 55 · Vereinsikone 70. Tier-Lineal DB-seitig = `fan_rank_tier_rank(text)` (0..5).
-- **Recalc-Latenz:** nur nach Event-Scoring/Cron + jetzt bei (Un)Follow (FRE-2-Trigger) — KEIN Trigger auf Abo/Holdings. Bei money-/zugangs-relevanter Nutzung → recalc-on-read erwägen (D92-Familie).
+- Tier-Schwellen sind seit **FRE-5 / Slice 347 club-konfigurierbar** (`club_fan_rank_thresholds`), Default: Stammgast 10 · Ultra 25 · Legende 40 · Ehrenmitglied 55 · Vereinsikone 70. Tier-Lineal DB-seitig = `fan_rank_tier_rank(text)` (0..5).
+- **Recalc-Latenz:** Event-Scoring/Cron + (Un)Follow-Trigger + Schwellen-Save-Recalc (FRE-5). Weiterhin KEIN Trigger auf Abo/Holdings. Bei neuem money-/zugangs-relevantem Gate → recalc-on-read oder Recalc-on-save prüfen (D92-Familie).
 
 ## 🔧 BACKLOG (aus FRE-Reviews, je eigener kleiner Slice)
 - **csf_multiplier raus** aus `calculate_fan_rank` (D83/D93) — kein Money-Effekt (gedeckelt/wirkungslos).
@@ -73,3 +74,5 @@
 1. **API-Football-Key gesperrt** — blockiert players.club + Live-Scores (Engine braucht ihn NICHT).
 2. **Audit-Churn** (`worklog/audits/*`) — NIE committen. **session-handoff.md** = committen OK.
 3. **RLS posts SELECT** ist seit 346 ein Fan-Rang-Gate (war `USING(true)`) — bei künftigen posts-Read-Änderungen beachten: öffentliche Beiträge = `min_fan_rank_tier IS NULL`-Zweig.
+
+> Crash-Recovery-Blöcke 2026-06-23 (3×) entfernt — Recovery erfolgreich in Folge-Session, Phase-A-Hygiene committet.

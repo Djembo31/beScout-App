@@ -5,7 +5,7 @@ updated: 2026-06-17
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, $SCOUT cents, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
-verified-against: .claude/rules/trading.md @ 2026-06-17
+verified-against: .claude/rules/trading.md @ 2026-06-19
 ---
 
 # Treasury & CSF — Money/Reward-Modell (Kanon)
@@ -155,28 +155,31 @@ Die Geldquelle eines Events ist **`events.type`** (= Kategorie UND Finanzierung)
 
 ---
 
-## 8. Fan-Reward-Engine — paralleles Membership-Perks-System (offen, §9-Konzeption)
+## 8. Fan-Reward-Engine — paralleles Membership-Perks-System (aktuelle Phase gebaut)
 
-> **Zweck (Anil):** Fans anreizen, dem Club zu **folgen / zu abonnieren**. Primär ein **Perks-/Gating-System** (Conversion-Anreiz), NICHT primär ein Treasury-Geldfluss. Direkte $SCOUT-Airdrops = optionale zweite Ebene.
+> **Zweck (Anil):** Fans anreizen, dem Club zu **folgen / zu abonnieren**. Primär ein **Perks-/Gating-System** (Conversion-Anreiz), NICHT primär ein Treasury-Geldfluss. Direkte $SCOUT-Airdrops = echte-Coin-/CASP-Phase, aktuell **nicht bauen**.
 
 ### Zwei parallele Status-Schienen (Anil: „parallel")
-| Schiene | Natur | Stufen | Perks |
-|---|---|---|---|
-| **Abo** (Geld — Club *verdient*) | bezahlt | Bronze / Silber / Gold | Fee-Rabatt (0,5/1/1,5 %) · Early IPO Access (Silber+) · Premium Fantasy (Gold) · Premium-Polls/Votes |
-| **Fan-Rank** (Treue — Club *belohnt*) | verdient durch Aktivität | Zuschauer→Vereinsikone (6) | exklusiver Community-Zugang · Status-Badges · optional Treasury-Airdrop an Top-Tiers |
-| **Follow** (Einstieg) | gratis | — | Basis-Community-Zugang (heute bringt Folgen NICHTS → erster Anreiz) |
+| Schiene | Natur | Stufen | Perks | Bau-Stand |
+|---|---|---|---|---|
+| **Abo** (Geld — Club *verdient*) | bezahlt | Bronze / Silber / Gold | Fee-Rabatt · Early IPO Access · Premium Fantasy · Premium-Polls/Votes | Abo-2× bei Paid-Polls live; Early-Access offen |
+| **Fan-Rank** (Treue — Club *belohnt*) | verdient durch Aktivität | Zuschauer→Vereinsikone (6) | exklusiver Community-Zugang · Status-Badges · Poll-Gewicht · club-konfigurierbare Schwellen | **FRE-1/2/3/5 live** |
+| **Follow** (Einstieg) | gratis | — | Basis-Community-Zugang + Einstiegssignal | **Follow +5 live (FRE-2)** |
 
-**Bestehende Basis:** viele Perks existieren als `club_subscriptions`-Benefits (Fee-Discount, IPO Early Access, 2× Vote-Gewicht, exklusive Bounties, Premium Fantasy); Tier-Gating via `events.min_subscription_tier`. **Neu:** (1) Follow-Einstiegsstufe, (2) Fan-Rank als zweite Perk-Achse, (3) Votes/Polls-Gating ausbauen, (4) Club-Konfigurierbarkeit. **Treasury-Verhältnis:** Perks-Gating kostet nichts direkt (außer Fee-Rabatt = entgangene Einnahme); nur die optionale Airdrop-Ebene ist echter Outflow.
+**Bau-Stand 2026-06-19:** FRE-1 Leiter/Perk-Katalog ✅ · FRE-2 Follow zählt ✅ · FRE-3 exklusive Vereins-Beiträge mit 🔒-Vorschau ✅ · FRE-5 club-konfigurierbare Fan-Rang-Schwellen ✅. **FRE-4 Airdrop ist bewusst verschoben** auf echte-Coin-/CASP-Phase; Verein zahlt aktuell keine $SCOUT-Airdrops aus Treasury.
+
+**Offen in aktueller Phase:** Polls-Reste (exklusive Treue-Umfragen, Abo-Early-Access) und `csf_multiplier`-Removal als Aufräum-Slice. Fan-Reward-Engine selbst ist für diese Phase produktfähig genug; nächster Fokus = Pro-Stand-Roadmap `worklog/notes/348-pro-stand-roadmap.md`.
 
 ---
 
-## 9. Bau-Sequenz (Stand 2026-06-17)
+## 9. Bau-Sequenz (Stand 2026-06-19)
 
 1. ~~Club-Treasury-Fundament~~ ✅ Slice 329 (Saldo + Ledger + Einnahmen-Verbuchung).
 2. ~~CSF-Engine an Treasury~~ ✅ Slice 330 + 330b.
-3. RAUS-Kanäle: ~~Events~~ ✅331 · ~~Bounties~~ ✅332 · **Polls (REIN, `domain/polls.md`) = nächstes großes Money-Stück** · andere Event-Quellen offen.
-4. **Fan-Reward-Engine** (Perks-Schienen + optional Airdrop) — offen.
-5. **Phase-2-Vorhalt** — EUR Cash-out/Deposit (lizenz-gegated, nicht jetzt).
+3. RAUS/REIN-Kanäle: ~~Events~~ ✅331 · ~~Bounties~~ ✅332 · ~~Polls-REIN~~ ✅333-337+343 · andere Event-Quellen offen.
+4. ~~Fan-Reward-Engine aktuelle Phase~~ ✅ FRE-1/2/3/5 (344-347). **Airdrop/FRE-4 deferred** bis echte-Coin-/CASP-Phase.
+5. **Nächste Pro-Stand-Arbeit:** `csf_multiplier` raus · Polls-Reste (exklusive Treue-Umfragen, Abo-Early-Access) · E2/S7-Aufräumen (Leaderboard, Dormant, Bridges).
+6. **Phase-2/3-Vorhalt** — EUR Cash-out/Deposit/Coin/Airdrops (lizenz-/CASP-gated, nicht jetzt).
 
 Alle Money-kritisch → CEO-Scope, sorgfältige Specs (D87-Muster).
 

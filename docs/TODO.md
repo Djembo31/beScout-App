@@ -1,5 +1,7 @@
 # BeScout - Aktuelle Tasks
 
+> ⚠️ **Historisch / stale (Stand 03.03.2026).** Nicht als aktuelle TODO-Quelle verwenden. Aktuelle Quelle: Root-`TODO.md`, `MASTERPLAN.md`, `worklog/active.md`, `docs/knowledge/INDEX.md`.
+>
 > Letzte Aktualisierung: 03.03.2026 (Session 183)
 > Modus: LIVE BETA — 250 Migrations, 25 Routes, 195 Unit + 70 E2E Tests
 > Für erledigte Tasks → `memory/sessions.md` und `memory/sessions-archive.md`
