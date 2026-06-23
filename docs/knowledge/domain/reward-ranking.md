@@ -1,9 +1,10 @@
 ---
 title: Reward- & Ranking-Ökosystem — Konzept-Landkarte
 created: 2026-06-15
-updated: 2026-06-18
+updated: 2026-06-23
 status: active
 tags: [rewards, ranking, gamification, fan-rank, scout-scores, treasury]
+verified-against: supabase/migrations @ 2026-06-23
 consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gamification-Landkarte, Monatsliga, fan_rankings, scout_scores, Minting-Inventar
 ---
 
@@ -100,7 +101,7 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 
 ### 🔴 Schmerzpunkte Welt 2 (das eigentliche Ziel ist hier am schwächsten)
 - **W2-A — CSF-Multiplier ENTFERNT (Slice 348, erledigt).** Der alte tier-abhängige Multiplier 1.00–1.50 war schon seit Slice 330 wirkungslos (`liquidate_player` = `proportional_v3`, liest ihn nicht), Slice 348 hat ihn komplett entfernt (Spalte `fan_rankings.csf_multiplier` + RPC-Variable + Return-Feld + TS). CSF ist rein proportional, Treue läuft über die Fan-Reward-Engine (D83/D93). **Realer Fan-Rang-Hebel seit Slice 343:** **Poll-Stimmgewicht** (`cast_community_poll_vote`: Ultra/Legende 2×, Ehren/Ikone 3×, `MAX` mit Abo). Querbezug: `domain/polls.md` §6/§8.
-- **W2-B — Club-Fan-Treue-Board ist TOT.** `getClubFanLeaderboard` + `useClubFanLeaderboard` gebaut + getestet, **0 UI-Consumer**.
+- **W2-B — Club-Fan-Treue-Board GEMOUNTET (Slice 349, erledigt).** `getClubFanLeaderboard` + `useClubFanLeaderboard` (war gebaut+getestet, 0 UI-Consumer = tote Brücke) ist jetzt als `ClubFanLeaderboard`-Komponente im Club-Page-Tab „Mehr" sichtbar (Top-Fans nach total_score, Self-Highlight, Empty→null). Live-Daten: Sakaryaspor 37 Fans.
 - **W2-C — `club_followers` ist nicht mehr tot:** Seit **FRE-2 / Slice 345** zählt Follow als +5 Einstiegssignal in `calculate_fan_rank` + sofortiger Recalc-Trigger bei (Un)Follow. Offen bleibt: Follow ist ein kleines Signal, kein vollwertiger Perk-/Reward-Pfad.
 - **W2-D — Club→Fan-Reward jetzt als Perks/Gating teilgebaut:** FRE-1 Leiter/Perk-Katalog, FRE-3 exklusive Vereins-Beiträge, FRE-5 club-konfigurierbare Schwellen. Direkte $SCOUT-Airdrops sind bewusst auf echte-Coin-/CASP-Phase verschoben; aktuelle Phase = Perks/Gating, nicht Treasury-Airdrop.
 - **W2-E — Buchungs-Lücke (teil-behoben Slice 329):** Treasury-Ledger erfasst Einnahmen jetzt zentral.
@@ -135,7 +136,7 @@ Speist **weder** scout_scores **noch** fan_rankings direkt — wirkt parallel, m
 
 1. **Drei parallele „wie gut/aktiv bist du"-Aggregate** (`scout_scores`, `user_stats`, `airdrop_scores`) messen überlappend dasselbe mit verschiedenen Formeln. Niemand ist als Single-Source definiert. **Das ist die Wurzel des „es wird wild"-Gefühls.**
 2. **Welt 1 (Können) ist technisch solide, aber unbelohnt** — der einzige große Reward (Monatsliga) ist dormant.
-3. **Welt 2 (Treue) ist konzeptionell am wichtigsten für das Geschäftsmodell (B2B-Vereine), historisch am schwächsten gebaut** — inzwischen stark aufgeholt: Follow zählt (FRE-2), exklusive Beiträge + Schwellen (FRE-3/5), Poll-Stimmgewicht (343), CSF-Multiplier entfernt (348). Offen: Club-Fan-Treue-Board noch nicht gemountet (0 UI-Consumer).
+3. **Welt 2 (Treue) ist konzeptionell am wichtigsten für das Geschäftsmodell (B2B-Vereine), historisch am schwächsten gebaut** — inzwischen stark aufgeholt: Follow zählt (FRE-2), exklusive Beiträge + Schwellen (FRE-3/5), Poll-Stimmgewicht (343), CSF-Multiplier entfernt (348), Club-Fan-Treue-Board gemountet (349). Welt-2-Treue ist damit sichtbar + wirksam.
 4. **Die Gamification-Schicht mintet munter $SCOUT**, ist aber von den beiden Status-Welten entkoppelt → Engagement führt nicht sichtbar zu Status.
 
 ---
@@ -144,7 +145,7 @@ Speist **weder** scout_scores **noch** fan_rankings direkt — wirkt parallel, m
 
 **Welt 1 — eine Können-Wahrheit:** `scout_scores` (Elo) = kanonisch. `user_stats`-Score-Spalten → abgeleiteter Cache ODER retired; alle Leser auf scout_scores umrouten. Monatsliga **aktivieren** (Cron + erster Abschluss).
 
-**Welt 2 — Treue sichtbar + wirksam machen:** Club-Fan-Treue-Board **mounten** (fertig, aber 0 UI-Consumer). `club_followers` ist seit FRE-2 eingebunden. Fan-Reward-Engine ist als Perks/Gating für aktuelle Phase gebaut (FRE-1/2/3/5); direkte Airdrops sind Coin-Phase. `csf_multiplier` ist raus (Slice 348). Nächste Pro-Reste: Polls-Gates (exklusive Treue-Umfragen, Early-Access).
+**Welt 2 — Treue sichtbar + wirksam machen:** Club-Fan-Treue-Board **gemountet** (Slice 349, Club-Page-Tab „Mehr"). `club_followers` ist seit FRE-2 eingebunden. Fan-Reward-Engine ist als Perks/Gating für aktuelle Phase gebaut (FRE-1/2/3/5); direkte Airdrops sind Coin-Phase. `csf_multiplier` ist raus (Slice 348). Nächste Pro-Reste: Polls-Gates (exklusive Treue-Umfragen, Early-Access).
 
 **Quer:** Gamification-Engagement an Status-Welten **koppeln**, Dormant-Features aktivieren oder löschen (D80).
 
@@ -166,7 +167,7 @@ Speist **weder** scout_scores **noch** fan_rankings direkt — wirkt parallel, m
 | user_stats-Leser → scout_scores umrouten | W1 | Service+Migration | mittel |
 | Monatsliga-Cron aktivieren | W1 | GHA/Cron | mittel (Minting) |
 | Rang-Schwellen DB↔TS↔Doc angleichen | W1 | Doc+Config | niedrig |
-| Club-Fan-Treue-Board mounten | W2 | UI | niedrig |
+| Club-Fan-Treue-Board mounten | W2 | UI | ✅ Slice 349 erledigt |
 | Club→Fan-Reward-Mechanismus (Perks/Gating) | W2 | Feature | ✅ FRE-1/2/3/5 gebaut; Airdrop deferred |
 | club_followers in fan_ranking | W2 | Migration | mittel |
 | Dormant-Hygiene: Wildcard-Earn / club-Missionen / referral | Quer | div. | niedrig–mittel |

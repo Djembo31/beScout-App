@@ -1,7 +1,7 @@
 ---
 title: Treasury & CSF — Money/Reward-Modell (Kanon)
 created: 2026-06-15
-updated: 2026-06-17
+updated: 2026-06-23
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, $SCOUT cents, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
