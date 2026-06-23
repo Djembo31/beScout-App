@@ -165,3 +165,14 @@ worklog/proofs/*.jpeg
 worklog/proofs/*.webp
 worklog/proofs/*.gif
 worklog/proofs/*.pdf
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/ds-styles.css
+.design-sync/tw-input.css
+
+# DesignSync tooling (session-local working dir, not part of BeScout core)
+.design-sync/
+tsconfig.dssync.json
