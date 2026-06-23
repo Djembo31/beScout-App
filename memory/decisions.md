@@ -3762,3 +3762,22 @@ Plus: Scope-Entscheidung „alle 13 Gold-Files in einem Rutsch migrieren" (nicht
 **Alternativen erwogen:** (a) Vollen Hook behalten + Transport per HTTP/1.1 fixen → verworfen: HTTP/1.1 allein behob den Bruch nicht, und 6 min/Push bleiben schmerzhaft. (b) Hook ganz entfernen → verworfen: der schnelle Silent-Fail-Gate hat echten Wert (verhindert genau die Email-Quelle). (c) `--no-verify` als Dauer-Workaround → verworfen: Bypass-Anti-Pattern, umgeht ALLE Gates.
 
 **Re-Visit-Trigger:** Wenn Test-/Mock-Drift trotz CI mehrfach erst spät auffällt → `vitest related` (changed-file-scoped, schnell) als pre-push-Ergänzung einführen. Wenn der Push-Transport-Bruch auch bei kurzem Hook wiederkehrt → Windows-Git-curl/credential-Mechanik tiefer untersuchen.
+
+## D95 — ARCHITECTURE: Große Rule-Files als Navigator (Regel inline, always-loaded) + Detail (on-demand)
+
+**Datum:** 2026-06-23 · **Status:** Aktiv · **Category:** ARCHITECTURE · **Kontext:** Anil-Auftrag „bauen/managen wir Context bewusst + optimiert?". Gemessen: die path-scoped `errors-*.md` luden bei JEDEM Domain-Edit komplett — `errors-frontend.md` 1032 Z. / 41 Patterns bei jedem `.tsx`-Edit, `errors-db.md` 787 Z. / 44 P., `errors-infra.md` 538 Z. / 41 P. — ~90 % davon irrelevant für den konkreten Edit.
+
+**Verworfene Alternative + der entscheidende Befund (Code-Reading):** Erst gewählt war „feiner path-scopen" (errors-frontend nach Datei-Typ splitten: modal/i18n/css/react mit eigenem `paths:`). Code-Reading widerlegte die Prämisse: Frontend-Patterns sind **Bug-Klassen, die beim `.tsx`-Edit zuschlagen — unabhängig vom Thema**. Der i18n-„Missing-Key"-Pattern grept `src/components/<new>.tsx`; CSS/Tailwind-Gotchas sind Klassen *in* `.tsx`; Modal lebt in `.tsx`. i18n/CSS/Modal/React **kollabieren alle auf `.tsx`** → ein Path-Split nach Dateityp würde relevante Patterns vom Komponenten-Edit **verstecken** = Safety-Regression. Path-Scoping kann nur Concerns trennen, die auf unterschiedliche Datei-Pfade mappen — bei `.tsx`-gebundenen Cross-Cutting-Concerns versagt es.
+
+**Entscheidung:** Pro großem Rule-File ein **Navigator** + **Detail**-Paar:
+1. **Navigator** (`errors-<domain>.md`) behält die originale `paths:`-Frontmatter (lädt exakt wie vorher) → je Pattern **1 Zeile mit der ACTIONABLE Regel inline** + Slice-Ref (= exakter Detail-Heading). Auto-Show der Guardrail bleibt erhalten.
+2. **Detail** (`errors-<domain>-detail.md`) trägt den vollen Inhalt (Root-Cause, Code-Blöcke, Audit-greps, Reference) und bekommt eine **non-matching glob** (`paths:`+`globs: __never-autoload__/**`) → lädt NIE auto, nur on-demand via Read, wenn ein Navigator-Pattern zutrifft.
+3. **Transformation zero-loss via `git mv`** (Body verbatim → kein Transkriptions-Risiko), dann Frontmatter-Edit + frischer Navigator. **Pflicht-Verify: Heading-Diff** (alle `###` überleben im Detail) + Coverage (jeder Pattern im Navigator).
+
+**Auswirkungen:** ~92/91/88 % weniger always-loaded Token pro Domain-Edit (frontend/db/infra), 0 Pattern-Verlust. Kehrt die 2026-06-17-Setup-Entscheidung („autoload = Pre-Edit-Safety-Moment") NICHT um — die Safety-relevante Regel bleibt always-loaded, nur der verbose Beleg wandert on-demand. Mechanik = Frontmatter-Semantik: kein `paths:`/`globs:` = always-loaded; matchende Globs = scoped; non-matching = nie. Slices 352 (frontend) + 353 (db+infra) umgesetzt; Muster wiederverwendbar für jedes künftige große Rule-File.
+
+**Alternativen erwogen:** (a) Path-Split nach Dateityp → verworfen (`.tsx`-Kollaps, s.o. = Safety-Regression). (b) Nur „verdichten" (Prosa kürzen) → ~25 %, Risiko Nuancen-Verlust, nicht der Hebel. (c) So lassen (Safety > Token) → verworfen, Overhead real + vermeidbar ohne Safety-Verlust.
+
+**Re-Visit-Trigger:** Falls Claude Navigator-Regeln zu oft zu knapp findet und ständig ins Detail springt → Navigator-Regeln pro Pattern um 1 Zeile anreichern. Falls der native Rule-Loader `globs:` vs `paths:` anders behandelt als angenommen → Detail-Glob-Mechanik prüfen (beide Keys gesetzt = abgesichert).
+
+**Begleit-Tweaks gleiche Session (kein eigenes D, in `workflow.md` kodifiziert):** (#2) `ship-status-gate.sh` SHIP-STATUS-Injection von 5 log.md-Einträgen auf 1 + `git log -3` getrimmt. (#3) schlanke **Ops/Tooling-Slice-Spur** in `workflow.md` (Hook/GHA/Tool/Doc ohne Money/Security → inline-Spec + Smoke-Proof + self-review).

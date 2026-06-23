@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 353 | 2026-06-23 | docs(workflow): errors-db + errors-infra Navigator-Split (D95) + DISTILL
+- Stage-Chain: SPEC (inline, Folge zu 352) → BUILD (2 Parallel-Agents, je 1 File) → REVIEW (self + unabhängige Heading-Diff/Coverage-Verifikation der Agent-Outputs) → PROVE (Heading-Counts) → LOG.
+- Folge-Slices zu 352, gleiche Navigator-Mechanik (D95): `errors-db.md` 787→73 Z. (44 Patterns, git mv → Detail verbatim; +1 `##`-Sektion für 7 vorher header-lose Patterns) · `errors-infra.md` 538→66 Z. (41 Patterns). Beide Detail-Files non-matching glob (`__never-autoload__/**`), Navigator-`paths:` unverändert.
+- Verify (selbst, nicht Agent-Claim): detail 44/41 `###` verbatim erhalten · navigator 44/41 Bullets 1:1 · paths real-src-globs · git Rename-Detection clean. Rule-Quality spot-checked (Guardrails inline).
+- DISTILL: **D95** (ARCHITECTURE — große Rule-Files = Navigator inline + Detail on-demand; `.tsx`-Kollaps-Befund warum Path-Split nach Dateityp scheitert). INDEX D-Range D94→D95 mitgezogen (Slice-351 Check 7).
+- Gesamt 3 Domains always-loaded/Edit: frontend 1032→78 · db 787→73 · infra 538→66. Pattern-Verlust 0.
+- Commit: (dieser).
+
 ## 352 | 2026-06-23 | chore(workflow): Effizienz-Tracks #1+#2+#3 — Navigator-Split + Status-Trim + Ops-Spur
 - Stage-Chain: SPEC (inline, 3 Tracks aus `worklog/notes/workflow-efficiency-analysis.md`) → BUILD → REVIEW (`worklog/reviews/352-review.md`, Self-Review, Ops/Doc, kein Money/Security) → PROVE (`worklog/proofs/352-navigator-split.txt`) → LOG.
 - Trigger: Anil-Auftrag „Overhead/Context optimieren". 3 gemessene Tracks, bewusst auf frische Session vertagt.

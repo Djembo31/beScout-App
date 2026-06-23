@@ -6,7 +6,8 @@
 - **#2 DONE:** `ship-status-gate.sh` — log.md-Injection 5 Einträge → 1 (git log 5→3). Redundanz zu `git log` raus.
 - **#3 DONE:** `workflow.md` — schlanke **Ops/Tooling-Slice-Spur** definiert (Hook/GHA/Tool/Doc ohne Money/Security: inline-Spec + Smoke-Proof + self-review). `**Größe:** XS` bleibt für Hook-Kompatibilität.
 - **#1 DONE:** errors-frontend.md → **Navigator (78 Z., always-loaded) + errors-frontend-detail.md (1038 Z., on-demand)**. ~92% weniger Token/.tsx-Edit, 41 Patterns 1:1 erhalten (Heading-Diff verifiziert). **Anil-Entscheidung:** „feiner path-scopen" verworfen nach Code-Reading (i18n/CSS/Modal/React kollabieren auf `.tsx` → Path-Split würde Patterns verstecken = Safety-Regression). Gewählt: Navigator-Regel inline (Auto-Show bleibt) + Detail on-demand. Proof: `worklog/proofs/352-navigator-split.txt`.
-- **Folge-Slices (offen, gleiche Mechanik):** errors-db.md (787 Z.) · errors-infra.md (538 Z.) — je eigener Ops-Slice.
+- **Folge-Slices: DONE (Slice 353, 2 Parallel-Agents):** errors-db.md 787→73 Z. (44 Patterns, +1 Sektion für 7 header-lose Orphans) · errors-infra.md 538→66 Z. (41 Patterns). Beide Heading-Diff verbatim + Coverage 1:1 unabhängig verifiziert. Detail-Files non-matching glob.
+- **Gesamt-Ergebnis:** 3 Domains, always-loaded pro Domain-Edit: frontend 1032→78 · db 787→73 · infra 538→66. Pattern-Verlust = 0. **DISTILL: D95** (Navigator+Detail-Architektur, `.tsx`-Kollaps-Befund).
 
 ## Gemessene Context-Kosten (2026-06-23)
 - **Always-loaded (~990 Z.):** CLAUDE.md 103 · workflow.md 517 · common-errors.md 150 · business.md 194 · performance.md 28.

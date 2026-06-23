@@ -2,15 +2,15 @@
 
 ```
 status: idle
-slice: 352
-title: ✅ DONE — Workflow-Effizienz #1+#2+#3 (Navigator-Split + Status-Trim + Ops-Spur)
+slice: 353
+title: ✅ DONE — errors-db + errors-infra Navigator-Split (D95) + DISTILL
 stage: LOG complete
 size: S
 slice-type: Doc
-spec: inline (3 Tracks aus worklog/notes/workflow-efficiency-analysis.md, Anil-Alignment 2026-06-23)
-proof: worklog/proofs/352-navigator-split.txt
-review: worklog/reviews/352-review.md (self-review, Ops/Doc, kein Money/Security)
-next: errors-db.md (787 Z.) + errors-infra.md (538 Z.) gleiche Navigator-Mechanik (eigene Ops-Slices)
+spec: inline (Folge-Slices zu 352, gleiche Navigator-Mechanik, D95)
+proof: Heading-Diff verifiziert (db 44 ###, infra 41 ### verbatim erhalten; navigator 44/41 Bullets 1:1)
+review: self-review (Ops/Doc, kein Money/Security) + unabhängige Verifikation der 2 Parallel-Agent-Outputs
+next: Pro-Stand-Roadmap (Polls-Reste / S7-Leaderboard) ODER offene Backlog-Items
 ```
 
 ## Plan (Anil-Alignment 2026-06-23)
