@@ -1,0 +1,42 @@
+Slice 376 — Monats-Liga Payout aus Topf + Coverage + overall-Median + Genesis-Seed
+Proof (Live DB skzjfhvgccaeplydsunz, 2026-06-25). Smokes via DO-Block + finalem RAISE → voller Rollback (keine echten Wallets/Snapshots persistiert).
+
+=== AC1 — Genesis-Seed (post-Migration, permanent) ===
+pot_balance_cents = 50.003.297   (= alt 3.297 + Genesis 50.000.000)
+genesis_rows      = 1            (kein Doppel-Seed, idempotenter NOT-EXISTS-Guard)
+genesis_amount    = 50.000.000 cents = 500.000 Credits
+genesis balance_after = 50.003.297 (Running-Saldo konsistent)
+
+=== AC2 — source-CHECK gewidert ===
+CHECK ((source = ANY (ARRAY['trading','ipo','poll','research','bounty','p2p','monthly_liga','bescout_event','genesis'])))
+→ 'genesis' ergänzt, alle 8 alten Werte erhalten.
+
+=== AC3 (overall-Median) + AC4 (Zero-Sum) — SMOKE Block 1 (Vollabschluss Test-Monat 2099-01-01, rolled back) ===
+res = {"ok":true,"month":"2099-01-01","payouts_credited":12,"total_paid_cents":3400000,"winners_inserted":3}
+total_paid       = 3.400.000 cents  (= (5000+2500+1000)*4 Dim Credits)
+debit_amount     = 3.400.000 cents  (EINE monthly_liga-Debit-Buchung)
+pot_before=50.003.297  pot_after=46.603.297  pot_delta=3.400.000
+→ AC4 ZERO-SUM: Σ Winner-Credits = total_paid = Debit-Betrag = Topf-Abfluss. Jeder Credit gedeckt durch Topf-Debit (zirkulär statt minten).
+overall_median(test_user, Deltas 10/30/20) = 20  (erwartet 20 = Median)
+manager_delta(test_user)                    = 30  (erwartet 30; Median ist NICHT mehr = manager → alter [2]-Bug behoben)
+
+=== AC5 — Deckungs-Check (SMOKE Block 2, Topf gedraint < Bedarf, rolled back) ===
+err = "insufficient_treasury: Topf 3297 cents < benoetigt 3400000 cents (Monat 2098-01-01)"
+snapshots_nach_rollback = 0  (erwartet 0 → Monat bleibt retry-bar; RAISE rollt Snapshot-Inserts atomar zurück, kein Wallet/Debit berührt)
+
+=== AC6 — Idempotenz (SMOKE Block 3, Monat mit Snapshot, rolled back) ===
+res = {"error":"month_already_closed","month":"2097-01-01"}  (kein zweiter Payout, kein zweiter Debit)
+
+=== AC7 — Return-Shape + Reward-Konstanten ===
+Success-Shape: {ok, month, winners_inserted, payouts_credited, total_paid_cents}  (= db-invariants.test.ts:1039 Assert, unverändert)
+Error-Shape:   {error, month}                                                     (unverändert)
+Reward-Konstanten 500000/250000/100000 byte-identisch (total_paid 3.400.000 = 850000*4 bestätigt).
+db-invariants.test.ts = vitest-excluded (DB-touch, CI-only) → Shape live durch SMOKE1 bewiesen.
+
+=== Gates ===
+pnpm exec tsc --noEmit → EXIT 0 (kein src-Change).
+
+=== Money-Befunde (D87, in Spec dokumentiert) ===
+- book_platform_treasury schützt NICHT gegen Negativ-Saldo → Coverage-Check inline in close_monthly_liga (Singleton-Row-Lock).
+- get_platform_balance() verlangt platform_admin-auth.uid() + returnt json → NICHT im RPC nutzbar; inline SUM stattdessen.
+- RAISE (statt RETURN-jsonb) bei Unterdeckung = einzige Art, persistierte Snapshot-Inserts atomar zurückzurollen (Idempotenz-Lock auf Fehlversuch vermeiden).

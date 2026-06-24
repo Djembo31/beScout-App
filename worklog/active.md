@@ -2,6 +2,37 @@
 
 ```
 status: idle
+slice: 376
+title: ✅ DONE — E3 Slice 3: Monats-Liga Payout aus Topf (debit) + Deckungs-Check + overall-Median-Fix + Genesis-Seed
+stage: LOG complete
+size: M
+slice-type: Migration (Money-RPC), CEO-Scope
+spec: worklog/specs/376-monthly-liga-pot-payout.md
+impact: inline (Spec §3+§4 — 1 RPC-Consumer AdminLigaTab grep-verifiziert, db-invariants Shape-Check geprüft)
+ceo-decision: Anil 2026-06-25 — Genesis-Seed 500.000 Credits + manueller Trigger (kein Cron). AskUserQuestion bestätigt.
+proof: worklog/proofs/376-money-smoke.txt
+proof-detail: AC1 Seed +50.000.000/genesis_rows=1, AC2 CHECK+genesis, AC3 overall-Median=20≠30, AC4 Zero-Sum total_paid=debit=pot_delta=3.400.000, AC5 insufficient_treasury+0-Snapshots-retry-bar, AC6 month_already_closed, AC7 Shape+Konstanten; tsc EXIT 0
+review: worklog/reviews/376-review.md (reviewer CONCERNS → Money PASS-grade; HIGH Migration-File + MEDIUM Persist beide behoben; 1 LOW pre-existing Tiebreaker)
+result: close_monthly_liga zahlt zero-sum per book_platform_treasury('debit','monthly_liga') aus dem Topf statt zu minten; Deckungs-Check inline unter Singleton-Row-Lock (book schützt NICHT gegen Negativ), RAISE bei Unterdeckung → Monat retry-bar; overall [2]=manager → echter Median (a+b+c)-GREATEST-LEAST. Migration widert source-CHECK um 'genesis' + Genesis-Seed 50.000.000 cents (500.000 Credits, ~14,7 Monate). Erster RAUS-Kanal aus dem Plattform-Topf. KEIN Cron (manueller Admin-Trigger, Anil), KEIN src-Change.
+
+## Nächster großer Track
+E3 Slice 4 — BeScout-Events aus dem Topf (type='bescout' Prize aus platform_treasury statt Minting, mirror Slice 331 Club-Event-Escrow). Danach Slice 5 Wettkampf-Darstellung + Ranking-Konsolidierung. Plus offen (Engagement, eigener UI-Slice): Live-Standing-Board (laufender Monat, useMonthlyLeaderboard-Verkabelung + getMonthlyLeaderboard swallow→throw). Cron für Auto-Monatsabschluss = späterer Slice (Anil: erst manuell). Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
+
+--- 375 (vorheriger, DONE) ---
+status: idle
+slice: 375
+title: ✅ DONE — DPC-Mastery-Feature entfernt + Mock-Cron gestoppt + tote hold_days-Spalte gedroppt
+stage: LOG complete
+size: M
+slice-type: UI-Removal + Migration
+spec: worklog/specs/375-remove-dpc-mastery.md
+impact: inline (Spec §3+§4, grep-verifizierte Consumer + Live-DB)
+proof: worklog/proofs/375-remove-mastery.txt (AC1-AC7 PASS, tsc clean, 100 vitest grün, DB: 0 Crons/0 Mock-Fn/hold_days weg, Engine intakt)
+review: worklog/reviews/375-review.md (reviewer CONCERNS→7 LOW/NIT alle adressiert→effektiv PASS)
+result: 6 UI-Anzeige-Stellen + Prop-Kette (7 Files) entfernt, orphan queries/services/mastery.ts gelöscht, Barrel+qk.mastery+USER_SCOPED bereinigt, 5 Test-Files. Migration: Mock-Cron unscheduled + increment_mastery_hold_days() + hold_days-Spalte gedroppt. Echte Engine (award_mastery_xp Fantasy/Content + freeze/unfreeze) + Tabelle reversibel erhalten. Netto −112 LoC.
+
+--- 375 (vorheriger, DONE) ---
+status: idle
 slice: 375
 title: ✅ DONE — DPC-Mastery-Feature entfernt + Mock-Cron gestoppt + tote hold_days-Spalte gedroppt
 stage: LOG complete
