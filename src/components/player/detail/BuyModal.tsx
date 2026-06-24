@@ -8,7 +8,7 @@ import { Dialog, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import { useIsBalanceFresh } from '@/lib/hooks/useWallet';
+import { useIsBalanceFresh, useWallet } from '@/lib/hooks/useWallet';
 import type { Player, DbIpo, PublicOrder } from '@/types';
 import {
   TradingToasts,
@@ -58,6 +58,7 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
 }) {
   const t = useTranslations('playerDetail');
   const isBalanceFresh = useIsBalanceFresh();
+  const { refetch: refetchWallet } = useWallet();
   const [qty, setQty] = useState(1);
   const clampedQty = maxQty > 0 ? Math.min(qty, maxQty) : qty;
   const totalBsd = priceBsd * clampedQty;
@@ -66,6 +67,17 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
   // Slice 110: block confirm when balance was not fetched/refreshed recently.
   // Prevents race between cached balance + actual server-state on stale sessions.
   const balanceStale = balanceCents !== null && !isBalanceFresh;
+
+  // Slice 372: Self-Heal des Freshness-Gates. Opening the modal triggert keinen
+  // Wallet-Refetch (Query schon via TopBar gemountet, staleTime:0) → eine >30s
+  // alte Balance blieb sonst FÜR IMMER stale → Button dauerhaft disabled +
+  // "Saldo wird aktualisiert…", die nie verschwand. Ist die Balance stale,
+  // aktiv refetchen statt passiv blockieren → dataUpdatedAt frisch → Gate öffnet.
+  // Kein Loop: dep = balanceStale; bleibt während isFetching true (kein Re-Fire),
+  // flippt nach Erfolg auf false. React-Query dedupt parallele BuyForm-Instanzen.
+  useEffect(() => {
+    if (balanceStale) refetchWallet();
+  }, [balanceStale, refetchWallet]);
 
   return (
     <div className="space-y-2.5">

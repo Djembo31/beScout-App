@@ -144,6 +144,24 @@ describe('useWallet — Query-Hook Lifecycle', () => {
       expect(result.current.lockedBalanceCents).toBe(5_000);
     });
   });
+
+  // Slice 372: refetch wird exponiert + löst einen erneuten Server-Read aus.
+  // Self-Heal des BuyModal-Freshness-Gates (stale Balance → aktiv refetchen
+  // statt passiv blockieren). Read-only — keine Buchung.
+  it('exposes a refetch() that re-reads the wallet from the server', async () => {
+    getWalletMock.mockResolvedValue(makeWallet());
+    const client = createClient();
+
+    const { result } = renderHook(() => useWallet(), {
+      wrapper: createWrapper(client),
+    });
+
+    await waitFor(() => expect(getWalletMock).toHaveBeenCalledTimes(1));
+    expect(typeof result.current.refetch).toBe('function');
+
+    await result.current.refetch();
+    await waitFor(() => expect(getWalletMock).toHaveBeenCalledTimes(2));
+  });
 });
 
 describe('useIsBalanceFresh — Freshness Flag', () => {

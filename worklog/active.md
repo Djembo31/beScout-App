@@ -1,12 +1,23 @@
 # Active Slice
 
 ```
-status: idle
-slice: 371
-title: ✅ VOLL-DONE — Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 Fix) + Live-Playwright AC1/AC2 PASS
-stage: LOG complete
-size: XS
-slice-type: UI (Bug-Fix, money-nah)
+status: in-progress
+slice: 372
+title: BuyModal hängt bei „Saldo wird aktualisiert…" — Freshness-Gate ohne Self-Heal (E4-Rest C)
+stage: BUILD
+size: S
+slice-type: UI (Bug-Fix, Money-Pfad)
+spec: worklog/specs/372-buymodal-balance-stale-hang.md
+root-cause: useIsBalanceFresh = zeitbasiert (Date.now-dataUpdatedAt<30s); BuyModal-Open triggert keinen Wallet-Refetch (Query schon via TopBar gemountet, staleTime:0) → Balance >30s stale bleibt für immer stale → Button dauerhaft disabled + „Saldo wird aktualisiert…" lügt. „Tippen vs +/−" = Timing-Artefakt.
+fix-plan: useWallet exponiert refetch; BuyForm useEffect refetcht bei balanceStale (self-heal, kein Loop). Money-Logik byte-identisch (read-only refresh).
+scope: nur BuyModal.tsx ist Runtime-Consumer von useIsBalanceFresh (grep-verifiziert; Sell-Pfad nicht betroffen).
+
+--- 371 (vorheriger Slice, DONE) ---
+prev-slice: 371
+prev-title: ✅ VOLL-DONE — Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 Fix) + Live-Playwright AC1/AC2 PASS
+prev-stage: LOG complete
+prev-size: XS
+prev-slice-type: UI (Bug-Fix, money-nah)
 spec: worklog/specs/371-wallet-invalidate-community.md
 fix: useCommunityActions.ts — handleCastPollVote + handleUnlockResearch invalidieren jetzt qk.wallet.all (Header-Credit-Anzeige war nach Belastung stale bis Reload). Money-Logik unberührt (nur Cache).
 proof: tsc clean + 72 vitest grün (useCommunityActions) + diff. ✅ Live-Playwright AC1/AC2 PASS (bescout.net, jarvis-qa): Poll-Vote 11.708,27→11.698,27 + Research-Unlock →11.688,27, je SOFORT ohne Reload, DB-reconciled (−20 CR exakt). Proofs: 371-wallet-invalidate.txt + 371-ac1/ac2-*.png.

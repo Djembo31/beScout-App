@@ -91,6 +91,12 @@ export interface UseWalletResult {
   dataUpdatedAt: number;
   /** Query-Error oder null. */
   error: Error | null;
+  /**
+   * Manueller Refetch (React-Query, stabil memoisiert). Self-Heal des
+   * Freshness-Gates: BuyModal löst damit eine stale Balance aktiv auf, statt
+   * passiv zu blockieren (Slice 372). Read-only — keine Buchung.
+   */
+  refetch: () => Promise<unknown>;
 }
 
 /**
@@ -150,6 +156,7 @@ export function useWallet(): UseWalletResult {
     isFetching: query.isFetching,
     dataUpdatedAt: query.dataUpdatedAt,
     error: query.error,
+    refetch: query.refetch,
   };
 }
 
