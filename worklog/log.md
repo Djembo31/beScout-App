@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 361 | 2026-06-24 | fix(observability): AdminTreasuryTab Promise.allSettled → logSilentRejects
+- Stage-Chain: SPEC (inline, XS Ops-Hardening) → IMPACT (skipped, 1 File) → BUILD → REVIEW (self-review, Pattern-Wiederholung) → PROVE → LOG.
+- **Kontext:** 360-Crash-Recovery-Nebenbefund. silent-fail MEDIUM 94>93 (+1), Quelle Slice 357 (src/-Teil nie re-baselined). `AdminTreasuryTab.loadData` nutzte per-Branch `console.error` → keine Sentry-Observability.
+- **Fix:** kanonisches `logSilentRejects('AdminTreasuryTab.loadData', [statsRes,potBalRes,potLedgerRes])` (wie AdminGameweeksTab/useProfileData) — dev-console + captureError→Sentry. Graceful-degrade (fulfilled→setState) unverändert.
+- **Proof:** `worklog/proofs/361-silentfail.txt` — tsc clean (exit 0); silent-fail-audit zurück auf Baseline (175/82H/93M), kein Re-Baseline nötig.
+- **Nebenbefund gemeldet (eigener Slice):** `platformAdmin.ts` `.in('club_id', clubIds)` @134 Clubs latent fragil (aktuell ~5KB unter ~14KB-URL-Limit, funktional). Admin-Display, kein Money.
+- Files: `src/app/(app)/bescout-admin/AdminTreasuryTab.tsx`.
+- Commit: 890926cc
+
 ## 360 | 2026-06-24 | feat(treasury): IPO-Fee REIN in Plattform-Topf (E3-2b, D96/D98)
 - Stage-Chain: SPEC (`worklog/specs/360-ipo-fee-rein.md`, S, Money-RPC) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/360-review.md`, **PASS**, 2 NIT informativ) → PROVE → LOG.
 - **Was:** Plattform-Anteil der IPO-Fee (10 %, `ipo_platform_bps`=1000) fließt jetzt in den BeScout-Topf statt zu verbrennen. 2. von 5 Fee-Quellen (nach Trading/358). Anil-Wahl: IPO zuerst (höchstes Volumen).
