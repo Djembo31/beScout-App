@@ -1,11 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 02:03)
+# Session Handoff — Auto (2026-06-24 02:54)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 6
+## Session Commits: 8
+- b655d4b4 chore(worklog): Slice 358 LOG-Abschluss (active->idle, Commit-Hash)
+- fb31c6b6 feat(treasury): Fees REIN Trading — Plattform-Fee in den Topf (E3-2, D96/D98)
 - 4a5043bd docs(decision): D97 — Plattform-Topf Saldo-Mechanik (Variante A) + Slice-357-Handoff
 - ebd0a08d feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
 - 43a7ff1b docs(decision): D96 — Plattform-Treasury (BeScout-Topf) Epic
@@ -26,7 +31,7 @@
 - **ZUERST lesen:** `worklog/notes/358-platform-treasury-epic.md` (§ Slice 2) · WARUM = `decisions.md` **D96/D98** · WIE = `docs/knowledge/domain/treasury.md` §10.
 - **Muster aus 358 wiederverwenden (1:1):** im Fee-RPC, nach `v_trade_id`/Buchungs-Block, `IF v_platform_fee > 0 THEN PERFORM book_platform_treasury('credit','<source>', v_platform_fee, <ref>, '<desc>'); END IF;`. **Inline, kein Trigger.** Source je Quelle: IPO `buy_from_ipo`→'ipo' · Polls `cast_community_poll_vote`→'poll' (Spalte `platform_share`) · Research `unlock_research`→'research' · Bounty `approve_bounty_submission`→'bounty' (heute gar nicht notiert, = reward−creator_net). `source`-CHECK hält alle bereits.
 - **Money-Muster (Pflicht, D87):** Live-`pg_get_functiondef` der Quelle VOR Spec. Force-Rollback-Smoke mit `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'` (gibt Zahlen zurück UND rollt zurück — 358-Technik, sehr sauber). PATCH-AUDIT: Fee-Konstanten gegen `trading.md` asserten. Reviewer-Pflicht.
-- **🐞 ODER zuerst der kleine Bug-Slice:** `accept_offer` side='sell' ist **live kaputt** — `'offer_buy'` fehlt im `transactions_type_check` (S330). Fix = CHECK + 4-File-Sync (activityHelpers + de/tr.json). Pre-existing, unabhängig von E3 (358-Smoke fand's). Anil-Wahl, was zuerst.
+- **✅ Bug-Slice 359 erledigt:** `accept_offer` side='sell' repariert (`offer_buy` in `transactions_type_check` + Invariant-Test reconciled inkl. 330-Drift). P2P-Sell-Offers laufen wieder. → Damit ist der nächste Bau eindeutig **E3 restliche Fee-Quellen REIN**.
 - **Danach:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; Ist: `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots live — Ursprung `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung + Ranking-Konsolidierung.
 
 ## ✅ SESSION 2026-06-24 — Slice 357 E3-1 Topf-Fundament (Money, CEO-Scope)

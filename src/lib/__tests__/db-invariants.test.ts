@@ -646,6 +646,7 @@ describe('DB Invariants', () => {
           'deposit', 'welcome_bonus', 'admin_adjustment', 'tier_bonus',
           'trade_buy', 'trade_sell', 'ipo_buy', 'order_cancel',
           'offer_lock', 'offer_unlock', 'offer_execute', 'offer_sell',
+          'offer_buy', // Slice 359 — accept_offer side='sell' (war im CHECK vergessen, S330)
           'mission_reward', 'streak_reward', 'liga_reward',
           'mystery_box_reward', 'tip_send', 'tip_receive',
           'subscription', 'founding_pass', 'bounty_cost', 'bounty_reward',
@@ -654,6 +655,8 @@ describe('DB Invariants', () => {
           // Slice 037 additions (6)
           'vote_fee', 'ad_revenue_payout', 'creator_fund_payout',
           'event_entry_unlock', 'scout_subscription', 'scout_subscription_earning',
+          // Slice 330 additions (waren im Live-CHECK, fehlten im Snapshot — in Slice 359 nachgezogen)
+          'pbt_liquidation', 'success_fee',
         ],
       },
       {

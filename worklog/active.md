@@ -2,27 +2,24 @@
 
 ```
 status: idle
-slice: 358
-title: ✅ DONE — E3-2 Fees REIN (Trading) — Plattform-Fee in den Topf (fb31c6b6)
+slice: 359
+title: ✅ DONE — fix(trading) accept_offer side='sell' repariert ('offer_buy' in CHECK)
 stage: LOG complete
-size: M
-slice-type: Migration (Money-RPC, CEO-Scope §3)
-spec: worklog/specs/358-fees-rein-trading.md
-impact: skipped (additive Side-Effect, Return-Shape unverändert; Code-Reading #5 grep-Verify statt Impact-Doc)
-proof: worklog/proofs/358-money-smoke.txt
-review: worklog/reviews/358-review.md (PASS, 1 INFO pre-existing + 1 NIT)
-next: E3 Slice 3 — IPO/Polls/Research/Bounty REIN, dann Monats-Liga e2e (RAUS)
+size: S
+slice-type: Migration (Money-table CHECK) + Test
+spec: worklog/specs/359-offer-buy-check-fix.md
+impact: skipped (additiver CHECK-Wert = Superset, 0 bestehende Rows betroffen; Code/i18n schon vorhanden)
+proof: worklog/proofs/359-smoke.txt
+review: worklog/reviews/359-review.md (CONCERNS→adressiert: 330-Drift pbt_liquidation/success_fee mit-reconciled)
+next: E3 restliche Fee-Quellen REIN (IPO/Polls/Research/Bounty)
 ```
 
 ## Kontext
 
-- **Epic E3 Plattform-Treasury (D96), Slice 2 von 5.** Slice 1 (Topf-Fundament) ✅ Slice 357.
-- **CEO-Entscheidung getroffen (2026-06-24): voller Auffang 100%** — gesamte Plattform-Fee → Topf, kein Teil-Burn.
-- Plan-Anker: `worklog/notes/358-platform-treasury-epic.md` §Slice 2.
+- **Pre-existing Live-Bug aus Slice-358-Money-Smoke:** `accept_offer` side='sell' wirft `23514`, weil `type='offer_buy'` nicht im `transactions_type_check` steht → P2P-Sell-Offers seit jeher kaputt (Live `offer_buy`-Count=0).
+- **Befund:** Frontend (`activityHelpers.ts`), Types (`transactionTypes.ts`), i18n (`de.json`+`tr.json` `offerBuy`) handhaben `offer_buy` BEREITS. Es fehlt nur der DB-CHECK + die Invariant-Test-Zeile (S330-Klasse: 4-File-Sync war unvollständig — nur CHECK vergessen).
 
 ## Zuletzt
 
-- **Slice 357** — Plattform-Treasury Topf-Fundament (L, PASS). Topf live bei 0.
-- **Slice 356** — Exklusive Treue-Umfragen + 80/20-Fee-Heal (M).
-
-Nächstes: BUILD nach Spec-Approval.
+- **Slice 358** ✅ — Fees REIN Trading (E3-2, fb31c6b6).
+- **Slice 357** ✅ — Plattform-Treasury Topf-Fundament.

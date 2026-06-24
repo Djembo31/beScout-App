@@ -1,0 +1,37 @@
+Slice 359 — accept_offer side='sell' Fix ('offer_buy' in transactions_type_check)
+Datum: 2026-06-24 · Project: skzjfhvgccaeplydsunz
+
+═══ AC1 — CHECK enthält offer_buy, kein Wert-Verlust ═══
+Query pg_get_constraintdef('transactions_type_check'):
+  has_offer_buy      = TRUE
+  old_values_intact  = TRUE  (offer_execute + success_fee + deposit alle noch da)
+  approx_value_count = 37     (36 alt + offer_buy)
+→ PASS
+
+═══ AC2+AC3 — accept_offer side='sell' (vorher 23514) jetzt success + p2p-Booking + Zero-Sum ═══
+Force-Rollback-Smoke, identisches Szenario das in 358-money-smoke.txt mit 23514 scheiterte:
+  rpc_success       = true        (vorher: ERROR 23514 transactions_type_check)
+  buyer_txn_type    = offer_buy   (der zuvor verbotene Typ — jetzt akzeptiert)
+  platform_ledger   = {src: p2p, amt: 200}
+  delta_buyer       = -10000
+  delta_seller      = +9700
+  delta_platform    = +200
+  zero_sum_ok       = TRUE
+  p2p_booking_ok    = TRUE  (Ledger-amount == rpc.platform_fee UND source=='p2p')
+→ PASS — Sell-Offer-Annahme funktioniert; 358-Plattform-Fee-Booking auf diesem Pfad mitbewiesen.
+
+═══ AC4 — db-invariants.test.ts ═══
+expected-Array vollständig auf Live-CHECK synchronisiert: +'offer_buy' (359) UND +'pbt_liquidation'
++'success_fee' (Slice-330-Drift, vom Reviewer gefunden — waren im Live-CHECK, fehlten im Snapshot).
+Array jetzt 37 Werte = exakt der Migration-ARRAY (34 alt + 3).
+HINWEIS: db-invariants.test.ts ist in vitest.config.ts EXCLUDED (Live-DB-abhängig, nicht im
+Standard-/CI-Run). Live-CHECK direkt per SQL verifiziert (AC1, 37 Werte). tsc --noEmit clean.
+→ PASS (SQL-Verify autoritativ + Test-expected NUN vollständig synchron, 37==37)
+
+═══ AC5 — bestehende Pfade unberührt ═══
+DROP+ADD = Superset; offer_execute/offer_sell/alle 36 alten Werte erhalten (AC1). Keine RPC-Logik
+geändert (accept_offer war korrekt; nur der CHECK war zu eng).
+→ PASS
+
+Fazit: Pre-existing Live-Bug (P2P-Sell-Offers seit jeher kaputt) behoben. Additiver CHECK-Wert,
+0 Daten-Risiko, 0 Code-/i18n-Änderung (Frontend kannte offer_buy schon).
