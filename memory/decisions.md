@@ -3834,3 +3834,15 @@ Kontrast: PBT-Anteile → `pbt_treasury` ✅, Club-Anteile → `clubs.treasury_b
 **Warum A jetzt, B als dokumentierter Revisit:** (1) **Kohärenz** — Plattform- und Club-Treasury rechnen identisch, ein Modell statt zwei. (2) Das Skalenproblem ist **weit weg** (Millionen Zeilen nötig). (3) **Nachrüsten billig** — die Singleton-Lock-Row existiert schon, Umstieg auf B ist später eine lokale Änderung. (4) Ein **Fundament** soll simpel + offensichtlich korrekt sein, nicht zwei-Wahrheiten-clever (329 hat gecachte Saldi bewusst zu SUM-only migriert wegen Drift — Abo-Bug). „bias toward caution over speed" (CLAUDE.md §1).
 
 **Re-Visit-Trigger:** Wenn `platform_treasury_ledger` sehr groß wird (Richtwert: Millionen Zeilen / messbare Buchungs-Latenz im Money-Path) → auf Variante B umstellen (Saldo-Spalte in `platform_treasury`, atomar unter demselben Lock geschrieben, `balance == SUM(ledger)` als prüfbare Invariante). Dokumentiert auch im Migration-Header von Slice 357 + `treasury.md` §10.
+
+## D98 — PRODUCT: Plattform-Fee-Auffang = voller Auffang 100% (kein Teil-Burn/Cap)
+
+**Datum:** 2026-06-24 · **Status:** Aktiv (Slice 358 live, Trading) · **Category:** PRODUCT · **Kontext:** D96 ließ für Slice 2 (Fees REIN) eine CEO-Frage offen: Soll die gesamte Plattform-Fee in den Topf wandern (100 %) oder nur ein Teil, während der Rest weiter verbrennt (Teil-Burn/Cap als Inflations-Schutz, ADR-026)? Diese Entscheidung bestimmt die Buchungs-Policy in JEDEM `book_platform_treasury('credit', …)`-Aufruf aller Fee-Quellen-Slices.
+
+**Entscheidung (CEO-approved 2026-06-24):** **Voller Auffang 100 %** — die komplette Plattform-Fee fließt in den Topf, nichts wird mehr verbrannt.
+
+**Alternative erwogen (Teil-Burn/Cap):** Nur X % rein, Rest verbrennt weiter = deflationärer Inflations-Schutz (ADR-026). **Verworfen weil:** (1) voller Auffang ist **maximal zirkulär** = exakt das D96-Ziel (deflationär→zirkulär); (2) beim **Pilot-Volumen** ist Inflations-Schutz noch nicht nötig; (3) der Topf ist **transparent** (Admin-Saldo sichtbar) → wächst er später zu stark, ist das eine bewusste Redistributions-/Airdrop-Entscheidung post-Pilot (ADR-026), kein Bau-Detail jetzt; (4) **einfachste Buchung** — sauberes Zero-Sum, kein Split-Parameter je Quelle (geringeres Money-Risiko).
+
+**Auswirkung:** Gilt als Default für ALLE Fee-Quellen-REIN-Slices — Trading (358) ✅, künftig IPO/Polls/Research/Bounty/P2P. Jeder bucht `book_platform_treasury('credit', <source>, voller_platform_anteil, …)`.
+
+**Re-Visit-Trigger:** Wenn der Topf bei realem Volumen unkontrolliert wächst oder eine Inflations-Sorge real wird → Teil-Burn/Cap als bewusste Policy-Slice nachrüsten (Cap-Logik in den `book_platform_treasury`-Aufrufen / zentral). Die Architektur (voller Auffang) lässt das jederzeit lokal zu.

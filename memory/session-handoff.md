@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 01:39)
+# Session Handoff — Auto (2026-06-24 02:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 6
+- 4a5043bd docs(decision): D97 — Plattform-Topf Saldo-Mechanik (Variante A) + Slice-357-Handoff
 - ebd0a08d feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
 - 43a7ff1b docs(decision): D96 — Plattform-Treasury (BeScout-Topf) Epic
 - dd43756e docs(handoff): Session-Ende Slice 356 + Preflight Monthly-Leaderboard (nächste Session)
@@ -21,15 +19,14 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 357 (E3-1 Topf-Fundament, committet+gepusht `ebd0a08d`).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
+**Status: idle. HEAD = Slice 358 (E3-2 Fees REIN Trading).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
 
-## ➡️ NÄCHSTER BAU: E3-2 — Fees REIN in den Plattform-Topf (D96, Money/CEO-Scope, selbst bauen §3)
-> **E3-1 Topf-Fundament ✅ Slice 357 LIVE.** Der BeScout-Topf existiert jetzt als echtes Konto, steht bei 0. Jetzt: die verbrannten Plattform-Fees REIN leiten.
-- **ZUERST lesen:** `worklog/notes/358-platform-treasury-epic.md` (§ Slice 2) · WARUM = `decisions.md` **D96** + **D97** (Saldo-Mechanik) · WIE = `docs/knowledge/domain/treasury.md` §10.
-- **Was Slice 357 gebaut hat (nutzen, nicht neu bauen):** Tabelle `platform_treasury_ledger` (append-only, Spalten `direction/source/amount/balance_after/reference_id/description`) + Singleton-Lock `platform_treasury` + **`book_platform_treasury(p_direction, p_source, p_amount, p_ref, p_desc)`** (REVOKE-only, Definer-intern aufrufbar) + `get_platform_balance()` + `get_platform_treasury_ledger()` (admin-guarded) + AdminTreasuryTab „Plattform-Topf"-Card. `source`-CHECK hält schon: `trading/ipo/poll/research/bounty/p2p` (REIN) + `monthly_liga/bescout_event` (RAUS) → **kein CHECK-Edit nötig in Slice 2.**
-- **Slice 2 Aufgabe:** **Trading zuerst** (`buy_player_sc` + `accept_offer` teilen `trades.platform_fee`). Dort wo heute der Plattform-Anteil berechnet aber verbrannt wird → `PERFORM book_platform_treasury('credit','trading', v_platform_fee, NEW.id, '...')`. **Eine Quelle pro Slice** (Trading → IPO → Polls → Research → Bounty → P2P). Erwäge trigger-zentrisch (`trades` AFTER INSERT, analog 329er club-credit-Trigger) vs. RPC-Edit — beim Lesen entscheiden.
-- **🔴 OFFENE CEO-FRAGE (Anil muss VOR Slice-2-Spec entscheiden):** **voller Auffang** (100 % Plattform-Fee in den Topf) **oder Teil-Burn/Cap** (nur X % rein, Rest weiter verbrennen = Inflations-Schutz, ADR-026)? → Das bestimmt die Buchungs-Policy in `book_platform_treasury`-Aufrufen. (D97 Re-Visit + D96 „Slice 1/2 zu entscheiden".)
-- **Money-Muster (Pflicht, D87):** Live-`pg_get_functiondef('buy_player_sc(...)')` + `accept_offer` VOR Spec als Blueprint. Force-Rollback-Money-Smoke (BEGIN…ROLLBACK): Zero-Sum (Zahler-Abzug = Σ Empfänger inkl. Topf), Saldo vorher/nachher. Reviewer-Pflicht.
+## ➡️ NÄCHSTER BAU: E3 — restliche Fee-Quellen REIN (IPO/Polls/Research/Bounty, je eigener Slice; Money/CEO §3)
+> **E3-1 Fundament ✅ (357) + E3-2 Trading ✅ (358) LIVE.** Trading-Fees (Orderbuch `buy_player_sc`+`buy_from_order`→'trading', P2P `accept_offer`→'p2p') fließen jetzt real in den Topf. Policy **D98: voller Auffang 100 %** (gilt für alle weiteren Quellen).
+- **ZUERST lesen:** `worklog/notes/358-platform-treasury-epic.md` (§ Slice 2) · WARUM = `decisions.md` **D96/D98** · WIE = `docs/knowledge/domain/treasury.md` §10.
+- **Muster aus 358 wiederverwenden (1:1):** im Fee-RPC, nach `v_trade_id`/Buchungs-Block, `IF v_platform_fee > 0 THEN PERFORM book_platform_treasury('credit','<source>', v_platform_fee, <ref>, '<desc>'); END IF;`. **Inline, kein Trigger.** Source je Quelle: IPO `buy_from_ipo`→'ipo' · Polls `cast_community_poll_vote`→'poll' (Spalte `platform_share`) · Research `unlock_research`→'research' · Bounty `approve_bounty_submission`→'bounty' (heute gar nicht notiert, = reward−creator_net). `source`-CHECK hält alle bereits.
+- **Money-Muster (Pflicht, D87):** Live-`pg_get_functiondef` der Quelle VOR Spec. Force-Rollback-Smoke mit `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'` (gibt Zahlen zurück UND rollt zurück — 358-Technik, sehr sauber). PATCH-AUDIT: Fee-Konstanten gegen `trading.md` asserten. Reviewer-Pflicht.
+- **🐞 ODER zuerst der kleine Bug-Slice:** `accept_offer` side='sell' ist **live kaputt** — `'offer_buy'` fehlt im `transactions_type_check` (S330). Fix = CHECK + 4-File-Sync (activityHelpers + de/tr.json). Pre-existing, unabhängig von E3 (358-Smoke fand's). Anil-Wahl, was zuerst.
 - **Danach:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; Ist: `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots live — Ursprung `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung + Ranking-Konsolidierung.
 
 ## ✅ SESSION 2026-06-24 — Slice 357 E3-1 Topf-Fundament (Money, CEO-Scope)

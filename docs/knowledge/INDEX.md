@@ -28,7 +28,7 @@
 
 ## 🔵 decisions — warum (ADRs)
 
-- [Decisions-Log D1–D97](../../memory/decisions.md) — consult_when: warum-Entscheidung, ADR-Historie, Scope/Architektur/Prozess-Begründung, „warum nicht anders" (D96: Plattform-Treasury fängt verbrannte Plattform-Fees auf + finanziert Plattform-Rewards · D97: Topf-Saldo = SUM-on-read Variante A, Revisit B bei Skalierung)
+- [Decisions-Log D1–D98](../../memory/decisions.md) — consult_when: warum-Entscheidung, ADR-Historie, Scope/Architektur/Prozess-Begründung, „warum nicht anders" (D96: Plattform-Treasury fängt verbrannte Plattform-Fees auf + finanziert Plattform-Rewards · D97: Topf-Saldo = SUM-on-read Variante A, Revisit B bei Skalierung · D98: Fee-Auffang = voller Auffang 100 %, kein Teil-Burn/Cap)
 - [CEO/CTO-Approval-Matrix](../../memory/ceo-approval-matrix.md) — consult_when: wer entscheidet (Anil vs Claude), Approval-Scope, Money/Security-Gate
 - [Business-Modell (Revenue/Fees/Pricing-Asset)](../../wiki/business-model.md) — consult_when: ipo_price=MV/100.000, 1 $SCOUT=1 cent, Fee-Splits, Pricing-Asset-Logik (MONEY-kritisch; Anker-Entscheidung = D83)
 - [$SCOUT-Launch / Legal-Phasen](../../wiki/scout-launch-strategie.md) — consult_when: Founding Pass, Licensing-Phasen, CASP/MiCA-Roadmap, Token-Launch (vertraulich)

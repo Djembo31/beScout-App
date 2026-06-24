@@ -1,0 +1,58 @@
+Slice 358 — E3-2 Fees REIN (Trading): Force-Rollback Money-Smoke
+Datum: 2026-06-24 · Project: skzjfhvgccaeplydsunz · Methode: DO-Block + RAISE EXCEPTION (rollt zurück, kein Prod-Mutate)
+Szenario: bot010/bot011, Spieler Prince Ating, Preis 10000 Cents, qty 1, kein Abo (effective_fee_bps=600 Trading / Offer 200/50/50).
+
+═══════════════════════════════════════════════════════════════════════
+AC1a — buy_player_sc (Orderbuch Auto-Match, source 'trading')
+═══════════════════════════════════════════════════════════════════════
+rpc: success, platform_fee=350, pbt_fee=150, club_fee=100, effective_fee_bps=600
+ledger_row: {direction:credit, source:trading, amount:350, balance_after:350, ref=trade_id}
+delta_buyer=-10000  delta_seller=+9400  delta_club=+100  delta_pbt=+150  delta_platform=+350
+zero_sum_ok = TRUE   (buyer -10000 == -(seller 9400 + club 100 + pbt 150 + platform 350))
+platform_got_fee = TRUE
+→ PASS
+
+═══════════════════════════════════════════════════════════════════════
+AC1b — buy_from_order (konkrete Sell-Order, source 'trading')
+═══════════════════════════════════════════════════════════════════════
+rpc.fees.platform=350
+ledger: {dir:credit, src:trading, amt:350, bal_after:350}
+delta_buyer=-10000  delta_seller=+9400  delta_club=+100  delta_pbt=+150  delta_platform=+350
+zero_sum_ok = TRUE   platform_got_fee = TRUE
+→ PASS
+
+═══════════════════════════════════════════════════════════════════════
+AC2 — accept_offer (P2P, source 'p2p') — via funktionierendem side='buy'-Pfad
+═══════════════════════════════════════════════════════════════════════
+rpc.platform_fee=200
+ledger: {dir:credit, src:p2p, amt:200, bal_after:200}
+delta_buyer=-10000  delta_seller=+9700  delta_club=+50  delta_pbt=+50  delta_platform=+200
+zero_sum_ok = TRUE   platform_got_fee_p2p = TRUE (amount==platform_fee UND source=='p2p')
+→ PASS
+
+  ⚠️ NEBENBEFUND (PRE-EXISTING, NICHT Slice 358 — eigener Slice empfohlen):
+  accept_offer side='sell'-Pfad wirft 23514 transactions_type_check.
+  Code: type = CASE WHEN side='buy' THEN 'offer_execute' ELSE 'offer_buy' END.
+  Der CHECK erlaubt offer_execute/offer_sell/offer_lock/offer_unlock, aber NICHT 'offer_buy'.
+  Live-Daten: offer_buy-Count=0 (jeder sell-Offer-Accept scheitert seit jeher), offer_execute=1 (buy-Pfad ok).
+  → S330-CHECK-Drift-Klasse. Fix = 'offer_buy' in transactions_type_check + 4-File-Sync. Eigener Slice.
+  Mein Buchungs-Block läuft VOR dem failenden INSERT (downstream) — 358-Booking selbst korrekt.
+
+═══════════════════════════════════════════════════════════════════════
+AC6 — Idempotenz (buy_player_sc Replay gleicher Key → keine Doppelbuchung)
+═══════════════════════════════════════════════════════════════════════
+trade1 == trade2 (same_trade_replay = TRUE)
+ledger_rows_for_trade = 1
+platform_total_in_txn = 350
+no_double_booking = TRUE
+→ PASS
+
+═══════════════════════════════════════════════════════════════════════
+AC3 — platform_fee = 0 → keine Ledger-Zeile
+═══════════════════════════════════════════════════════════════════════
+Code-verifiziert: `IF v_platform_fee > 0 THEN PERFORM book_platform_treasury(...) END IF` in allen 3 RPCs
+(+ book_platform_treasury self-guard `IF p_amount <= 0 THEN RETURN NULL`). Null-Fee → kein Call, kein Lock, keine Zeile.
+→ PASS (Inspektion)
+
+Zusammenfassung: 3/3 Trading-Eintrittspunkte buchen Plattform-Fee in den Topf (voller Auffang 100%),
+Zero-Sum exakt, Source-Tags korrekt (trading/trading/p2p), Idempotenz schützt vor Doppelbuchung.

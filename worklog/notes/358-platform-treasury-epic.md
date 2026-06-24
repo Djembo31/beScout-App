@@ -40,11 +40,11 @@ PBT-Anteile → `pbt_treasury` ✅ · Club-Anteile → `clubs.treasury_balance_c
 - **Pre-Spec:** Live-`pg_get_functiondef('book_club_treasury(...)')` als Blueprint lesen (D87).
 
 ### Slice 2 — Fees REIN (Money, eine Quelle pro Slice)
-- Reihenfolge: **Trading zuerst** (`buy_player_sc` + `accept_offer` teilen `trades.platform_fee`), dann IPO, Polls, Research, Bounty.
-- Pro Quelle: dort wo heute der Plattform-Anteil berechnet aber nicht gebucht wird → `PERFORM book_platform_treasury('credit', '<source>', v_platform_fee, ...)`.
-- **Money-Smoke je Quelle:** `BEGIN; …; ROLLBACK;` — Saldo vorher/nachher, Zero-Sum (Zahler-Abzug = Σ Empfänger inkl. Topf).
-- Regel-Mirror: „eine Quelle pro Slice" wie treasury.md §7 Event-Reconcile.
-- **Entscheidung offen (Slice 1/2):** voller Auffang oder Teil-Burn/Cap (ADR-026-Inflations-Schutz)?
+- **✅ TEIL 1 DONE — Trading (Slice 358, 2026-06-24):** `buy_player_sc` + **`buy_from_order`** (Code-Reading #5 fand den 2. Orderbuch-Pfad, live verkabelt `trading.ts:226`) → `book_platform_treasury('credit','trading',v_platform_fee,v_trade_id,…)`; `accept_offer` → source `'p2p'`. **Inline** (kein Trigger, spiegelt PBT/Club-Inline-Booking), `IF v_platform_fee > 0`-Guard. CREATE-OR-REPLACE = exakter Live-`functiondef` + je 1 Block (PATCH-AUDIT: Fee-Konstanten + Guards intakt). Force-Rollback-Smoke je Pfad PASS (Topf +350/+350/+200, Zero-Sum, Idempotenz keine Doppelbuchung). Reviewer PASS. Proofs `worklog/proofs/358-*`.
+  - **⚠️ Nebenbefund (pre-existing, eigener Slice):** `accept_offer` side='sell' wirft `23514` — `'offer_buy'` fehlt im `transactions_type_check` (S330-Klasse). Live `offer_buy`-Count=0 → P2P-Sell-Offers seit jeher kaputt. 358-Booking unbeschädigt (läuft davor).
+- **← OFFEN: restliche Quellen** (je eigener Slice, gleiches Inline-Muster): IPO `buy_from_ipo`→'ipo' · Polls `cast_community_poll_vote`→'poll' · Research `unlock_research`→'research' · Bounty `approve_bounty_submission`→'bounty' (heute gar nicht notiert, Differenz reward−creator_net).
+- **Money-Smoke je Quelle:** `BEGIN; …; ROLLBACK;` — Saldo vorher/nachher, Zero-Sum (Zahler-Abzug = Σ Empfänger inkl. Topf). Bei Guard-`auth.uid()`: in-txn `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION` für Output+Rollback (358-Technik).
+- **✅ Entscheidung getroffen (D98, 2026-06-24):** **voller Auffang 100 %** (kein Teil-Burn/Cap). Gilt als Default für alle weiteren Quellen-Slices.
 
 ### Slice 3 — Monats-Liga e2e (Money + UI)
 - **Geld:** `close_monthly_liga` Reward-Auszahlung aus Topf (`debit` via `book_platform_treasury` statt Minting) + **Deckungs-Check** (Topf-Saldo ≥ Σ Rewards, sonst sauberer Fehler) + Idempotenz bleibt (Snapshot-Guard).

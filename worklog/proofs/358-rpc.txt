@@ -1,0 +1,17 @@
+Slice 358 — PATCH-AUDIT (post apply_migration, S356-Konstanten-Audit)
+Project: skzjfhvgccaeplydsunz · 2026-06-24
+
+Query: pg_get_functiondef der 3 RPCs nach Migration, geprüft via LIKE:
+  buy_books_trading     = TRUE   (buy_player_sc  bucht book_platform_treasury('credit','trading',...))
+  bfo_books_trading     = TRUE   (buy_from_order bucht ...'trading'...)
+  off_books_p2p         = TRUE   (accept_offer   bucht ...'p2p'...)
+  buy_fees_intact       = TRUE   (trade_fee_bps 600 / trade_pbt_bps 150 / trade_club_bps 100 unverändert)
+  bfo_fees_intact       = TRUE   (dito)
+  off_fees_intact       = TRUE   (offer_platform_bps 200 / offer_pbt_bps 50 / offer_club_bps 50 unverändert)
+  buy_guards_intact     = TRUE   (auth_uid_mismatch + check_or_reserve_dedup_key erhalten)
+  off_ownership_guard   = TRUE   (Seller-Ownership-Guard 'Verkaeufer hat nicht genug' erhalten)
+
+→ Kein Wert-Drift, keine verlorenen Patches. Nur der inline book_platform_treasury-Block je RPC kam hinzu.
+
+tsc --noEmit: clean (kein Output, keine TS-Änderung).
+vitest src/lib/services/__tests__/trading: 69 passed / 69 (Return-Shape Regression, AC7 PASS).

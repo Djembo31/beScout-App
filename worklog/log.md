@@ -2,6 +2,18 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 358 | 2026-06-24 | feat(treasury): Fees REIN Trading — Plattform-Fee in den Topf (E3-2, D96/D98)
+- Stage-Chain: SPEC (`worklog/specs/358-fees-rein-trading.md`, M, Money/CEO-Scope §3) → IMPACT (skipped, additive Side-Effect, Return-Shape unverändert) → BUILD (selbst, Money) → REVIEW (`worklog/reviews/358-review.md`, reviewer PASS, 1 INFO pre-existing + 1 NIT) → PROVE → LOG.
+- **Feature:** Die heute verbrannte Plattform-Fee aller **drei** Trading-Eintrittspunkte fließt in den BeScout-Topf (Slice 357). Policy **D98: voller Auffang 100%** (kein Teil-Burn/Cap). Modell deflationär→zirkulär greift jetzt real für Trading.
+  - `buy_player_sc` (Orderbuch Auto-Match) + `buy_from_order` (konkrete Order) → `book_platform_treasury('credit','trading',v_platform_fee,v_trade_id,…)`.
+  - `accept_offer` (P2P) → `book_platform_treasury('credit','p2p',v_platform_fee,v_trade_id,…)`.
+  - Inline-Buchung (kein Trigger) = Code-Konsistenz mit PBT/Club-Inline-Booking; `IF v_platform_fee > 0`-Guard (vermeidet Singleton-Lock bei Null-Fee). Source-Tags trading/p2p getrennt (D96-Taxonomie). CREATE-OR-REPLACE-Bodies = exakter Live-`functiondef` + je 1 Block.
+  - **Scope-Korrektur (Code-Reading #5):** `buy_from_order` (Slice 178e, live verkabelt `trading.ts:226`) war als zweiter Orderbuch-Burn-Pfad nicht im Ursprungsplan → in 358 aufgenommen statt stille Lücke zu lassen. `buy_from_ipo` bewusst out-of-scope (eigener IPO-Slice).
+- **PATCH-AUDIT (S356):** Fee-Konstanten unverändert (Trading 600/150/100, Offer 200/50/50), Auth-/Idempotenz-/Seller-Ownership-Guards erhalten.
+- **Proof:** `worklog/proofs/358-money-smoke.txt` — Force-Rollback je Pfad: Topf +350/+350/+200, Zero-Sum exakt, Source korrekt, AC6 Idempotenz keine Doppelbuchung. `358-rpc.txt` + 69 Trading-vitest grün + tsc clean.
+- **⚠️ Nebenbefund (pre-existing, eigener Slice):** `accept_offer` side='sell' wirft `23514` — `type='offer_buy'` fehlt im `transactions_type_check` (S330-Klasse). Live `offer_buy`-Count=0 → P2P-Sell-Offers sind seit jeher kaputt. 358-Booking läuft davor, unbeschädigt. Fix = `offer_buy` in CHECK + 4-File-Sync.
+- Commit: <hash>
+
 ## 357 | 2026-06-24 | feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
 - Stage-Chain: SPEC (`worklog/specs/357-platform-treasury-foundation.md`, L, CEO-Scope Money §3, D96-approved) → IMPACT (skipped, neue isolierte Tabellen, 0 Consumer) → BUILD (selbst, Money) → REVIEW (`worklog/reviews/357-review.md`, reviewer PASS, 2 NIT accepted) → PROVE → LOG.
 - **Feature:** Echtes Plattform-Konto (BeScout-Topf) als Fundament. Mirror Club-Treasury 329 minus tenant-id, Single-Pot. Befund D96: alle 6 Plattform-Fee-Anteile verbrennen heute → Topf fängt sie ab Slice 2 auf. **Diese Slice baut nur das leere Fundament (Topf live bei 0, kein Backfill).**

@@ -1,7 +1,7 @@
 ---
 title: Treasury & CSF — Money/Reward-Modell (Kanon)
 created: 2026-06-15
-updated: 2026-06-23
+updated: 2026-06-24
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, $SCOUT cents, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
@@ -200,7 +200,7 @@ Alle Money-kritisch → CEO-Scope, sorgfältige Specs (D87-Muster).
 
 **Entscheidung (D96):** Plattform-Treasury als echtes Konto bauen (Saldo + append-only Ledger, Mirror Club-Treasury 329). **REIN** = die 6 verbrannten Plattform-Fee-Ströme. **RAUS** = plattformweite Rewards (**Monats-Liga**, **BeScout-Events** `type='bescout'`). Modell-Shift **deflationär → zirkulär** (bewusst, Anil). Selbst-finanzierend, kein Netto-Minting für Plattform-Rewards.
 
-**Bau-Sequenz:** **1 Topf-Fundament ✅ Slice 357** (`platform_treasury` Singleton-Lock-Anker + `platform_treasury_ledger` append-only + `book_platform_treasury()`/`get_platform_balance()`/`get_platform_treasury_ledger()` + AdminTreasuryTab „Plattform-Topf"-Card; Single-Pot, Saldo=SUM unter Singleton-Row-Lock = **Variante A** [Revisit B = gecachter Saldo bei Millionen-Zeilen], **kein Backfill** → Topf live bei 0, `source`-CHECK hält alle 8 Epic-Werte) → 2 Fees REIN (eine Quelle/Slice, Trading zuerst) → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf (löst §7 „bescout mintet weiter" ab) → 5 Events als „BeScout Liga"-Wettkampf (Saison/Monat) + Ranking-Konsolidierung (7 Boards → klar).
+**Bau-Sequenz:** **1 Topf-Fundament ✅ Slice 357** (`platform_treasury` Singleton-Lock-Anker + `platform_treasury_ledger` append-only + `book_platform_treasury()`/`get_platform_balance()`/`get_platform_treasury_ledger()` + AdminTreasuryTab „Plattform-Topf"-Card; Single-Pot, Saldo=SUM unter Singleton-Row-Lock = **Variante A** [Revisit B = gecachter Saldo bei Millionen-Zeilen], **kein Backfill** → Topf live bei 0, `source`-CHECK hält alle 8 Epic-Werte) → **2 Fees REIN ✅ Slice 358 (Trading): `buy_player_sc`+`buy_from_order`→source 'trading', `accept_offer`→'p2p', inline `book_platform_treasury`, voller Auffang 100 % (D98); IPO/Polls/Research/Bounty-eigen folgen** → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf (löst §7 „bescout mintet weiter" ab) → 5 Events als „BeScout Liga"-Wettkampf (Saison/Monat) + Ranking-Konsolidierung (7 Boards → klar).
 
 > **Platform-Pot = Club-Treasury-329-Mirror minus tenant-id** (`type`→`source`, `clubs FOR UPDATE`→Singleton-`platform_treasury FOR UPDATE`, gleicher SUM/append-only-Trigger/RLS-0-Policy-Stack). Slice 357 live-verifiziert (proofs/357-money-smoke.txt: Kette 1000/1500/1200, append/delete/bad-source/noauth geblockt).
 
