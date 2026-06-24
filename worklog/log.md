@@ -12,7 +12,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **PATCH-AUDIT (S356):** Fee-Konstanten unverändert (Trading 600/150/100, Offer 200/50/50), Auth-/Idempotenz-/Seller-Ownership-Guards erhalten.
 - **Proof:** `worklog/proofs/358-money-smoke.txt` — Force-Rollback je Pfad: Topf +350/+350/+200, Zero-Sum exakt, Source korrekt, AC6 Idempotenz keine Doppelbuchung. `358-rpc.txt` + 69 Trading-vitest grün + tsc clean.
 - **⚠️ Nebenbefund (pre-existing, eigener Slice):** `accept_offer` side='sell' wirft `23514` — `type='offer_buy'` fehlt im `transactions_type_check` (S330-Klasse). Live `offer_buy`-Count=0 → P2P-Sell-Offers sind seit jeher kaputt. 358-Booking läuft davor, unbeschädigt. Fix = `offer_buy` in CHECK + 4-File-Sync.
-- Commit: <hash>
+- Commit: fb31c6b6
 
 ## 357 | 2026-06-24 | feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
 - Stage-Chain: SPEC (`worklog/specs/357-platform-treasury-foundation.md`, L, CEO-Scope Money §3, D96-approved) → IMPACT (skipped, neue isolierte Tabellen, 0 Consumer) → BUILD (selbst, Money) → REVIEW (`worklog/reviews/357-review.md`, reviewer PASS, 2 NIT accepted) → PROVE → LOG.

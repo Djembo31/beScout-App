@@ -1,10 +1,10 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 358
-title: E3-2 Fees REIN (Trading) — Plattform-Fee aus buy_player_sc + accept_offer in den Topf
-stage: LOG
+title: ✅ DONE — E3-2 Fees REIN (Trading) — Plattform-Fee in den Topf (fb31c6b6)
+stage: LOG complete
 size: M
 slice-type: Migration (Money-RPC, CEO-Scope §3)
 spec: worklog/specs/358-fees-rein-trading.md
