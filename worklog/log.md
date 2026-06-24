@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 363 | 2026-06-24 | feat(treasury): Polls-Fee REIN in Plattform-Topf (E3-2c, D96/D98)
+- Stage-Chain: SPEC (`worklog/specs/363-poll-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/363-review.md`, **PASS**, 2 NIT kosmetisch) → PROVE → LOG.
+- **Kontext:** E3 Plattform-Treasury Slice 2 „Fees REIN", Teil **3/5** = Polls. Der 20 %-Plattform-Anteil der Poll-Fee wurde notiert (`community_poll_votes.platform_share`) aber in kein Konto gebucht → verbrannte in BEIDEN source-Branches (club → Club-Treasury bekam nur 80 %, user → Creator-Wallet 80 %).
+- **Fix:** EIN additiver Inline-`book_platform_treasury('credit','poll',v_platform_share,p_poll_id,'Umfrage-Fee')` in `cast_community_poll_vote`, platziert NACH dem source-IF/ELSE (deckt club + user), VOR `ELSE`-Reset, innerhalb `IF v_cost>0` + `IF v_platform_share>0`-Guard. Spiegelt 358/360-Muster. **Erstes Booking, das 2 source-Branches deckt** (kein `v_trade_id`, daher `p_poll_id` als reference_id).
+- **Money-Sicherheit:** Fee-Konstante `(v_cost*80)/100` verbatim (S356-Drift-Klasse abgesichert via ILIKE-Assert), CREATE-OR-REPLACE = exakter Live-`functiondef` + genau 1 Block, AR-44 REVOKE/GRANT (anon=false, authed=true). `'poll'` im CHECK schon gedeckt → keine CHECK-Migration.
+- **Proof:** `worklog/proofs/363-money-smoke.txt` — 2-Branch-Force-Rollback-Smoke: Topf je +200 (20 % von 1000), Zero-Sum 1000=800+200, je 1 `'poll'`-Ledger-Row, Wallet −2000, sauberer Rollback (pot=0, 0 Residue). tsc clean (kein src/-Change), INV-18 unberührt.
+- Files: `supabase/migrations/20260624160000_slice_363_poll_fee_rein.sql` (via `apply_migration`).
+- Commit: <pending>
+
 ## 362 | 2026-06-24 | fix(services): platformAdmin chunked/paginated Reads — player_count Live-Bug
 - Stage-Chain: SPEC (inline, S) → IMPACT (skipped, 1 Service-File, 2 Caller verifiziert) → BUILD → REVIEW (`worklog/reviews/362-review.md`, **PASS**, 2 NIT, NIT#1 adressiert) → PROVE → LOG.
 - **Kontext:** 361-Nebenbefund vertieft. `platformAdmin` hatte 5 HIGH `.in()` silent-fails. Beim Graben **echter Live-Bug** gefunden: `getAllClubs` las `.in('club_id', alle134Clubs)` ohne `.range()` über 4472 Spieler → PostgREST-1000-Cap → `player_count` für die meisten Clubs massiv falsch.

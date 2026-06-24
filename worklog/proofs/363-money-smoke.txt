@@ -1,0 +1,72 @@
+Slice 363 — Polls-Fee REIN in Plattform-Topf (E3-2c) — PROOF
+============================================================
+Datum: 2026-06-24
+Typ: Money-RPC (Migration) — Force-Rollback-Smoke (2 Branches) + Live-functiondef-Verify
+RPC: cast_community_poll_vote(uuid,uuid,integer)
+Policy: D98 (voller Auffang 100 %), source 'poll' (CHECK deckt bereits), Fee-Split 80/20 (business.md)
+
+[1] BOOKING-ZEILE LIVE + FEE-KONSTANTE INTAKT (nach apply_migration 363) — AC-1/AC-5
+----------------------------------------------------------------
+SELECT
+  pg_get_functiondef(...) LIKE '%book_platform_treasury(''credit'', ''poll''%'  -> has_booking        = true
+  pg_get_functiondef(...) LIKE '%(v_cost * 80) / 100%'                          -> fee_constant_intact = true
+=> Booking-Block live drin, Fee-Konstante 80 unverändert (S356-Klasse abgesichert).
+
+[2] AR-44 GRANTS (CREATE OR REPLACE resettet Grants) — AC-Security
+----------------------------------------------------------------
+has_function_privilege('anon', ..., 'EXECUTE')          -> false  ✅ (REVOKE PUBLIC, anon)
+has_function_privilege('authenticated', ..., 'EXECUTE') -> true   ✅ (GRANT authenticated)
+
+[3] source-CHECK deckt 'poll' (KEINE CHECK-Migration nötig) — AC-6
+----------------------------------------------------------------
+platform_treasury_ledger_source_check =
+  CHECK (source = ANY (ARRAY['trading','ipo','poll','research','bounty','p2p','monthly_liga','bescout_event']))
+
+[4] FORCE-ROLLBACK MONEY-SMOKE — 2 BRANCHES (club + user), self-contained DO-Block + RAISE
+----------------------------------------------------------------
+Technik (358/360): temp-Polls in einem TX, set_config('request.jwt.claim.sub', voter, true) für
+auth.uid()-Guard, Topf-Saldo aus Ledger-SUM(credit−debit), RAISE EXCEPTION → voller Rollback.
+Voter: 557d1145-... (Wallet 200.000.000) · Creator: ef2257c0-... · Club: 6bfe7d27-... (Galatasaray)
+cost_bsd = 1000 → erwartet creator_share 800 (80 %) + platform_share 200 (20 %).
+
+SMOKE_RESULT:
+  cost=1000
+  pot0=0  pot1=200  pot2=400
+  club_delta=200   <- BRANCH source='club': Topf +platform_share (AC-3) ✅
+  user_delta=200   <- BRANCH source='user': Topf +platform_share (AC-3) ✅
+  club_rows=1  user_rows=1   <- je genau 1 'poll'-Ledger-Row, keine Doppelbuchung (AC-3/AC-5) ✅
+  wallet_delta=-2000  (= 2× cost 1000, beide Votes belastet) ✅
+  r1={"cost":1000,"weight":1,"success":true,"total_votes":1,"creator_share":800}  (club)
+  r2={"cost":1000,"weight":1,"success":true,"total_votes":1,"creator_share":800}  (user)
+
+ZERO-SUM (AC-2):  cost 1000 = creator_share 800 + platform_share 200  ✅  (je Branch)
+FEE-KONSTANTE:    platform_share 200 = 20 % von 1000 = cost − (cost*80/100)  ✅
+
+[5] ROLLBACK SAUBER (kein Residue)
+----------------------------------------------------------------
+SELECT pot_now, poll_rows_persisted, stray_smoke_polls:
+  -> pot_now=0   poll_rows_persisted=0   stray_smoke_polls=0   ✅
+(Plattform-Topf war vor diesem Slice noch nie via 'poll' bebucht — 0 ist erwartet.)
+
+[6] AC-4 GUARD (Gratis-Vote cost=0) — durch Code-Pfad belegt
+----------------------------------------------------------------
+Bei cost=0 läuft der ELSE-Zweig (v_platform_share := 0); der Booking-Block sitzt INNERHALB
+`IF v_cost > 0 THEN` und ist zusätzlich durch `IF v_platform_share > 0` geschützt → 0 Buchung,
+kein CHECK-Fehler. (Smoke nutzt cost>0; Gratis-Pfad ist guard-belegt, kein Booking erreichbar.)
+
+[7] AC-5/AC-7 PATCH-AUDIT (kein Drift)
+----------------------------------------------------------------
+Migration = exakter Live-functiondef (gelesen 2026-06-24, frische Session) + GENAU EIN Block
+(IF v_platform_share > 0 ... END IF) NACH dem source-IF/ELSE, VOR `ELSE v_creator_share:=0`.
+Unverändert: Fee-Konstante (v_cost*80/100), Stimmgewicht (Abo/Fan-Rang S343),
+min_fan_rank_tier-Tor (S356), Already-Voted-/Self-Poll-/Status-/club_id-Guards.
+
+[8] AC-8 TSC / INVARIANTEN
+----------------------------------------------------------------
+npx tsc --noEmit -> TSC_OK (kein src/-Change).
+db-invariants.test.ts: NICHT betroffen — keine CHECK-Änderung, kein neuer transactions-Type
+('poll_vote_cost'/'poll_earn' existierten bereits). File ist in vitest.config.ts EXCLUDED
+(Live-DB-Test, S330-Notiz) → "No test files found" via vitest erwartet, INV-18-Snapshot unberührt.
+
+VERDICT: alle ACs grün. Polls-Plattform-Fee (20 %) fließt jetzt real in den BeScout-Topf —
+beide source-Branches (club + user) abgedeckt. 3/5 Fee-Quellen REIN (Trading, IPO, Polls).
