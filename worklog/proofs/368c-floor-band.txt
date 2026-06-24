@@ -1,0 +1,47 @@
+Slice 368c — Floor-Orderbuch transparent + manipulationssicher — PROOF
+Datum: 2026-06-24 · Money/CEO (§3) · Live-DB skzjfhvgccaeplydsunz
+
+══ AC1 — get_price_floor == get_price_cap / 9 (Stichprobe, mit/ohne Trades) ══
+id … | ipo_price | trade_cnt | cap     | floor  | floor_eq_cap_div9
+Muhammed Tiren   | 1000  | 73 | 3000   | 333   | true
+David Preu       | 40000 | 53 | 120000 | 13333 | true
+Ali Arda Yildiz  | 5000  | 26 | 15000  | 1666  | true
+Giovanni Crociata| 45000 | 22 | 135000 | 15000 | true
+Cemil Berk Aksu  | 9390  | 22 | 281706 | 31300 | true   (cap=3×median, floor folgt Referenz)
+Mehmet Demirözü  | 16615 | 19 | 498462 | 55384 | true
+→ Band = [cap/9, cap] = [Referenz/3, 3×Referenz]. Kohärent, alle true.
+
+══ AC9 — place_sell_order trägt Floor-Check; Geld-Pfad unangetastet ══
+sell_has_floor_check = true
+buy_player_touched   = false   (buy_player_sc enthält get_price_floor NICHT)
+buy_order_touched    = false   (buy_from_order enthält get_price_floor NICHT)
+
+══ AC2/AC3 — Live Reject/Pass/Boundary Smoke (BEGIN … ROLLBACK, auth=authenticated) ══
+Spieler Gjoko Spasov (cap 3000, floor 333), User 862c96a1-…:
+  reject_below_floor(100<333)   → {"success":false,"error":"minPriceExceeded"}   ✅ Lowball geblockt
+  boundary_at_floor(333)        → {"success":false,"error":"Keine SCs zum Verkaufen"} ✅ Floor-Guard PASSIERT (333 nicht < 333) → Holdings-Check
+  pass_within_band(500)         → {"success":false,"error":"Keine SCs zum Verkaufen"} ✅ Floor-Guard PASSIERT
+  reject_above_cap(4000>3000)   → {"success":false,"error":"maxPriceExceeded"}    ✅ Cap unverändert (keine Regression)
+(Keine echten Daten mutiert — ROLLBACK.)
+
+══ Security (§3, AR-44) ══
+get_price_cap   proacl = {postgres, service_role, authenticated}            (Vorbild, kein anon)
+get_price_floor proacl VORHER = {PUBLIC, postgres, anon, authenticated, service_role}  ← CREATE-Default
+get_price_floor proacl NACHHER = {postgres, authenticated, service_role}   ✅ anon+PUBLIC REVOKEd (Migration 20260624_368c_price_floor_grants)
+place_sell_order proacl = {postgres, authenticated, service_role}          (CREATE OR REPLACE erhält ACL — kein anon-Leak)
+
+══ AC5/AC6 — Service-Guard + i18n ══
+vitest src/lib/services/__tests__/trading.test.ts → 71 passed (inkl. 2 neu: minPriceExceeded reject + floor=0 fail-open edge)
+vitest PlayerContent.test.tsx → grün (gesamt 86 mit trading)
+tsc --noEmit → clean
+de.errors.minPriceExceeded / tr.errors.minPriceExceeded → present
+de/tr player.hero.floorLastSale → "Letzter Verkauf" / "Son satış"
+
+══ AC8 — Floor-Label-Vereinheitlichung (user-facing → DE „Marktpreis" / TR „Piyasa Fiyatı") ══
+Geändert: cardBack.floorPrice, comparison floorPrice, marketFloor, rumor floorPrice, sortFloor,
+limitOrderCurrentFloor, priceAlert*Body (×3), glossar floorPrice.title+description, floorPriceTooltip.
+Grep „Markt Floor|Floor Preis|Floor Price|Taban Fiyat|Piyasa Tabanı" über messages/ → 0 Reste.
+
+══ Offen (post-Deploy) ══
+AC7 Playwright bescout.net: PlayerHero-Sublabel quellen-ehrlich (offene Order → „Günstigstes Angebot" /
+keine Order → „Letzter Verkauf") — visueller Proof nach Vercel-Deploy von main.

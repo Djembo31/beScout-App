@@ -40,6 +40,9 @@ interface PlayerHeroProps {
   holdingQty: number;
   masteryLevel?: number;
   matchTimeline?: MatchTimelineEntry[];
+  /** Quelle des angezeigten Floor-Preises (Slice 368c — Anzeige-Wahrheit):
+   *  'ipo' = laufender Erstverkauf · 'order' = niedrigste offene Order · 'lastSale' = letzter Verkauf (keine Angebote). */
+  floorSource?: 'ipo' | 'order' | 'lastSale';
 }
 
 function PlayerHeroInner({
@@ -47,7 +50,7 @@ function PlayerHeroInner({
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
   onSetPriceAlert, onRemovePriceAlert, onLimitClick, holdingQty, masteryLevel,
-  matchTimeline,
+  matchTimeline, floorSource,
 }: PlayerHeroProps) {
   const t = useTranslations('player');
   const [showOverflow, setShowOverflow] = useState(false);
@@ -274,7 +277,11 @@ function PlayerHeroInner({
                 )}
               </div>
               <div className="text-[10px] text-white/30 font-medium mt-0.5 text-center md:text-left">
-                {isIPO ? t('hero.clubSaleFixed') : t('hero.floorCheapest')}
+                {isIPO || floorSource === 'ipo'
+                  ? t('hero.clubSaleFixed')
+                  : floorSource === 'lastSale'
+                    ? t('hero.floorLastSale')
+                    : t('hero.floorCheapest')}
               </div>
             </div>
 

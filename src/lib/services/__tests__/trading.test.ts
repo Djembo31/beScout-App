@@ -275,6 +275,19 @@ describe('placeSellOrder', () => {
     await expect(placeSellOrder(userId, playerId, 1, 6000)).rejects.toThrow('maxPriceExceeded');
   });
 
+  it('throws minPriceExceeded when price below floor (cap/9) — Slice 368c anti-manipulation', async () => {
+    // cap 9000 → floor = floor(9000/9) = 1000; price 999 < 1000 → reject
+    mockRpc('get_price_cap', 9000);
+    await expect(placeSellOrder(userId, playerId, 1, 999)).rejects.toThrow('minPriceExceeded');
+  });
+
+  it('skips floor guard when cap too small (floor=0) — Slice 368c fail-open edge', async () => {
+    // cap 8 → floor = floor(8/9) = 0 → guard skipped; proceeds to players-check → playerNotFound
+    mockRpc('get_price_cap', 8);
+    mockTable('players', null);
+    await expect(placeSellOrder(userId, playerId, 1, 1)).rejects.toThrow('playerNotFound');
+  });
+
   it('throws playerLiquidated when player is liquidated', async () => {
     // getPriceCap returns null (no cap)
     mockRpc('get_price_cap', null);

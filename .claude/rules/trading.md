@@ -51,6 +51,16 @@ paths:
   Divergenz-Quelle (5-6 abweichende Floor-Berechnungen, S7-Registry #1) und ist entfernt
   (Slice 303: `computePlayerFloor` → `prices.floor`; `enriched`/`resolveBuyPriceCents` entkoppelt).
 - Pool/IPO verkauft immer zu `ipo_price`, nicht `floor_price`
+- **Preis-Band Sell-Orders / Anti-Manipulation (S368c):** `place_sell_order` erzwingt ein symmetrisches Band:
+  `max = get_price_cap = 3×Referenz` (Referenz = `GREATEST(ipo, median_last10)`, <10 Trades → 3×ipo) und
+  `min = get_price_floor = get_price_cap/9 = Referenz/3` (`minPriceExceeded`). Verhindert Lowball-Order, die den
+  angezeigten Floor künstlich crasht. Edge: cap=0 (kein Anker) → floor=0 → nur `≥1 Cent`. **Schon vorhandener
+  Schutz (NICHT neu bauen):** Selbst-Handel-Block · Reziprok-Ping-Pong A↔B (7d, `v_circular_count`) · 20 Trades/24h ·
+  10 Orders/h · Club-Admin-Handelsverbot. **Offene Lücke (eigener Slice):** Sybil-Ring A→B→C→A (3+ Accounts) —
+  braucht Identitäts-/Geräte-Signale, Phase-2-relevant (Phase-1-Credits = wertloses Spielgeld).
+- **Floor-Anzeige user-facing = „Marktpreis" / „Piyasa Fiyatı" (S368c, vereinheitlicht)** — NICHT „Floor"/„Markt Floor".
+  Sublabel quellen-ehrlich: offene Order → „Günstigstes Angebot", keine Order → „Letzter Verkauf", laufende IPO →
+  Festpreis (`PlayerHero.floorSource`-Prop, abgeleitet aus `allSellOrders`-Präsenz, KEIN Client-Floor-Recompute).
 - **Display vs Charge bei eigener Order (S7-303 F-1, pre-existing):** `floor_price` schließt
   EIGENE offene Sell-Orders mit ein; `buy_player_sc`/`buy_from_order` buchen aber die günstigste
   Order ANDERER User (`user_id != p_user_id`). Wenn ein User selbst der günstigste Lister ist,

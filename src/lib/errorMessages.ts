@@ -13,7 +13,7 @@ const KNOWN_KEYS = new Set([
   'offerExpired', 'offerAlreadyHandled', 'alreadyExists', 'notFound', 'permissionDenied',
   'rateLimited', 'networkError', 'timeout', 'subscriptionRequired', 'earlyAccessRequired', 'tierTooLow',
   'invalidQuantity', 'maxQuantityExceeded', 'playerNotFound', 'clubAdminRestricted',
-  'noMatchingOrders', 'invalidPrice', 'maxPriceExceeded', 'eventNotFound', 'eventEnded',
+  'noMatchingOrders', 'invalidPrice', 'maxPriceExceeded', 'minPriceExceeded', 'eventNotFound', 'eventEnded',
   'eventGameweekNotFound', 'playerLockedRemove', 'playerLockedAdd', 'duplicatePlayer',
   'lineupDeleteFailed', 'lineupSizeMismatch', 'playerNotInClub',
   'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
@@ -59,6 +59,7 @@ const ERROR_MAP: [RegExp, string][] = [
   [/max.quantity.exceeded|exceeds.*limit/i, 'maxQuantityExceeded'],
   [/invalid.price/i, 'invalidPrice'],
   [/max.price.exceeded|preis.*berschreitet|price.*exceeds/i, 'maxPriceExceeded'],
+  [/min.price.exceeded|preis.*zu.*niedrig|price.*too.*low/i, 'minPriceExceeded'],
   [/player.not.found/i, 'playerNotFound'],
 
   // J8 Healer (FIX-03) — Sell-flow + Cancel-flow raw RPC strings → keys

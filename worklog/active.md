@@ -2,27 +2,28 @@
 
 ```
 status: idle
-slice: 368b
-title: ✅ DONE — Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg←Erst-IPO/„—", 4 Zahlen trennen, CSF €→Credits
+slice: 368c
+title: ✅ DONE — Floor-Orderbuch transparent + manipulationssicher (Preis-Band ÷3..×3 + Floor-Quelle + Label-Vereinheitlichung)
 stage: LOG complete
 size: M
-slice-type: UI (+ kleiner Service/Query)
-spec: worklog/specs/368b-scout-card-display-truth.md
-impact: skipped (kein Schema/RPC/Cross-Domain — 1 neue read-only Query auf ipos, Consumer = nur RewardsTab)
-proof: worklog/proofs/368b-tests.txt + worklog/proofs/368b-rewardstab-with-ipo.png (live-Screenshot: Einstieg 461 CR = echte Erst-IPO statt alt 400, CSF €-frei)
-review: worklog/reviews/368b-review.md (reviewer PASS, 2 LOW — #1 gefixt, #2 belassen)
-next: 368c Floor-Orderbuch transparent + manipulationssicher (inkl. Floor-Label-Vereinheitlichung)
+slice-type: Migration (Money-RPC) + Service + UI
+spec: worklog/specs/368c-floor-orderbook-transparency.md
+impact: worklog/specs/368c-floor-orderbook-transparency.md §3+§4 (place_sell_order Consumer + Floor-Label-Stellen grep-verifiziert)
+proof: worklog/proofs/368c-floor-band.txt (Live-Reject/Pass/Boundary-Smoke + AC1 cap/9 + AC9 Money-Pfad unberührt + Grants). Playwright-Sublabel offen post-Deploy (AC7).
+review: worklog/reviews/368c-review.md (reviewer PASS, 3 LOW, alle nicht-blockierend)
+next: 369 /api/push→500, dann 370 E2E-Sweep ②–⑤
 ```
 
-## Offene Pflicht-Klärung (Anil, vor BUILD)
-1. CSF-Tooltip-Neufassung €→Credits (Vorschlag in Spec §9 Q1).
-2. Scope-Cut: Floor-Label-Vereinheitlichung → 368c (mit Floor-Quellen-Badge zusammen).
+## CEO-Entscheid (2026-06-24, Anil)
+- Anti-Manipulation = **symmetrisches Preis-Band beim Order-Erstellen**: min = Anker÷3, max = Anker×3 (Cap existiert schon). Faktor **÷3** bestätigt.
+- Umsetzung: `get_price_floor = get_price_cap ÷ 9` (kohärent: cap = 3×Referenz → floor = Referenz÷3 = cap÷9). Reuse der reviewten Cap-Logik.
+- Sybil (mehrere Accounts im Ring A→B→C→A) = **separater späterer Slice** (braucht Identitäts-/Geräte-Signale, Phase-2-relevant, Credits Phase 1 = wertloses Spielgeld).
+
+## Schon existierender Schutz (Live-verifiziert, NICHT neu bauen)
+- Selbst-Handel blockiert (buy_from_order/buy_player_sc/accept_offer: `user_id != buyer` / „Eigene Order").
+- Reziprok-Ping-Pong A↔B blockiert (`v_circular_count`, 7 Tage).
+- Max 20 Trades/Spieler/24h · Max 10 Orders/Spieler/h · Preis-OBERgrenze 3×Anker · Club-Admin-Handelsverbot.
 
 ## Zuletzt
-
-- **Slice 368a** (2026-06-24) — Scout-Card-Wertmodell als Kanon (D100), XS, PASS.
-- **Slice 367** (2026-06-24) — E4 „Diamond Hands"→„Treuer Sammler" (S, PASS).
-- **Slice 366** (2026-06-24) — E4 Doc-Glattzug auf D99 (PASS).
-
-Nächstes: 368b BUILD nach Anil-GO, dann 368c Floor-Orderbuch.
-```
+- **Slice 368b** (2026-06-24) — RewardsTab-Anzeige-Wahrheit (M, PASS, live).
+- **Slice 368a** (2026-06-24) — Scout-Card-Wertmodell als Kanon (D100, XS, PASS).

@@ -1,11 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 17:33)
+# Session Handoff — Auto (2026-06-24 17:53)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- af5cda4c docs(learning): S368b Display-Anker-aus-Source-of-Truth-Pattern + Handoff-Resume-Anker auf 368c
 - 7e786d33 chore(368b): post-deploy visual proof — Einstieg 461 CR (echte Erst-IPO), CSF €-frei
 - d931da6e chore(tracker): 368b done in MASTERPLAN/TODO/handoff — NÄCHSTER 368c (Floor-Orderbuch + Floor-Labels)
 - 17306c09 feat(player): 368b Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg<-Erst-IPO/"—", 4 Zahlen trennen, CSF €->Credits
@@ -15,7 +19,6 @@
 - eb820b1f chore(tracker): Slice 367 done + 368 next (E4 Schritt 3)
 - 7b650a4f fix(gamification): E4 Diamond-Hands-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (Slice 367, T-3)
 - 627e3e96 docs(notes): T-3 Diamond-Hands Root-Cause verifiziert (geseedete dpc_mastery.hold_days, Slice 367 Vorbereitung)
-- e3181795 docs(knowledge): treasury.md verified-against trading.md @ 2026-06-24 (beide auf D99 abgeglichen, Slice 366)
 
 <!-- auto:handoff-end -->
 
@@ -52,11 +55,9 @@
 
 ✅ **368b DONE** (`17306c09`): RewardsTab-Anzeige-Wahrheit. „Dein Einstieg" liest jetzt echten **Erst-IPO-Preis** (`ipos.price`, frühestes Row) via neuem `getFirstIpoPrice`+`useFirstIpoPrice` statt `players.ipo_price` (Slice-114-vergiftet); kein IPO → **„—" nur im Einstieg-Feld** (MV+Meilensteine bleiben — Anil-Entscheid). +2 InfoTooltips (MV-Referenz vs. Eintritts-Anker). **CSF-Tooltips DE+TR von € → Credits** (user-facing € verboten). Reviewer **PASS** (2 LOW, #1 Service-Test gefixt). tsc 0, 133 Tests. Spec `worklog/specs/368b-scout-card-display-truth.md`. **✅ Visueller Proof live verifiziert** (Owusu Kwabena bescout.net Mobile 393px: „Dein Einstieg" = **461 CR** = echte Erst-IPO statt alt 400; MV 400K€ separat; Meilensteine in CR ohne €; `worklog/proofs/368b-rewardstab-with-ipo.png`).
 
-**← NÄCHSTER: Slice 368c — Floor = transparentes Orderbuch (inkl. Floor-Label-Vereinheitlichung, bewusst von 368b hierher verschoben).**
-- Floor zeigt **Quelle** („niedrigste offene Order" vs. „letzter Verkauf, keine Angebote") + **Anti-Manipulation** (Mini-Order-Crash verhindern). `recalc_floor_price`-Kaskade prüfen/anpassen. `OrderbookSummary.tsx` (Best Bid/Ask) ist da, aber NICHT mit `prices.floor` verknüpft.
-- **Open-Q (Anil, CEO):** Anti-Manipulations-Regel — Mindest-Order-Größe vs. %-Schwelle vs. Median-Filter.
+✅ **368c DONE** (Reviewer PASS, 3 LOW): Floor manipulationssicher + transparent. CEO-Entscheid (Anil): symmetrisches Preis-Band **min=Anker÷3, max=Anker×3** → neue `get_price_floor = get_price_cap/9`; `place_sell_order` lehnt Lowball mit `minPriceExceeded` ab (Live-Smoke: 100<333 reject, 333/500 pass, 4000 maxCap). Schon vorhandener Schutz live-bestätigt (Selbst-Handel/Reziprok-Ping-Pong/20-24h/10-h/Cap/Club-Admin). `PlayerHero.floorSource` → Sublabel quellen-ehrlich (offene Order→„Günstigstes Angebot"/keine→„Letzter Verkauf"). Alle Floor-Labels user-facing → „Marktpreis"/„Piyasa Fiyatı". Money-Pfad (buy/Fees/Topf) byte-identisch. AR-44-Fix: get_price_floor anon REVOKEd. **AC7 Playwright-Sublabel offen post-Deploy.** Sybil-Ring (3+ Accounts) = bewusst eigener späterer Slice (braucht Identitäts-Signale, Phase-2).
 
-**Danach E4 Rest:** 369 T-2 `/api/push → 500` beim Kauf · 370 E2E-Sweep ② IPO → ③ Poll → ④ Research → ⑤ Bounty (Seed-Muster in `365-e2e-findings.md`, Browser jarvis-qa). **T-1** Cold-Start leerer Markt = Produkt-Entscheid (eigener Slice).
+**← NÄCHSTER: Slice 369 — `/api/push → 500` beim Order-Fill** (VAPID/Payload? Trade lief durch, kein Block — aber 500 still). Danach 370 E2E-Sweep ② IPO → ③ Poll → ④ Research → ⑤ Bounty (Seed-Muster `365-e2e-findings.md`, Browser jarvis-qa). **T-1** Cold-Start leerer Markt = Produkt-Entscheid (eigener Slice).
 
 **367-Follow-ups (non-blocking, aus Reviewer):** F#1 „ohne zu verkaufen"-Semantik — Teilverkauf resettet `created_at` NICHT (nur Full-Sell auf qty=0) → mit Anil klären ob Description entschärfen. F#2 Regression-Tests für Hold-Logik (Buy→kein Unlock / 31d→Unlock). F#3 DPC-Mastery-Leaderboard (`mastery.ts`) zeigt weiter geseedetes `hold_days`-Mock → eigener Mock→Pro-Slice.
 

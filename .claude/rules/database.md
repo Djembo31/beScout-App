@@ -129,7 +129,9 @@ REVOKE EXECUTE ON FUNCTION public.fn_name(arg_types) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.fn_name(arg_types) FROM anon;
 GRANT EXECUTE ON FUNCTION public.fn_name(arg_types) TO authenticated;
 ```
-**Grund:** `CREATE OR REPLACE` resettet Privilegien auf Default (PUBLIC grant). Ohne explizit REVOKE+GRANT kann anon zugreifen — J4 `earn_wildcards` war genau dieses Pattern (Live-Exploit).
+**Grund:** Eine **neu** angelegte Funktion bekommt den Postgres-Default (`PUBLIC`+`anon` EXECUTE). Ohne explizit REVOKE+GRANT kann anon zugreifen — J4 `earn_wildcards` war genau dieses Pattern (Live-Exploit).
+
+**Präzisierung (S368c, empirisch verifiziert):** `CREATE OR REPLACE` auf eine **bereits existierende** Funktion **ERHÄLT** deren ACL (Postgres ändert ACL bei Replace nicht). Nur eine **neue** Funktion (oder Signatur-Change = neue Funktion) bekommt den PUBLIC-Default. → REVOKE/GRANT-Block ist Pflicht bei **neuen** Funktionen; beim reinen Body-Rewrite einer bestehenden RPC bleiben die Grants korrekt — trotzdem per `proacl::text` verifizieren. Live-Beleg 368c: neue `get_price_floor` hatte `{PUBLIC,anon,…}`, replaced `place_sell_order` behielt `{authenticated,service_role}`.
 
 **Audit-Command vor jedem Commit:**
 ```bash

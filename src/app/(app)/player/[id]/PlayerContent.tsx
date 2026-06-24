@@ -217,6 +217,13 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
           masteryLevel={data.masteryData?.level ?? 0}
           matchTimeline={data.matchTimelineData}
+          floorSource={
+            trading.isIPO
+              ? 'ipo'
+              : (data.allSellOrders?.length ?? 0) > 0
+                ? 'order'
+                : 'lastSale'
+          }
         />
       </div>
 

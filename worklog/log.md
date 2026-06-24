@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 368c | 2026-06-24 | feat(trading): Floor-Orderbuch transparent + manipulationssicher (Preis-Band ÷3..×3 + Floor-Quelle + Label-Vereinheitlichung)
+- Stage-Chain: SPEC (`worklog/specs/368c-*.md`, M, Money/CEO) → IMPACT (in Spec §3/§4) → BUILD (Migration→Service→UI) → REVIEW (`worklog/reviews/368c-review.md`, reviewer **PASS**, 3 LOW nicht-blockierend) → PROVE → LOG.
+- **Kontext (E4, D100 Teil 3/3):** Zwei Floor-Lücken. (A) **Manipulation:** `place_sell_order` hatte nur Preis-OBERgrenze (`get_price_cap`=3×Anker), keine Untergrenze außer ≥1 Cent → eine 1-Credit-Lowball-Order ließ den angezeigten Floor abstürzen (falscher Wert-Anker). (B) **Anzeige-Lüge:** Floor-Label sagte immer „günstigstes Angebot", obwohl `recalc_floor_price` auch IPO-Preis / letzten Verkauf liefert; Labels uneinheitlich („Floor"/„Marktpreis"/„Markt Floor").
+- **CEO-Entscheid (Anil):** symmetrisches Preis-Band min=Anker÷3, max=Anker×3 (Faktor ÷3). Sybil-Ring (3+ Accounts) = separater späterer Slice (braucht Identitäts-Signale, Phase-2).
+- **Schon existierender Schutz live-verifiziert (NICHT neu gebaut):** Selbst-Handel-Block · Reziprok-Ping-Pong A↔B (7d) · 20 Trades/24h · 10 Orders/h · Cap 3×Anker · Club-Admin-Verbot.
+- **Fix:** (1) Neue `get_price_floor = get_price_cap/9` (= Anker/3, kohärent: cap=3×Referenz). (2) `place_sell_order` +Floor-Reject `minPriceExceeded` (Live-Body Baseline D87, additiv). (3) Service `getPriceFloor` + Guard in `placeSellOrder` (cap/9 aus bereits geholtem cap). (4) `floorSource`-Prop in `PlayerHero` → quellen-ehrliches Sublabel (offene Order→„Günstigstes Angebot" / keine→„Letzter Verkauf" / IPO→Festpreis). (5) Alle user-facing Floor-Labels DE→„Marktpreis"/TR→„Piyasa Fiyatı" vereinheitlicht + Tooltip/Glossar quellen-ehrlich. (6) AR-44: `get_price_floor` anon+PUBLIC REVOKEd.
+- **Files:** `supabase/migrations/20260624181000_368c_price_floor_band.sql` (NEU), `src/lib/services/trading.ts`, `src/lib/errorMessages.ts`, `src/lib/services/__tests__/trading.test.ts` (+2 Tests), `src/components/player/detail/PlayerHero.tsx`, `src/app/(app)/player/[id]/PlayerContent.tsx`, `messages/{de,tr}.json`.
+- **Proof:** `worklog/proofs/368c-floor-band.txt` — Live-Smoke: 100<333→minPriceExceeded · 333(Grenze)→Floor passiert · 500→passiert · 4000>3000→maxPriceExceeded · cap/9 für 6 Stichproben · buy_* unberührt · Grants gefixt · tsc 0 · 86 Tests grün. **AC7 Playwright-Sublabel post-Deploy offen.**
+- **Money-Pfad (buy/Fees/Topf) byte-identisch** — nur additiver Reject + Anzeige-Texte. **Nächstes:** 369 `/api/push`→500 beim Order-Fill.
+
 ## 368b | 2026-06-24 | feat(player): Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg←Erst-IPO/„—", 4 Zahlen trennen, CSF €→Credits
 - Stage-Chain: SPEC (`worklog/specs/368b-scout-card-display-truth.md`, M) → IMPACT (skipped, 1 read-only Query) → BUILD (7 Files) → REVIEW (`worklog/reviews/368b-review.md`, reviewer **PASS**, 2 LOW) → PROVE → LOG.
 - **Kontext (D100, E4):** Im RewardsTab waren 3 der 4 Card-Wert-Zahlen verschmolzen/irreführend. „Dein Einstieg" las `players.ipo_price` (von Slice 114 für **jeden** Spieler auf MV/10 überschrieben → erfunden, auch ohne je stattgefundene IPO). CSF-Tooltips erklärten den Reward in **€** (user-facing verboten, D99/`trading.md`/`business.md`).

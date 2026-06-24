@@ -173,6 +173,15 @@ export async function placeSellOrder(
   if (cap !== null && priceCents > cap) {
     throw new Error('maxPriceExceeded');
   }
+  // Slice 368c: Anti-Manipulation Untergrenze (symmetrisches Preis-Band).
+  // floor = cap/9 = Anker/3 (DB get_price_floor identisch — RPC enforced ebenfalls).
+  // floor=0 (kein Anker) → übersprungen; floor abgeleitet aus bereits geholtem cap (kein Extra-Roundtrip).
+  if (cap !== null) {
+    const floor = Math.floor(cap / 9);
+    if (floor > 0 && priceCents < floor) {
+      throw new Error('minPriceExceeded');
+    }
+  }
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
   if (!pl) throw new Error('playerNotFound');
@@ -538,6 +547,14 @@ export async function getAllOpenBuyOrders(playerId?: string): Promise<PublicOrde
 export async function getPriceCap(playerId: string): Promise<number | null> {
   const { data, error } = await supabase.rpc('get_price_cap', { p_player_id: playerId });
   if (error) { logSupabaseError('[Trading] getPriceCap', error); return null; }
+  return data as number;
+}
+
+/** Get price floor for a player — Anti-Manipulation Untergrenze (= cap/9 = Anker/3).
+ *  Für Sell-Form-Orientierung (Min-Preis-Hinweis). Slice 368c. */
+export async function getPriceFloor(playerId: string): Promise<number | null> {
+  const { data, error } = await supabase.rpc('get_price_floor', { p_player_id: playerId });
+  if (error) { logSupabaseError('[Trading] getPriceFloor', error); return null; }
   return data as number;
 }
 
