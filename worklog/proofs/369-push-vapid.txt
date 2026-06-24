@@ -46,11 +46,23 @@ src/lib/services/pushSubscription.ts(sanitize client public key)
 worklog/reviews/369-review.md — reviewer verdict PASS (2 nitpicks non-blocking,
 +1 suggested mocked-throw test → ADDED as pushSender-vapid-failsafe.test.ts).
 
-== AC5: POST-DEPLOY ==
-Commit 6b1f7b23 pushed to main → Prod deploy bescout-nib52kfg7 ● Ready (2m build).
-Route-health (new deployment): POST /api/push unauth → HTTP 401 (route loads cleanly,
-no module-eval / key crash; auth-guard is first so 401 does not exercise the VAPID path).
-Full authenticated buy → /api/push != 500: rides on Slice 370 E2E-Buy-Re-Run (needs seeded
-liquidity, blocked by T-1 cold-start). Recurrence risk ~nil — TWO independent layers now
-prevent it: (1) prod secret healed (live PAIR MATCH true), (2) code fail-safe (ensureVapid
-can no longer throw to the route, 9 tests). Either alone kills the 500.
+== AC5: POST-DEPLOY — PLAYWRIGHT LIVE PROOF (2026-06-24, bescout.net, jarvis-qa) ==
+Deploy bescout-nib52kfg7 ● Ready. Market was empty (T-1) → seeded liquidity via real RPCs
+(service_role + per-seller JWT-sub impersonation, body-invariants intact):
+  - 4 sell orders (place_sell_order): Tiren@1000, Preu@40000, Demir@12500, Crociata@55000
+  - 3 open IPOs (create_ipo, start_immediately): Chaadaev@5000, Yigit@10000, Gonulacar@12500
+
+Two REAL buys via the live UI, /api/push network status captured:
+  ① buy_from_order — David Preu, 1 SC @400 CR (seller bot014 != buyer → seller notification):
+        POST https://www.bescout.net/api/push => [200]   (was 500 pre-fix — THE reproduction)
+  ② buy_from_ipo  — Rakhim Chaadaev, 1 SC @50 CR (self ipo_purchase notification):
+        POST https://www.bescout.net/api/push => [200] (x2)
+  Console: 0 errors on every step. Screenshot: worklog/proofs/369-ac5-push-200.png
+
+Live DB reconciliation (post-buy):
+  jarvis balance 1,218,877 → 1,173,877 cents (−400 −50) · Preu order = 'filled' ·
+  Rakhim IPO sold=1 · jarvis holds Preu=1, Rakhim=1 · 2 trade/ipo notifications in last 5m
+  (= the rows that fired the two /api/push 200s).
+
+→ AC5 PASS. The 500 is gone on the exact path it occurred. Seeded IPOs + remaining
+  sell orders (Tiren/Demir/Crociata) intentionally LEFT LIVE as liquidity for Slice 370 E2E ②–⑤.
