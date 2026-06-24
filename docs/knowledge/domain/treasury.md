@@ -5,7 +5,7 @@ updated: 2026-06-24
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, Credits/cents-Einheit, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
-verified-against: .claude/rules/trading.md @ 2026-06-19
+verified-against: .claude/rules/trading.md @ 2026-06-24
 ---
 
 # Treasury & CSF — Money/Reward-Modell (Kanon)
