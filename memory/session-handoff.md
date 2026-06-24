@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 23:45)
+# Session Handoff — Auto (2026-06-25 01:05)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,16 +9,16 @@
 ```
 
 ## Session Commits: 10
+- cffddcdc docs: Reste-Runde 2026-06-25 abgeschlossen (373/374/375) + #4/#5 zurückgestellt
+- ab1581c1 refactor(gamification): DPC-Mastery-Feature entfernt + Mock-Cron gestoppt (Slice 375)
+- 5ff7510a fix(i18n): Compliance-Sweep eventCurrency/Tickets-"Währung" → D99-neutral (Slice 374)
+- 5293cdf9 fix(i18n): Floor-Label-Vereinheitlichung — statische "Floor" → "Marktpreis"/"Piyasa Fiyatı" (Slice 373)
+- b032f6c3 chore(handoff): Session-Close 2026-06-24 — 371 + 372 DONE, next E3 Slice 3
 - 264d4ac5 docs(372): LOG + Proof + S372-Pattern — BuyModal Self-Heal VOLL-DONE
 - 4a7c868f fix(market): BuyModal Freshness-Gate self-heal — kein Dauer-Hang bei "Saldo wird aktualisiert" (Slice 372)
 - 26245d48 test(371): Live-Playwright AC1/AC2 PASS — Header zeigt Credit-Abzug sofort (Wallet-Invalidate)
 - cf29377d chore(handoff): Session-Close 2026-06-24 — 370 + 371 DONE
 - 71bd7b84 fix(community): Wallet-Key invalidieren nach Poll-Vote/Research-Unlock (U-1)
-- 93784396 test(e2e): Slice 370 UI-Walk — Poll + Research Fee-REIN per echtem Klick bewiesen
-- 8ec307be test(e2e): Slice 370 — Fees-REIN-Sweep ②–⑤ live bewiesen (IPO/Poll/Research/Bounty → Topf)
-- d466ccbe chore(handoff): Session-Close 2026-06-24 — Slice 369 komplett (push-fix + AC5 live), 370 next
-- 092357b1 test(369): add AC5 Playwright screenshot (push 200 visual proof)
-- 196f166e test(369): AC5 live-bewiesen — /api/push 200 statt 500 bei echtem Buy (Playwright)
 
 <!-- auto:handoff-end -->
 
@@ -26,11 +26,20 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `264d4ac5` (Slice 372 voll-DONE). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
+**Status: idle. HEAD = `cffddcdc` (Reste-Runde 373/374/375 DONE + Doc-Reconcile). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
 
 ## 🎯 HIER ANKNÜPFEN — E3 Slice 3 (Monats-Liga e2e), erster RAUS-Kanal aus dem Topf
 
-**371 + 372 sind beide voll-DONE (inkl. Live-Proof). Nächster großer Money-Track = E3 Slice 3.**
+### ✅ Session 2026-06-25 — „kleine Reste"-Runde (373/374/375), alle gepusht
+- **373** (`5293cdf9`) Floor-Label-Vereinheitlichung: 11 i18n-Keys + 2 hardcoded SellModalCore + Metadata + 3 PlayerKPIs → „Marktpreis"/„Piyasa Fiyatı"; `clubSaleFixed`-Compliance. Reviewer PASS.
+- **374** (`5ff7510a`) Compliance-Sweep: `eventCurrency`/Tickets-„Währung" → „Einheit"/„Birim" (D99); Glossar entwährungt. Self-review PASS.
+- **375** (`ab1581c1`) **DPC-Mastery-Feature ENTFERNT** (D102): Live-Fund = täglicher Mock-Cron `increment_mastery_hold_days()` mintete +1 XP/Holding/Tag (Vanity). 6 UI-Stellen + Prop-Kette raus, orphan queries/services/mastery.ts gelöscht, Migration `20260625120000` (Cron unscheduled + Fn + `hold_days`-Spalte gedroppt). **Echte Engine (award_mastery_xp Fantasy/Content + freeze/unfreeze) + Tabelle reversibel erhalten.** Reviewer PASS, 100 vitest. Knowledge: errors-frontend Removal-5.-Achse.
+
+### ⏸ 2 Reste zurückgestellt (Anil) — credential-gated, Funktion je RPC-bewiesen
+- **Topf-Card-Visual (357):** Card code-komplett (`AdminTreasuryTab.tsx`) + Saldo RPC-bewiesen (2462 Cents). Offen NUR Screenshot `/bescout-admin` (DE+TR). **Braucht Plattform-Admin `ali@test.bescout.de` (handle ali_admin, einziger top_role='Admin') — Passwort fehlt.** kede5=Manager reicht nicht.
+- **Bounty-Approval-UI (370):** Fee-REIN RPC-bewiesen. Offen NUR UI-Klick. Creds: kede5 (`kede5@gmx.de`, Club-Admin), Kandidaten 12345/123456/test123.
+
+**Nächster großer Money-Track = E3 Slice 3.**
 
 **➡️ NÄCHSTER SLICE = E3 Slice 3 — Monats-Liga e2e** (erster RAUS-Kanal aus dem Topf): `close_monthly_liga` zahlt Rewards per `debit` aus dem Topf (statt Minting) + Deckungs-Check + Idempotenz. Lebt heute, mintet 34.000/Mt, 0 Snapshots. Preflight `worklog/notes/357-preflight-monthly-leaderboard.md`, Plan `worklog/notes/358-platform-treasury-epic.md`. **Money-Muster: Live-`pg_get_functiondef` der Liga-RPC VOR Spec (D87).** Sequenz danach: 4 BeScout-Events → 5 Wettkampf-Darstellung.
 

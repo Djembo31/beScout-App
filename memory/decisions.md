@@ -3932,3 +3932,29 @@ Das Schema implementiert dieses Modell bereits (Trigger `trg_set_initial_listing
 Slice 368e: Migration `20260624200000` (Daten-Reparatur + Trigger-Umstellung + Sentinel-Restore) + 3 Reader-Switches + toter `getFirstIpoPrice`-Pfad entfernt. DROP der redundanten `initial_listing_price`-Spalte = eigener Folge-Slice (Reader=0). Code-Regel: `.claude/rules/trading.md`; Money-WIE: `docs/knowledge/domain/treasury.md`.
 
 **Re-Visit-Trigger:** wenn echte Club-IPOs (Phase-1-Onboarding) starten — prüfen ob Markteintritt-Anzeige für IPO-lose Spieler (zeigt MV/10-Provisorik) angepasst werden muss; ICO-Phase ändert Preis-Semantik.
+
+---
+
+## D102 — PRODUCT: DPC-Mastery-Feature entfernt (Dormant-Mock-Feature, kein echtes Engagement-Signal)
+
+**Datum:** 2026-06-25 · **Status:** ✅ Aktiv · **Category:** PRODUCT · **Kontext:** Slice 375 (367-F#3-Follow-up). Anil-Entscheid 2026-06-25 nach Live-DB-Investigation.
+
+### Entscheidung (CEO/Anil 2026-06-25)
+Das **DPC-Mastery-Feature** (Level-/XP-/Sterne-Anzeige pro gehaltenem Spieler in TraderTab + Player-Detail) wird **user-facing entfernt**. Die DB-Tabelle `dpc_mastery` + die **echte** XP-Engine (Trigger `award_mastery_xp` via Fantasy-Lineups + Research/Content; `fn_mastery_on_trade` freeze/unfreeze) bleiben **reversibel erhalten** — keine Tabellen-/Engine-Löschung.
+
+### Schlüssel-Fund (Live-DB, warum „entfernen" statt „aktivieren")
+Die Mastery-Progression war **mock-getrieben**: ein täglicher pg_cron-Job (`increment_mastery_hold_days()`, `0 3 * * *`, aktiv) gab **jedem nicht-frozen Eintrag +1 XP + 1 hold_day pro Tag** und rechnete das Level hoch → Level stiegen durch **bloßes Halten**, nicht durch echtes Engagement (2503/2536 Rows xp>0 bei nur 890 Trades, 97 % hold_days≥30). Die angezeigten Sterne/Level waren also ein **Vanity-Signal ohne Aussage**. `hold_days` hatte zudem keinen App-Reader (367 entkoppelte den Achievement-Award auf `holdings.created_at`).
+
+### Umsetzung (Slice 375)
+- Code: 6 UI-Anzeige-Stellen + Prop-Kette (7 Files) entfernt; orphan `queries/mastery.ts` + `services/mastery.ts` gelöscht; Barrel + `qk.mastery` + `USER_SCOPED_DOMAINS` bereinigt; 5 Test-Files. −112 LoC.
+- DB-Migration `20260625120000`: Mock-Cron `cron.unschedule` + `DROP FUNCTION increment_mastery_hold_days()` + `ALTER TABLE dpc_mastery DROP COLUMN hold_days` (tot). Echte Engine + Tabelle bleiben.
+
+### Alternativen erwogen
+- **Aktivieren (Pro-Engine bauen)** — verworfen: Mastery ist kein Beta-Kernsignal; echtes Progression-Design wäre eigenes Produkt-Thema. Engine bleibt für spätere Reaktivierung erhalten.
+- **Nur Mock-Seed bereinigen, Anzeige behalten** — verworfen: ließe ein schwaches Vanity-Feature mit dann meist leeren Leveln stehen.
+- **Nur tote `hold_days`-Spalte droppen (enges F#3)** — verworfen: der sichtbare Mock war das Level (Sterne), nicht hold_days → halbe Lösung.
+
+### Auswirkung
+Sauberer Beta-Zustand ohne Mock-getriebene Vanity-Anzeige. `card-tier-*`-CSS (mit `card-holographic` verwoben) bewusst belassen (inert). Reaktivierung = eigener Produkt-Slice (Engine ist da). Knowledge: `errors-frontend.md` Removal-5.-Achse (ungetypte Test-Fixtures + DB-Mock-Cron-Writer vor Column-DROP prüfen).
+
+**Re-Visit-Trigger:** falls ein echtes Spieler-Bindungs-/Loyalitäts-Feature geplant wird — die erhaltene Engine (Fantasy/Content-XP) als Fundament prüfen.
