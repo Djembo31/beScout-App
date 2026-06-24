@@ -243,7 +243,7 @@ export function SellModalCore({
                     onClick={() => setQuickPrice(1)}
                     disabled={selling}
                     className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-surface-base border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
-                  >Floor</button>
+                  >{t('priceFloorLabel')}</button>
                   <button
                     onClick={() => setQuickPrice(1.05)}
                     disabled={selling}
@@ -259,7 +259,7 @@ export function SellModalCore({
                     disabled={selling}
                     className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-surface-base border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
                   >+20%</button>
-                  <span className="text-[10px] text-white/30 ml-1">Floor: {fmtScout(floorBsd)}</span>
+                  <span className="text-[10px] text-white/30 ml-1">{t('priceFloorLabel')}: {fmtScout(floorBsd)}</span>
                 </div>
               )}
             </div>

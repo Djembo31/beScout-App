@@ -555,7 +555,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       const { pnl, pnlPct, up: upPnl } = holding
         ? computeHoldingPnL(floor, holding)
         : { pnl: 0, pnlPct: 0, up: true };
-      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>{tp('statFloorShort')}</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="pnl" className={cn(kpiCls, upPnl ? 'text-vivid-green' : 'text-vivid-red')}>
           <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtScout(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
@@ -573,7 +573,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       break;
     }
     case 'market':
-      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>{tp('statFloorShort')}</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="ch" className={cn(kpiCls, up ? 'text-vivid-green' : 'text-vivid-red')}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
@@ -657,7 +657,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       break;
 
     default: // 'default'
-      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>{tp('statFloorShort')}</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="ch" className={cn(kpiCls, up ? 'text-green-500' : 'text-red-400')}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%

@@ -1,0 +1,46 @@
+=== Slice 373 PROOF — Floor-Label-Vereinheitlichung ===
+Datum: Thu Jun 25 00:08:49     2026
+
+=== AC1 SellModalCore hardcoded Floor (erwartet 0) ===
+0 Treffer PASS
+
+=== AC2 page.tsx Metadata hardcoded Floor (erwartet 0) ===
+0 Treffer PASS
+
+=== AC3 DE-Values mit 'Floor' (erwartet 0) ===
+0 Treffer PASS
+
+=== finaler user-facing Floor-Scan in src (erwartet 0) ===
+0 Treffer PASS
+
+=== AC6 neue Keys DE+TR ===
+messages/de.json:1432:    "priceFloorLabel": "Marktpreis",
+messages/de.json:5210:    "floorLabel": "Marktpreis",
+messages/tr.json:1432:    "priceFloorLabel": "Piyasa Fiyatı",
+messages/tr.json:5210:    "floorLabel": "Piyasa Fiyatı",
+
+=== AC8 JSON valid ===
+json ok PASS
+
+=== AC7 tsc ===
+tsc clean PASS
+
+=== AC7 vitest ===
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 00:09:04
+[2m   Duration [22m 3.69s[2m (transform 332ms, setup 685ms, import 1.48s, tests 259ms, environment 4.15s)[22m
+
+
+=== git diff --stat ===
+warning: in the working copy of 'memory/session-handoff.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/(app)/player/[id]/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/active.md', LF will be replaced by CRLF the next time Git touches it
+ memory/session-handoff.md                |  9 +++------
+ messages/de.json                         | 26 ++++++++++++++------------
+ messages/tr.json                         | 22 ++++++++++++----------
+ src/app/(app)/player/[id]/page.tsx       |  2 +-
+ src/components/player/index.tsx          |  6 +++---
+ src/components/trading/SellModalCore.tsx |  4 ++--
+ worklog/active.md                        | 21 +++++++++++++++++++++
+ 7 files changed, 56 insertions(+), 34 deletions(-)

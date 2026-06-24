@@ -2,6 +2,28 @@
 
 ```
 status: idle
+slice: 373
+title: ✅ DONE — Floor-Label-Vereinheitlichung (statische „Floor" → „Marktpreis"/„Piyasa Fiyatı", DE+TR)
+stage: LOG complete
+size: S
+slice-type: i18n (+ UI minimal)
+spec: worklog/specs/373-floor-label-unify.md
+impact: skipped (nur i18n-Values + 2 t()-Verkabelungen + 3 KPI-Label-Token, kein DB/RPC/Service/Cross-Domain)
+proof: worklog/proofs/373-floor-label.txt (AC1-AC3+AC6-AC8 PASS, tsc clean, 22 vitest grün). Post-Deploy-Playwright DE+TR optional offen.
+review: worklog/reviews/373-review.md (reviewer PASS, 1 NIT info)
+result: 11 i18n-Keys (Sort/Stat/Portfolio/Filter/Search) + 2 SellModalCore-hardcoded → t('priceFloorLabel') + page.tsx-Metadata → t('floorLabel') + 3 PlayerKPIs-Labels → tp('statFloorShort') + clubSaleFixed-Compliance (Erstverkauf). Dynamischer 368c-Sublabel unberührt.
+```
+
+## Reste-Queue (Anil: „alle nach und nach", 2026-06-24)
+1. **373 Floor-Label-Vereinheitlichung** ← JETZT
+2. Compliance-Sweep eventCurrency/Tickets → „Credits" (D99)
+3. 367-F#3 DPC-Mastery Mock→Pro (hold_days-Seed)
+4. Topf-Card-Visual (357)
+5. ⑤ Bounty-Approval-UI (kede5-Creds: 12345 / 123456 / test123)
+
+## Slice 372 (vorheriger, DONE)
+```
+status: idle
 slice: 372
 title: ✅ VOLL-DONE — BuyModal Freshness-Gate Self-Heal (kein Dauer-Hang bei „Saldo wird aktualisiert…")
 stage: LOG complete
