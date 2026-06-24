@@ -1,0 +1,28 @@
+=== Slice 374 PROOF — Compliance-Sweep eventCurrency/Tickets-Währung (D99) ===
+Datum: Thu Jun 25 00:14:33     2026
+
+=== Rest 'Währung'/'Waehrung' user-facing außer Disclaimer (erwartet 0) ===
+0 Treffer PASS
+
+=== Rest 'para birimi' außer Disclaimer (erwartet 0) ===
+0 Treffer PASS
+
+=== eventCurrency final (Einheit/Birim, 3× je) ===
+messages/de.json:959:    "eventCurrency": "Einheit",
+messages/de.json:2958:    "eventCurrency": "Einheit",
+messages/de.json:4252:    "eventCurrency": "Einheit",
+messages/tr.json:959:    "eventCurrency": "Birim",
+messages/tr.json:2958:    "eventCurrency": "Birim",
+messages/tr.json:4252:    "eventCurrency": "Birim",
+
+=== glossary tickets.description final ===
+messages/de.json:5035:        "description": "Verdienst du durch Aktivitaet. Fuer Mystery Boxes und Chips."
+messages/tr.json:5035:        "description": "Aktiviteyle kazanılır. Mystery Box ve Chipler için."
+
+=== JSON valid ===
+json ok PASS
+
+=== git diff --stat ===
+ messages/de.json | 8 ++++----
+ messages/tr.json | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)

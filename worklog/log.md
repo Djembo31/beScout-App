@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 374 | 2026-06-25 | fix(i18n): Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-neutral
+- Stage-Chain: SPEC (`374-compliance-currency-sweep.md`, XS) → IMPACT skipped (reine i18n-Values, 0 Code) → BUILD → REVIEW (`374-review.md` self-review PASS, XS Wording-Values) → PROVE (grep-ACs + JSON valid) → LOG.
+- **Problem (D99/business.md):** Credits sind explizit keine Währung, dennoch `eventCurrency`-Label „Währung"/„Waehrung" (3× DE inkonsistent, 3× TR „Para birimi") + `glossary.terms.tickets.description` framt Tickets user-facing als „Zweitwaehrung"/„ikinci para birimi".
+- **Fix (2 Files):** `eventCurrency` ×3 DE→„Einheit" / TR→„Birim" (Schreibung vereinheitlicht; admin-facing AdminEventsTab Credits-vs-Tickets-Auswahl). `glossary tickets.description` entwährungt: DE „Verdienst du durch Aktivitaet. Für Mystery Boxes und Chips." / TR „Aktiviteyle kazanılır. Mystery Box ve Chipler için." `creditsContent`-Disclaimer (legitimes „keine Kryptowährung/Fiat-Währungen") unberührt.
+- **Proof:** `worklog/proofs/374-currency-sweep.txt` — 0 user-facing „Währung"/„para birimi" außer Disclaimer, eventCurrency unified, JSON valid.
+
 ## 373 | 2026-06-25 | fix(i18n): Floor-Label-Vereinheitlichung — statische „Floor" → „Marktpreis" / „Piyasa Fiyatı" (DE+TR)
 - Stage-Chain: SPEC (`373-floor-label-unify.md`, S) → IMPACT skipped (nur i18n-Values + 2 t()-Verkabelungen + 3 KPI-Label-Token, kein DB/RPC/Service/Cross-Domain) → BUILD → REVIEW (`373-review.md` reviewer PASS, 1 NIT info) → PROVE (grep-ACs + tsc + 22 vitest) → LOG.
 - **Problem (368c-E2E-Findings D/E/F/J/K):** 368c hat nur ~6 Floor-Keys vereinheitlicht. User-facing existierten noch inkonsistente Labels für denselben Wert: „Floor"/„FLOOR"/„Taban"/„Fiyat" gemischt über Sort/Stat/Portfolio/Filter/Search. 2 HARTCODIERTE Strings in `SellModalCore.tsx:246/262` (i18n-Verstoß). `page.tsx:16` Metadata hartcodiert. `hero.clubSaleFixed` DE = „Club Sale · Festpreis" (englisch + Securities-Wording).

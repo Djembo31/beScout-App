@@ -956,7 +956,7 @@
     "lineupSaved": "Kadro kaydedildi!",
     "lineupFailed": "Kadro kaydedilemedi.",
     "mustEnterFirst": "Öncelikle kayıt olmalısınız.",
-    "eventCurrency": "Para birimi",
+    "eventCurrency": "Birim",
     "ticketsLabel": "Biletler",
     "scoutEventsTitle": "Credits etkinliklere izin ver",
     "scoutEventsDescription": "Etkinleştirildiğinde adminler Credits girişli etkinlik oluşturabilir.",
@@ -2955,7 +2955,7 @@
     "rewardRemoveRank": "Siralamayi kaldir",
     "rewardSum": "Toplam",
     "rewardMust100": "%100 olmali",
-    "eventCurrency": "Para birimi",
+    "eventCurrency": "Birim",
     "ticketsLabel": "Bilet",
     "contentReports": "Şikayet Edilen İçerikler",
     "noReports": "Açık şikayet yok",
@@ -4249,7 +4249,7 @@
     "platformPotSrcP2p": "P2P komisyonu",
     "platformPotSrcMonthlyLiga": "Aylık Lig",
     "platformPotSrcBescoutEvent": "BeScout Etkinliği",
-    "eventCurrency": "Para birimi",
+    "eventCurrency": "Birim",
     "ticketsLabel": "Bilet",
     "scoutEventsTitle": "Credits Etkinlikleri",
     "scoutEventsDescription": "Fantasy etkinlikleri icin Credits'i etkinlestir",
@@ -5032,7 +5032,7 @@
       },
       "tickets": {
         "title": "Tickets",
-        "description": "Aktiviteyle elde edilen ikinci para birimi. Mystery Box ve Chipler için."
+        "description": "Aktiviteyle kazanılır. Mystery Box ve Chipler için."
       },
       "bounty": {
         "title": "Bounty",

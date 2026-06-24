@@ -2,16 +2,26 @@
 
 ```
 status: idle
-slice: 373
-title: ✅ DONE — Floor-Label-Vereinheitlichung (statische „Floor" → „Marktpreis"/„Piyasa Fiyatı", DE+TR)
+slice: 374
+title: ✅ DONE — Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-neutral („Einheit"/„Birim")
 stage: LOG complete
-size: S
-slice-type: i18n (+ UI minimal)
-spec: worklog/specs/373-floor-label-unify.md
-impact: skipped (nur i18n-Values + 2 t()-Verkabelungen + 3 KPI-Label-Token, kein DB/RPC/Service/Cross-Domain)
-proof: worklog/proofs/373-floor-label.txt (AC1-AC3+AC6-AC8 PASS, tsc clean, 22 vitest grün). Post-Deploy-Playwright DE+TR optional offen.
-review: worklog/reviews/373-review.md (reviewer PASS, 1 NIT info)
-result: 11 i18n-Keys (Sort/Stat/Portfolio/Filter/Search) + 2 SellModalCore-hardcoded → t('priceFloorLabel') + page.tsx-Metadata → t('floorLabel') + 3 PlayerKPIs-Labels → tp('statFloorShort') + clubSaleFixed-Compliance (Erstverkauf). Dynamischer 368c-Sublabel unberührt.
+size: XS
+slice-type: i18n (Compliance)
+spec: worklog/specs/374-compliance-currency-sweep.md
+impact: skipped (reine i18n-Values, 0 Code)
+proof: worklog/proofs/374-currency-sweep.txt (AC1-AC4 PASS, JSON valid)
+review: worklog/reviews/374-review.md (self-review PASS, XS reine Wording-Values)
+result: eventCurrency ×3 DE→„Einheit"/TR→„Birim" (Schreibung vereinheitlicht) + glossary tickets.description entwährungt (user-facing). creditsContent-Disclaimer unberührt.
+
+## Reste-Queue (Anil: „alle nach und nach")
+1. ✅ 373 Floor-Label-Vereinheitlichung (commit 5293cdf9)
+2. ✅ 374 Compliance-Sweep eventCurrency/Tickets
+3. → 367-F#3 DPC-Mastery Mock→Pro (hold_days-Seed) ← NÄCHSTER
+4. Topf-Card-Visual (357)
+5. ⑤ Bounty-Approval-UI (kede5-Creds: 12345 / 123456 / test123)
+
+## Slice 373 (vorheriger, DONE)
+status: idle · ✅ Floor-Label-Vereinheitlichung · commit 5293cdf9 · proof 373-floor-label.txt · review 373-review.md (reviewer PASS)
 ```
 
 ## Reste-Queue (Anil: „alle nach und nach", 2026-06-24)
