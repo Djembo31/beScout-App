@@ -10,7 +10,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
   - **0 Code/i18n-Änderung:** `activityHelpers.ts` + `transactionTypes.ts` + `de.json`/`tr.json` (`offerBuy`) kannten den Typ bereits — nur CHECK + Test-Snapshot fehlten.
 - **Proof:** `worklog/proofs/359-smoke.txt` — side='sell' Force-Rollback gegen exaktes 358-Failure-Szenario: jetzt `success`, `buyer_txn_type=offer_buy`, Topf p2p +200, Zero-Sum. CHECK-Verify 37 Werte. tsc clean.
 - **Knowledge:** errors-db.md S330 um **5. Sync-Punkt** erweitert (INV-18-Snapshot, CI-unsichtbar weil excluded).
-- Commit: <hash>
+- Commit: 8826d067
 
 ## 358 | 2026-06-24 | feat(treasury): Fees REIN Trading — Plattform-Fee in den Topf (E3-2, D96/D98)
 - Stage-Chain: SPEC (`worklog/specs/358-fees-rein-trading.md`, M, Money/CEO-Scope §3) → IMPACT (skipped, additive Side-Effect, Return-Shape unverändert) → BUILD (selbst, Money) → REVIEW (`worklog/reviews/358-review.md`, reviewer PASS, 1 INFO pre-existing + 1 NIT) → PROVE → LOG.
