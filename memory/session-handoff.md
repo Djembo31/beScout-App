@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-23 00:43)
+# Session Handoff — Auto (2026-06-24 01:39)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,7 +8,9 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 3
+## Session Commits: 5
+- ebd0a08d feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
+- 43a7ff1b docs(decision): D96 — Plattform-Treasury (BeScout-Topf) Epic
 - dd43756e docs(handoff): Session-Ende Slice 356 + Preflight Monthly-Leaderboard (nächste Session)
 - 8b8fb124 chore(audit): re-baseline silent-fail 81->82 HIGH (Slice 356 bounded .in())
 - 84b369c5 feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal (Slice 356)
@@ -19,21 +21,22 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 356 (+ baseline-Commit + Doku-Session 2026-06-23).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn ist gitignored (355). **CI grün, Push normal.** Alles committet + gepusht.
+**Status: idle. HEAD = Slice 357 (E3-1 Topf-Fundament, committet+gepusht `ebd0a08d`).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
 
-## ➡️ NÄCHSTER BAU: E3 Plattform-Treasury (BeScout-Topf) — D96, Money/CEO-Scope, selbst bauen (§3)
-> Aus der Monthly-Liga-Frage gewachsen (2026-06-23). Anil: Topf bauen statt minten — „wo fließt unser Fee-Anteil hin?"
-- **ZUERST lesen (Bau-Anker):** `worklog/notes/358-platform-treasury-epic.md` (Sequenz, Slice-Specs-Vorarbeit, alle Live-Fakten) · WARUM = `memory/decisions.md` **D96** · WIE = `docs/knowledge/domain/treasury.md` §10.
-- **Kern-Befund (live-verifiziert, D87):** alle 6 Plattform-Fee-Anteile **verbrennen** (Trading 3,5 % · IPO 10 % · Polls 20 % · Research 20 % · Bounty 5 % · P2P 2 %) → BeScout fängt 0 € eigener Fees auf, **kein Plattform-Konto existiert**. PBT/Club-Anteile landen sehr wohl auf Konten — nur Plattform-Anteil verbrennt.
-- **Sequenz:** 1 Topf-Fundament (`platform_treasury_ledger` + `book_platform_treasury()` Mirror Slice 329 + Admin-Sichtbarkeit) → 2 Fees REIN (eine Quelle/Slice, Trading zuerst) → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf → 5 Events als „BeScout Liga"-Wettkampf + Ranking-Konsolidierung.
-- **Anil-Festlegungen:** Geld aus Treasury (Topf erst bauen) · Cron voll-automatisch · Modell-Shift deflationär→zirkulär abgesegnet · Events als Wettkampf (Saison/Monat) sichtbar.
-- **Slice 1 Start:** Pre-Spec Live-`pg_get_functiondef('book_club_treasury(...)')` als Blueprint (D87), dann `/ship new`.
-- **Monthly-Liga-Ist (Slice-3-Vorarbeit):** `close_monthly_liga` lebt, idempotent, mintet 34.000 $SCOUT/Monat, **0 Snapshots live** (nie gefeuert). `getMonthlyLeaderboard` = abgeschlossene Monate (Live-Standing braucht NEUE Delta-Query). Ursprung: `worklog/notes/357-preflight-monthly-leaderboard.md`.
+## ➡️ NÄCHSTER BAU: E3-2 — Fees REIN in den Plattform-Topf (D96, Money/CEO-Scope, selbst bauen §3)
+> **E3-1 Topf-Fundament ✅ Slice 357 LIVE.** Der BeScout-Topf existiert jetzt als echtes Konto, steht bei 0. Jetzt: die verbrannten Plattform-Fees REIN leiten.
+- **ZUERST lesen:** `worklog/notes/358-platform-treasury-epic.md` (§ Slice 2) · WARUM = `decisions.md` **D96** + **D97** (Saldo-Mechanik) · WIE = `docs/knowledge/domain/treasury.md` §10.
+- **Was Slice 357 gebaut hat (nutzen, nicht neu bauen):** Tabelle `platform_treasury_ledger` (append-only, Spalten `direction/source/amount/balance_after/reference_id/description`) + Singleton-Lock `platform_treasury` + **`book_platform_treasury(p_direction, p_source, p_amount, p_ref, p_desc)`** (REVOKE-only, Definer-intern aufrufbar) + `get_platform_balance()` + `get_platform_treasury_ledger()` (admin-guarded) + AdminTreasuryTab „Plattform-Topf"-Card. `source`-CHECK hält schon: `trading/ipo/poll/research/bounty/p2p` (REIN) + `monthly_liga/bescout_event` (RAUS) → **kein CHECK-Edit nötig in Slice 2.**
+- **Slice 2 Aufgabe:** **Trading zuerst** (`buy_player_sc` + `accept_offer` teilen `trades.platform_fee`). Dort wo heute der Plattform-Anteil berechnet aber verbrannt wird → `PERFORM book_platform_treasury('credit','trading', v_platform_fee, NEW.id, '...')`. **Eine Quelle pro Slice** (Trading → IPO → Polls → Research → Bounty → P2P). Erwäge trigger-zentrisch (`trades` AFTER INSERT, analog 329er club-credit-Trigger) vs. RPC-Edit — beim Lesen entscheiden.
+- **🔴 OFFENE CEO-FRAGE (Anil muss VOR Slice-2-Spec entscheiden):** **voller Auffang** (100 % Plattform-Fee in den Topf) **oder Teil-Burn/Cap** (nur X % rein, Rest weiter verbrennen = Inflations-Schutz, ADR-026)? → Das bestimmt die Buchungs-Policy in `book_platform_treasury`-Aufrufen. (D97 Re-Visit + D96 „Slice 1/2 zu entscheiden".)
+- **Money-Muster (Pflicht, D87):** Live-`pg_get_functiondef('buy_player_sc(...)')` + `accept_offer` VOR Spec als Blueprint. Force-Rollback-Money-Smoke (BEGIN…ROLLBACK): Zero-Sum (Zahler-Abzug = Σ Empfänger inkl. Topf), Saldo vorher/nachher. Reviewer-Pflicht.
+- **Danach:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; Ist: `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots live — Ursprung `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung + Ranking-Konsolidierung.
 
-## 🧾 SESSION 2026-06-23 (Doku/DISTILL, kein Code) — Plattform-Treasury ausgearbeitet
-- Monthly-Liga-Untersuchung → Geld-Grundsatzfrage → **D96** (Plattform-Treasury-Epic). 6 Fee-RPCs live gelesen, Verbrenn-Befund verifiziert.
-- Aktualisiert: `decisions.md` D96 · `treasury.md` §10 (+updated 2026-06-23) · INDEX D1–D96 · MASTERPLAN E3 + Stand · TODO P0 · neuer Plan `worklog/notes/358-platform-treasury-epic.md`.
-- **Kein Slice/Code** — Bau bewusst auf frische Session vertagt (Anil).
+## ✅ SESSION 2026-06-24 — Slice 357 E3-1 Topf-Fundament (Money, CEO-Scope)
+- **Slice 357** — Plattform-Treasury Topf-Fundament. Mirror Club-Treasury 329 minus tenant-id, Single-Pot. Tabellen + 3 RPCs + Append-only-Trigger (329 wiederverwendet) + RLS 0-Policies + Service +2 Fn + AdminTreasuryTab-Card + i18n DE+TR. **Topf live bei 0, kein Backfill.**
+- **Money-Smoke grün:** Buchungskette 1000/1500/1200 (kein Race), append/delete/bad-source/no-auth alle geblockt, RLS/Grants verifiziert. Reviewer **PASS** (2 NIT accepted). 9 Service-Tests grün. Proofs `worklog/proofs/357-*`.
+- **DISTILL D97** (ARCHITECTURE): Topf-Saldo = SUM-on-read (Variante A, kohärent mit Club-Treasury) statt gecachter Saldo (B); Revisit B bei Millionen Ledger-Zeilen (Lock-Row existiert → lokaler Umstieg). CEO-approved.
+- **Offen:** UI-Card Playwright-Verify gegen bescout.net **nach Deploy** (Vercel baut von main) — noch nicht abgenommen.
 
 ## ✅ SESSION 2026-06-23 (Abend) — Slice 356 Exklusive Treue-Umfragen + Money-Heal
 - **Slice 356** — Exklusive Treue-Umfragen (`community_polls.min_fan_rank_tier`-Tor): create-Param (nur source='club'), Vote-Guard VOR Wallet (fail-closed), Service `viewer_locked` pro Poll/Betrachter (multi-club), Card-Schloss-Teaser + Create-Selector, i18n DE+TR. Silent-Fail-Fix: `castCommunityPollVote` wirft jetzt bei !success (vorher false-success-Toast). → **Polls-Roadmap KOMPLETT** ((c) Abo-Early-Access von Anil gestrichen).

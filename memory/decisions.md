@@ -3820,3 +3820,17 @@ Kontrast: PBT-Anteile → `pbt_treasury` ✅, Club-Anteile → `clubs.treasury_b
 **Alternativen erwogen:** (a) Monats-Liga weiter minten + nur deckeln → verworfen (inkonsistent zu Club-Töpfen, Anils Kern-Einwand). (b) Aus Club-Töpfen zahlen → unmöglich, Liga ist plattformweit, gehört keinem Club. (c) Aus PBT-Treasury → semantisch falsch (PBT = zweckgebunden Spieler/Holder). (d) Topf später, Liga zuerst → verworfen: kein Reward-Kanal vor seinem Konto (Fundament-zuerst, bewährt 329→332).
 
 **Re-Visit-Trigger:** Wenn der zirkuläre Shift die $SCOUT-Inflation messbar treibt → Teil-Burn/Cap-Politik in `book_platform_treasury` einziehen. Wenn Plattform-Events vor Slice 4 dringend echtes Geld brauchen → Quelle-Priorität in Sequenz tauschen. Phase-2/3 (EUR-Cash-out aus Plattform-Topf) bleibt lizenz-/CASP-gegated, nicht jetzt.
+
+## D97 — ARCHITECTURE: Plattform-Topf Saldo-Mechanik = SUM-on-read (Variante A) statt gecachter Saldo (B)
+
+**Datum:** 2026-06-23 · **Status:** Aktiv (Slice 357 live) · **Category:** ARCHITECTURE · **Kontext:** Slice 357 (E3-1 Topf-Fundament) ist ein Single-Pot — anders als die per-Club Club-Treasury läuft durch den EINEN Plattform-Topf jede Fee jedes Trades/Polls/IPOs der ganzen Plattform. Anil fragte explizit „ist das eine saubere Design-Pattern, technisch gut?".
+
+**Entscheidung (CEO-approved):** **Variante A** — Saldo = `SUM(platform_treasury_ledger)` unter Singleton-Row-Lock (`platform_treasury FOR UPDATE`), exakt wie Club-Treasury 329b. Kein gecachter Saldo-Wert.
+
+**Der ehrliche Trade-off (an Anil offengelegt):** Beim per-Club-Ledger ist `SUM(alle Zeilen)` pro Buchung billig (kleine Tenants). Beim EINEN globalen Topf wächst der Ledger mit jeder Plattform-Fee → `SUM` pro Buchung ist **O(n)** auf dem heißen Schreibpfad. Korrekt (race-frei unter Lock), aber bei Millionen Zeilen langsam.
+
+**Variante B (erwogen, vertagt):** Laufender Saldo als Spalte in der Singleton-Lock-Row (die ohnehin existiert) → O(1)-Buchung, Ledger = reines Audit. Das kanonische „Konto + Kontoauszug"-Bankmodell.
+
+**Warum A jetzt, B als dokumentierter Revisit:** (1) **Kohärenz** — Plattform- und Club-Treasury rechnen identisch, ein Modell statt zwei. (2) Das Skalenproblem ist **weit weg** (Millionen Zeilen nötig). (3) **Nachrüsten billig** — die Singleton-Lock-Row existiert schon, Umstieg auf B ist später eine lokale Änderung. (4) Ein **Fundament** soll simpel + offensichtlich korrekt sein, nicht zwei-Wahrheiten-clever (329 hat gecachte Saldi bewusst zu SUM-only migriert wegen Drift — Abo-Bug). „bias toward caution over speed" (CLAUDE.md §1).
+
+**Re-Visit-Trigger:** Wenn `platform_treasury_ledger` sehr groß wird (Richtwert: Millionen Zeilen / messbare Buchungs-Latenz im Money-Path) → auf Variante B umstellen (Saldo-Spalte in `platform_treasury`, atomar unter demselben Lock geschrieben, `balance == SUM(ledger)` als prüfbare Invariante). Dokumentiert auch im Migration-Header von Slice 357 + `treasury.md` §10.
