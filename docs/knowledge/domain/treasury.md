@@ -191,16 +191,16 @@ Alle Money-kritisch → CEO-Scope, sorgfältige Specs (D87-Muster).
 
 | Quelle | Plattform-% | RPC | heute |
 |---|---|---|---|
-| Trading | 3,5 % | `buy_player_sc` | 🔥 `trades.platform_fee` notiert, nicht gebucht |
-| IPO | 10 % | `buy_from_ipo` | 🔥 `trades.platform_fee` notiert, nicht gebucht |
-| Polls | 20 % | `cast_community_poll_vote` | 🔥 `community_poll_votes.platform_share` notiert |
-| Research | 20 % | `unlock_research` | 🔥 `research_unlocks.platform_fee` notiert |
-| Bounty | 5 % | `approve_bounty_submission` | 🔥 nicht mal notiert (reward−creator_net) |
-| P2P | 2 % | `accept_offer` | 🔥 `trades.platform_fee` notiert |
+| Trading | 3,5 % | `buy_player_sc`+`buy_from_order` | ✅ REIN 'trading' (Slice 358) |
+| IPO | 10 % | `buy_from_ipo` | ✅ REIN 'ipo' (Slice 360) |
+| Polls | 20 % | `cast_community_poll_vote` | ✅ REIN 'poll' (Slice 363, beide source-Branches) |
+| Research | 20 % | `unlock_research` | ✅ REIN 'research' (Slice 364) |
+| Bounty | 5 % | `approve_bounty_submission` | 🔥 nicht mal notiert (reward−creator_net) — offen Slice 365 |
+| P2P | 2 % | `accept_offer` | ✅ REIN 'p2p' (Slice 358) |
 
 **Entscheidung (D96):** Plattform-Treasury als echtes Konto bauen (Saldo + append-only Ledger, Mirror Club-Treasury 329). **REIN** = die 6 verbrannten Plattform-Fee-Ströme. **RAUS** = plattformweite Rewards (**Monats-Liga**, **BeScout-Events** `type='bescout'`). Modell-Shift **deflationär → zirkulär** (bewusst, Anil). Selbst-finanzierend, kein Netto-Minting für Plattform-Rewards.
 
-**Bau-Sequenz:** **1 Topf-Fundament ✅ Slice 357** (`platform_treasury` Singleton-Lock-Anker + `platform_treasury_ledger` append-only + `book_platform_treasury()`/`get_platform_balance()`/`get_platform_treasury_ledger()` + AdminTreasuryTab „Plattform-Topf"-Card; Single-Pot, Saldo=SUM unter Singleton-Row-Lock = **Variante A** [Revisit B = gecachter Saldo bei Millionen-Zeilen], **kein Backfill** → Topf live bei 0, `source`-CHECK hält alle 8 Epic-Werte) → **2 Fees REIN ✅ Slice 358 (Trading): `buy_player_sc`+`buy_from_order`→source 'trading', `accept_offer`→'p2p', inline `book_platform_treasury`, voller Auffang 100 % (D98); IPO/Polls/Research/Bounty-eigen folgen** → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf (löst §7 „bescout mintet weiter" ab) → 5 Events als „BeScout Liga"-Wettkampf (Saison/Monat) + Ranking-Konsolidierung (7 Boards → klar).
+**Bau-Sequenz:** **1 Topf-Fundament ✅ Slice 357** (`platform_treasury` Singleton-Lock-Anker + `platform_treasury_ledger` append-only + `book_platform_treasury()`/`get_platform_balance()`/`get_platform_treasury_ledger()` + AdminTreasuryTab „Plattform-Topf"-Card; Single-Pot, Saldo=SUM unter Singleton-Row-Lock = **Variante A** [Revisit B = gecachter Saldo bei Millionen-Zeilen], **kein Backfill** → Topf live bei 0, `source`-CHECK hält alle 8 Epic-Werte) → **2 Fees REIN (inline `book_platform_treasury`, voller Auffang 100 % D98): ✅ Trading 358** (`buy_player_sc`+`buy_from_order`→'trading', `accept_offer`→'p2p') **· ✅ IPO 360** ('ipo') **· ✅ Polls 363** ('poll', beide source-Branches) **· ✅ Research 364** ('research', Single-Path) **· Bounty 365 offen** → 3 Monats-Liga e2e aus Topf (Live-Standing-UI + Cron voll-auto + `overall`=Median-Fix) → 4 BeScout-Events aus Topf (löst §7 „bescout mintet weiter" ab) → 5 Events als „BeScout Liga"-Wettkampf (Saison/Monat) + Ranking-Konsolidierung (7 Boards → klar).
 
 > **Platform-Pot = Club-Treasury-329-Mirror minus tenant-id** (`type`→`source`, `clubs FOR UPDATE`→Singleton-`platform_treasury FOR UPDATE`, gleicher SUM/append-only-Trigger/RLS-0-Policy-Stack). Slice 357 live-verifiziert (proofs/357-money-smoke.txt: Kette 1000/1500/1200, append/delete/bad-source/noauth geblockt).
 

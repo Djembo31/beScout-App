@@ -1,0 +1,54 @@
+Slice 364 — Research-Fee REIN in den Plattform-Topf (E3-2d)
+Proof: Force-Rollback-Money-Smoke + Post-Apply-Verify
+Datum: 2026-06-24
+RPC: public.unlock_research(uuid, uuid)  (SECURITY DEFINER)
+
+===========================================================================
+(1) POST-APPLY VERIFY — Booking present + Fee-Konstante intakt + AR-44
+===========================================================================
+SELECT
+  pg_get_functiondef('public.unlock_research(uuid,uuid)'::regprocedure) LIKE '%book_platform_treasury(''credit'', ''research''%' AS has_booking,
+  pg_get_functiondef(...) LIKE '%(v_price * 80) / 100%' AS fee_constant_intact,
+  has_function_privilege('anon',          'public.unlock_research(uuid,uuid)','EXECUTE') AS anon_can,
+  has_function_privilege('authenticated', 'public.unlock_research(uuid,uuid)','EXECUTE') AS auth_can;
+
+-> has_booking          = true   (AC-1: Inline-Booking live)
+   fee_constant_intact  = true   (AC-5: (v_price * 80) / 100 unverändert, S356-Klasse)
+   anon_can             = false  (AC-8: AR-44 — anon gesperrt)
+   auth_can             = true   (authenticated erlaubt)
+
+CHECK: 'research' bereits im platform_treasury_ledger_source_check (AC-6, keine CHECK-Migration).
+
+===========================================================================
+(2) FORCE-ROLLBACK MONEY-SMOKE  (BEGIN…unlock…RAISE EXCEPTION = Rollback)
+===========================================================================
+Setup in-txn: Temp research_posts (price=1000) Autor = realer Funded-User,
+Käufer = anderer Funded-User. auth-Kontext via set_config('request.jwt.claim.sub', buyer).
+
+SMOKE_RESULT 364
+ result = {"success": true, "amount_paid": 1000, "platform_fee": 200, "author_earned": 800}
+ price = 1000
+ pot_before = 0   pot_after = 200   pot_delta = 200          <- AC-1: Topf-Δ = platform_fee (20 %)
+ buyer_delta = -1000   author_delta = 800
+ ledger_rows = 1   ledger_amount = 200                       <- AC-3: genau 1 'research'-Ledger-Row, ref_id=research_id
+ zero_sum: buyer_out(1000) = author_in(800) + pot_delta(200) -> t   <- AC-2: Zero-Sum ✅
+
+Fee-Split bestätigt: 80 % Autor (800) + 20 % Plattform (200) = 1000 (business.md Research 20/80).
+
+===========================================================================
+(3) ROLLBACK-VERIFY — nichts persistiert
+===========================================================================
+leftover_posts        = 0   (Temp-Post zurückgerollt)
+research_ledger_rows  = 0   (Smoke-Buchung zurückgerollt)
+pot_balance           = 0   (Topf unverändert bei 0 — live noch kein echter Research-Unlock)
+
+===========================================================================
+(4) tsc + db-invariants
+===========================================================================
+npx tsc --noEmit  -> EXIT 0 (clean)
+db-invariants.test.ts -> aus vitest EXCLUDED (Live-DB-Test, S330). KEIN CHECK/Type-Change
+  in diesem Slice (research_unlock/research_earn existieren seit jeher) -> INV-18-Snapshot
+  unberührt, keine Aktualisierung nötig.
+
+ERGEBNIS: PASS — Research-Plattform-Fee (20 %) fließt real in den BeScout-Topf.
+4. von 5 Fee-Quellen REIN (Trading 358 / IPO 360 / Polls 363 / Research 364). Bounty 365 offen.

@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 11:04)
+# Session Handoff — Auto (2026-06-24 11:08)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- bf27dc5a chore(handoff): Resume-Anker auf Slice 364 Research-Fee REIN (363 done)
 - 59b10862 docs(knowledge): 4 verify-drift Findings abgeräumt (re-verify nach Slice 338/363)
 - 14af7fc9 docs(knowledge): polls.md — 20%-Plattform-Anteil fließt seit Slice 363 in den Topf (D88)
 - 7d029401 feat(treasury): Polls-Fee REIN in Plattform-Topf (Slice 363, E3-2c)
@@ -18,7 +16,6 @@
 - 1e3c9abc fix(services): platformAdmin chunked/paginated Reads — player_count Live-Bug + 5 HIGH silent-fail (Slice 362)
 - 1daed134 chore(worklog): Slice 361 LOG-Eintrag
 - 890926cc fix(observability): AdminTreasuryTab Promise.allSettled → logSilentRejects (Slice 361)
-- 8578e7f6 chore(worklog): Commit-Hashes für Slices 339-347 + 357 nachgetragen
 
 <!-- auto:handoff-end -->
 
@@ -26,16 +23,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 363 (`7d029401` Feature + `59b10862` Knowledge-Cleanup). Letzte Money-Feature-Baseline = Slice 363 (E3-2c Polls-Fee REIN).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
+**Status: idle. HEAD = Slice 364 (Research-Fee REIN). Letzte Money-Feature-Baseline = Slice 364 (E3-2d).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
 
-> **Session 2026-06-24 (Forts.):** 363 Polls-Fee REIN ✅ (E3-2c, `7d029401`) — `cast_community_poll_vote`→`book_platform_treasury('credit','poll',…)`, deckt beide source-Branches (club+user), 2-Branch-Force-Rollback-Smoke PASS (Topf je +200=20%, Zero-Sum 800+200), Reviewer PASS. Fee-Konstante `(v_cost*80)/100` verbatim erhalten (S356-Falle vermieden). Danach 4 verify-drift Knowledge-Findings abgeräumt (`59b10862`): fantasy.md echte Drift (Predictions/Slice-338 als ENTFERNT markiert), cross-domain-map/missions/reward-ranking re-verified @ 2026-06-24. audit:knowledge:check clean.
+> **Session 2026-06-24 (Forts.):** 364 Research-Fee REIN ✅ (E3-2d) — `unlock_research(uuid,uuid)`→`book_platform_treasury('credit','research',v_platform_fee,p_research_id,'Research-Fee')`, **Single-Path** (wie IPO 360, kein source-Branching), inline NACH transactions-INSERT vor success-RETURN, `IF v_platform_fee>0`-Guard. Force-Rollback-Smoke PASS (Topf +200=20% von 1000, Zero-Sum 800+200, 1 Ledger-Row ref=research_id, sauberer Rollback pot=0). Fee-Konstante `(v_price*80)/100` verbatim (S356-Falle vermieden), AR-44 anon=false. Reviewer PASS (1 NIT pre-existing/out-of-scope). treasury.md §10 REIN-Tabelle+Sequenz mit-aktualisiert (D88). Vorher 363 Polls ✅ (`7d029401`).
 
-## ➡️ NÄCHSTER BAU: Slice 364 — Research-Fee REIN (E3-2d, Money/CEO §3) — **SPEC offen, BUILD-Muster bekannt**
-> **E3-1 Fundament ✅ (357) + 2 Trading ✅ (358) + 2b IPO ✅ (360) + 2c Polls ✅ (363) LIVE.** Policy **D98: voller Auffang 100 %**. Research = Teil 4 von 5 Fee-Quellen (dann 365 Bounty = Teil 5).
-- **Muster (identisch zu 358/360/363):** Live-`pg_get_functiondef('unlock_research(...)')` ZUERST lesen (D87), Plattform-Anteil (Research-Split lt. business.md = 20 % Platform / 80 % Autor) inline via `book_platform_treasury('credit','research',v_platform_share,<ref>,'…')` buchen. `'research'` im `platform_treasury_ledger_source_check` schon erlaubt → keine CHECK-Migration. **AR-44 REVOKE/GRANT Pflicht.**
-- **⚠️ Fee-Konstante (S356-Falle):** Research-Split-Konstante im Body verbatim erhalten + ILIKE-Assert nach apply. CREATE OR REPLACE = exakter Live-Body + nur 1 Block.
-- **Money-Muster (D87):** Force-Rollback-Smoke + `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'`. Reviewer-Pflicht.
-- **Danach 365 Bounty:** `approve_bounty_submission`→'bounty' (Plattform-Anteil = reward−creator_net, heute gar nicht notiert — Body genau lesen, evtl. erst berechnen).
+## ➡️ NÄCHSTER BAU: Slice 365 — Bounty-Fee REIN (E3-2e, Money/CEO §3) — **LETZTE Fee-Quelle, SPEC offen**
+> **E3-1 Fundament ✅ (357) + 2 Trading ✅ (358) + 2b IPO ✅ (360) + 2c Polls ✅ (363) + 2d Research ✅ (364) LIVE.** Policy **D98: voller Auffang 100 %**. Bounty = Teil 5 von 5 (danach Fees-REIN komplett → Slice 3 Monats-Liga e2e).
+- **⚠️ Anders als 358–364:** Der Bounty-Plattform-Anteil (5 %) wird **heute gar nicht notiert** — Differenz `reward − creator_net`. **Body genau lesen** (`pg_get_functiondef('approve_bounty_submission(uuid,uuid,text)')`, D87), die 5 % evtl. erst aus reward/creator_net **berechnen**, dann inline via `book_platform_treasury('credit','bounty',<5%>,<ref>,'…')` buchen. `'bounty'` im `platform_treasury_ledger_source_check` schon erlaubt → keine CHECK-Migration. **AR-44 REVOKE/GRANT Pflicht.**
+- **Fee-Konstante (S356-Falle):** Bounty-Split-Konstante im Body verbatim erhalten + ILIKE-Assert nach apply. CREATE OR REPLACE = exakter Live-Body + nur 1 (Berechnungs-+Booking-)Block.
+- **Money-Muster (D87):** Force-Rollback-Smoke + `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'`. Reviewer-Pflicht. **Topf-Saldo direkt aus `platform_treasury_ledger`-SUM lesen** (nicht `get_platform_balance()` — hat Platform-Admin-Guard, blockt im Käufer-Kontext; 364-Lehre).
+- **Danach:** Slice 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots — `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
 - **Dann Epic-Sequenz weiter:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots — `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
 
 ## ✅ SESSION 2026-06-24 — Slice 357 E3-1 Topf-Fundament (Money, CEO-Scope)

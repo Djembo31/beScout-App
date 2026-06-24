@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 364 | 2026-06-24 | feat(treasury): Research-Fee REIN in Plattform-Topf (E3-2d, D96/D98)
+- Stage-Chain: SPEC (`worklog/specs/364-research-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/364-review.md`, **PASS**, 1 NIT pre-existing/out-of-scope) → PROVE → LOG.
+- **Kontext:** E3 Plattform-Treasury Slice 2 „Fees REIN", Teil **4/5** = Research. Der 20 %-Plattform-Anteil der Research-Fee wurde notiert (`research_unlocks.platform_fee`) aber in kein Konto gebucht → verbrannte (Autor bekam 80 %, Plattform-20 % weg aus dem Umlauf).
+- **Fix:** EIN additiver Inline-`book_platform_treasury('credit','research',v_platform_fee,p_research_id,'Research-Fee')` in `unlock_research(uuid,uuid)`, platziert NACH dem transactions-INSERT, VOR dem success-RETURN, innerhalb `IF v_platform_fee>0`-Guard. **Single-Path** (wie IPO 360, kein source-Branching). `p_research_id` als reference_id (kein `v_trade_id` im RPC).
+- **Money-Sicherheit:** Fee-Konstante `(v_price*80)/100` verbatim (S356-Drift-Klasse via ILIKE-Assert `fee_constant_intact`), CREATE-OR-REPLACE = exakter Live-`functiondef` (D87) + genau 1 Block, AR-44 REVOKE/GRANT (anon=false, authed=true). `'research'` im CHECK schon gedeckt → keine CHECK-Migration. Alle 4 Vor-Guards (auth.uid-Mismatch/eigener Bericht/bereits/nicht genug BSD) intakt.
+- **Proof:** `worklog/proofs/364-money-smoke.txt` — Force-Rollback-Smoke: Topf +200 (20 % von 1000), Zero-Sum 1000=800+200, 1 `'research'`-Ledger-Row ref=research_id, sauberer Rollback (pot=0, 0 Residue). tsc EXIT 0 (kein src/-Change), INV-18 unberührt.
+- Files: `supabase/migrations/20260624170000_slice_364_research_fee_rein.sql` (via `apply_migration`). Knowledge: `docs/knowledge/domain/treasury.md` §10 (REIN-Tabelle + Sequenz aktualisiert).
+- Commit: <pending>
+
 ## 363 | 2026-06-24 | feat(treasury): Polls-Fee REIN in Plattform-Topf (E3-2c, D96/D98)
 - Stage-Chain: SPEC (`worklog/specs/363-poll-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/363-review.md`, **PASS**, 2 NIT kosmetisch) → PROVE → LOG.
 - **Kontext:** E3 Plattform-Treasury Slice 2 „Fees REIN", Teil **3/5** = Polls. Der 20 %-Plattform-Anteil der Poll-Fee wurde notiert (`community_poll_votes.platform_share`) aber in kein Konto gebucht → verbrannte in BEIDEN source-Branches (club → Club-Treasury bekam nur 80 %, user → Creator-Wallet 80 %).
