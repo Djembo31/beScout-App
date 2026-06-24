@@ -67,7 +67,6 @@ export type Player = {
     change24h: number;
     floor?: number;
     ipoPrice?: number;
-    initialListingPrice?: number;
     history7d?: number[];
   };
   dpc: { supply: number; float: number; circulation: number; onMarket: number; owned: number };
@@ -577,7 +576,6 @@ export type DbPlayer = {
   ipo_price: number;      // BIGINT in Cents — fester Club/IPO-Preis
   price_change_24h: number;
   volume_24h: number;
-  initial_listing_price: number | null;   // BIGINT in Cents — erster IPO-Preis (unveraenderlich)
   status: 'fit' | 'injured' | 'suspended' | 'doubtful' | null;
   market_value_eur: number;
   /** Slice 197d: 7d MV-Trend, calculated daily by cron_snapshot_and_calc_mv_trends().

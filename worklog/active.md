@@ -1,17 +1,24 @@
 # Active Slice
 
 ```
-status: idle
-slice: 368e
-title: ✅ DONE — Markteintritt-Modell (erster IPO eingefroren = ipo_price; spätere = aktueller IPO-Preis) + Daten-Reparatur (D101)
-stage: LOG complete
-size: L
-slice-type: Migration + Service + UI
-spec: worklog/specs/368e-entry-price-ssot.md (Rewrite, §7 Anil-entschieden)
-impact: worklog/impact/368e-entry-price-ssot.md (Live-verifiziert)
-proof: worklog/proofs/368e-markteintritt-model.txt
-review: worklog/reviews/368e-review.md (reviewer CONCERNS → MEDIUM Sentinel-Burn root-cause-geheilt)
-next: post-Deploy Playwright (RewardsTab==TradingTab==Chart-Linie); dann 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤. DROP initial_listing_price = eigener Folge-Slice (Reader=0).
+status: in-progress
+slice: 368f
+title: DROP initial_listing_price (redundant nach D101) — Phase 1 Code-Reader entfernen, Phase 2 DROP COLUMN deploy-gated
+stage: BUILD
+size: S
+slice-type: Service + Type + Migration
+spec: inline — S305/324 Column-DROP-Pattern. initial_listing_price ist seit 368e/D101 redundant (= Spiegel von ipo_price, 0 funktionale Reader). 4-Achsen-Check: src (players.ts SELECT_COLS+Mapper, types 2 Felder, players.test Fixture, e2e sql) — KEINE scripts/messages-Treffer.
+impact: nur players-Loader (PLAYER_SELECT_COLS). Phase 1 = Code-Reader raus (deploybar, select greift dann nicht mehr auf Spalte zu). Phase 2 = Trigger-Rewrite (Sentinel ilp IS NULL → NOT EXISTS andere ipo) + DROP COLUMN, ERST nach Deploy von Phase 1 (sonst bricht Live-Select).
+proof: (Phase 2)
+review: self-review (S305/324 Pattern-Wiederholung, display-only, money byte-identisch) — Reviewer falls Phase-2-Trigger heikel.
+next: Phase 1 commit+push → Deploy abwarten → Phase 2 Migration + 368e-Playwright.
+
+--- 368e (vorheriger Slice, DONE) ---
+prev-slice: 368e
+prev-title: ✅ DONE — Markteintritt-Modell (D101) + Daten-Reparatur
+prev-stage: LOG complete · commit 7a3b302f
+prev-proof: worklog/proofs/368e-markteintritt-model.txt
+prev-review: worklog/reviews/368e-review.md (CONCERNS → MEDIUM geheilt)
 
 --- erledigt diese Session ---
 368c DONE (committed 1dcff8bd): Floor-Band ÷3..×3 + Floor-Quelle + Label (Teil).

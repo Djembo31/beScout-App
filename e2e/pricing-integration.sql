@@ -148,9 +148,9 @@ BEGIN
   SELECT count(*) INTO v_count FROM trades WHERE player_id = v_player_id;
   RAISE NOTICE '✓ 19. Trades: %', v_count;
 
-  -- 20. INITIAL LISTING PRICE
-  SELECT initial_listing_price INTO v_last FROM players WHERE id = v_player_id;
-  RAISE NOTICE '✓ 20. initial_listing_price = % (immutable)', v_last;
+  -- 20. MARKTEINTRITT (erster IPO, eingefroren in ipo_price — D101; initial_listing_price 368f gedroppt)
+  SELECT ipo_price INTO v_last FROM players WHERE id = v_player_id;
+  RAISE NOTICE '✓ 20. Markteintritt (ipo_price) = % (eingefroren)', v_last;
 
   RAISE NOTICE '';
   RAISE NOTICE '══════════════════════════════════════════';
