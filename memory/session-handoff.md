@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 19:19)
+# Session Handoff — Auto (2026-06-24 19:26)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 8
+## Session Commits: 9
+- 11121ad3 docs(368e): Anil-Entscheidungen + Master-Follow-up-Liste aller E2E-Auffälligkeiten
 - e7048d84 fix(trading): 368d BuyModal "Gesamt"-Wahrheit + E2E-Härtung + 368e Einstiegspreis-SSOT-Spec
 - 1dcff8bd feat(trading): 368c Floor manipulationssicher + transparent — Preis-Band ÷3..×3, Floor-Quelle, Label-Vereinheitlichung
 - af5cda4c docs(learning): S368b Display-Anker-aus-Source-of-Truth-Pattern + Handoff-Resume-Anker auf 368c
