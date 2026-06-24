@@ -1,0 +1,49 @@
+Slice 370 — E2E-Sweep „Fees REIN" ②–⑤ — Live-Proof (bescout.net DB, project skzjfhvgccaeplydsunz)
+Datum: 2026-06-24
+Methode: Live-Seed via execute_sql + Fee-RPC mit JWT-sub-Impersonation (testing.md-Rezept).
+Actors: jarvis-qa 535bbcaf… (Käufer/Wähler/Submitter) · nailoku b6c51aae… (Creator/Autor/Bounty-Payer) · kede5 3c580b9e… (Bounty-Approver, Club-Admin Bandırmaspor)
+
+=== TOPF-BASELINE (vor Sweep) ===
+trading: 3 rows, 1512  | ipo: 1 row, 500    → SUM 2012
+(ipo-Zeile stammt aus echtem buy_from_ipo bei 369-AC5: 500 = 10 % von 5000 Cents)
+
+=== ② IPO — schon live bewiesen (369-AC5), reconcile ===
+platform_treasury_ledger source='ipo' = 500 Cents (10 %). AC1 ✅
+
+=== ③ POLL — cast_community_poll_vote ===
+Seed: community_polls d8737497… created_by=nailoku, cost_bsd=1000, source='user', ends_at +7d
+Call (jarvis): {"success":true,"cost":1000,"creator_share":800,"weight":1,"total_votes":1}
+Post: pot source='poll' = 200 (= 20 %)  | jarvis 1173877→1172877 (−1000) | nailoku 1100000→1100800 (+800)
+Zero-Sum: 1000 = 800 (creator) + 200 (pot) ✅  AC2 ✅ AC5 ✅
+
+=== ④ RESEARCH — unlock_research ===
+Seed: research_posts 42ea702d… user_id=nailoku, price=1000, call='Bullish', horizon='Season'
+Call (jarvis): {"success":true,"amount_paid":1000,"author_earned":800,"platform_fee":200}
+Post: pot source='research' = 200 (= 20 %) | jarvis 1172877→1171877 (−1000) | nailoku 1100800→1101600 (+800)
+Zero-Sum: 1000 = 800 (author) + 200 (pot) ✅  AC3 ✅ AC5 ✅
+
+=== ⑤ BOUNTY — approve_bounty_submission ===
+Seed: bounties ee25724d… is_user_bounty=true, created_by=nailoku, reward_cents=1000, club=Bandırmaspor
+      bounty_submissions 54a62b32… user_id=jarvis, status='pending'
+Call (kede5/admin): {"success":true,"reward":950}
+Post: pot source='bounty' = 50 (= 5 %) | jarvis 1171877→1172827 (+950) | nailoku 1101600→1100600 (−1000) | kede5 1000000 (unverändert)
+Zero-Sum: 1000 = 950 (submitter) + 50 (pot) ✅  AC4 ✅ AC5 ✅
+
+=== AC6 — Reject money-safe ===
+Doppel-Genehmigung derselben Submission (kede5): {"success":false,"error":"Einreichung bereits bearbeitet"}
+Kein Wallet/Topf-Delta. ✅
+
+=== FINALE TOPF-LEDGER ===
+bounty:   1 row,  50
+ipo:      1 row, 500
+poll:     1 row, 200
+research: 1 row, 200
+trading:  3 rows,1512
+-------------------------
+SUM (get_platform_balance, Variante A) = 2462 Cents
+
+=== ERGEBNIS ===
+Alle 5 Plattform-Fee-Ströme (Trading/IPO/Poll/Research/Bounty) buchen real + korrekt in den BeScout-Topf
+(richtiger source-Tag, exakter %-Betrag, voller Auffang 100 % D98, Zero-Sum je Quelle).
+Keine Bugs in der Fee-Booking-Logik gefunden. Kein Produktionscode geändert.
+Scope-out: UI-Playwright-Flow für ②–⑤ nicht erneut begangen (gleicher RPC-Code-Pfad wie UI; ① nutzte UI).

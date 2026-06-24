@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 370 | 2026-06-24 | test(e2e): Fees-REIN-Sweep ②–⑤ live bewiesen (IPO/Poll/Research/Bounty → Topf)
+- Stage-Chain: SPEC (`370-e2e-fees-rein-sweep.md`, S/Verify) → IMPACT skipped (kein Schema/Service-Edit) → BUILD (Live-Seed + Fee-RPC via JWT-sub-Impersonation) → REVIEW (`370-review.md` self-review PASS, kein Prod-Code) → PROVE → LOG.
+- **Ziel:** analog 365-Trading die vier restlichen Plattform-Fee-Quellen einzeln echt End-to-End auf der Live-DB auslösen + beweisen, dass jede Fee mit korrektem `source` + Betrag in `platform_treasury_ledger` landet (D96/D98 voller Auffang, Variante-A-Saldo D97).
+- **Ergebnis (alle ✅):** ② IPO 500 (10 %, aus echtem `buy_from_ipo` 369-AC5) · ③ Poll 200 (20 %, `cast_community_poll_vote` cost 1000) · ④ Research 200 (20 %, `unlock_research` price 1000) · ⑤ Bounty 50 (5 %, `approve_bounty_submission` reward 1000). Plus trading 1512. **Topf-SUM = 2462 Cents.**
+- **Zero-Sum je Quelle bewiesen** (Wallet-Deltas der 3 Actors jarvis/nailoku/kede5 pre/post): Poll 1000=800+200 · Research 1000=800+200 · Bounty 1000=950+50. Kein Geld erzeugt/vernichtet.
+- **AC6 Reject money-safe:** Doppel-`approve_bounty_submission` → „Einreichung bereits bearbeitet", kein Wallet/Topf-Delta.
+- **0 Bugs** in der Fee-Booking-Logik, **kein Produktionscode** geändert. Seed-Hürden notiert: `research_posts.call` ∈ {Bullish/Bearish/Neutral}, `horizon` ∈ {24h/7d/Season}; `bounty_submissions.content` ≥100 Zeichen, title ≥10; Hatayspor-club_id (4ed03e4b) ist club_admins-Orphan (nicht in `clubs`) → Bandırmaspor genutzt.
+- **Proof:** `worklog/proofs/370-fees-rein-sweep.txt`. Findings ②–⑤ in `worklog/notes/365-e2e-findings.md` abgehakt. **E2E-Sweep komplett → nächster Epic-Schritt E3 Slice 3 (Monats-Liga RAUS-Kanal).**
+
 ## 369 | 2026-06-24 | fix(push): /api/push 500 Fail-Safe + VAPID-Secret-Heal (E2E T-2)
 - Stage-Chain: SPEC → IMPACT (inline, nur Push-Pfad + 2 Secrets) → BUILD → REVIEW (`worklog/reviews/369-review.md`, reviewer PASS) → PROVE → LOG.
 - **Root-Cause (bewiesen):** `ensureVapid()` rief `webpush.setVapidDetails()` OHNE try/catch. Prod-VAPID-Secrets korrupt (live `vercel env pull`: `VAPID_PRIVATE_KEY="3_…A\n"` Quotes+Newline + Public passte nicht zum Private) → `setVapidDetails` warf bei jedem Push → ungefangen bis Route-catch → **500** (Trade lief durch). Route-catch RETURNT 500 statt zu werfen → `withLogger.captureError` (throw-only) feuerte nie → **Sentry blind** (0 Push-Issues trotz Live-500).

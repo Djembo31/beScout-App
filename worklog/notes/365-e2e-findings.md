@@ -36,10 +36,11 @@ Der eine Trade legte einen **systemischen** Drift über ~40 Doc-Stellen offen: 3
 ## E2E-Sweep — Stand (eins nach dem anderen, Bug-Jagd)
 - **① Trading ✅ durchgespielt** (Fee-REIN live bewiesen, Topf +35) — 5 Funde (T-1 leerer Markt, T-2 push-500, T-3 Diamond-Hands-Cluster, P-4 Pricing-Drift, M-5 Money-Modell→D99).
 - **Fix-Stand E4:** M-5 → **D99 ✅** (Schritt 1+2: Ratifikation + Doc-Glattzug Slice 366). T-3 → **Slice 367 ✅** (Rename „Treuer Sammler"/„Sadık Koleksiyoncu" + Hold-Logik aus holdings.created_at statt Mock-Seed + Konfetti-Gate; Reviewer PASS). **Offen:** P-4 ipo_price-Data-Drift (Slice 368, Money/CEO) · T-2 push-500 (369) · T-1 Cold-Start-Liquidität (Produkt) · ②–⑤ E2E-Sweep (370). Plus 367-Follow-ups (F#1 „ohne verkaufen"-Semantik · F#2 Hold-Regression-Tests · F#3 Mastery-Leaderboard-Mock).
-- **② IPO — offen** (braucht Seed: aktiver IPO; deckt Fee-REIN 'ipo' 10 %)
-- **③ Poll — offen** (Seed: bezahlte Poll mit Zukunfts-`ends_at`; Fee-REIN 'poll' 20 %)
-- **④ Research — offen** (Seed: bezahlter Research-Post; Fee-REIN 'research' 20 %)
-- **⑤ Bounty — offen** (Seed: offene Bounty + pending Submission, Admin-Approval; Fee-REIN 'bounty' 5 %)
-- Pot-Stand live nach ① = **35 Cents** (1 echte `trading`-Zeile). Topf-Card-Visual-Verify (357) noch offen.
+- **② IPO — ✅ DONE** (Slice 370): live bewiesen via echtem `buy_from_ipo` aus 369-AC5 → pot source='ipo' = 500 (10 % von 5000).
+- **③ Poll — ✅ DONE** (Slice 370): echter `cast_community_poll_vote` (cost 1000) → pot 'poll' = 200 (20 %), Creator +800, Zero-Sum ✓.
+- **④ Research — ✅ DONE** (Slice 370): echter `unlock_research` (price 1000) → pot 'research' = 200 (20 %), Autor +800, Zero-Sum ✓.
+- **⑤ Bounty — ✅ DONE** (Slice 370): echter `approve_bounty_submission` (reward 1000) → pot 'bounty' = 50 (5 %), Submitter +950, Zero-Sum ✓; Doppel-Approve money-safe rejected.
+- **Pot-Stand live = 2462 Cents** (trading 1512 + ipo 500 + poll 200 + research 200 + bounty 50). ALLE 5 Quellen real bewiesen. Keine Fee-Booking-Bugs. Proof `worklog/proofs/370-fees-rein-sweep.txt`. Topf-Card-Visual-Verify (357) weiterhin offen (eigener UI-Check).
+- **E2E-Sweep ②–⑤ KOMPLETT** — E4-Epic-Verify-Teil abgeschlossen; nächster Epic-Schritt = E3 Slice 3 (Monats-Liga RAUS-Kanal).
 
 > **Geseedete Live-Artefakte aus ① (nicht vergessen / ggf. aufräumen):** demo-admin hält 4 Cards Douglas Willian (1 verkauft an jarvis), jarvis hält 1 Card. 1 echte Trade-Transaktion + 1 `trading`-Pot-Zeile (35) sind **permanent** (append-only, gewollt als E2E-Beweis).

@@ -2,11 +2,24 @@
 
 ```
 status: idle
-slice: 369
-title: ✅ DONE — /api/push→500 Fail-Safe + VAPID-Secret-Heal (T-2) · commit 6b1f7b23
+slice: 370
+title: ✅ DONE — E2E-Sweep „Fees REIN" ②–⑤ live bewiesen (Topf 2462 Cents, alle 5 Quellen, 0 Bugs)
 stage: LOG complete
 size: S
-slice-type: Service + Infra (Secret)
+slice-type: Verify (Money, CEO-Scope)
+spec: worklog/specs/370-e2e-fees-rein-sweep.md
+impact: skipped (kein Schema/Service-Edit — reine Live-Verifikation bestehender Fee-RPCs)
+result: ② IPO 500 (369-AC5) · ③ Poll 200 · ④ Research 200 · ⑤ Bounty 50 · trading 1512 = SUM 2462. Zero-Sum je Quelle ✓, Doppel-Approve money-safe reject ✓. Keine Fee-Booking-Bugs, kein Prod-Code.
+proof: worklog/proofs/370-fees-rein-sweep.txt
+review: worklog/reviews/370-review.md (self-review PASS — kein Prod-Code)
+next: E3 Slice 3 — Monats-Liga e2e (erster RAUS-Kanal aus dem Topf). Plus offen: T-1 Cold-Start-Liquidität (Produkt), 368-Label-Rest, Topf-Card-Visual (357).
+
+--- 369 (vorheriger Slice, DONE) ---
+prev-slice: 369
+prev-title: ✅ DONE — /api/push→500 Fail-Safe + VAPID-Secret-Heal (T-2) · commit 6b1f7b23
+prev-stage: LOG complete
+prev-size: S
+prev-slice-type: Service + Infra (Secret)
 spec: worklog/specs/369-api-push-vapid-failsafe.md
 impact: inline — nur Push-Pfad (pushSender/route/pushSubscription + neuer vapidKey.ts) + 2 Vercel-Prod-Secrets. Kein DB/Schema.
 root-cause: ensureVapid() rief setVapidDetails OHNE try/catch; Prod-VAPID-Secrets korrupt (Quotes+Newline+Pair-Mismatch, live aus vercel env pull bewiesen) → Throw ungefangen → route catch RETURNT 500 (Sentry blind, weil withLogger nur bei Throw captured). Korrektes Paar = .env.local (web-push+ECDH ✓).
