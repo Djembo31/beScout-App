@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Proof:** `worklog/proofs/360-money-smoke.txt` — Force-Rollback-Smoke (358-Technik, self-contained temp-IPO): Topf 0→1000 (Δ=platform_share), Wallet −10000 (=total_cost), Zero-Sum `10000=8500+1000+500`, 1 Ledger-Row (keine Doppelbuchung), Rollback sauber (pot_now=0, 0 Residue). Booking-Zeile live verifiziert. tsc clean; db-invariants nicht betroffen (kein CHECK/Type-Change).
 - **PATCH-AUDIT:** Reviewer bestätigt kein stiller Body-Drift (Fee-Konstanten 8500/1000/500, AR-6, early_access, Limits, auth+lock alle = Live).
 - Files: `supabase/migrations/20260624150000_slice_360_ipo_fee_rein.sql` (applied via mcp).
-- Commit: <pending>
+- Commit: 81ec6e0b
 
 ## 359 | 2026-06-24 | fix(trading): accept_offer side='sell' repariert — 'offer_buy' in transactions_type_check
 - Stage-Chain: SPEC (`worklog/specs/359-offer-buy-check-fix.md`, S, Money-table) → IMPACT (skipped, additiver CHECK-Superset) → BUILD → REVIEW (`worklog/reviews/359-review.md`, CONCERNS→adressiert) → PROVE → LOG.
