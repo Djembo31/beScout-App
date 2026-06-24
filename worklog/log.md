@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 368f | 2026-06-24 | chore(trading): DROP initial_listing_price (redundant seit D101) + Trigger-Sentinel-Rewrite
+- Stage-Chain: SPEC (inline, S305/324-Pattern) → BUILD (2 Phasen) → REVIEW (self-review, display-only) → PROVE → LOG.
+- **Phase 1** (`e3f132dd`, deployed): alle Code-Reader entfernt (PLAYER_SELECT_COLS, dbToPlayer-Mapper, Type prices.initialListingPrice + DbPlayer.initial_listing_price, Test-Fixture, e2e-SQL → ipo_price). tsc clean, 57 Tests, verhaltensneutral.
+- **Phase 2** (Migration `20260624210000`, nach Deploy): Trigger-Sentinel `initial_listing_price IS NULL` → `NOT EXISTS(andere ipo-Row)` (Spalte entfällt als Sentinel) + `ALTER TABLE players DROP COLUMN initial_listing_price`.
+- **Reihenfolge-Pflicht:** DROP erst nach Phase-1-Deploy (sonst bricht Live-Select auf nicht-existente Spalte). DB-Dep-Check vor DROP: nur der Trigger, 0 Views.
+- **Proof:** `worklog/proofs/368f-drop-initial-listing-price.txt` (col_still_exists=0, Trigger NOT EXISTS, Live-Select Mbappé 200.000 Cr = MV/10). Money byte-identisch (Spalte war Display-only, 0 Reader).
+
 ## 368e | 2026-06-24 | fix(trading): Markteintritt-Modell — erster IPO = eingefrorener Eintritt (ipo_price), spätere = aktueller IPO-Preis (D101)
 - Stage-Chain: SPEC (Rewrite, Anil-Klärung) → IMPACT (Live-verifiziert) → BUILD → REVIEW (`worklog/reviews/368e-review.md`, reviewer **CONCERNS→MEDIUM geheilt**) → PROVE → LOG.
 - **Wurzel:** drei „Eintrittspreis"-Spalten (`ipo_price`/`ipos.price`/`initial_listing_price`) droht-kollabieren (alte Spec) hätte Anils Zwei-Zahlen-Modell zerstört. Live-`/impact` (D87): Schema implementiert das Modell bereits (Trigger), nur Slice-114 + Seed-Müll verbogen die Daten.

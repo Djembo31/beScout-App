@@ -1,0 +1,30 @@
+Slice 368f — DROP initial_listing_price (redundant seit D101) — PROOF
+Datum: 2026-06-24
+
+═══ Phase 1 (Code-Reader entfernen, deployed, commit e3f132dd) ═══
+- PLAYER_SELECT_COLS: 'initial_listing_price' entfernt (players.ts)
+- dbToPlayer-Mapper: initialListingPrice-Zeile entfernt
+- Type: prices.initialListingPrice + DbPlayer.initial_listing_price entfernt (index.ts)
+- players.test.ts Fixture + e2e/pricing-integration.sql Assertion (→ ipo_price)
+- tsc clean, 57 Tests grün, verhaltensneutral (0 funktionale Reader vor Entfernung)
+- 4-Achsen-Check: KEINE Treffer in scripts/ oder messages/
+
+═══ Phase 2 (DB, Migration 20260624210000, nach Phase-1-Deploy) ═══
+DB-Abhängigkeits-Check vor DROP:
+  Funktionen mit initial_listing_price im Body: nur trg_set_initial_listing_price (wird umgestellt)
+  Views auf players.initial_listing_price: 0
+
+Trigger-Rewrite (Sentinel-Wechsel, da die Sentinel-Spalte entfällt):
+  ALT: UPDATE … SET initial_listing_price=NEW.price, ipo_price=NEW.price WHERE ilp IS NULL
+  NEU: UPDATE … SET ipo_price=NEW.price WHERE NOT EXISTS (andere ipo-Row für den Spieler)
+  → erster IPO setzt Markteintritt (ipo_price), ab zweitem IPO no-op (eingefroren). Verifiziert:
+     pg_get_functiondef uses_not_exists=true; Spalten-Referenz im Body = nur Funktionsname (False-Positive).
+
+DROP:
+  ALTER TABLE players DROP COLUMN initial_listing_price → col_still_exists=0 ✓
+
+Live-Select (App-Loader-Form ohne die Spalte) funktioniert:
+  Mbappé MV 200M → ipo_price 20.000.000 cents = 200.000 Credits = MV/10 ✓ (trading.md-Kanon)
+  Haaland/Yamal idem.
+
+Money byte-identisch: ipo_price/recalc_floor/buy-Pfade unberührt (Spalte war Display-only, 0 Reader).

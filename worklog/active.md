@@ -1,17 +1,17 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 368f
-title: DROP initial_listing_price (redundant nach D101) — Phase 1 Code-Reader entfernen, Phase 2 DROP COLUMN deploy-gated
-stage: BUILD
+title: ✅ DONE — DROP initial_listing_price (redundant seit D101) + Trigger-Sentinel-Rewrite (NOT EXISTS)
+stage: LOG complete
 size: S
 slice-type: Service + Type + Migration
-spec: inline — S305/324 Column-DROP-Pattern. initial_listing_price ist seit 368e/D101 redundant (= Spiegel von ipo_price, 0 funktionale Reader). 4-Achsen-Check: src (players.ts SELECT_COLS+Mapper, types 2 Felder, players.test Fixture, e2e sql) — KEINE scripts/messages-Treffer.
-impact: nur players-Loader (PLAYER_SELECT_COLS). Phase 1 = Code-Reader raus (deploybar, select greift dann nicht mehr auf Spalte zu). Phase 2 = Trigger-Rewrite (Sentinel ilp IS NULL → NOT EXISTS andere ipo) + DROP COLUMN, ERST nach Deploy von Phase 1 (sonst bricht Live-Select).
-proof: (Phase 2)
-review: self-review (S305/324 Pattern-Wiederholung, display-only, money byte-identisch) — Reviewer falls Phase-2-Trigger heikel.
-next: Phase 1 commit+push → Deploy abwarten → Phase 2 Migration + 368e-Playwright.
+spec: inline — S305/324 Column-DROP-Pattern
+impact: nur players-Loader (PLAYER_SELECT_COLS). Phase 1 Code (e3f132dd, deployed) + Phase 2 Migration 20260624210000.
+proof: worklog/proofs/368f-drop-initial-listing-price.txt
+review: self-review (display-only, money byte-identisch, S305/324 Pattern)
+next: 368e post-Deploy Playwright (RewardsTab==TradingTab==Chart-Linie); dann 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤.
 
 --- 368e (vorheriger Slice, DONE) ---
 prev-slice: 368e
