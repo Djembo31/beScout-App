@@ -1,0 +1,40 @@
+Slice 372 — BuyModal Freshness-Gate Self-Heal — Proof
+Datum: 2026-06-24 · bescout.net (jarvis-qa) · Player Muhammed Tiren (05f7a1a2…), Markt-Order @10 CR (@bot001)
+
+=== AC6: tsc clean + Tests ===
+$ npx tsc --noEmit
+(kein Output, Exit 0)
+$ CI=true npx vitest run src/lib/hooks/__tests__/useWallet.test.ts
+Test Files  1 passed (1) · Tests  18 passed (18)   [+1 neu: "exposes a refetch()"]
+$ CI=true npx vitest run src/components/player/detail   (Regression)
+Test Files 14 passed · Tests 146 passed
+
+=== AC4: i18n DE + TR ===
+messages/de.json:4415  balanceRefreshing = "Saldo wird aktualisiert…"
+messages/tr.json:4415  balanceRefreshing = "Bakiye güncelleniyor…"
+
+=== AC1/AC2: VORHER (alter Prod-Code, Commit 26245d48) — Bug reproduziert + hängt ===
+Tiren-Buy-Modal geöffnet (Balance frisch, Button aktiv) → 33s gewartet (Balance >30s stale)
+→ Re-Render via Order-Zeilen-Klick:
+  buyDisabled = true, balanceRefreshing sichtbar = true
++10s später (total 43s+): buyDisabled = true, balanceRefreshing = true  → HÄNGT DAUERHAFT.
+Screenshot: worklog/proofs/372-before-stuck.png
+
+=== AC1/AC2: NACHHER (neuer Code, Commit 4a7c868f, Deploy success 21:36:26Z) — Self-Heal ===
+Gleicher Flow: Modal → 33s → Re-Render:
+  unmittelbar: buyDisabled = true, refreshing = true  (Refetch läuft jetzt WIRKLICH — ehrlich)
+  +3s: buyDisabled = FALSE, refreshing = FALSE  → Gate öffnet sich selbst, Button aktiv.
+Screenshot: worklog/proofs/372-after-selfheal.png
+
+=== AC3: Money-Regression (echter Kauf, byte-identisch) ===
+VORHER:  jarvis balance 1.168.827 cents (=11.688,27 CR), Tiren-qty 0, order remaining 1
+KLICK „Kaufen" → Header 11.688,27 → 11.678,27 (−10 CR = Order-Preis)
+NACHHER: jarvis balance 1.167.827 cents (=11.678,27, ✓ Header), Tiren-qty 0→1, order filled (remaining 0)
+         platform_treasury_ledger letzter Eintrag = "trading:35"  (3,5% Plattform-Fee von 1000 cents ✓, Fees-REIN/358 intakt)
+→ Buy bucht korrekt: −Preis Käufer, +1 Holding, Order gefüllt, +35c Plattform-Fee in Topf. Money-Logik unverändert.
+
+=== AC5: kein Refetch-Loop ===
+Reviewer-verifiziert (dep=balanceStale konstant während isFetching → kein Re-Fire); live: Meldung verschwand nach 1 Refetch, kein /wallet-Spam. 0 Console-Errors über alle Walks.
+
+=== Fazit ===
+Slice 372 VOLL-DONE: AC1–AC6 alle grün. Bug-Klasse (zeitbasiertes Freshness-Gate ohne Recovery-Trigger) live vorher/nachher bewiesen, Money-Pfad byte-identisch.

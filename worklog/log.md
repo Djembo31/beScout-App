@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 372 | 2026-06-24 | fix(market): BuyModal Freshness-Gate Self-Heal (kein Dauer-Hang bei „Saldo wird aktualisiert…")
+- Stage-Chain: SPEC (`372-buymodal-balance-stale-hang.md`, S) → IMPACT skipped (2 Files, Cache/UX-Read, kein Schema/Contract) → BUILD → REVIEW (`372-review.md` reviewer PASS, 2 LOW/INFO) → PROVE (Vorher/Nachher live + tsc + vitest + Money-Reconcile) → LOG.
+- **Root-Cause:** `useIsBalanceFresh` ist ein zeitbasiertes Gate (`Date.now()-dataUpdatedAt < 30s`). Das Öffnen des BuyModals triggert keinen Wallet-Refetch (Query schon via TopBar gemountet, `staleTime:0` triggert kein Mount-Refetch) → Balance >30s stale bleibt für immer stale → „Kaufen"-Button dauerhaft disabled + irreführendes „Saldo wird aktualisiert…", das sich nie auflöst. Die 368c-Meldung „Tippen vs +/−" war ein Timing-Artefakt (>30s vergangen + Re-Render), nicht die echte Ursache.
+- **Fix (2 Files):** `useWallet` exponiert `refetch`; `BuyForm` refetcht per `useEffect` wenn `balanceStale` → `dataUpdatedAt` frisch → Gate öffnet. Kein Loop (dep=`balanceStale` konstant während `isFetching`), fail-safe bei Fetch-Fehler (bleibt disabled), Money-Logik byte-identisch (read-only refresh). Einziger Runtime-Consumer = BuyModal (grep-verifiziert).
+- **Proof (live bescout.net, Tiren-Buy-Modal):** VORHER (alter Code) Button stuck disabled + Meldung hängt 43s+ (`372-before-stuck.png`); NACHHER (Commit 4a7c868f) Self-Heal ~3s, Button aktiv (`372-after-selfheal.png`). Echter Buy reconciled: −10 CR, Tiren-Holding 0→1, Order filled, Topf-Ledger `trading:35` (3,5% Fee). tsc clean, 18 useWallet-Tests grün (+1). `worklog/proofs/372-buymodal-stale.txt`.
+- **Knowledge:** Pattern S372 → `errors-frontend.md` (zeitbasiertes Freshness-Gate ohne Recovery-Trigger).
+
 ## 371 | 2026-06-24 | fix(community): Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 aus 370-UI-Walk)
 - Stage-Chain: SPEC (`371-wallet-invalidate-community.md`, XS) → IMPACT skipped (1 File, Cache-only) → BUILD → REVIEW self-review → PROVE (tsc+vitest; Playwright next session) → LOG.
 - **Root-Cause:** `useCommunityActions.handleCastPollVote`/`handleUnlockResearch` invalidierten nur Domänen-Keys (`qk.polls.all` / `invalidateResearchQueries`), NICHT den Wallet-Key. `TopBar`→`useWallet` (`['wallet',userId]`, staleTime 0) blieb daher nach der Credit-Belastung stale bis Reload (DB war korrekt). Trading-Pfad macht's via `invalidateWallet`.

@@ -1,16 +1,19 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 372
-title: BuyModal hängt bei „Saldo wird aktualisiert…" — Freshness-Gate ohne Self-Heal (E4-Rest C)
-stage: BUILD
+title: ✅ VOLL-DONE — BuyModal Freshness-Gate Self-Heal (kein Dauer-Hang bei „Saldo wird aktualisiert…")
+stage: LOG complete
 size: S
 slice-type: UI (Bug-Fix, Money-Pfad)
 spec: worklog/specs/372-buymodal-balance-stale-hang.md
+commit: 4a7c868f
 root-cause: useIsBalanceFresh = zeitbasiert (Date.now-dataUpdatedAt<30s); BuyModal-Open triggert keinen Wallet-Refetch (Query schon via TopBar gemountet, staleTime:0) → Balance >30s stale bleibt für immer stale → Button dauerhaft disabled + „Saldo wird aktualisiert…" lügt. „Tippen vs +/−" = Timing-Artefakt.
-fix-plan: useWallet exponiert refetch; BuyForm useEffect refetcht bei balanceStale (self-heal, kein Loop). Money-Logik byte-identisch (read-only refresh).
-scope: nur BuyModal.tsx ist Runtime-Consumer von useIsBalanceFresh (grep-verifiziert; Sell-Pfad nicht betroffen).
+fix: useWallet exponiert refetch; BuyForm useEffect refetcht bei balanceStale (self-heal, kein Loop). Money-Logik byte-identisch (read-only refresh).
+review: worklog/reviews/372-review.md (reviewer PASS, 2 LOW/INFO non-block)
+proof: worklog/proofs/372-buymodal-stale.txt + 372-before-stuck.png + 372-after-selfheal.png. Live bewiesen (bescout.net, Tiren): VORHER stuck 43s+, NACHHER self-heal ~3s; echter Buy reconciled (−10 CR, +1 Holding, Topf trading:35). tsc clean, 18 useWallet-Tests grün.
+knowledge: errors-frontend.md S372 — zeitbasiertes Freshness-Gate ohne Recovery-Trigger.
 
 --- 371 (vorheriger Slice, DONE) ---
 prev-slice: 371
