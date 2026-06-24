@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 362 | 2026-06-24 | fix(services): platformAdmin chunked/paginated Reads — player_count Live-Bug
+- Stage-Chain: SPEC (inline, S) → IMPACT (skipped, 1 Service-File, 2 Caller verifiziert) → BUILD → REVIEW (`worklog/reviews/362-review.md`, **PASS**, 2 NIT, NIT#1 adressiert) → PROVE → LOG.
+- **Kontext:** 361-Nebenbefund vertieft. `platformAdmin` hatte 5 HIGH `.in()` silent-fails. Beim Graben **echter Live-Bug** gefunden: `getAllClubs` las `.in('club_id', alle134Clubs)` ohne `.range()` über 4472 Spieler → PostgREST-1000-Cap → `player_count` für die meisten Clubs massiv falsch.
+- **Fix:** `getAllClubs` (followers+players) `.range()`-PAGE-Loop bis `rows<PAGE` + explizites throw (Caller `AdminClubsTab` hat try/catch). Mirror `club.ts:getClubsWithStats`. `getAllUsers` Input-Chunking `CHUNK=100` (limit caller-kontrolliert), graceful-degrade beibehalten (Caller `AdminUsersTab` ohne try/catch).
+- **Proof:** `worklog/proofs/362-platformadmin-chunked.txt` — Live-SQL `correct=4472 vs capped=1000`; silent-fail 82→77 HIGH (5 geklärt), Baseline re-anchored 170/77/93; tsc clean; 103 Tests grün.
+- **Bekanntes Edge (Reviewer #4, nicht gefixt):** holdings-Result-Cap innerhalb 100-User-Chunk — kein Live-Trigger (Caller limit=50).
+- Files: `src/lib/services/platformAdmin.ts`, `.audit-baseline.json`.
+- Commit: 1e3c9abc
+
 ## 361 | 2026-06-24 | fix(observability): AdminTreasuryTab Promise.allSettled → logSilentRejects
 - Stage-Chain: SPEC (inline, XS Ops-Hardening) → IMPACT (skipped, 1 File) → BUILD → REVIEW (self-review, Pattern-Wiederholung) → PROVE → LOG.
 - **Kontext:** 360-Crash-Recovery-Nebenbefund. silent-fail MEDIUM 94>93 (+1), Quelle Slice 357 (src/-Teil nie re-baselined). `AdminTreasuryTab.loadData` nutzte per-Branch `console.error` → keine Sentry-Observability.
