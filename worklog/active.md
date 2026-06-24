@@ -1,17 +1,26 @@
 # Active Slice
 
 ```
-status: idle
-slice: 368f
-title: ✅ DONE — DROP initial_listing_price (redundant seit D101) + Trigger-Sentinel-Rewrite (NOT EXISTS)
-stage: LOG complete
+status: in-progress
+slice: 369
+title: /api/push→500 Fail-Safe + VAPID-Secret-Heal (T-2)
+stage: BUILD
 size: S
-slice-type: Service + Type + Migration
-spec: inline — S305/324 Column-DROP-Pattern
-impact: nur players-Loader (PLAYER_SELECT_COLS). Phase 1 Code (e3f132dd, deployed) + Phase 2 Migration 20260624210000.
-proof: worklog/proofs/368f-drop-initial-listing-price.txt
-review: self-review (display-only, money byte-identisch, S305/324 Pattern)
-next: 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤. (368e Playwright ✅ PASS — Markteintritt==Dein Einstieg, 500/500 + 800/800 live; Console-Errors = transiente Fetch-Noise, nicht 368e.)
+slice-type: Service + Infra (Secret)
+spec: worklog/specs/369-api-push-vapid-failsafe.md
+impact: inline — nur Push-Pfad (pushSender/route/pushSubscription + neuer vapidKey.ts) + 2 Vercel-Prod-Secrets. Kein DB/Schema.
+root-cause: ensureVapid() ruft setVapidDetails OHNE try/catch; Prod-VAPID-Secrets korrupt (Quotes+Newline+Pair-Mismatch, live aus vercel env pull bewiesen) → Throw ungefangen → route catch returnt 500 (Sentry blind, weil withLogger nur bei Throw captured). Korrektes Paar = .env.local (web-push+ECDH ✓).
+decision: Anil 2026-06-24 — lokales Paar wiederherstellen, ich setze via vercel CLI.
+proof: worklog/proofs/369-push-vapid.txt (geplant)
+next: 370 E2E-Sweep ②–⑤, 368-Label-Rest
+
+--- 368f (vorheriger Slice, DONE) ---
+prev-slice: 368f
+prev-title: ✅ DONE — DROP initial_listing_price (redundant seit D101) + Trigger-Sentinel-Rewrite (NOT EXISTS)
+prev-stage: LOG complete
+prev-proof: worklog/proofs/368f-drop-initial-listing-price.txt
+prev-review: self-review (display-only, money byte-identisch, S305/324 Pattern)
+prev-next: 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤. (368e Playwright ✅ PASS — Markteintritt==Dein Einstieg, 500/500 + 800/800 live; Console-Errors = transiente Fetch-Noise, nicht 368e.)
 
 --- 368e (vorheriger Slice, DONE) ---
 prev-slice: 368e

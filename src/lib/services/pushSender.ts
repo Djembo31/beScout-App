@@ -2,10 +2,15 @@ import webpush from 'web-push';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
 import { resolveDeepLink } from '@/lib/notificationDeepLink';
+import { sanitizeVapidKey } from '@/lib/vapidKey';
+import { captureError } from '@/lib/observability/captureError';
 
 // Lazy-initialized to avoid build-time crashes when env vars aren't available
 let _supabaseAdmin: SupabaseClient | null = null;
 let _vapidInitialized = false;
+// Slice 369: once setVapidDetails has thrown on a malformed/mismatched key we stop
+// retrying (and stop re-capturing) — a bad secret won't change within a runtime.
+let _vapidFailed = false;
 
 function getSupabaseAdmin() {
   if (!_supabaseAdmin) {
@@ -19,10 +24,22 @@ function getSupabaseAdmin() {
 
 function ensureVapid() {
   if (_vapidInitialized) return true;
-  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
-  const priv = process.env.VAPID_PRIVATE_KEY || '';
+  if (_vapidFailed) return false;
+  const pub = sanitizeVapidKey(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
+  const priv = sanitizeVapidKey(process.env.VAPID_PRIVATE_KEY);
   if (!pub || !priv) return false;
-  webpush.setVapidDetails('mailto:info@bescout.com', pub, priv);
+  // Slice 369: setVapidDetails VALIDATES the keys and THROWS on a malformed key
+  // (wrong length / non-URL-safe-base64 / padding). A fire-and-forget push must
+  // NEVER let that throw bubble to /api/push and surface as a 500 on a money path.
+  // Degrade to "push skipped" (same as keys-not-configured) + capture once.
+  try {
+    webpush.setVapidDetails('mailto:info@bescout.com', pub, priv);
+  } catch (err) {
+    _vapidFailed = true;
+    console.error('[Push] Invalid VAPID keys — push disabled this runtime:', err);
+    captureError(err, { feature: 'push', route: 'pushSender.ensureVapid', slice: '369' });
+    return false;
+  }
   _vapidInitialized = true;
   return true;
 }

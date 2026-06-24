@@ -1,6 +1,10 @@
 import { supabase } from '@/lib/supabaseClient';
+import { sanitizeVapidKey } from '@/lib/vapidKey';
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+// Slice 369: sanitize defensively — a build-time value with surrounding quotes /
+// trailing newline (the prod corruption) would otherwise break urlBase64ToUint8Array
+// silently (atob throws → subscribe returns false with no user-visible reason).
+const VAPID_PUBLIC_KEY = sanitizeVapidKey(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
 
 /** Convert URL-safe base64 to Uint8Array (for applicationServerKey) */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {

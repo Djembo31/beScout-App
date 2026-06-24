@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { sendPushForNotification } from '@/lib/services/pushSender';
 import { withLogger } from '@/lib/observability/apiLogger';
+import { captureError } from '@/lib/observability/captureError';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -51,7 +52,11 @@ export const POST = withLogger('public.push', async (request) => {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    // Slice 369: the inner catch RETURNS 500 (does not throw), so withLogger's
+    // captureError never fired → push failures were invisible in Sentry despite
+    // being live. Capture here explicitly so the next occurrence has a stack trace.
     console.error('[API/Push] Request error:', err);
+    captureError(err, { route: 'public.push', feature: 'push' });
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 });

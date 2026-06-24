@@ -1,0 +1,50 @@
+SLICE 369 — /api/push 500 Fail-Safe + VAPID Secret Heal — PROOF
+================================================================
+Date: 2026-06-24
+
+== ROOT CAUSE (proven, not guessed) ==
+web-push setVapidDetails validates keys and THROWS on malformed input:
+  node_modules/web-push/src/vapid-helper.js:96-132
+    L111 throw 'Vapid public key should be 65 bytes long when decoded.'
+    L126 throw 'Vapid private key must be a URL safe Base 64 (without "=")'
+ensureVapid() (pushSender.ts) called it WITHOUT try/catch → throw bubbled:
+  ensureVapid → sendPushToUser → sendPushForNotification → route.ts catch → 500.
+route.ts catch RETURNS 500 (no throw) → withLogger.captureError (apiLogger.ts:95,
+throw-only) never fired → 0 Sentry push-issues despite live 500 (Sentry search "push" = none).
+
+== AC4: PROD SECRET — corrupted BEFORE, healed AFTER (vercel env pull --environment=production) ==
+BEFORE (live):
+  VAPID_PRIVATE_KEY          = "3_…A\n"   (literal quotes + trailing newline)
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY= "BO…6h0"  (quotes + DID NOT MATCH private key)
+  node setVapidDetails(prod-live) -> THROW: Vapid private key must be a URL safe Base 64 (without "=")
+  pair-check -> Private key is not valid for specified curve.
+
+Heal (Anil-decision 2026-06-24: restore .env.local pair, via vercel CLI):
+  PRECHECK (.env.local pair): setVapidDetails OK · pair-match: true · publen 87 privlen 43
+  vercel env rm NEXT_PUBLIC_VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY production --yes  -> Removed
+  printf '%s' <clean> | vercel env add ... production                            -> Added
+
+AFTER (live re-pull):
+  runtime pub len: 87 (want 87) junk: false · priv len: 43 (want 43) junk: false
+  setVapidDetails(prod-live) -> OK
+  PROD PAIR MATCH: true
+
+== AC1+AC2+AC3: CODE FAIL-SAFE (vitest) ==
+src/lib/vapidKey.ts                 (NEW pure helper sanitizeVapidKey)
+src/lib/services/pushSender.ts      (ensureVapid try/catch + sanitize + captureError once via _vapidFailed)
+src/app/api/push/route.ts           (captureError in catch — observability gap closed)
+src/lib/services/pushSubscription.ts(sanitize client public key)
+
+  npx tsc --noEmit -> clean
+  CI=true vitest run src/lib/__tests__/vapidKey.test.ts
+     src/lib/services/__tests__/pushSender-vapid-failsafe.test.ts
+   -> Test Files 2 passed | Tests 9 passed
+   AC1: sanitizeVapidKey 7 cases (clean/double-quote/single-quote/newline/CRLF/body-preserve/null)
+   AC2: sendPushToUser RESOLVES (no throw) when setVapidDetails throws; captureError called exactly once
+
+== REVIEW ==
+worklog/reviews/369-review.md — reviewer verdict PASS (2 nitpicks non-blocking,
++1 suggested mocked-throw test → ADDED as pushSender-vapid-failsafe.test.ts).
+
+== AC5: POST-DEPLOY (appended after deploy) ==
+[pending push+deploy → real buy network trace /api/push != 500]
